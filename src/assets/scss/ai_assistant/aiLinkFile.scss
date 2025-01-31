@@ -1,0 +1,143 @@
+.aiLinkFileParentContainer {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 30px;
+
+	.aiLinkFileHeaderContainer {
+		display: flex;
+		width: 100%;
+		justify-content: space-between;
+		align-items: center;
+		gap: 24px;
+
+		.aiLinkFileHeader {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 4px;
+
+			.lineone {
+				color: #fff;
+				color: color(display-p3 1 1 1);
+				font-family: Inter;
+				font-size: 16px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+
+			.linetwo {
+				color: #797e86;
+				color: color(display-p3 0.4784 0.4941 0.5216);
+				font-family: Inter;
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 400;
+				line-height: normal;
+			}
+		}
+
+		.addLinkFile {
+			border-radius: 100px;
+			border: 1px solid #333334;
+			border: 1px solid color(display-p3 0.2 0.2 0.2039);
+			display: flex;
+			padding: 12px 16px;
+			justify-content: center;
+			align-items: center;
+			gap: 16px;
+			color: #f2f2f3;
+			color: color(display-p3 0.949 0.949 0.9529);
+			font-family: Inter;
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+			cursor: pointer;
+		}
+	}
+
+	.aiLinkFileListContainer {
+		width: 100%;
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+
+		.header {
+			border-radius: 6px;
+			background: var(--Popup, #202123);
+			background: var(--Popup, color(display-p3 0.1255 0.1294 0.1373));
+			display: grid;
+			grid-template-columns: 1fr 100px;
+			padding: 12px;
+			align-items: center;
+			gap: 10px;
+			align-self: stretch;
+
+			span:last-child {
+				text-align: right;
+			}
+
+			overflow: hidden;
+			color: #f2f2f3;
+			color: color(display-p3 0.949 0.949 0.9529);
+			text-overflow: ellipsis;
+			font-family: Inter;
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+		}
+
+		.actionItem {
+			display: grid;
+			grid-template-columns: 1fr 100px;
+			padding: 12px;
+			align-items: center;
+			gap: 10px;
+			align-self: stretch;
+			border-radius: 6px;
+
+			span {
+				display: flex;
+				align-items: center;
+				gap: 8px;
+			}
+
+			span:last-child {
+				justify-self: end;
+				justify-content: flex-end;
+				width: 100%;
+			}
+
+			overflow: hidden;
+			color: #f2f2f3;
+			color: color(display-p3 0.949 0.949 0.9529);
+			text-overflow: ellipsis;
+			font-family: Inter;
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+
+			.template-remove {
+				background: transparent;
+				border: none;
+				color: #ff4d4f;
+				font-size: 14px;
+				cursor: pointer;
+				padding: 4px 8px;
+
+				&:disabled {
+					opacity: 0.5;
+					cursor: not-allowed;
+				}
+
+				&:hover:not(:disabled) {
+					opacity: 0.8;
+				}
+			}
+		}
+	}
+}

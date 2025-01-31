@@ -99,3 +99,11 @@ export const getViewersSessionDetailsQuery = gql`
 		}
 	}
 `;
+
+export const createSmartfileQuery = gql`
+	mutation CreateSmartFile($smartFileInput: SmartFileInput) {
+		createSmartFile(smartFileInput: $smartFileInput) {
+			_id
+		}
+	}
+`;

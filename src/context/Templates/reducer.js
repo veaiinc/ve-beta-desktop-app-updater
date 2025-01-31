@@ -4,6 +4,11 @@ const actionHandlers = {
 		...state,
 		[action?.selectedvariable]: action?.payload,
 	}),
+	GET_WORKFLOW_DETAILS_FOR_FILES_SUCCESS: (state, action) => ({
+		...state,
+		[action?.selectedvariable]: action?.payload,
+	}),
+
 	GET_ALL_CLIENT_LIST_SUCCESS: (state, action) => ({ ...state, clientList: action?.payload }),
 	GET_ALL_CLIENT_LIST_FOR_DOCS_SUCCESS: (state, action) => ({
 		...state,
@@ -52,6 +57,10 @@ const actionHandlers = {
 	GET_REQUIRED_ACTIONS_SUCCESS: (state, action) => ({
 		...state,
 		requiredActions: action?.payload,
+	}),
+	GET_REQUIRED_ACTIONS_FOR_TEMPLATE_SUCCESS: (state, action) => ({
+		...state,
+		requiredActionsForTemplate: action?.payload,
 	}),
 
 	GET_TAB_ITEM_COUNT_SUCCESS: (state, action) => ({
@@ -124,6 +133,15 @@ const actionHandlers = {
 		...state,
 		[action?.selectedvariable]: action.payload,
 	}),
+	GET_TEMPLATES_LIST_FOR_FORMS_SUCCESS: (state, action) => ({
+		...state,
+		[action?.selectedvariable]: action.payload,
+	}),
+	GET_FORM_RESPONSES_LIST_SUCCESS: (state, action) => ({
+		...state,
+		[action?.selectedvariable]: action.payload,
+	}),
+
 	RESET_STATE: () => intialState,
 };
 

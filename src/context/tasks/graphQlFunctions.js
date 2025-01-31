@@ -49,6 +49,66 @@ export const getListItemsQuery = gql`
 	}
 `;
 
+export const getListItemsByTenantUserQuery = gql`
+	query ListTasksByTenantUser($filters: ListTaskInput) {
+		listTasksByTenantUser(filters: $filters) {
+			hasNextPage
+			currentPage
+			totalDocs
+			data {
+				_id
+				taskSlNo
+				title
+				parentTask {
+					_id
+					title
+				}
+				childTasks {
+					_id
+					title
+					status
+				}
+				description
+				assignedTo {
+					_id
+					name
+				}
+				status
+				dueDate
+				priority
+				workflow {
+					_id
+					title
+				}
+				assignedBy {
+					_id
+					name
+				}
+				assignedAt
+				completedAt
+				createdAt
+				updatedAt
+				createdBy {
+					_id
+					name
+				}
+				updatedBy {
+					_id
+					name
+				}
+			}
+		}
+	}
+`;
+
+export const getTasksCountQuery = gql`
+	query ListTasksByTenantUser($filters: ListTaskInput) {
+		listTasksByTenantUser(filters: $filters) {
+			totalDocs
+		}
+	}
+`;
+
 export const addListItemMutation = gql`
 	mutation Mutation($input: TaskInput!) {
 		createTask(input: $input) {
