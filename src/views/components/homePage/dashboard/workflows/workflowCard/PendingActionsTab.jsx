@@ -78,7 +78,7 @@ const PendingActionsTab = ({ data }) => {
 							{[{}, {}, {}, {}].map((ele, index) => (
 								<Skeleton
 									height={'59px'}
-									width={'287px'}
+									width={'100%'}
 									style={{
 										borderRadius: '16px',
 									}}
