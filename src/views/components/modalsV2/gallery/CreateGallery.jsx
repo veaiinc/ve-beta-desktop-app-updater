@@ -118,7 +118,11 @@ const CreateGallery = ({
 	};
 
 	const handleSubmit = async () => {
-		if (validateExpiryData && validateExpiryData?.isExpired) {
+		if (
+			validateExpiryData &&
+			validateExpiryData?.restrictGalleries &&
+			validateExpiryData?.isExpired
+		) {
 			return updateSubscriptionState({ expiredSubscriptionModal: true });
 		}
 		if (galleryData?.isSubmitting) return;

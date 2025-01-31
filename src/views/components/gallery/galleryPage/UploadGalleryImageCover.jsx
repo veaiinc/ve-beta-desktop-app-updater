@@ -18,6 +18,7 @@ const UploadGalleryImageCover = ({
 	isLoading,
 	open,
 	onClose,
+	showUploadPhoto,
 }) => {
 	const [focusInfo, setFocusInfo] = useState({
 		focalPoint: { x: 0, y: 0 },
@@ -144,21 +145,23 @@ const UploadGalleryImageCover = ({
 					</div>
 				)}
 				<div className="upload-cover-photo">
-					<p
-						className="bt"
-						onClick={() => {
-							if (!info?.activeAlbumId) {
-								message.destroy();
-								message.error('Please create a album first');
-								return;
-							}
+					{!showUploadPhoto && (
+						<p
+							className="bt"
+							onClick={() => {
+								if (!info?.activeAlbumId) {
+									message.destroy();
+									message.error('Please create a album first');
+									return;
+								}
 
-							fileInputRef.current.click();
-						}}
-						style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
-					>
-						Upload cover photo
-					</p>
+								fileInputRef.current.click();
+							}}
+							style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+						>
+							Upload cover photo
+						</p>
+					)}
 
 					<input
 						ref={fileInputRef}
