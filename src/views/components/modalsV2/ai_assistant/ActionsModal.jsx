@@ -40,8 +40,8 @@ const ActionsModal = ({
 		headers: [
 			{
 				id: Date.now(),
-				parameter: 'Authorization',
-				value: 'Token',
+				parameter: '',
+				value: '',
 			},
 		],
 	});
@@ -432,12 +432,14 @@ const HeadersTab = ({ headers, onAddHeader, onHeaderChange, onHeaderDelete }) =>
 					<div className="headerInputs">
 						<input
 							type="text"
+							placeholder="Authorization"
 							className="headerInput"
 							value={header.parameter}
 							onChange={(e) => onHeaderChange(header.id, 'parameter', e.target.value)}
 						/>
 						<input
 							type="text"
+							placeholder="Token"
 							className="headerInput"
 							value={header.value}
 							onChange={(e) => onHeaderChange(header.id, 'value', e.target.value)}
@@ -456,5 +458,11 @@ const HeadersTab = ({ headers, onAddHeader, onHeaderChange, onHeaderDelete }) =>
 };
 
 const BodyTab = () => {
-	return <div className="bodyTabContainer">BodyTab</div>;
+	return (
+		<div className="bodyTabContainer">
+			<div>Content</div>
+			<textarea className="bodyInput"></textarea>
+			<div className="bodyInputHelperText">Type @ to insert an input or variable</div>
+		</div>
+	);
 };

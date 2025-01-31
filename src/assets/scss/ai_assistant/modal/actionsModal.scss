@@ -170,7 +170,7 @@
 			border-radius: 14px;
 			border: 1px solid #2c2d2e;
 			background: #202123;
-			max-height: 300px;
+			max-height: 250px;
 			overflow-y: auto;
 
 			.variableRow {
@@ -493,13 +493,15 @@
 	border: 1px solid #2c2d2e;
 	padding: 12px;
 	border-radius: 14px;
+	max-height: 250px;
+	overflow-y: auto;
 
 	.headerLabels {
 		display: flex;
 		align-items: center;
 		gap: 12px;
 		align-self: stretch;
-		padding: 0 12px;
+		padding: 0 6px;
 
 		div {
 			flex: 1;
@@ -600,15 +602,44 @@
 	}
 }
 
-// Update Tooltip styles
-// :where(.css-dev-only-do-not-override-xu9wm8).ant-tooltip {
-// 	.ant-tooltip-inner {
-// 		background: transparent;
-// 		box-shadow: none;
-// 		padding: 0;
-// 	}
+.bodyTabContainer {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: flex-start;
+	gap: 8px;
+	align-self: stretch;
+	color: #797e86;
+	color: color(display-p3 0.4784 0.4941 0.5216);
+	font-family: Inter;
+	font-size: 12px;
+	font-style: normal;
+	font-weight: 400;
+	line-height: normal;
 
-// 	.ant-tooltip-arrow {
-// 		display: none;
-// 	}
-// }
+	.bodyInput {
+		display: flex;
+		height: 100px;
+		padding: 12px 18px;
+		align-items: flex-start;
+		gap: 10px;
+		align-self: stretch;
+		border-radius: 12px;
+		border: 1px solid #2c2d2e;
+		background-color: transparent;
+		color: #f2f2f3;
+		font-family: Inter;
+		font-size: 14px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
+		resize: none;
+	}
+	.bodyInputHelperText {
+		display: flex;
+		justify-content: flex-end;
+		align-items: center;
+		gap: 6px;
+		width: 100%;
+	}
+}
