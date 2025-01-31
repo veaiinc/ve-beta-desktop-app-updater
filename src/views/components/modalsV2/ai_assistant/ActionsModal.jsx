@@ -37,6 +37,13 @@ const ActionsModal = ({
 		isApiUsesDropdownOpen: false,
 		variables: [],
 		openVariableTypeId: null,
+		headers: [
+			{
+				id: Date.now(),
+				parameter: 'Authorization',
+				value: 'Token',
+			},
+		],
 	});
 
 	const handleTabChange = (tab) => {
@@ -99,6 +106,27 @@ const ActionsModal = ({
 		updateInfo({ variables: updatedVariables });
 	};
 
+	const handleAddHeader = () => {
+		const newHeader = {
+			id: Date.now(),
+			parameter: '',
+			value: '',
+		};
+		updateInfo({ headers: [...info.headers, newHeader] });
+	};
+
+	const handleHeaderChange = (id, field, value) => {
+		const updatedHeaders = info.headers.map((header) =>
+			header.id === id ? { ...header, [field]: value } : header,
+		);
+		updateInfo({ headers: updatedHeaders });
+	};
+
+	const handleHeaderDelete = (id) => {
+		const updatedHeaders = info.headers.filter((header) => header.id !== id);
+		updateInfo({ headers: updatedHeaders });
+	};
+
 	const tabs = {
 		endpoint: {
 			label: 'Endpoint',
@@ -114,18 +142,21 @@ const ActionsModal = ({
 					onApiUsesChange={handleApiUsesChange}
 					onMethodDropdownVisibility={handleMethodDropdownVisibility}
 					onApiUsesDropdownVisibility={handleApiUsesDropdownVisibility}
-					variables={info.variables}
-					openVariableTypeId={info.openVariableTypeId}
-					onVariableTypeDropdownVisibility={handleVariableTypeDropdownVisibility}
-					onVariableTypeChange={handleVariableTypeChange}
-					onVariableNameChange={handleVariableNameChange}
-					onVariableDelete={handleVariableDelete}
-					onAddVariable={handleAddVariable}
 				/>
 			),
 		},
-		headers: { label: 'Headers', component: <MethodTab /> },
-		body: { label: 'Body', component: <ApiUsesTab /> },
+		headers: {
+			label: 'Headers',
+			component: (
+				<HeadersTab
+					headers={info.headers}
+					onAddHeader={handleAddHeader}
+					onHeaderChange={handleHeaderChange}
+					onHeaderDelete={handleHeaderDelete}
+				/>
+			),
+		},
+		body: { label: 'Body', component: <BodyTab /> },
 	};
 
 	return (
@@ -173,6 +204,102 @@ const ActionsModal = ({
 
 				{tabs?.[info?.activeTab]?.component}
 
+				<div className="addVariablesContainer">
+					<div className="header">
+						<h2>Get inputs from chat</h2>
+						<p>
+							List any info your AI Agent needs to find in the conversation for this
+							Action's API call.
+						</p>
+					</div>
+
+					<div className="variablesContent">
+						{info.variables.map((variable) => (
+							<div key={variable.id} className="variableRow">
+								<input
+									type="text"
+									className="variableInput"
+									placeholder="Input"
+									value={variable.name}
+									onChange={(e) =>
+										handleVariableNameChange(variable.id, e.target.value)
+									}
+								/>
+								<div className="variableType">
+									<Tooltip
+										open={info.openVariableTypeId === variable.id}
+										onOpenChange={(visible) =>
+											handleVariableTypeDropdownVisibility(
+												variable.id,
+												visible,
+											)
+										}
+										placement="bottomLeft"
+										title={
+											<div className="actions-dropdown">
+												{variableTypes.map((type) => (
+													<div
+														key={type}
+														className="actions-dropdown-item"
+														onClick={() =>
+															handleVariableTypeChange(
+																variable.id,
+																type,
+															)
+														}
+													>
+														{type}
+													</div>
+												))}
+											</div>
+										}
+										arrow={false}
+										trigger={'click'}
+										color={'transparent'}
+										overlayStyle={{
+											minWidth: 'fit-content',
+											padding: '0',
+										}}
+										overlayInnerStyle={{
+											padding: 0,
+											backgroundColor: 'transparent',
+										}}
+									>
+										<div className="method-dropdown">
+											{variable.type}
+											<DownSvg
+												className={`${
+													info.openVariableTypeId === variable.id
+														? 'open'
+														: ''
+												}`}
+											/>
+										</div>
+									</Tooltip>
+								</div>
+								<div
+									className="deleteVariable"
+									onClick={() => handleVariableDelete(variable.id)}
+								>
+									<TrashSvg className="trash" />
+								</div>
+							</div>
+						))}
+
+						{info.variables.length === 0 && (
+							<div className="emptyState">
+								<p>No inputs added</p>
+								<p>Add inputs to extract from chat</p>
+							</div>
+						)}
+
+						<div className="addVariableButton" onClick={handleAddVariable}>
+							<PlusSvg />
+							Add
+						</div>
+					</div>
+				</div>
+
 				<div className="actions-modal-footer">
 					<div>
 						{showDelete && (
@@ -214,13 +341,6 @@ const EndpointTab = ({
 	onApiUsesChange,
 	onMethodDropdownVisibility,
 	onApiUsesDropdownVisibility,
-	variables,
-	openVariableTypeId,
-	onVariableTypeDropdownVisibility,
-	onVariableTypeChange,
-	onVariableNameChange,
-	onVariableDelete,
-	onAddVariable,
 }) => {
 	return (
 		<div className="endpointTabContainer">
@@ -295,100 +415,46 @@ const EndpointTab = ({
 					</div>
 				</div>
 			</div>
+		</div>
+	);
+};
 
-			<div className="addVariablesContainer">
-				<div className="header">
-					<h2>Get inputs from chat</h2>
-					<p>
-						List any info your AI Agent needs to find in the conversation for this
-						Action's API call.
-					</p>
-				</div>
-
-				<div className="variablesContent">
-					{variables.map((variable) => (
-						<div key={variable.id} className="variableRow">
-							<input
-								type="text"
-								className="variableInput"
-								placeholder="Input"
-								value={variable.name}
-								onChange={(e) => onVariableNameChange(variable.id, e.target.value)}
-							/>
-							<div className="variableType">
-								<Tooltip
-									open={openVariableTypeId === variable.id}
-									onOpenChange={(visible) =>
-										onVariableTypeDropdownVisibility(variable.id, visible)
-									}
-									placement="bottomLeft"
-									title={
-										<div className="actions-dropdown">
-											{variableTypes.map((type) => (
-												<div
-													key={type}
-													className="actions-dropdown-item"
-													onClick={() =>
-														onVariableTypeChange(variable.id, type)
-													}
-												>
-													{type}
-												</div>
-											))}
-										</div>
-									}
-									arrow={false}
-									trigger={'click'}
-									color={'transparent'}
-									overlayStyle={{
-										minWidth: 'fit-content',
-										padding: '0',
-									}}
-									overlayInnerStyle={{
-										padding: 0,
-										backgroundColor: 'transparent',
-									}}
-								>
-									<div className="method-dropdown">
-										{variable.type}
-										<DownSvg
-											className={`${
-												openVariableTypeId === variable.id ? 'open' : ''
-											}`}
-										/>
-									</div>
-								</Tooltip>
-							</div>
-							<div
-								className="deleteVariable"
-								onClick={() => onVariableDelete(variable.id)}
-							>
-								<TrashSvg className="trash" />
-							</div>
-						</div>
-					))}
-
-					{variables.length === 0 && (
-						<div className="emptyState">
-							<p>No inputs added</p>
-							<p>Add inputs to extract from chat</p>
-						</div>
-					)}
-
-					<div className="addVariableButton" onClick={onAddVariable}>
-						<PlusSvg />
-						Add
+const HeadersTab = ({ headers, onAddHeader, onHeaderChange, onHeaderDelete }) => {
+	return (
+		<div className="headersTabContainer">
+			<div className="headerLabels">
+				<div>Parameter</div>
+				<div>Value</div>
+				<div /> {/* Spacer for delete button alignment */}
+			</div>
+			{headers.map((header) => (
+				<div key={header.id} className="headerRow">
+					<div className="headerInputs">
+						<input
+							type="text"
+							className="headerInput"
+							value={header.parameter}
+							onChange={(e) => onHeaderChange(header.id, 'parameter', e.target.value)}
+						/>
+						<input
+							type="text"
+							className="headerInput"
+							value={header.value}
+							onChange={(e) => onHeaderChange(header.id, 'value', e.target.value)}
+						/>
+					</div>
+					<div className="deleteHeader" onClick={() => onHeaderDelete(header.id)}>
+						<TrashSvg className="trash" />
 					</div>
 				</div>
+			))}
+			<div className="addHeaderButton" onClick={onAddHeader}>
+				+ Add
 			</div>
 		</div>
 	);
 };
 
-const MethodTab = () => {
-	return <div>MethodTab</div>;
-};
-
-const ApiUsesTab = () => {
-	return <div>ApiUsesTab</div>;
+const BodyTab = () => {
+	return <div className="bodyTabContainer">BodyTab</div>;
 };
