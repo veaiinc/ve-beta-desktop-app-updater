@@ -35,7 +35,28 @@ const ActionsModal = ({
 		url: '',
 		isMethodDropdownOpen: false,
 		isApiUsesDropdownOpen: false,
-		variables: [],
+		variables: [
+			{
+				id: 1,
+				name: 'userName',
+				type: 'Text',
+			},
+			{
+				id: 2,
+				name: 'userAge',
+				type: 'Number',
+			},
+			{
+				id: 3,
+				name: 'isActive',
+				type: 'Boolean',
+			},
+			{
+				id: 4,
+				name: 'userScore',
+				type: 'Float',
+			},
+		],
 		openVariableTypeId: null,
 		headers: [
 			{
@@ -44,6 +65,9 @@ const ActionsModal = ({
 				value: '',
 			},
 		],
+		bodyContent: '',
+		showVariableSuggestions: false,
+		cursorPosition: 0,
 	});
 
 	const handleTabChange = (tab) => {
@@ -79,8 +103,8 @@ const ActionsModal = ({
 	};
 
 	const handleVariableTypeChange = (id, type) => {
-		const updatedVariables = info.variables.map((variable) =>
-			variable.id === id ? { ...variable, type } : variable,
+		const updatedVariables = info?.variables?.map((variable) =>
+			variable?.id === id ? { ...variable, type } : variable,
 		);
 		updateInfo({ variables: updatedVariables, openVariableTypeId: null });
 	};
@@ -91,18 +115,18 @@ const ActionsModal = ({
 			name: '',
 			type: 'Text',
 		};
-		updateInfo({ variables: [...info.variables, newVariable] });
+		updateInfo({ variables: [...info?.variables, newVariable] });
 	};
 
 	const handleVariableNameChange = (id, name) => {
-		const updatedVariables = info.variables.map((variable) =>
-			variable.id === id ? { ...variable, name } : variable,
+		const updatedVariables = info?.variables?.map((variable) =>
+			variable?.id === id ? { ...variable, name } : variable,
 		);
 		updateInfo({ variables: updatedVariables });
 	};
 
 	const handleVariableDelete = (id) => {
-		const updatedVariables = info.variables.filter((variable) => variable.id !== id);
+		const updatedVariables = info?.variables?.filter((variable) => variable?.id !== id);
 		updateInfo({ variables: updatedVariables });
 	};
 
@@ -112,19 +136,51 @@ const ActionsModal = ({
 			parameter: '',
 			value: '',
 		};
-		updateInfo({ headers: [...info.headers, newHeader] });
+		updateInfo({ headers: [...info?.headers, newHeader] });
 	};
 
 	const handleHeaderChange = (id, field, value) => {
-		const updatedHeaders = info.headers.map((header) =>
-			header.id === id ? { ...header, [field]: value } : header,
+		const updatedHeaders = info?.headers?.map((header) =>
+			header?.id === id ? { ...header, [field]: value } : header,
 		);
 		updateInfo({ headers: updatedHeaders });
 	};
 
 	const handleHeaderDelete = (id) => {
-		const updatedHeaders = info.headers.filter((header) => header.id !== id);
+		const updatedHeaders = info?.headers?.filter((header) => header?.id !== id);
 		updateInfo({ headers: updatedHeaders });
+	};
+
+	const handleBodyContentChange = (e) => {
+		const content = e.target.value;
+		const position = e.target.selectionStart;
+
+		if (content[position - 1] === '@') {
+			updateInfo({
+				bodyContent: content,
+				showVariableSuggestions: true,
+				cursorPosition: position,
+			});
+		} else {
+			updateInfo({
+				bodyContent: content,
+				showVariableSuggestions: false,
+			});
+		}
+	};
+
+	const insertVariable = (variable) => {
+		const content = info.bodyContent;
+		const beforeCursor = content.slice(0, info.cursorPosition);
+		const afterCursor = content.slice(info.cursorPosition);
+
+		// Remove the @ symbol and add the variable name
+		const newContent = beforeCursor.slice(0, -1) + `{{${variable.name}}}` + afterCursor;
+
+		updateInfo({
+			bodyContent: newContent,
+			showVariableSuggestions: false,
+		});
 	};
 
 	const tabs = {
@@ -132,11 +188,11 @@ const ActionsModal = ({
 			label: 'Endpoint',
 			component: (
 				<EndpointTab
-					url={info.url}
-					method={info.method}
-					apiUses={info.apiUses}
-					isMethodDropdownOpen={info.isMethodDropdownOpen}
-					isApiUsesDropdownOpen={info.isApiUsesDropdownOpen}
+					url={info?.url}
+					method={info?.method}
+					apiUses={info?.apiUses}
+					isMethodDropdownOpen={info?.isMethodDropdownOpen}
+					isApiUsesDropdownOpen={info?.isApiUsesDropdownOpen}
 					onUrlChange={handleUrlChange}
 					onMethodChange={handleMethodChange}
 					onApiUsesChange={handleApiUsesChange}
@@ -149,14 +205,25 @@ const ActionsModal = ({
 			label: 'Headers',
 			component: (
 				<HeadersTab
-					headers={info.headers}
+					headers={info?.headers}
 					onAddHeader={handleAddHeader}
 					onHeaderChange={handleHeaderChange}
 					onHeaderDelete={handleHeaderDelete}
 				/>
 			),
 		},
-		body: { label: 'Body', component: <BodyTab /> },
+		body: {
+			label: 'Body',
+			component: (
+				<BodyTab
+					bodyContent={info.bodyContent}
+					onBodyContentChange={handleBodyContentChange}
+					showVariableSuggestions={info.showVariableSuggestions}
+					variables={info.variables}
+					onVariableSelect={insertVariable}
+				/>
+			),
+		},
 	};
 
 	return (
@@ -214,36 +281,36 @@ const ActionsModal = ({
 					</div>
 
 					<div className="variablesContent">
-						{info.variables.map((variable) => (
-							<div key={variable.id} className="variableRow">
+						{info?.variables?.map((variable) => (
+							<div key={variable?.id} className="variableRow">
 								<input
 									type="text"
 									className="variableInput"
 									placeholder="Input"
-									value={variable.name}
+									value={variable?.name}
 									onChange={(e) =>
 										handleVariableNameChange(variable.id, e.target.value)
 									}
 								/>
 								<div className="variableType">
 									<Tooltip
-										open={info.openVariableTypeId === variable.id}
+										open={info?.openVariableTypeId === variable?.id}
 										onOpenChange={(visible) =>
 											handleVariableTypeDropdownVisibility(
-												variable.id,
+												variable?.id,
 												visible,
 											)
 										}
 										placement="bottomLeft"
 										title={
 											<div className="actions-dropdown">
-												{variableTypes.map((type) => (
+												{variableTypes?.map((type) => (
 													<div
 														key={type}
 														className="actions-dropdown-item"
 														onClick={() =>
 															handleVariableTypeChange(
-																variable.id,
+																variable?.id,
 																type,
 															)
 														}
@@ -266,7 +333,7 @@ const ActionsModal = ({
 										}}
 									>
 										<div className="method-dropdown">
-											{variable.type}
+											{variable?.type}
 											<DownSvg
 												className={`${
 													info.openVariableTypeId === variable.id
@@ -279,14 +346,14 @@ const ActionsModal = ({
 								</div>
 								<div
 									className="deleteVariable"
-									onClick={() => handleVariableDelete(variable.id)}
+									onClick={() => handleVariableDelete(variable?.id)}
 								>
 									<TrashSvg className="trash" />
 								</div>
 							</div>
 						))}
 
-						{info.variables.length === 0 && (
+						{info?.variables?.length === 0 && (
 							<div className="emptyState">
 								<p>No inputs added</p>
 								<p>Add inputs to extract from chat</p>
@@ -427,25 +494,27 @@ const HeadersTab = ({ headers, onAddHeader, onHeaderChange, onHeaderDelete }) =>
 				<div>Value</div>
 				<div /> {/* Spacer for delete button alignment */}
 			</div>
-			{headers.map((header) => (
-				<div key={header.id} className="headerRow">
+			{headers?.map((header) => (
+				<div key={header?.id} className="headerRow">
 					<div className="headerInputs">
 						<input
 							type="text"
 							placeholder="Authorization"
 							className="headerInput"
-							value={header.parameter}
-							onChange={(e) => onHeaderChange(header.id, 'parameter', e.target.value)}
+							value={header?.parameter}
+							onChange={(e) =>
+								onHeaderChange(header?.id, 'parameter', e.target.value)
+							}
 						/>
 						<input
 							type="text"
 							placeholder="Token"
 							className="headerInput"
-							value={header.value}
-							onChange={(e) => onHeaderChange(header.id, 'value', e.target.value)}
+							value={header?.value}
+							onChange={(e) => onHeaderChange(header?.id, 'value', e.target.value)}
 						/>
 					</div>
-					<div className="deleteHeader" onClick={() => onHeaderDelete(header.id)}>
+					<div className="deleteHeader" onClick={() => onHeaderDelete(header?.id)}>
 						<TrashSvg className="trash" />
 					</div>
 				</div>
@@ -457,12 +526,37 @@ const HeadersTab = ({ headers, onAddHeader, onHeaderChange, onHeaderDelete }) =>
 	);
 };
 
-const BodyTab = () => {
+const BodyTab = ({
+	bodyContent,
+	onBodyContentChange,
+	showVariableSuggestions,
+	variables,
+	onVariableSelect,
+}) => {
 	return (
 		<div className="bodyTabContainer">
 			<div>Content</div>
-			<textarea className="bodyInput"></textarea>
+			<textarea
+				className="bodyInput"
+				value={bodyContent}
+				onChange={onBodyContentChange}
+				placeholder="Enter request body content..."
+			></textarea>
 			<div className="bodyInputHelperText">Type @ to insert an input or variable</div>
+
+			{showVariableSuggestions && variables?.length > 0 && (
+				<div className="variableSuggestions">
+					{variables?.map((variable) => (
+						<div
+							key={variable?.id}
+							className="variableSuggestion"
+							onClick={() => onVariableSelect(variable)}
+						>
+							{variable?.name}
+						</div>
+					))}
+				</div>
+			)}
 		</div>
 	);
 };
