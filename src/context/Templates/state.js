@@ -53,6 +53,7 @@ export const intialState = {
 	clientList: null,
 	clientListForDocs: null,
 	templatesListForDocs: null,
+
 	allEmailTemplates: null,
 	myWorkflows: null,
 	myMoreWorkflows: null,
@@ -80,11 +81,14 @@ export const intialState = {
 	globalChatMessages: [{ type: 'AI', message: 'Hello, how can I help you today?' }],
 	docsFilesList: null,
 	moreDocsFilesList: null,
+	smartFileRefetch: false,
+	activeWorkflowSlugForSmartFile: null,
 	slackChannels: null,
 	formsTemplatesList: null,
 	moreFormsTemplatesList: null,
 	formResponsesList: null,
 	moreFormResponsesList: null,
+	activePromptForChat: null,
 	smartFileRefetch: false,
 	activeWorkflowSlugForSmartFile: null,
 };
@@ -1643,6 +1647,7 @@ export const TemplatesState = (props) => {
 			console.log('error==>getAllSlackChannels', error);
 		}
 	};
+
 	return {
 		...state,
 		getMyWorkflows,

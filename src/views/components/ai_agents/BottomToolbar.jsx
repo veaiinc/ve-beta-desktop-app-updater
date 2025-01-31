@@ -47,6 +47,7 @@ const BottomToolbar = ({
 			deleteUploadedImageThroughChat,
 			activeWorkflowSlugForSmartFile,
 			updateApplicationChat,
+			activePromptForChat,
 		},
 		calendarInfo: { updateCalendarState },
 		tasks: { updateTaskState },
@@ -64,6 +65,7 @@ const BottomToolbar = ({
 		chatSessionId: ObjectID().toString(),
 		uploadedImages: [],
 		chatLoading: false,
+		showFullPage: false,
 	});
 	const [previewOpen, setPreviewOpen] = useState(false);
 	const [previewImage, setPreviewImage] = useState('');
@@ -88,6 +90,22 @@ const BottomToolbar = ({
 			chatContentRef.current.scrollTop = chatContentRef.current.scrollHeight;
 		}
 	}, [chatList]); // Scroll whenever chatList changes
+
+	useEffect(() => {
+		if (activePromptForChat) {
+			setInfo((prev) => ({
+				...prev,
+				// chatQuery: activePromptForChat,
+				chatModalIsOpen: true,
+				showFullPage: true,
+			}));
+			handleSendMessageFunc(null, true, activePromptForChat);
+			updateStateValues({ activePromptForChat: null });
+		}
+	}, [activePromptForChat]);
+	const toggleFullPage = useCallback(() => {
+		setInfo((prev) => ({ ...prev, showFullPage: !prev.showFullPage }));
+	}, [info]);
 
 	const handleMouseDown = useCallback(
 		(e) => {
@@ -145,7 +163,7 @@ const BottomToolbar = ({
 	}, []);
 
 	const handleCloseChatModal = useCallback(() => {
-		setInfo((prev) => ({ ...prev, chatModalIsOpen: false }));
+		setInfo((prev) => ({ ...prev, chatModalIsOpen: false, showFullPage: false }));
 	}, [info]);
 
 	const handlePreview = async (file) => {
@@ -157,14 +175,14 @@ const BottomToolbar = ({
 	};
 
 	const handleSendMessageFunc = useCallback(
-		async (e) => {
-			if (e.key === 'Enter') {
+		async (e, click = null, query = null) => {
+			if (e?.key === 'Enter' || click) {
 				// If Shift+Enter, allow new line
-				if (e.shiftKey) {
+				if (e?.shiftKey) {
 					return;
 				}
 				// Prevent default to avoid unwanted new line
-				e.preventDefault();
+				e?.preventDefault();
 
 				if (
 					(aiChatLoading || info?.chatLoading) &&
@@ -177,13 +195,17 @@ const BottomToolbar = ({
 					return message.error('Please wait for the images to upload');
 				}
 
-				if (info?.chatQuery?.trim().length || info?.uploadedImages?.length) {
+				if (
+					info?.chatQuery?.trim().length ||
+					info?.uploadedImages?.length ||
+					query?.trim()?.length
+				) {
 					if (customChatActions) {
 						onSend(info?.chatQuery);
 					} else {
 						setInfo((prev) => ({ ...prev, chatLoading: true }));
 						const payload = {
-							query: info?.chatQuery,
+							query: info?.chatQuery?.trim() || query?.trim(),
 							timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
 						};
 						let localPayload = {};
@@ -556,6 +578,8 @@ const BottomToolbar = ({
 				onChange={(e) => setInfo((prev) => ({ ...prev, chatQuery: e.target.value }))}
 				onKeyDown={handleSendMessageFunc}
 				aiChatLoading={aiChatLoading}
+				showFullPage={info?.showFullPage}
+				toggleFullPage={toggleFullPage}
 			/>
 			{previewImage && (
 				<Image

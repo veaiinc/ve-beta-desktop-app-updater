@@ -239,6 +239,7 @@ export const getWorkflowListQuery = gql`
 					email
 					name
 				}
+				status
 				slug
 				modules
 				formResponse
@@ -311,9 +312,7 @@ export const changeWorkflowStatusQuery = gql`
 
 export const getSignedUrlForContractsQuery = gql`
 	mutation UploadContractSignedUrl($uploadContractSignedUrlId: ID!) {
-		uploadContractSignedUrl(id: $uploadContractSignedUrlId) {
-			signedUrl
-		}
+		uploadContractSignedUrl(id: $uploadContractSignedUrlId)
 	}
 `;
 
