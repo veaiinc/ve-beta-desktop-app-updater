@@ -1,4 +1,4 @@
-import React, { useState, useEffect, memo, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, memo, useMemo, useCallback, useContext } from 'react';
 import '../../../assets/scss/home_page/homepage.scss';
 import NavBar from '../../components/homePage/navBar';
 import HeaderInfo from '../../components/homePage/HeaderInfo';
@@ -9,6 +9,7 @@ import { PromptData } from '../../components/homePage/PromptData';
 import { Tooltip } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import CreateLeadModal from '../../components/modalsV2/proposalModals/CreateLeadModal';
+import Context from '../../../context/context';
 
 const topNavOptions = [
 	{ id: 0, title: 'Start', value: 'start' },
@@ -57,6 +58,10 @@ const dropdownOptions = [
 const thresholdTopOffset = 150;
 
 const HomePage = () => {
+	let {
+		templates: { toggleCreateLeadModal, createLeadModalContextState },
+	} = useContext(Context);
+
 	const [info, setInfo] = useState({
 		activeTab: 'start',
 		showPromptPopup: false,
@@ -89,7 +94,7 @@ const HomePage = () => {
 		} else if (type === 'document') {
 			navigate('/docs');
 		} else if (type === 'client') {
-			openCreateLeadModal();
+			toggleCreateLeadModal({ createLeadModalContextState: true });
 		} else if (type === 'task') {
 			navigate('/tasks');
 		}
@@ -248,10 +253,6 @@ const HomePage = () => {
 				open={info?.showPromptPopup}
 				closeModal={() => setInfo({ ...info, showPromptPopup: false })}
 				selectedCard={info?.selectedCard}
-			/>
-			<CreateLeadModal
-				modalIsOpen={info?.openCreateLeadModal}
-				closeModal={closeCreateLeadModal}
 			/>
 		</div>
 	);
