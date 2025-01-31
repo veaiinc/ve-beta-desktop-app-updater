@@ -1,9 +1,10 @@
-import React, { memo, useCallback, useEffect, useState } from 'react';
+import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import '../../../assets/scss/ai_assistant/AiPersonality.scss';
 import { ReactComponent as PlayIcon } from '../../../assets/svg/ai_assistant/play.svg';
 import { ReactComponent as DownSvg } from '../../../assets/svg/activity/down.svg';
 import { ReactComponent as AgentIcon } from '../../../assets/svg/ai_assistant/agent.svg';
 import { ReactComponent as UploadIcon } from '../../../assets/svg/ai_assistant/upload.svg';
+import { ReactComponent as PencilWithLine } from '../../../assets/svg/tasks/pencilWithLine.svg';
 import { ReactComponent as Plus } from '../../../assets/svg/ai_assistant/plus.svg';
 import CustomInput from '../globalComponents/CustomInput';
 import { Tooltip } from 'antd';
@@ -90,16 +91,18 @@ const AiPersonality = ({ assistant, updateAssistantData }) => {
 		messagePlaceholder: assistant?.messagePlaceholder,
 		initialMessageError: '',
 		messagePlaceholderError: '',
+		assitant_profile_picture_s3Key:
+			assistant?.assitant_profile_picture_s3Key ||
+			'https://gratisography.com/wp-content/uploads/2024/11/gratisography-augmented-reality-800x525.jpg',
+		assitant_chat_icon_s3Key: assistant?.assitant_chat_icon_s3Key,
+		assistantUpdatedProfilePicture: null,
+		assistantUpdatedChatIcon: null,
 	});
 
-	const options = ['Kierra', 'Alex', 'Sam', 'Jordan'];
+	const profilePictureRef = useRef(null);
+	const chatIconRef = useRef(null);
 
-	const updateAiPersonalityInfo = useCallback((key, value) => {
-		setInfo((prevInfo) => ({
-			...prevInfo,
-			[key]: value,
-		}));
-	}, []);
+	const options = ['Kierra', 'Alex', 'Sam', 'Jordan'];
 
 	useEffect(() => {
 		setInfo((prev) => ({
@@ -112,12 +115,22 @@ const AiPersonality = ({ assistant, updateAssistantData }) => {
 		}));
 	}, [assistant]);
 
+	const updateAiPersonalityInfo = useCallback((key, value) => {
+		setInfo((prevInfo) => ({
+			...prevInfo,
+			[key]: value,
+		}));
+	}, []);
+
 	const handleAssistantNameChange = useCallback(
 		(name) => {
 			updateAssistantData('name', name);
 		},
 		[updateAssistantData],
 	);
+	useEffect(() => {
+		console.log(info?.assistantUpdatedProfilePicture);
+	}, [info?.assistantUpdatedProfilePicture]);
 
 	const handleMoreVisibility = useCallback((visible) => {
 		setInfo((prev) => ({ ...prev, isSelectVoiceOpen: visible }));
@@ -162,6 +175,39 @@ const AiPersonality = ({ assistant, updateAssistantData }) => {
 			...prev,
 			[type]: value,
 		}));
+	}, []);
+
+	const handleImageSelectBtnClick = useCallback((type) => {
+		if (type === 'profile') {
+			profilePictureRef?.current?.click();
+		}
+		if (type === 'chatIcon') {
+			chatIconRef?.current?.click();
+		}
+	}, []);
+
+	const handleImageChange = useCallback((file, type) => {
+		if (type === 'profile') {
+			updateAiPersonalityInfo('assistantUpdatedProfilePicture', file);
+		}
+		if (type === 'chatIcon') {
+			updateAiPersonalityInfo('assistantUpdatedChatIcon', file);
+		}
+	}, []);
+
+	const handleCancelImage = useCallback((type) => {
+		if (type === 'profile') {
+			updateAiPersonalityInfo('assistantUpdatedProfilePicture', null);
+			if (profilePictureRef.current) {
+				profilePictureRef.current.value = '';
+			}
+		}
+		if (type === 'chatIcon') {
+			updateAiPersonalityInfo('assistantUpdatedChatIcon', null);
+			if (chatIconRef.current) {
+				chatIconRef.current.value = '';
+			}
+		}
 	}, []);
 
 	return (
@@ -296,14 +342,59 @@ const AiPersonality = ({ assistant, updateAssistantData }) => {
 				</div>
 
 				<div className="aiProfileWrapper">
-					<AgentIcon width={70} height={70} />
+					<div className="profilePictureWrapper">
+						<button
+							className="imageSelectButton"
+							onClick={() => handleImageSelectBtnClick('profile')}
+						>
+							<PencilWithLine />
+						</button>
+						{info?.assistantUpdatedProfilePicture ||
+						info?.assitant_profile_picture_s3Key ? (
+							<img
+								src={
+									info?.assistantUpdatedProfilePicture
+										? URL.createObjectURL(info?.assistantUpdatedProfilePicture)
+										: info?.assitant_profile_picture_s3Key
+								}
+								alt="profile"
+							/>
+						) : null}
+						<input
+							type="file"
+							ref={profilePictureRef}
+							style={{ display: 'none' }}
+							accept=".png, .svg, .jpg, .jpeg"
+							onChange={(e) => handleImageChange(e?.target?.files[0], 'profile')}
+						/>
+					</div>
+					{/* <AgentIcon width={70} height={70} /> */}
 					<div className="uploadContainer">
 						<div className="uploadIcons">
-							<span className="uploadBtn">
-								<UploadIcon />
-								Upload
-							</span>
-							<span className="removeBtn">remove</span>
+							{info?.assistantUpdatedProfilePicture ? (
+								<button className="uploadBtn">
+									<UploadIcon />
+									Upload
+								</button>
+							) : (
+								<button
+									className="uploadBtn"
+									onClick={() => handleImageSelectBtnClick('profile')}
+								>
+									<PencilWithLine />
+									Edit
+								</button>
+							)}
+							{info?.assistantUpdatedProfilePicture ? (
+								<button
+									className="removeBtn"
+									onClick={() => handleCancelImage('profile')}
+								>
+									Cancel
+								</button>
+							) : (
+								<button className="removeBtn">Remove</button>
+							)}
 						</div>
 						<span className="uploadLabel">
 							Supports JPG, PNG, and SVG files up to 1MB
@@ -320,17 +411,56 @@ const AiPersonality = ({ assistant, updateAssistantData }) => {
 
 				<div className="aiChatIconWrapper">
 					<div className="chatIconWrapper">
-						{assistant?.chatIcon ? (
-							<img src={assistant?.chatIcon} alt="chatIcon" />
+						<button
+							className="imageSelectButton"
+							onClick={() => handleImageSelectBtnClick('chatIcon')}
+						>
+							<PencilWithLine />
+						</button>
+						{info?.assistantUpdatedChatIcon || info?.assitant_chat_icon_s3Key ? (
+							<img
+								src={
+									info?.assistantUpdatedChatIcon
+										? URL.createObjectURL(info?.assistantUpdatedChatIcon)
+										: info?.assitant_chat_icon_s3Key
+								}
+								alt="profile"
+							/>
 						) : null}
+						<input
+							type="file"
+							ref={chatIconRef}
+							style={{ display: 'none' }}
+							accept=".png, .svg, .jpg, .jpeg"
+							onChange={(e) => handleImageChange(e?.target?.files[0], 'chatIcon')}
+						/>
 					</div>
 					<div className="uploadContainer">
 						<div className="uploadIcons">
-							<span className="uploadBtn">
-								<UploadIcon />
-								Upload
-							</span>
-							<span className="removeBtn">remove</span>
+							{info?.assistantUpdatedChatIcon ? (
+								<button className="uploadBtn">
+									<UploadIcon />
+									Upload
+								</button>
+							) : (
+								<button
+									className="uploadBtn"
+									onClick={() => handleImageSelectBtnClick('chatIcon')}
+								>
+									<PencilWithLine />
+									Edit
+								</button>
+							)}
+							{info?.assistantUpdatedChatIcon ? (
+								<button
+									className="removeBtn"
+									onClick={() => handleCancelImage('chatIcon')}
+								>
+									Cancel
+								</button>
+							) : (
+								<button className="removeBtn">Remove</button>
+							)}
 						</div>
 						<span className="uploadLabel">
 							Supports JPG, PNG, and SVG files up to 1MB
