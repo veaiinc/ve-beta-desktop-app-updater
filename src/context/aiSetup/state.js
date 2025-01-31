@@ -11,6 +11,7 @@ import service from '../../services';
 import gqlService from '../../services/graphQlServices';
 import { generatePDFsBatchId } from '../../helpers';
 import { getTemmplatesQuery } from '../Templates/graphQlFunctions';
+import axios from 'axios';
 
 export const initialState = {
 	knowledgeBaseFiles: {
@@ -594,6 +595,43 @@ export const AiSetupState = () => {
 		}
 	};
 
+	const uploadFile = async (assistantId, data, type) => {
+		let workspaceId = localStorage.getItem('workspaceId');
+		let usertoken = localStorage.getItem('usertoken');
+		const url = '/' + workspaceId + '/ai-assistants/' + assistantId + '/upload-file';
+		try {
+			const response = await service?.fetchPost(url, { type }, usertoken, 'ai_assistant_api');
+			if (response?.[0]) {
+				const signedUrl = response?.[1]?.signedUrl;
+				const uploadResponse = await axios.put(signedUrl, data, {
+					headers: {
+						'Content-Type': data?.type,
+					},
+				});
+				if (uploadResponse.status === 200) {
+					return {
+						ok: true,
+						message: 'File uploaded successfully',
+					};
+				}
+			}
+		} catch (error) {
+			console.log('error==>uploadFile', error);
+		}
+	};
+
+	const removeFile = async (assistantId, type) => {
+		let workspaceId = localStorage.getItem('workspaceId');
+		let usertoken = localStorage.getItem('usertoken');
+		const url = '/' + workspaceId + '/ai-assistants/' + assistantId + '/delete-file/' + type;
+		try {
+			const response = await service?.fetchDelete(url, usertoken, {}, 'ai_assistant_api');
+			return response;
+		} catch (error) {
+			console.log('error==>removeFile', error);
+		}
+	};
+
 	const resetAiSetupState = () => {
 		dispatch({ type: Actions?.RESET_STATE });
 	};
@@ -618,10 +656,12 @@ export const AiSetupState = () => {
 		getInstructions,
 		createInstruction,
 		updateInstruction,
+		uploadFile,
 		getAiPrompt,
 		editAiPrompt,
 		selectAiPrompt,
 		getDefaultAiPrompt,
 		resetAiPrompt,
+		removeFile,
 	};
 };
