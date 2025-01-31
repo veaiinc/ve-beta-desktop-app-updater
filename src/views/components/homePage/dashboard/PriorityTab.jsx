@@ -5,6 +5,8 @@ import { useNavigate } from 'react-router-dom';
 import Context from '../../../../context/context';
 import FilterCheckBox from '../../sales/FilterCheckBox';
 import moment from 'moment';
+import InfiniteScroll from 'react-infinite-scroll-component';
+import { FetchMoreLoaderComp } from '../../../../helpers';
 
 const tabItems = [
 	{ id: 'all', label: 'All', checkBoxBorder: null },
@@ -20,75 +22,99 @@ const PriorityTab = () => {
 	const [activeTab, setActiveTab] = useState('all');
 	const scrollRef = useRef(null);
 	const debouncedTimerRef = useRef(null);
+	const [info, setInfo] = useState({
+		currentPage: 1,
+	});
 	const navigate = useNavigate();
 	useEffect(() => {
 		fetchSalesInfo();
 	}, []);
 
-	useEffect(() => {
-		scrollRef?.current?.addEventListener('scroll', debouncedHandleScroll);
-		return () => {
-			scrollRef?.current?.removeEventListener('scroll', debouncedHandleScroll);
-			if (debouncedTimerRef.current) {
-				clearTimeout(debouncedTimerRef.current);
-			}
-		};
-	}, [requiredActions]);
+	// useEffect(() => {
+	// 	scrollRef?.current?.addEventListener('scroll', debouncedHandleScroll);
+	// 	return () => {
+	// 		scrollRef?.current?.removeEventListener('scroll', debouncedHandleScroll);
+	// 		if (debouncedTimerRef.current) {
+	// 			clearTimeout(debouncedTimerRef.current);
+	// 		}
+	// 	};
+	// }, [requiredActions]);
 
-	const handleScroll = useCallback(() => {
-		if (scrollRef.current) {
-			const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
-			if (scrollLeft + clientWidth >= scrollWidth - 20) {
-				if (requiredActions?.hasMore) {
-					getRequiredActions({
-						filters: {
-							action: activeTab,
-							page: Math.ceil(requiredActions?.actions?.length / 10) + 1,
-							limit: 10,
-						},
-						resetRequiredActions: false,
-					});
-				}
-			}
-		}
-	}, [requiredActions, getRequiredActions]);
+	// const handleScroll = useCallback(() => {
+	// 	if (scrollRef.current) {
+	// 		const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
+	// 		if (scrollLeft + clientWidth >= scrollWidth - 20) {
+	// 			if (requiredActions?.hasMore) {
+	// 				getRequiredActions({
+	// 					filters: {
+	// 						action: activeTab,
+	// 						page: Math.ceil(requiredActions?.actions?.length / 10) + 1,
+	// 						limit: 10,
+	// 					},
+	// 					resetRequiredActions: false,
+	// 				});
+	// 			}
+	// 		}
+	// 	}
+	// }, [requiredActions, getRequiredActions]);
 
-	const debouncedHandleScroll = () => {
-		if (debouncedTimerRef.current) {
-			clearTimeout(debouncedTimerRef.current);
-		}
-		debouncedTimerRef.current = setTimeout(() => {
-			handleScroll();
-		}, 300);
-	};
+	// const debouncedHandleScroll = () => {
+	// 	if (debouncedTimerRef.current) {
+	// 		clearTimeout(debouncedTimerRef.current);
+	// 	}
+	// 	debouncedTimerRef.current = setTimeout(() => {
+	// 		handleScroll();
+	// 	}, 300);
+	// };
 
-	const fetchSalesInfo = useCallback(() => {
+	const fetchSalesInfo = () => {
 		getRequiredActions({
 			filters: {
 				action: 'all',
-				page: 1,
+				page: info?.currentPage,
 				limit: 10,
 			},
 			resetRequiredActions: true,
 		});
 		getTabItemCount();
-	}, [getRequiredActions, getTabItemCount]);
+	};
 
-	const handleTabClick = useCallback(
-		(tabId) => {
-			if (tabId === activeTab) return;
-			setActiveTab(tabId);
-			getRequiredActions({
+	const fetchMoreData = async () => {
+		if (requiredActions?.hasMore) {
+			const nextPage = info?.currentPage + 1;
+			await getRequiredActions({
 				filters: {
-					action: tabId,
-					page: 1,
+					action: activeTab,
+					page: nextPage,
 					limit: 10,
 				},
-				resetRequiredActions: true,
+				resetRequiredActions: false,
 			});
-		},
-		[requiredActions, getRequiredActions],
-	);
+			setInfo((prev) => ({
+				...prev,
+				currentPage: nextPage,
+			}));
+		}
+	};
+
+	console.log(requiredActions);
+
+	const handleTabClick = (tabId) => {
+		if (tabId === activeTab) return;
+		setActiveTab(tabId);
+		getRequiredActions({
+			filters: {
+				action: tabId,
+				page: 1,
+				limit: 10,
+			},
+			resetRequiredActions: true,
+		});
+		setInfo((prev) => ({
+			...prev,
+			currentPage: 1,
+		}));
+	};
 
 	const handleActionNavigation = (templateId, workflowId) => {
 		navigate(`/smart-file/${templateId}/${workflowId}`);
@@ -122,52 +148,66 @@ const PriorityTab = () => {
 				</ul>
 			</div>
 			<div className="cards-container">
-				<div ref={scrollRef} className="card-div">
+				<div className="card-div">
 					{requiredActions?.loading ? (
 						<RequiredActionsLoader />
 					) : (
-						requiredActions?.actions?.map((actionItem, index) => (
-							<div
-								className="requiredSalesPendingCard"
-								key={index}
-								onClick={() =>
-									handleActionNavigation(actionItem?.templateId, actionItem?._id)
-								}
-							>
-								<div className="agentsWorkflowJobCards">
-									<div className="agentsWorkflowJobCardsContent">
-										<span className="agentsWorkflowJobCardsTitle">
-											{actionItem?.clientName}
-										</span>
-										<span className="agentsWorkflowJobCardsSubTitle">
-											{actionItem?.title}
+						<InfiniteScroll
+							dataLength={requiredActions?.actions?.length || 0}
+							hasMore={requiredActions?.hasMore}
+							next={fetchMoreData}
+							// height={300}
+							loader={<FetchMoreLoaderComp />}
+							style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}
+						>
+							{/* <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}> */}
+							{requiredActions?.actions?.map((actionItem, index) => (
+								<div
+									className="requiredSalesPendingCard"
+									key={index}
+									onClick={() =>
+										handleActionNavigation(
+											actionItem?.templateId,
+											actionItem?._id,
+										)
+									}
+								>
+									<div className="agentsWorkflowJobCards">
+										<div className="agentsWorkflowJobCardsContent">
+											<span className="agentsWorkflowJobCardsTitle">
+												{actionItem?.clientName}
+											</span>
+											<span className="agentsWorkflowJobCardsSubTitle">
+												{actionItem?.title}
+											</span>
+										</div>
+										<span
+											className="agentsTabType"
+											style={{
+												display: 'flex',
+												justifyContent: 'space-between',
+												alignSelf: 'stretch',
+											}}
+										>
+											{actionItem?.status === 'enquiry' &&
+											actionItem?.action === 'sendProposal'
+												? 'Enquiry'
+												: actionItem?.approvalRequired &&
+												  actionItem?.action !== 'counterSign'
+												? 'Email Approval'
+												: actionItem?.action === 'counterSign'
+												? 'Counter Sign'
+												: 'Expiry In 3 Days'}
+
+											<span className="agentsWorkflowJobCardsSubTitle">
+												{moment.unix(actionItem?.createdAt).fromNow()}
+											</span>
 										</span>
 									</div>
-									<span
-										className="agentsTabType"
-										style={{
-											display: 'flex',
-											justifyContent: 'space-between',
-											alignSelf: 'stretch',
-										}}
-									>
-										{actionItem?.status === 'enquiry' &&
-										actionItem?.action === 'sendProposal'
-											? 'Enquiry'
-											: actionItem?.approvalRequired &&
-											  actionItem?.action !== 'counterSign'
-											? 'Email Approval'
-											: actionItem?.action === 'counterSign'
-											? 'Counter Sign'
-											: 'Expiry In 3 Days'}
-
-										<span className="agentsWorkflowJobCardsSubTitle">
-											{moment.unix(actionItem?.createdAt).fromNow()}
-										</span>
-									</span>
 								</div>
-							</div>
-						))
+							))}
+							{/* </div> */}
+						</InfiniteScroll>
 					)}
 				</div>
 				<div className="card-div-end-black-shadow"></div>
