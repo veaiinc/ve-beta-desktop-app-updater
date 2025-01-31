@@ -247,7 +247,7 @@ const TeamSettings = () => {
 
 	const handleSubmit = async () => {
 		try {
-			if (validateExpiryData?.isExpired) {
+			if (validateExpiryData && validateExpiryData?.isExpired) {
 				return updateSubscriptionState({ expiredSubscriptionModal: true });
 			}
 			if (info?.buttonLoading) return;

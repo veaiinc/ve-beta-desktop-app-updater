@@ -31,14 +31,37 @@ const useSubscription = () => {
 		if (!currentPlan) {
 			getCurrentSubscriptionPlan();
 		} else {
+			console.log('currentPlan==>', currentPlan);
 			handleExpiryCheckLogic();
 		}
 	}, [currentPlan]);
 	const handleExpiryCheckLogic = useCallback(() => {
 		if (currentPlan) {
-			const validateExpiryData = calculateTimeLeft(currentPlan?.expiresAt || 0);
-			setInfo((prev) => ({ ...prev, ...(validateExpiryData || {}) }));
-			updateSubscriptionState({ validateExpiryData: { ...(validateExpiryData || {}) } });
+			const validateExpiryData = calculateTimeLeft(
+				currentPlan?.currentSubscriptionPlan?.expiresAt || 0,
+			);
+
+			const {
+				storageLimitInGB = 0,
+				tenantUsersLimit = 0,
+				totalStorageUsedInBytes = 0,
+				totalTenantUsers = 0,
+			} = currentPlan;
+			const obj = {
+				...(validateExpiryData || {}),
+				storageLimitInGB,
+				tenantUsersLimit,
+				totalStorageUsedInBytes,
+				totalTenantUsers,
+			};
+			const usedStorageLimitInGB = (totalStorageUsedInBytes / (1024 * 1024)).toFixed(2);
+
+			let uploadAllowed = false;
+			if (storageLimitInGB) {
+				uploadAllowed = usedStorageLimitInGB < storageLimitInGB;
+			}
+			setInfo((prev) => ({ ...prev, ...obj, uploadAllowed }));
+			updateSubscriptionState({ validateExpiryData: { ...obj, uploadAllowed } });
 			cleanupTimers();
 			if (validateExpiryData?.isExpired) {
 				return cleanupTimers;

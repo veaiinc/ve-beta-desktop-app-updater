@@ -125,6 +125,10 @@ const actionHandlers = {
 		...state,
 		imageProcessingStatus: action.payload,
 	}),
+	GET_CLIENT_SELECTION_LIGHTROOM_COPY: (state, action) => ({
+		...state,
+		clientSelectionLightRoomCopy: action.payload,
+	}),
 	RESET_STATE: () => ({ ...intialState }),
 	GET_PRE_REGISTERED_USERS: (state, action) => ({
 		...state,

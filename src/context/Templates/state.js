@@ -85,6 +85,8 @@ export const intialState = {
 	moreFormsTemplatesList: null,
 	formResponsesList: null,
 	moreFormResponsesList: null,
+	smartFileRefetch: false,
+	activeWorkflowSlugForSmartFile: null,
 };
 
 export const TemplatesState = (props) => {
@@ -465,7 +467,6 @@ export const TemplatesState = (props) => {
 			console.log('error==>updateThankyou', error);
 		}
 	};
-
 	const getWorkflowsListForFiles = async (payload, fetchMore = false) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
@@ -1357,27 +1358,86 @@ export const TemplatesState = (props) => {
 		} catch (error) {}
 	};
 
-	const handleGlobalChatMessages = async (payload, sessionId) => {
+	const handleGlobalChatMessages = async (payload, sessionId, localPayload) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const url = `/${workspaceId}/${sessionId}/multi_agent_chat`;
-			const updatedGlobalChatMessages = [
-				{ type: 'user', message: payload?.query || '' },
-				{
-					type: 'AI',
-					message: 'loading....',
-					content: (
-						<div className="aiMessageWrapper">
-							<AiSparkel />
-							<div className="aiMessage">
-								<span>Thinking...</span>
+
+			let updatedGlobalChatMessages = [];
+
+			if (localPayload.showCustomChatOptions) {
+				updatedGlobalChatMessages = [...(localPayload.showCustomChatOptions || [])];
+			} else if (payload.files) {
+				let str = '  ';
+				for (let i = 0; i < localPayload?.files?.length; i++) {
+					str += localPayload?.files?.[i]?.name || '' + ' ,';
+				}
+
+				updatedGlobalChatMessages = [
+					{
+						type: 'user',
+						content: (
+							<div
+								className="uploadedImagesContainer"
+								style={{
+									display: 'flex',
+									flexDirection: 'column',
+									gap: '2px',
+									alignItems: 'flex-end',
+								}}
+							>
+								{localPayload?.files?.map((ele, index) => (
+									<img
+										src={ele.preview}
+										alt="filetochat"
+										width={'50px'}
+										onClick={() => localPayload?.handlePreview(ele)}
+										style={{ cursor: 'pointer' }}
+									/>
+								))}
+
+								<div className="message-content-user" style={{ marginTop: '8px' }}>
+									<span>{payload?.query}</span>
+								</div>
 							</div>
-						</div>
-					),
-					contentType: 'loading',
-				},
-			];
+						),
+					},
+					{
+						type: 'AI',
+						message: 'loading....',
+						content: (
+							<div className="aiMessageWrapper">
+								<AiSparkel />
+								<div className="aiMessage">
+									<span>Thinking...</span>
+								</div>
+							</div>
+						),
+						contentType: 'loading',
+					},
+				];
+
+				payload.query += str;
+			} else {
+				updatedGlobalChatMessages = [
+					{ type: 'user', message: payload?.query || '' },
+					{
+						type: 'AI',
+						message: 'loading....',
+						content: (
+							<div className="aiMessageWrapper">
+								<AiSparkel />
+								<div className="aiMessage">
+									<span>Thinking...</span>
+								</div>
+							</div>
+						),
+						contentType: 'loading',
+					},
+				];
+			}
+
 			dispatch({
 				type: Actions.GLOBAL_CHAT_MESSAGES_ACTIONS_REQUESTS,
 				payload: updatedGlobalChatMessages,
@@ -1396,6 +1456,82 @@ export const TemplatesState = (props) => {
 			}
 		} catch (error) {
 			console.log('errror ==>handleGlobalChatMessages', error);
+		}
+	};
+
+	const handleGlobalUploadImage = async (file, payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+
+			const response = await Service.fetchPost(
+				`/${workspaceId}/knowledge-bases/upload-file`,
+				payload,
+				usertoken,
+				'ai_assistant_api',
+			);
+
+			if (response?.[0]) {
+				const base64 = await getBase64(file);
+
+				const newResponse = await fetch(base64);
+				const blob = await newResponse.blob();
+
+				const { signedUrl } = response?.[1];
+
+				const uploadResponse = await fetch(signedUrl, {
+					method: 'PUT',
+					body: blob,
+					headers: {
+						'Content-Type': file.type, // Set the content type based on the file type
+					},
+				});
+
+				if (!uploadResponse.ok) {
+					return [false, 'Failed to upload image'];
+				}
+
+				return [true, response?.[1]];
+			}
+
+			return [false, 'Failed to upload image'];
+		} catch (error) {
+			console.log('error==>handleGlobalUploadImage', error);
+			return [false, 'Failed to upload image'];
+		}
+	};
+
+	const deleteUploadedImageThroughChat = async (fileId) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await Service.fetchDelete(
+				`/${workspaceId}/ai-chat/delete-file/${fileId}`,
+				usertoken,
+				null,
+				'ai_assistant_api',
+			);
+			if (response?.[0]) {
+				return [true];
+			} else {
+				return [false];
+			}
+		} catch (error) {
+			console.log('error==>deleteUploadedImageThroughChat', error);
+			return [false];
+		}
+	};
+
+	const checkIndividualImageUploadedStatus = async (uploadBatchId) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const url = `/${workspaceId}/knowledge-bases/file-upload-status/${uploadBatchId}`;
+			const response = await Service.fetchGet(url, usertoken, 'ai_assistant_api');
+			return response;
+		} catch (error) {
+			message.error('Error checking image upload status');
+			return [false, 'Error checking image upload status'];
 		}
 	};
 
@@ -1427,6 +1563,12 @@ export const TemplatesState = (props) => {
 			console.log('error==>getDocsFilesList', error);
 		}
 	};
+
+	const updateApplicationChat = (payload) => {
+		dispatch({ type: Actions.UPDATE_APPLICATION_CHAT, payload });
+	};
+
+	//docs
 
 	//updated steps functions
 	const addNewSteps = async (payload) => {
@@ -1557,6 +1699,10 @@ export const TemplatesState = (props) => {
 		uploadImageInSmartFileAi,
 		handleGlobalChatMessages,
 		getDocsFilesList,
+		handleGlobalUploadImage,
+		checkIndividualImageUploadedStatus,
+		deleteUploadedImageThroughChat,
+		updateApplicationChat,
 		addNewSteps,
 		getAllSlackChannels,
 		updateSteps,
