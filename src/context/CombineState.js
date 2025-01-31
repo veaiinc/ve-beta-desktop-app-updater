@@ -12,6 +12,7 @@ import { ThemeState } from './Theme/state';
 import { TasksState } from './tasks/state';
 import { useMemo } from 'react';
 import { theme } from 'antd';
+import { ContactsState } from './contacts/state';
 
 const useCombineState = () => {
 	// Call all hooks at the top level
@@ -26,6 +27,7 @@ const useCombineState = () => {
 	const authInfo = AuthState();
 	const calendarInfo = Calendar();
 	const tasks = TasksState();
+	const contacts = ContactsState();
 	const themeInfo = ThemeState();
 
 	// Only memoize the final combined object
@@ -42,6 +44,7 @@ const useCombineState = () => {
 			authInfo,
 			calendarInfo,
 			tasks,
+			contacts,
 			themeInfo,
 		}),
 		[
@@ -57,6 +60,7 @@ const useCombineState = () => {
 			calendarInfo,
 			tasks,
 			themeInfo,
+			contacts,
 		],
 	);
 };

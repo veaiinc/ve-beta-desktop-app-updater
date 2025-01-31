@@ -33,12 +33,12 @@ const SalesInfo = () => {
 		fetchSalesInfo();
 	}, []);
 
-	useEffect(() => {
-		const interval = setInterval(() => {
-			fetchSalesInfo();
-		}, 15000);
-		return () => clearInterval(interval);
-	}, []);
+	// useEffect(() => {
+	// 	const interval = setInterval(() => {
+	// 		fetchSalesInfo();
+	// 	}, 15000);
+	// 	return () => clearInterval(interval);
+	// }, []);
 
 	useEffect(() => {
 		scrollRef?.current?.addEventListener('scroll', debouncedHandleScroll);

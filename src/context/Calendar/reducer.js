@@ -62,6 +62,10 @@ const actionHandlers = {
 		...state,
 		calendarChat: null,
 	}),
+	UPDATE_CALENDAR_STATE: (state, action) => ({
+		...state,
+		...action?.payload,
+	}),
 };
 
 const Reducer = (state, action) => {

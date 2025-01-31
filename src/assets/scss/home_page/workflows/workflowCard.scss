@@ -1,0 +1,200 @@
+.workflow-card-container {
+	display: flex;
+	flex-shrink: 0;
+	width: calc(32% + 2px);
+	min-width: 340px;
+	height: 424px;
+	padding: 24px;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 24px;
+	position: relative;
+
+	border-radius: 24px;
+	background: #171819;
+	background: color(display-p3 0.0902 0.0941 0.098);
+
+	.card-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		align-self: stretch;
+
+		.header-text {
+			color: #f2f2f3;
+			color: color(display-p3 0.949 0.949 0.9529);
+			font-family: Inter;
+			font-size: 16px;
+			font-style: normal;
+			font-weight: 600;
+			line-height: normal;
+			width: 250px;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+			overflow: hidden;
+		}
+	}
+
+	.workflow-card-options-container {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		align-self: stretch;
+		.workflow-card-option {
+			color: var(--secondary-font, #787e87);
+			font-family: Inter;
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+			cursor: pointer;
+		}
+		.active {
+			color: var(--primary-font, #f2f2f3);
+			color: var(--primary-font, color(display-p3 0.949 0.949 0.9529));
+		}
+	}
+
+	.workflow-container {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 8px;
+		align-self: stretch;
+		overflow-y: auto;
+
+		.workflow-inner-card {
+			display: flex;
+			justify-content: space-between;
+			padding: 14px 16px;
+			border-radius: 16px;
+			align-items: center;
+			align-self: stretch;
+			background: #202123;
+
+			.left-text {
+				color: #797e86;
+				color: color(display-p3 0.4784 0.4941 0.5216);
+				font-family: Inter;
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+				text-transform: capitalize;
+			}
+			.right-text {
+				color: #f2f2f3;
+				font-weight: 500;
+				font-size: 1.1rem;
+			}
+		}
+	}
+
+	.pending-actions-container {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 8px;
+		align-self: stretch;
+		height: 292px;
+		overflow-y: auto;
+
+		.workflow-inner-card {
+			display: flex;
+			justify-content: space-between;
+			padding: 14px 16px;
+			border-radius: 16px;
+			align-items: center;
+			align-self: stretch;
+			background: #202123;
+			background: color(display-p3 0.1255 0.1294 0.1373);
+			cursor: pointer;
+			.left-text {
+				color: #797e86;
+				color: color(display-p3 0.4784 0.4941 0.5216);
+				font-family: Inter;
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+				text-transform: capitalize;
+			}
+			.right-text {
+				color: #f2f2f3;
+				font-weight: 500;
+				font-size: 1.1rem;
+			}
+			.pending-actions-title {
+				color: #f2f2f3;
+				font-weight: 500;
+				font-size: 12px;
+				display: flex;
+				align-items: center;
+				gap: 4px;
+			}
+		}
+	}
+	.files-container {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 2px;
+		flex: 1 0 0;
+		align-self: stretch;
+		.file {
+			display: flex;
+			flex-direction: row;
+			gap: 1rem;
+			.left {
+				width: 50px;
+				height: 60px;
+				border-radius: 6px;
+				background: #414548;
+				background: color(display-p3 0.258 0.2696 0.2813);
+			}
+			.right-text {
+				display: flex;
+				flex-direction: column;
+				align-items: flex-start;
+				gap: 7px;
+				flex: 1 0 0;
+				align-self: stretch;
+				.title {
+					align-self: stretch;
+					color: #f2f2f3;
+					color: color(display-p3 0.949 0.949 0.9529);
+					font-family: Inter;
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+				}
+				.labels {
+					display: flex;
+					align-items: center;
+					color: #787e87;
+					display: flex;
+					flex-direction: row;
+					gap: 2px;
+					flex-wrap: wrap;
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					// line-height: normal;
+				}
+			}
+		}
+	}
+}
+
+@media (max-width: 1242px) {
+	.workflow-card-container {
+		width: 49% !important;
+	}
+}
+
+@media (max-width: 942px) {
+	.workflow-card-container {
+		width: 100% !important;
+	}
+}

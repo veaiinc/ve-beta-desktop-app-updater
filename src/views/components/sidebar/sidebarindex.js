@@ -40,9 +40,15 @@ export const veAiModulesItemsList = [
 		icon: '',
 	},
 	{
-		name: 'Gallery',
+		name: 'Classic Gallery',
 		moduleRoute: '/galleries',
 		route: '/galleries',
+		icon: '',
+	},
+	{
+		name: 'Lite Gallery',
+		moduleRoute: '/lite-gallery',
+		route: '/lite-gallery',
 		icon: '',
 	},
 	{
@@ -61,9 +67,29 @@ export const veAiModulesItemsList = [
 			},
 		],
 	},
+	{
+		name: 'Design Builder',
+		moduleRoute: '/',
+		route: '/',
+		icon: '',
+		subModules: [
+			{ icon: '', name: 'All Docs', route: '/docs' },
+			{ icon: '', name: 'My Templates', route: '/my-templates' },
+			// { icon: '', name: 'Forms', route: '/forms' },
+			// { icon: '', name: 'Client Portal', route: '' },
+			// { icon: '', name: 'Link in bio', route: '' },
+			// { icon: '', name: 'Website', route: '' },
+		],
+	},
+	{
+		name: 'AI Assistant',
+		moduleRoute: '/ai-assistant',
+		route: '/ai-assistant',
+		icon: '',
+	},
 
-	{ name: 'Tasks', moduleRoute: '/tasks', route: '/tasks', icon: '' },
-	{ name: 'Docs', moduleRoute: '/docs', route: '/docs', icon: '' },
+	// { name: 'Tasks', moduleRoute: '/tasks', route: '/tasks', icon: '' },
+	// { name: 'Docs', moduleRoute: '/docs', route: '/docs', icon: '' },
 	// {
 	// 	name: 'Da-Vinci',
 	// 	moduleRoute: '/ai-agents/home/da-vinici',
@@ -92,7 +118,7 @@ export const veAiModulesItemsList = [
 	// 	route: '/playbook',
 	// 	icon: PlaybookSvg,
 	// },
-	// { name: 'Contacts', moduleRoute: '/contact', route: '/contact' },
+	// { name: 'Contacts', moduleRoute: '/contacts', route: '/contacts' },
 	// { name: 'Teams', moduleRoute: '/teams', route: '/teams' },
 ];
 

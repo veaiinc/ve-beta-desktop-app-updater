@@ -6,12 +6,14 @@ import {
 	getSmartFileActivityQuery,
 	getSmartFileViewersQuery,
 	getViewersSessionDetailsQuery,
+	createSmartfileQuery,
 } from './graphQlFunctions';
 
 export const initialActivityState = {
 	activityData: null,
 	viewersList: null,
 	viewerSessionDetails: null,
+	smartfile: null,
 };
 
 export const ActivityState = (props) => {
@@ -98,11 +100,35 @@ export const ActivityState = (props) => {
 		dispatch({ type: Actions.RESET_ACTIVITY_STATE });
 	};
 
+	const createSmartfile = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service?.mutation(
+				createSmartfileQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.CREATE_SMARTFILE_SUCCESS,
+					payload: response?.[1]?.data?.createSmartFile,
+				});
+			} else {
+				console.log('API failed ==> createSmartfile', response);
+			}
+		} catch (error) {
+			console.log('API Error ==> createSmartfile', error);
+		}
+	};
 	return {
 		...state,
 		getSmartFileActivity,
 		getSmartFileViewers,
 		getViewersSessionDetails,
 		resetActivityState,
+		createSmartfile,
 	};
 };

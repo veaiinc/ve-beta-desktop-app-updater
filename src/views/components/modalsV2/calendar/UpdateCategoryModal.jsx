@@ -79,7 +79,11 @@ const UpdateCategoryModal = ({ show, handleClose, isCategoryEditable, selectedCa
 
 	const handleCategorySubmit = useCallback(async () => {
 		try {
-			if (validateExpiryData?.isExpired) {
+			if (
+				validateExpiryData &&
+				validateExpiryData?.restrictCalendar &&
+				validateExpiryData?.isExpired
+			) {
 				return updateSubscriptionState({ expiredSubscriptionModal: true });
 			}
 

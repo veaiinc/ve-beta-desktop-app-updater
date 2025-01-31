@@ -132,6 +132,8 @@ const GalleryPage = () => {
 			editAlbum,
 			getImageProcessingStatus,
 			imageProcessingStatus,
+			getClientSelectionLightRoomCopy,
+			clientSelectionLightRoomCopy,
 		},
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 		profileInfo: { userWorkSpaceList, getTenantSettings, tennantSettingsData },
@@ -154,6 +156,7 @@ const GalleryPage = () => {
 		isMouseInGallery: false,
 		showCollaborators: false,
 		activeGallery: location?.state?.galleryData,
+		isLightGallery: location?.state?.isLightGallery || false,
 		activeAlbumId: tenantAlbums?.albums?.[0]?._id,
 		callToAction: tenantPreferences?.ctaPreferences,
 		timeout: null,
@@ -227,8 +230,8 @@ const GalleryPage = () => {
 		showShareAlbum: false,
 		showDownloadAlbum: false,
 		activeTagId: null,
-		originalDownload: true,
-		webviewDownload: false,
+		originalDownload: false,
+		webviewDownload: true,
 		showLightRoomCopy: false,
 		lightroomCopyList: [],
 		isAlbumCover: false,
@@ -275,18 +278,22 @@ const GalleryPage = () => {
 		// { name: 'Videos', number: 2 },
 		// { name: 'Slide Show', number: 1 },
 		{ name: 'Client Selections', number: clientSelectionsData?.totalDocs },
-		{
-			name: 'AI',
-			number:
-				imageProcessingStatus?.numberOfImagesPeoples > 0
-					? parseInt(
-							(imageProcessingStatus?.numberOfImagesGroupedFaces /
-								imageProcessingStatus?.numberOfImagesPeoples) *
-								100,
-							0,
-					  ) + '%'
-					: '',
-		},
+		...(info.isLightGallery
+			? []
+			: [
+					{
+						name: 'AI',
+						number:
+							imageProcessingStatus?.numberOfImagesPeoples > 0
+								? parseInt(
+										(imageProcessingStatus?.numberOfImagesGroupedFaces /
+											imageProcessingStatus?.numberOfImagesPeoples) *
+											100,
+										0,
+								  ) + '%'
+								: '',
+					},
+			  ]),
 		{
 			name: 'Insights',
 			number: '',
@@ -1602,22 +1609,18 @@ const GalleryPage = () => {
 					return;
 				}
 
-				// Create a list of filenames from client selection images
-				const clientSelectionFileNames = info.clientSelectionImages.docs
-					.filter((img) => img.activeVersion?.givenFileName) // Filter out any images without filenames
-					.map((img) => img.activeVersion.givenFileName);
+				const response = await getClientSelectionLightRoomCopy(info.clientSelectionID);
+				console.log('response==>handleLightRoomCopy', response);
 
-				// If no valid filenames found
-				if (!clientSelectionFileNames.length) {
+				if (!response?.[1]?.length) {
 					message.destroy('lightroomCopy');
 					message.info('No valid images found in this client selection');
 					return;
 				}
 
-				// Set the lightroom copy list directly from client selection images
 				setInfo((prev) => ({
 					...prev,
-					lightroomCopyList: clientSelectionFileNames,
+					lightroomCopyList: response?.[1],
 					showLightRoomCopy: true,
 					showOptionsContainer: false,
 				}));
@@ -1635,12 +1638,12 @@ const GalleryPage = () => {
 			}
 
 			// Get lightroom copy list for regular albums
-			response = await getLightroomCopyList(galleryId, info.activeAlbumId);
+			await getLightroomCopyList(galleryId, info.activeAlbumId);
 
-			if (response?.[0] === true) {
+			if (clientSelectionLightRoomCopy) {
 				setInfo((prev) => ({
 					...prev,
-					lightroomCopyList: response[1],
+					lightroomCopyList: clientSelectionLightRoomCopy,
 					showLightRoomCopy: true,
 					showOptionsContainer: false,
 				}));
@@ -2940,7 +2943,11 @@ const GalleryPage = () => {
 	// ... existing code ...
 
 	const handleDownload = async () => {
-		if (validateExpiryData?.isExpired) {
+		if (
+			validateExpiryData &&
+			validateExpiryData?.restrictGalleries &&
+			validateExpiryData?.isExpired
+		) {
 			return updateSubscriptionState({ expiredSubscriptionModal: true });
 		}
 
@@ -2957,19 +2964,12 @@ const GalleryPage = () => {
 				const selectedImageId = info.selectedImages[0];
 
 				// Get single image download link
-				const response = await getDownloadLinkForImage(selectedImageId);
+				const isLightGallery = info?.isLightGallery;
+				const response = await getDownloadLinkForImage(selectedImageId, isLightGallery);
 
 				if (response?.[0] === true) {
-					// Create link and trigger download
-					const link = document.createElement('a');
-					link.href = response[1]?.url;
-					link.download = response[1]?.fileName || `image-${Date.now()}`;
-					document.body.appendChild(link);
-					link.click();
-					document.body.removeChild(link);
-
 					message.success({
-						content: 'Download started',
+						content: 'Download completed',
 						key: 'downloadMessage',
 					});
 				} else {
@@ -4006,8 +4006,8 @@ const GalleryPage = () => {
 																showOptions: false,
 																activeTagId:
 																	albumDetails?.tags?.[0]?._id,
-																originalDownload: true,
-																webviewDownload: false,
+																originalDownload: false,
+																webviewDownload: true,
 															}))
 														}
 														style={{
@@ -5076,6 +5076,7 @@ const GalleryPage = () => {
 								uploadGalleryCoverChangeHandler={uploadGalleryCoverChangeHandler}
 								handleSetCoverPosition={handleSetCoverPosition}
 								message={message}
+								showUploadPhoto={info?.selectedImages.length > 0}
 							/>
 
 							<DeleteGalleryComponent
@@ -5134,6 +5135,7 @@ const GalleryPage = () => {
 				handleManageCollaboratorPopup={handleManageCollaboratorPopup}
 				handleLinkChange={handleLinkChange}
 				data={info}
+				isLightGallery={info.isLightGallery}
 			/>
 			<CreateAlbum
 				open={info.showCreateAlbum}
@@ -5159,6 +5161,7 @@ const GalleryPage = () => {
 				imageURL={info.imageURL}
 				isLoading={info.isLoadingCover}
 				open={info.showUploadCover}
+				showUploadPhoto={info?.selectedImages.length > 0}
 				onClose={() => setInfo((prev) => ({ ...prev, showUploadCover: false }))}
 				style={{ position: 'absolute', top: '60%', left: '0', right: '0', bottom: '0' }}
 			/>
@@ -5323,6 +5326,7 @@ const GalleryPage = () => {
 				originalDownload={info.originalDownload}
 				webviewDownload={info.webviewDownload}
 				activeTagId={info.activeTagId}
+				isLightGallery={info.isLightGallery}
 			/>
 			<ShowLightRoomCopy
 				open={info.showLightRoomCopy}

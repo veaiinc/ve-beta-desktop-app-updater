@@ -60,7 +60,6 @@ const File = ({
 		servicesTableData: null,
 		loading: true,
 		smartFileStatus: '',
-		templatesMapper: null,
 		duplicateLoader: false,
 		expiryInDays: null,
 		varibalesModified: false,
@@ -164,17 +163,6 @@ const File = ({
 			}));
 		}
 	}, [smartFileInfo]);
-
-	useEffect(() => {
-		if (templateData) {
-			let templatesMapper = {};
-			const { templates } = templateData || {};
-			for (let i = 0; i < templates?.length; i++) {
-				templatesMapper[templates[i]?._id] = templates?.[i]?.parsedHtmlContent;
-			}
-			setInfo((prev) => ({ ...prev, templatesMapper }));
-		}
-	}, [templateData]);
 
 	useEffect(() => {
 		if (info?.proposal) {
@@ -603,7 +591,11 @@ const File = ({
 	);
 
 	const duplicateTemplateFromSmartFile = useCallback(async () => {
-		if (validateExpiryData?.isExpired) {
+		if (
+			validateExpiryData &&
+			validateExpiryData?.restrictWorkflows &&
+			validateExpiryData?.isExpired
+		) {
 			return updateSubscriptionState({ expiredSubscriptionModal: true });
 		}
 		window.location.href = `${origin}/${workflowId}?workflow=true&templateId=${templateId}`;
@@ -865,7 +857,11 @@ const File = ({
 
 	const onChangeAiPrediction = useCallback(
 		(value) => {
-			if (validateExpiryData?.isExpired) {
+			if (
+				validateExpiryData &&
+				validateExpiryData?.restrictWorkflows &&
+				validateExpiryData?.isExpired
+			) {
 				return updateSubscriptionState({ expiredSubscriptionModal: true });
 			}
 			setInfo((prev) => ({ ...prev, useAiPredictions: value }));

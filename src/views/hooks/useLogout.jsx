@@ -15,6 +15,7 @@ const useLogout = () => {
 		activityInfo: { resetActivityState },
 		aiSetup: { resetAiSetupState },
 		tasks: { resetTasksState },
+		contacts: { resetContactsState },
 	} = useContext(Context);
 
 	const resetApplications = useCallback(async () => {
@@ -46,6 +47,7 @@ const useLogout = () => {
 		resetTasksState();
 
 		navigate('/');
+		resetContactsState();
 	}, []);
 
 	return resetApplications;

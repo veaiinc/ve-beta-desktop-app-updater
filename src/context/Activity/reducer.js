@@ -15,6 +15,11 @@ const actionHandlers = {
 		viewerSessionDetails: action.payload,
 		loading: false,
 	}),
+	CREATE_SMARTFILE_SUCCESS: (state, action) => ({
+		...state,
+		smartfile: action.payload,
+		loading: false,
+	}),
 	RESET_ACTIVITY_STATE: () => initialActivityState,
 };
 

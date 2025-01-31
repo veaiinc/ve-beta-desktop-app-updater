@@ -1,55 +1,59 @@
 .options-dropdown-tooltip {
-	.options-dropdown-container {
-		display: flex;
-		padding: 12px 10px;
-		flex-direction: column;
-		align-items: flex-start;
-		gap: 12px;
-		width: 220px;
-		border-radius: 8px;
-		background: var(--popup);
-
-		.options-dropdown-header {
+	.option-dropDown-wrapper {
+		background: #202123;
+		border-radius: 14px;
+		.options-dropdown-container {
 			display: flex;
-			width: 100%;
-			justify-content: space-between;
-			align-items: center;
-			border-bottom: 1px solid var(--stroke);
-			padding: 0 8px;
-			padding-bottom: 12px;
+			padding: 12px 10px;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 12px;
+			width: 220px;
+			border-radius: 14px;
+			background: #202123;
+			box-shadow: 0px 2px 44px 0px rgba(0, 0, 0, 0.25);
 
-			.options-dropdown-header-title-wrapper {
+			.options-dropdown-header {
 				display: flex;
+				width: 100%;
+				justify-content: space-between;
 				align-items: center;
-				gap: 12px;
+				border-bottom: 1px solid var(--stroke);
+				padding: 0 8px;
+				padding-bottom: 12px;
 
-				.options-dropdown-header-title {
-					color: var(--primary-font);
-					font-family: Inter;
-					font-size: 12px;
-					font-style: normal;
-					text-align: left;
-					font-weight: 500;
-					line-height: normal; /* 142.857% */
+				.options-dropdown-header-title-wrapper {
+					display: flex;
+					align-items: center;
+					gap: 12px;
+
+					.options-dropdown-header-title {
+						color: var(--primary-font);
+						font-family: Inter;
+						font-size: 12px;
+						font-style: normal;
+						text-align: left;
+						font-weight: 500;
+						line-height: normal; /* 142.857% */
+					}
 				}
 			}
-		}
 
-		.options-dropdown-body-show-container-header,
-		.options-dropdown-body-hide-container-header {
-			display: flex;
-			padding: 6px;
-			justify-content: space-between;
-			align-items: center;
-			align-self: stretch;
+			.options-dropdown-body-show-container-header,
+			.options-dropdown-body-hide-container-header {
+				display: flex;
+				padding: 6px;
+				justify-content: space-between;
+				align-items: center;
+				align-self: stretch;
 
-			.section-title {
-				color: var(--primary-font);
-				font-family: Inter;
-				font-size: 11px;
-				font-style: normal;
-				font-weight: 500;
-				line-height: normal;
+				.section-title {
+					color: var(--secondary-font);
+					font-family: var(--primary-font-family);
+					font-size: 11px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
 			}
 
 			.btn-show-all {
@@ -64,39 +68,39 @@
 			}
 		}
 
-		.options-dropdown-property-container {
-			display: flex;
-			flex-direction: column;
-			align-items: center;
-			width: 100%;
-			.property-listItem {
+			.options-dropdown-property-container {
 				display: flex;
-				height: 31px;
-				padding: 12px 6px;
-				justify-content: space-between;
+				flex-direction: column;
 				align-items: center;
-				align-self: stretch;
-				gap: 8px;
 				width: 100%;
-				overflow: hidden;
-				cursor: pointer;
-				border-radius: 8px;
-				transition: all 0.2s ease-in-out;
-				svg {
-					width: 16px;
-					height: 16px;
-					align-self: center;
-				}
-
-				* {
-					flex-shrink: 0;
-				}
-
-				.drag-handle-icon {
+				.property-listItem {
 					display: flex;
+					height: 31px;
+					padding: 12px 6px;
+					justify-content: space-between;
 					align-items: center;
-					justify-content: center;
-				}
+					align-self: stretch;
+					gap: 8px;
+					width: 100%;
+					overflow: hidden;
+					cursor: pointer;
+					border-radius: 8px;
+					transition: all 0.2s ease-in-out;
+					svg {
+						width: 16px;
+						height: 16px;
+						align-self: center;
+					}
+
+					* {
+						flex-shrink: 0;
+					}
+
+					.drag-handle-icon {
+						display: flex;
+						align-items: center;
+						justify-content: center;
+					}
 
 				.property-listItem-title {
 					color: var(--primary-font);
@@ -114,12 +118,12 @@
 					user-select: none;
 				}
 
-				.crossed-eye-icon {
-					opacity: 0.48;
-				}
+					.crossed-eye-icon {
+						opacity: 0.48;
+					}
 
 				&:hover {
-					background-color: var(--background-color);
+					background-color: var(--card);
 				}
 			}
 		}
@@ -133,11 +137,11 @@
 			padding: 12px;
 			padding-bottom: 0;
 
-			.add-new-property-icon {
-				width: 15px;
-				height: 15px;
-				opacity: 0.48;
-			}
+				.add-new-property-icon {
+					width: 15px;
+					height: 15px;
+					opacity: 0.48;
+				}
 
 			.add-new-property-title {
 				color: var(--primary-font);
@@ -153,6 +157,7 @@
 		}
 	}
 
+	
 	.cursor-pointer {
 		cursor: pointer;
 	}

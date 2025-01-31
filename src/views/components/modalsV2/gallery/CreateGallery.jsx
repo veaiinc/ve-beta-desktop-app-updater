@@ -7,7 +7,14 @@ import jwt_decode from 'jwt-decode';
 import { DatePicker } from 'antd';
 import slugify from 'slugify';
 
-const CreateGallery = ({ open, closeModal, workspaceID, fetchGalleries, message }) => {
+const CreateGallery = ({
+	open,
+	closeModal,
+	workspaceID,
+	fetchGalleries,
+	message,
+	isLightGallery,
+}) => {
 	const {
 		galleryInfo: { createNewGallery, checkGallerySlugAvailable },
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
@@ -111,7 +118,11 @@ const CreateGallery = ({ open, closeModal, workspaceID, fetchGalleries, message 
 	};
 
 	const handleSubmit = async () => {
-		if (validateExpiryData?.isExpired) {
+		if (
+			validateExpiryData &&
+			validateExpiryData?.restrictGalleries &&
+			validateExpiryData?.isExpired
+		) {
 			return updateSubscriptionState({ expiredSubscriptionModal: true });
 		}
 		if (galleryData?.isSubmitting) return;
@@ -149,6 +160,7 @@ const CreateGallery = ({ open, closeModal, workspaceID, fetchGalleries, message 
 						role: ['admin'],
 					},
 				],
+				storeOriginals: isLightGallery ? false : true,
 			};
 
 			setGalleryData((prev) => ({ ...prev, isSubmitting: true }));
