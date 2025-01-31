@@ -8,7 +8,8 @@ import { ReactComponent as PrioritySvg } from '../../../../assets/svg/tasks/roun
 import { ReactComponent as WorkflowSvg } from '../../../../assets/svg/tasks/workflow.svg';
 import { ReactComponent as PersonSvg } from '../../../../assets/svg/tasks/person.svg';
 import { ReactComponent as CalendarSvg } from '../../../../assets/svg/tasks/calendar.svg';
-import { message, Skeleton, Tooltip } from 'antd';
+import { message, Tooltip } from 'antd';
+import Skeleton from 'react-loading-skeleton';
 import jwtDecode from 'jwt-decode';
 import moment from 'moment';
 import Context from '../../../../context/context';
@@ -758,12 +759,22 @@ const TasksTab = () => {
 								loader={<FetchMoreLoaderComp />}
 								height={470}
 							>
-								{!info?.loadingSkeleton ? (
-									<div>
-										{[{}, {}, {}].map((ele, index) => (
+								{info?.loadingSkeleton ? (
+									<div
+										style={{
+											display: 'flex',
+											flexDirection: 'row',
+											gap: '15px',
+											flexWrap: 'wrap',
+										}}
+									>
+										{[{}, {}, {}, {}, {}, {}].map((ele, index) => (
 											<Skeleton
-												height={'59px'}
-												style={{ borderRadius: '16px' }}
+												height={'231px'}
+												width={'268px'}
+												style={{
+													borderRadius: '16px',
+												}}
 												key={index}
 											/>
 										))}
@@ -831,49 +842,73 @@ const TasksTab = () => {
 							loader={<FetchMoreLoaderComp />}
 							height={470}
 						>
-							<div className="tasks-container">
-								{info?.todayTasksList?.map((task) => {
-									return (
-										<div
-											className="task-container"
-											onClick={() => {
-												handleRowClick(task);
+							{info?.loadingSkeleton ? (
+								<div
+									style={{
+										display: 'flex',
+										flexDirection: 'row',
+										gap: '15px',
+										flexWrap: 'wrap',
+									}}
+								>
+									{[{}, {}, {}, {}, {}, {}].map((ele, index) => (
+										<Skeleton
+											height={'231px'}
+											width={'268px'}
+											style={{
+												borderRadius: '16px',
 											}}
-										>
-											<div className="task-content">
-												<span className="title">{task?.title}</span>
-												<div className="description">
-													{task?.description}
+											key={index}
+										/>
+									))}
+								</div>
+							) : (
+								<div className="tasks-container">
+									{info?.todayTasksList?.map((task) => {
+										return (
+											<div
+												className="task-container"
+												onClick={() => {
+													handleRowClick(task);
+												}}
+											>
+												<div className="task-content">
+													<span className="title">{task?.title}</span>
+													<div className="description">
+														{task?.description}
+													</div>
 												</div>
-											</div>
 
-											<div className="show-more">
-												<div className="assigned-to">
-													<div className="persons-container">
-														{task?.assignedTo?.map((person, index) => {
-															return (
-																<div
-																	className="persons"
-																	key={index}
-																>
-																	{person?.name[0]?.toUpperCase()}
-																</div>
-															);
-														})}
+												<div className="show-more">
+													<div className="assigned-to">
+														<div className="persons-container">
+															{task?.assignedTo?.map(
+																(person, index) => {
+																	return (
+																		<div
+																			className="persons"
+																			key={index}
+																		>
+																			{person?.name[0]?.toUpperCase()}
+																		</div>
+																	);
+																},
+															)}
+														</div>
+														<div className="remaining-persons-count">
+															{task?.assignedTo?.length > 3 &&
+																`+${task?.assignedTo?.length - 3}`}
+														</div>
 													</div>
-													<div className="remaining-persons-count">
-														{task?.assignedTo?.length > 3 &&
-															`+${task?.assignedTo?.length - 3}`}
+													<div className="chevron-icon-container">
+														<ChevronRightThinIcon />
 													</div>
-												</div>
-												<div className="chevron-icon-container">
-													<ChevronRightThinIcon />
 												</div>
 											</div>
-										</div>
-									);
-								})}
-							</div>
+										);
+									})}
+								</div>
+							)}
 						</InfiniteScroll>
 					</div>
 				)}
@@ -887,49 +922,73 @@ const TasksTab = () => {
 							loader={<FetchMoreLoaderComp />}
 							height={470}
 						>
-							<div className="tasks-container">
-								{info?.overDueTasksList?.map((task) => {
-									return (
-										<div
-											className="task-container"
-											onClick={() => {
-												handleRowClick(task);
+							{!info?.loadingSkeleton ? (
+								<div
+									style={{
+										display: 'flex',
+										flexDirection: 'row',
+										gap: '15px',
+										flexWrap: 'wrap',
+									}}
+								>
+									{[{}, {}, {}, {}, {}, {}].map((ele, index) => (
+										<Skeleton
+											height={'231px'}
+											width={'268px'}
+											style={{
+												borderRadius: '16px',
 											}}
-										>
-											<div className="task-content">
-												<span className="title">{task?.title}</span>
-												<div className="description">
-													{task?.description}
+											key={index}
+										/>
+									))}
+								</div>
+							) : (
+								<div className="tasks-container">
+									{info?.overDueTasksList?.map((task) => {
+										return (
+											<div
+												className="task-container"
+												onClick={() => {
+													handleRowClick(task);
+												}}
+											>
+												<div className="task-content">
+													<span className="title">{task?.title}</span>
+													<div className="description">
+														{task?.description}
+													</div>
 												</div>
-											</div>
 
-											<div className="show-more">
-												<div className="assigned-to">
-													<div className="persons-container">
-														{task?.assignedTo?.map((person, index) => {
-															return (
-																<div
-																	className="persons"
-																	key={index}
-																>
-																	{person?.name[0]?.toUpperCase()}
-																</div>
-															);
-														})}
+												<div className="show-more">
+													<div className="assigned-to">
+														<div className="persons-container">
+															{task?.assignedTo?.map(
+																(person, index) => {
+																	return (
+																		<div
+																			className="persons"
+																			key={index}
+																		>
+																			{person?.name[0]?.toUpperCase()}
+																		</div>
+																	);
+																},
+															)}
+														</div>
+														<div className="remaining-persons-count">
+															{task?.assignedTo?.length > 3 &&
+																`+${task?.assignedTo?.length - 3}`}
+														</div>
 													</div>
-													<div className="remaining-persons-count">
-														{task?.assignedTo?.length > 3 &&
-															`+${task?.assignedTo?.length - 3}`}
+													<div className="chevron-icon-container">
+														<ChevronRightThinIcon />
 													</div>
-												</div>
-												<div className="chevron-icon-container">
-													<ChevronRightThinIcon />
 												</div>
 											</div>
-										</div>
-									);
-								})}
-							</div>
+										);
+									})}
+								</div>
+							)}
 						</InfiniteScroll>
 					</div>
 				)}
