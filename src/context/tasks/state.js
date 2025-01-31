@@ -23,6 +23,7 @@ export const intialState = {
 	listTasks: null,
 	listTasksForToday: null,
 	listTasksForOverdue: null,
+	listTasksDueTillToday: null,
 	newTask: null,
 	subTasks: null,
 	tasksCountForToday: null,
@@ -61,10 +62,45 @@ export const TasksState = () => {
 		}
 	};
 
-	const getListTasksForToday = async (payload, concat = true) => {
+	const getListTasksDueTillToday = async (payload) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				getListItemsByTenantUserQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+
+			if (response?.[0]) {
+				const resp = response?.[1]?.data?.listTasksByTenantUser;
+				dispatch({
+					type: Actions.SET_LIST_TASKS_DUE_TILL_TODAY,
+					payload: {
+						...resp,
+						data: Array.isArray(state?.listTasksDueTillToday?.data)
+							? state?.listTasksDueTillToday?.data?.concat(resp?.data)
+							: resp?.data,
+					},
+				});
+			} else {
+				console.log('API failed ==> getListTasksDueTillToday', response);
+				dispatch({
+					type: Actions.SET_LIST_TASKS_FOR_TODAY,
+					payload: { error: 'Failed to fetch tasks, try again' },
+				});
+			}
+		} catch (error) {
+			console.log('API failed ==> getListTasksDueTillToday', error);
+		}
+	};
+	const getListTasksForToday = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+
 			const response = await service.query(
 				getListItemsByTenantUserQuery,
 				payload,
@@ -481,6 +517,7 @@ export const TasksState = () => {
 		getListItems,
 		getListTasksForToday,
 		getListTasksForOverdue,
+		getListTasksDueTillToday,
 		addListItem,
 		updateListItem,
 		deleteListItem,

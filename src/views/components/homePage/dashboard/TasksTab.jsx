@@ -45,7 +45,7 @@ const colors = {
 };
 
 const options = [
-	{ id: 1, title: 'All', value: 'All' },
+	{ id: 1, title: 'Pending Tasks', value: 'Pending tasks' },
 	{ id: 2, title: 'Today', value: 'Today' },
 	{ id: 3, title: 'Overdue', value: 'Overdue' },
 ];
@@ -92,10 +92,12 @@ const TasksTab = () => {
 		tasks: {
 			listTasksForToday,
 			listTasksForOverdue,
+			listTasksDueTillToday,
 			tasksCountForToday,
 			tasksCountForOverdue,
 			getListTasksForToday,
 			getListTasksForOverdue,
+			getListTasksDueTillToday,
 			getTasksCountForToday,
 			getTasksCountForOverdue,
 			updateListItem,
@@ -107,13 +109,7 @@ const TasksTab = () => {
 			getTaskMetadata,
 		},
 		templates: { getWorkflowsList, workflowslist },
-		companyInfo: {
-			getTeamMembers,
-			tenantsUserList,
-			getTaskPreferences,
-			taskPreference,
-			updateTaskPreferences,
-		},
+		companyInfo: { getTeamMembers, tenantsUserList },
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 	} = useContext(Context);
 
@@ -122,13 +118,10 @@ const TasksTab = () => {
 		isCreateModalOpen: false,
 		isCreatingSubtask: true,
 		properties: [],
-		taskPreferences: {
-			preferenceType: 'taskPreference',
-			preferences: defaultPreference,
-		},
 		todayTasksList: [],
 		overDueTasksList: [],
-		selectedOption: 'All',
+		dueTillTodayTasksList: [],
+		selectedOption: 'Pending tasks',
 		sidebarIsOpen: false,
 		selectedRow: null,
 		selectedSubTask: null,
@@ -136,13 +129,12 @@ const TasksTab = () => {
 		workflows: [],
 		tenantUsers: [],
 		hasNextPageForTodayTasks: false,
-		hasNextPageForOverDueTasks: false,
+		hasNextPageForOverdueTasks: false,
+		hasNextPageForDueTillToday: false,
 		currentPageForTodayTasks: 1,
-		currentPageForOverDueTasks: 1,
-		loadingSkeletonForTodayTasks: true,
-		loadingSkeletonForOverdueTasks: true,
-		updated: false,
-		infinityLoading: false,
+		currentPageForOverdueTasks: 1,
+		currentPageForDueTillTodayTasks: 1,
+		loadingSkeleton: true,
 	});
 
 	useEffect(() => {
@@ -153,9 +145,7 @@ const TasksTab = () => {
 		if (!tasksCountForOverdue) {
 			getOverdueTasksCount();
 		}
-	}, []);
 
-	useEffect(() => {
 		if (listTasksForToday) {
 			const { currentPage, hasNextPage, data } = listTasksForToday;
 			setInfo((prev) => ({
@@ -172,12 +162,23 @@ const TasksTab = () => {
 			const { currentPage, hasNextPage, data } = listTasksForOverdue;
 			setInfo((prev) => ({
 				...prev,
-				currentPageForOverDueTasks: currentPage,
+				currentPageForOverdueTasks: currentPage,
 				hasNextPageForTodayTasks: hasNextPage,
 				overDueTasksList: data,
 			}));
 		} else {
 			fetchOverdueTasks(1);
+		}
+		if (listTasksDueTillToday) {
+			const { currentPage, hasNextPage, data } = listTasksDueTillToday;
+			setInfo((prev) => ({
+				...prev,
+				currentPageForDueTillTodayTasks: currentPage,
+				hasNextPageForDueTillToday: hasNextPage,
+				dueTillTodayTasksList: data,
+			}));
+		} else {
+			fetchDueTillTodayTasks(1);
 		}
 	}, []);
 
@@ -310,38 +311,7 @@ const TasksTab = () => {
 	}, [tenantsUserList]);
 
 	useEffect(() => {
-		if (taskPreference === null) {
-			getTaskPreferences({ preferences: 'taskPreference' });
-		} else if (taskPreference?.data === false) {
-			updateTaskPreferences({ preferenceType: 'taskPreference', data: defaultPreference });
-			setInfo((prevInfo) => ({
-				...prevInfo,
-				taskPreferences: {
-					preferenceType: 'taskPreference',
-					preferences: defaultPreference,
-				},
-			}));
-		} else if (taskPreference?.error) {
-			setInfo((prevInfo) => ({
-				...prevInfo,
-				taskPreferences: {
-					preferenceType: 'taskPreference',
-					preferences: defaultPreference,
-				},
-			}));
-		} else {
-			setInfo((prevInfo) => ({
-				...prevInfo,
-				taskPreferences: {
-					preferenceType: 'taskPreference',
-					preferences: taskPreference?.data,
-				},
-			}));
-		}
-	}, [taskPreference]);
-
-	useEffect(() => {
-		if (!workflowslist) {
+		if (workflowslist === null) {
 			getWorkflowsList({
 				filters: {
 					limit: 20,
@@ -367,45 +337,51 @@ const TasksTab = () => {
 					...prevInfo,
 					todayTasksList: listTasksForToday?.data,
 					hasNextPageForTodayTasks: listTasksForToday?.hasNextPage,
-					loadingSkeletonForTodayTasks: false,
-					infinityLoading: false,
+					loadingSkeleton: false,
 				}));
 			}
 		}
-	}, [listTasksForToday]);
 
-	useEffect(() => {
 		if (listTasksForOverdue) {
 			if (listTasksForOverdue?.data) {
 				setInfo((prevInfo) => ({
 					...prevInfo,
 					overDueTasksList: listTasksForOverdue?.data,
-					hasNextPageForOverDueTasks: listTasksForOverdue?.hasNextPage,
-					loadingSkeletonForOverdueTasks: false,
-					infinityLoading: false,
+					hasNextPageForOverdueTasks: listTasksForOverdue?.hasNextPage,
+					loadingSkeleton: false,
 				}));
 			}
 		}
-	}, [listTasksForOverdue]);
 
-	useEffect(() => {
-		if (info?.taskPreferences?.preferences) {
-			setInfo((prevInfo) => ({
-				...prevInfo,
-				properties: mapPropertyType(),
-			}));
+		if (listTasksDueTillToday) {
+			if (listTasksDueTillToday?.data) {
+				setInfo((prevInfo) => ({
+					...prevInfo,
+					dueTillTodayTasksList: listTasksDueTillToday?.data,
+					hasNextPageForDueTillToday: listTasksDueTillToday?.hasNextPage,
+					loadingSkeleton: false,
+				}));
+			}
 		}
-	}, [info?.taskPreferences?.preferences]);
+	}, [listTasksForToday, listTasksForOverdue, listTasksDueTillToday]);
 
 	useEffect(() => {
 		if (info?.selectedRow) {
 			updateTaskInfo({
 				selectedRow:
-					info?.overDueTasksList.find((item) => item._id === info?.selectedRow._id) ||
-					info?.todayTasksList.find((item) => item._id === info?.selectedRow._id),
+					info?.overDueTasksList?.find((item) => item?._id === info?.selectedRow._id) ||
+					info?.todayTasksList?.find((item) => item?._id === info?.selectedRow._id) ||
+					info?.dueTillTodayTasksList?.find(
+						(item) => item?._id === info?.selectedRow._id,
+					),
 			});
 		}
-	}, [info?.todayTasksList, info?.overDueTasksList, info?.selectedRow]);
+	}, [
+		info?.todayTasksList,
+		info?.overDueTasksList,
+		info?.dueTillTodayTasksList,
+		info?.selectedRow,
+	]);
 
 	useEffect(() => {
 		if (!taskMetadata) {
@@ -444,7 +420,7 @@ const TasksTab = () => {
 	const fetchTodayTasks = (page = 1) => {
 		const payload = {
 			filters: {
-				limit: 6,
+				limit: 10,
 				page,
 				startDate: Math.floor(new Date().setHours(0, 0, 0, 0) / 1000),
 				endDate: Math.floor(new Date().setHours(23, 59, 59, 999) / 1000),
@@ -464,65 +440,47 @@ const TasksTab = () => {
 		getListTasksForOverdue(payload);
 	};
 
+	const fetchDueTillTodayTasks = (page) => {
+		const payload = {
+			filters: {
+				limit: 6,
+				page,
+				endDate: Math.floor(new Date().setHours(23, 59, 59, 999) / 1000),
+			},
+		};
+		getListTasksDueTillToday(payload);
+	};
+
 	const fetchMoreTodayTasks = () => {
 		const nextPage = info?.currentPageForTodayTasks + 1;
 		fetchTodayTasks(nextPage);
 		setInfo((prevInfo) => ({
 			...prevInfo,
 			currentPageForTodayTasks: nextPage,
-			infinityLoading: true,
 		}));
 	};
 
-	const fetchMoreDueDateTasks = () => {
-		const nextPage = info?.currentPageForOverDueTasks + 1;
+	const fetchMoreOverdueTasks = () => {
+		const nextPage = info?.currentPageForOverdueTasks + 1;
 		fetchOverdueTasks(nextPage);
 		setInfo((prevInfo) => ({
 			...prevInfo,
-			currentPageForOverDueTasks: nextPage,
-			infinityLoading: true,
+			currentPageForOverdueTasks: nextPage,
+		}));
+	};
+
+	const fetchMoreTasksDueTillToday = () => {
+		const nextPage = info?.currentPageForDueTillTodayTasks + 1;
+		fetchDueTillTodayTasks(nextPage);
+		setInfo((prevInfo) => ({
+			...prevInfo,
+			currentPageForDueTillTodayTasks: nextPage,
 		}));
 	};
 
 	const updateTaskInfo = useCallback((updateData) => {
 		setInfo((previnfo) => ({ ...previnfo, ...updateData }));
 	}, []);
-
-	const mapPropertyType = useCallback(() => {
-		let properties = [];
-		for (let key in responseMetadata) {
-			if (
-				key === '__typename' ||
-				key === '_id' ||
-				key === 'workflowTemplateId' ||
-				key === 'completedAt'
-			) {
-				continue;
-			}
-
-			const {
-				type = null,
-				name = null,
-				Icon = null,
-				isTitle = false,
-			} = responseMetadata[key] || {};
-			const { show, order } = info?.taskPreferences?.preferences?.[key] || {
-				show: false,
-				order: 0,
-			};
-
-			properties.push({
-				value: key,
-				type,
-				label: name,
-				Icon,
-				show,
-				order,
-				isTitle,
-			});
-		}
-		return properties;
-	}, [info?.taskPreferences?.preferences]);
 
 	const debouncedUpdateTask = useCallback(
 		async (rowId, propName, value, originalValue, isUpdatingSubTask, onSuccess) => {
@@ -571,7 +529,7 @@ const TasksTab = () => {
 							});
 						} else {
 							setInfo((prevInfo) => {
-								const newTodayTasksList = prevInfo.todayTasksList.map((row) => {
+								const newTodayTasksList = prevInfo?.todayTasksList?.map((row) => {
 									if (row._id === rowId) {
 										return {
 											...row,
@@ -582,21 +540,36 @@ const TasksTab = () => {
 									return row;
 								});
 
-								const newOverdueTasksList = prevInfo.overDueTasksList.map((row) => {
-									if (row._id === rowId) {
-										return {
-											...row,
-											assignedBy: { _id: user_id, name: userName },
-											assignedAt: moment().unix(),
-										};
-									}
-									return row;
-								});
+								const newOverdueTasksList = prevInfo?.overDueTasksList?.map(
+									(row) => {
+										if (row._id === rowId) {
+											return {
+												...row,
+												assignedBy: { _id: user_id, name: userName },
+												assignedAt: moment().unix(),
+											};
+										}
+										return row;
+									},
+								);
+
+								const newDueTillTodayTasksList =
+									prevInfo?.dueTillTodayTasksList?.map((row) => {
+										if (row._id === rowId) {
+											return {
+												...row,
+												assignedBy: { _id: user_id, name: userName },
+												assignedAt: moment().unix(),
+											};
+										}
+										return row;
+									});
 
 								return {
 									...prevInfo,
 									todayTasksList: newTodayTasksList,
 									overDueTasksList: newOverdueTasksList,
+									dueTillTodayTasksList: newDueTillTodayTasksList,
 								};
 							});
 						}
@@ -627,10 +600,23 @@ const TasksTab = () => {
 							return row;
 						});
 
+						const newDueTillTodayTasksList = prevInfo?.dueTillTodayTasksList?.map(
+							(row) => {
+								if (row._id === rowId) {
+									return {
+										...row,
+										updatedBy: { _id: user_id, name: userName },
+									};
+								}
+								return row;
+							},
+						);
+
 						return {
 							...prevInfo,
 							todayTasksList: newTodayTasksList,
 							overDueTasksList: newOverdueTasksList,
+							dueTillTodayTasksList: newDueTillTodayTasksList,
 						};
 					});
 				}
@@ -656,10 +642,20 @@ const TasksTab = () => {
 						return row;
 					});
 
+					const rolledBackDueTillTodayTasksList = prevInfo?.dueTillTodayTasksList?.map(
+						(row) => {
+							if (row._id === rowId) {
+								return { ...row, [propName]: originalValue };
+							}
+							return row;
+						},
+					);
+
 					return {
 						...prevInfo,
 						todayTasksList: rolledBackTodayTasksList,
 						overDueTasksList: rolledBackOverdueTasksList,
+						dueTillTodayTasksList: rolledBackDueTillTodayTasksList,
 					};
 				});
 			}
@@ -696,18 +692,16 @@ const TasksTab = () => {
 				if (info?.selectedSubTask) {
 					setInfo((prevInfo) => ({
 						...prevInfo,
-						updated: true,
 						selectedSubTask: { ...info?.selectedSubTask, [propName]: updatedValue },
 					}));
 				}
 				setInfo((prevInfo) => ({
 					...prevInfo,
-					updated: true,
 				}));
 				updateSubTask({ _id: rowId, [propName]: updatedValue });
 			} else {
 				setInfo((prevInfo) => {
-					const updatedTodayTasksList = prevInfo.todayTasksList.map((row) => {
+					const updatedTodayTasksList = prevInfo?.todayTasksList?.map((row) => {
 						if (row._id === rowId) {
 							originalValue = row[propName];
 							return { ...row, [propName]: updatedValue };
@@ -715,19 +709,29 @@ const TasksTab = () => {
 						return row;
 					});
 
-					const updatedOverdueTasksList = prevInfo.overDueTasksList.map((row) => {
+					const updatedOverdueTasksList = prevInfo?.overDueTasksList?.map((row) => {
 						if (row._id === rowId) {
 							originalValue = row[propName];
 							return { ...row, [propName]: updatedValue };
 						}
 						return row;
 					});
+
+					const updatedDueTillTodayTasksList = prevInfo?.dueTillTodayTasksList?.map(
+						(row) => {
+							if (row._id === rowId) {
+								originalValue = row[propName];
+								return { ...row, [propName]: updatedValue };
+							}
+							return row;
+						},
+					);
 
 					return {
 						...prevInfo,
-						updated: true,
 						todayTasksList: updatedTodayTasksList,
 						overDueTasksList: updatedOverdueTasksList,
+						dueTillTodayTasksList: updatedDueTillTodayTasksList,
 					};
 				});
 			}
@@ -770,6 +774,9 @@ const TasksTab = () => {
 							overDueTasksList: prevInfo?.overDueTasksList?.filter(
 								(row) => row?._id !== payload?.taskId,
 							),
+							dueTillTodayTasksList: prevInfo?.dueTillTodayTasksList?.filter(
+								(row) => row?._id !== payload?.taskId,
+							),
 							sidebarIsOpen: false,
 							selectedRow: null,
 						}));
@@ -801,14 +808,8 @@ const TasksTab = () => {
 	}, []);
 
 	const handleCloseSidebar = useCallback(() => {
-		if (info?.updated) {
-			updateTaskInfo({ loadingSkeleton: true });
-			fetchOverdueTasks(1);
-			fetchTodayTasks(1);
-			updateTaskInfo({ updated: false });
-		}
 		updateTaskInfo({ sidebarIsOpen: false, selectedSubTask: null });
-	}, [info?.updated]);
+	}, []);
 
 	const handleChildTaskClose = useCallback(() => {
 		updateTaskInfo({ selectedSubTask: null });
@@ -859,26 +860,27 @@ const TasksTab = () => {
 						</button>
 					</Tooltip>
 				</div>
-
-				{info?.todayTasksList?.length > 0 &&
-					(info?.selectedOption === 'All' || info?.selectedOption === 'Today') && (
-						<div className="today-tasks">
-							<div className="today-text">Today ({tasksCountForToday})</div>
-							{}
+				{info?.dueTillTodayTasksList?.length > 0 &&
+					info?.selectedOption === 'Pending tasks' && (
+						<div className="due-till-today-tasks">
+							<div className="due-till-today-text">
+								Pending tasks till today (
+								{tasksCountForToday + tasksCountForOverdue})
+							</div>
 							<InfiniteScroll
-								dataLength={info?.todayTasksList?.length || 0}
-								next={fetchMoreTodayTasks}
-								hasMore={info?.hasNextPageForTodayTasks}
+								dataLength={info?.dueTillTodayTasksList?.length || 0}
+								hasMore={info?.hasNextPageForDueTillToday}
+								next={fetchMoreTasksDueTillToday}
 								loader={<FetchMoreLoaderComp />}
-								height={243}
+								height={470}
 							>
 								<div className="tasks-container">
-									{info?.todayTasksList?.map((task) => {
+									{info?.dueTillTodayTasksList?.map((task) => {
 										return (
 											<div
 												className="task-container"
 												onClick={() => {
-													handleRowClick(task, 'today');
+													handleRowClick(task);
 												}}
 											>
 												<div className="task-content">
@@ -920,65 +922,119 @@ const TasksTab = () => {
 							</InfiniteScroll>
 						</div>
 					)}
-				{info?.overDueTasksList?.length > 0 &&
-					(info?.selectedOption === 'All' || info?.selectedOption === 'Overdue') && (
-						<div className="over-due-tasks">
-							<div className="over-due-text">Overdue ({tasksCountForOverdue})</div>
-							<InfiniteScroll
-								dataLength={info?.overDueTasksList?.length || 0}
-								next={fetchMoreDueDateTasks}
-								hasMore={info?.hasNextPageForOverDueTasks}
-								loader={<FetchMoreLoaderComp />}
-								height={243}
-							>
-								<div className="tasks-container">
-									{info?.overDueTasksList?.map((task) => {
-										return (
-											<div
-												className="task-container"
-												onClick={() => {
-													handleRowClick(task, 'overdue');
-												}}
-											>
-												<div className="task-content">
-													<span className="title">{task?.title}</span>
-													<div className="description">
-														{task?.description}
-													</div>
-												</div>
 
-												<div className="show-more">
-													<div className="assigned-to">
-														<div className="persons-container">
-															{task?.assignedTo?.map(
-																(person, index) => {
-																	return (
-																		<div
-																			className="persons"
-																			key={index}
-																		>
-																			{person?.name[0]?.toUpperCase()}
-																		</div>
-																	);
-																},
-															)}
-														</div>
-														<div className="remaining-persons-count">
-															{task?.assignedTo?.length > 3 &&
-																`+${task?.assignedTo?.length - 3}`}
-														</div>
-													</div>
-													<div className="chevron-icon-container">
-														<ChevronRightThinIcon />
-													</div>
+				{info?.todayTasksList?.length > 0 && info?.selectedOption === 'Today' && (
+					<div className="today-tasks">
+						<div className="today-text">Today ({tasksCountForToday})</div>
+						<InfiniteScroll
+							dataLength={info?.todayTasksList?.length || 0}
+							next={fetchMoreTodayTasks}
+							hasMore={info?.hasNextPageForTodayTasks}
+							loader={<FetchMoreLoaderComp />}
+							height={470}
+						>
+							<div className="tasks-container">
+								{info?.todayTasksList?.map((task) => {
+									return (
+										<div
+											className="task-container"
+											onClick={() => {
+												handleRowClick(task);
+											}}
+										>
+											<div className="task-content">
+												<span className="title">{task?.title}</span>
+												<div className="description">
+													{task?.description}
 												</div>
 											</div>
-										);
-									})}
-								</div>
-							</InfiniteScroll>
-						</div>
-					)}
+
+											<div className="show-more">
+												<div className="assigned-to">
+													<div className="persons-container">
+														{task?.assignedTo?.map((person, index) => {
+															return (
+																<div
+																	className="persons"
+																	key={index}
+																>
+																	{person?.name[0]?.toUpperCase()}
+																</div>
+															);
+														})}
+													</div>
+													<div className="remaining-persons-count">
+														{task?.assignedTo?.length > 3 &&
+															`+${task?.assignedTo?.length - 3}`}
+													</div>
+												</div>
+												<div className="chevron-icon-container">
+													<ChevronRightThinIcon />
+												</div>
+											</div>
+										</div>
+									);
+								})}
+							</div>
+						</InfiniteScroll>
+					</div>
+				)}
+				{info?.overDueTasksList?.length > 0 && info?.selectedOption === 'Overdue' && (
+					<div className="over-due-tasks">
+						<div className="over-due-text">Overdue ({tasksCountForOverdue})</div>
+						<InfiniteScroll
+							dataLength={info?.overDueTasksList?.length || 0}
+							next={fetchMoreOverdueTasks}
+							hasMore={info?.hasNextPageForOverdueTasks}
+							loader={<FetchMoreLoaderComp />}
+							height={470}
+						>
+							<div className="tasks-container">
+								{info?.overDueTasksList?.map((task) => {
+									return (
+										<div
+											className="task-container"
+											onClick={() => {
+												handleRowClick(task);
+											}}
+										>
+											<div className="task-content">
+												<span className="title">{task?.title}</span>
+												<div className="description">
+													{task?.description}
+												</div>
+											</div>
+
+											<div className="show-more">
+												<div className="assigned-to">
+													<div className="persons-container">
+														{task?.assignedTo?.map((person, index) => {
+															return (
+																<div
+																	className="persons"
+																	key={index}
+																>
+																	{person?.name[0]?.toUpperCase()}
+																</div>
+															);
+														})}
+													</div>
+													<div className="remaining-persons-count">
+														{task?.assignedTo?.length > 3 &&
+															`+${task?.assignedTo?.length - 3}`}
+													</div>
+												</div>
+												<div className="chevron-icon-container">
+													<ChevronRightThinIcon />
+												</div>
+											</div>
+										</div>
+									);
+								})}
+							</div>
+						</InfiniteScroll>
+					</div>
+				)}
 			</div>
 			<ListViewSidebar
 				selectedRow={info?.selectedSubTask || info?.selectedRow}

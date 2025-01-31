@@ -132,7 +132,13 @@ const decideDurationValue = (value) => {
 	return [startDate, endDate];
 };
 
-const MyWorkflowsModals = ({ modalIsOpen, closeModal, activeTemplateData, activeCardsData }) => {
+const MyWorkflowsModals = ({
+	modalIsOpen,
+	closeModal,
+	activeTemplateData,
+	activeCardsData,
+	updateStateOnUnmounting = true,
+}) => {
 	const navigate = useNavigate();
 	let {
 		templates: { getWorkflowsList, workflowslist, moreWorkList, updateStateValues },
@@ -141,9 +147,10 @@ const MyWorkflowsModals = ({ modalIsOpen, closeModal, activeTemplateData, active
 	const [info, setInfo] = useState(initialState);
 
 	useEffect(() => {
-		return () => {
-			updateStateValues({ workflowslist: null });
-		};
+		if (updateStateOnUnmounting)
+			return () => {
+				updateStateValues({ workflowslist: null });
+			};
 	}, []);
 
 	useEffect(() => {
