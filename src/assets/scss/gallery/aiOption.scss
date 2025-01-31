@@ -61,39 +61,59 @@
 	.aiPeople-container {
 		display: flex;
 		flex-direction: column;
+		padding: 24px;
 		gap: 24px;
+		border-radius: 40px;
+		background: var(--card, #171819);
 
 		overflow: auto;
 		p {
-			color: #979797;
-			font-size: 12px;
-			font-weight: 400;
+			color: var(--primary-font, #f2f2f3);
+			font-family: Inter;
+			font-size: 20px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+			text-transform: capitalize;
 		}
-		.aiPeople {
+		.aiPeople-container-scroll {
 			display: flex;
-			flex-wrap: wrap;
-			padding-bottom: 30px;
-			gap: 16px;
-			max-height: 60vh;
-			overflow-y: scroll;
-			// height: 60vh;
-			// overflow-y: scroll;
-			.aiPeople-person {
+			flex-direction: row;
+			justify-content: space-between;
+			.aiPeople {
 				display: flex;
-				justify-content: space-between;
-				width: 121.985px;
-				height: 134px;
-				padding: 11.729px 9.383px;
-				flex-direction: column;
-				align-items: center;
-				border-radius: 16px;
-				border: 1px solid rgb(92, 13, 219);
-				cursor: pointer;
-				img {
-					width: 80px;
-					height: 80px;
-					border-radius: 50%;
+				flex-wrap: wrap;
+				padding-bottom: 30px;
+				gap: 16px;
+				max-height: 10vh;
+				overflow-y: hidden;
+				transition: max-height 0.5s ease-in-out;
+				&.aiPeople-showMore {
+					max-height: 20vh;
+					overflow-y: scroll;
 				}
+				.aiPeople-person {
+					display: flex;
+					min-width: 100px;
+					padding: 8px 12px;
+					flex-direction: column;
+					align-items: center;
+					gap: 8px;
+					align-self: stretch;
+					border-radius: 12px;
+					cursor: pointer;
+					img {
+						width: 80px;
+						height: 80px;
+						border-radius: 50%;
+					}
+				}
+			}
+			.aiPeople-person-arrow {
+				display: flex;
+				justify-content: center;
+				align-items: flex-end;
+				cursor: pointer;
 			}
 		}
 	}
