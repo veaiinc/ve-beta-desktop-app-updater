@@ -26,6 +26,7 @@ const UploadStatusComponent = ({ info, setinfo, uploadFilesConcurrently, gallery
 	const uploadPhotosSubmitHandler = (e) => {
 		if (
 			validateExpiryData &&
+			validateExpiryData?.restrictGalleries &&
 			(validateExpiryData?.isExpired || !validateExpiryData?.uploadAllowed)
 		) {
 			return updateSubscriptionState({ expiredSubscriptionModal: true });

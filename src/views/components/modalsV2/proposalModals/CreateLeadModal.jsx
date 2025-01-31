@@ -208,7 +208,11 @@ const CreateLead = ({ workflow, modalIsOpen, closeModal }) => {
 	}, []);
 
 	const createLeadFunc = useCallback(async () => {
-		if (validateExpiryData && validateExpiryData?.isExpired) {
+		if (
+			validateExpiryData &&
+			validateExpiryData?.restrictWorkflows &&
+			validateExpiryData?.isExpired
+		) {
 			return updateSubscriptionState({ expiredSubscriptionModal: true });
 		}
 		if (createButtonActiveState) {

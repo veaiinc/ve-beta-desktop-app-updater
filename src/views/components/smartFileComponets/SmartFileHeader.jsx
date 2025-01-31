@@ -48,7 +48,11 @@ const SmartFileHeader = ({
 	});
 
 	const modifiedAccetFunc = useCallback(async () => {
-		if (validateExpiryData && validateExpiryData?.isExpired) {
+		if (
+			validateExpiryData &&
+			validateExpiryData?.restrictWorkflows &&
+			validateExpiryData?.isExpired
+		) {
 			return updateSubscriptionState({ expiredSubscriptionModal: true });
 		}
 
@@ -64,7 +68,11 @@ const SmartFileHeader = ({
 
 	const onOptionChangeFunc = useCallback(
 		async (data) => {
-			if (validateExpiryData && validateExpiryData?.isExpired) {
+			if (
+				validateExpiryData &&
+				validateExpiryData?.restrictWorkflows &&
+				validateExpiryData?.isExpired
+			) {
 				return updateSubscriptionState({ expiredSubscriptionModal: true });
 			}
 			if (data?.label === 'Edit') {
@@ -116,7 +124,11 @@ const SmartFileHeader = ({
 	}, [workflowStatus]);
 
 	const modifiedPreviewClick = useCallback(() => {
-		if (validateExpiryData?.isExpired) {
+		if (
+			validateExpiryData &&
+			validateExpiryData?.restrictWorkflows &&
+			validateExpiryData?.isExpired
+		) {
 			return updateSubscriptionState({ expiredSubscriptionModal: true });
 		}
 		setInfo((prev) => ({ ...prev, previewLoader: true }));

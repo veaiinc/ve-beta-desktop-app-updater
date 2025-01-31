@@ -14,7 +14,7 @@ const AuthWrapper = ({ title, children, maxWidth = '', showBottomToolbar = true 
 	const [workspaceId, setActiveWorkspaceId] = useActiveWorkspace();
 
 	const checkAuth = useAuth();
-	// const data = useSubscription();
+	const data = useSubscription();
 	const tokenData = useTokenExpiry();
 
 	useEffect(() => {
