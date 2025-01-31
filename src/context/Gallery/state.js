@@ -1746,6 +1746,33 @@ export const Galleries = () => {
 		}
 	};
 
+	const deleteWaterMark = async (json) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchDelete(
+				`/${workspaceId}/watermarks`,
+				usertoken,
+				json,
+				'tenant',
+			);
+			if (response[0] === true) {
+				const updatedWaterMarks = state.waterMarks.filter(
+					(watermark) => watermark.profileId !== json?.watermarkProfileId,
+				);
+				dispatch({
+					type: Actions.GET_WATERMARKS_LIST,
+					payload: updatedWaterMarks,
+				});
+				return response;
+			} else {
+				return response;
+			}
+		} catch (error) {
+			console.log('error==>deleteWaterMark', error);
+		}
+	};
+
 	const clearPreRegisteredUsers = () => {
 		dispatch({
 			type: Actions.GET_PRE_REGISTERED_USERS,
@@ -1844,5 +1871,6 @@ export const Galleries = () => {
 		getImageProcessingStatus,
 		setUpImageUpload,
 		getClientSelectionLightRoomCopy,
+		deleteWaterMark,
 	};
 };

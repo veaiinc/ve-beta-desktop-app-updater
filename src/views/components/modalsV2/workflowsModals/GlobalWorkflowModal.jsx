@@ -203,7 +203,11 @@ const GlobalWorkflowModal = ({ modalIsOpen, closeModal, globalTemplateId }) => {
 	}, [closeModal]);
 
 	const onCustomiseFunc = useCallback(async () => {
-		if (validateExpiryData && validateExpiryData?.isExpired) {
+		if (
+			validateExpiryData &&
+			validateExpiryData?.restrictWorkflows &&
+			validateExpiryData?.isExpired
+		) {
 			return updateSubscriptionState({ expiredSubscriptionModal: true });
 		}
 		if (info?.duplicateApiLoading) {
@@ -226,7 +230,11 @@ const GlobalWorkflowModal = ({ modalIsOpen, closeModal, globalTemplateId }) => {
 		}
 	}, [info?.activeTemplateData, info?.activeTab, info?.duplicateApiLoading]);
 	const onGenerateAIFunc = () => {
-		if (validateExpiryData && validateExpiryData?.isExpired) {
+		if (
+			validateExpiryData &&
+			validateExpiryData?.restrictWorkflows &&
+			validateExpiryData?.isExpired
+		) {
 			return updateSubscriptionState({ expiredSubscriptionModal: true });
 		}
 		window.location.href = `${origin}/generate/${info?.activeTemplateData?._id}`;

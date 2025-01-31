@@ -15,6 +15,15 @@ const calculateTimeLeft = (expiryTimestamp) => {
 		isExpiringSoon: hoursLeft <= 24,
 	};
 };
+
+const restrictMapper = {
+	restrictTasks: false,
+	restrictWorkflows: false,
+	restrictGalleries: false,
+	restrictCalendar: false,
+	restrictContacts: false,
+};
+
 const useSubscription = () => {
 	let {
 		subscriptionInfo: { currentPlan, getCurrentSubscriptionPlan, updateSubscriptionState },
@@ -31,10 +40,10 @@ const useSubscription = () => {
 		if (!currentPlan) {
 			getCurrentSubscriptionPlan();
 		} else {
-			console.log('currentPlan==>', currentPlan);
 			handleExpiryCheckLogic();
 		}
 	}, [currentPlan]);
+
 	const handleExpiryCheckLogic = useCallback(() => {
 		if (currentPlan) {
 			const validateExpiryData = calculateTimeLeft(
@@ -53,6 +62,7 @@ const useSubscription = () => {
 				tenantUsersLimit,
 				totalStorageUsedInBytes,
 				totalTenantUsers,
+				...restrictMapper,
 			};
 			const usedStorageLimitInGB = (totalStorageUsedInBytes / (1024 * 1024)).toFixed(2);
 
