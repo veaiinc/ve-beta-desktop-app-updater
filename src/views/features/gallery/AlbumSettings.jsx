@@ -281,7 +281,11 @@ const AlbumSettings = () => {
 	};
 
 	const uploadAlbumCoverChangeHandler = async (e) => {
-		if (validateExpiryData && validateExpiryData?.isExpired) {
+		if (
+			validateExpiryData &&
+			validateExpiryData?.restrictGalleries &&
+			validateExpiryData?.isExpired
+		) {
 			return updateSubscriptionState({ expiredSubscriptionModal: true });
 		}
 		const image = e.target.files[0];
@@ -411,7 +415,11 @@ const AlbumSettings = () => {
 		}
 	};
 	const handleDownloadAlbum = async () => {
-		if (validateExpiryData && validateExpiryData?.isExpired) {
+		if (
+			validateExpiryData &&
+			validateExpiryData?.restrictGalleries &&
+			validateExpiryData?.isExpired
+		) {
 			return updateSubscriptionState({ expiredSubscriptionModal: true });
 		}
 		message.loading('Downloading album...');

@@ -53,7 +53,11 @@ const WaterMarkComponent = ({ info, setinfo, waterMarks }) => {
 	};
 
 	const uploadWaterMarkChangeHandler = async (e) => {
-		if (validateExpiryData && validateExpiryData?.isExpired) {
+		if (
+			validateExpiryData &&
+			validateExpiryData?.restrictGalleries &&
+			validateExpiryData?.isExpired
+		) {
 			return updateSubscriptionState({ expiredSubscriptionModal: true });
 		}
 		const response = await uploadWaterMark(e.target.files[0]);
