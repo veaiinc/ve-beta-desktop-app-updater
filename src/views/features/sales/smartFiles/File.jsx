@@ -591,7 +591,11 @@ const File = ({
 	);
 
 	const duplicateTemplateFromSmartFile = useCallback(async () => {
-		if (validateExpiryData && validateExpiryData?.isExpired) {
+		if (
+			validateExpiryData &&
+			validateExpiryData?.restrictWorkflows &&
+			validateExpiryData?.isExpired
+		) {
 			return updateSubscriptionState({ expiredSubscriptionModal: true });
 		}
 		window.location.href = `${origin}/${workflowId}?workflow=true&templateId=${templateId}`;
@@ -853,7 +857,11 @@ const File = ({
 
 	const onChangeAiPrediction = useCallback(
 		(value) => {
-			if (validateExpiryData?.isExpired) {
+			if (
+				validateExpiryData &&
+				validateExpiryData?.restrictWorkflows &&
+				validateExpiryData?.isExpired
+			) {
 				return updateSubscriptionState({ expiredSubscriptionModal: true });
 			}
 			setInfo((prev) => ({ ...prev, useAiPredictions: value }));

@@ -10,7 +10,7 @@ import { useSubscription } from '@apollo/client';
 
 const GalleryViewLayout = ({ title, children }) => {
 	const checkAuth = useAuth();
-	// const data = useSubscription();
+	const data = useSubscription();
 	const tokenData = useTokenExpiry();
 	useEffect(() => {
 		checkAuth();
