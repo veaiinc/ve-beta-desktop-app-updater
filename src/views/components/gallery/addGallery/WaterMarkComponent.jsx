@@ -1,7 +1,8 @@
-import React, { useState, useRef, useContext } from 'react';
-import { Switch } from 'antd';
+import React, { useState, useRef, useContext, memo } from 'react';
+import { Switch, message } from 'antd';
 import { ReactComponent as DownArrowSvg } from '../../../../assets/svg/sidebar/downarrowsmall.svg';
 import Context from '../../../../context/context';
+import { ReactComponent as DeleteIcon } from '../../../../assets/svg/gallery/delete-red.svg';
 
 const watermarkPositions = [
 	{ position: 'northwest', top: 10, left: 10, bottom: 'auto', right: 10 },
@@ -24,7 +25,7 @@ const watermarkPositions = [
 const WaterMarkComponent = ({ info, setinfo, waterMarks }) => {
 	// Context
 	const {
-		galleryInfo: { uploadWaterMark, getWaterMarks },
+		galleryInfo: { uploadWaterMark, getWaterMarks, deleteWaterMark },
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 	} = useContext(Context);
 
@@ -65,6 +66,19 @@ const WaterMarkComponent = ({ info, setinfo, waterMarks }) => {
 
 	const changeWaterMarkFunction = (id) => {
 		setinfo((prev) => ({ ...prev, watermarkProfileId: id }));
+	};
+
+	const deleteWaterMarkFunction = async (e, watermarkId) => {
+		e.stopPropagation();
+		let json = {
+			watermarkProfileId: watermarkId,
+		};
+		const response = await deleteWaterMark(json);
+		if (response[0] === true) {
+			message.success('Watermark deleted successfully');
+		} else {
+			message.error(response[1]?.message || 'Something went wrong');
+		}
 	};
 
 	return (
@@ -180,6 +194,18 @@ const WaterMarkComponent = ({ info, setinfo, waterMarks }) => {
 													key={key}
 												>
 													<img src={watermark.resizedWatermakrUrl} />
+
+													<div
+														className="delete-icon-div"
+														onClick={(e) =>
+															deleteWaterMarkFunction(
+																e,
+																watermark?.profileId,
+															)
+														}
+													>
+														<DeleteIcon />
+													</div>
 												</a>
 											))}
 										</div>
@@ -196,4 +222,4 @@ const WaterMarkComponent = ({ info, setinfo, waterMarks }) => {
 	);
 };
 
-export default WaterMarkComponent;
+export default memo(WaterMarkComponent);
