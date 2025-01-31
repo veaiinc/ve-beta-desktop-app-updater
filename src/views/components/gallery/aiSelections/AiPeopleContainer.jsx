@@ -71,7 +71,23 @@ const AiPeopleContainer = ({ galleryId, galleryCredentials, handleFaceClick }) =
 				</InfiniteScroll>
 				<div
 					className="aiPeople-person-arrow"
-					onClick={() => setInfo((prev) => ({ ...prev, showMore: !prev.showMore }))}
+					onClick={() => {
+						setInfo((prev) => {
+							const newShowMore = !prev.showMore;
+							if (!newShowMore) {
+								setTimeout(() => {
+									document
+										.getElementById('galleryScrollTarget_aiPeople')
+										?.scrollTo({
+											top: 0,
+											behavior: 'smooth',
+										});
+								}, 100);
+							}
+
+							return { ...prev, showMore: newShowMore };
+						});
+					}}
 				>
 					<DownArrow />
 				</div>
