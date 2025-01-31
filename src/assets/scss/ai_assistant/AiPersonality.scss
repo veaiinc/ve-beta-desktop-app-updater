@@ -291,6 +291,11 @@
 						font-style: normal;
 						font-weight: 500;
 						line-height: normal;
+
+						&:disabled {
+							cursor: not-allowed;
+							opacity: 0.5;
+						}
 					}
 
 					.removeBtn {
@@ -312,6 +317,11 @@
 						font-style: normal;
 						font-weight: 500;
 						line-height: normal;
+
+						&:disabled {
+							cursor: not-allowed;
+							opacity: 0.5;
+						}
 					}
 				}
 			}
@@ -442,6 +452,11 @@
 						font-style: normal;
 						font-weight: 500;
 						line-height: normal;
+
+						&:disabled {
+							cursor: not-allowed;
+							opacity: 0.5;
+						}
 					}
 
 					.removeBtn {
@@ -463,6 +478,11 @@
 						font-style: normal;
 						font-weight: 500;
 						line-height: normal;
+
+						&:disabled {
+							cursor: not-allowed;
+							opacity: 0.5;
+						}
 					}
 				}
 			}

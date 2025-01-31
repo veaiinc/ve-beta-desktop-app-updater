@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import '../../../assets/scss/ai_assistant/AiPersonality.scss';
 import { ReactComponent as PlayIcon } from '../../../assets/svg/ai_assistant/play.svg';
 import { ReactComponent as DownSvg } from '../../../assets/svg/activity/down.svg';
@@ -7,8 +7,9 @@ import { ReactComponent as UploadIcon } from '../../../assets/svg/ai_assistant/u
 import { ReactComponent as PencilWithLine } from '../../../assets/svg/tasks/pencilWithLine.svg';
 import { ReactComponent as Plus } from '../../../assets/svg/ai_assistant/plus.svg';
 import CustomInput from '../globalComponents/CustomInput';
-import { Tooltip } from 'antd';
+import { message, Tooltip } from 'antd';
 import CustomTextArea from '../globalComponents/CustomTextArea';
+import Context from '../../../context/context';
 
 const personas = [
 	{
@@ -79,6 +80,9 @@ const ProgressCircles = () => (
 );
 
 const AiPersonality = ({ assistant, updateAssistantData }) => {
+	const {
+		aiSetup: { uploadFile, removeFile },
+	} = useContext(Context);
 	const [info, setInfo] = useState({
 		voiceOptions: [],
 		selectedVoice: 'Kierra',
@@ -91,12 +95,12 @@ const AiPersonality = ({ assistant, updateAssistantData }) => {
 		messagePlaceholder: assistant?.messagePlaceholder,
 		initialMessageError: '',
 		messagePlaceholderError: '',
-		assitant_profile_picture_s3Key:
-			assistant?.assitant_profile_picture_s3Key ||
-			'https://gratisography.com/wp-content/uploads/2024/11/gratisography-augmented-reality-800x525.jpg',
-		assitant_chat_icon_s3Key: assistant?.assitant_chat_icon_s3Key,
+		assitant_profile_picture_s3Key: assistant?.assitant_profile_picture_s3Key || '',
+		assitant_chat_icon_s3Key: assistant?.assitant_chat_icon_s3Key || '',
 		assistantUpdatedProfilePicture: null,
 		assistantUpdatedChatIcon: null,
+		profileLoading: false,
+		chatLoading: false,
 	});
 
 	const profilePictureRef = useRef(null);
@@ -112,6 +116,8 @@ const AiPersonality = ({ assistant, updateAssistantData }) => {
 			assistantPersonality: assistant?.personality,
 			initialMessage: assistant?.initialMessage,
 			messagePlaceholder: assistant?.messagePlaceholder,
+			assitant_profile_picture_s3Key: assistant?.assitant_profile_picture_s3Key || '',
+			assitant_chat_icon_s3Key: assistant?.assitant_chat_icon_s3Key || '',
 		}));
 	}, [assistant]);
 
@@ -128,9 +134,6 @@ const AiPersonality = ({ assistant, updateAssistantData }) => {
 		},
 		[updateAssistantData],
 	);
-	useEffect(() => {
-		console.log(info?.assistantUpdatedProfilePicture);
-	}, [info?.assistantUpdatedProfilePicture]);
 
 	const handleMoreVisibility = useCallback((visible) => {
 		setInfo((prev) => ({ ...prev, isSelectVoiceOpen: visible }));
@@ -209,6 +212,51 @@ const AiPersonality = ({ assistant, updateAssistantData }) => {
 			}
 		}
 	}, []);
+
+	const handleRemoveImage = useCallback(
+		async (type) => {
+			updateAiPersonalityInfo(`${type}Loading`, true);
+			const response = await removeFile(assistant?._id, type);
+			if (response?.[0]) {
+				updateAiPersonalityInfo(`${type}Loading`, false);
+				updateAssistantData(
+					`assitant_${type === 'profile' ? 'profile_picture' : 'chat_icon'}_s3Key`,
+					null,
+				);
+			} else {
+				message.error('Failed to remove image. Please try again.');
+			}
+			updateAiPersonalityInfo(`${type}Loading`, false);
+		},
+		[removeFile],
+	);
+
+	const handleUploadImage = useCallback(
+		async (file, type) => {
+			updateAiPersonalityInfo(`${type}Loading`, true);
+			const response = await uploadFile(assistant?._id, file, type);
+			if (response?.ok) {
+				if (type === 'profile') {
+					profilePictureRef.current.value = '';
+					setInfo((prevInfo) => ({
+						...prevInfo,
+						assistantUpdatedProfilePicture: null,
+						assitant_profile_picture_s3Key: URL.createObjectURL(file),
+					}));
+				}
+				if (type === 'chat') {
+					chatIconRef.current.value = '';
+					setInfo((prevInfo) => ({
+						...prevInfo,
+						assistantUpdatedChatIcon: null,
+						assitant_chat_icon_s3Key: URL.createObjectURL(file),
+					}));
+				}
+			}
+			updateAiPersonalityInfo(`${type}Loading`, false);
+		},
+		[assistant?._id, updateAiPersonalityInfo, uploadFile],
+	);
 
 	return (
 		<div className="personalityParentContainer">
@@ -372,7 +420,16 @@ const AiPersonality = ({ assistant, updateAssistantData }) => {
 					<div className="uploadContainer">
 						<div className="uploadIcons">
 							{info?.assistantUpdatedProfilePicture ? (
-								<button className="uploadBtn">
+								<button
+									className="uploadBtn"
+									onClick={() =>
+										handleUploadImage(
+											info?.assistantUpdatedProfilePicture,
+											'profile',
+										)
+									}
+									disabled={info?.profileLoading}
+								>
 									<UploadIcon />
 									Upload
 								</button>
@@ -389,11 +446,18 @@ const AiPersonality = ({ assistant, updateAssistantData }) => {
 								<button
 									className="removeBtn"
 									onClick={() => handleCancelImage('profile')}
+									disabled={info?.profileLoading}
 								>
 									Cancel
 								</button>
 							) : (
-								<button className="removeBtn">Remove</button>
+								<button
+									className="removeBtn"
+									onClick={() => handleRemoveImage('profile')}
+									disabled={info?.profileLoading}
+								>
+									Remove
+								</button>
 							)}
 						</div>
 						<span className="uploadLabel">
@@ -438,7 +502,13 @@ const AiPersonality = ({ assistant, updateAssistantData }) => {
 					<div className="uploadContainer">
 						<div className="uploadIcons">
 							{info?.assistantUpdatedChatIcon ? (
-								<button className="uploadBtn">
+								<button
+									className="uploadBtn"
+									onClick={() =>
+										handleUploadImage(info?.assistantUpdatedChatIcon, 'chat')
+									}
+									disabled={info?.chatLoading}
+								>
 									<UploadIcon />
 									Upload
 								</button>
@@ -455,11 +525,18 @@ const AiPersonality = ({ assistant, updateAssistantData }) => {
 								<button
 									className="removeBtn"
 									onClick={() => handleCancelImage('chatIcon')}
+									disabled={info?.chatLoading}
 								>
 									Cancel
 								</button>
 							) : (
-								<button className="removeBtn">Remove</button>
+								<button
+									className="removeBtn"
+									onClick={() => handleRemoveImage('chat')}
+									disabled={info?.chatLoading}
+								>
+									Remove
+								</button>
 							)}
 						</div>
 						<span className="uploadLabel">
@@ -494,7 +571,6 @@ const AiPersonality = ({ assistant, updateAssistantData }) => {
 					label="Initial Message"
 					value={info?.initialMessage}
 					onChange={(e) => {
-						console.log('blablab');
 						handleLimittedCharecterUpdate(e.target.value, 'initialMessage');
 					}}
 					onBlur={() =>
