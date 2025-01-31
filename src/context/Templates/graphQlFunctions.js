@@ -20,6 +20,7 @@ export const getTemmplatesQuery = gql`
 				workflows
 				templates
 				steps
+				version
 				# steps {
 				# 	_id
 				# 	criteria
