@@ -8,7 +8,7 @@ import { ReactComponent as PrioritySvg } from '../../../../assets/svg/tasks/roun
 import { ReactComponent as WorkflowSvg } from '../../../../assets/svg/tasks/workflow.svg';
 import { ReactComponent as PersonSvg } from '../../../../assets/svg/tasks/person.svg';
 import { ReactComponent as CalendarSvg } from '../../../../assets/svg/tasks/calendar.svg';
-import { message, Tooltip } from 'antd';
+import { message, Skeleton, Tooltip } from 'antd';
 import jwtDecode from 'jwt-decode';
 import moment from 'moment';
 import Context from '../../../../context/context';
@@ -366,24 +366,6 @@ const TasksTab = () => {
 	}, [listTasksForToday, listTasksForOverdue, listTasksDueTillToday]);
 
 	useEffect(() => {
-		if (info?.selectedRow) {
-			updateTaskInfo({
-				selectedRow:
-					info?.overDueTasksList?.find((item) => item?._id === info?.selectedRow._id) ||
-					info?.todayTasksList?.find((item) => item?._id === info?.selectedRow._id) ||
-					info?.dueTillTodayTasksList?.find(
-						(item) => item?._id === info?.selectedRow._id,
-					),
-			});
-		}
-	}, [
-		info?.todayTasksList,
-		info?.overDueTasksList,
-		info?.dueTillTodayTasksList,
-		info?.selectedRow,
-	]);
-
-	useEffect(() => {
 		if (!taskMetadata) {
 			getTaskMetadata();
 		} else {
@@ -482,306 +464,167 @@ const TasksTab = () => {
 		setInfo((previnfo) => ({ ...previnfo, ...updateData }));
 	}, []);
 
-	const debouncedUpdateTask = useCallback(
-		async (
-			rowId,
-			propName,
-			value,
-			originalValue,
-			isUpdatingSubTask,
-			onSuccess,
-			updatedValue,
-		) => {
-			try {
-				const response = await updateListItem({
-					taskId: rowId,
-					updateInput:
-						propName === 'workflow'
-							? {
-									workflowId: value,
-									workflowTemplateId: info?.workflows?.find(
-										(workflow) => workflow?._id === value,
-									)?.templateId,
-							  }
-							: {
-									[propName]:
-										propName === 'assignedTo' ? { tenantUsers: value } : value,
-							  },
-				});
+	const debouncedUpdateTask = async (
+		rowId,
+		propName,
+		value,
+		originalValue,
+		isUpdatingSubTask,
+		onSuccess,
+		updatedValue,
+	) => {
+		try {
+			const response = await updateListItem({
+				taskId: rowId,
+				updateInput:
+					propName === 'workflow'
+						? {
+								workflowId: value,
+								workflowTemplateId: info?.workflows?.find(
+									(workflow) => workflow?._id === value,
+								)?.templateId,
+						  }
+						: {
+								[propName]:
+									propName === 'assignedTo' ? { tenantUsers: value } : value,
+						  },
+			});
 
-				if (response?.[0] === false) {
-					throw new Error('Failed to update, Try again later');
-				} else {
-					// Update state only after successful API call
-					if (onSuccess) onSuccess();
+			if (response?.[0] === false) {
+				throw new Error('Failed to update, Try again later');
+			} else {
+				// Update state only after successful API call
+				if (onSuccess) onSuccess();
 
-					let task;
+				let task;
+				if (info?.selectedOption === 'Pending tasks') {
+					task = info?.dueTillTodayTasksList?.filter((row) => {
+						return row?._id === rowId;
+					});
+				} else if (info?.selectedOption === 'Today') {
+					task = info?.todayTasksList?.filter((row) => {
+						return row?._id === rowId;
+					});
+				} else if (info?.selectedOption === 'Overdue') {
+					task = info?.overDueTasksList?.filter((row) => {
+						return row?._id === rowId;
+					});
+				}
+				task = task[0];
 
-					// Handle assignedTo special case
-					if (propName === 'assignedTo') {
-						const token = localStorage.getItem('usertoken');
-						const { user_id, userName } = jwtDecode(token);
-						if (isUpdatingSubTask) {
-							setInfo((prevInfo) => ({
-								...prevInfo,
-								selectedSubTask: prevInfo?.selectedSubTask
-									? {
-											...info?.selectedSubTask,
-											assignedBy: { _id: user_id, name: userName },
-											assignedAt: moment().unix(),
-									  }
-									: null,
-							}));
-							updateSubTask({
-								_id: rowId,
-								assignedBy: { _id: user_id, name: userName },
-								assignedAt: moment().unix(),
-							});
-						} else {
-							task = info?.todayTasksList?.filter((row) => {
-								return row?._id === rowId;
-							});
-							task = info?.overDueTasksList?.filter((row) => {
-								return row?._id === rowId;
-							});
-							task = info?.dueTillTodayTasksList?.filter((row) => {
-								return row?._id === rowId;
-							});
-							task = {
-								...task,
-								assignedBy: { _id: user_id, name: userName },
-								assignedAt: moment().unix(),
-							};
-
-							// setInfo((prevInfo) => {
-							// 	const newTodayTasksList = prevInfo?.todayTasksList?.map((row) => {
-							// 		if (row._id === rowId) {
-							// 			return {
-							// 				...row,
-							// 				assignedBy: { _id: user_id, name: userName },
-							// 				assignedAt: moment().unix(),
-							// 			};
-							// 		}
-							// 		return row;
-							// 	});
-
-							// 	const newOverdueTasksList = prevInfo?.overDueTasksList?.map(
-							// 		(row) => {
-							// 			if (row._id === rowId) {
-							// 				return {
-							// 					...row,
-							// 					assignedBy: { _id: user_id, name: userName },
-							// 					assignedAt: moment().unix(),
-							// 				};
-							// 			}
-							// 			return row;
-							// 		},
-							// 	);
-
-							// 	const newDueTillTodayTasksList =
-							// 		prevInfo?.dueTillTodayTasksList?.map((row) => {
-							// 			if (row._id === rowId) {
-							// 				return {
-							// 					...row,
-							// 					assignedBy: { _id: user_id, name: userName },
-							// 					assignedAt: moment().unix(),
-							// 				};
-							// 			}
-							// 			return row;
-							// 		});
-
-							// 	return {
-							// 		...prevInfo,
-							// 		todayTasksList: newTodayTasksList,
-							// 		overDueTasksList: newOverdueTasksList,
-							// 		dueTillTodayTasksList: newDueTillTodayTasksList,
-							// 	};
-							// });
-						}
-					}
-
-					// Update updatedBy for any successful update
+				// Handle assignedTo special case
+				if (propName === 'assignedTo') {
 					const token = localStorage.getItem('usertoken');
 					const { user_id, userName } = jwtDecode(token);
-
-					task = { ...task, updatedBy: { _id: user_id, name: userName } };
-					task = { ...task, [propName]: updatedValue };
-
-					fetchDueTillTodayTasks(1, 'update', task);
-					fetchOverdueTasks(1, 'update', task);
-					fetchTodayTasks(1, 'update', task);
-					// setInfo((prevInfo) => {
-					// 	const newTodayTasksList = prevInfo?.todayTasksList?.map((row) => {
-					// 		if (row._id === rowId) {
-					// 			return {
-					// 				...row,
-					// 				updatedBy: { _id: user_id, name: userName },
-					// 			};
-					// 		}
-					// 		return row;
-					// 	});
-
-					// 	const newOverdueTasksList = prevInfo?.overDueTasksList?.map((row) => {
-					// 		if (row._id === rowId) {
-					// 			return {
-					// 				...row,
-					// 				updatedBy: { _id: user_id, name: userName },
-					// 			};
-					// 		}
-					// 		return row;
-					// 	});
-
-					// 	const newDueTillTodayTasksList = prevInfo?.dueTillTodayTasksList?.map(
-					// 		(row) => {
-					// 			if (row._id === rowId) {
-					// 				return {
-					// 					...row,
-					// 					updatedBy: { _id: user_id, name: userName },
-					// 				};
-					// 			}
-					// 			return row;
-					// 		},
-					// 	);
-
-					// 	return {
-					// 		...prevInfo,
-					// 		todayTasksList: newTodayTasksList,
-					// 		overDueTasksList: newOverdueTasksList,
-					// 		dueTillTodayTasksList: newDueTillTodayTasksList,
-					// 	};
-					// });
+					if (isUpdatingSubTask) {
+						setInfo((prevInfo) => ({
+							...prevInfo,
+							selectedSubTask: prevInfo?.selectedSubTask
+								? {
+										...info?.selectedSubTask,
+										assignedBy: { _id: user_id, name: userName },
+										assignedAt: moment().unix(),
+								  }
+								: null,
+						}));
+						updateSubTask({
+							_id: rowId,
+							assignedBy: { _id: user_id, name: userName },
+							assignedAt: moment().unix(),
+						});
+					} else {
+						task = {
+							...task,
+							assignedBy: { _id: user_id, name: userName },
+							assignedAt: moment().unix(),
+						};
+					}
 				}
-				if (!info?.sidebarIsOpen) {
-					fetchOverdueTasks(1);
-					fetchTodayTasks(1);
-				}
-			} catch (error) {
-				message.error(error?.message || 'Something went wrong! Please try again.');
 
-				setInfo((prevInfo) => {
-					const rolledBackTodayTasksList = prevInfo?.todayTasksList?.map((row) => {
-						if (row._id === rowId) {
-							return { ...row, [propName]: originalValue };
-						}
-						return row;
-					});
+				// Update updatedBy for any successful update
+				const token = localStorage.getItem('usertoken');
+				const { user_id, userName } = jwtDecode(token);
 
-					const rolledBackOverdueTasksList = prevInfo?.overDueTasksList?.map((row) => {
-						if (row._id === rowId) {
-							return { ...row, [propName]: originalValue };
-						}
-						return row;
-					});
+				task = { ...task, updatedBy: { _id: user_id, name: userName } };
+				task = { ...task, [propName]: updatedValue };
 
-					const rolledBackDueTillTodayTasksList = prevInfo?.dueTillTodayTasksList?.map(
-						(row) => {
-							if (row._id === rowId) {
-								return { ...row, [propName]: originalValue };
-							}
-							return row;
-						},
-					);
-
-					return {
-						...prevInfo,
-						todayTasksList: rolledBackTodayTasksList,
-						overDueTasksList: rolledBackOverdueTasksList,
-						dueTillTodayTasksList: rolledBackDueTillTodayTasksList,
-					};
-				});
-			}
-		},
-		[updateListItem, info?.workflows, info?.selectedSubTask, info?.sidebarIsOpen],
-	);
-
-	const handleDebounceUpdate = useCallback(
-		(rowId, propName, value, originalValue, isSubTask, onSuccess) => {
-			if (debounceTimeout.current) {
-				clearTimeout(debounceTimeout.current);
-			}
-
-			debounceTimeout.current = setTimeout(() => {
-				debouncedUpdateTask(rowId, propName, value, originalValue, isSubTask, onSuccess);
-			}, 800);
-		},
-		[debouncedUpdateTask],
-	);
-
-	const updatePropertyValue = useCallback(
-		(rowId, propName, value, isUpdatingSubTask, onSuccess) => {
-			if (validateExpiryData?.isExpired) {
-				return updateSubscriptionState({ expiredSubscriptionModal: true });
-			}
-			let originalValue;
-			let updatedValue = value;
-			if (propName === 'workflow') {
-				const workflow = info?.workflows?.find((workflow) => workflow._id === value);
-				updatedValue = workflow;
-			}
-
-			if (info?.selectedSubTask || isUpdatingSubTask) {
-				if (info?.selectedSubTask) {
-					setInfo((prevInfo) => ({
-						...prevInfo,
-						selectedSubTask: { ...info?.selectedSubTask, [propName]: updatedValue },
-					}));
-				}
-				setInfo((prevInfo) => ({
-					...prevInfo,
+				setInfo((prev) => ({
+					...prev,
+					selectedRow: task,
 				}));
-				updateSubTask({ _id: rowId, [propName]: updatedValue });
-			} else {
-				// setInfo((prevInfo) => {
-				// 	const updatedTodayTasksList = prevInfo?.todayTasksList?.map((row) => {
-				// 		if (row._id === rowId) {
-				// 			originalValue = row[propName];
-				// 			return { ...row, [propName]: updatedValue };
-				// 		}
-				// 		return row;
-				// 	});
-				// 	const updatedOverdueTasksList = prevInfo?.overDueTasksList?.map((row) => {
-				// 		if (row._id === rowId) {
-				// 			originalValue = row[propName];
-				// 			return { ...row, [propName]: updatedValue };
-				// 		}
-				// 		return row;
-				// 	});
-				// 	const updatedDueTillTodayTasksList = prevInfo?.dueTillTodayTasksList?.map(
-				// 		(row) => {
-				// 			if (row._id === rowId) {
-				// 				originalValue = row[propName];
-				// 				return { ...row, [propName]: updatedValue };
-				// 			}
-				// 			return row;
-				// 		},
-				// 	);
-				// 	return {
-				// 		...prevInfo,
-				// 		todayTasksList: updatedTodayTasksList,
-				// 		overDueTasksList: updatedOverdueTasksList,
-				// 		dueTillTodayTasksList: updatedDueTillTodayTasksList,
-				// 	};
-				// });
-			}
 
-			handleDebounceUpdate(
+				fetchDueTillTodayTasks(1, 'update', task);
+				fetchOverdueTasks(1, 'update', task);
+				fetchTodayTasks(1, 'update', task);
+			}
+			if (!info?.sidebarIsOpen) {
+				fetchOverdueTasks(1);
+				fetchTodayTasks(1);
+			}
+		} catch (error) {
+			message.error(error?.message || 'Something went wrong! Please try again.');
+		}
+	};
+
+	const handleDebounceUpdate = (
+		rowId,
+		propName,
+		value,
+		originalValue,
+		isSubTask,
+		onSuccess,
+		updatedValue,
+	) => {
+		if (debounceTimeout.current) {
+			clearTimeout(debounceTimeout.current);
+		}
+
+		debounceTimeout.current = setTimeout(() => {
+			debouncedUpdateTask(
 				rowId,
 				propName,
 				value,
 				originalValue,
-				isUpdatingSubTask || info?.selectedSubTask !== null,
+				isSubTask,
 				onSuccess,
 				updatedValue,
 			);
-		},
-		[
-			validateExpiryData?.isExpired,
-			updateSubscriptionState,
-			debouncedUpdateTask,
-			info?.selectedSubTask,
-		],
-	);
+		}, 800);
+	};
 
+	const updatePropertyValue = (rowId, propName, value, isUpdatingSubTask, onSuccess) => {
+		if (validateExpiryData?.isExpired) {
+			return updateSubscriptionState({ expiredSubscriptionModal: true });
+		}
+		let originalValue;
+		let updatedValue = value;
+		if (propName === 'workflow') {
+			const workflow = info?.workflows?.find((workflow) => workflow._id === value);
+			updatedValue = workflow;
+		}
+
+		if (info?.selectedSubTask || isUpdatingSubTask) {
+			if (info?.selectedSubTask) {
+				setInfo((prevInfo) => ({
+					...prevInfo,
+					selectedSubTask: { ...info?.selectedSubTask, [propName]: updatedValue },
+				}));
+			}
+			setInfo((prevInfo) => ({
+				...prevInfo,
+			}));
+			updateSubTask({ _id: rowId, [propName]: updatedValue });
+		}
+		handleDebounceUpdate(
+			rowId,
+			propName,
+			value,
+			originalValue,
+			isUpdatingSubTask || info?.selectedSubTask !== null,
+			onSuccess,
+			updatedValue,
+		);
+	};
 	const deleteTask = useCallback(
 		async (payload) => {
 			if (validateExpiryData?.isExpired) {
@@ -796,33 +639,30 @@ const TasksTab = () => {
 						getOverdueTasksCount();
 						getTodayTasksCount();
 						let task;
-						task = info?.todayTasksList?.filter((row) => {
-							return row?._id === payload?.taskId;
-						});
-						task = info?.overDueTasksList?.filter((row) => {
-							return row?._id === payload?.taskId;
-						});
-						task = info?.dueTillTodayTasksList?.filter((row) => {
-							return row?._id === payload?.taskId;
-						});
+
+						if (info?.selectedOption === 'Pending tasks') {
+							task = info?.dueTillTodayTasksList?.filter((row) => {
+								return row?._id === payload?.taskId;
+							});
+						} else if (info?.selectedOption === 'Today') {
+							task = info?.todayTasksList?.filter((row) => {
+								return row?._id === payload?.taskId;
+							});
+						} else if (info?.selectedOption === 'Overdue') {
+							task = info?.overDueTasksList?.filter((row) => {
+								return row?._id === payload?.taskId;
+							});
+						}
+						task = task[0];
+						setInfo((prev) => ({
+							...prev,
+							selectedRow: null,
+						}));
 
 						fetchDueTillTodayTasks(1, 'delete', task);
 						fetchOverdueTasks(1, 'delete', task);
 						fetchTodayTasks(1, 'delete', task);
-						// setInfo((prevInfo) => ({
-						// 	...prevInfo,
-						// 	todayTasksList: prevInfo?.todayTasksList?.filter(
-						// 		(row) => row?._id !== payload?.taskId,
-						// 	),
-						// 	overDueTasksList: prevInfo?.overDueTasksList?.filter(
-						// 		(row) => row?._id !== payload?.taskId,
-						// 	),
-						// 	dueTillTodayTasksList: prevInfo?.dueTillTodayTasksList?.filter(
-						// 		(row) => row?._id !== payload?.taskId,
-						// 	),
-						// 	sidebarIsOpen: false,
-						// 	selectedRow: null,
-						// }));
+						handleCloseSidebar();
 					}
 				}
 			}
@@ -839,7 +679,7 @@ const TasksTab = () => {
 				updateTaskInfo({ selectedRow: row, sidebarIsOpen: true });
 			}
 		},
-		[info?.listItems, resetSubTasks, info?.selectedRow?._id],
+		[resetSubTasks, info?.selectedRow?._id],
 	);
 
 	const handleCreateSubTaskClick = useCallback(() => {
@@ -857,6 +697,7 @@ const TasksTab = () => {
 	const handleChildTaskClose = useCallback(() => {
 		updateTaskInfo({ selectedSubTask: null });
 	}, []);
+	console.log(info?.loadingSkeleton);
 
 	return (
 		<>
@@ -917,51 +758,65 @@ const TasksTab = () => {
 								loader={<FetchMoreLoaderComp />}
 								height={470}
 							>
-								<div className="tasks-container">
-									{info?.dueTillTodayTasksList?.map((task) => {
-										return (
-											<div
-												className="task-container"
-												onClick={() => {
-													handleRowClick(task);
-												}}
-											>
-												<div className="task-content">
-													<span className="title">{task?.title}</span>
-													<div className="description">
-														{task?.description}
+								{!info?.loadingSkeleton ? (
+									<div>
+										{[{}, {}, {}].map((ele, index) => (
+											<Skeleton
+												height={'59px'}
+												style={{ borderRadius: '16px' }}
+												key={index}
+											/>
+										))}
+									</div>
+								) : (
+									<div className="tasks-container">
+										{info?.dueTillTodayTasksList?.map((task) => {
+											return (
+												<div
+													className="task-container"
+													onClick={() => {
+														handleRowClick(task);
+													}}
+												>
+													<div className="task-content">
+														<span className="title">{task?.title}</span>
+														<div className="description">
+															{task?.description}
+														</div>
 													</div>
-												</div>
 
-												<div className="show-more">
-													<div className="assigned-to">
-														<div className="persons-container">
-															{task?.assignedTo?.map(
-																(person, index) => {
-																	return (
-																		<div
-																			className="persons"
-																			key={index}
-																		>
-																			{person?.name[0]?.toUpperCase()}
-																		</div>
-																	);
-																},
-															)}
+													<div className="show-more">
+														<div className="assigned-to">
+															<div className="persons-container">
+																{task?.assignedTo?.map(
+																	(person, index) => {
+																		return (
+																			<div
+																				className="persons"
+																				key={index}
+																			>
+																				{person?.name[0]?.toUpperCase()}
+																			</div>
+																		);
+																	},
+																)}
+															</div>
+															<div className="remaining-persons-count">
+																{task?.assignedTo?.length > 3 &&
+																	`+${
+																		task?.assignedTo?.length - 3
+																	}`}
+															</div>
 														</div>
-														<div className="remaining-persons-count">
-															{task?.assignedTo?.length > 3 &&
-																`+${task?.assignedTo?.length - 3}`}
+														<div className="chevron-icon-container">
+															<ChevronRightThinIcon />
 														</div>
-													</div>
-													<div className="chevron-icon-container">
-														<ChevronRightThinIcon />
 													</div>
 												</div>
-											</div>
-										);
-									})}
-								</div>
+											);
+										})}
+									</div>
+								)}
 							</InfiniteScroll>
 						</div>
 					)}

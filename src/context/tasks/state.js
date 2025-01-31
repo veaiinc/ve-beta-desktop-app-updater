@@ -66,19 +66,22 @@ export const TasksState = () => {
 		try {
 			if (task !== null && type !== null) {
 				const taskId = task?._id;
+
 				if (type === 'update') {
 					const updatedList = state?.listTasksDueTillToday?.data?.map((item) => {
-						if (item?.id === taskId) {
-							return task;
+						if (item?._id === taskId) {
+							return { ...task };
 						}
 						return item;
 					});
+
 					dispatch({
 						type: Actions.SET_LIST_TASKS_DUE_TILL_TODAY,
 						payload: { ...state?.listTasksDueTillToday, data: updatedList },
 					});
 					return;
 				}
+				console.log(task);
 				if (type === 'delete') {
 					const updatedList = state?.listTasksDueTillToday?.data?.filter(
 						(item) => item?._id !== taskId,
@@ -129,7 +132,7 @@ export const TasksState = () => {
 				const taskId = task?._id;
 				if (type === 'update') {
 					const updatedList = state?.listTasksForToday?.data?.map((item) => {
-						if (item?.id === taskId) {
+						if (item?._id === taskId) {
 							return task;
 						}
 						return item;
@@ -192,7 +195,7 @@ export const TasksState = () => {
 				const taskId = task?._id;
 				if (type === 'update') {
 					const updatedList = state?.listTasksForOverdue?.data?.map((item) => {
-						if (item?.id === taskId) {
+						if (item?._id === taskId) {
 							return task;
 						}
 						return item;
