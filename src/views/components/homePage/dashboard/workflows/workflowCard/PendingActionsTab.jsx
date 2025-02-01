@@ -72,13 +72,14 @@ const PendingActionsTab = ({ data }) => {
 					hasMore={info?.hasNextPage}
 					loader={<FetchMoreLoaderComp />}
 					scrollableTarget="requiredActionsScroller"
+					height={'292px'}
 				>
 					{info?.loading ? (
 						<div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
 							{[{}, {}, {}, {}].map((ele, index) => (
 								<Skeleton
 									height={'59px'}
-									width={'287px'}
+									width={'100%'}
 									style={{
 										borderRadius: '16px',
 									}}

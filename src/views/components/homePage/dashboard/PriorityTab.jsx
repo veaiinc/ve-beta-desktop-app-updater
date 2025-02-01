@@ -1,4 +1,4 @@
-import React, { memo, useContext, useState, useEffect, useCallback, useRef } from 'react';
+import React, { memo, useContext, useState, useEffect } from 'react';
 import RequiredActionsLoader from '../../sales/RequiredActionsLoader';
 import '../../../../assets/scss/sales/sales.scss';
 import { useNavigate } from 'react-router-dom';
@@ -20,52 +20,15 @@ const PriorityTab = () => {
 		templates: { requiredActions, getRequiredActions, getTabItemCount, tabItemCount },
 	} = useContext(Context);
 	const [activeTab, setActiveTab] = useState('all');
-	const scrollRef = useRef(null);
-	const debouncedTimerRef = useRef(null);
 	const [info, setInfo] = useState({
 		currentPage: 1,
 	});
 	const navigate = useNavigate();
 	useEffect(() => {
-		fetchSalesInfo();
-	}, []);
-
-	// useEffect(() => {
-	// 	scrollRef?.current?.addEventListener('scroll', debouncedHandleScroll);
-	// 	return () => {
-	// 		scrollRef?.current?.removeEventListener('scroll', debouncedHandleScroll);
-	// 		if (debouncedTimerRef.current) {
-	// 			clearTimeout(debouncedTimerRef.current);
-	// 		}
-	// 	};
-	// }, [requiredActions]);
-
-	// const handleScroll = useCallback(() => {
-	// 	if (scrollRef.current) {
-	// 		const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
-	// 		if (scrollLeft + clientWidth >= scrollWidth - 20) {
-	// 			if (requiredActions?.hasMore) {
-	// 				getRequiredActions({
-	// 					filters: {
-	// 						action: activeTab,
-	// 						page: Math.ceil(requiredActions?.actions?.length / 10) + 1,
-	// 						limit: 10,
-	// 					},
-	// 					resetRequiredActions: false,
-	// 				});
-	// 			}
-	// 		}
-	// 	}
-	// }, [requiredActions, getRequiredActions]);
-
-	// const debouncedHandleScroll = () => {
-	// 	if (debouncedTimerRef.current) {
-	// 		clearTimeout(debouncedTimerRef.current);
-	// 	}
-	// 	debouncedTimerRef.current = setTimeout(() => {
-	// 		handleScroll();
-	// 	}, 300);
-	// };
+		if (!requiredActions?.actions?.length) {
+			fetchSalesInfo();
+		}
+	}, [requiredActions]);
 
 	const fetchSalesInfo = () => {
 		getRequiredActions({
@@ -97,8 +60,6 @@ const PriorityTab = () => {
 		}
 	};
 
-	console.log(requiredActions);
-
 	const handleTabClick = (tabId) => {
 		if (tabId === activeTab) return;
 		setActiveTab(tabId);
@@ -120,7 +81,7 @@ const PriorityTab = () => {
 		navigate(`/smart-file/${templateId}/${workflowId}`);
 	};
 	return (
-		<div className="sales-page">
+		<div className="sales-page" style={{ padding: 0 }}>
 			<div className="sales-page-filter">
 				<ul>
 					{tabItems.map((item) => (
@@ -137,7 +98,10 @@ const PriorityTab = () => {
 							} salesFilterButtons`}
 							onClick={() => handleTabClick(item.id)}
 						>
-							{item.label} {tabItemCount?.[item.id]}
+							{item.label}{' '}
+							{item?.id === 'all'
+								? `(${tabItemCount?.[item.id]})`
+								: tabItemCount?.[item.id]}
 							{item?.checkBoxBorder ? (
 								<FilterCheckBox borderColor={item?.checkBoxBorder} />
 							) : (
@@ -148,7 +112,7 @@ const PriorityTab = () => {
 				</ul>
 			</div>
 			<div className="cards-container">
-				<div className="card-div">
+				<div className="card-div" style={{ overflowX: 'hidden', padding: 0 }}>
 					{requiredActions?.loading ? (
 						<RequiredActionsLoader />
 					) : (
@@ -156,11 +120,10 @@ const PriorityTab = () => {
 							dataLength={requiredActions?.actions?.length || 0}
 							hasMore={requiredActions?.hasMore}
 							next={fetchMoreData}
-							height={900}
+							height={518}
 							loader={<FetchMoreLoaderComp />}
 							style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}
 						>
-							{/* <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}> */}
 							{requiredActions?.actions?.map((actionItem, index) => (
 								<div
 									className="requiredSalesPendingCard"
@@ -171,6 +134,12 @@ const PriorityTab = () => {
 											actionItem?._id,
 										)
 									}
+									style={{
+										height: '286px',
+										width: '268px',
+										borderRadius: '24px',
+										padding: '24px',
+									}}
 								>
 									<div className="agentsWorkflowJobCards">
 										<div className="agentsWorkflowJobCardsContent">
@@ -206,11 +175,10 @@ const PriorityTab = () => {
 									</div>
 								</div>
 							))}
-							{/* </div> */}
 						</InfiniteScroll>
 					)}
 				</div>
-				<div className="card-div-end-black-shadow"></div>
+				{/* <div className="card-div-end-black-shadow"></div> */}
 			</div>
 		</div>
 	);

@@ -13,7 +13,7 @@
 		left: 50%;
 		transform: translateX(-50%);
 		background: linear-gradient(180deg, transparent 0%, #0c0c0d 100%);
-		width: 1190px;
+		width: 1240px;
 		height: 210px;
 	}
 
@@ -22,7 +22,6 @@
 		flex-direction: column;
 		align-items: flex-start;
 		justify-content: space-between;
-		padding-bottom: 32px;
 		gap: 50px;
 		width: 100%;
 		.home-page-container-content {
@@ -79,6 +78,7 @@
 				font-style: normal;
 				font-weight: 500;
 				line-height: normal;
+				transition: 300ms;
 				cursor: pointer;
 				&:hover {
 					background: transparent;
@@ -134,6 +134,7 @@
 							font-family: Inter;
 							font-size: 16px;
 							font-style: normal;
+							position: relative;
 							font-weight: 500;
 							line-height: normal;
 							display: flex;
@@ -150,6 +151,23 @@
 								background: var(--primary-font, #f2f2f3);
 								border-radius: 10px;
 							}
+
+							.priority-count {
+								position: absolute;
+								right: 16px;
+								top: -2px;
+
+								color: #50bd33;
+								color: color(display-p3 0.4314 0.7333 0.2902);
+								font-family: Inter;
+								font-size: 10px;
+								font-style: normal;
+								font-weight: 500;
+								line-height: normal;
+							}
+						}
+						.home-page-welcome-container-left-text-option:first-child {
+							padding-left: 0;
 						}
 
 						.active {
@@ -209,6 +227,7 @@
 			border-radius: 24px;
 			background: #171819;
 			cursor: pointer;
+			transition: 300ms;
 			&:hover {
 				background: #202123;
 			}
@@ -219,6 +238,7 @@
 				font-style: normal;
 				font-weight: 500;
 				line-height: normal;
+				text-transform: capitalize;
 			}
 			.home-page-cards-container-card-title {
 				color: var(--primary-font, #f2f2f3);
@@ -273,7 +293,7 @@
 	padding: 12px;
 	flex-direction: column;
 	align-items: flex-start;
-	gap: 4px;
+	gap: 2px;
 	border-radius: 12px;
 	background: #26282a;
 	.dropdown-option {
@@ -292,7 +312,7 @@
 		flex: 1 0 0;
 		cursor: pointer;
 		&:hover {
-			background: #202123;
+			background: #303336;
 		}
 	}
 }
