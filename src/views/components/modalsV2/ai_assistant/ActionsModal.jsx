@@ -68,6 +68,8 @@ const ActionsModal = ({
 		bodyContent: '',
 		showVariableSuggestions: false,
 		cursorPosition: 0,
+		showUrlVariableSuggestions: false,
+		urlCursorPosition: 0,
 	});
 
 	const handleTabChange = (tab) => {
@@ -79,7 +81,21 @@ const ActionsModal = ({
 	};
 
 	const handleUrlChange = (e) => {
-		updateInfo({ url: e.target.value });
+		const content = e.target.value;
+		const position = e.target.selectionStart;
+
+		if (content[position - 1] === '@') {
+			updateInfo({
+				url: content,
+				showUrlVariableSuggestions: true,
+				urlCursorPosition: position,
+			});
+		} else {
+			updateInfo({
+				url: content,
+				showUrlVariableSuggestions: false,
+			});
+		}
 	};
 
 	const handleMethodChange = (method) => {
@@ -183,6 +199,20 @@ const ActionsModal = ({
 		});
 	};
 
+	const insertUrlVariable = (variable) => {
+		const content = info.url;
+		const beforeCursor = content.slice(0, info.urlCursorPosition);
+		const afterCursor = content.slice(info.urlCursorPosition);
+
+		// Remove the @ symbol and add the variable name
+		const newContent = beforeCursor.slice(0, -1) + `{{${variable.name}}}` + afterCursor;
+
+		updateInfo({
+			url: newContent,
+			showUrlVariableSuggestions: false,
+		});
+	};
+
 	const tabs = {
 		endpoint: {
 			label: 'Endpoint',
@@ -198,6 +228,9 @@ const ActionsModal = ({
 					onApiUsesChange={handleApiUsesChange}
 					onMethodDropdownVisibility={handleMethodDropdownVisibility}
 					onApiUsesDropdownVisibility={handleApiUsesDropdownVisibility}
+					showUrlVariableSuggestions={info?.showUrlVariableSuggestions}
+					variables={info?.variables}
+					onVariableSelect={insertUrlVariable}
 				/>
 			),
 		},
@@ -408,6 +441,9 @@ const EndpointTab = ({
 	onApiUsesChange,
 	onMethodDropdownVisibility,
 	onApiUsesDropdownVisibility,
+	showUrlVariableSuggestions,
+	variables,
+	onVariableSelect,
 }) => {
 	return (
 		<div className="endpointTabContainer">
@@ -419,6 +455,19 @@ const EndpointTab = ({
 					value={url}
 					onChange={onUrlChange}
 				/>
+				{showUrlVariableSuggestions && variables?.length > 0 && (
+					<div className="variableSuggestions">
+						{variables?.map((variable) => (
+							<div
+								key={variable?.id}
+								className="variableSuggestion"
+								onClick={() => onVariableSelect(variable)}
+							>
+								{variable?.name}
+							</div>
+						))}
+					</div>
+				)}
 				<div className="urlMethodCotainer">
 					<div className="method">
 						<div className="method-label">Method</div>

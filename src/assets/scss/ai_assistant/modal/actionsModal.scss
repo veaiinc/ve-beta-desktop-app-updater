@@ -408,6 +408,7 @@
 		align-items: flex-start;
 		gap: 12px;
 		align-self: stretch;
+		position: relative;
 
 		.url {
 			display: flex;
@@ -418,12 +419,42 @@
 			border-radius: 14px;
 			border: 1px solid #2c2d2e;
 			background: #202123;
-			color: #797e86;
+			color: #f2f2f3;
 			font-family: Inter;
 			font-size: 12px;
 			font-style: normal;
 			font-weight: 500;
 			line-height: normal;
+
+			&::placeholder {
+				color: #797e86;
+			}
+		}
+
+		.variableSuggestions {
+			position: absolute;
+			top: 100%;
+			left: 0;
+			width: 100%;
+			max-height: 200px;
+			overflow-y: auto;
+			background: #2c2d2e;
+			border: 1px solid #3a3b3c;
+			border-radius: 8px;
+			margin-top: 4px;
+			z-index: 1000;
+
+			.variableSuggestion {
+				padding: 8px 12px;
+				color: #f2f2f3;
+				cursor: pointer;
+				transition: background-color 0.2s ease;
+				font-size: 12px;
+
+				&:hover {
+					background: #3a3b3c;
+				}
+			}
 		}
 
 		.urlMethodCotainer {
@@ -605,41 +636,69 @@
 .bodyTabContainer {
 	display: flex;
 	flex-direction: column;
-	justify-content: center;
 	align-items: flex-start;
-	gap: 8px;
+	gap: 12px;
 	align-self: stretch;
-	color: #797e86;
-	color: color(display-p3 0.4784 0.4941 0.5216);
-	font-family: Inter;
-	font-size: 12px;
-	font-style: normal;
-	font-weight: 400;
-	line-height: normal;
+	position: relative;
+
+	div {
+		color: #797e86;
+		font-family: Inter;
+		font-size: 14px;
+		font-weight: 500;
+		line-height: normal;
+	}
 
 	.bodyInput {
-		display: flex;
-		height: 100px;
-		padding: 12px 18px;
+		width: 100%;
+		min-height: 120px;
+		padding: 12px;
 		align-items: flex-start;
-		gap: 10px;
+		gap: 8px;
 		align-self: stretch;
-		border-radius: 12px;
+		border-radius: 14px;
 		border: 1px solid #2c2d2e;
-		background-color: transparent;
+		background: #202123;
 		color: #f2f2f3;
 		font-family: Inter;
 		font-size: 14px;
 		font-style: normal;
 		font-weight: 500;
 		line-height: normal;
-		resize: none;
+		resize: vertical;
+
+		&::placeholder {
+			color: #797e86;
+		}
 	}
+
 	.bodyInputHelperText {
-		display: flex;
-		justify-content: flex-end;
-		align-items: center;
-		gap: 6px;
+		color: #797e86;
+		font-size: 12px;
+	}
+
+	.variableSuggestions {
+		position: absolute;
+		top: 85%;
+		left: 0;
 		width: 100%;
+		max-height: 200px;
+		overflow-y: auto;
+		background: #2c2d2e;
+		border: 1px solid #3a3b3c;
+		border-radius: 8px;
+		margin-top: 4px;
+		z-index: 1000;
+
+		.variableSuggestion {
+			padding: 8px 12px;
+			color: #f2f2f3;
+			cursor: pointer;
+			transition: background-color 0.2s ease;
+
+			&:hover {
+				background: #3a3b3c;
+			}
+		}
 	}
 }
