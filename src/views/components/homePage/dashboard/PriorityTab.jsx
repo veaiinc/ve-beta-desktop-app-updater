@@ -30,43 +30,6 @@ const PriorityTab = () => {
 		fetchSalesInfo();
 	}, []);
 
-	// useEffect(() => {
-	// 	scrollRef?.current?.addEventListener('scroll', debouncedHandleScroll);
-	// 	return () => {
-	// 		scrollRef?.current?.removeEventListener('scroll', debouncedHandleScroll);
-	// 		if (debouncedTimerRef.current) {
-	// 			clearTimeout(debouncedTimerRef.current);
-	// 		}
-	// 	};
-	// }, [requiredActions]);
-
-	// const handleScroll = useCallback(() => {
-	// 	if (scrollRef.current) {
-	// 		const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
-	// 		if (scrollLeft + clientWidth >= scrollWidth - 20) {
-	// 			if (requiredActions?.hasMore) {
-	// 				getRequiredActions({
-	// 					filters: {
-	// 						action: activeTab,
-	// 						page: Math.ceil(requiredActions?.actions?.length / 10) + 1,
-	// 						limit: 10,
-	// 					},
-	// 					resetRequiredActions: false,
-	// 				});
-	// 			}
-	// 		}
-	// 	}
-	// }, [requiredActions, getRequiredActions]);
-
-	// const debouncedHandleScroll = () => {
-	// 	if (debouncedTimerRef.current) {
-	// 		clearTimeout(debouncedTimerRef.current);
-	// 	}
-	// 	debouncedTimerRef.current = setTimeout(() => {
-	// 		handleScroll();
-	// 	}, 300);
-	// };
-
 	const fetchSalesInfo = () => {
 		getRequiredActions({
 			filters: {
@@ -137,7 +100,10 @@ const PriorityTab = () => {
 							} salesFilterButtons`}
 							onClick={() => handleTabClick(item.id)}
 						>
-							{item.label} {tabItemCount?.[item.id]}
+							{item.label}{' '}
+							{item?.id === 'all'
+								? `(${tabItemCount?.[item.id]})`
+								: tabItemCount?.[item.id]}
 							{item?.checkBoxBorder ? (
 								<FilterCheckBox borderColor={item?.checkBoxBorder} />
 							) : (

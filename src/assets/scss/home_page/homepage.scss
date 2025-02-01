@@ -134,6 +134,7 @@
 							font-family: Inter;
 							font-size: 16px;
 							font-style: normal;
+							position: relative;
 							font-weight: 500;
 							line-height: normal;
 							display: flex;
@@ -149,6 +150,20 @@
 								height: 2px;
 								background: var(--primary-font, #f2f2f3);
 								border-radius: 10px;
+							}
+
+							.priority-count {
+								position: absolute;
+								right: 16px;
+								top: -2px;
+
+								color: #50bd33;
+								color: color(display-p3 0.4314 0.7333 0.2902);
+								font-family: Inter;
+								font-size: 10px;
+								font-style: normal;
+								font-weight: 500;
+								line-height: normal;
 							}
 						}
 
