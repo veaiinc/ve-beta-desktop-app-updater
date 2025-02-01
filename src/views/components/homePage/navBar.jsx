@@ -16,7 +16,6 @@ const NavBar = ({
 	useEffect(() => {
 		getTabItemCount();
 	}, []);
-	console.log(tabItemCount);
 	const overrideShowSearchBar = selectedOption === 'Workflows';
 	return (
 		<div className="home-page-welcome-container-left-text-options">

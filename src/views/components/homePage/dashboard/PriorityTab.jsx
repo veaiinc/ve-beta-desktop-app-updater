@@ -18,11 +18,9 @@ const tabItems = [
 ];
 const PriorityTab = () => {
 	let {
-		templates: { requiredActions, getRequiredActions, getTabItemCount, tabItemCount },
+		templates: { requiredActions, getRequiredActions, tabItemCount },
 	} = useContext(Context);
 	const [activeTab, setActiveTab] = useState('all');
-	const scrollRef = useRef(null);
-	const debouncedTimerRef = useRef(null);
 	const [info, setInfo] = useState({
 		currentPage: 1,
 	});
@@ -40,7 +38,6 @@ const PriorityTab = () => {
 			},
 			resetRequiredActions: true,
 		});
-		getTabItemCount();
 	};
 
 	const fetchMoreData = async () => {
@@ -61,9 +58,7 @@ const PriorityTab = () => {
 		}
 	};
 
-	console.log(requiredActions);
-
-	const handleTabClick = (tabId) => {
+	const handlePriorityOptionClick = (tabId) => {
 		if (tabId === activeTab) return;
 		setActiveTab(tabId);
 		getRequiredActions({
@@ -99,7 +94,7 @@ const PriorityTab = () => {
 							className={`${
 								activeTab === item.id ? 'active' : ''
 							} salesFilterButtons`}
-							onClick={() => handleTabClick(item.id)}
+							onClick={() => handlePriorityOptionClick(item.id)}
 						>
 							{item.label}{' '}
 							{item?.id === 'all'

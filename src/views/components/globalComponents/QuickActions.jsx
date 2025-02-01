@@ -45,7 +45,7 @@ const QuickActions = ({ styles }) => {
 				onOpenChange={(open) => setInfo({ ...info, dropdown: open })}
 				color="transparent"
 				title={
-					<div className="dropdown-options-container">
+					<div className="quick-actions-dropdown-options-container">
 						{dropdownOptions?.map((option) => (
 							<div
 								key={option?.id}
