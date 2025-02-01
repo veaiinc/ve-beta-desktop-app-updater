@@ -17,7 +17,7 @@
 .sales-page {
 	background-color: inherit;
 	color: #fff;
-	padding: 20px;
+	// padding: 20px;
 	font-family: 'Arial, sans-serif';
 
 	.header-image {
@@ -198,7 +198,7 @@
 	}
 
 	.sales-page-filter {
-		margin: 24px 0;
+		margin: 0 0 16px 0;
 
 		ul {
 			display: flex;
@@ -243,6 +243,7 @@
 
 		.card-div {
 			display: flex;
+			flex-direction: row;
 			gap: 30px;
 			width: 100%;
 			overflow-x: auto;
@@ -260,7 +261,12 @@
 				background: #171819;
 				background: color(display-p3 0.0902 0.0941 0.098);
 				cursor: pointer;
+				transition: 300ms;
 				flex-shrink: 0;
+
+				&:hover {
+					background: #202123;
+				}
 				.agentsWorkflowJobCards {
 					display: flex;
 					flex-direction: column;
@@ -287,6 +293,7 @@
 							font-style: normal;
 							font-weight: 500;
 							line-height: normal;
+							text-transform: capitalize;
 						}
 
 						.agentsWorkflowJobCardsSubTitle {

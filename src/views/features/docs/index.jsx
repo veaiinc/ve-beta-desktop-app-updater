@@ -533,7 +533,7 @@ const Docs = () => {
 
 			<div className="docsParentHeaderContainer">
 				<div className="docsHeaderButtons" onClick={onGenerateAIFunc}>
-					<div className="docsHeaderButtonsTitle">Create proposal from your template</div>
+					<div className="docsHeaderButtonsTitle">Create Document from your template</div>
 					<div className="docsHeaderSubButtonsSubTitleColored colorful">
 						Start with AI
 					</div>
@@ -552,7 +552,7 @@ const Docs = () => {
 					className="docsHeaderButtons"
 				>
 					{' '}
-					<div className="docsHeaderButtonsTitle">Create proposal from your template</div>
+					<div className="docsHeaderButtonsTitle">Create Document from your template</div>
 					<div className="docsHeaderSubButtonsSubTitleColored">
 						Pick your template from playbook
 					</div>
@@ -578,7 +578,7 @@ const Docs = () => {
 			<div className="docsFileContainer">
 				<div className="docsFileHeaderContainer">
 					<div className="docsFileHeaderContainerTitle">
-						<span>Files</span>
+						<span>Documents</span>
 						<div className="appliedFiltersContainer">
 							{info?.appliedFilters?.map((appliedFilter, idx) => (
 								<Tooltip
