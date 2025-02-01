@@ -455,7 +455,7 @@ const Contacts = () => {
 				error={info?.error}
 				fetchMoreData={fetchMoreData}
 				blockTitle={'Contacts'}
-				createButtonText={'Create Client'}
+				createButtonText={'Create Lead'}
 			/>
 
 			<CreateClientModal
