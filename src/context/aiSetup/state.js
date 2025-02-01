@@ -687,9 +687,9 @@ export const AiSetupState = () => {
 			if (response?.[0]) {
 				dispatch({
 					type: Actions?.UPDATE_AI_ACTION,
-					payload: response?.[1],
+					payload: response?.[1]?.assistant,
 				});
-				return response?.[1];
+				return response?.[1]?.assistant;
 			}
 		} catch (error) {
 			console.log('error==>updateAiAction', error);

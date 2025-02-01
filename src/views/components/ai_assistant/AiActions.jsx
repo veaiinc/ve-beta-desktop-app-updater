@@ -22,6 +22,13 @@ const AiActions = ({ assistant }) => {
 		actionsLoading: true,
 	});
 
+	const handleActionAdded = useCallback((newAction) => {
+		setInfo((prev) => ({
+			...prev,
+			aiActionList: [...(prev?.aiActionList || []), newAction],
+		}));
+	}, []);
+
 	useEffect(() => {
 		if (info?.assistantId) {
 			getActions(info?.assistantId);
@@ -149,6 +156,8 @@ const AiActions = ({ assistant }) => {
 				isOpen={info?.actionModalOpen}
 				onClose={closeActionModal}
 				assistantId={info?.assistantId}
+				aiActionList={info?.aiActionList}
+				onActionAdded={handleActionAdded}
 			/>
 		</div>
 	);

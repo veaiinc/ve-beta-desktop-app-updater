@@ -15,7 +15,7 @@ import Context from '../../../../context/context';
 
 const methodsOptions = ['GET', 'POST', 'PUT', 'DELETE'];
 const apiUsesOptions = ['JSON'];
-const variableTypes = ['Text', 'Number', 'Float', 'Boolean'];
+const variableTypes = ['string', 'integer', 'float', 'boolean'];
 
 const ActionsModal = ({
 	isOpen,
@@ -24,12 +24,13 @@ const ActionsModal = ({
 	onDeleteClick,
 	isDeletebtnLoading,
 	assistantId,
+	aiActionList,
+	onActionAdded,
 }) => {
 	const {
 		aiSetup: { addAiAction, updateAiAction },
 	} = useContext(Context);
 
-	const [isLoading, setIsLoading] = useState(false);
 	const [formData, setFormData] = useState({
 		title: '',
 		description: '',
@@ -57,6 +58,7 @@ const ActionsModal = ({
 		cursorPosition: 0,
 		showUrlVariableSuggestions: false,
 		urlCursorPosition: 0,
+		addingAction: false,
 	});
 
 	const validateForm = () => {
@@ -80,7 +82,7 @@ const ActionsModal = ({
 			if (!v?.name || !v?.type) return true;
 			// Convert type to lowercase for comparison
 			const type = v?.type?.toLowerCase();
-			return !['text', 'number', 'float', 'boolean'].includes(type);
+			return !['string', 'integer', 'float', 'boolean']?.includes(type);
 		});
 
 		if (invalidVariables) {
@@ -116,7 +118,7 @@ const ActionsModal = ({
 		}
 
 		try {
-			setIsLoading(true);
+			setInfo((prev) => ({ ...prev, addingAction: true }));
 
 			// Parse body content
 			let parsedBody = {};
@@ -157,12 +159,10 @@ const ActionsModal = ({
 				variables: preparedVariables,
 			};
 
-			console.log('Submitting action with payload:', payload);
-			console.log('assistantId:', assistantId);
-
 			const response = await addAiAction(assistantId, payload);
 
 			if (response) {
+				onActionAdded(response);
 				message.success('Action created successfully');
 				onClose();
 			} else {
@@ -174,7 +174,7 @@ const ActionsModal = ({
 				error?.response?.data?.message || error?.message || 'Failed to create action',
 			);
 		} finally {
-			setIsLoading(false);
+			setInfo((prev) => ({ ...prev, addingAction: false }));
 		}
 	};
 
@@ -249,7 +249,7 @@ const ActionsModal = ({
 		const newVariable = {
 			id: Date.now(),
 			name: '',
-			type: 'Text',
+			type: 'string',
 		};
 		updateInfo({ variables: [...info?.variables, newVariable] });
 	};
@@ -493,7 +493,7 @@ const ActionsModal = ({
 											{variable?.type}
 											<DownSvg
 												className={`${
-													info.openVariableTypeId === variable.id
+													info?.openVariableTypeId === variable?.id
 														? 'open'
 														: ''
 												}`}
@@ -536,8 +536,8 @@ const ActionsModal = ({
 							</div>
 						)}
 					</div>
-					<ActionButton onClick={handleSubmit} disabled={isLoading}>
-						{isLoading ? 'Creating...' : 'Add and make active'}
+					<ActionButton onClick={handleSubmit} disabled={info.addingAction}>
+						{info.addingAction ? 'Creating...' : 'Add and make active'}
 					</ActionButton>
 				</div>
 			</div>
