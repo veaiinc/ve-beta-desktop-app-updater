@@ -242,13 +242,12 @@
 		position: relative;
 
 		.card-div {
-			// display: flex;
-			// flex-direction: row;
-			// gap: 30px;
-			// width: 100%;
-			// // overflow-x: auto;
-			// padding: 12px;
-			// flex-wrap: wrap;
+			display: flex;
+			flex-direction: row;
+			gap: 30px;
+			width: 100%;
+			overflow-x: auto;
+			padding: 12px;
 
 			.requiredSalesPendingCard {
 				display: flex;
