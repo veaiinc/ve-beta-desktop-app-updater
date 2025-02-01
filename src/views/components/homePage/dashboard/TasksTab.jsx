@@ -554,13 +554,17 @@ const TasksTab = () => {
 					selectedRow: task,
 				}));
 
-				fetchDueTillTodayTasks(1, 'update', task);
-				fetchOverdueTasks(1, 'update', task);
-				fetchTodayTasks(1, 'update', task);
-			}
-			if (!info?.sidebarIsOpen) {
-				fetchOverdueTasks(1);
-				fetchTodayTasks(1);
+				if (info?.selectedOption === 'Pending tasks') {
+					fetchDueTillTodayTasks(1, 'update', task);
+					fetchOverdueTasks(1, 'update', task);
+					fetchTodayTasks(1, 'update', task);
+				} else if (info?.selectedOption === 'Today') {
+					fetchDueTillTodayTasks(1, 'update', task);
+					fetchTodayTasks(1, 'update', task);
+				} else if (info?.selectedOption === 'Overdue') {
+					fetchDueTillTodayTasks(1, 'update', task);
+					fetchOverdueTasks(1, 'update', task);
+				}
 			}
 		} catch (error) {
 			message.error(error?.message || 'Something went wrong! Please try again.');
@@ -660,9 +664,18 @@ const TasksTab = () => {
 							selectedRow: null,
 						}));
 
-						fetchDueTillTodayTasks(1, 'delete', task);
-						fetchOverdueTasks(1, 'delete', task);
-						fetchTodayTasks(1, 'delete', task);
+						if (info?.selectedOption === 'Pending tasks') {
+							fetchDueTillTodayTasks(1, 'delete', task);
+							fetchOverdueTasks(1, 'delete', task);
+							fetchTodayTasks(1, 'delete', task);
+						} else if (info?.selectedOption === 'Today') {
+							fetchDueTillTodayTasks(1, 'delete', task);
+							fetchTodayTasks(1, 'delete', task);
+						} else if (info?.selectedOption === 'Overdue') {
+							fetchDueTillTodayTasks(1, 'delete', task);
+							fetchOverdueTasks(1, 'delete', task);
+						}
+
 						handleCloseSidebar();
 					}
 				}
@@ -922,7 +935,7 @@ const TasksTab = () => {
 							loader={<FetchMoreLoaderComp />}
 							height={470}
 						>
-							{!info?.loadingSkeleton ? (
+							{info?.loadingSkeleton ? (
 								<div
 									style={{
 										display: 'flex',
