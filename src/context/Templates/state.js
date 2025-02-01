@@ -35,6 +35,9 @@ import {
 	updateSendSmartFileSettingsMutation,
 	getLatestSendSmartFileSettingsQuery,
 	getActivityLogsQuery,
+	addNewStepsQuery,
+	updateStepsQuery,
+	getFormResponsesListQuery,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -46,7 +49,6 @@ import { getBase64 } from '../../helpers';
 export const intialState = {
 	workflowslist: null,
 	moreWorkList: null,
-	workflowslistForFiles: null,
 	clientList: null,
 	clientListForDocs: null,
 	templatesListForDocs: null,
@@ -77,6 +79,14 @@ export const intialState = {
 	globalChatMessages: [{ type: 'AI', message: 'Hello, how can I help you today?' }],
 	docsFilesList: null,
 	moreDocsFilesList: null,
+	smartFileRefetch: false,
+	activeWorkflowSlugForSmartFile: null,
+	slackChannels: null,
+	formsTemplatesList: null,
+	moreFormsTemplatesList: null,
+	formResponsesList: null,
+	moreFormResponsesList: null,
+	activePromptForChat: null,
 	smartFileRefetch: false,
 	activeWorkflowSlugForSmartFile: null,
 };
@@ -422,7 +432,7 @@ export const TemplatesState = (props) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
-			const response = await service?.query(
+			const response = await service.query(
 				updateFormQuery,
 				payload,
 				workspaceId,
@@ -459,12 +469,11 @@ export const TemplatesState = (props) => {
 			console.log('error==>updateThankyou', error);
 		}
 	};
-
-	const getWorkflowsListForFiles = async (payload) => {
+	const getWorkflowsListForFiles = async (payload, fetchMore = false) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
-			const response = await service?.query(
+			const response = await service.query(
 				getWorkflowListQuery,
 				payload,
 				workspaceId,
@@ -473,34 +482,9 @@ export const TemplatesState = (props) => {
 			);
 
 			if (response?.[0]) {
-				const templateId = payload?.filters?.templateId;
-				const { data, currentPage, hasNextPage } = response?.[1]?.data?.workflows;
-				let dispatchPayload;
-				if (!state?.workflowslistForFiles?.[templateId]) {
-					dispatchPayload = {
-						...state?.workflowslistForFiles,
-						[templateId]: {
-							data,
-							currentPage,
-							hasNextPage,
-						},
-					};
-				} else {
-					dispatchPayload = {
-						...state?.workflowslistForFiles,
-						[templateId]: {
-							data: [
-								...(state?.workflowslistForFiles?.[templateId]?.data || []),
-								...data,
-							],
-							currentPage,
-							hasNextPage,
-						},
-					};
-				}
 				dispatch({
 					type: Actions?.GET_WORKFLOW_DETAILS_FOR_FILES_SUCCESS,
-					payload: dispatchPayload,
+					payload: { [payload?.filters?.templateId]: response?.[1]?.data?.workflows },
 					selectedvariable: 'workflowslistForFiles',
 				});
 			} else {
@@ -595,6 +579,74 @@ export const TemplatesState = (props) => {
 			});
 		} else {
 			console.log('api failed ==>getTemplatesListForDocs', response);
+		}
+	};
+	const getTemplatesListForForms = async (page = 1, limit = 10, fetchMore = false) => {
+		let workspaceId = localStorage.getItem('workspaceId');
+		let usertoken = localStorage.getItem('usertoken');
+
+		const payload = {
+			filters: {
+				limit,
+				page,
+				type: 'workspace',
+				status: 'published',
+				sortBy: 'createdAt',
+				sortType: -1,
+				action: 'form-submission',
+			},
+		};
+		const response = await service.query(
+			getTemplatesListForCreateLeadQuery,
+			payload,
+			workspaceId,
+			usertoken,
+			'workflows_Api',
+		);
+
+		if (response?.[0]) {
+			const selectedvariable = fetchMore ? 'moreFormsTemplatesList' : 'formsTemplatesList';
+			dispatch({
+				type: Actions.GET_TEMPLATES_LIST_FOR_FORMS_SUCCESS,
+				payload: response?.[1]?.data?.templates,
+				selectedvariable,
+			});
+		} else {
+			console.log('api failed ==>getTemplatesListForForms', response);
+		}
+	};
+
+	const getFormResponsesList = async (formId, page = 1, limit = 10, fetchMore = false) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+
+			const payload = {
+				filters: {
+					workflowTemplateId: formId,
+					page,
+					limit,
+				},
+			};
+			const response = await service.query(
+				getFormResponsesListQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+			if (response?.[0]) {
+				const selectedvariable = fetchMore ? 'moreFormResponsesList' : 'formResponsesList';
+				dispatch({
+					type: Actions.GET_FORM_RESPONSES_LIST_SUCCESS,
+					payload: response?.[1]?.data?.formResponsesList,
+					selectedvariable,
+				});
+			} else {
+				console.log('api failed ==>getFormResponsesList', response);
+			}
+		} catch (error) {
+			console.log('api failed ==>getFormResponsesList', error);
 		}
 	};
 
@@ -959,53 +1011,6 @@ export const TemplatesState = (props) => {
 							  ),
 						hasMore: response?.[1]?.data?.listRequiredActions?.hasNextPage,
 						loading: false,
-					},
-				});
-			} else {
-				return [false];
-			}
-		} catch (error) {
-			console.log('api failed ==>getRequiredActionDetails', error);
-		}
-	};
-
-	const getRequiredActionsForTemplate = async (payload) => {
-		try {
-			let workspaceId = localStorage.getItem('workspaceId');
-			let usertoken = localStorage.getItem('usertoken');
-
-			const { resetRequiredActions, ...queryPayload } = payload;
-
-			const response = await service.query(
-				getRequiredActionDetailsQuery,
-				queryPayload,
-				workspaceId,
-				usertoken,
-				'workflows_Api',
-			);
-			const workflowTemplateId = queryPayload?.filters?.workflowTemplateId;
-
-			if (response?.[0]) {
-				const data = response?.[1]?.data?.listRequiredActions?.data;
-				dispatch({
-					type: Actions.GET_REQUIRED_ACTIONS_FOR_TEMPLATE_SUCCESS,
-					payload: {
-						...state?.requiredActionsForTemplate,
-						[workflowTemplateId]: {
-							...response?.[1]?.data?.listRequiredActions,
-							data: state?.requiredActionsForTemplate?.[workflowTemplateId]
-								? [
-										...(Array?.isArray(
-											state?.requiredActionsForTemplate?.[workflowTemplateId]
-												?.data,
-										)
-											? state.requiredActionsForTemplate[workflowTemplateId]
-													?.data
-											: []),
-										...data,
-								  ]
-								: data,
-						},
 					},
 				});
 			} else {
@@ -1564,6 +1569,79 @@ export const TemplatesState = (props) => {
 	const updateApplicationChat = (payload) => {
 		dispatch({ type: Actions.UPDATE_APPLICATION_CHAT, payload });
 	};
+	//updated steps functions
+	const addNewSteps = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				addNewStepsQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+
+			if (response?.[0]) {
+				const dataResponse = response?.[1];
+				return [true, dataResponse?.data?.addStep];
+			} else {
+				console.log('Api failed ==>addNewSteps', response);
+				return [false];
+			}
+		} catch (error) {
+			console.log('error==>addNewSteps', error);
+		}
+	};
+
+	const updateSteps = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				updateStepsQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+
+			if (response?.[0]) {
+				return [true];
+			} else {
+				return [false];
+			}
+		} catch (error) {
+			console.log('error==>updateSteps', error);
+		}
+	};
+	//slack Apis
+	const getAllSlackChannels = async (slackAccessToken) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await Service.fetchGet(
+				`/slack/${workspaceId}/channels`,
+				usertoken,
+				'third_party_integrations_api',
+				{
+					exclude_archived: true,
+					limit: 1000,
+				},
+			);
+
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.GET_SLACK_CHANNEL_SUCCESS,
+					payload: response?.[1],
+				});
+			} else {
+				message.error('Unable to fetch Slack Channels');
+			}
+		} catch (error) {
+			console.log('error==>getAllSlackChannels', error);
+		}
+	};
 	return {
 		...state,
 		getMyWorkflows,
@@ -1586,7 +1664,6 @@ export const TemplatesState = (props) => {
 		updateForm,
 		updateThankyou,
 		getWorkflowsList,
-		getWorkflowsListForFiles,
 		getTemplatesListForCreateLead,
 		createLeadfromTemplates,
 		sendSmartFile,
@@ -1603,7 +1680,6 @@ export const TemplatesState = (props) => {
 		deleteWorkflowTemplates,
 		getTabItemCount,
 		getRequiredActions,
-		getRequiredActionsForTemplate,
 		updateSendSmartFileSettings,
 		getEventsPresets,
 		addEventsPresets,
@@ -1625,5 +1701,10 @@ export const TemplatesState = (props) => {
 		checkIndividualImageUploadedStatus,
 		deleteUploadedImageThroughChat,
 		updateApplicationChat,
+		addNewSteps,
+		getAllSlackChannels,
+		updateSteps,
+		getTemplatesListForForms,
+		getFormResponsesList,
 	};
 };

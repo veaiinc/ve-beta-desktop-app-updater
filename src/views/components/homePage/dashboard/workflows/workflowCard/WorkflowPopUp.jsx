@@ -39,7 +39,6 @@ const WorkflowPopUp = ({
 					<span
 						onClick={() => {
 							navigateToWorkflowBuilder(data);
-							// closeModal();
 						}}
 						className={'workflow-prompt-option'}
 					>

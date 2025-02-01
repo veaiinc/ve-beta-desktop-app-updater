@@ -98,7 +98,10 @@ const PriorityTab = () => {
 							} salesFilterButtons`}
 							onClick={() => handleTabClick(item.id)}
 						>
-							{item.label} {tabItemCount?.[item.id]}
+							{item.label}{' '}
+							{item?.id === 'all'
+								? `(${tabItemCount?.[item.id]})`
+								: tabItemCount?.[item.id]}
 							{item?.checkBoxBorder ? (
 								<FilterCheckBox borderColor={item?.checkBoxBorder} />
 							) : (
@@ -131,6 +134,12 @@ const PriorityTab = () => {
 											actionItem?._id,
 										)
 									}
+									style={{
+										height: '286px',
+										width: '268px',
+										borderRadius: '24px',
+										padding: '24px',
+									}}
 								>
 									<div className="agentsWorkflowJobCards">
 										<div className="agentsWorkflowJobCardsContent">
@@ -169,6 +178,7 @@ const PriorityTab = () => {
 						</InfiniteScroll>
 					)}
 				</div>
+				{/* <div className="card-div-end-black-shadow"></div> */}
 			</div>
 		</div>
 	);
