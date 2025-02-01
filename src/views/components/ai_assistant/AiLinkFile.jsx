@@ -128,23 +128,30 @@ const AiLinkFile = () => {
 							<span>Title</span>
 							<span>Action</span>
 						</div>
-						{info?.assignedWorkflows?.map((item) => (
-							<div key={item?._id} className="actionItem">
-								<span>
-									<Pdf />
-									{item?.title}
-								</span>
-								<span>
-									<button
-										disabled={info?.isRemoving}
-										onClick={() => handleRemoveWorkflow(item?._id)}
-										className="template-remove"
-									>
-										Remove
-									</button>
-								</span>
+						{info?.assignedWorkflows?.length > 0 ? (
+							info?.assignedWorkflows?.map((item) => (
+								<div key={item?._id} className="actionItem">
+									<span>
+										<Pdf />
+										{item?.title}
+									</span>
+									<span>
+										<button
+											disabled={info?.isRemoving}
+											onClick={() => handleRemoveWorkflow(item?._id)}
+											className="template-remove"
+										>
+											Remove
+										</button>
+									</span>
+								</div>
+							))
+						) : (
+							<div className="emptyState">
+								<p>No files linked</p>
+								<p>Link files to enable AI assistance in your workflows</p>
 							</div>
-						))}
+						)}
 					</div>
 				)}
 			</div>

@@ -1,27 +1,87 @@
-import React, { memo, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/ai_assistant/aiInstructions.scss';
 import ToggleSwitch from '../input/slider';
 import ActionsModal from '../modalsV2/ai_assistant/ActionsModal';
-const AiActions = () => {
+import { message } from 'antd';
+import { useParams } from 'react-router-dom';
+import Context from '../../../context/context';
+import Skeleton from 'react-loading-skeleton';
+import moment from 'moment';
+
+const AiActions = ({ assistant }) => {
+	const { aiAssistantId } = useParams();
+
+	const {
+		aiSetup: { getActions, updateAiAction, deleteAiAction, aiActions },
+	} = useContext(Context);
+
 	const [info, setInfo] = useState({
-		instruction_toggle_1: false,
-		instruction_toggle_2: false,
-		actionModal: false,
+		actionModalOpen: false,
+		assistantId: assistant?._id || aiAssistantId,
+		aiActionList: [],
+		actionsLoading: true,
 	});
 
-	const handleToggleChange = (toggleId) => {
-		setInfo((prevStates) => ({
-			...prevStates,
-			[toggleId]: !prevStates[toggleId],
-		}));
-	};
+	useEffect(() => {
+		if (info?.assistantId) {
+			getActions(info?.assistantId);
+		}
+	}, [info?.assistantId]);
 
-	const handleAddAction = () => {
+	useEffect(() => {
+		if (aiActions) {
+			setInfo((prev) => ({
+				...prev,
+				aiActionList: aiActions,
+				actionsLoading: false,
+			}));
+		}
+	}, [aiActions]);
+
+	const closeActionModal = useCallback(() => {
 		setInfo((prevStates) => ({
 			...prevStates,
-			actionModal: !prevStates.actionModal,
+			actionModalOpen: false,
 		}));
-	};
+	}, []);
+
+	const handleToggleChange = useCallback(
+		async (actionId, currentStatus) => {
+			try {
+				const updatedActions = info?.aiActionList?.map((action) =>
+					action?._id === actionId ? { ...action, status: !currentStatus } : action,
+				);
+
+				setInfo((prev) => ({
+					...prev,
+					aiActionList: updatedActions,
+				}));
+
+				const response = await updateAiAction(info?.assistantId, actionId, {
+					status: !currentStatus,
+				});
+
+				if (response) {
+					message.success('Action status updated successfully');
+				} else {
+					// Revert the state if API call fails
+					setInfo((prev) => ({
+						...prev,
+						aiActionList: info?.aiActionList,
+					}));
+					message.error('Failed to update action status');
+				}
+			} catch (error) {
+				// Revert the state if API call fails
+				setInfo((prev) => ({
+					...prev,
+					aiActionList: info?.aiActionList,
+				}));
+				message.error('Failed to update action status');
+			}
+		},
+		[info?.aiActionList, info?.assistantId],
+	);
 
 	return (
 		<div style={{ width: '100%' }}>
@@ -35,7 +95,15 @@ const AiActions = () => {
 						</span>
 					</div>
 
-					<div className="addInstruction" onClick={handleAddAction}>
+					<div
+						className="addInstruction"
+						onClick={() =>
+							setInfo((prevStates) => ({
+								...prevStates,
+								actionModalOpen: true,
+							}))
+						}
+					>
 						Add action
 					</div>
 				</div>
@@ -46,35 +114,41 @@ const AiActions = () => {
 						<span>Last edit</span>
 						<span>Active</span>
 					</div>
-					<div className="instructionItem">
-						<span>Speak about customer</span>
-						<span style={{ color: '#7C7C84' }}>Jul, 26 2024</span>
-						<span className="aiToggleSwitch">
-							<ToggleSwitch
-								id="instruction_toggle_1"
-								value={info.instruction_toggle_1}
-								onChange={() => handleToggleChange('instruction_toggle_1')}
-							/>
-						</span>
-					</div>
-					<div className="instructionItem">
-						<span>Speak about customer</span>
-						<span style={{ color: '#7C7C84' }}>Jul, 26 2024</span>
-						<span className="aiToggleSwitch">
-							<ToggleSwitch
-								id="instruction_toggle_2"
-								value={info.instruction_toggle_2}
-								onChange={() => handleToggleChange('instruction_toggle_2')}
-							/>
-						</span>
-					</div>
+					{info?.actionsLoading ? (
+						[{}, {}, {}, {}, {}, {}, {}]?.map((_, index) => (
+							<div key={index} className="instructionItemSkeleton">
+								<Skeleton width="100%" height="36px" borderRadius="6px" />
+							</div>
+						))
+					) : info?.aiActionList?.length > 0 ? (
+						info?.aiActionList?.map((item) => (
+							<div key={item?._id} className="instructionItem">
+								<span>{item?.name}</span>
+								<span style={{ color: '#7C7C84' }}>
+									{moment.unix(item?.createdAt).format('MMM DD, YYYY')}
+								</span>
+								<span className="aiToggleSwitch">
+									<ToggleSwitch
+										id={item?._id}
+										value={item?.status}
+										onChange={() => handleToggleChange(item?._id, item?.status)}
+									/>
+								</span>
+							</div>
+						))
+					) : (
+						<div className="emptyState">
+							<p>No actions added</p>
+							<p>Add actions to automate tasks</p>
+						</div>
+					)}
 				</div>
 			</div>
 
 			<ActionsModal
-				isOpen={info?.actionModal}
-				// isOpen={true}
-				onClose={handleAddAction}
+				isOpen={info?.actionModalOpen}
+				onClose={closeActionModal}
+				assistantId={info?.assistantId}
 			/>
 		</div>
 	);

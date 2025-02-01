@@ -29,3 +29,7 @@ export const AI_PROMPT = {
 	defaultAiPrompt: '/default-prompt',
 	selectAiPrompt: '/select-prompt',
 };
+
+export const AI_ACTIONS = {
+	aiActions: '/action',
+};

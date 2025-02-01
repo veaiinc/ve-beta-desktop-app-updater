@@ -1,4 +1,4 @@
-import React, { memo, useState } from 'react';
+import React, { memo, useState, useContext } from 'react';
 import '../../../../assets/scss/ai_assistant/modal/actionsModal.scss';
 import ReactModal from '../index';
 import { ReactComponent as CloseSvg } from '../../../../assets/svg/close.svg';
@@ -10,6 +10,8 @@ import { ReactComponent as DownSvg } from '../../../../assets/svg/activity/down.
 import { Tooltip } from 'antd';
 import { ReactComponent as TrashSvg } from '../../../../assets/svg/tasks/dustBin.svg';
 import { ReactComponent as PlusSvg } from '../../../../assets/svg/tasks/plus.svg';
+import { message } from 'antd';
+import Context from '../../../../context/context';
 
 const methodsOptions = ['GET', 'POST', 'PUT', 'DELETE'];
 const apiUsesOptions = ['JSON'];
@@ -18,45 +20,30 @@ const variableTypes = ['Text', 'Number', 'Float', 'Boolean'];
 const ActionsModal = ({
 	isOpen,
 	onClose,
-	onActionClick,
 	showDelete,
 	onDeleteClick,
-	title,
-	action,
-	onTitleChange,
-	onInstructionChange,
-	isActionbtnLoading,
 	isDeletebtnLoading,
+	assistantId,
 }) => {
+	const {
+		aiSetup: { addAiAction, updateAiAction },
+	} = useContext(Context);
+
+	const [isLoading, setIsLoading] = useState(false);
+	const [formData, setFormData] = useState({
+		title: '',
+		description: '',
+		status: true,
+	});
+
 	const [info, setInfo] = useState({
-		activeTab: 'endpoint', // endpoint, headers, body
+		activeTab: 'endpoint',
 		method: 'GET',
 		apiUses: 'JSON',
 		url: '',
 		isMethodDropdownOpen: false,
 		isApiUsesDropdownOpen: false,
-		variables: [
-			{
-				id: 1,
-				name: 'userName',
-				type: 'Text',
-			},
-			{
-				id: 2,
-				name: 'userAge',
-				type: 'Number',
-			},
-			{
-				id: 3,
-				name: 'isActive',
-				type: 'Boolean',
-			},
-			{
-				id: 4,
-				name: 'userScore',
-				type: 'Float',
-			},
-		],
+		variables: [],
 		openVariableTypeId: null,
 		headers: [
 			{
@@ -71,6 +58,139 @@ const ActionsModal = ({
 		showUrlVariableSuggestions: false,
 		urlCursorPosition: 0,
 	});
+
+	const validateForm = () => {
+		if (!formData?.title?.trim()) {
+			message.error('Title is required');
+			return false;
+		}
+
+		if (!formData?.description?.trim()) {
+			message.error('Description is required');
+			return false;
+		}
+
+		if (!info?.url?.trim()) {
+			message.error('URL is required');
+			return false;
+		}
+
+		// Validate variables have required fields and proper types
+		const invalidVariables = info?.variables?.some((v) => {
+			if (!v?.name || !v?.type) return true;
+			// Convert type to lowercase for comparison
+			const type = v?.type?.toLowerCase();
+			return !['text', 'number', 'float', 'boolean'].includes(type);
+		});
+
+		if (invalidVariables) {
+			message.error('All variables must have valid name and type');
+			return false;
+		}
+
+		// Validate headers have required fields
+		const invalidHeaders = info?.headers?.some((h) => !h?.parameter || !h?.value);
+		if (invalidHeaders) {
+			message.error('All headers must have parameter and value');
+			return false;
+		}
+
+		// Validate body content is valid JSON if present
+		if (info?.bodyContent?.trim()) {
+			try {
+				JSON.parse(info?.bodyContent);
+			} catch (e) {
+				message.error('Body content must be valid JSON');
+				return false;
+			}
+		}
+
+		return true;
+	};
+
+	const handleSubmit = async () => {
+		if (!validateForm()) return;
+		if (!assistantId) {
+			message.error('Assistant ID is required');
+			return;
+		}
+
+		try {
+			setIsLoading(true);
+
+			// Parse body content
+			let parsedBody = {};
+			try {
+				parsedBody = info?.bodyContent ? JSON.parse(info?.bodyContent) : {};
+			} catch (e) {
+				message.error('Invalid JSON in body content');
+				return;
+			}
+
+			// Prepare variables with proper type conversion
+			const preparedVariables = info?.variables?.map((variable) => {
+				const type = variable?.type?.toLowerCase();
+				return {
+					name: variable?.name,
+					type: type === 'text' ? 'string' : type, // Convert 'Text' to 'string' for API
+					description: `Variable for ${variable?.name}`,
+				};
+			});
+
+			// Filter out empty headers
+			const validHeaders = info?.headers?.filter(
+				(header) => header?.parameter?.trim() && header?.value?.trim(),
+			);
+
+			const payload = {
+				name: formData?.title?.trim(),
+				description: formData?.description?.trim(),
+				status: formData?.status,
+				url: info?.url?.trim(),
+				method: info?.method?.toUpperCase(),
+				contentType: info?.apiUses?.toLowerCase(),
+				body: parsedBody,
+				headers: validHeaders?.map((header) => ({
+					name: header?.parameter?.trim(),
+					value: header?.value?.trim(),
+				})),
+				variables: preparedVariables,
+			};
+
+			console.log('Submitting action with payload:', payload);
+			console.log('assistantId:', assistantId);
+
+			const response = await addAiAction(assistantId, payload);
+
+			if (response) {
+				message.success('Action created successfully');
+				onClose();
+			} else {
+				throw new Error('No response from server');
+			}
+		} catch (error) {
+			console.error('Error creating action:', error);
+			message.error(
+				error?.response?.data?.message || error?.message || 'Failed to create action',
+			);
+		} finally {
+			setIsLoading(false);
+		}
+	};
+
+	const onTitleChange = (e) => {
+		setFormData((prev) => ({
+			...prev,
+			title: e.target.value,
+		}));
+	};
+
+	const onInstructionChange = (e) => {
+		setFormData((prev) => ({
+			...prev,
+			description: e.target.value,
+		}));
+	};
 
 	const handleTabChange = (tab) => {
 		setInfo((prevInfo) => ({ ...prevInfo, activeTab: tab }));
@@ -275,11 +395,15 @@ const ActionsModal = ({
 					<CloseSvg onClick={onClose} />
 				</div>
 				<div className="actions-modal-inputs">
-					<InputComponent placeholder="Title" value={title} onChange={onTitleChange} />
+					<InputComponent
+						placeholder="Title"
+						value={formData?.title}
+						onChange={onTitleChange}
+					/>
 
 					<TextareaComponent
 						placeholder="Add Instructions"
-						value={action}
+						value={formData?.description}
 						onChange={onInstructionChange}
 					/>
 				</div>
@@ -404,7 +528,7 @@ const ActionsModal = ({
 					<div>
 						{showDelete && (
 							<div
-								onClick={onDeleteClick ? onDeleteClick : onClose}
+								onClick={onDeleteClick}
 								className="actions-modal-footer-delete-button"
 								disabled={isDeletebtnLoading}
 							>
@@ -412,15 +536,8 @@ const ActionsModal = ({
 							</div>
 						)}
 					</div>
-					<ActionButton
-						onClick={onActionClick ? onActionClick : onClose}
-						disabled={
-							title?.trim()?.length === 0 ||
-							action?.trim()?.length === 0 ||
-							isActionbtnLoading
-						}
-					>
-						Add and make active
+					<ActionButton onClick={handleSubmit} disabled={isLoading}>
+						{isLoading ? 'Creating...' : 'Add and make active'}
 					</ActionButton>
 				</div>
 			</div>
