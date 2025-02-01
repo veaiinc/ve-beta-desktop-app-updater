@@ -7,7 +7,6 @@ import PromptPopup from '../../components/homePage/PromptPopup';
 import HomePageDashboard from '../../components/homePage/dashboard/HomePageDashboard';
 import HomePageStart from '../../components/homePage/HomePageStart';
 import { PromptData } from '../../components/homePage/PromptData';
-import { useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
 import QuickActions from '../../components/globalComponents/QuickActions';
 
@@ -39,7 +38,6 @@ const HomePage = () => {
 	const [searchParams, setSearchParams] = useSearchParams();
 	let {
 		profileInfo: { userDetailsData },
-		templates: { toggleCreateLeadModal },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		activeTab: searchParams?.get('tab') ?? 'dashboard',
@@ -54,8 +52,6 @@ const HomePage = () => {
 		dropdownOptions: '',
 		openCreateLeadModal: false,
 	});
-
-	const navigate = useNavigate();
 
 	useEffect(() => {
 		const homePageContainer = document.querySelector('.home-page-container');
