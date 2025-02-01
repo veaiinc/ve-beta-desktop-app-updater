@@ -37,10 +37,7 @@ const CardItem = ({
 						: key === '!title' && !value) ||
 					(Array?.isArray(value) && value?.length === 0) ||
 					key === '__typename' ||
-					key === '_id' ||
-					key === 'parentTaskId' ||
-					key === 'workflowTemplateId' ||
-					key === 'completedAt'
+					key === '_id'
 				) {
 					return;
 				}
@@ -57,6 +54,7 @@ const CardItem = ({
 							showTitle={true}
 							showEditProperty={true}
 							showLabel={true}
+							wrap={false}
 						/>,
 					);
 				}

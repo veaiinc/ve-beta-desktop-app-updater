@@ -3,6 +3,7 @@ export const getListItemsQuery = gql`
 	query Query($taskFilterInput: TaskFilterInput) {
 		listTasks(taskFilterInput: $taskFilterInput) {
 			hasNextPage
+			currentPage
 			data {
 				_id
 				taskSlNo

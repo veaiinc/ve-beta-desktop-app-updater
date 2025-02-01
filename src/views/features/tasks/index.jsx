@@ -1,6 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import ListView from '../../components/tasks/views/ListView';
+import React, { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { ReactComponent as ClockSvg } from '../../../assets/svg/activity/clock.svg';
 import { ReactComponent as PieSvg } from '../../../assets/svg/tasks/pieHollow.svg';
 import { ReactComponent as PrioritySvg } from '../../../assets/svg/tasks/roundChevronRight.svg';
@@ -398,6 +397,10 @@ const Tasks = () => {
 					search: info?.searchValue,
 				},
 			});
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				page: page,
+			}));
 		},
 		[info?.sort, info?.filters, info?.searchValue],
 	);
@@ -420,7 +423,6 @@ const Tasks = () => {
 			fetchListItems(nextPage);
 			setInfo((prevInfo) => ({
 				...prevInfo,
-				page: nextPage,
 				infinityLoading: true,
 			}));
 		}
