@@ -7,6 +7,7 @@ import FilterCheckBox from '../../sales/FilterCheckBox';
 import moment from 'moment';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { FetchMoreLoaderComp } from '../../../../helpers';
+import Skeleton from 'react-loading-skeleton';
 
 const tabItems = [
 	{ id: 'all', label: 'All', checkBoxBorder: null },
@@ -116,7 +117,25 @@ const PriorityTab = () => {
 			<div className="cards-container">
 				<div className="card-div">
 					{requiredActions?.loading ? (
-						<RequiredActionsLoader />
+						<div
+							style={{
+								display: 'flex',
+								flexDirection: 'row',
+								gap: '8px',
+								flexWrap: 'wrap',
+							}}
+						>
+							{[{}, {}, {}, {}, {}, {}].map((ele, index) => {
+								return (
+									<Skeleton
+										width={'268px'}
+										height={'286px'}
+										borderRadius={'24px'}
+										key={index}
+									/>
+								);
+							})}
+						</div>
 					) : (
 						<InfiniteScroll
 							dataLength={requiredActions?.actions?.length || 0}
