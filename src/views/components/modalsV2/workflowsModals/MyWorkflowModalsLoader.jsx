@@ -1,6 +1,6 @@
 import React from 'react';
 import Skeleton from 'react-loading-skeleton';
-const MyWorkflowModalsLoader = () => {
+const MyWorkflowModalsLoader = ({ width = '366px', height = '59px' }) => {
 	return (
 		<div
 			style={{
@@ -12,8 +12,8 @@ const MyWorkflowModalsLoader = () => {
 		>
 			{[{}, {}, {}, {}, {}, {}, {}, {}, {}]?.map((item, index) => (
 				<Skeleton
-					width={'366px'}
-					height={'59px'}
+					width={width}
+					height={height}
 					style={{ borderRadius: '16px' }}
 					key={index}
 				/>

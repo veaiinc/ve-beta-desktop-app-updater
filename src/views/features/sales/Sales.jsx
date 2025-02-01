@@ -15,7 +15,7 @@ import SalesInfo from './SalesInfo';
 import { getCurrentWorkspaceId } from '../../../helpers';
 import { Spin } from 'antd';
 
-const Sales = () => {
+const Sales = ({ showSalesInfo = true }) => {
 	let {
 		templates: {
 			getMyWorkflows,
@@ -50,17 +50,19 @@ const Sales = () => {
 		getMyWorkflowTemplatesData(1);
 	}, []);
 
-	useEffect(() => {
-		const interval = setInterval(() => {
-			getMyWorkflowTemplatesData(1);
-		}, 15000);
-		return () => clearInterval(interval);
-	}, []);
+	// useEffect(() => {
+	// 	const interval = setInterval(() => {
+	// 		getMyWorkflowTemplatesData(1);
+	// 	}, 15000);
+	// 	return () => clearInterval(interval);
+	// }, []);
 
 	useEffect(() => {
 		if (salePageRefresh) {
 			getMyWorkflowTemplatesData(1);
 			updateStateValues({ salePageRefresh: null });
+
+			//refresh function
 		}
 	}, [salePageRefresh]);
 
@@ -245,7 +247,7 @@ const Sales = () => {
 
 	return (
 		<>
-			<SalesInfo />
+			{showSalesInfo && <SalesInfo />}
 			<InfiniteScroll
 				dataLength={info?.myWorkflowData?.length || 0}
 				next={fetchMoreMyWorkflows}

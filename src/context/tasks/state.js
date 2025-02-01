@@ -1,10 +1,12 @@
 import service from '../../services/graphQlServices';
 import {
 	getListItemsQuery,
+	getListItemsByTenantUserQuery,
 	addListItemMutation,
 	updateListItemMutation,
 	deleteListItemMutation,
 	getTaskQuery,
+	getTasksCountQuery,
 	getSubTasksQuery,
 	getTaskStatusLabelQuery,
 	getTaskStatusDefaultLabelQuery,
@@ -18,9 +20,14 @@ import Reducer from './reducer';
 import { Actions } from './actions';
 
 export const intialState = {
-	listTask: null,
+	listTasks: null,
+	listTasksForToday: null,
+	listTasksForOverdue: null,
+	listTasksDueTillToday: null,
 	newTask: null,
 	subTasks: null,
+	tasksCountForToday: null,
+	tasksCountForOverdue: null,
 	preferences: null,
 	taskMetadata: null,
 	refetchTasks: false,
@@ -52,6 +59,253 @@ export const TasksState = () => {
 			}
 		} catch (error) {
 			console.log('API failed ==> getListItems', error);
+		}
+	};
+
+	const getListTasksDueTillToday = async (payload, type = null, task = null) => {
+		try {
+			if (task !== null && type !== null) {
+				const taskId = task?._id;
+
+				if (type === 'update') {
+					const updatedList = state?.listTasksDueTillToday?.data?.map((item) => {
+						if (item?._id === taskId) {
+							return { ...task };
+						}
+						return item;
+					});
+
+					dispatch({
+						type: Actions.SET_LIST_TASKS_DUE_TILL_TODAY,
+						payload: { ...state?.listTasksDueTillToday, data: updatedList },
+					});
+					return;
+				}
+				console.log(task);
+				if (type === 'delete') {
+					const updatedList = state?.listTasksDueTillToday?.data?.filter(
+						(item) => item?._id !== taskId,
+					);
+					dispatch({
+						type: Actions.SET_LIST_TASKS_DUE_TILL_TODAY,
+						payload: { ...state?.listTasksDueTillToday, data: updatedList },
+					});
+					return;
+				}
+			}
+
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				getListItemsByTenantUserQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+
+			if (response?.[0]) {
+				const resp = response?.[1]?.data?.listTasksByTenantUser;
+				dispatch({
+					type: Actions.SET_LIST_TASKS_DUE_TILL_TODAY,
+					payload: {
+						...resp,
+						data: Array.isArray(state?.listTasksDueTillToday?.data)
+							? state?.listTasksDueTillToday?.data?.concat(resp?.data)
+							: resp?.data,
+					},
+				});
+			} else {
+				console.log('API failed ==> getListTasksDueTillToday', response);
+				dispatch({
+					type: Actions.SET_LIST_TASKS_FOR_TODAY,
+					payload: { error: 'Failed to fetch tasks, try again' },
+				});
+			}
+		} catch (error) {
+			console.log('API failed ==> getListTasksDueTillToday', error);
+		}
+	};
+	const getListTasksForToday = async (payload, type = null, task = null) => {
+		try {
+			if (task !== null && type !== null) {
+				const taskId = task?._id;
+				if (type === 'update') {
+					const updatedList = state?.listTasksForToday?.data?.map((item) => {
+						if (item?._id === taskId) {
+							return task;
+						}
+						return item;
+					});
+					dispatch({
+						type: Actions.SET_LIST_TASKS_FOR_TODAY,
+						payload: { ...state?.listTasksForToday, data: updatedList },
+					});
+					return;
+				}
+				if (type === 'delete') {
+					const updatedList = state?.listTasksForToday?.data?.filter(
+						(item) => item?._id !== taskId,
+					);
+					dispatch({
+						type: Actions.SET_LIST_TASKS_FOR_TODAY,
+						payload: { ...state?.listTasksForToday, data: updatedList },
+					});
+					return;
+				}
+			}
+
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+
+			const response = await service.query(
+				getListItemsByTenantUserQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+
+			if (response?.[0]) {
+				const resp = response?.[1]?.data?.listTasksByTenantUser;
+				dispatch({
+					type: Actions.SET_LIST_TASKS_FOR_TODAY,
+					payload: {
+						...resp,
+						data: Array.isArray(state?.listTasksForToday?.data)
+							? state?.listTasksForToday?.data?.concat(resp?.data)
+							: resp?.data,
+					},
+				});
+			} else {
+				console.log('API failed ==> getListTasksForToday', response);
+				dispatch({
+					type: Actions.SET_LIST_TASKS_FOR_TODAY,
+					payload: { error: 'Failed to fetch tasks, try again' },
+				});
+			}
+		} catch (error) {
+			console.log('API failed ==> getListTasksForToday', error);
+		}
+	};
+
+	const getListTasksForOverdue = async (payload, type = null, task = null) => {
+		try {
+			if (task !== null && type !== null) {
+				const taskId = task?._id;
+				if (type === 'update') {
+					const updatedList = state?.listTasksForOverdue?.data?.map((item) => {
+						if (item?._id === taskId) {
+							return task;
+						}
+						return item;
+					});
+					dispatch({
+						type: Actions.SET_LIST_TASKS_FOR_OVERDUE,
+						payload: { ...state?.listTasksForOverdue, data: updatedList },
+					});
+					return;
+				}
+				if (type === 'delete') {
+					const updatedList = state?.listTasksForOverdue?.data?.filter(
+						(item) => item?._id !== taskId,
+					);
+					dispatch({
+						type: Actions.SET_LIST_TASKS_FOR_OVERDUE,
+						payload: { ...state?.listTasksForOverdue, data: updatedList },
+					});
+					return;
+				}
+			}
+
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				getListItemsByTenantUserQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+
+			if (response?.[0]) {
+				const resp = response?.[1]?.data?.listTasksByTenantUser;
+				dispatch({
+					type: Actions.SET_LIST_TASKS_FOR_OVERDUE,
+					payload: {
+						...resp,
+						data: Array.isArray(state?.listTasksForOverdue?.data)
+							? state?.listTasksForOverdue?.data?.concat(resp?.data)
+							: resp?.data,
+					},
+				});
+			} else {
+				console.log('API failed ==> getListTasksForOverdue', response);
+				dispatch({
+					type: Actions.SET_LIST_TASKS_FOR_OVERDUE,
+					payload: { error: 'Failed to fetch tasks, try again' },
+				});
+			}
+		} catch (error) {
+			console.log('API failed ==> getListTasksForOverdue', error);
+		}
+	};
+
+	const getTasksCountForToday = async (payload, type = null, task = null) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				getTasksCountQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.SET_TASKS_COUNT_FOR_TODAY,
+					payload: response?.[1]?.data?.listTasksByTenantUser?.totalDocs,
+				});
+			} else {
+				console.log('API failed ==> getTasksCountForToday', response);
+				dispatch({
+					type: Actions.SET_TASKS_COUNT_FOR_TODAY,
+					payload: { error: 'Failed to fetch tasks count for today, try again' },
+				});
+			}
+		} catch (error) {
+			console.log('API failed ==> getTasksCountForToday', error);
+		}
+	};
+
+	const getTasksCountForOverdue = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				getTasksCountQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.SET_TASKS_COUNT_FOR_OVERDUE,
+					payload: response?.[1]?.data?.listTasksByTenantUser?.totalDocs,
+				});
+			} else {
+				console.log('API failed ==> getTasksCountForOverdue', response);
+				dispatch({
+					type: Actions.SET_TASKS_COUNT_FOR_OVERDUE,
+					payload: { error: 'Failed to fetch tasks count for overdue, try again' },
+				});
+			}
+		} catch (error) {
+			console.log('API failed ==> getTasksCountForOverdue', error);
 		}
 	};
 
@@ -345,10 +599,15 @@ export const TasksState = () => {
 	return {
 		...state,
 		getListItems,
+		getListTasksForToday,
+		getListTasksForOverdue,
+		getListTasksDueTillToday,
 		addListItem,
 		updateListItem,
 		deleteListItem,
 		getTask,
+		getTasksCountForOverdue,
+		getTasksCountForToday,
 		getSubTasks,
 		addSubTask,
 		removeSubTask,
