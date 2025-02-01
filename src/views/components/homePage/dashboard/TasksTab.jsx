@@ -382,8 +382,8 @@ const TasksTab = () => {
 			filters: {
 				limit: 1,
 				page: 1,
-				startDate: Math.floor(new Date().setHours(0, 0, 0, 0) / 1000),
-				endDate: Math.floor(new Date().setHours(23, 59, 59, 999) / 1000),
+				startDate: Math?.floor(new Date()?.setHours(0, 0, 0, 0) / 1000),
+				endDate: Math?.floor(new Date()?.setHours(23, 59, 59, 999) / 1000),
 			},
 		};
 		getTasksCountForToday(payload);
@@ -394,7 +394,7 @@ const TasksTab = () => {
 			filters: {
 				limit: 1,
 				page: 1,
-				endDate: Math.floor(new Date().setHours(-1, 59, 59, 999) / 1000),
+				endDate: Math?.floor(new Date()?.setHours(-1, 59, 59, 999) / 1000),
 			},
 		};
 		getTasksCountForOverdue(payload);
@@ -405,8 +405,8 @@ const TasksTab = () => {
 			filters: {
 				limit: 10,
 				page,
-				startDate: Math.floor(new Date().setHours(0, 0, 0, 0) / 1000),
-				endDate: Math.floor(new Date().setHours(23, 59, 59, 999) / 1000),
+				startDate: Math?.floor(new Date()?.setHours(0, 0, 0, 0) / 1000),
+				endDate: Math?.floor(new Date()?.setHours(23, 59, 59, 999) / 1000),
 			},
 		};
 		getListTasksForToday(payload, type, task);
@@ -417,7 +417,7 @@ const TasksTab = () => {
 			filters: {
 				limit: 10,
 				page,
-				endDate: Math.floor(new Date().setHours(-1, 59, 59, 999) / 1000),
+				endDate: Math?.floor(new Date()?.setHours(-1, 59, 59, 999) / 1000),
 			},
 		};
 		getListTasksForOverdue(payload, type, task);
@@ -428,7 +428,7 @@ const TasksTab = () => {
 			filters: {
 				limit: 10,
 				page,
-				endDate: Math.floor(new Date().setHours(23, 59, 59, 999) / 1000),
+				endDate: Math?.floor(new Date()?.setHours(23, 59, 59, 999) / 1000),
 			},
 		};
 		getListTasksDueTillToday(payload, type, task);
@@ -708,7 +708,6 @@ const TasksTab = () => {
 	const handleChildTaskClose = useCallback(() => {
 		updateTaskInfo({ selectedSubTask: null });
 	}, []);
-	console.log(info?.loadingSkeleton);
 
 	return (
 		<>
@@ -778,14 +777,14 @@ const TasksTab = () => {
 											flexWrap: 'wrap',
 										}}
 									>
-										{[{}, {}, {}, {}, {}, {}].map((ele, index) => (
+										{[1, 2, 3, 4, 5, 6]?.map((ele) => (
 											<Skeleton
 												height={'231px'}
 												width={'268px'}
 												style={{
 													borderRadius: '16px',
 												}}
-												key={index}
+												key={ele}
 											/>
 										))}
 									</div>
@@ -798,6 +797,7 @@ const TasksTab = () => {
 													onClick={() => {
 														handleRowClick(task);
 													}}
+													key={task?._id}
 												>
 													<div className="task-content">
 														<span className="title">{task?.title}</span>
@@ -861,7 +861,7 @@ const TasksTab = () => {
 										flexWrap: 'wrap',
 									}}
 								>
-									{[{}, {}, {}, {}, {}, {}].map((ele, index) => (
+									{[{}, {}, {}, {}, {}, {}]?.map((ele, index) => (
 										<Skeleton
 											height={'231px'}
 											width={'268px'}
@@ -881,6 +881,7 @@ const TasksTab = () => {
 												onClick={() => {
 													handleRowClick(task);
 												}}
+												key={task?._id}
 											>
 												<div className="task-content">
 													<span className="title">{task?.title}</span>
@@ -941,7 +942,7 @@ const TasksTab = () => {
 										flexWrap: 'wrap',
 									}}
 								>
-									{[{}, {}, {}, {}, {}, {}].map((ele, index) => (
+									{[{}, {}, {}, {}, {}, {}]?.map((ele, index) => (
 										<Skeleton
 											height={'231px'}
 											width={'268px'}
@@ -961,6 +962,7 @@ const TasksTab = () => {
 												onClick={() => {
 													handleRowClick(task);
 												}}
+												key={task?._id}
 											>
 												<div className="task-content">
 													<span className="title">{task?.title}</span>
