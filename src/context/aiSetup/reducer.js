@@ -25,6 +25,47 @@ const actionHandlers = {
 		...state,
 		aiChatSessions: action?.payload,
 	}),
+	SET_AI_ASSISTANTS: (state, action) => ({
+		...state,
+		[action?.selectedVariable]: action?.payload,
+	}),
+	SET_AI_ASSISTANT: (state, action) => ({
+		...state,
+		aiAssistant: action?.payload,
+	}),
+	GET_AI_INSTRUCTIONS: (state, action) => ({
+		...state,
+		aiInstructions: action?.payload,
+	}),
+	SET_AI_INSTRUCTION: (state, action) => ({
+		...state,
+		aiInstructions: action?.payload,
+	}),
+	UPDATE_AI_INSTRUCTION: (state, action) => ({
+		...state,
+		aiInstructions: action?.payload,
+	}),
+	GET_AI_PROMPT: (state, action) => ({
+		...state,
+		aiPrompt: action?.payload,
+	}),
+	SET_AI_PROMPT: (state, action) => ({
+		...state,
+		aiPrompt: action?.payload,
+	}),
+	SELECT_AI_PROMPT: (state, action) => ({
+		...state,
+		aiPrompt: action?.payload,
+	}),
+	GET_DEFAULT_AI_PROMPT: (state, action) => ({
+		...state,
+		aiDefaultPrompt: action?.payload,
+	}),
+	RESET_AI_PROMPT: (state, action) => ({
+		...state,
+		aiPrompt: action?.payload,
+	}),
+
 	RESET_STATE: () => initialState,
 };
 

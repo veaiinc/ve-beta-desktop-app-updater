@@ -1,4 +1,4 @@
-import React, { useState, memo, useEffect } from 'react';
+import React, { useState, memo, useEffect, useCallback, useContext } from 'react';
 import ReactModal from '../modalsV2';
 import { ReactComponent as CrossSvg } from '../../../assets/svg/gallery/cross.svg';
 import { ReactComponent as SearchIcon } from '../../../assets/svg/workflow/search.svg';
@@ -10,6 +10,7 @@ import { Tooltip } from 'antd';
 import FilterPopUp from '../globalComponents/FilterPopUp';
 import BottomToolbar from '../ai_agents/BottomToolbar';
 import ToolBarChatContainerModal from '../modalsV2/ToolBarChatContainerModal';
+import Context from '../../../context/context';
 const files = [
 	'My Templates',
 	'Wedding Proposals',
@@ -25,6 +26,10 @@ const clientOptions = [
 ];
 
 const PromptPopup = ({ open, closeModal, selectedCard }) => {
+	const {
+		templates: { updateStateValues },
+	} = useContext(Context);
+
 	const [searchText, setSearchText] = useState('');
 	const [selectedOptions, setSelectedOptions] = useState({});
 	const [isOpen, setIsOpen] = useState(false);
@@ -75,6 +80,11 @@ const PromptPopup = ({ open, closeModal, selectedCard }) => {
 			return updatedOptions;
 		});
 	};
+
+	const handleClickRun = useCallback(() => {
+		updateStateValues({ activePromptForChat: dynamicPrompt });
+		closeModal();
+	}, [dynamicPrompt]);
 
 	return (
 		<ReactModal isOpen={open} closeModal={closeModal} modalType={'center'}>
@@ -162,7 +172,9 @@ const PromptPopup = ({ open, closeModal, selectedCard }) => {
 						})}
 					</div>
 				</div>
-				<button className="promptPopupContainerRunButton">Run</button>
+				<button className="promptPopupContainerRunButton" onClick={handleClickRun}>
+					Run
+				</button>
 			</div>
 		</ReactModal>
 	);

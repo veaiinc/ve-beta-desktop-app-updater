@@ -27,7 +27,7 @@ const navbarOptions = {
 	],
 	dashboard: [
 		{ id: 1, title: 'Priority', value: 'Priority' },
-		{ id: 2, title: 'Tasks', value: 'Tasks' },
+		// { id: 2, title: 'Tasks', value: 'Tasks' },
 		{ id: 3, title: 'Workflows', value: 'Workflows' },
 		// { id: 4, title: 'Recent Chats', value: 'Recent Chats' },
 		{ id: 5, title: 'Drafts & Activity', value: 'Drafts & Activity' },
@@ -51,6 +51,7 @@ const HomePage = () => {
 	const [searchParams, setSearchParams] = useSearchParams();
 	let {
 		profileInfo: { userDetailsData },
+		templates: { toggleCreateLeadModal, createLeadModalContextState },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		activeTab: searchParams?.get('tab') ?? 'start',
@@ -81,7 +82,7 @@ const HomePage = () => {
 		} else if (type === 'document') {
 			navigate('/docs');
 		} else if (type === 'client') {
-			openCreateLeadModal();
+			toggleCreateLeadModal({ createLeadModalContextState: true });
 		} else if (type === 'task') {
 			navigate('/tasks');
 		}
@@ -272,10 +273,6 @@ const HomePage = () => {
 				open={info?.showPromptPopup}
 				closeModal={() => setInfo({ ...info, showPromptPopup: false })}
 				selectedCard={info?.selectedCard}
-			/>
-			<CreateLeadModal
-				modalIsOpen={info?.openCreateLeadModal}
-				closeModal={closeCreateLeadModal}
 			/>
 		</div>
 	);
