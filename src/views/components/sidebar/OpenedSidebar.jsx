@@ -121,7 +121,7 @@ const OpenedSideBarHoverStateIcons = ({
 				onMouseEnter={onMoutseEnter}
 				onMouseLeave={onMoutseLeave}
 				onClick={() => {
-					if (name === 'Design Builder') {
+					if (name === 'Design Builder' || name === 'Storage') {
 						toggleDropdown();
 					} else {
 						redirectToFunction();
