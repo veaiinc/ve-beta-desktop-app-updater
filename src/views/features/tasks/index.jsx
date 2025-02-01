@@ -96,6 +96,8 @@ const Tasks = () => {
 			refetchTasks,
 			updateTaskState,
 			getTaskMetadata,
+			updateTaskViews,
+			deleteTaskView,
 		},
 		templates: { getWorkflowsList, workflowslist },
 		companyInfo: {
@@ -371,6 +373,20 @@ const Tasks = () => {
 		if (!taskMetadata) {
 			getTaskMetadata();
 		} else {
+			if (!taskMetadata?.views) {
+				updateView(
+					null,
+					{
+						label: 'List view',
+						filters: [],
+						icon: null,
+						order: null,
+						sort: [],
+						viewType: 'list',
+					},
+					taskMetadata?._id,
+				);
+			}
 			setInfo((prevInfo) => ({
 				...prevInfo,
 				taskMetadata: taskMetadata,
@@ -809,6 +825,25 @@ const Tasks = () => {
 		updateTaskInfo({ sidebarIsOpen: false, selectedSubTask: null });
 	}, [info?.updated]);
 
+	const updateView = useCallback(
+		(viewId, updateData, taskMetadataId) => {
+			const data = {
+				taskMetadataId: taskMetadataId || info?.taskMetadata?._id,
+				viewId,
+				input: updateData,
+			};
+			updateTaskViews(data);
+		},
+		[updateTaskViews, info?.taskMetadata?._id],
+	);
+
+	const deleteView = useCallback(
+		(viewId) => {
+			deleteTaskView({ taskMetadataId: info?.taskMetadata?._id, viewId });
+		},
+		[deleteTaskView, info?.taskMetadata?._id],
+	);
+
 	return (
 		<>
 			<Task
@@ -831,6 +866,9 @@ const Tasks = () => {
 				blockTitle={'Tasks'}
 				createButtonText={'Create Task'}
 				prefix={info?.taskMetadata?.prefix}
+				views={info?.taskMetadata?.views}
+				updateView={updateView}
+				deleteView={deleteView}
 			/>
 			<CreateTaskPopup
 				isOpen={info?.isCreateModalOpen}

@@ -93,17 +93,17 @@ const TabHeader = ({
 	}, [calculateVisibleTabs]);
 
 	const handleDragEnd = (result) => {
-		if (!result.destination) return;
+		if (!result?.destination) return;
 
-		const sourceIndex = result.source.index;
-		const destinationIndex = result.destination.index;
+		const sourceIndex = result?.source?.index;
+		const destinationIndex = result?.destination?.index;
 
 		const newTabList = Array.from(tabList);
-		const [movedItem] = newTabList.splice(sourceIndex, 1);
-		newTabList.splice(destinationIndex, 0, movedItem);
+		const [movedItem] = newTabList?.splice(sourceIndex, 1);
+		newTabList?.splice(destinationIndex, 0, movedItem);
 
 		setTabList(newTabList);
-		onTabsReorder(newTabList);
+		onTabsReorder(newTabList, movedItem, destinationIndex);
 	};
 
 	const handleOverflowDragEnd = (result) => {
@@ -132,7 +132,7 @@ const TabHeader = ({
 											destroyTooltipOnHide
 											open={
 												showDropDown &&
-												activeTab === tab._id &&
+												activeTab === tab?._id &&
 												info?.dropdownIsOpen
 											}
 											onOpenChange={(open) => {
