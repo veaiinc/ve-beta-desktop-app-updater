@@ -20,12 +20,24 @@ const AiActions = ({ assistant }) => {
 		assistantId: assistant?._id || aiAssistantId,
 		aiActionList: [],
 		actionsLoading: true,
+		selectedAction: null,
 	});
 
 	const handleActionAdded = useCallback((newAction) => {
 		setInfo((prev) => ({
 			...prev,
 			aiActionList: [...(prev?.aiActionList || []), newAction],
+			selectedAction: null,
+		}));
+	}, []);
+
+	const handleActionUpdated = useCallback((updatedAction) => {
+		setInfo((prev) => ({
+			...prev,
+			aiActionList: prev.aiActionList.map((action) =>
+				action._id === updatedAction._id ? updatedAction : action,
+			),
+			selectedAction: null,
 		}));
 	}, []);
 
@@ -49,6 +61,15 @@ const AiActions = ({ assistant }) => {
 		setInfo((prevStates) => ({
 			...prevStates,
 			actionModalOpen: false,
+			selectedAction: null,
+		}));
+	}, []);
+
+	const handleActionClick = useCallback((action) => {
+		setInfo((prevStates) => ({
+			...prevStates,
+			actionModalOpen: true,
+			selectedAction: action,
 		}));
 	}, []);
 
@@ -129,7 +150,12 @@ const AiActions = ({ assistant }) => {
 						))
 					) : info?.aiActionList?.length > 0 ? (
 						info?.aiActionList?.map((item) => (
-							<div key={item?._id} className="instructionItem">
+							<div
+								key={item?._id}
+								className="instructionItem"
+								onClick={() => handleActionClick(item)}
+								style={{ cursor: 'pointer' }}
+							>
 								<span>{item?.name}</span>
 								<span style={{ color: '#7C7C84' }}>
 									{moment.unix(item?.createdAt).format('MMM DD, YYYY')}
@@ -158,6 +184,8 @@ const AiActions = ({ assistant }) => {
 				assistantId={info?.assistantId}
 				aiActionList={info?.aiActionList}
 				onActionAdded={handleActionAdded}
+				onActionUpdated={handleActionUpdated}
+				selectedAction={info?.selectedAction}
 			/>
 		</div>
 	);

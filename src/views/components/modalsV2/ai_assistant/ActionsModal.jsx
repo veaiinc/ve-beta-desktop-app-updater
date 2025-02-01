@@ -1,4 +1,4 @@
-import React, { memo, useState, useContext } from 'react';
+import React, { memo, useState, useContext, useEffect } from 'react';
 import '../../../../assets/scss/ai_assistant/modal/actionsModal.scss';
 import ReactModal from '../index';
 import { ReactComponent as CloseSvg } from '../../../../assets/svg/close.svg';
@@ -26,6 +26,8 @@ const ActionsModal = ({
 	assistantId,
 	aiActionList,
 	onActionAdded,
+	onActionUpdated,
+	selectedAction,
 }) => {
 	const {
 		aiSetup: { addAiAction, updateAiAction },
@@ -60,6 +62,58 @@ const ActionsModal = ({
 		urlCursorPosition: 0,
 		addingAction: false,
 	});
+
+	console.log('selectedAction', selectedAction);
+
+	// Add useEffect to populate form when selectedAction changes
+	useEffect(() => {
+		if (selectedAction) {
+			// Populate form data
+			setFormData({
+				title: selectedAction?.name || '',
+				description: selectedAction?.description || '',
+				status: selectedAction?.status,
+			});
+
+			// Populate info state
+			setInfo((prev) => ({
+				...prev,
+				method: selectedAction?.method || 'GET',
+				apiUses: selectedAction?.contentType?.toUpperCase() || 'JSON',
+				url: selectedAction?.url || '',
+				variables:
+					selectedAction?.variables?.map((v) => ({
+						id: Date.now() + Math.random(),
+						name: v?.name,
+						type: v?.type,
+					})) || [],
+				headers: selectedAction?.headers?.map((h) => ({
+					id: Date.now() + Math.random(),
+					parameter: h?.name,
+					value: h?.value,
+				})) || [{ id: Date.now(), parameter: '', value: '' }],
+				bodyContent: selectedAction?.body
+					? JSON.stringify(selectedAction?.body, null, 2)
+					: '',
+			}));
+		} else {
+			// Reset form for create mode
+			setFormData({
+				title: '',
+				description: '',
+				status: true,
+			});
+			setInfo((prev) => ({
+				...prev,
+				method: 'GET',
+				apiUses: 'JSON',
+				url: '',
+				variables: [],
+				headers: [{ id: Date.now(), parameter: '', value: '' }],
+				bodyContent: '',
+			}));
+		}
+	}, [selectedAction]);
 
 	const validateForm = () => {
 		if (!formData?.title?.trim()) {
@@ -134,7 +188,7 @@ const ActionsModal = ({
 				const type = variable?.type?.toLowerCase();
 				return {
 					name: variable?.name,
-					type: type === 'text' ? 'string' : type, // Convert 'Text' to 'string' for API
+					type: type === 'text' ? 'string' : type,
 					description: `Variable for ${variable?.name}`,
 				};
 			});
@@ -159,19 +213,32 @@ const ActionsModal = ({
 				variables: preparedVariables,
 			};
 
-			const response = await addAiAction(assistantId, payload);
+			let response;
+			if (selectedAction) {
+				// Update existing action
+				response = await updateAiAction(assistantId, selectedAction._id, payload);
+				if (response) {
+					onActionUpdated(response);
+					message.success('Action updated successfully');
+				}
+			} else {
+				// Create new action
+				response = await addAiAction(assistantId, payload);
+				if (response) {
+					onActionAdded(response);
+					message.success('Action created successfully');
+				}
+			}
 
 			if (response) {
-				onActionAdded(response);
-				message.success('Action created successfully');
 				onClose();
 			} else {
 				throw new Error('No response from server');
 			}
 		} catch (error) {
-			console.error('Error creating action:', error);
+			console.error('Error saving action:', error);
 			message.error(
-				error?.response?.data?.message || error?.message || 'Failed to create action',
+				error?.response?.data?.message || error?.message || 'Failed to save action',
 			);
 		} finally {
 			setInfo((prev) => ({ ...prev, addingAction: false }));
@@ -391,7 +458,7 @@ const ActionsModal = ({
 		>
 			<div className="actions-modal">
 				<div className="actions-modal-header">
-					<h2>Add Actions</h2>
+					<h2>{selectedAction ? 'Edit Action' : 'Add Action'}</h2>
 					<CloseSvg onClick={onClose} />
 				</div>
 				<div className="actions-modal-inputs">
@@ -537,7 +604,13 @@ const ActionsModal = ({
 						)}
 					</div>
 					<ActionButton onClick={handleSubmit} disabled={info.addingAction}>
-						{info.addingAction ? 'Creating...' : 'Add and make active'}
+						{info?.addingAction
+							? selectedAction
+								? 'Updating...'
+								: 'Creating...'
+							: selectedAction
+							? 'Update action'
+							: 'Add and make active'}
 					</ActionButton>
 				</div>
 			</div>
