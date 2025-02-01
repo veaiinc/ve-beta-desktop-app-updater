@@ -14,7 +14,6 @@ export const AI_PERSONALITY = {
 	getAiAssistantDetails: '/ai-assistants',
 	updateAiAssistant: '/ai-assistants',
 };
-
 export const AI_ASSISTANT_INSTRUCTIONS = {
 	getInstructions: '/instructions',
 	createInstruction: '/instructions',

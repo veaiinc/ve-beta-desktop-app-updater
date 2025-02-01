@@ -35,6 +35,10 @@ import AgentsSetup from './views/features/ai_agent/AgentsSetup';
 import Docs from './views/features/docs';
 import LiteGallery from './views/features/gallery/Litegallery';
 import MyTemplates from './views/features/my_templates/MyTemplates';
+import Workflow_builder_updated from './views/features/workflow_builder_updated';
+import Forms from './views/features/forms';
+import FormLeads from './views/features/forms/FormLeads';
+import HomePage from './views/features/home_page/HomePage';
 import AiAssistants from './views/features/ai_assistant/index';
 import EditAgent from './views/features/ai_assistant/EditAgent';
 import AgentDetails from './views/features/ai_assistant/AgentDetails';
@@ -109,6 +113,16 @@ const routes = [
 		path: '/home',
 		component: (
 			<AuthWrapper title={'Home'}>
+				<HomePage />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+
+	{
+		path: '/sales',
+		component: (
+			<AuthWrapper title={'Sales'}>
 				<Sales />
 			</AuthWrapper>
 		),
@@ -139,6 +153,15 @@ const routes = [
 		component: (
 			<WorkflowBuilderLayout title={'Workflow Builder'}>
 				<WorkflowBuilder />
+			</WorkflowBuilderLayout>
+		),
+		exact: true,
+	},
+	{
+		path: '/automation_builder/:templateId',
+		component: (
+			<WorkflowBuilderLayout title={'Workflow Builder'}>
+				<Workflow_builder_updated />
 			</WorkflowBuilderLayout>
 		),
 		exact: true,
@@ -350,6 +373,24 @@ const routes = [
 		component: (
 			<AuthWrapper title={'My Templates'}>
 				<MyTemplates />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/forms',
+		component: (
+			<AuthWrapper title={'Forms'}>
+				<Forms />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/form-leads',
+		component: (
+			<AuthWrapper title={'Form Leads'}>
+				<FormLeads />
 			</AuthWrapper>
 		),
 		exact: true,
