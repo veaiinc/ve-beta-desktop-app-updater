@@ -290,7 +290,7 @@ const TasksTab = () => {
 			},
 			taskSlNo: { type: 'id', name: 'Id', Icon: textSvg, props: {} },
 		}),
-		[info?.workflows, info?.tenantUsers, info?.taskMetadata],
+		[info?.workflows, info?.tenantUsers, info?.taskMetadata, info?.parentTasks],
 	);
 
 	const debounceTimeout = useRef(null);
@@ -630,59 +630,56 @@ const TasksTab = () => {
 			updatedValue,
 		);
 	};
-	const deleteTask = useCallback(
-		async (payload) => {
-			if (validateExpiryData?.isExpired) {
-				return updateSubscriptionState({ expiredSubscriptionModal: true });
-			} else {
-				const response = await deleteListItem(payload);
-				if (response) {
-					if (info?.selectedSubTask?._id === payload?.taskId) {
-						updateTaskInfo({ selectedSubTask: null });
-						removeSubTask(payload?.taskId);
-					} else {
-						getOverdueTasksCount();
-						getTodayTasksCount();
-						let task;
+	const deleteTask = async (payload) => {
+		if (validateExpiryData?.isExpired) {
+			return updateSubscriptionState({ expiredSubscriptionModal: true });
+		} else {
+			const response = await deleteListItem(payload);
+			if (response) {
+				if (info?.selectedSubTask?._id === payload?.taskId) {
+					updateTaskInfo({ selectedSubTask: null });
+					removeSubTask(payload?.taskId);
+				} else {
+					getOverdueTasksCount();
+					getTodayTasksCount();
+					let task;
 
-						if (info?.selectedOption === 'Pending tasks') {
-							task = info?.dueTillTodayTasksList?.filter((row) => {
-								return row?._id === payload?.taskId;
-							});
-						} else if (info?.selectedOption === 'Today') {
-							task = info?.todayTasksList?.filter((row) => {
-								return row?._id === payload?.taskId;
-							});
-						} else if (info?.selectedOption === 'Overdue') {
-							task = info?.overDueTasksList?.filter((row) => {
-								return row?._id === payload?.taskId;
-							});
-						}
-						task = task[0];
-						setInfo((prev) => ({
-							...prev,
-							selectedRow: null,
-						}));
-
-						if (info?.selectedOption === 'Pending tasks') {
-							fetchDueTillTodayTasks(1, 'delete', task);
-							fetchOverdueTasks(1, 'delete', task);
-							fetchTodayTasks(1, 'delete', task);
-						} else if (info?.selectedOption === 'Today') {
-							fetchDueTillTodayTasks(1, 'delete', task);
-							fetchTodayTasks(1, 'delete', task);
-						} else if (info?.selectedOption === 'Overdue') {
-							fetchDueTillTodayTasks(1, 'delete', task);
-							fetchOverdueTasks(1, 'delete', task);
-						}
-
-						handleCloseSidebar();
+					if (info?.selectedOption === 'Pending tasks') {
+						task = info?.dueTillTodayTasksList?.filter((row) => {
+							return row?._id === payload?.taskId;
+						});
+					} else if (info?.selectedOption === 'Today') {
+						task = info?.todayTasksList?.filter((row) => {
+							return row?._id === payload?.taskId;
+						});
+					} else if (info?.selectedOption === 'Overdue') {
+						task = info?.overDueTasksList?.filter((row) => {
+							return row?._id === payload?.taskId;
+						});
 					}
+					task = task[0];
+					setInfo((prev) => ({
+						...prev,
+						selectedRow: null,
+					}));
+
+					if (info?.selectedOption === 'Pending tasks') {
+						fetchDueTillTodayTasks(1, 'delete', task);
+						fetchOverdueTasks(1, 'delete', task);
+						fetchTodayTasks(1, 'delete', task);
+					} else if (info?.selectedOption === 'Today') {
+						fetchDueTillTodayTasks(1, 'delete', task);
+						fetchTodayTasks(1, 'delete', task);
+					} else if (info?.selectedOption === 'Overdue') {
+						fetchDueTillTodayTasks(1, 'delete', task);
+						fetchOverdueTasks(1, 'delete', task);
+					}
+
+					handleCloseSidebar();
 				}
 			}
-		},
-		[info?.selectedSubTask?._id, removeSubTask],
-	);
+		}
+	};
 
 	const handleRowClick = useCallback(
 		(row) => {
