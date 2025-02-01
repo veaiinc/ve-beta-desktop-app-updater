@@ -63,8 +63,6 @@ const ActionsModal = ({
 		addingAction: false,
 	});
 
-	console.log('selectedAction', selectedAction);
-
 	// Add useEffect to populate form when selectedAction changes
 	useEffect(() => {
 		if (selectedAction) {
@@ -87,13 +85,18 @@ const ActionsModal = ({
 						name: v?.name,
 						type: v?.type,
 					})) || [],
-				headers: selectedAction?.headers?.map((h) => ({
-					id: Date.now() + Math.random(),
-					parameter: h?.name,
-					value: h?.value,
-				})) || [{ id: Date.now(), parameter: '', value: '' }],
+				headers:
+					selectedAction?.headers?.length > 0
+						? selectedAction?.headers?.map((h) => ({
+								id: Date.now() + Math.random(),
+								parameter: h?.name,
+								value: h?.value,
+						  }))
+						: [{ id: Date.now(), parameter: '', value: '' }],
 				bodyContent: selectedAction?.body
-					? JSON.stringify(selectedAction?.body, null, 2)
+					? typeof selectedAction?.body === 'string'
+						? selectedAction?.body
+						: JSON.stringify(selectedAction?.body, null, 2)
 					: '',
 			}));
 		} else {
@@ -179,8 +182,8 @@ const ActionsModal = ({
 			try {
 				parsedBody = info?.bodyContent ? JSON.parse(info?.bodyContent) : {};
 			} catch (e) {
-				message.error('Invalid JSON in body content');
-				return;
+				// If parsing fails, use the content as is (it might be a string)
+				parsedBody = info?.bodyContent || {};
 			}
 
 			// Prepare variables with proper type conversion
