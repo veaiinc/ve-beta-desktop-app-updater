@@ -50,7 +50,7 @@ export const veAiModulesItemsList = [
 	{
 		name: 'Design Builder',
 		moduleRoute: '/',
-		route: '/',
+		route: null,
 		icon: '',
 		subModules: [
 			{ icon: '', name: 'Documents', route: '/docs' },
