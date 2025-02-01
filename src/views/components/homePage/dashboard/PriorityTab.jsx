@@ -171,6 +171,12 @@ const PriorityTab = () => {
 											actionItem?._id,
 										)
 									}
+									style={{
+										height: '286px',
+										width: '268px',
+										borderRadius: '24px',
+										padding: '24px',
+									}}
 								>
 									<div className="agentsWorkflowJobCards">
 										<div className="agentsWorkflowJobCardsContent">

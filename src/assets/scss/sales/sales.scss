@@ -262,7 +262,12 @@
 				background: #171819;
 				background: color(display-p3 0.0902 0.0941 0.098);
 				cursor: pointer;
+				transition: 300ms;
 				flex-shrink: 0;
+
+				&:hover {
+					background: #202123;
+				}
 				.agentsWorkflowJobCards {
 					display: flex;
 					flex-direction: column;
@@ -289,6 +294,7 @@
 							font-style: normal;
 							font-weight: 500;
 							line-height: normal;
+							text-transform: capitalize;
 						}
 
 						.agentsWorkflowJobCardsSubTitle {

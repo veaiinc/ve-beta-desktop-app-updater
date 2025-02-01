@@ -22,7 +22,6 @@
 		flex-direction: column;
 		align-items: flex-start;
 		justify-content: space-between;
-		// padding-bottom: 32px;
 		gap: 50px;
 		width: 100%;
 		.home-page-container-content {
@@ -79,6 +78,7 @@
 				font-style: normal;
 				font-weight: 500;
 				line-height: normal;
+				transition: 300ms;
 				cursor: pointer;
 				&:hover {
 					background: transparent;
@@ -209,6 +209,7 @@
 			border-radius: 24px;
 			background: #171819;
 			cursor: pointer;
+			transition: 300ms;
 			&:hover {
 				background: #202123;
 			}
@@ -219,6 +220,7 @@
 				font-style: normal;
 				font-weight: 500;
 				line-height: normal;
+				text-transform: capitalize;
 			}
 			.home-page-cards-container-card-title {
 				color: var(--primary-font, #f2f2f3);
@@ -273,7 +275,7 @@
 	padding: 12px;
 	flex-direction: column;
 	align-items: flex-start;
-	gap: 4px;
+	gap: 2px;
 	border-radius: 12px;
 	background: #26282a;
 	.dropdown-option {
@@ -292,7 +294,7 @@
 		flex: 1 0 0;
 		cursor: pointer;
 		&:hover {
-			background: #202123;
+			background: #303336;
 		}
 	}
 }
