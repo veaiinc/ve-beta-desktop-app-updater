@@ -99,7 +99,16 @@ const AiInstructions = ({ assistant }) => {
 
 	const createNewInstruction = useCallback(() => {
 		setInfo((prev) => ({ ...prev, updatingInstruction: true }));
-		createInstruction(aiAssistantId, info?.instructionBody);
+		if (info?.instructionData?.length < 20) {
+			createInstruction(aiAssistantId, info?.instructionBody);
+		} else {
+			setInfo((prev) => ({
+				...prev,
+				updatingInstruction: false,
+				isInstructionModalOpen: false,
+			}));
+			message.error('You have reached the maximum limit of 20 instructions');
+		}
 	}, [info?.instructionBody, aiAssistantId]);
 
 	const updateInstructionBody = useCallback((field, value) => {
@@ -135,29 +144,34 @@ const AiInstructions = ({ assistant }) => {
 						<span>Last edit</span>
 						<span>Active</span>
 					</div>
-					{info.instructionDataLoading
-						? [{}, {}, {}, {}, {}, {}, {}]?.map((_, index) => (
-								<div key={index} className="instructionItemSkeleton">
-									<Skeleton width="100%" height="36px" borderRadius="6px" />
-								</div>
-						  ))
-						: (info?.instructionData || [])?.map((item) => (
-								<div key={item?._id} className="instructionItem">
-									<span>{item?.title}</span>
-									<span style={{ color: '#7C7C84' }}>
-										{moment.unix(item?.updatedAt).format('MMM DD, YYYY')}
-									</span>
-									<span className="aiToggleSwitch">
-										<ToggleSwitch
-											id={item?._id}
-											value={item?.status}
-											onChange={() =>
-												handleToggleChange(item?._id, item?.status)
-											}
-										/>
-									</span>
-								</div>
-						  ))}
+					{info.instructionDataLoading ? (
+						[{}, {}, {}, {}, {}, {}, {}]?.map((_, index) => (
+							<div key={index} className="instructionItemSkeleton">
+								<Skeleton width="100%" height="36px" borderRadius="6px" />
+							</div>
+						))
+					) : info?.instructionData?.length > 0 ? (
+						info?.instructionData?.map((item) => (
+							<div key={item?._id} className="instructionItem">
+								<span>{item?.title}</span>
+								<span style={{ color: '#7C7C84' }}>
+									{moment.unix(item?.updatedAt).format('MMM DD, YYYY')}
+								</span>
+								<span className="aiToggleSwitch">
+									<ToggleSwitch
+										id={item?._id}
+										value={item?.status}
+										onChange={() => handleToggleChange(item?._id, item?.status)}
+									/>
+								</span>
+							</div>
+						))
+					) : (
+						<div className="emptyState">
+							<p>No instructions added</p>
+							<p>Add instructions to guide your AI assistant</p>
+						</div>
+					)}
 				</div>
 			</div>
 
