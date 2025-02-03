@@ -170,7 +170,7 @@ const AiAssistants = () => {
 							</div>
 						}
 						className="agentsCardContainer"
-						height={`calc( 100vh - 520px)`}
+						height={`calc( 100vh - 240px)`}
 					>
 						{assistants ? (
 							assistants?.map((assistant) => (
