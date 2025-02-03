@@ -99,7 +99,16 @@ const AiInstructions = ({ assistant }) => {
 
 	const createNewInstruction = useCallback(() => {
 		setInfo((prev) => ({ ...prev, updatingInstruction: true }));
-		createInstruction(aiAssistantId, info?.instructionBody);
+		if (info?.instructionData?.length < 20) {
+			createInstruction(aiAssistantId, info?.instructionBody);
+		} else {
+			setInfo((prev) => ({
+				...prev,
+				updatingInstruction: false,
+				isInstructionModalOpen: false,
+			}));
+			message.error('You have reached the maximum limit of 20 instructions');
+		}
 	}, [info?.instructionBody, aiAssistantId]);
 
 	const updateInstructionBody = useCallback((field, value) => {
