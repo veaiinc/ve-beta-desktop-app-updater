@@ -124,7 +124,9 @@ const OpenedSideBarHoverStateIcons = ({
 				}`}
 				onMouseEnter={onMoutseEnter}
 				onMouseLeave={onMoutseLeave}
-				onClick={redirectToFunction}
+				onClick={() => {
+					setDropdownVisible(!isDropdownVisible);
+				}}
 				style={{
 					marginBottom:
 						isDropdownVisible && subModules?.length
@@ -289,6 +291,8 @@ const OpenedSideBarItemsComponent = ({
 	info,
 	setInfo,
 	userWorkSpaceList,
+	isOpen,
+	setIsOpen,
 }) => {
 	const navigate = useNavigate();
 	const logoutFunc = useLogout();
@@ -343,7 +347,8 @@ const OpenedSideBarItemsComponent = ({
 
 	const handleSidebarCollapse = (e) => {
 		e.stopPropagation();
-		setsidebarStates({ ...sidebarStates, isOpen: false, navStyle: 'close' });
+		setsidebarStates({ ...sidebarStates, navStyle: 'close' });
+		setIsOpen(false);
 	};
 
 	const handleChatSelect = (chatName) => {
