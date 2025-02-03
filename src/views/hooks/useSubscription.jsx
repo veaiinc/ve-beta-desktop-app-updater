@@ -19,7 +19,7 @@ const calculateTimeLeft = (expiryTimestamp) => {
 const restrictMapper = {
 	restrictTasks: false,
 	restrictWorkflows: false,
-	restrictGalleries: false,
+	restrictGalleries: true,
 	restrictCalendar: false,
 	restrictContacts: false,
 };
