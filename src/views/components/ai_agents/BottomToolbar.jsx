@@ -59,6 +59,7 @@ const BottomToolbar = ({
 		expanded: false,
 		inputExpanded: false,
 		chatModalIsOpen: false,
+		bigToolbarIsOpen: false,
 		chatQuery: '',
 		position: { x: -325, y: 0 },
 		addQuickAction: false,
@@ -138,11 +139,11 @@ const BottomToolbar = ({
 
 	//function definitions
 	const handleInputFocus = useCallback(() => {
-		setInfo((prev) => ({
-			...prev,
-			expanded: true,
-			inputExpanded: true,
-		}));
+		// setInfo((prev) => ({
+		// 	...prev,
+		// 	expanded: true,
+		// 	inputExpanded: true,
+		// }));
 	}, [info]);
 
 	const handleClose = useCallback(() => {
@@ -437,6 +438,10 @@ const BottomToolbar = ({
 		[info],
 	);
 
+	const handleMicIconClick = (event) => {
+		event.stopPropagation();
+	};
+
 	const chatIcons = useMemo(
 		() => [
 			<Filter />,
@@ -456,6 +461,20 @@ const BottomToolbar = ({
 		[info, handleChange],
 	);
 
+	const handleSmallToolbarClick = () => {
+		setInfo((prev) => ({
+			...prev,
+			bigToolbarIsOpen: true,
+		}));
+	};
+
+	// const handleUploadIconClick = () => {
+	// 	setInfo((prev) => ({
+	// 		...prev,
+	// 		bigToolbarIsOpen: true,
+	// 	}));
+	// };
+
 	return (
 		<div
 			ref={toolbarRef}
@@ -468,12 +487,12 @@ const BottomToolbar = ({
 			}}
 			onMouseDown={handleMouseDown}
 		>
-			<div
+			{/* <div
 				className={`${
 					info?.expanded ? 'expandedChatContainer' : ''
 				} bottomToolbarChatContainer`}
-			>
-				<div className="bottomToolBarChatHeader">
+			> */}
+			{/* <div className="bottomToolBarChatHeader">
 					<span>AI Assistant</span>
 					<div style={{ display: 'flex', alignItems: 'center' }}>
 						<button className="closeButton" onClick={handleChatExpand}>
@@ -483,8 +502,8 @@ const BottomToolbar = ({
 							<Close />
 						</button>
 					</div>
-				</div>
-				<div className="chatContent" ref={chatContentRef}>
+				</div> */}
+			{/* <div className="chatContent" ref={chatContentRef}>
 					{(!customChatActions ? globalChatMessages : chatList).map((chat, index) =>
 						chat?.content ? (
 							<div
@@ -509,8 +528,8 @@ const BottomToolbar = ({
 							</div>
 						),
 					)}
-				</div>
-				{info?.uploadedImages?.length ? (
+				</div> */}
+			{/* {info?.uploadedImages?.length ? (
 					<div className="imagePreviewBar">
 						{info?.uploadedImages?.map((ele, index) => (
 							<div className="previewOfUploadedImage" key={index}>
@@ -540,32 +559,97 @@ const BottomToolbar = ({
 					</div>
 				) : (
 					''
-				)}
-			</div>
+				)} */}
+			{/* </div> */}
+			{info?.uploadedImages?.length ? (
+				<div className="imagePreviewBar">
+					{info?.uploadedImages?.map((ele, index) => (
+						<div className="previewOfUploadedImage" key={index}>
+							<img
+								src={ele?.preview}
+								alt="uploaded"
+								width={'100%'}
+								height={'100%'}
+								style={{ objectFit: 'cover', borderRadius: '12px' }}
+								onClick={() => handlePreview(ele)}
+							/>
+
+							{ele?.loading ? (
+								<div className="spinContainerLoaderForPreview">
+									<Spin />
+								</div>
+							) : (
+								<span
+									className="removeImageIcon"
+									onClick={() => handleRemoveImage(ele)}
+								>
+									<Close />
+								</span>
+							)}
+						</div>
+					))}
+				</div>
+			) : (
+				''
+			)}
 
 			{/* bottom toolBarContent */}
 			{!info?.chatModalIsOpen ? (
-				<div className={`bottomToolbar ${info.inputExpanded ? 'expandedBtnToolbar' : ''}`}>
-					<textarea
-						className={`bottomToolbarInputs ${info.inputExpanded ? 'expanded' : ''}`}
-						placeholder="Ask AI"
-						onFocus={handleInputFocus}
-						value={info?.chatQuery}
-						onChange={(e) =>
-							setInfo((prev) => ({ ...prev, chatQuery: e.target.value }))
-						}
-						onKeyDown={handleSendMessageFunc}
-						style={{ resize: 'none' }}
-					/>
+				info?.bigToolbarIsOpen ? (
+					<div
+						className={`bottomToolbar ${
+							info.inputExpanded ? 'expandedBtnToolbar' : ''
+						}`}
+					>
+						<textarea
+							className={`bottomToolbarInputs ${
+								info.inputExpanded ? 'expanded' : ''
+							}`}
+							// placeholder="Ask AI"
+							onFocus={handleInputFocus}
+							value={info?.chatQuery}
+							onChange={(e) =>
+								setInfo((prev) => ({ ...prev, chatQuery: e.target.value }))
+							}
+							onKeyDown={handleSendMessageFunc}
+							style={{ resize: 'none' }}
+							autoFocus
+						/>
 
-					<div className="chat-icons-container">
-						{chatIcons?.map((icon, idx) => (
-							<span key={idx} className="chat-icon">
-								{icon}
-							</span>
-						))}
+						<div className="chat-icons-container">
+							{chatIcons?.map((icon, idx) => (
+								<span key={idx} className="chat-icon">
+									{icon}
+								</span>
+							))}
+						</div>
 					</div>
-				</div>
+				) : (
+					<div className="bottomToolbarSmall" onClick={handleSmallToolbarClick}>
+						<div className="toolbarText">Hey, need help ask me anything !</div>
+						<div className="chat-icons-container">
+							<div
+								className="upload-icon"
+								// onClick={handleUploadIconClick}
+							>
+								<Upload
+									onChange={handleChange}
+									showUploadList={false}
+									beforeUpload={() => false} // Prevent default upload behavior
+									maxCount={1} // Allow only one file at a time
+									// accept="image/*" // Accept only images
+									accept=".pdf,.docx,.txt,.md,.json,.png,.jpg,.jpeg"
+								>
+									<PaperClip />
+								</Upload>
+							</div>
+
+							<div className="mic-icon" onClick={handleMicIconClick}>
+								<Mic />
+							</div>
+						</div>
+					</div>
+				)
 			) : (
 				''
 			)}
