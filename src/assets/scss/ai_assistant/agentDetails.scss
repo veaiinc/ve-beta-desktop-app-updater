@@ -17,3 +17,46 @@
 	line-height: normal;
 	user-select: none;
 }
+
+.ai-playground-container {
+	width: 100%;
+	height: calc(100vh - 210px);
+	position: relative;
+	overflow: hidden;
+	display: flex;
+	flex-direction: column;
+	// gap: 20px;
+	justify-content: center; //give it different property to algin chat icons and header
+
+	align-items: center;
+
+	.ai-playground-header {
+		margin-bottom: 50px;
+
+		color: #f2f2f3;
+		color: color(display-p3 0.949 0.949 0.9529);
+		font-family: Inter;
+		font-size: 40px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: 43px; /* 107.5% */
+	}
+}
+
+.ai-playground-iframe {
+	border: none;
+	position: relative;
+	min-width: 500px;
+	min-height: 500px;
+	z-index: 1;
+
+	.css-1hpnbz2 {
+		bottom: 40%;
+		right: 35%;
+	}
+
+	.ai-chat-model-popup {
+		bottom: 40%;
+		right: 35%;
+	}
+}
