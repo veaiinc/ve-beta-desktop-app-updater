@@ -78,7 +78,6 @@ const BottomToolbar = ({
 	const isDraggingRef = useRef(false);
 	const startPosRef = useRef({ x: 0, y: 0 });
 	const chatContentRef = useRef(null);
-	console.log(globalChatMessages);
 
 	// Add and remove event listeners
 	useEffect(() => {
