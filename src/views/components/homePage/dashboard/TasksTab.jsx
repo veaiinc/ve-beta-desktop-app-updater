@@ -146,42 +146,54 @@ const TasksTab = () => {
 		if (!tasksCountForOverdue) {
 			getOverdueTasksCount();
 		}
-
-		if (listTasksForToday) {
-			const { currentPage, hasNextPage, data } = listTasksForToday;
-			setInfo((prev) => ({
-				...prev,
-				currentPageForTodayTasks: currentPage,
-				hasNextPageForTodayTasks: hasNextPage,
-				todayTasksList: data,
-			}));
-		} else {
-			fetchTodayTasks(1);
-		}
-
-		if (listTasksForOverdue) {
-			const { currentPage, hasNextPage, data } = listTasksForOverdue;
-			setInfo((prev) => ({
-				...prev,
-				currentPageForOverdueTasks: currentPage,
-				hasNextPageForTodayTasks: hasNextPage,
-				overDueTasksList: data,
-			}));
-		} else {
-			fetchOverdueTasks(1);
-		}
-		if (listTasksDueTillToday) {
-			const { currentPage, hasNextPage, data } = listTasksDueTillToday;
-			setInfo((prev) => ({
-				...prev,
-				currentPageForDueTillTodayTasks: currentPage,
-				hasNextPageForDueTillToday: hasNextPage,
-				dueTillTodayTasksList: data,
-			}));
-		} else {
-			fetchDueTillTodayTasks(1);
-		}
 	}, []);
+
+	useEffect(() => {
+		if (info?.selectedOption === 'Today') {
+			if (listTasksForToday) {
+				const { currentPage, hasNextPage, data } = listTasksForToday;
+				setInfo((prev) => ({
+					...prev,
+					currentPageForTodayTasks: currentPage,
+					hasNextPageForTodayTasks: hasNextPage,
+					todayTasksList: data,
+					loadingSkeleton: false,
+				}));
+			} else {
+				fetchTodayTasks(1);
+			}
+		}
+
+		if (info?.selectedOption === 'Overdue') {
+			if (listTasksForOverdue) {
+				const { currentPage, hasNextPage, data } = listTasksForOverdue;
+				setInfo((prev) => ({
+					...prev,
+					currentPageForOverdueTasks: currentPage,
+					hasNextPageForTodayTasks: hasNextPage,
+					overDueTasksList: data,
+					loadingSkeleton: false,
+				}));
+			} else {
+				fetchOverdueTasks(1);
+			}
+		}
+
+		if (info?.selectedOption === 'Pending tasks') {
+			if (listTasksDueTillToday) {
+				const { currentPage, hasNextPage, data } = listTasksDueTillToday;
+				setInfo((prev) => ({
+					...prev,
+					currentPageForDueTillTodayTasks: currentPage,
+					hasNextPageForDueTillToday: hasNextPage,
+					dueTillTodayTasksList: data,
+					loadingSkeleton: false,
+				}));
+			} else {
+				fetchDueTillTodayTasks(1);
+			}
+		}
+	}, [info?.selectedOption]);
 
 	const responseMetadata = useMemo(
 		() => ({
@@ -731,11 +743,13 @@ const TasksTab = () => {
 										key={option?.id}
 										className="dropdown-option"
 										onClick={() => {
-											setInfo((prev) => ({
-												...prev,
-												isDropdownOpen: false,
-												selectedOption: option?.value,
-											}));
+											if (info?.selectedOption !== option?.value)
+												setInfo((prev) => ({
+													...prev,
+													isDropdownOpen: false,
+													selectedOption: option?.value,
+													loadingSkeleton: true,
+												}));
 										}}
 									>
 										{option?.title}
@@ -754,95 +768,94 @@ const TasksTab = () => {
 						</button>
 					</Tooltip>
 				</div>
+				{info?.loadingSkeleton && (
+					<div
+						style={{
+							display: 'flex',
+							flexDirection: 'row',
+							gap: '15px',
+							flexWrap: 'wrap',
+							paddingTop: '30px',
+						}}
+					>
+						{[1, 2, 3, 4, 5, 6]?.map((ele) => (
+							<Skeleton
+								height={'231px'}
+								width={'268px'}
+								style={{
+									borderRadius: '16px',
+								}}
+								key={ele}
+							/>
+						))}
+					</div>
+				)}
 				{info?.dueTillTodayTasksList?.length > 0 &&
-					info?.selectedOption === 'Pending tasks' && (
-						<div className="due-till-today-tasks">
-							<div className="due-till-today-text">
-								Pending tasks till today (
-								{tasksCountForToday + tasksCountForOverdue})
-							</div>
-							<InfiniteScroll
-								dataLength={info?.dueTillTodayTasksList?.length || 0}
-								hasMore={info?.hasNextPageForDueTillToday}
-								next={fetchMoreTasksDueTillToday}
-								loader={<FetchMoreLoaderComp />}
-								height={546}
-							>
-								{info?.loadingSkeleton ? (
-									<div
-										style={{
-											display: 'flex',
-											flexDirection: 'row',
-											gap: '15px',
-											flexWrap: 'wrap',
-										}}
-									>
-										{[1, 2, 3, 4, 5, 6]?.map((ele) => (
-											<Skeleton
-												height={'231px'}
-												width={'268px'}
-												style={{
-													borderRadius: '16px',
-												}}
-												key={ele}
-											/>
-										))}
-									</div>
-								) : (
-									<div className="tasks-container">
-										{info?.dueTillTodayTasksList?.map((task) => {
-											return (
-												<div
-													className="task-container"
-													onClick={() => {
-														handleRowClick(task);
-													}}
-													key={task?._id}
-												>
-													<div className="task-content">
-														<span className="title">{task?.title}</span>
-														<div className="description">
-															{task?.description}
-														</div>
-													</div>
+				info?.selectedOption === 'Pending tasks' ? (
+					<div className="due-till-today-tasks">
+						<div className="due-till-today-text">
+							Pending tasks till today ({tasksCountForToday + tasksCountForOverdue})
+						</div>
+						<InfiniteScroll
+							dataLength={info?.dueTillTodayTasksList?.length || 0}
+							hasMore={info?.hasNextPageForDueTillToday}
+							next={fetchMoreTasksDueTillToday}
+							loader={<FetchMoreLoaderComp />}
+							height={`calc(100vh - 520px)`}
+						>
+							<div className="tasks-container">
+								{info?.dueTillTodayTasksList?.map((task) => {
+									return (
+										<div
+											className="task-container"
+											onClick={() => {
+												handleRowClick(task);
+											}}
+											key={task?._id}
+										>
+											<div className="task-content">
+												<span className="title">{task?.title}</span>
+												<div className="description">
+													{task?.description}
+												</div>
+											</div>
 
-													<div className="show-more">
-														<div className="assigned-to">
-															<div className="persons-container">
-																{task?.assignedTo?.map(
-																	(person, index) => {
-																		return (
-																			<div
-																				className="persons"
-																				key={index}
-																			>
-																				{person?.name[0]?.toUpperCase()}
-																			</div>
-																		);
-																	},
-																)}
-															</div>
-															<div className="remaining-persons-count">
-																{task?.assignedTo?.length > 3 &&
-																	`+${
-																		task?.assignedTo?.length - 3
-																	}`}
-															</div>
-														</div>
-														<div className="chevron-icon-container">
-															<ChevronRightThinIcon />
-														</div>
+											<div className="show-more">
+												<div className="assigned-to">
+													<div className="persons-container">
+														{task?.assignedTo?.map((person, index) => {
+															return (
+																<div
+																	className="persons"
+																	key={index}
+																>
+																	{person?.name[0]?.toUpperCase()}
+																</div>
+															);
+														})}
+													</div>
+													<div className="remaining-persons-count">
+														{task?.assignedTo?.length > 3 &&
+															`+${task?.assignedTo?.length - 3}`}
 													</div>
 												</div>
-											);
-										})}
-									</div>
-								)}
-							</InfiniteScroll>
-						</div>
-					)}
+												<div className="chevron-icon-container">
+													<ChevronRightThinIcon />
+												</div>
+											</div>
+										</div>
+									);
+								})}
+							</div>
+						</InfiniteScroll>
+					</div>
+				) : (
+					info?.selectedOption === 'Pending tasks' && (
+						<div style={{ color: '#f2f2f3', textAlign: 'center' }}> No Tasks Found</div>
+					)
+				)}
 
-				{info?.todayTasksList?.length > 0 && info?.selectedOption === 'Today' && (
+				{info?.todayTasksList?.length > 0 && info?.selectedOption === 'Today' ? (
 					<div className="today-tasks">
 						<div className="today-text">Today ({tasksCountForToday})</div>
 						<InfiniteScroll
@@ -850,80 +863,60 @@ const TasksTab = () => {
 							next={fetchMoreTodayTasks}
 							hasMore={info?.hasNextPageForTodayTasks}
 							loader={<FetchMoreLoaderComp />}
-							height={470}
+							height={`calc(100vh - 520px)`}
 						>
-							{info?.loadingSkeleton ? (
-								<div
-									style={{
-										display: 'flex',
-										flexDirection: 'row',
-										gap: '15px',
-										flexWrap: 'wrap',
-									}}
-								>
-									{[{}, {}, {}, {}, {}, {}]?.map((ele, index) => (
-										<Skeleton
-											height={'231px'}
-											width={'268px'}
-											style={{
-												borderRadius: '16px',
+							<div className="tasks-container">
+								{info?.todayTasksList?.map((task) => {
+									return (
+										<div
+											className="task-container"
+											onClick={() => {
+												handleRowClick(task);
 											}}
-											key={index}
-										/>
-									))}
-								</div>
-							) : (
-								<div className="tasks-container">
-									{info?.todayTasksList?.map((task) => {
-										return (
-											<div
-												className="task-container"
-												onClick={() => {
-													handleRowClick(task);
-												}}
-												key={task?._id}
-											>
-												<div className="task-content">
-													<span className="title">{task?.title}</span>
-													<div className="description">
-														{task?.description}
-													</div>
-												</div>
-
-												<div className="show-more">
-													<div className="assigned-to">
-														<div className="persons-container">
-															{task?.assignedTo?.map(
-																(person, index) => {
-																	return (
-																		<div
-																			className="persons"
-																			key={index}
-																		>
-																			{person?.name[0]?.toUpperCase()}
-																		</div>
-																	);
-																},
-															)}
-														</div>
-														<div className="remaining-persons-count">
-															{task?.assignedTo?.length > 3 &&
-																`+${task?.assignedTo?.length - 3}`}
-														</div>
-													</div>
-													<div className="chevron-icon-container">
-														<ChevronRightThinIcon />
-													</div>
+											key={task?._id}
+										>
+											<div className="task-content">
+												<span className="title">{task?.title}</span>
+												<div className="description">
+													{task?.description}
 												</div>
 											</div>
-										);
-									})}
-								</div>
-							)}
+
+											<div className="show-more">
+												<div className="assigned-to">
+													<div className="persons-container">
+														{task?.assignedTo?.map((person, index) => {
+															return (
+																<div
+																	className="persons"
+																	key={index}
+																>
+																	{person?.name[0]?.toUpperCase()}
+																</div>
+															);
+														})}
+													</div>
+													<div className="remaining-persons-count">
+														{task?.assignedTo?.length > 3 &&
+															`+${task?.assignedTo?.length - 3}`}
+													</div>
+												</div>
+												<div className="chevron-icon-container">
+													<ChevronRightThinIcon />
+												</div>
+											</div>
+										</div>
+									);
+								})}
+							</div>
 						</InfiniteScroll>
 					</div>
+				) : (
+					info?.selectedOption === 'Today' && (
+						<div style={{ color: '#f2f2f3', textAlign: 'center' }}> No Tasks Found</div>
+					)
 				)}
-				{info?.overDueTasksList?.length > 0 && info?.selectedOption === 'Overdue' && (
+				{info?.overDueTasksList?.length > 0 && info?.selectedOption === 'Overdue' ? (
 					<div className="over-due-tasks">
 						<div className="over-due-text">Overdue ({tasksCountForOverdue})</div>
 						<InfiniteScroll
@@ -931,78 +924,58 @@ const TasksTab = () => {
 							next={fetchMoreOverdueTasks}
 							hasMore={info?.hasNextPageForOverdueTasks}
 							loader={<FetchMoreLoaderComp />}
-							height={470}
+							height={`calc(100vh - 520px)`}
 						>
-							{info?.loadingSkeleton ? (
-								<div
-									style={{
-										display: 'flex',
-										flexDirection: 'row',
-										gap: '15px',
-										flexWrap: 'wrap',
-									}}
-								>
-									{[{}, {}, {}, {}, {}, {}]?.map((ele, index) => (
-										<Skeleton
-											height={'231px'}
-											width={'268px'}
-											style={{
-												borderRadius: '16px',
+							<div className="tasks-container">
+								{info?.overDueTasksList?.map((task) => {
+									return (
+										<div
+											className="task-container"
+											onClick={() => {
+												handleRowClick(task);
 											}}
-											key={index}
-										/>
-									))}
-								</div>
-							) : (
-								<div className="tasks-container">
-									{info?.overDueTasksList?.map((task) => {
-										return (
-											<div
-												className="task-container"
-												onClick={() => {
-													handleRowClick(task);
-												}}
-												key={task?._id}
-											>
-												<div className="task-content">
-													<span className="title">{task?.title}</span>
-													<div className="description">
-														{task?.description}
-													</div>
-												</div>
-
-												<div className="show-more">
-													<div className="assigned-to">
-														<div className="persons-container">
-															{task?.assignedTo?.map(
-																(person, index) => {
-																	return (
-																		<div
-																			className="persons"
-																			key={index}
-																		>
-																			{person?.name[0]?.toUpperCase()}
-																		</div>
-																	);
-																},
-															)}
-														</div>
-														<div className="remaining-persons-count">
-															{task?.assignedTo?.length > 3 &&
-																`+${task?.assignedTo?.length - 3}`}
-														</div>
-													</div>
-													<div className="chevron-icon-container">
-														<ChevronRightThinIcon />
-													</div>
+											key={task?._id}
+										>
+											<div className="task-content">
+												<span className="title">{task?.title}</span>
+												<div className="description">
+													{task?.description}
 												</div>
 											</div>
-										);
-									})}
-								</div>
-							)}
+
+											<div className="show-more">
+												<div className="assigned-to">
+													<div className="persons-container">
+														{task?.assignedTo?.map((person, index) => {
+															return (
+																<div
+																	className="persons"
+																	key={index}
+																>
+																	{person?.name[0]?.toUpperCase()}
+																</div>
+															);
+														})}
+													</div>
+													<div className="remaining-persons-count">
+														{task?.assignedTo?.length > 3 &&
+															`+${task?.assignedTo?.length - 3}`}
+													</div>
+												</div>
+												<div className="chevron-icon-container">
+													<ChevronRightThinIcon />
+												</div>
+											</div>
+										</div>
+									);
+								})}
+							</div>
 						</InfiniteScroll>
 					</div>
+				) : (
+					info?.selectedOption === 'Overdue' && (
+						<div style={{ color: '#f2f2f3', textAlign: 'center' }}> No Tasks Found</div>
+					)
 				)}
 			</div>
 			<ListViewSidebar
