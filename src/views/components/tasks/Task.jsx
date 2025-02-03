@@ -242,13 +242,16 @@ const Task = ({
 		],
 	);
 
-	const handleDeleteTab = useCallback((tabId) => {
-		if (Object.keys(taskInfo?.tabs)?.length <= 1) {
-			return;
-		}
-		deleteView(tabId);
-		updateTaskInfo({ activeTab: null });
-	}, []);
+	const handleDeleteTab = useCallback(
+		(tabId) => {
+			if (Object.keys(taskInfo?.tabs || {})?.length <= 1) {
+				return;
+			}
+			deleteView(tabId);
+			updateTaskInfo({ activeTab: null });
+		},
+		[taskInfo?.tabs, deleteView, updateTaskInfo],
+	);
 
 	const handleDuplicateTab = useCallback(
 		(tabId) => {
