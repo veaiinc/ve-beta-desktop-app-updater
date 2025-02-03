@@ -120,7 +120,7 @@ const PriorityTab = () => {
 							dataLength={requiredActions?.actions?.length || 0}
 							hasMore={requiredActions?.hasMore}
 							next={fetchMoreData}
-							height={'calc(100vh - 550px)'}
+							height={'calc(100vh - 515px)'}
 							loader={<FetchMoreLoaderComp />}
 							style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}
 						>
