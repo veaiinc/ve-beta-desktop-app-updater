@@ -9,6 +9,7 @@ import { ReactComponent as WorkflowSvg } from '../../../../assets/svg/tasks/work
 import { ReactComponent as PersonSvg } from '../../../../assets/svg/tasks/person.svg';
 import { ReactComponent as CalendarSvg } from '../../../../assets/svg/tasks/calendar.svg';
 import { message, Tooltip } from 'antd';
+import Skeleton from 'react-loading-skeleton';
 import jwtDecode from 'jwt-decode';
 import moment from 'moment';
 import Context from '../../../../context/context';
@@ -45,7 +46,7 @@ const colors = {
 };
 
 const options = [
-	{ id: 1, title: 'All', value: 'All' },
+	{ id: 1, title: 'Pending Tasks', value: 'Pending tasks' },
 	{ id: 2, title: 'Today', value: 'Today' },
 	{ id: 3, title: 'Overdue', value: 'Overdue' },
 ];
@@ -92,10 +93,12 @@ const TasksTab = () => {
 		tasks: {
 			listTasksForToday,
 			listTasksForOverdue,
+			listTasksDueTillToday,
 			tasksCountForToday,
 			tasksCountForOverdue,
 			getListTasksForToday,
 			getListTasksForOverdue,
+			getListTasksDueTillToday,
 			getTasksCountForToday,
 			getTasksCountForOverdue,
 			updateListItem,
@@ -107,13 +110,7 @@ const TasksTab = () => {
 			getTaskMetadata,
 		},
 		templates: { getWorkflowsList, workflowslist },
-		companyInfo: {
-			getTeamMembers,
-			tenantsUserList,
-			getTaskPreferences,
-			taskPreference,
-			updateTaskPreferences,
-		},
+		companyInfo: { getTeamMembers, tenantsUserList },
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 	} = useContext(Context);
 
@@ -122,13 +119,10 @@ const TasksTab = () => {
 		isCreateModalOpen: false,
 		isCreatingSubtask: true,
 		properties: [],
-		taskPreferences: {
-			preferenceType: 'taskPreference',
-			preferences: defaultPreference,
-		},
 		todayTasksList: [],
 		overDueTasksList: [],
-		selectedOption: 'All',
+		dueTillTodayTasksList: [],
+		selectedOption: 'Pending tasks',
 		sidebarIsOpen: false,
 		selectedRow: null,
 		selectedSubTask: null,
@@ -136,13 +130,12 @@ const TasksTab = () => {
 		workflows: [],
 		tenantUsers: [],
 		hasNextPageForTodayTasks: false,
-		hasNextPageForOverDueTasks: false,
+		hasNextPageForOverdueTasks: false,
+		hasNextPageForDueTillToday: false,
 		currentPageForTodayTasks: 1,
-		currentPageForOverDueTasks: 1,
-		loadingSkeletonForTodayTasks: true,
-		loadingSkeletonForOverdueTasks: true,
-		updated: false,
-		infinityLoading: false,
+		currentPageForOverdueTasks: 1,
+		currentPageForDueTillTodayTasks: 1,
+		loadingSkeleton: true,
 	});
 
 	useEffect(() => {
@@ -153,9 +146,7 @@ const TasksTab = () => {
 		if (!tasksCountForOverdue) {
 			getOverdueTasksCount();
 		}
-	}, []);
 
-	useEffect(() => {
 		if (listTasksForToday) {
 			const { currentPage, hasNextPage, data } = listTasksForToday;
 			setInfo((prev) => ({
@@ -172,12 +163,23 @@ const TasksTab = () => {
 			const { currentPage, hasNextPage, data } = listTasksForOverdue;
 			setInfo((prev) => ({
 				...prev,
-				currentPageForOverDueTasks: currentPage,
+				currentPageForOverdueTasks: currentPage,
 				hasNextPageForTodayTasks: hasNextPage,
 				overDueTasksList: data,
 			}));
 		} else {
 			fetchOverdueTasks(1);
+		}
+		if (listTasksDueTillToday) {
+			const { currentPage, hasNextPage, data } = listTasksDueTillToday;
+			setInfo((prev) => ({
+				...prev,
+				currentPageForDueTillTodayTasks: currentPage,
+				hasNextPageForDueTillToday: hasNextPage,
+				dueTillTodayTasksList: data,
+			}));
+		} else {
+			fetchDueTillTodayTasks(1);
 		}
 	}, []);
 
@@ -288,7 +290,7 @@ const TasksTab = () => {
 			},
 			taskSlNo: { type: 'id', name: 'Id', Icon: textSvg, props: {} },
 		}),
-		[info?.workflows, info?.tenantUsers, info?.taskMetadata],
+		[info?.workflows, info?.tenantUsers, info?.taskMetadata, info?.parentTasks],
 	);
 
 	const debounceTimeout = useRef(null);
@@ -310,38 +312,7 @@ const TasksTab = () => {
 	}, [tenantsUserList]);
 
 	useEffect(() => {
-		if (taskPreference === null) {
-			getTaskPreferences({ preferences: 'taskPreference' });
-		} else if (taskPreference?.data === false) {
-			updateTaskPreferences({ preferenceType: 'taskPreference', data: defaultPreference });
-			setInfo((prevInfo) => ({
-				...prevInfo,
-				taskPreferences: {
-					preferenceType: 'taskPreference',
-					preferences: defaultPreference,
-				},
-			}));
-		} else if (taskPreference?.error) {
-			setInfo((prevInfo) => ({
-				...prevInfo,
-				taskPreferences: {
-					preferenceType: 'taskPreference',
-					preferences: defaultPreference,
-				},
-			}));
-		} else {
-			setInfo((prevInfo) => ({
-				...prevInfo,
-				taskPreferences: {
-					preferenceType: 'taskPreference',
-					preferences: taskPreference?.data,
-				},
-			}));
-		}
-	}, [taskPreference]);
-
-	useEffect(() => {
-		if (!workflowslist) {
+		if (workflowslist === null) {
 			getWorkflowsList({
 				filters: {
 					limit: 20,
@@ -367,45 +338,33 @@ const TasksTab = () => {
 					...prevInfo,
 					todayTasksList: listTasksForToday?.data,
 					hasNextPageForTodayTasks: listTasksForToday?.hasNextPage,
-					loadingSkeletonForTodayTasks: false,
-					infinityLoading: false,
+					loadingSkeleton: false,
 				}));
 			}
 		}
-	}, [listTasksForToday]);
 
-	useEffect(() => {
 		if (listTasksForOverdue) {
 			if (listTasksForOverdue?.data) {
 				setInfo((prevInfo) => ({
 					...prevInfo,
 					overDueTasksList: listTasksForOverdue?.data,
-					hasNextPageForOverDueTasks: listTasksForOverdue?.hasNextPage,
-					loadingSkeletonForOverdueTasks: false,
-					infinityLoading: false,
+					hasNextPageForOverdueTasks: listTasksForOverdue?.hasNextPage,
+					loadingSkeleton: false,
 				}));
 			}
 		}
-	}, [listTasksForOverdue]);
 
-	useEffect(() => {
-		if (info?.taskPreferences?.preferences) {
-			setInfo((prevInfo) => ({
-				...prevInfo,
-				properties: mapPropertyType(),
-			}));
+		if (listTasksDueTillToday) {
+			if (listTasksDueTillToday?.data) {
+				setInfo((prevInfo) => ({
+					...prevInfo,
+					dueTillTodayTasksList: listTasksDueTillToday?.data,
+					hasNextPageForDueTillToday: listTasksDueTillToday?.hasNextPage,
+					loadingSkeleton: false,
+				}));
+			}
 		}
-	}, [info?.taskPreferences?.preferences]);
-
-	useEffect(() => {
-		if (info?.selectedRow) {
-			updateTaskInfo({
-				selectedRow:
-					info?.overDueTasksList.find((item) => item._id === info?.selectedRow._id) ||
-					info?.todayTasksList.find((item) => item._id === info?.selectedRow._id),
-			});
-		}
-	}, [info?.todayTasksList, info?.overDueTasksList, info?.selectedRow]);
+	}, [listTasksForToday, listTasksForOverdue, listTasksDueTillToday]);
 
 	useEffect(() => {
 		if (!taskMetadata) {
@@ -423,8 +382,8 @@ const TasksTab = () => {
 			filters: {
 				limit: 1,
 				page: 1,
-				startDate: Math.floor(new Date().setHours(0, 0, 0, 0) / 1000),
-				endDate: Math.floor(new Date().setHours(23, 59, 59, 999) / 1000),
+				startDate: Math?.floor(new Date()?.setHours(0, 0, 0, 0) / 1000),
+				endDate: Math?.floor(new Date()?.setHours(23, 59, 59, 999) / 1000),
 			},
 		};
 		getTasksCountForToday(payload);
@@ -435,33 +394,44 @@ const TasksTab = () => {
 			filters: {
 				limit: 1,
 				page: 1,
-				endDate: Math.floor(new Date().setHours(-1, 59, 59, 999) / 1000),
+				endDate: Math?.floor(new Date()?.setHours(-1, 59, 59, 999) / 1000),
 			},
 		};
 		getTasksCountForOverdue(payload);
 	};
 
-	const fetchTodayTasks = (page = 1) => {
+	const fetchTodayTasks = (page, type = null, task = null) => {
 		const payload = {
 			filters: {
-				limit: 6,
+				limit: 10,
 				page,
-				startDate: Math.floor(new Date().setHours(0, 0, 0, 0) / 1000),
-				endDate: Math.floor(new Date().setHours(23, 59, 59, 999) / 1000),
+				startDate: Math?.floor(new Date()?.setHours(0, 0, 0, 0) / 1000),
+				endDate: Math?.floor(new Date()?.setHours(23, 59, 59, 999) / 1000),
 			},
 		};
-		getListTasksForToday(payload);
+		getListTasksForToday(payload, type, task);
 	};
 
-	const fetchOverdueTasks = async (page) => {
+	const fetchOverdueTasks = async (page, type = null, task = null) => {
 		const payload = {
 			filters: {
-				limit: 6,
+				limit: 10,
 				page,
-				endDate: Math.floor(new Date().setHours(-1, 59, 59, 999) / 1000),
+				endDate: Math?.floor(new Date()?.setHours(-1, 59, 59, 999) / 1000),
 			},
 		};
-		getListTasksForOverdue(payload);
+		getListTasksForOverdue(payload, type, task);
+	};
+
+	const fetchDueTillTodayTasks = (page, type = null, task = null) => {
+		const payload = {
+			filters: {
+				limit: 10,
+				page,
+				endDate: Math?.floor(new Date()?.setHours(23, 59, 59, 999) / 1000),
+			},
+		};
+		getListTasksDueTillToday(payload, type, task);
 	};
 
 	const fetchMoreTodayTasks = () => {
@@ -470,17 +440,24 @@ const TasksTab = () => {
 		setInfo((prevInfo) => ({
 			...prevInfo,
 			currentPageForTodayTasks: nextPage,
-			infinityLoading: true,
 		}));
 	};
 
-	const fetchMoreDueDateTasks = () => {
-		const nextPage = info?.currentPageForOverDueTasks + 1;
+	const fetchMoreOverdueTasks = () => {
+		const nextPage = info?.currentPageForOverdueTasks + 1;
 		fetchOverdueTasks(nextPage);
 		setInfo((prevInfo) => ({
 			...prevInfo,
-			currentPageForOverDueTasks: nextPage,
-			infinityLoading: true,
+			currentPageForOverdueTasks: nextPage,
+		}));
+	};
+
+	const fetchMoreTasksDueTillToday = () => {
+		const nextPage = info?.currentPageForDueTillTodayTasks + 1;
+		fetchDueTillTodayTasks(nextPage);
+		setInfo((prevInfo) => ({
+			...prevInfo,
+			currentPageForDueTillTodayTasks: nextPage,
 		}));
 	};
 
@@ -488,297 +465,221 @@ const TasksTab = () => {
 		setInfo((previnfo) => ({ ...previnfo, ...updateData }));
 	}, []);
 
-	const mapPropertyType = useCallback(() => {
-		let properties = [];
-		for (let key in responseMetadata) {
-			if (
-				key === '__typename' ||
-				key === '_id' ||
-				key === 'workflowTemplateId' ||
-				key === 'completedAt'
-			) {
-				continue;
-			}
-
-			const {
-				type = null,
-				name = null,
-				Icon = null,
-				isTitle = false,
-			} = responseMetadata[key] || {};
-			const { show, order } = info?.taskPreferences?.preferences?.[key] || {
-				show: false,
-				order: 0,
-			};
-
-			properties.push({
-				value: key,
-				type,
-				label: name,
-				Icon,
-				show,
-				order,
-				isTitle,
+	const debouncedUpdateTask = async (
+		rowId,
+		propName,
+		value,
+		originalValue,
+		isUpdatingSubTask,
+		onSuccess,
+		updatedValue,
+	) => {
+		try {
+			const response = await updateListItem({
+				taskId: rowId,
+				updateInput:
+					propName === 'workflow'
+						? {
+								workflowId: value,
+								workflowTemplateId: info?.workflows?.find(
+									(workflow) => workflow?._id === value,
+								)?.templateId,
+						  }
+						: {
+								[propName]:
+									propName === 'assignedTo' ? { tenantUsers: value } : value,
+						  },
 			});
-		}
-		return properties;
-	}, [info?.taskPreferences?.preferences]);
 
-	const debouncedUpdateTask = useCallback(
-		async (rowId, propName, value, originalValue, isUpdatingSubTask, onSuccess) => {
-			try {
-				const response = await updateListItem({
-					taskId: rowId,
-					updateInput:
-						propName === 'workflow'
-							? {
-									workflowId: value,
-									workflowTemplateId: info?.workflows?.find(
-										(workflow) => workflow?._id === value,
-									)?.templateId,
-							  }
-							: {
-									[propName]:
-										propName === 'assignedTo' ? { tenantUsers: value } : value,
-							  },
-				});
+			if (response?.[0] === false) {
+				throw new Error('Failed to update, Try again later');
+			} else {
+				// Update state only after successful API call
+				if (onSuccess) onSuccess();
 
-				if (response?.[0] === false) {
-					throw new Error('Failed to update, Try again later');
-				} else {
-					// Update state only after successful API call
-					if (onSuccess) onSuccess();
+				let task;
+				if (info?.selectedOption === 'Pending tasks') {
+					task = info?.dueTillTodayTasksList?.filter((row) => {
+						return row?._id === rowId;
+					});
+				} else if (info?.selectedOption === 'Today') {
+					task = info?.todayTasksList?.filter((row) => {
+						return row?._id === rowId;
+					});
+				} else if (info?.selectedOption === 'Overdue') {
+					task = info?.overDueTasksList?.filter((row) => {
+						return row?._id === rowId;
+					});
+				}
+				task = task[0];
 
-					// Handle assignedTo special case
-					if (propName === 'assignedTo') {
-						const token = localStorage.getItem('usertoken');
-						const { user_id, userName } = jwtDecode(token);
-						if (isUpdatingSubTask) {
-							setInfo((prevInfo) => ({
-								...prevInfo,
-								selectedSubTask: prevInfo?.selectedSubTask
-									? {
-											...info?.selectedSubTask,
-											assignedBy: { _id: user_id, name: userName },
-											assignedAt: moment().unix(),
-									  }
-									: null,
-							}));
-							updateSubTask({
-								_id: rowId,
-								assignedBy: { _id: user_id, name: userName },
-								assignedAt: moment().unix(),
-							});
-						} else {
-							setInfo((prevInfo) => {
-								const newTodayTasksList = prevInfo.todayTasksList.map((row) => {
-									if (row._id === rowId) {
-										return {
-											...row,
-											assignedBy: { _id: user_id, name: userName },
-											assignedAt: moment().unix(),
-										};
-									}
-									return row;
-								});
-
-								const newOverdueTasksList = prevInfo.overDueTasksList.map((row) => {
-									if (row._id === rowId) {
-										return {
-											...row,
-											assignedBy: { _id: user_id, name: userName },
-											assignedAt: moment().unix(),
-										};
-									}
-									return row;
-								});
-
-								return {
-									...prevInfo,
-									todayTasksList: newTodayTasksList,
-									overDueTasksList: newOverdueTasksList,
-								};
-							});
-						}
-					}
-
-					// Update updatedBy for any successful update
+				// Handle assignedTo special case
+				if (propName === 'assignedTo') {
 					const token = localStorage.getItem('usertoken');
 					const { user_id, userName } = jwtDecode(token);
-
-					setInfo((prevInfo) => {
-						const newTodayTasksList = prevInfo?.todayTasksList?.map((row) => {
-							if (row._id === rowId) {
-								return {
-									...row,
-									updatedBy: { _id: user_id, name: userName },
-								};
-							}
-							return row;
-						});
-
-						const newOverdueTasksList = prevInfo?.overDueTasksList?.map((row) => {
-							if (row._id === rowId) {
-								return {
-									...row,
-									updatedBy: { _id: user_id, name: userName },
-								};
-							}
-							return row;
-						});
-
-						return {
+					if (isUpdatingSubTask) {
+						setInfo((prevInfo) => ({
 							...prevInfo,
-							todayTasksList: newTodayTasksList,
-							overDueTasksList: newOverdueTasksList,
+							selectedSubTask: prevInfo?.selectedSubTask
+								? {
+										...info?.selectedSubTask,
+										assignedBy: { _id: user_id, name: userName },
+										assignedAt: moment().unix(),
+								  }
+								: null,
+						}));
+						updateSubTask({
+							_id: rowId,
+							assignedBy: { _id: user_id, name: userName },
+							assignedAt: moment().unix(),
+						});
+					} else {
+						task = {
+							...task,
+							assignedBy: { _id: user_id, name: userName },
+							assignedAt: moment().unix(),
 						};
-					});
+					}
 				}
-				if (!info?.sidebarIsOpen) {
-					fetchOverdueTasks(1);
-					fetchTodayTasks(1);
-				}
-			} catch (error) {
-				message.error(error?.message || 'Something went wrong! Please try again.');
 
-				setInfo((prevInfo) => {
-					const rolledBackTodayTasksList = prevInfo?.todayTasksList?.map((row) => {
-						if (row._id === rowId) {
-							return { ...row, [propName]: originalValue };
-						}
-						return row;
-					});
+				// Update updatedBy for any successful update
+				const token = localStorage.getItem('usertoken');
+				const { user_id, userName } = jwtDecode(token);
 
-					const rolledBackOverdueTasksList = prevInfo?.overDueTasksList?.map((row) => {
-						if (row._id === rowId) {
-							return { ...row, [propName]: originalValue };
-						}
-						return row;
-					});
+				task = { ...task, updatedBy: { _id: user_id, name: userName } };
+				task = { ...task, [propName]: updatedValue };
 
-					return {
-						...prevInfo,
-						todayTasksList: rolledBackTodayTasksList,
-						overDueTasksList: rolledBackOverdueTasksList,
-					};
-				});
-			}
-		},
-		[updateListItem, info?.workflows, info?.selectedSubTask, info?.sidebarIsOpen],
-	);
-
-	const handleDebounceUpdate = useCallback(
-		(rowId, propName, value, originalValue, isSubTask, onSuccess) => {
-			if (debounceTimeout.current) {
-				clearTimeout(debounceTimeout.current);
-			}
-
-			debounceTimeout.current = setTimeout(() => {
-				debouncedUpdateTask(rowId, propName, value, originalValue, isSubTask, onSuccess);
-			}, 800);
-		},
-		[debouncedUpdateTask],
-	);
-
-	const updatePropertyValue = useCallback(
-		(rowId, propName, value, isUpdatingSubTask, onSuccess) => {
-			if (validateExpiryData?.isExpired) {
-				return updateSubscriptionState({ expiredSubscriptionModal: true });
-			}
-			let originalValue;
-			let updatedValue = value;
-			if (propName === 'workflow') {
-				const workflow = info?.workflows?.find((workflow) => workflow._id === value);
-				updatedValue = workflow;
-			}
-
-			if (info?.selectedSubTask || isUpdatingSubTask) {
-				if (info?.selectedSubTask) {
-					setInfo((prevInfo) => ({
-						...prevInfo,
-						updated: true,
-						selectedSubTask: { ...info?.selectedSubTask, [propName]: updatedValue },
-					}));
-				}
-				setInfo((prevInfo) => ({
-					...prevInfo,
-					updated: true,
+				setInfo((prev) => ({
+					...prev,
+					selectedRow: task,
 				}));
-				updateSubTask({ _id: rowId, [propName]: updatedValue });
-			} else {
-				setInfo((prevInfo) => {
-					const updatedTodayTasksList = prevInfo.todayTasksList.map((row) => {
-						if (row._id === rowId) {
-							originalValue = row[propName];
-							return { ...row, [propName]: updatedValue };
-						}
-						return row;
-					});
 
-					const updatedOverdueTasksList = prevInfo.overDueTasksList.map((row) => {
-						if (row._id === rowId) {
-							originalValue = row[propName];
-							return { ...row, [propName]: updatedValue };
-						}
-						return row;
-					});
-
-					return {
-						...prevInfo,
-						updated: true,
-						todayTasksList: updatedTodayTasksList,
-						overDueTasksList: updatedOverdueTasksList,
-					};
-				});
+				if (info?.selectedOption === 'Pending tasks') {
+					fetchDueTillTodayTasks(1, 'update', task);
+					fetchOverdueTasks(1, 'update', task);
+					fetchTodayTasks(1, 'update', task);
+				} else if (info?.selectedOption === 'Today') {
+					fetchDueTillTodayTasks(1, 'update', task);
+					fetchTodayTasks(1, 'update', task);
+				} else if (info?.selectedOption === 'Overdue') {
+					fetchDueTillTodayTasks(1, 'update', task);
+					fetchOverdueTasks(1, 'update', task);
+				}
 			}
+		} catch (error) {
+			message.error(error?.message || 'Something went wrong! Please try again.');
+		}
+	};
 
-			handleDebounceUpdate(
+	const handleDebounceUpdate = (
+		rowId,
+		propName,
+		value,
+		originalValue,
+		isSubTask,
+		onSuccess,
+		updatedValue,
+	) => {
+		if (debounceTimeout.current) {
+			clearTimeout(debounceTimeout.current);
+		}
+
+		debounceTimeout.current = setTimeout(() => {
+			debouncedUpdateTask(
 				rowId,
 				propName,
 				value,
 				originalValue,
-				isUpdatingSubTask || info?.selectedSubTask !== null,
+				isSubTask,
 				onSuccess,
+				updatedValue,
 			);
-		},
-		[
-			validateExpiryData?.isExpired,
-			updateSubscriptionState,
-			debouncedUpdateTask,
-			info?.selectedSubTask,
-		],
-	);
+		}, 800);
+	};
 
-	const deleteTask = useCallback(
-		async (payload) => {
-			if (validateExpiryData?.isExpired) {
-				return updateSubscriptionState({ expiredSubscriptionModal: true });
-			} else {
-				const response = await deleteListItem(payload);
-				if (response) {
-					if (info?.selectedSubTask?._id === payload?.taskId) {
-						updateTaskInfo({ selectedSubTask: null });
-						removeSubTask(payload?.taskId);
-					} else {
-						getOverdueTasksCount();
-						getTodayTasksCount();
-						setInfo((prevInfo) => ({
-							...prevInfo,
-							todayTasksList: prevInfo?.todayTasksList?.filter(
-								(row) => row?._id !== payload?.taskId,
-							),
-							overDueTasksList: prevInfo?.overDueTasksList?.filter(
-								(row) => row?._id !== payload?.taskId,
-							),
-							sidebarIsOpen: false,
-							selectedRow: null,
-						}));
+	const updatePropertyValue = (rowId, propName, value, isUpdatingSubTask, onSuccess) => {
+		if (validateExpiryData?.isExpired) {
+			return updateSubscriptionState({ expiredSubscriptionModal: true });
+		}
+		let originalValue;
+		let updatedValue = value;
+		if (propName === 'workflow') {
+			const workflow = info?.workflows?.find((workflow) => workflow._id === value);
+			updatedValue = workflow;
+		}
+
+		if (info?.selectedSubTask || isUpdatingSubTask) {
+			if (info?.selectedSubTask) {
+				setInfo((prevInfo) => ({
+					...prevInfo,
+					selectedSubTask: { ...info?.selectedSubTask, [propName]: updatedValue },
+				}));
+			}
+			setInfo((prevInfo) => ({
+				...prevInfo,
+			}));
+			updateSubTask({ _id: rowId, [propName]: updatedValue });
+		}
+		handleDebounceUpdate(
+			rowId,
+			propName,
+			value,
+			originalValue,
+			isUpdatingSubTask || info?.selectedSubTask !== null,
+			onSuccess,
+			updatedValue,
+		);
+	};
+	const deleteTask = async (payload) => {
+		if (validateExpiryData?.isExpired) {
+			return updateSubscriptionState({ expiredSubscriptionModal: true });
+		} else {
+			const response = await deleteListItem(payload);
+			if (response) {
+				if (info?.selectedSubTask?._id === payload?.taskId) {
+					updateTaskInfo({ selectedSubTask: null });
+					removeSubTask(payload?.taskId);
+				} else {
+					getOverdueTasksCount();
+					getTodayTasksCount();
+					let task;
+
+					if (info?.selectedOption === 'Pending tasks') {
+						task = info?.dueTillTodayTasksList?.filter((row) => {
+							return row?._id === payload?.taskId;
+						});
+					} else if (info?.selectedOption === 'Today') {
+						task = info?.todayTasksList?.filter((row) => {
+							return row?._id === payload?.taskId;
+						});
+					} else if (info?.selectedOption === 'Overdue') {
+						task = info?.overDueTasksList?.filter((row) => {
+							return row?._id === payload?.taskId;
+						});
 					}
+					task = task[0];
+					setInfo((prev) => ({
+						...prev,
+						selectedRow: null,
+					}));
+
+					if (info?.selectedOption === 'Pending tasks') {
+						fetchDueTillTodayTasks(1, 'delete', task);
+						fetchOverdueTasks(1, 'delete', task);
+						fetchTodayTasks(1, 'delete', task);
+					} else if (info?.selectedOption === 'Today') {
+						fetchDueTillTodayTasks(1, 'delete', task);
+						fetchTodayTasks(1, 'delete', task);
+					} else if (info?.selectedOption === 'Overdue') {
+						fetchDueTillTodayTasks(1, 'delete', task);
+						fetchOverdueTasks(1, 'delete', task);
+					}
+
+					handleCloseSidebar();
 				}
 			}
-		},
-		[info?.selectedSubTask?._id, removeSubTask],
-	);
+		}
+	};
 
 	const handleRowClick = useCallback(
 		(row) => {
@@ -789,7 +690,7 @@ const TasksTab = () => {
 				updateTaskInfo({ selectedRow: row, sidebarIsOpen: true });
 			}
 		},
-		[info?.listItems, resetSubTasks, info?.selectedRow?._id],
+		[resetSubTasks, info?.selectedRow?._id],
 	);
 
 	const handleCreateSubTaskClick = useCallback(() => {
@@ -801,14 +702,8 @@ const TasksTab = () => {
 	}, []);
 
 	const handleCloseSidebar = useCallback(() => {
-		if (info?.updated) {
-			updateTaskInfo({ loadingSkeleton: true });
-			fetchOverdueTasks(1);
-			fetchTodayTasks(1);
-			updateTaskInfo({ updated: false });
-		}
 		updateTaskInfo({ sidebarIsOpen: false, selectedSubTask: null });
-	}, [info?.updated]);
+	}, []);
 
 	const handleChildTaskClose = useCallback(() => {
 		updateTaskInfo({ selectedSubTask: null });
@@ -859,27 +754,134 @@ const TasksTab = () => {
 						</button>
 					</Tooltip>
 				</div>
-
-				{info?.todayTasksList?.length > 0 &&
-					(info?.selectedOption === 'All' || info?.selectedOption === 'Today') && (
-						<div className="today-tasks">
-							<div className="today-text">Today ({tasksCountForToday})</div>
-							{}
+				{info?.dueTillTodayTasksList?.length > 0 &&
+					info?.selectedOption === 'Pending tasks' && (
+						<div className="due-till-today-tasks">
+							<div className="due-till-today-text">
+								Pending tasks till today (
+								{tasksCountForToday + tasksCountForOverdue})
+							</div>
 							<InfiniteScroll
-								dataLength={info?.todayTasksList?.length || 0}
-								next={fetchMoreTodayTasks}
-								hasMore={info?.hasNextPageForTodayTasks}
+								dataLength={info?.dueTillTodayTasksList?.length || 0}
+								hasMore={info?.hasNextPageForDueTillToday}
+								next={fetchMoreTasksDueTillToday}
 								loader={<FetchMoreLoaderComp />}
-								height={243}
+								height={546}
 							>
+								{info?.loadingSkeleton ? (
+									<div
+										style={{
+											display: 'flex',
+											flexDirection: 'row',
+											gap: '15px',
+											flexWrap: 'wrap',
+										}}
+									>
+										{[1, 2, 3, 4, 5, 6]?.map((ele) => (
+											<Skeleton
+												height={'231px'}
+												width={'268px'}
+												style={{
+													borderRadius: '16px',
+												}}
+												key={ele}
+											/>
+										))}
+									</div>
+								) : (
+									<div className="tasks-container">
+										{info?.dueTillTodayTasksList?.map((task) => {
+											return (
+												<div
+													className="task-container"
+													onClick={() => {
+														handleRowClick(task);
+													}}
+													key={task?._id}
+												>
+													<div className="task-content">
+														<span className="title">{task?.title}</span>
+														<div className="description">
+															{task?.description}
+														</div>
+													</div>
+
+													<div className="show-more">
+														<div className="assigned-to">
+															<div className="persons-container">
+																{task?.assignedTo?.map(
+																	(person, index) => {
+																		return (
+																			<div
+																				className="persons"
+																				key={index}
+																			>
+																				{person?.name[0]?.toUpperCase()}
+																			</div>
+																		);
+																	},
+																)}
+															</div>
+															<div className="remaining-persons-count">
+																{task?.assignedTo?.length > 3 &&
+																	`+${
+																		task?.assignedTo?.length - 3
+																	}`}
+															</div>
+														</div>
+														<div className="chevron-icon-container">
+															<ChevronRightThinIcon />
+														</div>
+													</div>
+												</div>
+											);
+										})}
+									</div>
+								)}
+							</InfiniteScroll>
+						</div>
+					)}
+
+				{info?.todayTasksList?.length > 0 && info?.selectedOption === 'Today' && (
+					<div className="today-tasks">
+						<div className="today-text">Today ({tasksCountForToday})</div>
+						<InfiniteScroll
+							dataLength={info?.todayTasksList?.length || 0}
+							next={fetchMoreTodayTasks}
+							hasMore={info?.hasNextPageForTodayTasks}
+							loader={<FetchMoreLoaderComp />}
+							height={470}
+						>
+							{info?.loadingSkeleton ? (
+								<div
+									style={{
+										display: 'flex',
+										flexDirection: 'row',
+										gap: '15px',
+										flexWrap: 'wrap',
+									}}
+								>
+									{[{}, {}, {}, {}, {}, {}]?.map((ele, index) => (
+										<Skeleton
+											height={'231px'}
+											width={'268px'}
+											style={{
+												borderRadius: '16px',
+											}}
+											key={index}
+										/>
+									))}
+								</div>
+							) : (
 								<div className="tasks-container">
 									{info?.todayTasksList?.map((task) => {
 										return (
 											<div
 												className="task-container"
 												onClick={() => {
-													handleRowClick(task, 'today');
+													handleRowClick(task);
 												}}
+												key={task?._id}
 											>
 												<div className="task-content">
 													<span className="title">{task?.title}</span>
@@ -917,28 +919,50 @@ const TasksTab = () => {
 										);
 									})}
 								</div>
-							</InfiniteScroll>
-						</div>
-					)}
-				{info?.overDueTasksList?.length > 0 &&
-					(info?.selectedOption === 'All' || info?.selectedOption === 'Overdue') && (
-						<div className="over-due-tasks">
-							<div className="over-due-text">Overdue ({tasksCountForOverdue})</div>
-							<InfiniteScroll
-								dataLength={info?.overDueTasksList?.length || 0}
-								next={fetchMoreDueDateTasks}
-								hasMore={info?.hasNextPageForOverDueTasks}
-								loader={<FetchMoreLoaderComp />}
-								height={243}
-							>
+							)}
+						</InfiniteScroll>
+					</div>
+				)}
+				{info?.overDueTasksList?.length > 0 && info?.selectedOption === 'Overdue' && (
+					<div className="over-due-tasks">
+						<div className="over-due-text">Overdue ({tasksCountForOverdue})</div>
+						<InfiniteScroll
+							dataLength={info?.overDueTasksList?.length || 0}
+							next={fetchMoreOverdueTasks}
+							hasMore={info?.hasNextPageForOverdueTasks}
+							loader={<FetchMoreLoaderComp />}
+							height={470}
+						>
+							{info?.loadingSkeleton ? (
+								<div
+									style={{
+										display: 'flex',
+										flexDirection: 'row',
+										gap: '15px',
+										flexWrap: 'wrap',
+									}}
+								>
+									{[{}, {}, {}, {}, {}, {}]?.map((ele, index) => (
+										<Skeleton
+											height={'231px'}
+											width={'268px'}
+											style={{
+												borderRadius: '16px',
+											}}
+											key={index}
+										/>
+									))}
+								</div>
+							) : (
 								<div className="tasks-container">
 									{info?.overDueTasksList?.map((task) => {
 										return (
 											<div
 												className="task-container"
 												onClick={() => {
-													handleRowClick(task, 'overdue');
+													handleRowClick(task);
 												}}
+												key={task?._id}
 											>
 												<div className="task-content">
 													<span className="title">{task?.title}</span>
@@ -976,9 +1000,10 @@ const TasksTab = () => {
 										);
 									})}
 								</div>
-							</InfiniteScroll>
-						</div>
-					)}
+							)}
+						</InfiniteScroll>
+					</div>
+				)}
 			</div>
 			<ListViewSidebar
 				selectedRow={info?.selectedSubTask || info?.selectedRow}

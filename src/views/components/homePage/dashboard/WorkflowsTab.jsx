@@ -273,7 +273,7 @@ const WorkflowsTab = ({ searchValue }) => {
 							overflowX: 'hidden',
 						}}
 						className="tetsing"
-						height="calc(100vh - 378px)"
+						height="calc(100vh - 470px)"
 					>
 						<div className="workflows-tab">
 							{info?.myWorkflowData?.map((workflow, index) => {
@@ -300,6 +300,7 @@ const WorkflowsTab = ({ searchValue }) => {
 				closeModal={closeWorkflowModal}
 				activeTemplateData={info?.activeTemplateData}
 				activeCardsData={info?.activeCardsData}
+				updateStateOnUnmounting={false}
 			/>
 			<CopiedModal
 				open={info?.copyModal}
