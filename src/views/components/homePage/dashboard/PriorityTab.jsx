@@ -22,11 +22,20 @@ const PriorityTab = () => {
 	const [activeTab, setActiveTab] = useState('all');
 	const [info, setInfo] = useState({
 		currentPage: 1,
+		loading: true,
+		hasMore: false,
 	});
+
 	const navigate = useNavigate();
 	useEffect(() => {
-		if (!requiredActions?.actions?.length) {
+		if (!requiredActions) {
 			fetchSalesInfo();
+		} else {
+			if (info?.loading !== false)
+				setInfo((prev) => ({
+					...prev,
+					loading: false,
+				}));
 		}
 	}, [requiredActions]);
 
@@ -43,7 +52,7 @@ const PriorityTab = () => {
 	};
 
 	const fetchMoreData = async () => {
-		if (requiredActions?.hasMore) {
+		if (requiredActions?.hasNextPage) {
 			const nextPage = info?.currentPage + 1;
 			await getRequiredActions({
 				filters: {
@@ -59,7 +68,6 @@ const PriorityTab = () => {
 			}));
 		}
 	};
-
 	const handleTabClick = (tabId) => {
 		if (tabId === activeTab) return;
 		setActiveTab(tabId);
@@ -80,6 +88,7 @@ const PriorityTab = () => {
 	const handleActionNavigation = (templateId, workflowId) => {
 		navigate(`/smart-file/${templateId}/${workflowId}`);
 	};
+
 	return (
 		<div className="sales-page" style={{ padding: 0 }}>
 			<div className="sales-page-filter">
@@ -100,8 +109,8 @@ const PriorityTab = () => {
 						>
 							{item.label}{' '}
 							{item?.id === 'all'
-								? `(${tabItemCount?.[item.id]})`
-								: tabItemCount?.[item.id]}
+								? `(${tabItemCount?.[item.id] ?? 0})`
+								: tabItemCount?.[item.id] ?? 0}
 							{item?.checkBoxBorder ? (
 								<FilterCheckBox borderColor={item?.checkBoxBorder} />
 							) : (
@@ -113,12 +122,12 @@ const PriorityTab = () => {
 			</div>
 			<div className="cards-container">
 				<div className="card-div" style={{ overflowX: 'hidden', padding: 0 }}>
-					{requiredActions?.loading ? (
+					{info?.loading ? (
 						<RequiredActionsLoader />
 					) : (
 						<InfiniteScroll
 							dataLength={requiredActions?.actions?.length || 0}
-							hasMore={requiredActions?.hasMore}
+							hasMore={requiredActions?.hasNextPage}
 							next={fetchMoreData}
 							height={'calc(100vh - 515px)'}
 							loader={<FetchMoreLoaderComp />}
