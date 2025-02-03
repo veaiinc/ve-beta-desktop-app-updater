@@ -66,7 +66,7 @@ export const intialState = {
 	contractSignedLocalState: null,
 	specificTemplatesInfo: null,
 	smartFileEmailTemplateData: null,
-	requiredActions: { actions: [], hasMore: false, loading: true },
+	requiredActions: null,
 	requiredActionsForTemplate: null,
 	tabItemCount: null,
 	eventsPresetData: null,
@@ -1032,13 +1032,13 @@ export const TemplatesState = (props) => {
 				dispatch({
 					type: Actions.GET_REQUIRED_ACTIONS_SUCCESS,
 					payload: {
+						...state?.requiredActions,
+						hasNextPage: response?.[1]?.data?.listRequiredActions?.hasNextPage,
 						actions: resetRequiredActions
 							? response?.[1]?.data?.listRequiredActions?.data
 							: state?.requiredActions?.actions?.concat(
 									response?.[1]?.data?.listRequiredActions?.data,
 							  ),
-						hasMore: response?.[1]?.data?.listRequiredActions?.hasNextPage,
-						loading: false,
 					},
 				});
 			} else {
