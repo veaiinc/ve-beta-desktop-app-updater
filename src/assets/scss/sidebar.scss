@@ -1,8 +1,8 @@
 .FullScreenSidebar {
-	padding: 20px;
-	display: flex;
-	height: 93vh;
-	position: relative;
+	// padding: 20px;
+	// display: flex;
+	// height: 93vh;
+	// position: relative;
 	z-index: 1000;
 	transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 	&.opened {
@@ -16,15 +16,15 @@
 		// border: 1px solid rgba(255, 255, 255, 0.1);
 	}
 
-	&.no-submodules:not(.opened) {
-		height: 93dvh !important;
-	}
-	&.has-submodules {
-		height: 93dvh !important;
-	}
+	// &.no-submodules:not(.opened) {
+	// 	height: 93dvh !important;
+	// }
+	// &.has-submodules {
+	// 	height: 93dvh !important;
+	// }
 	.sidebarComponent {
-		min-height: 100%;
-		background: #202123;
+		// min-height: 100%;
+		// background: #202123;
 		display: flex;
 		flex-direction: column;
 		justify-content: center;
@@ -43,127 +43,127 @@
 			width: 250px !important;
 			transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 		}
-		.closedSideBarComponent {
-			display: flex;
-			flex-direction: column;
-			justify-content: space-between;
-			align-items: center;
-			min-height: inherit;
-			width: 56px;
-			padding: 7px 7px 24px 7px;
-			border-radius: inherit;
-			z-index: 1;
-			border: none !important;
+		// .closedSideBarComponent {
+		// 	display: flex;
+		// 	flex-direction: column;
+		// 	justify-content: space-between;
+		// 	align-items: center;
+		// 	min-height: inherit;
+		// 	width: 56px;
+		// 	padding: 7px 7px 24px 7px;
+		// 	border-radius: inherit;
+		// 	z-index: 1;
+		// 	border: none !important;
 
-			.hoverStateIconsClosed {
-				display: flex;
-				flex-direction: column;
-				gap: 10px;
-				align-items: center;
-				justify-content: center;
-				cursor: pointer;
-				transform: rotate(0deg); // Initial state
-				transition: transform 0.4s ease; // Smooth transition for both directions
+		// 	.hoverStateIconsClosed {
+		// 		display: flex;
+		// 		flex-direction: column;
+		// 		gap: 10px;
+		// 		align-items: center;
+		// 		justify-content: center;
+		// 		cursor: pointer;
+		// 		transform: rotate(0deg); // Initial state
+		// 		transition: transform 0.4s ease; // Smooth transition for both directions
 
-				&.plusIconHover {
-					transform: rotate(180deg);
-				}
+		// 		&.plusIconHover {
+		// 			transform: rotate(180deg);
+		// 		}
 
-				svg {
-					transition: all 0.5s;
-				}
-				&.selected {
-					background: #89ac4f;
-				}
-			}
+		// 		svg {
+		// 			transition: all 0.5s;
+		// 		}
+		// 		&.selected {
+		// 			background: #89ac4f;
+		// 		}
+		// 	}
 
-			.openWorkFlowContainer {
-				width: 41px;
-				height: 41px;
-				border-radius: 50%;
-				fill: linear-gradient(
-					180deg,
-					rgba(255, 255, 255, 0.11) -9.68%,
-					rgba(0, 0, 0, 0.05) 98.65%
-				);
-				// box-shadow: 2px 2px 4px 0px #151515 inset, -2px -2px 4px 0px #212121 inset;
-				// filter: drop-shadow(1px 1px 2px rgba(14, 14, 14, 0.7));
-				position: relative;
-				cursor: pointer;
+		// 	.openWorkFlowContainer {
+		// 		width: 41px;
+		// 		height: 41px;
+		// 		border-radius: 50%;
+		// 		fill: linear-gradient(
+		// 			180deg,
+		// 			rgba(255, 255, 255, 0.11) -9.68%,
+		// 			rgba(0, 0, 0, 0.05) 98.65%
+		// 		);
+		// 		// box-shadow: 2px 2px 4px 0px #151515 inset, -2px -2px 4px 0px #212121 inset;
+		// 		// filter: drop-shadow(1px 1px 2px rgba(14, 14, 14, 0.7));
+		// 		position: relative;
+		// 		cursor: pointer;
 
-				.gradientCirlce {
-					width: 41px;
-					height: 41px;
-					border-radius: 50%;
-					display: flex;
-					justify-content: center;
-					align-items: center;
-					position: relative;
-					background: var(--ve-ai-dark-theme-text-field-stroke-pop-up, #2c2d2e);
-					// mix-blend-mode: lighten;
-					// box-shadow: none;
+		// 		.gradientCirlce {
+		// 			width: 41px;
+		// 			height: 41px;
+		// 			border-radius: 50%;
+		// 			display: flex;
+		// 			justify-content: center;
+		// 			align-items: center;
+		// 			position: relative;
+		// 			background: var(--ve-ai-dark-theme-text-field-stroke-pop-up, #2c2d2e);
+		// 			// mix-blend-mode: lighten;
+		// 			// box-shadow: none;
 
-					// .svgDiv {
-					// 	position: absolute;
-					// 	inset: 0;
-					// }
+		// 			// .svgDiv {
+		// 			// 	position: absolute;
+		// 			// 	inset: 0;
+		// 			// }
 
-					&:hover {
-						background: #202123;
-						border: none;
-					}
-				}
-			}
-			.ClosedIconsContainer {
-				display: flex;
-				flex-direction: column;
-				justify-content: center;
-				align-items: center;
-				gap: 24px;
+		// 			&:hover {
+		// 				background: #202123;
+		// 				border: none;
+		// 			}
+		// 		}
+		// 	}
+		// 	.ClosedIconsContainer {
+		// 		display: flex;
+		// 		flex-direction: column;
+		// 		justify-content: center;
+		// 		align-items: center;
+		// 		gap: 24px;
 
-				.iconContainer {
-					cursor: pointer;
-					transition: background-color 0.3s;
-					text-align: center;
-					height: 23px;
-					width: 23px;
+		// 		.iconContainer {
+		// 			cursor: pointer;
+		// 			transition: background-color 0.3s;
+		// 			text-align: center;
+		// 			height: 23px;
+		// 			width: 23px;
 
-					// &.selected {
-					// 	background-color: #89ac4f !important;
-					// 	border-radius: 50%;
-					// 	padding: 12px;
-					// }
-				}
-			}
+		// 			// &.selected {
+		// 			// 	background-color: #89ac4f !important;
+		// 			// 	border-radius: 50%;
+		// 			// 	padding: 12px;
+		// 			// }
+		// 		}
+		// 	}
 
-			.TabOptions {
-				display: flex;
-				flex-direction: column;
-				width: 100%;
-				// align-items: center;
+		// 	.TabOptions {
+		// 		display: flex;
+		// 		flex-direction: column;
+		// 		width: 100%;
+		// 		// align-items: center;
 
-				.activeWorkspaceDiv {
-					width: 30px;
-					height: 30px;
-					border-radius: 100px;
-					background: #cdc29d;
-					cursor: pointer;
+		// 		.activeWorkspaceDiv {
+		// 			width: 30px;
+		// 			height: 30px;
+		// 			border-radius: 100px;
+		// 			background: #cdc29d;
+		// 			cursor: pointer;
 
-					img {
-						width: 100%;
-						height: 100%;
-						border-radius: 100px;
-					}
-				}
-				.sidebarClosingSvg {
-					cursor: pointer;
-					align-self: center;
-					justify-self: center;
-					height: 20px;
-					width: 20px;
-				}
-			}
-		}
+		// 			img {
+		// 				width: 100%;
+		// 				height: 100%;
+		// 				border-radius: 100px;
+		// 			}
+		// 		}
+		// 		.sidebarClosingSvg {
+		// 			cursor: pointer;
+		// 			align-self: center;
+		// 			justify-self: center;
+		// 			height: 20px;
+		// 			width: 20px;
+		// 		}
+		// 	}
+		// }
 
 		.sidebarWorkspace {
 			height: 100vh;
@@ -259,20 +259,17 @@
 							align-items: center;
 							justify-content: space-between;
 							gap: 10px;
-							width: 100%;
+							width: 194px;
 							font-size: 14px;
 							margin-top: 2px;
-							color: #e8e8e8;
+							color: #f2f2f3;
 							padding: 10px 10px 10px 24px;
 							overflow-x: hidden;
-							// gap: 5px;
+							margin-left: 20px;
+							height: 35px;
 							&:hover {
 								background: #2e2f33;
 								border-radius: var(--Radius-lg, 24px);
-							}
-							&:active {
-								background: #2e2f33;
-								border-radius: 24px;
 							}
 							.subitem-content {
 								display: flex;
@@ -287,8 +284,9 @@
 								}
 							}
 						}
-						.subItem.active .vertical-line {
-							background-color: #fff; /* Color when active or hovered */
+						.subItem.active {
+							background: #2e2f33;
+							border-radius: var(--Radius-lg, 24px);
 						}
 					}
 
