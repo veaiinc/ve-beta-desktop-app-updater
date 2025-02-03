@@ -6,6 +6,7 @@ import { ReactComponent as Settings } from '../../../assets/svg/ai_agents/settin
 import { ReactComponent as Close } from '../../../assets/svg/close.svg';
 import { ReactComponent as Expand } from '../../../assets/svg/bottomToolbar/expand.svg';
 import ToolBarChatContainerModal from '../modalsV2/ToolBarChatContainerModal';
+import { ReactComponent as ArrowUp } from '../../../assets/svg/ai_agents/arrow-up.svg';
 import { Alert, Image, message, Spin, Tooltip } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
 import { Upload } from 'antd';
@@ -22,6 +23,7 @@ import { ReactComponent as Mic } from '../../../assets/svg/ai_agents/mic.svg';
 import { getBase64 } from '../../../helpers';
 import WorkflowSlugSelector from '../calendar/WorkflowSlugSelector';
 import { ReactComponent as AiSparkel } from '../../../assets/svg/calendar/aiSparkel.svg';
+import { use } from 'react';
 
 const moduleHelper = {
 	tasks: 'tasks',
@@ -59,6 +61,7 @@ const BottomToolbar = ({
 		expanded: false,
 		inputExpanded: false,
 		chatModalIsOpen: false,
+		bigToolbarIsOpen: false,
 		chatQuery: '',
 		position: { x: -325, y: 0 },
 		addQuickAction: false,
@@ -67,6 +70,8 @@ const BottomToolbar = ({
 		chatLoading: false,
 		showFullPage: false,
 	});
+
+	// console.log(info?.uploadedImages);
 	const [previewOpen, setPreviewOpen] = useState(false);
 	const [previewImage, setPreviewImage] = useState('');
 	const toolbarRef = useRef(null);
@@ -136,31 +141,22 @@ const BottomToolbar = ({
 		isDraggingRef.current = false;
 	}, []);
 
-	//function definitions
-	const handleInputFocus = useCallback(() => {
-		setInfo((prev) => ({
-			...prev,
-			expanded: true,
-			inputExpanded: true,
-		}));
-	}, [info]);
+	// const handleClose = useCallback(() => {
+	// 	setInfo((prev) => ({
+	// 		...prev,
+	// 		expanded: false,
+	// 		inputExpanded: false,
+	// 	}));
+	// }, [info]);
 
-	const handleClose = useCallback(() => {
-		setInfo((prev) => ({
-			...prev,
-			expanded: false,
-			inputExpanded: false,
-		}));
-	}, [info]);
-
-	const handleChatExpand = useCallback(() => {
-		setInfo((prev) => ({
-			...prev,
-			chatModalIsOpen: true,
-			expanded: false,
-			inputExpanded: false,
-		}));
-	}, []);
+	// const handleChatExpand = useCallback(() => {
+	// 	setInfo((prev) => ({
+	// 		...prev,
+	// 		chatModalIsOpen: true,
+	// 		expanded: false,
+	// 		inputExpanded: false,
+	// 	}));
+	// }, []);
 
 	const handleCloseChatModal = useCallback(() => {
 		setInfo((prev) => ({ ...prev, chatModalIsOpen: false, showFullPage: false }));
@@ -406,6 +402,8 @@ const BottomToolbar = ({
 				handleGlobalImageProcessing(file);
 			}
 
+			console.log(uploadedImages);
+
 			setInfo((prev) => ({
 				...prev,
 				// addQuickAction: false,
@@ -437,6 +435,10 @@ const BottomToolbar = ({
 		[info],
 	);
 
+	const handleMicIconClick = (event) => {
+		event.stopPropagation();
+	};
+
 	const chatIcons = useMemo(
 		() => [
 			<Filter />,
@@ -456,6 +458,13 @@ const BottomToolbar = ({
 		[info, handleChange],
 	);
 
+	const handleSmallToolbarClick = () => {
+		setInfo((prev) => ({
+			...prev,
+			bigToolbarIsOpen: true,
+		}));
+	};
+
 	return (
 		<div
 			ref={toolbarRef}
@@ -468,104 +477,113 @@ const BottomToolbar = ({
 			}}
 			onMouseDown={handleMouseDown}
 		>
-			<div
-				className={`${
-					info?.expanded ? 'expandedChatContainer' : ''
-				} bottomToolbarChatContainer`}
-			>
-				<div className="bottomToolBarChatHeader">
-					<span>AI Assistant</span>
-					<div style={{ display: 'flex', alignItems: 'center' }}>
-						<button className="closeButton" onClick={handleChatExpand}>
-							<Expand />
-						</button>
-						<button className="closeButton" onClick={handleClose}>
-							<Close />
-						</button>
-					</div>
-				</div>
-				<div className="chatContent" ref={chatContentRef}>
-					{(!customChatActions ? globalChatMessages : chatList).map((chat, index) =>
-						chat?.content ? (
-							<div
-								className={`chat-message ${chat.type.toLowerCase()}-message`}
-								key={index}
-							>
-								{chat?.content}
-							</div>
-						) : (
-							<div
-								key={index}
-								className={`chat-message ${chat.type.toLowerCase()}-message`}
-							>
-								{chat?.type?.toLowerCase() === 'ai' && <AiStarInChat />}
-								<div className="message-content">
-									{chat?.type?.toLowerCase() === 'ai' ? (
-										<TypingEffect text={chat?.message} />
-									) : (
-										<Markdown>{chat?.message}</Markdown>
-									)}
-								</div>
-							</div>
-						),
-					)}
-				</div>
-				{info?.uploadedImages?.length ? (
-					<div className="imagePreviewBar">
-						{info?.uploadedImages?.map((ele, index) => (
-							<div className="previewOfUploadedImage" key={index}>
-								<img
-									src={ele?.preview}
-									alt="uploaded"
-									width={'100%'}
-									height={'100%'}
-									style={{ objectFit: 'cover', borderRadius: '12px' }}
-									onClick={() => handlePreview(ele)}
-								/>
+			{!info?.chatModalIsOpen && info?.uploadedImages?.length ? (
+				<div className="imagePreviewBar">
+					{info?.uploadedImages?.map((ele, index) => (
+						<div className="previewOfUploadedImage" key={index}>
+							<img
+								src={ele?.preview}
+								alt="uploaded"
+								width={'100%'}
+								height={'100%'}
+								style={{ objectFit: 'cover', borderRadius: '12px' }}
+								onClick={() => handlePreview(ele)}
+							/>
 
-								{ele?.loading ? (
-									<div className="spinContainerLoaderForPreview">
-										<Spin />
-									</div>
-								) : (
-									<span
-										className="removeImageIcon"
-										onClick={() => handleRemoveImage(ele)}
-									>
-										<Close />
-									</span>
-								)}
-							</div>
-						))}
-					</div>
-				) : (
-					''
-				)}
-			</div>
+							{ele?.loading ? (
+								<div className="spinContainerLoaderForPreview">
+									<Spin />
+								</div>
+							) : (
+								<span
+									className="removeImageIcon"
+									onClick={() => handleRemoveImage(ele)}
+								>
+									<Close />
+								</span>
+							)}
+						</div>
+					))}
+				</div>
+			) : (
+				''
+			)}
 
 			{/* bottom toolBarContent */}
 			{!info?.chatModalIsOpen ? (
-				<div className={`bottomToolbar ${info.inputExpanded ? 'expandedBtnToolbar' : ''}`}>
-					<textarea
-						className={`bottomToolbarInputs ${info.inputExpanded ? 'expanded' : ''}`}
-						placeholder="Ask AI"
-						onFocus={handleInputFocus}
-						value={info?.chatQuery}
-						onChange={(e) =>
-							setInfo((prev) => ({ ...prev, chatQuery: e.target.value }))
-						}
-						onKeyDown={handleSendMessageFunc}
-						style={{ resize: 'none' }}
-					/>
+				info?.bigToolbarIsOpen ? (
+					<div
+						className={`bottomToolbar ${
+							info.inputExpanded ? 'expandedBtnToolbar' : ''
+						}`}
+					>
+						<textarea
+							className={`bottomToolbarInputs ${
+								// info.inputExpanded ? 'expanded' : ''
+								''
+							}`}
+							placeholder="Ask AI"
+							value={info?.chatQuery}
+							onChange={(e) =>
+								setInfo((prev) => ({ ...prev, chatQuery: e.target.value }))
+							}
+							onKeyDown={(e) => {
+								if (e?.key === 'Enter') {
+									if (e?.shiftKey) {
+										return;
+									}
+									setInfo((prev) => ({
+										...prev,
+										chatModalIsOpen: true,
+									}));
+									// Prevent default to avoid unwanted new line
+									e?.preventDefault();
+									handleSendMessageFunc(e);
+								}
+							}}
+							style={{ resize: 'none' }}
+							autoFocus
+						/>
 
-					<div className="chat-icons-container">
-						{chatIcons?.map((icon, idx) => (
-							<span key={idx} className="chat-icon">
-								{icon}
-							</span>
-						))}
+						<div className="toolBarButttons">
+							<div className="chat-icons-container">
+								{chatIcons?.map((icon, idx) => (
+									<span key={idx} className="chat-icon">
+										{icon}
+									</span>
+								))}
+							</div>
+							<div
+								className="click-btn"
+								onClick={(e) => {
+									e?.stopPropagation();
+									if (info?.chatQuery?.trim()?.length > 0) {
+										setInfo((prev) => ({
+											...prev,
+											chatModalIsOpen: true,
+										}));
+										handleSendMessageFunc(e, true);
+									}
+								}}
+							>
+								<ArrowUp />
+							</div>
+						</div>
 					</div>
-				</div>
+				) : (
+					<div className="bottomToolbarSmall" onClick={handleSmallToolbarClick}>
+						<div className="toolbarText">Hey, need help ask me anything !</div>
+						<div className="chat-icons-container">
+							<div className="upload-icon">
+								<PaperClip />
+							</div>
+
+							<div className="mic-icon" onClick={handleMicIconClick}>
+								<Mic />
+							</div>
+						</div>
+					</div>
+				)
 			) : (
 				''
 			)}
@@ -580,6 +598,10 @@ const BottomToolbar = ({
 				aiChatLoading={aiChatLoading}
 				showFullPage={info?.showFullPage}
 				toggleFullPage={toggleFullPage}
+				onImageUpload={handleChange}
+				uploadedImages={info?.uploadedImages}
+				handlePreview={handlePreview}
+				handleRemoveImage={handleRemoveImage}
 			/>
 			{previewImage && (
 				<Image
