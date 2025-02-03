@@ -129,6 +129,9 @@ const TasksTab = () => {
 		taskMetadata: null,
 		workflows: [],
 		tenantUsers: [],
+		// taskData : {
+		// 	pending :
+		// }
 		hasNextPageForTodayTasks: false,
 		hasNextPageForOverdueTasks: false,
 		hasNextPageForDueTillToday: false,
@@ -147,6 +150,21 @@ const TasksTab = () => {
 			getOverdueTasksCount();
 		}
 	}, []);
+
+	// const taskLabels = {
+	// 	pending: {
+	// 		label: 'Pending actions till today',
+	// 		count: tasksCountForToday + tasksCountForOverdue,
+	// 	},
+	// 	today: {
+	// 		label: 'Today',
+	// 		count: tasksCountForToday,
+	// 	},
+	// 	overdue: {
+	// 		label: 'Overdue',
+	// 		count: tasksCountForOverdue,
+	// 	},
+	// };
 
 	useEffect(() => {
 		if (info?.selectedOption === 'Today') {
