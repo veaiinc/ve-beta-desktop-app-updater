@@ -307,6 +307,9 @@
 							font-style: normal;
 							font-weight: 400;
 							line-height: 20px; /* 142.857% */
+							overflow: hidden;
+							text-overflow: ellipsis;
+							width: 235px;
 						}
 					}
 					.agentsTabType {

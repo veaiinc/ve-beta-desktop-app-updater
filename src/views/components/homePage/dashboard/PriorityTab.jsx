@@ -1,4 +1,4 @@
-import React, { memo, useContext, useState, useEffect, useCallback, useRef } from 'react';
+import React, { memo, useContext, useState, useEffect } from 'react';
 import RequiredActionsLoader from '../../sales/RequiredActionsLoader';
 import '../../../../assets/scss/sales/sales.scss';
 import { useNavigate } from 'react-router-dom';
@@ -26,8 +26,10 @@ const PriorityTab = () => {
 	});
 	const navigate = useNavigate();
 	useEffect(() => {
-		fetchSalesInfo();
-	}, []);
+		if (!requiredActions?.actions?.length) {
+			fetchSalesInfo();
+		}
+	}, [requiredActions]);
 
 	const fetchSalesInfo = () => {
 		getRequiredActions({
@@ -79,7 +81,7 @@ const PriorityTab = () => {
 		navigate(`/smart-file/${templateId}/${workflowId}`);
 	};
 	return (
-		<div className="sales-page">
+		<div className="sales-page" style={{ padding: 0 }}>
 			<div className="sales-page-filter">
 				<ul>
 					{tabItems.map((item) => (
@@ -110,7 +112,7 @@ const PriorityTab = () => {
 				</ul>
 			</div>
 			<div className="cards-container">
-				<div className="card-div">
+				<div className="card-div" style={{ overflowX: 'hidden', padding: 0 }}>
 					{requiredActions?.loading ? (
 						<div
 							style={{
@@ -136,11 +138,10 @@ const PriorityTab = () => {
 							dataLength={requiredActions?.actions?.length || 0}
 							hasMore={requiredActions?.hasMore}
 							next={fetchMoreData}
-							height={900}
+							height={518}
 							loader={<FetchMoreLoaderComp />}
 							style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}
 						>
-							{/* <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}> */}
 							{requiredActions?.actions?.map((actionItem, index) => (
 								<div
 									className="requiredSalesPendingCard"
@@ -192,7 +193,6 @@ const PriorityTab = () => {
 									</div>
 								</div>
 							))}
-							{/* </div> */}
 						</InfiniteScroll>
 					)}
 				</div>

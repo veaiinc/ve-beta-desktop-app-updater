@@ -23,6 +23,7 @@ export const intialState = {
 	listTasks: null,
 	listTasksForToday: null,
 	listTasksForOverdue: null,
+	listTasksDueTillToday: null,
 	newTask: null,
 	subTasks: null,
 	tasksCountForToday: null,
@@ -61,10 +62,102 @@ export const TasksState = () => {
 		}
 	};
 
-	const getListTasksForToday = async (payload, concat = true) => {
+	const getListTasksDueTillToday = async (payload, type = null, task = null) => {
 		try {
+			if (task !== null && type !== null) {
+				const taskId = task?._id;
+
+				if (type === 'update') {
+					const updatedList = state?.listTasksDueTillToday?.data?.map((item) => {
+						if (item?._id === taskId) {
+							return { ...task };
+						}
+						return item;
+					});
+
+					dispatch({
+						type: Actions.SET_LIST_TASKS_DUE_TILL_TODAY,
+						payload: { ...state?.listTasksDueTillToday, data: updatedList },
+					});
+					return;
+				}
+				console.log(task);
+				if (type === 'delete') {
+					const updatedList = state?.listTasksDueTillToday?.data?.filter(
+						(item) => item?._id !== taskId,
+					);
+					dispatch({
+						type: Actions.SET_LIST_TASKS_DUE_TILL_TODAY,
+						payload: { ...state?.listTasksDueTillToday, data: updatedList },
+					});
+					return;
+				}
+			}
+
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				getListItemsByTenantUserQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+
+			if (response?.[0]) {
+				const resp = response?.[1]?.data?.listTasksByTenantUser;
+				dispatch({
+					type: Actions.SET_LIST_TASKS_DUE_TILL_TODAY,
+					payload: {
+						...resp,
+						data: Array.isArray(state?.listTasksDueTillToday?.data)
+							? state?.listTasksDueTillToday?.data?.concat(resp?.data)
+							: resp?.data,
+					},
+				});
+			} else {
+				console.log('API failed ==> getListTasksDueTillToday', response);
+				dispatch({
+					type: Actions.SET_LIST_TASKS_FOR_TODAY,
+					payload: { error: 'Failed to fetch tasks, try again' },
+				});
+			}
+		} catch (error) {
+			console.log('API failed ==> getListTasksDueTillToday', error);
+		}
+	};
+	const getListTasksForToday = async (payload, type = null, task = null) => {
+		try {
+			if (task !== null && type !== null) {
+				const taskId = task?._id;
+				if (type === 'update') {
+					const updatedList = state?.listTasksForToday?.data?.map((item) => {
+						if (item?._id === taskId) {
+							return task;
+						}
+						return item;
+					});
+					dispatch({
+						type: Actions.SET_LIST_TASKS_FOR_TODAY,
+						payload: { ...state?.listTasksForToday, data: updatedList },
+					});
+					return;
+				}
+				if (type === 'delete') {
+					const updatedList = state?.listTasksForToday?.data?.filter(
+						(item) => item?._id !== taskId,
+					);
+					dispatch({
+						type: Actions.SET_LIST_TASKS_FOR_TODAY,
+						payload: { ...state?.listTasksForToday, data: updatedList },
+					});
+					return;
+				}
+			}
+
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+
 			const response = await service.query(
 				getListItemsByTenantUserQuery,
 				payload,
@@ -96,8 +189,35 @@ export const TasksState = () => {
 		}
 	};
 
-	const getListTasksForOverdue = async (payload) => {
+	const getListTasksForOverdue = async (payload, type = null, task = null) => {
 		try {
+			if (task !== null && type !== null) {
+				const taskId = task?._id;
+				if (type === 'update') {
+					const updatedList = state?.listTasksForOverdue?.data?.map((item) => {
+						if (item?._id === taskId) {
+							return task;
+						}
+						return item;
+					});
+					dispatch({
+						type: Actions.SET_LIST_TASKS_FOR_OVERDUE,
+						payload: { ...state?.listTasksForOverdue, data: updatedList },
+					});
+					return;
+				}
+				if (type === 'delete') {
+					const updatedList = state?.listTasksForOverdue?.data?.filter(
+						(item) => item?._id !== taskId,
+					);
+					dispatch({
+						type: Actions.SET_LIST_TASKS_FOR_OVERDUE,
+						payload: { ...state?.listTasksForOverdue, data: updatedList },
+					});
+					return;
+				}
+			}
+
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const response = await service.query(
@@ -131,7 +251,7 @@ export const TasksState = () => {
 		}
 	};
 
-	const getTasksCountForToday = async (payload) => {
+	const getTasksCountForToday = async (payload, type = null, task = null) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
@@ -481,6 +601,7 @@ export const TasksState = () => {
 		getListItems,
 		getListTasksForToday,
 		getListTasksForOverdue,
+		getListTasksDueTillToday,
 		addListItem,
 		updateListItem,
 		deleteListItem,
