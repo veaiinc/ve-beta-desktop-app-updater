@@ -245,7 +245,7 @@ const ClosedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info, se
 
 	return (
 		<>
-			{isMobile ? (
+			{/* {isMobile ? (
 				<div
 					className="hamburgerIconContainer"
 					onClick={openModuleFunction}
@@ -464,7 +464,7 @@ const ClosedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info, se
 							)}
 						</div>
 						<div className="TabOptions">
-							{/* <div>
+							<div>
 								<Tooltip
 									placement="rightTop"
 									title={<DropDrownMenu info={info} setInfo={setInfo} />}
@@ -489,9 +489,9 @@ const ClosedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info, se
 										/>
 									</div>
 								</Tooltip>
-							</div> */}
+							</div>
 
-							{/* <div onClick={() => navigate('/home')}>
+							<div onClick={() => navigate('/home')}>
 								<ClosedSideBarHoverStateIcons Icon={AppartmentHomeSvg} />
 							</div>
 							<div className="activeWorkspaceDiv" onClick={openModuleFunction}>
@@ -499,9 +499,9 @@ const ClosedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info, se
 									src={info?.activeBusniessName?.logo_s3_500w_key}
 									alt={info?.activeBusniessName?.activeWorkspaceId}
 								/>
-							</div> */}
+							</div>
 
-							{/* <div
+							<div
 								style={{
 									display: 'flex',
 									flexDirection: 'column',
@@ -552,7 +552,7 @@ const ClosedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info, se
 										</div>
 									</Tooltip>
 								))}
-							</div> */}
+							</div>
 							<div
 								style={{
 									display: 'flex',
@@ -760,12 +760,13 @@ const ClosedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info, se
 										</svg>
 									</div>
 								)}
-								{/* <hr style={{ border: '0.7px solid #333334', margin: '16px 0px' }} /> */}
+								<hr style={{ border: '0.7px solid #333334', margin: '16px 0px' }} />
 							</div>
 						</div>
 					</div>
 				</>
-			)}
+			)} */}
+			<SidebarClosingSvg onClick={openModuleFunction} />
 		</>
 	);
 };

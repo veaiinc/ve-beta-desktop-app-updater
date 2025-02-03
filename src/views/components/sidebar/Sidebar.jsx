@@ -7,6 +7,7 @@ import ClosedSideBarItemsComponent from './ClosedSidebar';
 import Context from '../../../context/context';
 import { styles } from './sidebarindex';
 import CreateLeadModal from '../modalsV2/proposalModals/CreateLeadModal';
+import { ReactComponent as SidebarClosingSvg } from '../../../assets/svg/sidebar/SidebarClosing.svg';
 import { veAiModulesItemsList } from './sidebarindex';
 const Sidebar = ({ activeWorkspaceId }) => {
 	const {
@@ -15,7 +16,7 @@ const Sidebar = ({ activeWorkspaceId }) => {
 	const location = useLocation();
 
 	const [sidebarStates, setsidebarStates] = useState({
-		isOpen: false,
+		isOpen: true,
 		workSpaceOpen: false,
 		navStyle: 'close',
 		selectedModule: null,
@@ -122,11 +123,14 @@ const Sidebar = ({ activeWorkspaceId }) => {
 							userWorkSpaceList={userWorkSpaceList}
 						/>
 					) : (
-						<ClosedSideBarItemsComponent
-							setsidebarStates={setsidebarStates}
-							sidebarStates={sidebarStates}
-							info={info}
-							setInfo={setInfo}
+						// <ClosedSideBarItemsComponent
+						// 	setsidebarStates={setsidebarStates}
+						// 	sidebarStates={sidebarStates}
+						// 	info={info}
+						// 	setInfo={setInfo}
+						// />
+						<SidebarClosingSvg
+							onClick={() => setsidebarStates((prev) => ({ ...prev, isOpen: true }))}
 						/>
 					)}
 				</nav>
