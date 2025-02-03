@@ -49,11 +49,11 @@ const ActionsModal = ({
 		variables: [],
 		openVariableTypeId: null,
 		headers: [
-			{
-				id: Date.now(),
-				parameter: '',
-				value: '',
-			},
+			// {
+			// 	id: Date.now(),
+			// 	parameter: '',
+			// 	value: '',
+			// },
 		],
 		bodyContent: '',
 		showVariableSuggestions: false,
@@ -112,7 +112,8 @@ const ActionsModal = ({
 				apiUses: 'JSON',
 				url: '',
 				variables: [],
-				headers: [{ id: Date.now(), parameter: '', value: '' }],
+				headers: [],
+				// headers: [{ id: Date.now(), parameter: '', value: '' }],
 				bodyContent: '',
 			}));
 		}
@@ -734,7 +735,7 @@ const HeadersTab = ({ headers, onAddHeader, onHeaderChange, onHeaderDelete }) =>
 			<div className="headerLabels">
 				<div>Parameter</div>
 				<div>Value</div>
-				<div /> {/* Spacer for delete button alignment */}
+				<div />
 			</div>
 			{headers?.map((header) => (
 				<div key={header?.id} className="headerRow">
@@ -761,6 +762,12 @@ const HeadersTab = ({ headers, onAddHeader, onHeaderChange, onHeaderDelete }) =>
 					</div>
 				</div>
 			))}
+			{headers?.length === 0 && (
+				<div className="emptyState">
+					<p>No inputs added</p>
+					<p>Add inputs to extract from chat</p>
+				</div>
+			)}
 			<div className="addHeaderButton" onClick={onAddHeader}>
 				+ Add
 			</div>

@@ -6,16 +6,11 @@ import { ReactComponent as AgentIcon } from '../../../assets/svg/ai_assistant/ag
 import { ReactComponent as EditIcon } from '../../../assets/svg/ai_assistant/edit.svg';
 import TabHeader from '../../components/ai_assistant/TabHeader';
 import Context from '../../../context/context';
-
-const tabs = {
-	playground: { value: 'playground', label: 'Playground' },
-	chatlogs: { value: 'chatlogs', label: 'Chat Logs' },
-	connections: { value: 'connections', label: 'Connections' },
-};
+import AiPlayGround from '../../components/ai_assistant/AiPlayGround';
 
 const AgentDetails = () => {
 	const {
-		aiSetup: { activeAiAssistantDetails },
+		aiSetup: { activeAiAssistantDetails, getActiveAiAssistantDetails },
 	} = useContext(Context);
 
 	const { aiAssistantId } = useParams();
@@ -29,10 +24,34 @@ const AgentDetails = () => {
 	});
 
 	useEffect(() => {
+		if (aiAssistantId) {
+			getActiveAiAssistantDetails(aiAssistantId);
+		}
+	}, [aiAssistantId]);
+
+	useEffect(() => {
 		if (activeAiAssistantDetails) {
 			setInfo((prev) => ({ ...prev, activeAiAssistant: activeAiAssistantDetails }));
 		}
 	}, [activeAiAssistantDetails]);
+
+	const tabs = {
+		playground: {
+			value: 'playground',
+			label: 'Playground',
+			component: <AiPlayGround assistant={info?.activeAiAssistant} />,
+		},
+		// chatlogs: {
+		// 	value: 'chatlogs',
+		// 	label: 'Chat Logs',
+		// 	// component: <ChatLogs />,
+		// },
+		// connections: {
+		// 	value: 'connections',
+		// 	label: 'Connections',
+		// 	// component: <Connections />,
+		// },
+	};
 
 	const onTabChange = useCallback(
 		(tab) => {
@@ -64,6 +83,7 @@ const AgentDetails = () => {
 				onTabChange={onTabChange}
 				tabs={Object.values(tabs)?.map(({ value, label }) => ({ value, label }))}
 			/>
+			{tabs?.[info?.activeTab]?.component}
 		</div>
 	);
 };
