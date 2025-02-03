@@ -9,7 +9,7 @@ import HomePageStart from '../../components/homePage/HomePageStart';
 import { PromptData } from '../../components/homePage/PromptData';
 import Context from '../../../context/context';
 import QuickActions from '../../components/globalComponents/QuickActions';
-import PriorityDropDown from '../../components/homePage/PriorityDropDown';
+import PriorityDropDown from '../../components/homePage/dashboard/PriorityDropDown';
 
 const topNavOptions = [
 	{ id: 0, title: 'Start', value: 'start' },
@@ -52,6 +52,7 @@ const HomePage = () => {
 		dropdown: false,
 		dropdownOptions: '',
 		openCreateLeadModal: false,
+		selectedOptionInPriorityTab: 'all',
 	});
 
 	useEffect(() => {

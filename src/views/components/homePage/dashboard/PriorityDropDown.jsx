@@ -1,8 +1,8 @@
 // import { Tooltip } from 'antd';
 // import React, { useContext, useState, useEffect } from 'react';
-// import '../../../assets/scss/home_page/priorityDropDown.scss';
-// import { ReactComponent as ChevronRightThinIcon } from '../../../assets/svg/tasks/chevronRightThin.svg';
-// import Context from '../../../context/context';
+// import '../../../../assets/scss/home_page/priorityDropDown.scss';
+// import { ReactComponent as ChevronRightThinIcon } from '../../../../assets/svg/tasks/chevronRightThin.svg';
+// import Context from '../../../../context/context';
 
 // const optionItems = [
 // 	{ id: 'all', label: 'All', checkBoxBorder: null },
