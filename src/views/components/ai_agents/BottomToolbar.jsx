@@ -80,24 +80,6 @@ const BottomToolbar = ({
 	const chatContentRef = useRef(null);
 	console.log(globalChatMessages);
 
-	useGSAP(
-		() => {
-			gsap.fromTo(
-				'.bottomToolbar',
-				{
-					opacity: 0,
-					scale: 0,
-					duration: 0.5,
-				},
-				{
-					scale: 1,
-					opacity: 1,
-				},
-			);
-		},
-		{ scope: toolbarRef },
-	);
-
 	// Add and remove event listeners
 	useEffect(() => {
 		document.addEventListener('mousemove', handleMouseMove);
@@ -423,7 +405,6 @@ const BottomToolbar = ({
 
 			setInfo((prev) => ({
 				...prev,
-				// addQuickAction: false,
 				expanded: true,
 				inputExpanded: true,
 				uploadedImages,
@@ -482,13 +463,6 @@ const BottomToolbar = ({
 		}));
 	};
 
-	// const handleUploadIconClick = () => {
-	// 	setInfo((prev) => ({
-	// 		...prev,
-	// 		bigToolbarIsOpen: true,
-	// 	}));
-	// };
-
 	return (
 		<div
 			ref={toolbarRef}
@@ -501,80 +475,6 @@ const BottomToolbar = ({
 			}}
 			onMouseDown={handleMouseDown}
 		>
-			{/* <div
-				className={`${
-					info?.expanded ? 'expandedChatContainer' : ''
-				} bottomToolbarChatContainer`}
-			> */}
-			{/* <div className="bottomToolBarChatHeader">
-					<span>AI Assistant</span>
-					<div style={{ display: 'flex', alignItems: 'center' }}>
-						<button className="closeButton" onClick={handleChatExpand}>
-							<Expand />
-						</button>
-						<button className="closeButton" onClick={handleClose}>
-							<Close />
-						</button>
-					</div>
-				</div> */}
-			{/* <div className="chatContent" ref={chatContentRef}>
-					{(!customChatActions ? globalChatMessages : chatList).map((chat, index) =>
-						chat?.content ? (
-							<div
-								className={`chat-message ${chat.type.toLowerCase()}-message`}
-								key={index}
-							>
-								{chat?.content}
-							</div>
-						) : (
-							<div
-								key={index}
-								className={`chat-message ${chat.type.toLowerCase()}-message`}
-							>
-								{chat?.type?.toLowerCase() === 'ai' && <AiStarInChat />}
-								<div className="message-content">
-									{chat?.type?.toLowerCase() === 'ai' ? (
-										<TypingEffect text={chat?.message} />
-									) : (
-										<Markdown>{chat?.message}</Markdown>
-									)}
-								</div>
-							</div>
-						),
-					)}
-				</div> */}
-			{/* {info?.uploadedImages?.length ? (
-					<div className="imagePreviewBar">
-						{info?.uploadedImages?.map((ele, index) => (
-							<div className="previewOfUploadedImage" key={index}>
-								<img
-									src={ele?.preview}
-									alt="uploaded"
-									width={'100%'}
-									height={'100%'}
-									style={{ objectFit: 'cover', borderRadius: '12px' }}
-									onClick={() => handlePreview(ele)}
-								/>
-
-								{ele?.loading ? (
-									<div className="spinContainerLoaderForPreview">
-										<Spin />
-									</div>
-								) : (
-									<span
-										className="removeImageIcon"
-										onClick={() => handleRemoveImage(ele)}
-									>
-										<Close />
-									</span>
-								)}
-							</div>
-						))}
-					</div>
-				) : (
-					''
-				)} */}
-			{/* </div> */}
 			{info?.uploadedImages?.length ? (
 				<div className="imagePreviewBar">
 					{info?.uploadedImages?.map((ele, index) => (
@@ -654,8 +554,14 @@ const BottomToolbar = ({
 							<div
 								className="click-btn"
 								onClick={(e) => {
-									console.log('clickd');
-									handleSendMessageFunc(e, true);
+									e?.stopPropagation();
+									if (info?.chatQuery?.trim()?.length > 0) {
+										setInfo((prev) => ({
+											...prev,
+											chatModalIsOpen: true,
+										}));
+										handleSendMessageFunc(e, true);
+									}
 								}}
 							>
 								<ArrowUp />
@@ -666,10 +572,7 @@ const BottomToolbar = ({
 					<div className="bottomToolbarSmall" onClick={handleSmallToolbarClick}>
 						<div className="toolbarText">Hey, need help ask me anything !</div>
 						<div className="chat-icons-container">
-							<div
-								className="upload-icon"
-								// onClick={handleUploadIconClick}
-							>
+							<div className="upload-icon">
 								<Upload
 									onChange={handleChange}
 									showUploadList={false}
