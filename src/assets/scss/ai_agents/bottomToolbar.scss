@@ -376,36 +376,55 @@
 			justify-content: center;
 		}
 
-		.chat-icons-container {
+		.toolBarButttons {
 			display: flex;
-			gap: 10px;
-			align-items: center;
-			justify-content: center;
+			justify-content: space-between;
+			width: 100%;
+			.chat-icons-container {
+				display: flex;
+				gap: 10px;
+				align-items: center;
+				justify-content: center;
 
-			& > * {
-				cursor: pointer;
-			}
-
-			.icon-container {
-				position: relative;
-
-				.file-upload-container {
-					position: absolute;
-					top: 0;
-					left: 0;
-					opacity: 0;
+				& > * {
 					cursor: pointer;
+				}
 
-					.file-upload {
+				.icon-container {
+					position: relative;
+
+					.file-upload-container {
+						position: absolute;
+						top: 0;
+						left: 0;
+						opacity: 0;
+						cursor: pointer;
+
+						.file-upload {
+							width: 19px;
+							height: 19px;
+						}
+					}
+
+					svg {
 						width: 19px;
 						height: 19px;
 					}
 				}
+			}
 
-				svg {
-					width: 19px;
-					height: 19px;
-				}
+			.click-btn {
+				display: flex;
+				width: 60px;
+				height: 32px;
+				padding: 6.4px;
+				justify-content: center;
+				align-items: center;
+				gap: 9.6px;
+
+				border-radius: 80px;
+				background: #2e2f33;
+				background: color(display-p3 0.1804 0.1843 0.2);
 			}
 		}
 

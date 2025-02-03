@@ -6,8 +6,11 @@ import { ReactComponent as Settings } from '../../../assets/svg/ai_agents/settin
 import { ReactComponent as Close } from '../../../assets/svg/close.svg';
 import { ReactComponent as Expand } from '../../../assets/svg/bottomToolbar/expand.svg';
 import ToolBarChatContainerModal from '../modalsV2/ToolBarChatContainerModal';
+import { ReactComponent as ArrowUp } from '../../../assets/svg/ai_agents/arrow-up.svg';
 import { Alert, Image, message, Spin, Tooltip } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
+import gsap from 'gsap';
+import { useGSAP } from '@gsap/react';
 import { Upload } from 'antd';
 import Context from '../../../context/context';
 import ObjectID from 'bson-objectid';
@@ -22,6 +25,7 @@ import { ReactComponent as Mic } from '../../../assets/svg/ai_agents/mic.svg';
 import { getBase64 } from '../../../helpers';
 import WorkflowSlugSelector from '../calendar/WorkflowSlugSelector';
 import { ReactComponent as AiSparkel } from '../../../assets/svg/calendar/aiSparkel.svg';
+import { use } from 'react';
 
 const moduleHelper = {
 	tasks: 'tasks',
@@ -74,6 +78,25 @@ const BottomToolbar = ({
 	const isDraggingRef = useRef(false);
 	const startPosRef = useRef({ x: 0, y: 0 });
 	const chatContentRef = useRef(null);
+	console.log(globalChatMessages);
+
+	useGSAP(
+		() => {
+			gsap.fromTo(
+				'.bottomToolbar',
+				{
+					opacity: 0,
+					scale: 0,
+					duration: 0.5,
+				},
+				{
+					scale: 1,
+					opacity: 1,
+				},
+			);
+		},
+		{ scope: toolbarRef },
+	);
 
 	// Add and remove event listeners
 	useEffect(() => {
@@ -136,15 +159,6 @@ const BottomToolbar = ({
 	const handleMouseUp = useCallback(() => {
 		isDraggingRef.current = false;
 	}, []);
-
-	//function definitions
-	const handleInputFocus = useCallback(() => {
-		// setInfo((prev) => ({
-		// 	...prev,
-		// 	expanded: true,
-		// 	inputExpanded: true,
-		// }));
-	}, [info]);
 
 	const handleClose = useCallback(() => {
 		setInfo((prev) => ({
@@ -603,25 +617,49 @@ const BottomToolbar = ({
 					>
 						<textarea
 							className={`bottomToolbarInputs ${
-								info.inputExpanded ? 'expanded' : ''
+								// info.inputExpanded ? 'expanded' : ''
+								''
 							}`}
-							// placeholder="Ask AI"
-							onFocus={handleInputFocus}
+							placeholder="Ask AI"
 							value={info?.chatQuery}
 							onChange={(e) =>
 								setInfo((prev) => ({ ...prev, chatQuery: e.target.value }))
 							}
-							onKeyDown={handleSendMessageFunc}
+							onKeyDown={(e) => {
+								if (e?.key === 'Enter') {
+									if (e?.shiftKey) {
+										return;
+									}
+									setInfo((prev) => ({
+										...prev,
+										chatModalIsOpen: true,
+									}));
+									// Prevent default to avoid unwanted new line
+									e?.preventDefault();
+									handleSendMessageFunc(e);
+								}
+							}}
 							style={{ resize: 'none' }}
 							autoFocus
 						/>
 
-						<div className="chat-icons-container">
-							{chatIcons?.map((icon, idx) => (
-								<span key={idx} className="chat-icon">
-									{icon}
-								</span>
-							))}
+						<div className="toolBarButttons">
+							<div className="chat-icons-container">
+								{chatIcons?.map((icon, idx) => (
+									<span key={idx} className="chat-icon">
+										{icon}
+									</span>
+								))}
+							</div>
+							<div
+								className="click-btn"
+								onClick={(e) => {
+									console.log('clickd');
+									handleSendMessageFunc(e, true);
+								}}
+							>
+								<ArrowUp />
+							</div>
 						</div>
 					</div>
 				) : (
