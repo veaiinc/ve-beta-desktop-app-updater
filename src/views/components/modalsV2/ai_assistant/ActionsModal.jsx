@@ -227,7 +227,12 @@ const ActionsModal = ({
 				}
 			} else {
 				// Create new action
-				response = await addAiAction(assistantId, payload);
+				if (aiActionList?.length < 5) {
+					response = await addAiAction(assistantId, payload);
+				} else {
+					onClose();
+					message.error('You have reached the maximum limit of 5 actions');
+				}
 				if (response) {
 					onActionAdded(response);
 					message.success('Action created successfully');
@@ -236,8 +241,29 @@ const ActionsModal = ({
 
 			if (response) {
 				onClose();
-			} else {
-				throw new Error('No response from server');
+				// Reset all form and info states to their initial values
+				setFormData({
+					title: '',
+					description: '',
+					status: true,
+				});
+				setInfo({
+					activeTab: 'endpoint',
+					method: 'GET',
+					apiUses: 'JSON',
+					url: '',
+					isMethodDropdownOpen: false,
+					isApiUsesDropdownOpen: false,
+					variables: [],
+					openVariableTypeId: null,
+					headers: [],
+					bodyContent: '',
+					showVariableSuggestions: false,
+					cursorPosition: 0,
+					showUrlVariableSuggestions: false,
+					urlCursorPosition: 0,
+					addingAction: false,
+				});
 			}
 		} catch (error) {
 			console.error('Error saving action:', error);

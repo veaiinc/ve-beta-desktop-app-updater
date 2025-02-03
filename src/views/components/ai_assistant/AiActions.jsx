@@ -34,8 +34,8 @@ const AiActions = ({ assistant }) => {
 	const handleActionUpdated = useCallback((updatedAction) => {
 		setInfo((prev) => ({
 			...prev,
-			aiActionList: prev.aiActionList.map((action) =>
-				action._id === updatedAction._id ? updatedAction : action,
+			aiActionList: prev?.aiActionList?.map((action) =>
+				action?._id === updatedAction?._id ? updatedAction : action,
 			),
 			selectedAction: null,
 		}));
