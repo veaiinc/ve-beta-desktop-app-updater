@@ -405,6 +405,7 @@ const BottomToolbar = ({
 
 			setInfo((prev) => ({
 				...prev,
+				// addQuickAction: false,
 				expanded: true,
 				inputExpanded: true,
 				uploadedImages,
