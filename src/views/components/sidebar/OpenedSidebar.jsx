@@ -85,9 +85,13 @@ const OpenedSideBarHoverStateIcons = ({
 		setisHover(false);
 	};
 
-	const redirectToFunction = () => {
+	const redirectToFunction = (subModules, route) => {
+		if (!subModules) {
+			navigateTo(route);
+		} else {
+			setDropdownVisible(!isDropdownVisible);
+		}
 		if (!route) return;
-		navigateTo(route);
 	};
 
 	const handleSubModuleClick = (e, subModule) => {
@@ -125,7 +129,7 @@ const OpenedSideBarHoverStateIcons = ({
 				onMouseEnter={onMoutseEnter}
 				onMouseLeave={onMoutseLeave}
 				onClick={() => {
-					setDropdownVisible(!isDropdownVisible);
+					redirectToFunction(subModules, route);
 				}}
 				style={{
 					marginBottom:
