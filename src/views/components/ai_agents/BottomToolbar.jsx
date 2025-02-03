@@ -9,8 +9,6 @@ import ToolBarChatContainerModal from '../modalsV2/ToolBarChatContainerModal';
 import { ReactComponent as ArrowUp } from '../../../assets/svg/ai_agents/arrow-up.svg';
 import { Alert, Image, message, Spin, Tooltip } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
-import gsap from 'gsap';
-import { useGSAP } from '@gsap/react';
 import { Upload } from 'antd';
 import Context from '../../../context/context';
 import ObjectID from 'bson-objectid';
@@ -72,6 +70,8 @@ const BottomToolbar = ({
 		chatLoading: false,
 		showFullPage: false,
 	});
+
+	// console.log(info?.uploadedImages);
 	const [previewOpen, setPreviewOpen] = useState(false);
 	const [previewImage, setPreviewImage] = useState('');
 	const toolbarRef = useRef(null);
@@ -141,22 +141,22 @@ const BottomToolbar = ({
 		isDraggingRef.current = false;
 	}, []);
 
-	const handleClose = useCallback(() => {
-		setInfo((prev) => ({
-			...prev,
-			expanded: false,
-			inputExpanded: false,
-		}));
-	}, [info]);
+	// const handleClose = useCallback(() => {
+	// 	setInfo((prev) => ({
+	// 		...prev,
+	// 		expanded: false,
+	// 		inputExpanded: false,
+	// 	}));
+	// }, [info]);
 
-	const handleChatExpand = useCallback(() => {
-		setInfo((prev) => ({
-			...prev,
-			chatModalIsOpen: true,
-			expanded: false,
-			inputExpanded: false,
-		}));
-	}, []);
+	// const handleChatExpand = useCallback(() => {
+	// 	setInfo((prev) => ({
+	// 		...prev,
+	// 		chatModalIsOpen: true,
+	// 		expanded: false,
+	// 		inputExpanded: false,
+	// 	}));
+	// }, []);
 
 	const handleCloseChatModal = useCallback(() => {
 		setInfo((prev) => ({ ...prev, chatModalIsOpen: false, showFullPage: false }));
@@ -402,6 +402,8 @@ const BottomToolbar = ({
 				handleGlobalImageProcessing(file);
 			}
 
+			console.log(uploadedImages);
+
 			setInfo((prev) => ({
 				...prev,
 				// addQuickAction: false,
@@ -475,7 +477,7 @@ const BottomToolbar = ({
 			}}
 			onMouseDown={handleMouseDown}
 		>
-			{info?.uploadedImages?.length ? (
+			{!info?.chatModalIsOpen && info?.uploadedImages?.length ? (
 				<div className="imagePreviewBar">
 					{info?.uploadedImages?.map((ele, index) => (
 						<div className="previewOfUploadedImage" key={index}>
@@ -573,16 +575,7 @@ const BottomToolbar = ({
 						<div className="toolbarText">Hey, need help ask me anything !</div>
 						<div className="chat-icons-container">
 							<div className="upload-icon">
-								<Upload
-									onChange={handleChange}
-									showUploadList={false}
-									beforeUpload={() => false} // Prevent default upload behavior
-									maxCount={1} // Allow only one file at a time
-									// accept="image/*" // Accept only images
-									accept=".pdf,.docx,.txt,.md,.json,.png,.jpg,.jpeg"
-								>
-									<PaperClip />
-								</Upload>
+								<PaperClip />
 							</div>
 
 							<div className="mic-icon" onClick={handleMicIconClick}>
@@ -605,6 +598,10 @@ const BottomToolbar = ({
 				aiChatLoading={aiChatLoading}
 				showFullPage={info?.showFullPage}
 				toggleFullPage={toggleFullPage}
+				onImageUpload={handleChange}
+				uploadedImages={info?.uploadedImages}
+				handlePreview={handlePreview}
+				handleRemoveImage={handleRemoveImage}
 			/>
 			{previewImage && (
 				<Image
