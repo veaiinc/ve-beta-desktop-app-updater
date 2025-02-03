@@ -14,6 +14,7 @@ import { FetchMoreLoaderComp } from '../../../../helpers';
 import MyWorkflowModalsLoader from './MyWorkflowModalsLoader';
 import { Drawer } from 'antd';
 import moment from 'moment';
+import { memo } from 'react';
 
 const timeOptions = [
 	{
@@ -137,7 +138,7 @@ const MyWorkflowsModals = ({
 	closeModal,
 	activeTemplateData,
 	activeCardsData,
-	updateStateOnUnmounting = true,
+	// updateStateOnUnmounting = true,
 }) => {
 	const navigate = useNavigate();
 	let {
@@ -147,10 +148,10 @@ const MyWorkflowsModals = ({
 	const [info, setInfo] = useState(initialState);
 
 	useEffect(() => {
-		if (updateStateOnUnmounting)
-			return () => {
-				updateStateValues({ workflowslist: null });
-			};
+		// if (updateStateOnUnmounting)
+		return () => {
+			updateStateValues({ workflowslist: null });
+		};
 	}, []);
 
 	useEffect(() => {
@@ -537,4 +538,4 @@ const MyWorkflowsModals = ({
 	);
 };
 
-export default MyWorkflowsModals;
+export default memo(MyWorkflowsModals);
