@@ -9,6 +9,10 @@ const actionHandlers = {
 		...state,
 		listTasksForToday: action?.payload,
 	}),
+	SET_LIST_TASKS_DUE_TILL_TODAY: (state, action) => ({
+		...state,
+		listTasksDueTillToday: action?.payload,
+	}),
 	SET_LIST_TASKS_FOR_OVERDUE: (state, action) => ({
 		...state,
 		listTasksForOverdue: action?.payload,
