@@ -34,6 +34,8 @@ import ChildTaskProgress from '../../../components/tasks/listView/ChildTaskProgr
 import LinkText from '../../../components/tasks/listView/LinkText';
 import { FetchMoreLoaderComp } from '../../../../helpers';
 import InfiniteScroll from 'react-infinite-scroll-component';
+import ChildTaskComponent from '../../tasks/listView/ChildTaskComponent';
+import CreateTaskPopup from '../../modalsV2/tasks/CreateTaskPopup';
 
 const colors = {
 	1: { backgroundColor: '#62344B', color: '#A35A7E' },
@@ -101,8 +103,10 @@ const TasksTab = () => {
 			getListTasksDueTillToday,
 			getTasksCountForToday,
 			getTasksCountForOverdue,
+			addListItem,
 			updateListItem,
 			deleteListItem,
+			addSubTask,
 			removeSubTask,
 			updateSubTask,
 			resetSubTasks,
@@ -126,11 +130,11 @@ const TasksTab = () => {
 		selectedOption: 'pending',
 		sidebarIsOpen: false,
 		selectedRow: null,
-		selectedSubTask: null,
 		taskMetadata: null,
 		workflows: [],
 		tenantUsers: [],
 		taskData: {},
+		breadCrumbs: [],
 		loadingSkeleton: true,
 	});
 
@@ -533,18 +537,12 @@ const TasksTab = () => {
 		rowId,
 		propName,
 		value,
+		originalValue,
 		isUpdatingSubTask,
 		onSuccess,
-		updatedValue,
+		task,
 	) => {
 		try {
-			let originalValue;
-			let task = info?.taskData?.[info?.selectedOption]?.data?.find((row) => {
-				if (row?._id === rowId) {
-					originalValue = row[propName];
-				}
-				return row?._id === rowId;
-			});
 			const response = await updateListItem({
 				taskId: rowId,
 				updateInput:
@@ -572,21 +570,19 @@ const TasksTab = () => {
 					const token = localStorage.getItem('usertoken');
 					const { user_id, userName } = jwtDecode(token);
 					if (isUpdatingSubTask) {
-						setInfo((prevInfo) => ({
-							...prevInfo,
-							selectedSubTask: prevInfo?.selectedSubTask
-								? {
-										...info?.selectedSubTask,
-										assignedBy: { _id: user_id, name: userName },
-										assignedAt: moment().unix(),
-								  }
-								: null,
-						}));
 						updateSubTask({
 							_id: rowId,
 							assignedBy: { _id: user_id, name: userName },
 							assignedAt: moment().unix(),
 						});
+						setInfo((prev) => ({
+							...prev,
+							selectedRow: {
+								...prev?.selectedRow,
+								assignedBy: { _id: user_id, name: userName },
+								assignedAt: moment().unix(),
+							},
+						}));
 					} else {
 						task = {
 							...task,
@@ -601,23 +597,24 @@ const TasksTab = () => {
 				const { user_id, userName } = jwtDecode(token);
 
 				task = { ...task, updatedBy: { _id: user_id, name: userName } };
-				task = { ...task, [propName]: updatedValue };
 
-				setInfo((prev) => ({
-					...prev,
-					selectedRow: task,
-				}));
+				if (!isUpdatingSubTask) {
+					setInfo((prev) => ({
+						...prev,
+						selectedRow: { ...info?.selectedRow, ...task },
+					}));
 
-				if (info?.selectedOption === 'pending') {
-					fetchDueTillTodayTasks(1, 'update', task);
-					fetchOverdueTasks(1, 'update', task);
-					fetchTodayTasks(1, 'update', task);
-				} else if (info?.selectedOption === 'today') {
-					fetchDueTillTodayTasks(1, 'update', task);
-					fetchTodayTasks(1, 'update', task);
-				} else if (info?.selectedOption === 'overdue') {
-					fetchDueTillTodayTasks(1, 'update', task);
-					fetchOverdueTasks(1, 'update', task);
+					if (info?.selectedOption === 'pending') {
+						fetchDueTillTodayTasks(1, 'update', task);
+						fetchOverdueTasks(1, 'update', task);
+						fetchTodayTasks(1, 'update', task);
+					} else if (info?.selectedOption === 'today') {
+						fetchDueTillTodayTasks(1, 'update', task);
+						fetchTodayTasks(1, 'update', task);
+					} else if (info?.selectedOption === 'overdue') {
+						fetchDueTillTodayTasks(1, 'update', task);
+						fetchOverdueTasks(1, 'update', task);
+					}
 				}
 			}
 		} catch (error) {
@@ -625,20 +622,35 @@ const TasksTab = () => {
 		}
 	};
 
-	const handleDebounceUpdate = (rowId, propName, value, isSubTask, onSuccess, updatedValue) => {
+	const handleDebounceUpdate = (
+		rowId,
+		propName,
+		value,
+		originalValue,
+		isSubTask,
+		onSuccess,
+		task,
+	) => {
 		if (debounceTimeout.current) {
 			clearTimeout(debounceTimeout.current);
 		}
 
 		debounceTimeout.current = setTimeout(() => {
-			debouncedUpdateTask(rowId, propName, value, isSubTask, onSuccess, updatedValue);
+			debouncedUpdateTask(rowId, propName, value, originalValue, isSubTask, onSuccess, task);
 		}, 800);
 	};
 
-	const updatePropertyValue = (rowId, propName, value, isUpdatingSubTask, onSuccess) => {
+	const updatePropertyValue = async (rowId, propName, value, isUpdatingSubTask, onSuccess) => {
 		if (validateExpiryData?.isExpired) {
 			return updateSubscriptionState({ expiredSubscriptionModal: true });
 		}
+		let originalValue;
+		let task = info?.taskData?.[info?.selectedOption]?.data?.find((row) => {
+			if (row?._id === rowId) {
+				originalValue = row[propName];
+			}
+			return row?._id === rowId;
+		});
 
 		let updatedValue = value;
 		if (propName === 'workflow') {
@@ -646,67 +658,117 @@ const TasksTab = () => {
 			updatedValue = workflow;
 		}
 
-		if (info?.selectedSubTask || isUpdatingSubTask) {
-			if (info?.selectedSubTask) {
-				setInfo((prevInfo) => ({
-					...prevInfo,
-					selectedSubTask: { ...info?.selectedSubTask, [propName]: updatedValue },
+		if (isUpdatingSubTask) {
+			try {
+				await updateSubTask({ _id: rowId, [propName]: updatedValue });
+				setInfo((prev) => ({
+					...prev,
+					selectedRow: { ...prev?.selectedRow, [propName]: updatedValue },
 				}));
+			} catch (error) {
+				message.error('Failed to update sub task, Try again later');
 			}
-			setInfo((prevInfo) => ({
-				...prevInfo,
-			}));
-			updateSubTask({ _id: rowId, [propName]: updatedValue });
 		}
+
+		task = { ...task, [propName]: updatedValue };
 
 		handleDebounceUpdate(
 			rowId,
 			propName,
 			value,
-			isUpdatingSubTask || info?.selectedSubTask !== null,
+			originalValue,
+			isUpdatingSubTask,
 			onSuccess,
-			updatedValue,
+			task,
 		);
 	};
+
 	const deleteTask = async (payload) => {
 		if (validateExpiryData?.isExpired) {
 			return updateSubscriptionState({ expiredSubscriptionModal: true });
 		} else {
 			const response = await deleteListItem(payload);
+
 			if (response) {
-				if (info?.selectedSubTask?._id === payload?.taskId) {
-					updateTaskInfo({ selectedSubTask: null });
-					removeSubTask(payload?.taskId);
-				} else {
-					getOverdueTasksCount();
-					getTodayTasksCount();
+				let task = info?.taskData?.[info?.selectedOption]?.data?.find((row) => {
+					return row?._id === payload?.taskId;
+				});
+				console.log(task);
+				setInfo((prev) => ({
+					...prev,
+					selectedRow: null,
+					sidebarIsOpen: false,
+					breadCrumbs: [],
+				}));
+				if (!task) return;
+				getOverdueTasksCount();
+				getTodayTasksCount();
 
-					let task = info?.taskData?.[info?.selectedOption]?.data?.find((row) => {
-						return row?._id === payload?.taskId;
-					});
-
-					setInfo((prev) => ({
-						...prev,
-						selectedRow: null,
-					}));
-
-					if (info?.selectedOption === 'pending') {
-						fetchDueTillTodayTasks(1, 'delete', task);
-						fetchOverdueTasks(1, 'delete', task);
-						fetchTodayTasks(1, 'delete', task);
-					} else if (info?.selectedOption === 'today') {
-						fetchDueTillTodayTasks(1, 'delete', task);
-						fetchTodayTasks(1, 'delete', task);
-					} else if (info?.selectedOption === 'overdue') {
-						fetchDueTillTodayTasks(1, 'delete', task);
-						fetchOverdueTasks(1, 'delete', task);
-					}
-
-					handleCloseSidebar();
+				if (info?.selectedOption === 'pending') {
+					fetchDueTillTodayTasks(1, 'delete', task);
+					fetchOverdueTasks(1, 'delete', task);
+					fetchTodayTasks(1, 'delete', task);
+				} else if (info?.selectedOption === 'today') {
+					fetchDueTillTodayTasks(1, 'delete', task);
+					fetchTodayTasks(1, 'delete', task);
+				} else if (info?.selectedOption === 'overdue') {
+					fetchDueTillTodayTasks(1, 'delete', task);
+					fetchOverdueTasks(1, 'delete', task);
 				}
+
+				handleCloseSidebar();
 			}
 		}
 	};
+
+	const addNewTask = useCallback(
+		async (payload) => {
+			if (
+				validateExpiryData &&
+				validateExpiryData?.restrictTasks &&
+				validateExpiryData?.isExpired
+			) {
+				return updateSubscriptionState({ expiredSubscriptionModal: true });
+			} else {
+				if (info?.isCreatingSubtask) {
+					payload.parentTaskId = info?.selectedRow?._id;
+				}
+				const response = await addListItem({ input: payload });
+
+				if (response) {
+					const task = response?.createTask;
+
+					if (task) {
+						const token = localStorage.getItem('usertoken');
+						const { user_id, userName } = jwtDecode(token);
+
+						const newTask = { ...task };
+						const newWorkflow = info?.workflows?.find(
+							(workflow) => workflow._id === payload?.workflowId,
+						);
+						newTask.workflow = newWorkflow
+							? { _id: newWorkflow._id, title: newWorkflow.label }
+							: null;
+						newTask.workflowId = null;
+						newTask.createdBy = { _id: user_id, name: userName };
+						newTask.updatedBy = { _id: user_id, name: userName };
+						if (info?.isCreatingSubtask) {
+							newTask.parentTask = {
+								title: info?.selectedRow?.title,
+								_id: info?.selectedRow?._id,
+							};
+							addSubTask(newTask);
+						}
+						message.success('Task added successfully');
+						// fetchListItems();
+					}
+				} else {
+					throw new Error('Failed to add new task');
+				}
+			}
+		},
+		[info?.workflows, info?.isCreatingSubtask, info?.selectedRow?._id],
+	);
 
 	const handleRowClick = useCallback(
 		(row) => {
@@ -724,17 +786,45 @@ const TasksTab = () => {
 		updateTaskInfo({ sidebarIsOpen: false, isCreatingSubtask: true, isCreateModalOpen: true });
 	}, []);
 
-	const handleSubTaskClick = useCallback((task) => {
-		updateTaskInfo({ selectedSubTask: task });
-	}, []);
+	const handleSubTaskClick = useCallback(
+		(task) => {
+			const breadCrumbs = [
+				...info?.breadCrumbs,
+				{
+					label:
+						`${info?.taskMetadata?.prefix ? info?.taskMetadata?.prefix + '-' : ''}` +
+						info?.selectedRow?.taskSlNo,
+					data: info?.selectedRow,
+				},
+			];
+			updateTaskInfo({ selectedRow: task, breadCrumbs });
+		},
+		[info?.selectedRow, info?.breadCrumbs],
+	);
 
 	const handleCloseSidebar = useCallback(() => {
-		updateTaskInfo({ sidebarIsOpen: false, selectedSubTask: null });
+		updateTaskInfo({
+			sidebarIsOpen: false,
+			breadCrumbs: [],
+			selectedRow: null,
+		});
 	}, []);
 
-	const handleChildTaskClose = useCallback(() => {
-		updateTaskInfo({ selectedSubTask: null });
-	}, []);
+	const handleCloseCreateModal = useCallback(() => {
+		if (info?.isCreatingSubtask) {
+			updateTaskInfo({ sidebarIsOpen: true });
+		}
+		updateTaskInfo({ isCreateModalOpen: false });
+	}, [info?.isCreatingSubtask]);
+
+	const handleBreadCrumbsClick = useCallback(
+		(breadCrumb, index) => {
+			const breadCrumbs = [...info?.breadCrumbs];
+			const newBreadCrumbs = [...breadCrumbs].slice(0, index);
+			updateTaskInfo({ breadCrumbs: newBreadCrumbs, selectedRow: breadCrumb?.data });
+		},
+		[info?.breadCrumbs],
+	);
 
 	return (
 		<>
@@ -876,28 +966,56 @@ const TasksTab = () => {
 					)}
 				</div>
 			</div>
+			<CreateTaskPopup
+				isOpen={info?.isCreateModalOpen}
+				closeModal={handleCloseCreateModal}
+				addNewTask={addNewTask}
+				workflows={info?.workflows}
+				tenantUsers={info?.tenantUsers}
+				clients={info?.clients}
+				isSubTask={info?.isCreatingSubtask}
+				responseMetadata={responseMetadata}
+				colors={colors}
+				fetchMoreData={() => {}}
+				hasMore={info?.hasMore}
+				error={info?.error}
+			/>
 			<ListViewSidebar
 				selectedRow={info?.selectedRow}
-				isShowingSubTask={
-					info?.selectedSubTask !== undefined && info?.selectedSubTask !== null
-				}
-				parentTaskNo={info?.selectedRow?.taskSlNo}
-				handleChildTaskClose={handleChildTaskClose}
-				handleSubTaskClick={handleSubTaskClick}
 				sidebarIsOpen={info?.sidebarIsOpen}
 				closeSidebar={handleCloseSidebar}
 				handleUpdate={updatePropertyValue}
 				deleteTask={deleteTask}
 				rowTypes={rowTypes}
-				handleCreateSubTaskClick={handleCreateSubTaskClick}
 				responseMetadata={responseMetadata}
-				haveSubTask={false}
 				properties={info?.properties}
 				colors={colors}
 				toggleSidebarExpand={() =>
 					updateTaskInfo({ isSidebarExpanded: !info?.isSidebarExpanded })
 				}
 				isSidebarExpanded={info?.isSidebarExpanded}
+				headerText={
+					`${info?.taskMetadata?.prefix ? info?.taskMetadata?.prefix + '-' : ''}` +
+					info?.selectedRow?.taskSlNo
+				}
+				breadCrumbs={info?.breadCrumbs}
+				handleBreadCrumbsClick={handleBreadCrumbsClick}
+				sidebarChildren={
+					info?.selectedRow ? (
+						<ChildTaskComponent
+							parentTaskId={info?.selectedRow?._id}
+							childTasks={info?.selectedRow?.childTasks}
+							completedStatus={info?.taskMetadata?.completedGroupLabels}
+							rowTypes={rowTypes}
+							responseMetadata={responseMetadata}
+							colors={colors}
+							properties={info?.properties}
+							onAddButtonClick={handleCreateSubTaskClick}
+							handleUpdate={(...args) => updatePropertyValue(...args, true)}
+							handleRowClick={handleSubTaskClick}
+						/>
+					) : null
+				}
 			/>
 		</>
 	);
