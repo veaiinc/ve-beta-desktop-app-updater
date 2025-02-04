@@ -900,7 +900,7 @@ const Tasks = () => {
 				isSidebarExpanded={info?.isSidebarExpanded}
 				headerText={
 					`${info?.taskMetadata?.prefix ? info?.taskMetadata?.prefix + '-' : ''}` +
-					info?.selectedRow?.taskSlNo
+					(info?.selectedRow?.taskSlNo || '')
 				}
 				breadCrumbs={info?.breadCrumbs}
 				handleBreadCrumbsClick={handleBreadCrumbsClick}
