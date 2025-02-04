@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
+import React, { memo, useCallback, useEffect, useState } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import '../../../../assets/scss/dropdown/tasks/optionsDropDown.scss';
 import { ReactComponent as HorizontalMoreIcon } from '../../../../assets/svg/tasks/horizontalDotsThin.svg';
@@ -8,7 +8,6 @@ import { ReactComponent as CrossSvg } from '../../../../assets/svg/gallery/cross
 import { ReactComponent as ChevronRightThinSvg } from '../../../../assets/svg/tasks/chevronRightThin.svg';
 import { ReactComponent as SixDotsSvg } from '../../../../assets/svg/tasks/sixDots.svg';
 import { ReactComponent as ArrowLeftSvg } from '../../../../assets/svg/tasks/arrowLeft.svg';
-import Context from '../../../../context/context';
 import StatusEditDropDown from './StatusEditDropDown';
 
 const PropertiesDropDown = ({
@@ -19,10 +18,6 @@ const PropertiesDropDown = ({
 	handleClose,
 	handleBack,
 }) => {
-	const {
-		companyInfo: { updateTaskPreferences },
-	} = useContext(Context);
-
 	const [info, setInfo] = useState({
 		hiddenProperties: [],
 		shownProperties: [],
@@ -117,13 +112,8 @@ const PropertiesDropDown = ({
 				properties: sortedProperties,
 				taskPreferences: newTaskPreferences,
 			});
-
-			updateTaskPreferences({
-				preferenceType: newTaskPreferences?.preferenceType,
-				data: newTaskPreferences?.preferences,
-			});
 		},
-		[properties, updateTaskInfo, taskPreferences, updateTaskPreferences],
+		[properties, updateTaskInfo, taskPreferences],
 	);
 
 	const handleDragEnd = useCallback(
@@ -216,12 +206,8 @@ const PropertiesDropDown = ({
 			});
 
 			updateTaskInfo({ properties: updatedProperties, taskPreferences: newTaskPreferences });
-			updateTaskPreferences({
-				preferenceType: newTaskPreferences?.preferenceType,
-				data: newTaskPreferences.preferences,
-			});
 		},
-		[properties, updateTaskInfo, taskPreferences, updateTaskPreferences, info],
+		[properties, updateTaskInfo, taskPreferences, info],
 	);
 
 	const handleShowAll = useCallback(() => {
@@ -262,12 +248,7 @@ const PropertiesDropDown = ({
 			properties: newProperties,
 			taskPreferences: newTaskPreferences,
 		});
-
-		updateTaskPreferences({
-			preferenceType: newTaskPreferences?.preferenceType,
-			data: newTaskPreferences.preferences,
-		});
-	}, [properties, updateTaskInfo, taskPreferences, updateTaskPreferences]);
+	}, [properties, updateTaskInfo, taskPreferences]);
 
 	const handleHideAll = useCallback(() => {
 		// Get current properties
@@ -314,12 +295,7 @@ const PropertiesDropDown = ({
 			properties: newProperties,
 			taskPreferences: newTaskPreferences,
 		});
-
-		updateTaskPreferences({
-			preferenceType: newTaskPreferences?.preferenceType,
-			data: newTaskPreferences.preferences,
-		});
-	}, [properties, updateTaskInfo, taskPreferences, updateTaskPreferences]);
+	}, [properties, updateTaskInfo, taskPreferences]);
 
 	const PropertyList = ({ items, droppableId }) => (
 		<Droppable droppableId={droppableId}>

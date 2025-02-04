@@ -251,6 +251,7 @@ const GalleryPage = () => {
 			numberOfImagesPeoples: 0,
 		},
 	});
+
 	const optionsRef = useRef(null);
 	const iconRef = useRef(null);
 	const galleryOptionsRef = useRef(null);
@@ -1206,8 +1207,12 @@ const GalleryPage = () => {
 	const handleNavigateUpload = () => {
 		const uploadUrl =
 			info?.albumContains === 'All'
-				? `/galleries/${galleryId}/${info?.activeAlbumId}/upload-photos`
-				: `/galleries/${galleryId}/${info?.activeAlbumId}/upload-photos?tag=${info?.albumContains}`;
+				? `/galleries/${galleryId}/${info?.activeAlbumId}/upload-photos?light-gallery=${
+						location?.state?.isLightGallery ? true : false
+				  }`
+				: `/galleries/${galleryId}/${info?.activeAlbumId}/upload-photos?tag=${
+						info?.albumContains
+				  }?light-gallery=${location?.state?.isLightGallery ? true : false}`;
 
 		// Open in new tab
 		window.open(uploadUrl, '_blank');

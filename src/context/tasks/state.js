@@ -1,4 +1,6 @@
 import service from '../../services/graphQlServices';
+import restService from '../../services';
+
 import {
 	getListItemsQuery,
 	getListItemsByTenantUserQuery,
@@ -32,6 +34,7 @@ export const intialState = {
 	tasksCountForOverdue: null,
 	preferences: null,
 	taskMetadata: null,
+	taskPreference: null,
 	refetchTasks: false,
 };
 
@@ -642,6 +645,54 @@ export const TasksState = () => {
 		}
 	};
 
+	const getTaskPreferences = async (data) => {
+		try {
+			const usertoken = localStorage.getItem('usertoken');
+			const response = await restService.fetchGet(
+				'/tenantuser-preference',
+				usertoken,
+				'tenant-users',
+				data,
+			);
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.SET_TASK_PREFERENCES,
+					payload: { data: response?.[1] },
+				});
+			} else {
+				dispatch({
+					type: Actions.SET_TASK_PREFERENCES,
+					payload: { error: response?.[1] },
+				});
+			}
+		} catch (error) {
+			console.log('error ==> getTaskPreferences', error);
+			dispatch({
+				type: Actions.SET_TASK_PREFERENCES,
+				payload: { error: error },
+			});
+		}
+	};
+
+	const updateTaskPreferences = async (json) => {
+		try {
+			const usertoken = localStorage.getItem('usertoken');
+			const response = await restService.fetchPut(
+				'/tenantuser-preference',
+				json,
+				usertoken,
+				'tenant-users',
+			);
+			if (response?.[0]) {
+				return [true, response[1]];
+			} else {
+				return [false, response[1]];
+			}
+		} catch (error) {
+			console.log('error ==> updateTaskPreferences', error);
+		}
+	};
+
 	return {
 		...state,
 		getListItems,
@@ -669,5 +720,7 @@ export const TasksState = () => {
 		getTaskMetadata,
 		updateTaskViews,
 		deleteTaskView,
+		getTaskPreferences,
+		updateTaskPreferences,
 	};
 };

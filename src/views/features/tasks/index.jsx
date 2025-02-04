@@ -98,15 +98,12 @@ const Tasks = () => {
 			getTaskMetadata,
 			updateTaskViews,
 			deleteTaskView,
+			getTaskPreferences,
+			updateTaskPreferences,
+			taskPreference,
 		},
 		templates: { getWorkflowsList, workflowslist },
-		companyInfo: {
-			getTeamMembers,
-			tenantsUserList,
-			getTaskPreferences,
-			taskPreference,
-			updateTaskPreferences,
-		},
+		companyInfo: { getTeamMembers, tenantsUserList },
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 	} = useContext(Context);
 
@@ -455,6 +452,12 @@ const Tasks = () => {
 	}, []);
 
 	const updateTaskInfo = useCallback((updateData) => {
+		if (updateData?.taskPreferences) {
+			updateTaskPreferences({
+				preferenceType: updateData?.taskPreferences?.preferenceType,
+				data: updateData?.taskPreferences?.preferences,
+			});
+		}
 		setInfo((previnfo) => ({ ...previnfo, ...updateData }));
 	}, []);
 
@@ -900,7 +903,7 @@ const Tasks = () => {
 				isSidebarExpanded={info?.isSidebarExpanded}
 				headerText={
 					`${info?.taskMetadata?.prefix ? info?.taskMetadata?.prefix + '-' : ''}` +
-					info?.selectedRow?.taskSlNo
+					(info?.selectedRow?.taskSlNo || '')
 				}
 				breadCrumbs={info?.breadCrumbs}
 				handleBreadCrumbsClick={handleBreadCrumbsClick}

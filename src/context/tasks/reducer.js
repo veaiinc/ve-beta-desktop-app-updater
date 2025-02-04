@@ -147,6 +147,10 @@ const actionHandlers = {
 			views: action?.payload,
 		},
 	}),
+	SET_TASK_PREFERENCES: (state, action) => ({
+		...state,
+		taskPreference: action?.payload,
+	}),
 	DELETE_TASK_VIEW: (state, action) => ({
 		...state,
 		taskMetadata: {
