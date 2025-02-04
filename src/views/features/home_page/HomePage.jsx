@@ -26,7 +26,7 @@ const navbarOptions = {
 	],
 	dashboard: [
 		{ id: 1, title: 'Priority', value: 'Priority' },
-		{ id: 2, title: 'Tasks', value: 'Tasks' },
+		// { id: 2, title: 'Tasks', value: 'Tasks' },
 		{ id: 3, title: 'Workflows', value: 'Workflows' },
 		// { id: 4, title: 'Recent Chats', value: 'Recent Chats' },
 		{ id: 5, title: 'Drafts & Activity', value: 'Drafts & Activity' },
