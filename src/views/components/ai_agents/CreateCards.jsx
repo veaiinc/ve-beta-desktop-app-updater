@@ -155,59 +155,62 @@ const Activity = memo(() => {
 	};
 
 	return (
-		<div className="aiAgentsAcitivityContainer">
-			<div className="createCardsHeader">
-				<span className="createCardsHeaderTexct">Activity</span>
-				<ThreeDotsVerticalIcon />
-			</div>
+		<>
+			{info?.activityLogsData?.length > 0 && (
+				<div className="aiAgentsAcitivityContainer">
+					<div className="createCardsHeader">
+						<span className="createCardsHeaderTexct">Activity</span>
+					</div>
 
-			{info?.loading ? (
-				<div className="drafLoaderContainer">
-					{[{}, {}, {}, {}]?.map((ele, index) => (
-						<Skeleton
-							key={index}
-							height={83}
-							width={300}
-							style={{ borderRadius: '16px' }}
-						/>
-					))}
-				</div>
-			) : (
-				<div style={{ width: '100%' }}>
-					<InfiniteScroll
-						dataLength={info?.activityLogsData?.length || 0}
-						next={fetchMoreActivityLogs}
-						hasMore={info?.hasNextPage}
-						loader={<FetchMoreLoaderComp />}
-						style={{
-							display: 'flex',
-							flexDirection: 'column',
-							alignItems: 'flex-start',
-							gap: '8px',
-							flex: '1 0 0',
-							alignSelf: 'stretch',
-						}}
-						height={'340px'}
-					>
-						{info?.activityLogsData?.map((ele, index) => (
-							<div className="aiAgentsActivityCards" key={index}>
-								<span
-									className="aiAgentsActivityCardsHeaderText"
-									style={{ textTransform: 'capitalize' }}
-								>
-									{ele?.summary || ''}
-								</span>
+					{info?.loading ? (
+						<div className="drafLoaderContainer">
+							{[{}, {}, {}, {}]?.map((ele, index) => (
+								<Skeleton
+									key={index}
+									height={83}
+									width={300}
+									style={{ borderRadius: '16px' }}
+								/>
+							))}
+						</div>
+					) : (
+						<div style={{ width: '100%' }}>
+							<InfiniteScroll
+								dataLength={info?.activityLogsData?.length || 0}
+								next={fetchMoreActivityLogs}
+								hasMore={info?.hasNextPage}
+								loader={<FetchMoreLoaderComp />}
+								style={{
+									display: 'flex',
+									flexDirection: 'column',
+									alignItems: 'flex-start',
+									gap: '8px',
+									flex: '1 0 0',
+									alignSelf: 'stretch',
+								}}
+								height={'340px'}
+							>
+								{info?.activityLogsData?.map((ele, index) => (
+									<div className="aiAgentsActivityCards" key={index}>
+										<span
+											className="aiAgentsActivityCardsHeaderText"
+											style={{ textTransform: 'capitalize' }}
+										>
+											{ele?.summary || ''}
+										</span>
 
-								<div className="aiAgentsActivityCardsSubText">text</div>
-								<span className="aiAgentsActivityCardTime">
-									{ele?.timestamp ? formatTimestamp(ele?.timestamp) : ''}
-								</span>
-							</div>
-						))}
-					</InfiniteScroll>
+										<div className="aiAgentsActivityCardsSubText">text</div>
+										<span className="aiAgentsActivityCardTime">
+											{ele?.timestamp ? formatTimestamp(ele?.timestamp) : ''}
+										</span>
+									</div>
+								))}
+							</InfiniteScroll>
+						</div>
+					)}
 				</div>
 			)}
-		</div>
+		</>
 	);
 });
 
@@ -295,70 +298,77 @@ const Drafts = memo(() => {
 	}, []);
 
 	return (
-		<div className="aiAgentsDraftsContainer">
-			<div className="createCardsHeader">
-				<span className="createCardsHeaderTexct">Drafts</span>
-				<ThreeDotsVerticalIcon />
-			</div>
-
-			<div style={{ width: '100%' }}>
-				{info?.loading ? (
-					<div className="drafLoaderContainer">
-						{[{}, {}, {}, {}, {}]?.map((ele, index) => (
-							<Skeleton
-								style={{ height: '63px', borderRadius: '10px', width: '300px' }}
-								key={index}
-							/>
-						))}
+		<>
+			{info?.draftData?.length > 0 && (
+				<div className="aiAgentsDraftsContainer">
+					<div className="createCardsHeader">
+						<span className="createCardsHeaderTexct">Drafts</span>
 					</div>
-				) : (
-					<InfiniteScroll
-						dataLength={info?.draftData?.length || 0}
-						next={fetchMoreDraftsData}
-						hasMore={info?.hasNextPage}
-						loader={<FetchMoreLoaderComp />}
-						style={{
-							display: 'flex',
-							flexDirection: 'column',
-							gap: '8px',
-							flex: '1 0 0',
-						}}
-						height={'340px'}
-					>
-						{info?.draftData?.map((ele, index) => (
-							<div
-								className="aiAgentsDraftsCard"
-								key={index}
-								style={{
-									// justifyContent: 'center',
-									minHeight: '63px',
-									cursor: 'pointer',
-								}}
-								onClick={() => onDraftClick(ele?._id)}
-							>
-								<span className="aiAgentsDraftsCardIcon"></span>
-								<span
-									className="aiAgentsDraftsCardText"
-									style={{
-										fontFamily: 'Inter',
-										fontSize: '12px',
-										fontStyle: 'normal',
-										fontWeight: '500',
-										lineHeight: 'normal',
-										color: '#E8E8E8',
-									}}
-								>
-									{ele?.title}
-								</span>
-								<span className="aiAgentsDraftsCardTime">
-									{ele?.createdAt ? formatTimestamp(ele?.createdAt) : ''}
-								</span>
+
+					<div style={{ width: '100%' }}>
+						{info?.loading ? (
+							<div className="drafLoaderContainer">
+								{[{}, {}, {}, {}, {}]?.map((ele, index) => (
+									<Skeleton
+										style={{
+											height: '63px',
+											borderRadius: '10px',
+											width: '300px',
+										}}
+										key={index}
+									/>
+								))}
 							</div>
-						))}
-					</InfiniteScroll>
-				)}
-			</div>
-		</div>
+						) : (
+							<InfiniteScroll
+								dataLength={info?.draftData?.length || 0}
+								next={fetchMoreDraftsData}
+								hasMore={info?.hasNextPage}
+								loader={<FetchMoreLoaderComp />}
+								style={{
+									display: 'flex',
+									flexDirection: 'column',
+									gap: '8px',
+									flex: '1 0 0',
+								}}
+								height={'340px'}
+							>
+								{info?.draftData?.map((ele, index) => (
+									<div
+										className="aiAgentsDraftsCard"
+										key={index}
+										style={{
+											// justifyContent: 'center',
+											minHeight: '63px',
+											cursor: 'pointer',
+										}}
+										onClick={() => onDraftClick(ele?._id)}
+									>
+										<span className="aiAgentsDraftsCardIcon"></span>
+										<span
+											className="aiAgentsDraftsCardText"
+											style={{
+												fontFamily: 'Inter',
+												fontSize: '12px',
+												fontStyle: 'normal',
+												fontWeight: '500',
+												lineHeight: 'normal',
+												color: '#E8E8E8',
+											}}
+										>
+											{ele?.title}
+										</span>
+										<span className="aiAgentsDraftsCardTime">
+											{ele?.createdAt ? formatTimestamp(ele?.createdAt) : ''}
+										</span>
+									</div>
+								))}
+							</InfiniteScroll>
+						)}
+					</div>
+				</div>
+			)}
+		</>
 	);
 });
 

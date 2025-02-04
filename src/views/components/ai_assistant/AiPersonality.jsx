@@ -276,7 +276,7 @@ const AiPersonality = ({ assistant, updateAssistantData }) => {
 					onChange={(e) => handleAssistantNameChange(e.target.value)}
 				/>
 			</div>
-			<div className="voiceContainer">
+			{/* <div className="voiceContainer">
 				<div className="headerWrapper">
 					<span className="lineone">Assistant Voice</span>
 					<span className="linetwo">User will hear this voice modulation</span>
@@ -316,7 +316,7 @@ const AiPersonality = ({ assistant, updateAssistantData }) => {
 						Play
 					</div>
 				</div>
-			</div>
+			</div> */}
 
 			<div className="aiPersonalityContainer">
 				<div className="aiPersonalityHeader">
@@ -552,7 +552,7 @@ const AiPersonality = ({ assistant, updateAssistantData }) => {
 				</div>
 			</div>
 
-			<div className="colorThemeContainer">
+			{/* <div className="colorThemeContainer">
 				<div className="colorThemeHeader">
 					<span className="lineone">Color Theme</span>
 					<span className="linetwo">
@@ -562,7 +562,8 @@ const AiPersonality = ({ assistant, updateAssistantData }) => {
 				<div className="colorThemeWrapper">
 					<ProgressCircles />
 				</div>
-			</div>
+			</div> */}
+
 			<div className="initialMessageContainer">
 				<div className="initialMessageHeader">
 					<span className="lineone">Initial Message</span>

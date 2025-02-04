@@ -25,6 +25,7 @@ const WorkflowsTab = ({ searchValue }) => {
 			myMoreWorkflows,
 			updateStateValues,
 			generatePublicLinkData,
+			salePageRefresh,
 		},
 		profileInfo: { userWorkSpaceList, getTenantSettings, tennantSettingsData },
 	} = useContext(Context);
@@ -51,6 +52,15 @@ const WorkflowsTab = ({ searchValue }) => {
 	useEffect(() => {
 		getMyWorkflowTemplatesData(1);
 	}, [searchValue]);
+
+	useEffect(() => {
+		if (salePageRefresh) {
+			getMyWorkflowTemplatesData(1);
+			updateStateValues({ salePageRefresh: null });
+
+			//refresh function
+		}
+	}, [salePageRefresh]);
 
 	useEffect(() => {
 		if (myWorkflows) {
@@ -122,10 +132,6 @@ const WorkflowsTab = ({ searchValue }) => {
 		(dataToBeUsed, fetchMore = false) => {
 			let { data, currentPage, hasNextPage } = dataToBeUsed;
 			let myWorkflowData = [];
-			if (currentPage === 1 && !data?.length && !generatePublicLinkData) {
-				localStorage.setItem('showInitialLoader', true);
-				return navigate('/playbook');
-			}
 
 			for (let i = 0; i < data?.length; i++) {
 				if (
@@ -140,7 +146,6 @@ const WorkflowsTab = ({ searchValue }) => {
 			if (fetchMore) {
 				myWorkflowData = [...(info?.myWorkflowData || [])]?.concat(myWorkflowData);
 			}
-			localStorage.setItem('showInitialLoader', true);
 			setInfo((prev) => ({
 				...prev,
 				loading: false,
@@ -273,7 +278,7 @@ const WorkflowsTab = ({ searchValue }) => {
 							overflowX: 'hidden',
 						}}
 						className="tetsing"
-						height="calc(100vh - 470px)"
+						height="calc(100vh - 350px)"
 					>
 						<div className="workflows-tab">
 							{info?.myWorkflowData?.map((workflow, index) => {
