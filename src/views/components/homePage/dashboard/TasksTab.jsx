@@ -119,9 +119,10 @@ const TasksTab = () => {
 		isCreateModalOpen: false,
 		isCreatingSubtask: true,
 		properties: [],
-		todayTasksList: [],
-		overDueTasksList: [],
-		dueTillTodayTasksList: [],
+		taskPreferences: {
+			preferenceType: 'taskPreference',
+			preferences: defaultPreference,
+		},
 		selectedOption: 'pending',
 		sidebarIsOpen: false,
 		selectedRow: null,
@@ -130,31 +131,28 @@ const TasksTab = () => {
 		workflows: [],
 		tenantUsers: [],
 		taskData: {},
-		hasNextPageForTodayTasks: false,
-		hasNextPageForOverdueTasks: false,
-		hasNextPageForDueTillToday: false,
-		currentPageForTodayTasks: 1,
-		currentPageForOverdueTasks: 1,
-		currentPageForDueTillTodayTasks: 1,
 		loadingSkeleton: true,
 	});
 
 	const debounceTimeout = useRef(null);
 
-	const taskLabels = {
-		pending: {
-			label: 'Pending actions till today',
-			count: tasksCountForToday + tasksCountForOverdue,
-		},
-		today: {
-			label: 'Today',
-			count: tasksCountForToday,
-		},
-		overdue: {
-			label: 'Overdue',
-			count: tasksCountForOverdue,
-		},
-	};
+	const taskLabels = useMemo(
+		() => ({
+			pending: {
+				label: 'Pending actions till today',
+				count: tasksCountForToday + tasksCountForOverdue,
+			},
+			today: {
+				label: 'Today',
+				count: tasksCountForToday,
+			},
+			overdue: {
+				label: 'Overdue',
+				count: tasksCountForOverdue,
+			},
+		}),
+		[tasksCountForToday, tasksCountForOverdue],
+	);
 
 	const responseMetadata = useMemo(
 		() => ({
@@ -358,6 +356,16 @@ const TasksTab = () => {
 			}));
 		}
 	}, [workflowslist]);
+
+	useEffect(() => {
+		if (info?.taskPreferences?.preferences) {
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				properties: mapPropertyType(),
+			}));
+		}
+	}, [info?.taskPreferences?.preferences]);
+
 	useEffect(() => {
 		if (listTasksForToday) {
 			if (listTasksForToday?.data) {
@@ -412,6 +420,42 @@ const TasksTab = () => {
 			}));
 		}
 	}, [taskMetadata]);
+
+	const mapPropertyType = useCallback(() => {
+		let properties = [];
+		for (let key in responseMetadata) {
+			if (
+				key === '__typename' ||
+				key === '_id' ||
+				key === 'workflowTemplateId' ||
+				key === 'completedAt'
+			) {
+				continue;
+			}
+
+			const {
+				type = null,
+				name = null,
+				Icon = null,
+				isTitle = false,
+			} = responseMetadata[key] || {};
+			const { show, order } = info?.taskPreferences?.preferences?.[key] || {
+				show: false,
+				order: 0,
+			};
+
+			properties.push({
+				value: key,
+				type,
+				label: name,
+				Icon,
+				show,
+				order,
+				isTitle,
+			});
+		}
+		return properties;
+	}, [info?.taskPreferences?.preferences]);
 
 	const getTodayTasksCount = () => {
 		const payload = {
@@ -833,7 +877,7 @@ const TasksTab = () => {
 				</div>
 			</div>
 			<ListViewSidebar
-				selectedRow={info?.selectedSubTask || info?.selectedRow}
+				selectedRow={info?.selectedRow}
 				isShowingSubTask={
 					info?.selectedSubTask !== undefined && info?.selectedSubTask !== null
 				}
