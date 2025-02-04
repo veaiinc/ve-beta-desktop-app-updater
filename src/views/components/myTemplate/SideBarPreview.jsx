@@ -9,6 +9,7 @@ import { Drawer } from 'antd';
 import { fetchOriginSelection, getCurrentWorkspaceId } from '../../../helpers';
 import CopiedModal from '../modalsV2/workflowsModals/CopiedModal';
 import { Spin } from 'antd';
+import Spinner from '../../components/loaders/Spinner';
 
 let origin = fetchOriginSelection();
 
@@ -16,6 +17,7 @@ const SideBarPreview = ({ open, onClose, activeTemplate, openFileLeadModal }) =>
 	const {
 		templates: { getSpecificTemplatesInfo, specificTemplatesInfo },
 		profileInfo: { userWorkSpaceList, getTenantSettings, tennantSettingsData },
+		activityInfo: { createSmartfile, smartfile },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -26,6 +28,12 @@ const SideBarPreview = ({ open, onClose, activeTemplate, openFileLeadModal }) =>
 		pendingCopyAction: null,
 		copyLink: null,
 	});
+
+	useEffect(() => {
+		if (smartfile?._id) {
+			window.location.href = `${origin}/${smartfile?._id}?workflow=true&templateId=${info?.activeTemplateData?._id}`;
+		}
+	}, [smartfile]);
 
 	useEffect(() => {
 		setInfo((prev) => ({
@@ -98,6 +106,18 @@ const SideBarPreview = ({ open, onClose, activeTemplate, openFileLeadModal }) =>
 		}));
 	}, []);
 
+	const handleTemplateClick = async () => {
+		setInfo((prev) => ({ ...prev, loading: true }));
+		const payload = {
+			smartFileInput: {
+				templateId: activeTemplate?._id,
+				title: activeTemplate?.title,
+			},
+		};
+		await createSmartfile(payload);
+		setInfo((prev) => ({ ...prev, loading: false }));
+	};
+
 	return (
 		<Drawer
 			open={open}
@@ -151,8 +171,19 @@ const SideBarPreview = ({ open, onClose, activeTemplate, openFileLeadModal }) =>
 					))}
 				</div>
 				<div className="buttonContainer">
-					<div className="button" onClick={openFileLeadModal}>
-						Create File
+					<div
+						className="button"
+						onClick={
+							info?.activeTemplateData?.version
+								? handleTemplateClick
+								: openFileLeadModal
+						}
+					>
+						{info?.loading ? (
+							<Spinner height={'10px'} width={'10px'} color={'black'} />
+						) : (
+							'Create File'
+						)}
 					</div>
 				</div>
 			</div>
