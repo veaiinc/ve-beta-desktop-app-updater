@@ -17,6 +17,18 @@
 			border-collapse: separate;
 			border-spacing: 0;
 			table-layout: fixed;
+
+			.noDataMessage {
+				padding: 30px 20px;
+				font-size: 14px;
+				color: #e7e7e7;
+			}
+
+			.errorContainer {
+				padding: 30px 20px;
+				font-size: 14px;
+				color: #e7e7e7;
+			}
 		}
 	}
 

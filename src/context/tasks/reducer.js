@@ -140,6 +140,24 @@ const actionHandlers = {
 			]?.filter((item) => item?._id !== action?.payload?._id),
 		},
 	}),
+	UPDATE_TASK_VIEWS: (state, action) => ({
+		...state,
+		taskMetadata: {
+			...state.taskMetadata,
+			views: action?.payload,
+		},
+	}),
+	SET_TASK_PREFERENCES: (state, action) => ({
+		...state,
+		taskPreference: action?.payload,
+	}),
+	DELETE_TASK_VIEW: (state, action) => ({
+		...state,
+		taskMetadata: {
+			...state.taskMetadata,
+			views: state?.taskMetadata?.views?.filter((item) => item?._id !== action?.payload),
+		},
+	}),
 	UPDATE_TASK_STATE: (state, action) => ({
 		...state,
 		...action?.payload,
