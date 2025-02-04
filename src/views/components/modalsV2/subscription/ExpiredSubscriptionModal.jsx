@@ -30,9 +30,15 @@ const ExpiredSubscriptionModal = () => {
 		>
 			<div className="expiredSubscriptionParentContainerModal">
 				<div className="expiredSubscriptionModalHeader">
-					<span className="expiredModalHeaderText">
-						Your Plan has been <br></br>Expired !
-					</span>
+					{validateExpiryData?.isExpired ? (
+						<span className="expiredModalHeaderText">
+							Your Plan has been <br></br>Expired !
+						</span>
+					) : (
+						<span className="expiredModalHeaderText">
+							You may have either crossed the provided limit ,check your plan once!
+						</span>
+					)}
 					<span className="closeExpiredModalWrapper" onClick={closeModal}>
 						<Close />
 					</span>

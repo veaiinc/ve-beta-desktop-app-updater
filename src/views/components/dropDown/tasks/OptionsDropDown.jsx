@@ -61,13 +61,12 @@ const OptionsDropDown = ({
 	};
 
 	const handleBack = useCallback(() => {
-		console.log('handleBack');
 		setInfo((prev) => ({ ...prev, selected: null }));
 	}, []);
 
 	const handleLayoutChange = useCallback(
 		(option) => {
-			updateViewInfo({ view: option });
+			updateViewInfo({ viewType: option });
 		},
 		[updateViewInfo],
 	);
@@ -143,7 +142,7 @@ const OptionsDropDown = ({
 					handleBack={handleBack}
 					handleClose={handleClose}
 					handleLayoutChange={handleLayoutChange}
-					view={viewData?.view}
+					view={viewData?.viewType}
 					layoutOptions={layoutOptions}
 				/>
 			),
@@ -155,9 +154,10 @@ const OptionsDropDown = ({
 			colors,
 			handleClose,
 			handleBack,
-			handleLayoutChange,
-			viewData,
 			handlePropertyToggle,
+			handleLayoutChange,
+			viewData?.viewType,
+			layoutOptions,
 		],
 	);
 
@@ -201,7 +201,8 @@ const OptionsDropDown = ({
 										<span className="view-details-listItem-value">
 											{
 												layoutOptions.find(
-													(option) => option?.value === viewData?.view,
+													(option) =>
+														option?.value === viewData?.viewType,
 												)?.label
 											}
 											<ChevronRightThinSvg />

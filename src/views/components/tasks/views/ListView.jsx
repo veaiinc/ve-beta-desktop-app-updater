@@ -32,7 +32,7 @@ const ListView = ({
 			{loading ? (
 				generateSkeleton()
 			) : error ? (
-				<span style={{ color: '#ff9b9b', margin: '10px auto' }}>{error}</span>
+				<div className="errorContainer">{error}</div>
 			) : data?.length !== 0 ? (
 				<InfiniteScroll
 					dataLength={data?.length || 0}
@@ -62,7 +62,7 @@ const ListView = ({
 					))}
 				</InfiniteScroll>
 			) : (
-				<span style={{ color: '#808080', margin: '10px auto' }}>No tasks found</span>
+				<div className="noDataMessage">No tasks found</div>
 			)}
 		</div>
 	);
