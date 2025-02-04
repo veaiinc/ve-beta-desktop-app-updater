@@ -4,9 +4,12 @@ import React, { useContext, useState, useCallback } from 'react';
 import '../../../assets/scss/globalComponents/quickActions.scss';
 import { useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
+import ProposalsPopup from '../../components/docs/ProposalsPopup';
+import CreateClientModal from '../../components/modalsV2/contacts/CreateClientModal';
+import CreateTaskPopup from '../../components/modalsV2/tasks/CreateTaskPopup';
 
 const dropdownOptions = [
-	{ id: 0, title: 'Client ', value: 'client' },
+	{ id: 0, title: 'Lead', value: 'client' },
 	{ id: 2, title: 'Meeting', value: 'meeting' },
 	{ id: 3, title: 'Task', value: 'task' },
 	{ id: 4, title: 'Document', value: 'document' },
@@ -18,6 +21,9 @@ const dropdownOptions = [
 const QuickActions = ({ styles }) => {
 	const [info, setInfo] = useState({
 		dropdown: false,
+		openProposalPopup: false,
+		openClientPopup: false,
+		// openTaskPopup: false,
 	});
 
 	let {
@@ -29,11 +35,19 @@ const QuickActions = ({ styles }) => {
 		if (type === 'meeting') {
 			navigate('/calendar');
 		} else if (type === 'document') {
-			navigate('/docs');
+			setInfo({ ...info, openProposalPopup: true });
 		} else if (type === 'client') {
-			toggleCreateLeadModal({ createLeadModalContextState: true });
+			setInfo({ ...info, openClientPopup: true });
 		} else if (type === 'task') {
 			navigate('/tasks');
+		} else if (type === 'proposal') {
+			setInfo({ ...info, openProposalPopup: true });
+		} else if (type === 'form') {
+			setInfo({ ...info, openProposalPopup: true });
+		} else if (type === 'invoice') {
+			setInfo({ ...info, openProposalPopup: true });
+		} else if (type === 'contract') {
+			setInfo({ ...info, openProposalPopup: true });
 		}
 	}, []);
 	return (
@@ -65,6 +79,14 @@ const QuickActions = ({ styles }) => {
 					+ New
 				</button>
 			</Tooltip>
+			<ProposalsPopup
+				open={info?.openProposalPopup}
+				closeModal={() => setInfo({ ...info, openProposalPopup: false })}
+			/>
+			<CreateClientModal
+				modalIsOpen={info?.openClientPopup}
+				closeModal={() => setInfo({ ...info, openClientPopup: false })}
+			/>
 		</div>
 	);
 };

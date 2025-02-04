@@ -16,6 +16,7 @@ const SideBarPreview = ({ open, onClose, activeTemplate, openFileLeadModal }) =>
 	const {
 		templates: { getSpecificTemplatesInfo, specificTemplatesInfo },
 		profileInfo: { userWorkSpaceList, getTenantSettings, tennantSettingsData },
+		activityInfo: { createSmartfile, smartfile },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -46,6 +47,33 @@ const SideBarPreview = ({ open, onClose, activeTemplate, openFileLeadModal }) =>
 			getTenantSettings();
 		}
 	}, [tennantSettingsData]);
+
+	useEffect(() => {
+		if (smartfile?._id) {
+			window.location.href = `${origin}/${smartfile?._id}?workflow=true&templateId=${info?.activeTemaplateData?._id}`;
+		}
+	}, [smartfile]);
+
+	const handleTemplateClick = async (template) => {
+		if (info?.loading) return;
+		setInfo((prev) => ({ ...prev, loading: true }));
+
+		const payload = {
+			smartFileInput: {
+				templateId: template?._id,
+				title: template?.title,
+			},
+		};
+
+		try {
+			await createSmartfile(payload);
+		} catch (error) {
+			console.error('Failed to create smartfile:', error);
+		} finally {
+			setInfo((prev) => ({ ...prev, loading: false }));
+			console.log(smartfile, 'smartfile');
+		}
+	};
 
 	const performExtraCheck = useCallback(
 		async (currentWorkspaceId) => {
@@ -151,7 +179,16 @@ const SideBarPreview = ({ open, onClose, activeTemplate, openFileLeadModal }) =>
 					))}
 				</div>
 				<div className="buttonContainer">
-					<div className="button" onClick={openFileLeadModal}>
+					<div
+						className="button"
+						onClick={() => {
+							if (info?.activeTemplate?.version) {
+								handleTemplateClick(info?.activeTemplate);
+							} else {
+								openFileLeadModal();
+							}
+						}}
+					>
 						Create File
 					</div>
 				</div>
