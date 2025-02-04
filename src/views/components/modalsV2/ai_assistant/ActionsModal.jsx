@@ -84,6 +84,7 @@ const ActionsModal = ({
 						id: Date.now() + Math.random(),
 						name: v?.name,
 						type: v?.type,
+						description: v?.description || '',
 					})) || [],
 				headers:
 					selectedAction?.headers?.length > 0
@@ -137,14 +138,14 @@ const ActionsModal = ({
 
 		// Validate variables have required fields and proper types
 		const invalidVariables = info?.variables?.some((v) => {
-			if (!v?.name || !v?.type) return true;
+			if (!v?.name || !v?.type || !v?.description) return true;
 			// Convert type to lowercase for comparison
 			const type = v?.type?.toLowerCase();
 			return !['string', 'integer', 'float', 'boolean']?.includes(type);
 		});
 
 		if (invalidVariables) {
-			message.error('All variables must have valid name and type');
+			message.error('All variables must have valid name, type and description');
 			return false;
 		}
 
@@ -193,7 +194,7 @@ const ActionsModal = ({
 				return {
 					name: variable?.name,
 					type: type === 'text' ? 'string' : type,
-					description: `Variable for ${variable?.name}`,
+					description: variable?.description || `Variable for ${variable?.name}`,
 				};
 			});
 
@@ -347,13 +348,14 @@ const ActionsModal = ({
 			id: Date.now(),
 			name: '',
 			type: 'string',
+			description: '',
 		};
 		updateInfo({ variables: [...info?.variables, newVariable] });
 	};
 
-	const handleVariableNameChange = (id, name) => {
+	const handleVariableFieldChange = (id, field, value) => {
 		const updatedVariables = info?.variables?.map((variable) =>
-			variable?.id === id ? { ...variable, name } : variable,
+			variable?.id === id ? { ...variable, [field]: value } : variable,
 		);
 		updateInfo({ variables: updatedVariables });
 	};
@@ -536,75 +538,96 @@ const ActionsModal = ({
 
 					<div className="variablesContent">
 						{info?.variables?.map((variable) => (
-							<div key={variable?.id} className="variableRow">
-								<input
-									type="text"
-									className="variableInput"
-									placeholder="Input"
-									value={variable?.name}
-									onChange={(e) =>
-										handleVariableNameChange(variable.id, e.target.value)
-									}
-								/>
-								<div className="variableType">
-									<Tooltip
-										open={info?.openVariableTypeId === variable?.id}
-										onOpenChange={(visible) =>
-											handleVariableTypeDropdownVisibility(
+							<>
+								<div key={variable?.id} className="variableRow">
+									<input
+										type="text"
+										className="variableInput"
+										placeholder="Input"
+										value={variable?.name}
+										onChange={(e) =>
+											handleVariableFieldChange(
 												variable?.id,
-												visible,
+												'name',
+												e.target.value,
 											)
 										}
-										placement="bottomLeft"
-										title={
-											<div className="actions-dropdown">
-												{variableTypes?.map((type) => (
-													<div
-														key={type}
-														className="actions-dropdown-item"
-														onClick={() =>
-															handleVariableTypeChange(
-																variable?.id,
-																type,
-															)
-														}
-													>
-														{type}
-													</div>
-												))}
+									/>
+									<div className="variableType">
+										<Tooltip
+											open={info?.openVariableTypeId === variable?.id}
+											onOpenChange={(visible) =>
+												handleVariableTypeDropdownVisibility(
+													variable?.id,
+													visible,
+												)
+											}
+											placement="bottomLeft"
+											title={
+												<div className="actions-dropdown">
+													{variableTypes?.map((type) => (
+														<div
+															key={type}
+															className="actions-dropdown-item"
+															onClick={() =>
+																handleVariableTypeChange(
+																	variable?.id,
+																	type,
+																)
+															}
+														>
+															{type}
+														</div>
+													))}
+												</div>
+											}
+											arrow={false}
+											trigger={'click'}
+											color={'transparent'}
+											overlayStyle={{
+												minWidth: 'fit-content',
+												padding: '0',
+											}}
+											overlayInnerStyle={{
+												padding: 0,
+												backgroundColor: 'transparent',
+											}}
+										>
+											<div className="method-dropdown">
+												{variable?.type}
+												<DownSvg
+													className={`${
+														info?.openVariableTypeId === variable?.id
+															? 'open'
+															: ''
+													}`}
+												/>
 											</div>
-										}
-										arrow={false}
-										trigger={'click'}
-										color={'transparent'}
-										overlayStyle={{
-											minWidth: 'fit-content',
-											padding: '0',
-										}}
-										overlayInnerStyle={{
-											padding: 0,
-											backgroundColor: 'transparent',
-										}}
+										</Tooltip>
+									</div>
+									<div
+										className="deleteVariable"
+										onClick={() => handleVariableDelete(variable?.id)}
 									>
-										<div className="method-dropdown">
-											{variable?.type}
-											<DownSvg
-												className={`${
-													info?.openVariableTypeId === variable?.id
-														? 'open'
-														: ''
-												}`}
-											/>
-										</div>
-									</Tooltip>
+										<TrashSvg className="trash" />
+									</div>
 								</div>
-								<div
-									className="deleteVariable"
-									onClick={() => handleVariableDelete(variable?.id)}
-								>
-									<TrashSvg className="trash" />
+								<div className="variableRow">
+									<input
+										type="text"
+										className="variableInput"
+										placeholder="Description"
+										value={variable?.description}
+										onChange={(e) =>
+											handleVariableFieldChange(
+												variable?.id,
+												'description',
+												e.target.value,
+											)
+										}
+									/>
 								</div>
-							</div>
+							</>
 						))}
 
 						{info?.variables?.length === 0 && (
@@ -790,8 +813,8 @@ const HeadersTab = ({ headers, onAddHeader, onHeaderChange, onHeaderDelete }) =>
 			))}
 			{headers?.length === 0 && (
 				<div className="emptyState">
-					<p>No inputs added</p>
-					<p>Add inputs to extract from chat</p>
+					<p>No headers added</p>
+					<p>Add headers to the API call</p>
 				</div>
 			)}
 			<div className="addHeaderButton" onClick={onAddHeader}>

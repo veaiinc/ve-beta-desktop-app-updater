@@ -12,6 +12,7 @@ const WorkflowSlugList = ({
 	fetchMoreWorkflows,
 	hasNextPage,
 	handleWorkflowSlugSelection,
+	query,
 }) => {
 	const [info, setInfo] = useState({
 		value: workflowSlug || null,
@@ -63,7 +64,7 @@ const WorkflowSlugList = ({
 				}}
 				onChange={(workflowSlug) => {
 					setInfo((prev) => ({ ...prev, value: workflowSlug || '' }));
-					handleWorkflowSlugSelection(workflowSlug);
+					handleWorkflowSlugSelection(workflowSlug, query);
 				}}
 				getPopupContainer={(trigger) => trigger?.parentNode}
 			/>
@@ -71,7 +72,7 @@ const WorkflowSlugList = ({
 	);
 };
 
-const WorkflowSlugSelector = ({ workflowSlug, handleWorkflowSlugSelection }) => {
+const WorkflowSlugSelector = ({ workflowSlug, handleWorkflowSlugSelection, query = '' }) => {
 	const {
 		templates: { getWorkflowsList, workflowslist, moreWorkList },
 	} = useContext(Context);
@@ -176,6 +177,7 @@ const WorkflowSlugSelector = ({ workflowSlug, handleWorkflowSlugSelection }) => 
 					fetchMoreWorkflows={fetchMoreWorkflows}
 					hasNextPage={info?.hasNextPage}
 					handleWorkflowSlugSelection={handleWorkflowSlugSelection}
+					query={query}
 				/>
 			</div>
 		</div>
