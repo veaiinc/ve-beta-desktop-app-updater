@@ -22,7 +22,7 @@ const options = [
 	},
 	{
 		id: 3,
-		title: 'Pending actions',
+		title: 'Priority',
 		value: 'Pending actions',
 	},
 	{
@@ -96,7 +96,7 @@ const WorkflowCard = memo(
 									}`}
 									onClick={() => setActiveTab(option?.value)}
 								>
-									{option?.value}
+									{option?.title}
 								</div>
 							);
 						})}
