@@ -64,7 +64,9 @@ const useSubscription = () => {
 				totalTenantUsers,
 				...restrictMapper,
 			};
-			const usedStorageLimitInGB = (totalStorageUsedInBytes / (1024 * 1024)).toFixed(2);
+			const usedStorageLimitInGB = (totalStorageUsedInBytes / (1024 * 1024 * 1024)).toFixed(
+				2,
+			);
 
 			let uploadAllowed = false;
 			if (storageLimitInGB) {
