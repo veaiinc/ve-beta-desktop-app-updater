@@ -23,6 +23,22 @@ const AiActions = ({ assistant }) => {
 		selectedAction: null,
 	});
 
+	useEffect(() => {
+		if (info?.assistantId) {
+			getActions(info?.assistantId);
+		}
+	}, [info?.assistantId]);
+
+	useEffect(() => {
+		if (aiActions) {
+			setInfo((prev) => ({
+				...prev,
+				aiActionList: aiActions,
+				actionsLoading: false,
+			}));
+		}
+	}, [aiActions]);
+
 	const handleActionAdded = useCallback((newAction) => {
 		setInfo((prev) => ({
 			...prev,
@@ -40,22 +56,6 @@ const AiActions = ({ assistant }) => {
 			selectedAction: null,
 		}));
 	}, []);
-
-	useEffect(() => {
-		if (info?.assistantId) {
-			getActions(info?.assistantId);
-		}
-	}, [info?.assistantId]);
-
-	useEffect(() => {
-		if (aiActions) {
-			setInfo((prev) => ({
-				...prev,
-				aiActionList: aiActions,
-				actionsLoading: false,
-			}));
-		}
-	}, [aiActions]);
 
 	const closeActionModal = useCallback(() => {
 		setInfo((prevStates) => ({
