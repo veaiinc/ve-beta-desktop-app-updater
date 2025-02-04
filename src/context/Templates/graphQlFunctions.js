@@ -11,6 +11,7 @@ export const getTemmplatesQuery = gql`
 					order
 					_id
 					isPublic
+					label
 				}
 				status
 
@@ -19,6 +20,7 @@ export const getTemmplatesQuery = gql`
 				workflows
 				templates
 				steps
+				version
 				# steps {
 				# 	_id
 				# 	criteria
@@ -123,13 +125,14 @@ export const getSpecificWorkflowTemplateDetailsQuery = gql`
 			title
 			sendAt
 			approvalRequired
+			_id
 		}
 	}
 `;
 
 export const deleteWorkflowStepQuery = gql`
-	mutation DeleteStep($templateId: ID!, $stepId: ID!) {
-		deleteStep(templateId: $templateId, stepId: $stepId) {
+	mutation RemoveStep($removeStepInput: RemoveStepInput) {
+		removeStep(removeStepInput: $removeStepInput) {
 			message
 		}
 	}
@@ -237,6 +240,7 @@ export const getWorkflowListQuery = gql`
 					email
 					name
 				}
+				status
 				slug
 				modules
 				formResponse
@@ -255,6 +259,7 @@ export const getTemplatesListForCreateLeadQuery = gql`
 			data {
 				_id
 				title
+				status
 			}
 		}
 	}
@@ -308,9 +313,7 @@ export const changeWorkflowStatusQuery = gql`
 
 export const getSignedUrlForContractsQuery = gql`
 	mutation UploadContractSignedUrl($uploadContractSignedUrlId: ID!) {
-		uploadContractSignedUrl(id: $uploadContractSignedUrlId) {
-			signedUrl
-		}
+		uploadContractSignedUrl(id: $uploadContractSignedUrlId)
 	}
 `;
 
@@ -340,7 +343,6 @@ export const getSpecifiTemplatesInfoQuery = gql`
 			tenantId
 			title
 			templates
-			steps
 			# steps {
 			# 	_id
 			# 	criteria
@@ -354,6 +356,7 @@ export const getSpecifiTemplatesInfoQuery = gql`
 			# 	order
 			# 	type
 			# }
+			steps
 			slug
 		}
 	}
@@ -391,7 +394,6 @@ export const deleteWorkflowTemplatesMutation = gql`
 	}
 `;
 
-// Sheshant
 export const getTabItemCountQuery = gql`
 	query Query {
 		getNumberOfRequiredActions {
@@ -404,7 +406,6 @@ export const getTabItemCountQuery = gql`
 	}
 `;
 
-// Sheshant
 export const getRequiredActionDetailsQuery = gql`
 	query Query($filters: RequiredActionsFiltersInput) {
 		listRequiredActions(filters: $filters) {
@@ -420,6 +421,8 @@ export const getRequiredActionDetailsQuery = gql`
 				templateId
 			}
 			hasNextPage
+			limit
+			currentPage
 		}
 	}
 `;
@@ -448,6 +451,36 @@ export const getActivityLogsQuery = gql`
 				summary
 			}
 			hasNextPage
+		}
+	}
+`;
+
+export const addNewStepsQuery = gql`
+	mutation AddStep($templateId: ID!, $stepInput: StepInput!) {
+		addStep(templateId: $templateId, stepInput: $stepInput)
+	}
+`;
+
+export const updateStepsQuery = gql`
+	mutation UpdateStep($templateId: ID!, $updateStepInput: UpdateStepInput!) {
+		updateStep(templateId: $templateId, updateStepInput: $updateStepInput) {
+			message
+		}
+	}
+`;
+
+export const getFormResponsesListQuery = gql`
+	query FormResponsesList($filters: FileFiltersInput) {
+		formResponsesList(filters: $filters) {
+			data
+			totalPages
+			totalDocs
+			limit
+			currentPage
+			hasNextPage
+			hasPrevPage
+			prevPage
+			nextPage
 		}
 	}
 `;

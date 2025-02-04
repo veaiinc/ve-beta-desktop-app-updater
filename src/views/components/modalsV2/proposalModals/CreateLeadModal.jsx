@@ -7,6 +7,7 @@ import ReactModal from '../../modalsV2/index';
 import InputForModules from '../../input/inputForModules';
 import HeadersDropDownComp from '../../dropDown/HeadersDropDownComp';
 import '../../../../assets/scss/sales/createLeadModal.scss';
+import { message } from 'antd';
 const validator = require('validator');
 const CreateLead = ({ workflow, modalIsOpen, closeModal }) => {
 	let {
@@ -20,6 +21,7 @@ const CreateLead = ({ workflow, modalIsOpen, closeModal }) => {
 			toggleCreateLeadModal,
 			createLeadModalContextState,
 		},
+		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -207,10 +209,19 @@ const CreateLead = ({ workflow, modalIsOpen, closeModal }) => {
 	}, []);
 
 	const createLeadFunc = useCallback(async () => {
+		if (
+			validateExpiryData &&
+			validateExpiryData?.restrictWorkflows &&
+			validateExpiryData?.isExpired
+		) {
+			return updateSubscriptionState({ expiredSubscriptionModal: true });
+		}
+
 		if (createButtonActiveState) {
 			if (isLoading) {
 				return;
 			}
+
 			setLoading(true);
 			const payload = {
 				workflowInput: {
@@ -225,21 +236,25 @@ const CreateLead = ({ workflow, modalIsOpen, closeModal }) => {
 			if (leadDetails?.['phoneNumber']?.length) {
 				if (!validator?.isMobilePhone(leadDetails?.['phoneNumber'])) {
 					setLoading(false);
-					return setErrorState((prevState) => ({
+					setErrorState((prevState) => ({
 						...prevState,
 						isphoneNumberError: true,
 						phoneNumberErrorMessage: 'Invalid phone number',
 					}));
+					return message.error('Invalid phone number');
 				}
 				payload.workflowInput.clientDetails.phoneNumber = leadDetails['phoneNumber'];
 			}
+
 			if (leadDetails?.emailId?.length) {
 				if (!validator?.isEmail(leadDetails?.emailId)) {
-					return setErrorState((prevState) => ({
+					setLoading(false);
+					setErrorState((prevState) => ({
 						...prevState,
 						isemailError: true,
 						emailErrorMessage: 'Enter Valid Email Id',
 					}));
+					return message.error('Enter Valid Email Id');
 				}
 				payload.workflowInput.clientDetails.email = leadDetails?.['emailId'];
 			}
@@ -258,7 +273,7 @@ const CreateLead = ({ workflow, modalIsOpen, closeModal }) => {
 				}));
 			}
 		}
-	}, [info?.selectedTemplate, leadDetails, createButtonActiveState, isLoading]);
+	}, [leadDetails, createButtonActiveState, isLoading, info, validateExpiryData]);
 
 	return (
 		<ReactModal isOpen={modalIsOpen || createLeadModalContextState} closeModal={closeModalFunc}>
@@ -295,7 +310,12 @@ const CreateLead = ({ workflow, modalIsOpen, closeModal }) => {
 								...prev,
 								existingLeadSource: !prev.existingLeadSource,
 							}));
-							setLeadDetails((prev) => ({ ...prev, name: '', emailId: '' }));
+							setLeadDetails((prev) => ({
+								...prev,
+								name: '',
+								emailId: '',
+								phoneNumber: '',
+							}));
 						}}
 					>
 						{!info?.existingLeadSource ? <Checked /> : <Unchecked />}

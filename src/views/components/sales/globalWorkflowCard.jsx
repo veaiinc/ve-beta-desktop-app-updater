@@ -7,7 +7,6 @@ let origin = fetchOriginSelection();
 
 const GlobalWorkflowCard = ({ data, onClickFunc }) => {
 	const [info, setInfo] = useState({
-		formParsedContentHtml: '',
 		publicModules: [],
 		privateModules: [],
 	});
@@ -16,7 +15,7 @@ const GlobalWorkflowCard = ({ data, onClickFunc }) => {
 		if (data) {
 			const { moduleTemplates, templates } = data;
 
-			let formData, formParsedContentHtml;
+			let formData;
 			let publicModules = [],
 				privateModules = [];
 			for (let i = 0; i < moduleTemplates.length; i++) {
@@ -34,11 +33,10 @@ const GlobalWorkflowCard = ({ data, onClickFunc }) => {
 			}
 			for (let i = 0; i < templates?.length; i++) {
 				if (templates?.[i]?._id === formData?._id) {
-					formParsedContentHtml = templates?.[i]?.parsedHtmlContent;
 					break;
 				}
 			}
-			setInfo((prev) => ({ ...prev, formParsedContentHtml, publicModules, privateModules }));
+			setInfo((prev) => ({ ...prev, publicModules, privateModules }));
 		}
 	}, [data]);
 

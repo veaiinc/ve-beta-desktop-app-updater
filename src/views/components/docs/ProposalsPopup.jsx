@@ -20,6 +20,8 @@ const initialState = {
 	hasNextPage: false,
 	currentPage: 1,
 	loading: false,
+	timeout: null,
+	searchChanged: false,
 };
 
 const ProposalPopup = ({ open, closeModal }) => {
@@ -36,15 +38,9 @@ const ProposalPopup = ({ open, closeModal }) => {
 		activityInfo: { createSmartfile, smartfile },
 	} = useContext(Context);
 
-	// useEffect(() => {
-	// 	// getMyWorkflowsTemplatesData(1);
-	// 	return () => {
-	// 		setInfo((prev) => ({
-	// 			...prev,
-	// 			...initialState,
-	// 		}));
-	// 	};
-	// }, []);
+	useEffect(() => {
+		getMyWorkflowsTemplatesData(1);
+	}, []);
 
 	useEffect(() => {
 		if (myWorkflows) {
@@ -63,6 +59,24 @@ const ProposalPopup = ({ open, closeModal }) => {
 			window.location.href = `${origin}/${smartfile?._id}?workflow=true&templateId=${info?.activeTemaplateData?._id}`;
 		}
 	}, [smartfile]);
+
+	useEffect(() => {
+		if (info?.searchChanged) {
+			handleDebounceFetch();
+		}
+	}, [info.search, info.searchChanged]);
+
+	const handleDebounceFetch = useCallback(() => {
+		clearInterval(info?.timeout);
+		const timeout = setTimeout(() => {
+			getMyWorkflowsTemplatesData(1, info.search);
+			setInfo((prev) => ({
+				...prev,
+				timeout: null,
+			}));
+		}, 800);
+		setInfo((prev) => ({ ...prev, timeout }));
+	}, [info]);
 
 	const handleTemplateClick = async (template) => {
 		if (info?.loading) return;
@@ -134,19 +148,9 @@ const ProposalPopup = ({ open, closeModal }) => {
 		[info?.workflowTemplates],
 	);
 
-	useEffect(() => {
-		// if (info?.search) {
-		const timeout = setTimeout(() => {
-			getMyWorkflowsTemplatesData(1, info.search);
-		}, 500);
-
-		return () => clearTimeout(timeout);
-		// }
-	}, [info.search, getMyWorkflowsTemplatesData]);
-
 	const handleSearchChange = (e) => {
 		const value = e.target.value;
-		setInfo((prev) => ({ ...prev, search: value }));
+		setInfo((prev) => ({ ...prev, search: value, searchChanged: true }));
 	};
 
 	return (

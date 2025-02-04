@@ -1,197 +1,203 @@
 .listViewHeaderContainer {
-	background-color: rgb(17 17 17);
+	// background-color: rgb(17 17 17);
 	// position: sticky;
 	// top: 0;
 	// z-index: 1;
 	display: flex;
 	flex-direction: column;
-	gap: 16px;
-	padding-bottom: 16px;
+	// gap: 16px;
+	// padding-bottom: 16px;
 
-	.listViewHeader-title {
-		color: #e8e8e8;
-		font-family: Inter;
-		font-size: 24px;
-		font-style: normal;
-		font-weight: 500;
-		line-height: normal;
-	}
-	.listViewHeader {
+	.listViewHeaderTitleWrapper {
 		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		height: fit-content;
-		border-bottom: 1px solid #171819;
+		flex-direction: column;
 		gap: 16px;
 
-		.listViewHeaderTabsContainer {
-			display: flex;
-			align-items: center;
-			gap: 8px;
-			height: 43px;
-			flex: 1;
-			max-width: calc(100% - 300px);
-			overflow: visible;
-			min-width: 0;
+		.listViewHeader-title {
+			color: #e8e8e8;
+			font-family: Inter;
+			font-size: 24px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
 		}
-
-		.listViewHeaderActions {
+		.listViewHeader {
 			display: flex;
 			align-items: center;
-			gap: 12px;
-			flex-shrink: 0;
-			width: fit-content;
-			padding: 4px 0;
-			button {
-				border: none;
-				background: none;
-				width: 20px;
-				height: 20px;
-				cursor: pointer;
+			justify-content: space-between;
+			height: fit-content;
+			border-bottom: 1px solid #171819;
+			gap: 16px;
+
+			.listViewHeaderTabsContainer {
 				display: flex;
 				align-items: center;
-				justify-content: center;
-
-				svg {
-					path {
-						stroke: #e8e8e8 !important;
-					}
-				}
+				gap: 8px;
+				height: 43px;
+				flex: 1;
+				max-width: calc(100% - 300px);
+				overflow: visible;
+				min-width: 0;
 			}
 
-			.listViewHeaderAddTaskButton {
+			.listViewHeaderActions {
 				display: flex;
-				width: fit-content;
-				height: fit-content;
-				padding: 10px 12px;
-				justify-content: center;
 				align-items: center;
-				gap: 16px;
-				border-radius: 100px;
-				border: 1px solid transparent;
-				background-color: #e8e8e8;
-				color: #0b1215;
-				cursor: pointer;
-				font-family: Inter;
-				font-size: 14px;
-				font-style: normal;
-				font-weight: 500;
-				line-height: normal;
-				transition: all 0.3s ease;
-				white-space: nowrap;
+				gap: 12px;
+				flex-shrink: 0;
+				width: fit-content;
+				padding: 4px 0;
+				button {
+					border: none;
+					background: none;
+					width: 20px;
+					height: 20px;
+					cursor: pointer;
+					display: flex;
+					align-items: center;
+					justify-content: center;
 
-				&:hover {
-					background-color: transparent;
-					border: 1px solid #e8e8e8;
-					color: #e8e8e8;
+					svg {
+						path {
+							stroke: #e8e8e8 !important;
+						}
+					}
 				}
 
-				&:disabled {
-					background-color: #2c2e30;
-					color: #939393;
-					cursor: not-allowed;
+				.listViewHeaderAddTaskButton {
+					display: flex;
+					width: fit-content;
+					height: fit-content;
+					padding: 10px 12px;
+					justify-content: center;
+					align-items: center;
+					gap: 16px;
+					border-radius: 100px;
+					border: 1px solid transparent;
+					background-color: #e8e8e8;
+					color: #0b1215;
+					cursor: pointer;
+					font-family: Inter;
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+					transition: all 0.3s ease;
+					white-space: nowrap;
 
 					&:hover {
-						background: rgba(44, 46, 48, 0.7);
-						border: 1px solid transparent;
+						background-color: transparent;
+						border: 1px solid #e8e8e8;
+						color: #e8e8e8;
+					}
+
+					&:disabled {
+						background-color: #2c2e30;
+						color: #939393;
+						cursor: not-allowed;
+
+						&:hover {
+							background: rgba(44, 46, 48, 0.7);
+							border: 1px solid transparent;
+						}
 					}
 				}
-			}
 
-			.searchContainer {
-				position: relative;
-				min-width: 16px;
-				display: inline-block;
-				height: 16px;
-				transition: all 0.3s ease;
-				.searchBtn {
-					display: flex;
-					width: 16px;
-					transform: rotate(-0.037deg);
-					padding: 0px;
-					align-items: center;
-					gap: 10px;
-					flex-shrink: 0;
-					border-radius: 100px;
-					background: transparent;
-					cursor: pointer;
+				.searchContainer {
+					position: relative;
+					min-width: 16px;
+					display: inline-block;
+					height: 16px;
 					transition: all 0.3s ease;
-					position: absolute;
-					right: 0;
-					top: 50%;
-					transform: translateY(-50%);
-
-					.inputAndCloseContainer {
-						display: none;
+					.searchBtn {
+						display: flex;
+						width: 16px;
+						transform: rotate(-0.037deg);
+						padding: 0px;
+						align-items: center;
+						gap: 10px;
+						flex-shrink: 0;
+						border-radius: 100px;
+						background: transparent;
+						cursor: pointer;
 						transition: all 0.3s ease;
-						overflow: hidden;
-						.searchInputTag {
-							flex: 1;
-							background-color: transparent;
-							color: #e4e5e6;
-							transition: all 0.3s ease;
-							border: none;
-							font-family: Inter;
-							font-size: 13px;
-							font-style: normal;
-							font-weight: 400;
-							line-height: normal;
+						position: absolute;
+						right: 0;
+						top: 50%;
+						transform: translateY(-50%);
 
-							&::placeholder {
-								color: #939393;
+						.inputAndCloseContainer {
+							display: none;
+							transition: all 0.3s ease;
+							overflow: hidden;
+							.searchInputTag {
+								flex: 1;
+								background-color: transparent;
+								color: #e4e5e6;
+								transition: all 0.3s ease;
+								border: none;
 								font-family: Inter;
 								font-size: 13px;
 								font-style: normal;
 								font-weight: 400;
 								line-height: normal;
+
+								&::placeholder {
+									color: #939393;
+									font-family: Inter;
+									font-size: 13px;
+									font-style: normal;
+									font-weight: 400;
+									line-height: normal;
+								}
 							}
 						}
 					}
-				}
 
-				.searchExpand {
-					display: flex;
-					width: 140px;
-					opacity: 1;
-					z-index: 99;
-
-					.inputAndCloseContainer {
-						width: 120px;
+					.searchExpand {
 						display: flex;
-						align-items: center;
-						input {
-							width: 100px;
+						width: 140px;
+						opacity: 1;
+						z-index: 99;
+
+						.inputAndCloseContainer {
+							width: 120px;
+							display: flex;
+							align-items: center;
+							input {
+								width: 100px;
+							}
 						}
 					}
 				}
 			}
 		}
-	}
-	.listViewHeaderTabsContainer {
-		display: flex;
-		align-items: center;
-		gap: 8px;
-		height: 43px;
-		width: 100%;
-		overflow: visible;
-
-		.listViewHeaderTabsAddButton {
+		.listViewHeaderTabsContainer {
 			display: flex;
 			align-items: center;
-			justify-content: center;
-			width: 20px;
-			height: 20px;
-			background: none;
-			border: none;
-			cursor: pointer;
+			gap: 8px;
+			height: 43px;
+			width: 100%;
+			overflow: visible;
+
+			.listViewHeaderTabsAddButton {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				width: 20px;
+				height: 20px;
+				background: none;
+				border: none;
+				cursor: pointer;
+			}
 		}
 	}
 	.listViewOptionsContainer {
 		display: flex;
 		align-items: center;
 		width: 100%;
-		padding-top: 16px;
 		gap: 16px;
+		padding: 8px 0;
 		.listView-sortContainer {
 			border-right: 1px solid #171819;
 			padding-right: 16px;

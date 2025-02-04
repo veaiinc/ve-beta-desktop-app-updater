@@ -1,0 +1,50 @@
+
+.textarea-component {
+    width: 100%;
+    position: relative;
+    textarea {
+        display: flex;
+        height: 80px;
+        width: 100%;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+        align-self: stretch;
+        border-radius: 14px;
+        border: 1px solid #2c2d2e;
+        padding: 14px;
+        color: #f2f2f3;
+        font-family: Inter;
+        font-size: 12px;
+        font-style: normal;
+        font-weight: 500;
+        line-height: normal;
+        resize: none;
+        background-color: #202123;
+    }
+
+    label {
+        color: #797e86;
+        font-family: Inter;
+        font-size: 12px;
+        font-style: normal;
+        font-weight: 500;
+        line-height: normal;
+        position: absolute;
+        left: 16px;
+        display: flex;
+        padding: 2px;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        border-radius: 4px;
+        top: -8px;
+        background-color: #202123;
+        transition: all 0.2s ease-in-out;
+    }
+
+    textarea:placeholder-shown + label {
+        top: 14px;
+        background-color: transparent;
+    }
+}
