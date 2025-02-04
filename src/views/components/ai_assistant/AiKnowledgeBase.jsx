@@ -131,7 +131,7 @@ const AiKnowledgeBase = ({ assistant }) => {
 								<Skeleton width="100%" height="36px" borderRadius="6px" />
 							</div>
 						))
-					) : (
+					) : info?.knowledgeBaseFiles?.length > 0 ? (
 						<InfiniteScroll
 							dataLength={info?.knowledgeBaseFiles?.length || 0}
 							next={fetchMoreData}
@@ -166,6 +166,11 @@ const AiKnowledgeBase = ({ assistant }) => {
 								</div>
 							))}
 						</InfiniteScroll>
+					) : (
+						<div className="emptyState">
+							<p>No knowledge base files added</p>
+							<p>Add files to enhance your AI assistant's knowledge</p>
+						</div>
 					)}
 				</div>
 			</div>
