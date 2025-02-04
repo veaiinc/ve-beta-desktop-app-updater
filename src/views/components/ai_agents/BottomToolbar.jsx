@@ -446,9 +446,28 @@ const BottomToolbar = ({
 		[info],
 	);
 
-	const handleMicIconClick = (event) => {
-		connectToRoom();
-	};
+	const handleMicIconClick = useCallback(
+		(event) => {
+			if (!info?.voiceIntegration) {
+				connectToRoom();
+				setInfo((prev) => ({ ...prev, voiceIntegration: true, bigToolbarIsOpen: false }));
+			} else {
+				toggleMute();
+			}
+			event.stopPropagation();
+		},
+
+		[info, connectToRoom],
+	);
+
+	const handleDisConnect = useCallback(
+		(event) => {
+			disconnect();
+			setInfo((prev) => ({ ...prev, voiceIntegration: false }));
+			event.stopPropagation();
+		},
+		[info],
+	);
 
 	const chatIcons = useMemo(
 		() => [
@@ -464,7 +483,7 @@ const BottomToolbar = ({
 			>
 				<PaperClip />
 			</Upload>,
-			<Mic />,
+			<Mic onClick={handleMicIconClick} />,
 		],
 		[info, handleChange],
 	);
@@ -519,7 +538,17 @@ const BottomToolbar = ({
 			) : (
 				''
 			)}
-
+			{info?.voiceIntegration ? (
+				<div style={{ display: 'flex', justifyContent: 'center' }}>
+					<img
+						src={'https://ap.assets.ve.ai/logo/static-tenant.gif'}
+						width={'80px'}
+						height={'80px'}
+					/>
+				</div>
+			) : (
+				''
+			)}
 			{/* bottom toolBarContent */}
 			{!info?.chatModalIsOpen ? (
 				info?.bigToolbarIsOpen ? (
@@ -592,6 +621,13 @@ const BottomToolbar = ({
 							<div className="mic-icon" onClick={handleMicIconClick}>
 								<Mic />
 							</div>
+							{info?.voiceIntegration ? (
+								<div className="mic-icon" onClick={handleDisConnect}>
+									<Close style={{ width: '20px', height: '20px' }} />
+								</div>
+							) : (
+								''
+							)}
 						</div>
 					</div>
 				)

@@ -146,6 +146,7 @@ export const useVoiceIntegration = () => {
 	const getToken = async () => {
 		try {
 			const roomName = `test_room_${Math.floor(Math.random() * 1000)}`;
+			const usertoken = localStorage.getItem('usertoken');
 			console.log('Generating token for room:', roomName);
 
 			const response = await fetch(
@@ -154,8 +155,7 @@ export const useVoiceIntegration = () => {
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json',
-						Authorization:
-							'Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjcyMjRjMDYxNzRhMGZjYTlkNjA2MTQ0IiwidXNlclR5cGUiOiJ0ZW5hbnRVc2VyIiwidXNlck5hbWUiOiJBZGl0aHlhIEd1cnVyYWoiLCJpYXQiOjE3MzY0MzM3MDIsImV4cCI6MTczOTAyNTcwMiwiaXNzIjoidmVhaS1qd3QtaXNzdWVyIn0.XaBQ2YE81zAF_ywp2SsEAntoyjRtVDiDtbqWftLOvTa7yCHe_anKnvnZeFWMGYmBYuKTJZkIOU4tMLErLXkqCHMq9PDWiOGXyRsKJN6diO4tosqofy8KDMroeK8MRtUQYZTf3K_VmBfO0itP7atFCusZChAq7Acd9MmSS7qVh6now8gNv6KEaaZRW7y7_AapGm5_d-Hmq0SN7v6vN8GAtjXgKzmMHDl2pY10PrCJozAi0XvTEnpht501YP1UTb9FtG67L9j8lOO3c8jtCuxxp1EM8Kmfh4jIQMPvhd6NLjd6-PE5kPnexfPF0J_9KJldnDy_NksRAN8JPwPdEnrunA',
+						Authorization: `Bearer ${usertoken}`,
 					},
 					body: {},
 				},
@@ -210,7 +210,7 @@ export const useVoiceIntegration = () => {
 			});
 
 			room.on(RoomEvent.TrackUnsubscribed, (track) => {
-				track.detach().forEach((element) => {
+				track?.detach()?.forEach((element) => {
 					element.remove();
 					console.log('Detached and removed audio element');
 				});
@@ -323,9 +323,9 @@ export const useVoiceIntegration = () => {
 		try {
 			const participant = roomRef.current.localParticipant;
 			if (participant) {
-				participant.audioTracks.forEach((publication) => {
-					if (publication.track) {
-						publication.track.setEnabled(!isMuted);
+				participant?.audioTracks?.forEach((publication) => {
+					if (publication?.track) {
+						publication?.track?.setEnabled(!isMuted);
 						console.log(isMuted ? 'Unmuting' : 'Muting', 'audio');
 					}
 				});
