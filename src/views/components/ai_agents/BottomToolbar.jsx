@@ -23,6 +23,7 @@ import { ReactComponent as Mic } from '../../../assets/svg/ai_agents/mic.svg';
 import { getBase64 } from '../../../helpers';
 import WorkflowSlugSelector from '../calendar/WorkflowSlugSelector';
 import { ReactComponent as AiSparkel } from '../../../assets/svg/calendar/aiSparkel.svg';
+import useVoiceIntegration from '../toolbar/VoiceIntegrations';
 
 const moduleHelper = {
 	tasks: 'tasks',
@@ -53,6 +54,15 @@ const BottomToolbar = ({
 		calendarInfo: { updateCalendarState },
 		tasks: { updateTaskState },
 	} = useContext(Context);
+	const {
+		isConnected,
+		isMuted,
+		audioLevel,
+		connectToRoom,
+		disconnect,
+		toggleMute,
+		toggleKrispNoiseFilter,
+	} = useVoiceIntegration();
 
 	const location = useLocation();
 
@@ -68,9 +78,9 @@ const BottomToolbar = ({
 		uploadedImages: [],
 		chatLoading: false,
 		showFullPage: false,
+		voiceIntegration: false,
 	});
 
-	// console.log(info?.uploadedImages);
 	const [previewOpen, setPreviewOpen] = useState(false);
 	const [previewImage, setPreviewImage] = useState('');
 	const toolbarRef = useRef(null);
@@ -437,7 +447,7 @@ const BottomToolbar = ({
 	);
 
 	const handleMicIconClick = (event) => {
-		event.stopPropagation();
+		connectToRoom();
 	};
 
 	const chatIcons = useMemo(
