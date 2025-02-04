@@ -8,6 +8,14 @@ const AiShare = ({ assistant }) => {
 	const [copyStatus, setCopyStatus] = useState({ shareLink: false, embedScript: false });
 	const timeoutRef = useRef(null);
 
+	useEffect(() => {
+		return () => {
+			if (timeoutRef.current) {
+				clearTimeout(timeoutRef.current);
+			}
+		};
+	}, []);
+
 	const shareUrl = useMemo(
 		() => `https://widget.ve.ai/${assistant?._id}?aiAssistantName=${assistant?.name}`,
 		[assistant?._id, assistant?.name],
@@ -37,14 +45,6 @@ const AiShare = ({ assistant }) => {
 			console.error('Failed to copy text: ', err);
 			message.error('Failed to copy text');
 		}
-	}, []);
-
-	useEffect(() => {
-		return () => {
-			if (timeoutRef.current) {
-				clearTimeout(timeoutRef.current);
-			}
-		};
 	}, []);
 
 	const handleVisit = useCallback(() => {

@@ -40,3 +40,59 @@ export const updateClientMutation = gql`
 		}
 	}
 `;
+
+export const contactMetadataQuery = gql`
+	query GetClientMetadata {
+		getClientMetadata {
+			_id
+			tenantId
+			createdBy
+			updatedBy
+			views {
+				_id
+				filters
+				label
+				viewType
+				sort {
+					sortBy
+					sortType
+				}
+				icon
+			}
+			createdAt
+			updatedAt
+		}
+	}
+`;
+
+export const updateContactViewMutation = gql`
+	mutation UpdateClientView($input: UpdateClientViewInput!, $viewId: ID, $clientMetadataId: ID!) {
+		updateClientView(input: $input, viewId: $viewId, clientMetadataId: $clientMetadataId) {
+			_id
+			tenantId
+			views {
+				_id
+				filters
+				label
+				viewType
+				sort {
+					sortBy
+					sortType
+				}
+				icon
+			}
+			createdAt
+			createdBy
+			updatedAt
+			updatedBy
+		}
+	}
+`;
+
+export const deleteContactViewMutation = gql`
+	mutation DeleteClientView($clientMetadataId: ID!, $viewId: ID!) {
+		deleteClientView(clientMetadataId: $clientMetadataId, viewId: $viewId) {
+			message
+		}
+	}
+`;

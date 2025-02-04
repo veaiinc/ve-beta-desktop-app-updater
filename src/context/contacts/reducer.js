@@ -10,6 +10,32 @@ const actionHandlers = {
 		...state,
 		...action?.payload,
 	}),
+
+	SET_CONTACT_METADATA: (state, action) => ({
+		...state,
+		clientMetadata: { ...state?.clientMetadata, ...action?.payload },
+	}),
+
+	UPDATE_CONTACT_VIEWS: (state, action) => ({
+		...state,
+		clientMetadata: {
+			...state.clientMetadata,
+			views: action?.payload,
+		},
+	}),
+
+	SET_CONTACT_PREFERENCES: (state, action) => ({
+		...state,
+		contactPreference: action?.payload,
+	}),
+
+	DELETE_CONTACT_VIEW: (state, action) => ({
+		...state,
+		clientMetadata: {
+			...state.clientMetadata,
+			views: state.clientMetadata?.views?.filter((view) => view?._id !== action?.payload),
+		},
+	}),
 	RESET_STATE: () => intialState,
 };
 

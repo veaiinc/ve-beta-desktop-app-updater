@@ -529,10 +529,10 @@ const ActionsModal = ({
 
 				<div className="addVariablesContainer">
 					<div className="header">
-						<h2>Get inputs from chat</h2>
+						<h2>Extract details from the conversation.</h2>
 						<p>
 							List any info your AI Agent needs to find in the conversation for this
-							Action's API call.
+							Action’s API call.
 						</p>
 					</div>
 
