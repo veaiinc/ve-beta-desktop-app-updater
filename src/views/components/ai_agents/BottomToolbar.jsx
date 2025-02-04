@@ -72,7 +72,7 @@ const BottomToolbar = ({
 		chatModalIsOpen: false,
 		bigToolbarIsOpen: false,
 		chatQuery: '',
-		position: { x: -325, y: 0 },
+		position: { x: window.innerWidth / 2 - 900, y: 0 },
 		addQuickAction: false,
 		chatSessionId: ObjectID().toString(),
 		uploadedImages: [],
