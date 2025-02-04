@@ -541,9 +541,10 @@ const BottomToolbar = ({
 			{info?.voiceIntegration ? (
 				<div style={{ display: 'flex', justifyContent: 'center' }}>
 					<img
-						src={'https://ap.assets.ve.ai/logo/static-tenant.gif'}
-						width={'80px'}
-						height={'80px'}
+						src={'https://ap.assets.ve.ai/logo/speaking%20final.gif'}
+						width={'40px'}
+						height={'40px'}
+						style={{ marginBottom: '12px' }}
 					/>
 				</div>
 			) : (
