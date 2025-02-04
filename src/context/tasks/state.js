@@ -684,6 +684,10 @@ export const TasksState = () => {
 				'tenant-users',
 			);
 			if (response?.[0]) {
+				dispatch({
+					type: Actions.SET_TASK_PREFERENCES,
+					payload: { data: json?.data },
+				});
 				return [true, response[1]];
 			} else {
 				return [false, response[1]];

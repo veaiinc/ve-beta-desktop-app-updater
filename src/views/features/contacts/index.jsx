@@ -77,9 +77,11 @@ const Contacts = () => {
 			getContactMetadata,
 			updateContactViews,
 			deleteContactView,
+			getContactPreferences,
+			updateContactPreferences,
+			contactPreference,
 		},
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
-		companyInfo: { getTaskPreferences, taskPreference, updateTaskPreferences },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -152,10 +154,13 @@ const Contacts = () => {
 	const isInitialMount = useRef(true);
 
 	useEffect(() => {
-		if (taskPreference === null) {
-			getTaskPreferences({ preferences: 'contactPreference' });
-		} else if (taskPreference?.data === false) {
-			updateTaskPreferences({ preferenceType: 'contactPreference', data: defaultPreference });
+		if (contactPreference === null) {
+			getContactPreferences({ preferences: 'contactPreference' });
+		} else if (contactPreference?.data === false) {
+			updateContactPreferences({
+				preferenceType: 'contactPreference',
+				data: defaultPreference,
+			});
 			setInfo((prevInfo) => ({
 				...prevInfo,
 				taskPreferences: {
@@ -163,7 +168,7 @@ const Contacts = () => {
 					preferences: defaultPreference,
 				},
 			}));
-		} else if (taskPreference?.error) {
+		} else if (contactPreference?.error) {
 			setInfo((prevInfo) => ({
 				...prevInfo,
 				taskPreferences: {
@@ -176,11 +181,11 @@ const Contacts = () => {
 				...prevInfo,
 				taskPreferences: {
 					preferenceType: 'contactPreference',
-					preferences: taskPreference?.data,
+					preferences: contactPreference?.data,
 				},
 			}));
 		}
-	}, [taskPreference]);
+	}, [contactPreference]);
 
 	useEffect(() => {
 		if (!clientList) {
@@ -317,6 +322,12 @@ const Contacts = () => {
 	);
 
 	const updateListViewInfo = useCallback((updateInfo) => {
+		if (updateInfo?.taskPreferences) {
+			updateContactPreferences({
+				preferenceType: updateInfo?.taskPreferences?.preferenceType,
+				data: updateInfo?.taskPreferences?.preferences,
+			});
+		}
 		setInfo((prevInfo) => ({ ...prevInfo, ...updateInfo }));
 	}, []);
 

@@ -24,6 +24,11 @@ const actionHandlers = {
 		},
 	}),
 
+	SET_CONTACT_PREFERENCES: (state, action) => ({
+		...state,
+		contactPreference: action?.payload,
+	}),
+
 	DELETE_CONTACT_VIEW: (state, action) => ({
 		...state,
 		clientMetadata: {

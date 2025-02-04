@@ -1,5 +1,7 @@
 import { useReducer } from 'react';
 import service from '../../services/graphQlServices';
+import restService from '../../services';
+
 import {
 	getClientsQuery,
 	createClientMutation,
@@ -16,6 +18,7 @@ export const intialState = {
 	refetchClientList: false,
 	clientList: null,
 	clientMetadata: null,
+	contactPreference: null,
 };
 
 export const ContactsState = () => {
@@ -198,6 +201,58 @@ export const ContactsState = () => {
 		}
 	};
 
+	const getContactPreferences = async (data) => {
+		try {
+			const usertoken = localStorage.getItem('usertoken');
+			const response = await restService.fetchGet(
+				'/tenantuser-preference',
+				usertoken,
+				'tenant-users',
+				data,
+			);
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.SET_CONTACT_PREFERENCES,
+					payload: { data: response?.[1] },
+				});
+			} else {
+				dispatch({
+					type: Actions.SET_CONTACT_PREFERENCES,
+					payload: { error: response?.[1] },
+				});
+			}
+		} catch (error) {
+			console.log('error ==> getContactPreferences', error);
+			dispatch({
+				type: Actions.SET_CONTACT_PREFERENCES,
+				payload: { error: error },
+			});
+		}
+	};
+
+	const updateContactPreferences = async (json) => {
+		try {
+			const usertoken = localStorage.getItem('usertoken');
+			const response = await restService.fetchPut(
+				'/tenantuser-preference',
+				json,
+				usertoken,
+				'tenant-users',
+			);
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.SET_CONTACT_PREFERENCES,
+					payload: { data: json?.data },
+				});
+				return [true, response[1]];
+			} else {
+				return [false, response[1]];
+			}
+		} catch (error) {
+			console.log('error ==> updateContactPreferences', error);
+		}
+	};
+
 	const resetContactsState = () => {
 		dispatch({ type: Actions.RESET_STATE });
 	};
@@ -213,5 +268,7 @@ export const ContactsState = () => {
 		getContactMetadata,
 		updateContactViews,
 		deleteContactView,
+		getContactPreferences,
+		updateContactPreferences,
 	};
 };
