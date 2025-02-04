@@ -55,6 +55,8 @@ const useSubscription = () => {
 				tenantUsersLimit = 0,
 				totalStorageUsedInBytes = 0,
 				totalTenantUsers = 0,
+				imagesLimit = 0,
+				totalImagesUploaded = 0,
 			} = currentPlan;
 			const obj = {
 				...(validateExpiryData || {}),
@@ -72,8 +74,14 @@ const useSubscription = () => {
 			if (storageLimitInGB) {
 				uploadAllowed = usedStorageLimitInGB < storageLimitInGB;
 			}
-			setInfo((prev) => ({ ...prev, ...obj, uploadAllowed }));
-			updateSubscriptionState({ validateExpiryData: { ...obj, uploadAllowed } });
+			let imagesAllowed = false;
+			if (imagesLimit) {
+				imagesAllowed = totalImagesUploaded < imagesLimit;
+			}
+			setInfo((prev) => ({ ...prev, ...obj, uploadAllowed, imagesAllowed }));
+			updateSubscriptionState({
+				validateExpiryData: { ...obj, uploadAllowed, imagesAllowed },
+			});
 			cleanupTimers();
 			if (validateExpiryData?.isExpired) {
 				return cleanupTimers;
