@@ -210,7 +210,7 @@ const AiPrompt = ({ assistant }) => {
 					autoResize={true}
 				/>
 
-				<div className="resetPromptContainer" onClick={handleResetPrompt}>
+				<div className="resetPromptContainer">
 					<span onClick={handleResetPrompt}>Reset</span>
 				</div>
 			</div>
