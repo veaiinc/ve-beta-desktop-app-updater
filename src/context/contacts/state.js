@@ -5,6 +5,9 @@ import {
 	createClientMutation,
 	deleteClientMutation,
 	updateClientMutation,
+	contactMetadataQuery,
+	updateContactViewMutation,
+	deleteContactViewMutation,
 } from './graphQlFunctions';
 import { Actions } from './actions';
 import { Reducer } from './reducer';
@@ -12,6 +15,7 @@ import { Reducer } from './reducer';
 export const intialState = {
 	refetchClientList: false,
 	clientList: null,
+	clientMetadata: null,
 };
 
 export const ContactsState = () => {
@@ -128,6 +132,72 @@ export const ContactsState = () => {
 		dispatch({ type: Actions.UPDATE_CONTACT_CONTEXT, payload });
 	};
 
+	const getContactMetadata = async () => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				contactMetadataQuery,
+				{},
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.SET_CONTACT_METADATA,
+					payload: response?.[1]?.data?.getClientMetadata,
+				});
+			}
+		} catch (error) {
+			console.log('API failed ==> getContactMetadata', error);
+		}
+	};
+
+	const updateContactViews = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.mutation(
+				updateContactViewMutation,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.UPDATE_CONTACT_VIEWS,
+					payload: response?.[1]?.data?.updateClientView?.views,
+				});
+			}
+		} catch (error) {
+			console.log('API failed ==> updateContactViews', error);
+		}
+	};
+
+	const deleteContactView = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.mutation(
+				deleteContactViewMutation,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.DELETE_CONTACT_VIEW,
+					payload: payload?.viewId,
+				});
+			}
+		} catch (error) {
+			console.log('API failed ==> deleteContactView', error);
+		}
+	};
+
 	const resetContactsState = () => {
 		dispatch({ type: Actions.RESET_STATE });
 	};
@@ -140,5 +210,8 @@ export const ContactsState = () => {
 		updateClient,
 		updateStateValues,
 		resetContactsState,
+		getContactMetadata,
+		updateContactViews,
+		deleteContactView,
 	};
 };

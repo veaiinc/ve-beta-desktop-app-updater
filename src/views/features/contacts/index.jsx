@@ -73,6 +73,10 @@ const Contacts = () => {
 			updateStateValues,
 			deleteClient,
 			updateClient,
+			clientMetadata,
+			getContactMetadata,
+			updateContactViews,
+			deleteContactView,
 		},
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 		companyInfo: { getTaskPreferences, taskPreference, updateTaskPreferences },
@@ -97,7 +101,7 @@ const Contacts = () => {
 		showRightDrawer: false,
 		activeFileData: null,
 		refetchDocsFilesList: false,
-
+		clientMetadata: null,
 		taskPreferences: {
 			preferenceType: 'contactPreference',
 			preferences: defaultPreference,
@@ -213,6 +217,31 @@ const Contacts = () => {
 			}));
 		}
 	}, [info?.taskPreferences?.preferences]);
+
+	useEffect(() => {
+		if (!clientMetadata) {
+			getContactMetadata();
+		} else {
+			if (!clientMetadata?.views) {
+				updateView(
+					null,
+					{
+						label: 'List view',
+						filters: [],
+						icon: null,
+						order: null,
+						sort: [],
+						viewType: 'list',
+					},
+					clientMetadata?._id,
+				);
+			}
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				clientMetadata: clientMetadata,
+			}));
+		}
+	}, [clientMetadata]);
 
 	useEffect(() => {
 		if (refetchClientList && !info?.sidebarIsOpen) {
@@ -434,6 +463,25 @@ const Contacts = () => {
 			}));
 		}
 	}, [info.hasMore, info.page, fetchClientList]);
+
+	const updateView = useCallback(
+		(viewId, updateData, clientMetadataId) => {
+			const data = {
+				clientMetadataId: clientMetadataId || info?.clientMetadata?._id,
+				viewId,
+				input: updateData,
+			};
+			updateContactViews(data);
+		},
+		[updateContactViews, info?.clientMetadata?._id],
+	);
+
+	const deleteView = useCallback(
+		(viewId) => {
+			deleteContactView({ clientMetadataId: info?.clientMetadata?._id, viewId });
+		},
+		[deleteContactView, info?.clientMetadata?._id],
+	);
 	return (
 		<div>
 			<Task
@@ -456,6 +504,9 @@ const Contacts = () => {
 				fetchMoreData={fetchMoreData}
 				blockTitle={'Contacts'}
 				createButtonText={'Create Client'}
+				views={info?.clientMetadata?.views}
+				updateView={updateView}
+				deleteView={deleteView}
 			/>
 
 			<CreateClientModal
