@@ -26,7 +26,7 @@ import { ReactComponent as AiSparkel } from '../../../assets/svg/calendar/aiSpar
 
 const moduleHelper = {
 	tasks: 'tasks',
-	'smart-file': 'proposal_form_filling',
+	'smart-file': 'form_filling',
 	calendar: 'calendar',
 };
 
