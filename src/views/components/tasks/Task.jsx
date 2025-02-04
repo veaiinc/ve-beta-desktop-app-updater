@@ -70,8 +70,8 @@ const Task = ({
 	hasMore,
 	error,
 	views,
-	updateView,
-	deleteView,
+	updateView = () => {},
+	deleteView = () => {},
 	prefix = null,
 }) => {
 	const [taskInfo, setTaskInfo] = useState({
