@@ -13,9 +13,9 @@ import { Upload } from 'antd';
 import Context from '../../../context/context';
 import ObjectID from 'bson-objectid';
 import { useLocation } from 'react-router-dom';
-import Markdown from 'react-markdown';
-import { TypingEffect } from '../../../helpers/markdownHelper';
-import { ReactComponent as AiStarInChat } from '../../../assets/svg/ai_agents/ai-star-in-chat.svg';
+// import Markdown from 'react-markdown';
+// import { TypingEffect } from '../../../helpers/markdownHelper';
+// import { ReactComponent as AiStarInChat } from '../../../assets/svg/ai_agents/ai-star-in-chat.svg';
 import { ReactComponent as Filter } from '../../../assets/svg/ai_agents/filter.svg';
 import { ReactComponent as Arroba } from '../../../assets/svg/ai_agents/arroba.svg';
 import { ReactComponent as PaperClip } from '../../../assets/svg/ai_agents/paper-clip.svg';
@@ -23,11 +23,10 @@ import { ReactComponent as Mic } from '../../../assets/svg/ai_agents/mic.svg';
 import { getBase64 } from '../../../helpers';
 import WorkflowSlugSelector from '../calendar/WorkflowSlugSelector';
 import { ReactComponent as AiSparkel } from '../../../assets/svg/calendar/aiSparkel.svg';
-import { use } from 'react';
 
 const moduleHelper = {
 	tasks: 'tasks',
-	'smart-file': 'proposal_form_filling',
+	'smart-file': 'form_filling',
 	calendar: 'calendar',
 };
 
@@ -200,8 +199,9 @@ const BottomToolbar = ({
 						onSend(info?.chatQuery);
 					} else {
 						setInfo((prev) => ({ ...prev, chatLoading: true }));
+						let currentQuery = info?.chatQuery?.trim() || query?.trim();
 						const payload = {
-							query: info?.chatQuery?.trim() || query?.trim(),
+							query: currentQuery,
 							timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
 						};
 						let localPayload = {};
@@ -242,7 +242,7 @@ const BottomToolbar = ({
 								updateStateValues({ smartFileRefetch: true });
 							}
 							if (variables_required) {
-								handleVariablesRequired(variables_required);
+								handleVariablesRequired(variables_required, currentQuery);
 							}
 						}
 					}
@@ -255,7 +255,7 @@ const BottomToolbar = ({
 	);
 
 	const handleWorkflowSlugSelection = useCallback(
-		async (data) => {
+		async (data, query) => {
 			setInfo((prev) => ({ ...prev, chatLoading: true }));
 			const showCustomChatOptions = [
 				{
@@ -274,7 +274,7 @@ const BottomToolbar = ({
 			];
 
 			const payload = {
-				query: `the workflow slug is ${data}`,
+				query: query,
 				timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
 				workflow_slug: data,
 			};
@@ -299,7 +299,7 @@ const BottomToolbar = ({
 					updateTaskState({ refetchTasks: true });
 				}
 				if (variables_required) {
-					handleVariablesRequired(variables_required);
+					handleVariablesRequired(variables_required, data);
 				}
 			}
 		},
@@ -307,7 +307,7 @@ const BottomToolbar = ({
 	);
 
 	const handleVariablesRequired = useCallback(
-		(requiredVariables) => {
+		(requiredVariables, query) => {
 			if (requiredVariables?.[0] === 'workflow_slug') {
 				let workflowSlug = [
 					{
@@ -316,6 +316,7 @@ const BottomToolbar = ({
 						content: (
 							<WorkflowSlugSelector
 								handleWorkflowSlugSelection={handleWorkflowSlugSelection}
+								query={query}
 							/>
 						),
 					},
