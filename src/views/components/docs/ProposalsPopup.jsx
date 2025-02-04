@@ -59,9 +59,7 @@ const ProposalPopup = ({ open, closeModal }) => {
 
 	useEffect(() => {
 		if (smartfile?._id) {
-			if (info?.activeTemplate?.version) {
-				window.location.href = `${origin}/${smartfile?._id}?workflow=true&templateId=${info?.activeTemplate?._id}`;
-			}
+			window.location.href = `${origin}/${smartfile?._id}?workflow=true&templateId=${info?.activeTemplate?._id}`;
 		}
 	}, [smartfile]);
 
