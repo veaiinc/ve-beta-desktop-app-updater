@@ -4,6 +4,8 @@ import remarkGfm from 'remark-gfm';
 import { Link } from 'react-router-dom'; // Adjust if you're using another router
 import '../assets/scss/markdown.scss';
 
+const isChrome = /Chrome/.test(navigator.userAgent) && !/Safari/.test(navigator.userAgent);
+
 const components = {
 	pre: ({ children }) => <>{children}</>,
 	ol: ({ children, ...props }) => {
@@ -90,7 +92,7 @@ const components = {
 	},
 };
 
-const remarkPlugins = [remarkGfm];
+const remarkPlugins = isChrome ? [remarkGfm] : [];
 
 const NonMemoizedMarkdown = ({ children }) => {
 	return (
