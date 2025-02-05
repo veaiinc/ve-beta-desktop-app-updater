@@ -1,15 +1,13 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable no-unused-vars */
-import { Drawer, Progress } from 'antd';
-import React, { memo, useCallback, useContext, useEffect, useState, useRef } from 'react';
+import { Drawer } from 'antd';
+import React, { memo, useCallback, useEffect, useState, useRef } from 'react';
 import '../../../../assets/scss/tasks/modals/listViewSidebar.scss';
 import { ReactComponent as CloseArrow } from '../../../../assets/svg/tasks/doubleRightArrow.svg';
 import { ReactComponent as RightSvg } from '../../../../assets/svg/activity/right.svg';
 import { ReactComponent as DustBinIcon } from '../../../../assets/svg/tasks/dustBin.svg';
-import { ReactComponent as PlusSvg } from '../../../../assets/svg/tasks/plus.svg';
+import { ReactComponent as ExpandSvg } from '../../../../assets/svg/docs/expand.svg';
 import Spinner from '../../loaders/Spinner';
-import Context from '../../../../context/context';
-import ListViewRow from '../../tasks/listView/ListViewRow';
 import Skeleton from 'react-loading-skeleton';
 import CustomTextArea from '../../globalComponents/CusomTextArea';
 
@@ -17,29 +15,26 @@ const ListViewSidebar = ({
 	selectedRow,
 	sidebarIsOpen,
 	closeSidebar,
-	updatePropertyValue,
+	handleUpdate,
 	deleteTask,
 	rowTypes,
-	handleCreateSubTaskClick,
 	handleSubTaskClick,
-	isShowingSubTask,
-	parentTaskNo,
-	handleChildTaskClose,
 	responseMetadata,
-	haveSubTask,
-	properties,
 	colors,
+	sidebarChildren,
+	isSidebarExpanded = false,
+	toggleSidebarExpand,
+	headerText,
+	breadCrumbs,
+	handleBreadCrumbsClick,
 }) => {
-	const {
-		tasks: { subTasks, getSubTasks },
-	} = useContext(Context);
-
 	const [info, setInfo] = useState({
 		subTasks: [],
 		subTaskLoading: true,
 		subTaskError: null,
 		deleteLoading: false,
 		completedSubtaskCount: 0,
+		titlePropName: null,
 	});
 
 	const [localTitle, setLocalTitle] = useState('');
@@ -49,7 +44,14 @@ const ListViewSidebar = ({
 
 	useEffect(() => {
 		if (selectedRow?.title !== localTitle) {
-			setLocalTitle(selectedRow?.title || '');
+			const titlePropName = Object.keys(responseMetadata).find(
+				(key) => responseMetadata[key]?.isTitle,
+			);
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				titlePropName: titlePropName,
+			}));
+			setLocalTitle(selectedRow?.[titlePropName] || '');
 		}
 		if (selectedRow?.description !== localDescription) {
 			setLocalDescription(selectedRow?.description || '');
@@ -67,48 +69,18 @@ const ListViewSidebar = ({
 		};
 	}, []);
 
-	useEffect(() => {
-		if (isShowingSubTask) {
-			return;
-		}
-		if (selectedRow?._id && !subTasks) {
-			setInfo((prevInfo) => ({
-				...prevInfo,
-				subTaskLoading: true,
-			}));
-			getSubTasks({ taskId: selectedRow?._id });
-		} else {
-			if (subTasks?.data) {
-				setInfo((prevInfo) => ({
-					...prevInfo,
-					subTasks: [...subTasks?.data],
-					subTaskLoading: false,
-					completedSubtaskCount: subTasks?.data?.filter(
-						(subTask) => subTask?.status === 'completed',
-					).length,
-				}));
-			} else {
-				setInfo((prevInfo) => ({
-					...prevInfo,
-					subTaskError: subTasks?.error,
-					subTaskLoading: false,
-				}));
-			}
-		}
-	}, [subTasks, selectedRow?._id, isShowingSubTask, getSubTasks]);
-
 	const debouncedTitleUpdate = useCallback(
 		(value) => {
 			if (titleDebounceRef.current) {
 				clearTimeout(titleDebounceRef.current);
 			}
 			titleDebounceRef.current = setTimeout(() => {
-				updatePropertyValue(selectedRow?._id, 'title', value, null, null, () => {
+				handleUpdate(selectedRow?._id, info?.titlePropName, value, null, null, () => {
 					setLocalTitle(value);
 				});
 			}, 800);
 		},
-		[selectedRow?._id, updatePropertyValue],
+		[selectedRow?._id, handleUpdate],
 	);
 
 	const debouncedDescriptionUpdate = useCallback(
@@ -117,12 +89,12 @@ const ListViewSidebar = ({
 				clearTimeout(descriptionDebounceRef.current);
 			}
 			descriptionDebounceRef.current = setTimeout(() => {
-				updatePropertyValue(selectedRow?._id, 'description', value, null, null, () => {
+				handleUpdate(selectedRow?._id, 'description', value, null, null, () => {
 					setLocalDescription(value);
 				});
 			}, 800);
 		},
-		[selectedRow?._id, updatePropertyValue],
+		[selectedRow?._id, handleUpdate],
 	);
 
 	const handleTitleChange = useCallback(
@@ -169,11 +141,18 @@ const ListViewSidebar = ({
 			for (let key in row) {
 				const value = row[key];
 
+				const {
+					type = null,
+					name = null,
+					Icon = null,
+					isTitle = false,
+					props = {},
+				} = responseMetadata[key] || {};
+
 				if (
 					[
 						'__typename',
 						'_id',
-						'title',
 						'description',
 						'workflowTemplateId',
 						'completedAt',
@@ -181,17 +160,11 @@ const ListViewSidebar = ({
 						'workflowId',
 						'parentTask',
 						'childTasks',
-						isShowingSubTask && 'workflow',
-					].includes(key)
+					].includes(key) ||
+					isTitle
 				) {
 					continue;
 				}
-				const {
-					type = null,
-					name = null,
-					Icon = null,
-					props,
-				} = responseMetadata[key] || {};
 
 				if (type === null) {
 					continue;
@@ -212,11 +185,12 @@ const ListViewSidebar = ({
 									title={name}
 									showLabel
 									defaultLabel={'Not selected'}
-									{...(type === 'date' ? { format: 'MMM DD, YYYY h:mm A' } : {})}
+									options={props.options}
+									multiSelect={props.multiSelect}
+									parseValue={props.parseValue}
+									disabled={props.disabled}
 									{...props}
-									onOptionClick={(value) =>
-										updatePropertyValue(row._id, key, value, isShowingSubTask)
-									}
+									onOptionClick={(value) => handleUpdate(row._id, key, value)}
 									colors={colors}
 									takeFullspace={true}
 								/>
@@ -230,7 +204,7 @@ const ListViewSidebar = ({
 
 			return listItems;
 		},
-		[isShowingSubTask, responseMetadata, rowTypes, updatePropertyValue],
+		[responseMetadata, rowTypes, handleUpdate, colors],
 	);
 
 	const generateSkeleton = useCallback(() => {
@@ -244,52 +218,90 @@ const ListViewSidebar = ({
 	return (
 		<Drawer
 			onClose={closeSidebar}
-			width={480}
+			width={'fit-content'}
 			open={sidebarIsOpen}
 			style={{ padding: '0px', backgroundColor: 'transparent' }}
 			headerStyle={{ display: 'none' }}
 			bodyStyle={{ padding: '0px' }}
 		>
-			<div className="listView-sidebar-container">
+			<div
+				className={`listView-sidebar-container ${
+					isSidebarExpanded ? 'listView-sidebar-container-expanded' : ''
+				}`}
+			>
 				<div className="listView-sidebar-innerContainer">
 					<div className="listView-sidebar-wrapper">
 						<div className="sidebar-header">
-							<CloseArrow
-								width={16}
-								height={16}
-								onClick={closeSidebar}
-								className="cursor-pointer"
-							/>
-							<div className="breadcrumbs">
-								{isShowingSubTask ? (
-									<span
-										className="breadcrumbs-item"
-										onClick={handleChildTaskClose}
-									>
-										{parentTaskNo} <RightSvg height={12} width={12} />
-									</span>
-								) : (
-									''
-								)}
-								<span className="breadcrumbs-item">{selectedRow?.taskSlNo}</span>
+							<div className="sidebar-header-left-container">
+								<div className="sidebar-header-expand-button">
+									{!isSidebarExpanded ? (
+										<CloseArrow
+											width={16}
+											height={16}
+											onClick={closeSidebar}
+											style={{ cursor: 'pointer' }}
+										/>
+									) : (
+										''
+									)}
+								</div>
+								<div
+									className="sidebar-header-expand-button"
+									onClick={toggleSidebarExpand}
+								>
+									{isSidebarExpanded ? (
+										<ExpandSvg
+											width={16}
+											height={16}
+											style={{ cursor: 'pointer' }}
+										/>
+									) : (
+										<ExpandSvg
+											width={16}
+											height={16}
+											style={{ cursor: 'pointer' }}
+										/>
+									)}
+								</div>
 							</div>
-							<button
-								className="sidebar-delete-button"
-								onClick={() => {
-									handleDeleteTask();
-								}}
-								disabled={info?.deleteLoading}
-							>
-								{info?.deleteLoading ? (
-									<Spinner width={20} height={20} color="#7d7d7d" />
-								) : (
-									<DustBinIcon
-										width={20}
-										height={20}
-										className="cursor-pointer"
-									/>
-								)}
-							</button>
+
+							<div className="sidebar-header-right-container">
+								<button
+									className="sidebar-delete-button"
+									onClick={() => {
+										handleDeleteTask();
+									}}
+									disabled={info?.deleteLoading}
+								>
+									{info?.deleteLoading ? (
+										<Spinner width={20} height={20} color="#7d7d7d" />
+									) : (
+										<DustBinIcon
+											width={20}
+											height={20}
+											className="cursor-pointer"
+										/>
+									)}
+								</button>
+							</div>
+						</div>
+
+						<div className="breadCrumbs-container">
+							{breadCrumbs?.map((item, index) => (
+								<div
+									className="breadCrumbs-item"
+									key={item?.label}
+									onClick={() => {
+										handleBreadCrumbsClick(item, index);
+									}}
+								>
+									{item?.label}
+									<div className="right-svg">
+										<RightSvg height={12} width={12} />
+									</div>
+								</div>
+							))}
+							<div className="breadCrumbs-item active">{headerText}</div>
 						</div>
 
 						<div className="sidebar-title">
@@ -304,74 +316,18 @@ const ListViewSidebar = ({
 						<div className="sidebar-properties-container">
 							{generateRow(selectedRow)}
 						</div>
-						{haveSubTask && !isShowingSubTask ? (
-							<div className="sidebar-subtask-container">
-								<div className="sidebar-subtask-header">
-									<span className="sidebar-subtask-header-title">Sub Tasks</span>
-									<span className="sidebar-subtask-header-count">
-										<Progress
-											type="circle"
-											percent={
-												(info?.completedSubtaskCount /
-													info?.subTasks?.length) *
-												100
-											}
-											size={16}
-											strokeColor={'#6055EC'}
-											trailColor={'#2F2F2F'}
-											strokeWidth={14}
-										/>
-										<span className="task-count">
-											{info?.completedSubtaskCount || 0}/
-											{info?.subTasks?.length || 0}
-										</span>
-									</span>
-									<div className="subtask-actions-wrapper">
-										<button
-											className="subtask-action-button"
-											onClick={handleCreateSubTaskClick}
-										>
-											<PlusSvg style={{ width: '20px', height: '20px' }} />
-										</button>
-									</div>
-								</div>
-								<div className="subtask-list-container">
-									{info?.subTaskLoading ? (
-										generateSkeleton()
-									) : info?.subTaskError ? (
-										<span className="no-subtasks">{info?.subTaskError}</span>
-									) : info?.subTasks?.length !== 0 ? (
-										info?.subTasks?.map((subTask) => (
-											<ListViewRow
-												task={subTask}
-												key={subTask?._id}
-												rowTypes={rowTypes}
-												responseMetadata={responseMetadata}
-												updatePropertyValue={updatePropertyValue}
-												isSubTask={true}
-												handleRowClick={onSubTaskClick}
-												properties={properties}
-												colors={colors}
-											/>
-										))
-									) : (
-										<span className="no-subtasks">No subTasks</span>
-									)}
-								</div>
+						{sidebarChildren}
+						{selectedRow?.description !== undefined && (
+							<div className="sidebar-description">
+								<CustomTextArea
+									value={localDescription}
+									onChange={handleDescriptionChange}
+									placeholder="Enter description"
+									className="sidebar-description-textarea"
+									autoResize={true}
+								/>
 							</div>
-						) : (
-							''
 						)}
-
-						<div className="sidebar-description">
-							<CustomTextArea
-								value={localDescription}
-								onChange={handleDescriptionChange}
-								placeholder="Enter description"
-								className="sidebar-description-textarea"
-								autoResize={true}
-							/>
-						</div>
 					</div>
 				</div>
 			</div>

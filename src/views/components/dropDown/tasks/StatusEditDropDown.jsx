@@ -11,9 +11,9 @@ import PropertyEditDropDown from './PropertyEditDropDown';
 import Context from '../../../../context/context';
 import { message } from 'antd';
 
-const StatusEditDropDown = ({ options, handleEditPropertyChange, handleClose, colors }) => {
+const StatusEditDropDown = ({ handleEditPropertyChange, handleClose, colors }) => {
 	const {
-		tasks: { addNewStatusLabel, deleteStatusLabel, updateStatusLabel },
+		tasks: { addNewStatusLabel, deleteStatusLabel, updateStatusLabel, taskMetadata },
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
@@ -28,27 +28,16 @@ const StatusEditDropDown = ({ options, handleEditPropertyChange, handleClose, co
 	});
 
 	useEffect(() => {
-		const todoOptions = [];
-		const inProgressOptions = [];
-		const completedOptions = [];
-
-		options?.forEach((option) => {
-			if (option?.group === 'todo') {
-				todoOptions?.push(option);
-			} else if (option?.group === 'inProgress') {
-				inProgressOptions?.push(option);
-			} else if (option?.group === 'completed') {
-				completedOptions?.push(option);
-			}
-		});
-
-		setInfo((prev) => ({
-			...prev,
-			todoOptions,
-			inProgressOptions,
-			completedOptions,
-		}));
-	}, [options]);
+		if (taskMetadata) {
+			setInfo((prev) => ({
+				...prev,
+				todoOptions: taskMetadata?.todoGroupLabels || [],
+				inProgressOptions: taskMetadata?.inProgressGroupLabels || [],
+				completedOptions: taskMetadata?.completedGroupLabels || [],
+				addNewProperty: prev.addNewProperty,
+			}));
+		}
+	}, [taskMetadata]);
 
 	const handleDragEnd = async (result) => {
 		if (!result?.destination) return;
@@ -58,6 +47,13 @@ const StatusEditDropDown = ({ options, handleEditPropertyChange, handleClose, co
 		const sourceIndex = result?.source?.index;
 		const destinationIndex = result?.destination?.index;
 
+		// Store the previous state for rollback
+		const previousState = {
+			todoOptions: [...info.todoOptions],
+			inProgressOptions: [...info.inProgressOptions],
+			completedOptions: [...info.completedOptions],
+		};
+
 		try {
 			// Update local state first for immediate feedback
 			setInfo((prevInfo) => {
@@ -66,32 +62,18 @@ const StatusEditDropDown = ({ options, handleEditPropertyChange, handleClose, co
 				const destPropName = `${destinationId}Options`;
 
 				if (sourceId === destinationId) {
-					const list = [...newInfo[sourcePropName]];
+					const list = [...(newInfo?.[sourcePropName] || [])];
 					const [removed] = list.splice(sourceIndex, 1);
 					list.splice(destinationIndex, 0, removed);
-
-					// Update orders in the list
-					list.forEach((item, index) => {
-						item.order = index + 1;
-					});
-
 					newInfo[sourcePropName] = list;
 				} else {
-					const sourceList = [...newInfo[sourcePropName]];
-					const destList = [...newInfo[destPropName]];
-					const [removed] = sourceList.splice(sourceIndex, 1);
+					const sourceList = [...(newInfo?.[sourcePropName] || [])];
+					const destList = [...(newInfo?.[destPropName] || [])];
+					const [removed] = sourceList?.splice(sourceIndex, 1);
 
 					// Update group when moving between lists
 					removed.group = destinationId;
 					destList.splice(destinationIndex, 0, removed);
-
-					// Update orders in both lists
-					sourceList.forEach((item, index) => {
-						item.order = index + 1;
-					});
-					destList.forEach((item, index) => {
-						item.order = index + 1;
-					});
 
 					newInfo[sourcePropName] = sourceList;
 					newInfo[destPropName] = destList;
@@ -100,22 +82,32 @@ const StatusEditDropDown = ({ options, handleEditPropertyChange, handleClose, co
 				return newInfo;
 			});
 
-			// Get the destination list and calculate new order
-			const destList = info[`${destinationId}Options`];
-			const newOrder = destinationIndex + 1;
-
-			// Call API to update the dragged item
+			// Get the dragged item and update its group
 			const draggedItem = info[`${sourceId}Options`][sourceIndex];
-			await updateStatusLabel({
-				labelId: draggedItem._id,
-				input: {
+			const response = await updateStatusLabel(
+				{
+					labelId: draggedItem._id,
 					group: destinationId,
-					order: newOrder,
+					taskMetadataId: taskMetadata?._id,
+					input: {
+						order: destinationIndex,
+					},
 				},
-			});
+				sourceId,
+			);
+
+			if (response?.[0]) {
+				message.success('Status order updated successfully');
+			} else {
+				throw new Error(response?.[1]?.[0]?.message || 'Failed to update status order');
+			}
 		} catch (error) {
-			message.error('Failed to update status order');
-			console.error('Failed to update status order:', error);
+			// Rollback to previous state
+			setInfo((prev) => ({
+				...prev,
+				...previousState,
+			}));
+			message.error(error?.message || 'Failed to update status order');
 		}
 	};
 
@@ -158,7 +150,11 @@ const StatusEditDropDown = ({ options, handleEditPropertyChange, handleClose, co
 
 	const handleInputKeyDown = async (e) => {
 		if (e.key === 'Enter' && info.addNewProperty.label.trim()) {
-			if (validateExpiryData?.isExpired) {
+			if (
+				validateExpiryData &&
+				validateExpiryData?.restrictTasks &&
+				validateExpiryData?.isExpired
+			) {
 				return updateSubscriptionState({ expiredSubscriptionModal: true });
 			}
 
@@ -169,28 +165,24 @@ const StatusEditDropDown = ({ options, handleEditPropertyChange, handleClose, co
 				...(info.todoOptions || []),
 				...(info.inProgressOptions || []),
 				...(info.completedOptions || []),
-			].some((status) => status.label.toLowerCase() === newLabel.toLowerCase());
+			].some((status) => status.label === newLabel);
 
 			if (labelExists) {
 				message.error('Status with this label already exists');
 				return;
 			}
 
-			// Get the order based on current list length
-			const currentList = info[`${info.addNewProperty.group}Options`] || [];
-			const order = currentList.length + 1;
-
 			try {
 				// Create temporary object for immediate feedback
 				const tempStatus = {
-					_id: newLabel, // Use label as temporary id
+					_id: newLabel, // Temporary ID
 					group: info.addNewProperty.group,
 					label: newLabel,
-					color: 6,
-					order: order,
+					color: '6',
+					isDefault: false,
 				};
 
-				// Update local state immediately for better UX
+				// Update local state immediately
 				setInfo((prev) => ({
 					...prev,
 					[`${info.addNewProperty.group}Options`]: [
@@ -205,11 +197,11 @@ const StatusEditDropDown = ({ options, handleEditPropertyChange, handleClose, co
 
 				// Call API to add new status label
 				const response = await addNewStatusLabel({
+					taskMetadataId: taskMetadata?._id,
 					input: {
 						color: '6',
 						group: info.addNewProperty.group,
 						label: newLabel,
-						order: order,
 					},
 				});
 				if (response?.[0]) {
@@ -225,7 +217,6 @@ const StatusEditDropDown = ({ options, handleEditPropertyChange, handleClose, co
 					].filter((status) => status._id !== newLabel),
 				}));
 				message.error(error?.message || 'Failed to add new status label');
-				console.error('Failed to add new status label:', error);
 			}
 		} else if (e.key === 'Escape') {
 			setInfo((prev) => ({
@@ -240,14 +231,16 @@ const StatusEditDropDown = ({ options, handleEditPropertyChange, handleClose, co
 	};
 
 	const handleDeleteStatus = async (status) => {
-		if (validateExpiryData?.isExpired) {
+		if (
+			validateExpiryData &&
+			validateExpiryData?.restrictTasks &&
+			validateExpiryData?.isExpired
+		) {
 			return updateSubscriptionState({ expiredSubscriptionModal: true });
 		}
 
-		// Check if it's the last status in its group
-		const groupOptions = info[`${status.group}Options`] || [];
-		if (groupOptions.length <= 1) {
-			message.error('Cannot delete the last status in a group');
+		if (status?.isDefault) {
+			message.error('Cannot delete the default status');
 			return;
 		}
 
@@ -262,7 +255,9 @@ const StatusEditDropDown = ({ options, handleEditPropertyChange, handleClose, co
 
 			// Call API to delete status
 			const response = await deleteStatusLabel({
+				taskMetadataId: taskMetadata?._id,
 				labelId: status._id,
+				group: status.group,
 			});
 			if (response?.[0]) {
 				message.success('Status deleted successfully');
@@ -276,13 +271,26 @@ const StatusEditDropDown = ({ options, handleEditPropertyChange, handleClose, co
 				[`${status.group}Options`]: [...prev[`${status.group}Options`], status],
 			}));
 			message.error(error?.message || 'Failed to delete status');
-			console.error('Failed to delete status:', error);
 		}
 	};
 
 	const handleStatusUpdate = async (status, updates) => {
 		try {
 			// Update local state first for immediate feedback
+			if (updates?.label) {
+				updates.label = updates?.label?.trim();
+				const labelExists = [
+					...(info.todoOptions || []),
+					...(info.inProgressOptions || []),
+					...(info.completedOptions || []),
+				].some((status) => status.label === updates?.label);
+
+				if (labelExists) {
+					message.error('Status with this label already exists');
+					return;
+				}
+			}
+
 			setInfo((prev) => ({
 				...prev,
 				[`${status.group}Options`]: prev[`${status.group}Options`].map((item) =>
@@ -291,10 +299,16 @@ const StatusEditDropDown = ({ options, handleEditPropertyChange, handleClose, co
 			}));
 
 			// Call API to update the status
-			const response = await updateStatusLabel({
-				labelId: status._id,
-				input: updates,
-			});
+
+			const response = await updateStatusLabel(
+				{
+					taskMetadataId: taskMetadata?._id,
+					labelId: status._id,
+					group: status.group,
+					input: updates,
+				},
+				status.group,
+			);
 			if (response?.[0]) {
 				message.success('Status updated successfully');
 			} else {
@@ -309,7 +323,6 @@ const StatusEditDropDown = ({ options, handleEditPropertyChange, handleClose, co
 				),
 			}));
 			message.error(error?.message || 'Failed to update status');
-			console.error('Failed to update status:', error);
 		}
 	};
 
@@ -391,6 +404,11 @@ const StatusEditDropDown = ({ options, handleEditPropertyChange, handleClose, co
 													</span>
 												</span>
 											</span>
+											{option?.isDefault ? (
+												<span className="default-status-text">DEFAULT</span>
+											) : (
+												''
+											)}
 											<ChevronRightThinSvg />
 										</div>
 									</PropertyEditDropDown>

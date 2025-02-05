@@ -57,14 +57,14 @@ const DateView = ({
 				</div>
 			) : (
 				<DropDown
-					title={'Change due date'}
+					title={`Change ${title ? title : 'date'}`}
 					options={info?.dateOptions}
 					onOptionClick={updatedOnOptionClick}
 					selected={info?.dueDate}
 					valueSelector="value"
 				>
 					<Tooltip
-						title={<div className="tooltip-inner">{title}</div>}
+						title={showTitle && <div className="tooltip-inner">{title}</div>}
 						placement="bottom"
 						overlayClassName="tooltip-overlay-container"
 						color="transparent"

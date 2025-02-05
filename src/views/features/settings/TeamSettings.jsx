@@ -247,7 +247,11 @@ const TeamSettings = () => {
 
 	const handleSubmit = async () => {
 		try {
-			if (validateExpiryData?.isExpired) {
+			if (
+				validateExpiryData &&
+				validateExpiryData?.restrictWorkflows &&
+				validateExpiryData?.isExpired
+			) {
 				return updateSubscriptionState({ expiredSubscriptionModal: true });
 			}
 			if (info?.buttonLoading) return;

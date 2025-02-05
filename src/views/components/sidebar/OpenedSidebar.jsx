@@ -71,13 +71,11 @@ const OpenedSideBarHoverStateIcons = ({
 	navigateTo,
 	isSelected,
 	subModules,
-	isDropdownVisible,
-	setDropdownVisible,
-	activeSubModule,
-	setActiveSubModule,
 }) => {
 	const location = useLocation();
 	const [isHover, setisHover] = useState(false);
+	const [isDropdownVisible, setDropdownVisible] = useState(false);
+	const [activeSubModule, setActiveSubModule] = useState(null);
 	const onMoutseEnter = () => {
 		if (isActive) return;
 		setisHover(true);
@@ -87,11 +85,13 @@ const OpenedSideBarHoverStateIcons = ({
 		setisHover(false);
 	};
 
-	const redirectToFunction = () => {
-		setDropdownVisible(false);
-		setActiveSubModule(null);
+	const redirectToFunction = (subModules, route) => {
+		if (!subModules) {
+			navigateTo(route);
+		} else {
+			setDropdownVisible(!isDropdownVisible);
+		}
 		if (!route) return;
-		navigateTo(route);
 	};
 
 	const handleSubModuleClick = (e, subModule) => {
@@ -105,6 +105,7 @@ const OpenedSideBarHoverStateIcons = ({
 		e.stopPropagation();
 		e.preventDefault();
 		setDropdownVisible(!isDropdownVisible);
+		setActiveSubModule(null);
 	};
 
 	const isExactPathMatch = useCallback(() => {
@@ -127,7 +128,9 @@ const OpenedSideBarHoverStateIcons = ({
 				}`}
 				onMouseEnter={onMoutseEnter}
 				onMouseLeave={onMoutseLeave}
-				onClick={redirectToFunction}
+				onClick={() => {
+					redirectToFunction(subModules, route);
+				}}
 				style={{
 					marginBottom:
 						isDropdownVisible && subModules?.length
@@ -155,8 +158,8 @@ const OpenedSideBarHoverStateIcons = ({
 							<div
 								style={{
 									position: 'absolute',
-									left: '16px',
-									top: '8px',
+									left: '15px',
+									top: '10px',
 									bottom: '0',
 									width: '1px',
 									backgroundColor: '#333334',
@@ -165,29 +168,32 @@ const OpenedSideBarHoverStateIcons = ({
 							{activeSubModule !== null && (
 								<div
 									style={{
-										marginTop: '6px',
 										position: 'absolute',
-										left: '16px',
-										top: `${activeSubModule?.id * 50}px`,
-										height: '35px',
+										left: '14px',
+										top: `${activeSubModule?.id * 40}px`, // 40px is the height of each subModule
+										height: '32px',
 										width: '3px',
-										borderRadius: '100px',
 										backgroundColor: '#FFFFFF',
+										borderRadius: '100px',
 									}}
 								/>
 							)}
 							{subModules?.map((subItem, index) => (
 								<div
-									key={index}
-									className={`subItem`}
+									key={subItem?.name}
+									className={`subItem ${
+										activeSubModule?.id === index ? 'active' : ''
+									}`}
 									onClick={(e) => handleSubModuleClick(e, subItem)}
-									style={{
-										cursor: 'pointer',
-									}}
+									style={{ cursor: 'pointer' }}
 								>
 									<div className="subitem-content">
 										<p>{subItem.name}</p>
 									</div>
+									{subItem.icon &&
+										React.createElement(subItem.icon, {
+											fill: activeSubModule === index ? '#FFFFFF' : '#939393',
+										})}
 								</div>
 							))}
 						</div>
@@ -289,6 +295,8 @@ const OpenedSideBarItemsComponent = ({
 	info,
 	setInfo,
 	userWorkSpaceList,
+	isOpen,
+	setIsOpen,
 }) => {
 	const navigate = useNavigate();
 	const logoutFunc = useLogout();
@@ -297,8 +305,6 @@ const OpenedSideBarItemsComponent = ({
 	const [selectedChat, setSelectedChat] = useState(null);
 	const [activeChat, setActiveChat] = useState(false);
 	const [isMobile, setIsMobile] = useState(window.innerWidth < 500);
-	const [isDropdownVisible, setDropdownVisible] = useState(false);
-	const [activeSubModule, setActiveSubModule] = useState(null);
 
 	const location = useLocation();
 
@@ -345,7 +351,8 @@ const OpenedSideBarItemsComponent = ({
 
 	const handleSidebarCollapse = (e) => {
 		e.stopPropagation();
-		setsidebarStates({ ...sidebarStates, isOpen: false, navStyle: 'close' });
+		setsidebarStates({ ...sidebarStates, navStyle: 'close' });
+		setIsOpen(false);
 	};
 
 	const handleChatSelect = (chatName) => {
@@ -392,7 +399,8 @@ const OpenedSideBarItemsComponent = ({
 									cursor: 'pointer',
 									position: 'sticky',
 									top: '0',
-									zIndex: '100',
+									backgroundColor: '#202123',
+									zIndex: '1000',
 								}}
 							>
 								<div
@@ -482,14 +490,14 @@ const OpenedSideBarItemsComponent = ({
 										</div>
 									);
 								})} */}
-								{/* {!isThisEarlyAccessPage && (
+								{!isThisEarlyAccessPage && (
 									<hr
 										style={{
 											border: '0.7px solid #333334',
 											margin: '16px 0px',
 										}}
 									/>
-								)} */}
+								)}
 								{!isThisEarlyAccessPage &&
 									veAiModulesItemsList?.map((singleItems, index) => (
 										<div key={index}>
@@ -504,10 +512,6 @@ const OpenedSideBarItemsComponent = ({
 												isSelected={selectedOption === singleItems?.name}
 												isActive={location.pathname === singleItems?.route}
 												subModules={singleItems?.subModules}
-												isDropdownVisible={isDropdownVisible}
-												setDropdownVisible={setDropdownVisible}
-												activeSubModule={activeSubModule}
-												setActiveSubModule={setActiveSubModule}
 											/>
 										</div>
 									))}
@@ -534,10 +538,6 @@ const OpenedSideBarItemsComponent = ({
 												isSelected={selectedOption === singleItems?.name}
 												isActive={location.pathname === singleItems?.route}
 												subModules={singleItems?.subModules}
-												isDropdownVisible={isDropdownVisible}
-												setDropdownVisible={setDropdownVisible}
-												activeSubModule={activeSubModule}
-												setActiveSubModule={setActiveSubModule}
 											/>
 										</div>
 									))}

@@ -766,9 +766,7 @@ const ClosedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info, se
 					</div>
 				</>
 			)} */}
-			<SidebarClosingSvg
-				onClick={() => setsidebarStates({ ...sidebarStates, isOpen: true })}
-			/>
+			<SidebarClosingSvg onClick={openModuleFunction} />
 		</>
 	);
 };

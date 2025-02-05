@@ -13,6 +13,7 @@ const DropDown = ({
 	listItemStyles,
 	titleStyles,
 	onOptionClick,
+	selectedOptionStyles = {},
 }) => {
 	const [info, setInfo] = useState({ isOpen: false });
 	const handlePropagation = useCallback((e) => {
@@ -100,7 +101,7 @@ const DropDown = ({
 		>
 			<div
 				className=""
-				style={{ cursor: 'pointer' }}
+				style={{ cursor: 'pointer', ...selectedOptionStyles }}
 				onClick={(e) => {
 					handlePropagation(e);
 					handleDropDown(!info?.isOpen);

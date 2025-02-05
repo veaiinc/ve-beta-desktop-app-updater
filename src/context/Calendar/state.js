@@ -12,6 +12,7 @@ export const initialState = {
 	calendarEventDetails: null,
 	calendarCategories: null,
 	deletedEvent: null,
+	refetchCalendarState: false,
 };
 
 export const Calendar = () => {
@@ -322,6 +323,13 @@ export const Calendar = () => {
 		dispatch({ type: Actions.RESET_CALENDAR_AI_CHAT });
 	};
 
+	const updateCalendarState = (payload = {}) => {
+		dispatch({
+			type: Actions.UPDATE_CALENDAR_STATE,
+			payload,
+		});
+	};
+
 	return {
 		...state,
 		getCalendarChat,
@@ -338,5 +346,6 @@ export const Calendar = () => {
 		deleteCalendarCategory,
 		getCalendarEventDetails,
 		getCalendarAllEvents,
+		updateCalendarState,
 	};
 };
