@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import '../../../assets/scss/ai_assistant/actionButton.scss';
 
 const ActionButton = ({ children, ...props }) => {
@@ -9,4 +9,4 @@ const ActionButton = ({ children, ...props }) => {
 	);
 };
 
-export default ActionButton;
+export default memo(ActionButton);

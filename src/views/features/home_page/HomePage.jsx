@@ -7,6 +7,9 @@ import PromptPopup from '../../components/homePage/PromptPopup';
 import HomePageDashboard from '../../components/homePage/dashboard/HomePageDashboard';
 import HomePageStart from '../../components/homePage/HomePageStart';
 import { PromptData } from '../../components/homePage/PromptData';
+import { Tooltip } from 'antd';
+import { useNavigate } from 'react-router-dom';
+import { useRef } from 'react';
 import Context from '../../../context/context';
 import QuickActions from '../../components/globalComponents/QuickActions';
 import PriorityDropDown from '../../components/homePage/dashboard/PriorityDropDown';
@@ -25,7 +28,7 @@ const navbarOptions = {
 	],
 	dashboard: [
 		{ id: 1, title: 'Priority', value: 'Priority' },
-		// { id: 2, title: 'Tasks', value: 'Tasks' },
+		{ id: 2, title: 'Tasks', value: 'Tasks' },
 		{ id: 3, title: 'Workflows', value: 'Workflows' },
 		// { id: 4, title: 'Recent Chats', value: 'Recent Chats' },
 		{ id: 5, title: 'Drafts & Activity', value: 'Drafts & Activity' },
@@ -39,7 +42,13 @@ const HomePage = () => {
 	const [searchParams, setSearchParams] = useSearchParams();
 	let {
 		profileInfo: { userDetailsData },
+		templates: { toggleCreateLeadModal, getTabItemCount, tabItemCount },
 	} = useContext(Context);
+
+	useEffect(() => {
+		if (!tabItemCount) getTabItemCount();
+	}, []);
+
 	const [info, setInfo] = useState({
 		activeTab: searchParams?.get('tab') ?? 'dashboard',
 		showPromptPopup: false,
@@ -154,6 +163,9 @@ const HomePage = () => {
 				<div className="home-page-container-content">
 					<div className="home-page-container-content-item-container">
 						<div className="home-page-container-content-item-container-left">
+							<div className="priority-count">
+								{tabItemCount?.all > 99 ? '99+' : tabItemCount?.all}
+							</div>
 							{topNavOptions?.map((option) => (
 								<div
 									key={option?.id}
@@ -167,6 +179,7 @@ const HomePage = () => {
 									>
 										{option?.title}
 									</div>
+
 									{option?.id !== topNavOptions?.length - 1 && (
 										<div className="home-page-container-content-item-divider"></div>
 									)}
@@ -196,6 +209,7 @@ const HomePage = () => {
 							handleSelectedOption={handleSelectedOption}
 							handleSearchValue={handleSearchValue}
 							showSearchBar={showSearchBar}
+							tabItemCount={tabItemCount}
 						/>
 					</div>
 				</div>

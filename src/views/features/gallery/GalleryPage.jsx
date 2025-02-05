@@ -134,6 +134,7 @@ const GalleryPage = () => {
 			imageProcessingStatus,
 			getClientSelectionLightRoomCopy,
 			clientSelectionLightRoomCopy,
+			downloadImagesForClientSelection,
 		},
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 		profileInfo: { userWorkSpaceList, getTenantSettings, tennantSettingsData },
@@ -251,6 +252,7 @@ const GalleryPage = () => {
 			numberOfImagesPeoples: 0,
 		},
 	});
+
 	const optionsRef = useRef(null);
 	const iconRef = useRef(null);
 	const galleryOptionsRef = useRef(null);
@@ -1206,8 +1208,12 @@ const GalleryPage = () => {
 	const handleNavigateUpload = () => {
 		const uploadUrl =
 			info?.albumContains === 'All'
-				? `/galleries/${galleryId}/${info?.activeAlbumId}/upload-photos`
-				: `/galleries/${galleryId}/${info?.activeAlbumId}/upload-photos?tag=${info?.albumContains}`;
+				? `/galleries/${galleryId}/${info?.activeAlbumId}/upload-photos?light-gallery=${
+						location?.state?.isLightGallery ? true : false
+				  }`
+				: `/galleries/${galleryId}/${info?.activeAlbumId}/upload-photos?tag=${
+						info?.albumContains
+				  }?light-gallery=${location?.state?.isLightGallery ? true : false}`;
 
 		// Open in new tab
 		window.open(uploadUrl, '_blank');
@@ -2991,24 +2997,19 @@ const GalleryPage = () => {
 				info.selectedImages.length === 0
 			) {
 				const payload = {
-					image_ids: info.clientSelectionImages.docs.map((img) => img._id),
 					imageType: 'optimized',
 				};
 
-				const response = await downloadImages(payload, galleryId, info.activeAlbumId);
-
-				if (response?.[0] && response?.[1]?.signedUrl) {
-					const link = document.createElement('a');
-					link.href = response[1].signedUrl;
-					link.setAttribute('download', `client-selection-${Date.now()}.zip`);
-					document.body.appendChild(link);
-					link.click();
-					document.body.removeChild(link);
-
+				const response = await downloadImagesForClientSelection(
+					payload,
+					info?.clientSelectionID,
+				);
+				if (response?.[0] === true) {
 					message.success({
 						content: 'Download started',
 						key: 'downloadMessage',
 					});
+					window.open(response[1], '_blank');
 				} else {
 					throw new Error('Failed to prepare download');
 				}

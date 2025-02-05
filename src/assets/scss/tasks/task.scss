@@ -37,6 +37,10 @@
 		flex-grow: 1;
 		overflow: auto;
 	}
+
+	.ant-select-selector {
+		padding: 0px !important;
+	}
 }
 
 .task-delete-icon {

@@ -1,4 +1,6 @@
 import service from '../../services/graphQlServices';
+import restService from '../../services';
+
 import {
 	getListItemsQuery,
 	getListItemsByTenantUserQuery,
@@ -13,6 +15,8 @@ import {
 	createTaskStatusLabelMutation,
 	updateTaskStatusLabelMutation,
 	deleteTaskStatusLabelMutation,
+	updateTaskViewMutation,
+	deleteTaskViewMutation,
 	taskMetadataQuery,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
@@ -30,6 +34,7 @@ export const intialState = {
 	tasksCountForOverdue: null,
 	preferences: null,
 	taskMetadata: null,
+	taskPreference: null,
 	refetchTasks: false,
 };
 
@@ -66,32 +71,33 @@ export const TasksState = () => {
 		try {
 			if (task !== null && type !== null) {
 				const taskId = task?._id;
+				if (state?.listTasksDueTillToday) {
+					if (type === 'update') {
+						const updatedList = state?.listTasksDueTillToday?.data?.map((item) => {
+							if (item?._id === taskId) {
+								return { ...task };
+							}
+							return item;
+						});
 
-				if (type === 'update') {
-					const updatedList = state?.listTasksDueTillToday?.data?.map((item) => {
-						if (item?._id === taskId) {
-							return { ...task };
-						}
-						return item;
-					});
-
-					dispatch({
-						type: Actions.SET_LIST_TASKS_DUE_TILL_TODAY,
-						payload: { ...state?.listTasksDueTillToday, data: updatedList },
-					});
-					return;
+						dispatch({
+							type: Actions.SET_LIST_TASKS_DUE_TILL_TODAY,
+							payload: { ...state?.listTasksDueTillToday, data: updatedList },
+						});
+						return;
+					}
+					if (type === 'delete') {
+						const updatedList = state?.listTasksDueTillToday?.data?.filter(
+							(item) => item?._id !== taskId,
+						);
+						dispatch({
+							type: Actions.SET_LIST_TASKS_DUE_TILL_TODAY,
+							payload: { ...state?.listTasksDueTillToday, data: updatedList },
+						});
+						return;
+					}
 				}
-				console.log(task);
-				if (type === 'delete') {
-					const updatedList = state?.listTasksDueTillToday?.data?.filter(
-						(item) => item?._id !== taskId,
-					);
-					dispatch({
-						type: Actions.SET_LIST_TASKS_DUE_TILL_TODAY,
-						payload: { ...state?.listTasksDueTillToday, data: updatedList },
-					});
-					return;
-				}
+				return;
 			}
 
 			let workspaceId = localStorage.getItem('workspaceId');
@@ -129,30 +135,33 @@ export const TasksState = () => {
 	const getListTasksForToday = async (payload, type = null, task = null) => {
 		try {
 			if (task !== null && type !== null) {
-				const taskId = task?._id;
-				if (type === 'update') {
-					const updatedList = state?.listTasksForToday?.data?.map((item) => {
-						if (item?._id === taskId) {
-							return task;
-						}
-						return item;
-					});
-					dispatch({
-						type: Actions.SET_LIST_TASKS_FOR_TODAY,
-						payload: { ...state?.listTasksForToday, data: updatedList },
-					});
-					return;
+				if (state?.listTasksForToday) {
+					const taskId = task?._id;
+					if (type === 'update') {
+						const updatedList = state?.listTasksForToday?.data?.map((item) => {
+							if (item?._id === taskId) {
+								return task;
+							}
+							return item;
+						});
+						dispatch({
+							type: Actions.SET_LIST_TASKS_FOR_TODAY,
+							payload: { ...state?.listTasksForToday, data: updatedList },
+						});
+						return;
+					}
+					if (type === 'delete') {
+						const updatedList = state?.listTasksForToday?.data?.filter(
+							(item) => item?._id !== taskId,
+						);
+						dispatch({
+							type: Actions.SET_LIST_TASKS_FOR_TODAY,
+							payload: { ...state?.listTasksForToday, data: updatedList },
+						});
+						return;
+					}
 				}
-				if (type === 'delete') {
-					const updatedList = state?.listTasksForToday?.data?.filter(
-						(item) => item?._id !== taskId,
-					);
-					dispatch({
-						type: Actions.SET_LIST_TASKS_FOR_TODAY,
-						payload: { ...state?.listTasksForToday, data: updatedList },
-					});
-					return;
-				}
+				return;
 			}
 
 			let workspaceId = localStorage.getItem('workspaceId');
@@ -192,30 +201,34 @@ export const TasksState = () => {
 	const getListTasksForOverdue = async (payload, type = null, task = null) => {
 		try {
 			if (task !== null && type !== null) {
-				const taskId = task?._id;
-				if (type === 'update') {
-					const updatedList = state?.listTasksForOverdue?.data?.map((item) => {
-						if (item?._id === taskId) {
-							return task;
-						}
-						return item;
-					});
-					dispatch({
-						type: Actions.SET_LIST_TASKS_FOR_OVERDUE,
-						payload: { ...state?.listTasksForOverdue, data: updatedList },
-					});
-					return;
+				if (state?.listTasksForOverdue) {
+					const taskId = task?._id;
+					if (type === 'update') {
+						const updatedList = state?.listTasksForOverdue?.data?.map((item) => {
+							if (item?._id === taskId) {
+								return task;
+							}
+							return item;
+						});
+
+						dispatch({
+							type: Actions.SET_LIST_TASKS_FOR_OVERDUE,
+							payload: { ...state?.listTasksForOverdue, data: updatedList },
+						});
+						return;
+					}
+					if (type === 'delete') {
+						const updatedList = state?.listTasksForOverdue?.data?.filter(
+							(item) => item?._id !== taskId,
+						);
+						dispatch({
+							type: Actions.SET_LIST_TASKS_FOR_OVERDUE,
+							payload: { ...state?.listTasksForOverdue, data: updatedList },
+						});
+						return;
+					}
 				}
-				if (type === 'delete') {
-					const updatedList = state?.listTasksForOverdue?.data?.filter(
-						(item) => item?._id !== taskId,
-					);
-					dispatch({
-						type: Actions.SET_LIST_TASKS_FOR_OVERDUE,
-						payload: { ...state?.listTasksForOverdue, data: updatedList },
-					});
-					return;
-				}
+				return;
 			}
 
 			let workspaceId = localStorage.getItem('workspaceId');
@@ -596,6 +609,102 @@ export const TasksState = () => {
 		});
 	};
 
+	const updateTaskViews = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.mutation(
+				updateTaskViewMutation,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.UPDATE_TASK_VIEWS,
+					payload: response?.[1]?.data?.updateTaskView?.views,
+				});
+			}
+		} catch (error) {
+			console.log('API failed ==> updateTaskViews', error);
+		}
+	};
+
+	const deleteTaskView = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.mutation(
+				deleteTaskViewMutation,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.DELETE_TASK_VIEW,
+					payload: payload?.viewId,
+				});
+			}
+		} catch (error) {
+			console.log('API failed ==> deleteTaskView', error);
+		}
+	};
+
+	const getTaskPreferences = async (data) => {
+		try {
+			const usertoken = localStorage.getItem('usertoken');
+			const response = await restService.fetchGet(
+				'/tenantuser-preference',
+				usertoken,
+				'tenant-users',
+				data,
+			);
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.SET_TASK_PREFERENCES,
+					payload: { data: response?.[1] },
+				});
+			} else {
+				dispatch({
+					type: Actions.SET_TASK_PREFERENCES,
+					payload: { error: response?.[1] },
+				});
+			}
+		} catch (error) {
+			console.log('error ==> getTaskPreferences', error);
+			dispatch({
+				type: Actions.SET_TASK_PREFERENCES,
+				payload: { error: error },
+			});
+		}
+	};
+
+	const updateTaskPreferences = async (json) => {
+		try {
+			const usertoken = localStorage.getItem('usertoken');
+			const response = await restService.fetchPut(
+				'/tenantuser-preference',
+				json,
+				usertoken,
+				'tenant-users',
+			);
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.SET_TASK_PREFERENCES,
+					payload: { data: json?.data },
+				});
+				return [true, response[1]];
+			} else {
+				return [false, response[1]];
+			}
+		} catch (error) {
+			console.log('error ==> updateTaskPreferences', error);
+		}
+	};
+
 	return {
 		...state,
 		getListItems,
@@ -621,5 +730,9 @@ export const TasksState = () => {
 		resetTasksState,
 		updateTaskState,
 		getTaskMetadata,
+		updateTaskViews,
+		deleteTaskView,
+		getTaskPreferences,
+		updateTaskPreferences,
 	};
 };
