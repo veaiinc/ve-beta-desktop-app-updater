@@ -155,40 +155,6 @@ export const useVoiceIntegration = () => {
 		[handleReconnect],
 	);
 
-	// const getToken = async () => {
-	// 	try {
-	// 		const roomName = `test_room_${Math.floor(Math.random() * 1000)}`;
-	// 		const usertoken = localStorage.getItem('usertoken');
-	// 		console.log('Generating token for room:', roomName);
-
-	// 		const response = await fetch(
-	// 			'https://ai.ap-south-1.ve.ai/myphotos/generate-livekit-token',
-	// 			{
-	// 				method: 'POST',
-	// 				headers: {
-	// 					'Content-Type': 'application/json',
-	// 					Authorization: `Bearer ${usertoken}`,
-	// 				},
-	// 				body: {},
-	// 			},
-	// 		);
-
-	// 		if (!response.ok) {
-	// 			throw new Error(`HTTP error! status: ${response.status}`);
-	// 		}
-
-	// 		const data = await response.json();
-	// 		console.log('Token received successfully');
-	// 		return {
-	// 			token: data.token,
-	// 			roomName: roomName,
-	// 		};
-	// 	} catch (error) {
-	// 		console.error('Error fetching token:', error);
-	// 		throw error;
-	// 	}
-	// };
-
 	const connectToRoom = useCallback(async () => {
 		if (isConnected) {
 			console.log('Already connected to room');
@@ -197,6 +163,7 @@ export const useVoiceIntegration = () => {
 
 		try {
 			console.log('Starting connection process...');
+
 			const room = roomRef.current;
 
 			// Ensure any previous connection is cleaned up
@@ -341,6 +308,7 @@ export const useVoiceIntegration = () => {
 			}
 
 			await roomRef.current.disconnect();
+
 			setIsConnected(false);
 			setReconnectAttempt(0);
 			console.log('Disconnected from room');
@@ -365,7 +333,7 @@ export const useVoiceIntegration = () => {
 		} catch (error) {
 			console.error('Error toggling Krisp noise filter:', error);
 		}
-	}, []);
+	}, [krispProcessorRef]);
 
 	return {
 		isConnected,
