@@ -895,7 +895,7 @@ const TasksTab = () => {
 							hasMore={info?.taskData?.[info?.selectedOption]?.hasNextPage}
 							next={fetchMoreTasksData}
 							loader={<FetchMoreLoaderComp />}
-							height={`calc(100vh - 520px)`}
+							height={`calc(100vh - 410px)`}
 						>
 							<div className="tasks-container">
 								{info?.taskData?.[info?.selectedOption]?.data?.map((task) => {
