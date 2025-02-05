@@ -164,26 +164,6 @@ const FormRes = ({ formId, updateTotalSubmissions }) => {
 		<div className="formResParentContainer">
 			<div className="tableWrapper">
 				<div className="tableContent">
-					<div className="headerRow">
-						{info?.columns?.map((column, index) => (
-							<div
-								key={column?.id}
-								className="headerCell"
-								style={{ width: column?.width }}
-							>
-								<div className="cellContent">
-									{(column?.label || '')
-										?.replace(/<\/?[^>]+(>|$)/g, '')
-										?.replace(/&nbsp;/g, ' ')}
-								</div>
-								<div
-									className="resizeHandle"
-									onMouseDown={(e) => handleMouseDown(index, e)}
-								/>
-							</div>
-						))}
-					</div>
-
 					<div className="tableBody">
 						<InfiniteScroll
 							dataLength={info?.formResponses?.length || 0}
@@ -198,8 +178,28 @@ const FormRes = ({ formId, updateTotalSubmissions }) => {
 							}}
 							height="calc(100vh - 450px)"
 						>
+							<div className="headerRow">
+								{info?.columns?.map((column, index) => (
+									<div
+										key={column?.id}
+										className="headerCell"
+										style={{ width: column?.width }}
+									>
+										<div className="cellContent">
+											{(column?.label || '')
+												?.replace(/<\/?[^>]+(>|$)/g, '')
+												?.replace(/&nbsp;/g, ' ')}
+										</div>
+										<div
+											className="resizeHandle"
+											onMouseDown={(e) => handleMouseDown(index, e)}
+										/>
+									</div>
+								))}
+							</div>
 							{info?.formResponses?.map((row, rowIndex) => (
 								<div key={rowIndex} className="tableRow">
+									{console.log('row', info?.columns)}
 									{info?.columns?.map((column) => (
 										<div
 											key={column?.id}
