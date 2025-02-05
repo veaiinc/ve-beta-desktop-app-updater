@@ -143,15 +143,15 @@ const TasksTab = () => {
 		() => ({
 			pending: {
 				label: 'Pending actions till today',
-				count: tasksCountForToday + tasksCountForOverdue,
+				count: (tasksCountForToday ?? 0) + (tasksCountForOverdue ?? 0),
 			},
 			today: {
 				label: 'Today',
-				count: tasksCountForToday,
+				count: tasksCountForToday ?? 0,
 			},
 			overdue: {
 				label: 'Overdue',
-				count: tasksCountForOverdue,
+				count: tasksCountForOverdue ?? 0,
 			},
 		}),
 		[tasksCountForToday, tasksCountForOverdue],
