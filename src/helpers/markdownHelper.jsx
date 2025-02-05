@@ -1,10 +1,8 @@
 import React, { memo, useEffect, useState } from 'react';
 import { default as ReactMarkdown } from 'react-markdown';
-import remarkGfm from 'remark-gfm';
+// import remarkGfm from 'remark-gfm';
 import { Link } from 'react-router-dom'; // Adjust if you're using another router
 import '../assets/scss/markdown.scss';
-
-const isChrome = /Chrome/.test(navigator.userAgent) && !/Safari/.test(navigator.userAgent);
 
 const components = {
 	pre: ({ children }) => <>{children}</>,
@@ -92,11 +90,12 @@ const components = {
 	},
 };
 
-const remarkPlugins = isChrome ? [remarkGfm] : [];
+// console.log('isChrome', isChrome);
 
+// const remarkPlugins = [];
 const NonMemoizedMarkdown = ({ children }) => {
 	return (
-		<ReactMarkdown remarkPlugins={remarkPlugins} components={components}>
+		<ReactMarkdown remarkPlugins={[]} components={components}>
 			{children}
 		</ReactMarkdown>
 	);
