@@ -12,6 +12,7 @@ const TeamAccessListComponent = ({
 	info,
 	filteredUsers,
 	updateTenantRoleFunc,
+	handleInviteMembers,
 }) => {
 	const updateUserRoleFunction = (tenantid, role) => {
 		updateTenantRoleFunc(tenantid, role);
@@ -21,15 +22,16 @@ const TeamAccessListComponent = ({
 		<>
 			<div className="yourTeamTitle">
 				<h1>Your Team Access</h1>
-				<div className="yourTeamFilter">
-					<img src={search} alt="searchh" />
-					<input
-						type="text"
-						placeholder="Search by name, email"
-						onChange={handleInputChange}
-						value={info.searchQuery}
-					/>
-				</div>
+				<button onClick={handleInviteMembers}>Invite Members</button>
+			</div>
+			<div className="yourTeamFilter">
+				<img src={search} alt="searchh" />
+				<input
+					type="text"
+					placeholder="Search by name, email"
+					onChange={handleInputChange}
+					value={info.searchQuery}
+				/>
 			</div>
 			<div>
 				<div>

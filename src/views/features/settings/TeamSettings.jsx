@@ -347,21 +347,15 @@ const TeamSettings = () => {
 		}
 	};
 
+	const handleInviteMembers = () => {
+		setInfo((prev) => ({ ...prev, showAddTenantUserModal: true }));
+	};
+
 	return (
 		<>
 			{contextHolder}
 
 			<div className="TeamMemberContainer">
-				<div className="settingsBoxContainer inviteMemberComponent">
-					<InviteMembersWorkspaceComponent
-						handleChnage={handleChnage}
-						info={info}
-						handleSubmit={handleSubmit}
-						sendRequestList={sendRequestList}
-						setsendRequestList={setsendRequestList}
-					/>
-				</div>
-
 				<div className="settingsBoxContainer yourTeamComponent">
 					<TeamAccessListComponent
 						search={search}
@@ -369,9 +363,23 @@ const TeamSettings = () => {
 						info={info}
 						filteredUsers={filteredUsers}
 						updateTenantRoleFunc={updateTenantRoleFunc}
+						handleInviteMembers={handleInviteMembers}
 					/>
 				</div>
 			</div>
+			{info?.showAddTenantUserModal && (
+				<InviteMembersWorkspaceComponent
+					isOpen={info?.showAddTenantUserModal}
+					closeModal={() =>
+						setInfo((prev) => ({ ...prev, showAddTenantUserModal: false }))
+					}
+					handleChnage={handleChnage}
+					info={info}
+					handleSubmit={handleSubmit}
+					sendRequestList={sendRequestList}
+					setsendRequestList={setsendRequestList}
+				/>
+			)}
 		</>
 	);
 };
