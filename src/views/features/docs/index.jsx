@@ -409,12 +409,18 @@ const Docs = () => {
 	const handleFilterPopUpSearch = (filter, searchValue) => {
 		if (searchValue === '') {
 			if (filter === 'templateName') {
-				getTemplatesListForDocs(1, 10, '');
-				return;
+				clearInterval(info?.timeout);
+				const timeout = setTimeout(() => {
+					getTemplatesListForDocs(1, 10, '');
+				}, 500);
+				setInfo((prev) => ({ ...prev, timeout }));
 			}
 			if (filter === 'clientName') {
-				getClientListForDocs(payload);
-				return;
+				clearInterval(info?.timeout);
+				const timeout = setTimeout(() => {
+					getClientListForDocs(payload);
+				}, 500);
+				setInfo((prev) => ({ ...prev, timeout }));
 			}
 		}
 		setInfo((prev) => ({
@@ -641,7 +647,7 @@ const Docs = () => {
 										if (!isOpen) {
 											setInfo((prev) => ({
 												...prev,
-												searchValue: '',
+												[`${appliedFilter?.filter}SearchValue`]: '',
 											}));
 										}
 									}}
