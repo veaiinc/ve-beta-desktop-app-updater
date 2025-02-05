@@ -247,7 +247,7 @@ const CreateClientModal = ({ modalIsOpen, closeModal, source }) => {
 							className="errorMessage"
 							style={{ color: '#ff4d4f', opacity: 0.5, fontSize: '14px' }}
 						>
-							{errorState['errorMessage']} something went wrog
+							{errorState['errorMessage']}
 						</p>
 					</div>
 				</div>
