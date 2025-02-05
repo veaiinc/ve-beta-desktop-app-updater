@@ -641,7 +641,7 @@ const Docs = () => {
 										if (!isOpen) {
 											setInfo((prev) => ({
 												...prev,
-												searchValue: '',
+												[`${appliedFilter?.filter}SearchValue`]: '',
 											}));
 										}
 									}}
