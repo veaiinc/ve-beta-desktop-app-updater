@@ -198,8 +198,8 @@ const MyTemplates = () => {
 			<div className="headerContainer">
 				<div className="myTemplatesHeader">
 					<div className="headerText">
-						<span className="lineOne">Create a</span>
-						<span className="lineTwo">Document</span>
+						<span className="lineOne">Templates</span>
+						<span className="lineTwo">You Created</span>
 					</div>
 					<div className="quickActionsBtn">
 						<QuickActions />

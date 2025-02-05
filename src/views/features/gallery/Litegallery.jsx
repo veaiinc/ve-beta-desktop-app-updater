@@ -255,8 +255,8 @@ const LiteGallery = () => {
 			{/* <h1>Light Gallery</h1> */}
 			<div className="gallery-header-container">
 				<div className="gallery-header-text">
-					<span className="lineOne">Create a</span>
-					<span className="lineTwo">Document</span>
+					<span className="lineOne">Lite</span>
+					<span className="lineTwo">Gallery</span>
 				</div>
 				<div className="quickActionsBtn">
 					<QuickActions />

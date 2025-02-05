@@ -85,8 +85,8 @@ const Forms = () => {
 		<div className="formsParentContainer">
 			<div className="formsHeaderContainer">
 				<div className="headerText">
-					<span className="lineOne">Create a</span>
-					<span className="lineTwo">Document</span>
+					<span className="lineOne">Forms</span>
+					<span className="lineTwo">You Created</span>
 				</div>
 				<div className="quickActionsBtn">
 					<QuickActions />
