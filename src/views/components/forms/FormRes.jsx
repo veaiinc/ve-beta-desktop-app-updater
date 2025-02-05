@@ -1,7 +1,7 @@
 import React, { useState, useEffect, memo, useCallback, useContext } from 'react';
 import '../../../assets/scss/forms/formRes.scss';
 import Context from '../../../context/context';
-import { FetchMoreLoaderComp } from '../../../helpers';
+import { FetchMoreLoaderComp, isURL } from '../../../helpers';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import moment from 'moment';
 
@@ -93,6 +93,16 @@ const FormRes = ({ formId, updateTotalSubmissions }) => {
 	const getAnswerForQuestion = (response, questionId) => {
 		const questionData = response?.find((item) => item?._id === questionId);
 		if (!questionData) return '';
+		if (isURL(questionData?.answer))
+			return (
+				<a href={questionData?.answer} target="_blank" rel="noopener noreferrer">
+					<img
+						style={{ width: '100%', height: '100%' }}
+						src={questionData?.answer}
+						alt="answer"
+					/>
+				</a>
+			);
 
 		if (questionData?.type === 'events') {
 			try {
@@ -199,7 +209,6 @@ const FormRes = ({ formId, updateTotalSubmissions }) => {
 							</div>
 							{info?.formResponses?.map((row, rowIndex) => (
 								<div key={rowIndex} className="tableRow">
-									{console.log('row', info?.columns)}
 									{info?.columns?.map((column) => (
 										<div
 											key={column?.id}
