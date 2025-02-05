@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState, useCallback, useMemo, useRef } from 'react';
+import React, { useContext, useEffect, useState, useCallback, useMemo, useRef, memo } from 'react';
 import '../../../../assets/scss/home_page/tasks.scss';
 import { ReactComponent as ChevronRightThinIcon } from '../../../../assets/svg/tasks/chevronRightThin.svg';
 import { ReactComponent as textSvg } from '../../../../assets/svg/tasks/letterA.svg';
@@ -371,7 +371,6 @@ const TasksTab = () => {
 
 	useEffect(() => {
 		if (listTasksForToday) {
-			const a = { [info?.selectedOption]: { ...listTasksForToday } };
 			setInfo((prevInfo) => ({
 				...prevInfo,
 				taskData: {
@@ -1003,4 +1002,4 @@ const TasksTab = () => {
 	);
 };
 
-export default TasksTab;
+export default memo(TasksTab);
