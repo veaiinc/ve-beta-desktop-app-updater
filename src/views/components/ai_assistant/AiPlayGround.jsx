@@ -8,9 +8,15 @@ const AiPlayGround = ({ assistant }) => {
 	)}`;
 
 	return (
-		<div className="ai-playground-container">
-			<h3 className="ai-playground-header">Ve AI Chat Playground – Your AI, Your Way</h3>
-			<iframe className="ai-playground-iframe" src={aiChatUrl} title="AI Assistant Chat" />
+		<div className="aiPlayGroundParentContainer">
+			<div className="ai-playground-container">
+				<h3 className="ai-playground-header">Ve AI Chat Playground – Your AI, Your Way</h3>
+				<iframe
+					className="ai-playground-iframe"
+					src={aiChatUrl}
+					title="AI Assistant Chat"
+				/>
+			</div>
 		</div>
 	);
 };
