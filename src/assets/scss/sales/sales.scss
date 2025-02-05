@@ -294,6 +294,9 @@
 							font-weight: 500;
 							line-height: normal;
 							text-transform: capitalize;
+							overflow: hidden;
+							text-overflow: ellipsis;
+							width: 100%;
 						}
 
 						.agentsWorkflowJobCardsSubTitle {
@@ -309,7 +312,7 @@
 							line-height: 20px; /* 142.857% */
 							overflow: hidden;
 							text-overflow: ellipsis;
-							width: 235px;
+							width: 100%;
 						}
 					}
 					.agentsTabType {
