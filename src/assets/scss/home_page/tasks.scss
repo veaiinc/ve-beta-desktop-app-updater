@@ -2,34 +2,12 @@
 	position: relative;
 	margin-top: 25px;
 
-	.today-tasks {
-		margin-bottom: 10px;
-		.today-text {
-			color: #797e86;
-			color: color(display-p3 0.4784 0.4941 0.5216);
-			font-family: Inter;
-			font-size: 14px;
-			font-style: normal;
-			font-weight: 500;
-			line-height: normal;
-			margin-bottom: 10px;
-		}
-	}
+	.tasks-header {
+		.tasks-header-text {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
 
-	.over-due-tasks {
-		.over-due-text {
-			color: #797e86;
-			color: color(display-p3 0.4784 0.4941 0.5216);
-			font-family: Inter;
-			font-size: 14px;
-			font-style: normal;
-			font-weight: 500;
-			line-height: normal;
-			margin-bottom: 10px;
-		}
-	}
-	.due-till-today-tasks {
-		.due-till-today-text {
 			color: #797e86;
 			color: color(display-p3 0.4784 0.4941 0.5216);
 			font-family: Inter;
@@ -156,11 +134,6 @@
 }
 
 .dropdown-container {
-	position: absolute;
-	transform: translateY(-50%);
-	right: 0;
-	top: 0;
-
 	.dropdown-header {
 		display: flex;
 		width: 150px;
