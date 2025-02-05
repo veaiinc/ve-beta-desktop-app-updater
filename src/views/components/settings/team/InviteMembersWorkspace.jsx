@@ -83,7 +83,38 @@ const InviteMembersWorkspaceComponent = ({
 						</div>
 					);
 				})}
-
+				<div className="accessControls">
+					<div className="accessControlTitle">Access Controls</div>
+					<div className="accessControlOptions">
+						<div className="accessControlOption">
+							{/* <div className="accessControlOptionIcon"></div> */}
+							<input
+								type="checkbox"
+								className="accessControlOptionIcon"
+								checked={true}
+							/>
+							<div className="accessControlOptionText">Software</div>
+						</div>
+						<div className="accessControlOption">
+							{/* <div className="accessControlOptionIcon"></div> */}
+							<input
+								type="checkbox"
+								className="accessControlOptionIcon"
+								onClick={() => {}}
+							/>
+							<div className="accessControlOptionText">AI Agents</div>
+						</div>
+						<div className="accessControlOption">
+							{/* <div className="accessControlOptionIcon"></div> */}
+							<input
+								type="checkbox"
+								className="accessControlOptionIcon"
+								onClick={() => {}}
+							/>
+							<div className="accessControlOptionText">Storage</div>
+						</div>
+					</div>
+				</div>
 				<div className="buttonsContainer">
 					<div style={{ minWidth: '150px', display: 'flex', gap: '5px' }}>
 						<ReusableButtonSettings text="Send Request" func={handleSubmit} />
