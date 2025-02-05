@@ -127,7 +127,7 @@ const AiPrompt = ({ assistant }) => {
 
 	return (
 		<div className="aiPromptParentContainer">
-			<div className="aiModalContainer">
+			{/* <div className="aiModalContainer">
 				<div className="aiModalHeader">
 					<span className="lineone">Model </span>
 					<Question />
@@ -162,7 +162,7 @@ const AiPrompt = ({ assistant }) => {
 						</div>
 					</Tooltip>
 				</div>
-			</div>
+			</div> */}
 
 			<div className="systemProptParentContainer">
 				<div className="systemProptHeader">

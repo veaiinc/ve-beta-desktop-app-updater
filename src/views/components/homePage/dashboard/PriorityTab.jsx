@@ -129,9 +129,14 @@ const PriorityTab = () => {
 							dataLength={requiredActions?.actions?.length || 0}
 							hasMore={requiredActions?.hasNextPage}
 							next={fetchMoreData}
-							height={'calc(100vh - 515px)'}
+							height={'calc(100vh - 395px)'}
 							loader={<FetchMoreLoaderComp />}
-							style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}
+							style={{
+								display: 'flex',
+								flexWrap: 'wrap',
+								gap: '10px',
+								marginBottom: '85px',
+							}}
 						>
 							{requiredActions?.actions?.map((actionItem, index) => (
 								<div

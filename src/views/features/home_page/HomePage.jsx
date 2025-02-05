@@ -9,7 +9,6 @@ import HomePageStart from '../../components/homePage/HomePageStart';
 import { PromptData } from '../../components/homePage/PromptData';
 import { Tooltip } from 'antd';
 import { useNavigate } from 'react-router-dom';
-import CreateLeadModal from '../../components/modalsV2/proposalModals/CreateLeadModal';
 import { useRef } from 'react';
 import Context from '../../../context/context';
 
@@ -27,7 +26,7 @@ const navbarOptions = {
 	],
 	dashboard: [
 		{ id: 1, title: 'Priority', value: 'Priority' },
-		{ id: 2, title: 'Tasks', value: 'Tasks' },
+		// { id: 2, title: 'Tasks', value: 'Tasks' },
 		{ id: 3, title: 'Workflows', value: 'Workflows' },
 		// { id: 4, title: 'Recent Chats', value: 'Recent Chats' },
 		{ id: 5, title: 'Drafts & Activity', value: 'Drafts & Activity' },
@@ -51,8 +50,13 @@ const HomePage = () => {
 	const [searchParams, setSearchParams] = useSearchParams();
 	let {
 		profileInfo: { userDetailsData },
-		templates: { toggleCreateLeadModal, createLeadModalContextState },
+		templates: { toggleCreateLeadModal, getTabItemCount, tabItemCount },
 	} = useContext(Context);
+
+	useEffect(() => {
+		if (!tabItemCount) getTabItemCount();
+	}, []);
+
 	const [info, setInfo] = useState({
 		activeTab: searchParams?.get('tab') ?? 'dashboard',
 		showPromptPopup: false,
@@ -87,19 +91,6 @@ const HomePage = () => {
 			navigate('/tasks');
 		}
 	}, []);
-
-	const closeCreateLeadModal = () => {
-		setInfo((prev) => ({
-			...prev,
-			openCreateLeadModal: false,
-		}));
-	};
-	const openCreateLeadModal = () => {
-		setInfo((prev) => ({
-			...prev,
-			openCreateLeadModal: true,
-		}));
-	};
 
 	const setNavbarFixed = (e) => {
 		const topOffset = e?.target?.scrollTop;
@@ -193,6 +184,9 @@ const HomePage = () => {
 				<div className="home-page-container-content">
 					<div className="home-page-container-content-item-container">
 						<div className="home-page-container-content-item-container-left">
+							<div className="priority-count">
+								{tabItemCount?.all > 99 ? '99+' : tabItemCount?.all}
+							</div>
 							{topNavOptions?.map((option) => (
 								<div
 									key={option?.id}
@@ -206,6 +200,7 @@ const HomePage = () => {
 									>
 										{option?.title}
 									</div>
+
 									{option?.id !== topNavOptions?.length - 1 && (
 										<div className="home-page-container-content-item-divider"></div>
 									)}
@@ -264,6 +259,7 @@ const HomePage = () => {
 							handleSelectedOption={handleSelectedOption}
 							handleSearchValue={handleSearchValue}
 							showSearchBar={showSearchBar}
+							tabItemCount={tabItemCount}
 						/>
 					</div>
 				</div>

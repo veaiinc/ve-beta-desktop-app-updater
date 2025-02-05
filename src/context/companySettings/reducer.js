@@ -22,13 +22,6 @@ const actionHandlers = {
 		...state,
 		AICreditsData: action?.payload,
 	}),
-	GET_TASK_PREFERENCES: (state, action) => ({
-		...state,
-		taskPreference: {
-			...state?.taskPreference,
-			...action?.payload?.data,
-		},
-	}),
 
 	RESET_STATE: () => ({ ...intialState }),
 };
