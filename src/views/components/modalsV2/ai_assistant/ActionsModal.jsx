@@ -78,7 +78,7 @@ const ActionsModal = ({
 				...prev,
 				method: selectedAction?.method || 'GET',
 				apiUses: selectedAction?.contentType?.toUpperCase() || 'JSON',
-				url: selectedAction?.url || '',
+				url: selectedAction?.api?.url || '',
 				variables:
 					selectedAction?.variables?.map((v) => ({
 						id: Date.now() + Math.random(),
@@ -688,6 +688,7 @@ const EndpointTab = ({
 	variables,
 	onVariableSelect,
 }) => {
+	console.log('Url:', url);
 	return (
 		<div className="endpointTabContainer">
 			<div className="addUrlContainer">
