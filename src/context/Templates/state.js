@@ -691,7 +691,7 @@ export const TemplatesState = (props) => {
 				'workflows_Api',
 			);
 			if (response?.[0]) {
-				return [true];
+				return [true, response?.[1]?.data?.createWorkflowFromTemplate?._id];
 			} else {
 				return [false, response?.[1]?.message || 'Something went Worng'];
 			}
