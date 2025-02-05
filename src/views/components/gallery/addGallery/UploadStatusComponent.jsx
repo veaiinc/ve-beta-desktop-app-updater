@@ -4,6 +4,7 @@ import { ReactComponent as CancelUploadSvg } from '../../../../assets/svg/galler
 import { Progress } from 'antd';
 import DuplicateComponent from './DuplicateComponent';
 import Context from '../../../../context/context';
+import { getImageSizeFormat } from '../../../../helpers';
 
 const UploadStatusComponent = ({ info, setinfo, uploadFilesConcurrently, galleryId }) => {
 	const {
@@ -23,7 +24,24 @@ const UploadStatusComponent = ({ info, setinfo, uploadFilesConcurrently, gallery
 	};
 
 	const uploadPhotosSubmitHandler = (e) => {
-		if (validateExpiryData?.isExpired) {
+		const params = new URLSearchParams(window.location.search);
+		const lightGallery = params.get('light-gallery');
+
+		if (
+			lightGallery === 'true' &&
+			validateExpiryData &&
+			validateExpiryData?.restrictGalleries &&
+			(validateExpiryData?.isExpired || !validateExpiryData?.imagesAllowed)
+		) {
+			return updateSubscriptionState({ expiredSubscriptionModal: true });
+		}
+
+		if (
+			lightGallery === 'false' &&
+			validateExpiryData &&
+			validateExpiryData?.restrictGalleries &&
+			(validateExpiryData?.isExpired || !validateExpiryData?.uploadAllowed)
+		) {
 			return updateSubscriptionState({ expiredSubscriptionModal: true });
 		}
 		e.preventDefault();
@@ -56,9 +74,7 @@ const UploadStatusComponent = ({ info, setinfo, uploadFilesConcurrently, gallery
 					<div className="text_div">
 						<h1>
 							{Object.keys(info?.uploadImages || {}).length} Images added -{' '}
-							{info?.uploadSize > 1024
-								? (info?.uploadSize / 1024).toFixed(2) + ' MB'
-								: (info?.uploadSize).toFixed(2) + ' KB'}{' '}
+							{getImageSizeFormat(info?.uploadSize)}
 						</h1>
 						<p>Max amount 10,000 photos</p>
 					</div>
@@ -93,7 +109,12 @@ const UploadStatusComponent = ({ info, setinfo, uploadFilesConcurrently, gallery
 						<div className="body_upload_div">
 							{Object.entries(info?.uploadImages || {}).map(([key, singlePhoto]) => (
 								<div className="single_file_detail" key={key}>
-									<div className="fileName">{singlePhoto?.file?.name}</div>
+									<div
+										className="fileName"
+										style={{ color: singlePhoto?.isFailed ? '#c84545' : '' }}
+									>
+										{singlePhoto?.file?.name}
+									</div>
 
 									<div className="progress_div">
 										{singlePhoto?.isDuplicate && (
@@ -103,7 +124,7 @@ const UploadStatusComponent = ({ info, setinfo, uploadFilesConcurrently, gallery
 										)}
 
 										<div className="text_value">
-											<p>
+											{/* <p>
 												{singlePhoto?.file?.size > 1024 * 1024
 													? (
 															singlePhoto?.file?.size /
@@ -111,6 +132,13 @@ const UploadStatusComponent = ({ info, setinfo, uploadFilesConcurrently, gallery
 													  ).toFixed(2) + ' MB'
 													: (singlePhoto?.file?.size / 1024).toFixed(2) +
 													  ' KB'}
+											</p> */}
+											<p
+												style={{
+													color: singlePhoto?.isFailed ? '#c84545' : '',
+												}}
+											>
+												{getImageSizeFormat(singlePhoto?.file?.size / 1024)}
 											</p>
 										</div>
 

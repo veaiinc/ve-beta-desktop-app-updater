@@ -8,6 +8,7 @@ import { FetchMoreLoaderComp, fetchOriginSelection } from '../../../helpers';
 import moment from 'moment';
 import Skeleton from 'react-loading-skeleton';
 import { useNavigate } from 'react-router-dom';
+import { ReactComponent as ThreeDotsVerticalIcon } from '../../../assets/svg/home_page/workflows/DotsThreeVertical.svg';
 let origin = fetchOriginSelection();
 
 const CreateCards = () => {
@@ -88,9 +89,9 @@ const Activity = memo(() => {
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
-		loading: false,
+		loading: true,
 		activityLogsData: [],
-		page: 1,
+		currentPage: 1,
 		hasNextPage: false,
 	});
 
@@ -145,54 +146,71 @@ const Activity = memo(() => {
 
 	const fetchMoreActivityLogs = useCallback(() => {
 		if (info?.hasNextPage) {
-			getActivityLogsData(info?.page + 1, true);
+			getActivityLogsData(info?.currentPage + 1, true);
 		}
-	}, [info?.page, info?.hasNextPage]);
+	}, [info?.currentPage, info?.hasNextPage]);
 
 	const formatTimestamp = (timestamp) => {
 		return moment.unix(timestamp).fromNow();
 	};
 
 	return (
-		<div className="aiAgentsAcitivityContainer">
-			<div className="createCardsHeader">
-				<span className="createCardsHeaderTexct">Activity</span>
-				<Loader />
-			</div>
+		<>
+			{info?.activityLogsData?.length > 0 && (
+				<div className="aiAgentsAcitivityContainer">
+					<div className="createCardsHeader">
+						<span className="createCardsHeaderTexct">Activity</span>
+					</div>
 
-			<div style={{ width: '100%' }}>
-				<InfiniteScroll
-					dataLength={info?.activityLogsData?.length || 0}
-					next={fetchMoreActivityLogs}
-					hasMore={info?.hasNextPage}
-					loader={<FetchMoreLoaderComp />}
-					style={{
-						display: 'flex',
-						flexDirection: 'column',
-						gap: '8px',
-						width: '100%',
-						padding: '0px 20px 0px 20px',
-					}}
-					height={'340px'}
-				>
-					{info?.activityLogsData?.map((ele, index) => (
-						<div className="aiAgentsActivityCards" key={index}>
-							<span
-								className="aiAgentsActivityCardsHeaderText"
-								style={{ textTransform: 'capitalize' }}
-							>
-								{ele?.summary || ''}
-							</span>
-							<div className="aiAgentsActivityCardsSubTextHolder">
-								<span className="aiAgentsActivityCardTime">
-									{ele?.timestamp ? formatTimestamp(ele?.timestamp) : ''}
-								</span>
-							</div>
+					{info?.loading ? (
+						<div className="drafLoaderContainer">
+							{[{}, {}, {}, {}]?.map((ele, index) => (
+								<Skeleton
+									key={index}
+									height={83}
+									width={300}
+									style={{ borderRadius: '16px' }}
+								/>
+							))}
 						</div>
-					))}
-				</InfiniteScroll>
-			</div>
-		</div>
+					) : (
+						<div style={{ width: '100%' }}>
+							<InfiniteScroll
+								dataLength={info?.activityLogsData?.length || 0}
+								next={fetchMoreActivityLogs}
+								hasMore={info?.hasNextPage}
+								loader={<FetchMoreLoaderComp />}
+								style={{
+									display: 'flex',
+									flexDirection: 'column',
+									alignItems: 'flex-start',
+									gap: '8px',
+									flex: '1 0 0',
+									alignSelf: 'stretch',
+								}}
+								height={'340px'}
+							>
+								{info?.activityLogsData?.map((ele, index) => (
+									<div className="aiAgentsActivityCards" key={index}>
+										<span
+											className="aiAgentsActivityCardsHeaderText"
+											style={{ textTransform: 'capitalize' }}
+										>
+											{ele?.summary || ''}
+										</span>
+
+										<div className="aiAgentsActivityCardsSubText">text</div>
+										<span className="aiAgentsActivityCardTime">
+											{ele?.timestamp ? formatTimestamp(ele?.timestamp) : ''}
+										</span>
+									</div>
+								))}
+							</InfiniteScroll>
+						</div>
+					)}
+				</div>
+			)}
+		</>
 	);
 });
 
@@ -280,72 +298,101 @@ const Drafts = memo(() => {
 	}, []);
 
 	return (
-		<div className="aiAgentsAcitivityContainer">
+		<>
+			{info?.draftData?.length > 0 && (
+				<div className="aiAgentsDraftsContainer">
+					<div className="createCardsHeader">
+						<span className="createCardsHeaderTexct">Drafts</span>
+					</div>
+
+					<div style={{ width: '100%' }}>
+						{info?.loading ? (
+							<div className="drafLoaderContainer">
+								{[{}, {}, {}, {}, {}]?.map((ele, index) => (
+									<Skeleton
+										style={{
+											height: '63px',
+											borderRadius: '10px',
+											width: '300px',
+										}}
+										key={index}
+									/>
+								))}
+							</div>
+						) : (
+							<InfiniteScroll
+								dataLength={info?.draftData?.length || 0}
+								next={fetchMoreDraftsData}
+								hasMore={info?.hasNextPage}
+								loader={<FetchMoreLoaderComp />}
+								style={{
+									display: 'flex',
+									flexDirection: 'column',
+									gap: '8px',
+									flex: '1 0 0',
+								}}
+								height={'340px'}
+							>
+								{info?.draftData?.map((ele, index) => (
+									<div
+										className="aiAgentsDraftsCard"
+										key={index}
+										style={{
+											// justifyContent: 'center',
+											minHeight: '63px',
+											cursor: 'pointer',
+										}}
+										onClick={() => onDraftClick(ele?._id)}
+									>
+										<span className="aiAgentsDraftsCardIcon"></span>
+										<span
+											className="aiAgentsDraftsCardText"
+											style={{
+												fontFamily: 'Inter',
+												fontSize: '12px',
+												fontStyle: 'normal',
+												fontWeight: '500',
+												lineHeight: 'normal',
+												color: '#E8E8E8',
+											}}
+										>
+											{ele?.title}
+										</span>
+										<span className="aiAgentsDraftsCardTime">
+											{ele?.createdAt ? formatTimestamp(ele?.createdAt) : ''}
+										</span>
+									</div>
+								))}
+							</InfiniteScroll>
+						)}
+					</div>
+				</div>
+			)}
+		</>
+	);
+});
+
+const Notes = memo(() => {
+	return (
+		<div className="aiAgentsNotesContainer">
 			<div className="createCardsHeader">
-				<span className="createCardsHeaderTexct">Drafts</span>
+				<span className="createCardsHeaderTexct">Notes</span>
+				<ThreeDotsVerticalIcon />
 			</div>
 
-			<div style={{ width: '100%' }}>
-				{info?.loading ? (
-					<div className="drafLoaderContainer">
-						{[{}, {}, {}, {}]?.map((ele, index) => (
-							<Skeleton
-								style={{ height: '63px', borderRadius: '10px' }}
-								key={index}
-							/>
-						))}
-					</div>
-				) : (
-					<InfiniteScroll
-						dataLength={info?.draftData?.length || 0}
-						next={fetchMoreDraftsData}
-						hasMore={info?.hasNextPage}
-						loader={<FetchMoreLoaderComp />}
-						style={{
-							display: 'flex',
-							flexDirection: 'column',
-							gap: '8px',
-							width: '100%',
-							padding: '0px 20px 0px 20px',
-						}}
-						height={'340px'}
-					>
-						{info?.draftData?.map((ele, index) => (
-							<div
-								className="aiAgentsActivityCards"
-								key={index}
-								style={{
-									justifyContent: 'center',
-									minHeight: '63px',
-									cursor: 'pointer',
-								}}
-								onClick={() => onDraftClick(ele?._id)}
-							>
-								<div className="aiAgentsActivityCardsSubTextHolder">
-									<span
-										className="aiAgentsActivityCardssubTextStyling"
-										style={{
-											fontFamily: 'Inter',
-											fontSize: '12px',
-											fontStyle: 'normal',
-											fontWeight: '500',
-											lineHeight: 'normal',
-											color: '#E8E8E8',
-										}}
-									>
-										{ele?.title}
-									</span>
-									<span className="aiAgentsActivityCardTime">
-										{ele?.createdAt ? formatTimestamp(ele?.createdAt) : ''}
-									</span>
-								</div>
-							</div>
-						))}
-					</InfiniteScroll>
-				)}
+			<div className="aiAgentsNotesCard">
+				<span
+					className="aiAgentsNotesCardHeaderText"
+					style={{ textTransform: 'capitalize' }}
+				>
+					jgkrke
+				</span>
+
+				<div className="aiAgentsNotesCardSubText">text</div>
+				<span className="aiAgentsNotesCardTime">a day ago</span>
 			</div>
 		</div>
 	);
 });
 
-export { Activity, Drafts };
+export { Activity, Drafts, Notes };

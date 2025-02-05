@@ -13,7 +13,7 @@ const WorkflowConnector = ({ alterData, index }) => {
 		if (index === 0) {
 			return;
 		}
-		setInfo((prev) => ({ ...prev, connectorHeight: 116, buttonDisplay: true }));
+		// setInfo((prev) => ({ ...prev, connectorHeight: 116, buttonDisplay: true }));
 	}, [index]);
 
 	const containerMouseLeave = useCallback(() => {

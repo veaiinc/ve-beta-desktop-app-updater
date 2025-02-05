@@ -1,0 +1,124 @@
+.create-agent-header {
+	display: flex;
+	width: 100%;
+	height: 64px;
+	// padding: 32px 32px 12px 32px;
+	justify-content: space-between;
+	align-items: center;
+	flex-shrink: 0;
+
+	&-left {
+		display: flex;
+		align-items: center;
+		gap: 16px;
+
+		&-back {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			cursor: pointer;
+
+			&-icon {
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				width: 24px;
+				height: 24px;
+			}
+
+			&-text {
+				overflow: hidden;
+				color: #f2f2f3;
+				text-overflow: ellipsis;
+				font-family: Inter;
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+		}
+
+		&-agent-name {
+			display: flex;
+			padding: 6px 12px;
+			justify-content: center;
+			align-items: center;
+			gap: 10px;
+			border-radius: 100px;
+			background: #2c2e30;
+			overflow: hidden;
+			color: #f2f2f3;
+			text-overflow: ellipsis;
+			font-family: Inter;
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+		}
+	}
+
+	&-right {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+
+		&-status {
+			display: flex;
+			padding: 8px 14px;
+			align-items: center;
+			gap: 6px;
+			border-radius: 20px;
+			border: 1px solid #2c2d2e;
+			color: #f2f2f3;
+			font-family: Inter;
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 400;
+			line-height: normal;
+
+			&-icon {
+				width: 10px;
+				height: 10px;
+				background-color: #009b13;
+				border-radius: 50%;
+			}
+		}
+
+		&-button {
+			display: flex;
+			padding: 8px 14px;
+			align-items: center;
+			gap: 6px;
+			border-radius: 20px;
+			background: #f2f2f3;
+			color: #0c0c0d;
+			font-family: Inter;
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 400;
+			line-height: normal;
+			border: none;
+			cursor: pointer;
+		}
+	}
+}
+
+.create-agent-header-delete-button {
+	display: flex;
+	padding: 8px 14px;
+	align-items: center;
+	cursor: pointer;
+	gap: 6px;
+
+	border-radius: 20px;
+	border: 1px solid var(--error, #e40039);
+	border: 1px solid var(--error, color(display-p3 0.7529 0.2157 0.2667));
+
+	color: var(--error, #e40039);
+	color: var(--error, color(display-p3 0.7529 0.2157 0.2667));
+	font-family: Inter;
+	font-size: 14px;
+	font-style: normal;
+	font-weight: 400;
+	line-height: normal;
+}

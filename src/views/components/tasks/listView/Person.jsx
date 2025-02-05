@@ -85,6 +85,24 @@ const Person = ({
 		onOptionClick(value);
 	};
 
+	// Add debug logging for option rendering
+	const optionRender = useCallback((option) => {
+		return (
+			<div className="person-dropdown-menu-option">
+				<div className="person-dropdown-menu-option-avatar">
+					{option?.image ? (
+						<img src={option?.image} alt="" />
+					) : (
+						<div className="person-dropdown-menu-option-avatar-icon">
+							{option?.label?.[0]?.toUpperCase()}
+						</div>
+					)}
+				</div>
+				<div className="person-dropdown-menu-option-label">{option?.label}</div>
+			</div>
+		);
+	}, []);
+
 	return (
 		<Tooltip
 			title={
@@ -130,9 +148,18 @@ const Person = ({
 					color: disabled ? '#8c8c8c' : '#e5e5e5',
 				}}
 				className={`person-select ${disabled ? 'disabled' : ''}`}
-				dropdownStyle={{ backgroundColor: 'transparent', width: '220px' }}
+				popupClassName="person-select-dropdown"
+				dropdownStyle={{
+					backgroundColor: '#1f1f1f',
+					width: '220px',
+				}}
+				notFoundContent="No options available"
+				onDropdownVisibleChange={(open) => {
+					// Remove console.log
+				}}
 				{...(multiSelect ? { tagRender: renderPerson } : { labelRender: renderPerson })}
 				dropdownRender={(menu) => {
+					// Remove console.log
 					return (
 						<div className="person-dropdown-menu">
 							<div className="person-dropdown-menu-header">
@@ -142,24 +169,12 @@ const Person = ({
 						</div>
 					);
 				}}
-				optionRender={(option) => {
-					return (
-						<div className="person-dropdown-menu-option">
-							<div className="person-dropdown-menu-option-avatar">
-								{option?.image ? (
-									<img src={option?.image} alt="" />
-								) : (
-									<div className="person-dropdown-menu-option-avatar-icon">
-										{option?.label?.[0]?.toUpperCase()}
-									</div>
-								)}
-							</div>
-							<div className="person-dropdown-menu-option-label">{option?.label}</div>
-						</div>
-					);
-				}}
+				optionRender={optionRender}
 				suffixIcon={<></>}
 				mode={multiSelect ? 'multiple' : undefined}
+				listHeight={256}
+				menuItemSelectedIcon={null}
+				virtual={false}
 				onChange={customOnOptionClick}
 				value={info?.value}
 			/>
