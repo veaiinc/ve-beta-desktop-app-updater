@@ -1,0 +1,54 @@
+.gallery-view {
+	width: 100%;
+	height: 100%;
+	overflow-y: auto;
+
+	.gallery-view-message {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		width: 100%;
+		padding: 30px 0;
+		font-size: 14px;
+		font-weight: 500;
+		color: #e7e7e7;
+	}
+
+	.gallery-view-wrapper {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 10px;
+		justify-content: flex-start;
+		align-items: stretch;
+		align-content: flex-start;
+		padding-top: 10px;
+
+		.gallery-view-add-card {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			width: 230px;
+			border-radius: 12px;
+			border: 1px solid #171819;
+			cursor: pointer;
+			transition: all 0.3s ease;
+			gap: 10px;
+			font-size: 12px;
+			font-weight: 500;
+			color: #e7e7e7;
+			padding: 16px;
+			svg {
+				width: 16px;
+				height: 16px;
+				transition: all 0.6s ease;
+			}
+			&:hover {
+				background-color: #171819;
+
+				svg {
+					transform: rotate(180deg);
+				}
+			}
+		}
+	}
+}

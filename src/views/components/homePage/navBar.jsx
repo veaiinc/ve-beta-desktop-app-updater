@@ -1,6 +1,7 @@
-import React, { memo } from 'react';
+import React, { memo, useEffect, useContext } from 'react';
 import '../../../assets/scss/home_page/homepage.scss';
 import { ReactComponent as SearchIcon } from '../../../assets/svg/workflow/search.svg';
+import Context from '../../../context/context';
 
 const NavBar = ({
 	options,
@@ -8,6 +9,7 @@ const NavBar = ({
 	handleSelectedOption,
 	handleSearchValue,
 	showSearchBar = true,
+	tabItemCount,
 }) => {
 	const overrideShowSearchBar = selectedOption === 'Workflows';
 	return (
@@ -21,6 +23,11 @@ const NavBar = ({
 						}`}
 						onClick={() => handleSelectedOption(option?.value)}
 					>
+						{option?.title === 'Priority' && (
+							<div className="priority-count">
+								{tabItemCount?.all > 99 ? '99+' : tabItemCount?.all}
+							</div>
+						)}
 						{option?.title}
 						{selectedOption === option?.value && (
 							<div className="home-page-welcome-container-left-text-option-active-indicator"></div>

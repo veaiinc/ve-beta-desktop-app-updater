@@ -181,7 +181,21 @@ const EditAgent = () => {
 								</div>
 							</div>
 							<div className="create-agent-header-left-agent-name">
-								<AgentIcon width={18} height={18} />
+								<div className="create-agent-header-left-agent-name-image">
+									{info?.assistantData?.assitant_profile_picture_s3Key ? (
+										<img
+											src={
+												info?.assistantData?.assitant_profile_picture_s3Key
+											}
+											alt="profile"
+										/>
+									) : (
+										<span className="create-agent-header-left-agent-name-no-image">
+											Ai
+										</span>
+									)}
+								</div>
+
 								{info?.assistantData?.name || 'Assistant'}
 							</div>
 						</div>

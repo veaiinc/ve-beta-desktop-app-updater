@@ -1,13 +1,15 @@
-import React, { memo, useCallback, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import '../../../assets/scss/ai_assistant/AiPersonality.scss';
 import { ReactComponent as PlayIcon } from '../../../assets/svg/ai_assistant/play.svg';
 import { ReactComponent as DownSvg } from '../../../assets/svg/activity/down.svg';
 import { ReactComponent as AgentIcon } from '../../../assets/svg/ai_assistant/agent.svg';
 import { ReactComponent as UploadIcon } from '../../../assets/svg/ai_assistant/upload.svg';
+import { ReactComponent as PencilWithLine } from '../../../assets/svg/tasks/pencilWithLine.svg';
 import { ReactComponent as Plus } from '../../../assets/svg/ai_assistant/plus.svg';
 import CustomInput from '../globalComponents/CustomInput';
-import { Tooltip } from 'antd';
+import { message, Tooltip } from 'antd';
 import CustomTextArea from '../globalComponents/CustomTextArea';
+import Context from '../../../context/context';
 
 const personas = [
 	{
@@ -78,6 +80,9 @@ const ProgressCircles = () => (
 );
 
 const AiPersonality = ({ assistant, updateAssistantData }) => {
+	const {
+		aiSetup: { uploadFile, removeFile, getActiveAiAssistantDetails },
+	} = useContext(Context);
 	const [info, setInfo] = useState({
 		voiceOptions: [],
 		selectedVoice: 'Kierra',
@@ -86,9 +91,35 @@ const AiPersonality = ({ assistant, updateAssistantData }) => {
 		assistantName: assistant?.name,
 		assistantResponseTone: assistant?.responseTone,
 		assistantPersonality: assistant?.personality,
+		initialMessage: assistant?.initialMessage,
+		messagePlaceholder: assistant?.messagePlaceholder,
+		initialMessageError: '',
+		messagePlaceholderError: '',
+		assitant_profile_picture_s3Key: assistant?.assitant_profile_picture_s3Key || '',
+		assitant_chat_icon_s3Key: assistant?.assitant_chat_icon_s3Key || '',
+		assistantUpdatedProfilePicture: null,
+		assistantUpdatedChatIcon: null,
+		profileLoading: false,
+		chatLoading: false,
 	});
 
+	const profilePictureRef = useRef(null);
+	const chatIconRef = useRef(null);
+
 	const options = ['Kierra', 'Alex', 'Sam', 'Jordan'];
+
+	useEffect(() => {
+		setInfo((prev) => ({
+			...prev,
+			assistantName: assistant?.name,
+			assistantResponseTone: assistant?.responseTone,
+			assistantPersonality: assistant?.personality,
+			initialMessage: assistant?.initialMessage,
+			messagePlaceholder: assistant?.messagePlaceholder,
+			assitant_profile_picture_s3Key: assistant?.assitant_profile_picture_s3Key || '',
+			assitant_chat_icon_s3Key: assistant?.assitant_chat_icon_s3Key || '',
+		}));
+	}, [assistant]);
 
 	const updateAiPersonalityInfo = useCallback((key, value) => {
 		setInfo((prevInfo) => ({
@@ -129,6 +160,106 @@ const AiPersonality = ({ assistant, updateAssistantData }) => {
 		[updateAssistantData],
 	);
 
+	const handleLimittedCharecterUpdate = useCallback((value, type) => {
+		if (value.length > (type === 'initialMessage' ? 100 : 100)) {
+			setInfo((prev) => ({
+				...prev,
+				[`${type}Error`]: `${
+					type === 'initialMessage' ? 'Initial message' : 'User message'
+				} should be less than ${type === 'initialMessage' ? 100 : 100} characters`,
+			}));
+		} else {
+			setInfo((prev) => ({
+				...prev,
+				[`${type}Error`]: '',
+			}));
+		}
+		setInfo((prev) => ({
+			...prev,
+			[type]: value,
+		}));
+	}, []);
+
+	const handleImageSelectBtnClick = useCallback((type) => {
+		if (type === 'profile') {
+			profilePictureRef?.current?.click();
+		}
+		if (type === 'chatIcon') {
+			chatIconRef?.current?.click();
+		}
+	}, []);
+
+	const handleImageChange = useCallback((file, type) => {
+		if (type === 'profile') {
+			updateAiPersonalityInfo('assistantUpdatedProfilePicture', file);
+		}
+		if (type === 'chatIcon') {
+			updateAiPersonalityInfo('assistantUpdatedChatIcon', file);
+		}
+	}, []);
+
+	const handleCancelImage = useCallback((type) => {
+		if (type === 'profile') {
+			updateAiPersonalityInfo('assistantUpdatedProfilePicture', null);
+			if (profilePictureRef.current) {
+				profilePictureRef.current.value = '';
+			}
+		}
+		if (type === 'chatIcon') {
+			updateAiPersonalityInfo('assistantUpdatedChatIcon', null);
+			if (chatIconRef.current) {
+				chatIconRef.current.value = '';
+			}
+		}
+	}, []);
+
+	const handleRemoveImage = useCallback(
+		async (type) => {
+			updateAiPersonalityInfo(`${type}Loading`, true);
+			const response = await removeFile(assistant?._id, type);
+			if (response?.[0]) {
+				updateAiPersonalityInfo(`${type}Loading`, false);
+				updateAiPersonalityInfo(
+					`assitant_${type === 'profile' ? 'profile_picture' : 'chat_icon'}_s3Key`,
+					null,
+				);
+				getActiveAiAssistantDetails(assistant?._id);
+			} else {
+				message.error('Failed to remove image. Please try again.');
+			}
+			updateAiPersonalityInfo(`${type}Loading`, false);
+		},
+		[updateAiPersonalityInfo, removeFile, assistant?._id, getActiveAiAssistantDetails],
+	);
+
+	const handleUploadImage = useCallback(
+		async (file, type) => {
+			updateAiPersonalityInfo(`${type}Loading`, true);
+			const response = await uploadFile(assistant?._id, file, type);
+			if (response?.ok) {
+				if (type === 'profile') {
+					profilePictureRef.current.value = '';
+					setInfo((prevInfo) => ({
+						...prevInfo,
+						assistantUpdatedProfilePicture: null,
+						assitant_profile_picture_s3Key: URL.createObjectURL(file),
+					}));
+				}
+				if (type === 'chat') {
+					chatIconRef.current.value = '';
+					setInfo((prevInfo) => ({
+						...prevInfo,
+						assistantUpdatedChatIcon: null,
+						assitant_chat_icon_s3Key: URL.createObjectURL(file),
+					}));
+				}
+				// getActiveAiAssistantDetails(assistant?._id);
+			}
+			updateAiPersonalityInfo(`${type}Loading`, false);
+		},
+		[assistant?._id, getActiveAiAssistantDetails, updateAiPersonalityInfo, uploadFile],
+	);
+
 	return (
 		<div className="personalityParentContainer">
 			<div className="nameContainer">
@@ -145,7 +276,7 @@ const AiPersonality = ({ assistant, updateAssistantData }) => {
 					onChange={(e) => handleAssistantNameChange(e.target.value)}
 				/>
 			</div>
-			<div className="voiceContainer">
+			{/* <div className="voiceContainer">
 				<div className="headerWrapper">
 					<span className="lineone">Assistant Voice</span>
 					<span className="linetwo">User will hear this voice modulation</span>
@@ -185,7 +316,7 @@ const AiPersonality = ({ assistant, updateAssistantData }) => {
 						Play
 					</div>
 				</div>
-			</div>
+			</div> */}
 
 			<div className="aiPersonalityContainer">
 				<div className="aiPersonalityHeader">
@@ -261,14 +392,77 @@ const AiPersonality = ({ assistant, updateAssistantData }) => {
 				</div>
 
 				<div className="aiProfileWrapper">
-					<AgentIcon width={70} height={70} />
+					<div className="profilePictureWrapper">
+						<button
+							className="imageSelectButton"
+							onClick={() => handleImageSelectBtnClick('profile')}
+						>
+							<PencilWithLine />
+						</button>
+						{info?.assistantUpdatedProfilePicture ||
+						info?.assitant_profile_picture_s3Key ? (
+							<img
+								src={
+									info?.assistantUpdatedProfilePicture
+										? URL.createObjectURL(info?.assistantUpdatedProfilePicture)
+										: info?.assitant_profile_picture_s3Key
+								}
+								alt="profile"
+							/>
+						) : (
+							<span className="noImage">Ai</span>
+						)}
+						<input
+							type="file"
+							ref={profilePictureRef}
+							style={{ display: 'none' }}
+							accept=".png, .svg, .jpg, .jpeg"
+							onChange={(e) => handleImageChange(e?.target?.files[0], 'profile')}
+						/>
+					</div>
+					{/* <AgentIcon width={70} height={70} /> */}
 					<div className="uploadContainer">
 						<div className="uploadIcons">
-							<span className="uploadBtn">
-								<UploadIcon />
-								Upload
-							</span>
-							<span className="removeBtn">remove</span>
+							{info?.assistantUpdatedProfilePicture ? (
+								<button
+									className="uploadBtn"
+									onClick={() =>
+										handleUploadImage(
+											info?.assistantUpdatedProfilePicture,
+											'profile',
+										)
+									}
+									disabled={info?.profileLoading}
+								>
+									<UploadIcon />
+									Upload
+								</button>
+							) : (
+								<button
+									className="uploadBtn"
+									onClick={() => handleImageSelectBtnClick('profile')}
+								>
+									<PencilWithLine />
+									Edit
+								</button>
+							)}
+							{info?.assistantUpdatedProfilePicture ? (
+								<button
+									className="removeBtn"
+									onClick={() => handleCancelImage('profile')}
+									disabled={info?.profileLoading}
+								>
+									Cancel
+								</button>
+							) : (
+								<button
+									className="removeBtn"
+									onClick={() => handleRemoveImage('profile')}
+									disabled={info?.profileLoading}
+								>
+									Remove
+								</button>
+							)}
 						</div>
 						<span className="uploadLabel">
 							Supports JPG, PNG, and SVG files up to 1MB
@@ -276,7 +470,89 @@ const AiPersonality = ({ assistant, updateAssistantData }) => {
 					</div>
 				</div>
 			</div>
-			<div className="colorThemeContainer">
+
+			<div className="aiChatIconContainer">
+				<div className="aiChatIconHeader">
+					<span className="lineone">Chat Icon</span>
+					<span className="linetwo">User will see this as Assistant chat icon</span>
+				</div>
+
+				<div className="aiChatIconWrapper">
+					<div className="chatIconWrapper">
+						<button
+							className="imageSelectButton"
+							onClick={() => handleImageSelectBtnClick('chatIcon')}
+						>
+							<PencilWithLine />
+						</button>
+						{info?.assistantUpdatedChatIcon || info?.assitant_chat_icon_s3Key ? (
+							<img
+								src={
+									info?.assistantUpdatedChatIcon
+										? URL.createObjectURL(info?.assistantUpdatedChatIcon)
+										: info?.assitant_chat_icon_s3Key
+								}
+								alt="profile"
+							/>
+						) : (
+							<span className="noImage">Ai</span>
+						)}
+						<input
+							type="file"
+							ref={chatIconRef}
+							style={{ display: 'none' }}
+							accept=".png, .svg, .jpg, .jpeg"
+							onChange={(e) => handleImageChange(e?.target?.files[0], 'chatIcon')}
+						/>
+					</div>
+					<div className="uploadContainer">
+						<div className="uploadIcons">
+							{info?.assistantUpdatedChatIcon ? (
+								<button
+									className="uploadBtn"
+									onClick={() =>
+										handleUploadImage(info?.assistantUpdatedChatIcon, 'chat')
+									}
+									disabled={info?.chatLoading}
+								>
+									<UploadIcon />
+									Upload
+								</button>
+							) : (
+								<button
+									className="uploadBtn"
+									onClick={() => handleImageSelectBtnClick('chatIcon')}
+								>
+									<PencilWithLine />
+									Edit
+								</button>
+							)}
+							{info?.assistantUpdatedChatIcon ? (
+								<button
+									className="removeBtn"
+									onClick={() => handleCancelImage('chatIcon')}
+									disabled={info?.chatLoading}
+								>
+									Cancel
+								</button>
+							) : (
+								<button
+									className="removeBtn"
+									onClick={() => handleRemoveImage('chat')}
+									disabled={info?.chatLoading}
+								>
+									Remove
+								</button>
+							)}
+						</div>
+						<span className="uploadLabel">
+							Supports JPG, PNG, and SVG files up to 1MB
+						</span>
+					</div>
+				</div>
+			</div>
+
+			{/* <div className="colorThemeContainer">
 				<div className="colorThemeHeader">
 					<span className="lineone">Color Theme</span>
 					<span className="linetwo">
@@ -286,16 +562,29 @@ const AiPersonality = ({ assistant, updateAssistantData }) => {
 				<div className="colorThemeWrapper">
 					<ProgressCircles />
 				</div>
-			</div>
+			</div> */}
+
 			<div className="initialMessageContainer">
 				<div className="initialMessageHeader">
 					<span className="lineone">Initial Message</span>
 					<span className="linetwo">User will get this message from Assistant first</span>
 				</div>
+				{info?.initialMessageError && (
+					<div className="errorMessage">{info?.initialMessageError}</div>
+				)}
 				<CustomInput
 					placeholder="Hi, I'm your AI assistant. How can I help you today?"
 					className="aiNameInput"
 					label="Initial Message"
+					value={info?.initialMessage}
+					onChange={(e) => {
+						handleLimittedCharecterUpdate(e.target.value, 'initialMessage');
+					}}
+					onBlur={() =>
+						!info?.initialMessageError &&
+						info?.initialMessage !== assistant?.initialMessage &&
+						updateAssistantData('initialMessage', info?.initialMessage)
+					}
 				/>
 			</div>
 			<div className="userMessageContainer">
@@ -303,10 +592,22 @@ const AiPersonality = ({ assistant, updateAssistantData }) => {
 					<span className="lineone">User Message</span>
 					<span className="linetwo">User will see this message from Assistant</span>
 				</div>
+				{info?.messagePlaceholderError && (
+					<div className="errorMessage">{info?.messagePlaceholderError}</div>
+				)}
 				<CustomInput
 					placeholder="Shoot anything"
 					className="aiNameInput"
 					label="User Message"
+					value={info?.messagePlaceholder}
+					onChange={(e) =>
+						handleLimittedCharecterUpdate(e.target.value, 'messagePlaceholder')
+					}
+					onBlur={() =>
+						!info?.messagePlaceholderError &&
+						info?.messagePlaceholder !== assistant?.messagePlaceholder &&
+						updateAssistantData('messagePlaceholder', info?.messagePlaceholder)
+					}
 				/>
 			</div>
 		</div>

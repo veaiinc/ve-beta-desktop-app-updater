@@ -85,12 +85,17 @@ const OpenedSideBarHoverStateIcons = ({
 		setisHover(false);
 	};
 
-	const redirectToFunction = () => {
+	const redirectToFunction = (subModules, route) => {
+		if (!subModules) {
+			navigateTo(route);
+		} else {
+			setDropdownVisible(!isDropdownVisible);
+		}
 		if (!route) return;
-		navigateTo(route);
 	};
 
 	const handleSubModuleClick = (e, subModule) => {
+		setActiveSubModule(subModule);
 		e.stopPropagation();
 		if (subModule.route) {
 			navigateTo(subModule.route);
@@ -98,6 +103,7 @@ const OpenedSideBarHoverStateIcons = ({
 	};
 	const toggleDropdown = () => {
 		setDropdownVisible(!isDropdownVisible);
+		setActiveSubModule(null);
 	};
 
 	const isExactPathMatch = useCallback(() => {
@@ -154,7 +160,7 @@ const OpenedSideBarHoverStateIcons = ({
 							<div
 								style={{
 									position: 'absolute',
-									left: '8px',
+									left: '15px',
 									top: '10px',
 									bottom: '0',
 									width: '1px',
@@ -165,18 +171,21 @@ const OpenedSideBarHoverStateIcons = ({
 								<div
 									style={{
 										position: 'absolute',
-										left: '8px',
-										top: `${activeSubModule * 40}px`, // 40px is the height of each subModule
-										height: '40px',
-										width: '1px',
+										left: '14px',
+										top: `${activeSubModule?.id * 40}px`, // 40px is the height of each subModule
+										height: '32px',
+										width: '3px',
 										backgroundColor: '#FFFFFF',
+										borderRadius: '100px',
 									}}
 								/>
 							)}
 							{subModules?.map((subItem, index) => (
 								<div
 									key={subItem?.name}
-									className="subItem"
+									className={`subItem ${
+										activeSubModule?.id === index ? 'active' : ''
+									}`}
 									onClick={(e) => handleSubModuleClick(e, subItem)}
 									style={{ cursor: 'pointer' }}
 								>
@@ -288,6 +297,8 @@ const OpenedSideBarItemsComponent = ({
 	info,
 	setInfo,
 	userWorkSpaceList,
+	isOpen,
+	setIsOpen,
 }) => {
 	const navigate = useNavigate();
 	const logoutFunc = useLogout();
@@ -342,7 +353,8 @@ const OpenedSideBarItemsComponent = ({
 
 	const handleSidebarCollapse = (e) => {
 		e.stopPropagation();
-		setsidebarStates({ ...sidebarStates, isOpen: false, navStyle: 'close' });
+		setsidebarStates({ ...sidebarStates, navStyle: 'close' });
+		setIsOpen(false);
 	};
 
 	const handleChatSelect = (chatName) => {

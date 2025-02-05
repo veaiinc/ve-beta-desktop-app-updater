@@ -10,7 +10,6 @@ export const intialState = {
 	tenantSubscriptionDetails: null,
 	clientPortalPreferences: null,
 	AICreditsData: null,
-	taskPreference: null,
 };
 export const CompanySettingsState = () => {
 	const [state, dispatch] = useReducer(Reducer, intialState);
@@ -337,54 +336,6 @@ export const CompanySettingsState = () => {
 		}
 	};
 
-	const getTaskPreferences = async (data) => {
-		try {
-			const usertoken = localStorage.getItem('usertoken');
-			const response = await service.fetchGet(
-				API?.TENANTS?.tenantUserPreference,
-				usertoken,
-				'tenant-users',
-				data,
-			);
-			if (response?.[0]) {
-				dispatch({
-					type: Actions.GET_TASK_PREFERENCES,
-					payload: { type: data?.preferences, data: { data: response?.[1] } },
-				});
-			} else {
-				dispatch({
-					type: Actions.GET_TASK_PREFERENCES,
-					payload: { type: data?.preferences, data: { error: response?.[1] } },
-				});
-			}
-		} catch (error) {
-			console.log('error ==> getTaskPreferences', error);
-			dispatch({
-				type: Actions.GET_TASK_PREFERENCES,
-				payload: { type: data?.preferences, data: { error: error } },
-			});
-		}
-	};
-
-	const updateTaskPreferences = async (json) => {
-		try {
-			const usertoken = localStorage.getItem('usertoken');
-			const response = await service.fetchPut(
-				API?.TENANTS?.tenantUserPreference,
-				json,
-				usertoken,
-				'tenant-users',
-			);
-			if (response?.[0]) {
-				return [true, response[1]];
-			} else {
-				return [false, response[1]];
-			}
-		} catch (error) {
-			console.log('error ==> updateTaskPreferences', error);
-		}
-	};
-
 	const resetCompanySettings = async () => {
 		try {
 			dispatch({ type: Actions.RESET_STATE });
@@ -413,7 +364,5 @@ export const CompanySettingsState = () => {
 		getClientPortalPreference,
 		updateClientPortalPreference,
 		getAICreditsUsedData,
-		getTaskPreferences,
-		updateTaskPreferences,
 	};
 };

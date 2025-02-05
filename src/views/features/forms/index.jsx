@@ -14,6 +14,7 @@ import Skeleton from 'react-loading-skeleton';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import Context from '../../../context/context';
 import DropDown from '../../components/dropDown/tasks/DropDown';
+import QuickActions from '../../components/globalComponents/QuickActions';
 
 // let origin = fetchOriginSelection();
 
@@ -82,6 +83,15 @@ const Forms = () => {
 
 	return (
 		<div className="formsParentContainer">
+			<div className="formsHeaderContainer">
+				<div className="headerText">
+					<span className="lineOne">Forms</span>
+					<span className="lineTwo">You Created</span>
+				</div>
+				<div className="quickActionsBtn">
+					<QuickActions />
+				</div>
+			</div>
 			<div className="formsParentHeaderContainer">
 				<div className="formsHeaderButtons " onClick={() => {}}>
 					<div className="formsHeaderButtonsTitle">Let's Create a Form</div>

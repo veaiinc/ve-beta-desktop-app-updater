@@ -242,13 +242,12 @@
 		position: relative;
 
 		.card-div {
-			// display: flex;
-			// flex-direction: row;
-			// gap: 30px;
-			// width: 100%;
-			// // overflow-x: auto;
-			// padding: 12px;
-			// flex-wrap: wrap;
+			display: flex;
+			flex-direction: row;
+			gap: 30px;
+			width: 100%;
+			overflow-x: auto;
+			padding: 12px;
 
 			.requiredSalesPendingCard {
 				display: flex;
@@ -262,7 +261,12 @@
 				background: #171819;
 				background: color(display-p3 0.0902 0.0941 0.098);
 				cursor: pointer;
+				transition: 300ms;
 				flex-shrink: 0;
+
+				&:hover {
+					background: #202123;
+				}
 				.agentsWorkflowJobCards {
 					display: flex;
 					flex-direction: column;
@@ -289,6 +293,7 @@
 							font-style: normal;
 							font-weight: 500;
 							line-height: normal;
+							text-transform: capitalize;
 						}
 
 						.agentsWorkflowJobCardsSubTitle {
@@ -302,6 +307,9 @@
 							font-style: normal;
 							font-weight: 400;
 							line-height: 20px; /* 142.857% */
+							overflow: hidden;
+							text-overflow: ellipsis;
+							width: 235px;
 						}
 					}
 					.agentsTabType {

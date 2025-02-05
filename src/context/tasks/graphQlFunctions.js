@@ -3,6 +3,7 @@ export const getListItemsQuery = gql`
 	query Query($taskFilterInput: TaskFilterInput) {
 		listTasks(taskFilterInput: $taskFilterInput) {
 			hasNextPage
+			currentPage
 			data {
 				_id
 				taskSlNo
@@ -317,6 +318,17 @@ export const taskMetadataQuery = gql`
 				isDefault
 			}
 			prefix
+			views {
+				_id
+				label
+				filters
+				sort {
+					sortBy
+					sortType
+				}
+				viewType
+				icon
+			}
 			createdAt
 			updatedAt
 		}
@@ -353,6 +365,32 @@ export const updateTaskStatusLabelMutation = gql`
 			group
 			color
 			isDefault
+		}
+	}
+`;
+
+export const updateTaskViewMutation = gql`
+	mutation UpdateTaskView($taskMetadataId: ID!, $input: UpdateTaskViewInput!, $viewId: ID) {
+		updateTaskView(taskMetadataId: $taskMetadataId, input: $input, viewId: $viewId) {
+			views {
+				_id
+				label
+				filters
+				sort {
+					sortBy
+					sortType
+				}
+				viewType
+				icon
+			}
+		}
+	}
+`;
+
+export const deleteTaskViewMutation = gql`
+	mutation DeleteTaskView($taskMetadataId: ID!, $viewId: ID!) {
+		deleteTaskView(taskMetadataId: $taskMetadataId, viewId: $viewId) {
+			message
 		}
 	}
 `;

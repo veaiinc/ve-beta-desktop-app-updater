@@ -95,7 +95,20 @@ const UploadPhotos = () => {
 
 	// drop function
 	const onDropFunction = async (files) => {
+		const params = new URLSearchParams(window.location.search);
+		const lightGallery = params.get('light-gallery');
+
 		if (
+			lightGallery === 'true' &&
+			validateExpiryData &&
+			validateExpiryData?.restrictGalleries &&
+			(validateExpiryData?.isExpired || !validateExpiryData?.imagesAllowed)
+		) {
+			return updateSubscriptionState({ expiredSubscriptionModal: true });
+		}
+
+		if (
+			lightGallery === 'false' &&
 			validateExpiryData &&
 			validateExpiryData?.restrictGalleries &&
 			(validateExpiryData?.isExpired || !validateExpiryData?.uploadAllowed)

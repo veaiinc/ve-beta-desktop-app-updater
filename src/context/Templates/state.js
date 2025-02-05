@@ -54,6 +54,7 @@ export const intialState = {
 	templatesListForDocs: null,
 	allEmailTemplates: null,
 	myWorkflows: null,
+	workflowslistForFiles: null,
 	myMoreWorkflows: null,
 	globalWorkflows: null,
 	globalMoreWorkflows: null,
@@ -65,7 +66,8 @@ export const intialState = {
 	contractSignedLocalState: null,
 	specificTemplatesInfo: null,
 	smartFileEmailTemplateData: null,
-	requiredActions: { actions: [], hasMore: false, loading: true },
+	requiredActions: null,
+	requiredActionsForTemplate: null,
 	tabItemCount: null,
 	eventsPresetData: null,
 	sendSmartFileSettings: null,
@@ -482,9 +484,35 @@ export const TemplatesState = (props) => {
 			);
 
 			if (response?.[0]) {
+				const templateId = payload?.filters?.templateId;
+				const { data, currentPage, hasNextPage } = response?.[1]?.data?.workflows;
+				let dispatchPayload;
+				if (!state?.workflowslistForFiles?.[templateId]) {
+					dispatchPayload = {
+						...state?.workflowslistForFiles,
+						[templateId]: {
+							data,
+							currentPage,
+							hasNextPage,
+						},
+					};
+				} else {
+					dispatchPayload = {
+						...state?.workflowslistForFiles,
+						[templateId]: {
+							data: [
+								...(state?.workflowslistForFiles?.[templateId]?.data || []),
+								...data,
+							],
+							currentPage,
+							hasNextPage,
+						},
+					};
+				}
+
 				dispatch({
 					type: Actions?.GET_WORKFLOW_DETAILS_FOR_FILES_SUCCESS,
-					payload: { [payload?.filters?.templateId]: response?.[1]?.data?.workflows },
+					payload: dispatchPayload,
 					selectedvariable: 'workflowslistForFiles',
 				});
 			} else {
@@ -1004,13 +1032,13 @@ export const TemplatesState = (props) => {
 				dispatch({
 					type: Actions.GET_REQUIRED_ACTIONS_SUCCESS,
 					payload: {
+						...state?.requiredActions,
+						hasNextPage: response?.[1]?.data?.listRequiredActions?.hasNextPage,
 						actions: resetRequiredActions
 							? response?.[1]?.data?.listRequiredActions?.data
 							: state?.requiredActions?.actions?.concat(
 									response?.[1]?.data?.listRequiredActions?.data,
 							  ),
-						hasMore: response?.[1]?.data?.listRequiredActions?.hasNextPage,
-						loading: false,
 					},
 				});
 			} else {
@@ -1018,6 +1046,50 @@ export const TemplatesState = (props) => {
 			}
 		} catch (error) {
 			console.log('api failed ==>getRequiredActionDetails', error);
+		}
+	};
+
+	const getRequiredActionsForTemplate = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const { resetRequiredActions, ...queryPayload } = payload;
+			const response = await service.query(
+				getRequiredActionDetailsQuery,
+				queryPayload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+			const workflowTemplateId = queryPayload?.filters?.workflowTemplateId;
+			if (response?.[0]) {
+				const data = response?.[1]?.data?.listRequiredActions?.data;
+				dispatch({
+					type: Actions.GET_REQUIRED_ACTIONS_FOR_TEMPLATE_SUCCESS,
+					payload: {
+						...state?.requiredActionsForTemplate,
+						[workflowTemplateId]: {
+							...response?.[1]?.data?.listRequiredActions,
+							data: state?.requiredActionsForTemplate?.[workflowTemplateId]
+								? [
+										...(Array?.isArray(
+											state?.requiredActionsForTemplate?.[workflowTemplateId]
+												?.data,
+										)
+											? state.requiredActionsForTemplate[workflowTemplateId]
+													?.data
+											: []),
+										...data,
+								  ]
+								: data,
+						},
+					},
+				});
+			} else {
+				return [false];
+			}
+		} catch (error) {
+			console.log('api failed ==>getRequiredActionDetailsForTemplate', error);
 		}
 	};
 
@@ -1664,6 +1736,7 @@ export const TemplatesState = (props) => {
 		updateForm,
 		updateThankyou,
 		getWorkflowsList,
+		getWorkflowsListForFiles,
 		getTemplatesListForCreateLead,
 		createLeadfromTemplates,
 		sendSmartFile,
@@ -1680,6 +1753,7 @@ export const TemplatesState = (props) => {
 		deleteWorkflowTemplates,
 		getTabItemCount,
 		getRequiredActions,
+		getRequiredActionsForTemplate,
 		updateSendSmartFileSettings,
 		getEventsPresets,
 		addEventsPresets,

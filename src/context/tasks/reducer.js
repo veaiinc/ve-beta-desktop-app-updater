@@ -9,6 +9,10 @@ const actionHandlers = {
 		...state,
 		listTasksForToday: action?.payload,
 	}),
+	SET_LIST_TASKS_DUE_TILL_TODAY: (state, action) => ({
+		...state,
+		listTasksDueTillToday: action?.payload,
+	}),
 	SET_LIST_TASKS_FOR_OVERDUE: (state, action) => ({
 		...state,
 		listTasksForOverdue: action?.payload,
@@ -134,6 +138,24 @@ const actionHandlers = {
 			[`${action?.payload?.group}GroupLabels`]: state?.taskMetadata?.[
 				`${action?.payload?.group}GroupLabels`
 			]?.filter((item) => item?._id !== action?.payload?._id),
+		},
+	}),
+	UPDATE_TASK_VIEWS: (state, action) => ({
+		...state,
+		taskMetadata: {
+			...state.taskMetadata,
+			views: action?.payload,
+		},
+	}),
+	SET_TASK_PREFERENCES: (state, action) => ({
+		...state,
+		taskPreference: action?.payload,
+	}),
+	DELETE_TASK_VIEW: (state, action) => ({
+		...state,
+		taskMetadata: {
+			...state.taskMetadata,
+			views: state?.taskMetadata?.views?.filter((item) => item?._id !== action?.payload),
 		},
 	}),
 	UPDATE_TASK_STATE: (state, action) => ({

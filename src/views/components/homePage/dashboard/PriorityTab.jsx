@@ -1,4 +1,4 @@
-import React, { memo, useContext, useState, useEffect, useCallback, useRef } from 'react';
+import React, { memo, useContext, useState, useEffect } from 'react';
 import RequiredActionsLoader from '../../sales/RequiredActionsLoader';
 import '../../../../assets/scss/sales/sales.scss';
 import { useNavigate } from 'react-router-dom';
@@ -7,6 +7,7 @@ import FilterCheckBox from '../../sales/FilterCheckBox';
 import moment from 'moment';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { FetchMoreLoaderComp } from '../../../../helpers';
+import Skeleton from 'react-loading-skeleton';
 
 const tabItems = [
 	{ id: 'all', label: 'All', checkBoxBorder: null },
@@ -17,55 +18,27 @@ const tabItems = [
 ];
 const PriorityTab = () => {
 	let {
-		templates: { requiredActions, getRequiredActions, getTabItemCount, tabItemCount },
+		templates: { requiredActions, getRequiredActions, tabItemCount },
 	} = useContext(Context);
 	const [activeTab, setActiveTab] = useState('all');
-	const scrollRef = useRef(null);
-	const debouncedTimerRef = useRef(null);
 	const [info, setInfo] = useState({
 		currentPage: 1,
+		loading: true,
+		hasMore: false,
 	});
+
 	const navigate = useNavigate();
 	useEffect(() => {
-		fetchSalesInfo();
-	}, []);
-
-	// useEffect(() => {
-	// 	scrollRef?.current?.addEventListener('scroll', debouncedHandleScroll);
-	// 	return () => {
-	// 		scrollRef?.current?.removeEventListener('scroll', debouncedHandleScroll);
-	// 		if (debouncedTimerRef.current) {
-	// 			clearTimeout(debouncedTimerRef.current);
-	// 		}
-	// 	};
-	// }, [requiredActions]);
-
-	// const handleScroll = useCallback(() => {
-	// 	if (scrollRef.current) {
-	// 		const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
-	// 		if (scrollLeft + clientWidth >= scrollWidth - 20) {
-	// 			if (requiredActions?.hasMore) {
-	// 				getRequiredActions({
-	// 					filters: {
-	// 						action: activeTab,
-	// 						page: Math.ceil(requiredActions?.actions?.length / 10) + 1,
-	// 						limit: 10,
-	// 					},
-	// 					resetRequiredActions: false,
-	// 				});
-	// 			}
-	// 		}
-	// 	}
-	// }, [requiredActions, getRequiredActions]);
-
-	// const debouncedHandleScroll = () => {
-	// 	if (debouncedTimerRef.current) {
-	// 		clearTimeout(debouncedTimerRef.current);
-	// 	}
-	// 	debouncedTimerRef.current = setTimeout(() => {
-	// 		handleScroll();
-	// 	}, 300);
-	// };
+		if (!requiredActions) {
+			fetchSalesInfo();
+		} else {
+			if (info?.loading !== false)
+				setInfo((prev) => ({
+					...prev,
+					loading: false,
+				}));
+		}
+	}, [requiredActions]);
 
 	const fetchSalesInfo = () => {
 		getRequiredActions({
@@ -76,11 +49,10 @@ const PriorityTab = () => {
 			},
 			resetRequiredActions: true,
 		});
-		getTabItemCount();
 	};
 
 	const fetchMoreData = async () => {
-		if (requiredActions?.hasMore) {
+		if (requiredActions?.hasNextPage) {
 			const nextPage = info?.currentPage + 1;
 			await getRequiredActions({
 				filters: {
@@ -97,9 +69,7 @@ const PriorityTab = () => {
 		}
 	};
 
-	console.log(requiredActions);
-
-	const handleTabClick = (tabId) => {
+	const handlePriorityOptionClick = (tabId) => {
 		if (tabId === activeTab) return;
 		setActiveTab(tabId);
 		getRequiredActions({
@@ -119,8 +89,9 @@ const PriorityTab = () => {
 	const handleActionNavigation = (templateId, workflowId) => {
 		navigate(`/smart-file/${templateId}/${workflowId}`);
 	};
+
 	return (
-		<div className="sales-page">
+		<div className="sales-page" style={{ padding: 0 }}>
 			<div className="sales-page-filter">
 				<ul>
 					{tabItems.map((item) => (
@@ -135,9 +106,12 @@ const PriorityTab = () => {
 							className={`${
 								activeTab === item.id ? 'active' : ''
 							} salesFilterButtons`}
-							onClick={() => handleTabClick(item.id)}
+							onClick={() => handlePriorityOptionClick(item.id)}
 						>
-							{item.label} {tabItemCount?.[item.id]}
+							{item.label}{' '}
+							{item?.id === 'all'
+								? `(${tabItemCount?.[item.id] ?? 0})`
+								: tabItemCount?.[item.id] ?? 0}
 							{item?.checkBoxBorder ? (
 								<FilterCheckBox borderColor={item?.checkBoxBorder} />
 							) : (
@@ -148,19 +122,41 @@ const PriorityTab = () => {
 				</ul>
 			</div>
 			<div className="cards-container">
-				<div className="card-div">
+				<div className="card-div" style={{ overflowX: 'hidden', padding: 0 }}>
 					{requiredActions?.loading ? (
-						<RequiredActionsLoader />
+						<div
+							style={{
+								display: 'flex',
+								flexDirection: 'row',
+								gap: '8px',
+								flexWrap: 'wrap',
+							}}
+						>
+							{[{}, {}, {}, {}, {}, {}].map((ele, index) => {
+								return (
+									<Skeleton
+										width={'268px'}
+										height={'286px'}
+										borderRadius={'24px'}
+										key={index}
+									/>
+								);
+							})}
+						</div>
 					) : (
 						<InfiniteScroll
 							dataLength={requiredActions?.actions?.length || 0}
-							hasMore={requiredActions?.hasMore}
+							hasMore={requiredActions?.hasNextPage}
 							next={fetchMoreData}
-							height={900}
+							height={'calc(100vh - 395px)'}
 							loader={<FetchMoreLoaderComp />}
-							style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}
+							style={{
+								display: 'flex',
+								flexWrap: 'wrap',
+								gap: '10px',
+								marginBottom: '85px',
+							}}
 						>
-							{/* <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}> */}
 							{requiredActions?.actions?.map((actionItem, index) => (
 								<div
 									className="requiredSalesPendingCard"
@@ -171,6 +167,12 @@ const PriorityTab = () => {
 											actionItem?._id,
 										)
 									}
+									style={{
+										height: '286px',
+										width: '268px',
+										borderRadius: '24px',
+										padding: '24px',
+									}}
 								>
 									<div className="agentsWorkflowJobCards">
 										<div className="agentsWorkflowJobCardsContent">
@@ -206,7 +208,6 @@ const PriorityTab = () => {
 									</div>
 								</div>
 							))}
-							{/* </div> */}
 						</InfiniteScroll>
 					)}
 				</div>

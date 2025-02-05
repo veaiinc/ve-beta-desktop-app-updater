@@ -1,6 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import ListView from '../../components/tasks/views/ListView';
+import React, { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { ReactComponent as ClockSvg } from '../../../assets/svg/activity/clock.svg';
 import { ReactComponent as PieSvg } from '../../../assets/svg/tasks/pieHollow.svg';
 import { ReactComponent as PrioritySvg } from '../../../assets/svg/tasks/roundChevronRight.svg';
@@ -15,7 +14,7 @@ import moment from 'moment';
 import CreateTaskPopup from '../../components/modalsV2/tasks/CreateTaskPopup';
 import Task from '../../components/tasks/Task';
 import ListViewSidebar from '../../components/modalsV2/tasks/ListViewSidebar';
-
+import '../../../assets/scss/tasks/taskPage.scss';
 import Text from '../../components/tasks/listView/Text';
 import Select from '../../components/tasks/listView/Select';
 import Person from '../../components/tasks/listView/Person';
@@ -33,6 +32,7 @@ import ParentTaskComponent from '../../components/tasks/listView/ParentTaskCompo
 import ChildTaskProgress from '../../components/tasks/listView/ChildTaskProgress';
 import LinkText from '../../components/tasks/listView/LinkText';
 import ChildTaskComponent from '../../components/tasks/listView/ChildTaskComponent';
+import QuickActions from '../../components/globalComponents/QuickActions';
 
 const defaultPreference = {
 	taskSlNo: { show: false, order: 1 },
@@ -97,15 +97,14 @@ const Tasks = () => {
 			refetchTasks,
 			updateTaskState,
 			getTaskMetadata,
+			updateTaskViews,
+			deleteTaskView,
+			getTaskPreferences,
+			updateTaskPreferences,
+			taskPreference,
 		},
 		templates: { getWorkflowsList, workflowslist },
-		companyInfo: {
-			getTeamMembers,
-			tenantsUserList,
-			getTaskPreferences,
-			taskPreference,
-			updateTaskPreferences,
-		},
+		companyInfo: { getTeamMembers, tenantsUserList },
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 	} = useContext(Context);
 
@@ -372,6 +371,20 @@ const Tasks = () => {
 		if (!taskMetadata) {
 			getTaskMetadata();
 		} else {
+			if (!taskMetadata?.views) {
+				updateView(
+					null,
+					{
+						label: 'List view',
+						filters: [],
+						icon: null,
+						order: null,
+						sort: [],
+						viewType: 'list',
+					},
+					taskMetadata?._id,
+				);
+			}
 			setInfo((prevInfo) => ({
 				...prevInfo,
 				taskMetadata: taskMetadata,
@@ -398,6 +411,10 @@ const Tasks = () => {
 					search: info?.searchValue,
 				},
 			});
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				page: page,
+			}));
 		},
 		[info?.sort, info?.filters, info?.searchValue],
 	);
@@ -420,7 +437,6 @@ const Tasks = () => {
 			fetchListItems(nextPage);
 			setInfo((prevInfo) => ({
 				...prevInfo,
-				page: nextPage,
 				infinityLoading: true,
 			}));
 		}
@@ -437,6 +453,12 @@ const Tasks = () => {
 	}, []);
 
 	const updateTaskInfo = useCallback((updateData) => {
+		if (updateData?.taskPreferences) {
+			updateTaskPreferences({
+				preferenceType: updateData?.taskPreferences?.preferenceType,
+				data: updateData?.taskPreferences?.preferences,
+			});
+		}
 		setInfo((previnfo) => ({ ...previnfo, ...updateData }));
 	}, []);
 
@@ -807,8 +829,36 @@ const Tasks = () => {
 		updateTaskInfo({ sidebarIsOpen: false, selectedSubTask: null });
 	}, [info?.updated]);
 
+	const updateView = useCallback(
+		(viewId, updateData, taskMetadataId) => {
+			const data = {
+				taskMetadataId: taskMetadataId || info?.taskMetadata?._id,
+				viewId,
+				input: updateData,
+			};
+			updateTaskViews(data);
+		},
+		[updateTaskViews, info?.taskMetadata?._id],
+	);
+
+	const deleteView = useCallback(
+		(viewId) => {
+			deleteTaskView({ taskMetadataId: info?.taskMetadata?._id, viewId });
+		},
+		[deleteTaskView, info?.taskMetadata?._id],
+	);
+
 	return (
 		<>
+			<div className="task-header-container">
+				<div className="header-text">
+					<span className="lineOne">Tasks</span>
+					<span className="lineTwo">You Created</span>
+				</div>
+				<div className="quick-actions-btn">
+					<QuickActions />
+				</div>
+			</div>
 			<Task
 				responseMetadata={responseMetadata}
 				handleAddButtonOnClick={handleAddButtonOnClick}
@@ -829,6 +879,9 @@ const Tasks = () => {
 				blockTitle={'Tasks'}
 				createButtonText={'Create Task'}
 				prefix={info?.taskMetadata?.prefix}
+				views={info?.taskMetadata?.views}
+				updateView={updateView}
+				deleteView={deleteView}
 			/>
 			<CreateTaskPopup
 				isOpen={info?.isCreateModalOpen}
@@ -860,7 +913,7 @@ const Tasks = () => {
 				isSidebarExpanded={info?.isSidebarExpanded}
 				headerText={
 					`${info?.taskMetadata?.prefix ? info?.taskMetadata?.prefix + '-' : ''}` +
-					info?.selectedRow?.taskSlNo
+					(info?.selectedRow?.taskSlNo || '')
 				}
 				breadCrumbs={info?.breadCrumbs}
 				handleBreadCrumbsClick={handleBreadCrumbsClick}
