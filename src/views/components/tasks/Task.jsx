@@ -9,6 +9,7 @@ import ListView from './views/ListView';
 
 import TableView from './views/TableView';
 import TabDropDown from '../dropDown/tasks/TabDropDown';
+import QuickActions from '../globalComponents/QuickActions';
 
 const layouts = {
 	list: {
@@ -318,6 +319,15 @@ const Task = ({
 
 	return (
 		<div className="task-container">
+			<div className="task-header-container">
+				<div className="header-text">
+					<span className="lineOne">Create a</span>
+					<span className="lineTwo">Document</span>
+				</div>
+				<div className="quick-actions-btn">
+					<QuickActions />
+				</div>
+			</div>
 			<ListViewHeader
 				updateTaskInfo={updateTaskInfo}
 				properties={properties}

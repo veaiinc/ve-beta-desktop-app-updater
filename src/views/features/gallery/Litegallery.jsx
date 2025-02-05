@@ -11,6 +11,7 @@ import Skeleton from 'react-loading-skeleton';
 import { ReactComponent as FilterIcon } from '../../../assets/svg/chat/filter.svg';
 import { Result, message, Tooltip } from 'antd';
 import { getCurrentWorkspaceId } from '../../../helpers';
+import QuickActions from '../../components/globalComponents/QuickActions';
 
 const noImage =
 	'https://png.pngtree.com/png-clipart/20230917/original/pngtree-no-image-available-icon-flatvector-illustration-thumbnail-graphic-illustration-vector-png-image_12323920.png';
@@ -252,6 +253,15 @@ const LiteGallery = () => {
 	return (
 		<div className="gallery-main-container">
 			{/* <h1>Light Gallery</h1> */}
+			<div className="gallery-header-container">
+				<div className="gallery-header-text">
+					<span className="lineOne">Create a</span>
+					<span className="lineTwo">Document</span>
+				</div>
+				<div className="quickActionsBtn">
+					<QuickActions />
+				</div>
+			</div>
 			<div className="seachbar-container">
 				<div className="gallery-filter">
 					<img src={Search} alt="searchh" />
