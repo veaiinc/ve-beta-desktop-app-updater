@@ -68,13 +68,15 @@
 			.tableBody {
 				.headerRow {
 					display: flex;
-					// border-bottom: 1px solid #171718;
-					// background-color: #1a1a1a;
+					position: sticky;
+					top: 0;
 
 					.headerCell {
 						position: relative;
 						flex-shrink: 0;
 						border-bottom: 1px solid #171718;
+						background: #0c0d0d;
+
 						// border-right: 1px solid #374151;
 
 						// &:last-child {
