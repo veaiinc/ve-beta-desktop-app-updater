@@ -109,6 +109,7 @@ const SideBarPreview = ({ open, onClose, activeTemplate, openFileLeadModal }) =>
 	}, []);
 
 	const handleTemplateClick = async () => {
+		if (info?.loading) return;
 		setInfo((prev) => ({ ...prev, loading: true }));
 		const payload = {
 			smartFileInput: {
