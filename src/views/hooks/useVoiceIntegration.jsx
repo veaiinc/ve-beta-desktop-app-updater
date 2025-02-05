@@ -1,7 +1,10 @@
-import React, { memo, useEffect, useRef, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { Room, RoomEvent, createLocalTracks } from 'livekit-client';
-
+import Context from '../../context/context';
 export const useVoiceIntegration = () => {
+	let {
+		aiSetup: { getTokenForVoice },
+	} = useContext(Context);
 	const roomRef = useRef(
 		new Room({
 			adaptiveStream: true,
@@ -26,55 +29,17 @@ export const useVoiceIntegration = () => {
 	const krispProcessorRef = useRef(null);
 	const [isNoiseFilterEnabled, setIsNoiseFilterEnabled] = useState(true);
 
+	//useEffects
+
 	// Audio level monitoring
 	useEffect(() => {
 		if (!isConnected) return;
-
-		const startMonitoring = () => {
-			if (audioMonitorRef.current) {
-				clearInterval(audioMonitorRef.current);
-			}
-
-			audioMonitorRef.current = setInterval(() => {
-				try {
-					const room = roomRef.current;
-					const participant = room?.localParticipant;
-					const audioTracks = participant?.audioTracks;
-
-					if (!participant || !audioTracks) {
-						return;
-					}
-
-					const trackPublications = Array.from(audioTracks.values());
-					if (trackPublications.length === 0) {
-						return;
-					}
-
-					const publication = trackPublications[0];
-					if (publication?.track) {
-						const level = publication.track.getCurrentLevel();
-						setAudioLevel(level);
-						if (level > 0.05) {
-							console.log('Audio level:', level);
-						}
-					}
-				} catch (error) {
-					console.error('Error monitoring audio:', error);
-				}
-			}, 100);
-		};
-
-		const initTimer = setTimeout(() => {
-			startMonitoring();
-		}, 1000);
+		startMonitoring();
 
 		return () => {
 			if (audioMonitorRef.current) {
 				clearInterval(audioMonitorRef.current);
 				audioMonitorRef.current = null;
-			}
-			if (initTimer) {
-				clearTimeout(initTimer);
 			}
 		};
 	}, [isConnected]);
@@ -82,20 +47,7 @@ export const useVoiceIntegration = () => {
 	// Connection state monitoring
 	useEffect(() => {
 		const room = roomRef.current;
-
-		const handleConnectionStateChanged = (state) => {
-			console.log('Connection state changed:', state);
-			if (state === 'disconnected' && isConnected) {
-				handleReconnect();
-			}
-		};
-
-		const handleError = async (error) => {
-			console.error('Room error:', error);
-			if (error.message.includes('ICE') || error.message.includes('connection')) {
-				handleReconnect();
-			}
-		};
+		if (!room) return;
 
 		room.on(RoomEvent.ConnectionStateChanged, handleConnectionStateChanged);
 		room.on(RoomEvent.MediaDevicesError, handleError);
@@ -106,7 +58,7 @@ export const useVoiceIntegration = () => {
 			room.off(RoomEvent.MediaDevicesError, handleError);
 			room.off(RoomEvent.ConnectionError, handleError);
 		};
-	}, [isConnected]);
+	}, [roomRef]);
 
 	// Room cleanup
 	useEffect(() => {
@@ -123,7 +75,41 @@ export const useVoiceIntegration = () => {
 		};
 	}, []);
 
-	const handleReconnect = () => {
+	const startMonitoring = useCallback(() => {
+		if (audioMonitorRef.current) {
+			clearInterval(audioMonitorRef.current);
+		}
+
+		audioMonitorRef.current = setInterval(() => {
+			try {
+				const room = roomRef.current;
+				const participant = room?.localParticipant;
+				const audioTracks = participant?.audioTracks;
+
+				if (!participant || !audioTracks) {
+					return;
+				}
+
+				const trackPublications = Array.from(audioTracks.values());
+				if (trackPublications.length === 0) {
+					return;
+				}
+
+				const publication = trackPublications[0];
+				if (publication?.track) {
+					const level = publication.track.getCurrentLevel();
+					setAudioLevel(level);
+					if (level > 0.05) {
+						console.log('Audio level:', level);
+					}
+				}
+			} catch (error) {
+				console.error('Error monitoring audio:', error);
+			}
+		}, 100);
+	}, [roomRef]);
+
+	const handleReconnect = useCallback(() => {
 		if (reconnectAttempt >= maxReconnectAttempts) {
 			console.log('Max reconnection attempts reached');
 			setIsConnected(false);
@@ -132,16 +118,42 @@ export const useVoiceIntegration = () => {
 		}
 
 		console.log(`Attempting reconnect (${reconnectAttempt + 1}/${maxReconnectAttempts})`);
+
 		setReconnectAttempt((prev) => prev + 1);
 
+		// Clear any existing reconnect timeout before setting a new one
 		if (reconnectTimeoutRef.current) {
 			clearTimeout(reconnectTimeoutRef.current);
 		}
 
-		reconnectTimeoutRef.current = setTimeout(() => {
-			connectToRoom();
+		reconnectTimeoutRef.current = setTimeout(async () => {
+			try {
+				await connectToRoom();
+			} catch (error) {
+				console.error('Reconnect attempt failed:', error);
+			}
 		}, 2000);
-	};
+	}, [reconnectAttempt, maxReconnectAttempts, setIsConnected, setReconnectAttempt]);
+
+	const handleConnectionStateChanged = useCallback(
+		(state) => {
+			console.log('Connection state changed:', state);
+			if (state === 'disconnected') {
+				handleReconnect();
+			}
+		},
+		[handleReconnect],
+	);
+
+	const handleError = useCallback(
+		(error) => {
+			console.error('Room error:', error);
+			if (error.message.includes('ICE') || error.message.includes('connection')) {
+				handleReconnect();
+			}
+		},
+		[handleReconnect],
+	);
 
 	const getToken = async () => {
 		try {
