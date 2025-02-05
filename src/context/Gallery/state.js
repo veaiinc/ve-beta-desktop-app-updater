@@ -1664,6 +1664,28 @@ export const Galleries = () => {
 		}
 	};
 
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/gallery-collections/{{ _.collection_id }}/download/
+	const downloadImagesForClientSelection = async (payload, collectionId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			let region = localStorage.getItem('region');
+			const response = await service.fetchPost(
+				`/${workspaceId}/gallery-collections/${collectionId}/download`,
+				payload,
+				usertoken,
+				'galleries',
+			);
+			if (response?.[0] === true && response?.[1]?.downloadId) {
+				const regionPrefix = region === 'ap-south-1' ? 'in' : 'us';
+				const url = `https://downloads.ve.ai/${regionPrefix}/${response?.[1]?.downloadId}`;
+				return [response?.[0], url];
+			}
+			return [false, null];
+		} catch (error) {
+			console.log('error==>downloadImagesForClientSelection', error);
+		}
+	};
 	const clearGalleryShareDetails = () => {
 		dispatch({
 			type: Actions.GET_GALLERY_SHARE_DETAILS,
@@ -1872,5 +1894,6 @@ export const Galleries = () => {
 		setUpImageUpload,
 		getClientSelectionLightRoomCopy,
 		deleteWaterMark,
+		downloadImagesForClientSelection,
 	};
 };
