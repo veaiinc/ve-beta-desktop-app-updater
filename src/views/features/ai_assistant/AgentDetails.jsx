@@ -77,6 +77,7 @@ const AgentDetails = () => {
 						state: { assistant },
 					})
 				}
+				assistant={info?.activeAiAssistant}
 			/>
 			<TabHeader
 				activeTab={info?.activeTab}

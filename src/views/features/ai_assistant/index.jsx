@@ -183,7 +183,19 @@ const AiAssistants = () => {
 									}
 								>
 									<div>
-										<AgentIcon />
+										{assistant?.assitant_profile_picture_s3Key ? (
+											<img
+												src={assistant?.assitant_profile_picture_s3Key}
+												alt="agent"
+												style={{
+													borderRadius: '50%',
+													width: '32px',
+													height: '32px',
+												}}
+											/>
+										) : (
+											<AgentIcon />
+										)}
 									</div>
 									<div className="agentName">{assistant?.name}</div>
 									<div className="createdBy">

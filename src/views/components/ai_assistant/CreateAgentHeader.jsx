@@ -12,6 +12,7 @@ const CreateAgentHeader = ({
 	actionIcon = null,
 	agentIcon = null,
 	actionBtnClassName = '',
+	assistant,
 }) => {
 	return (
 		<div className="create-agent-header">
@@ -23,7 +24,16 @@ const CreateAgentHeader = ({
 					<div className="create-agent-header-left-back-text">{backText}</div>
 				</div>
 				<div className="create-agent-header-left-agent-name">
-					{agentIcon}
+					{assistant?.assitant_profile_picture_s3Key ? (
+						<img
+							src={assistant?.assitant_profile_picture_s3Key}
+							alt="agent"
+							style={{ borderRadius: '50%', width: '25px', height: '25px' }}
+						/>
+					) : (
+						agentIcon
+					)}
+
 					{name}
 				</div>
 			</div>
