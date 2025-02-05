@@ -821,7 +821,7 @@ export const AiSetupState = () => {
 			const workspaceId = localStorage.getItem('workspaceId');
 
 			const response = await service?.fetchPost(
-				`https://ai.ap-south-1.ve.ai/${workspaceId}/generate-livekit-token`,
+				`/${workspaceId}/generate-livekit-token`,
 				{},
 				usertoken,
 				'ai_predictions',
