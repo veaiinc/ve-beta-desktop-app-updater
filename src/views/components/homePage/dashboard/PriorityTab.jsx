@@ -153,7 +153,7 @@ const PriorityTab = () => {
 							style={{
 								display: 'flex',
 								flexWrap: 'wrap',
-								gap: '10px',
+								gap: '16px',
 								marginBottom: '85px',
 							}}
 						>
