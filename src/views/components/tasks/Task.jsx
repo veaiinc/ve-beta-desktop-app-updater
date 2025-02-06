@@ -10,6 +10,7 @@ import ListView from './views/ListView';
 import GalleryView from './views/GalleryView';
 import TableView from './views/TableView';
 import TabDropDown from '../dropDown/tasks/TabDropDown';
+import QuickActions from '../globalComponents/QuickActions';
 
 const layouts = {
 	list: {
