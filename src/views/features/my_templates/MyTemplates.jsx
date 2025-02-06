@@ -13,7 +13,6 @@ import QuickActions from '../../components/globalComponents/QuickActions';
 const SubTitle = () => {
 	return (
 		<div className="subTitleContainer">
-			<Stars />
 			<span>This is a template</span>
 		</div>
 	);
