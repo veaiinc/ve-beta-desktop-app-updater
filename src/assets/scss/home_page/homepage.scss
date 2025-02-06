@@ -253,6 +253,9 @@
 				font-weight: 500;
 				line-height: normal;
 				text-transform: capitalize;
+				width: 100%;
+				overflow: hidden;
+				text-overflow: ellipsis;
 			}
 			.home-page-cards-container-card-title {
 				color: var(--primary-font, #f2f2f3);
@@ -260,7 +263,10 @@
 				font-size: 18px;
 				font-style: normal;
 				font-weight: 500;
-				line-height: 24px; /* 133.333% */
+				line-height: 24px;
+				width: 100%;
+				overflow: hidden;
+				text-overflow: ellipsis;
 			}
 		}
 	}

@@ -9,6 +9,7 @@ import { Drawer } from 'antd';
 import { fetchOriginSelection, getCurrentWorkspaceId } from '../../../helpers';
 import CopiedModal from '../modalsV2/workflowsModals/CopiedModal';
 import { Spin } from 'antd';
+import Spinner from '../../components/loaders/Spinner';
 
 let origin = fetchOriginSelection();
 
@@ -16,6 +17,7 @@ const SideBarPreview = ({ open, onClose, activeTemplate, openFileLeadModal }) =>
 	const {
 		templates: { getSpecificTemplatesInfo, specificTemplatesInfo },
 		profileInfo: { userWorkSpaceList, getTenantSettings, tennantSettingsData },
+		activityInfo: { createSmartfile, smartfile },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -26,6 +28,14 @@ const SideBarPreview = ({ open, onClose, activeTemplate, openFileLeadModal }) =>
 		pendingCopyAction: null,
 		copyLink: null,
 	});
+
+	useEffect(() => {
+		if (smartfile?._id) {
+			if (info?.activeTemplateData?._id) {
+				window.location.href = `${origin}/${smartfile?._id}?workflow=true&templateId=${info?.activeTemplateData?._id}`;
+			}
+		}
+	}, [smartfile]);
 
 	useEffect(() => {
 		setInfo((prev) => ({
@@ -46,6 +56,33 @@ const SideBarPreview = ({ open, onClose, activeTemplate, openFileLeadModal }) =>
 			getTenantSettings();
 		}
 	}, [tennantSettingsData]);
+
+	useEffect(() => {
+		if (smartfile?._id) {
+			window.location.href = `${origin}/${smartfile?._id}?workflow=true&templateId=${info?.activeTemaplateData?._id}`;
+		}
+	}, [smartfile]);
+
+	const handleTemplateClick = async (template) => {
+		if (info?.loading) return;
+		setInfo((prev) => ({ ...prev, loading: true }));
+
+		const payload = {
+			smartFileInput: {
+				templateId: template?._id,
+				title: template?.title,
+			},
+		};
+
+		try {
+			await createSmartfile(payload);
+		} catch (error) {
+			console.error('Failed to create smartfile:', error);
+		} finally {
+			setInfo((prev) => ({ ...prev, loading: false }));
+			console.log(smartfile, 'smartfile');
+		}
+	};
 
 	const performExtraCheck = useCallback(
 		async (currentWorkspaceId) => {
@@ -97,6 +134,19 @@ const SideBarPreview = ({ open, onClose, activeTemplate, openFileLeadModal }) =>
 			copyLink: null,
 		}));
 	}, []);
+
+	const handleTemplateClick = async () => {
+		if (info?.loading) return;
+		setInfo((prev) => ({ ...prev, loading: true }));
+		const payload = {
+			smartFileInput: {
+				templateId: activeTemplate?._id,
+				title: activeTemplate?.title,
+			},
+		};
+		await createSmartfile(payload);
+		setInfo((prev) => ({ ...prev, loading: false }));
+	};
 
 	return (
 		<Drawer
@@ -151,8 +201,19 @@ const SideBarPreview = ({ open, onClose, activeTemplate, openFileLeadModal }) =>
 					))}
 				</div>
 				<div className="buttonContainer">
-					<div className="button" onClick={openFileLeadModal}>
-						Create File
+					<div
+						className="button"
+						onClick={
+							info?.activeTemplateData?.version
+								? handleTemplateClick
+								: openFileLeadModal
+						}
+					>
+						{info?.loading ? (
+							<Spinner height={'10px'} width={'10px'} color={'black'} />
+						) : (
+							'Create File'
+						)}
 					</div>
 				</div>
 			</div>
