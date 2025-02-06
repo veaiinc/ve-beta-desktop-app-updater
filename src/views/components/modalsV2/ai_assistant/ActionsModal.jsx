@@ -704,7 +704,6 @@ const EndpointTab = ({
 	variables,
 	onVariableSelect,
 }) => {
-	console.log('Url:', url);
 	return (
 		<div className="endpointTabContainer">
 			<div className="addUrlContainer">

@@ -10,6 +10,7 @@ import Context from '../../../context/context';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { FetchMoreLoaderComp } from '../../../helpers';
 import moment from 'moment';
+import { Markdown } from '../../../helpers/markdownHelper';
 
 const initialInfo = {
 	aiChatLogsList: null,
@@ -68,7 +69,6 @@ const AiChatLogs = ({ assistant }) => {
 			}));
 		}
 	}, [moreAiChatLogs]);
-	console.log('assistant', assistant);
 
 	const fetchMoreChatLogs = useCallback(() => {
 		if (info?.hasNextPage) {
@@ -255,7 +255,7 @@ const AiChatLogs = ({ assistant }) => {
 													)}
 												</span>
 												<span className="responseText">
-													{chat?.response}
+													<Markdown>{chat?.response}</Markdown>
 												</span>
 											</div>
 										</div>
