@@ -152,8 +152,6 @@ const statusList = Object.values(statusTextmapper)
 		_id: status?.id,
 	}));
 
-console.log(statusList);
-
 export const FilterIcons = {
 	templateName: <UppercaseLowercaseA />,
 	clientName: <MailLetter />,
@@ -291,9 +289,10 @@ const Docs = () => {
 		if (templatesListForDocs) {
 			setInfo((prev) => ({
 				...prev,
-				templatesList: info?.templateNameSearchValue
-					? templatesListForDocs?.data
-					: [...prev?.templatesList, ...templatesListForDocs?.data],
+				templatesList:
+					templatesListForDocs?.currentPage === 1 || !info?.templateNameSearchValue
+						? templatesListForDocs?.data
+						: [...prev?.templatesList, ...templatesListForDocs?.data],
 				hasMoreForFilter: {
 					...prev?.hasMoreForFilter,
 					templateName: templatesListForDocs?.hasNextPage,
@@ -312,9 +311,10 @@ const Docs = () => {
 		if (clientListForDocs) {
 			setInfo((prev) => ({
 				...prev,
-				clientList: info?.clientNameSearchValue
-					? clientListForDocs?.data
-					: [...prev?.clientList, ...clientListForDocs?.data],
+				clientList:
+					clientListForDocs?.currentPage === 1
+						? clientListForDocs?.data
+						: [...prev?.clientList, ...clientListForDocs?.data],
 				hasMoreForFilter: {
 					...prev?.hasMoreForFilter,
 					clientName: clientListForDocs?.hasNextPage,
@@ -426,7 +426,6 @@ const Docs = () => {
 		setInfo((prev) => ({
 			...prev,
 			[`${filter}SearchValue`]: searchValue,
-			filtersGotChanged: true,
 		}));
 	};
 
