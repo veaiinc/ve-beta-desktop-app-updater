@@ -27,7 +27,7 @@
 		.home-page-container-content {
 			display: inline-flex;
 			justify-content: space-between;
-			width: 95%;
+			width: 100%;
 			.home-page-container-content-item-container {
 				display: flex;
 				flex-direction: row;
@@ -160,7 +160,7 @@
 							cursor: pointer;
 
 							.home-page-welcome-container-left-text-option-active-indicator {
-								width: 24px;
+								width: 18px;
 								align-self: center;
 								height: 2px;
 								background: var(--primary-font, #f2f2f3);
@@ -201,7 +201,7 @@
 						.search-bar-input {
 							background: #202123;
 							border: none;
-							color: var(--primary-font, #f2f2f3);
+							color: var(--secondary-font, #797e86);
 							font-family: Inter;
 							font-size: 12px;
 							font-style: normal;
