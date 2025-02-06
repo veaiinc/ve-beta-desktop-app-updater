@@ -56,7 +56,7 @@ const ActionsModal = ({
 			// 	value: '',
 			// },
 		],
-		bodyContent: '',
+		bodyContent: null,
 		showVariableSuggestions: false,
 		cursorPosition: 0,
 		showUrlVariableSuggestions: false,
@@ -198,10 +198,10 @@ const ActionsModal = ({
 			// Parse body content
 			let parsedBody = {};
 			try {
-				parsedBody = info?.bodyContent ? JSON.parse(info?.bodyContent) : {};
+				parsedBody = info?.bodyContent ? info?.bodyContent : null;
 			} catch (e) {
 				// If parsing fails, use the content as is (it might be a string)
-				parsedBody = info?.bodyContent || {};
+				parsedBody = info?.bodyContent || null;
 			}
 
 			// Prepare variables with proper type conversion
@@ -226,7 +226,7 @@ const ActionsModal = ({
 				url: info?.url?.trim(),
 				method: info?.method?.toUpperCase(),
 				contentType: info?.apiUses?.toLowerCase(),
-				body: parsedBody,
+				body: parsedBody || null,
 				headers: validHeaders?.map((header) => ({
 					name: header?.parameter?.trim(),
 					value: header?.value?.trim(),
