@@ -8,6 +8,7 @@ import { ReactComponent as PrioritySvg } from '../../../../assets/svg/tasks/roun
 import { ReactComponent as WorkflowSvg } from '../../../../assets/svg/tasks/workflow.svg';
 import { ReactComponent as PersonSvg } from '../../../../assets/svg/tasks/person.svg';
 import { ReactComponent as CalendarSvg } from '../../../../assets/svg/tasks/calendar.svg';
+import { ReactComponent as TickSvg } from '../../../../assets/svg/home_page/Tick.svg';
 import { message, Tooltip } from 'antd';
 import Skeleton from 'react-loading-skeleton';
 import jwtDecode from 'jwt-decode';
@@ -813,7 +814,11 @@ const TasksTab = () => {
 										{options?.map((option) => (
 											<div
 												key={option?.id}
-												className="dropdown-option"
+												className={`dropdown-option ${
+													info?.selectedOption === option?.value
+														? 'active'
+														: ''
+												}`}
 												onClick={() => {
 													if (info?.selectedOption !== option?.value)
 														setInfo((prev) => ({
@@ -825,6 +830,9 @@ const TasksTab = () => {
 												}}
 											>
 												{option?.title}
+												{info?.selectedOption === option?.value && (
+													<TickSvg />
+												)}
 											</div>
 										))}
 									</div>
