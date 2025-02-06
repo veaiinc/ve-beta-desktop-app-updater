@@ -9,13 +9,8 @@ const NavBar = ({
 	handleSelectedOption,
 	handleSearchValue,
 	showSearchBar = true,
+	tabItemCount,
 }) => {
-	let {
-		templates: { getTabItemCount, tabItemCount },
-	} = useContext(Context);
-	useEffect(() => {
-		getTabItemCount();
-	}, []);
 	const overrideShowSearchBar = selectedOption === 'Workflows';
 	return (
 		<div className="home-page-welcome-container-left-text-options">
@@ -29,9 +24,11 @@ const NavBar = ({
 						onClick={() => handleSelectedOption(option?.value)}
 					>
 						{option?.title === 'Priority' && (
-							<div className="priority-count">{tabItemCount?.all}</div>
+							<div className="priority-count">
+								{tabItemCount?.all > 99 ? '99+' : tabItemCount?.all}
+							</div>
 						)}
-						{option?.title}
+						<p>{option?.title}</p>
 						{selectedOption === option?.value && (
 							<div className="home-page-welcome-container-left-text-option-active-indicator"></div>
 						)}

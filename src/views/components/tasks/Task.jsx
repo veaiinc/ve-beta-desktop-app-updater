@@ -1,27 +1,33 @@
-import React, { memo, useCallback, useState } from 'react';
+import React, { memo, useCallback, useEffect, useState } from 'react';
 import '../../../assets/scss/tasks/task.scss';
 import ListViewHeader from './listView/ListViewHeader';
 import { ReactComponent as ListViewIcon } from '../../../assets/svg/tasks/list.svg';
 import { ReactComponent as BoardViewIcon } from '../../../assets/svg/tasks/board.svg';
 import { ReactComponent as TableViewIcon } from '../../../assets/svg/tasks/grid.svg';
+import { ReactComponent as GalleryViewIcon } from '../../../assets/svg/tasks/blocks.svg';
 import ListView from './views/ListView';
 // import BoardView from './views/BoardView';
-
+import GalleryView from './views/GalleryView';
 import TableView from './views/TableView';
 import TabDropDown from '../dropDown/tasks/TabDropDown';
+import QuickActions from '../globalComponents/QuickActions';
 
 const layouts = {
 	list: {
 		Icon: ListViewIcon,
-		label: 'List',
+		label: 'List view',
 	},
 	board: {
 		Icon: BoardViewIcon,
-		label: 'Board',
+		label: 'Board view',
 	},
 	table: {
 		Icon: TableViewIcon,
-		label: 'Table',
+		label: 'Table view',
+	},
+	gallery: {
+		Icon: GalleryViewIcon,
+		label: 'Gallery view',
 	},
 };
 const layoutOptions = [
@@ -39,10 +45,11 @@ const layoutOptions = [
 		label: 'Table',
 		Icon: TableViewIcon,
 	},
-	// {
-	// 	value: 'gallery',
-	// 	label: 'Gallery',
-	// },
+	{
+		value: 'gallery',
+		label: 'Gallery',
+		Icon: GalleryViewIcon,
+	},
 ];
 
 const Task = ({
@@ -63,27 +70,41 @@ const Task = ({
 	fetchMoreData,
 	hasMore,
 	error,
+	views,
+	updateView = () => {},
+	deleteView = () => {},
 	prefix = null,
 }) => {
 	const [taskInfo, setTaskInfo] = useState({
-		tabs: {
-			1: {
-				_id: '1',
-				view: 'list',
-				label: 'List',
-				Icon: layouts?.['list']?.Icon,
-				filters: [],
-				sort: [],
-				order: 0,
-			},
-		},
-		activeTab: '1',
+		tabs: null,
+		activeTab: null,
 	});
 	const [showEditViewDropDown, setShowEditViewDropDown] = useState(false);
 
 	const handleEditViewDropDown = useCallback(() => {
 		setShowEditViewDropDown(true);
 	}, []);
+
+	useEffect(() => {
+		if (views) {
+			setTaskInfo((prevInfo) => ({
+				...prevInfo,
+				tabs: Object.fromEntries(
+					views?.map((view, index) => [
+						view?._id,
+						{
+							...view,
+							order: index,
+							Icon: layouts?.[view?.viewType]?.Icon || ListViewIcon,
+						},
+					]),
+				),
+				activeTab: views?.some((view) => view?._id === prevInfo?.activeTab)
+					? prevInfo?.activeTab
+					: views?.[0]?._id,
+			}));
+		}
+	}, [views]);
 
 	const closeEditViewDropDown = useCallback(() => {
 		setShowEditViewDropDown(false);
@@ -108,7 +129,7 @@ const Task = ({
 	);
 
 	const handleTabsReorder = useCallback(
-		(newTabs) => {
+		(newTabs, movedItem, destinationIndex) => {
 			const reorderedTabs = {};
 			newTabs.forEach((tab, index) => {
 				reorderedTabs[tab?._id] = {
@@ -121,39 +142,24 @@ const Task = ({
 				...prev,
 				tabs: reorderedTabs,
 			}));
+			updateView(movedItem?._id, {
+				order: destinationIndex,
+			});
 		},
-		[taskInfo.tabs],
+		[taskInfo?.tabs, updateView],
 	);
-
-	const generateNewId = useCallback(() => {
-		return new Date().getTime().toString();
-	}, []);
 
 	const handleAddTab = useCallback(
 		(option) => {
-			setTaskInfo((prev) => {
-				const newTabId = generateNewId();
-				const maxOrder = Math.max(...Object.values(prev.tabs)?.map((tab) => tab.order), -1);
-
-				return {
-					...prev,
-					tabs: {
-						...prev.tabs,
-						[newTabId]: {
-							_id: newTabId,
-							view: option,
-							label: layouts?.[option]?.label,
-							Icon: layouts?.[option]?.Icon,
-							filters: [],
-							sort: [],
-							order: maxOrder + 1,
-						},
-					},
-					activeTab: newTabId,
-				};
+			updateView(null, {
+				viewType: option,
+				label: layouts?.[option]?.label,
+				filters: [],
+				sort: [],
+				order: views?.length || 0,
 			});
 		},
-		[generateNewId],
+		[views?.length, updateView],
 	);
 
 	const getDefaultLabel = (view) => {
@@ -187,8 +193,11 @@ const Task = ({
 			if (updateData?.filters) {
 				updateTaskInfo({ filters: updateData?.filters });
 			}
+			updateView(viewId, {
+				...updateData,
+			});
 		},
-		[taskInfo.tabs, updateTaskInfo],
+		[taskInfo.tabs, updateTaskInfo, updateView],
 	);
 
 	const viewMapper = useCallback(
@@ -197,6 +206,7 @@ const Task = ({
 				list: ListView,
 				// board: BoardView,
 				table: TableView,
+				gallery: GalleryView,
 			};
 			const Component = views?.[view] || ListView;
 			return (
@@ -213,6 +223,7 @@ const Task = ({
 					handleRowClick={handleRowClick}
 					hasMore={hasMore}
 					error={error}
+					handleAddButtonOnClick={handleAddButtonOnClick}
 				/>
 			);
 		},
@@ -232,72 +243,33 @@ const Task = ({
 		],
 	);
 
-	const handleDeleteTab = useCallback((tabId) => {
-		setTaskInfo((prev) => {
-			// Prevent deletion if there's only one tab
-			if (Object.keys(prev.tabs)?.length <= 1) {
-				return prev;
+	const handleDeleteTab = useCallback(
+		(tabId) => {
+			if (Object.keys(taskInfo?.tabs || {})?.length <= 1) {
+				return;
 			}
-
-			const newTabs = { ...prev.tabs };
-			delete newTabs[tabId];
-
-			// If deleting active tab, switch to first available tab
-			let newActiveTab = prev.activeTab;
-			if (tabId === prev.activeTab) {
-				const remainingTabs = Object.keys(newTabs);
-				newActiveTab = remainingTabs[0] || null;
-			}
-
-			return {
-				...prev,
-				tabs: newTabs,
-				activeTab: newActiveTab,
-			};
-		});
-	}, []);
+			deleteView(tabId);
+			updateTaskInfo({ activeTab: null });
+		},
+		[taskInfo?.tabs, deleteView, updateTaskInfo],
+	);
 
 	const handleDuplicateTab = useCallback(
 		(tabId) => {
-			setTaskInfo((prev) => {
-				const tabToDuplicate = prev?.tabs?.[tabId];
-				const newTabId = new Date().getTime().toString();
-				const maxOrder = Math.max(
-					...Object.values(prev?.tabs)?.map((tab) => tab?.order),
-					-1,
-				);
+			const selectedTab = taskInfo?.tabs?.[tabId];
 
-				// Check if the tab exists and can be duplicated
-				if (!tabToDuplicate) {
-					return prev;
-				}
-
-				const newTabs = {
-					...prev?.tabs,
-					[newTabId]: {
-						...tabToDuplicate,
-						_id: newTabId,
-						label: `${tabToDuplicate?.label} (Copy)`,
-						order: maxOrder + 1,
-					},
-				};
-
-				return {
-					...prev,
-					tabs: newTabs,
-				};
+			updateView(null, {
+				viewType: selectedTab?.viewType,
+				label: `${selectedTab?.label} (Copy)`,
+				order: views?.length || 0,
 			});
 		},
-		[generateNewId],
+		[taskInfo?.tabs, updateView, views?.length],
 	);
 
 	const handleTabDropdownClick = useCallback(
 		(option) => {
 			if (option?.value === 'deleteView') {
-				// Check if deletion is allowed
-				if (Object.keys(taskInfo?.tabs)?.length <= 1) {
-					return;
-				}
 				handleDeleteTab(taskInfo?.activeTab);
 			}
 			if (option?.value === 'duplicateView') {
@@ -307,13 +279,7 @@ const Task = ({
 				handleEditViewDropDown();
 			}
 		},
-		[
-			handleDeleteTab,
-			handleDuplicateTab,
-			handleEditViewDropDown,
-			taskInfo?.activeTab,
-			taskInfo?.tabs,
-		],
+		[handleDeleteTab, handleDuplicateTab, handleEditViewDropDown, taskInfo?.activeTab],
 	);
 
 	return (
@@ -331,7 +297,7 @@ const Task = ({
 				editingProperty={null}
 				handleEditPropertyChange={() => {}}
 				colors={colors}
-				view={taskInfo?.tabs?.[taskInfo?.activeTab]?.view}
+				// view={taskInfo?.tabs?.[taskInfo?.activeTab]?.view}
 				handleTabChange={handleTabChange}
 				tabs={taskInfo?.tabs}
 				handleAddTab={handleAddTab}
@@ -347,7 +313,7 @@ const Task = ({
 				handleLayoutOptionClick={handleAddTab}
 			/>
 			<div className="task-content-area">
-				{viewMapper(taskInfo?.tabs?.[taskInfo?.activeTab]?.view)}
+				{viewMapper(taskInfo?.tabs?.[taskInfo?.activeTab]?.viewType)}
 			</div>
 		</div>
 	);

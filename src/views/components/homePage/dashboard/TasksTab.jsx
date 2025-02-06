@@ -1,6 +1,7 @@
-import React, { useContext, useEffect, useState, useCallback, useMemo, useRef } from 'react';
+import React, { useContext, useEffect, useState, useCallback, useMemo, useRef, memo } from 'react';
 import '../../../../assets/scss/home_page/tasks.scss';
-import { ReactComponent as ChevronRightThinIcon } from '../../../../assets/svg/tasks/chevronRightThin.svg';
+import { ReactComponent as ChevronRightThinLightIcon } from '../../../../assets/svg/tasks/chevronRightThin.svg';
+import { ReactComponent as ChevronRightThinDarkIcon } from '../../../../assets/svg/home_page/chevronRightThinDark.svg';
 import { ReactComponent as textSvg } from '../../../../assets/svg/tasks/letterA.svg';
 import { ReactComponent as ClockSvg } from '../../../../assets/svg/activity/clock.svg';
 import { ReactComponent as PieSvg } from '../../../../assets/svg/tasks/pieHollow.svg';
@@ -8,6 +9,7 @@ import { ReactComponent as PrioritySvg } from '../../../../assets/svg/tasks/roun
 import { ReactComponent as WorkflowSvg } from '../../../../assets/svg/tasks/workflow.svg';
 import { ReactComponent as PersonSvg } from '../../../../assets/svg/tasks/person.svg';
 import { ReactComponent as CalendarSvg } from '../../../../assets/svg/tasks/calendar.svg';
+import { ReactComponent as TickSvg } from '../../../../assets/svg/home_page/Tick.svg';
 import { message, Tooltip } from 'antd';
 import Skeleton from 'react-loading-skeleton';
 import jwtDecode from 'jwt-decode';
@@ -34,6 +36,8 @@ import ChildTaskProgress from '../../../components/tasks/listView/ChildTaskProgr
 import LinkText from '../../../components/tasks/listView/LinkText';
 import { FetchMoreLoaderComp } from '../../../../helpers';
 import InfiniteScroll from 'react-infinite-scroll-component';
+import ChildTaskComponent from '../../tasks/listView/ChildTaskComponent';
+import CreateTaskPopup from '../../modalsV2/tasks/CreateTaskPopup';
 
 const colors = {
 	1: { backgroundColor: '#62344B', color: '#A35A7E' },
@@ -46,9 +50,9 @@ const colors = {
 };
 
 const options = [
-	{ id: 1, title: 'Pending Tasks', value: 'Pending tasks' },
-	{ id: 2, title: 'Today', value: 'Today' },
-	{ id: 3, title: 'Overdue', value: 'Overdue' },
+	{ id: 1, title: 'Pending Tasks', value: 'pending' },
+	{ id: 2, title: 'Today', value: 'today' },
+	{ id: 3, title: 'Overdue', value: 'overdue' },
 ];
 
 const defaultPreference = {
@@ -101,9 +105,10 @@ const TasksTab = () => {
 			getListTasksDueTillToday,
 			getTasksCountForToday,
 			getTasksCountForOverdue,
+			addListItem,
 			updateListItem,
 			deleteListItem,
-			removeSubTask,
+			addSubTask,
 			updateSubTask,
 			resetSubTasks,
 			taskMetadata,
@@ -119,81 +124,41 @@ const TasksTab = () => {
 		isCreateModalOpen: false,
 		isCreatingSubtask: true,
 		properties: [],
-		todayTasksList: [],
-		overDueTasksList: [],
-		dueTillTodayTasksList: [],
-		selectedOption: 'Pending tasks',
+		taskPreferences: {
+			preferenceType: 'taskPreference',
+			preferences: defaultPreference,
+		},
+		selectedOption: 'pending',
 		sidebarIsOpen: false,
 		selectedRow: null,
-		selectedSubTask: null,
 		taskMetadata: null,
 		workflows: [],
 		tenantUsers: [],
-		hasNextPageForTodayTasks: false,
-		hasNextPageForOverdueTasks: false,
-		hasNextPageForDueTillToday: false,
-		currentPageForTodayTasks: 1,
-		currentPageForOverdueTasks: 1,
-		currentPageForDueTillTodayTasks: 1,
+		taskData: {},
+		breadCrumbs: [],
 		loadingSkeleton: true,
+		hoveredTaskId: null,
 	});
 
-	useEffect(() => {
-		if (!tasksCountForToday) {
-			getTodayTasksCount();
-		}
+	const debounceTimeout = useRef(null);
 
-		if (!tasksCountForOverdue) {
-			getOverdueTasksCount();
-		}
-	}, []);
-
-	useEffect(() => {
-		if (info?.selectedOption === 'Today') {
-			if (listTasksForToday) {
-				const { currentPage, hasNextPage, data } = listTasksForToday;
-				setInfo((prev) => ({
-					...prev,
-					currentPageForTodayTasks: currentPage,
-					hasNextPageForTodayTasks: hasNextPage,
-					todayTasksList: data,
-					loadingSkeleton: false,
-				}));
-			} else {
-				fetchTodayTasks(1);
-			}
-		}
-
-		if (info?.selectedOption === 'Overdue') {
-			if (listTasksForOverdue) {
-				const { currentPage, hasNextPage, data } = listTasksForOverdue;
-				setInfo((prev) => ({
-					...prev,
-					currentPageForOverdueTasks: currentPage,
-					hasNextPageForTodayTasks: hasNextPage,
-					overDueTasksList: data,
-					loadingSkeleton: false,
-				}));
-			} else {
-				fetchOverdueTasks(1);
-			}
-		}
-
-		if (info?.selectedOption === 'Pending tasks') {
-			if (listTasksDueTillToday) {
-				const { currentPage, hasNextPage, data } = listTasksDueTillToday;
-				setInfo((prev) => ({
-					...prev,
-					currentPageForDueTillTodayTasks: currentPage,
-					hasNextPageForDueTillToday: hasNextPage,
-					dueTillTodayTasksList: data,
-					loadingSkeleton: false,
-				}));
-			} else {
-				fetchDueTillTodayTasks(1);
-			}
-		}
-	}, [info?.selectedOption]);
+	const taskLabels = useMemo(
+		() => ({
+			pending: {
+				label: 'Pending actions till today',
+				count: (tasksCountForToday ?? 0) + (tasksCountForOverdue ?? 0),
+			},
+			today: {
+				label: 'Today',
+				count: tasksCountForToday ?? 0,
+			},
+			overdue: {
+				label: 'Overdue',
+				count: tasksCountForOverdue ?? 0,
+			},
+		}),
+		[tasksCountForToday, tasksCountForOverdue],
+	);
 
 	const responseMetadata = useMemo(
 		() => ({
@@ -305,7 +270,62 @@ const TasksTab = () => {
 		[info?.workflows, info?.tenantUsers, info?.taskMetadata, info?.parentTasks],
 	);
 
-	const debounceTimeout = useRef(null);
+	useEffect(() => {
+		if (!tasksCountForToday) {
+			getTasksCountForToday();
+		}
+
+		if (!tasksCountForOverdue) {
+			getTasksCountForOverdue();
+		}
+	}, []);
+
+	useEffect(() => {
+		if (info?.selectedOption === 'today') {
+			if (listTasksForToday) {
+				setInfo((prev) => ({
+					...prev,
+					taskData: {
+						...prev?.taskData,
+						[info?.selectedOption]: { ...listTasksForToday },
+					},
+					loadingSkeleton: false,
+				}));
+			} else {
+				fetchTodayTasks(1);
+			}
+		}
+
+		if (info?.selectedOption === 'overdue') {
+			if (listTasksForOverdue) {
+				setInfo((prev) => ({
+					...prev,
+					taskData: {
+						...prev?.taskData,
+						[info?.selectedOption]: { ...listTasksForOverdue },
+					},
+					loadingSkeleton: false,
+				}));
+			} else {
+				fetchOverdueTasks(1);
+			}
+		}
+
+		if (info?.selectedOption === 'pending') {
+			if (listTasksDueTillToday) {
+				setInfo((prev) => ({
+					...prev,
+					taskData: {
+						...prev?.taskData,
+						[info?.selectedOption]: { ...listTasksDueTillToday },
+					},
+					loadingSkeleton: false,
+				}));
+			} else {
+				fetchDueTillTodayTasks(1);
+			}
+		}
+	}, [info?.selectedOption]);
 
 	useEffect(() => {
 		if (!tenantsUserList) {
@@ -344,39 +364,52 @@ const TasksTab = () => {
 	}, [workflowslist]);
 
 	useEffect(() => {
+		if (info?.taskPreferences?.preferences) {
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				properties: mapPropertyType(),
+			}));
+		}
+	}, [info?.taskPreferences?.preferences]);
+
+	useEffect(() => {
 		if (listTasksForToday) {
-			if (listTasksForToday?.data) {
-				setInfo((prevInfo) => ({
-					...prevInfo,
-					todayTasksList: listTasksForToday?.data,
-					hasNextPageForTodayTasks: listTasksForToday?.hasNextPage,
-					loadingSkeleton: false,
-				}));
-			}
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				taskData: {
+					...prevInfo?.taskData,
+					today: { ...listTasksForToday },
+				},
+				loadingSkeleton: false,
+			}));
 		}
+	}, [listTasksForToday]);
 
+	useEffect(() => {
 		if (listTasksForOverdue) {
-			if (listTasksForOverdue?.data) {
-				setInfo((prevInfo) => ({
-					...prevInfo,
-					overDueTasksList: listTasksForOverdue?.data,
-					hasNextPageForOverdueTasks: listTasksForOverdue?.hasNextPage,
-					loadingSkeleton: false,
-				}));
-			}
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				taskData: {
+					...prevInfo?.taskData,
+					overdue: { ...listTasksForOverdue },
+				},
+				loadingSkeleton: false,
+			}));
 		}
+	}, [listTasksForOverdue]);
 
+	useEffect(() => {
 		if (listTasksDueTillToday) {
-			if (listTasksDueTillToday?.data) {
-				setInfo((prevInfo) => ({
-					...prevInfo,
-					dueTillTodayTasksList: listTasksDueTillToday?.data,
-					hasNextPageForDueTillToday: listTasksDueTillToday?.hasNextPage,
-					loadingSkeleton: false,
-				}));
-			}
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				taskData: {
+					...prevInfo?.taskData,
+					pending: { ...listTasksDueTillToday },
+				},
+				loadingSkeleton: false,
+			}));
 		}
-	}, [listTasksForToday, listTasksForOverdue, listTasksDueTillToday]);
+	}, [listTasksDueTillToday]);
 
 	useEffect(() => {
 		if (!taskMetadata) {
@@ -389,28 +422,41 @@ const TasksTab = () => {
 		}
 	}, [taskMetadata]);
 
-	const getTodayTasksCount = () => {
-		const payload = {
-			filters: {
-				limit: 1,
-				page: 1,
-				startDate: Math?.floor(new Date()?.setHours(0, 0, 0, 0) / 1000),
-				endDate: Math?.floor(new Date()?.setHours(23, 59, 59, 999) / 1000),
-			},
-		};
-		getTasksCountForToday(payload);
-	};
+	const mapPropertyType = useCallback(() => {
+		let properties = [];
+		for (let key in responseMetadata) {
+			if (
+				key === '__typename' ||
+				key === '_id' ||
+				key === 'workflowTemplateId' ||
+				key === 'completedAt'
+			) {
+				continue;
+			}
 
-	const getOverdueTasksCount = () => {
-		const payload = {
-			filters: {
-				limit: 1,
-				page: 1,
-				endDate: Math?.floor(new Date()?.setHours(-1, 59, 59, 999) / 1000),
-			},
-		};
-		getTasksCountForOverdue(payload);
-	};
+			const {
+				type = null,
+				name = null,
+				Icon = null,
+				isTitle = false,
+			} = responseMetadata[key] || {};
+			const { show, order } = info?.taskPreferences?.preferences?.[key] || {
+				show: false,
+				order: 0,
+			};
+
+			properties.push({
+				value: key,
+				type,
+				label: name,
+				Icon,
+				show,
+				order,
+				isTitle,
+			});
+		}
+		return properties;
+	}, [info?.taskPreferences?.preferences]);
 
 	const fetchTodayTasks = (page, type = null, task = null) => {
 		const payload = {
@@ -446,47 +492,41 @@ const TasksTab = () => {
 		getListTasksDueTillToday(payload, type, task);
 	};
 
-	const fetchMoreTodayTasks = () => {
-		const nextPage = info?.currentPageForTodayTasks + 1;
-		fetchTodayTasks(nextPage);
-		setInfo((prevInfo) => ({
-			...prevInfo,
-			currentPageForTodayTasks: nextPage,
-		}));
-	};
-
-	const fetchMoreOverdueTasks = () => {
-		const nextPage = info?.currentPageForOverdueTasks + 1;
-		fetchOverdueTasks(nextPage);
-		setInfo((prevInfo) => ({
-			...prevInfo,
-			currentPageForOverdueTasks: nextPage,
-		}));
-	};
-
-	const fetchMoreTasksDueTillToday = () => {
-		const nextPage = info?.currentPageForDueTillTodayTasks + 1;
-		fetchDueTillTodayTasks(nextPage);
-		setInfo((prevInfo) => ({
-			...prevInfo,
-			currentPageForDueTillTodayTasks: nextPage,
-		}));
+	const fetchMoreTasksData = () => {
+		const nextPage = info?.taskData?.[info?.selectedOption]?.currentPage + 1;
+		if (info?.selectedOption === 'pending') {
+			fetchDueTillTodayTasks(nextPage);
+		} else if (info?.selectedOption === 'today') {
+			fetchTodayTasks(nextPage);
+		} else {
+			fetchOverdueTasks(nextPage);
+		}
 	};
 
 	const updateTaskInfo = useCallback((updateData) => {
 		setInfo((previnfo) => ({ ...previnfo, ...updateData }));
 	}, []);
 
-	const debouncedUpdateTask = async (
-		rowId,
-		propName,
-		value,
-		originalValue,
-		isUpdatingSubTask,
-		onSuccess,
-		updatedValue,
-	) => {
+	const debouncedUpdateTask = async (rowId, propName, value, isUpdatingSubTask, onSuccess) => {
 		try {
+			let task = info?.taskData?.[info?.selectedOption]?.data?.find((row) => {
+				return row?._id === rowId;
+			});
+
+			if (!task) {
+				isUpdatingSubTask = true;
+			} else {
+				isUpdatingSubTask = false;
+			}
+			let updatedValue = value;
+			if (propName === 'workflow') {
+				const workflow = info?.workflows?.find((workflow) => workflow._id === value);
+				updatedValue = workflow;
+			}
+
+			const token = localStorage.getItem('usertoken');
+			const { user_id, userName } = jwtDecode(token);
+
 			const response = await updateListItem({
 				taskId: rowId,
 				updateInput:
@@ -503,79 +543,79 @@ const TasksTab = () => {
 						  },
 			});
 
-			if (response?.[0] === false) {
-				throw new Error('Failed to update, Try again later');
-			} else {
-				// Update state only after successful API call
-				if (onSuccess) onSuccess();
-
-				let task;
-				if (info?.selectedOption === 'Pending tasks') {
-					task = info?.dueTillTodayTasksList?.filter((row) => {
-						return row?._id === rowId;
-					});
-				} else if (info?.selectedOption === 'Today') {
-					task = info?.todayTasksList?.filter((row) => {
-						return row?._id === rowId;
-					});
-				} else if (info?.selectedOption === 'Overdue') {
-					task = info?.overDueTasksList?.filter((row) => {
-						return row?._id === rowId;
-					});
-				}
-				task = task[0];
-
-				// Handle assignedTo special case
-				if (propName === 'assignedTo') {
-					const token = localStorage.getItem('usertoken');
-					const { user_id, userName } = jwtDecode(token);
-					if (isUpdatingSubTask) {
-						setInfo((prevInfo) => ({
-							...prevInfo,
-							selectedSubTask: prevInfo?.selectedSubTask
-								? {
-										...info?.selectedSubTask,
-										assignedBy: { _id: user_id, name: userName },
-										assignedAt: moment().unix(),
-								  }
-								: null,
-						}));
+			if (isUpdatingSubTask) {
+				if (response?.[0] === false) {
+					throw new Error('Failed to update, Try again later');
+				} else {
+					if (propName === 'assignedTo') {
 						updateSubTask({
 							_id: rowId,
 							assignedBy: { _id: user_id, name: userName },
 							assignedAt: moment().unix(),
+							[propName]: updatedValue,
+						});
+					} else if (propName === 'workflow') {
+						updateSubTask({
+							_id: rowId,
+							[propName]: info?.workflows?.find(
+								(workflow) => workflow?._id === value,
+							),
 						});
 					} else {
+						updateSubTask({
+							_id: rowId,
+							[propName]: updatedValue,
+						});
+					}
+
+					if (info?.selectedRow?._id === rowId) {
+						setInfo((prev) => ({
+							...prev,
+							selectedRow: {
+								...prev?.selectedRow,
+								[propName]: updatedValue,
+								assignedBy: { _id: user_id, name: userName },
+								assignedAt: moment().unix(),
+							},
+						}));
+					}
+				}
+			} else {
+				if (response?.[0] === false) {
+					throw new Error('Failed to update, Try again later');
+				} else {
+					// Update state only after successful API call
+					if (onSuccess) onSuccess();
+
+					// Handle assignedTo special case
+					if (propName === 'assignedTo') {
 						task = {
 							...task,
 							assignedBy: { _id: user_id, name: userName },
 							assignedAt: moment().unix(),
 						};
 					}
-				}
 
-				// Update updatedBy for any successful update
-				const token = localStorage.getItem('usertoken');
-				const { user_id, userName } = jwtDecode(token);
+					// Update updatedBy for any successful update
+					task = { ...task, updatedBy: { _id: user_id, name: userName } };
+					task = { ...task, [propName]: updatedValue };
 
-				task = { ...task, updatedBy: { _id: user_id, name: userName } };
-				task = { ...task, [propName]: updatedValue };
+					setInfo((prev) => ({
+						...prev,
+						selectedRow: { ...info?.selectedRow, ...task },
+					}));
 
-				setInfo((prev) => ({
-					...prev,
-					selectedRow: task,
-				}));
-
-				if (info?.selectedOption === 'Pending tasks') {
-					fetchDueTillTodayTasks(1, 'update', task);
-					fetchOverdueTasks(1, 'update', task);
-					fetchTodayTasks(1, 'update', task);
-				} else if (info?.selectedOption === 'Today') {
-					fetchDueTillTodayTasks(1, 'update', task);
-					fetchTodayTasks(1, 'update', task);
-				} else if (info?.selectedOption === 'Overdue') {
-					fetchDueTillTodayTasks(1, 'update', task);
-					fetchOverdueTasks(1, 'update', task);
+					if (info?.selectedOption === 'pending') {
+						fetchDueTillTodayTasks(1, 'update', task);
+						fetchOverdueTasks(1, 'update', task);
+						fetchTodayTasks(1, 'update', task);
+					} else if (info?.selectedOption === 'today') {
+						fetchDueTillTodayTasks(1, 'update', task);
+						fetchTodayTasks(1, 'update', task);
+					} else if (info?.selectedOption === 'overdue') {
+						fetchDueTillTodayTasks(1, 'update', task);
+						fetchOverdueTasks(1, 'update', task);
+					}
 				}
 			}
 		} catch (error) {
@@ -583,115 +623,111 @@ const TasksTab = () => {
 		}
 	};
 
-	const handleDebounceUpdate = (
-		rowId,
-		propName,
-		value,
-		originalValue,
-		isSubTask,
-		onSuccess,
-		updatedValue,
-	) => {
+	const handleDebounceUpdate = (rowId, propName, value, isSubTask, onSuccess) => {
 		if (debounceTimeout.current) {
 			clearTimeout(debounceTimeout.current);
 		}
 
 		debounceTimeout.current = setTimeout(() => {
-			debouncedUpdateTask(
-				rowId,
-				propName,
-				value,
-				originalValue,
-				isSubTask,
-				onSuccess,
-				updatedValue,
-			);
+			debouncedUpdateTask(rowId, propName, value, isSubTask, onSuccess);
 		}, 800);
 	};
 
-	const updatePropertyValue = (rowId, propName, value, isUpdatingSubTask, onSuccess) => {
-		if (validateExpiryData?.isExpired) {
+	const updatePropertyValue = async (rowId, propName, value, isUpdatingSubTask, onSuccess) => {
+		if (
+			validateExpiryData &&
+			validateExpiryData?.restrictContacts &&
+			validateExpiryData?.isExpired
+		) {
 			return updateSubscriptionState({ expiredSubscriptionModal: true });
 		}
-		let originalValue;
-		let updatedValue = value;
-		if (propName === 'workflow') {
-			const workflow = info?.workflows?.find((workflow) => workflow._id === value);
-			updatedValue = workflow;
-		}
 
-		if (info?.selectedSubTask || isUpdatingSubTask) {
-			if (info?.selectedSubTask) {
-				setInfo((prevInfo) => ({
-					...prevInfo,
-					selectedSubTask: { ...info?.selectedSubTask, [propName]: updatedValue },
-				}));
-			}
-			setInfo((prevInfo) => ({
-				...prevInfo,
-			}));
-			updateSubTask({ _id: rowId, [propName]: updatedValue });
-		}
-		handleDebounceUpdate(
-			rowId,
-			propName,
-			value,
-			originalValue,
-			isUpdatingSubTask || info?.selectedSubTask !== null,
-			onSuccess,
-			updatedValue,
-		);
+		handleDebounceUpdate(rowId, propName, value, isUpdatingSubTask, onSuccess);
 	};
+
 	const deleteTask = async (payload) => {
-		if (validateExpiryData?.isExpired) {
+		if (
+			validateExpiryData &&
+			validateExpiryData?.restrictTasks &&
+			validateExpiryData?.isExpired
+		) {
 			return updateSubscriptionState({ expiredSubscriptionModal: true });
 		} else {
 			const response = await deleteListItem(payload);
+
 			if (response) {
-				if (info?.selectedSubTask?._id === payload?.taskId) {
-					updateTaskInfo({ selectedSubTask: null });
-					removeSubTask(payload?.taskId);
-				} else {
-					getOverdueTasksCount();
-					getTodayTasksCount();
-					let task;
+				let task = info?.taskData?.[info?.selectedOption]?.data?.find((row) => {
+					return row?._id === payload?.taskId;
+				});
 
-					if (info?.selectedOption === 'Pending tasks') {
-						task = info?.dueTillTodayTasksList?.filter((row) => {
-							return row?._id === payload?.taskId;
-						});
-					} else if (info?.selectedOption === 'Today') {
-						task = info?.todayTasksList?.filter((row) => {
-							return row?._id === payload?.taskId;
-						});
-					} else if (info?.selectedOption === 'Overdue') {
-						task = info?.overDueTasksList?.filter((row) => {
-							return row?._id === payload?.taskId;
-						});
-					}
-					task = task[0];
-					setInfo((prev) => ({
-						...prev,
-						selectedRow: null,
-					}));
+				handleCloseSidebar();
+				if (!task) return;
 
-					if (info?.selectedOption === 'Pending tasks') {
-						fetchDueTillTodayTasks(1, 'delete', task);
-						fetchOverdueTasks(1, 'delete', task);
-						fetchTodayTasks(1, 'delete', task);
-					} else if (info?.selectedOption === 'Today') {
-						fetchDueTillTodayTasks(1, 'delete', task);
-						fetchTodayTasks(1, 'delete', task);
-					} else if (info?.selectedOption === 'Overdue') {
-						fetchDueTillTodayTasks(1, 'delete', task);
-						fetchOverdueTasks(1, 'delete', task);
-					}
+				getTasksCountForToday();
+				getTasksCountForOverdue();
 
-					handleCloseSidebar();
+				if (info?.selectedOption === 'pending') {
+					fetchDueTillTodayTasks(1, 'delete', task);
+					fetchOverdueTasks(1, 'delete', task);
+					fetchTodayTasks(1, 'delete', task);
+				} else if (info?.selectedOption === 'today') {
+					fetchDueTillTodayTasks(1, 'delete', task);
+					fetchTodayTasks(1, 'delete', task);
+				} else if (info?.selectedOption === 'overdue') {
+					fetchDueTillTodayTasks(1, 'delete', task);
+					fetchOverdueTasks(1, 'delete', task);
 				}
 			}
 		}
 	};
+
+	const addNewTask = useCallback(
+		async (payload) => {
+			if (
+				validateExpiryData &&
+				validateExpiryData?.restrictTasks &&
+				validateExpiryData?.isExpired
+			) {
+				return updateSubscriptionState({ expiredSubscriptionModal: true });
+			} else {
+				if (info?.isCreatingSubtask) {
+					payload.parentTaskId = info?.selectedRow?._id;
+				}
+				const response = await addListItem({ input: payload });
+
+				if (response) {
+					const task = response?.createTask;
+
+					if (task) {
+						const token = localStorage.getItem('usertoken');
+						const { user_id, userName } = jwtDecode(token);
+
+						const newTask = { ...task };
+						const newWorkflow = info?.workflows?.find(
+							(workflow) => workflow._id === payload?.workflowId,
+						);
+						newTask.workflow = newWorkflow
+							? { _id: newWorkflow._id, title: newWorkflow.label }
+							: null;
+						newTask.workflowId = null;
+						newTask.createdBy = { _id: user_id, name: userName };
+						newTask.updatedBy = { _id: user_id, name: userName };
+						if (info?.isCreatingSubtask) {
+							newTask.parentTask = {
+								title: info?.selectedRow?.title,
+								_id: info?.selectedRow?._id,
+							};
+							addSubTask(newTask);
+						}
+						message.success('Task added successfully');
+					}
+				} else {
+					throw new Error('Failed to add new task');
+				}
+			}
+		},
+		[info?.workflows, info?.isCreatingSubtask, info?.selectedRow?._id],
+	);
 
 	const handleRowClick = useCallback(
 		(row) => {
@@ -709,17 +745,57 @@ const TasksTab = () => {
 		updateTaskInfo({ sidebarIsOpen: false, isCreatingSubtask: true, isCreateModalOpen: true });
 	}, []);
 
-	const handleSubTaskClick = useCallback((task) => {
-		updateTaskInfo({ selectedSubTask: task });
-	}, []);
+	const handleSubTaskClick = useCallback(
+		(task) => {
+			const breadCrumbs = [
+				...info?.breadCrumbs,
+				{
+					label:
+						`${info?.taskMetadata?.prefix ? info?.taskMetadata?.prefix + '-' : ''}` +
+						info?.selectedRow?.taskSlNo,
+					data: info?.selectedRow,
+				},
+			];
+			updateTaskInfo({ selectedRow: task, breadCrumbs });
+		},
+		[info?.selectedRow, info?.breadCrumbs],
+	);
 
 	const handleCloseSidebar = useCallback(() => {
-		updateTaskInfo({ sidebarIsOpen: false, selectedSubTask: null });
+		updateTaskInfo({
+			sidebarIsOpen: false,
+			breadCrumbs: [],
+		});
 	}, []);
 
-	const handleChildTaskClose = useCallback(() => {
-		updateTaskInfo({ selectedSubTask: null });
-	}, []);
+	const handleCloseCreateModal = useCallback(() => {
+		if (info?.isCreatingSubtask) {
+			updateTaskInfo({ sidebarIsOpen: true });
+		}
+		updateTaskInfo({ isCreateModalOpen: false });
+	}, [info?.isCreatingSubtask]);
+
+	const handleBreadCrumbsClick = useCallback(
+		(breadCrumb, index) => {
+			const breadCrumbs = [...info?.breadCrumbs];
+			const newBreadCrumbs = [...breadCrumbs].slice(0, index);
+			updateTaskInfo({ breadCrumbs: newBreadCrumbs, selectedRow: breadCrumb?.data });
+		},
+		[info?.breadCrumbs],
+	);
+
+	const handleMouseEnterOnTask = (taskId) => {
+		setInfo((prev) => ({
+			...prev,
+			hoveredTaskId: taskId,
+		}));
+	};
+	const handleMouseLeaveOnTask = () => {
+		setInfo((prev) => ({
+			...prev,
+			hoveredTaskId: null,
+		}));
+	};
 
 	return (
 		<>
@@ -741,7 +817,9 @@ const TasksTab = () => {
 								{options?.map((option) => (
 									<div
 										key={option?.id}
-										className="dropdown-option"
+										className={`dropdown-option ${
+											info?.selectedOption === option?.value ? 'active' : ''
+										}`}
 										onClick={() => {
 											if (info?.selectedOption !== option?.value)
 												setInfo((prev) => ({
@@ -753,6 +831,7 @@ const TasksTab = () => {
 										}}
 									>
 										{option?.title}
+										{info?.selectedOption === option?.value && <TickSvg />}
 									</div>
 								))}
 							</div>
@@ -760,57 +839,66 @@ const TasksTab = () => {
 					>
 						<button className="dropdown-header">
 							<div className="dropdown-content">
-								<div className="dropdown-text">{info?.selectedOption}</div>
+								<div className="dropdown-text">
+									{
+										options?.find(
+											(option) => info?.selectedOption === option?.value,
+										)?.title
+									}
+								</div>
 								<div className="dropdown-icon">
-									<ChevronRightThinIcon />
+									<ChevronRightThinLightIcon />
 								</div>
 							</div>
 						</button>
 					</Tooltip>
 				</div>
-				{info?.loadingSkeleton && (
-					<div
-						style={{
-							display: 'flex',
-							flexDirection: 'row',
-							gap: '15px',
-							flexWrap: 'wrap',
-							paddingTop: '30px',
-						}}
-					>
-						{[1, 2, 3, 4, 5, 6]?.map((ele) => (
-							<Skeleton
-								height={'231px'}
-								width={'268px'}
-								style={{
-									borderRadius: '16px',
-								}}
-								key={ele}
-							/>
-						))}
+				<div className="tasks-header">
+					<div className="tasks-header-text">
+						{`${taskLabels?.[info?.selectedOption]?.label} (${
+							taskLabels?.[info?.selectedOption]?.count
+						})`}
 					</div>
-				)}
-				{info?.dueTillTodayTasksList?.length > 0 &&
-				info?.selectedOption === 'Pending tasks' ? (
-					<div className="due-till-today-tasks">
-						<div className="due-till-today-text">
-							Pending tasks till today ({tasksCountForToday + tasksCountForOverdue})
+
+					{info?.loadingSkeleton ? (
+						<div
+							style={{
+								display: 'flex',
+								flexDirection: 'row',
+								gap: '15px',
+								flexWrap: 'wrap',
+								paddingTop: '30px',
+							}}
+						>
+							{[1, 2, 3, 4, 5, 6]?.map((ele) => (
+								<Skeleton
+									height={'231px'}
+									width={'268px'}
+									style={{
+										borderRadius: '16px',
+									}}
+									key={ele}
+								/>
+							))}
 						</div>
+					) : info?.taskData?.[info?.selectedOption]?.data?.length > 0 ? (
 						<InfiniteScroll
-							dataLength={info?.dueTillTodayTasksList?.length || 0}
-							hasMore={info?.hasNextPageForDueTillToday}
-							next={fetchMoreTasksDueTillToday}
+							dataLength={info?.taskData?.[info?.selectedOption]?.data?.length || 0}
+							hasMore={info?.taskData?.[info?.selectedOption]?.hasNextPage}
+							next={fetchMoreTasksData}
 							loader={<FetchMoreLoaderComp />}
-							height={`calc(100vh - 520px)`}
+							height={`calc(100vh - 410px)`}
 						>
 							<div className="tasks-container">
-								{info?.dueTillTodayTasksList?.map((task) => {
+								{info?.taskData?.[info?.selectedOption]?.data?.map((task) => {
 									return (
 										<div
 											className="task-container"
 											onClick={() => {
 												handleRowClick(task);
 											}}
+											onMouseEnter={() => handleMouseEnterOnTask(task?._id)}
+											onMouseLeave={handleMouseLeaveOnTask}
 											key={task?._id}
 										>
 											<div className="task-content">
@@ -839,8 +927,21 @@ const TasksTab = () => {
 															`+${task?.assignedTo?.length - 3}`}
 													</div>
 												</div>
-												<div className="chevron-icon-container">
-													<ChevronRightThinIcon />
+												<div
+													className="chevron-icon-container"
+													style={{
+														backgroundColor: `${
+															info?.hoveredTaskId === task?._id
+																? '#f2f2f3'
+																: '#202123'
+														}`,
+													}}
+												>
+													{info?.hoveredTaskId === task?._id ? (
+														<ChevronRightThinDarkIcon />
+													) : (
+														<ChevronRightThinLightIcon />
+													)}
 												</div>
 											</div>
 										</div>
@@ -848,161 +949,64 @@ const TasksTab = () => {
 								})}
 							</div>
 						</InfiniteScroll>
-					</div>
-				) : (
-					info?.selectedOption === 'Pending tasks' && (
+					) : (
 						<div style={{ color: '#f2f2f3', textAlign: 'center' }}> No Tasks Found</div>
-					)
-				)}
-
-				{info?.todayTasksList?.length > 0 && info?.selectedOption === 'Today' ? (
-					<div className="today-tasks">
-						<div className="today-text">Today ({tasksCountForToday})</div>
-						<InfiniteScroll
-							dataLength={info?.todayTasksList?.length || 0}
-							next={fetchMoreTodayTasks}
-							hasMore={info?.hasNextPageForTodayTasks}
-							loader={<FetchMoreLoaderComp />}
-							height={`calc(100vh - 520px)`}
-						>
-							<div className="tasks-container">
-								{info?.todayTasksList?.map((task) => {
-									return (
-										<div
-											className="task-container"
-											onClick={() => {
-												handleRowClick(task);
-											}}
-											key={task?._id}
-										>
-											<div className="task-content">
-												<span className="title">{task?.title}</span>
-												<div className="description">
-													{task?.description}
-												</div>
-											</div>
-
-											<div className="show-more">
-												<div className="assigned-to">
-													<div className="persons-container">
-														{task?.assignedTo?.map((person, index) => {
-															return (
-																<div
-																	className="persons"
-																	key={index}
-																>
-																	{person?.name[0]?.toUpperCase()}
-																</div>
-															);
-														})}
-													</div>
-													<div className="remaining-persons-count">
-														{task?.assignedTo?.length > 3 &&
-															`+${task?.assignedTo?.length - 3}`}
-													</div>
-												</div>
-												<div className="chevron-icon-container">
-													<ChevronRightThinIcon />
-												</div>
-											</div>
-										</div>
-									);
-								})}
-							</div>
-						</InfiniteScroll>
-					</div>
-				) : (
-					info?.selectedOption === 'Today' && (
-						<div style={{ color: '#f2f2f3', textAlign: 'center' }}> No Tasks Found</div>
-					)
-				)}
-				{info?.overDueTasksList?.length > 0 && info?.selectedOption === 'Overdue' ? (
-					<div className="over-due-tasks">
-						<div className="over-due-text">Overdue ({tasksCountForOverdue})</div>
-						<InfiniteScroll
-							dataLength={info?.overDueTasksList?.length || 0}
-							next={fetchMoreOverdueTasks}
-							hasMore={info?.hasNextPageForOverdueTasks}
-							loader={<FetchMoreLoaderComp />}
-							height={`calc(100vh - 520px)`}
-						>
-							<div className="tasks-container">
-								{info?.overDueTasksList?.map((task) => {
-									return (
-										<div
-											className="task-container"
-											onClick={() => {
-												handleRowClick(task);
-											}}
-											key={task?._id}
-										>
-											<div className="task-content">
-												<span className="title">{task?.title}</span>
-												<div className="description">
-													{task?.description}
-												</div>
-											</div>
-
-											<div className="show-more">
-												<div className="assigned-to">
-													<div className="persons-container">
-														{task?.assignedTo?.map((person, index) => {
-															return (
-																<div
-																	className="persons"
-																	key={index}
-																>
-																	{person?.name[0]?.toUpperCase()}
-																</div>
-															);
-														})}
-													</div>
-													<div className="remaining-persons-count">
-														{task?.assignedTo?.length > 3 &&
-															`+${task?.assignedTo?.length - 3}`}
-													</div>
-												</div>
-												<div className="chevron-icon-container">
-													<ChevronRightThinIcon />
-												</div>
-											</div>
-										</div>
-									);
-								})}
-							</div>
-						</InfiniteScroll>
-					</div>
-				) : (
-					info?.selectedOption === 'Overdue' && (
-						<div style={{ color: '#f2f2f3', textAlign: 'center' }}> No Tasks Found</div>
-					)
-				)}
+					)}
+				</div>
 			</div>
+			<CreateTaskPopup
+				isOpen={info?.isCreateModalOpen}
+				closeModal={handleCloseCreateModal}
+				addNewTask={addNewTask}
+				workflows={info?.workflows}
+				tenantUsers={info?.tenantUsers}
+				clients={info?.clients}
+				isSubTask={info?.isCreatingSubtask}
+				responseMetadata={responseMetadata}
+				colors={colors}
+				fetchMoreData={() => {}}
+				hasMore={info?.hasMore}
+				error={info?.error}
+			/>
 			<ListViewSidebar
-				selectedRow={info?.selectedSubTask || info?.selectedRow}
-				isShowingSubTask={
-					info?.selectedSubTask !== undefined && info?.selectedSubTask !== null
-				}
-				parentTaskNo={info?.selectedRow?.taskSlNo}
-				handleChildTaskClose={handleChildTaskClose}
-				handleSubTaskClick={handleSubTaskClick}
+				selectedRow={info?.selectedRow}
 				sidebarIsOpen={info?.sidebarIsOpen}
 				closeSidebar={handleCloseSidebar}
 				handleUpdate={updatePropertyValue}
 				deleteTask={deleteTask}
 				rowTypes={rowTypes}
-				handleCreateSubTaskClick={handleCreateSubTaskClick}
 				responseMetadata={responseMetadata}
-				haveSubTask={false}
 				properties={info?.properties}
 				colors={colors}
 				toggleSidebarExpand={() =>
 					updateTaskInfo({ isSidebarExpanded: !info?.isSidebarExpanded })
 				}
 				isSidebarExpanded={info?.isSidebarExpanded}
+				headerText={
+					`${info?.taskMetadata?.prefix ? info?.taskMetadata?.prefix + '-' : ''}` +
+					info?.selectedRow?.taskSlNo
+				}
+				breadCrumbs={info?.breadCrumbs}
+				handleBreadCrumbsClick={handleBreadCrumbsClick}
+				sidebarChildren={
+					info?.selectedRow ? (
+						<ChildTaskComponent
+							parentTaskId={info?.selectedRow?._id}
+							childTasks={info?.selectedRow?.childTasks}
+							completedStatus={info?.taskMetadata?.completedGroupLabels}
+							rowTypes={rowTypes}
+							responseMetadata={responseMetadata}
+							colors={colors}
+							properties={info?.properties}
+							onAddButtonClick={handleCreateSubTaskClick}
+							handleUpdate={(...args) => updatePropertyValue(...args, true)}
+							handleRowClick={handleSubTaskClick}
+						/>
+					) : null
+				}
 			/>
 		</>
 	);
 };
 
-export default TasksTab;
+export default memo(TasksTab);

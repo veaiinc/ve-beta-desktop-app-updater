@@ -23,6 +23,7 @@ import { ReactComponent as Mic } from '../../../assets/svg/ai_agents/mic.svg';
 import { getBase64 } from '../../../helpers';
 import WorkflowSlugSelector from '../calendar/WorkflowSlugSelector';
 import { ReactComponent as AiSparkel } from '../../../assets/svg/calendar/aiSparkel.svg';
+import useVoiceIntegration from '../../hooks/useVoiceIntegration';
 
 const moduleHelper = {
 	tasks: 'tasks',
@@ -53,6 +54,15 @@ const BottomToolbar = ({
 		calendarInfo: { updateCalendarState },
 		tasks: { updateTaskState },
 	} = useContext(Context);
+	const {
+		isConnected,
+		isMuted,
+		audioLevel,
+		connectToRoom,
+		disconnect,
+		toggleMute,
+		toggleKrispNoiseFilter,
+	} = useVoiceIntegration();
 
 	const location = useLocation();
 
@@ -62,15 +72,15 @@ const BottomToolbar = ({
 		chatModalIsOpen: false,
 		bigToolbarIsOpen: false,
 		chatQuery: '',
-		position: { x: -325, y: 0 },
+		position: { x: window.innerWidth / 2 - 900, y: 0 },
 		addQuickAction: false,
 		chatSessionId: ObjectID().toString(),
 		uploadedImages: [],
 		chatLoading: false,
 		showFullPage: false,
+		voiceIntegration: false,
 	});
 
-	// console.log(info?.uploadedImages);
 	const [previewOpen, setPreviewOpen] = useState(false);
 	const [previewImage, setPreviewImage] = useState('');
 	const toolbarRef = useRef(null);
@@ -436,9 +446,28 @@ const BottomToolbar = ({
 		[info],
 	);
 
-	const handleMicIconClick = (event) => {
-		event.stopPropagation();
-	};
+	const handleMicIconClick = useCallback(
+		(event) => {
+			if (!info?.voiceIntegration) {
+				connectToRoom();
+				setInfo((prev) => ({ ...prev, voiceIntegration: true, bigToolbarIsOpen: false }));
+			} else {
+				toggleMute();
+			}
+			event.stopPropagation();
+		},
+
+		[info, connectToRoom],
+	);
+
+	const handleDisConnect = useCallback(
+		(event) => {
+			disconnect();
+			setInfo((prev) => ({ ...prev, voiceIntegration: false }));
+			event.stopPropagation();
+		},
+		[info],
+	);
 
 	const chatIcons = useMemo(
 		() => [
@@ -454,7 +483,7 @@ const BottomToolbar = ({
 			>
 				<PaperClip />
 			</Upload>,
-			<Mic />,
+			<Mic onClick={handleMicIconClick} />,
 		],
 		[info, handleChange],
 	);
@@ -509,7 +538,18 @@ const BottomToolbar = ({
 			) : (
 				''
 			)}
-
+			{info?.voiceIntegration ? (
+				<div style={{ display: 'flex', justifyContent: 'center' }}>
+					<img
+						src={'https://ap.assets.ve.ai/logo/speaking%20final.gif'}
+						width={'40px'}
+						height={'40px'}
+						style={{ marginBottom: '12px' }}
+					/>
+				</div>
+			) : (
+				''
+			)}
 			{/* bottom toolBarContent */}
 			{!info?.chatModalIsOpen ? (
 				info?.bigToolbarIsOpen ? (
@@ -582,6 +622,13 @@ const BottomToolbar = ({
 							<div className="mic-icon" onClick={handleMicIconClick}>
 								<Mic />
 							</div>
+							{info?.voiceIntegration ? (
+								<div className="mic-icon" onClick={handleDisConnect}>
+									<Close style={{ width: '20px', height: '20px' }} />
+								</div>
+							) : (
+								''
+							)}
 						</div>
 					</div>
 				)
