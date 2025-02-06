@@ -9,6 +9,7 @@ import { Drawer } from 'antd';
 import { fetchOriginSelection, getCurrentWorkspaceId } from '../../../helpers';
 import CopiedModal from '../modalsV2/workflowsModals/CopiedModal';
 import { Spin } from 'antd';
+import Spinner from '../../components/loaders/Spinner';
 
 let origin = fetchOriginSelection();
 
@@ -27,6 +28,14 @@ const SideBarPreview = ({ open, onClose, activeTemplate, openFileLeadModal }) =>
 		pendingCopyAction: null,
 		copyLink: null,
 	});
+
+	useEffect(() => {
+		if (smartfile?._id) {
+			if (info?.activeTemplateData?._id) {
+				window.location.href = `${origin}/${smartfile?._id}?workflow=true&templateId=${info?.activeTemplateData?._id}`;
+			}
+		}
+	}, [smartfile]);
 
 	useEffect(() => {
 		setInfo((prev) => ({
@@ -126,6 +135,19 @@ const SideBarPreview = ({ open, onClose, activeTemplate, openFileLeadModal }) =>
 		}));
 	}, []);
 
+	const handleTemplateClick = async () => {
+		if (info?.loading) return;
+		setInfo((prev) => ({ ...prev, loading: true }));
+		const payload = {
+			smartFileInput: {
+				templateId: activeTemplate?._id,
+				title: activeTemplate?.title,
+			},
+		};
+		await createSmartfile(payload);
+		setInfo((prev) => ({ ...prev, loading: false }));
+	};
+
 	return (
 		<Drawer
 			open={open}
@@ -181,15 +203,17 @@ const SideBarPreview = ({ open, onClose, activeTemplate, openFileLeadModal }) =>
 				<div className="buttonContainer">
 					<div
 						className="button"
-						onClick={() => {
-							if (info?.activeTemplate?.version) {
-								handleTemplateClick(info?.activeTemplate);
-							} else {
-								openFileLeadModal();
-							}
-						}}
+						onClick={
+							info?.activeTemplateData?.version
+								? handleTemplateClick
+								: openFileLeadModal
+						}
 					>
-						Create File
+						{info?.loading ? (
+							<Spinner height={'10px'} width={'10px'} color={'black'} />
+						) : (
+							'Create File'
+						)}
 					</div>
 				</div>
 			</div>

@@ -18,7 +18,7 @@ const initialState = {
 	selectedOption: 'All',
 	loading: true,
 	workflowTemplates: [],
-	activeTemplate: null,
+	activeTemplateData: null,
 	hasNextPage: false,
 	currentPage: 1,
 	loading: false,
@@ -58,8 +58,8 @@ const ProposalPopup = ({ open, closeModal }) => {
 	}, [myMoreWorkflows]);
 
 	useEffect(() => {
-		if (smartfile?._id) {
-			window.location.href = `${origin}/${smartfile?._id}?workflow=true&templateId=${info?.activeTemplate?._id}`;
+		if (smartfile?._id && info?.activeTemplateData?._id) {
+			window.location.href = `${origin}/${smartfile?._id}?workflow=true&templateId=${info?.activeTemplateData?._id}`;
 		}
 	}, [smartfile]);
 
@@ -83,7 +83,8 @@ const ProposalPopup = ({ open, closeModal }) => {
 
 	const handleTemplateClick = async (template) => {
 		if (info?.loading) return;
-		setInfo((prev) => ({ ...prev, loading: true, activeTemplate: template }));
+
+		setInfo((prev) => ({ ...prev, loading: true, activeTemplateData: template }));
 
 		const payload = {
 			smartFileInput: {
