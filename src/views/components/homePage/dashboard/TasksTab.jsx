@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState, useCallback, useMemo, useRef, memo } from 'react';
 import '../../../../assets/scss/home_page/tasks.scss';
-import { ReactComponent as ChevronRightThinIcon } from '../../../../assets/svg/tasks/chevronRightThin.svg';
+import { ReactComponent as ChevronRightThinLightIcon } from '../../../../assets/svg/tasks/chevronRightThin.svg';
 import { ReactComponent as textSvg } from '../../../../assets/svg/tasks/letterA.svg';
 import { ReactComponent as ClockSvg } from '../../../../assets/svg/activity/clock.svg';
 import { ReactComponent as PieSvg } from '../../../../assets/svg/tasks/pieHollow.svg';
@@ -135,6 +135,7 @@ const TasksTab = () => {
 		taskData: {},
 		breadCrumbs: [],
 		loadingSkeleton: true,
+		hoveredTaskId: null,
 	});
 
 	const debounceTimeout = useRef(null);
@@ -676,13 +677,7 @@ const TasksTab = () => {
 					return row?._id === payload?.taskId;
 				});
 
-				setInfo((prev) => ({
-					...prev,
-					selectedRow: null,
-					sidebarIsOpen: false,
-					breadCrumbs: [],
-				}));
-				// handleCloseSidebar();
+				handleCloseSidebar();
 				if (!task) return;
 
 				getOverdueTasksCount();
@@ -787,7 +782,6 @@ const TasksTab = () => {
 		updateTaskInfo({
 			sidebarIsOpen: false,
 			breadCrumbs: [],
-			selectedRow: null,
 		});
 	}, []);
 
@@ -806,6 +800,19 @@ const TasksTab = () => {
 		},
 		[info?.breadCrumbs],
 	);
+
+	const handleMouseEnterOnTask = (taskId) => {
+		setInfo((prev) => ({
+			...prev,
+			hoveredTaskId: taskId,
+		}));
+	};
+	const handleMouseLeaveOnTask = () => {
+		setInfo((prev) => ({
+			...prev,
+			hoveredTaskId: null,
+		}));
+	};
 
 	return (
 		<>
@@ -854,7 +861,7 @@ const TasksTab = () => {
 									}
 								</div>
 								<div className="dropdown-icon">
-									<ChevronRightThinIcon />
+									<ChevronRightThinLightIcon />
 								</div>
 							</div>
 						</button>
@@ -904,6 +911,8 @@ const TasksTab = () => {
 											onClick={() => {
 												handleRowClick(task);
 											}}
+											onMouseEnter={() => handleMouseEnterOnTask(task?._id)}
+											onMouseLeave={handleMouseLeaveOnTask}
 											key={task?._id}
 										>
 											<div className="task-content">
@@ -932,8 +941,21 @@ const TasksTab = () => {
 															`+${task?.assignedTo?.length - 3}`}
 													</div>
 												</div>
-												<div className="chevron-icon-container">
-													<ChevronRightThinIcon />
+												<div
+													className="chevron-icon-container"
+													style={{
+														backgroundColor: `${
+															info?.hoveredTaskId === task?._id
+																? '#f2f2f3'
+																: '#202123'
+														}`,
+													}}
+												>
+													{info?.hoveredTaskId === task?._id ? (
+														<></>
+													) : (
+														<ChevronRightThinLightIcon />
+													)}
 												</div>
 											</div>
 										</div>
