@@ -50,9 +50,6 @@ const CreateFileLead = ({ open, onClose, workflow }) => {
 		getClientListData();
 	}, []);
 
-	useEffect(() => {
-		console.log(workflow, 'activeTemplateData');
-	}, [workflow]);
 
 	useEffect(() => {
 		const isValidEmail =
