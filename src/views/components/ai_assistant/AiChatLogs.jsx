@@ -76,6 +76,16 @@ const AiChatLogs = ({ assistant }) => {
 		}
 	}, [info?.currentPage, info?.hasNextPage, assistant]);
 
+	const handleRefresh = useCallback(() => {
+		setInfo((prev) => ({
+			...prev,
+			activeSessionId: null,
+			aiChatLogsList: null,
+			chatListLoading: true,
+		}));
+		getAiChatLogs(assistant?._id);
+	}, [assistant]);
+
 	return (
 		<div className="aiChatLogsParentContainer">
 			<div className="aiChatLogsContainer">
@@ -125,7 +135,7 @@ const AiChatLogs = ({ assistant }) => {
 						</Tooltip>
 
 						{/* Feedback */}
-						<Tooltip
+						{/* <Tooltip
 							open={info?.isFeedbackDropdownOpen}
 							onOpenChange={() =>
 								setInfo({
@@ -160,20 +170,21 @@ const AiChatLogs = ({ assistant }) => {
 							<div className="chatLogsActionBtn">
 								Feedback <DownArrow />
 							</div>
-						</Tooltip>
+						</Tooltip> */}
 
 						{/* Confidence Score */}
-						<div className="chatLogsActionBtn">
+						{/* <div className="chatLogsActionBtn">
 							Confidence Score <DownArrow />
-						</div>
+						</div> */}
 					</div>
+
 					<div className="rightActionBtnContainer">
-						<div className="chatLogsActionBtn">
+						<div className="chatLogsActionBtn" onClick={handleRefresh}>
 							Refresh <Refresh />
 						</div>
-						<div className="chatLogsActionBtn">
+						{/* <div className="chatLogsActionBtn">
 							Export <Export />
-						</div>
+						</div> */}
 					</div>
 				</div>
 
