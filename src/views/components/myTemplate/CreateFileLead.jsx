@@ -50,7 +50,6 @@ const CreateFileLead = ({ open, onClose, workflow }) => {
 		getClientListData();
 	}, []);
 
-
 	useEffect(() => {
 		const isValidEmail =
 			info?.leadDetails?.emailId && validator?.isEmail(info?.leadDetails?.emailId);

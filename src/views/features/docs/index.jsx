@@ -111,17 +111,17 @@ export const statusTextmapper = {
 		},
 		label: 'Expired',
 	},
-	accepted: {
-		id: 'accepted',
-		text: 'Accepted',
-		dotStyle: {
-			backgroundColor: '#00A051',
-		},
-		style: {
-			backgroundColor: '#2C593F',
-		},
-		label: 'Accepted',
-	},
+	// accepted: {
+	// 	id: 'accepted',
+	// 	text: 'Accepted',
+	// 	dotStyle: {
+	// 		backgroundColor: '#00A051',
+	// 	},
+	// 	style: {
+	// 		backgroundColor: '#2C593F',
+	// 	},
+	// 	label: 'Accepted',
+	// },
 	proposalAccepted: {
 		id: 'proposalAccepted',
 		text: 'Accepted',
@@ -133,17 +133,17 @@ export const statusTextmapper = {
 		},
 		label: 'Proposal Accepted',
 	},
-	published: {
-		id: 'published',
-		text: 'Published',
-		dotStyle: {
-			backgroundColor: '#2A71CD',
-		},
-		style: {
-			backgroundColor: '#29456C',
-		},
-		label: 'Published',
-	},
+	// published: {
+	// 	id: 'published',
+	// 	text: 'Published',
+	// 	dotStyle: {
+	// 		backgroundColor: '#2A71CD',
+	// 	},
+	// 	style: {
+	// 		backgroundColor: '#29456C',
+	// 	},
+	// 	label: 'Published',
+	// },
 };
 
 const statusList = Object.values(statusTextmapper)
@@ -859,44 +859,3 @@ const Docs = () => {
 };
 
 export default memo(Docs);
-{
-	/* <div className="docsTemplatesContainer">
-				<div className="docsTemplatesContainerHeader">
-					Create new file from your existing templates
-					<div className="docsTemplatesAllFilesContainer">
-						<Files />
-						All files
-					</div>
-				</div>
-
-				<div className="docsTemplateContainer">
-					{[{}, {}, {}, {}, {}, {}, {}, {}]?.map((ele, index) => (
-						<div key={index} className="docsTemplateCard">
-							<div className="docsTemplateImageContainer">
-								<div className="docsTemplateHoverContentContainer">
-									<div className="docsHoverArrowContainer">
-										<UpArrow />
-									</div>
-									<div className="docsHoverOptionsContainer">
-										<span className="docsHoverOptionsStyling">Create File</span>
-										<span className="docsHoverOptionsStyling">Edit Design</span>
-										<span className="docsHoverOptionsStyling">Duplicate</span>
-										<span className="docsHoverOptionsStyling">Delete</span>
-									</div>
-								</div>
-								<img
-									src="https://s3-alpha-sig.figma.com/img/15b6/6719/e9a63a81d478a52552ed98ac31e7a2b6?Expires=1737331200&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=AHd93og5SQiiQLECz4ZuNCrzERGP~NAz3qk7eS5Sfl2rnN0oWzjo~8CgS5fNWE5Knb5s0yTjbQ7uXSeHW6H8J3E1eSneLfc0U9057RjAp0VEqJ-evjzPJjlrXdlli85n2yZM7obW8hfc~8-9MlR57xLGtWobCP7v50apSuXv~1NXhnucgryS87p1CZyKsZZ1Ro-JHIDtSqRygCQDk7N~x2ZS0u5JL6cEZF~nC0oZdxR73cBZ1yBbIG~CYAqEdojkRWVcoOYkPROyviNf-vIl8O3kRvgvVLXAgH7WeebcdHwODd4LeNcCXL7uhHAfZPRwvTeKbq4NW9MarD7lglA2cw__"
-									alt="Template preview"
-								/>
-							</div>
-							<div className="docsFooterContent">
-								<span className="docsFooterContentTitle">
-									Jaylon Korsgaard Wedding Proposal
-								</span>
-								<span className="docsFooterContentSubTitle">created 14 files</span>
-							</div>
-						</div>
-					))}
-				</div>
-			</div> */
-}
