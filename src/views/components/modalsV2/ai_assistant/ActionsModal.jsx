@@ -157,20 +157,20 @@ const ActionsModal = ({
 		// Validate body content is valid JSON if present
 		if (info?.bodyContent?.trim()) {
 			try {
-				JSON.parse(info?.bodyContent);
+				// JSON.parse(info?.bodyContent);
 				// First replace variables that are direct values with a dummy string
-				// let validationContent = info?.bodyContent?.replace(
-				// 	/:\s*({{\s*[\w.-]+\s*}})/g,
-				// 	': "dummy_value"',
-				// );
+				let validationContent = info?.bodyContent?.replace(
+					/:\s*({{\s*[\w.-]+\s*}})/g,
+					': "dummy_value"',
+				);
 
-				// // Then replace variables inside strings
-				// validationContent = validationContent?.replace(
-				// 	/"[^"]*{{[\w.-]+}}[^"]*"/g,
-				// 	'"dummy_string"',
-				// );
+				// Then replace variables inside strings
+				validationContent = validationContent?.replace(
+					/"[^"]*{{[\w.-]+}}[^"]*"/g,
+					'"dummy_string"',
+				);
 
-				// JSON.parse(validationContent);
+				JSON.parse(validationContent);
 			} catch (e) {
 				validationErrors.push('Valid JSON Body');
 			}
