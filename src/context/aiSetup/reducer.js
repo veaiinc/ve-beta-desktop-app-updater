@@ -81,6 +81,10 @@ const actionHandlers = {
 		...state,
 		aiPrompt: action?.payload,
 	}),
+	GET_AI_CHAT_LOGS: (state, action) => ({
+		...state,
+		[action?.selectedVariable]: action?.payload,
+	}),
 
 	RESET_STATE: () => initialState,
 };

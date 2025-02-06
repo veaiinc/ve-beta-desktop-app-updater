@@ -60,10 +60,11 @@ const FormLeads = () => {
 					/>
 				),
 			},
-			summary: {
-				label: 'Summary',
-				Component: <FormSummary />,
-			},
+			// TODO: when we have summary data, add this tab. Until then, commentting it out.
+			// summary: {
+			// 	label: 'Summary',
+			// 	Component: <FormSummary />,
+			// },
 		};
 	}, [info?.activeTab]);
 

@@ -22,6 +22,7 @@ import ProposalPopup from '../../components/docs/ProposalsPopup.jsx';
 
 import Skeleton from 'react-loading-skeleton';
 import { Tooltip } from 'antd';
+import QuickActions from '../../components/globalComponents/QuickActions.jsx';
 let origin = fetchOriginSelection();
 
 const payload = {
@@ -151,8 +152,6 @@ const statusList = Object.values(statusTextmapper)
 		name: status?.label,
 		_id: status?.id,
 	}));
-
-console.log(statusList);
 
 export const FilterIcons = {
 	templateName: <UppercaseLowercaseA />,
@@ -291,9 +290,10 @@ const Docs = () => {
 		if (templatesListForDocs) {
 			setInfo((prev) => ({
 				...prev,
-				templatesList: info?.templateNameSearchValue
-					? templatesListForDocs?.data
-					: [...prev?.templatesList, ...templatesListForDocs?.data],
+				templatesList:
+					templatesListForDocs?.currentPage === 1 || !info?.templateNameSearchValue
+						? templatesListForDocs?.data
+						: [...prev?.templatesList, ...templatesListForDocs?.data],
 				hasMoreForFilter: {
 					...prev?.hasMoreForFilter,
 					templateName: templatesListForDocs?.hasNextPage,
@@ -312,9 +312,10 @@ const Docs = () => {
 		if (clientListForDocs) {
 			setInfo((prev) => ({
 				...prev,
-				clientList: info?.clientNameSearchValue
-					? clientListForDocs?.data
-					: [...prev?.clientList, ...clientListForDocs?.data],
+				clientList:
+					clientListForDocs?.currentPage === 1
+						? clientListForDocs?.data
+						: [...prev?.clientList, ...clientListForDocs?.data],
 				hasMoreForFilter: {
 					...prev?.hasMoreForFilter,
 					clientName: clientListForDocs?.hasNextPage,
@@ -426,7 +427,6 @@ const Docs = () => {
 		setInfo((prev) => ({
 			...prev,
 			[`${filter}SearchValue`]: searchValue,
-			filtersGotChanged: true,
 		}));
 	};
 
@@ -584,8 +584,13 @@ const Docs = () => {
 	return (
 		<div className="docsParentContainer">
 			<div className="docsHeaderTitleContainer">
-				<span className="lineOne">Create a</span>
-				<span className="lineTwo">Document</span>
+				<div className="docsHeaderTitleText">
+					<span className="lineOne">Create a</span>
+					<span className="lineTwo">Document</span>
+				</div>
+				<div className="quickActionsBtn">
+					<QuickActions />
+				</div>
 			</div>
 
 			<div className="docsParentHeaderContainer">
@@ -800,7 +805,6 @@ const Docs = () => {
 								width: '100%',
 							}}
 							className="tetsing"
-							// height="calc(100vh - 500px)"
 							height="calc(100vh - 310px)"
 						>
 							{info?.docsData?.map((ele, index) => (

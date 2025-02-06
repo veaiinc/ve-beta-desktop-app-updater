@@ -3,6 +3,7 @@ import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useSt
 import { ReactComponent as CalendarSvg } from '../../../assets/svg/tasks/calendar.svg';
 import { ReactComponent as textSvg } from '../../../assets/svg/tasks/letterA.svg';
 import Context from '../../../context/context';
+import '../../../assets/scss/contacts/contacts.scss';
 import CreateClientModal from '../../components/modalsV2/contacts/CreateClientModal';
 import { message } from 'antd';
 import Sidebar from '../../components/docs/Sidebar';
@@ -26,6 +27,7 @@ import LinkText from '../../components/tasks/listView/LinkText';
 import Text from '../../components/tasks/listView/Text';
 import Task from '../../components/tasks/Task';
 import ListViewSidebar from '../../components/modalsV2/tasks/ListViewSidebar';
+import QuickActions from '../../components/globalComponents/QuickActions';
 
 const rowTypes = {
 	text: Text,
@@ -495,6 +497,15 @@ const Contacts = () => {
 	);
 	return (
 		<div>
+			<div className="contacts-header-container">
+				<div className="header-text">
+					<span className="lineOne">Contacts</span>
+					<span className="lineTwo">You Have</span>
+				</div>
+				<div className="quick-actions-btn">
+					<QuickActions />
+				</div>
+			</div>
 			<Task
 				responseMetadata={responseMetadata}
 				handleAddButtonOnClick={() => {
@@ -514,7 +525,7 @@ const Contacts = () => {
 				error={info?.error}
 				fetchMoreData={fetchMoreData}
 				blockTitle={'Contacts'}
-				createButtonText={'Create Client'}
+				createButtonText={'Create Lead'}
 				views={info?.clientMetadata?.views}
 				updateView={updateView}
 				deleteView={deleteView}
