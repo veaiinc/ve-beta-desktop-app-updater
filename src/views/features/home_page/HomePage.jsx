@@ -11,6 +11,8 @@ import { Tooltip } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { useRef } from 'react';
 import Context from '../../../context/context';
+import QuickActions from '../../components/globalComponents/QuickActions';
+import PriorityDropDown from '../../components/homePage/dashboard/PriorityDropDown';
 
 const topNavOptions = [
 	{ id: 0, title: 'Start', value: 'start' },
@@ -26,23 +28,13 @@ const navbarOptions = {
 	],
 	dashboard: [
 		{ id: 1, title: 'Priority', value: 'Priority' },
-		// { id: 2, title: 'Tasks', value: 'Tasks' },
+		{ id: 2, title: 'Tasks', value: 'Tasks' },
 		{ id: 3, title: 'Workflows', value: 'Workflows' },
 		// { id: 4, title: 'Recent Chats', value: 'Recent Chats' },
 		{ id: 5, title: 'Drafts & Activity', value: 'Drafts & Activity' },
 	],
 };
 
-const dropdownOptions = [
-	{ id: 0, title: 'Client ', value: 'client' },
-	{ id: 2, title: 'Meeting', value: 'meeting' },
-	{ id: 3, title: 'Task', value: 'task' },
-	{ id: 4, title: 'Document', value: 'document' },
-	{ id: 5, title: 'Form', value: 'form' },
-	{ id: 6, title: 'Proposal', value: 'proposal' },
-	{ id: 7, title: 'Invoice', value: 'invoice' },
-	{ id: 8, title: 'Contract', value: 'contract' },
-];
 const thresholdTopOffset = 150;
 let timeoutId = null;
 
@@ -69,9 +61,8 @@ const HomePage = () => {
 		dropdown: false,
 		dropdownOptions: '',
 		openCreateLeadModal: false,
+		selectedOptionInPriorityTab: 'all',
 	});
-
-	const navigate = useNavigate();
 
 	useEffect(() => {
 		const homePageContainer = document.querySelector('.home-page-container');
@@ -79,18 +70,6 @@ const HomePage = () => {
 
 		return () => homePageContainer?.removeEventListener('scroll', setNavbarFixed);
 	}, [info?.isNavbarFixed]);
-
-	const handleDropdownOptionClick = useCallback((type) => {
-		if (type === 'meeting') {
-			navigate('/calendar');
-		} else if (type === 'document') {
-			navigate('/docs');
-		} else if (type === 'client') {
-			toggleCreateLeadModal({ createLeadModalContextState: true });
-		} else if (type === 'task') {
-			navigate('/tasks');
-		}
-	}, []);
 
 	const setNavbarFixed = (e) => {
 		const topOffset = e?.target?.scrollTop;
@@ -207,38 +186,9 @@ const HomePage = () => {
 								</div>
 							))}
 						</div>
-					</div>
-					<div className="home-page-container-tooltip-container">
-						<Tooltip
-							placement="bottom"
-							open={info?.dropdown}
-							trigger={'click'}
-							onOpenChange={(open) => setInfo({ ...info, dropdown: open })}
-							color="transparent"
-							title={
-								<div className="home-page-dropdown-options-container">
-									{dropdownOptions?.map((option) => (
-										<div
-											key={option?.id}
-											className="dropdown-option"
-											onClick={
-												() => handleDropdownOptionClick(option?.value)
-												// setInfo({ ...info, dropdownOptions: option?.value })
-											}
-										>
-											{option?.title}
-										</div>
-									))}
-								</div>
-							}
-						>
-							<button
-								className="home-page-container-content-item-container-right"
-								onClick={() => setInfo({ ...info, dropdown: !info?.dropdown })}
-							>
-								+ New
-							</button>
-						</Tooltip>
+						<div className="home-page-welcome-container-right">
+							<QuickActions />
+						</div>
 					</div>
 				</div>
 

@@ -28,7 +28,7 @@ const NavBar = ({
 								{tabItemCount?.all > 99 ? '99+' : tabItemCount?.all}
 							</div>
 						)}
-						{option?.title}
+						<p>{option?.title}</p>
 						{selectedOption === option?.value && (
 							<div className="home-page-welcome-container-left-text-option-active-indicator"></div>
 						)}

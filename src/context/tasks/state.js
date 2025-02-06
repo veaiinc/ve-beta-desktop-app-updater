@@ -71,32 +71,33 @@ export const TasksState = () => {
 		try {
 			if (task !== null && type !== null) {
 				const taskId = task?._id;
+				if (state?.listTasksDueTillToday) {
+					if (type === 'update') {
+						const updatedList = state?.listTasksDueTillToday?.data?.map((item) => {
+							if (item?._id === taskId) {
+								return { ...task };
+							}
+							return item;
+						});
 
-				if (type === 'update') {
-					const updatedList = state?.listTasksDueTillToday?.data?.map((item) => {
-						if (item?._id === taskId) {
-							return { ...task };
-						}
-						return item;
-					});
-
-					dispatch({
-						type: Actions.SET_LIST_TASKS_DUE_TILL_TODAY,
-						payload: { ...state?.listTasksDueTillToday, data: updatedList },
-					});
-					return;
+						dispatch({
+							type: Actions.SET_LIST_TASKS_DUE_TILL_TODAY,
+							payload: { ...state?.listTasksDueTillToday, data: updatedList },
+						});
+						return;
+					}
+					if (type === 'delete') {
+						const updatedList = state?.listTasksDueTillToday?.data?.filter(
+							(item) => item?._id !== taskId,
+						);
+						dispatch({
+							type: Actions.SET_LIST_TASKS_DUE_TILL_TODAY,
+							payload: { ...state?.listTasksDueTillToday, data: updatedList },
+						});
+						return;
+					}
 				}
-				console.log(task);
-				if (type === 'delete') {
-					const updatedList = state?.listTasksDueTillToday?.data?.filter(
-						(item) => item?._id !== taskId,
-					);
-					dispatch({
-						type: Actions.SET_LIST_TASKS_DUE_TILL_TODAY,
-						payload: { ...state?.listTasksDueTillToday, data: updatedList },
-					});
-					return;
-				}
+				return;
 			}
 
 			let workspaceId = localStorage.getItem('workspaceId');
@@ -134,30 +135,33 @@ export const TasksState = () => {
 	const getListTasksForToday = async (payload, type = null, task = null) => {
 		try {
 			if (task !== null && type !== null) {
-				const taskId = task?._id;
-				if (type === 'update') {
-					const updatedList = state?.listTasksForToday?.data?.map((item) => {
-						if (item?._id === taskId) {
-							return task;
-						}
-						return item;
-					});
-					dispatch({
-						type: Actions.SET_LIST_TASKS_FOR_TODAY,
-						payload: { ...state?.listTasksForToday, data: updatedList },
-					});
-					return;
+				if (state?.listTasksForToday) {
+					const taskId = task?._id;
+					if (type === 'update') {
+						const updatedList = state?.listTasksForToday?.data?.map((item) => {
+							if (item?._id === taskId) {
+								return task;
+							}
+							return item;
+						});
+						dispatch({
+							type: Actions.SET_LIST_TASKS_FOR_TODAY,
+							payload: { ...state?.listTasksForToday, data: updatedList },
+						});
+						return;
+					}
+					if (type === 'delete') {
+						const updatedList = state?.listTasksForToday?.data?.filter(
+							(item) => item?._id !== taskId,
+						);
+						dispatch({
+							type: Actions.SET_LIST_TASKS_FOR_TODAY,
+							payload: { ...state?.listTasksForToday, data: updatedList },
+						});
+						return;
+					}
 				}
-				if (type === 'delete') {
-					const updatedList = state?.listTasksForToday?.data?.filter(
-						(item) => item?._id !== taskId,
-					);
-					dispatch({
-						type: Actions.SET_LIST_TASKS_FOR_TODAY,
-						payload: { ...state?.listTasksForToday, data: updatedList },
-					});
-					return;
-				}
+				return;
 			}
 
 			let workspaceId = localStorage.getItem('workspaceId');
@@ -197,30 +201,34 @@ export const TasksState = () => {
 	const getListTasksForOverdue = async (payload, type = null, task = null) => {
 		try {
 			if (task !== null && type !== null) {
-				const taskId = task?._id;
-				if (type === 'update') {
-					const updatedList = state?.listTasksForOverdue?.data?.map((item) => {
-						if (item?._id === taskId) {
-							return task;
-						}
-						return item;
-					});
-					dispatch({
-						type: Actions.SET_LIST_TASKS_FOR_OVERDUE,
-						payload: { ...state?.listTasksForOverdue, data: updatedList },
-					});
-					return;
+				if (state?.listTasksForOverdue) {
+					const taskId = task?._id;
+					if (type === 'update') {
+						const updatedList = state?.listTasksForOverdue?.data?.map((item) => {
+							if (item?._id === taskId) {
+								return task;
+							}
+							return item;
+						});
+
+						dispatch({
+							type: Actions.SET_LIST_TASKS_FOR_OVERDUE,
+							payload: { ...state?.listTasksForOverdue, data: updatedList },
+						});
+						return;
+					}
+					if (type === 'delete') {
+						const updatedList = state?.listTasksForOverdue?.data?.filter(
+							(item) => item?._id !== taskId,
+						);
+						dispatch({
+							type: Actions.SET_LIST_TASKS_FOR_OVERDUE,
+							payload: { ...state?.listTasksForOverdue, data: updatedList },
+						});
+						return;
+					}
 				}
-				if (type === 'delete') {
-					const updatedList = state?.listTasksForOverdue?.data?.filter(
-						(item) => item?._id !== taskId,
-					);
-					dispatch({
-						type: Actions.SET_LIST_TASKS_FOR_OVERDUE,
-						payload: { ...state?.listTasksForOverdue, data: updatedList },
-					});
-					return;
-				}
+				return;
 			}
 
 			let workspaceId = localStorage.getItem('workspaceId');
@@ -256,10 +264,18 @@ export const TasksState = () => {
 		}
 	};
 
-	const getTasksCountForToday = async (payload, type = null, task = null) => {
+	const getTasksCountForToday = async () => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
+			const payload = {
+				filters: {
+					limit: 1,
+					page: 1,
+					startDate: Math?.floor(new Date()?.setHours(0, 0, 0, 0) / 1000),
+					endDate: Math?.floor(new Date()?.setHours(23, 59, 59, 999) / 1000),
+				},
+			};
 			const response = await service.query(
 				getTasksCountQuery,
 				payload,
@@ -285,10 +301,17 @@ export const TasksState = () => {
 		}
 	};
 
-	const getTasksCountForOverdue = async (payload) => {
+	const getTasksCountForOverdue = async () => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
+			const payload = {
+				filters: {
+					limit: 1,
+					page: 1,
+					endDate: Math?.floor(new Date()?.setHours(-1, 59, 59, 999) / 1000),
+				},
+			};
 			const response = await service.query(
 				getTasksCountQuery,
 				payload,

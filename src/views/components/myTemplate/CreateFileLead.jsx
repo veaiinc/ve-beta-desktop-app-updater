@@ -230,7 +230,7 @@ const CreateFileLead = ({ open, onClose, workflow }) => {
 				setInfo((prev) => ({ ...prev, isLoading: false }));
 				updateStateValues({ salePageRefresh: true });
 				closeModalFunc();
-				navigate('/docs');
+				navigate(`/smart-file/${workflow?._id}/${response?.[1]}`);
 			} else {
 				setInfo((prev) => ({
 					...prev,
