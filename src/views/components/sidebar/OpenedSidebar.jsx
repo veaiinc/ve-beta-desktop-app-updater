@@ -71,11 +71,15 @@ const OpenedSideBarHoverStateIcons = ({
 	navigateTo,
 	isSelected,
 	subModules,
+	isDropdownVisible,
+	onDropdownToggle,
+	setActiveDropdown,
+	activeSubModule,
+	setActiveSubModule,
+	handleSubModuleClick,
 }) => {
 	const location = useLocation();
 	const [isHover, setisHover] = useState(false);
-	const [isDropdownVisible, setDropdownVisible] = useState(false);
-	const [activeSubModule, setActiveSubModule] = useState(null);
 	const onMoutseEnter = () => {
 		if (isActive) return;
 		setisHover(true);
@@ -87,24 +91,14 @@ const OpenedSideBarHoverStateIcons = ({
 
 	const redirectToFunction = (subModules, route) => {
 		if (!subModules) {
+			setActiveDropdown(null);
+			setActiveSubModule(null);
 			navigateTo(route);
 		} else {
 			//
-			toggleDropdown();
+			onDropdownToggle();
 		}
 		if (!route) return;
-	};
-
-	const handleSubModuleClick = (e, subModule) => {
-		setActiveSubModule(subModule);
-		e.stopPropagation();
-		if (subModule.route) {
-			navigateTo(subModule.route);
-		}
-	};
-	const toggleDropdown = () => {
-		setDropdownVisible(!isDropdownVisible);
-		setActiveSubModule(null);
 	};
 
 	const isExactPathMatch = useCallback(() => {
@@ -304,6 +298,8 @@ const OpenedSideBarItemsComponent = ({
 	const [selectedChat, setSelectedChat] = useState(null);
 	const [activeChat, setActiveChat] = useState(false);
 	const [isMobile, setIsMobile] = useState(window.innerWidth < 500);
+	const [activeDropdown, setActiveDropdown] = useState(null);
+	const [activeSubModule, setActiveSubModule] = useState(null);
 
 	const location = useLocation();
 
@@ -362,6 +358,18 @@ const OpenedSideBarItemsComponent = ({
 	const handleCloseChatPanel = () => {
 		setSelectedChat(null);
 		setActiveChat(null);
+	};
+
+	const handleDropdownToggle = (moduleName) => {
+		setActiveDropdown(activeDropdown === moduleName ? null : moduleName);
+		setActiveSubModule(null);
+	};
+	const handleSubModuleClick = (e, subModule) => {
+		setActiveSubModule(subModule);
+		e.stopPropagation();
+		if (subModule.route) {
+			navigate(subModule.route);
+		}
 	};
 
 	return (
@@ -511,6 +519,16 @@ const OpenedSideBarItemsComponent = ({
 												isSelected={selectedOption === singleItems?.name}
 												isActive={location.pathname === singleItems?.route}
 												subModules={singleItems?.subModules}
+												isDropdownVisible={
+													activeDropdown === singleItems?.name
+												}
+												onDropdownToggle={() =>
+													handleDropdownToggle(singleItems?.name)
+												}
+												setActiveDropdown={setActiveDropdown}
+												activeSubModule={activeSubModule}
+												setActiveSubModule={setActiveSubModule}
+												handleSubModuleClick={handleSubModuleClick}
 											/>
 										</div>
 									))}
