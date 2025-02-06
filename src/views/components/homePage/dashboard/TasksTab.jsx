@@ -113,6 +113,8 @@ const TasksTab = () => {
 			resetSubTasks,
 			taskMetadata,
 			getTaskMetadata,
+			refetchTasksForDue,
+			updateTaskState,
 		},
 		templates: { getWorkflowsList, workflowslist },
 		companyInfo: { getTeamMembers, tenantsUserList },
@@ -138,6 +140,7 @@ const TasksTab = () => {
 		breadCrumbs: [],
 		loadingSkeleton: true,
 		hoveredTaskId: null,
+		updatedDueDate: false,
 	});
 
 	const debounceTimeout = useRef(null);
@@ -326,6 +329,24 @@ const TasksTab = () => {
 			}
 		}
 	}, [info?.selectedOption]);
+
+	useEffect(() => {
+		if (refetchTasksForDue) {
+			updateTaskState({
+				refetchTasksForDue: false,
+				listTasksDueTillToday: null,
+				listTasksForOverdue: null,
+				listTasksForToday: null,
+			});
+			// if (info?.selectedOption === 'pending') {
+			// 	fetchDueTillTodayTasks(1);
+			// } else if (info?.selectedOption === 'today') {
+			// 	fetchTodayTasks(1);
+			// } else if (info?.selectedOption === 'overdue') {
+			// 	fetchOverdueTasks(1);
+			// }
+		}
+	}, [refetchTasksForDue]);
 
 	useEffect(() => {
 		if (!tenantsUserList) {
@@ -599,10 +620,15 @@ const TasksTab = () => {
 					// Update updatedBy for any successful update
 					task = { ...task, updatedBy: { _id: user_id, name: userName } };
 					task = { ...task, [propName]: updatedValue };
+					let updatedDueDate = false;
+					if (propName === 'dueDate') {
+						updatedDueDate = true;
+					}
 
 					setInfo((prev) => ({
 						...prev,
 						selectedRow: { ...info?.selectedRow, ...task },
+						updatedDueDate,
 					}));
 
 					if (info?.selectedOption === 'pending') {
@@ -762,11 +788,15 @@ const TasksTab = () => {
 	);
 
 	const handleCloseSidebar = useCallback(() => {
+		if (info?.updatedDueDate) {
+			updateTaskState({ refetchTasksForDue: true });
+		}
 		updateTaskInfo({
 			sidebarIsOpen: false,
 			breadCrumbs: [],
+			updatedDueDate: false,
 		});
-	}, []);
+	}, [info?.updatedDueDate]);
 
 	const handleCloseCreateModal = useCallback(() => {
 		if (info?.isCreatingSubtask) {
@@ -796,6 +826,10 @@ const TasksTab = () => {
 			hoveredTaskId: null,
 		}));
 	};
+
+	// console.log('updated', info?.updatedDueDate);
+	// console.log('updated refetch', refetchTasksForDue);
+	// console.log('rerender');
 
 	return (
 		<>
