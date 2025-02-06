@@ -103,8 +103,8 @@ const ProposalPopup = ({ open, closeModal }) => {
 			setInfo((prev) => ({ ...prev, loading: false }));
 		}
 	};
-	const versionClick = () => {
-		setInfo((prev) => ({ ...prev, versionPopup: true }));
+	const versionClick = (template) => {
+		setInfo((prev) => ({ ...prev, versionPopup: true, activeTemplateData: template }));
 	};
 
 	const getMyWorkflowsTemplatesData = useCallback((page, search = null, fetchMore = false) => {
@@ -239,7 +239,7 @@ const ProposalPopup = ({ open, closeModal }) => {
 								onClick={() =>
 									template?.version
 										? handleTemplateClick(template)
-										: versionClick()
+										: versionClick(template)
 								}
 							>
 								<div className="docsTemplateImageContainer">

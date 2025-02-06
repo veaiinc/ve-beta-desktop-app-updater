@@ -51,6 +51,10 @@ const CreateFileLead = ({ open, onClose, workflow }) => {
 	}, []);
 
 	useEffect(() => {
+		console.log(workflow, 'activeTemplateData');
+	}, [workflow]);
+
+	useEffect(() => {
 		const isValidEmail =
 			info?.leadDetails?.emailId && validator?.isEmail(info?.leadDetails?.emailId);
 		const isValidName = info?.leadDetails?.name?.trim()?.length > 0;
