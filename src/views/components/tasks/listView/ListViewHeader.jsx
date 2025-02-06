@@ -152,7 +152,7 @@ const ListViewHeader = ({
 	return (
 		<div className="listViewHeaderContainer">
 			<div className="listViewHeaderTitleWrapper">
-				<div className="listViewHeader-title">{blockTitle || 'Untitled'}</div>
+				{/* <div className="listViewHeader-title">{blockTitle || 'Untitled'}</div> */}
 				<div className="listViewHeader">
 					<div className="listViewHeaderTabsContainer">
 						<TabHeader

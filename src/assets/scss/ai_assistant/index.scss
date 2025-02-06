@@ -130,6 +130,10 @@
 					color: color(display-p3 0.949 0.949 0.9529);
 					font-size: 18px;
 					line-height: 24px;
+					width: 220px;
+					overflow: hidden;
+					text-overflow: ellipsis;
+					white-space: nowrap;
 				}
 
 				.createdBy {
