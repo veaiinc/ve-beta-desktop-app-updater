@@ -8,6 +8,7 @@ import { ReactComponent as PrioritySvg } from '../../../../assets/svg/tasks/roun
 import { ReactComponent as WorkflowSvg } from '../../../../assets/svg/tasks/workflow.svg';
 import { ReactComponent as PersonSvg } from '../../../../assets/svg/tasks/person.svg';
 import { ReactComponent as CalendarSvg } from '../../../../assets/svg/tasks/calendar.svg';
+import { ReactComponent as TickSvg } from '../../../../assets/svg/home_page/Tick.svg';
 import { message, Tooltip } from 'antd';
 import Skeleton from 'react-loading-skeleton';
 import jwtDecode from 'jwt-decode';
@@ -143,15 +144,15 @@ const TasksTab = () => {
 		() => ({
 			pending: {
 				label: 'Pending actions till today',
-				count: tasksCountForToday + tasksCountForOverdue,
+				count: (tasksCountForToday ?? 0) + (tasksCountForOverdue ?? 0),
 			},
 			today: {
 				label: 'Today',
-				count: tasksCountForToday,
+				count: tasksCountForToday ?? 0,
 			},
 			overdue: {
 				label: 'Overdue',
-				count: tasksCountForOverdue,
+				count: tasksCountForOverdue ?? 0,
 			},
 		}),
 		[tasksCountForToday, tasksCountForOverdue],
@@ -269,11 +270,11 @@ const TasksTab = () => {
 
 	useEffect(() => {
 		if (!tasksCountForToday) {
-			getTodayTasksCount();
+			getTasksCountForToday();
 		}
 
 		if (!tasksCountForOverdue) {
-			getOverdueTasksCount();
+			getTasksCountForOverdue();
 		}
 	}, []);
 
@@ -454,29 +455,6 @@ const TasksTab = () => {
 		}
 		return properties;
 	}, [info?.taskPreferences?.preferences]);
-
-	const getTodayTasksCount = () => {
-		const payload = {
-			filters: {
-				limit: 1,
-				page: 1,
-				startDate: Math?.floor(new Date()?.setHours(0, 0, 0, 0) / 1000),
-				endDate: Math?.floor(new Date()?.setHours(23, 59, 59, 999) / 1000),
-			},
-		};
-		getTasksCountForToday(payload);
-	};
-
-	const getOverdueTasksCount = () => {
-		const payload = {
-			filters: {
-				limit: 1,
-				page: 1,
-				endDate: Math?.floor(new Date()?.setHours(-1, 59, 59, 999) / 1000),
-			},
-		};
-		getTasksCountForOverdue(payload);
-	};
 
 	const fetchTodayTasks = (page, type = null, task = null) => {
 		const payload = {
@@ -666,7 +644,11 @@ const TasksTab = () => {
 	};
 
 	const deleteTask = async (payload) => {
-		if (validateExpiryData?.isExpired) {
+		if (
+			validateExpiryData &&
+			validateExpiryData?.restrictTasks &&
+			validateExpiryData?.isExpired
+		) {
 			return updateSubscriptionState({ expiredSubscriptionModal: true });
 		} else {
 			const response = await deleteListItem(payload);
@@ -685,8 +667,8 @@ const TasksTab = () => {
 				// handleCloseSidebar();
 				if (!task) return;
 
-				getOverdueTasksCount();
-				getTodayTasksCount();
+				getTasksCountForToday();
+				getTasksCountForOverdue();
 
 				if (info?.selectedOption === 'pending') {
 					fetchDueTillTodayTasks(1, 'delete', task);
@@ -832,7 +814,11 @@ const TasksTab = () => {
 										{options?.map((option) => (
 											<div
 												key={option?.id}
-												className="dropdown-option"
+												className={`dropdown-option ${
+													info?.selectedOption === option?.value
+														? 'active'
+														: ''
+												}`}
 												onClick={() => {
 													if (info?.selectedOption !== option?.value)
 														setInfo((prev) => ({
@@ -844,6 +830,9 @@ const TasksTab = () => {
 												}}
 											>
 												{option?.title}
+												{info?.selectedOption === option?.value && (
+													<TickSvg />
+												)}
 											</div>
 										))}
 									</div>
