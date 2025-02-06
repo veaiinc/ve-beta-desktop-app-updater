@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState, useCallback, useMemo, useRef, memo } from 'react';
 import '../../../../assets/scss/home_page/tasks.scss';
 import { ReactComponent as ChevronRightThinLightIcon } from '../../../../assets/svg/tasks/chevronRightThin.svg';
+import { ReactComponent as ChevronRightThinDarkIcon } from '../../../../assets/svg/home_page/chevronRightThinDark.svg';
 import { ReactComponent as textSvg } from '../../../../assets/svg/tasks/letterA.svg';
 import { ReactComponent as ClockSvg } from '../../../../assets/svg/activity/clock.svg';
 import { ReactComponent as PieSvg } from '../../../../assets/svg/tasks/pieHollow.svg';
@@ -952,7 +953,7 @@ const TasksTab = () => {
 													}}
 												>
 													{info?.hoveredTaskId === task?._id ? (
-														<></>
+														<ChevronRightThinDarkIcon />
 													) : (
 														<ChevronRightThinLightIcon />
 													)}
