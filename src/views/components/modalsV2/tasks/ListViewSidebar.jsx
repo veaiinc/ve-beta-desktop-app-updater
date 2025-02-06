@@ -192,6 +192,9 @@ const ListViewSidebar = ({
 									{...props}
 									onOptionClick={(value) => handleUpdate(row._id, key, value)}
 									colors={colors}
+									onUpdate={(value, onSuccess) =>
+										handleUpdate(row._id, key, value, false, onSuccess)
+									}
 									takeFullspace={true}
 								/>
 							) : (
@@ -285,24 +288,25 @@ const ListViewSidebar = ({
 								</button>
 							</div>
 						</div>
-
-						<div className="breadCrumbs-container">
-							{breadCrumbs?.map((item, index) => (
-								<div
-									className="breadCrumbs-item"
-									key={item?.label}
-									onClick={() => {
-										handleBreadCrumbsClick(item, index);
-									}}
-								>
-									{item?.label}
-									<div className="right-svg">
-										<RightSvg height={12} width={12} />
+						{headerText && (
+							<div className="breadCrumbs-container">
+								{breadCrumbs?.map((item, index) => (
+									<div
+										className="breadCrumbs-item"
+										key={item?.label}
+										onClick={() => {
+											handleBreadCrumbsClick(item, index);
+										}}
+									>
+										{item?.label}
+										<div className="right-svg">
+											<RightSvg height={12} width={12} />
+										</div>
 									</div>
-								</div>
-							))}
-							<div className="breadCrumbs-item active">{headerText}</div>
-						</div>
+								))}
+								<div className="breadCrumbs-item active">{headerText}</div>
+							</div>
+						)}
 
 						<div className="sidebar-title">
 							<CustomTextArea

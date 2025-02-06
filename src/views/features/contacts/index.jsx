@@ -254,7 +254,7 @@ const Contacts = () => {
 		if (refetchClientList && !info?.sidebarIsOpen) {
 			setInfo((prev) => ({ ...prev, page: 1 }));
 			fetchClientList(1, info.filters, info.searchValue, info.sort);
-			updateListViewInfo({ refetchClientList: false });
+			updateStateValues({ refetchClientList: false });
 		}
 	}, [refetchClientList]);
 
@@ -461,10 +461,10 @@ const Contacts = () => {
 		if (refetchClientList) {
 			updateListViewInfo({ loadingSkeleton: true });
 			fetchClientList(1, info.filters, info.searchValue, info.sort);
-			updateListViewInfo({ refetchClientList: false });
+			updateStateValues({ refetchClientList: false });
 		}
-		updateListViewInfo({ sidebarIsOpen: false, selectedSubTask: null });
-	}, [info?.refetchClientList]);
+		updateListViewInfo({ sidebarIsOpen: false });
+	}, [refetchClientList]);
 
 	const fetchMoreData = useCallback(() => {
 		if (info.hasMore) {
