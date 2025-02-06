@@ -353,13 +353,14 @@ const Contacts = () => {
 						}}
 						refetchDocsFilesList={info?.refetchDocsFilesList}
 						onUpdate={updateListViewInfo}
+						selectedId={info?.selectedRow?._id}
 					/>
 				),
 			},
 			// payments: { label: 'Payments', Component: <div>Payments</div> },
 			// activity: { label: 'Activity', Component: <div>Activity</div> },
 		};
-	}, [rowTypes, colors, info?.refetchDocsFilesList]);
+	}, [rowTypes, colors, info?.refetchDocsFilesList, info?.selectedRow?._id]);
 
 	const mapPropertyType = useCallback(() => {
 		let properties = [];

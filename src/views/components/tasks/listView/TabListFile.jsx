@@ -7,7 +7,14 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import { FetchMoreLoaderComp } from '../../../../helpers';
 import Context from '../../../../context/context';
 
-const TabListFile = ({ rowTypes, colors, handleRowClick, refetchDocsFilesList, onUpdate }) => {
+const TabListFile = ({
+	rowTypes,
+	colors,
+	handleRowClick,
+	refetchDocsFilesList,
+	onUpdate,
+	selectedId,
+}) => {
 	let {
 		templates: { getDocsFilesList, docsFilesList, moreDocsFilesList },
 	} = useContext(Context);
@@ -127,6 +134,10 @@ const TabListFile = ({ rowTypes, colors, handleRowClick, refetchDocsFilesList, o
 		}
 	}, [refetchDocsFilesList]);
 
+	useEffect(() => {
+		getDocsFilesListFunc(1, false);
+	}, [selectedId]);
+
 	const getDocsFilesListFunc = useCallback(
 		async (page, fetchMore = false) => {
 			if (!fetchMore) {
@@ -141,6 +152,7 @@ const TabListFile = ({ rowTypes, colors, handleRowClick, refetchDocsFilesList, o
 					limit: 30,
 					page: page,
 					title: info?.searchValue,
+					clientId: selectedId,
 				},
 			};
 			if (info?.selectedFilterOptions?.templateName) {
@@ -154,7 +166,7 @@ const TabListFile = ({ rowTypes, colors, handleRowClick, refetchDocsFilesList, o
 			}
 			getDocsFilesList(payload, fetchMore);
 		},
-		[info?.searchValue, info?.selectedFilterOptions],
+		[info?.searchValue, info?.selectedFilterOptions, selectedId],
 	);
 
 	const fetcMoreDocsFilesList = useCallback(async () => {
