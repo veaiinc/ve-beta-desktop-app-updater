@@ -525,7 +525,7 @@ const Contacts = () => {
 				error={info?.error}
 				fetchMoreData={fetchMoreData}
 				blockTitle={'Contacts'}
-				createButtonText={'Create Client'}
+				createButtonText={'Create Lead'}
 				views={info?.clientMetadata?.views}
 				updateView={updateView}
 				deleteView={deleteView}

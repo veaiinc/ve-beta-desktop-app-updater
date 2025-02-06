@@ -101,9 +101,7 @@ const OpenedSideBarHoverStateIcons = ({
 			navigateTo(subModule.route);
 		}
 	};
-	const toggleDropdown = (e) => {
-		e.stopPropagation();
-		e.preventDefault();
+	const toggleDropdown = () => {
 		setDropdownVisible(!isDropdownVisible);
 		setActiveSubModule(null);
 	};
@@ -129,7 +127,11 @@ const OpenedSideBarHoverStateIcons = ({
 				onMouseEnter={onMoutseEnter}
 				onMouseLeave={onMoutseLeave}
 				onClick={() => {
-					redirectToFunction(subModules, route);
+					if (name === 'Design Builder' || name === 'Storage') {
+						toggleDropdown();
+					} else {
+						redirectToFunction();
+					}
 				}}
 				style={{
 					marginBottom:
@@ -200,7 +202,7 @@ const OpenedSideBarHoverStateIcons = ({
 					</div>
 				)}
 				{subModules?.length > 0 && (
-					<div onClick={toggleDropdown} style={{ padding: '0px', margin: '0px' }}>
+					<div style={{ padding: '0px', margin: '0px' }}>
 						<DownArrowSmallSvg
 							className={`downArrow ${isDropdownVisible ? 'rotate' : ''}`}
 							style={{ height: '16px', width: '16px' }}
