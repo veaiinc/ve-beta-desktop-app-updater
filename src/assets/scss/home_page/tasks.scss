@@ -40,11 +40,7 @@
 			transition: 300ms;
 
 			&:hover {
-				background-color: #202123;
-
-				.chevron-icon-container {
-					background-color: #f2f2f3;
-				}
+				background: #202123;
 			}
 
 			.task-content {
@@ -134,6 +130,7 @@
 					gap: 10px;
 					border-radius: 100px;
 					background: #202123;
+					transition: background-color 300ms;
 				}
 			}
 		}
