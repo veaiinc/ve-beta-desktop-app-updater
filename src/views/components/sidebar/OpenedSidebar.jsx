@@ -89,7 +89,8 @@ const OpenedSideBarHoverStateIcons = ({
 		if (!subModules) {
 			navigateTo(route);
 		} else {
-			setDropdownVisible(!isDropdownVisible);
+			//
+			toggleDropdown();
 		}
 		if (!route) return;
 	};
