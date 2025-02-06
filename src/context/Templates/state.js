@@ -580,7 +580,7 @@ export const TemplatesState = (props) => {
 		}
 	};
 
-	const getTemplatesListForDocs = async (page = 1, limit = 10) => {
+	const getTemplatesListForDocs = async (page = 1, limit = 10, searchValue = '') => {
 		let workspaceId = localStorage.getItem('workspaceId');
 		let usertoken = localStorage.getItem('usertoken');
 
@@ -590,6 +590,7 @@ export const TemplatesState = (props) => {
 				page,
 				type: 'workspace',
 				status: 'published',
+				title: searchValue,
 			},
 		};
 		const response = await service.query(
