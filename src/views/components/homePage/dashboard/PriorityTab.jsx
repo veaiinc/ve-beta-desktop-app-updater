@@ -154,6 +154,17 @@ const PriorityTab = () => {
 									}}
 								>
 									<div className="agentsWorkflowJobCards">
+										<div className="agentsWorkflowJobCardsHeader">
+											{actionItem?.status === 'enquiry' &&
+											actionItem?.action === 'sendProposal'
+												? 'Enquiry'
+												: actionItem?.approvalRequired &&
+												  actionItem?.action !== 'counterSign'
+												? 'Email Approval'
+												: actionItem?.action === 'counterSign'
+												? 'Counter Sign'
+												: 'Expiry In 3 Days'}
+										</div>
 										<div className="agentsWorkflowJobCardsContent">
 											<span className="agentsWorkflowJobCardsTitle">
 												{actionItem?.clientName}
@@ -170,16 +181,6 @@ const PriorityTab = () => {
 												alignSelf: 'stretch',
 											}}
 										>
-											{actionItem?.status === 'enquiry' &&
-											actionItem?.action === 'sendProposal'
-												? 'Enquiry'
-												: actionItem?.approvalRequired &&
-												  actionItem?.action !== 'counterSign'
-												? 'Email Approval'
-												: actionItem?.action === 'counterSign'
-												? 'Counter Sign'
-												: 'Expiry In 3 Days'}
-
 											<span className="agentsWorkflowJobCardsSubTitle">
 												{moment.unix(actionItem?.createdAt).fromNow()}
 											</span>
