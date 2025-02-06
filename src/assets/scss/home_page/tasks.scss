@@ -37,13 +37,10 @@
 			background: #171819;
 			background: color(display-p3 0.0902 0.0941 0.098);
 			cursor: pointer;
+			transition: 300ms;
 
 			&:hover {
-				background-color: #202123;
-
-				.chevron-icon-container {
-					background-color: #f2f2f3;
-				}
+				background: #202123;
 			}
 
 			.task-content {
@@ -51,6 +48,7 @@
 				flex-direction: column;
 				gap: 8px;
 				width: 100%;
+				height: 120px;
 
 				.title {
 					align-self: stretch;
@@ -62,6 +60,7 @@
 					font-weight: 500;
 					line-height: 24px;
 					width: 100%;
+					max-height: 44px;
 					overflow: hidden;
 					text-overflow: ellipsis;
 				}
@@ -70,7 +69,6 @@
 					flex: 1 0 0;
 					align-self: stretch;
 					color: #797e86;
-					color: color(display-p3 0.4784 0.4941 0.5216);
 					overflow: hidden;
 					text-overflow: ellipsis;
 					font-family: Inter;
@@ -132,7 +130,7 @@
 					gap: 10px;
 					border-radius: 100px;
 					background: #202123;
-					background: color(display-p3 0.1255 0.1294 0.1373);
+					transition: background-color 300ms;
 				}
 			}
 		}
@@ -140,6 +138,10 @@
 }
 
 .dropdown-container {
+	position: absolute;
+	right: 0;
+	top: -18px;
+	transform: translateY(-100%);
 	.dropdown-header {
 		display: flex;
 		width: 155px;
@@ -150,6 +152,7 @@
 		border: 1px solid #333334;
 		border: 1px solid color(display-p3 0.2 0.2 0.2039);
 		background-color: rgb(12, 12, 13);
+		height: 40px;
 
 		.dropdown-content {
 			display: flex;

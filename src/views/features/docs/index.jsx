@@ -22,6 +22,7 @@ import ProposalPopup from '../../components/docs/ProposalsPopup.jsx';
 
 import Skeleton from 'react-loading-skeleton';
 import { Tooltip } from 'antd';
+import QuickActions from '../../components/globalComponents/QuickActions.jsx';
 let origin = fetchOriginSelection();
 
 const payload = {
@@ -527,8 +528,13 @@ const Docs = () => {
 	return (
 		<div className="docsParentContainer">
 			<div className="docsHeaderTitleContainer">
-				<span className="lineOne">Create a</span>
-				<span className="lineTwo">Document</span>
+				<div className="docsHeaderTitleText">
+					<span className="lineOne">Create a</span>
+					<span className="lineTwo">Document</span>
+				</div>
+				<div className="quickActionsBtn">
+					<QuickActions />
+				</div>
 			</div>
 
 			<div className="docsParentHeaderContainer">

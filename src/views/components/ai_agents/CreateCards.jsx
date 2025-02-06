@@ -188,7 +188,7 @@ const Activity = memo(() => {
 									flex: '1 0 0',
 									alignSelf: 'stretch',
 								}}
-								height={'340px'}
+								height={'348px'}
 							>
 								{info?.activityLogsData?.map((ele, index) => (
 									<div className="aiAgentsActivityCards" key={index}>

@@ -8,6 +8,7 @@ import '../../../assets/scss/docs/proposalsPopup.scss';
 import { fetchOriginSelection } from '../../../helpers';
 import Context from '../../../context/context';
 import moment from 'moment';
+import { useNavigate } from 'react-router-dom';
 const origin = fetchOriginSelection();
 
 const options = ['All', 'Proposal', 'Invoice', 'Contract', 'Thank you'];
@@ -26,6 +27,7 @@ const initialState = {
 };
 
 const ProposalPopup = ({ open, closeModal }) => {
+	const navigate = useNavigate();
 	const customStyles = {
 		content: { zIndex: 99999 },
 		overlay: { zIndex: 99998 },
@@ -86,8 +88,8 @@ const ProposalPopup = ({ open, closeModal }) => {
 
 		const payload = {
 			smartFileInput: {
-				templateId: template?._id,
 				title: template?.title,
+				templateId: template?._id,
 			},
 		};
 
@@ -178,9 +180,9 @@ const ProposalPopup = ({ open, closeModal }) => {
 							/>
 						</div>
 
-						<button className="proposal-popup-search-div-button">
+						{/* <button className="proposal-popup-search-div-button">
 							+ Blank document
-						</button>
+						</button> */}
 					</div>
 					<div className="proposal-popup-body-options-container">
 						{options.map((option) => (
