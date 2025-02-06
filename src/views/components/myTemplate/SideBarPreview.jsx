@@ -63,27 +63,6 @@ const SideBarPreview = ({ open, onClose, activeTemplate, openFileLeadModal }) =>
 		}
 	}, [smartfile]);
 
-	const handleTemplateClick = async (template) => {
-		if (info?.loading) return;
-		setInfo((prev) => ({ ...prev, loading: true }));
-
-		const payload = {
-			smartFileInput: {
-				templateId: template?._id,
-				title: template?.title,
-			},
-		};
-
-		try {
-			await createSmartfile(payload);
-		} catch (error) {
-			console.error('Failed to create smartfile:', error);
-		} finally {
-			setInfo((prev) => ({ ...prev, loading: false }));
-			console.log(smartfile, 'smartfile');
-		}
-	};
-
 	const performExtraCheck = useCallback(
 		async (currentWorkspaceId) => {
 			setInfo((prev) => ({ ...prev, currentWorkspaceId }));
