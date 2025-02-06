@@ -45,6 +45,7 @@ export const initialState = {
 	aiDefaultPrompt: null,
 	aiActions: null,
 	aiAction: null,
+	tokenForVoice: null,
 };
 
 export const AiSetupState = () => {
@@ -814,6 +815,29 @@ export const AiSetupState = () => {
 		}
 	};
 
+	const getTokenForVoice = async () => {
+		try {
+			const usertoken = localStorage.getItem('usertoken');
+			const workspaceId = localStorage.getItem('workspaceId');
+
+			const response = await service?.fetchPost(
+				`/${workspaceId}/generate-livekit-token`,
+				{},
+				usertoken,
+				'ai_predictions',
+			);
+
+			if (response?.[0]) {
+				return response?.[1];
+			} else {
+				throw new Error('Failed to fetch token');
+			}
+		} catch (error) {
+			console.error('Error fetching token:', error);
+			throw error;
+		}
+	};
+
 	const resetAiSetupState = () => {
 		dispatch({ type: Actions?.RESET_STATE });
 	};
@@ -852,5 +876,6 @@ export const AiSetupState = () => {
 		updateAiAction,
 		deleteAiAction,
 		removeFile,
+		getTokenForVoice,
 	};
 };
