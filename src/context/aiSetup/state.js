@@ -6,6 +6,7 @@ import {
 	AI_ASSISTANT_INSTRUCTIONS,
 	AI_PROMPT,
 	AI_ACTIONS,
+	AI_CHAT_LOGS,
 } from './actionTypes';
 import { Actions } from './actions';
 import service from '../../services';
@@ -45,6 +46,8 @@ export const initialState = {
 	aiDefaultPrompt: null,
 	aiActions: null,
 	aiAction: null,
+	aiChatLogs: null,
+	moreAiChatLogs: null,
 };
 
 export const AiSetupState = () => {
@@ -814,6 +817,26 @@ export const AiSetupState = () => {
 		}
 	};
 
+	const getAiChatLogs = async (assistantId, page = 1, limit = 20, fetchMore = false) => {
+		let workspaceId = localStorage.getItem('workspaceId');
+		let usertoken = localStorage.getItem('usertoken');
+		const url = '/' + workspaceId + '/ai-assistants/' + assistantId + AI_CHAT_LOGS?.aiChatLogs;
+		try {
+			const response = await service?.fetchGet(url, usertoken, 'ai_assistant_api');
+			if (response?.[0]) {
+				const selectedVariable = fetchMore ? 'moreAiChatLogs' : 'aiChatLogs';
+				dispatch({
+					type: Actions?.GET_AI_CHAT_LOGS,
+					payload: response?.[1],
+					selectedVariable,
+				});
+				return response?.[1];
+			}
+		} catch (error) {
+			console.log('error==>getAiChatLogs', error);
+		}
+	};
+
 	const resetAiSetupState = () => {
 		dispatch({ type: Actions?.RESET_STATE });
 	};
@@ -851,6 +874,7 @@ export const AiSetupState = () => {
 		addAiAction,
 		updateAiAction,
 		deleteAiAction,
+		getAiChatLogs,
 		removeFile,
 	};
 };

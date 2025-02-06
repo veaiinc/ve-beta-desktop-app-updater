@@ -62,15 +62,17 @@
 
 				.chat {
 					padding: 16px 24px;
+					cursor: pointer;
+					border: 1px solid red;
 
 					display: flex;
 					flex-direction: column;
 					justify-content: center;
 					align-items: flex-start;
 					gap: 6px;
-                    
+
 					&:hover {
-                        background: color(display-p3 0.1255 0.1294 0.1373);
+						background: color(display-p3 0.1255 0.1294 0.1373);
 						background: #202123;
 					}
 				}

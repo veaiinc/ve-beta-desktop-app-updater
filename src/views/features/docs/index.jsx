@@ -738,7 +738,6 @@ const Docs = () => {
 								width: '100%',
 							}}
 							className="tetsing"
-							// height="calc(100vh - 500px)"
 							height="calc(100vh - 310px)"
 						>
 							{info?.docsData?.map((ele, index) => (

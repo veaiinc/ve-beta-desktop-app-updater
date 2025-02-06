@@ -34,7 +34,7 @@ const CreateAgentHeader = ({
 						agentIcon
 					)}
 
-					{name}
+					<span>{name}</span>
 				</div>
 			</div>
 			<div className="create-agent-header-right">

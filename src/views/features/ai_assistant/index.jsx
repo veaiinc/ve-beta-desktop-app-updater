@@ -153,7 +153,7 @@ const AiAssistants = () => {
 
 				<div className="agentsCardContainer">
 					<InfiniteScroll
-						dataLength={assistants?.length}
+						dataLength={assistants?.length || 0}
 						next={getMoreAiAssistants}
 						hasMore={info?.hasNextPage}
 						loader={

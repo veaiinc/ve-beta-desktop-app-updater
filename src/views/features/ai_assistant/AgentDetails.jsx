@@ -19,7 +19,7 @@ const AgentDetails = () => {
 	const navigate = useNavigate();
 
 	const [info, setInfo] = useState({
-		activeTab: 'chatlogs', // playground, chatlogs, connections
+		activeTab: 'playground', // playground, chatlogs, connections
 		activeAiAssistant: null,
 	});
 
