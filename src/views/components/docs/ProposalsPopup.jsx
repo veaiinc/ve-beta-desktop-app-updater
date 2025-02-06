@@ -9,6 +9,7 @@ import { fetchOriginSelection } from '../../../helpers';
 import Context from '../../../context/context';
 import moment from 'moment';
 import { useNavigate } from 'react-router-dom';
+import CreateFileLead from '../myTemplate/CreateFileLead';
 const origin = fetchOriginSelection();
 
 const options = ['All', 'Proposal', 'Invoice', 'Contract', 'Thank you'];
@@ -24,6 +25,7 @@ const initialState = {
 	loading: false,
 	timeout: null,
 	searchChanged: false,
+	versionPopup: false,
 };
 
 const ProposalPopup = ({ open, closeModal }) => {
@@ -100,6 +102,9 @@ const ProposalPopup = ({ open, closeModal }) => {
 		} finally {
 			setInfo((prev) => ({ ...prev, loading: false }));
 		}
+	};
+	const versionClick = () => {
+		setInfo((prev) => ({ ...prev, versionPopup: true }));
 	};
 
 	const getMyWorkflowsTemplatesData = useCallback((page, search = null, fetchMore = false) => {
@@ -231,7 +236,11 @@ const ProposalPopup = ({ open, closeModal }) => {
 							<div
 								key={index}
 								className="docsTemplateCard"
-								onClick={() => handleTemplateClick(template)}
+								onClick={() =>
+									template?.version
+										? handleTemplateClick(template)
+										: versionClick()
+								}
 							>
 								<div className="docsTemplateImageContainer">
 									<iframe
@@ -267,6 +276,11 @@ const ProposalPopup = ({ open, closeModal }) => {
 					</InfiniteScroll>
 				)}
 			</div>
+			<CreateFileLead
+				open={info?.versionPopup}
+				onClose={() => setInfo((prev) => ({ ...prev, versionPopup: false }))}
+				workflow={info?.activeTemplateData}
+			/>
 		</ReactModal>
 	);
 };
