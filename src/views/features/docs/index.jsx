@@ -111,17 +111,17 @@ export const statusTextmapper = {
 		},
 		label: 'Expired',
 	},
-	accepted: {
-		id: 'accepted',
-		text: 'Accepted',
-		dotStyle: {
-			backgroundColor: '#00A051',
-		},
-		style: {
-			backgroundColor: '#2C593F',
-		},
-		label: 'Accepted',
-	},
+	// accepted: {
+	// 	id: 'accepted',
+	// 	text: 'Accepted',
+	// 	dotStyle: {
+	// 		backgroundColor: '#00A051',
+	// 	},
+	// 	style: {
+	// 		backgroundColor: '#2C593F',
+	// 	},
+	// 	label: 'Accepted',
+	// },
 	proposalAccepted: {
 		id: 'proposalAccepted',
 		text: 'Accepted',
@@ -133,29 +133,25 @@ export const statusTextmapper = {
 		},
 		label: 'Proposal Accepted',
 	},
-	published: {
-		id: 'published',
-		text: 'Published',
-		dotStyle: {
-			backgroundColor: '#2A71CD',
-		},
-		style: {
-			backgroundColor: '#29456C',
-		},
-		label: 'Published',
-	},
+	// published: {
+	// 	id: 'published',
+	// 	text: 'Published',
+	// 	dotStyle: {
+	// 		backgroundColor: '#2A71CD',
+	// 	},
+	// 	style: {
+	// 		backgroundColor: '#29456C',
+	// 	},
+	// 	label: 'Published',
+	// },
 };
 
-const statusList = [
-	...Object.values(statusTextmapper).map((item) => {
-		if (item?.label !== 'Expired') {
-			return {
-				name: item.label,
-				_id: item.id,
-			};
-		}
-	}),
-];
+const statusList = Object.values(statusTextmapper)
+	.filter((status) => status?.label !== 'Expired') // Exclude the status with label 'Expired'
+	.map((status) => ({
+		name: status?.label,
+		_id: status?.id,
+	}));
 
 export const FilterIcons = {
 	templateName: <UppercaseLowercaseA />,
@@ -224,6 +220,7 @@ export const Filters = [
 		},
 	},
 ];
+
 const Docs = () => {
 	const navigate = useNavigate();
 	let {
@@ -252,6 +249,9 @@ const Docs = () => {
 		activeFileData: null,
 		searchExpand: false,
 		searchValue: '',
+		templateNameSearchValue: '',
+		clientNameSearchValue: '',
+		statusSearchValue: '',
 		appliedFilters: [],
 		activeAppliedFilter: '',
 		selectedFilterOptions: {
@@ -290,7 +290,10 @@ const Docs = () => {
 		if (templatesListForDocs) {
 			setInfo((prev) => ({
 				...prev,
-				templatesList: [...prev?.templatesList, ...templatesListForDocs?.data],
+				templatesList:
+					templatesListForDocs?.currentPage === 1 || !info?.templateNameSearchValue
+						? templatesListForDocs?.data
+						: [...prev?.templatesList, ...templatesListForDocs?.data],
 				hasMoreForFilter: {
 					...prev?.hasMoreForFilter,
 					templateName: templatesListForDocs?.hasNextPage,
@@ -309,7 +312,10 @@ const Docs = () => {
 		if (clientListForDocs) {
 			setInfo((prev) => ({
 				...prev,
-				clientList: [...prev?.clientList, ...clientListForDocs?.data],
+				clientList:
+					clientListForDocs?.currentPage === 1
+						? clientListForDocs?.data
+						: [...prev?.clientList, ...clientListForDocs?.data],
 				hasMoreForFilter: {
 					...prev?.hasMoreForFilter,
 					clientName: clientListForDocs?.hasNextPage,
@@ -349,10 +355,16 @@ const Docs = () => {
 	}, [info?.selectedFilterOptions, info?.searchValue, info?.filtersGotChanged]);
 
 	useEffect(() => {
-		if (info?.filtersGotChanged) {
+		if (info?.templateNameSearchValue) {
+			handleDebounceFetchFilter('templateName');
+		}
+		if (info?.clientNameSearchValue) {
+			handleDebounceFetchFilter('clientName');
+		}
+		if (info?.searchValue) {
 			handleDebounceFetch();
 		}
-	}, [info?.selectedFilterOptions, info?.searchValue, info?.filtersGotChanged]);
+	}, [info?.templateNameSearchValue, info?.clientNameSearchValue, info?.searchValue]);
 
 	const handleSetActiveFilter = (payload) => {
 		const { filter, filterOptionsListName, label } = payload || {};
@@ -395,9 +407,51 @@ const Docs = () => {
 		}));
 	};
 
-	const handleFilterPopUpSearch = (searchValue) => {
-		setInfo((prev) => ({ ...prev, searchValue, filtersGotChanged: true }));
+	const handleFilterPopUpSearch = (filter, searchValue) => {
+		if (searchValue === '') {
+			if (filter === 'templateName') {
+				clearInterval(info?.timeout);
+				const timeout = setTimeout(() => {
+					getTemplatesListForDocs(1, 10, '');
+				}, 500);
+				setInfo((prev) => ({ ...prev, timeout }));
+			}
+			if (filter === 'clientName') {
+				clearInterval(info?.timeout);
+				const timeout = setTimeout(() => {
+					getClientListForDocs(payload);
+				}, 500);
+				setInfo((prev) => ({ ...prev, timeout }));
+			}
+		}
+		setInfo((prev) => ({
+			...prev,
+			[`${filter}SearchValue`]: searchValue,
+		}));
 	};
+
+	const handleDebounceFetchFilter = useCallback(
+		(filter) => {
+			clearInterval(info?.timeout);
+			const timeout = setTimeout(() => {
+				if (filter === 'templateName') {
+					getTemplatesListForDocs(1, 10, info?.templateNameSearchValue);
+				}
+				if (filter === 'clientName') {
+					const payload = {
+						filters: {
+							limit: 10,
+							page: 1,
+							name: info?.clientNameSearchValue,
+						},
+					};
+					getClientListForDocs(payload);
+				}
+			}, 500);
+			setInfo((prev) => ({ ...prev, timeout }));
+		},
+		[info?.templateNameSearchValue, info?.clientNameSearchValue],
+	);
 
 	const onGenerateAIFunc = () => {
 		window.location.href = `${origin}/generate`;
@@ -437,13 +491,15 @@ const Docs = () => {
 				filters: {
 					limit: 10,
 					page: info?.currentPageForFilter?.clientName + 1,
+					name: info?.clientNameSearchValue,
 				},
 			};
 			getClientListForDocs(payload);
 		} else if (filter === 'templateName') {
 			const page = info?.currentPageForFilter?.templateName + 1;
 			const limit = 10;
-			getTemplatesListForDocs(page, limit);
+			const searchFilter = info?.templateNameSearchValue;
+			getTemplatesListForDocs(page, limit, searchFilter);
 		}
 	};
 
@@ -502,7 +558,7 @@ const Docs = () => {
 			}));
 		}, 800);
 		setInfo((prev) => ({ ...prev, timeout }));
-	}, [info?.timeout, info?.searchValue, info?.searchValueChanged, info?.selectedFilterOptions]);
+	}, [info?.timeout, info?.searchValue, info?.selectedFilterOptions]);
 
 	const openDeleteModal = useCallback(() => {
 		setInfo((prev) => ({
@@ -596,7 +652,7 @@ const Docs = () => {
 										if (!isOpen) {
 											setInfo((prev) => ({
 												...prev,
-												searchValue: '',
+												[`${appliedFilter?.filter}SearchValue`]: '',
 											}));
 										}
 									}}
@@ -604,6 +660,7 @@ const Docs = () => {
 									placement="bottomLeft"
 									title={
 										<FilterPopUp
+											filter={appliedFilter?.filter}
 											className={`${appliedFilter?.filter}`}
 											height="268px"
 											options={info?.[appliedFilter?.filterOptionsListName]}
@@ -621,8 +678,12 @@ const Docs = () => {
 											}
 											searchInput={true}
 											searchInputPlaceholder="Filter By"
-											searchValue={info?.searchValue}
-											setSearchValue={handleFilterPopUpSearch}
+											searchValue={
+												info?.[`${appliedFilter?.filter}SearchValue`]
+											}
+											setSearchValue={(filter, searchValue) =>
+												handleFilterPopUpSearch(filter, searchValue)
+											}
 										/>
 									}
 								>
@@ -798,44 +859,3 @@ const Docs = () => {
 };
 
 export default memo(Docs);
-{
-	/* <div className="docsTemplatesContainer">
-				<div className="docsTemplatesContainerHeader">
-					Create new file from your existing templates
-					<div className="docsTemplatesAllFilesContainer">
-						<Files />
-						All files
-					</div>
-				</div>
-
-				<div className="docsTemplateContainer">
-					{[{}, {}, {}, {}, {}, {}, {}, {}]?.map((ele, index) => (
-						<div key={index} className="docsTemplateCard">
-							<div className="docsTemplateImageContainer">
-								<div className="docsTemplateHoverContentContainer">
-									<div className="docsHoverArrowContainer">
-										<UpArrow />
-									</div>
-									<div className="docsHoverOptionsContainer">
-										<span className="docsHoverOptionsStyling">Create File</span>
-										<span className="docsHoverOptionsStyling">Edit Design</span>
-										<span className="docsHoverOptionsStyling">Duplicate</span>
-										<span className="docsHoverOptionsStyling">Delete</span>
-									</div>
-								</div>
-								<img
-									src="https://s3-alpha-sig.figma.com/img/15b6/6719/e9a63a81d478a52552ed98ac31e7a2b6?Expires=1737331200&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=AHd93og5SQiiQLECz4ZuNCrzERGP~NAz3qk7eS5Sfl2rnN0oWzjo~8CgS5fNWE5Knb5s0yTjbQ7uXSeHW6H8J3E1eSneLfc0U9057RjAp0VEqJ-evjzPJjlrXdlli85n2yZM7obW8hfc~8-9MlR57xLGtWobCP7v50apSuXv~1NXhnucgryS87p1CZyKsZZ1Ro-JHIDtSqRygCQDk7N~x2ZS0u5JL6cEZF~nC0oZdxR73cBZ1yBbIG~CYAqEdojkRWVcoOYkPROyviNf-vIl8O3kRvgvVLXAgH7WeebcdHwODd4LeNcCXL7uhHAfZPRwvTeKbq4NW9MarD7lglA2cw__"
-									alt="Template preview"
-								/>
-							</div>
-							<div className="docsFooterContent">
-								<span className="docsFooterContentTitle">
-									Jaylon Korsgaard Wedding Proposal
-								</span>
-								<span className="docsFooterContentSubTitle">created 14 files</span>
-							</div>
-						</div>
-					))}
-				</div>
-			</div> */
-}
