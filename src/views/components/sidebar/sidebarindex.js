@@ -44,7 +44,7 @@ export const veAiModulesItemsList = [
 	},
 	{
 		id: 1,
-		name: 'AI Assistants',
+		name: 'Conversational Agent',
 		moduleRoute: '/ai-assistant',
 		route: '/ai-assistant',
 		icon: '',

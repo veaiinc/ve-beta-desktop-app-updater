@@ -158,16 +158,16 @@ const ActionsModal = ({
 		if (info?.bodyContent?.trim()) {
 			try {
 				JSON.parse(info?.bodyContent);
-				// // First replace variables that are direct values with a dummy string
+				// First replace variables that are direct values with a dummy string
 				// let validationContent = info?.bodyContent?.replace(
-				//  /:\s*({{\s*[\w.-]+\s*}})/g,
-				//  ': "dummy_value"',
+				// 	/:\s*({{\s*[\w.-]+\s*}})/g,
+				// 	': "dummy_value"',
 				// );
 
 				// // Then replace variables inside strings
 				// validationContent = validationContent?.replace(
-				//  /"[^"]*{{[\w.-]+}}[^"]*"/g,
-				//  '"dummy_string"',
+				// 	/"[^"]*{{[\w.-]+}}[^"]*"/g,
+				// 	'"dummy_string"',
 				// );
 
 				// JSON.parse(validationContent);
