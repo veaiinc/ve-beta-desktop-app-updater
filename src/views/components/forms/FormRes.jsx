@@ -1,7 +1,7 @@
 import React, { useState, useEffect, memo, useCallback, useContext } from 'react';
 import '../../../assets/scss/forms/formRes.scss';
 import Context from '../../../context/context';
-import { FetchMoreLoaderComp } from '../../../helpers';
+import { FetchMoreLoaderComp, isURL } from '../../../helpers';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import moment from 'moment';
 
@@ -93,6 +93,16 @@ const FormRes = ({ formId, updateTotalSubmissions }) => {
 	const getAnswerForQuestion = (response, questionId) => {
 		const questionData = response?.find((item) => item?._id === questionId);
 		if (!questionData) return '';
+		if (isURL(questionData?.answer))
+			return (
+				<a href={questionData?.answer} target="_blank" rel="noopener noreferrer">
+					<img
+						style={{ width: '100%', height: '100%' }}
+						src={questionData?.answer}
+						alt="answer"
+					/>
+				</a>
+			);
 
 		if (questionData?.type === 'events') {
 			try {
@@ -164,26 +174,6 @@ const FormRes = ({ formId, updateTotalSubmissions }) => {
 		<div className="formResParentContainer">
 			<div className="tableWrapper">
 				<div className="tableContent">
-					<div className="headerRow">
-						{info?.columns?.map((column, index) => (
-							<div
-								key={column?.id}
-								className="headerCell"
-								style={{ width: column?.width }}
-							>
-								<div className="cellContent">
-									{(column?.label || '')
-										?.replace(/<\/?[^>]+(>|$)/g, '')
-										?.replace(/&nbsp;/g, ' ')}
-								</div>
-								<div
-									className="resizeHandle"
-									onMouseDown={(e) => handleMouseDown(index, e)}
-								/>
-							</div>
-						))}
-					</div>
-
 					<div className="tableBody">
 						<InfiniteScroll
 							dataLength={info?.formResponses?.length || 0}
@@ -198,6 +188,25 @@ const FormRes = ({ formId, updateTotalSubmissions }) => {
 							}}
 							height="calc(100vh - 450px)"
 						>
+							<div className="headerRow">
+								{info?.columns?.map((column, index) => (
+									<div
+										key={column?.id}
+										className="headerCell"
+										style={{ width: column?.width }}
+									>
+										<div className="cellContent">
+											{(column?.label || '')
+												?.replace(/<\/?[^>]+(>|$)/g, '')
+												?.replace(/&nbsp;/g, ' ')}
+										</div>
+										<div
+											className="resizeHandle"
+											onMouseDown={(e) => handleMouseDown(index, e)}
+										/>
+									</div>
+								))}
+							</div>
 							{info?.formResponses?.map((row, rowIndex) => (
 								<div key={rowIndex} className="tableRow">
 									{info?.columns?.map((column) => (
