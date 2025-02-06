@@ -810,62 +810,61 @@ const TasksTab = () => {
 	return (
 		<>
 			<div className="tasks">
+				<div className="dropdown-container">
+					<Tooltip
+						placement="bottom"
+						color="transparent"
+						open={info?.isDropdownOpen}
+						trigger={'click'}
+						onOpenChange={(open) => {
+							setInfo((prev) => ({
+								...prev,
+								isDropdownOpen: open,
+							}));
+						}}
+						title={
+							<div className="dropdown-options">
+								{options?.map((option) => (
+									<div
+										key={option?.id}
+										className="dropdown-option"
+										onClick={() => {
+											if (info?.selectedOption !== option?.value)
+												setInfo((prev) => ({
+													...prev,
+													isDropdownOpen: false,
+													selectedOption: option?.value,
+													loadingSkeleton: true,
+												}));
+										}}
+									>
+										{option?.title}
+									</div>
+								))}
+							</div>
+						}
+					>
+						<button className="dropdown-header">
+							<div className="dropdown-content">
+								<div className="dropdown-text">
+									{
+										options?.find(
+											(option) => info?.selectedOption === option?.value,
+										)?.title
+									}
+								</div>
+								<div className="dropdown-icon">
+									<ChevronRightThinIcon />
+								</div>
+							</div>
+						</button>
+					</Tooltip>
+				</div>
 				<div className="tasks-header">
 					<div className="tasks-header-text">
 						{`${taskLabels?.[info?.selectedOption]?.label} (${
 							taskLabels?.[info?.selectedOption]?.count
 						})`}
-						<div className="dropdown-container">
-							<Tooltip
-								placement="bottom"
-								color="transparent"
-								open={info?.isDropdownOpen}
-								trigger={'click'}
-								onOpenChange={(open) => {
-									setInfo((prev) => ({
-										...prev,
-										isDropdownOpen: open,
-									}));
-								}}
-								title={
-									<div className="dropdown-options">
-										{options?.map((option) => (
-											<div
-												key={option?.id}
-												className="dropdown-option"
-												onClick={() => {
-													if (info?.selectedOption !== option?.value)
-														setInfo((prev) => ({
-															...prev,
-															isDropdownOpen: false,
-															selectedOption: option?.value,
-															loadingSkeleton: true,
-														}));
-												}}
-											>
-												{option?.title}
-											</div>
-										))}
-									</div>
-								}
-							>
-								<button className="dropdown-header">
-									<div className="dropdown-content">
-										<div className="dropdown-text">
-											{
-												options?.find(
-													(option) =>
-														info?.selectedOption === option?.value,
-												)?.title
-											}
-										</div>
-										<div className="dropdown-icon">
-											<ChevronRightThinIcon />
-										</div>
-									</div>
-								</button>
-							</Tooltip>
-						</div>
 					</div>
 
 					{info?.loadingSkeleton ? (

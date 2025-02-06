@@ -37,6 +37,7 @@
 			background: #171819;
 			background: color(display-p3 0.0902 0.0941 0.098);
 			cursor: pointer;
+			transition: 300ms;
 
 			&:hover {
 				background-color: #202123;
@@ -140,6 +141,10 @@
 }
 
 .dropdown-container {
+	position: absolute;
+	right: 0;
+	top: -18px;
+	transform: translateY(-100%);
 	.dropdown-header {
 		display: flex;
 		width: 150px;
@@ -150,6 +155,7 @@
 		border: 1px solid #333334;
 		border: 1px solid color(display-p3 0.2 0.2 0.2039);
 		background-color: rgb(12, 12, 13);
+		height: 40px;
 
 		.dropdown-content {
 			display: flex;

@@ -8,6 +8,7 @@ import moment from 'moment';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { FetchMoreLoaderComp } from '../../../../helpers';
 import Skeleton from 'react-loading-skeleton';
+import PriorityDropDown from './PriorityDropDown';
 
 const tabItems = [
 	{ id: 'all', label: 'All', checkBoxBorder: null },
@@ -18,13 +19,13 @@ const tabItems = [
 ];
 const PriorityTab = () => {
 	let {
-		templates: { requiredActions, getRequiredActions, tabItemCount },
+		templates: { requiredActions, getRequiredActions },
 	} = useContext(Context);
-	const [activeTab, setActiveTab] = useState('all');
+
 	const [info, setInfo] = useState({
 		currentPage: 1,
 		loading: true,
-		hasMore: false,
+		selectedOption: 'all',
 	});
 
 	const navigate = useNavigate();
@@ -56,7 +57,7 @@ const PriorityTab = () => {
 			const nextPage = info?.currentPage + 1;
 			await getRequiredActions({
 				filters: {
-					action: activeTab,
+					action: info?.selectedOption,
 					page: nextPage,
 					limit: 10,
 				},
@@ -69,12 +70,11 @@ const PriorityTab = () => {
 		}
 	};
 
-	const handlePriorityOptionClick = (tabId) => {
-		if (tabId === activeTab) return;
-		setActiveTab(tabId);
+	const handlePriorityOptionClick = (optionId) => {
+		if (optionId === info?.selectedOption) return;
 		getRequiredActions({
 			filters: {
-				action: tabId,
+				action: optionId,
 				page: 1,
 				limit: 10,
 			},
@@ -83,6 +83,7 @@ const PriorityTab = () => {
 		setInfo((prev) => ({
 			...prev,
 			currentPage: 1,
+			selectedOption: optionId,
 		}));
 	};
 
@@ -92,38 +93,16 @@ const PriorityTab = () => {
 
 	return (
 		<div className="sales-page" style={{ padding: 0 }}>
-			<div className="sales-page-filter">
-				<ul>
-					{tabItems.map((item) => (
-						<button
-							disabled={tabItemCount?.[item.id] === 0}
-							style={{
-								opacity: tabItemCount?.[item.id] === 0 ? 0.5 : 1,
-								cursor: tabItemCount?.[item.id] === 0 ? 'not-allowed' : 'pointer',
-								userSelect: 'none',
-							}}
-							key={item.id}
-							className={`${
-								activeTab === item.id ? 'active' : ''
-							} salesFilterButtons`}
-							onClick={() => handlePriorityOptionClick(item.id)}
-						>
-							{item.label}{' '}
-							{item?.id === 'all'
-								? `(${tabItemCount?.[item.id] ?? 0})`
-								: tabItemCount?.[item.id] ?? 0}
-							{item?.checkBoxBorder ? (
-								<FilterCheckBox borderColor={item?.checkBoxBorder} />
-							) : (
-								''
-							)}
-						</button>
-					))}
-				</ul>
+			<div className="priority-dropdown">
+				<PriorityDropDown
+					handleOptionClick={handlePriorityOptionClick}
+					selectedOption={info?.selectedOption}
+				/>
 			</div>
+
 			<div className="cards-container">
 				<div className="card-div" style={{ overflowX: 'hidden', padding: 0 }}>
-					{requiredActions?.loading ? (
+					{info?.loading ? (
 						<div
 							style={{
 								display: 'flex',
