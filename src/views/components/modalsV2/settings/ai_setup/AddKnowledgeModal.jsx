@@ -42,6 +42,7 @@ const initialState = {
 	},
 	isUploading: false,
 	currentPage: 1,
+	isUrlValid: false,
 };
 
 const AddKnowledgeModal = ({ isOpen, toggleModal, assistantId }) => {

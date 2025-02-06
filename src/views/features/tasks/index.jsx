@@ -14,7 +14,7 @@ import moment from 'moment';
 import CreateTaskPopup from '../../components/modalsV2/tasks/CreateTaskPopup';
 import Task from '../../components/tasks/Task';
 import ListViewSidebar from '../../components/modalsV2/tasks/ListViewSidebar';
-
+import '../../../assets/scss/tasks/taskPage.scss';
 import Text from '../../components/tasks/listView/Text';
 import Select from '../../components/tasks/listView/Select';
 import Person from '../../components/tasks/listView/Person';
@@ -32,6 +32,7 @@ import ParentTaskComponent from '../../components/tasks/listView/ParentTaskCompo
 import ChildTaskProgress from '../../components/tasks/listView/ChildTaskProgress';
 import LinkText from '../../components/tasks/listView/LinkText';
 import ChildTaskComponent from '../../components/tasks/listView/ChildTaskComponent';
+import QuickActions from '../../components/globalComponents/QuickActions';
 
 const defaultPreference = {
 	taskSlNo: { show: false, order: 1 },
@@ -849,6 +850,15 @@ const Tasks = () => {
 
 	return (
 		<>
+			<div className="task-header-container">
+				<div className="header-text">
+					<span className="lineOne">Tasks</span>
+					<span className="lineTwo">You Created</span>
+				</div>
+				<div className="quick-actions-btn">
+					<QuickActions />
+				</div>
+			</div>
 			<Task
 				responseMetadata={responseMetadata}
 				handleAddButtonOnClick={handleAddButtonOnClick}

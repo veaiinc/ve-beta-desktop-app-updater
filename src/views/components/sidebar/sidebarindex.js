@@ -44,7 +44,7 @@ export const veAiModulesItemsList = [
 	},
 	{
 		id: 1,
-		name: 'AI Assistants',
+		name: 'Conversational Agent',
 		moduleRoute: '/ai-assistant',
 		route: '/ai-assistant',
 		icon: '',
@@ -53,7 +53,7 @@ export const veAiModulesItemsList = [
 		id: 2,
 		name: 'Design Builder',
 		moduleRoute: '/',
-		route: '/',
+		route: null,
 		icon: '',
 		subModules: [
 			{ id: 0, icon: '', name: 'Documents', route: '/docs' },

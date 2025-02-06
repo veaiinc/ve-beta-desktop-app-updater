@@ -30,10 +30,8 @@ const SideBarPreview = ({ open, onClose, activeTemplate, openFileLeadModal }) =>
 	});
 
 	useEffect(() => {
-		if (smartfile?._id) {
-			if (info?.activeTemplateData?._id) {
-				window.location.href = `${origin}/${smartfile?._id}?workflow=true&templateId=${info?.activeTemplateData?._id}`;
-			}
+		if (smartfile?._id && info?.activeTemplateData?._id) {
+			window.location.href = `${origin}/${smartfile?._id}?workflow=true&templateId=${info?.activeTemplateData?._id}`;
 		}
 	}, [smartfile]);
 

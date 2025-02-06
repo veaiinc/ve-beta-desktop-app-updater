@@ -243,12 +243,14 @@ const CreateClientModal = ({ modalIsOpen, closeModal, source }) => {
 								Cancel
 							</p>
 						</div>
-						<p
-							className="errorMessage"
-							style={{ color: '#ff4d4f', opacity: 0.5, fontSize: '14px' }}
-						>
-							{errorState['errorMessage']} something went wrog
-						</p>
+						{errorState['errorMessage'] && (
+							<p
+								className="errorMessage"
+								style={{ color: '#ff4d4f', opacity: 0.5, fontSize: '14px' }}
+							>
+								{errorState['errorMessage']} something went wrog
+							</p>
+						)}
 					</div>
 				</div>
 			}
