@@ -88,6 +88,19 @@ const components = {
 			</h6>
 		);
 	},
+	img: ({ children, ...props }) => {
+		return (
+			<div className="markdown-image-wrapper">
+				<img
+					className="w-full h-auto"
+					{...props}
+					src={props?.src}
+					alt="img"
+					style={{ maxWidth: '50%', maxHeight: '50%', borderRadius: '4px' }}
+				/>
+			</div>
+		);
+	},
 };
 
 // console.log('isChrome', isChrome);

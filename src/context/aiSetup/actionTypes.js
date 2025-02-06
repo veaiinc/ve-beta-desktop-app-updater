@@ -32,3 +32,7 @@ export const AI_PROMPT = {
 export const AI_ACTIONS = {
 	aiActions: '/action',
 };
+
+export const AI_CHAT_LOGS = {
+	aiChatLogs: '/external-chat-log-sessions',
+};
