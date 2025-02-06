@@ -6,15 +6,16 @@ import { ReactComponent as Settings } from '../../../assets/svg/ai_agents/settin
 import { ReactComponent as Close } from '../../../assets/svg/close.svg';
 import { ReactComponent as Expand } from '../../../assets/svg/bottomToolbar/expand.svg';
 import ToolBarChatContainerModal from '../modalsV2/ToolBarChatContainerModal';
+import { ReactComponent as ArrowUp } from '../../../assets/svg/ai_agents/arrow-up.svg';
 import { Alert, Image, message, Spin, Tooltip } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
 import { Upload } from 'antd';
 import Context from '../../../context/context';
 import ObjectID from 'bson-objectid';
 import { useLocation } from 'react-router-dom';
-import Markdown from 'react-markdown';
-import { TypingEffect } from '../../../helpers/markdownHelper';
-import { ReactComponent as AiStarInChat } from '../../../assets/svg/ai_agents/ai-star-in-chat.svg';
+// import Markdown from 'react-markdown';
+// import { TypingEffect } from '../../../helpers/markdownHelper';
+// import { ReactComponent as AiStarInChat } from '../../../assets/svg/ai_agents/ai-star-in-chat.svg';
 import { ReactComponent as Filter } from '../../../assets/svg/ai_agents/filter.svg';
 import { ReactComponent as Arroba } from '../../../assets/svg/ai_agents/arroba.svg';
 import { ReactComponent as PaperClip } from '../../../assets/svg/ai_agents/paper-clip.svg';
@@ -22,10 +23,11 @@ import { ReactComponent as Mic } from '../../../assets/svg/ai_agents/mic.svg';
 import { getBase64 } from '../../../helpers';
 import WorkflowSlugSelector from '../calendar/WorkflowSlugSelector';
 import { ReactComponent as AiSparkel } from '../../../assets/svg/calendar/aiSparkel.svg';
+import useVoiceIntegration from '../toolbar/VoiceIntegrations';
 
 const moduleHelper = {
 	tasks: 'tasks',
-	'smart-file': 'proposal_form_filling',
+	'smart-file': 'form_filling',
 	calendar: 'calendar',
 };
 
@@ -52,6 +54,15 @@ const BottomToolbar = ({
 		calendarInfo: { updateCalendarState },
 		tasks: { updateTaskState },
 	} = useContext(Context);
+	const {
+		isConnected,
+		isMuted,
+		audioLevel,
+		connectToRoom,
+		disconnect,
+		toggleMute,
+		toggleKrispNoiseFilter,
+	} = useVoiceIntegration();
 
 	const location = useLocation();
 
@@ -59,14 +70,17 @@ const BottomToolbar = ({
 		expanded: false,
 		inputExpanded: false,
 		chatModalIsOpen: false,
+		bigToolbarIsOpen: false,
 		chatQuery: '',
-		position: { x: -325, y: 0 },
+		position: { x: window.innerWidth / 2 - 900, y: 0 },
 		addQuickAction: false,
 		chatSessionId: ObjectID().toString(),
 		uploadedImages: [],
 		chatLoading: false,
 		showFullPage: false,
+		voiceIntegration: false,
 	});
+
 	const [previewOpen, setPreviewOpen] = useState(false);
 	const [previewImage, setPreviewImage] = useState('');
 	const toolbarRef = useRef(null);
@@ -136,31 +150,22 @@ const BottomToolbar = ({
 		isDraggingRef.current = false;
 	}, []);
 
-	//function definitions
-	const handleInputFocus = useCallback(() => {
-		setInfo((prev) => ({
-			...prev,
-			expanded: true,
-			inputExpanded: true,
-		}));
-	}, [info]);
+	// const handleClose = useCallback(() => {
+	// 	setInfo((prev) => ({
+	// 		...prev,
+	// 		expanded: false,
+	// 		inputExpanded: false,
+	// 	}));
+	// }, [info]);
 
-	const handleClose = useCallback(() => {
-		setInfo((prev) => ({
-			...prev,
-			expanded: false,
-			inputExpanded: false,
-		}));
-	}, [info]);
-
-	const handleChatExpand = useCallback(() => {
-		setInfo((prev) => ({
-			...prev,
-			chatModalIsOpen: true,
-			expanded: false,
-			inputExpanded: false,
-		}));
-	}, []);
+	// const handleChatExpand = useCallback(() => {
+	// 	setInfo((prev) => ({
+	// 		...prev,
+	// 		chatModalIsOpen: true,
+	// 		expanded: false,
+	// 		inputExpanded: false,
+	// 	}));
+	// }, []);
 
 	const handleCloseChatModal = useCallback(() => {
 		setInfo((prev) => ({ ...prev, chatModalIsOpen: false, showFullPage: false }));
@@ -204,8 +209,9 @@ const BottomToolbar = ({
 						onSend(info?.chatQuery);
 					} else {
 						setInfo((prev) => ({ ...prev, chatLoading: true }));
+						let currentQuery = info?.chatQuery?.trim() || query?.trim();
 						const payload = {
-							query: info?.chatQuery?.trim() || query?.trim(),
+							query: currentQuery,
 							timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
 						};
 						let localPayload = {};
@@ -246,7 +252,7 @@ const BottomToolbar = ({
 								updateStateValues({ smartFileRefetch: true });
 							}
 							if (variables_required) {
-								handleVariablesRequired(variables_required);
+								handleVariablesRequired(variables_required, currentQuery);
 							}
 						}
 					}
@@ -259,7 +265,7 @@ const BottomToolbar = ({
 	);
 
 	const handleWorkflowSlugSelection = useCallback(
-		async (data) => {
+		async (data, query) => {
 			setInfo((prev) => ({ ...prev, chatLoading: true }));
 			const showCustomChatOptions = [
 				{
@@ -278,7 +284,7 @@ const BottomToolbar = ({
 			];
 
 			const payload = {
-				query: `the workflow slug is ${data}`,
+				query: query,
 				timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
 				workflow_slug: data,
 			};
@@ -303,7 +309,7 @@ const BottomToolbar = ({
 					updateTaskState({ refetchTasks: true });
 				}
 				if (variables_required) {
-					handleVariablesRequired(variables_required);
+					handleVariablesRequired(variables_required, data);
 				}
 			}
 		},
@@ -311,7 +317,7 @@ const BottomToolbar = ({
 	);
 
 	const handleVariablesRequired = useCallback(
-		(requiredVariables) => {
+		(requiredVariables, query) => {
 			if (requiredVariables?.[0] === 'workflow_slug') {
 				let workflowSlug = [
 					{
@@ -320,6 +326,7 @@ const BottomToolbar = ({
 						content: (
 							<WorkflowSlugSelector
 								handleWorkflowSlugSelection={handleWorkflowSlugSelection}
+								query={query}
 							/>
 						),
 					},
@@ -406,6 +413,8 @@ const BottomToolbar = ({
 				handleGlobalImageProcessing(file);
 			}
 
+			console.log(uploadedImages);
+
 			setInfo((prev) => ({
 				...prev,
 				// addQuickAction: false,
@@ -437,6 +446,29 @@ const BottomToolbar = ({
 		[info],
 	);
 
+	const handleMicIconClick = useCallback(
+		(event) => {
+			if (!info?.voiceIntegration) {
+				connectToRoom();
+				setInfo((prev) => ({ ...prev, voiceIntegration: true, bigToolbarIsOpen: false }));
+			} else {
+				toggleMute();
+			}
+			event.stopPropagation();
+		},
+
+		[info, connectToRoom],
+	);
+
+	const handleDisConnect = useCallback(
+		(event) => {
+			disconnect();
+			setInfo((prev) => ({ ...prev, voiceIntegration: false }));
+			event.stopPropagation();
+		},
+		[info],
+	);
+
 	const chatIcons = useMemo(
 		() => [
 			<Filter />,
@@ -451,10 +483,17 @@ const BottomToolbar = ({
 			>
 				<PaperClip />
 			</Upload>,
-			<Mic />,
+			<Mic onClick={handleMicIconClick} />,
 		],
 		[info, handleChange],
 	);
+
+	const handleSmallToolbarClick = () => {
+		setInfo((prev) => ({
+			...prev,
+			bigToolbarIsOpen: true,
+		}));
+	};
 
 	return (
 		<div
@@ -468,104 +507,131 @@ const BottomToolbar = ({
 			}}
 			onMouseDown={handleMouseDown}
 		>
-			<div
-				className={`${
-					info?.expanded ? 'expandedChatContainer' : ''
-				} bottomToolbarChatContainer`}
-			>
-				<div className="bottomToolBarChatHeader">
-					<span>AI Assistant</span>
-					<div style={{ display: 'flex', alignItems: 'center' }}>
-						<button className="closeButton" onClick={handleChatExpand}>
-							<Expand />
-						</button>
-						<button className="closeButton" onClick={handleClose}>
-							<Close />
-						</button>
-					</div>
-				</div>
-				<div className="chatContent" ref={chatContentRef}>
-					{(!customChatActions ? globalChatMessages : chatList).map((chat, index) =>
-						chat?.content ? (
-							<div
-								className={`chat-message ${chat.type.toLowerCase()}-message`}
-								key={index}
-							>
-								{chat?.content}
-							</div>
-						) : (
-							<div
-								key={index}
-								className={`chat-message ${chat.type.toLowerCase()}-message`}
-							>
-								{chat?.type?.toLowerCase() === 'ai' && <AiStarInChat />}
-								<div className="message-content">
-									{chat?.type?.toLowerCase() === 'ai' ? (
-										<TypingEffect text={chat?.message} />
-									) : (
-										<Markdown>{chat?.message}</Markdown>
-									)}
+			{!info?.chatModalIsOpen && info?.uploadedImages?.length ? (
+				<div className="imagePreviewBar">
+					{info?.uploadedImages?.map((ele, index) => (
+						<div className="previewOfUploadedImage" key={index}>
+							<img
+								src={ele?.preview}
+								alt="uploaded"
+								width={'100%'}
+								height={'100%'}
+								style={{ objectFit: 'cover', borderRadius: '12px' }}
+								onClick={() => handlePreview(ele)}
+							/>
+
+							{ele?.loading ? (
+								<div className="spinContainerLoaderForPreview">
+									<Spin />
 								</div>
-							</div>
-						),
-					)}
+							) : (
+								<span
+									className="removeImageIcon"
+									onClick={() => handleRemoveImage(ele)}
+								>
+									<Close />
+								</span>
+							)}
+						</div>
+					))}
 				</div>
-				{info?.uploadedImages?.length ? (
-					<div className="imagePreviewBar">
-						{info?.uploadedImages?.map((ele, index) => (
-							<div className="previewOfUploadedImage" key={index}>
-								<img
-									src={ele?.preview}
-									alt="uploaded"
-									width={'100%'}
-									height={'100%'}
-									style={{ objectFit: 'cover', borderRadius: '12px' }}
-									onClick={() => handlePreview(ele)}
-								/>
-
-								{ele?.loading ? (
-									<div className="spinContainerLoaderForPreview">
-										<Spin />
-									</div>
-								) : (
-									<span
-										className="removeImageIcon"
-										onClick={() => handleRemoveImage(ele)}
-									>
-										<Close />
-									</span>
-								)}
-							</div>
-						))}
-					</div>
-				) : (
-					''
-				)}
-			</div>
-
+			) : (
+				''
+			)}
+			{info?.voiceIntegration ? (
+				<div style={{ display: 'flex', justifyContent: 'center' }}>
+					<img
+						src={'https://ap.assets.ve.ai/logo/speaking%20final.gif'}
+						width={'40px'}
+						height={'40px'}
+						style={{ marginBottom: '12px' }}
+					/>
+				</div>
+			) : (
+				''
+			)}
 			{/* bottom toolBarContent */}
 			{!info?.chatModalIsOpen ? (
-				<div className={`bottomToolbar ${info.inputExpanded ? 'expandedBtnToolbar' : ''}`}>
-					<textarea
-						className={`bottomToolbarInputs ${info.inputExpanded ? 'expanded' : ''}`}
-						placeholder="Ask AI"
-						onFocus={handleInputFocus}
-						value={info?.chatQuery}
-						onChange={(e) =>
-							setInfo((prev) => ({ ...prev, chatQuery: e.target.value }))
-						}
-						onKeyDown={handleSendMessageFunc}
-						style={{ resize: 'none' }}
-					/>
+				info?.bigToolbarIsOpen ? (
+					<div
+						className={`bottomToolbar ${
+							info.inputExpanded ? 'expandedBtnToolbar' : ''
+						}`}
+					>
+						<textarea
+							className={`bottomToolbarInputs ${
+								// info.inputExpanded ? 'expanded' : ''
+								''
+							}`}
+							placeholder="Ask AI"
+							value={info?.chatQuery}
+							onChange={(e) =>
+								setInfo((prev) => ({ ...prev, chatQuery: e.target.value }))
+							}
+							onKeyDown={(e) => {
+								if (e?.key === 'Enter') {
+									if (e?.shiftKey) {
+										return;
+									}
+									setInfo((prev) => ({
+										...prev,
+										chatModalIsOpen: true,
+									}));
+									// Prevent default to avoid unwanted new line
+									e?.preventDefault();
+									handleSendMessageFunc(e);
+								}
+							}}
+							style={{ resize: 'none' }}
+							autoFocus
+						/>
 
-					<div className="chat-icons-container">
-						{chatIcons?.map((icon, idx) => (
-							<span key={idx} className="chat-icon">
-								{icon}
-							</span>
-						))}
+						<div className="toolBarButttons">
+							<div className="chat-icons-container">
+								{chatIcons?.map((icon, idx) => (
+									<span key={idx} className="chat-icon">
+										{icon}
+									</span>
+								))}
+							</div>
+							<div
+								className="click-btn"
+								onClick={(e) => {
+									e?.stopPropagation();
+									if (info?.chatQuery?.trim()?.length > 0) {
+										setInfo((prev) => ({
+											...prev,
+											chatModalIsOpen: true,
+										}));
+										handleSendMessageFunc(e, true);
+									}
+								}}
+							>
+								<ArrowUp />
+							</div>
+						</div>
 					</div>
-				</div>
+				) : (
+					<div className="bottomToolbarSmall" onClick={handleSmallToolbarClick}>
+						<div className="toolbarText">Hey, need help ask me anything !</div>
+						<div className="chat-icons-container">
+							<div className="upload-icon">
+								<PaperClip />
+							</div>
+
+							<div className="mic-icon" onClick={handleMicIconClick}>
+								<Mic />
+							</div>
+							{info?.voiceIntegration ? (
+								<div className="mic-icon" onClick={handleDisConnect}>
+									<Close style={{ width: '20px', height: '20px' }} />
+								</div>
+							) : (
+								''
+							)}
+						</div>
+					</div>
+				)
 			) : (
 				''
 			)}
@@ -580,6 +646,10 @@ const BottomToolbar = ({
 				aiChatLoading={aiChatLoading}
 				showFullPage={info?.showFullPage}
 				toggleFullPage={toggleFullPage}
+				onImageUpload={handleChange}
+				uploadedImages={info?.uploadedImages}
+				handlePreview={handlePreview}
+				handleRemoveImage={handleRemoveImage}
 			/>
 			{previewImage && (
 				<Image

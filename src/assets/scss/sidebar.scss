@@ -251,7 +251,6 @@
 
 						.subItem {
 							display: flex;
-							align-items: center;
 							justify-content: space-between;
 							gap: 10px;
 							width: 194px;
@@ -279,10 +278,10 @@
 								}
 							}
 						}
-						.subItem.active {
-							background: #2e2f33;
-							border-radius: var(--Radius-lg, 24px);
-						}
+						// .subItem.active {
+						// 	background: #2e2f33;
+						// 	border-radius: var(--Radius-lg, 24px);
+						// }
 					}
 
 					.dropdownItem {

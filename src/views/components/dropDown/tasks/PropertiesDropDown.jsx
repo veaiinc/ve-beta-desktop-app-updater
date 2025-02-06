@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
+import React, { memo, useCallback, useEffect, useState } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import '../../../../assets/scss/dropdown/tasks/optionsDropDown.scss';
 import { ReactComponent as HorizontalMoreIcon } from '../../../../assets/svg/tasks/horizontalDotsThin.svg';
@@ -8,7 +8,6 @@ import { ReactComponent as CrossSvg } from '../../../../assets/svg/gallery/cross
 import { ReactComponent as ChevronRightThinSvg } from '../../../../assets/svg/tasks/chevronRightThin.svg';
 import { ReactComponent as SixDotsSvg } from '../../../../assets/svg/tasks/sixDots.svg';
 import { ReactComponent as ArrowLeftSvg } from '../../../../assets/svg/tasks/arrowLeft.svg';
-import Context from '../../../../context/context';
 import StatusEditDropDown from './StatusEditDropDown';
 
 const PropertiesDropDown = ({
@@ -19,9 +18,6 @@ const PropertiesDropDown = ({
 	handleClose,
 	handleBack,
 }) => {
-	const {
-		companyInfo: { updateTaskPreferences },
-	} = useContext(Context);
 	const [info, setInfo] = useState({
 		hiddenProperties: [],
 		shownProperties: [],
@@ -64,18 +60,28 @@ const PropertiesDropDown = ({
 	const updatePropertyPreference = useCallback(
 		(e, propName, value) => {
 			e?.stopPropagation();
-			let newOrder = 1;
 
+			// Get currently shown properties
+			const currentShownProperties = properties.filter((p) => p.show);
+
+			// Calculate new order based on whether we're showing or hiding
+			let newOrder = 1;
 			if (value?.show) {
-				const maxOrder = Math?.max(
-					...properties?.filter((p) => p?.show)?.map((p) => p?.order || 0),
-					0,
-				);
-				newOrder = maxOrder + 1;
+				// If showing, put it at the end of shown properties
+				newOrder = Math.max(...currentShownProperties.map((p) => p.order || 0), 0) + 1;
+			} else {
+				// If hiding, put it at the end of hidden properties
+				const currentHiddenProperties = properties.filter((p) => !p.show);
+				newOrder =
+					Math.max(
+						...currentHiddenProperties.map((p) => p.order || 0),
+						currentShownProperties.length,
+					) + 1;
 			}
 
-			const newProperties = properties?.map((property) => {
-				if (property?.value === propName) {
+			// Update the properties array
+			const newProperties = properties.map((property) => {
+				if (property.value === propName) {
 					return {
 						...property,
 						...value,
@@ -85,8 +91,10 @@ const PropertiesDropDown = ({
 				return property;
 			});
 
-			const sortedProperties = newProperties?.sort((a, b) => a?.order - b?.order);
+			// Sort properties by order
+			const sortedProperties = newProperties.sort((a, b) => a.order - b.order);
 
+			// Update task preferences
 			const newTaskPreferences = {
 				...taskPreferences,
 				preferences: {
@@ -98,13 +106,14 @@ const PropertiesDropDown = ({
 					},
 				},
 			};
-			updateTaskInfo({ properties: sortedProperties, taskPreferences: newTaskPreferences });
-			updateTaskPreferences({
-				preferenceType: newTaskPreferences?.preferenceType,
-				data: newTaskPreferences?.preferences,
+
+			// Update both the properties and preferences
+			updateTaskInfo({
+				properties: sortedProperties,
+				taskPreferences: newTaskPreferences,
 			});
 		},
-		[properties, updateTaskInfo, taskPreferences, updateTaskPreferences],
+		[properties, updateTaskInfo, taskPreferences],
 	);
 
 	const handleDragEnd = useCallback(
@@ -197,18 +206,16 @@ const PropertiesDropDown = ({
 			});
 
 			updateTaskInfo({ properties: updatedProperties, taskPreferences: newTaskPreferences });
-			updateTaskPreferences({
-				preferenceType: newTaskPreferences?.preferenceType,
-				data: newTaskPreferences.preferences,
-			});
 		},
-		[properties, updateTaskInfo, taskPreferences, updateTaskPreferences, info],
+		[properties, updateTaskInfo, taskPreferences, info],
 	);
 
 	const handleShowAll = useCallback(() => {
+		// Get current max order from visible properties
 		let maxOrder = Math.max(...properties.filter((p) => p.show).map((p) => p.order || 0), 0);
 
-		const newProperties = properties?.map((property) => {
+		// Update all non-visible properties to be visible
+		const newProperties = properties.map((property) => {
 			if (!property.show) {
 				maxOrder++;
 				return {
@@ -220,12 +227,12 @@ const PropertiesDropDown = ({
 			return property;
 		});
 
-		updateTaskInfo({ properties: newProperties });
-
+		// Update task preferences
 		const newTaskPreferences = {
 			preferenceType: taskPreferences?.preferenceType,
 			preferences: { ...taskPreferences?.preferences },
 		};
+
 		newProperties.forEach((property) => {
 			if (property?.value) {
 				newTaskPreferences.preferences[property.value] = {
@@ -236,24 +243,29 @@ const PropertiesDropDown = ({
 			}
 		});
 
-		updateTaskInfo({ taskPreferences: newTaskPreferences });
-		updateTaskPreferences({
-			preferenceType: newTaskPreferences?.preferenceType,
-			data: newTaskPreferences.preferences,
+		// Update both properties and preferences
+		updateTaskInfo({
+			properties: newProperties,
+			taskPreferences: newTaskPreferences,
 		});
-	}, [properties, updateTaskInfo, taskPreferences, updateTaskPreferences]);
+	}, [properties, updateTaskInfo, taskPreferences]);
 
 	const handleHideAll = useCallback(() => {
+		// Get current properties
+		const currentProperties = [...properties];
+
+		// Start with order 1 for title (which stays visible)
 		let currentOrder = 1;
 
-		const newProperties = properties?.map((property) => {
+		const newProperties = currentProperties.map((property) => {
 			if (property.isTitle) {
 				return {
 					...property,
 					show: true,
-					order: 1,
+					order: currentOrder,
 				};
 			}
+
 			currentOrder++;
 			return {
 				...property,
@@ -262,17 +274,28 @@ const PropertiesDropDown = ({
 			};
 		});
 
-		const newTaskPreferences = { ...taskPreferences };
+		// Update task preferences
+		const newTaskPreferences = {
+			...taskPreferences,
+			preferences: { ...taskPreferences?.preferences },
+		};
+
 		newProperties.forEach((property) => {
-			newTaskPreferences[property.value] = {
-				...newTaskPreferences[property.value],
-				show: property.isTitle,
-				order: property.order,
-			};
+			if (property?.value) {
+				newTaskPreferences.preferences[property.value] = {
+					...(newTaskPreferences.preferences[property.value] || {}),
+					show: property.isTitle, // Only title remains visible
+					order: property.order,
+				};
+			}
 		});
-		updateTaskInfo({ properties: newProperties, taskPreferences: newTaskPreferences });
-		updateTaskPreferences(newTaskPreferences);
-	}, [properties, updateTaskInfo, taskPreferences, updateTaskPreferences]);
+
+		// Update both properties and preferences
+		updateTaskInfo({
+			properties: newProperties,
+			taskPreferences: newTaskPreferences,
+		});
+	}, [properties, updateTaskInfo, taskPreferences]);
 
 	const PropertyList = ({ items, droppableId }) => (
 		<Droppable droppableId={droppableId}>
@@ -333,7 +356,7 @@ const PropertiesDropDown = ({
 							)}
 						</Draggable>
 					))}
-					{provided.placement}
+					{provided.placeholder}
 				</div>
 			)}
 		</Droppable>
@@ -377,11 +400,6 @@ const PropertiesDropDown = ({
 				)}
 				<PropertyList items={info.hiddenProperties} droppableId="hidden" />
 			</DragDropContext>
-			{/* <div className="options-dropdown-footer">
-            <PlusSvg className="add-new-property-icon" />
-            <span className="add-new-property-title">Add new property</span>
-            <ChevronRightThinSvg />
-        </div> */}
 		</div>
 	) : (
 		<StatusEditDropDown

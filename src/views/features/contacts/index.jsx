@@ -3,6 +3,7 @@ import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useSt
 import { ReactComponent as CalendarSvg } from '../../../assets/svg/tasks/calendar.svg';
 import { ReactComponent as textSvg } from '../../../assets/svg/tasks/letterA.svg';
 import Context from '../../../context/context';
+import '../../../assets/scss/contacts/contacts.scss';
 import CreateClientModal from '../../components/modalsV2/contacts/CreateClientModal';
 import { message } from 'antd';
 import Sidebar from '../../components/docs/Sidebar';
@@ -26,6 +27,7 @@ import LinkText from '../../components/tasks/listView/LinkText';
 import Text from '../../components/tasks/listView/Text';
 import Task from '../../components/tasks/Task';
 import ListViewSidebar from '../../components/modalsV2/tasks/ListViewSidebar';
+import QuickActions from '../../components/globalComponents/QuickActions';
 
 const rowTypes = {
 	text: Text,
@@ -73,9 +75,15 @@ const Contacts = () => {
 			updateStateValues,
 			deleteClient,
 			updateClient,
+			clientMetadata,
+			getContactMetadata,
+			updateContactViews,
+			deleteContactView,
+			getContactPreferences,
+			updateContactPreferences,
+			contactPreference,
 		},
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
-		companyInfo: { getTaskPreferences, taskPreference, updateTaskPreferences },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -97,7 +105,7 @@ const Contacts = () => {
 		showRightDrawer: false,
 		activeFileData: null,
 		refetchDocsFilesList: false,
-
+		clientMetadata: null,
 		taskPreferences: {
 			preferenceType: 'contactPreference',
 			preferences: defaultPreference,
@@ -148,10 +156,13 @@ const Contacts = () => {
 	const isInitialMount = useRef(true);
 
 	useEffect(() => {
-		if (taskPreference === null) {
-			getTaskPreferences({ preferences: 'contactPreference' });
-		} else if (taskPreference?.data === false) {
-			updateTaskPreferences({ preferenceType: 'contactPreference', data: defaultPreference });
+		if (contactPreference === null) {
+			getContactPreferences({ preferences: 'contactPreference' });
+		} else if (contactPreference?.data === false) {
+			updateContactPreferences({
+				preferenceType: 'contactPreference',
+				data: defaultPreference,
+			});
 			setInfo((prevInfo) => ({
 				...prevInfo,
 				taskPreferences: {
@@ -159,7 +170,7 @@ const Contacts = () => {
 					preferences: defaultPreference,
 				},
 			}));
-		} else if (taskPreference?.error) {
+		} else if (contactPreference?.error) {
 			setInfo((prevInfo) => ({
 				...prevInfo,
 				taskPreferences: {
@@ -172,11 +183,11 @@ const Contacts = () => {
 				...prevInfo,
 				taskPreferences: {
 					preferenceType: 'contactPreference',
-					preferences: taskPreference?.data,
+					preferences: contactPreference?.data,
 				},
 			}));
 		}
-	}, [taskPreference]);
+	}, [contactPreference]);
 
 	useEffect(() => {
 		if (!clientList) {
@@ -213,6 +224,31 @@ const Contacts = () => {
 			}));
 		}
 	}, [info?.taskPreferences?.preferences]);
+
+	useEffect(() => {
+		if (!clientMetadata) {
+			getContactMetadata();
+		} else {
+			if (!clientMetadata?.views) {
+				updateView(
+					null,
+					{
+						label: 'List view',
+						filters: [],
+						icon: null,
+						order: null,
+						sort: [],
+						viewType: 'list',
+					},
+					clientMetadata?._id,
+				);
+			}
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				clientMetadata: clientMetadata,
+			}));
+		}
+	}, [clientMetadata]);
 
 	useEffect(() => {
 		if (refetchClientList && !info?.sidebarIsOpen) {
@@ -288,6 +324,12 @@ const Contacts = () => {
 	);
 
 	const updateListViewInfo = useCallback((updateInfo) => {
+		if (updateInfo?.taskPreferences) {
+			updateContactPreferences({
+				preferenceType: updateInfo?.taskPreferences?.preferenceType,
+				data: updateInfo?.taskPreferences?.preferences,
+			});
+		}
 		setInfo((prevInfo) => ({ ...prevInfo, ...updateInfo }));
 	}, []);
 
@@ -434,8 +476,36 @@ const Contacts = () => {
 			}));
 		}
 	}, [info.hasMore, info.page, fetchClientList]);
+
+	const updateView = useCallback(
+		(viewId, updateData, clientMetadataId) => {
+			const data = {
+				clientMetadataId: clientMetadataId || info?.clientMetadata?._id,
+				viewId,
+				input: updateData,
+			};
+			updateContactViews(data);
+		},
+		[updateContactViews, info?.clientMetadata?._id],
+	);
+
+	const deleteView = useCallback(
+		(viewId) => {
+			deleteContactView({ clientMetadataId: info?.clientMetadata?._id, viewId });
+		},
+		[deleteContactView, info?.clientMetadata?._id],
+	);
 	return (
 		<div>
+			<div className="contacts-header-container">
+				<div className="header-text">
+					<span className="lineOne">Contacts</span>
+					<span className="lineTwo">You Have</span>
+				</div>
+				<div className="quick-actions-btn">
+					<QuickActions />
+				</div>
+			</div>
 			<Task
 				responseMetadata={responseMetadata}
 				handleAddButtonOnClick={() => {
@@ -455,7 +525,10 @@ const Contacts = () => {
 				error={info?.error}
 				fetchMoreData={fetchMoreData}
 				blockTitle={'Contacts'}
-				createButtonText={'Create Client'}
+				createButtonText={'Create Lead'}
+				views={info?.clientMetadata?.views}
+				updateView={updateView}
+				deleteView={deleteView}
 			/>
 
 			<CreateClientModal

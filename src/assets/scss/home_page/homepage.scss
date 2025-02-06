@@ -40,6 +40,21 @@
 					flex-direction: row;
 					align-items: center;
 					gap: 24px;
+					position: relative;
+
+					.priority-count {
+						position: absolute;
+						right: 0;
+						top: -2px;
+						transform: translateY(-100%);
+
+						color: #f2f2f3;
+						font-family: Inter;
+						font-size: 10px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+					}
 					.home-page-container-content-item {
 						color: var(--secondary-font, #797e86);
 						font-family: var(--primary-font-family);
@@ -157,8 +172,7 @@
 								right: 16px;
 								top: -2px;
 
-								color: #50bd33;
-								color: color(display-p3 0.4314 0.7333 0.2902);
+								color: #f2f2f3;
 								font-family: Inter;
 								font-size: 10px;
 								font-style: normal;
@@ -272,6 +286,7 @@
 				gap: 15px;
 				overflow: auto;
 				flex-wrap: wrap;
+				margin-bottom: 45px;
 			}
 		}
 

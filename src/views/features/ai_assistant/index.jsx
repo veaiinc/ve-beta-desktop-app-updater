@@ -7,28 +7,28 @@ import Context from '../../../context/context';
 import Spinner from '../../components/loaders/Spinner';
 import InfiniteScroll from 'react-infinite-scroll-component';
 
-const staticCreateActions = [
-	{
-		type: 'Minimal',
-		prompt: 'Wedding Day Timeline Generator',
-	},
-	{
-		type: 'Professional',
-		prompt: 'Wedding Day Timeline Generator',
-	},
-	{
-		type: 'Traditional',
-		prompt: 'Wedding Day Timeline Generator',
-	},
-	{
-		type: 'Sales',
-		prompt: 'Track invoice status, Payment schedule, amounts, and more.',
-	},
-	{
-		type: 'Consise',
-		prompt: 'Wedding Day Timeline Generator',
-	},
-];
+// const staticCreateActions = [
+// 	{
+// 		type: 'Minimal',
+// 		prompt: 'Wedding Day Timeline Generator',
+// 	},
+// 	{
+// 		type: 'Professional',
+// 		prompt: 'Wedding Day Timeline Generator',
+// 	},
+// 	{
+// 		type: 'Traditional',
+// 		prompt: 'Wedding Day Timeline Generator',
+// 	},
+// 	{
+// 		type: 'Sales',
+// 		prompt: 'Track invoice status, Payment schedule, amounts, and more.',
+// 	},
+// 	{
+// 		type: 'Consise',
+// 		prompt: 'Wedding Day Timeline Generator',
+// 	},
+// ];
 
 const AiAssistants = () => {
 	const navigate = useNavigate();
@@ -103,7 +103,7 @@ const AiAssistants = () => {
 	}, [info?.currentPage, info?.hasNextPage]);
 
 	const assistants = info?.aiAssistantsList?.length
-		? info.aiAssistantsList.map((ele) => ({
+		? info.aiAssistantsList?.map((ele) => ({
 				aiAssistantId: ele?._id,
 				assistantName: ele?.name,
 				createdBy: ele?.createdBy || 'AI',
@@ -170,7 +170,7 @@ const AiAssistants = () => {
 							</div>
 						}
 						className="agentsCardContainer"
-						height={`calc( 100vh - 520px)`}
+						height={`calc( 100vh - 240px)`}
 					>
 						{assistants ? (
 							assistants?.map((assistant) => (
