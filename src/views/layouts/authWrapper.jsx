@@ -9,7 +9,6 @@ import useAuth from '../hooks/useAuth';
 import useSubscription from '../hooks/useSubscription';
 import useTokenExpiry from '../hooks/useTokenExpiry';
 import BottomToolbar from '../components/ai_agents/BottomToolbar';
-import QuickActions from '../components/globalComponents/QuickActions';
 
 const AuthWrapper = ({ title, children, maxWidth = '', showBottomToolbar = true }) => {
 	const [workspaceId, setActiveWorkspaceId] = useActiveWorkspace();
