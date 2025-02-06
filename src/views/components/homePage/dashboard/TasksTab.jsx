@@ -269,11 +269,11 @@ const TasksTab = () => {
 
 	useEffect(() => {
 		if (!tasksCountForToday) {
-			getTodayTasksCount();
+			getTasksCountForToday();
 		}
 
 		if (!tasksCountForOverdue) {
-			getOverdueTasksCount();
+			getTasksCountForOverdue();
 		}
 	}, []);
 
@@ -454,29 +454,6 @@ const TasksTab = () => {
 		}
 		return properties;
 	}, [info?.taskPreferences?.preferences]);
-
-	const getTodayTasksCount = () => {
-		const payload = {
-			filters: {
-				limit: 1,
-				page: 1,
-				startDate: Math?.floor(new Date()?.setHours(0, 0, 0, 0) / 1000),
-				endDate: Math?.floor(new Date()?.setHours(23, 59, 59, 999) / 1000),
-			},
-		};
-		getTasksCountForToday(payload);
-	};
-
-	const getOverdueTasksCount = () => {
-		const payload = {
-			filters: {
-				limit: 1,
-				page: 1,
-				endDate: Math?.floor(new Date()?.setHours(-1, 59, 59, 999) / 1000),
-			},
-		};
-		getTasksCountForOverdue(payload);
-	};
 
 	const fetchTodayTasks = (page, type = null, task = null) => {
 		const payload = {
@@ -666,7 +643,11 @@ const TasksTab = () => {
 	};
 
 	const deleteTask = async (payload) => {
-		if (validateExpiryData?.isExpired) {
+		if (
+			validateExpiryData &&
+			validateExpiryData?.restrictTasks &&
+			validateExpiryData?.isExpired
+		) {
 			return updateSubscriptionState({ expiredSubscriptionModal: true });
 		} else {
 			const response = await deleteListItem(payload);
@@ -685,8 +666,8 @@ const TasksTab = () => {
 				// handleCloseSidebar();
 				if (!task) return;
 
-				getOverdueTasksCount();
-				getTodayTasksCount();
+				getTasksCountForToday();
+				getTasksCountForOverdue();
 
 				if (info?.selectedOption === 'pending') {
 					fetchDueTillTodayTasks(1, 'delete', task);
