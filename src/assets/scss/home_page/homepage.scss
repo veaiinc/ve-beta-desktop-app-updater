@@ -27,12 +27,12 @@
 		.home-page-container-content {
 			display: inline-flex;
 			justify-content: space-between;
-			align-items: center;
-			width: 95%;
+			width: 100%;
 			.home-page-container-content-item-container {
 				display: flex;
 				flex-direction: row;
 				justify-content: space-between;
+				align-items: center;
 				width: 100%;
 
 				.home-page-container-content-item-container-left {
@@ -160,7 +160,7 @@
 							cursor: pointer;
 
 							.home-page-welcome-container-left-text-option-active-indicator {
-								width: 24px;
+								width: 18px;
 								align-self: center;
 								height: 2px;
 								background: var(--primary-font, #f2f2f3);
@@ -198,10 +198,11 @@
 						gap: 8px;
 						border-radius: 50px;
 						background: #202123;
+						align-self: flex-start;
 						.search-bar-input {
 							background: #202123;
 							border: none;
-							color: var(--primary-font, #f2f2f3);
+							color: var(--secondary-font, #797e86);
 							font-family: Inter;
 							font-size: 12px;
 							font-style: normal;
@@ -253,6 +254,9 @@
 				font-weight: 500;
 				line-height: normal;
 				text-transform: capitalize;
+				width: 100%;
+				overflow: hidden;
+				text-overflow: ellipsis;
 			}
 			.home-page-cards-container-card-title {
 				color: var(--primary-font, #f2f2f3);
@@ -260,7 +264,10 @@
 				font-size: 18px;
 				font-style: normal;
 				font-weight: 500;
-				line-height: 24px; /* 133.333% */
+				line-height: 24px;
+				width: 100%;
+				overflow: hidden;
+				text-overflow: ellipsis;
 			}
 		}
 	}

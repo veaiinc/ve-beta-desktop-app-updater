@@ -160,7 +160,12 @@ const AiActions = ({ assistant }) => {
 								<span style={{ color: '#7C7C84' }}>
 									{moment.unix(item?.createdAt).format('MMM DD, YYYY')}
 								</span>
-								<span className="aiToggleSwitch">
+								<span
+									className="aiToggleSwitch"
+									onClick={(e) => {
+										e.stopPropagation();
+									}}
+								>
 									<ToggleSwitch
 										id={item?._id}
 										value={item?.status}

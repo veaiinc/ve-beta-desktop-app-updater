@@ -129,7 +129,7 @@ const PromptPopup = ({ open, closeModal, selectedCard }) => {
 					</div>
 				)}
 
-				<div className="promptPopupContainerFilesDiv">
+				{/* <div className="promptPopupContainerFilesDiv">
 					<div className="promptPopupContainerSelectionFiles">
 						<div className="promptPopupContainerSelectionFilesTitle">Select file</div>
 						<div className="promptPopupContainerSelectionFilesSearch">
@@ -171,7 +171,7 @@ const PromptPopup = ({ open, closeModal, selectedCard }) => {
 							);
 						})}
 					</div>
-				</div>
+				</div> */}
 				<button className="promptPopupContainerRunButton" onClick={handleClickRun}>
 					Run
 				</button>

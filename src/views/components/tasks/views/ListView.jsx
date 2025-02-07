@@ -62,7 +62,7 @@ const ListView = ({
 					))}
 				</InfiniteScroll>
 			) : (
-				<div className="noDataMessage">No tasks found</div>
+				<div className="noDataMessage">No Data found</div>
 			)}
 		</div>
 	);

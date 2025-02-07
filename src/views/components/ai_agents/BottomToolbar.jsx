@@ -23,7 +23,7 @@ import { ReactComponent as Mic } from '../../../assets/svg/ai_agents/mic.svg';
 import { getBase64 } from '../../../helpers';
 import WorkflowSlugSelector from '../calendar/WorkflowSlugSelector';
 import { ReactComponent as AiSparkel } from '../../../assets/svg/calendar/aiSparkel.svg';
-import useVoiceIntegration from '../toolbar/VoiceIntegrations';
+import useVoiceIntegration from '../../hooks/useVoiceIntegration';
 
 const moduleHelper = {
 	tasks: 'tasks',
