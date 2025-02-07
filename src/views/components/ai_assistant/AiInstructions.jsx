@@ -1,7 +1,6 @@
 import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/ai_assistant/aiInstructions.scss';
 import InstructionModal from '../modalsV2/ai_assistant/InstructionModal';
-// import { ReactComponent as Edit } from '../../../assets/svg/workflow/edit.svg';
 import { ReactComponent as Edit } from '../../../assets/svg/ai_agents/edit.svg';
 import Context from '../../../context/context';
 import { useParams } from 'react-router-dom';
@@ -12,7 +11,13 @@ import { message } from 'antd';
 
 const AiInstructions = ({ assistant }) => {
 	const {
-		aiSetup: { aiInstructions, getInstructions, createInstruction, updateInstruction },
+		aiSetup: {
+			aiInstructions,
+			getInstructions,
+			createInstruction,
+			updateInstruction,
+			deleteInstruction,
+		},
 	} = useContext(Context);
 
 	const { aiAssistantId } = useParams();
@@ -28,6 +33,7 @@ const AiInstructions = ({ assistant }) => {
 		instructionDataLoading: true,
 		instructionEditing: false,
 		currentInstructionId: null,
+		deletingInstruction: false,
 	});
 
 	useEffect(() => {
@@ -132,6 +138,7 @@ const AiInstructions = ({ assistant }) => {
 						updatingInstruction: false,
 						isInstructionModalOpen: false,
 						instructionEditing: false,
+						deletingInstruction: false,
 						currentInstructionId: null,
 						instructionBody: {
 							title: '',
@@ -201,6 +208,7 @@ const AiInstructions = ({ assistant }) => {
 				...prev,
 				isInstructionModalOpen: true,
 				instructionEditing: true,
+				deletingInstruction: true,
 				currentInstructionId: instructionId,
 				instructionBody: {
 					title: prev.instructionData?.find((item) => item?._id === instructionId)?.title,
@@ -211,6 +219,16 @@ const AiInstructions = ({ assistant }) => {
 		},
 		[info?.instructionData],
 	);
+
+	const handleDeleteInstruction = useCallback(() => {
+		const response = deleteInstruction(aiAssistantId, info?.currentInstructionId);
+		if (response) {
+			message.success('Instruction deleted successfully');
+		} else {
+			message.error('Failed to delete instruction');
+		}
+		setInfo((prev) => ({ ...prev, deletingInstruction: false }));
+	}, [aiAssistantId, info?.currentInstructionId]);
 
 	return (
 		<div style={{ width: '100%' }}>
@@ -284,6 +302,8 @@ const AiInstructions = ({ assistant }) => {
 				onActionClick={handleInstructionAction}
 				isActionbtnLoading={info?.updatingInstruction}
 				instructionEditing={info?.instructionEditing}
+				showDelete={info?.deletingInstruction}
+				onDeleteClick={handleDeleteInstruction}
 			/>
 		</div>
 	);

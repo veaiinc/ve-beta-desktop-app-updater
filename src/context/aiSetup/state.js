@@ -589,6 +589,25 @@ export const AiSetupState = () => {
 		}
 	};
 
+	const deleteInstruction = async (assistantId, instructionId) => {
+		let workspaceId = localStorage.getItem('workspaceId');
+		let usertoken = localStorage.getItem('usertoken');
+		const url =
+			'/' + workspaceId + '/ai-assistants/' + assistantId + '/instructions/' + instructionId;
+		try {
+			const response = await service?.fetchDelete(url, usertoken, {}, 'ai_assistant_api');
+			if (response?.[0]) {
+				dispatch({
+					type: Actions?.DELETE_AI_INSTRUCTION,
+					payload: response?.[1]?.instructions,
+				});
+				return response?.[1]?.instructions;
+			}
+		} catch (error) {
+			console.log('error==>deleteInstruction', error);
+		}
+	};
+
 	const getAiPrompt = async (assistantId) => {
 		let workspaceId = localStorage.getItem('workspaceId');
 		let usertoken = localStorage.getItem('usertoken');
@@ -888,6 +907,7 @@ export const AiSetupState = () => {
 		getInstructions,
 		createInstruction,
 		updateInstruction,
+		deleteInstruction,
 		uploadFile,
 		getAiPrompt,
 		editAiPrompt,
