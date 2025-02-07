@@ -45,6 +45,10 @@ const actionHandlers = {
 		...state,
 		aiInstructions: action?.payload,
 	}),
+	DELETE_AI_INSTRUCTION: (state, action) => ({
+		...state,
+		aiInstructions: action?.payload,
+	}),
 	GET_AI_PROMPT: (state, action) => ({
 		...state,
 		aiPrompt: action?.payload,

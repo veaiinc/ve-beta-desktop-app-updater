@@ -117,6 +117,18 @@
 				display: flex;
 				align-items: center;
 				gap: 8px;
+
+				.deleteKnowledge {
+					cursor: pointer;
+					opacity: 0;
+					transition: 0.3s;
+				}
+
+				&:hover {
+					.deleteKnowledge {
+						opacity: 1;
+					}
+				}
 			}
 
 			span:nth-child(2) {
@@ -129,6 +141,25 @@
 				justify-self: end;
 				justify-content: flex-end;
 				width: 100%;
+			}
+
+			.processing {
+				color: #3a3aee;
+				display: flex;
+				align-items: center;
+				gap: 8px;
+			}
+
+			.ready {
+				color: green;
+			}
+
+			.error {
+				color: #ff0000;
+			}
+
+			.notStarted {
+				color: #797e86;
 			}
 
 			overflow: hidden;
