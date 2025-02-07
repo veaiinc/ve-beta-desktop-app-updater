@@ -10,7 +10,13 @@ import useSubscription from '../hooks/useSubscription';
 import useTokenExpiry from '../hooks/useTokenExpiry';
 import BottomToolbar from '../components/ai_agents/BottomToolbar';
 
-const AuthWrapper = ({ title, children, maxWidth = '', showBottomToolbar = true }) => {
+const AuthWrapper = ({
+	title,
+	children,
+	maxWidth = '',
+	showBottomToolbar = true,
+	outerContainerStyle,
+}) => {
 	const [workspaceId, setActiveWorkspaceId] = useActiveWorkspace();
 
 	const checkAuth = useAuth();
@@ -32,7 +38,8 @@ const AuthWrapper = ({ title, children, maxWidth = '', showBottomToolbar = true 
 				style={{
 					display: 'flex',
 					height: '100vh',
-					padding: '0 32px',
+					padding: '60px 0 0 32px',
+					...outerContainerStyle,
 				}}
 			>
 				<SkeletonTheme baseColor={'#313131'} highlightColor={'#525252'}>
