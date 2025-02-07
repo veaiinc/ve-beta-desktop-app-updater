@@ -55,7 +55,7 @@ const QuickActions = ({ styles }) => {
 			<Tooltip
 				placement="bottom"
 				open={info?.dropdown}
-				trigger={'click'}
+				trigger={'hover'}
 				onOpenChange={(open) => setInfo({ ...info, dropdown: open })}
 				color="transparent"
 				title={
