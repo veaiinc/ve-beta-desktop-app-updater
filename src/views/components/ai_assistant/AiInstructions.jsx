@@ -26,6 +26,8 @@ const AiInstructions = ({ assistant }) => {
 		},
 		updatingInstruction: false,
 		instructionDataLoading: true,
+		instructionEditing: false,
+		currentInstructionId: null,
 	});
 
 	useEffect(() => {
@@ -96,22 +98,92 @@ const AiInstructions = ({ assistant }) => {
 				title: '',
 				instruction: '',
 			},
+			instructionEditing: false,
+			currentInstructionId: null,
 		}));
 	};
 
-	const createNewInstruction = useCallback(() => {
+	const handleInstructionAction = useCallback(async () => {
 		setInfo((prev) => ({ ...prev, updatingInstruction: true }));
-		if (info?.instructionData?.length < 20) {
-			createInstruction(aiAssistantId, info?.instructionBody);
-		} else {
-			setInfo((prev) => ({
-				...prev,
-				updatingInstruction: false,
-				isInstructionModalOpen: false,
-			}));
-			message.error('You have reached the maximum limit of 20 instructions');
+		try {
+			if (info?.instructionEditing) {
+				// Update existing instruction
+				const response = await updateInstruction(
+					aiAssistantId,
+					info?.currentInstructionId,
+					info?.instructionBody,
+				);
+				if (response) {
+					message.success('Instruction updated successfully');
+
+					// Update the local instructionData array with the updated instruction
+					const updatedInstructions = info?.instructionData?.map((instruction) =>
+						instruction?._id === info?.currentInstructionId
+							? {
+									...instruction,
+									title: info?.instructionBody?.title,
+									instruction: info?.instructionBody?.instruction,
+							  }
+							: instruction,
+					);
+
+					setInfo((prev) => ({
+						...prev,
+						updatingInstruction: false,
+						isInstructionModalOpen: false,
+						instructionEditing: false,
+						currentInstructionId: null,
+						instructionBody: {
+							title: '',
+							instruction: '',
+						},
+						instructionData: updatedInstructions,
+					}));
+				} else {
+					message.error('Failed to update instruction');
+					setInfo((prev) => ({ ...prev, updatingInstruction: false }));
+				}
+			} else {
+				// Create new instruction
+				if (info?.instructionData?.length < 20) {
+					const response = await createInstruction(aiAssistantId, info?.instructionBody);
+					if (response) {
+						message.success('Instruction created successfully');
+						setInfo((prev) => ({
+							...prev,
+							updatingInstruction: false,
+							isInstructionModalOpen: false,
+							instructionBody: {
+								title: '',
+								instruction: '',
+							},
+						}));
+					} else {
+						message.error('Failed to create instruction');
+						setInfo((prev) => ({ ...prev, updatingInstruction: false }));
+					}
+				} else {
+					setInfo((prev) => ({
+						...prev,
+						updatingInstruction: false,
+						isInstructionModalOpen: false,
+					}));
+					message.error('You have reached the maximum limit of 20 instructions');
+				}
+			}
+		} catch (error) {
+			console.error('Error in handleInstructionAction:', error);
+			message.error('An error occurred while processing your request');
+			setInfo((prev) => ({ ...prev, updatingInstruction: false }));
 		}
-	}, [info?.instructionBody, aiAssistantId]);
+	}, [
+		info?.instructionBody,
+		info?.instructionEditing,
+		info?.currentInstructionId,
+		aiAssistantId,
+		info?.instructionData,
+		info?.instructionData?.length,
+	]);
 
 	const updateInstructionBody = useCallback((field, value) => {
 		setInfo((prev) => ({
@@ -128,6 +200,8 @@ const AiInstructions = ({ assistant }) => {
 			setInfo((prev) => ({
 				...prev,
 				isInstructionModalOpen: true,
+				instructionEditing: true,
+				currentInstructionId: instructionId,
 				instructionBody: {
 					title: prev.instructionData?.find((item) => item?._id === instructionId)?.title,
 					instruction: prev.instructionData?.find((item) => item?._id === instructionId)
@@ -207,8 +281,9 @@ const AiInstructions = ({ assistant }) => {
 				instruction={info?.instructionBody?.instruction}
 				onTitleChange={(value) => updateInstructionBody('title', value)}
 				onInstructionChange={(value) => updateInstructionBody('instruction', value)}
-				onActionClick={createNewInstruction}
+				onActionClick={handleInstructionAction}
 				isActionbtnLoading={info?.updatingInstruction}
+				instructionEditing={info?.instructionEditing}
 			/>
 		</div>
 	);
