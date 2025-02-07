@@ -102,6 +102,11 @@ const TabListFile = ({
 							label: 'Proposal Accepted',
 							color: '7',
 						},
+						{
+							_id: 'contractSigned',
+							label: 'Contract Signed',
+							color: '1',
+						},
 					],
 				},
 			},
@@ -222,6 +227,8 @@ const TabListFile = ({
 				[{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}]?.map(
 					(ele, index) => <Skeleton key={index} height={36} />,
 				)
+			) : info?.docsData?.length === 0 ? (
+				<div className="tab-list-file-no-data">No data found</div>
 			) : (
 				<InfiniteScroll
 					dataLength={info?.docsData?.length || 0}
