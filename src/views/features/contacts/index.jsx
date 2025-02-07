@@ -112,6 +112,8 @@ const Contacts = () => {
 		},
 	});
 
+	const timeoutRef = useRef(null);
+
 	const responseMetadata = useMemo(
 		() => ({
 			name: {
@@ -152,9 +154,6 @@ const Contacts = () => {
 		[],
 	);
 
-	const filterDebounceTimeout = useRef(null);
-	const isInitialMount = useRef(true);
-
 	useEffect(() => {
 		if (contactPreference === null) {
 			getContactPreferences({ preferences: 'contactPreference' });
@@ -192,7 +191,7 @@ const Contacts = () => {
 	useEffect(() => {
 		if (!clientList) {
 			updateListViewInfo({ loadingSkeleton: true });
-			fetchClientList(1, info.filters, info.searchValue, info.sort);
+			handleDebounceFetch();
 		} else {
 			if (clientList?.data) {
 				setInfo((prevInfo) => ({
@@ -253,44 +252,23 @@ const Contacts = () => {
 	useEffect(() => {
 		if (refetchClientList && !info?.sidebarIsOpen) {
 			setInfo((prev) => ({ ...prev, page: 1 }));
-			fetchClientList(1, info.filters, info.searchValue, info.sort);
-			updateListViewInfo({ refetchClientList: false });
+			fetchClientList(1);
+			updateStateValues({ refetchClientList: false });
 		}
 	}, [refetchClientList]);
 
-	// Filter and search effect
+	const handleDebounceFetch = () => {
+		if (timeoutRef.current) {
+			clearTimeout(timeoutRef.current);
+		}
+		timeoutRef.current = setTimeout(() => {
+			fetchClientList(1);
+		}, 800);
+	};
+
 	useEffect(() => {
-		if (isInitialMount.current) {
-			isInitialMount.current = false;
-			return;
-		}
-
-		if (filterDebounceTimeout.current) {
-			clearTimeout(filterDebounceTimeout.current);
-		}
-
-		if (info?.filters || info?.searchValue) {
-			filterDebounceTimeout.current = setTimeout(() => {
-				setInfo((prev) => ({ ...prev, page: 1 }));
-				updateListViewInfo({ loadingSkeleton: true });
-				fetchClientList(1, info.filters, info.searchValue, info.sort);
-			}, 800);
-		}
-
-		return () => {
-			if (filterDebounceTimeout.current) {
-				clearTimeout(filterDebounceTimeout.current);
-			}
-		};
-	}, [info.filters, info.searchValue]);
-
-	// Sort effect
-	useEffect(() => {
-		if (info?.sort?.length > 0) {
-			setInfo((prev) => ({ ...prev, page: 1 }));
-			fetchClientList(1, info.filters, info.searchValue, info.sort);
-		}
-	}, [info.sort]);
+		handleDebounceFetch();
+	}, [info?.searchValue, info?.filters, info?.sort]);
 
 	useEffect(() => {
 		setInfo((prevInfo) => ({
@@ -300,18 +278,20 @@ const Contacts = () => {
 	}, []);
 
 	const fetchClientList = useCallback(
-		(page = 1, filters = null, search = null, sort = null) => {
+		(page = 1) => {
 			const payload = {
 				clientFilterInput: {
 					limit: 20,
 					page: page,
 					sort:
-						info?.sort.length > 0 ? info?.sort : [{ sortBy: 'createdAt', sortType: 1 }],
-					...(search && {
-						search: search,
+						info?.sort?.length > 0
+							? info?.sort
+							: [{ sortBy: 'createdAt', sortType: 1 }],
+					...(info?.searchValue && {
+						search: info?.searchValue,
 					}),
-					...(filters?.length > 0 && {
-						filters: filters.map((filter) => ({
+					...(info?.filters?.length > 0 && {
+						filters: info?.filters.map((filter) => ({
 							key: filter.key,
 							value: filter.value?._id || filter.value,
 						})),
@@ -320,7 +300,7 @@ const Contacts = () => {
 			};
 			getClients(payload);
 		},
-		[getClients],
+		[getClients, info?.searchValue, info?.filters, info?.sort],
 	);
 
 	const updateListViewInfo = useCallback((updateInfo) => {
@@ -353,13 +333,14 @@ const Contacts = () => {
 						}}
 						refetchDocsFilesList={info?.refetchDocsFilesList}
 						onUpdate={updateListViewInfo}
+						selectedId={info?.selectedRow?._id}
 					/>
 				),
 			},
 			// payments: { label: 'Payments', Component: <div>Payments</div> },
 			// activity: { label: 'Activity', Component: <div>Activity</div> },
 		};
-	}, [rowTypes, colors, info?.refetchDocsFilesList]);
+	}, [rowTypes, colors, info?.refetchDocsFilesList, info?.selectedRow?._id]);
 
 	const mapPropertyType = useCallback(() => {
 		let properties = [];
@@ -460,11 +441,11 @@ const Contacts = () => {
 	const handleCloseSidebar = useCallback(() => {
 		if (refetchClientList) {
 			updateListViewInfo({ loadingSkeleton: true });
-			fetchClientList(1, info.filters, info.searchValue, info.sort);
-			updateListViewInfo({ refetchClientList: false });
+			fetchClientList(1);
+			updateStateValues({ refetchClientList: false });
 		}
-		updateListViewInfo({ sidebarIsOpen: false, selectedSubTask: null });
-	}, [info?.refetchClientList]);
+		updateListViewInfo({ sidebarIsOpen: false });
+	}, [refetchClientList]);
 
 	const fetchMoreData = useCallback(() => {
 		if (info.hasMore) {
@@ -525,7 +506,7 @@ const Contacts = () => {
 				error={info?.error}
 				fetchMoreData={fetchMoreData}
 				blockTitle={'Contacts'}
-				createButtonText={'Create Lead'}
+				createButtonText={'Create Client'}
 				views={info?.clientMetadata?.views}
 				updateView={updateView}
 				deleteView={deleteView}
@@ -554,6 +535,7 @@ const Contacts = () => {
 					updateListViewInfo({ isSidebarExpanded: !info?.isSidebarExpanded })
 				}
 				isSidebarExpanded={info?.isSidebarExpanded}
+				showQuickActions={true}
 			/>
 
 			<Sidebar

@@ -18,12 +18,13 @@ const dropdownOptions = [
 	{ id: 7, title: 'Invoice', value: 'invoice' },
 	{ id: 8, title: 'Contract', value: 'contract' },
 ];
-const QuickActions = ({ styles }) => {
+const QuickActions = ({ styles, customActions = [], clientDetails = null }) => {
 	const [info, setInfo] = useState({
 		dropdown: false,
 		openProposalPopup: false,
 		openClientPopup: false,
 		// openTaskPopup: false,
+		dropdownOptions: customActions?.length > 0 ? customActions : dropdownOptions,
 	});
 
 	let {
@@ -60,7 +61,7 @@ const QuickActions = ({ styles }) => {
 				color="transparent"
 				title={
 					<div className="quick-actions-dropdown-options-container">
-						{dropdownOptions?.map((option) => (
+						{info?.dropdownOptions?.map((option) => (
 							<div
 								key={option?.id}
 								className="dropdown-option"
@@ -82,6 +83,7 @@ const QuickActions = ({ styles }) => {
 			<ProposalsPopup
 				open={info?.openProposalPopup}
 				closeModal={() => setInfo({ ...info, openProposalPopup: false })}
+				clientDetails={clientDetails}
 			/>
 			<CreateClientModal
 				modalIsOpen={info?.openClientPopup}

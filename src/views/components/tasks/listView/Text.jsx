@@ -2,15 +2,17 @@ import React, { memo } from 'react';
 import '../../../../assets/scss/tasks/listItems.scss';
 import { Tooltip } from 'antd';
 
-const Text = ({ value, isTitle = false, showTitle = false, title = '', wrap = true }) => {
+const Text = ({ value, isTitle = false, showTitle = false, title = '', wrap = false }) => {
 	return (
 		<div
 			className={`listItem-text ${isTitle ? `listItem-title` : ``}`}
 			style={{
-				maxWidth: wrap ? '400px' : 'auto',
-				overflow: wrap ? 'hidden' : 'visible',
-				textOverflow: wrap ? 'ellipsis' : 'clip',
-				whiteSpace: wrap ? 'nowrap' : 'normal',
+				maxWidth: !wrap ? '400px' : '',
+				overflow: !wrap ? 'hidden' : 'visible',
+				textOverflow: !wrap ? 'ellipsis' : 'wrap',
+				whiteSpace: !wrap ? 'nowrap' : 'normal',
+				wordBreak: !wrap ? 'normal' : 'break-word',
+				overflowWrap: !wrap ? 'normal' : 'break-word',
 			}}
 		>
 			<Tooltip
@@ -19,7 +21,17 @@ const Text = ({ value, isTitle = false, showTitle = false, title = '', wrap = tr
 				overlayClassName="tooltip-overlay-container"
 				color="transparent"
 			>
-				{value}
+				<span
+					className="tooltip-text"
+					// style={{
+					// 	maxWidth: !wrap ? '400px' : '200px',
+					// 	overflow: !wrap ? 'hidden' : 'visible',
+					// 	textOverflow: !wrap ? 'ellipsis' : 'wrap',
+					// 	whiteSpace: !wrap ? 'nowrap' : 'normal',
+					// }}
+				>
+					{value}
+				</span>
 			</Tooltip>
 		</div>
 	);
