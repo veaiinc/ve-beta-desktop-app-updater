@@ -1,13 +1,8 @@
 import React, { memo, useState } from 'react';
 import '../../../assets/scss/home_page/homepage.scss';
-import { handleError } from '@apollo/client/link/http/parseAndCheckHttpResponse';
-const HomePageStart = ({ cards, setInfo, isNavbarFixed, searchValue }) => {
+const HomePageStart = ({ cards, setInfo, searchValue }) => {
 	return (
-		<div
-			className={`home-page-cards-container
-		   ${isNavbarFixed ? 'add-margin-top' : ''}
-		 `}
-		>
+		<div className="home-page-cards-container">
 			{cards
 				?.filter((cards) =>
 					cards?.title?.toLowerCase()?.includes(searchValue?.toLowerCase()),
