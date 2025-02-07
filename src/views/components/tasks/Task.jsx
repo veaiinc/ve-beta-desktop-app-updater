@@ -78,6 +78,7 @@ const Task = ({
 	const [taskInfo, setTaskInfo] = useState({
 		tabs: null,
 		activeTab: null,
+		timeout: null,
 	});
 	const [showEditViewDropDown, setShowEditViewDropDown] = useState(false);
 
@@ -87,32 +88,39 @@ const Task = ({
 
 	useEffect(() => {
 		if (views) {
-			setTaskInfo((prevInfo) => ({
-				...prevInfo,
-				tabs: Object.fromEntries(
-					views?.map((view, index) => [
-						view?._id,
-						{
-							...view,
-							order: index,
-							Icon: layouts?.[view?.viewType]?.Icon || ListViewIcon,
-						},
-					]),
-				),
-				activeTab: views?.some((view) => view?._id === prevInfo?.activeTab)
-					? prevInfo?.activeTab
-					: views?.[0]?._id,
-			}));
+			setTaskInfo((prevInfo) => {
+				// Only update sort and filters if there was no previous activeTab
+				const isInitialLoad = !prevInfo?.activeTab;
 
-			updateTaskInfo({
-				sort: [...views?.[0]?.sort].map((item) => ({
-					sortBy: item?.sortBy,
-					sortType: item?.sortType,
-				})),
-				filters: [...views?.[0]?.filters].map((item) => ({
-					key: item?.key,
-					value: item?.value,
-				})),
+				if (isInitialLoad) {
+					updateTaskInfo({
+						sort: [...views[0]?.sort].map((item) => ({
+							sortBy: item?.sortBy,
+							sortType: item?.sortType,
+						})),
+						filters: [...views[0]?.filters].map((item) => ({
+							key: item?.key,
+							value: item?.value,
+						})),
+					});
+				}
+
+				return {
+					...prevInfo,
+					tabs: Object.fromEntries(
+						views?.map((view, index) => [
+							view?._id,
+							{
+								...view,
+								order: index,
+								Icon: layouts?.[view?.viewType]?.Icon || ListViewIcon,
+							},
+						]),
+					),
+					activeTab: views?.some((view) => view?._id === prevInfo?.activeTab)
+						? prevInfo?.activeTab
+						: views?.[0]?._id,
+				};
 			});
 		}
 	}, [views]);
@@ -182,6 +190,23 @@ const Task = ({
 		return labels[view] || 'List';
 	};
 
+	const handleDebounceViewUpdate = useCallback(
+		(viewId, updateData) => {
+			clearInterval(taskInfo?.timeout);
+			const timeout = setTimeout(() => {
+				updateView(viewId, {
+					...updateData,
+				});
+				setTaskInfo((prev) => ({
+					...prev,
+					timeout: null,
+				}));
+			}, 800);
+			setTaskInfo((prev) => ({ ...prev, timeout }));
+		},
+		[taskInfo?.timeout, updateView],
+	);
+
 	const updateViewInfo = useCallback(
 		(viewId, updateData) => {
 			const newTabs = { ...taskInfo.tabs };
@@ -213,13 +238,22 @@ const Task = ({
 				}));
 			}
 			const { page, ...rest } = updateData;
-			updateView(viewId, {
-				...rest,
-			});
+			handleDebounceViewUpdate(viewId, rest);
 		},
-		[taskInfo.tabs, updateTaskInfo, updateView],
+		[taskInfo.tabs, updateTaskInfo, handleDebounceViewUpdate],
 	);
 
+	// const handleDebounceViewUpdate = useCallback(
+	// 	(viewId, updateData) => {
+	// 		clearInterval(taskInfo?.timeout);
+	// 		const timeout = setTimeout(() => {
+	// 			updateViewInfo(viewId, {
+	// 				filters: updateData?.filters,
+	// 			});
+	// 		}, 800);
+	// 	},
+	// 	[taskInfo?.timeout, updateViewInfo],
+	// );
 	const viewMapper = useCallback(
 		(view) => {
 			const views = {
