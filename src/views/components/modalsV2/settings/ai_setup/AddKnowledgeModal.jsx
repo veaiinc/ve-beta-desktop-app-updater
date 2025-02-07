@@ -57,6 +57,8 @@ const AddKnowledgeModal = ({ isOpen, toggleModal, assistantId }) => {
 	} = useContext(Context);
 	const [info, setInfo] = useState(initialState);
 
+	const { aiAssistantId } = useParams();
+
 	useEffect(() => {
 		setInfo((prev) => ({
 			...prev,
@@ -117,7 +119,10 @@ const AddKnowledgeModal = ({ isOpen, toggleModal, assistantId }) => {
 			}
 			setInfo((prev) => ({ ...prev, isUploading: true }));
 			const files = info?.pdfFilesInfo;
-			const statusSummary = await uploadPDFsToKnowledgeBase(assistantId, files);
+			const statusSummary = await uploadPDFsToKnowledgeBase(
+				assistantId || aiAssistantId,
+				files,
+			);
 			setInfo((prev) => ({
 				...prev,
 				pdfFilesInfo: [],
@@ -140,7 +145,9 @@ const AddKnowledgeModal = ({ isOpen, toggleModal, assistantId }) => {
 			const file = new File([textBlob], info?.customTextInfo?.filename, {
 				type: 'text/plain',
 			});
-			const statusSummary = await uploadPDFsToKnowledgeBase(assistantId, [file]);
+			const statusSummary = await uploadPDFsToKnowledgeBase(assistantId || aiAssistantId, [
+				file,
+			]);
 			setInfo((prev) => ({
 				...prev,
 				customTextInfo: {
