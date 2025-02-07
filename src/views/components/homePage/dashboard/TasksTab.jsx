@@ -113,6 +113,8 @@ const TasksTab = () => {
 			resetSubTasks,
 			taskMetadata,
 			getTaskMetadata,
+			refetchTasksForDue,
+			updateTaskState,
 		},
 		templates: { getWorkflowsList, workflowslist },
 		companyInfo: { getTeamMembers, tenantsUserList },
@@ -138,8 +140,9 @@ const TasksTab = () => {
 		breadCrumbs: [],
 		loadingSkeleton: true,
 		hoveredTaskId: null,
+		updatedDueDate: false,
+		updatedAssignedTo: false,
 	});
-
 	const debounceTimeout = useRef(null);
 
 	const taskLabels = useMemo(
@@ -278,10 +281,10 @@ const TasksTab = () => {
 		if (!tasksCountForOverdue) {
 			getTasksCountForOverdue();
 		}
-	}, []);
+	}, [refetchTasksForDue]);
 
 	useEffect(() => {
-		if (info?.selectedOption === 'today') {
+		if (info?.selectedOption === 'today' && !refetchTasksForDue) {
 			if (listTasksForToday) {
 				setInfo((prev) => ({
 					...prev,
@@ -296,7 +299,7 @@ const TasksTab = () => {
 			}
 		}
 
-		if (info?.selectedOption === 'overdue') {
+		if (info?.selectedOption === 'overdue' && !refetchTasksForDue) {
 			if (listTasksForOverdue) {
 				setInfo((prev) => ({
 					...prev,
@@ -311,7 +314,7 @@ const TasksTab = () => {
 			}
 		}
 
-		if (info?.selectedOption === 'pending') {
+		if (info?.selectedOption === 'pending' && !refetchTasksForDue) {
 			if (listTasksDueTillToday) {
 				setInfo((prev) => ({
 					...prev,
@@ -325,7 +328,17 @@ const TasksTab = () => {
 				fetchDueTillTodayTasks(1);
 			}
 		}
-	}, [info?.selectedOption]);
+	}, [info?.selectedOption, refetchTasksForDue]);
+
+	useEffect(() => {
+		if (refetchTasksForDue) {
+			updateTaskState({
+				refetchTasksForDue: false,
+			});
+			getTasksCountForToday();
+			getTasksCountForOverdue();
+		}
+	}, [refetchTasksForDue]);
 
 	useEffect(() => {
 		if (!tenantsUserList) {
@@ -599,10 +612,19 @@ const TasksTab = () => {
 					// Update updatedBy for any successful update
 					task = { ...task, updatedBy: { _id: user_id, name: userName } };
 					task = { ...task, [propName]: updatedValue };
+					let updatedDueDate = false,
+						updatedAssignedTo = false;
+					if (propName === 'dueDate') {
+						updatedDueDate = true;
+					} else if (propName === 'assignedTo') {
+						updatedAssignedTo = true;
+					}
 
 					setInfo((prev) => ({
 						...prev,
 						selectedRow: { ...info?.selectedRow, ...task },
+						updatedDueDate,
+						updatedAssignedTo,
 					}));
 
 					if (info?.selectedOption === 'pending') {
@@ -761,12 +783,22 @@ const TasksTab = () => {
 		[info?.selectedRow, info?.breadCrumbs],
 	);
 
-	const handleCloseSidebar = useCallback(() => {
+	const handleCloseSidebar = () => {
+		if (info?.updatedDueDate || info?.updatedAssignedTo) {
+			updateTaskState({
+				refetchTasksForDue: true,
+				listTasksDueTillToday: null,
+				listTasksForOverdue: null,
+				listTasksForToday: null,
+			});
+		}
 		updateTaskInfo({
 			sidebarIsOpen: false,
 			breadCrumbs: [],
+			updatedDueDate: false,
+			updatedAssignedTo: false,
 		});
-	}, []);
+	};
 
 	const handleCloseCreateModal = useCallback(() => {
 		if (info?.isCreatingSubtask) {
@@ -927,16 +959,7 @@ const TasksTab = () => {
 															`+${task?.assignedTo?.length - 3}`}
 													</div>
 												</div>
-												<div
-													className="chevron-icon-container"
-													style={{
-														backgroundColor: `${
-															info?.hoveredTaskId === task?._id
-																? '#f2f2f3'
-																: '#202123'
-														}`,
-													}}
-												>
+												<div className="chevron-icon-container">
 													{info?.hoveredTaskId === task?._id ? (
 														<ChevronRightThinDarkIcon />
 													) : (
