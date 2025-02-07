@@ -101,7 +101,7 @@ const Sidebar = ({ activeWorkspaceId }) => {
 	return (
 		<>
 			<div
-				className={`FullScreenSidebar ${isOpen ? 'opened' : ''} ${
+				className={`FullScreenSidebar ${isOpen ? 'opened' : 'closed'} ${
 					sidebarStates.selectedModule &&
 					veAiModulesItemsList.find(
 						(module) => module.name === sidebarStates.selectedModule,
