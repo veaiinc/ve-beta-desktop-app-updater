@@ -1,4 +1,4 @@
-import React, { useState, useEffect, memo, useMemo, useCallback, useContext } from 'react';
+import React, { useState, useEffect, memo, useMemo, useContext } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import '../../../assets/scss/home_page/homepage.scss';
 import NavBar from '../../components/homePage/navBar';
@@ -7,9 +7,6 @@ import PromptPopup from '../../components/homePage/PromptPopup';
 import HomePageDashboard from '../../components/homePage/dashboard/HomePageDashboard';
 import HomePageStart from '../../components/homePage/HomePageStart';
 import { PromptData } from '../../components/homePage/PromptData';
-import { Tooltip } from 'antd';
-import { useNavigate } from 'react-router-dom';
-import { useRef } from 'react';
 import Context from '../../../context/context';
 import QuickActions from '../../components/globalComponents/QuickActions';
 import PriorityDropDown from '../../components/homePage/dashboard/PriorityDropDown';
@@ -36,14 +33,13 @@ const navbarOptions = {
 	],
 };
 
-const thresholdTopOffset = 150;
 let timeoutId = null;
 
 const HomePage = () => {
 	const [searchParams, setSearchParams] = useSearchParams();
 	let {
 		profileInfo: { userDetailsData },
-		templates: { toggleCreateLeadModal, getTabItemCount, tabItemCount },
+		templates: { getTabItemCount, tabItemCount },
 	} = useContext(Context);
 	const username =
 		jwtDecode(localStorage.getItem('usertoken'))?.userName ??
@@ -57,7 +53,6 @@ const HomePage = () => {
 	const [info, setInfo] = useState({
 		activeTab: searchParams?.get('tab') ?? 'dashboard',
 		showPromptPopup: false,
-		isNavbarFixed: false,
 		selectedOptionInStart: searchParams?.get('startTab') || 'All',
 		selectedOptionInDashboard: searchParams?.get('dashboardTab') || 'Priority',
 		searchValue: '',
@@ -68,24 +63,6 @@ const HomePage = () => {
 		openCreateLeadModal: false,
 		selectedOptionInPriorityTab: 'all',
 	});
-
-	useEffect(() => {
-		const homePageContainer = document.querySelector('.home-page-container');
-		homePageContainer?.addEventListener('scroll', setNavbarFixed);
-
-		return () => homePageContainer?.removeEventListener('scroll', setNavbarFixed);
-	}, [info?.isNavbarFixed]);
-
-	const setNavbarFixed = (e) => {
-		const topOffset = e?.target?.scrollTop;
-		if (topOffset >= thresholdTopOffset) {
-			if (info?.isNavbarFixed) return;
-			setInfo((prev) => ({ ...prev, isNavbarFixed: true }));
-		} else {
-			if (!info?.isNavbarFixed) return;
-			setInfo((prev) => ({ ...prev, isNavbarFixed: false }));
-		}
-	};
 
 	const filteredPromptData = PromptData?.filter((prompt) => {
 		const filter = info?.selectedOptionInStart?.toLowerCase();
@@ -145,7 +122,6 @@ const HomePage = () => {
 				<HomePageStart
 					cards={filteredPromptData}
 					setInfo={setInfo}
-					isNavbarFixed={info?.isNavbarFixed}
 					searchValue={info?.searchValue}
 				/>
 			),
@@ -153,72 +129,64 @@ const HomePage = () => {
 				<HomePageDashboard
 					selectedOption={info?.[selectedOption]}
 					options={navbarOptions?.dashboard}
-					isNavbarFixed={info?.isNavbarFixed}
 					searchValue={info?.searchValue}
 				/>
 			),
 		}),
-		[filteredPromptData, info?.isNavbarFixed, info?.searchValue, info?.[selectedOption]],
+		[filteredPromptData, info?.searchValue, info?.[selectedOption]],
 	);
 
 	return (
 		<div className="home-page-container">
 			<div className="black-linear-gradient"></div>
-			<div className="home-page-container-header">
-				<div className="home-page-container-content">
-					<div className="home-page-container-content-item-container">
-						<div className="home-page-container-content-item-container-left">
-							<div className="priority-count">
-								{tabItemCount?.all > 99 ? '99+' : tabItemCount?.all}
-							</div>
-							{topNavOptions?.map((option) => (
+			{/* <div className="home-page-container-header"> */}
+			{/* <div className="background-for-stickies"></div> */}
+			<div className="home-page-container-content">
+				<div className="home-page-container-content-item-container">
+					<div className="home-page-container-content-item-container-left">
+						<div className="priority-count">
+							{tabItemCount?.all > 99 ? '99+' : tabItemCount?.all}
+						</div>
+						{topNavOptions?.map((option) => (
+							<div
+								key={option?.id}
+								className="home-page-container-content-item-container-left"
+							>
 								<div
-									key={option?.id}
-									className="home-page-container-content-item-container-left"
+									className={`home-page-container-content-item ${
+										info?.activeTab === option?.value ? 'active' : ''
+									}`}
+									onClick={() => handleSetActiveTab(option?.value)}
 								>
-									<div
-										className={`home-page-container-content-item ${
-											info?.activeTab === option?.value ? 'active' : ''
-										}`}
-										onClick={() => handleSetActiveTab(option?.value)}
-									>
-										{option?.title}
-									</div>
-
-									{option?.id !== topNavOptions?.length - 1 && (
-										<div className="home-page-container-content-item-divider"></div>
-									)}
+									{option?.title}
 								</div>
-							))}
-						</div>
-						<div className="home-page-welcome-container-right">
-							<QuickActions />
-						</div>
-					</div>
-				</div>
 
-				<div className="home-page-welcome-container">
-					<div
-						className={`home-page-welcome-container-left ${
-							info?.isNavbarFixed ? 'fixed' : ''
-						}`}
-					>
-						<HeaderInfo
-							isNavbarFixed={info?.isNavbarFixed}
-							title={title}
-							subTitle={subTitle}
-						/>
-						<NavBar
-							options={navbarOptions[info?.activeTab]}
-							selectedOption={info?.[selectedOption]}
-							handleSelectedOption={handleSelectedOption}
-							handleSearchValue={handleSearchValue}
-							showSearchBar={showSearchBar}
-							tabItemCount={tabItemCount}
-						/>
+								{option?.id !== topNavOptions?.length - 1 && (
+									<div className="home-page-container-content-item-divider"></div>
+								)}
+							</div>
+						))}
+					</div>
+					<div className="home-page-welcome-container-right">
+						<QuickActions />
 					</div>
 				</div>
 			</div>
+
+			{/* <div className="home-page-welcome-container"> */}
+			{/* <div className="home-page-welcome-container-left"> */}
+			<HeaderInfo title={title} subTitle={subTitle} />
+			<NavBar
+				options={navbarOptions[info?.activeTab]}
+				selectedOption={info?.[selectedOption]}
+				handleSelectedOption={handleSelectedOption}
+				handleSearchValue={handleSearchValue}
+				showSearchBar={showSearchBar}
+				tabItemCount={tabItemCount}
+			/>
+			{/* </div> */}
+			{/* </div> */}
+			{/* </div> */}
 			{componentMapper?.[info?.activeTab]}
 			<PromptPopup
 				open={info?.showPromptPopup}

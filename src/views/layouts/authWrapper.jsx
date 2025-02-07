@@ -32,7 +32,7 @@ const AuthWrapper = ({ title, children, maxWidth = '', showBottomToolbar = true 
 				style={{
 					display: 'flex',
 					height: '100vh',
-					padding: '60px 0 0 32px',
+					padding: '0 32px',
 				}}
 			>
 				<SkeletonTheme baseColor={'#313131'} highlightColor={'#525252'}>
