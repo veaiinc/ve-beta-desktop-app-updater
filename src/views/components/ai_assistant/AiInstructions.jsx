@@ -1,6 +1,8 @@
 import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/ai_assistant/aiInstructions.scss';
 import InstructionModal from '../modalsV2/ai_assistant/InstructionModal';
+// import { ReactComponent as Edit } from '../../../assets/svg/workflow/edit.svg';
+import { ReactComponent as Edit } from '../../../assets/svg/ai_agents/edit.svg';
 import Context from '../../../context/context';
 import { useParams } from 'react-router-dom';
 import Skeleton from 'react-loading-skeleton';
@@ -121,6 +123,21 @@ const AiInstructions = ({ assistant }) => {
 		}));
 	}, []);
 
+	const handleEditInstruction = useCallback(
+		(instructionId) => {
+			setInfo((prev) => ({
+				...prev,
+				isInstructionModalOpen: true,
+				instructionBody: {
+					title: prev.instructionData?.find((item) => item?._id === instructionId)?.title,
+					instruction: prev.instructionData?.find((item) => item?._id === instructionId)
+						?.instruction,
+				},
+			}));
+		},
+		[info?.instructionData],
+	);
+
 	return (
 		<div style={{ width: '100%' }}>
 			<div className="aiInstructionsParentContainer">
@@ -153,7 +170,15 @@ const AiInstructions = ({ assistant }) => {
 					) : info?.instructionData?.length > 0 ? (
 						info?.instructionData?.map((item) => (
 							<div key={item?._id} className="instructionItem">
-								<span>{item?.title}</span>
+								<span>
+									{item?.title}{' '}
+									<Edit
+										width="12px"
+										height="12px"
+										style={{ marginTop: '4px', cursor: 'pointer' }}
+										onClick={() => handleEditInstruction(item?._id)}
+									/>
+								</span>
 								<span style={{ color: '#7C7C84' }}>
 									{moment.unix(item?.updatedAt).format('MMM DD, YYYY')}
 								</span>
