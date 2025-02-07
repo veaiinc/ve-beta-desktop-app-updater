@@ -81,24 +81,24 @@ const ActionsModal = ({
 				apiUses: selectedAction?.contentType?.toUpperCase() || 'JSON',
 				url: selectedAction?.api?.url || '',
 				variables:
-					selectedAction?.variables?.map((v) => ({
+					selectedAction?.api?.variables?.map((v) => ({
 						id: Date.now() + Math.random(),
 						name: v?.name,
 						type: v?.type,
 						description: v?.description || '',
 					})) || [],
 				headers:
-					selectedAction?.headers?.length > 0
-						? selectedAction?.headers?.map((h) => ({
+					selectedAction?.api?.headers?.length > 0
+						? selectedAction?.api?.headers?.map((h) => ({
 								id: Date.now() + Math.random(),
 								parameter: h?.name,
 								value: h?.value,
 						  }))
-						: [{ id: Date.now(), parameter: '', value: '' }],
-				bodyContent: selectedAction?.body
-					? typeof selectedAction?.body === 'string'
-						? selectedAction?.body
-						: JSON.stringify(selectedAction?.body, null, 2)
+						: [],
+				bodyContent: selectedAction?.api?.body
+					? typeof selectedAction?.api?.body === 'string'
+						? selectedAction?.api?.body
+						: JSON.stringify(selectedAction?.api?.body, null, 2)
 					: '',
 			}));
 		} else {
