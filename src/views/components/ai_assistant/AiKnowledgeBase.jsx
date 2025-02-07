@@ -3,6 +3,7 @@ import '../../../assets/scss/ai_assistant/knowledgeBase.scss';
 import { ReactComponent as Link } from '../../../assets/svg/smartFiles/formResponse/link.svg';
 import { ReactComponent as Pdf } from '../../../assets/svg/ai_assistant/pdf.svg';
 import { ReactComponent as Text } from '../../../assets/svg/ai_assistant/tIcon.svg';
+import { ReactComponent as Delete } from '../../../assets/svg/ai_assistant/delete.svg';
 import AddKnowledgeModal from '../../components/modalsV2/settings/ai_setup/AddKnowledgeModal';
 import Context from '../../../context/context';
 import ToggleSwitch from '../../components/input/slider';
@@ -120,6 +121,16 @@ const AiKnowledgeBase = ({ assistant }) => {
 		fetchKnowledgeBaseFiles({ page: nextPageNumber });
 	};
 
+	const deleteKnowledgeFile = (knowledgeId) => {
+		deleteKnowledge(knowledgeId);
+		setInfo((prev) => ({
+			...prev,
+			knowledgeBaseFiles: prev?.knowledgeBaseFiles?.filter(
+				(item) => item?._id !== knowledgeId,
+			),
+		}));
+	};
+
 	return (
 		<div style={{ width: '100%' }}>
 			<div className="aiKnowledgeBaseParentContainer">
@@ -171,6 +182,10 @@ const AiKnowledgeBase = ({ assistant }) => {
 									<span>
 										{iconMapper?.[item?.sourceType]}
 										{item?.name}
+										<Delete
+											className="deleteKnowledge"
+											onClick={() => deleteKnowledgeFile(item?._id)}
+										/>
 									</span>
 									{/* <span style={{ color: '#7C7C84' }}>
 										{moment.unix(item?.updatedAt).format('MMM DD, YYYY')}
