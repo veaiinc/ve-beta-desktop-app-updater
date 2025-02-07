@@ -36,6 +36,7 @@ export const intialState = {
 	taskMetadata: null,
 	taskPreference: null,
 	refetchTasks: false,
+	refetchTasksForDue: false,
 };
 
 export const TasksState = () => {
@@ -54,7 +55,10 @@ export const TasksState = () => {
 			);
 
 			if (response?.[0]) {
-				dispatch({ type: Actions.SET_LIST_ITEMS, payload: response?.[1]?.data?.listTasks });
+				dispatch({
+					type: Actions?.SET_LIST_ITEMS,
+					payload: response?.[1]?.data?.listTasks,
+				});
 			} else {
 				console.log('API failed ==> getListItems', response);
 				dispatch({
@@ -276,7 +280,7 @@ export const TasksState = () => {
 					endDate: Math?.floor(new Date()?.setHours(23, 59, 59, 999) / 1000),
 				},
 			};
-			const response = await service.query(
+			const response = await service?.query(
 				getTasksCountQuery,
 				payload,
 				workspaceId,
