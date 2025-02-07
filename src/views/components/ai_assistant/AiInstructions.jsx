@@ -105,6 +105,7 @@ const AiInstructions = ({ assistant }) => {
 				instruction: '',
 			},
 			instructionEditing: false,
+			deletingInstruction: false,
 			currentInstructionId: null,
 		}));
 	};
@@ -264,12 +265,7 @@ const AiInstructions = ({ assistant }) => {
 							<div key={item?._id} className="instructionItem">
 								<span>
 									{item?.title}{' '}
-									<Edit
-										width="12px"
-										height="12px"
-										style={{ marginTop: '4px', cursor: 'pointer' }}
-										onClick={() => handleEditInstruction(item?._id)}
-									/>
+									<Edit onClick={() => handleEditInstruction(item?._id)} />
 								</span>
 								<span style={{ color: '#7C7C84' }}>
 									{moment.unix(item?.updatedAt).format('MMM DD, YYYY')}
