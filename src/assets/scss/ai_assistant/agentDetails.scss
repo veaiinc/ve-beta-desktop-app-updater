@@ -18,28 +18,40 @@
 	user-select: none;
 }
 
-.ai-playground-container {
+.aiPlayGroundParentContainer {
 	width: 100%;
-	height: calc(100vh - 210px);
-	position: relative;
-	overflow: hidden;
-	display: flex;
-	flex-direction: column;
-	// gap: 20px;
-	justify-content: center; //give it different property to algin chat icons and header
+	height: calc(100vh - 180px);
+	padding-top: 20px;
 
-	align-items: center;
+	.ai-playground-container {
+		width: 100%;
+		height: 100%;
+		position: relative;
+		overflow: hidden;
+		display: flex;
+		align-items: center;
+		flex-direction: column;
+		// gap: 20px;
+		justify-content: center; //give it different property to algin chat icons and header
 
-	.ai-playground-header {
-		margin-bottom: 50px;
+		border-radius: 32px;
+		background: #171819;
+		background: color(display-p3 0.0902 0.0941 0.098);
 
-		color: #f2f2f3;
-		color: color(display-p3 0.949 0.949 0.9529);
-		font-family: Inter;
-		font-size: 40px;
-		font-style: normal;
-		font-weight: 500;
-		line-height: 43px; /* 107.5% */
+
+		
+
+		.ai-playground-header {
+			margin-bottom: 50px;
+
+			color: #f2f2f3;
+			color: color(display-p3 0.949 0.949 0.9529);
+			font-family: Inter;
+			font-size: 40px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 43px; /* 107.5% */
+		}
 	}
 }
 
