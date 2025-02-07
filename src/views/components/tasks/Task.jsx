@@ -103,6 +103,17 @@ const Task = ({
 					? prevInfo?.activeTab
 					: views?.[0]?._id,
 			}));
+
+			updateTaskInfo({
+				sort: [...views?.[0]?.sort].map((item) => ({
+					sortBy: item?.sortBy,
+					sortType: item?.sortType,
+				})),
+				filters: [...views?.[0]?.filters].map((item) => ({
+					key: item?.key,
+					value: item?.value,
+				})),
+			});
 		}
 	}, [views]);
 
@@ -189,12 +200,21 @@ const Task = ({
 			setTaskInfo((prev) => ({ ...prev, tabs: newTabs }));
 			if (updateData?.sort) {
 				updateTaskInfo({ sort: updateData?.sort });
+				updateData.sort = updateData?.sort?.map((item) => ({
+					sortBy: item?.sortBy,
+					sortType: item?.sortType,
+				}));
 			}
 			if (updateData?.filters) {
 				updateTaskInfo({ filters: updateData?.filters });
+				updateData.filters = updateData?.filters?.map((item) => ({
+					key: item?.key,
+					value: item?.value,
+				}));
 			}
+			const { page, ...rest } = updateData;
 			updateView(viewId, {
-				...updateData,
+				...rest,
 			});
 		},
 		[taskInfo.tabs, updateTaskInfo, updateView],

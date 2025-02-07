@@ -161,7 +161,7 @@ const CreateClientModal = ({ modalIsOpen, closeModal, source }) => {
 			closeModal={closeModalFunc}
 			customStyles={{
 				overlay: {
-					zIndex: 1,
+					zIndex: 9999,
 				},
 				content: {
 					overflow: 'unset',

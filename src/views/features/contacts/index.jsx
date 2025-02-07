@@ -282,15 +282,7 @@ const Contacts = () => {
 				clearTimeout(filterDebounceTimeout.current);
 			}
 		};
-	}, [info.filters, info.searchValue]);
-
-	// Sort effect
-	useEffect(() => {
-		if (info?.sort?.length > 0) {
-			setInfo((prev) => ({ ...prev, page: 1 }));
-			fetchClientList(1, info.filters, info.searchValue, info.sort);
-		}
-	}, [info.sort]);
+	}, [info.filters, info.searchValue, info?.sort]);
 
 	useEffect(() => {
 		setInfo((prevInfo) => ({
@@ -305,8 +297,7 @@ const Contacts = () => {
 				clientFilterInput: {
 					limit: 20,
 					page: page,
-					sort:
-						info?.sort.length > 0 ? info?.sort : [{ sortBy: 'createdAt', sortType: 1 }],
+					sort: sort?.length > 0 ? sort : [{ sortBy: 'createdAt', sortType: 1 }],
 					...(search && {
 						search: search,
 					}),
@@ -526,7 +517,7 @@ const Contacts = () => {
 				error={info?.error}
 				fetchMoreData={fetchMoreData}
 				blockTitle={'Contacts'}
-				createButtonText={'Create Lead'}
+				createButtonText={'Create Client'}
 				views={info?.clientMetadata?.views}
 				updateView={updateView}
 				deleteView={deleteView}

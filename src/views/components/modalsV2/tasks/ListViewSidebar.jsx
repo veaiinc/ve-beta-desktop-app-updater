@@ -10,6 +10,7 @@ import { ReactComponent as ExpandSvg } from '../../../../assets/svg/docs/expand.
 import Spinner from '../../loaders/Spinner';
 import Skeleton from 'react-loading-skeleton';
 import CustomTextArea from '../../globalComponents/CusomTextArea';
+import QuickActions from '../../globalComponents/QuickActions';
 
 const ListViewSidebar = ({
 	selectedRow,
@@ -269,6 +270,7 @@ const ListViewSidebar = ({
 							</div>
 
 							<div className="sidebar-header-right-container">
+								<QuickActions />
 								<button
 									className="sidebar-delete-button"
 									onClick={() => {
