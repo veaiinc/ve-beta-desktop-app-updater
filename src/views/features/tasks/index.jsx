@@ -563,7 +563,16 @@ const Tasks = () => {
 							});
 						}
 					}
-
+					if (!isUpdatingSubTask) {
+						if (propName === 'assignedTo' || propName === 'dueDate') {
+							updateTaskState({
+								refetchTasksForDue: true,
+								listTasksForToday: null,
+								listTasksForOverdue: null,
+								listTasksDueTillToday: null,
+							});
+						}
+					}
 					// Update updatedBy for any successful update
 					const token = localStorage.getItem('usertoken');
 					const { user_id, userName } = jwtDecode(token);
@@ -728,6 +737,16 @@ const Tasks = () => {
 							addSubTask(newTask);
 						}
 						message.success('Task added successfully');
+						if (!info?.isCreatingSubtask) {
+							if (payload?.assignedTo || payload?.dueDate) {
+								updateTaskState({
+									refetchTasksForDue: true,
+									listTasksForToday: null,
+									listTasksForOverdue: null,
+									listTasksDueTillToday: null,
+								});
+							}
+						}
 						fetchListItems();
 					}
 				} else {
@@ -753,6 +772,12 @@ const Tasks = () => {
 						updateTaskInfo({ selectedSubTask: null });
 						removeSubTask(payload?.taskId);
 					} else {
+						updateTaskState({
+							refetchTasksForDue: true,
+							listTasksForToday: null,
+							listTasksForOverdue: null,
+							listTasksDueTillToday: null,
+						});
 						setInfo((prevInfo) => ({
 							...prevInfo,
 							listItems: prevInfo?.listItems?.filter(
