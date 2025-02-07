@@ -9,6 +9,8 @@ import HomePageStart from '../../components/homePage/HomePageStart';
 import { PromptData } from '../../components/homePage/PromptData';
 import Context from '../../../context/context';
 import QuickActions from '../../components/globalComponents/QuickActions';
+import PriorityDropDown from '../../components/homePage/dashboard/PriorityDropDown';
+import jwtDecode from 'jwt-decode';
 
 const topNavOptions = [
 	{ id: 0, title: 'Start', value: 'start' },
@@ -39,6 +41,10 @@ const HomePage = () => {
 		profileInfo: { userDetailsData },
 		templates: { getTabItemCount, tabItemCount },
 	} = useContext(Context);
+	const username =
+		jwtDecode(localStorage.getItem('usertoken'))?.userName ??
+		`${userDetailsData?.firstName} ${userDetailsData?.lastName}` ??
+		'User';
 
 	useEffect(() => {
 		if (!tabItemCount) getTabItemCount();
@@ -95,7 +101,7 @@ const HomePage = () => {
 	const propsForHeaderInfoAndNavBar = useMemo(() => {
 		return {
 			start: {
-				title: `Hey ${userDetailsData?.firstName},`,
+				title: `Hey ${username},`,
 				subTitle: "I'm here to help",
 				selectedOption: 'selectedOptionInStart',
 			},
