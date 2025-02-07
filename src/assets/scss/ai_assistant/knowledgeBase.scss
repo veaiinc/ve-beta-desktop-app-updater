@@ -131,6 +131,25 @@
 				width: 100%;
 			}
 
+			.processing {
+				color: #3a3aee;
+				display: flex;
+				align-items: center;
+				gap: 8px;
+			}
+
+			.ready {
+				color: green;
+			}
+
+			.error {
+				color: #ff0000;
+			}
+
+			.notStarted {
+				color: #797e86;
+			}
+
 			overflow: hidden;
 			color: #f2f2f3;
 			color: color(display-p3 0.949 0.949 0.9529);

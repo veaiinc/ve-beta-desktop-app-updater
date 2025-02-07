@@ -12,11 +12,19 @@ import { FetchMoreLoaderComp } from '../../../helpers';
 import Skeleton from 'react-loading-skeleton';
 import { message } from 'antd';
 import { useParams } from 'react-router-dom';
+import Spinner from '../loaders/Spinner';
 
 const iconMapper = {
 	pdf: <Pdf style={{ stroke: '#F2F2F3' }} width={12} height={12} />,
 	txt: <Text style={{ stroke: '#F2F2F3' }} width={12} height={12} />,
 	url: <Link style={{ fill: '#F2F2F3 !important' }} width={12} height={12} />,
+};
+
+const fileStatus = {
+	notStarted: 'Not Started',
+	processing: 'Training...',
+	ready: 'Ready',
+	error: 'Error',
 };
 
 const AiKnowledgeBase = ({ assistant }) => {
@@ -42,6 +50,7 @@ const AiKnowledgeBase = ({ assistant }) => {
 		knowledgeBaseFiles: [],
 		assistantId: aiAssistantId,
 		loading: true,
+		knowledgeBaseFilesLoading: true,
 	});
 
 	useEffect(() => {
@@ -59,6 +68,18 @@ const AiKnowledgeBase = ({ assistant }) => {
 				loading: false,
 			}));
 		}
+		setInfo((prev) => ({
+			...prev,
+			knowledgeBaseFilesLoading: true,
+		}));
+		const timer = setTimeout(() => {
+			setInfo((prev) => ({
+				...prev,
+				knowledgeBaseFilesLoading: false,
+			}));
+		}, 300);
+
+		return () => clearTimeout(timer);
 	}, [knowledgeBaseFiles]);
 
 	const handleToggleChange = useCallback(
@@ -122,7 +143,7 @@ const AiKnowledgeBase = ({ assistant }) => {
 				<div className="knowledgeBaseListContainer">
 					<div className="header">
 						<span>Title</span>
-						<span>Last edit</span>
+						<span>Status</span>
 						<span>Active</span>
 					</div>
 					{info?.loading ? (
@@ -151,8 +172,16 @@ const AiKnowledgeBase = ({ assistant }) => {
 										{iconMapper?.[item?.sourceType]}
 										{item?.name}
 									</span>
-									<span style={{ color: '#7C7C84' }}>
+									{/* <span style={{ color: '#7C7C84' }}>
 										{moment.unix(item?.updatedAt).format('MMM DD, YYYY')}
+									</span> */}
+									<span className={`${item?.status}`}>
+										{item?._id === info?.knowledgeBaseFiles?.[0]?._id &&
+										info?.knowledgeBaseFilesLoading ? (
+											<Spinner width="12px" height="12px" />
+										) : (
+											fileStatus?.[item?.status]
+										)}
 									</span>
 									<span className="aiToggleSwitch">
 										<ToggleSwitch
