@@ -535,6 +535,7 @@ const Contacts = () => {
 					updateListViewInfo({ isSidebarExpanded: !info?.isSidebarExpanded })
 				}
 				isSidebarExpanded={info?.isSidebarExpanded}
+				showQuickActions={true}
 			/>
 
 			<Sidebar

@@ -12,6 +12,13 @@ import Skeleton from 'react-loading-skeleton';
 import CustomTextArea from '../../globalComponents/CusomTextArea';
 import QuickActions from '../../globalComponents/QuickActions';
 
+const optionsForQuickActions = [
+	{ id: 4, title: 'Document', value: 'document' },
+	{ id: 6, title: 'Proposal', value: 'proposal' },
+	{ id: 7, title: 'Invoice', value: 'invoice' },
+	{ id: 8, title: 'Contract', value: 'contract' },
+];
+
 const ListViewSidebar = ({
 	selectedRow,
 	sidebarIsOpen,
@@ -28,6 +35,7 @@ const ListViewSidebar = ({
 	headerText,
 	breadCrumbs,
 	handleBreadCrumbsClick,
+	showQuickActions = false,
 }) => {
 	const [info, setInfo] = useState({
 		subTasks: [],
@@ -270,7 +278,12 @@ const ListViewSidebar = ({
 							</div>
 
 							<div className="sidebar-header-right-container">
-								<QuickActions />
+								{showQuickActions && (
+									<QuickActions
+										customActions={optionsForQuickActions}
+										clientDetails={selectedRow}
+									/>
+								)}
 								<button
 									className="sidebar-delete-button"
 									onClick={() => {
