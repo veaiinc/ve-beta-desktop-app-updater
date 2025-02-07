@@ -217,7 +217,7 @@ const TableView = ({
 								overflow: 'auto',
 								width: '100%',
 							}}
-							height="calc(100vh - 160px)"
+							maxHeight="calc(100vh - 160px)"
 							scrollThreshold="90%"
 						>
 							<TableBody
