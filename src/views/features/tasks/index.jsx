@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { ReactComponent as ClockSvg } from '../../../assets/svg/activity/clock.svg';
 import { ReactComponent as PieSvg } from '../../../assets/svg/tasks/pieHollow.svg';
 import { ReactComponent as PrioritySvg } from '../../../assets/svg/tasks/roundChevronRight.svg';
@@ -137,6 +137,8 @@ const Tasks = () => {
 		breadCrumbs: [],
 		timeout: null,
 	});
+
+	const timeoutRef = useRef(null);
 
 	const responseMetadata = useMemo(
 		() => ({
@@ -418,18 +420,15 @@ const Tasks = () => {
 		},
 		[info?.sort, info?.filters, info?.searchValue],
 	);
+
 	const handleDebounceFetch = useCallback(() => {
-		clearInterval(info?.timeout);
-		const timeout = setTimeout(() => {
+		if (timeoutRef.current) {
+			clearTimeout(timeoutRef.current);
+		}
+		timeoutRef.current = setTimeout(() => {
 			fetchListItems(1);
-			setInfo((prev) => ({
-				...prev,
-				loading: true,
-				timeout: null,
-			}));
 		}, 800);
-		setInfo((prev) => ({ ...prev, timeout }));
-	}, [info?.timeout, fetchListItems]);
+	}, [timeoutRef, fetchListItems]);
 
 	const fetchMoreData = useCallback(() => {
 		if (info.hasMore) {

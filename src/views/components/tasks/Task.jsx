@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useState } from 'react';
+import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import '../../../assets/scss/tasks/task.scss';
 import ListViewHeader from './listView/ListViewHeader';
 import { ReactComponent as ListViewIcon } from '../../../assets/svg/tasks/list.svg';
@@ -81,6 +81,7 @@ const Task = ({
 		timeout: null,
 	});
 	const [showEditViewDropDown, setShowEditViewDropDown] = useState(false);
+	const timeoutRef = useRef(null);
 
 	const handleEditViewDropDown = useCallback(() => {
 		setShowEditViewDropDown(true);
@@ -192,19 +193,16 @@ const Task = ({
 
 	const handleDebounceViewUpdate = useCallback(
 		(viewId, updateData) => {
-			clearInterval(taskInfo?.timeout);
-			const timeout = setTimeout(() => {
+			if (timeoutRef.current) {
+				clearTimeout(timeoutRef.current);
+			}
+			timeoutRef.current = setTimeout(() => {
 				updateView(viewId, {
 					...updateData,
 				});
-				setTaskInfo((prev) => ({
-					...prev,
-					timeout: null,
-				}));
 			}, 800);
-			setTaskInfo((prev) => ({ ...prev, timeout }));
 		},
-		[taskInfo?.timeout, updateView],
+		[timeoutRef, updateView],
 	);
 
 	const updateViewInfo = useCallback(
@@ -224,18 +222,18 @@ const Task = ({
 
 			setTaskInfo((prev) => ({ ...prev, tabs: newTabs }));
 			if (updateData?.sort) {
-				updateTaskInfo({ sort: updateData?.sort });
 				updateData.sort = updateData?.sort?.map((item) => ({
 					sortBy: item?.sortBy,
 					sortType: item?.sortType,
 				}));
+				updateTaskInfo({ sort: updateData?.sort });
 			}
 			if (updateData?.filters) {
-				updateTaskInfo({ filters: updateData?.filters });
 				updateData.filters = updateData?.filters?.map((item) => ({
 					key: item?.key,
 					value: item?.value,
 				}));
+				updateTaskInfo({ filters: updateData?.filters });
 			}
 			const { page, ...rest } = updateData;
 			handleDebounceViewUpdate(viewId, rest);
@@ -243,17 +241,6 @@ const Task = ({
 		[taskInfo.tabs, updateTaskInfo, handleDebounceViewUpdate],
 	);
 
-	// const handleDebounceViewUpdate = useCallback(
-	// 	(viewId, updateData) => {
-	// 		clearInterval(taskInfo?.timeout);
-	// 		const timeout = setTimeout(() => {
-	// 			updateViewInfo(viewId, {
-	// 				filters: updateData?.filters,
-	// 			});
-	// 		}, 800);
-	// 	},
-	// 	[taskInfo?.timeout, updateViewInfo],
-	// );
 	const viewMapper = useCallback(
 		(view) => {
 			const views = {
