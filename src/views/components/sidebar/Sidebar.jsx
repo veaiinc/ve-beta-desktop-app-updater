@@ -23,7 +23,7 @@ const Sidebar = ({ activeWorkspaceId }) => {
 	});
 
 	// conditional margin top for home page
-	const isHome = location?.pathname?.includes('home');
+	const isHome = location?.pathname?.includes('home') || location?.pathname?.includes('notes');
 
 	const [isOpen, setIsOpen] = useState(() => {
 		return JSON.parse(localStorage.getItem('isOpen')) ?? true;
