@@ -43,6 +43,7 @@ const initialState = {
 	isUploading: false,
 	currentPage: 1,
 	isUrlValid: false,
+	aiCrawlLinks: null,
 };
 
 const AddKnowledgeModal = ({ isOpen, toggleModal, assistantId }) => {
@@ -53,6 +54,8 @@ const AddKnowledgeModal = ({ isOpen, toggleModal, assistantId }) => {
 			getKnowledgeBaseFiles,
 			uploadURLsToKnowledgeBase,
 			uploadPDFsToKnowledgeBase,
+			crawlAiAssistant,
+			aiCrawlLinks,
 		},
 	} = useContext(Context);
 	const [info, setInfo] = useState(initialState);
@@ -65,6 +68,15 @@ const AddKnowledgeModal = ({ isOpen, toggleModal, assistantId }) => {
 			currentPage: knowledgeBaseFiles?.currentPage,
 		}));
 	}, [knowledgeBaseFiles]);
+
+	useEffect(() => {
+		if (aiCrawlLinks) {
+			setInfo((prev) => ({
+				...prev,
+				aiCrawlLinks: aiCrawlLinks?.urls,
+			}));
+		}
+	}, [aiCrawlLinks]);
 
 	const handleSetAllUploadedPDFFiles = (e) => {
 		const files = Array.from(e?.target?.files);
@@ -182,6 +194,14 @@ const AddKnowledgeModal = ({ isOpen, toggleModal, assistantId }) => {
 		}));
 	};
 
+	const handleAddCrawlLink = (link) => {
+		setInfo((prev) => ({
+			...prev,
+			urlsInfo: [...prev?.urlsInfo, { url: link }],
+			aiCrawlLinks: prev?.aiCrawlLinks?.filter((crawlLink) => crawlLink !== link),
+		}));
+	};
+
 	const handleSetInputURL = (e) => {
 		setInfo((prev) => ({
 			...prev,
@@ -266,7 +286,16 @@ const AddKnowledgeModal = ({ isOpen, toggleModal, assistantId }) => {
 										placeholder="Enter URL"
 										autoFocus={true}
 									/>
-									<button onClick={handleAddURL}>Add</button>
+									<button
+										onClick={() => {
+											handleAddURL();
+											crawlAiAssistant({
+												url: info?.inputURL,
+											});
+										}}
+									>
+										Add
+									</button>
 								</div>
 							</div>
 						)}
@@ -338,6 +367,29 @@ const AddKnowledgeModal = ({ isOpen, toggleModal, assistantId }) => {
 							</div>
 						) : null}
 					</div>
+					{info?.aiCrawlLinks?.length > 0 && (
+						<div className="crawlLinksContainer">
+							{info?.aiCrawlLinks?.map((link, index) => (
+								<div className="urlItem" key={index}>
+									<div className="linkIconContainer">
+										<LinkGrey />
+									</div>
+									<span className="url">{link}</span>
+									<div
+										className="removeIconContainer addSubUrlBtn"
+										onClick={() => handleAddCrawlLink(link)}
+									>
+										+
+									</div>
+								</div>
+							))}
+						</div>
+					)}
+					{info?.aiCrawlLinks === null && (
+						<p style={{ textAlign: 'center', color: '#7f7f82', width: '100%' }}>
+							Add url to fetch sub links from the urls
+						</p>
+					)}
 					<div className="updateBtnContainer">
 						<button className="cancelBtn" onClick={toggleModal}>
 							Cancel
@@ -361,7 +413,7 @@ const AddKnowledgeModal = ({ isOpen, toggleModal, assistantId }) => {
 											(knowledge) =>
 												knowledge?.value === info?.activeFileType,
 										)
-										.map((knowledge) => knowledge?.name)}
+										?.map((knowledge) => knowledge?.name)}
 								</p>
 							)}
 						</button>
