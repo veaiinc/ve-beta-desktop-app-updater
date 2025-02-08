@@ -902,7 +902,7 @@ export const AiSetupState = () => {
 					type: Actions?.CRAWL_AI_ASSISTANT,
 					payload: response?.[1],
 				});
-				return response?.[1];
+				return response?.[1].urls;
 			}
 		} catch (error) {
 			console.log('error==>crawlAiAssistant', error);

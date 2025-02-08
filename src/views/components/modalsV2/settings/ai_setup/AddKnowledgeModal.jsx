@@ -1,4 +1,4 @@
-import { memo, useState, useContext, useEffect } from 'react';
+import { memo, useState, useContext, useEffect, useCallback } from 'react';
 import { ReactComponent as CrossGrey } from '../../../../../assets/svg/Settings/cross-grey.svg';
 import { ReactComponent as LinkGrey } from '../../../../../assets/svg/Settings/link-grey-color.svg';
 import { ReactComponent as UploadIcon } from '../../../../../assets/svg/Settings/CloudUpload.svg';
@@ -69,14 +69,26 @@ const AddKnowledgeModal = ({ isOpen, toggleModal, assistantId }) => {
 		}));
 	}, [knowledgeBaseFiles]);
 
-	useEffect(() => {
-		if (aiCrawlLinks) {
+	const fetchSubLinks = useCallback(async (payload) => {
+		const subLinks = await crawlAiAssistant(payload);
+		if (subLinks?.length > 0) {
+			console.log('subLinks updating ', subLinks);
 			setInfo((prev) => ({
 				...prev,
-				aiCrawlLinks: aiCrawlLinks?.urls,
+				aiCrawlLinks: prev?.aiCrawlLinks
+					? [...prev.aiCrawlLinks, ...subLinks]
+					: [...subLinks],
 			}));
 		}
-	}, [aiCrawlLinks]);
+	}, []);
+
+	const modifyClose = useCallback(() => {
+		toggleModal();
+		setInfo((prev) => ({
+			...prev,
+			aiCrawlLinks: null,
+		}));
+	}, [toggleModal]);
 
 	const handleSetAllUploadedPDFFiles = (e) => {
 		const files = Array.from(e?.target?.files);
@@ -121,7 +133,7 @@ const AddKnowledgeModal = ({ isOpen, toggleModal, assistantId }) => {
 			}));
 			if (statusSummary?.[0]) {
 				message.success('URLs uploaded successfully!', 1);
-				toggleModal();
+				modifyClose();
 				getKnowledgeBaseFiles(activeAiAssistantDetails?._id, 1, 20, true);
 			}
 		} else if (info?.activeFileType === 'pdf') {
@@ -247,11 +259,11 @@ const AddKnowledgeModal = ({ isOpen, toggleModal, assistantId }) => {
 	};
 
 	return (
-		<Modal isOpen={isOpen} closeModal={toggleModal} customStyles={{ overlay: { zIndex: 1 } }}>
+		<Modal isOpen={isOpen} closeModal={modifyClose} customStyles={{ overlay: { zIndex: 1 } }}>
 			<div className="addKnowledgeModalContainer">
 				<div className="titleAndDescriptionContainer">
 					<h1 className="title">
-						Add Knowledge <CrossGrey className="closeBtn" onClick={toggleModal} />
+						Add Knowledge <CrossGrey className="closeBtn" onClick={modifyClose} />
 					</h1>
 					<h2>Choose one of the following:</h2>
 				</div>
@@ -289,7 +301,7 @@ const AddKnowledgeModal = ({ isOpen, toggleModal, assistantId }) => {
 									<button
 										onClick={() => {
 											handleAddURL();
-											crawlAiAssistant({
+											fetchSubLinks({
 												url: info?.inputURL,
 											});
 										}}
