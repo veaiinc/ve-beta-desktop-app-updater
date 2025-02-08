@@ -153,7 +153,7 @@ const AiKnowledgeBase = ({ assistant }) => {
 
 				<div className="knowledgeBaseListContainer">
 					<div className="header">
-						<span>Title</span>
+						<span style={{ minWidth: '438px' }}>Title</span>
 						<span>Status</span>
 						<span>Active</span>
 					</div>
@@ -181,7 +181,7 @@ const AiKnowledgeBase = ({ assistant }) => {
 								<div key={item?._id} className="knowledgeBaseItem">
 									<span>
 										{iconMapper?.[item?.sourceType]}
-										{item?.name}
+										<p>{item?.name}</p>
 										<Delete
 											className="deleteKnowledge"
 											onClick={() => deleteKnowledgeFile(item?._id)}
