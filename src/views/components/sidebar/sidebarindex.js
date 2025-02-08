@@ -119,7 +119,7 @@ export const veAiModulesItemsList = [
 
 export const veAiModules = [
 	// { icon: OrchestratorSvg, name: 'Orchestrator', route: '/orchestrator' },
-	// { icon: NotificationSvg, name: 'Notifications', route: '/notifications' },
+	{ icon: NotificationSvg, name: 'Notifications', route: '/notifications' },
 	// { icon: NotificationSvg, name: 'Trash', route: '/trash' },
 	{ id: 1, icon: GiftSvg, name: 'Share and Earn', route: '/share-and-earn' },
 	{ id: 2, icon: TemplatesSvg, name: 'Templates', route: '/playbook' },
