@@ -227,6 +227,10 @@
 						line-height: normal;
 					}
 
+					.sidebar-notification-icon {
+						fill: #202123;
+					}
+
 					&:hover {
 						border-radius: var(--Radius-lg, 24px);
 						background: var(--ve-ai-dark-theme-text-field-stroke-pop-up, #2e2f33);
