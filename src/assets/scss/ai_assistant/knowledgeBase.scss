@@ -117,6 +117,14 @@
 				display: flex;
 				align-items: center;
 				gap: 8px;
+				p {
+					justify-self: flex-start;
+					justify-content: flex-start;
+					white-space: nowrap;
+					overflow: hidden;
+					text-overflow: ellipsis;
+					width: 400px;
+				}
 
 				.deleteKnowledge {
 					cursor: pointer;

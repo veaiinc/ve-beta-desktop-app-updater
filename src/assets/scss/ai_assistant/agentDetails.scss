@@ -38,9 +38,6 @@
 		background: #171819;
 		background: color(display-p3 0.0902 0.0941 0.098);
 
-
-		
-
 		.ai-playground-header {
 			margin-bottom: 50px;
 
@@ -60,7 +57,7 @@
 	position: relative;
 	min-width: 500px;
 	min-height: 500px;
-	z-index: 1;
+	z-index: 10000;
 
 	.css-1hpnbz2 {
 		bottom: 40%;
