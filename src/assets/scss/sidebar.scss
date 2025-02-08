@@ -1,9 +1,52 @@
+.sidebar-notifications-drawer {
+	left: 250px;
+
+	.ant-drawer-content-wrapper {
+		.ant-drawer-header {
+			.ant-drawer-header-close-only {
+				display: none;
+			}
+		}
+
+		.ant-drawer-body {
+			background-color: #202123;
+			padding: 0px;
+
+			.notifications-drawer-container {
+				.header {
+					padding: 24px 20px;
+					display: flex;
+					justify-content: space-between;
+					align-items: center;
+
+					.title {
+						font-family: Inter;
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: 20px;
+						color: #f2f2f3;
+					}
+
+					.cta-container {
+						display: flex;
+						gap: 12px;
+						align-items: center;
+						cursor: pointer;
+					}
+				}
+			}
+		}
+	}
+}
+
 .FullScreenSidebar {
 	// padding: 20px;
 	// display: flex;
 	// height: 93vh;
 	// position: relative;
-	z-index: 1000;
+	border-right: 1px solid rgb(51, 51, 52);
+	z-index: 1001;
 	transition: height, width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 	&.opened {
 		height: 100dvh !important;
