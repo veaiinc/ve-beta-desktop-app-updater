@@ -81,6 +81,10 @@ const actionHandlers = {
 		...state,
 		aiAction: action?.payload,
 	}),
+	CRAWL_AI_ASSISTANT: (state, action) => ({
+		...state,
+		aiCrawlLinks: action?.payload,
+	}),
 	RESET_AI_PROMPT: (state, action) => ({
 		...state,
 		aiPrompt: action?.payload,

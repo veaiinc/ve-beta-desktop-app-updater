@@ -1,0 +1,33 @@
+/* Set maximum width and height for BlockNote */
+
+.notes-container {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: flex-start;
+	width: 100%;
+	height: 100vh;
+	background-color: #1e1e1e;
+	padding-top: 120px;
+	padding-bottom: 40px;
+	overflow-y: auto;
+
+	.bn-editor {
+		width: 900px;
+		max-width: 90%;
+		min-height: 500px;
+		padding: 32px 48px;
+		text-align: left;
+		background-color: #1e1e1e;
+		border-radius: 8px;
+	}
+
+	/* Custom Placeholder Styles */
+	.bn-placeholder {
+		font-size: 2rem; /* Make it as big as an H1 */
+		font-weight: bold;
+		color: #888; /* Light gray color */
+		text-align: center; /* Center the text */
+		font-family: 'Inter', sans-serif;
+	}
+}
