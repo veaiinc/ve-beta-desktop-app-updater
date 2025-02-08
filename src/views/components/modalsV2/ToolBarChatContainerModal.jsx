@@ -133,7 +133,10 @@ const ToolBarChatContainerModal = ({
 									{chat?.type?.toLowerCase() === 'ai' && <AiStarInChat />}
 									<div className="message-content">
 										{chat?.type?.toLowerCase() === 'ai' ? (
-											<TypingEffect text={chat?.message} />
+											<TypingEffect
+												text={chat?.message}
+												toolInvocations={chat?.toolInvocations}
+											/>
 										) : (
 											<Markdown>{chat?.message}</Markdown>
 										)}

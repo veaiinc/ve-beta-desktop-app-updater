@@ -1522,6 +1522,9 @@ export const TemplatesState = (props) => {
 				const updatedGlobalChatMessages = {
 					type: 'AI',
 					message: response?.[1]?.answer,
+					// toolInvocations: {
+					// 	type: 'text',
+					// },
 				};
 				dispatch({
 					type: Actions.GLOBAL_CHAT_MESSAGES_ACTIONS_SUCCESS,

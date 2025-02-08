@@ -3,6 +3,10 @@ import { default as ReactMarkdown } from 'react-markdown';
 // import remarkGfm from 'remark-gfm';
 import { Link } from 'react-router-dom'; // Adjust if you're using another router
 import '../assets/scss/markdown.scss';
+import NoteComponent from '../views/components/notes/NoteComponent';
+import NoteComponentModal from '../views/components/notes/NoteComponentModal';
+import { ReactComponent as FullscreenIcon } from '../assets/svg/notes/fullScreen.svg';
+import '../assets/scss/markdownHelper.scss';
 
 const components = {
 	pre: ({ children }) => <>{children}</>,
@@ -119,9 +123,10 @@ export const Markdown = memo(
 	(prevProps, nextProps) => prevProps.children === nextProps.children,
 );
 
-export const TypingEffect = ({ text, onComplete }) => {
+export const TypingEffect = ({ text, onComplete, toolInvocations }) => {
 	const [displayedText, setDisplayedText] = useState('');
 	const [currentIndex, setCurrentIndex] = useState(0);
+	const [modalIsOpen, setModalIsOpen] = useState(false);
 
 	useEffect(() => {
 		if (currentIndex < text?.length) {
@@ -136,10 +141,45 @@ export const TypingEffect = ({ text, onComplete }) => {
 		}
 	}, [currentIndex, text, onComplete]);
 
+	const handleCloseNoteModal = () => {
+		setModalIsOpen(false);
+	};
+
 	return (
-		<div className="typing-effect">
-			<Markdown>{displayedText}</Markdown>
-			{currentIndex < text?.length && <span className="typing-cursor" />}
-		</div>
+		<>
+			<div className="typing-effect">
+				{toolInvocations?.type === 'text' ? (
+					<div className={'chat-notes-container'}>
+						<div
+							className="full-screen-icon-container"
+							onClick={() => {
+								setModalIsOpen(true);
+							}}
+						>
+							<FullscreenIcon />
+						</div>
+						<div style={{ overflow: 'hidden' }}>
+							<NoteComponent
+								outerContainerStyle={{
+									width: '100%',
+									height: '310px',
+									borderRadius: '0.75rem',
+									padding: 0,
+								}}
+								// initialContent={displayedText}
+								innerContainerStyle={{
+									width: '100%',
+									height: '310px',
+								}}
+							/>
+						</div>
+					</div>
+				) : (
+					<Markdown>{displayedText}</Markdown>
+				)}
+				{currentIndex < text?.length && <span className="typing-cursor" />}
+			</div>
+			<NoteComponentModal modalIsOpen={modalIsOpen} closeModal={handleCloseNoteModal} />
+		</>
 	);
 };
