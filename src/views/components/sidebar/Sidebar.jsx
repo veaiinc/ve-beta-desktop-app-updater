@@ -120,7 +120,9 @@ const Sidebar = ({ activeWorkspaceId }) => {
 				}}
 			>
 				<nav
-					className={`sidebarComponent ${isOpen ? 'open' : ''}`}
+					className={`sidebarComponent ${isOpen ? 'open' : ''} ${
+						!isOpen && isHome && 'padding-48'
+					}`}
 					style={styles[sidebarStates?.navStyle]}
 				>
 					{isOpen ? (
