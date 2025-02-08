@@ -11,6 +11,13 @@ import moment from 'moment';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { FetchMoreLoaderComp } from '../../../../helpers';
 
+const initialState = {
+	loading: true,
+	activityLogsData: [],
+	currentPage: 1,
+	hasNextPage: false,
+};
+
 const ctaMapper = [
 	{
 		id: 1,
@@ -37,18 +44,13 @@ const Notifications = ({ showNotificationsDrawer, setShowNotificationsDrawer }) 
 		templates: { getActivityLogs, activityLogs, moreActivityLogs },
 	} = useContext(Context);
 
-	const [info, setInfo] = useState({
-		loading: true,
-		activityLogsData: [],
-		currentPage: 1,
-		hasNextPage: false,
-	});
+	const [info, setInfo] = useState({ ...initialState });
 
 	useEffect(() => {
-		if (showNotificationsDrawer && !activityLogs) {
+		if (showNotificationsDrawer) {
 			getActivityLogsData(1);
 		}
-	}, [showNotificationsDrawer, activityLogs]);
+	}, [showNotificationsDrawer]);
 
 	useEffect(() => {
 		if (activityLogs) {
@@ -105,11 +107,16 @@ const Notifications = ({ showNotificationsDrawer, setShowNotificationsDrawer }) 
 		return moment.unix(timestamp).fromNow();
 	};
 
+	const handleCloseDrawer = () => {
+		setShowNotificationsDrawer(false);
+		setInfo({ ...initialState });
+	};
+
 	return (
 		<Drawer
 			title={null}
 			open={showNotificationsDrawer}
-			onClose={() => setShowNotificationsDrawer(false)}
+			onClose={handleCloseDrawer}
 			placement="left"
 			width={346}
 			rootClassName="sidebar-notifications-drawer"
