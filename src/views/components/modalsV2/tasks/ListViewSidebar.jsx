@@ -10,6 +10,14 @@ import { ReactComponent as ExpandSvg } from '../../../../assets/svg/docs/expand.
 import Spinner from '../../loaders/Spinner';
 import Skeleton from 'react-loading-skeleton';
 import CustomTextArea from '../../globalComponents/CusomTextArea';
+import QuickActions from '../../globalComponents/QuickActions';
+
+const optionsForQuickActions = [
+	{ id: 4, title: 'Document', value: 'document' },
+	{ id: 6, title: 'Proposal', value: 'proposal' },
+	{ id: 7, title: 'Invoice', value: 'invoice' },
+	{ id: 8, title: 'Contract', value: 'contract' },
+];
 
 const ListViewSidebar = ({
 	selectedRow,
@@ -27,6 +35,7 @@ const ListViewSidebar = ({
 	headerText,
 	breadCrumbs,
 	handleBreadCrumbsClick,
+	showQuickActions = false,
 }) => {
 	const [info, setInfo] = useState({
 		subTasks: [],
@@ -192,6 +201,9 @@ const ListViewSidebar = ({
 									{...props}
 									onOptionClick={(value) => handleUpdate(row._id, key, value)}
 									colors={colors}
+									onUpdate={(value, onSuccess) =>
+										handleUpdate(row._id, key, value, false, onSuccess)
+									}
 									takeFullspace={true}
 								/>
 							) : (
@@ -266,6 +278,12 @@ const ListViewSidebar = ({
 							</div>
 
 							<div className="sidebar-header-right-container">
+								{showQuickActions && (
+									<QuickActions
+										customActions={optionsForQuickActions}
+										clientDetails={selectedRow}
+									/>
+								)}
 								<button
 									className="sidebar-delete-button"
 									onClick={() => {
@@ -285,24 +303,25 @@ const ListViewSidebar = ({
 								</button>
 							</div>
 						</div>
-
-						<div className="breadCrumbs-container">
-							{breadCrumbs?.map((item, index) => (
-								<div
-									className="breadCrumbs-item"
-									key={item?.label}
-									onClick={() => {
-										handleBreadCrumbsClick(item, index);
-									}}
-								>
-									{item?.label}
-									<div className="right-svg">
-										<RightSvg height={12} width={12} />
+						{headerText && (
+							<div className="breadCrumbs-container">
+								{breadCrumbs?.map((item, index) => (
+									<div
+										className="breadCrumbs-item"
+										key={item?.label}
+										onClick={() => {
+											handleBreadCrumbsClick(item, index);
+										}}
+									>
+										{item?.label}
+										<div className="right-svg">
+											<RightSvg height={12} width={12} />
+										</div>
 									</div>
-								</div>
-							))}
-							<div className="breadCrumbs-item active">{headerText}</div>
-						</div>
+								))}
+								<div className="breadCrumbs-item active">{headerText}</div>
+							</div>
+						)}
 
 						<div className="sidebar-title">
 							<CustomTextArea

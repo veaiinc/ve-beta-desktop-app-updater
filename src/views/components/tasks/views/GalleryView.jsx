@@ -132,7 +132,7 @@ const GalleryView = ({
 				next={fetchMoreData}
 				hasMore={hasMore}
 				loader={<FetchMoreLoaderComp />}
-				height={infiniteScrollHeight || 'calc(100vh - 100px)'}
+				height={infiniteScrollHeight || '100%'}
 				className="gallery-view-wrapper"
 				scrollThreshold={0.8}
 			>

@@ -112,7 +112,7 @@ const routes = [
 	{
 		path: '/home',
 		component: (
-			<AuthWrapper title={'Home'}>
+			<AuthWrapper title={'Home'} outerContainerStyle={{ padding: '0 32px' }}>
 				<HomePage />
 			</AuthWrapper>
 		),

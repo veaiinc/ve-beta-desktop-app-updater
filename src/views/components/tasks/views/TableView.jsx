@@ -144,7 +144,7 @@ const TableView = ({
 	];
 
 	const generateSkeleton = useCallback(() => {
-		return [...Array(6)].map((_, index) => (
+		return [...Array(16)].map((_, index) => (
 			<div className="tableRowSkeleton" key={index}>
 				<Skeleton width="100%" height="38px" />
 			</div>

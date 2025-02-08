@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useState } from 'react';
+import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import '../../../assets/scss/tasks/task.scss';
 import ListViewHeader from './listView/ListViewHeader';
 import { ReactComponent as ListViewIcon } from '../../../assets/svg/tasks/list.svg';
@@ -78,8 +78,10 @@ const Task = ({
 	const [taskInfo, setTaskInfo] = useState({
 		tabs: null,
 		activeTab: null,
+		timeout: null,
 	});
 	const [showEditViewDropDown, setShowEditViewDropDown] = useState(false);
+	const timeoutRef = useRef(null);
 
 	const handleEditViewDropDown = useCallback(() => {
 		setShowEditViewDropDown(true);
@@ -87,22 +89,40 @@ const Task = ({
 
 	useEffect(() => {
 		if (views) {
-			setTaskInfo((prevInfo) => ({
-				...prevInfo,
-				tabs: Object.fromEntries(
-					views?.map((view, index) => [
-						view?._id,
-						{
-							...view,
-							order: index,
-							Icon: layouts?.[view?.viewType]?.Icon || ListViewIcon,
-						},
-					]),
-				),
-				activeTab: views?.some((view) => view?._id === prevInfo?.activeTab)
-					? prevInfo?.activeTab
-					: views?.[0]?._id,
-			}));
+			setTaskInfo((prevInfo) => {
+				// Only update sort and filters if there was no previous activeTab
+				const isInitialLoad = !prevInfo?.activeTab;
+
+				if (isInitialLoad) {
+					updateTaskInfo({
+						sort: [...views[0]?.sort].map((item) => ({
+							sortBy: item?.sortBy,
+							sortType: item?.sortType,
+						})),
+						filters: [...views[0]?.filters].map((item) => ({
+							key: item?.key,
+							value: item?.value,
+						})),
+					});
+				}
+
+				return {
+					...prevInfo,
+					tabs: Object.fromEntries(
+						views?.map((view, index) => [
+							view?._id,
+							{
+								...view,
+								order: index,
+								Icon: layouts?.[view?.viewType]?.Icon || ListViewIcon,
+							},
+						]),
+					),
+					activeTab: views?.some((view) => view?._id === prevInfo?.activeTab)
+						? prevInfo?.activeTab
+						: views?.[0]?._id,
+				};
+			});
 		}
 	}, [views]);
 
@@ -171,6 +191,20 @@ const Task = ({
 		return labels[view] || 'List';
 	};
 
+	const handleDebounceViewUpdate = useCallback(
+		(viewId, updateData) => {
+			if (timeoutRef.current) {
+				clearTimeout(timeoutRef.current);
+			}
+			timeoutRef.current = setTimeout(() => {
+				updateView(viewId, {
+					...updateData,
+				});
+			}, 800);
+		},
+		[timeoutRef, updateView],
+	);
+
 	const updateViewInfo = useCallback(
 		(viewId, updateData) => {
 			const newTabs = { ...taskInfo.tabs };
@@ -188,16 +222,23 @@ const Task = ({
 
 			setTaskInfo((prev) => ({ ...prev, tabs: newTabs }));
 			if (updateData?.sort) {
+				updateData.sort = updateData?.sort?.map((item) => ({
+					sortBy: item?.sortBy,
+					sortType: item?.sortType,
+				}));
 				updateTaskInfo({ sort: updateData?.sort });
 			}
 			if (updateData?.filters) {
+				updateData.filters = updateData?.filters?.map((item) => ({
+					key: item?.key,
+					value: item?.value,
+				}));
 				updateTaskInfo({ filters: updateData?.filters });
 			}
-			updateView(viewId, {
-				...updateData,
-			});
+			const { page, ...rest } = updateData;
+			handleDebounceViewUpdate(viewId, rest);
 		},
-		[taskInfo.tabs, updateTaskInfo, updateView],
+		[taskInfo.tabs, updateTaskInfo, handleDebounceViewUpdate],
 	);
 
 	const viewMapper = useCallback(

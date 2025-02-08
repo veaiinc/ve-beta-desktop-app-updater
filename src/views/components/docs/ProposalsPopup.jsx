@@ -26,9 +26,10 @@ const initialState = {
 	timeout: null,
 	searchChanged: false,
 	versionPopup: false,
+	smartfileIdFromExistingClient: null,
 };
 
-const ProposalPopup = ({ open, closeModal }) => {
+const ProposalPopup = ({ open, closeModal, clientDetails = null }) => {
 	const navigate = useNavigate();
 	const customStyles = {
 		content: { zIndex: 99999 },
@@ -39,7 +40,7 @@ const ProposalPopup = ({ open, closeModal }) => {
 	});
 
 	const {
-		templates: { getMyWorkflows, myWorkflows, myMoreWorkflows },
+		templates: { getMyWorkflows, myWorkflows, myMoreWorkflows, createLeadfromTemplates },
 		activityInfo: { createSmartfile, smartfile },
 	} = useContext(Context);
 
@@ -66,6 +67,12 @@ const ProposalPopup = ({ open, closeModal }) => {
 	}, [smartfile]);
 
 	useEffect(() => {
+		if (info?.smartfileIdFromExistingClient) {
+			window.location.href = `${origin}/${info?.smartfileIdFromExistingClient}?workflow=true&templateId=${info?.activeTemplateData?._id}`;
+		}
+	}, [info?.smartfileIdFromExistingClient]);
+
+	useEffect(() => {
 		if (info?.searchChanged) {
 			handleDebounceFetch();
 		}
@@ -88,15 +95,39 @@ const ProposalPopup = ({ open, closeModal }) => {
 
 		setInfo((prev) => ({ ...prev, loading: true, activeTemplateData: template }));
 
-		const payload = {
-			smartFileInput: {
-				title: template?.title,
-				templateId: template?._id,
-			},
-		};
+		let payload = null;
+
+		if (clientDetails && clientDetails?.name) {
+			payload = {
+				workflowInput: {
+					clientDetails: {
+						name: clientDetails?.['name'],
+					},
+					templateId: template?._id,
+					title: clientDetails?.['name'],
+				},
+			};
+		} else {
+			payload = {
+				smartFileInput: {
+					title: template?.title,
+					templateId: template?._id,
+				},
+			};
+		}
 
 		try {
-			await createSmartfile(payload);
+			if (clientDetails && clientDetails?.name) {
+				const response = await createLeadfromTemplates(payload);
+				if (response?.[0]) {
+					setInfo((prev) => ({
+						...prev,
+						smartfileIdFromExistingClient: response?.[1],
+					}));
+				}
+			} else {
+				await createSmartfile(payload);
+			}
 		} catch (error) {
 			console.error('Failed to create smartfile:', error);
 		} finally {

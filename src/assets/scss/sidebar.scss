@@ -4,15 +4,15 @@
 	// height: 93vh;
 	// position: relative;
 	z-index: 1000;
-	transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+	transition: height, width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 	&.opened {
 		height: 100dvh !important;
 		position: relative;
 		margin-left: -32px !important;
-		margin-top: -60px !important;
+		margin-top: -60px;
 		padding: 0 !important;
 		margin-right: 10px !important;
-		transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+		transition: height, width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 	}
 
 	// &.no-submodules:not(.opened) {

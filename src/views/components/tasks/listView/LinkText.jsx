@@ -1,7 +1,8 @@
-import { Tooltip } from 'antd';
+import { message, Tooltip } from 'antd';
 import React, { memo, useEffect, useState } from 'react';
 import '../../../../assets/scss/tasks/linkText.scss';
 import CustomTextArea from '../../globalComponents/CustomTextArea';
+const validator = require('validator');
 
 const typeMapper = {
 	link: '',
@@ -35,8 +36,26 @@ const LinkText = ({
 	};
 
 	const handleSave = () => {
-		if (info.value !== value && onUpdate) {
-			onUpdate(info.value, onSuccess);
+		if (info?.value !== value && onUpdate) {
+			if (linkType === 'email') {
+				if (!validator.isEmail(info?.value?.trim())) {
+					message.error('Invalid email');
+					return;
+				}
+			}
+			if (linkType === 'phone') {
+				if (!validator.isMobilePhone(info?.value?.trim())) {
+					message.error('Invalid phone number');
+					return;
+				}
+			}
+			if (linkType === 'link') {
+				if (!validator.isURL(info?.value?.trim())) {
+					message.error('Invalid link');
+					return;
+				}
+			}
+			onUpdate(info?.value?.trim(), onSuccess);
 		}
 		setInfo({ ...info, isEditing: false });
 	};

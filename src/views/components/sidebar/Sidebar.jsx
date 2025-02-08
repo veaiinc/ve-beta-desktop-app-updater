@@ -22,6 +22,9 @@ const Sidebar = ({ activeWorkspaceId }) => {
 		selectedModule: null,
 	});
 
+	// conditional margin top for home page
+	const isHome = location?.pathname?.includes('home');
+
 	const [isOpen, setIsOpen] = useState(() => {
 		return JSON.parse(localStorage.getItem('isOpen')) ?? true;
 	});
@@ -113,6 +116,7 @@ const Sidebar = ({ activeWorkspaceId }) => {
 					alignItems: sidebarStates?.workSpaceOpen ? 'flex-start' : ' ',
 					maxHeight: info?.activeRoute === '/home' ? (isOpen ? '' : '') : '',
 					minHeight: info?.activeRoute === '/home' ? (isOpen ? '' : '250px') : '',
+					marginTop: isHome && '0',
 				}}
 			>
 				<nav
