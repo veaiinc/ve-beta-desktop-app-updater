@@ -49,6 +49,7 @@ export const initialState = {
 	tokenForVoice: null,
 	aiChatLogs: null,
 	moreAiChatLogs: null,
+	aiCrawlLinks: null,
 };
 
 export const AiSetupState = () => {
@@ -890,6 +891,24 @@ export const AiSetupState = () => {
 		}
 	};
 
+	const crawlAiAssistant = async (data) => {
+		let workspaceId = localStorage.getItem('workspaceId');
+		let usertoken = localStorage.getItem('usertoken');
+		const url = '/' + workspaceId + AI_ACTIONS?.aiCrawl;
+		try {
+			const response = await service?.fetchPost(url, data, usertoken, 'ai_predictions');
+			if (response?.[0]) {
+				dispatch({
+					type: Actions?.CRAWL_AI_ASSISTANT,
+					payload: response?.[1],
+				});
+				return response?.[1].urls;
+			}
+		} catch (error) {
+			console.log('error==>crawlAiAssistant', error);
+		}
+	};
+
 	const resetAiSetupState = () => {
 		dispatch({ type: Actions?.RESET_STATE });
 	};
@@ -928,6 +947,7 @@ export const AiSetupState = () => {
 		addAiAction,
 		updateAiAction,
 		deleteAiAction,
+		crawlAiAssistant,
 		getAiChatLogs,
 		removeFile,
 		getTokenForVoice,
