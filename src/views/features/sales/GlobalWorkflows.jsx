@@ -111,10 +111,10 @@ const GlobalWorkflows = () => {
 
 		const [success, response] = await getModuleTemplate(payload);
 		if (success) {
-			setModuleTemplateData(response.templates);
+			setModuleTemplateData(response?.templates);
 			setModuleInfo({
 				currentPage: 1,
-				hasNextPage: response.hasNextPage,
+				hasNextPage: response?.hasNextPage,
 			});
 		}
 		setInfo((prev) => ({ ...prev, isLoading: false }));
@@ -177,10 +177,10 @@ const GlobalWorkflows = () => {
 	}, []);
 
 	const fetchMoreGlobalWorkflows = useCallback(() => {
-		if (info?.hasNextPage && !info.isLoading) {
+		if (info?.hasNextPage && !info?.isLoading) {
 			getGlobalWorkflowTemplatesData(info?.currentPage + 1, true);
 		}
-	}, [info?.hasNextPage, info?.currentPage, info.isLoading, getGlobalWorkflowTemplatesData]);
+	}, [info?.hasNextPage, info?.currentPage, info?.isLoading, getGlobalWorkflowTemplatesData]);
 
 	const openModal = useCallback((data, module) => {
 		if (!data) {
@@ -207,7 +207,7 @@ const GlobalWorkflows = () => {
 
 	const handleSearch = useCallback(
 		(e) => {
-			const newSearchQuery = e.target.value;
+			const newSearchQuery = e?.target?.value;
 			setSearchQuery(newSearchQuery);
 			setInfo((prev) => ({ ...prev, searchChanged: true }));
 		},
@@ -256,13 +256,13 @@ const GlobalWorkflows = () => {
 	}, [info?.activeTemplateData, info?.duplicateApiLoading, selectedOption]);
 
 	const fetchMoreModuleTemplates = useCallback(async () => {
-		if (!moduleInfo?.hasNextPage || info.isLoading) return;
+		if (!moduleInfo?.hasNextPage || info?.isLoading) return;
 
 		const payload = {
 			page: (moduleInfo?.currentPage || 0) + 1,
 			limit: 10,
 			type: 'global',
-			module: selectedOption.toLowerCase(),
+			module: selectedOption?.toLowerCase(),
 		};
 		if (searchQuery?.length) {
 			payload.title = searchQuery;
@@ -271,10 +271,10 @@ const GlobalWorkflows = () => {
 		try {
 			const [success, response] = await getModuleTemplate(payload);
 			if (success && response?.templates) {
-				setModuleTemplateData((prev) => [...(prev || []), ...response.templates]);
+				setModuleTemplateData((prev) => [...(prev || []), ...response?.templates]);
 				setModuleInfo({
-					currentPage: moduleInfo.currentPage + 1,
-					hasNextPage: response.hasNextPage,
+					currentPage: moduleInfo?.currentPage + 1,
+					hasNextPage: response?.hasNextPage,
 				});
 			}
 		} catch (error) {
@@ -286,7 +286,7 @@ const GlobalWorkflows = () => {
 		moduleInfo?.hasNextPage,
 		moduleInfo?.currentPage,
 		selectedOption,
-		info.isLoading,
+		info?.isLoading,
 		searchQuery,
 	]);
 
@@ -300,7 +300,7 @@ const GlobalWorkflows = () => {
 					style={{ background: `url(${backgroundImage})` }}
 				>
 					<div className={`globalWorkflowContainer`}>
-						<div className={`left_div  ${info.modalIsOpen ? 'modal-open' : ''}`}>
+						<div className={`left_div  ${info?.modalIsOpen ? 'modal-open' : ''}`}>
 							<div className="left_child_div">
 								<h2 className="side_heading">Templates</h2>
 								<p className="side_text">
@@ -346,7 +346,7 @@ const GlobalWorkflows = () => {
 						</div>
 						<div
 							className={`mainContentContainer ${
-								info.modalIsOpen ? 'modal-open' : ''
+								info?.modalIsOpen ? 'modal-open' : ''
 							}`}
 							id="templatesScrollableTarget"
 						>
