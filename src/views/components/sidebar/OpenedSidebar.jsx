@@ -17,6 +17,7 @@ import { ReactComponent as RightArrowSvg } from '../../../assets/svg/sidebar/Rig
 import WorkspaceListComponent from './Workspace';
 import useLogout from '../../hooks/useLogout';
 import { Tooltip } from 'antd';
+import Notifications from './notifications/Notifications';
 const CommonBottomSection = ({ handleLogout, openWorkspacesFunction, workSpaceOpen }) => (
 	<div
 		className="commonBottomSection"
@@ -80,6 +81,7 @@ const OpenedSideBarHoverStateIcons = ({
 }) => {
 	const location = useLocation();
 	const [isHover, setisHover] = useState(false);
+	const [showNotificationsDrawer, setShowNotificationsDrawer] = useState(false);
 	const onMoutseEnter = () => {
 		if (isActive) return;
 		setisHover(true);
@@ -89,7 +91,10 @@ const OpenedSideBarHoverStateIcons = ({
 		setisHover(false);
 	};
 
-	const redirectToFunction = (subModules, route) => {
+	const redirectToFunction = (subModules, route, name) => {
+		if (name === 'Notifications') {
+			setShowNotificationsDrawer(!showNotificationsDrawer);
+		}
 		if (!subModules) {
 			setActiveDropdown(null);
 			setActiveSubModule(null);
@@ -122,7 +127,7 @@ const OpenedSideBarHoverStateIcons = ({
 				onMouseEnter={onMoutseEnter}
 				onMouseLeave={onMoutseLeave}
 				onClick={() => {
-					redirectToFunction(subModules, route);
+					redirectToFunction(subModules, route, name);
 				}}
 				style={{
 					marginBottom:
@@ -201,6 +206,10 @@ const OpenedSideBarHoverStateIcons = ({
 					</div>
 				)}
 			</div>
+			<Notifications
+				showNotificationsDrawer={showNotificationsDrawer}
+				setShowNotificationsDrawer={setShowNotificationsDrawer}
+			/>
 		</div>
 	);
 };
@@ -225,6 +234,7 @@ const OpenedSideBarHoverStateIcons2 = ({
 	};
 
 	const redirectToFunction = () => {
+		console.log('route', route);
 		if (!route) return;
 		navigateTo(route);
 	};
