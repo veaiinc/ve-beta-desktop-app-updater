@@ -299,18 +299,18 @@ const GalleryPage = () => {
 		};
 
 		const timeoutId = setTimeout(() => {
-			const container = document.querySelector('.galleryContainer');
+			const container = document?.querySelector('.galleryContainer');
 			if (container) {
-				container.addEventListener('scroll', handleScroll);
+				container?.addEventListener('scroll', handleScroll);
 				handleScroll();
 			}
 		}, 100);
 
 		return () => {
 			clearTimeout(timeoutId);
-			const container = document.querySelector('.galleryContainer');
+			const container = document?.querySelector('.galleryContainer');
 			if (container) {
-				container.removeEventListener('scroll', handleScroll);
+				container?.removeEventListener('scroll', handleScroll);
 			}
 		};
 	}, []);
