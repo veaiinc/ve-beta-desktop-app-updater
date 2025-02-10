@@ -61,9 +61,9 @@ const NoteComponentModal = ({
 			height={'100vh'}
 		>
 			<div className="modal-container">
-				<div className="toolExpandedChatBarContainer">
+				<div className="chatBarContainer">
 					{/* chat body */}
-					<div className={`toolBarchatBodyParentContainer`}>
+					<div className={`chatBodyParentContainer`}>
 						<div className="chatContent">
 							{chatList?.map((chat, index) =>
 								chat?.content ? (
@@ -123,15 +123,15 @@ const NoteComponentModal = ({
 					)}
 
 					{/* //message Container */}
-					<div className="toolBarChatInputContainer">
-						<div className={`toolBarExpandedChatInputParentContainer`}>
+					<div className="chatInputContainer">
+						<div className={`chatInputParentContainer`}>
 							<textarea
 								type="text"
 								placeholder="Hey! Need help? Ask me anything."
 								value={chatQuery}
 								onChange={onChange}
 								onKeyDown={onKeyDown}
-								className="toolBarExpandedTextArea"
+								className="textArea"
 								// rows={1}
 							/>
 							{/* <SendSvg
@@ -152,9 +152,22 @@ const NoteComponentModal = ({
 					</div>
 				</div>
 				<div className="note-component">
+					<div className="header">wedding</div>
+
 					<NoteComponent
-						outerContainerStyle={{ width: '100%', height: '100%', padding: 0 }}
-						innerContainerStyle={{ width: '100%', height: '100%' }}
+						outerContainerStyle={{
+							width: '100%',
+							maxWidth: '692px',
+							height: '100%',
+							padding: 0,
+							margin: 'auto',
+							backgroundColor: '#171819',
+						}}
+						innerContainerStyle={{
+							width: '100%',
+							height: '100%',
+							backgroundColor: '#171819',
+						}}
 						initialContent={info?.noteContent}
 					/>
 				</div>
