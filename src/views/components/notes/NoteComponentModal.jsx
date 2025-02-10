@@ -62,29 +62,6 @@ const NoteComponentModal = ({
 		>
 			<div className="modal-container">
 				<div className="toolExpandedChatBarContainer">
-					{/* header */}
-					<div className="toolExpandedChatBarContainerHeader" style={{ width: '100%' }}>
-						<h1 className="toolExpandedChatBarContainerHeaderTitle">AI Assistant</h1>
-						<div className="toolExpandedChatBarContainerHeaderIconContainer">
-							{/* <ExpandChatIcon
-								onClick={() => {
-									if (showFullPage) {
-										toggleFullPage();
-									}
-
-									setIsExpanded(!isExpanded);
-								}}
-							/>
-							<CloseSvg
-								onClick={() => {
-									setIsExpanded(false);
-									onClose();
-								}}
-								style={{ cursor: 'pointer' }}
-							/> */}
-						</div>
-					</div>
-
 					{/* chat body */}
 					<div className={`toolBarchatBodyParentContainer`}>
 						<div className="chatContent">
@@ -96,21 +73,8 @@ const NoteComponentModal = ({
 										key={index}
 										className={`chat-message ${chat?.type?.toLowerCase()}-message`}
 									>
-										{chat?.type?.toLowerCase() === 'ai' && <AiStarInChat />}
 										<div className="message-content">
 											{chat?.type?.toLowerCase() === 'ai' ? (
-												// chat?.toolInvocations?.type === 'text' ? (
-												// 	<DocumentPreview
-												// 		content={content}
-												// 		title={'title'}
-												// 		onClick={handleNoteComponentModalOpen}
-												// 	/>
-												// ) : (
-												// 	<TypingEffect
-												// 		text={chat?.message}
-												// 		toolInvocations={chat?.toolInvocations}
-												// 	/>
-												// )
 												<TypingEffect
 													text={chat?.message}
 													toolInvocations={chat?.toolInvocations}
@@ -159,29 +123,31 @@ const NoteComponentModal = ({
 					)}
 
 					{/* //message Container */}
-					<div className={`toolBarExpandedChatInputParentContainer`}>
-						<textarea
-							type="text"
-							placeholder="Hey! Need help? Ask me anything."
-							value={chatQuery}
-							onChange={onChange}
-							onKeyDown={onKeyDown}
-							className="toolBarExpandedTextArea"
-							// rows={1}
-						/>
-						{/* <SendSvg
+					<div className="toolBarChatInputContainer">
+						<div className={`toolBarExpandedChatInputParentContainer`}>
+							<textarea
+								type="text"
+								placeholder="Hey! Need help? Ask me anything."
+								value={chatQuery}
+								onChange={onChange}
+								onKeyDown={onKeyDown}
+								className="toolBarExpandedTextArea"
+								// rows={1}
+							/>
+							{/* <SendSvg
 						style={{
 							cursor: aiChatLoading ? 'not-allowed' : 'pointer',
 							opacity: aiChatLoading ? 0.5 : 1,
 						}}
 						onClick={() => !aiChatLoading && onKeyDown(null, 'key')}
 					/> */}
-						<div className="chat-icons-container">
-							{chatIcons?.map((icon, idx) => (
-								<span key={idx} className="chat-icon">
-									{icon}
-								</span>
-							))}
+							<div className="chat-icons-container">
+								{chatIcons?.map((icon, idx) => (
+									<span key={idx} className="chat-icon">
+										{icon}
+									</span>
+								))}
+							</div>
 						</div>
 					</div>
 				</div>

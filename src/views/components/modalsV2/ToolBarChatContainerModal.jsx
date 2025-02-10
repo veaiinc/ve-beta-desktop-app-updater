@@ -66,7 +66,7 @@ const ToolBarChatContainerModal = ({
 	const [isExpanded, setIsExpanded] = useState(isChatExpanded || false);
 	const [info, setInfo] = useState({
 		width: isExpanded ? '100%' : '400px',
-		noteModalIsOpen: false,
+		noteModalIsOpen: true,
 	});
 
 	const chatContentRef = useRef(null);
