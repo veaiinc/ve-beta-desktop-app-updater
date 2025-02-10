@@ -1,5 +1,5 @@
 import { Drawer, Spin } from 'antd';
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import '../../../assets/scss/notes/noteComponentModal.scss';
 import { ReactComponent as AiStarInChat } from '../../../assets/svg/ai_agents/ai-star-in-chat.svg';
 import NoteComponent from './NoteComponent';
@@ -24,6 +24,9 @@ const NoteComponentModal = ({
 	handlePreview,
 	handleRemoveImage,
 }) => {
+	const [info, setInfo] = useState({
+		noteContent: '',
+	});
 	const chatIcons = useMemo(
 		() => [
 			<Filter />,
@@ -42,6 +45,12 @@ const NoteComponentModal = ({
 		],
 		[onImageUpload],
 	);
+
+	const handleEditNoteClick = () => {
+		setInfo({
+			noteContent: 'hiiii',
+		});
+	};
 	return (
 		<Drawer
 			open={modalIsOpen}
@@ -52,7 +61,7 @@ const NoteComponentModal = ({
 			height={'100vh'}
 		>
 			<div className="modal-container">
-				<div className="toolExpandedChatBarContainer" style={{ width: '100%' }}>
+				<div className="toolExpandedChatBarContainer">
 					{/* header */}
 					<div className="toolExpandedChatBarContainerHeader" style={{ width: '100%' }}>
 						<h1 className="toolExpandedChatBarContainerHeaderTitle">AI Assistant</h1>
@@ -105,6 +114,7 @@ const NoteComponentModal = ({
 												<TypingEffect
 													text={chat?.message}
 													toolInvocations={chat?.toolInvocations}
+													onEditClick={handleEditNoteClick}
 												/>
 											) : (
 												<Markdown>{chat?.message}</Markdown>
@@ -179,6 +189,7 @@ const NoteComponentModal = ({
 					<NoteComponent
 						outerContainerStyle={{ width: '100%', height: '100%', padding: 0 }}
 						innerContainerStyle={{ width: '100%', height: '100%' }}
+						initialContent={info?.noteContent}
 					/>
 				</div>
 			</div>

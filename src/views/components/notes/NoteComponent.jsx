@@ -6,7 +6,8 @@ import { useCreateBlockNote } from '@blocknote/react';
 import '../../../assets/scss/notes/noteComponent.scss';
 import { locales } from '@blocknote/core';
 import NoteToolbar from './NoteToolbar';
-import { useEffect, memo } from 'react';
+import { useEffect, memo, useContext } from 'react';
+import Context from '../../../context/context';
 
 const NoteComponent = ({
 	initialContent = '',
@@ -15,6 +16,9 @@ const NoteComponent = ({
 	innerContainerStyle = {},
 	editable = true,
 }) => {
+	let {
+		documentPreview: { noteContent },
+	} = useContext(Context);
 	// Creates a new editor instance.
 	const editor = useCreateBlockNote();
 
@@ -24,14 +28,12 @@ const NoteComponent = ({
 				return markdown?.replace(/\n{2,}/g, '\n\n&nbsp;\n\n'); // Add a non-breaking space for empty lines
 			};
 
-			const blocks = await editor.tryParseMarkdownToBlocks(
-				preprocessMarkdown(initialContent),
-			);
+			const blocks = await editor.tryParseMarkdownToBlocks(preprocessMarkdown(noteContent));
 			editor.replaceBlocks(editor.document, blocks);
 		}
 
-		if (initialContent?.length) loadInitialHTML();
-	}, [initialContent]);
+		if (noteContent?.length) loadInitialHTML();
+	}, [noteContent]);
 
 	const onChange = async () => {
 		// Converts the editor's contents from Block objects to Markdown and store to state.

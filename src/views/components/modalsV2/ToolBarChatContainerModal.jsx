@@ -202,15 +202,7 @@ const ToolBarChatContainerModal = ({
 													/>
 												</>
 											) : (
-												<div>
-													<Markdown>jgfhgjfdhjk</Markdown>
-													<div
-														className="fill-screen-icon-container"
-														onClick={handleNoteComponentModalOpen}
-													>
-														<FullscreenSvg />
-													</div>
-												</div>
+												<Markdown>{chat?.message}</Markdown>
 											)}
 										</div>
 									</div>
@@ -282,16 +274,16 @@ const ToolBarChatContainerModal = ({
 						</div>
 					</div>
 				</div>
+				<NoteComponentModal
+					modalIsOpen={info?.noteModalIsOpen}
+					closeModal={handleNoteComponentModalClose}
+					content={content}
+					chatQuery={chatQuery}
+					onKeyDown={onKeyDown}
+					onChange={onChange}
+					chatList={chatList}
+				/>
 			</Drawer>
-			<NoteComponentModal
-				modalIsOpen={info?.noteModalIsOpen}
-				closeModal={handleNoteComponentModalClose}
-				content={content}
-				chatQuery={chatQuery}
-				onKeyDown={onKeyDown}
-				onChange={onChange}
-				chatList={chatList}
-			/>
 		</>
 	);
 };

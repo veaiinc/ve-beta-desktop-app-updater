@@ -13,7 +13,7 @@ import {
 	TextAlignButton,
 	UnnestBlockButton,
 } from '@blocknote/react';
-import { TextColorPicker } from './TextColorPicker';
+// import { TextColorPicker } from './TextColorPicker';
 
 export default function NoteToolbar() {
 	return (
@@ -35,7 +35,8 @@ export default function NoteToolbar() {
 					{/* Extra button to toggle code styles */}
 					<BasicTextStyleButton key={'codeStyleButton'} basicTextStyle={'code'} />
 
-					<TextColorPicker key={'textColorPicker'} />
+					{/* <TextColorPicker key={'textColorPicker'} /> */}
+					<ColorStyleButton key={'colorStyleButton'} />
 
 					<TextAlignButton textAlignment={'left'} key={'textAlignLeftButton'} />
 					<TextAlignButton textAlignment={'center'} key={'textAlignCenterButton'} />

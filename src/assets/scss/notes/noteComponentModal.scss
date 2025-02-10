@@ -12,11 +12,12 @@
 			justify-content: flex-end;
 
 			.toolExpandedChatBarContainer {
-				width: 250px;
+				width: 400px;
 				height: 100%;
 				display: flex;
 				flex-direction: column;
 				background-color: #0e0f0f;
+				flex-shrink: 0;
 				.toolExpandedChatBarContainerHeader {
 					width: 400px;
 					height: 68px;
@@ -194,7 +195,7 @@
 			}
 
 			.note-component {
-				width: calc(100% - 250px);
+				width: calc(100% - 400px);
 				height: 100%;
 			}
 		}
