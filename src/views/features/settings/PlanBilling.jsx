@@ -64,6 +64,12 @@ const PlanBilling = () => {
 		freeTier: false,
 		currency: '',
 		addOnsLoading: false,
+		storageLimit: 0,
+		imagesLimit: 0,
+		totalImagesUploaded: 0,
+		tenantUsers: 0,
+		tenantUsersLimit: 0,
+		aiCreditsLimit: 0,
 	});
 
 	useEffect(() => {
@@ -72,7 +78,7 @@ const PlanBilling = () => {
 
 	useEffect(() => {
 		if (currentPlan) {
-			const tierStatus = currentPlan?.currentSubscriptionPlan?.totalPrice ? false : true;
+			const tierStatus = currentPlan?.isPaidTenant ? false : true;
 			setInfo((prev) => ({
 				...prev,
 				loading: false,
@@ -80,6 +86,12 @@ const PlanBilling = () => {
 				expiresAt: currentPlan?.currentSubscriptionPlan?.expiresAt,
 				freeTier: tierStatus,
 				currency: currentPlan?.currentSubscriptionPlan?.currency,
+				storageLimit: currentPlan?.storageLimitInGB,
+				imagesLimit: currentPlan?.imagesLimit,
+				totalImagesUploaded: currentPlan?.totalImagesUploaded,
+				tenantUsers: currentPlan?.totalTenantUsers,
+				tenantUsersLimit: currentPlan?.tenantUsersLimit,
+				aiCreditsLimit: currentPlan?.aiCreditsLimit,
 			}));
 			if (!tierStatus) {
 				handleAddOnsForCurrentPlan();
@@ -108,9 +120,15 @@ const PlanBilling = () => {
 					expiresAt={info?.expiresAt}
 					currency={info?.currency}
 					addOnsLoading={info?.addOnsLoading}
+					storageLimit={info?.storageLimit}
+					imagesLimit={info?.imagesLimit}
+					totalImagesUploaded={info?.totalImagesUploaded}
+					tenantUsers={info?.tenantUsers}
+					tenantUsersLimit={info?.tenantUsersLimit}
+					aiCreditsLimit={info?.aiCreditsLimit}
 				/>
 			) : (
-				<FreeTierPlanCard expiresAt={info?.expiresAt} />
+				<FreeTierPlanCard expiresAt={info?.expiresAt} addOnsLoading={info?.addOnsLoading} />
 			)}
 
 			<div className="notifications-main-container">
@@ -142,11 +160,22 @@ const PlanBilling = () => {
 
 export default memo(PlanBilling);
 
-const SubscribedUserPlanCard = ({ data, expiresAt, currency, addOnsLoading }) => {
+const SubscribedUserPlanCard = ({
+	data,
+	expiresAt,
+	currency,
+	addOnsLoading,
+	storageLimit,
+	imagesLimit,
+	totalImagesUploaded,
+	tenantUsers,
+	tenantUsersLimit,
+	aiCredits,
+	aiCreditsLimit,
+}) => {
 	const navigate = useNavigate();
 	let {
 		subscriptionInfo: { createManageSubscriptionLinkforExistingUsers },
-		authInfo: { currentPlanAddOns, purchaseAddOn },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -185,20 +214,6 @@ const SubscribedUserPlanCard = ({ data, expiresAt, currency, addOnsLoading }) =>
 		}
 	}, [expiresAt]);
 
-	const handlePurchaseAddOn = useCallback(
-		async (planId) => {
-			setInfo((prev) => ({ ...prev, addOnPurchaseLoader: true, planPurchaseId: planId }));
-			const response = await purchaseAddOn(planId);
-			if (response?.[0]) {
-				window.location.href = response?.[1]?.url;
-			} else {
-				message?.error(response?.[1]?.message);
-			}
-			setInfo((prev) => ({ ...prev, addOnPurchaseLoader: false, planPurchaseId: null }));
-		},
-		[info?.planPurchaseId],
-	);
-
 	return (
 		<div className="subscriptionWrapperContainer">
 			<div className="subscriptionUpdatedPlanCard">
@@ -206,7 +221,7 @@ const SubscribedUserPlanCard = ({ data, expiresAt, currency, addOnsLoading }) =>
 				<div className="subscriptionPlanContent">
 					<div className="subscriptionPlanPricingDetails">
 						<span className="subscriptionPlanPricing">
-							{currency === 'INR' ? '₹ ' : '$ '}
+							{currency === 'INR' ? 'â‚¹ ' : '$ '}
 							{data?.totalPrice?.toLocaleString('en-IN', {
 								currency: currency,
 							})}
@@ -245,6 +260,83 @@ const SubscribedUserPlanCard = ({ data, expiresAt, currency, addOnsLoading }) =>
 					) : (
 						''
 					)}
+					<div className="storageContainer">
+						<div className="storageContainerHolder">
+							<div className="storageTitle">STORAGE</div>
+							<div className="storageUsed">
+								<span className="storageUsedValue">{data?.storageInGB}</span>
+								<span className="storageUsedUnit">GB</span> used out of{' '}
+								{storageLimit} GB
+							</div>
+							<div className="storageProgress">
+								<div
+									className="storageProgressValue"
+									style={{
+										width: `${(data?.storageInGB / storageLimit) * 100}%`,
+									}}
+								></div>
+							</div>
+						</div>
+						<div className="storageContainerHolder">
+							<div className="storageTitle">LITE IMAGES</div>
+							<div className="storageUsed">
+								<span className="storageUsedValue">{totalImagesUploaded}</span>
+								<span className="storageUsedUnit">Images</span> used out of{' '}
+								{imagesLimit}
+							</div>
+							<div className="storageProgress">
+								<div
+									className="storageProgressValue"
+									style={{
+										width: `${(totalImagesUploaded / imagesLimit) * 100}%`,
+									}}
+								></div>
+							</div>
+						</div>
+						<div className="storageContainerHolder">
+							<div className="storageTitle">TENANT USERS</div>
+							<div className="storageUsed">
+								<span className="storageUsedValue">{tenantUsers}</span>
+								<span className="storageUsedUnit">Users</span> used out of{' '}
+								{tenantUsersLimit}
+							</div>
+							<div className="storageProgress">
+								<div
+									className="storageProgressValue"
+									style={{
+										width: `${Math.min(
+											(tenantUsers / tenantUsersLimit) * 100,
+											100,
+										)}%`,
+									}}
+								></div>
+							</div>
+							<div className="storageProgressText">
+								{tenantUsers > tenantUsersLimit ? 'You have reached the limit' : ''}
+							</div>
+						</div>
+						<div className="storageContainerHolder">
+							<div className="storageTitle">AI CREDITS</div>
+							<div className="storageUsed">
+								<span className="storageUsedValue">{aiCreditsLimit}</span>
+								<span className="storageUsedUnit">Credits</span> left
+							</div>
+							{/* <div className="storageProgress">
+								<div
+									className="storageProgressValue"
+									style={{
+										width: `${Math.min(
+											(aiCredits / aiCreditsLimit) * 100,
+											100,
+										)}%`,
+									}}
+								></div>
+							</div> */}
+							<div className="storageProgressText">
+								{aiCredits > aiCreditsLimit ? 'You have reached the limit' : ''}
+							</div>
+						</div>
+					</div>
 				</div>
 				{data?.addOnPlan && Object.values(data?.addOnPlan)?.length ? (
 					<div className="subscriptionSeperator"></div>
@@ -264,94 +356,136 @@ const SubscribedUserPlanCard = ({ data, expiresAt, currency, addOnsLoading }) =>
 					</div>
 				</div>
 			</div>
-			<div className="addOnsContainer">
-				<h1 className="title">Add-ons</h1>
-				<div className="addOnsCardsContainer">
-					{addOnsLoading
-						? [1, 2, 3, 4].map((loader) => (
-								<Skeleton
-									key={loader}
-									height="200px"
-									style={{ borderRadius: '24px' }}
-									width="100%"
-								/>
-						  ))
-						: currentPlanAddOns?.map((addOn) => {
-								const {
-									_id: planId,
-									plan,
-									isRecurring,
-									recurringType,
-									totalPrice,
-									currency,
-								} = addOn;
-
-								return (
-									<div className="addOnsCards" key={planId}>
-										<h1 className="addOnPlanName">{plan}</h1>
-										<div className="priceContainer">
-											<span className="currencySymbol">
-												{currency === 'INR' ? '₹ ' : '$ '}
-											</span>
-											<span className="priceValue">{totalPrice}</span>
-											<span
-												className={`priceDuration ${
-													!isRecurring ? 'oneTime' : ''
-												}`}
-											>
-												{isRecurring ? `/ ${recurringType}` : 'One time'}
-											</span>
-										</div>
-										<button
-											onClick={() => handlePurchaseAddOn(planId)}
-											className="addOnsButton"
-										>
-											{info?.addOnPurchaseLoader &&
-											info?.planPurchaseId === planId ? (
-												<Spinner width="16px" height="16px" />
-											) : (
-												'Add Now'
-											)}
-										</button>
-									</div>
-								);
-						  })}
-				</div>
-			</div>
+			<AddOnPlans addOnsLoading={addOnsLoading} />
 		</div>
 	);
 };
 
-const FreeTierPlanCard = ({ expiresAt }) => {
+const AddOnPlans = ({ addOnsLoading }) => {
+	const [info, setInfo] = useState({
+		addOnPurchaseLoader: false,
+		planPurchaseId: null,
+	});
+
+	let {
+		authInfo: { currentPlanAddOns, purchaseAddOn },
+	} = useContext(Context);
+
+	const handlePurchaseAddOn = useCallback(
+		async (planId) => {
+			setInfo((prev) => ({ ...prev, addOnPurchaseLoader: true, planPurchaseId: planId }));
+			const response = await purchaseAddOn(planId);
+			if (response?.[0]) {
+				window.location.href = response?.[1]?.url;
+			} else {
+				message?.error(response?.[1]?.message);
+			}
+			setInfo((prev) => ({ ...prev, addOnPurchaseLoader: false, planPurchaseId: null }));
+		},
+		[info?.planPurchaseId],
+	);
+
+	return (
+		<>
+			{currentPlanAddOns && (
+				<div className="addOnsContainer">
+					<h1 className="title">Add-ons</h1>
+					<div className="addOnsCardsContainer">
+						{addOnsLoading
+							? [1, 2, 3, 4].map((loader) => (
+									<Skeleton
+										key={loader}
+										height="200px"
+										style={{ borderRadius: '24px' }}
+										width="100%"
+									/>
+							  ))
+							: currentPlanAddOns?.map((addOn) => {
+									const {
+										_id: planId,
+										plan,
+										isRecurring,
+										recurringType,
+										totalPrice,
+										currency,
+									} = addOn;
+
+									return (
+										<div className="addOnsCards" key={planId}>
+											<h1 className="addOnPlanName">{plan}</h1>
+											<div className="priceContainer">
+												<span className="currencySymbol">
+													{currency === 'INR' ? 'â‚¹ ' : '$ '}
+												</span>
+												<span className="priceValue">{totalPrice}</span>
+												<span
+													className={`priceDuration ${
+														!isRecurring ? 'oneTime' : ''
+													}`}
+												>
+													{isRecurring
+														? `/ ${recurringType}`
+														: 'One time'}
+												</span>
+											</div>
+											<button
+												onClick={() => handlePurchaseAddOn(planId)}
+												className="addOnsButton"
+											>
+												{info?.addOnPurchaseLoader &&
+												info?.planPurchaseId === planId ? (
+													<Spinner width="16px" height="16px" />
+												) : (
+													'Add Now'
+												)}
+											</button>
+										</div>
+									);
+							  })}
+					</div>
+				</div>
+			)}
+		</>
+	);
+};
+
+const FreeTierPlanCard = ({ expiresAt, addOnsLoading }) => {
 	const navigate = useNavigate();
 	return (
-		<div className="freePlanCardContainer">
-			<span className="subscriptionPlanHeader">Free trial</span>
-			<div className="subscriptionPlanContent">
-				<div className="subscriptionPlanPricingDetails">
-					<span className="subscriptionPlanPricing">$0</span>
-				</div>
+		<>
+			<div className="freePlanCardContainer">
+				<span className="subscriptionPlanHeader">Free trial</span>
+				<div className="subscriptionPlanContent">
+					<div className="subscriptionPlanPricingDetails">
+						<span className="subscriptionPlanPricing">$0</span>
+					</div>
 
-				<div className="subscritptionFeaturesContainer">
-					{features?.map((ele, index) => (
-						<div className="subscriptionFeature" key={index}>
-							<Tick />
-							<span className="subscriptionFeatureContent">{ele}</span>
-						</div>
-					))}
+					<div className="subscritptionFeaturesContainer">
+						{features?.map((ele, index) => (
+							<div className="subscriptionFeature" key={index}>
+								<Tick />
+								<span className="subscriptionFeatureContent">{ele}</span>
+							</div>
+						))}
+					</div>
+				</div>
+				<div className="subscriptionSeperator"></div>
+				<div className="freePlanSubscriptionCardContainer">
+					<span className="freeTrialText">
+						Your free trial expires at{' '}
+						{moment?.unix(`${expiresAt}`)?.format('DD MMM YYYY')} ! Don't miss out -
+						upgrade now to keep enjoying premium features.
+					</span>
+
+					<div
+						className="manageSubscriptionButton"
+						onClick={() => navigate('/subscription')}
+					>
+						Upgrade Subscription
+					</div>
 				</div>
 			</div>
-			<div className="subscriptionSeperator"></div>
-			<div className="freePlanSubscriptionCardContainer">
-				<span className="freeTrialText">
-					Your free trial expires at {moment?.unix(`${expiresAt}`)?.format('DD MMM YYYY')}{' '}
-					! Don't miss out - upgrade now to keep enjoying premium features.
-				</span>
-
-				<div className="manageSubscriptionButton" onClick={() => navigate('/subscription')}>
-					Upgrade Subscription
-				</div>
-			</div>
-		</div>
+			<AddOnPlans addOnsLoading={addOnsLoading} />
+		</>
 	);
 };
