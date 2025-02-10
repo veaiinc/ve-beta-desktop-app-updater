@@ -42,6 +42,7 @@ const NoteComponent = ({
 	customOnChange = null,
 	outerContainerStyle = {},
 	innerContainerStyle = {},
+	editable = true,
 }) => {
 	// Creates a new editor instance.
 	const editor = useCreateBlockNote({
@@ -60,6 +61,7 @@ const NoteComponent = ({
 				editor={editor}
 				onChange={customOnChange ? customOnChange : saveContent}
 				style={innerContainerStyle}
+				editable={editable}
 			/>
 		</div>
 	);

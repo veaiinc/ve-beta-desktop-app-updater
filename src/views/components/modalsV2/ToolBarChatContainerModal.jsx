@@ -12,9 +12,41 @@ import { ReactComponent as Arroba } from '../../../assets/svg/ai_agents/arroba.s
 import { ReactComponent as PaperClip } from '../../../assets/svg/ai_agents/paper-clip.svg';
 import { ReactComponent as Mic } from '../../../assets/svg/ai_agents/mic.svg';
 import { Markdown, TypingEffect } from '../../../helpers/markdownHelper';
+import { ReactComponent as FullscreenSvg } from '../../../assets/svg/notes/fullScreen.svg';
 import Upload from 'antd/es/upload/Upload';
 import { useMemo } from 'react';
-
+import NoteComponentModal from '../notes/NoteComponentModal';
+import DocumentPreview from './notes/DocumentPreview';
+const content = [
+	{
+		id: '437ddacc-fe2a-4f0a-89b1-27bad7088ad2',
+		type: 'paragraph',
+		props: {
+			textColor: '#f2f2f3',
+			backgroundColor: 'default',
+			textAlignment: 'left',
+		},
+		content: [
+			{
+				type: 'text',
+				text: 'New page',
+				styles: {},
+			},
+		],
+		children: [],
+	},
+	{
+		id: '1c6f0227-6d08-4c44-9ada-a9a5bee0abfc',
+		type: 'paragraph',
+		props: {
+			textColor: '#f2f2f3',
+			backgroundColor: 'default',
+			textAlignment: 'left',
+		},
+		content: [],
+		children: [],
+	},
+];
 const ToolBarChatContainerModal = ({
 	onClose,
 	modalIsOpen,
@@ -33,7 +65,8 @@ const ToolBarChatContainerModal = ({
 }) => {
 	const [isExpanded, setIsExpanded] = useState(isChatExpanded || false);
 	const [info, setInfo] = useState({
-		width: isExpanded ? 'calc(100% - 245px)' : '400px',
+		width: isExpanded ? '100%' : '400px',
+		noteModalIsOpen: false,
 	});
 
 	const chatContentRef = useRef(null);
@@ -53,7 +86,7 @@ const ToolBarChatContainerModal = ({
 		} else {
 			setInfo((prev) => ({
 				...prev,
-				width: isExpanded ? 'calc(100% - 245px)' : '400px',
+				width: isExpanded ? '100%' : '400px',
 			}));
 		}
 	}, [showFullPage, isExpanded]);
@@ -63,6 +96,12 @@ const ToolBarChatContainerModal = ({
 			chatContentRef.current.scrollTop = chatContentRef.current.scrollHeight;
 		}
 	}, [chatList]); // Scroll whenever chatList changes
+	const handleNoteComponentModalClose = () => {
+		setInfo((prev) => ({
+			...prev,
+			noteModalIsOpen: false,
+		}));
+	};
 
 	const chatIcons = useMemo(
 		() => [
@@ -83,134 +122,177 @@ const ToolBarChatContainerModal = ({
 		[onImageUpload],
 	);
 
+	const handleNoteComponentModalOpen = () => {
+		setInfo((prev) => ({
+			...prev,
+			noteModalIsOpen: true,
+		}));
+	};
+
 	return (
-		<Drawer
-			onClose={() => {
-				setIsExpanded(false);
-				onClose();
-			}}
-			width={info?.width}
-			open={modalIsOpen}
-			style={{ backgroundColor: '#171819' }}
-			headerStyle={{ display: 'none' }}
-			bodyStyle={{ padding: '0px' }}
-		>
-			<div className="toolExpandedChatBarContainer" style={{ width: '100%' }}>
-				{/* header */}
-				<div className="toolExpandedChatBarContainerHeader" style={{ width: '100%' }}>
-					<h1 className="toolExpandedChatBarContainerHeaderTitle">AI Assistant</h1>
-					<div className="toolExpandedChatBarContainerHeaderIconContainer">
-						<ExpandChatIcon
-							onClick={() => {
-								if (showFullPage) {
-									toggleFullPage();
-								}
+		<>
+			<Drawer
+				onClose={() => {
+					setIsExpanded(false);
+					onClose();
+				}}
+				width={info?.width}
+				open={modalIsOpen}
+				style={{ backgroundColor: '#171819' }}
+				headerStyle={{ display: 'none' }}
+				bodyStyle={{ padding: '0px' }}
+			>
+				<div className="toolExpandedChatBarContainer" style={{ width: '100%' }}>
+					{/* header */}
+					<div className="toolExpandedChatBarContainerHeader" style={{ width: '100%' }}>
+						<h1 className="toolExpandedChatBarContainerHeaderTitle">AI Assistant</h1>
+						<div className="toolExpandedChatBarContainerHeaderIconContainer">
+							<ExpandChatIcon
+								onClick={() => {
+									if (showFullPage) {
+										toggleFullPage();
+									}
 
-								setIsExpanded(!isExpanded);
-							}}
-						/>
-						<CloseSvg
-							onClick={() => {
-								setIsExpanded(false);
-								onClose();
-							}}
-							style={{ cursor: 'pointer' }}
-						/>
+									setIsExpanded(!isExpanded);
+								}}
+							/>
+							<CloseSvg
+								onClick={() => {
+									setIsExpanded(false);
+									onClose();
+								}}
+								style={{ cursor: 'pointer' }}
+							/>
+						</div>
 					</div>
-				</div>
 
-				{/* chat body */}
-				<div className={`toolBarchatBodyParentContainer ${isExpanded ? 'expanded' : ''}`}>
-					<div className="chatContent" ref={chatContentRef}>
-						{chatList?.map((chat, index) =>
-							chat?.content ? (
-								chat?.content
-							) : (
-								<div
-									key={index}
-									className={`chat-message ${chat?.type?.toLowerCase()}-message`}
-								>
-									{chat?.type?.toLowerCase() === 'ai' && <AiStarInChat />}
-									<div className="message-content">
-										{chat?.type?.toLowerCase() === 'ai' ? (
-											<TypingEffect
-												text={chat?.message}
-												toolInvocations={chat?.toolInvocations}
-											/>
-										) : (
-											<Markdown>{chat?.message}</Markdown>
-										)}
-									</div>
-								</div>
-							),
-						)}
-					</div>
-				</div>
-
-				{uploadedImages?.length ? (
-					<div className="imagePreviewBar">
-						{uploadedImages?.map((ele, index) => (
-							<div className="previewOfUploadedImage" key={index}>
-								<img
-									src={ele?.preview}
-									alt="uploaded"
-									width={'100%'}
-									height={'100%'}
-									style={{ objectFit: 'cover', borderRadius: '12px' }}
-									onClick={() => handlePreview(ele)}
-								/>
-
-								{ele?.loading ? (
-									<div className="spinContainerLoaderForPreview">
-										<Spin />
-									</div>
+					{/* chat body */}
+					<div
+						className={`toolBarchatBodyParentContainer ${isExpanded ? 'expanded' : ''}`}
+					>
+						<div className="chatContent" ref={chatContentRef}>
+							{chatList?.map((chat, index) =>
+								chat?.content ? (
+									chat?.content
 								) : (
-									<span
-										className="removeImageIcon"
-										onClick={() => handleRemoveImage(ele)}
+									<div
+										key={index}
+										className={`chat-message ${chat?.type?.toLowerCase()}-message`}
 									>
-										<Close />
-									</span>
-								)}
-							</div>
-						))}
+										{chat?.type?.toLowerCase() === 'ai' && <AiStarInChat />}
+										<div className="message-content">
+											{chat?.type?.toLowerCase() === 'ai' ? (
+												// chat?.toolInvocations?.type === 'text' ? (
+												// 	<DocumentPreview
+												// 		content={content}
+												// 		title={'title'}
+												// 		onClick={handleNoteComponentModalOpen}
+												// 	/>
+												// ) : (
+												// 	<TypingEffect
+												// 		text={chat?.message}
+												// 		toolInvocations={chat?.toolInvocations}
+												// 	/>
+												// )
+												<>
+													<TypingEffect
+														text={chat?.message}
+														toolInvocations={chat?.toolInvocations}
+														onClick={handleNoteComponentModalOpen}
+													/>
+												</>
+											) : (
+												<div>
+													<Markdown>jgfhgjfdhjk</Markdown>
+													<div
+														className="fill-screen-icon-container"
+														onClick={handleNoteComponentModalOpen}
+													>
+														<FullscreenSvg />
+													</div>
+												</div>
+											)}
+										</div>
+									</div>
+								),
+							)}
+						</div>
 					</div>
-				) : (
-					''
-				)}
 
-				{/* //message Container */}
-				<div
-					className={`toolBarExpandedChatInputParentContainer   ${
-						isExpanded ? 'expanded' : ''
-					}`}
-				>
-					<textarea
-						type="text"
-						placeholder="Hey! Need help? Ask me anything."
-						value={chatQuery}
-						onChange={onChange}
-						onKeyDown={onKeyDown}
-						className="toolBarExpandedTextArea"
-						// rows={1}
-					/>
-					{/* <SendSvg
+					{uploadedImages?.length ? (
+						<div className="imagePreviewBar">
+							{uploadedImages?.map((ele, index) => (
+								<div className="previewOfUploadedImage" key={index}>
+									<img
+										src={ele?.preview}
+										alt="uploaded"
+										width={'100%'}
+										height={'100%'}
+										style={{ objectFit: 'cover', borderRadius: '12px' }}
+										onClick={() => handlePreview(ele)}
+									/>
+
+									{ele?.loading ? (
+										<div className="spinContainerLoaderForPreview">
+											<Spin />
+										</div>
+									) : (
+										<span
+											className="removeImageIcon"
+											onClick={() => handleRemoveImage(ele)}
+										>
+											<Close />
+										</span>
+									)}
+								</div>
+							))}
+						</div>
+					) : (
+						''
+					)}
+
+					{/* //message Container */}
+					<div
+						className={`toolBarExpandedChatInputParentContainer   ${
+							isExpanded ? 'expanded' : ''
+						}`}
+					>
+						<textarea
+							type="text"
+							placeholder="Hey! Need help? Ask me anything."
+							value={chatQuery}
+							onChange={onChange}
+							onKeyDown={onKeyDown}
+							className="toolBarExpandedTextArea"
+							// rows={1}
+						/>
+						{/* <SendSvg
 						style={{
 							cursor: aiChatLoading ? 'not-allowed' : 'pointer',
 							opacity: aiChatLoading ? 0.5 : 1,
 						}}
 						onClick={() => !aiChatLoading && onKeyDown(null, 'key')}
 					/> */}
-					<div className="chat-icons-container">
-						{chatIcons?.map((icon, idx) => (
-							<span key={idx} className="chat-icon">
-								{icon}
-							</span>
-						))}
+						<div className="chat-icons-container">
+							{chatIcons?.map((icon, idx) => (
+								<span key={idx} className="chat-icon">
+									{icon}
+								</span>
+							))}
+						</div>
 					</div>
 				</div>
-			</div>
-		</Drawer>
+			</Drawer>
+			<NoteComponentModal
+				modalIsOpen={info?.noteModalIsOpen}
+				closeModal={handleNoteComponentModalClose}
+				content={content}
+				chatQuery={chatQuery}
+				onKeyDown={onKeyDown}
+				onChange={onChange}
+				chatList={chatList}
+			/>
+		</>
 	);
 };
 
