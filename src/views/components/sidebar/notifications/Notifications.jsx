@@ -132,47 +132,47 @@ const Notifications = ({ showNotificationsDrawer, setShowNotificationsDrawer }) 
 					</div>
 				</div>
 				<div className="body">
-					{info?.loading && (
+					{info?.loading ? (
 						<div className="loading-state">
 							<p className="message">Loading notifications...</p>
 						</div>
+					) : info?.activityLogsData?.length === 0 ? (
+						<div className="empty-state">
+							<p className="message">No notifications yet!</p>
+						</div>
+					) : (
+						<InfiniteScroll
+							dataLength={info?.activityLogsData?.length || 0}
+							next={fetchMoreActivityLogs}
+							hasMore={info?.hasNextPage}
+							loader={<FetchMoreLoaderComp />}
+							style={{
+								display: 'flex',
+								flexDirection: 'column',
+								alignItems: 'flex-start',
+								gap: '8px',
+								flex: '1 0 0',
+								alignSelf: 'stretch',
+							}}
+							height={infiniteScrollHeight}
+						>
+							{info?.activityLogsData?.map((activityLog) => (
+								<div key={activityLog?._id} className="activity-log">
+									<WhiteDot />
+									<p className="summary">
+										{activityLog?.summary || ''}
+										<br />
+										<span className="action">{activityLog?.action}</span>
+									</p>
+									<p className="time">
+										{activityLog?.timestamp
+											? formatTimestamp(activityLog?.timestamp)
+											: ''}
+									</p>
+								</div>
+							))}
+						</InfiniteScroll>
 					)}
-					<InfiniteScroll
-						dataLength={info?.activityLogsData?.length || 0}
-						next={fetchMoreActivityLogs}
-						hasMore={info?.hasNextPage}
-						loader={<FetchMoreLoaderComp />}
-						style={{
-							display: 'flex',
-							flexDirection: 'column',
-							alignItems: 'flex-start',
-							gap: '8px',
-							flex: '1 0 0',
-							alignSelf: 'stretch',
-						}}
-						height={infiniteScrollHeight}
-					>
-						{info?.activityLogsData?.map((activityLog) => (
-							<div key={activityLog?._id} className="activity-log">
-								<WhiteDot />
-								<p className="summary">
-									{activityLog?.summary || ''}
-									<br />
-									<span className="action">{activityLog?.action}</span>
-								</p>
-								<p className="time">
-									{activityLog?.timestamp
-										? formatTimestamp(activityLog?.timestamp)
-										: ''}
-								</p>
-							</div>
-						))}
-						{info?.activityLogsData?.length === 0 && !info?.loading && (
-							<div className="empty-state">
-								<p className="message">No notifications yet!</p>
-							</div>
-						)}
-					</InfiniteScroll>
 				</div>
 			</div>
 		</Drawer>
