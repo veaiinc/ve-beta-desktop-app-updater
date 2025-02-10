@@ -96,7 +96,7 @@ const GlobalWorkflows = () => {
 	}, [searchQuery, info?.searchChanged]);
 
 	const fetchFilteredTemplates = async (option) => {
-		setInfo((prev) => ({ ...prev, isLoading: true }));
+		// setInfo((prev) => ({ ...prev, isLoading: true }));
 		setModuleTemplateData(null);
 
 		const payload = {
@@ -213,18 +213,19 @@ const GlobalWorkflows = () => {
 		},
 		[info],
 	);
-	const handleDebounceSearch = useCallback(() => {
+	const handleDebounceSearch = useCallback(async () => {
 		clearInterval(info?.timeout);
-		const timeout = setTimeout(() => {
+		const timeout = setTimeout(async () => {
 			if (selectedOption === 'Workflow') {
-				getGlobalWorkflowTemplatesData(1);
+				await getGlobalWorkflowTemplatesData(1);
 			} else {
-				fetchFilteredTemplates(selectedOption);
+				await fetchFilteredTemplates(selectedOption);
 			}
 			setInfo((prev) => ({
 				...prev,
-				searchLoading: true,
+				searchLoading: false,
 				timeout: null,
+				isLoading: false,
 			}));
 		}, 800);
 		setInfo((prev) => ({ ...prev, timeout }));
