@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useContext, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useContext, useRef, memo } from 'react';
 import '../../../assets/scss/gallery/albumSettings.scss';
 import ToggleSlider from '../../../views/components/input/slider';
 import { useNavigate, useLocation, useParams, useSearchParams } from 'react-router-dom';
@@ -663,4 +663,4 @@ const AlbumSettings = () => {
 	);
 };
 
-export default AlbumSettings;
+export default memo(AlbumSettings);
