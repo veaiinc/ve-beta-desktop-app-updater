@@ -18,6 +18,8 @@ import WorkspaceListComponent from './Workspace';
 import useLogout from '../../hooks/useLogout';
 import { Tooltip } from 'antd';
 import Notifications from './notifications/Notifications';
+import Chats from './chats/Chats';
+
 const CommonBottomSection = ({ handleLogout, openWorkspacesFunction, workSpaceOpen }) => (
 	<div
 		className="commonBottomSection"
@@ -82,6 +84,7 @@ const OpenedSideBarHoverStateIcons = ({
 	const location = useLocation();
 	const [isHover, setisHover] = useState(false);
 	const [showNotificationsDrawer, setShowNotificationsDrawer] = useState(false);
+	const [showChatsDrawer, setShowChatsDrawer] = useState(false);
 	const onMoutseEnter = () => {
 		if (isActive) return;
 		setisHover(true);
@@ -94,6 +97,9 @@ const OpenedSideBarHoverStateIcons = ({
 	const redirectToFunction = (subModules, route, name) => {
 		if (name === 'Notifications') {
 			setShowNotificationsDrawer(!showNotificationsDrawer);
+		}
+		if (name === 'Chats') {
+			setShowChatsDrawer(!showChatsDrawer);
 		}
 		if (!subModules) {
 			setActiveDropdown(null);
@@ -210,6 +216,7 @@ const OpenedSideBarHoverStateIcons = ({
 				showNotificationsDrawer={showNotificationsDrawer}
 				setShowNotificationsDrawer={setShowNotificationsDrawer}
 			/>
+			<Chats showChatsDrawer={showChatsDrawer} setShowChatsDrawer={setShowChatsDrawer} />
 		</div>
 	);
 };
