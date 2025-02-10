@@ -864,9 +864,9 @@ const GalleryPage = () => {
 						isPublished: !currentAlbum?.isPublished,
 					},
 					activeAlbumId: currentAlbumId, // Ensure this stays the same
-					tenantAlbums: (Array.isArray(prev?.tenantAlbums) ? prev.tenantAlbums : []).map(
+					tenantAlbums: (Array.isArray(prev?.tenantAlbums) ? prev?.tenantAlbums : []).map(
 						(album) =>
-							album._id === currentAlbumId
+							album?._id === currentAlbumId
 								? { ...album, isPublished: !currentAlbum?.isPublished }
 								: album,
 					),
@@ -894,14 +894,14 @@ const GalleryPage = () => {
 		setInfo((prev) => ({
 			...prev,
 			activeAlbum: {
-				...prev.activeAlbum,
+				...prev?.activeAlbum,
 				guestAccess: {
-					...prev.activeAlbum?.guestAccess,
+					...prev?.activeAlbum?.guestAccess,
 					isEnabled: newGuestAccessState,
 				},
 			},
 			tenantAlbums: prev?.tenantAlbums?.map((album) =>
-				album._id === prev.activeAlbumId
+				album?._id === prev?.activeAlbumId
 					? {
 							...album,
 							guestAccess: {
@@ -913,12 +913,12 @@ const GalleryPage = () => {
 			),
 			albumImagesCount: {
 				...prev.albumImagesCount,
-				albums: prev.albumImagesCount?.albums?.map((album) =>
-					album._id === prev.activeAlbumId
+				albums: prev?.albumImagesCount?.albums?.map((album) =>
+					album?._id === prev?.activeAlbumId
 						? {
 								...album,
 								guestAccess: {
-									...album.guestAccess,
+									...album?.guestAccess,
 									isEnabled: newGuestAccessState,
 								},
 						  }
@@ -942,9 +942,9 @@ const GalleryPage = () => {
 				setInfo((prev) => ({
 					...prev,
 					activeAlbum: {
-						...prev.activeAlbum,
+						...prev?.activeAlbum,
 						guestAccess: {
-							...prev.activeAlbum?.guestAccess,
+							...prev?.activeAlbum?.guestAccess,
 							isEnabled: !newGuestAccessState,
 						},
 					},
@@ -956,10 +956,10 @@ const GalleryPage = () => {
 			console.error('Error updating album access:', error);
 			message.error('An error occurred while updating album access');
 		}
-	}, [galleryId, info.activeAlbumId, info.activeAlbum?.guestAccess?.isEnabled]);
+	}, [galleryId, info?.activeAlbumId, info?.activeAlbum?.guestAccess?.isEnabled]);
 
 	const handleOnlineToggle = useCallback(async () => {
-		const newOnlineState = !info.isOnline;
+		const newOnlineState = !info?.isOnline;
 
 		// Show loading message
 		message.loading({
@@ -978,7 +978,7 @@ const GalleryPage = () => {
 				isPublished: newOnlineState,
 				tenantAlbums: {
 					...prev?.tenantAlbums,
-					albums: (prev?.tenantAlbums?.albums || []).map((album) => ({
+					albums: (prev?.tenantAlbums?.albums || [])?.map((album) => ({
 						...album,
 						isPublished: newOnlineState,
 					})),
@@ -1001,7 +1001,7 @@ const GalleryPage = () => {
 					isPublished: !newOnlineState,
 					tenantAlbums: {
 						...prev?.tenantAlbums,
-						albums: (prev?.tenantAlbums?.albums || []).map((album) => ({
+						albums: (prev?.tenantAlbums?.albums || [])?.map((album) => ({
 							...album,
 							isPublished: !newOnlineState,
 						})),
@@ -1021,7 +1021,7 @@ const GalleryPage = () => {
 				isPublished: !newOnlineState,
 				tenantAlbums: {
 					...prev?.tenantAlbums,
-					albums: (prev?.tenantAlbums?.albums || []).map((album) => ({
+					albums: (prev?.tenantAlbums?.albums || [])?.map((album) => ({
 						...album,
 						isPublished: !newOnlineState,
 					})),
@@ -1039,16 +1039,16 @@ const GalleryPage = () => {
 	// ... rest of the code ...
 	const handleImageSelect = (index, images) => {
 		setInfo((prevInfo) => {
-			const isDeselecting = prevInfo.selectedImages.includes(images?._id);
+			const isDeselecting = prevInfo?.selectedImages?.includes(images?._id);
 			const newSelectedImages = isDeselecting
-				? prevInfo.selectedImages.filter((i) => i !== images?._id)
-				: [...prevInfo.selectedImages, images?._id];
+				? prevInfo?.selectedImages?.filter((i) => i !== images?._id)
+				: [...prevInfo?.selectedImages, images?._id];
 
 			// Handle tags differently for client selections vs regular albums
 			let newSelectedImagesTags;
 			if (info.activeTab === 'Client Selections') {
 				// For client selections, don't process tags
-				newSelectedImagesTags = prevInfo.selectedImagesTags || [];
+				newSelectedImagesTags = prevInfo?.selectedImagesTags || [];
 			} else {
 				// For regular albums, process tags as before
 				if (isDeselecting) {
@@ -1066,7 +1066,7 @@ const GalleryPage = () => {
 				} else {
 					newSelectedImagesTags = [
 						...new Set([
-							...(prevInfo.selectedImagesTags || []),
+							...(prevInfo?.selectedImagesTags || []),
 							...(images?.galleryTags?.map((tag) => tag._id) || []), // Add null check
 						]),
 					];
@@ -1077,7 +1077,7 @@ const GalleryPage = () => {
 				...prevInfo,
 				selectedImages: newSelectedImages,
 				selectedImagesTags: newSelectedImagesTags,
-				coverPhoto: newSelectedImages.length > 0 ? newSelectedImages[0] : null,
+				coverPhoto: newSelectedImages?.length > 0 ? newSelectedImages[0] : null,
 			};
 		});
 	};
@@ -1086,9 +1086,9 @@ const GalleryPage = () => {
 		setInfo((prev) => ({
 			...prev,
 			activeTab: 'Albums',
-			albumSlug: newAlbum.slug,
-			albumName: newAlbum.title,
-			activeAlbumId: newAlbum._id,
+			albumSlug: newAlbum?.slug,
+			albumName: newAlbum?.title,
+			activeAlbumId: newAlbum?._id,
 			activeAlbum: newAlbum,
 		}));
 	};
