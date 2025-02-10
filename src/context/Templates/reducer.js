@@ -141,6 +141,10 @@ const actionHandlers = {
 		...state,
 		[action?.selectedvariable]: action.payload,
 	}),
+	GET_MODULE_TEMPLATE_SUCCESS: (state, action) => ({
+		...state,
+		moduleTemplateData: action.payload,
+	}),
 
 	RESET_STATE: () => intialState,
 };

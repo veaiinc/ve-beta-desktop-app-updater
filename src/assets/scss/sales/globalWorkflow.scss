@@ -102,7 +102,7 @@
 						position: relative;
 					}
 					.options_style.selected::before {
-						content: 'â€¢';
+						content: '•';
 						color: white;
 						position: absolute;
 						left: 2px;
@@ -228,6 +228,7 @@
 
 			gap: 40px;
 			.left_div {
+				margin-left: 100px;
 				&.modal-open {
 					transform: translateX(-40%);
 				}
@@ -266,6 +267,7 @@
 			margin: 0px 50px 0px 130px;
 			.left_div {
 				margin-top: 0px;
+				margin-left: 130px;
 				.left_child_div {
 					gap: 0px;
 					width: 100%;
@@ -399,6 +401,7 @@
 			margin-top: 0px;
 			.left_div {
 				margin-top: 0px;
+				margin-left: 120px;
 				.left_child_div {
 					gap: 0px;
 					width: 100%;
@@ -462,7 +465,7 @@
 			height: auto;
 			gap: 20px;
 			.left_div {
-				margin-left: 12%;
+				margin-left: 14%;
 				margin-top: -5%;
 				width: 90%;
 				&.modal-open {
