@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, useCallback } from 'react';
+import React, { useState, useEffect, useContext, useCallback, memo } from 'react';
 import '../../../assets/scss/gallery/index.scss';
 import '../../../assets/scss/gallery/allGalleries.scss';
 import Search from '../../../assets/svg/seach-magnifier.svg';
@@ -421,4 +421,4 @@ const AddGallery = () => {
 	);
 };
 
-export default AddGallery;
+export default memo(AddGallery);
