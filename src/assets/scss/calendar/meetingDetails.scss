@@ -3,9 +3,7 @@
 	justify-content: center;
 	align-items: center;
 	position: relative;
-	height: 203px;
 	width: 100%;
-	// min-height: 203px;
 	padding: 18px var(--Spacing-space-8, 16px);
 	flex-direction: column;
 	align-items: flex-start;
@@ -14,7 +12,7 @@
 	align-self: stretch;
 	border-radius: 24px;
 	border: 1px solid #272727;
-	background: #1d1d1d;
+	background: #1c1d1f;
 	cursor: default;
 	overflow: hidden; //to hide svg element overflow
 
@@ -25,6 +23,7 @@
 		align-items: flex-start;
 		flex: 1 0 0;
 		align-self: stretch;
+		gap: 25px;
 
 		.timeDurationWrapper {
 			display: flex;
