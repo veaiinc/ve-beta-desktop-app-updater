@@ -125,7 +125,7 @@ const AiAssistants = () => {
 							Building AI Assistant <Spinner width="18px" height="18px" />
 						</span>
 					) : (
-						<span>Create a AI Assistant</span>
+						<span>Create an AI Assistant</span>
 					)}
 				</div>
 			</div>
