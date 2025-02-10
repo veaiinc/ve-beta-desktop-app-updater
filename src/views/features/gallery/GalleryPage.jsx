@@ -2997,7 +2997,7 @@ const GalleryPage = () => {
 				info.selectedImages.length === 0
 			) {
 				const payload = {
-					imageType: 'original',
+					imageType: info?.isLightGallery ? 'optimized' : 'original',
 				};
 
 				const response = await downloadImagesForClientSelection(
