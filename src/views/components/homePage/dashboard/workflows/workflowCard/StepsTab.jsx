@@ -108,20 +108,19 @@ const StepsTab = ({ data, openModal }) => {
 
 	return (
 		<div className="workflow-container">
-			{info?.statusCards?.map((ele, index) => {
-				return (
-					<div
-						className="workflow-inner-card"
-						key={index}
-						onClick={() => {
-							openModal(data, ele);
-						}}
-					>
-						<div className="left-text">{ele?.headerText}</div>
-						<div className="right-text">{ele?.subText}</div>
-					</div>
-				);
-			})}
+			{info?.statusCards?.map((ele, index) => (
+				<div
+					className="workflow-inner-card"
+					key={index}
+					onClick={() => {
+						openModal(data, ele);
+					}}
+					style={{ cursor: ele?.subText > 0 ? 'pointer' : 'not-allowed' }}
+				>
+					<div className="left-text">{ele?.headerText}</div>
+					<div className="right-text">{ele?.subText}</div>
+				</div>
+			))}
 		</div>
 	);
 };

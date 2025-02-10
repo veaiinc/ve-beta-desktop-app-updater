@@ -1,0 +1,141 @@
+.CreateClientModal {
+	display: flex;
+	width: 520px;
+	padding: 36px;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 24px;
+	border-radius: 32px;
+	background-color: #202123;
+
+	.modalHeading {
+		display: flex;
+		align-items: center;
+		gap: 4px;
+		align-self: stretch;
+
+		.client-modal-title {
+			color: #f2f2f3;
+			font-family: Inter;
+			font-size: 20px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+			flex-grow: 1;
+		}
+		.closeContainer {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			cursor: pointer;
+		}
+	}
+
+	.inputBoxHolder {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 24px;
+		align-self: stretch;
+		width: 100%;
+		.inputWrapper {
+			width: 100%;
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 4px;
+			align-self: stretch;
+
+			.errorMessage {
+				padding-top: 4px;
+				padding-left: 12px;
+				color: #ce4c4f;
+				font-family: Inter;
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+		}
+
+		/* Target the wrapper */
+		.PhoneInput {
+			display: flex;
+			align-items: center;
+			padding: 8px;
+			border-radius: 14px;
+			width: 100%;
+			border-radius: 14px;
+			border: 1px solid #2c2d2e;
+			height: 44px;
+		}
+
+		/* Target the country selector dropdown */
+		.PhoneInputCountry {
+			margin-right: 8px;
+		}
+
+		/* Target the flag icon */
+		.PhoneInputCountryIcon {
+			width: 20px;
+			height: 15px;
+		}
+
+		/* Style the input field */
+		.PhoneInputInput {
+			flex: 1;
+			border: none;
+			outline: none;
+			background-color: transparent;
+			color: #f2f2f3;
+
+			&::placeholder {
+				color: #797e86;
+				font-family: Inter;
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+		}
+
+		.leadSourceContainer {
+			display: flex;
+			align-items: center;
+			gap: 12px;
+			align-self: stretch;
+			flex: 1 0 0;
+			width: 100%;
+			border-radius: 14px;
+			.selectedPage {
+				color: #e8e8e8;
+				font-family: Inter;
+				font-size: 13px;
+				font-style: normal;
+				font-weight: 400;
+				line-height: normal;
+				text-transform: capitalize;
+			}
+		}
+	}
+	.createClientFooter {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 16px;
+		align-self: stretch;
+
+		.continueContainer {
+			display: flex;
+			align-items: center;
+			flex-direction: column;
+			gap: 16px;
+			align-self: stretch;
+
+			.create-client-action-btn {
+				min-width: 100%;
+				flex-grow: 1;
+			}
+		}
+	}
+}

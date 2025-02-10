@@ -89,8 +89,10 @@ const OptionsDropDown = ({
 	);
 
 	const handleViewNameBlur = useCallback(() => {
-		updateViewInfo({ label: info.pendingLabel });
-	}, [info.pendingLabel, updateViewInfo]);
+		if (info.pendingLabel !== viewData?.label) {
+			updateViewInfo({ label: info.pendingLabel });
+		}
+	}, [info.pendingLabel, updateViewInfo, viewData?.label]);
 
 	const handlePropertyToggle = useCallback(
 		(property) => {

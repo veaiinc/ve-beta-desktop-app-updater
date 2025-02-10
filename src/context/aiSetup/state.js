@@ -6,6 +6,7 @@ import {
 	AI_ASSISTANT_INSTRUCTIONS,
 	AI_PROMPT,
 	AI_ACTIONS,
+	AI_CHAT_LOGS,
 } from './actionTypes';
 import { Actions } from './actions';
 import service from '../../services';
@@ -45,6 +46,10 @@ export const initialState = {
 	aiDefaultPrompt: null,
 	aiActions: null,
 	aiAction: null,
+	tokenForVoice: null,
+	aiChatLogs: null,
+	moreAiChatLogs: null,
+	aiCrawlLinks: null,
 };
 
 export const AiSetupState = () => {
@@ -361,13 +366,9 @@ export const AiSetupState = () => {
 				};
 
 				let signedUrl = '';
+				let response = null;
 				try {
-					const response = await service?.fetchPost(
-						url,
-						body,
-						usertoken,
-						'ai_assistant_api',
-					); // change the type to ai_setup later
+					response = await service?.fetchPost(url, body, usertoken, 'ai_assistant_api'); // change the type to ai_setup later
 					if (response?.[0] && response?.[1]?.signedUrl) {
 						signedUrl = response[1].signedUrl;
 					} else {
@@ -387,10 +388,15 @@ export const AiSetupState = () => {
 							body: file,
 						});
 
-						if (uploadResponse.ok) {
-							return resolve({ file: file.name, status: 'resolved' });
+						if (uploadResponse?.ok) {
+							return resolve({
+								_id: response?.[1]?._id,
+								file: file?.name,
+								status: 'resolved',
+							});
 						} else {
 							return reject({
+								_id: response?.[1]?._id,
 								file: file.name,
 								status: 'rejected',
 								error: 'Failed to upload to S3',
@@ -398,7 +404,12 @@ export const AiSetupState = () => {
 						}
 					}
 				} catch (error) {
-					return reject({ file: file.name, status: 'rejected', error: error.message });
+					return reject({
+						_id: response?.[1]?._id,
+						file: file.name,
+						status: 'rejected',
+						error: error.message,
+					});
 				}
 			});
 		});
@@ -406,7 +417,11 @@ export const AiSetupState = () => {
 		const uploadResults = await Promise.allSettled(fileUploadPromises);
 		const statusSummary = uploadResults.map((result) => {
 			if (result.status === 'fulfilled') {
-				return { file: result.value.file, status: result.value.status };
+				return {
+					_id: result.value._id,
+					file: result.value.file,
+					status: result.value.status,
+				};
 			} else {
 				return {
 					file: result.reason.file,
@@ -582,6 +597,25 @@ export const AiSetupState = () => {
 			}
 		} catch (error) {
 			console.log('error==>updateInstruction', error);
+		}
+	};
+
+	const deleteInstruction = async (assistantId, instructionId) => {
+		let workspaceId = localStorage.getItem('workspaceId');
+		let usertoken = localStorage.getItem('usertoken');
+		const url =
+			'/' + workspaceId + '/ai-assistants/' + assistantId + '/instructions/' + instructionId;
+		try {
+			const response = await service?.fetchDelete(url, usertoken, {}, 'ai_assistant_api');
+			if (response?.[0]) {
+				dispatch({
+					type: Actions?.DELETE_AI_INSTRUCTION,
+					payload: response?.[1]?.instructions,
+				});
+				return response?.[1]?.instructions;
+			}
+		} catch (error) {
+			console.log('error==>deleteInstruction', error);
 		}
 	};
 
@@ -814,6 +848,67 @@ export const AiSetupState = () => {
 		}
 	};
 
+	const getTokenForVoice = async () => {
+		try {
+			const usertoken = localStorage.getItem('usertoken');
+			const workspaceId = localStorage.getItem('workspaceId');
+
+			const response = await service?.fetchPost(
+				`/${workspaceId}/generate-livekit-token`,
+				{},
+				usertoken,
+				'ai_predictions',
+			);
+
+			if (response?.[0]) {
+				return response?.[1];
+			} else {
+				throw new Error('Failed to fetch token');
+			}
+		} catch (error) {
+			console.error('Error fetching token:', error);
+			throw error;
+		}
+	};
+
+	const getAiChatLogs = async (assistantId, page = 1, limit = 20, fetchMore = false) => {
+		let workspaceId = localStorage.getItem('workspaceId');
+		let usertoken = localStorage.getItem('usertoken');
+		const url = '/' + workspaceId + '/ai-assistants/' + assistantId + AI_CHAT_LOGS?.aiChatLogs;
+		try {
+			const response = await service?.fetchGet(url, usertoken, 'ai_assistant_api');
+			if (response?.[0]) {
+				const selectedVariable = fetchMore ? 'moreAiChatLogs' : 'aiChatLogs';
+				dispatch({
+					type: Actions?.GET_AI_CHAT_LOGS,
+					payload: response?.[1],
+					selectedVariable,
+				});
+				return response?.[1];
+			}
+		} catch (error) {
+			console.log('error==>getAiChatLogs', error);
+		}
+	};
+
+	const crawlAiAssistant = async (data) => {
+		let workspaceId = localStorage.getItem('workspaceId');
+		let usertoken = localStorage.getItem('usertoken');
+		const url = '/' + workspaceId + AI_ACTIONS?.aiCrawl;
+		try {
+			const response = await service?.fetchPost(url, data, usertoken, 'ai_predictions');
+			if (response?.[0]) {
+				dispatch({
+					type: Actions?.CRAWL_AI_ASSISTANT,
+					payload: response?.[1],
+				});
+				return response?.[1].urls;
+			}
+		} catch (error) {
+			console.log('error==>crawlAiAssistant', error);
+		}
+	};
+
 	const resetAiSetupState = () => {
 		dispatch({ type: Actions?.RESET_STATE });
 	};
@@ -841,6 +936,7 @@ export const AiSetupState = () => {
 		getInstructions,
 		createInstruction,
 		updateInstruction,
+		deleteInstruction,
 		uploadFile,
 		getAiPrompt,
 		editAiPrompt,
@@ -851,6 +947,9 @@ export const AiSetupState = () => {
 		addAiAction,
 		updateAiAction,
 		deleteAiAction,
+		crawlAiAssistant,
+		getAiChatLogs,
 		removeFile,
+		getTokenForVoice,
 	};
 };

@@ -5,7 +5,7 @@ import TasksTab from './TasksTab';
 import WorkflowsTab from './WorkflowsTab';
 import RecentChats from './RecentChats';
 import PriorityTab from './PriorityTab';
-const HomePageDashboard = ({ selectedOption, isNavbarFixed, searchValue }) => {
+const HomePageDashboard = ({ selectedOption, searchValue }) => {
 	const componentMapper = useMemo(
 		() => ({
 			'Drafts & Activity': <DraftsAndActivityTab />,
@@ -17,11 +17,7 @@ const HomePageDashboard = ({ selectedOption, isNavbarFixed, searchValue }) => {
 		[searchValue],
 	);
 
-	return (
-		<div className={`home-page-dashboard-container ${isNavbarFixed ? 'add-margin-top' : ''}`}>
-			{componentMapper?.[selectedOption]}
-		</div>
-	);
+	return <div className="home-page-dashboard-container">{componentMapper?.[selectedOption]}</div>;
 };
 
 export default memo(HomePageDashboard);

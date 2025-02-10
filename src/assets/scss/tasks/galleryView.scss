@@ -1,6 +1,7 @@
 .gallery-view {
 	width: 100%;
-	height: 100%;
+	height: calc(100% - 20px);
+	margin-top: 10px;
 	overflow-y: auto;
 
 	.gallery-view-message {
@@ -21,7 +22,6 @@
 		justify-content: flex-start;
 		align-items: stretch;
 		align-content: flex-start;
-		padding-top: 10px;
 
 		.gallery-view-add-card {
 			display: flex;

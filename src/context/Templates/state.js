@@ -580,7 +580,7 @@ export const TemplatesState = (props) => {
 		}
 	};
 
-	const getTemplatesListForDocs = async (page = 1, limit = 10) => {
+	const getTemplatesListForDocs = async (page = 1, limit = 10, searchValue = '') => {
 		let workspaceId = localStorage.getItem('workspaceId');
 		let usertoken = localStorage.getItem('usertoken');
 
@@ -590,6 +590,7 @@ export const TemplatesState = (props) => {
 				page,
 				type: 'workspace',
 				status: 'published',
+				title: searchValue,
 			},
 		};
 		const response = await service.query(
@@ -690,7 +691,7 @@ export const TemplatesState = (props) => {
 				'workflows_Api',
 			);
 			if (response?.[0]) {
-				return [true];
+				return [true, response?.[1]?.data?.createWorkflowFromTemplate?._id];
 			} else {
 				return [false, response?.[1]?.message || 'Something went Worng'];
 			}

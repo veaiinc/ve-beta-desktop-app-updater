@@ -1,6 +1,7 @@
-import React, { useContext, useEffect, useState, useCallback, useMemo, useRef } from 'react';
+import React, { useContext, useEffect, useState, useCallback, useMemo, useRef, memo } from 'react';
 import '../../../../assets/scss/home_page/tasks.scss';
-import { ReactComponent as ChevronRightThinIcon } from '../../../../assets/svg/tasks/chevronRightThin.svg';
+import { ReactComponent as ChevronRightThinLightIcon } from '../../../../assets/svg/tasks/chevronRightThin.svg';
+import { ReactComponent as ChevronRightThinDarkIcon } from '../../../../assets/svg/home_page/chevronRightThinDark.svg';
 import { ReactComponent as textSvg } from '../../../../assets/svg/tasks/letterA.svg';
 import { ReactComponent as ClockSvg } from '../../../../assets/svg/activity/clock.svg';
 import { ReactComponent as PieSvg } from '../../../../assets/svg/tasks/pieHollow.svg';
@@ -8,6 +9,7 @@ import { ReactComponent as PrioritySvg } from '../../../../assets/svg/tasks/roun
 import { ReactComponent as WorkflowSvg } from '../../../../assets/svg/tasks/workflow.svg';
 import { ReactComponent as PersonSvg } from '../../../../assets/svg/tasks/person.svg';
 import { ReactComponent as CalendarSvg } from '../../../../assets/svg/tasks/calendar.svg';
+import { ReactComponent as TickSvg } from '../../../../assets/svg/home_page/Tick.svg';
 import { message, Tooltip } from 'antd';
 import Skeleton from 'react-loading-skeleton';
 import jwtDecode from 'jwt-decode';
@@ -107,11 +109,12 @@ const TasksTab = () => {
 			updateListItem,
 			deleteListItem,
 			addSubTask,
-			removeSubTask,
 			updateSubTask,
 			resetSubTasks,
 			taskMetadata,
 			getTaskMetadata,
+			refetchTasksForDue,
+			updateTaskState,
 		},
 		templates: { getWorkflowsList, workflowslist },
 		companyInfo: { getTeamMembers, tenantsUserList },
@@ -136,23 +139,25 @@ const TasksTab = () => {
 		taskData: {},
 		breadCrumbs: [],
 		loadingSkeleton: true,
+		hoveredTaskId: null,
+		updatedDueDate: false,
+		updatedAssignedTo: false,
 	});
-
 	const debounceTimeout = useRef(null);
 
 	const taskLabels = useMemo(
 		() => ({
 			pending: {
 				label: 'Pending actions till today',
-				count: tasksCountForToday + tasksCountForOverdue,
+				count: (tasksCountForToday ?? 0) + (tasksCountForOverdue ?? 0),
 			},
 			today: {
 				label: 'Today',
-				count: tasksCountForToday,
+				count: tasksCountForToday ?? 0,
 			},
 			overdue: {
 				label: 'Overdue',
-				count: tasksCountForOverdue,
+				count: tasksCountForOverdue ?? 0,
 			},
 		}),
 		[tasksCountForToday, tasksCountForOverdue],
@@ -270,16 +275,16 @@ const TasksTab = () => {
 
 	useEffect(() => {
 		if (!tasksCountForToday) {
-			getTodayTasksCount();
+			getTasksCountForToday();
 		}
 
 		if (!tasksCountForOverdue) {
-			getOverdueTasksCount();
+			getTasksCountForOverdue();
 		}
-	}, []);
+	}, [refetchTasksForDue]);
 
 	useEffect(() => {
-		if (info?.selectedOption === 'today') {
+		if (info?.selectedOption === 'today' && !refetchTasksForDue) {
 			if (listTasksForToday) {
 				setInfo((prev) => ({
 					...prev,
@@ -294,7 +299,7 @@ const TasksTab = () => {
 			}
 		}
 
-		if (info?.selectedOption === 'overdue') {
+		if (info?.selectedOption === 'overdue' && !refetchTasksForDue) {
 			if (listTasksForOverdue) {
 				setInfo((prev) => ({
 					...prev,
@@ -309,7 +314,7 @@ const TasksTab = () => {
 			}
 		}
 
-		if (info?.selectedOption === 'pending') {
+		if (info?.selectedOption === 'pending' && !refetchTasksForDue) {
 			if (listTasksDueTillToday) {
 				setInfo((prev) => ({
 					...prev,
@@ -323,7 +328,17 @@ const TasksTab = () => {
 				fetchDueTillTodayTasks(1);
 			}
 		}
-	}, [info?.selectedOption]);
+	}, [info?.selectedOption, refetchTasksForDue]);
+
+	useEffect(() => {
+		if (refetchTasksForDue) {
+			updateTaskState({
+				refetchTasksForDue: false,
+			});
+			getTasksCountForToday();
+			getTasksCountForOverdue();
+		}
+	}, [refetchTasksForDue]);
 
 	useEffect(() => {
 		if (!tenantsUserList) {
@@ -372,45 +387,40 @@ const TasksTab = () => {
 
 	useEffect(() => {
 		if (listTasksForToday) {
-			if (listTasksForToday?.data) {
-				setInfo((prevInfo) => ({
-					...prevInfo,
-					taskData: {
-						...prevInfo?.taskData,
-						[info?.selectedOption]: { ...listTasksForToday },
-					},
-					loadingSkeleton: false,
-				}));
-			}
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				taskData: {
+					...prevInfo?.taskData,
+					today: { ...listTasksForToday },
+				},
+				loadingSkeleton: false,
+			}));
 		}
 	}, [listTasksForToday]);
 
 	useEffect(() => {
 		if (listTasksForOverdue) {
-			if (listTasksForOverdue?.data) {
-				setInfo((prevInfo) => ({
-					...prevInfo,
-					taskData: {
-						...prevInfo?.taskData,
-						[info?.selectedOption]: { ...listTasksForOverdue },
-					},
-					loadingSkeleton: false,
-				}));
-			}
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				taskData: {
+					...prevInfo?.taskData,
+					overdue: { ...listTasksForOverdue },
+				},
+				loadingSkeleton: false,
+			}));
 		}
 	}, [listTasksForOverdue]);
+
 	useEffect(() => {
 		if (listTasksDueTillToday) {
-			if (listTasksDueTillToday?.data) {
-				setInfo((prevInfo) => ({
-					...prevInfo,
-					taskData: {
-						...prevInfo?.taskData,
-						[info?.selectedOption]: { ...listTasksDueTillToday },
-					},
-					loadingSkeleton: false,
-				}));
-			}
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				taskData: {
+					...prevInfo?.taskData,
+					pending: { ...listTasksDueTillToday },
+				},
+				loadingSkeleton: false,
+			}));
 		}
 	}, [listTasksDueTillToday]);
 
@@ -461,29 +471,6 @@ const TasksTab = () => {
 		return properties;
 	}, [info?.taskPreferences?.preferences]);
 
-	const getTodayTasksCount = () => {
-		const payload = {
-			filters: {
-				limit: 1,
-				page: 1,
-				startDate: Math?.floor(new Date()?.setHours(0, 0, 0, 0) / 1000),
-				endDate: Math?.floor(new Date()?.setHours(23, 59, 59, 999) / 1000),
-			},
-		};
-		getTasksCountForToday(payload);
-	};
-
-	const getOverdueTasksCount = () => {
-		const payload = {
-			filters: {
-				limit: 1,
-				page: 1,
-				endDate: Math?.floor(new Date()?.setHours(-1, 59, 59, 999) / 1000),
-			},
-		};
-		getTasksCountForOverdue(payload);
-	};
-
 	const fetchTodayTasks = (page, type = null, task = null) => {
 		const payload = {
 			filters: {
@@ -533,16 +520,26 @@ const TasksTab = () => {
 		setInfo((previnfo) => ({ ...previnfo, ...updateData }));
 	}, []);
 
-	const debouncedUpdateTask = async (
-		rowId,
-		propName,
-		value,
-		originalValue,
-		isUpdatingSubTask,
-		onSuccess,
-		task,
-	) => {
+	const debouncedUpdateTask = async (rowId, propName, value, isUpdatingSubTask, onSuccess) => {
 		try {
+			let task = info?.taskData?.[info?.selectedOption]?.data?.find((row) => {
+				return row?._id === rowId;
+			});
+
+			if (!task) {
+				isUpdatingSubTask = true;
+			} else {
+				isUpdatingSubTask = false;
+			}
+			let updatedValue = value;
+			if (propName === 'workflow') {
+				const workflow = info?.workflows?.find((workflow) => workflow._id === value);
+				updatedValue = workflow;
+			}
+
+			const token = localStorage.getItem('usertoken');
+			const { user_id, userName } = jwtDecode(token);
+
 			const response = await updateListItem({
 				taskId: rowId,
 				updateInput:
@@ -559,49 +556,75 @@ const TasksTab = () => {
 						  },
 			});
 
-			if (response?.[0] === false) {
-				throw new Error('Failed to update, Try again later');
-			} else {
-				// Update state only after successful API call
-				if (onSuccess) onSuccess();
-
-				// Handle assignedTo special case
-				if (propName === 'assignedTo') {
-					const token = localStorage.getItem('usertoken');
-					const { user_id, userName } = jwtDecode(token);
-					if (isUpdatingSubTask) {
+			if (isUpdatingSubTask) {
+				if (response?.[0] === false) {
+					throw new Error('Failed to update, Try again later');
+				} else {
+					if (propName === 'assignedTo') {
 						updateSubTask({
 							_id: rowId,
 							assignedBy: { _id: user_id, name: userName },
 							assignedAt: moment().unix(),
+							[propName]: updatedValue,
 						});
+					} else if (propName === 'workflow') {
+						updateSubTask({
+							_id: rowId,
+							[propName]: info?.workflows?.find(
+								(workflow) => workflow?._id === value,
+							),
+						});
+					} else {
+						updateSubTask({
+							_id: rowId,
+							[propName]: updatedValue,
+						});
+					}
+
+					if (info?.selectedRow?._id === rowId) {
 						setInfo((prev) => ({
 							...prev,
 							selectedRow: {
 								...prev?.selectedRow,
+								[propName]: updatedValue,
 								assignedBy: { _id: user_id, name: userName },
 								assignedAt: moment().unix(),
 							},
 						}));
-					} else {
+					}
+				}
+			} else {
+				if (response?.[0] === false) {
+					throw new Error('Failed to update, Try again later');
+				} else {
+					// Update state only after successful API call
+					if (onSuccess) onSuccess();
+
+					// Handle assignedTo special case
+					if (propName === 'assignedTo') {
 						task = {
 							...task,
 							assignedBy: { _id: user_id, name: userName },
 							assignedAt: moment().unix(),
 						};
 					}
-				}
 
-				// Update updatedBy for any successful update
-				const token = localStorage.getItem('usertoken');
-				const { user_id, userName } = jwtDecode(token);
+					// Update updatedBy for any successful update
+					task = { ...task, updatedBy: { _id: user_id, name: userName } };
+					task = { ...task, [propName]: updatedValue };
+					let updatedDueDate = false,
+						updatedAssignedTo = false;
+					if (propName === 'dueDate') {
+						updatedDueDate = true;
+					} else if (propName === 'assignedTo') {
+						updatedAssignedTo = true;
+					}
 
-				task = { ...task, updatedBy: { _id: user_id, name: userName } };
-
-				if (!isUpdatingSubTask) {
 					setInfo((prev) => ({
 						...prev,
 						selectedRow: { ...info?.selectedRow, ...task },
+						updatedDueDate,
+						updatedAssignedTo,
 					}));
 
 					if (info?.selectedOption === 'pending') {
@@ -622,69 +645,34 @@ const TasksTab = () => {
 		}
 	};
 
-	const handleDebounceUpdate = (
-		rowId,
-		propName,
-		value,
-		originalValue,
-		isSubTask,
-		onSuccess,
-		task,
-	) => {
+	const handleDebounceUpdate = (rowId, propName, value, isSubTask, onSuccess) => {
 		if (debounceTimeout.current) {
 			clearTimeout(debounceTimeout.current);
 		}
 
 		debounceTimeout.current = setTimeout(() => {
-			debouncedUpdateTask(rowId, propName, value, originalValue, isSubTask, onSuccess, task);
+			debouncedUpdateTask(rowId, propName, value, isSubTask, onSuccess);
 		}, 800);
 	};
 
 	const updatePropertyValue = async (rowId, propName, value, isUpdatingSubTask, onSuccess) => {
-		if (validateExpiryData?.isExpired) {
+		if (
+			validateExpiryData &&
+			validateExpiryData?.restrictContacts &&
+			validateExpiryData?.isExpired
+		) {
 			return updateSubscriptionState({ expiredSubscriptionModal: true });
 		}
-		let originalValue;
-		let task = info?.taskData?.[info?.selectedOption]?.data?.find((row) => {
-			if (row?._id === rowId) {
-				originalValue = row[propName];
-			}
-			return row?._id === rowId;
-		});
 
-		let updatedValue = value;
-		if (propName === 'workflow') {
-			const workflow = info?.workflows?.find((workflow) => workflow._id === value);
-			updatedValue = workflow;
-		}
-
-		if (isUpdatingSubTask) {
-			try {
-				await updateSubTask({ _id: rowId, [propName]: updatedValue });
-				setInfo((prev) => ({
-					...prev,
-					selectedRow: { ...prev?.selectedRow, [propName]: updatedValue },
-				}));
-			} catch (error) {
-				message.error('Failed to update sub task, Try again later');
-			}
-		}
-
-		task = { ...task, [propName]: updatedValue };
-
-		handleDebounceUpdate(
-			rowId,
-			propName,
-			value,
-			originalValue,
-			isUpdatingSubTask,
-			onSuccess,
-			task,
-		);
+		handleDebounceUpdate(rowId, propName, value, isUpdatingSubTask, onSuccess);
 	};
 
 	const deleteTask = async (payload) => {
-		if (validateExpiryData?.isExpired) {
+		if (
+			validateExpiryData &&
+			validateExpiryData?.restrictTasks &&
+			validateExpiryData?.isExpired
+		) {
 			return updateSubscriptionState({ expiredSubscriptionModal: true });
 		} else {
 			const response = await deleteListItem(payload);
@@ -693,16 +681,12 @@ const TasksTab = () => {
 				let task = info?.taskData?.[info?.selectedOption]?.data?.find((row) => {
 					return row?._id === payload?.taskId;
 				});
-				console.log(task);
-				setInfo((prev) => ({
-					...prev,
-					selectedRow: null,
-					sidebarIsOpen: false,
-					breadCrumbs: [],
-				}));
+
+				handleCloseSidebar();
 				if (!task) return;
-				getOverdueTasksCount();
-				getTodayTasksCount();
+
+				getTasksCountForToday();
+				getTasksCountForOverdue();
 
 				if (info?.selectedOption === 'pending') {
 					fetchDueTillTodayTasks(1, 'delete', task);
@@ -715,8 +699,6 @@ const TasksTab = () => {
 					fetchDueTillTodayTasks(1, 'delete', task);
 					fetchOverdueTasks(1, 'delete', task);
 				}
-
-				handleCloseSidebar();
 			}
 		}
 	};
@@ -760,7 +742,6 @@ const TasksTab = () => {
 							addSubTask(newTask);
 						}
 						message.success('Task added successfully');
-						// fetchListItems();
 					}
 				} else {
 					throw new Error('Failed to add new task');
@@ -802,13 +783,22 @@ const TasksTab = () => {
 		[info?.selectedRow, info?.breadCrumbs],
 	);
 
-	const handleCloseSidebar = useCallback(() => {
+	const handleCloseSidebar = () => {
+		if (info?.updatedDueDate || info?.updatedAssignedTo) {
+			updateTaskState({
+				refetchTasksForDue: true,
+				listTasksDueTillToday: null,
+				listTasksForOverdue: null,
+				listTasksForToday: null,
+			});
+		}
 		updateTaskInfo({
 			sidebarIsOpen: false,
 			breadCrumbs: [],
-			selectedRow: null,
+			updatedDueDate: false,
+			updatedAssignedTo: false,
 		});
-	}, []);
+	};
 
 	const handleCloseCreateModal = useCallback(() => {
 		if (info?.isCreatingSubtask) {
@@ -826,65 +816,80 @@ const TasksTab = () => {
 		[info?.breadCrumbs],
 	);
 
+	const handleMouseEnterOnTask = (taskId) => {
+		setInfo((prev) => ({
+			...prev,
+			hoveredTaskId: taskId,
+		}));
+	};
+	const handleMouseLeaveOnTask = () => {
+		setInfo((prev) => ({
+			...prev,
+			hoveredTaskId: null,
+		}));
+	};
+
 	return (
 		<>
 			<div className="tasks">
+				<div className="dropdown-container">
+					<Tooltip
+						placement="bottom"
+						color="transparent"
+						open={info?.isDropdownOpen}
+						trigger={'click'}
+						onOpenChange={(open) => {
+							setInfo((prev) => ({
+								...prev,
+								isDropdownOpen: open,
+							}));
+						}}
+						title={
+							<div className="dropdown-options">
+								{options?.map((option) => (
+									<div
+										key={option?.id}
+										className={`dropdown-option ${
+											info?.selectedOption === option?.value ? 'active' : ''
+										}`}
+										onClick={() => {
+											if (info?.selectedOption !== option?.value)
+												setInfo((prev) => ({
+													...prev,
+													isDropdownOpen: false,
+													selectedOption: option?.value,
+													loadingSkeleton: true,
+												}));
+										}}
+									>
+										{option?.title}
+										{info?.selectedOption === option?.value && <TickSvg />}
+									</div>
+								))}
+							</div>
+						}
+					>
+						<button className="dropdown-header">
+							<div className="dropdown-content">
+								<div className="dropdown-text">
+									{
+										options?.find(
+											(option) => info?.selectedOption === option?.value,
+										)?.title
+									}
+								</div>
+								<div className="dropdown-icon">
+									<ChevronRightThinLightIcon />
+								</div>
+							</div>
+						</button>
+					</Tooltip>
+				</div>
 				<div className="tasks-header">
 					<div className="tasks-header-text">
 						{`${taskLabels?.[info?.selectedOption]?.label} (${
 							taskLabels?.[info?.selectedOption]?.count
 						})`}
-						<div className="dropdown-container">
-							<Tooltip
-								placement="bottom"
-								color="transparent"
-								open={info?.isDropdownOpen}
-								trigger={'click'}
-								onOpenChange={(open) => {
-									setInfo((prev) => ({
-										...prev,
-										isDropdownOpen: open,
-									}));
-								}}
-								title={
-									<div className="dropdown-options">
-										{options?.map((option) => (
-											<div
-												key={option?.id}
-												className="dropdown-option"
-												onClick={() => {
-													if (info?.selectedOption !== option?.value)
-														setInfo((prev) => ({
-															...prev,
-															isDropdownOpen: false,
-															selectedOption: option?.value,
-															loadingSkeleton: true,
-														}));
-												}}
-											>
-												{option?.title}
-											</div>
-										))}
-									</div>
-								}
-							>
-								<button className="dropdown-header">
-									<div className="dropdown-content">
-										<div className="dropdown-text">
-											{
-												options?.find(
-													(option) =>
-														info?.selectedOption === option?.value,
-												)?.title
-											}
-										</div>
-										<div className="dropdown-icon">
-											<ChevronRightThinIcon />
-										</div>
-									</div>
-								</button>
-							</Tooltip>
-						</div>
 					</div>
 
 					{info?.loadingSkeleton ? (
@@ -914,7 +919,7 @@ const TasksTab = () => {
 							hasMore={info?.taskData?.[info?.selectedOption]?.hasNextPage}
 							next={fetchMoreTasksData}
 							loader={<FetchMoreLoaderComp />}
-							height={`calc(100vh - 520px)`}
+							height={'calc(100vh - 250px)'}
 						>
 							<div className="tasks-container">
 								{info?.taskData?.[info?.selectedOption]?.data?.map((task) => {
@@ -924,6 +929,8 @@ const TasksTab = () => {
 											onClick={() => {
 												handleRowClick(task);
 											}}
+											onMouseEnter={() => handleMouseEnterOnTask(task?._id)}
+											onMouseLeave={handleMouseLeaveOnTask}
 											key={task?._id}
 										>
 											<div className="task-content">
@@ -953,7 +960,11 @@ const TasksTab = () => {
 													</div>
 												</div>
 												<div className="chevron-icon-container">
-													<ChevronRightThinIcon />
+													{info?.hoveredTaskId === task?._id ? (
+														<ChevronRightThinDarkIcon />
+													) : (
+														<ChevronRightThinLightIcon />
+													)}
 												</div>
 											</div>
 										</div>
@@ -1021,4 +1032,4 @@ const TasksTab = () => {
 	);
 };
 
-export default TasksTab;
+export default memo(TasksTab);

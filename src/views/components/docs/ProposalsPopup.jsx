@@ -8,6 +8,8 @@ import '../../../assets/scss/docs/proposalsPopup.scss';
 import { fetchOriginSelection } from '../../../helpers';
 import Context from '../../../context/context';
 import moment from 'moment';
+import { useNavigate } from 'react-router-dom';
+import CreateFileLead from '../myTemplate/CreateFileLead';
 const origin = fetchOriginSelection();
 
 const options = ['All', 'Proposal', 'Invoice', 'Contract', 'Thank you'];
@@ -17,14 +19,18 @@ const initialState = {
 	selectedOption: 'All',
 	loading: true,
 	workflowTemplates: [],
+	activeTemplateData: null,
 	hasNextPage: false,
 	currentPage: 1,
 	loading: false,
 	timeout: null,
 	searchChanged: false,
+	versionPopup: false,
+	smartfileIdFromExistingClient: null,
 };
 
-const ProposalPopup = ({ open, closeModal }) => {
+const ProposalPopup = ({ open, closeModal, clientDetails = null }) => {
+	const navigate = useNavigate();
 	const customStyles = {
 		content: { zIndex: 99999 },
 		overlay: { zIndex: 99998 },
@@ -34,7 +40,7 @@ const ProposalPopup = ({ open, closeModal }) => {
 	});
 
 	const {
-		templates: { getMyWorkflows, myWorkflows, myMoreWorkflows },
+		templates: { getMyWorkflows, myWorkflows, myMoreWorkflows, createLeadfromTemplates },
 		activityInfo: { createSmartfile, smartfile },
 	} = useContext(Context);
 
@@ -55,10 +61,16 @@ const ProposalPopup = ({ open, closeModal }) => {
 	}, [myMoreWorkflows]);
 
 	useEffect(() => {
-		if (smartfile?._id) {
-			window.location.href = `${origin}/${smartfile?._id}?workflow=true&templateId=${info?.activeTemaplateData?._id}`;
+		if (smartfile?._id && info?.activeTemplateData?._id) {
+			window.location.href = `${origin}/${smartfile?._id}?workflow=true&templateId=${info?.activeTemplateData?._id}`;
 		}
 	}, [smartfile]);
+
+	useEffect(() => {
+		if (info?.smartfileIdFromExistingClient) {
+			window.location.href = `${origin}/${info?.smartfileIdFromExistingClient}?workflow=true&templateId=${info?.activeTemplateData?._id}`;
+		}
+	}, [info?.smartfileIdFromExistingClient]);
 
 	useEffect(() => {
 		if (info?.searchChanged) {
@@ -81,22 +93,49 @@ const ProposalPopup = ({ open, closeModal }) => {
 	const handleTemplateClick = async (template) => {
 		if (info?.loading) return;
 
-		setInfo((prev) => ({ ...prev, loading: true }));
+		setInfo((prev) => ({ ...prev, loading: true, activeTemplateData: template }));
 
-		const payload = {
-			smartFileInput: {
-				templateId: template?._id,
-				title: template?.title,
-			},
-		};
+		let payload = null;
+
+		if (clientDetails && clientDetails?.name) {
+			payload = {
+				workflowInput: {
+					clientDetails: {
+						name: clientDetails?.['name'],
+					},
+					templateId: template?._id,
+					title: clientDetails?.['name'],
+				},
+			};
+		} else {
+			payload = {
+				smartFileInput: {
+					title: template?.title,
+					templateId: template?._id,
+				},
+			};
+		}
 
 		try {
-			await createSmartfile(payload);
+			if (clientDetails && clientDetails?.name) {
+				const response = await createLeadfromTemplates(payload);
+				if (response?.[0]) {
+					setInfo((prev) => ({
+						...prev,
+						smartfileIdFromExistingClient: response?.[1],
+					}));
+				}
+			} else {
+				await createSmartfile(payload);
+			}
 		} catch (error) {
 			console.error('Failed to create smartfile:', error);
 		} finally {
 			setInfo((prev) => ({ ...prev, loading: false }));
 		}
+	};
+	const versionClick = (template) => {
+		setInfo((prev) => ({ ...prev, versionPopup: true, activeTemplateData: template }));
 	};
 
 	const getMyWorkflowsTemplatesData = useCallback((page, search = null, fetchMore = false) => {
@@ -177,9 +216,9 @@ const ProposalPopup = ({ open, closeModal }) => {
 							/>
 						</div>
 
-						<button className="proposal-popup-search-div-button">
+						{/* <button className="proposal-popup-search-div-button">
 							+ Blank document
-						</button>
+						</button> */}
 					</div>
 					<div className="proposal-popup-body-options-container">
 						{options.map((option) => (
@@ -228,7 +267,11 @@ const ProposalPopup = ({ open, closeModal }) => {
 							<div
 								key={index}
 								className="docsTemplateCard"
-								onClick={() => handleTemplateClick(template)}
+								onClick={() =>
+									template?.version
+										? handleTemplateClick(template)
+										: versionClick(template)
+								}
 							>
 								<div className="docsTemplateImageContainer">
 									<iframe
@@ -264,6 +307,11 @@ const ProposalPopup = ({ open, closeModal }) => {
 					</InfiniteScroll>
 				)}
 			</div>
+			<CreateFileLead
+				open={info?.versionPopup}
+				onClose={() => setInfo((prev) => ({ ...prev, versionPopup: false }))}
+				workflow={info?.activeTemplateData}
+			/>
 		</ReactModal>
 	);
 };

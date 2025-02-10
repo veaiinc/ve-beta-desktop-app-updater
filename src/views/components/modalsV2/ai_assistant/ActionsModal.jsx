@@ -11,6 +11,7 @@ import { Tooltip } from 'antd';
 import { ReactComponent as TrashSvg } from '../../../../assets/svg/tasks/dustBin.svg';
 import { ReactComponent as PlusSvg } from '../../../../assets/svg/tasks/plus.svg';
 import { message } from 'antd';
+import { isURL } from '../../../../helpers';
 import Context from '../../../../context/context';
 
 const methodsOptions = ['GET', 'POST', 'PUT', 'DELETE'];
@@ -55,7 +56,7 @@ const ActionsModal = ({
 			// 	value: '',
 			// },
 		],
-		bodyContent: '',
+		bodyContent: null,
 		showVariableSuggestions: false,
 		cursorPosition: 0,
 		showUrlVariableSuggestions: false,
@@ -78,26 +79,26 @@ const ActionsModal = ({
 				...prev,
 				method: selectedAction?.method || 'GET',
 				apiUses: selectedAction?.contentType?.toUpperCase() || 'JSON',
-				url: selectedAction?.url || '',
+				url: selectedAction?.api?.url || '',
 				variables:
-					selectedAction?.variables?.map((v) => ({
+					selectedAction?.api?.variables?.map((v) => ({
 						id: Date.now() + Math.random(),
 						name: v?.name,
 						type: v?.type,
 						description: v?.description || '',
 					})) || [],
 				headers:
-					selectedAction?.headers?.length > 0
-						? selectedAction?.headers?.map((h) => ({
+					selectedAction?.api?.headers?.length > 0
+						? selectedAction?.api?.headers?.map((h) => ({
 								id: Date.now() + Math.random(),
 								parameter: h?.name,
 								value: h?.value,
 						  }))
-						: [{ id: Date.now(), parameter: '', value: '' }],
-				bodyContent: selectedAction?.body
-					? typeof selectedAction?.body === 'string'
-						? selectedAction?.body
-						: JSON.stringify(selectedAction?.body, null, 2)
+						: [],
+				bodyContent: selectedAction?.api?.body
+					? typeof selectedAction?.api?.body === 'string'
+						? selectedAction?.api?.body
+						: JSON.stringify(selectedAction?.api?.body, null, 2)
 					: '',
 			}));
 		} else {
@@ -121,19 +122,18 @@ const ActionsModal = ({
 	}, [selectedAction]);
 
 	const validateForm = () => {
+		const validationErrors = [];
+
 		if (!formData?.title?.trim()) {
-			message.error('Title is required');
-			return false;
+			validationErrors.push('Title');
 		}
 
 		if (!formData?.description?.trim()) {
-			message.error('Description is required');
-			return false;
+			validationErrors.push('Description');
 		}
 
-		if (!info?.url?.trim()) {
-			message.error('URL is required');
-			return false;
+		if (!info?.url?.trim() || !isURL(info?.url?.trim())) {
+			validationErrors.push('Valid URL');
 		}
 
 		// Validate variables have required fields and proper types
@@ -145,25 +145,41 @@ const ActionsModal = ({
 		});
 
 		if (invalidVariables) {
-			message.error('All variables must have valid name, type and description');
-			return false;
+			validationErrors.push('Valid Variables (name, type and description)');
 		}
 
 		// Validate headers have required fields
 		const invalidHeaders = info?.headers?.some((h) => !h?.parameter || !h?.value);
 		if (invalidHeaders) {
-			message.error('All headers must have parameter and value');
-			return false;
+			validationErrors.push('Valid Headers (parameter and value)');
 		}
 
 		// Validate body content is valid JSON if present
 		if (info?.bodyContent?.trim()) {
 			try {
-				JSON.parse(info?.bodyContent);
+				// JSON.parse(info?.bodyContent);
+				// First replace variables that are direct values with a dummy string
+				let validationContent = info?.bodyContent?.replace(
+					/:\s*({{\s*[\w.-]+\s*}})/g,
+					': "dummy_value"',
+				);
+
+				// Then replace variables inside strings
+				validationContent = validationContent?.replace(
+					/"[^"]*{{[\w.-]+}}[^"]*"/g,
+					'"dummy_string"',
+				);
+
+				JSON.parse(validationContent);
 			} catch (e) {
-				message.error('Body content must be valid JSON');
-				return false;
+				validationErrors.push('Valid JSON Body');
 			}
+		}
+
+		// If there are any validation errors, show them all at once
+		if (validationErrors.length > 0) {
+			message.error(`${validationErrors.join(', ')} are required`);
+			return false;
 		}
 
 		return true;
@@ -182,10 +198,10 @@ const ActionsModal = ({
 			// Parse body content
 			let parsedBody = {};
 			try {
-				parsedBody = info?.bodyContent ? JSON.parse(info?.bodyContent) : {};
+				parsedBody = info?.bodyContent ? info?.bodyContent : null;
 			} catch (e) {
 				// If parsing fails, use the content as is (it might be a string)
-				parsedBody = info?.bodyContent || {};
+				parsedBody = info?.bodyContent || null;
 			}
 
 			// Prepare variables with proper type conversion
@@ -210,7 +226,7 @@ const ActionsModal = ({
 				url: info?.url?.trim(),
 				method: info?.method?.toUpperCase(),
 				contentType: info?.apiUses?.toLowerCase(),
-				body: parsedBody,
+				body: parsedBody || null,
 				headers: validHeaders?.map((header) => ({
 					name: header?.parameter?.trim(),
 					value: header?.value?.trim(),
@@ -506,33 +522,12 @@ const ActionsModal = ({
 						onChange={onInstructionChange}
 					/>
 				</div>
-				<div className="actions-modal-description">
-					<h2>Connect to API</h2>
-					<p>Build the API call for Action, including inputs from chats, variable.</p>
-				</div>
-
-				<div className="actionsTabContainer">
-					<div className="actionTabs">
-						{Object.keys(tabs)?.map((tab) => (
-							<div
-								key={tab}
-								className={`actionTab ${info?.activeTab === tab ? 'active' : ''}`}
-								onClick={() => handleTabChange(tab)}
-							>
-								{tabs?.[tab]?.label}
-							</div>
-						))}
-					</div>
-				</div>
-
-				{tabs?.[info?.activeTab]?.component}
-
 				<div className="addVariablesContainer">
 					<div className="header">
 						<h2>Extract details from the conversation.</h2>
 						<p>
 							List any info your AI Agent needs to find in the conversation for this
-							Action’s API call.
+							Action's API call.
 						</p>
 					</div>
 
@@ -643,6 +638,27 @@ const ActionsModal = ({
 						</div>
 					</div>
 				</div>
+
+				<div className="actions-modal-description">
+					<h2>Connect to API</h2>
+					<p>Build the API call for Action, including inputs from chats, variable.</p>
+				</div>
+
+				<div className="actionsTabContainer">
+					<div className="actionTabs">
+						{Object.keys(tabs)?.map((tab) => (
+							<div
+								key={tab}
+								className={`actionTab ${info?.activeTab === tab ? 'active' : ''}`}
+								onClick={() => handleTabChange(tab)}
+							>
+								{tabs?.[tab]?.label}
+							</div>
+						))}
+					</div>
+				</div>
+
+				{tabs?.[info?.activeTab]?.component}
 
 				<div className="actions-modal-footer">
 					<div>
