@@ -22,18 +22,22 @@ const ctaMapper = [
 	{
 		id: 1,
 		icon: <Back />,
+		action: 'back',
 	},
 	{
 		id: 2,
 		icon: <Search />,
+		action: 'search',
 	},
 	{
 		id: 3,
 		icon: <Filter />,
+		action: 'filter',
 	},
 	{
 		id: 4,
 		icon: <Menu />,
+		action: 'menu',
 	},
 ];
 
@@ -112,6 +116,12 @@ const Notifications = ({ showNotificationsDrawer, setShowNotificationsDrawer }) 
 		setInfo({ ...initialState });
 	};
 
+	const handleCtaClick = (action) => {
+		if (action === 'back') {
+			handleCloseDrawer();
+		}
+	};
+
 	return (
 		<Drawer
 			title={null}
@@ -127,7 +137,9 @@ const Notifications = ({ showNotificationsDrawer, setShowNotificationsDrawer }) 
 					<h1 className="title">Notifications</h1>
 					<div className="cta-container">
 						{ctaMapper?.map((cta) => (
-							<div key={cta?.id}>{cta?.icon}</div>
+							<div onClick={() => handleCtaClick(cta?.action)} key={cta?.id}>
+								{cta?.icon}
+							</div>
 						))}
 					</div>
 				</div>
