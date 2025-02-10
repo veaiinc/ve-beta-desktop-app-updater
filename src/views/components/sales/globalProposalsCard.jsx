@@ -95,6 +95,9 @@ const GlobalProposalsCard = ({ data, onClickFunc, modalIsOpen, isLoading }) => {
 					),
 				)}
 			</div>
+			{data?.length === 0 && (
+				<div style={{ color: 'white', fontSize: '14px' }}>No results found</div>
+			)}
 		</div>
 	);
 };

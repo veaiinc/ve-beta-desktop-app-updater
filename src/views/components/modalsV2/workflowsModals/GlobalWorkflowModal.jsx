@@ -30,7 +30,11 @@ const EntryPointCard = ({ publicData }) => {
 			<div className="htmlContentViewer">
 				<div className="coverImage">
 					<iframe
-						src={`${origin}/preview/${publicData?._id}?module=${data?.[0]?._id}&isPubic=${data?.[0]?.isPublic}&restrictClick=true`}
+						src={
+							window.location.hostname === 'localhost'
+								? `http://localhost:3000/preview/${publicData?._id}?module=${data?.[0]?._id}&isPubic=${data?.[0]?.isPublic}&restrictClick=true`
+								: `https://builder.ve.ai/preview/${publicData?._id}?module=${data?.[0]?._id}&isPubic=${data?.[0]?.isPublic}&restrictClick=true`
+						}
 						title="Builder Preview"
 						width="100%"
 						height="100%"
@@ -72,7 +76,11 @@ const PreviewCard = ({ privateData }) => {
 			<div className="htmlContentViewer">
 				<div className="coverImage">
 					<iframe
-						src={`${origin}/preview/${privateData?._id}?module=${data?.[0]?._id}&isPubic=${data?.[0]?.isPublic}&restrictClick=true`}
+						src={
+							window.location.hostname === 'localhost'
+								? `http://localhost:3000/preview/${privateData?._id}?module=${data?.[0]?._id}&isPubic=${data?.[0]?.isPublic}&restrictClick=true`
+								: `https://builder.ve.ai/preview/${privateData?._id}?module=${data?.[0]?._id}&isPubic=${data?.[0]?.isPublic}&restrictClick=true`
+						}
 						title="Builder Preview"
 						width="100%"
 						height="100%"
@@ -109,6 +117,7 @@ const AutomationComponent = ({ activeTemplateData, loading }) => {
 			stepsData?.push({
 				module: 'preview',
 				_id: steps?.[0]?._id,
+				parsedHtmlContent: activeTemplateData?.templates?.[0]?.parsedHtmlContent,
 			});
 			steps.shift();
 			stepsData = stepsData?.concat(steps);
@@ -178,7 +187,6 @@ const GlobalWorkflowModal = ({
 				templateInfoId: globalTemplateId,
 			});
 		}
-
 		return () => {
 			if (!modalIsOpen) {
 				updateStateValues({ specificTemplatesInfo: null });
@@ -186,6 +194,10 @@ const GlobalWorkflowModal = ({
 			}
 		};
 	}, [globalTemplateId, modalIsOpen]);
+
+	useEffect(() => {
+		console.log(info?.activeTemplateData, 'info?.activeTemplateData');
+	}, [info?.activeTemplateData]);
 
 	useEffect(() => {
 		if (specificTemplatesInfo && modalIsOpen) {
@@ -548,7 +560,8 @@ const GlobalWorkflowModal = ({
 												background: 'rgba(255, 255, 255, 0.05)',
 											}}
 										>
-											{moduleName}
+											{/* {info?.activeTemplateData?.__typename} */}
+											Design
 										</div>
 										<div
 											style={{
@@ -649,7 +662,7 @@ const GlobalWorkflowModal = ({
 										</div>
 									</div>
 									{/* )} */}
-									{/* <div
+									<div
 										className="innerContainerHeader"
 										style={{
 											borderBottom: 'none',
@@ -703,7 +716,7 @@ const GlobalWorkflowModal = ({
 												</div>
 											</div>
 										</div>
-									</div> */}
+									</div>
 								</div>
 							</>
 						)}
