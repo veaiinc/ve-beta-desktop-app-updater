@@ -213,6 +213,8 @@ const BottomToolbar = ({
 						const payload = {
 							query: currentQuery,
 							timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+							knowledge_base_search: false,
+							web_search: true,
 						};
 						let localPayload = {};
 						if (info?.uploadedImages?.length) {
