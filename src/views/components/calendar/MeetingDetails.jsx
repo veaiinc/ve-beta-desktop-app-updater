@@ -108,10 +108,10 @@ const MeetingDetails = ({ selectedDate }) => {
 				</div>
 			</div>
 
-			<div class="personImage">
+			{/* <div class="personImage">
 				<img src={Meetwomen} alt="Person working at laptop" />
 			</div>
-			<Ellipse className="ellipse" />
+			<Ellipse className="ellipse" /> */}
 		</div>
 	);
 };
