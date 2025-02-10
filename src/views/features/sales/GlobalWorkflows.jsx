@@ -1,52 +1,75 @@
 import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/sales/globalWorkflow.scss';
-import { ReactComponent as BackArrowSvg } from '../../../assets/svg/workflow/backarrow.svg';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import GlobalWorkflowCard from '../../components/sales/globalWorkflowCard';
 import Context from '../../../context/context';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import Spinner from '../../components/loaders/Spinner';
 import GlobalWorkflowModal from '../../components/modalsV2/workflowsModals/GlobalWorkflowModal';
 import UpdatedPageLoader from '../../components/loaders/UpdatedPageLoader';
+import GlobalProposalsCard from '../../components/sales/globalProposalsCard';
+import Skeleton from 'react-loading-skeleton';
+import { FetchMoreLoaderComp } from '../../../helpers';
+import backgroundImage from '../../../assets/svg/sales/start.jpg';
 
-const FetchMoreLoaderComp = () => {
-	return (
-		<h4
-			style={{
-				display: 'flex',
-				gap: '12px',
-				color: '#fff',
-				justifyContent: 'center',
-				alignItems: 'center',
-			}}
-		>
-			<Spinner width={'12px'} height={'12px'} />
-			Fetching More...
-		</h4>
-	);
-};
+const options = ['Workflow', 'Proposal', 'Form', 'Invoice', 'Contract'];
 
-const servicesList = [
-	'Sell a Service',
-	'Weddings',
-	'Events',
-	'Parties',
-	'Sell a Session',
-	'Sell a Digital Product',
-];
+const NoResultsFound = ({ searchQuery }) => (
+	<div
+		style={{
+			display: 'flex',
+			flexDirection: 'column',
+			alignItems: 'center',
+			justifyContent: 'center',
+			width: '100%',
+			padding: '40px',
+			color: '#fff',
+			textAlign: 'center',
+		}}
+	>
+		<h3 style={{ fontSize: '18px', marginBottom: '8px' }}>No results found</h3>
+		<p style={{ color: 'white', fontSize: '14px' }}>
+			We couldn't find any matches for "{searchQuery}"
+		</p>
+	</div>
+);
+
 const GlobalWorkflows = () => {
 	const navigate = useNavigate();
 	let {
-		templates: { getGlobalWorkflows, globalMoreWorkflows, globalWorkflows },
+		templates: {
+			getGlobalWorkflows,
+			globalMoreWorkflows,
+			globalWorkflows,
+			getModuleTemplate,
+			duplicateGlobalWorkflowTemplate,
+		},
+		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 	} = useContext(Context);
+
+	const [selectedOption, setSelectedOption] = useState('Workflow');
+	const [moduleTemplateData, setModuleTemplateData] = useState(null);
+	const [searchQuery, setSearchQuery] = useState('');
 
 	const [info, setInfo] = useState({
 		loading: true,
+		isLoading: true,
+		searchLoading: false,
 		globalWorkflowData: null,
 		hasNextPage: false,
 		currentPage: 1,
 		modalIsOpen: false,
 		activeTemplateData: null,
+		selectedModule: null,
+		selectedWorkflowId: null,
+		isExpanded: false,
+		searchChanged: false,
+		timeout: null,
+	});
+
+	const [moduleInfo, setModuleInfo] = useState({
+		currentPage: 1,
+		hasNextPage: false,
 	});
 
 	//useEffects
@@ -66,101 +89,437 @@ const GlobalWorkflows = () => {
 		}
 	}, [globalMoreWorkflows]);
 
-	//function definations
+	useEffect(() => {
+		if (info?.searchChanged) {
+			handleDebounceSearch();
+		}
+	}, [searchQuery, info?.searchChanged]);
 
-	const getGlobalWorkflowTemplatesData = useCallback((page, fetchMore = false) => {
+	const fetchFilteredTemplates = async (option) => {
+		setInfo((prev) => ({ ...prev, isLoading: true }));
+		setModuleTemplateData(null);
+
 		const payload = {
-			filters: {
-				limit: 10,
-				page: page,
-				type: 'global',
-				sortBy: 'createdAt',
-				sortType: -1,
-			},
+			page: 1,
+			limit: 10,
+			type: 'global',
+			module: option.toLowerCase(),
 		};
-		getGlobalWorkflows(payload, fetchMore);
-	}, []);
+		if (searchQuery?.length) {
+			payload.title = searchQuery;
+		}
 
-	const globalWorkflowsDataParser = useCallback(
-		(dataToBeUsed, fetchMore = false) => {
-			let { data, currentPage, hasNextPage } = dataToBeUsed;
-			let globalWorkflowData = [];
+		const [success, response] = await getModuleTemplate(payload);
+		if (success) {
+			setModuleTemplateData(response.templates);
+			setModuleInfo({
+				currentPage: 1,
+				hasNextPage: response.hasNextPage,
+			});
+		}
+		setInfo((prev) => ({ ...prev, isLoading: false }));
+	};
 
-			for (let i = 0; i < data?.length; i++) {
-				if (!data?.[i]?.tenantId || data?.[i]?.tenantId === null) {
-					globalWorkflowData?.push(data?.[i]);
-				}
-			}
-
-			if (fetchMore) {
-				globalWorkflowData = [...(info?.globalWorkflowData || [])]?.concat(
-					globalWorkflowData,
-				);
-			}
-			if (!fetchMore && globalWorkflowData?.length < 3 && hasNextPage) {
-				getGlobalWorkflowTemplatesData(currentPage + 1, true);
-			}
-			setInfo((prev) => ({
-				...prev,
-				loading: false,
-				globalWorkflowData,
-				currentPage,
-				hasNextPage,
-			}));
+	const handleOptionSelect = useCallback(
+		(option) => {
+			if (option === selectedOption) return;
+			setInfo((prev) => ({ ...prev, isLoading: true }));
+			setSelectedOption(option);
+			setSearchQuery('');
+			setModuleTemplateData(null);
+			setModuleInfo({ currentPage: 1, hasNextPage: false });
+			fetchFilteredTemplates(option);
 		},
-		[info?.globalWorkflowData],
+		[selectedOption],
 	);
 
-	const fetchMoreGlobalWorkflows = useCallback(() => {
-		getGlobalWorkflowTemplatesData(info?.currentPage + 1, true);
-	}, [info?.hasNextPage, info?.currentPage]);
+	const getGlobalWorkflowTemplatesData = useCallback(
+		(page, fetchMore = false) => {
+			const payload = {
+				filters: {
+					limit: 5,
+					page: page,
+					type: 'global',
+					sortBy: 'createdAt',
+					sortType: -1,
+				},
+			};
 
-	const openModal = useCallback((data) => {
-		setInfo((prev) => ({ ...prev, modalIsOpen: true, activeTemplateData: data }));
+			if (searchQuery?.length) {
+				payload.filters.title = searchQuery;
+			}
+			getGlobalWorkflows(payload, fetchMore);
+		},
+		[searchQuery],
+	);
+
+	const globalWorkflowsDataParser = useCallback((dataToBeUsed, fetchMore = false) => {
+		let { data, currentPage, hasNextPage } = dataToBeUsed;
+		let globalWorkflowData = [];
+
+		for (let i = 0; i < data?.length; i++) {
+			if (!data?.[i]?.tenantId || data?.[i]?.tenantId === null) {
+				globalWorkflowData?.push(data?.[i]);
+			}
+		}
+
+		setInfo((prev) => ({
+			...prev,
+			loading: false,
+			searchLoading: false,
+			isLoading: false,
+			globalWorkflowData: fetchMore
+				? [...(prev.globalWorkflowData || []), ...globalWorkflowData]
+				: globalWorkflowData,
+			currentPage,
+			hasNextPage,
+		}));
+	}, []);
+
+	const fetchMoreGlobalWorkflows = useCallback(() => {
+		if (info?.hasNextPage && !info.isLoading) {
+			getGlobalWorkflowTemplatesData(info?.currentPage + 1, true);
+		}
+	}, [info?.hasNextPage, info?.currentPage, info.isLoading, getGlobalWorkflowTemplatesData]);
+
+	const openModal = useCallback((data, module) => {
+		if (!data) {
+			console.error('No template data provided');
+			return;
+		}
+		const templateData = typeof data === 'string' ? { _id: data } : data;
+		setInfo((prev) => ({
+			...prev,
+			modalIsOpen: true,
+			activeTemplateData: templateData,
+			selectedModule: module,
+		}));
 	}, []);
 
 	const closeModal = useCallback(() => {
-		setInfo((prev) => ({ ...prev, modalIsOpen: false, activeTemplateData: null }));
+		setInfo((prev) => ({
+			...prev,
+			modalIsOpen: false,
+			activeTemplateData: null,
+			isExpanded: false,
+		}));
 	}, []);
 
-	return (
-		<div className="globalWorkflowContainer">
-			<div className="mainContentContainer">
-				<div className="gloablWorkflowHeader">
-					<span className="backArrowBtn" onClick={() => navigate(-1)}>
-						<BackArrowSvg />
-					</span>
-					<span className="gloablHeaderTitle">Choose a Workflow</span>
-				</div>
-				<InfiniteScroll
-					dataLength={info?.globalWorkflowData?.length || 0}
-					next={fetchMoreGlobalWorkflows}
-					hasMore={info?.hasNextPage}
-					loader={<FetchMoreLoaderComp />}
-					scrollableTarget={'scrollableTarget'}
-				>
-					<div className="globalWorkflowParentCardContainer">
-						{info?.loading ? (
-							<UpdatedPageLoader />
-						) : (
-							info?.globalWorkflowData?.map((ele, index) => (
-								<GlobalWorkflowCard
-									key={index}
-									data={ele}
-									onClickFunc={openModal}
-								/>
-							))
-						)}
-					</div>
-				</InfiniteScroll>
-			</div>
+	const handleSearch = useCallback(
+		(e) => {
+			const newSearchQuery = e.target.value;
+			setSearchQuery(newSearchQuery);
+			setInfo((prev) => ({ ...prev, searchChanged: true }));
+		},
+		[info],
+	);
+	const handleDebounceSearch = useCallback(() => {
+		clearInterval(info?.timeout);
+		const timeout = setTimeout(() => {
+			if (selectedOption === 'Workflow') {
+				getGlobalWorkflowTemplatesData(1);
+			} else {
+				fetchFilteredTemplates(selectedOption);
+			}
+			setInfo((prev) => ({
+				...prev,
+				searchLoading: true,
+				timeout: null,
+			}));
+		}, 800);
+		setInfo((prev) => ({ ...prev, timeout }));
+	}, [info?.timeout, selectedOption]);
 
-			<GlobalWorkflowModal
-				modalIsOpen={info?.modalIsOpen}
-				closeModal={closeModal}
-				globalTemplateId={info?.activeTemplateData?._id}
-			/>
-		</div>
+	const onCustomiseFunc = useCallback(async () => {
+		if (validateExpiryData?.isExpired) {
+			return updateSubscriptionState({ expiredSubscriptionModal: true });
+		}
+		if (info?.duplicateApiLoading) {
+			return;
+		}
+		setInfo((prev) => ({ ...prev, duplicateApiLoading: true }));
+		const payload = {
+			templateId: info?.activeTemplateData?._id,
+			title: info?.activeTemplateData?.title,
+		};
+		const response = await duplicateGlobalWorkflowTemplate(payload);
+		setInfo((prev) => ({ ...prev, duplicateApiLoading: false }));
+		if (response?.[0]) {
+			if (info?.activeTab !== 'design') {
+				return navigate(`/workflow_builder/${response?.[1]?._id}`);
+			} else {
+				window.location.href = `${origin}/${response?.[1]?._id}`;
+				return;
+			}
+		}
+	}, [info?.activeTemplateData, info?.duplicateApiLoading, selectedOption]);
+
+	const fetchMoreModuleTemplates = useCallback(async () => {
+		if (!moduleInfo?.hasNextPage || info.isLoading) return;
+
+		const payload = {
+			page: (moduleInfo?.currentPage || 0) + 1,
+			limit: 10,
+			type: 'global',
+			module: selectedOption.toLowerCase(),
+		};
+		if (searchQuery?.length) {
+			payload.title = searchQuery;
+		}
+
+		try {
+			const [success, response] = await getModuleTemplate(payload);
+			if (success && response?.templates) {
+				setModuleTemplateData((prev) => [...(prev || []), ...response.templates]);
+				setModuleInfo({
+					currentPage: moduleInfo.currentPage + 1,
+					hasNextPage: response.hasNextPage,
+				});
+			}
+		} catch (error) {
+			console.error('Error fetching more templates:', error);
+		} finally {
+			setInfo((prev) => ({ ...prev, isLoading: false }));
+		}
+	}, [
+		moduleInfo?.hasNextPage,
+		moduleInfo?.currentPage,
+		selectedOption,
+		info.isLoading,
+		searchQuery,
+	]);
+
+	return (
+		<>
+			{info?.loading ? (
+				<UpdatedPageLoader />
+			) : (
+				<div
+					className={`playbook-wrapper`}
+					style={{ background: `url(${backgroundImage})` }}
+				>
+					<div className={`globalWorkflowContainer`}>
+						<div className={`left_div  ${info.modalIsOpen ? 'modal-open' : ''}`}>
+							<div className="left_child_div">
+								<h2 className="side_heading">Templates</h2>
+								<p className="side_text">
+									We have specially curated best workflows and designs that suit
+									your business
+								</p>
+							</div>
+
+							<div className="options_div">
+								<input
+									type="text"
+									placeholder="search"
+									className="search_bar"
+									style={{ color: 'white' }}
+									value={searchQuery}
+									onChange={handleSearch}
+								/>
+								<h2
+									style={{
+										fontSize: '18px',
+										paddingBottom: '30px',
+										color: 'white',
+										fontWeight: '400',
+									}}
+								>
+									What are you Offering?
+								</h2>
+								<div className="options">
+									{options.map((each, index) => (
+										<div key={index}>
+											<li
+												className={`options_style ${
+													selectedOption === each ? 'selected' : ''
+												}`}
+												onClick={() => handleOptionSelect(each)}
+											>
+												{each}
+											</li>
+										</div>
+									))}
+								</div>
+							</div>
+						</div>
+						<div
+							className={`mainContentContainer ${
+								info.modalIsOpen ? 'modal-open' : ''
+							}`}
+							id="templatesScrollableTarget"
+						>
+							{info?.isExpanded ? (
+								<div
+									style={{
+										position: 'absolute',
+										width: '420px',
+										display: 'flex',
+										// transition:
+										//  'opacity 0.3s ease-out, transform 0.3s ease-out',
+										opacity: info?.isExpanded ? 1 : 0,
+										transform: info?.isExpanded
+											? 'translateX(0)'
+											: 'translateX(-100%)',
+										flexDirection: 'column',
+										alignItems: 'flex-start',
+										gap: '32px',
+										marginTop: '25%',
+										marginLeft: '10%',
+									}}
+								>
+									<div>
+										<span className="dior-studio-text">By Ve.ai</span>
+									</div>
+									<div className="workflow-title-container">
+										<div className="workflow-title">
+											{info?.activeTemplateData?.title}
+										</div>
+										<div className="workflow-description">
+											{info?.activeTemplateData?.description ||
+												'Ideal for wedding photography business with multiple events, selectable packages and services, this workflow provides customisable design in enquiry forms, proposals, invoices for multiple payment schedule and hassle contracts with e-sign contracts'}
+										</div>
+										<div></div>
+										<div>
+											<button
+												className="buy-button"
+												onClick={onCustomiseFunc}
+												style={{ cursor: 'pointer' }}
+											>
+												Add to workspace
+											</button>
+										</div>
+									</div>
+								</div>
+							) : (
+								<div
+									style={{
+										position: 'relative',
+										opacity: info?.isExpanded ? 0 : 1,
+										transform: info?.isExpanded
+											? 'translateX(-100%)'
+											: 'translateX(0)',
+										transition:
+											'opacity 0.3s ease-out, transform 0.3s ease-out',
+										width: '100%',
+										visibility: info?.isExpanded ? 'hidden' : 'visible',
+										pointerEvents: info?.isExpanded ? 'none' : 'auto',
+									}}
+								>
+									<InfiniteScroll
+										dataLength={
+											selectedOption === 'Workflow'
+												? info?.globalWorkflowData?.length || 0
+												: moduleTemplateData?.length || 0
+										}
+										next={
+											selectedOption === 'Workflow'
+												? fetchMoreGlobalWorkflows
+												: fetchMoreModuleTemplates
+										}
+										hasMore={
+											selectedOption === 'Workflow'
+												? info?.hasNextPage
+												: moduleInfo?.hasNextPage
+										}
+										loader={<FetchMoreLoaderComp />}
+										scrollableTarget="templatesScrollableTarget"
+										height="calc(100vh - 100px)"
+									>
+										<div className="globalWorkflowParentCardContainer">
+											{info.isLoading || info.searchLoading ? (
+												<div
+													style={{
+														display: 'grid',
+														gridTemplateColumns:
+															selectedOption === 'Workflow'
+																? '1fr'
+																: 'repeat(2, 1fr)',
+														gap: '16px',
+														width: '100%',
+														maxWidth: '100%',
+													}}
+												>
+													{[
+														...Array(
+															selectedOption === 'Workflow' ? 3 : 6,
+														),
+													].map((_, index) => (
+														<Skeleton
+															key={index}
+															width="100%"
+															height={
+																selectedOption === 'Workflow'
+																	? '300px'
+																	: '268px'
+															}
+															baseColor="transparent"
+															highlightColor="rgba(255, 255, 255, 0.20)"
+															opacity={0.5}
+														/>
+													))}
+												</div>
+											) : (
+												<>
+													{selectedOption !== 'Workflow' ? (
+														moduleTemplateData?.length === 0 &&
+														searchQuery ? (
+															<NoResultsFound
+																searchQuery={searchQuery}
+															/>
+														) : (
+															<GlobalProposalsCard
+																data={moduleTemplateData || []}
+																onClickFunc={openModal}
+																modalIsOpen={info.modalIsOpen}
+																isLoading={info.isLoading}
+															/>
+														)
+													) : info?.globalWorkflowData?.length === 0 &&
+													  searchQuery ? (
+														<NoResultsFound searchQuery={searchQuery} />
+													) : (
+														info?.globalWorkflowData?.map(
+															(ele, index) => (
+																<GlobalWorkflowCard
+																	key={index}
+																	data={ele}
+																	onClickFunc={openModal}
+																	isSelected={
+																		ele?._id ===
+																		info?.selectedWorkflowId
+																	}
+																/>
+															),
+														)
+													)}
+												</>
+											)}
+										</div>
+									</InfiniteScroll>
+								</div>
+							)}
+						</div>
+
+						<GlobalWorkflowModal
+							modalIsOpen={info?.modalIsOpen}
+							closeModal={closeModal}
+							globalTemplateId={info?.activeTemplateData?._id}
+							templateData={info?.activeTemplateData}
+							isProposal={selectedOption !== 'Workflow'}
+							isExpanded={info?.isExpanded}
+							setIsExpanded={(value) => {
+								setInfo((prev) => ({ ...prev, isExpanded: value }));
+							}}
+							{...(selectedOption !== 'Workflow' && {
+								moduleName: info?.selectedModule,
+								templateTitle: info?.activeTemplateData?.title,
+							})}
+						/>
+					</div>
+				</div>
+			)}
+		</>
 	);
 };
 
