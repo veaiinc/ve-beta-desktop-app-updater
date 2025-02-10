@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { memo, useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/gallery/galleryViewer.scss';
 import { useSearchParams, useParams, useNavigate, useLocation } from 'react-router-dom';
 import Context from '../../../context/context';
@@ -332,4 +332,4 @@ const GalleryViewer = () => {
 	);
 };
 
-export default GalleryViewer;
+export default memo(GalleryViewer);
