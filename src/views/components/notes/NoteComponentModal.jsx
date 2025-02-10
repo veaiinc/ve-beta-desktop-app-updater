@@ -1,108 +1,29 @@
-/* eslint-disable react/jsx-no-duplicate-props */
 import { Drawer, Spin } from 'antd';
-import React, { memo, useState, useRef, useEffect } from 'react';
-import '../../../assets/scss/ai_agents/bottomToolbarChatContainer.scss';
-import { ReactComponent as CloseSvg } from '../../../assets/svg/calendar/close.svg';
-import { ReactComponent as SendSvg } from '../../../assets/svg/calendar/send.svg';
-import { ReactComponent as Close } from '../../../assets/svg/close.svg';
-import { ReactComponent as ExpandChatIcon } from '../../../assets/svg/ai_agents/expand-chat-icon.svg';
+import React, { useMemo } from 'react';
+import '../../../assets/scss/notes/noteComponentModal.scss';
 import { ReactComponent as AiStarInChat } from '../../../assets/svg/ai_agents/ai-star-in-chat.svg';
+import NoteComponent from './NoteComponent';
+import { TypingEffect } from '../../../helpers/markdownHelper';
+import Markdown from 'react-markdown';
 import { ReactComponent as Filter } from '../../../assets/svg/ai_agents/filter.svg';
 import { ReactComponent as Arroba } from '../../../assets/svg/ai_agents/arroba.svg';
 import { ReactComponent as PaperClip } from '../../../assets/svg/ai_agents/paper-clip.svg';
 import { ReactComponent as Mic } from '../../../assets/svg/ai_agents/mic.svg';
-import { Markdown, TypingEffect } from '../../../helpers/markdownHelper';
-import { ReactComponent as FullscreenSvg } from '../../../assets/svg/notes/fullScreen.svg';
+import { ReactComponent as Close } from '../../../assets/svg/close.svg';
 import Upload from 'antd/es/upload/Upload';
-import { useMemo } from 'react';
-import NoteComponentModal from '../notes/NoteComponentModal';
-import DocumentPreview from './notes/DocumentPreview';
-const content = [
-	{
-		id: '437ddacc-fe2a-4f0a-89b1-27bad7088ad2',
-		type: 'paragraph',
-		props: {
-			textColor: '#f2f2f3',
-			backgroundColor: 'default',
-			textAlignment: 'left',
-		},
-		content: [
-			{
-				type: 'text',
-				text: 'New page',
-				styles: {},
-			},
-		],
-		children: [],
-	},
-	{
-		id: '1c6f0227-6d08-4c44-9ada-a9a5bee0abfc',
-		type: 'paragraph',
-		props: {
-			textColor: '#f2f2f3',
-			backgroundColor: 'default',
-			textAlignment: 'left',
-		},
-		content: [],
-		children: [],
-	},
-];
-const ToolBarChatContainerModal = ({
-	onClose,
+
+const NoteComponentModal = ({
 	modalIsOpen,
+	closeModal,
 	chatList = [],
-	onChange,
-	onKeyDown,
 	chatQuery,
-	aiChatLoading,
-	isChatExpanded,
-	showFullPage,
-	toggleFullPage,
+	onKeyDown,
+	onChange,
 	onImageUpload,
 	uploadedImages,
 	handlePreview,
 	handleRemoveImage,
 }) => {
-	const [isExpanded, setIsExpanded] = useState(isChatExpanded || false);
-	const [info, setInfo] = useState({
-		width: isExpanded ? '100%' : '400px',
-		noteModalIsOpen: false,
-	});
-
-	const chatContentRef = useRef(null);
-
-	// const width = isExpanded ? (showFullPage ? '100%' : 'calc(100% - 245px)') : '400px';
-
-	// Add this useEffect for auto-scrolling
-
-	useEffect(() => {
-		if (showFullPage) {
-			setInfo((prev) => ({
-				...prev,
-				width: '100%',
-				// isExpanded: true,
-			}));
-			setIsExpanded(true);
-		} else {
-			setInfo((prev) => ({
-				...prev,
-				width: isExpanded ? '100%' : '400px',
-			}));
-		}
-	}, [showFullPage, isExpanded]);
-
-	useEffect(() => {
-		if (chatContentRef.current) {
-			chatContentRef.current.scrollTop = chatContentRef.current.scrollHeight;
-		}
-	}, [chatList]); // Scroll whenever chatList changes
-	const handleNoteComponentModalClose = () => {
-		setInfo((prev) => ({
-			...prev,
-			noteModalIsOpen: false,
-		}));
-	};
-
 	const chatIcons = useMemo(
 		() => [
 			<Filter />,
@@ -121,33 +42,22 @@ const ToolBarChatContainerModal = ({
 		],
 		[onImageUpload],
 	);
-
-	const handleNoteComponentModalOpen = () => {
-		setInfo((prev) => ({
-			...prev,
-			noteModalIsOpen: true,
-		}));
-	};
-
 	return (
-		<>
-			<Drawer
-				onClose={() => {
-					setIsExpanded(false);
-					onClose();
-				}}
-				width={info?.width}
-				open={modalIsOpen}
-				style={{ backgroundColor: '#171819' }}
-				headerStyle={{ display: 'none' }}
-				bodyStyle={{ padding: '0px' }}
-			>
+		<Drawer
+			open={modalIsOpen}
+			onClose={closeModal}
+			placement="right"
+			rootClassName="notes-modal-container"
+			width={'100vw'}
+			height={'100vh'}
+		>
+			<div className="modal-container">
 				<div className="toolExpandedChatBarContainer" style={{ width: '100%' }}>
 					{/* header */}
 					<div className="toolExpandedChatBarContainerHeader" style={{ width: '100%' }}>
 						<h1 className="toolExpandedChatBarContainerHeaderTitle">AI Assistant</h1>
 						<div className="toolExpandedChatBarContainerHeaderIconContainer">
-							<ExpandChatIcon
+							{/* <ExpandChatIcon
 								onClick={() => {
 									if (showFullPage) {
 										toggleFullPage();
@@ -162,15 +72,13 @@ const ToolBarChatContainerModal = ({
 									onClose();
 								}}
 								style={{ cursor: 'pointer' }}
-							/>
+							/> */}
 						</div>
 					</div>
 
 					{/* chat body */}
-					<div
-						className={`toolBarchatBodyParentContainer ${isExpanded ? 'expanded' : ''}`}
-					>
-						<div className="chatContent" ref={chatContentRef}>
+					<div className={`toolBarchatBodyParentContainer`}>
+						<div className="chatContent">
 							{chatList?.map((chat, index) =>
 								chat?.content ? (
 									chat?.content
@@ -194,23 +102,12 @@ const ToolBarChatContainerModal = ({
 												// 		toolInvocations={chat?.toolInvocations}
 												// 	/>
 												// )
-												<>
-													<TypingEffect
-														text={chat?.message}
-														toolInvocations={chat?.toolInvocations}
-														onClick={handleNoteComponentModalOpen}
-													/>
-												</>
+												<TypingEffect
+													text={chat?.message}
+													toolInvocations={chat?.toolInvocations}
+												/>
 											) : (
-												<div>
-													<Markdown>jgfhgjfdhjk</Markdown>
-													<div
-														className="fill-screen-icon-container"
-														onClick={handleNoteComponentModalOpen}
-													>
-														<FullscreenSvg />
-													</div>
-												</div>
+												<Markdown>{chat?.message}</Markdown>
 											)}
 										</div>
 									</div>
@@ -252,11 +149,7 @@ const ToolBarChatContainerModal = ({
 					)}
 
 					{/* //message Container */}
-					<div
-						className={`toolBarExpandedChatInputParentContainer   ${
-							isExpanded ? 'expanded' : ''
-						}`}
-					>
+					<div className={`toolBarExpandedChatInputParentContainer`}>
 						<textarea
 							type="text"
 							placeholder="Hey! Need help? Ask me anything."
@@ -282,18 +175,15 @@ const ToolBarChatContainerModal = ({
 						</div>
 					</div>
 				</div>
-			</Drawer>
-			<NoteComponentModal
-				modalIsOpen={info?.noteModalIsOpen}
-				closeModal={handleNoteComponentModalClose}
-				content={content}
-				chatQuery={chatQuery}
-				onKeyDown={onKeyDown}
-				onChange={onChange}
-				chatList={chatList}
-			/>
-		</>
+				<div className="note-component">
+					<NoteComponent
+						outerContainerStyle={{ width: '100%', height: '100%', padding: 0 }}
+						innerContainerStyle={{ width: '100%', height: '100%' }}
+					/>
+				</div>
+			</div>
+		</Drawer>
 	);
 };
 
-export default memo(ToolBarChatContainerModal);
+export default NoteComponentModal;

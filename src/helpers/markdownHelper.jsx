@@ -3,6 +3,10 @@ import { default as ReactMarkdown } from 'react-markdown';
 // import remarkGfm from 'remark-gfm';
 import { Link } from 'react-router-dom'; // Adjust if you're using another router
 import '../assets/scss/markdown.scss';
+import NoteComponent from '../views/components/notes/NoteComponent';
+import NoteComponentModal from '../views/components/notes/NoteComponentModal';
+import { ReactComponent as FullscreenIcon } from '../assets/svg/notes/fullScreen.svg';
+import '../assets/scss/markdownHelper.scss';
 
 const components = {
 	pre: ({ children }) => <>{children}</>,
@@ -119,9 +123,10 @@ export const Markdown = memo(
 	(prevProps, nextProps) => prevProps.children === nextProps.children,
 );
 
-export const TypingEffect = ({ text, onComplete }) => {
+export const TypingEffect = ({ text, onComplete, onClick }) => {
 	const [displayedText, setDisplayedText] = useState('');
 	const [currentIndex, setCurrentIndex] = useState(0);
+	const [modalIsOpen, setModalIsOpen] = useState(false);
 
 	useEffect(() => {
 		if (currentIndex < text?.length) {
@@ -137,9 +142,16 @@ export const TypingEffect = ({ text, onComplete }) => {
 	}, [currentIndex, text, onComplete]);
 
 	return (
-		<div className="typing-effect">
-			<Markdown>{displayedText}</Markdown>
-			{currentIndex < text?.length && <span className="typing-cursor" />}
-		</div>
+		<>
+			<div className="typing-effect">
+				<Markdown>{displayedText}vgcxhvghxg</Markdown>
+				{currentIndex < text?.length && <span className="typing-cursor" />}
+				gfdhghjdgjghjdfgfhd
+			</div>
+
+			<div className="full-screen-icon-container" onClick={onClick}>
+				<FullscreenIcon />
+			</div>
+		</>
 	);
 };
