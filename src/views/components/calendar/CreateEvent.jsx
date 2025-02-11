@@ -319,7 +319,7 @@ const CreateEvent = ({ categoryList, selectedCategory, updateCalendarInfo, selec
 			></div>
 			<div style={{ zIndex: 1001 }} className="createEventContainer">
 				<div dangerouslySetInnerHTML={{ __html: inputStyles }} />
-				<div className="headerWrapper">
+				<div className="createEventHeaderWrapper">
 					<span className="headerLabel">Create an event</span>
 					<CloseSvg
 						onClick={() => {

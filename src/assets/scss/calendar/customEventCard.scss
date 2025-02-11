@@ -1,10 +1,6 @@
 .customEventCardParentContainer {
 	display: flex;
 	height: 100%;
-	padding: 3px;
-	gap: 10px;
-	border-radius: 8px;
-	background: #2a2a2a;
 	overflow-y: auto;
 	overflow-x: hidden;
 
@@ -134,12 +130,12 @@
 
 	// Target .rbc-event inside .customEventWrapper
 	.rbc-event {
-		border-radius: 8px;
 		border: none;
-		background: #2a2a2a;
-		padding: 5px;
-		border: 1px solid #202020;
+		background: #171819;
+		padding: 8px 10px;
 		min-width: 100%;
+		// border-radius: 8px;
+		// border: 1px solid #202020;
 
 		// Target .rbc-event-label inside .rbc-event
 		.rbc-event-label {

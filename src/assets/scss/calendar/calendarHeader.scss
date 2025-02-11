@@ -227,7 +227,7 @@
 			gap: 4px;
 			flex: 1 0 0;
 			align-self: stretch;
-			cursor: pointer;
+			user-select: none;
 
 			.weekDayBlock {
 				display: flex;
