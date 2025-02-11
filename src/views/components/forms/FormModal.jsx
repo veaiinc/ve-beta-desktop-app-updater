@@ -181,7 +181,6 @@ const FormModal = ({ isOpen, onClose, selectedRow }) => {
 		document.addEventListener('mouseup', handleMouseUp);
 	};
 
-	// Adjust width while dragging
 	const handleMouseMove = (e) => {
 		if (!isResizing.current) return;
 
@@ -191,7 +190,6 @@ const FormModal = ({ isOpen, onClose, selectedRow }) => {
 		}
 	};
 
-	// Stop resizing
 	const handleMouseUp = () => {
 		isResizing.current = false;
 		document.removeEventListener('mousemove', handleMouseMove);

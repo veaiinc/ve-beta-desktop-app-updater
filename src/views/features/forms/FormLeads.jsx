@@ -19,6 +19,7 @@ const FormLeads = () => {
 	const location = useLocation();
 	const formData = location?.state?.formData;
 	const activeWorkspaceId = localStorage.getItem('workspaceId');
+	const copyCode = `${activeWorkspaceId}.ve.ai/${formData?.slug}`;
 
 	const [info, setInfo] = useState({
 		searchExpand: false,
@@ -51,16 +52,27 @@ const FormLeads = () => {
 		setInfo((prev) => ({ ...prev, totalSubmissions }));
 	}, []);
 
-	const handleCopyForm = useCallback(() => {
+	const handleCopyForm = () => {
 		navigator.clipboard
-			.writeText(`${activeWorkspaceId}.ve.ai/${formData?.slug}`)
+			.writeText(copyCode)
 			.then(() => {
 				message.success('Form copied successfully');
 			})
 			.catch(() => {
 				message.error('Failed to copy form');
 			});
-	}, []);
+	};
+
+	const handleEmbededCopy = () => {
+		navigator.clipboard
+			.writeText(`<iframe src="${copyCode}" style="height: 100%; width: 100%;"></iframe>`)
+			.then(() => {
+				message.success('Form embedded copied successfully');
+			})
+			.catch(() => {
+				message.error('Failed to embed form');
+			});
+	};
 
 	const tabs = useMemo(() => {
 		return {
@@ -119,7 +131,7 @@ const FormLeads = () => {
 								<span>Copy </span>
 							</span>
 							<div className="divider"></div>
-							<span className="ctaBtn">
+							<span className="ctaBtn" onClick={handleEmbededCopy}>
 								<CurlyBracesSvg />
 								<span>Embed Form</span>
 							</span>
