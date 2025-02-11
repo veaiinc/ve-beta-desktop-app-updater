@@ -109,12 +109,13 @@ const FormLeads = () => {
 
 				<div className="formSummaryContainer">
 					<div className="imgContainer">
-						{/* <iframe
-							src={`${origin}/preview/${}?module=${formData?._id}&isPubic=${formData?.isPublic}&restrictClick=true`}
+						{/* preview/674b0b6a0da5410aaa10ff2b?singleTemplatePreview=true */}
+						<iframe
+							src={`${origin}/preview/${formData?._id}?singleTemplatePreview=true&restrictClick=true`}
 							title="Builder Preview"
 							width="100%"
 							height="100%"
-						/> */}
+						/>
 					</div>
 					<div className="detailsContainer">
 						<div className="formMetricsContainer">
