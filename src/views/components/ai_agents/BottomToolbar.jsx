@@ -77,7 +77,7 @@ const BottomToolbar = ({
 		chatSessionId: ObjectID().toString(),
 		uploadedImages: [],
 		chatLoading: false,
-		showFullPage: false,
+		showFullPage: true,
 		voiceIntegration: false,
 	});
 
@@ -168,7 +168,7 @@ const BottomToolbar = ({
 	// }, []);
 
 	const handleCloseChatModal = useCallback(() => {
-		setInfo((prev) => ({ ...prev, chatModalIsOpen: false, showFullPage: false }));
+		setInfo((prev) => ({ ...prev, chatModalIsOpen: false }));
 	}, [info]);
 
 	const handlePreview = async (file) => {
@@ -498,7 +498,6 @@ const BottomToolbar = ({
 	};
 
 	const handleSendBtnClick = (e) => {
-		// e?.stopPropagation();
 		if (info?.chatQuery?.trim()?.length > 0) {
 			setInfo((prev) => ({
 				...prev,

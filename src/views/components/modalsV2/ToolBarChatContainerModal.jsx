@@ -10,7 +10,7 @@ import { ReactComponent as AiStarInChat } from '../../../assets/svg/ai_agents/ai
 import { ReactComponent as Filter } from '../../../assets/svg/ai_agents/filter.svg';
 import { ReactComponent as Arroba } from '../../../assets/svg/ai_agents/arroba.svg';
 import { ReactComponent as PaperClip } from '../../../assets/svg/ai_agents/paper-clip.svg';
-import { ReactComponent as ArrowUp } from '../../../assets/svg/ai_agents/arrow-up.svg';
+import { ReactComponent as ArrowUp } from '../../../assets/svg/ai_agents/arrow-up-dark.svg';
 import { ReactComponent as Mic } from '../../../assets/svg/ai_agents/mic.svg';
 import { Markdown, TypingEffect } from '../../../helpers/markdownHelper';
 
@@ -66,7 +66,7 @@ const ToolBarChatContainerModal = ({
 	handleRemoveImage,
 	onClick,
 }) => {
-	const [isExpanded, setIsExpanded] = useState(isChatExpanded || false);
+	const [isExpanded, setIsExpanded] = useState(isChatExpanded || true);
 	const [info, setInfo] = useState({
 		width: isExpanded ? '100%' : '400px',
 		noteModalIsOpen: false,
@@ -153,7 +153,7 @@ const ToolBarChatContainerModal = ({
 					<div className="toolExpandedChatBarContainerHeader" style={{ width: '100%' }}>
 						<h1 className="toolExpandedChatBarContainerHeaderTitle">AI Assistant</h1>
 						<div className="toolExpandedChatBarContainerHeaderIconContainer">
-							<ExpandChatIcon
+							{/* <ExpandChatIcon
 								onClick={() => {
 									if (showFullPage) {
 										toggleFullPage();
@@ -161,7 +161,7 @@ const ToolBarChatContainerModal = ({
 
 									setIsExpanded(!isExpanded);
 								}}
-							/>
+							/> */}
 							<CloseSvg
 								onClick={() => {
 									setIsExpanded(false);
@@ -268,7 +268,15 @@ const ToolBarChatContainerModal = ({
 									</span>
 								))}
 							</div>
-							<div className="click-btn" onClick={(e) => onClick(e)}>
+							<div
+								className="click-btn"
+								onClick={(e) => onClick(e)}
+								style={{
+									backgroundColor: `${
+										chatQuery?.trim()?.length > 0 ? '#b2a1e8' : '#2e2f33'
+									}`,
+								}}
+							>
 								<ArrowUp />
 							</div>
 						</div>

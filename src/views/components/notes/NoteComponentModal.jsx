@@ -14,7 +14,7 @@ import { ReactComponent as PreviousSvg } from '../../../assets/svg/notes/previou
 import { ReactComponent as NextSvg } from '../../../assets/svg/notes/next.svg';
 import { ReactComponent as CopySvg } from '../../../assets/svg/notes/copy.svg';
 import { ReactComponent as ShareSvg } from '../../../assets/svg/notes/share.svg';
-import { ReactComponent as ArrowUp } from '../../../assets/svg/ai_agents/arrow-up.svg';
+import { ReactComponent as ArrowUp } from '../../../assets/svg/ai_agents/arrow-up-dark.svg';
 
 import Upload from 'antd/es/upload/Upload';
 import Context from '../../../context/context';
@@ -154,7 +154,15 @@ const NoteComponentModal = ({
 										</span>
 									))}
 								</div>
-								<div className="click-btn" onClick={(e) => onClick(e)}>
+								<div
+									className="click-btn"
+									onClick={(e) => onClick(e)}
+									style={{
+										backgroundColor: `${
+											chatQuery?.trim()?.length > 0 ? '#b2a1e8' : '#2e2f33'
+										}`,
+									}}
+								>
 									<ArrowUp />
 								</div>
 							</div>
