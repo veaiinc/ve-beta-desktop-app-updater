@@ -164,36 +164,38 @@ const ToolBarChatContainerModal = ({
 					</div>
 
 					{/* chat body */}
-					<div
-						className={`toolBarchatBodyParentContainer ${isExpanded ? 'expanded' : ''}`}
-					>
-						<div className="chatContent" ref={chatContentRef}>
-							{chatList?.map((chat, index) =>
-								chat?.content ? (
-									chat?.content
-								) : (
-									<div
-										key={index}
-										className={`chat-message ${chat?.type?.toLowerCase()}-message`}
-									>
-										{chat?.type?.toLowerCase() === 'ai' && <AiStarInChat />}
-										<div className="message-content">
-											{chat?.type?.toLowerCase() === 'ai' ? (
-												<div className="content">
-													<TypingEffect
-														text={chat?.message}
-														customePencilClickFunc={
-															handleNoteComponentModalOpen
-														}
-													/>
+
+					<div className="parentContainer">
+						<div className="chatContainer">
+							<div className={`toolBarchatBodyParentContainer expanded`}>
+								<div className="chatContent" ref={chatContentRef}>
+									{chatList?.map((chat, index) =>
+										chat?.content ? (
+											chat?.content
+										) : (
+											<div
+												key={index}
+												className={`chat-message ${chat?.type?.toLowerCase()}-message`}
+											>
+												<div className="message-content">
+													{chat?.type?.toLowerCase() === 'ai' ? (
+														<div className="content">
+															<TypingEffect
+																text={chat?.message}
+																customePencilClickFunc={
+																	handleNoteComponentModalOpen
+																}
+															/>
+														</div>
+													) : (
+														<Markdown>{chat?.message}</Markdown>
+													)}
 												</div>
-											) : (
-												<Markdown>{chat?.message}</Markdown>
-											)}
-										</div>
-									</div>
-								),
-							)}
+											</div>
+										),
+									)}
+								</div>
+							</div>
 						</div>
 					</div>
 
@@ -291,6 +293,10 @@ const ToolBarChatContainerModal = ({
 					closeModal={handleCloseCitationsModal}
 				/>
 			</Drawer>
+			{/* <CitationsModal
+				modalIsOpen={info?.citationsModalIsOpen}
+				closeModal={handleCloseCitationsModal}
+			/> */}
 		</>
 	);
 };

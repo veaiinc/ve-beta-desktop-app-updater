@@ -9,6 +9,7 @@ const CitationsModal = ({ closeModal, modalIsOpen }) => {
 			open={modalIsOpen}
 			rootClassName="citations-modal"
 			width={400}
+			mask={false}
 			headerStyle={{ display: 'none' }}
 			bodyStyle={{ padding: '0px' }}
 		>
