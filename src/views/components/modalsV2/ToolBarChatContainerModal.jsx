@@ -17,38 +17,10 @@ import { Markdown, TypingEffect } from '../../../helpers/markdownHelper';
 import Upload from 'antd/es/upload/Upload';
 import { useMemo } from 'react';
 import NoteComponentModal from '../notes/NoteComponentModal';
-import DocumentPreview from './notes/DocumentPreview';
+
 import Context from '../../../context/context';
-const content = [
-	{
-		id: '437ddacc-fe2a-4f0a-89b1-27bad7088ad2',
-		type: 'paragraph',
-		props: {
-			textColor: '#f2f2f3',
-			backgroundColor: 'default',
-			textAlignment: 'left',
-		},
-		content: [
-			{
-				type: 'text',
-				text: 'New page',
-				styles: {},
-			},
-		],
-		children: [],
-	},
-	{
-		id: '1c6f0227-6d08-4c44-9ada-a9a5bee0abfc',
-		type: 'paragraph',
-		props: {
-			textColor: '#f2f2f3',
-			backgroundColor: 'default',
-			textAlignment: 'left',
-		},
-		content: [],
-		children: [],
-	},
-];
+import CitationsModal from './chat/CitationsModal';
+
 const ToolBarChatContainerModal = ({
 	onClose,
 	modalIsOpen,
@@ -70,7 +42,9 @@ const ToolBarChatContainerModal = ({
 	const [info, setInfo] = useState({
 		width: isExpanded ? '100%' : '400px',
 		noteModalIsOpen: false,
+		citationsModalIsOpen: false,
 	});
+
 	const {
 		documentPreview: { setNoteContent },
 	} = useContext(Context);
@@ -106,6 +80,12 @@ const ToolBarChatContainerModal = ({
 		setInfo((prev) => ({
 			...prev,
 			noteModalIsOpen: false,
+		}));
+	};
+	const handleCloseCitationsModal = () => {
+		setInfo((prev) => ({
+			...prev,
+			citationsModalIsOpen: false,
 		}));
 	};
 
@@ -162,6 +142,17 @@ const ToolBarChatContainerModal = ({
 									setIsExpanded(!isExpanded);
 								}}
 							/> */}
+							{!info?.citationsModalIsOpen && (
+								<ExpandChatIcon
+									onClick={() => {
+										setInfo((prev) => ({
+											...prev,
+											citationsModalIsOpen: true,
+										}));
+									}}
+								/>
+							)}
+
 							<CloseSvg
 								onClick={() => {
 									setIsExpanded(false);
@@ -294,6 +285,10 @@ const ToolBarChatContainerModal = ({
 					uploadedImages={uploadedImages}
 					handlePreview={handlePreview}
 					handleRemoveImage={handleRemoveImage}
+				/>
+				<CitationsModal
+					modalIsOpen={info?.citationsModalIsOpen}
+					closeModal={handleCloseCitationsModal}
 				/>
 			</Drawer>
 		</>
