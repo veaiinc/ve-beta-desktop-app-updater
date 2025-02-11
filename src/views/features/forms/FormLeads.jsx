@@ -13,6 +13,8 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import FormRes from '../../components/forms/FormRes';
 import FormModal from '../../components/forms/FormModal';
 import { message } from 'antd';
+import { fetchOriginSelection } from '../../../helpers';
+let origin = fetchOriginSelection();
 
 const FormLeads = () => {
 	const navigate = useNavigate();
