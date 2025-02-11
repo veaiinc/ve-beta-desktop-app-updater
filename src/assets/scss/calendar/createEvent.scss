@@ -11,7 +11,7 @@
 	border: 1px solid #272727;
 	background: #191919;
 
-	.headerWrapper {
+	.createEventHeaderWrapper {
 		display: flex;
 		width: 320px;
 		padding: 18px 24px;
@@ -357,12 +357,22 @@
 		justify-content: center;
 		align-items: center;
 		border-radius: 100px;
-		background: #6055ec;
+		// background: #6055ec;
+		background-color: white;
 		border: none;
 		margin: 24px;
 		margin-top: 0;
-		color: #e4e5e6;
+		color: black;
+		font-family: Inter;
+		font-size: 16px;
+		font-style: normal;
+		font-weight: 500;
 		cursor: pointer;
+
+		&:hover {
+			background-color: #e4e5e6;
+			color: black;
+		}
 	}
 
 	input[type='text'],

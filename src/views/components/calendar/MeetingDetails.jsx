@@ -1,8 +1,8 @@
 import React, { memo, useState, useEffect, useMemo, useCallback, useContext } from 'react';
 import '../../../assets/scss/calendar/meetingDetails.scss';
 import { ReactComponent as MeetClock } from '../../../assets/svg/calendar/meetClock.svg';
-import { ReactComponent as Ellipse } from '../../../assets/svg/calendar/ellipseCircle.svg';
-import Meetwomen from '../../../assets/svg/calendar/meetwomen.png';
+// import Meetwomen from '../../../assets/svg/calendar/meetwomen.png';
+// import { ReactComponent as Ellipse } from '../../../assets/svg/calendar/ellipseCircle.svg';
 import Context from '../../../context/context';
 import moment from 'moment';
 
@@ -67,7 +67,7 @@ const MeetingDetails = ({ selectedDate }) => {
 		<div className="meetingCardParentContainer">
 			<div className="meetingCard">
 				<div className="timeDurationWrapper">
-					<div style={{ fontSize: '15px', width: '170px' }}>
+					<div style={{ fontSize: '15px', width: '170px', color: 'grey' }}>
 						No Upcoming Meetings are scheduled!
 					</div>
 					<div className="durationBadge">
@@ -81,10 +81,10 @@ const MeetingDetails = ({ selectedDate }) => {
 				</div>
 			</div>
 
-			<div class="personImage">
+			{/* <div class="personImage">
 				<img src={Meetwomen} alt="Person working at laptop" />
 			</div>
-			<Ellipse className="ellipse" />
+			<Ellipse className="ellipse" /> */}
 		</div>
 	) : (
 		<div className="meetingCardParentContainer">
