@@ -42,6 +42,7 @@ import HomePage from './views/features/home_page/HomePage';
 import AiAssistants from './views/features/ai_assistant/index';
 import EditAgent from './views/features/ai_assistant/EditAgent';
 import AgentDetails from './views/features/ai_assistant/AgentDetails';
+import AutomationBuilder from './views/features/automation_builder';
 const routes = [
 	{
 		path: '/',
@@ -379,6 +380,11 @@ const routes = [
 				<MyTemplates />
 			</AuthWrapper>
 		),
+		exact: true,
+	},
+	{
+		path: '/automation_builder_updated/:automationId',
+		component: <AutomationBuilder />,
 		exact: true,
 	},
 	{

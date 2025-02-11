@@ -1,4 +1,4 @@
-import { Tooltip } from 'antd';
+import { message, Tooltip } from 'antd';
 import React, { useContext, useState, useCallback } from 'react';
 // import '../../../assets/scss/home_page/homepage.scss';
 import '../../../assets/scss/globalComponents/quickActions.scss';
@@ -17,6 +17,7 @@ const dropdownOptions = [
 	{ id: 6, title: 'Proposal', value: 'proposal' },
 	{ id: 7, title: 'Invoice', value: 'invoice' },
 	{ id: 8, title: 'Contract', value: 'contract' },
+	{ id: 9, title: 'Automation', value: 'automation' },
 ];
 const QuickActions = ({ styles, customActions = [], clientDetails = null }) => {
 	const [info, setInfo] = useState({
@@ -29,6 +30,7 @@ const QuickActions = ({ styles, customActions = [], clientDetails = null }) => {
 
 	let {
 		templates: { toggleCreateLeadModal },
+		automationBuilder: { createAutomation },
 	} = useContext(Context);
 	const navigate = useNavigate();
 
@@ -49,8 +51,25 @@ const QuickActions = ({ styles, customActions = [], clientDetails = null }) => {
 			setInfo({ ...info, openProposalPopup: true });
 		} else if (type === 'contract') {
 			setInfo({ ...info, openProposalPopup: true });
+		} else if (type === 'automation') {
+			handleCreateAutomation();
 		}
 	}, []);
+
+	const handleCreateAutomation = useCallback(async () => {
+		const response = await createAutomation({
+			name: 'Untitled Automation',
+			version: 1,
+			steps: [],
+			status: 'draft',
+		});
+		if (response?.[0]) {
+			navigate(`/automation_builder_updated/${response?.[1]?._id}`);
+		} else {
+			message.error('Failed to create automation');
+		}
+	}, [createAutomation, navigate]);
+
 	return (
 		<div className="quick-actions-dropdown-container" style={{ ...styles }}>
 			<Tooltip
