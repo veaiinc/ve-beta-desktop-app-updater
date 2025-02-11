@@ -39,7 +39,7 @@ const NoteComponentModal = ({
 		documentPreview: { setNoteContent },
 	} = useContext(Context);
 	// const [info, setInfo] = useState({
-	// 	noteContent: '',
+	// 	displayButtons: '',
 	// });
 	const chatIcons = useMemo(
 		() => [
@@ -59,9 +59,6 @@ const NoteComponentModal = ({
 		],
 		[onImageUpload],
 	);
-	const handleCopyTextClick = (text) => {
-		navigator?.clipboard?.writeText(text);
-	};
 
 	return (
 		<Drawer
@@ -91,7 +88,7 @@ const NoteComponentModal = ({
 											{chat?.type?.toLowerCase() === 'ai' ? (
 												<div className="content">
 													<TypingEffect text={chat?.message} />
-													<div className="hover-actions-container">
+													{/* <div className="hover-actions-container">
 														<PencilSparkleIcon
 															onClick={() => {
 																setNoteContent(chat?.message);
@@ -104,7 +101,7 @@ const NoteComponentModal = ({
 														/>
 														<ThumpsUpSvg />
 														<ThumpsDownSvg />
-													</div>
+													</div> */}
 												</div>
 											) : (
 												<Markdown>{chat?.message}</Markdown>

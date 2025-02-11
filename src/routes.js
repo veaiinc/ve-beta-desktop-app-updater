@@ -289,7 +289,7 @@ const routes = [
 		component: (
 			<AuthWrapper
 				title={'Notes'}
-				outerContainerStyle={{ padding: '0 32px', backgroundColor: '#1e1e1e' }}
+				outerContainerStyle={{ padding: '0 0 0 32px', backgroundColor: '#1e1e1e' }}
 				maxWidth={'100%'}
 			>
 				<Notes />

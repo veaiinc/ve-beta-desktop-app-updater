@@ -206,13 +206,18 @@ const ToolBarChatContainerModal = ({
 												// 	/>
 												// )
 												<div className="content">
-													<TypingEffect text={chat?.message} />
-													<div className="hover-actions-container">
+													<TypingEffect
+														text={chat?.message}
+														customePencilClickFunc={
+															handleNoteComponentModalOpen
+														}
+													/>
+													{/* <div className="hover-actions-container">
 														<PencilSparkleIcon
-															onClick={() => {
-																handleNoteComponentModalOpen();
-																setNoteContent(chat?.message);
-															}}
+														// onClick={() => {
+														// 	handleNoteComponentModalOpen();
+														// 	setNoteContent(chat?.message);
+														// }}
 														/>
 														<CopySvg
 															onClick={() => {
@@ -221,7 +226,7 @@ const ToolBarChatContainerModal = ({
 														/>
 														<ThumpsUpSvg />
 														<ThumpsDownSvg />
-													</div>
+													</div> */}
 												</div>
 											) : (
 												<Markdown>{chat?.message}</Markdown>
