@@ -33,9 +33,7 @@ const NoteComponentModal = ({
 	const {
 		documentPreview: { setNoteContent },
 	} = useContext(Context);
-	// const [info, setInfo] = useState({
-	// 	displayButtons: '',
-	// });
+
 	const chatIcons = useMemo(
 		() => [
 			<Filter />,
@@ -174,7 +172,6 @@ const NoteComponentModal = ({
 					<NoteComponent
 						outerContainerStyle={{
 							width: '100%',
-							maxWidth: '692px',
 							height: '100%',
 							padding: 0,
 							margin: 'auto',

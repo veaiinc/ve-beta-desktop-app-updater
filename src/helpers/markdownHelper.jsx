@@ -8,6 +8,7 @@ import { ReactComponent as PencilSparkleIcon } from '../assets/svg/notes/pencilS
 import { ReactComponent as ThumpsUpSvg } from '../assets/svg/ai_agents/thumps-up.svg';
 import { ReactComponent as ThumpsDownSvg } from '../assets/svg/ai_agents/thumps-down.svg';
 import { ReactComponent as HeadPhoneSvg } from '../assets/svg/ai_agents/head-phone.svg';
+import { ReactComponent as TickSvg } from '../assets/svg/tick.svg';
 import { ReactComponent as CopyIcon } from '../assets/svg/ai_agents/copy.svg';
 import Context from '../context/context';
 const components = {
@@ -132,6 +133,7 @@ export const TypingEffect = ({ text, onComplete, customePencilClickFunc = null }
 
 	const [displayedText, setDisplayedText] = useState('');
 	const [currentIndex, setCurrentIndex] = useState(0);
+	const [isCopiedToClipboard, setIsCopiedToClipboard] = useState(false);
 
 	useEffect(() => {
 		if (currentIndex < text?.length) {
@@ -147,7 +149,12 @@ export const TypingEffect = ({ text, onComplete, customePencilClickFunc = null }
 	}, [currentIndex, text, onComplete]);
 
 	const handleCopyTextClick = (text) => {
-		navigator?.clipboard?.writeText(text);
+		navigator?.clipboard?.writeText(text).then(() => {
+			setIsCopiedToClipboard(true);
+			setTimeout(() => {
+				setIsCopiedToClipboard(false);
+			}, 300);
+		});
 	};
 
 	return (
@@ -170,11 +177,20 @@ export const TypingEffect = ({ text, onComplete, customePencilClickFunc = null }
 							setNoteContent(text);
 						}}
 					/>
-					<CopyIcon
+					{isCopiedToClipboard ? (
+						<TickSvg />
+					) : (
+						<CopyIcon
+							onClick={() => {
+								handleCopyTextClick(text);
+							}}
+						/>
+					)}
+					{/* <CopyIcon
 						onClick={() => {
 							handleCopyTextClick(text);
 						}}
-					/>
+					/> */}
 				</div>
 			) : (
 				''
