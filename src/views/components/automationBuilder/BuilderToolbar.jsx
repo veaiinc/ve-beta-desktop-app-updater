@@ -5,6 +5,7 @@ import Actions from './AutomationBuilderSidebarComponents/Actions';
 import Conditions from './AutomationBuilderSidebarComponents/Conditions';
 import Notification from './AutomationBuilderSidebarComponents/Notification';
 import Context from '../../../context/context';
+import Triggers from './AutomationBuilderSidebarComponents/Triggers';
 const BuilderToolbar = ({
 	open,
 	onCLose,
@@ -47,6 +48,15 @@ const BuilderToolbar = ({
 
 	const componentMapper = useMemo(() => {
 		return {
+			triggers: (
+				<Triggers
+					onCLose={onCLose}
+					activeEdge={activeEdge}
+					templateId={templateId}
+					slackConnected={info?.slackConnected}
+					googleConnected={info?.googleConnected}
+				/>
+			),
 			actions: (
 				<Actions
 					onCLose={onCLose}
@@ -82,7 +92,7 @@ const BuilderToolbar = ({
 			pipeline: <Actions onCLose={onCLose} activeEdge={activeEdge} templateId={templateId} />,
 			trigger: <Actions onCLose={onCLose} activeEdge={activeEdge} templateId={templateId} />,
 		};
-	}, [sidebarType, onCLose]);
+	}, [sidebarType, onCLose, info?.slackConnected, info?.googleConnected]);
 
 	return (
 		<Drawer

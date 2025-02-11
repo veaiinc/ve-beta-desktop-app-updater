@@ -9,6 +9,7 @@ import { ReactComponent as Google } from '../../../assets/svg/worflow_builder/bu
 import { ReactComponent as Dustbin } from '../../../assets/svg/worflow_builder/buildercard/labelledDustbin.svg';
 import { ReactComponent as Copy } from '../../../assets/svg/worflow_builder/buildercard/labelledCopy.svg';
 import { ReactComponent as Eye } from '../../../assets/svg/worflow_builder/buildercard/labelledEye.svg';
+import { ReactComponent as ShockIcon } from '../../../assets/svg/automation_builder/shock.svg';
 import UpdatedDeleteWorkflowStep from '../modalsV2/workflowBuilderModals/UpdatedDeleteStepsModal';
 import { Tooltip } from 'antd';
 const actionTypeMapper = {
@@ -27,6 +28,22 @@ const actionTypeIconMapper = {
 	createTask: <Action />,
 	createMeeting: <Action />,
 };
+
+export const StartStepNode = ({ data }) => {
+	const onAddOptionsClick = useCallback(() => {
+		if (data?.onToolBarOpen) {
+			data.onToolBarOpen({ toolBarOpen: true, sidebarType: 'trigger' });
+		}
+	}, []);
+	return (
+		<div className="start-trigger-node" onClick={onAddOptionsClick}>
+			<div className="start-trigger-node-title">
+				<span>Set a trigger</span>
+			</div>
+		</div>
+	);
+};
+
 export const TriggerNode = ({ data }) => {
 	const onAddOptionsClick = useCallback(() => {
 		if (data?.onToolBarOpen) {
@@ -36,24 +53,23 @@ export const TriggerNode = ({ data }) => {
 	return (
 		<div className="custom-node trigger-node" onClick={onAddOptionsClick}>
 			<div className="trigger-extra-div">
+				<ShockIcon />
 				<span>Trigger</span>
 			</div>
 			<div className="triggerNodeContentContainer">
-				<Form />
+				<div className="triggerIconContainer">{data?.icon}</div>
 
 				<div className="triggerAcutalContentContainer">
 					<div className="triggerUpperContent">
-						<span className="triggerUpperContentTitle">Form Submission</span>
-						<span className="triggerUpperContentSubtitle">Wedding Inquiry Form</span>
+						<span className="triggerUpperContentTitle">data?.action</span>
+						<span className="triggerUpperContentSubtitle">data?.integration</span>
 					</div>
 					<div
 						className="triggerUpperContent"
 						style={{ paddingBottom: 0, borderBottom: 'none' }}
 					>
-						<span className="triggerUpperContentTitle">Enquiries</span>
-						<span className="triggerUpperContentSubtitle">
-							All the enquiries will come here
-						</span>
+						<span className="triggerUpperContentTitle">Title goes here </span>
+						<span className="triggerUpperContentSubtitle">description goes here</span>
 					</div>
 				</div>
 			</div>
@@ -225,3 +241,7 @@ const HoverComponentForNodes = ({ openDeleteModal }) => {
 		</div>
 	);
 };
+
+// const TriggerNode = ({ data }) => {
+// 	return <div className="trigger-node">Trigger Node</div>;
+// };

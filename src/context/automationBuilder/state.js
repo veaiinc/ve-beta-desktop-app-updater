@@ -5,6 +5,7 @@ import { Actions } from './actions';
 
 export const initialState = {
 	specificAutomationInfo: null,
+	// connectedIntegrations: null,
 };
 
 export const AutomationBuilderState = () => {
@@ -57,5 +58,27 @@ export const AutomationBuilderState = () => {
 		});
 	};
 
-	return { ...state, createAutomation, getAutomation, updateStateValues };
+	// const getConnectedIntegrations = async () => {
+	// 	try {
+	// 		const usertoken = localStorage.getItem('usertoken');
+	// 		const workspaceId = localStorage.getItem('workspaceId');
+	// 		const response = await restService.fetchGet(
+	// 			`/connect-account/${workspaceId}`,
+	// 			usertoken,
+	// 			'third_party_integrations_api',
+	// 		);
+	// 		if (response?.[0]) {
+	// 			dispatch({ type: Actions.SET_CONNECTED_INTEGRATIONS, payload: response?.[1] });
+	// 		}
+	// 	} catch (error) {
+	// 		console.log(error);
+	// 	}
+	// };
+	return {
+		...state,
+		createAutomation,
+		getAutomation,
+		updateStateValues,
+		// getConnectedIntegrations,
+	};
 };

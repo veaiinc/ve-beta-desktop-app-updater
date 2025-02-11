@@ -16,18 +16,20 @@ import {
 	ActionNode,
 	ConditionNode,
 	EndNode,
-} from '../../components/workflowBuilderComponents/CustomNodes';
-import CustomEdges from '../../components/workflowBuilderComponents/CustomEdges';
+	StartStepNode,
+} from '../../components/automationBuilder/CustomNodes';
+import CustomEdges from '../../components/automationBuilder/CustomEdges';
 import UpdatedPageLoader from '../../components/loaders/UpdatedPageLoader';
-import BuilderToolbar from '../../components/workflowBuilderComponents/BuilderToolbar';
+import BuilderToolbar from '../../components/automationBuilder/BuilderToolbar';
 import { Spin } from 'antd';
 
 // Define node types
 const nodeTypes = {
-	'start-step': TriggerNode,
+	trigger: TriggerNode,
 	action: ActionNode,
 	condition: ConditionNode,
 	end: EndNode,
+	startStep: StartStepNode,
 };
 
 const edgeTypes = {
@@ -76,7 +78,20 @@ const AutomationBuilder = () => {
 		editMode: false,
 	});
 
-	const [nodes, setNodes, onNodesChange] = useNodesState([]);
+	const [nodes, setNodes, onNodesChange] = useNodesState([
+		{
+			id: '1',
+			position: { x: 250, y: 0 },
+			type: 'startStep',
+			data: {
+				automationId: automationId,
+				integration: 'Google',
+				action: '',
+				stepTitle: 'Example title',
+				stepDescription: 'Example description',
+			},
+		},
+	]);
 	const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
 	const onConnect = useCallback((params) => setEdges((eds) => addEdge(params, eds)), [setEdges]);
@@ -99,14 +114,22 @@ const AutomationBuilder = () => {
 				const steps = [...(incomingData?.steps || [])];
 				getNodesAndEdges(steps);
 			} else {
-				setNodes([
-					{
-						id: '1',
-						type: 'start-stepx',
-						data: { label: 'Set a trigger' },
-						position: { x: 250, y: 0 },
-					},
-				]);
+				// setNodes([
+				// 	{
+				// 		id: '1',
+				// 		position: { x: 250, y: 0 },
+				// 		type: 'start-step',
+				// 		data: {
+				// 			onToolBarOpen: handleToolBarOpen,
+				// 			automationId: automationId,
+				// 			refetchWorkflowBuilderData: refetchWorkflowBuilderData,
+				// 			integration: 'Google',
+				// 			action: '',
+				// 			stepTitle: 'Example title',
+				// 			stepDescription: 'Example description',
+				// 		},
+				// 	},
+				// ]);
 			}
 		}
 	}, [specificAutomationInfo]);
@@ -392,6 +415,26 @@ const AutomationBuilder = () => {
 		getTemplatesListForCreateLead();
 	}, []);
 
+	const setTriggerNode = useCallback(
+		(data) => {
+			const newNodes = [...nodes];
+			newNodes[0] = {
+				id: '1',
+				position: { x: 250, y: 0 },
+				type: 'trigger',
+				data: {
+					automationId: automationId,
+					group: 'Google',
+					action: 'On Message Received',
+					stepTitle: '',
+					stepDescription: '',
+				},
+			};
+			setNodes(newNodes);
+		},
+		[nodes],
+	);
+
 	return (
 		<div className="updatedWorkflowBuilderContainer">
 			<div className="updatedBuilderHeaderContainer">
@@ -409,31 +452,38 @@ const AutomationBuilder = () => {
 			{info?.loading ? (
 				<UpdatedPageLoader />
 			) : (
-				<ReactFlow
-					nodes={nodes}
-					edges={edges}
-					onNodesChange={onNodesChange}
-					onEdgesChange={onEdgesChange}
-					onConnect={onConnect}
-					nodeTypes={nodeTypes}
-					edgeTypes={edgeTypes}
-					fitView
-					defaultViewport={{ x: 0, y: 0, zoom: 0 }}
-				>
-					<Controls />
-					<Background variant="dots" gap={12} size={0.5} />
-				</ReactFlow>
+				<div className="updatedWorkflowBuilderContainer">
+					<div className="reactFlowContainer">
+						<ReactFlow
+							nodes={nodes}
+							edges={edges}
+							onNodesChange={onNodesChange}
+							onEdgesChange={onEdgesChange}
+							onConnect={onConnect}
+							nodeTypes={nodeTypes}
+							edgeTypes={edgeTypes}
+							fitView
+							defaultViewport={{ x: 0, y: 0, zoom: 0 }}
+						>
+							<Controls />
+							<Background variant="dots" gap={12} size={0.5} />
+						</ReactFlow>
+					</div>
+
+					<div className="builderToolbarContainer">
+						<BuilderToolbar
+							open={info?.toolBarOpen || true}
+							onCLose={handleToolBarClose}
+							sidebarType={info?.sidebarType || 'triggers'}
+							activeEdge={info?.activeEdge}
+							automationId={automationId}
+							activeStepsData={info?.activeStepsData}
+							editMode={info?.editMode}
+							refetchWorkflowBuilderData={refetchWorkflowBuilderData}
+						/>
+					</div>
+				</div>
 			)}
-			<BuilderToolbar
-				open={info?.toolBarOpen}
-				onCLose={handleToolBarClose}
-				sidebarType={info?.sidebarType}
-				activeEdge={info?.activeEdge}
-				automationId={automationId}
-				activeStepsData={info?.activeStepsData}
-				editMode={info?.editMode}
-				refetchWorkflowBuilderData={refetchWorkflowBuilderData}
-			/>
 		</div>
 	);
 };
