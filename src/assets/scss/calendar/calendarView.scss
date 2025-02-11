@@ -34,6 +34,10 @@
 	.rbc-time-view .rbc-allday-cell {
 		max-height: 80px;
 		overflow-y: auto;
+
+		.rbc-row-bg {
+			gap: 3px;
+		}
 	}
 
 	.rbc-allday-cell .rbc-row-content .rbc-button-link {
@@ -43,6 +47,7 @@
 
 	.rbc-time-header.rbc-overflowing {
 		border: none;
+		gap: 3px;
 	}
 
 	.rbc-time-header-content {
@@ -51,10 +56,24 @@
 
 	.rbc-time-content {
 		border: none;
+		gap: 3px;
 	}
 
 	.rbc-timeslot-group {
 		border: none;
+		border-radius: 3px;
+		background-color: #1c1d1f;
+	}
+
+	.rbc-time-gutter {
+		.rbc-timeslot-group {
+			background: transparent;
+		}
+		.rbc-time-slot {
+			align-items: center;
+			display: flex;
+			justify-content: center;
+		}
 	}
 
 	.rbc-day-slot .rbc-time-slot {
@@ -65,17 +84,17 @@
 		border: none;
 	}
 
+	.rbc-time-content > .rbc-day-slot {
+		gap: 3px;
+	}
+
 	.rbc-day-slot .rbc-events-container {
 		margin: 2px;
 	}
 
-	.rbc-timeslot-group {
-		// border-top: 0.5px solid rgb(81, 78, 78);
-		border-top: 0.5px solid rgba(81, 78, 78, 0.3);
-	}
-
 	.rbc-label .rbc-time-header-gutter {
 		width: 64px;
+		font-size: 10px;
 	}
 
 	.rbc-today {
@@ -83,11 +102,13 @@
 	}
 
 	.rbc-time-view .rbc-time-gutter {
-		text-align: start;
+		text-align: center;
+		font-size: 10px;
+		gap: 3px;
 	}
 
 	.rbc-label {
-		padding: 0px;
+		padding: 5px;
 	}
 
 	.rbc-timeslot-group {
@@ -270,7 +291,10 @@ body > .rbc-overlay {
 	width: 100%;
 	color: rgba(228, 229, 230, 0.48);
 	font-family: Inter;
-	font-size: 9px;
+	font-size: 7px;
 	font-style: normal;
 	line-height: normal;
+	height: 100%;
+	display: flex;
+	align-items: center;
 }

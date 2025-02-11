@@ -3,11 +3,11 @@ import '../../../assets/scss/calendar/calendar.scss';
 import CalendarSidebar from './CalendarSidebar';
 import CalendarView from './CalendarView';
 import Context from '../../../context/context';
-import BottomToolbar from '../../components/ai_agents/BottomToolbar';
-import { ReactComponent as AiSparkel } from '../../../assets/svg/calendar/aiSparkel.svg';
-import WorkflowSlugSelector from '../../components/calendar/WorkflowSlugSelector';
 import ObjectId from 'bson-objectid';
 import moment from 'moment';
+// import BottomToolbar from '../../components/ai_agents/BottomToolbar';
+// import { ReactComponent as AiSparkel } from '../../../assets/svg/calendar/aiSparkel.svg';
+// import WorkflowSlugSelector from '../../components/calendar/WorkflowSlugSelector';
 
 const initialState = {
 	selectedWeek: [],
