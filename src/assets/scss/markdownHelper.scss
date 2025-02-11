@@ -10,24 +10,4 @@
 	gap: 10px;
 	position: relative;
 	padding-bottom: 10px;
-
-	.hover-actions-container {
-		position: absolute;
-		left: 0;
-		right: 0;
-		bottom: -15px;
-		display: none;
-		cursor: pointer;
-		gap: 10px;
-
-		&:hover {
-			display: flex;
-		}
-	}
-
-	&:hover {
-		.hover-actions-container {
-			display: flex;
-		}
-	}
 }

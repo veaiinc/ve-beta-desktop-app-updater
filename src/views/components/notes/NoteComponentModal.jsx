@@ -1,5 +1,5 @@
 import { Drawer, Spin } from 'antd';
-import React, { useMemo, useState } from 'react';
+import React, { useContext, useMemo, useState } from 'react';
 import '../../../assets/scss/notes/noteComponentModal.scss';
 import { ReactComponent as AiStarInChat } from '../../../assets/svg/ai_agents/ai-star-in-chat.svg';
 import NoteComponent from './NoteComponent';
@@ -10,8 +10,16 @@ import { ReactComponent as Arroba } from '../../../assets/svg/ai_agents/arroba.s
 import { ReactComponent as PaperClip } from '../../../assets/svg/ai_agents/paper-clip.svg';
 import { ReactComponent as Mic } from '../../../assets/svg/ai_agents/mic.svg';
 import { ReactComponent as Close } from '../../../assets/svg/close.svg';
-import Upload from 'antd/es/upload/Upload';
+import { ReactComponent as ChevronRightThinSvg } from '../../../assets/svg/tasks/chevronRightThin.svg';
+import { ReactComponent as PencilSparkleIcon } from '../../../assets/svg/notes/pencilSparkle.svg';
+import { ReactComponent as PreviousSvg } from '../../../assets/svg/notes/previous.svg';
+import { ReactComponent as NextSvg } from '../../../assets/svg/notes/next.svg';
+import { ReactComponent as CopySvg } from '../../../assets/svg/notes/copy.svg';
+import { ReactComponent as ShareSvg } from '../../../assets/svg/notes/share.svg';
 
+import Upload from 'antd/es/upload/Upload';
+import Context from '../../../context/context';
+const noteIcons = [<PreviousSvg />, <NextSvg />, <CopySvg />, <ShareSvg />];
 const NoteComponentModal = ({
 	modalIsOpen,
 	closeModal,
@@ -24,9 +32,12 @@ const NoteComponentModal = ({
 	handlePreview,
 	handleRemoveImage,
 }) => {
-	const [info, setInfo] = useState({
-		noteContent: '',
-	});
+	const {
+		documentPreview: { setNoteContent },
+	} = useContext(Context);
+	// const [info, setInfo] = useState({
+	// 	noteContent: '',
+	// });
 	const chatIcons = useMemo(
 		() => [
 			<Filter />,
@@ -46,11 +57,6 @@ const NoteComponentModal = ({
 		[onImageUpload],
 	);
 
-	const handleEditNoteClick = () => {
-		setInfo({
-			noteContent: 'hiiii',
-		});
-	};
 	return (
 		<Drawer
 			open={modalIsOpen}
@@ -59,6 +65,8 @@ const NoteComponentModal = ({
 			rootClassName="notes-modal-container"
 			width={'100vw'}
 			height={'100vh'}
+			// headerStyle={{ display: 'none' }}
+			// bodyStyle={{ padding: '0px' }}
 		>
 			<div className="modal-container">
 				<div className="chatBarContainer">
@@ -75,11 +83,16 @@ const NoteComponentModal = ({
 									>
 										<div className="message-content">
 											{chat?.type?.toLowerCase() === 'ai' ? (
-												<TypingEffect
-													text={chat?.message}
-													toolInvocations={chat?.toolInvocations}
-													onEditClick={handleEditNoteClick}
-												/>
+												<div className="content">
+													<TypingEffect text={chat?.message} />
+													<div className="hover-actions-container">
+														<PencilSparkleIcon
+															onClick={() => {
+																setNoteContent(chat?.message);
+															}}
+														/>
+													</div>
+												</div>
 											) : (
 												<Markdown>{chat?.message}</Markdown>
 											)}
@@ -131,6 +144,7 @@ const NoteComponentModal = ({
 								value={chatQuery}
 								onChange={onChange}
 								onKeyDown={onKeyDown}
+								f
 								className="textArea"
 								// rows={1}
 							/>
@@ -152,7 +166,19 @@ const NoteComponentModal = ({
 					</div>
 				</div>
 				<div className="note-component">
-					<div className="header">wedding</div>
+					<div className="header">
+						<div className="left">
+							<div className="chevron-icon">
+								<ChevronRightThinSvg />
+							</div>
+							<div className="title">wedding timeline</div>
+						</div>
+						<div className="right">
+							{noteIcons.map((icon) => {
+								return <div className="icon-container">{icon}</div>;
+							})}
+						</div>
+					</div>
 
 					<NoteComponent
 						outerContainerStyle={{
@@ -168,7 +194,6 @@ const NoteComponentModal = ({
 							height: '100%',
 							backgroundColor: '#171819',
 						}}
-						initialContent={info?.noteContent}
 					/>
 				</div>
 			</div>

@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-no-duplicate-props */
 import { Drawer, Spin } from 'antd';
-import React, { memo, useState, useRef, useEffect } from 'react';
+import React, { memo, useState, useRef, useEffect, useContext } from 'react';
 import '../../../assets/scss/ai_agents/bottomToolbarChatContainer.scss';
 import { ReactComponent as CloseSvg } from '../../../assets/svg/calendar/close.svg';
 import { ReactComponent as SendSvg } from '../../../assets/svg/calendar/send.svg';
@@ -12,11 +12,12 @@ import { ReactComponent as Arroba } from '../../../assets/svg/ai_agents/arroba.s
 import { ReactComponent as PaperClip } from '../../../assets/svg/ai_agents/paper-clip.svg';
 import { ReactComponent as Mic } from '../../../assets/svg/ai_agents/mic.svg';
 import { Markdown, TypingEffect } from '../../../helpers/markdownHelper';
-import { ReactComponent as FullscreenSvg } from '../../../assets/svg/notes/fullScreen.svg';
+import { ReactComponent as PencilSparkleIcon } from '../../../assets/svg/notes/pencilSparkle.svg';
 import Upload from 'antd/es/upload/Upload';
 import { useMemo } from 'react';
 import NoteComponentModal from '../notes/NoteComponentModal';
 import DocumentPreview from './notes/DocumentPreview';
+import Context from '../../../context/context';
 const content = [
 	{
 		id: '437ddacc-fe2a-4f0a-89b1-27bad7088ad2',
@@ -66,8 +67,11 @@ const ToolBarChatContainerModal = ({
 	const [isExpanded, setIsExpanded] = useState(isChatExpanded || false);
 	const [info, setInfo] = useState({
 		width: isExpanded ? '100%' : '400px',
-		noteModalIsOpen: true,
+		noteModalIsOpen: false,
 	});
+	const {
+		documentPreview: { setNoteContent },
+	} = useContext(Context);
 
 	const chatContentRef = useRef(null);
 
@@ -194,13 +198,17 @@ const ToolBarChatContainerModal = ({
 												// 		toolInvocations={chat?.toolInvocations}
 												// 	/>
 												// )
-												<>
-													<TypingEffect
-														text={chat?.message}
-														toolInvocations={chat?.toolInvocations}
-														onClick={handleNoteComponentModalOpen}
-													/>
-												</>
+												<div className="content">
+													<TypingEffect text={chat?.message} />
+													<div className="hover-actions-container">
+														<PencilSparkleIcon
+															onClick={() => {
+																handleNoteComponentModalOpen();
+																setNoteContent(chat?.message);
+															}}
+														/>
+													</div>
+												</div>
 											) : (
 												<Markdown>{chat?.message}</Markdown>
 											)}

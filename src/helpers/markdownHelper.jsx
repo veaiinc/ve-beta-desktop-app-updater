@@ -3,11 +3,7 @@ import { default as ReactMarkdown } from 'react-markdown';
 // import remarkGfm from 'remark-gfm';
 import { Link } from 'react-router-dom'; // Adjust if you're using another router
 import '../assets/scss/markdown.scss';
-import NoteComponent from '../views/components/notes/NoteComponent';
-import NoteComponentModal from '../views/components/notes/NoteComponentModal';
-import { ReactComponent as PencilSparkleIcon } from '../assets/svg/notes/pencilSparkle.svg';
 import '../assets/scss/markdownHelper.scss';
-import Context from '../context/context';
 
 const components = {
 	pre: ({ children }) => <>{children}</>,
@@ -127,10 +123,6 @@ export const Markdown = memo(
 export const TypingEffect = ({ text, onComplete, onClick }) => {
 	const [displayedText, setDisplayedText] = useState('');
 	const [currentIndex, setCurrentIndex] = useState(0);
-	const [modalIsOpen, setModalIsOpen] = useState(false);
-	const {
-		documentPreview: { setNoteContent },
-	} = useContext(Context);
 
 	useEffect(() => {
 		if (currentIndex < text?.length) {
@@ -150,15 +142,6 @@ export const TypingEffect = ({ text, onComplete, onClick }) => {
 			<div className="typing-effect">
 				<Markdown>{displayedText}</Markdown>
 				{currentIndex < text?.length && <span className="typing-cursor" />}
-			</div>
-
-			<div className="hover-actions-container">
-				<PencilSparkleIcon
-					onClick={() => {
-						onClick();
-						setNoteContent(text);
-					}}
-				/>
 			</div>
 		</div>
 	);
