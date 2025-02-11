@@ -1,7 +1,6 @@
 import { Drawer, Spin } from 'antd';
 import React, { useContext, useMemo, useState } from 'react';
 import '../../../assets/scss/notes/noteComponentModal.scss';
-import { ReactComponent as AiStarInChat } from '../../../assets/svg/ai_agents/ai-star-in-chat.svg';
 import NoteComponent from './NoteComponent';
 import { TypingEffect } from '../../../helpers/markdownHelper';
 import Markdown from 'react-markdown';
@@ -11,13 +10,9 @@ import { ReactComponent as PaperClip } from '../../../assets/svg/ai_agents/paper
 import { ReactComponent as Mic } from '../../../assets/svg/ai_agents/mic.svg';
 import { ReactComponent as Close } from '../../../assets/svg/close.svg';
 import { ReactComponent as ChevronRightThinSvg } from '../../../assets/svg/tasks/chevronRightThin.svg';
-import { ReactComponent as PencilSparkleIcon } from '../../../assets/svg/notes/pencilSparkle.svg';
 import { ReactComponent as PreviousSvg } from '../../../assets/svg/notes/previous.svg';
 import { ReactComponent as NextSvg } from '../../../assets/svg/notes/next.svg';
 import { ReactComponent as CopySvg } from '../../../assets/svg/notes/copy.svg';
-import { ReactComponent as CopyIcon } from '../../../assets/svg/ai_agents/copy.svg';
-import { ReactComponent as ThumpsUpSvg } from '../../../assets/svg/ai_agents/thumps-up.svg';
-import { ReactComponent as ThumpsDownSvg } from '../../../assets/svg/ai_agents/thumps-down.svg';
 import { ReactComponent as ShareSvg } from '../../../assets/svg/notes/share.svg';
 
 import Upload from 'antd/es/upload/Upload';
@@ -88,20 +83,6 @@ const NoteComponentModal = ({
 											{chat?.type?.toLowerCase() === 'ai' ? (
 												<div className="content">
 													<TypingEffect text={chat?.message} />
-													{/* <div className="hover-actions-container">
-														<PencilSparkleIcon
-															onClick={() => {
-																setNoteContent(chat?.message);
-															}}
-														/>
-														<CopyIcon
-															onClick={() => {
-																handleCopyTextClick(chat?.message);
-															}}
-														/>
-														<ThumpsUpSvg />
-														<ThumpsDownSvg />
-													</div> */}
 												</div>
 											) : (
 												<Markdown>{chat?.message}</Markdown>

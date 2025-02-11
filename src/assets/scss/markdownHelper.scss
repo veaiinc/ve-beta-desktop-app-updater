@@ -1,13 +1,7 @@
-.chat-notes-container {
-	display: flex;
-	align-items: flex-end;
-	flex-direction: column;
-}
-
 .typing-effect-container {
 	display: flex;
 	flex-direction: column;
-	gap: 10px;
+	gap: 16px;
 	position: relative;
-	padding-bottom: 10px;
+	// padding-bottom: 10px;
 }

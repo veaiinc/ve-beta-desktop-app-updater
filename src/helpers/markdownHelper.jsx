@@ -7,6 +7,7 @@ import '../assets/scss/markdownHelper.scss';
 import { ReactComponent as PencilSparkleIcon } from '../assets/svg/notes/pencilSparkle.svg';
 import { ReactComponent as ThumpsUpSvg } from '../assets/svg/ai_agents/thumps-up.svg';
 import { ReactComponent as ThumpsDownSvg } from '../assets/svg/ai_agents/thumps-down.svg';
+import { ReactComponent as HeadPhoneSvg } from '../assets/svg/ai_agents/head-phone.svg';
 import { ReactComponent as CopyIcon } from '../assets/svg/ai_agents/copy.svg';
 import Context from '../context/context';
 const components = {
@@ -124,7 +125,7 @@ export const Markdown = memo(
 	(prevProps, nextProps) => prevProps.children === nextProps.children,
 );
 
-export const TypingEffect = ({ text, onComplete, onClick, customePencilClickFunc = null }) => {
+export const TypingEffect = ({ text, onComplete, customePencilClickFunc = null }) => {
 	const {
 		documentPreview: { setNoteContent },
 	} = useContext(Context);
@@ -158,6 +159,9 @@ export const TypingEffect = ({ text, onComplete, onClick, customePencilClickFunc
 
 			{currentIndex === text?.length ? (
 				<div className="hover-actions-container">
+					<ThumpsUpSvg />
+					<ThumpsDownSvg />
+					<HeadPhoneSvg />
 					<PencilSparkleIcon
 						onClick={() => {
 							if (customePencilClickFunc) {
@@ -171,8 +175,6 @@ export const TypingEffect = ({ text, onComplete, onClick, customePencilClickFunc
 							handleCopyTextClick(text);
 						}}
 					/>
-					<ThumpsUpSvg />
-					<ThumpsDownSvg />
 				</div>
 			) : (
 				''
