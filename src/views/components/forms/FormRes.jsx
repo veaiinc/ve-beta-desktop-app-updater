@@ -4,6 +4,7 @@ import Context from '../../../context/context';
 import { FetchMoreLoaderComp, isURL } from '../../../helpers';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import moment from 'moment';
+import FormModal from './FormModal';
 
 const FormRes = ({ formId, updateTotalSubmissions }) => {
 	const {
@@ -17,6 +18,8 @@ const FormRes = ({ formId, updateTotalSubmissions }) => {
 		loading: true,
 		formResponses: [],
 		columns: [],
+		modalIsOpen: false,
+		selectedRow: null,
 	});
 
 	useEffect(() => {
@@ -170,6 +173,10 @@ const FormRes = ({ formId, updateTotalSubmissions }) => {
 		}));
 	}, []);
 
+	const handleOpenModal = (row) => {
+		setInfo((prev) => ({ ...prev, modalIsOpen: true, selectedRow: row }));
+	};
+
 	return (
 		<div className="formResParentContainer">
 			<div className="tableWrapper">
@@ -214,6 +221,7 @@ const FormRes = ({ formId, updateTotalSubmissions }) => {
 											key={column?.id}
 											className="tableCell"
 											style={{ width: column?.width }}
+											onClick={() => handleOpenModal(row)}
 										>
 											{column?.id === 'status' ? (
 												<span
@@ -238,6 +246,13 @@ const FormRes = ({ formId, updateTotalSubmissions }) => {
 					</div>
 				</div>
 			</div>
+			<FormModal
+				isOpen={info?.modalIsOpen}
+				onClose={() =>
+					setInfo((prev) => ({ ...prev, modalIsOpen: false, selectedRow: null }))
+				}
+				selectedRow={info?.selectedRow}
+			/>
 		</div>
 	);
 };

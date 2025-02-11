@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useMemo, useState } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import '../../../assets/scss/forms/formLeads.scss';
 import { ReactComponent as BackArrowSvg } from '../../../assets/svg/workflow/backarrow.svg';
 import { ReactComponent as CurlyBracesSvg } from '../../../assets/svg/docs/curly-bracess.svg';
@@ -11,12 +11,14 @@ import { ReactComponent as Search } from '../../../assets/svg/docs/search.svg';
 import { ReactComponent as UpDownArrow } from '../../../assets/svg/my_templates/up-down-arrow.svg';
 import { useNavigate, useLocation } from 'react-router-dom';
 import FormRes from '../../components/forms/FormRes';
-import FormSummary from '../../components/forms/FormSummary';
+import FormModal from '../../components/forms/FormModal';
+import { message } from 'antd';
 
 const FormLeads = () => {
 	const navigate = useNavigate();
 	const location = useLocation();
 	const formData = location?.state?.formData;
+	const activeWorkspaceId = localStorage.getItem('workspaceId');
 
 	const [info, setInfo] = useState({
 		searchExpand: false,
@@ -32,14 +34,14 @@ const FormLeads = () => {
 			value: info?.totalSubmissions,
 			title: 'Total Submissions',
 		},
-		{
-			value: info?.completedEntries,
-			title: 'Completed Entries',
-		},
-		{
-			value: info?.partialEntries,
-			title: 'Partial Entries',
-		},
+		// {
+		// 	value: info?.completedEntries,
+		// 	title: 'Completed Entries',
+		// },
+		// {
+		// 	value: info?.partialEntries,
+		// 	title: 'Partial Entries',
+		// },
 	];
 
 	const updateTotalSubmissions = useCallback((length) => {
@@ -47,6 +49,17 @@ const FormLeads = () => {
 		// const completedEntries = length || 0;
 		// const partialEntries = length || 0;
 		setInfo((prev) => ({ ...prev, totalSubmissions }));
+	}, []);
+
+	const handleCopyForm = useCallback(() => {
+		navigator.clipboard
+			.writeText(`${activeWorkspaceId}.ve.ai/${formData?.slug}`)
+			.then(() => {
+				message.success('Form copied successfully');
+			})
+			.catch(() => {
+				message.error('Failed to copy form');
+			});
 	}, []);
 
 	const tabs = useMemo(() => {
@@ -79,11 +92,18 @@ const FormLeads = () => {
 
 			<div className="formEnquiryContainer">
 				<header className="headerContainer">
-					<h1 className="headerTitle">Student Application Form</h1>
+					<h1 className="headerTitle">{formData?.title}</h1>
 				</header>
 
 				<div className="formSummaryContainer">
-					<div className="imgContainer"></div>
+					<div className="imgContainer">
+						{/* <iframe
+							src={`${origin}/preview/${formData?._id}?module=true&moduleType=${formData?.__typeName}&restrictClick=true`}
+							title="Builder Preview"
+							width="100%"
+							height="100%"
+						/> */}
+					</div>
 					<div className="detailsContainer">
 						<div className="formMetricsContainer">
 							{metricsData?.map((metric, index) => (
@@ -94,9 +114,9 @@ const FormLeads = () => {
 							))}
 						</div>
 						<div className="formCTAContainer">
-							<span className="ctaBtn">
+							<span className="ctaBtn" onClick={handleCopyForm}>
 								<LinkSvg />
-								<span>Download</span>
+								<span>Copy </span>
 							</span>
 							<div className="divider"></div>
 							<span className="ctaBtn">
