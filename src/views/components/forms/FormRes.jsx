@@ -191,9 +191,9 @@ const FormRes = ({ formId, updateTotalSubmissions }) => {
 								display: 'flex',
 								flexDirection: 'column',
 								gap: '8px',
-								width: '100%',
+								width: 'fit-content',
 							}}
-							height="calc(100vh - 450px)"
+							height="calc(100vh - 520px)"
 						>
 							<div className="headerRow">
 								{info?.columns?.map((column, index) => (
