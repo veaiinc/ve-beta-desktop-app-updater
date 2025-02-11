@@ -65,8 +65,8 @@ const NoteComponentModal = ({
 			rootClassName="notes-modal-container"
 			width={'100vw'}
 			height={'100vh'}
-			// headerStyle={{ display: 'none' }}
-			// bodyStyle={{ padding: '0px' }}
+			headerStyle={{ display: 'none' }}
+			bodyStyle={{ padding: '0px' }}
 		>
 			<div className="modal-container">
 				<div className="chatBarContainer">
@@ -168,7 +168,7 @@ const NoteComponentModal = ({
 				<div className="note-component">
 					<div className="header">
 						<div className="left">
-							<div className="chevron-icon">
+							<div className="chevron-icon" onClick={closeModal}>
 								<ChevronRightThinSvg />
 							</div>
 							<div className="title">wedding timeline</div>
