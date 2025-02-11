@@ -194,7 +194,6 @@ const ActionsModal = ({
 
 		try {
 			setInfo((prev) => ({ ...prev, addingAction: true }));
-
 			// Parse body content
 			let parsedBody = {};
 			try {

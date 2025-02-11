@@ -225,7 +225,7 @@ const EventDetailsDrawer = ({ selectedEvent, isEventSelected, updateCalendarInfo
 	return (
 		<Drawer
 			onClose={() => updateCalendarInfo('isEventSelected', false)}
-			width={450}
+			width={'25%'}
 			open={isEventSelected}
 			style={{ padding: '0px', backgroundColor: 'transparent' }}
 			headerStyle={{ display: 'none' }}

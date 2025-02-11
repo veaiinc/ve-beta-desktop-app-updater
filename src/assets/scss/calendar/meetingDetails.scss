@@ -48,10 +48,10 @@
 				gap: 8px;
 
 				border-radius: var(--cartCount, 20px);
-				border: 1px solid rgba(96, 85, 236, 0.3);
-				background: rgba(96, 85, 236, 0.2);
-				box-shadow: 0px 0px 40px 0px rgba(96, 85, 236, 0.15);
-				backdrop-filter: blur(50px);
+				border: 1px solid rgba(124, 124, 132, 0.1);
+				// background: rgba(96, 85, 236, 0.2);
+				// box-shadow: 0px 0px 40px 0px rgba(96, 85, 236, 0.15);
+				// backdrop-filter: blur(50px);
 
 				.indicatorDot {
 					position: absolute;
@@ -59,7 +59,7 @@
 					right: 0px;
 					width: 10px;
 					height: 10px;
-					background-color: #6055ec;
+					background-color: #414141;
 					border-radius: 50%;
 				}
 			}
