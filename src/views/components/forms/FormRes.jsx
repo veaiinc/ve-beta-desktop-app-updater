@@ -215,7 +215,11 @@ const FormRes = ({ formId, updateTotalSubmissions }) => {
 								))}
 							</div>
 							{info?.formResponses?.map((row, rowIndex) => (
-								<div key={rowIndex} className="tableRow">
+								<div
+									key={rowIndex}
+									className="tableRow"
+									style={{ cursor: 'pointer' }}
+								>
 									{info?.columns?.map((column) => (
 										<div
 											key={column?.id}
