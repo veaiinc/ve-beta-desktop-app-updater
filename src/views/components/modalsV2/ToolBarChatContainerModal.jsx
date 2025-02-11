@@ -10,6 +10,7 @@ import { ReactComponent as AiStarInChat } from '../../../assets/svg/ai_agents/ai
 import { ReactComponent as Filter } from '../../../assets/svg/ai_agents/filter.svg';
 import { ReactComponent as Arroba } from '../../../assets/svg/ai_agents/arroba.svg';
 import { ReactComponent as PaperClip } from '../../../assets/svg/ai_agents/paper-clip.svg';
+import { ReactComponent as ArrowUp } from '../../../assets/svg/ai_agents/arrow-up.svg';
 import { ReactComponent as Mic } from '../../../assets/svg/ai_agents/mic.svg';
 import { Markdown, TypingEffect } from '../../../helpers/markdownHelper';
 
@@ -63,6 +64,7 @@ const ToolBarChatContainerModal = ({
 	uploadedImages,
 	handlePreview,
 	handleRemoveImage,
+	onClick,
 }) => {
 	const [isExpanded, setIsExpanded] = useState(isChatExpanded || false);
 	const [info, setInfo] = useState({
@@ -258,23 +260,32 @@ const ToolBarChatContainerModal = ({
 						}}
 						onClick={() => !aiChatLoading && onKeyDown(null, 'key')}
 					/> */}
-						<div className="chat-icons-container">
-							{chatIcons?.map((icon, idx) => (
-								<span key={idx} className="chat-icon">
-									{icon}
-								</span>
-							))}
+						<div className="buttons-container">
+							<div className="chat-icons-container">
+								{chatIcons?.map((icon, idx) => (
+									<span key={idx} className="chat-icon">
+										{icon}
+									</span>
+								))}
+							</div>
+							<div className="click-btn" onClick={(e) => onClick(e)}>
+								<ArrowUp />
+							</div>
 						</div>
 					</div>
 				</div>
 				<NoteComponentModal
 					modalIsOpen={info?.noteModalIsOpen}
 					closeModal={handleNoteComponentModalClose}
-					content={content}
 					chatQuery={chatQuery}
 					onKeyDown={onKeyDown}
 					onChange={onChange}
 					chatList={chatList}
+					onClick={onClick}
+					onImageUpload={onImageUpload}
+					uploadedImages={uploadedImages}
+					handlePreview={handlePreview}
+					handleRemoveImage={handleRemoveImage}
 				/>
 			</Drawer>
 		</>

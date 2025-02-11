@@ -4,4 +4,15 @@
 	gap: 16px;
 	position: relative;
 	// padding-bottom: 10px;
+
+	.hover-actions-container {
+		display: flex;
+		gap: 18px;
+		flex-direction: row;
+		align-items: center;
+
+		.icon-container {
+			cursor: pointer;
+		}
+	}
 }

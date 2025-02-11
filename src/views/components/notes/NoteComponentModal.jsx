@@ -14,6 +14,7 @@ import { ReactComponent as PreviousSvg } from '../../../assets/svg/notes/previou
 import { ReactComponent as NextSvg } from '../../../assets/svg/notes/next.svg';
 import { ReactComponent as CopySvg } from '../../../assets/svg/notes/copy.svg';
 import { ReactComponent as ShareSvg } from '../../../assets/svg/notes/share.svg';
+import { ReactComponent as ArrowUp } from '../../../assets/svg/ai_agents/arrow-up.svg';
 
 import Upload from 'antd/es/upload/Upload';
 import Context from '../../../context/context';
@@ -29,6 +30,7 @@ const NoteComponentModal = ({
 	uploadedImages,
 	handlePreview,
 	handleRemoveImage,
+	onClick,
 }) => {
 	const {
 		documentPreview: { setNoteContent },
@@ -144,12 +146,17 @@ const NoteComponentModal = ({
 						}}
 						onClick={() => !aiChatLoading && onKeyDown(null, 'key')}
 					/> */}
-							<div className="chat-icons-container">
-								{chatIcons?.map((icon, idx) => (
-									<span key={idx} className="chat-icon">
-										{icon}
-									</span>
-								))}
+							<div className="buttons-container">
+								<div className="chat-icons-container">
+									{chatIcons?.map((icon, idx) => (
+										<span key={idx} className="chat-icon">
+											{icon}
+										</span>
+									))}
+								</div>
+								<div className="click-btn" onClick={(e) => onClick(e)}>
+									<ArrowUp />
+								</div>
 							</div>
 						</div>
 					</div>

@@ -497,6 +497,17 @@ const BottomToolbar = ({
 		}));
 	};
 
+	const handleSendBtnClick = (e) => {
+		// e?.stopPropagation();
+		if (info?.chatQuery?.trim()?.length > 0) {
+			setInfo((prev) => ({
+				...prev,
+				chatModalIsOpen: true,
+			}));
+			handleSendMessageFunc(e, true);
+		}
+	};
+
 	return (
 		<div
 			ref={toolbarRef}
@@ -599,14 +610,7 @@ const BottomToolbar = ({
 							<div
 								className="click-btn"
 								onClick={(e) => {
-									e?.stopPropagation();
-									if (info?.chatQuery?.trim()?.length > 0) {
-										setInfo((prev) => ({
-											...prev,
-											chatModalIsOpen: true,
-										}));
-										handleSendMessageFunc(e, true);
-									}
+									handleSendBtnClick(e);
 								}}
 							>
 								<ArrowUp />
@@ -652,6 +656,7 @@ const BottomToolbar = ({
 				uploadedImages={info?.uploadedImages}
 				handlePreview={handlePreview}
 				handleRemoveImage={handleRemoveImage}
+				onClick={handleSendBtnClick}
 			/>
 			{previewImage && (
 				<Image

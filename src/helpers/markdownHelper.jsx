@@ -11,6 +11,7 @@ import { ReactComponent as HeadPhoneSvg } from '../assets/svg/ai_agents/head-pho
 import { ReactComponent as TickSvg } from '../assets/svg/tick.svg';
 import { ReactComponent as CopyIcon } from '../assets/svg/ai_agents/copy.svg';
 import Context from '../context/context';
+import { Tooltip } from 'antd';
 const components = {
 	pre: ({ children }) => <>{children}</>,
 	ol: ({ children, ...props }) => {
@@ -153,7 +154,7 @@ export const TypingEffect = ({ text, onComplete, customePencilClickFunc = null }
 			setIsCopiedToClipboard(true);
 			setTimeout(() => {
 				setIsCopiedToClipboard(false);
-			}, 300);
+			}, 1000);
 		});
 	};
 
@@ -166,26 +167,56 @@ export const TypingEffect = ({ text, onComplete, customePencilClickFunc = null }
 
 			{currentIndex === text?.length ? (
 				<div className="hover-actions-container">
-					<ThumpsUpSvg />
-					<ThumpsDownSvg />
-					<HeadPhoneSvg />
-					<PencilSparkleIcon
-						onClick={() => {
-							if (customePencilClickFunc) {
-								customePencilClickFunc();
-							}
-							setNoteContent(text);
-						}}
-					/>
-					{isCopiedToClipboard ? (
-						<TickSvg />
-					) : (
-						<CopyIcon
-							onClick={() => {
-								handleCopyTextClick(text);
-							}}
-						/>
-					)}
+					<div className="icon-container">
+						<Tooltip placement="bottom" arrow={false} trigger={'hover'} title={'Like'}>
+							<ThumpsUpSvg />
+						</Tooltip>
+					</div>
+
+					<div className="icon-container">
+						<Tooltip
+							placement="bottom"
+							arrow={false}
+							trigger={'hover'}
+							title={'Dislike'}
+						>
+							<ThumpsDownSvg />
+						</Tooltip>
+					</div>
+
+					<div className="icon-container">
+						<Tooltip placement="bottom" arrow={false} trigger={'hover'} title={'Audio'}>
+							<HeadPhoneSvg />
+						</Tooltip>
+					</div>
+
+					<div className="icon-container">
+						<Tooltip placement="bottom" arrow={false} trigger={'hover'} title={'Edit'}>
+							<PencilSparkleIcon
+								onClick={() => {
+									if (customePencilClickFunc) {
+										customePencilClickFunc();
+									}
+									setNoteContent(text);
+								}}
+							/>
+						</Tooltip>
+					</div>
+
+					<div className="icon-container">
+						<Tooltip placement="bottom" arrow={false} trigger={'hover'} title={'Copy'}>
+							{isCopiedToClipboard ? (
+								<TickSvg />
+							) : (
+								<CopyIcon
+									onClick={() => {
+										handleCopyTextClick(text);
+									}}
+								/>
+							)}
+						</Tooltip>
+					</div>
+
 					{/* <CopyIcon
 						onClick={() => {
 							handleCopyTextClick(text);
