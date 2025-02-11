@@ -37,7 +37,7 @@ const Calendar = () => {
 			refetchCalendarState,
 		},
 		companyInfo: { getTeamMembers },
-		// templates: { getWorkflowsList, workflowslist, moreWorkList },
+		templates: { leftSidebarState, updateStateValues },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -47,6 +47,13 @@ const Calendar = () => {
 		selectedDate: new Date(),
 		...initialState,
 	});
+
+	useEffect(() => {
+		updateStateValues({ leftSidebarState: 'close' });
+		return () => {
+			updateStateValues({ leftSidebarState: null });
+		};
+	}, []);
 
 	useEffect(() => {
 		const sessionId = ObjectId().toString();

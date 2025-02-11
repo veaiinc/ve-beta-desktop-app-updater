@@ -32,7 +32,7 @@
 	}
 
 	.rbc-time-view .rbc-allday-cell {
-		max-height: 80px;
+		max-height: 60px;
 		overflow-y: auto;
 
 		.rbc-row-bg {
@@ -240,6 +240,12 @@
 				background: none;
 				// background: #1d1d1d;
 			}
+		}
+	}
+
+	.rbc-time-view {
+		.rbc-row {
+			min-height: 2px;
 		}
 	}
 }

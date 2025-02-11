@@ -16,18 +16,20 @@ const CustomEventCard = ({ event }) => {
 							{startTime}-{endTime}
 						</div>
 					</div>
-					<div className="eventStatusDiv">
-						<span
+					<div
+						className="eventStatusDiv"
+						style={{
+							backgroundColor: event?.calendarCategory?.color,
+						}}
+					>
+						{/* <span
 							className="statusIndicator"
 							onClick={(event) => {
 								event.stopPropagation();
 							}}
-							style={{
-								backgroundColor: event?.calendarCategory?.color,
-							}}
 						>
 							<span></span>
-						</span>
+						</span> */}
 					</div>
 				</div>
 				{/* <div className="eventFooter">

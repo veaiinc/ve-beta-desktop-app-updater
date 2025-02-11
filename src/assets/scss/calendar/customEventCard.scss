@@ -27,7 +27,7 @@
 
 			.eventDetails {
 				width: calc(100% - 13px);
-				padding-bottom: 25px;
+				// padding-bottom: 25px;
 
 				.title {
 					color: #e4e5e6;
@@ -59,13 +59,14 @@
 				}
 			}
 			.eventStatusDiv {
-				width: 15px;
-				height: 15px;
+				border-radius: 50%;
+				width: 10px;
+				height: 10px;
 				flex-shrink: 0;
 
 				.statusIndicator {
-					width: 15px;
-					height: 15px;
+					width: 10px;
+					height: 10px;
 					display: flex;
 					justify-content: center;
 					align-items: center;
