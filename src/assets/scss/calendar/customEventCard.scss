@@ -1,10 +1,6 @@
 .customEventCardParentContainer {
 	display: flex;
 	height: 100%;
-	padding: 3px;
-	gap: 10px;
-	border-radius: 8px;
-	background: #2a2a2a;
 	overflow-y: auto;
 	overflow-x: hidden;
 
@@ -31,7 +27,7 @@
 
 			.eventDetails {
 				width: calc(100% - 13px);
-				padding-bottom: 25px;
+				// padding-bottom: 25px;
 
 				.title {
 					color: #e4e5e6;
@@ -63,13 +59,14 @@
 				}
 			}
 			.eventStatusDiv {
-				width: 15px;
-				height: 15px;
+				border-radius: 50%;
+				width: 10px;
+				height: 10px;
 				flex-shrink: 0;
 
 				.statusIndicator {
-					width: 15px;
-					height: 15px;
+					width: 10px;
+					height: 10px;
 					display: flex;
 					justify-content: center;
 					align-items: center;
@@ -134,12 +131,12 @@
 
 	// Target .rbc-event inside .customEventWrapper
 	.rbc-event {
-		border-radius: 8px;
 		border: none;
-		background: #2a2a2a;
-		padding: 5px;
-		border: 1px solid #202020;
+		background: #171819;
+		padding: 8px 10px;
 		min-width: 100%;
+		// border-radius: 8px;
+		// border: 1px solid #202020;
 
 		// Target .rbc-event-label inside .rbc-event
 		.rbc-event-label {

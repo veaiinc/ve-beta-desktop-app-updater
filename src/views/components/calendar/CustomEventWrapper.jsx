@@ -4,8 +4,7 @@ const CustomEventWrapper = ({ event, children }) => {
 	return (
 		<div
 			className="customEventWrapper"
-			// style={{ border: '2px solid red' }}
-			style={{ paddingRight: '2px', marginRight: '5px' }}
+			style={{ paddingRight: '2px' }}
 
 			// onClick={() => alert(`Event Row clicked: ${event.title}`)}
 		>
