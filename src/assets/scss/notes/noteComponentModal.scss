@@ -81,6 +81,13 @@
 									display: flex;
 									flex-direction: column;
 									gap: 6px;
+
+									.hover-actions-container {
+										display: flex;
+										flex-direction: row;
+										gap: 10px;
+										cursor: pointer;
+									}
 								}
 
 								// .hover-actions-container {

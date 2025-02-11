@@ -15,6 +15,9 @@ import { ReactComponent as PencilSparkleIcon } from '../../../assets/svg/notes/p
 import { ReactComponent as PreviousSvg } from '../../../assets/svg/notes/previous.svg';
 import { ReactComponent as NextSvg } from '../../../assets/svg/notes/next.svg';
 import { ReactComponent as CopySvg } from '../../../assets/svg/notes/copy.svg';
+import { ReactComponent as CopyIcon } from '../../../assets/svg/ai_agents/copy.svg';
+import { ReactComponent as ThumpsUpSvg } from '../../../assets/svg/ai_agents/thumps-up.svg';
+import { ReactComponent as ThumpsDownSvg } from '../../../assets/svg/ai_agents/thumps-down.svg';
 import { ReactComponent as ShareSvg } from '../../../assets/svg/notes/share.svg';
 
 import Upload from 'antd/es/upload/Upload';
@@ -56,6 +59,9 @@ const NoteComponentModal = ({
 		],
 		[onImageUpload],
 	);
+	const handleCopyTextClick = (text) => {
+		navigator?.clipboard?.writeText(text);
+	};
 
 	return (
 		<Drawer
@@ -91,6 +97,13 @@ const NoteComponentModal = ({
 																setNoteContent(chat?.message);
 															}}
 														/>
+														<CopyIcon
+															onClick={() => {
+																handleCopyTextClick(chat?.message);
+															}}
+														/>
+														<ThumpsUpSvg />
+														<ThumpsDownSvg />
 													</div>
 												</div>
 											) : (

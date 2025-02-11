@@ -237,6 +237,19 @@
 				}
 			}
 
+			.ai-message {
+				.message-content {
+					.content {
+						.hover-actions-container {
+							display: flex;
+							flex-direction: row;
+							gap: 10px;
+							cursor: pointer;
+						}
+					}
+				}
+			}
+
 			.user-message {
 				display: flex;
 				justify-content: flex-end;

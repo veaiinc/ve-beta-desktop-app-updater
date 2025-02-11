@@ -5,6 +5,7 @@ import '../../../assets/scss/ai_agents/bottomToolbarChatContainer.scss';
 import { ReactComponent as CloseSvg } from '../../../assets/svg/calendar/close.svg';
 import { ReactComponent as SendSvg } from '../../../assets/svg/calendar/send.svg';
 import { ReactComponent as Close } from '../../../assets/svg/close.svg';
+import { ReactComponent as CopySvg } from '../../../assets/svg/ai_agents/copy.svg';
 import { ReactComponent as ExpandChatIcon } from '../../../assets/svg/ai_agents/expand-chat-icon.svg';
 import { ReactComponent as AiStarInChat } from '../../../assets/svg/ai_agents/ai-star-in-chat.svg';
 import { ReactComponent as Filter } from '../../../assets/svg/ai_agents/filter.svg';
@@ -13,6 +14,8 @@ import { ReactComponent as PaperClip } from '../../../assets/svg/ai_agents/paper
 import { ReactComponent as Mic } from '../../../assets/svg/ai_agents/mic.svg';
 import { Markdown, TypingEffect } from '../../../helpers/markdownHelper';
 import { ReactComponent as PencilSparkleIcon } from '../../../assets/svg/notes/pencilSparkle.svg';
+import { ReactComponent as ThumpsUpSvg } from '../../../assets/svg/ai_agents/thumps-up.svg';
+import { ReactComponent as ThumpsDownSvg } from '../../../assets/svg/ai_agents/thumps-down.svg';
 import Upload from 'antd/es/upload/Upload';
 import { useMemo } from 'react';
 import NoteComponentModal from '../notes/NoteComponentModal';
@@ -133,6 +136,10 @@ const ToolBarChatContainerModal = ({
 		}));
 	};
 
+	const handleCopyTextClick = (text) => {
+		navigator?.clipboard?.writeText(text);
+	};
+
 	return (
 		<>
 			<Drawer
@@ -207,6 +214,13 @@ const ToolBarChatContainerModal = ({
 																setNoteContent(chat?.message);
 															}}
 														/>
+														<CopySvg
+															onClick={() => {
+																handleCopyTextClick(chat?.message);
+															}}
+														/>
+														<ThumpsUpSvg />
+														<ThumpsDownSvg />
 													</div>
 												</div>
 											) : (
