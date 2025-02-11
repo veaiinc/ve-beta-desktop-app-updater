@@ -115,6 +115,7 @@ const FormLeads = () => {
 							title="Builder Preview"
 							width="100%"
 							height="100%"
+							style={{ borderRadius: '24px', border: 'none' }}
 						/>
 					</div>
 					<div className="detailsContainer">
