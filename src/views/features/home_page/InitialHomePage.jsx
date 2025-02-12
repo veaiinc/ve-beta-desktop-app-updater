@@ -1,10 +1,10 @@
-import React, { memo, useContext, useState } from 'react';
+import React, { memo, useContext, useState, useEffect } from 'react';
 import '../../../assets/scss/home_page/initialHomepage.scss';
 import jwtDecode from 'jwt-decode';
 import Context from '../../../context/context';
 import { PromptData } from '../../components/homePage/PromptData';
 import HomePage from './HomePage';
-
+import ChatBox from '../../components/homePage/ChatBox';
 const initialHomePageOptions = [
 	{ id: 1, title: 'All Prompts', type: 'All' },
 	{ id: 2, title: 'Sales', type: 'Sales' },
@@ -20,43 +20,47 @@ const navBarOptions = [
 ];
 
 const InitialHomePage = () => {
-	const [isStart, setIsStart] = useState(true);
-	const [selectedOption, setSelectedOption] = useState(null);
-	const [selectedNavBarOption, setSelectedNavBarOption] = useState(null);
-	const [dashboardSelected, setDashboardSelected] = useState(false);
+	const [info, setInfo] = useState({
+		isStart: true,
+		selectedOption: null,
+		selectedNavBarOption: null,
+		dashboardSelected: false,
+	});
 
 	let {
 		profileInfo: { userDetailsData },
 	} = useContext(Context);
 	const username =
-		jwtDecode(localStorage.getItem('usertoken'))?.userName ??
-		`${userDetailsData?.firstName} ${userDetailsData?.lastName}` ??
+		jwtDecode(localStorage.getItem('usertoken'))?.userName?.split(' ')[0] ??
+		`${userDetailsData?.firstName}` ??
 		'User';
 
 	const handleNavBarSelection = (item) => {
-		setSelectedNavBarOption(item);
+		setInfo({ ...info, selectedNavBarOption: item });
 		if (item?.type === 'start') {
-			setIsStart(true);
-			setDashboardSelected(true);
-			setSelectedOption('All');
+			setInfo((prev) => ({
+				...prev,
+				isStart: true,
+				dashboardSelected: true,
+				selectedOption: 'All',
+			}));
 			return;
 		}
 		if (item?.type === 'dashboard') {
-			// dashboard logic here...
-			setDashboardSelected(true);
+			setInfo((prev) => ({ ...prev, dashboardSelected: true, isStart: false }));
 		}
 		if (item?.type === 'agent47') {
 		}
 		if (item?.type === 'managerAI') {
 		}
-		setIsStart(false);
+		setInfo((prev) => ({ ...prev, isStart: false }));
 	};
 
 	return (
 		<>
-			{selectedOption || dashboardSelected ? (
+			{info?.selectedOption !== null || info?.dashboardSelected ? (
 				<div>
-					<HomePage getSelectedOption={selectedOption} start={isStart} />
+					<HomePage getSelectedOption={info?.selectedOption} start={info?.isStart} />
 				</div>
 			) : (
 				<div className="initialHomePageContainer">
@@ -67,7 +71,7 @@ const InitialHomePage = () => {
 									<>
 										<div
 											className={`initialHomeContainerFixedContent-item ${
-												selectedNavBarOption?.id === item?.id
+												info?.selectedNavBarOption?.id === item?.id
 													? 'active'
 													: ''
 											}`}
@@ -89,17 +93,22 @@ const InitialHomePage = () => {
 							I'm here to help
 						</div>
 						<div className="initialHomePageContainerOptions">
-							{initialHomePageOptions.map((item) => {
+							{initialHomePageOptions?.map((item) => {
 								return (
 									<div
 										className="initialHomePageContainerOptions-item"
-										onClick={() => setSelectedOption(item?.type)}
+										onClick={() =>
+											setInfo({ ...info, selectedOption: item?.type })
+										}
 									>
 										{item?.title}
 									</div>
 								);
 							})}
 						</div>
+					</div>
+					<div className="initialHomePageContainer-chatBox">
+						<ChatBox />
 					</div>
 					<div className="initialHomePageContainer-prompts">
 						<div className="initialHomePageContainerCards">
