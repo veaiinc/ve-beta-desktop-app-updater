@@ -5,9 +5,15 @@ const actionHandlers = {
 		...state,
 		specificAutomationInfo: action.payload,
 	}),
+
 	UPDATE_STATE_VALUES: (state, action) => ({
 		...state,
 		...action.payload,
+	}),
+
+	SET_CONNECTION_DETAILS: (state, action) => ({
+		...state,
+		connectedIntegrations: action.payload,
 	}),
 
 	RESET_STATE: () => initialState,

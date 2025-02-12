@@ -14,6 +14,7 @@ import {
 	dropDownTextStyling,
 	selectedValueStyling,
 } from '../../../features/automation_builder/automationContentsHelper';
+import { message } from 'antd';
 
 const actionsList = {
 	tasks: { title: 'Create Tasks' },
@@ -29,7 +30,7 @@ const triggersList = {
 			{
 				icon: <Google />,
 				label: 'On Message received',
-				value: 'newEmail',
+				value: 'messageReceived',
 			},
 		],
 	},
@@ -50,7 +51,7 @@ const availableIntegrations = [
 
 const Triggers = ({
 	onCLose,
-	templateId,
+	automationId,
 	activeEdge,
 	editMode,
 	activeStepsData,
@@ -60,6 +61,7 @@ const Triggers = ({
 }) => {
 	const {
 		templates: { addNewSteps, updateStateValues, specificTemplatesInfo, updateSteps },
+		automationBuilder: { connectedIntegrations, addTrigger, getAutomation },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		search: '',
@@ -67,6 +69,7 @@ const Triggers = ({
 		searchChanged: false,
 		activeStage: 'stage1', //stage1, stage2, stage3
 		saveLoader: false,
+		connectedIntegrations,
 	});
 
 	useEffect(() => {
@@ -74,6 +77,12 @@ const Triggers = ({
 			handleDebouce();
 		}
 	}, [info?.searchChanged, info?.search]);
+
+	useEffect(() => {
+		if (connectedIntegrations) {
+			setInfo((prev) => ({ ...prev, connectedIntegrations }));
+		}
+	}, [connectedIntegrations]);
 
 	useEffect(() => {
 		if (editMode && activeStepsData) {
@@ -103,33 +112,59 @@ const Triggers = ({
 
 	const checkConnection = useCallback(
 		(integration) => {
-			if (integration === 'slack') {
-				return slackConnected;
-			}
-			if (integration === 'google') {
-				return googleConnected;
-			}
-			return false;
+			const isConnected = connectedIntegrations?.[integration] || [];
+			return isConnected?.length > 0;
 		},
-		[slackConnected, googleConnected],
+		[connectedIntegrations],
 	);
 
-	const onSelectTrigger = useCallback((trigger) => {
-		setInfo((prev) => ({ ...prev, activeStage: 'stage2' }));
-	}, []);
+	const handleBack = useCallback(() => {
+		if (info?.activeStage === 'stage2') {
+			setInfo((prev) => ({ ...prev, activeStage: 'stage1' }));
+		}
+		if (info?.activeStage === 'stage1') {
+			onCLose();
+		}
+	}, [info?.activeStage, onCLose]);
+
+	const addNewTrigger = useCallback(
+		async (trigger) => {
+			const payload = {
+				title: 'New trigger',
+				description: 'Trigger when a message is received',
+				triggerType: 'app',
+				app: 'gmail',
+				type: 'trigger',
+			};
+			if (trigger?.value === 'messageReceived') {
+				payload.gmail = {
+					connectedEmail: connectedIntegrations?.google?.[0]?.email,
+					event: trigger?.value,
+				};
+			}
+			const response = await addTrigger(automationId, payload);
+			if (response?.[0]) {
+				setInfo((prev) => ({ ...prev, activeStage: 'stage2' }));
+				getAutomation(automationId);
+			} else {
+				message?.error(response?.[1] || 'Failed to add trigger');
+			}
+		},
+		[connectedIntegrations, addTrigger, automationId, getAutomation],
+	);
 
 	return (
 		<div className="triggersSidebarComponents">
 			<div className="triggersSidebarComponentsHeader">
-				<span onClick={onCLose} style={{ cursor: 'pointer' }}>
+				<span onClick={handleBack} style={{ cursor: 'pointer' }}>
 					<DoubleArrow />
 				</span>
 				<span className="triggerSidebarTitle">Trigger</span>
 			</div>
 			{info?.activeStage === 'stage1' ? (
-				<Step1 checkConnection={checkConnection} onSelectTrigger={onSelectTrigger} />
+				<Step1 checkConnection={checkConnection} addNewTrigger={addNewTrigger} />
 			) : (
-				<Step2 />
+				<Step2 connectedIntegrations={connectedIntegrations} />
 			)}
 		</div>
 	);
@@ -137,7 +172,7 @@ const Triggers = ({
 
 export default memo(Triggers);
 
-const Step1 = ({ checkConnection, onSelectTrigger }) => {
+const Step1 = ({ checkConnection, addNewTrigger }) => {
 	return (
 		<>
 			<div className="triggersHeaderContainer">
@@ -169,7 +204,7 @@ const Step1 = ({ checkConnection, onSelectTrigger }) => {
 									<div
 										className="availableIntegrationItem"
 										key={trigger.value}
-										onClick={() => onSelectTrigger(trigger)}
+										onClick={() => addNewTrigger(trigger)}
 									>
 										<span className="integrationIcon">{trigger.icon}</span>
 										<span className="integrationLabel">{trigger.label}</span>
@@ -207,13 +242,9 @@ const Step1 = ({ checkConnection, onSelectTrigger }) => {
 	);
 };
 
-const Step2 = () => {
+const Step2 = ({ connectedIntegrations }) => {
 	const [info, setInfo] = useState({
-		googleAccountOptions: [
-			{ label: 'Select an option', value: 'default' },
-			{ label: 'Account 1', value: 'account1' },
-			{ label: 'Account 2', value: 'account2' },
-		],
+		googleAccountOptions: [],
 		selectedGoogleAccount: { label: 'Select an option', value: 'default' },
 		pollModeOptions: [
 			{ label: 'Every Minute', value: 'minute' },
@@ -224,6 +255,22 @@ const Step2 = () => {
 		],
 		selectedPollMode: { label: 'Every Minute', value: 'minute' },
 	});
+
+	useEffect(() => {
+		if (connectedIntegrations) {
+			setInfo((prev) => ({
+				...prev,
+				googleAccountOptions: connectedIntegrations?.google?.map((account) => ({
+					label: account?.email,
+					value: account?.email,
+				})),
+				selectedGoogleAccount: {
+					label: connectedIntegrations?.google?.[0]?.email,
+					value: connectedIntegrations?.google?.[0]?.email,
+				},
+			}));
+		}
+	}, [connectedIntegrations]);
 
 	const onChangeGoogleAccount = (data) => {
 		if (data?.value === info?.selectedGoogleAccount?.value) return;

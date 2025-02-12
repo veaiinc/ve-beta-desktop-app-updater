@@ -15,6 +15,7 @@ const BuilderToolbar = ({
 	activeStepsData,
 	editMode,
 	refetchWorkflowBuilderData,
+	automationId,
 }) => {
 	const {
 		templates: { getAllSlackChannels },
@@ -53,6 +54,7 @@ const BuilderToolbar = ({
 					onCLose={onCLose}
 					activeEdge={activeEdge}
 					templateId={templateId}
+					automationId={automationId}
 					slackConnected={info?.slackConnected}
 					googleConnected={info?.googleConnected}
 				/>

@@ -47,7 +47,12 @@ const AutomationBuilder = () => {
 			getAllEmailTemplates,
 			allEmailTemplates,
 		},
-		automationBuilder: { getAutomation, specificAutomationInfo, updateStateValues },
+		automationBuilder: {
+			getAutomation,
+			specificAutomationInfo,
+			updateStateValues,
+			getConnectionDetails,
+		},
 	} = useContext(Context);
 
 	const navigate = useNavigate();
@@ -98,6 +103,7 @@ const AutomationBuilder = () => {
 
 	useEffect(() => {
 		if (automationId) {
+			getConnectionDetails();
 			getAutomation(automationId);
 		}
 		return () => {

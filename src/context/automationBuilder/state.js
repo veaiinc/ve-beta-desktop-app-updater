@@ -5,7 +5,7 @@ import { Actions } from './actions';
 
 export const initialState = {
 	specificAutomationInfo: null,
-	// connectedIntegrations: null,
+	connectedIntegrations: null,
 };
 
 export const AutomationBuilderState = () => {
@@ -68,14 +68,17 @@ export const AutomationBuilderState = () => {
 				usertoken,
 				'automation_builder_api',
 			);
-			if (response?.[0]) {
+			if (response?.[0] === true) {
 				dispatch({
 					type: Actions.ADD_TRIGGER,
 					payload: response?.[1]?.newTrigger,
 				});
+				return [true, response?.[1]?.newTrigger];
 			}
+			return [false, response?.[1]?.message];
 		} catch (error) {
 			console.log('API failed ==> addTrigger', error);
+			return [false, null];
 		}
 	};
 
@@ -99,6 +102,27 @@ export const AutomationBuilderState = () => {
 			console.log('API failed ==> addStep', error);
 		}
 	};
+
+	const getConnectionDetails = async () => {
+		try {
+			const usertoken = localStorage.getItem('usertoken');
+			const workspaceId = localStorage.getItem('workspaceId');
+			const response = await restService.fetchGet(
+				`/connect-account/${workspaceId}`,
+				usertoken,
+				'third_party_integrations_api',
+			);
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.SET_CONNECTION_DETAILS,
+					payload: response?.[1],
+				});
+			}
+		} catch (error) {
+			console.log('API failed ==> getConnectionDetails', error);
+		}
+	};
+
 	const resetAutomationBuilderState = () => {
 		dispatch({ type: Actions.RESET_STATE });
 	};
@@ -111,6 +135,6 @@ export const AutomationBuilderState = () => {
 		addTrigger,
 		addStep,
 		resetAutomationBuilderState,
-		// getConnectedIntegrations,
+		getConnectionDetails,
 	};
 };
