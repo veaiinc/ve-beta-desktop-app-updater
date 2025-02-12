@@ -113,13 +113,13 @@ export const veAiModulesItemsList = [
 	// 	icon: PlaybookSvg,
 	// },
 	// { name: 'Teams', moduleRoute: '/teams', route: '/teams' },
-	{
-		id: 7,
-		name: 'Notes',
-		moduleRoute: '/notes',
-		route: '/notes',
-		icon: '',
-	},
+	// {
+	// 	id: 7,
+	// 	name: 'Notes',
+	// 	moduleRoute: '/notes',
+	// 	route: '/notes',
+	// 	icon: '',
+	// },
 ];
 
 //

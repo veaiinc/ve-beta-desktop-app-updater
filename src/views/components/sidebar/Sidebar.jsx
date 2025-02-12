@@ -13,6 +13,7 @@ import { Tooltip } from 'antd';
 const Sidebar = ({ activeWorkspaceId }) => {
 	const {
 		profileInfo: { userWorkSpaceList, getUserWorkSpaceList, userDetailsData, getUserDetails },
+		templates: { leftSidebarState, updateStateValues },
 	} = useContext(Context);
 	const location = useLocation();
 
@@ -40,6 +41,13 @@ const Sidebar = ({ activeWorkspaceId }) => {
 		activeRoute: '/' + location.pathname.split('/')[1],
 		selectedModule: null,
 	});
+
+	useEffect(() => {
+		if (leftSidebarState && leftSidebarState === 'open') {
+			setIsOpen(true);
+			updateStateValues({ leftSidebarState: null });
+		}
+	}, [leftSidebarState]);
 
 	useEffect(() => {
 		if (!userWorkSpaceList) {
