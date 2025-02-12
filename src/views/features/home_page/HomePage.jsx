@@ -34,7 +34,7 @@ const navbarOptions = {
 
 let timeoutId = null;
 
-const HomePage = () => {
+const HomePage = ({ getSelectedOption, start }) => {
 	const [searchParams, setSearchParams] = useSearchParams();
 	let {
 		profileInfo: { userDetailsData },
@@ -46,9 +46,9 @@ const HomePage = () => {
 		'User';
 
 	const [info, setInfo] = useState({
-		activeTab: searchParams?.get('tab') ?? 'dashboard',
+		activeTab: start ? 'start' : searchParams?.get('tab') ?? 'dashboard',
 		showPromptPopup: false,
-		selectedOptionInStart: searchParams?.get('startTab') || 'All',
+		selectedOptionInStart: start ? getSelectedOption : searchParams?.get('startTab') || 'All',
 		selectedOptionInDashboard: searchParams?.get('dashboardTab') || 'Priority',
 		searchValue: '',
 		selectedCard: null,
