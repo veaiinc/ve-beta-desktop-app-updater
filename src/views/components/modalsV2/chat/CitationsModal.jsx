@@ -1,8 +1,25 @@
 import { Drawer } from 'antd';
 import '../../../../assets/scss/chat/modal/citationsModal.scss';
 import { ReactComponent as CitationCloseIcon } from '../../../../assets/svg/ai_agents/expand-chat-icon.svg';
+import { useContext, useEffect, useState } from 'react';
+import Context from '../../../../context/context';
 
 const CitationsModal = ({ closeModal, modalIsOpen }) => {
+	const {
+		templates: { citations },
+	} = useContext(Context);
+
+	const [info, setInfo] = useState({
+		citations: null,
+	});
+
+	useEffect(() => {
+		setInfo((prev) => ({
+			...prev,
+			citations: citations,
+		}));
+	}, [citations]);
+
 	return (
 		<Drawer
 			open={modalIsOpen}
@@ -14,19 +31,34 @@ const CitationsModal = ({ closeModal, modalIsOpen }) => {
 		>
 			<div className="citations-container">
 				<div className="header">
-					<div className="text">Sources</div>
+					<div className="left-text">Sources</div>
 					<div className="close-modal-icon" onClick={closeModal}>
 						<CitationCloseIcon />
 					</div>
 				</div>
 				<div className="sources">
-					<div className="source-container">
-						<div className="image">r</div>
-						<div className="info">
-							<div className="name">knfekf</div>
-							<div className="count">8</div>
-						</div>
-					</div>
+					{info?.citations?.length > 0 ? (
+						info?.citations?.map((citation, index) => {
+							return (
+								<div className="source-container">
+									<div className="image"></div>
+									<div className="info">
+										<a
+											className="link"
+											href={citation?.url}
+											target="_blank"
+											rel="noreferrer"
+										>
+											{citation?.url}
+										</a>
+										<div className="order">{index + 1}</div>
+									</div>
+								</div>
+							);
+						})
+					) : (
+						<div style={{ color: '#f2f2f3', textAlign: 'center' }}>No citations</div>
+					)}
 				</div>
 			</div>
 		</Drawer>

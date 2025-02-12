@@ -211,7 +211,12 @@ export const TypingEffect = ({ text, onComplete, customePencilClickFunc = null }
 					</div>
 
 					<div className="icon-container">
-						<Tooltip placement="bottom" arrow={false} trigger={'hover'} title={'Copy'}>
+						<Tooltip
+							placement="bottom"
+							arrow={false}
+							trigger={'hover'}
+							title={isCopiedToClipboard ? 'Copied' : 'Copy'}
+						>
 							{isCopiedToClipboard ? (
 								<TickSvg />
 							) : (

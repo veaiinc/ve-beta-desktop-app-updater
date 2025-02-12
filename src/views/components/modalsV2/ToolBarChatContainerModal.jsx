@@ -8,6 +8,9 @@ import { ReactComponent as Close } from '../../../assets/svg/close.svg';
 import { ReactComponent as ExpandChatIcon } from '../../../assets/svg/ai_agents/expand-chat-icon.svg';
 import { ReactComponent as AiStarInChat } from '../../../assets/svg/ai_agents/ai-star-in-chat.svg';
 import { ReactComponent as Filter } from '../../../assets/svg/ai_agents/filter.svg';
+import { ReactComponent as WebIcon } from '../../../assets/svg/ai_agents/web.svg';
+import { ReactComponent as MicroScopeIcon } from '../../../assets/svg/ai_agents/microscope.svg';
+
 import { ReactComponent as Arroba } from '../../../assets/svg/ai_agents/arroba.svg';
 import { ReactComponent as PaperClip } from '../../../assets/svg/ai_agents/paper-clip.svg';
 import { ReactComponent as ArrowUp } from '../../../assets/svg/ai_agents/arrow-up-dark.svg';
@@ -18,6 +21,7 @@ import Upload from 'antd/es/upload/Upload';
 import { useMemo } from 'react';
 import NoteComponentModal from '../notes/NoteComponentModal';
 import CitationsModal from './chat/CitationsModal';
+import Context from '../../../context/context';
 
 const ToolBarChatContainerModal = ({
 	onClose,
@@ -32,6 +36,9 @@ const ToolBarChatContainerModal = ({
 	handleRemoveImage,
 	onClick,
 }) => {
+	const {
+		templates: { followUpQuery, updateStateValues },
+	} = useContext(Context);
 	const [info, setInfo] = useState({
 		noteModalIsOpen: false,
 		citationsModalIsOpen: false,
@@ -81,6 +88,10 @@ const ToolBarChatContainerModal = ({
 			...prev,
 			noteModalIsOpen: true,
 		}));
+	};
+
+	const handleFollowUpQueryClick = () => {
+		updateStateValues({ activePromptForChat: followUpQuery });
 	};
 
 	return (
@@ -182,6 +193,17 @@ const ToolBarChatContainerModal = ({
 								) : (
 									''
 								)}
+
+								{followUpQuery && (
+									<div className="suggestions-container">
+										<div
+											className="suggestion-text"
+											onClick={handleFollowUpQueryClick}
+										>
+											{followUpQuery}
+										</div>
+									</div>
+								)}
 								{/* //message Container */}
 								<div className={`toolBarExpandedChatInputParentContainer`}>
 									<textarea
@@ -193,13 +215,7 @@ const ToolBarChatContainerModal = ({
 										className="toolBarExpandedTextArea"
 										// rows={1}
 									/>
-									{/* <SendSvg
-						style={{
-							cursor: aiChatLoading ? 'not-allowed' : 'pointer',
-							opacity: aiChatLoading ? 0.5 : 1,
-						}}
-						onClick={() => !aiChatLoading && onKeyDown(null, 'key')}
-					/> */}
+
 									<div className="buttons-container">
 										<div className="chat-icons-container">
 											{chatIcons?.map((icon, idx) => (
