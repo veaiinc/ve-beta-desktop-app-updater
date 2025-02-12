@@ -72,7 +72,6 @@ const Chat = ({
 	const [info, setInfo] = useState({
 		expanded: false,
 		inputExpanded: false,
-		chatModalIsOpen: false,
 		bigToolbarIsOpen: false,
 		chatQuery: '',
 		position: { x: window.innerWidth / 2 - 900, y: 0 },
@@ -88,69 +87,22 @@ const Chat = ({
 
 	const [previewOpen, setPreviewOpen] = useState(false);
 	const [previewImage, setPreviewImage] = useState('');
-	const toolbarRef = useRef(null);
-	const isDraggingRef = useRef(false);
-	const startPosRef = useRef({ x: 0, y: 0 });
 	const chatContentRef = useRef(null);
 
-	// Add and remove event listeners
 	useEffect(() => {
-		document.addEventListener('mousemove', handleMouseMove);
-		document.addEventListener('mouseup', handleMouseUp);
-
-		return () => {
-			document.removeEventListener('mousemove', handleMouseMove);
-			document.removeEventListener('mouseup', handleMouseUp);
-		};
-	}, []);
-	// Add this useEffect for auto-scrolling
-	useEffect(() => {
-		if (chatContentRef.current) {
+		if (chatContentRef?.current) {
 			chatContentRef.current.scrollTop = chatContentRef.current.scrollHeight;
+			console.log(chatContentRef?.current?.scrollTop, chatContentRef?.current?.scrollHeight);
+			// chatContentRef?.current?.lastElementChild?.scrollIntoView({ behavior: 'smooth' });
 		}
-	}, [chatList]); // Scroll whenever chatList changes
+	}, [globalChatMessages]); // Scroll whenever chatList changes
 
 	useEffect(() => {
 		if (activePromptForChat) {
-			setInfo((prev) => ({
-				...prev,
-				// chatQuery: activePromptForChat,
-				chatModalIsOpen: true,
-				showFullPage: true,
-			}));
 			handleSendMessageFunc(null, true, activePromptForChat);
 			updateStateValues({ activePromptForChat: null });
 		}
 	}, [activePromptForChat]);
-
-	const handleMouseDown = useCallback(
-		(e) => {
-			if (e.target.closest('.quickActionsButtons, input, button')) return;
-
-			isDraggingRef.current = true;
-			startPosRef.current = {
-				x: e.clientX - info.position.x,
-				y: e.clientY - info.position.y,
-			};
-		},
-		[info.position],
-	);
-
-	const handleMouseMove = useCallback((e) => {
-		if (!isDraggingRef.current) return;
-
-		const newX = e.clientX - startPosRef.current.x;
-		const newY = e.clientY - startPosRef.current.y;
-
-		setInfo((prev) => ({
-			...prev,
-			position: { x: newX, y: newY },
-		}));
-	}, []);
-
-	const handleMouseUp = useCallback(() => {
-		isDraggingRef.current = false;
-	}, []);
 
 	const handlePreview = async (file) => {
 		if (!file.url && !file.preview) {
@@ -492,19 +444,8 @@ const Chat = ({
 		[info, handleChange],
 	);
 
-	const handleSmallToolbarClick = () => {
-		setInfo((prev) => ({
-			...prev,
-			bigToolbarIsOpen: true,
-		}));
-	};
-
 	const handleSendBtnClick = (e) => {
 		if (info?.chatQuery?.trim()?.length > 0) {
-			setInfo((prev) => ({
-				...prev,
-				chatModalIsOpen: true,
-			}));
 			handleSendMessageFunc(e, true);
 		}
 	};
@@ -524,132 +465,12 @@ const Chat = ({
 
 	return (
 		<>
-			<div
-				className="chat-container"
-				// ref={toolbarRef}
-				// className={`bottomToolbarParentWrapper ${info.inputExpanded ? 'expanded' : ''}`}
-				// style={{
-				// 	...outerContainerStyle,
-				// 	position: 'fixed',
-				// 	transform: `translate(${info.position.x}px, ${info.position.y}px)`,
-				// 	cursor: isDraggingRef.current ? 'grabbing' : 'grab',
-				// }}
-				// onMouseDown={handleMouseDown}
-			>
-				{/* {!info?.chatModalIsOpen && info?.uploadedImages?.length ? (
-				<div className="imagePreviewBar">
-					{info?.uploadedImages?.map((ele, index) => (
-						<div className="previewOfUploadedImage" key={index}>
-							<img
-								src={ele?.preview}
-								alt="uploaded"
-								width={'100%'}
-								height={'100%'}
-								style={{ objectFit: 'cover', borderRadius: '12px' }}
-								onClick={() => handlePreview(ele)}
-							/>
-
-							{ele?.loading ? (
-								<div className="spinContainerLoaderForPreview">
-									<Spin />
-								</div>
-							) : (
-								<span
-									className="removeImageIcon"
-									onClick={() => handleRemoveImage(ele)}
-								>
-									<Close />
-								</span>
-							)}
-						</div>
-					))}
-				</div>
-			) : (
-				''
-			)} */}
-				{/* bottom toolBarContent */}
-				{/* {!info?.chatModalIsOpen ? (
-				info?.bigToolbarIsOpen ? (
-					<div
-						className={`bottomToolbar ${
-							info.inputExpanded ? 'expandedBtnToolbar' : ''
-						}`}
-					>
-						<textarea
-							className={`bottomToolbarInputs ${
-								// info.inputExpanded ? 'expanded' : ''
-								''
-							}`}
-							placeholder="Ask AI"
-							value={info?.chatQuery}
-							onChange={(e) =>
-								setInfo((prev) => ({ ...prev, chatQuery: e.target.value }))
-							}
-							onKeyDown={(e) => {
-								if (e?.key === 'Enter') {
-									if (e?.shiftKey) {
-										return;
-									}
-									setInfo((prev) => ({
-										...prev,
-										chatModalIsOpen: true,
-									}));
-									// Prevent default to avoid unwanted new line
-									e?.preventDefault();
-									handleSendMessageFunc(e);
-								}
-							}}
-							style={{ resize: 'none' }}
-							autoFocus
-						/>
-
-						<div className="toolBarButttons">
-							<div className="chat-icons-container">
-								{chatIcons?.map((icon, idx) => (
-									<span key={idx} className="chat-icon">
-										{icon}
-									</span>
-								))}
-							</div>
-							<div
-								className="click-btn"
-								onClick={(e) => {
-									handleSendBtnClick(e);
-								}}
-							>
-								<ArrowUp />
-							</div>
-						</div>
-					</div>
-				) : (
-					<div className="bottomToolbarSmall" onClick={handleSmallToolbarClick}>
-						<div className="toolbarText">Hey, need help ask me anything !</div>
-						<div className="chat-icons-container">
-							<div className="upload-icon">
-								<PaperClip />
-							</div>
-
-							<div className="mic-icon" onClick={handleMicIconClick}>
-								<Mic />
-							</div>
-							{info?.voiceIntegration ? (
-								<div className="mic-icon" onClick={handleDisConnect}>
-									<Close style={{ width: '20px', height: '20px' }} />
-								</div>
-							) : (
-								''
-							)}
-						</div>
-					</div>
-				)
-			) : (
-				''
-			)} */}
-				<div className="toolExpandedChatBarContainer" style={{ width: '100%' }}>
+			<div className="chat-container">
+				<div className="chatBarContainer" style={{ width: '100%' }}>
 					{/* header */}
-					<div className="toolExpandedChatBarContainerHeader" style={{ width: '100%' }}>
-						<h1 className="toolExpandedChatBarContainerHeaderTitle"></h1>
-						<div className="toolExpandedChatBarContainerHeaderIconContainer">
+					<div className="containerHeader" style={{ width: '100%' }}>
+						<h1 className="containerHeaderTitle"></h1>
+						<div className="iconContainer">
 							{!info?.citationsModalIsOpen && (
 								<ExpandChatIcon
 									onClick={() => {
@@ -666,12 +487,12 @@ const Chat = ({
 					{/* chat body */}
 
 					<div
-						className="chatContainer"
+						className="chatBodyContainer"
 						style={{
 							width: `${info?.citationsModalIsOpen ? 'calc(100% - 400px)' : '100%'}`,
 						}}
 					>
-						<div className={`toolBarchatBodyParentContainer`}>
+						<div className={`chatBodyParentContainer`}>
 							<div className="chatContent" ref={chatContentRef}>
 								{globalChatMessages?.map((chat, index) =>
 									chat?.content ? (
@@ -747,7 +568,7 @@ const Chat = ({
 								</div>
 							)}
 							{/* //message Container */}
-							<div className={`toolBarExpandedChatInputParentContainer`}>
+							<div className={`chatInputParentContainer`}>
 								<textarea
 									type="text"
 									placeholder="Hey! Need help? Ask me anything."
@@ -756,7 +577,7 @@ const Chat = ({
 										setInfo((prev) => ({ ...prev, chatQuery: e.target.value }))
 									}
 									onKeyDown={handleSendMessageFunc}
-									className="toolBarExpandedTextArea"
+									className="textArea"
 									// rows={1}
 								/>
 

@@ -1,4 +1,5 @@
 .notes-modal-container {
+	z-index: 1002;
 	.ant-drawer-body {
 		padding: 0;
 		.modal-container {
@@ -50,7 +51,7 @@
 					padding: 24px;
 					overflow-y: scroll;
 					width: 100%;
-					height: calc(100% - 124px);
+					max-height: calc(100% - 124px);
 
 					.chatContent {
 						display: flex;

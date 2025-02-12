@@ -403,11 +403,7 @@ const routes = [
 	{
 		path: '/chat',
 		component: (
-			<AuthWrapper
-				title={'Chat'}
-				showBottomToolbar={false}
-				// outerContainerStyle={{ paddingTop: 0 }}
-			>
+			<AuthWrapper title={'Chat'} showBottomToolbar={false}>
 				<Chat />
 			</AuthWrapper>
 		),

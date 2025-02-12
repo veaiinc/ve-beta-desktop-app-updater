@@ -12,7 +12,7 @@ import { UploadOutlined } from '@ant-design/icons';
 import { Upload } from 'antd';
 import Context from '../../../context/context';
 import ObjectID from 'bson-objectid';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 // import Markdown from 'react-markdown';
 // import { TypingEffect } from '../../../helpers/markdownHelper';
 // import { ReactComponent as AiStarInChat } from '../../../assets/svg/ai_agents/ai-star-in-chat.svg';
@@ -65,6 +65,7 @@ const BottomToolbar = ({
 	} = useVoiceIntegration();
 
 	const location = useLocation();
+	const navigate = useNavigate();
 
 	const [info, setInfo] = useState({
 		expanded: false,
@@ -188,6 +189,7 @@ const BottomToolbar = ({
 				}
 				// Prevent default to avoid unwanted new line
 				e?.preventDefault();
+				navigate('/chat');
 
 				if (
 					(aiChatLoading || info?.chatLoading) &&
@@ -499,11 +501,8 @@ const BottomToolbar = ({
 
 	const handleSendBtnClick = (e) => {
 		if (info?.chatQuery?.trim()?.length > 0) {
-			setInfo((prev) => ({
-				...prev,
-				chatModalIsOpen: true,
-			}));
 			handleSendMessageFunc(e, true);
+			navigate('/chat');
 		}
 	};
 
@@ -640,23 +639,6 @@ const BottomToolbar = ({
 			) : (
 				''
 			)}
-			<ToolBarChatContainerModal
-				onClose={handleCloseChatModal}
-				modalIsOpen={info?.chatModalIsOpen}
-				chatList={!customChatActions ? globalChatMessages : chatList}
-				onSend={onSend}
-				chatQuery={info?.chatQuery}
-				onChange={(e) => setInfo((prev) => ({ ...prev, chatQuery: e.target.value }))}
-				onKeyDown={handleSendMessageFunc}
-				aiChatLoading={aiChatLoading}
-				showFullPage={info?.showFullPage}
-				toggleFullPage={toggleFullPage}
-				onImageUpload={handleChange}
-				uploadedImages={info?.uploadedImages}
-				handlePreview={handlePreview}
-				handleRemoveImage={handleRemoveImage}
-				onClick={handleSendBtnClick}
-			/>
 			{previewImage && (
 				<Image
 					wrapperStyle={{
