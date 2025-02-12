@@ -53,10 +53,12 @@ const Chat = ({
 			updateApplicationChat,
 			activePromptForChat,
 			followUpQuery,
+			citations,
 		},
 		calendarInfo: { updateCalendarState },
 		tasks: { updateTaskState },
 	} = useContext(Context);
+
 	const {
 		isConnected,
 		isMuted,
@@ -92,10 +94,18 @@ const Chat = ({
 	useEffect(() => {
 		if (chatContentRef?.current) {
 			chatContentRef.current.scrollTop = chatContentRef.current.scrollHeight;
-			console.log(chatContentRef?.current?.scrollTop, chatContentRef?.current?.scrollHeight);
 			// chatContentRef?.current?.lastElementChild?.scrollIntoView({ behavior: 'smooth' });
 		}
 	}, [globalChatMessages]); // Scroll whenever chatList changes
+
+	useEffect(() => {
+		if (citations?.length > 0) {
+			setInfo((prev) => ({
+				...prev,
+				citationsModalIsOpen: true,
+			}));
+		}
+	}, [citations]);
 
 	useEffect(() => {
 		if (activePromptForChat) {
