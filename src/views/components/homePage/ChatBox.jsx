@@ -487,17 +487,7 @@ const ChatBox = ({
 	};
 
 	return (
-		<div
-		// ref={toolbarRef}
-		// className={`bottomToolbarParentWrapper ${info.chatQuery ? 'expanded' : ''}`}
-		// style={{
-		// 	...outerContainerStyle,
-		// 	position: 'fixed',
-		// 	transform: `translate(${info.position.x}px, ${info.position.y}px)`,
-		// 	cursor: isDraggingRef.current ? 'grabbing' : 'grab',
-		// }}
-		// onMouseDown={handleMouseDown}
-		>
+		<div>
 			{info?.uploadedImages?.length ? (
 				<div className="imagePreviewBar">
 					{info?.uploadedImages?.map((ele, index) => (
