@@ -104,6 +104,26 @@
 		}
 	}
 
+	.brandVoiceContainer {
+		display: flex;
+		width: 580px;
+		padding: 32px;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 24px;
+		border-radius: 32px;
+		background: #171819;
+
+		.title {
+			color: #e4e5e6;
+			font-family: Inter;
+			font-size: 16px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 24px;
+		}
+	}
+
 	.timezoneCurrencyComponent {
 		.timeZone,
 		.currency {
