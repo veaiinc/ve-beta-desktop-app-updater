@@ -173,7 +173,6 @@
 		}
 
 		.weekHeaderWrapper {
-
 			display: flex;
 			align-items: center;
 			gap: 4px;
@@ -181,7 +180,6 @@
 			align-self: stretch;
 
 			.dayHeader {
-
 				flex: 1 0 0;
 				color: rgba(228, 229, 230, 0.48);
 				text-align: center;
@@ -225,14 +223,13 @@
 		.weekDayHeaderContainer {
 			display: flex;
 			align-items: center;
-			margin-left: 50px;
+			margin-left: 60px;
 			gap: 4px;
 			flex: 1 0 0;
 			align-self: stretch;
-			cursor: pointer;
+			user-select: none;
 
 			.weekDayBlock {
-
 				display: flex;
 				height: 53px;
 				flex-direction: column;

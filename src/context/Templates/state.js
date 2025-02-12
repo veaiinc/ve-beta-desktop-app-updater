@@ -91,6 +91,7 @@ export const intialState = {
 	activePromptForChat: null,
 	smartFileRefetch: false,
 	activeWorkflowSlugForSmartFile: null,
+	leftSidebarState: null,
 };
 
 export const TemplatesState = (props) => {
