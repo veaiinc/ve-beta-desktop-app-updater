@@ -278,7 +278,7 @@ const EventDetailsModal = ({
 	return (
 		<Drawer
 			onClose={modifiedOnClose}
-			width={450}
+			width={'26%'}
 			open={isEventSelected}
 			style={{ padding: '0px', backgroundColor: 'transparent' }}
 			headerStyle={{ display: 'none' }}
