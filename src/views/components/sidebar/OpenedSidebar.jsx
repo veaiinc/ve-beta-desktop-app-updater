@@ -81,11 +81,12 @@ const OpenedSideBarHoverStateIcons = ({
 	activeSubModule,
 	setActiveSubModule,
 	handleSubModuleClick,
+	setShowNotificationsDrawer,
+	setShowChatsDrawer,
 }) => {
 	const location = useLocation();
 	const [isHover, setisHover] = useState(false);
-	const [showNotificationsDrawer, setShowNotificationsDrawer] = useState(false);
-	const [showChatsDrawer, setShowChatsDrawer] = useState(false);
+
 	const onMoutseEnter = () => {
 		if (isActive) return;
 		setisHover(true);
@@ -97,33 +98,32 @@ const OpenedSideBarHoverStateIcons = ({
 
 	const redirectToFunction = (subModules, route, name) => {
 		if (name === 'Notifications') {
-			setShowNotificationsDrawer(!showNotificationsDrawer);
+			setShowNotificationsDrawer((prev) => !prev);
 			return;
 		} else {
-			if (showNotificationsDrawer) {
-				setShowNotificationsDrawer(false);
-			}
-		}
-		if (name === 'Chats') {
-			setShowChatsDrawer(!showChatsDrawer);
+			setShowNotificationsDrawer((prev) => !prev);
 			return;
 		}
+		// if (name === 'Chats') {
+		// 	setShowChatsDrawer(!showChatsDrawer);
+		// 	return;
+		// }
 
-		if (!subModules) {
-			setActiveDropdown(null);
-			setActiveSubModule(null);
-			navigateTo(route);
-		} else {
-			//
-			onDropdownToggle();
-		}
-		if (showNotificationsDrawer) {
-			setShowNotificationsDrawer(false);
-		}
-		if (showChatsDrawer) {
-			setShowChatsDrawer(false);
-		}
-		if (!route) return;
+		// if (!subModules) {
+		// 	setActiveDropdown(null);
+		// 	setActiveSubModule(null);
+		// 	navigateTo(route);
+		// } else {
+		// 	//
+		// 	onDropdownToggle();
+		// }
+		// if (showNotificationsDrawer) {
+		// 	setShowNotificationsDrawer(false);
+		// }
+		// if (showChatsDrawer) {
+		// 	setShowChatsDrawer(false);
+		// }
+		// if (!route) return;
 	};
 
 	const isExactPathMatch = useCallback(() => {
@@ -226,11 +226,6 @@ const OpenedSideBarHoverStateIcons = ({
 					</div>
 				)}
 			</div>
-			<Notifications
-				showNotificationsDrawer={showNotificationsDrawer}
-				setShowNotificationsDrawer={setShowNotificationsDrawer}
-			/>
-			<Chats showChatsDrawer={showChatsDrawer} setShowChatsDrawer={setShowChatsDrawer} />
 		</div>
 	);
 };
@@ -321,6 +316,8 @@ const OpenedSideBarItemsComponent = ({
 	userWorkSpaceList,
 	isOpen,
 	setIsOpen,
+	setShowNotificationsDrawer,
+	setShowChatsDrawer,
 }) => {
 	const {
 		templates: { leftSidebarState, updateStateValues },
@@ -572,6 +569,10 @@ const OpenedSideBarItemsComponent = ({
 												activeSubModule={activeSubModule}
 												setActiveSubModule={setActiveSubModule}
 												handleSubModuleClick={handleSubModuleClick}
+												setShowChatsDrawer={setShowChatsDrawer}
+												setShowNotificationsDrawer={
+													setShowNotificationsDrawer
+												}
 											/>
 										</div>
 									))}
@@ -608,6 +609,10 @@ const OpenedSideBarItemsComponent = ({
 												activeSubModule={activeSubModule}
 												setActiveSubModule={setActiveSubModule}
 												handleSubModuleClick={handleSubModuleClick}
+												setShowChatsDrawer={setShowChatsDrawer}
+												setShowNotificationsDrawer={
+													setShowNotificationsDrawer
+												}
 											/>
 										</div>
 									))}
