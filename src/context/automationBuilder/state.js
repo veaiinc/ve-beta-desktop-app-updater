@@ -58,27 +58,59 @@ export const AutomationBuilderState = () => {
 		});
 	};
 
-	// const getConnectedIntegrations = async () => {
-	// 	try {
-	// 		const usertoken = localStorage.getItem('usertoken');
-	// 		const workspaceId = localStorage.getItem('workspaceId');
-	// 		const response = await restService.fetchGet(
-	// 			`/connect-account/${workspaceId}`,
-	// 			usertoken,
-	// 			'third_party_integrations_api',
-	// 		);
-	// 		if (response?.[0]) {
-	// 			dispatch({ type: Actions.SET_CONNECTED_INTEGRATIONS, payload: response?.[1] });
-	// 		}
-	// 	} catch (error) {
-	// 		console.log(error);
-	// 	}
-	// };
+	const addTrigger = async (automationId, payload) => {
+		try {
+			const usertoken = localStorage.getItem('usertoken');
+			const workspaceId = localStorage.getItem('workspaceId');
+			const response = await restService.fetchPost(
+				`/${workspaceId}/${automationId}/addTrigger`,
+				payload,
+				usertoken,
+				'automation_builder_api',
+			);
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.ADD_TRIGGER,
+					payload: response?.[1]?.newTrigger,
+				});
+			}
+		} catch (error) {
+			console.log('API failed ==> addTrigger', error);
+		}
+	};
+
+	const addStep = async (automationId, payload) => {
+		try {
+			const usertoken = localStorage.getItem('usertoken');
+			const workspaceId = localStorage.getItem('workspaceId');
+			const response = await restService.fetchPost(
+				`/${workspaceId}/${automationId}/addStep`,
+				payload,
+				usertoken,
+				'automation_builder_api',
+			);
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.ADD_STEP,
+					payload: response?.[1]?.newStep,
+				});
+			}
+		} catch (error) {
+			console.log('API failed ==> addStep', error);
+		}
+	};
+	const resetAutomationBuilderState = () => {
+		dispatch({ type: Actions.RESET_STATE });
+	};
+
 	return {
 		...state,
 		createAutomation,
 		getAutomation,
 		updateStateValues,
+		addTrigger,
+		addStep,
+		resetAutomationBuilderState,
 		// getConnectedIntegrations,
 	};
 };

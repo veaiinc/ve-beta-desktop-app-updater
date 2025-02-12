@@ -218,4 +218,157 @@
 			}
 		}
 	}
+
+	.step2Container {
+		padding: 24px;
+		display: flex;
+		flex-direction: column;
+		gap: 24px;
+		height: 100%;
+
+		.step2HeaderContainer {
+			display: flex;
+			flex-direction: column;
+			gap: 24px;
+			padding-bottom: 24px;
+			border-bottom: 1px solid #2c2d2e;
+
+			.triggerInfoContainer {
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+
+				.triggerInfo {
+					display: flex;
+					flex-direction: column;
+					gap: 4px;
+
+					.triggerInfoTitle {
+						color: #808080;
+						font-size: 12px;
+					}
+
+					.triggerInfoDescription {
+						color: #ffffff;
+						font-size: 14px;
+					}
+				}
+
+				.changeTriggerButton {
+					display: flex;
+					padding: 6px 8px;
+					align-items: center;
+					gap: 12px;
+					cursor: pointer;
+					border-radius: 6px;
+					background: #202123;
+					color: #f2f2f3;
+					font-family: Inter;
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+					border: none;
+					outline: none;
+
+					&:hover {
+						background: #2c2c2c;
+					}
+				}
+			}
+
+			.step2TitleDescriptionContainer {
+				display: flex;
+				flex-direction: column;
+				gap: 8px;
+
+				.step2InputTitle {
+					display: flex;
+					padding: 4px 0px;
+					flex-direction: column;
+					align-items: flex-start;
+					gap: 12px;
+					align-self: stretch;
+					color: #f2f2f3;
+					font-family: Inter;
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 600;
+					line-height: normal;
+					background-color: transparent;
+					border: none;
+					outline: none;
+				}
+
+				.step2InputDescription {
+					color: #f2f2f3;
+					font-family: Inter;
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 400;
+					line-height: normal;
+					background-color: transparent;
+					border: none;
+					outline: none;
+				}
+			}
+		}
+
+		.step2InputsContainer {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 12px;
+			align-self: stretch;
+
+			.step2InputsHeading {
+				color: #f2f2f3;
+				font-family: Inter;
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+
+			.step2InputItem {
+				display: flex;
+				flex-direction: column;
+				align-items: flex-start;
+				gap: 8px;
+				align-self: stretch;
+
+				.step2InputLabel {
+					color: #7a7e85;
+					font-family: Inter;
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+				}
+			}
+
+			.step2AddInputButton {
+				align-self: flex-end;
+				display: flex;
+				padding: 6px 8px;
+				align-items: center;
+				gap: 12px;
+				border-radius: 6px;
+				background: #202123;
+				color: #f2f2f3;
+				font-family: Inter;
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+				cursor: pointer;
+				border: none;
+				outline: none;
+
+				&:hover {
+					background: #2c2c2c;
+				}
+			}
+		}
+	}
 }
