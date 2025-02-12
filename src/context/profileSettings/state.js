@@ -12,6 +12,8 @@ export const intialState = {
 	qrcode: null,
 	set2factorSettings: null,
 	userWorkSpaceList: null,
+	defaultNotificationSettings: null,
+	updatedNotificationSettings: null,
 };
 export const ProfileState = () => {
 	const [state, dispatch] = useReducer(Reducer, intialState);
@@ -307,6 +309,45 @@ export const ProfileState = () => {
 		}
 	};
 
+	const getDefaultNotificationSettings = async () => {
+		try {
+			let userToken = localStorage.getItem('usertoken');
+			const response = await service.fetchGet(
+				'/defaultNotificationSettings',
+				userToken,
+				'tenant-users',
+			);
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.GET_DEFAULT_NOTIFICATION_SETTINGS,
+					payload: response?.[1],
+				});
+			}
+		} catch (error) {
+			console.log('error==>getDefaultNotificationSettings', error);
+		}
+	};
+
+	const updateDefaultNotificationSettings = async (payload) => {
+		try {
+			let userToken = localStorage.getItem('usertoken');
+			const response = await service.fetchPut(
+				'/notificationPreferences',
+				payload,
+				userToken,
+				'tenant-users',
+			);
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.UPDATE_NOTIFICATION_SETTINGS,
+					payload: response?.[1],
+				});
+			}
+		} catch (error) {
+			console.log('error==>updateDefaultNotificationSettings', error);
+		}
+	};
+
 	const resetProfileSettingsState = async () => {
 		dispatch({ type: Actions.RESET_STATE });
 	};
@@ -334,5 +375,7 @@ export const ProfileState = () => {
 		updateCompanyDetailsState,
 		updateUserDetailsState,
 		updateProfileState,
+		getDefaultNotificationSettings,
+		updateDefaultNotificationSettings,
 	};
 };

@@ -61,6 +61,14 @@ const actionHandlers = {
 		...state,
 		...action.payload,
 	}),
+	GET_DEFAULT_NOTIFICATION_SETTINGS: (state, action) => ({
+		...state,
+		defaultNotificationSettings: action.payload,
+	}),
+	UPDATE_NOTIFICATION_SETTINGS: (state, action) => ({
+		...state,
+		updatedNotificationSettings: action.payload,
+	}),
 	RESET_STATE: () => ({ ...intialState }),
 };
 
