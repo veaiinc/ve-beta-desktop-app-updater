@@ -5,6 +5,8 @@ import WorkspaceHandleComponent from '../../components/settings/workspace/Worksp
 import TimeZoneCurrencyComponent from '../../components/settings/workspace/TimezoneCurrency';
 import DeleteWorkpsaceComponent from '../../components/settings/workspace/DeleteWorkspace';
 import { Tooltip } from 'antd';
+import ToolTipContainer from '../../components/popover/ToolTipContainer';
+import { ReactComponent as QuestionMark } from '../../../assets/svg/Settings/question_circle.svg';
 
 const SettingsWorkspace = () => {
 	// # Contexts
@@ -38,9 +40,47 @@ const SettingsWorkspace = () => {
 			</div>
 			<div className="brandVoiceContainer">
 				<h1 className="title">Brand Voice</h1>
-				<Tooltip title="Description">
-					<BrandVoiceDescription />
+				<Tooltip
+					placement="topRight"
+					trigger={'hover'}
+					title={
+						<ToolTipContainer
+							customContainerStyle={{
+								position: 'absolute',
+								left: '16px',
+								top: '-38px',
+								width: '352px',
+								display: 'flex',
+								padding: '10px',
+								justifyContent: 'center',
+								alignItems: 'center',
+								gap: '10px',
+								borderRadius: '12px',
+								background: '#F2F2F3',
+							}}
+							contentStyling={{
+								color: '#0E0F0F',
+								fontFamily: 'Inter',
+								fontSize: '12px',
+								fontStyle: 'normal',
+								fontWeight: '500',
+								lineHeight: 'normal',
+							}}
+							title={''}
+							content={
+								"The voice description defines the core characteristics of your brand's voice. This should be detailed and specific enough for someone unfamiliar with your brand to successfully emulate your voice."
+							}
+							removeClassName={true}
+						/>
+					}
+					arrow={true}
+					color={'transparent'}
+				>
+					<p className="description-tooltip">
+						Description <QuestionMark />
+					</p>
 				</Tooltip>
+				<div className="brandVoiceContent"></div>
 			</div>
 			<div className="settingsBoxContainer timezoneCurrencyComponent">
 				<TimeZoneCurrencyComponent overviewState={overviewState} />
@@ -55,15 +95,3 @@ const SettingsWorkspace = () => {
 };
 
 export default memo(SettingsWorkspace);
-
-const BrandVoiceDescription = memo(() => {
-	return (
-		<div className="brandVoiceDescription">
-			<p className="description">
-				The voice description defines the core characteristics of your brand's voice. This
-				should be detailed and specific enough for someone unfamiliar with your brand to
-				successfully emulate your voice.
-			</p>
-		</div>
-	);
-});
