@@ -45,10 +45,6 @@ const HomePage = ({ getSelectedOption, start }) => {
 		`${userDetailsData?.firstName} ${userDetailsData?.lastName}` ??
 		'User';
 
-	useEffect(() => {
-		if (!tabItemCount) getTabItemCount();
-	}, []);
-
 	const [info, setInfo] = useState({
 		activeTab: start ? 'start' : searchParams?.get('tab') ?? 'dashboard',
 		showPromptPopup: false,
@@ -62,6 +58,10 @@ const HomePage = ({ getSelectedOption, start }) => {
 		openCreateLeadModal: false,
 		selectedOptionInPriorityTab: 'all',
 	});
+
+	useEffect(() => {
+		if (!tabItemCount) getTabItemCount();
+	}, []);
 
 	const filteredPromptData = PromptData?.filter((prompt) => {
 		const filter = info?.selectedOptionInStart?.toLowerCase();
