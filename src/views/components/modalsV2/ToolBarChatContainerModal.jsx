@@ -147,76 +147,80 @@ const ToolBarChatContainerModal = ({
 								</div>
 							</div>
 
-							{uploadedImages?.length ? (
-								<div className="imagePreviewBar">
-									{uploadedImages?.map((ele, index) => (
-										<div className="previewOfUploadedImage" key={index}>
-											<img
-												src={ele?.preview}
-												alt="uploaded"
-												width={'100%'}
-												height={'100%'}
-												style={{ objectFit: 'cover', borderRadius: '12px' }}
-												onClick={() => handlePreview(ele)}
-											/>
+							<div className="chatInputContainer">
+								{uploadedImages?.length ? (
+									<div className="imagePreviewBar">
+										{uploadedImages?.map((ele, index) => (
+											<div className="previewOfUploadedImage" key={index}>
+												<img
+													src={ele?.preview}
+													alt="uploaded"
+													width={'100%'}
+													height={'100%'}
+													style={{
+														objectFit: 'cover',
+														borderRadius: '12px',
+													}}
+													onClick={() => handlePreview(ele)}
+												/>
 
-											{ele?.loading ? (
-												<div className="spinContainerLoaderForPreview">
-													<Spin />
-												</div>
-											) : (
-												<span
-													className="removeImageIcon"
-													onClick={() => handleRemoveImage(ele)}
-												>
-													<Close />
-												</span>
-											)}
-										</div>
-									))}
-								</div>
-							) : (
-								''
-							)}
-
-							{/* //message Container */}
-							<div className={`toolBarExpandedChatInputParentContainer`}>
-								<textarea
-									type="text"
-									placeholder="Hey! Need help? Ask me anything."
-									value={chatQuery}
-									onChange={onChange}
-									onKeyDown={onKeyDown}
-									className="toolBarExpandedTextArea"
-									// rows={1}
-								/>
-								{/* <SendSvg
+												{ele?.loading ? (
+													<div className="spinContainerLoaderForPreview">
+														<Spin />
+													</div>
+												) : (
+													<span
+														className="removeImageIcon"
+														onClick={() => handleRemoveImage(ele)}
+													>
+														<Close />
+													</span>
+												)}
+											</div>
+										))}
+									</div>
+								) : (
+									''
+								)}
+								{/* //message Container */}
+								<div className={`toolBarExpandedChatInputParentContainer`}>
+									<textarea
+										type="text"
+										placeholder="Hey! Need help? Ask me anything."
+										value={chatQuery}
+										onChange={onChange}
+										onKeyDown={onKeyDown}
+										className="toolBarExpandedTextArea"
+										// rows={1}
+									/>
+									{/* <SendSvg
 						style={{
 							cursor: aiChatLoading ? 'not-allowed' : 'pointer',
 							opacity: aiChatLoading ? 0.5 : 1,
 						}}
 						onClick={() => !aiChatLoading && onKeyDown(null, 'key')}
 					/> */}
-								<div className="buttons-container">
-									<div className="chat-icons-container">
-										{chatIcons?.map((icon, idx) => (
-											<span key={idx} className="chat-icon">
-												{icon}
-											</span>
-										))}
-									</div>
-									<div
-										className="click-btn"
-										onClick={(e) => onClick(e)}
-										style={{
-											backgroundColor: `${
-												chatQuery?.trim()?.length > 0
-													? '#b2a1e8'
-													: '#2e2f33'
-											}`,
-										}}
-									>
-										<ArrowUp />
+									<div className="buttons-container">
+										<div className="chat-icons-container">
+											{chatIcons?.map((icon, idx) => (
+												<span key={idx} className="chat-icon">
+													{icon}
+												</span>
+											))}
+										</div>
+										<div
+											className="click-btn"
+											onClick={(e) => onClick(e)}
+											style={{
+												backgroundColor: `${
+													chatQuery?.trim()?.length > 0
+														? '#b2a1e8'
+														: '#2e2f33'
+												}`,
+											}}
+										>
+											<ArrowUp />
+										</div>
 									</div>
 								</div>
 							</div>
