@@ -9,7 +9,6 @@ import HomePageStart from '../../components/homePage/HomePageStart';
 import { PromptData } from '../../components/homePage/PromptData';
 import Context from '../../../context/context';
 import QuickActions from '../../components/globalComponents/QuickActions';
-import PriorityDropDown from '../../components/homePage/dashboard/PriorityDropDown';
 import jwtDecode from 'jwt-decode';
 
 const topNavOptions = [
