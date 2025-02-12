@@ -1,4 +1,12 @@
-/* Set maximum width and height for BlockNote */
+.bn-container[data-color-scheme] {
+	--bn-colors-editor-text: #e4e4e4; /* Set your desired text color */
+	--bn-colors-placeholder-text: #888888;
+	--bn-colors-tooltip-text: #e4e4e4;
+	--bn-colors-tooltip-background: #1e1e1e;
+	--bn-colors-menu-text: #e4e4e4;
+	--bn-colors-menu-background: #1e1e1e;
+	/* Add any other variables you wish to override */
+}
 
 .notes-container {
 	display: flex;
@@ -12,6 +20,14 @@
 	padding-bottom: 40px;
 	overflow-y: auto;
 
+	.bn-container {
+		width: 100% !important;
+	}
+
+	.bn-editor-content {
+		width: 100% !important;
+	}
+
 	.bn-editor {
 		width: 900px;
 		max-width: 90%;
@@ -20,14 +36,6 @@
 		text-align: left;
 		background-color: #1e1e1e;
 		border-radius: 8px;
-	}
-
-	/* Custom Placeholder Styles */
-	.bn-placeholder {
-		font-size: 2rem; /* Make it as big as an H1 */
-		font-weight: bold;
-		color: #888; /* Light gray color */
-		text-align: center; /* Center the text */
-		font-family: 'Inter', sans-serif;
+		margin: 0 auto;
 	}
 }

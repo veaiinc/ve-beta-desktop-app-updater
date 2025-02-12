@@ -42,6 +42,7 @@ import HomePage from './views/features/home_page/HomePage';
 import AiAssistants from './views/features/ai_assistant/index';
 import EditAgent from './views/features/ai_assistant/EditAgent';
 import AgentDetails from './views/features/ai_assistant/AgentDetails';
+import Chat from './views/features/chat/Chat';
 const routes = [
 	{
 		path: '/',
@@ -289,7 +290,7 @@ const routes = [
 		component: (
 			<AuthWrapper
 				title={'Notes'}
-				outerContainerStyle={{ padding: '0 32px', backgroundColor: '#1e1e1e' }}
+				outerContainerStyle={{ padding: '0 0 0 32px', backgroundColor: '#1e1e1e' }}
 				maxWidth={'100%'}
 			>
 				<Notes />
@@ -398,6 +399,14 @@ const routes = [
 			</AuthWrapper>
 		),
 		exact: true,
+	},
+	{
+		path: '/chat',
+		component: (
+			<AuthWrapper title={'Chat'} showBottomToolbar={false}>
+				<Chat />
+			</AuthWrapper>
+		),
 	},
 ];
 
