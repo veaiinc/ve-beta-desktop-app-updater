@@ -6,10 +6,10 @@ import { PromptData } from '../../components/homePage/PromptData';
 import HomePage from './HomePage';
 
 const initialHomePageOptions = [
-	{ id: 1, title: 'All Prompts', type: 'all' },
-	{ id: 2, title: 'Sales', type: 'sales' },
-	{ id: 3, title: 'Marketing', type: 'marketing' },
-	{ id: 4, title: 'Operations', type: 'operations' },
+	{ id: 1, title: 'All Prompts', type: 'All' },
+	{ id: 2, title: 'Sales', type: 'Sales' },
+	{ id: 3, title: 'Marketing', type: 'Marketing' },
+	{ id: 4, title: 'Operations', type: 'Operations' },
 ];
 
 const navBarOptions = [
@@ -22,7 +22,9 @@ const navBarOptions = [
 const InitialHomePage = () => {
 	const [isStart, setIsStart] = useState(true);
 	const [selectedOption, setSelectedOption] = useState(null);
-	const [selectedNavBarOption, setSelectedNavBarOption] = useState(navBarOptions[0]);
+	const [selectedNavBarOption, setSelectedNavBarOption] = useState(null);
+	const [dashboardSelected, setDashboardSelected] = useState(false);
+
 	let {
 		profileInfo: { userDetailsData },
 	} = useContext(Context);
@@ -31,9 +33,28 @@ const InitialHomePage = () => {
 		`${userDetailsData?.firstName} ${userDetailsData?.lastName}` ??
 		'User';
 
+	const handleNavBarSelection = (item) => {
+		setSelectedNavBarOption(item);
+		if (item?.type === 'start') {
+			setIsStart(true);
+			setDashboardSelected(true);
+			setSelectedOption('All');
+			return;
+		}
+		if (item?.type === 'dashboard') {
+			// dashboard logic here...
+			setDashboardSelected(true);
+		}
+		if (item?.type === 'agent47') {
+		}
+		if (item?.type === 'managerAI') {
+		}
+		setIsStart(false);
+	};
+
 	return (
 		<>
-			{selectedOption ? (
+			{selectedOption || dashboardSelected ? (
 				<div>
 					<HomePage getSelectedOption={selectedOption} start={isStart} />
 				</div>
@@ -41,7 +62,7 @@ const InitialHomePage = () => {
 				<div className="initialHomePageContainer">
 					<div className="initialHomeContainerFixedContent">
 						<div className="initialHomeContainerFixedContent-item-container">
-							{navBarOptions.map((item, index) => {
+							{navBarOptions?.map((item, index) => {
 								return (
 									<>
 										<div
@@ -50,10 +71,7 @@ const InitialHomePage = () => {
 													? 'active'
 													: ''
 											}`}
-											onClick={() => {
-												setSelectedNavBarOption(item);
-												setIsStart(item?.type === 'start');
-											}}
+											onClick={() => handleNavBarSelection(item)}
 										>
 											{item?.title}
 										</div>
@@ -75,9 +93,9 @@ const InitialHomePage = () => {
 								return (
 									<div
 										className="initialHomePageContainerOptions-item"
-										onClick={() => setSelectedOption(item?.title)}
+										onClick={() => setSelectedOption(item?.type)}
 									>
-										{item.title}
+										{item?.title}
 									</div>
 								);
 							})}
@@ -85,7 +103,7 @@ const InitialHomePage = () => {
 					</div>
 					<div className="initialHomePageContainer-prompts">
 						<div className="initialHomePageContainerCards">
-							{PromptData.map((item) => {
+							{PromptData?.map((item) => {
 								return (
 									<div className="initialHomepageEachCard">
 										<div className="initialHomepageEachCard-type">
@@ -93,11 +111,11 @@ const InitialHomePage = () => {
 												Workflows for
 											</div>
 											<div className="initialHomepageEachCard-type-type">
-												{item.dept}
+												{item?.dept}
 											</div>
 										</div>
 										<div className="initialHomepageEachCard-title">
-											{item.title}
+											{item?.title}
 										</div>
 									</div>
 								);
