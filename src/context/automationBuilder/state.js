@@ -97,9 +97,12 @@ export const AutomationBuilderState = () => {
 					type: Actions.ADD_STEP,
 					payload: response?.[1]?.newStep,
 				});
+				return [true, response?.[1]?.newStep];
 			}
+			return [false, response?.[1]?.message];
 		} catch (error) {
 			console.log('API failed ==> addStep', error);
+			return [false, null];
 		}
 	};
 

@@ -105,10 +105,10 @@ const AddNodesPopUp = ({ onAddOptionsClick }) => {
 				<IfElse />
 				<span>Condition</span>
 			</div>
-			<div className="addNodesTypeCategories" onClick={() => onAddOptionsClick('pipeline')}>
+			{/* <div className="addNodesTypeCategories" onClick={() => onAddOptionsClick('pipeline')}>
 				<Pipeline />
 				<span>Move Pipeline</span>
-			</div>
+			</div> */}
 		</div>
 	);
 };

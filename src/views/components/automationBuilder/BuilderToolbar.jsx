@@ -16,6 +16,7 @@ const BuilderToolbar = ({
 	editMode,
 	refetchWorkflowBuilderData,
 	automationId,
+	step,
 }) => {
 	const {
 		templates: { getAllSlackChannels },
@@ -57,6 +58,7 @@ const BuilderToolbar = ({
 					automationId={automationId}
 					slackConnected={info?.slackConnected}
 					googleConnected={info?.googleConnected}
+					step={step}
 				/>
 			),
 			actions: (
@@ -89,12 +91,13 @@ const BuilderToolbar = ({
 					activeStepsData={activeStepsData}
 					editMode={editMode}
 					refetchWorkflowBuilderData={refetchWorkflowBuilderData}
+					automationId={automationId}
 				/>
 			),
 			pipeline: <Actions onCLose={onCLose} activeEdge={activeEdge} templateId={templateId} />,
 			trigger: <Actions onCLose={onCLose} activeEdge={activeEdge} templateId={templateId} />,
 		};
-	}, [sidebarType, onCLose, info?.slackConnected, info?.googleConnected]);
+	}, [sidebarType, onCLose, info?.slackConnected, info?.googleConnected, step]);
 
 	return (
 		<Drawer

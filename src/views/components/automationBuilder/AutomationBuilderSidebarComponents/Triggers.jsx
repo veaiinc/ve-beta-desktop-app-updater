@@ -58,6 +58,7 @@ const Triggers = ({
 	refetchWorkflowBuilderData,
 	slackConnected,
 	googleConnected,
+	step,
 }) => {
 	const {
 		templates: { addNewSteps, updateStateValues, specificTemplatesInfo, updateSteps },
@@ -67,10 +68,14 @@ const Triggers = ({
 		search: '',
 		list: Object.values(actionsList),
 		searchChanged: false,
-		activeStage: 'stage1', //stage1, stage2, stage3
+		activeStage: `stage${step || 1}`, //stage1, stage2, stage3
 		saveLoader: false,
 		connectedIntegrations,
 	});
+
+	useEffect(() => {
+		setInfo((prev) => ({ ...prev, activeStage: `stage${step || 1}` }));
+	}, [step]);
 
 	useEffect(() => {
 		if (info?.searchChanged) {

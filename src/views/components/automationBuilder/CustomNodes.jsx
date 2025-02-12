@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Handle, Position } from '@xyflow/react';
 import '../../../assets/scss/automation_builder/customNodes.scss';
 import { ReactComponent as Form } from '../../../assets/svg/worflow_builder/customNodes/form.svg';
@@ -27,6 +27,17 @@ const actionTypeIconMapper = {
 	slack: <Slack />,
 	createTask: <Action />,
 	createMeeting: <Action />,
+	gmail: <Google />,
+};
+
+const eventTypeMapper = {
+	messageReceived: 'Message Received',
+	sendMessage: 'Send Message',
+};
+
+const appNameMapper = {
+	gmail: 'Gmail',
+	slack: 'Slack',
 };
 
 export const StartStepNode = ({ data }) => {
@@ -47,9 +58,10 @@ export const StartStepNode = ({ data }) => {
 export const TriggerNode = ({ data }) => {
 	const onAddOptionsClick = useCallback(() => {
 		if (data?.onToolBarOpen) {
-			data.onToolBarOpen({ toolBarOpen: true, sidebarType: 'trigger' });
+			data.onToolBarOpen({ toolBarOpen: true, sidebarType: 'triggers', step: '2' });
 		}
 	}, []);
+
 	return (
 		<div className="custom-node trigger-node" onClick={onAddOptionsClick}>
 			<div className="trigger-extra-div">
@@ -57,19 +69,30 @@ export const TriggerNode = ({ data }) => {
 				<span>Trigger</span>
 			</div>
 			<div className="triggerNodeContentContainer">
-				<div className="triggerIconContainer">{data?.icon}</div>
+				<div className="triggerIconContainer">
+					{actionTypeIconMapper[data?.currentStep?.app]}
+				</div>
 
 				<div className="triggerAcutalContentContainer">
 					<div className="triggerUpperContent">
-						<span className="triggerUpperContentTitle">data?.action</span>
-						<span className="triggerUpperContentSubtitle">data?.integration</span>
+						<span className="triggerUpperContentTitle">
+							{eventTypeMapper?.[data?.currentStep?.event] ??
+								data?.currentStep?.event}
+						</span>
+						<span className="triggerUpperContentSubtitle">
+							{appNameMapper?.[data?.currentStep?.app] ?? data?.currentStep?.app}
+						</span>
 					</div>
 					<div
-						className="triggerUpperContent"
+						className="triggerBottomContent"
 						style={{ paddingBottom: 0, borderBottom: 'none' }}
 					>
-						<span className="triggerUpperContentTitle">Title goes here </span>
-						<span className="triggerUpperContentSubtitle">description goes here</span>
+						<span className="triggerBottomContentTitle">
+							{data?.currentStep?.title}
+						</span>
+						<span className="triggerBottomContentSubtitle">
+							{data?.currentStep?.description}
+						</span>
 					</div>
 				</div>
 			</div>
@@ -102,6 +125,10 @@ export const ActionNode = ({ data }) => {
 		}
 	}, [data]);
 
+	useEffect(() => {
+		console.log('data?.currentStep', data?.currentStep);
+	}, [data]);
+
 	return (
 		<Tooltip
 			placement="right"
@@ -114,14 +141,15 @@ export const ActionNode = ({ data }) => {
 					<span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
 						{
 							actionTypeIconMapper[
-								data?.currentStep?.channels?.[0] || data?.currentStep?.actionType
+								data?.currentStep?.channels?.[0] || data?.currentStep?.app
 							]
 						}
-						Actions
+						{eventTypeMapper?.[data?.currentStep?.criteria?.event] ??
+							data?.currentStep?.criteria?.event}
 					</span>
 					<span>
-						{actionTypeMapper[
-							data?.currentStep?.channels?.[0] || data?.currentStep?.actionType
+						{appNameMapper[
+							data?.currentStep?.channels?.[0] || data?.currentStep?.app
 						] || 'Email'}
 					</span>
 				</div>

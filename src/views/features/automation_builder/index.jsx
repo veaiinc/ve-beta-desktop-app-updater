@@ -81,6 +81,7 @@ const AutomationBuilder = () => {
 		activeEdge: null,
 		activeStepsData: null,
 		editMode: false,
+		step: '1',
 	});
 
 	const [nodes, setNodes, onNodesChange] = useNodesState([
@@ -112,31 +113,13 @@ const AutomationBuilder = () => {
 	}, []);
 
 	useEffect(() => {
-		setInfo((prev) => ({ ...prev, loading: false }));
-
 		if (specificAutomationInfo) {
 			if (specificAutomationInfo?.steps?.length) {
 				const incomingData = specificAutomationInfo;
 				const steps = [...(incomingData?.steps || [])];
 				getNodesAndEdges(steps);
-			} else {
-				// setNodes([
-				// 	{
-				// 		id: '1',
-				// 		position: { x: 250, y: 0 },
-				// 		type: 'start-step',
-				// 		data: {
-				// 			onToolBarOpen: handleToolBarOpen,
-				// 			automationId: automationId,
-				// 			refetchWorkflowBuilderData: refetchWorkflowBuilderData,
-				// 			integration: 'Google',
-				// 			action: '',
-				// 			stepTitle: 'Example title',
-				// 			stepDescription: 'Example description',
-				// 		},
-				// 	},
-				// ]);
 			}
+			setInfo((prev) => ({ ...prev, loading: false }));
 		}
 	}, [specificAutomationInfo]);
 
@@ -359,10 +342,9 @@ const AutomationBuilder = () => {
 		}));
 	}, []);
 
-	const handleToolBarOpen = useCallback(
-		(obj = {}) => setInfo((prev) => ({ ...prev, ...obj })),
-		[],
-	);
+	const handleToolBarOpen = useCallback((obj = {}) => {
+		setInfo((prev) => ({ ...prev, ...obj }));
+	}, []);
 
 	const publishWorkflow = useCallback(async () => {
 		if (info?.publishLoading) {
@@ -486,6 +468,7 @@ const AutomationBuilder = () => {
 							activeStepsData={info?.activeStepsData}
 							editMode={info?.editMode}
 							refetchWorkflowBuilderData={refetchWorkflowBuilderData}
+							step={info?.step}
 						/>
 					</div>
 				</div>

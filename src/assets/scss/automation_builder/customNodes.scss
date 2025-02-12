@@ -80,12 +80,37 @@
 					line-height: normal;
 				}
 				.triggerUpperContentSubtitle {
-					color: #797e86;
-					color: color(display-p3 0.4784 0.4941 0.5216);
+					color: #f2f2f3;
 					font-family: Inter;
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 500;
+					line-height: normal;
+				}
+			}
+
+			.triggerBottomContent {
+				display: flex;
+				flex-direction: column;
+				align-items: flex-start;
+				gap: 2px;
+				align-self: stretch;
+
+				.triggerBottomContentTitle {
+					color: #f2f2f3;
+					font-family: Inter;
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+				}
+
+				.triggerBottomContentSubtitle {
+					color: #7a7e85;
+					font-family: Inter;
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 400;
 					line-height: normal;
 				}
 			}

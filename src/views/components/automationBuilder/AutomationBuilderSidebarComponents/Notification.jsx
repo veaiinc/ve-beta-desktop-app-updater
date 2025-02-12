@@ -20,7 +20,8 @@ import {
 	dropDownStyle,
 	dropDownTextStyling,
 	selectedValueStyling,
-} from '../../../features/workflow_builder/workflowContantsHelpers';
+} from '../../../features/automation_builder/automationContentsHelper';
+import validator from 'validator';
 
 const notificationList = {
 	Google: { title: 'Google', notification: ['Send Email'], icon: <Google />, id: 'email' },
@@ -51,6 +52,11 @@ const initialState = {
 	title: '',
 	selectedSlackChannelId: null,
 	slackChannelsOptions: null,
+	googleAccountOptions: [],
+	selectedGoogleAccount: null,
+	recipientEmail: '',
+	stepTitle: '',
+	stepDescription: '',
 };
 const Notification = ({
 	onCLose,
@@ -61,6 +67,7 @@ const Notification = ({
 	editMode,
 	activeStepsData,
 	refetchWorkflowBuilderData,
+	automationId,
 }) => {
 	const {
 		templates: {
@@ -75,6 +82,7 @@ const Notification = ({
 			getSpecificWorkflowTemplateDetails,
 			updateSteps,
 		},
+		automationBuilder: { connectedIntegrations, addTrigger, getAutomation, addStep },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({ ...initialState });
@@ -84,6 +92,22 @@ const Notification = ({
 			handleDebouce();
 		}
 	}, [info?.searchChanged, info?.search]);
+
+	useEffect(() => {
+		if (connectedIntegrations?.google) {
+			setInfo((prev) => ({
+				...prev,
+				googleAccountOptions: connectedIntegrations?.google?.map((account) => ({
+					label: account?.email,
+					value: account?.email,
+				})),
+				selectedGoogleAccount: {
+					label: connectedIntegrations?.google?.[0]?.email,
+					value: connectedIntegrations?.google?.[0]?.email,
+				},
+			}));
+		}
+	}, [connectedIntegrations]);
 
 	useEffect(() => {
 		if (editMode && activeStepsData) {
@@ -444,6 +468,84 @@ const Notification = ({
 		},
 		[info?.selectedChannel],
 	);
+
+	const addNewStep = useCallback(
+		async (type = 'sendMessage') => {
+			if (info?.saveLoader) {
+				return;
+			}
+			if (!info?.stepTitle?.trim()?.length) {
+				return message.error('Title is mandatory');
+			}
+			if (!info?.stepDescription?.trim()?.length) {
+				return message.error('Description is mandatory');
+			}
+			if (!info?.recipientEmail?.trim()?.length) {
+				return message.error('Recipient email is mandatory');
+			}
+			if (!validator.isEmail(info?.recipientEmail?.trim())) {
+				return message.error('Please enter a valid recipient email address');
+			}
+			if (!info?.selectedGoogleAccount?.value?.trim()?.length) {
+				return message.error('Google account is mandatory');
+			}
+			if (!info?.selectedTemplate?._id?.trim()?.length) {
+				return message.error('Email template is mandatory');
+			}
+			setInfo((prev) => ({ ...prev, saveLoader: true }));
+
+			const previousStepId = activeEdge?.split('-')?.[0];
+			const payload = {
+				title: info?.stepTitle,
+				description: info?.stepDescription,
+				type: 'action',
+				app: 'gmail',
+				isEnabled: true,
+				previousStepId: previousStepId,
+			};
+
+			if (type === 'sendMessage') {
+				payload.gmail = {
+					action: 'sendMessage',
+					emailTemplateTitle: info?.selectedTemplate?.title,
+					toEmail: info?.recipientEmail?.trim(),
+					connectedEmail: info?.selectedGoogleAccount?.value,
+					htmlBody: info?.selectedTemplate?.htmlBody,
+					emailTemplateSubject: info?.selectedTemplate?.subject,
+					emailTemplateId: info?.selectedTemplate?._id,
+				};
+			}
+			const response = await addStep(automationId, payload);
+
+			if (response?.[0]) {
+				await getAutomation(automationId);
+			} else {
+				message.error(response?.[1]?.message || 'Failed to add step');
+			}
+
+			setInfo((prev) => ({ ...prev, saveLoader: false }));
+		},
+		[
+			info?.saveLoader,
+			info?.stepTitle,
+			info?.stepDescription,
+			info?.recipientEmail,
+			info?.selectedGoogleAccount?.value,
+			info?.selectedTemplate?._id,
+			info?.selectedTemplate?.title,
+			info?.selectedTemplate?.htmlBody,
+			info?.selectedTemplate?.subject,
+			activeEdge,
+			addStep,
+			automationId,
+			getAutomation,
+		],
+	);
+
+	const handelUpdateState = useCallback((data) => {
+		setInfo((prev) => ({ ...prev, ...data }));
+	}, []);
+
 	const stageMapper = useMemo(() => {
 		return {
 			stage1: (
@@ -467,6 +569,13 @@ const Notification = ({
 					editMode={editMode}
 					activeStepsData={activeStepsData}
 					editNotificationNode={editNotificationNode}
+					addNewStep={addNewStep}
+					googleAccountOptions={info?.googleAccountOptions}
+					selectedGoogleAccount={info?.selectedGoogleAccount}
+					stepTitle={info?.stepTitle}
+					stepDescription={info?.stepDescription}
+					recipientEmail={info?.recipientEmail}
+					handleUpdateState={handelUpdateState}
 				/>
 			),
 			stage3: (
@@ -501,7 +610,27 @@ const Notification = ({
 				/>
 			),
 		};
-	}, [info, handleSearch]);
+	}, [
+		info,
+		changeStage,
+		slackConnected,
+		googleConnected,
+		togglePreviewAndEditModal,
+		changeSubjectOrEmailBody,
+		createNewNotificationNode,
+		handleEmailTitleChange,
+		editMode,
+		activeStepsData,
+		editNotificationNode,
+		addNewStep,
+		handelUpdateState,
+		handleSelectEmailTemplate,
+		handleSelectedSmartFileTemplate,
+		fetchMoreMyWorkflows,
+		onChangeSlackChannels,
+		createNewNotificationSlackNode,
+		editNotificationSlackNode,
+	]);
 
 	return (
 		<div className="actionSidebarComponents">
@@ -608,19 +737,27 @@ const Stage2 = ({
 	editMode,
 	activeStepsData,
 	editNotificationNode,
+	addNewStep,
+	googleAccountOptions,
+	selectedGoogleAccount,
+	recipientEmail,
+	stepTitle,
+	stepDescription,
+	handleUpdateState,
 }) => {
 	const modifiedHandleClick = useCallback(() => {
-		if (!info?.title?.length) {
-			return message.error('title is mandatory');
-		}
-		if (!info?.selectedTemplate) {
-			return message.error('email Template Selections is mandatory');
-		}
+		// if (!info?.title?.length) {
+		// 	return message.error('title is mandatory');
+		// }
+		// if (!info?.selectedTemplate) {
+		// 	return message.error('email Template Selections is mandatory');
+		// }
 
-		if (editMode) {
-			return editNotificationNode();
-		}
-		createNewNotificationNode();
+		// if (editMode) {
+		// 	return editNotificationNode();
+		// }
+
+		addNewStep();
 	}, [info]);
 
 	return (
@@ -643,16 +780,118 @@ const Stage2 = ({
 
 				{/* //task title */}
 				<div className="addTaskTitleContainer">
-					<span className="addTaskTitleTextStyle">Add Email Title</span>
-					<textarea
-						className="addTaskTitleTextArea"
-						placeholder="Add Email description..."
-						value={info?.title}
-						onChange={handleEmailTitleChange}
+					<input
+						type="text"
+						name=""
+						id=""
+						className="stepTitleInput"
+						placeholder="Add step title"
+						value={stepTitle}
+						onChange={(e) => handleUpdateState({ stepTitle: e.target.value })}
+					/>
+					<input
+						type="text"
+						name=""
+						id=""
+						className="stepDescriptionInput"
+						placeholder="Add step description..."
+						value={stepDescription}
+						onChange={(e) => handleUpdateState({ stepDescription: e.target.value })}
 					/>
 				</div>
 
-				<div className="chooseEmailTemplateContainer">
+				<div className="notificationInputsContainer">
+					<h2 className="notificationInputsTitle">Inputs</h2>
+					<div className="notificationInputItem">
+						<span className="notificationInputTitle">Google Account</span>
+						<HeadersDropDownComp
+							options={googleAccountOptions}
+							selectedValue={selectedGoogleAccount?.label}
+							onChangeFunc={(option) =>
+								handleUpdateState({ selectedGoogleAccount: option })
+							}
+							showIcon={false}
+							containerStyle={{
+								...containerStyle,
+								background: '#1C1C1C',
+								border: '1px solid #2C2D2E',
+								borderRadius: '12px',
+								height: '40px',
+							}}
+							outerContainerStyle={{ width: '100%' }}
+							dropDownStyle={{
+								...dropDownStyle,
+								background: '#1C1C1C',
+								border: '1px solid #2C2C2C',
+							}}
+							dropDownTextStyling={{
+								...dropDownTextStyling,
+								color: '#FFFFFF',
+							}}
+							showSelectedValueTick={true}
+							uniqueIdentifierForTickIcon={'value'}
+							selectedValueObj={selectedGoogleAccount}
+							selectedValueStyle={{
+								...selectedValueStyling,
+								color: '#FFFFFF',
+							}}
+						/>
+					</div>
+					<div className="notificationInputItem">
+						<span className="notificationInputTitle">
+							Recipient email<sup>*</sup>
+						</span>
+						<div className="inputContainer">
+							<input
+								className="input"
+								placeholder="Select an option or type here"
+								value={recipientEmail}
+								onChange={(e) =>
+									handleUpdateState({ recipientEmail: e.target.value })
+								}
+							/>
+							<div className="inputBottomSection">Insert variable</div>
+						</div>
+						<div className="inputButtonWrapper">
+							<button className="sidebarButton">CC</button>
+							<button className="sidebarButton">BCC</button>
+						</div>
+					</div>
+
+					<div className="notificationInputItem">
+						{!selectedTemplate ? (
+							<div
+								className="chooseEmailTemplateButton"
+								onClick={() => changeStage({ activeStage: 'stage3' })}
+							>
+								Choose from Template
+							</div>
+						) : (
+							<div className="editEmailTemplateContainer">
+								<span className="emailTemplateSubTitle">Email Template</span>
+								<div
+									className="editSelectedTemplateOptions"
+									onClick={togglePreviewAndEditModal}
+								>
+									<span>{selectedTemplate?.title}</span>
+									<div className="editSelectedEmailOptionContainer">
+										Email Template <Edit />
+									</div>
+								</div>
+								<div className="emailTemplateActionContainer">
+									<button
+										className="sidebarButton"
+										onClick={() => changeStage({ activeStage: 'stage3' })}
+									>
+										Change
+									</button>
+								</div>
+							</div>
+						)}
+					</div>
+				</div>
+
+				{/* <div className="chooseEmailTemplateContainer">
 					<span className="chooseEmailTemplateLabel">Select Email Template</span>
 					{!selectedTemplate ? (
 						<div
@@ -683,7 +922,7 @@ const Stage2 = ({
 							</div>
 						</div>
 					)}
-				</div>
+				</div> */}
 
 				<div className="includeSendSmartFileSectionsContainer">
 					<div className="includeSendSmartFileSections">
