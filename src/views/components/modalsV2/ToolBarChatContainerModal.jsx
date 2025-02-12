@@ -17,8 +17,6 @@ import { Markdown, TypingEffect } from '../../../helpers/markdownHelper';
 import Upload from 'antd/es/upload/Upload';
 import { useMemo } from 'react';
 import NoteComponentModal from '../notes/NoteComponentModal';
-
-import Context from '../../../context/context';
 import CitationsModal from './chat/CitationsModal';
 
 const ToolBarChatContainerModal = ({
@@ -28,48 +26,18 @@ const ToolBarChatContainerModal = ({
 	onChange,
 	onKeyDown,
 	chatQuery,
-	aiChatLoading,
-	isChatExpanded,
-	showFullPage,
-	toggleFullPage,
 	onImageUpload,
 	uploadedImages,
 	handlePreview,
 	handleRemoveImage,
 	onClick,
 }) => {
-	const [isExpanded, setIsExpanded] = useState(isChatExpanded || true);
 	const [info, setInfo] = useState({
-		width: isExpanded ? '100%' : '400px',
 		noteModalIsOpen: false,
 		citationsModalIsOpen: false,
 	});
 
-	const {
-		documentPreview: { setNoteContent },
-	} = useContext(Context);
-
 	const chatContentRef = useRef(null);
-
-	// const width = isExpanded ? (showFullPage ? '100%' : 'calc(100% - 245px)') : '400px';
-
-	// Add this useEffect for auto-scrolling
-
-	useEffect(() => {
-		if (showFullPage) {
-			setInfo((prev) => ({
-				...prev,
-				width: '100%',
-				// isExpanded: true,
-			}));
-			setIsExpanded(true);
-		} else {
-			setInfo((prev) => ({
-				...prev,
-				width: isExpanded ? '100%' : '400px',
-			}));
-		}
-	}, [showFullPage, isExpanded]);
 
 	useEffect(() => {
 		if (chatContentRef.current) {
@@ -118,11 +86,8 @@ const ToolBarChatContainerModal = ({
 	return (
 		<>
 			<Drawer
-				onClose={() => {
-					setIsExpanded(false);
-					onClose();
-				}}
-				width={info?.width}
+				onClose={onClose}
+				width={'100vw'}
 				open={modalIsOpen}
 				style={{ backgroundColor: '#171819' }}
 				headerStyle={{ display: 'none' }}
@@ -133,15 +98,6 @@ const ToolBarChatContainerModal = ({
 					<div className="toolExpandedChatBarContainerHeader" style={{ width: '100%' }}>
 						<h1 className="toolExpandedChatBarContainerHeaderTitle">AI Assistant</h1>
 						<div className="toolExpandedChatBarContainerHeaderIconContainer">
-							{/* <ExpandChatIcon
-								onClick={() => {
-									if (showFullPage) {
-										toggleFullPage();
-									}
-
-									setIsExpanded(!isExpanded);
-								}}
-							/> */}
 							{!info?.citationsModalIsOpen && (
 								<ExpandChatIcon
 									onClick={() => {
@@ -153,13 +109,7 @@ const ToolBarChatContainerModal = ({
 								/>
 							)}
 
-							<CloseSvg
-								onClick={() => {
-									setIsExpanded(false);
-									onClose();
-								}}
-								style={{ cursor: 'pointer' }}
-							/>
+							<CloseSvg onClick={onClose} style={{ cursor: 'pointer' }} />
 						</div>
 					</div>
 
@@ -167,7 +117,7 @@ const ToolBarChatContainerModal = ({
 
 					<div className="parentContainer">
 						<div className="chatContainer">
-							<div className={`toolBarchatBodyParentContainer expanded`}>
+							<div className={`toolBarchatBodyParentContainer`}>
 								<div className="chatContent" ref={chatContentRef}>
 									{chatList?.map((chat, index) =>
 										chat?.content ? (
@@ -196,85 +146,88 @@ const ToolBarChatContainerModal = ({
 									)}
 								</div>
 							</div>
-						</div>
-					</div>
 
-					{uploadedImages?.length ? (
-						<div className="imagePreviewBar">
-							{uploadedImages?.map((ele, index) => (
-								<div className="previewOfUploadedImage" key={index}>
-									<img
-										src={ele?.preview}
-										alt="uploaded"
-										width={'100%'}
-										height={'100%'}
-										style={{ objectFit: 'cover', borderRadius: '12px' }}
-										onClick={() => handlePreview(ele)}
-									/>
+							{uploadedImages?.length ? (
+								<div className="imagePreviewBar">
+									{uploadedImages?.map((ele, index) => (
+										<div className="previewOfUploadedImage" key={index}>
+											<img
+												src={ele?.preview}
+												alt="uploaded"
+												width={'100%'}
+												height={'100%'}
+												style={{ objectFit: 'cover', borderRadius: '12px' }}
+												onClick={() => handlePreview(ele)}
+											/>
 
-									{ele?.loading ? (
-										<div className="spinContainerLoaderForPreview">
-											<Spin />
+											{ele?.loading ? (
+												<div className="spinContainerLoaderForPreview">
+													<Spin />
+												</div>
+											) : (
+												<span
+													className="removeImageIcon"
+													onClick={() => handleRemoveImage(ele)}
+												>
+													<Close />
+												</span>
+											)}
 										</div>
-									) : (
-										<span
-											className="removeImageIcon"
-											onClick={() => handleRemoveImage(ele)}
-										>
-											<Close />
-										</span>
-									)}
+									))}
 								</div>
-							))}
-						</div>
-					) : (
-						''
-					)}
+							) : (
+								''
+							)}
 
-					{/* //message Container */}
-					<div
-						className={`toolBarExpandedChatInputParentContainer   ${
-							isExpanded ? 'expanded' : ''
-						}`}
-					>
-						<textarea
-							type="text"
-							placeholder="Hey! Need help? Ask me anything."
-							value={chatQuery}
-							onChange={onChange}
-							onKeyDown={onKeyDown}
-							className="toolBarExpandedTextArea"
-							// rows={1}
-						/>
-						{/* <SendSvg
+							{/* //message Container */}
+							<div className={`toolBarExpandedChatInputParentContainer`}>
+								<textarea
+									type="text"
+									placeholder="Hey! Need help? Ask me anything."
+									value={chatQuery}
+									onChange={onChange}
+									onKeyDown={onKeyDown}
+									className="toolBarExpandedTextArea"
+									// rows={1}
+								/>
+								{/* <SendSvg
 						style={{
 							cursor: aiChatLoading ? 'not-allowed' : 'pointer',
 							opacity: aiChatLoading ? 0.5 : 1,
 						}}
 						onClick={() => !aiChatLoading && onKeyDown(null, 'key')}
 					/> */}
-						<div className="buttons-container">
-							<div className="chat-icons-container">
-								{chatIcons?.map((icon, idx) => (
-									<span key={idx} className="chat-icon">
-										{icon}
-									</span>
-								))}
-							</div>
-							<div
-								className="click-btn"
-								onClick={(e) => onClick(e)}
-								style={{
-									backgroundColor: `${
-										chatQuery?.trim()?.length > 0 ? '#b2a1e8' : '#2e2f33'
-									}`,
-								}}
-							>
-								<ArrowUp />
+								<div className="buttons-container">
+									<div className="chat-icons-container">
+										{chatIcons?.map((icon, idx) => (
+											<span key={idx} className="chat-icon">
+												{icon}
+											</span>
+										))}
+									</div>
+									<div
+										className="click-btn"
+										onClick={(e) => onClick(e)}
+										style={{
+											backgroundColor: `${
+												chatQuery?.trim()?.length > 0
+													? '#b2a1e8'
+													: '#2e2f33'
+											}`,
+										}}
+									>
+										<ArrowUp />
+									</div>
+								</div>
 							</div>
 						</div>
 					</div>
 				</div>
+
+				<CitationsModal
+					modalIsOpen={info?.citationsModalIsOpen}
+					closeModal={handleCloseCitationsModal}
+				/>
 				<NoteComponentModal
 					modalIsOpen={info?.noteModalIsOpen}
 					closeModal={handleNoteComponentModalClose}
@@ -287,10 +240,6 @@ const ToolBarChatContainerModal = ({
 					uploadedImages={uploadedImages}
 					handlePreview={handlePreview}
 					handleRemoveImage={handleRemoveImage}
-				/>
-				<CitationsModal
-					modalIsOpen={info?.citationsModalIsOpen}
-					closeModal={handleCloseCitationsModal}
 				/>
 			</Drawer>
 			{/* <CitationsModal

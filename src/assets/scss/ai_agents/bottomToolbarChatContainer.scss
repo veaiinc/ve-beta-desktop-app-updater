@@ -200,27 +200,24 @@
 	.parentContainer {
 		display: flex;
 		justify-content: flex-end;
+		flex-grow: 1;
 
 		.chatContainer {
 			width: calc(100% - 250px);
 			display: flex;
+			flex-direction: column;
+			align-items: center;
 			justify-content: center;
 			.toolBarchatBodyParentContainer {
 				display: flex;
-				height: calc(100vh - 168px);
+				flex-grow: 1;
 				flex-direction: column;
 				justify-content: flex-start;
-				padding: 24px;
 				overflow-y: scroll;
 				width: 700px;
 				max-width: 100%;
-				// margin: auto;
-				// margin-left: 250px;
-				&.expanded {
-					// padding: 24px 24%;
-					justify-content: flex-start;
-					background: #0e0f0f;
-				}
+				justify-content: flex-start;
+				background: #0e0f0f;
 				.chatContent {
 					display: flex;
 					flex-direction: column;
@@ -316,20 +313,16 @@
 
 	.toolBarExpandedChatInputParentContainer {
 		display: flex;
-		width: 400px;
 		height: 100px;
 		padding: 16px;
 		flex-direction: column;
 		align-items: flex-start;
 		gap: 12px;
 		background: #202123;
-
-		&.expanded {
-			width: 700px;
-			align-self: center;
-			margin-bottom: 20px;
-			border-radius: 16px;
-		}
+		width: 700px;
+		align-self: center;
+		margin-bottom: 20px;
+		border-radius: 16px;
 
 		.toolBarExpandedTextArea {
 			width: 100%;

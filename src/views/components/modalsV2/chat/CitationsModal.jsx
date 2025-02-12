@@ -3,7 +3,6 @@ import '../../../../assets/scss/chat/modal/citationsModal.scss';
 import { ReactComponent as CitationCloseIcon } from '../../../../assets/svg/ai_agents/expand-chat-icon.svg';
 
 const CitationsModal = ({ closeModal, modalIsOpen }) => {
-	console.log('citationsDrawer', modalIsOpen);
 	return (
 		<Drawer
 			open={modalIsOpen}

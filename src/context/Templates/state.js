@@ -1518,6 +1518,7 @@ export const TemplatesState = (props) => {
 				payload: updatedGlobalChatMessages,
 			});
 			const response = await Service.fetchPost(url, payload, usertoken, 'ai_predictions');
+			console.log(response[1]);
 			if (response?.[0]) {
 				const updatedGlobalChatMessages = {
 					type: 'AI',

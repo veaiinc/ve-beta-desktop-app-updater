@@ -109,6 +109,13 @@ const components = {
 			</div>
 		);
 	},
+	// p: ({ children, ...props }) => {
+	// 	return (
+	// 		<h1 className="mt-6 mb-2" {...props}>
+	// 			{children}
+	// 		</h1>
+	// 	);
+	// },
 };
 
 // console.log('isChrome', isChrome);
