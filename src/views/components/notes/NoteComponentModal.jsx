@@ -60,9 +60,8 @@ const NoteComponentModal = ({
 			open={modalIsOpen}
 			onClose={closeModal}
 			placement="right"
-			rootClassName="notes-modal-container"
+			className="notes-modal-container"
 			width={'100vw'}
-			height={'100vh'}
 			headerStyle={{ display: 'none' }}
 			bodyStyle={{ padding: '0px' }}
 		>
