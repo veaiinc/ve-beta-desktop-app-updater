@@ -1,5 +1,5 @@
 import { Drawer } from 'antd';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, memo } from 'react';
 import '../../../../assets/scss/chats.scss';
 import { ReactComponent as Back } from '../../../../assets/svg/sidebar/notifications/back.svg';
 import Context from '../../../../context/context';
@@ -15,21 +15,15 @@ const Chats = ({ showChatsDrawer, setShowChatsDrawer }) => {
 
 	useEffect(() => {
 		if (showChatsDrawer) {
-			getAiChatSessions(1, 30, false);
+			getAiChatSessions(1, 30, true);
 		}
 	}, [showChatsDrawer]);
 
 	const chats = aiChatSessions?.data;
-	const emptyChatsState = chats?.length === 0;
+	const emptyChatsState = aiChatSessions?.data?.length === 0;
 	const loadingState = aiChatSessions?.data === undefined;
-	const hasNextPage = aiChatSessions?.hasNextPage || false;
+	const hasNextPage = aiChatSessions?.hasMore || false;
 	const currentPage = aiChatSessions?.currentPage || 1;
-
-	// console.log('hasNextPage', hasNextPage);
-	// console.log('currentPage', currentPage);
-	// console.log('chats', chats);
-	// console.log('loadingState', loadingState);
-	// console.log('emptyChatsState', emptyChatsState);
 
 	const handleCloseDrawer = () => {
 		setShowChatsDrawer(false);
@@ -52,7 +46,9 @@ const Chats = ({ showChatsDrawer, setShowChatsDrawer }) => {
 	};
 
 	const fetchMoreChats = () => {
-		getAiChatSessions(currentPage + 1, 30, true);
+		if (hasNextPage) {
+			getAiChatSessions(currentPage + 1, 30, false);
+		}
 	};
 
 	return (
@@ -98,7 +94,7 @@ const Chats = ({ showChatsDrawer, setShowChatsDrawer }) => {
 							height={infiniteScrollHeight}
 						>
 							{chats?.map((chat) => (
-								<div className="chat-container">
+								<div key={chat?.id} className="chat-container">
 									<p className="chat-title">{chat?.query}</p>
 									<p className="chat-timestamp">
 										{formatTimestamp(chat?.createdAt)}
@@ -113,4 +109,4 @@ const Chats = ({ showChatsDrawer, setShowChatsDrawer }) => {
 	);
 };
 
-export default Chats;
+export default memo(Chats);

@@ -97,10 +97,17 @@ const OpenedSideBarHoverStateIcons = ({
 	const redirectToFunction = (subModules, route, name) => {
 		if (name === 'Notifications') {
 			setShowNotificationsDrawer(!showNotificationsDrawer);
+			return;
+		} else {
+			if (showNotificationsDrawer) {
+				setShowNotificationsDrawer(false);
+			}
 		}
 		if (name === 'Chats') {
 			setShowChatsDrawer(!showChatsDrawer);
+			return;
 		}
+
 		if (!subModules) {
 			setActiveDropdown(null);
 			setActiveSubModule(null);
@@ -108,6 +115,12 @@ const OpenedSideBarHoverStateIcons = ({
 		} else {
 			//
 			onDropdownToggle();
+		}
+		if (showNotificationsDrawer) {
+			setShowNotificationsDrawer(false);
+		}
+		if (showChatsDrawer) {
+			setShowChatsDrawer(false);
 		}
 		if (!route) return;
 	};

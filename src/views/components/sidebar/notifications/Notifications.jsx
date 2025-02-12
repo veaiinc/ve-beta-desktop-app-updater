@@ -1,5 +1,5 @@
 import { Drawer } from 'antd';
-import React, { useContext, useEffect, useState, useCallback } from 'react';
+import React, { useContext, useEffect, useState, useCallback, memo } from 'react';
 import '../../../../assets/scss/sidebarNotifications.scss';
 import { ReactComponent as Back } from '../../../../assets/svg/sidebar/notifications/back.svg';
 import { ReactComponent as Search } from '../../../../assets/svg/sidebar/notifications/search.svg';
@@ -191,4 +191,4 @@ const Notifications = ({ showNotificationsDrawer, setShowNotificationsDrawer }) 
 	);
 };
 
-export default Notifications;
+export default memo(Notifications);
