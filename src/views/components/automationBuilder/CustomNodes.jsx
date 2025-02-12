@@ -43,9 +43,12 @@ const appNameMapper = {
 export const StartStepNode = ({ data }) => {
 	const onAddOptionsClick = useCallback(() => {
 		if (data?.onToolBarOpen) {
-			data.onToolBarOpen({ toolBarOpen: true, sidebarType: 'trigger' });
+			data.onToolBarOpen({
+				toolBarOpen: true,
+				sidebarType: 'triggers',
+			});
 		}
-	}, []);
+	}, [data]);
 	return (
 		<div className="start-trigger-node" onClick={onAddOptionsClick}>
 			<div className="start-trigger-node-title">

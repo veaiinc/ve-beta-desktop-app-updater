@@ -84,20 +84,7 @@ const AutomationBuilder = () => {
 		step: '1',
 	});
 
-	const [nodes, setNodes, onNodesChange] = useNodesState([
-		{
-			id: '1',
-			position: { x: 250, y: 0 },
-			type: 'startStep',
-			data: {
-				automationId: automationId,
-				integration: 'Google',
-				action: '',
-				stepTitle: 'Example title',
-				stepDescription: 'Example description',
-			},
-		},
-	]);
+	const [nodes, setNodes, onNodesChange] = useNodesState([]);
 	const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
 	const onConnect = useCallback((params) => setEdges((eds) => addEdge(params, eds)), [setEdges]);
@@ -115,9 +102,21 @@ const AutomationBuilder = () => {
 	useEffect(() => {
 		if (specificAutomationInfo) {
 			if (specificAutomationInfo?.steps?.length) {
+				setNodes([]);
 				const incomingData = specificAutomationInfo;
 				const steps = [...(incomingData?.steps || [])];
 				getNodesAndEdges(steps);
+			} else {
+				setNodes([
+					{
+						id: '1',
+						position: { x: 250, y: 0 },
+						type: 'startStep',
+						data: {
+							onToolBarOpen: handleToolBarOpen,
+						},
+					},
+				]);
 			}
 			setInfo((prev) => ({ ...prev, loading: false }));
 		}
@@ -458,19 +457,19 @@ const AutomationBuilder = () => {
 						</ReactFlow>
 					</div>
 
-					<div className="builderToolbarContainer">
-						<BuilderToolbar
-							open={info?.toolBarOpen || true}
-							onCLose={handleToolBarClose}
-							sidebarType={info?.sidebarType || 'triggers'}
-							activeEdge={info?.activeEdge}
-							automationId={automationId}
-							activeStepsData={info?.activeStepsData}
-							editMode={info?.editMode}
-							refetchWorkflowBuilderData={refetchWorkflowBuilderData}
-							step={info?.step}
-						/>
-					</div>
+					{/* <div className="builderToolbarContainer"> */}
+					<BuilderToolbar
+						open={info?.toolBarOpen}
+						onCLose={handleToolBarClose}
+						sidebarType={info?.sidebarType}
+						activeEdge={info?.activeEdge}
+						automationId={automationId}
+						activeStepsData={info?.activeStepsData}
+						editMode={info?.editMode}
+						refetchWorkflowBuilderData={refetchWorkflowBuilderData}
+						step={info?.step}
+					/>
+					{/* </div> */}
 				</div>
 			)}
 		</div>
