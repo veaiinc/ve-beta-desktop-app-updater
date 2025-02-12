@@ -5,6 +5,7 @@ import { ReactComponent as Back } from '../../../../assets/svg/sidebar/notificat
 import Context from '../../../../context/context';
 import { FetchMoreLoaderComp } from '../../../../helpers';
 import InfiniteScroll from 'react-infinite-scroll-component';
+import moment from 'moment';
 
 const infiniteScrollHeight = 'calc(100vh - 72px)';
 
@@ -30,19 +31,9 @@ const Chats = ({ showChatsDrawer, setShowChatsDrawer }) => {
 	};
 
 	const formatTimestamp = (timestamp) => {
-		const date = new Date(timestamp * 1000);
-		const now = new Date();
-		const isToday = date?.toDateString() === now?.toDateString();
-
-		if (isToday) {
-			return date?.toLocaleTimeString('en-US', {
-				hour: '2-digit',
-				minute: '2-digit',
-				hour12: false,
-			});
-		}
-
-		return date?.toLocaleDateString('en-US', { month: 'short', day: '2-digit' });
+		const date = moment.unix(timestamp);
+		const isToday = date.isSame(moment(), 'day');
+		return isToday ? date.format('HH:mm') : date.format('MMM DD');
 	};
 
 	const fetchMoreChats = () => {
