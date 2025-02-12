@@ -99,31 +99,22 @@ const OpenedSideBarHoverStateIcons = ({
 	const redirectToFunction = (subModules, route, name) => {
 		if (name === 'Notifications') {
 			setShowNotificationsDrawer((prev) => !prev);
-			return;
 		} else {
-			setShowNotificationsDrawer((prev) => !prev);
-			return;
+			setShowNotificationsDrawer(false);
 		}
-		// if (name === 'Chats') {
-		// 	setShowChatsDrawer(!showChatsDrawer);
-		// 	return;
-		// }
+		if (name === 'Chats') {
+			setShowChatsDrawer((prev) => !prev);
+		} else {
+			setShowChatsDrawer(false);
+		}
 
-		// if (!subModules) {
-		// 	setActiveDropdown(null);
-		// 	setActiveSubModule(null);
-		// 	navigateTo(route);
-		// } else {
-		// 	//
-		// 	onDropdownToggle();
-		// }
-		// if (showNotificationsDrawer) {
-		// 	setShowNotificationsDrawer(false);
-		// }
-		// if (showChatsDrawer) {
-		// 	setShowChatsDrawer(false);
-		// }
-		// if (!route) return;
+		if (!subModules) {
+			setActiveDropdown(null);
+			setActiveSubModule(null);
+			navigateTo(route);
+		} else {
+			onDropdownToggle();
+		}
 	};
 
 	const isExactPathMatch = useCallback(() => {

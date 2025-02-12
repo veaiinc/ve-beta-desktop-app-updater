@@ -35,11 +35,7 @@ export const initialState = {
 		hasMore: false,
 		currentPage: 1,
 	},
-	aiChatSessions: {
-		data: [],
-		hasMore: false,
-		currentPage: 1,
-	},
+	aiChatSessions: null,
 	aiAssistant: null,
 	aiInstructions: null,
 	aiPrompt: null,

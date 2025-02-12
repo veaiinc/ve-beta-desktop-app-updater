@@ -157,7 +157,7 @@ const Notifications = ({ showNotificationsDrawer, setShowNotificationsDrawer }) 
 							dataLength={info?.activityLogsData?.length || 0}
 							next={fetchMoreActivityLogs}
 							hasMore={info?.hasNextPage}
-							loader={<FetchMoreLoaderComp />}
+							loader={<FetchMoreLoaderComp wrapperStyle={{ width: '100%' }} />}
 							style={{
 								display: 'flex',
 								flexDirection: 'column',

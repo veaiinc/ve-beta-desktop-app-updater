@@ -25,6 +25,8 @@ const Chats = ({ showChatsDrawer, setShowChatsDrawer }) => {
 	const hasNextPage = aiChatSessions?.hasMore || false;
 	const currentPage = aiChatSessions?.currentPage || 1;
 
+	console.log(aiChatSessions, loadingState);
+
 	const handleCloseDrawer = () => {
 		setShowChatsDrawer(false);
 	};
@@ -82,7 +84,7 @@ const Chats = ({ showChatsDrawer, setShowChatsDrawer }) => {
 							dataLength={chats?.length || 0}
 							next={fetchMoreChats}
 							hasMore={hasNextPage || false}
-							loader={<FetchMoreLoaderComp />}
+							loader={<FetchMoreLoaderComp wrapperStyle={{ width: '100%' }} />}
 							style={{
 								display: 'flex',
 								flexDirection: 'column',
