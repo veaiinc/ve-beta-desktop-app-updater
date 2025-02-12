@@ -25,8 +25,6 @@ const Chats = ({ showChatsDrawer, setShowChatsDrawer }) => {
 	const hasNextPage = aiChatSessions?.hasMore || false;
 	const currentPage = aiChatSessions?.currentPage || 1;
 
-	console.log(aiChatSessions, loadingState);
-
 	const handleCloseDrawer = () => {
 		setShowChatsDrawer(false);
 	};
