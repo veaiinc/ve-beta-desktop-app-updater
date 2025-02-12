@@ -35,11 +35,7 @@ export const initialState = {
 		hasMore: false,
 		currentPage: 1,
 	},
-	aiChatSessions: {
-		data: [],
-		hasMore: false,
-		currentPage: 1,
-	},
+	aiChatSessions: null,
 	aiAssistant: null,
 	aiInstructions: null,
 	aiPrompt: null,
@@ -193,14 +189,14 @@ export const AiSetupState = () => {
 			};
 			const url = '/' + workspaceId + '/list-multiagent-sessions';
 			const response = await service?.fetchGet(url, token, type, params);
-			const aiChatSessions = {
-				data: reset
-					? [...response?.[1]?.data]
-					: [...state?.aiChatSessions?.data, ...response?.[1]?.data],
-				hasMore: response?.[1]?.hasNextPage,
-				currentPage: response?.[1]?.currentPage,
-			};
 			if (response?.[0]) {
+				const aiChatSessions = {
+					data: reset
+						? [...response?.[1]?.data]
+						: [...state?.aiChatSessions?.data, ...response?.[1]?.data],
+					hasMore: response?.[1]?.hasNextPage,
+					currentPage: response?.[1]?.currentPage,
+				};
 				dispatch({
 					type: Actions?.SET_AI_CHAT_SESSIONS,
 					payload: aiChatSessions,
