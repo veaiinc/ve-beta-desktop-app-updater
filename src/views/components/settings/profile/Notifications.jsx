@@ -30,9 +30,6 @@ const Notifications = () => {
 	}, []);
 
 	useEffect(() => {
-		console.log(updatedNotificationSettings, 'updatedNotificationSettings');
-	}, [updatedNotificationSettings]);
-	useEffect(() => {
 		if (Object.keys(info.selectedOptions).length > 0) {
 			updatedNotificationSettingsApiCall();
 		}
