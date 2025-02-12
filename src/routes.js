@@ -42,6 +42,7 @@ import HomePage from './views/features/home_page/HomePage';
 import AiAssistants from './views/features/ai_assistant/index';
 import EditAgent from './views/features/ai_assistant/EditAgent';
 import AgentDetails from './views/features/ai_assistant/AgentDetails';
+import Chat from './views/features/chat/Chat';
 const routes = [
 	{
 		path: '/',
@@ -398,6 +399,18 @@ const routes = [
 			</AuthWrapper>
 		),
 		exact: true,
+	},
+	{
+		path: '/chat',
+		component: (
+			<AuthWrapper
+				title={'Chat'}
+				showBottomToolbar={false}
+				// outerContainerStyle={{ paddingTop: 0 }}
+			>
+				<Chat />
+			</AuthWrapper>
+		),
 	},
 ];
 
