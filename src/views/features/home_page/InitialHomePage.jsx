@@ -2,14 +2,14 @@ import React, { memo, useContext, useState, useEffect } from 'react';
 import '../../../assets/scss/home_page/initialHomepage.scss';
 import jwtDecode from 'jwt-decode';
 import Context from '../../../context/context';
-import { PromptData } from '../../components/homePage/PromptData';
+import PromptPopup from '../../components/homePage/PromptPopup';
 import HomePage from './HomePage';
 import ChatBox from '../../components/homePage/ChatBox';
 const initialHomePageOptions = [
-	{ id: 1, title: 'All Prompts', type: 'All' },
-	{ id: 2, title: 'Sales', type: 'Sales' },
-	{ id: 3, title: 'Marketing', type: 'Marketing' },
-	{ id: 4, title: 'Operations', type: 'Operations' },
+	{ id: 1, title: 'All Prompts', type: 'all' },
+	{ id: 2, title: 'Sales', type: 'sales' },
+	{ id: 3, title: 'Marketing', type: 'marketing' },
+	{ id: 4, title: 'Operations', type: 'operations' },
 ];
 
 const navBarOptions = [
@@ -26,15 +26,30 @@ const InitialHomePage = () => {
 		selectedNavBarOption: navBarOptions[0],
 		dashboardSelected: false,
 		goBackToInitialHomePage: false,
+		showPromptPopup: false,
+		selectedCard: null,
 	});
 
 	let {
 		profileInfo: { userDetailsData },
+		aiSetup: { getPromptsData, promptsData },
 	} = useContext(Context);
 	const username =
 		jwtDecode(localStorage.getItem('usertoken'))?.userName?.split(' ')[0] ??
 		`${userDetailsData?.firstName}` ??
 		'User';
+
+	useEffect(() => {
+		if (info?.selectedOption && info?.selectedOption !== 'all') {
+			getPromptsData({ category: info?.selectedOption });
+		} else {
+			getPromptsData();
+		}
+	}, [info?.selectedOption]);
+
+	useEffect(() => {
+		console.log(promptsData, 'promptsData');
+	}, [promptsData]);
 
 	const handleNavBarSelection = (item) => {
 		setInfo({ ...info, selectedNavBarOption: item });
@@ -66,6 +81,7 @@ const InitialHomePage = () => {
 					getSelectedOption={info?.selectedOption}
 					start={info?.isStart}
 					setGoBackToInitialHomePage={setGoBackToInitialHomePage}
+					promptsData={promptsData}
 				/>
 			) : (
 				<div className="initialHomePageContainer">
@@ -121,15 +137,24 @@ const InitialHomePage = () => {
 					</div>
 					<div className="initialHomePageContainer-prompts">
 						<div className="initialHomePageContainerCards">
-							{PromptData?.map((item) => {
+							{promptsData?.data?.map((item) => {
 								return (
-									<div className="initialHomepageEachCard">
+									<div
+										className="initialHomepageEachCard"
+										onClick={() => {
+											setInfo({
+												...info,
+												showPromptPopup: true,
+												selectedCard: item,
+											});
+										}}
+									>
 										<div className="initialHomepageEachCard-type">
 											<div className="initialHomepageEachCard-type-title">
 												Workflows for
 											</div>
 											<div className="initialHomepageEachCard-type-type">
-												{item?.dept}
+												{item?.category}
 											</div>
 										</div>
 										<div className="initialHomepageEachCard-title">
@@ -146,6 +171,11 @@ const InitialHomePage = () => {
 					</div>
 				</div>
 			)}
+			<PromptPopup
+				open={info?.showPromptPopup}
+				closeModal={() => setInfo({ ...info, showPromptPopup: false })}
+				selectedCard={info?.selectedCard}
+			/>
 		</>
 	);
 };
