@@ -18,10 +18,10 @@ const topNavOptions = [
 
 const navbarOptions = {
 	start: [
-		{ id: 1, title: 'All', value: 'All' },
-		{ id: 2, title: 'Sales', value: 'Sales' },
-		{ id: 3, title: 'Marketing', value: 'Marketing' },
-		{ id: 4, title: 'Operations', value: 'Operations' },
+		{ id: 1, title: 'All', value: 'all' },
+		{ id: 2, title: 'Sales', value: 'sales' },
+		{ id: 3, title: 'Marketing', value: 'marketing' },
+		{ id: 4, title: 'Operations', value: 'operations' },
 	],
 	dashboard: [
 		{ id: 1, title: 'Priority', value: 'Priority' },
@@ -34,7 +34,7 @@ const navbarOptions = {
 
 let timeoutId = null;
 
-const HomePage = ({ getSelectedOption, start, setGoBackToInitialHomePage }) => {
+const HomePage = ({ getSelectedOption, start, setGoBackToInitialHomePage, promptsData }) => {
 	const [searchParams, setSearchParams] = useSearchParams();
 	let {
 		profileInfo: { userDetailsData },
@@ -44,7 +44,6 @@ const HomePage = ({ getSelectedOption, start, setGoBackToInitialHomePage }) => {
 		jwtDecode(localStorage.getItem('usertoken'))?.userName ??
 		`${userDetailsData?.firstName} ${userDetailsData?.lastName}` ??
 		'User';
-
 	const [info, setInfo] = useState({
 		activeTab: start ? 'start' : searchParams?.get('tab') ?? 'dashboard',
 		showPromptPopup: false,
@@ -126,6 +125,7 @@ const HomePage = ({ getSelectedOption, start, setGoBackToInitialHomePage }) => {
 					cards={filteredPromptData}
 					setInfo={setInfo}
 					searchValue={info?.searchValue}
+					promptsData={promptsData}
 				/>
 			),
 			dashboard: (
