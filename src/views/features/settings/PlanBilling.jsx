@@ -114,7 +114,7 @@ const PlanBilling = () => {
 		<div className="planBillingContianer">
 			{info?.loading ? (
 				<Skeleton height={'700px'} style={{ borderRadius: '32px' }} />
-			) : info?.freeTier ? (
+			) : !info?.freeTier ? (
 				<SubscribedUserPlanCard
 					data={info?.plan}
 					expiresAt={info?.expiresAt}
@@ -221,7 +221,7 @@ const SubscribedUserPlanCard = ({
 				<div className="subscriptionPlanContent">
 					<div className="subscriptionPlanPricingDetails">
 						<span className="subscriptionPlanPricing">
-							{currency === 'INR' ? 'â‚¹ ' : '$ '}
+							{currency === 'INR' ? '₹ ' : '$ '}
 							{data?.totalPrice?.toLocaleString('en-IN', {
 								currency: currency,
 							})}
