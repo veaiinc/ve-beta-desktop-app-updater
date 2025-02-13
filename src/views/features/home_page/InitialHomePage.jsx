@@ -109,9 +109,14 @@ const InitialHomePage = () => {
 						</div>
 					</div>
 					<div className="initialHomePageContainer-content">
-						<div className="initialHomePageContainer-header">
-							Hey <span>{username}</span> <br />
-							I'm here to help
+						<div className="initialHomePageContainer-content-left">
+							<div className="initialHomePageContainer-header">
+								Hey <span>{username}</span> <br />
+								I'm here to help
+							</div>
+							<div className="initialHomePageContainer-content-left-description">
+								Ask me anything about your business or let me handle a task for you.
+							</div>
 						</div>
 						<div className="initialHomePageContainerOptions">
 							{initialHomePageOptions?.map((item) => {
