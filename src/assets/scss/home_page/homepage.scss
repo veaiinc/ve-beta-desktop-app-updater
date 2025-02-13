@@ -82,6 +82,7 @@
 					line-height: normal;
 					text-transform: capitalize;
 					cursor: pointer;
+					transition: transform 0.3s ease-in-out;
 					&:hover {
 						color: var(--primary-font, #f2f2f3);
 					}
@@ -186,6 +187,10 @@
 				align-items: flex-start;
 				gap: 12px;
 				cursor: pointer;
+				transition: transform 0.3s ease-in-out;
+				&:hover {
+					color: var(--primary-font, #f2f2f3);
+				}
 
 				.home-page-welcome-container-left-text-option-active-indicator {
 					width: 18px;
