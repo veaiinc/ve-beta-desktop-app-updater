@@ -90,14 +90,6 @@ const Chat = ({
 	const chatContentRef = useRef(null);
 
 	useEffect(() => {
-		if (chatContentRef?.current) {
-			chatContentRef.current.scrollTop = chatContentRef.current.scrollHeight;
-			console.log(chatContentRef?.current?.scrollTop, chatContentRef?.current?.scrollHeight);
-			// chatContentRef?.current?.lastElementChild?.scrollIntoView({ behavior: 'smooth' });
-		}
-	}, [globalChatMessages]); // Scroll whenever chatList changes
-
-	useEffect(() => {
 		if (activePromptForChat) {
 			handleSendMessageFunc(null, true, activePromptForChat);
 			updateStateValues({ activePromptForChat: null });
@@ -439,7 +431,6 @@ const Chat = ({
 			>
 				<PaperClip />
 			</Upload>,
-			<Mic onClick={handleMicIconClick} />,
 		],
 		[info, handleChange],
 	);
@@ -449,19 +440,6 @@ const Chat = ({
 			handleSendMessageFunc(e, true);
 		}
 	};
-
-	// {info?.voiceIntegration ? (
-	//     <div style={{ display: 'flex', justifyContent: 'center' }}>
-	//         <img
-	//             src={'https://ap.assets.ve.ai/logo/speaking%20final.gif'}
-	//             width={'40px'}
-	//             height={'40px'}
-	//             style={{ marginBottom: '12px' }}
-	//         />
-	//     </div>
-	// ) : (
-	//     ''
-	// )}
 
 	return (
 		<>
@@ -522,6 +500,18 @@ const Chat = ({
 							</div>
 						</div>
 						<div className="chatInputContainer">
+							{info?.voiceIntegration ? (
+								<div style={{ display: 'flex', justifyContent: 'center' }}>
+									<img
+										src={'https://ap.assets.ve.ai/logo/speaking%20final.gif'}
+										width={'40px'}
+										height={'40px'}
+										style={{ marginBottom: '12px' }}
+									/>
+								</div>
+							) : (
+								''
+							)}
 							{info?.uploadedImages?.length ? (
 								<div className="imagePreviewBar">
 									{info?.uploadedImages?.map((ele, index) => (
@@ -588,6 +578,15 @@ const Chat = ({
 												{icon}
 											</span>
 										))}
+										{info?.voiceIntegration ? (
+											<span className="chat-icon" onClick={handleDisConnect}>
+												<Close style={{ width: '20px', height: '20px' }} />
+											</span>
+										) : (
+											<span className="chat-icon">
+												<Mic onClick={handleMicIconClick} />
+											</span>
+										)}
 									</div>
 									<div
 										className="click-btn"

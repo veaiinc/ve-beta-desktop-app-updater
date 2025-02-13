@@ -89,13 +89,6 @@ const Chat = ({
 	const chatContentRef = useRef(null);
 
 	useEffect(() => {
-		if (chatContentRef?.current) {
-			chatContentRef.current.scrollTop = chatContentRef.current.scrollHeight;
-			// chatContentRef?.current?.lastElementChild?.scrollIntoView({ behavior: 'smooth' });
-		}
-	}, [globalChatMessages]); // Scroll whenever chatList changes
-
-	useEffect(() => {
 		if (activePromptForChat) {
 			handleSendMessageFunc(null, true, activePromptForChat);
 			updateStateValues({ activePromptForChat: null });
@@ -427,7 +420,6 @@ const Chat = ({
 			>
 				<PaperClip />
 			</Upload>,
-			<Mic onClick={handleMicIconClick} />,
 		],
 		[info, handleChange],
 	);
@@ -442,95 +434,97 @@ const Chat = ({
 		<>
 			<div className="chatcontainer">
 				<div className="chatBarContainer" style={{ width: '100%' }}>
-					<div className="chatBodyContainer">
-						{info?.voiceIntegration ? (
-							<div style={{ display: 'flex', justifyContent: 'center' }}>
-								<img
-									src={'https://ap.assets.ve.ai/logo/speaking%20final.gif'}
-									width={'40px'}
-									height={'40px'}
-									style={{ marginBottom: '12px' }}
-								/>
-							</div>
-						) : (
-							''
-						)}
-						<div className="chatInputContainer">
-							{info?.uploadedImages?.length ? (
-								<div className="imagePreviewBar">
-									{info?.uploadedImages?.map((ele, index) => (
-										<div className="previewOfUploadedImage" key={index}>
-											<img
-												src={ele?.preview}
-												alt="uploaded"
-												width={'100%'}
-												height={'100%'}
-												style={{
-													objectFit: 'cover',
-													borderRadius: '12px',
-												}}
-												onClick={() => handlePreview(ele)}
-											/>
-
-											{ele?.loading ? (
-												<div className="spinContainerLoaderForPreview">
-													<Spin />
-												</div>
-											) : (
-												<span
-													className="removeImageIcon"
-													onClick={() => handleRemoveImage(ele)}
-												>
-													<Close />
-												</span>
-											)}
-										</div>
-									))}
-								</div>
-							) : (
-								''
-							)}
-							<div className={`chatInputParentContainer`}>
-								<textarea
-									type="text"
-									placeholder="Hey! Need help? Ask me anything."
-									value={info?.chatQuery}
-									onChange={(e) =>
-										setInfo((prev) => ({ ...prev, chatQuery: e.target.value }))
-									}
-									onKeyDown={handleSendMessageFunc}
-									className="textArea"
-									// rows={1}
-								/>
-
-								<div className="buttons-container">
-									<div className="chat-icons-container">
-										{chatIcons?.map((icon, idx) => (
-											<span key={idx} className="chat-icon">
-												{icon}
-											</span>
-										))}
-										{info?.voiceIntegration ? (
-											<div className="mic-icon" onClick={handleDisConnect}>
-												<Close style={{ width: '20px', height: '20px' }} />
-											</div>
-										) : (
-											''
-										)}
-									</div>
-									<div
-										className="click-btn"
-										onClick={(e) => handleSendBtnClick(e)}
+					{info?.voiceIntegration ? (
+						<div style={{ display: 'flex', justifyContent: 'center' }}>
+							<img
+								src={'https://ap.assets.ve.ai/logo/speaking%20final.gif'}
+								width={'40px'}
+								height={'40px'}
+								style={{ marginBottom: '12px' }}
+							/>
+						</div>
+					) : (
+						''
+					)}
+					{info?.uploadedImages?.length ? (
+						<div className="imagePreviewBar">
+							{info?.uploadedImages?.map((ele, index) => (
+								<div className="previewOfUploadedImage" key={index}>
+									<img
+										src={ele?.preview}
+										alt="uploaded"
+										width={'100%'}
+										height={'100%'}
 										style={{
-											backgroundColor: `${
-												info?.chatQuery?.trim()?.length > 0
-													? '#b2a1e8'
-													: '#2e2f33'
-											}`,
+											objectFit: 'cover',
+											borderRadius: '12px',
 										}}
-									>
-										<ArrowUp />
-									</div>
+										onClick={() => handlePreview(ele)}
+									/>
+
+									{ele?.loading ? (
+										<div className="spinContainerLoaderForPreview">
+											<Spin />
+										</div>
+									) : (
+										<span
+											className="removeImageIcon"
+											onClick={() => handleRemoveImage(ele)}
+										>
+											<Close />
+										</span>
+									)}
+								</div>
+							))}
+						</div>
+					) : (
+						''
+					)}
+				</div>
+				<div className="chatBodyContainer">
+					<div className="chatInputContainer">
+						<div className={`chatInputParentContainer`}>
+							<textarea
+								type="text"
+								placeholder="Hey! Need help? Ask me anything."
+								value={info?.chatQuery}
+								onChange={(e) =>
+									setInfo((prev) => ({ ...prev, chatQuery: e.target.value }))
+								}
+								onKeyDown={handleSendMessageFunc}
+								className="textArea"
+								// rows={1}
+							/>
+
+							<div className="buttons-container">
+								<div className="chat-icons-container">
+									{chatIcons?.map((icon, idx) => (
+										<span key={idx} className="chat-icon">
+											{icon}
+										</span>
+									))}
+									{info?.voiceIntegration ? (
+										<span className="chat-icon" onClick={handleDisConnect}>
+											<Close style={{ width: '20px', height: '20px' }} />
+										</span>
+									) : (
+										<span className="chat-icon">
+											<Mic onClick={handleMicIconClick} />
+										</span>
+									)}
+								</div>
+								<div
+									className="click-btn"
+									onClick={(e) => handleSendBtnClick(e)}
+									style={{
+										backgroundColor: `${
+											info?.chatQuery?.trim()?.length > 0
+												? '#b2a1e8'
+												: '#2e2f33'
+										}`,
+									}}
+								>
+									<ArrowUp />
 								</div>
 							</div>
 						</div>
