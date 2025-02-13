@@ -173,7 +173,10 @@ const HomePage = ({ getSelectedOption, start, setGoBackToInitialHomePage, prompt
 							</div>
 						))}
 					</div>
-					<div className="home-page-welcome-container-right">
+					<div
+						className="home-page-welcome-container-right"
+						style={{ marginRight: '32px' }}
+					>
 						<QuickActions />
 					</div>
 				</div>

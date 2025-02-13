@@ -38,10 +38,9 @@
 	.home-page-container-content {
 		display: inline-flex;
 		justify-content: space-between;
-		width: 83%;
+		width: 100%;
 		position: fixed;
 		top: 1.2%;
-		margin-left: 300px;
 		left: 0;
 		z-index: 10;
 		background: #0c0c0d;
@@ -52,7 +51,7 @@
 			align-items: center;
 			height: 54px;
 			width: 100%;
-
+			margin-left: 300px;
 			.home-page-container-content-item-container-left {
 				display: flex;
 				flex-direction: row;
