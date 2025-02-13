@@ -104,6 +104,93 @@
 		}
 	}
 
+	.brandVoiceContainer {
+		display: flex;
+		width: 580px;
+		padding: 32px;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 24px;
+		border-radius: 32px;
+		background: #0f0f11;
+
+		.title {
+			color: #e4e5e6;
+			font-family: Inter;
+			font-size: 16px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 24px;
+		}
+
+		.description-tooltip {
+			color: #f2f2f3;
+			font-family: Inter;
+			font-size: 16px;
+			font-style: normal;
+			font-weight: 500;
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			cursor: pointer;
+		}
+
+		.brandVoiceDescription {
+			display: flex;
+			padding: 10px;
+			justify-content: center;
+			align-items: center;
+			gap: 10px;
+			border-radius: 12px;
+			background: #f2f2f3;
+
+			.description {
+				color: #0e0f0f;
+				font-family: Inter;
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+				width: 352px;
+			}
+		}
+
+		.brandVoiceContent {
+			display: flex;
+			height: 204px;
+			padding: 12px 18px;
+			align-items: flex-start;
+			gap: 10px;
+			align-self: stretch;
+			border-radius: 12px;
+			border: 1px solid #2c2d2e;
+			background-color: #0f0f11;
+			resize: none;
+			color: #f2f2f3;
+			font-family: Inter;
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 400;
+			line-height: normal;
+		}
+
+		.wordCountContainer {
+			display: flex;
+			justify-content: flex-end;
+			align-items: center;
+			width: 100%;
+
+			.wordCount {
+				color: #b0b0b0;
+				font-family: Inter;
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 400;
+				line-height: 16px;
+			}
+		}
+	}
+
 	.timezoneCurrencyComponent {
 		.timeZone,
 		.currency {
