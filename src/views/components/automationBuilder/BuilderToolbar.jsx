@@ -94,6 +94,7 @@ const BuilderToolbar = ({
 					automationId={automationId}
 				/>
 			),
+
 			pipeline: <Actions onCLose={onCLose} activeEdge={activeEdge} templateId={templateId} />,
 			trigger: <Actions onCLose={onCLose} activeEdge={activeEdge} templateId={templateId} />,
 		};

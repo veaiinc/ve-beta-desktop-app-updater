@@ -16,6 +16,11 @@ const actionHandlers = {
 		connectedIntegrations: action.payload,
 	}),
 
+	UPDATE_AUTOMATION: (state, action) => ({
+		...state,
+		specificAutomationInfo: action.payload,
+	}),
+
 	RESET_STATE: () => initialState,
 };
 

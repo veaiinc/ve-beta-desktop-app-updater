@@ -126,6 +126,28 @@ export const AutomationBuilderState = () => {
 		}
 	};
 
+	const updateAutomation = async (automationId, payload) => {
+		try {
+			const usertoken = localStorage.getItem('usertoken');
+			const workspaceId = localStorage.getItem('workspaceId');
+			const response = await restService.fetchPut(
+				`/${workspaceId}/${automationId}/update-automation`,
+				payload,
+				usertoken,
+				'automation_builder_api',
+			);
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.UPDATE_AUTOMATION,
+					payload: response?.[1]?.updatedAutomation,
+				});
+			}
+			return response;
+		} catch (error) {
+			console.log('API failed ==> updateAutomation', error);
+		}
+	};
+
 	const resetAutomationBuilderState = () => {
 		dispatch({ type: Actions.RESET_STATE });
 	};
@@ -139,5 +161,6 @@ export const AutomationBuilderState = () => {
 		addStep,
 		resetAutomationBuilderState,
 		getConnectionDetails,
+		updateAutomation,
 	};
 };

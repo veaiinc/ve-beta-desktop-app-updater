@@ -67,6 +67,12 @@
 				font-weight: 500;
 				line-height: normal;
 				cursor: pointer;
+				border: none;
+				outline: none;
+
+				&:disabled {
+					cursor: not-allowed;
+				}
 			}
 		}
 	}

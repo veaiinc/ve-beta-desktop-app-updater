@@ -21,7 +21,8 @@ import {
 import CustomEdges from '../../components/automationBuilder/CustomEdges';
 import UpdatedPageLoader from '../../components/loaders/UpdatedPageLoader';
 import BuilderToolbar from '../../components/automationBuilder/BuilderToolbar';
-import { Spin } from 'antd';
+import { message, Spin } from 'antd';
+import Configuration from '../../components/automationBuilder/AutomationBuilderSidebarComponents/Configuration';
 
 // Define node types
 const nodeTypes = {
@@ -52,6 +53,7 @@ const AutomationBuilder = () => {
 			specificAutomationInfo,
 			updateStateValues,
 			getConnectionDetails,
+			updateAutomation,
 		},
 	} = useContext(Context);
 
@@ -345,38 +347,6 @@ const AutomationBuilder = () => {
 		setInfo((prev) => ({ ...prev, ...obj }));
 	}, []);
 
-	const publishWorkflow = useCallback(async () => {
-		if (info?.publishLoading) {
-			return;
-		}
-		setInfo((prev) => ({ ...prev, publishLoading: true }));
-		const payload = {
-			automationId: automationId,
-			updateObj: {
-				status: 'published',
-			},
-		};
-		const response = await addEmailTriggersInWorkflow(payload);
-		setInfo((prev) => ({ ...prev, publishLoading: false }));
-
-		if (response?.[0]) {
-			const { moduleTemplates } = response?.[1];
-			let isPublic = false;
-			for (let i = 0; i < moduleTemplates?.length; i++) {
-				if (moduleTemplates?.[i]?.isPublic) {
-					isPublic = true;
-					break;
-				}
-			}
-
-			if (isPublic) {
-				updateStateValues({ generatePublicLinkData: response?.[1] });
-			}
-			refreshSalesModuleData();
-			return navigate('/home');
-		}
-	}, [info?.publishLoading, specificAutomationInfo]);
-
 	const refetchWorkflowBuilderData = useCallback(async (data) => {
 		await getAutomation(automationId);
 
@@ -422,6 +392,26 @@ const AutomationBuilder = () => {
 		[nodes],
 	);
 
+	const updateCurrentAutomation = useCallback(
+		async (payload) => {
+			const response = await updateAutomation(automationId, payload);
+			if (!(response?.[0] === true)) {
+				message?.error('Failed to update automation');
+			}
+		},
+		[automationId, updateAutomation],
+	);
+
+	const publishAutomation = useCallback(async () => {
+		if (info?.publishLoading) {
+			return;
+		}
+		setInfo((prev) => ({ ...prev, publishLoading: true }));
+
+		updateCurrentAutomation({ status: 'published' });
+		setInfo((prev) => ({ ...prev, publishLoading: false }));
+	}, [info?.publishLoading, updateCurrentAutomation]);
+
 	return (
 		<div className="updatedWorkflowBuilderContainer">
 			<div className="updatedBuilderHeaderContainer">
@@ -430,10 +420,19 @@ const AutomationBuilder = () => {
 				</span>
 				<span className="workflowBuilderHeadingTag">Workflow Builder</span>
 				<div className="headerActionsContainer">
-					<div className="publishBtn" onClick={publishWorkflow}>
-						{info?.publishLoading ? <Spin /> : ''}
-						{info?.publishLoading ? 'Publishing...' : 'Publish'}
-					</div>
+					<button
+						className="publishBtn"
+						onClick={publishAutomation}
+						disabled={
+							info?.publishLoading || specificAutomationInfo?.status === 'published'
+						}
+					>
+						{info?.publishLoading
+							? 'Publishing...'
+							: specificAutomationInfo?.status === 'published'
+							? 'Published'
+							: 'Publish'}
+					</button>
 				</div>
 			</div>
 			{info?.loading ? (
@@ -457,7 +456,13 @@ const AutomationBuilder = () => {
 						</ReactFlow>
 					</div>
 
-					{/* <div className="builderToolbarContainer"> */}
+					<div className="builderToolbarContainer">
+						<Configuration
+							automationId={automationId}
+							specificAutomationInfo={specificAutomationInfo}
+							updateCurrentAutomation={updateCurrentAutomation}
+						/>
+					</div>
 					<BuilderToolbar
 						open={info?.toolBarOpen}
 						onCLose={handleToolBarClose}
@@ -469,7 +474,6 @@ const AutomationBuilder = () => {
 						refetchWorkflowBuilderData={refetchWorkflowBuilderData}
 						step={info?.step}
 					/>
-					{/* </div> */}
 				</div>
 			)}
 		</div>

@@ -1,0 +1,63 @@
+.configurationContainer {
+	width: 100%;
+	height: 100%;
+	background-color: #141415;
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	padding: 24px;
+
+	.configurationHeader {
+		width: 100%;
+		display: flex;
+		flex-direction: column;
+		gap: 2px;
+		padding-bottom: 12px;
+
+		border-bottom: 1px solid #2c2d2e;
+
+		.automationTitleInput {
+			display: flex;
+			padding: 4px 0px;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 12px;
+			align-self: stretch;
+			background-color: transparent;
+			border: none;
+			outline: none;
+			color: #f2f2f3;
+			font-family: Inter;
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 600;
+			line-height: normal;
+
+			&::placeholder {
+				color: #7a7e85;
+			}
+		}
+
+		.automationDescriptionInput {
+			display: flex;
+			padding: 4px 0px;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 12px;
+			align-self: stretch;
+			background-color: transparent;
+			border: none;
+			outline: none;
+			color: #f2f2f3;
+			font-family: Inter;
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 400;
+			line-height: normal;
+			resize: none;
+			&::placeholder {
+				color: #7a7e85;
+			}
+		}
+	}
+}
