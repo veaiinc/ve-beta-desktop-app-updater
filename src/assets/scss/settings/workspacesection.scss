@@ -164,16 +164,30 @@
 			align-self: stretch;
 			border-radius: 12px;
 			border: 1px solid #2c2d2e;
+			background-color: #0f0f11;
 			resize: none;
-		}
-
-		.wordCount {
-			color: #b0b0b0;
+			color: #f2f2f3;
 			font-family: Inter;
 			font-size: 12px;
 			font-style: normal;
 			font-weight: 400;
-			line-height: 16px; /* 133.333% */
+			line-height: normal;
+		}
+
+		.wordCountContainer {
+			display: flex;
+			justify-content: flex-end;
+			align-items: center;
+			width: 100%;
+
+			.wordCount {
+				color: #b0b0b0;
+				font-family: Inter;
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 400;
+				line-height: 16px;
+			}
 		}
 	}
 

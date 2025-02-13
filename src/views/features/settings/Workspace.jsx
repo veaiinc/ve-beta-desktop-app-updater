@@ -4,31 +4,22 @@ import Context from '../../../context/context';
 import WorkspaceHandleComponent from '../../components/settings/workspace/WorkspaceHandle';
 import TimeZoneCurrencyComponent from '../../components/settings/workspace/TimezoneCurrency';
 import DeleteWorkpsaceComponent from '../../components/settings/workspace/DeleteWorkspace';
-import { Tooltip } from 'antd';
+import { message, Tooltip } from 'antd';
 import ToolTipContainer from '../../components/popover/ToolTipContainer';
 import { ReactComponent as QuestionMark } from '../../../assets/svg/Settings/question_circle.svg';
 
-const temporaryPlaceholderText = `The voice is innovative, assertive, and informative. It has a confident and forward-thinking personality that encourages embracing new technologies. It communicates with a mix of bold statements, detailed descriptions, and persuasive language to convey the advanced capabilities of the platform.
-
+const temporaryPlaceholderText = `
 The voice embodies values of:
 - Innovation: Highlights cutting-edge features and transformative potential
 - Clarity: Provides clear and concise descriptions of features and benefits
 - Persuasiveness: Uses strong, assertive language to encourage adoption
-- Efficiency: Emphasizes speed and effectiveness in achieving goals
-To replicate this voice in your writing:
-- Use strong, assertive language to make bold claims about capabilities
-- Employ concise, direct sentences to communicate benefits
-- Highlight innovative features and their potential to transform processes
-- Use persuasive language to encourage action and adoption
-- Incorporate technical terms and jargon to convey expertise`;
+- Efficiency: Emphasizes speed and effectiveness in achieving goals`;
 
 const SettingsWorkspace = () => {
-	// # Contexts
 	const {
 		profileInfo: { tennantSettingsData },
 	} = useContext(Context);
 
-	// # useStates
 	const [overviewState, setOverviewState] = useState({
 		isAdmin: '',
 		timeZone: '',
@@ -38,8 +29,15 @@ const SettingsWorkspace = () => {
 	});
 
 	const [info, setInfo] = useState({
-		brandDescription: temporaryPlaceholderText,
+		brandDescription: '',
 	});
+
+	useEffect(() => {
+		setInfo({
+			...info,
+			brandDescription: tennantSettingsData?.brandMetadata?.brandVoice ?? '',
+		});
+	}, [tennantSettingsData]);
 
 	const wordCount = info?.brandDescription?.length;
 
@@ -52,9 +50,12 @@ const SettingsWorkspace = () => {
 		}));
 	}, [tennantSettingsData]);
 
-	const handleSetBrandDescription = (e) => {
-		setInfo({ ...info, brandDescription: e?.target?.value });
-	};
+	useEffect(() => {
+		// if (wordCount > 500) message?.error('Word count limit exceeded');
+		// if (info?.brandDescription?.length > 500) {
+		// 	setInfo({ ...info, brandDescription: info?.brandDescription?.slice(0, 500) });
+		// }
+	}, [wordCount, info?.brandDescription]);
 
 	return (
 		<div className="workspaceContainer">
@@ -106,9 +107,11 @@ const SettingsWorkspace = () => {
 				<textarea
 					className="brandVoiceContent"
 					value={info?.brandDescription}
-					onChange={handleSetBrandDescription}
+					onChange={(e) => setInfo({ ...info, brandDescription: e?.target?.value })}
 				></textarea>
-				<span className="wordCount">{wordCount}/500</span>
+				<div className="wordCountContainer">
+					<span className="wordCount">{wordCount}/500</span>
+				</div>
 			</div>
 			<div className="settingsBoxContainer timezoneCurrencyComponent">
 				<TimeZoneCurrencyComponent overviewState={overviewState} />
