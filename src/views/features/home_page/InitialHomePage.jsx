@@ -15,16 +15,17 @@ const initialHomePageOptions = [
 const navBarOptions = [
 	{ id: 1, title: 'Start', type: 'start' },
 	{ id: 2, title: 'Dashboard', type: 'dashboard' },
-	{ id: 3, title: 'Agent47', type: 'agent47' },
-	{ id: 4, title: 'ManagerAI', type: 'managerAI' },
+	// { id: 3, title: 'Agent47', type: 'agent47' },
+	// { id: 4, title: 'ManagerAI', type: 'managerAI' },
 ];
 
 const InitialHomePage = () => {
 	const [info, setInfo] = useState({
-		isStart: true,
+		isStart: false,
 		selectedOption: null,
-		selectedNavBarOption: null,
+		selectedNavBarOption: navBarOptions[0],
 		dashboardSelected: false,
+		goBackToInitialHomePage: false,
 	});
 
 	let {
@@ -37,31 +38,35 @@ const InitialHomePage = () => {
 
 	const handleNavBarSelection = (item) => {
 		setInfo({ ...info, selectedNavBarOption: item });
-		if (item?.type === 'start') {
+		if (item?.type === 'dashboard') {
 			setInfo((prev) => ({
 				...prev,
-				isStart: true,
 				dashboardSelected: true,
-				selectedOption: 'All',
+				selectedOption: null,
+				isStart: false,
 			}));
 			return;
 		}
-		if (item?.type === 'dashboard') {
-			setInfo((prev) => ({ ...prev, dashboardSelected: true, isStart: false }));
-		}
-		if (item?.type === 'agent47') {
-		}
-		if (item?.type === 'managerAI') {
-		}
-		setInfo((prev) => ({ ...prev, isStart: false }));
+	};
+
+	const setGoBackToInitialHomePage = (boolValue) => {
+		setInfo((prev) => ({
+			...prev,
+			goBackToInitialHomePage: boolValue,
+			selectedOption: null,
+			dashboardSelected: false,
+			selectedNavBarOption: navBarOptions[0],
+		}));
 	};
 
 	return (
 		<>
 			{info?.selectedOption !== null || info?.dashboardSelected ? (
-				<div>
-					<HomePage getSelectedOption={info?.selectedOption} start={info?.isStart} />
-				</div>
+				<HomePage
+					getSelectedOption={info?.selectedOption}
+					start={info?.isStart}
+					setGoBackToInitialHomePage={setGoBackToInitialHomePage}
+				/>
 			) : (
 				<div className="initialHomePageContainer">
 					<div className="initialHomeContainerFixedContent">
@@ -98,7 +103,11 @@ const InitialHomePage = () => {
 									<div
 										className="initialHomePageContainerOptions-item"
 										onClick={() =>
-											setInfo({ ...info, selectedOption: item?.type })
+											setInfo({
+												...info,
+												selectedOption: item?.type,
+												isStart: true,
+											})
 										}
 									>
 										{item?.title}

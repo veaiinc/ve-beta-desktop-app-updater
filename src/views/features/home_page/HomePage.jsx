@@ -34,7 +34,7 @@ const navbarOptions = {
 
 let timeoutId = null;
 
-const HomePage = ({ getSelectedOption, start }) => {
+const HomePage = ({ getSelectedOption, start, setGoBackToInitialHomePage }) => {
 	const [searchParams, setSearchParams] = useSearchParams();
 	let {
 		profileInfo: { userDetailsData },
@@ -87,6 +87,11 @@ const HomePage = ({ getSelectedOption, start }) => {
 	};
 
 	const handleSetActiveTab = (tab) => {
+		if (tab === 'start') {
+			setGoBackToInitialHomePage(true);
+		} else {
+			setSearchParams({ tab });
+		}
 		if (info?.activeTab === tab) {
 			return;
 		}
@@ -94,14 +99,13 @@ const HomePage = ({ getSelectedOption, start }) => {
 			...prev,
 			activeTab: tab,
 		}));
-		setSearchParams({ tab });
 	};
 
 	const propsForHeaderInfoAndNavBar = useMemo(() => {
 		return {
 			start: {
-				title: `Hey ${username},`,
-				subTitle: "I'm here to help",
+				title: `All your Prompts`,
+				subTitle: 'you need to ask me',
 				selectedOption: 'selectedOptionInStart',
 			},
 			dashboard: {

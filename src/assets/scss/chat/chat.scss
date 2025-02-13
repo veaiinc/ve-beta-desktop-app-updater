@@ -56,10 +56,9 @@
 				flex-direction: column;
 				justify-content: flex-start;
 				overflow-y: scroll;
-				width: 700px;
-				max-width: 100%;
-				justify-content: flex-start;
-				// background: #0e0f0f;
+				width: 100%;
+				max-width: 700px;
+				// justify-content: flex-end;
 				.chatContent {
 					display: flex;
 					flex-direction: column;
@@ -69,7 +68,6 @@
 
 					.chat-message {
 						display: flex;
-						padding-top: 12px;
 
 						.message-content {
 							width: fit-content;

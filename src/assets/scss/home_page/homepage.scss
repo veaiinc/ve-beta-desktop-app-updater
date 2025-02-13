@@ -6,7 +6,7 @@
 	overflow-y: scroll;
 	position: relative;
 	padding: 32px;
-
+	margin-top: 45px;
 	.black-linear-gradient {
 		position: fixed;
 		bottom: 0;
@@ -38,9 +38,10 @@
 	.home-page-container-content {
 		display: inline-flex;
 		justify-content: space-between;
-		width: 100%;
-		position: sticky;
-		top: -32px;
+		width: 79%;
+		position: fixed;
+		top: 1.2%;
+		margin-left: 300px;
 		left: 0;
 		z-index: 10;
 		background: #0c0c0d;
@@ -160,7 +161,7 @@
 		justify-content: space-between;
 		align-items: center;
 		position: sticky;
-		top: 22px;
+		top: 5px;
 		left: 0;
 		z-index: 10;
 		background: #0c0c0d;

@@ -417,8 +417,6 @@ const BottomToolbar = ({
 				handleGlobalImageProcessing(file);
 			}
 
-			console.log(uploadedImages);
-
 			setInfo((prev) => ({
 				...prev,
 				// addQuickAction: false,

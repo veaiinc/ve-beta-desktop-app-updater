@@ -53,10 +53,12 @@ const Chat = ({
 			updateApplicationChat,
 			activePromptForChat,
 			followUpQuery,
+			citations,
 		},
 		calendarInfo: { updateCalendarState },
 		tasks: { updateTaskState },
 	} = useContext(Context);
+
 	const {
 		isConnected,
 		isMuted,
@@ -88,6 +90,19 @@ const Chat = ({
 	const [previewOpen, setPreviewOpen] = useState(false);
 	const [previewImage, setPreviewImage] = useState('');
 	const chatContentRef = useRef(null);
+
+	useEffect(() => {
+		smoothScrollToBottom();
+	}, [globalChatMessages, chatList]);
+
+	useEffect(() => {
+		if (citations?.length > 0) {
+			setInfo((prev) => ({
+				...prev,
+				citationsModalIsOpen: true,
+			}));
+		}
+	}, [citations]);
 
 	useEffect(() => {
 		if (activePromptForChat) {
@@ -126,6 +141,15 @@ const Chat = ({
 	const handleFollowUpQueryClick = () => {
 		updateStateValues({ activePromptForChat: followUpQuery, followUpQuery: null });
 	};
+
+	const smoothScrollToBottom = useCallback(() => {
+		if (chatContentRef?.current) {
+			chatContentRef.current.scrollTo({
+				top: chatContentRef.current.scrollHeight,
+				behavior: 'smooth', // Enables smooth scrolling
+			});
+		}
+	}, [chatContentRef]);
 
 	const handleSendMessageFunc = useCallback(
 		async (e, click = null, query = null) => {
@@ -206,8 +230,6 @@ const Chat = ({
 							}
 						}
 					}
-
-					// setInfo((prev) => ({ ...prev, chatQuery: '', uploadedImages: [] }));
 				}
 			}
 		},
@@ -470,8 +492,8 @@ const Chat = ({
 							width: `${info?.citationsModalIsOpen ? 'calc(100% - 400px)' : '100%'}`,
 						}}
 					>
-						<div className={`chatBodyParentContainer`}>
-							<div className="chatContent" ref={chatContentRef}>
+						<div className={`chatBodyParentContainer`} ref={chatContentRef}>
+							<div className="chatContent">
 								{globalChatMessages?.map((chat, index) =>
 									chat?.content ? (
 										chat?.content
@@ -487,6 +509,9 @@ const Chat = ({
 															text={chat?.message}
 															customePencilClickFunc={
 																handleNoteComponentModalOpen
+															}
+															smoothScrollToBottom={
+																smoothScrollToBottom
 															}
 														/>
 													</div>
