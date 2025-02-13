@@ -17,5 +17,8 @@
 	"docwriter.progress.trackMethods": false,
 	"docwriter.progress.trackClasses": true,
 	"docwriter.progress.trackTypes": true,
-	"postman.settings.dotenv-detection-notification-visibility": false
+	"postman.settings.dotenv-detection-notification-visibility": false,
+	"[javascriptreact]": {
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
+	}
 }

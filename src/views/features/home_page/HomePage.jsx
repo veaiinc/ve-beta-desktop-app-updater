@@ -9,7 +9,6 @@ import HomePageStart from '../../components/homePage/HomePageStart';
 import { PromptData } from '../../components/homePage/PromptData';
 import Context from '../../../context/context';
 import QuickActions from '../../components/globalComponents/QuickActions';
-import PriorityDropDown from '../../components/homePage/dashboard/PriorityDropDown';
 import jwtDecode from 'jwt-decode';
 
 const topNavOptions = [
@@ -35,7 +34,7 @@ const navbarOptions = {
 
 let timeoutId = null;
 
-const HomePage = () => {
+const HomePage = ({ getSelectedOption, start }) => {
 	const [searchParams, setSearchParams] = useSearchParams();
 	let {
 		profileInfo: { userDetailsData },
@@ -46,14 +45,10 @@ const HomePage = () => {
 		`${userDetailsData?.firstName} ${userDetailsData?.lastName}` ??
 		'User';
 
-	useEffect(() => {
-		if (!tabItemCount) getTabItemCount();
-	}, []);
-
 	const [info, setInfo] = useState({
-		activeTab: searchParams?.get('tab') ?? 'dashboard',
+		activeTab: start ? 'start' : searchParams?.get('tab') ?? 'dashboard',
 		showPromptPopup: false,
-		selectedOptionInStart: searchParams?.get('startTab') || 'All',
+		selectedOptionInStart: start ? getSelectedOption : searchParams?.get('startTab') || 'All',
 		selectedOptionInDashboard: searchParams?.get('dashboardTab') || 'Priority',
 		searchValue: '',
 		selectedCard: null,
@@ -63,6 +58,10 @@ const HomePage = () => {
 		openCreateLeadModal: false,
 		selectedOptionInPriorityTab: 'all',
 	});
+
+	useEffect(() => {
+		if (!tabItemCount) getTabItemCount();
+	}, []);
 
 	const filteredPromptData = PromptData?.filter((prompt) => {
 		const filter = info?.selectedOptionInStart?.toLowerCase();
