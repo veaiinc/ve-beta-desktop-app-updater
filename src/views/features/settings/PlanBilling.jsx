@@ -84,7 +84,7 @@ const PlanBilling = () => {
 				loading: false,
 				plan: currentPlan?.currentSubscriptionPlan,
 				expiresAt: currentPlan?.currentSubscriptionPlan?.expiresAt,
-				freeTier: tierStatus,
+				freeTier: currentPlan?.isPaidTenant,
 				currency: currentPlan?.currentSubscriptionPlan?.currency,
 				storageLimit: currentPlan?.storageLimitInGB,
 				imagesLimit: currentPlan?.imagesLimit,
@@ -114,7 +114,7 @@ const PlanBilling = () => {
 		<div className="planBillingContianer">
 			{info?.loading ? (
 				<Skeleton height={'700px'} style={{ borderRadius: '32px' }} />
-			) : !info?.freeTier ? (
+			) : info?.freeTier ? (
 				<SubscribedUserPlanCard
 					data={info?.plan}
 					expiresAt={info?.expiresAt}
