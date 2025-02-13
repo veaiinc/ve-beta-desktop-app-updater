@@ -134,7 +134,12 @@ export const Markdown = memo(
 	(prevProps, nextProps) => prevProps.children === nextProps.children,
 );
 
-export const TypingEffect = ({ text, onComplete, customePencilClickFunc = null }) => {
+export const TypingEffect = ({
+	text,
+	onComplete,
+	customePencilClickFunc = null,
+	smoothScrollToBottom,
+}) => {
 	const {
 		documentPreview: { setNoteContent },
 	} = useContext(Context);
@@ -148,6 +153,9 @@ export const TypingEffect = ({ text, onComplete, customePencilClickFunc = null }
 			const timeout = setTimeout(() => {
 				setDisplayedText((prev) => prev + text[currentIndex]);
 				setCurrentIndex((prev) => prev + 1);
+				if (smoothScrollToBottom) {
+					smoothScrollToBottom();
+				}
 			}, 5); // Adjust speed as needed
 
 			return () => clearTimeout(timeout);
