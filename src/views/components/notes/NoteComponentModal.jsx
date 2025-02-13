@@ -1,5 +1,5 @@
 import { Drawer, Spin } from 'antd';
-import React, { useContext, useMemo, useState } from 'react';
+import React, { useMemo, useEffect, useRef, useCallback } from 'react';
 import '../../../assets/scss/notes/noteComponentModal.scss';
 import NoteComponent from './NoteComponent';
 import { TypingEffect } from '../../../helpers/markdownHelper';
@@ -17,7 +17,6 @@ import { ReactComponent as ShareSvg } from '../../../assets/svg/notes/share.svg'
 import { ReactComponent as ArrowUp } from '../../../assets/svg/ai_agents/arrow-up-dark.svg';
 
 import Upload from 'antd/es/upload/Upload';
-import Context from '../../../context/context';
 const noteIcons = [<PreviousSvg />, <NextSvg />, <CopySvg />, <ShareSvg />];
 const NoteComponentModal = ({
 	modalIsOpen,
@@ -32,9 +31,11 @@ const NoteComponentModal = ({
 	handleRemoveImage,
 	onClick,
 }) => {
-	const {
-		documentPreview: { setNoteContent },
-	} = useContext(Context);
+	const chatContentRef = useRef(null);
+
+	useEffect(() => {
+		smoothScrollToBottom();
+	}, [chatList]); // Scroll when chat updates
 
 	const chatIcons = useMemo(
 		() => [
@@ -55,6 +56,14 @@ const NoteComponentModal = ({
 		[onImageUpload],
 	);
 
+	const smoothScrollToBottom = useCallback(() => {
+		if (chatContentRef?.current) {
+			chatContentRef.current.scrollTo({
+				top: chatContentRef.current.scrollHeight,
+				behavior: 'smooth', // Enables smooth scrolling
+			});
+		}
+	}, [chatContentRef]);
 	return (
 		<Drawer
 			open={modalIsOpen}
@@ -68,7 +77,7 @@ const NoteComponentModal = ({
 			<div className="modal-container">
 				<div className="chatBarContainer">
 					{/* chat body */}
-					<div className={`chatBodyParentContainer`}>
+					<div className={`chatBodyParentContainer`} ref={chatContentRef}>
 						<div className="chatContent">
 							{chatList?.map((chat, index) =>
 								chat?.content ? (
@@ -81,7 +90,10 @@ const NoteComponentModal = ({
 										<div className="message-content">
 											{chat?.type?.toLowerCase() === 'ai' ? (
 												<div className="content">
-													<TypingEffect text={chat?.message} />
+													<TypingEffect
+														text={chat?.message}
+														smoothScrollToBottom={smoothScrollToBottom}
+													/>
 												</div>
 											) : (
 												<Markdown>{chat?.message}</Markdown>
