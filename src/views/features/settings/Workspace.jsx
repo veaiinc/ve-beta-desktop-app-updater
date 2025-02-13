@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState, memo } from 'react';
+import React, { useContext, useEffect, useState, memo, useCallback } from 'react';
 import '../../../assets/scss/settings/workspacesection.scss';
 import Context from '../../../context/context';
 import WorkspaceHandleComponent from '../../components/settings/workspace/WorkspaceHandle';
@@ -29,19 +29,19 @@ const SettingsWorkspace = () => {
 	});
 
 	const [info, setInfo] = useState({
-		brandDescription: '',
+		brandDescription: 'Your brand description will appear here',
 	});
 
 	useEffect(() => {
-		setInfo({
-			...info,
-			brandDescription:
-				tennantSettingsData?.brandMetadata?.brandVoice ||
-				'Your brand description will appear here',
-		});
+		if (tennantSettingsData) {
+			setInfo({
+				...info,
+				brandDescription:
+					tennantSettingsData?.brandMetadata?.brandVoice ||
+					'Your brand description will appear here',
+			});
+		}
 	}, [tennantSettingsData]);
-
-	const wordCount = info?.brandDescription?.length;
 
 	useEffect(() => {
 		setOverviewState((prev) => ({
@@ -52,12 +52,13 @@ const SettingsWorkspace = () => {
 		}));
 	}, [tennantSettingsData]);
 
-	useEffect(() => {
-		if (wordCount > 5000) message?.error('Oops! You have reached the word count limit of 5000');
-		if (info?.brandDescription?.length > 5000) {
-			setInfo({ ...info, brandDescription: info?.brandDescription?.slice(0, 5000) });
+	const brandVoiceonChange = useCallback((event) => {
+		if (event?.target?.value?.length > 5000) {
+			message?.error('Oops! You have reached the word count limit of 5000');
+			return;
 		}
-	}, [wordCount, info?.brandDescription]);
+		setInfo({ ...info, brandDescription: event?.target?.value });
+	}, []);
 
 	return (
 		<div className="workspaceContainer">
@@ -109,10 +110,10 @@ const SettingsWorkspace = () => {
 				<textarea
 					className="brandVoiceContent"
 					value={info?.brandDescription}
-					onChange={(e) => setInfo({ ...info, brandDescription: e?.target?.value })}
+					onChange={brandVoiceonChange}
 				></textarea>
 				<div className="wordCountContainer">
-					<span className="wordCount">{wordCount}/5000</span>
+					<span className="wordCount">{info?.brandDescription?.length}/5000</span>
 				</div>
 			</div>
 			<div className="settingsBoxContainer timezoneCurrencyComponent">
