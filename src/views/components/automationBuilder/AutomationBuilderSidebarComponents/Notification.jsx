@@ -24,7 +24,12 @@ import {
 import validator from 'validator';
 
 const notificationList = {
-	Google: { title: 'Google', notification: ['Send Email'], icon: <Google />, id: 'email' },
+	Google: {
+		title: 'Google',
+		notification: ['Send Email', 'Send Reply'],
+		icon: <Google />,
+		id: 'email',
+	},
 	Slack: {
 		title: 'Slack',
 		notification: ['Send Slack Message', 'Send Slack Actions'],
@@ -480,20 +485,9 @@ const Notification = ({
 			if (!info?.stepDescription?.trim()?.length) {
 				return message.error('Description is mandatory');
 			}
-			if (!info?.recipientEmail?.trim()?.length) {
-				return message.error('Recipient email is mandatory');
-			}
-			if (!validator.isEmail(info?.recipientEmail?.trim())) {
-				return message.error('Please enter a valid recipient email address');
-			}
-			if (!info?.selectedGoogleAccount?.value?.trim()?.length) {
-				return message.error('Google account is mandatory');
-			}
 			if (!info?.selectedTemplate?._id?.trim()?.length) {
 				return message.error('Email template is mandatory');
 			}
-			setInfo((prev) => ({ ...prev, saveLoader: true }));
-
 			const previousStepId = activeEdge?.split('-')?.[0];
 			const payload = {
 				title: info?.stepTitle,
@@ -505,6 +499,15 @@ const Notification = ({
 			};
 
 			if (type === 'sendMessage') {
+				if (!info?.recipientEmail?.trim()?.length) {
+					return message.error('Recipient email is mandatory');
+				}
+				if (!validator.isEmail(info?.recipientEmail?.trim())) {
+					return message.error('Please enter a valid recipient email address');
+				}
+				if (!info?.selectedGoogleAccount?.value?.trim()?.length) {
+					return message.error('Google account is mandatory');
+				}
 				payload.gmail = {
 					action: 'sendMessage',
 					emailTemplateTitle: info?.selectedTemplate?.title,
@@ -515,6 +518,17 @@ const Notification = ({
 					emailTemplateId: info?.selectedTemplate?._id,
 				};
 			}
+			if (type === 'sendReply') {
+				payload.gmail = {
+					emailTemplateId: info?.selectedTemplate?._id,
+					action: 'replyMessage',
+					messageId: '',
+					connectedEmail: info?.selectedGoogleAccount?.value,
+					htmlBody: info?.selectedTemplate?.htmlBody,
+				};
+			}
+			setInfo((prev) => ({ ...prev, saveLoader: true }));
+
 			const response = await addStep(automationId, payload);
 
 			if (response?.[0]) {
