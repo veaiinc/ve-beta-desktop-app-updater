@@ -27,6 +27,7 @@ import { ReactComponent as AiSparkel } from '../../../assets/svg/calendar/aiSpar
 import useVoiceIntegration from '../../hooks/useVoiceIntegration';
 import CitationsModal from '../../components/modalsV2/chat/CitationsModal';
 import NoteComponentModal from '../../components/notes/NoteComponentModal';
+import Skeleton from 'react-loading-skeleton';
 
 const moduleHelper = {
 	tasks: 'tasks',
@@ -139,7 +140,9 @@ const Chat = ({
 	};
 
 	const handleFollowUpQueryClick = () => {
-		updateStateValues({ activePromptForChat: followUpQuery, followUpQuery: null });
+		if (info?.chatLoading === false) {
+			updateStateValues({ activePromptForChat: followUpQuery, followUpQuery: null });
+		}
 	};
 
 	const smoothScrollToBottom = useCallback(() => {
@@ -245,10 +248,9 @@ const Chat = ({
 					message: 'loading....',
 					content: (
 						<div className="aiMessageWrapper">
-							<AiSparkel />
-							<div className="aiMessage">
-								<span>Thinking...</span>
-							</div>
+							<Skeleton height={20} width={'100%'} borderRadius={'100px'} />
+							<Skeleton height={20} width={'75%'} borderRadius={'100px'} />
+							<Skeleton height={20} width={'50%'} borderRadius={'100px'} />
 						</div>
 					),
 					contentType: 'loading',
