@@ -108,7 +108,7 @@ const Chat = ({
 	useEffect(() => {
 		if (activePromptForChat) {
 			handleSendMessageFunc(null, true, activePromptForChat);
-			updateStateValues({ activePromptForChat: null });
+			updateStateValues({ activePromptForChat: null, followUpQuery: null });
 		}
 	}, [activePromptForChat]);
 
@@ -141,7 +141,7 @@ const Chat = ({
 
 	const handleFollowUpQueryClick = () => {
 		if (info?.chatLoading === false) {
-			updateStateValues({ activePromptForChat: followUpQuery, followUpQuery: null });
+			updateStateValues({ activePromptForChat: followUpQuery });
 		}
 	};
 
