@@ -91,7 +91,6 @@ const Chat = ({
 	useEffect(() => {
 		if (chatContentRef?.current) {
 			chatContentRef.current.scrollTop = chatContentRef.current.scrollHeight;
-			console.log(chatContentRef?.current?.scrollTop, chatContentRef?.current?.scrollHeight);
 			// chatContentRef?.current?.lastElementChild?.scrollIntoView({ behavior: 'smooth' });
 		}
 	}, [globalChatMessages]); // Scroll whenever chatList changes
@@ -395,7 +394,7 @@ const Chat = ({
 		(event) => {
 			if (!info?.voiceIntegration) {
 				connectToRoom();
-				setInfo((prev) => ({ ...prev, voiceIntegration: true, bigToolbarIsOpen: false }));
+				setInfo((prev) => ({ ...prev, voiceIntegration: true }));
 			} else {
 				toggleMute();
 			}
@@ -439,77 +438,23 @@ const Chat = ({
 		}
 	};
 
-	// {info?.voiceIntegration ? (
-	//     <div style={{ display: 'flex', justifyContent: 'center' }}>
-	//         <img
-	//             src={'https://ap.assets.ve.ai/logo/speaking%20final.gif'}
-	//             width={'40px'}
-	//             height={'40px'}
-	//             style={{ marginBottom: '12px' }}
-	//         />
-	//     </div>
-	// ) : (
-	//     ''
-	// )}
-
 	return (
 		<>
 			<div className="chatcontainer">
 				<div className="chatBarContainer" style={{ width: '100%' }}>
-					{/* header */}
-					{/* <div className="containerHeader" style={{ width: '100%' }}>
-						<h1 className="containerHeaderTitle"></h1>
-						<div className="iconContainer">
-							{!info?.citationsModalIsOpen && (
-								<ExpandChatIcon
-									onClick={() => {
-										setInfo((prev) => ({
-											...prev,
-											citationsModalIsOpen: true,
-										}));
-									}}
+					<div className="chatBodyContainer">
+						{info?.voiceIntegration ? (
+							<div style={{ display: 'flex', justifyContent: 'center' }}>
+								<img
+									src={'https://ap.assets.ve.ai/logo/speaking%20final.gif'}
+									width={'40px'}
+									height={'40px'}
+									style={{ marginBottom: '12px' }}
 								/>
-							)}
-						</div>
-					</div> */}
-
-					{/* chat body */}
-
-					<div
-						className="chatBodyContainer"
-						// style={{
-						// 	width: `${info?.citationsModalIsOpen ? 'calc(100% - 400px)' : '100%'}`,
-						// }}
-					>
-						{/* <div className={`chatBodyParentContainer`}>
-							<div className="chatContent" ref={chatContentRef}>
-								{globalChatMessages?.map((chat, index) =>
-									chat?.content ? (
-										chat?.content
-									) : (
-										<div
-											key={index}
-											className={`chat-message ${chat?.type?.toLowerCase()}-message`}
-										>
-											<div className="message-content">
-												{chat?.type?.toLowerCase() === 'ai' ? (
-													<div className="content">
-														<TypingEffect
-															text={chat?.message}
-															customePencilClickFunc={
-																handleNoteComponentModalOpen
-															}
-														/>
-													</div>
-												) : (
-													<Markdown>{chat?.message}</Markdown>
-												)}
-											</div>
-										</div>
-									),
-								)}
 							</div>
-						</div> */}
+						) : (
+							''
+						)}
 						<div className="chatInputContainer">
 							{info?.uploadedImages?.length ? (
 								<div className="imagePreviewBar">
@@ -545,18 +490,6 @@ const Chat = ({
 							) : (
 								''
 							)}
-
-							{/* {followUpQuery && (
-								<div className="suggestions-container">
-									<div
-										className="suggestion-text"
-										onClick={handleFollowUpQueryClick}
-									>
-										{followUpQuery}
-									</div>
-								</div>
-							)} */}
-							{/* //message Container */}
 							<div className={`chatInputParentContainer`}>
 								<textarea
 									type="text"
@@ -577,6 +510,13 @@ const Chat = ({
 												{icon}
 											</span>
 										))}
+										{info?.voiceIntegration ? (
+											<div className="mic-icon" onClick={handleDisConnect}>
+												<Close style={{ width: '20px', height: '20px' }} />
+											</div>
+										) : (
+											''
+										)}
 									</div>
 									<div
 										className="click-btn"
