@@ -338,10 +338,9 @@ export const ProfileState = () => {
 				'tenant-users',
 			);
 			if (response?.[0]) {
-				dispatch({
-					type: Actions.UPDATE_NOTIFICATION_SETTINGS,
-					payload: response?.[1],
-				});
+				return [true, response[1]];
+			} else {
+				return [false, response[1]];
 			}
 		} catch (error) {
 			console.log('error==>updateDefaultNotificationSettings', error);

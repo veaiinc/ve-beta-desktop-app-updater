@@ -38,7 +38,6 @@ const Notifications = () => {
 	const updatedNotificationSettingsApiCall = async () => {
 		const payloadData = transformDataForAPI(info?.selectedOptions, defaultNotificationSettings);
 		const response = await updateDefaultNotificationSettings(payloadData?.[0]);
-		console.log(response, 'response');
 		if (response?.[0]) {
 			setInfo({ ...info, selectedOptions: {} });
 		}
@@ -57,7 +56,7 @@ const Notifications = () => {
 				apps:
 					apps && Object.keys(apps).length > 0
 						? apps
-						: { email: false, slack: false, whatsapp: false }, // Ensure apps is not empty
+						: { email: false, slack: false, whatsapp: false },
 			};
 		});
 	};
@@ -156,7 +155,7 @@ const Notifications = () => {
 									<div className="notificationContainerOptions-item">
 										{item?.module}
 									</div>
-									<div className="notificationContainerOptions-item-checkbox">
+									{/* <div className="notificationContainerOptions-item-checkbox">
 										<input
 											type="checkbox"
 											style={{ width: '36px' }}
@@ -172,7 +171,7 @@ const Notifications = () => {
 											style={{ width: '36px' }}
 											checked={info.slackAll}
 										/>
-									</div>
+									</div> */}
 								</div>
 								<div className="notificationContainerOptions-items">
 									{item?.events?.map((option) => {
