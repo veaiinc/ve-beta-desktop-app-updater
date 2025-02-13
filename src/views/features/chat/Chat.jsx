@@ -92,10 +92,8 @@ const Chat = ({
 	const chatContentRef = useRef(null);
 
 	useEffect(() => {
-		if (chatContentRef?.current) {
-			chatContentRef.current.scrollTop = chatContentRef.current.scrollHeight;
-		}
-	}, [globalChatMessages, chatList]); // Scroll when chat updates
+		smoothScrollToBottom();
+	}, [globalChatMessages, chatList]);
 
 	useEffect(() => {
 		if (citations?.length > 0) {
@@ -143,6 +141,15 @@ const Chat = ({
 	const handleFollowUpQueryClick = () => {
 		updateStateValues({ activePromptForChat: followUpQuery, followUpQuery: null });
 	};
+
+	const smoothScrollToBottom = useCallback(() => {
+		if (chatContentRef?.current) {
+			chatContentRef.current.scrollTo({
+				top: chatContentRef.current.scrollHeight,
+				behavior: 'smooth', // Enables smooth scrolling
+			});
+		}
+	}, [chatContentRef]);
 
 	const handleSendMessageFunc = useCallback(
 		async (e, click = null, query = null) => {
@@ -516,6 +523,9 @@ const Chat = ({
 															text={chat?.message}
 															customePencilClickFunc={
 																handleNoteComponentModalOpen
+															}
+															smoothScrollToBottom={
+																smoothScrollToBottom
 															}
 														/>
 													</div>

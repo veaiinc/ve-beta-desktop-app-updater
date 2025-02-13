@@ -1,5 +1,5 @@
 import { Drawer, Spin } from 'antd';
-import React, { useMemo, useEffect, useRef } from 'react';
+import React, { useMemo, useEffect, useRef, useCallback } from 'react';
 import '../../../assets/scss/notes/noteComponentModal.scss';
 import NoteComponent from './NoteComponent';
 import { TypingEffect } from '../../../helpers/markdownHelper';
@@ -34,18 +34,7 @@ const NoteComponentModal = ({
 	const chatContentRef = useRef(null);
 
 	useEffect(() => {
-		if (chatContentRef?.current) {
-			const observer = new MutationObserver(() => {
-				chatContentRef.current?.lastElementChild?.scrollIntoView({
-					behavior: 'smooth',
-					block: 'end',
-				});
-			});
-
-			observer.observe(chatContentRef?.current, { childList: true, subtree: true });
-
-			return () => observer.disconnect(); // Cleanup observer on unmount
-		}
+		smoothScrollToBottom();
 	}, [chatList]); // Scroll when chat updates
 
 	const chatIcons = useMemo(
@@ -67,6 +56,14 @@ const NoteComponentModal = ({
 		[onImageUpload],
 	);
 
+	const smoothScrollToBottom = useCallback(() => {
+		if (chatContentRef?.current) {
+			chatContentRef.current.scrollTo({
+				top: chatContentRef.current.scrollHeight,
+				behavior: 'smooth', // Enables smooth scrolling
+			});
+		}
+	}, [chatContentRef]);
 	return (
 		<Drawer
 			open={modalIsOpen}
@@ -80,8 +77,8 @@ const NoteComponentModal = ({
 			<div className="modal-container">
 				<div className="chatBarContainer">
 					{/* chat body */}
-					<div className={`chatBodyParentContainer`}>
-						<div className="chatContent" ref={chatContentRef}>
+					<div className={`chatBodyParentContainer`} ref={chatContentRef}>
+						<div className="chatContent">
 							{chatList?.map((chat, index) =>
 								chat?.content ? (
 									chat?.content
@@ -93,7 +90,10 @@ const NoteComponentModal = ({
 										<div className="message-content">
 											{chat?.type?.toLowerCase() === 'ai' ? (
 												<div className="content">
-													<TypingEffect text={chat?.message} />
+													<TypingEffect
+														text={chat?.message}
+														smoothScrollToBottom={smoothScrollToBottom}
+													/>
 												</div>
 											) : (
 												<Markdown>{chat?.message}</Markdown>
