@@ -38,7 +38,7 @@
 	.home-page-container-content {
 		display: inline-flex;
 		justify-content: space-between;
-		width: 79%;
+		width: 83%;
 		position: fixed;
 		top: 1.2%;
 		margin-left: 300px;
@@ -82,6 +82,9 @@
 					line-height: normal;
 					text-transform: capitalize;
 					cursor: pointer;
+					&:hover {
+						color: var(--primary-font, #f2f2f3);
+					}
 					&.active {
 						color: var(--primary-font, #f2f2f3);
 					}
@@ -166,7 +169,7 @@
 		z-index: 10;
 		background: #0c0c0d;
 		padding-top: 8px;
-
+		margin-bottom: 16px;
 		.home-page-welcome-container-left-text-options-container {
 			display: flex;
 			.home-page-welcome-container-left-text-option {

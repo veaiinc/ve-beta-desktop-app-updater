@@ -157,7 +157,10 @@ const HomePage = ({ getSelectedOption, start, setGoBackToInitialHomePage, prompt
 							>
 								<div
 									className={`home-page-container-content-item ${
-										info?.activeTab === option?.value ? 'active' : ''
+										info?.activeTab === option?.value &&
+										info?.activeTab !== 'start'
+											? 'active'
+											: ''
 									}`}
 									onClick={() => handleSetActiveTab(option?.value)}
 								>
