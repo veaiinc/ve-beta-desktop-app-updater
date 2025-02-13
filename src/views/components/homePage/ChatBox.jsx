@@ -7,6 +7,8 @@ import { ReactComponent as Close } from '../../../assets/svg/close.svg';
 import { ReactComponent as Expand } from '../../../assets/svg/bottomToolbar/expand.svg';
 import { ReactComponent as ArrowUp } from '../../../assets/svg/ai_agents/arrow-up.svg';
 import { ReactComponent as ExpandChatIcon } from '../../../assets/svg/ai_agents/expand-chat-icon.svg';
+import { ReactComponent as MicroscopeSvg } from '../../../assets/svg/ai_agents/microscope.svg';
+import { ReactComponent as WebIcon } from '../../../assets/svg/ai_agents/web.svg';
 import { ReactComponent as CloseSvg } from '../../../assets/svg/calendar/close.svg';
 import { Alert, Image, message, Spin, Tooltip } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
@@ -16,7 +18,7 @@ import ObjectID from 'bson-objectid';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Markdown from 'react-markdown';
 import { TypingEffect } from '../../../helpers/markdownHelper';
-import { ReactComponent as Filter } from '../../../assets/svg/ai_agents/filter.svg';
+import { ReactComponent as Filter } from '../../../assets/svg/my_templates/filter.svg';
 import { ReactComponent as Arroba } from '../../../assets/svg/ai_agents/arroba.svg';
 import { ReactComponent as PaperClip } from '../../../assets/svg/ai_agents/paper-clip.svg';
 import { ReactComponent as Mic } from '../../../assets/svg/ai_agents/mic.svg';
@@ -82,11 +84,15 @@ const Chat = ({
 		voiceIntegration: false,
 		noteModalIsOpen: false,
 		citationsModalIsOpen: false,
+		filtersEnabled: false,
+		webSearch: false,
+		goDeep: false,
+		isOpenedUploadFile: false,
+		isEnabledFilters: false,
 	});
 
 	const [previewOpen, setPreviewOpen] = useState(false);
 	const [previewImage, setPreviewImage] = useState('');
-	const chatContentRef = useRef(null);
 
 	useEffect(() => {
 		if (activePromptForChat) {
@@ -102,17 +108,9 @@ const Chat = ({
 		setPreviewImage(file.url || file.preview);
 		setPreviewOpen(true);
 	};
-	const handleNoteComponentModalClose = () => {
-		setInfo((prev) => ({
-			...prev,
-			noteModalIsOpen: false,
-		}));
-	};
-	const handleCloseCitationsModal = () => {
-		setInfo((prev) => ({
-			...prev,
-			citationsModalIsOpen: false,
-		}));
+
+	const handleWebSearchClick = () => {
+		setInfo((prev) => ({}));
 	};
 
 	const handleSendMessageFunc = useCallback(
@@ -498,7 +496,7 @@ const Chat = ({
 
 							<div className="buttons-container">
 								<div className="chat-icons-container">
-									{chatIcons?.map((icon, idx) => (
+									{/* {chatIcons?.map((icon, idx) => (
 										<span key={idx} className="chat-icon">
 											{icon}
 										</span>
@@ -511,7 +509,32 @@ const Chat = ({
 										<span className="chat-icon">
 											<Mic onClick={handleMicIconClick} />
 										</span>
-									)}
+									)} */}
+
+									<div className="icon-container">
+										<div className="icon">
+											<WebIcon />
+										</div>
+										<div className="right-text">Web</div>
+									</div>
+									<div className="icon-container">
+										<div className="icon">
+											<MicroscopeSvg />
+										</div>
+										<div className="right-text">Go Deep</div>
+									</div>
+									<div className="icon-container">
+										<div className="icon">
+											<PaperClip width={15} height={15} fill={'#f2f2f3'} />
+										</div>
+										<div className="right-text">Add</div>
+									</div>
+									<div className="icon-container">
+										<div className="icon">
+											<Filter />
+										</div>
+										<div className="right-text">Filters</div>
+									</div>
 								</div>
 								<div
 									className="click-btn"
@@ -544,24 +567,6 @@ const Chat = ({
 					/>
 				)}
 			</div>
-			<CitationsModal
-				modalIsOpen={info?.citationsModalIsOpen}
-				closeModal={handleCloseCitationsModal}
-			/>
-			<NoteComponentModal
-				modalIsOpen={info?.noteModalIsOpen}
-				closeModal={handleNoteComponentModalClose}
-				chatQuery={info?.chatQuery}
-				onKeyDown={handleSendMessageFunc}
-				onChange={(e) => setInfo((prev) => ({ ...prev, chatQuery: e.target.value }))}
-				chatListonChange={chatList}
-				onClick={handleSendBtnClick}
-				onImageUpload={handleChange}
-				uploadedImages={info?.uploadedImages}
-				handlePreview={handlePreview}
-				handleRemoveImage={handleRemoveImage}
-				chatList={!customChatActions ? globalChatMessages : chatList}
-			/>
 		</>
 	);
 };
