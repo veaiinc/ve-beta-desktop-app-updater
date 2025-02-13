@@ -78,7 +78,7 @@ const PlanBilling = () => {
 
 	useEffect(() => {
 		if (currentPlan) {
-			const tierStatus = currentPlan?.isPaidTenant ? true : false;
+			const tierStatus = currentPlan?.isPaidTenant ? false : true;
 			setInfo((prev) => ({
 				...prev,
 				loading: false,
@@ -98,9 +98,6 @@ const PlanBilling = () => {
 			}
 		}
 	}, [currentPlan]);
-	useEffect(() => {
-		console.log(info?.freeTier, 'freeTier');
-	}, [info?.freeTier]);
 
 	const handleAddOnsForCurrentPlan = useCallback(async () => {
 		setInfo((prev) => ({ ...prev, addOnsLoading: true }));
@@ -117,7 +114,7 @@ const PlanBilling = () => {
 		<div className="planBillingContianer">
 			{info?.loading ? (
 				<Skeleton height={'700px'} style={{ borderRadius: '32px' }} />
-			) : info?.freeTier ? (
+			) : !info?.freeTier ? (
 				<SubscribedUserPlanCard
 					data={info?.plan}
 					expiresAt={info?.expiresAt}
