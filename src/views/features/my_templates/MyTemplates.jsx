@@ -13,7 +13,7 @@ import QuickActions from '../../components/globalComponents/QuickActions';
 const SubTitle = () => {
 	return (
 		<div className="subTitleContainer">
-			<span>This is a template</span>
+			<span>with AI</span>
 		</div>
 	);
 };
@@ -21,18 +21,18 @@ const SubTitle = () => {
 const cards = [
 	{
 		id: 1,
-		title: `Let's Create a New Template`,
+		title: `Create a Template`,
 		subTitle: <SubTitle />,
 	},
-	{
-		id: 2,
-		title: 'Import file or URL',
-		subTitle: 'Create template from your file or URL',
-	},
+	// {
+	// 	id: 2,
+	// 	title: 'Import file or URL',
+	// 	subTitle: 'Create template from your file or URL',
+	// },
 	{
 		id: 3,
 		title: 'Install template from playbook',
-		subTitle: 'Pick your template from playbook',
+		subTitle: 'find your templates in Ve.Ai Marketplace',
 	},
 ];
 
