@@ -78,13 +78,13 @@ const PlanBilling = () => {
 
 	useEffect(() => {
 		if (currentPlan) {
-			const tierStatus = currentPlan?.isPaidTenant ? false : true;
+			const tierStatus = currentPlan?.isPaidTenant ? true : false;
 			setInfo((prev) => ({
 				...prev,
 				loading: false,
 				plan: currentPlan?.currentSubscriptionPlan,
 				expiresAt: currentPlan?.currentSubscriptionPlan?.expiresAt,
-				freeTier: currentPlan?.isPaidTenant,
+				freeTier: tierStatus,
 				currency: currentPlan?.currentSubscriptionPlan?.currency,
 				storageLimit: currentPlan?.storageLimitInGB,
 				imagesLimit: currentPlan?.imagesLimit,
@@ -98,6 +98,9 @@ const PlanBilling = () => {
 			}
 		}
 	}, [currentPlan]);
+	useEffect(() => {
+		console.log(info?.freeTier, 'freeTier');
+	}, [info?.freeTier]);
 
 	const handleAddOnsForCurrentPlan = useCallback(async () => {
 		setInfo((prev) => ({ ...prev, addOnsLoading: true }));
@@ -114,7 +117,7 @@ const PlanBilling = () => {
 		<div className="planBillingContianer">
 			{info?.loading ? (
 				<Skeleton height={'700px'} style={{ borderRadius: '32px' }} />
-			) : !info?.freeTier ? (
+			) : info?.freeTier ? (
 				<SubscribedUserPlanCard
 					data={info?.plan}
 					expiresAt={info?.expiresAt}
