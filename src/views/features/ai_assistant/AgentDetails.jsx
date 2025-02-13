@@ -17,9 +17,6 @@ const AgentDetails = () => {
 	const { aiAssistantId } = useParams();
 	const location = useLocation();
 	const { assistant } = location?.state || {};
-
-	console.log('para state', location);
-	console.log('para id ', assistant);
 	const navigate = useNavigate();
 
 	const [info, setInfo] = useState({
