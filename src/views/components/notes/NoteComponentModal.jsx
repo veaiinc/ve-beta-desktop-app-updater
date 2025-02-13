@@ -1,5 +1,5 @@
 import { Drawer, Spin } from 'antd';
-import React, { useContext, useMemo, useState } from 'react';
+import React, { useMemo, useEffect, useRef } from 'react';
 import '../../../assets/scss/notes/noteComponentModal.scss';
 import NoteComponent from './NoteComponent';
 import { TypingEffect } from '../../../helpers/markdownHelper';
@@ -17,7 +17,6 @@ import { ReactComponent as ShareSvg } from '../../../assets/svg/notes/share.svg'
 import { ReactComponent as ArrowUp } from '../../../assets/svg/ai_agents/arrow-up-dark.svg';
 
 import Upload from 'antd/es/upload/Upload';
-import Context from '../../../context/context';
 const noteIcons = [<PreviousSvg />, <NextSvg />, <CopySvg />, <ShareSvg />];
 const NoteComponentModal = ({
 	modalIsOpen,
@@ -32,9 +31,22 @@ const NoteComponentModal = ({
 	handleRemoveImage,
 	onClick,
 }) => {
-	const {
-		documentPreview: { setNoteContent },
-	} = useContext(Context);
+	const chatContentRef = useRef(null);
+
+	useEffect(() => {
+		if (chatContentRef?.current) {
+			const observer = new MutationObserver(() => {
+				chatContentRef.current?.lastElementChild?.scrollIntoView({
+					behavior: 'smooth',
+					block: 'end',
+				});
+			});
+
+			observer.observe(chatContentRef?.current, { childList: true, subtree: true });
+
+			return () => observer.disconnect(); // Cleanup observer on unmount
+		}
+	}, [chatList]); // Scroll when chat updates
 
 	const chatIcons = useMemo(
 		() => [
@@ -69,7 +81,7 @@ const NoteComponentModal = ({
 				<div className="chatBarContainer">
 					{/* chat body */}
 					<div className={`chatBodyParentContainer`}>
-						<div className="chatContent">
+						<div className="chatContent" ref={chatContentRef}>
 							{chatList?.map((chat, index) =>
 								chat?.content ? (
 									chat?.content
