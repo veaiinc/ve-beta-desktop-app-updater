@@ -93,10 +93,18 @@ const Chat = ({
 
 	useEffect(() => {
 		if (chatContentRef?.current) {
-			chatContentRef.current.scrollTop = chatContentRef.current.scrollHeight;
-			// chatContentRef?.current?.lastElementChild?.scrollIntoView({ behavior: 'smooth' });
+			const observer = new MutationObserver(() => {
+				chatContentRef.current?.lastElementChild?.scrollIntoView({
+					behavior: 'smooth',
+					block: 'end',
+				});
+			});
+
+			observer.observe(chatContentRef?.current, { childList: true, subtree: true });
+
+			return () => observer.disconnect(); // Cleanup observer on unmount
 		}
-	}, [globalChatMessages]); // Scroll whenever chatList changes
+	}, [globalChatMessages]); // Scroll when chat updates
 
 	useEffect(() => {
 		if (citations?.length > 0) {
