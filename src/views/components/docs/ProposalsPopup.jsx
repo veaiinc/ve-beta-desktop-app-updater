@@ -4,6 +4,8 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import ReactModal from '../modalsV2';
 import { ReactComponent as CrossSvg } from '../../../assets/svg/gallery/cross.svg';
 import { ReactComponent as SearchIcon } from '../../../assets/svg/workflow/search.svg';
+import { ReactComponent as FilterIcon } from '../../../assets/svg/docs/filter.svg';
+import { Tooltip } from 'antd';
 import '../../../assets/scss/docs/proposalsPopup.scss';
 import { fetchOriginSelection } from '../../../helpers';
 import Context from '../../../context/context';
@@ -34,13 +36,14 @@ const initialState = {
 	timeout: null,
 	searchChanged: false,
 	versionPopup: false,
+	filterOptions: false,
 };
 
 const ProposalPopup = ({ open, closeModal }) => {
 	const navigate = useNavigate();
 	const customStyles = {
-		content: { zIndex: 99999 },
-		overlay: { zIndex: 99998 },
+		content: { zIndex: 999 },
+		overlay: { zIndex: 998 },
 	};
 	const [info, setInfo] = useState({
 		...initialState,
@@ -234,7 +237,26 @@ const ProposalPopup = ({ open, closeModal }) => {
 								</div>
 							))}
 						</div>
-						<div>Hello</div>
+						<div
+							className="proposal-popup-body-filter-container"
+							onClick={() =>
+								setInfo((prev) => ({
+									...prev,
+									filterOptions: !info?.filterOptions,
+								}))
+							}
+						>
+							<Tooltip
+								open={info?.filterOptions}
+								title={'Filter'}
+								arrow={false}
+								trigger={'click'}
+								color={'transparent'}
+								placement="bottom"
+							>
+								<FilterIcon />
+							</Tooltip>
+						</div>
 					</div>
 				</div>
 				{info?.loading ? (

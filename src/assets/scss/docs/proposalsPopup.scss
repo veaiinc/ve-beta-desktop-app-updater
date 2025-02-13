@@ -70,8 +70,10 @@
 		}
 		.proposals-container {
 			display: flex;
-			flex-direction: column;
+			flex-direction: row;
 			justify-content: space-between;
+			width: 100%;
+			align-items: center;
 			.proposals-container-options {
 				display: flex;
 				flex-direction: row;
@@ -95,6 +97,20 @@
 						background: #f2f2f3;
 						color: #0c0c0d;
 					}
+				}
+			}
+			.proposal-popup-body-filter-container {
+				display: flex;
+				padding: 6px 14px;
+				align-items: center;
+				gap: 4px;
+				div {
+					color: #f2f2f3;
+					font-family: Inter;
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: 22px;
 				}
 			}
 		}
