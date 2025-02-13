@@ -166,7 +166,7 @@
 
 			.docsTemplateCard {
 				display: flex;
-				width: 232px;
+				width: 270px;
 				height: 258px;
 				padding-bottom: 16px;
 				flex-direction: column;
@@ -252,39 +252,52 @@
 						// }
 					}
 				}
-				.docsFooterContent {
+				.docsFooterContentContainer {
 					display: flex;
-					flex-direction: column;
-					align-items: flex-start;
-					gap: 4px;
-					align-self: stretch;
-					padding: 0px 16px;
-					background: #121315;
-					padding-bottom: 16px;
-					padding-top: 12px;
-					.docsFooterContentTitle {
-						color: #e4e5e6;
-						color: color(display-p3 0.8941 0.898 0.902);
-						font-family: Inter;
-						font-size: 14px;
-						font-style: normal;
-						font-weight: 500;
-						line-height: normal;
+					flex-direction: row;
+					width: 100%;
+					justify-content: space-between;
+					align-items: center;
+					.docsFooterContent {
+						display: flex;
+						flex-direction: column;
+						align-items: flex-start;
+						gap: 4px;
+						align-self: stretch;
+						padding: 0px 16px;
+						background: #121315;
+						padding-bottom: 16px;
+						padding-top: 12px;
+						.docsFooterContentTitle {
+							color: #e4e5e6;
+							color: color(display-p3 0.8941 0.898 0.902);
+							font-family: Inter;
+							font-size: 14px;
+							font-style: normal;
+							font-weight: 500;
+							line-height: normal;
 
-						max-width: 190px;
-						white-space: nowrap;
-						overflow: hidden;
-						text-overflow: ellipsis;
-						display: block;
+							max-width: 190px;
+							white-space: nowrap;
+							overflow: hidden;
+							text-overflow: ellipsis;
+							display: block;
+						}
+						.docsFooterContentSubTitle {
+							color: #e4e5e6;
+							color: color(display-p3 0.8941 0.898 0.902);
+							font-family: Inter;
+							font-size: 12px;
+							font-style: normal;
+							font-weight: 400;
+							line-height: normal;
+						}
 					}
-					.docsFooterContentSubTitle {
-						color: #e4e5e6;
-						color: color(display-p3 0.8941 0.898 0.902);
-						font-family: Inter;
-						font-size: 12px;
-						font-style: normal;
-						font-weight: 400;
-						line-height: normal;
+					.docsFooterContentActions {
+						display: flex;
+						width: 52px;
+						justify-content: space-between;
+						align-items: center;
 					}
 				}
 			}

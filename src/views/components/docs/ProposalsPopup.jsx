@@ -14,7 +14,6 @@ import { useNavigate } from 'react-router-dom';
 import CreateFileLead from '../myTemplate/CreateFileLead';
 const origin = fetchOriginSelection();
 
-const options = ['All', 'form-submission', 'proposal', 'presentation', 'invoice', 'contract'];
 const templateOptions = [
 	{ id: 1, title: 'All', value: 'all' },
 	{ id: 2, title: 'Form', value: 'form-submission' },
@@ -22,6 +21,12 @@ const templateOptions = [
 	{ id: 4, title: 'Presentation', value: 'presentation' },
 	{ id: 5, title: 'Invoice', value: 'invoice' },
 	{ id: 6, title: 'Contract', value: 'contract' },
+];
+
+const filterOptions = [
+	{ id: 1, title: 'A-Z', value: 'a-z' },
+	{ id: 2, title: 'Recently Added', value: 'recently-added' },
+	{ id: 3, title: 'Last Modified', value: 'last-modified' },
 ];
 
 const initialState = {
@@ -237,26 +242,44 @@ const ProposalPopup = ({ open, closeModal }) => {
 								</div>
 							))}
 						</div>
-						<div
-							className="proposal-popup-body-filter-container"
-							onClick={() =>
+						<Tooltip
+							open={info?.filterOptions}
+							onOpenChange={() =>
 								setInfo((prev) => ({
 									...prev,
 									filterOptions: !info?.filterOptions,
 								}))
 							}
+							title={
+								<div className="filter-options-tooltip">
+									{filterOptions.map((option) => (
+										<div
+											key={option?.id}
+											className="filter-options-tooltip-option"
+										>
+											{option?.title}
+										</div>
+									))}
+								</div>
+							}
+							arrow={false}
+							trigger={'click'}
+							color={'transparent'}
+							placement="bottom"
 						>
-							<Tooltip
-								open={info?.filterOptions}
-								title={'Filter'}
-								arrow={false}
-								trigger={'click'}
-								color={'transparent'}
-								placement="bottom"
+							<div
+								className="proposal-popup-body-filter-container"
+								onClick={() =>
+									setInfo((prev) => ({
+										...prev,
+										filterOptions: !info?.filterOptions,
+									}))
+								}
 							>
+								<div>Filter</div>
 								<FilterIcon />
-							</Tooltip>
-						</div>
+							</div>
+						</Tooltip>
 					</div>
 				</div>
 				{info?.loading ? (

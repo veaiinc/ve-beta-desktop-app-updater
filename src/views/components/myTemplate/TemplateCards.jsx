@@ -4,6 +4,8 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import { fetchOriginSelection } from '../../../helpers';
 import SideBarPreview from './SideBarPreview';
 import CreateFileLead from './CreateFileLead';
+import { ReactComponent as OpenedEye } from '../../../assets/svg/my_templates/openedEye.svg';
+import { ReactComponent as ThreeDots } from '../../../assets/svg/my_templates/verticalThreeDots.svg';
 import moment from 'moment';
 let origin = fetchOriginSelection();
 
@@ -15,6 +17,7 @@ const TemplateCards = ({ data, loading, hasNextPage, fetchMoreMyWorkflows }) => 
 		showPreview: false,
 		templateData: null,
 		showFileLeadModal: false,
+		hoverIndex: null,
 	});
 
 	useEffect(() => {
@@ -24,6 +27,7 @@ const TemplateCards = ({ data, loading, hasNextPage, fetchMoreMyWorkflows }) => 
 			hasNextPage: hasNextPage,
 			showPreview: false,
 			showFileLeadModal: false,
+			hoverIndex: null,
 		});
 	}, [data, loading, hasNextPage]);
 
@@ -69,8 +73,16 @@ const TemplateCards = ({ data, loading, hasNextPage, fetchMoreMyWorkflows }) => 
 						{info?.workflowTemplates?.map((template, index) => (
 							<div
 								key={index}
-								className="docsTemplateCard"
+								className={`docsTemplateCard ${
+									info?.hoverIndex === index ? 'hover' : ''
+								}`}
 								onClick={() => handleTemplateClick(template)}
+								onMouseEnter={() =>
+									setInfo((prev) => ({ ...prev, hoverIndex: index }))
+								}
+								onMouseLeave={() =>
+									setInfo((prev) => ({ ...prev, hoverIndex: null }))
+								}
 							>
 								<div className="docsTemplateImageContainer">
 									<iframe
@@ -87,19 +99,29 @@ const TemplateCards = ({ data, loading, hasNextPage, fetchMoreMyWorkflows }) => 
 										}}
 									/>
 								</div>
-								<div className="docsFooterContent">
-									<span
-										className="docsFooterContentTitle"
-										title={template?.title || 'Template Card'}
-									>
-										{template?.title || 'Template Card'}
-									</span>
-									<span className="docsFooterContentSubTitle">
-										Created On:{' '}
-										{template?.createdAt
-											? moment.unix(template?.createdAt).format('DD MMM YYYY')
-											: ''}
-									</span>
+								<div className="docsFooterContentContainer">
+									<div className="docsFooterContent">
+										<span
+											className="docsFooterContentTitle"
+											title={template?.title || 'Template Card'}
+										>
+											{template?.title || 'Template Card'}
+										</span>
+										<span className="docsFooterContentSubTitle">
+											Created On:{' '}
+											{template?.createdAt
+												? moment
+														.unix(template?.createdAt)
+														.format('DD MMM YYYY')
+												: ''}
+										</span>
+									</div>
+									{info?.hoverIndex === index && (
+										<div className="docsFooterContentActions">
+											<OpenedEye />
+											<ThreeDots />
+										</div>
+									)}
 								</div>
 							</div>
 						))}
