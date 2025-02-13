@@ -11,6 +11,7 @@ import { Calendar } from './Calendar/state';
 import { TasksState } from './tasks/state';
 import { useMemo } from 'react';
 import { ContactsState } from './contacts/state';
+import { DocumentPreviewState } from './DocumentPreview/state';
 import { AutomationBuilderState } from './automationBuilder/state';
 
 const useCombineState = () => {
@@ -27,6 +28,7 @@ const useCombineState = () => {
 	const calendarInfo = Calendar();
 	const tasks = TasksState();
 	const contacts = ContactsState();
+	const documentPreview = DocumentPreviewState();
 	const automationBuilder = AutomationBuilderState();
 	// Only memoize the final combined object
 	return useMemo(
@@ -43,6 +45,7 @@ const useCombineState = () => {
 			calendarInfo,
 			tasks,
 			contacts,
+			documentPreview,
 			automationBuilder,
 		}),
 		[
@@ -58,6 +61,7 @@ const useCombineState = () => {
 			calendarInfo,
 			tasks,
 			contacts,
+			documentPreview,
 			automationBuilder,
 		],
 	);

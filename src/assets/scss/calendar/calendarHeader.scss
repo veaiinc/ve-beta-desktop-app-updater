@@ -27,7 +27,7 @@
 			.calendarDate {
 				display: flex;
 				align-items: center;
-				gap: 5px;
+				gap: 8px;
 				cursor: pointer;
 
 				color: #e4e5e6;
@@ -36,6 +36,7 @@
 				font-style: normal;
 				font-weight: 500;
 				line-height: normal;
+				user-select: none;
 			}
 
 			.viewToggleWrapper {

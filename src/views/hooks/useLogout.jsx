@@ -16,6 +16,7 @@ const useLogout = () => {
 		aiSetup: { resetAiSetupState },
 		tasks: { resetTasksState },
 		contacts: { resetContactsState },
+		documentPreview: { resetDocumentPreviewState },
 		automationBuilder: { resetAutomationBuilderState },
 	} = useContext(Context);
 
@@ -41,6 +42,7 @@ const useLogout = () => {
 		resetAiSetupState();
 		resetTasksState();
 		resetContactsState();
+		resetDocumentPreviewState();
 		resetAutomationBuilderState();
 	}, []);
 

@@ -5,52 +5,40 @@ import '@blocknote/mantine/style.css';
 import { useCreateBlockNote } from '@blocknote/react';
 import '../../../assets/scss/notes/noteComponent.scss';
 import { locales } from '@blocknote/core';
-
-const content = [
-	{
-		id: '437ddacc-fe2a-4f0a-89b1-27bad7088ad2',
-		type: 'paragraph',
-		props: {
-			textColor: 'default',
-			backgroundColor: 'default',
-			textAlignment: 'left',
-		},
-		content: [
-			{
-				type: 'text',
-				text: 'New page',
-				styles: {},
-			},
-		],
-		children: [],
-	},
-	{
-		id: '1c6f0227-6d08-4c44-9ada-a9a5bee0abfc',
-		type: 'paragraph',
-		props: {
-			textColor: 'default',
-			backgroundColor: 'default',
-			textAlignment: 'left',
-		},
-		content: [],
-		children: [],
-	},
-];
+import NoteToolbar from './NoteToolbar';
+import { useEffect, memo, useContext } from 'react';
+import Context from '../../../context/context';
 
 const NoteComponent = ({
-	initialContent = content,
+	initialContent = '',
 	customOnChange = null,
 	outerContainerStyle = {},
 	innerContainerStyle = {},
+	editable = true,
 }) => {
+	let {
+		documentPreview: { noteContent },
+	} = useContext(Context);
 	// Creates a new editor instance.
-	const editor = useCreateBlockNote({
-		initialContent: initialContent,
-	});
+	const editor = useCreateBlockNote();
 
-	const saveContent = () => {
-		const content = editor.document; // Get editor content as JSON
-		console.log(content);
+	useEffect(() => {
+		async function loadInitialHTML() {
+			const preprocessMarkdown = (markdown) => {
+				return markdown?.replace(/\n{2,}/g, '\n\n&nbsp;\n\n'); // Add a non-breaking space for empty lines
+			};
+
+			const blocks = await editor.tryParseMarkdownToBlocks(preprocessMarkdown(noteContent));
+			editor.replaceBlocks(editor.document, blocks);
+		}
+
+		if (noteContent?.length) loadInitialHTML();
+	}, [noteContent]);
+
+	const onChange = async () => {
+		// Converts the editor's contents from Block objects to Markdown and store to state.
+		const markdown = await editor.blocksToMarkdownLossy(editor.document);
+		// console.log(markdown);
 	};
 
 	// Renders the editor instance using a React component.
@@ -58,11 +46,15 @@ const NoteComponent = ({
 		<div className="notes-container" style={outerContainerStyle}>
 			<BlockNoteView
 				editor={editor}
-				onChange={customOnChange ? customOnChange : saveContent}
+				formattingToolbar={false}
+				onChange={customOnChange ? customOnChange : onChange}
 				style={innerContainerStyle}
-			/>
+				editable={editable}
+			>
+				<NoteToolbar />
+			</BlockNoteView>
 		</div>
 	);
 };
 
-export default NoteComponent;
+export default memo(NoteComponent);

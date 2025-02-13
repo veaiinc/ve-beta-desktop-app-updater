@@ -331,15 +331,9 @@ const CreateEvent = ({ categoryList, selectedCategory, updateCalendarInfo, selec
 					/>
 				</div>
 				{info?.submissionError && (
-					<div
-						style={{
-							color: 'red',
-							display: 'flex',
-							justifyContent: 'center',
-							alignItems: 'center',
-						}}
-					>
-						{info?.submissionError}
+					<div className="createEventSubmissionError">
+						⚠️
+						<span>{info?.submissionError}</span>
 					</div>
 				)}
 				<div className="eventDetailsContainer">
