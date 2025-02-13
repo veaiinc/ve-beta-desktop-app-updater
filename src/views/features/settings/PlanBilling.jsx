@@ -415,7 +415,7 @@ const AddOnPlans = ({ addOnsLoading }) => {
 											<h1 className="addOnPlanName">{plan}</h1>
 											<div className="priceContainer">
 												<span className="currencySymbol">
-													{currency === 'INR' ? 'â‚¹ ' : '$ '}
+													{currency === 'INR' ? '₹ ' : '$ '}
 												</span>
 												<span className="priceValue">{totalPrice}</span>
 												<span
