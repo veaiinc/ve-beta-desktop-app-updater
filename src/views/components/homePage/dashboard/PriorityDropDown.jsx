@@ -17,14 +17,8 @@ const PriorityDropDown = ({ selectedOption, handleOptionClick }) => {
 	});
 
 	let {
-		templates: { getTabItemCount, tabItemCount },
+		templates: { tabItemCount },
 	} = useContext(Context);
-
-	useEffect(() => {
-		if (!tabItemCount) {
-			getTabItemCount();
-		}
-	}, []);
 
 	const activeOption = optionItems?.find((item) => item?.id === selectedOption);
 	const activeOptionLabel = activeOption?.label;

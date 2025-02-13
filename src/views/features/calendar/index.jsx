@@ -3,11 +3,11 @@ import '../../../assets/scss/calendar/calendar.scss';
 import CalendarSidebar from './CalendarSidebar';
 import CalendarView from './CalendarView';
 import Context from '../../../context/context';
-import BottomToolbar from '../../components/ai_agents/BottomToolbar';
-import { ReactComponent as AiSparkel } from '../../../assets/svg/calendar/aiSparkel.svg';
-import WorkflowSlugSelector from '../../components/calendar/WorkflowSlugSelector';
 import ObjectId from 'bson-objectid';
 import moment from 'moment';
+// import BottomToolbar from '../../components/ai_agents/BottomToolbar';
+// import { ReactComponent as AiSparkel } from '../../../assets/svg/calendar/aiSparkel.svg';
+// import WorkflowSlugSelector from '../../components/calendar/WorkflowSlugSelector';
 
 const initialState = {
 	selectedWeek: [],
@@ -37,7 +37,7 @@ const Calendar = () => {
 			refetchCalendarState,
 		},
 		companyInfo: { getTeamMembers },
-		// templates: { getWorkflowsList, workflowslist, moreWorkList },
+		templates: { leftSidebarState, updateStateValues },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -47,6 +47,13 @@ const Calendar = () => {
 		selectedDate: new Date(),
 		...initialState,
 	});
+
+	useEffect(() => {
+		updateStateValues({ leftSidebarState: 'close' });
+		return () => {
+			updateStateValues({ leftSidebarState: null });
+		};
+	}, []);
 
 	useEffect(() => {
 		const sessionId = ObjectId().toString();
