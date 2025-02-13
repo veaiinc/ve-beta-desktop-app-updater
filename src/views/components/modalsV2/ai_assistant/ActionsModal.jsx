@@ -155,18 +155,18 @@ const ActionsModal = ({
 		}
 
 		// Validate body content is valid JSON if present
+
 		if (info?.bodyContent?.trim()) {
 			try {
-				// JSON.parse(info?.bodyContent);
-				// First replace variables that are direct values with a dummy string
+				// 1) Replace placeholders that appear after a colon
 				let validationContent = info?.bodyContent?.replace(
-					/:\s*({{\s*[\w.-]+\s*}})/g,
+					/:\s*({{\s*[\w\s.-]+\s*}})/g,
 					': "dummy_value"',
 				);
 
-				// Then replace variables inside strings
+				// 2) Replace placeholders that appear inside strings
 				validationContent = validationContent?.replace(
-					/"[^"]*{{[\w.-]+}}[^"]*"/g,
+					/"[^"]*{{[\w\s.-]+}}[^"]*"/g,
 					'"dummy_string"',
 				);
 
@@ -194,7 +194,6 @@ const ActionsModal = ({
 
 		try {
 			setInfo((prev) => ({ ...prev, addingAction: true }));
-
 			// Parse body content
 			let parsedBody = {};
 			try {

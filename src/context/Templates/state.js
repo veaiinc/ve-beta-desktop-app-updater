@@ -79,6 +79,8 @@ export const intialState = {
 	moreDraftStateWorkflowtemplates: null,
 	createLeadModalContextState: false,
 	globalChatMessages: [{ type: 'AI', message: 'Hello, how can I help you today?' }],
+	citations: null,
+	followUpQuery: null,
 	docsFilesList: null,
 	moreDocsFilesList: null,
 	smartFileRefetch: false,
@@ -91,6 +93,7 @@ export const intialState = {
 	activePromptForChat: null,
 	smartFileRefetch: false,
 	activeWorkflowSlugForSmartFile: null,
+	leftSidebarState: null,
 };
 
 export const TemplatesState = (props) => {
@@ -1519,6 +1522,30 @@ export const TemplatesState = (props) => {
 			});
 			const response = await Service.fetchPost(url, payload, usertoken, 'ai_predictions');
 			if (response?.[0]) {
+				const citations = response?.[1]?.citations;
+				const followUpQuery = response?.[1]?.['follow_up_query'];
+				if (citations && citations?.length > 0) {
+					dispatch({
+						type: Actions?.CHAT_CITATIONS_SUCCESS,
+						payload: citations,
+					});
+				} else {
+					dispatch({
+						type: Actions?.CHAT_CITATIONS_SUCCESS,
+						payload: null,
+					});
+				}
+				if (followUpQuery?.length) {
+					dispatch({
+						type: Actions?.CHAT_FOLLOW_UP_QUERY,
+						payload: followUpQuery,
+					});
+				} else {
+					dispatch({
+						type: Actions?.CHAT_FOLLOW_UP_QUERY,
+						payload: null,
+					});
+				}
 				const updatedGlobalChatMessages = {
 					type: 'AI',
 					message: response?.[1]?.answer,

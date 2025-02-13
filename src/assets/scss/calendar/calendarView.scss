@@ -15,6 +15,7 @@
 	.rbc-day-bg + .rbc-day-bg {
 		border-left: none;
 	}
+
 	.rbc-event-label {
 		margin-bottom: 5px;
 	}
@@ -22,7 +23,7 @@
 	.rbc-time-view,
 	.rbc-month-view {
 		border: none;
-		padding: 34px;
+		padding: 24px;
 		padding-top: 18px;
 	}
 
@@ -31,8 +32,12 @@
 	}
 
 	.rbc-time-view .rbc-allday-cell {
-		max-height: 80px;
+		max-height: 60px;
 		overflow-y: auto;
+
+		.rbc-row-bg {
+			gap: 3px;
+		}
 	}
 
 	.rbc-allday-cell .rbc-row-content .rbc-button-link {
@@ -42,6 +47,7 @@
 
 	.rbc-time-header.rbc-overflowing {
 		border: none;
+		gap: 3px;
 	}
 
 	.rbc-time-header-content {
@@ -50,10 +56,24 @@
 
 	.rbc-time-content {
 		border: none;
+		gap: 3px;
 	}
 
 	.rbc-timeslot-group {
 		border: none;
+		border-radius: 3px;
+		background-color: #1c1d1f;
+	}
+
+	.rbc-time-gutter {
+		.rbc-timeslot-group {
+			background: transparent;
+		}
+		.rbc-time-slot {
+			align-items: center;
+			display: flex;
+			justify-content: center;
+		}
 	}
 
 	.rbc-day-slot .rbc-time-slot {
@@ -64,29 +84,31 @@
 		border: none;
 	}
 
+	.rbc-time-content > .rbc-day-slot {
+		gap: 3px;
+	}
+
 	.rbc-day-slot .rbc-events-container {
 		margin: 2px;
 	}
 
-	.rbc-timeslot-group {
-		// border-top: 0.5px solid rgb(81, 78, 78);
-		border-top: 0.5px solid rgba(81, 78, 78, 0.3);
-	}
-
 	.rbc-label .rbc-time-header-gutter {
 		width: 64px;
+		font-size: 10px;
 	}
 
 	.rbc-today {
-		background-color: #222222;
+		background: transparent;
 	}
 
 	.rbc-time-view .rbc-time-gutter {
-		text-align: start;
+		text-align: center;
+		font-size: 10px;
+		gap: 3px;
 	}
 
 	.rbc-label {
-		padding: 0px;
+		padding: 5px;
 	}
 
 	.rbc-timeslot-group {
@@ -105,19 +127,24 @@
 				gap: 5px;
 
 				.rbc-day-bg {
+					padding: 16px;
 					border-radius: 4px;
-					background: rgba(176, 176, 176, 0.05);
+					background: #171819;
 					cursor: pointer;
 					&:hover {
-						background: rgba(176, 176, 176, 0.15);
+						background: #0d0e108a;
 						box-shadow: -4px -4px 6px 0px rgba(228, 229, 230, 0.07) inset,
-							4px 4px 6px 0px rgba(17, 17, 17, 0.51) inset;
+							4px 4px 6px 0px rgba(13, 14, 16, 0.54) inset;
 					}
 				}
-				.rbc-today {
-					background: rgba(176, 176, 176, 0.15);
-					box-shadow: -4px -4px 6px 0px rgba(228, 229, 230, 0.07) inset,
-						4px 4px 6px 0px rgba(17, 17, 17, 0.51) inset;
+				// .rbc-today {
+				// 	background: rgba(176, 176, 176, 0.15);
+				// 	box-shadow: -4px -4px 6px 0px rgba(228, 229, 230, 0.07) inset,
+				// 		4px 4px 6px 0px rgba(17, 17, 17, 0.51) inset;
+				// }
+
+				.rbc-off-range-bg {
+					background: #1c1d1f;
 				}
 			}
 			.rbc-row-content {
@@ -130,8 +157,8 @@
 							justify-content: flex-start;
 							text-align: start;
 							display: flex;
-							padding: 5px 16px;
-							padding-bottom: 0;
+							padding: 8px 10px;
+							padding-bottom: 4px;
 							color: #e0e0e0;
 							text-align: center;
 							font-family: Inter;
@@ -140,14 +167,16 @@
 							font-weight: 600;
 						}
 					}
+
 					.rbc-off-range {
 						.rbc-button-link {
 							color: #7d7d7d;
 							width: 100% !important;
 						}
 					}
+
 					.rbc-row-segment {
-						padding-left: 5px;
+						padding: 2px 5px;
 						.rbc-event {
 							// background-color: none;
 							// background: none; //to show months event bg
@@ -161,7 +190,7 @@
 
 								.leftColorBar {
 									display: inline-block;
-									width: 2px;
+									width: 2.5px;
 									height: auto;
 									border-radius: 10px;
 									flex-shrink: 0;
@@ -183,6 +212,21 @@
 							}
 						}
 					}
+
+					.rbc-current {
+						.rbc-button-link {
+							border-radius: 4px;
+							background: var(--primary-font, #f2f2f3);
+							background: var(--primary-font, color(display-p3 0.949 0.949 0.9529));
+							display: flex;
+							padding: 4px;
+							justify-content: center;
+							align-items: center;
+							gap: 10px;
+							color: #0c0c0d;
+							margin: 10px 5px 5px 8px;
+						}
+					}
 				}
 			}
 		}
@@ -190,7 +234,18 @@
 		.customEventWrapper {
 			.rbc-event {
 				border: none;
+				border: none;
+				padding: 3px;
+				min-width: 100%;
+				background: none;
+				// background: #1d1d1d;
 			}
+		}
+	}
+
+	.rbc-time-view {
+		.rbc-row {
+			min-height: 2px;
 		}
 	}
 }
@@ -242,7 +297,10 @@ body > .rbc-overlay {
 	width: 100%;
 	color: rgba(228, 229, 230, 0.48);
 	font-family: Inter;
-	font-size: 9px;
+	font-size: 7px;
 	font-style: normal;
 	line-height: normal;
+	height: 100%;
+	display: flex;
+	align-items: center;
 }
