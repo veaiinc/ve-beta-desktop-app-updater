@@ -45,22 +45,37 @@
 		margin-top: 222px;
 		width: 100%;
 		justify-content: space-between;
-		.initialHomePageContainer-header {
-			color: var(--primary-font, #f2f2f3);
-			text-align: center;
-			font-family: Inter;
-			font-size: 40px;
-			font-style: normal;
-			font-weight: 300;
-			line-height: 44px;
+		.initialHomePageContainer-content-left {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			flex-direction: column;
 			flex: 1;
-			span {
-				color: #a98df8;
+			gap: 8px;
+			.initialHomePageContainer-header {
+				color: var(--primary-font, #f2f2f3);
+				text-align: center;
 				font-family: Inter;
 				font-size: 40px;
-				font-style: italic;
-				font-weight: 600;
+				font-style: normal;
+				font-weight: 300;
 				line-height: 44px;
+				span {
+					color: #a98df8;
+					font-family: Inter;
+					font-size: 40px;
+					font-style: italic;
+					font-weight: 600;
+					line-height: 44px;
+				}
+			}
+			.initialHomePageContainer-content-left-description {
+				color: var(--secondary-font, #787e87);
+				font-family: Inter;
+				font-size: 16px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
 			}
 		}
 		.initialHomePageContainerOptions {
@@ -88,6 +103,9 @@
 				}
 			}
 		}
+	}
+	.initialHomePageContainer-chatBox {
+		margin-top: 222px;
 	}
 	.initialHomePageContainer-prompts {
 		display: flex;

@@ -93,6 +93,10 @@ const actionHandlers = {
 		...state,
 		[action?.selectedVariable]: action?.payload,
 	}),
+	GET_PROMPTS_DATA: (state, action) => ({
+		...state,
+		promptsData: action?.payload,
+	}),
 
 	RESET_STATE: () => initialState,
 };

@@ -11,6 +11,7 @@ import FilterPopUp from '../globalComponents/FilterPopUp';
 import BottomToolbar from '../ai_agents/BottomToolbar';
 import ToolBarChatContainerModal from '../modalsV2/ToolBarChatContainerModal';
 import Context from '../../../context/context';
+import { useNavigate } from 'react-router-dom';
 const files = [
 	'My Templates',
 	'Wedding Proposals',
@@ -35,6 +36,7 @@ const PromptPopup = ({ open, closeModal, selectedCard }) => {
 	const [isOpen, setIsOpen] = useState(false);
 	const [clientSearch, setClientSearch] = useState('');
 	const [dynamicPrompt, setDynamicPrompt] = useState(selectedCard?.prompt || '');
+	const navigate = useNavigate();
 
 	const selectedCardVariables = selectedCard?.variables;
 
@@ -84,6 +86,7 @@ const PromptPopup = ({ open, closeModal, selectedCard }) => {
 	const handleClickRun = useCallback(() => {
 		updateStateValues({ activePromptForChat: dynamicPrompt });
 		closeModal();
+		navigate('/chat');
 	}, [dynamicPrompt]);
 
 	return (
