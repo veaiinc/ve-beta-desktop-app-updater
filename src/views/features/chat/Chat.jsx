@@ -140,7 +140,9 @@ const Chat = ({
 	};
 
 	const handleFollowUpQueryClick = () => {
-		updateStateValues({ activePromptForChat: followUpQuery, followUpQuery: null });
+		if (info?.chatLoading === false) {
+			updateStateValues({ activePromptForChat: followUpQuery, followUpQuery: null });
+		}
 	};
 
 	const smoothScrollToBottom = useCallback(() => {
