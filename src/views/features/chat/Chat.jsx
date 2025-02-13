@@ -27,6 +27,7 @@ import { ReactComponent as AiSparkel } from '../../../assets/svg/calendar/aiSpar
 import useVoiceIntegration from '../../hooks/useVoiceIntegration';
 import CitationsModal from '../../components/modalsV2/chat/CitationsModal';
 import NoteComponentModal from '../../components/notes/NoteComponentModal';
+import Skeleton from 'react-loading-skeleton';
 
 const moduleHelper = {
 	tasks: 'tasks',
@@ -139,7 +140,9 @@ const Chat = ({
 	};
 
 	const handleFollowUpQueryClick = () => {
-		updateStateValues({ activePromptForChat: followUpQuery, followUpQuery: null });
+		if (info?.chatLoading === false) {
+			updateStateValues({ activePromptForChat: followUpQuery, followUpQuery: null });
+		}
 	};
 
 	const smoothScrollToBottom = useCallback(() => {
@@ -245,10 +248,9 @@ const Chat = ({
 					message: 'loading....',
 					content: (
 						<div className="aiMessageWrapper">
-							<AiSparkel />
-							<div className="aiMessage">
-								<span>Thinking...</span>
-							</div>
+							<Skeleton height={20} width={'100%'} borderRadius={'100px'} />
+							<Skeleton height={20} width={'75%'} borderRadius={'100px'} />
+							<Skeleton height={20} width={'50%'} borderRadius={'100px'} />
 						</div>
 					),
 					contentType: 'loading',
@@ -453,7 +455,6 @@ const Chat = ({
 			>
 				<PaperClip />
 			</Upload>,
-			<Mic onClick={handleMicIconClick} />,
 		],
 		[info, handleChange],
 	);
@@ -463,19 +464,6 @@ const Chat = ({
 			handleSendMessageFunc(e, true);
 		}
 	};
-
-	// {info?.voiceIntegration ? (
-	//     <div style={{ display: 'flex', justifyContent: 'center' }}>
-	//         <img
-	//             src={'https://ap.assets.ve.ai/logo/speaking%20final.gif'}
-	//             width={'40px'}
-	//             height={'40px'}
-	//             style={{ marginBottom: '12px' }}
-	//         />
-	//     </div>
-	// ) : (
-	//     ''
-	// )}
 
 	return (
 		<>
@@ -539,6 +527,18 @@ const Chat = ({
 							</div>
 						</div>
 						<div className="chatInputContainer">
+							{info?.voiceIntegration ? (
+								<div style={{ display: 'flex', justifyContent: 'center' }}>
+									<img
+										src={'https://ap.assets.ve.ai/logo/speaking%20final.gif'}
+										width={'40px'}
+										height={'40px'}
+										style={{ marginBottom: '12px' }}
+									/>
+								</div>
+							) : (
+								''
+							)}
 							{info?.uploadedImages?.length ? (
 								<div className="imagePreviewBar">
 									{info?.uploadedImages?.map((ele, index) => (
@@ -605,6 +605,15 @@ const Chat = ({
 												{icon}
 											</span>
 										))}
+										{info?.voiceIntegration ? (
+											<span className="chat-icon" onClick={handleDisConnect}>
+												<Close style={{ width: '20px', height: '20px' }} />
+											</span>
+										) : (
+											<span className="chat-icon">
+												<Mic onClick={handleMicIconClick} />
+											</span>
+										)}
 									</div>
 									<div
 										className="click-btn"
