@@ -31,16 +31,17 @@
 		display: flex;
 		align-items: center;
 		flex-direction: column;
-		// gap: 20px;
-		justify-content: center; //give it different property to algin chat icons and header
+		gap: 20px;
+		justify-content: flex-start;
 
 		border-radius: 32px;
 		background: #171819;
 		background: color(display-p3 0.0902 0.0941 0.098);
 
 		.ai-playground-header {
-			margin-bottom: 50px;
+			// margin-bottom: 50px;
 
+			padding: 20px;
 			color: #f2f2f3;
 			color: color(display-p3 0.949 0.949 0.9529);
 			font-family: Inter;
@@ -55,9 +56,13 @@
 .ai-playground-iframe {
 	border: none;
 	position: relative;
-	min-width: 500px;
-	min-height: 500px;
+	min-width: 700px;
+	min-height: 700px;
 	z-index: 10000;
+
+	@media screen and (min-width: 1024px) and (max-width: 1440px) {
+		zoom: 0.6;
+	}
 
 	.css-1hpnbz2 {
 		bottom: 40%;
