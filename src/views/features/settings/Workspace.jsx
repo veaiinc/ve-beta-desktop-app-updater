@@ -35,7 +35,9 @@ const SettingsWorkspace = () => {
 	useEffect(() => {
 		setInfo({
 			...info,
-			brandDescription: tennantSettingsData?.brandMetadata?.brandVoice ?? '',
+			brandDescription:
+				tennantSettingsData?.brandMetadata?.brandVoice ||
+				'Your brand description will appear here',
 		});
 	}, [tennantSettingsData]);
 
@@ -51,10 +53,10 @@ const SettingsWorkspace = () => {
 	}, [tennantSettingsData]);
 
 	useEffect(() => {
-		// if (wordCount > 500) message?.error('Word count limit exceeded');
-		// if (info?.brandDescription?.length > 500) {
-		// 	setInfo({ ...info, brandDescription: info?.brandDescription?.slice(0, 500) });
-		// }
+		if (wordCount > 5000) message?.error('Oops! You have reached the word count limit of 5000');
+		if (info?.brandDescription?.length > 5000) {
+			setInfo({ ...info, brandDescription: info?.brandDescription?.slice(0, 5000) });
+		}
 	}, [wordCount, info?.brandDescription]);
 
 	return (
@@ -110,7 +112,7 @@ const SettingsWorkspace = () => {
 					onChange={(e) => setInfo({ ...info, brandDescription: e?.target?.value })}
 				></textarea>
 				<div className="wordCountContainer">
-					<span className="wordCount">{wordCount}/500</span>
+					<span className="wordCount">{wordCount}/5000</span>
 				</div>
 			</div>
 			<div className="settingsBoxContainer timezoneCurrencyComponent">
