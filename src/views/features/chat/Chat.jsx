@@ -93,18 +93,9 @@ const Chat = ({
 
 	useEffect(() => {
 		if (chatContentRef?.current) {
-			const observer = new MutationObserver(() => {
-				chatContentRef.current?.lastElementChild?.scrollIntoView({
-					behavior: 'smooth',
-					block: 'end',
-				});
-			});
-
-			observer.observe(chatContentRef?.current, { childList: true, subtree: true });
-
-			return () => observer.disconnect(); // Cleanup observer on unmount
+			chatContentRef.current.scrollTop = chatContentRef.current.scrollHeight;
 		}
-	}, [globalChatMessages]); // Scroll when chat updates
+	}, [globalChatMessages, chatList]); // Scroll when chat updates
 
 	useEffect(() => {
 		if (citations?.length > 0) {
@@ -232,8 +223,6 @@ const Chat = ({
 							}
 						}
 					}
-
-					// setInfo((prev) => ({ ...prev, chatQuery: '', uploadedImages: [] }));
 				}
 			}
 		},
@@ -510,8 +499,8 @@ const Chat = ({
 							width: `${info?.citationsModalIsOpen ? 'calc(100% - 400px)' : '100%'}`,
 						}}
 					>
-						<div className={`chatBodyParentContainer`}>
-							<div className="chatContent" ref={chatContentRef}>
+						<div className={`chatBodyParentContainer`} ref={chatContentRef}>
+							<div className="chatContent">
 								{globalChatMessages?.map((chat, index) =>
 									chat?.content ? (
 										chat?.content
