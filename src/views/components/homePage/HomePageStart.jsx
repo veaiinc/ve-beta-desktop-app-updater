@@ -24,19 +24,7 @@ const HomePageStart = ({ setInfo, promptsData }) => {
 				))}
 			</div>
 			{!promptsData?.data?.length && (
-				<div
-					className="home-page-cards-container-no-data"
-					style={{
-						marginTop: '16px',
-						color: '#f2f2f3',
-						textAlign: 'center',
-						fontSize: '16px',
-						fontWeight: '500',
-						width: '100%',
-					}}
-				>
-					No data found
-				</div>
+				<div className="home-page-cards-container-no-data">No data found</div>
 			)}
 		</>
 	);
