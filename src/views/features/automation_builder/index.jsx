@@ -464,9 +464,9 @@ const AutomationBuilder = () => {
 						/>
 					</div>
 					<BuilderToolbar
-						open={info?.toolBarOpen}
+						open={info?.toolBarOpen || true}
 						onCLose={handleToolBarClose}
-						sidebarType={info?.sidebarType}
+						sidebarType={info?.sidebarType || 'run'}
 						activeEdge={info?.activeEdge}
 						automationId={automationId}
 						activeStepsData={info?.activeStepsData}

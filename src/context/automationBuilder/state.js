@@ -6,6 +6,7 @@ import { Actions } from './actions';
 export const initialState = {
 	specificAutomationInfo: null,
 	connectedIntegrations: null,
+	executionHistory: null,
 };
 
 export const AutomationBuilderState = () => {

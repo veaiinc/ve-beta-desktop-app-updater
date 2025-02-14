@@ -6,6 +6,7 @@ import Conditions from './AutomationBuilderSidebarComponents/Conditions';
 import Notification from './AutomationBuilderSidebarComponents/Notification';
 import Context from '../../../context/context';
 import Triggers from './AutomationBuilderSidebarComponents/Triggers';
+import RunSidebar from './AutomationBuilderSidebarComponents/RunSidebar';
 const BuilderToolbar = ({
 	open,
 	onCLose,
@@ -94,6 +95,8 @@ const BuilderToolbar = ({
 					automationId={automationId}
 				/>
 			),
+
+			run: <RunSidebar />,
 
 			pipeline: <Actions onCLose={onCLose} activeEdge={activeEdge} templateId={templateId} />,
 			trigger: <Actions onCLose={onCLose} activeEdge={activeEdge} templateId={templateId} />,
