@@ -1,4 +1,5 @@
 import React, { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import '../../../assets/scss/my_templates/myTemplates.scss';
 import { ReactComponent as Stars } from '../../../assets/svg/my_templates/stars.svg';
 import { ReactComponent as Plus } from '../../../assets/svg/my_templates/plus.svg';
@@ -80,6 +81,7 @@ const MyTemplates = () => {
 			templatesRefetch,
 		},
 	} = useContext(Context);
+	const navigate = useNavigate();
 
 	const [info, setInfo] = useState({
 		...initialState,
@@ -201,13 +203,25 @@ const MyTemplates = () => {
 		[info?.activeTab],
 	);
 
+	const handleCardClick = (card) => {
+		if (card?.id === 3) {
+			navigate('/playbook');
+		}
+	};
+
 	return (
 		<div className="myTemplatesContainer">
 			<div className="headerContainer">
 				<div className="myTemplatesHeader">
-					<div className="headerText">
-						<span className="lineOne">Templates</span>
-						<span className="lineTwo">You Created</span>
+					<div className="headerTextContainer">
+						<div className="headerText">
+							<span className="lineOne">Templates</span>
+							<span className="lineTwo">You Created</span>
+						</div>
+						<div className="headerSubText">
+							Create, save, and reuse templates for documents, proposals, invoices,
+							contracts, and presentations.
+						</div>
 					</div>
 					<div className="quickActionsBtn">
 						<QuickActions />
@@ -216,7 +230,12 @@ const MyTemplates = () => {
 
 				<div className="cardsContainer">
 					{cards.map((card) => (
-						<div className="card" key={card?.id}>
+						<div
+							className="card"
+							key={card?.id}
+							onClick={() => handleCardClick(card)}
+							style={{ cursor: card?.id === 3 ? 'pointer' : 'default' }}
+						>
 							<h2 className="cardTitle">{card?.title}</h2>
 							<p className="cardSubTitle">{card?.subTitle}</p>
 						</div>

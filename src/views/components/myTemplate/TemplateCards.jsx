@@ -17,6 +17,7 @@ const TemplateCards = ({ data, loading, hasNextPage, fetchMoreMyWorkflows }) => 
 	const navigate = useNavigate();
 	const {
 		templates: { deleteWorkflowTemplates, duplicateGlobalWorkflowTemplate, updateStateValues },
+		activityInfo: { createSmartfile, smartfile },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		workflowTemplates: data,
@@ -32,6 +33,7 @@ const TemplateCards = ({ data, loading, hasNextPage, fetchMoreMyWorkflows }) => 
 		deleteWorkflowLoader: false,
 		hoverTemplateData: null,
 		deleteTemplateData: null,
+		previewTemplateData: null,
 	});
 
 	useEffect(() => {
@@ -45,12 +47,38 @@ const TemplateCards = ({ data, loading, hasNextPage, fetchMoreMyWorkflows }) => 
 		});
 	}, [data, loading, hasNextPage]);
 
+	useEffect(() => {
+		if (smartfile?._id && info?.templateData?._id) {
+			window.location.href = `${origin}/${smartfile?._id}?workflow=true&templateId=${info?.templateData?._id}`;
+		}
+	}, [smartfile]);
+
 	const handleTemplateClick = (template) => {
-		setInfo((prev) => ({ ...prev, showPreview: true, templateData: template }));
+		setInfo((prev) => ({ ...prev, showPreview: true, previewTemplateData: template }));
 	};
 
 	const openFileLeadModal = () => {
 		setInfo((prev) => ({ ...prev, showFileLeadModal: true }));
+	};
+
+	const createFileFunc = async (template) => {
+		setInfo((prev) => ({ ...prev, loading: true, templateData: template }));
+		const payload = {
+			smartFileInput: {
+				templateId: template?._id,
+				title: template?.title,
+			},
+		};
+		await createSmartfile(payload);
+		setInfo((prev) => ({ ...prev, loading: false }));
+	};
+
+	const createFileClick = (template) => {
+		if (template?.version) {
+			createFileFunc(template);
+		} else {
+			openFileLeadModal(template);
+		}
 	};
 
 	const duplicateWorkflowFunc = useCallback(
@@ -130,7 +158,10 @@ const TemplateCards = ({ data, loading, hasNextPage, fetchMoreMyWorkflows }) => 
 								className={`docsTemplateCard ${
 									info?.hoverIndex === index ? 'hover' : ''
 								}`}
-								onClick={() => handleTemplateClick(template)}
+								onClick={(e) => {
+									e.stopPropagation();
+									createFileClick(template);
+								}}
 								onMouseEnter={() =>
 									setInfo((prev) => ({
 										...prev,
@@ -180,7 +211,12 @@ const TemplateCards = ({ data, loading, hasNextPage, fetchMoreMyWorkflows }) => 
 									</div>
 									{info?.hoverIndex === index && (
 										<div className="docsFooterContentActions">
-											<OpenedEye />
+											<OpenedEye
+												onClick={(e) => {
+													e.stopPropagation();
+													handleTemplateClick(template);
+												}}
+											/>
 											<Tooltip
 												title={
 													<div className="docsFooterContentActionsTooltip">
@@ -234,7 +270,7 @@ const TemplateCards = ({ data, loading, hasNextPage, fetchMoreMyWorkflows }) => 
 			<SideBarPreview
 				open={info?.showPreview}
 				onClose={() => setInfo((prev) => ({ ...prev, showPreview: false }))}
-				activeTemplate={info?.templateData}
+				activeTemplate={info?.previewTemplateData}
 				openFileLeadModal={openFileLeadModal}
 			/>
 

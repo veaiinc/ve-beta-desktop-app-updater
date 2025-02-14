@@ -387,7 +387,7 @@ const Sidebar = ({ open, onClose, activeFileData, refetchDocsFilesList, openDele
 				headerStyle={{ display: 'none' }}
 				bodyStyle={{ padding: '0px' }}
 				// width={480}
-				width={width}
+				width={info?.sideBarExpanded ? 'fit-content' : width}
 			>
 				<div
 					className="resize-handle"
@@ -403,11 +403,24 @@ const Sidebar = ({ open, onClose, activeFileData, refetchDocsFilesList, openDele
 						border: 'none',
 					}}
 				/>
-				<div className={`fileListViewDrawerWrapper `}>
+				<div
+					className={`fileListViewDrawerWrapper ${
+						info?.sideBarExpanded ? 'fileListViewDrawer-expanded' : ''
+					}`}
+					// style={{ width: info?.sideBarExpanded ? '100vw' : width }}
+				>
 					<div className="fileListViewDrawer">
 						<div className="headerContainer">
 							<div className="headerLeftLabel">
 								<CloseSvg onClick={modifyClose} />
+								<ExpandSvg
+									onClick={() =>
+										setInfo((prev) => ({
+											...prev,
+											sideBarExpanded: !prev?.sideBarExpanded,
+										}))
+									}
+								/>
 							</div>
 							<div className="headerRightLabel">
 								{/* <div>Draft</div> */}

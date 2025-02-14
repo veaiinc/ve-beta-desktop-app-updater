@@ -1,9 +1,6 @@
 .fileListViewDrawerWrapper {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	gap: 24px;
-	height: 100dvh;
+	height: 100%;
+	// padding: 10px;
 	.fileListViewDrawer {
 		color: #fff;
 
@@ -324,9 +321,8 @@
 }
 .fileListViewDrawer-expanded {
 	padding: 0px;
-	width: 720px;
+	width: 100vw;
 	height: 100vh;
-
 	.fileListViewDrawer {
 		border-radius: 0px;
 
