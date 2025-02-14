@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useMemo, useState, useContext, useEffect } from 'react';
+import React, { memo, useCallback, useMemo, useState, useContext, useEffect, useRef } from 'react';
 import '../../../assets/scss/docs/fileListView.scss';
 import { ReactComponent as CloseSvg } from '../../../assets/svg/tasks/doubleRightArrow.svg';
 import { ReactComponent as ExpandSvg } from '../../../assets/svg/docs/expand.svg';
@@ -6,6 +6,8 @@ import { ReactComponent as ShareSvg } from '../../../assets/svg/docs/share.svg';
 import { ReactComponent as DotsSvg } from '../../../assets/svg/docs/vertidot.svg';
 import { ReactComponent as PersonSvg } from '../../../assets/svg/tasks/person.svg';
 import { ReactComponent as PieSvg } from '../../../assets/svg/tasks/pieHollow.svg';
+import { ReactComponent as CostSvg } from '../../../assets/svg/docs/cost.svg';
+import { ReactComponent as ProjectDateSvg } from '../../../assets/svg/docs/projectDate.svg';
 // import { ReactComponent as ActivitySvg } from '../../../assets/svg/docs/activity.svg';
 import { ReactComponent as DuplicateSvg } from '../../../assets/svg/shareAndEarn/copy.svg';
 import { ReactComponent as DeleteSvg } from '../../../assets/svg/tasks/dustBin.svg';
@@ -68,7 +70,30 @@ const Sidebar = ({ open, onClose, activeFileData, refetchDocsFilesList, openDele
 	const [info, setInfo] = useState({
 		...initialState,
 	});
-
+	const [width, setWidth] = useState(422);
+	const isResizing = useRef(false);
+	const startX = useRef(0);
+	const startWidth = useRef(0);
+	// Start resizing
+	const handleMouseDown = (e) => {
+		isResizing.current = true;
+		startX.current = e.clientX;
+		startWidth.current = width;
+		document.addEventListener('mousemove', handleMouseMove);
+		document.addEventListener('mouseup', handleMouseUp);
+	};
+	const handleMouseMove = (e) => {
+		if (!isResizing.current) return;
+		const newWidth = startWidth.current - (e.clientX - startX.current);
+		if (newWidth > 422 && newWidth < 1000) {
+			setWidth(newWidth);
+		}
+	};
+	const handleMouseUp = () => {
+		isResizing.current = false;
+		document.removeEventListener('mousemove', handleMouseMove);
+		document.removeEventListener('mouseup', handleMouseUp);
+	};
 	useEffect(() => {
 		setInfo((prev) => ({ ...prev, activeFileData: activeFileData }));
 	}, [activeFileData]);
@@ -362,39 +387,45 @@ const Sidebar = ({ open, onClose, activeFileData, refetchDocsFilesList, openDele
 				headerStyle={{ display: 'none' }}
 				bodyStyle={{ padding: '0px' }}
 				// width={480}
-				width={'fit-content'}
+				width={width}
 			>
 				<div
-					className={`fileListViewDrawerWrapper ${
-						info?.sideBarExpanded ? 'fileListViewDrawer-expanded' : ''
-					}`}
-				>
+					className="resize-handle"
+					onMouseDown={handleMouseDown}
+					style={{
+						position: 'absolute',
+						left: 0,
+						top: 0,
+						width: '5px',
+						height: '100%',
+						cursor: 'ew-resize',
+						zIndex: 10,
+						border: 'none',
+					}}
+				/>
+				<div className={`fileListViewDrawerWrapper `}>
 					<div className="fileListViewDrawer">
 						<div className="headerContainer">
 							<div className="headerLeftLabel">
 								<CloseSvg onClick={modifyClose} />
-								<ExpandSvg
-									onClick={() =>
-										setInfo((prev) => ({
-											...prev,
-											sideBarExpanded: !prev?.sideBarExpanded,
-										}))
-									}
-								/>
 							</div>
 							<div className="headerRightLabel">
 								{/* <div>Draft</div> */}
-								<DocsStatusButton
-									content={statusTextmapper?.[info?.activeFileData?.status]?.text}
-									style={statusTextmapper?.[info?.activeFileData?.status]?.style}
-									dotStyle={
-										statusTextmapper?.[info?.activeFileData?.status]?.dotStyle
-									}
-								/>
-								<div className="editLabel" onClick={workflowRedirectionsToBuilder}>
-									Edit
-								</div>
-								<ShareSvg onClick={openSendSmartFileModal} />
+								{!info?.sideBarExpanded && (
+									<DocsStatusButton
+										content={
+											statusTextmapper?.[info?.activeFileData?.status]?.text
+										}
+										style={
+											statusTextmapper?.[info?.activeFileData?.status]?.style
+										}
+										dotStyle={
+											statusTextmapper?.[info?.activeFileData?.status]
+												?.dotStyle
+										}
+									/>
+								)}
+								{/* <ShareSvg onClick={openSendSmartFileModal} /> */}
 								<Tooltip
 									placement="bottomRight"
 									open={info?.openMoreOptions}
@@ -414,7 +445,12 @@ const Sidebar = ({ open, onClose, activeFileData, refetchDocsFilesList, openDele
 												<DuplicateSvg />
 												<span>Duplicate</span>
 											</div>
-											<div className="items" onClick={openDeleteModal}>
+											<div className="items" onClick={openSendSmartFileModal}>
+												<ShareSvg />
+												<span>Share</span>
+											</div>
+											<hr style={{ width: '100%', opacity: 0.1 }} />
+											<div className="deleteItem" onClick={openDeleteModal}>
 												<DeleteSvg />
 												<span>Delete</span>
 											</div>
@@ -446,20 +482,20 @@ const Sidebar = ({ open, onClose, activeFileData, refetchDocsFilesList, openDele
 											{info?.activeFileData?.clientDetails?.name}
 										</div>
 									</div>
-									{/* <div className="listDataMapperRow">
-							<div className="listDataMapperRowLabel">
-								svg
-								<span>Cost</span>
-							</div>
-							<div className="listDataMapperRowValue">$123,456.00</div>
-						</div> */}
-									{/* <div className="listDataMapperRow">
-							<div className="listDataMapperRowLabel">
-								svg
-								<span>Project Date</span>
-							</div>
-							<div className="listDataMapperRowValue">Jan 8 2025</div>
-						</div> */}
+									<div className="listDataMapperRow">
+										<div className="listDataMapperRowLabel">
+											<CostSvg />
+											<span>Cost</span>
+										</div>
+										<div className="listDataMapperRowValue">$123,456.00</div>
+									</div>
+									<div className="listDataMapperRow">
+										<div className="listDataMapperRowLabel">
+											<ProjectDateSvg />
+											<span>Project Date</span>
+										</div>
+										<div className="listDataMapperRowValue">Jan 8 2025</div>
+									</div>
 									<div className="listDataMapperRow">
 										<div className="listDataMapperRowLabel">
 											<PieSvg />
@@ -484,14 +520,14 @@ const Sidebar = ({ open, onClose, activeFileData, refetchDocsFilesList, openDele
 									</div>
 								</div>
 
-								<CustomTextArea
+								{/* <CustomTextArea
 									value={`${info?.selectedRow?.title || ''}`}
 									onChange={(e) => {}}
 									autoResize={true}
 									placeholder="Add Description.... "
 									style={{ padding: '0px' }}
 									// className="titleInput"
-								/>
+								/> */}
 							</div>
 
 							<div className="tabsViewWrapper">
@@ -513,6 +549,9 @@ const Sidebar = ({ open, onClose, activeFileData, refetchDocsFilesList, openDele
 									{tabs?.[info?.activeTab]?.Component || ''}
 								</div>
 							</div>
+						</div>
+						<div className="editLabel" onClick={workflowRedirectionsToBuilder}>
+							Edit
 						</div>
 					</div>
 				</div>
