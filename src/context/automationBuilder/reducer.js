@@ -21,6 +21,11 @@ const actionHandlers = {
 		specificAutomationInfo: action.payload,
 	}),
 
+	SET_EXECUTION_HISTORY: (state, action) => ({
+		...state,
+		executionHistory: action.payload,
+	}),
+
 	RESET_STATE: () => initialState,
 };
 

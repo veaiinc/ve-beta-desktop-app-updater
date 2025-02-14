@@ -149,6 +149,31 @@ export const AutomationBuilderState = () => {
 		}
 	};
 
+	const getExecutionHistory = async (automationId) => {
+		try {
+			const usertoken = localStorage.getItem('usertoken');
+			const workspaceId = localStorage.getItem('workspaceId');
+			const response = await restService.fetchGet(
+				`/${workspaceId}/${automationId}/execution/list`,
+				usertoken,
+				'automation_builder_api',
+			);
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.SET_EXECUTION_HISTORY,
+					payload: { data: response?.[1] },
+				});
+			} else {
+				dispatch({
+					type: Actions.SET_EXECUTION_HISTORY,
+					payload: { error: response?.[1]?.message },
+				});
+			}
+		} catch (error) {
+			console.log('API failed ==> getExecutionHistory', error);
+		}
+	};
+
 	const resetAutomationBuilderState = () => {
 		dispatch({ type: Actions.RESET_STATE });
 	};
@@ -163,5 +188,6 @@ export const AutomationBuilderState = () => {
 		resetAutomationBuilderState,
 		getConnectionDetails,
 		updateAutomation,
+		getExecutionHistory,
 	};
 };

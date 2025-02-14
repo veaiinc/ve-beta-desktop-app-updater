@@ -23,6 +23,7 @@ import UpdatedPageLoader from '../../components/loaders/UpdatedPageLoader';
 import BuilderToolbar from '../../components/automationBuilder/BuilderToolbar';
 import { message, Spin } from 'antd';
 import Configuration from '../../components/automationBuilder/AutomationBuilderSidebarComponents/Configuration';
+import TabHeader from '../../components/ai_assistant/TabHeader';
 
 // Define node types
 const nodeTypes = {
@@ -413,12 +414,36 @@ const AutomationBuilder = () => {
 	}, [info?.publishLoading, updateCurrentAutomation]);
 
 	return (
-		<div className="updatedWorkflowBuilderContainer">
+		<div className="updatedAutomationBuilderContainer">
 			<div className="updatedBuilderHeaderContainer">
 				<span className="previousStepText" onClick={() => navigate(-1)}>
 					Previous Step
 				</span>
-				<span className="workflowBuilderHeadingTag">Workflow Builder</span>
+				<div className="updatedBuilderHeaderTabContainer">
+					<TabHeader
+						activeTab={info?.sidebarType === 'run' ? 'run' : 'workflowBuilder'}
+						onTabChange={(option) => {
+							if (option === 'run') {
+								setInfo((prev) => ({
+									...prev,
+									sidebarType: 'run',
+									toolBarOpen: true,
+								}));
+							} else {
+								setInfo((prev) => ({
+									...prev,
+									sidebarType: null,
+									toolBarOpen: false,
+								}));
+							}
+						}}
+						tabs={[
+							{ label: 'Workflow builder', value: 'workflowBuilder' },
+							{ label: 'Runs', value: 'run' },
+						]}
+					/>
+				</div>
+				{/* <span className="workflowBuilderHeadingTag">Workflow Builder</span> */}
 				<div className="headerActionsContainer">
 					<button
 						className="publishBtn"
@@ -440,6 +465,9 @@ const AutomationBuilder = () => {
 			) : (
 				<div className="updatedWorkflowBuilderContainer">
 					<div className="reactFlowContainer">
+						{info?.sidebarType === 'run' && (
+							<div className="runHistoryNameContainer">{`Run #1`}</div>
+						)}
 						<ReactFlow
 							nodes={nodes}
 							edges={edges}
@@ -464,9 +492,9 @@ const AutomationBuilder = () => {
 						/>
 					</div>
 					<BuilderToolbar
-						open={info?.toolBarOpen || true}
+						open={info?.toolBarOpen}
 						onCLose={handleToolBarClose}
-						sidebarType={info?.sidebarType || 'run'}
+						sidebarType={info?.sidebarType}
 						activeEdge={info?.activeEdge}
 						automationId={automationId}
 						activeStepsData={info?.activeStepsData}

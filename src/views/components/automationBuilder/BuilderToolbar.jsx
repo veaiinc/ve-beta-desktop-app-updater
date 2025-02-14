@@ -96,12 +96,12 @@ const BuilderToolbar = ({
 				/>
 			),
 
-			run: <RunSidebar />,
+			run: <RunSidebar automationId={automationId} />,
 
 			pipeline: <Actions onCLose={onCLose} activeEdge={activeEdge} templateId={templateId} />,
 			trigger: <Actions onCLose={onCLose} activeEdge={activeEdge} templateId={templateId} />,
 		};
-	}, [sidebarType, onCLose, info?.slackConnected, info?.googleConnected, step]);
+	}, [sidebarType, onCLose, info?.slackConnected, info?.googleConnected, step, automationId]);
 
 	return (
 		<Drawer
