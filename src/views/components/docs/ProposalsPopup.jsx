@@ -4,8 +4,6 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import ReactModal from '../modalsV2';
 import { ReactComponent as CrossSvg } from '../../../assets/svg/gallery/cross.svg';
 import { ReactComponent as SearchIcon } from '../../../assets/svg/workflow/search.svg';
-import { ReactComponent as FilterIcon } from '../../../assets/svg/docs/filter.svg';
-import { Tooltip } from 'antd';
 import '../../../assets/scss/docs/proposalsPopup.scss';
 import { fetchOriginSelection } from '../../../helpers';
 import Context from '../../../context/context';
@@ -14,24 +12,11 @@ import { useNavigate } from 'react-router-dom';
 import CreateFileLead from '../myTemplate/CreateFileLead';
 const origin = fetchOriginSelection();
 
-const templateOptions = [
-	{ id: 1, title: 'All', value: 'all' },
-	{ id: 2, title: 'Form', value: 'form-submission' },
-	{ id: 3, title: 'Proposal', value: 'proposal' },
-	{ id: 4, title: 'Presentation', value: 'presentation' },
-	{ id: 5, title: 'Invoice', value: 'invoice' },
-	{ id: 6, title: 'Contract', value: 'contract' },
-];
-
-const filterOptions = [
-	{ id: 1, title: 'A-Z', value: 'a-z' },
-	{ id: 2, title: 'Recently Added', value: 'recently-added' },
-	{ id: 3, title: 'Last Modified', value: 'last-modified' },
-];
+const options = ['All', 'Proposal', 'Invoice', 'Contract', 'Thank you'];
 
 const initialState = {
 	search: '',
-	selectedOption: '',
+	selectedOption: 'All',
 	loading: true,
 	workflowTemplates: [],
 	activeTemplateData: null,
@@ -41,35 +26,27 @@ const initialState = {
 	timeout: null,
 	searchChanged: false,
 	versionPopup: false,
-	filterOptions: false,
+	smartfileIdFromExistingClient: null,
 };
 
-const ProposalPopup = ({ open, closeModal }) => {
+const ProposalPopup = ({ open, closeModal, clientDetails = null }) => {
 	const navigate = useNavigate();
 	const customStyles = {
-		content: { zIndex: 999 },
-		overlay: { zIndex: 998 },
+		content: { zIndex: 99999 },
+		overlay: { zIndex: 99998 },
 	};
 	const [info, setInfo] = useState({
 		...initialState,
 	});
 
 	const {
-		templates: { getMyWorkflows, myWorkflows, myMoreWorkflows },
+		templates: { getMyWorkflows, myWorkflows, myMoreWorkflows, createLeadfromTemplates },
 		activityInfo: { createSmartfile, smartfile },
 	} = useContext(Context);
 
 	useEffect(() => {
 		getMyWorkflowsTemplatesData(1);
 	}, []);
-
-	useEffect(() => {
-		if (info?.selectedOption !== 'all') {
-			getMyWorkflowsTemplatesData(1, info?.search, false, info?.selectedOption);
-		} else {
-			getMyWorkflowsTemplatesData(1, info?.search);
-		}
-	}, [info?.selectedOption]);
 
 	useEffect(() => {
 		if (myWorkflows) {
@@ -88,6 +65,12 @@ const ProposalPopup = ({ open, closeModal }) => {
 			window.location.href = `${origin}/${smartfile?._id}?workflow=true&templateId=${info?.activeTemplateData?._id}`;
 		}
 	}, [smartfile]);
+
+	useEffect(() => {
+		if (info?.smartfileIdFromExistingClient) {
+			window.location.href = `${origin}/${info?.smartfileIdFromExistingClient}?workflow=true&templateId=${info?.activeTemplateData?._id}`;
+		}
+	}, [info?.smartfileIdFromExistingClient]);
 
 	useEffect(() => {
 		if (info?.searchChanged) {
@@ -112,15 +95,39 @@ const ProposalPopup = ({ open, closeModal }) => {
 
 		setInfo((prev) => ({ ...prev, loading: true, activeTemplateData: template }));
 
-		const payload = {
-			smartFileInput: {
-				title: template?.title,
-				templateId: template?._id,
-			},
-		};
+		let payload = null;
+
+		if (clientDetails && clientDetails?.name) {
+			payload = {
+				workflowInput: {
+					clientDetails: {
+						name: clientDetails?.['name'],
+					},
+					templateId: template?._id,
+					title: clientDetails?.['name'],
+				},
+			};
+		} else {
+			payload = {
+				smartFileInput: {
+					title: template?.title,
+					templateId: template?._id,
+				},
+			};
+		}
 
 		try {
-			await createSmartfile(payload);
+			if (clientDetails && clientDetails?.name) {
+				const response = await createLeadfromTemplates(payload);
+				if (response?.[0]) {
+					setInfo((prev) => ({
+						...prev,
+						smartfileIdFromExistingClient: response?.[1],
+					}));
+				}
+			} else {
+				await createSmartfile(payload);
+			}
 		} catch (error) {
 			console.error('Failed to create smartfile:', error);
 		} finally {
@@ -131,37 +138,26 @@ const ProposalPopup = ({ open, closeModal }) => {
 		setInfo((prev) => ({ ...prev, versionPopup: true, activeTemplateData: template }));
 	};
 
-	const getMyWorkflowsTemplatesData = useCallback(
-		(page, search = null, fetchMore = false, selectedOption = null) => {
-			const payload = {
-				filters: {
-					limit: 9,
-					page: page,
-					type: 'workspace',
-					status: 'published',
-					sortBy: 'createdAt',
-					sortType: -1,
-				},
-			};
-			if (search) {
-				payload.filters.title = search;
-			}
-			if (selectedOption) {
-				payload.filters.action = selectedOption;
-			}
-			getMyWorkflows(payload, fetchMore);
-		},
-		[],
-	);
+	const getMyWorkflowsTemplatesData = useCallback((page, search = null, fetchMore = false) => {
+		const payload = {
+			filters: {
+				limit: 9,
+				page: page,
+				type: 'workspace',
+				status: 'published',
+				sortBy: 'createdAt',
+				sortType: -1,
+			},
+		};
+		if (search) {
+			payload.filters.title = search;
+		}
+		getMyWorkflows(payload, fetchMore);
+	}, []);
 
 	const fetchMoreMyWorkflows = useCallback(() => {
-		getMyWorkflowsTemplatesData(
-			info?.currentPage + 1,
-			info?.search,
-			true,
-			info?.selectedOption,
-		);
-	}, [info?.hasNextPage, info?.currentPage, info?.search, info?.selectedOption]);
+		getMyWorkflowsTemplatesData(info?.currentPage + 1, info?.search, true);
+	}, [info?.hasNextPage, info?.currentPage, info?.search]);
 
 	const myWorkflowsDataParser = useCallback(
 		(dataToBeUsed, fetchMore = false) => {
@@ -224,62 +220,19 @@ const ProposalPopup = ({ open, closeModal }) => {
 							+ Blank document
 						</button> */}
 					</div>
-					<div className="proposals-container">
-						<div className="proposals-container-options">
-							{templateOptions.map((option) => (
-								<div
-									className={`proposal-popup-body-option ${
-										info.selectedOption === option?.value ? 'selected' : ''
-									}`}
-									onClick={() =>
-										setInfo((prev) => ({
-											...prev,
-											selectedOption: option?.value,
-										}))
-									}
-								>
-									{option?.title}
-								</div>
-							))}
-						</div>
-						<Tooltip
-							open={info?.filterOptions}
-							onOpenChange={() =>
-								setInfo((prev) => ({
-									...prev,
-									filterOptions: !info?.filterOptions,
-								}))
-							}
-							title={
-								<div className="filter-options-tooltip">
-									{filterOptions.map((option) => (
-										<div
-											key={option?.id}
-											className="filter-options-tooltip-option"
-										>
-											{option?.title}
-										</div>
-									))}
-								</div>
-							}
-							arrow={false}
-							trigger={'click'}
-							color={'transparent'}
-							placement="bottom"
-						>
+					<div className="proposal-popup-body-options-container">
+						{options.map((option) => (
 							<div
-								className="proposal-popup-body-filter-container"
+								className={`proposal-popup-body-option ${
+									info.selectedOption === option ? 'selected' : ''
+								}`}
 								onClick={() =>
-									setInfo((prev) => ({
-										...prev,
-										filterOptions: !info?.filterOptions,
-									}))
+									setInfo((prev) => ({ ...prev, selectedOption: option }))
 								}
 							>
-								<div>Filter</div>
-								<FilterIcon />
+								{option}
 							</div>
-						</Tooltip>
+						))}
 					</div>
 				</div>
 				{info?.loading ? (
