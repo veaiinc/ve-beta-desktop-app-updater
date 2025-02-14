@@ -231,7 +231,7 @@ export const SubscriptionState = (props) => {
 				usertoken,
 				'auth',
 			);
-			if (response?.[0]) {
+			if (response?.[0] === true) {
 				return [true, response?.[1]?.customerPortalLink];
 			} else {
 				message.error('Unable to create  user stripe sessions');
