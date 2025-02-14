@@ -5,14 +5,14 @@ import { ReactComponent as Home } from '../../../assets/svg/ai_agents/home.svg';
 import { ReactComponent as Settings } from '../../../assets/svg/ai_agents/settings.svg';
 import { ReactComponent as Close } from '../../../assets/svg/close.svg';
 import { ReactComponent as Expand } from '../../../assets/svg/bottomToolbar/expand.svg';
-import ToolBarChatContainerModal from '../modalsV2/ToolBarChatContainerModal';
+
 import { ReactComponent as ArrowUp } from '../../../assets/svg/ai_agents/arrow-up.svg';
 import { Alert, Image, message, Spin, Tooltip } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
 import { Upload } from 'antd';
 import Context from '../../../context/context';
 import ObjectID from 'bson-objectid';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 // import Markdown from 'react-markdown';
 // import { TypingEffect } from '../../../helpers/markdownHelper';
 // import { ReactComponent as AiStarInChat } from '../../../assets/svg/ai_agents/ai-star-in-chat.svg';
@@ -65,6 +65,7 @@ const BottomToolbar = ({
 	} = useVoiceIntegration();
 
 	const location = useLocation();
+	const navigate = useNavigate();
 
 	const [info, setInfo] = useState({
 		expanded: false,
@@ -77,7 +78,7 @@ const BottomToolbar = ({
 		chatSessionId: ObjectID().toString(),
 		uploadedImages: [],
 		chatLoading: false,
-		showFullPage: false,
+		showFullPage: true,
 		voiceIntegration: false,
 	});
 
@@ -168,7 +169,7 @@ const BottomToolbar = ({
 	// }, []);
 
 	const handleCloseChatModal = useCallback(() => {
-		setInfo((prev) => ({ ...prev, chatModalIsOpen: false, showFullPage: false }));
+		setInfo((prev) => ({ ...prev, chatModalIsOpen: false }));
 	}, [info]);
 
 	const handlePreview = async (file) => {
@@ -188,6 +189,7 @@ const BottomToolbar = ({
 				}
 				// Prevent default to avoid unwanted new line
 				e?.preventDefault();
+				navigate('/chat');
 
 				if (
 					(aiChatLoading || info?.chatLoading) &&
@@ -213,6 +215,8 @@ const BottomToolbar = ({
 						const payload = {
 							query: currentQuery,
 							timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+							knowledge_base_search: true,
+							web_search: true,
 						};
 						let localPayload = {};
 						if (info?.uploadedImages?.length) {
@@ -413,8 +417,6 @@ const BottomToolbar = ({
 				handleGlobalImageProcessing(file);
 			}
 
-			console.log(uploadedImages);
-
 			setInfo((prev) => ({
 				...prev,
 				// addQuickAction: false,
@@ -493,6 +495,13 @@ const BottomToolbar = ({
 			...prev,
 			bigToolbarIsOpen: true,
 		}));
+	};
+
+	const handleSendBtnClick = (e) => {
+		if (info?.chatQuery?.trim()?.length > 0) {
+			handleSendMessageFunc(e, true);
+			navigate('/chat');
+		}
 	};
 
 	return (
@@ -597,14 +606,7 @@ const BottomToolbar = ({
 							<div
 								className="click-btn"
 								onClick={(e) => {
-									e?.stopPropagation();
-									if (info?.chatQuery?.trim()?.length > 0) {
-										setInfo((prev) => ({
-											...prev,
-											chatModalIsOpen: true,
-										}));
-										handleSendMessageFunc(e, true);
-									}
+									handleSendBtnClick(e);
 								}}
 							>
 								<ArrowUp />
@@ -635,22 +637,6 @@ const BottomToolbar = ({
 			) : (
 				''
 			)}
-			<ToolBarChatContainerModal
-				onClose={handleCloseChatModal}
-				modalIsOpen={info?.chatModalIsOpen}
-				chatList={!customChatActions ? globalChatMessages : chatList}
-				onSend={onSend}
-				chatQuery={info?.chatQuery}
-				onChange={(e) => setInfo((prev) => ({ ...prev, chatQuery: e.target.value }))}
-				onKeyDown={handleSendMessageFunc}
-				aiChatLoading={aiChatLoading}
-				showFullPage={info?.showFullPage}
-				toggleFullPage={toggleFullPage}
-				onImageUpload={handleChange}
-				uploadedImages={info?.uploadedImages}
-				handlePreview={handlePreview}
-				handleRemoveImage={handleRemoveImage}
-			/>
 			{previewImage && (
 				<Image
 					wrapperStyle={{
