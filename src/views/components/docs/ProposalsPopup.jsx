@@ -18,7 +18,7 @@ const options = ['All', 'Proposal', 'Invoice', 'Contract', 'Thank you'];
 
 const initialState = {
 	search: '',
-	selectedOption: 'All',
+	selectedOptionAll: 'All',
 	loading: true,
 	workflowTemplates: [],
 	activeTemplateData: null,
@@ -30,7 +30,7 @@ const initialState = {
 	versionPopup: false,
 	smartfileIdFromExistingClient: null,
 	filterOption: false,
-	selectedOption: null,
+	optionSelected: null,
 };
 
 const ProposalPopup = ({ open, closeModal, clientDetails = null }) => {
@@ -65,10 +65,10 @@ const ProposalPopup = ({ open, closeModal, clientDetails = null }) => {
 	}, [myMoreWorkflows]);
 
 	useEffect(() => {
-		if (info?.selectedOption) {
+		if (info?.optionSelected) {
 			getMyWorkflowsTemplatesData(1, info?.search, false, 'updatedAt');
 		}
-	}, [info?.selectedOption]);
+	}, [info?.optionSelected]);
 
 	useEffect(() => {
 		if (smartfile?._id && info?.activeTemplateData?._id) {
@@ -245,9 +245,10 @@ const ProposalPopup = ({ open, closeModal, clientDetails = null }) => {
 									className={`proposal-popup-body-option ${
 										info.selectedOption === option ? 'selected' : ''
 									}`}
-									onClick={() =>
-										setInfo((prev) => ({ ...prev, selectedOption: option }))
-									}
+									onClick={(e) => {
+										e.stopPropagation();
+										setInfo((prev) => ({ ...prev, selectedOption: option }));
+									}}
 								>
 									{option}
 								</div>
@@ -255,9 +256,10 @@ const ProposalPopup = ({ open, closeModal, clientDetails = null }) => {
 						</div>
 						<div
 							className="proposal-popup-body-options-container-filters"
-							onClick={() =>
-								setInfo((prev) => ({ ...prev, filterOption: !prev.filterOption }))
-							}
+							onClick={(e) => {
+								e.stopPropagation();
+								setInfo((prev) => ({ ...prev, filterOption: !prev.filterOption }));
+							}}
 							style={{ cursor: 'pointer' }}
 						>
 							<span>Filters</span>
@@ -277,7 +279,7 @@ const ProposalPopup = ({ open, closeModal, clientDetails = null }) => {
 											onClick={() =>
 												setInfo((prev) => ({
 													...prev,
-													selectedOption: 'Last Modified',
+													optionSelected: 'Last Modified',
 												}))
 											}
 										>
