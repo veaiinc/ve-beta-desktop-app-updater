@@ -5,7 +5,7 @@ import { ReactComponent as Home } from '../../../assets/svg/ai_agents/home.svg';
 import { ReactComponent as Settings } from '../../../assets/svg/ai_agents/settings.svg';
 import { ReactComponent as Close } from '../../../assets/svg/close.svg';
 import { ReactComponent as Expand } from '../../../assets/svg/bottomToolbar/expand.svg';
-import ToolBarChatContainerModal from '../modalsV2/ToolBarChatContainerModal';
+
 import { ReactComponent as ArrowUp } from '../../../assets/svg/ai_agents/arrow-up.svg';
 import { Alert, Image, message, Spin, Tooltip } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';

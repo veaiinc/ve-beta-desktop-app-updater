@@ -113,6 +113,23 @@ const FormRes = ({ formId, updateTotalSubmissions }) => {
 			}
 		}
 
+		if (questionData?.type === 'fileupload') {
+			const fileType = questionData?.answer?.type;
+			const isPDF = fileType?.includes('application/pdf');
+			return isPDF ? (
+				<a href={questionData?.answer} target="_blank" rel="noopener noreferrer">
+					<iframe
+						style={{ width: '100%', height: '100%' }}
+						src={questionData?.answer?.previewUrl}
+						title={questionData?.answer?.name}
+					/>
+				</a>
+			) : (
+				// TODO: need to test other file types here
+				<></>
+			);
+		}
+
 		return questionData?.answer || '';
 	};
 
