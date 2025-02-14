@@ -16,7 +16,7 @@ let origin = fetchOriginSelection();
 const TemplateCards = ({ data, loading, hasNextPage, fetchMoreMyWorkflows }) => {
 	const navigate = useNavigate();
 	const {
-		templates: { deleteWorkflowTemplates, duplicateGlobalWorkflowTemplate },
+		templates: { deleteWorkflowTemplates, duplicateGlobalWorkflowTemplate, updateStateValues },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		workflowTemplates: data,
@@ -41,7 +41,7 @@ const TemplateCards = ({ data, loading, hasNextPage, fetchMoreMyWorkflows }) => 
 			hasNextPage: hasNextPage,
 			showPreview: false,
 			showFileLeadModal: false,
-			hoverTemplateData: null,
+			deleteTemplateData: null,
 		});
 	}, [data, loading, hasNextPage]);
 
@@ -86,6 +86,7 @@ const TemplateCards = ({ data, loading, hasNextPage, fetchMoreMyWorkflows }) => 
 		}));
 		if (resposne?.[0]) {
 			setInfo((prev) => ({ ...prev, deleteTemplateData: null }));
+			updateStateValues({ templatesRefetch: true });
 			return navigate('/my-templates');
 		} else {
 			message.error('Something went wrong,try again');

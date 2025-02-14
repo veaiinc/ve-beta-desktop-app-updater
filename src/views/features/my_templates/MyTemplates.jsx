@@ -76,6 +76,8 @@ const MyTemplates = () => {
 			myMoreWorkflows,
 			getSpecificTemplatesInfo,
 			specificTemplatesInfo,
+			updateStateValues,
+			templatesRefetch,
 		},
 	} = useContext(Context);
 
@@ -92,6 +94,13 @@ const MyTemplates = () => {
 			}));
 		};
 	}, []);
+
+	useEffect(() => {
+		if (templatesRefetch) {
+			getMyWorkflowTemplatesData(1);
+			updateStateValues({ templatesRefetch: null });
+		}
+	}, [templatesRefetch]);
 
 	useEffect(() => {
 		if (myWorkflows) {
