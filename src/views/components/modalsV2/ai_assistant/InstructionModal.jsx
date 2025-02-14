@@ -20,6 +20,7 @@ const InstructionModal = ({
 	onInstructionChange,
 	isActionbtnLoading,
 	isDeletebtnLoading,
+	instructionEditing,
 }) => {
 	const handleTitleChange = (e) => {
 		if (onTitleChange) {
@@ -42,7 +43,7 @@ const InstructionModal = ({
 		>
 			<div className="instruction-modal">
 				<div className="instruction-modal-header">
-					<h2>Instructions</h2>
+					<h2>{instructionEditing ? 'Edit Instruction' : 'Add Instruction'}</h2>
 					<CloseSvg onClick={onClose} />
 				</div>
 				<div className="instruction-modal-body">
@@ -80,8 +81,11 @@ const InstructionModal = ({
 					>
 						{isActionbtnLoading ? (
 							<span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-								Updating <Spinner width="15px" height="15px" />
+								{instructionEditing ? 'Updating' : 'Creating'}{' '}
+								<Spinner width="15px" height="15px" />
 							</span>
+						) : instructionEditing ? (
+							'Update instruction'
 						) : (
 							'Add and make active'
 						)}

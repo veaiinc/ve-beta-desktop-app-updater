@@ -54,7 +54,7 @@ const CardItem = ({
 							showTitle={true}
 							showEditProperty={true}
 							showLabel={true}
-							wrap={false}
+							wrap={true}
 						/>,
 					);
 				}

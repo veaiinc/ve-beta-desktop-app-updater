@@ -8,11 +8,11 @@ import { ReactComponent as Filter } from '../../../assets/svg/my_templates/filte
 import { ReactComponent as ThreeDots } from '../../../assets/svg/my_templates/three-dots.svg';
 import TemplateCards from '../../components/myTemplate/TemplateCards';
 import Context from '../../../context/context';
+import QuickActions from '../../components/globalComponents/QuickActions';
 
 const SubTitle = () => {
 	return (
 		<div className="subTitleContainer">
-			<Stars />
 			<span>This is a template</span>
 		</div>
 	);
@@ -195,7 +195,16 @@ const MyTemplates = () => {
 	return (
 		<div className="myTemplatesContainer">
 			<div className="headerContainer">
-				<h1 className="title">My Templates</h1>
+				<div className="myTemplatesHeader">
+					<div className="headerText">
+						<span className="lineOne">Templates</span>
+						<span className="lineTwo">You Created</span>
+					</div>
+					<div className="quickActionsBtn">
+						<QuickActions />
+					</div>
+				</div>
+
 				<div className="cardsContainer">
 					{cards.map((card) => (
 						<div className="card" key={card?.id}>
@@ -204,6 +213,7 @@ const MyTemplates = () => {
 						</div>
 					))}
 				</div>
+				<h1 className="title">My Templates</h1>
 			</div>
 
 			<div className="templateWrapper">

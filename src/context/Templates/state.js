@@ -1,6 +1,5 @@
 import service from '../../services/graphQlServices';
 import { message } from 'antd';
-import { ReactComponent as AiSparkel } from '../../assets/svg/calendar/aiSparkel.svg';
 import {
 	getTemmplatesQuery,
 	duplicateTemplateQuery,
@@ -45,6 +44,7 @@ import { Actions } from './Actions';
 import Service from '../../services/index';
 import { sendCustomMailMutation } from '../subscription/graphqlFunctions';
 import { getBase64 } from '../../helpers';
+import Skeleton from 'react-loading-skeleton';
 
 export const intialState = {
 	workflowslist: null,
@@ -79,6 +79,8 @@ export const intialState = {
 	moreDraftStateWorkflowtemplates: null,
 	createLeadModalContextState: false,
 	globalChatMessages: [{ type: 'AI', message: 'Hello, how can I help you today?' }],
+	citations: null,
+	followUpQuery: null,
 	docsFilesList: null,
 	moreDocsFilesList: null,
 	smartFileRefetch: false,
@@ -91,6 +93,7 @@ export const intialState = {
 	activePromptForChat: null,
 	smartFileRefetch: false,
 	activeWorkflowSlugForSmartFile: null,
+	leftSidebarState: null,
 };
 
 export const TemplatesState = (props) => {
@@ -580,7 +583,7 @@ export const TemplatesState = (props) => {
 		}
 	};
 
-	const getTemplatesListForDocs = async (page = 1, limit = 10) => {
+	const getTemplatesListForDocs = async (page = 1, limit = 10, searchValue = '') => {
 		let workspaceId = localStorage.getItem('workspaceId');
 		let usertoken = localStorage.getItem('usertoken');
 
@@ -590,6 +593,7 @@ export const TemplatesState = (props) => {
 				page,
 				type: 'workspace',
 				status: 'published',
+				title: searchValue,
 			},
 		};
 		const response = await service.query(
@@ -1482,10 +1486,9 @@ export const TemplatesState = (props) => {
 						message: 'loading....',
 						content: (
 							<div className="aiMessageWrapper">
-								<AiSparkel />
-								<div className="aiMessage">
-									<span>Thinking...</span>
-								</div>
+								<Skeleton height={20} width={'100%'} borderRadius={'100px'} />
+								<Skeleton height={20} width={'75%'} borderRadius={'100px'} />
+								<Skeleton height={20} width={'50%'} borderRadius={'100px'} />
 							</div>
 						),
 						contentType: 'loading',
@@ -1501,10 +1504,9 @@ export const TemplatesState = (props) => {
 						message: 'loading....',
 						content: (
 							<div className="aiMessageWrapper">
-								<AiSparkel />
-								<div className="aiMessage">
-									<span>Thinking...</span>
-								</div>
+								<Skeleton height={20} width={'100%'} borderRadius={'100px'} />
+								<Skeleton height={20} width={'75%'} borderRadius={'100px'} />
+								<Skeleton height={20} width={'50%'} borderRadius={'100px'} />
 							</div>
 						),
 						contentType: 'loading',
@@ -1518,6 +1520,30 @@ export const TemplatesState = (props) => {
 			});
 			const response = await Service.fetchPost(url, payload, usertoken, 'ai_predictions');
 			if (response?.[0]) {
+				const citations = response?.[1]?.citations;
+				const followUpQuery = response?.[1]?.['follow_up_query'];
+				if (citations && citations?.length > 0) {
+					dispatch({
+						type: Actions?.CHAT_CITATIONS_SUCCESS,
+						payload: citations,
+					});
+				} else {
+					dispatch({
+						type: Actions?.CHAT_CITATIONS_SUCCESS,
+						payload: null,
+					});
+				}
+				if (followUpQuery?.length) {
+					dispatch({
+						type: Actions?.CHAT_FOLLOW_UP_QUERY,
+						payload: followUpQuery,
+					});
+				} else {
+					dispatch({
+						type: Actions?.CHAT_FOLLOW_UP_QUERY,
+						payload: null,
+					});
+				}
 				const updatedGlobalChatMessages = {
 					type: 'AI',
 					message: response?.[1]?.answer,

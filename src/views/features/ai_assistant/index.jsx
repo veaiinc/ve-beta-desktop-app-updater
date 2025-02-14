@@ -125,7 +125,7 @@ const AiAssistants = () => {
 							Building AI Assistant <Spinner width="18px" height="18px" />
 						</span>
 					) : (
-						<span>Create a AI Assistant</span>
+						<span>Create an AI Assistant</span>
 					)}
 				</div>
 			</div>
@@ -153,7 +153,7 @@ const AiAssistants = () => {
 
 				<div className="agentsCardContainer">
 					<InfiniteScroll
-						dataLength={assistants?.length}
+						dataLength={assistants?.length || 0}
 						next={getMoreAiAssistants}
 						hasMore={info?.hasNextPage}
 						loader={
@@ -183,7 +183,19 @@ const AiAssistants = () => {
 									}
 								>
 									<div>
-										<AgentIcon />
+										{assistant?.assitant_profile_picture_s3Key ? (
+											<img
+												src={assistant?.assitant_profile_picture_s3Key}
+												alt="agent"
+												style={{
+													borderRadius: '50%',
+													width: '32px',
+													height: '32px',
+												}}
+											/>
+										) : (
+											<AgentIcon />
+										)}
 									</div>
 									<div className="agentName">{assistant?.name}</div>
 									<div className="createdBy">

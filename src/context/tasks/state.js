@@ -36,6 +36,7 @@ export const intialState = {
 	taskMetadata: null,
 	taskPreference: null,
 	refetchTasks: false,
+	refetchTasksForDue: false,
 };
 
 export const TasksState = () => {
@@ -54,7 +55,10 @@ export const TasksState = () => {
 			);
 
 			if (response?.[0]) {
-				dispatch({ type: Actions.SET_LIST_ITEMS, payload: response?.[1]?.data?.listTasks });
+				dispatch({
+					type: Actions?.SET_LIST_ITEMS,
+					payload: response?.[1]?.data?.listTasks,
+				});
 			} else {
 				console.log('API failed ==> getListItems', response);
 				dispatch({
@@ -264,11 +268,19 @@ export const TasksState = () => {
 		}
 	};
 
-	const getTasksCountForToday = async (payload, type = null, task = null) => {
+	const getTasksCountForToday = async () => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
-			const response = await service.query(
+			const payload = {
+				filters: {
+					limit: 1,
+					page: 1,
+					startDate: Math?.floor(new Date()?.setHours(0, 0, 0, 0) / 1000),
+					endDate: Math?.floor(new Date()?.setHours(23, 59, 59, 999) / 1000),
+				},
+			};
+			const response = await service?.query(
 				getTasksCountQuery,
 				payload,
 				workspaceId,
@@ -293,10 +305,17 @@ export const TasksState = () => {
 		}
 	};
 
-	const getTasksCountForOverdue = async (payload) => {
+	const getTasksCountForOverdue = async () => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
+			const payload = {
+				filters: {
+					limit: 1,
+					page: 1,
+					endDate: Math?.floor(new Date()?.setHours(-1, 59, 59, 999) / 1000),
+				},
+			};
 			const response = await service.query(
 				getTasksCountQuery,
 				payload,

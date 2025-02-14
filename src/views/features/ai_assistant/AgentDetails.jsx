@@ -7,6 +7,7 @@ import { ReactComponent as EditIcon } from '../../../assets/svg/ai_assistant/edi
 import TabHeader from '../../components/ai_assistant/TabHeader';
 import Context from '../../../context/context';
 import AiPlayGround from '../../components/ai_assistant/AiPlayGround';
+import AiChatLogs from '../../components/ai_assistant/AiChatLogs';
 
 const AgentDetails = () => {
 	const {
@@ -14,7 +15,8 @@ const AgentDetails = () => {
 	} = useContext(Context);
 
 	const { aiAssistantId } = useParams();
-	const { assistant } = useLocation()?.state;
+	const location = useLocation();
+	const { assistant } = location?.state || {};
 	const navigate = useNavigate();
 
 	const [info, setInfo] = useState({
@@ -40,11 +42,11 @@ const AgentDetails = () => {
 			label: 'Playground',
 			component: <AiPlayGround assistant={info?.activeAiAssistant} />,
 		},
-		// chatlogs: {
-		// 	value: 'chatlogs',
-		// 	label: 'Chat Logs',
-		// 	// component: <ChatLogs />,
-		// },
+		chatlogs: {
+			value: 'chatlogs',
+			label: 'Chat Logs',
+			component: <AiChatLogs assistant={info?.activeAiAssistant} />,
+		},
 		// connections: {
 		// 	value: 'connections',
 		// 	label: 'Connections',
@@ -76,6 +78,7 @@ const AgentDetails = () => {
 						state: { assistant },
 					})
 				}
+				assistant={info?.activeAiAssistant}
 			/>
 			<TabHeader
 				activeTab={info?.activeTab}

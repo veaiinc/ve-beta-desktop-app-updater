@@ -1,4 +1,4 @@
-import React, { useState, memo, useCallback, useEffect } from 'react';
+import React, { useState, memo, useCallback, useEffect, useContext } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
 	veAiModulesItemsList,
@@ -17,6 +17,10 @@ import { ReactComponent as RightArrowSvg } from '../../../assets/svg/sidebar/Rig
 import WorkspaceListComponent from './Workspace';
 import useLogout from '../../hooks/useLogout';
 import { Tooltip } from 'antd';
+import Notifications from './notifications/Notifications';
+import Chats from './chats/Chats';
+
+import Context from '../../../context/context';
 const CommonBottomSection = ({ handleLogout, openWorkspacesFunction, workSpaceOpen }) => (
 	<div
 		className="commonBottomSection"
@@ -71,11 +75,18 @@ const OpenedSideBarHoverStateIcons = ({
 	navigateTo,
 	isSelected,
 	subModules,
+	isDropdownVisible,
+	onDropdownToggle,
+	setActiveDropdown,
+	activeSubModule,
+	setActiveSubModule,
+	handleSubModuleClick,
+	setShowNotificationsDrawer,
+	setShowChatsDrawer,
 }) => {
 	const location = useLocation();
 	const [isHover, setisHover] = useState(false);
-	const [isDropdownVisible, setDropdownVisible] = useState(false);
-	const [activeSubModule, setActiveSubModule] = useState(null);
+
 	const onMoutseEnter = () => {
 		if (isActive) return;
 		setisHover(true);
@@ -85,27 +96,25 @@ const OpenedSideBarHoverStateIcons = ({
 		setisHover(false);
 	};
 
-	const redirectToFunction = (subModules, route) => {
+	const redirectToFunction = (subModules, route, name) => {
+		if (name === 'Notifications') {
+			setShowNotificationsDrawer((prev) => !prev);
+		} else {
+			setShowNotificationsDrawer(false);
+		}
+		if (name === 'Chats') {
+			setShowChatsDrawer((prev) => !prev);
+		} else {
+			setShowChatsDrawer(false);
+		}
+
 		if (!subModules) {
+			setActiveDropdown(null);
+			setActiveSubModule(null);
 			navigateTo(route);
 		} else {
-			setDropdownVisible(!isDropdownVisible);
+			onDropdownToggle();
 		}
-		if (!route) return;
-	};
-
-	const handleSubModuleClick = (e, subModule) => {
-		setActiveSubModule(subModule);
-		e.stopPropagation();
-		if (subModule.route) {
-			navigateTo(subModule.route);
-		}
-	};
-	const toggleDropdown = (e) => {
-		e.stopPropagation();
-		e.preventDefault();
-		setDropdownVisible(!isDropdownVisible);
-		setActiveSubModule(null);
 	};
 
 	const isExactPathMatch = useCallback(() => {
@@ -129,7 +138,7 @@ const OpenedSideBarHoverStateIcons = ({
 				onMouseEnter={onMoutseEnter}
 				onMouseLeave={onMoutseLeave}
 				onClick={() => {
-					redirectToFunction(subModules, route);
+					redirectToFunction(subModules, route, name);
 				}}
 				style={{
 					marginBottom:
@@ -200,7 +209,7 @@ const OpenedSideBarHoverStateIcons = ({
 					</div>
 				)}
 				{subModules?.length > 0 && (
-					<div onClick={toggleDropdown} style={{ padding: '0px', margin: '0px' }}>
+					<div style={{ padding: '0px', margin: '0px' }}>
 						<DownArrowSmallSvg
 							className={`downArrow ${isDropdownVisible ? 'rotate' : ''}`}
 							style={{ height: '16px', width: '16px' }}
@@ -232,6 +241,7 @@ const OpenedSideBarHoverStateIcons2 = ({
 	};
 
 	const redirectToFunction = () => {
+		console.log('route', route);
 		if (!route) return;
 		navigateTo(route);
 	};
@@ -297,7 +307,12 @@ const OpenedSideBarItemsComponent = ({
 	userWorkSpaceList,
 	isOpen,
 	setIsOpen,
+	setShowNotificationsDrawer,
+	setShowChatsDrawer,
 }) => {
+	const {
+		templates: { leftSidebarState, updateStateValues },
+	} = useContext(Context);
 	const navigate = useNavigate();
 	const logoutFunc = useLogout();
 	const [selectedOption, setSelectedOption] = useState(null);
@@ -305,10 +320,20 @@ const OpenedSideBarItemsComponent = ({
 	const [selectedChat, setSelectedChat] = useState(null);
 	const [activeChat, setActiveChat] = useState(false);
 	const [isMobile, setIsMobile] = useState(window.innerWidth < 500);
+	const [activeDropdown, setActiveDropdown] = useState(null);
+	const [activeSubModule, setActiveSubModule] = useState(null);
 
 	const location = useLocation();
 
 	const [isThisEarlyAccessPage, setIsThisEarlyAccessPage] = useState(false);
+
+	useEffect(() => {
+		if (leftSidebarState && leftSidebarState === 'close') {
+			handleSidebarCollapse();
+			updateStateValues({ leftSidebarState: null });
+		}
+	}, [leftSidebarState]);
+
 	useEffect(() => {
 		setIsThisEarlyAccessPage(location?.pathname?.includes('/early-access'));
 	}, [location?.pathname]);
@@ -349,8 +374,9 @@ const OpenedSideBarItemsComponent = ({
 		[navigate],
 	);
 
+	//close sidebar
 	const handleSidebarCollapse = (e) => {
-		e.stopPropagation();
+		// e.stopPropagation();
 		setsidebarStates({ ...sidebarStates, navStyle: 'close' });
 		setIsOpen(false);
 	};
@@ -363,6 +389,18 @@ const OpenedSideBarItemsComponent = ({
 	const handleCloseChatPanel = () => {
 		setSelectedChat(null);
 		setActiveChat(null);
+	};
+
+	const handleDropdownToggle = (moduleName) => {
+		setActiveDropdown(activeDropdown === moduleName ? null : moduleName);
+		setActiveSubModule(null);
+	};
+	const handleSubModuleClick = (e, subModule) => {
+		setActiveSubModule(subModule);
+		e.stopPropagation();
+		if (subModule.route) {
+			navigate(subModule.route);
+		}
 	};
 
 	return (
@@ -512,6 +550,20 @@ const OpenedSideBarItemsComponent = ({
 												isSelected={selectedOption === singleItems?.name}
 												isActive={location.pathname === singleItems?.route}
 												subModules={singleItems?.subModules}
+												isDropdownVisible={
+													activeDropdown === singleItems?.name
+												}
+												onDropdownToggle={() =>
+													handleDropdownToggle(singleItems?.name)
+												}
+												setActiveDropdown={setActiveDropdown}
+												activeSubModule={activeSubModule}
+												setActiveSubModule={setActiveSubModule}
+												handleSubModuleClick={handleSubModuleClick}
+												setShowChatsDrawer={setShowChatsDrawer}
+												setShowNotificationsDrawer={
+													setShowNotificationsDrawer
+												}
 											/>
 										</div>
 									))}
@@ -538,6 +590,20 @@ const OpenedSideBarItemsComponent = ({
 												isSelected={selectedOption === singleItems?.name}
 												isActive={location.pathname === singleItems?.route}
 												subModules={singleItems?.subModules}
+												isDropdownVisible={
+													activeDropdown === singleItems?.name
+												}
+												onDropdownToggle={() =>
+													handleDropdownToggle(singleItems?.name)
+												}
+												setActiveDropdown={setActiveDropdown}
+												activeSubModule={activeSubModule}
+												setActiveSubModule={setActiveSubModule}
+												handleSubModuleClick={handleSubModuleClick}
+												setShowChatsDrawer={setShowChatsDrawer}
+												setShowNotificationsDrawer={
+													setShowNotificationsDrawer
+												}
 											/>
 										</div>
 									))}

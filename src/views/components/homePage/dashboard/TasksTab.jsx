@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState, useCallback, useMemo, useRef, memo } from 'react';
 import '../../../../assets/scss/home_page/tasks.scss';
-import { ReactComponent as ChevronRightThinIcon } from '../../../../assets/svg/tasks/chevronRightThin.svg';
+import { ReactComponent as ChevronRightThinLightIcon } from '../../../../assets/svg/tasks/chevronRightThin.svg';
+import { ReactComponent as ChevronRightThinDarkIcon } from '../../../../assets/svg/home_page/chevronRightThinDark.svg';
 import { ReactComponent as textSvg } from '../../../../assets/svg/tasks/letterA.svg';
 import { ReactComponent as ClockSvg } from '../../../../assets/svg/activity/clock.svg';
 import { ReactComponent as PieSvg } from '../../../../assets/svg/tasks/pieHollow.svg';
@@ -8,6 +9,7 @@ import { ReactComponent as PrioritySvg } from '../../../../assets/svg/tasks/roun
 import { ReactComponent as WorkflowSvg } from '../../../../assets/svg/tasks/workflow.svg';
 import { ReactComponent as PersonSvg } from '../../../../assets/svg/tasks/person.svg';
 import { ReactComponent as CalendarSvg } from '../../../../assets/svg/tasks/calendar.svg';
+import { ReactComponent as TickSvg } from '../../../../assets/svg/home_page/Tick.svg';
 import { message, Tooltip } from 'antd';
 import Skeleton from 'react-loading-skeleton';
 import jwtDecode from 'jwt-decode';
@@ -111,6 +113,8 @@ const TasksTab = () => {
 			resetSubTasks,
 			taskMetadata,
 			getTaskMetadata,
+			refetchTasksForDue,
+			updateTaskState,
 		},
 		templates: { getWorkflowsList, workflowslist },
 		companyInfo: { getTeamMembers, tenantsUserList },
@@ -135,23 +139,25 @@ const TasksTab = () => {
 		taskData: {},
 		breadCrumbs: [],
 		loadingSkeleton: true,
+		hoveredTaskId: null,
+		updatedDueDate: false,
+		updatedAssignedTo: false,
 	});
-
 	const debounceTimeout = useRef(null);
 
 	const taskLabels = useMemo(
 		() => ({
 			pending: {
 				label: 'Pending actions till today',
-				count: tasksCountForToday + tasksCountForOverdue,
+				count: (tasksCountForToday ?? 0) + (tasksCountForOverdue ?? 0),
 			},
 			today: {
 				label: 'Today',
-				count: tasksCountForToday,
+				count: tasksCountForToday ?? 0,
 			},
 			overdue: {
 				label: 'Overdue',
-				count: tasksCountForOverdue,
+				count: tasksCountForOverdue ?? 0,
 			},
 		}),
 		[tasksCountForToday, tasksCountForOverdue],
@@ -269,16 +275,16 @@ const TasksTab = () => {
 
 	useEffect(() => {
 		if (!tasksCountForToday) {
-			getTodayTasksCount();
+			getTasksCountForToday();
 		}
 
 		if (!tasksCountForOverdue) {
-			getOverdueTasksCount();
+			getTasksCountForOverdue();
 		}
-	}, []);
+	}, [refetchTasksForDue]);
 
 	useEffect(() => {
-		if (info?.selectedOption === 'today') {
+		if (info?.selectedOption === 'today' && !refetchTasksForDue) {
 			if (listTasksForToday) {
 				setInfo((prev) => ({
 					...prev,
@@ -293,7 +299,7 @@ const TasksTab = () => {
 			}
 		}
 
-		if (info?.selectedOption === 'overdue') {
+		if (info?.selectedOption === 'overdue' && !refetchTasksForDue) {
 			if (listTasksForOverdue) {
 				setInfo((prev) => ({
 					...prev,
@@ -308,7 +314,7 @@ const TasksTab = () => {
 			}
 		}
 
-		if (info?.selectedOption === 'pending') {
+		if (info?.selectedOption === 'pending' && !refetchTasksForDue) {
 			if (listTasksDueTillToday) {
 				setInfo((prev) => ({
 					...prev,
@@ -322,7 +328,17 @@ const TasksTab = () => {
 				fetchDueTillTodayTasks(1);
 			}
 		}
-	}, [info?.selectedOption]);
+	}, [info?.selectedOption, refetchTasksForDue]);
+
+	useEffect(() => {
+		if (refetchTasksForDue) {
+			updateTaskState({
+				refetchTasksForDue: false,
+			});
+			getTasksCountForToday();
+			getTasksCountForOverdue();
+		}
+	}, [refetchTasksForDue]);
 
 	useEffect(() => {
 		if (!tenantsUserList) {
@@ -454,29 +470,6 @@ const TasksTab = () => {
 		}
 		return properties;
 	}, [info?.taskPreferences?.preferences]);
-
-	const getTodayTasksCount = () => {
-		const payload = {
-			filters: {
-				limit: 1,
-				page: 1,
-				startDate: Math?.floor(new Date()?.setHours(0, 0, 0, 0) / 1000),
-				endDate: Math?.floor(new Date()?.setHours(23, 59, 59, 999) / 1000),
-			},
-		};
-		getTasksCountForToday(payload);
-	};
-
-	const getOverdueTasksCount = () => {
-		const payload = {
-			filters: {
-				limit: 1,
-				page: 1,
-				endDate: Math?.floor(new Date()?.setHours(-1, 59, 59, 999) / 1000),
-			},
-		};
-		getTasksCountForOverdue(payload);
-	};
 
 	const fetchTodayTasks = (page, type = null, task = null) => {
 		const payload = {
@@ -619,10 +612,19 @@ const TasksTab = () => {
 					// Update updatedBy for any successful update
 					task = { ...task, updatedBy: { _id: user_id, name: userName } };
 					task = { ...task, [propName]: updatedValue };
+					let updatedDueDate = false,
+						updatedAssignedTo = false;
+					if (propName === 'dueDate') {
+						updatedDueDate = true;
+					} else if (propName === 'assignedTo') {
+						updatedAssignedTo = true;
+					}
 
 					setInfo((prev) => ({
 						...prev,
 						selectedRow: { ...info?.selectedRow, ...task },
+						updatedDueDate,
+						updatedAssignedTo,
 					}));
 
 					if (info?.selectedOption === 'pending') {
@@ -666,7 +668,11 @@ const TasksTab = () => {
 	};
 
 	const deleteTask = async (payload) => {
-		if (validateExpiryData?.isExpired) {
+		if (
+			validateExpiryData &&
+			validateExpiryData?.restrictTasks &&
+			validateExpiryData?.isExpired
+		) {
 			return updateSubscriptionState({ expiredSubscriptionModal: true });
 		} else {
 			const response = await deleteListItem(payload);
@@ -676,17 +682,11 @@ const TasksTab = () => {
 					return row?._id === payload?.taskId;
 				});
 
-				setInfo((prev) => ({
-					...prev,
-					selectedRow: null,
-					sidebarIsOpen: false,
-					breadCrumbs: [],
-				}));
-				// handleCloseSidebar();
+				handleCloseSidebar();
 				if (!task) return;
 
-				getOverdueTasksCount();
-				getTodayTasksCount();
+				getTasksCountForToday();
+				getTasksCountForOverdue();
 
 				if (info?.selectedOption === 'pending') {
 					fetchDueTillTodayTasks(1, 'delete', task);
@@ -783,13 +783,22 @@ const TasksTab = () => {
 		[info?.selectedRow, info?.breadCrumbs],
 	);
 
-	const handleCloseSidebar = useCallback(() => {
+	const handleCloseSidebar = () => {
+		if (info?.updatedDueDate || info?.updatedAssignedTo) {
+			updateTaskState({
+				refetchTasksForDue: true,
+				listTasksDueTillToday: null,
+				listTasksForOverdue: null,
+				listTasksForToday: null,
+			});
+		}
 		updateTaskInfo({
 			sidebarIsOpen: false,
 			breadCrumbs: [],
-			selectedRow: null,
+			updatedDueDate: false,
+			updatedAssignedTo: false,
 		});
-	}, []);
+	};
 
 	const handleCloseCreateModal = useCallback(() => {
 		if (info?.isCreatingSubtask) {
@@ -807,65 +816,80 @@ const TasksTab = () => {
 		[info?.breadCrumbs],
 	);
 
+	const handleMouseEnterOnTask = (taskId) => {
+		setInfo((prev) => ({
+			...prev,
+			hoveredTaskId: taskId,
+		}));
+	};
+	const handleMouseLeaveOnTask = () => {
+		setInfo((prev) => ({
+			...prev,
+			hoveredTaskId: null,
+		}));
+	};
+
 	return (
 		<>
 			<div className="tasks">
+				<div className="dropdown-container">
+					<Tooltip
+						placement="bottom"
+						color="transparent"
+						open={info?.isDropdownOpen}
+						trigger={'click'}
+						onOpenChange={(open) => {
+							setInfo((prev) => ({
+								...prev,
+								isDropdownOpen: open,
+							}));
+						}}
+						title={
+							<div className="dropdown-options">
+								{options?.map((option) => (
+									<div
+										key={option?.id}
+										className={`dropdown-option ${
+											info?.selectedOption === option?.value ? 'active' : ''
+										}`}
+										onClick={() => {
+											if (info?.selectedOption !== option?.value)
+												setInfo((prev) => ({
+													...prev,
+													isDropdownOpen: false,
+													selectedOption: option?.value,
+													loadingSkeleton: true,
+												}));
+										}}
+									>
+										{option?.title}
+										{info?.selectedOption === option?.value && <TickSvg />}
+									</div>
+								))}
+							</div>
+						}
+					>
+						<button className="dropdown-header">
+							<div className="dropdown-content">
+								<div className="dropdown-text">
+									{
+										options?.find(
+											(option) => info?.selectedOption === option?.value,
+										)?.title
+									}
+								</div>
+								<div className="dropdown-icon">
+									<ChevronRightThinLightIcon />
+								</div>
+							</div>
+						</button>
+					</Tooltip>
+				</div>
 				<div className="tasks-header">
 					<div className="tasks-header-text">
 						{`${taskLabels?.[info?.selectedOption]?.label} (${
 							taskLabels?.[info?.selectedOption]?.count
 						})`}
-						<div className="dropdown-container">
-							<Tooltip
-								placement="bottom"
-								color="transparent"
-								open={info?.isDropdownOpen}
-								trigger={'click'}
-								onOpenChange={(open) => {
-									setInfo((prev) => ({
-										...prev,
-										isDropdownOpen: open,
-									}));
-								}}
-								title={
-									<div className="dropdown-options">
-										{options?.map((option) => (
-											<div
-												key={option?.id}
-												className="dropdown-option"
-												onClick={() => {
-													if (info?.selectedOption !== option?.value)
-														setInfo((prev) => ({
-															...prev,
-															isDropdownOpen: false,
-															selectedOption: option?.value,
-															loadingSkeleton: true,
-														}));
-												}}
-											>
-												{option?.title}
-											</div>
-										))}
-									</div>
-								}
-							>
-								<button className="dropdown-header">
-									<div className="dropdown-content">
-										<div className="dropdown-text">
-											{
-												options?.find(
-													(option) =>
-														info?.selectedOption === option?.value,
-												)?.title
-											}
-										</div>
-										<div className="dropdown-icon">
-											<ChevronRightThinIcon />
-										</div>
-									</div>
-								</button>
-							</Tooltip>
-						</div>
 					</div>
 
 					{info?.loadingSkeleton ? (
@@ -895,7 +919,7 @@ const TasksTab = () => {
 							hasMore={info?.taskData?.[info?.selectedOption]?.hasNextPage}
 							next={fetchMoreTasksData}
 							loader={<FetchMoreLoaderComp />}
-							height={`calc(100vh - 410px)`}
+							height={'calc(100vh - 250px)'}
 						>
 							<div className="tasks-container">
 								{info?.taskData?.[info?.selectedOption]?.data?.map((task) => {
@@ -905,6 +929,8 @@ const TasksTab = () => {
 											onClick={() => {
 												handleRowClick(task);
 											}}
+											onMouseEnter={() => handleMouseEnterOnTask(task?._id)}
+											onMouseLeave={handleMouseLeaveOnTask}
 											key={task?._id}
 										>
 											<div className="task-content">
@@ -934,7 +960,11 @@ const TasksTab = () => {
 													</div>
 												</div>
 												<div className="chevron-icon-container">
-													<ChevronRightThinIcon />
+													{info?.hoveredTaskId === task?._id ? (
+														<ChevronRightThinDarkIcon />
+													) : (
+														<ChevronRightThinLightIcon />
+													)}
 												</div>
 											</div>
 										</div>

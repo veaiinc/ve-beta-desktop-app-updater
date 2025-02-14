@@ -10,17 +10,24 @@ import CreateLeadModal from '../modalsV2/proposalModals/CreateLeadModal';
 import { ReactComponent as SidebarClosingSvg } from '../../../assets/svg/sidebar/SidebarClosing.svg';
 import { veAiModulesItemsList } from './sidebarindex';
 import { Tooltip } from 'antd';
+import Notifications from './notifications/Notifications';
+import Chats from './chats/Chats';
 const Sidebar = ({ activeWorkspaceId }) => {
 	const {
 		profileInfo: { userWorkSpaceList, getUserWorkSpaceList, userDetailsData, getUserDetails },
+		templates: { leftSidebarState, updateStateValues },
 	} = useContext(Context);
 	const location = useLocation();
-
+	const [showNotificationsDrawer, setShowNotificationsDrawer] = useState(false);
+	const [showChatsDrawer, setShowChatsDrawer] = useState(false);
 	const [sidebarStates, setsidebarStates] = useState({
 		workSpaceOpen: false,
 		navStyle: 'close',
 		selectedModule: null,
 	});
+
+	// conditional margin top for home page
+	const isHome = location?.pathname?.includes('home') || location?.pathname?.includes('notes');
 
 	const [isOpen, setIsOpen] = useState(() => {
 		return JSON.parse(localStorage.getItem('isOpen')) ?? true;
@@ -37,6 +44,13 @@ const Sidebar = ({ activeWorkspaceId }) => {
 		activeRoute: '/' + location.pathname.split('/')[1],
 		selectedModule: null,
 	});
+
+	useEffect(() => {
+		if (leftSidebarState && leftSidebarState === 'open') {
+			setIsOpen(true);
+			updateStateValues({ leftSidebarState: null });
+		}
+	}, [leftSidebarState]);
 
 	useEffect(() => {
 		if (!userWorkSpaceList) {
@@ -113,10 +127,13 @@ const Sidebar = ({ activeWorkspaceId }) => {
 					alignItems: sidebarStates?.workSpaceOpen ? 'flex-start' : ' ',
 					maxHeight: info?.activeRoute === '/home' ? (isOpen ? '' : '') : '',
 					minHeight: info?.activeRoute === '/home' ? (isOpen ? '' : '250px') : '',
+					marginTop: isHome && '0',
 				}}
 			>
 				<nav
-					className={`sidebarComponent ${isOpen ? 'open' : ''}`}
+					className={`sidebarComponent ${isOpen ? 'open' : ''} ${
+						!isOpen && isHome && 'padding-48'
+					}`}
 					style={styles[sidebarStates?.navStyle]}
 				>
 					{isOpen ? (
@@ -128,6 +145,8 @@ const Sidebar = ({ activeWorkspaceId }) => {
 							userWorkSpaceList={userWorkSpaceList}
 							isOpen={isOpen}
 							setIsOpen={setIsOpen}
+							setShowChatsDrawer={setShowChatsDrawer}
+							setShowNotificationsDrawer={setShowNotificationsDrawer}
 						/>
 					) : (
 						<Tooltip
@@ -156,6 +175,11 @@ const Sidebar = ({ activeWorkspaceId }) => {
 					modalIsOpen={info?.createLeadModal}
 					closeModal={closeCreateLeadModal}
 				/>
+				<Notifications
+					showNotificationsDrawer={showNotificationsDrawer}
+					setShowNotificationsDrawer={setShowNotificationsDrawer}
+				/>
+				<Chats showChatsDrawer={showChatsDrawer} setShowChatsDrawer={setShowChatsDrawer} />
 			</div>
 
 			{isOpen && <div className="sidebar__overlay"></div>}

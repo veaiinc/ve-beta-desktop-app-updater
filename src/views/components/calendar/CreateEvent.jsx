@@ -319,7 +319,7 @@ const CreateEvent = ({ categoryList, selectedCategory, updateCalendarInfo, selec
 			></div>
 			<div style={{ zIndex: 1001 }} className="createEventContainer">
 				<div dangerouslySetInnerHTML={{ __html: inputStyles }} />
-				<div className="headerWrapper">
+				<div className="createEventHeaderWrapper">
 					<span className="headerLabel">Create an event</span>
 					<CloseSvg
 						onClick={() => {
@@ -331,15 +331,9 @@ const CreateEvent = ({ categoryList, selectedCategory, updateCalendarInfo, selec
 					/>
 				</div>
 				{info?.submissionError && (
-					<div
-						style={{
-							color: 'red',
-							display: 'flex',
-							justifyContent: 'center',
-							alignItems: 'center',
-						}}
-					>
-						{info?.submissionError}
+					<div className="createEventSubmissionError">
+						⚠️
+						<span>{info?.submissionError}</span>
 					</div>
 				)}
 				<div className="eventDetailsContainer">

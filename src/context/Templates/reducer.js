@@ -111,6 +111,14 @@ const actionHandlers = {
 		...state,
 		globalChatMessages: [...state?.globalChatMessages, ...action?.payload],
 	}),
+	CHAT_CITATIONS_SUCCESS: (state, action) => ({
+		...state,
+		citations: action?.payload,
+	}),
+	CHAT_FOLLOW_UP_QUERY: (state, action) => ({
+		...state,
+		followUpQuery: action?.payload,
+	}),
 	GLOBAL_CHAT_MESSAGES_ACTIONS_SUCCESS: (state, action) => {
 		let updatedGlobalChatMessages = [...state?.globalChatMessages];
 		if (

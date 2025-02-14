@@ -45,6 +45,10 @@ const actionHandlers = {
 		...state,
 		aiInstructions: action?.payload,
 	}),
+	DELETE_AI_INSTRUCTION: (state, action) => ({
+		...state,
+		aiInstructions: action?.payload,
+	}),
 	GET_AI_PROMPT: (state, action) => ({
 		...state,
 		aiPrompt: action?.payload,
@@ -77,9 +81,21 @@ const actionHandlers = {
 		...state,
 		aiAction: action?.payload,
 	}),
+	CRAWL_AI_ASSISTANT: (state, action) => ({
+		...state,
+		aiCrawlLinks: action?.payload,
+	}),
 	RESET_AI_PROMPT: (state, action) => ({
 		...state,
 		aiPrompt: action?.payload,
+	}),
+	GET_AI_CHAT_LOGS: (state, action) => ({
+		...state,
+		[action?.selectedVariable]: action?.payload,
+	}),
+	GET_PROMPTS_DATA: (state, action) => ({
+		...state,
+		promptsData: action?.payload,
 	}),
 
 	RESET_STATE: () => initialState,

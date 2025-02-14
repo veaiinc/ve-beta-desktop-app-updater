@@ -7,7 +7,14 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import { FetchMoreLoaderComp } from '../../../../helpers';
 import Context from '../../../../context/context';
 
-const TabListFile = ({ rowTypes, colors, handleRowClick, refetchDocsFilesList, onUpdate }) => {
+const TabListFile = ({
+	rowTypes,
+	colors,
+	handleRowClick,
+	refetchDocsFilesList,
+	onUpdate,
+	selectedId,
+}) => {
 	let {
 		templates: { getDocsFilesList, docsFilesList, moreDocsFilesList },
 	} = useContext(Context);
@@ -95,6 +102,11 @@ const TabListFile = ({ rowTypes, colors, handleRowClick, refetchDocsFilesList, o
 							label: 'Proposal Accepted',
 							color: '7',
 						},
+						{
+							_id: 'contractSigned',
+							label: 'Contract Signed',
+							color: '1',
+						},
 					],
 				},
 			},
@@ -127,6 +139,10 @@ const TabListFile = ({ rowTypes, colors, handleRowClick, refetchDocsFilesList, o
 		}
 	}, [refetchDocsFilesList]);
 
+	useEffect(() => {
+		getDocsFilesListFunc(1, false);
+	}, [selectedId]);
+
 	const getDocsFilesListFunc = useCallback(
 		async (page, fetchMore = false) => {
 			if (!fetchMore) {
@@ -141,6 +157,7 @@ const TabListFile = ({ rowTypes, colors, handleRowClick, refetchDocsFilesList, o
 					limit: 30,
 					page: page,
 					title: info?.searchValue,
+					clientId: selectedId,
 				},
 			};
 			if (info?.selectedFilterOptions?.templateName) {
@@ -154,7 +171,7 @@ const TabListFile = ({ rowTypes, colors, handleRowClick, refetchDocsFilesList, o
 			}
 			getDocsFilesList(payload, fetchMore);
 		},
-		[info?.searchValue, info?.selectedFilterOptions],
+		[info?.searchValue, info?.selectedFilterOptions, selectedId],
 	);
 
 	const fetcMoreDocsFilesList = useCallback(async () => {
@@ -210,6 +227,8 @@ const TabListFile = ({ rowTypes, colors, handleRowClick, refetchDocsFilesList, o
 				[{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}]?.map(
 					(ele, index) => <Skeleton key={index} height={36} />,
 				)
+			) : info?.docsData?.length === 0 ? (
+				<div className="tab-list-file-no-data">No data found</div>
 			) : (
 				<InfiniteScroll
 					dataLength={info?.docsData?.length || 0}

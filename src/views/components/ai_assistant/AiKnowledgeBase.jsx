@@ -3,6 +3,7 @@ import '../../../assets/scss/ai_assistant/knowledgeBase.scss';
 import { ReactComponent as Link } from '../../../assets/svg/smartFiles/formResponse/link.svg';
 import { ReactComponent as Pdf } from '../../../assets/svg/ai_assistant/pdf.svg';
 import { ReactComponent as Text } from '../../../assets/svg/ai_assistant/tIcon.svg';
+import { ReactComponent as Delete } from '../../../assets/svg/ai_assistant/delete.svg';
 import AddKnowledgeModal from '../../components/modalsV2/settings/ai_setup/AddKnowledgeModal';
 import Context from '../../../context/context';
 import ToggleSwitch from '../../components/input/slider';
@@ -12,11 +13,19 @@ import { FetchMoreLoaderComp } from '../../../helpers';
 import Skeleton from 'react-loading-skeleton';
 import { message } from 'antd';
 import { useParams } from 'react-router-dom';
+import Spinner from '../loaders/Spinner';
 
 const iconMapper = {
 	pdf: <Pdf style={{ stroke: '#F2F2F3' }} width={12} height={12} />,
 	txt: <Text style={{ stroke: '#F2F2F3' }} width={12} height={12} />,
 	url: <Link style={{ fill: '#F2F2F3 !important' }} width={12} height={12} />,
+};
+
+const fileStatus = {
+	notStarted: 'Not Started',
+	processing: 'Training...',
+	ready: 'Ready',
+	error: 'Error',
 };
 
 const AiKnowledgeBase = ({ assistant }) => {
@@ -42,6 +51,7 @@ const AiKnowledgeBase = ({ assistant }) => {
 		knowledgeBaseFiles: [],
 		assistantId: aiAssistantId,
 		loading: true,
+		knowledgeBaseFilesLoading: true,
 	});
 
 	useEffect(() => {
@@ -59,6 +69,18 @@ const AiKnowledgeBase = ({ assistant }) => {
 				loading: false,
 			}));
 		}
+		setInfo((prev) => ({
+			...prev,
+			knowledgeBaseFilesLoading: true,
+		}));
+		const timer = setTimeout(() => {
+			setInfo((prev) => ({
+				...prev,
+				knowledgeBaseFilesLoading: false,
+			}));
+		}, 300);
+
+		return () => clearTimeout(timer);
 	}, [knowledgeBaseFiles]);
 
 	const handleToggleChange = useCallback(
@@ -99,6 +121,16 @@ const AiKnowledgeBase = ({ assistant }) => {
 		fetchKnowledgeBaseFiles({ page: nextPageNumber });
 	};
 
+	const deleteKnowledgeFile = (knowledgeId) => {
+		deleteKnowledge(knowledgeId);
+		setInfo((prev) => ({
+			...prev,
+			knowledgeBaseFiles: prev?.knowledgeBaseFiles?.filter(
+				(item) => item?._id !== knowledgeId,
+			),
+		}));
+	};
+
 	return (
 		<div style={{ width: '100%' }}>
 			<div className="aiKnowledgeBaseParentContainer">
@@ -121,8 +153,8 @@ const AiKnowledgeBase = ({ assistant }) => {
 
 				<div className="knowledgeBaseListContainer">
 					<div className="header">
-						<span>Title</span>
-						<span>Last edit</span>
+						<span style={{ minWidth: '438px' }}>Title</span>
+						<span>Status</span>
 						<span>Active</span>
 					</div>
 					{info?.loading ? (
@@ -149,10 +181,22 @@ const AiKnowledgeBase = ({ assistant }) => {
 								<div key={item?._id} className="knowledgeBaseItem">
 									<span>
 										{iconMapper?.[item?.sourceType]}
-										{item?.name}
+										<p>{item?.name}</p>
+										<Delete
+											className="deleteKnowledge"
+											onClick={() => deleteKnowledgeFile(item?._id)}
+										/>
 									</span>
-									<span style={{ color: '#7C7C84' }}>
+									{/* <span style={{ color: '#7C7C84' }}>
 										{moment.unix(item?.updatedAt).format('MMM DD, YYYY')}
+									</span> */}
+									<span className={`${item?.status}`}>
+										{item?._id === info?.knowledgeBaseFiles?.[0]?._id &&
+										info?.knowledgeBaseFilesLoading ? (
+											<Spinner width="12px" height="12px" />
+										) : (
+											fileStatus?.[item?.status]
+										)}
 									</span>
 									<span className="aiToggleSwitch">
 										<ToggleSwitch
