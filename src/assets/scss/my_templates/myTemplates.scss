@@ -304,3 +304,32 @@
 		}
 	}
 }
+.docsFooterContentActionsTooltip {
+	display: flex;
+	width: 210px;
+	padding: 12px;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 4px;
+	border-radius: 12px;
+	background: #26282a;
+	.docsFooterContentActionsTooltipItem {
+		display: flex;
+		padding: 6px 8px;
+		justify-content: space-between;
+		align-items: center;
+		align-self: stretch;
+		border-radius: 8px;
+		color: #f2f2f3;
+		font-family: Inter;
+		font-size: 14px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: 22px;
+		flex: 1 0 0;
+		cursor: pointer;
+		&:hover {
+			background: #333537;
+		}
+	}
+}

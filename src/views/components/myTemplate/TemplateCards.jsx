@@ -1,4 +1,5 @@
-import React, { memo, useEffect, useState } from 'react';
+import React, { memo, useEffect, useState, useContext, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Skeleton from 'react-loading-skeleton';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { fetchOriginSelection } from '../../../helpers';
@@ -6,10 +7,17 @@ import SideBarPreview from './SideBarPreview';
 import CreateFileLead from './CreateFileLead';
 import { ReactComponent as OpenedEye } from '../../../assets/svg/my_templates/openedEye.svg';
 import { ReactComponent as ThreeDots } from '../../../assets/svg/my_templates/verticalThreeDots.svg';
+import DeleteWorkflowModal from '../../components/modalsV2/workflowBuilderModals/DeleteWorkflowModal';
 import moment from 'moment';
+import { Tooltip, message } from 'antd';
+import Context from '../../../context/context';
 let origin = fetchOriginSelection();
 
 const TemplateCards = ({ data, loading, hasNextPage, fetchMoreMyWorkflows }) => {
+	const navigate = useNavigate();
+	const {
+		templates: { deleteWorkflowTemplates, duplicateGlobalWorkflowTemplate },
+	} = useContext(Context);
 	const [info, setInfo] = useState({
 		workflowTemplates: data,
 		loading: loading,
@@ -18,6 +26,12 @@ const TemplateCards = ({ data, loading, hasNextPage, fetchMoreMyWorkflows }) => 
 		templateData: null,
 		showFileLeadModal: false,
 		hoverIndex: null,
+		showHoverActions: false,
+		duplicateWorkflowModal: false,
+		deleteWorkflowModal: false,
+		deleteWorkflowLoader: false,
+		hoverTemplateData: null,
+		deleteTemplateData: null,
 	});
 
 	useEffect(() => {
@@ -27,7 +41,7 @@ const TemplateCards = ({ data, loading, hasNextPage, fetchMoreMyWorkflows }) => 
 			hasNextPage: hasNextPage,
 			showPreview: false,
 			showFileLeadModal: false,
-			hoverIndex: null,
+			hoverTemplateData: null,
 		});
 	}, [data, loading, hasNextPage]);
 
@@ -38,6 +52,45 @@ const TemplateCards = ({ data, loading, hasNextPage, fetchMoreMyWorkflows }) => 
 	const openFileLeadModal = () => {
 		setInfo((prev) => ({ ...prev, showFileLeadModal: true }));
 	};
+
+	const duplicateWorkflowFunc = useCallback(
+		async (hoverTemplateData) => {
+			if (!hoverTemplateData) {
+				return;
+			}
+			const payload = {
+				templateId: hoverTemplateData?._id,
+				title: hoverTemplateData?.title,
+			};
+			const response = await duplicateGlobalWorkflowTemplate(payload);
+			if (response?.[0]) {
+				window.location.href = `${origin}/${response?.[1]?._id}`;
+			}
+		},
+		[info?.hoverTemplateData],
+	);
+
+	const deleteWorkflowFunc = useCallback(async () => {
+		if (!info?.deleteTemplateData) {
+			return;
+		}
+		setInfo((prev) => ({ ...prev, deleteWorkflowLoader: true }));
+		const payload = {
+			deleteTemplateId: info?.deleteTemplateData?._id,
+		};
+		const resposne = await deleteWorkflowTemplates(payload);
+		setInfo((prev) => ({
+			...prev,
+			deleteWorkflowModal: false,
+			deleteWorkflowLoader: false,
+		}));
+		if (resposne?.[0]) {
+			setInfo((prev) => ({ ...prev, deleteTemplateData: null }));
+			return navigate('/my-templates');
+		} else {
+			message.error('Something went wrong,try again');
+		}
+	}, [info?.deleteTemplateData, info?.deleteWorkflowLoader]);
 
 	return (
 		<>
@@ -78,10 +131,18 @@ const TemplateCards = ({ data, loading, hasNextPage, fetchMoreMyWorkflows }) => 
 								}`}
 								onClick={() => handleTemplateClick(template)}
 								onMouseEnter={() =>
-									setInfo((prev) => ({ ...prev, hoverIndex: index }))
+									setInfo((prev) => ({
+										...prev,
+										hoverIndex: index,
+										hoverTemplateData: template,
+									}))
 								}
 								onMouseLeave={() =>
-									setInfo((prev) => ({ ...prev, hoverIndex: null }))
+									setInfo((prev) => ({
+										...prev,
+										hoverIndex: null,
+										hoverTemplateData: null,
+									}))
 								}
 							>
 								<div className="docsTemplateImageContainer">
@@ -119,7 +180,47 @@ const TemplateCards = ({ data, loading, hasNextPage, fetchMoreMyWorkflows }) => 
 									{info?.hoverIndex === index && (
 										<div className="docsFooterContentActions">
 											<OpenedEye />
-											<ThreeDots />
+											<Tooltip
+												title={
+													<div className="docsFooterContentActionsTooltip">
+														<div
+															className="docsFooterContentActionsTooltipItem"
+															onClick={(e) => {
+																duplicateWorkflowFunc(
+																	info?.hoverTemplateData,
+																);
+																setInfo((prev) => ({
+																	...prev,
+																	duplicateWorkflowModal: true,
+																}));
+																e.stopPropagation();
+															}}
+														>
+															Duplicate
+														</div>
+														<div
+															className="docsFooterContentActionsTooltipItem"
+															onClick={(e) => {
+																setInfo((prev) => ({
+																	...prev,
+																	deleteWorkflowModal: true,
+																	deleteTemplateData:
+																		prev.hoverTemplateData,
+																}));
+																e.stopPropagation();
+															}}
+														>
+															Delete
+														</div>
+													</div>
+												}
+												placement="bottom"
+												arrow={false}
+												trigger="hover"
+												color="transparent"
+											>
+												<ThreeDots />
+											</Tooltip>
 										</div>
 									)}
 								</div>
@@ -140,6 +241,12 @@ const TemplateCards = ({ data, loading, hasNextPage, fetchMoreMyWorkflows }) => 
 				open={info?.showFileLeadModal}
 				onClose={() => setInfo((prev) => ({ ...prev, showFileLeadModal: false }))}
 				workflow={info?.templateData}
+			/>
+			<DeleteWorkflowModal
+				modalIsOpen={info?.deleteWorkflowModal}
+				closeModal={() => setInfo((prev) => ({ ...prev, deleteWorkflowModal: false }))}
+				deleteWorkflowFunc={deleteWorkflowFunc}
+				deleteLoader={info?.deleteWorkflowLoader}
 			/>
 		</>
 	);
