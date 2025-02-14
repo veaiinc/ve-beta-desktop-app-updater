@@ -7,11 +7,12 @@ import { ReactComponent as Close } from '../../../assets/svg/close.svg';
 import { ReactComponent as Expand } from '../../../assets/svg/bottomToolbar/expand.svg';
 import { ReactComponent as ArrowUp } from '../../../assets/svg/ai_agents/arrow-up.svg';
 import { ReactComponent as ExpandChatIcon } from '../../../assets/svg/ai_agents/expand-chat-icon.svg';
+import { ReactComponent as ChevronSvg } from '../../../assets/svg/tasks/chevronRightThin.svg';
 import { ReactComponent as MicroscopeSvg } from '../../../assets/svg/ai_agents/microscope.svg';
-import { ReactComponent as WebIcon } from '../../../assets/svg/ai_agents/web.svg';
+import { ReactComponent as WebLightSvg } from '../../../assets/svg/ai_agents/web-light.svg';
+import { ReactComponent as WebDarkSvg } from '../../../assets/svg/ai_agents/web-dark.svg';
 import { ReactComponent as CloseSvg } from '../../../assets/svg/calendar/close.svg';
 import { Alert, Image, message, Spin, Tooltip } from 'antd';
-import { UploadOutlined } from '@ant-design/icons';
 import { Upload } from 'antd';
 import Context from '../../../context/context';
 import ObjectID from 'bson-objectid';
@@ -26,14 +27,50 @@ import { getBase64 } from '../../../helpers';
 import WorkflowSlugSelector from '../../components/calendar/WorkflowSlugSelector';
 import { ReactComponent as AiSparkel } from '../../../assets/svg/calendar/aiSparkel.svg';
 import useVoiceIntegration from '../../hooks/useVoiceIntegration';
-import CitationsModal from '../../components/modalsV2/chat/CitationsModal';
-import NoteComponentModal from '../../components/notes/NoteComponentModal';
+import SearchDropdown from '../chat/SearchDropdown';
+import UploadFileTooltip from '../chat/UploadFileTooltip';
+import DateRangeDropdown from '../chat/DateRangeDropdown';
+import SearchTypeTooltip from '../chat/SearchTypeTooltip';
 
 const moduleHelper = {
 	tasks: 'tasks',
 	'smart-file': 'form_filling',
 	calendar: 'calendar',
 };
+
+const initialChatFilters = {
+	modules: {},
+	integrations: {},
+	dateRange: null,
+};
+
+const integrationsOptions = {
+	meeting: 'Meeting',
+	notion: 'Notion',
+	'q&a': 'Q & A',
+	website: 'Website',
+};
+
+const modulesOptions = {
+	calendar: 'Calendar',
+	task: 'Task',
+	storage: 'Storage',
+	gallery: 'Gallery',
+};
+
+const searchTypeOptions = {
+	webSearch: {
+		label: 'Web Search',
+		value: 'webSearch',
+		icon: <WebLightSvg />,
+	},
+	workspaceSearch: {
+		label: 'Workspace Search',
+		value: 'workspaceSearch',
+		// icon: <WorkspaceLightSvg />,
+	},
+};
+
 const Chat = ({
 	outerContainerStyle = {},
 	chatList = [],
@@ -87,8 +124,16 @@ const Chat = ({
 		filtersEnabled: false,
 		webSearch: false,
 		goDeep: false,
-		isOpenedUploadFile: false,
-		isEnabledFilters: false,
+		isUploadFileOpen: false,
+		showFilters: false,
+		chatFilters: initialChatFilters,
+		isIntegrationsDropdownOpen: false,
+		isModulesDropdownOpen: false,
+		searchType: {
+			webSearch: false,
+			workspaceSearch: false,
+		},
+		isSearchTypeOpen: false,
 	});
 
 	const [previewOpen, setPreviewOpen] = useState(false);
@@ -110,7 +155,76 @@ const Chat = ({
 	};
 
 	const handleWebSearchClick = () => {
-		setInfo((prev) => ({}));
+		setInfo((prev) => ({
+			...prev,
+			webSearch: !prev?.webSearch,
+		}));
+	};
+
+	const handleGoDeepSearchClick = () => {
+		setInfo((prev) => ({
+			...prev,
+			goDeep: !prev?.goDeep,
+		}));
+	};
+
+	const handleShowFiltersClick = () => {
+		setInfo((prev) => ({
+			...prev,
+			showFilters: true,
+		}));
+	};
+
+	const handleHideFiltersClick = () => {
+		setInfo((prev) => ({
+			...prev,
+			showFilters: false,
+		}));
+	};
+
+	const handleResetFiltersClick = () => {
+		setInfo((prev) => ({
+			...prev,
+			chatFilters: initialChatFilters,
+		}));
+	};
+
+	const handleIntegrationsOptionClick = (key) => {
+		let currentIntegrations = { ...info?.chatFilters?.integrations };
+		if (currentIntegrations[key]) {
+			delete currentIntegrations[key];
+		} else {
+			currentIntegrations[key] = integrationsOptions[key];
+		}
+		setInfo((prev) => ({
+			...prev,
+			chatFilters: {
+				...prev?.chatFilters,
+				integrations: currentIntegrations,
+			},
+		}));
+	};
+
+	const handleSearchTypeChange = (type, value) => {
+		setInfo((prev) => ({
+			...prev,
+			searchType: { ...prev?.searchType, [type]: value },
+		}));
+	};
+	const handleModulesOptionClick = (key) => {
+		let currentModules = { ...info?.chatFilters?.modules };
+		if (currentModules[key]) {
+			delete currentModules[key];
+		} else {
+			currentModules[key] = modulesOptions[key];
+		}
+		setInfo((prev) => ({
+			...prev,
+			chatFilters: {
+				...prev?.chatFilters,
+				modules: currentModules,
+			},
+		}));
 	};
 
 	const handleSendMessageFunc = useCallback(
@@ -149,7 +263,7 @@ const Chat = ({
 							query: currentQuery,
 							timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
 							knowledge_base_search: true,
-							web_search: true,
+							web_search: info?.webSearch,
 						};
 						let localPayload = {};
 						if (info?.uploadedImages?.length) {
@@ -404,6 +518,12 @@ const Chat = ({
 		[info],
 	);
 
+	const handleSendBtnClick = (e) => {
+		if (info?.chatQuery?.trim()?.length > 0) {
+			handleSendMessageFunc(e, true);
+		}
+	};
+
 	const chatIcons = useMemo(
 		() => [
 			<Filter />,
@@ -421,12 +541,6 @@ const Chat = ({
 		],
 		[info, handleChange],
 	);
-
-	const handleSendBtnClick = (e) => {
-		if (info?.chatQuery?.trim()?.length > 0) {
-			handleSendMessageFunc(e, true);
-		}
-	};
 
 	return (
 		<>
@@ -493,63 +607,190 @@ const Chat = ({
 								className="textArea"
 								// rows={1}
 							/>
-
-							<div className="buttons-container">
-								<div className="chat-icons-container">
-									{/* {chatIcons?.map((icon, idx) => (
-										<span key={idx} className="chat-icon">
-											{icon}
-										</span>
-									))}
-									{info?.voiceIntegration ? (
-										<span className="chat-icon" onClick={handleDisConnect}>
-											<Close style={{ width: '20px', height: '20px' }} />
-										</span>
-									) : (
-										<span className="chat-icon">
-											<Mic onClick={handleMicIconClick} />
-										</span>
-									)} */}
-
-									<div className="icon-container">
-										<div className="icon">
-											<WebIcon />
-										</div>
-										<div className="right-text">Web</div>
+							{info?.showFilters ? (
+								<div className="filters-parent-container">
+									<div className="close-filters" onClick={handleHideFiltersClick}>
+										<ChevronSvg />
 									</div>
-									<div className="icon-container">
-										<div className="icon">
-											<MicroscopeSvg />
+									<div className="filters-wrapper">
+										<div className="filters-container">
+											<SearchDropdown
+												headerTitle="Integrations"
+												selectedOptions={info?.chatFilters?.integrations}
+												isDropdownOpen={info?.isIntegrationsDropdownOpen}
+												setIsDropdownOpen={(value) =>
+													setInfo((prev) => ({
+														...prev,
+														isIntegrationsDropdownOpen: value,
+													}))
+												}
+												options={integrationsOptions}
+												handleOptionClick={handleIntegrationsOptionClick}
+											/>
+											<SearchDropdown
+												headerTitle="Modules"
+												selectedOptions={info?.chatFilters?.modules}
+												isDropdownOpen={info?.isModulesDropdownOpen}
+												setIsDropdownOpen={(value) =>
+													setInfo((prev) => ({
+														...prev,
+														isModulesDropdownOpen: value,
+													}))
+												}
+												options={modulesOptions}
+												handleOptionClick={handleModulesOptionClick}
+											/>
+											<DateRangeDropdown
+												onOptionClick={(value) => {
+													setInfo((prev) => ({
+														...prev,
+														chatFilters: {
+															...prev?.chatFilters,
+															dateRange: value,
+														},
+													}));
+												}}
+												startDate={info?.chatFilters?.dateRange?.[0]}
+												endDate={info?.chatFilters?.dateRange?.[1]}
+											/>
 										</div>
-										<div className="right-text">Go Deep</div>
-									</div>
-									<div className="icon-container">
-										<div className="icon">
-											<PaperClip width={15} height={15} fill={'#f2f2f3'} />
+										<div
+											className="reset-filters"
+											onClick={handleResetFiltersClick}
+										>
+											<CloseSvg />
 										</div>
-										<div className="right-text">Add</div>
-									</div>
-									<div className="icon-container">
-										<div className="icon">
-											<Filter />
-										</div>
-										<div className="right-text">Filters</div>
 									</div>
 								</div>
-								<div
-									className="click-btn"
-									onClick={(e) => handleSendBtnClick(e)}
-									style={{
-										backgroundColor: `${
-											info?.chatQuery?.trim()?.length > 0
-												? '#b2a1e8'
-												: '#2e2f33'
-										}`,
-									}}
-								>
-									<ArrowUp />
+							) : (
+								<div className="buttons-container">
+									<div className="chat-icons-container">
+										{/* {chatIcons?.map((icon, idx) => (
+											<span key={idx} className="chat-icon">
+												{icon}
+											</span>
+										))}
+										{info?.voiceIntegration ? (
+											<span className="chat-icon" onClick={handleDisConnect}>
+												<Close style={{ width: '20px', height: '20px' }} />
+											</span>
+										) : (
+											<span className="chat-icon">
+												<Mic onClick={handleMicIconClick} />
+											</span>
+										)} */}
+
+										<SearchTypeTooltip
+											searchTypeOptions={searchTypeOptions}
+											onOpenChange={(value) =>
+												setInfo((prev) => ({
+													...prev,
+													isSearchTypeOpen: value,
+												}))
+											}
+											searchType={info?.searchType}
+											isOpen={info?.isSearchTypeOpen}
+											onSearchTypeChange={handleSearchTypeChange}
+										>
+											<div
+												className="icon-container"
+												onClick={handleWebSearchClick}
+												style={{
+													background: `${
+														info?.webSearch ? '#B39DFA' : '#2E2F33'
+													}`,
+												}}
+											>
+												<div className="icon">
+													{info?.webSearch ? (
+														<WebDarkSvg />
+													) : (
+														<WebLightSvg />
+													)}
+												</div>
+												<div
+													className="right-text"
+													style={{
+														color: `${
+															info?.webSearch ? '#0C0C0D' : '#f2f2f3'
+														}`,
+													}}
+												>
+													Search
+												</div>
+											</div>
+										</SearchTypeTooltip>
+
+										<div
+											className="icon-container"
+											onClick={handleGoDeepSearchClick}
+											style={{
+												background: `${
+													info?.goDeep ? '#B39DFA' : '#2E2F33'
+												}`,
+											}}
+										>
+											<div className="icon">
+												<MicroscopeSvg />
+											</div>
+											<div
+												className="right-text"
+												style={{
+													color: `${
+														info?.goDeep ? '#0C0C0D' : '#f2f2f3'
+													}`,
+												}}
+											>
+												Explore
+											</div>
+										</div>
+										<UploadFileTooltip
+											handleChange={handleChange}
+											isUploadFileOpen={info?.isUploadFileOpen}
+											setIsUploadFileOpen={(value) =>
+												setInfo((prev) => ({
+													...prev,
+													isUploadFileOpen: value,
+												}))
+											}
+										>
+											<div className="icon-container">
+												<div className="icon">
+													<PaperClip
+														width={15}
+														height={15}
+														fill={'#f2f2f3'}
+													/>
+												</div>
+												<div className="right-text">Add</div>
+											</div>
+										</UploadFileTooltip>
+
+										<div
+											className="icon-container"
+											onClick={handleShowFiltersClick}
+										>
+											<div className="icon">
+												<Filter />
+											</div>
+											<div className="right-text">Filters</div>
+										</div>
+									</div>
+									<div
+										className="click-btn"
+										onClick={(e) => handleSendBtnClick(e)}
+										style={{
+											backgroundColor: `${
+												info?.chatQuery?.trim()?.length > 0
+													? '#b2a1e8'
+													: '#2e2f33'
+											}`,
+										}}
+									>
+										<ArrowUp />
+									</div>
 								</div>
-							</div>
+							)}
 						</div>
 					</div>
 				</div>

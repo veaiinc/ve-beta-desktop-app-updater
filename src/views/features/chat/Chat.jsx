@@ -595,6 +595,7 @@ const Chat = ({
 									}
 									onKeyDown={handleSendMessageFunc}
 									className="textArea"
+									autoFocus={true}
 									// rows={1}
 								/>
 
@@ -638,6 +639,7 @@ const Chat = ({
 						wrapperStyle={{
 							display: 'none',
 						}}
+						rootClassName="preview-image"
 						preview={{
 							visible: previewOpen,
 							onVisibleChange: (visible) => setPreviewOpen(visible),
