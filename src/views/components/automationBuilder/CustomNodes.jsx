@@ -128,10 +128,6 @@ export const ActionNode = ({ data }) => {
 		}
 	}, [data]);
 
-	useEffect(() => {
-		console.log('data?.currentStep', data?.currentStep);
-	}, [data]);
-
 	return (
 		<Tooltip
 			placement="right"

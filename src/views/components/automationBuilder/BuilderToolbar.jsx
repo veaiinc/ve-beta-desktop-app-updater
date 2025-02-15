@@ -9,7 +9,7 @@ import Triggers from './AutomationBuilderSidebarComponents/Triggers';
 import RunSidebar from './AutomationBuilderSidebarComponents/RunSidebar';
 const BuilderToolbar = ({
 	open,
-	onCLose,
+	onClose,
 	sidebarType,
 	activeEdge,
 	templateId,
@@ -53,7 +53,7 @@ const BuilderToolbar = ({
 		return {
 			triggers: (
 				<Triggers
-					onCLose={onCLose}
+					onCLose={onClose}
 					activeEdge={activeEdge}
 					templateId={templateId}
 					automationId={automationId}
@@ -64,7 +64,7 @@ const BuilderToolbar = ({
 			),
 			actions: (
 				<Actions
-					onCLose={onCLose}
+					onCLose={onClose}
 					activeEdge={activeEdge}
 					templateId={templateId}
 					activeStepsData={activeStepsData}
@@ -74,7 +74,7 @@ const BuilderToolbar = ({
 			),
 			conditions: (
 				<Conditions
-					onCLose={onCLose}
+					onCLose={onClose}
 					activeEdge={activeEdge}
 					templateId={templateId}
 					activeStepsData={activeStepsData}
@@ -84,7 +84,7 @@ const BuilderToolbar = ({
 			),
 			notifications: (
 				<Notification
-					onCLose={onCLose}
+					onCLose={onClose}
 					activeEdge={activeEdge}
 					templateId={templateId}
 					slackConnected={info?.slackConnected}
@@ -96,16 +96,16 @@ const BuilderToolbar = ({
 				/>
 			),
 
-			run: <RunSidebar automationId={automationId} />,
+			run: <RunSidebar automationId={automationId} onClose={onClose} />,
 
-			pipeline: <Actions onCLose={onCLose} activeEdge={activeEdge} templateId={templateId} />,
-			trigger: <Actions onCLose={onCLose} activeEdge={activeEdge} templateId={templateId} />,
+			pipeline: <Actions onCLose={onClose} activeEdge={activeEdge} templateId={templateId} />,
+			trigger: <Actions onCLose={onClose} activeEdge={activeEdge} templateId={templateId} />,
 		};
-	}, [sidebarType, onCLose, info?.slackConnected, info?.googleConnected, step, automationId]);
+	}, [sidebarType, onClose, info?.slackConnected, info?.googleConnected, step, automationId]);
 
 	return (
 		<Drawer
-			onClose={onCLose}
+			onClose={onClose}
 			open={open}
 			width={360}
 			style={{ padding: '0px', backgroundColor: 'transparent' }}

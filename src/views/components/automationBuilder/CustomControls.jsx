@@ -3,8 +3,9 @@ import { ReactComponent as RearrangeSvg } from '../../../assets/svg/automation_b
 import { ReactComponent as PlusSvg } from '../../../assets/svg/tasks/plus.svg';
 import { ReactComponent as MinusSvg } from '../../../assets/svg/automation_builder/minus.svg';
 import { useReactFlow, useViewport } from '@xyflow/react';
-
-const CustomControls = ({ rearrangeNodesVertically }) => {
+import { Tooltip } from 'antd';
+import '../../../assets/scss/automation_builder/customControls.scss';
+const CustomControls = ({ rearrangeNodes }) => {
 	const { zoomIn, zoomOut } = useReactFlow();
 	const { zoom } = useViewport();
 
@@ -19,9 +20,19 @@ const CustomControls = ({ rearrangeNodesVertically }) => {
 					<PlusSvg />
 				</button>
 			</div>
-			<button className="rearrangeBtn" onClick={rearrangeNodesVertically}>
-				<RearrangeSvg />
-			</button>
+			<Tooltip
+				title={
+					<div className="rearrangeTooltipContainer">
+						<span className="rearrangeTooltipText">Organise blocks</span>
+					</div>
+				}
+				arrow={false}
+				color="transparent"
+			>
+				<button className="rearrangeBtn" onClick={rearrangeNodes}>
+					<RearrangeSvg />
+				</button>
+			</Tooltip>
 		</div>
 	);
 };

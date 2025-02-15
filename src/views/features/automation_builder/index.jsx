@@ -493,7 +493,7 @@ const AutomationBuilder = () => {
 							>
 								<Background variant="dots" gap={12} size={0.5} />
 							</ReactFlow>
-							<CustomControls rearrangeNodesVertically={reArrangeNodes} />
+							<CustomControls rearrangeNodes={reArrangeNodes} />
 						</ReactFlowProvider>
 					</div>
 
@@ -506,7 +506,7 @@ const AutomationBuilder = () => {
 					</div>
 					<BuilderToolbar
 						open={info?.toolBarOpen}
-						onCLose={handleToolBarClose}
+						onClose={handleToolBarClose}
 						sidebarType={info?.sidebarType}
 						activeEdge={info?.activeEdge}
 						automationId={automationId}

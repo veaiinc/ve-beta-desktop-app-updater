@@ -7,7 +7,7 @@ import { Tooltip } from 'antd';
 import Context from '../../../../context/context';
 import Skeleton from 'react-loading-skeleton';
 
-const RunSidebar = ({ automationId }) => {
+const RunSidebar = ({ automationId, onClose }) => {
 	const {
 		automationBuilder: { executionHistory, getExecutionHistory },
 	} = useContext(Context);
@@ -43,7 +43,7 @@ const RunSidebar = ({ automationId }) => {
 
 	return (
 		<div className="run-sidebar">
-			<HeaderComponent heading="Run history" />
+			<HeaderComponent heading="Run history" onBack={onClose} />
 			<div className="run-sidebar-content">
 				<div className="run-sidebar-execution-container">
 					{info?.loading ? (
