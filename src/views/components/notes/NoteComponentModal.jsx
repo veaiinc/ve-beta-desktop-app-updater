@@ -196,8 +196,12 @@ const NoteComponentModal = ({
 								<div className="title">wedding timeline</div>
 							</div>
 							<div className="right">
-								{noteIcons.map((icon) => {
-									return <div className="icon-container">{icon}</div>;
+								{noteIcons.map((icon, index) => {
+									return (
+										<div className="icon-container" key={index}>
+											{icon}
+										</div>
+									);
 								})}
 							</div>
 						</div>
