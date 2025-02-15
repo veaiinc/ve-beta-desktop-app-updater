@@ -7,8 +7,10 @@ import {
 	Background,
 	Controls,
 	ReactFlow,
+	ReactFlowProvider,
 	useEdgesState,
 	useNodesState,
+	useReactFlow,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import {
@@ -24,7 +26,7 @@ import BuilderToolbar from '../../components/automationBuilder/BuilderToolbar';
 import { message, Spin } from 'antd';
 import Configuration from '../../components/automationBuilder/AutomationBuilderSidebarComponents/Configuration';
 import TabHeader from '../../components/ai_assistant/TabHeader';
-
+import CustomControls from '../../components/automationBuilder/CustomControls';
 // Define node types
 const nodeTypes = {
 	trigger: TriggerNode,
@@ -413,6 +415,15 @@ const AutomationBuilder = () => {
 		setInfo((prev) => ({ ...prev, publishLoading: false }));
 	}, [info?.publishLoading, updateCurrentAutomation]);
 
+	const reArrangeNodes = useCallback(() => {
+		if (specificAutomationInfo?.steps?.length) {
+			setNodes([]);
+			const incomingData = specificAutomationInfo;
+			const steps = [...(incomingData?.steps || [])];
+			getNodesAndEdges(steps);
+		}
+	}, [specificAutomationInfo]);
+
 	return (
 		<div className="updatedAutomationBuilderContainer">
 			<div className="updatedBuilderHeaderContainer">
@@ -443,7 +454,6 @@ const AutomationBuilder = () => {
 						]}
 					/>
 				</div>
-				{/* <span className="workflowBuilderHeadingTag">Workflow Builder</span> */}
 				<div className="headerActionsContainer">
 					<button
 						className="publishBtn"
@@ -465,23 +475,26 @@ const AutomationBuilder = () => {
 			) : (
 				<div className="updatedWorkflowBuilderContainer">
 					<div className="reactFlowContainer">
-						{info?.sidebarType === 'run' && (
-							<div className="runHistoryNameContainer">{`Run #1`}</div>
-						)}
-						<ReactFlow
-							nodes={nodes}
-							edges={edges}
-							onNodesChange={onNodesChange}
-							onEdgesChange={onEdgesChange}
-							onConnect={onConnect}
-							nodeTypes={nodeTypes}
-							edgeTypes={edgeTypes}
-							fitView
-							defaultViewport={{ x: 0, y: 0, zoom: 0 }}
-						>
-							<Controls />
-							<Background variant="dots" gap={12} size={0.5} />
-						</ReactFlow>
+						<ReactFlowProvider>
+							{info?.sidebarType === 'run' && (
+								<div className="runHistoryNameContainer">{`Run #1`}</div>
+							)}
+
+							<ReactFlow
+								nodes={nodes}
+								edges={edges}
+								onNodesChange={onNodesChange}
+								onEdgesChange={onEdgesChange}
+								onConnect={onConnect}
+								nodeTypes={nodeTypes}
+								edgeTypes={edgeTypes}
+								fitView
+								defaultViewport={{ x: 0, y: 0, zoom: 0 }}
+							>
+								<Background variant="dots" gap={12} size={0.5} />
+							</ReactFlow>
+							<CustomControls rearrangeNodesVertically={reArrangeNodes} />
+						</ReactFlowProvider>
 					</div>
 
 					<div className="builderToolbarContainer">

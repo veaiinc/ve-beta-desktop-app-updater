@@ -116,6 +116,71 @@
 				font-weight: 500;
 				line-height: normal;
 			}
+
+			.viewportControlsContainer {
+				position: absolute;
+				bottom: 24px;
+				left: 24px;
+				display: inline-flex;
+				padding: 6px;
+				align-items: center;
+				gap: 16px;
+				border-radius: 8px;
+				border: 1px solid #2c2d2e;
+				background: #171819;
+				z-index: 1;
+
+				.zoomControls {
+					display: flex;
+					justify-content: center;
+					align-items: center;
+					gap: 10px;
+					border-radius: 6px;
+					background: #2c2d2e;
+					height: 34px;
+					padding: 0 8px;
+
+					.zoomOutBtn,
+					.zoomInBtn {
+						border: none;
+						outline: none;
+						background: transparent;
+						cursor: pointer;
+						display: flex;
+						align-items: center;
+						justify-content: center;
+
+						svg {
+							width: 18px;
+							height: 18px;
+						}
+					}
+
+					.zoomLevelText {
+						color: #f2f2f3;
+						font-family: Inter;
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+						width: 40px;
+						text-align: center;
+					}
+				}
+
+				.rearrangeBtn {
+					display: flex;
+					padding: 8px;
+					justify-content: center;
+					align-items: center;
+					gap: 10px;
+					border-radius: 6px;
+					background: #2c2d2e;
+					border: none;
+					outline: none;
+					cursor: pointer;
+				}
+			}
 		}
 
 		.builderToolbarContainer {
