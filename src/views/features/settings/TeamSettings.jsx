@@ -462,6 +462,7 @@ const TeamSettings = () => {
 					selectableOptions={selectableOptions}
 					userEmail={info?.userEmail}
 					selectedUser={info?.selectedUser}
+					tenantUserId={userDetailsData?._id}
 				/>
 			)}
 		</>

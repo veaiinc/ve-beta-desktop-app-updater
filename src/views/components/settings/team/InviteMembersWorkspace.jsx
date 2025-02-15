@@ -5,7 +5,7 @@ import Context from '../../../../context/context';
 import '../../../../assets/scss/settings/teamMembers.scss';
 import ReusableButtonSettings from '../ReusableButtonSettings';
 import ReactModal from '../../modalsV2';
-import { Checkbox } from 'antd';
+import { Checkbox, message } from 'antd';
 
 const InviteMembersWorkspaceComponent = ({
 	handleChnage,
@@ -36,10 +36,12 @@ const InviteMembersWorkspaceComponent = ({
 	};
 	useEffect(() => {
 		if (updatedData) {
-			const res = updateTenantAccessControls(updatedData, tenantUserId);
-			if (res === true) {
-				closeModal();
-			}
+			updateTenantAccessControls(updatedData, tenantUserId).then((res) => {
+				if (res[0] === true) {
+					message.success('User updated successfully');
+					closeModal();
+				}
+			});
 		}
 	}, [updatedData]);
 
