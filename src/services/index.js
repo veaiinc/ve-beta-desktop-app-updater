@@ -30,6 +30,8 @@ const {
 	workflows_Api_US,
 	multi_agent_chat,
 	multi_agent_chat_US,
+	automations_api,
+	automations_api_US,
 } = config || {};
 
 const apiEndpoints = {
@@ -47,6 +49,7 @@ const apiEndpoints = {
 	slack_api,
 	workflow: workflows_Api,
 	multi_agent_chat,
+	automations_api,
 };
 const apiEndpointsUS = {
 	tenant_users_api: tenant_users_api_US,
@@ -63,6 +66,7 @@ const apiEndpointsUS = {
 	slack_api: slack_api_US,
 	workflow: workflows_Api_US,
 	multi_agent_chat: multi_agent_chat_US,
+	automations_api: automations_api_US,
 };
 
 const handleHeaders = (token, body, type) => {
