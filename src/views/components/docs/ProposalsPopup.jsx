@@ -249,8 +249,9 @@ const ProposalPopup = ({ open, closeModal, clientDetails = null }) => {
 					</div>
 					<div className="proposal-popup-body-options-container-wrapper">
 						<div className="proposal-popup-body-options-container">
-							{filterOptions.map((option) => (
+							{filterOptions.map((option, index) => (
 								<div
+									key={index}
 									className={`proposal-popup-body-option ${
 										info.selectedOption === option?.value ? 'selected' : ''
 									}`}
