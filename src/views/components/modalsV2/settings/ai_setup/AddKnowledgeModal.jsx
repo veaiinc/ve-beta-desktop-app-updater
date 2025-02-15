@@ -58,7 +58,9 @@ const AddKnowledgeModal = ({ isOpen, toggleModal, assistantId }) => {
 			aiCrawlLinks,
 		},
 	} = useContext(Context);
-	const [info, setInfo] = useState(initialState);
+	const [info, setInfo] = useState({
+		...initialState,
+	});
 
 	const { aiAssistantId } = useParams();
 
@@ -69,10 +71,12 @@ const AddKnowledgeModal = ({ isOpen, toggleModal, assistantId }) => {
 		}));
 	}, [knowledgeBaseFiles]);
 
+	console.log('contect crawllink', aiCrawlLinks);
+
 	const fetchSubLinks = useCallback(async (payload) => {
 		const subLinks = await crawlAiAssistant(payload);
+		console.log('subLinks', subLinks);
 		if (subLinks?.length > 0) {
-			console.log('subLinks updating ', subLinks);
 			setInfo((prev) => ({
 				...prev,
 				aiCrawlLinks: prev?.aiCrawlLinks

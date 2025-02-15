@@ -35,6 +35,8 @@ const AiKnowledgeBase = ({ assistant }) => {
 			getActiveAiAssistantDetails,
 			updateKnowledgeBaseFile,
 			deleteKnowledge,
+			updatedKnowledgeBaseFiles,
+			moreUpdatedKnowledgeBaseFiles,
 		},
 	} = useContext(Context);
 
@@ -45,41 +47,61 @@ const AiKnowledgeBase = ({ assistant }) => {
 		knowledgeBaseFiles: [],
 		assistantId: aiAssistantId,
 		loading: true,
-		knowledgeBaseFilesLoading: true,
+		urlStatusLoading: true,
 		currentPage: 1,
 		hasNextPage: true,
 	});
 
 	useEffect(() => {
 		if (info?.assistantId) {
-			fetchKnowledgeBaseFiles({ page: 1, reset: true });
+			fetchKnowledgeBaseFiles(1);
 			getActiveAiAssistantDetails(info?.assistantId);
 		}
 	}, [info?.assistantId]);
 
+	console.log('info?.knowledgeBaseFiles', info?.knowledgeBaseFiles);
+
 	useEffect(() => {
-		if (knowledgeBaseFiles) {
+		if (updatedKnowledgeBaseFiles) {
+			const { data = [], currentPage, hasNextPage } = updatedKnowledgeBaseFiles || [];
 			setInfo((prev) => ({
 				...prev,
-				knowledgeBaseFiles: [...knowledgeBaseFiles?.data] || [],
-				hasNextPage: knowledgeBaseFiles?.hasMore,
-				currentPage: knowledgeBaseFiles?.currentPage,
+				knowledgeBaseFiles: data,
+				currentPage: currentPage,
+				hasNextPage: hasNextPage,
 				loading: false,
 			}));
 		}
-		setInfo((prev) => ({
-			...prev,
-			knowledgeBaseFilesLoading: true,
-		}));
 		const timer = setTimeout(() => {
 			setInfo((prev) => ({
 				...prev,
-				knowledgeBaseFilesLoading: false,
+				urlStatusLoading: false,
 			}));
 		}, 300);
 
 		return () => clearTimeout(timer);
-	}, [knowledgeBaseFiles]);
+	}, [updatedKnowledgeBaseFiles]);
+
+	useEffect(() => {
+		if (moreUpdatedKnowledgeBaseFiles) {
+			const { data = [], currentPage, hasNextPage } = moreUpdatedKnowledgeBaseFiles || [];
+			setInfo((prev) => {
+				// Create a Set of existing IDs for O(1) lookup
+				const existingIds = new Set(prev?.knowledgeBaseFiles?.map((item) => item._id));
+
+				// Filter out any items that already exist in the current list
+				const newUniqueData = data?.filter((item) => !existingIds.has(item._id));
+
+				return {
+					...prev,
+					knowledgeBaseFiles: prev?.knowledgeBaseFiles?.concat(newUniqueData),
+					currentPage: currentPage,
+					hasNextPage: hasNextPage,
+					loading: false,
+				};
+			});
+		}
+	}, [moreUpdatedKnowledgeBaseFiles]);
 
 	const handleToggleChange = useCallback(
 		async (knowledgeId, value) => {
@@ -90,12 +112,12 @@ const AiKnowledgeBase = ({ assistant }) => {
 
 				if (response?.[0]) {
 					message?.success('Knowledge base file updated successfully');
-					const updatedKnowledgeBaseFiles = info?.knowledgeBaseFiles?.map((item) =>
+					const updatedKnowledgeFiles = info?.knowledgeBaseFiles?.map((item) =>
 						item?._id === knowledgeId ? { ...item, isActive: !item?.isActive } : item,
 					);
 					setInfo((prev) => ({
 						...prev,
-						knowledgeBaseFiles: updatedKnowledgeBaseFiles,
+						knowledgeBaseFiles: updatedKnowledgeFiles,
 					}));
 				} else {
 					message?.error('Failed to update knowledge base file');
@@ -108,22 +130,17 @@ const AiKnowledgeBase = ({ assistant }) => {
 	);
 
 	const fetchKnowledgeBaseFiles = useCallback(
-		({ page = 1, reset = false }) => {
-			setInfo((prev) => ({
-				...prev,
-				currentPage: page,
-			}));
-			getKnowledgeBaseFiles(info?.assistantId, page, 20, reset);
+		(page = 1, fetchMore = false) => {
+			getKnowledgeBaseFiles(info?.assistantId, page, 20, fetchMore);
 		},
 		[info?.assistantId],
 	);
 
-	const fetchMoreData = () => {
+	const fetchMoreKnowledgeBaseFiles = useCallback(() => {
 		if (info?.hasNextPage) {
-			const nextPageNumber = info?.currentPage + 1;
-			fetchKnowledgeBaseFiles({ page: nextPageNumber });
+			fetchKnowledgeBaseFiles(info?.currentPage + 1, true);
 		}
-	};
+	}, [info?.hasNextPage, info?.currentPage, info?.assistantId]);
 
 	const deleteKnowledgeFile = (knowledgeId) => {
 		deleteKnowledge(knowledgeId);
@@ -176,7 +193,7 @@ const AiKnowledgeBase = ({ assistant }) => {
 							<InfiniteScroll
 								dataLength={info?.knowledgeBaseFiles?.length || 0}
 								hasMore={info?.hasNextPage}
-								next={fetchMoreData}
+								next={fetchMoreKnowledgeBaseFiles}
 								loader={<FetchMoreLoaderComp />}
 								style={{
 									display: 'flex',
@@ -185,9 +202,10 @@ const AiKnowledgeBase = ({ assistant }) => {
 								}}
 								height="calc(100vh - 330px)"
 								scrollableTarget="knowledgeBaseListScrollable"
+								scrollThreshold="90%"
 							>
-								{info?.knowledgeBaseFiles?.map((item) => (
-									<div key={item?._id} className="knowledgeBaseItem">
+								{info?.knowledgeBaseFiles?.map((item, index) => (
+									<div key={item._id} className="knowledgeBaseItem">
 										<span>
 											{iconMapper?.[item?.sourceType]}
 											<p>{item?.name}</p>
@@ -201,7 +219,7 @@ const AiKnowledgeBase = ({ assistant }) => {
 									</span> */}
 										<span className={`${item?.status}`}>
 											{item?._id === info?.knowledgeBaseFiles?.[0]?._id &&
-											info?.knowledgeBaseFilesLoading ? (
+											info?.urlStatusLoading ? (
 												<Spinner width="12px" height="12px" />
 											) : (
 												fileStatus?.[item?.status]
