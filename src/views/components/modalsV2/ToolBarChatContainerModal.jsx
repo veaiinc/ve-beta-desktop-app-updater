@@ -9,7 +9,6 @@ import { ReactComponent as ExpandChatIcon } from '../../../assets/svg/ai_agents/
 import { ReactComponent as AiStarInChat } from '../../../assets/svg/ai_agents/ai-star-in-chat.svg';
 import { ReactComponent as Filter } from '../../../assets/svg/ai_agents/filter.svg';
 import { ReactComponent as WebIcon } from '../../../assets/svg/ai_agents/web-light.svg';
-import { ReactComponent as MicroScopeIcon } from '../../../assets/svg/ai_agents/microscope.svg';
 
 import { ReactComponent as Arroba } from '../../../assets/svg/ai_agents/arroba.svg';
 import { ReactComponent as PaperClip } from '../../../assets/svg/ai_agents/paper-clip.svg';

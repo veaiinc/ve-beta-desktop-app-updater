@@ -292,6 +292,7 @@
 		align-items: flex-start;
 		gap: 2px;
 		align-self: stretch;
+		overflow-y: auto;
 		.option {
 			display: flex;
 			height: 34px;
@@ -468,6 +469,10 @@
 		line-height: 22px; /* 183.333% */
 	}
 	.items-container {
+		display: flex;
+		flex-direction: column;
+		gap: 2px;
+		width: 246px;
 		.item {
 			display: flex;
 			height: 34px;
@@ -479,15 +484,23 @@
 			.icon {
 				display: flex;
 				align-items: center;
+				svg {
+					width: 20px;
+					height: 20px;
+				}
 			}
-			.text {
+			.search-type-text {
 				flex: 1 0 0;
+				display: flex;
+				align-items: center;
+				justify-content: flex-start;
 				color: #f2f2f3;
 				font-family: Inter;
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 500;
 				line-height: 22px; /* 157.143% */
+				// text-align: left;
 			}
 			.toggle-button-container {
 				display: flex;
@@ -496,4 +509,13 @@
 			}
 		}
 	}
+}
+
+.custom-switch .ant-switch-handle::before {
+	background-color: #939a9e !important; /* Default white handle */
+}
+
+/* Custom switch handle when ON */
+.custom-switch.ant-switch-checked .ant-switch-handle::before {
+	background-color: #171819 !important; /* Custom handle color when ON */
 }

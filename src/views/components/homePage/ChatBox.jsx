@@ -8,10 +8,12 @@ import { ReactComponent as Expand } from '../../../assets/svg/bottomToolbar/expa
 import { ReactComponent as ArrowUp } from '../../../assets/svg/ai_agents/arrow-up.svg';
 import { ReactComponent as ExpandChatIcon } from '../../../assets/svg/ai_agents/expand-chat-icon.svg';
 import { ReactComponent as ChevronSvg } from '../../../assets/svg/tasks/chevronRightThin.svg';
-import { ReactComponent as MicroscopeSvg } from '../../../assets/svg/ai_agents/microscope.svg';
+import { ReactComponent as MicroscopeLightSvg } from '../../../assets/svg/ai_agents/microscope-light.svg';
+import { ReactComponent as MicroscopeDarkSvg } from '../../../assets/svg/ai_agents/microscope-dark.svg';
 import { ReactComponent as WebLightSvg } from '../../../assets/svg/ai_agents/web-light.svg';
 import { ReactComponent as WebDarkSvg } from '../../../assets/svg/ai_agents/web-dark.svg';
 import { ReactComponent as CloseSvg } from '../../../assets/svg/calendar/close.svg';
+import { ReactComponent as BuildingSvg } from '../../../assets/svg/ai_agents/building.svg';
 import { Alert, Image, message, Spin, Tooltip } from 'antd';
 import { Upload } from 'antd';
 import Context from '../../../context/context';
@@ -67,11 +69,11 @@ const searchTypeOptions = {
 	workspaceSearch: {
 		label: 'Workspace Search',
 		value: 'workspaceSearch',
-		// icon: <WorkspaceLightSvg />,
+		icon: <BuildingSvg />,
 	},
 };
 
-const Chat = ({
+const ChatBox = ({
 	outerContainerStyle = {},
 	chatList = [],
 	onSend,
@@ -542,6 +544,10 @@ const Chat = ({
 		[info, handleChange],
 	);
 
+	const isSearchTypeEnabled = useMemo(() => {
+		return Object?.keys(info?.searchType)?.some((type) => info?.searchType[type]);
+	}, [info?.searchType]);
+
 	return (
 		<>
 			<div className="chatcontainer">
@@ -697,12 +703,12 @@ const Chat = ({
 												onClick={handleWebSearchClick}
 												style={{
 													background: `${
-														info?.webSearch ? '#B39DFA' : '#2E2F33'
+														isSearchTypeEnabled ? '#B39DFA' : '#2E2F33'
 													}`,
 												}}
 											>
 												<div className="icon">
-													{info?.webSearch ? (
+													{isSearchTypeEnabled ? (
 														<WebDarkSvg />
 													) : (
 														<WebLightSvg />
@@ -712,7 +718,9 @@ const Chat = ({
 													className="right-text"
 													style={{
 														color: `${
-															info?.webSearch ? '#0C0C0D' : '#f2f2f3'
+															isSearchTypeEnabled
+																? '#0C0C0D'
+																: '#f2f2f3'
 														}`,
 													}}
 												>
@@ -731,7 +739,11 @@ const Chat = ({
 											}}
 										>
 											<div className="icon">
-												<MicroscopeSvg />
+												{info?.goDeep ? (
+													<MicroscopeDarkSvg />
+												) : (
+													<MicroscopeLightSvg />
+												)}
 											</div>
 											<div
 												className="right-text"
@@ -775,6 +787,15 @@ const Chat = ({
 											</div>
 											<div className="right-text">Filters</div>
 										</div>
+										{info?.voiceIntegration ? (
+											<span className="chat-icon" onClick={handleDisConnect}>
+												<Close style={{ width: '20px', height: '20px' }} />
+											</span>
+										) : (
+											<span className="chat-icon">
+												<Mic onClick={handleMicIconClick} />
+											</span>
+										)}
 									</div>
 									<div
 										className="click-btn"
@@ -812,4 +833,4 @@ const Chat = ({
 	);
 };
 
-export default memo(Chat);
+export default memo(ChatBox);

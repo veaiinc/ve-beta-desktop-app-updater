@@ -24,13 +24,21 @@ const SearchTypeTooltip = ({
 						{Object?.keys(searchTypeOptions)?.map((type) => (
 							<div className="item" key={type}>
 								<div className="icon">{searchTypeOptions[type]?.icon}</div>
-								<div className="text">{searchTypeOptions[type]?.label}</div>
+								<div className="search-type-text">
+									{searchTypeOptions[type]?.label}
+								</div>
 								<div className="toggle-button-container">
 									<Switch
 										checked={searchType?.[type]}
 										onChange={(checked) => {
 											onSearchTypeChange(type, checked);
 										}}
+										style={{
+											background: `${
+												searchType?.[type] ? '#F2F2F3' : '#484D51'
+											}`,
+										}}
+										className="custom-switch"
 									/>
 								</div>
 							</div>
