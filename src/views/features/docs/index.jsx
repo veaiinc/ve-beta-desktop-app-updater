@@ -584,9 +584,15 @@ const Docs = () => {
 	return (
 		<div className="docsParentContainer">
 			<div className="docsHeaderTitleContainer">
-				<div className="docsHeaderTitleText">
-					<span className="lineOne">Create a</span>
-					<span className="lineTwo">Document</span>
+				<div className="docsHeaderTitleTextContainer">
+					<div className="docsHeaderTitleText">
+						<span className="lineOne">Create a</span>
+						<span className="lineTwo">Document</span>
+					</div>
+					<div className="docsHeaderTitleTextSubTitle">
+						Create documents like proposals, invoices, contracts, presentations, forms &
+						more.
+					</div>
 				</div>
 				<div className="quickActionsBtn">
 					<QuickActions />
@@ -595,28 +601,26 @@ const Docs = () => {
 
 			<div className="docsParentHeaderContainer">
 				<div className="docsHeaderButtons" onClick={onGenerateAIFunc}>
-					<div className="docsHeaderButtonsTitle">Create Document from your template</div>
-					<div className="docsHeaderSubButtonsSubTitleColored colorful">
-						Start with AI
-					</div>
+					<div className="docsHeaderButtonsTitle">Create a Document</div>
+					<div className="docsHeaderSubButtonsSubTitleColored colorful">with Ai</div>
 				</div>
 
-				<div className="docsHeaderButtons">
+				{/* <div className="docsHeaderButtons">
 					{' '}
 					<div className="docsHeaderButtonsTitle">Import file or URL</div>
 					<div className="docsHeaderSubButtonsSubTitleColored">
 						Pick your template from playbook
 					</div>
-				</div>
+				</div> */}
 
 				<div
 					onClick={() => setInfo((prev) => ({ ...prev, proposalPopup: true }))}
 					className="docsHeaderButtons"
 				>
 					{' '}
-					<div className="docsHeaderButtonsTitle">Create Document from your template</div>
+					<div className="docsHeaderButtonsTitle">Create from Saved Template</div>
 					<div className="docsHeaderSubButtonsSubTitleColored">
-						Pick your template from playbook
+						Generate document using saved template
 					</div>
 				</div>
 			</div>
