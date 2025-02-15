@@ -908,7 +908,6 @@ export const AiSetupState = () => {
 
 	// https://api.ap-south-1.ve.ai/businessconsultant/ai-suggested-prompts
 	const getPromptsData = async (queryParams = {}) => {
-		console.log(queryParams, 'queryParams');
 		let workspaceId = localStorage.getItem('workspaceId');
 		let usertoken = localStorage.getItem('usertoken');
 		const url = '/' + workspaceId + '/ai-suggested-prompts';
