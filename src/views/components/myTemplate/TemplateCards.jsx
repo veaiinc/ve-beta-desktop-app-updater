@@ -57,8 +57,8 @@ const TemplateCards = ({ data, loading, hasNextPage, fetchMoreMyWorkflows }) => 
 		setInfo((prev) => ({ ...prev, showPreview: true, previewTemplateData: template }));
 	};
 
-	const openFileLeadModal = () => {
-		setInfo((prev) => ({ ...prev, showFileLeadModal: true }));
+	const openFileLeadModal = (template) => {
+		setInfo((prev) => ({ ...prev, showFileLeadModal: true, templateData: template }));
 	};
 
 	const createFileFunc = async (template) => {

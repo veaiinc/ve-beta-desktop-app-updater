@@ -14,11 +14,18 @@ import { Tooltip } from 'antd';
 import CreateFileLead from '../myTemplate/CreateFileLead';
 const origin = fetchOriginSelection();
 
-const options = ['All', 'Proposal', 'Invoice', 'Contract', 'Thank you'];
+const filterOptions = [
+	{ id: 1, title: 'All', value: '' },
+	{ id: 2, title: 'Form', value: 'form-submission' },
+	{ id: 3, title: 'Proposal', value: 'proposal' },
+	{ id: 4, title: 'Presentation', value: 'presentation' },
+	{ id: 5, title: 'Invoice', value: 'invoice' },
+	{ id: 6, title: 'Contract', value: 'contract' },
+];
 
 const initialState = {
 	search: '',
-	selectedOptionAll: 'All',
+	selectedOption: 'All',
 	loading: true,
 	workflowTemplates: [],
 	activeTemplateData: null,
@@ -30,7 +37,6 @@ const initialState = {
 	versionPopup: false,
 	smartfileIdFromExistingClient: null,
 	filterOption: false,
-	optionSelected: null,
 };
 
 const ProposalPopup = ({ open, closeModal, clientDetails = null }) => {
@@ -65,10 +71,10 @@ const ProposalPopup = ({ open, closeModal, clientDetails = null }) => {
 	}, [myMoreWorkflows]);
 
 	useEffect(() => {
-		if (info?.optionSelected) {
-			getMyWorkflowsTemplatesData(1, info?.search, false, 'updatedAt');
+		if (info?.selectedOption !== 'All') {
+			getMyWorkflowsTemplatesData(1, info?.search, false, info?.selectedOption);
 		}
-	}, [info?.optionSelected]);
+	}, [info?.selectedOption]);
 
 	useEffect(() => {
 		if (smartfile?._id && info?.activeTemplateData?._id) {
@@ -149,19 +155,22 @@ const ProposalPopup = ({ open, closeModal, clientDetails = null }) => {
 	};
 
 	const getMyWorkflowsTemplatesData = useCallback(
-		(page, search = null, fetchMore = false, sortBy = 'createdBy') => {
+		(page, search = null, fetchMore = false, selectedOption = '') => {
 			const payload = {
 				filters: {
 					limit: 9,
 					page: page,
 					type: 'workspace',
-					sortBy: sortBy,
 					status: 'published',
 					sortType: -1,
+					sortBy: 'createdAt',
 				},
 			};
 			if (search) {
 				payload.filters.title = search;
+			}
+			if (selectedOption !== 'All') {
+				payload.filters.action = selectedOption;
 			}
 			getMyWorkflows(payload, fetchMore);
 		},
@@ -175,7 +184,7 @@ const ProposalPopup = ({ open, closeModal, clientDetails = null }) => {
 			true,
 			info?.selectedOption,
 		);
-	}, [info?.hasNextPage, info?.currentPage, info?.search]);
+	}, [info?.hasNextPage, info?.currentPage, info?.search, info?.selectedOption]);
 
 	const myWorkflowsDataParser = useCallback(
 		(dataToBeUsed, fetchMore = false) => {
@@ -240,21 +249,24 @@ const ProposalPopup = ({ open, closeModal, clientDetails = null }) => {
 					</div>
 					<div className="proposal-popup-body-options-container-wrapper">
 						<div className="proposal-popup-body-options-container">
-							{options.map((option) => (
+							{filterOptions.map((option) => (
 								<div
 									className={`proposal-popup-body-option ${
-										info.selectedOption === option ? 'selected' : ''
+										info.selectedOption === option?.value ? 'selected' : ''
 									}`}
 									onClick={(e) => {
 										e.stopPropagation();
-										setInfo((prev) => ({ ...prev, selectedOption: option }));
+										setInfo((prev) => ({
+											...prev,
+											selectedOption: option?.value,
+										}));
 									}}
 								>
-									{option}
+									{option?.title}
 								</div>
 							))}
 						</div>
-						<div
+						{/* <div
 							className="proposal-popup-body-options-container-filters"
 							onClick={(e) => {
 								e.stopPropagation();
@@ -293,7 +305,7 @@ const ProposalPopup = ({ open, closeModal, clientDetails = null }) => {
 							>
 								<FilterSvg />
 							</Tooltip>
-						</div>
+						</div> */}
 					</div>
 				</div>
 				{info?.loading ? (
