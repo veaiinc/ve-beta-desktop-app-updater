@@ -22,6 +22,7 @@ import {
 	selectedValueStyling,
 } from '../../../features/automation_builder/automationContentsHelper';
 import validator from 'validator';
+import VariableComponent from './VariableComponent';
 
 const notificationList = {
 	Google: {
@@ -855,7 +856,8 @@ const Stage2 = ({
 						<span className="notificationInputTitle">
 							Recipient email<sup>*</sup>
 						</span>
-						<div className="inputContainer">
+						<VariableComponent />
+						{/* <div className="inputContainer">
 							<input
 								className="input"
 								placeholder="Select an option or type here"
@@ -865,7 +867,7 @@ const Stage2 = ({
 								}
 							/>
 							<div className="inputBottomSection">Insert variable</div>
-						</div>
+						</div> */}
 						<div className="inputButtonWrapper">
 							<button className="sidebarButton">CC</button>
 							<button className="sidebarButton">BCC</button>

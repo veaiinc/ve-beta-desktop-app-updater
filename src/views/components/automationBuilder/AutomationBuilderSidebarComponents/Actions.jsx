@@ -2,6 +2,8 @@ import React, { memo, useContext, useEffect, useMemo, useState } from 'react';
 import '../../../../assets/scss/automation_builder/automationBuilderSidebarComponents/actions.scss';
 import { ReactComponent as DoubleArrow } from '../../../../assets/svg/worflow_builder/buildercard/doubleArrow.svg';
 import { ReactComponent as Search } from '../../../../assets/svg/worflow_builder/buildercard/search.svg';
+import { ReactComponent as Slack } from '../../../../assets/svg/worflow_builder/buildercard/slack.svg';
+import { ReactComponent as Google } from '../../../../assets/svg/worflow_builder/buildercard/google.svg';
 import { useCallback } from 'react';
 import Context from '../../../../context/context';
 import { message, Spin } from 'antd';
@@ -14,11 +16,39 @@ import {
 	selectedValueStyling,
 	statusOptions,
 } from '../../../features/workflow_builder/workflowContantsHelpers';
+import GetDraft from './GetDraft';
 
 const actionsList = {
 	tasks: { title: 'Create Tasks' },
 	meeting: { title: 'Create Meeting' },
 };
+
+const actionGroups = [
+	{
+		_id: 'google',
+		groupName: 'Google',
+		icon: <Google />,
+		actions: [
+			{
+				actionLabel: 'Get label info',
+				actionType: 'getLabelInfo',
+			},
+			{
+				actionLabel: 'Delete draft',
+				actionType: 'deleteDraft',
+			},
+			{
+				actionLabel: 'Get draft',
+				actionType: 'getDraft',
+			},
+			{
+				actionLabel: 'Create draft',
+				actionType: 'createDraft',
+			},
+		],
+	},
+];
+
 const Actions = ({
 	onCLose,
 	templateId,
@@ -36,6 +66,7 @@ const Actions = ({
 		searchChanged: false,
 		activeStage: 'stage1', //stage1, stage2, stage3
 		saveLoader: false,
+		actionType: 'getDraft',
 	});
 
 	useEffect(() => {
@@ -160,12 +191,19 @@ const Actions = ({
 
 	return (
 		<div className="actionSidebarComponents">
-			<div className="actionSidebarComponentsHeader">
-				<span onClick={onCLose} style={{ cursor: 'pointer' }}>
-					<DoubleArrow />
-				</span>
-			</div>
-			{stageMapper?.[info?.activeStage]}
+			{info?.actionType ? (
+				<GetDraft />
+			) : (
+				<>
+					(
+					<div className="actionSidebarComponentsHeader">
+						<span onClick={onCLose} style={{ cursor: 'pointer' }}>
+							<DoubleArrow />
+						</span>
+					</div>
+					{stageMapper?.[info?.activeStage]})
+				</>
+			)}
 		</div>
 	);
 };
@@ -205,6 +243,19 @@ const Stage1 = ({ info, handleSearch, changeStage }) => {
 						onClick={() => actionListOnClick(ele)}
 					>
 						{ele?.title}
+					</div>
+				))}
+			</div>
+			<div className="actionGroupsContainer">
+				{actionGroups?.map((ele, index) => (
+					<div className="actionGroupItem" key={index}>
+						<h3>{ele?.groupName}</h3>
+						{ele?.actions?.map((action, index) => (
+							<div className="actionItem" key={index}>
+								<div className="actionItemIcon">{ele?.icon}</div>
+								<div className="actionItemLabel">{action?.actionLabel}</div>
+							</div>
+						))}
 					</div>
 				))}
 			</div>

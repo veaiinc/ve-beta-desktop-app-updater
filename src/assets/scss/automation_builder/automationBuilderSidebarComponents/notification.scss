@@ -520,48 +520,6 @@
 			line-height: normal;
 		}
 
-		.inputContainer {
-			display: flex;
-			padding: 12px;
-			flex-direction: column;
-			align-items: flex-start;
-			gap: 10px;
-			align-self: stretch;
-			border-radius: 12px;
-			border: 1px solid #2c2d2e;
-
-			input {
-				width: 100%;
-				background-color: transparent;
-				border: none;
-				outline: none;
-				color: #e4e4e4;
-				font-family: Inter;
-				font-size: 12px;
-				font-style: normal;
-				font-weight: 500;
-				line-height: normal;
-
-				&::placeholder {
-					color: #7a7e85;
-				}
-			}
-
-			.inputBottomSection {
-				width: 100%;
-				text-align: right;
-				color: #7a7e85;
-				text-align: right;
-				font-family: Inter;
-				font-size: 12px;
-				font-style: normal;
-				font-weight: 500;
-				line-height: normal;
-				border-top: 1px solid #2c2d2e;
-				padding-top: 10px;
-			}
-		}
-
 		.inputButtonWrapper {
 			display: flex;
 			gap: 6px;
