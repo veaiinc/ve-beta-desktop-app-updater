@@ -447,6 +447,9 @@ const Sidebar = ({ open, onClose, activeFileData, refetchDocsFilesList, openDele
 									/>
 								)}
 								{/* <ShareSvg onClick={openSendSmartFileModal} /> */}
+								<div className="editLabel" onClick={workflowRedirectionsToBuilder}>
+									Edit
+								</div>
 								<Tooltip
 									placement="bottomRight"
 									open={info?.openMoreOptions}
@@ -503,7 +506,7 @@ const Sidebar = ({ open, onClose, activeFileData, refetchDocsFilesList, openDele
 											{info?.activeFileData?.clientDetails?.name}
 										</div>
 									</div>
-									<div className="listDataMapperRow">
+									{/* <div className="listDataMapperRow">
 										<div className="listDataMapperRowLabel">
 											<CostSvg />
 											<span>Cost</span>
@@ -516,7 +519,7 @@ const Sidebar = ({ open, onClose, activeFileData, refetchDocsFilesList, openDele
 											<span>Project Date</span>
 										</div>
 										<div className="listDataMapperRowValue">Jan 8 2025</div>
-									</div>
+									</div> */}
 									<div className="listDataMapperRow">
 										<div className="listDataMapperRowLabel">
 											<PieSvg />
@@ -571,9 +574,9 @@ const Sidebar = ({ open, onClose, activeFileData, refetchDocsFilesList, openDele
 								</div>
 							</div>
 						</div>
-						<div className="editLabel" onClick={workflowRedirectionsToBuilder}>
+						{/* <div className="editLabel" onClick={workflowRedirectionsToBuilder}>
 							Edit
-						</div>
+						</div> */}
 					</div>
 				</div>
 			</Drawer>

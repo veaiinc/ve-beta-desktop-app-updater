@@ -50,6 +50,7 @@ const BottomToolbar = ({
 			activeWorkflowSlugForSmartFile,
 			updateApplicationChat,
 			activePromptForChat,
+			currentSessionId,
 		},
 		calendarInfo: { updateCalendarState },
 		tasks: { updateTaskState },
@@ -75,7 +76,7 @@ const BottomToolbar = ({
 		chatQuery: '',
 		position: { x: window.innerWidth / 2 - 900, y: 0 },
 		addQuickAction: false,
-		chatSessionId: ObjectID().toString(),
+		chatSessionId: null,
 		uploadedImages: [],
 		chatLoading: false,
 		showFullPage: true,
@@ -105,6 +106,14 @@ const BottomToolbar = ({
 			chatContentRef.current.scrollTop = chatContentRef.current.scrollHeight;
 		}
 	}, [chatList]); // Scroll whenever chatList changes
+
+	useEffect(() => {
+		if (currentSessionId) {
+			setInfo((prev) => ({ ...prev, chatSessionId: currentSessionId }));
+		} else {
+			updateStateValues({ currentSessionId: ObjectID().toString() });
+		}
+	}, [currentSessionId]);
 
 	useEffect(() => {
 		if (activePromptForChat) {
