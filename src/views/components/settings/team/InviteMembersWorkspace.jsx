@@ -1,9 +1,12 @@
-import React from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { ReactComponent as PlusSvg } from '../../../../assets/svg/close.svg';
 import { ReactComponent as CrossSvg } from '../../../../assets/svg/close.svg';
+import Context from '../../../../context/context';
 import '../../../../assets/scss/settings/teamMembers.scss';
 import ReusableButtonSettings from '../ReusableButtonSettings';
 import ReactModal from '../../modalsV2';
+import { Checkbox } from 'antd';
+
 const InviteMembersWorkspaceComponent = ({
 	handleChnage,
 	info,
@@ -12,7 +15,34 @@ const InviteMembersWorkspaceComponent = ({
 	setsendRequestList,
 	isOpen,
 	closeModal,
+	selectedOption,
+	tenantUserId,
+	accessControls,
+	handleCheckboxChange,
+	selectableOptions,
+	userEmail,
+	selectedUser = null,
 }) => {
+	const {
+		companyInfo: { updateTenantAccessControls },
+	} = useContext(Context);
+
+	const [updatedData, setUpdatedData] = useState(null);
+
+	const handleUpdateUser = () => {
+		setUpdatedData({
+			accessControls: accessControls?.accessControls,
+		});
+	};
+	useEffect(() => {
+		if (updatedData) {
+			const res = updateTenantAccessControls(updatedData, tenantUserId);
+			if (res === true) {
+				closeModal();
+			}
+		}
+	}, [updatedData]);
+
 	return (
 		<ReactModal isOpen={isOpen} closeModal={closeModal}>
 			<div className="settingsBoxContainer inviteMemberComponent">
@@ -38,12 +68,13 @@ const InviteMembersWorkspaceComponent = ({
 										placeholder="Type here..."
 										name="email"
 										onChange={(e) => handleChnage(e, index)}
-										value={singleUser?.email}
+										value={userEmail}
 									/>
 									<div className="dropdownContainer">
 										<select
 											className="dropdownInput"
 											name="userRole"
+											value={selectedOption}
 											onChange={(e) => handleChnage(e, index)}
 										>
 											<option value="admin">Admin</option>
@@ -84,40 +115,43 @@ const InviteMembersWorkspaceComponent = ({
 					);
 				})}
 				<div className="accessControls">
-					<div className="accessControlTitle">Access Controls</div>
-					<div className="accessControlOptions">
-						<div className="accessControlOption">
-							{/* <div className="accessControlOptionIcon"></div> */}
-							<input
-								type="checkbox"
-								className="accessControlOptionIcon"
-								checked={true}
-							/>
-							<div className="accessControlOptionText">Software</div>
+					{selectedOption !== 'admin' && (
+						<div className="accessControls">
+							<div className="accessControlTitle">Access Controls</div>
+							<div className="accessControlOptions">
+								{selectableOptions?.map((option) => {
+									return (
+										<div className="accessControlOption">
+											<Checkbox
+												type="checkbox"
+												checked={
+													accessControls?.accessControls?.find(
+														(control) => control.app === option.value,
+													)?.isEnabled || false
+												}
+												onChange={(e) =>
+													handleCheckboxChange(
+														option.value,
+														e.target.checked,
+													)
+												}
+											/>
+											<div className="accessControlOptionText">
+												{option.title}
+											</div>
+										</div>
+									);
+								})}
+							</div>
 						</div>
-						<div className="accessControlOption">
-							{/* <div className="accessControlOptionIcon"></div> */}
-							<input
-								type="checkbox"
-								className="accessControlOptionIcon"
-								onClick={() => {}}
-							/>
-							<div className="accessControlOptionText">AI Agents</div>
-						</div>
-						<div className="accessControlOption">
-							{/* <div className="accessControlOptionIcon"></div> */}
-							<input
-								type="checkbox"
-								className="accessControlOptionIcon"
-								onClick={() => {}}
-							/>
-							<div className="accessControlOptionText">Storage</div>
-						</div>
-					</div>
+					)}
 				</div>
 				<div className="buttonsContainer">
 					<div style={{ minWidth: '150px', display: 'flex', gap: '5px' }}>
-						<ReusableButtonSettings text="Send Request" func={handleSubmit} />
+						<ReusableButtonSettings
+							text="Send Request"
+							func={selectedUser ? handleUpdateUser : handleSubmit}
+						/>
 					</div>
 				</div>
 			</div>

@@ -13,6 +13,7 @@ const TeamAccessListComponent = ({
 	filteredUsers,
 	updateTenantRoleFunc,
 	handleInviteMembers,
+	handleUserClick,
 }) => {
 	const updateUserRoleFunction = (tenantid, role) => {
 		updateTenantRoleFunc(tenantid, role);
@@ -36,7 +37,13 @@ const TeamAccessListComponent = ({
 			<div>
 				<div>
 					{filteredUsers?.map((user, index) => (
-						<div className="tenantDetailsContainer" key={user?._id}>
+						<div
+							className="tenantDetailsContainer"
+							key={user?._id}
+							onClick={() => {
+								handleUserClick(user);
+							}}
+						>
 							<div className="tenantProfileContainer">
 								<div className="tenantLogo">
 									{/* <img

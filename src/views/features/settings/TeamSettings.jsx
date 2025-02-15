@@ -7,6 +7,13 @@ import InviteMembersWorkspaceComponent from '../../components/settings/team/Invi
 import TeamAccessListComponent from '../../components/settings/team/TeamAccessList';
 import { message } from 'antd';
 
+const selectableOptions = [
+	{ id: 1, title: 'Workflow', value: 'workflow' },
+	{ id: 2, title: 'Classic Gallery', value: 'classicGallery' },
+	{ id: 3, title: 'Lite Gallery', value: 'liteGallery' },
+	{ id: 4, title: 'Conversational Agent', value: 'conversationalAgent' },
+];
+
 const TeamSettings = () => {
 	// Contexts
 	const {
@@ -17,6 +24,7 @@ const TeamSettings = () => {
 			inviteNewuser,
 			updateTenantRole,
 			removeTenantRole,
+			addTenantUser,
 		},
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 	} = useContext(Context);
@@ -34,6 +42,9 @@ const TeamSettings = () => {
 		showDeactivate: '',
 		showDeleteInvite: '',
 		buttonLoading: false,
+		selectedOption: 'admin',
+		userEmail: '',
+		selectedUser: null,
 	});
 
 	const [sendRequestList, setsendRequestList] = useState([
@@ -109,15 +120,11 @@ const TeamSettings = () => {
 
 	const handleChnage = (e, index) => {
 		const { name, value } = e.target;
-
-		const update = [...sendRequestList];
-		update[index][name] = value;
-		if (update[index]['emailIDError']) {
-			update[index]['emailIDError'] = false;
-			update[index]['emailIDMessage'] = '';
+		if (name === 'email') {
+			setInfo((prev) => ({ ...prev, userEmail: value }));
+		} else {
+			setInfo((prev) => ({ ...prev, selectedOption: value }));
 		}
-
-		setsendRequestList(update);
 	};
 
 	const handleInputChange = (event) => {
@@ -140,6 +147,14 @@ const TeamSettings = () => {
 			showAddTenantUserModal: !prev.showAddTenantUserModal,
 		}));
 	};
+
+	const [accessControls, setAccessControls] = useState({
+		accessControls: selectableOptions.map((option) => ({
+			app: option.value,
+			isEnabled: false,
+			hasFullAccess: false,
+		})),
+	});
 
 	const validateUsersEmails = (email, index) => {
 		const update = [...sendRequestList];
@@ -237,6 +252,17 @@ const TeamSettings = () => {
 		return data;
 	};
 
+	const dataNeededForInvite = () => {
+		const data = {
+			email: info?.userEmail,
+			role: info?.selectedOption,
+			accessControls: info?.selectedOption === 'admin' ? [] : accessControls?.accessControls,
+		};
+		return data;
+	};
+
+	const dataNeeded = dataNeededForInvite();
+
 	const loadingToastFunction = () => {
 		messageApi.open({
 			type: 'loading',
@@ -245,88 +271,125 @@ const TeamSettings = () => {
 		});
 	};
 
+	// const handleSubmit = async () => {
+	// 	try {
+	// 		if (
+	// 			validateExpiryData &&
+	// 			validateExpiryData?.restrictWorkflows &&
+	// 			validateExpiryData?.isExpired
+	// 		) {
+	// 			return updateSubscriptionState({ expiredSubscriptionModal: true });
+	// 		}
+	// 		if (info?.buttonLoading) return;
+
+	// 		let isAllCorrect = true;
+
+	// 		for (let index = 0; index < sendRequestList.length; index++) {
+	// 			if (!validateUsersEmails(sendRequestList[index].email, index) && isAllCorrect) {
+	// 				isAllCorrect = false;
+	// 			}
+	// 		}
+
+	// 		if (!isAllCorrect) return;
+
+	// 		for (let index = 0; index < sendRequestList.length; index++) {
+	// 			if (!validateDuplicateEmails(sendRequestList[index].email, index) && isAllCorrect) {
+	// 				isAllCorrect = false;
+	// 			}
+	// 		}
+
+	// 		if (!isAllCorrect) return;
+
+	// 		for (let index = 0; index < sendRequestList.length; index++) {
+	// 			if (!validateExistUser(sendRequestList[index].email, index) && isAllCorrect) {
+	// 				isAllCorrect = false;
+	// 			}
+	// 		}
+
+	// 		if (!isAllCorrect) return;
+
+	// 		const dataRoles = mapUsersRoleBased();
+	// 		setInfo((prev) => ({ ...prev, buttonLoading: true }));
+	// 		loadingToastFunction();
+
+	// 		const promises = dataRoles?.map((payload) => inviteNewuser(payload));
+	// 		const results = await Promise.all(promises);
+	// 		let update = [...sendRequestList];
+	// 		let completionCount = 0;
+	// 		results?.forEach((singleResult, index) => {
+	// 			if (typeof singleResult[0] !== 'boolean' || singleResult[0] !== true) {
+	// 				update[index].emailIDError = true;
+	// 				update[index].emailIDMessage = singleResult[1]?.message;
+	// 			} else {
+	// 				update[index].emailIDError = false;
+	// 				update[index].successTrue = true;
+	// 				update[index].emailIDMessage = 'Invitation mail sent successfully';
+	// 				completionCount++;
+
+	// 				setTimeout(() => {
+	// 					if (sendRequestList?.length === completionCount) return;
+	// 					const tempUpdate = [...sendRequestList];
+	// 					tempUpdate[index].successTrue = false;
+	// 					tempUpdate[index].emailIDMessage = '';
+	// 					setsendRequestList(tempUpdate);
+	// 				}, 2000);
+	// 			}
+	// 		});
+
+	// 		if (completionCount === results?.length) {
+	// 			update = [
+	// 				{
+	// 					email: '',
+	// 					userRole: 'admin',
+	// 					emailIDError: false,
+	// 					emailIDMessage: '',
+	// 					successTrue: false,
+	// 				},
+	// 			];
+	// 		}
+	// 		setsendRequestList(update);
+	// 		setInfo((prev) => ({ ...prev, buttonLoading: false }));
+	// 		getTeamMembers();
+	// 		messageApi.destroy();
+	// 	} catch (error) {
+	// 		console.log('error==>handleSubmit', error);
+	// 	}
+	// };
+
 	const handleSubmit = async () => {
-		try {
-			if (
-				validateExpiryData &&
-				validateExpiryData?.restrictWorkflows &&
-				validateExpiryData?.isExpired
-			) {
-				return updateSubscriptionState({ expiredSubscriptionModal: true });
-			}
-			if (info?.buttonLoading) return;
+		if (dataNeeded?.email === '') {
+			messageApi.error('Please enter email');
+			return;
+		}
+		const hasEnabledAccess = dataNeeded?.accessControls?.some((control) => control.isEnabled);
 
-			let isAllCorrect = true;
+		if (!hasEnabledAccess) {
+			messageApi.error('At least one access control must be enabled.');
+			return;
+		}
+		const response = await addTenantUser(dataNeeded);
+		if (response?.[0] === true) {
+			messageApi.success(response?.[1]?.message);
+			setInfo((prev) => ({ ...prev, showAddTenantUserModal: false }));
+		} else {
+			messageApi.error(response?.[1]?.message);
+		}
+		getTeamMembers();
+	};
 
-			for (let index = 0; index < sendRequestList.length; index++) {
-				if (!validateUsersEmails(sendRequestList[index].email, index) && isAllCorrect) {
-					isAllCorrect = false;
-				}
-			}
-
-			if (!isAllCorrect) return;
-
-			for (let index = 0; index < sendRequestList.length; index++) {
-				if (!validateDuplicateEmails(sendRequestList[index].email, index) && isAllCorrect) {
-					isAllCorrect = false;
-				}
-			}
-
-			if (!isAllCorrect) return;
-
-			for (let index = 0; index < sendRequestList.length; index++) {
-				if (!validateExistUser(sendRequestList[index].email, index) && isAllCorrect) {
-					isAllCorrect = false;
-				}
-			}
-
-			if (!isAllCorrect) return;
-
-			const dataRoles = mapUsersRoleBased();
-			setInfo((prev) => ({ ...prev, buttonLoading: true }));
-			loadingToastFunction();
-
-			const promises = dataRoles?.map((payload) => inviteNewuser(payload));
-			const results = await Promise.all(promises);
-			let update = [...sendRequestList];
-			let completionCount = 0;
-			results?.forEach((singleResult, index) => {
-				if (typeof singleResult[0] !== 'boolean' || singleResult[0] !== true) {
-					update[index].emailIDError = true;
-					update[index].emailIDMessage = singleResult[1]?.message;
-				} else {
-					update[index].emailIDError = false;
-					update[index].successTrue = true;
-					update[index].emailIDMessage = 'Invitation mail sent successfully';
-					completionCount++;
-
-					setTimeout(() => {
-						if (sendRequestList?.length === completionCount) return;
-						const tempUpdate = [...sendRequestList];
-						tempUpdate[index].successTrue = false;
-						tempUpdate[index].emailIDMessage = '';
-						setsendRequestList(tempUpdate);
-					}, 2000);
-				}
-			});
-
-			if (completionCount === results?.length) {
-				update = [
-					{
-						email: '',
-						userRole: 'admin',
-						emailIDError: false,
-						emailIDMessage: '',
-						successTrue: false,
-					},
-				];
-			}
-			setsendRequestList(update);
-			setInfo((prev) => ({ ...prev, buttonLoading: false }));
-			getTeamMembers();
-			messageApi.destroy();
-		} catch (error) {
-			console.log('error==>handleSubmit', error);
+	const handleUserClick = (user) => {
+		if (user?.role === 'default') {
+			setInfo((prev) => ({
+				...prev,
+				showAddTenantUserModal: true,
+				selectedUser: user,
+				userEmail: user?.email,
+				selectedOption: user?.role,
+			}));
+			setAccessControls((prev) => ({
+				...prev,
+				accessControls: user?.accessControls,
+			}));
 		}
 	};
 
@@ -351,6 +414,16 @@ const TeamSettings = () => {
 		setInfo((prev) => ({ ...prev, showAddTenantUserModal: true }));
 	};
 
+	const handleCheckboxChange = (app, checked) => {
+		setAccessControls((prevState) => ({
+			accessControls: prevState.accessControls.map((control) =>
+				control.app === app
+					? { ...control, isEnabled: checked, hasFullAccess: checked }
+					: control,
+			),
+		}));
+	};
+
 	return (
 		<>
 			{contextHolder}
@@ -364,6 +437,7 @@ const TeamSettings = () => {
 						filteredUsers={filteredUsers}
 						updateTenantRoleFunc={updateTenantRoleFunc}
 						handleInviteMembers={handleInviteMembers}
+						handleUserClick={handleUserClick}
 					/>
 				</div>
 			</div>
@@ -371,13 +445,23 @@ const TeamSettings = () => {
 				<InviteMembersWorkspaceComponent
 					isOpen={info?.showAddTenantUserModal}
 					closeModal={() =>
-						setInfo((prev) => ({ ...prev, showAddTenantUserModal: false }))
+						setInfo((prev) => ({
+							...prev,
+							showAddTenantUserModal: false,
+							selectedOption: 'admin',
+						}))
 					}
 					handleChnage={handleChnage}
 					info={info}
 					handleSubmit={handleSubmit}
 					sendRequestList={sendRequestList}
 					setsendRequestList={setsendRequestList}
+					selectedOption={info?.selectedOption}
+					accessControls={accessControls}
+					handleCheckboxChange={handleCheckboxChange}
+					selectableOptions={selectableOptions}
+					userEmail={info?.userEmail}
+					selectedUser={info?.selectedUser}
 				/>
 			)}
 		</>
