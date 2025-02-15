@@ -94,6 +94,7 @@ export const intialState = {
 	smartFileRefetch: false,
 	activeWorkflowSlugForSmartFile: null,
 	leftSidebarState: null,
+	templatesRefetch: false,
 };
 
 export const TemplatesState = (props) => {
