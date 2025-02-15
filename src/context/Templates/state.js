@@ -95,6 +95,7 @@ export const intialState = {
 	activeWorkflowSlugForSmartFile: null,
 	leftSidebarState: null,
 	templatesRefetch: false,
+	automations: null,
 };
 
 export const TemplatesState = (props) => {
@@ -1741,8 +1742,46 @@ export const TemplatesState = (props) => {
 			console.log('error==>getAllSlackChannels', error);
 		}
 	};
+
+	const getAutomations = async (page = 1, limit = 10, append = false) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			const path = `/${workspaceId}/getAutomations`;
+			const token = localStorage.getItem('usertoken');
+			const type = 'automations_api';
+			const query = {
+				page,
+				limit,
+			};
+			const response = await Service?.fetchGet(path, token, type, query);
+			if (response?.[0]) {
+				const data = append
+					? [
+							...(state?.automations?.automations?.data || []),
+							...response?.[1]?.automations?.data,
+					  ]
+					: response?.[1]?.automations?.data;
+				const currentPage = response?.[1]?.automations?.currentPage;
+				const hasNextPage = response?.[1]?.automations?.hasNextPage;
+				const payload = {
+					data,
+					hasNextPage,
+					currentPage,
+				};
+				dispatch({
+					type: Actions?.GET_AUTOMATIONS_SUCCESS,
+					payload,
+				});
+			}
+		} catch (error) {
+			console.log('error==>getAutomations', error);
+			return [false];
+		}
+	};
+
 	return {
 		...state,
+		getAutomations,
 		getMyWorkflows,
 		resetTemplateState,
 		getClientList,

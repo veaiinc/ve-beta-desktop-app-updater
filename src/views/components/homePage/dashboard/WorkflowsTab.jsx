@@ -20,6 +20,8 @@ import Skeleton from 'react-loading-skeleton';
 const WorkflowsTab = ({ searchValue }) => {
 	const {
 		templates: {
+			automations,
+			getAutomations,
 			getMyWorkflows,
 			myWorkflows,
 			myMoreWorkflows,
@@ -49,9 +51,19 @@ const WorkflowsTab = ({ searchValue }) => {
 		copyLink: null,
 	});
 
+	console.log('automations', automations);
+
+	const automationsData = automations?.data;
+	const automationsHasNextPage = automations?.hasNextPage;
+	const automationsCurrentPage = automations?.currentPage;
+
 	useEffect(() => {
+		// Call automations api when there are no automations on mount
+		if (!automations) {
+			getAutomations();
+		}
 		getMyWorkflowTemplatesData(1);
-	}, [searchValue]);
+	}, [searchValue, automationsHasNextPage]);
 
 	useEffect(() => {
 		if (salePageRefresh) {
@@ -243,8 +255,36 @@ const WorkflowsTab = ({ searchValue }) => {
 		[info?.activeTemplateData],
 	);
 
+	const handleFetchMoreAutomations = useCallback(() => {
+		getAutomations(automationsCurrentPage + 1, true);
+	}, [automationsCurrentPage]);
+
 	return (
 		<div className="workflows-tab-container">
+			<InfiniteScroll
+				dataLength={automationsData?.length || 0}
+				hasMore={automationsHasNextPage}
+				next={handleFetchMoreAutomations}
+				loader={<FetchMoreLoaderComp />}
+				style={{
+					display: 'flex',
+					flexDirection: 'row',
+					flexWrap: 'wrap',
+					flexFlow: 'wrap',
+					alignItems: 'flex-end',
+					alignContent: 'flex-start',
+					rowGap: '50px',
+					columnGap: '10px',
+					width: '100%',
+					overflowX: 'hidden',
+				}}
+				className="tetsing"
+				height={'calc(100vh - 240px)'}
+			>
+				{console.log('automationsData', automationsData)}
+				{automationsData?.length &&
+					automationsData?.map((automation) => <p>{automation?.name}</p>)}
+			</InfiniteScroll>
 			<div id="scrollableDiv">
 				{info?.loading ? (
 					<div style={{ display: 'flex', flexDirection: 'row', gap: '15px' }}>
@@ -260,43 +300,45 @@ const WorkflowsTab = ({ searchValue }) => {
 						))}
 					</div>
 				) : (
-					<InfiniteScroll
-						dataLength={info?.myWorkflowData?.length || 0}
-						hasMore={info?.hasNextPage}
-						next={fetchMoreMyWorkflows}
-						loader={<FetchMoreLoaderComp />}
-						style={{
-							display: 'flex',
-							flexDirection: 'row',
-							flexWrap: 'wrap',
-							flexFlow: 'wrap',
-							alignItems: 'flex-end',
-							alignContent: 'flex-start',
-							rowGap: '50px',
-							columnGap: '10px',
-							width: '100%',
-							overflowX: 'hidden',
-						}}
-						className="tetsing"
-						height={'calc(100vh - 240px)'}
-					>
-						<div className="workflows-tab">
-							{info?.myWorkflowData?.map((workflow, index) => {
-								return (
-									<WorkflowCard
-										key={index}
-										workflow={workflow}
-										openModal={openMyWorkflowModal}
-										openCopyLinkModal={openCopyLinkModal}
-										navigateToWorkflowBuilder={navigateToWorkflowBuilder}
-										modalIsOpen={info?.myWorkflowModal}
-										activeTemplateData={info?.activeTemplateData}
-										activeCardsData={info?.activeCardsData}
-									/>
-								);
-							})}
-						</div>
-					</InfiniteScroll>
+					<>
+						<InfiniteScroll
+							dataLength={info?.myWorkflowData?.length || 0}
+							hasMore={info?.hasNextPage}
+							next={fetchMoreMyWorkflows}
+							loader={<FetchMoreLoaderComp />}
+							style={{
+								display: 'flex',
+								flexDirection: 'row',
+								flexWrap: 'wrap',
+								flexFlow: 'wrap',
+								alignItems: 'flex-end',
+								alignContent: 'flex-start',
+								rowGap: '50px',
+								columnGap: '10px',
+								width: '100%',
+								overflowX: 'hidden',
+							}}
+							className="tetsing"
+							height={'calc(100vh - 240px)'}
+						>
+							<div className="workflows-tab">
+								{info?.myWorkflowData?.map((workflow, index) => {
+									return (
+										<WorkflowCard
+											key={index}
+											workflow={workflow}
+											openModal={openMyWorkflowModal}
+											openCopyLinkModal={openCopyLinkModal}
+											navigateToWorkflowBuilder={navigateToWorkflowBuilder}
+											modalIsOpen={info?.myWorkflowModal}
+											activeTemplateData={info?.activeTemplateData}
+											activeCardsData={info?.activeCardsData}
+										/>
+									);
+								})}
+							</div>
+						</InfiniteScroll>
+					</>
 				)}
 			</div>
 

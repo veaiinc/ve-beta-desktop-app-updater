@@ -149,6 +149,10 @@ const actionHandlers = {
 		...state,
 		[action?.selectedvariable]: action.payload,
 	}),
+	GET_AUTOMATIONS_SUCCESS: (state, action) => ({
+		...state,
+		automations: action?.payload,
+	}),
 
 	RESET_STATE: () => intialState,
 };
