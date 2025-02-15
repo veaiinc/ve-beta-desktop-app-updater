@@ -1,9 +1,71 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useContext, useCallback } from 'react';
 import { ReactComponent as UploadSvg } from '../../../assets/svg/ai_agents/upload.svg';
 import { Tooltip, Upload } from 'antd';
 import { ReactComponent as SearchSvg } from '../../../assets/svg/workflow/search.svg';
-const UploadFileTooltip = ({ children, handleChange, isUploadFileOpen, setIsUploadFileOpen }) => {
-	const [searchQuery, setSearchQuery] = useState('');
+import { ReactComponent as TextSvg } from '../../../assets/svg/ai_agents/text.svg';
+import { ReactComponent as DocxSvg } from '../../../assets/svg/ai_agents/docx.svg';
+import { ReactComponent as PngSvg } from '../../../assets/svg/ai_agents/png.svg';
+import { ReactComponent as PdfSvg } from '../../../assets/svg/ai_agents/pdf.svg';
+import { ReactComponent as JpgSvg } from '../../../assets/svg/ai_agents/jpg.svg';
+import { use } from 'react';
+import Context from '../../../context/context';
+import { FetchMoreLoaderComp } from '../../../helpers';
+import InfiniteScroll from 'react-infinite-scroll-component';
+
+const fileTypeIcons = {
+	docx: <DocxSvg />,
+	txt: <TextSvg />,
+	png: <PngSvg />,
+	pdf: <PdfSvg />,
+	jpg: <JpgSvg />,
+};
+
+let timeoutId = null;
+
+const UploadFileTooltip = ({
+	children,
+	handleChange,
+	isUploadFileOpen,
+	setIsUploadFileOpen,
+	handleRecentFileClick,
+}) => {
+	const {
+		aiSetup: { filesUploadedInAiChat, getFilesUploadedInAiChat },
+	} = useContext(Context);
+	const [info, setInfo] = useState({
+		searchQuery: '',
+		isSearchQueryChanged: false,
+	});
+
+	useEffect(() => {
+		if (!filesUploadedInAiChat || info?.isSearchQueryChanged) {
+			fetchFilesUploadedInAiChat(1);
+			setInfo((prev) => ({ ...prev, isSearchQueryChanged: false }));
+		}
+	}, [info?.isSearchQueryChanged]);
+
+	const fetchFilesUploadedInAiChat = async (page = 1) => {
+		const payload = {
+			limit: 10,
+			page: page,
+			originalFileName: info?.searchQuery,
+		};
+		getFilesUploadedInAiChat(payload, info?.isSearchQueryChanged);
+	};
+
+	const fetchMoreFilesUploadedInAiChat = async () => {
+		fetchFilesUploadedInAiChat(filesUploadedInAiChat?.currentPage + 1);
+	};
+
+	const handleDebounceIsSearchQueryChanged = useCallback(() => {
+		if (timeoutId) {
+			clearTimeout(timeoutId);
+		}
+		timeoutId = setTimeout(() => {
+			setInfo((prev) => ({ ...prev, isSearchQueryChanged: true }));
+		}, 1000);
+	}, []);
+
 	return (
 		<div className="upload-file-wrapper">
 			<Tooltip
@@ -20,19 +82,53 @@ const UploadFileTooltip = ({ children, handleChange, isUploadFileOpen, setIsUplo
 							<input
 								type="text"
 								placeholder="Search by module"
-								onChange={(e) => setSearchQuery(e?.target?.value)}
+								onChange={(e) => {
+									setInfo((prev) => ({
+										...prev,
+										searchQuery: e?.target?.value,
+									}));
+									handleDebounceIsSearchQueryChanged(e?.target?.value);
+								}}
 							/>
 						</div>
 						<div className="upload-file-wrapper">
 							<div className="recent-files-wrapper">
 								<div className="header">Recent</div>
-								<div className="recent-files">
-									<div className="recent-file">
-										<div className="file-type-icon"></div>
-										<div className="file-name">
-											<div className="file-name-text"></div>
+								<div
+									id="scrollableDiv"
+									style={{
+										height: '192px',
+										overflow: 'auto',
+										width: '100%',
+									}}
+								>
+									<InfiniteScroll
+										dataLength={filesUploadedInAiChat?.data?.length || 0}
+										next={fetchMoreFilesUploadedInAiChat}
+										hasMore={filesUploadedInAiChat?.hasNextPage}
+										loader={<FetchMoreLoaderComp />}
+										height={'192px'}
+										scrollableTarget="scrollableDiv"
+									>
+										<div className="recent-files">
+											{filesUploadedInAiChat?.data?.map((file) => {
+												return (
+													<div
+														className="recent-file"
+														onClick={() => handleRecentFileClick(file)}
+														key={file?.id}
+													>
+														<div className="file-type-icon">
+															{fileTypeIcons?.[file?.sourceType]}
+														</div>
+														<div className="file-name">
+															{file?.originalFileName}
+														</div>
+													</div>
+												);
+											})}
 										</div>
-									</div>
+									</InfiniteScroll>
 								</div>
 							</div>
 							<div className="horizontal-line"></div>

@@ -11,6 +11,51 @@
 		// justify-content: flex-end;
 		// flex-grow: 1;
 
+		.recent-files-container {
+			overflow-y: auto;
+			display: flex;
+			flex-direction: row;
+			display: flex;
+			width: 100%;
+			align-items: center;
+			gap: 12px;
+			padding-bottom: 10px;
+			.recent-file {
+				display: flex;
+				padding: 8px 12px;
+				align-items: center;
+				gap: 6px;
+				border-radius: 37px;
+				background: var(--popup, #202123);
+				.file-type-icon {
+					display: flex;
+					width: 16px;
+					height: 16px;
+					padding: 2px 2.728px 1px 2px;
+					justify-content: center;
+					align-items: center;
+				}
+				.file-name {
+					max-width: 300px;
+					overflow: hidden;
+					text-overflow: ellipsis;
+					color: var(--primary-font, #f2f2f3);
+					text-align: center;
+					font-family: Inter;
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+				}
+				.close-icon-container {
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					cursor: pointer;
+				}
+			}
+		}
+
 		.imagePreviewBar {
 			display: flex;
 			gap: 10px;
@@ -73,7 +118,6 @@
 			position: relative;
 			display: flex;
 			flex-direction: column;
-			margin-top: 10px;
 			gap: 10px;
 			.suggestions-container {
 				display: flex;
@@ -106,7 +150,6 @@
 				background: #202123;
 				width: 700px;
 				align-self: center;
-				margin-bottom: 20px;
 				border-radius: 16px;
 
 				.textArea {
@@ -363,6 +406,7 @@
 			align-items: flex-start;
 			gap: 4px;
 			align-self: stretch;
+			// height: ;
 			.header {
 				display: flex;
 				padding: 2px 8px;
@@ -382,14 +426,16 @@
 				display: flex;
 				flex-direction: column;
 				align-items: flex-start;
+				width: 100%;
 				gap: 8px;
 				align-self: stretch;
-
+				overflow-y: auto;
 				.recent-file {
 					display: flex;
 					align-items: center;
 					gap: 12px;
 					align-self: stretch;
+					cursor: pointer;
 					.file-type-icon {
 						display: flex;
 						padding: 10px;
@@ -401,16 +447,15 @@
 						background: #2c2e30;
 					}
 					.file-name {
-						.file-name-text {
-							overflow: hidden;
-							color: #f2f2f3;
-							text-overflow: ellipsis;
-							font-family: Inter;
-							font-size: 14px;
-							font-style: normal;
-							font-weight: 500;
-							line-height: normal;
-						}
+						overflow: hidden;
+						color: #f2f2f3;
+						text-overflow: ellipsis;
+						white-space: nowrap;
+						font-family: Inter;
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
 					}
 				}
 			}

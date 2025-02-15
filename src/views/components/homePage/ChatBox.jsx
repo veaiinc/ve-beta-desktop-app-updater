@@ -14,6 +14,9 @@ import { ReactComponent as WebLightSvg } from '../../../assets/svg/ai_agents/web
 import { ReactComponent as WebDarkSvg } from '../../../assets/svg/ai_agents/web-dark.svg';
 import { ReactComponent as CloseSvg } from '../../../assets/svg/calendar/close.svg';
 import { ReactComponent as BuildingSvg } from '../../../assets/svg/ai_agents/building.svg';
+import { ReactComponent as TextSvg } from '../../../assets/svg/ai_agents/text.svg';
+import { ReactComponent as DocxSvg } from '../../../assets/svg/ai_agents/docx.svg';
+import { ReactComponent as JpgSvg } from '../../../assets/svg/ai_agents/jpg.svg';
 import { Alert, Image, message, Spin, Tooltip } from 'antd';
 import { Upload } from 'antd';
 import Context from '../../../context/context';
@@ -33,7 +36,7 @@ import SearchDropdown from '../chat/SearchDropdown';
 import UploadFileTooltip from '../chat/UploadFileTooltip';
 import DateRangeDropdown from '../chat/DateRangeDropdown';
 import SearchTypeTooltip from '../chat/SearchTypeTooltip';
-
+import { ReactComponent as PngSvg } from '../../../assets/svg/ai_agents/png.svg';
 const moduleHelper = {
 	tasks: 'tasks',
 	'smart-file': 'form_filling',
@@ -62,7 +65,7 @@ const modulesOptions = {
 
 const searchTypeOptions = {
 	webSearch: {
-		label: 'Web Search',
+		label: 'World Knowledge',
 		value: 'webSearch',
 		icon: <WebLightSvg />,
 	},
@@ -71,6 +74,13 @@ const searchTypeOptions = {
 		value: 'workspaceSearch',
 		icon: <BuildingSvg />,
 	},
+};
+
+const fileTypeIcons = {
+	docx: <DocxSvg />,
+	txt: <TextSvg />,
+	png: <PngSvg />,
+	jpg: <JpgSvg />,
 };
 
 const ChatBox = ({
@@ -135,6 +145,7 @@ const ChatBox = ({
 			webSearch: false,
 			workspaceSearch: false,
 		},
+		recentFiles: [],
 		isSearchTypeOpen: false,
 	});
 
@@ -188,6 +199,30 @@ const ChatBox = ({
 		setInfo((prev) => ({
 			...prev,
 			chatFilters: initialChatFilters,
+		}));
+	};
+
+	const handleRecentFileClick = (file) => {
+		const isFileAlreadyPresent = info?.recentFiles?.some((ele) => ele?._id === file?._id);
+
+		if (isFileAlreadyPresent) {
+			setInfo((prev) => ({
+				...prev,
+				recentFiles: prev?.recentFiles?.filter((ele) => ele?._id !== file?._id),
+			}));
+		} else {
+			setInfo((prev) => ({
+				...prev,
+				recentFiles: [...prev?.recentFiles, file],
+			}));
+		}
+	};
+
+	const handleRemoveFileFromRecentFileClick = (file) => {
+		const updatedRecentFiles = info?.recentFiles?.filter((ele) => ele?._id !== file?._id);
+		setInfo((prev) => ({
+			...prev,
+			recentFiles: updatedRecentFiles,
 		}));
 	};
 
@@ -265,7 +300,7 @@ const ChatBox = ({
 							query: currentQuery,
 							timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
 							knowledge_base_search: true,
-							web_search: info?.webSearch,
+							web_search: info?.searchType?.webSearch,
 						};
 						let localPayload = {};
 						if (info?.uploadedImages?.length) {
@@ -526,24 +561,6 @@ const ChatBox = ({
 		}
 	};
 
-	const chatIcons = useMemo(
-		() => [
-			<Filter />,
-			<Arroba />,
-			<Upload
-				onChange={handleChange}
-				showUploadList={false}
-				beforeUpload={() => false} // Prevent default upload behavior
-				maxCount={1} // Allow only one file at a time
-				// accept="image/*" // Accept only images
-				accept=".pdf,.docx,.txt,.md,.json,.png,.jpg,.jpeg"
-			>
-				<PaperClip />
-			</Upload>,
-		],
-		[info, handleChange],
-	);
-
 	const isSearchTypeEnabled = useMemo(() => {
 		return Object?.keys(info?.searchType)?.some((type) => info?.searchType[type]);
 	}, [info?.searchType]);
@@ -597,6 +614,24 @@ const ChatBox = ({
 						</div>
 					) : (
 						''
+					)}
+					{info?.recentFiles?.length > 0 && (
+						<div className="recent-files-container">
+							{info?.recentFiles?.map((file) => (
+								<div className="recent-file" key={file?._id}>
+									<div className="file-type-icon">
+										{fileTypeIcons?.[file?.sourceType]}
+									</div>
+									<div className="file-name">{file?.originalFileName}</div>
+									<div
+										className="close-icon-container"
+										onClick={() => handleRemoveFileFromRecentFileClick(file)}
+									>
+										<CloseSvg />
+									</div>
+								</div>
+							))}
+						</div>
 					)}
 				</div>
 				<div className="chatBodyContainer">
@@ -765,6 +800,8 @@ const ChatBox = ({
 													isUploadFileOpen: value,
 												}))
 											}
+											handleRecentFileClick={handleRecentFileClick}
+											recentFiles={info?.recentFiles}
 										>
 											<div className="icon-container">
 												<div className="icon">
