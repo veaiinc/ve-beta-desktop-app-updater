@@ -55,6 +55,7 @@ const Chat = ({
 			activePromptForChat,
 			followUpQuery,
 			citations,
+			currentSessionId,
 		},
 		calendarInfo: { updateCalendarState },
 		tasks: { updateTaskState },
@@ -79,7 +80,7 @@ const Chat = ({
 		chatQuery: '',
 		position: { x: window.innerWidth / 2 - 900, y: 0 },
 		addQuickAction: false,
-		chatSessionId: ObjectID().toString(),
+		chatSessionId: null,
 		uploadedImages: [],
 		chatLoading: false,
 		showFullPage: true,
@@ -111,6 +112,14 @@ const Chat = ({
 			updateStateValues({ activePromptForChat: null, followUpQuery: null });
 		}
 	}, [activePromptForChat]);
+
+	useEffect(() => {
+		if (currentSessionId) {
+			setInfo((prev) => ({ ...prev, chatSessionId: currentSessionId }));
+		} else {
+			updateStateValues({ currentSessionId: ObjectID().toString() });
+		}
+	}, [currentSessionId]);
 
 	const handlePreview = async (file) => {
 		if (!file.url && !file.preview) {
