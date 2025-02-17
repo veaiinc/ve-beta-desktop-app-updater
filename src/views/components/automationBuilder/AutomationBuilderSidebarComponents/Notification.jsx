@@ -856,7 +856,10 @@ const Stage2 = ({
 						<span className="notificationInputTitle">
 							Recipient email<sup>*</sup>
 						</span>
-						<VariableComponent />
+						<VariableComponent
+							value={recipientEmail}
+							onChange={(value) => handleUpdateState({ recipientEmail: value })}
+						/>
 						{/* <div className="inputContainer">
 							<input
 								className="input"

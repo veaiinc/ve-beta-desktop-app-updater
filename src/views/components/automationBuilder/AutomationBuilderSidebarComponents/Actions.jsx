@@ -66,7 +66,7 @@ const Actions = ({
 		searchChanged: false,
 		activeStage: 'stage1', //stage1, stage2, stage3
 		saveLoader: false,
-		actionType: 'getDraft',
+		actionType: '',
 	});
 
 	useEffect(() => {

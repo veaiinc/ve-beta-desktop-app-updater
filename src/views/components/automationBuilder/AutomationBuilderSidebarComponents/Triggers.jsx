@@ -15,6 +15,9 @@ import {
 	selectedValueStyling,
 } from '../../../features/automation_builder/automationContentsHelper';
 import { message } from 'antd';
+import InAppTriggers from './InAppTriggers';
+import HeaderComponent from './HeaderComponent';
+import GoogleTriggers from './GoogleTriggers';
 
 const actionsList = {
 	tasks: { title: 'Create Tasks' },
@@ -26,11 +29,28 @@ const triggersList = {
 		label: 'Google',
 		icon: <Google />,
 		value: 'google',
+		triggerType: 'app',
 		triggers: [
 			{
+				app: 'gmail',
 				icon: <Google />,
 				label: 'On Message received',
-				value: 'messageReceived',
+				event: 'messageReceived',
+			},
+		],
+	},
+	inApp: {
+		label: 'In App',
+		// icon: <InApp />,
+		value: 'inApp',
+		triggerType: 'database',
+		triggers: [
+			{
+				app: 'inApp',
+				icon: null,
+				label: 'Form Submission',
+				event: 'create',
+				module: 'formResponse',
 			},
 		],
 	},
@@ -71,6 +91,7 @@ const Triggers = ({
 		activeStage: `stage${step || 1}`, //stage1, stage2, stage3
 		saveLoader: false,
 		connectedIntegrations,
+		selectedTrigger: null,
 	});
 
 	useEffect(() => {
@@ -117,11 +138,18 @@ const Triggers = ({
 
 	const checkConnection = useCallback(
 		(integration) => {
+			if (integration === 'inApp') {
+				return true;
+			}
 			const isConnected = connectedIntegrations?.[integration] || [];
 			return isConnected?.length > 0;
 		},
 		[connectedIntegrations],
 	);
+
+	const updateTriggerInfo = useCallback((updateData) => {
+		setInfo((prev) => ({ ...prev, ...updateData }));
+	}, []);
 
 	const handleBack = useCallback(() => {
 		if (info?.activeStage === 'stage2') {
@@ -135,19 +163,28 @@ const Triggers = ({
 	const addNewTrigger = useCallback(
 		async (trigger) => {
 			const payload = {
-				title: 'New trigger',
-				description: 'Trigger when a message is received',
-				triggerType: 'app',
-				app: 'gmail',
+				title: trigger?.title,
+				description: trigger?.description,
+				triggerType: trigger?.triggerType,
+				app: trigger?.app,
 				type: 'trigger',
 			};
-			if (trigger?.value === 'messageReceived') {
+			if (trigger?.event === 'messageReceived') {
 				payload.gmail = {
 					connectedEmail: connectedIntegrations?.google?.[0]?.email,
-					event: trigger?.value,
+					event: trigger?.event,
 				};
 			}
+			if (trigger?.event === 'create') {
+				payload.inApp = {
+					event: trigger?.event,
+					module: trigger?.module,
+					workflowTemplateId: trigger?.workflowTemplateId,
+				};
+			}
+			updateTriggerInfo({ saveLoader: true });
 			const response = await addTrigger(automationId, payload);
+			updateTriggerInfo({ saveLoader: false });
 			if (response?.[0]) {
 				setInfo((prev) => ({ ...prev, activeStage: 'stage2' }));
 				getAutomation(automationId);
@@ -158,26 +195,57 @@ const Triggers = ({
 		[connectedIntegrations, addTrigger, automationId, getAutomation],
 	);
 
-	return (
-		<div className="triggersSidebarComponents">
-			<div className="triggersSidebarComponentsHeader">
-				<span onClick={handleBack} style={{ cursor: 'pointer' }}>
-					<DoubleArrow />
-				</span>
-				<span className="triggerSidebarTitle">Trigger</span>
-			</div>
-			{info?.activeStage === 'stage1' ? (
-				<Step1 checkConnection={checkConnection} addNewTrigger={addNewTrigger} />
-			) : (
-				<Step2 connectedIntegrations={connectedIntegrations} />
-			)}
-		</div>
+	const triggerMapper = useMemo(() => {
+		return {
+			gmail: (
+				<GoogleTriggers
+					addNewTrigger={addNewTrigger}
+					selectedTrigger={info?.selectedTrigger}
+					onClose={() => updateTriggerInfo({ selectedTrigger: null })}
+				/>
+			),
+			inApp: (
+				<InAppTriggers
+					addNewTrigger={addNewTrigger}
+					selectedTrigger={info?.selectedTrigger}
+					onClose={() => updateTriggerInfo({ selectedTrigger: null })}
+					onSave={addNewTrigger}
+					addTriggerLoading={info?.saveLoader}
+					triggerData={info?.selectedTrigger}
+				/>
+			),
+		};
+	}, [info?.selectedTrigger, addNewTrigger, updateTriggerInfo]);
+
+	console.log(info);
+
+	return info?.selectedTrigger ? (
+		triggerMapper?.[info?.selectedTrigger?.app]
+	) : (
+		<>
+			<HeaderComponent />
+			<Step1 checkConnection={checkConnection} updateTriggerInfo={updateTriggerInfo} />
+		</>
 	);
 };
 
+// <div className="triggersSidebarComponents">
+// 	<div className="triggersSidebarComponentsHeader">
+// 		<span onClick={handleBack} style={{ cursor: 'pointer' }}>
+// 			<DoubleArrow />
+// 		</span>
+// 		<span className="triggerSidebarTitle">Trigger</span>
+// 	</div>
+// 	{info?.activeStage === 'stage1' ? (
+// 		<Step1 checkConnection={checkConnection} addNewTrigger={addNewTrigger} />
+// 	) : (
+// 		<Step2 connectedIntegrations={connectedIntegrations} />
+// 	)}
+// </div>
+
 export default memo(Triggers);
 
-const Step1 = ({ checkConnection, addNewTrigger }) => {
+const Step1 = ({ checkConnection, updateTriggerInfo }) => {
 	return (
 		<>
 			<div className="triggersHeaderContainer">
@@ -208,8 +276,15 @@ const Step1 = ({ checkConnection, addNewTrigger }) => {
 								{integration?.triggers?.map((trigger) => (
 									<div
 										className="availableIntegrationItem"
-										key={trigger.value}
-										onClick={() => addNewTrigger(trigger)}
+										key={trigger.event}
+										onClick={() =>
+											updateTriggerInfo({
+												selectedTrigger: {
+													...trigger,
+													triggerType: integration?.triggerType,
+												},
+											})
+										}
 									>
 										<span className="integrationIcon">{trigger.icon}</span>
 										<span className="integrationLabel">{trigger.label}</span>
@@ -247,137 +322,137 @@ const Step1 = ({ checkConnection, addNewTrigger }) => {
 	);
 };
 
-const Step2 = ({ connectedIntegrations }) => {
-	const [info, setInfo] = useState({
-		googleAccountOptions: [],
-		selectedGoogleAccount: { label: 'Select an option', value: 'default' },
-		pollModeOptions: [
-			{ label: 'Every Minute', value: 'minute' },
-			{ label: 'Every Hour', value: 'hour' },
-			{ label: 'Every Day', value: 'day' },
-			{ label: 'Every Week', value: 'week' },
-			{ label: 'Every Month', value: 'month' },
-		],
-		selectedPollMode: { label: 'Every Minute', value: 'minute' },
-	});
+// const Step2 = ({ connectedIntegrations }) => {
+// 	const [info, setInfo] = useState({
+// 		googleAccountOptions: [],
+// 		selectedGoogleAccount: { label: 'Select an option', value: 'default' },
+// 		pollModeOptions: [
+// 			{ label: 'Every Minute', value: 'minute' },
+// 			{ label: 'Every Hour', value: 'hour' },
+// 			{ label: 'Every Day', value: 'day' },
+// 			{ label: 'Every Week', value: 'week' },
+// 			{ label: 'Every Month', value: 'month' },
+// 		],
+// 		selectedPollMode: { label: 'Every Minute', value: 'minute' },
+// 	});
 
-	useEffect(() => {
-		if (connectedIntegrations) {
-			setInfo((prev) => ({
-				...prev,
-				googleAccountOptions: connectedIntegrations?.google?.map((account) => ({
-					label: account?.email,
-					value: account?.email,
-				})),
-				selectedGoogleAccount: {
-					label: connectedIntegrations?.google?.[0]?.email,
-					value: connectedIntegrations?.google?.[0]?.email,
-				},
-			}));
-		}
-	}, [connectedIntegrations]);
+// 	useEffect(() => {
+// 		if (connectedIntegrations) {
+// 			setInfo((prev) => ({
+// 				...prev,
+// 				googleAccountOptions: connectedIntegrations?.google?.map((account) => ({
+// 					label: account?.email,
+// 					value: account?.email,
+// 				})),
+// 				selectedGoogleAccount: {
+// 					label: connectedIntegrations?.google?.[0]?.email,
+// 					value: connectedIntegrations?.google?.[0]?.email,
+// 				},
+// 			}));
+// 		}
+// 	}, [connectedIntegrations]);
 
-	const onChangeGoogleAccount = (data) => {
-		if (data?.value === info?.selectedGoogleAccount?.value) return;
-		setInfo((prev) => ({ ...prev, selectedGoogleAccount: data }));
-	};
+// 	const onChangeGoogleAccount = (data) => {
+// 		if (data?.value === info?.selectedGoogleAccount?.value) return;
+// 		setInfo((prev) => ({ ...prev, selectedGoogleAccount: data }));
+// 	};
 
-	const onChangePollMode = (data) => {
-		if (data?.value === info?.selectedPollMode?.value) return;
-		setInfo((prev) => ({ ...prev, selectedPollMode: data }));
-	};
+// 	const onChangePollMode = (data) => {
+// 		if (data?.value === info?.selectedPollMode?.value) return;
+// 		setInfo((prev) => ({ ...prev, selectedPollMode: data }));
+// 	};
 
-	return (
-		<div className="step2Container">
-			<div className="step2HeaderContainer">
-				<div className="triggerInfoContainer">
-					<div className="triggerInfo">
-						<span className="triggerInfoTitle">Trigger</span>
-						<span className="triggerInfoDescription">Receive message</span>
-					</div>
-					<button className="changeTriggerButton">Change</button>
-				</div>
-				<div className="step2TitleDescriptionContainer">
-					<input type="text" className="step2InputTitle" placeholder="Step title" />
-					<input
-						type="text"
-						className="step2InputDescription"
-						placeholder="step description"
-					/>
-				</div>
-			</div>
-			<div className="step2InputsContainer">
-				<h2 className="step2InputsHeading">Inputs</h2>
-				<div className="step2InputItem">
-					<label className="step2InputLabel">Google Account</label>
-					<HeadersDropDownComp
-						options={info?.googleAccountOptions}
-						selectedValue={info?.selectedGoogleAccount?.label}
-						onChangeFunc={onChangeGoogleAccount}
-						showIcon={false}
-						containerStyle={{
-							...containerStyle,
-							background: '#1C1C1C',
-							border: '1px solid #2C2D2E',
-							borderRadius: '12px',
-							height: '40px',
-						}}
-						outerContainerStyle={{ width: '100%' }}
-						dropDownStyle={{
-							...dropDownStyle,
-							background: '#1C1C1C',
-							border: '1px solid #2C2C2C',
-						}}
-						dropDownTextStyling={{
-							...dropDownTextStyling,
-							color: '#FFFFFF',
-						}}
-						showSelectedValueTick={true}
-						uniqueIdentifierForTickIcon={'value'}
-						selectedValueObj={info?.selectedGoogleAccount}
-						selectedValueStyle={{
-							...selectedValueStyling,
-							color: '#FFFFFF',
-						}}
-					/>
-				</div>
-				<div className="step2InputItem">
-					<label className="step2InputLabel">
-						Poll Mode<sup>*</sup>
-					</label>
-					<HeadersDropDownComp
-						options={info?.pollModeOptions}
-						selectedValue={info?.selectedPollMode?.label}
-						onChangeFunc={onChangePollMode}
-						showIcon={false}
-						containerStyle={{
-							...containerStyle,
-							background: '#1C1C1C',
-							border: '1px solid #2C2D2E',
-							borderRadius: '12px',
-							height: '40px',
-						}}
-						outerContainerStyle={{ width: '100%' }}
-						dropDownStyle={{
-							...dropDownStyle,
-							background: '#1C1C1C',
-							border: '1px solid #2C2C2C',
-						}}
-						dropDownTextStyling={{
-							...dropDownTextStyling,
-							color: '#FFFFFF',
-						}}
-						showSelectedValueTick={true}
-						uniqueIdentifierForTickIcon={'value'}
-						selectedValueObj={info?.selectedPollMode}
-						selectedValueStyle={{
-							...selectedValueStyling,
-							color: '#FFFFFF',
-						}}
-					/>
-				</div>
-				<button className="step2AddInputButton">Add Poll Time</button>
-			</div>
-		</div>
-	);
-};
+// 	return (
+// 		<div className="step2Container">
+// 			<div className="step2HeaderContainer">
+// 				<div className="triggerInfoContainer">
+// 					<div className="triggerInfo">
+// 						<span className="triggerInfoTitle">Trigger</span>
+// 						<span className="triggerInfoDescription">Receive message</span>
+// 					</div>
+// 					<button className="changeTriggerButton">Change</button>
+// 				</div>
+// 				<div className="step2TitleDescriptionContainer">
+// 					<input type="text" className="step2InputTitle" placeholder="Step title" />
+// 					<input
+// 						type="text"
+// 						className="step2InputDescription"
+// 						placeholder="step description"
+// 					/>
+// 				</div>
+// 			</div>
+// 			<div className="step2InputsContainer">
+// 				<h2 className="step2InputsHeading">Inputs</h2>
+// 				<div className="step2InputItem">
+// 					<label className="step2InputLabel">Google Account</label>
+// 					<HeadersDropDownComp
+// 						options={info?.googleAccountOptions}
+// 						selectedValue={info?.selectedGoogleAccount?.label}
+// 						onChangeFunc={onChangeGoogleAccount}
+// 						showIcon={false}
+// 						containerStyle={{
+// 							...containerStyle,
+// 							background: '#1C1C1C',
+// 							border: '1px solid #2C2D2E',
+// 							borderRadius: '12px',
+// 							height: '40px',
+// 						}}
+// 						outerContainerStyle={{ width: '100%' }}
+// 						dropDownStyle={{
+// 							...dropDownStyle,
+// 							background: '#1C1C1C',
+// 							border: '1px solid #2C2C2C',
+// 						}}
+// 						dropDownTextStyling={{
+// 							...dropDownTextStyling,
+// 							color: '#FFFFFF',
+// 						}}
+// 						showSelectedValueTick={true}
+// 						uniqueIdentifierForTickIcon={'value'}
+// 						selectedValueObj={info?.selectedGoogleAccount}
+// 						selectedValueStyle={{
+// 							...selectedValueStyling,
+// 							color: '#FFFFFF',
+// 						}}
+// 					/>
+// 				</div>
+// 				<div className="step2InputItem">
+// 					<label className="step2InputLabel">
+// 						Poll Mode<sup>*</sup>
+// 					</label>
+// 					<HeadersDropDownComp
+// 						options={info?.pollModeOptions}
+// 						selectedValue={info?.selectedPollMode?.label}
+// 						onChangeFunc={onChangePollMode}
+// 						showIcon={false}
+// 						containerStyle={{
+// 							...containerStyle,
+// 							background: '#1C1C1C',
+// 							border: '1px solid #2C2D2E',
+// 							borderRadius: '12px',
+// 							height: '40px',
+// 						}}
+// 						outerContainerStyle={{ width: '100%' }}
+// 						dropDownStyle={{
+// 							...dropDownStyle,
+// 							background: '#1C1C1C',
+// 							border: '1px solid #2C2C2C',
+// 						}}
+// 						dropDownTextStyling={{
+// 							...dropDownTextStyling,
+// 							color: '#FFFFFF',
+// 						}}
+// 						showSelectedValueTick={true}
+// 						uniqueIdentifierForTickIcon={'value'}
+// 						selectedValueObj={info?.selectedPollMode}
+// 						selectedValueStyle={{
+// 							...selectedValueStyling,
+// 							color: '#FFFFFF',
+// 						}}
+// 					/>
+// 				</div>
+// 				<button className="step2AddInputButton">Add Poll Time</button>
+// 			</div>
+// 		</div>
+// 	);
+// };
