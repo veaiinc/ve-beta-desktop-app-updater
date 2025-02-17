@@ -16,7 +16,11 @@ import { ReactComponent as CloseSvg } from '../../../assets/svg/calendar/close.s
 import { ReactComponent as BuildingSvg } from '../../../assets/svg/ai_agents/building.svg';
 import { ReactComponent as TextSvg } from '../../../assets/svg/ai_agents/text.svg';
 import { ReactComponent as DocxSvg } from '../../../assets/svg/ai_agents/docx.svg';
+import { ReactComponent as JsonSvg } from '../../../assets/svg/ai_agents/json.svg';
+import { ReactComponent as PdfSvg } from '../../../assets/svg/ai_agents/pdf.svg';
 import { ReactComponent as JpgSvg } from '../../../assets/svg/ai_agents/jpg.svg';
+import { ReactComponent as PngSvg } from '../../../assets/svg/ai_agents/png.svg';
+import { ReactComponent as MdSvg } from '../../../assets/svg/ai_agents/md.svg';
 import { Alert, Image, message, Spin, Tooltip } from 'antd';
 import { Upload } from 'antd';
 import Context from '../../../context/context';
@@ -36,7 +40,6 @@ import SearchDropdown from '../chat/SearchDropdown';
 import UploadFileTooltip from '../chat/UploadFileTooltip';
 import DateRangeDropdown from '../chat/DateRangeDropdown';
 import SearchTypeTooltip from '../chat/SearchTypeTooltip';
-import { ReactComponent as PngSvg } from '../../../assets/svg/ai_agents/png.svg';
 const moduleHelper = {
 	tasks: 'tasks',
 	'smart-file': 'form_filling',
@@ -80,7 +83,11 @@ const fileTypeIcons = {
 	docx: <DocxSvg />,
 	txt: <TextSvg />,
 	png: <PngSvg />,
+	pdf: <PdfSvg />,
 	jpg: <JpgSvg />,
+	json: <JsonSvg />,
+	md: <MdSvg />,
+	jpeg: <JpgSvg />,
 };
 
 const ChatBox = ({
@@ -715,21 +722,6 @@ const ChatBox = ({
 							) : (
 								<div className="buttons-container">
 									<div className="chat-icons-container">
-										{/* {chatIcons?.map((icon, idx) => (
-											<span key={idx} className="chat-icon">
-												{icon}
-											</span>
-										))}
-										{info?.voiceIntegration ? (
-											<span className="chat-icon" onClick={handleDisConnect}>
-												<Close style={{ width: '20px', height: '20px' }} />
-											</span>
-										) : (
-											<span className="chat-icon">
-												<Mic onClick={handleMicIconClick} />
-											</span>
-										)} */}
-
 										<SearchTypeTooltip
 											searchTypeOptions={searchTypeOptions}
 											onOpenChange={(value) =>
@@ -801,6 +793,7 @@ const ChatBox = ({
 											</div>
 										</div>
 										<UploadFileTooltip
+											fileTypeIcons={fileTypeIcons}
 											handleChange={handleChange}
 											isUploadFileOpen={info?.isUploadFileOpen}
 											setIsUploadFileOpen={(value) =>

@@ -2,23 +2,9 @@ import React, { useState, useEffect, useContext, useCallback } from 'react';
 import { ReactComponent as UploadSvg } from '../../../assets/svg/ai_agents/upload.svg';
 import { Tooltip, Upload } from 'antd';
 import { ReactComponent as SearchSvg } from '../../../assets/svg/workflow/search.svg';
-import { ReactComponent as TextSvg } from '../../../assets/svg/ai_agents/text.svg';
-import { ReactComponent as DocxSvg } from '../../../assets/svg/ai_agents/docx.svg';
-import { ReactComponent as PngSvg } from '../../../assets/svg/ai_agents/png.svg';
-import { ReactComponent as PdfSvg } from '../../../assets/svg/ai_agents/pdf.svg';
-import { ReactComponent as JpgSvg } from '../../../assets/svg/ai_agents/jpg.svg';
-import { use } from 'react';
 import Context from '../../../context/context';
 import { FetchMoreLoaderComp } from '../../../helpers';
 import InfiniteScroll from 'react-infinite-scroll-component';
-
-const fileTypeIcons = {
-	docx: <DocxSvg />,
-	txt: <TextSvg />,
-	png: <PngSvg />,
-	pdf: <PdfSvg />,
-	jpg: <JpgSvg />,
-};
 
 let timeoutId = null;
 
@@ -28,6 +14,7 @@ const UploadFileTooltip = ({
 	isUploadFileOpen,
 	setIsUploadFileOpen,
 	handleRecentFileClick,
+	fileTypeIcons = {},
 }) => {
 	const {
 		aiSetup: { filesUploadedInAiChat, getFilesUploadedInAiChat },
