@@ -17,6 +17,8 @@ import UpdatedPageLoader from '../../loaders/UpdatedPageLoader';
 import InitialPageLoader from '../../loaders/PageLoader';
 import Skeleton from 'react-loading-skeleton';
 
+const limit = 10;
+
 const WorkflowsTab = ({ searchValue }) => {
 	const {
 		templates: {
@@ -51,28 +53,39 @@ const WorkflowsTab = ({ searchValue }) => {
 		copyLink: null,
 	});
 
-	console.log('automations', automations);
-
 	const automationsData = automations?.data;
 	const automationsHasNextPage = automations?.hasNextPage;
-	const automationsCurrentPage = automations?.currentPage;
+	const automationsCurrentPage = Number(automations?.currentPage) || 1;
 
 	useEffect(() => {
-		// Call automations api when there are no automations on mount
-		if (!automations) {
-			getAutomations();
+		onMountFetchAutomations();
+	}, []);
+
+	useEffect(() => {
+		if (automationsHasNextPage === false) {
+			getMyWorkflowTemplatesData(1);
 		}
-		getMyWorkflowTemplatesData(1);
-	}, [searchValue, automationsHasNextPage]);
+	}, [automationsHasNextPage]);
 
 	useEffect(() => {
 		if (salePageRefresh) {
-			getMyWorkflowTemplatesData(1);
+			// getMyWorkflowTemplatesData(1);
 			updateStateValues({ salePageRefresh: null });
-
-			//refresh function
 		}
 	}, [salePageRefresh]);
+
+	useEffect(() => {
+		// Inefficient way to format data
+		if (automations?.data?.length) {
+			const formattedAutomationsData = automationsData?.map((automation) =>
+				formatAutomationsData(automation),
+			);
+			setInfo((prev) => ({
+				...prev,
+				myWorkflowData: [...(prev?.myWorkflowData || []), ...formattedAutomationsData],
+			}));
+		}
+	}, [automations]);
 
 	useEffect(() => {
 		if (myWorkflows) {
@@ -106,9 +119,30 @@ const WorkflowsTab = ({ searchValue }) => {
 		}
 	}, [tennantSettingsData]);
 
-	// useEffect(() => {}, []);
+	const onMountFetchAutomations = async () => {
+		setInfo((prev) => ({ ...prev, loading: true }));
+		try {
+			if (!automations) {
+				await getAutomations();
+			}
+		} catch (error) {
+			console.error('Error fetching data:', error);
+		} finally {
+			setInfo((prev) => ({ ...prev, loading: false }));
+		}
+	};
 
-	//function definations
+	const formatAutomationsData = (automation) => {
+		const { _id, name, steps, tenantId, status } = automation;
+		return {
+			_id: _id,
+			title: name,
+			steps,
+			tenantId,
+			status,
+			moduleTemplates: [], // TODO: add module templates key once we have it
+		};
+	};
 
 	const performExtraCheck = useCallback(
 		async (currentWorkspaceId) => {
@@ -123,7 +157,7 @@ const WorkflowsTab = ({ searchValue }) => {
 	);
 
 	const getMyWorkflowTemplatesData = useCallback(
-		(page, fetchMore = false) => {
+		async (page, fetchMore = false) => {
 			const payload = {
 				filters: {
 					limit: 10,
@@ -133,18 +167,18 @@ const WorkflowsTab = ({ searchValue }) => {
 					status: 'published',
 					sortBy: 'createdAt',
 					sortType: -1,
+					version: null,
 				},
 			};
-			getMyWorkflows(payload, fetchMore);
+			await getMyWorkflows(payload, fetchMore);
 		},
 		[searchValue],
 	);
 
 	const myWorkflowsDataParser = useCallback(
-		(dataToBeUsed, fetchMore = false) => {
-			let { data, currentPage, hasNextPage } = dataToBeUsed;
+		(dataToBeUsed) => {
+			const { data, currentPage, hasNextPage } = dataToBeUsed;
 			let myWorkflowData = [];
-
 			for (let i = 0; i < data?.length; i++) {
 				if (
 					data?.[i]?.tenantId &&
@@ -154,10 +188,7 @@ const WorkflowsTab = ({ searchValue }) => {
 					myWorkflowData?.push(data?.[i]);
 				}
 			}
-
-			if (fetchMore) {
-				myWorkflowData = [...(info?.myWorkflowData || [])]?.concat(myWorkflowData);
-			}
+			myWorkflowData = [...(info?.myWorkflowData || [])]?.concat(myWorkflowData);
 			setInfo((prev) => ({
 				...prev,
 				loading: false,
@@ -169,9 +200,14 @@ const WorkflowsTab = ({ searchValue }) => {
 		[info?.myWorkflowData, generatePublicLinkData],
 	);
 
-	const fetchMoreMyWorkflows = useCallback(() => {
-		getMyWorkflowTemplatesData(info?.currentPage + 1, true);
-	}, [info?.currentPage]);
+	const fetchMoreMyWorkflows = () => {
+		if (automationsHasNextPage === false) {
+			getMyWorkflowTemplatesData(info?.currentPage + 1, true);
+		} else {
+			const page = automationsCurrentPage ? Number(automationsCurrentPage) + 1 : 1;
+			getAutomations(page, limit, true);
+		}
+	};
 
 	const openMyWorkflowModal = useCallback(async (data, cardsData) => {
 		if (cardsData?.status === 'successRate') {
@@ -255,36 +291,12 @@ const WorkflowsTab = ({ searchValue }) => {
 		[info?.activeTemplateData],
 	);
 
-	const handleFetchMoreAutomations = useCallback(() => {
-		getAutomations(automationsCurrentPage + 1, true);
-	}, [automationsCurrentPage]);
+	// const handleFetchMoreAutomations = useCallback(() => {
+	// 	getAutomations(automationsCurrentPage + 1, true);
+	// }, [automationsCurrentPage]);
 
 	return (
 		<div className="workflows-tab-container">
-			<InfiniteScroll
-				dataLength={automationsData?.length || 0}
-				hasMore={automationsHasNextPage}
-				next={handleFetchMoreAutomations}
-				loader={<FetchMoreLoaderComp />}
-				style={{
-					display: 'flex',
-					flexDirection: 'row',
-					flexWrap: 'wrap',
-					flexFlow: 'wrap',
-					alignItems: 'flex-end',
-					alignContent: 'flex-start',
-					rowGap: '50px',
-					columnGap: '10px',
-					width: '100%',
-					overflowX: 'hidden',
-				}}
-				className="tetsing"
-				height={'calc(100vh - 240px)'}
-			>
-				{console.log('automationsData', automationsData)}
-				{automationsData?.length &&
-					automationsData?.map((automation) => <p>{automation?.name}</p>)}
-			</InfiniteScroll>
 			<div id="scrollableDiv">
 				{info?.loading ? (
 					<div style={{ display: 'flex', flexDirection: 'row', gap: '15px' }}>
@@ -300,45 +312,43 @@ const WorkflowsTab = ({ searchValue }) => {
 						))}
 					</div>
 				) : (
-					<>
-						<InfiniteScroll
-							dataLength={info?.myWorkflowData?.length || 0}
-							hasMore={info?.hasNextPage}
-							next={fetchMoreMyWorkflows}
-							loader={<FetchMoreLoaderComp />}
-							style={{
-								display: 'flex',
-								flexDirection: 'row',
-								flexWrap: 'wrap',
-								flexFlow: 'wrap',
-								alignItems: 'flex-end',
-								alignContent: 'flex-start',
-								rowGap: '50px',
-								columnGap: '10px',
-								width: '100%',
-								overflowX: 'hidden',
-							}}
-							className="tetsing"
-							height={'calc(100vh - 240px)'}
-						>
-							<div className="workflows-tab">
-								{info?.myWorkflowData?.map((workflow, index) => {
-									return (
-										<WorkflowCard
-											key={index}
-											workflow={workflow}
-											openModal={openMyWorkflowModal}
-											openCopyLinkModal={openCopyLinkModal}
-											navigateToWorkflowBuilder={navigateToWorkflowBuilder}
-											modalIsOpen={info?.myWorkflowModal}
-											activeTemplateData={info?.activeTemplateData}
-											activeCardsData={info?.activeCardsData}
-										/>
-									);
-								})}
-							</div>
-						</InfiniteScroll>
-					</>
+					<InfiniteScroll
+						dataLength={info?.myWorkflowData?.length || 0}
+						hasMore={automationsHasNextPage || info?.hasNextPage}
+						next={fetchMoreMyWorkflows}
+						loader={<FetchMoreLoaderComp />}
+						style={{
+							display: 'flex',
+							flexDirection: 'row',
+							flexWrap: 'wrap',
+							flexFlow: 'wrap',
+							alignItems: 'flex-end',
+							alignContent: 'flex-start',
+							rowGap: '50px',
+							columnGap: '10px',
+							width: '100%',
+							overflowX: 'hidden',
+						}}
+						className="tetsing"
+						height={'calc(100vh - 240px)'}
+					>
+						<div className="workflows-tab">
+							{info?.myWorkflowData?.map((workflow, index) => {
+								return (
+									<WorkflowCard
+										key={index}
+										workflow={workflow}
+										openModal={openMyWorkflowModal}
+										openCopyLinkModal={openCopyLinkModal}
+										navigateToWorkflowBuilder={navigateToWorkflowBuilder}
+										modalIsOpen={info?.myWorkflowModal}
+										activeTemplateData={info?.activeTemplateData}
+										activeCardsData={info?.activeCardsData}
+									/>
+								);
+							})}
+						</div>
+					</InfiniteScroll>
 				)}
 			</div>
 
