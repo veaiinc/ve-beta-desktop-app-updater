@@ -17,6 +17,7 @@ import { ReactComponent as ShareSvg } from '../../../assets/svg/notes/share.svg'
 import { ReactComponent as ArrowUp } from '../../../assets/svg/ai_agents/arrow-up-dark.svg';
 
 import Upload from 'antd/es/upload/Upload';
+import ChatBox from '../homePage/ChatBox';
 const noteIcons = [<PreviousSvg />, <NextSvg />, <CopySvg />, <ShareSvg />];
 const NoteComponentModal = ({
 	modalIsOpen,
@@ -142,50 +143,7 @@ const NoteComponentModal = ({
 							''
 						)}
 
-						{/* //message Container */}
-						<div className="chatInputContainer">
-							<div className={`chatInputParentContainer`}>
-								<textarea
-									type="text"
-									placeholder="Hey! Need help? Ask me anything."
-									value={chatQuery}
-									onChange={onChange}
-									onKeyDown={onKeyDown}
-									f
-									className="textArea"
-									// rows={1}
-								/>
-								{/* <SendSvg
-						style={{
-							cursor: aiChatLoading ? 'not-allowed' : 'pointer',
-							opacity: aiChatLoading ? 0.5 : 1,
-						}}
-						onClick={() => !aiChatLoading && onKeyDown(null, 'key')}
-					/> */}
-								<div className="buttons-container">
-									<div className="chat-icons-container">
-										{chatIcons?.map((icon, idx) => (
-											<span key={idx} className="chat-icon">
-												{icon}
-											</span>
-										))}
-									</div>
-									<div
-										className="click-btn"
-										onClick={(e) => onClick(e)}
-										style={{
-											backgroundColor: `${
-												chatQuery?.trim()?.length > 0
-													? '#b2a1e8'
-													: '#2e2f33'
-											}`,
-										}}
-									>
-										<ArrowUp />
-									</div>
-								</div>
-							</div>
-						</div>
+						<ChatBox showChatLabels={false} />
 					</div>
 					<div className="note-component">
 						<div className="header">
