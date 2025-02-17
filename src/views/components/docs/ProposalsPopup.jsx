@@ -55,8 +55,8 @@ const ProposalPopup = ({ open, closeModal, clientDetails = null }) => {
 	} = useContext(Context);
 
 	useEffect(() => {
-		getMyWorkflowsTemplatesData(1);
-	}, []);
+		if (open && !myWorkflows?.length) getMyWorkflowsTemplatesData(1);
+	}, [open]);
 
 	useEffect(() => {
 		if (myWorkflows) {
