@@ -28,7 +28,8 @@ import useVoiceIntegration from '../../hooks/useVoiceIntegration';
 import CitationsModal from '../../components/modalsV2/chat/CitationsModal';
 import NoteComponentModal from '../../components/notes/NoteComponentModal';
 import Skeleton from 'react-loading-skeleton';
-
+import { CitationsTooltip } from '../../components/modalsV2/chat/CitationsTooltip';
+import { citations as citationsData, responseText } from '../../../helpers/markdownHelper';
 const moduleHelper = {
 	tasks: 'tasks',
 	'smart-file': 'form_filling',
@@ -474,6 +475,36 @@ const Chat = ({
 		}
 	};
 
+	const updateResponseWithCitations = (responseText) => {
+		// console.log('citationsData===>', citationsData);
+		let arrayWithCitationIds = responseText?.split(/(\[CIT-\d+\])/g);
+		citationsData?.forEach((citation) => {
+			arrayWithCitationIds = arrayWithCitationIds?.map((text) => {
+				if (typeof text === 'string') {
+					const match = text?.match(/CIT-\d+/g);
+					if (match) {
+						if (match[0] === citation?.id) {
+							let number = match[0]?.slice(4)?.trim();
+							number = parseInt(number, 10);
+							return (
+								<CitationsTooltip
+									number={number}
+									citation={citation}
+								></CitationsTooltip>
+							);
+
+							// return text;
+						}
+					}
+				}
+
+				return text;
+			});
+		});
+		console.log('arrayWithCitationIds', arrayWithCitationIds);
+		return arrayWithCitationIds.join('');
+	};
+
 	return (
 		<>
 			<div className="chat-container">
@@ -524,6 +555,7 @@ const Chat = ({
 															smoothScrollToBottom={
 																smoothScrollToBottom
 															}
+															showCustomComponent={false}
 														/>
 													</div>
 												) : (

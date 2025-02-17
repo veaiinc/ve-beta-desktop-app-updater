@@ -1,5 +1,6 @@
 import React, { memo, useContext, useEffect, useState } from 'react';
 import { default as ReactMarkdown } from 'react-markdown';
+import rehypeRaw from 'rehype-raw';
 // import remarkGfm from 'remark-gfm';
 import { Link } from 'react-router-dom'; // Adjust if you're using another router
 import '../assets/scss/markdown.scss';
@@ -12,6 +13,43 @@ import { ReactComponent as TickSvg } from '../assets/svg/tick.svg';
 import { ReactComponent as CopyIcon } from '../assets/svg/ai_agents/copy.svg';
 import Context from '../context/context';
 import { Tooltip } from 'antd';
+import { CitationsTooltip } from '../views/components/modalsV2/chat/CitationsTooltip';
+
+export const responseText = `
+"AI can make mistakes, Please double-check responses." [CIT-1]
+"Conversational AI for Real-Time Interactions." [CIT-2]
+"Experience swift query resolutions, available 24/7, with personalized assistance tailored to your customers' needs." [CIT-3]`;
+
+export const citations = [
+	{
+		id: 'CIT-1',
+		source: '67b30ae9afc8f054d125a3ed::1',
+		snippet:
+			"Make your chatbot look like it's part of your website with custom colors and logos and make it match your brand's personality with custom instructions",
+		name: 'https://ve.ai',
+		type: 'url',
+		url: 'https://ve.ai',
+	},
+	{
+		id: 'CIT-2',
+		source: '67b30ae9afc8f054d125a3ed::1',
+		snippet:
+			'Connect your chatbot to your favorite tools like Slack, WhatsApp Zapier, and more',
+		name: 'https://ve.ai',
+		type: 'url',
+		url: 'https://ve.ai',
+	},
+	{
+		id: 'CIT-3',
+		source: '67b30ae9afc8f054d125a3ed::1',
+		snippet:
+			'Reach your customers in their native language even if your data is in a different language',
+		name: 'https://ve.ai',
+		type: 'url',
+		url: 'https://ve.ai',
+	},
+];
+
 const components = {
 	pre: ({ children }) => <>{children}</>,
 	ol: ({ children, ...props }) => {
@@ -121,9 +159,10 @@ const components = {
 // console.log('isChrome', isChrome);
 
 // const remarkPlugins = [];
+
 const NonMemoizedMarkdown = ({ children }) => {
 	return (
-		<ReactMarkdown remarkPlugins={[]} components={components}>
+		<ReactMarkdown remarkPlugins={[]} rehypePlugins={[rehypeRaw]} components={components}>
 			{children}
 		</ReactMarkdown>
 	);
@@ -139,9 +178,11 @@ export const TypingEffect = ({
 	onComplete,
 	customePencilClickFunc = null,
 	smoothScrollToBottom,
+	showCustomComponent = false,
 }) => {
 	const {
 		documentPreview: { setNoteContent },
+		// templates: { citations },
 	} = useContext(Context);
 
 	const [displayedText, setDisplayedText] = useState('');
@@ -173,12 +214,27 @@ export const TypingEffect = ({
 		});
 	};
 
+	const updateResponseWithCitations = (responseText) => {
+		const segments = responseText?.split(/(\[CIT-\d+\])/g);
+		return segments?.map((segment, index) => {
+			const match = typeof segment === 'string' ? segment.match(/CIT-\d+/g) : null;
+
+			if (match) {
+				const citation = citations.find((cit) => cit.id === match[0]);
+				if (citation) {
+					const number = parseInt(match[0].slice(4).trim(), 10);
+					return <CitationsTooltip key={index} number={number} citation={citation} />;
+				}
+			}
+
+			// Regular text segments get wrapped in Markdown
+			return segment ? <Markdown>{segment}</Markdown> : null;
+		});
+	};
+
 	return (
 		<div className="typing-effect-container">
-			<div className="typing-effect">
-				<Markdown>{displayedText}</Markdown>
-				{currentIndex < text?.length && <span className="typing-cursor" />}
-			</div>
+			<div className="typing-effect">{displayedText}</div>
 
 			{currentIndex === text?.length ? (
 				<div className="hover-actions-container">
