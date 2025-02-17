@@ -208,57 +208,57 @@
 							resize: none;
 						}
 
-						.buttons-container {
-							display: flex;
-							justify-content: space-between;
-							width: 100%;
-							.chat-icons-container {
-								display: flex;
-								gap: 10px;
-								align-items: center;
-								justify-content: center;
+						// .buttons-container {
+						// 	display: flex;
+						// 	justify-content: space-between;
+						// 	width: 100%;
+						// 	.chat-icons-container {
+						// 		display: flex;
+						// 		gap: 10px;
+						// 		align-items: center;
+						// 		justify-content: center;
 
-								& > * {
-									cursor: pointer;
-								}
+						// 		& > * {
+						// 			cursor: pointer;
+						// 		}
 
-								.icon-container {
-									position: relative;
+						// 		.icon-container {
+						// 			position: relative;
 
-									.file-upload-container {
-										position: absolute;
-										top: 0;
-										left: 0;
-										opacity: 0;
-										cursor: pointer;
+						// 			.file-upload-container {
+						// 				position: absolute;
+						// 				top: 0;
+						// 				left: 0;
+						// 				opacity: 0;
+						// 				cursor: pointer;
 
-										.file-upload {
-											width: 19px;
-											height: 19px;
-										}
-									}
+						// 				.file-upload {
+						// 					width: 19px;
+						// 					height: 19px;
+						// 				}
+						// 			}
 
-									svg {
-										width: 19px;
-										height: 19px;
-									}
-								}
-							}
+						// 			svg {
+						// 				width: 19px;
+						// 				height: 19px;
+						// 			}
+						// 		}
+						// 	}
 
-							.click-btn {
-								display: flex;
-								width: 60px;
-								height: 32px;
-								padding: 6.4px;
-								justify-content: center;
-								align-items: center;
-								gap: 9.6px;
-								cursor: pointer;
+						// 	.click-btn {
+						// 		display: flex;
+						// 		width: 60px;
+						// 		height: 32px;
+						// 		padding: 6.4px;
+						// 		justify-content: center;
+						// 		align-items: center;
+						// 		gap: 9.6px;
+						// 		cursor: pointer;
 
-								border-radius: 24px;
-								background: #b2a1e8;
-							}
-						}
+						// 		border-radius: 24px;
+						// 		background: #b2a1e8;
+						// 	}
+						// }
 					}
 				}
 			}
