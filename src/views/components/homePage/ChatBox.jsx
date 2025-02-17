@@ -909,6 +909,7 @@ const ChatBox = ({
 						wrapperStyle={{
 							display: 'none',
 						}}
+						rootClassName="preview-image-container"
 						preview={{
 							visible: previewOpen,
 							onVisibleChange: (visible) => setPreviewOpen(visible),
