@@ -59,6 +59,12 @@ const Actions = ({
 }) => {
 	const {
 		templates: { addNewSteps, updateStateValues, specificTemplatesInfo, updateSteps },
+		automationBuilder: {
+			getPreviousStepResponse,
+			previousStepResponse,
+			executeAutomation,
+			previousExecutionData,
+		},
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		search: '',
@@ -85,6 +91,26 @@ const Actions = ({
 			}
 		}
 	}, [editMode, activeStepsData]);
+	console.log('previousExecutionData', previousExecutionData);
+
+	useEffect(() => {
+		console.log('dgsfhgsjhgdsjh');
+
+		if (previousExecutionData) {
+		} else {
+			console.log('getting here');
+
+			executeAutomation(previousExecutionData?._id);
+		}
+	}, [previousExecutionData]);
+
+	// useEffect(() => {
+	// 	if (previousStepResponse && previousStepResponse?.stepId === activeEdge?.split('-')?.[0]) {
+	// 		setInfo((prev) => ({ ...prev, actionType: previousStepResponse?.actionType }));
+	// 	} else {
+	// 		getPreviousStepResponse(activeEdge?.split('-')?.[0], activeEdge?.split('-')?.[0]);
+	// 	}
+	// }, [previousStepResponse]);
 
 	const handleSearch = (e) => {
 		setInfo((prev) => ({ ...prev, search: e.target.value, searchChanged: true }));

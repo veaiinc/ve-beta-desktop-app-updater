@@ -63,6 +63,7 @@ const initialState = {
 	recipientEmail: '',
 	stepTitle: '',
 	stepDescription: '',
+	batchId: null,
 };
 const Notification = ({
 	onCLose,
@@ -88,7 +89,16 @@ const Notification = ({
 			getSpecificWorkflowTemplateDetails,
 			updateSteps,
 		},
-		automationBuilder: { connectedIntegrations, addTrigger, getAutomation, addStep },
+		automationBuilder: {
+			connectedIntegrations,
+			addTrigger,
+			getAutomation,
+			addStep,
+			executeAutomation,
+			previousExecutionData,
+			previousStepResponse,
+			getPreviousStepResponse,
+		},
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({ ...initialState });
@@ -189,6 +199,38 @@ const Notification = ({
 			}));
 		}
 	}, [slackChannels]);
+
+	useEffect(() => {
+		console.log('dgsfhgsjhgdsjh');
+
+		if (
+			previousExecutionData &&
+			previousExecutionData?.stepId === activeEdge?.split('-')?.[0]
+		) {
+			setInfo((prev) => ({ ...prev, batchId: previousExecutionData?.batchId }));
+		} else {
+			executeAutomation(automationId);
+		}
+	}, [previousExecutionData]);
+
+	useEffect(() => {
+		console.log('info?.batchId', info?.batchId);
+		if (info?.batchId) {
+			console.log('previousStepResponse', previousStepResponse);
+
+			if (previousStepResponse) {
+				if (previousStepResponse?.error) {
+					message.error(previousStepResponse?.error || 'Something went wrong');
+				}
+				setInfo((prev) => ({
+					...prev,
+					previousNodeResponse: previousStepResponse?.data,
+				}));
+			} else {
+				getPreviousStepResponse(info?.batchId, activeEdge?.split('-')?.[0]);
+			}
+		}
+	}, [previousStepResponse, info?.batchId]);
 
 	const getSelectedEmailTemplateData = useCallback(
 		async (emailTemplateId) => {
