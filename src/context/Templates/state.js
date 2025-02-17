@@ -1438,7 +1438,7 @@ export const TemplatesState = (props) => {
 		} catch (error) {}
 	};
 
-	const handleGlobalChatMessages = async (payload, sessionId, localPayload) => {
+	const handleGlobalChatMessages = async (payload, sessionId, localPayload, queryMessage) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
@@ -1500,7 +1500,7 @@ export const TemplatesState = (props) => {
 				payload.query += str;
 			} else {
 				updatedGlobalChatMessages = [
-					{ type: 'user', message: payload?.query || '' },
+					{ type: 'user', message: queryMessage || '' },
 					{
 						type: 'AI',
 						message: 'loading....',
