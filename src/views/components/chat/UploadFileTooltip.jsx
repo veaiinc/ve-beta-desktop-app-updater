@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, useCallback } from 'react';
+import React, { useState, useEffect, useContext, useCallback, memo } from 'react';
 import { ReactComponent as UploadSvg } from '../../../assets/svg/ai_agents/upload.svg';
 import { Tooltip, Upload } from 'antd';
 import { ReactComponent as SearchSvg } from '../../../assets/svg/workflow/search.svg';
@@ -33,7 +33,7 @@ const UploadFileTooltip = ({
 
 	const fetchFilesUploadedInAiChat = async (page = 1) => {
 		const payload = {
-			limit: 10,
+			limit: 5,
 			page: page,
 			originalFileName: info?.searchQuery,
 		};
@@ -142,4 +142,4 @@ const UploadFileTooltip = ({
 	);
 };
 
-export default UploadFileTooltip;
+export default memo(UploadFileTooltip);

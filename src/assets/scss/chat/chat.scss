@@ -177,40 +177,13 @@
 						}
 					}
 				}
-
-				.chatInputParentContainer {
-					display: flex;
-					height: 100px;
-					padding: 16px;
-					flex-direction: column;
-					align-items: flex-start;
-					gap: 12px;
-					background: #202123;
-					width: 700px;
-					align-self: center;
-					margin-bottom: 20px;
-					border-radius: 16px;
-
-					.textArea {
-						width: 100%;
-						height: 40px;
-						border: none;
-						outline: none;
-						background: transparent;
-						color: white;
-						font-family: Inter;
-						font-size: 14px;
-						font-style: normal;
-						font-weight: 400;
-						line-height: normal;
-						resize: none;
-					}
-				}
 			}
 		}
 	}
 }
 
-// .ant-image-preview-wrap {
-// 	z-index: 1020 !important;
-// }
+.image-Container {
+	.ant-image-preview-wrap {
+		z-index: 1020 !important;
+	}
+}

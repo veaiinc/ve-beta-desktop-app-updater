@@ -1,5 +1,5 @@
 import { Tooltip } from 'antd';
-import React from 'react';
+import React, { memo } from 'react';
 import { Switch } from 'antd';
 
 const SearchTypeTooltip = ({
@@ -52,4 +52,4 @@ const SearchTypeTooltip = ({
 	);
 };
 
-export default SearchTypeTooltip;
+export default memo(SearchTypeTooltip);

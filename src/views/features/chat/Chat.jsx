@@ -500,6 +500,22 @@ const Chat = ({
 					</div>
 				</div>
 			</div>
+			{previewImage && (
+				<Image
+					wrapperStyle={{
+						display: 'none',
+						zIndex: '1020',
+					}}
+					rootClassName="sheshnat"
+					maskClassName="sheshnatmanure"
+					preview={{
+						visible: previewOpen,
+						onVisibleChange: (visible) => setPreviewOpen(visible),
+						afterOpenChange: (visible) => !visible && setPreviewImage(''),
+					}}
+					src={previewImage}
+				/>
+			)}
 			<CitationsModal
 				modalIsOpen={info?.citationsModalIsOpen}
 				closeModal={handleCloseCitationsModal}

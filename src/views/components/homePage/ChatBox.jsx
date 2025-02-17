@@ -100,6 +100,7 @@ const ChatBox = ({
 	handleAiUploadImage,
 	customChatActions = false,
 	showChatLabels = true,
+	uploadedImages = [],
 }) => {
 	const {
 		templates: {
@@ -138,7 +139,7 @@ const ChatBox = ({
 		position: { x: window.innerWidth / 2 - 900, y: 0 },
 		addQuickAction: false,
 		chatSessionId: null,
-		uploadedImages: [],
+		uploadedImages: uploadedImages,
 		chatLoading: false,
 		showFullPage: true,
 		voiceIntegration: false,

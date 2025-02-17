@@ -181,7 +181,7 @@ const NoteComponentModal = ({
 					</div>
 				</div>
 			</Drawer>
-			{previewImage && (
+			{/* {previewImage && (
 				<Image
 					wrapperStyle={{
 						display: 'none',
@@ -193,9 +193,9 @@ const NoteComponentModal = ({
 					}}
 					src={previewImage}
 				/>
-			)}
+			)} */}
 
-			{previewImage && (
+			{/* {previewImage && (
 				<Image
 					wrapperStyle={{
 						display: 'none',
@@ -208,7 +208,7 @@ const NoteComponentModal = ({
 					}}
 					src={previewImage}
 				/>
-			)}
+			)} */}
 		</>
 	);
 };

@@ -1,6 +1,6 @@
 import { memo, useCallback, useState } from 'react';
 import moment from 'moment';
-import '../../../assets/scss/chat/timeStamp.scss';
+import '../../../assets/scss/chat/dateRangeDropdown.scss';
 import DropDown from '../dropDown/tasks/DropDown';
 import { DatePicker, Tooltip } from 'antd';
 import { ReactComponent as ChevronSvg } from '../../../assets/svg/tasks/chevronRightThin.svg';
@@ -93,23 +93,22 @@ const DateRangeDropdown = ({
 					selected={info?.dueDate}
 					valueSelector="value"
 				>
-					<Tooltip
+					{/* <Tooltip
 						title={showTitle && <div className="tooltip-inner">{title}</div>}
 						placement="bottom"
-						overlayClassName="tooltip-overlay-container"
 						color="transparent"
-					>
-						<div className={`date-header ${className}`} style={customListItemStyle}>
-							{startDate && endDate
-								? moment(startDate).format(format) +
-								  ' - ' +
-								  moment(endDate).format(format)
-								: 'Date'}
-							<div className="chevron-icon-container">
-								<ChevronSvg />
-							</div>
+					> */}
+					<div className={`date-header ${className}`} style={customListItemStyle}>
+						{startDate && endDate
+							? moment(startDate).format(format) +
+							  ' - ' +
+							  moment(endDate).format(format)
+							: 'Date'}
+						<div className="chevron-icon-container">
+							<ChevronSvg />
 						</div>
-					</Tooltip>
+					</div>
+					{/* </Tooltip> */}
 				</DropDown>
 			)}
 		</div>

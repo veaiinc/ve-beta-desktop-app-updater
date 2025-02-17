@@ -1,5 +1,5 @@
 import { Tooltip } from 'antd';
-import React, { useState } from 'react';
+import React, { memo, useState } from 'react';
 import { ReactComponent as ChevronSvg } from '../../../assets/svg/tasks/chevronRightThin.svg';
 import { ReactComponent as TickSvg } from '../../../assets/svg/home_page/Tick.svg';
 import { ReactComponent as SearchSvg } from '../../../assets/svg/workflow/search.svg';
@@ -69,4 +69,4 @@ const SearchDropdown = ({
 	);
 };
 
-export default SearchDropdown;
+export default memo(SearchDropdown);
