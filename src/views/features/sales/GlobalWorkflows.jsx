@@ -315,10 +315,10 @@ const GlobalWorkflows = () => {
 				<div
 					className={`playbook-wrapper`}
 					style={{
-						background: `url(${backgroundImage})`,
-						backgroundSize: 'cover',
-						backgroundPosition: 'top',
-						backgroundRepeat: 'no-repeat',
+						// background: `url(${backgroundImage})`,
+						// backgroundSize: 'cover',
+						// backgroundPosition: 'top',
+						// backgroundRepeat: 'no-repeat',
 						height: '100vh',
 						width: '100%',
 					}}
@@ -437,7 +437,8 @@ const GlobalWorkflows = () => {
 										hasMore={info?.hasNextPage}
 										loader={<FetchMoreLoaderComp />}
 										scrollableTarget="templatesScrollableTarget"
-										height="calc(100vh - 100px)"
+										// height="calc(100vh - 100px)"
+										height={'100vh'}
 									>
 										<div className="globalWorkflowParentCardContainer">
 											{info.isLoading || info.searchLoading ? (

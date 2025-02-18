@@ -524,7 +524,7 @@ const GlobalWorkflowModal = ({
 										height: '100%',
 										width: isExpanded ? '780px' : '420px',
 										transition: 'width 0.3s ease',
-										gap: '24px',
+										gap: '16px',
 										display: 'flex',
 										flexDirection: 'column',
 										justifyContent: 'center',
