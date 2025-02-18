@@ -16,15 +16,12 @@ const AiShare = ({ assistant }) => {
 		};
 	}, []);
 
-	const shareUrl = useMemo(
-		() => `https://widget.ve.ai/${assistant?._id}?aiAssistantName=${assistant?.name}`,
-		[assistant?._id, assistant?.name],
-	);
+	const shareUrl = useMemo(() => `https://widget.ve.ai/${assistant?._id}`, [assistant]);
 
 	const embedScript = useMemo(
 		() =>
-			`<script src="https://widget.ve.ai/public.js" data-ai-assistant-id=${assistant?._id}  data-ai-assistant-name=${assistant?.name} data-nscript="afterInteractive"></script>`,
-		[assistant?._id, assistant?.name],
+			`<script src="https://widget.ve.ai/public.js" data-ai-assistant-id=${assistant?._id} data-nscript="afterInteractive"></script>`,
+		[assistant],
 	);
 
 	const handleCopy = useCallback(async (text, type) => {

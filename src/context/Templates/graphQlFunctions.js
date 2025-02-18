@@ -260,6 +260,7 @@ export const getTemplatesListForCreateLeadQuery = gql`
 				_id
 				title
 				status
+				slug
 			}
 		}
 	}

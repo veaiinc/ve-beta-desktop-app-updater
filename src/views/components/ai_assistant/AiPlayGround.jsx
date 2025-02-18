@@ -2,11 +2,7 @@ import React, { memo } from 'react';
 
 const AiPlayGround = ({ assistant }) => {
 	if (!assistant?._id) return null;
-
-	const aiChatUrl = `https://widget.ve.ai/${assistant._id}?aiAssistantName=${encodeURIComponent(
-		assistant?.name || '',
-	)}`;
-
+	const aiChatUrl = `https://widget.ve.ai/${assistant._id}?modeType=small`;
 	return (
 		<div className="aiPlayGroundParentContainer">
 			<div className="ai-playground-container">
