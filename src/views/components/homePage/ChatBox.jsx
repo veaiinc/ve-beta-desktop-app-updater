@@ -329,24 +329,16 @@ const ChatBox = ({
 							query:
 								currentQuery +
 								',' +
-								info?.recentFiles?.map((ele) => ele?.name).join(','),
+								info?.recentFiles?.map((ele) => ele?.originalFileName).join(','),
 							timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
 							knowledge_base_search: info?.searchType?.workspaceSearch,
 							web_search: info?.searchType?.webSearch,
 							modules: Object?.keys(info?.chatFilters?.modules),
 							date: date,
 						};
-						if (moduleHelper?.[location?.pathname?.split('/')?.[1]]) {
-							const foundModule = payload?.modules?.find(
-								(ele) =>
-									ele === moduleHelper?.[location?.pathname?.split('/')?.[1]],
-							);
 
-							if (!foundModule) {
-								payload?.modules?.push(
-									moduleHelper?.[location?.pathname?.split('/')?.[1]],
-								);
-							}
+						if (moduleHelper?.[location?.pathname?.split('/')?.[1]]) {
+							payload.screen = moduleHelper[location?.pathname?.split('/')?.[1]];
 						}
 						let localPayload = {};
 						if (info?.uploadedImages?.length) {
