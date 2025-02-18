@@ -108,13 +108,6 @@ const Chat = ({
 	}, [citations]);
 
 	useEffect(() => {
-		if (activePromptForChat) {
-			handleSendMessageFunc(null, true, activePromptForChat);
-			updateStateValues({ activePromptForChat: null, followUpQuery: null });
-		}
-	}, [activePromptForChat]);
-
-	useEffect(() => {
 		if (currentSessionId) {
 			setInfo((prev) => ({ ...prev, chatSessionId: currentSessionId }));
 		} else {
@@ -122,13 +115,13 @@ const Chat = ({
 		}
 	}, [currentSessionId]);
 
-	const handlePreview = async (file) => {
-		if (!file.url && !file.preview) {
-			file.preview = await getBase64(file.originFileObj);
-		}
-		setPreviewImage(file.url || file.preview);
-		setPreviewOpen(true);
-	};
+	// const handlePreview = async (file) => {
+	// 	if (!file.url && !file.preview) {
+	// 		file.preview = await getBase64(file.originFileObj);
+	// 	}
+	// 	setPreviewImage(file.url || file.preview);
+	// 	setPreviewOpen(true);
+	// };
 	const handleNoteComponentModalClose = () => {
 		setInfo((prev) => ({
 			...prev,
@@ -149,12 +142,6 @@ const Chat = ({
 		}));
 	};
 
-	const handleFollowUpQueryClick = () => {
-		if (info?.chatLoading === false) {
-			updateStateValues({ activePromptForChat: followUpQuery });
-		}
-	};
-
 	const smoothScrollToBottom = useCallback(() => {
 		if (chatContentRef?.current) {
 			chatContentRef.current.scrollTo({
@@ -164,275 +151,275 @@ const Chat = ({
 		}
 	}, [chatContentRef]);
 
-	const handleSendMessageFunc = useCallback(
-		async (e, click = null, query = null) => {
-			if (e?.key === 'Enter' || click) {
-				// If Shift+Enter, allow new line
-				if (e?.shiftKey) {
-					return;
-				}
-				// Prevent default to avoid unwanted new line
-				e?.preventDefault();
+	// const handleSendMessageFunc = useCallback(
+	// 	async (e, click = null, query = null) => {
+	// 		if (e?.key === 'Enter' || click) {
+	// 			// If Shift+Enter, allow new line
+	// 			if (e?.shiftKey) {
+	// 				return;
+	// 			}
+	// 			// Prevent default to avoid unwanted new line
+	// 			e?.preventDefault();
 
-				if (
-					(aiChatLoading || info?.chatLoading) &&
-					(info?.chatQuery?.length || info?.uploadedImages?.length)
-				) {
-					return message.error('Please wait for the AI response');
-				}
+	// 			if (
+	// 				(aiChatLoading || info?.chatLoading) &&
+	// 				(info?.chatQuery?.length || info?.uploadedImages?.length)
+	// 			) {
+	// 				return message.error('Please wait for the AI response');
+	// 			}
 
-				if (!checkAllUploadLoadingStatus()) {
-					return message.error('Please wait for the images to upload');
-				}
+	// 			if (!checkAllUploadLoadingStatus()) {
+	// 				return message.error('Please wait for the images to upload');
+	// 			}
 
-				if (
-					info?.chatQuery?.trim().length ||
-					info?.uploadedImages?.length ||
-					query?.trim()?.length
-				) {
-					if (customChatActions) {
-						onSend(info?.chatQuery);
-					} else {
-						setInfo((prev) => ({ ...prev, chatLoading: true }));
-						let currentQuery = info?.chatQuery?.trim() || query?.trim();
-						const payload = {
-							query: currentQuery,
-							timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-							knowledge_base_search: true,
-							web_search: true,
-						};
-						let localPayload = {};
-						if (info?.uploadedImages?.length) {
-							payload.files = info?.uploadedImages?.map(
-								(ele) => ele?.name || 'Untitled Image',
-							);
+	// 			if (
+	// 				info?.chatQuery?.trim().length ||
+	// 				info?.uploadedImages?.length ||
+	// 				query?.trim()?.length
+	// 			) {
+	// 				if (customChatActions) {
+	// 					onSend(info?.chatQuery);
+	// 				} else {
+	// 					setInfo((prev) => ({ ...prev, chatLoading: true }));
+	// 					let currentQuery = info?.chatQuery?.trim() || query?.trim();
+	// 					const payload = {
+	// 						query: currentQuery,
+	// 						timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+	// 						knowledge_base_search: true,
+	// 						web_search: true,
+	// 					};
+	// 					let localPayload = {};
+	// 					if (info?.uploadedImages?.length) {
+	// 						payload.files = info?.uploadedImages?.map(
+	// 							(ele) => ele?.name || 'Untitled Image',
+	// 						);
 
-							localPayload = {
-								files: info?.uploadedImages || [],
-								handlePreview,
-							};
-						}
-						if (activeWorkflowSlugForSmartFile) {
-							payload.workflow_slug = activeWorkflowSlugForSmartFile;
-						}
+	// 						localPayload = {
+	// 							files: info?.uploadedImages || [],
+	// 							handlePreview,
+	// 						};
+	// 					}
+	// 					if (activeWorkflowSlugForSmartFile) {
+	// 						payload.workflow_slug = activeWorkflowSlugForSmartFile;
+	// 					}
 
-						if (moduleHelper?.[location?.pathname?.split('/')?.[1]]) {
-							payload.modules = [moduleHelper?.[location?.pathname?.split('/')?.[1]]];
-						}
-						setInfo((prev) => ({ ...prev, uploadedImages: [], chatQuery: '' }));
+	// 					if (moduleHelper?.[location?.pathname?.split('/')?.[1]]) {
+	// 						payload.modules = [moduleHelper?.[location?.pathname?.split('/')?.[1]]];
+	// 					}
+	// 					setInfo((prev) => ({ ...prev, uploadedImages: [], chatQuery: '' }));
 
-						const response = await handleGlobalChatMessages(
-							payload,
-							info?.chatSessionId,
-							localPayload,
-						);
-						setInfo((prev) => ({ ...prev, chatLoading: false }));
-						if (response?.[0]) {
-							const { db_updates, variables_required } = response?.[1];
-							if (db_updates?.calendar_db_update) {
-								updateCalendarState({ refetchCalendarState: true });
-							}
-							if (db_updates?.task_db_update) {
-								updateTaskState({ refetchTasks: true });
-							}
-							if (db_updates?.proposal_db_update) {
-								updateStateValues({ smartFileRefetch: true });
-							}
-							if (variables_required) {
-								handleVariablesRequired(variables_required, currentQuery);
-							}
-						}
-					}
-				}
-			}
-		},
-		[aiChatLoading, onSend, customChatActions, info, activeWorkflowSlugForSmartFile],
-	);
+	// 					const response = await handleGlobalChatMessages(
+	// 						payload,
+	// 						info?.chatSessionId,
+	// 						localPayload,
+	// 					);
+	// 					setInfo((prev) => ({ ...prev, chatLoading: false }));
+	// 					if (response?.[0]) {
+	// 						const { db_updates, variables_required } = response?.[1];
+	// 						if (db_updates?.calendar_db_update) {
+	// 							updateCalendarState({ refetchCalendarState: true });
+	// 						}
+	// 						if (db_updates?.task_db_update) {
+	// 							updateTaskState({ refetchTasks: true });
+	// 						}
+	// 						if (db_updates?.proposal_db_update) {
+	// 							updateStateValues({ smartFileRefetch: true });
+	// 						}
+	// 						if (variables_required) {
+	// 							handleVariablesRequired(variables_required, currentQuery);
+	// 						}
+	// 					}
+	// 				}
+	// 			}
+	// 		}
+	// 	},
+	// 	[aiChatLoading, onSend, customChatActions, info, activeWorkflowSlugForSmartFile],
+	// );
 
-	const handleWorkflowSlugSelection = useCallback(
-		async (data, query) => {
-			setInfo((prev) => ({ ...prev, chatLoading: true }));
-			const showCustomChatOptions = [
-				{
-					type: 'AI',
-					message: 'loading....',
-					content: (
-						<div className="aiMessageWrapper">
-							<Skeleton height={20} width={'100%'} borderRadius={'100px'} />
-							<Skeleton height={20} width={'75%'} borderRadius={'100px'} />
-							<Skeleton height={20} width={'50%'} borderRadius={'100px'} />
-						</div>
-					),
-					contentType: 'loading',
-				},
-			];
+	// const handleWorkflowSlugSelection = useCallback(
+	// 	async (data, query) => {
+	// 		setInfo((prev) => ({ ...prev, chatLoading: true }));
+	// 		const showCustomChatOptions = [
+	// 			{
+	// 				type: 'AI',
+	// 				message: 'loading....',
+	// 				content: (
+	// 					<div className="aiMessageWrapper">
+	// 						<Skeleton height={20} width={'100%'} borderRadius={'100px'} />
+	// 						<Skeleton height={20} width={'75%'} borderRadius={'100px'} />
+	// 						<Skeleton height={20} width={'50%'} borderRadius={'100px'} />
+	// 					</div>
+	// 				),
+	// 				contentType: 'loading',
+	// 			},
+	// 		];
 
-			const payload = {
-				query: query,
-				timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-				workflow_slug: data,
-			};
-			const localPayload = {
-				showCustomChatOptions,
-			};
-			if (moduleHelper?.[location?.pathname?.split('/')?.[1]]) {
-				payload.module = moduleHelper?.[location?.pathname?.split('/')?.[1]];
-			}
-			const response = await handleGlobalChatMessages(
-				payload,
-				info?.chatSessionId,
-				localPayload,
-			);
-			setInfo((prev) => ({ ...prev, chatLoading: false }));
-			if (response?.[0]) {
-				const { db_updates, variables_required } = response?.[1];
-				if (db_updates?.calendar_db_update) {
-					updateCalendarState({ refetchCalendarState: true });
-				}
-				if (db_updates?.task_db_update) {
-					updateTaskState({ refetchTasks: true });
-				}
-				if (variables_required) {
-					handleVariablesRequired(variables_required, data);
-				}
-			}
-		},
-		[info],
-	);
+	// 		const payload = {
+	// 			query: query,
+	// 			timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+	// 			workflow_slug: data,
+	// 		};
+	// 		const localPayload = {
+	// 			showCustomChatOptions,
+	// 		};
+	// 		if (moduleHelper?.[location?.pathname?.split('/')?.[1]]) {
+	// 			payload.module = moduleHelper?.[location?.pathname?.split('/')?.[1]];
+	// 		}
+	// 		const response = await handleGlobalChatMessages(
+	// 			payload,
+	// 			info?.chatSessionId,
+	// 			localPayload,
+	// 		);
+	// 		setInfo((prev) => ({ ...prev, chatLoading: false }));
+	// 		if (response?.[0]) {
+	// 			const { db_updates, variables_required } = response?.[1];
+	// 			if (db_updates?.calendar_db_update) {
+	// 				updateCalendarState({ refetchCalendarState: true });
+	// 			}
+	// 			if (db_updates?.task_db_update) {
+	// 				updateTaskState({ refetchTasks: true });
+	// 			}
+	// 			if (variables_required) {
+	// 				handleVariablesRequired(variables_required, data);
+	// 			}
+	// 		}
+	// 	},
+	// 	[info],
+	// );
 
-	const handleVariablesRequired = useCallback(
-		(requiredVariables, query) => {
-			if (requiredVariables?.[0] === 'workflow_slug') {
-				let workflowSlug = [
-					{
-						type: 'AI',
-						message: 'Please select a workflow to continue',
-						content: (
-							<WorkflowSlugSelector
-								handleWorkflowSlugSelection={handleWorkflowSlugSelection}
-								query={query}
-							/>
-						),
-					},
-				];
+	// const handleVariablesRequired = useCallback(
+	// 	(requiredVariables, query) => {
+	// 		if (requiredVariables?.[0] === 'workflow_slug') {
+	// 			let workflowSlug = [
+	// 				{
+	// 					type: 'AI',
+	// 					message: 'Please select a workflow to continue',
+	// 					content: (
+	// 						<WorkflowSlugSelector
+	// 							handleWorkflowSlugSelection={handleWorkflowSlugSelection}
+	// 							query={query}
+	// 						/>
+	// 					),
+	// 				},
+	// 			];
 
-				updateApplicationChat(workflowSlug);
-			}
-		},
-		[info, handleWorkflowSlugSelection, globalChatMessages],
-	);
+	// 			updateApplicationChat(workflowSlug);
+	// 		}
+	// 	},
+	// 	[info, handleWorkflowSlugSelection, globalChatMessages],
+	// );
 
-	const handleGlobalImageProcessing = useCallback(
-		async (file) => {
-			const uploadBatchId = ObjectID().toString();
-			const payload = {
-				sessionId: info?.chatSessionId,
-				originalFileName: file?.name || 'Untitled file',
-				uploadBatchId,
-			};
-			const response = await handleGlobalUploadImage(file, payload);
-			let uploadedImages = [...info?.uploadedImages];
-			if (!response?.[0]) {
-				uploadedImages.splice(file?.uniqueId, 1);
-				setInfo((prev) => ({ ...prev, uploadedImages }));
-				return message.error(response?.[1] || 'failed to upload image');
-			}
-			const { _id } = response?.[1] || {};
-			file.fileId = _id;
-			uploadedImages.splice(file?.uniqueId, 1, file);
-			setInfo((prev) => ({ ...prev, uploadedImages }));
-			checkIndividualImageUploadedStatusFunc(file, uploadBatchId);
-		},
-		[info],
-	);
+	// const handleGlobalImageProcessing = useCallback(
+	// 	async (file) => {
+	// 		const uploadBatchId = ObjectID().toString();
+	// 		const payload = {
+	// 			sessionId: info?.chatSessionId,
+	// 			originalFileName: file?.name || 'Untitled file',
+	// 			uploadBatchId,
+	// 		};
+	// 		const response = await handleGlobalUploadImage(file, payload);
+	// 		let uploadedImages = [...info?.uploadedImages];
+	// 		if (!response?.[0]) {
+	// 			uploadedImages.splice(file?.uniqueId, 1);
+	// 			setInfo((prev) => ({ ...prev, uploadedImages }));
+	// 			return message.error(response?.[1] || 'failed to upload image');
+	// 		}
+	// 		const { _id } = response?.[1] || {};
+	// 		file.fileId = _id;
+	// 		uploadedImages.splice(file?.uniqueId, 1, file);
+	// 		setInfo((prev) => ({ ...prev, uploadedImages }));
+	// 		checkIndividualImageUploadedStatusFunc(file, uploadBatchId);
+	// 	},
+	// 	[info],
+	// );
 
-	const checkIndividualImageUploadedStatusFunc = useCallback(
-		async (fileData, uploadBatchId) => {
-			let uploadedImages = [...info?.uploadedImages];
-			let uploadedCount = 0,
-				maxAttempts = 15,
-				errorCount = 0,
-				successCount = 0;
-			while (!(uploadedCount && successCount) && maxAttempts) {
-				const response = await checkIndividualImageUploadedStatus(uploadBatchId);
-				if (response?.[0]) {
-					uploadedCount = response?.[1]?.uploadedCount;
-					errorCount = response?.[1]?.errorCount;
-					successCount = response?.[1]?.successCount;
-					if (uploadedCount && successCount) {
-						break;
-					}
-					if (errorCount) {
-						break;
-					}
-				}
-				//dealying the check
-				await new Promise((resolve) => setTimeout(resolve, 1000));
-				maxAttempts--;
-			}
-			if (errorCount) {
-				uploadedImages.splice(fileData?.uniqueId, 1);
-				setInfo((prev) => ({ ...prev, uploadedImages }));
-				return message.error('Something went wrong while processing the image');
-			}
-			if (uploadedCount && uploadedCount > 0) {
-				fileData.loading = false;
-				uploadedImages.splice(fileData?.uniqueId, 1, fileData);
-				setInfo((prev) => ({ ...prev, uploadedImages }));
-			}
-		},
-		[info],
-	);
+	// const checkIndividualImageUploadedStatusFunc = useCallback(
+	// 	async (fileData, uploadBatchId) => {
+	// 		let uploadedImages = [...info?.uploadedImages];
+	// 		let uploadedCount = 0,
+	// 			maxAttempts = 15,
+	// 			errorCount = 0,
+	// 			successCount = 0;
+	// 		while (!(uploadedCount && successCount) && maxAttempts) {
+	// 			const response = await checkIndividualImageUploadedStatus(uploadBatchId);
+	// 			if (response?.[0]) {
+	// 				uploadedCount = response?.[1]?.uploadedCount;
+	// 				errorCount = response?.[1]?.errorCount;
+	// 				successCount = response?.[1]?.successCount;
+	// 				if (uploadedCount && successCount) {
+	// 					break;
+	// 				}
+	// 				if (errorCount) {
+	// 					break;
+	// 				}
+	// 			}
+	// 			//dealying the check
+	// 			await new Promise((resolve) => setTimeout(resolve, 1000));
+	// 			maxAttempts--;
+	// 		}
+	// 		if (errorCount) {
+	// 			uploadedImages.splice(fileData?.uniqueId, 1);
+	// 			setInfo((prev) => ({ ...prev, uploadedImages }));
+	// 			return message.error('Something went wrong while processing the image');
+	// 		}
+	// 		if (uploadedCount && uploadedCount > 0) {
+	// 			fileData.loading = false;
+	// 			uploadedImages.splice(fileData?.uniqueId, 1, fileData);
+	// 			setInfo((prev) => ({ ...prev, uploadedImages }));
+	// 		}
+	// 	},
+	// 	[info],
+	// );
 
-	const handleChange = useCallback(
-		async ({ file }) => {
-			let uploadedImages = [...(info?.uploadedImages || [])];
-			file.preview = await getBase64(file);
-			file.loading = true;
-			file.uniqueId = uploadedImages?.length;
-			uploadedImages.push(file);
-			if (customChatActions) {
-				handleAiUploadImage(file);
-			} else {
-				handleGlobalImageProcessing(file);
-			}
+	// const handleChange = useCallback(
+	// 	async ({ file }) => {
+	// 		let uploadedImages = [...(info?.uploadedImages || [])];
+	// 		file.preview = await getBase64(file);
+	// 		file.loading = true;
+	// 		file.uniqueId = uploadedImages?.length;
+	// 		uploadedImages.push(file);
+	// 		if (customChatActions) {
+	// 			handleAiUploadImage(file);
+	// 		} else {
+	// 			handleGlobalImageProcessing(file);
+	// 		}
 
-			setInfo((prev) => ({
-				...prev,
-				// addQuickAction: false,
-				expanded: true,
-				inputExpanded: true,
-				uploadedImages,
-			}));
-		},
-		[handleAiUploadImage, info],
-	);
+	// 		setInfo((prev) => ({
+	// 			...prev,
+	// 			// addQuickAction: false,
+	// 			expanded: true,
+	// 			inputExpanded: true,
+	// 			uploadedImages,
+	// 		}));
+	// 	},
+	// 	[handleAiUploadImage, info],
+	// );
 
-	const checkAllUploadLoadingStatus = useCallback(() => {
-		const uploadedImages = [...(info?.uploadedImages || [])];
-		for (let i = 0; i < uploadedImages?.length; i++) {
-			if (uploadedImages[i]?.loading) {
-				return false;
-			}
-		}
-		return true;
-	}, [info]);
+	// const checkAllUploadLoadingStatus = useCallback(() => {
+	// 	const uploadedImages = [...(info?.uploadedImages || [])];
+	// 	for (let i = 0; i < uploadedImages?.length; i++) {
+	// 		if (uploadedImages[i]?.loading) {
+	// 			return false;
+	// 		}
+	// 	}
+	// 	return true;
+	// }, [info]);
 
-	const handleRemoveImage = useCallback(
-		(ele) => {
-			const uploadedImages = [...(info?.uploadedImages || [])];
-			uploadedImages.splice(ele?.uniqueId, 1);
-			setInfo((prev) => ({ ...prev, uploadedImages }));
-			deleteUploadedImageThroughChat(ele?.fileId);
-		},
-		[info],
-	);
+	// const handleRemoveImage = useCallback(
+	// 	(ele) => {
+	// 		const uploadedImages = [...(info?.uploadedImages || [])];
+	// 		uploadedImages.splice(ele?.uniqueId, 1);
+	// 		setInfo((prev) => ({ ...prev, uploadedImages }));
+	// 		deleteUploadedImageThroughChat(ele?.fileId);
+	// 	},
+	// 	[info],
+	// );
 
-	const handleSendBtnClick = (e) => {
-		if (info?.chatQuery?.trim()?.length > 0) {
-			handleSendMessageFunc(e, true);
-		}
-	};
+	// const handleSendBtnClick = (e) => {
+	// 	if (info?.chatQuery?.trim()?.length > 0) {
+	// 		handleSendMessageFunc(e, true);
+	// 	}
+	// };
 
 	return (
 		<>
@@ -507,16 +494,16 @@ const Chat = ({
 			<NoteComponentModal
 				modalIsOpen={info?.noteModalIsOpen}
 				closeModal={handleNoteComponentModalClose}
-				chatQuery={info?.chatQuery}
-				onKeyDown={handleSendMessageFunc}
-				onChange={(e) => setInfo((prev) => ({ ...prev, chatQuery: e.target.value }))}
-				chatListonChange={chatList}
-				onClick={handleSendBtnClick}
-				onImageUpload={handleChange}
-				uploadedImages={info?.uploadedImages}
-				handlePreview={handlePreview}
-				handleRemoveImage={handleRemoveImage}
-				chatList={!customChatActions ? globalChatMessages : chatList}
+				// chatQuery={info?.chatQuery}
+				// onKeyDown={handleSendMessageFunc}
+				// onChange={(e) => setInfo((prev) => ({ ...prev, chatQuery: e.target.value }))}
+				// chatListonChange={chatList}
+				// onClick={handleSendBtnClick}
+				// onImageUpload={handleChange}
+				// uploadedImages={info?.uploadedImages}
+				// handlePreview={handlePreview}
+				// handleRemoveImage={handleRemoveImage}
+				// chatList={!customChatActions ? globalChatMessages : chatList}
 			/>
 		</>
 	);

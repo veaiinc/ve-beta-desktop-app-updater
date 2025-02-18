@@ -41,6 +41,7 @@ import UploadFileTooltip from '../chat/UploadFileTooltip';
 import DateRangeDropdown from '../chat/DateRangeDropdown';
 import SearchTypeTooltip from '../chat/SearchTypeTooltip';
 import moment from 'moment';
+import Skeleton from 'react-loading-skeleton';
 const moduleHelper = {
 	tasks: 'tasks',
 	'smart-file': 'form_filling',
@@ -363,7 +364,12 @@ const ChatBox = ({
 							payload.workflow_slug = activeWorkflowSlugForSmartFile;
 						}
 
-						setInfo((prev) => ({ ...prev, uploadedImages: [], chatQuery: '' }));
+						setInfo((prev) => ({
+							...prev,
+							uploadedImages: [],
+							chatQuery: '',
+							recentFiles: [],
+						}));
 
 						const response = await handleGlobalChatMessages(
 							payload,
@@ -405,10 +411,9 @@ const ChatBox = ({
 					message: 'loading....',
 					content: (
 						<div className="aiMessageWrapper">
-							<AiSparkel />
-							<div className="aiMessage">
-								<span>Thinking...</span>
-							</div>
+							<Skeleton height={20} width={'100%'} borderRadius={'100px'} />
+							<Skeleton height={20} width={'75%'} borderRadius={'100px'} />
+							<Skeleton height={20} width={'50%'} borderRadius={'100px'} />
 						</div>
 					),
 					contentType: 'loading',

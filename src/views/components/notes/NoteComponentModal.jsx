@@ -18,6 +18,8 @@ import { ReactComponent as ArrowUp } from '../../../assets/svg/ai_agents/arrow-u
 
 import Upload from 'antd/es/upload/Upload';
 import ChatBox from '../homePage/ChatBox';
+import { useContext } from 'react';
+import Context from '../../../context/context';
 const noteIcons = [<PreviousSvg />, <NextSvg />, <CopySvg />, <ShareSvg />];
 const NoteComponentModal = ({
 	modalIsOpen,
@@ -32,32 +34,35 @@ const NoteComponentModal = ({
 	handleRemoveImage,
 	onClick,
 }) => {
+	const {
+		templates: { globalChatMessages },
+	} = useContext(Context);
 	const chatContentRef = useRef(null);
 	const [previewOpen, setPreviewOpen] = useState(false);
 	const [previewImage, setPreviewImage] = useState('');
 
 	useEffect(() => {
 		smoothScrollToBottom();
-	}, [chatList]); // Scroll when chat updates
+	}, [globalChatMessages]); // Scroll when chat updates
 
-	const chatIcons = useMemo(
-		() => [
-			<Filter />,
-			<Arroba />,
-			<Upload
-				onChange={onImageUpload}
-				showUploadList={false}
-				beforeUpload={() => false} // Prevent default upload behavior
-				maxCount={1} // Allow only one file at a time
-				// accept="image/*" // Accept only images
-				accept=".pdf,.docx,.txt,.md,.json,.png,.jpg,.jpeg"
-			>
-				<PaperClip />
-			</Upload>,
-			<Mic />,
-		],
-		[onImageUpload],
-	);
+	// const chatIcons = useMemo(
+	// 	() => [
+	// 		<Filter />,
+	// 		<Arroba />,
+	// 		<Upload
+	// 			onChange={onImageUpload}
+	// 			showUploadList={false}
+	// 			beforeUpload={() => false} // Prevent default upload behavior
+	// 			maxCount={1} // Allow only one file at a time
+	// 			// accept="image/*" // Accept only images
+	// 			accept=".pdf,.docx,.txt,.md,.json,.png,.jpg,.jpeg"
+	// 		>
+	// 			<PaperClip />
+	// 		</Upload>,
+	// 		<Mic />,
+	// 	],
+	// 	[onImageUpload],
+	// );
 
 	const smoothScrollToBottom = useCallback(() => {
 		if (chatContentRef?.current) {
@@ -83,7 +88,7 @@ const NoteComponentModal = ({
 						{/* chat body */}
 						<div className={`chatBodyParentContainer`} ref={chatContentRef}>
 							<div className="chatContent">
-								{chatList?.map((chat, index) =>
+								{globalChatMessages?.map((chat, index) =>
 									chat?.content ? (
 										chat?.content
 									) : (
@@ -111,7 +116,7 @@ const NoteComponentModal = ({
 							</div>
 						</div>
 
-						{uploadedImages?.length ? (
+						{/* {uploadedImages?.length ? (
 							<div className="imagePreviewBar">
 								{uploadedImages?.map((ele, index) => (
 									<div className="previewOfUploadedImage" key={index}>
@@ -141,7 +146,7 @@ const NoteComponentModal = ({
 							</div>
 						) : (
 							''
-						)}
+						)} */}
 
 						<ChatBox showChatLabels={false} />
 					</div>

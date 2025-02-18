@@ -1470,14 +1470,14 @@ export const TemplatesState = (props) => {
 									<img
 										src={ele.preview}
 										alt="filetochat"
-										width={'50px'}
+										width={'75px'}
 										onClick={() => localPayload?.handlePreview(ele)}
 										style={{ cursor: 'pointer' }}
 									/>
 								))}
 
 								<div className="message-content-user" style={{ marginTop: '8px' }}>
-									<span>{payload?.query}</span>
+									<span>{queryMessage}</span>
 								</div>
 							</div>
 						),
