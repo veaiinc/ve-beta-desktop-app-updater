@@ -149,10 +149,6 @@ const actionHandlers = {
 		...state,
 		[action?.selectedvariable]: action.payload,
 	}),
-	GET_AUTOMATIONS_SUCCESS: (state, action) => ({
-		...state,
-		automations: action?.payload,
-	}),
 	GET_MODULE_TEMPLATE_SUCCESS: (state, action) => ({
 		...state,
 		moduleTemplateData: action.payload,

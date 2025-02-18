@@ -22,8 +22,6 @@ const limit = 10;
 const WorkflowsTab = ({ searchValue }) => {
 	const {
 		templates: {
-			automations,
-			getAutomations,
 			getMyWorkflows,
 			myWorkflows,
 			myMoreWorkflows,
@@ -31,6 +29,7 @@ const WorkflowsTab = ({ searchValue }) => {
 			generatePublicLinkData,
 			salePageRefresh,
 		},
+		automationBuilder: { automationsList, getAutomationsList },
 		profileInfo: { userWorkSpaceList, getTenantSettings, tennantSettingsData },
 	} = useContext(Context);
 
@@ -53,9 +52,9 @@ const WorkflowsTab = ({ searchValue }) => {
 		copyLink: null,
 	});
 
-	const automationsData = automations?.data;
-	const automationsHasNextPage = automations?.hasNextPage;
-	const automationsCurrentPage = Number(automations?.currentPage) || 1;
+	const automationsData = automationsList?.data;
+	const automationsHasNextPage = automationsList?.hasNextPage;
+	const automationsCurrentPage = Number(automationsList?.currentPage) || 1;
 
 	useEffect(() => {
 		onMountFetchAutomations();
@@ -69,7 +68,7 @@ const WorkflowsTab = ({ searchValue }) => {
 
 	useEffect(() => {
 		if (salePageRefresh) {
-			// getMyWorkflowTemplatesData(1);
+			getMyWorkflowTemplatesData(1);
 			updateStateValues({ salePageRefresh: null });
 		}
 	}, [salePageRefresh]);
@@ -118,8 +117,8 @@ const WorkflowsTab = ({ searchValue }) => {
 	const onMountFetchAutomations = async () => {
 		setInfo((prev) => ({ ...prev, loading: true }));
 		try {
-			if (!automations) {
-				await getAutomations();
+			if (!automationsList) {
+				await getAutomationsList();
 			}
 		} catch (error) {
 			console.error('Error fetching data:', error);
@@ -189,7 +188,7 @@ const WorkflowsTab = ({ searchValue }) => {
 			getMyWorkflowTemplatesData(info?.currentPage + 1, true);
 		} else {
 			const page = automationsCurrentPage ? Number(automationsCurrentPage) + 1 : 1;
-			getAutomations(page, limit, true);
+			getAutomationsList(page, limit, true);
 		}
 	};
 
@@ -274,10 +273,6 @@ const WorkflowsTab = ({ searchValue }) => {
 		},
 		[info?.activeTemplateData],
 	);
-
-	// const handleFetchMoreAutomations = useCallback(() => {
-	// 	getAutomations(automationsCurrentPage + 1, true);
-	// }, [automationsCurrentPage]);
 
 	return (
 		<div className="workflows-tab-container">

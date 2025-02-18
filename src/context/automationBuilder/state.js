@@ -2,6 +2,7 @@ import { useReducer } from 'react';
 import restService from '../../services';
 import Reducer from './reducer';
 import { Actions } from './actions';
+import Service from '../../services';
 
 export const initialState = {
 	specificAutomationInfo: null,
@@ -10,6 +11,7 @@ export const initialState = {
 	// previousStepResponse: null,
 	// previousExecutionData: null,
 	variables: null,
+	automationsList: null,
 };
 
 export const AutomationBuilderState = () => {
@@ -52,6 +54,50 @@ export const AutomationBuilderState = () => {
 			}
 		} catch (error) {
 			console.log(error);
+		}
+	};
+
+	const getAutomationsList = async (page = 1, limit = 10, append = false) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			const path = `/${workspaceId}/getAutomations`;
+			const token = localStorage.getItem('usertoken');
+			const type = 'automation_builder_api';
+			const query = {
+				page,
+				limit,
+			};
+			const response = await Service?.fetchGet(path, token, type, query);
+			if (response?.[0]) {
+				const formattedData = response?.[1]?.automations?.data?.map((automation) => {
+					const { _id, name, steps, tenantId, status } = automation;
+					return {
+						_id,
+						title: name,
+						steps,
+						tenantId,
+						status,
+						moduleTemplates: [], // TODO: add module templates key once we have it
+					};
+				});
+				const data = append
+					? [...(state?.automations?.automations?.data || []), ...formattedData]
+					: formattedData;
+				const currentPage = response?.[1]?.automations?.currentPage;
+				const hasNextPage = response?.[1]?.automations?.hasNextPage;
+				const payload = {
+					data,
+					hasNextPage,
+					currentPage,
+				};
+				dispatch({
+					type: Actions?.SET_AUTOMATIONS_LIST,
+					payload,
+				});
+			}
+		} catch (error) {
+			console.log('error==>getAutomations', error);
+			return [false];
 		}
 	};
 
@@ -273,6 +319,7 @@ export const AutomationBuilderState = () => {
 		...state,
 		createAutomation,
 		getAutomation,
+		getAutomationsList,
 		updateStateValues,
 		addTrigger,
 		addStep,

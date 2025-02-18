@@ -5,6 +5,10 @@ const actionHandlers = {
 		...state,
 		specificAutomationInfo: action.payload,
 	}),
+	SET_AUTOMATIONS_LIST: (state, action) => ({
+		...state,
+		automationsList: action?.payload,
+	}),
 
 	UPDATE_STATE_VALUES: (state, action) => ({
 		...state,
