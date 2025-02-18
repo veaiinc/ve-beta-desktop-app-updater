@@ -317,6 +317,7 @@ const ChatBox = ({
 					} else {
 						setInfo((prev) => ({ ...prev, chatLoading: true }));
 						let currentQuery = info?.chatQuery?.trim() || query?.trim();
+						console.log(currentQuery, 'currentQuery');
 
 						const date =
 							info?.chatFilters?.dateRange?.length > 0
@@ -330,7 +331,7 @@ const ChatBox = ({
 							query:
 								currentQuery +
 								',' +
-								info?.recentFiles?.map((ele) => ele?.name).join(','),
+								info?.recentFiles?.map((ele) => ele?.originalFileName).join(','),
 							timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
 							knowledge_base_search: info?.searchType?.workspaceSearch,
 							web_search: info?.searchType?.webSearch,

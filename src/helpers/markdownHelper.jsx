@@ -142,11 +142,16 @@ export const TypingEffect = ({
 }) => {
 	const {
 		documentPreview: { setNoteContent },
+		aiSetup: { updatedAiChatMessageRating },
 	} = useContext(Context);
 
 	const [displayedText, setDisplayedText] = useState('');
 	const [currentIndex, setCurrentIndex] = useState(0);
 	const [isCopiedToClipboard, setIsCopiedToClipboard] = useState(false);
+	const [info, setInfo] = useState({
+		messageId: null,
+		rating: null,
+	});
 
 	useEffect(() => {
 		if (currentIndex < text?.length) {
@@ -173,6 +178,11 @@ export const TypingEffect = ({
 		});
 	};
 
+	const handleRatingClick = (type) => {
+		// updatedAiChatMessageRating({ rating: type }, messageId);
+		setInfo((prev) => ({ ...prev, rating: type }));
+	};
+
 	return (
 		<div className="typing-effect-container">
 			<div className="typing-effect">
@@ -184,7 +194,10 @@ export const TypingEffect = ({
 				<div className="hover-actions-container">
 					<div className="icon-container">
 						<Tooltip placement="bottom" arrow={false} trigger={'hover'} title={'Like'}>
-							<ThumpsUpSvg />
+							<ThumpsUpSvg
+								fill={info?.rating === 'thumbsUp' ? '#f2f2f3' : 'none'}
+								onClick={() => handleRatingClick('thumbsUp')}
+							/>
 						</Tooltip>
 					</div>
 
@@ -195,7 +208,10 @@ export const TypingEffect = ({
 							trigger={'hover'}
 							title={'Dislike'}
 						>
-							<ThumpsDownSvg />
+							<ThumpsDownSvg
+								fill={info?.rating === 'thumbsDown' ? '#f2f2f3' : 'none'}
+								onClick={() => handleRatingClick('thumbsDown')}
+							/>
 						</Tooltip>
 					</div>
 
