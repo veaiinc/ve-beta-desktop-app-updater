@@ -176,25 +176,29 @@ const FormModal = ({ isOpen, onClose, selectedRow }) => {
 		isResizing.current = true;
 		startX.current = e.clientX;
 		startWidth.current = width;
+	};
+
+	useEffect(() => {
+		const handleMouseMove = (e) => {
+			if (!isResizing.current) return;
+			const newWidth = startWidth.current - (e.clientX - startX.current);
+			if (newWidth > 422 && newWidth < 1000) {
+				setWidth(newWidth);
+			}
+		};
+
+		const handleMouseUp = () => {
+			isResizing.current = false;
+		};
 
 		document.addEventListener('mousemove', handleMouseMove);
 		document.addEventListener('mouseup', handleMouseUp);
-	};
 
-	const handleMouseMove = (e) => {
-		if (!isResizing.current) return;
-
-		const newWidth = startWidth.current - (e.clientX - startX.current);
-		if (newWidth > 560 && newWidth < 1000) {
-			setWidth(newWidth);
-		}
-	};
-
-	const handleMouseUp = () => {
-		isResizing.current = false;
-		document.removeEventListener('mousemove', handleMouseMove);
-		document.removeEventListener('mouseup', handleMouseUp);
-	};
+		return () => {
+			document.removeEventListener('mousemove', handleMouseMove);
+			document.removeEventListener('mouseup', handleMouseUp);
+		};
+	}, []);
 
 	const formAnswer = (type, answer) => {
 		const answerComponentMapper = {
