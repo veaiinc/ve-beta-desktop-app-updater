@@ -21,6 +21,7 @@ import { ReactComponent as PdfSvg } from '../../../assets/svg/ai_agents/pdf.svg'
 import { ReactComponent as JpgSvg } from '../../../assets/svg/ai_agents/jpg.svg';
 import { ReactComponent as PngSvg } from '../../../assets/svg/ai_agents/png.svg';
 import { ReactComponent as MdSvg } from '../../../assets/svg/ai_agents/md.svg';
+import { ReactComponent as AudioSvg } from '../../../assets/svg/ai_agents/audio.svg';
 import { Alert, Image, message, Spin, Tooltip } from 'antd';
 import { Upload } from 'antd';
 import Context from '../../../context/context';
@@ -41,6 +42,7 @@ import UploadFileTooltip from '../chat/UploadFileTooltip';
 import DateRangeDropdown from '../chat/DateRangeDropdown';
 import SearchTypeTooltip from '../chat/SearchTypeTooltip';
 import moment from 'moment';
+import Voice from '../chat/Voice';
 const moduleHelper = {
 	tasks: 'tasks',
 	'smart-file': 'form_filling',
@@ -159,6 +161,7 @@ const ChatBox = ({
 		},
 		recentFiles: [],
 		isSearchTypeOpen: false,
+		isVoiceMuted: false,
 	});
 
 	const [previewOpen, setPreviewOpen] = useState(false);
@@ -582,6 +585,15 @@ const ChatBox = ({
 		[info, connectToRoom],
 	);
 
+	const handleToggleMute = useCallback(
+		(event) => {
+			toggleMute();
+			event.stopPropagation();
+			setInfo((prev) => ({ ...prev, isVoiceMuted: !prev?.isVoiceMuted }));
+		},
+		[toggleMute],
+	);
+
 	const handleDisConnect = useCallback(
 		(event) => {
 			disconnect();
@@ -602,315 +614,316 @@ const ChatBox = ({
 	}, [info?.searchType]);
 
 	return (
-		<>
-			<div className="chatcontainer">
-				<div className="chatbarContainer" style={{ width: '100%' }}>
-					{info?.voiceIntegration ? (
-						<div style={{ display: 'flex', justifyContent: 'center' }}>
-							<img
-								src={'https://ap.assets.ve.ai/logo/speaking%20final.gif'}
-								width={'40px'}
-								height={'40px'}
-								style={{ marginBottom: '12px' }}
-							/>
-						</div>
-					) : (
-						''
-					)}
-					{info?.uploadedImages?.length > 0 ? (
-						<div className="imagePreviewBar">
-							{info?.uploadedImages?.map((ele, index) => (
-								<div className="previewOfUploadedImage" key={index}>
-									<img
-										src={ele?.preview}
-										alt="uploaded"
-										width={'100%'}
-										height={'100%'}
-										style={{
-											objectFit: 'cover',
-											borderRadius: '12px',
-										}}
-										onClick={() => handlePreview(ele)}
-									/>
+		<div className={`chatWrapper`}>
+			{/* {info?.voiceIntegration ? ( */}
+			<div className={`voiceContainer ${info?.voiceIntegration ? 'active' : 'inactive'}`}>
+				<Voice
+					handleDisConnect={handleDisConnect}
+					handleToggleMute={handleToggleMute}
+					isVoiceMuted={info?.isVoiceMuted}
+				/>
+			</div>
+			{/* ) : ( */}
+			<div className={`chat-box-container ${info?.voiceIntegration ? 'inactive' : 'active'}`}>
+				<div className="chatcontainer">
+					<div className="chatbarContainer" style={{ width: '100%' }}>
+						{info?.uploadedImages?.length > 0 ? (
+							<div className="imagePreviewBar">
+								{info?.uploadedImages?.map((ele, index) => (
+									<div className="previewOfUploadedImage" key={index}>
+										<img
+											src={ele?.preview}
+											alt="uploaded"
+											width={'100%'}
+											height={'100%'}
+											style={{
+												objectFit: 'cover',
+												borderRadius: '12px',
+											}}
+											onClick={() => handlePreview(ele)}
+										/>
 
-									{ele?.loading ? (
-										<div className="spinContainerLoaderForPreview">
-											<Spin />
+										{ele?.loading ? (
+											<div className="spinContainerLoaderForPreview">
+												<Spin />
+											</div>
+										) : (
+											<span
+												className="removeImageIcon"
+												onClick={() => handleRemoveImage(ele)}
+											>
+												<Close />
+											</span>
+										)}
+									</div>
+								))}
+							</div>
+						) : (
+							''
+						)}
+						{info?.recentFiles?.length > 0 && (
+							<div className="recent-files-container">
+								{info?.recentFiles?.map((file) => (
+									<div className="recent-file" key={file?._id}>
+										<div className="file-type-icon">
+											{fileTypeIcons?.[file?.sourceType]}
+										</div>
+										<div className="file-name">{file?.originalFileName}</div>
+										<div
+											className="close-icon-container"
+											onClick={() =>
+												handleRemoveFileFromRecentFileClick(file)
+											}
+										>
+											<CloseSvg />
+										</div>
+									</div>
+								))}
+							</div>
+						)}
+					</div>
+					<div className="chatBodyContainer">
+						<div className="chatInputContainer">
+							<div className={`chatInputParentContainer`}>
+								<textarea
+									type="text"
+									placeholder="Hey! Need help? Ask me anything."
+									value={info?.chatQuery}
+									onChange={(e) =>
+										setInfo((prev) => ({
+											...prev,
+											chatQuery: e.target.value,
+										}))
+									}
+									onKeyDown={handleSendMessageFunc}
+									className="textArea"
+									// rows={1}
+								/>
+								<div className="options-container">
+									{info?.showFilters ? (
+										<div className="filters-parent-container">
+											<div
+												className="close-filters"
+												onClick={handleHideFiltersClick}
+											>
+												<ChevronSvg />
+											</div>
+											<div className="filters-wrapper">
+												<div className="filters-container">
+													<SearchDropdown
+														headerTitle="Integrations"
+														selectedOptions={
+															info?.chatFilters?.integrations
+														}
+														isDropdownOpen={
+															info?.isIntegrationsDropdownOpen
+														}
+														setIsDropdownOpen={(value) =>
+															setInfo((prev) => ({
+																...prev,
+																isIntegrationsDropdownOpen: value,
+															}))
+														}
+														options={integrationsOptions}
+														handleOptionClick={
+															handleIntegrationsOptionClick
+														}
+													/>
+													<SearchDropdown
+														headerTitle="Modules"
+														selectedOptions={info?.chatFilters?.modules}
+														isDropdownOpen={info?.isModulesDropdownOpen}
+														setIsDropdownOpen={(value) =>
+															setInfo((prev) => ({
+																...prev,
+																isModulesDropdownOpen: value,
+															}))
+														}
+														options={modulesOptions}
+														handleOptionClick={handleModulesOptionClick}
+													/>
+													<DateRangeDropdown
+														onOptionClick={(value) => {
+															setInfo((prev) => ({
+																...prev,
+																chatFilters: {
+																	...prev?.chatFilters,
+																	dateRange: value,
+																},
+															}));
+														}}
+														startDate={
+															info?.chatFilters?.dateRange?.[0]
+														}
+														endDate={info?.chatFilters?.dateRange?.[1]}
+													/>
+												</div>
+												<div
+													className="reset-filters"
+													onClick={handleResetFiltersClick}
+												>
+													<CloseSvg />
+												</div>
+											</div>
 										</div>
 									) : (
-										<span
-											className="removeImageIcon"
-											onClick={() => handleRemoveImage(ele)}
-										>
-											<Close />
-										</span>
-									)}
-								</div>
-							))}
-						</div>
-					) : (
-						''
-					)}
-					{info?.recentFiles?.length > 0 && (
-						<div className="recent-files-container">
-							{info?.recentFiles?.map((file) => (
-								<div className="recent-file" key={file?._id}>
-									<div className="file-type-icon">
-										{fileTypeIcons?.[file?.sourceType]}
-									</div>
-									<div className="file-name">{file?.originalFileName}</div>
-									<div
-										className="close-icon-container"
-										onClick={() => handleRemoveFileFromRecentFileClick(file)}
-									>
-										<CloseSvg />
-									</div>
-								</div>
-							))}
-						</div>
-					)}
-				</div>
-				<div className="chatBodyContainer">
-					<div className="chatInputContainer">
-						<div className={`chatInputParentContainer`}>
-							<textarea
-								type="text"
-								placeholder="Hey! Need help? Ask me anything."
-								value={info?.chatQuery}
-								onChange={(e) =>
-									setInfo((prev) => ({ ...prev, chatQuery: e.target.value }))
-								}
-								onKeyDown={handleSendMessageFunc}
-								className="textArea"
-								// rows={1}
-							/>
-							<div className="options-container">
-								{info?.showFilters ? (
-									<div className="filters-parent-container">
-										<div
-											className="close-filters"
-											onClick={handleHideFiltersClick}
-										>
-											<ChevronSvg />
-										</div>
-										<div className="filters-wrapper">
-											<div className="filters-container">
-												<SearchDropdown
-													headerTitle="Integrations"
-													selectedOptions={
-														info?.chatFilters?.integrations
-													}
-													isDropdownOpen={
-														info?.isIntegrationsDropdownOpen
-													}
-													setIsDropdownOpen={(value) =>
+										<div className="buttons-container">
+											<div className="chat-icons-container">
+												<SearchTypeTooltip
+													searchTypeOptions={searchTypeOptions}
+													onOpenChange={(value) =>
 														setInfo((prev) => ({
 															...prev,
-															isIntegrationsDropdownOpen: value,
+															isSearchTypeOpen: value,
 														}))
 													}
-													options={integrationsOptions}
-													handleOptionClick={
-														handleIntegrationsOptionClick
-													}
-												/>
-												<SearchDropdown
-													headerTitle="Modules"
-													selectedOptions={info?.chatFilters?.modules}
-													isDropdownOpen={info?.isModulesDropdownOpen}
-													setIsDropdownOpen={(value) =>
-														setInfo((prev) => ({
-															...prev,
-															isModulesDropdownOpen: value,
-														}))
-													}
-													options={modulesOptions}
-													handleOptionClick={handleModulesOptionClick}
-												/>
-												<DateRangeDropdown
-													onOptionClick={(value) => {
-														setInfo((prev) => ({
-															...prev,
-															chatFilters: {
-																...prev?.chatFilters,
-																dateRange: value,
-															},
-														}));
-													}}
-													startDate={info?.chatFilters?.dateRange?.[0]}
-													endDate={info?.chatFilters?.dateRange?.[1]}
-												/>
-											</div>
-											<div
-												className="reset-filters"
-												onClick={handleResetFiltersClick}
-											>
-												<CloseSvg />
-											</div>
-										</div>
-									</div>
-								) : (
-									<div className="buttons-container">
-										<div className="chat-icons-container">
-											<SearchTypeTooltip
-												searchTypeOptions={searchTypeOptions}
-												onOpenChange={(value) =>
-													setInfo((prev) => ({
-														...prev,
-														isSearchTypeOpen: value,
-													}))
-												}
-												searchType={info?.searchType}
-												isOpen={info?.isSearchTypeOpen}
-												onSearchTypeChange={handleSearchTypeChange}
-											>
+													searchType={info?.searchType}
+													isOpen={info?.isSearchTypeOpen}
+													onSearchTypeChange={handleSearchTypeChange}
+												>
+													<div
+														className="icon-container"
+														onClick={handleWebSearchClick}
+														style={{
+															background: `${
+																isSearchTypeEnabled
+																	? '#B39DFA'
+																	: '#2E2F33'
+															}`,
+														}}
+													>
+														<div className="icon">
+															{isSearchTypeEnabled ? (
+																<WebDarkSvg />
+															) : (
+																<WebLightSvg />
+															)}
+														</div>
+														<div
+															className="right-text"
+															style={{
+																color: `${
+																	isSearchTypeEnabled
+																		? '#0C0C0D'
+																		: '#f2f2f3'
+																}`,
+															}}
+														>
+															{showChatLabels ? 'Search' : ''}
+														</div>
+													</div>
+												</SearchTypeTooltip>
+
 												<div
 													className="icon-container"
-													onClick={handleWebSearchClick}
+													onClick={handleGoDeepSearchClick}
 													style={{
 														background: `${
-															isSearchTypeEnabled
-																? '#B39DFA'
-																: '#2E2F33'
+															info?.goDeep ? '#B39DFA' : '#2E2F33'
 														}`,
 													}}
 												>
 													<div className="icon">
-														{isSearchTypeEnabled ? (
-															<WebDarkSvg />
+														{info?.goDeep ? (
+															<MicroscopeDarkSvg />
 														) : (
-															<WebLightSvg />
+															<MicroscopeLightSvg />
 														)}
 													</div>
 													<div
 														className="right-text"
 														style={{
 															color: `${
-																isSearchTypeEnabled
-																	? '#0C0C0D'
-																	: '#f2f2f3'
+																info?.goDeep ? '#0C0C0D' : '#f2f2f3'
 															}`,
 														}}
 													>
-														{showChatLabels ? 'Search' : ''}
+														{showChatLabels ? 'Explore' : ''}
 													</div>
 												</div>
-											</SearchTypeTooltip>
-
-											<div
-												className="icon-container"
-												onClick={handleGoDeepSearchClick}
-												style={{
-													background: `${
-														info?.goDeep ? '#B39DFA' : '#2E2F33'
-													}`,
-												}}
-											>
-												<div className="icon">
-													{info?.goDeep ? (
-														<MicroscopeDarkSvg />
-													) : (
-														<MicroscopeLightSvg />
-													)}
-												</div>
-												<div
-													className="right-text"
-													style={{
-														color: `${
-															info?.goDeep ? '#0C0C0D' : '#f2f2f3'
-														}`,
-													}}
+												<UploadFileTooltip
+													fileTypeIcons={fileTypeIcons}
+													handleChange={handleChange}
+													isUploadFileOpen={info?.isUploadFileOpen}
+													setIsUploadFileOpen={(value) =>
+														setInfo((prev) => ({
+															...prev,
+															isUploadFileOpen: value,
+														}))
+													}
+													handleRecentFileClick={handleRecentFileClick}
+													recentFiles={info?.recentFiles}
 												>
-													{showChatLabels ? 'Explore' : ''}
-												</div>
-											</div>
-											<UploadFileTooltip
-												fileTypeIcons={fileTypeIcons}
-												handleChange={handleChange}
-												isUploadFileOpen={info?.isUploadFileOpen}
-												setIsUploadFileOpen={(value) =>
-													setInfo((prev) => ({
-														...prev,
-														isUploadFileOpen: value,
-													}))
-												}
-												handleRecentFileClick={handleRecentFileClick}
-												recentFiles={info?.recentFiles}
-											>
-												<div className="icon-container">
+													<div className="icon-container">
+														<div className="icon">
+															<PaperClip
+																width={15}
+																height={15}
+																fill={'#f2f2f3'}
+															/>
+														</div>
+														<div className="right-text">
+															{showChatLabels ? 'Add' : ''}
+														</div>
+													</div>
+												</UploadFileTooltip>
+
+												<div
+													className="icon-container"
+													onClick={handleShowFiltersClick}
+												>
 													<div className="icon">
-														<PaperClip
-															width={15}
-															height={15}
-															fill={'#f2f2f3'}
-														/>
+														<Filter />
 													</div>
 													<div className="right-text">
-														{showChatLabels ? 'Add' : ''}
+														{showChatLabels ? 'Filters' : ''}
 													</div>
 												</div>
-											</UploadFileTooltip>
-
-											<div
-												className="icon-container"
-												onClick={handleShowFiltersClick}
-											>
-												<div className="icon">
-													<Filter />
-												</div>
-												<div className="right-text">
-													{showChatLabels ? 'Filters' : ''}
-												</div>
 											</div>
-											{info?.voiceIntegration ? (
-												<span
-													className="chat-icon"
-													onClick={handleDisConnect}
+											{info?.chatQuery?.trim()?.length > 0 ? (
+												<div
+													className="click-btn"
+													onClick={(e) => handleSendBtnClick(e)}
+													style={{
+														backgroundColor: '#b2a1e8',
+													}}
 												>
-													<Close
-														style={{ width: '20px', height: '20px' }}
-													/>
-												</span>
+													<ArrowUp />
+												</div>
 											) : (
-												<span className="chat-icon">
-													<Mic onClick={handleMicIconClick} />
-												</span>
+												<div
+													className="click-btn"
+													onClick={(e) => handleMicIconClick(e)}
+													style={{
+														backgroundColor: '#b2a1e8',
+													}}
+												>
+													<AudioSvg />
+												</div>
 											)}
 										</div>
-										<div
-											className="click-btn"
-											onClick={(e) => handleSendBtnClick(e)}
-											style={{
-												backgroundColor: `${
-													info?.chatQuery?.trim()?.length > 0
-														? '#b2a1e8'
-														: '#2e2f33'
-												}`,
-											}}
-										>
-											<ArrowUp />
-										</div>
-									</div>
-								)}
+									)}
+								</div>
 							</div>
 						</div>
 					</div>
+					{previewImage && (
+						<Image
+							wrapperStyle={{
+								display: 'none',
+							}}
+							preview={{
+								visible: previewOpen,
+								onVisibleChange: (visible) => setPreviewOpen(visible),
+								afterOpenChange: (visible) => !visible && setPreviewImage(''),
+							}}
+							src={previewImage}
+						/>
+					)}
 				</div>
-				{previewImage && (
-					<Image
-						wrapperStyle={{
-							display: 'none',
-						}}
-						preview={{
-							visible: previewOpen,
-							onVisibleChange: (visible) => setPreviewOpen(visible),
-							afterOpenChange: (visible) => !visible && setPreviewImage(''),
-						}}
-						src={previewImage}
-					/>
-				)}
 			</div>
-		</>
+			{/* )} */}
+		</div>
 	);
 };
 
