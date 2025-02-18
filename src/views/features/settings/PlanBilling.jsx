@@ -114,21 +114,19 @@ const PlanBilling = () => {
 		<div className="planBillingContianer">
 			{info?.loading ? (
 				<Skeleton height={'700px'} style={{ borderRadius: '32px' }} />
-			) : !info?.freeTier ? (
+			) : (
 				<SubscribedUserPlanCard
-					data={info?.plan}
+					data={currentPlan}
 					expiresAt={info?.expiresAt}
 					currency={info?.currency}
 					addOnsLoading={info?.addOnsLoading}
-					storageLimit={info?.storageLimit}
-					imagesLimit={info?.imagesLimit}
-					totalImagesUploaded={info?.totalImagesUploaded}
-					tenantUsers={info?.tenantUsers}
+					storageLimit={info?.storageLimitInBytes}
+					imagesLimit={info?.liteImageLimit}
+					totalImagesUploaded={info?.liteImageUsed}
+					tenantUsers={info?.TenantUsers}
 					tenantUsersLimit={info?.tenantUsersLimit}
-					aiCreditsLimit={info?.aiCreditsLimit}
+					aiCreditsLimit={info?.freeAiCreditLimit?.aiCredits}
 				/>
-			) : (
-				<FreeTierPlanCard expiresAt={info?.expiresAt} addOnsLoading={info?.addOnsLoading} />
 			)}
 
 			<div className="notifications-main-container">
@@ -185,6 +183,7 @@ const SubscribedUserPlanCard = ({
 		addOnPurchaseLoader: false,
 		planPurchaseId: null,
 		isOpen: false,
+		subscriptionState: '',
 	});
 
 	// useEffect(() => {
@@ -200,26 +199,50 @@ const SubscribedUserPlanCard = ({
 		{
 			id: 1,
 			title: 'Storage',
-			usedValue: data?.storageInGB,
-			totalValue: storageLimit,
+			usedValue: (data?.StorageUsedInBytes / 1024 / 1024 / 1024).toFixed(2),
+			totalValue: (data?.storageLimitInBytes / 1024 / 1024 / 1024).toFixed(2),
+			barGraph: true,
 		},
 		{
 			id: 2,
 			title: 'Lite Images',
-			usedValue: totalImagesUploaded,
-			totalValue: imagesLimit,
+			usedValue: data?.liteImageUsed,
+			totalValue: data?.liteImageLimit,
+			barGraph: true,
 		},
 		{
 			id: 3,
 			title: 'Tenant Users',
-			usedValue: tenantUsers,
-			totalValue: tenantUsersLimit,
+			usedValue: data?.TenantUsers,
+			totalValue: data?.tenantUsersLimit,
+			barGraph: true,
+		},
+		// {
+		// 	id: 4,
+		// 	title: 'AI Credits',
+		// 	usedValue: data?.freeAiCreditLimit?.aiCredits,
+		// 	totalValue: aiCreditsLimit,
+		// },
+		{
+			id: 5,
+			title: 'Conversational Agents',
+			usedValue: data?.ConversationalAgentsUsed,
+			totalValue: data?.ConversationalAgentLimit,
+			barGraph: true,
 		},
 		{
-			id: 4,
-			title: 'AI Credits',
-			usedValue: aiCredits,
-			totalValue: aiCreditsLimit,
+			id: 6,
+			title: 'Free Ai Credit Limit',
+			usedValue: data?.freeAiCreditLimit?.aiCredits,
+			barGraph: false,
+			duration: 'Daily',
+		},
+		{
+			id: 7,
+			title: 'Paid Ai Credit Limit',
+			usedValue: data?.paidAiCreditLimit?.aiCredits,
+			barGraph: false,
+			duration: 'Monthly',
 		},
 	];
 
@@ -244,7 +267,7 @@ const SubscribedUserPlanCard = ({
 	return (
 		<div className="subscriptionWrapperContainer">
 			<div className="subscriptionUpdatedPlanCard">
-				<span className="subscriptionPlanHeader">Current Plan</span>
+				<span className="subscriptionPlanHeader">Current Perks</span>
 				<div className="subscriptionPlanContent">
 					<div className="subscriptionPlanPricingDetails">
 						<span className="subscriptionPlanPricing">
@@ -291,7 +314,7 @@ const SubscribedUserPlanCard = ({
 						{progressData?.map((item) => {
 							return (
 								<>
-									{item?.totalValue > 0 && (
+									{(item?.totalValue > 0 || item?.usedValue > 0) && (
 										<div className="storageContainerHolder">
 											<div className="storageTitle">{item?.title}</div>
 											<div className="storageUsed">
@@ -302,84 +325,35 @@ const SubscribedUserPlanCard = ({
 													{item?.title === 'Storage' ? 'GB' : ''}
 													{item?.title === 'AI Credits' ? 'Credits' : ''}
 												</span>{' '}
-												used out of {item?.totalValue}
+												{item?.barGraph
+													? `used out of ${item?.totalValue}`
+													: `/${item?.duration}`}
 											</div>
-											<div className="storageProgress">
-												<div
-													className="storageProgressValue"
-													style={{
-														width: `${Math.min(
-															(item?.usedValue / item?.totalValue) *
+											{item?.barGraph && (
+												<div className="storageProgress">
+													<div
+														className="storageProgressValue"
+														style={{
+															width: `${Math.min(
+																(item?.usedValue /
+																	item?.totalValue) *
+																	100,
 																100,
-															100,
-														)}%`,
-													}}
-												></div>
+															)}%`,
+														}}
+													></div>
+												</div>
+											)}
+											<div className="storageProgressText">
+												{item?.usedValue > item?.totalValue
+													? 'Exceeded The Limit'
+													: ''}
 											</div>
 										</div>
 									)}
 								</>
 							);
 						})}
-						{/* <div className="storageContainerHolder">
-							<div className="storageTitle">LITE IMAGES</div>
-							<div className="storageUsed">
-								<span className="storageUsedValue">{totalImagesUploaded}</span>
-								<span className="storageUsedUnit">Images</span> used out of{' '}
-								{imagesLimit}
-							</div>
-							<div className="storageProgress">
-								<div
-									className="storageProgressValue"
-									style={{
-										width: `${(totalImagesUploaded / imagesLimit) * 100}%`,
-									}}
-								></div>
-							</div>
-						</div>
-						<div className="storageContainerHolder">
-							<div className="storageTitle">TENANT USERS</div>
-							<div className="storageUsed">
-								<span className="storageUsedValue">{tenantUsers}</span>
-								<span className="storageUsedUnit">Users</span> used out of{' '}
-								{tenantUsersLimit}
-							</div>
-							<div className="storageProgress">
-								<div
-									className="storageProgressValue"
-									style={{
-										width: `${Math.min(
-											(tenantUsers / tenantUsersLimit) * 100,
-											100,
-										)}%`,
-									}}
-								></div>
-							</div>
-							<div className="storageProgressText">
-								{tenantUsers > tenantUsersLimit ? 'You have reached the limit' : ''}
-							</div>
-						</div>
-						<div className="storageContainerHolder">
-							<div className="storageTitle">AI CREDITS</div>
-							<div className="storageUsed">
-								<span className="storageUsedValue">{aiCreditsLimit}</span>
-								<span className="storageUsedUnit">Credits</span> left
-							</div>
-							<div className="storageProgress">
-								<div
-									className="storageProgressValue"
-									style={{
-										width: `${Math.min(
-											(aiCredits / aiCreditsLimit) * 100,
-											100,
-										)}%`,
-									}}
-								></div>
-							</div>
-							<div className="storageProgressText">
-								{aiCredits > aiCreditsLimit ? 'You have reached the limit' : ''}
-							</div>
-						</div> */}
 					</div>
 				</div>
 				{data?.addOnPlan && Object.values(data?.addOnPlan)?.length ? (
@@ -390,24 +364,45 @@ const SubscribedUserPlanCard = ({
 				<div className="subscriptionActionContainer">
 					<button
 						className="manageSubscriptionButton"
-						onClick={() => setInfo((prev) => ({ ...prev, isOpen: true }))}
+						onClick={() =>
+							setInfo((prev) => ({
+								...prev,
+								isOpen: true,
+								subscriptionState: 'addOnPlans',
+							}))
+						}
 					>
 						Add Ons
 					</button>
-					<div onClick={handleManageSubscriptionClick}>
+					<button
+						className="manageSubscriptionButton"
+						onClick={() =>
+							setInfo((prev) => ({
+								...prev,
+								isOpen: true,
+								subscriptionState: 'upgradeSubscription',
+							}))
+						}
+					>
+						Upgrade Subscription
+					</button>
+					<button
+						className="manageSubscriptionButton"
+						onClick={handleManageSubscriptionClick}
+					>
 						{info?.manageSubscriptionLoader ? <Spin /> : `	Manage Subscription`}
-					</div>
-					<div className="expiringText">
+					</button>
+					{/* <div className="expiringText">
 						{moment().unix() < +expiresAt ? 'Expiring' : 'Expired'} on{' '}
 						{moment.unix(`${expiresAt}`)?.format('DD MMM YYYY')}
-					</div>
+					</div> */}
 				</div>
 			</div>
 			<AddOnPlans
 				addOnsLoading={addOnsLoading}
 				isOpen={info?.isOpen}
 				closeModal={() => setInfo((prev) => ({ ...prev, isOpen: false }))}
-				subscriptionState={'addOnPlans'}
+				subscriptionState={info?.subscriptionState}
 			/>
 		</div>
 	);

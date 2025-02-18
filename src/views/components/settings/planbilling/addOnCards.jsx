@@ -18,7 +18,7 @@ const AddOnPlans = ({ addOnsLoading = false, isOpen, closeModal, subscriptionSta
 	});
 
 	let {
-		authInfo: { currentPlanAddOns, purchaseAddOn },
+		authInfo: { currentPlanAddOns, purchaseAddOn, getAddOnsForCurrentPlan },
 		subscriptionInfo: {
 			purchaseAddOnPlan,
 			getAllSubscriptionPlan,
@@ -55,6 +55,8 @@ const AddOnPlans = ({ addOnsLoading = false, isOpen, closeModal, subscriptionSta
 	useEffect(() => {
 		if (subscriptionState === 'upgradeSubscription') {
 			getAllSubscriptionPlan();
+		} else {
+			getAddOnsForCurrentPlan();
 		}
 	}, [subscriptionState]);
 
@@ -123,7 +125,7 @@ const AddOnPlans = ({ addOnsLoading = false, isOpen, closeModal, subscriptionSta
 		});
 	}, []);
 
-	const handleAddAddOn = (addOn) => {
+	const handleAddingAddOn = (addOn) => {
 		setInfo((prevInfo) => {
 			const updatedAddOns = prevInfo.addOns.map((item) => {
 				if (item._id === addOn._id) {
@@ -238,7 +240,7 @@ const AddOnPlans = ({ addOnsLoading = false, isOpen, closeModal, subscriptionSta
 													</div>
 													<div
 														className="minusIcon"
-														onClick={() => handleAddAddOn(addOn)}
+														onClick={() => handleAddingAddOn(addOn)}
 													>
 														<PlusIcon />
 													</div>
