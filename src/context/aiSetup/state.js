@@ -47,6 +47,9 @@ export const initialState = {
 	moreAiChatLogs: null,
 	aiCrawlLinks: null,
 	promptsData: null,
+	updatedKnowledgeBaseFiles: null,
+	moreUpdatedKnowledgeBaseFiles: null,
+	filesUploadedInAiChat: null,
 };
 
 export const AiSetupState = () => {
@@ -149,7 +152,7 @@ export const AiSetupState = () => {
 		return response?.[0];
 	};
 
-	const getKnowledgeBaseFiles = async (assistantId, page = 1, limit = 10, reset = false) => {
+	const getKnowledgeBaseFiles = async (assistantId, page = 1, limit = 10, fetchMore = false) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
@@ -158,20 +161,17 @@ export const AiSetupState = () => {
 				workspaceId +
 				KNOWLEDGE_BASE?.listFilesInKnowledgeBase +
 				`?page=${page}&limit=${limit}&assistantId=${assistantId}`;
-			const response = await service.fetchGet(url, usertoken, 'ai_assistant_api'); // change the type to ai_setup later
-			const knowledgeBaseData = {
-				data: reset
-					? [...response?.[1]?.data]
-					: [...state?.knowledgeBaseFiles?.data, ...response?.[1]?.data],
-				hasMore: response?.[1]?.hasNextPage,
-				currentPage: response?.[1]?.currentPage,
-				totalPages: response?.[1]?.totalDocs,
-				areKnowledgeBaseFilesLoading: false,
-			};
+			const response = await service.fetchGet(url, usertoken, 'ai_assistant_api');
+
+			const selectedVariable = fetchMore
+				? 'moreUpdatedKnowledgeBaseFiles'
+				: 'updatedKnowledgeBaseFiles';
+
 			if (response?.[0]) {
 				dispatch({
-					type: Actions?.SET_KNOWLEDGE_BASE_FILES,
-					payload: knowledgeBaseData,
+					type: Actions?.SET_KNOWLEDGE_BASE_FILES_USING_UPDATED_LOGIC,
+					payload: response?.[1],
+					selectedVariable: selectedVariable,
 				});
 			}
 		} catch (error) {
@@ -908,7 +908,6 @@ export const AiSetupState = () => {
 
 	// https://api.ap-south-1.ve.ai/businessconsultant/ai-suggested-prompts
 	const getPromptsData = async (queryParams = {}) => {
-		console.log(queryParams, 'queryParams');
 		let workspaceId = localStorage.getItem('workspaceId');
 		let usertoken = localStorage.getItem('usertoken');
 		const url = '/' + workspaceId + '/ai-suggested-prompts';
@@ -928,6 +927,35 @@ export const AiSetupState = () => {
 			}
 		} catch (error) {
 			console.log('error==>getPromptsData', error);
+		}
+	};
+
+	const getFilesUploadedInAiChat = async (payload, isSearchQueryChanged = false) => {
+		let workspaceId = localStorage.getItem('workspaceId');
+		let usertoken = localStorage.getItem('usertoken');
+		const url = '/' + workspaceId + '/ai-chat/list-ai-chat-file-uploads';
+		try {
+			const response = await service?.fetchGet(url, usertoken, 'ai_assistant_api', payload);
+
+			if (response?.[0]) {
+				const { data, currentPage, hasNextPage } = response?.[1];
+				let updatedData;
+				if (isSearchQueryChanged || !state?.filesUploadedInAiChat) {
+					updatedData = data;
+				} else {
+					updatedData = [...state?.filesUploadedInAiChat?.data, ...data];
+				}
+				dispatch({
+					type: Actions?.GET_FILES_UPLOADED_IN_AI_CHAT,
+					payload: {
+						data: updatedData,
+						currentPage,
+						hasNextPage,
+					},
+				});
+			}
+		} catch (error) {
+			console.log('error==>getFilesUploadedInAiChat', error);
 		}
 	};
 
@@ -974,5 +1002,6 @@ export const AiSetupState = () => {
 		removeFile,
 		getTokenForVoice,
 		getPromptsData,
+		getFilesUploadedInAiChat,
 	};
 };

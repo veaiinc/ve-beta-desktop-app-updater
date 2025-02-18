@@ -24,6 +24,8 @@
 			width: 100%;
 			display: flex;
 			position: relative;
+			align-items: center;
+			gap: 2px;
 
 			.eventDetails {
 				width: calc(100% - 13px);

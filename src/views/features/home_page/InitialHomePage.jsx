@@ -47,10 +47,6 @@ const InitialHomePage = () => {
 		}
 	}, [info?.selectedOption]);
 
-	useEffect(() => {
-		console.log(promptsData, 'promptsData');
-	}, [promptsData]);
-
 	const handleNavBarSelection = (item) => {
 		setInfo({ ...info, selectedNavBarOption: item });
 		if (item?.type === 'dashboard') {

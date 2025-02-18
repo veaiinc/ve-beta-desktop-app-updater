@@ -177,7 +177,7 @@ const GalleryPage = () => {
 		albumTagId: '',
 		hasMore: true,
 		page: 1,
-		limit: 20,
+		limit: 40,
 		albumTags: albumDetails?.tags,
 		isDragging: false,
 		draggedImages: [],
