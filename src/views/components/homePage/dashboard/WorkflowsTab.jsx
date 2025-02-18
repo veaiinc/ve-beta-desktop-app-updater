@@ -75,17 +75,13 @@ const WorkflowsTab = ({ searchValue }) => {
 	}, [salePageRefresh]);
 
 	useEffect(() => {
-		// Inefficient way to format data
-		if (automations?.data?.length) {
-			const formattedAutomationsData = automationsData?.map((automation) =>
-				formatAutomationsData(automation),
-			);
+		if (automationsData?.length) {
 			setInfo((prev) => ({
 				...prev,
-				myWorkflowData: [...(prev?.myWorkflowData || []), ...formattedAutomationsData],
+				myWorkflowData: [...(prev?.myWorkflowData || []), ...automationsData],
 			}));
 		}
-	}, [automations]);
+	}, [automationsData]);
 
 	useEffect(() => {
 		if (myWorkflows) {
@@ -130,18 +126,6 @@ const WorkflowsTab = ({ searchValue }) => {
 		} finally {
 			setInfo((prev) => ({ ...prev, loading: false }));
 		}
-	};
-
-	const formatAutomationsData = (automation) => {
-		const { _id, name, steps, tenantId, status } = automation;
-		return {
-			_id: _id,
-			title: name,
-			steps,
-			tenantId,
-			status,
-			moduleTemplates: [], // TODO: add module templates key once we have it
-		};
 	};
 
 	const performExtraCheck = useCallback(
