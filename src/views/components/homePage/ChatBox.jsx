@@ -338,17 +338,9 @@ const ChatBox = ({
 							modules: Object?.keys(info?.chatFilters?.modules),
 							date: date,
 						};
-						if (moduleHelper?.[location?.pathname?.split('/')?.[1]]) {
-							const foundModule = payload?.modules?.find(
-								(ele) =>
-									ele === moduleHelper?.[location?.pathname?.split('/')?.[1]],
-							);
 
-							if (!foundModule) {
-								payload?.modules?.push(
-									moduleHelper?.[location?.pathname?.split('/')?.[1]],
-								);
-							}
+						if (moduleHelper?.[location?.pathname?.split('/')?.[1]]) {
+							payload.screen = moduleHelper[location?.pathname?.split('/')?.[1]];
 						}
 						let localPayload = {};
 						if (info?.uploadedImages?.length) {
