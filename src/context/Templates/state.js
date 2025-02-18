@@ -1547,12 +1547,12 @@ export const TemplatesState = (props) => {
 						payload: null,
 					});
 				}
-				if (messageId) {
-					dispatch({
-						type: Actions?.UPDATE_AI_CHAT_MESSAGE_RATING,
-						payload: { ...state?.aiChatMessageRatings, [messageId]: {} },
-					});
-				}
+				// if (messageId) {
+				// 	dispatch({
+				// 		type: Actions?.UPDATE_AI_CHAT_MESSAGE_RATING,
+				// 		payload: { ...state?.aiChatMessageRatings, [messageId]: {} },
+				// 	});
+				// }
 				const updatedGlobalChatMessages = {
 					type: 'AI',
 					message: response?.[1]?.answer,

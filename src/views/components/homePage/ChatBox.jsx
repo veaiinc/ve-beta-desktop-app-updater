@@ -361,6 +361,7 @@ const ChatBox = ({
 							uploadedImages: [],
 							chatQuery: '',
 							recentFiles: [],
+							chatFilters: initialChatFilters,
 						}));
 
 						const response = await handleGlobalChatMessages(
@@ -700,7 +701,7 @@ const ChatBox = ({
 										</div>
 										<div className="filters-wrapper">
 											<div className="filters-container">
-												<SearchDropdown
+												{/* <SearchDropdown
 													headerTitle="Integrations"
 													selectedOptions={
 														info?.chatFilters?.integrations
@@ -718,7 +719,7 @@ const ChatBox = ({
 													handleOptionClick={
 														handleIntegrationsOptionClick
 													}
-												/>
+												/> */}
 												<SearchDropdown
 													headerTitle="Modules"
 													selectedOptions={info?.chatFilters?.modules}
@@ -804,7 +805,7 @@ const ChatBox = ({
 												</div>
 											</SearchTypeTooltip>
 
-											<div
+											{/* <div
 												className="icon-container"
 												onClick={handleGoDeepSearchClick}
 												style={{
@@ -832,7 +833,7 @@ const ChatBox = ({
 														Explore
 													</div>
 												)}
-											</div>
+											</div> */}
 											<UploadFileTooltip
 												fileTypeIcons={fileTypeIcons}
 												handleChange={handleChange}

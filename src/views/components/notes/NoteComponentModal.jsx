@@ -13,7 +13,7 @@ import ChatBox from '../homePage/ChatBox';
 import { useContext } from 'react';
 import Context from '../../../context/context';
 const noteIcons = [<PreviousSvg />, <NextSvg />, <CopySvg />, <ShareSvg />];
-const NoteComponentModal = ({ modalIsOpen, closeModal }) => {
+const NoteComponentModal = ({ modalIsOpen, closeModal, handleRatingClick }) => {
 	const {
 		templates: { globalChatMessages },
 	} = useContext(Context);
@@ -60,6 +60,8 @@ const NoteComponentModal = ({ modalIsOpen, closeModal }) => {
 													<TypingEffect
 														text={chat?.message}
 														smoothScrollToBottom={smoothScrollToBottom}
+														handleRatingClick={handleRatingClick}
+														messageId={chat?.messageId}
 													/>
 												</div>
 											) : (

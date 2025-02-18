@@ -109,10 +109,6 @@ const Chat = ({
 		try {
 			if (messageId) {
 				await updateAiChatMessageRating({ rating: type }, messageId);
-				// setInfo((prev) => ({
-				// 	...prev,
-				// 	ratings: { ...prev?.ratings, [messageId]: { rating: type } },
-				// }));
 			}
 		} catch (error) {
 			console.log('error', error);
@@ -223,6 +219,7 @@ const Chat = ({
 			<NoteComponentModal
 				modalIsOpen={info?.noteModalIsOpen}
 				closeModal={handleNoteComponentModalClose}
+				handleRatingClick={handleRatingClick}
 			/>
 		</>
 	);
