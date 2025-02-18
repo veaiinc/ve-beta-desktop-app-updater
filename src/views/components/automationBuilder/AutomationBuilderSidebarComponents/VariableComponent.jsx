@@ -82,9 +82,10 @@ const VariableComponent = ({ value, onChange, variables }) => {
 							</span>
 						</div>
 						<div className="variableTooltipBody">
-							{info?.variables?.variables?.map((variable) => (
+							{info?.variables?.variables?.map((variable, idx) => (
 								<div
 									className="variableListItem"
+									key={idx}
 									onClick={() => {
 										handleInfo({ selectedVariable: variable });
 										onChange(`{{${variable?.name}}}`);
