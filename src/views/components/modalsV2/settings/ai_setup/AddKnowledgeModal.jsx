@@ -1,11 +1,11 @@
 import { memo, useState, useContext, useEffect, useCallback } from 'react';
+import '../../../../../assets/scss/settings/aiSetup.scss';
 import { ReactComponent as CrossGrey } from '../../../../../assets/svg/Settings/cross-grey.svg';
 import { ReactComponent as LinkGrey } from '../../../../../assets/svg/Settings/link-grey-color.svg';
 import { ReactComponent as UploadIcon } from '../../../../../assets/svg/Settings/CloudUpload.svg';
 import { ReactComponent as TIcon } from '../../../../../assets/svg/ai_assistant/tIcon.svg';
 import { ReactComponent as URLIcon } from '../../../../../assets/svg/ai_assistant/url.svg';
 import { ReactComponent as FolderIcon } from '../../../../../assets/svg/ai_assistant/folder.svg';
-import '../../../../../assets/scss/settings/aiSetup.scss';
 import Modal from '../../';
 import { message } from 'antd';
 import Context from '../../../../../context/context';
@@ -58,7 +58,9 @@ const AddKnowledgeModal = ({ isOpen, toggleModal, assistantId }) => {
 			aiCrawlLinks,
 		},
 	} = useContext(Context);
-	const [info, setInfo] = useState(initialState);
+	const [info, setInfo] = useState({
+		...initialState,
+	});
 
 	const { aiAssistantId } = useParams();
 
@@ -69,10 +71,12 @@ const AddKnowledgeModal = ({ isOpen, toggleModal, assistantId }) => {
 		}));
 	}, [knowledgeBaseFiles]);
 
+	console.log('contect crawllink', aiCrawlLinks);
+
 	const fetchSubLinks = useCallback(async (payload) => {
 		const subLinks = await crawlAiAssistant(payload);
+		console.log('subLinks', subLinks);
 		if (subLinks?.length > 0) {
-			console.log('subLinks updating ', subLinks);
 			setInfo((prev) => ({
 				...prev,
 				aiCrawlLinks: prev?.aiCrawlLinks
@@ -203,6 +207,16 @@ const AddKnowledgeModal = ({ isOpen, toggleModal, assistantId }) => {
 					url: info?.inputURL,
 				},
 			],
+		}));
+	};
+
+	const handleAddAllCrawlLinks = () => {
+		if (!info?.aiCrawlLinks?.length) return;
+
+		setInfo((prev) => ({
+			...prev,
+			urlsInfo: [...prev?.urlsInfo, ...prev?.aiCrawlLinks?.map((link) => ({ url: link }))],
+			aiCrawlLinks: [],
 		}));
 	};
 
@@ -381,6 +395,15 @@ const AddKnowledgeModal = ({ isOpen, toggleModal, assistantId }) => {
 					</div>
 					{info?.aiCrawlLinks?.length > 0 && (
 						<div className="crawlLinksContainer">
+							<div className="subLinksHeader">
+								<span>Sub Links</span>
+								<span
+									className="addAllSubLinksBtn"
+									onClick={handleAddAllCrawlLinks}
+								>
+									Add All
+								</span>
+							</div>
 							{info?.aiCrawlLinks?.map((link, index) => (
 								<div className="urlItem" key={index}>
 									<div className="linkIconContainer">

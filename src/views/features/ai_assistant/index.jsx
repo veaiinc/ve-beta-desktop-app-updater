@@ -7,29 +7,6 @@ import Context from '../../../context/context';
 import Spinner from '../../components/loaders/Spinner';
 import InfiniteScroll from 'react-infinite-scroll-component';
 
-// const staticCreateActions = [
-// 	{
-// 		type: 'Minimal',
-// 		prompt: 'Wedding Day Timeline Generator',
-// 	},
-// 	{
-// 		type: 'Professional',
-// 		prompt: 'Wedding Day Timeline Generator',
-// 	},
-// 	{
-// 		type: 'Traditional',
-// 		prompt: 'Wedding Day Timeline Generator',
-// 	},
-// 	{
-// 		type: 'Sales',
-// 		prompt: 'Track invoice status, Payment schedule, amounts, and more.',
-// 	},
-// 	{
-// 		type: 'Consise',
-// 		prompt: 'Wedding Day Timeline Generator',
-// 	},
-// ];
-
 const AiAssistants = () => {
 	const navigate = useNavigate();
 
