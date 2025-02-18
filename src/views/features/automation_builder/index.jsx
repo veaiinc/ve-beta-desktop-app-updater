@@ -157,7 +157,6 @@ const AutomationBuilder = () => {
 
 	useEffect(() => {
 		if (variables) {
-			console.log('variables', variables);
 			setInfo((prev) => ({ ...prev, variables: variables?.data }));
 		}
 	}, [variables]);
