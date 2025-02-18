@@ -454,7 +454,7 @@ const Docs = () => {
 	);
 
 	const onGenerateAIFunc = () => {
-		window.location.href = `${origin}/generate`;
+		window.location.href = `${origin}/design-builder`;
 	};
 
 	const getDocsFilesListFunc = useCallback(
