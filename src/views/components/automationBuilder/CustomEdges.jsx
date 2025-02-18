@@ -5,7 +5,6 @@ import { Tooltip } from 'antd';
 import { ReactComponent as Action } from '../../../assets/svg/worflow_builder/customNodes/actionSvg.svg';
 import { ReactComponent as IfElse } from '../../../assets/svg/worflow_builder/customNodes/ifelse.svg';
 
-import { ReactComponent as Pipeline } from '../../../assets/svg/worflow_builder/customNodes/movePipeline.svg';
 import { ReactComponent as Notification } from '../../../assets/svg/worflow_builder/customNodes/notification.svg';
 const CustomEdges = ({
 	id,
@@ -32,12 +31,15 @@ const CustomEdges = ({
 		addNodesPopUp: false,
 	});
 
-	const onAddOptionsClick = useCallback((type) => {
-		if (data?.onToolBarOpen) {
-			data.onToolBarOpen({ toolBarOpen: true, sidebarType: type, activeEdge: id });
-		}
-		setInfo((prev) => ({ ...prev, addNodesPopUp: false }));
-	}, []);
+	const onAddOptionsClick = useCallback(
+		(type) => {
+			if (data?.onToolBarOpen) {
+				data.onToolBarOpen({ toolBarOpen: true, sidebarType: type, activeEdge: id });
+			}
+			setInfo((prev) => ({ ...prev, addNodesPopUp: false }));
+		},
+		[data, id],
+	);
 
 	return (
 		<>

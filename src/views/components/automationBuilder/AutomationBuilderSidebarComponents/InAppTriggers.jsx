@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState, useCallback, useContext } from 'react';
 import HeaderComponent from './HeaderComponent';
 import ActionDetailsBlock from './ActionDetailsBlock';
@@ -158,8 +159,8 @@ const InAppTriggers = ({ onClose, onSave, addTriggerLoading, triggerData }) => {
 			) : (
 				<>
 					<ActionDetailsBlock
-						actionLabel={'Get Draft'}
-						heading={'Form Submitted'}
+						actionLabel={'Form Submitted'}
+						heading={'Trigger'}
 						description={info?.description}
 						title={info?.title}
 						updaterFn={(updatedData) => {

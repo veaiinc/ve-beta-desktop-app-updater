@@ -9,8 +9,8 @@
 
 	.inputContainer {
 		display: flex;
-		align-items: center;
 		gap: 10px;
+		flex-direction: row;
 		align-self: stretch;
 		padding-bottom: 12px;
 		border-bottom: 1px solid #2c2d2e;
@@ -26,10 +26,27 @@
 			font-style: normal;
 			font-weight: 500;
 			line-height: normal;
+			padding: 4px;
 
 			&::placeholder {
 				color: #7a7e85;
 			}
+		}
+
+		.selectedVariable {
+			display: flex;
+			padding: 4px;
+			justify-content: center;
+			align-items: center;
+			gap: 10px;
+			border-radius: 6px;
+			background: #58397f;
+			color: #f2f2f3;
+			font-family: Inter;
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
 		}
 	}
 

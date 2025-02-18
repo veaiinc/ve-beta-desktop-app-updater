@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect, useCallback, memo, useMemo, useContext } from 'react';
 import '../../../../assets/scss/automation_builder/automationBuilderSidebarComponents/notification.scss';
 import { ReactComponent as DoubleArrow } from '../../../../assets/svg/worflow_builder/buildercard/doubleArrow.svg';
@@ -27,7 +28,8 @@ import VariableComponent from './VariableComponent';
 const notificationList = {
 	Google: {
 		title: 'Google',
-		notification: ['Send Email', 'Send Reply'],
+		// notification: ['Send Email', 'Send Reply'],
+		notification: ['Send Email'],
 		icon: <Google />,
 		id: 'email',
 	},
@@ -75,6 +77,7 @@ const Notification = ({
 	activeStepsData,
 	refetchWorkflowBuilderData,
 	automationId,
+	variables,
 }) => {
 	const {
 		templates: {
@@ -89,16 +92,7 @@ const Notification = ({
 			getSpecificWorkflowTemplateDetails,
 			updateSteps,
 		},
-		automationBuilder: {
-			connectedIntegrations,
-			addTrigger,
-			getAutomation,
-			addStep,
-			executeAutomation,
-			previousExecutionData,
-			previousStepResponse,
-			getPreviousStepResponse,
-		},
+		automationBuilder: { connectedIntegrations, getAutomation, addStep },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({ ...initialState });
@@ -121,6 +115,13 @@ const Notification = ({
 					label: connectedIntegrations?.google?.[0]?.email,
 					value: connectedIntegrations?.google?.[0]?.email,
 				},
+				googleConnected: true,
+			}));
+		}
+		if (connectedIntegrations?.slack) {
+			setInfo((prev) => ({
+				...prev,
+				slackConnected: true,
 			}));
 		}
 	}, [connectedIntegrations]);
@@ -199,38 +200,6 @@ const Notification = ({
 			}));
 		}
 	}, [slackChannels]);
-
-	useEffect(() => {
-		console.log('dgsfhgsjhgdsjh');
-
-		if (
-			previousExecutionData &&
-			previousExecutionData?.stepId === activeEdge?.split('-')?.[0]
-		) {
-			setInfo((prev) => ({ ...prev, batchId: previousExecutionData?.batchId }));
-		} else {
-			executeAutomation(automationId);
-		}
-	}, [previousExecutionData]);
-
-	useEffect(() => {
-		console.log('info?.batchId', info?.batchId);
-		if (info?.batchId) {
-			console.log('previousStepResponse', previousStepResponse);
-
-			if (previousStepResponse) {
-				if (previousStepResponse?.error) {
-					message.error(previousStepResponse?.error || 'Something went wrong');
-				}
-				setInfo((prev) => ({
-					...prev,
-					previousNodeResponse: previousStepResponse?.data,
-				}));
-			} else {
-				getPreviousStepResponse(info?.batchId, activeEdge?.split('-')?.[0]);
-			}
-		}
-	}, [previousStepResponse, info?.batchId]);
 
 	const getSelectedEmailTemplateData = useCallback(
 		async (emailTemplateId) => {
@@ -519,6 +488,9 @@ const Notification = ({
 
 	const addNewStep = useCallback(
 		async (type = 'sendMessage') => {
+			const variableRegex = /^\{\{.*\}\}$/;
+			const variables = {};
+
 			if (info?.saveLoader) {
 				return;
 			}
@@ -542,10 +514,12 @@ const Notification = ({
 			};
 
 			if (type === 'sendMessage') {
-				if (!info?.recipientEmail?.trim()?.length) {
+				const recipientEmail = info?.recipientEmail?.trim();
+				const isVariable = variableRegex.test(recipientEmail);
+				if (!isVariable && !recipientEmail?.length) {
 					return message.error('Recipient email is mandatory');
 				}
-				if (!validator.isEmail(info?.recipientEmail?.trim())) {
+				if (!isVariable && !validator.isEmail(recipientEmail)) {
 					return message.error('Please enter a valid recipient email address');
 				}
 				if (!info?.selectedGoogleAccount?.value?.trim()?.length) {
@@ -554,12 +528,15 @@ const Notification = ({
 				payload.gmail = {
 					action: 'sendMessage',
 					emailTemplateTitle: info?.selectedTemplate?.title,
-					toEmail: info?.recipientEmail?.trim(),
+					toEmail: recipientEmail,
 					connectedEmail: info?.selectedGoogleAccount?.value,
 					htmlBody: info?.selectedTemplate?.htmlBody,
 					emailTemplateSubject: info?.selectedTemplate?.subject,
 					emailTemplateId: info?.selectedTemplate?._id,
 				};
+				if (isVariable) {
+					variables.toEmail = [recipientEmail.slice(2, -2)];
+				}
 			}
 			if (type === 'sendReply') {
 				payload.gmail = {
@@ -572,9 +549,14 @@ const Notification = ({
 			}
 			setInfo((prev) => ({ ...prev, saveLoader: true }));
 
+			if (Object.keys(variables)?.length) {
+				payload.variables = variables;
+			}
+
 			const response = await addStep(automationId, payload);
 
 			if (response?.[0]) {
+				onCLose();
 				await getAutomation(automationId);
 			} else {
 				message.error(response?.[1]?.message || 'Failed to add step');
@@ -610,8 +592,8 @@ const Notification = ({
 					info={info}
 					handleSearch={handleSearch}
 					changeStage={changeStage}
-					slackConnected={slackConnected}
-					googleConnected={googleConnected}
+					slackConnected={info?.slackConnected}
+					googleConnected={info?.googleConnected}
 				/>
 			),
 			stage2: (
@@ -633,6 +615,7 @@ const Notification = ({
 					stepDescription={info?.stepDescription}
 					recipientEmail={info?.recipientEmail}
 					handleUpdateState={handelUpdateState}
+					variables={variables}
 				/>
 			),
 			stage3: (
@@ -703,33 +686,39 @@ const Notification = ({
 
 export default memo(Notification);
 
-const Stage1 = ({ info, handleSearch, changeStage, googleConnected, slackConnected }) => {
+const Stage1 = ({ info, handleSearch, changeStage }) => {
 	const navigate = useNavigate();
-	const notificationsListOnClick = useCallback((data) => {
-		if (data?.id === 'email') {
-			if (googleConnected) {
-				changeStage({ activeStage: 'stage2', selectedChannel: data?.id });
-			} else {
-				navigate('/settings/integrations');
+	const notificationsListOnClick = useCallback(
+		(data) => {
+			if (data?.id === 'email') {
+				if (info?.googleConnected) {
+					changeStage({ activeStage: 'stage2', selectedChannel: data?.id });
+				} else {
+					navigate('/settings/integrations');
+				}
 			}
-		}
-		if (data?.id === 'slack') {
-			if (slackConnected) {
-				changeStage({ activeStage: 'stage5', selectedChannel: data?.id });
-			} else {
-				navigate('/settings/integrations');
+			if (data?.id === 'slack') {
+				if (info?.slackConnected) {
+					changeStage({ activeStage: 'stage5', selectedChannel: data?.id });
+				} else {
+					navigate('/settings/integrations');
+				}
 			}
-		}
-	}, []);
+		},
+		[info?.googleConnected, info?.slackConnected],
+	);
 
-	const checkConnection = useCallback((data) => {
-		if (data?.id === 'email') {
-			return googleConnected;
-		}
-		if (data?.id === 'slack') {
-			return slackConnected;
-		}
-	}, []);
+	const checkConnection = useCallback(
+		(data) => {
+			if (data?.id === 'email') {
+				return info?.googleConnected;
+			}
+			if (data?.id === 'slack') {
+				return info?.slackConnected;
+			}
+		},
+		[info?.googleConnected, info?.slackConnected],
+	);
 	return (
 		<>
 			<div className="actionSideBarSearchbarContainer">
@@ -801,6 +790,7 @@ const Stage2 = ({
 	stepTitle,
 	stepDescription,
 	handleUpdateState,
+	variables,
 }) => {
 	const modifiedHandleClick = useCallback(() => {
 		// if (!info?.title?.length) {
@@ -901,6 +891,7 @@ const Stage2 = ({
 						<VariableComponent
 							value={recipientEmail}
 							onChange={(value) => handleUpdateState({ recipientEmail: value })}
+							variables={variables}
 						/>
 						{/* <div className="inputContainer">
 							<input

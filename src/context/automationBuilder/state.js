@@ -7,8 +7,9 @@ export const initialState = {
 	specificAutomationInfo: null,
 	connectedIntegrations: null,
 	executionHistory: null,
-	previousStepResponse: null,
-	previousExecutionData: null,
+	// previousStepResponse: null,
+	// previousExecutionData: null,
+	variables: null,
 };
 
 export const AutomationBuilderState = () => {
@@ -176,64 +177,93 @@ export const AutomationBuilderState = () => {
 		}
 	};
 
-	const getPreviousStepResponse = async (batchId, stepId) => {
-		try {
-			const usertoken = localStorage.getItem('usertoken');
-			const workspaceId = localStorage.getItem('workspaceId');
-			const response = await restService.fetchGet(
-				`/${workspaceId}/execution/batch/${batchId}/step/${stepId}`,
-				usertoken,
-				'automation_builder_api',
-			);
-
-			if (response?.[0]) {
-				dispatch({
-					type: Actions.SET_PREVIOUS_STEP_RESPONSE,
-					payload: { data: response?.[1] },
-				});
-			} else {
-				dispatch({
-					type: Actions.SET_PREVIOUS_STEP_RESPONSE,
-					payload: { error: response?.[1]?.message },
-				});
-			}
-		} catch (error) {
-			console.log('API failed ==> getPreviousStepResponse', error);
-			dispatch({
-				type: Actions.SET_PREVIOUS_STEP_RESPONSE,
-				payload: { error: error?.message },
-			});
-			return [false];
-		}
-	};
-
-	const executeAutomation = async (automationId) => {
+	const getVariables = async (payload) => {
 		try {
 			const usertoken = localStorage.getItem('usertoken');
 			const workspaceId = localStorage.getItem('workspaceId');
 			const response = await restService.fetchPost(
-				`/${workspaceId}/${automationId}/execution/start`,
-				{},
+				`/${workspaceId}/variable/variables`,
+				payload,
 				usertoken,
 				'automation_builder_api',
 			);
 			if (response?.[0]) {
-				console.log('response', response);
-
 				dispatch({
-					type: Actions.SET_PREVIOUS_EXECUTION_DATA,
-					payload: response?.[1],
-				});
-			} else {
-				dispatch({
-					type: Actions.SET_PREVIOUS_EXECUTION_DATA,
-					payload: { error: response?.[1]?.message },
+					type: Actions.SET_VARIABLES,
+					payload: {
+						data: {
+							variables:
+								payload?.action === 'formResponse'
+									? response?.[1]?.[0]?.blocks || []
+									: response?.[1],
+							actionType: payload?.action,
+						},
+					},
 				});
 			}
 		} catch (error) {
-			console.log('API failed ==> executeAutomation', error);
+			console.log('API failed ==> getVariables', error);
 		}
 	};
+
+	// const getPreviousStepResponse = async (automationId, batchId, stepId) => {
+	// 	try {
+	// 		const usertoken = localStorage.getItem('usertoken');
+	// 		const workspaceId = localStorage.getItem('workspaceId');
+	// 		const response = await restService.fetchGet(
+	// 			`/${workspaceId}/${automationId}/execution/batch/${batchId}/step/${stepId}`,
+	// 			usertoken,
+	// 			'automation_builder_api',
+	// 		);
+
+	// 		if (response?.[0]) {
+	// 			dispatch({
+	// 				type: Actions.SET_PREVIOUS_STEP_RESPONSE,
+	// 				payload: { data: response?.[1] },
+	// 			});
+	// 		} else {
+	// 			dispatch({
+	// 				type: Actions.SET_PREVIOUS_STEP_RESPONSE,
+	// 				payload: { error: response?.[1]?.message },
+	// 			});
+	// 		}
+	// 	} catch (error) {
+	// 		console.log('API failed ==> getPreviousStepResponse', error);
+	// 		dispatch({
+	// 			type: Actions.SET_PREVIOUS_STEP_RESPONSE,
+	// 			payload: { error: error?.message },
+	// 		});
+	// 		return [false];
+	// 	}
+	// };
+
+	// const executeAutomation = async (automationId) => {
+	// 	try {
+	// 		const usertoken = localStorage.getItem('usertoken');
+	// 		const workspaceId = localStorage.getItem('workspaceId');
+	// 		const response = await restService.fetchPost(
+	// 			`/${workspaceId}/${automationId}/execution/start`,
+	// 			{},
+	// 			usertoken,
+	// 			'automation_builder_api',
+	// 		);
+	// 		if (response?.[0]) {
+	// 			console.log('response', response);
+
+	// 			dispatch({
+	// 				type: Actions.SET_PREVIOUS_EXECUTION_DATA,
+	// 				payload: response?.[1],
+	// 			});
+	// 		} else {
+	// 			dispatch({
+	// 				type: Actions.SET_PREVIOUS_EXECUTION_DATA,
+	// 				payload: { error: response?.[1]?.message },
+	// 			});
+	// 		}
+	// 	} catch (error) {
+	// 		console.log('API failed ==> executeAutomation', error);
+	// 	}
+	// };
 
 	const resetAutomationBuilderState = () => {
 		dispatch({ type: Actions.RESET_STATE });
@@ -250,7 +280,8 @@ export const AutomationBuilderState = () => {
 		getConnectionDetails,
 		updateAutomation,
 		getExecutionHistory,
-		getPreviousStepResponse,
-		executeAutomation,
+		// getPreviousStepResponse,
+		// executeAutomation,
+		getVariables,
 	};
 };

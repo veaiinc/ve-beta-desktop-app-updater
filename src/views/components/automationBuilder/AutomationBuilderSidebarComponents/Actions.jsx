@@ -1,8 +1,8 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { memo, useContext, useEffect, useMemo, useState } from 'react';
 import '../../../../assets/scss/automation_builder/automationBuilderSidebarComponents/actions.scss';
 import { ReactComponent as DoubleArrow } from '../../../../assets/svg/worflow_builder/buildercard/doubleArrow.svg';
 import { ReactComponent as Search } from '../../../../assets/svg/worflow_builder/buildercard/search.svg';
-import { ReactComponent as Slack } from '../../../../assets/svg/worflow_builder/buildercard/slack.svg';
 import { ReactComponent as Google } from '../../../../assets/svg/worflow_builder/buildercard/google.svg';
 import { useCallback } from 'react';
 import Context from '../../../../context/context';
@@ -59,12 +59,6 @@ const Actions = ({
 }) => {
 	const {
 		templates: { addNewSteps, updateStateValues, specificTemplatesInfo, updateSteps },
-		automationBuilder: {
-			getPreviousStepResponse,
-			previousStepResponse,
-			executeAutomation,
-			previousExecutionData,
-		},
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		search: '',
@@ -91,18 +85,6 @@ const Actions = ({
 			}
 		}
 	}, [editMode, activeStepsData]);
-	console.log('previousExecutionData', previousExecutionData);
-
-	useEffect(() => {
-		console.log('dgsfhgsjhgdsjh');
-
-		if (previousExecutionData) {
-		} else {
-			console.log('getting here');
-
-			executeAutomation(previousExecutionData?._id);
-		}
-	}, [previousExecutionData]);
 
 	// useEffect(() => {
 	// 	if (previousStepResponse && previousStepResponse?.stepId === activeEdge?.split('-')?.[0]) {

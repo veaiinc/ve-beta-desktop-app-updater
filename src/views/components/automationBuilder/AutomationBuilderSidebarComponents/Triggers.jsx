@@ -1,19 +1,12 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { memo, useContext, useEffect, useMemo, useState } from 'react';
 import '../../../../assets/scss/automation_builder/automationBuilderSidebarComponents/triggers.scss';
-import { ReactComponent as DoubleArrow } from '../../../../assets/svg/worflow_builder/buildercard/doubleArrow.svg';
 import { ReactComponent as Search } from '../../../../assets/svg/worflow_builder/buildercard/search.svg';
 import { ReactComponent as Google } from '../../../../assets/svg/worflow_builder/buildercard/google.svg';
 import { ReactComponent as Slack } from '../../../../assets/svg/worflow_builder/buildercard/slack.svg';
 import { ReactComponent as RightArrow } from '../../../../assets/svg/worflow_builder/buildercard/rightArrow.svg';
 import { useCallback } from 'react';
 import Context from '../../../../context/context';
-import HeadersDropDownComp from '../../dropDown/HeadersDropDownComp';
-import {
-	containerStyle,
-	dropDownStyle,
-	dropDownTextStyling,
-	selectedValueStyling,
-} from '../../../features/automation_builder/automationContentsHelper';
 import { message } from 'antd';
 import InAppTriggers from './InAppTriggers';
 import HeaderComponent from './HeaderComponent';
@@ -39,21 +32,21 @@ const triggersList = {
 			},
 		],
 	},
-	inApp: {
-		label: 'In App',
-		// icon: <InApp />,
-		value: 'inApp',
-		triggerType: 'database',
-		triggers: [
-			{
-				app: 'inApp',
-				icon: null,
-				label: 'Form Submission',
-				event: 'create',
-				module: 'formResponse',
-			},
-		],
-	},
+	// inApp: {
+	// 	label: 'In App',
+	// 	// icon: <InApp />,
+	// 	value: 'inApp',
+	// 	triggerType: 'database',
+	// 	triggers: [
+	// 		{
+	// 			app: 'inApp',
+	// 			icon: null,
+	// 			label: 'Form Submission',
+	// 			event: 'create',
+	// 			module: 'formResponse',
+	// 		},
+	// 	],
+	// },
 };
 
 const availableIntegrations = [
@@ -81,7 +74,6 @@ const Triggers = ({
 	step,
 }) => {
 	const {
-		templates: { addNewSteps, updateStateValues, specificTemplatesInfo, updateSteps },
 		automationBuilder: { connectedIntegrations, addTrigger, getAutomation },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
@@ -121,9 +113,9 @@ const Triggers = ({
 		}
 	}, [editMode, activeStepsData]);
 
-	const handleSearch = (e) => {
-		setInfo((prev) => ({ ...prev, search: e.target.value, searchChanged: true }));
-	};
+	// const handleSearch = (e) => {
+	// 	setInfo((prev) => ({ ...prev, search: e.target.value, searchChanged: true }));
+	// };
 
 	const handleDebouce = useCallback(() => {
 		clearTimeout(info?.timeout);
@@ -151,14 +143,14 @@ const Triggers = ({
 		setInfo((prev) => ({ ...prev, ...updateData }));
 	}, []);
 
-	const handleBack = useCallback(() => {
-		if (info?.activeStage === 'stage2') {
-			setInfo((prev) => ({ ...prev, activeStage: 'stage1' }));
-		}
-		if (info?.activeStage === 'stage1') {
-			onCLose();
-		}
-	}, [info?.activeStage, onCLose]);
+	// const handleBack = useCallback(() => {
+	// 	if (info?.activeStage === 'stage2') {
+	// 		setInfo((prev) => ({ ...prev, activeStage: 'stage1' }));
+	// 	}
+	// 	if (info?.activeStage === 'stage1') {
+	// 		onCLose();
+	// 	}
+	// }, [info?.activeStage, onCLose]);
 
 	const addNewTrigger = useCallback(
 		async (trigger) => {
@@ -171,7 +163,7 @@ const Triggers = ({
 			};
 			if (trigger?.event === 'messageReceived') {
 				payload.gmail = {
-					connectedEmail: connectedIntegrations?.google?.[0]?.email,
+					connectedEmail: trigger?.googleAccount,
 					event: trigger?.event,
 				};
 			}
@@ -180,6 +172,7 @@ const Triggers = ({
 					event: trigger?.event,
 					module: trigger?.module,
 					workflowTemplateId: trigger?.workflowTemplateId,
+					formTemplateId: trigger?.formTemplateId,
 				};
 			}
 			updateTriggerInfo({ saveLoader: true });
@@ -188,6 +181,7 @@ const Triggers = ({
 			if (response?.[0]) {
 				setInfo((prev) => ({ ...prev, activeStage: 'stage2' }));
 				getAutomation(automationId);
+				onCLose();
 			} else {
 				message?.error(response?.[1] || 'Failed to add trigger');
 			}
@@ -202,6 +196,10 @@ const Triggers = ({
 					addNewTrigger={addNewTrigger}
 					selectedTrigger={info?.selectedTrigger}
 					onClose={() => updateTriggerInfo({ selectedTrigger: null })}
+					onSave={addNewTrigger}
+					addTriggerLoading={info?.saveLoader}
+					triggerData={info?.selectedTrigger}
+					connectedIntegrations={connectedIntegrations}
 				/>
 			),
 			inApp: (
@@ -212,12 +210,11 @@ const Triggers = ({
 					onSave={addNewTrigger}
 					addTriggerLoading={info?.saveLoader}
 					triggerData={info?.selectedTrigger}
+					connectedIntegrations={connectedIntegrations}
 				/>
 			),
 		};
-	}, [info?.selectedTrigger, addNewTrigger, updateTriggerInfo]);
-
-	console.log(info);
+	}, [info?.selectedTrigger, addNewTrigger, updateTriggerInfo, connectedIntegrations]);
 
 	return info?.selectedTrigger ? (
 		triggerMapper?.[info?.selectedTrigger?.app]
@@ -321,138 +318,3 @@ const Step1 = ({ checkConnection, updateTriggerInfo }) => {
 		</>
 	);
 };
-
-// const Step2 = ({ connectedIntegrations }) => {
-// 	const [info, setInfo] = useState({
-// 		googleAccountOptions: [],
-// 		selectedGoogleAccount: { label: 'Select an option', value: 'default' },
-// 		pollModeOptions: [
-// 			{ label: 'Every Minute', value: 'minute' },
-// 			{ label: 'Every Hour', value: 'hour' },
-// 			{ label: 'Every Day', value: 'day' },
-// 			{ label: 'Every Week', value: 'week' },
-// 			{ label: 'Every Month', value: 'month' },
-// 		],
-// 		selectedPollMode: { label: 'Every Minute', value: 'minute' },
-// 	});
-
-// 	useEffect(() => {
-// 		if (connectedIntegrations) {
-// 			setInfo((prev) => ({
-// 				...prev,
-// 				googleAccountOptions: connectedIntegrations?.google?.map((account) => ({
-// 					label: account?.email,
-// 					value: account?.email,
-// 				})),
-// 				selectedGoogleAccount: {
-// 					label: connectedIntegrations?.google?.[0]?.email,
-// 					value: connectedIntegrations?.google?.[0]?.email,
-// 				},
-// 			}));
-// 		}
-// 	}, [connectedIntegrations]);
-
-// 	const onChangeGoogleAccount = (data) => {
-// 		if (data?.value === info?.selectedGoogleAccount?.value) return;
-// 		setInfo((prev) => ({ ...prev, selectedGoogleAccount: data }));
-// 	};
-
-// 	const onChangePollMode = (data) => {
-// 		if (data?.value === info?.selectedPollMode?.value) return;
-// 		setInfo((prev) => ({ ...prev, selectedPollMode: data }));
-// 	};
-
-// 	return (
-// 		<div className="step2Container">
-// 			<div className="step2HeaderContainer">
-// 				<div className="triggerInfoContainer">
-// 					<div className="triggerInfo">
-// 						<span className="triggerInfoTitle">Trigger</span>
-// 						<span className="triggerInfoDescription">Receive message</span>
-// 					</div>
-// 					<button className="changeTriggerButton">Change</button>
-// 				</div>
-// 				<div className="step2TitleDescriptionContainer">
-// 					<input type="text" className="step2InputTitle" placeholder="Step title" />
-// 					<input
-// 						type="text"
-// 						className="step2InputDescription"
-// 						placeholder="step description"
-// 					/>
-// 				</div>
-// 			</div>
-// 			<div className="step2InputsContainer">
-// 				<h2 className="step2InputsHeading">Inputs</h2>
-// 				<div className="step2InputItem">
-// 					<label className="step2InputLabel">Google Account</label>
-// 					<HeadersDropDownComp
-// 						options={info?.googleAccountOptions}
-// 						selectedValue={info?.selectedGoogleAccount?.label}
-// 						onChangeFunc={onChangeGoogleAccount}
-// 						showIcon={false}
-// 						containerStyle={{
-// 							...containerStyle,
-// 							background: '#1C1C1C',
-// 							border: '1px solid #2C2D2E',
-// 							borderRadius: '12px',
-// 							height: '40px',
-// 						}}
-// 						outerContainerStyle={{ width: '100%' }}
-// 						dropDownStyle={{
-// 							...dropDownStyle,
-// 							background: '#1C1C1C',
-// 							border: '1px solid #2C2C2C',
-// 						}}
-// 						dropDownTextStyling={{
-// 							...dropDownTextStyling,
-// 							color: '#FFFFFF',
-// 						}}
-// 						showSelectedValueTick={true}
-// 						uniqueIdentifierForTickIcon={'value'}
-// 						selectedValueObj={info?.selectedGoogleAccount}
-// 						selectedValueStyle={{
-// 							...selectedValueStyling,
-// 							color: '#FFFFFF',
-// 						}}
-// 					/>
-// 				</div>
-// 				<div className="step2InputItem">
-// 					<label className="step2InputLabel">
-// 						Poll Mode<sup>*</sup>
-// 					</label>
-// 					<HeadersDropDownComp
-// 						options={info?.pollModeOptions}
-// 						selectedValue={info?.selectedPollMode?.label}
-// 						onChangeFunc={onChangePollMode}
-// 						showIcon={false}
-// 						containerStyle={{
-// 							...containerStyle,
-// 							background: '#1C1C1C',
-// 							border: '1px solid #2C2D2E',
-// 							borderRadius: '12px',
-// 							height: '40px',
-// 						}}
-// 						outerContainerStyle={{ width: '100%' }}
-// 						dropDownStyle={{
-// 							...dropDownStyle,
-// 							background: '#1C1C1C',
-// 							border: '1px solid #2C2C2C',
-// 						}}
-// 						dropDownTextStyling={{
-// 							...dropDownTextStyling,
-// 							color: '#FFFFFF',
-// 						}}
-// 						showSelectedValueTick={true}
-// 						uniqueIdentifierForTickIcon={'value'}
-// 						selectedValueObj={info?.selectedPollMode}
-// 						selectedValueStyle={{
-// 							...selectedValueStyling,
-// 							color: '#FFFFFF',
-// 						}}
-// 					/>
-// 				</div>
-// 				<button className="step2AddInputButton">Add Poll Time</button>
-// 			</div>
-// 		</div>
-// 	);
-// };

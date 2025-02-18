@@ -42,9 +42,6 @@ const edgeTypes = {
 const AutomationBuilder = () => {
 	const {
 		templates: {
-			// getSpecificTemplatesInfo,
-			// updateStateValues,
-			// specificTemplatesInfo,
 			addEmailTriggersInWorkflow,
 			getMyWorkflows,
 			getTemplatesListForCreateLead,
@@ -57,6 +54,8 @@ const AutomationBuilder = () => {
 			updateStateValues,
 			getConnectionDetails,
 			updateAutomation,
+			getVariables,
+			variables,
 		},
 	} = useContext(Context);
 
@@ -87,6 +86,8 @@ const AutomationBuilder = () => {
 		activeStepsData: null,
 		editMode: false,
 		step: '1',
+		previousNode: null,
+		variables: null,
 	});
 
 	const [nodes, setNodes, onNodesChange] = useNodesState([]);
@@ -132,6 +133,34 @@ const AutomationBuilder = () => {
 			getEmailTemplates();
 		}
 	}, [allEmailTemplates]);
+
+	useEffect(() => {
+		if (info?.activeEdge) {
+			const nodeDetails = nodes.find(
+				(node) => node?.id === info?.activeEdge?.split('-')?.[0],
+			);
+
+			setInfo((prev) => ({ ...prev, previousNode: nodeDetails }));
+		}
+	}, [info?.activeEdge]);
+
+	useEffect(() => {
+		const data = info?.previousNode?.data?.currentStep;
+		const payload = {};
+		if (data?.app === 'inApp') {
+		} else {
+			payload.action = data?.criteria?.event;
+			payload.app = data?.app;
+		}
+		getVariables(payload);
+	}, [info?.previousNode]);
+
+	useEffect(() => {
+		if (variables) {
+			console.log('variables', variables);
+			setInfo((prev) => ({ ...prev, variables: variables?.data }));
+		}
+	}, [variables]);
 
 	const getEmailTemplates = useCallback(() => {
 		const payload = {
@@ -514,6 +543,8 @@ const AutomationBuilder = () => {
 						editMode={info?.editMode}
 						refetchWorkflowBuilderData={refetchWorkflowBuilderData}
 						step={info?.step}
+						previousNode={info?.previousNode}
+						variables={info?.variables}
 					/>
 				</div>
 			)}

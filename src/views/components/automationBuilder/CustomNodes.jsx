@@ -33,11 +33,13 @@ const actionTypeIconMapper = {
 const eventTypeMapper = {
 	messageReceived: 'Message Received',
 	sendMessage: 'Send Message',
+	formResponse: 'Form Response',
 };
 
 const appNameMapper = {
 	gmail: 'Gmail',
 	slack: 'Slack',
+	inApp: 'In App',
 };
 
 export const StartStepNode = ({ data }) => {
@@ -66,7 +68,7 @@ export const TriggerNode = ({ data }) => {
 	}, []);
 
 	return (
-		<div className="custom-node trigger-node" onClick={onAddOptionsClick}>
+		<div className="custom-node trigger-node selectedNode" onClick={onAddOptionsClick}>
 			<div className="trigger-extra-div">
 				<ShockIcon />
 				<span>Trigger</span>
@@ -79,8 +81,9 @@ export const TriggerNode = ({ data }) => {
 				<div className="triggerAcutalContentContainer">
 					<div className="triggerUpperContent">
 						<span className="triggerUpperContentTitle">
-							{eventTypeMapper?.[data?.currentStep?.event] ??
-								data?.currentStep?.event}
+							{eventTypeMapper?.[
+								data?.currentStep?.module || data?.currentStep?.event
+							] ?? data?.currentStep?.event}
 						</span>
 						<span className="triggerUpperContentSubtitle">
 							{appNameMapper?.[data?.currentStep?.app] ?? data?.currentStep?.app}
@@ -143,8 +146,9 @@ export const ActionNode = ({ data }) => {
 								data?.currentStep?.channels?.[0] || data?.currentStep?.app
 							]
 						}
-						{eventTypeMapper?.[data?.currentStep?.criteria?.event] ??
-							data?.currentStep?.criteria?.event}
+						{eventTypeMapper?.[
+							data?.currentStep?.module || data?.currentStep?.criteria?.event
+						] ?? data?.currentStep?.criteria?.event}
 					</span>
 					<span>
 						{appNameMapper[

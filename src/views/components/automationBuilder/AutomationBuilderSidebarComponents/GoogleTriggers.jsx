@@ -10,8 +10,15 @@ import {
 	dropDownTextStyling,
 	selectedValueStyling,
 } from '../../../features/automation_builder/automationContentsHelper';
+import { message } from 'antd';
 
-const GoogleTriggers = ({ onClose, connectedIntegrations }) => {
+const GoogleTriggers = ({
+	onClose,
+	onSave,
+	addTriggerLoading,
+	triggerData,
+	connectedIntegrations,
+}) => {
 	const [info, setInfo] = useState({
 		googleAccountOptions: [],
 		selectedGoogleAccount: { label: 'Select an option', value: 'default' },
@@ -23,6 +30,8 @@ const GoogleTriggers = ({ onClose, connectedIntegrations }) => {
 			{ label: 'Every Month', value: 'month' },
 		],
 		selectedPollMode: { label: 'Every Minute', value: 'minute' },
+		title: 'Message Received',
+		description: 'This will trigger when a message is received',
 	});
 
 	useEffect(() => {
@@ -46,32 +55,50 @@ const GoogleTriggers = ({ onClose, connectedIntegrations }) => {
 		setInfo((prev) => ({ ...prev, selectedGoogleAccount: data }));
 	};
 
+	const updateStateInfo = (updatedData) => {
+		setInfo((prev) => ({ ...prev, ...updatedData }));
+	};
+
 	const onChangePollMode = (data) => {
 		if (data?.value === info?.selectedPollMode?.value) return;
 		setInfo((prev) => ({ ...prev, selectedPollMode: data }));
 	};
+
+	const handleSave = () => {
+		if (info?.title?.trim() === '') {
+			message.error('Please enter a title');
+			return;
+		}
+		if (info?.description?.trim() === '') {
+			message.error('Please enter a description');
+			return;
+		}
+		if (info?.selectedGoogleAccount?.value === 'default') {
+			message.error('Please select a google account');
+			return;
+		}
+		onSave({
+			...triggerData,
+			title: info?.title?.trim(),
+			description: info?.description?.trim(),
+			googleAccount: info?.selectedGoogleAccount?.value,
+			pollMode: info?.selectedPollMode?.value,
+		});
+	};
+
 	return (
 		<>
-			<HeaderComponent onClose={onClose} heading={'Get Draft'} />
-			<ActionDetailsBlock actionLabel={'Get Draft'} heading={'Actions'} />
+			<HeaderComponent onBack={onClose} heading={'Message Received'} />
+			<ActionDetailsBlock
+				actionLabel={'Message Received'}
+				heading={'Trigger'}
+				description={info?.description}
+				title={info?.title}
+				updaterFn={(updatedData) => {
+					updateStateInfo(updatedData);
+				}}
+			/>
 			<div className="step2Container">
-				<div className="step2HeaderContainer">
-					<div className="triggerInfoContainer">
-						<div className="triggerInfo">
-							<span className="triggerInfoTitle">Trigger</span>
-							<span className="triggerInfoDescription">Receive message</span>
-						</div>
-						<button className="changeTriggerButton">Change</button>
-					</div>
-					<div className="step2TitleDescriptionContainer">
-						<input type="text" className="step2InputTitle" placeholder="Step title" />
-						<input
-							type="text"
-							className="step2InputDescription"
-							placeholder="step description"
-						/>
-					</div>
-				</div>
 				<div className="step2InputsContainer">
 					<h2 className="step2InputsHeading">Inputs</h2>
 					<div className="step2InputItem">
@@ -143,6 +170,15 @@ const GoogleTriggers = ({ onClose, connectedIntegrations }) => {
 						/>
 					</div>
 					<button className="step2AddInputButton">Add Poll Time</button>
+				</div>
+				<div className="triggerSaveButtonContainer">
+					<button
+						className="triggerSaveButton"
+						onClick={handleSave}
+						disabled={addTriggerLoading}
+					>
+						{addTriggerLoading ? 'Saving...' : 'Save'}
+					</button>
 				</div>
 			</div>
 		</>

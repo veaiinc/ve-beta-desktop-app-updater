@@ -1,5 +1,6 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { Drawer } from 'antd';
-import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 import '../../../assets/scss/automation_builder/builderToolbar.scss';
 import Actions from './AutomationBuilderSidebarComponents/Actions';
 import Conditions from './AutomationBuilderSidebarComponents/Conditions';
@@ -18,6 +19,7 @@ const BuilderToolbar = ({
 	refetchWorkflowBuilderData,
 	automationId,
 	step,
+	variables,
 }) => {
 	const {
 		templates: { getAllSlackChannels },
@@ -70,6 +72,7 @@ const BuilderToolbar = ({
 					activeStepsData={activeStepsData}
 					editMode={editMode}
 					refetchWorkflowBuilderData={refetchWorkflowBuilderData}
+					variables={variables}
 				/>
 			),
 			conditions: (
@@ -93,6 +96,7 @@ const BuilderToolbar = ({
 					editMode={editMode}
 					refetchWorkflowBuilderData={refetchWorkflowBuilderData}
 					automationId={automationId}
+					variables={variables}
 				/>
 			),
 
@@ -101,7 +105,15 @@ const BuilderToolbar = ({
 			pipeline: <Actions onCLose={onClose} activeEdge={activeEdge} templateId={templateId} />,
 			trigger: <Actions onCLose={onClose} activeEdge={activeEdge} templateId={templateId} />,
 		};
-	}, [sidebarType, onClose, info?.slackConnected, info?.googleConnected, step, automationId]);
+	}, [
+		sidebarType,
+		onClose,
+		info?.slackConnected,
+		info?.googleConnected,
+		step,
+		automationId,
+		variables,
+	]);
 
 	return (
 		<Drawer
