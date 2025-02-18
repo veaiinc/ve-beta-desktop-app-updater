@@ -97,6 +97,10 @@ const actionHandlers = {
 		...state,
 		promptsData: action?.payload,
 	}),
+	GET_FILES_UPLOADED_IN_AI_CHAT: (state, action) => ({
+		...state,
+		filesUploadedInAiChat: action?.payload,
+	}),
 
 	RESET_STATE: () => initialState,
 };

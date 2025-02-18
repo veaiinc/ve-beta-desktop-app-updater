@@ -4,15 +4,24 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import ReactModal from '../modalsV2';
 import { ReactComponent as CrossSvg } from '../../../assets/svg/gallery/cross.svg';
 import { ReactComponent as SearchIcon } from '../../../assets/svg/workflow/search.svg';
+import { ReactComponent as FilterSvg } from '../../../assets/svg/docs/filter.svg';
 import '../../../assets/scss/docs/proposalsPopup.scss';
 import { fetchOriginSelection } from '../../../helpers';
 import Context from '../../../context/context';
 import moment from 'moment';
 import { useNavigate } from 'react-router-dom';
+import { Tooltip } from 'antd';
 import CreateFileLead from '../myTemplate/CreateFileLead';
 const origin = fetchOriginSelection();
 
-const options = ['All', 'Proposal', 'Invoice', 'Contract', 'Thank you'];
+const filterOptions = [
+	{ id: 1, title: 'All', value: '' },
+	{ id: 2, title: 'Form', value: 'form-submission' },
+	{ id: 3, title: 'Proposal', value: 'proposal' },
+	{ id: 4, title: 'Presentation', value: 'presentation' },
+	{ id: 5, title: 'Invoice', value: 'invoice' },
+	{ id: 6, title: 'Contract', value: 'contract' },
+];
 
 const initialState = {
 	search: '',
@@ -27,13 +36,14 @@ const initialState = {
 	searchChanged: false,
 	versionPopup: false,
 	smartfileIdFromExistingClient: null,
+	filterOption: false,
 };
 
 const ProposalPopup = ({ open, closeModal, clientDetails = null }) => {
 	const navigate = useNavigate();
 	const customStyles = {
-		content: { zIndex: 99999 },
-		overlay: { zIndex: 99998 },
+		content: { zIndex: 999 },
+		overlay: { zIndex: 998 },
 	};
 	const [info, setInfo] = useState({
 		...initialState,
@@ -59,6 +69,12 @@ const ProposalPopup = ({ open, closeModal, clientDetails = null }) => {
 			myWorkflowsDataParser(myMoreWorkflows, true);
 		}
 	}, [myMoreWorkflows]);
+
+	useEffect(() => {
+		if (info?.selectedOption !== 'All') {
+			getMyWorkflowsTemplatesData(1, info?.search, false, info?.selectedOption);
+		}
+	}, [info?.selectedOption]);
 
 	useEffect(() => {
 		if (smartfile?._id && info?.activeTemplateData?._id) {
@@ -138,26 +154,37 @@ const ProposalPopup = ({ open, closeModal, clientDetails = null }) => {
 		setInfo((prev) => ({ ...prev, versionPopup: true, activeTemplateData: template }));
 	};
 
-	const getMyWorkflowsTemplatesData = useCallback((page, search = null, fetchMore = false) => {
-		const payload = {
-			filters: {
-				limit: 9,
-				page: page,
-				type: 'workspace',
-				status: 'published',
-				sortBy: 'createdAt',
-				sortType: -1,
-			},
-		};
-		if (search) {
-			payload.filters.title = search;
-		}
-		getMyWorkflows(payload, fetchMore);
-	}, []);
+	const getMyWorkflowsTemplatesData = useCallback(
+		(page, search = null, fetchMore = false, selectedOption = '') => {
+			const payload = {
+				filters: {
+					limit: 9,
+					page: page,
+					type: 'workspace',
+					status: 'published',
+					sortType: -1,
+					sortBy: 'createdAt',
+				},
+			};
+			if (search) {
+				payload.filters.title = search;
+			}
+			if (selectedOption !== 'All') {
+				payload.filters.action = selectedOption;
+			}
+			getMyWorkflows(payload, fetchMore);
+		},
+		[],
+	);
 
 	const fetchMoreMyWorkflows = useCallback(() => {
-		getMyWorkflowsTemplatesData(info?.currentPage + 1, info?.search, true);
-	}, [info?.hasNextPage, info?.currentPage, info?.search]);
+		getMyWorkflowsTemplatesData(
+			info?.currentPage + 1,
+			info?.search,
+			true,
+			info?.selectedOption,
+		);
+	}, [info?.hasNextPage, info?.currentPage, info?.search, info?.selectedOption]);
 
 	const myWorkflowsDataParser = useCallback(
 		(dataToBeUsed, fetchMore = false) => {
@@ -220,19 +247,66 @@ const ProposalPopup = ({ open, closeModal, clientDetails = null }) => {
 							+ Blank document
 						</button> */}
 					</div>
-					<div className="proposal-popup-body-options-container">
-						{options.map((option) => (
-							<div
-								className={`proposal-popup-body-option ${
-									info.selectedOption === option ? 'selected' : ''
-								}`}
-								onClick={() =>
-									setInfo((prev) => ({ ...prev, selectedOption: option }))
+					<div className="proposal-popup-body-options-container-wrapper">
+						<div className="proposal-popup-body-options-container">
+							{filterOptions.map((option, index) => (
+								<div
+									key={index}
+									className={`proposal-popup-body-option ${
+										info.selectedOption === option?.value ? 'selected' : ''
+									}`}
+									onClick={(e) => {
+										e.stopPropagation();
+										setInfo((prev) => ({
+											...prev,
+											selectedOption: option?.value,
+										}));
+									}}
+								>
+									{option?.title}
+								</div>
+							))}
+						</div>
+						{/* <div
+							className="proposal-popup-body-options-container-filters"
+							onClick={(e) => {
+								e.stopPropagation();
+								setInfo((prev) => ({ ...prev, filterOption: !prev.filterOption }));
+							}}
+							style={{ cursor: 'pointer' }}
+						>
+							<span>Filters</span>
+							<Tooltip
+								open={info?.filterOption}
+								onOpenChange={() =>
+									setInfo((prev) => ({
+										...prev,
+										filterOption: !prev.filterOption,
+									}))
 								}
+								placement="bottom"
+								title={
+									<div className="proposal-popup-body-options-container-filters-tooltip">
+										<span
+											className="proposal-popup-body-options-container-filters-tooltip-title"
+											onClick={() =>
+												setInfo((prev) => ({
+													...prev,
+													optionSelected: 'Last Modified',
+												}))
+											}
+										>
+											Last Modified
+										</span>
+									</div>
+								}
+								arrow={false}
+								trigger="click"
+								color="transparent"
 							>
-								{option}
-							</div>
-						))}
+								<FilterSvg />
+							</Tooltip>
+						</div> */}
 					</div>
 				</div>
 				{info?.loading ? (

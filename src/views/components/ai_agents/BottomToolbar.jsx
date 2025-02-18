@@ -24,6 +24,7 @@ import { getBase64 } from '../../../helpers';
 import WorkflowSlugSelector from '../calendar/WorkflowSlugSelector';
 import { ReactComponent as AiSparkel } from '../../../assets/svg/calendar/aiSparkel.svg';
 import useVoiceIntegration from '../../hooks/useVoiceIntegration';
+import ChatBox from '../homePage/ChatBox';
 
 const moduleHelper = {
 	tasks: 'tasks',
@@ -50,6 +51,7 @@ const BottomToolbar = ({
 			activeWorkflowSlugForSmartFile,
 			updateApplicationChat,
 			activePromptForChat,
+			currentSessionId,
 		},
 		calendarInfo: { updateCalendarState },
 		tasks: { updateTaskState },
@@ -75,7 +77,7 @@ const BottomToolbar = ({
 		chatQuery: '',
 		position: { x: window.innerWidth / 2 - 900, y: 0 },
 		addQuickAction: false,
-		chatSessionId: ObjectID().toString(),
+		chatSessionId: null,
 		uploadedImages: [],
 		chatLoading: false,
 		showFullPage: true,
@@ -105,6 +107,14 @@ const BottomToolbar = ({
 			chatContentRef.current.scrollTop = chatContentRef.current.scrollHeight;
 		}
 	}, [chatList]); // Scroll whenever chatList changes
+
+	useEffect(() => {
+		if (currentSessionId) {
+			setInfo((prev) => ({ ...prev, chatSessionId: currentSessionId }));
+		} else {
+			updateStateValues({ currentSessionId: ObjectID().toString() });
+		}
+	}, [currentSessionId]);
 
 	useEffect(() => {
 		if (activePromptForChat) {
@@ -234,7 +244,7 @@ const BottomToolbar = ({
 						}
 
 						if (moduleHelper?.[location?.pathname?.split('/')?.[1]]) {
-							payload.module = moduleHelper?.[location?.pathname?.split('/')?.[1]];
+							payload.modules = [moduleHelper?.[location?.pathname?.split('/')?.[1]]];
 						}
 						setInfo((prev) => ({ ...prev, uploadedImages: [], chatQuery: '' }));
 
@@ -562,57 +572,7 @@ const BottomToolbar = ({
 			{/* bottom toolBarContent */}
 			{!info?.chatModalIsOpen ? (
 				info?.bigToolbarIsOpen ? (
-					<div
-						className={`bottomToolbar ${
-							info.inputExpanded ? 'expandedBtnToolbar' : ''
-						}`}
-					>
-						<textarea
-							className={`bottomToolbarInputs ${
-								// info.inputExpanded ? 'expanded' : ''
-								''
-							}`}
-							placeholder="Ask AI"
-							value={info?.chatQuery}
-							onChange={(e) =>
-								setInfo((prev) => ({ ...prev, chatQuery: e.target.value }))
-							}
-							onKeyDown={(e) => {
-								if (e?.key === 'Enter') {
-									if (e?.shiftKey) {
-										return;
-									}
-									setInfo((prev) => ({
-										...prev,
-										chatModalIsOpen: true,
-									}));
-									// Prevent default to avoid unwanted new line
-									e?.preventDefault();
-									handleSendMessageFunc(e);
-								}
-							}}
-							style={{ resize: 'none' }}
-							autoFocus
-						/>
-
-						<div className="toolBarButttons">
-							<div className="chat-icons-container">
-								{chatIcons?.map((icon, idx) => (
-									<span key={idx} className="chat-icon">
-										{icon}
-									</span>
-								))}
-							</div>
-							<div
-								className="click-btn"
-								onClick={(e) => {
-									handleSendBtnClick(e);
-								}}
-							>
-								<ArrowUp />
-							</div>
-						</div>
-					</div>
+					<ChatBox />
 				) : (
 					<div className="bottomToolbarSmall" onClick={handleSmallToolbarClick}>
 						<div className="toolbarText">Hey, need help ask me anything !</div>
