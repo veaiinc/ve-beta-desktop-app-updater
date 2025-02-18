@@ -17,6 +17,7 @@ const useLogout = () => {
 		tasks: { resetTasksState },
 		contacts: { resetContactsState },
 		documentPreview: { resetDocumentPreviewState },
+		automationBuilder: { resetAutomationBuilderState },
 	} = useContext(Context);
 
 	const resetApplications = useCallback(async () => {
@@ -42,6 +43,7 @@ const useLogout = () => {
 		resetTasksState();
 		resetContactsState();
 		resetDocumentPreviewState();
+		resetAutomationBuilderState();
 	}, []);
 
 	return resetApplications;

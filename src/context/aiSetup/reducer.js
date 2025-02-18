@@ -102,6 +102,11 @@ const actionHandlers = {
 		filesUploadedInAiChat: action?.payload,
 	}),
 
+	SET_KNOWLEDGE_BASE_FILES_USING_UPDATED_LOGIC: (state, action) => ({
+		...state,
+		[action?.selectedVariable]: action?.payload,
+	}),
+
 	RESET_STATE: () => initialState,
 };
 

@@ -11,6 +11,7 @@ const {
 	tenant_api,
 	proposals_api,
 	auth_Api,
+	auth_Api_US,
 	tenant_users_api_US,
 	tenant_api_US,
 	proposals_api_US,
@@ -30,8 +31,8 @@ const {
 	workflows_Api_US,
 	multi_agent_chat,
 	multi_agent_chat_US,
-	automations_api,
-	automations_api_US,
+	automation_builder_api,
+	automation_builder_api_US,
 } = config || {};
 
 const apiEndpoints = {
@@ -49,14 +50,14 @@ const apiEndpoints = {
 	slack_api,
 	workflow: workflows_Api,
 	multi_agent_chat,
-	automations_api,
+	automation_builder_api,
 };
 const apiEndpointsUS = {
 	tenant_users_api: tenant_users_api_US,
 	tenant: tenant_api_US,
 	'tenant-users': tenant_users_api_US,
 	proposals_api: proposals_api_US,
-	auth: auth_Api,
+	auth: auth_Api_US,
 	ai_assistant_api: ai_assistant_api_US,
 	galleries: galleries_api_US,
 	ai_predictions: ai_predictions_US,
@@ -66,7 +67,7 @@ const apiEndpointsUS = {
 	slack_api: slack_api_US,
 	workflow: workflows_Api_US,
 	multi_agent_chat: multi_agent_chat_US,
-	automations_api: automations_api_US,
+	automation_builder_api: automation_builder_api_US,
 };
 
 const handleHeaders = (token, body, type) => {

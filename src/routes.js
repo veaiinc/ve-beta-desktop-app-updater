@@ -44,6 +44,7 @@ import EditAgent from './views/features/ai_assistant/EditAgent';
 import AgentDetails from './views/features/ai_assistant/AgentDetails';
 import InitialHomePage from './views/features/home_page/InitialHomePage';
 import Chat from './views/features/chat/Chat';
+import AutomationBuilder from './views/features/automation_builder';
 const routes = [
 	{
 		path: '/',
@@ -384,6 +385,11 @@ const routes = [
 				<MyTemplates />
 			</AuthWrapper>
 		),
+		exact: true,
+	},
+	{
+		path: '/automation_builder_updated/:automationId',
+		component: <AutomationBuilder />,
 		exact: true,
 	},
 	{

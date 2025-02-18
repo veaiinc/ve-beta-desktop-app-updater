@@ -1787,6 +1787,27 @@ export const TemplatesState = (props) => {
 		}
 	};
 
+	const getModuleTemplate = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await Service.fetchPost(
+				`/${workspaceId}/templates/templates-list`,
+				payload,
+				usertoken,
+				'proposals_api',
+			);
+			if (response?.[0] === true) {
+				dispatch({ type: Actions.GET_MODULE_TEMPLATE_SUCCESS, payload: response?.[1] });
+				return [true, response?.[1]];
+			} else {
+				return [false, response?.[1]?.message];
+			}
+		} catch (error) {
+			console.log('errror ==>getModuleTemplate', error);
+			return [false, error?.message];
+		}
+	};
 	return {
 		...state,
 		getAutomations,
@@ -1854,5 +1875,6 @@ export const TemplatesState = (props) => {
 		updateSteps,
 		getTemplatesListForForms,
 		getFormResponsesList,
+		getModuleTemplate,
 	};
 };
