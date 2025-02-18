@@ -46,6 +46,8 @@ export const initialState = {
 	aiChatLogs: null,
 	moreAiChatLogs: null,
 	aiCrawlLinks: null,
+	promptsData: null,
+	filesUploadedInAiChat: null,
 };
 
 export const AiSetupState = () => {
@@ -905,6 +907,59 @@ export const AiSetupState = () => {
 		}
 	};
 
+	// https://api.ap-south-1.ve.ai/businessconsultant/ai-suggested-prompts
+	const getPromptsData = async (queryParams = {}) => {
+		let workspaceId = localStorage.getItem('workspaceId');
+		let usertoken = localStorage.getItem('usertoken');
+		const url = '/' + workspaceId + '/ai-suggested-prompts';
+		try {
+			const response = await service?.fetchGet(
+				url,
+				usertoken,
+				'ai_assistant_api',
+				queryParams,
+			);
+			if (response?.[0]) {
+				dispatch({
+					type: Actions?.GET_PROMPTS_DATA,
+					payload: response?.[1],
+				});
+				return response?.[1];
+			}
+		} catch (error) {
+			console.log('error==>getPromptsData', error);
+		}
+	};
+
+	const getFilesUploadedInAiChat = async (payload, isSearchQueryChanged = false) => {
+		let workspaceId = localStorage.getItem('workspaceId');
+		let usertoken = localStorage.getItem('usertoken');
+		const url = '/' + workspaceId + '/ai-chat/list-ai-chat-file-uploads';
+		try {
+			const response = await service?.fetchGet(url, usertoken, 'ai_assistant_api', payload);
+
+			if (response?.[0]) {
+				const { data, currentPage, hasNextPage } = response?.[1];
+				let updatedData;
+				if (isSearchQueryChanged || !state?.filesUploadedInAiChat) {
+					updatedData = data;
+				} else {
+					updatedData = [...state?.filesUploadedInAiChat?.data, ...data];
+				}
+				dispatch({
+					type: Actions?.GET_FILES_UPLOADED_IN_AI_CHAT,
+					payload: {
+						data: updatedData,
+						currentPage,
+						hasNextPage,
+					},
+				});
+			}
+		} catch (error) {
+			console.log('error==>getFilesUploadedInAiChat', error);
+		}
+	};
+
 	const resetAiSetupState = () => {
 		dispatch({ type: Actions?.RESET_STATE });
 	};
@@ -947,5 +1002,7 @@ export const AiSetupState = () => {
 		getAiChatLogs,
 		removeFile,
 		getTokenForVoice,
+		getPromptsData,
+		getFilesUploadedInAiChat,
 	};
 };

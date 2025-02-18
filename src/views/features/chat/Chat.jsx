@@ -27,6 +27,8 @@ import { ReactComponent as AiSparkel } from '../../../assets/svg/calendar/aiSpar
 import useVoiceIntegration from '../../hooks/useVoiceIntegration';
 import CitationsModal from '../../components/modalsV2/chat/CitationsModal';
 import NoteComponentModal from '../../components/notes/NoteComponentModal';
+import Skeleton from 'react-loading-skeleton';
+import ChatBox from '../../components/homePage/ChatBox';
 
 const moduleHelper = {
 	tasks: 'tasks',
@@ -54,6 +56,7 @@ const Chat = ({
 			activePromptForChat,
 			followUpQuery,
 			citations,
+			currentSessionId,
 		},
 		calendarInfo: { updateCalendarState },
 		tasks: { updateTaskState },
@@ -78,7 +81,7 @@ const Chat = ({
 		chatQuery: '',
 		position: { x: window.innerWidth / 2 - 900, y: 0 },
 		addQuickAction: false,
-		chatSessionId: ObjectID().toString(),
+		chatSessionId: null,
 		uploadedImages: [],
 		chatLoading: false,
 		showFullPage: true,
@@ -107,9 +110,17 @@ const Chat = ({
 	useEffect(() => {
 		if (activePromptForChat) {
 			handleSendMessageFunc(null, true, activePromptForChat);
-			updateStateValues({ activePromptForChat: null });
+			updateStateValues({ activePromptForChat: null, followUpQuery: null });
 		}
 	}, [activePromptForChat]);
+
+	useEffect(() => {
+		if (currentSessionId) {
+			setInfo((prev) => ({ ...prev, chatSessionId: currentSessionId }));
+		} else {
+			updateStateValues({ currentSessionId: ObjectID().toString() });
+		}
+	}, [currentSessionId]);
 
 	const handlePreview = async (file) => {
 		if (!file.url && !file.preview) {
@@ -139,7 +150,9 @@ const Chat = ({
 	};
 
 	const handleFollowUpQueryClick = () => {
-		updateStateValues({ activePromptForChat: followUpQuery, followUpQuery: null });
+		if (info?.chatLoading === false) {
+			updateStateValues({ activePromptForChat: followUpQuery });
+		}
 	};
 
 	const smoothScrollToBottom = useCallback(() => {
@@ -204,7 +217,7 @@ const Chat = ({
 						}
 
 						if (moduleHelper?.[location?.pathname?.split('/')?.[1]]) {
-							payload.module = moduleHelper?.[location?.pathname?.split('/')?.[1]];
+							payload.modules = [moduleHelper?.[location?.pathname?.split('/')?.[1]]];
 						}
 						setInfo((prev) => ({ ...prev, uploadedImages: [], chatQuery: '' }));
 
@@ -245,10 +258,9 @@ const Chat = ({
 					message: 'loading....',
 					content: (
 						<div className="aiMessageWrapper">
-							<AiSparkel />
-							<div className="aiMessage">
-								<span>Thinking...</span>
-							</div>
+							<Skeleton height={20} width={'100%'} borderRadius={'100px'} />
+							<Skeleton height={20} width={'75%'} borderRadius={'100px'} />
+							<Skeleton height={20} width={'50%'} borderRadius={'100px'} />
 						</div>
 					),
 					contentType: 'loading',
@@ -416,66 +428,11 @@ const Chat = ({
 		[info],
 	);
 
-	const handleMicIconClick = useCallback(
-		(event) => {
-			if (!info?.voiceIntegration) {
-				connectToRoom();
-				setInfo((prev) => ({ ...prev, voiceIntegration: true, bigToolbarIsOpen: false }));
-			} else {
-				toggleMute();
-			}
-			event.stopPropagation();
-		},
-
-		[info, connectToRoom],
-	);
-
-	const handleDisConnect = useCallback(
-		(event) => {
-			disconnect();
-			setInfo((prev) => ({ ...prev, voiceIntegration: false }));
-			event.stopPropagation();
-		},
-		[info],
-	);
-
-	const chatIcons = useMemo(
-		() => [
-			<Filter />,
-			<Arroba />,
-			<Upload
-				onChange={handleChange}
-				showUploadList={false}
-				beforeUpload={() => false} // Prevent default upload behavior
-				maxCount={1} // Allow only one file at a time
-				// accept="image/*" // Accept only images
-				accept=".pdf,.docx,.txt,.md,.json,.png,.jpg,.jpeg"
-			>
-				<PaperClip />
-			</Upload>,
-			<Mic onClick={handleMicIconClick} />,
-		],
-		[info, handleChange],
-	);
-
 	const handleSendBtnClick = (e) => {
 		if (info?.chatQuery?.trim()?.length > 0) {
 			handleSendMessageFunc(e, true);
 		}
 	};
-
-	// {info?.voiceIntegration ? (
-	//     <div style={{ display: 'flex', justifyContent: 'center' }}>
-	//         <img
-	//             src={'https://ap.assets.ve.ai/logo/speaking%20final.gif'}
-	//             width={'40px'}
-	//             height={'40px'}
-	//             style={{ marginBottom: '12px' }}
-	//         />
-	//     </div>
-	// ) : (
-	//     ''
-	// )}
 
 	return (
 		<>
@@ -538,106 +495,27 @@ const Chat = ({
 								)}
 							</div>
 						</div>
-						<div className="chatInputContainer">
-							{info?.uploadedImages?.length ? (
-								<div className="imagePreviewBar">
-									{info?.uploadedImages?.map((ele, index) => (
-										<div className="previewOfUploadedImage" key={index}>
-											<img
-												src={ele?.preview}
-												alt="uploaded"
-												width={'100%'}
-												height={'100%'}
-												style={{
-													objectFit: 'cover',
-													borderRadius: '12px',
-												}}
-												onClick={() => handlePreview(ele)}
-											/>
 
-											{ele?.loading ? (
-												<div className="spinContainerLoaderForPreview">
-													<Spin />
-												</div>
-											) : (
-												<span
-													className="removeImageIcon"
-													onClick={() => handleRemoveImage(ele)}
-												>
-													<Close />
-												</span>
-											)}
-										</div>
-									))}
-								</div>
-							) : (
-								''
-							)}
-
-							{followUpQuery && (
-								<div className="suggestions-container">
-									<div
-										className="suggestion-text"
-										onClick={handleFollowUpQueryClick}
-									>
-										{followUpQuery}
-									</div>
-								</div>
-							)}
-							{/* //message Container */}
-							<div className={`chatInputParentContainer`}>
-								<textarea
-									type="text"
-									placeholder="Hey! Need help? Ask me anything."
-									value={info?.chatQuery}
-									onChange={(e) =>
-										setInfo((prev) => ({ ...prev, chatQuery: e.target.value }))
-									}
-									onKeyDown={handleSendMessageFunc}
-									className="textArea"
-									// rows={1}
-								/>
-
-								<div className="buttons-container">
-									<div className="chat-icons-container">
-										{chatIcons?.map((icon, idx) => (
-											<span key={idx} className="chat-icon">
-												{icon}
-											</span>
-										))}
-									</div>
-									<div
-										className="click-btn"
-										onClick={(e) => handleSendBtnClick(e)}
-										style={{
-											backgroundColor: `${
-												info?.chatQuery?.trim()?.length > 0
-													? '#b2a1e8'
-													: '#2e2f33'
-											}`,
-										}}
-									>
-										<ArrowUp />
-									</div>
-								</div>
-							</div>
-						</div>
+						<ChatBox />
 					</div>
 				</div>
-				{previewImage && (
-					<Image
-						wrapperStyle={{
-							display: 'none',
-						}}
-						preview={{
-							visible: previewOpen,
-							onVisibleChange: (visible) => setPreviewOpen(visible),
-							afterOpenChange: (visible) => !visible && setPreviewImage(''),
-						}}
-						src={previewImage}
-					/>
-				)}
 			</div>
+			{previewImage && (
+				<Image
+					wrapperStyle={{
+						display: 'none',
+						zIndex: '1020',
+					}}
+					rootClassName="sheshnat"
+					maskClassName="sheshnatmanure"
+					preview={{
+						visible: previewOpen,
+						onVisibleChange: (visible) => setPreviewOpen(visible),
+						afterOpenChange: (visible) => !visible && setPreviewImage(''),
+					}}
+					src={previewImage}
+				/>
+			)}
 			<CitationsModal
 				modalIsOpen={info?.citationsModalIsOpen}
 				closeModal={handleCloseCitationsModal}

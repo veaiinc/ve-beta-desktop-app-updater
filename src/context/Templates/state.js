@@ -1,6 +1,5 @@
 import service from '../../services/graphQlServices';
 import { message } from 'antd';
-import { ReactComponent as AiSparkel } from '../../assets/svg/calendar/aiSparkel.svg';
 import {
 	getTemmplatesQuery,
 	duplicateTemplateQuery,
@@ -45,6 +44,7 @@ import { Actions } from './Actions';
 import Service from '../../services/index';
 import { sendCustomMailMutation } from '../subscription/graphqlFunctions';
 import { getBase64 } from '../../helpers';
+import Skeleton from 'react-loading-skeleton';
 
 export const intialState = {
 	workflowslist: null,
@@ -79,6 +79,7 @@ export const intialState = {
 	moreDraftStateWorkflowtemplates: null,
 	createLeadModalContextState: false,
 	globalChatMessages: [{ type: 'AI', message: 'Hello, how can I help you today?' }],
+	currentSessionId: null,
 	citations: null,
 	followUpQuery: null,
 	docsFilesList: null,
@@ -1436,7 +1437,7 @@ export const TemplatesState = (props) => {
 		} catch (error) {}
 	};
 
-	const handleGlobalChatMessages = async (payload, sessionId, localPayload) => {
+	const handleGlobalChatMessages = async (payload, sessionId, localPayload, queryMessage) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
@@ -1486,10 +1487,9 @@ export const TemplatesState = (props) => {
 						message: 'loading....',
 						content: (
 							<div className="aiMessageWrapper">
-								<AiSparkel />
-								<div className="aiMessage">
-									<span>Thinking...</span>
-								</div>
+								<Skeleton height={20} width={'100%'} borderRadius={'100px'} />
+								<Skeleton height={20} width={'75%'} borderRadius={'100px'} />
+								<Skeleton height={20} width={'50%'} borderRadius={'100px'} />
 							</div>
 						),
 						contentType: 'loading',
@@ -1499,16 +1499,15 @@ export const TemplatesState = (props) => {
 				payload.query += str;
 			} else {
 				updatedGlobalChatMessages = [
-					{ type: 'user', message: payload?.query || '' },
+					{ type: 'user', message: queryMessage || '' },
 					{
 						type: 'AI',
 						message: 'loading....',
 						content: (
 							<div className="aiMessageWrapper">
-								<AiSparkel />
-								<div className="aiMessage">
-									<span>Thinking...</span>
-								</div>
+								<Skeleton height={20} width={'100%'} borderRadius={'100px'} />
+								<Skeleton height={20} width={'75%'} borderRadius={'100px'} />
+								<Skeleton height={20} width={'50%'} borderRadius={'100px'} />
 							</div>
 						),
 						contentType: 'loading',
