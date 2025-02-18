@@ -44,7 +44,13 @@ const Chat = ({
 	customChatActions = false,
 }) => {
 	const {
-		templates: { globalChatMessages, updateStateValues, citations, currentSessionId },
+		templates: {
+			globalChatMessages,
+			updateStateValues,
+			citations,
+			currentSessionId,
+			updateAiChatMessageRating,
+		},
 	} = useContext(Context);
 
 	const {
@@ -73,6 +79,7 @@ const Chat = ({
 		voiceIntegration: false,
 		noteModalIsOpen: false,
 		citationsModalIsOpen: false,
+		ratings: {},
 	});
 
 	const chatContentRef = useRef(null);
@@ -97,6 +104,20 @@ const Chat = ({
 			updateStateValues({ currentSessionId: ObjectID().toString() });
 		}
 	}, [currentSessionId]);
+
+	const handleRatingClick = async (type, messageId) => {
+		try {
+			if (messageId) {
+				await updateAiChatMessageRating({ rating: type }, messageId);
+				// setInfo((prev) => ({
+				// 	...prev,
+				// 	ratings: { ...prev?.ratings, [messageId]: { rating: type } },
+				// }));
+			}
+		} catch (error) {
+			console.log('error', error);
+		}
+	};
 
 	const handleNoteComponentModalClose = () => {
 		setInfo((prev) => ({
@@ -171,12 +192,14 @@ const Chat = ({
 													<div className="content">
 														<TypingEffect
 															text={chat?.message}
+															messageId={chat?.messageId}
 															customePencilClickFunc={
 																handleNoteComponentModalOpen
 															}
 															smoothScrollToBottom={
 																smoothScrollToBottom
 															}
+															handleRatingClick={handleRatingClick}
 														/>
 													</div>
 												) : (

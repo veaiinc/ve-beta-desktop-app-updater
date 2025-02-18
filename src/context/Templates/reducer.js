@@ -149,6 +149,10 @@ const actionHandlers = {
 		...state,
 		[action?.selectedvariable]: action.payload,
 	}),
+	UPDATE_AI_CHAT_MESSAGE_RATING: (state, action) => ({
+		...state,
+		aiChatMessageRatings: action?.payload,
+	}),
 
 	RESET_STATE: () => intialState,
 };

@@ -139,19 +139,17 @@ export const TypingEffect = ({
 	onComplete,
 	customePencilClickFunc = null,
 	smoothScrollToBottom,
+	messageId = null,
+	handleRatingClick = null,
 }) => {
 	const {
 		documentPreview: { setNoteContent },
-		aiSetup: { updatedAiChatMessageRating },
+		templates: { aiChatMessageRatings: ratings },
 	} = useContext(Context);
 
 	const [displayedText, setDisplayedText] = useState('');
 	const [currentIndex, setCurrentIndex] = useState(0);
 	const [isCopiedToClipboard, setIsCopiedToClipboard] = useState(false);
-	// const [info, setInfo] = useState({
-	// 	messageId: null,
-	// 	rating: null,
-	// });
 
 	useEffect(() => {
 		if (currentIndex < text?.length) {
@@ -178,11 +176,6 @@ export const TypingEffect = ({
 		});
 	};
 
-	// const handleRatingClick = (type) => {
-	// 	// updatedAiChatMessageRating({ rating: type }, messageId);
-	// 	setInfo((prev) => ({ ...prev, rating: type }));
-	// };
-
 	return (
 		<div className="typing-effect-container">
 			<div className="typing-effect">
@@ -195,8 +188,12 @@ export const TypingEffect = ({
 					<div className="icon-container">
 						<Tooltip placement="bottom" arrow={false} trigger={'hover'} title={'Like'}>
 							<ThumpsUpSvg
-							// fill={info?.rating === 'thumbsUp' ? '#f2f2f3' : 'none'}
-							// onClick={() => handleRatingClick('thumbsUp')}
+								fill={
+									ratings?.[messageId]?.rating === 'thumbsUp' ? '#f2f2f3' : 'none'
+								}
+								onClick={() =>
+									handleRatingClick && handleRatingClick('thumbsUp', messageId)
+								}
 							/>
 						</Tooltip>
 					</div>
@@ -209,8 +206,14 @@ export const TypingEffect = ({
 							title={'Dislike'}
 						>
 							<ThumpsDownSvg
-							// fill={info?.rating === 'thumbsDown' ? '#f2f2f3' : 'none'}
-							// onClick={() => handleRatingClick('thumbsDown')}
+								fill={
+									ratings?.[messageId]?.rating === 'thumbsDown'
+										? '#f2f2f3'
+										: 'none'
+								}
+								onClick={() =>
+									handleRatingClick && handleRatingClick('thumbsDown', messageId)
+								}
 							/>
 						</Tooltip>
 					</div>

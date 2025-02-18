@@ -959,20 +959,6 @@ export const AiSetupState = () => {
 			console.log('error==>getFilesUploadedInAiChat', error);
 		}
 	};
-	// {{base url}}/{{workspaceId}}/ai-chat/{{messageId}}/ai-chat-message-feedback
-	const updatedAiChatMessageRating = async (payload, messageId) => {
-		let workspaceId = localStorage.getItem('workspaceId');
-		let usertoken = localStorage.getItem('usertoken');
-		const url = '/' + workspaceId + '/ai-chat/' + messageId + '/ai-chat-message-feedback';
-		try {
-			const response = await service?.fetchPut(url, payload, usertoken, 'ai_assistant_api');
-			if (response?.[0]) {
-				return response?.[1];
-			}
-		} catch (error) {
-			console.log('error==>updatedAiChatMessageRating', error);
-		}
-	};
 
 	const resetAiSetupState = () => {
 		dispatch({ type: Actions?.RESET_STATE });
@@ -1018,6 +1004,5 @@ export const AiSetupState = () => {
 		getTokenForVoice,
 		getPromptsData,
 		getFilesUploadedInAiChat,
-		updatedAiChatMessageRating,
 	};
 };

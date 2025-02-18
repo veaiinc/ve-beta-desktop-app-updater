@@ -95,6 +95,7 @@ export const intialState = {
 	smartFileRefetch: false,
 	activeWorkflowSlugForSmartFile: null,
 	leftSidebarState: null,
+	aiChatMessageRatings: {},
 };
 
 export const TemplatesState = (props) => {
@@ -1523,6 +1524,7 @@ export const TemplatesState = (props) => {
 			if (response?.[0]) {
 				const citations = response?.[1]?.citations;
 				const followUpQuery = response?.[1]?.['follow_up_query'];
+				const messageId = response?.[1]?.['message_id'];
 				if (citations && citations?.length > 0) {
 					dispatch({
 						type: Actions?.CHAT_CITATIONS_SUCCESS,
@@ -1545,9 +1547,16 @@ export const TemplatesState = (props) => {
 						payload: null,
 					});
 				}
+				if (messageId) {
+					dispatch({
+						type: Actions?.UPDATE_AI_CHAT_MESSAGE_RATING,
+						payload: { ...state?.aiChatMessageRatings, [messageId]: {} },
+					});
+				}
 				const updatedGlobalChatMessages = {
 					type: 'AI',
 					message: response?.[1]?.answer,
+					messageId: response?.[1]?.['message_id'],
 				};
 				dispatch({
 					type: Actions.GLOBAL_CHAT_MESSAGES_ACTIONS_SUCCESS,
@@ -1557,6 +1566,26 @@ export const TemplatesState = (props) => {
 			}
 		} catch (error) {
 			console.log('errror ==>handleGlobalChatMessages', error);
+		}
+	};
+
+	const updateAiChatMessageRating = async (payload, messageId) => {
+		let workspaceId = localStorage.getItem('workspaceId');
+		let usertoken = localStorage.getItem('usertoken');
+		const url = '/' + workspaceId + '/ai-chat/' + messageId + '/ai-chat-message-feedback';
+		try {
+			const response = await Service?.fetchPut(url, payload, usertoken, 'ai_assistant_api');
+			if (response?.[0]) {
+				dispatch({
+					type: Actions?.UPDATE_AI_CHAT_MESSAGE_RATING,
+					payload: {
+						...state?.aiChatMessageRatings,
+						[messageId]: { rating: payload?.rating },
+					},
+				});
+			}
+		} catch (error) {
+			console.log('error==>updatedAiChatMessageRating', error);
 		}
 	};
 
@@ -1807,5 +1836,6 @@ export const TemplatesState = (props) => {
 		updateSteps,
 		getTemplatesListForForms,
 		getFormResponsesList,
+		updateAiChatMessageRating,
 	};
 };

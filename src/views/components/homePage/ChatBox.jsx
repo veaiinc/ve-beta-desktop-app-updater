@@ -317,7 +317,6 @@ const ChatBox = ({
 					} else {
 						setInfo((prev) => ({ ...prev, chatLoading: true }));
 						let currentQuery = info?.chatQuery?.trim() || query?.trim();
-						console.log(currentQuery, 'currentQuery');
 
 						const date =
 							info?.chatFilters?.dateRange?.length > 0
