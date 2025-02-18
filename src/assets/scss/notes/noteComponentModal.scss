@@ -19,6 +19,10 @@
 				flex-shrink: 0;
 				background: #0e0f0f;
 
+				.chat-box-container {
+					padding: 24px 12px;
+					width: 100%;
+				}
 				.chatBodyParentContainer {
 					display: flex;
 					flex-direction: column;

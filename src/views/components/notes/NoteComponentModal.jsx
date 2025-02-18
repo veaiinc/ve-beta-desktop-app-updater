@@ -71,8 +71,9 @@ const NoteComponentModal = ({ modalIsOpen, closeModal }) => {
 							)}
 						</div>
 					</div>
-
-					<ChatBox showChatLabels={false} />
+					<div className="chat-box-container">
+						<ChatBox showChatLabels={false} />
+					</div>
 				</div>
 				<div className="note-component">
 					<div className="header">
