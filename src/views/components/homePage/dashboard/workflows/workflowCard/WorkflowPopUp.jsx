@@ -13,53 +13,49 @@ const WorkflowPopUp = ({
 	data,
 	closeModal,
 	children,
-}) => {
-	return (
-		<Tooltip
-			trigger={'click'}
-			open={open}
-			placement={'bottomRight'}
-			onOpenChange={(open) => {
-				closeModal(open);
-			}}
-			arrow={false}
-			color="transparent"
-			title={
-				<div className={`workflow-prompt-popup`}>
-					<span
-						onClick={() => {
-							openCopyLinkModal(data);
-							// closeModal();
-						}}
-						className={'workflow-prompt-option'}
-					>
-						Copy link
-					</span>
+}) => (
+	<Tooltip
+		trigger={'click'}
+		open={open}
+		placement={'bottomRight'}
+		onOpenChange={(open) => {
+			closeModal(open);
+		}}
+		arrow={false}
+		color="transparent"
+		title={
+			<div className={`workflow-prompt-popup`}>
+				<span
+					onClick={() => {
+						openCopyLinkModal(data);
+					}}
+					className={'workflow-prompt-option'}
+				>
+					Copy link
+				</span>
 
-					<span
-						onClick={() => {
-							navigateToWorkflowBuilder(data);
-						}}
-						className={'workflow-prompt-option'}
-					>
-						Edit Workflow
-					</span>
+				<span
+					onClick={() => {
+						navigateToWorkflowBuilder(data);
+					}}
+					className={'workflow-prompt-option'}
+				>
+					Edit Workflow
+				</span>
 
-					<span
-						onClick={() => {
-							window.location.href = `${origin}/${data?._id} `;
-							// closeModal();
-						}}
-						className={'workflow-prompt-option'}
-					>
-						Edit Design
-					</span>
-				</div>
-			}
-		>
-			{children}
-		</Tooltip>
-	);
-};
+				<span
+					onClick={() => {
+						window.location.href = `${origin}/${data?._id} `;
+					}}
+					className={'workflow-prompt-option'}
+				>
+					Edit Design
+				</span>
+			</div>
+		}
+	>
+		{children}
+	</Tooltip>
+);
 
 export default memo(WorkflowPopUp);

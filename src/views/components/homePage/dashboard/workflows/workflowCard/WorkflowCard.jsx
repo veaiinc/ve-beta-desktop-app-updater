@@ -56,54 +56,52 @@ const WorkflowCard = memo(
 			};
 		}, [workflow, openModal]);
 		return (
-			<>
-				<div className="workflow-card-container">
-					<div className="card-header">
-						<div className="header-text">{workflow?.title}</div>
-						<WorkflowPopUp
-							open={info?.openPrompt}
-							closeModal={(open) => {
+			<div className="workflow-card-container">
+				<div className="card-header">
+					<div className="header-text">{workflow?.title}</div>
+					<WorkflowPopUp
+						open={info?.openPrompt}
+						closeModal={(open) => {
+							setInfo((prev) => ({
+								...prev,
+								openPrompt: open,
+								selectedCard: null,
+							}));
+						}}
+						data={info?.selectedCard}
+						openCopyLinkModal={openCopyLinkModal}
+						navigateToWorkflowBuilder={navigateToWorkflowBuilder}
+					>
+						<div
+							onClick={() => {
 								setInfo((prev) => ({
 									...prev,
-									openPrompt: open,
-									selectedCard: null,
+									openPrompt: !info?.openPrompt,
+									selectedCard: workflow,
 								}));
 							}}
-							data={info?.selectedCard}
-							openCopyLinkModal={openCopyLinkModal}
-							navigateToWorkflowBuilder={navigateToWorkflowBuilder}
 						>
-							<div
-								onClick={() => {
-									setInfo((prev) => ({
-										...prev,
-										openPrompt: true,
-										selectedCard: workflow,
-									}));
-								}}
-							>
-								<ThreeDotsVerticalIcon style={{ cursor: 'pointer' }} />
-							</div>
-						</WorkflowPopUp>
-					</div>
-					<div className="workflow-card-options-container">
-						{options?.map((option, idx) => {
-							return (
-								<div
-									key={idx}
-									className={`workflow-card-option ${
-										activeTab === option?.value ? 'active' : ''
-									}`}
-									onClick={() => setActiveTab(option?.value)}
-								>
-									{option?.title}
-								</div>
-							);
-						})}
-					</div>
-					{componentMapper?.[activeTab]}
+							<ThreeDotsVerticalIcon style={{ cursor: 'pointer' }} />
+						</div>
+					</WorkflowPopUp>
 				</div>
-			</>
+				<div className="workflow-card-options-container">
+					{options?.map((option, idx) => {
+						return (
+							<div
+								key={idx}
+								className={`workflow-card-option ${
+									activeTab === option?.value ? 'active' : ''
+								}`}
+								onClick={() => setActiveTab(option?.value)}
+							>
+								{option?.title}
+							</div>
+						);
+					})}
+				</div>
+				{componentMapper?.[activeTab]}
+			</div>
 		);
 	},
 );
