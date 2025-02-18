@@ -47,6 +47,8 @@ export const initialState = {
 	moreAiChatLogs: null,
 	aiCrawlLinks: null,
 	promptsData: null,
+	updatedKnowledgeBaseFiles: null,
+	moreUpdatedKnowledgeBaseFiles: null,
 	filesUploadedInAiChat: null,
 };
 
@@ -150,7 +152,7 @@ export const AiSetupState = () => {
 		return response?.[0];
 	};
 
-	const getKnowledgeBaseFiles = async (assistantId, page = 1, limit = 10, reset = false) => {
+	const getKnowledgeBaseFiles = async (assistantId, page = 1, limit = 10, fetchMore = false) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
@@ -159,20 +161,17 @@ export const AiSetupState = () => {
 				workspaceId +
 				KNOWLEDGE_BASE?.listFilesInKnowledgeBase +
 				`?page=${page}&limit=${limit}&assistantId=${assistantId}`;
-			const response = await service.fetchGet(url, usertoken, 'ai_assistant_api'); // change the type to ai_setup later
-			const knowledgeBaseData = {
-				data: reset
-					? [...response?.[1]?.data]
-					: [...state?.knowledgeBaseFiles?.data, ...response?.[1]?.data],
-				hasMore: response?.[1]?.hasNextPage,
-				currentPage: response?.[1]?.currentPage,
-				totalPages: response?.[1]?.totalDocs,
-				areKnowledgeBaseFilesLoading: false,
-			};
+			const response = await service.fetchGet(url, usertoken, 'ai_assistant_api');
+
+			const selectedVariable = fetchMore
+				? 'moreUpdatedKnowledgeBaseFiles'
+				: 'updatedKnowledgeBaseFiles';
+
 			if (response?.[0]) {
 				dispatch({
-					type: Actions?.SET_KNOWLEDGE_BASE_FILES,
-					payload: knowledgeBaseData,
+					type: Actions?.SET_KNOWLEDGE_BASE_FILES_USING_UPDATED_LOGIC,
+					payload: response?.[1],
+					selectedVariable: selectedVariable,
 				});
 			}
 		} catch (error) {
