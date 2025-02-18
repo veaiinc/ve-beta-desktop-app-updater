@@ -16,6 +16,7 @@ module.exports = {
 	third_party_integrations_api: 'https://ap.api.ve.ai/third-party-integrations/1.0',
 	slack_api: 'https://slack.com/api',
 	// multi_agent_chat: 'ws://ai.ap-south-1.ve.ai',
+	automation_builder_api: 'https://ap.api.ve.ai/automations/1.0/automation',
 
 	//outside India
 	tenant_api_US: 'https://us.api.ve.ai/tenants/1.0',
@@ -31,4 +32,5 @@ module.exports = {
 	third_party_integrations_api_US: 'https://us.api.ve.ai/third-party-integrations/1.0',
 	slack_api_US: 'https://slack.com/api',
 	// multi_agent_chat_US: 'ws://api.us-east-1.ve.ai',
+	automation_builder_api_US: 'https://us.api.ve.ai/automations/1.0/automation',
 };

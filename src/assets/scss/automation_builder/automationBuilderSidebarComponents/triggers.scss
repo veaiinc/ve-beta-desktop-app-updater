@@ -1,0 +1,400 @@
+// .triggersSidebarComponents {
+// 	display: flex;
+// 	flex-direction: column;
+// 	flex: 1;
+// 	align-self: stretch;
+// 	height: 100%;
+// 	border-left: 1px solid #2c2d2e;
+// 	border-left: 1px solid color(display-p3 0.1719 0.1753 0.1787);
+// 	background: #141415;
+// 	background: color(display-p3 0.0784 0.0784 0.0824);
+// 	gap: 12px;
+
+// 	.triggersSidebarComponentsHeader {
+// 		display: flex;
+// 		height: 52px;
+// 		padding: 0 24px;
+// 		align-items: center;
+// 		gap: 12px;
+// 		flex-shrink: 0;
+// 		align-self: stretch;
+// 		border-left: 1px solid #2c2d2e;
+// 		background: #202123;
+
+// 		.triggerSidebarTitle {
+// 			color: #f2f2f3;
+// 			font-family: Inter;
+// 			font-size: 14px;
+// 			font-style: normal;
+// 			font-weight: 500;
+// 			line-height: normal;
+// 			flex-grow: 1;
+// 		}
+// 	}
+
+.triggersHeaderContainer {
+	display: flex;
+	padding: 12px 24px;
+	flex-direction: column;
+	justify-content: center;
+	align-items: flex-start;
+	gap: 12px;
+	align-self: stretch;
+
+	.titleContainer {
+		.triggersHeaderTitle {
+			color: #f2f2f3;
+			font-family: Inter;
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+		}
+
+		.triggersHeaderDescription {
+			color: #7a7e85;
+			font-family: Inter;
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+		}
+	}
+
+	.triggerSidebarSearchContainer {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		align-self: stretch;
+		border-radius: 12px;
+		border: 1px solid #2c2d2e;
+		height: 40px;
+		padding: 0 12px;
+
+		.triggerSidebarSearch {
+			flex-grow: 1;
+			height: 100%;
+			background-color: transparent;
+			border: none;
+			outline: none;
+			color: #7a7e85;
+			font-family: Inter;
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+		}
+	}
+}
+.triggersContentContainer {
+	padding: 0 24px;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 16px;
+
+	.triggerContainer {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 8px;
+
+		.triggerIntegrationName {
+			color: #f2f2f3;
+			font-family: Inter;
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+		}
+
+		.availableIntegrationsList {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 8px;
+
+			.availableIntegrationItem {
+				display: flex;
+				width: 312px;
+				height: 44px;
+				padding: 12px;
+				align-items: center;
+				gap: 12px;
+				border-radius: 12px;
+				border: 1px solid #2c2d2e;
+				cursor: pointer;
+
+				.integrationIcon {
+					display: flex;
+					width: 24px;
+					height: 24px;
+					padding: 5px;
+					justify-content: center;
+					align-items: center;
+					flex-shrink: 0;
+					border-radius: 4px;
+					border: 0.706px solid #2c2d2e;
+				}
+
+				.integrationLabel {
+					color: #f2f2f3;
+					font-family: Inter;
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 500;
+				}
+			}
+		}
+	}
+
+	.availableIntegrationsContainer {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 8px;
+
+		.availableIntegrationHeading {
+			color: #f2f2f3;
+			font-family: Inter;
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+		}
+		.availableIntegrationsList {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 8px;
+
+			.availableIntegrationItem {
+				display: flex;
+				width: 312px;
+				height: 44px;
+				padding: 12px;
+				align-items: center;
+				gap: 12px;
+				border-radius: 12px;
+				border: 1px solid #2c2d2e;
+
+				.integrationIcon {
+					display: flex;
+					width: 24px;
+					height: 24px;
+					padding: 5px;
+					justify-content: center;
+					align-items: center;
+					flex-shrink: 0;
+					border-radius: 4px;
+					border: 0.706px solid #2c2d2e;
+				}
+
+				.integrationLabel {
+					color: #f2f2f3;
+					font-family: Inter;
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+					flex-grow: 1;
+				}
+
+				.integrationButton {
+					all: unset;
+					display: flex;
+					justify-content: center;
+					align-items: center;
+					gap: 6px;
+					color: #f2f2f3;
+					font-family: Inter;
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+					cursor: pointer;
+				}
+			}
+		}
+	}
+}
+
+.step2Container {
+	padding: 24px;
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
+	height: 100%;
+
+	.step2HeaderContainer {
+		display: flex;
+		flex-direction: column;
+		gap: 24px;
+		padding-bottom: 24px;
+		border-bottom: 1px solid #2c2d2e;
+
+		.triggerInfoContainer {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+
+			.triggerInfo {
+				display: flex;
+				flex-direction: column;
+				gap: 4px;
+
+				.triggerInfoTitle {
+					color: #808080;
+					font-size: 12px;
+				}
+
+				.triggerInfoDescription {
+					color: #ffffff;
+					font-size: 14px;
+				}
+			}
+
+			.changeTriggerButton {
+				display: flex;
+				padding: 6px 8px;
+				align-items: center;
+				gap: 12px;
+				cursor: pointer;
+				border-radius: 6px;
+				background: #202123;
+				color: #f2f2f3;
+				font-family: Inter;
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+				border: none;
+				outline: none;
+
+				&:hover {
+					background: #2c2c2c;
+				}
+			}
+		}
+
+		.step2TitleDescriptionContainer {
+			display: flex;
+			flex-direction: column;
+			gap: 8px;
+
+			.step2InputTitle {
+				display: flex;
+				padding: 4px 0px;
+				flex-direction: column;
+				align-items: flex-start;
+				gap: 12px;
+				align-self: stretch;
+				color: #f2f2f3;
+				font-family: Inter;
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 600;
+				line-height: normal;
+				background-color: transparent;
+				border: none;
+				outline: none;
+			}
+
+			.step2InputDescription {
+				color: #f2f2f3;
+				font-family: Inter;
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 400;
+				line-height: normal;
+				background-color: transparent;
+				border: none;
+				outline: none;
+			}
+		}
+	}
+
+	.step2InputsContainer {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 12px;
+		align-self: stretch;
+
+		.step2InputsHeading {
+			color: #f2f2f3;
+			font-family: Inter;
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+		}
+
+		.step2InputItem {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 8px;
+			align-self: stretch;
+
+			.step2InputLabel {
+				color: #7a7e85;
+				font-family: Inter;
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+		}
+
+		.step2AddInputButton {
+			align-self: flex-end;
+			display: flex;
+			padding: 6px 8px;
+			align-items: center;
+			gap: 12px;
+			border-radius: 6px;
+			background: #202123;
+			color: #f2f2f3;
+			font-family: Inter;
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+			cursor: pointer;
+			border: none;
+			outline: none;
+
+			&:hover {
+				background: #2c2c2c;
+			}
+		}
+	}
+
+	.triggerSaveButtonContainer {
+		padding: 10px 0;
+		border-top: 1px solid #2c2d2f;
+		width: 100%;
+		.triggerSaveButton {
+			width: 100%;
+			padding: 12px 16px;
+			align-self: stretch;
+			border-radius: 12px;
+			background: #202123;
+			border: none;
+			color: #f2f2f3;
+			font-family: Inter;
+			font-size: 13px;
+			font-style: normal;
+			font-weight: 400;
+			line-height: 16px; /* 123.077% */
+			margin-top: auto;
+			cursor: pointer;
+			transition: all 0.3s ease;
+
+			&:hover {
+				background: #2c2d2f;
+			}
+		}
+	}
+}

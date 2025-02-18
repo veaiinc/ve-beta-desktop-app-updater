@@ -1,0 +1,118 @@
+.renameWorkflowModalParentContainer {
+	display: flex;
+	width: 480px;
+	height: 284px;
+	padding: 40px;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 24px;
+	border-radius: 32px;
+	background: #151515;
+	box-shadow: 0px 53px 53px 0px rgba(0, 0, 0, 0.09), 0px 13px 29px 0px rgba(0, 0, 0, 0.1);
+
+	.renameWorkflowModalHeader {
+		display: flex;
+		align-items: flex-start;
+		gap: 4px;
+		align-self: stretch;
+
+		.headerTitle {
+			color: #e4e5e6;
+			font-family: Inter;
+			font-size: 18px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 26px; /* 144.444% */
+			flex: 1;
+		}
+
+		.closeBtnWrapper {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			cursor: pointer;
+			padding: 4px;
+		}
+	}
+
+	.inputActionContainer {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 6px;
+		flex: 1 0 0;
+		align-self: stretch;
+		.inputActionContainerLabel {
+			color: #b0b0b0;
+			font-family: Inter;
+			font-size: 11px;
+			font-style: normal;
+			font-weight: 400;
+			line-height: 16px; /* 145.455% */
+			margin-left: 14px;
+		}
+		.inputActionContainerLabelInput {
+			display: flex;
+			padding: 11px 14px;
+			justify-content: center;
+			align-items: center;
+			gap: 10px;
+			align-self: stretch;
+			border-radius: 10px;
+			border: 1px solid rgba(36, 36, 36, 0.64);
+			background-color: transparent;
+			color: rgba(228, 229, 230, 0.8);
+			font-family: Inter;
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 400;
+			line-height: 26px; /* 185.714% */
+		}
+		.errorMessage {
+			overflow: hidden;
+			color: rgba(204, 87, 86, 0.8);
+			text-overflow: ellipsis;
+			font-family: Inter;
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 400;
+			line-height: 16px; /* 114.286% */
+			letter-spacing: -0.3px;
+		}
+	}
+	.actionBtnContainer {
+		display: flex;
+		align-items: center;
+		gap: 24px;
+
+		.saveBtn {
+			display: flex;
+			padding: var(--Spacing-space-8, 16px) 24px;
+			justify-content: center;
+			align-items: center;
+			gap: 16px;
+			border-radius: 100px;
+			background-color: #6055ec;
+			color: #e4e5e6;
+			font-family: Inter;
+			font-size: 13px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 16px; /* 123.077% */
+			letter-spacing: 0.26px;
+			cursor: pointer;
+		}
+
+		.cancelBtn {
+			color: rgba(228, 229, 230, 0.64);
+			font-family: Inter;
+			font-size: 13px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 16px; /* 123.077% */
+			letter-spacing: 0.26px;
+			padding: 24px;
+			cursor: pointer;
+		}
+	}
+}
