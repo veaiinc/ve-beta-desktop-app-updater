@@ -284,15 +284,36 @@
 			border-radius: 32px;
 			background: #171819;
 
-			.subscriptionPlanHeader {
-				color: #e8e8e8;
-
-				/* Heading/H2 - 24 px */
-				font-family: Inter;
-				font-size: 24px;
-				font-style: normal;
-				font-weight: 600;
-				line-height: normal;
+			.subscriptionPlanHeaderContainer {
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+				align-self: stretch;
+				.subscriptionPlanHeader {
+					color: #e8e8e8;
+					font-family: Inter;
+					font-size: 24px;
+					font-style: normal;
+					font-weight: 600;
+					line-height: normal;
+				}
+				.manageSubscriptionButton {
+					display: flex;
+					padding: 14px 24px;
+					justify-content: center;
+					align-items: center;
+					gap: 6px;
+					border-radius: 59px;
+					background: #e8e8e8;
+					cursor: pointer;
+					color: #000;
+					font-family: Inter;
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+					border: none;
+				}
 			}
 
 			.subscriptionPlanContent {
@@ -513,6 +534,7 @@
 						justify-content: flex-start;
 						align-items: flex-start;
 						align-self: stretch;
+						gap: 8px;
 						.storageTitle {
 							color: #e4e5e6;
 							font-family: Inter;
@@ -550,7 +572,7 @@
 							width: 219px;
 							height: 3px;
 							border-radius: 24px;
-							background: #d9d9d9;
+							background: #2c2e30;
 							position: relative;
 							.storageProgressValue {
 								height: 3px;
