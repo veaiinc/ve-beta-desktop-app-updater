@@ -113,19 +113,19 @@ export const veAiModulesItemsList = [
 	// 	icon: PlaybookSvg,
 	// },
 	// { name: 'Teams', moduleRoute: '/teams', route: '/teams' },
-	{
-		id: 7,
-		name: 'Notes',
-		moduleRoute: '/notes',
-		route: '/notes',
-		icon: '',
-	},
+	// {
+	// 	id: 7,
+	// 	name: 'Notes',
+	// 	moduleRoute: '/notes',
+	// 	route: '/notes',
+	// 	icon: '',
+	// },
 ];
 
 //
 
 export const veAiModules = [
-	// { icon: OrchestratorSvg, name: 'Orchestrator', route: '/orchestrator' },
+	{ icon: OrchestratorSvg, name: 'Chats', route: null },
 	{ icon: NotificationSvg, name: 'Notifications', route: null },
 	// { icon: NotificationSvg, name: 'Trash', route: '/trash' },
 	{ id: 1, icon: GiftSvg, name: 'Share and Earn', route: '/share-and-earn' },

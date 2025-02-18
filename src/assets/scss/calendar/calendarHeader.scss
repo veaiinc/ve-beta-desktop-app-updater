@@ -1,18 +1,14 @@
 .calendarHeaderParentContainer {
 	display: flex;
-	// width: 989px;
 	width: 100%;
-	// height: 200px;
 	max-height: 200px;
-	padding: 18px 34px;
+	padding: 18px 24px;
+	padding-bottom: 0px;
 	flex-direction: column;
 	align-items: flex-start;
 	gap: 10px;
 	flex-shrink: 0;
-
 	border-radius: 24px 24px var(--cartCount, 0px) var(--cartCount, 0px);
-	border-bottom: 1px solid #272727;
-	background: rgba(36, 36, 36, 0.64);
 
 	.calendarHeaderContainer {
 		display: flex;
@@ -31,7 +27,7 @@
 			.calendarDate {
 				display: flex;
 				align-items: center;
-				gap: 5px;
+				gap: 8px;
 				cursor: pointer;
 
 				color: #e4e5e6;
@@ -40,6 +36,7 @@
 				font-style: normal;
 				font-weight: 500;
 				line-height: normal;
+				user-select: none;
 			}
 
 			.viewToggleWrapper {
@@ -48,7 +45,7 @@
 				align-items: flex-start;
 				gap: 10px;
 				border-radius: 8px;
-				background: #1d1d1d;
+				background: #1c1d1f;
 
 				.viewToggle {
 					display: flex;
@@ -75,7 +72,7 @@
 
 					.active {
 						border-radius: 4px;
-						background: rgba(36, 36, 36, 0.64);
+						background: #171819;
 						color: #e4e5e6;
 						cursor: default;
 					}
@@ -179,20 +176,12 @@
 		.weekHeaderWrapper {
 			display: flex;
 			align-items: center;
-			gap: var(--Spacing-space-3, 4px);
+			gap: 4px;
 			flex: 1 0 0;
 			align-self: stretch;
-			cursor: default;
 
 			.dayHeader {
-				display: flex;
-				justify-content: center;
-				align-items: center;
 				flex: 1 0 0;
-				align-self: stretch;
-				border-radius: 8px;
-				background: #1d1d1d;
-				height: 95px;
 				color: rgba(228, 229, 230, 0.48);
 				text-align: center;
 				font-family: Inter;
@@ -200,12 +189,22 @@
 				font-style: normal;
 				font-weight: 500;
 				line-height: normal;
+				user-select: none;
+
+				border-radius: 4px;
+				background: #1c1d1f;
+				background: color(display-p3 0.1098 0.1137 0.1216);
+				display: flex;
+				height: 44px;
+				flex-direction: column;
+				justify-content: center;
+				align-items: center;
+				gap: 10px;
+				flex: 1 0 0;
 
 				&:hover {
 					color: #e4e5e6;
 					border-radius: 8px;
-					background: #1d1d1d;
-					box-shadow: 0px 4px 4px 0px rgba(96, 96, 96, 0.25);
 				}
 
 				span {
@@ -225,22 +224,23 @@
 		.weekDayHeaderContainer {
 			display: flex;
 			align-items: center;
-			gap: 5px;
-			margin-left: 50px;
+			margin-left: 60px;
+			gap: 4px;
 			flex: 1 0 0;
 			align-self: stretch;
-			cursor: pointer;
+			user-select: none;
 
 			.weekDayBlock {
 				display: flex;
-				padding: 10px 0px;
-				min-height: 95px;
+				height: 53px;
+				flex-direction: column;
 				justify-content: center;
 				align-items: center;
+				gap: 8px;
 				flex: 1 0 0;
-				align-self: stretch;
-				border-radius: 8px;
-				background: #1d1d1d;
+				border-radius: 4px;
+				background: #1c1d1f;
+				background: color(display-p3 0.1098 0.1137 0.1216);
 
 				.weekDayWrapper {
 					display: flex;
@@ -249,21 +249,33 @@
 					justify-content: center;
 					align-items: center;
 					gap: 4px;
+					color: var(--secondary-font, #787e87);
+					color: var(--secondary-font, color(display-p3 0.4784 0.4941 0.5216));
 					text-align: center;
 					font-family: Inter;
-					font-size: 12px;
-					font-style: normal;
-					font-weight: 400;
-					line-height: normal;
+
+					span {
+						font-size: 11px;
+						font-style: normal;
+						font-weight: 400;
+						line-height: normal;
+						text-transform: uppercase;
+					}
+
+					span:nth-child(2) {
+						font-size: 18px;
+						font-style: normal;
+						font-weight: 600;
+						line-height: 16px;
+					}
 				}
 			}
 			.active {
-				border-radius: 8px;
-				border: 1px solid #6055ec;
-				background: #1d1d1d;
-				box-shadow: 0px 8px 10px 0px rgba(17, 17, 17, 0.4),
-					0px 0px 40px 0px rgba(96, 85, 236, 0.15);
-				cursor: default;
+				background: #f2f2f3;
+				span,
+				span:nth-child(2) {
+					color: #111;
+				}
 			}
 		}
 	}

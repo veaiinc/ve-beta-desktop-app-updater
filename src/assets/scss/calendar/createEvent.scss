@@ -9,9 +9,9 @@
 	font-size: 12px;
 	border-radius: 24px;
 	border: 1px solid #272727;
-	background: #191919;
+	background: #202123;
 
-	.headerWrapper {
+	.createEventHeaderWrapper {
 		display: flex;
 		width: 320px;
 		padding: 18px 24px;
@@ -357,12 +357,47 @@
 		justify-content: center;
 		align-items: center;
 		border-radius: 100px;
-		background: #6055ec;
+		// background: #6055ec;
+		background-color: white;
 		border: none;
 		margin: 24px;
 		margin-top: 0;
-		color: #e4e5e6;
+		color: black;
+		font-family: Inter;
+		font-size: 16px;
+		font-style: normal;
+		font-weight: 500;
 		cursor: pointer;
+
+		&:hover {
+			background-color: #e4e5e6;
+			color: black;
+		}
+	}
+
+	.createEventSubmissionError {
+		margin: 0 24px;
+		padding: 5px;
+		border-radius: 5px;
+		background: rgba(239, 68, 68, 0.1);
+		border-left: 4px solid #ef4444;
+		box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 12px;
+
+		svg {
+			width: 24px;
+			height: 24px;
+			color: #ef4444;
+		}
+
+		span {
+			color: #fca5a5;
+			font-weight: 500;
+			font-size: 14px;
+		}
 	}
 
 	input[type='text'],

@@ -1,0 +1,72 @@
+.date-header {
+	display: flex;
+	height: 32px;
+	padding: 8px 14px;
+	align-items: center;
+	gap: 6px;
+	border-radius: 100px;
+	background: #2c2e30;
+	color: #e4e5e6;
+	width: fit-content;
+	height: fit-content;
+	font-family: Inter;
+	font-size: 12px;
+	font-style: normal;
+	font-weight: 500;
+	line-height: normal;
+	svg {
+		path {
+			stroke: #e4e5e6 !important;
+		}
+	}
+
+	.chevron-icon-container {
+		transform: rotate(90deg);
+	}
+}
+
+.date-rangePicker {
+	border: none;
+	background-color: transparent !important;
+	color: #e4e5e6 !important;
+	border-radius: 36px;
+	font-family: Inter !important;
+	font-size: 12px !important;
+	font-style: normal !important;
+	font-weight: 400 !important;
+	line-height: normal !important;
+	padding: 4px 6px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
+	margin-right: 0;
+	border: 1px solid #424548 !important;
+	outline: none !important;
+	input {
+		color: #e4e5e6 !important;
+		background-color: transparent !important;
+		background: transparent !important;
+		font-size: 12px !important;
+		font-weight: 400 !important;
+		&::placeholder {
+			opacity: 1;
+			color: #e4e5e6 !important;
+		}
+	}
+	svg {
+		path {
+			stroke: #e4e5e6 !important;
+			fill: #e4e5e6 !important;
+		}
+	}
+	&:hover {
+		background-color: transparent;
+		color: #e4e5e6 !important;
+		border: 1px solid #424548;
+	}
+	&:placeholder {
+		color: #e4e5e6 !important;
+		opacity: 1;
+	}
+}

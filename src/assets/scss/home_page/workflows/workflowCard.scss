@@ -72,9 +72,15 @@
 			align-self: stretch;
 			background: #202123;
 			cursor: pointer;
-
+			transition: all 0.2s ease;
 			&:hover {
-				background-color: #414548;
+				background-color: #27282b;
+				color: #f2f2f3;
+
+				.left-text {
+					color: #f2f2f3;
+				}
+				transition: all 0.2s ease;
 			}
 
 			.left-text {

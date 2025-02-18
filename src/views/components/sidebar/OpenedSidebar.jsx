@@ -1,4 +1,4 @@
-import React, { useState, memo, useCallback, useEffect } from 'react';
+import React, { useState, memo, useCallback, useEffect, useContext } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
 	veAiModulesItemsList,
@@ -18,6 +18,9 @@ import WorkspaceListComponent from './Workspace';
 import useLogout from '../../hooks/useLogout';
 import { Tooltip } from 'antd';
 import Notifications from './notifications/Notifications';
+import Chats from './chats/Chats';
+
+import Context from '../../../context/context';
 const CommonBottomSection = ({ handleLogout, openWorkspacesFunction, workSpaceOpen }) => (
 	<div
 		className="commonBottomSection"
@@ -78,10 +81,12 @@ const OpenedSideBarHoverStateIcons = ({
 	activeSubModule,
 	setActiveSubModule,
 	handleSubModuleClick,
+	setShowNotificationsDrawer,
+	setShowChatsDrawer,
 }) => {
 	const location = useLocation();
 	const [isHover, setisHover] = useState(false);
-	const [showNotificationsDrawer, setShowNotificationsDrawer] = useState(false);
+
 	const onMoutseEnter = () => {
 		if (isActive) return;
 		setisHover(true);
@@ -93,17 +98,23 @@ const OpenedSideBarHoverStateIcons = ({
 
 	const redirectToFunction = (subModules, route, name) => {
 		if (name === 'Notifications') {
-			setShowNotificationsDrawer(!showNotificationsDrawer);
+			setShowNotificationsDrawer((prev) => !prev);
+		} else {
+			setShowNotificationsDrawer(false);
 		}
+		if (name === 'Chats') {
+			setShowChatsDrawer((prev) => !prev);
+		} else {
+			setShowChatsDrawer(false);
+		}
+
 		if (!subModules) {
 			setActiveDropdown(null);
 			setActiveSubModule(null);
 			navigateTo(route);
 		} else {
-			//
 			onDropdownToggle();
 		}
-		if (!route) return;
 	};
 
 	const isExactPathMatch = useCallback(() => {
@@ -206,10 +217,6 @@ const OpenedSideBarHoverStateIcons = ({
 					</div>
 				)}
 			</div>
-			<Notifications
-				showNotificationsDrawer={showNotificationsDrawer}
-				setShowNotificationsDrawer={setShowNotificationsDrawer}
-			/>
 		</div>
 	);
 };
@@ -300,7 +307,12 @@ const OpenedSideBarItemsComponent = ({
 	userWorkSpaceList,
 	isOpen,
 	setIsOpen,
+	setShowNotificationsDrawer,
+	setShowChatsDrawer,
 }) => {
+	const {
+		templates: { leftSidebarState, updateStateValues },
+	} = useContext(Context);
 	const navigate = useNavigate();
 	const logoutFunc = useLogout();
 	const [selectedOption, setSelectedOption] = useState(null);
@@ -314,6 +326,14 @@ const OpenedSideBarItemsComponent = ({
 	const location = useLocation();
 
 	const [isThisEarlyAccessPage, setIsThisEarlyAccessPage] = useState(false);
+
+	useEffect(() => {
+		if (leftSidebarState && leftSidebarState === 'close') {
+			handleSidebarCollapse();
+			updateStateValues({ leftSidebarState: null });
+		}
+	}, [leftSidebarState]);
+
 	useEffect(() => {
 		setIsThisEarlyAccessPage(location?.pathname?.includes('/early-access'));
 	}, [location?.pathname]);
@@ -354,8 +374,9 @@ const OpenedSideBarItemsComponent = ({
 		[navigate],
 	);
 
+	//close sidebar
 	const handleSidebarCollapse = (e) => {
-		e.stopPropagation();
+		// e.stopPropagation();
 		setsidebarStates({ ...sidebarStates, navStyle: 'close' });
 		setIsOpen(false);
 	};
@@ -539,6 +560,10 @@ const OpenedSideBarItemsComponent = ({
 												activeSubModule={activeSubModule}
 												setActiveSubModule={setActiveSubModule}
 												handleSubModuleClick={handleSubModuleClick}
+												setShowChatsDrawer={setShowChatsDrawer}
+												setShowNotificationsDrawer={
+													setShowNotificationsDrawer
+												}
 											/>
 										</div>
 									))}
@@ -575,6 +600,10 @@ const OpenedSideBarItemsComponent = ({
 												activeSubModule={activeSubModule}
 												setActiveSubModule={setActiveSubModule}
 												handleSubModuleClick={handleSubModuleClick}
+												setShowChatsDrawer={setShowChatsDrawer}
+												setShowNotificationsDrawer={
+													setShowNotificationsDrawer
+												}
 											/>
 										</div>
 									))}
