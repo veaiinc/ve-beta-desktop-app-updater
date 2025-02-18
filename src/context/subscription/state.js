@@ -263,6 +263,51 @@ export const SubscriptionState = (props) => {
 			console.log('errror ==>updateTokenExpiryState', error);
 		}
 	};
+
+	// https://us.api.ve.ai/auth/dev/addon-plan/test1234/purchase-add-on-plan
+
+	const purchaseAddOnPlan = async (payload) => {
+		let workspaceId = localStorage.getItem('workspaceId');
+		let usertoken = localStorage.getItem('usertoken');
+		try {
+			const response = await Service.fetchPost(
+				`/addon-plan/${workspaceId}/purchase-add-on-plan`,
+				payload,
+				usertoken,
+				'auth',
+			);
+			if (response?.[0] === true) {
+				return [true, response?.[1]];
+			} else {
+				message.error('Unable to purchase add on plan');
+				return [false];
+			}
+		} catch (error) {
+			console.log('errror ==>purchaseAddOnPlan', error);
+		}
+	};
+
+	const purchaseSubscriptionPlan = async (payload) => {
+		let workspaceId = localStorage.getItem('workspaceId');
+		let usertoken = localStorage.getItem('usertoken');
+		try {
+			const response = await Service.fetchPost(
+				`/subscription/${workspaceId}/purchase-subscription`,
+				payload,
+				usertoken,
+				'auth',
+			);
+			if (response?.[0] === true) {
+				return [true, response?.[1]];
+			} else {
+				message.error('Unable to purchase subscription plan');
+				return [false];
+			}
+		} catch (error) {
+			console.log('errror ==>purchaseSubscriptionPlan', error);
+		}
+	};
+
 	return {
 		...state,
 		getAllSubscriptionPlan,
@@ -277,5 +322,7 @@ export const SubscriptionState = (props) => {
 		createManageSubscriptionLinkforExistingUsers,
 		updateSubscriptionState,
 		updateTokenExpiryState,
+		purchaseAddOnPlan,
+		purchaseSubscriptionPlan,
 	};
 };

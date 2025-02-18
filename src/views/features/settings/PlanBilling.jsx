@@ -8,15 +8,15 @@ import { useNavigate } from 'react-router-dom';
 import Skeleton from 'react-loading-skeleton';
 import { message, Spin } from 'antd';
 import Spinner from '../../components/loaders/Spinner';
-
-const features = [
-	'Form Management Assistant',
-	'Proposal Builder',
-	'Sales Performance Tracker',
-	'Workflow Automation',
-	'Business Insights Dashboard',
-	'10 Team Members',
-];
+import AddOnPlans from '../../components/settings/planbilling/addOnCards';
+// const features = [
+// 	'Form Management Assistant',
+// 	'Proposal Builder',
+// 	'Sales Performance Tracker',
+// 	'Workflow Automation',
+// 	'Business Insights Dashboard',
+// 	'10 Team Members',
+// ];
 
 const menuItems = [
 	{
@@ -83,7 +83,7 @@ const PlanBilling = () => {
 				...prev,
 				loading: false,
 				plan: currentPlan?.currentSubscriptionPlan,
-				expiresAt: currentPlan?.currentSubscriptionPlan?.expiresAt,
+				expiresAt: currentPlan?.trialPlanExpiresAt,
 				freeTier: tierStatus,
 				currency: currentPlan?.currentSubscriptionPlan?.currency,
 				storageLimit: currentPlan?.storageLimitInGB,
@@ -180,21 +180,48 @@ const SubscribedUserPlanCard = ({
 
 	const [info, setInfo] = useState({
 		manageSubscriptionLoader: false,
-		features: features,
+		// features: features,
 		featureChanged: false,
 		addOnPurchaseLoader: false,
 		planPurchaseId: null,
+		isOpen: false,
 	});
 
-	useEffect(() => {
-		if (data && info?.features?.length && data?.numberOfUsers && !info?.featureChanged) {
-			let features = [...(info?.features || [])];
-			const users = data?.numberOfUsers;
-			features?.pop();
-			features?.push(`${users} Team Members`);
-			setInfo((prev) => ({ ...prev, features, featureChanged: true }));
-		}
-	}, [data, info?.features, info?.featureChanged]);
+	// useEffect(() => {
+	// 	if (data && info?.features?.length && data?.numberOfUsers && !info?.featureChanged) {
+	// 		let features = [...(info?.features || [])];
+	// 		const users = data?.numberOfUsers;
+	// 		features?.pop();
+	// 		features?.push(`${users} Team Members`);
+	// 		setInfo((prev) => ({ ...prev, features, featureChanged: true }));
+	// 	}
+	// }, [data, info?.features, info?.featureChanged]);
+	const progressData = [
+		{
+			id: 1,
+			title: 'Storage',
+			usedValue: data?.storageInGB,
+			totalValue: storageLimit,
+		},
+		{
+			id: 2,
+			title: 'Lite Images',
+			usedValue: totalImagesUploaded,
+			totalValue: imagesLimit,
+		},
+		{
+			id: 3,
+			title: 'Tenant Users',
+			usedValue: tenantUsers,
+			totalValue: tenantUsersLimit,
+		},
+		{
+			id: 4,
+			title: 'AI Credits',
+			usedValue: aiCredits,
+			totalValue: aiCreditsLimit,
+		},
+	];
 
 	const handleManageSubscriptionClick = useCallback(async () => {
 		if (!expiresAt) {
@@ -228,14 +255,14 @@ const SubscribedUserPlanCard = ({
 						</span>
 						<span className="subscritptionPlanPeriod">/ {data?.subscriptionType}</span>
 					</div>
-					<div className="subscritptionFeaturesContainer">
+					{/* <div className="subscritptionFeaturesContainer">
 						{info?.features?.map((ele, index) => (
 							<div className="subscriptionFeature" key={index}>
 								<Tick />
 								<span className="subscriptionFeatureContent">{ele}</span>
 							</div>
 						))}
-					</div>
+					</div> */}
 					{data?.addOns && Object.values(data?.addOns)?.length ? (
 						<div className="addOnContianer">
 							<span className="addOnStates">Current Add-on's</span>
@@ -261,23 +288,40 @@ const SubscribedUserPlanCard = ({
 						''
 					)}
 					<div className="storageContainer">
-						<div className="storageContainerHolder">
-							<div className="storageTitle">STORAGE</div>
-							<div className="storageUsed">
-								<span className="storageUsedValue">{data?.storageInGB}</span>
-								<span className="storageUsedUnit">GB</span> used out of{' '}
-								{storageLimit} GB
-							</div>
-							<div className="storageProgress">
-								<div
-									className="storageProgressValue"
-									style={{
-										width: `${(data?.storageInGB / storageLimit) * 100}%`,
-									}}
-								></div>
-							</div>
-						</div>
-						<div className="storageContainerHolder">
+						{progressData?.map((item) => {
+							return (
+								<>
+									{item?.totalValue > 0 && (
+										<div className="storageContainerHolder">
+											<div className="storageTitle">{item?.title}</div>
+											<div className="storageUsed">
+												<span className="storageUsedValue">
+													{item?.usedValue}
+												</span>
+												<span className="storageUsedUnit">
+													{item?.title === 'Storage' ? 'GB' : ''}
+													{item?.title === 'AI Credits' ? 'Credits' : ''}
+												</span>{' '}
+												used out of {item?.totalValue}
+											</div>
+											<div className="storageProgress">
+												<div
+													className="storageProgressValue"
+													style={{
+														width: `${Math.min(
+															(item?.usedValue / item?.totalValue) *
+																100,
+															100,
+														)}%`,
+													}}
+												></div>
+											</div>
+										</div>
+									)}
+								</>
+							);
+						})}
+						{/* <div className="storageContainerHolder">
 							<div className="storageTitle">LITE IMAGES</div>
 							<div className="storageUsed">
 								<span className="storageUsedValue">{totalImagesUploaded}</span>
@@ -321,7 +365,7 @@ const SubscribedUserPlanCard = ({
 								<span className="storageUsedValue">{aiCreditsLimit}</span>
 								<span className="storageUsedUnit">Credits</span> left
 							</div>
-							{/* <div className="storageProgress">
+							<div className="storageProgress">
 								<div
 									className="storageProgressValue"
 									style={{
@@ -331,11 +375,11 @@ const SubscribedUserPlanCard = ({
 										)}%`,
 									}}
 								></div>
-							</div> */}
+							</div>
 							<div className="storageProgressText">
 								{aiCredits > aiCreditsLimit ? 'You have reached the limit' : ''}
 							</div>
-						</div>
+						</div> */}
 					</div>
 				</div>
 				{data?.addOnPlan && Object.values(data?.addOnPlan)?.length ? (
@@ -344,10 +388,13 @@ const SubscribedUserPlanCard = ({
 					''
 				)}
 				<div className="subscriptionActionContainer">
-					<div
+					<button
 						className="manageSubscriptionButton"
-						onClick={handleManageSubscriptionClick}
+						onClick={() => setInfo((prev) => ({ ...prev, isOpen: true }))}
 					>
+						Add Ons
+					</button>
+					<div onClick={handleManageSubscriptionClick}>
 						{info?.manageSubscriptionLoader ? <Spin /> : `	Manage Subscription`}
 					</div>
 					<div className="expiringText">
@@ -356,100 +403,18 @@ const SubscribedUserPlanCard = ({
 					</div>
 				</div>
 			</div>
-			<AddOnPlans addOnsLoading={addOnsLoading} />
+			<AddOnPlans
+				addOnsLoading={addOnsLoading}
+				isOpen={info?.isOpen}
+				closeModal={() => setInfo((prev) => ({ ...prev, isOpen: false }))}
+				subscriptionState={'addOnPlans'}
+			/>
 		</div>
 	);
 };
 
-const AddOnPlans = ({ addOnsLoading }) => {
-	const [info, setInfo] = useState({
-		addOnPurchaseLoader: false,
-		planPurchaseId: null,
-	});
-
-	let {
-		authInfo: { currentPlanAddOns, purchaseAddOn },
-	} = useContext(Context);
-
-	const handlePurchaseAddOn = useCallback(
-		async (planId) => {
-			setInfo((prev) => ({ ...prev, addOnPurchaseLoader: true, planPurchaseId: planId }));
-			const response = await purchaseAddOn(planId);
-			if (response?.[0]) {
-				window.location.href = response?.[1]?.url;
-			} else {
-				message?.error(response?.[1]?.message);
-			}
-			setInfo((prev) => ({ ...prev, addOnPurchaseLoader: false, planPurchaseId: null }));
-		},
-		[info?.planPurchaseId],
-	);
-
-	return (
-		<>
-			{currentPlanAddOns && (
-				<div className="addOnsContainer">
-					<h1 className="title">Add-ons</h1>
-					<div className="addOnsCardsContainer">
-						{addOnsLoading
-							? [1, 2, 3, 4].map((loader) => (
-									<Skeleton
-										key={loader}
-										height="200px"
-										style={{ borderRadius: '24px' }}
-										width="100%"
-									/>
-							  ))
-							: currentPlanAddOns?.map((addOn) => {
-									const {
-										_id: planId,
-										plan,
-										isRecurring,
-										recurringType,
-										totalPrice,
-										currency,
-									} = addOn;
-
-									return (
-										<div className="addOnsCards" key={planId}>
-											<h1 className="addOnPlanName">{plan}</h1>
-											<div className="priceContainer">
-												<span className="currencySymbol">
-													{currency === 'INR' ? '₹ ' : '$ '}
-												</span>
-												<span className="priceValue">{totalPrice}</span>
-												<span
-													className={`priceDuration ${
-														!isRecurring ? 'oneTime' : ''
-													}`}
-												>
-													{isRecurring
-														? `/ ${recurringType}`
-														: 'One time'}
-												</span>
-											</div>
-											<button
-												onClick={() => handlePurchaseAddOn(planId)}
-												className="addOnsButton"
-											>
-												{info?.addOnPurchaseLoader &&
-												info?.planPurchaseId === planId ? (
-													<Spinner width="16px" height="16px" />
-												) : (
-													'Add Now'
-												)}
-											</button>
-										</div>
-									);
-							  })}
-					</div>
-				</div>
-			)}
-		</>
-	);
-};
-
 const FreeTierPlanCard = ({ expiresAt, addOnsLoading }) => {
+	const [isOpen, setIsOpen] = useState(false);
 	const navigate = useNavigate();
 	return (
 		<>
@@ -460,32 +425,37 @@ const FreeTierPlanCard = ({ expiresAt, addOnsLoading }) => {
 						<span className="subscriptionPlanPricing">$0</span>
 					</div>
 
-					<div className="subscritptionFeaturesContainer">
+					{/* <div className="subscritptionFeaturesContainer">
 						{features?.map((ele, index) => (
 							<div className="subscriptionFeature" key={index}>
 								<Tick />
 								<span className="subscriptionFeatureContent">{ele}</span>
 							</div>
 						))}
-					</div>
+					</div> */}
 				</div>
 				<div className="subscriptionSeperator"></div>
 				<div className="freePlanSubscriptionCardContainer">
 					<span className="freeTrialText">
-						Your free trial expires at{' '}
-						{moment?.unix(`${expiresAt}`)?.format('DD MMM YYYY')} ! Don't miss out -
-						upgrade now to keep enjoying premium features.
+						Your free trial expires at {moment.unix(expiresAt).format('DD MMM YYYY')} !
+						Don't miss out - upgrade now to keep enjoying premium features.
 					</span>
 
 					<div
 						className="manageSubscriptionButton"
-						onClick={() => navigate('/subscription')}
+						// onClick={() => navigate('/subscription')}
+						onClick={() => setIsOpen(true)}
 					>
 						Upgrade Subscription
 					</div>
 				</div>
 			</div>
-			<AddOnPlans addOnsLoading={addOnsLoading} />
+			<AddOnPlans
+				addOnsLoading={addOnsLoading}
+				isOpen={isOpen}
+				closeModal={() => setIsOpen(false)}
+				subscriptionState={'upgradeSubscription'}
+			/>
 		</>
 	);
 };
