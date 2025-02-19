@@ -28,14 +28,14 @@
 	border-radius: 16px;
 	background: #202123;
 
-	.content {
+	.tooltip-content {
 		width: 280px;
 		height: 270px;
 		overflow-y: auto;
 		flex-shrink: 0;
 		color: #f2f2f3;
 		font-family: Inter;
-		font-size: 12px;
+		font-size: 14px;
 		font-style: normal;
 		font-weight: 500;
 		line-height: 18px; /* 150% */

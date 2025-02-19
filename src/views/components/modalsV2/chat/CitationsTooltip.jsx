@@ -2,7 +2,7 @@ import { Tooltip } from 'antd';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import Context from '../../../../context/context';
 import '../../../../assets/scss/chat/citationsTooltip.scss';
-import Markdown from 'react-markdown';
+import { Markdown } from '../../../../helpers/markdownHelper';
 
 export const CitationsTooltip = ({ citationId }) => {
 	const {
@@ -25,12 +25,17 @@ export const CitationsTooltip = ({ citationId }) => {
 	return (
 		<Tooltip
 			arrow={false}
-			trigger={'hover'}
+			trigger={'click'}
 			color="transparent"
 			placement="topLeft"
 			title={
-				<a href={link} className="citation-tooltip-container">
-					<div className="content">
+				<a
+					href={link}
+					target="_blank"
+					rel="noreferrer"
+					className="citation-tooltip-container"
+				>
+					<div className="tooltip-content">
 						{citation?.source ? <Markdown>{citationData}</Markdown> : citation?.snippet}
 					</div>
 

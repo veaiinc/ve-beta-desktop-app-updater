@@ -100,7 +100,7 @@ const components = {
 	},
 	p: ({ children, ...props }) => {
 		return (
-			<p className="mb-4" {...props}>
+			<p className="text-white" {...props}>
 				<CustomComponent>{children}</CustomComponent>
 			</p>
 		);
@@ -131,7 +131,7 @@ const updateTextWithCitations = (text) => {
 	const parts = text.split(regex);
 	const matches = text.match(regex);
 
-	if (!matches) return <span>{text}</span>;
+	if (!matches) return text;
 
 	return (
 		<>
