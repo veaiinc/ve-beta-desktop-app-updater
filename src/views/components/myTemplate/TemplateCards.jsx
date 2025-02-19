@@ -160,7 +160,7 @@ const TemplateCards = ({ data, loading, hasNextPage, fetchMoreMyWorkflows }) => 
 								}`}
 								onClick={(e) => {
 									e.stopPropagation();
-									createFileClick(template);
+									handleTemplateClick(template);
 								}}
 								onMouseEnter={() =>
 									setInfo((prev) => ({
