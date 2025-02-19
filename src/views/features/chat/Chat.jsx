@@ -50,7 +50,6 @@ const Chat = ({
 			citations,
 			currentSessionId,
 			updateAiChatMessageRating,
-			aiChatMessageRatings: ratings,
 		},
 	} = useContext(Context);
 
@@ -63,8 +62,6 @@ const Chat = ({
 		toggleMute,
 		toggleKrispNoiseFilter,
 	} = useVoiceIntegration();
-
-	const location = useLocation();
 
 	const [info, setInfo] = useState({
 		expanded: false,
@@ -80,9 +77,17 @@ const Chat = ({
 		voiceIntegration: false,
 		noteModalIsOpen: false,
 		citationsModalIsOpen: false,
+		chatList: [],
 	});
 
 	const chatContentRef = useRef(null);
+
+	useEffect(() => {
+		setInfo((prev) => ({
+			...prev,
+			chatList: globalChatMessages,
+		}));
+	}, [globalChatMessages]);
 
 	useEffect(() => {
 		smoothScrollToBottom();
@@ -107,8 +112,19 @@ const Chat = ({
 
 	const handleRatingClick = async (type, messageId) => {
 		try {
-			if (messageId && ratings?.[messageId]?.rating !== type) {
-				await updateAiChatMessageRating({ rating: type }, messageId);
+			if (messageId) {
+				const message = info?.chatList?.find((chat) => chat?.messageId === messageId);
+				if (message?.rating === null || message?.rating !== type) {
+					await updateAiChatMessageRating({ rating: type }, messageId);
+					let messages = [...info?.chatList];
+					messages = messages?.map((chat) => {
+						if (chat?.messageId === messageId) {
+							chat.rating = type;
+						}
+						return chat;
+					});
+					updateStateValues({ globalChatMessages: messages });
+				}
 			}
 		} catch (error) {
 			console.log('error', error);
@@ -143,6 +159,16 @@ const Chat = ({
 			});
 		}
 	}, [chatContentRef]);
+	const handleStopTypingEffect = () => {
+		let messages = [...globalChatMessages];
+		messages = messages?.map((message) => {
+			if (message?.typingEffect) {
+				message.typingEffect = false;
+			}
+			return message;
+		});
+		updateStateValues({ globalChatMessages: messages });
+	};
 
 	return (
 		<>
@@ -175,7 +201,7 @@ const Chat = ({
 					>
 						<div className={`chatBodyParentContainer`} ref={chatContentRef}>
 							<div className="chatContent">
-								{globalChatMessages?.map((chat, index) =>
+								{info?.chatList?.map((chat, index) =>
 									chat?.content ? (
 										chat?.content
 									) : (
@@ -196,6 +222,9 @@ const Chat = ({
 																smoothScrollToBottom
 															}
 															handleRatingClick={handleRatingClick}
+															showTypingEffect={chat?.typingEffect}
+															onComplete={handleStopTypingEffect}
+															rating={chat?.rating}
 														/>
 													</div>
 												) : (
@@ -220,6 +249,7 @@ const Chat = ({
 				modalIsOpen={info?.noteModalIsOpen}
 				closeModal={handleNoteComponentModalClose}
 				handleRatingClick={handleRatingClick}
+				chatList={info?.chatList}
 			/>
 		</>
 	);

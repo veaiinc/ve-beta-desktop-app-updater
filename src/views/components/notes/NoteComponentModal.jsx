@@ -13,7 +13,7 @@ import ChatBox from '../homePage/ChatBox';
 import { useContext } from 'react';
 import Context from '../../../context/context';
 const noteIcons = [<PreviousSvg />, <NextSvg />, <CopySvg />, <ShareSvg />];
-const NoteComponentModal = ({ modalIsOpen, closeModal, handleRatingClick }) => {
+const NoteComponentModal = ({ modalIsOpen, closeModal, handleRatingClick, chatList }) => {
 	const {
 		templates: { globalChatMessages },
 	} = useContext(Context);
@@ -21,7 +21,7 @@ const NoteComponentModal = ({ modalIsOpen, closeModal, handleRatingClick }) => {
 
 	useEffect(() => {
 		smoothScrollToBottom();
-	}, [globalChatMessages]); // Scroll when chat updates
+	}, [chatList]); // Scroll when chat updates
 
 	const smoothScrollToBottom = useCallback(() => {
 		if (chatContentRef?.current) {
@@ -46,7 +46,7 @@ const NoteComponentModal = ({ modalIsOpen, closeModal, handleRatingClick }) => {
 					{/* chat body */}
 					<div className={`chatBodyParentContainer`} ref={chatContentRef}>
 						<div className="chatContent">
-							{globalChatMessages?.map((chat, index) =>
+							{chatList?.map((chat, index) =>
 								chat?.content ? (
 									chat?.content
 								) : (
@@ -62,6 +62,8 @@ const NoteComponentModal = ({ modalIsOpen, closeModal, handleRatingClick }) => {
 														smoothScrollToBottom={smoothScrollToBottom}
 														handleRatingClick={handleRatingClick}
 														messageId={chat?.messageId}
+														showTypingEffect={chat?.typingEffect}
+														rating={chat?.rating}
 													/>
 												</div>
 											) : (

@@ -136,15 +136,16 @@ export const Markdown = memo(
 
 export const TypingEffect = ({
 	text,
-	onComplete,
+	onComplete = null,
 	customePencilClickFunc = null,
 	smoothScrollToBottom,
 	messageId = null,
 	handleRatingClick = null,
+	showTypingEffect = false,
+	rating = null,
 }) => {
 	const {
 		documentPreview: { setNoteContent },
-		templates: { aiChatMessageRatings: ratings },
 	} = useContext(Context);
 
 	const [displayedText, setDisplayedText] = useState('');
@@ -162,10 +163,17 @@ export const TypingEffect = ({
 			}, 5); // Adjust speed as needed
 
 			return () => clearTimeout(timeout);
-		} else if (onComplete) {
+		} else if (onComplete && showTypingEffect) {
 			onComplete();
 		}
 	}, [currentIndex, text, onComplete]);
+
+	useEffect(() => {
+		if (!showTypingEffect) {
+			setCurrentIndex(text?.length);
+			setDisplayedText(text);
+		}
+	}, [showTypingEffect]);
 
 	const handleCopyTextClick = (text) => {
 		navigator?.clipboard?.writeText(text).then(() => {
@@ -188,9 +196,7 @@ export const TypingEffect = ({
 					<div className="icon-container">
 						<Tooltip placement="bottom" arrow={false} trigger={'hover'} title={'Like'}>
 							<ThumpsUpSvg
-								fill={
-									ratings?.[messageId]?.rating === 'thumbsUp' ? '#f2f2f3' : 'none'
-								}
+								fill={rating === 'thumbsUp' ? '#f2f2f3' : 'none'}
 								onClick={() =>
 									handleRatingClick && handleRatingClick('thumbsUp', messageId)
 								}
@@ -206,11 +212,7 @@ export const TypingEffect = ({
 							title={'Dislike'}
 						>
 							<ThumpsDownSvg
-								fill={
-									ratings?.[messageId]?.rating === 'thumbsDown'
-										? '#f2f2f3'
-										: 'none'
-								}
+								fill={rating === 'thumbsDown' ? '#f2f2f3' : 'none'}
 								onClick={() =>
 									handleRatingClick && handleRatingClick('thumbsDown', messageId)
 								}

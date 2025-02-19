@@ -95,7 +95,6 @@ export const intialState = {
 	smartFileRefetch: false,
 	activeWorkflowSlugForSmartFile: null,
 	leftSidebarState: null,
-	aiChatMessageRatings: {},
 };
 
 export const TemplatesState = (props) => {
@@ -1500,7 +1499,7 @@ export const TemplatesState = (props) => {
 				payload.query += str;
 			} else {
 				updatedGlobalChatMessages = [
-					{ type: 'user', message: queryMessage || '' },
+					{ type: 'user', message: queryMessage || '', typingEffect: false },
 					{
 						type: 'AI',
 						message: 'loading....',
@@ -1547,16 +1546,12 @@ export const TemplatesState = (props) => {
 						payload: null,
 					});
 				}
-				// if (messageId) {
-				// 	dispatch({
-				// 		type: Actions?.UPDATE_AI_CHAT_MESSAGE_RATING,
-				// 		payload: { ...state?.aiChatMessageRatings, [messageId]: {} },
-				// 	});
-				// }
 				const updatedGlobalChatMessages = {
 					type: 'AI',
 					message: response?.[1]?.answer,
 					messageId: response?.[1]?.['message_id'],
+					typingEffect: true,
+					rating: null,
 				};
 				dispatch({
 					type: Actions.GLOBAL_CHAT_MESSAGES_ACTIONS_SUCCESS,
@@ -1576,13 +1571,7 @@ export const TemplatesState = (props) => {
 		try {
 			const response = await Service?.fetchPut(url, payload, usertoken, 'ai_assistant_api');
 			if (response?.[0]) {
-				dispatch({
-					type: Actions?.UPDATE_AI_CHAT_MESSAGE_RATING,
-					payload: {
-						...state?.aiChatMessageRatings,
-						[messageId]: { rating: payload?.rating },
-					},
-				});
+				return [true];
 			}
 		} catch (error) {
 			console.log('error==>updatedAiChatMessageRating', error);

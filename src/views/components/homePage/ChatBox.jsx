@@ -156,7 +156,7 @@ const ChatBox = ({
 		isModulesDropdownOpen: false,
 		searchType: {
 			webSearch: false,
-			workspaceSearch: false,
+			workspaceSearch: true,
 		},
 		recentFiles: [],
 		isSearchTypeOpen: false,
@@ -294,7 +294,6 @@ const ChatBox = ({
 				}
 				// Prevent default to avoid unwanted new line
 				e?.preventDefault();
-				navigate('/chat');
 
 				if (
 					(aiChatLoading || info?.chatLoading) &&
@@ -307,11 +306,7 @@ const ChatBox = ({
 					return message.error('Please wait for the images to upload');
 				}
 
-				if (
-					info?.chatQuery?.trim().length ||
-					info?.uploadedImages?.length ||
-					query?.trim()?.length
-				) {
+				if (info?.chatQuery?.trim()?.length > 0 || query?.trim()?.length > 0) {
 					if (customChatActions) {
 						onSend(info?.chatQuery);
 					} else {
@@ -363,6 +358,9 @@ const ChatBox = ({
 							recentFiles: [],
 							chatFilters: initialChatFilters,
 						}));
+						if (location?.pathname?.split('/')?.[1] !== 'chat') {
+							navigate('/chat');
+						}
 
 						const response = await handleGlobalChatMessages(
 							payload,
@@ -387,8 +385,6 @@ const ChatBox = ({
 							}
 						}
 					}
-
-					// setInfo((prev) => ({ ...prev, chatQuery: '', uploadedImages: [] }));
 				}
 			}
 		},
@@ -688,6 +684,7 @@ const ChatBox = ({
 								}
 								onKeyDown={handleSendMessageFunc}
 								className="textArea"
+								autoFocus={true}
 								// rows={1}
 							/>
 							<div className="options-container">
