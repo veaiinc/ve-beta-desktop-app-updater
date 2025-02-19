@@ -93,6 +93,19 @@ const actionHandlers = {
 		...state,
 		[action?.selectedVariable]: action?.payload,
 	}),
+	GET_PROMPTS_DATA: (state, action) => ({
+		...state,
+		promptsData: action?.payload,
+	}),
+	GET_FILES_UPLOADED_IN_AI_CHAT: (state, action) => ({
+		...state,
+		filesUploadedInAiChat: action?.payload,
+	}),
+
+	SET_KNOWLEDGE_BASE_FILES_USING_UPDATED_LOGIC: (state, action) => ({
+		...state,
+		[action?.selectedVariable]: action?.payload,
+	}),
 
 	RESET_STATE: () => initialState,
 };

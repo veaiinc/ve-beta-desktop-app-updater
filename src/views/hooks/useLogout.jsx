@@ -16,6 +16,7 @@ const useLogout = () => {
 		aiSetup: { resetAiSetupState },
 		tasks: { resetTasksState },
 		contacts: { resetContactsState },
+		documentPreview: { resetDocumentPreviewState },
 	} = useContext(Context);
 
 	const resetApplications = useCallback(async () => {
@@ -40,6 +41,7 @@ const useLogout = () => {
 		resetTasksState();
 		resetContactsState();
 		window.location.replace('/');
+		resetDocumentPreviewState();
 	}, []);
 
 	return resetApplications;

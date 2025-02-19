@@ -5,14 +5,14 @@ import { ReactComponent as Home } from '../../../assets/svg/ai_agents/home.svg';
 import { ReactComponent as Settings } from '../../../assets/svg/ai_agents/settings.svg';
 import { ReactComponent as Close } from '../../../assets/svg/close.svg';
 import { ReactComponent as Expand } from '../../../assets/svg/bottomToolbar/expand.svg';
-import ToolBarChatContainerModal from '../modalsV2/ToolBarChatContainerModal';
+
 import { ReactComponent as ArrowUp } from '../../../assets/svg/ai_agents/arrow-up.svg';
 import { Alert, Image, message, Spin, Tooltip } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
 import { Upload } from 'antd';
 import Context from '../../../context/context';
 import ObjectID from 'bson-objectid';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 // import Markdown from 'react-markdown';
 // import { TypingEffect } from '../../../helpers/markdownHelper';
 // import { ReactComponent as AiStarInChat } from '../../../assets/svg/ai_agents/ai-star-in-chat.svg';
@@ -24,6 +24,7 @@ import { getBase64 } from '../../../helpers';
 import WorkflowSlugSelector from '../calendar/WorkflowSlugSelector';
 import { ReactComponent as AiSparkel } from '../../../assets/svg/calendar/aiSparkel.svg';
 import useVoiceIntegration from '../../hooks/useVoiceIntegration';
+import ChatBox from '../homePage/ChatBox';
 
 const moduleHelper = {
 	tasks: 'tasks',
@@ -50,6 +51,7 @@ const BottomToolbar = ({
 			activeWorkflowSlugForSmartFile,
 			updateApplicationChat,
 			activePromptForChat,
+			currentSessionId,
 		},
 		calendarInfo: { updateCalendarState },
 		tasks: { updateTaskState },
@@ -65,6 +67,7 @@ const BottomToolbar = ({
 	} = useVoiceIntegration();
 
 	const location = useLocation();
+	const navigate = useNavigate();
 
 	const [info, setInfo] = useState({
 		expanded: false,
@@ -74,10 +77,10 @@ const BottomToolbar = ({
 		chatQuery: '',
 		position: { x: window.innerWidth / 2 - 900, y: 0 },
 		addQuickAction: false,
-		chatSessionId: ObjectID().toString(),
+		chatSessionId: null,
 		uploadedImages: [],
 		chatLoading: false,
-		showFullPage: false,
+		showFullPage: true,
 		voiceIntegration: false,
 	});
 
@@ -104,6 +107,14 @@ const BottomToolbar = ({
 			chatContentRef.current.scrollTop = chatContentRef.current.scrollHeight;
 		}
 	}, [chatList]); // Scroll whenever chatList changes
+
+	useEffect(() => {
+		if (currentSessionId) {
+			setInfo((prev) => ({ ...prev, chatSessionId: currentSessionId }));
+		} else {
+			updateStateValues({ currentSessionId: ObjectID().toString() });
+		}
+	}, [currentSessionId]);
 
 	useEffect(() => {
 		if (activePromptForChat) {
@@ -168,7 +179,7 @@ const BottomToolbar = ({
 	// }, []);
 
 	const handleCloseChatModal = useCallback(() => {
-		setInfo((prev) => ({ ...prev, chatModalIsOpen: false, showFullPage: false }));
+		setInfo((prev) => ({ ...prev, chatModalIsOpen: false }));
 	}, [info]);
 
 	const handlePreview = async (file) => {
@@ -188,6 +199,7 @@ const BottomToolbar = ({
 				}
 				// Prevent default to avoid unwanted new line
 				e?.preventDefault();
+				navigate('/chat');
 
 				if (
 					(aiChatLoading || info?.chatLoading) &&
@@ -213,6 +225,8 @@ const BottomToolbar = ({
 						const payload = {
 							query: currentQuery,
 							timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+							knowledge_base_search: true,
+							web_search: true,
 						};
 						let localPayload = {};
 						if (info?.uploadedImages?.length) {
@@ -230,7 +244,7 @@ const BottomToolbar = ({
 						}
 
 						if (moduleHelper?.[location?.pathname?.split('/')?.[1]]) {
-							payload.module = moduleHelper?.[location?.pathname?.split('/')?.[1]];
+							payload.modules = [moduleHelper?.[location?.pathname?.split('/')?.[1]]];
 						}
 						setInfo((prev) => ({ ...prev, uploadedImages: [], chatQuery: '' }));
 
@@ -413,8 +427,6 @@ const BottomToolbar = ({
 				handleGlobalImageProcessing(file);
 			}
 
-			console.log(uploadedImages);
-
 			setInfo((prev) => ({
 				...prev,
 				// addQuickAction: false,
@@ -495,6 +507,13 @@ const BottomToolbar = ({
 		}));
 	};
 
+	const handleSendBtnClick = (e) => {
+		if (info?.chatQuery?.trim()?.length > 0) {
+			handleSendMessageFunc(e, true);
+			navigate('/chat');
+		}
+	};
+
 	return (
 		<div
 			ref={toolbarRef}
@@ -553,64 +572,7 @@ const BottomToolbar = ({
 			{/* bottom toolBarContent */}
 			{!info?.chatModalIsOpen ? (
 				info?.bigToolbarIsOpen ? (
-					<div
-						className={`bottomToolbar ${
-							info.inputExpanded ? 'expandedBtnToolbar' : ''
-						}`}
-					>
-						<textarea
-							className={`bottomToolbarInputs ${
-								// info.inputExpanded ? 'expanded' : ''
-								''
-							}`}
-							placeholder="Ask AI"
-							value={info?.chatQuery}
-							onChange={(e) =>
-								setInfo((prev) => ({ ...prev, chatQuery: e.target.value }))
-							}
-							onKeyDown={(e) => {
-								if (e?.key === 'Enter') {
-									if (e?.shiftKey) {
-										return;
-									}
-									setInfo((prev) => ({
-										...prev,
-										chatModalIsOpen: true,
-									}));
-									// Prevent default to avoid unwanted new line
-									e?.preventDefault();
-									handleSendMessageFunc(e);
-								}
-							}}
-							style={{ resize: 'none' }}
-							autoFocus
-						/>
-
-						<div className="toolBarButttons">
-							<div className="chat-icons-container">
-								{chatIcons?.map((icon, idx) => (
-									<span key={idx} className="chat-icon">
-										{icon}
-									</span>
-								))}
-							</div>
-							<div
-								className="click-btn"
-								onClick={(e) => {
-									e?.stopPropagation();
-									if (info?.chatQuery?.trim()?.length > 0) {
-										setInfo((prev) => ({
-											...prev,
-											chatModalIsOpen: true,
-										}));
-										handleSendMessageFunc(e, true);
-									}
-								}}
-							>
-								<ArrowUp />
-							</div>
-						</div>
-					</div>
+					<ChatBox />
 				) : (
 					<div className="bottomToolbarSmall" onClick={handleSmallToolbarClick}>
 						<div className="toolbarText">Hey, need help ask me anything !</div>
@@ -635,22 +597,6 @@ const BottomToolbar = ({
 			) : (
 				''
 			)}
-			<ToolBarChatContainerModal
-				onClose={handleCloseChatModal}
-				modalIsOpen={info?.chatModalIsOpen}
-				chatList={!customChatActions ? globalChatMessages : chatList}
-				onSend={onSend}
-				chatQuery={info?.chatQuery}
-				onChange={(e) => setInfo((prev) => ({ ...prev, chatQuery: e.target.value }))}
-				onKeyDown={handleSendMessageFunc}
-				aiChatLoading={aiChatLoading}
-				showFullPage={info?.showFullPage}
-				toggleFullPage={toggleFullPage}
-				onImageUpload={handleChange}
-				uploadedImages={info?.uploadedImages}
-				handlePreview={handlePreview}
-				handleRemoveImage={handleRemoveImage}
-			/>
 			{previewImage && (
 				<Image
 					wrapperStyle={{

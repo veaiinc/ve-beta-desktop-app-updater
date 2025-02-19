@@ -68,28 +68,50 @@
 				border: none;
 			}
 		}
-		.proposal-popup-body-options-container {
+		.proposal-popup-body-options-container-wrapper {
 			display: flex;
-			flex-direction: row;
-			gap: 8px;
-			.proposal-popup-body-option {
+			justify-content: space-between;
+			align-items: center;
+			align-self: stretch;
+			width: 100%;
+			.proposal-popup-body-options-container {
+				display: flex;
+				flex-direction: row;
+				gap: 8px;
+				.proposal-popup-body-option {
+					display: flex;
+					padding: 6px 14px;
+					align-items: center;
+					gap: 8px;
+					border-radius: 100px;
+					background: #26282a;
+					color: #f2f2f3;
+					font-family: Inter;
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: 22px;
+					cursor: pointer;
+					&.selected {
+						border-radius: 100px;
+						background: #f2f2f3;
+						color: #0c0c0d;
+					}
+				}
+			}
+			.proposal-popup-body-options-container-filters {
 				display: flex;
 				padding: 6px 14px;
 				align-items: center;
-				gap: 8px;
+				gap: 4px;
 				border-radius: 100px;
-				background: #26282a;
-				color: #f2f2f3;
-				font-family: Inter;
-				font-size: 12px;
-				font-style: normal;
-				font-weight: 500;
-				line-height: 22px;
-				cursor: pointer;
-				&.selected {
-					border-radius: 100px;
-					background: #f2f2f3;
-					color: #0c0c0d;
+				span {
+					color: var(--primary-font, #f2f2f3);
+					font-family: Inter;
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: 22px; /* 183.333% */
 				}
 			}
 		}
@@ -339,6 +361,35 @@
 				font-weight: 400;
 				line-height: normal;
 			}
+		}
+	}
+}
+.proposal-popup-body-options-container-filters-tooltip {
+	display: inline-flex;
+	padding: 12px;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 8px;
+	border-radius: 12px;
+	background: var(--Popup, #202123);
+	box-shadow: 0px 2px 44px 0px rgba(0, 0, 0, 0.25);
+	.proposal-popup-body-options-container-filters-tooltip-title {
+		display: flex;
+		height: 28px;
+		padding: 6px 10px 6px 8px;
+		align-items: center;
+		gap: 8px;
+		align-self: stretch;
+		color: #e4e5e6;
+		font-family: Inter;
+		font-size: 12px;
+		font-style: normal;
+		font-weight: 400;
+		line-height: normal;
+		border-radius: 6px;
+		cursor: pointer;
+		&:hover {
+			background: #26282a;
 		}
 	}
 }

@@ -24,6 +24,8 @@
 			width: 100%;
 			display: flex;
 			position: relative;
+			align-items: center;
+			gap: 2px;
 
 			.eventDetails {
 				width: calc(100% - 13px);
@@ -134,9 +136,9 @@
 		border: none;
 		background: #171819;
 		padding: 8px 10px;
+		border-left: 0.1px solid #2a2929;
 		min-width: 100%;
 		// border-radius: 8px;
-		// border: 1px solid #202020;
 
 		// Target .rbc-event-label inside .rbc-event
 		.rbc-event-label {
