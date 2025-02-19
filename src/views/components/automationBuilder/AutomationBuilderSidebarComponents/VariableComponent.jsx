@@ -3,7 +3,7 @@ import '../../../../assets/scss/automation_builder/automationBuilderSidebarCompo
 import { ReactComponent as CrossIcon } from '../../../../assets/svg/workspaceSettings/cross.svg';
 import { Tooltip } from 'antd';
 
-const VariableComponent = ({ value, onChange, variables }) => {
+const VariableComponent = ({ value, onChange, variables, type = 'text' }) => {
 	const [info, setInfo] = useState({
 		open: false,
 		variables: null,
@@ -68,10 +68,12 @@ const VariableComponent = ({ value, onChange, variables }) => {
 	const parseFormVariables = useCallback((variables) => {
 		return {
 			actionType: 'formResponse',
-			variables: variables?.map((variable) => ({
-				name: decodeHtmlEntities(variable?.question),
-				_id: variable?._id,
-			})),
+			variables: Array.isArray(variables)
+				? variables.map((variable) => ({
+						name: decodeHtmlEntities(variable?.question),
+						_id: variable?._id,
+				  }))
+				: [], // Ensure it's always an array
 		};
 	}, []);
 
@@ -95,8 +97,8 @@ const VariableComponent = ({ value, onChange, variables }) => {
 					</p>
 				) : (
 					<input
-						type="text"
-						placeholder="Variable Name"
+						type={type}
+						placeholder="Enter something or select a variable"
 						value={value}
 						onChange={(e) => onChange(e.target.value)}
 					/>
@@ -120,26 +122,34 @@ const VariableComponent = ({ value, onChange, variables }) => {
 								{info?.variables?.actionType}
 							</span>
 						</div>
-						<div className="variableTooltipBody">
-							{info?.variables?.variables?.map((variable, idx) => (
-								<div
-									className="variableListItem"
-									key={idx}
-									onClick={() => {
-										handleInfo({ selectedVariable: variable, open: false });
-										onChange(
-											`{{${
-												info?.variables?.actionType === 'formResponse'
-													? `${variable?._id}.answer`
-													: variable?.name
-											}}}`,
-										);
-									}}
-								>
-									<span className="variableListItemTitle">{variable?.name}</span>
-								</div>
-							))}
-						</div>
+						{info?.variables?.variables?.length > 0 ? (
+							<div className="variableTooltipBody">
+								{info?.variables?.variables?.map((variable, idx) => (
+									<div
+										className="variableListItem"
+										key={idx}
+										onClick={() => {
+											handleInfo({ selectedVariable: variable, open: false });
+											onChange(
+												`{{${
+													info?.variables?.actionType === 'formResponse'
+														? `${variable?._id}.answer`
+														: variable?.name
+												}}}`,
+											);
+										}}
+									>
+										<span className="variableListItemTitle">
+											{variable?.name}
+										</span>
+									</div>
+								))}
+							</div>
+						) : (
+							<span className="variableTooltipBody" style={{ color: '#808080' }}>
+								No variables found for this action type
+							</span>
+						)}
 					</div>
 				}
 				placement="bottom"

@@ -161,63 +161,13 @@
 			align-self: stretch;
 			flex: 1;
 
-			.createTasksHeadingContainer {
-				display: flex;
-				align-self: stretch;
-				.createHeadingLabelContainer {
-					display: flex;
-					align-items: center;
-					gap: 12px;
-					align-self: stretch;
-					flex: 1;
-
-					.createTaskHeadingLabel {
-						display: flex;
-						flex-direction: column;
-						align-items: flex-start;
-						gap: 2px;
-						flex: 1 0 0;
-
-						.actionsCreateHeader {
-							color: #797e86;
-							color: color(display-p3 0.4784 0.4941 0.5216);
-
-							/* Body/Body - 12 px */
-							font-family: Inter;
-							font-size: 12px;
-							font-style: normal;
-							font-weight: 500;
-							line-height: normal;
-						}
-
-						.createTaskHeading {
-							color: #f2f2f3;
-							color: color(display-p3 0.949 0.949 0.9529);
-							font-family: Inter;
-							font-size: 14px;
-							font-style: normal;
-							font-weight: 500;
-							line-height: normal;
-						}
-					}
-					.changeActionStageButton {
-						display: flex;
-						padding: 6px 8px;
-						align-items: center;
-						gap: 12px;
-						border-radius: 6px;
-						background: #202123;
-						background: color(display-p3 0.1249 0.1304 0.1358);
-						color: #f2f2f3;
-						color: color(display-p3 0.949 0.949 0.9529);
-						font-family: Inter;
-						font-size: 14px;
-						font-style: normal;
-						font-weight: 500;
-						line-height: normal;
-						cursor: pointer;
-					}
-				}
+			.taskInputHeading {
+				color: #f2f2f3;
+				font-family: Inter;
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
 			}
 
 			.addTaskTitleContainer {
@@ -228,12 +178,11 @@
 				align-self: stretch;
 
 				.addTaskTitleTextStyle {
-					color: #f2f2f3;
-					color: color(display-p3 0.949 0.949 0.9529);
+					color: #7a7e85;
 					font-family: Inter;
-					font-size: 14px;
+					font-size: 12px;
 					font-style: normal;
-					font-weight: 600;
+					font-weight: 500;
 					line-height: normal;
 				}
 				.addTaskTitleTextArea {
@@ -269,6 +218,8 @@
 			font-style: normal;
 			font-weight: 500;
 			line-height: normal;
+			border: none;
+			outline: none;
 		}
 	}
 }

@@ -28,18 +28,21 @@ const actionTypeIconMapper = {
 	createTask: <Action />,
 	createMeeting: <Action />,
 	gmail: <Google />,
+	null: <Action />,
 };
 
 const eventTypeMapper = {
 	messageReceived: 'Message Received',
 	sendMessage: 'Send Message',
 	formResponse: 'Form Response',
+	createTask: 'Create Task',
 };
 
 const appNameMapper = {
 	gmail: 'Gmail',
 	slack: 'Slack',
 	inApp: 'In App',
+	null: 'In App',
 };
 
 export const StartStepNode = ({ data }) => {

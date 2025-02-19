@@ -8,6 +8,7 @@ import { useCallback } from 'react';
 import Context from '../../../../context/context';
 import { message, Spin } from 'antd';
 import HeadersDropDownComp from '../../dropDown/HeadersDropDownComp';
+import Person from '../../tasks/listView/Person';
 import {
 	containerStyle,
 	dropDownStyle,
@@ -17,6 +18,9 @@ import {
 	statusOptions,
 } from '../../../features/workflow_builder/workflowContantsHelpers';
 import GetDraft from './GetDraft';
+import VariableComponent from './VariableComponent';
+import ActionDetailsBlock from './ActionDetailsBlock';
+import moment from 'moment';
 
 const actionsList = {
 	tasks: { title: 'Create Tasks' },
@@ -56,9 +60,11 @@ const Actions = ({
 	editMode,
 	activeStepsData,
 	refetchWorkflowBuilderData,
+	automationId,
 }) => {
 	const {
 		templates: { addNewSteps, updateStateValues, specificTemplatesInfo, updateSteps },
+		automationBuilder: { variables, getAutomation, addStep },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		search: '',
@@ -67,6 +73,7 @@ const Actions = ({
 		activeStage: 'stage1', //stage1, stage2, stage3
 		saveLoader: false,
 		actionType: '',
+		previousStepId: '',
 	});
 
 	useEffect(() => {
@@ -74,6 +81,12 @@ const Actions = ({
 			handleDebouce();
 		}
 	}, [info?.searchChanged, info?.search]);
+
+	useEffect(() => {
+		if (activeEdge) {
+			setInfo((prev) => ({ ...prev, previousStepId: activeEdge?.split('-')?.[0] }));
+		}
+	}, [activeEdge]);
 
 	useEffect(() => {
 		if (editMode && activeStepsData) {
@@ -185,6 +198,12 @@ const Actions = ({
 					editMode={editMode}
 					activeStepsData={activeStepsData}
 					editActionNode={editActionNode}
+					variables={variables}
+					automationId={automationId}
+					previousStepId={info?.previousStepId}
+					onCLose={onCLose}
+					getAutomation={getAutomation}
+					addStep={addStep}
 				/>
 			),
 			stage3: (
@@ -192,10 +211,11 @@ const Actions = ({
 					changeStage={changeStage}
 					info={info}
 					createNewActionNode={createNewActionNode}
+					variables={variables}
 				/>
 			),
 		};
-	}, [info, handleSearch, createNewActionNode]);
+	}, [info, handleSearch, createNewActionNode, variables, automationId, info?.previousStepId]);
 
 	return (
 		<div className="actionSidebarComponents">
@@ -203,13 +223,12 @@ const Actions = ({
 				<GetDraft />
 			) : (
 				<>
-					(
 					<div className="actionSidebarComponentsHeader">
 						<span onClick={onCLose} style={{ cursor: 'pointer' }}>
 							<DoubleArrow />
 						</span>
 					</div>
-					{stageMapper?.[info?.activeStage]})
+					{stageMapper?.[info?.activeStage]}
 				</>
 			)}
 		</div>
@@ -278,11 +297,20 @@ const Stage2 = ({
 	editMode,
 	activeStepsData,
 	editActionNode,
+	variables,
+	automationId,
+	previousStepId,
+	getAutomation,
+	addStep,
+	onCLose,
 }) => {
 	const [stageInfo, setStageInfo] = useState({
+		task: '',
+		dueDate: '',
+		assignee: '',
 		title: '',
-		status: statusOptions?.[0],
-		priority: PriorityOptions?.[0],
+		description: '',
+		loading: false,
 	});
 
 	useEffect(() => {
@@ -315,125 +343,136 @@ const Stage2 = ({
 		setStageInfo((prev) => ({ ...prev, title: e.target.value }));
 	}, []);
 
-	const modifiedHandleClick = useCallback(() => {
-		if (!stageInfo?.title?.length) {
-			return message.error('title is mandatory');
+	// const modifiedHandleClick = useCallback(() => {
+	// 	if (!stageInfo?.title?.length) {
+	// 		return message.error('title is mandatory');
+	// 	}
+	// 	if (editMode) {
+	// 		return editActionNode({
+	// 			title: stageInfo?.title,
+	// 			status: stageInfo?.status?.value,
+	// 			priority: stageInfo?.priority?.value,
+	// 		});
+	// 	}
+	// 	createNewActionNode({
+	// 		title: stageInfo?.title,
+	// 		status: stageInfo?.status?.value,
+	// 		priority: stageInfo?.priority?.value,
+	// 	});
+	// }, [stageInfo]);
+
+	const createNewTaskNode = useCallback(async () => {
+		const variableRegex = /^\{\{.*\}\}$/;
+		let { task, title, description, dueDate } = stageInfo;
+		const variables = {};
+		if (task?.match(variableRegex)) {
+			variables.task = task;
+		} else if (!task?.trim().length) {
+			message.error('Task name is mandatory');
+			return;
 		}
-		if (editMode) {
-			return editActionNode({
-				title: stageInfo?.title,
-				status: stageInfo?.status?.value,
-				priority: stageInfo?.priority?.value,
-			});
+		if (!title?.trim().length) {
+			message.error('Title is mandatory');
+			return;
 		}
-		createNewActionNode({
-			title: stageInfo?.title,
-			status: stageInfo?.status?.value,
-			priority: stageInfo?.priority?.value,
-		});
-	}, [stageInfo]);
+		if (!description?.trim().length) {
+			message.error('Title is mandatory');
+			return;
+		}
+		if (dueDate?.match(variableRegex)) {
+			variables.dueDate = dueDate;
+		} else if (!dueDate) {
+			message.error('Due date is mandatory');
+			return;
+		} else {
+			dueDate = moment(dueDate).unix();
+		}
 
-	const onChangePriority = useCallback(
-		(data) => {
-			if (data?.value === stageInfo?.priority?.value) {
-				return;
-			}
-			setStageInfo((prev) => ({ ...prev, priority: data }));
-		},
-		[stageInfo],
-	);
+		const payload = {
+			title,
+			description,
+			isEnabled: true,
+			previousStepId: previousStepId,
+			type: 'createTask',
+			createTask: {
+				title: task,
+				dueDate: dueDate,
+			},
+		};
+		if (Object.keys(variables)?.length) {
+			payload.variables = variables;
+		}
+		updateStageInfo({ loading: true });
+		const response = await addStep(automationId, payload);
 
-	const onChangeStatus = useCallback(
-		(data) => {
-			if (data?.value === stageInfo?.status?.value) {
-				return;
-			}
-			setStageInfo((prev) => ({ ...prev, status: data }));
-		},
-		[stageInfo],
-	);
+		if (response?.[0]) {
+			onCLose();
+			await getAutomation(automationId);
+		} else {
+			message.error(response?.[1]?.message || 'Failed to add step');
+		}
 
+		updateStageInfo({ loading: false });
+	}, [stageInfo, automationId, previousStepId, onCLose, getAutomation, addStep]);
+
+	const updateStageInfo = useCallback((data) => {
+		setStageInfo((prev) => ({ ...prev, ...data }));
+	}, []);
 	return (
 		<div className="createTaskUiContainer">
+			<ActionDetailsBlock
+				heading="Actions"
+				actionLabel="Create Task"
+				title={stageInfo?.title}
+				description={stageInfo?.description}
+				updaterFn={updateStageInfo}
+			/>
 			<div className="createTasksUi">
-				<div className="createTasksHeadingContainer">
-					<div className="createHeadingLabelContainer">
-						<div className="createTaskHeadingLabel">
-							<span className="actionsCreateHeader">Actions</span>
-							<span className="createTaskHeading">Create Tasks</span>
-						</div>
-						<div
-							className="changeActionStageButton"
-							onClick={() => changeStage({ activeStage: 'stage1' })}
-						>
-							Change
-						</div>
-					</div>
+				<h2 className="taskInputHeading">Inputs</h2>
+				<div className="addTaskTitleContainer">
+					<span className="addTaskTitleTextStyle">Task</span>
+					<VariableComponent
+						variables={variables?.data}
+						onChange={(value) => updateStageInfo({ task: value })}
+					/>
 				</div>
+				<div className="addTaskTitleContainer">
+					<span className="addTaskTitleTextStyle">Due (optional)</span>
 
-				{/* //task title */}
-				<div className="addTaskTitleContainer">
-					<span className="addTaskTitleTextStyle">Add Task Title</span>
-					<textarea
-						className="addTaskTitleTextArea"
-						placeholder="Add Task Title ...."
-						value={stageInfo?.title}
-						onChange={handleChange}
+					<VariableComponent
+						variables={variables?.data}
+						onChange={(value) => updateStageInfo({ dueDate: value })}
+						type="date"
 					/>
 				</div>
-				<div className="addTaskTitleContainer">
-					<span className="addTaskTitleTextStyle">Task Priority</span>
-					<HeadersDropDownComp
-						options={PriorityOptions}
-						showIcon={false}
-						containerStyle={{
-							...containerStyle,
-						}}
-						outerContainerStyle={{ width: '100%' }}
-						dropDownStyle={{ ...dropDownStyle }}
-						dropDownTextStyling={{ ...dropDownTextStyling }}
-						selectedValue={stageInfo?.priority?.label}
-						onChangeFunc={onChangePriority}
-						showSelectedValueTick={true}
-						uniqueIdentifierForTickIcon={'value'}
-						selectedValueObj={stageInfo?.priority}
-						selectedValueStyle={{
-							...selectedValueStyling,
-						}}
+				{/* <div className="addTaskTitleContainer">
+					<span className="addTaskTitleTextStyle">Assingee (optional)</span>
+					<Person
+						options={[{ value: 'abbd', label: 'Abbd' }]}
+						multiSelect={true}
+						value={[
+							{ _id: 'abbd', name: 'Abbd' },
+							{ _id: 'abbde', name: 'Abbd' },
+						]}
+						parseValue={true}
+						showLabel={true}
 					/>
-				</div>
-				<div className="addTaskTitleContainer">
-					<span className="addTaskTitleTextStyle">Task Status</span>
-					<HeadersDropDownComp
-						options={statusOptions}
-						showIcon={false}
-						containerStyle={{
-							...containerStyle,
-						}}
-						outerContainerStyle={{ width: '100%' }}
-						dropDownStyle={{ ...dropDownStyle }}
-						dropDownTextStyling={{ ...dropDownTextStyling }}
-						selectedValue={stageInfo?.status?.label}
-						onChangeFunc={onChangeStatus}
-						showSelectedValueTick={true}
-						uniqueIdentifierForTickIcon={'value'}
-						selectedValueObj={stageInfo?.status}
-						selectedValueStyle={{
-							...selectedValueStyling,
-						}}
-					/>
-				</div>
+				</div> */}
 			</div>
 
-			{editMode ? (
+			{/* {editMode ? (
 				<div className="actionsSaveButton" onClick={modifiedHandleClick}>
 					{info?.saveLoader ? <Spin /> : 'Update'}
 				</div>
-			) : (
-				<div className="actionsSaveButton" onClick={modifiedHandleClick}>
-					{info?.saveLoader ? <Spin /> : 'Save'}
-				</div>
-			)}
+			) : ( */}
+			<button
+				className="actionsSaveButton"
+				onClick={createNewTaskNode}
+				disabled={info?.loading}
+			>
+				{info?.loading ? <Spin /> : 'Save'}
+			</button>
+			{/* )} */}
 		</div>
 	);
 };

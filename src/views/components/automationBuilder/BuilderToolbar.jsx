@@ -73,6 +73,7 @@ const BuilderToolbar = ({
 					editMode={editMode}
 					refetchWorkflowBuilderData={refetchWorkflowBuilderData}
 					variables={variables}
+					automationId={automationId}
 				/>
 			),
 			conditions: (

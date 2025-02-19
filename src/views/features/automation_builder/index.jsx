@@ -34,6 +34,7 @@ const nodeTypes = {
 	condition: ConditionNode,
 	end: EndNode,
 	startStep: StartStepNode,
+	createTask: ActionNode,
 };
 
 const edgeTypes = {
