@@ -25,10 +25,12 @@ const InAppTriggers = ({ onClose, onSave, addTriggerLoading, triggerData }) => {
 	} = useContext(Context);
 
 	useEffect(() => {
+		getMyWorkflowTemplatesData(1);
+	}, []);
+
+	useEffect(() => {
 		if (myWorkflows) {
 			myWorkflowsDataParser(myWorkflows);
-		} else {
-			getMyWorkflowTemplatesData(1);
 		}
 	}, [myWorkflows]);
 
@@ -47,8 +49,10 @@ const InAppTriggers = ({ onClose, onSave, addTriggerLoading, triggerData }) => {
 				status: 'published',
 				sortBy: 'createdAt',
 				sortType: -1,
+				action: 'form-submission',
 			},
 		};
+
 		getMyWorkflows(payload, fetchMore);
 	}, []);
 
@@ -89,6 +93,16 @@ const InAppTriggers = ({ onClose, onSave, addTriggerLoading, triggerData }) => {
 		setInfo((prev) => ({ ...prev, ...updatedInfo }));
 	};
 
+	const getFormTemplateId = useCallback((template) => {
+		if (template?.version) {
+			return template?.moduleTemplates?.find((item) =>
+				item?.actions?.includes('formResponse'),
+			)?._id;
+		} else {
+			return template?.moduleTemplates?.find((item) => item?.module === 'form')?._id;
+		}
+	}, []);
+
 	const customSaveFn = useCallback(() => {
 		if (!info?.selectedTemplate) {
 			message?.error('Please select a template');
@@ -98,9 +112,11 @@ const InAppTriggers = ({ onClose, onSave, addTriggerLoading, triggerData }) => {
 			message?.error('Please enter title and description');
 			return;
 		}
+
 		onSave({
 			...triggerData,
 			workflowTemplateId: info?.selectedTemplate?._id,
+			formTemplateId: getFormTemplateId(info?.selectedTemplate),
 			title: info?.title,
 			description: info?.description,
 		});

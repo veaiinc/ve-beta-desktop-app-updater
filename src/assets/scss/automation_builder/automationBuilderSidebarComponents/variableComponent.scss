@@ -98,7 +98,8 @@
 		flex-direction: column;
 		align-items: flex-start;
 		align-self: stretch;
-
+		max-height: 300px;
+		overflow-y: auto;
 		.variableListItem {
 			display: flex;
 			padding: 8px;

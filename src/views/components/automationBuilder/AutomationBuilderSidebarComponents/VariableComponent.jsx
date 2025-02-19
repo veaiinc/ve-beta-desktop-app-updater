@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import '../../../../assets/scss/automation_builder/automationBuilderSidebarComponents/variableComponent.scss';
 import { ReactComponent as CrossIcon } from '../../../../assets/svg/workspaceSettings/cross.svg';
 import { Tooltip } from 'antd';
@@ -19,31 +19,70 @@ const VariableComponent = ({ value, onChange, variables }) => {
 
 	useEffect(() => {
 		if (variables) {
-			setInfo((prev) => ({ ...prev, variables: variables }));
+			if (variables?.actionType === 'formResponse') {
+				setInfo((prev) => ({
+					...prev,
+					variables: parseFormVariables(variables?.variables),
+				}));
+			} else {
+				setInfo((prev) => ({ ...prev, variables: variables }));
+			}
 		}
 	}, [variables]);
 
 	useEffect(() => {
 		if (value && variables) {
 			const variableRegex = /^\{\{.*\}\}$/;
-			setInfo((prev) => ({
-				...prev,
-				selectedVariable: variableRegex.test(value)
-					? variables?.variables?.find(
+			if (variableRegex.test(value)) {
+				if (variables?.actionType === 'formResponse') {
+					const selectedVariable = variables?.variables?.find(
+						(variable) => variable?._id === value.slice(2, -2)?.replace('.answer', ''),
+					);
+
+					setInfo((prev) => ({
+						...prev,
+						selectedVariable: {
+							...selectedVariable,
+							name: decodeHtmlEntities(selectedVariable?.question),
+						},
+					}));
+				} else {
+					setInfo((prev) => ({
+						...prev,
+						selectedVariable: variables?.variables?.find(
 							(variable) => variable?.name === value.slice(2, -2),
-					  )
-					: null,
-			}));
+						),
+					}));
+				}
+			}
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [value]);
+	}, []);
+
+	const decodeHtmlEntities = (htmlText) => {
+		const textArea = document.createElement('textarea');
+		textArea.innerHTML = htmlText?.replace(/<\/?[^>]+(>|$)/g, '').trim();
+		return textArea?.value?.trim();
+	};
+
+	const parseFormVariables = useCallback((variables) => {
+		return {
+			actionType: 'formResponse',
+			variables: variables?.map((variable) => ({
+				name: decodeHtmlEntities(variable?.question),
+				_id: variable?._id,
+			})),
+		};
+	}, []);
 
 	return (
 		<div className="variableComponentContainer">
 			<div className="inputContainer">
 				{info?.selectedVariable ? (
 					<p className="selectedVariable">
-						{`{ ${info?.variables?.actionType} > ${info?.selectedVariable?.name} }`}
+						{`{ ${info?.variables?.actionType} > ${info?.selectedVariable?.name}${
+							info?.variables?.actionType === 'formResponse' ? `.answer` : ''
+						} }`}
 						<CrossIcon
 							width={14}
 							height={14}
@@ -87,8 +126,14 @@ const VariableComponent = ({ value, onChange, variables }) => {
 									className="variableListItem"
 									key={idx}
 									onClick={() => {
-										handleInfo({ selectedVariable: variable });
-										onChange(`{{${variable?.name}}}`);
+										handleInfo({ selectedVariable: variable, open: false });
+										onChange(
+											`{{${
+												info?.variables?.actionType === 'formResponse'
+													? `${variable?._id}.answer`
+													: variable?.name
+											}}}`,
+										);
 									}}
 								>
 									<span className="variableListItemTitle">{variable?.name}</span>

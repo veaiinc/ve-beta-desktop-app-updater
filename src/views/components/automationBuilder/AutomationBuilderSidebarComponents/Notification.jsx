@@ -342,13 +342,20 @@ const Notification = ({
 	);
 
 	const modifiedClose = useCallback(() => {
-		onCLose();
-		setInfo((prev) => ({
-			...prev,
-			...initialState,
-			workflowTemplates: prev.workflowTemplates,
-			slackChannelsOptions: prev.slackChannelsOptions,
-		}));
+		if (info?.activeStage === 'stage5') {
+			onCLose();
+			setInfo((prev) => ({
+				...prev,
+				...initialState,
+				workflowTemplates: prev.workflowTemplates,
+				slackChannelsOptions: prev.slackChannelsOptions,
+			}));
+		} else {
+			setInfo((prev) => ({
+				...prev,
+				activeStage: `stage${Number(info?.activeStage?.at(-1)) - 1}`,
+			}));
+		}
 	}, [info, onclose]);
 
 	const createNewNotificationNode = useCallback(async () => {

@@ -32,21 +32,21 @@ const triggersList = {
 			},
 		],
 	},
-	// inApp: {
-	// 	label: 'In App',
-	// 	// icon: <InApp />,
-	// 	value: 'inApp',
-	// 	triggerType: 'database',
-	// 	triggers: [
-	// 		{
-	// 			app: 'inApp',
-	// 			icon: null,
-	// 			label: 'Form Submission',
-	// 			event: 'create',
-	// 			module: 'formResponse',
-	// 		},
-	// 	],
-	// },
+	inApp: {
+		label: 'In App',
+		// icon: <InApp />,
+		value: 'inApp',
+		triggerType: 'database',
+		triggers: [
+			{
+				app: 'inApp',
+				icon: null,
+				label: 'Form Submission',
+				event: 'create',
+				module: 'formResponse',
+			},
+		],
+	},
 };
 
 const availableIntegrations = [

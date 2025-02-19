@@ -145,14 +145,18 @@ const AutomationBuilder = () => {
 	}, [info?.activeEdge]);
 
 	useEffect(() => {
-		const data = info?.previousNode?.data?.currentStep;
-		const payload = {};
-		if (data?.app === 'inApp') {
-		} else {
-			payload.action = data?.criteria?.event;
-			payload.app = data?.app;
+		if (info?.previousNode) {
+			const data = info?.previousNode?.data?.currentStep;
+			const payload = {};
+			if (data?.app === 'inApp') {
+				payload.action = data?.module;
+				payload.formTemplateId = data?.formTemplateId;
+			} else {
+				payload.action = data?.criteria?.event;
+				payload.app = data?.app;
+			}
+			getVariables(payload);
 		}
-		getVariables(payload);
 	}, [info?.previousNode]);
 
 	useEffect(() => {
