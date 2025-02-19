@@ -1,6 +1,5 @@
 import React, { memo, useContext, useEffect, useState } from 'react';
 import { default as ReactMarkdown } from 'react-markdown';
-import rehypeRaw from 'rehype-raw';
 // import remarkGfm from 'remark-gfm';
 import { Link } from 'react-router-dom'; // Adjust if you're using another router
 import '../assets/scss/markdown.scss';
@@ -133,7 +132,6 @@ const updateTextWithCitations = (text) => {
 	const matches = text.match(regex);
 
 	if (!matches) return <span>{text}</span>;
-	console.log(parts);
 
 	return (
 		<>

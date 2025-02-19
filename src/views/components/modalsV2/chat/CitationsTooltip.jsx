@@ -1,15 +1,24 @@
 import { Tooltip } from 'antd';
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import Context from '../../../../context/context';
 import '../../../../assets/scss/chat/citationsTooltip.scss';
 
-export const CitationsTooltip = ({ citationId }) => {
+export const CitationsTooltip = ({ citationId, sessionId }) => {
 	const {
-		templates: { citations },
+		templates: { citations, getCitationData, currentSessionId },
 	} = useContext(Context);
+	const [citationData, setCitationData] = useState(null);
 	const citation = citations?.find((citation) => citation?.id === citationId);
-	const link = citation?.url || citation?.['s3_key'] || '';
+	const link = citation?.name || '';
 	const number = citation?.id?.slice(4);
+
+	useEffect(() => {
+		const fetchCitationData = async () => {
+			const response = await getCitationData(currentSessionId, citation?.source);
+			setCitationData(response);
+		};
+		fetchCitationData();
+	}, []);
 	return (
 		<Tooltip
 			arrow={false}
@@ -18,7 +27,7 @@ export const CitationsTooltip = ({ citationId }) => {
 			placement="topLeft"
 			title={
 				<div className="citation-tooltip-container">
-					<div className="content">{citation?.snippet}</div>
+					<div className="content">{citationData}</div>
 					<div className="info">
 						<div className="image"></div>
 						<a className="citation-link" href={link} target="_blank" rel="noreferrer">
