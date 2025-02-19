@@ -15,43 +15,8 @@ import Context from '../context/context';
 import { Tooltip } from 'antd';
 import { CitationsTooltip } from '../views/components/modalsV2/chat/CitationsTooltip';
 
-export const responseText = `
-"AI can make mistakes, Please double-check responses." [CIT-1]
-"Conversational AI for Real-Time Interactions." [CIT-2]
-"Experience swift query resolutions, available 24/7, with personalized assistance tailored to your customers' needs." [CIT-3]`;
-
-export const citations = [
-	{
-		id: 'CIT-1',
-		source: '67b30ae9afc8f054d125a3ed::1',
-		snippet:
-			"Make your chatbot look like it's part of your website with custom colors and logos and make it match your brand's personality with custom instructions",
-		name: 'https://ve.ai',
-		type: 'url',
-		url: 'https://ve.ai',
-	},
-	{
-		id: 'CIT-2',
-		source: '67b30ae9afc8f054d125a3ed::1',
-		snippet:
-			'Connect your chatbot to your favorite tools like Slack, WhatsApp Zapier, and more',
-		name: 'https://ve.ai',
-		type: 'url',
-		url: 'https://ve.ai',
-	},
-	{
-		id: 'CIT-3',
-		source: '67b30ae9afc8f054d125a3ed::1',
-		snippet:
-			'Reach your customers in their native language even if your data is in a different language',
-		name: 'https://ve.ai',
-		type: 'url',
-		url: 'https://ve.ai',
-	},
-];
-
 const components = {
-	pre: ({ children }) => <>{children}</>,
+	pre: ({ children }) => <CustomComponent>{children}</CustomComponent>,
 	ol: ({ children, ...props }) => {
 		return (
 			<ol className="list-decimal list-outside ml-4" {...props}>
@@ -62,7 +27,7 @@ const components = {
 	li: ({ children, ...props }) => {
 		return (
 			<li className="py-1" {...props}>
-				{children}
+				<CustomComponent>{children}</CustomComponent>
 			</li>
 		);
 	},
@@ -76,7 +41,7 @@ const components = {
 	strong: ({ children, ...props }) => {
 		return (
 			<span className="font-semibold" {...props}>
-				{children}
+				<CustomComponent>{children}</CustomComponent>
 			</span>
 		);
 	},
@@ -95,42 +60,42 @@ const components = {
 	h1: ({ children, ...props }) => {
 		return (
 			<h1 className="text-3xl font-semibold mt-6 mb-2" {...props}>
-				{children}
+				<CustomComponent>{children}</CustomComponent>
 			</h1>
 		);
 	},
 	h2: ({ children, ...props }) => {
 		return (
 			<h2 className="text-2xl font-semibold mt-6 mb-2" {...props}>
-				{children}
+				<CustomComponent>{children}</CustomComponent>
 			</h2>
 		);
 	},
 	h3: ({ children, ...props }) => {
 		return (
 			<h3 className="text-xl font-semibold mt-6 mb-2" {...props}>
-				{children}
+				<CustomComponent>{children}</CustomComponent>
 			</h3>
 		);
 	},
 	h4: ({ children, ...props }) => {
 		return (
 			<h4 className="text-lg font-semibold mt-6 mb-2" {...props}>
-				{children}
+				<CustomComponent>{children}</CustomComponent>
 			</h4>
 		);
 	},
 	h5: ({ children, ...props }) => {
 		return (
 			<h5 className="text-base font-semibold mt-6 mb-2" {...props}>
-				{children}
+				<CustomComponent>{children}</CustomComponent>
 			</h5>
 		);
 	},
 	h6: ({ children, ...props }) => {
 		return (
 			<h6 className="text-sm font-semibold mt-6 mb-2" {...props}>
-				{children}
+				<CustomComponent>{children}</CustomComponent>
 			</h6>
 		);
 	},
@@ -147,22 +112,55 @@ const components = {
 			</div>
 		);
 	},
-	// p: ({ children, ...props }) => {
-	// 	return (
-	// 		<h1 className="mt-6 mb-2" {...props}>
-	// 			{children}
-	// 		</h1>
-	// 	);
-	// },
+	text: ({ children }) => {
+		return <CustomComponent>{children}</CustomComponent>;
+	},
 };
 
 // console.log('isChrome', isChrome);
 
 // const remarkPlugins = [];
+const updateTextWithCitations = (text) => {
+	const regex = /\[CIT-\d+\]/g;
+	const parts = text.split(regex);
+	const matches = text.match(regex);
+
+	if (!matches) return <>{text}</>;
+
+	return (
+		<>
+			{parts.map((part, index) => (
+				<React.Fragment key={index}>
+					{part}
+					{matches[index] && (
+						<CitationsTooltip key={index} citationId={matches[index]?.slice(1, -1)} />
+					)}
+				</React.Fragment>
+			))}
+		</>
+	);
+};
+
+const CustomComponent = ({ children }) => {
+	if (typeof children === 'string') {
+		return updateTextWithCitations(children);
+	} else if (Array.isArray(children)) {
+		return (
+			<>
+				{children.map((child, index) => {
+					if (typeof child === 'string') {
+						return updateTextWithCitations(child);
+					}
+					return child;
+				})}
+			</>
+		);
+	}
+};
 
 const NonMemoizedMarkdown = ({ children }) => {
 	return (
-		<ReactMarkdown remarkPlugins={[]} rehypePlugins={[rehypeRaw]} components={components}>
+		<ReactMarkdown remarkPlugins={[]} components={components}>
 			{children}
 		</ReactMarkdown>
 	);
@@ -178,11 +176,9 @@ export const TypingEffect = ({
 	onComplete,
 	customePencilClickFunc = null,
 	smoothScrollToBottom,
-	showCustomComponent = false,
 }) => {
 	const {
 		documentPreview: { setNoteContent },
-		// templates: { citations },
 	} = useContext(Context);
 
 	const [displayedText, setDisplayedText] = useState('');
@@ -214,27 +210,9 @@ export const TypingEffect = ({
 		});
 	};
 
-	const updateResponseWithCitations = (responseText) => {
-		const segments = responseText?.split(/(\[CIT-\d+\])/g);
-		return segments?.map((segment, index) => {
-			const match = typeof segment === 'string' ? segment.match(/CIT-\d+/g) : null;
-
-			if (match) {
-				const citation = citations.find((cit) => cit.id === match[0]);
-				if (citation) {
-					const number = parseInt(match[0].slice(4).trim(), 10);
-					return <CitationsTooltip key={index} number={number} citation={citation} />;
-				}
-			}
-
-			// Regular text segments get wrapped in Markdown
-			return segment ? <Markdown>{segment}</Markdown> : null;
-		});
-	};
-
 	return (
 		<div className="typing-effect-container">
-			<div className="typing-effect">{displayedText}</div>
+			<Markdown>{displayedText}</Markdown>
 
 			{currentIndex === text?.length ? (
 				<div className="hover-actions-container">

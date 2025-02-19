@@ -1,23 +1,34 @@
 import { Tooltip } from 'antd';
-import React from 'react';
+import React, { useContext } from 'react';
+import Context from '../../../../context/context';
+import '../../../../assets/scss/chat/citationsTooltip.scss';
 
-export const CitationsTooltip = ({ number, citation }) => {
+export const CitationsTooltip = ({ citationId }) => {
+	const {
+		templates: { citations },
+	} = useContext(Context);
+	const citation = citations?.find((citation) => citation?.id === citationId);
 	const link = citation?.url || citation?.['s3_key'] || '';
+	const number = citation?.id?.slice(4);
 	return (
 		<Tooltip
 			arrow={false}
 			trigger={'hover'}
+			color="transparent"
+			placement="topLeft"
 			title={
 				<div className="citation-tooltip-container">
 					<div className="content">{citation?.snippet}</div>
 					<div className="info">
 						<div className="image"></div>
-						<div className="citaiton-link">{link}</div>
+						<a className="citation-link" href={link} target="_blank" rel="noreferrer">
+							{link}
+						</a>
 					</div>
 				</div>
 			}
 		>
-			<button className="citation-tooltip-header">{number}</button>
+			<span className="citation-tooltip-header">{number}</span>
 		</Tooltip>
 	);
 };
