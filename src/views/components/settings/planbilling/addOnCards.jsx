@@ -15,16 +15,12 @@ const AddOnPlans = ({ addOnsLoading = false, isOpen, closeModal, subscriptionSta
 		addOns: [],
 		mappableData: [],
 		checkoutLoader: false,
+		initialLoader: true,
 	});
 
 	let {
-		authInfo: { currentPlanAddOns, purchaseAddOn, getAddOnsForCurrentPlan },
-		subscriptionInfo: {
-			purchaseAddOnPlan,
-			getAllSubscriptionPlan,
-			subscriptionPlans,
-			purchaseSubscriptionPlan,
-		},
+		authInfo: { currentPlanAddOns },
+		subscriptionInfo: { purchaseAddOnPlan, subscriptionPlans, purchaseSubscriptionPlan },
 	} = useContext(Context);
 
 	if (subscriptionState === 'upgradeSubscription') {
@@ -52,13 +48,15 @@ const AddOnPlans = ({ addOnsLoading = false, isOpen, closeModal, subscriptionSta
 	// 	[info?.planPurchaseId],
 	// );
 
-	useEffect(() => {
-		if (subscriptionState === 'upgradeSubscription') {
-			getAllSubscriptionPlan();
-		} else {
-			getAddOnsForCurrentPlan();
-		}
-	}, [subscriptionState]);
+	// useEffect(() => {
+	// 	if (isOpen) {
+	// 		if (subscriptionState === 'upgradeSubscription') {
+	// 			getAllSubscriptionPlan();
+	// 		} else {
+	// 			getAddOnsForCurrentPlan();
+	// 		}
+	// 	}
+	// }, [subscriptionState]);
 
 	const handleCheckout = async () => {
 		setInfo((prev) => ({ ...prev, checkoutLoader: true }));
@@ -82,6 +80,11 @@ const AddOnPlans = ({ addOnsLoading = false, isOpen, closeModal, subscriptionSta
 			}
 		} else {
 			const response = await purchaseAddOnPlan(payload);
+			if (response?.[0]) {
+				window.location.href = response?.[1]?.url;
+				closeModal();
+				setInfo((prev) => ({ ...prev, checkoutLoader: false }));
+			}
 		}
 	};
 
@@ -166,7 +169,7 @@ const AddOnPlans = ({ addOnsLoading = false, isOpen, closeModal, subscriptionSta
 						<h1 className="title">
 							{subscriptionState === 'upgradeSubscription'
 								? 'Subscription Plans'
-								: 'Add ons with your current plan'}
+								: 'Add-Ons for your current plan'}
 						</h1>
 						{info?.totalPrice > 0 && (
 							<div className="checkoutContainer">

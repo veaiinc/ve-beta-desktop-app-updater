@@ -55,7 +55,6 @@ const ApproximateCreditsRowData = [
 const PlanBilling = () => {
 	let {
 		subscriptionInfo: { getCurrentSubscriptionPlan, currentPlan },
-		authInfo: { getAddOnsForCurrentPlan },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		loading: true,
@@ -70,6 +69,7 @@ const PlanBilling = () => {
 		tenantUsers: 0,
 		tenantUsersLimit: 0,
 		aiCreditsLimit: 0,
+		displayData: null,
 	});
 
 	useEffect(() => {
@@ -173,7 +173,8 @@ const SubscribedUserPlanCard = ({
 }) => {
 	const navigate = useNavigate();
 	let {
-		subscriptionInfo: { createManageSubscriptionLinkforExistingUsers },
+		subscriptionInfo: { createManageSubscriptionLinkforExistingUsers, getAllSubscriptionPlan },
+		authInfo: { getAddOnsForCurrentPlan },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -184,6 +185,8 @@ const SubscribedUserPlanCard = ({
 		planPurchaseId: null,
 		isOpen: false,
 		subscriptionState: '',
+		addOnsLoading: false,
+		subscriptionLoading: false,
 	});
 
 	// useEffect(() => {
@@ -212,7 +215,7 @@ const SubscribedUserPlanCard = ({
 		},
 		{
 			id: 3,
-			title: 'Tenant Users',
+			title: 'Team Members',
 			usedValue: data?.tenantUsers,
 			totalValue: data?.tenantUsersLimit,
 			barGraph: true,
@@ -232,14 +235,14 @@ const SubscribedUserPlanCard = ({
 		},
 		{
 			id: 6,
-			title: 'Free Ai Credit Limit',
+			title: 'Free Ai Credits Limit',
 			usedValue: data?.freeAiCreditLimit?.aiCredits,
 			barGraph: false,
 			duration: 'Daily',
 		},
 		{
 			id: 7,
-			title: 'Paid Ai Credit Limit',
+			title: 'Paid Ai Credits Limit',
 			usedValue: data?.paidAiCreditLimit?.aiCredits,
 			barGraph: false,
 			duration: 'Monthly',
@@ -254,6 +257,28 @@ const SubscribedUserPlanCard = ({
 		}
 		setInfo((prev) => ({ ...prev, manageSubscriptionLoader: false }));
 	});
+
+	const handleAddOnsClick = async () => {
+		setInfo((prev) => ({ ...prev, addOnsLoading: true }));
+		await getAddOnsForCurrentPlan();
+		setInfo((prev) => ({
+			...prev,
+			addOnsLoading: false,
+			isOpen: true,
+			subscriptionState: 'addOnPlans',
+		}));
+	};
+
+	const handleUpgradeSubscriptionClick = async () => {
+		setInfo((prev) => ({ ...prev, subscriptionLoading: true }));
+		await getAllSubscriptionPlan();
+		setInfo((prev) => ({
+			...prev,
+			isOpen: true,
+			subscriptionState: 'upgradeSubscription',
+			subscriptionLoading: false,
+		}));
+	};
 
 	return (
 		<div className="subscriptionWrapperContainer">
@@ -275,9 +300,11 @@ const SubscribedUserPlanCard = ({
 					<div className="subscriptionPlanPricingDetails">
 						<span className="subscriptionPlanPricing">
 							{currency === 'INR' ? '₹ ' : '$ '}
-							{data?.totalPrice?.toLocaleString('en-IN', {
-								currency: currency,
-							})}
+							{data?.totalPrice
+								? data?.totalPrice?.toLocaleString('en-IN', {
+										currency: currency,
+								  })
+								: '0'}
 						</span>
 						<span className="subscritptionPlanPeriod">/ {data?.subscriptionType}</span>
 					</div>
@@ -372,28 +399,14 @@ const SubscribedUserPlanCard = ({
 				<div className="subscriptionActionContainer">
 					<button
 						className="manageSubscriptionButton"
-						onClick={() =>
-							setInfo((prev) => ({
-								...prev,
-								isOpen: true,
-								subscriptionState: 'addOnPlans',
-							}))
-						}
+						onClick={handleUpgradeSubscriptionClick}
 					>
-						Add Ons
+						{info?.subscriptionLoading ? <Spin /> : 'Upgrade Subscription'}
 					</button>
-					<button
-						className="manageSubscriptionButton"
-						onClick={() =>
-							setInfo((prev) => ({
-								...prev,
-								isOpen: true,
-								subscriptionState: 'upgradeSubscription',
-							}))
-						}
-					>
-						Upgrade Subscription
+					<button className="manageSubscriptionButton" onClick={handleAddOnsClick}>
+						{info?.addOnsLoading ? <Spin /> : 'Buy Add Ons'}
 					</button>
+
 					{/* <div className="expiringText">
 						{moment().unix() < +expiresAt ? 'Expiring' : 'Expired'} on{' '}
 						{moment.unix(`${expiresAt}`)?.format('DD MMM YYYY')}
@@ -401,7 +414,6 @@ const SubscribedUserPlanCard = ({
 				</div>
 			</div>
 			<AddOnPlans
-				addOnsLoading={addOnsLoading}
 				isOpen={info?.isOpen}
 				closeModal={() => setInfo((prev) => ({ ...prev, isOpen: false }))}
 				subscriptionState={info?.subscriptionState}
