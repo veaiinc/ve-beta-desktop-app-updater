@@ -1,6 +1,5 @@
 import React, { memo, useContext, useEffect, useState } from 'react';
 import { default as ReactMarkdown } from 'react-markdown';
-// import remarkGfm from 'remark-gfm';
 import { Link } from 'react-router-dom'; // Adjust if you're using another router
 import '../assets/scss/markdown.scss';
 import '../assets/scss/markdownHelper.scss';

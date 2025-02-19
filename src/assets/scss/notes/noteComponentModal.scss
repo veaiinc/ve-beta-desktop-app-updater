@@ -14,7 +14,7 @@
 				display: flex;
 				height: 100%;
 				flex-direction: column;
-				justify-content: flex-end;
+				// justify-content: flex-end;
 				align-items: center;
 				flex-shrink: 0;
 				background: #0e0f0f;
@@ -30,7 +30,7 @@
 					padding: 24px;
 					overflow-y: scroll;
 					width: 100%;
-					max-height: calc(100% - 124px);
+					height: calc(100% - 148px);
 					transition: 300ms ease-in-out;
 
 					.chatContent {
