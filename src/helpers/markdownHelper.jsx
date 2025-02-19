@@ -99,6 +99,13 @@ const components = {
 			</h6>
 		);
 	},
+	p: ({ children, ...props }) => {
+		return (
+			<p className="mb-4" {...props}>
+				<CustomComponent>{children}</CustomComponent>
+			</p>
+		);
+	},
 	img: ({ children, ...props }) => {
 		return (
 			<div className="markdown-image-wrapper">
@@ -125,18 +132,24 @@ const updateTextWithCitations = (text) => {
 	const parts = text.split(regex);
 	const matches = text.match(regex);
 
-	if (!matches) return <>{text}</>;
+	if (!matches) return <span>{text}</span>;
+	console.log(parts);
 
 	return (
 		<>
-			{parts.map((part, index) => (
-				<React.Fragment key={index}>
-					{part}
-					{matches[index] && (
-						<CitationsTooltip key={index} citationId={matches[index]?.slice(1, -1)} />
-					)}
-				</React.Fragment>
-			))}
+			{parts.map((part, index) => {
+				return (
+					<React.Fragment key={index}>
+						{part}
+						{matches[index] && (
+							<CitationsTooltip
+								key={index}
+								citationId={matches[index]?.slice(1, -1)}
+							/>
+						)}
+					</React.Fragment>
+				);
+			})}
 		</>
 	);
 };
