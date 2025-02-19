@@ -50,6 +50,7 @@ const Chat = ({
 			citations,
 			currentSessionId,
 			updateAiChatMessageRating,
+			aiChatMessageRatings: ratings,
 		},
 	} = useContext(Context);
 
@@ -79,7 +80,6 @@ const Chat = ({
 		voiceIntegration: false,
 		noteModalIsOpen: false,
 		citationsModalIsOpen: false,
-		ratings: {},
 	});
 
 	const chatContentRef = useRef(null);
@@ -107,7 +107,7 @@ const Chat = ({
 
 	const handleRatingClick = async (type, messageId) => {
 		try {
-			if (messageId) {
+			if (messageId && ratings?.[messageId]?.rating !== type) {
 				await updateAiChatMessageRating({ rating: type }, messageId);
 			}
 		} catch (error) {
