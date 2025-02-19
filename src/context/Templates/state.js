@@ -1443,11 +1443,11 @@ export const TemplatesState = (props) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			const url = `/${workspaceId}/${sessionId}/${sourceId}/get_chunk`;
+
 			const usertoken = localStorage.getItem('usertoken');
 			const response = await Service.fetchGet(url, usertoken, 'ai_predictions');
-			console.log(response);
 			if (response?.[0]) {
-				return [true, response?.[1]];
+				return response?.[1]?.chunk;
 			}
 		} catch (error) {
 			console.log('errror ==>getCitationData', error);

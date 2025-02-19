@@ -1,9 +1,10 @@
 import { Tooltip } from 'antd';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import Context from '../../../../context/context';
 import '../../../../assets/scss/chat/citationsTooltip.scss';
+import Markdown from 'react-markdown';
 
-export const CitationsTooltip = ({ citationId, sessionId }) => {
+export const CitationsTooltip = ({ citationId }) => {
 	const {
 		templates: { citations, getCitationData, currentSessionId },
 	} = useContext(Context);
@@ -14,8 +15,10 @@ export const CitationsTooltip = ({ citationId, sessionId }) => {
 
 	useEffect(() => {
 		const fetchCitationData = async () => {
-			const response = await getCitationData(currentSessionId, citation?.source);
-			setCitationData(response);
+			if (citation?.source) {
+				const response = await getCitationData(currentSessionId, citation?.source);
+				setCitationData(response);
+			}
 		};
 		fetchCitationData();
 	}, []);
@@ -26,15 +29,16 @@ export const CitationsTooltip = ({ citationId, sessionId }) => {
 			color="transparent"
 			placement="topLeft"
 			title={
-				<div className="citation-tooltip-container">
-					<div className="content">{citationData}</div>
+				<a href={link} className="citation-tooltip-container">
+					<div className="content">
+						{citation?.source ? <Markdown>{citationData}</Markdown> : citation?.snippet}
+					</div>
+
 					<div className="info">
 						<div className="image"></div>
-						<a className="citation-link" href={link} target="_blank" rel="noreferrer">
-							{link}
-						</a>
+						<div className="citation-link">{link}</div>
 					</div>
-				</div>
+				</a>
 			}
 		>
 			<span className="citation-tooltip-header">{number}</span>

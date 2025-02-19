@@ -31,6 +31,7 @@
 	.content {
 		width: 280px;
 		height: 270px;
+		overflow-y: auto;
 		flex-shrink: 0;
 		color: #f2f2f3;
 		font-family: Inter;
