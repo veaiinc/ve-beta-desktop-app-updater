@@ -532,7 +532,7 @@ const Notification = ({
 				if (!info?.selectedGoogleAccount?.value?.trim()?.length) {
 					return message.error('Google account is mandatory');
 				}
-				payload.gmail = {
+				payload.inputBody = {
 					action: 'sendMessage',
 					emailTemplateTitle: info?.selectedTemplate?.title,
 					toEmail: recipientEmail,

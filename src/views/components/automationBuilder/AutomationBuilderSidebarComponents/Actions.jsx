@@ -24,7 +24,7 @@ import moment from 'moment';
 
 const actionsList = {
 	tasks: { title: 'Create Tasks' },
-	meeting: { title: 'Create Meeting' },
+	// meeting: { title: 'Create Meeting' },
 };
 
 const actionGroups = [
@@ -394,7 +394,7 @@ const Stage2 = ({
 			isEnabled: true,
 			previousStepId: previousStepId,
 			type: 'createTask',
-			createTask: {
+			inputBody: {
 				title: task,
 				dueDate: dueDate,
 			},
@@ -477,35 +477,53 @@ const Stage2 = ({
 	);
 };
 
-const Stage3 = ({ info, changeStage, createNewActionNode }) => {
-	return (
-		<div className="createTaskUiContainer">
-			<div className="createTasksUi">
-				<div className="createTasksHeadingContainer">
-					<div className="createHeadingLabelContainer">
-						<div className="createTaskHeadingLabel">
-							<span className="actionsCreateHeader">Actions</span>
-							<span className="createTaskHeading">Create Meeting</span>
-						</div>
-						<div
-							className="changeActionStageButton"
-							onClick={() => changeStage({ activeStage: 'stage1' })}
-						>
-							Change
-						</div>
-					</div>
-				</div>
+const Stage3 = ({ changeStage, createNewActionNode }) => {
+	const [info, setInfo] = useState({
+		title: '',
+		description: '',
+		loading: false,
+	});
+	const updateInfoState = useCallback((data) => {
+		setInfo((prev) => ({ ...prev, ...data }));
+	}, []);
 
-				{/* //task title */}
-				<div className="addTaskTitleContainer">
-					<span className="addTaskTitleTextStyle">Add Meeting Title</span>
-					<textarea
-						className="addTaskTitleTextArea"
-						placeholder="Add Meeting Title ...."
+	return (
+		<div className="createMeetingContainer">
+			<ActionDetailsBlock
+				heading="Actions"
+				actionLabel="Create Meeting"
+				title={info?.title}
+				description={info?.description}
+				updaterFn={updateInfoState}
+			/>
+			<div className="createMeetingUiContainer">
+				<h1 className="createMeetingInputHeading">Inputs</h1>
+				<div className="createMeetingInputItem">
+					<span className="addTaskTitleTextStyle">Title</span>
+					<VariableComponent onChange={(value) => updateInfoState({ title: value })} />
+				</div>
+				<div className="createMeetingInputItem">
+					<span className="addTaskTitleTextStyle">Title</span>
+					<VariableComponent onChange={(value) => updateInfoState({ title: value })} />
+				</div>
+				<div className="createMeetingInputItem">
+					<span className="addTaskTitleTextStyle">Title</span>
+					<VariableComponent
+						onChange={(value) => updateInfoState({ title: value })}
+						type="datetime-local"
+					/>
+				</div>
+				<div className="createMeetingInputItem">
+					<span className="addTaskTitleTextStyle">Title</span>
+					<VariableComponent
+						onChange={(value) => updateInfoState({ title: value })}
+						type="datetime-local"
 					/>
 				</div>
 			</div>
-			<div className="actionsSaveButton">Save</div>
+			<button className="actionsSaveButton" onClick={() => {}}>
+				{info?.loading ? <Spin /> : 'Save'}
+			</button>
 		</div>
 	);
 };

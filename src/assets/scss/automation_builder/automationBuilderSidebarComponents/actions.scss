@@ -222,4 +222,45 @@
 			outline: none;
 		}
 	}
+	.createMeetingContainer {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		align-self: stretch;
+
+		.createMeetingUiContainer {
+			display: flex;
+			padding: 12px 24px;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 12px;
+			align-self: stretch;
+			width: 100%;
+
+			.createMeetingInputHeading {
+				color: #f2f2f3;
+				font-family: Inter;
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+			}
+
+			.createMeetingInputItem {
+				display: flex;
+				flex-direction: column;
+				align-items: flex-start;
+				gap: 8px;
+				align-self: stretch;
+
+				.addTaskTitleTextStyle {
+					color: #7a7e85;
+					font-family: Inter;
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+				}
+			}
+		}
+	}
 }
