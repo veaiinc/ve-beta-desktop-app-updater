@@ -238,7 +238,7 @@ const Chat = ({
 							</div>
 						</div>
 
-						<ChatBox />
+						<ChatBox autoFocus={true} />
 					</div>
 				</div>
 			</div>
