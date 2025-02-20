@@ -5,7 +5,7 @@ import { ReactComponent as Home } from '../../../assets/svg/ai_agents/home.svg';
 import { ReactComponent as Settings } from '../../../assets/svg/ai_agents/settings.svg';
 import { ReactComponent as Close } from '../../../assets/svg/close.svg';
 import { ReactComponent as Expand } from '../../../assets/svg/bottomToolbar/expand.svg';
-import { ReactComponent as ArrowUp } from '../../../assets/svg/ai_agents/arrow-up.svg';
+import { ReactComponent as ArrowUp } from '../../../assets/svg/ai_agents/arrow-up-dark.svg';
 import { ReactComponent as ExpandChatIcon } from '../../../assets/svg/ai_agents/expand-chat-icon.svg';
 import { ReactComponent as ChevronSvg } from '../../../assets/svg/tasks/chevronRightThin.svg';
 import { ReactComponent as MicroscopeLightSvg } from '../../../assets/svg/ai_agents/microscope-light.svg';
@@ -43,6 +43,7 @@ import DateRangeDropdown from '../chat/DateRangeDropdown';
 import SearchTypeTooltip from '../chat/SearchTypeTooltip';
 import moment from 'moment';
 import Voice from '../chat/Voice';
+import Skeleton from 'react-loading-skeleton';
 const moduleHelper = {
 	tasks: 'tasks',
 	'smart-file': 'form_filling',
@@ -157,7 +158,7 @@ const ChatBox = ({
 		isModulesDropdownOpen: false,
 		searchType: {
 			webSearch: false,
-			workspaceSearch: false,
+			workspaceSearch: true,
 		},
 		recentFiles: [],
 		isSearchTypeOpen: false,
@@ -296,7 +297,6 @@ const ChatBox = ({
 				}
 				// Prevent default to avoid unwanted new line
 				e?.preventDefault();
-				navigate('/chat');
 
 				if (
 					(aiChatLoading || info?.chatLoading) &&
@@ -309,11 +309,7 @@ const ChatBox = ({
 					return message.error('Please wait for the images to upload');
 				}
 
-				if (
-					info?.chatQuery?.trim().length ||
-					info?.uploadedImages?.length ||
-					query?.trim()?.length
-				) {
+				if (info?.chatQuery?.trim()?.length > 0 || query?.trim()?.length > 0) {
 					if (customChatActions) {
 						onSend(info?.chatQuery);
 					} else {
@@ -358,7 +354,16 @@ const ChatBox = ({
 							payload.workflow_slug = activeWorkflowSlugForSmartFile;
 						}
 
-						setInfo((prev) => ({ ...prev, uploadedImages: [], chatQuery: '' }));
+						setInfo((prev) => ({
+							...prev,
+							uploadedImages: [],
+							chatQuery: '',
+							recentFiles: [],
+							chatFilters: initialChatFilters,
+						}));
+						if (location?.pathname?.split('/')?.[1] !== 'chat') {
+							navigate('/chat');
+						}
 
 						const response = await handleGlobalChatMessages(
 							payload,
@@ -383,8 +388,6 @@ const ChatBox = ({
 							}
 						}
 					}
-
-					// setInfo((prev) => ({ ...prev, chatQuery: '', uploadedImages: [] }));
 				}
 			}
 		},
@@ -400,10 +403,9 @@ const ChatBox = ({
 					message: 'loading....',
 					content: (
 						<div className="aiMessageWrapper">
-							<AiSparkel />
-							<div className="aiMessage">
-								<span>Thinking...</span>
-							</div>
+							<Skeleton height={20} width={'100%'} borderRadius={'100px'} />
+							<Skeleton height={20} width={'75%'} borderRadius={'100px'} />
+							<Skeleton height={20} width={'50%'} borderRadius={'100px'} />
 						</div>
 					),
 					contentType: 'loading',
@@ -772,35 +774,35 @@ const ChatBox = ({
 														</div>
 													</SearchTypeTooltip>
 
+													{/* <div
+												className="icon-container"
+												onClick={handleGoDeepSearchClick}
+												style={{
+													background: `${
+														info?.goDeep ? '#B39DFA' : '#2E2F33'
+													}`,
+												}}
+											>
+												<div className="icon">
+													{info?.goDeep ? (
+														<MicroscopeDarkSvg />
+													) : (
+														<MicroscopeLightSvg />
+													)}
+												</div>
+												{showChatLabels && (
 													<div
-														className="icon-container"
-														onClick={handleGoDeepSearchClick}
+														className="right-text"
 														style={{
-															background: `${
-																info?.goDeep ? '#B39DFA' : '#2E2F33'
+															color: `${
+																info?.goDeep ? '#0C0C0D' : '#f2f2f3'
 															}`,
 														}}
 													>
-														<div className="icon">
-															{info?.goDeep ? (
-																<MicroscopeDarkSvg />
-															) : (
-																<MicroscopeLightSvg />
-															)}
-														</div>
-														<div
-															className="right-text"
-															style={{
-																color: `${
-																	info?.goDeep
-																		? '#0C0C0D'
-																		: '#f2f2f3'
-																}`,
-															}}
-														>
-															{showChatLabels ? 'Explore' : ''}
-														</div>
+														Explore
 													</div>
+												)}
+											</div> */}
 													<UploadFileTooltip
 														fileTypeIcons={fileTypeIcons}
 														handleChange={handleChange}
@@ -824,9 +826,11 @@ const ChatBox = ({
 																	fill={'#f2f2f3'}
 																/>
 															</div>
-															<div className="right-text">
-																{showChatLabels ? 'Add' : ''}
-															</div>
+															{showChatLabels && (
+																<div className="right-text">
+																	Add
+																</div>
+															)}
 														</div>
 													</UploadFileTooltip>
 

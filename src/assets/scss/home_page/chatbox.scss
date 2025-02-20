@@ -611,3 +611,9 @@
 .custom-switch.ant-switch-checked .ant-switch-handle::before {
 	background-color: #171819 !important; /* Custom handle color when ON */
 }
+
+.preview-image-container {
+	.ant-image-preview-wrap {
+		z-index: 1020 !important;
+	}
+}
