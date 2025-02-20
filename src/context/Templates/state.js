@@ -78,9 +78,7 @@ export const intialState = {
 	draftStateWorkflowtemplates: null,
 	moreDraftStateWorkflowtemplates: null,
 	createLeadModalContextState: false,
-	globalChatMessages: [
-		// { type: 'AI', message: 'Hello, how can I help you today?' }
-	],
+	globalChatMessages: [], // { type: 'AI', message: 'Hello, how can I help you today?' }
 	currentSessionId: null,
 	citations: null,
 	followUpQuery: null,
@@ -94,8 +92,6 @@ export const intialState = {
 	formResponsesList: null,
 	moreFormResponsesList: null,
 	activePromptForChat: null,
-	smartFileRefetch: false,
-	activeWorkflowSlugForSmartFile: null,
 	leftSidebarState: null,
 };
 
@@ -1438,7 +1434,6 @@ export const TemplatesState = (props) => {
 			return [true, 'We made the changes accordingly'];
 		} catch (error) {}
 	};
-
 	const getCitationData = async (sessionId, sourceId) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
