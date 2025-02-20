@@ -104,6 +104,7 @@ const ChatBox = ({
 	customChatActions = false,
 	showChatLabels = true,
 	uploadedImages = [],
+	autoFocus = false,
 }) => {
 	const {
 		templates: {
@@ -646,6 +647,7 @@ const ChatBox = ({
 												chatQuery: e.target.value,
 											}))
 										}
+										autoFocus={autoFocus}
 										onKeyDown={handleSendMessageFunc}
 										className="textArea"
 										// rows={1}
@@ -878,6 +880,7 @@ const ChatBox = ({
 								wrapperStyle={{
 									display: 'none',
 								}}
+								rootClassName="preview-image-container"
 								preview={{
 									visible: previewOpen,
 									onVisibleChange: (visible) => setPreviewOpen(visible),
