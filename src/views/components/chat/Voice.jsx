@@ -16,7 +16,12 @@ const Voice = ({ handleDisConnect, handleToggleMute, isVoiceMuted }) => {
 				</div>
 				<div className="speaking-icon-container">
 					<div className="voice-container">
-						<VoiceSvg />
+						<img
+							src={'https://ap.assets.ve.ai/logo/speaking%20final.gif'}
+							width={'40px'}
+							height={'40px'}
+							style={{ marginBottom: '12px' }}
+						/>
 					</div>
 				</div>
 				<div className="icon-container" onClick={handleDisConnect}>

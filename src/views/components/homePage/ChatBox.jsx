@@ -597,7 +597,7 @@ const ChatBox = ({
 	const handleDisConnect = useCallback(
 		(event) => {
 			disconnect();
-			setInfo((prev) => ({ ...prev, voiceIntegration: false }));
+			setInfo((prev) => ({ ...prev, voiceIntegration: false, isVoiceMuted: false }));
 			event.stopPropagation();
 		},
 		[info],
