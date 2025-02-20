@@ -15,7 +15,7 @@ import { Tooltip } from 'antd';
 import { CitationsTooltip } from '../views/components/modalsV2/chat/CitationsTooltip';
 
 const components = {
-	pre: ({ children }) => <CustomComponent>{children}</CustomComponent>,
+	pre: ({ children }) => <>{children}</>,
 	ol: ({ children, ...props }) => {
 		return (
 			<ol className="list-decimal list-outside ml-4" {...props}>
@@ -26,7 +26,7 @@ const components = {
 	li: ({ children, ...props }) => {
 		return (
 			<li className="py-1" {...props}>
-				<CustomComponent>{children}</CustomComponent>
+				{children}
 			</li>
 		);
 	},
@@ -40,7 +40,7 @@ const components = {
 	strong: ({ children, ...props }) => {
 		return (
 			<span className="font-semibold" {...props}>
-				<CustomComponent>{children}</CustomComponent>
+				{children}
 			</span>
 		);
 	},
@@ -59,49 +59,49 @@ const components = {
 	h1: ({ children, ...props }) => {
 		return (
 			<h1 className="text-3xl font-semibold mt-6 mb-2" {...props}>
-				<CustomComponent>{children}</CustomComponent>
+				{children}
 			</h1>
 		);
 	},
 	h2: ({ children, ...props }) => {
 		return (
 			<h2 className="text-2xl font-semibold mt-6 mb-2" {...props}>
-				<CustomComponent>{children}</CustomComponent>
+				{children}
 			</h2>
 		);
 	},
 	h3: ({ children, ...props }) => {
 		return (
 			<h3 className="text-xl font-semibold mt-6 mb-2" {...props}>
-				<CustomComponent>{children}</CustomComponent>
+				{children}
 			</h3>
 		);
 	},
 	h4: ({ children, ...props }) => {
 		return (
 			<h4 className="text-lg font-semibold mt-6 mb-2" {...props}>
-				<CustomComponent>{children}</CustomComponent>
+				{children}
 			</h4>
 		);
 	},
 	h5: ({ children, ...props }) => {
 		return (
 			<h5 className="text-base font-semibold mt-6 mb-2" {...props}>
-				<CustomComponent>{children}</CustomComponent>
+				{children}
 			</h5>
 		);
 	},
 	h6: ({ children, ...props }) => {
 		return (
 			<h6 className="text-sm font-semibold mt-6 mb-2" {...props}>
-				<CustomComponent>{children}</CustomComponent>
+				{children}
 			</h6>
 		);
 	},
 	p: ({ children, ...props }) => {
 		return (
 			<p className="text-white" {...props}>
-				<CustomComponent>{children}</CustomComponent>
+				{children}
 			</p>
 		);
 	},
@@ -118,60 +118,58 @@ const components = {
 			</div>
 		);
 	},
-	text: ({ children }) => {
-		return <CustomComponent>{children}</CustomComponent>;
+	span: ({ children, citationId, ...props }) => {
+		if (citationId) return <CitationsTooltip citationId={citationId} />;
+		return <span {...props}>{children}</span>;
 	},
 };
 
-// console.log('isChrome', isChrome);
+const rehypeCITPlugin = () => {
+	return (tree) => {
+		const visit = (node) => {
+			if (!node || typeof node !== 'object') return;
 
-// const remarkPlugins = [];
-const updateTextWithCitations = (text) => {
-	const regex = /\[CIT-\d+\]/g;
-	const parts = text.split(regex);
-	const matches = text.match(regex);
+			if (node?.type === 'text' && node?.value) {
+				const regex = /(\[CIT-\d+\])/g;
+				const matches = node?.value?.match(regex);
+				if (!matches) return;
 
-	if (!matches) return text;
+				// Transform the current node in place
+				Object.assign(node, {
+					type: 'element',
+					tagName: 'span',
+					properties: node?.properties || {},
+					children: node?.value
+						?.split(regex)
+						?.filter((part) => part !== '')
+						?.map((part) => {
+							const match = part.match(/\[CIT-\d+\]/);
+							if (match) {
+								return {
+									type: 'element',
+									tagName: 'span',
+									properties: { citationId: match[0]?.slice(1, -1) },
+									children: [{ type: 'text', value: 'Citation' }],
+								};
+							}
+							return { type: 'text', value: part };
+						}),
+				});
+			}
 
-	return (
-		<>
-			{parts.map((part, index) => {
-				return (
-					<React.Fragment key={index}>
-						{part}
-						{matches[index] && (
-							<CitationsTooltip
-								key={index}
-								citationId={matches[index]?.slice(1, -1)}
-							/>
-						)}
-					</React.Fragment>
-				);
-			})}
-		</>
-	);
-};
+			// Recursively visit children
+			if (node?.children && Array.isArray(node?.children)) {
+				node.children.forEach(visit);
+			}
+		};
 
-const CustomComponent = ({ children }) => {
-	if (typeof children === 'string') {
-		return updateTextWithCitations(children);
-	} else if (Array.isArray(children)) {
-		return (
-			<>
-				{children.map((child, index) => {
-					if (typeof child === 'string') {
-						return updateTextWithCitations(child);
-					}
-					return child;
-				})}
-			</>
-		);
-	}
+		visit(tree);
+	};
 };
 
 const NonMemoizedMarkdown = ({ children }) => {
 	return (
-		<ReactMarkdown remarkPlugins={[]} components={components}>
+		<ReactMarkdown remarkPlugins={[]} rehypePlugins={[rehypeCITPlugin]} components={components}>
 			{children}
 		</ReactMarkdown>
 	);

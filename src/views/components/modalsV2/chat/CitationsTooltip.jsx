@@ -25,7 +25,7 @@ export const CitationsTooltip = ({ citationId }) => {
 	return (
 		<Tooltip
 			arrow={false}
-			trigger={'click'}
+			trigger={'hover'}
 			color="transparent"
 			placement="topLeft"
 			title={
