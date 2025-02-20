@@ -78,7 +78,7 @@ export const intialState = {
 	draftStateWorkflowtemplates: null,
 	moreDraftStateWorkflowtemplates: null,
 	createLeadModalContextState: false,
-	globalChatMessages: [{ type: 'AI', message: 'Hello, how can I help you today?' }],
+	globalChatMessages: [], // { type: 'AI', message: 'Hello, how can I help you today?' }
 	currentSessionId: null,
 	citations: null,
 	followUpQuery: null,
@@ -92,8 +92,6 @@ export const intialState = {
 	formResponsesList: null,
 	moreFormResponsesList: null,
 	activePromptForChat: null,
-	smartFileRefetch: false,
-	activeWorkflowSlugForSmartFile: null,
 	leftSidebarState: null,
 };
 
@@ -1436,6 +1434,20 @@ export const TemplatesState = (props) => {
 			return [true, 'We made the changes accordingly'];
 		} catch (error) {}
 	};
+	const getCitationData = async (sessionId, sourceId) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			const url = `/${workspaceId}/${sessionId}/${sourceId}/get_chunk`;
+
+			const usertoken = localStorage.getItem('usertoken');
+			const response = await Service.fetchGet(url, usertoken, 'ai_predictions');
+			if (response?.[0]) {
+				return response?.[1]?.chunk;
+			}
+		} catch (error) {
+			console.log('errror ==>getCitationData', error);
+		}
+	};
 
 	const handleGlobalChatMessages = async (payload, sessionId, localPayload, queryMessage) => {
 		try {
@@ -1470,14 +1482,14 @@ export const TemplatesState = (props) => {
 									<img
 										src={ele.preview}
 										alt="filetochat"
-										width={'50px'}
+										width={'75px'}
 										onClick={() => localPayload?.handlePreview(ele)}
 										style={{ cursor: 'pointer' }}
 									/>
 								))}
 
 								<div className="message-content-user" style={{ marginTop: '8px' }}>
-									<span>{payload?.query}</span>
+									<span>{queryMessage}</span>
 								</div>
 							</div>
 						),
@@ -1499,7 +1511,7 @@ export const TemplatesState = (props) => {
 				payload.query += str;
 			} else {
 				updatedGlobalChatMessages = [
-					{ type: 'user', message: queryMessage || '' },
+					{ type: 'user', message: queryMessage || '', typingEffect: false },
 					{
 						type: 'AI',
 						message: 'loading....',
@@ -1523,6 +1535,7 @@ export const TemplatesState = (props) => {
 			if (response?.[0]) {
 				const citations = response?.[1]?.citations;
 				const followUpQuery = response?.[1]?.['follow_up_query'];
+				const messageId = response?.[1]?.['message_id'];
 				if (citations && citations?.length > 0) {
 					dispatch({
 						type: Actions?.CHAT_CITATIONS_SUCCESS,
@@ -1548,6 +1561,9 @@ export const TemplatesState = (props) => {
 				const updatedGlobalChatMessages = {
 					type: 'AI',
 					message: response?.[1]?.answer,
+					messageId: response?.[1]?.['message_id'],
+					typingEffect: true,
+					rating: null,
 				};
 				dispatch({
 					type: Actions.GLOBAL_CHAT_MESSAGES_ACTIONS_SUCCESS,
@@ -1557,6 +1573,20 @@ export const TemplatesState = (props) => {
 			}
 		} catch (error) {
 			console.log('errror ==>handleGlobalChatMessages', error);
+		}
+	};
+
+	const updateAiChatMessageRating = async (payload, messageId) => {
+		let workspaceId = localStorage.getItem('workspaceId');
+		let usertoken = localStorage.getItem('usertoken');
+		const url = '/' + workspaceId + '/ai-chat/' + messageId + '/ai-chat-message-feedback';
+		try {
+			const response = await Service?.fetchPut(url, payload, usertoken, 'ai_assistant_api');
+			if (response?.[0]) {
+				return [true];
+			}
+		} catch (error) {
+			console.log('error==>updatedAiChatMessageRating', error);
 		}
 	};
 
@@ -1741,6 +1771,28 @@ export const TemplatesState = (props) => {
 			console.log('error==>getAllSlackChannels', error);
 		}
 	};
+
+	const getModuleTemplate = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await Service.fetchPost(
+				`/${workspaceId}/templates/templates-list`,
+				payload,
+				usertoken,
+				'proposals_api',
+			);
+			if (response?.[0] === true) {
+				dispatch({ type: Actions.GET_MODULE_TEMPLATE_SUCCESS, payload: response?.[1] });
+				return [true, response?.[1]];
+			} else {
+				return [false, response?.[1]?.message];
+			}
+		} catch (error) {
+			console.log('errror ==>getModuleTemplate', error);
+			return [false, error?.message];
+		}
+	};
 	return {
 		...state,
 		getMyWorkflows,
@@ -1807,5 +1859,8 @@ export const TemplatesState = (props) => {
 		updateSteps,
 		getTemplatesListForForms,
 		getFormResponsesList,
+		updateAiChatMessageRating,
+		getModuleTemplate,
+		getCitationData,
 	};
 };
