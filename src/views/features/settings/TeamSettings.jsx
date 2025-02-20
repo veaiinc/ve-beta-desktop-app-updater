@@ -12,6 +12,11 @@ const selectableOptions = [
 	{ id: 2, title: 'Classic Gallery', value: 'classicGallery' },
 	{ id: 3, title: 'Lite Gallery', value: 'liteGallery' },
 	{ id: 4, title: 'Conversational Agent', value: 'conversationalAgent' },
+	{ id: 5, title: 'File', value: 'file' },
+	{ id: 6, title: 'Template', value: 'template' },
+	{ id: 7, title: 'Task', value: 'task' },
+	{ id: 8, title: 'Calender', value: 'calender' },
+	{ id: 9, title: 'Form', value: 'form' },
 ];
 
 const TeamSettings = () => {
