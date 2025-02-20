@@ -11,6 +11,8 @@ import { ReactComponent as TickSvg } from '../assets/svg/tick.svg';
 import { ReactComponent as CopyIcon } from '../assets/svg/ai_agents/copy.svg';
 import Context from '../context/context';
 import { Tooltip } from 'antd';
+import { CitationsTooltip } from '../views/components/modalsV2/chat/CitationsTooltip';
+
 const components = {
 	pre: ({ children }) => <>{children}</>,
 	ol: ({ children, ...props }) => {
@@ -95,6 +97,13 @@ const components = {
 			</h6>
 		);
 	},
+	p: ({ children, ...props }) => {
+		return (
+			<p className="text-white" {...props}>
+				{children}
+			</p>
+		);
+	},
 	img: ({ children, ...props }) => {
 		return (
 			<div className="markdown-image-wrapper">
@@ -108,21 +117,58 @@ const components = {
 			</div>
 		);
 	},
-	// p: ({ children, ...props }) => {
-	// 	return (
-	// 		<h1 className="mt-6 mb-2" {...props}>
-	// 			{children}
-	// 		</h1>
-	// 	);
-	// },
+	span: ({ children, citationId, ...props }) => {
+		if (citationId) return <CitationsTooltip citationId={citationId} />;
+		return <span {...props}>{children}</span>;
+	},
 };
 
-// console.log('isChrome', isChrome);
+const rehypeCITPlugin = () => {
+	return (tree) => {
+		const visit = (node) => {
+			if (!node || typeof node !== 'object') return;
 
-// const remarkPlugins = [];
+			if (node?.type === 'text' && node?.value) {
+				const regex = /(\[CIT-\d+\])/g;
+				const matches = node?.value?.match(regex);
+				if (!matches) return;
+
+				// Transform the current node in place
+				Object.assign(node, {
+					type: 'element',
+					tagName: 'span',
+					properties: node?.properties || {},
+					children: node?.value
+						?.split(regex)
+						?.filter((part) => part !== '')
+						?.map((part) => {
+							const match = part.match(/\[CIT-\d+\]/);
+							if (match) {
+								return {
+									type: 'element',
+									tagName: 'span',
+									properties: { citationId: match[0]?.slice(1, -1) },
+									children: [{ type: 'text', value: 'Citation' }],
+								};
+							}
+							return { type: 'text', value: part };
+						}),
+				});
+			}
+
+			// Recursively visit children
+			if (node?.children && Array.isArray(node?.children)) {
+				node.children.forEach(visit);
+			}
+		};
+
+		visit(tree);
+	};
+};
+
 const NonMemoizedMarkdown = ({ children }) => {
 	return (
-		<ReactMarkdown remarkPlugins={[]} components={components}>
+		<ReactMarkdown remarkPlugins={[]} rehypePlugins={[rehypeCITPlugin]} components={components}>
 			{children}
 		</ReactMarkdown>
 	);
@@ -185,10 +231,7 @@ export const TypingEffect = ({
 
 	return (
 		<div className="typing-effect-container">
-			<div className="typing-effect">
-				<Markdown>{displayedText}</Markdown>
-				{currentIndex < text?.length && <span className="typing-cursor" />}
-			</div>
+			<Markdown>{displayedText}</Markdown>
 
 			{currentIndex === text?.length ? (
 				<div className="hover-actions-container">
