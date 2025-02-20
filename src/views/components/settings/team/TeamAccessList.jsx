@@ -40,7 +40,8 @@ const TeamAccessListComponent = ({
 						<div
 							className="tenantDetailsContainer"
 							key={user?._id}
-							onClick={() => {
+							onClick={(e) => {
+								e.stopPropagation();
 								handleUserClick(user);
 							}}
 						>

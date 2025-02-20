@@ -386,15 +386,22 @@ const TeamSettings = () => {
 		if (user?.role === 'default') {
 			setInfo((prev) => ({
 				...prev,
-				showAddTenantUserModal: true,
-				selectedUser: user,
-				userEmail: user?.email,
-				selectedOption: user?.role,
+				showAddTenantUserModal: true, // Open the modal
+				selectedUser: user, // Store the selected user data
+				userEmail: user?.email, // Pre-fill the email field
+				selectedOption: user?.role, // Pre-fill the role
 			}));
-			setAccessControls((prev) => ({
-				...prev,
-				accessControls: user?.accessControls,
-			}));
+
+			// Set the access controls for the selected user
+			setAccessControls({
+				accessControls:
+					user?.accessControls ||
+					selectableOptions.map((option) => ({
+						app: option.value,
+						isEnabled: false,
+						hasFullAccess: false,
+					})),
+			});
 		}
 	};
 
@@ -416,16 +423,59 @@ const TeamSettings = () => {
 	};
 
 	const handleInviteMembers = () => {
-		setInfo((prev) => ({ ...prev, showAddTenantUserModal: true }));
+		setInfo((prev) => ({
+			...prev,
+			accessControls: selectableOptions.map((option) => ({
+				app: option.value,
+				isEnabled: false,
+				hasFullAccess: false,
+			})),
+			userEmail: '',
+			selectedOption: 'admin',
+			selectedUser: null,
+			showAddTenantUserModal: true,
+		}));
 	};
 
 	const handleCheckboxChange = (app, checked) => {
-		setAccessControls((prevState) => ({
-			accessControls: prevState.accessControls.map((control) =>
-				control.app === app
-					? { ...control, isEnabled: checked, hasFullAccess: checked }
-					: control,
-			),
+		setAccessControls((prevState) => {
+			const existingControl = prevState.accessControls.find((control) => control.app === app);
+
+			if (existingControl) {
+				return {
+					accessControls: prevState.accessControls.map((control) =>
+						control.app === app
+							? { ...control, isEnabled: checked, hasFullAccess: checked }
+							: control,
+					),
+				};
+			} else {
+				return {
+					accessControls: [
+						...prevState.accessControls,
+						{ app, isEnabled: checked, hasFullAccess: checked },
+					],
+				};
+			}
+		});
+	};
+
+	const closeModal = () => {
+		setInfo((prev) => ({
+			...prev,
+			showAddTenantUserModal: false,
+			selectedOption: 'admin',
+			userEmail: '',
+			selectedUser: null,
+		}));
+
+		setAccessControls((prev) => ({
+			...prev,
+			accessControls: selectableOptions.map((option) => ({
+				app: option.value,
+				isEnabled: false,
+				hasFullAccess: false,
+			})),
 		}));
 	};
 
@@ -449,13 +499,7 @@ const TeamSettings = () => {
 			{info?.showAddTenantUserModal && (
 				<InviteMembersWorkspaceComponent
 					isOpen={info?.showAddTenantUserModal}
-					closeModal={() =>
-						setInfo((prev) => ({
-							...prev,
-							showAddTenantUserModal: false,
-							selectedOption: 'admin',
-						}))
-					}
+					closeModal={closeModal}
 					handleChnage={handleChnage}
 					info={info}
 					handleSubmit={handleSubmit}

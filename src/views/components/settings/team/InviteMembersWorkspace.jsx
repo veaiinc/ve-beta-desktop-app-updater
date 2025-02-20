@@ -30,8 +30,12 @@ const InviteMembersWorkspaceComponent = ({
 	const [updatedData, setUpdatedData] = useState(null);
 
 	const handleUpdateUser = () => {
+		const filteredAccessControls = accessControls?.accessControls.filter(
+			(control) => !['project', 'proposal', 'gallery'].includes(control.app),
+		);
+
 		setUpdatedData({
-			accessControls: accessControls?.accessControls,
+			accessControls: filteredAccessControls,
 		});
 	};
 	useEffect(() => {
@@ -50,7 +54,11 @@ const InviteMembersWorkspaceComponent = ({
 			<div className="settingsBoxContainer inviteMemberComponent">
 				<div className="inviteMemberText">
 					<div className="inviteMemberTitle">
-						<h1>Invite Members to Workspace</h1>
+						<h1>
+							{selectedUser
+								? `Update ${selectedUser?.firstName} Access Controls`
+								: 'Invite Members to Workspace'}
+						</h1>
 						<CrossSvg onClick={closeModal} style={{ cursor: 'pointer' }} />
 					</div>
 					<div className="inviteMemberDescription">
@@ -151,7 +159,7 @@ const InviteMembersWorkspaceComponent = ({
 				<div className="buttonsContainer">
 					<div style={{ minWidth: '150px', display: 'flex', gap: '5px' }}>
 						<ReusableButtonSettings
-							text="Send Request"
+							text={selectedUser ? 'Update User Access Controls' : 'Send Request'}
 							func={selectedUser ? handleUpdateUser : handleSubmit}
 						/>
 					</div>
