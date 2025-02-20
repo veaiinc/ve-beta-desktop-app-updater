@@ -61,6 +61,10 @@ const actionHandlers = {
 		...state,
 		...action.payload,
 	}),
+	GET_TENANT_USER_ACCESS_CONTROLS: (state, action) => ({
+		...state,
+		tenantUserAccessControls: action.payload,
+	}),
 	RESET_STATE: () => ({ ...intialState }),
 };
 

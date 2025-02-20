@@ -1,4 +1,4 @@
-import React, { useEffect, memo } from 'react';
+import React, { useEffect, memo, useContext } from 'react';
 import '../../assets/scss/authWrapper.scss';
 import { Helmet } from 'react-helmet';
 import useActiveWorkspace from '../hooks/useActiveWorkspace';
@@ -9,7 +9,7 @@ import useAuth from '../hooks/useAuth';
 import useSubscription from '../hooks/useSubscription';
 import useTokenExpiry from '../hooks/useTokenExpiry';
 import BottomToolbar from '../components/ai_agents/BottomToolbar';
-
+import Context from '../../context/context';
 const AuthWrapper = ({
 	title,
 	children,
@@ -18,6 +18,9 @@ const AuthWrapper = ({
 	outerContainerStyle,
 }) => {
 	const [workspaceId, setActiveWorkspaceId] = useActiveWorkspace();
+	const {
+		profileInfo: { getTenantUserAccessControls },
+	} = useContext(Context);
 
 	const checkAuth = useAuth();
 	const data = useSubscription();
@@ -25,6 +28,7 @@ const AuthWrapper = ({
 
 	useEffect(() => {
 		checkAuth();
+		getTenantUserAccessControls();
 	}, []);
 
 	return (

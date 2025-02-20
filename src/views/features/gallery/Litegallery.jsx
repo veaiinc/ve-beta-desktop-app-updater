@@ -12,6 +12,7 @@ import { ReactComponent as FilterIcon } from '../../../assets/svg/chat/filter.sv
 import { Result, message, Tooltip } from 'antd';
 import { getCurrentWorkspaceId } from '../../../helpers';
 import QuickActions from '../../components/globalComponents/QuickActions';
+import AccessDeniedPopup from '../../components/accessPopups/accessDeniedPopup';
 
 const noImage =
 	'https://png.pngtree.com/png-clipart/20230917/original/pngtree-no-image-available-icon-flatvector-illustration-thumbnail-graphic-illustration-vector-png-image_12323920.png';
@@ -49,6 +50,10 @@ const NoGallerySkeleton = () => {
 		</div>
 	);
 };
+const hasAccessToModule = (moduleKey, accessControls) => {
+	const access = accessControls?.find((control) => control?.app === moduleKey);
+	return access ? access?.isEnabled : false;
+};
 
 const filterOptions = [
 	{ name: 'Gallery name', value: 'title' },
@@ -73,7 +78,12 @@ const LiteGallery = () => {
 			clearPreRegisteredUsers,
 			clearGalleryState,
 		},
-		profileInfo: { userWorkSpaceList, getTenantSettings, tennantSettingsData },
+		profileInfo: {
+			userWorkSpaceList,
+			getTenantSettings,
+			tennantSettingsData,
+			tenantUserAccessControls,
+		},
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		createNewGalleryModal: false,
@@ -90,6 +100,9 @@ const LiteGallery = () => {
 	});
 	const navigate = useNavigate();
 
+	let access = hasAccessToModule('liteGallery', tenantUserAccessControls?.accessControls);
+
+	console.log(access, 'access');
 	useEffect(() => {
 		const initializeGallery = async () => {
 			try {
@@ -421,6 +434,7 @@ const LiteGallery = () => {
 					isLightGallery={true}
 				/>
 			</div>
+			{tenantUserAccessControls && <AccessDeniedPopup open={!access} />}
 		</div>
 	);
 };

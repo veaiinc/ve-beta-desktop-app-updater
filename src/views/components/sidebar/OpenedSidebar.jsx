@@ -21,6 +21,15 @@ import Notifications from './notifications/Notifications';
 import Chats from './chats/Chats';
 
 import Context from '../../../context/context';
+
+const MODULE_NAME_MAP = {
+	'conversational agent': 'conversationalAgent',
+	'classic gallery': 'classicGallery',
+	'lite gallery': 'liteGallery',
+	templates: 'workflow',
+	storage: 'gallery',
+};
+
 const CommonBottomSection = ({ handleLogout, openWorkspacesFunction, workSpaceOpen }) => (
 	<div
 		className="commonBottomSection"
@@ -312,6 +321,7 @@ const OpenedSideBarItemsComponent = ({
 }) => {
 	const {
 		templates: { leftSidebarState, updateStateValues },
+		profileInfo: { tenantUserAccessControls },
 	} = useContext(Context);
 	const navigate = useNavigate();
 	const logoutFunc = useLogout();
@@ -402,6 +412,54 @@ const OpenedSideBarItemsComponent = ({
 			navigate(subModule.route);
 		}
 	};
+
+	const filterModules = (modulesList, accessControls) => {
+		if (!accessControls?.length) {
+			return modulesList;
+		}
+
+		return modulesList
+			.map((module) => {
+				const formattedModuleName = module?.name?.toLowerCase();
+				const mappedName = MODULE_NAME_MAP[formattedModuleName] || formattedModuleName;
+
+				const access = accessControls?.find((control) => control?.app === mappedName);
+				if (access && !access?.isEnabled) {
+					return null;
+				}
+
+				const filteredSubModules = module?.subModules?.filter((subModule) => {
+					const formattedSubModuleName = subModule?.name?.toLowerCase();
+					const mappedSubModuleName =
+						MODULE_NAME_MAP[formattedSubModuleName] || formattedSubModuleName;
+
+					const subAccess = accessControls?.find(
+						(control) => control?.app === mappedSubModuleName,
+					);
+					return subAccess ? subAccess?.isEnabled : true;
+				});
+
+				if (
+					module?.subModules &&
+					(!filteredSubModules || filteredSubModules?.length === 0)
+				) {
+					return null;
+				}
+
+				return {
+					...module,
+					subModules: filteredSubModules?.length ? filteredSubModules : undefined,
+				};
+			})
+			.filter(Boolean);
+	};
+
+	const filteredModules = filterModules(
+		veAiModulesItemsList,
+		tenantUserAccessControls?.accessControls,
+	);
+
+	const filterModules2 = filterModules(veAiModules, tenantUserAccessControls?.accessControls);
 
 	return (
 		// <div className="sidebarWorkspace">
@@ -537,8 +595,8 @@ const OpenedSideBarItemsComponent = ({
 									/>
 								)}
 								{!isThisEarlyAccessPage &&
-									veAiModulesItemsList?.map((singleItems, index) => (
-										<div key={index}>
+									filteredModules?.map((singleItems) => (
+										<div key={singleItems?.id}>
 											<OpenedSideBarHoverStateIcons
 												name={singleItems.name}
 												Icon={singleItems.icon}
@@ -577,7 +635,7 @@ const OpenedSideBarItemsComponent = ({
 									/>
 								)}
 								{!isThisEarlyAccessPage &&
-									veAiModules?.map((singleItems, index) => (
+									filterModules2?.map((singleItems, index) => (
 										<div key={index}>
 											<OpenedSideBarHoverStateIcons
 												name={singleItems.name}
