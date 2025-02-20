@@ -1,3 +1,8 @@
+.aiMessageWrapper {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
 .chatcontainer {
 	position: relative;
 	width: 100%;
@@ -120,6 +125,7 @@
 			display: flex;
 			flex-direction: column;
 			gap: 10px;
+			width: 100%;
 			.suggestions-container {
 				display: flex;
 				align-items: center;
@@ -149,7 +155,7 @@
 				align-items: flex-start;
 				gap: 12px;
 				background: #202123;
-				width: 700px;
+				width: 100%;
 				align-self: center;
 				border-radius: 16px;
 
@@ -569,4 +575,10 @@
 /* Custom switch handle when ON */
 .custom-switch.ant-switch-checked .ant-switch-handle::before {
 	background-color: #171819 !important; /* Custom handle color when ON */
+}
+
+.preview-image-container {
+	.ant-image-preview-wrap {
+		z-index: 1020 !important;
+	}
 }

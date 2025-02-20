@@ -5,7 +5,7 @@ import { ReactComponent as Home } from '../../../assets/svg/ai_agents/home.svg';
 import { ReactComponent as Settings } from '../../../assets/svg/ai_agents/settings.svg';
 import { ReactComponent as Close } from '../../../assets/svg/close.svg';
 import { ReactComponent as Expand } from '../../../assets/svg/bottomToolbar/expand.svg';
-import { ReactComponent as ArrowUp } from '../../../assets/svg/ai_agents/arrow-up.svg';
+import { ReactComponent as ArrowUp } from '../../../assets/svg/ai_agents/arrow-up-dark.svg';
 import { ReactComponent as ExpandChatIcon } from '../../../assets/svg/ai_agents/expand-chat-icon.svg';
 import { ReactComponent as ChevronSvg } from '../../../assets/svg/tasks/chevronRightThin.svg';
 import { ReactComponent as MicroscopeLightSvg } from '../../../assets/svg/ai_agents/microscope-light.svg';
@@ -41,6 +41,7 @@ import UploadFileTooltip from '../chat/UploadFileTooltip';
 import DateRangeDropdown from '../chat/DateRangeDropdown';
 import SearchTypeTooltip from '../chat/SearchTypeTooltip';
 import moment from 'moment';
+import Skeleton from 'react-loading-skeleton';
 const moduleHelper = {
 	tasks: 'tasks',
 	'smart-file': 'form_filling',
@@ -155,7 +156,7 @@ const ChatBox = ({
 		isModulesDropdownOpen: false,
 		searchType: {
 			webSearch: false,
-			workspaceSearch: false,
+			workspaceSearch: true,
 		},
 		recentFiles: [],
 		isSearchTypeOpen: false,
@@ -293,7 +294,6 @@ const ChatBox = ({
 				}
 				// Prevent default to avoid unwanted new line
 				e?.preventDefault();
-				navigate('/chat');
 
 				if (
 					(aiChatLoading || info?.chatLoading) &&
@@ -306,11 +306,7 @@ const ChatBox = ({
 					return message.error('Please wait for the images to upload');
 				}
 
-				if (
-					info?.chatQuery?.trim().length ||
-					info?.uploadedImages?.length ||
-					query?.trim()?.length
-				) {
+				if (info?.chatQuery?.trim()?.length > 0 || query?.trim()?.length > 0) {
 					if (customChatActions) {
 						onSend(info?.chatQuery);
 					} else {
@@ -355,7 +351,16 @@ const ChatBox = ({
 							payload.workflow_slug = activeWorkflowSlugForSmartFile;
 						}
 
-						setInfo((prev) => ({ ...prev, uploadedImages: [], chatQuery: '' }));
+						setInfo((prev) => ({
+							...prev,
+							uploadedImages: [],
+							chatQuery: '',
+							recentFiles: [],
+							chatFilters: initialChatFilters,
+						}));
+						if (location?.pathname?.split('/')?.[1] !== 'chat') {
+							navigate('/chat');
+						}
 
 						const response = await handleGlobalChatMessages(
 							payload,
@@ -380,8 +385,6 @@ const ChatBox = ({
 							}
 						}
 					}
-
-					// setInfo((prev) => ({ ...prev, chatQuery: '', uploadedImages: [] }));
 				}
 			}
 		},
@@ -397,10 +400,9 @@ const ChatBox = ({
 					message: 'loading....',
 					content: (
 						<div className="aiMessageWrapper">
-							<AiSparkel />
-							<div className="aiMessage">
-								<span>Thinking...</span>
-							</div>
+							<Skeleton height={20} width={'100%'} borderRadius={'100px'} />
+							<Skeleton height={20} width={'75%'} borderRadius={'100px'} />
+							<Skeleton height={20} width={'50%'} borderRadius={'100px'} />
 						</div>
 					),
 					contentType: 'loading',
@@ -682,6 +684,7 @@ const ChatBox = ({
 								}
 								onKeyDown={handleSendMessageFunc}
 								className="textArea"
+								autoFocus={true}
 								// rows={1}
 							/>
 							<div className="options-container">
@@ -695,7 +698,7 @@ const ChatBox = ({
 										</div>
 										<div className="filters-wrapper">
 											<div className="filters-container">
-												<SearchDropdown
+												{/* <SearchDropdown
 													headerTitle="Integrations"
 													selectedOptions={
 														info?.chatFilters?.integrations
@@ -713,7 +716,7 @@ const ChatBox = ({
 													handleOptionClick={
 														handleIntegrationsOptionClick
 													}
-												/>
+												/> */}
 												<SearchDropdown
 													headerTitle="Modules"
 													selectedOptions={info?.chatFilters?.modules}
@@ -782,22 +785,24 @@ const ChatBox = ({
 															<WebLightSvg />
 														)}
 													</div>
-													<div
-														className="right-text"
-														style={{
-															color: `${
-																isSearchTypeEnabled
-																	? '#0C0C0D'
-																	: '#f2f2f3'
-															}`,
-														}}
-													>
-														{showChatLabels ? 'Search' : ''}
-													</div>
+													{showChatLabels && (
+														<div
+															className="right-text"
+															style={{
+																color: `${
+																	isSearchTypeEnabled
+																		? '#0C0C0D'
+																		: '#f2f2f3'
+																}`,
+															}}
+														>
+															Search
+														</div>
+													)}
 												</div>
 											</SearchTypeTooltip>
 
-											<div
+											{/* <div
 												className="icon-container"
 												onClick={handleGoDeepSearchClick}
 												style={{
@@ -813,17 +818,19 @@ const ChatBox = ({
 														<MicroscopeLightSvg />
 													)}
 												</div>
-												<div
-													className="right-text"
-													style={{
-														color: `${
-															info?.goDeep ? '#0C0C0D' : '#f2f2f3'
-														}`,
-													}}
-												>
-													{showChatLabels ? 'Explore' : ''}
-												</div>
-											</div>
+												{showChatLabels && (
+													<div
+														className="right-text"
+														style={{
+															color: `${
+																info?.goDeep ? '#0C0C0D' : '#f2f2f3'
+															}`,
+														}}
+													>
+														Explore
+													</div>
+												)}
+											</div> */}
 											<UploadFileTooltip
 												fileTypeIcons={fileTypeIcons}
 												handleChange={handleChange}
@@ -845,9 +852,9 @@ const ChatBox = ({
 															fill={'#f2f2f3'}
 														/>
 													</div>
-													<div className="right-text">
-														{showChatLabels ? 'Add' : ''}
-													</div>
+													{showChatLabels && (
+														<div className="right-text">Add</div>
+													)}
 												</div>
 											</UploadFileTooltip>
 
@@ -858,9 +865,9 @@ const ChatBox = ({
 												<div className="icon">
 													<Filter />
 												</div>
-												<div className="right-text">
-													{showChatLabels ? 'Filters' : ''}
-												</div>
+												{showChatLabels && (
+													<div className="right-text">Filters</div>
+												)}
 											</div>
 											{info?.voiceIntegration ? (
 												<span
@@ -901,6 +908,7 @@ const ChatBox = ({
 						wrapperStyle={{
 							display: 'none',
 						}}
+						rootClassName="preview-image-container"
 						preview={{
 							visible: previewOpen,
 							onVisibleChange: (visible) => setPreviewOpen(visible),
