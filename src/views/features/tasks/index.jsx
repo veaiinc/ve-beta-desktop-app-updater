@@ -33,6 +33,7 @@ import ChildTaskProgress from '../../components/tasks/listView/ChildTaskProgress
 import LinkText from '../../components/tasks/listView/LinkText';
 import ChildTaskComponent from '../../components/tasks/listView/ChildTaskComponent';
 import QuickActions from '../../components/globalComponents/QuickActions';
+import AccessDeniedPopup from '../../components/accessPopups/accessDeniedPopup';
 
 const defaultPreference = {
 	taskSlNo: { show: false, order: 1 },
@@ -81,6 +82,10 @@ const rowTypes = {
 	linkText: LinkText,
 };
 
+const hasAccessToModule = (moduleKey, accessControls) => {
+	const access = accessControls?.find((control) => control?.app === moduleKey);
+	return access ? access?.isEnabled : false;
+};
 const Tasks = () => {
 	const {
 		tasks: {
@@ -106,6 +111,7 @@ const Tasks = () => {
 		templates: { getWorkflowsList, workflowslist },
 		companyInfo: { getTeamMembers, tenantsUserList },
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
+		profileInfo: { tenantUserAccessControls },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -139,6 +145,7 @@ const Tasks = () => {
 	});
 
 	const timeoutRef = useRef(null);
+	let access = hasAccessToModule('task', tenantUserAccessControls?.accessControls);
 
 	const responseMetadata = useMemo(
 		() => ({
@@ -958,6 +965,7 @@ const Tasks = () => {
 					) : null
 				}
 			/>
+			{tenantUserAccessControls && <AccessDeniedPopup open={!access} />}
 		</>
 	);
 };

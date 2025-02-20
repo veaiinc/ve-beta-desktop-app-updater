@@ -10,7 +10,7 @@ import { ReactComponent as MailLetter } from '../../../assets/svg/docs/mail-lett
 import { ReactComponent as StatusCircle } from '../../../assets/svg/docs/status-circle.svg';
 import { ReactComponent as CrossPurple } from '../../../assets/svg/docs/cross-purple.svg';
 import { ReactComponent as Sync } from '../../../assets/svg/docs/sync.svg';
-
+import AccessDeniedPopup from '../../components/accessPopups/accessDeniedPopup';
 import { FetchMoreLoaderComp, fetchOriginSelection } from '../../../helpers';
 import Context from '../../../context/context';
 import InfiniteScroll from 'react-infinite-scroll-component';
@@ -220,7 +220,10 @@ export const Filters = [
 		},
 	},
 ];
-
+const hasAccessToModule = (moduleKey, accessControls) => {
+	const access = accessControls?.find((control) => control?.app === moduleKey);
+	return access ? access?.isEnabled : false;
+};
 const Docs = () => {
 	const navigate = useNavigate();
 	let {
@@ -237,7 +240,7 @@ const Docs = () => {
 			getClientListForDocs,
 			deleteLead,
 		},
-		profileInfo: { tennantSettingsData, getTenantSettings },
+		profileInfo: { tennantSettingsData, getTenantSettings, tenantUserAccessControls },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -280,6 +283,7 @@ const Docs = () => {
 	});
 
 	const activeFileRef = useRef(null);
+	let access = hasAccessToModule('workflow', tenantUserAccessControls?.accessControls);
 
 	useEffect(() => {
 		getDocsFilesListFunc(1);
@@ -858,6 +862,7 @@ const Docs = () => {
 					closeModal={() => setInfo((prev) => ({ ...prev, proposalPopup: false }))}
 				/>
 			</div>
+			{tenantUserAccessControls && <AccessDeniedPopup open={!access} />}
 		</div>
 	);
 };

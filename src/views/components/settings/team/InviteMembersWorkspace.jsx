@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { ReactComponent as PlusSvg } from '../../../../assets/svg/close.svg';
 import { ReactComponent as CrossSvg } from '../../../../assets/svg/close.svg';
 import Context from '../../../../context/context';
 import '../../../../assets/scss/settings/teamMembers.scss';
@@ -62,8 +61,9 @@ const InviteMembersWorkspaceComponent = ({
 						<CrossSvg onClick={closeModal} style={{ cursor: 'pointer' }} />
 					</div>
 					<div className="inviteMemberDescription">
-						Members you invite will have full access to your workspace unless you
-						customise user roles
+						{!selectedUser
+							? 'Members you invite will have full access to your workspace unless you customise user roles'
+							: ''}
 					</div>
 				</div>
 

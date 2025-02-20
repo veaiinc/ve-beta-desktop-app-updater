@@ -26,8 +26,12 @@ const MODULE_NAME_MAP = {
 	'conversational agent': 'conversationalAgent',
 	'classic gallery': 'classicGallery',
 	'lite gallery': 'liteGallery',
-	templates: 'workflow',
+	documents: 'workflow',
 	storage: 'gallery',
+	'my templates': 'template',
+	tasks: 'task',
+	calendar: 'calendar',
+	forms: 'form',
 };
 
 const CommonBottomSection = ({ handleLogout, openWorkspacesFunction, workSpaceOpen }) => (

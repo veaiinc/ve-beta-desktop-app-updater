@@ -10,7 +10,6 @@ import UpdatedPageLoader from '../../components/loaders/UpdatedPageLoader';
 import GlobalProposalsCard from '../../components/sales/globalProposalsCard';
 import Skeleton from 'react-loading-skeleton';
 import { FetchMoreLoaderComp } from '../../../helpers';
-import AccessDeniedPopup from '../../components/accessPopups/accessDeniedPopup';
 import backgroundImage from '../../../assets/svg/sales/start.jpg';
 import { get } from 'lodash';
 
@@ -44,10 +43,6 @@ const NoResultsFound = ({ searchQuery }) => (
 	</div>
 );
 
-const hasAccessToModule = (moduleKey, accessControls) => {
-	const access = accessControls?.find((control) => control?.app === moduleKey);
-	return access ? access?.isEnabled : false;
-};
 const GlobalWorkflows = () => {
 	const navigate = useNavigate();
 	let {
@@ -59,7 +54,6 @@ const GlobalWorkflows = () => {
 			duplicateGlobalWorkflowTemplate,
 		},
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
-		profileInfo: { tenantUserAccessControls },
 	} = useContext(Context);
 
 	const [selectedOption, setSelectedOption] = useState('Workflow');
@@ -81,8 +75,6 @@ const GlobalWorkflows = () => {
 		searchChanged: false,
 		timeout: null,
 	});
-
-	let access = hasAccessToModule('workflowBuilder', tenantUserAccessControls?.accessControls);
 
 	const [moduleInfo, setModuleInfo] = useState({
 		currentPage: 1,
@@ -537,7 +529,6 @@ const GlobalWorkflows = () => {
 							}}
 						/>
 					</div>
-					{tenantUserAccessControls && <AccessDeniedPopup open={!access} />}
 				</div>
 			)}
 		</>
