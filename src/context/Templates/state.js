@@ -78,7 +78,7 @@ export const intialState = {
 	draftStateWorkflowtemplates: null,
 	moreDraftStateWorkflowtemplates: null,
 	createLeadModalContextState: false,
-	globalChatMessages: [{ type: 'AI', message: 'Hello, how can I help you today?' }],
+	globalChatMessages: [],
 	currentSessionId: null,
 	citations: null,
 	followUpQuery: null,
@@ -1470,14 +1470,14 @@ export const TemplatesState = (props) => {
 									<img
 										src={ele.preview}
 										alt="filetochat"
-										width={'50px'}
+										width={'75px'}
 										onClick={() => localPayload?.handlePreview(ele)}
 										style={{ cursor: 'pointer' }}
 									/>
 								))}
 
 								<div className="message-content-user" style={{ marginTop: '8px' }}>
-									<span>{payload?.query}</span>
+									<span>{queryMessage}</span>
 								</div>
 							</div>
 						),
@@ -1499,7 +1499,7 @@ export const TemplatesState = (props) => {
 				payload.query += str;
 			} else {
 				updatedGlobalChatMessages = [
-					{ type: 'user', message: queryMessage || '' },
+					{ type: 'user', message: queryMessage || '', typingEffect: false },
 					{
 						type: 'AI',
 						message: 'loading....',
@@ -1523,6 +1523,7 @@ export const TemplatesState = (props) => {
 			if (response?.[0]) {
 				const citations = response?.[1]?.citations;
 				const followUpQuery = response?.[1]?.['follow_up_query'];
+				const messageId = response?.[1]?.['message_id'];
 				if (citations && citations?.length > 0) {
 					dispatch({
 						type: Actions?.CHAT_CITATIONS_SUCCESS,
@@ -1548,6 +1549,9 @@ export const TemplatesState = (props) => {
 				const updatedGlobalChatMessages = {
 					type: 'AI',
 					message: response?.[1]?.answer,
+					messageId: response?.[1]?.['message_id'],
+					typingEffect: true,
+					rating: null,
 				};
 				dispatch({
 					type: Actions.GLOBAL_CHAT_MESSAGES_ACTIONS_SUCCESS,
@@ -1557,6 +1561,20 @@ export const TemplatesState = (props) => {
 			}
 		} catch (error) {
 			console.log('errror ==>handleGlobalChatMessages', error);
+		}
+	};
+
+	const updateAiChatMessageRating = async (payload, messageId) => {
+		let workspaceId = localStorage.getItem('workspaceId');
+		let usertoken = localStorage.getItem('usertoken');
+		const url = '/' + workspaceId + '/ai-chat/' + messageId + '/ai-chat-message-feedback';
+		try {
+			const response = await Service?.fetchPut(url, payload, usertoken, 'ai_assistant_api');
+			if (response?.[0]) {
+				return [true];
+			}
+		} catch (error) {
+			console.log('error==>updatedAiChatMessageRating', error);
 		}
 	};
 
@@ -1829,6 +1847,7 @@ export const TemplatesState = (props) => {
 		updateSteps,
 		getTemplatesListForForms,
 		getFormResponsesList,
+		updateAiChatMessageRating,
 		getModuleTemplate,
 	};
 };

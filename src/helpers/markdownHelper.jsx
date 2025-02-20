@@ -1,6 +1,5 @@
 import React, { memo, useContext, useEffect, useState } from 'react';
 import { default as ReactMarkdown } from 'react-markdown';
-// import remarkGfm from 'remark-gfm';
 import { Link } from 'react-router-dom'; // Adjust if you're using another router
 import '../assets/scss/markdown.scss';
 import '../assets/scss/markdownHelper.scss';
@@ -136,9 +135,13 @@ export const Markdown = memo(
 
 export const TypingEffect = ({
 	text,
-	onComplete,
+	onComplete = null,
 	customePencilClickFunc = null,
 	smoothScrollToBottom,
+	messageId = null,
+	handleRatingClick = null,
+	showTypingEffect = false,
+	rating = null,
 }) => {
 	const {
 		documentPreview: { setNoteContent },
@@ -159,10 +162,17 @@ export const TypingEffect = ({
 			}, 5); // Adjust speed as needed
 
 			return () => clearTimeout(timeout);
-		} else if (onComplete) {
+		} else if (onComplete && showTypingEffect) {
 			onComplete();
 		}
 	}, [currentIndex, text, onComplete]);
+
+	useEffect(() => {
+		if (!showTypingEffect) {
+			setCurrentIndex(text?.length);
+			setDisplayedText(text);
+		}
+	}, [showTypingEffect]);
 
 	const handleCopyTextClick = (text) => {
 		navigator?.clipboard?.writeText(text).then(() => {
@@ -184,7 +194,12 @@ export const TypingEffect = ({
 				<div className="hover-actions-container">
 					<div className="icon-container">
 						<Tooltip placement="bottom" arrow={false} trigger={'hover'} title={'Like'}>
-							<ThumpsUpSvg />
+							<ThumpsUpSvg
+								fill={rating === 'thumbsUp' ? '#f2f2f3' : 'none'}
+								onClick={() =>
+									handleRatingClick && handleRatingClick('thumbsUp', messageId)
+								}
+							/>
 						</Tooltip>
 					</div>
 
@@ -195,7 +210,12 @@ export const TypingEffect = ({
 							trigger={'hover'}
 							title={'Dislike'}
 						>
-							<ThumpsDownSvg />
+							<ThumpsDownSvg
+								fill={rating === 'thumbsDown' ? '#f2f2f3' : 'none'}
+								onClick={() =>
+									handleRatingClick && handleRatingClick('thumbsDown', messageId)
+								}
+							/>
 						</Tooltip>
 					</div>
 
