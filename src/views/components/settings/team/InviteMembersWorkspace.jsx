@@ -45,7 +45,7 @@ const InviteMembersWorkspaceComponent = ({
 	useEffect(() => {
 		if (updatedData) {
 			setIsLoading(true);
-			if (selectedUser !== 'default') {
+			if (selectedUser !== selectedOption) {
 				const json = {
 					role: selectedOption,
 				};
