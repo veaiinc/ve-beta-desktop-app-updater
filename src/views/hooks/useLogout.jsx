@@ -20,6 +20,7 @@ const useLogout = () => {
 	} = useContext(Context);
 
 	const resetApplications = useCallback(async () => {
+		window.location.replace('/');
 		//clear localstorage
 		localStorage.clear();
 
@@ -40,7 +41,6 @@ const useLogout = () => {
 		resetAiSetupState();
 		resetTasksState();
 		resetContactsState();
-		window.location.replace('/');
 		resetDocumentPreviewState();
 	}, []);
 
