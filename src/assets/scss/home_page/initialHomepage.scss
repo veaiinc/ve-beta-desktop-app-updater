@@ -106,6 +106,9 @@
 	}
 	.initialHomePageContainer-chatBox {
 		margin-top: 222px;
+		width: 100%;
+		display: flex;
+		justify-content: center;
 	}
 	.initialHomePageContainer-prompts {
 		display: flex;

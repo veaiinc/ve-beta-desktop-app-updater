@@ -5,7 +5,7 @@ import { ReactComponent as Home } from '../../../assets/svg/ai_agents/home.svg';
 import { ReactComponent as Settings } from '../../../assets/svg/ai_agents/settings.svg';
 import { ReactComponent as Close } from '../../../assets/svg/close.svg';
 import { ReactComponent as Expand } from '../../../assets/svg/bottomToolbar/expand.svg';
-import { ReactComponent as ArrowUp } from '../../../assets/svg/ai_agents/arrow-up.svg';
+import { ReactComponent as ArrowUp } from '../../../assets/svg/ai_agents/arrow-up-dark.svg';
 import { ReactComponent as ExpandChatIcon } from '../../../assets/svg/ai_agents/expand-chat-icon.svg';
 import { ReactComponent as ChevronSvg } from '../../../assets/svg/tasks/chevronRightThin.svg';
 import { ReactComponent as MicroscopeLightSvg } from '../../../assets/svg/ai_agents/microscope-light.svg';
@@ -21,6 +21,7 @@ import { ReactComponent as PdfSvg } from '../../../assets/svg/ai_agents/pdf.svg'
 import { ReactComponent as JpgSvg } from '../../../assets/svg/ai_agents/jpg.svg';
 import { ReactComponent as PngSvg } from '../../../assets/svg/ai_agents/png.svg';
 import { ReactComponent as MdSvg } from '../../../assets/svg/ai_agents/md.svg';
+import { ReactComponent as AudioSvg } from '../../../assets/svg/ai_agents/audio.svg';
 import { Alert, Image, message, Spin, Tooltip } from 'antd';
 import { Upload } from 'antd';
 import Context from '../../../context/context';
@@ -41,6 +42,8 @@ import UploadFileTooltip from '../chat/UploadFileTooltip';
 import DateRangeDropdown from '../chat/DateRangeDropdown';
 import SearchTypeTooltip from '../chat/SearchTypeTooltip';
 import moment from 'moment';
+import Voice from '../chat/Voice';
+import Skeleton from 'react-loading-skeleton';
 const moduleHelper = {
 	tasks: 'tasks',
 	'smart-file': 'form_filling',
@@ -101,6 +104,7 @@ const ChatBox = ({
 	customChatActions = false,
 	showChatLabels = true,
 	uploadedImages = [],
+	autoFocus = false,
 }) => {
 	const {
 		templates: {
@@ -155,10 +159,11 @@ const ChatBox = ({
 		isModulesDropdownOpen: false,
 		searchType: {
 			webSearch: false,
-			workspaceSearch: false,
+			workspaceSearch: true,
 		},
 		recentFiles: [],
 		isSearchTypeOpen: false,
+		isVoiceMuted: false,
 	});
 
 	const [previewOpen, setPreviewOpen] = useState(false);
@@ -293,7 +298,6 @@ const ChatBox = ({
 				}
 				// Prevent default to avoid unwanted new line
 				e?.preventDefault();
-				navigate('/chat');
 
 				if (
 					(aiChatLoading || info?.chatLoading) &&
@@ -306,11 +310,7 @@ const ChatBox = ({
 					return message.error('Please wait for the images to upload');
 				}
 
-				if (
-					info?.chatQuery?.trim().length ||
-					info?.uploadedImages?.length ||
-					query?.trim()?.length
-				) {
+				if (info?.chatQuery?.trim()?.length > 0 || query?.trim()?.length > 0) {
 					if (customChatActions) {
 						onSend(info?.chatQuery);
 					} else {
@@ -355,7 +355,16 @@ const ChatBox = ({
 							payload.workflow_slug = activeWorkflowSlugForSmartFile;
 						}
 
-						setInfo((prev) => ({ ...prev, uploadedImages: [], chatQuery: '' }));
+						setInfo((prev) => ({
+							...prev,
+							uploadedImages: [],
+							chatQuery: '',
+							recentFiles: [],
+							chatFilters: initialChatFilters,
+						}));
+						if (location?.pathname?.split('/')?.[1] !== 'chat') {
+							navigate('/chat');
+						}
 
 						const response = await handleGlobalChatMessages(
 							payload,
@@ -380,8 +389,6 @@ const ChatBox = ({
 							}
 						}
 					}
-
-					// setInfo((prev) => ({ ...prev, chatQuery: '', uploadedImages: [] }));
 				}
 			}
 		},
@@ -397,10 +404,9 @@ const ChatBox = ({
 					message: 'loading....',
 					content: (
 						<div className="aiMessageWrapper">
-							<AiSparkel />
-							<div className="aiMessage">
-								<span>Thinking...</span>
-							</div>
+							<Skeleton height={20} width={'100%'} borderRadius={'100px'} />
+							<Skeleton height={20} width={'75%'} borderRadius={'100px'} />
+							<Skeleton height={20} width={'50%'} borderRadius={'100px'} />
 						</div>
 					),
 					contentType: 'loading',
@@ -582,10 +588,19 @@ const ChatBox = ({
 		[info, connectToRoom],
 	);
 
+	const handleToggleMute = useCallback(
+		(event) => {
+			toggleMute();
+			event.stopPropagation();
+			setInfo((prev) => ({ ...prev, isVoiceMuted: !prev?.isVoiceMuted }));
+		},
+		[toggleMute],
+	);
+
 	const handleDisConnect = useCallback(
 		(event) => {
 			disconnect();
-			setInfo((prev) => ({ ...prev, voiceIntegration: false }));
+			setInfo((prev) => ({ ...prev, voiceIntegration: false, isVoiceMuted: false }));
 			event.stopPropagation();
 		},
 		[info],
@@ -602,202 +617,166 @@ const ChatBox = ({
 	}, [info?.searchType]);
 
 	return (
-		<>
-			<div className="chatcontainer">
-				<div className="chatbarContainer" style={{ width: '100%' }}>
-					{info?.voiceIntegration ? (
-						<div style={{ display: 'flex', justifyContent: 'center' }}>
-							<img
-								src={'https://ap.assets.ve.ai/logo/speaking%20final.gif'}
-								width={'40px'}
-								height={'40px'}
-								style={{ marginBottom: '12px' }}
-							/>
-						</div>
-					) : (
-						''
-					)}
-					{info?.uploadedImages?.length > 0 ? (
-						<div className="imagePreviewBar">
-							{info?.uploadedImages?.map((ele, index) => (
-								<div className="previewOfUploadedImage" key={index}>
-									<img
-										src={ele?.preview}
-										alt="uploaded"
-										width={'100%'}
-										height={'100%'}
-										style={{
-											objectFit: 'cover',
-											borderRadius: '12px',
-										}}
-										onClick={() => handlePreview(ele)}
-									/>
-
-									{ele?.loading ? (
-										<div className="spinContainerLoaderForPreview">
-											<Spin />
-										</div>
-									) : (
-										<span
-											className="removeImageIcon"
-											onClick={() => handleRemoveImage(ele)}
-										>
-											<Close />
-										</span>
-									)}
-								</div>
-							))}
-						</div>
-					) : (
-						''
-					)}
-					{info?.recentFiles?.length > 0 && (
-						<div className="recent-files-container">
-							{info?.recentFiles?.map((file) => (
-								<div className="recent-file" key={file?._id}>
-									<div className="file-type-icon">
-										{fileTypeIcons?.[file?.sourceType]}
-									</div>
-									<div className="file-name">{file?.originalFileName}</div>
-									<div
-										className="close-icon-container"
-										onClick={() => handleRemoveFileFromRecentFileClick(file)}
-									>
-										<CloseSvg />
-									</div>
-								</div>
-							))}
-						</div>
-					)}
+		<div className="chatParentWrapper">
+			<div className={`chatWrapper`}>
+				{/* {info?.voiceIntegration ? ( */}
+				<div className={`voiceContainer ${info?.voiceIntegration ? 'active' : 'inactive'}`}>
+					<Voice
+						handleDisConnect={handleDisConnect}
+						handleToggleMute={handleToggleMute}
+						isVoiceMuted={info?.isVoiceMuted}
+					/>
 				</div>
-				<div className="chatBodyContainer">
-					<div className="chatInputContainer">
-						<div className={`chatInputParentContainer`}>
-							<textarea
-								type="text"
-								placeholder="Hey! Need help? Ask me anything."
-								value={info?.chatQuery}
-								onChange={(e) =>
-									setInfo((prev) => ({ ...prev, chatQuery: e.target.value }))
-								}
-								onKeyDown={handleSendMessageFunc}
-								className="textArea"
-								// rows={1}
-							/>
-							<div className="options-container">
-								{info?.showFilters ? (
-									<div className="filters-parent-container">
-										<div
-											className="close-filters"
-											onClick={handleHideFiltersClick}
-										>
-											<ChevronSvg />
-										</div>
-										<div className="filters-wrapper">
-											<div className="filters-container">
-												<SearchDropdown
-													headerTitle="Integrations"
-													selectedOptions={
-														info?.chatFilters?.integrations
-													}
-													isDropdownOpen={
-														info?.isIntegrationsDropdownOpen
-													}
-													setIsDropdownOpen={(value) =>
-														setInfo((prev) => ({
-															...prev,
-															isIntegrationsDropdownOpen: value,
-														}))
-													}
-													options={integrationsOptions}
-													handleOptionClick={
-														handleIntegrationsOptionClick
-													}
-												/>
-												<SearchDropdown
-													headerTitle="Modules"
-													selectedOptions={info?.chatFilters?.modules}
-													isDropdownOpen={info?.isModulesDropdownOpen}
-													setIsDropdownOpen={(value) =>
-														setInfo((prev) => ({
-															...prev,
-															isModulesDropdownOpen: value,
-														}))
-													}
-													options={modulesOptions}
-													handleOptionClick={handleModulesOptionClick}
-												/>
-												<DateRangeDropdown
-													onOptionClick={(value) => {
-														setInfo((prev) => ({
-															...prev,
-															chatFilters: {
-																...prev?.chatFilters,
-																dateRange: value,
-															},
-														}));
-													}}
-													startDate={info?.chatFilters?.dateRange?.[0]}
-													endDate={info?.chatFilters?.dateRange?.[1]}
-												/>
-											</div>
-											<div
-												className="reset-filters"
-												onClick={handleResetFiltersClick}
-											>
-												<CloseSvg />
-											</div>
-										</div>
-									</div>
-								) : (
-									<div className="buttons-container">
-										<div className="chat-icons-container">
-											<SearchTypeTooltip
-												searchTypeOptions={searchTypeOptions}
-												onOpenChange={(value) =>
-													setInfo((prev) => ({
-														...prev,
-														isSearchTypeOpen: value,
-													}))
-												}
-												searchType={info?.searchType}
-												isOpen={info?.isSearchTypeOpen}
-												onSearchTypeChange={handleSearchTypeChange}
-											>
+				{/* ) : ( */}
+				<div
+					className={`chat-box-container ${
+						info?.voiceIntegration ? 'inactive' : 'active'
+					}`}
+				>
+					<div className="chatcontainer">
+						<div className="chatBodyContainer">
+							<div className="chatInputContainer">
+								<div className={`chatInputParentContainer`}>
+									<textarea
+										type="text"
+										placeholder="Hey! Need help? Ask me anything."
+										value={info?.chatQuery}
+										onChange={(e) =>
+											setInfo((prev) => ({
+												...prev,
+												chatQuery: e.target.value,
+											}))
+										}
+										autoFocus={autoFocus}
+										onKeyDown={handleSendMessageFunc}
+										className="textArea"
+										// rows={1}
+									/>
+									<div className="options-container">
+										{info?.showFilters ? (
+											<div className="filters-parent-container">
 												<div
-													className="icon-container"
-													onClick={handleWebSearchClick}
-													style={{
-														background: `${
-															isSearchTypeEnabled
-																? '#B39DFA'
-																: '#2E2F33'
-														}`,
-													}}
+													className="close-filters"
+													onClick={handleHideFiltersClick}
 												>
-													<div className="icon">
-														{isSearchTypeEnabled ? (
-															<WebDarkSvg />
-														) : (
-															<WebLightSvg />
-														)}
+													<ChevronSvg />
+												</div>
+												<div className="filters-wrapper">
+													<div className="filters-container">
+														<SearchDropdown
+															headerTitle="Integrations"
+															selectedOptions={
+																info?.chatFilters?.integrations
+															}
+															isDropdownOpen={
+																info?.isIntegrationsDropdownOpen
+															}
+															setIsDropdownOpen={(value) =>
+																setInfo((prev) => ({
+																	...prev,
+																	isIntegrationsDropdownOpen:
+																		value,
+																}))
+															}
+															options={integrationsOptions}
+															handleOptionClick={
+																handleIntegrationsOptionClick
+															}
+														/>
+														<SearchDropdown
+															headerTitle="Modules"
+															selectedOptions={
+																info?.chatFilters?.modules
+															}
+															isDropdownOpen={
+																info?.isModulesDropdownOpen
+															}
+															setIsDropdownOpen={(value) =>
+																setInfo((prev) => ({
+																	...prev,
+																	isModulesDropdownOpen: value,
+																}))
+															}
+															options={modulesOptions}
+															handleOptionClick={
+																handleModulesOptionClick
+															}
+														/>
+														<DateRangeDropdown
+															onOptionClick={(value) => {
+																setInfo((prev) => ({
+																	...prev,
+																	chatFilters: {
+																		...prev?.chatFilters,
+																		dateRange: value,
+																	},
+																}));
+															}}
+															startDate={
+																info?.chatFilters?.dateRange?.[0]
+															}
+															endDate={
+																info?.chatFilters?.dateRange?.[1]
+															}
+														/>
 													</div>
 													<div
-														className="right-text"
-														style={{
-															color: `${
-																isSearchTypeEnabled
-																	? '#0C0C0D'
-																	: '#f2f2f3'
-															}`,
-														}}
+														className="reset-filters"
+														onClick={handleResetFiltersClick}
 													>
-														{showChatLabels ? 'Search' : ''}
+														<CloseSvg />
 													</div>
 												</div>
-											</SearchTypeTooltip>
+											</div>
+										) : (
+											<div className="buttons-container">
+												<div className="chat-icons-container">
+													<SearchTypeTooltip
+														searchTypeOptions={searchTypeOptions}
+														onOpenChange={(value) =>
+															setInfo((prev) => ({
+																...prev,
+																isSearchTypeOpen: value,
+															}))
+														}
+														searchType={info?.searchType}
+														isOpen={info?.isSearchTypeOpen}
+														onSearchTypeChange={handleSearchTypeChange}
+													>
+														<div
+															className="icon-container"
+															onClick={handleWebSearchClick}
+															style={{
+																background: `${
+																	isSearchTypeEnabled
+																		? '#B39DFA'
+																		: '#2E2F33'
+																}`,
+															}}
+														>
+															<div className="icon">
+																{isSearchTypeEnabled ? (
+																	<WebDarkSvg />
+																) : (
+																	<WebLightSvg />
+																)}
+															</div>
+															<div
+																className="right-text"
+																style={{
+																	color: `${
+																		isSearchTypeEnabled
+																			? '#0C0C0D'
+																			: '#f2f2f3'
+																	}`,
+																}}
+															>
+																{showChatLabels ? 'Search' : ''}
+															</div>
+														</div>
+													</SearchTypeTooltip>
 
-											<div
+													{/* <div
 												className="icon-container"
 												onClick={handleGoDeepSearchClick}
 												style={{
@@ -813,104 +792,162 @@ const ChatBox = ({
 														<MicroscopeLightSvg />
 													)}
 												</div>
-												<div
-													className="right-text"
-													style={{
-														color: `${
-															info?.goDeep ? '#0C0C0D' : '#f2f2f3'
-														}`,
-													}}
-												>
-													{showChatLabels ? 'Explore' : ''}
-												</div>
-											</div>
-											<UploadFileTooltip
-												fileTypeIcons={fileTypeIcons}
-												handleChange={handleChange}
-												isUploadFileOpen={info?.isUploadFileOpen}
-												setIsUploadFileOpen={(value) =>
-													setInfo((prev) => ({
-														...prev,
-														isUploadFileOpen: value,
-													}))
-												}
-												handleRecentFileClick={handleRecentFileClick}
-												recentFiles={info?.recentFiles}
-											>
-												<div className="icon-container">
-													<div className="icon">
-														<PaperClip
-															width={15}
-															height={15}
-															fill={'#f2f2f3'}
-														/>
+												{showChatLabels && (
+													<div
+														className="right-text"
+														style={{
+															color: `${
+																info?.goDeep ? '#0C0C0D' : '#f2f2f3'
+															}`,
+														}}
+													>
+														Explore
 													</div>
-													<div className="right-text">
-														{showChatLabels ? 'Add' : ''}
-													</div>
-												</div>
-											</UploadFileTooltip>
+												)}
+											</div> */}
+													<UploadFileTooltip
+														fileTypeIcons={fileTypeIcons}
+														handleChange={handleChange}
+														isUploadFileOpen={info?.isUploadFileOpen}
+														setIsUploadFileOpen={(value) =>
+															setInfo((prev) => ({
+																...prev,
+																isUploadFileOpen: value,
+															}))
+														}
+														handleRecentFileClick={
+															handleRecentFileClick
+														}
+														recentFiles={info?.recentFiles}
+													>
+														<div className="icon-container">
+															<div className="icon">
+																<PaperClip
+																	width={15}
+																	height={15}
+																	fill={'#f2f2f3'}
+																/>
+															</div>
+															{showChatLabels && (
+																<div className="right-text">
+																	Add
+																</div>
+															)}
+														</div>
+													</UploadFileTooltip>
 
-											<div
-												className="icon-container"
-												onClick={handleShowFiltersClick}
-											>
-												<div className="icon">
-													<Filter />
+													<div
+														className="icon-container"
+														onClick={handleShowFiltersClick}
+													>
+														<div className="icon">
+															<Filter />
+														</div>
+														<div className="right-text">
+															{showChatLabels ? 'Filters' : ''}
+														</div>
+													</div>
 												</div>
-												<div className="right-text">
-													{showChatLabels ? 'Filters' : ''}
-												</div>
+												{info?.chatQuery?.trim()?.length > 0 ? (
+													<div
+														className="click-btn"
+														onClick={(e) => handleSendBtnClick(e)}
+														style={{
+															backgroundColor: '#b2a1e8',
+														}}
+													>
+														<ArrowUp />
+													</div>
+												) : (
+													<div
+														className="click-btn"
+														onClick={(e) => handleMicIconClick(e)}
+														style={{
+															backgroundColor: '#b2a1e8',
+														}}
+													>
+														<AudioSvg />
+													</div>
+												)}
 											</div>
-											{info?.voiceIntegration ? (
-												<span
-													className="chat-icon"
-													onClick={handleDisConnect}
-												>
-													<Close
-														style={{ width: '20px', height: '20px' }}
-													/>
-												</span>
-											) : (
-												<span className="chat-icon">
-													<Mic onClick={handleMicIconClick} />
-												</span>
-											)}
-										</div>
-										<div
-											className="click-btn"
-											onClick={(e) => handleSendBtnClick(e)}
-											style={{
-												backgroundColor: `${
-													info?.chatQuery?.trim()?.length > 0
-														? '#b2a1e8'
-														: '#2e2f33'
-												}`,
-											}}
-										>
-											<ArrowUp />
-										</div>
+										)}
 									</div>
-								)}
+								</div>
 							</div>
 						</div>
+						{previewImage && (
+							<Image
+								wrapperStyle={{
+									display: 'none',
+								}}
+								rootClassName="preview-image-container"
+								preview={{
+									visible: previewOpen,
+									onVisibleChange: (visible) => setPreviewOpen(visible),
+									afterOpenChange: (visible) => !visible && setPreviewImage(''),
+								}}
+								src={previewImage}
+							/>
+						)}
 					</div>
 				</div>
-				{previewImage && (
-					<Image
-						wrapperStyle={{
-							display: 'none',
-						}}
-						preview={{
-							visible: previewOpen,
-							onVisibleChange: (visible) => setPreviewOpen(visible),
-							afterOpenChange: (visible) => !visible && setPreviewImage(''),
-						}}
-						src={previewImage}
-					/>
+				{/* )} */}
+			</div>
+			<div className="chatbarContainer" style={{ width: '100%' }}>
+				{info?.uploadedImages?.length > 0 ? (
+					<div className="imagePreviewBar">
+						{info?.uploadedImages?.map((ele, index) => (
+							<div className="previewOfUploadedImage" key={index}>
+								<img
+									src={ele?.preview}
+									alt="uploaded"
+									width={'100%'}
+									height={'100%'}
+									style={{
+										objectFit: 'cover',
+										borderRadius: '12px',
+									}}
+									onClick={() => handlePreview(ele)}
+								/>
+
+								{ele?.loading ? (
+									<div className="spinContainerLoaderForPreview">
+										<Spin />
+									</div>
+								) : (
+									<span
+										className="removeImageIcon"
+										onClick={() => handleRemoveImage(ele)}
+									>
+										<Close />
+									</span>
+								)}
+							</div>
+						))}
+					</div>
+				) : (
+					''
+				)}
+				{info?.recentFiles?.length > 0 && (
+					<div className="recent-files-container">
+						{info?.recentFiles?.map((file) => (
+							<div className="recent-file" key={file?._id}>
+								<div className="file-type-icon">
+									{fileTypeIcons?.[file?.sourceType]}
+								</div>
+								<div className="file-name">{file?.originalFileName}</div>
+								<div
+									className="close-icon-container"
+									onClick={() => handleRemoveFileFromRecentFileClick(file)}
+								>
+									<CloseSvg />
+								</div>
+							</div>
+						))}
+					</div>
 				)}
 			</div>
-		</>
+		</div>
 	);
 };
 
