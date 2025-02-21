@@ -10,7 +10,7 @@ const modules = [
 
 const CalendarModule = () => {
 	const [info, setInfo] = useState({
-		activeModule: 'calendar',
+		activeModule: 'scheduler', // calendar or scheduler
 	});
 
 	const CompMapper = useMemo(
