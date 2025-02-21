@@ -8,6 +8,8 @@ import Cookies from 'js-cookie';
 import { useNavigate, useParams } from 'react-router-dom';
 import Context from '../../../context/context';
 import useLogout from '../../hooks/useLogout';
+import { fetchDomainName } from '../../../helpers';
+
 const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpaceList, info }) => {
 	const navigate = useNavigate();
 	const { galleryId } = useParams();
@@ -34,9 +36,11 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 			}
 			localStorage.setItem('workspaceId', activeWorkspaceId);
 			localStorage.setItem('isOnboard', isOnboard);
+
+			const host = fetchDomainName();
 			Cookies.set('workspaceID', activeWorkspaceId, {
 				sameSite: 'lax',
-				domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
+				domain: host,
 			});
 
 			const currentRegion = localStorage.getItem('region');
@@ -51,7 +55,7 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 				localStorage.setItem('region', newWorkspaceRegion);
 				Cookies.set('region', newWorkspaceRegion, {
 					sameSite: 'lax',
-					domain: window.location.hostname === 'localhost' ? 'localhost' : 've.ai',
+					domain: host,
 				});
 			}
 			window.location.reload();
