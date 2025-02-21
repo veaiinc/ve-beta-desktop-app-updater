@@ -39,7 +39,7 @@ const initialState = {
 	filterOption: false,
 };
 
-const ProposalPopup = ({ open, closeModal, clientDetails = null }) => {
+const ProposalPopup = ({ open, closeModal, clientDetails = null, commonState }) => {
 	const navigate = useNavigate();
 	const customStyles = {
 		content: { zIndex: 999 },
@@ -50,13 +50,27 @@ const ProposalPopup = ({ open, closeModal, clientDetails = null }) => {
 	});
 
 	const {
-		templates: { getMyWorkflows, myWorkflows, myMoreWorkflows, createLeadfromTemplates },
+		templates: {
+			getMyWorkflows,
+			myWorkflows,
+			myMoreWorkflows,
+			createLeadfromTemplates,
+			duplicateGlobalWorkflowTemplate,
+		},
 		activityInfo: { createSmartfile, smartfile },
 	} = useContext(Context);
 
 	useEffect(() => {
-		if (open && !myWorkflows?.length) getMyWorkflowsTemplatesData(1);
-	}, [open]);
+		setInfo((prev) => ({ ...prev, selectedOption: commonState }));
+	}, [commonState]);
+
+	useEffect(() => {
+		if (info?.selectedOption !== 'All') {
+			getMyWorkflowsTemplatesData(1, info?.search, false, info?.selectedOption);
+		} else {
+			if (open && !myWorkflows?.length) getMyWorkflowsTemplatesData(1);
+		}
+	}, [info?.selectedOptionopen]);
 
 	useEffect(() => {
 		if (myWorkflows) {
@@ -69,12 +83,6 @@ const ProposalPopup = ({ open, closeModal, clientDetails = null }) => {
 			myWorkflowsDataParser(myMoreWorkflows, true);
 		}
 	}, [myMoreWorkflows]);
-
-	useEffect(() => {
-		if (info?.selectedOption !== 'All') {
-			getMyWorkflowsTemplatesData(1, info?.search, false, info?.selectedOption);
-		}
-	}, [info?.selectedOption]);
 
 	useEffect(() => {
 		if (smartfile?._id && info?.activeTemplateData?._id) {
@@ -124,12 +132,19 @@ const ProposalPopup = ({ open, closeModal, clientDetails = null }) => {
 				},
 			};
 		} else {
-			payload = {
-				smartFileInput: {
+			if (info?.selectedOption !== 'form-submission') {
+				payload = {
+					smartFileInput: {
+						title: template?.title,
+						templateId: template?._id,
+					},
+				};
+			} else {
+				payload = {
 					title: template?.title,
 					templateId: template?._id,
-				},
-			};
+				};
+			}
 		}
 
 		try {
@@ -142,7 +157,14 @@ const ProposalPopup = ({ open, closeModal, clientDetails = null }) => {
 					}));
 				}
 			} else {
-				await createSmartfile(payload);
+				if (info?.selectedOption !== 'form-submission') {
+					await createSmartfile(payload);
+				} else {
+					const res = await duplicateGlobalWorkflowTemplate(payload);
+					if (res?.[0]) {
+						window.location.href = `${origin}/${res?.[1]?._id}`;
+					}
+				}
 			}
 		} catch (error) {
 			console.error('Failed to create smartfile:', error);

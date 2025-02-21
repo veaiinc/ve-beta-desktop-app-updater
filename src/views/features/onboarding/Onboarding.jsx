@@ -172,7 +172,7 @@ const Onboarding = () => {
 
 	useEffect(() => {
 		if (!usertoken) {
-			navigate('/');
+			window.location.replace('/');
 		}
 		if (
 			localStorage?.getItem('isOnboard') === 'true' &&
