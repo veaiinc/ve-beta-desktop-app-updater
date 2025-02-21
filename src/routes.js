@@ -1,7 +1,7 @@
 import AuthWrapper from './views/layouts/authWrapper';
 import LoginPage from './views/features/login_page/LoginPage';
 import Onboarding from './views/features/onboarding/Onboarding';
-import Calendar from './views/features/calendar/index';
+import CalendarModule from './views/features/calendar/index';
 // import ChatScreen from './views/features/meta_Integ/index';
 import OauthVerify from './views/features/signin/oauth';
 import Sales from './views/features/sales/Sales';
@@ -284,7 +284,7 @@ const routes = [
 		path: '/calendar',
 		component: (
 			<AuthWrapper title={'Calendar'} maxWidth={'95%'}>
-				<Calendar />
+				<CalendarModule />
 			</AuthWrapper>
 		),
 		exact: true,
