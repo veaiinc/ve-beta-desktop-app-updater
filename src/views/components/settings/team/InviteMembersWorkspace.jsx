@@ -159,7 +159,7 @@ const InviteMembersWorkspaceComponent = ({
 				<div className="buttonsContainer">
 					<div style={{ minWidth: '150px', display: 'flex', gap: '5px' }}>
 						<ReusableButtonSettings
-							text={selectedUser ? 'Update User Access Controls' : 'Send Request'}
+							text={selectedUser ? 'Update User Access' : 'Send Request'}
 							func={selectedUser ? handleUpdateUser : handleSubmit}
 						/>
 					</div>

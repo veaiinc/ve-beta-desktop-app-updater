@@ -8,14 +8,14 @@ import TeamAccessListComponent from '../../components/settings/team/TeamAccessLi
 import { message } from 'antd';
 
 const selectableOptions = [
-	{ id: 1, title: 'Workflow', value: 'workflow' },
+	{ id: 1, title: 'Documents', value: 'workflow' },
 	{ id: 2, title: 'Classic Gallery', value: 'classicGallery' },
 	{ id: 3, title: 'Lite Gallery', value: 'liteGallery' },
 	{ id: 4, title: 'Conversational Agent', value: 'conversationalAgent' },
-	{ id: 5, title: 'File', value: 'file' },
+	{ id: 5, title: 'Folder', value: 'folder' },
 	{ id: 6, title: 'Template', value: 'template' },
 	{ id: 7, title: 'Task', value: 'task' },
-	{ id: 8, title: 'Calender', value: 'calender' },
+	{ id: 8, title: 'Calendar', value: 'calendar' },
 	{ id: 9, title: 'Form', value: 'form' },
 ];
 
