@@ -3,6 +3,11 @@ import '../../../assets/scss/calendar/calendarModule.scss';
 import CalendarMainPage from './CalendarMainPage';
 import SchedulerMainPage from './SchedulerMainPage';
 
+const modules = [
+	{ name: 'Calendar', key: 'calendar' },
+	{ name: 'Scheduler', key: 'scheduler' },
+];
+
 const CalendarModule = () => {
 	const [info, setInfo] = useState({
 		activeModule: 'calendar',
@@ -30,23 +35,19 @@ const CalendarModule = () => {
 		<>
 			<div className="calendarModuleHeaderContainer">
 				<div className="moduleSwitcherContainer">
-					<button
-						className={`moduleSwitcherBtn ${
-							info?.activeModule === 'calendar' ? 'active' : ''
-						}`}
-						onClick={() => handleModuleChange('calendar')}
-					>
-						Calendar
-					</button>{' '}
-					<span>|</span>
-					<button
-						className={`moduleSwitcherBtn ${
-							info?.activeModule === 'scheduler' ? 'active' : ''
-						}`}
-						onClick={() => handleModuleChange('scheduler')}
-					>
-						Scheduler
-					</button>
+					{modules?.map(({ name, key }, index) => (
+						<React.Fragment key={key}>
+							<button
+								className={`moduleSwitcherBtn ${
+									info?.activeModule === key ? 'active' : ''
+								}`}
+								onClick={() => handleModuleChange(key)}
+							>
+								{name}
+							</button>
+							{index < modules?.length - 1 && <span>|</span>}
+						</React.Fragment>
+					))}
 				</div>
 				<div className="moduleNewBtn"> + New</div>
 			</div>
