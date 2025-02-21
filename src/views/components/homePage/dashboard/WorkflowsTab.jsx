@@ -266,10 +266,9 @@ const WorkflowsTab = ({ searchValue }) => {
 
 	const navigateToWorkflowBuilder = useCallback(
 		async (data) => {
-			if (data?.version) {
-				return navigate(`/automation_builder/${data?._id}`);
-			}
-			return navigate(`/workflow_builder/${data?._id}`);
+			const { isAutomation } = data;
+			if (isAutomation) navigate(`/automation_builder_updated/${data?._id}`);
+			else navigate(`/workflow_builder/${data?._id}`);
 		},
 		[info?.activeTemplateData],
 	);
