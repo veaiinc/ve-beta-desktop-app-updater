@@ -6,6 +6,7 @@
 	gap: 5px;
 	margin-bottom: 10px;
 	align-self: stretch;
+	user-select: none;
 
 	.calendarHeaderTitle {
 		color: var(--secondary-font, color(display-p3 0.4784 0.4941 0.5216));
