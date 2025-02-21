@@ -78,6 +78,7 @@ export const AutomationBuilderState = () => {
 						tenantId,
 						status,
 						moduleTemplates: [], // TODO: add module templates key once we have it
+						isAutomation: true,
 					};
 				});
 				const data = append
