@@ -20,7 +20,6 @@ const useLogout = () => {
 	} = useContext(Context);
 
 	const resetApplications = useCallback(async () => {
-		navigate('/');
 		//clear localstorage
 		localStorage.clear();
 
@@ -28,6 +27,8 @@ const useLogout = () => {
 		Object.keys(Cookies.get()).forEach((cookieName) => {
 			Cookies.remove(cookieName);
 		});
+
+		window.location.replace('/');
 
 		//add here all reset context state func
 		resetChatState();
