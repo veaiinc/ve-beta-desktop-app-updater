@@ -218,7 +218,9 @@ const MyTemplates = () => {
 		}
 	};
 
-	return (
+	return !access && tenantUserAccessControls?.role !== 'admin' ? (
+		<AccessDeniedPopup open={!access} />
+	) : (
 		<div className="myTemplatesContainer">
 			<div className="headerContainer">
 				<div className="myTemplatesHeader">
@@ -277,7 +279,6 @@ const MyTemplates = () => {
 
 				{tabs?.[info?.activeTab]?.comp || ''}
 			</div>
-			{tenantUserAccessControls && <AccessDeniedPopup open={!access} />}
 		</div>
 	);
 };

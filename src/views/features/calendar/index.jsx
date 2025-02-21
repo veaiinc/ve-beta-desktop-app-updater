@@ -228,7 +228,9 @@ const Calendar = () => {
 	// 	[info?.chatList, info?.chatSessionId, info?.workflowSlug, info?.selectedDate],
 	// );
 
-	return (
+	return !access && tenantUserAccessControls?.role !== 'admin' ? (
+		<AccessDeniedPopup open={!access} />
+	) : (
 		<>
 			<div className="calendarParentContainer">
 				<CalendarSidebar
@@ -260,7 +262,6 @@ const Calendar = () => {
 					selectedSlot={info?.selectedSlot}
 				/>
 			</div>
-			{tenantUserAccessControls && <AccessDeniedPopup open={!access} />}
 		</>
 	);
 };

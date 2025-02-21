@@ -97,7 +97,9 @@ const AiAssistants = () => {
 		  }))
 		: [];
 
-	return (
+	return !access && tenantUserAccessControls?.role !== 'admin' ? (
+		<AccessDeniedPopup open={!access} />
+	) : (
 		<div className="aiAssistantsParentContainer" style={{ paddingRight: 10 }}>
 			<div className="pageHeadContainer">
 				<div className="headTitleContainer">
@@ -204,7 +206,6 @@ const AiAssistants = () => {
 					</InfiniteScroll>
 				</div>
 			</div>
-			{tenantUserAccessControls && <AccessDeniedPopup open={!access} />}
 		</div>
 	);
 };

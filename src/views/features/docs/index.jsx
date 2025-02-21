@@ -585,7 +585,9 @@ const Docs = () => {
 		handleCloseSidebar();
 	}, []);
 
-	return (
+	return !access && tenantUserAccessControls?.role !== 'admin' ? (
+		<AccessDeniedPopup open={!access} />
+	) : (
 		<div className="docsParentContainer">
 			<div className="docsHeaderTitleContainer">
 				<div className="docsHeaderTitleTextContainer">
@@ -862,7 +864,6 @@ const Docs = () => {
 					closeModal={() => setInfo((prev) => ({ ...prev, proposalPopup: false }))}
 				/>
 			</div>
-			{tenantUserAccessControls && <AccessDeniedPopup open={!access} />}
 		</div>
 	);
 };

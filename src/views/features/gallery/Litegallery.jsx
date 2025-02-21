@@ -263,7 +263,9 @@ const LiteGallery = () => {
 		setDefaultSort(payload);
 	};
 
-	return (
+	return !access && tenantUserAccessControls?.role !== 'admin' ? (
+		<AccessDeniedPopup open={!access} />
+	) : (
 		<div className="gallery-main-container">
 			{/* <h1>Light Gallery</h1> */}
 			<div className="gallery-header-container">
@@ -434,7 +436,6 @@ const LiteGallery = () => {
 					isLightGallery={true}
 				/>
 			</div>
-			{tenantUserAccessControls && <AccessDeniedPopup open={!access} />}
 		</div>
 	);
 };

@@ -12,7 +12,7 @@ const dropdownOptions = [
 	{ id: 0, title: 'Lead', value: 'client' },
 	{ id: 2, title: 'Meeting', value: 'meeting' },
 	{ id: 3, title: 'Task', value: 'task' },
-	{ id: 4, title: 'Document', value: 'document' },
+	{ id: 4, title: 'Document', value: 'workflow' },
 	{ id: 5, title: 'Form', value: 'form' },
 	{ id: 6, title: 'Proposal', value: 'proposal' },
 	{ id: 7, title: 'Invoice', value: 'invoice' },
@@ -29,13 +29,23 @@ const QuickActions = ({ styles, customActions = [], clientDetails = null }) => {
 
 	let {
 		templates: { toggleCreateLeadModal },
+		profileInfo: { tenantUserAccessControls },
 	} = useContext(Context);
 	const navigate = useNavigate();
 
+	const filteredDropdownOptions =
+		tenantUserAccessControls?.role === 'admin'
+			? dropdownOptions
+			: dropdownOptions.filter((option) => {
+					const matchedApp = tenantUserAccessControls?.accessControls?.find(
+						(item) => item.app.toLowerCase() === option.value.toLowerCase(),
+					);
+					return matchedApp ? matchedApp.isEnabled : true;
+			  });
 	const handleDropdownOptionClick = useCallback((type) => {
 		if (type === 'meeting') {
 			navigate('/calendar');
-		} else if (type === 'document') {
+		} else if (type === 'workflow') {
 			setInfo({ ...info, openProposalPopup: true });
 		} else if (type === 'client') {
 			setInfo({ ...info, openClientPopup: true });
@@ -61,7 +71,7 @@ const QuickActions = ({ styles, customActions = [], clientDetails = null }) => {
 				color="transparent"
 				title={
 					<div className="quick-actions-dropdown-options-container">
-						{info?.dropdownOptions?.map((option) => (
+						{filteredDropdownOptions?.map((option) => (
 							<div
 								key={option?.id}
 								className="dropdown-option"

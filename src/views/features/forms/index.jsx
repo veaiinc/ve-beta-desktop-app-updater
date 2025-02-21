@@ -88,7 +88,9 @@ const Forms = () => {
 		navigate(`/form-leads`, { state: { formData } });
 	}, []);
 
-	return (
+	return !access && tenantUserAccessControls?.role !== 'admin' ? (
+		<AccessDeniedPopup open={!access} />
+	) : (
 		<div className="formsParentContainer">
 			<div className="formsHeaderContainer">
 				<div className="headerText">
@@ -303,7 +305,6 @@ const Forms = () => {
 					)}
 				</div>
 			</div>
-			{tenantUserAccessControls && <AccessDeniedPopup open={!access} />}
 		</div>
 	);
 };

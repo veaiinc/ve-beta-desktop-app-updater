@@ -12,10 +12,10 @@ const selectableOptions = [
 	{ id: 2, title: 'Classic Gallery', value: 'classicGallery' },
 	{ id: 3, title: 'Lite Gallery', value: 'liteGallery' },
 	{ id: 4, title: 'Conversational Agent', value: 'conversationalAgent' },
-	{ id: 5, title: 'File', value: 'file' },
+	{ id: 5, title: 'Folder', value: 'folder' },
 	{ id: 6, title: 'Template', value: 'template' },
 	{ id: 7, title: 'Task', value: 'task' },
-	{ id: 8, title: 'Calender', value: 'calender' },
+	{ id: 8, title: 'Calendar', value: 'calendar' },
 	{ id: 9, title: 'Form', value: 'form' },
 ];
 
@@ -31,7 +31,7 @@ const TeamSettings = () => {
 			removeTenantRole,
 			addTenantUser,
 		},
-		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
+		subscriptionInfo: { validateExpiryData, updateSubscriptionState, currentPlan },
 	} = useContext(Context);
 
 	// useStates
@@ -154,8 +154,8 @@ const TeamSettings = () => {
 	};
 
 	const [accessControls, setAccessControls] = useState({
-		accessControls: selectableOptions.map((option) => ({
-			app: option.value,
+		accessControls: currentPlan?.apps?.map((option) => ({
+			app: option,
 			isEnabled: false,
 			hasFullAccess: false,
 		})),
@@ -317,7 +317,7 @@ const TeamSettings = () => {
 	// 		setInfo((prev) => ({ ...prev, buttonLoading: true }));
 	// 		loadingToastFunction();
 
-	// 		const promises = dataRoles?.map((payload) => inviteNewuser(payload));
+	// 		const promises = dataRoles?.map((payload) => inviteNupdateTenantRoleFunewuser(payload));
 	// 		const results = await Promise.all(promises);
 	// 		let update = [...sendRequestList];
 	// 		let completionCount = 0;
@@ -362,23 +362,44 @@ const TeamSettings = () => {
 	// };
 
 	const handleSubmit = async () => {
-		if (dataNeeded?.email === '') {
+		if (!dataNeeded?.email) {
 			messageApi.error('Please enter email');
 			return;
 		}
-		const hasEnabledAccess = dataNeeded?.accessControls?.some((control) => control.isEnabled);
 
-		if (!hasEnabledAccess) {
-			messageApi.error('At least one access control must be enabled.');
-			return;
+		let updatedAccessControls = [...(dataNeeded?.accessControls || [])];
+
+		if (info?.selectedOption === 'admin') {
+			// If role is "admin", enable all access controls
+			updatedAccessControls = selectableOptions?.map((control) => ({
+				app: control?.value,
+				isEnabled: true,
+				hasFullAccess: true,
+			}));
+		} else if (info?.selectedOption === 'default') {
+			// Ensure at least one access control is enabled
+			const hasEnabledAccess = updatedAccessControls.some((control) => control.isEnabled);
+			if (!hasEnabledAccess) {
+				messageApi.error('At least one access control must be enabled.');
+				return;
+			}
 		}
-		const response = await addTenantUser(dataNeeded);
+
+		// Prepare final data for API call
+		const finalData = {
+			...dataNeeded,
+			accessControls: updatedAccessControls,
+		};
+
+		const response = await addTenantUser(finalData);
+
 		if (response?.[0] === true) {
 			messageApi.success(response?.[1]?.message);
 			setInfo((prev) => ({ ...prev, showAddTenantUserModal: false }));
 		} else {
 			messageApi.error(response?.[1]?.message);
 		}
+
 		getTeamMembers();
 	};
 
@@ -394,27 +415,46 @@ const TeamSettings = () => {
 
 			// Set the access controls for the selected user
 			setAccessControls({
-				accessControls:
-					user?.accessControls ||
-					selectableOptions.map((option) => ({
-						app: option.value,
-						isEnabled: false,
-						hasFullAccess: false,
-					})),
+				accessControls: user?.accessControls?.map((option) => ({
+					app: option.app,
+					isEnabled: option.isEnabled,
+					hasFullAccess: option.hasFullAccess,
+				})),
 			});
 		}
 	};
 
-	const updateTenantRoleFunc = async (_id, role) => {
+	const updateTenantRoleFunc = async (user, role) => {
 		const json = {
 			role,
 		};
+		if (role === 'default') {
+			setInfo((prev) => ({
+				...prev,
+				showAddTenantUserModal: true,
+				selectedUser: user,
+				userEmail: user?.email,
+				selectedOption: role,
+			}));
+			setAccessControls({
+				accessControls:
+					user?.accessControls ||
+					currentPlan?.apps?.map((option) => ({
+						app: option,
+						isEnabled: false,
+						hasFullAccess: false,
+					})),
+			});
+			return;
+		}
 
 		const response =
-			role === 'remove' ? await removeTenantRole(_id) : await updateTenantRole(_id, json);
+			role === 'remove'
+				? await removeTenantRole(user?._id)
+				: await updateTenantRole(user?._id, json);
 		if (response?.[0] === true) {
 			messageApi.success(response?.[1]?.message);
-			if (userDetailsData?._id === _id) {
+			if (userDetailsData?._id === user?._id) {
 				window.location.reload();
 			}
 		} else {
@@ -425,8 +465,8 @@ const TeamSettings = () => {
 	const handleInviteMembers = () => {
 		setInfo((prev) => ({
 			...prev,
-			accessControls: selectableOptions.map((option) => ({
-				app: option.value,
+			accessControls: currentPlan?.apps?.map((option) => ({
+				app: option,
 				isEnabled: false,
 				hasFullAccess: false,
 			})),
@@ -471,8 +511,8 @@ const TeamSettings = () => {
 
 		setAccessControls((prev) => ({
 			...prev,
-			accessControls: selectableOptions.map((option) => ({
-				app: option.value,
+			accessControls: currentPlan?.apps?.map((option) => ({
+				app: option,
 				isEnabled: false,
 				hasFullAccess: false,
 			})),
@@ -508,7 +548,7 @@ const TeamSettings = () => {
 					selectedOption={info?.selectedOption}
 					accessControls={accessControls}
 					handleCheckboxChange={handleCheckboxChange}
-					selectableOptions={selectableOptions}
+					selectableOptions={currentPlan?.apps}
 					userEmail={info?.userEmail}
 					selectedUser={info?.selectedUser}
 					tenantUserId={userDetailsData?._id}

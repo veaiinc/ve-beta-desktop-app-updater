@@ -40,8 +40,7 @@ const TeamAccessListComponent = ({
 						<div
 							className="tenantDetailsContainer"
 							key={user?._id}
-							onClick={(e) => {
-								e.stopPropagation();
+							onClick={() => {
 								handleUserClick(user);
 							}}
 						>
@@ -127,15 +126,18 @@ const TeamAccessListComponent = ({
 									{user?.isOwner ? (
 										<p className="owner">Owner</p>
 									) : (
-										<div className="editAccessControl">
+										<div
+											className="editAccessControl"
+											onClick={(e) => e.stopPropagation()}
+										>
 											<Select
 												defaultValue={user?.role}
 												style={{
 													width: 120,
 												}}
-												onChange={(value) =>
-													updateUserRoleFunction(user?._id, value)
-												}
+												onSelect={(value) => {
+													updateUserRoleFunction(user, value);
+												}}
 												options={[
 													{
 														value: 'admin',

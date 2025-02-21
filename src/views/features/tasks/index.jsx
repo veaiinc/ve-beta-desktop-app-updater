@@ -879,7 +879,9 @@ const Tasks = () => {
 		[deleteTaskView, info?.taskMetadata?._id],
 	);
 
-	return (
+	return !access && tenantUserAccessControls?.role !== 'admin' ? (
+		<AccessDeniedPopup open={!access} />
+	) : (
 		<>
 			<div className="task-header-container">
 				<div className="header-text">
@@ -965,7 +967,6 @@ const Tasks = () => {
 					) : null
 				}
 			/>
-			{tenantUserAccessControls && <AccessDeniedPopup open={!access} />}
 		</>
 	);
 };

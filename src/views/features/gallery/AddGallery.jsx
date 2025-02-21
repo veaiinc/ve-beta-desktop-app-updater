@@ -101,7 +101,7 @@ const AddGallery = () => {
 	});
 	const navigate = useNavigate();
 
-	let access = hasAccessToModule('classicGallery', tenantUserAccessControls?.accessControls);
+	const access = hasAccessToModule('classicGallery', tenantUserAccessControls?.accessControls);
 
 	useEffect(() => {
 		const initializeGallery = async () => {
@@ -255,7 +255,9 @@ const AddGallery = () => {
 		setDefaultSort(payload);
 	};
 
-	return (
+	return !access && tenantUserAccessControls?.role !== 'admin' ? (
+		<AccessDeniedPopup open={!access} />
+	) : (
 		<div className="gallery-main-container">
 			<div className="gallery-header-container">
 				<div className="gallery-header-text">
@@ -430,7 +432,6 @@ const AddGallery = () => {
 					isLightGallery={false}
 				/>
 			</div>
-			{tenantUserAccessControls && <AccessDeniedPopup open={!access} />}
 		</div>
 	);
 };

@@ -23,28 +23,60 @@ const InviteMembersWorkspaceComponent = ({
 	selectedUser = null,
 }) => {
 	const {
-		companyInfo: { updateTenantAccessControls },
+		companyInfo: { updateTenantAccessControls, updateTenantRole },
 	} = useContext(Context);
 
 	const [updatedData, setUpdatedData] = useState(null);
+	const [isLoading, setIsLoading] = useState(false);
 
 	const handleUpdateUser = () => {
-		const filteredAccessControls = accessControls?.accessControls.filter(
-			(control) => !['project', 'proposal', 'gallery'].includes(control.app),
-		);
+		if (isLoading) {
+			return;
+		} else {
+			const filteredAccessControls = accessControls?.accessControls.filter(
+				(control) => !['project', 'proposal', 'gallery'].includes(control.app),
+			);
 
-		setUpdatedData({
-			accessControls: filteredAccessControls,
-		});
+			setUpdatedData({
+				accessControls: filteredAccessControls,
+			});
+		}
 	};
 	useEffect(() => {
 		if (updatedData) {
-			updateTenantAccessControls(updatedData, tenantUserId).then((res) => {
-				if (res[0] === true) {
-					message.success('User updated successfully');
-					closeModal();
-				}
-			});
+			setIsLoading(true);
+			if (selectedUser !== 'default') {
+				const json = {
+					role: selectedOption,
+				};
+				updateTenantRole(selectedUser?._id, json).then((res) => {
+					if (res[0] === true) {
+						updateTenantAccessControls(updatedData, selectedUser?._id).then((res) => {
+							if (res[0] === true && res[1?.status] === 200) {
+								message.success(res[1]?.message);
+								closeModal();
+								setIsLoading(false);
+							} else {
+								message.error(res[1]?.message);
+								closeModal();
+								setIsLoading(false);
+							}
+						});
+					}
+				});
+			} else {
+				updateTenantAccessControls(updatedData, tenantUserId).then((res) => {
+					if (res[0] === true && res[1?.status] === 200) {
+						message.success(res[1]?.message);
+						closeModal();
+						setIsLoading(false);
+					} else {
+						message.error(res[1]?.message);
+						closeModal();
+						setIsLoading(false);
+					}
+				});
+			}
 		}
 	}, [updatedData]);
 
@@ -136,19 +168,14 @@ const InviteMembersWorkspaceComponent = ({
 												type="checkbox"
 												checked={
 													accessControls?.accessControls?.find(
-														(control) => control.app === option.value,
+														(control) => control.app === option,
 													)?.isEnabled || false
 												}
 												onChange={(e) =>
-													handleCheckboxChange(
-														option.value,
-														e.target.checked,
-													)
+													handleCheckboxChange(option, e.target.checked)
 												}
 											/>
-											<div className="accessControlOptionText">
-												{option.title}
-											</div>
+											<div className="accessControlOptionText">{option}</div>
 										</div>
 									);
 								})}
@@ -161,6 +188,7 @@ const InviteMembersWorkspaceComponent = ({
 						<ReusableButtonSettings
 							text={selectedUser ? 'Update User Access Controls' : 'Send Request'}
 							func={selectedUser ? handleUpdateUser : handleSubmit}
+							loader={isLoading}
 						/>
 					</div>
 				</div>

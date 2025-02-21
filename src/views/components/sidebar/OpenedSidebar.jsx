@@ -458,124 +458,119 @@ const OpenedSideBarItemsComponent = ({
 			.filter(Boolean);
 	};
 
-	const filteredModules = filterModules(
-		veAiModulesItemsList,
-		tenantUserAccessControls?.accessControls,
-	);
+	const filteredModules =
+		tenantUserAccessControls?.role === 'admin'
+			? veAiModulesItemsList
+			: filterModules(veAiModulesItemsList, tenantUserAccessControls?.accessControls);
 
-	const filterModules2 = filterModules(veAiModules, tenantUserAccessControls?.accessControls);
+	const filterModules2 =
+		tenantUserAccessControls?.role === 'admin'
+			? veAiModules
+			: filterModules(veAiModules, tenantUserAccessControls?.accessControls);
 
 	return (
-		// <div className="sidebarWorkspace">
-		// 	<WorkspaceListComponent
-		// 		setsidebarStates={setsidebarStates}
-		// 		sidebarStates={sidebarStates}
-		// 		info={info}
-		// 		userWorkSpaceList={userWorkSpaceList}
-		// 	/>
-		// 	<CommonBottomSection
-		// 		handleLogout={handleLogout}
-		// 		openWorkspacesFunction={openWorkspacesFunction}
-		// 		workSpaceOpen={sidebarStates.workSpaceOpen}
-		// 	/>
-		// </div>
-		// ) : (
-		<div style={{ display: 'flex' }}>
-			{(!isMobile || (isMobile && !selectedChat)) && (
-				<>
-					<div
-						className="openSideBarComponent"
-						style={{
-							height: '100vh',
-							display: 'flex',
-							flexDirection: 'column',
-							justifyContent: 'space-between',
-						}}
-					>
-						<div className="topOptionsList">
+		<>
+			{tenantUserAccessControls && (
+				<div style={{ display: 'flex' }}>
+					{(!isMobile || (isMobile && !selectedChat)) && (
+						<>
 							<div
-								className="veAiLogoDiv"
+								className="openSideBarComponent"
 								style={{
-									cursor: 'pointer',
-									position: 'sticky',
-									top: '0',
-									backgroundColor: '#202123',
-									zIndex: '1000',
-								}}
-							>
-								<div
-									className="workspaceDetailsDiv"
-									onClick={openWorkspacesFunction}
-									style={{ cursor: 'pointer' }}
-								>
-									{info?.activeBusniessName?.logo_s3_500w_key && (
-										<img
-											src={info?.activeBusniessName?.logo_s3_500w_key}
-											alt={info?.activeBusniessName?.activeWorkspaceId}
-										/>
-									)}
-									<h6 style={{ maxWidth: '100px' }}>
-										{info?.activeBusniessName?.businessName}
-									</h6>
-									<DownArrowSmallSvg style={{ height: '16px', width: '16px' }} />
-								</div>
-								{/* <NotificationSvg /> */}
-								<Tooltip
-									title="Close Sidebar"
-									placement="right"
-									arrow={false}
-									overlayInnerStyle={{
-										padding: '6px 10px',
-										borderRadius: '10px',
-										fontSize: '14px',
-										background: '#E8E8E8',
-										color: '#202123',
-										textAlign: 'center',
-										marginLeft: '12px',
-									}}
-								>
-									<SidebarClosingSvg
-										className="collapseArrow"
-										onClick={handleSidebarCollapse}
-										style={{ cursor: 'pointer' }}
-									/>
-								</Tooltip>
-							</div>
-
-							<div
-								className="allmodulesList"
-								style={{
-									height: '100%',
-									gap: '4px',
+									height: '100vh',
 									display: 'flex',
 									flexDirection: 'column',
+									justifyContent: 'space-between',
 								}}
 							>
-								{sidebarStates?.workSpaceOpen && (
+								<div className="topOptionsList">
 									<div
+										className="veAiLogoDiv"
 										style={{
-											position: 'absolute',
-											top: '20px',
-											left: '0',
-											width: '230px',
-											marginLeft: '10px',
-											border: 'none',
+											cursor: 'pointer',
+											position: 'sticky',
+											top: '0',
+											backgroundColor: '#202123',
 											zIndex: '1000',
-											background: '#202123',
-											borderRadius: '16px',
-											animation: 'slideDown 0.3s ease-out',
-											transformOrigin: 'top',
 										}}
 									>
-										<WorkspaceListComponent
-											setsidebarStates={setsidebarStates}
-											sidebarStates={sidebarStates}
-											info={info}
-											userWorkSpaceList={userWorkSpaceList}
-										/>
+										<div
+											className="workspaceDetailsDiv"
+											onClick={openWorkspacesFunction}
+											style={{ cursor: 'pointer' }}
+										>
+											{info?.activeBusniessName?.logo_s3_500w_key && (
+												<img
+													src={info?.activeBusniessName?.logo_s3_500w_key}
+													alt={
+														info?.activeBusniessName?.activeWorkspaceId
+													}
+												/>
+											)}
+											<h6 style={{ maxWidth: '100px' }}>
+												{info?.activeBusniessName?.businessName}
+											</h6>
+											<DownArrowSmallSvg
+												style={{ height: '16px', width: '16px' }}
+											/>
+										</div>
+										{/* <NotificationSvg /> */}
+										<Tooltip
+											title="Close Sidebar"
+											placement="right"
+											arrow={false}
+											overlayInnerStyle={{
+												padding: '6px 10px',
+												borderRadius: '10px',
+												fontSize: '14px',
+												background: '#E8E8E8',
+												color: '#202123',
+												textAlign: 'center',
+												marginLeft: '12px',
+											}}
+										>
+											<SidebarClosingSvg
+												className="collapseArrow"
+												onClick={handleSidebarCollapse}
+												style={{ cursor: 'pointer' }}
+											/>
+										</Tooltip>
 									</div>
-								)}
-								{/* {AiOptions.map((singleItem, index) => {
+
+									<div
+										className="allmodulesList"
+										style={{
+											height: '100%',
+											gap: '4px',
+											display: 'flex',
+											flexDirection: 'column',
+										}}
+									>
+										{sidebarStates?.workSpaceOpen && (
+											<div
+												style={{
+													position: 'absolute',
+													top: '20px',
+													left: '0',
+													width: '230px',
+													marginLeft: '10px',
+													border: 'none',
+													zIndex: '1000',
+													background: '#202123',
+													borderRadius: '16px',
+													animation: 'slideDown 0.3s ease-out',
+													transformOrigin: 'top',
+												}}
+											>
+												<WorkspaceListComponent
+													setsidebarStates={setsidebarStates}
+													sidebarStates={sidebarStates}
+													info={info}
+													userWorkSpaceList={userWorkSpaceList}
+												/>
+											</div>
+										)}
+										{/* {AiOptions.map((singleItem, index) => {
 									return (
 										<div key={index} style={{ padding: '8px 16px' }}>
 											<AiModulesList
@@ -590,92 +585,106 @@ const OpenedSideBarItemsComponent = ({
 										</div>
 									);
 								})} */}
-								{!isThisEarlyAccessPage && (
-									<hr
-										style={{
-											border: '0.7px solid #333334',
-											margin: '16px 0px',
-										}}
-									/>
-								)}
-								{!isThisEarlyAccessPage &&
-									filteredModules?.map((singleItems) => (
-										<div key={singleItems?.id}>
-											<OpenedSideBarHoverStateIcons
-												name={singleItems.name}
-												Icon={singleItems.icon}
-												initialColor={singleItems.initialColor}
-												route={singleItems?.route}
-												navigateTo={(route) => {
-													handleNavigateFunction(route, singleItems);
+										{!isThisEarlyAccessPage && (
+											<hr
+												style={{
+													border: '0.7px solid #333334',
+													margin: '16px 0px',
 												}}
-												isSelected={selectedOption === singleItems?.name}
-												isActive={location.pathname === singleItems?.route}
-												subModules={singleItems?.subModules}
-												isDropdownVisible={
-													activeDropdown === singleItems?.name
-												}
-												onDropdownToggle={() =>
-													handleDropdownToggle(singleItems?.name)
-												}
-												setActiveDropdown={setActiveDropdown}
-												activeSubModule={activeSubModule}
-												setActiveSubModule={setActiveSubModule}
-												handleSubModuleClick={handleSubModuleClick}
-												setShowChatsDrawer={setShowChatsDrawer}
-												setShowNotificationsDrawer={
-													setShowNotificationsDrawer
-												}
 											/>
-										</div>
-									))}
+										)}
+										{!isThisEarlyAccessPage &&
+											filteredModules?.map((singleItems) => (
+												<div key={singleItems?.id}>
+													<OpenedSideBarHoverStateIcons
+														name={singleItems.name}
+														Icon={singleItems.icon}
+														initialColor={singleItems.initialColor}
+														route={singleItems?.route}
+														navigateTo={(route) => {
+															handleNavigateFunction(
+																route,
+																singleItems,
+															);
+														}}
+														isSelected={
+															selectedOption === singleItems?.name
+														}
+														isActive={
+															location.pathname === singleItems?.route
+														}
+														subModules={singleItems?.subModules}
+														isDropdownVisible={
+															activeDropdown === singleItems?.name
+														}
+														onDropdownToggle={() =>
+															handleDropdownToggle(singleItems?.name)
+														}
+														setActiveDropdown={setActiveDropdown}
+														activeSubModule={activeSubModule}
+														setActiveSubModule={setActiveSubModule}
+														handleSubModuleClick={handleSubModuleClick}
+														setShowChatsDrawer={setShowChatsDrawer}
+														setShowNotificationsDrawer={
+															setShowNotificationsDrawer
+														}
+													/>
+												</div>
+											))}
 
-								{!isThisEarlyAccessPage && (
-									<hr
-										style={{
-											border: '0.7px solid #333334',
-											margin: '16px 0px',
-										}}
-									/>
-								)}
-								{!isThisEarlyAccessPage &&
-									filterModules2?.map((singleItems, index) => (
-										<div key={index}>
-											<OpenedSideBarHoverStateIcons
-												name={singleItems.name}
-												Icon={singleItems.icon}
-												initialColor={singleItems.initialColor}
-												route={singleItems?.route}
-												navigateTo={(route) => {
-													handleNavigateFunction(route, singleItems);
+										{!isThisEarlyAccessPage && (
+											<hr
+												style={{
+													border: '0.7px solid #333334',
+													margin: '16px 0px',
 												}}
-												isSelected={selectedOption === singleItems?.name}
-												isActive={location.pathname === singleItems?.route}
-												subModules={singleItems?.subModules}
-												isDropdownVisible={
-													activeDropdown === singleItems?.name
-												}
-												onDropdownToggle={() =>
-													handleDropdownToggle(singleItems?.name)
-												}
-												setActiveDropdown={setActiveDropdown}
-												activeSubModule={activeSubModule}
-												setActiveSubModule={setActiveSubModule}
-												handleSubModuleClick={handleSubModuleClick}
-												setShowChatsDrawer={setShowChatsDrawer}
-												setShowNotificationsDrawer={
-													setShowNotificationsDrawer
-												}
 											/>
-										</div>
-									))}
-							</div>
-						</div>
+										)}
+										{!isThisEarlyAccessPage &&
+											filterModules2?.map((singleItems, index) => (
+												<div key={index}>
+													<OpenedSideBarHoverStateIcons
+														name={singleItems.name}
+														Icon={singleItems.icon}
+														initialColor={singleItems.initialColor}
+														route={singleItems?.route}
+														navigateTo={(route) => {
+															handleNavigateFunction(
+																route,
+																singleItems,
+															);
+														}}
+														isSelected={
+															selectedOption === singleItems?.name
+														}
+														isActive={
+															location.pathname === singleItems?.route
+														}
+														subModules={singleItems?.subModules}
+														isDropdownVisible={
+															activeDropdown === singleItems?.name
+														}
+														onDropdownToggle={() =>
+															handleDropdownToggle(singleItems?.name)
+														}
+														setActiveDropdown={setActiveDropdown}
+														activeSubModule={activeSubModule}
+														setActiveSubModule={setActiveSubModule}
+														handleSubModuleClick={handleSubModuleClick}
+														setShowChatsDrawer={setShowChatsDrawer}
+														setShowNotificationsDrawer={
+															setShowNotificationsDrawer
+														}
+													/>
+												</div>
+											))}
+									</div>
+								</div>
 
-						<div className="bottomOptionsList">
-							{
-								<>
-									{/* <div className="planExpiresDiv">
+								<div className="bottomOptionsList">
+									{
+										<>
+											{/* <div className="planExpiresDiv">
 									<div
 										style={{
 											width: '100%',
@@ -707,7 +716,7 @@ const OpenedSideBarItemsComponent = ({
 										</button>
 									</div>
 								</div> */}
-									{/* <div className="creditsLeft">
+											{/* <div className="creditsLeft">
 									<div>
 										<div
 											style={{
@@ -767,66 +776,71 @@ const OpenedSideBarItemsComponent = ({
 										</svg>
 									</div>
 								</div> */}
-								</>
-							}
-							{bottomOptionsList?.map((singleItems, index) => (
-								<OpenedSideBarHoverStateIcons2
-									name={singleItems?.name}
-									Icon={singleItems?.icon}
-									route={singleItems?.route}
-									initialColor={singleItems?.initialColor}
-									navigateTo={(route) =>
-										handleNavigateFunction(route, singleItems)
+										</>
 									}
-									key={singleItems?.name}
-									isActive={
-										selectedOption === singleItems?.name ||
-										sidebarStates.selectedModule === singleItems?.name
-									}
-									style={{
-										fontSize: '14px',
-										padding: '12px 16px',
-									}}
+									{bottomOptionsList?.map((singleItems, index) => (
+										<OpenedSideBarHoverStateIcons2
+											name={singleItems?.name}
+											Icon={singleItems?.icon}
+											route={singleItems?.route}
+											initialColor={singleItems?.initialColor}
+											navigateTo={(route) =>
+												handleNavigateFunction(route, singleItems)
+											}
+											key={singleItems?.name}
+											isActive={
+												selectedOption === singleItems?.name ||
+												sidebarStates.selectedModule === singleItems?.name
+											}
+											style={{
+												fontSize: '14px',
+												padding: '12px 16px',
+											}}
+										/>
+									))}
+									<CommonBottomSection
+										handleLogout={handleLogout}
+										openWorkspacesFunction={openWorkspacesFunction}
+										workSpaceOpen={sidebarStates.workSpaceOpen}
+									/>
+								</div>
+							</div>
+						</>
+					)}
+					{selectedChat && (
+						<div
+							className="chatDetailPanel"
+							style={{
+								width: isMobile ? '100%' : '300px',
+								backgroundColor: '#1E1E1E',
+								borderLeft: !isMobile ? '1px solid #333334' : 'none',
+								padding: '20px',
+								position: isMobile ? 'fixed' : 'absolute',
+								left: isMobile ? '0' : '100%',
+								top: '0',
+								height: '100vh',
+								zIndex: isMobile ? 1000 : 1,
+							}}
+						>
+							<div
+								style={{
+									display: 'flex',
+									justifyContent: 'space-between',
+									alignItems: 'center',
+									marginBottom: '20px',
+								}}
+							>
+								<h2 style={{ color: '#E8E8E8' }}>{selectedChat}</h2>
+								<CrossSvg
+									style={{ cursor: 'pointer' }}
+									onClick={handleCloseChatPanel}
 								/>
-							))}
-							<CommonBottomSection
-								handleLogout={handleLogout}
-								openWorkspacesFunction={openWorkspacesFunction}
-								workSpaceOpen={sidebarStates.workSpaceOpen}
-							/>
+							</div>
 						</div>
-					</div>
-				</>
-			)}
-			{selectedChat && (
-				<div
-					className="chatDetailPanel"
-					style={{
-						width: isMobile ? '100%' : '300px',
-						backgroundColor: '#1E1E1E',
-						borderLeft: !isMobile ? '1px solid #333334' : 'none',
-						padding: '20px',
-						position: isMobile ? 'fixed' : 'absolute',
-						left: isMobile ? '0' : '100%',
-						top: '0',
-						height: '100vh',
-						zIndex: isMobile ? 1000 : 1,
-					}}
-				>
-					<div
-						style={{
-							display: 'flex',
-							justifyContent: 'space-between',
-							alignItems: 'center',
-							marginBottom: '20px',
-						}}
-					>
-						<h2 style={{ color: '#E8E8E8' }}>{selectedChat}</h2>
-						<CrossSvg style={{ cursor: 'pointer' }} onClick={handleCloseChatPanel} />
-					</div>
+					)}
 				</div>
 			)}
-		</div>
+		</>
 	);
 };
 
