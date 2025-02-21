@@ -77,12 +77,18 @@ const AddOnPlans = ({ addOnsLoading = false, isOpen, closeModal, subscriptionSta
 				window.location.href = response?.[1]?.url;
 				closeModal();
 				setInfo((prev) => ({ ...prev, checkoutLoader: false }));
+			} else {
+				message.error(response?.[1]?.message);
+				setInfo((prev) => ({ ...prev, checkoutLoader: false }));
 			}
 		} else {
 			const response = await purchaseAddOnPlan(payload);
 			if (response?.[0]) {
 				window.location.href = response?.[1]?.url;
 				closeModal();
+				setInfo((prev) => ({ ...prev, checkoutLoader: false }));
+			} else {
+				message.error(response?.[1]?.message);
 				setInfo((prev) => ({ ...prev, checkoutLoader: false }));
 			}
 		}
@@ -223,6 +229,21 @@ const AddOnPlans = ({ addOnsLoading = false, isOpen, closeModal, subscriptionSta
 															: 'One time'}
 													</span>
 												</div>
+
+												{subscriptionState !== 'upgradeSubscription' &&
+													addOn?.addOnAiImageCreditsDetails && (
+														<div className="addOnsStorageLimit">
+															{`${addOn?.addOnAiImageCreditsDetails?.aiImageCredits} `}
+															<span>AI Image Credits</span>
+														</div>
+													)}
+												{subscriptionState !== 'upgradeSubscription' &&
+													addOn?.addOnAiCreditsDetails && (
+														<div className="addOnsStorageLimit">
+															{`${addOn?.addOnAiCreditsDetails?.aiCredits} `}
+															<span>AI Credits</span>
+														</div>
+													)}
 											</div>
 											{info?.addOns?.find(
 												(item) => item._id === addOn._id,
