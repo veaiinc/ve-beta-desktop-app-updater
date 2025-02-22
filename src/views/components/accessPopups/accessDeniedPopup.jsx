@@ -1,11 +1,14 @@
-import React, { useState } from 'react';
-import { Modal } from 'antd';
+import React, { memo, useContext } from 'react';
 import ReactModal from '../modalsV2';
 import '../../../assets/scss/accessPopups/accessDeniedPopup.scss';
+import Context from '../../../context/context';
 
-const AccessDeniedPopup = ({ open, closeModal }) => {
+const AccessDeniedPopup = () => {
+	let {
+		profileInfo: { accessControlOpenModal },
+	} = useContext(Context);
 	return (
-		<ReactModal isOpen={open} closeModal={closeModal} modalType={'center'}>
+		<ReactModal isOpen={accessControlOpenModal} modalType={'center'}>
 			<div className="access-denied-popup-container">
 				<div className="access-denied-popup-content">
 					<div className="access-denied-popup-title">Access Denied</div>
@@ -22,4 +25,4 @@ const AccessDeniedPopup = ({ open, closeModal }) => {
 	);
 };
 
-export default AccessDeniedPopup;
+export default memo(AccessDeniedPopup);

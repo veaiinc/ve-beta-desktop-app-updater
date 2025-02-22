@@ -5,7 +5,6 @@ import CalendarView from './CalendarView';
 import Context from '../../../context/context';
 import ObjectId from 'bson-objectid';
 import moment from 'moment';
-import AccessDeniedPopup from '../../components/accessPopups/accessDeniedPopup';
 // import BottomToolbar from '../../components/ai_agents/BottomToolbar';
 // import { ReactComponent as AiSparkel } from '../../../assets/svg/calendar/aiSparkel.svg';
 // import WorkflowSlugSelector from '../../components/calendar/WorkflowSlugSelector';
@@ -25,10 +24,6 @@ const initialState = {
 	workflowSlug: null,
 	chatQuery: '',
 };
-const hasAccessToModule = (moduleKey, accessControls) => {
-	const access = accessControls?.find((control) => control?.app === moduleKey);
-	return access ? access?.isEnabled : false;
-};
 
 const Calendar = () => {
 	const {
@@ -43,7 +38,6 @@ const Calendar = () => {
 		},
 		companyInfo: { getTeamMembers },
 		templates: { leftSidebarState, updateStateValues },
-		profileInfo: { tenantUserAccessControls },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -53,7 +47,6 @@ const Calendar = () => {
 		selectedDate: new Date(),
 		...initialState,
 	});
-	let access = hasAccessToModule('calendar', tenantUserAccessControls?.accessControls);
 
 	useEffect(() => {
 		updateStateValues({ leftSidebarState: 'close' });
@@ -228,9 +221,7 @@ const Calendar = () => {
 	// 	[info?.chatList, info?.chatSessionId, info?.workflowSlug, info?.selectedDate],
 	// );
 
-	return !access && tenantUserAccessControls?.role !== 'admin' ? (
-		<AccessDeniedPopup open={!access} />
-	) : (
+	return (
 		<>
 			<div className="calendarParentContainer">
 				<CalendarSidebar

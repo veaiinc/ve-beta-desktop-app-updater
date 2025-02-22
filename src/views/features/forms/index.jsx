@@ -15,20 +15,12 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import Context from '../../../context/context';
 import DropDown from '../../components/dropDown/tasks/DropDown';
 import QuickActions from '../../components/globalComponents/QuickActions';
-import AccessDeniedPopup from '../../components/accessPopups/accessDeniedPopup';
-
-// let origin = fetchOriginSelection();
-const hasAccessToModule = (moduleKey, accessControls) => {
-	const access = accessControls?.find((control) => control?.app === moduleKey);
-	return access ? access?.isEnabled : false;
-};
 
 const Forms = () => {
 	const navigate = useNavigate();
 
 	const {
 		templates: { getTemplatesListForForms, formsTemplatesList, moreFormsTemplatesList },
-		profileInfo: { tenantUserAccessControls },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -41,7 +33,6 @@ const Forms = () => {
 		searchExpand: false,
 	});
 
-	let access = hasAccessToModule('form', tenantUserAccessControls?.accessControls);
 	useEffect(() => {
 		fetchInitialForms();
 	}, []);
@@ -88,9 +79,7 @@ const Forms = () => {
 		navigate(`/form-leads`, { state: { formData } });
 	}, []);
 
-	return !access && tenantUserAccessControls?.role !== 'admin' ? (
-		<AccessDeniedPopup open={!access} />
-	) : (
+	return (
 		<div className="formsParentContainer">
 			<div className="formsHeaderContainer">
 				<div className="headerText">

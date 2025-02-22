@@ -6,12 +6,6 @@ import { useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
 import Spinner from '../../components/loaders/Spinner';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import AccessDeniedPopup from '../../components/accessPopups/accessDeniedPopup';
-
-const hasAccessToModule = (moduleKey, accessControls) => {
-	const access = accessControls?.find((control) => control?.app === moduleKey);
-	return access ? access?.isEnabled : false;
-};
 
 const AiAssistants = () => {
 	const navigate = useNavigate();
@@ -36,8 +30,6 @@ const AiAssistants = () => {
 		creatingNewAiAssistantLoading: false,
 		activeAiAssistant: null,
 	});
-
-	let access = hasAccessToModule('conversationalAgent', tenantUserAccessControls?.accessControls);
 
 	useEffect(() => {
 		return () => {
@@ -97,9 +89,7 @@ const AiAssistants = () => {
 		  }))
 		: [];
 
-	return !access && tenantUserAccessControls?.role !== 'admin' ? (
-		<AccessDeniedPopup open={!access} />
-	) : (
+	return (
 		<div className="aiAssistantsParentContainer" style={{ paddingRight: 10 }}>
 			<div className="pageHeadContainer">
 				<div className="headTitleContainer">

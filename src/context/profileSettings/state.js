@@ -13,6 +13,7 @@ export const intialState = {
 	set2factorSettings: null,
 	userWorkSpaceList: null,
 	tenantUserAccessControls: null,
+	accessControlOpenModal: false,
 };
 export const ProfileState = () => {
 	const [state, dispatch] = useReducer(Reducer, intialState);
@@ -308,6 +309,16 @@ export const ProfileState = () => {
 		}
 	};
 
+	const updateAccessControlOpenModal = (payload) => {
+		try {
+			dispatch({
+				type: Actions.UPDATE_ACCESS_CONTROL_OPEN_MODAL,
+				payload,
+			});
+		} catch (error) {
+			console.log('error==>updateAccessControlOpenModal', error);
+		}
+	};
 	const resetProfileSettingsState = async () => {
 		dispatch({ type: Actions.RESET_STATE });
 	};
@@ -358,5 +369,6 @@ export const ProfileState = () => {
 		updateUserDetailsState,
 		updateProfileState,
 		getTenantUserAccessControls,
+		updateAccessControlOpenModal,
 	};
 };

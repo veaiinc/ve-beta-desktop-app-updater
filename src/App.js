@@ -3,7 +3,7 @@ import routes from './routes';
 import React, { memo, useEffect } from 'react';
 import ExpiredSubscriptionModal from './views/components/modalsV2/subscription/ExpiredSubscriptionModal';
 import ExpiredTokenModal from './views/components/modalsV2/subscription/ExpiredTokenModal';
-
+import AccessDeniedPopup from './views/components/accessPopups/accessDeniedPopup';
 function App() {
 	useEffect(() => {
 		if (window.navigator.appVersion.indexOf('Mac') !== -1) {
@@ -28,6 +28,7 @@ function App() {
 			</Routes>
 			<ExpiredSubscriptionModal />
 			<ExpiredTokenModal />
+			<AccessDeniedPopup />
 		</>
 	);
 }

@@ -10,7 +10,6 @@ import { ReactComponent as ThreeDots } from '../../../assets/svg/my_templates/th
 import TemplateCards from '../../components/myTemplate/TemplateCards';
 import Context from '../../../context/context';
 import QuickActions from '../../components/globalComponents/QuickActions';
-import AccessDeniedPopup from '../../components/accessPopups/accessDeniedPopup';
 
 const SubTitle = () => {
 	return (
@@ -70,11 +69,6 @@ const initialState = {
 	activeTab: 'all', //all, proposals, invoices, contracts, presentations
 };
 
-const hasAccessToModule = (moduleKey, accessControls) => {
-	const access = accessControls?.find((control) => control?.app === moduleKey);
-	return access ? access?.isEnabled : false;
-};
-
 const MyTemplates = () => {
 	const {
 		templates: {
@@ -86,11 +80,8 @@ const MyTemplates = () => {
 			updateStateValues,
 			templatesRefetch,
 		},
-		profileInfo: { tenantUserAccessControls },
 	} = useContext(Context);
 	const navigate = useNavigate();
-
-	let access = hasAccessToModule('template', tenantUserAccessControls?.accessControls);
 
 	const [info, setInfo] = useState({
 		...initialState,
@@ -218,9 +209,7 @@ const MyTemplates = () => {
 		}
 	};
 
-	return !access && tenantUserAccessControls?.role !== 'admin' ? (
-		<AccessDeniedPopup open={!access} />
-	) : (
+	return (
 		<div className="myTemplatesContainer">
 			<div className="headerContainer">
 				<div className="myTemplatesHeader">

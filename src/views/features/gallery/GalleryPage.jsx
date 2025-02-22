@@ -59,15 +59,9 @@ import { Switch } from 'antd';
 import ShowLightRoomCopy from '../../components/modalsV2/gallery/ShowLightRoomCopy';
 import { getCurrentWorkspaceId } from '../../../helpers';
 import GridImage from '../../../assets/images/workflow_builder/dotgrid.png';
-import AccessDeniedPopup from '../../components/accessPopups/accessDeniedPopup';
 // import EarnAndShareOverlay from './galleryPage/EditAndShareOverlay';
 
 const workspaceId = localStorage.getItem('workspaceId');
-
-const hasAccessToModule = (moduleKey, accessControls) => {
-	const access = accessControls?.find((control) => control?.app === moduleKey);
-	return access ? access?.isEnabled : false;
-};
 
 const GalleryPage = () => {
 	const { galleryId } = useParams();
@@ -147,12 +141,7 @@ const GalleryPage = () => {
 			downloadImagesForClientSelection,
 		},
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
-		profileInfo: {
-			userWorkSpaceList,
-			getTenantSettings,
-			tennantSettingsData,
-			tenantUserAccessControls,
-		},
+		profileInfo: { userWorkSpaceList, getTenantSettings, tennantSettingsData },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		albumName: '',
@@ -268,9 +257,6 @@ const GalleryPage = () => {
 		},
 		scrolledTillEnd: false,
 	});
-
-	let access = hasAccessToModule('liteGallery', tenantUserAccessControls?.accessControls);
-
 	const optionsRef = useRef(null);
 	const iconRef = useRef(null);
 	const galleryOptionsRef = useRef(null);
@@ -3235,9 +3221,7 @@ const GalleryPage = () => {
 	};
 	const galleryUrl = `${galleryCredentials?.baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${albumImagesCount?.coverImage?.givenFileName}?Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
 
-	return !access && tenantUserAccessControls?.role !== 'admin' ? (
-		<AccessDeniedPopup open={!access} />
-	) : (
+	return (
 		<>
 			<div className="galleryContainer">
 				<div

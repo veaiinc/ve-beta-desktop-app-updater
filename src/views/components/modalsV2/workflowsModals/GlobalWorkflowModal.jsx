@@ -196,10 +196,6 @@ const GlobalWorkflowModal = ({
 	}, [globalTemplateId, modalIsOpen]);
 
 	useEffect(() => {
-		console.log(info?.activeTemplateData, 'info?.activeTemplateData');
-	}, [info?.activeTemplateData]);
-
-	useEffect(() => {
 		if (specificTemplatesInfo && modalIsOpen) {
 			setInfo((prev) => ({
 				...prev,

@@ -65,6 +65,10 @@ const actionHandlers = {
 		...state,
 		tenantUserAccessControls: action.payload,
 	}),
+	UPDATE_ACCESS_CONTROL_OPEN_MODAL: (state, action) => ({
+		...state,
+		...action.payload,
+	}),
 	RESET_STATE: () => ({ ...intialState }),
 };
 
