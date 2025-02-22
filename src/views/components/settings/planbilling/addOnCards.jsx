@@ -205,20 +205,30 @@ const AddOnPlans = ({ addOnsLoading = false, isOpen, closeModal, subscriptionSta
 													</span>
 												</div>
 
-												{subscriptionState !== 'upgradeSubscription' &&
-													addOn?.addOnAiImageCreditsDetails && (
-														<div className="addOnsStorageLimit">
-															{`${addOn?.addOnAiImageCreditsDetails?.aiImageCredits} `}
-															<span>AI Image Credits</span>
-														</div>
-													)}
-												{subscriptionState !== 'upgradeSubscription' &&
-													addOn?.addOnAiCreditsDetails && (
-														<div className="addOnsStorageLimit">
-															{`${addOn?.addOnAiCreditsDetails?.aiCredits} `}
-															<span>AI Credits</span>
-														</div>
-													)}
+												{subscriptionState !== 'upgradeSubscription' && (
+													<>
+														{addOn?.addOnAiImageCreditsDetails
+															?.aiImageCredits && (
+															<div className="addOnsStorageLimit">
+																{
+																	addOn.addOnAiImageCreditsDetails
+																		.aiImageCredits
+																}{' '}
+																<span>AI Image Credits</span>
+															</div>
+														)}
+														{addOn?.addOnAiCreditsDetails
+															?.aiCredits && (
+															<div className="addOnsStorageLimit">
+																{
+																	addOn.addOnAiCreditsDetails
+																		.aiCredits
+																}{' '}
+																<span>AI Credits</span>
+															</div>
+														)}
+													</>
+												)}
 											</div>
 											{info?.addOns?.find(
 												(item) => item?._id === addOn?._id,
