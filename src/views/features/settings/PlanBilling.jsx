@@ -1,13 +1,10 @@
 import React, { useContext, useEffect, useState, memo, useCallback } from 'react';
 import '../../../assets/scss/settings/planBilling.scss';
 import '../../../assets/scss/settings/notifications.scss';
-import moment from 'moment';
 import Context from '../../../context/context';
-import { ReactComponent as Tick } from '../../../assets/svg/tick.svg';
 import { useNavigate } from 'react-router-dom';
 import Skeleton from 'react-loading-skeleton';
 import { message, Spin } from 'antd';
-import Spinner from '../../components/loaders/Spinner';
 import AddOnPlans from '../../components/settings/planbilling/addOnCards';
 // const features = [
 // 	'Form Management Assistant',
@@ -352,7 +349,9 @@ const SubscribedUserPlanCard = ({
 													{item?.title === 'AI Credits' ? 'Credits' : ''}
 												</span>{' '}
 												{item?.barGraph
-													? `used out of ${item?.totalValue}`
+													? `used out of ${item?.totalValue}${
+															item?.title === 'Storage' ? 'GB' : ''
+													  }`
 													: `/${item?.duration}`}
 											</div>
 											{item?.barGraph && (
