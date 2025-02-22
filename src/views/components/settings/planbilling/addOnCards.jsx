@@ -31,35 +31,6 @@ const AddOnPlans = ({ addOnsLoading = false, isOpen, closeModal, subscriptionSta
 		}));
 	}, [subscriptionState, subscriptionPlans, currentPlanAddOns]);
 
-	// const handlePurchaseAddOn = useCallback(
-	// 	async (planId) => {
-	// 		setInfo((prev) => ({ ...prev, addOnPurchaseLoader: true, planPurchaseId: planId }));
-	// 		const response = await purchaseAddOn(planId);
-	// 		if (response?.[0]) {
-	// 			setInfo((prev) => ({
-	// 				...prev,
-	// 				totalPrice: response?.[1]?.totalPrice,
-	// 				addOns: [...prev.addOns, response?.[1]],
-	// 			}));
-	// 			window.location.href = response?.[1]?.url;
-	// 		} else {
-	// 			message?.error(response?.[1]?.message);
-	// 		}
-	// 		setInfo((prev) => ({ ...prev, addOnPurchaseLoader: false, planPurchaseId: null }));
-	// 	},
-	// 	[info?.planPurchaseId],
-	// );
-
-	// useEffect(() => {
-	// 	if (isOpen) {
-	// 		if (subscriptionState === 'upgradeSubscription') {
-	// 			getAllSubscriptionPlan();
-	// 		} else {
-	// 			getAddOnsForCurrentPlan();
-	// 		}
-	// 	}
-	// }, [subscriptionState]);
-
 	const handleCheckout = async () => {
 		if (info?.checkoutLoader) {
 			return;
@@ -67,8 +38,8 @@ const AddOnPlans = ({ addOnsLoading = false, isOpen, closeModal, subscriptionSta
 		setInfo((prev) => ({ ...prev, checkoutLoader: true }));
 		const data = info?.addOns?.map((addOn) => {
 			return {
-				planId: addOn._id,
-				quantity: addOn.count,
+				planId: addOn?._id,
+				quantity: addOn?.count,
 			};
 		});
 
@@ -83,7 +54,7 @@ const AddOnPlans = ({ addOnsLoading = false, isOpen, closeModal, subscriptionSta
 				closeModal();
 				setInfo((prev) => ({ ...prev, checkoutLoader: false }));
 			} else {
-				message.error(response?.[1]?.message);
+				message?.error(response?.[1]?.message);
 				setInfo((prev) => ({ ...prev, checkoutLoader: false }));
 			}
 		} else {
@@ -100,18 +71,18 @@ const AddOnPlans = ({ addOnsLoading = false, isOpen, closeModal, subscriptionSta
 
 	const handlePurchaseAddOn = useCallback((addOn) => {
 		setInfo((prev) => {
-			const addOns = [...prev.addOns];
-			const addOnIndex = addOns.findIndex((item) => item._id === addOn._id);
+			const addOns = [...prev?.addOns];
+			const addOnIndex = addOns?.findIndex((item) => item?._id === addOn?._id);
 
 			if (addOnIndex !== -1) {
 				addOns[addOnIndex].count += 1;
 			} else {
-				addOns.push({ ...addOn, count: 1 });
+				addOns?.push({ ...addOn, count: 1 });
 			}
 
 			return {
 				...prev,
-				totalPrice: prev.totalPrice + addOn.totalPrice,
+				totalPrice: prev?.totalPrice + addOn?.totalPrice,
 				addOns,
 			};
 		});
@@ -119,20 +90,20 @@ const AddOnPlans = ({ addOnsLoading = false, isOpen, closeModal, subscriptionSta
 
 	const handleRemoveAddOn = useCallback((addOn) => {
 		setInfo((prev) => {
-			const addOns = [...prev.addOns];
-			const addOnIndex = addOns.findIndex((item) => item._id === addOn._id);
+			const addOns = [...prev?.addOns];
+			const addOnIndex = addOns?.findIndex((item) => item?._id === addOn?._id);
 
 			if (addOnIndex !== -1) {
 				if (addOns[addOnIndex].count > 1) {
 					addOns[addOnIndex].count -= 1;
 				} else {
-					addOns.splice(addOnIndex, 1);
+					addOns?.splice(addOnIndex, 1);
 				}
 			}
 
 			return {
 				...prev,
-				totalPrice: prev.totalPrice - addOn.totalPrice,
+				totalPrice: prev?.totalPrice - addOn?.totalPrice,
 				addOns,
 			};
 		});
@@ -140,22 +111,22 @@ const AddOnPlans = ({ addOnsLoading = false, isOpen, closeModal, subscriptionSta
 
 	const handleAddingAddOn = (addOn) => {
 		setInfo((prevInfo) => {
-			const updatedAddOns = prevInfo.addOns.map((item) => {
-				if (item._id === addOn._id) {
-					return { ...item, count: item.count + 1 };
+			const updatedAddOns = prevInfo?.addOns?.map((item) => {
+				if (item?._id === addOn?._id) {
+					return { ...item, count: item?.count + 1 };
 				}
 				return item;
 			});
 
 			// If addOn doesn't exist in the list, add it
-			if (!updatedAddOns.find((item) => item._id === addOn._id)) {
-				updatedAddOns.push({ ...addOn, count: 1 });
+			if (!updatedAddOns?.find((item) => item?._id === addOn?._id)) {
+				updatedAddOns?.push({ ...addOn, count: 1 });
 			}
 
 			return {
 				...prevInfo,
 				addOns: updatedAddOns,
-				totalPrice: prevInfo.totalPrice + addOn.totalPrice,
+				totalPrice: prevInfo?.totalPrice + addOn?.totalPrice,
 			};
 		});
 	};
@@ -195,7 +166,7 @@ const AddOnPlans = ({ addOnsLoading = false, isOpen, closeModal, subscriptionSta
 					</div>
 					<div className="addOnsCardsContainer">
 						{addOnsLoading
-							? [1, 2, 3, 4].map((loader) => (
+							? [1, 2, 3, 4]?.map((loader) => (
 									<Skeleton
 										key={loader}
 										height="200px"
@@ -250,7 +221,7 @@ const AddOnPlans = ({ addOnsLoading = false, isOpen, closeModal, subscriptionSta
 													)}
 											</div>
 											{info?.addOns?.find(
-												(item) => item._id === addOn._id,
+												(item) => item?._id === addOn?._id,
 											) ? (
 												<div className="addOnsQuantityContainer">
 													<div
@@ -261,8 +232,8 @@ const AddOnPlans = ({ addOnsLoading = false, isOpen, closeModal, subscriptionSta
 													</div>
 													<div className="countIndicators">
 														{
-															info.addOns.find(
-																(item) => item._id === addOn._id,
+															info?.addOns?.find(
+																(item) => item?._id === addOn?._id,
 															)?.count
 														}
 													</div>

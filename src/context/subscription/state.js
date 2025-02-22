@@ -264,18 +264,13 @@ export const SubscriptionState = (props) => {
 		}
 	};
 
-	// https://us.api.ve.ai/auth/dev/addon-plan/test1234/purchase-add-on-plan
-
 	const purchaseAddOnPlan = async (payload) => {
-		let workspaceId = localStorage.getItem('workspaceId');
-		let usertoken = localStorage.getItem('usertoken');
+		const workspaceId = localStorage.getItem('workspaceId');
+		const usertoken = localStorage.getItem('usertoken');
+		const path = `/addon-plan/${workspaceId}/purchase-add-on-plan`;
+		const type = 'auth';
 		try {
-			const response = await Service.fetchPost(
-				`/addon-plan/${workspaceId}/purchase-add-on-plan`,
-				payload,
-				usertoken,
-				'auth',
-			);
+			const response = await Service.fetchPost(path, payload, usertoken, type);
 			if (response?.[0] === true) {
 				return [true, response?.[1]];
 			} else {
@@ -288,15 +283,12 @@ export const SubscriptionState = (props) => {
 	};
 
 	const purchaseSubscriptionPlan = async (payload) => {
-		let workspaceId = localStorage.getItem('workspaceId');
-		let usertoken = localStorage.getItem('usertoken');
+		const workspaceId = localStorage.getItem('workspaceId');
+		const usertoken = localStorage.getItem('usertoken');
+		const path = `/subscription/${workspaceId}/purchase-subscription`;
+		const type = 'auth';
 		try {
-			const response = await Service.fetchPost(
-				`/subscription/${workspaceId}/purchase-subscription`,
-				payload,
-				usertoken,
-				'auth',
-			);
+			const response = await Service.fetchPost(path, payload, usertoken, type);
 			if (response?.[0] === true) {
 				return [true, response?.[1]];
 			} else {
