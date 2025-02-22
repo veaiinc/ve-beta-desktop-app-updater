@@ -320,12 +320,18 @@ const ChatBox = ({
 										moment(info?.chatFilters?.dateRange[1])?.unix(),
 								  ]
 								: [];
-
-						const payload = {
-							query:
+						let query;
+						if (info?.recentFiles?.length > 0) {
+							query =
 								currentQuery +
 								',' +
-								info?.recentFiles?.map((ele) => ele?.originalFileName).join(','),
+								info?.recentFiles?.map((ele) => ele?.originalFileName).join(',');
+						} else {
+							query = currentQuery;
+						}
+
+						const payload = {
+							query,
 							timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
 							knowledge_base_search: info?.searchType?.workspaceSearch,
 							web_search: info?.searchType?.webSearch,
