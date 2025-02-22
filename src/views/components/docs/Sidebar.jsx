@@ -22,6 +22,7 @@ import Context from '../../../context/context.js';
 import SendProposalModal from '../modalsV2/proposalModals/SendProposalModal.jsx';
 import CopiedModal from '../modalsV2/workflowsModals/CopiedModal.jsx';
 import { fetchOriginSelection } from '../../../helpers/index.js';
+import { useNavigate } from 'react-router-dom';
 
 const initialState = {
 	activeTab: 'preview', // reqActions, preview, activity
@@ -46,6 +47,7 @@ const initialState = {
 let origin = fetchOriginSelection();
 
 const Sidebar = ({ open, onClose, activeFileData, refetchDocsFilesList, openDeleteModal }) => {
+	const navigate = useNavigate();
 	const {
 		activityInfo: {
 			resetActivityState,
@@ -382,7 +384,12 @@ const Sidebar = ({ open, onClose, activeFileData, refetchDocsFilesList, openDele
 
 	const workflowRedirectionsToBuilder = useCallback(() => {
 		if (info?.activeFileData) {
-			window.location.href = `${origin}/${info?.activeFileData?._id}?workflow=true&templateId=${info?.activeFileData?.templateId}`;
+			const version = info?.activeFileData?.version;
+			version === 0 || version === null
+				? navigate(
+						`/smart-file/${info?.activeFileData?.templateId}/${info?.activeFileData?._id}`,
+				  )
+				: (window.location.href = `${origin}/workflow/${info?.activeFileData?._id}?workflow=true&templateId=${info?.activeFileData?.templateId}`);
 		}
 	}, [info?.activeFileData]);
 

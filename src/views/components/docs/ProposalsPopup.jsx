@@ -86,13 +86,15 @@ const ProposalPopup = ({ open, closeModal, clientDetails = null, commonState }) 
 
 	useEffect(() => {
 		if (smartfile?._id && info?.activeTemplateData?._id) {
-			window.location.href = `${origin}/${smartfile?._id}?workflow=true&templateId=${info?.activeTemplateData?._id}`;
+			navigate(`/smart-file/${info?.activeTemplateData?._id}/${smartfile?._id}`);
 		}
 	}, [smartfile]);
 
 	useEffect(() => {
 		if (info?.smartfileIdFromExistingClient) {
-			window.location.href = `${origin}/${info?.smartfileIdFromExistingClient}?workflow=true&templateId=${info?.activeTemplateData?._id}`;
+			navigate(
+				`/smart-file/${info?.activeTemplateData?._id}/${info?.smartfileIdFromExistingClient}`,
+			);
 		}
 	}, [info?.smartfileIdFromExistingClient]);
 
