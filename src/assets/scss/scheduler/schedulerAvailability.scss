@@ -4,7 +4,6 @@
 	gap: 2.5px;
 
 	.daySlotContainer {
-		background: var(--surface-subtle, #6d6e6f);
 		min-height: 100px;
 		display: flex;
 		flex-direction: column;
@@ -121,6 +120,49 @@
 						font-style: normal;
 						font-weight: 400;
 						line-height: normal;
+					}
+				}
+			}
+
+			.emptySlotItem {
+				display: flex;
+				height: 69px;
+				padding: 18px 11px;
+				justify-content: center;
+				align-items: center;
+				gap: 8px;
+				align-self: stretch;
+				border-radius: 4px;
+				user-select: none;
+				cursor: pointer;
+				position: relative;
+				overflow: hidden;
+
+				.emptySlotContent {
+					display: flex;
+					align-items: center;
+					gap: 8px;
+					color: var(--secondary-font, #bbbec1);
+					font-family: Inter;
+					font-size: 12px;
+					opacity: 0;
+					transition: opacity 0.1s ease-in-out;
+
+					.plusIcon {
+						font-size: 16px;
+						font-weight: 400;
+					}
+
+					.newSessionText {
+						font-weight: 500;
+					}
+				}
+
+				&:hover {
+					border: 1px solid #787e87;
+
+					.emptySlotContent {
+						opacity: 1;
 					}
 				}
 			}

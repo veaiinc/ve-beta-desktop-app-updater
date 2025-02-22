@@ -28,7 +28,12 @@ const WeeklySlot = ({ day, date, slots }) => {
 						</div>
 					</div>
 				))}
-				{/* {!slots?.length && <div className="unavailable">Unavailable</div>} */}
+				<div className="emptySlotItem newSlot">
+					<div className="emptySlotContent">
+						<div className="plusIcon">+</div>
+						<div className="newSessionText">New Session</div>
+					</div>
+				</div>
 			</div>
 		</div>
 	);
@@ -139,18 +144,14 @@ const SchedulerAvailability = () => {
 				</div>
 				<div className="headerRightContainer">
 					<div>{getWeekDuration.displayRange}</div>
-					<div
+					<Left
 						onClick={handlePreviousWeek}
 						style={{
 							cursor: getWeekDuration.isCurrentWeek ? 'not-allowed' : 'pointer',
-							opacity: getWeekDuration.isCurrentWeek ? 0.5 : 1,
+							opacity: getWeekDuration.isCurrentWeek ? 0.3 : '',
 						}}
-					>
-						<Left />
-					</div>
-					<div onClick={handleNextWeek}>
-						<Right />
-					</div>
+					/>
+					<Right onClick={handleNextWeek} />
 				</div>
 			</div>
 			<div className="weeklySlotsContainer">
