@@ -393,7 +393,7 @@ const File = ({
 			}));
 			handleDebounceUpdate('proposal', proposalData);
 		},
-		[info?.servicesTableData, info?.proposal],
+		[info?.servicesTableData, info?.proposal, info],
 	);
 
 	//events table onChange
