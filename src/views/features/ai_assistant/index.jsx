@@ -18,7 +18,6 @@ const AiAssistants = () => {
 			createNewAiAssistant,
 			aiAssistant,
 		},
-		profileInfo: { tenantUserAccessControls },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({

@@ -10,7 +10,6 @@ import useSubscription from '../hooks/useSubscription';
 import useTokenExpiry from '../hooks/useTokenExpiry';
 import BottomToolbar from '../components/ai_agents/BottomToolbar';
 import useAccessControls from '../hooks/useAcessControls';
-import Context from '../../context/context';
 const AuthWrapper = ({
 	title,
 	children,
@@ -19,9 +18,6 @@ const AuthWrapper = ({
 	outerContainerStyle,
 }) => {
 	const [workspaceId, setActiveWorkspaceId] = useActiveWorkspace();
-	// const {
-	// 	profileInfo: { getTenantUserAccessControls },
-	// } = useContext(Context);
 
 	const checkAuth = useAuth();
 	const data = useSubscription();

@@ -235,7 +235,7 @@ const Docs = () => {
 			getClientListForDocs,
 			deleteLead,
 		},
-		profileInfo: { tennantSettingsData, getTenantSettings, tenantUserAccessControls },
+		profileInfo: { tennantSettingsData, getTenantSettings },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
