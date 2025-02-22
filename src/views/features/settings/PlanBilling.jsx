@@ -73,10 +73,6 @@ const PlanBilling = () => {
 	});
 
 	useEffect(() => {
-		getCurrentSubscriptionPlan();
-	}, []);
-
-	useEffect(() => {
 		if (currentPlan) {
 			const tierStatus = currentPlan?.isPaidTenant ? false : true;
 			setInfo((prev) => ({

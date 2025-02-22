@@ -23,11 +23,13 @@ const AddOnPlans = ({ addOnsLoading = false, isOpen, closeModal, subscriptionSta
 		subscriptionInfo: { purchaseAddOnPlan, subscriptionPlans, purchaseSubscriptionPlan },
 	} = useContext(Context);
 
-	if (subscriptionState === 'upgradeSubscription') {
-		info.mappableData = subscriptionPlans;
-	} else {
-		info.mappableData = currentPlanAddOns;
-	}
+	useEffect(() => {
+		setInfo((prev) => ({
+			...prev,
+			mappableData:
+				subscriptionState === 'upgradeSubscription' ? subscriptionPlans : currentPlanAddOns,
+		}));
+	}, [subscriptionState, subscriptionPlans, currentPlanAddOns]);
 
 	// const handlePurchaseAddOn = useCallback(
 	// 	async (planId) => {
@@ -59,6 +61,9 @@ const AddOnPlans = ({ addOnsLoading = false, isOpen, closeModal, subscriptionSta
 	// }, [subscriptionState]);
 
 	const handleCheckout = async () => {
+		if (info?.checkoutLoader) {
+			return;
+		}
 		setInfo((prev) => ({ ...prev, checkoutLoader: true }));
 		const data = info?.addOns?.map((addOn) => {
 			return {
@@ -88,7 +93,6 @@ const AddOnPlans = ({ addOnsLoading = false, isOpen, closeModal, subscriptionSta
 				closeModal();
 				setInfo((prev) => ({ ...prev, checkoutLoader: false }));
 			} else {
-				message.error(response?.[1]?.message);
 				setInfo((prev) => ({ ...prev, checkoutLoader: false }));
 			}
 		}
