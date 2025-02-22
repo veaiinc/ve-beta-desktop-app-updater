@@ -6,10 +6,12 @@ import { Helmet } from 'react-helmet';
 import useAuth from '../hooks/useAuth';
 import useSubscription from '../hooks/useSubscription';
 import useTokenExpiry from '../hooks/useTokenExpiry';
+import useAccessControls from '../hooks/useAcessControls';
 const WorkflowBuilderLayout = ({ title, children, hideQuickNav = false }) => {
 	const checkAuth = useAuth();
 	const data = useSubscription();
 	const tokenData = useTokenExpiry();
+	const accessControls = useAccessControls();
 	useEffect(() => {
 		checkAuth();
 	}, []);

@@ -7,10 +7,12 @@ import { ReactComponent as VE } from '../../assets/svg/smallVe.svg';
 import useAuth from '../hooks/useAuth';
 import useTokenExpiry from '../hooks/useTokenExpiry';
 import useSubscription from '../hooks/useSubscription';
+import useAccessControls from '../hooks/useAcessControls';
 const GalleryViewLayout = ({ title, children }) => {
 	const checkAuth = useAuth();
 	const data = useSubscription();
 	const tokenData = useTokenExpiry();
+	const accessControls = useAccessControls();
 	useEffect(() => {
 		checkAuth();
 	}, []);
