@@ -15,6 +15,7 @@ const WeeklySlot = ({ day, date, slots }) => {
 			<div className="slotsWrapper">
 				{slots?.map((slot, index) => (
 					<div key={index} className="slotItem">
+						<div className="slotOverlay">Edit Session</div>
 						<div
 							className="slotIndicator"
 							style={{ background: slot?.sessionColor || '#6366F1' }}

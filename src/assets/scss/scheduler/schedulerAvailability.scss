@@ -4,7 +4,7 @@
 	gap: 2.5px;
 
 	.daySlotContainer {
-		// background: var(--surface-subtle, #6d6e6f);
+		background: var(--surface-subtle, #6d6e6f);
 		min-height: 100px;
 		display: flex;
 		flex-direction: column;
@@ -50,12 +50,37 @@
 				user-select: none;
 				background: var(--card, #171819);
 				cursor: pointer;
+				position: relative;
+				overflow: hidden;
 
 				transition: all 0.2s ease-in-out;
+
+				.slotOverlay {
+					position: absolute;
+					top: 0;
+					left: 0;
+					right: 0;
+					bottom: 0;
+					background: rgba(23, 24, 25, 0.9);
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					color: var(--primary-font, #f2f2f3);
+					font-family: Inter;
+					font-size: 12px;
+					font-weight: 500;
+					opacity: 0;
+					transition: opacity 0.2s ease-in-out;
+					z-index: 1;
+				}
 
 				&:hover {
 					transform: translateY(-1px);
 					box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+
+					.slotOverlay {
+						opacity: 1;
+					}
 				}
 
 				.slotIndicator {
