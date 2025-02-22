@@ -81,7 +81,7 @@ const AddGallery = () => {
 		search: '',
 		error: null,
 		page: 1,
-		limit: 10,
+		limit: 15,
 		timeout: null,
 		workspaceId: localStorage.getItem('workspaceId'),
 		showFilter: false,
