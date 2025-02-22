@@ -12,8 +12,8 @@ const dropdownOptions = [
 	{ id: 0, title: 'Lead', value: 'client' },
 	{ id: 2, title: 'Meeting', value: 'meeting' },
 	{ id: 3, title: 'Task', value: 'task' },
-	{ id: 4, title: 'Document', value: 'workflow' },
-	{ id: 5, title: 'Form', value: 'form' },
+	{ id: 4, title: 'Document', value: 'document', controlValue: 'workflow' },
+	{ id: 5, title: 'Form', value: 'form-submission', controlValue: 'form' },
 	{ id: 6, title: 'Proposal', value: 'proposal' },
 	{ id: 7, title: 'Invoice', value: 'invoice' },
 	{ id: 8, title: 'Contract', value: 'contract' },
@@ -38,7 +38,7 @@ const QuickActions = ({ styles, customActions = [], clientDetails = null }) => {
 			? dropdownOptions
 			: dropdownOptions.filter((option) => {
 					const matchedApp = tenantUserAccessControls?.accessControls?.find(
-						(item) => item.app.toLowerCase() === option.value.toLowerCase(),
+						(item) => item.app.toLowerCase() === option.controlValue.toLowerCase(),
 					);
 					return matchedApp ? matchedApp.isEnabled : true;
 			  });
