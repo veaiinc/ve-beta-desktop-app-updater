@@ -196,10 +196,6 @@ const GlobalWorkflowModal = ({
 	}, [globalTemplateId, modalIsOpen]);
 
 	useEffect(() => {
-		console.log(info?.activeTemplateData, 'info?.activeTemplateData');
-	}, [info?.activeTemplateData]);
-
-	useEffect(() => {
 		if (specificTemplatesInfo && modalIsOpen) {
 			setInfo((prev) => ({
 				...prev,
@@ -654,7 +650,7 @@ const GlobalWorkflowModal = ({
 											>
 												<iframe
 													height="100%"
-													src={`${origin}/preview/${globalTemplateId}?module=true&moduleType=${info?.activeTemplateData?.module}&restrictClick=true`}
+													src={`${origin}/preview/${globalTemplateId}?module=${info?.activeTemplateData?.moduleTemplates?.[0]?._id}&isPubic=${info?.activeTemplateData?.moduleTemplates?.[0]?.isPublic}&restrictClick=true`}
 													title="Builder Preview"
 													width="100%"
 												/>

@@ -675,10 +675,11 @@ export const TasksState = () => {
 	const getTaskPreferences = async (data) => {
 		try {
 			const usertoken = localStorage.getItem('usertoken');
+			const workspaceId = localStorage.getItem('workspaceId');
 			const response = await restService.fetchGet(
-				'/tenantuser-preference',
+				`/${workspaceId}/tenantuser-preference`,
 				usertoken,
-				'tenant-users',
+				'tenant',
 				data,
 			);
 			if (response?.[0]) {
@@ -704,11 +705,12 @@ export const TasksState = () => {
 	const updateTaskPreferences = async (json) => {
 		try {
 			const usertoken = localStorage.getItem('usertoken');
+			const workspaceId = localStorage.getItem('workspaceId');
 			const response = await restService.fetchPut(
-				'/tenantuser-preference',
+				`/${workspaceId}/tenantuser-preference`,
 				json,
 				usertoken,
-				'tenant-users',
+				'tenant',
 			);
 			if (response?.[0]) {
 				dispatch({
