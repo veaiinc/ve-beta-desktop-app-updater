@@ -11,7 +11,7 @@ import CreateTaskPopup from '../../components/modalsV2/tasks/CreateTaskPopup';
 const dropdownOptions = [
 	{ id: 0, title: 'Lead', value: 'client' },
 	{ id: 2, title: 'Meeting', value: 'meeting' },
-	{ id: 3, title: 'Task', value: 'task' },
+	{ id: 3, title: 'Task', value: 'task', controlValue: 'task' },
 	{ id: 4, title: 'Document', value: 'document', controlValue: 'workflow' },
 	{ id: 5, title: 'Form', value: 'form-submission', controlValue: 'form' },
 	{ id: 6, title: 'Proposal', value: 'proposal' },
@@ -45,7 +45,7 @@ const QuickActions = ({ styles, customActions = [], clientDetails = null }) => {
 	const handleDropdownOptionClick = useCallback((type) => {
 		if (type === 'meeting') {
 			navigate('/calendar');
-		} else if (type === 'workflow') {
+		} else if (type === 'document') {
 			setInfo({ ...info, openProposalPopup: true });
 		} else if (type === 'client') {
 			setInfo({ ...info, openClientPopup: true });
@@ -53,7 +53,7 @@ const QuickActions = ({ styles, customActions = [], clientDetails = null }) => {
 			navigate('/tasks');
 		} else if (type === 'proposal') {
 			setInfo({ ...info, openProposalPopup: true });
-		} else if (type === 'form') {
+		} else if (type === 'form-submission') {
 			setInfo({ ...info, openProposalPopup: true });
 		} else if (type === 'invoice') {
 			setInfo({ ...info, openProposalPopup: true });
