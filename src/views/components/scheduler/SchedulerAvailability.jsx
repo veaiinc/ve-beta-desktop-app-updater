@@ -70,8 +70,8 @@ const SchedulerAvailability = () => {
 	};
 
 	const getWeekDuration = useMemo(() => {
-		const startOfWeek = moment(info.currentDate).startOf('isoWeek'); // Start from Monday
-		const endOfWeek = moment(info.currentDate).endOf('isoWeek'); // End on Sunday
+		const startOfWeek = moment(info?.currentDate).startOf('isoWeek'); // Start from Monday
+		const endOfWeek = moment(info?.currentDate).endOf('isoWeek'); // End on Sunday
 		const currentWeekStart = moment().startOf('isoWeek');
 
 		return {
@@ -80,7 +80,7 @@ const SchedulerAvailability = () => {
 			displayRange: `${startOfWeek.format('MMM D')} - ${endOfWeek.format('MMM D, YYYY')}`,
 			isCurrentWeek: startOfWeek.isSame(currentWeekStart, 'day'),
 		};
-	}, [info.currentDate]);
+	}, [info?.currentDate]);
 
 	const weeklySlots = useMemo(() => {
 		const { startOfWeek } = getWeekDuration;
