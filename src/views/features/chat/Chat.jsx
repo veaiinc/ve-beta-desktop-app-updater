@@ -28,6 +28,7 @@ import useVoiceIntegration from '../../hooks/useVoiceIntegration';
 import CitationsModal from '../../components/modalsV2/chat/CitationsModal';
 import NoteComponentModal from '../../components/notes/NoteComponentModal';
 import Skeleton from 'react-loading-skeleton';
+import { CitationsTooltip } from '../../components/modalsV2/chat/CitationsTooltip';
 import ChatBox from '../../components/homePage/ChatBox';
 
 const moduleHelper = {
@@ -237,7 +238,7 @@ const Chat = ({
 							</div>
 						</div>
 
-						<ChatBox />
+						<ChatBox autoFocus={true} />
 					</div>
 				</div>
 			</div>

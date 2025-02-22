@@ -78,7 +78,7 @@ export const intialState = {
 	draftStateWorkflowtemplates: null,
 	moreDraftStateWorkflowtemplates: null,
 	createLeadModalContextState: false,
-	globalChatMessages: [],
+	globalChatMessages: [], // { type: 'AI', message: 'Hello, how can I help you today?' }
 	currentSessionId: null,
 	citations: null,
 	followUpQuery: null,
@@ -92,8 +92,6 @@ export const intialState = {
 	formResponsesList: null,
 	moreFormResponsesList: null,
 	activePromptForChat: null,
-	smartFileRefetch: false,
-	activeWorkflowSlugForSmartFile: null,
 	leftSidebarState: null,
 };
 
@@ -1436,6 +1434,20 @@ export const TemplatesState = (props) => {
 			return [true, 'We made the changes accordingly'];
 		} catch (error) {}
 	};
+	const getCitationData = async (sessionId, sourceId) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			const url = `/${workspaceId}/${sessionId}/${sourceId}/get_chunk`;
+
+			const usertoken = localStorage.getItem('usertoken');
+			const response = await Service.fetchGet(url, usertoken, 'ai_predictions');
+			if (response?.[0]) {
+				return response?.[1]?.chunk;
+			}
+		} catch (error) {
+			console.log('errror ==>getCitationData', error);
+		}
+	};
 
 	const handleGlobalChatMessages = async (payload, sessionId, localPayload, queryMessage) => {
 		try {
@@ -1849,5 +1861,6 @@ export const TemplatesState = (props) => {
 		getFormResponsesList,
 		updateAiChatMessageRating,
 		getModuleTemplate,
+		getCitationData,
 	};
 };
