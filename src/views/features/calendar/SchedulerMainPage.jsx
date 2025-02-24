@@ -1,7 +1,8 @@
-import React, { memo } from 'react';
+import React, { memo, useCallback, useState } from 'react';
 import '../../../assets/scss/scheduler/schedulerMainPage.scss';
 import SessionCards from '../../components/scheduler/SessionCard';
 import SchedulerAvailability from '../../components/scheduler/SchedulerAvailability';
+import CreateSessionModal from '../../components/modalsV2/calendar/CreateSessionModal';
 const sessionGridItems = [
 	{
 		id: 1,
@@ -60,29 +61,49 @@ const sessionGridItems = [
 ];
 
 const SchedulerMainPage = () => {
+	const [info, setInfo] = useState({
+		createSessionModal: true,
+	});
+
+	const handleCreateSessionModal = useCallback(() => {
+		setInfo((prev) => ({
+			...prev,
+			createSessionModal: !prev.createSessionModal,
+		}));
+	}, []);
+
 	return (
-		<div className="schedulerMainPageParentContainer">
-			<div className="calendarHeaderContainer">
-				<div className="calendarHeaderTitle">
-					<span>Manage</span> Your Sessions
-				</div>
-				<div className="calendarHeaderSubTitle">
-					Effortlessly manage your time with AI scheduling.
-				</div>
-			</div>
-
-			<div className="schedulerMainPageContainer">
-				<div className="sessionGridParentContainer">
-					<div className="sessionGridContainer addNewSession">
-						<div>+ New session</div>
+		<>
+			<div className="schedulerMainPageParentContainer">
+				<div className="calendarHeaderContainer">
+					<div className="calendarHeaderTitle">
+						<span>Manage</span> Your Sessions
 					</div>
-					{sessionGridItems?.length > 0 &&
-						sessionGridItems?.map((item) => <SessionCards item={item} />)}
+					<div className="calendarHeaderSubTitle">
+						Effortlessly manage your time with AI scheduling.
+					</div>
 				</div>
 
-				<SchedulerAvailability />
+				<div className="schedulerMainPageContainer">
+					<div className="sessionGridParentContainer">
+						<div
+							className="sessionGridContainer addNewSession"
+							onClick={handleCreateSessionModal}
+						>
+							<div>+ New session</div>
+						</div>
+						{sessionGridItems?.length > 0 &&
+							sessionGridItems?.map((item) => <SessionCards item={item} />)}
+					</div>
+
+					<SchedulerAvailability />
+				</div>
 			</div>
-		</div>
+			<CreateSessionModal
+				open={info?.createSessionModal}
+				closeModal={handleCreateSessionModal}
+			/>
+		</>
 	);
 };
 
