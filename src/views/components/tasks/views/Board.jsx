@@ -16,28 +16,25 @@ const headerMapper = {
 
 const Board = ({
 	colors,
-	// data,
 	responseMetadata,
 	rowTypes,
 	properties,
 	handleUpdate,
 	onClick,
 	groupBy = null,
-	loading,
-	hasMore,
-	error,
 	onLoadMore,
-	fetchGroupMoreData,
 	handleAddButtonOnClick,
 }) => {
 	const {
-		tasks: { handleGroupChange, listTaskWithGroup },
+		tasks: { handleGroupChange, listTaskWithGroup, fetchGroupData },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
 		columns: [],
 		groups: [],
 		headerProps: responseMetadata?.[groupBy]?.props,
+		loading: true,
+		error: null,
 	});
 
 	useEffect(() => {
@@ -46,9 +43,16 @@ const Board = ({
 			setInfo((prev) => ({
 				...prev,
 				columns: mapColumns(),
+				loading: false,
+			}));
+		} else if (listTaskWithGroup?.error) {
+			setInfo((prev) => ({
+				...prev,
+				error: listTaskWithGroup?.error,
+				loading: false,
 			}));
 		}
-	}, [listTaskWithGroup, info.groups]);
+	}, [listTaskWithGroup?.groups, info.groups]);
 
 	useEffect(() => {
 		if (responseMetadata) {
@@ -119,19 +123,13 @@ const Board = ({
 		}));
 	}, [info.groups, listTaskWithGroup]);
 
-	const renderHeader = ({ value, colors }) => {
-		if (groupBy) {
-			const HeaderComponent = headerMapper?.[groupBy];
-			return (
-				<HeaderComponent
-					value={value}
-					{...info?.headerProps}
-					disabled={true}
-					colors={colors}
-				/>
-			);
-		}
-	};
+	const fetchGroupMoreData = useCallback((payload) => {
+		console.log('getting call here', payload);
+
+		fetchGroupData({
+			taskFilterInput: payload,
+		});
+	}, []);
 
 	const handleDragEnd = useCallback(
 		(result) => {
@@ -264,7 +262,8 @@ const Board = ({
 	};
 
 	const renderContent = () => {
-		if (loading) {
+		// Revert back to simple loading check
+		if (info?.loading) {
 			return (
 				<div className="board-view-container">
 					{[...Array(3)].map((_, index) => (
@@ -288,8 +287,8 @@ const Board = ({
 			);
 		}
 
-		if (error) {
-			return <span className="board-view-message">{error}</span>;
+		if (info?.error) {
+			return <span className="board-view-message">{info.error}</span>;
 		}
 
 		if (!listTaskWithGroup?.groups?.length) {
@@ -323,7 +322,7 @@ const Board = ({
 					})}
 
 					{/* Empty groups column */}
-					{!loading && emptyGroups.length > 0 && (
+					{!info?.loading && emptyGroups.length > 0 && (
 						<div className="board-view-item empty-groups-column">
 							<div className="board-view-item-header">
 								<span className="board-view-item-header-title">Empty Groups</span>

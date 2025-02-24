@@ -166,6 +166,71 @@ const actionHandlers = {
 		...state,
 		listTaskWithGroup: action?.payload,
 	}),
+	APPEND_GROUP_DATA: (state, action) => {
+		const { group, data, hasNextPage, currentPage } = action?.payload;
+		console.log('action?.payload', action?.payload);
+
+		const existingGroup = state?.listTasks?.groups?.find((item) => item?.group === group);
+		if (existingGroup) {
+			return {
+				...state,
+				listTaskWithGroup: {
+					...state.listTaskWithGroup,
+					groups: state?.listTaskWithGroup?.groups?.map((item) =>
+						item?.group === group
+							? { ...item, data: [...item?.data, ...data], hasNextPage, currentPage }
+							: item,
+					),
+				},
+			};
+		}
+		return {
+			...state,
+		};
+	},
+	HANDLE_GROUP_CHANGE: (state, action) => {
+		const { sourceGroup, targetGroup, taskId, sourceIndex, targetIndex, groupBy } =
+			action?.payload;
+
+		// Find the task to move
+		const sourceGroupData = state?.listTaskWithGroup?.groups?.find(
+			(item) => item?.group === sourceGroup,
+		);
+		const taskToMove = sourceGroupData?.data?.find((task) => task?._id === taskId);
+
+		if (!taskToMove) return state;
+
+		return {
+			...state,
+			listTaskWithGroup: {
+				...state.listTaskWithGroup,
+				groups: state?.listTaskWithGroup?.groups?.map((group) => {
+					// Remove task from source group
+					if (group.group === sourceGroup) {
+						const newData = [...group.data];
+						newData.splice(sourceIndex, 1);
+						return {
+							...group,
+							data: newData,
+						};
+					}
+					// Add task to target group at specific index
+					if (group.group === targetGroup) {
+						const newData = [...group.data];
+						newData.splice(targetIndex, 0, {
+							...taskToMove,
+							[groupBy]: targetGroup,
+						});
+						return {
+							...group,
+							data: newData,
+						};
+					}
+					return group;
+				}),
+			},
+		};
+	},
 	RESET_STATE: () => intialState,
 };
 

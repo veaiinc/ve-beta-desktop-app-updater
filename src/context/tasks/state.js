@@ -750,6 +750,46 @@ export const TasksState = () => {
 		}
 	};
 
+	const fetchGroupData = async (payload) => {
+		let workspaceId = localStorage.getItem('workspaceId');
+		let usertoken = localStorage.getItem('usertoken');
+		const response = await service.query(
+			getListItemsQuery,
+			payload,
+			workspaceId,
+			usertoken,
+			'workflows_Api',
+		);
+		if (response?.[0]) {
+			dispatch({
+				type: Actions.APPEND_GROUP_DATA,
+				payload: {
+					group: payload?.taskFilterInput?.groupFilters?.value,
+					data: response?.[1]?.data?.listTasks?.groups?.[0]?.data,
+					hasNextPage: response?.[1]?.data?.listTasks?.groups?.[0]?.hasNextPage,
+					currentPage: response?.[1]?.data?.listTasks?.groups?.[0]?.currentPage,
+				},
+			});
+		}
+	};
+
+	const handleGroupChange = (payload) => {
+		try {
+			dispatch({
+				type: Actions.HANDLE_GROUP_CHANGE,
+				payload,
+			});
+			updateListItem({
+				taskId: payload?.taskId,
+				updateInput: {
+					[payload?.groupBy]: payload?.targetGroup,
+				},
+			});
+		} catch (error) {
+			console.log('error ==> handleGroupChange', error);
+		}
+	};
+
 	return {
 		...state,
 		getListItems,
@@ -780,5 +820,7 @@ export const TasksState = () => {
 		getTaskPreferences,
 		updateTaskPreferences,
 		getListTaskWithGroup,
+		fetchGroupData,
+		handleGroupChange,
 	};
 };
