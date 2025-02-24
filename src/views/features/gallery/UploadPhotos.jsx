@@ -86,7 +86,7 @@ const UploadPhotos = () => {
 
 		setinfo((prev) => {
 			const updatedUploadImages = { ...prev.uploadImages };
-			Object.keys(updatedUploadImages).forEach((key) => {
+			Object.keys(updatedUploadImages)?.forEach((key) => {
 				updatedUploadImages[key].isAIFacesEnabled =
 					lightGallery === 'true'
 						? info?.isAiEnabled && validateExpiryData?.liteImageLimitWithAiFace > 0
@@ -103,10 +103,6 @@ const UploadPhotos = () => {
 			setinfo((prev) => ({ ...prev, watermarkProfileId: waterMarks[0].profileId }));
 		}
 	}, [waterMarks]);
-
-	useEffect(() => {
-		console.log(validateExpiryData, 'validateExpiryData');
-	}, [validateExpiryData]);
 
 	useEffect(() => {
 		if (tenantAlbums) {
