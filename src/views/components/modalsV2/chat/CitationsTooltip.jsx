@@ -10,7 +10,9 @@ export const CitationsTooltip = ({ citationId }) => {
 	} = useContext(Context);
 	const [citationData, setCitationData] = useState(null);
 	const citation = citations?.find((citation) => citation?.id === citationId);
-	const link = citation?.name || '';
+	const name = citation?.name || '';
+	const type = citation?.type || '';
+	const link = citation?.[type] || '';
 	const number = citation?.id?.slice(4);
 
 	useEffect(() => {
@@ -41,7 +43,7 @@ export const CitationsTooltip = ({ citationId }) => {
 
 					<div className="info">
 						<div className="image"></div>
-						<div className="citation-link">{link}</div>
+						<div className="citation-link">{name}</div>
 					</div>
 				</a>
 			}

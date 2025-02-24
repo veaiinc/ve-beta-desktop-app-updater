@@ -39,8 +39,9 @@ const CitationsModal = ({ closeModal, modalIsOpen }) => {
 				<div className="sources">
 					{info?.citations?.length > 0 ? (
 						info?.citations?.map((citation, index) => {
-							const link = citation?.url || citation?.['name'] || '';
-							const workflowId = citation?.['workflow_id'];
+							const name = citation?.['name'] || '';
+							const type = citation?.type || '';
+							const link = citation?.[type] || '';
 							return (
 								<div className="source-container">
 									<div className="image"></div>
@@ -51,7 +52,7 @@ const CitationsModal = ({ closeModal, modalIsOpen }) => {
 											target="_blank"
 											rel="noreferrer"
 										>
-											{link}
+											{name}
 										</a>
 										<div className="order">{index + 1}</div>
 									</div>
