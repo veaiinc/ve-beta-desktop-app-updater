@@ -292,14 +292,14 @@ const SubscribedUserPlanCard = ({
 				<div className="subscriptionPlanContent">
 					<div className="subscriptionPlanPricingDetails">
 						<span className="subscriptionPlanPricing">
-							{currency === 'INR' ? '₹ ' : '$ '}
+							{/* {currency === 'INR' ? '₹ ' : '$ '}
 							{data?.totalPrice
 								? data?.totalPrice?.toLocaleString('en-IN', {
 										currency: currency,
 								  })
-								: '0'}
+								: '0'} */}
 						</span>
-						<span className="subscritptionPlanPeriod">/ {data?.subscriptionType}</span>
+						<span className="subscritptionPlanPeriod"></span>
 					</div>
 					{/* <div className="subscritptionFeaturesContainer">
 						{info?.features?.map((ele, index) => (

@@ -201,7 +201,7 @@ const AddOnPlans = ({ addOnsLoading = false, isOpen, closeModal, subscriptionSta
 													>
 														{isRecurring
 															? `/ ${recurringType}`
-															: 'One time'}
+															: 'Yearly'}
 													</span>
 												</div>
 
