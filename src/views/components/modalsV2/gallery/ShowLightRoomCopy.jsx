@@ -36,12 +36,15 @@ const ShowLightRoomCopy = (props) => {
 					</div>
 				</div>
 				<div className="lightRoomCopyListContainer">
-					{lightroomCopyList?.map((item, index) => (
-						<p key={index} style={{ fontSize: '14px', color: '#939393' }}>
-							<b>({index + 1}).</b> {item}
-							{index !== lightroomCopyList?.length - 1 ? ',' : ''}
-						</p>
-					))}
+					{lightroomCopyList?.map((item, index) => {
+						const fileNameWithoutExtension = item.replace(/\.jpg$/i, '');
+						return (
+							<p key={index} style={{ fontSize: '14px', color: '#939393' }}>
+								<b>({index + 1}).</b> {fileNameWithoutExtension}
+								{index !== lightroomCopyList?.length - 1 ? ',' : ''}
+							</p>
+						);
+					})}
 				</div>
 				<div style={{ alignSelf: 'flex-end' }}>
 					<button
