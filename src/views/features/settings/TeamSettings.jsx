@@ -72,7 +72,7 @@ const TeamSettings = () => {
 
 	useEffect(() => {
 		if (tenantsUserList) {
-			const findOwnerId = tenantsUserList?.find((item) => item.isOwner);
+			const findOwnerId = tenantsUserList?.find((item) => item?.isOwner);
 			setInfo((prev) => ({
 				...prev,
 				isOwner: findOwnerId ? true : false,

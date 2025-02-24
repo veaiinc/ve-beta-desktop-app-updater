@@ -52,7 +52,7 @@ const InviteMembersWorkspaceComponent = ({
 				updateTenantRole(selectedUser?._id, json).then((res) => {
 					if (res[0] === true) {
 						updateTenantAccessControls(updatedData, selectedUser?._id).then((res) => {
-							if (res[0] === true && res[1?.status] === 200) {
+							if (res[0] === true) {
 								message.success(res[1]?.message);
 								closeModal();
 								setIsLoading(false);
@@ -66,7 +66,7 @@ const InviteMembersWorkspaceComponent = ({
 				});
 			} else {
 				updateTenantAccessControls(updatedData, tenantUserId).then((res) => {
-					if (res[0] === true && res[1?.status] === 200) {
+					if (res[0] === true) {
 						message.success(res[1]?.message);
 						closeModal();
 						setIsLoading(false);
