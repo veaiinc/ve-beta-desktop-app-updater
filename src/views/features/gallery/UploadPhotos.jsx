@@ -94,13 +94,13 @@ const UploadPhotos = () => {
 			});
 			return { ...prev, uploadImages: updatedUploadImages };
 		});
-	}, [aiFacesLogic, info.isAiEnabled]);
+	}, [aiFacesLogic, info?.isAiEnabled]);
 
 	useEffect(() => {
 		if (!waterMarks) {
 			getWaterMarks();
 		} else if (waterMarks && waterMarks?.length > 0) {
-			setinfo((prev) => ({ ...prev, watermarkProfileId: waterMarks[0].profileId }));
+			setinfo((prev) => ({ ...prev, watermarkProfileId: waterMarks?.[0]?.profileId }));
 		}
 	}, [waterMarks]);
 
@@ -109,7 +109,7 @@ const UploadPhotos = () => {
 			setinfo((prev) => ({
 				...prev,
 				title:
-					tenantAlbums?.albums?.find((album) => album._id === albumId)?.title || 'Back',
+					tenantAlbums?.albums?.find((album) => album?._id === albumId)?.title || 'Back',
 			}));
 		} else {
 			getAlbums(galleryId).then((response) => {
