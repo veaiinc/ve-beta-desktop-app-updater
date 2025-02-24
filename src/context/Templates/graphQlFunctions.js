@@ -246,6 +246,7 @@ export const getWorkflowListQuery = gql`
 				formResponse
 				requiredAction
 				templateId
+				version
 			}
 		}
 	}
