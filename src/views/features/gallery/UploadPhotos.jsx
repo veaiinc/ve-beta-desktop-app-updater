@@ -105,6 +105,10 @@ const UploadPhotos = () => {
 	}, [waterMarks]);
 
 	useEffect(() => {
+		console.log(validateExpiryData, 'validateExpiryData');
+	}, [validateExpiryData]);
+
+	useEffect(() => {
 		if (tenantAlbums) {
 			setinfo((prev) => ({
 				...prev,
@@ -134,7 +138,7 @@ const UploadPhotos = () => {
 			lightGallery === 'true' &&
 			validateExpiryData &&
 			validateExpiryData?.restrictGalleries &&
-			(validateExpiryData?.liteImagesLimit < validateExpiryData?.liteImageUsed ||
+			(validateExpiryData?.liteImageLimit < validateExpiryData?.liteImageUsed ||
 				aiFacesLogic) &&
 			!validateExpiryData?.imagesAllowed
 		) {
