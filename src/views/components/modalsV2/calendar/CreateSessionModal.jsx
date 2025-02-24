@@ -3,20 +3,44 @@ import ReactModal from '../index';
 import '../../../../assets/scss/calendar/modal/createSessionModal.scss';
 import { ReactComponent as Close } from '../../../../assets/svg/close.svg';
 import { ReactComponent as Down } from '../../../../assets/svg/calendar/down.svg';
+import { ReactComponent as Date } from '../../../../assets/svg/calendar/date.svg';
 import InputComponent from '../../ai_assistant/InputComponent';
 import { Tooltip } from 'antd';
 
 const sessionTypeOptions = ['In Person', 'Phone Call', 'Video Call'];
-const sessionTypeInputOptions = ['In Person', 'Phone Call', 'Video Call'];
+
+const sessionTypeInputConfig = {
+	'In Person': {
+		value: 'location',
+		tag: 'Location',
+		type: 'text',
+		placeholder: 'Enter location',
+	},
+	'Phone Call': {
+		value: 'phoneNumber',
+		tag: 'Phone Number',
+		type: 'number',
+		placeholder: 'Enter phone number',
+	},
+	'Video Call': {
+		value: 'videoLink',
+		tag: 'Platform Link',
+		type: 'url',
+		placeholder: 'Enter video call link',
+	},
+};
 
 const initialInfo = {
 	sessionName: '',
 	sessionDescription: '',
 	addDiscription: false,
 	sessionType: 'In Person',
-	sessionTypeInput: 'In Person',
 	sessionTypeOpen: false,
-	sessionTypeInputOpen: false,
+	location: '',
+	phoneNumber: '',
+	videoLink: '',
+	scheduleFrom: '',
+	scheduleTo: '',
 };
 
 const CreateSessionModal = ({ open, closeModal }) => {
@@ -32,34 +56,33 @@ const CreateSessionModal = ({ open, closeModal }) => {
 		closeModal();
 	}, [closeModal]);
 
-	const handleSessionTypeChange = (type) => {
+	const handleSessionTypeChange = useCallback((type) => {
+		if (type === info?.sessionDescription) return;
 		setInfo((prev) => ({
 			...prev,
 			sessionType: type,
 			sessionTypeOpen: false,
+			location: '',
+			phoneNumber: '',
+			videoLink: '',
 		}));
-	};
+	}, []);
 
-	const handleSessionTypeInputChange = (type) => {
-		setInfo((prev) => ({
-			...prev,
-			sessionTypeInput: type,
-			sessionTypeInputOpen: false,
-		}));
-	};
-
-	const handleSessionTypeDropdownVisibility = (visible) => {
-		setInfo((prev) => ({
-			...prev,
-			sessionTypeOpen: visible,
-		}));
-	};
-
-	const handleSessionTypeInputDropdownVisibility = (visible) => {
-		setInfo((prev) => ({
-			...prev,
-			sessionTypeInputOpen: visible,
-		}));
+	const renderSessionTypeInput = () => {
+		const config = sessionTypeInputConfig[info.sessionType];
+		return (
+			<InputComponent
+				type={config.type}
+				value={info[config.value]}
+				onChange={(e) =>
+					setInfo((prev) => ({
+						...prev,
+						[config.value]: e.target.value,
+					}))
+				}
+				placeholder={config.placeholder}
+			/>
+		);
 	};
 
 	return (
@@ -74,6 +97,7 @@ const CreateSessionModal = ({ open, closeModal }) => {
 					<span>Create a Session</span>
 					<Close onClick={ModifyCloseModal} />
 				</div>
+
 				<InputComponent
 					value={info?.sessionName}
 					onChange={(e) => setInfo({ ...info, sessionName: e.target.value })}
@@ -108,7 +132,12 @@ const CreateSessionModal = ({ open, closeModal }) => {
 						<span>Session Type</span>
 						<Tooltip
 							open={info?.sessionTypeOpen}
-							onOpenChange={handleSessionTypeDropdownVisibility}
+							onOpenChange={(visible) =>
+								setInfo((prev) => ({
+									...prev,
+									sessionTypeOpen: visible,
+								}))
+							}
 							placement="bottom"
 							title={
 								<div className="sessionType-dropdown">
@@ -128,16 +157,67 @@ const CreateSessionModal = ({ open, closeModal }) => {
 							color={'transparent'}
 							overlayStyle={{ minWidth: 'fit-content', padding: '0' }}
 						>
-							<div className="typeOfSession-dropdown">
+							<div className="typeOfSession-lable">
 								{info?.sessionType}
 								<Down className={`${info?.sessionTypeOpen ? 'open' : ''}`} />
 							</div>
 						</Tooltip>
 					</div>
 					<div className="sessionTypeWrapper">
-						<span>Session type input</span>
-						{/* here will go the inputs based on the session type */}
+						<span>{sessionTypeInputConfig[info?.sessionType]?.tag}</span>
+						{renderSessionTypeInput()}
 					</div>
+				</div>
+
+				<div className="sessionOptionContainer">
+					<div className="sessionTypeWrapper">
+						<span>From</span>
+						<Tooltip
+							open={info?.fromOpen}
+							onOpenChange={(visible) =>
+								setInfo((prev) => ({
+									...prev,
+									fromOpen: visible,
+								}))
+							}
+							placement="bottom"
+							title={<div className="from-dropdown">From</div>}
+							arrow={false}
+							trigger={'click'}
+						>
+							<div className="typeOfSession-lable">
+								{/* {info?.scheduleFrom} */}
+								Date
+								<Date />
+							</div>
+						</Tooltip>
+					</div>
+					<div className="sessionTypeWrapper">
+						<span>To</span>
+						<Tooltip
+							open={info?.toOpen}
+							onOpenChange={(visible) =>
+								setInfo((prev) => ({
+									...prev,
+									toOpen: visible,
+								}))
+							}
+							placement="bottom"
+							title={<div className="from-dropdown">To</div>}
+							arrow={false}
+							trigger={'click'}
+						>
+							<div className="typeOfSession-lable">
+								{/* {info?.scheduleTo} */}
+								Date
+								<Date />
+							</div>
+						</Tooltip>
+					</div>
+				</div>
+
+				<div className="scheduleBtnContainer">
+					<button className="scheduleBtn">Create</button>
 				</div>
 			</div>
 		</ReactModal>
