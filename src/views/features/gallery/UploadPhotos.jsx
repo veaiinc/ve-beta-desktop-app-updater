@@ -128,9 +128,6 @@ const UploadPhotos = () => {
 	// 	});
 	// }, []);
 
-	useEffect(() => {
-		console.log(validateExpiryData, 'validateExpiryData');
-	}, [validateExpiryData]);
 	// drop function
 	const onDropFunction = async (files) => {
 		if (
