@@ -61,20 +61,17 @@ const WorkflowPopUp = ({
 			color="transparent"
 			title={
 				<div className={`workflow-prompt-popup`}>
-					<span
-						onClick={() => {
-							editMode ? handleRename() : handleEnableEditMode();
-						}}
-						className={'workflow-prompt-option'}
-					>
-						{editMode ? 'Save Changes' : 'Rename'}
-					</span>
-					{!isAutomation && (
+					{isAutomation ? (
 						<span
-							onClick={() => {
-								openCopyLinkModal(data);
-							}}
-							className={'workflow-prompt-option'}
+							onClick={editMode ? handleRename : handleEnableEditMode}
+							className="workflow-prompt-option"
+						>
+							{editMode ? 'Save Changes' : 'Rename'}
+						</span>
+					) : (
+						<span
+							onClick={() => openCopyLinkModal(data)}
+							className="workflow-prompt-option"
 						>
 							Copy link
 						</span>
