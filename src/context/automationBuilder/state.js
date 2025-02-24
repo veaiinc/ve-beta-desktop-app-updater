@@ -209,7 +209,7 @@ export const AutomationBuilderState = () => {
 			};
 			const type = 'automation_builder_api';
 			const response = await Service?.fetchPut(path, body, token, type);
-			if (response?.[0]) {
+			if ((response?.[0] >= 200 && response?.[0] < 300) || response?.[0] === true) {
 				return [true];
 			}
 			return [false];
