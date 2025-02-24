@@ -49,7 +49,7 @@ const TemplateCards = ({ data, loading, hasNextPage, fetchMoreMyWorkflows }) => 
 
 	useEffect(() => {
 		if (smartfile?._id && info?.templateData?._id) {
-			window.location.href = `${origin}/${smartfile?._id}?workflow=true&templateId=${info?.templateData?._id}`;
+			window.location.href = `${origin}/workflow/${smartfile?._id}?workflow=true&templateId=${info?.templateData?._id}`;
 		}
 	}, [smartfile]);
 
@@ -277,7 +277,7 @@ const TemplateCards = ({ data, loading, hasNextPage, fetchMoreMyWorkflows }) => 
 			<CreateFileLead
 				open={info?.showFileLeadModal}
 				onClose={() => setInfo((prev) => ({ ...prev, showFileLeadModal: false }))}
-				workflow={info?.templateData}
+				workflow={info?.previewTemplateData}
 			/>
 			<DeleteWorkflowModal
 				modalIsOpen={info?.deleteWorkflowModal}
