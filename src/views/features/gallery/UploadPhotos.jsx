@@ -58,8 +58,43 @@ const UploadPhotos = () => {
 		isPopupOpen: false,
 		title: '',
 		isRefreshPopupOpen: false,
+		isAiEnabled: false,
 	});
 	const recentImageInitiatedRef = useRef(info.recentImageInitiated);
+	const params = new URLSearchParams(window.location.search);
+	const lightGallery = params.get('light-gallery');
+
+	const aiFacesLogic =
+		info?.isAiEnabled &&
+		(validateExpiryData?.liteImageLimitWithAiFace === 0 ||
+			validateExpiryData?.liteImageLimitWithAiFace <= validateExpiryData?.liteImageUsed);
+
+	useEffect(() => {
+		if (
+			lightGallery === 'true' &&
+			info?.isAiEnabled &&
+			validateExpiryData?.liteImageLimitWithAiFace === 0
+		) {
+			// If AI is enabled but user has no AI face limit, disable AI and show subscription popup
+			setinfo((prev) => ({
+				...prev,
+				isAiEnabled: false,
+			}));
+			updateSubscriptionState({ expiredSubscriptionModal: true });
+			return;
+		}
+
+		setinfo((prev) => {
+			const updatedUploadImages = { ...prev.uploadImages };
+			Object.keys(updatedUploadImages).forEach((key) => {
+				updatedUploadImages[key].isAIFacesEnabled =
+					lightGallery === 'true'
+						? info?.isAiEnabled && validateExpiryData?.liteImageLimitWithAiFace > 0
+						: true;
+			});
+			return { ...prev, uploadImages: updatedUploadImages };
+		});
+	}, [aiFacesLogic, info.isAiEnabled]);
 
 	useEffect(() => {
 		if (!waterMarks) {
@@ -93,16 +128,18 @@ const UploadPhotos = () => {
 	// 	});
 	// }, []);
 
+	useEffect(() => {
+		console.log(validateExpiryData, 'validateExpiryData');
+	}, [validateExpiryData]);
 	// drop function
 	const onDropFunction = async (files) => {
-		const params = new URLSearchParams(window.location.search);
-		const lightGallery = params.get('light-gallery');
-
 		if (
 			lightGallery === 'true' &&
 			validateExpiryData &&
 			validateExpiryData?.restrictGalleries &&
-			(validateExpiryData?.isExpired || !validateExpiryData?.imagesAllowed)
+			(validateExpiryData?.liteImagesLimit < validateExpiryData?.liteImageUsed ||
+				aiFacesLogic) &&
+			!validateExpiryData?.imagesAllowed
 		) {
 			return updateSubscriptionState({ expiredSubscriptionModal: true });
 		}
@@ -111,7 +148,7 @@ const UploadPhotos = () => {
 			lightGallery === 'false' &&
 			validateExpiryData &&
 			validateExpiryData?.restrictGalleries &&
-			(validateExpiryData?.isExpired || !validateExpiryData?.uploadAllowed)
+			!validateExpiryData?.uploadAllowed
 		) {
 			return updateSubscriptionState({ expiredSubscriptionModal: true });
 		}
@@ -187,7 +224,10 @@ const UploadPhotos = () => {
 			originalDateTime: moment(image?.['originalDate']).unix() || 0,
 			uploadBatchId: info?.uploadBatchID,
 			tag_ids: tags,
-			isAIFacesEnabled: true,
+			isAIFacesEnabled:
+				lightGallery === 'true'
+					? info?.isAiEnabled && validateExpiryData?.liteImageLimitWithAiFace > 0
+					: true,
 		};
 
 		// for duplicates
@@ -322,7 +362,7 @@ const UploadPhotos = () => {
 			if (queue.length === 0) return;
 
 			const currentFile = queue.shift();
-			const json = getJsonFunction(currentFile);
+			const json = getJsonFunction(currentFile, aiFacesLogic);
 
 			if (info.isSkipDuplicates && info.uploadImages[currentFile]?.isDuplicate) {
 				setinfo((prev) => {
@@ -407,6 +447,8 @@ const UploadPhotos = () => {
 					setinfo={setinfo}
 					uploadFilesConcurrently={uploadFilesConcurrently}
 					galleryId={galleryId}
+					aiFacesLogic={aiFacesLogic}
+					lightGallery={lightGallery}
 				/>
 			</div>
 

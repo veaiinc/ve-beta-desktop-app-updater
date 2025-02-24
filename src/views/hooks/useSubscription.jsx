@@ -22,6 +22,8 @@ const restrictMapper = {
 	restrictGalleries: true,
 	restrictCalendar: false,
 	restrictContacts: false,
+	restrictClassicGallery: false,
+	restrictConversationalAgent: false,
 };
 
 const useSubscription = () => {
@@ -51,32 +53,34 @@ const useSubscription = () => {
 			);
 
 			const {
-				storageLimitInGB = 0,
+				storageLimitInBytes = 0,
 				tenantUsersLimit = 0,
-				totalStorageUsedInBytes = 0,
-				totalTenantUsers = 0,
-				imagesLimit = 0,
-				totalImagesUploaded = 0,
+				storageUsedInBytes = 0,
+				tenantUsers = 0,
+				liteImageLimit = 0,
+				liteImageUsed = 0,
+				liteImageLimitWithAiFace = 0,
 			} = currentPlan;
+			const storageLimitInGB = (storageLimitInBytes / (1024 * 1024 * 1024)).toFixed(2);
+			const totalStorageUsedInGB = (storageUsedInBytes / (1024 * 1024 * 1024)).toFixed(2);
 			const obj = {
-				...(validateExpiryData || {}),
+				// ...(validateExpiryData || {}),
 				storageLimitInGB,
 				tenantUsersLimit,
-				totalStorageUsedInBytes,
-				totalTenantUsers,
+				totalStorageUsedInGB,
+				tenantUsers,
+				liteImageLimit,
+				liteImageUsed,
+				liteImageLimitWithAiFace,
 				...restrictMapper,
 			};
-			const usedStorageLimitInGB = (totalStorageUsedInBytes / (1024 * 1024 * 1024)).toFixed(
-				2,
-			);
-
 			let uploadAllowed = false;
 			if (storageLimitInGB) {
-				uploadAllowed = usedStorageLimitInGB < storageLimitInGB;
+				uploadAllowed = totalStorageUsedInGB < storageLimitInGB;
 			}
 			let imagesAllowed = false;
-			if (imagesLimit) {
-				imagesAllowed = totalImagesUploaded < imagesLimit;
+			if (liteImageLimit) {
+				imagesAllowed = liteImageUsed < liteImageLimit;
 			}
 			setInfo((prev) => ({ ...prev, ...obj, uploadAllowed, imagesAllowed }));
 			updateSubscriptionState({
