@@ -62,7 +62,7 @@ const sessionGridItems = [
 
 const SchedulerMainPage = () => {
 	const [info, setInfo] = useState({
-		createSessionModal: true,
+		createSessionModal: false,
 	});
 
 	const handleCreateSessionModal = useCallback(() => {

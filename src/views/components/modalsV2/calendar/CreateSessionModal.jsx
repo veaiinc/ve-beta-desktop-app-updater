@@ -3,9 +3,10 @@ import ReactModal from '../index';
 import '../../../../assets/scss/calendar/modal/createSessionModal.scss';
 import { ReactComponent as Close } from '../../../../assets/svg/close.svg';
 import { ReactComponent as Down } from '../../../../assets/svg/calendar/down.svg';
-import { ReactComponent as Date } from '../../../../assets/svg/calendar/date.svg';
+import { ReactComponent as DateSvg } from '../../../../assets/svg/calendar/date.svg';
 import InputComponent from '../../ai_assistant/InputComponent';
-import { Tooltip } from 'antd';
+import { Tooltip, DatePicker } from 'antd';
+import moment from 'moment';
 
 const sessionTypeOptions = ['In Person', 'Phone Call', 'Video Call'];
 
@@ -39,8 +40,8 @@ const initialInfo = {
 	location: '',
 	phoneNumber: '',
 	videoLink: '',
-	scheduleFrom: '',
-	scheduleTo: '',
+	scheduleFrom: moment().format('DD MMM YYYY hh:mm A'),
+	scheduleTo: moment().add(1, 'weeks').format('DD MMM YYYY hh:mm A'),
 };
 
 const CreateSessionModal = ({ open, closeModal }) => {
@@ -81,6 +82,7 @@ const CreateSessionModal = ({ open, closeModal }) => {
 					}))
 				}
 				placeholder={config.placeholder}
+				className="inputHeight"
 			/>
 		);
 	};
@@ -99,6 +101,7 @@ const CreateSessionModal = ({ open, closeModal }) => {
 				</div>
 
 				<InputComponent
+					className="inputHeight"
 					value={info?.sessionName}
 					onChange={(e) => setInfo({ ...info, sessionName: e.target.value })}
 					placeholder={'Session name'}
@@ -116,6 +119,7 @@ const CreateSessionModal = ({ open, closeModal }) => {
 					className={`sessionDescriptionWrapper ${info?.addDiscription ? 'visible' : ''}`}
 				>
 					<InputComponent
+						className="inputHeight"
 						value={info?.sessionDescription}
 						onChange={(e) =>
 							setInfo((prev) => ({
@@ -181,14 +185,27 @@ const CreateSessionModal = ({ open, closeModal }) => {
 								}))
 							}
 							placement="bottom"
-							title={<div className="from-dropdown">From</div>}
 							arrow={false}
 							trigger={'click'}
+							title={
+								<DatePicker
+									format="MMMM DD, YYYY hh:mm A"
+									allowClear
+									ghost
+									showTime={true}
+									onChange={(value) =>
+										setInfo((prev) => ({
+											...prev,
+											scheduleFrom:
+												moment(value).format('DD MMM YYYY hh:mm A'),
+										}))
+									}
+								/>
+							}
 						>
 							<div className="typeOfSession-lable">
-								{/* {info?.scheduleFrom} */}
-								Date
-								<Date />
+								{info?.scheduleFrom}
+								<DateSvg />
 							</div>
 						</Tooltip>
 					</div>
@@ -203,14 +220,27 @@ const CreateSessionModal = ({ open, closeModal }) => {
 								}))
 							}
 							placement="bottom"
-							title={<div className="from-dropdown">To</div>}
+							title={
+								<DatePicker
+									format="MMMM DD, YYYY hh:mm A"
+									allowClear
+									ghost
+									showTime={true}
+									onChange={(value) =>
+										setInfo((prev) => ({
+											...prev,
+											scheduleTo: moment(value).format('DD MMM YYYY hh:mm A'),
+										}))
+									}
+								/>
+							}
 							arrow={false}
 							trigger={'click'}
+							overlayStyle={{ minWidth: 'fit-content', padding: '0' }}
 						>
 							<div className="typeOfSession-lable">
-								{/* {info?.scheduleTo} */}
-								Date
-								<Date />
+								{info?.scheduleTo}
+								<DateSvg />
 							</div>
 						</Tooltip>
 					</div>
