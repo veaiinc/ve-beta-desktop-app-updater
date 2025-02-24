@@ -391,11 +391,12 @@ const TeamSettings = () => {
 			accessControls: updatedAccessControls,
 		};
 
+		setInfo((prev) => ({ ...prev, isLoading: true }));
 		const response = await addTenantUser(finalData);
 
 		if (response?.[0] === true) {
 			messageApi.success(response?.[1]?.message);
-			setInfo((prev) => ({ ...prev, showAddTenantUserModal: false }));
+			setInfo((prev) => ({ ...prev, showAddTenantUserModal: false, isLoading: false }));
 		} else {
 			messageApi.error(response?.[1]?.message);
 		}
@@ -552,6 +553,7 @@ const TeamSettings = () => {
 					userEmail={info?.userEmail}
 					selectedUser={info?.selectedUser}
 					tenantUserId={userDetailsData?._id}
+					isSubmitLoading={info?.isLoading}
 				/>
 			)}
 		</>

@@ -21,6 +21,7 @@ const InviteMembersWorkspaceComponent = ({
 	selectableOptions,
 	userEmail,
 	selectedUser = null,
+	isSubmitLoading,
 }) => {
 	const {
 		companyInfo: { updateTenantAccessControls, updateTenantRole },
@@ -188,7 +189,7 @@ const InviteMembersWorkspaceComponent = ({
 						<ReusableButtonSettings
 							text={selectedUser ? 'Update User Access' : 'Send Request'}
 							func={selectedUser ? handleUpdateUser : handleSubmit}
-							loader={isLoading}
+							loader={isLoading || isSubmitLoading}
 						/>
 					</div>
 				</div>
