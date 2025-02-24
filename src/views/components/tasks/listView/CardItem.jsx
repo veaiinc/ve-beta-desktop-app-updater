@@ -12,6 +12,7 @@ const CardItem = ({
 	const generateRows = useCallback(
 		(row) => {
 			const rowItems = [];
+			console.log('properties', properties);
 
 			// Sort properties by order
 			const sortedProperties = [...(properties || [])]

@@ -18,6 +18,7 @@ import {
 	updateTaskViewMutation,
 	deleteTaskViewMutation,
 	taskMetadataQuery,
+	ListTaskWithGroupQuery,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -37,6 +38,7 @@ export const intialState = {
 	taskPreference: null,
 	refetchTasks: false,
 	refetchTasksForDue: false,
+	listTaskWithGroup: null,
 };
 
 export const TasksState = () => {
@@ -726,6 +728,28 @@ export const TasksState = () => {
 		}
 	};
 
+	const getListTaskWithGroup = async (payload) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				ListTaskWithGroupQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.SET_LIST_TASK_WITH_GROUP,
+					payload: response?.[1]?.data?.listTasksWithGroup,
+				});
+			}
+		} catch (error) {
+			console.log('API failed ==> getListTaskWithGroup', error);
+		}
+	};
+
 	return {
 		...state,
 		getListItems,
@@ -755,5 +779,6 @@ export const TasksState = () => {
 		deleteTaskView,
 		getTaskPreferences,
 		updateTaskPreferences,
+		getListTaskWithGroup,
 	};
 };

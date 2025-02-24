@@ -6,7 +6,7 @@ import { ReactComponent as BoardViewIcon } from '../../../assets/svg/tasks/board
 import { ReactComponent as TableViewIcon } from '../../../assets/svg/tasks/grid.svg';
 import { ReactComponent as GalleryViewIcon } from '../../../assets/svg/tasks/blocks.svg';
 import ListView from './views/ListView';
-// import BoardView from './views/BoardView';
+import BoardView from './views/Board';
 import GalleryView from './views/GalleryView';
 import TableView from './views/TableView';
 import TabDropDown from '../dropDown/tasks/TabDropDown';
@@ -36,10 +36,11 @@ const layoutOptions = [
 		label: 'List',
 		Icon: ListViewIcon,
 	},
-	// {
-	// 	value: 'board',
-	// 	label: 'Board',
-	// },
+	{
+		value: 'board',
+		label: 'Board',
+		Icon: BoardViewIcon,
+	},
 	{
 		value: 'table',
 		label: 'Table',
@@ -103,6 +104,7 @@ const Task = ({
 							key: item?.key,
 							value: item?.value,
 						})),
+						group: views[0]?.viewType === 'board' ? views[0]?.group || 'status' : null,
 					});
 				}
 
@@ -143,6 +145,10 @@ const Task = ({
 				loadingSkeleton: true,
 				sort: [...taskInfo?.tabs?.[tabData?._id]?.sort],
 				filters: [...taskInfo?.tabs?.[tabData?._id]?.filters],
+				group:
+					taskInfo?.tabs?.[tabData?._id]?.viewType === 'board'
+						? taskInfo?.tabs?.[tabData?._id]?.group
+						: null,
 			});
 		},
 		[taskInfo.tabs, updateTaskInfo, taskInfo?.activeTab],
@@ -245,7 +251,7 @@ const Task = ({
 		(view) => {
 			const views = {
 				list: ListView,
-				// board: BoardView,
+				board: BoardView,
 				table: TableView,
 				gallery: GalleryView,
 			};
@@ -354,7 +360,26 @@ const Task = ({
 				handleLayoutOptionClick={handleAddTab}
 			/>
 			<div className="task-content-area">
-				{viewMapper(taskInfo?.tabs?.[taskInfo?.activeTab]?.viewType)}
+				{taskInfo?.tabs?.[taskInfo?.activeTab]?.viewType === 'board' ? (
+					<BoardView
+						handleUpdate={handleUpdate}
+						responseMetadata={responseMetadata}
+						addButtonOnClick={handleAddButtonOnClick}
+						colors={colors}
+						fetchMoreData={fetchMoreData}
+						properties={properties}
+						rowTypes={rowTypes}
+						// data={data}
+						groupBy={taskInfo?.tabs?.[taskInfo?.activeTab]?.group}
+						// loading={loading}
+						// hasMore={hasMore}
+						// error={error}
+						// onLoadMore={fetchMoreData}
+						// fetchGroupMoreData={fetchMoreData}
+					/>
+				) : (
+					viewMapper(taskInfo?.tabs?.[taskInfo?.activeTab]?.viewType)
+				)}
 			</div>
 		</div>
 	);

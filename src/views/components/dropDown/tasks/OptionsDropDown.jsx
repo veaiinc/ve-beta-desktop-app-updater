@@ -137,6 +137,8 @@ const OptionsDropDown = ({
 					handleClose={handleClose}
 					handleBack={handleBack}
 					properties={properties}
+					group={viewData?.group}
+					updateViewInfo={updateViewInfo}
 				/>
 			),
 			layout: (
@@ -157,8 +159,10 @@ const OptionsDropDown = ({
 			handleClose,
 			handleBack,
 			handlePropertyToggle,
-			handleLayoutChange,
+			viewData?.group,
 			viewData?.viewType,
+			updateViewInfo,
+			handleLayoutChange,
 			layoutOptions,
 		],
 	);
@@ -229,17 +233,19 @@ const OptionsDropDown = ({
 											<ChevronRightThinSvg />
 										</span>
 									</div>
-									{/* <div
+									<div
 										className="view-options-list-item"
 										onClick={() => handleOptionChange('group')}
 									>
 										<ListSvg width={16} height={16} />
 										<span className="view-options-list-item-label">Group</span>
 										<span className="view-options-list-item-value">
-											None
+											{properties?.find(
+												(property) => property?.value === viewData?.group,
+											)?.label || 'None'}
 											<ChevronRightThinSvg />
 										</span>
-									</div> */}
+									</div>
 									<div className="view-options-list-item">
 										<span className="view-options-list-item-label">
 											ID Prefix

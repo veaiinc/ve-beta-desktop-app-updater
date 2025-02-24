@@ -162,6 +162,10 @@ const actionHandlers = {
 		...state,
 		...action?.payload,
 	}),
+	SET_LIST_TASK_WITH_GROUP: (state, action) => ({
+		...state,
+		listTaskWithGroup: action?.payload,
+	}),
 	RESET_STATE: () => intialState,
 };
 

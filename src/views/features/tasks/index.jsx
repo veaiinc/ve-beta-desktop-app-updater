@@ -102,6 +102,8 @@ const Tasks = () => {
 			getTaskPreferences,
 			updateTaskPreferences,
 			taskPreference,
+			getListTaskWithGroup,
+			listTaskWithGroup,
 		},
 		templates: { getWorkflowsList, workflowslist },
 		companyInfo: { getTeamMembers, tenantsUserList },
@@ -136,6 +138,7 @@ const Tasks = () => {
 		view: 'table',
 		breadCrumbs: [],
 		timeout: null,
+		group: null,
 	});
 
 	const timeoutRef = useRef(null);
@@ -257,7 +260,7 @@ const Tasks = () => {
 
 	useEffect(() => {
 		handleDebounceFetch();
-	}, [info?.filters, info?.searchValue, info?.sort]);
+	}, [info?.filters, info?.searchValue, info?.sort, info?.group]);
 
 	useEffect(() => {
 		if (!tenantsUserList) {
@@ -403,22 +406,42 @@ const Tasks = () => {
 
 	const fetchListItems = useCallback(
 		(page = 1) => {
-			getListItems({
-				taskFilterInput: {
-					limit: 20,
-					page: page,
-					sort:
-						info?.sort.length > 0 ? info?.sort : [{ sortBy: 'createdAt', sortType: 1 }],
-					filters: mapFiltersPayload(info?.filters),
-					search: info?.searchValue,
-				},
-			});
+			console.log('info?.group', info?.group);
+
+			if (info?.group) {
+				getListTaskWithGroup({
+					taskFilterInput: {
+						limit: 20,
+						page: page,
+						sort:
+							info?.sort.length > 0
+								? info?.sort
+								: [{ sortBy: 'createdAt', sortType: 1 }],
+						filters: mapFiltersPayload(info?.filters),
+						search: info?.searchValue,
+						group: info?.group,
+					},
+				});
+			} else {
+				getListItems({
+					taskFilterInput: {
+						limit: 20,
+						page: page,
+						sort:
+							info?.sort.length > 0
+								? info?.sort
+								: [{ sortBy: 'createdAt', sortType: 1 }],
+						filters: mapFiltersPayload(info?.filters),
+						search: info?.searchValue,
+					},
+				});
+			}
 			setInfo((prevInfo) => ({
 				...prevInfo,
 				page: page,
 			}));
 		},
-		[info?.sort, info?.filters, info?.searchValue],
+		[info?.sort, info?.filters, info?.searchValue, info?.group],
 	);
 
 	const handleDebounceFetch = useCallback(() => {
