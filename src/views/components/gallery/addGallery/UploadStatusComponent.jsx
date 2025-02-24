@@ -73,7 +73,13 @@ const UploadStatusComponent = ({
 
 	return (
 		<div style={{ display: 'flex', flexDirection: 'column', width: '100%', gap: '12px' }}>
-			{lightGallery === 'true' && <AiEnabledSwitch info={info} setinfo={setinfo} />}
+			{lightGallery === 'true' && (
+				<AiEnabledSwitch
+					isAiEnabled={info?.isAiEnabled}
+					isProcessing={info?.startedUploading}
+					setinfo={setinfo}
+				/>
+			)}
 			<DuplicateComponent info={info} setinfo={setinfo} />
 
 			<div className="upload_status_container">

@@ -2,20 +2,19 @@ import React, { useContext } from 'react';
 import { Switch } from 'antd';
 import Context from '../../../../context/context';
 
-const AiEnabledSwitch = ({ info, setinfo }) => {
+const AiEnabledSwitch = ({ isAiEnabled, isProcessing, setinfo }) => {
 	const {
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 	} = useContext(Context);
 
 	const onChangeHandler = (checked) => {
-		if (info?.startedUploading) return;
+		if (isProcessing) return;
 
-		if (checked && validateExpiryData?.liteImageLimitWithAiFace === 0) {
-			updateSubscriptionState({ expiredSubscriptionModal: true });
-			return;
-		}
-
-		if (checked && validateExpiryData?.liteImagesLimit <= validateExpiryData?.liteImageUsed) {
+		if (
+			checked &&
+			(validateExpiryData?.liteImageLimitWithAiFace === 0 ||
+				validateExpiryData?.liteImagesLimit <= validateExpiryData?.liteImageUsed)
+		) {
 			updateSubscriptionState({ expiredSubscriptionModal: true });
 			return;
 		}
@@ -26,12 +25,11 @@ const AiEnabledSwitch = ({ info, setinfo }) => {
 		<div className="duplicate_div" style={{ width: '100%' }}>
 			<div className="text_div">
 				<h1>AI Enabled</h1>
-				<p></p>
 			</div>
 			<Switch
-				checked={info?.isAiEnabled || false}
+				checked={isAiEnabled || false}
 				onChange={onChangeHandler}
-				disabled={info?.startedUploading}
+				disabled={isProcessing}
 			/>
 		</div>
 	);
