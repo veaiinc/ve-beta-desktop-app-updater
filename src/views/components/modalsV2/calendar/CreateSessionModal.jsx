@@ -176,73 +176,49 @@ const CreateSessionModal = ({ open, closeModal }) => {
 				<div className="sessionOptionContainer">
 					<div className="sessionTypeWrapper">
 						<span>From</span>
-						<Tooltip
-							open={info?.fromOpen}
-							onOpenChange={(visible) =>
+						<DatePicker
+							format="DD MMM YYYY hh:mm A"
+							allowClear
+							showTime={true}
+							value={
+								info?.scheduleFrom
+									? moment(info?.scheduleFrom, 'DD MMM YYYY hh:mm A')
+									: null
+							}
+							onChange={(value) =>
 								setInfo((prev) => ({
 									...prev,
-									fromOpen: visible,
+									scheduleFrom: value
+										? moment(value).format('DD MMM YYYY hh:mm A')
+										: null,
 								}))
 							}
-							placement="bottom"
-							arrow={false}
-							trigger={'click'}
-							title={
-								<DatePicker
-									format="MMMM DD, YYYY hh:mm A"
-									allowClear
-									ghost
-									showTime={true}
-									onChange={(value) =>
-										setInfo((prev) => ({
-											...prev,
-											scheduleFrom:
-												moment(value).format('DD MMM YYYY hh:mm A'),
-										}))
-									}
-								/>
-							}
-						>
-							<div className="typeOfSession-lable">
-								{info?.scheduleFrom}
-								<DateSvg />
-							</div>
-						</Tooltip>
+							className="typeOfSession-lable"
+							suffixIcon={<DateSvg />}
+						/>
 					</div>
 					<div className="sessionTypeWrapper">
 						<span>To</span>
-						<Tooltip
-							open={info?.toOpen}
-							onOpenChange={(visible) =>
+						<DatePicker
+							format="DD MMM YYYY hh:mm A"
+							allowClear
+							showTime={true}
+							value={
+								info?.scheduleTo
+									? moment(info?.scheduleTo, 'DD MMM YYYY hh:mm A')
+									: null
+							}
+							onChange={(value) =>
 								setInfo((prev) => ({
 									...prev,
-									toOpen: visible,
+									scheduleTo: value
+										? moment(value).format('DD MMM YYYY hh:mm A')
+										: null,
 								}))
 							}
-							placement="bottom"
-							title={
-								<DatePicker
-									format="MMMM DD, YYYY hh:mm A"
-									allowClear
-									ghost
-									showTime={true}
-									onChange={(value) =>
-										setInfo((prev) => ({
-											...prev,
-											scheduleTo: moment(value).format('DD MMM YYYY hh:mm A'),
-										}))
-									}
-								/>
-							}
-							arrow={false}
-							trigger={'click'}
-							overlayStyle={{ minWidth: 'fit-content', padding: '0' }}
-						>
-							<div className="typeOfSession-lable">
-								{info?.scheduleTo}
-								<DateSvg />
-							</div>
-						</Tooltip>
+							className="typeOfSession-lable"
+							suffixIcon={<DateSvg />}
+						/>
 					</div>
 				</div>
 
