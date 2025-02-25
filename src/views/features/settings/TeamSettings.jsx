@@ -154,11 +154,12 @@ const TeamSettings = () => {
 	};
 
 	const [accessControls, setAccessControls] = useState({
-		accessControls: currentPlan?.apps?.map((option) => ({
-			app: option,
-			isEnabled: false,
-			hasFullAccess: false,
-		})),
+		accessControls:
+			currentPlan?.apps?.map((option) => ({
+				app: option,
+				isEnabled: false,
+				hasFullAccess: false,
+			})) || [],
 	});
 
 	const validateUsersEmails = (email, index) => {
@@ -466,11 +467,12 @@ const TeamSettings = () => {
 	const handleInviteMembers = () => {
 		setInfo((prev) => ({
 			...prev,
-			accessControls: currentPlan?.apps?.map((option) => ({
-				app: option,
-				isEnabled: false,
-				hasFullAccess: false,
-			})),
+			accessControls:
+				currentPlan?.apps?.map((option) => ({
+					app: option,
+					isEnabled: false,
+					hasFullAccess: false,
+				})) || [],
 			userEmail: '',
 			selectedOption: 'admin',
 			selectedUser: null,
@@ -512,11 +514,12 @@ const TeamSettings = () => {
 
 		setAccessControls((prev) => ({
 			...prev,
-			accessControls: currentPlan?.apps?.map((option) => ({
-				app: option,
-				isEnabled: false,
-				hasFullAccess: false,
-			})),
+			accessControls:
+				currentPlan?.apps?.map((option) => ({
+					app: option,
+					isEnabled: false,
+					hasFullAccess: false,
+				})) || [],
 		}));
 	};
 
