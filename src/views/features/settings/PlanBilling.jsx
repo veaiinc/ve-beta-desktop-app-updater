@@ -367,7 +367,11 @@ const SubscribedUserPlanCard = ({
 															)}%`,
 															background:
 																item?.usedValue / item?.totalValue >
-																0.7
+																1
+																	? '#FF0000'
+																	: item?.usedValue /
+																			item?.totalValue >
+																	  0.7
 																	? '#e18e42'
 																	: '#6055EC',
 														}}
