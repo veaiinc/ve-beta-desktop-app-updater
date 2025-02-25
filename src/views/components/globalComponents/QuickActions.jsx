@@ -39,9 +39,9 @@ const QuickActions = ({ styles, customActions = [], clientDetails = null }) => {
 			? dropdownOptions
 			: dropdownOptions.filter((option) => {
 					const matchedApp = tenantUserAccessControls?.accessControls?.find(
-						(item) => item.app.toLowerCase() === option.controlValue.toLowerCase(),
+						(item) => item?.app?.toLowerCase() === option?.controlValue?.toLowerCase(),
 					);
-					return matchedApp ? matchedApp.isEnabled : true;
+					return matchedApp ? matchedApp?.isEnabled : true;
 			  });
 	const handleDropdownOptionClick = useCallback((type) => {
 		if (type === 'meeting') {
