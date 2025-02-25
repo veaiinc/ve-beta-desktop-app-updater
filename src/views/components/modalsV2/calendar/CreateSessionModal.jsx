@@ -86,8 +86,6 @@ const CreateSessionModal = ({ open, closeModal }) => {
 			/>
 		);
 	};
-	console.log('info?.scheduleFrom', info?.scheduleFrom.format('DD MMM YYYY hh:mm A'));
-	console.log('info?.scheduleTo', info?.scheduleTo.format('DD MMM YYYY hh:mm A'));
 	return (
 		<ReactModal
 			isOpen={open}

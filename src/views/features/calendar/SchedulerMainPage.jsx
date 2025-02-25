@@ -79,7 +79,7 @@ const SchedulerMainPage = () => {
 			...prev,
 			updateSessionSlot: !prev.updateSessionSlot,
 		}));
-	}, []);
+	}, [info?.updateSessionSlot]);
 	return (
 		<>
 			<div className="schedulerMainPageParentContainer">
@@ -104,7 +104,10 @@ const SchedulerMainPage = () => {
 							sessionGridItems?.map((item) => <SessionCards item={item} />)}
 					</div>
 
-					<SchedulerAvailability />
+					<SchedulerAvailability
+						isUpdateSessionSlot={info?.updateSessionSlot}
+						handleUpdateSessionSlot={handleUpdateSessionSlot}
+					/>
 				</div>
 			</div>
 			<CreateSessionModal
@@ -112,8 +115,8 @@ const SchedulerMainPage = () => {
 				closeModal={handleCreateSessionModal}
 			/>
 			<UpdateSessionSlot
-				// open={info?.updateSessionSlot}
-				open={true}
+				open={info?.updateSessionSlot}
+				// open={true}
 				closeModal={handleUpdateSessionSlot}
 			/>
 		</>

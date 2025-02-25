@@ -4,7 +4,7 @@ import '../../../assets/scss/scheduler/schedulerAvailability.scss';
 import { ReactComponent as Right } from '../../../assets/svg/activity/right.svg';
 import { ReactComponent as Left } from '../../../assets/svg/activity/left.svg';
 
-const WeeklySlot = ({ day, date, slots }) => {
+const WeeklySlot = ({ day, date, slots, handleUpdateSessionSlot }) => {
 	return (
 		<div className="daySlotContainer">
 			<div className="dayHeader">
@@ -15,7 +15,15 @@ const WeeklySlot = ({ day, date, slots }) => {
 			<div className="slotsWrapper">
 				{slots?.map((slot, index) => (
 					<div key={index} className="slotItem">
-						<div className="slotOverlay">Edit Session</div>
+						<div
+							className="slotOverlay"
+							onClick={(event) => {
+								event.stopPropagation();
+								handleUpdateSessionSlot();
+							}}
+						>
+							Edit Session
+						</div>
 						<div
 							className="slotIndicator"
 							style={{ background: slot?.sessionColor || '#6366F1' }}
@@ -39,7 +47,7 @@ const WeeklySlot = ({ day, date, slots }) => {
 	);
 };
 
-const SchedulerAvailability = () => {
+const SchedulerAvailability = ({ isUpdateSessionSlot, handleUpdateSessionSlot }) => {
 	const [info, setInfo] = useState({
 		currentDate: moment(),
 	});
@@ -70,8 +78,8 @@ const SchedulerAvailability = () => {
 	};
 
 	const getWeekDuration = useMemo(() => {
-		const startOfWeek = moment(info?.currentDate).startOf('isoWeek'); // Start from Monday
-		const endOfWeek = moment(info?.currentDate).endOf('isoWeek'); // End on Sunday
+		const startOfWeek = moment(info?.currentDate).startOf('isoWeek');
+		const endOfWeek = moment(info?.currentDate).endOf('isoWeek');
 		const currentWeekStart = moment().startOf('isoWeek');
 
 		return {
@@ -156,7 +164,11 @@ const SchedulerAvailability = () => {
 			</div>
 			<div className="weeklySlotsContainer">
 				{weeklySlots.map((dayData, index) => (
-					<WeeklySlot key={index} {...dayData} />
+					<WeeklySlot
+						key={index}
+						{...dayData}
+						handleUpdateSessionSlot={handleUpdateSessionSlot}
+					/>
 				))}
 			</div>
 		</div>

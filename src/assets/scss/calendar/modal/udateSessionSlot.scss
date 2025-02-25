@@ -1,19 +1,40 @@
 .updateSessionSlotContainer {
+	min-width: 330px;
 	display: flex;
 	flex-direction: column;
 	padding: 24px;
-	gap: 12px;
+	gap: 20px;
 	background: #202123;
 	border-radius: 24px;
 	box-shadow: 0px 2px 44px rgba(0, 0, 0, 0.25);
+	user-select: none;
 
 	.sessionHeader {
 		display: flex;
-		justify-content: space-between;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 4px;
+		overflow: hidden;
 		color: #e4e5e6;
+		color: color(display-p3 0.8941 0.898 0.902);
+		text-overflow: ellipsis;
 		font-family: Inter;
 		font-size: 16px;
+		font-style: normal;
 		font-weight: 500;
+		line-height: normal;
+
+		.sessionDate {
+			overflow: hidden;
+			color: #7c7c84;
+			color: color(display-p3 0.4863 0.4863 0.5137);
+			text-overflow: ellipsis;
+			font-family: Inter;
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+		}
 	}
 
 	.timeSlot {
@@ -22,24 +43,37 @@
 		gap: 8px;
 
 		span {
-			color: #e4e5e6;
+			color: #7c7c84;
+			color: color(display-p3 0.4863 0.4863 0.5137);
+			font-family: Inter;
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 400;
 		}
 
-		button {
-			background: none;
-			border: none;
+		> svg {
+			width: 15%;
+			height: 15%;
 			cursor: pointer;
-			color: #e4e5e6;
 		}
 	}
 
 	.addSlot,
 	.disableAvailability {
-		color: #e4e5e6;
+		color: #979797;
+		color: color(display-p3 0.5922 0.5922 0.5922);
+		font-family: Inter;
+		font-size: 12px;
+		font-style: normal;
+		font-weight: 400;
+
 		text-align: center;
 		cursor: pointer;
 		opacity: 0.5;
 		transition: opacity 0.3s;
+		border: 1px solid #333334;
+		border-radius: 8px;
+		padding: 8px;
 
 		&:hover {
 			opacity: 1;
@@ -50,7 +84,15 @@
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
-		color: #e4e5e6;
+		overflow: hidden;
+		color: #7c7c84;
+		color: color(display-p3 0.4863 0.4863 0.5137);
+		text-overflow: ellipsis;
+		font-family: Inter;
+		font-size: 11px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
 	}
 
 	.saveButton {
@@ -67,8 +109,40 @@
 			transition: background 0.3s;
 
 			&:hover {
-				background: #e4e5e6;
+				background: #ffffff;
 			}
+		}
+	}
+}
+
+.timePicker {
+	display: flex;
+	width: 100%;
+	height: 40px;
+	padding: 12px;
+	justify-content: space-between;
+	align-items: center;
+	align-self: stretch;
+	border-radius: 8px;
+	border: 1px solid #333334;
+	background: #202123;
+	color: #797e86;
+	font-family: Inter;
+	font-size: 12px;
+	font-style: normal;
+	font-weight: 500;
+	line-height: normal;
+	cursor: pointer;
+	.ant-picker-input > input {
+		cursor: pointer;
+		color: #797e86;
+		font-family: Inter;
+		font-size: 12px;
+		font-style: normal;
+		font-weight: 500;
+
+		&::placeholder {
+			color: #797e86;
 		}
 	}
 }

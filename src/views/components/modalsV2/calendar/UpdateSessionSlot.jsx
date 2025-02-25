@@ -2,11 +2,12 @@ import React, { memo, useState } from 'react';
 import '../../../../assets/scss/calendar/modal/udateSessionSlot.scss';
 import ReactModal from '../index';
 import { ReactComponent as Delete } from '../../../../assets/svg/ai_assistant/delete.svg';
+import { ReactComponent as Clock } from '../../../../assets/svg/workflow/clock.svg';
 import { DatePicker } from 'antd';
 import moment from 'moment';
 import ToggleSwitch from '../../../components/input/slider';
 
-const UpdateSessionSlot = ({ open, closeModal }) => {
+const UpdateSessionSlot = ({ open, closeModal, sessionName }) => {
 	const [info, setInfo] = useState({
 		repeat: false,
 		slots: [{ from: moment(), to: moment().add(1, 'hours') }],
@@ -26,25 +27,34 @@ const UpdateSessionSlot = ({ open, closeModal }) => {
 		}));
 	};
 
+	const ModifyCloseModal = () => {
+		closeModal();
+		setInfo({
+			repeat: false,
+			slots: [{ from: moment(), to: moment().add(1, 'hours') }],
+		});
+	};
+
 	return (
 		<ReactModal
 			isOpen={open}
-			closeModal={closeModal}
+			closeModal={ModifyCloseModal}
 			modalType={'center'}
 			customStyles={{ content: { borderRadius: '24px' } }}
 		>
 			<div className="updateSessionSlotContainer">
 				<div className="sessionHeader">
-					<span>Yoga Session</span>
-					<span>Friday, 25th Feb 2025</span>
+					<span>{sessionName || 'Session Name'}</span>
+					<span className="sessionDate">Friday, 25th Feb 2025</span>
 				</div>
 
 				{info?.slots?.map((slot, index) => (
 					<div key={index} className="timeSlot">
 						<DatePicker
-							value={slot.from}
 							showTime
 							format="hh:mm A"
+							picker="time"
+							className="timePicker"
 							onChange={(value) =>
 								setInfo((prev) => ({
 									...prev,
@@ -53,12 +63,14 @@ const UpdateSessionSlot = ({ open, closeModal }) => {
 									),
 								}))
 							}
+							suffixIcon={<Clock />}
 						/>
 						<span>to</span>
 						<DatePicker
-							value={slot.to}
 							showTime
 							format="hh:mm A"
+							picker="time"
+							className="timePicker"
 							onChange={(value) =>
 								setInfo((prev) => ({
 									...prev,
@@ -67,6 +79,7 @@ const UpdateSessionSlot = ({ open, closeModal }) => {
 									),
 								}))
 							}
+							suffixIcon={<Clock />}
 						/>
 						<Delete onClick={() => removeSlot(index)} />
 					</div>
