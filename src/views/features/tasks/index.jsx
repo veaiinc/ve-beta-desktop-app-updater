@@ -414,7 +414,10 @@ const Tasks = () => {
 						page: page,
 						sort:
 							info?.sort.length > 0
-								? info?.sort
+								? info?.sort?.map((item) => ({
+										sortBy: item?.sortBy,
+										sortType: item?.sortType,
+								  }))
 								: [{ sortBy: 'createdAt', sortType: 1 }],
 						filters: mapFiltersPayload(info?.filters),
 						search: info?.searchValue,
@@ -428,7 +431,10 @@ const Tasks = () => {
 						page: page,
 						sort:
 							info?.sort.length > 0
-								? info?.sort
+								? info?.sort?.map((item) => ({
+										sortBy: item?.sortBy,
+										sortType: item?.sortType,
+								  }))
 								: [{ sortBy: 'createdAt', sortType: 1 }],
 						filters: mapFiltersPayload(info?.filters),
 						search: info?.searchValue,
@@ -827,14 +833,24 @@ const Tasks = () => {
 
 	const handleRowClick = useCallback(
 		(row) => {
+			// Find the complete row data from listItems to ensure we have all properties
+			// const selectedTask = info?.listItems?.find((item) => item._id === row?._id) || row;
+
 			if (info?.selectedRow?._id !== row?._id) {
 				resetSubTasks();
 			}
+
 			if (row) {
-				updateTaskInfo({ selectedRow: row, sidebarIsOpen: true, breadCrumbs: [] });
+				updateTaskInfo({
+					selectedRow: row,
+					sidebarIsOpen: true,
+					breadCrumbs: [],
+					// Reset any previously selected subtask
+					selectedSubTask: null,
+				});
 			}
 		},
-		[info?.listItems, resetSubTasks, info?.selectedRow?._id],
+		[info?.listItems, info?.selectedRow?._id, resetSubTasks],
 	);
 
 	const handleCreateSubTaskClick = useCallback(() => {

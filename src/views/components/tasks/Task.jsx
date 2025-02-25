@@ -375,6 +375,7 @@ const Task = ({
 						groupBy={taskInfo?.tabs?.[taskInfo?.activeTab]?.group}
 						sort={taskInfo?.tabs?.[taskInfo?.activeTab]?.sort}
 						filters={taskInfo?.tabs?.[taskInfo?.activeTab]?.filters}
+						handleRowClick={handleRowClick}
 					/>
 				) : (
 					viewMapper(taskInfo?.tabs?.[taskInfo?.activeTab]?.viewType)

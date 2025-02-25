@@ -21,12 +21,12 @@ const BoardItem = ({
 	rowTypes,
 	properties,
 	handleUpdate,
-	onClick,
 	isEmpty = false,
 	fetchGroupMoreData,
 	handleAddButtonOnClick,
 	sort,
 	filters,
+	handleRowClick,
 }) => {
 	const [columnData, setColumnData] = useState({
 		group: group._id,
@@ -178,7 +178,7 @@ const BoardItem = ({
 													rowTypes={rowTypes}
 													properties={properties}
 													handleUpdate={handleUpdate}
-													onClick={onClick}
+													// onClick={() => handleRowClick({ ...item })}
 												/>
 											</div>
 										)}

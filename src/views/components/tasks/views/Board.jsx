@@ -17,6 +17,7 @@ const Board = ({
 	handleAddButtonOnClick,
 	sort,
 	filters,
+	handleRowClick,
 }) => {
 	const {
 		tasks: { handleGroupChange, listTaskWithGroup, fetchGroupData },
@@ -49,7 +50,7 @@ const Board = ({
 		} else if (listTaskWithGroup?.error) {
 			setInfo((prev) => ({
 				...prev,
-				error: listTaskWithGroup?.error,
+				error: listTaskWithGroup?.error || 'Something went wrong',
 				loading: false,
 			}));
 		}
@@ -265,6 +266,7 @@ const Board = ({
 								handleAddButtonOnClick={handleAddButtonOnClick}
 								sort={sort}
 								filters={filters}
+								handleRowClick={handleRowClick}
 							/>
 						);
 					})}

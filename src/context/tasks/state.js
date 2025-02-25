@@ -744,9 +744,18 @@ export const TasksState = () => {
 					type: Actions.SET_LIST_TASK_WITH_GROUP,
 					payload: response?.[1]?.data?.listTasksWithGroup,
 				});
+			} else {
+				dispatch({
+					type: Actions.SET_LIST_TASK_WITH_GROUP,
+					payload: { error: response?.[1]?.[0]?.message },
+				});
 			}
 		} catch (error) {
 			console.log('API failed ==> getListTaskWithGroup', error);
+			dispatch({
+				type: Actions.SET_LIST_TASK_WITH_GROUP,
+				payload: { error: error?.message },
+			});
 		}
 	};
 
@@ -768,6 +777,7 @@ export const TasksState = () => {
 					data: response?.[1]?.data?.listTasksWithGroup?.groups?.[0]?.data,
 					hasNextPage: response?.[1]?.data?.listTasksWithGroup?.groups?.[0]?.hasNextPage,
 					currentPage: response?.[1]?.data?.listTasksWithGroup?.groups?.[0]?.currentPage,
+					totalDocs: response?.[1]?.data?.listTasksWithGroup?.groups?.[0]?.totalDocs,
 				},
 			});
 		}

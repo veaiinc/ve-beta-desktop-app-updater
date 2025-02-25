@@ -167,7 +167,7 @@ const actionHandlers = {
 		listTaskWithGroup: action?.payload,
 	}),
 	APPEND_GROUP_DATA: (state, action) => {
-		const { group, data, hasNextPage, currentPage } = action?.payload;
+		const { group, data, hasNextPage, currentPage, totalDocs } = action?.payload;
 		const existingGroup = state?.listTaskWithGroup?.groups?.find(
 			(item) => item?.group === group,
 		);
@@ -178,7 +178,13 @@ const actionHandlers = {
 					...state.listTaskWithGroup,
 					groups: state?.listTaskWithGroup?.groups?.map((item) =>
 						item?.group === group
-							? { ...item, data: [...item?.data, ...data], hasNextPage, currentPage }
+							? {
+									...item,
+									data: [...item?.data, ...data],
+									hasNextPage,
+									currentPage,
+									totalDocs,
+							  }
 							: item,
 					),
 				},
@@ -217,6 +223,7 @@ const actionHandlers = {
 					return {
 						...group,
 						data: newData,
+						totalDocs: group?.totalDocs - 1,
 					};
 				}
 				// Add task to target group at specific index
@@ -229,6 +236,7 @@ const actionHandlers = {
 					return {
 						...group,
 						data: newData,
+						totalDocs: group?.totalDocs + 1,
 					};
 				}
 				return group;
@@ -242,6 +250,7 @@ const actionHandlers = {
 					return {
 						...group,
 						data: newData,
+						totalDocs: group?.totalDocs - 1,
 					};
 				}
 				return group;
@@ -258,6 +267,7 @@ const actionHandlers = {
 				],
 				hasNextPage: false,
 				currentPage: 1,
+				totalDocs: 1,
 			});
 		}
 
