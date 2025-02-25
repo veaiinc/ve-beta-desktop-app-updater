@@ -2,15 +2,19 @@ import React, { memo, useState } from 'react';
 import '../../../../assets/scss/calendar/modal/udateSessionSlot.scss';
 import ReactModal from '../index';
 import { ReactComponent as Delete } from '../../../../assets/svg/ai_assistant/delete.svg';
+import { ReactComponent as Down } from '../../../../assets/svg/calendar/down.svg';
 import { ReactComponent as Clock } from '../../../../assets/svg/workflow/clock.svg';
-import { DatePicker } from 'antd';
+import { Tooltip, DatePicker } from 'antd';
 import moment from 'moment';
 import ToggleSwitch from '../../../components/input/slider';
 
-const UpdateSessionSlot = ({ open, closeModal, sessionName }) => {
+const sessionName = ['Yoga', 'Cardio', 'Dance'];
+
+const UpdateSessionSlot = ({ open, closeModal }) => {
 	const [info, setInfo] = useState({
 		repeat: false,
 		slots: [{ from: moment(), to: moment().add(1, 'hours') }],
+		sellectedSession: 'Yoga',
 	});
 
 	const addSlot = () => {
@@ -44,7 +48,45 @@ const UpdateSessionSlot = ({ open, closeModal, sessionName }) => {
 		>
 			<div className="updateSessionSlotContainer">
 				<div className="sessionHeader">
-					<span>{sessionName || 'Session Name'}</span>
+					{/* <span>{sessionName || 'Session Name'}</span> */}
+					<Tooltip
+						open={info?.sessionTypeOpen}
+						onOpenChange={(visible) =>
+							setInfo((prev) => ({
+								...prev,
+								sessionTypeOpen: visible,
+							}))
+						}
+						placement="bottom"
+						title={
+							<div className="sessionName-dropdown">
+								{sessionName?.map((option) => (
+									<div
+										key={option}
+										className="sessionName-dropdown-item"
+										onClick={() => {
+											setInfo((prev) => ({
+												...prev,
+												sellectedSession: option,
+												sessionTypeOpen: false,
+											}));
+										}}
+									>
+										{option}
+									</div>
+								))}
+							</div>
+						}
+						arrow={false}
+						trigger={'click'}
+						color={'transparent'}
+						overlayStyle={{ minWidth: 'fit-content', padding: '0' }}
+					>
+						<div className="selectedSession-lable">
+							{info?.sellectedSession}
+							<Down className={`${info?.sessionTypeOpen ? 'open' : ''}`} />
+						</div>
+					</Tooltip>
 					<span className="sessionDate">Friday, 25th Feb 2025</span>
 				</div>
 
