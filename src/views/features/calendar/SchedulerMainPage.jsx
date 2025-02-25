@@ -3,6 +3,7 @@ import '../../../assets/scss/scheduler/schedulerMainPage.scss';
 import SessionCards from '../../components/scheduler/SessionCard';
 import SchedulerAvailability from '../../components/scheduler/SchedulerAvailability';
 import CreateSessionModal from '../../components/modalsV2/calendar/CreateSessionModal';
+import UpdateSessionSlot from '../../components/modalsV2/calendar/UpdateSessionSlot';
 const sessionGridItems = [
 	{
 		id: 1,
@@ -63,6 +64,7 @@ const sessionGridItems = [
 const SchedulerMainPage = () => {
 	const [info, setInfo] = useState({
 		createSessionModal: false,
+		updateSessionSlot: false,
 	});
 
 	const handleCreateSessionModal = useCallback(() => {
@@ -72,6 +74,12 @@ const SchedulerMainPage = () => {
 		}));
 	}, []);
 
+	const handleUpdateSessionSlot = useCallback(() => {
+		setInfo((prev) => ({
+			...prev,
+			updateSessionSlot: !prev.updateSessionSlot,
+		}));
+	}, []);
 	return (
 		<>
 			<div className="schedulerMainPageParentContainer">
@@ -102,6 +110,11 @@ const SchedulerMainPage = () => {
 			<CreateSessionModal
 				open={info?.createSessionModal}
 				closeModal={handleCreateSessionModal}
+			/>
+			<UpdateSessionSlot
+				// open={info?.updateSessionSlot}
+				open={true}
+				closeModal={handleUpdateSessionSlot}
 			/>
 		</>
 	);

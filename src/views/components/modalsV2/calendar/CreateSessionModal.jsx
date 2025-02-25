@@ -181,7 +181,6 @@ const CreateSessionModal = ({ open, closeModal }) => {
 							format="DD MMM YYYY hh:mm A"
 							allowClear
 							showTime={true}
-							// value={info?.scheduleFrom}
 							onChange={(value) => {
 								setInfo((prev) => ({
 									...prev,
@@ -201,7 +200,6 @@ const CreateSessionModal = ({ open, closeModal }) => {
 							format="DD MMM YYYY hh:mm A"
 							allowClear
 							showTime={true}
-							// value={info?.scheduleTo}
 							onChange={(value) => {
 								setInfo((prev) => ({
 									...prev,

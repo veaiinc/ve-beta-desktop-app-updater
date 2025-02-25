@@ -212,10 +212,15 @@
 
 .typeOfSession-lable {
 	.ant-picker-input > input {
+		cursor: pointer;
 		color: #797e86;
 		font-family: Inter;
 		font-size: 12px;
 		font-style: normal;
 		font-weight: 500;
+
+		&::placeholder {
+			color: #797e86;
+		}
 	}
 }
