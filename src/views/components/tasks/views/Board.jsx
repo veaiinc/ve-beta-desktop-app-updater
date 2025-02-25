@@ -21,7 +21,7 @@ const Board = ({
 	properties,
 	handleUpdate,
 	onClick,
-	groupBy = null,
+	groupBy = 'status',
 	onLoadMore,
 	handleAddButtonOnClick,
 }) => {
@@ -38,7 +38,6 @@ const Board = ({
 	});
 
 	useEffect(() => {
-		console.log('data in board', listTaskWithGroup);
 		if (listTaskWithGroup?.groups && info?.groups?.length) {
 			setInfo((prev) => ({
 				...prev,
@@ -52,7 +51,7 @@ const Board = ({
 				loading: false,
 			}));
 		}
-	}, [listTaskWithGroup?.groups, info.groups]);
+	}, [listTaskWithGroup, info.groups]);
 
 	useEffect(() => {
 		if (responseMetadata) {
@@ -124,8 +123,6 @@ const Board = ({
 	}, [info.groups, listTaskWithGroup]);
 
 	const fetchGroupMoreData = useCallback((payload) => {
-		console.log('getting call here', payload);
-
 		fetchGroupData({
 			taskFilterInput: payload,
 		});
@@ -166,28 +163,6 @@ const Board = ({
 				const [removed] = sourceItems.splice(source.index, 1);
 				destItems.splice(destination.index, 0, removed);
 
-				// Update UI immediately for better UX
-				// setInfo((prev) => ({
-				// 	...prev,
-				// 	columns: prev.columns.map((col) => {
-				// 		if (col.group === source.droppableId) {
-				// 			return {
-				// 				...col,
-				// 				data: sourceItems,
-				// 				totalDocs: col.totalDocs - 1,
-				// 			};
-				// 		}
-				// 		if (col.group === destination.droppableId) {
-				// 			return {
-				// 				...col,
-				// 				data: destItems,
-				// 				totalDocs: col.totalDocs + 1,
-				// 			};
-				// 		}
-				// 		return col;
-				// 	}),
-				// }));
-
 				handleGroupChange({
 					groupBy,
 					sourceGroup: source.droppableId,
@@ -196,40 +171,9 @@ const Board = ({
 					sourceIndex: source.index,
 					targetIndex: destination.index,
 				});
-
-				// Make API call to update the task's status/group
-				// try {
-				// 	handleUpdate(
-				// 		draggableId, // task id
-				// 		groupBy, // field to update (status/priority)
-				// 		destination.droppableId, // new value
-				// 	);
-				// } catch (error) {
-				// 	// Revert the UI changes if API call fails
-				// 	setInfo((prev) => ({
-				// 		...prev,
-				// 		columns: prev.columns.map((col) => {
-				// 			if (col.group === source.droppableId) {
-				// 				return {
-				// 					...col,
-				// 					data: [...sourceColumn.data, removed],
-				// 					totalDocs: col.totalDocs + 1,
-				// 				};
-				// 			}
-				// 			if (col.group === destination.droppableId) {
-				// 				return {
-				// 					...col,
-				// 					data: destItems.filter((item) => item._id !== removed._id),
-				// 					totalDocs: col.totalDocs - 1,
-				// 				};
-				// 			}
-				// 			return col;
-				// 		}),
-				// 	}));
-				// }
 			}
 		},
-		[info.columns, handleUpdate, groupBy],
+		[info.columns, handleGroupChange, groupBy],
 	);
 
 	// New function to sort columns - empty ones go to right

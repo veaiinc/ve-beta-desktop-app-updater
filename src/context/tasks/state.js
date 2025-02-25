@@ -18,7 +18,7 @@ import {
 	updateTaskViewMutation,
 	deleteTaskViewMutation,
 	taskMetadataQuery,
-	ListTaskWithGroupQuery,
+	listTaskWithGroupQuery,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -733,7 +733,7 @@ export const TasksState = () => {
 			const workspaceId = localStorage.getItem('workspaceId');
 			const usertoken = localStorage.getItem('usertoken');
 			const response = await service.query(
-				ListTaskWithGroupQuery,
+				listTaskWithGroupQuery,
 				payload,
 				workspaceId,
 				usertoken,
@@ -754,7 +754,7 @@ export const TasksState = () => {
 		let workspaceId = localStorage.getItem('workspaceId');
 		let usertoken = localStorage.getItem('usertoken');
 		const response = await service.query(
-			getListItemsQuery,
+			listTaskWithGroupQuery,
 			payload,
 			workspaceId,
 			usertoken,
@@ -765,9 +765,9 @@ export const TasksState = () => {
 				type: Actions.APPEND_GROUP_DATA,
 				payload: {
 					group: payload?.taskFilterInput?.groupFilters?.value,
-					data: response?.[1]?.data?.listTasks?.groups?.[0]?.data,
-					hasNextPage: response?.[1]?.data?.listTasks?.groups?.[0]?.hasNextPage,
-					currentPage: response?.[1]?.data?.listTasks?.groups?.[0]?.currentPage,
+					data: response?.[1]?.data?.listTasksWithGroup?.groups?.[0]?.data,
+					hasNextPage: response?.[1]?.data?.listTasksWithGroup?.groups?.[0]?.hasNextPage,
+					currentPage: response?.[1]?.data?.listTasksWithGroup?.groups?.[0]?.currentPage,
 				},
 			});
 		}

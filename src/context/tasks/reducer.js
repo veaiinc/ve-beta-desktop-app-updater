@@ -168,9 +168,9 @@ const actionHandlers = {
 	}),
 	APPEND_GROUP_DATA: (state, action) => {
 		const { group, data, hasNextPage, currentPage } = action?.payload;
-		console.log('action?.payload', action?.payload);
-
-		const existingGroup = state?.listTasks?.groups?.find((item) => item?.group === group);
+		const existingGroup = state?.listTaskWithGroup?.groups?.find(
+			(item) => item?.group === group,
+		);
 		if (existingGroup) {
 			return {
 				...state,

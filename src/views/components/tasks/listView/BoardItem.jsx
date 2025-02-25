@@ -116,7 +116,6 @@ const BoardItem = ({
 							style={{
 								maxHeight: 'calc(100vh - 200px)',
 								overflow: 'auto',
-								background: snapshot.isDraggingOver ? '#f6f6f6' : '',
 							}}
 						>
 							<InfiniteScroll

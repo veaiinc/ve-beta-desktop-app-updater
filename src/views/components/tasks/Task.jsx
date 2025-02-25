@@ -364,18 +364,12 @@ const Task = ({
 					<BoardView
 						handleUpdate={handleUpdate}
 						responseMetadata={responseMetadata}
-						addButtonOnClick={handleAddButtonOnClick}
+						handleAddButtonOnClick={handleAddButtonOnClick}
 						colors={colors}
 						fetchMoreData={fetchMoreData}
 						properties={properties}
 						rowTypes={rowTypes}
-						// data={data}
 						groupBy={taskInfo?.tabs?.[taskInfo?.activeTab]?.group}
-						// loading={loading}
-						// hasMore={hasMore}
-						// error={error}
-						// onLoadMore={fetchMoreData}
-						// fetchGroupMoreData={fetchMoreData}
 					/>
 				) : (
 					viewMapper(taskInfo?.tabs?.[taskInfo?.activeTab]?.viewType)

@@ -382,6 +382,7 @@ export const updateTaskViewMutation = gql`
 					sortType
 				}
 				viewType
+				group
 				icon
 			}
 		}
@@ -396,7 +397,7 @@ export const deleteTaskViewMutation = gql`
 	}
 `;
 
-export const ListTaskWithGroupQuery = gql`
+export const listTaskWithGroupQuery = gql`
 	query ListTasksWithGroup($taskFilterInput: TaskGroupFilterInput) {
 		listTasksWithGroup(taskFilterInput: $taskFilterInput) {
 			groups {
