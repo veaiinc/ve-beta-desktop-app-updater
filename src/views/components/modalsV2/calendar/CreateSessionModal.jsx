@@ -40,8 +40,8 @@ const initialInfo = {
 	location: '',
 	phoneNumber: '',
 	videoLink: '',
-	scheduleFrom: moment().format('DD MMM YYYY hh:mm A'),
-	scheduleTo: moment().add(1, 'weeks').format('DD MMM YYYY hh:mm A'),
+	scheduleFrom: moment().utc(),
+	scheduleTo: moment().add(1, 'weeks').utc(),
 };
 
 const CreateSessionModal = ({ open, closeModal }) => {
@@ -86,7 +86,8 @@ const CreateSessionModal = ({ open, closeModal }) => {
 			/>
 		);
 	};
-
+	console.log('info?.scheduleFrom', info?.scheduleFrom.format('DD MMM YYYY hh:mm A'));
+	console.log('info?.scheduleTo', info?.scheduleTo.format('DD MMM YYYY hh:mm A'));
 	return (
 		<ReactModal
 			isOpen={open}
@@ -180,21 +181,18 @@ const CreateSessionModal = ({ open, closeModal }) => {
 							format="DD MMM YYYY hh:mm A"
 							allowClear
 							showTime={true}
-							value={
-								info?.scheduleFrom
-									? moment(info?.scheduleFrom, 'DD MMM YYYY hh:mm A')
-									: null
-							}
-							onChange={(value) =>
+							// value={info?.scheduleFrom}
+							onChange={(value) => {
 								setInfo((prev) => ({
 									...prev,
-									scheduleFrom: value
-										? moment(value).format('DD MMM YYYY hh:mm A')
-										: null,
-								}))
-							}
+									scheduleFrom: value,
+								}));
+							}}
 							className="typeOfSession-lable"
 							suffixIcon={<DateSvg />}
+							disabledDate={(current) => {
+								return current && current < moment().startOf('day');
+							}}
 						/>
 					</div>
 					<div className="sessionTypeWrapper">
@@ -203,21 +201,21 @@ const CreateSessionModal = ({ open, closeModal }) => {
 							format="DD MMM YYYY hh:mm A"
 							allowClear
 							showTime={true}
-							value={
-								info?.scheduleTo
-									? moment(info?.scheduleTo, 'DD MMM YYYY hh:mm A')
-									: null
-							}
-							onChange={(value) =>
+							// value={info?.scheduleTo}
+							onChange={(value) => {
 								setInfo((prev) => ({
 									...prev,
-									scheduleTo: value
-										? moment(value).format('DD MMM YYYY hh:mm A')
-										: null,
-								}))
-							}
+									scheduleTo: value,
+								}));
+							}}
 							className="typeOfSession-lable"
 							suffixIcon={<DateSvg />}
+							disabledDate={(current) => {
+								return (
+									current &&
+									current < (info?.scheduleFrom || moment().startOf('day'))
+								);
+							}}
 						/>
 					</div>
 				</div>
