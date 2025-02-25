@@ -1,4 +1,4 @@
-import React, { useState, useEffect, memo } from 'react';
+import React, { useState, useEffect, memo, useCallback } from 'react';
 import { Droppable, Draggable } from 'react-beautiful-dnd';
 import { ReactComponent as PlusIcon } from '../../../../assets/svg/tasks/plus.svg';
 import CardItem from './CardItem';
@@ -25,6 +25,8 @@ const BoardItem = ({
 	isEmpty = false,
 	fetchGroupMoreData,
 	handleAddButtonOnClick,
+	sort,
+	filters,
 }) => {
 	const [columnData, setColumnData] = useState({
 		group: group._id,
@@ -49,17 +51,40 @@ const BoardItem = ({
 		if (groupBy) {
 			const HeaderComponent = headerMapper?.[groupBy];
 			return (
-				<HeaderComponent value={value} {...headerProps} disabled={true} colors={colors} />
+				<HeaderComponent
+					value={value}
+					{...(headerProps || {})}
+					disabled={true}
+					colors={colors}
+				/>
 			);
 		}
 		return null;
 	};
 
+	const mapFiltersPayload = useCallback((filters) => {
+		return filters.map((filter) => ({
+			key: filter.key,
+			value:
+				typeof filter.value === 'object'
+					? filter?.value?._id || filter?.value?.value
+					: filter?.value,
+		}));
+	}, []);
+
 	const fetchMoreData = () => {
 		if (!columnData.hasNextPage) return;
 		fetchGroupMoreData({
-			limit: columnData.limit || 10,
-			page: columnData.nextPage,
+			limit: columnData?.limit || 10,
+			page: columnData?.currentPage + 1,
+			sort:
+				sort?.length > 0
+					? sort?.map((item) => ({
+							sortBy: item?.sortBy,
+							sortType: item?.sortType,
+					  }))
+					: [{ sortBy: 'createdAt', sortType: 1 }],
+			filters: mapFiltersPayload(filters),
 			groupFilters: {
 				key: groupBy,
 				value: group._id,

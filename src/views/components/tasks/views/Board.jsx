@@ -1,18 +1,9 @@
 import React, { memo, useState, useCallback, useEffect, useMemo, useContext } from 'react';
 import '../../../../assets/scss/tasks/boardView.scss';
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-import { ReactComponent as PlusIcon } from '../../../../assets/svg/tasks/plus.svg';
-import Status from '../listView/Status';
-import Select from '../listView/Select';
-import CardItem from '../listView/CardItem';
+import { DragDropContext } from 'react-beautiful-dnd';
 import Skeleton from 'react-loading-skeleton';
 import BoardItem from '../listView/BoardItem';
 import Context from '../../../../context/context';
-
-const headerMapper = {
-	status: Status,
-	priority: Select,
-};
 
 const Board = ({
 	colors,
@@ -24,6 +15,8 @@ const Board = ({
 	groupBy = 'status',
 	onLoadMore,
 	handleAddButtonOnClick,
+	sort,
+	filters,
 }) => {
 	const {
 		tasks: { handleGroupChange, listTaskWithGroup, fetchGroupData },
@@ -32,10 +25,19 @@ const Board = ({
 	const [info, setInfo] = useState({
 		columns: [],
 		groups: [],
-		headerProps: responseMetadata?.[groupBy]?.props,
+		headerProps: null,
 		loading: true,
 		error: null,
 	});
+
+	useEffect(() => {
+		if (listTaskWithGroup?.groups) {
+			setInfo((prev) => ({
+				...prev,
+				headerProps: responseMetadata?.[groupBy]?.props,
+			}));
+		}
+	}, [groupBy]);
 
 	useEffect(() => {
 		if (listTaskWithGroup?.groups && info?.groups?.length) {
@@ -261,6 +263,8 @@ const Board = ({
 								onLoadMore={handleLoadMore}
 								fetchGroupMoreData={fetchGroupMoreData}
 								handleAddButtonOnClick={handleAddButtonOnClick}
+								sort={sort}
+								filters={filters}
 							/>
 						);
 					})}
@@ -295,6 +299,8 @@ const Board = ({
 											isEmpty={true}
 											onLoadMore={handleLoadMore}
 											fetchGroupMoreData={fetchGroupMoreData}
+											sort={sort}
+											filters={filters}
 										/>
 									);
 								})}

@@ -81,6 +81,8 @@ const rowTypes = {
 	linkText: LinkText,
 };
 
+const availableViews = ['table', 'board', 'list', 'gallery'];
+
 const Tasks = () => {
 	const {
 		tasks: {
@@ -103,7 +105,6 @@ const Tasks = () => {
 			updateTaskPreferences,
 			taskPreference,
 			getListTaskWithGroup,
-			listTaskWithGroup,
 		},
 		templates: { getWorkflowsList, workflowslist },
 		companyInfo: { getTeamMembers, tenantsUserList },
@@ -406,8 +407,6 @@ const Tasks = () => {
 
 	const fetchListItems = useCallback(
 		(page = 1) => {
-			console.log('info?.group', info?.group);
-
 			if (info?.group) {
 				getListTaskWithGroup({
 					taskFilterInput: {

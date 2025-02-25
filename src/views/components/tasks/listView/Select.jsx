@@ -15,28 +15,36 @@ const Select = ({
 	disabled = false,
 }) => {
 	const [info, setInfo] = useState({
+		// selectedOption: options?.find((option) => option?._id === value) || null,
 		selectedOption: null,
-		value: 'option1',
 		open: false,
 	});
 
 	useEffect(() => {
-		setInfo((prev) => ({
-			...prev,
-			selectedOption: options.find((option) => option._id === value),
-		}));
-	}, [value]);
+		if (options?.length) {
+			setInfo((prev) => ({
+				...prev,
+				selectedOption: options?.find((option) => option?._id === value) || null,
+			}));
+		}
+	}, [value, options]);
 
-	const handleOptionClick = (value) => {
-		onOptionClick(value);
+	const handleOptionClick = (optionId) => {
+		if (!optionId) return;
+		onOptionClick?.(optionId);
 		setInfo((prev) => ({ ...prev, open: false }));
 	};
 
-	const handleDropdown = (value) => {
-		setInfo((prevInfo) => ({
-			...prevInfo,
-			open: value,
+	const handleDropdown = (isOpen) => {
+		if (disabled) return;
+		setInfo((prev) => ({
+			...prev,
+			open: isOpen,
 		}));
+	};
+
+	const getBackgroundColor = (colorKey) => {
+		return colors?.[colorKey]?.backgroundColor || 'transparent';
 	};
 
 	return (
@@ -49,51 +57,55 @@ const Select = ({
 								<div
 									className="select-list-item-tag"
 									style={{
-										backgroundColor:
-											colors?.[info?.selectedOption?.color]?.backgroundColor,
+										backgroundColor: getBackgroundColor(
+											info.selectedOption.color,
+										),
 									}}
 								>
-									{info?.selectedOption?.label}
+									{info.selectedOption.label}
 								</div>
 							) : (
 								<input type="text" placeholder="Search for an option..." />
 							)}
 						</div>
-						<div className="select-options-dropdown-body">
-							<div className="select-options-dropdown-body-title">
-								Select an option
-							</div>
-							<div className="select-options-dropdown-body-options">
-								{options.map((option) => (
-									<div
-										className="select-list-item"
-										key={option._id}
-										onClick={() => handleOptionClick(option?._id)}
-									>
-										<SixDotsIcon />
-										<div className="select-list-item-tag-wrapper">
-											<div
-												className="select-list-item-tag"
-												style={{
-													backgroundColor:
-														colors?.[option?.color]?.backgroundColor,
-												}}
-											>
-												{option.label}
+						{!disabled && (
+							<div className="select-options-dropdown-body">
+								<div className="select-options-dropdown-body-title">
+									Select an option
+								</div>
+								<div className="select-options-dropdown-body-options">
+									{options?.map((option) => (
+										<div
+											className="select-list-item"
+											key={option?._id}
+											onClick={() => handleOptionClick(option?._id)}
+										>
+											<SixDotsIcon />
+											<div className="select-list-item-tag-wrapper">
+												<div
+													className="select-list-item-tag"
+													style={{
+														backgroundColor: getBackgroundColor(
+															option?.color,
+														),
+													}}
+												>
+													{option?.label}
+												</div>
 											</div>
+											<HorizontalMoreIcon
+												style={{
+													width: '20px',
+													height: '20px',
+													stroke: '#E8E8E8',
+													opacity: 0.5,
+												}}
+											/>
 										</div>
-										<HorizontalMoreIcon
-											style={{
-												width: '20px',
-												height: '20px',
-												stroke: '#E8E8E8',
-												opacity: 0.5,
-											}}
-										/>
-									</div>
-								))}
+									))}
+								</div>
 							</div>
-						</div>
+						)}
 					</div>
 				}
 				placement="bottom"
@@ -128,8 +140,9 @@ const Select = ({
 							<div
 								className="select-option-item"
 								style={{
-									backgroundColor:
-										colors?.[info?.selectedOption?.color]?.backgroundColor,
+									backgroundColor: getBackgroundColor(
+										info?.selectedOption?.color,
+									),
 								}}
 							>
 								{info?.selectedOption?.label}

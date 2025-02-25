@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import '../../../assets/scss/tasks/task.scss';
 import ListViewHeader from './listView/ListViewHeader';
 import { ReactComponent as ListViewIcon } from '../../../assets/svg/tasks/list.svg';
@@ -9,8 +9,6 @@ import ListView from './views/ListView';
 import BoardView from './views/Board';
 import GalleryView from './views/GalleryView';
 import TableView from './views/TableView';
-import TabDropDown from '../dropDown/tasks/TabDropDown';
-import QuickActions from '../globalComponents/QuickActions';
 
 const layouts = {
 	list: {
@@ -30,28 +28,6 @@ const layouts = {
 		label: 'Gallery view',
 	},
 };
-const layoutOptions = [
-	{
-		value: 'list',
-		label: 'List',
-		Icon: ListViewIcon,
-	},
-	{
-		value: 'board',
-		label: 'Board',
-		Icon: BoardViewIcon,
-	},
-	{
-		value: 'table',
-		label: 'Table',
-		Icon: TableViewIcon,
-	},
-	{
-		value: 'gallery',
-		label: 'Gallery',
-		Icon: GalleryViewIcon,
-	},
-];
 
 const Task = ({
 	blockTitle,
@@ -75,6 +51,7 @@ const Task = ({
 	updateView = () => {},
 	deleteView = () => {},
 	prefix = null,
+	availableViews = ['list', 'board', 'table', 'gallery'],
 }) => {
 	const [taskInfo, setTaskInfo] = useState({
 		tabs: null,
@@ -127,6 +104,31 @@ const Task = ({
 			});
 		}
 	}, [views]);
+
+	const layoutOptions = useMemo(() => {
+		return [
+			{
+				value: 'list',
+				label: 'List',
+				Icon: ListViewIcon,
+			},
+			{
+				value: 'board',
+				label: 'Board',
+				Icon: BoardViewIcon,
+			},
+			{
+				value: 'table',
+				label: 'Table',
+				Icon: TableViewIcon,
+			},
+			{
+				value: 'gallery',
+				label: 'Gallery',
+				Icon: GalleryViewIcon,
+			},
+		].filter((item) => availableViews.includes(item?.value));
+	}, []);
 
 	const closeEditViewDropDown = useCallback(() => {
 		setShowEditViewDropDown(false);
@@ -183,6 +185,7 @@ const Task = ({
 				filters: [],
 				sort: [],
 				order: views?.length || 0,
+				group: option === 'board' ? 'status' : null,
 			});
 		},
 		[views?.length, updateView],
@@ -370,6 +373,8 @@ const Task = ({
 						properties={properties}
 						rowTypes={rowTypes}
 						groupBy={taskInfo?.tabs?.[taskInfo?.activeTab]?.group}
+						sort={taskInfo?.tabs?.[taskInfo?.activeTab]?.sort}
+						filters={taskInfo?.tabs?.[taskInfo?.activeTab]?.filters}
 					/>
 				) : (
 					viewMapper(taskInfo?.tabs?.[taskInfo?.activeTab]?.viewType)
