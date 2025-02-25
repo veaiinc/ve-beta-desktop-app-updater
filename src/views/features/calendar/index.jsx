@@ -1,4 +1,5 @@
 import React, { memo, useCallback, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import '../../../assets/scss/calendar/calendarModule.scss';
 import CalendarMainPage from './CalendarMainPage';
 import SchedulerMainPage from './SchedulerMainPage';
@@ -9,6 +10,7 @@ const modules = [
 ];
 
 const CalendarModule = () => {
+	const navigate = useNavigate();
 	const [info, setInfo] = useState({
 		activeModule: 'scheduler', // calendar or scheduler
 	});
@@ -27,8 +29,14 @@ const CalendarModule = () => {
 			setInfo({
 				activeModule: module,
 			});
+			// Navigate to the appropriate route based on the selected module
+			if (module === 'scheduler') {
+				navigate('/scheduling');
+			} else if (module === 'calendar') {
+				navigate('/calendar');
+			}
 		},
-		[info?.activeModule],
+		[info?.activeModule, navigate],
 	);
 
 	return (

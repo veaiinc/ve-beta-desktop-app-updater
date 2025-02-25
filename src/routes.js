@@ -44,6 +44,7 @@ import EditAgent from './views/features/ai_assistant/EditAgent';
 import AgentDetails from './views/features/ai_assistant/AgentDetails';
 import InitialHomePage from './views/features/home_page/InitialHomePage';
 import Chat from './views/features/chat/Chat';
+import SchedulerMainPage from './views/features/calendar/SchedulerMainPage';
 const routes = [
 	{
 		path: '/',
@@ -285,6 +286,15 @@ const routes = [
 		component: (
 			<AuthWrapper title={'Calendar'} maxWidth={'95%'}>
 				<CalendarModule />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/scheduling',
+		component: (
+			<AuthWrapper title={'Scheduling'} maxWidth={'95%'}>
+				<SchedulerMainPage />
 			</AuthWrapper>
 		),
 		exact: true,

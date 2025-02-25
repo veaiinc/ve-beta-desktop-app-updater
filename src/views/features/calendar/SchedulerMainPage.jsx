@@ -115,8 +115,8 @@ const SchedulerMainPage = () => {
 				closeModal={handleCreateSessionModal}
 			/>
 			<UpdateSessionSlot
-				// open={info?.updateSessionSlot}
-				open={true}
+				open={info?.updateSessionSlot}
+				// open={true}
 				closeModal={handleUpdateSessionSlot}
 			/>
 		</>
