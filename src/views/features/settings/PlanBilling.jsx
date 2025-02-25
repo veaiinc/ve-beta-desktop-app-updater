@@ -366,7 +366,8 @@ const SubscribedUserPlanCard = ({
 																100,
 															)}%`,
 															background:
-																item?.usedValue / item?.totalValue >
+																item?.usedValue /
+																	item?.totalValue >=
 																1
 																	? '#FF0000'
 																	: item?.usedValue /
