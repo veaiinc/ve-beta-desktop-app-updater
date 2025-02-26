@@ -105,6 +105,7 @@ const ChatBox = ({
 	showChatLabels = true,
 	uploadedImages = [],
 	autoFocus = false,
+	chatToNoteLoopOn = false,
 }) => {
 	const {
 		templates: {
@@ -122,7 +123,9 @@ const ChatBox = ({
 		},
 		calendarInfo: { updateCalendarState },
 		tasks: { updateTaskState },
+		documentPreview: { noteContent, setNoteContent },
 	} = useContext(Context);
+
 	const {
 		isConnected,
 		isMuted,
@@ -396,7 +399,14 @@ const ChatBox = ({
 						);
 						setInfo((prev) => ({ ...prev, chatLoading: false }));
 						if (response?.[0]) {
-							const { db_updates, variables_required } = response?.[1];
+							const { db_updates, variables_required, answer } = response?.[1];
+							if (answer && chatToNoteLoopOn) {
+								if (noteContent?.length > 0) {
+									setNoteContent(noteContent + '\n\n' + answer);
+								} else {
+									setNoteContent(answer);
+								}
+							}
 							if (db_updates?.calendar_db_update) {
 								updateCalendarState({ refetchCalendarState: true });
 							}
@@ -414,7 +424,14 @@ const ChatBox = ({
 				}
 			}
 		},
-		[aiChatLoading, onSend, customChatActions, info, activeWorkflowSlugForSmartFile],
+		[
+			aiChatLoading,
+			onSend,
+			customChatActions,
+			chatToNoteLoopOn,
+			info,
+			activeWorkflowSlugForSmartFile,
+		],
 	);
 
 	const handleWorkflowSlugSelection = useCallback(
@@ -783,18 +800,20 @@ const ChatBox = ({
 																	<WebLightSvg />
 																)}
 															</div>
-															<div
-																className="right-text"
-																style={{
-																	color: `${
-																		isSearchTypeEnabled
-																			? '#0C0C0D'
-																			: '#f2f2f3'
-																	}`,
-																}}
-															>
-																{showChatLabels ? 'Search' : ''}
-															</div>
+															{showChatLabels && (
+																<div
+																	className="right-text"
+																	style={{
+																		color: `${
+																			isSearchTypeEnabled
+																				? '#0C0C0D'
+																				: '#f2f2f3'
+																		}`,
+																	}}
+																>
+																	Search
+																</div>
+															)}
 														</div>
 													</SearchTypeTooltip>
 
@@ -867,9 +886,11 @@ const ChatBox = ({
 														<div className="icon">
 															<Filter />
 														</div>
-														<div className="right-text">
-															{showChatLabels ? 'Filters' : ''}
-														</div>
+														{showChatLabels && (
+															<div className="right-text">
+																Filters
+															</div>
+														)}
 													</div>
 												</div>
 												{info?.chatQuery?.trim()?.length > 0 ? (
