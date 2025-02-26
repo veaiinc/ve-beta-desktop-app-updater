@@ -68,7 +68,10 @@ const RecentChat = ({
 	const { sessionId } = useParams();
 
 	useEffect(() => {
-		getRecentChatMessages(sessionId);
+		if (sessionId) {
+			getRecentChatMessages(sessionId);
+			setInfo((prev) => ({ ...prev, chatLoading: true }));
+		}
 	}, [sessionId]);
 
 	useEffect(() => {
@@ -92,6 +95,33 @@ const RecentChat = ({
 			updateStateValues({ currentSessionId: ObjectID().toString() });
 		}
 	}, [currentSessionId]);
+
+	useEffect(() => {
+		if (recentChatStorage) {
+			let messages = [];
+			for (let i = recentChatStorage?.length - 1; i >= 0; i--) {
+				const { originalQuery = '', response, messageId } = recentChatStorage?.[i] || {};
+				messages = [
+					{
+						message: originalQuery,
+						type: 'user',
+						typingEffect: false,
+						messageId,
+					},
+					{
+						message: response,
+						type: 'AI',
+						messageId,
+						typingEffect: false,
+						rating: null,
+					},
+				]?.concat(messages);
+			}
+			updateStateValues({ globalChatMessages: messages });
+			smoothScrollToBottom();
+			setInfo((prev) => ({ ...prev, chatLoading: false }));
+		}
+	}, [recentChatStorage]);
 
 	const handleRatingClick = async (type, messageId) => {
 		try {
