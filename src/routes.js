@@ -44,6 +44,7 @@ import EditAgent from './views/features/ai_assistant/EditAgent';
 import AgentDetails from './views/features/ai_assistant/AgentDetails';
 import InitialHomePage from './views/features/home_page/InitialHomePage';
 import Chat from './views/features/chat/Chat';
+import RecentChat from './views/features/chat/RecentChat';
 const routes = [
 	{
 		path: '/',
@@ -283,7 +284,7 @@ const routes = [
 	{
 		path: '/calendar',
 		component: (
-			<AuthWrapper title={'Calendar'} maxWidth={'1700px'}>
+			<AuthWrapper title={'Calendar'} maxWidth={'95%'}>
 				<Calendar />
 			</AuthWrapper>
 		),
@@ -409,6 +410,14 @@ const routes = [
 		component: (
 			<AuthWrapper title={'Chat'} showBottomToolbar={false}>
 				<Chat />
+			</AuthWrapper>
+		),
+	},
+	{
+		path: '/chat/:sessionId',
+		component: (
+			<AuthWrapper title={'Chat'} showBottomToolbar={false}>
+				<RecentChat />
 			</AuthWrapper>
 		),
 	},

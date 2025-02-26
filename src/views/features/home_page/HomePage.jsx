@@ -18,10 +18,10 @@ const topNavOptions = [
 
 const navbarOptions = {
 	start: [
-		{ id: 1, title: 'All', value: 'All' },
-		{ id: 2, title: 'Sales', value: 'Sales' },
-		{ id: 3, title: 'Marketing', value: 'Marketing' },
-		{ id: 4, title: 'Operations', value: 'Operations' },
+		{ id: 1, title: 'All', value: 'all' },
+		{ id: 2, title: 'Sales', value: 'sales' },
+		{ id: 3, title: 'Marketing', value: 'marketing' },
+		{ id: 4, title: 'Operations', value: 'operations' },
 	],
 	dashboard: [
 		{ id: 1, title: 'Priority', value: 'Priority' },
@@ -34,7 +34,7 @@ const navbarOptions = {
 
 let timeoutId = null;
 
-const HomePage = ({ getSelectedOption, start }) => {
+const HomePage = ({ getSelectedOption, start, setGoBackToInitialHomePage, promptsData }) => {
 	const [searchParams, setSearchParams] = useSearchParams();
 	let {
 		profileInfo: { userDetailsData },
@@ -44,7 +44,6 @@ const HomePage = ({ getSelectedOption, start }) => {
 		jwtDecode(localStorage.getItem('usertoken'))?.userName ??
 		`${userDetailsData?.firstName} ${userDetailsData?.lastName}` ??
 		'User';
-
 	const [info, setInfo] = useState({
 		activeTab: start ? 'start' : searchParams?.get('tab') ?? 'dashboard',
 		showPromptPopup: false,
@@ -87,6 +86,11 @@ const HomePage = ({ getSelectedOption, start }) => {
 	};
 
 	const handleSetActiveTab = (tab) => {
+		if (tab === 'start') {
+			setGoBackToInitialHomePage(true);
+		} else {
+			setSearchParams({ tab });
+		}
 		if (info?.activeTab === tab) {
 			return;
 		}
@@ -94,14 +98,13 @@ const HomePage = ({ getSelectedOption, start }) => {
 			...prev,
 			activeTab: tab,
 		}));
-		setSearchParams({ tab });
 	};
 
 	const propsForHeaderInfoAndNavBar = useMemo(() => {
 		return {
 			start: {
-				title: `Hey ${username},`,
-				subTitle: "I'm here to help",
+				title: `All your Prompts`,
+				subTitle: 'you need to ask me',
 				selectedOption: 'selectedOptionInStart',
 			},
 			dashboard: {
@@ -122,6 +125,7 @@ const HomePage = ({ getSelectedOption, start }) => {
 					cards={filteredPromptData}
 					setInfo={setInfo}
 					searchValue={info?.searchValue}
+					promptsData={promptsData}
 				/>
 			),
 			dashboard: (
@@ -153,7 +157,10 @@ const HomePage = ({ getSelectedOption, start }) => {
 							>
 								<div
 									className={`home-page-container-content-item ${
-										info?.activeTab === option?.value ? 'active' : ''
+										info?.activeTab === option?.value &&
+										info?.activeTab !== 'start'
+											? 'active'
+											: ''
 									}`}
 									onClick={() => handleSetActiveTab(option?.value)}
 								>
@@ -166,7 +173,10 @@ const HomePage = ({ getSelectedOption, start }) => {
 							</div>
 						))}
 					</div>
-					<div className="home-page-welcome-container-right">
+					<div
+						className="home-page-welcome-container-right"
+						style={{ marginRight: '32px' }}
+					>
 						<QuickActions />
 					</div>
 				</div>

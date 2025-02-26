@@ -1,6 +1,5 @@
 import React, { memo, useContext, useEffect, useState } from 'react';
 import { default as ReactMarkdown } from 'react-markdown';
-// import remarkGfm from 'remark-gfm';
 import { Link } from 'react-router-dom'; // Adjust if you're using another router
 import '../assets/scss/markdown.scss';
 import '../assets/scss/markdownHelper.scss';
@@ -12,6 +11,8 @@ import { ReactComponent as TickSvg } from '../assets/svg/tick.svg';
 import { ReactComponent as CopyIcon } from '../assets/svg/ai_agents/copy.svg';
 import Context from '../context/context';
 import { Tooltip } from 'antd';
+import { CitationsTooltip } from '../views/components/modalsV2/chat/CitationsTooltip';
+
 const components = {
 	pre: ({ children }) => <>{children}</>,
 	ol: ({ children, ...props }) => {
@@ -96,6 +97,13 @@ const components = {
 			</h6>
 		);
 	},
+	p: ({ children, ...props }) => {
+		return (
+			<p className="text-white" {...props}>
+				{children}
+			</p>
+		);
+	},
 	img: ({ children, ...props }) => {
 		return (
 			<div className="markdown-image-wrapper">
@@ -109,21 +117,58 @@ const components = {
 			</div>
 		);
 	},
-	// p: ({ children, ...props }) => {
-	// 	return (
-	// 		<h1 className="mt-6 mb-2" {...props}>
-	// 			{children}
-	// 		</h1>
-	// 	);
-	// },
+	span: ({ children, citationId, ...props }) => {
+		if (citationId) return <CitationsTooltip citationId={citationId} />;
+		return <span {...props}>{children}</span>;
+	},
 };
 
-// console.log('isChrome', isChrome);
+const rehypeCITPlugin = () => {
+	return (tree) => {
+		const visit = (node) => {
+			if (!node || typeof node !== 'object') return;
 
-// const remarkPlugins = [];
+			if (node?.type === 'text' && node?.value) {
+				const regex = /(\[CIT-\d+\])/g;
+				const matches = node?.value?.match(regex);
+				if (!matches) return;
+
+				// Transform the current node in place
+				Object.assign(node, {
+					type: 'element',
+					tagName: 'span',
+					properties: node?.properties || {},
+					children: node?.value
+						?.split(regex)
+						?.filter((part) => part !== '')
+						?.map((part) => {
+							const match = part.match(/\[CIT-\d+\]/);
+							if (match) {
+								return {
+									type: 'element',
+									tagName: 'span',
+									properties: { citationId: match[0]?.slice(1, -1) },
+									children: [{ type: 'text', value: 'Citation' }],
+								};
+							}
+							return { type: 'text', value: part };
+						}),
+				});
+			}
+
+			// Recursively visit children
+			if (node?.children && Array.isArray(node?.children)) {
+				node.children.forEach(visit);
+			}
+		};
+
+		visit(tree);
+	};
+};
+
 const NonMemoizedMarkdown = ({ children }) => {
 	return (
-		<ReactMarkdown remarkPlugins={[]} components={components}>
+		<ReactMarkdown remarkPlugins={[]} rehypePlugins={[rehypeCITPlugin]} components={components}>
 			{children}
 		</ReactMarkdown>
 	);
@@ -134,7 +179,16 @@ export const Markdown = memo(
 	(prevProps, nextProps) => prevProps.children === nextProps.children,
 );
 
-export const TypingEffect = ({ text, onComplete, customePencilClickFunc = null }) => {
+export const TypingEffect = ({
+	text,
+	onComplete = null,
+	customePencilClickFunc = null,
+	smoothScrollToBottom,
+	messageId = null,
+	handleRatingClick = null,
+	showTypingEffect = false,
+	rating = null,
+}) => {
 	const {
 		documentPreview: { setNoteContent },
 	} = useContext(Context);
@@ -148,13 +202,23 @@ export const TypingEffect = ({ text, onComplete, customePencilClickFunc = null }
 			const timeout = setTimeout(() => {
 				setDisplayedText((prev) => prev + text[currentIndex]);
 				setCurrentIndex((prev) => prev + 1);
+				if (smoothScrollToBottom) {
+					smoothScrollToBottom();
+				}
 			}, 5); // Adjust speed as needed
 
 			return () => clearTimeout(timeout);
-		} else if (onComplete) {
+		} else if (onComplete && showTypingEffect) {
 			onComplete();
 		}
 	}, [currentIndex, text, onComplete]);
+
+	useEffect(() => {
+		if (!showTypingEffect) {
+			setCurrentIndex(text?.length);
+			setDisplayedText(text);
+		}
+	}, [showTypingEffect]);
 
 	const handleCopyTextClick = (text) => {
 		navigator?.clipboard?.writeText(text).then(() => {
@@ -167,16 +231,18 @@ export const TypingEffect = ({ text, onComplete, customePencilClickFunc = null }
 
 	return (
 		<div className="typing-effect-container">
-			<div className="typing-effect">
-				<Markdown>{displayedText}</Markdown>
-				{currentIndex < text?.length && <span className="typing-cursor" />}
-			</div>
+			<Markdown>{displayedText}</Markdown>
 
 			{currentIndex === text?.length ? (
 				<div className="hover-actions-container">
 					<div className="icon-container">
 						<Tooltip placement="bottom" arrow={false} trigger={'hover'} title={'Like'}>
-							<ThumpsUpSvg />
+							<ThumpsUpSvg
+								fill={rating === 'thumbsUp' ? '#f2f2f3' : 'none'}
+								onClick={() =>
+									handleRatingClick && handleRatingClick('thumbsUp', messageId)
+								}
+							/>
 						</Tooltip>
 					</div>
 
@@ -187,7 +253,12 @@ export const TypingEffect = ({ text, onComplete, customePencilClickFunc = null }
 							trigger={'hover'}
 							title={'Dislike'}
 						>
-							<ThumpsDownSvg />
+							<ThumpsDownSvg
+								fill={rating === 'thumbsDown' ? '#f2f2f3' : 'none'}
+								onClick={() =>
+									handleRatingClick && handleRatingClick('thumbsDown', messageId)
+								}
+							/>
 						</Tooltip>
 					</div>
 

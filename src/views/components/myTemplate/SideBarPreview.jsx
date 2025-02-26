@@ -10,10 +10,12 @@ import { fetchOriginSelection, getCurrentWorkspaceId } from '../../../helpers';
 import CopiedModal from '../modalsV2/workflowsModals/CopiedModal';
 import { Spin } from 'antd';
 import Spinner from '../../components/loaders/Spinner';
+import { useNavigate } from 'react-router-dom';
 
 let origin = fetchOriginSelection();
 
 const SideBarPreview = ({ open, onClose, activeTemplate, openFileLeadModal }) => {
+	const navigate = useNavigate();
 	const {
 		templates: { getSpecificTemplatesInfo, specificTemplatesInfo },
 		profileInfo: { userWorkSpaceList, getTenantSettings, tennantSettingsData },
@@ -31,7 +33,7 @@ const SideBarPreview = ({ open, onClose, activeTemplate, openFileLeadModal }) =>
 
 	useEffect(() => {
 		if (smartfile?._id && info?.activeTemplateData?._id) {
-			window.location.href = `${origin}/${smartfile?._id}?workflow=true&templateId=${info?.activeTemplateData?._id}`;
+			window.location.href = `${origin}/workflow/${smartfile?._id}?workflow=true&templateId=${info?.activeTemplateData?._id}`;
 		}
 	}, [smartfile]);
 
@@ -157,7 +159,7 @@ const SideBarPreview = ({ open, onClose, activeTemplate, openFileLeadModal }) =>
 				<div className="previewLoader">
 					{info?.activeTemplateData?.moduleTemplates?.map((e, index) => (
 						<div className="modulesViewer" key={index}>
-							<span>{e?.module}</span>
+							<span>{e?.label}</span>
 							<div className="imageContainer">
 								<div style={{ width: '100%', height: '100%' }}>
 									<iframe

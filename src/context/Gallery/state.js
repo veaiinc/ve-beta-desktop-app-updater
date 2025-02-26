@@ -1653,7 +1653,6 @@ export const Galleries = () => {
 				const regionPrefix = region === 'ap-south-1' ? 'in' : 'us';
 
 				const url = `https://downloads.ve.ai/${regionPrefix}/${response[1].downloadId}`;
-				console.log('url==>downloadImages', url);
 				window.open(url, '_blank');
 				return [true, response?.[1]];
 			}

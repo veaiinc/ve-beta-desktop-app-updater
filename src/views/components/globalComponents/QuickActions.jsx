@@ -13,7 +13,7 @@ const dropdownOptions = [
 	{ id: 2, title: 'Meeting', value: 'meeting' },
 	{ id: 3, title: 'Task', value: 'task' },
 	{ id: 4, title: 'Document', value: 'document' },
-	{ id: 5, title: 'Form', value: 'form' },
+	{ id: 5, title: 'Form', value: 'form-submission' },
 	{ id: 6, title: 'Proposal', value: 'proposal' },
 	{ id: 7, title: 'Invoice', value: 'invoice' },
 	{ id: 8, title: 'Contract', value: 'contract' },
@@ -25,6 +25,7 @@ const QuickActions = ({ styles, customActions = [], clientDetails = null }) => {
 		openClientPopup: false,
 		// openTaskPopup: false,
 		dropdownOptions: customActions?.length > 0 ? customActions : dropdownOptions,
+		commonState: null,
 	});
 
 	let {
@@ -36,19 +37,19 @@ const QuickActions = ({ styles, customActions = [], clientDetails = null }) => {
 		if (type === 'meeting') {
 			navigate('/calendar');
 		} else if (type === 'document') {
-			setInfo({ ...info, openProposalPopup: true });
+			setInfo({ ...info, openProposalPopup: true, commonState: 'All' });
 		} else if (type === 'client') {
 			setInfo({ ...info, openClientPopup: true });
 		} else if (type === 'task') {
 			navigate('/tasks');
 		} else if (type === 'proposal') {
-			setInfo({ ...info, openProposalPopup: true });
-		} else if (type === 'form') {
-			setInfo({ ...info, openProposalPopup: true });
+			setInfo({ ...info, openProposalPopup: true, commonState: 'proposal' });
+		} else if (type === 'form-submission') {
+			setInfo({ ...info, openProposalPopup: true, commonState: 'form-submission' });
 		} else if (type === 'invoice') {
-			setInfo({ ...info, openProposalPopup: true });
+			setInfo({ ...info, openProposalPopup: true, commonState: 'invoice' });
 		} else if (type === 'contract') {
-			setInfo({ ...info, openProposalPopup: true });
+			setInfo({ ...info, openProposalPopup: true, commonState: 'contract' });
 		}
 	}, []);
 	return (
@@ -84,6 +85,7 @@ const QuickActions = ({ styles, customActions = [], clientDetails = null }) => {
 				open={info?.openProposalPopup}
 				closeModal={() => setInfo({ ...info, openProposalPopup: false })}
 				clientDetails={clientDetails}
+				commonState={info?.commonState}
 			/>
 			<CreateClientModal
 				modalIsOpen={info?.openClientPopup}

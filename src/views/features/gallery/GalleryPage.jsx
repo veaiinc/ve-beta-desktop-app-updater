@@ -177,7 +177,7 @@ const GalleryPage = () => {
 		albumTagId: '',
 		hasMore: true,
 		page: 1,
-		limit: 20,
+		limit: 40,
 		albumTags: albumDetails?.tags,
 		isDragging: false,
 		draggedImages: [],
@@ -1710,8 +1710,10 @@ const GalleryPage = () => {
 
 	// ... rest of the code ...
 	const handleCopyLightRoomList = () => {
-		if (info.lightroomCopyList?.length) {
-			const textToCopy = info.lightroomCopyList.join(',');
+		if (info?.lightroomCopyList?.length) {
+			const textToCopy = info?.lightroomCopyList
+				?.map((item) => item?.replace(/\.jpg$/i, ''))
+				?.join(',');
 
 			navigator.clipboard
 				.writeText(textToCopy)
@@ -1730,6 +1732,7 @@ const GalleryPage = () => {
 			message.warning('No items to copy');
 		}
 	};
+
 	// ... existing code ...
 
 	// ... existing code ...

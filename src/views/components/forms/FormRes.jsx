@@ -4,6 +4,7 @@ import Context from '../../../context/context';
 import { FetchMoreLoaderComp, isURL } from '../../../helpers';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import moment from 'moment';
+import FormModal from './FormModal';
 
 const FormRes = ({ formId, updateTotalSubmissions }) => {
 	const {
@@ -17,6 +18,8 @@ const FormRes = ({ formId, updateTotalSubmissions }) => {
 		loading: true,
 		formResponses: [],
 		columns: [],
+		modalIsOpen: false,
+		selectedRow: null,
 	});
 
 	useEffect(() => {
@@ -113,6 +116,23 @@ const FormRes = ({ formId, updateTotalSubmissions }) => {
 			}
 		}
 
+		if (questionData?.type === 'fileupload') {
+			const fileType = questionData?.answer?.type;
+			const isPDF = fileType?.includes('application/pdf');
+			return isPDF ? (
+				<a href={questionData?.answer} target="_blank" rel="noopener noreferrer">
+					<iframe
+						style={{ width: '100%', height: '100%' }}
+						src={questionData?.answer?.previewUrl}
+						title={questionData?.answer?.name}
+					/>
+				</a>
+			) : (
+				// TODO: need to test other file types here
+				<></>
+			);
+		}
+
 		return questionData?.answer || '';
 	};
 
@@ -170,6 +190,10 @@ const FormRes = ({ formId, updateTotalSubmissions }) => {
 		}));
 	}, []);
 
+	const handleOpenModal = (row) => {
+		setInfo((prev) => ({ ...prev, modalIsOpen: true, selectedRow: row }));
+	};
+
 	return (
 		<div className="formResParentContainer">
 			<div className="tableWrapper">
@@ -184,9 +208,9 @@ const FormRes = ({ formId, updateTotalSubmissions }) => {
 								display: 'flex',
 								flexDirection: 'column',
 								gap: '8px',
-								width: '100%',
+								width: 'fit-content',
 							}}
-							height="calc(100vh - 450px)"
+							height="calc(100vh - 520px)"
 						>
 							<div className="headerRow">
 								{info?.columns?.map((column, index) => (
@@ -208,12 +232,17 @@ const FormRes = ({ formId, updateTotalSubmissions }) => {
 								))}
 							</div>
 							{info?.formResponses?.map((row, rowIndex) => (
-								<div key={rowIndex} className="tableRow">
+								<div
+									key={rowIndex}
+									className="tableRow"
+									style={{ cursor: 'pointer' }}
+								>
 									{info?.columns?.map((column) => (
 										<div
 											key={column?.id}
 											className="tableCell"
 											style={{ width: column?.width }}
+											onClick={() => handleOpenModal(row)}
 										>
 											{column?.id === 'status' ? (
 												<span
@@ -238,6 +267,13 @@ const FormRes = ({ formId, updateTotalSubmissions }) => {
 					</div>
 				</div>
 			</div>
+			<FormModal
+				isOpen={info?.modalIsOpen}
+				onClose={() =>
+					setInfo((prev) => ({ ...prev, modalIsOpen: false, selectedRow: null }))
+				}
+				selectedRow={info?.selectedRow}
+			/>
 		</div>
 	);
 };

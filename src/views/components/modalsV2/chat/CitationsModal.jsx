@@ -39,17 +39,20 @@ const CitationsModal = ({ closeModal, modalIsOpen }) => {
 				<div className="sources">
 					{info?.citations?.length > 0 ? (
 						info?.citations?.map((citation, index) => {
+							const name = citation?.['name'] || '';
+							const type = citation?.type || '';
+							const link = citation?.[type] || '';
 							return (
 								<div className="source-container">
 									<div className="image"></div>
 									<div className="info">
 										<a
 											className="link"
-											href={citation?.url}
+											href={link}
 											target="_blank"
 											rel="noreferrer"
 										>
-											{citation?.url}
+											{name}
 										</a>
 										<div className="order">{index + 1}</div>
 									</div>

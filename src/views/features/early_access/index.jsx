@@ -80,7 +80,7 @@ const EarlyAccess = () => {
 
 	useEffect(() => {
 		if (usertoken?.length === 0) {
-			navigate('/');
+			window.location.replace('/');
 		}
 		if (userWorkSpaceList) {
 			checkIsOnBoardUser();
