@@ -78,6 +78,7 @@ export const AutomationBuilderState = () => {
 						tenantId,
 						status,
 						moduleTemplates: [], // TODO: add module templates key once we have it
+						isAutomation: true,
 					};
 				});
 				const data = append
@@ -195,6 +196,25 @@ export const AutomationBuilderState = () => {
 			return response;
 		} catch (error) {
 			console.log('API failed ==> updateAutomation', error);
+		}
+	};
+
+	const renameAutomationTitle = async (automationId, rename) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const path = `/${workspaceId}/${automationId}/update-automation`;
+			const token = localStorage.getItem('usertoken');
+			const body = {
+				name: rename,
+			};
+			const type = 'automation_builder_api';
+			const response = await Service?.fetchPut(path, body, token, type);
+			if ((response?.[0] >= 200 && response?.[0] < 300) || response?.[0] === true) {
+				return [true];
+			}
+			return [false];
+		} catch (error) {
+			console.log('API failed ==> renameAutomation', error);
 		}
 	};
 
@@ -337,5 +357,6 @@ export const AutomationBuilderState = () => {
 		// getPreviousStepResponse,
 		// executeAutomation,
 		getVariables,
+		renameAutomationTitle,
 	};
 };

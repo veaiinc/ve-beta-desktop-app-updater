@@ -68,7 +68,7 @@ const ProposalPopup = ({ open, closeModal, clientDetails = null, commonState }) 
 		if (info?.selectedOption !== 'All') {
 			getMyWorkflowsTemplatesData(1, info?.search, false, info?.selectedOption);
 		} else {
-			getMyWorkflowsTemplatesData(1);
+			if (open && !myWorkflows?.length) getMyWorkflowsTemplatesData(1);
 		}
 	}, [info?.selectedOption]);
 
