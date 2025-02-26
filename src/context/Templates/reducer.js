@@ -153,7 +153,10 @@ const actionHandlers = {
 		...state,
 		moduleTemplateData: action.payload,
 	}),
-
+	RECENT_CHAT_MESSAGES_ACTIONS_REQUESTS: (state, action) => ({
+		...state,
+		[action?.selectedvariable]: action.payload,
+	}),
 	RESET_STATE: () => intialState,
 };
 

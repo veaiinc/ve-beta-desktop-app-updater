@@ -94,6 +94,8 @@ export const intialState = {
 	moreFormResponsesList: null,
 	activePromptForChat: null,
 	leftSidebarState: null,
+	recentChatStorage: null,
+	moreRecentChatStorage: null,
 };
 
 export const TemplatesState = (props) => {
@@ -1795,6 +1797,34 @@ export const TemplatesState = (props) => {
 			return [false, error?.message];
 		}
 	};
+
+	const getRecentChatMessages = async (sessionId, page = 1, fetchMore = false, limit = 10) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const selectedvariable = fetchMore ? 'moreRecentChatStorage' : 'recentChatStorage';
+			const response = await Service.fetchGet(
+				`/${workspaceId}/list-multiagent-conversations/${encodeURIComponent(
+					sessionId,
+				)}?page=${page}&limit=${limit}&sortBy=createdAt&sortType=-1`,
+				usertoken,
+				'tenant',
+			);
+
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.RECENT_CHAT_MESSAGES_ACTIONS_REQUESTS,
+					payload: response?.[1],
+					selectedvariable,
+				});
+			} else {
+				console.log('errror ==>getRecentChatMessages', response);
+				return [false];
+			}
+		} catch (error) {
+			console.log('errror ==>getRecentChatMessages', error);
+		}
+	};
 	return {
 		...state,
 		getMyWorkflows,
@@ -1864,5 +1894,6 @@ export const TemplatesState = (props) => {
 		updateAiChatMessageRating,
 		getModuleTemplate,
 		getCitationData,
+		getRecentChatMessages,
 	};
 };
