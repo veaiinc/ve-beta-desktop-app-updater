@@ -10,6 +10,8 @@ import CitationsModal from '../../components/modalsV2/chat/CitationsModal';
 import NoteComponentModal from '../../components/notes/NoteComponentModal';
 import ChatBox from '../../components/homePage/ChatBox';
 import { useParams } from 'react-router-dom';
+import InfiniteScroll from 'react-infinite-scroll-component';
+import { FetchMoreLoaderComp } from '../../../helpers';
 
 const moduleHelper = {
 	tasks: 'tasks',
@@ -60,7 +62,8 @@ const RecentChat = ({
 		voiceIntegration: false,
 		noteModalIsOpen: false,
 		citationsModalIsOpen: false,
-		// chatList: [],
+		page: 1,
+		hasNextPage: true,
 	});
 
 	const chatContentRef = useRef(null);
@@ -118,8 +121,10 @@ const RecentChat = ({
 				]?.concat(messages);
 			}
 			updateStateValues({ globalChatMessages: messages });
-			smoothScrollToBottom();
 			setInfo((prev) => ({ ...prev, chatLoading: false }));
+			setTimeout(() => {
+				smoothScrollToBottom();
+			}, 1000);
 		}
 	}, [recentChatStorage]);
 
@@ -185,6 +190,21 @@ const RecentChat = ({
 		updateStateValues({ globalChatMessages: messages });
 	};
 
+	const fetchMoreData = async () => {
+		console.log('I was called herer my frnd==>');
+		// if (!info.hasMore || info.chatLoading) return;
+		// try {
+		// 	setInfo((prev) => ({ ...prev, chatLoading: true }));
+		// 	const oldestMessage = globalChatMessages[0];
+		// 	const oldestMessageId = oldestMessage?.messageId;
+		// 	await getRecentChatMessages(sessionId, oldestMessageId);
+		// } catch (error) {
+		// 	console.error('Error loading more messages:', error);
+		// } finally {
+		// 	setInfo((prev) => ({ ...prev, chatLoading: false }));
+		// }
+	};
+
 	return (
 		<>
 			<div className="chat-container">
@@ -214,42 +234,61 @@ const RecentChat = ({
 							width: `${info?.citationsModalIsOpen ? 'calc(100% - 400px)' : '100%'}`,
 						}}
 					>
-						<div className={`chatBodyParentContainer`} ref={chatContentRef}>
-							<div className="chatContent">
-								{(globalChatMessages || [])?.map((chat, index) =>
-									chat?.content ? (
-										chat?.content
-									) : (
-										<div
-											key={index}
-											className={`chat-message ${chat?.type?.toLowerCase()}-message`}
-										>
-											<div className="message-content">
-												{chat?.type?.toLowerCase() === 'ai' ? (
-													<div className="content">
-														<TypingEffect
-															text={chat?.message}
-															messageId={chat?.messageId}
-															customePencilClickFunc={
-																handleNoteComponentModalOpen
-															}
-															smoothScrollToBottom={
-																smoothScrollToBottom
-															}
-															handleRatingClick={handleRatingClick}
-															showTypingEffect={chat?.typingEffect}
-															onComplete={handleStopTypingEffect}
-															rating={chat?.rating}
-														/>
-													</div>
-												) : (
-													<Markdown>{chat?.message}</Markdown>
-												)}
+						<div
+							className={`chatBodyParentContainer`}
+							ref={chatContentRef}
+							id="scrollableDiv"
+						>
+							<InfiniteScroll
+								dataLength={globalChatMessages?.length || 0}
+								next={fetchMoreData}
+								hasMore={true}
+								loader={<FetchMoreLoaderComp />}
+								scrollableTarget="scrollableDiv"
+								inverse={true}
+								style={{ display: 'flex', flexDirection: 'column-reverse' }}
+								height={'700px'}
+							>
+								<div className="chatContent">
+									{(globalChatMessages || [])?.map((chat, index) =>
+										chat?.content ? (
+											chat?.content
+										) : (
+											<div
+												key={index}
+												className={`chat-message ${chat?.type?.toLowerCase()}-message`}
+											>
+												<div className="message-content">
+													{chat?.type?.toLowerCase() === 'ai' ? (
+														<div className="content">
+															<TypingEffect
+																text={chat?.message}
+																messageId={chat?.messageId}
+																customePencilClickFunc={
+																	handleNoteComponentModalOpen
+																}
+																smoothScrollToBottom={
+																	smoothScrollToBottom
+																}
+																handleRatingClick={
+																	handleRatingClick
+																}
+																showTypingEffect={
+																	chat?.typingEffect
+																}
+																onComplete={handleStopTypingEffect}
+																rating={chat?.rating}
+															/>
+														</div>
+													) : (
+														<Markdown>{chat?.message}</Markdown>
+													)}
+												</div>
 											</div>
-										</div>
-									),
-								)}
-							</div>
+										),
+									)}
+								</div>
+							</InfiniteScroll>
 						</div>
 
 						<ChatBox autoFocus={true} />
