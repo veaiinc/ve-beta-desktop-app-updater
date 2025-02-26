@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { ReactComponent as DoubleArrow } from '../../../../assets/svg/worflow_builder/buildercard/doubleArrow.svg';
 import '../../../../assets/scss/automation_builder/automationBuilderSidebarComponents/headerComponent.scss';
 
@@ -13,4 +13,4 @@ const HeaderComponent = ({ onBack, heading }) => {
 	);
 };
 
-export default HeaderComponent;
+export default memo(HeaderComponent);

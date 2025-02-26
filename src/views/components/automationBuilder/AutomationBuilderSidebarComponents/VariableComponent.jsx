@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState, memo } from 'react';
 import '../../../../assets/scss/automation_builder/automationBuilderSidebarComponents/variableComponent.scss';
 import { ReactComponent as CrossIcon } from '../../../../assets/svg/workspaceSettings/cross.svg';
 import { Tooltip } from 'antd';
@@ -174,4 +174,4 @@ const VariableComponent = ({ value, onChange, variables, type = 'text' }) => {
 	);
 };
 
-export default VariableComponent;
+export default memo(VariableComponent);

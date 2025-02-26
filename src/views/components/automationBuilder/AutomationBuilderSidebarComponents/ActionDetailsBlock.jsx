@@ -7,6 +7,7 @@ const ActionDetailsBlock = ({
 	title = '',
 	description = '',
 	updaterFn,
+	onChangeButtonClick = () => {},
 }) => {
 	return (
 		<div className="actionDetailsBlockContainer">
@@ -15,7 +16,9 @@ const ActionDetailsBlock = ({
 					<h3>{heading}</h3>
 					<span className="actionDetailsBlockHeaderActionName">{actionLabel}</span>
 				</div>
-				<button className="actionDetailsBlockHeaderButton">Change</button>
+				<button className="actionDetailsBlockHeaderButton" onClick={onChangeButtonClick}>
+					Change
+				</button>
 			</div>
 			<div className="actionDetailsBlockBody">
 				<input

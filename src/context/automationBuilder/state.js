@@ -145,8 +145,8 @@ export const AutomationBuilderState = () => {
 			);
 			if (response?.[0]) {
 				dispatch({
-					type: Actions.ADD_STEP,
-					payload: response?.[1]?.newStep,
+					type: Actions.SET_AUTOMATION,
+					payload: response?.[1]?.updatedAutomation,
 				});
 				return [true, response?.[1]?.newStep];
 			}

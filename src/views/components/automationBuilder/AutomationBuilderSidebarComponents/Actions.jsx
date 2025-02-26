@@ -21,6 +21,7 @@ import GetDraft from './GetDraft';
 import VariableComponent from './VariableComponent';
 import ActionDetailsBlock from './ActionDetailsBlock';
 import moment from 'moment';
+import CreateFile from './CreateFile';
 
 const actionsList = {
 	tasks: { title: 'Create Tasks' },
@@ -28,6 +29,17 @@ const actionsList = {
 };
 
 const actionGroups = [
+	{
+		_id: 'inApp',
+		groupName: 'In App',
+		icon: null,
+		actions: [
+			{
+				actionLabel: 'Create Document',
+				actionType: 'createForm',
+			},
+		],
+	},
 	{
 		_id: 'google',
 		groupName: 'Google',
@@ -187,9 +199,45 @@ const Actions = ({
 		[editMode, activeStepsData],
 	);
 
+	const addNode = useCallback(
+		async (data) => {
+			if (info?.saveLoader) {
+				return;
+			}
+			setInfo((prev) => ({ ...prev, saveLoader: true }));
+
+			const previousStepId = activeEdge?.split('-')?.[0];
+
+			const payload = {
+				type: 'action',
+				app: 'inApp',
+				isEnabled: true,
+				previousStepId,
+				...data,
+			};
+			const response = await addStep(automationId, payload);
+			if (response?.[0]) {
+				onCLose();
+			}
+			setInfo((prev) => ({ ...prev, saveLoader: false }));
+		},
+		[info?.saveLoader, activeEdge, automationId, onCLose, addStep],
+	);
+
+	const updateInfo = useCallback((data) => {
+		setInfo((prev) => ({ ...prev, ...data }));
+	}, []);
+
 	const stageMapper = useMemo(() => {
 		return {
-			stage1: <Stage1 info={info} handleSearch={handleSearch} changeStage={changeStage} />,
+			stage1: (
+				<Stage1
+					info={info}
+					handleSearch={handleSearch}
+					changeStage={changeStage}
+					updateInfo={updateInfo}
+				/>
+			),
 			stage2: (
 				<Stage2
 					changeStage={changeStage}
@@ -217,10 +265,22 @@ const Actions = ({
 		};
 	}, [info, handleSearch, createNewActionNode, variables, automationId, info?.previousStepId]);
 
+	const actionMapper = useMemo(() => {
+		return {
+			createForm: (
+				<CreateFile
+					onBack={() => updateInfo({ actionType: '' })}
+					onSave={addNode}
+					addTriggerLoading={info?.saveLoader}
+				/>
+			),
+		};
+	}, [updateInfo, addNode, info?.saveLoader]);
+
 	return (
 		<div className="actionSidebarComponents">
 			{info?.actionType ? (
-				<GetDraft />
+				actionMapper?.[info?.actionType]
 			) : (
 				<>
 					<div className="actionSidebarComponentsHeader">
@@ -237,7 +297,7 @@ const Actions = ({
 
 export default memo(Actions);
 
-const Stage1 = ({ info, handleSearch, changeStage }) => {
+const Stage1 = ({ info, handleSearch, changeStage, updateInfo }) => {
 	const actionListOnClick = useCallback((data) => {
 		if (data?.title === 'Create Tasks') {
 			changeStage({ activeStage: 'stage2' });
@@ -278,7 +338,11 @@ const Stage1 = ({ info, handleSearch, changeStage }) => {
 					<div className="actionGroupItem" key={index}>
 						<h3>{ele?.groupName}</h3>
 						{ele?.actions?.map((action, index) => (
-							<div className="actionItem" key={index}>
+							<div
+								className="actionItem"
+								key={index}
+								onClick={() => updateInfo({ actionType: action?.actionType })}
+							>
 								<div className="actionItemIcon">{ele?.icon}</div>
 								<div className="actionItemLabel">{action?.actionLabel}</div>
 							</div>

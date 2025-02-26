@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { memo, useEffect, useState } from 'react';
 import HeaderComponent from './HeaderComponent';
 import ActionDetailsBlock from './ActionDetailsBlock';
 import HeadersDropDownComp from '../../dropDown/HeadersDropDownComp';
@@ -185,4 +185,4 @@ const GoogleTriggers = ({
 	);
 };
 
-export default GoogleTriggers;
+export default memo(GoogleTriggers);
