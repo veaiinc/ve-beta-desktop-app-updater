@@ -85,7 +85,6 @@ const Chats = ({ showChatsDrawer, setShowChatsDrawer }) => {
 								display: 'flex',
 								flexDirection: 'column',
 								alignItems: 'flex-start',
-								gap: '8px',
 								flex: '1 0 0',
 								alignSelf: 'stretch',
 							}}

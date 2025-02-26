@@ -80,6 +80,7 @@ export const intialState = {
 	createLeadModalContextState: false,
 	globalChatMessages: [], // { type: 'AI', message: 'Hello, how can I help you today?' }
 	currentSessionId: null,
+	deepResearch: false,
 	citations: null,
 	followUpQuery: null,
 	docsFilesList: null,
@@ -1565,6 +1566,7 @@ export const TemplatesState = (props) => {
 					messageId: response?.[1]?.['message_id'],
 					typingEffect: true,
 					rating: null,
+					deepResearch: response?.[1]?.['deep_research'],
 				};
 				dispatch({
 					type: Actions.GLOBAL_CHAT_MESSAGES_ACTIONS_SUCCESS,
