@@ -7,6 +7,7 @@ import Context from '../../../context/context';
 import ProposalsPopup from '../../components/docs/ProposalsPopup';
 import CreateClientModal from '../../components/modalsV2/contacts/CreateClientModal';
 import CreateTaskPopup from '../../components/modalsV2/tasks/CreateTaskPopup';
+import Spinner from '../loaders/Spinner';
 
 const dropdownOptions = [
 	{ id: 0, title: 'Lead', value: 'client' },
@@ -27,6 +28,7 @@ const QuickActions = ({ styles, customActions = [], clientDetails = null }) => {
 		// openTaskPopup: false,
 		dropdownOptions: customActions?.length > 0 ? customActions : dropdownOptions,
 		commonState: null,
+		isAutomationLoading: false,
 	});
 
 	let {
@@ -58,6 +60,8 @@ const QuickActions = ({ styles, customActions = [], clientDetails = null }) => {
 	}, []);
 
 	const handleCreateAutomation = useCallback(async () => {
+		if (info?.isAutomationLoading) return;
+		setInfo({ ...info, isAutomationLoading: true });
 		const response = await createAutomation({
 			name: 'Untitled Automation',
 			version: 1,
@@ -69,6 +73,7 @@ const QuickActions = ({ styles, customActions = [], clientDetails = null }) => {
 		} else {
 			message.error('Failed to create automation');
 		}
+		setInfo({ ...info, isAutomationLoading: false });
 	}, [createAutomation, navigate]);
 
 	return (
@@ -87,7 +92,19 @@ const QuickActions = ({ styles, customActions = [], clientDetails = null }) => {
 								className="dropdown-option"
 								onClick={() => handleDropdownOptionClick(option?.value)}
 							>
-								{option?.title}
+								{option?.value === 'automation' ? (
+									info?.isAutomationLoading ? (
+										<Spinner
+											width="20px"
+											height="20px"
+											cssstyle={{ margin: '0 auto' }}
+										/>
+									) : (
+										option?.title
+									)
+								) : (
+									option?.title
+								)}
 							</div>
 						))}
 					</div>
