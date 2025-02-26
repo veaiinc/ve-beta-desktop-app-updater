@@ -2,7 +2,8 @@ module.exports = {
 	//please add both region urls
 
 	//india
-	tenant_api: 'https://ap.api.ve.ai/tenants/1.0',
+	// tenant_api: 'https://ap.api.ve.ai/tenants/1.0',
+	tenant_api: 'https://us.api.ve.ai/tenants/dev',
 	tenant_users_api: 'https://ap.api.ve.ai/tenant-users/1.0',
 	ve_conversations_api: 'https://api.ve.co/ve-conversations/1.0',
 	proposals_api: 'https://ap.api.ve.ai/proposals/1.0',
@@ -19,7 +20,7 @@ module.exports = {
 	automation_builder_api: 'https://ap.api.ve.ai/automations/1.0/automation',
 
 	//outside India
-	tenant_api_US: 'https://us.api.ve.ai/tenants/1.0',
+	tenant_api_US: 'https://us.api.ve.ai/tenants/dev',
 	tenant_users_api_US: 'https://us.api.ve.ai/tenant-users/1.0',
 	ve_conversations_api_US: 'https://us.api.ve.ai/ve-conversations/1.0',
 	proposals_api_US: 'https://us.api.ve.ai/proposals/1.0',

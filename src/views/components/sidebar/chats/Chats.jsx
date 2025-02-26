@@ -1,15 +1,17 @@
 import { Drawer } from 'antd';
-import React, { useContext, useEffect, memo } from 'react';
+import React, { useContext, useEffect, memo, useCallback } from 'react';
 import '../../../../assets/scss/chats.scss';
 import { ReactComponent as Back } from '../../../../assets/svg/sidebar/notifications/back.svg';
 import Context from '../../../../context/context';
 import { FetchMoreLoaderComp } from '../../../../helpers';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import moment from 'moment';
+import { useNavigate } from 'react-router-dom';
 
 const infiniteScrollHeight = 'calc(100vh - 72px)';
 
 const Chats = ({ showChatsDrawer, setShowChatsDrawer }) => {
+	const navigate = useNavigate();
 	let {
 		aiSetup: { getAiChatSessions, aiChatSessions },
 	} = useContext(Context);
@@ -41,6 +43,11 @@ const Chats = ({ showChatsDrawer, setShowChatsDrawer }) => {
 			getAiChatSessions(currentPage + 1, 30, false);
 		}
 	};
+
+	const handleChatNavigation = useCallback((chat) => {
+		navigate(`/chat/${chat?._id}`);
+		handleCloseDrawer();
+	}, []);
 
 	return (
 		<Drawer
@@ -78,14 +85,18 @@ const Chats = ({ showChatsDrawer, setShowChatsDrawer }) => {
 								display: 'flex',
 								flexDirection: 'column',
 								alignItems: 'flex-start',
-								gap: '8px',
 								flex: '1 0 0',
 								alignSelf: 'stretch',
 							}}
 							height={infiniteScrollHeight}
 						>
 							{chats?.map((chat) => (
-								<div key={chat?.id} className="chat-container">
+								<div
+									key={chat?.id}
+									className="chat-container"
+									onClick={() => handleChatNavigation(chat)}
+									style={{ cursor: 'pointer' }}
+								>
 									<p className="chat-title">{chat?.query}</p>
 									<p className="chat-timestamp">
 										{formatTimestamp(chat?.createdAt)}
