@@ -143,16 +143,10 @@
 						gap: 10px;
 						height: 100%;
 
-						.chevron-icon {
-							transform: rotate(180deg);
+						.back-icon {
 							cursor: pointer;
-
-							svg {
-								path {
-									stroke: #f2f2f3;
-								}
-							}
 						}
+
 						.full-screen-icon {
 							display: flex;
 							align-items: center;

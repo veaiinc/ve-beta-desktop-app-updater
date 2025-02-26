@@ -4,7 +4,7 @@ import '../../../assets/scss/notes/noteComponentModal.scss';
 import NoteComponent from './NoteComponent';
 import { TypingEffect } from '../../../helpers/markdownHelper';
 import Markdown from 'react-markdown';
-import { ReactComponent as ChevronRightThinSvg } from '../../../assets/svg/tasks/chevronRightThin.svg';
+import { ReactComponent as BackSvg } from '../../../assets/svg/sidebar/leftarrowwhite.svg';
 import { ReactComponent as PreviousSvg } from '../../../assets/svg/notes/previous.svg';
 import { ReactComponent as NextSvg } from '../../../assets/svg/notes/next.svg';
 import { ReactComponent as CopySvg } from '../../../assets/svg/notes/copy.svg';
@@ -118,15 +118,15 @@ const NoteComponentModal = ({ modalIsOpen, closeModal, handleRatingClick, chatLi
 					<div className="header">
 						<div className="left">
 							<div
-								className="chevron-icon"
+								className="back-icon"
 								onClick={handleFullScreenClick}
 								style={{
 									transform: info?.noteComponentFullScreen
-										? 'none'
-										: 'rotate(180deg)',
+										? 'rotate(180deg)'
+										: 'none',
 								}}
 							>
-								<ChevronRightThinSvg />
+								<BackSvg />
 							</div>
 							<div className="full-screen-icon" onClick={closeModal}>
 								<FullScreenSvg />
