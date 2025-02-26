@@ -77,7 +77,7 @@ const RecentChat = ({
 			updateStateValues({
 				moreRecentChatStorage: null,
 				recentChatStorage: null,
-				globalChatMessages: null,
+				globalChatMessages: [],
 			});
 		};
 	}, []);
@@ -164,11 +164,19 @@ const RecentChat = ({
 				]?.concat(messages);
 			}
 
-			chatContentRef.current.scrollBy({
-				top: 500,
-				behavior: 'smooth',
-			});
+			// First update messages
 			updateStateValues({ globalChatMessages: messages?.concat(globalChatMessages) });
+
+			// Then smoothly scroll after a short delay to allow render
+			setTimeout(() => {
+				if (chatContentRef?.current) {
+					chatContentRef.current.scrollBy({
+						top: 300, // Reduced from 500 for smoother feel
+						behavior: 'smooth',
+					});
+				}
+			}, 100);
+
 			setInfo((prev) => ({ ...prev, chatLoading: false, hasNextPage, currentPage }));
 		}
 	}, [moreRecentChatStorage]);
@@ -218,20 +226,22 @@ const RecentChat = ({
 
 	const smoothScrollToBottom = useCallback(
 		(type) => {
-			if (chatContentRef?.current) {
-				chatContentRef.current.scrollTo({
-					top: chatContentRef.current.scrollHeight,
-					behavior: 'smooth', // Enables smooth scrolling
-				});
-			}
-			if (type === 'custom') {
-				const scrollHeight = chatContentRef.current.scrollHeight;
-				const scrollOffset = 100; // Add 100px offset from the bottom
+			const scrollElement = chatContentRef?.current;
+			if (!scrollElement) return;
 
-				chatContentRef.current.scrollTo({
-					top: scrollHeight - scrollOffset,
-					behavior: 'smooth',
+			const scrollToPosition = (position) => {
+				scrollElement.scrollTo({
+					top: position,
+					behavior: type === 'instant' ? 'auto' : 'smooth',
 				});
+			};
+
+			if (type === 'custom') {
+				const scrollHeight = scrollElement.scrollHeight;
+				const scrollOffset = 100;
+				scrollToPosition(scrollHeight - scrollOffset);
+			} else {
+				scrollToPosition(scrollElement.scrollHeight);
 			}
 		},
 		[chatContentRef],
@@ -299,9 +309,14 @@ const RecentChat = ({
 								loader={<FetchMoreLoaderComp />}
 								scrollableTarget="scrollableDiv"
 								inverse={true}
-								style={{ display: 'flex', flexDirection: 'column-reverse' }}
+								style={{
+									display: 'flex',
+									flexDirection: 'column-reverse',
+									transition: 'all 0.3s ease',
+								}}
 								height={'700px'}
-								scrollThreshold={0.6}
+								scrollThreshold={0.8}
+								className="smooth-scroll"
 							>
 								<div className="chatContent">
 									{(globalChatMessages || [])?.map((chat, index) =>
