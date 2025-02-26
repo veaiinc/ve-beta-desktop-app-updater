@@ -9,6 +9,7 @@ import useVoiceIntegration from '../../hooks/useVoiceIntegration';
 import CitationsModal from '../../components/modalsV2/chat/CitationsModal';
 import NoteComponentModal from '../../components/notes/NoteComponentModal';
 import ChatBox from '../../components/homePage/ChatBox';
+import { useParams } from 'react-router-dom';
 
 const moduleHelper = {
 	tasks: 'tasks',
@@ -30,6 +31,8 @@ const RecentChat = ({
 			citations,
 			currentSessionId,
 			updateAiChatMessageRating,
+			getRecentChatMessages,
+			recentChatStorage,
 		},
 	} = useContext(Context);
 
@@ -57,21 +60,21 @@ const RecentChat = ({
 		voiceIntegration: false,
 		noteModalIsOpen: false,
 		citationsModalIsOpen: false,
-		chatList: [],
+		// chatList: [],
 	});
 
 	const chatContentRef = useRef(null);
+	const chatMessagesRef = useRef(globalChatMessages || []);
+	const { sessionId } = useParams();
 
 	useEffect(() => {
-		setInfo((prev) => ({
-			...prev,
-			chatList: globalChatMessages,
-		}));
-	}, [globalChatMessages]);
+		getRecentChatMessages(sessionId);
+	}, [sessionId]);
 
 	useEffect(() => {
+		chatMessagesRef.current = [...(globalChatMessages || [])];
 		smoothScrollToBottom();
-	}, [globalChatMessages, chatList]);
+	}, [globalChatMessages]);
 
 	useEffect(() => {
 		if (citations?.length > 0) {
@@ -93,10 +96,12 @@ const RecentChat = ({
 	const handleRatingClick = async (type, messageId) => {
 		try {
 			if (messageId) {
-				const message = info?.chatList?.find((chat) => chat?.messageId === messageId);
+				const message = [...(chatMessagesRef.current || [])]?.find(
+					(chat) => chat?.messageId === messageId,
+				);
 				if (message?.rating === null || message?.rating !== type) {
 					await updateAiChatMessageRating({ rating: type }, messageId);
-					let messages = [...info?.chatList];
+					let messages = [...(chatMessagesRef.current || [])];
 					messages = messages?.map((chat) => {
 						if (chat?.messageId === messageId) {
 							chat.rating = type;
@@ -181,7 +186,7 @@ const RecentChat = ({
 					>
 						<div className={`chatBodyParentContainer`} ref={chatContentRef}>
 							<div className="chatContent">
-								{info?.chatList?.map((chat, index) =>
+								{(globalChatMessages || [])?.map((chat, index) =>
 									chat?.content ? (
 										chat?.content
 									) : (
@@ -229,7 +234,7 @@ const RecentChat = ({
 				modalIsOpen={info?.noteModalIsOpen}
 				closeModal={handleNoteComponentModalClose}
 				handleRatingClick={handleRatingClick}
-				chatList={info?.chatList}
+				chatList={chatMessagesRef.current || []}
 			/>
 		</>
 	);
