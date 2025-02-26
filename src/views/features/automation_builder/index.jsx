@@ -184,8 +184,6 @@ const AutomationBuilder = () => {
 		for (let i = 0; i < steps?.length; i++) {
 			stepsMapper[steps[i]._id] = { data: steps[i], nodesMapped: false };
 		}
-
-		// console.log('stepsMapper', stepsMapper);
 		const nodes = [];
 		const edges = [];
 

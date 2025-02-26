@@ -62,17 +62,7 @@ const availableIntegrations = [
 	},
 ];
 
-const Triggers = ({
-	onCLose,
-	automationId,
-	activeEdge,
-	editMode,
-	activeStepsData,
-	refetchWorkflowBuilderData,
-	slackConnected,
-	googleConnected,
-	step,
-}) => {
+const Triggers = ({ onCLose, automationId, editMode, activeStepsData, step }) => {
 	const {
 		automationBuilder: { connectedIntegrations, addTrigger, getAutomation },
 	} = useContext(Context);
@@ -85,10 +75,6 @@ const Triggers = ({
 		connectedIntegrations,
 		selectedTrigger: null,
 	});
-
-	useEffect(() => {
-		setInfo((prev) => ({ ...prev, activeStage: `stage${step || 1}` }));
-	}, [step]);
 
 	useEffect(() => {
 		if (info?.searchChanged) {
@@ -138,6 +124,20 @@ const Triggers = ({
 		},
 		[connectedIntegrations],
 	);
+
+	// useEffect(() => {
+	// 	if (activeStepsData?.app) {
+	// 		const trigger = triggersList?.[activeStepsData?.app]?.triggers?.find(
+	// 			(trigger) => trigger?.event === activeStepsData?.criteria?.event,
+	// 		);
+	// 		updateTriggerInfo({
+	// 			selectedTrigger: {
+	// 				...trigger,
+	// 				triggerType: trigger?.triggerType,
+	// 			},
+	// 		});
+	// 	}
+	// }, [activeStepsData]);
 
 	const updateTriggerInfo = useCallback((updateData) => {
 		setInfo((prev) => ({ ...prev, ...updateData }));
@@ -200,6 +200,7 @@ const Triggers = ({
 					addTriggerLoading={info?.saveLoader}
 					triggerData={info?.selectedTrigger}
 					connectedIntegrations={connectedIntegrations}
+					activeStepsData={activeStepsData}
 				/>
 			),
 			inApp: (
@@ -211,34 +212,27 @@ const Triggers = ({
 					addTriggerLoading={info?.saveLoader}
 					triggerData={info?.selectedTrigger}
 					connectedIntegrations={connectedIntegrations}
+					activeStepsData={activeStepsData}
 				/>
 			),
 		};
-	}, [info?.selectedTrigger, addNewTrigger, updateTriggerInfo, connectedIntegrations]);
+	}, [
+		info?.selectedTrigger,
+		addNewTrigger,
+		updateTriggerInfo,
+		connectedIntegrations,
+		activeStepsData,
+	]);
 
 	return info?.selectedTrigger ? (
 		triggerMapper?.[info?.selectedTrigger?.app]
 	) : (
 		<>
-			<HeaderComponent />
+			<HeaderComponent onBack={() => onCLose()} heading="Triggers" />
 			<Step1 checkConnection={checkConnection} updateTriggerInfo={updateTriggerInfo} />
 		</>
 	);
 };
-
-// <div className="triggersSidebarComponents">
-// 	<div className="triggersSidebarComponentsHeader">
-// 		<span onClick={handleBack} style={{ cursor: 'pointer' }}>
-// 			<DoubleArrow />
-// 		</span>
-// 		<span className="triggerSidebarTitle">Trigger</span>
-// 	</div>
-// 	{info?.activeStage === 'stage1' ? (
-// 		<Step1 checkConnection={checkConnection} addNewTrigger={addNewTrigger} />
-// 	) : (
-// 		<Step2 connectedIntegrations={connectedIntegrations} />
-// 	)}
-// </div>
 
 export default memo(Triggers);
 

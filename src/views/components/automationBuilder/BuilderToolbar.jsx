@@ -59,9 +59,8 @@ const BuilderToolbar = ({
 					activeEdge={activeEdge}
 					templateId={templateId}
 					automationId={automationId}
-					slackConnected={info?.slackConnected}
-					googleConnected={info?.googleConnected}
 					step={step}
+					activeStepsData={activeStepsData}
 				/>
 			),
 			actions: (
@@ -114,6 +113,7 @@ const BuilderToolbar = ({
 		step,
 		automationId,
 		variables,
+		activeStepsData,
 	]);
 
 	return (

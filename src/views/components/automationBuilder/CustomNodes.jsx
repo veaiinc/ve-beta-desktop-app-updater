@@ -36,6 +36,7 @@ const eventTypeMapper = {
 	sendMessage: 'Send Message',
 	formResponse: 'Form Response',
 	createTask: 'Create Task',
+	createFile: 'Create Document',
 };
 
 const appNameMapper = {
@@ -66,9 +67,14 @@ export const StartStepNode = ({ data }) => {
 export const TriggerNode = ({ data }) => {
 	const onAddOptionsClick = useCallback(() => {
 		if (data?.onToolBarOpen) {
-			data.onToolBarOpen({ toolBarOpen: true, sidebarType: 'triggers', step: '2' });
+			data.onToolBarOpen({
+				toolBarOpen: true,
+				sidebarType: 'triggers',
+				step: '2',
+				activeStepsData: data?.currentStep,
+			});
 		}
-	}, []);
+	}, [data]);
 
 	return (
 		<div className="custom-node trigger-node selectedNode" onClick={onAddOptionsClick}>
@@ -114,6 +120,7 @@ export const ActionNode = ({ data }) => {
 	const [info, setInfo] = useState({
 		deleteModal: false,
 	});
+
 	const handleCloseDeleteModal = useCallback(() => {
 		setInfo((prev) => ({ ...prev, deleteModal: false }));
 	}, [info]);

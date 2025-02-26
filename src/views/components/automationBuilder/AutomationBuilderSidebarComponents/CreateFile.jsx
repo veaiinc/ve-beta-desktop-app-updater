@@ -8,7 +8,7 @@ import '../../../../assets/scss/automation_builder/automationBuilderSidebarCompo
 import VariableComponent from './VariableComponent';
 import { message } from 'antd';
 
-const CreateFile = ({ onBack, onSave, addTriggerLoading }) => {
+const CreateFile = ({ onBack, onSave, addTriggerLoading, variables }) => {
 	const {
 		templates: { getMyWorkflows, myWorkflows, myMoreWorkflows },
 	} = useContext(Context);
@@ -118,23 +118,20 @@ const CreateFile = ({ onBack, onSave, addTriggerLoading }) => {
 		getMyWorkflowTemplatesData(info?.currentPage + 1, true);
 	}, [info?.hasNextPage, info?.currentPage]);
 
-	const getFormTemplateId = useCallback((template) => {
-		if (template?.version) {
-			return template?.moduleTemplates?.find((item) =>
-				item?.actions?.includes('formResponse'),
-			)?._id;
-		} else {
-			return template?.moduleTemplates?.find((item) => item?.module === 'form')?._id;
-		}
-	}, []);
-
 	const updateInfo = useCallback((data) => {
 		setInfo((prev) => ({ ...prev, ...data }));
 	}, []);
 
 	return (
 		<div className="createFileContainer">
-			<HeaderComponent onBack={onBack} heading="Create Document" />
+			<HeaderComponent
+				onBack={
+					!info?.chooseFromTemplate
+						? onBack
+						: () => updateInfo({ chooseFromTemplate: false })
+				}
+				heading="Create Document"
+			/>
 			{info?.chooseFromTemplate ? (
 				<div className="chooseFromTemplateContainer">
 					<InfiniteScroll
