@@ -347,6 +347,27 @@ export const ProfileState = () => {
 		}
 	};
 
+	const updateNotificationMethod = async (tenantId, app, appType) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			const path = '/notificationMethods';
+			const type = 'tenant-users';
+			const payload = {
+				app, // email, slack, whatsapp
+				tenantId,
+				type: appType, // true, false
+			};
+			const response = await service.fetchPut(path, payload, usertoken, type);
+			if (response?.[0]) {
+				return [true, response[1]];
+			} else {
+				return [false, response[1]];
+			}
+		} catch (error) {
+			console.log('error==>updateNotificationMethod', error);
+		}
+	};
+
 	const resetProfileSettingsState = async () => {
 		dispatch({ type: Actions.RESET_STATE });
 	};
@@ -376,5 +397,6 @@ export const ProfileState = () => {
 		updateProfileState,
 		getDefaultNotificationSettings,
 		updateDefaultNotificationSettings,
+		updateNotificationMethod,
 	};
 };

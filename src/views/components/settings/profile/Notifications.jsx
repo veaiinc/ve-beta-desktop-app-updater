@@ -5,15 +5,40 @@ import { ReactComponent as SlackIcon } from '../../../../assets/svg/notification
 import { Switch } from 'antd';
 import Context from '../../../../context/context';
 
+const appTypes = [
+	{
+		id: 0,
+		appType: 'email',
+		icon: <EmailIcon />,
+		description: 'Receive emails to stay updated while offline. You can turn them off anytime',
+	},
+	{
+		id: 1,
+		appType: 'whatsapp',
+		icon: <WhatsappIcon />,
+		description: 'Get notifications via WhatsApp',
+	},
+	{
+		id: 2,
+		appType: 'slack',
+		icon: <SlackIcon />,
+		description: 'Receive direct notifications from Slack',
+	},
+];
+
 const Notifications = () => {
 	const {
 		profileInfo: {
+			tennantSettingsData,
 			getDefaultNotificationSettings,
 			defaultNotificationSettings,
 			updateDefaultNotificationSettings,
 			updatedNotificationSettings,
+			updateNotificationMethod, // requires tenantId, app, appType
 		},
 	} = useContext(Context);
+
+	const tenantId = tennantSettingsData?._id;
 
 	const [info, setInfo] = useState({
 		email: false,
@@ -44,10 +69,10 @@ const Notifications = () => {
 	};
 
 	const transformDataForAPI = (selectedOptions, defaultNotificationSettings) => {
-		return Object.entries(selectedOptions).map(([event, apps]) => {
+		return Object.entries(selectedOptions)?.map(([event, apps]) => {
 			const module =
-				defaultNotificationSettings.find((item) =>
-					item.events.some((e) => e.event === event),
+				defaultNotificationSettings?.find((item) =>
+					item?.events?.some((e) => e?.event === event),
 				)?.module || 'Unknown';
 
 			return {
@@ -61,96 +86,63 @@ const Notifications = () => {
 		});
 	};
 
+	const handleNotificationMethodChange = async (app) => {
+		const appType = !info[app];
+		const response = await updateNotificationMethod(tenantId, app, appType);
+		if (response?.[0]) {
+			setInfo({ ...info, [app]: appType });
+		}
+	};
+
 	return (
 		<div className="notifications-container">
 			<div className="notifications-container-header">
 				<div className="notificationTitleContainer">
 					<div className="notificationTitle">Notification Methods</div>
 					<div className="notificationTitleDescription">
-						Select where and when you’ll be notified
+						Select where and when you'll be notified
 					</div>
 				</div>
 				<div className="notifiactionSwitchesContainer">
-					<div className="notifiactionSwitchesContainer-item">
-						<div className="notifiactionSwitchesContainer-item-left">
-							<div className="notifiactionSwitchesContainer-item-left-icon">
-								<EmailIcon />
-							</div>
-							<div className="notifiactionSwitchesContainerContent">
-								<div className="notifiactionSwitchesContainerContent-title">
-									Email
+					{appTypes?.map(({ id, appType, icon, description }) => (
+						<div key={id} className="notifiactionSwitchesContainer-item">
+							<div className="notifiactionSwitchesContainer-item-left">
+								<div className="notifiactionSwitchesContainer-item-left-icon">
+									{icon}
 								</div>
-								<div className="notifiactionSwitchesContainerContent-description">
-									Receive emails to stay updated while offline. You can turn them
-									off anytime
-								</div>
-							</div>
-						</div>
-						<div>
-							<Switch
-								checked={info.email}
-								onChange={() => setInfo({ ...info, email: !info.email })}
-								size="small"
-							/>
-						</div>
-					</div>
-					<div className="notifiactionSwitchesContainer-item">
-						<div className="notifiactionSwitchesContainer-item-left">
-							<div className="notifiactionSwitchesContainer-item-left-icon">
-								<WhatsappIcon />
-							</div>
-							<div className="notifiactionSwitchesContainerContent">
-								<div className="notifiactionSwitchesContainerContent-title">
-									Whatsapp
-								</div>
-								<div className="notifiactionSwitchesContainerContent-description">
-									Get notifications via WhatsApp
+								<div className="notifiactionSwitchesContainerContent">
+									<div className="notifiactionSwitchesContainerContent-title">
+										{appType}
+									</div>
+									<div className="notifiactionSwitchesContainerContent-description">
+										{description}
+									</div>
 								</div>
 							</div>
-						</div>
-						<div>
-							<Switch
-								checked={info.whatsapp}
-								onChange={() => setInfo({ ...info, whatsapp: !info.whatsapp })}
-								size="small"
-							/>
-						</div>
-					</div>
-					<div className="notifiactionSwitchesContainer-item">
-						<div className="notifiactionSwitchesContainer-item-left">
-							<div className="notifiactionSwitchesContainer-item-left-icon">
-								<SlackIcon />
-							</div>
-							<div className="notifiactionSwitchesContainerContent">
-								<div className="notifiactionSwitchesContainerContent-title">
-									Slack
-								</div>
-								<div className="notifiactionSwitchesContainerContent-description">
-									Receive direct notifications from Slack
-								</div>
+							<div>
+								<Switch
+									checked={info?.[appType]}
+									onChange={() => handleNotificationMethodChange(appType)}
+									size="small"
+								/>
 							</div>
 						</div>
-						<div>
-							<Switch
-								checked={info.slack}
-								onChange={() => setInfo({ ...info, slack: !info.slack })}
-								size="small"
-							/>
-						</div>
-					</div>
+					))}
 				</div>
 			</div>
-			<div className="notifications-container-content">
-				<div className="notificationContainerContentTitle">Notification Preferences</div>
-				<div className="notificationContainerContent-items">
-					<div className="notificationContainerContent-items-item">Email</div>
-					<div className="notificationContainerContent-items-item">Whatsapp</div>
-					<div className="notificationContainerContent-items-item">Slack</div>
-				</div>
-				<div className="notificationContainerOptions">
-					{defaultNotificationSettings?.map((item) => {
-						return (
-							<>
+			{defaultNotificationSettings?.length && (
+				<div className="notifications-container-content">
+					<div className="notificationContainerContentTitle">
+						Notification Preferences
+					</div>
+					<div className="notificationContainerContent-items">
+						<div className="notificationContainerContent-items-item">Email</div>
+						<div className="notificationContainerContent-items-item">Whatsapp</div>
+						<div className="notificationContainerContent-items-item">Slack</div>
+					</div>
+					<div className="notificationContainerOptions">
+						{defaultNotificationSettings?.map((item) => (
+							<React.Fragment key={item?.module}>
 								<div className="notificationContainerOptions-item-container">
 									<div className="notificationContainerOptions-item">
 										{item?.module}
@@ -284,11 +276,11 @@ const Notifications = () => {
 										);
 									})}
 								</div>
-							</>
-						);
-					})}
+							</React.Fragment>
+						))}
+					</div>
 				</div>
-			</div>
+			)}
 		</div>
 	);
 };
