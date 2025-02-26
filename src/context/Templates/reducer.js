@@ -155,7 +155,7 @@ const actionHandlers = {
 	}),
 	RECENT_CHAT_MESSAGES_ACTIONS_REQUESTS: (state, action) => ({
 		...state,
-		recentChatStorage: action.payload,
+		[action?.selectedvariable]: action.payload,
 	}),
 	RESET_STATE: () => intialState,
 };

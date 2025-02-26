@@ -95,6 +95,7 @@ export const intialState = {
 	activePromptForChat: null,
 	leftSidebarState: null,
 	recentChatStorage: null,
+	moreRecentChatStorage: null,
 };
 
 export const TemplatesState = (props) => {
@@ -1797,10 +1798,11 @@ export const TemplatesState = (props) => {
 		}
 	};
 
-	const getRecentChatMessages = async (sessionId, page = 1, limit = 10) => {
+	const getRecentChatMessages = async (sessionId, page = 1, fetchMore = false, limit = 10) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
+			const selectedvariable = fetchMore ? 'moreRecentChatStorage' : 'recentChatStorage';
 			const response = await Service.fetchGet(
 				`/${workspaceId}/list-multiagent-conversations/${encodeURIComponent(
 					sessionId,
@@ -1813,6 +1815,7 @@ export const TemplatesState = (props) => {
 				dispatch({
 					type: Actions.RECENT_CHAT_MESSAGES_ACTIONS_REQUESTS,
 					payload: response?.[1],
+					selectedvariable,
 				});
 			} else {
 				console.log('errror ==>getRecentChatMessages', response);

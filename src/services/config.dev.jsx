@@ -18,7 +18,7 @@ module.exports = {
 	slack_api: 'https://slack.com/api',
 
 	//outside India
-	tenant_api_US: 'https://us.api.ve.ai/tenants/1.0',
+	tenant_api_US: 'https://us.api.ve.ai/tenants/dev',
 	tenant_users_api_US: 'https://us.api.ve.ai/tenant-users/1.0',
 	ve_conversations_api_US: 'https://us.api.ve.ai/ve-conversations/1.0',
 	proposals_api_US: 'https://us.api.ve.ai/proposals/1.0',

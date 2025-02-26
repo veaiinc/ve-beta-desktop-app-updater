@@ -12,6 +12,7 @@ import ChatBox from '../../components/homePage/ChatBox';
 import { useParams } from 'react-router-dom';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { FetchMoreLoaderComp } from '../../../helpers';
+import { debounce } from 'lodash';
 
 const moduleHelper = {
 	tasks: 'tasks',
@@ -35,6 +36,7 @@ const RecentChat = ({
 			updateAiChatMessageRating,
 			getRecentChatMessages,
 			recentChatStorage,
+			moreRecentChatStorage,
 		},
 	} = useContext(Context);
 
@@ -63,12 +65,22 @@ const RecentChat = ({
 		noteModalIsOpen: false,
 		citationsModalIsOpen: false,
 		page: 1,
-		hasNextPage: true,
+		currentPage: true,
 	});
 
 	const chatContentRef = useRef(null);
 	const chatMessagesRef = useRef(globalChatMessages || []);
 	const { sessionId } = useParams();
+
+	useEffect(() => {
+		return () => {
+			updateStateValues({
+				moreRecentChatStorage: null,
+				recentChatStorage: null,
+				globalChatMessages: null,
+			});
+		};
+	}, []);
 
 	useEffect(() => {
 		if (sessionId) {
@@ -101,9 +113,10 @@ const RecentChat = ({
 
 	useEffect(() => {
 		if (recentChatStorage) {
+			const { data, hasNextPage, currentPage } = recentChatStorage;
 			let messages = [];
-			for (let i = recentChatStorage?.length - 1; i >= 0; i--) {
-				const { originalQuery = '', response, messageId } = recentChatStorage?.[i] || {};
+			for (let i = 0; i < data?.length; i++) {
+				const { originalQuery = '', response, messageId } = data?.[i] || {};
 				messages = [
 					{
 						message: originalQuery,
@@ -121,12 +134,44 @@ const RecentChat = ({
 				]?.concat(messages);
 			}
 			updateStateValues({ globalChatMessages: messages });
-			setInfo((prev) => ({ ...prev, chatLoading: false }));
+			setInfo((prev) => ({ ...prev, chatLoading: false, hasNextPage, currentPage }));
 			setTimeout(() => {
 				smoothScrollToBottom();
 			}, 1000);
 		}
 	}, [recentChatStorage]);
+
+	useEffect(() => {
+		if (moreRecentChatStorage) {
+			const { data, hasNextPage, currentPage } = moreRecentChatStorage;
+			let messages = [];
+			for (let i = 0; i < data?.length; i++) {
+				const { originalQuery = '', response, messageId } = data?.[i] || {};
+				messages = [
+					{
+						message: originalQuery,
+						type: 'user',
+						typingEffect: false,
+						messageId,
+					},
+					{
+						message: response,
+						type: 'AI',
+						messageId,
+						typingEffect: false,
+						rating: null,
+					},
+				]?.concat(messages);
+			}
+
+			chatContentRef.current.scrollBy({
+				top: 500,
+				behavior: 'smooth',
+			});
+			updateStateValues({ globalChatMessages: messages?.concat(globalChatMessages) });
+			setInfo((prev) => ({ ...prev, chatLoading: false, hasNextPage, currentPage }));
+		}
+	}, [moreRecentChatStorage]);
 
 	const handleRatingClick = async (type, messageId) => {
 		try {
@@ -171,14 +216,26 @@ const RecentChat = ({
 		}));
 	};
 
-	const smoothScrollToBottom = useCallback(() => {
-		if (chatContentRef?.current) {
-			chatContentRef.current.scrollTo({
-				top: chatContentRef.current.scrollHeight,
-				behavior: 'smooth', // Enables smooth scrolling
-			});
-		}
-	}, [chatContentRef]);
+	const smoothScrollToBottom = useCallback(
+		(type) => {
+			if (chatContentRef?.current) {
+				chatContentRef.current.scrollTo({
+					top: chatContentRef.current.scrollHeight,
+					behavior: 'smooth', // Enables smooth scrolling
+				});
+			}
+			if (type === 'custom') {
+				const scrollHeight = chatContentRef.current.scrollHeight;
+				const scrollOffset = 100; // Add 100px offset from the bottom
+
+				chatContentRef.current.scrollTo({
+					top: scrollHeight - scrollOffset,
+					behavior: 'smooth',
+				});
+			}
+		},
+		[chatContentRef],
+	);
 	const handleStopTypingEffect = () => {
 		let messages = [...globalChatMessages];
 		messages = messages?.map((message) => {
@@ -190,20 +247,16 @@ const RecentChat = ({
 		updateStateValues({ globalChatMessages: messages });
 	};
 
-	const fetchMoreData = async () => {
-		console.log('I was called herer my frnd==>');
-		// if (!info.hasMore || info.chatLoading) return;
-		// try {
-		// 	setInfo((prev) => ({ ...prev, chatLoading: true }));
-		// 	const oldestMessage = globalChatMessages[0];
-		// 	const oldestMessageId = oldestMessage?.messageId;
-		// 	await getRecentChatMessages(sessionId, oldestMessageId);
-		// } catch (error) {
-		// 	console.error('Error loading more messages:', error);
-		// } finally {
-		// 	setInfo((prev) => ({ ...prev, chatLoading: false }));
-		// }
-	};
+	const fetchMoreData = useCallback(
+		debounce(async () => {
+			if (!info?.hasNextPage || info.chatLoading) {
+				return;
+			}
+			getRecentChatMessages(sessionId, info?.currentPage + 1, true);
+			setInfo((prev) => ({ ...prev, chatLoading: true }));
+		}, 1000),
+		[info, sessionId],
+	);
 
 	return (
 		<>
@@ -242,12 +295,13 @@ const RecentChat = ({
 							<InfiniteScroll
 								dataLength={globalChatMessages?.length || 0}
 								next={fetchMoreData}
-								hasMore={true}
+								hasMore={info?.hasNextPage}
 								loader={<FetchMoreLoaderComp />}
 								scrollableTarget="scrollableDiv"
 								inverse={true}
 								style={{ display: 'flex', flexDirection: 'column-reverse' }}
 								height={'700px'}
+								scrollThreshold={0.6}
 							>
 								<div className="chatContent">
 									{(globalChatMessages || [])?.map((chat, index) =>
