@@ -130,46 +130,6 @@ const Integrations = () => {
 		}));
 	};
 
-	const functionsObject = {
-		handleFaceBookConnection: async () => {
-			if (info.loader) {
-				return;
-			}
-			if (info.metaInteg) {
-				return;
-			}
-			setInfo((prev) => ({
-				...prev,
-				loader: true,
-			}));
-
-			try {
-				const usertoken = localStorage.getItem('usertoken');
-				const workspaceID = localStorage.getItem('workspaceId');
-				const link = `${ve_conversations_api}/oauth/${workspaceID}/login`;
-				const response = await axios.get(link, {
-					headers: {
-						Authorization: `Bearer ${usertoken}`,
-					},
-				});
-				if (response.status === 200) {
-					setInfo((prev) => ({
-						...prev,
-						loader: false,
-					}));
-
-					const url = response?.data;
-					window.location.href = url;
-				} else {
-					setInfo((prev) => ({
-						...prev,
-						loader: false,
-					}));
-				}
-			} catch (error) {}
-		},
-	};
-
 	return (
 		<div className="IntegrationsContainer">
 			<h1 className="title">Integrations</h1>
