@@ -217,7 +217,7 @@
 		}
 	}
 }
-@media screen and (min-width: 1500px) and (max-width: 2200px) {
+@media screen and (min-width: 1500px) and (max-width: 2500px) {
 	.playbook-wrapper {
 		.globalWorkflowContainer {
 			flex-direction: row;
@@ -227,7 +227,7 @@
 
 			gap: 40px;
 			.left_div {
-				margin-left: 100px;
+				margin-left: 150px;
 				&.modal-open {
 					transform: translateX(-40%);
 				}
