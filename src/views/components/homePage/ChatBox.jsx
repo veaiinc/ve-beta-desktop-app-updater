@@ -118,6 +118,7 @@ const ChatBox = ({
 			updateApplicationChat,
 			activePromptForChat,
 			currentSessionId,
+			deepResearch,
 		},
 		calendarInfo: { updateCalendarState },
 		tasks: { updateTaskState },
@@ -184,6 +185,23 @@ const ChatBox = ({
 		}
 	}, [currentSessionId]);
 
+	useEffect(() => {
+		if (globalChatMessages?.length > 0) {
+			let lastMessage = globalChatMessages?.[globalChatMessages?.length - 1];
+
+			if (lastMessage?.deepResearch === true) {
+				updateStateValues({ deepResearch: false });
+			}
+		}
+	}, [globalChatMessages]);
+
+	useEffect(() => {
+		setInfo((prev) => ({
+			...prev,
+			goDeep: deepResearch,
+		}));
+	}, [deepResearch]);
+
 	const handlePreview = async (file) => {
 		if (!file.url && !file.preview) {
 			file.preview = await getBase64(file.originFileObj);
@@ -200,10 +218,7 @@ const ChatBox = ({
 	};
 
 	const handleGoDeepSearchClick = () => {
-		setInfo((prev) => ({
-			...prev,
-			goDeep: !prev?.goDeep,
-		}));
+		updateStateValues({ deepResearch: !info?.goDeep });
 	};
 
 	const handleShowFiltersClick = () => {
@@ -341,6 +356,7 @@ const ChatBox = ({
 							web_search: info?.searchType?.webSearch,
 							modules: Object?.keys(info?.chatFilters?.modules),
 							date: date,
+							deep_research: info?.goDeep,
 						};
 
 						if (moduleHelper?.[location?.pathname?.split('/')?.[1]]) {
@@ -669,7 +685,7 @@ const ChatBox = ({
 												</div>
 												<div className="filters-wrapper">
 													<div className="filters-container">
-														<SearchDropdown
+														{/* <SearchDropdown
 															headerTitle="Integrations"
 															selectedOptions={
 																info?.chatFilters?.integrations
@@ -688,7 +704,7 @@ const ChatBox = ({
 															handleOptionClick={
 																handleIntegrationsOptionClick
 															}
-														/>
+														/> */}
 														<SearchDropdown
 															headerTitle="Modules"
 															selectedOptions={
@@ -782,35 +798,37 @@ const ChatBox = ({
 														</div>
 													</SearchTypeTooltip>
 
-													{/* <div
-												className="icon-container"
-												onClick={handleGoDeepSearchClick}
-												style={{
-													background: `${
-														info?.goDeep ? '#B39DFA' : '#2E2F33'
-													}`,
-												}}
-											>
-												<div className="icon">
-													{info?.goDeep ? (
-														<MicroscopeDarkSvg />
-													) : (
-														<MicroscopeLightSvg />
-													)}
-												</div>
-												{showChatLabels && (
 													<div
-														className="right-text"
+														className="icon-container"
+														onClick={handleGoDeepSearchClick}
 														style={{
-															color: `${
-																info?.goDeep ? '#0C0C0D' : '#f2f2f3'
+															background: `${
+																info?.goDeep ? '#B39DFA' : '#2E2F33'
 															}`,
 														}}
 													>
-														Explore
+														<div className="icon">
+															{info?.goDeep ? (
+																<MicroscopeDarkSvg />
+															) : (
+																<MicroscopeLightSvg />
+															)}
+														</div>
+														{showChatLabels && (
+															<div
+																className="right-text"
+																style={{
+																	color: `${
+																		info?.goDeep
+																			? '#0C0C0D'
+																			: '#f2f2f3'
+																	}`,
+																}}
+															>
+																Explore
+															</div>
+														)}
 													</div>
-												)}
-											</div> */}
 													<UploadFileTooltip
 														fileTypeIcons={fileTypeIcons}
 														handleChange={handleChange}
