@@ -309,6 +309,10 @@ const RecentChat = ({
 		[socketRef, info],
 	);
 
+	const toggleLatestStreamMessage = useCallback(() => {
+		setInfo((prev) => ({ ...prev, latestStreamMesage: null }));
+	}, []);
+
 	return (
 		<>
 			<div className="chat-container">
@@ -406,6 +410,7 @@ const RecentChat = ({
 							handleSendWebsocketMessage={handleSendWebsocketMessage}
 							latestStreamMesage={info?.latestStreamMesage}
 							lastQuery={info?.lastQuery}
+							toggleLatestStreamMessage={toggleLatestStreamMessage}
 						/>
 					</div>
 				</div>

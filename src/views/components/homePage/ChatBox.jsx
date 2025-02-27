@@ -107,6 +107,7 @@ const ChatBox = ({
 	handleSendWebsocketMessage,
 	latestStreamMesage,
 	lastQuery,
+	toggleLatestStreamMessage,
 }) => {
 	const {
 		templates: {
@@ -222,6 +223,10 @@ const ChatBox = ({
 			}
 			if (deepResearch) {
 				updateStateValues({ deepResearch: false });
+			}
+
+			if (toggleLatestStreamMessage) {
+				toggleLatestStreamMessage();
 			}
 		}
 	}, [latestStreamMesage]);
