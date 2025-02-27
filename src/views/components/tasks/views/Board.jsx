@@ -79,7 +79,7 @@ const Board = ({
 				groups.push(
 					...(options.todo || []),
 					...(options.inProgress || []),
-					...(options.done || []),
+					...(options.completed || []),
 				);
 			}
 		} else {

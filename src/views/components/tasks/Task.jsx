@@ -149,7 +149,7 @@ const Task = ({
 				filters: [...taskInfo?.tabs?.[tabData?._id]?.filters],
 				group:
 					taskInfo?.tabs?.[tabData?._id]?.viewType === 'board'
-						? taskInfo?.tabs?.[tabData?._id]?.group
+						? taskInfo?.tabs?.[tabData?._id]?.group || 'status'
 						: null,
 			});
 		},
@@ -243,6 +243,13 @@ const Task = ({
 					value: item?.value,
 				}));
 				updateTaskInfo({ filters: updateData?.filters });
+			}
+			if (updateData?.viewType === 'board') {
+				updateData.group = 'status';
+			}
+
+			if (updateData?.group) {
+				updateTaskInfo({ group: updateData?.group });
 			}
 			const { page, ...rest } = updateData;
 			handleDebounceViewUpdate(viewId, rest);
