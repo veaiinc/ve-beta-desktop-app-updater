@@ -30,13 +30,16 @@ const InviteMembersWorkspaceComponent = ({
 	const [updatedData, setUpdatedData] = useState(null);
 	const [isLoading, setIsLoading] = useState(false);
 
+	const filterFunction = (options) => {
+		return options?.filter((option) => {
+			return !['project', 'proposal', 'gallery'].includes(option?.app);
+		});
+	};
 	const handleUpdateUser = () => {
 		if (isLoading) {
 			return;
 		} else {
-			const filteredAccessControls = accessControls?.accessControls.filter(
-				(control) => !['project', 'proposal', 'gallery'].includes(control.app),
-			);
+			const filteredAccessControls = filterFunction(accessControls?.accessControls);
 
 			setUpdatedData({
 				accessControls: filteredAccessControls,
@@ -162,21 +165,26 @@ const InviteMembersWorkspaceComponent = ({
 						<div className="accessControls">
 							<div className="accessControlTitle">Access Controls</div>
 							<div className="accessControlOptions">
-								{selectableOptions?.map((option) => {
+								{filterFunction(selectableOptions)?.map((option) => {
 									return (
 										<div className="accessControlOption">
 											<Checkbox
 												type="checkbox"
 												checked={
 													accessControls?.accessControls?.find(
-														(control) => control.app === option,
+														(control) => control.app === option?.app,
 													)?.isEnabled || false
 												}
 												onChange={(e) =>
-													handleCheckboxChange(option, e.target.checked)
+													handleCheckboxChange(
+														option?.app,
+														e.target.checked,
+													)
 												}
 											/>
-											<div className="accessControlOptionText">{option}</div>
+											<div className="accessControlOptionText">
+												{option?.app}
+											</div>
 										</div>
 									);
 								})}

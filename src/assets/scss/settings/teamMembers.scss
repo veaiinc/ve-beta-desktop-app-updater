@@ -311,6 +311,8 @@
 			align-items: flex-start;
 			gap: 4px;
 			align-self: stretch;
+			height: 300px;
+			overflow-y: auto;
 			.accessControlOption {
 				display: flex;
 				padding: 12px 0px;
