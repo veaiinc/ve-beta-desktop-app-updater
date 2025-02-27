@@ -46,6 +46,7 @@ import InitialHomePage from './views/features/home_page/InitialHomePage';
 import Chat from './views/features/chat/Chat';
 import RecentChat from './views/features/chat/RecentChat';
 import AutomationBuilder from './views/features/automation_builder';
+import AutomationBuilderLayout from './views/layouts/automationBuilderLayout';
 const routes = [
 	{
 		path: '/',
@@ -389,8 +390,12 @@ const routes = [
 		exact: true,
 	},
 	{
-		path: '/automation_builder_updated/:automationId',
-		component: <AutomationBuilder />,
+		path: '/automation-builder/:automationId',
+		component: (
+			<AutomationBuilderLayout title={'Automation Builder'}>
+				<AutomationBuilder />
+			</AutomationBuilderLayout>
+		),
 		exact: true,
 	},
 	{

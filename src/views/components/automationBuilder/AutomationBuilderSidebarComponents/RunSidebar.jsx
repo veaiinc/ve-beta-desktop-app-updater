@@ -129,7 +129,7 @@ const RunSidebar = ({ automationId, onClose }) => {
 						<span className="error-message">No runs found</span>
 					)}
 				</div>
-				<div className="run-sidebar-overview-container">
+				{/* <div className="run-sidebar-overview-container">
 					<div className="stats-container">
 						<span className="stats-container-value">1</span>
 						<span className="stats-container-title">Completed</span>
@@ -157,7 +157,7 @@ const RunSidebar = ({ automationId, onClose }) => {
 							</span>
 						</div>
 					</div>
-				</div>
+				</div> */}
 			</div>
 		</div>
 	);

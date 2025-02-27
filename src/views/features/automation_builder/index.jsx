@@ -27,6 +27,8 @@ import { message, Spin } from 'antd';
 import Configuration from '../../components/automationBuilder/AutomationBuilderSidebarComponents/Configuration';
 import TabHeader from '../../components/ai_assistant/TabHeader';
 import CustomControls from '../../components/automationBuilder/CustomControls';
+import { ReactComponent as ChevronRight } from '../../../assets/svg/tasks/chevronRightThin.svg';
+
 // Define node types
 const nodeTypes = {
 	trigger: TriggerNode,
@@ -431,7 +433,9 @@ const AutomationBuilder = () => {
 			const response = await updateAutomation(automationId, payload);
 			if (!(response?.[0] === true)) {
 				message?.error('Failed to update automation');
+				return false;
 			}
+			return true;
 		},
 		[automationId, updateAutomation],
 	);
@@ -442,7 +446,10 @@ const AutomationBuilder = () => {
 		}
 		setInfo((prev) => ({ ...prev, publishLoading: true }));
 
-		updateCurrentAutomation({ status: 'published' });
+		const response = await updateCurrentAutomation({ status: 'published' });
+		if (response) {
+			navigate(-1);
+		}
 		setInfo((prev) => ({ ...prev, publishLoading: false }));
 	}, [info?.publishLoading, updateCurrentAutomation]);
 
@@ -459,7 +466,7 @@ const AutomationBuilder = () => {
 		<div className="updatedAutomationBuilderContainer">
 			<div className="updatedBuilderHeaderContainer">
 				<span className="previousStepText" onClick={() => navigate(-1)}>
-					Previous Step
+					<ChevronRight style={{ transform: 'rotate(180deg)' }} /> Back
 				</span>
 				<div className="updatedBuilderHeaderTabContainer">
 					<TabHeader

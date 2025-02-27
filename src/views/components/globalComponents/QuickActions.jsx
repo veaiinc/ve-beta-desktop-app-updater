@@ -69,7 +69,7 @@ const QuickActions = ({ styles, customActions = [], clientDetails = null }) => {
 			status: 'draft',
 		});
 		if (response?.[0]) {
-			navigate(`/automation_builder_updated/${response?.[1]?._id}`);
+			navigate(`/automation-builder/${response?.[1]?._id}`);
 		} else {
 			message.error('Failed to create automation');
 		}

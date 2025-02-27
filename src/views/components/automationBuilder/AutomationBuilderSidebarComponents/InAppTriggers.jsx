@@ -50,6 +50,7 @@ const InAppTriggers = ({ onClose, onSave, addTriggerLoading, triggerData }) => {
 				sortBy: 'createdAt',
 				sortType: -1,
 				action: 'form-submission',
+				version: 1,
 			},
 		};
 
