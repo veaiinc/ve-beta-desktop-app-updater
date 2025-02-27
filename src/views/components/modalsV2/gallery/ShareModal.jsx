@@ -170,9 +170,9 @@ const ShareModal = ({
 	};
 
 	const handleVisitorFormAccess = useCallback(() => {
+		const newEnabled = !info?.visitorFormAccess?.isEnabled;
+		editVisitorFormAccess({ isEnabled: newEnabled }, galleryId);
 		setInfo((prevInfo) => {
-			const newEnabled = !prevInfo?.visitorFormAccess?.isEnabled;
-			editVisitorFormAccess({ isEnabled: newEnabled }, galleryId);
 			return {
 				...prevInfo,
 				visitorFormAccess: {
@@ -181,7 +181,7 @@ const ShareModal = ({
 				},
 			};
 		});
-	}, []);
+	}, [info]);
 
 	const handleGalleryProtection = (name) => {
 		let payload = {};
