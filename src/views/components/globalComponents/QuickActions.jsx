@@ -16,7 +16,7 @@ const dropdownOptions = [
 	{ id: 5, title: 'Form', value: 'form-submission', controlValue: 'form' },
 	{ id: 6, title: 'Proposal', value: 'proposal' },
 	{ id: 7, title: 'Invoice', value: 'invoice' },
-	{ id: 8, title: 'Contract', value: 'contract' },
+	{ id: 8, title: 'Contract', value: 'contract', controlValue: 'contract' },
 ];
 const QuickActions = ({ styles, customActions = [], clientDetails = null }) => {
 	const [info, setInfo] = useState({
