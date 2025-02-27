@@ -328,6 +328,7 @@ export const taskMetadataQuery = gql`
 				}
 				viewType
 				icon
+				group
 			}
 			createdAt
 			updatedAt
@@ -381,6 +382,7 @@ export const updateTaskViewMutation = gql`
 					sortType
 				}
 				viewType
+				group
 				icon
 			}
 		}
@@ -391,6 +393,72 @@ export const deleteTaskViewMutation = gql`
 	mutation DeleteTaskView($taskMetadataId: ID!, $viewId: ID!) {
 		deleteTaskView(taskMetadataId: $taskMetadataId, viewId: $viewId) {
 			message
+		}
+	}
+`;
+
+export const listTaskWithGroupQuery = gql`
+	query ListTasksWithGroup($taskFilterInput: TaskGroupFilterInput) {
+		listTasksWithGroup(taskFilterInput: $taskFilterInput) {
+			groups {
+				group
+				totalPages
+				totalDocs
+				limit
+				currentPage
+				hasNextPage
+				hasPrevPage
+				prevPage
+				nextPage
+				data {
+					_id
+					title
+					description
+					status
+					priority
+					workflowTemplate {
+						_id
+						title
+					}
+					workflow {
+						_id
+						title
+					}
+					assignedTo {
+						_id
+						name
+					}
+					dueDate
+					assignedBy {
+						_id
+						name
+					}
+					assignedAt
+					completedAt
+					createdAt
+					updatedAt
+					taskSlNo
+					createdBy {
+						_id
+						name
+					}
+					updatedBy {
+						_id
+						name
+					}
+					childTasks {
+						_id
+						title
+						status
+					}
+					parentTask {
+						_id
+						title
+					}
+				}
+				groupName
+			}
+			groupBy
 		}
 	}
 `;
