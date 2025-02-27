@@ -313,8 +313,9 @@ const RecentChat = ({
 									display: 'flex',
 									flexDirection: 'column-reverse',
 									transition: 'all 0.3s ease',
+									paddingRight: '20px',
 								}}
-								height={'700px'}
+								height="calc(100vh - 250px)"
 								scrollThreshold={0.8}
 								className="smooth-scroll"
 							>
