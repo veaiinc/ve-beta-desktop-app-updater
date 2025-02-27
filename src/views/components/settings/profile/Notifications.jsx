@@ -1,4 +1,4 @@
-import React, { memo, useState, useEffect, useContext } from 'react';
+import React, { memo, useState, useEffect, useContext, useMemo } from 'react';
 import { ReactComponent as EmailIcon } from '../../../../assets/svg/notification/email.svg';
 import { ReactComponent as WhatsappIcon } from '../../../../assets/svg/notification/whatsApp.svg';
 import { ReactComponent as SlackIcon } from '../../../../assets/svg/notification/slack.svg';
@@ -39,6 +39,12 @@ const Notifications = () => {
 	} = useContext(Context);
 
 	const tenantId = tennantSettingsData?._id;
+	const notificationMethods = defaultNotificationSettings?.global;
+	const notificationPreferences = useMemo(
+		() => defaultNotificationSettings?.events,
+		[defaultNotificationSettings],
+	);
+	console.log('notificationPreferences', notificationPreferences);
 
 	const [info, setInfo] = useState({
 		email: false,
@@ -51,14 +57,27 @@ const Notifications = () => {
 	});
 
 	useEffect(() => {
-		getDefaultNotificationSettings();
-	}, []);
+		if (notificationMethods) {
+			const { email, whatsapp, slack } = notificationMethods;
+			setInfo({
+				email,
+				whatsapp,
+				slack,
+			});
+		}
+	}, [notificationMethods]);
 
 	useEffect(() => {
-		if (Object.keys(info.selectedOptions).length > 0) {
-			updatedNotificationSettingsApiCall();
+		if (tenantId) {
+			getDefaultNotificationSettings(tenantId);
 		}
-	}, [info?.selectedOptions]);
+	}, [tenantId]);
+
+	// useEffect(() => {
+	// 	if (Object.keys(info?.selectedOptions)?.length > 0) {
+	// 		updatedNotificationSettingsApiCall();
+	// 	}
+	// }, [info?.selectedOptions]);
 
 	const updatedNotificationSettingsApiCall = async () => {
 		const payloadData = transformDataForAPI(info?.selectedOptions, defaultNotificationSettings);
@@ -87,7 +106,7 @@ const Notifications = () => {
 	};
 
 	const handleNotificationMethodChange = async (app) => {
-		const appType = !info[app];
+		const appType = !info?.[app];
 		const response = await updateNotificationMethod(tenantId, app, appType);
 		if (response?.[0]) {
 			setInfo({ ...info, [app]: appType });
@@ -130,24 +149,27 @@ const Notifications = () => {
 					))}
 				</div>
 			</div>
-			{defaultNotificationSettings?.length && (
+			{notificationPreferences?.length && (
 				<div className="notifications-container-content">
 					<div className="notificationContainerContentTitle">
 						Notification Preferences
 					</div>
 					<div className="notificationContainerContent-items">
-						<div className="notificationContainerContent-items-item">Email</div>
-						<div className="notificationContainerContent-items-item">Whatsapp</div>
-						<div className="notificationContainerContent-items-item">Slack</div>
+						{appTypes?.map(({ id, appType }) => (
+							<div key={id} className="notificationContainerContent-items-item">
+								{appType}
+							</div>
+						))}
 					</div>
 					<div className="notificationContainerOptions">
-						{defaultNotificationSettings?.map((item) => (
-							<React.Fragment key={item?.module}>
-								<div className="notificationContainerOptions-item-container">
-									<div className="notificationContainerOptions-item">
-										{item?.module}
-									</div>
-									{/* <div className="notificationContainerOptions-item-checkbox">
+						{defaultNotificationSettings?.length > 0 &&
+							defaultNotificationSettings?.map((item) => (
+								<React.Fragment key={item?.module}>
+									<div className="notificationContainerOptions-item-container">
+										<div className="notificationContainerOptions-item">
+											{item?.module}
+										</div>
+										{/* <div className="notificationContainerOptions-item-checkbox">
 										<input
 											type="checkbox"
 											style={{ width: '36px' }}
@@ -164,120 +186,136 @@ const Notifications = () => {
 											checked={info.slackAll}
 										/>
 									</div> */}
-								</div>
-								<div className="notificationContainerOptions-items">
-									{item?.events?.map((option) => {
-										return (
-											<div className="notificationContainerOptions-item-container">
-												<div className="notificationContainerOptionsTitle">
-													{option.event}
+									</div>
+									<div className="notificationContainerOptions-items">
+										{item?.events?.map((option) => {
+											return (
+												<div className="notificationContainerOptions-item-container">
+													<div className="notificationContainerOptionsTitle">
+														{option.event}
+													</div>
+													<div className="notificationContainerOptions-item-checkbox">
+														<input
+															type="checkbox"
+															style={{
+																width: '36px',
+															}}
+															checked={
+																option?.apps?.email || undefined
+															}
+															onChange={() =>
+																setInfo({
+																	...info,
+																	selectedOptions: {
+																		...info.selectedOptions,
+																		[option.event]: {
+																			...info.selectedOptions[
+																				option.event
+																			],
+																			email:
+																				!info
+																					.selectedOptions?.[
+																					option.event
+																				]?.email || false, // Ensure boolean
+																			slack:
+																				info
+																					.selectedOptions?.[
+																					option.event
+																				]?.slack || false, // Default to false
+																			whatsapp:
+																				info
+																					.selectedOptions?.[
+																					option.event
+																				]?.whatsapp ||
+																				false, // Default to false
+																		},
+																	},
+																})
+															}
+														/>
+														<input
+															type="checkbox"
+															style={{
+																width: '70px',
+															}}
+															checked={
+																option?.apps?.whatsapp || undefined
+															}
+															onChange={() =>
+																setInfo({
+																	...info,
+																	selectedOptions: {
+																		...info.selectedOptions,
+																		[option.event]: {
+																			...info.selectedOptions[
+																				option.event
+																			],
+																			email:
+																				info
+																					.selectedOptions?.[
+																					option.event
+																				]?.email || false, // Ensure boolean
+																			slack:
+																				info
+																					.selectedOptions?.[
+																					option.event
+																				]?.slack || false, // Default to false
+																			whatsapp:
+																				!info
+																					.selectedOptions?.[
+																					option.event
+																				]?.whatsapp ||
+																				false, // Default to false
+																		},
+																	},
+																})
+															}
+														/>
+														<input
+															type="checkbox"
+															style={{
+																width: '36px',
+															}}
+															checked={
+																option?.apps?.slack || undefined
+															}
+															onChange={() =>
+																setInfo({
+																	...info,
+																	selectedOptions: {
+																		...info.selectedOptions,
+																		[option.event]: {
+																			...info.selectedOptions[
+																				option.event
+																			],
+																			email:
+																				info
+																					.selectedOptions?.[
+																					option.event
+																				]?.email || false, // Ensure boolean
+																			slack:
+																				!info
+																					.selectedOptions?.[
+																					option.event
+																				]?.slack || false, // Default to false
+																			whatsapp:
+																				info
+																					.selectedOptions?.[
+																					option.event
+																				]?.whatsapp ||
+																				false, // Default to false
+																		},
+																	},
+																})
+															}
+														/>
+													</div>
 												</div>
-												<div className="notificationContainerOptions-item-checkbox">
-													<input
-														type="checkbox"
-														style={{
-															width: '36px',
-														}}
-														checked={option?.apps?.email || undefined}
-														onChange={() =>
-															setInfo({
-																...info,
-																selectedOptions: {
-																	...info.selectedOptions,
-																	[option.event]: {
-																		...info.selectedOptions[
-																			option.event
-																		],
-																		email:
-																			!info.selectedOptions?.[
-																				option.event
-																			]?.email || false, // Ensure boolean
-																		slack:
-																			info.selectedOptions?.[
-																				option.event
-																			]?.slack || false, // Default to false
-																		whatsapp:
-																			info.selectedOptions?.[
-																				option.event
-																			]?.whatsapp || false, // Default to false
-																	},
-																},
-															})
-														}
-													/>
-													<input
-														type="checkbox"
-														style={{
-															width: '70px',
-														}}
-														checked={
-															option?.apps?.whatsapp || undefined
-														}
-														onChange={() =>
-															setInfo({
-																...info,
-																selectedOptions: {
-																	...info.selectedOptions,
-																	[option.event]: {
-																		...info.selectedOptions[
-																			option.event
-																		],
-																		email:
-																			info.selectedOptions?.[
-																				option.event
-																			]?.email || false, // Ensure boolean
-																		slack:
-																			info.selectedOptions?.[
-																				option.event
-																			]?.slack || false, // Default to false
-																		whatsapp:
-																			!info.selectedOptions?.[
-																				option.event
-																			]?.whatsapp || false, // Default to false
-																	},
-																},
-															})
-														}
-													/>
-													<input
-														type="checkbox"
-														style={{
-															width: '36px',
-														}}
-														checked={option?.apps?.slack || undefined}
-														onChange={() =>
-															setInfo({
-																...info,
-																selectedOptions: {
-																	...info.selectedOptions,
-																	[option.event]: {
-																		...info.selectedOptions[
-																			option.event
-																		],
-																		email:
-																			info.selectedOptions?.[
-																				option.event
-																			]?.email || false, // Ensure boolean
-																		slack:
-																			!info.selectedOptions?.[
-																				option.event
-																			]?.slack || false, // Default to false
-																		whatsapp:
-																			info.selectedOptions?.[
-																				option.event
-																			]?.whatsapp || false, // Default to false
-																	},
-																},
-															})
-														}
-													/>
-												</div>
-											</div>
-										);
-									})}
-								</div>
-							</React.Fragment>
-						))}
+											);
+										})}
+									</div>
+								</React.Fragment>
+							))}
 					</div>
 				</div>
 			)}

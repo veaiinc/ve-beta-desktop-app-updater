@@ -309,17 +309,19 @@ export const ProfileState = () => {
 		}
 	};
 
-	const getDefaultNotificationSettings = async () => {
+	const getDefaultNotificationSettings = async (tenantId) => {
 		try {
-			let userToken = localStorage.getItem('usertoken');
-			const response = await service.fetchGet(
-				'/defaultNotificationSettings',
-				userToken,
-				'tenant-users',
-			);
+			const token = localStorage.getItem('usertoken');
+			const path = '/defaultNotificationSettings';
+			const type = 'tenant-users';
+			const body = {
+				tenantId,
+			};
+			const response = await service?.fetchPost(path, body, token, type);
 			if (response?.[0]) {
+				console.log('response', response);
 				dispatch({
-					type: Actions.GET_DEFAULT_NOTIFICATION_SETTINGS,
+					type: Actions?.GET_DEFAULT_NOTIFICATION_SETTINGS,
 					payload: response?.[1],
 				});
 			}
@@ -355,7 +357,7 @@ export const ProfileState = () => {
 			const payload = {
 				app, // email, slack, whatsapp
 				tenantId,
-				type: appType, // true, false
+				isEnabled: appType, // true, false
 			};
 			const response = await service.fetchPut(path, payload, usertoken, type);
 			if (response?.[0]) {
