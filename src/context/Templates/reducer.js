@@ -1,3 +1,4 @@
+import { message } from 'antd';
 import { intialState } from './state';
 const actionHandlers = {
 	GET_WORKFLOW_DETAILS_SUCCESS: (state, action) => ({
@@ -158,9 +159,11 @@ const actionHandlers = {
 		[action?.selectedvariable]: action.payload,
 	}),
 	HANDLE_STREAM_MESSAGE_CHUNK: (state, action) => {
-		const { payload, chunkId } = action;
-		const messages = state?.globalChatMessages | [];
+		const { payload, chunkId } = action?.payload;
+		let messages = [...state?.globalChatMessages] || [];
 		let requiredIndex = -1;
+		messages = messages?.filter((ele) => ele?.contentType !== 'loading');
+
 		for (let i = messages?.length - 1; i >= 0; i--) {
 			if (messages?.[i]?.message_chunk_id === chunkId) {
 				requiredIndex = i;
@@ -168,14 +171,21 @@ const actionHandlers = {
 			}
 		}
 		if (requiredIndex !== -1) {
+			console.log('messages==>', messages[requiredIndex]);
 			messages[requiredIndex] = {
 				...messages[requiredIndex],
 				...payload,
-				answer: messages?.[requiredIndex]?.answer || '' + payload?.answer,
+				message: (messages?.[requiredIndex]?.message || '') + payload?.answer,
 			};
 		} else {
-			messages.push({ ...payload, type: 'AI', contentType: 'message' });
+			messages.push({
+				...payload,
+				type: 'AI',
+				contentType: 'message',
+				message: payload?.answer,
+			});
 		}
+
 		return { ...state, globalChatMessages: messages };
 	},
 	RESET_STATE: () => intialState,

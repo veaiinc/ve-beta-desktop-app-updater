@@ -384,7 +384,8 @@ const RecentChat = ({
 																	handleRatingClick
 																}
 																showTypingEffect={
-																	chat?.typingEffect
+																	false
+																	// chat?.typingEffect
 																}
 																onComplete={handleStopTypingEffect}
 																rating={chat?.rating}
