@@ -6,14 +6,14 @@ import { ReactComponent as DateSvg } from '../../../assets/svg/calendar/date.svg
 import { ReactComponent as DownArrow } from '../../../assets/svg/activity/down.svg';
 import SessionInfoCard from '../../components/scheduler/SessionInfoCard';
 import { Tooltip, DatePicker } from 'antd';
-import moment from 'moment';
+import dayjs from 'dayjs';
 
 const durationOptions = ['30 Mins', '45 Mins', '1 Hour', '2 Hours'];
 const EditScheduler = () => {
 	const navigate = useNavigate();
 	const [info, setInfo] = useState({
-		startTime: null,
-		endTime: null,
+		startTime: dayjs(), // Set default start time to today
+		endTime: dayjs().add(7, 'day'), // Set default end time to 7 days from now
 		duration: '90 Mins',
 		isDurationOpen: false,
 	});
@@ -76,10 +76,10 @@ const EditScheduler = () => {
 								className="session-input"
 								suffixIcon={<DateSvg />}
 								disabledDate={(current) => {
-									// Disable dates before today and after end date if it exists
 									return (
-										current < moment().startOf('day') ||
-										(info.endTime && current > info.endTime)
+										current &&
+										(current.isBefore(dayjs().startOf('day')) ||
+											(info.endTime && current.isAfter(info.endTime)))
 									);
 								}}
 							/>
@@ -95,8 +95,10 @@ const EditScheduler = () => {
 								className="session-input"
 								suffixIcon={<DateSvg />}
 								disabledDate={(current) => {
-									// Disable dates before start date if it exists, or before today
-									return current < (info.startTime || moment().startOf('day'));
+									return (
+										current &&
+										current.isBefore(info.startTime || dayjs().startOf('day'))
+									);
 								}}
 							/>
 						</div>

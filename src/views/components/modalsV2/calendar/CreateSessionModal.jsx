@@ -6,7 +6,7 @@ import { ReactComponent as Down } from '../../../../assets/svg/calendar/down.svg
 import { ReactComponent as DateSvg } from '../../../../assets/svg/calendar/date.svg';
 import InputComponent from '../../ai_assistant/InputComponent';
 import { Tooltip, DatePicker } from 'antd';
-import moment from 'moment';
+import dayjs from 'dayjs';
 import { useNavigate } from 'react-router-dom';
 
 const sessionTypeOptions = ['In Person', 'Phone Call', 'Video Call'];
@@ -41,8 +41,8 @@ const initialInfo = {
 	location: '',
 	phoneNumber: '',
 	videoLink: '',
-	scheduleFrom: moment().utc(),
-	scheduleTo: moment().add(1, 'weeks').utc(),
+	scheduleFrom: dayjs(),
+	scheduleTo: dayjs().add(1, 'weeks'),
 };
 
 const CreateSessionModal = ({ open, closeModal }) => {
@@ -187,6 +187,7 @@ const CreateSessionModal = ({ open, closeModal }) => {
 							format="DD MMM YYYY hh:mm A"
 							allowClear
 							showTime={true}
+							value={info?.scheduleFrom}
 							onChange={(value) => {
 								setInfo((prev) => ({
 									...prev,
@@ -196,7 +197,7 @@ const CreateSessionModal = ({ open, closeModal }) => {
 							className="typeOfSession-lable"
 							suffixIcon={<DateSvg />}
 							disabledDate={(current) => {
-								return current && current < moment().startOf('day');
+								return current && current < dayjs().startOf('day');
 							}}
 						/>
 					</div>
@@ -206,6 +207,7 @@ const CreateSessionModal = ({ open, closeModal }) => {
 							format="DD MMM YYYY hh:mm A"
 							allowClear
 							showTime={true}
+							value={info.scheduleTo}
 							onChange={(value) => {
 								setInfo((prev) => ({
 									...prev,
@@ -217,7 +219,7 @@ const CreateSessionModal = ({ open, closeModal }) => {
 							disabledDate={(current) => {
 								return (
 									current &&
-									current < (info?.scheduleFrom || moment().startOf('day'))
+									current < (info?.scheduleFrom || dayjs().startOf('day'))
 								);
 							}}
 						/>
