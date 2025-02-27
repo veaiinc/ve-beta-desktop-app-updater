@@ -79,7 +79,7 @@ const SchedulerMainPage = () => {
 			...prev,
 			updateSessionSlot: !prev.updateSessionSlot,
 		}));
-	}, [info?.updateSessionSlot]);
+	}, []);
 	return (
 		<>
 			<div className="schedulerMainPageParentContainer">
@@ -116,7 +116,6 @@ const SchedulerMainPage = () => {
 			/>
 			<UpdateSessionSlot
 				open={info?.updateSessionSlot}
-				// open={true}
 				closeModal={handleUpdateSessionSlot}
 			/>
 		</>

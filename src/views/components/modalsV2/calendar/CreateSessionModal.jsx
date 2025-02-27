@@ -7,6 +7,7 @@ import { ReactComponent as DateSvg } from '../../../../assets/svg/calendar/date.
 import InputComponent from '../../ai_assistant/InputComponent';
 import { Tooltip, DatePicker } from 'antd';
 import moment from 'moment';
+import { useNavigate } from 'react-router-dom';
 
 const sessionTypeOptions = ['In Person', 'Phone Call', 'Video Call'];
 
@@ -45,6 +46,7 @@ const initialInfo = {
 };
 
 const CreateSessionModal = ({ open, closeModal }) => {
+	const navigate = useNavigate();
 	const [info, setInfo] = useState({
 		...initialInfo,
 	});
@@ -86,6 +88,12 @@ const CreateSessionModal = ({ open, closeModal }) => {
 			/>
 		);
 	};
+
+	const handleCreateSession = useCallback(() => {
+		console.log('Session Created');
+		ModifyCloseModal();
+		navigate('/scheduling/edit');
+	}, [info, ModifyCloseModal, navigate]);
 	return (
 		<ReactModal
 			isOpen={open}
@@ -217,7 +225,9 @@ const CreateSessionModal = ({ open, closeModal }) => {
 				</div>
 
 				<div className="scheduleBtnContainer">
-					<button className="scheduleBtn">Create</button>
+					<button className="scheduleBtn" onClick={handleCreateSession}>
+						Create
+					</button>
 				</div>
 			</div>
 		</ReactModal>

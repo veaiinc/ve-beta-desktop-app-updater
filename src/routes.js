@@ -46,6 +46,7 @@ import InitialHomePage from './views/features/home_page/InitialHomePage';
 import Chat from './views/features/chat/Chat';
 import RecentChat from './views/features/chat/RecentChat';
 import SchedulerMainPage from './views/features/calendar/SchedulerMainPage';
+import EditScheduler from './views/features/calendar/EditScheduler';
 const routes = [
 	{
 		path: '/',
@@ -292,10 +293,11 @@ const routes = [
 		exact: true,
 	},
 	{
-		path: '/scheduling',
+		path: '/scheduling/edit',
 		component: (
 			<AuthWrapper title={'Scheduling'} maxWidth={'95%'}>
-				<SchedulerMainPage />
+				{/* <SchedulerMainPage /> */}
+				<EditScheduler />
 			</AuthWrapper>
 		),
 		exact: true,
