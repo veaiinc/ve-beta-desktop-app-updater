@@ -7,6 +7,7 @@ const ActionDetailsBlock = ({
 	title = '',
 	description = '',
 	updaterFn,
+	type = 'action',
 	onChangeButtonClick = () => {},
 }) => {
 	return (
@@ -23,14 +24,14 @@ const ActionDetailsBlock = ({
 			<div className="actionDetailsBlockBody">
 				<input
 					type="text"
-					placeholder="Action Name"
+					placeholder={type === 'trigger' ? 'Trigger title' : 'Action title'}
 					className="actionDetailsBlockTitleInput"
 					value={title}
 					onChange={(e) => updaterFn({ title: e?.target?.value })}
 				/>
 				<input
 					type="text"
-					placeholder="Action Description"
+					placeholder={type === 'trigger' ? 'Trigger description' : 'Action description'}
 					className="actionDetailsBlockDescriptionInput"
 					value={description}
 					onChange={(e) => updaterFn({ description: e?.target?.value })}

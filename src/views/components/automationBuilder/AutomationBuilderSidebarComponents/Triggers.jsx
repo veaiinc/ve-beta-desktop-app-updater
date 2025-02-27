@@ -45,6 +45,27 @@ const triggersList = {
 				event: 'create',
 				module: 'formResponse',
 			},
+			{
+				app: 'inApp',
+				icon: null,
+				label: 'Task Created',
+				event: 'create',
+				module: 'task',
+			},
+			{
+				app: 'inApp',
+				icon: null,
+				label: 'Task Updated',
+				event: 'update',
+				module: 'task',
+			},
+			{
+				app: 'inApp',
+				icon: null,
+				label: 'Task Deleted',
+				event: 'delete',
+				module: 'task',
+			},
 		],
 	},
 };
@@ -153,30 +174,9 @@ const Triggers = ({ onCLose, automationId, editMode, activeStepsData, step }) =>
 	// }, [info?.activeStage, onCLose]);
 
 	const addNewTrigger = useCallback(
-		async (trigger) => {
-			const payload = {
-				title: trigger?.title,
-				description: trigger?.description,
-				triggerType: trigger?.triggerType,
-				app: trigger?.app,
-				type: 'trigger',
-			};
-			if (trigger?.event === 'messageReceived') {
-				payload.gmail = {
-					connectedEmail: trigger?.googleAccount,
-					event: trigger?.event,
-				};
-			}
-			if (trigger?.event === 'create') {
-				payload.inApp = {
-					event: trigger?.event,
-					module: trigger?.module,
-					workflowTemplateId: trigger?.workflowTemplateId,
-					formTemplateId: trigger?.formTemplateId,
-				};
-			}
+		async (data) => {
 			updateTriggerInfo({ saveLoader: true });
-			const response = await addTrigger(automationId, payload);
+			const response = await addTrigger(automationId, data);
 			updateTriggerInfo({ saveLoader: false });
 			if (response?.[0]) {
 				setInfo((prev) => ({ ...prev, activeStage: 'stage2' }));

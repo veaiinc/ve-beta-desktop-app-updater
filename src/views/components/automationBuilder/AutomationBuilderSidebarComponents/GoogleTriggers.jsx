@@ -78,11 +78,15 @@ const GoogleTriggers = ({
 			return;
 		}
 		onSave({
-			...triggerData,
 			title: info?.title?.trim(),
 			description: info?.description?.trim(),
-			googleAccount: info?.selectedGoogleAccount?.value,
-			pollMode: info?.selectedPollMode?.value,
+			triggerType: triggerData?.triggerType,
+			app: triggerData?.app,
+			type: 'trigger',
+			gmail: {
+				connectedEmail: info?.selectedGoogleAccount?.value,
+				event: triggerData?.event,
+			},
 		});
 	};
 
