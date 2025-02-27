@@ -7,6 +7,7 @@ import { ReactComponent as DownArrow } from '../../../assets/svg/activity/down.s
 import SessionInfoCard from '../../components/scheduler/SessionInfoCard';
 import { Tooltip, DatePicker } from 'antd';
 import dayjs from 'dayjs';
+import InputComponent from '../../components/ai_assistant/InputComponent';
 
 const durationOptions = ['30 Mins', '45 Mins', '1 Hour', '2 Hours'];
 const EditScheduler = () => {
@@ -16,6 +17,8 @@ const EditScheduler = () => {
 		endTime: dayjs().add(7, 'day'), // Set default end time to 7 days from now
 		duration: '90 Mins',
 		isDurationOpen: false,
+		sessionDescription: '',
+		addDescription: false,
 	});
 
 	// Function to handle start date change
@@ -142,6 +145,42 @@ const EditScheduler = () => {
 							</Tooltip>
 						</div>
 					</div>
+
+					<div className="updateSessionDesc">
+						<div
+							className={`addSessionDesc ${info?.addDescription ? 'hidden' : ''}`}
+							onClick={() =>
+								setInfo((prev) => ({
+									...prev,
+									addDescription: !prev.addDescription,
+								}))
+							}
+						>
+							Add Instruction
+						</div>
+
+						<div
+							className={`sessionDescriptionWrapper ${
+								info?.addDescription ? 'visible' : ''
+							}`}
+						>
+							<InputComponent
+								className="inputHeight"
+								value={info?.sessionDescription}
+								onChange={(e) =>
+									setInfo((prev) => ({
+										...prev,
+										sessionDescription: e.target.value,
+									}))
+								}
+								placeholder={'Session description'}
+							/>
+						</div>
+					</div>
+				</div>
+
+				<div className="SessionAvailabilityContainer">
+					<span>Session Availability</span>
 				</div>
 			</div>
 		</div>
