@@ -68,7 +68,7 @@ const EditScheduler = () => {
 						<div className="sessionInputWrapper">
 							<span>From</span>
 							<DatePicker
-								format="DD MMM YYYY hh:mm A"
+								format="DD MMM YYYY"
 								allowClear
 								showTime={false}
 								value={info.startTime}
@@ -87,7 +87,7 @@ const EditScheduler = () => {
 						<div className="sessionInputWrapper">
 							<span>To</span>
 							<DatePicker
-								format="DD MMM YYYY hh:mm A"
+								format="DD MMM YYYY"
 								allowClear
 								showTime={false}
 								value={info.endTime}
