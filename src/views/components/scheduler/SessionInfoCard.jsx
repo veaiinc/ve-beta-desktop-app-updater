@@ -14,7 +14,6 @@ const SessionInfoCard = ({ sessionData }) => {
 	});
 
 	const handleDetailsChange = (option) => {
-		// Handle details change
 		setInfo((prev) => ({
 			...prev,
 			isDetailsOpen: !prev.isDetailsOpen,
