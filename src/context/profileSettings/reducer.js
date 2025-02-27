@@ -2,27 +2,27 @@ import { intialState } from './state';
 const actionHandlers = {
 	GET_TENANT_SETTINGS: (state, action) => ({
 		...state,
-		tennantSettingsData: action.payload,
+		tennantSettingsData: action?.payload,
 	}),
 	GET_USER_DETAILS: (state, action) => ({
 		...state,
-		userDetailsData: action.payload,
+		userDetailsData: action?.payload,
 	}),
 	GET_TENANT_USER_DETAILS: (state, action) => ({
 		...state,
-		tenantUserDetails: action.payload,
+		tenantUserDetails: action?.payload,
 	}),
 	GET_2FA_QR_CODE: (state, action) => ({
 		...state,
-		qrcode: action.payload,
+		qrcode: action?.payload,
 	}),
 	SET_2FA_SETTINGS: (state, action) => ({
 		...state,
-		set2factorSettings: action.payload,
+		set2factorSettings: action?.payload,
 	}),
 	GET_USER_WORKSPACE_LIST: (state, action) => ({
 		...state,
-		userWorkSpaceList: action.payload,
+		userWorkSpaceList: action?.payload,
 	}),
 	UPDATE_LOGO: (state, action) => {
 		const updatedTennantSettingsData = {
@@ -38,7 +38,7 @@ const actionHandlers = {
 		...state,
 		tennantSettingsData: {
 			...state?.tennantSettingsData,
-			businessName: action.payload,
+			businessName: action?.payload,
 		},
 	}),
 
@@ -46,7 +46,7 @@ const actionHandlers = {
 		...state,
 		tennantSettingsData: {
 			...state?.tennantSettingsData,
-			...action.payload,
+			...action?.payload,
 		},
 	}),
 
@@ -54,22 +54,22 @@ const actionHandlers = {
 		...state,
 		userDetailsData: {
 			...state?.userDetailsData,
-			...action.payload,
+			...action?.payload,
 		},
 	}),
 	UPDATE_PROFILE_STATE: (state, action) => ({
 		...state,
-		...action.payload,
+		...action?.payload,
 	}),
 	GET_DEFAULT_NOTIFICATION_SETTINGS: (state, action) => ({
 		...state,
-		defaultNotificationSettings: action.payload,
+		defaultNotificationSettings: action?.payload,
 	}),
 	RESET_STATE: () => ({ ...intialState }),
 };
 
 const Reducer = (state, action) => {
-	const handler = actionHandlers[action.type];
+	const handler = actionHandlers?.[action?.type];
 	return handler ? handler(state, action) : state;
 };
 
