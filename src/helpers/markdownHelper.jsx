@@ -231,7 +231,11 @@ export const TypingEffect = ({
 
 	return (
 		<div className="typing-effect-container">
-			<Markdown>{displayedText}</Markdown>
+			{showTypingEffect ? (
+				<Markdown>{displayedText?.replace(/\\n/g, '\n')}</Markdown>
+			) : (
+				<Markdown>{text?.replace(/\\n/g, '\n')}</Markdown>
+			)}
 
 			{currentIndex === text?.length ? (
 				<div className="hover-actions-container">
