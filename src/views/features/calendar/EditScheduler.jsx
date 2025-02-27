@@ -399,7 +399,7 @@ const EditScheduler = () => {
 								placement="bottom"
 								trigger="click"
 								overlayClassName="booking-period-dropdown"
-								overlay={
+								title={
 									<div className="period-options">
 										{['Day', 'Week', 'Month'].map((period) => (
 											<div key={period} className="period-item">
@@ -408,6 +408,9 @@ const EditScheduler = () => {
 										))}
 									</div>
 								}
+								arrow={false}
+								color={'transparent'}
+								overlayStyle={{ minWidth: 'fit-content', padding: '0' }}
 							>
 								<div className="period-selector">
 									Day
