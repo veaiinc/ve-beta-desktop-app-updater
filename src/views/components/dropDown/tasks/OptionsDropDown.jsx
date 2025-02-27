@@ -138,6 +138,7 @@ const OptionsDropDown = ({
 					handleBack={handleBack}
 					properties={properties}
 					group={viewData?.group}
+					viewType={viewData?.viewType}
 					updateViewInfo={updateViewInfo}
 				/>
 			),

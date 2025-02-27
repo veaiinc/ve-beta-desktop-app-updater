@@ -11,6 +11,7 @@ import ToggleSwitch from '../../../../views/components/input/slider';
 
 import '../../../../assets/scss/dropdown/tasks/groupDropDown.scss';
 import DropDown from './DropDown';
+import { message } from 'antd';
 
 const availableGroups = ['status', 'priority'];
 
@@ -41,7 +42,14 @@ const groupByOptions = {
 	},
 };
 
-const GroupDropDown = ({ handleClose, handleBack, properties, group, updateViewInfo }) => {
+const GroupDropDown = ({
+	handleClose,
+	handleBack,
+	properties,
+	group,
+	updateViewInfo,
+	viewType,
+}) => {
 	const [info, setInfo] = useState({
 		hideEmptyGroups: false,
 		groupBy: group,
@@ -73,6 +81,10 @@ const GroupDropDown = ({ handleClose, handleBack, properties, group, updateViewI
 	}, [group, properties]);
 
 	const handleGroupByChange = (value) => {
+		if (!value && viewType === 'board') {
+			message.error('Grouping is required in board view');
+			return;
+		}
 		setInfo((prevInfo) => ({
 			...prevInfo,
 			groupBy: value,
@@ -111,20 +123,21 @@ const GroupDropDown = ({ handleClose, handleBack, properties, group, updateViewI
 							onChange={(e) => setInfo({ ...info, search: e.target.value })}
 						/>
 						<div className="group-dropDown-select-options">
-							{'none'?.includes(info?.search?.toLowerCase()) && (
-								<div
-									className="group-dropDown-select-options-item"
-									key="none"
-									onClick={() => handleGroupByChange(null)}
-								>
-									<span className="group-dropDown-select-options-item-label">
-										None
-									</span>
-									{info?.groupBy === null ? (
-										<CheckSvg className="icon-check" />
-									) : null}
-								</div>
-							)}
+							{viewType !== 'board' &&
+								'none'?.includes(info?.search?.toLowerCase()) && (
+									<div
+										className="group-dropDown-select-options-item"
+										key="none"
+										onClick={() => handleGroupByChange(null)}
+									>
+										<span className="group-dropDown-select-options-item-label">
+											None
+										</span>
+										{info?.groupBy === null ? (
+											<CheckSvg className="icon-check" />
+										) : null}
+									</div>
+								)}
 							{properties
 								?.filter((property) => availableGroups?.includes(property?.value))
 								?.filter((property) =>
@@ -243,7 +256,10 @@ const GroupDropDown = ({ handleClose, handleBack, properties, group, updateViewI
 						</div>
 					</div> */}
 					<div className="group-dropDown-footer">
-						<button className="group-dropDown-footer-button">
+						<button
+							className="group-dropDown-footer-button"
+							onClick={() => handleGroupByChange(null)}
+						>
 							<DustbinOutlined />
 							Remove grouping
 						</button>
