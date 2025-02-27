@@ -136,16 +136,10 @@ const ListViewSidebar = ({
 		}));
 	}, [deleteTask, selectedRow?._id]);
 
-	const onSubTaskClick = useCallback(
-		(taskId) => {
-			const task = info?.subTasks?.find((task) => task?._id === taskId);
-			handleSubTaskClick(task);
-		},
-		[info?.subTasks, handleSubTaskClick],
-	);
-
 	const generateRow = useCallback(
 		(row) => {
+			if (!row) return [];
+
 			const listItems = [];
 			for (let key in row) {
 				const value = row[key];

@@ -162,6 +162,123 @@ const actionHandlers = {
 		...state,
 		...action?.payload,
 	}),
+	SET_LIST_TASK_WITH_GROUP: (state, action) => ({
+		...state,
+		listTaskWithGroup: action?.payload,
+	}),
+	APPEND_GROUP_DATA: (state, action) => {
+		const { group, data, hasNextPage, currentPage, totalDocs } = action?.payload;
+		const existingGroup = state?.listTaskWithGroup?.groups?.find(
+			(item) => item?.group === group,
+		);
+		if (existingGroup) {
+			return {
+				...state,
+				listTaskWithGroup: {
+					...state.listTaskWithGroup,
+					groups: state?.listTaskWithGroup?.groups?.map((item) =>
+						item?.group === group
+							? {
+									...item,
+									data: [...item?.data, ...data],
+									hasNextPage,
+									currentPage,
+									totalDocs,
+							  }
+							: item,
+					),
+				},
+			};
+		}
+		return {
+			...state,
+		};
+	},
+	HANDLE_GROUP_CHANGE: (state, action) => {
+		const { sourceGroup, targetGroup, taskId, sourceIndex, targetIndex, groupBy } =
+			action?.payload;
+
+		// Find the task to move
+		const sourceGroupData = state?.listTaskWithGroup?.groups?.find(
+			(item) => item?.group === sourceGroup,
+		);
+
+		const taskToMove = sourceGroupData?.data?.find((task) => task?._id === taskId);
+
+		if (!taskToMove) return state;
+
+		// Check if target group exists
+		const targetGroupExists = state?.listTaskWithGroup?.groups?.some(
+			(group) => group.group === targetGroup,
+		);
+
+		let updatedGroups;
+		if (targetGroupExists) {
+			// Update existing groups
+			updatedGroups = state?.listTaskWithGroup?.groups?.map((group) => {
+				// Remove task from source group
+				if (group.group === sourceGroup) {
+					const newData = [...group.data];
+					newData.splice(sourceIndex, 1);
+					return {
+						...group,
+						data: newData,
+						totalDocs: group?.totalDocs - 1,
+					};
+				}
+				// Add task to target group at specific index
+				if (group.group === targetGroup) {
+					const newData = [...group.data];
+					newData.splice(targetIndex, 0, {
+						...taskToMove,
+						[groupBy]: targetGroup,
+					});
+					return {
+						...group,
+						data: newData,
+						totalDocs: group?.totalDocs + 1,
+					};
+				}
+				return group;
+			});
+		} else {
+			// Create new target group and update source group
+			updatedGroups = state?.listTaskWithGroup?.groups?.map((group) => {
+				if (group.group === sourceGroup) {
+					const newData = [...group.data];
+					newData.splice(sourceIndex, 1);
+					return {
+						...group,
+						data: newData,
+						totalDocs: group?.totalDocs - 1,
+					};
+				}
+				return group;
+			});
+
+			// Add new group with the moved task
+			updatedGroups.push({
+				group: targetGroup,
+				data: [
+					{
+						...taskToMove,
+						[groupBy]: targetGroup,
+					},
+				],
+				hasNextPage: false,
+				currentPage: 1,
+				totalDocs: 1,
+			});
+		}
+
+		return {
+			...state,
+			listTaskWithGroup: {
+				...state.listTaskWithGroup,
+				groups: updatedGroups,
+			},
+		};
+	},
 	RESET_STATE: () => intialState,
 };
 
