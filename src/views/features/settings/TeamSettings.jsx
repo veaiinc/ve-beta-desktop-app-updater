@@ -7,18 +7,6 @@ import InviteMembersWorkspaceComponent from '../../components/settings/team/Invi
 import TeamAccessListComponent from '../../components/settings/team/TeamAccessList';
 import { message } from 'antd';
 
-const selectableOptions = [
-	{ id: 1, title: 'Documents', value: 'workflow' },
-	{ id: 2, title: 'Classic Gallery', value: 'classicGallery' },
-	{ id: 3, title: 'Lite Gallery', value: 'liteGallery' },
-	{ id: 4, title: 'Conversational Agent', value: 'conversationalAgent' },
-	{ id: 5, title: 'Folder', value: 'folder' },
-	{ id: 6, title: 'Template', value: 'template' },
-	{ id: 7, title: 'Task', value: 'task' },
-	{ id: 8, title: 'Calendar', value: 'calendar' },
-	{ id: 9, title: 'Form', value: 'form' },
-];
-
 const TeamSettings = () => {
 	// Contexts
 	const {
@@ -372,7 +360,7 @@ const TeamSettings = () => {
 
 		if (info?.selectedOption === 'admin') {
 			// If role is "admin", enable all access controls
-			updatedAccessControls = selectableOptions?.map((control) => ({
+			updatedAccessControls = currentPlan?.apps?.map((control) => ({
 				app: control?.value,
 				isEnabled: true,
 				hasFullAccess: true,
