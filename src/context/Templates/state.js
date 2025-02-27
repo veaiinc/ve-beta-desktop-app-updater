@@ -1452,7 +1452,12 @@ export const TemplatesState = (props) => {
 		}
 	};
 
-	const handleGlobalChatMessages = async (payload, sessionId, localPayload, queryMessage) => {
+	const handleGlobalChatMessages = async (
+		payload,
+		sessionId,
+		localPayload,
+		recentFiles = null,
+	) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
@@ -1492,7 +1497,7 @@ export const TemplatesState = (props) => {
 								))}
 
 								<div className="message-content-user" style={{ marginTop: '8px' }}>
-									<span>{queryMessage}</span>
+									<span>{payload?.query}</span>
 								</div>
 							</div>
 						),
@@ -1514,7 +1519,7 @@ export const TemplatesState = (props) => {
 				payload.query += str;
 			} else {
 				updatedGlobalChatMessages = [
-					{ type: 'user', message: queryMessage || '', typingEffect: false },
+					{ type: 'user', message: payload?.query || '', typingEffect: false },
 					{
 						type: 'AI',
 						message: 'loading....',
@@ -1534,6 +1539,15 @@ export const TemplatesState = (props) => {
 				type: Actions.GLOBAL_CHAT_MESSAGES_ACTIONS_REQUESTS,
 				payload: updatedGlobalChatMessages,
 			});
+
+			if (payload.files && recentFiles?.length) {
+				payload.files = payload?.files?.concat(
+					recentFiles?.map((ele) => ele?.originalFileName),
+				);
+			} else if (recentFiles?.length) {
+				payload.files = recentFiles?.map((ele) => ele?.originalFileName);
+			}
+
 			const response = await Service.fetchPost(url, payload, usertoken, 'ai_predictions');
 			if (response?.[0]) {
 				const citations = response?.[1]?.citations;

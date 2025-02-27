@@ -342,18 +342,9 @@ const ChatBox = ({
 										moment(info?.chatFilters?.dateRange[1])?.unix(),
 								  ]
 								: [];
-						let query;
-						if (info?.recentFiles?.length > 0) {
-							query =
-								currentQuery +
-								',' +
-								info?.recentFiles?.map((ele) => ele?.originalFileName).join(',');
-						} else {
-							query = currentQuery;
-						}
 
 						const payload = {
-							query,
+							query: currentQuery,
 							timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
 							knowledge_base_search: info?.searchType?.workspaceSearch,
 							web_search: info?.searchType?.webSearch,
@@ -376,6 +367,7 @@ const ChatBox = ({
 								handlePreview,
 							};
 						}
+
 						if (activeWorkflowSlugForSmartFile) {
 							payload.workflow_slug = activeWorkflowSlugForSmartFile;
 						}
@@ -395,7 +387,7 @@ const ChatBox = ({
 							payload,
 							info?.chatSessionId,
 							localPayload,
-							currentQuery,
+							info?.recentFiles,
 						);
 						setInfo((prev) => ({ ...prev, chatLoading: false }));
 						if (response?.[0]) {
