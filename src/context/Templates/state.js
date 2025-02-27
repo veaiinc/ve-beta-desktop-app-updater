@@ -1580,6 +1580,120 @@ export const TemplatesState = (props) => {
 		}
 	};
 
+	const handleStreamSendMessage = (payload, localPayload, queryMessage) => {
+		let updatedGlobalChatMessages = [];
+
+		if (localPayload.showCustomChatOptions) {
+			updatedGlobalChatMessages = [...(localPayload.showCustomChatOptions || [])];
+		} else if (payload.files) {
+			let str = '  ';
+			for (let i = 0; i < localPayload?.files?.length; i++) {
+				str += localPayload?.files?.[i]?.name || '' + ' ,';
+			}
+
+			updatedGlobalChatMessages = [
+				{
+					type: 'user',
+					content: (
+						<div
+							className="uploadedImagesContainer"
+							style={{
+								display: 'flex',
+								flexDirection: 'column',
+								gap: '2px',
+								alignItems: 'flex-end',
+							}}
+						>
+							{localPayload?.files?.map((ele, index) => (
+								<img
+									src={ele.preview}
+									alt="filetochat"
+									width={'75px'}
+									onClick={() => localPayload?.handlePreview(ele)}
+									style={{ cursor: 'pointer' }}
+								/>
+							))}
+
+							<div className="message-content-user" style={{ marginTop: '8px' }}>
+								<span>{queryMessage}</span>
+							</div>
+						</div>
+					),
+				},
+				{
+					type: 'AI',
+					message: 'loading....',
+					content: (
+						<div className="aiMessageWrapper">
+							<Skeleton height={20} width={'100%'} borderRadius={'100px'} />
+							<Skeleton height={20} width={'75%'} borderRadius={'100px'} />
+							<Skeleton height={20} width={'50%'} borderRadius={'100px'} />
+						</div>
+					),
+					contentType: 'loading',
+				},
+			];
+
+			payload.query += str;
+		} else {
+			updatedGlobalChatMessages = [
+				{ type: 'user', message: queryMessage || '', typingEffect: false },
+				{
+					type: 'AI',
+					message: 'loading....',
+					content: (
+						<div className="aiMessageWrapper">
+							<Skeleton height={20} width={'100%'} borderRadius={'100px'} />
+							<Skeleton height={20} width={'75%'} borderRadius={'100px'} />
+							<Skeleton height={20} width={'50%'} borderRadius={'100px'} />
+						</div>
+					),
+					contentType: 'loading',
+				},
+			];
+		}
+
+		dispatch({
+			type: Actions.GLOBAL_CHAT_MESSAGES_ACTIONS_REQUESTS,
+			payload: updatedGlobalChatMessages,
+		});
+	};
+	const handleStreamIncomingMessage = (response) => {
+		const citations = response?.citations;
+		const followUpQuery = response?.['follow_up_query'];
+		const messageId = response?.['message_id'];
+		if (citations && citations?.length > 0) {
+			dispatch({
+				type: Actions?.CHAT_CITATIONS_SUCCESS,
+				payload: citations,
+			});
+		} else {
+			dispatch({
+				type: Actions?.CHAT_CITATIONS_SUCCESS,
+				payload: null,
+			});
+		}
+		if (followUpQuery?.length) {
+			dispatch({
+				type: Actions?.CHAT_FOLLOW_UP_QUERY,
+				payload: followUpQuery,
+			});
+		} else {
+			dispatch({
+				type: Actions?.CHAT_FOLLOW_UP_QUERY,
+				payload: null,
+			});
+		}
+	};
+
+	const handleStreamMessageChunk = (payload, chunkId) => {
+		try {
+			dispatch({ type: Actions.HANDLE_STREAM_MESSAGE_CHUNK, payload: { payload, chunkId } });
+		} catch (error) {
+			console.log('error==>handleStreamMessageChunk', error);
+		}
+	};
+
 	const updateAiChatMessageRating = async (payload, messageId) => {
 		let workspaceId = localStorage.getItem('workspaceId');
 		let usertoken = localStorage.getItem('usertoken');
@@ -1895,5 +2009,8 @@ export const TemplatesState = (props) => {
 		getModuleTemplate,
 		getCitationData,
 		getRecentChatMessages,
+		handleStreamSendMessage,
+		handleStreamIncomingMessage,
+		handleStreamMessageChunk,
 	};
 };
