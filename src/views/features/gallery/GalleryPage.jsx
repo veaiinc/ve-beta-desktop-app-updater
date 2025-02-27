@@ -1706,8 +1706,10 @@ const GalleryPage = () => {
 
 	// ... rest of the code ...
 	const handleCopyLightRoomList = () => {
-		if (info.lightroomCopyList?.length) {
-			const textToCopy = info.lightroomCopyList.join(',');
+		if (info?.lightroomCopyList?.length) {
+			const textToCopy = info?.lightroomCopyList
+				?.map((item) => item?.replace(/\.jpg$/i, ''))
+				?.join(',');
 
 			navigator.clipboard
 				.writeText(textToCopy)
@@ -1726,6 +1728,7 @@ const GalleryPage = () => {
 			message.warning('No items to copy');
 		}
 	};
+
 	// ... existing code ...
 
 	// ... existing code ...
