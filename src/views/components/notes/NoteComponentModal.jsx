@@ -9,11 +9,13 @@ import { ReactComponent as PreviousSvg } from '../../../assets/svg/notes/previou
 import { ReactComponent as NextSvg } from '../../../assets/svg/notes/next.svg';
 import { ReactComponent as CopySvg } from '../../../assets/svg/notes/copy.svg';
 import { ReactComponent as ShareSvg } from '../../../assets/svg/notes/share.svg';
+import { ReactComponent as RightDoubleArrowSvg } from '../../../assets/svg/notes/right-double-arrow.svg';
 import ChatBox from '../homePage/ChatBox';
 import { useContext } from 'react';
 import Context from '../../../context/context';
 import { ReactComponent as FullScreenSvg } from '../../../assets/svg/notes/fullScreen.svg';
-import { ReactComponent as LinkSvg } from '../../../assets/svg/notes/link.svg';
+import { ReactComponent as LinkLightSvg } from '../../../assets/svg/notes/loop-light.svg';
+import { ReactComponent as LinkDarkSvg } from '../../../assets/svg/notes/loop-dark.svg';
 const noteIcons = [<PreviousSvg />, <NextSvg />, <CopySvg />, <ShareSvg />];
 const NoteComponentModal = ({ modalIsOpen, closeModal, handleRatingClick, chatList }) => {
 	const chatContentRef = useRef(null);
@@ -61,16 +63,16 @@ const NoteComponentModal = ({ modalIsOpen, closeModal, handleRatingClick, chatLi
 			bodyStyle={{ padding: '0px' }}
 		>
 			<div className="modal-container">
-				<div
-					className="chatBarContainer"
-					// style={{
-					// 	width: info?.noteComponentFullScreen ? '0px' : '400px',
-					// }}
-				>
+				<div className="chatBarContainer">
 					<div className="chat-to-note-link-container">
 						<div className="title">Link all chat to note</div>
-						<div className="link-icon-container" onClick={handleChatToNoteLoopClick}>
-							<LinkSvg />
+						<div
+							className={`link-icon-container ${
+								info?.chatToNoteLoopOn ? 'active' : ''
+							}`}
+							onClick={handleChatToNoteLoopClick}
+						>
+							{info?.chatToNoteLoopOn ? <LinkDarkSvg /> : <LinkLightSvg />}
 						</div>
 					</div>
 					{/* chat body */}
@@ -129,7 +131,7 @@ const NoteComponentModal = ({ modalIsOpen, closeModal, handleRatingClick, chatLi
 								<BackSvg />
 							</div>
 							<div className="full-screen-icon" onClick={closeModal}>
-								<FullScreenSvg />
+								<RightDoubleArrowSvg />
 							</div>
 							<div className="title">wedding timeline</div>
 						</div>
