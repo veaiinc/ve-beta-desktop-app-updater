@@ -411,7 +411,10 @@ const ChatBox = ({
 						if (location?.pathname?.split('/')?.[1] !== 'chat') {
 							navigate('/chat');
 						}
-						handleSendWebsocketMessage(payload, currentQuery);
+						if (handleSendWebsocketMessage) {
+							handleSendWebsocketMessage(payload, currentQuery);
+						}
+
 						handleStreamSendMessage(payload, localPayload, currentQuery);
 						setInfo((prev) => ({ ...prev, chatLoading: false }));
 						// const response = await handleGlobalChatMessages(
