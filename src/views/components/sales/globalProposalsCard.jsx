@@ -58,6 +58,7 @@ const GlobalProposalsCard = ({ data, onClickFunc, modalIsOpen, isLoading }) => {
 												pointerEvents: 'none',
 												borderRadius: '24px',
 												border: 'none',
+												backgroundColor: '#fff',
 											}}
 										/>
 									</div>
