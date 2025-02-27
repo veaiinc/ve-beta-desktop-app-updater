@@ -1,15 +1,41 @@
-import React, { memo, useState } from 'react';
+import React, { memo, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../../../assets/scss/scheduler/editScheduler.scss';
 import { ReactComponent as Back } from '../../../assets/svg/subscription/back.svg';
 import { ReactComponent as DateSvg } from '../../../assets/svg/calendar/date.svg';
 import { ReactComponent as DownArrow } from '../../../assets/svg/activity/down.svg';
+import { ReactComponent as Down } from '../../../assets/svg/calendar/down.svg';
 import SessionInfoCard from '../../components/scheduler/SessionInfoCard';
 import { Tooltip, DatePicker } from 'antd';
 import dayjs from 'dayjs';
 import InputComponent from '../../components/ai_assistant/InputComponent';
+import { ReactComponent as Clock } from '../../../assets/svg/workflow/clock.svg';
+import { ReactComponent as Duplicate } from '../../../assets/svg/tasks/duplicate.svg';
 
 const durationOptions = ['30 Mins', '45 Mins', '1 Hour', '2 Hours'];
+const sessionTypeOptions = ['In Person', 'Phone Call', 'Video Call'];
+
+const sessionTypeInputConfig = {
+	'In Person': {
+		value: 'location',
+		tag: 'Location',
+		type: 'text',
+		placeholder: 'Enter location',
+	},
+	'Phone Call': {
+		value: 'phoneNumber',
+		tag: 'Phone Number',
+		type: 'number',
+		placeholder: 'Enter phone number',
+	},
+	'Video Call': {
+		value: 'videoLink',
+		tag: 'Platform Link',
+		type: 'url',
+		placeholder: 'Enter video call link',
+	},
+};
+
 const EditScheduler = () => {
 	const navigate = useNavigate();
 	const [info, setInfo] = useState({
@@ -19,6 +45,11 @@ const EditScheduler = () => {
 		isDurationOpen: false,
 		sessionDescription: '',
 		addDescription: false,
+		sessionType: 'In Person',
+		sessionTypeOpen: false,
+		location: '',
+		phoneNumber: '',
+		videoLink: '',
 	});
 
 	// Function to handle start date change
@@ -55,6 +86,35 @@ const EditScheduler = () => {
 				endTime: value,
 			};
 		});
+	};
+
+	const handleSessionTypeChange = useCallback((type) => {
+		setInfo((prev) => ({
+			...prev,
+			sessionType: type,
+			sessionTypeOpen: false,
+			location: '',
+			phoneNumber: '',
+			videoLink: '',
+		}));
+	}, []);
+
+	const renderSessionTypeInput = () => {
+		const config = sessionTypeInputConfig[info.sessionType];
+		return (
+			<InputComponent
+				type={config.type}
+				value={info[config.value]}
+				onChange={(e) =>
+					setInfo((prev) => ({
+						...prev,
+						[config.value]: e.target.value,
+					}))
+				}
+				placeholder={config.placeholder}
+				className="inputHeight"
+			/>
+		);
 	};
 
 	return (
@@ -177,10 +237,128 @@ const EditScheduler = () => {
 							/>
 						</div>
 					</div>
+
+					<div className="sessionOptionContainer">
+						<div className="sessionTypeWrapper">
+							<span>Session Type</span>
+							<Tooltip
+								open={info?.sessionTypeOpen}
+								onOpenChange={(visible) =>
+									setInfo((prev) => ({
+										...prev,
+										sessionTypeOpen: visible,
+									}))
+								}
+								placement="bottom"
+								title={
+									<div className="sessionType-dropdown">
+										{sessionTypeOptions?.map((option) => (
+											<div
+												key={option}
+												className="sessionType-dropdown-item"
+												onClick={() => handleSessionTypeChange(option)}
+											>
+												{option}
+											</div>
+										))}
+									</div>
+								}
+								arrow={false}
+								trigger={'click'}
+								color={'transparent'}
+								overlayStyle={{ minWidth: 'fit-content', padding: '0' }}
+							>
+								<div className="typeOfSession-lable">
+									{info?.sessionType}
+									<Down className={`${info?.sessionTypeOpen ? 'open' : ''}`} />
+								</div>
+							</Tooltip>
+						</div>
+						<div className="sessionTypeWrapper">
+							<span>{sessionTypeInputConfig[info?.sessionType]?.tag}</span>
+							{renderSessionTypeInput()}
+						</div>
+					</div>
 				</div>
 
 				<div className="SessionAvailabilityContainer">
-					<span>Session Availability</span>
+					<span className="availability-title">Session Availability</span>
+					<div className="availability-content">
+						<div className="timezone-info">
+							<span>Timezone: CST</span>
+						</div>
+						<div className="weekly-hours">
+							<span className="weekly-title">WEEKLY HOURS</span>
+							<div className="days-container">
+								{['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'].map(
+									(day, index) => (
+										<div key={day} className="day-slot">
+											<div className="day-header">
+												<input
+													type="checkbox"
+													checked={index !== 0 && index !== 4}
+												/>
+												<span>{day}</span>
+											</div>
+											{index !== 0 && index !== 4 && (
+												<div className="time-slots">
+													<DatePicker
+														showTime
+														format="hh:mm A"
+														picker="time"
+														className="timePicker"
+														defaultValue={dayjs().hour(9).minute(0)}
+														suffixIcon={
+															<Clock width={16} height={16} />
+														}
+													/>
+													<span>to</span>
+													<DatePicker
+														showTime
+														format="hh:mm A"
+														picker="time"
+														className="timePicker"
+														defaultValue={dayjs().hour(17).minute(0)}
+														suffixIcon={
+															<Clock width={16} height={16} />
+														}
+													/>
+													<div className="slot-actions">
+														<Tooltip
+															title="Add another time slot"
+															placement="top"
+															color="#292b2e"
+															overlayInnerStyle={{
+																padding: '6px 12px',
+																fontSize: '12px',
+																fontFamily: 'Inter',
+															}}
+														>
+															<div className="add-slot">+</div>
+														</Tooltip>
+														<Tooltip
+															title="Copy time slot to other days"
+															placement="top"
+															color="#292b2e"
+															overlayInnerStyle={{
+																padding: '6px 12px',
+																fontSize: '12px',
+																fontFamily: 'Inter',
+															}}
+														>
+															<div className="copy-slot">
+																<Duplicate />
+															</div>
+														</Tooltip>
+													</div>
+												</div>
+											)}
+										</div>
+									),
+								)}
+							</div>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>
