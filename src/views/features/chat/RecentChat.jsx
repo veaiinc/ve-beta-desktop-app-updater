@@ -85,7 +85,8 @@ const RecentChat = ({
 	useEffect(() => {
 		if (sessionId) {
 			getRecentChatMessages(sessionId);
-			setInfo((prev) => ({ ...prev, chatLoading: true }));
+			setInfo((prev) => ({ ...prev, chatLoading: true, chatSessionId: sessionId }));
+			updateStateValues({ currentSessionId: sessionId });
 		}
 	}, [sessionId]);
 
@@ -104,46 +105,20 @@ const RecentChat = ({
 	}, [citations]);
 
 	useEffect(() => {
-		if (currentSessionId) {
-			setInfo((prev) => ({ ...prev, chatSessionId: currentSessionId }));
-		} else {
-			updateStateValues({ currentSessionId: ObjectID().toString() });
-		}
-	}, [currentSessionId]);
-
-	useEffect(() => {
 		if (recentChatStorage) {
-			const { data, hasNextPage, currentPage } = recentChatStorage;
-			let messages = [];
-			for (let i = 0; i < data?.length; i++) {
-				const { originalQuery = '', response, messageId } = data?.[i] || {};
-				messages = [
-					{
-						message: originalQuery,
-						type: 'user',
-						typingEffect: false,
-						messageId,
-					},
-					{
-						message: response,
-						type: 'AI',
-						messageId,
-						typingEffect: false,
-						rating: null,
-					},
-				]?.concat(messages);
-			}
-			updateStateValues({ globalChatMessages: messages });
-			setInfo((prev) => ({ ...prev, chatLoading: false, hasNextPage, currentPage }));
-			setTimeout(() => {
-				smoothScrollToBottom();
-			}, 1000);
+			recentChatHandler(recentChatStorage, true);
 		}
 	}, [recentChatStorage]);
 
 	useEffect(() => {
 		if (moreRecentChatStorage) {
-			const { data, hasNextPage, currentPage } = moreRecentChatStorage;
+			recentChatHandler(moreRecentChatStorage, true);
+		}
+	}, [moreRecentChatStorage]);
+
+	const recentChatHandler = useCallback(
+		(inComingData, fetcMore = false) => {
+			const { data, hasNextPage, currentPage } = inComingData;
 			let messages = [];
 			for (let i = 0; i < data?.length; i++) {
 				const { originalQuery = '', response, messageId } = data?.[i] || {};
@@ -164,22 +139,25 @@ const RecentChat = ({
 				]?.concat(messages);
 			}
 
-			// First update messages
-			updateStateValues({ globalChatMessages: messages?.concat(globalChatMessages) });
-
-			// Then smoothly scroll after a short delay to allow render
-			setTimeout(() => {
+			if (fetcMore) {
+				updateStateValues({ globalChatMessages: messages?.concat(globalChatMessages) });
 				if (chatContentRef?.current) {
 					chatContentRef.current.scrollBy({
 						top: 300, // Reduced from 500 for smoother feel
 						behavior: 'smooth',
 					});
 				}
-			}, 100);
+			} else {
+				updateStateValues({ globalChatMessages: messages });
+				setTimeout(() => {
+					smoothScrollToBottom();
+				}, 1000);
+			}
 
 			setInfo((prev) => ({ ...prev, chatLoading: false, hasNextPage, currentPage }));
-		}
-	}, [moreRecentChatStorage]);
+		},
+		[info, chatContentRef],
+	);
 
 	const handleRatingClick = async (type, messageId) => {
 		try {
@@ -360,7 +338,7 @@ const RecentChat = ({
 							</InfiniteScroll>
 						</div>
 
-						<ChatBox autoFocus={true} />
+						<ChatBox />
 					</div>
 				</div>
 			</div>

@@ -104,7 +104,6 @@ const ChatBox = ({
 	customChatActions = false,
 	showChatLabels = true,
 	uploadedImages = [],
-	autoFocus = false,
 }) => {
 	const {
 		templates: {
@@ -669,7 +668,7 @@ const ChatBox = ({
 												chatQuery: e.target.value,
 											}))
 										}
-										autoFocus={autoFocus}
+										autoFocus={true}
 										onKeyDown={handleSendMessageFunc}
 										className="textArea"
 										// rows={1}
