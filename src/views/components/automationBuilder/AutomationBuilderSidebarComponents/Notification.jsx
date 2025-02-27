@@ -532,6 +532,31 @@ const Notification = ({
 				if (!info?.selectedGoogleAccount?.value?.trim()?.length) {
 					return message.error('Google account is mandatory');
 				}
+
+				// let a = {
+				// 	title: 'dcj test automation',
+				// 	description: 'the best',
+				// 	previousStepId: '67bc0a13f5355daed1fbffa2',
+				// 	isEnabled: true,
+				// 	type: 'action',
+				// 	app: 'gmail',
+				// 	actionType: 'sendMessage',
+
+				// 	variables: {
+				// 		toEmail: ['66accb967410edda114c1a05.answer'],
+				// 	},
+				// 	inputBody: {
+				// 		toEmail: '{{66accb967410edda114c1a05.answer}}',
+
+				// 		action: 'sendMessage',
+				// 		emailTemplateId: '670f83c1d538ad442aad77a0',
+				// 		emailTemplateSubject: 'emailTemplateSubject',
+				// 		emailTemplateTitle: 'emailTemplateTitle',
+				// 		connectedEmail: 'dheeraj@ve.ai',
+				// 	},
+				// };
+				payload.actionType = 'sendMessage';
+
 				payload.inputBody = {
 					action: 'sendMessage',
 					emailTemplateTitle: info?.selectedTemplate?.title,
