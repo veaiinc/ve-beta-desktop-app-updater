@@ -96,7 +96,7 @@ const InAppTriggers = ({ onClose, onSave, addTriggerLoading, triggerData }) => {
 	const getFormTemplateId = useCallback((template) => {
 		if (template?.version) {
 			return template?.moduleTemplates?.find((item) =>
-				item?.actions?.includes('formResponse'),
+				item?.actions?.includes('form-submission'),
 			)?._id;
 		} else {
 			return template?.moduleTemplates?.find((item) => item?.module === 'form')?._id;
