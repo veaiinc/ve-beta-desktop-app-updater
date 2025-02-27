@@ -170,18 +170,18 @@ const ShareModal = ({
 	};
 
 	const handleVisitorFormAccess = useCallback(() => {
-		setInfo((prevInfo) => ({
-			...prevInfo,
-			visitorFormAccess: {
-				...visitorFormAccess,
-				isEnabled: !prevInfo?.visitorFormAccess?.isEnabled,
-			},
-		}));
-		const payload = {
-			isEnabled: !info?.visitorFormAccess?.isEnabled,
-		};
-		editVisitorFormAccess(payload, galleryId);
-	}, [info?.visitorFormAccess?.isEnabled]);
+		const newEnabled = !info?.visitorFormAccess?.isEnabled;
+		editVisitorFormAccess({ isEnabled: newEnabled }, galleryId);
+		setInfo((prevInfo) => {
+			return {
+				...prevInfo,
+				visitorFormAccess: {
+					...prevInfo.visitorFormAccess,
+					isEnabled: newEnabled,
+				},
+			};
+		});
+	}, [info]);
 
 	const handleGalleryProtection = (name) => {
 		let payload = {};
@@ -643,7 +643,7 @@ const ShareModal = ({
 					<div className="toggleContainer">
 						<div style={{ width: '32px' }}>
 							<ToggleSlider
-								value={data?.visitorFormAccess?.isEnabled}
+								value={info?.visitorFormAccess?.isEnabled}
 								onChange={handleVisitorFormAccess}
 							/>
 						</div>
