@@ -49,7 +49,7 @@ const GlobalProposalsCard = ({ data, onClickFunc, modalIsOpen, isLoading }) => {
 										}}
 									>
 										<iframe
-											src={`${origin}/preview/${template?._id}?module=${template?.moduleTemplates?.[0]?._id}&isPubic=${template?.moduleTemplates?.[0]?.isPublic}&restrictClick=true`}
+											src={`${origin}/preview/short/${template?._id}?module=${template?.moduleTemplates?.[0]?._id}&isPubic=${template?.moduleTemplates?.[0]?.isPublic}&restrictClick=true`}
 											title="Builder Preview"
 											width="100%"
 											height="100%"
