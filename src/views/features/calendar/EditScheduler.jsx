@@ -360,6 +360,63 @@ const EditScheduler = () => {
 						</div>
 					</div>
 				</div>
+
+				<div className="sessionBookingLimitContainer">
+					<span className="booking-title">Booking Limits</span>
+					<div className="booking-options">
+						<div className="booking-option">
+							<input type="checkbox" id="single-use" />
+							<label htmlFor="single-use">Make this a single-use link</label>
+						</div>
+						<div className="booking-option">
+							<input type="checkbox" id="additional-attendees" />
+							<label htmlFor="additional-attendees">
+								Allow guests to add additional attendees
+							</label>
+						</div>
+						<div className="booking-option">
+							<input type="checkbox" id="next-booking" />
+							<label htmlFor="next-booking">Don't let guests book in the next</label>
+						</div>
+						<div className="booking-option">
+							<input type="checkbox" id="minute-mark" />
+							<label htmlFor="minute-mark">Allow booking on the 15 minute mark</label>
+						</div>
+						<div className="booking-option">
+							<input type="checkbox" id="no-meeting-day" />
+							<label htmlFor="no-meeting-day">
+								Let guests book on your no-meeting day
+							</label>
+						</div>
+						<div className="booking-limit-option">
+							<div className="limit-input">
+								<input type="checkbox" id="booking-limit" />
+								<label htmlFor="booking-limit">Only allow</label>
+								<input type="number" defaultValue="5" className="number-input" />
+								<span>bookings per</span>
+							</div>
+							<Tooltip
+								placement="bottom"
+								trigger="click"
+								overlayClassName="booking-period-dropdown"
+								overlay={
+									<div className="period-options">
+										{['Day', 'Week', 'Month'].map((period) => (
+											<div key={period} className="period-item">
+												{period}
+											</div>
+										))}
+									</div>
+								}
+							>
+								<div className="period-selector">
+									Day
+									<Down />
+								</div>
+							</Tooltip>
+						</div>
+					</div>
+				</div>
 			</div>
 		</div>
 	);

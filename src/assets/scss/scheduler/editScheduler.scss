@@ -1,11 +1,12 @@
 .editSchedulerParentContainer {
 	display: flex;
 	width: 100%;
-	height: calc(100vh - 60px);
+	height: calc(100vh - 70px);
 	flex-direction: column;
 	overflow-y: auto;
 	overflow-x: hidden;
 	gap: 35px;
+	padding-right: 10px;
 
 	.editSchedulerHeader {
 		display: flex;
@@ -473,10 +474,7 @@
 		display: flex;
 		flex-direction: column;
 		gap: 24px;
-		padding: 16px;
-		border-radius: 8px;
-		background: #202123;
-		border: 1px solid #333334;
+		padding: 3px;
 
 		.timezone-info {
 			span {
@@ -659,6 +657,178 @@
 					transform: rotate(180deg);
 				}
 				transition: transform 0.2s ease-in-out;
+			}
+		}
+	}
+}
+
+//sessionBookingLimitContainer
+.sessionBookingLimitContainer {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	width: 100%;
+
+	.booking-title {
+		color: #e4e5e6;
+		font-family: Inter;
+		font-size: 14px;
+		font-weight: 600;
+	}
+
+	.booking-options {
+		display: flex;
+		flex-direction: column;
+		gap: 16px;
+		padding: 3px;
+
+		.booking-option {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+
+			input[type='checkbox'] {
+				width: 16px;
+				height: 16px;
+				border-radius: 4px;
+				border: 1px solid #333334;
+				background: #202123;
+				cursor: pointer;
+
+				&:checked {
+					background: #d4d5d6;
+					border-color: #d4d5d6;
+				}
+			}
+
+			label {
+				color: #e4e5e6;
+				font-family: Inter;
+				font-size: 14px;
+				font-weight: 400;
+				cursor: pointer;
+			}
+		}
+
+		.booking-limit-option {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+
+			.limit-input {
+				display: flex;
+				align-items: center;
+				gap: 8px;
+
+				input[type='checkbox'] {
+					width: 16px;
+					height: 16px;
+					border-radius: 4px;
+					border: 1px solid #333334;
+					background: #202123;
+					cursor: pointer;
+
+					&:checked {
+						background: #d4d5d6;
+						border-color: #d4d5d6;
+					}
+				}
+
+				label {
+					color: #e4e5e6;
+					font-family: Inter;
+					font-size: 14px;
+					font-weight: 400;
+				}
+
+				.number-input {
+					width: 50px;
+					height: 36px;
+					padding: 8px;
+					border-radius: 8px;
+					border: 1px solid #333334;
+					background: #202123;
+					color: #e4e5e6;
+					font-family: Inter;
+					font-size: 14px;
+					text-align: center;
+
+					&::-webkit-inner-spin-button,
+					&::-webkit-outer-spin-button {
+						-webkit-appearance: none;
+						margin: 0;
+					}
+
+					&:hover {
+						border-color: #444445;
+					}
+				}
+
+				span {
+					color: #e4e5e6;
+					font-family: Inter;
+					font-size: 14px;
+				}
+			}
+
+			.period-selector {
+				display: flex;
+				height: 36px;
+				padding: 8px 12px;
+				justify-content: space-between;
+				align-items: center;
+				gap: 8px;
+				border-radius: 8px;
+				border: 1px solid #333334;
+				background: #202123;
+				color: #e4e5e6;
+				font-family: Inter;
+				font-size: 14px;
+				cursor: pointer;
+				min-width: 80px;
+
+				&:hover {
+					border-color: #444445;
+				}
+
+				svg {
+					width: 16px;
+					height: 16px;
+					opacity: 0.5;
+					transition: transform 0.3s ease;
+
+					&.open {
+						transform: rotate(180deg);
+						opacity: 1;
+					}
+				}
+			}
+		}
+	}
+}
+
+.booking-period-dropdown {
+	.period-options {
+		display: flex;
+		padding: 6px;
+		flex-direction: column;
+		gap: 4px;
+		border-radius: 8px;
+		background: #292b2e;
+		min-width: 80px;
+
+		.period-item {
+			display: flex;
+			padding: 8px 12px;
+			align-items: center;
+			border-radius: 4px;
+			color: #e4e5e6;
+			font-family: Inter;
+			font-size: 14px;
+			cursor: pointer;
+
+			&:hover {
+				background: #383c3f;
 			}
 		}
 	}
