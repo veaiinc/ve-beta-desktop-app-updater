@@ -81,6 +81,8 @@ const rowTypes = {
 	linkText: LinkText,
 };
 
+const availableViews = ['table', 'board', 'list', 'gallery'];
+
 const Tasks = () => {
 	const {
 		tasks: {
@@ -102,6 +104,7 @@ const Tasks = () => {
 			getTaskPreferences,
 			updateTaskPreferences,
 			taskPreference,
+			getListTaskWithGroup,
 		},
 		templates: { getWorkflowsList, workflowslist },
 		companyInfo: { getTeamMembers, tenantsUserList },
@@ -136,6 +139,7 @@ const Tasks = () => {
 		view: 'table',
 		breadCrumbs: [],
 		timeout: null,
+		group: null,
 	});
 
 	const timeoutRef = useRef(null);
@@ -257,7 +261,7 @@ const Tasks = () => {
 
 	useEffect(() => {
 		handleDebounceFetch();
-	}, [info?.filters, info?.searchValue, info?.sort]);
+	}, [info?.filters, info?.searchValue, info?.sort, info?.group]);
 
 	useEffect(() => {
 		if (!tenantsUserList) {
@@ -403,22 +407,46 @@ const Tasks = () => {
 
 	const fetchListItems = useCallback(
 		(page = 1) => {
-			getListItems({
-				taskFilterInput: {
-					limit: 20,
-					page: page,
-					sort:
-						info?.sort.length > 0 ? info?.sort : [{ sortBy: 'createdAt', sortType: 1 }],
-					filters: mapFiltersPayload(info?.filters),
-					search: info?.searchValue,
-				},
-			});
+			if (info?.group) {
+				getListTaskWithGroup({
+					taskFilterInput: {
+						limit: 20,
+						page: page,
+						sort:
+							info?.sort.length > 0
+								? info?.sort?.map((item) => ({
+										sortBy: item?.sortBy,
+										sortType: item?.sortType,
+								  }))
+								: [{ sortBy: 'createdAt', sortType: 1 }],
+						filters: mapFiltersPayload(info?.filters),
+						search: info?.searchValue,
+						group: info?.group,
+					},
+				});
+			} else {
+				getListItems({
+					taskFilterInput: {
+						limit: 20,
+						page: page,
+						sort:
+							info?.sort.length > 0
+								? info?.sort?.map((item) => ({
+										sortBy: item?.sortBy,
+										sortType: item?.sortType,
+								  }))
+								: [{ sortBy: 'createdAt', sortType: 1 }],
+						filters: mapFiltersPayload(info?.filters),
+						search: info?.searchValue,
+					},
+				});
+			}
 			setInfo((prevInfo) => ({
 				...prevInfo,
 				page: page,
 			}));
 		},
-		[info?.sort, info?.filters, info?.searchValue],
+		[info?.sort, info?.filters, info?.searchValue, info?.group],
 	);
 
 	const handleDebounceFetch = useCallback(() => {
@@ -805,14 +833,24 @@ const Tasks = () => {
 
 	const handleRowClick = useCallback(
 		(row) => {
+			// Find the complete row data from listItems to ensure we have all properties
+			// const selectedTask = info?.listItems?.find((item) => item._id === row?._id) || row;
+
 			if (info?.selectedRow?._id !== row?._id) {
 				resetSubTasks();
 			}
+
 			if (row) {
-				updateTaskInfo({ selectedRow: row, sidebarIsOpen: true, breadCrumbs: [] });
+				updateTaskInfo({
+					selectedRow: row,
+					sidebarIsOpen: true,
+					breadCrumbs: [],
+					// Reset any previously selected subtask
+					selectedSubTask: null,
+				});
 			}
 		},
-		[info?.listItems, resetSubTasks, info?.selectedRow?._id],
+		[info?.listItems, info?.selectedRow?._id, resetSubTasks],
 	);
 
 	const handleCreateSubTaskClick = useCallback(() => {
