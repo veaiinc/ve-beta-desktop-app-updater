@@ -187,7 +187,8 @@ const TemplateCards = ({ data, loading, hasNextPage, fetchMoreMyWorkflows }) => 
 										onMouseDown={(e) => e.stopPropagation()}
 										onMouseUp={(e) => e.stopPropagation()}
 										style={{
-											zoom: 0.3,
+											// zoom: 0.2,
+											backgroundColor: '#fff',
 											pointerEvents: 'none',
 										}}
 									/>
