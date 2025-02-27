@@ -104,6 +104,9 @@ const ChatBox = ({
 	customChatActions = false,
 	showChatLabels = true,
 	uploadedImages = [],
+	handleSendWebsocketMessage,
+	latestStreamMesage,
+	lastQuery,
 }) => {
 	const {
 		templates: {
@@ -118,6 +121,7 @@ const ChatBox = ({
 			activePromptForChat,
 			currentSessionId,
 			deepResearch,
+			handleStreamSendMessage,
 		},
 		calendarInfo: { updateCalendarState },
 		tasks: { updateTaskState },
@@ -184,15 +188,15 @@ const ChatBox = ({
 		}
 	}, [currentSessionId]);
 
-	useEffect(() => {
-		if (globalChatMessages?.length > 0) {
-			let lastMessage = globalChatMessages?.[globalChatMessages?.length - 1];
+	// useEffect(() => {
+	// 	if (globalChatMessages?.length > 0) {
+	// 		let lastMessage = globalChatMessages?.[globalChatMessages?.length - 1];
 
-			if (lastMessage?.deepResearch === true) {
-				updateStateValues({ deepResearch: false });
-			}
-		}
-	}, [globalChatMessages]);
+	// 		if (lastMessage?.deepResearch === true) {
+	// 			updateStateValues({ deepResearch: false });
+	// 		}
+	// 	}
+	// }, [globalChatMessages]);
 
 	useEffect(() => {
 		setInfo((prev) => ({
@@ -200,6 +204,27 @@ const ChatBox = ({
 			goDeep: deepResearch,
 		}));
 	}, [deepResearch]);
+
+	useEffect(() => {
+		if (latestStreamMesage && lastQuery) {
+			const { db_updates, variables_required, deepResearch } = latestStreamMesage;
+			if (db_updates?.calendar_db_update) {
+				updateCalendarState({ refetchCalendarState: true });
+			}
+			if (db_updates?.task_db_update) {
+				updateTaskState({ refetchTasks: true });
+			}
+			if (db_updates?.proposal_db_update) {
+				updateStateValues({ smartFileRefetch: true });
+			}
+			if (variables_required) {
+				handleVariablesRequired(variables_required, lastQuery);
+			}
+			if (deepResearch) {
+				updateStateValues({ deepResearch: false });
+			}
+		}
+	}, [latestStreamMesage]);
 
 	const handlePreview = async (file) => {
 		if (!file.url && !file.preview) {
@@ -386,29 +411,31 @@ const ChatBox = ({
 						if (location?.pathname?.split('/')?.[1] !== 'chat') {
 							navigate('/chat');
 						}
-
-						const response = await handleGlobalChatMessages(
-							payload,
-							info?.chatSessionId,
-							localPayload,
-							currentQuery,
-						);
+						handleSendWebsocketMessage(payload, currentQuery);
+						handleStreamSendMessage(payload, localPayload, currentQuery);
 						setInfo((prev) => ({ ...prev, chatLoading: false }));
-						if (response?.[0]) {
-							const { db_updates, variables_required } = response?.[1];
-							if (db_updates?.calendar_db_update) {
-								updateCalendarState({ refetchCalendarState: true });
-							}
-							if (db_updates?.task_db_update) {
-								updateTaskState({ refetchTasks: true });
-							}
-							if (db_updates?.proposal_db_update) {
-								updateStateValues({ smartFileRefetch: true });
-							}
-							if (variables_required) {
-								handleVariablesRequired(variables_required, currentQuery);
-							}
-						}
+						// const response = await handleGlobalChatMessages(
+						// 	payload,
+						// 	info?.chatSessionId,
+						// 	localPayload,
+						// 	currentQuery,
+						// );
+
+						// if (response?.[0]) {
+						// 	const { db_updates, variables_required } = response?.[1];
+						// 	if (db_updates?.calendar_db_update) {
+						// 		updateCalendarState({ refetchCalendarState: true });
+						// 	}
+						// 	if (db_updates?.task_db_update) {
+						// 		updateTaskState({ refetchTasks: true });
+						// 	}
+						// 	if (db_updates?.proposal_db_update) {
+						// 		updateStateValues({ smartFileRefetch: true });
+						// 	}
+						// 	if (variables_required) {
+						// 		handleVariablesRequired(variables_required, currentQuery);
+						// 	}
+						// }
 					}
 				}
 			}
@@ -445,24 +472,26 @@ const ChatBox = ({
 			if (moduleHelper?.[location?.pathname?.split('/')?.[1]]) {
 				payload.module = moduleHelper?.[location?.pathname?.split('/')?.[1]];
 			}
-			const response = await handleGlobalChatMessages(
-				payload,
-				info?.chatSessionId,
-				localPayload,
-			);
+			// const response = await handleGlobalChatMessages(
+			// 	payload,
+			// 	info?.chatSessionId,
+			// 	localPayload,
+			// );
 			setInfo((prev) => ({ ...prev, chatLoading: false }));
-			if (response?.[0]) {
-				const { db_updates, variables_required } = response?.[1];
-				if (db_updates?.calendar_db_update) {
-					updateCalendarState({ refetchCalendarState: true });
-				}
-				if (db_updates?.task_db_update) {
-					updateTaskState({ refetchTasks: true });
-				}
-				if (variables_required) {
-					handleVariablesRequired(variables_required, data);
-				}
-			}
+			handleSendWebsocketMessage(payload, '');
+			handleStreamSendMessage(payload, localPayload, '');
+			// if (response?.[0]) {
+			// 	const { db_updates, variables_required } = response?.[1];
+			// 	if (db_updates?.calendar_db_update) {
+			// 		updateCalendarState({ refetchCalendarState: true });
+			// 	}
+			// 	if (db_updates?.task_db_update) {
+			// 		updateTaskState({ refetchTasks: true });
+			// 	}
+			// 	if (variables_required) {
+			// 		handleVariablesRequired(variables_required, data);
+			// 	}
+			// }
 		},
 		[info],
 	);

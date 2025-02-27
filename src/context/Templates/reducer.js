@@ -157,6 +157,27 @@ const actionHandlers = {
 		...state,
 		[action?.selectedvariable]: action.payload,
 	}),
+	HANDLE_STREAM_MESSAGE_CHUNK: (state, action) => {
+		const { payload, chunkId } = action;
+		const messages = state?.globalChatMessages | [];
+		let requiredIndex = -1;
+		for (let i = messages?.length - 1; i >= 0; i--) {
+			if (messages?.[i]?.message_chunk_id === chunkId) {
+				requiredIndex = i;
+				break;
+			}
+		}
+		if (requiredIndex !== -1) {
+			messages[requiredIndex] = {
+				...messages[requiredIndex],
+				...payload,
+				answer: messages?.[requiredIndex]?.answer || '' + payload?.answer,
+			};
+		} else {
+			messages.push({ ...payload, type: 'AI', contentType: 'message' });
+		}
+		return { ...state, globalChatMessages: messages };
+	},
 	RESET_STATE: () => intialState,
 };
 
