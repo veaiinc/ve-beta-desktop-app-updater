@@ -379,7 +379,8 @@ const ProposalPopup = ({ open, closeModal, clientDetails = null, commonState }) 
 										onMouseDown={(e) => e.stopPropagation()}
 										onMouseUp={(e) => e.stopPropagation()}
 										style={{
-											zoom: 0.3,
+											// zoom: 0.3,
+											backgroundColor: '#fff',
 											pointerEvents: 'none',
 										}}
 									/>
