@@ -38,8 +38,10 @@ const TeamSettings = () => {
 		selectedOption: 'admin',
 		userEmail: '',
 		selectedUser: null,
+		emailError: '',
 	});
 
+	const emailRegEx = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 	const [sendRequestList, setsendRequestList] = useState([
 		{
 			email: '',
@@ -82,7 +84,7 @@ const TeamSettings = () => {
 	useEffect(() => {
 		const filtered = tenantsUserList
 			?.filter((user) => {
-				const fullName = `${user?.firstName || ''} ${user?.lastName || ''}`.toLowerCase();
+				const fullName = `${user?.firstName || ''} ${user?.lastName || ''}`?.toLowerCase();
 				return (
 					fullName.includes(info.searchQuery.toLowerCase()) ||
 					user?.email.toLocaleLowerCase().includes(info.searchQuery.toLocaleLowerCase())
@@ -351,8 +353,16 @@ const TeamSettings = () => {
 	// };
 
 	const handleSubmit = async () => {
+		if (info?.isloading) {
+			return;
+		}
 		if (!dataNeeded?.email) {
 			messageApi.error('Please enter email');
+			return;
+		}
+
+		if (!emailRegEx.test(dataNeeded?.email)) {
+			messageApi.error('Please enter a valid email address');
 			return;
 		}
 
@@ -380,14 +390,24 @@ const TeamSettings = () => {
 			accessControls: updatedAccessControls,
 		};
 
-		setInfo((prev) => ({ ...prev, isLoading: true }));
+		setInfo((prev) => ({ ...prev, isloading: true }));
 		const response = await addTenantUser(finalData);
-
-		if (response?.[0] === true) {
-			messageApi.success(response?.[1]?.message);
-			setInfo((prev) => ({ ...prev, showAddTenantUserModal: false, isLoading: false }));
+		console.log(response, 'response');
+		if (response?.[1] === true) {
+			messageApi.success('User invited successfully');
+			setInfo((prev) => ({ ...prev, showAddTenantUserModal: false, isloading: false }));
+			setAccessControls((prev) => ({
+				...prev,
+				accessControls:
+					currentPlan?.apps?.map((option) => ({
+						app: option,
+						isEnabled: false,
+						hasFullAccess: false,
+					})) || [],
+			}));
 		} else {
-			messageApi.error(response?.[1]?.message);
+			setInfo((prev) => ({ ...prev, isloading: false }));
+			messageApi.error('Failed to invite user');
 		}
 
 		getTeamMembers();
@@ -406,9 +426,9 @@ const TeamSettings = () => {
 			// Set the access controls for the selected user
 			setAccessControls({
 				accessControls: user?.accessControls?.map((option) => ({
-					app: option.app,
-					isEnabled: option.isEnabled,
-					hasFullAccess: option.hasFullAccess,
+					app: option?.app,
+					isEnabled: option?.isEnabled,
+					hasFullAccess: option?.hasFullAccess,
 				})),
 			});
 		}
@@ -470,12 +490,14 @@ const TeamSettings = () => {
 
 	const handleCheckboxChange = (app, checked) => {
 		setAccessControls((prevState) => {
-			const existingControl = prevState.accessControls.find((control) => control.app === app);
+			const existingControl = prevState?.accessControls?.find(
+				(control) => control?.app === app,
+			);
 
 			if (existingControl) {
 				return {
-					accessControls: prevState.accessControls.map((control) =>
-						control.app === app
+					accessControls: prevState?.accessControls?.map((control) =>
+						control?.app === app
 							? { ...control, isEnabled: checked, hasFullAccess: checked }
 							: control,
 					),
@@ -483,7 +505,7 @@ const TeamSettings = () => {
 			} else {
 				return {
 					accessControls: [
-						...prevState.accessControls,
+						...prevState?.accessControls,
 						{ app, isEnabled: checked, hasFullAccess: checked },
 					],
 				};
@@ -495,6 +517,7 @@ const TeamSettings = () => {
 		setInfo((prev) => ({
 			...prev,
 			showAddTenantUserModal: false,
+			isloading: false,
 			selectedOption: 'admin',
 			userEmail: '',
 			selectedUser: null,
@@ -528,25 +551,23 @@ const TeamSettings = () => {
 					/>
 				</div>
 			</div>
-			{info?.showAddTenantUserModal && (
-				<InviteMembersWorkspaceComponent
-					isOpen={info?.showAddTenantUserModal}
-					closeModal={closeModal}
-					handleChnage={handleChnage}
-					info={info}
-					handleSubmit={handleSubmit}
-					sendRequestList={sendRequestList}
-					setsendRequestList={setsendRequestList}
-					selectedOption={info?.selectedOption}
-					accessControls={accessControls}
-					handleCheckboxChange={handleCheckboxChange}
-					selectableOptions={currentPlan?.apps}
-					userEmail={info?.userEmail}
-					selectedUser={info?.selectedUser}
-					tenantUserId={userDetailsData?._id}
-					isSubmitLoading={info?.isLoading}
-				/>
-			)}
+			<InviteMembersWorkspaceComponent
+				isOpen={info?.showAddTenantUserModal}
+				closeModal={closeModal}
+				handleChnage={handleChnage}
+				info={info}
+				handleSubmit={handleSubmit}
+				sendRequestList={sendRequestList}
+				setsendRequestList={setsendRequestList}
+				selectedOption={info?.selectedOption}
+				accessControls={accessControls}
+				handleCheckboxChange={handleCheckboxChange}
+				selectableOptions={currentPlan?.apps}
+				userEmail={info?.userEmail}
+				selectedUser={info?.selectedUser}
+				tenantUserId={userDetailsData?._id}
+				isSubmitLoading={info?.isloading}
+			/>
 		</>
 	);
 };

@@ -30,6 +30,55 @@ const InviteMembersWorkspaceComponent = ({
 	const [updatedData, setUpdatedData] = useState(null);
 	const [isLoading, setIsLoading] = useState(false);
 
+	useEffect(() => {
+		const updateData = async () => {
+			if (updatedData) {
+				try {
+					setIsLoading(true);
+
+					if (selectedUser !== selectedOption) {
+						const json = {
+							role: selectedOption,
+						};
+						const roleUpdateRes = await updateTenantRole(selectedUser?._id, json);
+						if (roleUpdateRes[0] === true) {
+							const accessControlRes = await updateTenantAccessControls(
+								updatedData,
+								selectedUser?._id,
+							);
+							if (accessControlRes[0] === true) {
+								message.success(accessControlRes[1]?.message);
+								closeModal();
+							} else {
+								message.error(accessControlRes[1]?.message);
+								closeModal();
+							}
+						}
+					} else {
+						const accessControlRes = await updateTenantAccessControls(
+							updatedData,
+							tenantUserId,
+						);
+						if (accessControlRes[0] === true) {
+							message.success(accessControlRes[1]?.message);
+							closeModal();
+						} else {
+							message.error(accessControlRes[1]?.message);
+							closeModal();
+						}
+					}
+				} catch (error) {
+					message.error('An error occurred while updating.');
+					closeModal();
+				} finally {
+					setIsLoading(false);
+				}
+			}
+		};
+
+		updateData();
+	}, [updatedData, selectedUser, selectedOption]);
+
 	const filterFunction = (options) => {
 		return options?.filter((option) => {
 			return !['project', 'proposal', 'gallery'].includes(option?.app);
@@ -46,43 +95,6 @@ const InviteMembersWorkspaceComponent = ({
 			});
 		}
 	};
-	useEffect(() => {
-		if (updatedData) {
-			setIsLoading(true);
-			if (selectedUser !== selectedOption) {
-				const json = {
-					role: selectedOption,
-				};
-				updateTenantRole(selectedUser?._id, json).then((res) => {
-					if (res[0] === true) {
-						updateTenantAccessControls(updatedData, selectedUser?._id).then((res) => {
-							if (res[0] === true) {
-								message.success(res[1]?.message);
-								closeModal();
-								setIsLoading(false);
-							} else {
-								message.error(res[1]?.message);
-								closeModal();
-								setIsLoading(false);
-							}
-						});
-					}
-				});
-			} else {
-				updateTenantAccessControls(updatedData, tenantUserId).then((res) => {
-					if (res[0] === true) {
-						message.success(res[1]?.message);
-						closeModal();
-						setIsLoading(false);
-					} else {
-						message.error(res[1]?.message);
-						closeModal();
-						setIsLoading(false);
-					}
-				});
-			}
-		}
-	}, [updatedData]);
 
 	return (
 		<ReactModal isOpen={isOpen} closeModal={closeModal}>

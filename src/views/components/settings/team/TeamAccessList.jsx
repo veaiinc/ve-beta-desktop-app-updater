@@ -32,6 +32,7 @@ const TeamAccessListComponent = ({
 					placeholder="Search by name, email"
 					onChange={handleInputChange}
 					value={info.searchQuery}
+					style={{ width: '100%' }}
 				/>
 			</div>
 			<div>
