@@ -16,22 +16,22 @@ import VariableComponent from './VariableComponent';
 //     isFalse: "isfalse", //use
 
 const conditionsList = [
-	{
-		label: 'Is exist',
-		value: 'isexit',
-	},
-	{
-		label: 'Does not exist',
-		value: 'doesnotexist',
-	},
-	{
-		label: 'Is empty',
-		value: 'isempty',
-	},
-	{
-		label: 'Is not empty',
-		value: 'isnotempty',
-	},
+	// {
+	// 	label: 'Is exist',
+	// 	value: 'isexit',
+	// },
+	// {
+	// 	label: 'Does not exist',
+	// 	value: 'doesnotexist',
+	// },
+	// {
+	// 	label: 'Is empty',
+	// 	value: 'isempty',
+	// },
+	// {
+	// 	label: 'Is not empty',
+	// 	value: 'isnotempty',
+	// },
 	{
 		label: 'Is equal to',
 		value: 'isequalto',
@@ -52,17 +52,17 @@ const conditionsList = [
 		value: 'doesnotcontain',
 		needValue: true,
 	},
-	{
-		label: 'Is true',
-		value: 'istrue',
-	},
-	{
-		label: 'Is false',
-		value: 'isfalse',
-	},
+	// {
+	// 	label: 'Is true',
+	// 	value: 'istrue',
+	// },
+	// {
+	// 	label: 'Is false',
+	// 	value: 'isfalse',
+	// },
 ];
 
-const IfElse = ({ variables, addConditionNode, isLoading }) => {
+const IfElse = ({ variables, addConditionNode, isLoading, hasNextNode, onBack }) => {
 	const [info, setInfo] = useState({
 		heading: 'Conditions',
 		title: '',
@@ -71,6 +71,7 @@ const IfElse = ({ variables, addConditionNode, isLoading }) => {
 		key: '',
 		selectedCondition: null,
 		value: '',
+		moveToYes: true,
 	});
 
 	const updateInfo = useCallback((data) => {
@@ -123,6 +124,7 @@ const IfElse = ({ variables, addConditionNode, isLoading }) => {
 				key: info?.key?.trim(),
 				condition: info?.selectedCondition?.value,
 				value: info?.value?.trim(),
+				moveTo: info?.moveToYes ? 'yes' : 'no',
 			},
 		});
 	}, [info, addConditionNode]);
@@ -135,7 +137,7 @@ const IfElse = ({ variables, addConditionNode, isLoading }) => {
 				title={info?.title}
 				description={info?.description}
 				updaterFn={updateInfo}
-				onChangeButtonClick={() => {}}
+				onChangeButtonClick={onBack}
 			/>
 
 			<div className="ifElseInputContainer">
@@ -209,6 +211,33 @@ const IfElse = ({ variables, addConditionNode, isLoading }) => {
 							value={info?.value}
 							onChange={(e) => updateInfo({ value: e.target.value })}
 						/>
+					</div>
+				)}
+				{hasNextNode && (
+					<div className="ifElseInputConditionContainer">
+						<span className="ifElseInputHeading">
+							Where should the existing steps go?
+						</span>
+						<div className="ifElseInputCheckboxContainer">
+							<label htmlFor="toYes">
+								<input
+									type="checkbox"
+									id="toYes"
+									checked={info?.moveToYes}
+									onChange={(e) => updateInfo({ moveToYes: e.target.checked })}
+								/>
+								To Yes
+							</label>
+							<label htmlFor="toNo">
+								<input
+									type="checkbox"
+									id="toNo"
+									checked={!info?.moveToYes}
+									onChange={(e) => updateInfo({ moveToYes: !e.target.checked })}
+								/>
+								To No
+							</label>
+						</div>
 					</div>
 				)}
 			</div>

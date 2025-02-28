@@ -78,6 +78,33 @@
 			}
 		}
 	}
+	.ifElseInputCheckboxContainer {
+		display: flex;
+		align-items: center;
+		gap: 12px;
+		width: 100%;
+
+		label {
+			color: #7a7e85;
+			font-family: Inter;
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 500;
+			cursor: pointer;
+			padding: 12px 8px;
+			border-radius: 8px;
+			border: 1px solid #2a2a2a;
+
+			input {
+				display: none;
+			}
+
+			&:has(input:checked) {
+				background-color: #2a2a2a;
+				color: #f2f2f3;
+			}
+		}
+	}
 }
 
 .ifElseInputButton {

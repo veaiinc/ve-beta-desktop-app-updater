@@ -40,6 +40,7 @@ const Conditions = ({
 		activeScreen: null,
 		activeStage: null,
 		isLoading: false,
+		hasNextNode: false,
 	});
 
 	useEffect(() => {
@@ -51,6 +52,12 @@ const Conditions = ({
 	const handleSearch = (e) => {
 		setInfo((prev) => ({ ...prev, search: e.target.value, searchChanged: true }));
 	};
+	useEffect(() => {
+		if (activeEdge) {
+			const [previousStepId, nextStepId] = activeEdge?.split('-');
+			setInfo((prev) => ({ ...prev, hasNextNode: previousStepId !== nextStepId }));
+		}
+	}, [activeEdge]);
 
 	const handleDebouce = useCallback(() => {
 		clearTimeout(info?.timeout);
@@ -98,10 +105,12 @@ const Conditions = ({
 					variables={variables}
 					addConditionNode={addConditionNode}
 					isLoading={info?.isLoading}
+					hasNextNode={info?.hasNextNode}
+					onBack={() => changeStage({ activeScreen: null })}
 				/>
 			),
 		};
-	}, [variables, addConditionNode, info?.isLoading]);
+	}, [variables, addConditionNode, info?.isLoading, info?.hasNextNode, changeStage]);
 
 	// useEffect(() => {
 	// 	if (info?.activeStage) {
@@ -111,7 +120,10 @@ const Conditions = ({
 
 	return (
 		<div className="actionSidebarComponents">
-			<HeaderComponent onBack={onCLose} heading="Conditions" />
+			<HeaderComponent
+				onBack={info?.activeScreen ? () => changeStage({ activeScreen: null }) : onCLose}
+				heading="Conditions"
+			/>
 			{info?.activeScreen ? (
 				screenMapper?.[info?.activeScreen]
 			) : (
