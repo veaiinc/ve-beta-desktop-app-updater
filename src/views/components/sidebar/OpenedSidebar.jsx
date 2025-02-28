@@ -209,7 +209,6 @@ const OpenedSideBarHoverStateIcons2 = ({
 	};
 
 	const redirectToFunction = () => {
-		console.log('route', route);
 		if (!route) return;
 		navigateTo(route);
 	};
