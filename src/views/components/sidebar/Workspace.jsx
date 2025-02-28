@@ -38,7 +38,15 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 			localStorage.setItem('isOnboard', isOnboard);
 
 			const host = fetchDomainName();
+
 			Cookies.set('workspaceID', activeWorkspaceId, {
+				sameSite: 'lax',
+				domain: host,
+			});
+
+			// case : if there is no usertoken in cookies so everytime make sure usertoken and cookies should be set,
+			let accessToken = localStorage.getItem('usertoken');
+			Cookies.set('usertoken', accessToken, {
 				sameSite: 'lax',
 				domain: host,
 			});

@@ -166,7 +166,7 @@ const BottomToolbar = ({
 	};
 
 	const handleCustomOnSendFunction = useCallback((data) => {
-		updateStateValues({ activePromptForChat: data });
+		updateStateValues({ activePayloadForChat: data });
 		navigate(`/chat/${ObjectID().toString()}`);
 	}, []);
 
