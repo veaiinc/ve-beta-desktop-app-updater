@@ -319,7 +319,6 @@ export const ProfileState = () => {
 			};
 			const response = await service?.fetchPost(path, body, token, type);
 			if (response?.[0]) {
-				console.log('response', response);
 				dispatch({
 					type: Actions?.GET_DEFAULT_NOTIFICATION_SETTINGS,
 					payload: response?.[1],
@@ -349,7 +348,7 @@ export const ProfileState = () => {
 		}
 	};
 
-	const updateNotificationMethod = async (tenantId, app, appType) => {
+	const updateNotificationMethod = async (tenantId, app, isEnabled) => {
 		try {
 			let usertoken = localStorage.getItem('usertoken');
 			const path = '/notificationMethods';
@@ -357,7 +356,7 @@ export const ProfileState = () => {
 			const payload = {
 				app, // email, slack, whatsapp
 				tenantId,
-				isEnabled: appType, // true, false
+				isEnabled,
 			};
 			const response = await service.fetchPut(path, payload, usertoken, type);
 			if (response?.[0]) {
@@ -367,6 +366,35 @@ export const ProfileState = () => {
 			}
 		} catch (error) {
 			console.log('error==>updateNotificationMethod', error);
+		}
+	};
+
+	const updateAppNotificationPreferenceForModule = async (
+		module,
+		action,
+		app,
+		isEnabled,
+		tenantId,
+	) => {
+		try {
+			const token = localStorage.getItem('usertoken');
+			const path = '/notificationPreferences';
+			const type = 'tenant-users';
+			const body = {
+				module,
+				action,
+				app,
+				isEnabled,
+				tenantId,
+			};
+			const response = await service?.fetchPut(path, body, token, type);
+			if (response?.[0] === true && response?.[1]?.code !== 500) {
+				return [true];
+			} else {
+				return [false];
+			}
+		} catch (error) {
+			console.log('error==>updateAppNotificationPreferenceForModule', error);
 		}
 	};
 
@@ -400,5 +428,6 @@ export const ProfileState = () => {
 		getDefaultNotificationSettings,
 		updateDefaultNotificationSettings,
 		updateNotificationMethod,
+		updateAppNotificationPreferenceForModule,
 	};
 };

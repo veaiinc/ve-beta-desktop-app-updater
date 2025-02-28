@@ -2,7 +2,7 @@ import React, { memo, useState, useEffect, useContext, useMemo } from 'react';
 import { ReactComponent as EmailIcon } from '../../../../assets/svg/notification/email.svg';
 import { ReactComponent as WhatsappIcon } from '../../../../assets/svg/notification/whatsApp.svg';
 import { ReactComponent as SlackIcon } from '../../../../assets/svg/notification/slack.svg';
-import { Switch } from 'antd';
+import { message, Switch } from 'antd';
 import Context from '../../../../context/context';
 
 const appTypes = [
@@ -35,6 +35,7 @@ const Notifications = () => {
 			updateDefaultNotificationSettings,
 			updatedNotificationSettings,
 			updateNotificationMethod, // requires tenantId, app, appType
+			updateAppNotificationPreferenceForModule,
 		},
 	} = useContext(Context);
 
@@ -44,14 +45,19 @@ const Notifications = () => {
 		() => defaultNotificationSettings?.events,
 		[defaultNotificationSettings],
 	);
-	console.log('notificationPreferences', notificationPreferences);
-
 	const [info, setInfo] = useState({
 		email: false,
 		whatsapp: false,
 		slack: false,
 		selectedOptions: {},
 	});
+
+	const areAllNotificationMethodsDisabled = useMemo(() => {
+		return !info?.email && !info?.whatsapp && !info?.slack;
+	}, [info?.email, info?.whatsapp, info?.slack]);
+
+	const showNotificationPreferences =
+		notificationPreferences?.length && !areAllNotificationMethodsDisabled;
 
 	useEffect(() => {
 		if (notificationMethods) {
@@ -69,12 +75,6 @@ const Notifications = () => {
 			getDefaultNotificationSettings(tenantId);
 		}
 	}, [tenantId]);
-
-	// useEffect(() => {
-	// 	if (Object.keys(info?.selectedOptions)?.length > 0) {
-	// 		updatedNotificationSettingsApiCall();
-	// 	}
-	// }, [info?.selectedOptions]);
 
 	const updatedNotificationSettingsApiCall = async () => {
 		const payloadData = transformDataForAPI(info?.selectedOptions, defaultNotificationSettings);
@@ -103,10 +103,40 @@ const Notifications = () => {
 	};
 
 	const handleNotificationMethodChange = async (app) => {
-		const appType = !info?.[app];
-		const response = await updateNotificationMethod(tenantId, app, appType);
+		const isEnabled = !info?.[app];
+		const response = await updateNotificationMethod(tenantId, app, isEnabled);
 		if (response?.[0]) {
-			setInfo({ ...info, [app]: appType });
+			setInfo({ ...info, [app]: isEnabled });
+		}
+	};
+
+	const handleModuleNotificationPreference = async (module, action, app) => {
+		const isEnabled = !info?.selectedOptions?.[module]?.[action]?.[app];
+		const response = await updateAppNotificationPreferenceForModule(
+			module,
+			action,
+			app,
+			isEnabled,
+			tenantId,
+		);
+		if (response?.[0]) {
+			setInfo((prev) => ({
+				...prev,
+				selectedOptions: {
+					...prev?.selectedOptions,
+					[module]: {
+						...prev?.selectedOptions?.[module],
+						[action]: {
+							...prev?.selectedOptions?.[module]?.[action],
+							[app]: isEnabled,
+						},
+					},
+				},
+			}));
+		} else {
+			message?.error(
+				'An unexpected error occured while updating your notification preferences!',
+			);
 		}
 	};
 
@@ -146,17 +176,19 @@ const Notifications = () => {
 					))}
 				</div>
 			</div>
-			{notificationPreferences?.length && (
+			{showNotificationPreferences && (
 				<div className="notifications-container-content">
 					<div className="notificationContainerContentTitle">
 						Notification Preferences
 					</div>
 					<div className="notificationContainerContent-items">
-						{appTypes?.map(({ id, appType }) => (
-							<div key={id} className="notificationContainerContent-items-item">
-								{appType}
-							</div>
-						))}
+						{appTypes
+							?.filter(({ appType }) => info?.[appType])
+							?.map(({ id, appType }) => (
+								<div key={id} className="notificationContainerContent-items-item">
+									{appType}
+								</div>
+							))}
 					</div>
 					<div className="notificationContainerOptions">
 						{notificationPreferences?.map(({ module, actions }, idx) => (
@@ -165,40 +197,19 @@ const Notifications = () => {
 									<div className="notificationContainerOptions-item">
 										{module}
 									</div>
-									<div className="notificationContainerOptions-item-checkbox">
-										<input
-											type="checkbox"
-											style={{ width: '36px' }}
-											checked={info?.emailAll}
-											onChange={() =>
-												setInfo({
-													...info,
-													emailAll: !info?.emailAll,
-												})
-											}
-										/>
-										<input
-											type="checkbox"
-											style={{ width: '70px' }}
-											checked={info?.whatsappAll}
-											onChange={() =>
-												setInfo({
-													...info,
-													whatsappAll: !info?.whatsappAll,
-												})
-											}
-										/>
-										<input
-											type="checkbox"
-											style={{ width: '36px' }}
-											checked={info.slackAll}
-											onChange={() =>
-												setInfo({
-													...info,
-													slackAll: !info?.slackAll,
-												})
-											}
-										/>
+									<div className="notificationContainerOptions-item-container">
+										{/* TODO-> wip: Sheshant will work on this */}
+										{/* {appTypes?.map(({ id, appType }) => (
+											<input
+												key={id}
+												type="checkbox"
+												style={{
+													width: appType === 'whatsapp' ? '70px' : '36px',
+												}}
+												checked={info?.[appType]}
+												onChange={() => {}}
+											/>
+										))} */}
 									</div>
 								</div>
 								<div className="notificationContainerOptions-items">
@@ -210,79 +221,66 @@ const Notifications = () => {
 													{action}
 												</div>
 												<div className="notificationContainerOptions-item-checkbox">
-													<input
-														type="checkbox"
-														style={{
-															width: '36px',
-														}}
-														checked={email}
-														onChange={() =>
-															setInfo({
-																...info,
-																selectedOptions: {
-																	...info?.selectedOptions,
-																	[action]: {
-																		...info?.selectedOptions[
-																			action
-																		],
-																		email: !info
-																			?.selectedOptions?.[
-																			action
-																		]?.email,
-																	},
-																},
-															})
-														}
-													/>
-													<input
-														type="checkbox"
-														style={{
-															width: '70px',
-														}}
-														checked={whatsapp}
-														onChange={() =>
-															setInfo({
-																...info,
-																selectedOptions: {
-																	...info?.selectedOptions,
-																	[action]: {
-																		...info?.selectedOptions[
-																			action
-																		],
-																		whatsapp:
-																			!info
-																				?.selectedOptions?.[
-																				action
-																			]?.whatsapp,
-																	},
-																},
-															})
-														}
-													/>
-													<input
-														type="checkbox"
-														style={{
-															width: '36px',
-														}}
-														checked={slack}
-														onChange={() =>
-															setInfo({
-																...info,
-																selectedOptions: {
-																	...info?.selectedOptions,
-																	[action]: {
-																		...info?.selectedOptions[
-																			action
-																		],
-																		slack: !info
-																			?.selectedOptions?.[
-																			action
-																		]?.slack,
-																	},
-																},
-															})
-														}
-													/>
+													{info?.email && (
+														<input
+															type="checkbox"
+															style={{
+																width: '36px',
+															}}
+															checked={
+																info?.selectedOptions?.[module]?.[
+																	action
+																]?.email ?? email
+															}
+															onChange={() =>
+																handleModuleNotificationPreference(
+																	module,
+																	action,
+																	'email',
+																)
+															}
+														/>
+													)}
+													{info?.whatsapp && (
+														<input
+															type="checkbox"
+															style={{
+																width: '70px',
+															}}
+															checked={
+																info?.selectedOptions?.[module]?.[
+																	action
+																]?.whatsapp ?? whatsapp
+															}
+															onChange={() =>
+																handleModuleNotificationPreference(
+																	module,
+																	action,
+																	'whatsapp',
+																)
+															}
+														/>
+													)}
+													{info?.slack && (
+														<input
+															type="checkbox"
+															style={{
+																width: '36px',
+															}}
+															checked={
+																info?.selectedOptions?.[module]?.[
+																	action
+																]?.slack ?? slack
+															}
+															onChange={() =>
+																handleModuleNotificationPreference(
+																	module,
+																	action,
+																	'slack',
+																)
+															}
+														/>
+													)}
 												</div>
 											</div>
 										);

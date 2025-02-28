@@ -866,7 +866,7 @@
 				display: flex;
 				justify-content: center;
 				align-items: center;
-				gap: 10px;
+				gap: 40px;
 				align-self: stretch;
 				.notificationContainerOptions-item {
 					color: var(--Primary-Font-Color, #f2f2f3);
@@ -904,8 +904,7 @@
 			}
 			.divider {
 				width: 100%;
-				height: 1px;
-				background-color: #7c7c83;
+				border-bottom: 0.5px solid #7c7c83;
 			}
 		}
 	}
