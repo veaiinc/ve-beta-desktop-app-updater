@@ -20,7 +20,10 @@ export const initialSchedulerState = {
 };
 
 export const Calendar = () => {
-	const [state, dispatch] = useReducer(Reducer, initialState);
+	const [state, dispatch] = useReducer(Reducer, {
+		...initialState,
+		...initialSchedulerState,
+	});
 
 	// Calendar AI Apis ================================>
 	const getCalendarChat = async (sessionId, body) => {

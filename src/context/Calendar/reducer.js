@@ -72,6 +72,8 @@ const actionHandlers = {
 		...state,
 		schedulerList: action?.payload,
 	}),
+
+	RESET_SCHEDULER_STATE: () => ({ ...initialSchedulerState }),
 };
 
 const Reducer = (state, action) => {

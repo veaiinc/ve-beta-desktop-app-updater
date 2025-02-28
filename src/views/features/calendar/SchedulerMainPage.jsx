@@ -70,13 +70,21 @@ const SchedulerMainPage = () => {
 	const [info, setInfo] = useState({
 		createSessionModal: false,
 		updateSessionSlot: false,
+		schedulerList: null,
 	});
 
 	useEffect(() => {
 		getSchedulerList();
 	}, []);
 
-	console.log('schedulerList==>', schedulerList);
+	useEffect(() => {
+		if (schedulerList) {
+			setInfo((prev) => ({
+				...prev,
+				schedulerList: schedulerList,
+			}));
+		}
+	}, [schedulerList]);
 
 	const handleCreateSessionModal = useCallback(() => {
 		setInfo((prev) => ({
