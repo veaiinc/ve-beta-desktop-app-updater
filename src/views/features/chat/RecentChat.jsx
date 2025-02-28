@@ -117,12 +117,28 @@ const RecentChat = ({
 				);
 				if (visibleMessages.length > 0) {
 					const lastVisibleMessage = visibleMessages[visibleMessages.length - 1];
-					let lastVisibleAIMessageIndex = chatMessagesRef.current.findIndex(
-						(msg) => msg.messageId === lastVisibleMessage.dataset.messageId,
-					);
+
+					let lastVisibleAIMessageIndex = -1;
+					for (let i = 0; i < chatMessagesRef.current.length; i++) {
+						if (
+							chatMessagesRef.current[i].messageId ===
+								lastVisibleMessage.dataset.messageId &&
+							chatMessagesRef.current[i]?.type?.toLowerCase() === 'ai'
+						) {
+							lastVisibleAIMessageIndex = i;
+							break;
+						}
+					}
 					let lastVisibleUserMessageIndex = null;
-					if (lastVisibleAIMessageIndex && lastVisibleAIMessageIndex > 0) {
+
+					if (lastVisibleAIMessageIndex > 0) {
 						lastVisibleUserMessageIndex = lastVisibleAIMessageIndex - 1;
+						console.log(
+							lastVisibleUserMessageIndex,
+							'lastVisibleUserMessageIndex',
+							chatMessagesRef.current,
+							lastVisibleMessage.dataset.messageId,
+						);
 						if (
 							chatMessagesRef.current[
 								lastVisibleUserMessageIndex
