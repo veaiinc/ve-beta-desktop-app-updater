@@ -356,7 +356,7 @@ const ChatBox = ({
 
 				if (info?.chatQuery?.trim()?.length > 0 || query?.trim()?.length > 0) {
 					if (customChatActions) {
-						onSend(info?.chatQuery);
+						return onSend(info?.chatQuery);
 					} else {
 						setInfo((prev) => ({ ...prev, chatLoading: true }));
 						let currentQuery = info?.chatQuery?.trim() || query?.trim();
@@ -368,7 +368,7 @@ const ChatBox = ({
 										moment(info?.chatFilters?.dateRange[1])?.unix(),
 								  ]
 								: [];
-						let query;
+
 						if (info?.recentFiles?.length > 0) {
 							query =
 								currentQuery +
