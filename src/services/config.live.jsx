@@ -18,6 +18,7 @@ module.exports = {
 	// multi_agent_chat: 'ws://ai.ap-south-1.ve.ai',
 
 	//outside India
+	auth_Api_US: 'https://auth.ve.ai',
 	tenant_api_US: 'https://us.api.ve.ai/tenants/1.0',
 	tenant_users_api_US: 'https://us.api.ve.ai/tenant-users/1.0',
 	ve_conversations_api_US: 'https://us.api.ve.ai/ve-conversations/1.0',

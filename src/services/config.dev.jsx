@@ -8,7 +8,7 @@ module.exports = {
 	ve_conversations_api: 'https://api.ve.co/ve-conversations/1.0',
 	proposals_api: 'https://ap.api.ve.ai/proposals/1.0',
 	workflows_Api: 'https://ap.api.ve.ai/workflows/1.0',
-	auth_Api: 'https://auth.ve.ai',
+	auth_Api: 'https://us.api.ve.ai/auth/dev',
 	activity_api: 'https://ap.api.ve.ai/workflow-user-analytics/1.0',
 	galleries: 'https://ap.api.ve.ai/galleries/1.0',
 	ai_assistant_api: 'https://api.ap-south-1.ve.ai',
@@ -18,6 +18,7 @@ module.exports = {
 	slack_api: 'https://slack.com/api',
 
 	//outside India
+	auth_Api_US: 'https://us.api.ve.ai/auth/dev',
 	tenant_api_US: 'https://us.api.ve.ai/tenants/dev',
 	tenant_users_api_US: 'https://us.api.ve.ai/tenant-users/1.0',
 	ve_conversations_api_US: 'https://us.api.ve.ai/ve-conversations/1.0',
