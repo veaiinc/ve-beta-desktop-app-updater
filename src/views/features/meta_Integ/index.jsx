@@ -5,7 +5,6 @@ import { ReactComponent as FilterSvg } from '../../../assets/svg/chat/filter.svg
 import { ReactComponent as StarSvg } from '../../../assets/svg/chat/star.svg';
 import { ReactComponent as SubmitSvg } from '../../../assets/svg/chat/submitBtn.svg';
 import { ReactComponent as NoSelectedChannel } from '../../../assets/svg/chat/noSelectedChannelState.svg';
-
 import ChannelCard from './ChannelCard';
 import MessageCard from './MessageCard';
 import Context from '../../../context/context';

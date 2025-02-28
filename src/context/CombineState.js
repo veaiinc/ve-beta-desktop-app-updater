@@ -12,6 +12,7 @@ import { TasksState } from './tasks/state';
 import { useMemo } from 'react';
 import { ContactsState } from './contacts/state';
 import { DocumentPreviewState } from './DocumentPreview/state';
+import { AutomationBuilderState } from './automationBuilder/state';
 
 const useCombineState = () => {
 	// Call all hooks at the top level
@@ -28,6 +29,7 @@ const useCombineState = () => {
 	const tasks = TasksState();
 	const contacts = ContactsState();
 	const documentPreview = DocumentPreviewState();
+	const automationBuilder = AutomationBuilderState();
 	// Only memoize the final combined object
 	return useMemo(
 		() => ({
@@ -44,6 +46,7 @@ const useCombineState = () => {
 			tasks,
 			contacts,
 			documentPreview,
+			automationBuilder,
 		}),
 		[
 			chatInfo,
@@ -59,6 +62,7 @@ const useCombineState = () => {
 			tasks,
 			contacts,
 			documentPreview,
+			automationBuilder,
 		],
 	);
 };

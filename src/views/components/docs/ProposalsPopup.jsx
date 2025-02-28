@@ -68,7 +68,7 @@ const ProposalPopup = ({ open, closeModal, clientDetails = null, commonState }) 
 		if (info?.selectedOption !== 'All') {
 			getMyWorkflowsTemplatesData(1, info?.search, false, info?.selectedOption);
 		} else {
-			getMyWorkflowsTemplatesData(1);
+			if (open && !myWorkflows?.length) getMyWorkflowsTemplatesData(1);
 		}
 	}, [info?.selectedOption]);
 
@@ -371,7 +371,7 @@ const ProposalPopup = ({ open, closeModal, clientDetails = null, commonState }) 
 							>
 								<div className="docsTemplateImageContainer">
 									<iframe
-										src={`${origin}/preview/${template?._id}?module=${template?.moduleTemplates?.[0]?._id}&isPubic=${template?.moduleTemplates?.[0]?.isPublic}&restrictClick=true`}
+										src={`${origin}/preview/short/${template?._id}?module=${template?.moduleTemplates?.[0]?._id}&isPubic=${template?.moduleTemplates?.[0]?.isPublic}&restrictClick=true`}
 										title="Builder Preview"
 										width="100%"
 										height="100%"
@@ -379,7 +379,8 @@ const ProposalPopup = ({ open, closeModal, clientDetails = null, commonState }) 
 										onMouseDown={(e) => e.stopPropagation()}
 										onMouseUp={(e) => e.stopPropagation()}
 										style={{
-											zoom: 0.3,
+											// zoom: 0.3,
+											backgroundColor: '#fff',
 											pointerEvents: 'none',
 										}}
 									/>

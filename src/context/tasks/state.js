@@ -18,6 +18,7 @@ import {
 	updateTaskViewMutation,
 	deleteTaskViewMutation,
 	taskMetadataQuery,
+	listTaskWithGroupQuery,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -37,6 +38,7 @@ export const intialState = {
 	taskPreference: null,
 	refetchTasks: false,
 	refetchTasksForDue: false,
+	listTaskWithGroup: null,
 };
 
 export const TasksState = () => {
@@ -726,6 +728,78 @@ export const TasksState = () => {
 		}
 	};
 
+	const getListTaskWithGroup = async (payload) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				listTaskWithGroupQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.SET_LIST_TASK_WITH_GROUP,
+					payload: response?.[1]?.data?.listTasksWithGroup,
+				});
+			} else {
+				dispatch({
+					type: Actions.SET_LIST_TASK_WITH_GROUP,
+					payload: { error: response?.[1]?.[0]?.message },
+				});
+			}
+		} catch (error) {
+			console.log('API failed ==> getListTaskWithGroup', error);
+			dispatch({
+				type: Actions.SET_LIST_TASK_WITH_GROUP,
+				payload: { error: error?.message },
+			});
+		}
+	};
+
+	const fetchGroupData = async (payload) => {
+		let workspaceId = localStorage.getItem('workspaceId');
+		let usertoken = localStorage.getItem('usertoken');
+		const response = await service.query(
+			listTaskWithGroupQuery,
+			payload,
+			workspaceId,
+			usertoken,
+			'workflows_Api',
+		);
+		if (response?.[0]) {
+			dispatch({
+				type: Actions.APPEND_GROUP_DATA,
+				payload: {
+					group: payload?.taskFilterInput?.groupFilters?.value,
+					data: response?.[1]?.data?.listTasksWithGroup?.groups?.[0]?.data,
+					hasNextPage: response?.[1]?.data?.listTasksWithGroup?.groups?.[0]?.hasNextPage,
+					currentPage: response?.[1]?.data?.listTasksWithGroup?.groups?.[0]?.currentPage,
+					totalDocs: response?.[1]?.data?.listTasksWithGroup?.groups?.[0]?.totalDocs,
+				},
+			});
+		}
+	};
+
+	const handleGroupChange = (payload) => {
+		try {
+			dispatch({
+				type: Actions.HANDLE_GROUP_CHANGE,
+				payload,
+			});
+			updateListItem({
+				taskId: payload?.taskId,
+				updateInput: {
+					[payload?.groupBy]: payload?.targetGroup,
+				},
+			});
+		} catch (error) {
+			console.log('error ==> handleGroupChange', error);
+		}
+	};
+
 	return {
 		...state,
 		getListItems,
@@ -755,5 +829,8 @@ export const TasksState = () => {
 		deleteTaskView,
 		getTaskPreferences,
 		updateTaskPreferences,
+		getListTaskWithGroup,
+		fetchGroupData,
+		handleGroupChange,
 	};
 };

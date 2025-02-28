@@ -80,6 +80,7 @@ export const intialState = {
 	createLeadModalContextState: false,
 	globalChatMessages: [], // { type: 'AI', message: 'Hello, how can I help you today?' }
 	currentSessionId: null,
+	deepResearch: false,
 	citations: null,
 	followUpQuery: null,
 	docsFilesList: null,
@@ -93,6 +94,9 @@ export const intialState = {
 	moreFormResponsesList: null,
 	activePromptForChat: null,
 	leftSidebarState: null,
+	recentChatStorage: null,
+	moreRecentChatStorage: null,
+	activePayloadForChat: null,
 };
 
 export const TemplatesState = (props) => {
@@ -1564,6 +1568,7 @@ export const TemplatesState = (props) => {
 					messageId: response?.[1]?.['message_id'],
 					typingEffect: true,
 					rating: null,
+					deepResearch: response?.[1]?.['deep_research'],
 				};
 				dispatch({
 					type: Actions.GLOBAL_CHAT_MESSAGES_ACTIONS_SUCCESS,
@@ -1573,6 +1578,120 @@ export const TemplatesState = (props) => {
 			}
 		} catch (error) {
 			console.log('errror ==>handleGlobalChatMessages', error);
+		}
+	};
+
+	const handleStreamSendMessage = (payload, localPayload, queryMessage) => {
+		let updatedGlobalChatMessages = [];
+
+		if (localPayload.showCustomChatOptions) {
+			updatedGlobalChatMessages = [...(localPayload.showCustomChatOptions || [])];
+		} else if (payload.files) {
+			let str = '  ';
+			for (let i = 0; i < localPayload?.files?.length; i++) {
+				str += localPayload?.files?.[i]?.name || '' + ' ,';
+			}
+
+			updatedGlobalChatMessages = [
+				{
+					type: 'user',
+					content: (
+						<div
+							className="uploadedImagesContainer"
+							style={{
+								display: 'flex',
+								flexDirection: 'column',
+								gap: '2px',
+								alignItems: 'flex-end',
+							}}
+						>
+							{localPayload?.files?.map((ele, index) => (
+								<img
+									src={ele.preview}
+									alt="filetochat"
+									width={'75px'}
+									onClick={() => localPayload?.handlePreview(ele)}
+									style={{ cursor: 'pointer' }}
+								/>
+							))}
+
+							<div className="message-content-user" style={{ marginTop: '8px' }}>
+								<span>{queryMessage}</span>
+							</div>
+						</div>
+					),
+				},
+				{
+					type: 'AI',
+					message: 'loading....',
+					content: (
+						<div className="aiMessageWrapper">
+							<Skeleton height={20} width={'100%'} borderRadius={'100px'} />
+							<Skeleton height={20} width={'75%'} borderRadius={'100px'} />
+							<Skeleton height={20} width={'50%'} borderRadius={'100px'} />
+						</div>
+					),
+					contentType: 'loading',
+				},
+			];
+
+			payload.query += str;
+		} else {
+			updatedGlobalChatMessages = [
+				{ type: 'user', message: queryMessage || '', typingEffect: false },
+				{
+					type: 'AI',
+					message: 'loading....',
+					content: (
+						<div className="aiMessageWrapper">
+							<Skeleton height={20} width={'100%'} borderRadius={'100px'} />
+							<Skeleton height={20} width={'75%'} borderRadius={'100px'} />
+							<Skeleton height={20} width={'50%'} borderRadius={'100px'} />
+						</div>
+					),
+					contentType: 'loading',
+				},
+			];
+		}
+
+		dispatch({
+			type: Actions.GLOBAL_CHAT_MESSAGES_ACTIONS_REQUESTS,
+			payload: updatedGlobalChatMessages,
+		});
+	};
+	const handleStreamIncomingMessage = (response) => {
+		const citations = response?.citations;
+		const followUpQuery = response?.['follow_up_query'];
+		const messageId = response?.['message_id'];
+		if (citations && citations?.length > 0) {
+			dispatch({
+				type: Actions?.CHAT_CITATIONS_SUCCESS,
+				payload: citations,
+			});
+		} else {
+			dispatch({
+				type: Actions?.CHAT_CITATIONS_SUCCESS,
+				payload: null,
+			});
+		}
+		if (followUpQuery?.length) {
+			dispatch({
+				type: Actions?.CHAT_FOLLOW_UP_QUERY,
+				payload: followUpQuery,
+			});
+		} else {
+			dispatch({
+				type: Actions?.CHAT_FOLLOW_UP_QUERY,
+				payload: null,
+			});
+		}
+	};
+
+	const handleStreamMessageChunk = (payload, chunkId) => {
+		try {
+			dispatch({ type: Actions.HANDLE_STREAM_MESSAGE_CHUNK, payload: { payload, chunkId } });
+		} catch (error) {
+			console.log('error==>handleStreamMessageChunk', error);
 		}
 	};
 
@@ -1793,6 +1912,34 @@ export const TemplatesState = (props) => {
 			return [false, error?.message];
 		}
 	};
+
+	const getRecentChatMessages = async (sessionId, page = 1, fetchMore = false, limit = 10) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const selectedvariable = fetchMore ? 'moreRecentChatStorage' : 'recentChatStorage';
+			const response = await Service.fetchGet(
+				`/${workspaceId}/list-multiagent-conversations/${encodeURIComponent(
+					sessionId,
+				)}?page=${page}&limit=${limit}&sortBy=createdAt&sortType=-1`,
+				usertoken,
+				'tenant',
+			);
+
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.RECENT_CHAT_MESSAGES_ACTIONS_REQUESTS,
+					payload: response?.[1],
+					selectedvariable,
+				});
+			} else {
+				console.log('errror ==>getRecentChatMessages', response);
+				return [false];
+			}
+		} catch (error) {
+			console.log('errror ==>getRecentChatMessages', error);
+		}
+	};
 	return {
 		...state,
 		getMyWorkflows,
@@ -1862,5 +2009,9 @@ export const TemplatesState = (props) => {
 		updateAiChatMessageRating,
 		getModuleTemplate,
 		getCitationData,
+		getRecentChatMessages,
+		handleStreamSendMessage,
+		handleStreamIncomingMessage,
+		handleStreamMessageChunk,
 	};
 };

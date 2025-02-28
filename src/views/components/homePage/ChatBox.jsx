@@ -104,7 +104,10 @@ const ChatBox = ({
 	customChatActions = false,
 	showChatLabels = true,
 	uploadedImages = [],
-	autoFocus = false,
+	handleSendWebsocketMessage,
+	latestStreamMesage,
+	lastQuery,
+	toggleLatestStreamMessage,
 }) => {
 	const {
 		templates: {
@@ -118,6 +121,9 @@ const ChatBox = ({
 			updateApplicationChat,
 			activePromptForChat,
 			currentSessionId,
+			deepResearch,
+			handleStreamSendMessage,
+			activePayloadForChat,
 		},
 		calendarInfo: { updateCalendarState },
 		tasks: { updateTaskState },
@@ -177,12 +183,58 @@ const ChatBox = ({
 	}, [activePromptForChat]);
 
 	useEffect(() => {
+		if (activePayloadForChat) {
+			setInfo((prev) => ({ ...prev, chatLoading: true }));
+			const { payload, localPayload, currentQuery } = activePayloadForChat;
+			if (handleSendWebsocketMessage) {
+				handleSendWebsocketMessage(payload, currentQuery);
+			}
+
+			handleStreamSendMessage(payload, localPayload, currentQuery);
+			updateStateValues({ activePayloadForChat: null });
+		}
+	}, [activePayloadForChat]);
+
+	useEffect(() => {
 		if (currentSessionId) {
 			setInfo((prev) => ({ ...prev, chatSessionId: currentSessionId }));
 		} else {
 			updateStateValues({ currentSessionId: ObjectID().toString() });
 		}
 	}, [currentSessionId]);
+
+	useEffect(() => {
+		setInfo((prev) => ({
+			...prev,
+			goDeep: deepResearch,
+		}));
+	}, [deepResearch]);
+
+	useEffect(() => {
+		if (latestStreamMesage && lastQuery) {
+			const { db_updates, variables_required, deepResearch } = latestStreamMesage;
+			if (db_updates?.calendar_db_update) {
+				updateCalendarState({ refetchCalendarState: true });
+			}
+			if (db_updates?.task_db_update) {
+				updateTaskState({ refetchTasks: true });
+			}
+			if (db_updates?.proposal_db_update) {
+				updateStateValues({ smartFileRefetch: true });
+			}
+			if (variables_required) {
+				handleVariablesRequired(variables_required, lastQuery);
+			}
+			if (deepResearch) {
+				updateStateValues({ deepResearch: false });
+			}
+
+			if (toggleLatestStreamMessage) {
+				toggleLatestStreamMessage();
+			}
+			setInfo((prev) => ({ ...prev, chatLoading: false }));
+		}
+	}, [latestStreamMesage]);
 
 	const handlePreview = async (file) => {
 		if (!file.url && !file.preview) {
@@ -200,10 +252,7 @@ const ChatBox = ({
 	};
 
 	const handleGoDeepSearchClick = () => {
-		setInfo((prev) => ({
-			...prev,
-			goDeep: !prev?.goDeep,
-		}));
+		updateStateValues({ deepResearch: !info?.goDeep });
 	};
 
 	const handleShowFiltersClick = () => {
@@ -311,90 +360,71 @@ const ChatBox = ({
 				}
 
 				if (info?.chatQuery?.trim()?.length > 0 || query?.trim()?.length > 0) {
-					if (customChatActions) {
-						onSend(info?.chatQuery);
+					setInfo((prev) => ({ ...prev, chatLoading: true }));
+					let currentQuery = info?.chatQuery?.trim() || query?.trim();
+
+					const date =
+						info?.chatFilters?.dateRange?.length > 0
+							? [
+									moment(info?.chatFilters?.dateRange[0])?.unix(),
+									moment(info?.chatFilters?.dateRange[1])?.unix(),
+							  ]
+							: [];
+
+					if (info?.recentFiles?.length > 0) {
+						query =
+							currentQuery +
+							',' +
+							info?.recentFiles?.map((ele) => ele?.originalFileName).join(',');
 					} else {
-						setInfo((prev) => ({ ...prev, chatLoading: true }));
-						let currentQuery = info?.chatQuery?.trim() || query?.trim();
-
-						const date =
-							info?.chatFilters?.dateRange?.length > 0
-								? [
-										moment(info?.chatFilters?.dateRange[0])?.unix(),
-										moment(info?.chatFilters?.dateRange[1])?.unix(),
-								  ]
-								: [];
-						let query;
-						if (info?.recentFiles?.length > 0) {
-							query =
-								currentQuery +
-								',' +
-								info?.recentFiles?.map((ele) => ele?.originalFileName).join(',');
-						} else {
-							query = currentQuery;
-						}
-
-						const payload = {
-							query,
-							timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-							knowledge_base_search: info?.searchType?.workspaceSearch,
-							web_search: info?.searchType?.webSearch,
-							modules: Object?.keys(info?.chatFilters?.modules),
-							date: date,
-						};
-
-						if (moduleHelper?.[location?.pathname?.split('/')?.[1]]) {
-							payload.screen = moduleHelper[location?.pathname?.split('/')?.[1]];
-						}
-						let localPayload = {};
-						if (info?.uploadedImages?.length) {
-							payload.files = info?.uploadedImages?.map(
-								(ele) => ele?.name || 'Untitled Image',
-							);
-
-							localPayload = {
-								files: info?.uploadedImages || [],
-								handlePreview,
-							};
-						}
-						if (activeWorkflowSlugForSmartFile) {
-							payload.workflow_slug = activeWorkflowSlugForSmartFile;
-						}
-
-						setInfo((prev) => ({
-							...prev,
-							uploadedImages: [],
-							chatQuery: '',
-							recentFiles: [],
-							chatFilters: initialChatFilters,
-						}));
-						if (location?.pathname?.split('/')?.[1] !== 'chat') {
-							navigate('/chat');
-						}
-
-						const response = await handleGlobalChatMessages(
-							payload,
-							info?.chatSessionId,
-							localPayload,
-							currentQuery,
-						);
-						setInfo((prev) => ({ ...prev, chatLoading: false }));
-						if (response?.[0]) {
-							const { db_updates, variables_required } = response?.[1];
-							if (db_updates?.calendar_db_update) {
-								updateCalendarState({ refetchCalendarState: true });
-							}
-							if (db_updates?.task_db_update) {
-								updateTaskState({ refetchTasks: true });
-							}
-							if (db_updates?.proposal_db_update) {
-								updateStateValues({ smartFileRefetch: true });
-							}
-							if (variables_required) {
-								handleVariablesRequired(variables_required, currentQuery);
-							}
-						}
+						query = currentQuery;
 					}
+
+					const payload = {
+						query,
+						timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+						knowledge_base_search: info?.searchType?.workspaceSearch,
+						web_search: info?.searchType?.webSearch,
+						modules: Object?.keys(info?.chatFilters?.modules),
+						date: date,
+						deep_research: info?.goDeep,
+					};
+
+					if (moduleHelper?.[location?.pathname?.split('/')?.[1]]) {
+						payload.screen = moduleHelper[location?.pathname?.split('/')?.[1]];
+					}
+					let localPayload = {};
+					if (info?.uploadedImages?.length) {
+						payload.files = info?.uploadedImages?.map(
+							(ele) => ele?.name || 'Untitled Image',
+						);
+
+						localPayload = {
+							files: info?.uploadedImages || [],
+							handlePreview,
+						};
+					}
+					if (activeWorkflowSlugForSmartFile) {
+						payload.workflow_slug = activeWorkflowSlugForSmartFile;
+					}
+
+					setInfo((prev) => ({
+						...prev,
+						uploadedImages: [],
+						chatQuery: '',
+						recentFiles: [],
+						chatFilters: initialChatFilters,
+					}));
+
+					if (customChatActions) {
+						return onSend({ payload, localPayload, currentQuery });
+					}
+
+					if (handleSendWebsocketMessage) {
+						handleSendWebsocketMessage(payload, currentQuery);
+					}
+
+					handleStreamSendMessage(payload, localPayload, currentQuery);
 				}
 			}
 		},
@@ -430,24 +460,10 @@ const ChatBox = ({
 			if (moduleHelper?.[location?.pathname?.split('/')?.[1]]) {
 				payload.module = moduleHelper?.[location?.pathname?.split('/')?.[1]];
 			}
-			const response = await handleGlobalChatMessages(
-				payload,
-				info?.chatSessionId,
-				localPayload,
-			);
+
 			setInfo((prev) => ({ ...prev, chatLoading: false }));
-			if (response?.[0]) {
-				const { db_updates, variables_required } = response?.[1];
-				if (db_updates?.calendar_db_update) {
-					updateCalendarState({ refetchCalendarState: true });
-				}
-				if (db_updates?.task_db_update) {
-					updateTaskState({ refetchTasks: true });
-				}
-				if (variables_required) {
-					handleVariablesRequired(variables_required, data);
-				}
-			}
+			handleSendWebsocketMessage(payload, '');
+			handleStreamSendMessage(payload, localPayload, '');
 		},
 		[info],
 	);
@@ -543,11 +559,8 @@ const ChatBox = ({
 			file.loading = true;
 			file.uniqueId = uploadedImages?.length;
 			uploadedImages.push(file);
-			if (customChatActions) {
-				handleAiUploadImage(file);
-			} else {
-				handleGlobalImageProcessing(file);
-			}
+
+			handleGlobalImageProcessing(file);
 
 			setInfo((prev) => ({
 				...prev,
@@ -653,7 +666,7 @@ const ChatBox = ({
 												chatQuery: e.target.value,
 											}))
 										}
-										autoFocus={autoFocus}
+										autoFocus={true}
 										onKeyDown={handleSendMessageFunc}
 										className="textArea"
 										// rows={1}
@@ -669,7 +682,7 @@ const ChatBox = ({
 												</div>
 												<div className="filters-wrapper">
 													<div className="filters-container">
-														<SearchDropdown
+														{/* <SearchDropdown
 															headerTitle="Integrations"
 															selectedOptions={
 																info?.chatFilters?.integrations
@@ -688,7 +701,7 @@ const ChatBox = ({
 															handleOptionClick={
 																handleIntegrationsOptionClick
 															}
-														/>
+														/> */}
 														<SearchDropdown
 															headerTitle="Modules"
 															selectedOptions={
@@ -782,35 +795,37 @@ const ChatBox = ({
 														</div>
 													</SearchTypeTooltip>
 
-													{/* <div
-												className="icon-container"
-												onClick={handleGoDeepSearchClick}
-												style={{
-													background: `${
-														info?.goDeep ? '#B39DFA' : '#2E2F33'
-													}`,
-												}}
-											>
-												<div className="icon">
-													{info?.goDeep ? (
-														<MicroscopeDarkSvg />
-													) : (
-														<MicroscopeLightSvg />
-													)}
-												</div>
-												{showChatLabels && (
 													<div
-														className="right-text"
+														className="icon-container"
+														onClick={handleGoDeepSearchClick}
 														style={{
-															color: `${
-																info?.goDeep ? '#0C0C0D' : '#f2f2f3'
+															background: `${
+																info?.goDeep ? '#B39DFA' : '#2E2F33'
 															}`,
 														}}
 													>
-														Explore
+														<div className="icon">
+															{info?.goDeep ? (
+																<MicroscopeDarkSvg />
+															) : (
+																<MicroscopeLightSvg />
+															)}
+														</div>
+														{showChatLabels && (
+															<div
+																className="right-text"
+																style={{
+																	color: `${
+																		info?.goDeep
+																			? '#0C0C0D'
+																			: '#f2f2f3'
+																	}`,
+																}}
+															>
+																Explore
+															</div>
+														)}
 													</div>
-												)}
-											</div> */}
 													<UploadFileTooltip
 														fileTypeIcons={fileTypeIcons}
 														handleChange={handleChange}

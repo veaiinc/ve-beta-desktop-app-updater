@@ -44,6 +44,9 @@ import EditAgent from './views/features/ai_assistant/EditAgent';
 import AgentDetails from './views/features/ai_assistant/AgentDetails';
 import InitialHomePage from './views/features/home_page/InitialHomePage';
 import Chat from './views/features/chat/Chat';
+import RecentChat from './views/features/chat/RecentChat';
+import AutomationBuilder from './views/features/automation_builder';
+import AutomationBuilderLayout from './views/layouts/automationBuilderLayout';
 const routes = [
 	{
 		path: '/',
@@ -387,6 +390,15 @@ const routes = [
 		exact: true,
 	},
 	{
+		path: '/automation-builder/:automationId',
+		component: (
+			<AutomationBuilderLayout title={'Automation Builder'}>
+				<AutomationBuilder />
+			</AutomationBuilderLayout>
+		),
+		exact: true,
+	},
+	{
 		path: '/forms',
 		component: (
 			<AuthWrapper title={'Forms'}>
@@ -409,6 +421,14 @@ const routes = [
 		component: (
 			<AuthWrapper title={'Chat'} showBottomToolbar={false}>
 				<Chat />
+			</AuthWrapper>
+		),
+	},
+	{
+		path: '/chat/:sessionId',
+		component: (
+			<AuthWrapper title={'Chat'} showBottomToolbar={false}>
+				<RecentChat />
 			</AuthWrapper>
 		),
 	},
