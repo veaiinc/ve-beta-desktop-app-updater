@@ -27,7 +27,6 @@ const MODULE_NAME_MAP = {
 	'classic gallery': 'classicGallery',
 	'lite gallery': 'liteGallery',
 	documents: 'workflow',
-	storage: 'gallery',
 	'my templates': 'template',
 	tasks: 'task',
 	calendar: 'calendar',
@@ -374,6 +373,9 @@ const OpenedSideBarItemsComponent = ({
 	};
 
 	const filterModules = (modulesList, accessControls, allPossibleApps) => {
+		console.log('Modules List:', modulesList);
+		console.log('Access Controls:', accessControls);
+		console.log('All Possible Apps:', allPossibleApps);
 		if (!accessControls?.length) {
 			return modulesList; // If no access control data, return the modules as is
 		}
