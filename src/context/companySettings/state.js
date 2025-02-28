@@ -375,11 +375,8 @@ export const CompanySettingsState = () => {
 				usertoken,
 				'auth',
 			);
-			if (response?.[0]) {
-				return [response];
-			} else {
-				return [response];
-			}
+
+			return response;
 		} catch (error) {
 			console.log('error ==> addTenantUser', error);
 		}
