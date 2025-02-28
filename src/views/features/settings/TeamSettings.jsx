@@ -399,7 +399,7 @@ const TeamSettings = () => {
 				...prev,
 				accessControls:
 					currentPlan?.apps?.map((option) => ({
-						app: option,
+						app: option?.app,
 						isEnabled: false,
 						hasFullAccess: false,
 					})) || [],
