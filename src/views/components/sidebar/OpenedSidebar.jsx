@@ -32,7 +32,7 @@ const MODULE_NAME_MAP = {
 	tasks: 'task',
 	calendar: 'calendar',
 	forms: 'form',
-	contract: 'contract',
+	contacts: 'contact',
 };
 
 const OpenedSideBarHoverStateIcons = ({

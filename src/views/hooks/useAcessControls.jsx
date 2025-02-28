@@ -11,7 +11,7 @@ const updatedLocation = [
 	{ id: 6, title: 'my-templates', value: 'template' },
 	{ id: 7, title: 'tasks', value: 'task' },
 	{ id: 8, title: 'forms', value: 'form' },
-	{ id: 9, title: 'contact', value: 'contact' },
+	{ id: 9, title: 'contacts', value: 'contact' },
 	{ id: 10, title: 'automation', value: 'automation' },
 ];
 

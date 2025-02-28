@@ -361,7 +361,7 @@ const TeamSettings = () => {
 		if (info?.selectedOption === 'admin') {
 			// If role is "admin", enable all access controls
 			updatedAccessControls = currentPlan?.apps?.map((control) => ({
-				app: control?.value,
+				app: control?.app,
 				isEnabled: true,
 				hasFullAccess: true,
 			}));

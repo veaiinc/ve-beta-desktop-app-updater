@@ -11,12 +11,12 @@ import CreateTaskPopup from '../../components/modalsV2/tasks/CreateTaskPopup';
 const dropdownOptions = [
 	{ id: 0, title: 'Lead', value: 'client' },
 	{ id: 2, title: 'Meeting', value: 'meeting' },
-	{ id: 3, title: 'Task', value: 'task', controlValue: 'task' },
+	{ id: 3, title: 'Task', value: 'task', controlValue: 'tasks' },
 	{ id: 4, title: 'Document', value: 'document', controlValue: 'workflow' },
-	{ id: 5, title: 'Form', value: 'form-submission', controlValue: 'form' },
-	{ id: 6, title: 'Proposal', value: 'proposal' },
-	{ id: 7, title: 'Invoice', value: 'invoice' },
-	{ id: 8, title: 'Contract', value: 'contract', controlValue: 'contract' },
+	{ id: 5, title: 'Form', value: 'form-submission', controlValue: 'forms' },
+	{ id: 6, title: 'Proposal', value: 'proposal', controlValue: 'workflow' },
+	{ id: 7, title: 'Invoice', value: 'invoice', controlValue: 'workflow' },
+	{ id: 8, title: 'Contacts', value: 'contact', controlValue: 'contacts' },
 ];
 const QuickActions = ({ styles, customActions = [], clientDetails = null }) => {
 	const [info, setInfo] = useState({
@@ -38,11 +38,18 @@ const QuickActions = ({ styles, customActions = [], clientDetails = null }) => {
 		tenantUserAccessControls?.role === 'admin'
 			? dropdownOptions
 			: dropdownOptions.filter((option) => {
+					if (!option.controlValue) {
+						return true;
+					}
 					const matchedApp = tenantUserAccessControls?.accessControls?.find(
 						(item) => item?.app?.toLowerCase() === option?.controlValue?.toLowerCase(),
 					);
-					return matchedApp ? matchedApp?.isEnabled : true;
+					if (!matchedApp) {
+						return false;
+					}
+					return matchedApp?.isEnabled;
 			  });
+
 	const handleDropdownOptionClick = useCallback((type) => {
 		if (type === 'meeting') {
 			navigate('/calendar');
