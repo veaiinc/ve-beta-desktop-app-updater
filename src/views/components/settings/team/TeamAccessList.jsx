@@ -12,6 +12,8 @@ const TeamAccessListComponent = ({
 	info,
 	filteredUsers,
 	updateTenantRoleFunc,
+	handleInviteMembers,
+	handleUserClick,
 }) => {
 	const updateUserRoleFunction = (tenantid, role) => {
 		updateTenantRoleFunc(tenantid, role);
@@ -21,20 +23,28 @@ const TeamAccessListComponent = ({
 		<>
 			<div className="yourTeamTitle">
 				<h1>Your Team Access</h1>
-				<div className="yourTeamFilter">
-					<img src={search} alt="searchh" />
-					<input
-						type="text"
-						placeholder="Search by name, email"
-						onChange={handleInputChange}
-						value={info.searchQuery}
-					/>
-				</div>
+				<button onClick={handleInviteMembers}>Invite Members</button>
+			</div>
+			<div className="yourTeamFilter">
+				<img src={search} alt="searchh" />
+				<input
+					type="text"
+					placeholder="Search by name, email"
+					onChange={handleInputChange}
+					value={info.searchQuery}
+					style={{ width: '100%' }}
+				/>
 			</div>
 			<div>
 				<div>
 					{filteredUsers?.map((user, index) => (
-						<div className="tenantDetailsContainer" key={user?._id}>
+						<div
+							className="tenantDetailsContainer"
+							key={user?._id}
+							onClick={() => {
+								handleUserClick(user);
+							}}
+						>
 							<div className="tenantProfileContainer">
 								<div className="tenantLogo">
 									{/* <img
@@ -117,15 +127,18 @@ const TeamAccessListComponent = ({
 									{user?.isOwner ? (
 										<p className="owner">Owner</p>
 									) : (
-										<div className="editAccessControl">
+										<div
+											className="editAccessControl"
+											onClick={(e) => e.stopPropagation()}
+										>
 											<Select
 												defaultValue={user?.role}
 												style={{
 													width: 120,
 												}}
-												onChange={(value) =>
-													updateUserRoleFunction(user?._id, value)
-												}
+												onSelect={(value) => {
+													updateUserRoleFunction(user, value);
+												}}
 												options={[
 													{
 														value: 'admin',
