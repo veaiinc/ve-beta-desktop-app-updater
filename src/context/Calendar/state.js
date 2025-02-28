@@ -15,6 +15,10 @@ export const initialState = {
 	refetchCalendarState: false,
 };
 
+export const initialSchedulerState = {
+	schedulerList: null,
+};
+
 export const Calendar = () => {
 	const [state, dispatch] = useReducer(Reducer, initialState);
 
@@ -314,6 +318,27 @@ export const Calendar = () => {
 		}
 	};
 
+	//Scheduler Apis ==============>
+	const getSchedulerList = async () => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const url = `/${workspaceId}${API.CALENDAR.getSchedulerList}`;
+			const response = await service.fetchGet(url, usertoken, 'calendar_api');
+
+			if (response?.[0] === true) {
+				dispatch({
+					type: Actions.GET_SCHEDULER_LIST,
+					payload: response?.[1]?.sessions,
+				});
+			} else {
+				console.log('API failed ==> getSchedulerList', response);
+			}
+		} catch (error) {
+			console.log('error==>getSchedulerList', error);
+		}
+	};
+
 	// Calendar State Reset ================================>
 	const resetCalendarState = () => {
 		dispatch({ type: Actions.RESET_CALENDAR_STATE });
@@ -347,5 +372,6 @@ export const Calendar = () => {
 		getCalendarEventDetails,
 		getCalendarAllEvents,
 		updateCalendarState,
+		getSchedulerList,
 	};
 };

@@ -14,4 +14,7 @@ export const CALENDAR = {
 	deleteCalendarEvent: '/calendar/deleteEvent',
 	resetCalendarState: 'RESET_CALENDAR_STATE',
 	resetCalendarAiChat: 'RESET_CALENDAR_AI_CHAT',
+
+	//Scheduler Apis ================================>
+	getSchedulerList: '/scheduler/all-sessions',
 };

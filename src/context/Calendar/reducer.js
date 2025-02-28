@@ -1,4 +1,4 @@
-import { initialState } from './state';
+import { initialState, initialSchedulerState } from './state';
 
 const actionHandlers = {
 	GET_CALENDAR_CHAT: (state, action) => ({
@@ -65,6 +65,12 @@ const actionHandlers = {
 	UPDATE_CALENDAR_STATE: (state, action) => ({
 		...state,
 		...action?.payload,
+	}),
+
+	//Scheduler Apis =============>
+	GET_SCHEDULER_LIST: (state, action) => ({
+		...state,
+		schedulerList: action?.payload,
 	}),
 };
 
