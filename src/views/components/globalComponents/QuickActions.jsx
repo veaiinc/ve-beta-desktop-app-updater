@@ -1,4 +1,4 @@
-import { message, Tooltip } from 'antd';
+import { Tooltip } from 'antd';
 import React, { useContext, useState, useCallback } from 'react';
 // import '../../../assets/scss/home_page/homepage.scss';
 import '../../../assets/scss/globalComponents/quickActions.scss';
@@ -7,18 +7,16 @@ import Context from '../../../context/context';
 import ProposalsPopup from '../../components/docs/ProposalsPopup';
 import CreateClientModal from '../../components/modalsV2/contacts/CreateClientModal';
 import CreateTaskPopup from '../../components/modalsV2/tasks/CreateTaskPopup';
-import Spinner from '../loaders/Spinner';
 
 const dropdownOptions = [
 	{ id: 0, title: 'Lead', value: 'client' },
 	{ id: 2, title: 'Meeting', value: 'meeting' },
-	{ id: 3, title: 'Task', value: 'task' },
-	{ id: 4, title: 'Document', value: 'document' },
-	{ id: 5, title: 'Form', value: 'form-submission' },
-	{ id: 6, title: 'Proposal', value: 'proposal' },
-	{ id: 7, title: 'Invoice', value: 'invoice' },
-	{ id: 8, title: 'Contract', value: 'contract' },
-	{ id: 9, title: 'Automation', value: 'automation' },
+	{ id: 3, title: 'Task', value: 'task', controlValue: 'task' },
+	{ id: 4, title: 'Document', value: 'document', controlValue: 'workflow' },
+	{ id: 5, title: 'Form', value: 'form-submission', controlValue: 'form' },
+	{ id: 6, title: 'Proposal', value: 'proposal', controlValue: 'workflow' },
+	{ id: 7, title: 'Invoice', value: 'invoice', controlValue: 'workflow' },
+	{ id: 8, title: 'Contacts', value: 'contact', controlValue: 'contact' },
 ];
 const QuickActions = ({ styles, customActions = [], clientDetails = null }) => {
 	const [info, setInfo] = useState({
@@ -28,14 +26,29 @@ const QuickActions = ({ styles, customActions = [], clientDetails = null }) => {
 		// openTaskPopup: false,
 		dropdownOptions: customActions?.length > 0 ? customActions : dropdownOptions,
 		commonState: null,
-		isAutomationLoading: false,
 	});
 
 	let {
 		templates: { toggleCreateLeadModal },
-		automationBuilder: { createAutomation },
+		profileInfo: { tenantUserAccessControls },
 	} = useContext(Context);
 	const navigate = useNavigate();
+
+	const filteredDropdownOptions =
+		tenantUserAccessControls?.role === 'admin'
+			? dropdownOptions
+			: dropdownOptions.filter((option) => {
+					if (!option?.controlValue) {
+						return true;
+					}
+					const matchedApp = tenantUserAccessControls?.accessControls?.find(
+						(item) => item?.app?.toLowerCase() === option?.controlValue?.toLowerCase(),
+					);
+					if (!matchedApp) {
+						return false;
+					}
+					return matchedApp?.isEnabled;
+			  });
 
 	const handleDropdownOptionClick = useCallback((type) => {
 		if (type === 'meeting') {
@@ -54,28 +67,8 @@ const QuickActions = ({ styles, customActions = [], clientDetails = null }) => {
 			setInfo({ ...info, openProposalPopup: true, commonState: 'invoice' });
 		} else if (type === 'contract') {
 			setInfo({ ...info, openProposalPopup: true, commonState: 'contract' });
-		} else if (type === 'automation') {
-			handleCreateAutomation();
 		}
 	}, []);
-
-	const handleCreateAutomation = useCallback(async () => {
-		if (info?.isAutomationLoading) return;
-		setInfo({ ...info, isAutomationLoading: true });
-		const response = await createAutomation({
-			name: 'Untitled Automation',
-			version: 1,
-			steps: [],
-			status: 'draft',
-		});
-		if (response?.[0]) {
-			navigate(`/automation-builder/${response?.[1]?._id}`);
-		} else {
-			message.error('Failed to create automation');
-		}
-		setInfo({ ...info, isAutomationLoading: false });
-	}, [createAutomation, navigate]);
-
 	return (
 		<div className="quick-actions-dropdown-container" style={{ ...styles }}>
 			<Tooltip
@@ -86,25 +79,13 @@ const QuickActions = ({ styles, customActions = [], clientDetails = null }) => {
 				color="transparent"
 				title={
 					<div className="quick-actions-dropdown-options-container">
-						{info?.dropdownOptions?.map((option) => (
+						{filteredDropdownOptions?.map((option) => (
 							<div
 								key={option?.id}
 								className="dropdown-option"
 								onClick={() => handleDropdownOptionClick(option?.value)}
 							>
-								{option?.value === 'automation' ? (
-									info?.isAutomationLoading ? (
-										<Spinner
-											width="20px"
-											height="20px"
-											cssstyle={{ margin: '0 auto' }}
-										/>
-									) : (
-										option?.title
-									)
-								) : (
-									option?.title
-								)}
+								{option?.title}
 							</div>
 						))}
 					</div>

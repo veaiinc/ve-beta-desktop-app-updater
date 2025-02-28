@@ -336,6 +336,52 @@ export const CompanySettingsState = () => {
 		}
 	};
 
+	// https://us.api.ve.ai/auth/dev/tenant/:workspaceId/tenant-users/:tenantUser_id/access-controls
+
+	const updateTenantAccessControls = async (json, tenantUserId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchPut(
+				'/tenant/' +
+					workspaceId +
+					API.TENANTS.tenantUsers +
+					'/' +
+					tenantUserId +
+					'/access-controls',
+				json,
+				usertoken,
+				'auth',
+			);
+			if (response?.[0]) {
+				return [true, response[1]];
+			} else {
+				return [false, response[1]];
+			}
+		} catch (error) {
+			console.log('error ==> updateTenantAccessControls', error);
+		}
+	};
+
+	// https://us.api.ve.ai/auth/dev/tenant/:workspace_id/tenant-users
+
+	const addTenantUser = async (json) => {
+		try {
+			let workspace_id = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.fetchPost(
+				'/tenant/' + workspace_id + API.TENANTS.tenantUsers,
+				json,
+				usertoken,
+				'auth',
+			);
+
+			return response;
+		} catch (error) {
+			console.log('error ==> addTenantUser', error);
+		}
+	};
+
 	const resetCompanySettings = async () => {
 		try {
 			dispatch({ type: Actions.RESET_STATE });
@@ -364,5 +410,7 @@ export const CompanySettingsState = () => {
 		getClientPortalPreference,
 		updateClientPortalPreference,
 		getAICreditsUsedData,
+		updateTenantAccessControls,
+		addTenantUser,
 	};
 };

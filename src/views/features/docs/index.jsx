@@ -10,7 +10,6 @@ import { ReactComponent as MailLetter } from '../../../assets/svg/docs/mail-lett
 import { ReactComponent as StatusCircle } from '../../../assets/svg/docs/status-circle.svg';
 import { ReactComponent as CrossPurple } from '../../../assets/svg/docs/cross-purple.svg';
 import { ReactComponent as Sync } from '../../../assets/svg/docs/sync.svg';
-
 import { FetchMoreLoaderComp, fetchOriginSelection } from '../../../helpers';
 import Context from '../../../context/context';
 import InfiniteScroll from 'react-infinite-scroll-component';
@@ -220,7 +219,6 @@ export const Filters = [
 		},
 	},
 ];
-
 const Docs = () => {
 	const navigate = useNavigate();
 	let {
