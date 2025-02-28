@@ -15,6 +15,7 @@ module.exports = {
 	calendar_api: 'https://ap.api.ve.ai/google/1.0',
 	third_party_integrations_api: 'https://ap.api.ve.ai/third-party-integrations/1.0',
 	slack_api: 'https://slack.com/api',
+	automation_builder_api: 'https://ap.api.ve.ai/automations/1.0/automation',
 	// multi_agent_chat: 'ws://ai.ap-south-1.ve.ai',
 
 	//outside India
@@ -30,5 +31,7 @@ module.exports = {
 	calendar_api_US: 'https://us.api.ve.ai/google/1.0',
 	third_party_integrations_api_US: 'https://us.api.ve.ai/third-party-integrations/1.0',
 	slack_api_US: 'https://slack.com/api',
+	automation_builder_api_US: 'https://us.api.ve.ai/automations/1.0/automation',
 	// multi_agent_chat_US: 'ws://api.us-east-1.ve.ai',
+	automations_api_US: 'https://ap.api.ve.ai/automations/1.0/automation',
 };

@@ -1,0 +1,233 @@
+.formSelectionBlockContainer {
+	display: flex;
+	padding: 0px 24px;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 12px;
+	align-self: stretch;
+	flex-grow: 1;
+
+	.formSelectionBlockHeading {
+		color: #f2f2f3;
+		font-family: Inter;
+		font-size: 14px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
+	}
+
+	.formSelectionBlockButton {
+		display: flex;
+		padding: 12px 16px;
+		align-self: stretch;
+		border-radius: 12px;
+		background: #202123;
+		border: none;
+		color: #f2f2f3;
+		font-family: Inter;
+		font-size: 13px;
+		font-style: normal;
+		font-weight: 400;
+		line-height: 16px; /* 123.077% */
+		cursor: pointer;
+		transition: all 0.3s ease;
+
+		&:hover {
+			background: #2c2d2f;
+		}
+	}
+
+	.formSelectionBlockButtonAiWrapper {
+		padding: 1px;
+		border-radius: 12px;
+		background: linear-gradient(to right, #c39df8 0%, #ec7c9d 100%);
+		width: 100%;
+		cursor: pointer;
+
+		.formSelectionBlockButtonAi {
+			display: flex;
+			padding: 11px 15px;
+			align-items: center;
+			gap: 12px;
+			align-self: stretch;
+			border-radius: 12px;
+			border: none;
+			width: 100%;
+			background: #141415;
+
+			span {
+				font-family: Inter;
+				font-size: 13px;
+				font-style: normal;
+				font-weight: 400;
+				line-height: 16px; /* 123.077% */
+				background-image: linear-gradient(#c39df8, #ec7c9d);
+				color: transparent;
+				background-clip: text;
+			}
+		}
+	}
+
+	.triggerSaveButtonContainer {
+		padding: 10px 0;
+		border-top: 1px solid #2c2d2f;
+		width: 100%;
+		.triggerSaveButton {
+			width: 100%;
+			padding: 12px 16px;
+			align-self: stretch;
+			border-radius: 12px;
+			background: #202123;
+			border: none;
+			color: #f2f2f3;
+			font-family: Inter;
+			font-size: 13px;
+			font-style: normal;
+			font-weight: 400;
+			line-height: 16px; /* 123.077% */
+			margin-top: auto;
+			cursor: pointer;
+			transition: all 0.3s ease;
+
+			&:hover {
+				background: #2c2d2f;
+			}
+		}
+	}
+
+	.selectedTemplateWrapper {
+		width: 100%;
+		border-radius: 12px;
+		transition: all 0.3s ease;
+
+		.chooseFromTemplateFormContainer {
+			padding: 12px 16px;
+			background: transparent;
+			display: flex;
+			align-items: center;
+			gap: 12px;
+
+			.templatePreview {
+				width: 40px;
+				height: 40px;
+				border-radius: 4px;
+				background-color: #f2f2f3;
+				flex-shrink: 0;
+			}
+
+			.templateDetails {
+				flex-grow: 1;
+				overflow: hidden;
+
+				.templateName {
+					color: #f2f2f3;
+					font-size: 13px;
+					font-weight: 400;
+					line-height: 16px;
+					text-overflow: ellipsis;
+					white-space: nowrap;
+					overflow: hidden;
+				}
+
+				.templateDescription {
+					color: #7a7e85;
+					font-size: 12px;
+					line-height: normal;
+					text-overflow: ellipsis;
+					white-space: nowrap;
+					overflow: hidden;
+				}
+			}
+
+			.changeButton {
+				flex-shrink: 0;
+				display: flex;
+				padding: 6px 8px;
+				align-items: center;
+				gap: 12px;
+				border-radius: 6px;
+				background: #202123;
+				color: #f2f2f3;
+				font-family: Inter;
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+				cursor: pointer;
+				transition: all 0.3s ease;
+				cursor: pointer;
+				border: none;
+
+				&:hover {
+					background: #2c2d2f;
+				}
+			}
+		}
+	}
+}
+
+.chooseFromTemplateContainer {
+	display: flex;
+	flex-direction: column;
+	align-self: stretch;
+	width: 100%;
+	gap: 0;
+
+	.chooseFromTemplateFormContainer {
+		display: flex;
+		padding: 12px 24px;
+		justify-content: center;
+		align-items: flex-start;
+		gap: 12px;
+		width: 100%;
+		align-self: stretch;
+		cursor: pointer;
+		transition: all 0.3s ease;
+
+		&:hover {
+			background: #2c2d2f;
+		}
+
+		&.selected {
+			background: #2c2d2f;
+		}
+
+		.templatePreview {
+			width: 40px;
+			height: 40px;
+			border-radius: 4px;
+			background-color: #f2f2f3;
+		}
+
+		.templateDetails {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 4px;
+			flex: 1 0 0;
+			align-self: stretch;
+
+			.templateName {
+				color: #f2f2f3;
+				text-align: justify;
+				font-family: Inter;
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+				text-transform: capitalize;
+			}
+
+			.templateDescription {
+				color: #7a7e85;
+				text-align: justify;
+				font-family: Inter;
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 400;
+				line-height: normal;
+				text-transform: capitalize;
+			}
+		}
+	}
+}

@@ -21,6 +21,10 @@
 		align-self: stretch;
 
 		.header-text {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			gap: 4px;
 			color: #f2f2f3;
 			color: color(display-p3 0.949 0.949 0.9529);
 			font-family: Inter;
@@ -28,10 +32,19 @@
 			font-style: normal;
 			font-weight: 600;
 			line-height: normal;
-			width: 250px;
+			width: 300px;
 			text-overflow: ellipsis;
 			white-space: nowrap;
 			overflow: hidden;
+
+			.rename-input {
+				outline: none;
+				border: none;
+				background: inherit;
+				color: inherit;
+				font-size: inherit;
+				width: inherit;
+			}
 		}
 	}
 
