@@ -367,7 +367,7 @@ const TeamSettings = () => {
 			}));
 		} else if (info?.selectedOption === 'default') {
 			// Ensure at least one access control is enabled
-			const hasEnabledAccess = updatedAccessControls.some((control) => control.isEnabled);
+			const hasEnabledAccess = updatedAccessControls.some((control) => control?.isEnabled);
 			if (!hasEnabledAccess) {
 				messageApi.error('At least one access control must be enabled.');
 				return;

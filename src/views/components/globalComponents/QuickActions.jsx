@@ -38,7 +38,7 @@ const QuickActions = ({ styles, customActions = [], clientDetails = null }) => {
 		tenantUserAccessControls?.role === 'admin'
 			? dropdownOptions
 			: dropdownOptions.filter((option) => {
-					if (!option.controlValue) {
+					if (!option?.controlValue) {
 						return true;
 					}
 					const matchedApp = tenantUserAccessControls?.accessControls?.find(

@@ -324,8 +324,8 @@ const OpenedSideBarItemsComponent = ({
 	const openWorkspacesFunction = () => {
 		setsidebarStates((prevState) => ({
 			...prevState,
-			workSpaceOpen: !prevState.workSpaceOpen, // Toggle the state
-			navStyle: prevState.workSpaceOpen ? 'close' : 'workspace', // Adjust navStyle accordingly
+			workSpaceOpen: !prevState?.workSpaceOpen,
+			navStyle: prevState?.workSpaceOpen ? 'close' : 'workspace',
 		}));
 	};
 
@@ -385,7 +385,7 @@ const OpenedSideBarItemsComponent = ({
 				const mappedName = MODULE_NAME_MAP[formattedModuleName] || formattedModuleName;
 
 				// Check if the module is in allPossibleApps
-				const isModuleInAllApps = allPossibleApps.includes(mappedName);
+				const isModuleInAllApps = allPossibleApps?.includes(mappedName);
 
 				// If the module is in allPossibleApps, check if it's enabled in accessControls
 				if (isModuleInAllApps) {
@@ -402,7 +402,7 @@ const OpenedSideBarItemsComponent = ({
 						MODULE_NAME_MAP[formattedSubModuleName] || formattedSubModuleName;
 
 					// Check if the submodule is in the list of all possible apps
-					const isSubModuleInAllApps = allPossibleApps.includes(mappedSubModuleName);
+					const isSubModuleInAllApps = allPossibleApps?.includes(mappedSubModuleName);
 
 					if (isSubModuleInAllApps) {
 						// If the submodule is part of allPossibleApps, check if it's enabled
