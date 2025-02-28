@@ -36,7 +36,7 @@ const RecentChat = ({
 		},
 	} = useContext(Context);
 
-	const { socketRef, createWebSocketConnection } = useChatStream();
+	const { socketRef, createWebSocketConnection, sendMessage } = useChatStream();
 	const [info, setInfo] = useState({
 		expanded: false,
 		inputExpanded: false,
@@ -260,17 +260,16 @@ const RecentChat = ({
 	);
 
 	const handleSendWebsocketMessage = useCallback(
-		(data, lastQuery) => {
-			if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
-				socketRef.current.send(JSON.stringify(data));
+		async (data, lastQuery) => {
+			try {
+				await sendMessage(data);
 				setInfo((prev) => ({ ...prev, lastQuery: lastQuery }));
-			} else {
-				setTimeout(() => {
-					handleSendWebsocketMessage(data, lastQuery);
-				}, 100);
+			} catch (error) {
+				console.error('Failed to send message:', error);
+				// Handle error appropriately (show notification, etc.)
 			}
 		},
-		[socketRef, info],
+		[sendMessage, setInfo],
 	);
 
 	const toggleLatestStreamMessage = useCallback(() => {
