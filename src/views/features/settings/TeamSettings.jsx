@@ -405,8 +405,8 @@ const TeamSettings = () => {
 					})) || [],
 			}));
 		} else {
-			setInfo((prev) => ({ ...prev, isloading: false }));
 			messageApi.error('Failed to invite user');
+			setInfo((prev) => ({ ...prev, isloading: false }));
 		}
 
 		getTeamMembers();

@@ -403,7 +403,6 @@ const OpenedSideBarItemsComponent = ({
 					const isSubModuleInAllApps = allPossibleApps?.includes(mappedSubModuleName);
 
 					if (isSubModuleInAllApps) {
-						// If the submodule is part of allPossibleApps, check if it's enabled
 						const subAccess = accessControls?.find(
 							(control) => control?.app === mappedSubModuleName,
 						);
@@ -448,6 +447,7 @@ const OpenedSideBarItemsComponent = ({
 			? veAiModules
 			: filterModules(veAiModules, tenantUserAccessControls?.accessControls, allPossibleApps);
 
+	console.log(filteredModules, 'filterModules');
 	return (
 		<>
 			{tenantUserAccessControls && (

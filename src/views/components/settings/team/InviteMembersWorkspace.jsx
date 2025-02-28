@@ -81,7 +81,7 @@ const InviteMembersWorkspaceComponent = ({
 
 	const filterFunction = (options) => {
 		return options?.filter((option) => {
-			return !['project', 'proposal', 'gallery'].includes(option?.app);
+			return !['project', 'proposal', 'gallery', 'folder'].includes(option?.app);
 		});
 	};
 	const handleUpdateUser = () => {
