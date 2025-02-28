@@ -65,6 +65,8 @@ const colors = {
 	6: { backgroundColor: '#2F4469', color: '#4F71B3' },
 	7: { backgroundColor: '#453061', color: '#6F4C99' },
 };
+
+const availableViews = ['list', 'table', 'gallery'];
 const Contacts = () => {
 	const {
 		// templates: { getClientList, clientList },
@@ -510,6 +512,7 @@ const Contacts = () => {
 				views={info?.clientMetadata?.views}
 				updateView={updateView}
 				deleteView={deleteView}
+				availableViews={availableViews}
 			/>
 
 			<CreateClientModal
