@@ -12,7 +12,9 @@ const updatedLocation = [
 	{ id: 7, title: 'tasks', value: 'task' },
 	{ id: 8, title: 'forms', value: 'form' },
 	{ id: 9, title: 'contact', value: 'contact' },
+	{ id: 10, title: 'automation', value: 'automation' },
 ];
+
 const useAccessControls = () => {
 	const {
 		profileInfo: {
@@ -24,11 +26,13 @@ const useAccessControls = () => {
 	} = useContext(Context);
 
 	const location = useLocation();
+
 	useEffect(() => {
 		if (!tenantUserAccessControls) {
 			getTenantUserAccessControls();
 		}
 	}, [tenantUserAccessControls]);
+
 	useEffect(() => {
 		if (
 			tenantUserAccessControls?.role === 'admin' ||
@@ -36,23 +40,18 @@ const useAccessControls = () => {
 		) {
 			return updateAccessControlOpenModal({ accessControlOpenModal: false });
 		}
-
-		// Extract current path and match it with updatedLocation
 		const currentPath = location?.pathname?.split('/')[1];
 		const matchedLocation = updatedLocation?.find((loc) => loc?.title === currentPath);
 
 		if (!matchedLocation) {
 			return updateAccessControlOpenModal({ accessControlOpenModal: false });
 		}
-
-		// Find app access control for the matched location
 		const appAccess = tenantUserAccessControls?.accessControls?.find(
 			(app) => app?.app === matchedLocation?.value,
 		);
-
-		// Set modal state based on app access
+		const shouldOpenModal = !appAccess || !appAccess?.isEnabled;
 		updateAccessControlOpenModal({
-			accessControlOpenModal: appAccess ? !appAccess?.isEnabled : false,
+			accessControlOpenModal: shouldOpenModal,
 		});
 	}, [location?.pathname, tenantUserAccessControls]);
 

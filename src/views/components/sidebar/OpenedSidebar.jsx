@@ -35,51 +35,6 @@ const MODULE_NAME_MAP = {
 	contract: 'contract',
 };
 
-const CommonBottomSection = ({ handleLogout, openWorkspacesFunction, workSpaceOpen }) => (
-	<div
-		className="commonBottomSection"
-		style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}
-	>
-		{/* <div className="currentWorkspaceDiv" onClick={openWorkspacesFunction}>
-			<div
-				className="singleModuleItem currentWorkspaceDetails"
-				style={{
-					display: 'flex',
-					width: '218px',
-					justifyContent: 'space-between',
-					padding: '12px 16px',
-					backgroundColor: workSpaceOpen ? '#2E2F33' : '',
-					borderRadius: '100px',
-				}}
-			>
-				<div style={{ fontSize: '14px', fontWeight: '500', color: 'white' }}>
-					Switch Workspace
-				</div>
-				<div>
-					<RefreshSvg style={{ width: '16px', height: '16px' }} />
-				</div>
-			</div>
-		</div> */}
-		{/* <div
-			className={`singleModuleItem logoutItem ${workSpaceOpen ? 'workspace-active' : ''}`}
-			onClick={handleLogout}
-			style={{
-				padding: '12px 16px',
-				display: 'flex',
-				flexDirection: 'row',
-				justifyContent: 'space-between',
-				alignItems: 'center',
-				alignSelf: 'stretch',
-				width: '218px',
-				cursor: 'pointer',
-			}}
-		>
-			<p style={{ fontSize: '14px', fontWeight: '500', color: '#D73A49' }}>Logout</p>
-			<LogoutRedSvg />
-		</div> */}
-	</div>
-);
-
 const OpenedSideBarHoverStateIcons = ({
 	name,
 	Icon,
@@ -418,56 +373,82 @@ const OpenedSideBarItemsComponent = ({
 		}
 	};
 
-	const filterModules = (modulesList, accessControls) => {
+	const filterModules = (modulesList, accessControls, allPossibleApps) => {
 		if (!accessControls?.length) {
-			return modulesList;
+			return modulesList; // If no access control data, return the modules as is
 		}
 
 		return modulesList
 			.map((module) => {
+				// Convert the module name to its mapped name (if exists in MODULE_NAME_MAP)
 				const formattedModuleName = module?.name?.toLowerCase();
 				const mappedName = MODULE_NAME_MAP[formattedModuleName] || formattedModuleName;
 
-				const access = accessControls?.find((control) => control?.app === mappedName);
-				if (access && !access?.isEnabled) {
-					return null;
+				// Check if the module is in allPossibleApps
+				const isModuleInAllApps = allPossibleApps.includes(mappedName);
+
+				// If the module is in allPossibleApps, check if it's enabled in accessControls
+				if (isModuleInAllApps) {
+					const access = accessControls?.find((control) => control?.app === mappedName);
+					if (!access || !access?.isEnabled) {
+						return null; // Exclude module if it's not in accessControls or not enabled
+					}
 				}
 
+				// Filter submodules based on similar access control logic
 				const filteredSubModules = module?.subModules?.filter((subModule) => {
 					const formattedSubModuleName = subModule?.name?.toLowerCase();
 					const mappedSubModuleName =
 						MODULE_NAME_MAP[formattedSubModuleName] || formattedSubModuleName;
 
-					const subAccess = accessControls?.find(
-						(control) => control?.app === mappedSubModuleName,
-					);
-					return subAccess ? subAccess?.isEnabled : true;
+					// Check if the submodule is in the list of all possible apps
+					const isSubModuleInAllApps = allPossibleApps.includes(mappedSubModuleName);
+
+					if (isSubModuleInAllApps) {
+						// If the submodule is part of allPossibleApps, check if it's enabled
+						const subAccess = accessControls?.find(
+							(control) => control?.app === mappedSubModuleName,
+						);
+						return subAccess ? subAccess?.isEnabled : false; // Exclude if not enabled
+					}
+
+					// If the submodule is NOT in allPossibleApps, include it regardless of access control
+					return true;
 				});
 
+				// If no valid submodules exist after filtering, remove the module
 				if (
 					module?.subModules &&
 					(!filteredSubModules || filteredSubModules?.length === 0)
 				) {
-					return null;
+					return null; // Exclude module if no valid submodules are left
 				}
 
+				// Return the module, including the filtered submodules
 				return {
 					...module,
 					subModules: filteredSubModules?.length ? filteredSubModules : undefined,
 				};
 			})
-			.filter(Boolean);
+			.filter(Boolean); // Remove any null values (modules without access or submodules)
 	};
+
+	// Extract all possible app names (values from MODULE_NAME_MAP)
+	const allPossibleApps = Object.values(MODULE_NAME_MAP);
 
 	const filteredModules =
 		tenantUserAccessControls?.role === 'admin'
 			? veAiModulesItemsList
-			: filterModules(veAiModulesItemsList, tenantUserAccessControls?.accessControls);
+			: filterModules(
+					veAiModulesItemsList,
+					tenantUserAccessControls?.accessControls,
+					allPossibleApps,
+			  );
 
 	const filterModules2 =
 		tenantUserAccessControls?.role === 'admin'
 			? veAiModules
-			: filterModules(veAiModules, tenantUserAccessControls?.accessControls);
+			: filterModules(veAiModules, tenantUserAccessControls?.accessControls, allPossibleApps);
 
 	return (
 		<>
@@ -571,114 +552,109 @@ const OpenedSideBarItemsComponent = ({
 												/>
 											</div>
 										)}
-										{/* {AiOptions.map((singleItem, index) => {
-									return (
-										<div key={index} style={{ padding: '8px 16px' }}>
-											<AiModulesList
-												image={singleItem.image}
-												name={singleItem.name}
-												route={singleItem.route}
-												navigateTo={(route) => {
-													handleNavigateFunction(route, singleItem);
-												}}
-												isSelected={selectedOption === singleItem?.name}
-											/>
-										</div>
-									);
-								})} */}
 										{!isThisEarlyAccessPage && (
-											<hr
-												style={{
-													border: '0.7px solid #333334',
-													margin: '16px 0px',
-												}}
-											/>
-										)}
-										{!isThisEarlyAccessPage &&
-											filteredModules?.map((singleItems) => (
-												<div key={singleItems?.id}>
-													<OpenedSideBarHoverStateIcons
-														name={singleItems.name}
-														Icon={singleItems.icon}
-														initialColor={singleItems.initialColor}
-														route={singleItems?.route}
-														navigateTo={(route) => {
-															handleNavigateFunction(
-																route,
-																singleItems,
-															);
-														}}
-														isSelected={
-															selectedOption === singleItems?.name
-														}
-														isActive={
-															location.pathname === singleItems?.route
-														}
-														subModules={singleItems?.subModules}
-														isDropdownVisible={
-															activeDropdown === singleItems?.name
-														}
-														onDropdownToggle={() =>
-															handleDropdownToggle(singleItems?.name)
-														}
-														setActiveDropdown={setActiveDropdown}
-														activeSubModule={activeSubModule}
-														setActiveSubModule={setActiveSubModule}
-														handleSubModuleClick={handleSubModuleClick}
-														setShowChatsDrawer={setShowChatsDrawer}
-														setShowNotificationsDrawer={
-															setShowNotificationsDrawer
-														}
-													/>
-												</div>
-											))}
+											<>
+												<hr
+													style={{
+														border: '0.7px solid #333334',
+														margin: '16px 0px',
+													}}
+												/>
 
-										{!isThisEarlyAccessPage && (
-											<hr
-												style={{
-													border: '0.7px solid #333334',
-													margin: '16px 0px',
-												}}
-											/>
+												{filteredModules?.map((singleItem) => (
+													<div key={singleItem.id}>
+														<OpenedSideBarHoverStateIcons
+															name={singleItem.name}
+															Icon={singleItem.icon}
+															initialColor={singleItem.initialColor}
+															route={singleItem.route}
+															navigateTo={(route) =>
+																handleNavigateFunction(
+																	route,
+																	singleItem,
+																)
+															}
+															isSelected={
+																selectedOption === singleItem.name
+															}
+															isActive={
+																location.pathname ===
+																singleItem.route
+															}
+															subModules={singleItem.subModules}
+															isDropdownVisible={
+																activeDropdown === singleItem.name
+															}
+															onDropdownToggle={() =>
+																handleDropdownToggle(
+																	singleItem.name,
+																)
+															}
+															setActiveDropdown={setActiveDropdown}
+															activeSubModule={activeSubModule}
+															setActiveSubModule={setActiveSubModule}
+															handleSubModuleClick={
+																handleSubModuleClick
+															}
+															setShowChatsDrawer={setShowChatsDrawer}
+															setShowNotificationsDrawer={
+																setShowNotificationsDrawer
+															}
+														/>
+													</div>
+												))}
+
+												<hr
+													style={{
+														border: '0.7px solid #333334',
+														margin: '16px 0px',
+													}}
+												/>
+
+												{filterModules2?.map((singleItem, index) => (
+													<div key={index}>
+														<OpenedSideBarHoverStateIcons
+															name={singleItem.name}
+															Icon={singleItem.icon}
+															initialColor={singleItem.initialColor}
+															route={singleItem.route}
+															navigateTo={(route) =>
+																handleNavigateFunction(
+																	route,
+																	singleItem,
+																)
+															}
+															isSelected={
+																selectedOption === singleItem.name
+															}
+															isActive={
+																location.pathname ===
+																singleItem.route
+															}
+															subModules={singleItem.subModules}
+															isDropdownVisible={
+																activeDropdown === singleItem.name
+															}
+															onDropdownToggle={() =>
+																handleDropdownToggle(
+																	singleItem.name,
+																)
+															}
+															setActiveDropdown={setActiveDropdown}
+															activeSubModule={activeSubModule}
+															setActiveSubModule={setActiveSubModule}
+															handleSubModuleClick={
+																handleSubModuleClick
+															}
+															setShowChatsDrawer={setShowChatsDrawer}
+															setShowNotificationsDrawer={
+																setShowNotificationsDrawer
+															}
+														/>
+													</div>
+												))}
+											</>
 										)}
-										{!isThisEarlyAccessPage &&
-											filterModules2?.map((singleItems, index) => (
-												<div key={index}>
-													<OpenedSideBarHoverStateIcons
-														name={singleItems.name}
-														Icon={singleItems.icon}
-														initialColor={singleItems.initialColor}
-														route={singleItems?.route}
-														navigateTo={(route) => {
-															handleNavigateFunction(
-																route,
-																singleItems,
-															);
-														}}
-														isSelected={
-															selectedOption === singleItems?.name
-														}
-														isActive={
-															location.pathname === singleItems?.route
-														}
-														subModules={singleItems?.subModules}
-														isDropdownVisible={
-															activeDropdown === singleItems?.name
-														}
-														onDropdownToggle={() =>
-															handleDropdownToggle(singleItems?.name)
-														}
-														setActiveDropdown={setActiveDropdown}
-														activeSubModule={activeSubModule}
-														setActiveSubModule={setActiveSubModule}
-														handleSubModuleClick={handleSubModuleClick}
-														setShowChatsDrawer={setShowChatsDrawer}
-														setShowNotificationsDrawer={
-															setShowNotificationsDrawer
-														}
-													/>
-												</div>
-											))}
 									</div>
 								</div>
 
@@ -799,11 +775,6 @@ const OpenedSideBarItemsComponent = ({
 											}}
 										/>
 									))}
-									<CommonBottomSection
-										handleLogout={handleLogout}
-										openWorkspacesFunction={openWorkspacesFunction}
-										workSpaceOpen={sidebarStates.workSpaceOpen}
-									/>
 								</div>
 							</div>
 						</>
