@@ -2,10 +2,10 @@ import React, { memo, useCallback, useState, useRef, useEffect, useContext, useM
 import '../../../assets/scss/chat/chat.scss';
 import { ReactComponent as ExpandChatIcon } from '../../../assets/svg/ai_agents/expand-chat-icon.svg';
 import Context from '../../../context/context';
-import ObjectID from 'bson-objectid';
+// import ObjectID from 'bson-objectid';
 import Markdown from 'react-markdown';
 import { TypingEffect } from '../../../helpers/markdownHelper';
-import useVoiceIntegration from '../../hooks/useVoiceIntegration';
+// import useVoiceIntegration from '../../hooks/useVoiceIntegration';
 import CitationsModal from '../../components/modalsV2/chat/CitationsModal';
 import NoteComponentModal from '../../components/notes/NoteComponentModal';
 import ChatBox from '../../components/homePage/ChatBox';
@@ -37,18 +37,22 @@ const RecentChat = ({
 			getRecentChatMessages,
 			recentChatStorage,
 			moreRecentChatStorage,
+			handleStreamIncomingMessage,
+			handleStreamMessageChunk,
 		},
 	} = useContext(Context);
 
-	const {
-		isConnected,
-		isMuted,
-		audioLevel,
-		connectToRoom,
-		disconnect,
-		toggleMute,
-		toggleKrispNoiseFilter,
-	} = useVoiceIntegration();
+	// const {
+	// 	isConnected,
+	// 	isMuted,
+	// 	audioLevel,
+	// 	connectToRoom,
+	// 	disconnect,
+	// 	toggleMute,
+	// 	toggleKrispNoiseFilter,
+	// } = useVoiceIntegration();
+
+	const socketRef = useRef(null);
 
 	const [info, setInfo] = useState({
 		expanded: false,
@@ -66,6 +70,8 @@ const RecentChat = ({
 		citationsModalIsOpen: false,
 		page: 1,
 		currentPage: true,
+		latestStreamMesage: null,
+		lastQuery: '',
 	});
 
 	const chatContentRef = useRef(null);
@@ -85,7 +91,13 @@ const RecentChat = ({
 	useEffect(() => {
 		if (sessionId) {
 			getRecentChatMessages(sessionId);
-			setInfo((prev) => ({ ...prev, chatLoading: true }));
+			setInfo((prev) => ({ ...prev, chatLoading: true, chatSessionId: sessionId }));
+			updateStateValues({ currentSessionId: sessionId });
+			createWebSocketConnection(sessionId);
+
+			return () => {
+				socketRef?.current?.close();
+			};
 		}
 	}, [sessionId]);
 
@@ -104,46 +116,20 @@ const RecentChat = ({
 	}, [citations]);
 
 	useEffect(() => {
-		if (currentSessionId) {
-			setInfo((prev) => ({ ...prev, chatSessionId: currentSessionId }));
-		} else {
-			updateStateValues({ currentSessionId: ObjectID().toString() });
-		}
-	}, [currentSessionId]);
-
-	useEffect(() => {
 		if (recentChatStorage) {
-			const { data, hasNextPage, currentPage } = recentChatStorage;
-			let messages = [];
-			for (let i = 0; i < data?.length; i++) {
-				const { originalQuery = '', response, messageId } = data?.[i] || {};
-				messages = [
-					{
-						message: originalQuery,
-						type: 'user',
-						typingEffect: false,
-						messageId,
-					},
-					{
-						message: response,
-						type: 'AI',
-						messageId,
-						typingEffect: false,
-						rating: null,
-					},
-				]?.concat(messages);
-			}
-			updateStateValues({ globalChatMessages: messages });
-			setInfo((prev) => ({ ...prev, chatLoading: false, hasNextPage, currentPage }));
-			setTimeout(() => {
-				smoothScrollToBottom();
-			}, 1000);
+			recentChatHandler(recentChatStorage, true);
 		}
 	}, [recentChatStorage]);
 
 	useEffect(() => {
 		if (moreRecentChatStorage) {
-			const { data, hasNextPage, currentPage } = moreRecentChatStorage;
+			recentChatHandler(moreRecentChatStorage, true);
+		}
+	}, [moreRecentChatStorage]);
+
+	const recentChatHandler = useCallback(
+		(inComingData, fetcMore = false) => {
+			const { data, hasNextPage, currentPage } = inComingData;
 			let messages = [];
 			for (let i = 0; i < data?.length; i++) {
 				const { originalQuery = '', response, messageId } = data?.[i] || {};
@@ -164,22 +150,25 @@ const RecentChat = ({
 				]?.concat(messages);
 			}
 
-			// First update messages
-			updateStateValues({ globalChatMessages: messages?.concat(globalChatMessages) });
-
-			// Then smoothly scroll after a short delay to allow render
-			setTimeout(() => {
+			if (fetcMore) {
+				updateStateValues({ globalChatMessages: messages?.concat(globalChatMessages) });
 				if (chatContentRef?.current) {
 					chatContentRef.current.scrollBy({
 						top: 300, // Reduced from 500 for smoother feel
 						behavior: 'smooth',
 					});
 				}
-			}, 100);
+			} else {
+				updateStateValues({ globalChatMessages: messages });
+				setTimeout(() => {
+					smoothScrollToBottom();
+				}, 1000);
+			}
 
 			setInfo((prev) => ({ ...prev, chatLoading: false, hasNextPage, currentPage }));
-		}
-	}, [moreRecentChatStorage]);
+		},
+		[info, chatContentRef],
+	);
 
 	const handleRatingClick = async (type, messageId) => {
 		try {
@@ -268,6 +257,62 @@ const RecentChat = ({
 		[info, sessionId],
 	);
 
+	// stream chat
+
+	const createWebSocketConnection = useCallback(
+		(sessionId) => {
+			const usertoken = localStorage.getItem('usertoken');
+			const workspaceId = localStorage.getItem('workspaceId');
+			const baseUrl = `wss://ai.ap-south-1.ve.ai/${workspaceId}/${
+				sessionId || info?.chatSessionId
+			}/multi_agent_chat_streaming?token=${usertoken}`;
+			if (socketRef.current) {
+				socketRef.current.close();
+			}
+			socketRef.current = new WebSocket(baseUrl);
+			socketRef.current.onopen = () => {
+				console.log('Connected to WebSocket server');
+			};
+
+			socketRef.current.onclose = () => {
+				console.log('Disconnected from WebSocket server');
+			};
+
+			socketRef.current.onmessage = (event) => {
+				let { data = '' } = event || {};
+				data = JSON.parse(data);
+				// console.log('data==>', data);
+				console.log('event==>', data);
+
+				if (data?.stream_end) {
+					handleStreamIncomingMessage(data);
+					setInfo((prev) => ({ ...prev, latestStreamMesage: data }));
+					//also need to handle one logic to trigger
+				}
+				const { message_chunk_id } = data;
+				if (message_chunk_id) {
+					handleStreamMessageChunk(data, message_chunk_id);
+				}
+			};
+		},
+		[info],
+	);
+
+	const handleSendWebsocketMessage = useCallback(
+		(data, lastQuery) => {
+			if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
+				console.log('data==>', data);
+				socketRef.current.send(JSON.stringify(data));
+				setInfo((prev) => ({ ...prev, lastQuery: lastQuery }));
+			}
+		},
+		[socketRef, info],
+	);
+
+	const toggleLatestStreamMessage = useCallback(() => {
+		setInfo((prev) => ({ ...prev, latestStreamMesage: null }));
+	}, []);
+
 	return (
 		<>
 			<div className="chat-container">
@@ -343,7 +388,8 @@ const RecentChat = ({
 																	handleRatingClick
 																}
 																showTypingEffect={
-																	chat?.typingEffect
+																	false
+																	// chat?.typingEffect
 																}
 																onComplete={handleStopTypingEffect}
 																rating={chat?.rating}
@@ -360,7 +406,12 @@ const RecentChat = ({
 							</InfiniteScroll>
 						</div>
 
-						<ChatBox autoFocus={true} />
+						<ChatBox
+							handleSendWebsocketMessage={handleSendWebsocketMessage}
+							latestStreamMesage={info?.latestStreamMesage}
+							lastQuery={info?.lastQuery}
+							toggleLatestStreamMessage={toggleLatestStreamMessage}
+						/>
 					</div>
 				</div>
 			</div>
