@@ -5,7 +5,7 @@ import ExpiredSubscriptionModal from './views/components/modalsV2/subscription/E
 import ExpiredTokenModal from './views/components/modalsV2/subscription/ExpiredTokenModal';
 // import Cookies from 'js-cookie';
 import Context from './context/context';
-
+import AccessDeniedPopup from './views/components/accessPopups/accessDeniedPopup';
 function App() {
 	const {
 		themeInfo: { theme },
@@ -37,6 +37,7 @@ function App() {
 			</Routes>
 			<ExpiredSubscriptionModal />
 			<ExpiredTokenModal />
+			<AccessDeniedPopup />
 		</>
 	);
 }

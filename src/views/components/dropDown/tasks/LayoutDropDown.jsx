@@ -20,7 +20,9 @@ const LayoutDropDown = ({ handleBack, handleClose, handleLayoutChange, layoutOpt
 						key={option?.value}
 						onClick={() => handleLayoutChange(option?.value)}
 					>
-						{option?.Icon ? <option.Icon /> : null}
+						{option?.Icon ? (
+							<option.Icon className="layout-drop-down-body-item-icon" />
+						) : null}
 						<span className="layout-drop-down-body-item-title">{option?.label}</span>
 					</div>
 				))}

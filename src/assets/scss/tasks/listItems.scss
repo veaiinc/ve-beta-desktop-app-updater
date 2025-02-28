@@ -27,11 +27,7 @@
 	font-style: normal;
 	font-weight: 500;
 	line-height: normal;
-	padding: 10px 0;
-	max-width: 400px;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
+	// padding: 10px 0;
 }
 
 .listItem-title {
@@ -51,11 +47,11 @@
 	font-style: normal;
 	font-weight: 500;
 	line-height: normal;
-	align-self: center;
 	display: flex;
 	justify-content: center;
 	align-items: center;
 	padding: 10px 0;
+	width: fit-content;
 }
 .listItem-select {
 	position: relative;

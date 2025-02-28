@@ -17,6 +17,8 @@ import UpdatedPageLoader from '../../loaders/UpdatedPageLoader';
 import InitialPageLoader from '../../loaders/PageLoader';
 import Skeleton from 'react-loading-skeleton';
 
+const limit = 10;
+
 const WorkflowsTab = ({ searchValue }) => {
 	const {
 		templates: {
@@ -25,7 +27,9 @@ const WorkflowsTab = ({ searchValue }) => {
 			myMoreWorkflows,
 			updateStateValues,
 			generatePublicLinkData,
+			salePageRefresh,
 		},
+		automationBuilder: { automationsList, getAutomationsList },
 		profileInfo: { userWorkSpaceList, getTenantSettings, tennantSettingsData },
 	} = useContext(Context);
 
@@ -48,9 +52,35 @@ const WorkflowsTab = ({ searchValue }) => {
 		copyLink: null,
 	});
 
+	const automationsData = automationsList?.data;
+	const automationsHasNextPage = automationsList?.hasNextPage;
+	const automationsCurrentPage = Number(automationsList?.currentPage) || 1;
+
 	useEffect(() => {
-		getMyWorkflowTemplatesData(1);
-	}, [searchValue]);
+		onMountFetchAutomations();
+	}, []);
+
+	useEffect(() => {
+		if (automationsHasNextPage === false) {
+			getMyWorkflowTemplatesData(1);
+		}
+	}, [automationsHasNextPage]);
+
+	useEffect(() => {
+		if (salePageRefresh) {
+			getMyWorkflowTemplatesData(1);
+			updateStateValues({ salePageRefresh: null });
+		}
+	}, [salePageRefresh]);
+
+	useEffect(() => {
+		if (automationsData?.length) {
+			setInfo((prev) => ({
+				...prev,
+				myWorkflowData: [...(prev?.myWorkflowData || []), ...automationsData],
+			}));
+		}
+	}, [automationsData]);
 
 	useEffect(() => {
 		if (myWorkflows) {
@@ -84,9 +114,18 @@ const WorkflowsTab = ({ searchValue }) => {
 		}
 	}, [tennantSettingsData]);
 
-	// useEffect(() => {}, []);
-
-	//function definations
+	const onMountFetchAutomations = async () => {
+		setInfo((prev) => ({ ...prev, loading: true }));
+		try {
+			if (!automationsList) {
+				await getAutomationsList();
+			}
+		} catch (error) {
+			console.error('Error fetching data:', error);
+		} finally {
+			setInfo((prev) => ({ ...prev, loading: false }));
+		}
+	};
 
 	const performExtraCheck = useCallback(
 		async (currentWorkspaceId) => {
@@ -101,7 +140,7 @@ const WorkflowsTab = ({ searchValue }) => {
 	);
 
 	const getMyWorkflowTemplatesData = useCallback(
-		(page, fetchMore = false) => {
+		async (page, fetchMore = false) => {
 			const payload = {
 				filters: {
 					limit: 10,
@@ -111,22 +150,18 @@ const WorkflowsTab = ({ searchValue }) => {
 					status: 'published',
 					sortBy: 'createdAt',
 					sortType: -1,
+					version: null,
 				},
 			};
-			getMyWorkflows(payload, fetchMore);
+			await getMyWorkflows(payload, fetchMore);
 		},
 		[searchValue],
 	);
 
 	const myWorkflowsDataParser = useCallback(
-		(dataToBeUsed, fetchMore = false) => {
-			let { data, currentPage, hasNextPage } = dataToBeUsed;
+		(dataToBeUsed) => {
+			const { data, currentPage, hasNextPage } = dataToBeUsed;
 			let myWorkflowData = [];
-			if (currentPage === 1 && !data?.length && !generatePublicLinkData) {
-				localStorage.setItem('showInitialLoader', true);
-				return navigate('/playbook');
-			}
-
 			for (let i = 0; i < data?.length; i++) {
 				if (
 					data?.[i]?.tenantId &&
@@ -136,11 +171,7 @@ const WorkflowsTab = ({ searchValue }) => {
 					myWorkflowData?.push(data?.[i]);
 				}
 			}
-
-			if (fetchMore) {
-				myWorkflowData = [...(info?.myWorkflowData || [])]?.concat(myWorkflowData);
-			}
-			localStorage.setItem('showInitialLoader', true);
+			myWorkflowData = [...(info?.myWorkflowData || [])]?.concat(myWorkflowData);
 			setInfo((prev) => ({
 				...prev,
 				loading: false,
@@ -152,9 +183,14 @@ const WorkflowsTab = ({ searchValue }) => {
 		[info?.myWorkflowData, generatePublicLinkData],
 	);
 
-	const fetchMoreMyWorkflows = useCallback(() => {
-		getMyWorkflowTemplatesData(info?.currentPage + 1, true);
-	}, [info?.currentPage]);
+	const fetchMoreMyWorkflows = () => {
+		if (automationsHasNextPage === false) {
+			getMyWorkflowTemplatesData(info?.currentPage + 1, true);
+		} else {
+			const page = automationsCurrentPage ? Number(automationsCurrentPage) + 1 : 1;
+			getAutomationsList(page, limit, true);
+		}
+	};
 
 	const openMyWorkflowModal = useCallback(async (data, cardsData) => {
 		if (cardsData?.status === 'successRate') {
@@ -230,10 +266,9 @@ const WorkflowsTab = ({ searchValue }) => {
 
 	const navigateToWorkflowBuilder = useCallback(
 		async (data) => {
-			if (data?.version) {
-				return navigate(`/automation_builder/${data?._id}`);
-			}
-			return navigate(`/workflow_builder/${data?._id}`);
+			const { isAutomation } = data;
+			if (isAutomation) navigate(`/automation-builder/${data?._id}`);
+			else navigate(`/workflow_builder/${data?._id}`);
 		},
 		[info?.activeTemplateData],
 	);
@@ -257,7 +292,7 @@ const WorkflowsTab = ({ searchValue }) => {
 				) : (
 					<InfiniteScroll
 						dataLength={info?.myWorkflowData?.length || 0}
-						hasMore={info?.hasNextPage}
+						hasMore={automationsHasNextPage || info?.hasNextPage}
 						next={fetchMoreMyWorkflows}
 						loader={<FetchMoreLoaderComp />}
 						style={{
@@ -273,7 +308,7 @@ const WorkflowsTab = ({ searchValue }) => {
 							overflowX: 'hidden',
 						}}
 						className="tetsing"
-						height="calc(100vh - 378px)"
+						height={'calc(100vh - 240px)'}
 					>
 						<div className="workflows-tab">
 							{info?.myWorkflowData?.map((workflow, index) => {
@@ -300,6 +335,7 @@ const WorkflowsTab = ({ searchValue }) => {
 				closeModal={closeWorkflowModal}
 				activeTemplateData={info?.activeTemplateData}
 				activeCardsData={info?.activeCardsData}
+				updateStateOnUnmounting={false}
 			/>
 			<CopiedModal
 				open={info?.copyModal}

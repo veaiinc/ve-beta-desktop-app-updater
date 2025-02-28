@@ -21,6 +21,10 @@
 		align-self: stretch;
 
 		.header-text {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			gap: 4px;
 			color: #f2f2f3;
 			color: color(display-p3 0.949 0.949 0.9529);
 			font-family: Inter;
@@ -28,10 +32,19 @@
 			font-style: normal;
 			font-weight: 600;
 			line-height: normal;
-			width: 250px;
+			width: 300px;
 			text-overflow: ellipsis;
 			white-space: nowrap;
 			overflow: hidden;
+
+			.rename-input {
+				outline: none;
+				border: none;
+				background: inherit;
+				color: inherit;
+				font-size: inherit;
+				width: inherit;
+			}
 		}
 	}
 
@@ -71,6 +84,17 @@
 			align-items: center;
 			align-self: stretch;
 			background: #202123;
+			cursor: pointer;
+			transition: all 0.2s ease;
+			&:hover {
+				background-color: #27282b;
+				color: #f2f2f3;
+
+				.left-text {
+					color: #f2f2f3;
+				}
+				transition: all 0.2s ease;
+			}
 
 			.left-text {
 				color: #797e86;
@@ -97,7 +121,6 @@
 		gap: 8px;
 		align-self: stretch;
 		height: 292px;
-		overflow-y: auto;
 
 		.workflow-inner-card {
 			display: flex;
@@ -107,8 +130,12 @@
 			align-items: center;
 			align-self: stretch;
 			background: #202123;
-			background: color(display-p3 0.1255 0.1294 0.1373);
 			cursor: pointer;
+
+			&:hover {
+				background-color: #414548;
+			}
+
 			.left-text {
 				color: #797e86;
 				color: color(display-p3 0.4784 0.4941 0.5216);

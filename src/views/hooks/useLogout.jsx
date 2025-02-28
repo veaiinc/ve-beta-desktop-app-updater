@@ -16,9 +16,12 @@ const useLogout = () => {
 		aiSetup: { resetAiSetupState },
 		tasks: { resetTasksState },
 		contacts: { resetContactsState },
+		documentPreview: { resetDocumentPreviewState },
+		automationBuilder: { resetAutomationBuilderState },
 	} = useContext(Context);
 
 	const resetApplications = useCallback(async () => {
+		//clear localstorage
 		const theme = localStorage.getItem('theme');
 		const cookieTheme = Cookies.get('theme');
 
@@ -34,6 +37,8 @@ const useLogout = () => {
 			Cookies.set('theme', cookieTheme, { expires: 365 }); // Set expiration to persist
 		}
 
+		window.location.replace('/');
+
 		//add here all reset context state func
 		resetChatState();
 		resetCompanySettings();
@@ -48,6 +53,8 @@ const useLogout = () => {
 
 		navigate('/');
 		resetContactsState();
+		resetDocumentPreviewState();
+		resetAutomationBuilderState();
 	}, []);
 
 	return resetApplications;

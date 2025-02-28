@@ -68,3 +68,15 @@
 .mb-2 {
 	margin-bottom: 0.5rem; /* 8px */
 }
+
+.markdown-image-wrapper {
+	display: flex;
+	justify-content: flex-start;
+	align-items: center;
+	width: fit-content;
+	height: fit-content;
+}
+
+.text-white {
+	color: #f2f2f3;
+}

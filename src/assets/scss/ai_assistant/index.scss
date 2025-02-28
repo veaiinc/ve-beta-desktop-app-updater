@@ -98,10 +98,12 @@
 		.agentsCardContainer {
 			display: flex;
 			flex-flow: wrap;
-			align-items: flex-end;
+			// align-items: flex-end;
+			// width: fit-content;
+			align-items: center;
 			align-content: flex-start;
 			gap: 16px;
-			width: fit-content;
+			width: 100%;
 			margin: 0 auto;
 
 			.agentCard {
@@ -128,6 +130,10 @@
 					color: color(display-p3 0.949 0.949 0.9529);
 					font-size: 18px;
 					line-height: 24px;
+					width: 220px;
+					overflow: hidden;
+					text-overflow: ellipsis;
+					white-space: nowrap;
 				}
 
 				.createdBy {

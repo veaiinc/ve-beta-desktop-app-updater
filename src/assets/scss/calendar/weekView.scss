@@ -11,107 +11,16 @@
 	font-style: normal;
 	font-weight: 500;
 	line-height: normal;
-
-	.rbc-day-bg + .rbc-day-bg {
-		border-left: none;
-	}
-
-	.rbc-time-view,
-	.rbc-month-view {
-		border: none;
-		padding: 34px;
-		padding-top: 18px;
-	}
-
-	.rbc-time-view .rbc-row {
-		display: none;
-	}
-
-	.rbc-time-view .rbc-allday-cell {
-		height: 30px;
-	}
-
-	.rbc-time-header.rbc-overflowing {
-		border: none;
-	}
-
-	.rbc-time-header-content {
-		border: none;
-	}
-
-	.rbc-time-content {
-		border: none;
-	}
-
-	.rbc-timeslot-group {
-		border: none;
-	}
-
-	.rbc-day-slot .rbc-time-slot {
-		border-top: none;
-	}
-
-	.rbc-time-content > * + * > * {
-		border: none;
-	}
-
-	.rbc-day-slot .rbc-events-container {
-		margin: 2px;
-	}
-
-	.rbc-timeslot-group {
-		// border-top: 0.5px solid rgb(81, 78, 78);
-		border-top: 0.5px solid var(--stroke);
-	}
-
-	.rbc-label .rbc-time-header-gutter {
-		width: 64px;
-	}
-
-	.rbc-today {
-		background-color: var(--background-color);
-	}
-
-	.rbc-time-view .rbc-time-gutter {
-		text-align: start;
-	}
-
-	.rbc-label {
-		padding: 0px;
-		// align-content: center; to center gutter header Text
-	}
-
-	.rbc-timeslot-group {
-		min-height: 60px;
-	}
-
-	// .rbc-day-slot .rbc-event {
-	// 	border: 1px solid #343333;
-	// 	background-color: #2a2a2a;
-	// 	display: flex;
-	// 	padding: 10px;
-	// 	max-height: 100%;
-	// 	min-height: 20px;
-	// 	flex-flow: column wrap;
-	// 	align-items: flex-start;
-	// 	overflow: hidden;
-	// 	position: absolute;
-	// }
-
-	// .rbc-event {
-	// 	display: none;
-	// }
-
-	// .rbc-selected {
-	// 	border: none;
-	// }
 }
 
 .customGutterHeader {
 	width: 100%;
-	color: var(--secondary-font);
+	color: var(--primary-font);
 	font-family: var(--primary-font-family);
-	font-size: 9px;
+	font-size: 7px;
 	font-style: normal;
 	line-height: normal;
+	height: 100%;
+	display: flex;
+	align-items: center;
 }

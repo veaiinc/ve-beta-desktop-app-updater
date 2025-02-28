@@ -1,6 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import ListView from '../../components/tasks/views/ListView';
 import { ReactComponent as ClockSvg } from '../../../assets/svg/activity/clock.svg';
 import { ReactComponent as PieSvg } from '../../../assets/svg/tasks/pieHollow.svg';
 import { ReactComponent as PrioritySvg } from '../../../assets/svg/tasks/roundChevronRight.svg';
@@ -15,7 +14,7 @@ import moment from 'moment';
 import CreateTaskPopup from '../../components/modalsV2/tasks/CreateTaskPopup';
 import Task from '../../components/tasks/Task';
 import ListViewSidebar from '../../components/modalsV2/tasks/ListViewSidebar';
-
+import '../../../assets/scss/tasks/taskPage.scss';
 import Text from '../../components/tasks/listView/Text';
 import Select from '../../components/tasks/listView/Select';
 import Person from '../../components/tasks/listView/Person';
@@ -33,6 +32,7 @@ import ParentTaskComponent from '../../components/tasks/listView/ParentTaskCompo
 import ChildTaskProgress from '../../components/tasks/listView/ChildTaskProgress';
 import LinkText from '../../components/tasks/listView/LinkText';
 import ChildTaskComponent from '../../components/tasks/listView/ChildTaskComponent';
+import QuickActions from '../../components/globalComponents/QuickActions';
 
 const defaultPreference = {
 	taskSlNo: { show: false, order: 1 },
@@ -81,6 +81,8 @@ const rowTypes = {
 	linkText: LinkText,
 };
 
+const availableViews = ['table', 'board', 'list', 'gallery'];
+
 const Tasks = () => {
 	const {
 		tasks: {
@@ -97,15 +99,15 @@ const Tasks = () => {
 			refetchTasks,
 			updateTaskState,
 			getTaskMetadata,
+			updateTaskViews,
+			deleteTaskView,
+			getTaskPreferences,
+			updateTaskPreferences,
+			taskPreference,
+			getListTaskWithGroup,
 		},
 		templates: { getWorkflowsList, workflowslist },
-		companyInfo: {
-			getTeamMembers,
-			tenantsUserList,
-			getTaskPreferences,
-			taskPreference,
-			updateTaskPreferences,
-		},
+		companyInfo: { getTeamMembers, tenantsUserList },
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 	} = useContext(Context);
 
@@ -137,7 +139,10 @@ const Tasks = () => {
 		view: 'table',
 		breadCrumbs: [],
 		timeout: null,
+		group: null,
 	});
+
+	const timeoutRef = useRef(null);
 
 	const responseMetadata = useMemo(
 		() => ({
@@ -256,7 +261,7 @@ const Tasks = () => {
 
 	useEffect(() => {
 		handleDebounceFetch();
-	}, [info?.filters, info?.searchValue, info?.sort]);
+	}, [info?.filters, info?.searchValue, info?.sort, info?.group]);
 
 	useEffect(() => {
 		if (!tenantsUserList) {
@@ -372,6 +377,20 @@ const Tasks = () => {
 		if (!taskMetadata) {
 			getTaskMetadata();
 		} else {
+			if (!taskMetadata?.views) {
+				updateView(
+					null,
+					{
+						label: 'List view',
+						filters: [],
+						icon: null,
+						order: null,
+						sort: [],
+						viewType: 'list',
+					},
+					taskMetadata?._id,
+				);
+			}
 			setInfo((prevInfo) => ({
 				...prevInfo,
 				taskMetadata: taskMetadata,
@@ -388,31 +407,56 @@ const Tasks = () => {
 
 	const fetchListItems = useCallback(
 		(page = 1) => {
-			getListItems({
-				taskFilterInput: {
-					limit: 20,
-					page: page,
-					sort:
-						info?.sort.length > 0 ? info?.sort : [{ sortBy: 'createdAt', sortType: 1 }],
-					filters: mapFiltersPayload(info?.filters),
-					search: info?.searchValue,
-				},
-			});
-		},
-		[info?.sort, info?.filters, info?.searchValue],
-	);
-	const handleDebounceFetch = useCallback(() => {
-		clearInterval(info?.timeout);
-		const timeout = setTimeout(() => {
-			fetchListItems(1);
-			setInfo((prev) => ({
-				...prev,
-				loading: true,
-				timeout: null,
+			if (info?.group) {
+				getListTaskWithGroup({
+					taskFilterInput: {
+						limit: 20,
+						page: page,
+						sort:
+							info?.sort.length > 0
+								? info?.sort?.map((item) => ({
+										sortBy: item?.sortBy,
+										sortType: item?.sortType,
+								  }))
+								: [{ sortBy: 'createdAt', sortType: 1 }],
+						filters: mapFiltersPayload(info?.filters),
+						search: info?.searchValue,
+						group: info?.group,
+					},
+				});
+			} else {
+				getListItems({
+					taskFilterInput: {
+						limit: 20,
+						page: page,
+						sort:
+							info?.sort.length > 0
+								? info?.sort?.map((item) => ({
+										sortBy: item?.sortBy,
+										sortType: item?.sortType,
+								  }))
+								: [{ sortBy: 'createdAt', sortType: 1 }],
+						filters: mapFiltersPayload(info?.filters),
+						search: info?.searchValue,
+					},
+				});
+			}
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				page: page,
 			}));
+		},
+		[info?.sort, info?.filters, info?.searchValue, info?.group],
+	);
+
+	const handleDebounceFetch = useCallback(() => {
+		if (timeoutRef.current) {
+			clearTimeout(timeoutRef.current);
+		}
+		timeoutRef.current = setTimeout(() => {
+			fetchListItems(1);
 		}, 800);
-		setInfo((prev) => ({ ...prev, timeout }));
-	}, [info?.timeout, fetchListItems]);
+	}, [timeoutRef, fetchListItems]);
 
 	const fetchMoreData = useCallback(() => {
 		if (info.hasMore) {
@@ -420,7 +464,6 @@ const Tasks = () => {
 			fetchListItems(nextPage);
 			setInfo((prevInfo) => ({
 				...prevInfo,
-				page: nextPage,
 				infinityLoading: true,
 			}));
 		}
@@ -437,6 +480,12 @@ const Tasks = () => {
 	}, []);
 
 	const updateTaskInfo = useCallback((updateData) => {
+		if (updateData?.taskPreferences) {
+			updateTaskPreferences({
+				preferenceType: updateData?.taskPreferences?.preferenceType,
+				data: updateData?.taskPreferences?.preferences,
+			});
+		}
 		setInfo((previnfo) => ({ ...previnfo, ...updateData }));
 	}, []);
 
@@ -541,7 +590,16 @@ const Tasks = () => {
 							});
 						}
 					}
-
+					if (!isUpdatingSubTask) {
+						if (propName === 'assignedTo' || propName === 'dueDate') {
+							updateTaskState({
+								refetchTasksForDue: true,
+								listTasksForToday: null,
+								listTasksForOverdue: null,
+								listTasksDueTillToday: null,
+							});
+						}
+					}
 					// Update updatedBy for any successful update
 					const token = localStorage.getItem('usertoken');
 					const { user_id, userName } = jwtDecode(token);
@@ -706,6 +764,16 @@ const Tasks = () => {
 							addSubTask(newTask);
 						}
 						message.success('Task added successfully');
+						if (!info?.isCreatingSubtask) {
+							if (payload?.assignedTo || payload?.dueDate) {
+								updateTaskState({
+									refetchTasksForDue: true,
+									listTasksForToday: null,
+									listTasksForOverdue: null,
+									listTasksDueTillToday: null,
+								});
+							}
+						}
 						fetchListItems();
 					}
 				} else {
@@ -731,6 +799,12 @@ const Tasks = () => {
 						updateTaskInfo({ selectedSubTask: null });
 						removeSubTask(payload?.taskId);
 					} else {
+						updateTaskState({
+							refetchTasksForDue: true,
+							listTasksForToday: null,
+							listTasksForOverdue: null,
+							listTasksDueTillToday: null,
+						});
 						setInfo((prevInfo) => ({
 							...prevInfo,
 							listItems: prevInfo?.listItems?.filter(
@@ -759,14 +833,24 @@ const Tasks = () => {
 
 	const handleRowClick = useCallback(
 		(row) => {
+			// Find the complete row data from listItems to ensure we have all properties
+			// const selectedTask = info?.listItems?.find((item) => item._id === row?._id) || row;
+
 			if (info?.selectedRow?._id !== row?._id) {
 				resetSubTasks();
 			}
+
 			if (row) {
-				updateTaskInfo({ selectedRow: row, sidebarIsOpen: true, breadCrumbs: [] });
+				updateTaskInfo({
+					selectedRow: row,
+					sidebarIsOpen: true,
+					breadCrumbs: [],
+					// Reset any previously selected subtask
+					selectedSubTask: null,
+				});
 			}
 		},
-		[info?.listItems, resetSubTasks, info?.selectedRow?._id],
+		[info?.listItems, info?.selectedRow?._id, resetSubTasks],
 	);
 
 	const handleCreateSubTaskClick = useCallback(() => {
@@ -807,8 +891,36 @@ const Tasks = () => {
 		updateTaskInfo({ sidebarIsOpen: false, selectedSubTask: null });
 	}, [info?.updated]);
 
+	const updateView = useCallback(
+		(viewId, updateData, taskMetadataId) => {
+			const data = {
+				taskMetadataId: taskMetadataId || info?.taskMetadata?._id,
+				viewId,
+				input: updateData,
+			};
+			updateTaskViews(data);
+		},
+		[updateTaskViews, info?.taskMetadata?._id],
+	);
+
+	const deleteView = useCallback(
+		(viewId) => {
+			deleteTaskView({ taskMetadataId: info?.taskMetadata?._id, viewId });
+		},
+		[deleteTaskView, info?.taskMetadata?._id],
+	);
+
 	return (
 		<>
+			<div className="task-header-container">
+				<div className="header-text">
+					<span className="lineOne">Tasks</span>
+					<span className="lineTwo">You Created</span>
+				</div>
+				<div className="quick-actions-btn">
+					<QuickActions />
+				</div>
+			</div>
 			<Task
 				responseMetadata={responseMetadata}
 				handleAddButtonOnClick={handleAddButtonOnClick}
@@ -829,6 +941,9 @@ const Tasks = () => {
 				blockTitle={'Tasks'}
 				createButtonText={'Create Task'}
 				prefix={info?.taskMetadata?.prefix}
+				views={info?.taskMetadata?.views}
+				updateView={updateView}
+				deleteView={deleteView}
 			/>
 			<CreateTaskPopup
 				isOpen={info?.isCreateModalOpen}
@@ -860,7 +975,7 @@ const Tasks = () => {
 				isSidebarExpanded={info?.isSidebarExpanded}
 				headerText={
 					`${info?.taskMetadata?.prefix ? info?.taskMetadata?.prefix + '-' : ''}` +
-					info?.selectedRow?.taskSlNo
+					(info?.selectedRow?.taskSlNo || '')
 				}
 				breadCrumbs={info?.breadCrumbs}
 				handleBreadCrumbsClick={handleBreadCrumbsClick}

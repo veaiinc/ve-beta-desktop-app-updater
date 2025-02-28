@@ -3,6 +3,7 @@ export const getListItemsQuery = gql`
 	query Query($taskFilterInput: TaskFilterInput) {
 		listTasks(taskFilterInput: $taskFilterInput) {
 			hasNextPage
+			currentPage
 			data {
 				_id
 				taskSlNo
@@ -317,6 +318,18 @@ export const taskMetadataQuery = gql`
 				isDefault
 			}
 			prefix
+			views {
+				_id
+				label
+				filters
+				sort {
+					sortBy
+					sortType
+				}
+				viewType
+				icon
+				group
+			}
 			createdAt
 			updatedAt
 		}
@@ -353,6 +366,99 @@ export const updateTaskStatusLabelMutation = gql`
 			group
 			color
 			isDefault
+		}
+	}
+`;
+
+export const updateTaskViewMutation = gql`
+	mutation UpdateTaskView($taskMetadataId: ID!, $input: UpdateTaskViewInput!, $viewId: ID) {
+		updateTaskView(taskMetadataId: $taskMetadataId, input: $input, viewId: $viewId) {
+			views {
+				_id
+				label
+				filters
+				sort {
+					sortBy
+					sortType
+				}
+				viewType
+				group
+				icon
+			}
+		}
+	}
+`;
+
+export const deleteTaskViewMutation = gql`
+	mutation DeleteTaskView($taskMetadataId: ID!, $viewId: ID!) {
+		deleteTaskView(taskMetadataId: $taskMetadataId, viewId: $viewId) {
+			message
+		}
+	}
+`;
+
+export const listTaskWithGroupQuery = gql`
+	query ListTasksWithGroup($taskFilterInput: TaskGroupFilterInput) {
+		listTasksWithGroup(taskFilterInput: $taskFilterInput) {
+			groups {
+				group
+				totalPages
+				totalDocs
+				limit
+				currentPage
+				hasNextPage
+				hasPrevPage
+				prevPage
+				nextPage
+				data {
+					_id
+					title
+					description
+					status
+					priority
+					workflowTemplate {
+						_id
+						title
+					}
+					workflow {
+						_id
+						title
+					}
+					assignedTo {
+						_id
+						name
+					}
+					dueDate
+					assignedBy {
+						_id
+						name
+					}
+					assignedAt
+					completedAt
+					createdAt
+					updatedAt
+					taskSlNo
+					createdBy {
+						_id
+						name
+					}
+					updatedBy {
+						_id
+						name
+					}
+					childTasks {
+						_id
+						title
+						status
+					}
+					parentTask {
+						_id
+						title
+					}
+				}
+				groupName
+			}
+			groupBy
 		}
 	}
 `;

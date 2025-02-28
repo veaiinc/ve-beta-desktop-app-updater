@@ -2,8 +2,14 @@ import React, { memo, useContext, useState, useEffect, useCallback } from 'react
 import Context from '../../../../context/context';
 import { ReactComponent as Close } from '../../../../assets/svg/close.svg';
 import ReactModal from '../../modalsV2/index';
-import InputForModules from '../../input/inputForModules';
 import HeadersDropDownComp from '../../dropDown/HeadersDropDownComp';
+import '../../../../assets/scss/contacts/modals/createClientModal.scss';
+import ActionButton from '../../ai_assistant/ActionButton';
+import InputComponent from '../../ai_assistant/InputComponent';
+import PhoneInput from 'react-phone-number-input';
+import 'react-phone-number-input/style.css';
+import { message } from 'antd';
+
 const validator = require('validator');
 const CreateClientModal = ({ modalIsOpen, closeModal, source }) => {
 	let {
@@ -78,6 +84,15 @@ const CreateClientModal = ({ modalIsOpen, closeModal, source }) => {
 			if (isLoading) {
 				return;
 			}
+			setErrorState((prevState) => ({
+				...prevState,
+				isnameError: false,
+				nameErrorMessage: '',
+				isemailError: false,
+				emailErrorMessage: '',
+				isphoneNumberError: false,
+				phoneNumberErrorMessage: '',
+			}));
 			setLoading(true);
 			const payload = {
 				clientInput: {
@@ -89,6 +104,7 @@ const CreateClientModal = ({ modalIsOpen, closeModal, source }) => {
 			if (leadDetails?.['phoneNumber']?.length) {
 				if (!validator?.isMobilePhone(leadDetails?.['phoneNumber'])) {
 					setLoading(false);
+					setCreateButtonActiveState(false);
 					return setErrorState((prevState) => ({
 						...prevState,
 						isphoneNumberError: true,
@@ -99,6 +115,8 @@ const CreateClientModal = ({ modalIsOpen, closeModal, source }) => {
 			}
 			if (leadDetails?.emailId?.length) {
 				if (!validator?.isEmail(leadDetails?.emailId)) {
+					setLoading(false);
+					setCreateButtonActiveState(false);
 					return setErrorState((prevState) => ({
 						...prevState,
 						isemailError: true,
@@ -111,15 +129,18 @@ const CreateClientModal = ({ modalIsOpen, closeModal, source }) => {
 			const response = await createClient(payload);
 			if (response?.[0]) {
 				setLoading(false);
+				message.success('Client added successfully');
 				updateStateValues({ refetchClientList: true });
 				closeModalFunc();
 			} else {
 				setLoading(false);
+				message.error(response[1]);
 				setErrorState((prev) => ({
 					...prev,
 					isError: true,
 					errorMessage: response[1],
 				}));
+				setCreateButtonActiveState(false);
 			}
 		}
 	}, [
@@ -140,53 +161,70 @@ const CreateClientModal = ({ modalIsOpen, closeModal, source }) => {
 			closeModal={closeModalFunc}
 			customStyles={{
 				overlay: {
-					zIndex: 1,
+					zIndex: 9999,
+				},
+				content: {
+					overflow: 'unset',
 				},
 			}}
 		>
 			{
-				<div className="modifiedCreateLeadModal" style={{ minHeight: '400px' }}>
+				<div className="CreateClientModal" style={{ minHeight: '400px' }}>
 					<div className="modalHeading">
-						<p className="title">What Client is this file for?</p>
+						<p className="client-modal-title">What Client is this file for?</p>
 						<div className="closeContainer" onClick={closeModalFunc}>
 							<Close />
 						</div>
 					</div>
 					<div className="inputBoxHolder">
-						<InputForModules
-							label={'Client Name'}
-							type={'text'}
-							placeholder={'Enter client name'}
-							name={'name'}
-							value={leadDetails['name']}
-							onChange={handleInputChange}
-							isError={errorState['isnameError']}
-							errorMessage={errorState['nameErrorMessage']}
-						/>
-						<InputForModules
-							label={'Email Id'}
-							type={'email'}
-							placeholder={'Enter email id'}
-							name={'emailId'}
-							value={leadDetails['emailId']}
-							onChange={handleInputChange}
-							isError={errorState['isemailError']}
-							errorMessage={errorState['emailErrorMessage']}
-						/>
-						<InputForModules
-							label={'Phone Number'}
-							type={'phoneNumber'}
-							placeholder={'Enter Phone Number'}
-							name={'phoneNumber'}
-							value={leadDetails['phoneNumber']}
-							onChange={handleInputChange}
-							isError={errorState['isphoneNumberError']}
-							errorMessage={errorState['phoneNumberErrorMessage']}
-							defaultCountry={'IN'}
-						/>
-						{/* {source} */}
+						<div className="inputWrapper">
+							<InputComponent
+								label={'Client Name'}
+								type={'text'}
+								placeholder={'Enter client name'}
+								name={'name'}
+								value={leadDetails['name']}
+								onChange={handleInputChange}
+							/>
+							{errorState['isnameError'] && (
+								<span className="errorMessage">
+									{errorState['nameErrorMessage']}
+								</span>
+							)}
+						</div>
+						<div className="inputWrapper">
+							<InputComponent
+								label={'Email Id'}
+								type={'email'}
+								placeholder={'Enter email id'}
+								name={'emailId'}
+								value={leadDetails['emailId']}
+								onChange={handleInputChange}
+							/>
+							{errorState['isemailError'] && (
+								<span className="errorMessage">
+									{errorState['emailErrorMessage']}
+								</span>
+							)}
+						</div>
+
+						<div className="inputWrapper">
+							<PhoneInput
+								defaultCountry={'IN'}
+								placeholder={'Phone Number'}
+								value={leadDetails['phoneNumber']}
+								onChange={(e) =>
+									handleInputChange({ target: { name: 'phoneNumber', value: e } })
+								}
+								disabled={false}
+							/>
+							{errorState['isphoneNumberError'] && (
+								<span className="errorMessage">
+									{errorState['phoneNumberErrorMessage']}
+								</span>
+							)}
+						</div>
 						<div className="leadSourceContainer">
-							<span className="leadSorcelabel">Lead Source</span>
 							<HeadersDropDownComp
 								showIcon={false}
 								options={[
@@ -199,29 +237,39 @@ const CreateClientModal = ({ modalIsOpen, closeModal, source }) => {
 								selectedValue={leadDetails['source'] || 'Select Source'}
 								containerStyle={{
 									padding: '12px 24px',
-									height: '48px',
-									padding: '12px 14px',
 									color: '#e4e5e6',
-									width: 'inherit',
 									flex: 1,
 									alignSelf: 'stretch',
-									borderRadius: '0.625rem',
-									border: '1px solid rgba(36, 36, 36, 0.64)',
-									backgroundColor: '#151515',
-								}}
-								dropDownStyle={{
-									right: 0,
-									top: '-155px',
-									maxHeight: '150px',
-								}}
-								onChangeFunc={(e) => onChangeSelectedSource(e)}
-								dropDownTextStyling={{
-									color: 'var(--nav-bar-button-text, #FFF)',
+									borderRadius: '14px',
+									height: '44px',
+									width: '448px',
+									border: '1px solid #2c2d2e',
 									fontFamily: 'Inter',
 									fontSize: '12px',
 									fontStyle: 'normal',
-									fontWeight: '400',
-									lineHeight: '26px' /* 185.714% */,
+									fontWeight: '500',
+									lineHeight: 'normal',
+								}}
+								dropDownStyle={{
+									display: 'flex',
+									padding: '8px',
+									flexDirection: 'column',
+									justifyContent: 'center',
+									alignItems: 'center',
+									gap: '10px',
+									alignSelf: 'stretch',
+									borderRadius: '14px',
+									border: '1px solid #2c2d2e',
+									background: '#202123',
+								}}
+								onChangeFunc={(e) => onChangeSelectedSource(e)}
+								dropDownTextStyling={{
+									color: '#e4e5e6',
+									fontFamily: 'Inter',
+									fontSize: '12px',
+									fontStyle: 'normal',
+									fontWeight: '500',
+									lineHeight: 'normal',
 								}}
 								showSelectedValueTick={true}
 								uniqueIdentifierForTickIcon={'value'}
@@ -229,26 +277,18 @@ const CreateClientModal = ({ modalIsOpen, closeModal, source }) => {
 							/>
 						</div>
 					</div>
-					<div className="createLeadFooter">
+					<div className="createClientFooter">
 						<div className="continueContainer">
-							<div
-								className={`createButton ${
-									createButtonActiveState ? 'active' : ''
-								}`}
+							<ActionButton
 								onClick={createClientFunc}
+								disabled={!createButtonActiveState || isLoading}
+								style={{
+									width: '100%',
+								}}
 							>
 								{isLoading ? <p>Loading...</p> : <p>Add Client</p>}
-							</div>
-							<p className="cancelText" onClick={closeModalFunc}>
-								Cancel
-							</p>
+							</ActionButton>
 						</div>
-						<p
-							className="errorMessage"
-							style={{ color: '#ff4d4f', opacity: 0.5, fontSize: '14px' }}
-						>
-							{errorState['errorMessage']} something went wrog
-						</p>
 					</div>
 				</div>
 			}

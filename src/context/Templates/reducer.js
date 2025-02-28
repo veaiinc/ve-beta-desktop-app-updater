@@ -1,3 +1,4 @@
+import { message } from 'antd';
 import { intialState } from './state';
 const actionHandlers = {
 	GET_WORKFLOW_DETAILS_SUCCESS: (state, action) => ({
@@ -111,6 +112,14 @@ const actionHandlers = {
 		...state,
 		globalChatMessages: [...state?.globalChatMessages, ...action?.payload],
 	}),
+	CHAT_CITATIONS_SUCCESS: (state, action) => ({
+		...state,
+		citations: action?.payload,
+	}),
+	CHAT_FOLLOW_UP_QUERY: (state, action) => ({
+		...state,
+		followUpQuery: action?.payload,
+	}),
 	GLOBAL_CHAT_MESSAGES_ACTIONS_SUCCESS: (state, action) => {
 		let updatedGlobalChatMessages = [...state?.globalChatMessages];
 		if (
@@ -141,7 +150,43 @@ const actionHandlers = {
 		...state,
 		[action?.selectedvariable]: action.payload,
 	}),
+	GET_MODULE_TEMPLATE_SUCCESS: (state, action) => ({
+		...state,
+		moduleTemplateData: action.payload,
+	}),
+	RECENT_CHAT_MESSAGES_ACTIONS_REQUESTS: (state, action) => ({
+		...state,
+		[action?.selectedvariable]: action.payload,
+	}),
+	HANDLE_STREAM_MESSAGE_CHUNK: (state, action) => {
+		const { payload, chunkId } = action?.payload;
+		let messages = [...state?.globalChatMessages] || [];
+		let requiredIndex = -1;
+		messages = messages?.filter((ele) => ele?.contentType !== 'loading');
 
+		for (let i = messages?.length - 1; i >= 0; i--) {
+			if (messages?.[i]?.message_chunk_id === chunkId) {
+				requiredIndex = i;
+				break;
+			}
+		}
+		if (requiredIndex !== -1) {
+			messages[requiredIndex] = {
+				...messages[requiredIndex],
+				...payload,
+				message: (messages?.[requiredIndex]?.message || '') + payload?.answer,
+			};
+		} else {
+			messages.push({
+				...payload,
+				type: 'AI',
+				contentType: 'message',
+				message: payload?.answer,
+			});
+		}
+
+		return { ...state, globalChatMessages: messages };
+	},
 	RESET_STATE: () => intialState,
 };
 

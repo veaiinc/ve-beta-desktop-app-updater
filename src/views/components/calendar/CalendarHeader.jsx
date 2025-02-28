@@ -113,8 +113,8 @@ const CalendarHeader = ({
 					<div className="calendarControls">
 						<div className="calendarDate">
 							<Left onClick={() => goToPrevious(label)} />
-							{label}
 							<Right onClick={() => goToNext(label)} />
+							{label}
 						</div>
 						<div className="viewToggleWrapper">
 							<div className="viewToggle">

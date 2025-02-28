@@ -1,6 +1,8 @@
 // import { ReactComponent as VELogo } from '../../../assets/svg/ve.svg';
 
 import CalendarSvg from '../../../assets/svg/sidebar/CalendarSvg.jsx';
+import { ReactComponent as NotificationSvg } from '../../../assets/svg/sidebar/notification.svg';
+
 // import LayoutSvg from '../../../assets/svg/sidebar/LayoutSvg.jsx';
 // import AtSignSvg from '../../../assets/svg/sidebar/AtSignSvg.jsx';
 // import AttachMoneySvg from '../../../assets/svg/sidebar/AttachMoneySvg.jsx';
@@ -34,117 +36,118 @@ import DaVinciSetupSvg from '../../../assets/svg/sidebar/DaVinciSetupSvg.jsx';
 
 export const veAiModulesItemsList = [
 	{
+		id: 0,
 		name: 'Home',
 		moduleRoute: '/home',
 		route: '/home',
 		icon: '',
 	},
 	{
-		name: 'Classic Gallery',
-		moduleRoute: '/galleries',
-		route: '/galleries',
+		id: 1,
+		name: 'Conversational Agent',
+		moduleRoute: '/ai-assistant',
+		route: '/ai-assistant',
 		icon: '',
 	},
 	{
-		name: 'Lite Gallery',
-		moduleRoute: '/lite-gallery',
-		route: '/lite-gallery',
-		icon: '',
-	},
-	{
-		name: 'Calendar',
-		moduleRoute: '/calendar',
-		route: '/calendar',
-		icon: '',
-		subModules: [
-			{ icon: AddCalenderSvg, route: '', name: 'Scheduler' },
-			{ icon: TranscriptSvg, route: '', name: 'Transcript' },
-			{
-				icon: SettingsSvg,
-				route: '/settings/my-profile',
-				fill: 'white',
-				name: 'Settings',
-			},
-		],
-	},
-	{
+		id: 2,
 		name: 'Design Builder',
 		moduleRoute: '/',
-		route: '/',
+		route: null,
 		icon: '',
 		subModules: [
-			{ icon: '', name: 'All Docs', route: '/docs' },
-			{ icon: '', name: 'My Templates', route: '/my-templates' },
-			// { icon: '', name: 'Forms', route: '/forms' },
+			{ id: 0, icon: '', name: 'Documents', route: '/docs' },
+			{ id: 1, icon: '', name: 'My Templates', route: '/my-templates' },
+			{ id: 2, icon: '', name: 'Forms', route: '/forms' },
 			// { icon: '', name: 'Client Portal', route: '' },
 			// { icon: '', name: 'Link in bio', route: '' },
 			// { icon: '', name: 'Website', route: '' },
 		],
 	},
 	{
-		name: 'AI Assistant',
-		moduleRoute: '/ai-assistant',
-		route: '/ai-assistant',
+		id: 3,
+		name: 'Storage',
+		moduleRoute: '',
+		route: '',
 		icon: '',
+		subModules: [
+			{
+				id: 0,
+				name: 'Classic Gallery',
+				moduleRoute: '/galleries',
+				route: '/galleries',
+				icon: '',
+			},
+			{
+				id: 1,
+				name: 'Lite Gallery',
+				moduleRoute: '/lite-gallery',
+				route: '/lite-gallery',
+				icon: '',
+			},
+		],
 	},
-
-	// { name: 'Tasks', moduleRoute: '/tasks', route: '/tasks', icon: '' },
-	// { name: 'Docs', moduleRoute: '/docs', route: '/docs', icon: '' },
-	// {
-	// 	name: 'Da-Vinci',
-	// 	moduleRoute: '/ai-agents/home/da-vinici',
-	// 	route: '/ai-agents/home/da-vinici',
-	// 	icon: '',
-	// 	subModules: [
-	// 		{ icon: AddCalenderSvg, route: '/ai-agents/home/da-vinici', name: 'Home' },
-	// 		{ icon: TranscriptSvg, route: '/ai-agents/jobs/:agent-name', name: 'Jobs' },
-	// 		{
-	// 			icon: SettingsSvg,
-	// 			route: '/ai-agents/setup/da-vinici',
-	// 			fill: 'white',
-	// 			name: 'Setup',
-	// 		},
-	// 	],
-	// },
-	// {
-	// 	name: 'AI Agents',
-	// 	moduleRoute: '/ai-agents',
-	// 	route: '/ai-agents',
-	// 	icon: AIAssistantSvg,
-	// },
+	{ id: 4, name: 'Tasks', moduleRoute: '/tasks', route: '/tasks', icon: '' },
+	{ id: 5, name: 'Contacts', moduleRoute: '/contacts', route: '/contacts', icon: '' },
+	{
+		id: 6,
+		name: 'Calendar',
+		moduleRoute: '/calendar',
+		route: '/calendar',
+		icon: '',
+		// subModules: [
+		// 	{ icon: AddCalenderSvg, route: '', name: 'Scheduler' },
+		// 	{ icon: TranscriptSvg, route: '', name: 'Transcript' },
+		// 	{
+		// 		icon: SettingsSvg,
+		// 		route: '/settings/my-profile',
+		// 		fill: 'white',
+		// 		name: 'Settings',
+		// 	},
+		// ],
+	},
 	// {
 	// 	name: 'Playbook',
 	// 	moduleRoute: '/playbook',
 	// 	route: '/playbook',
 	// 	icon: PlaybookSvg,
 	// },
-	// { name: 'Contacts', moduleRoute: '/contacts', route: '/contacts' },
 	// { name: 'Teams', moduleRoute: '/teams', route: '/teams' },
+	// {
+	// 	id: 7,
+	// 	name: 'Notes',
+	// 	moduleRoute: '/notes',
+	// 	route: '/notes',
+	// 	icon: '',
+	// },
 ];
 
 //
 
 export const veAiModules = [
-	{ icon: OrchestratorSvg, name: 'Orchestrator', route: '/orchestrator' },
-	{ icon: GiftSvg, name: 'Share and Earn', route: '/share-and-earn' },
-	{ icon: TemplatesSvg, name: 'Templates', route: '/playbook' },
+	{ icon: OrchestratorSvg, name: 'Chats', route: null },
+	{ icon: NotificationSvg, name: 'Notifications', route: null },
+	// { icon: NotificationSvg, name: 'Trash', route: '/trash' },
+	{ id: 1, icon: GiftSvg, name: 'Share and Earn', route: '/share-and-earn' },
+	{ id: 2, icon: TemplatesSvg, name: 'Templates', route: '/playbook' },
 	{
+		id: 3,
 		icon: SettingsSvg,
 		name: 'Settings',
 		route: '/settings/my-profile',
-		subModules: [
-			{ icon: '', name: 'MyProfile', route: '/settings/my-profile' },
-			{ icon: '', name: 'Workspace', route: '/settings/workspace' },
-			{ icon: '', name: 'Public Information', route: '/settings/public-information' },
-			{
-				icon: '',
-				name: 'Brand Setup',
-				route: '/settings/brand-setup',
-			},
-			{ icon: '', name: 'Team Settings', route: '/settings/team-settings' },
-			{ icon: '', name: 'Integration', route: '/settings/integrations' },
-			{ icon: '', name: 'Plan Billing', route: '/settings/plan-billing' },
-		],
+		// subModules: [
+		// 	{ icon: '', name: 'MyProfile', route: '/settings/my-profile' },
+		// 	{ icon: '', name: 'Workspace', route: '/settings/workspace' },
+		// 	{ icon: '', name: 'Public Information', route: '/settings/public-information' },
+		// 	{
+		// 		icon: '',
+		// 		name: 'Brand Setup',
+		// 		route: '/settings/brand-setup',
+		// 	},
+		// 	{ icon: '', name: 'Team Settings', route: '/settings/team-settings' },
+		// 	{ icon: '', name: 'Integration', route: '/settings/integrations' },
+		// 	{ icon: '', name: 'Plan Billing', route: '/settings/plan-billing' },
+		// ],
 	},
 ];
 

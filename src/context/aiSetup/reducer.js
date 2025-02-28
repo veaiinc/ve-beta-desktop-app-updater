@@ -45,6 +45,10 @@ const actionHandlers = {
 		...state,
 		aiInstructions: action?.payload,
 	}),
+	DELETE_AI_INSTRUCTION: (state, action) => ({
+		...state,
+		aiInstructions: action?.payload,
+	}),
 	GET_AI_PROMPT: (state, action) => ({
 		...state,
 		aiPrompt: action?.payload,
@@ -61,9 +65,46 @@ const actionHandlers = {
 		...state,
 		aiDefaultPrompt: action?.payload,
 	}),
+	GET_AI_ACTIONS: (state, action) => ({
+		...state,
+		aiActions: action?.payload,
+	}),
+	ADD_AI_ACTION: (state, action) => ({
+		...state,
+		aiAction: action?.payload,
+	}),
+	UPDATE_AI_ACTION: (state, action) => ({
+		...state,
+		aiAction: action?.payload,
+	}),
+	DELETE_AI_ACTION: (state, action) => ({
+		...state,
+		aiAction: action?.payload,
+	}),
+	CRAWL_AI_ASSISTANT: (state, action) => ({
+		...state,
+		aiCrawlLinks: action?.payload,
+	}),
 	RESET_AI_PROMPT: (state, action) => ({
 		...state,
 		aiPrompt: action?.payload,
+	}),
+	GET_AI_CHAT_LOGS: (state, action) => ({
+		...state,
+		[action?.selectedVariable]: action?.payload,
+	}),
+	GET_PROMPTS_DATA: (state, action) => ({
+		...state,
+		promptsData: action?.payload,
+	}),
+	GET_FILES_UPLOADED_IN_AI_CHAT: (state, action) => ({
+		...state,
+		filesUploadedInAiChat: action?.payload,
+	}),
+
+	SET_KNOWLEDGE_BASE_FILES_USING_UPDATED_LOGIC: (state, action) => ({
+		...state,
+		[action?.selectedVariable]: action?.payload,
 	}),
 
 	RESET_STATE: () => initialState,

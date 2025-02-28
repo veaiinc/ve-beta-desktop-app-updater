@@ -310,7 +310,12 @@ const CreateLead = ({ workflow, modalIsOpen, closeModal }) => {
 								...prev,
 								existingLeadSource: !prev.existingLeadSource,
 							}));
-							setLeadDetails((prev) => ({ ...prev, name: '', emailId: '' }));
+							setLeadDetails((prev) => ({
+								...prev,
+								name: '',
+								emailId: '',
+								phoneNumber: '',
+							}));
 						}}
 					>
 						{!info?.existingLeadSource ? <Checked /> : <Unchecked />}

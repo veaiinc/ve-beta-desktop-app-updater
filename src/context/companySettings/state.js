@@ -11,7 +11,6 @@ export const intialState = {
 	tenantSubscriptionDetails: null,
 	clientPortalPreferences: null,
 	AICreditsData: null,
-	taskPreference: null,
 };
 
 export const CompanySettingsState = () => {
@@ -341,43 +340,22 @@ export const CompanySettingsState = () => {
 		}
 	};
 
-	const getTaskPreferences = async (data) => {
-		try {
-			const usertoken = localStorage.getItem('usertoken');
-			const response = await service.fetchGet(
-				API?.TENANTS?.tenantUserPreference,
-				usertoken,
-				'tenant-users',
-				data,
-			);
-			if (response?.[0]) {
-				dispatch({
-					type: Actions.GET_TASK_PREFERENCES,
-					payload: { type: data?.preferences, data: { data: response?.[1] } },
-				});
-			} else {
-				dispatch({
-					type: Actions.GET_TASK_PREFERENCES,
-					payload: { type: data?.preferences, data: { error: response?.[1] } },
-				});
-			}
-		} catch (error) {
-			console.log('error ==> getTaskPreferences', error);
-			dispatch({
-				type: Actions.GET_TASK_PREFERENCES,
-				payload: { type: data?.preferences, data: { error: error } },
-			});
-		}
-	};
+	// https://us.api.ve.ai/auth/dev/tenant/:workspaceId/tenant-users/:tenantUser_id/access-controls
 
-	const updateTaskPreferences = async (json) => {
+	const updateTenantAccessControls = async (json, tenantUserId) => {
 		try {
-			const usertoken = localStorage.getItem('usertoken');
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
 			const response = await service.fetchPut(
-				API?.TENANTS?.tenantUserPreference,
+				'/tenant/' +
+					workspaceId +
+					API.TENANTS.tenantUsers +
+					'/' +
+					tenantUserId +
+					'/access-controls',
 				json,
 				usertoken,
-				'tenant-users',
+				'auth',
 			);
 			if (response?.[0]) {
 				return [true, response[1]];
@@ -385,7 +363,26 @@ export const CompanySettingsState = () => {
 				return [false, response[1]];
 			}
 		} catch (error) {
-			console.log('error ==> updateTaskPreferences', error);
+			console.log('error ==> updateTenantAccessControls', error);
+		}
+	};
+
+	// https://us.api.ve.ai/auth/dev/tenant/:workspace_id/tenant-users
+
+	const addTenantUser = async (json) => {
+		try {
+			let workspace_id = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.fetchPost(
+				'/tenant/' + workspace_id + API.TENANTS.tenantUsers,
+				json,
+				usertoken,
+				'auth',
+			);
+
+			return response;
+		} catch (error) {
+			console.log('error ==> addTenantUser', error);
 		}
 	};
 
@@ -417,7 +414,7 @@ export const CompanySettingsState = () => {
 		getClientPortalPreference,
 		updateClientPortalPreference,
 		getAICreditsUsedData,
-		getTaskPreferences,
-		updateTaskPreferences,
+		updateTenantAccessControls,
+		addTenantUser,
 	};
 };

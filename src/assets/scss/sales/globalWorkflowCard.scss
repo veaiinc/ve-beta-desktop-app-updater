@@ -5,104 +5,600 @@
 	flex-direction: column;
 	gap: 24px;
 	border-radius: 24px;
-	border: 1px solid var(--stroke);
-	background: var(--card);
-	color: var(--primary-font);
+	border: 1px solid rgba(246, 246, 248, 0);
+	color: #000;
 	transition: all 0.3s ease-out;
+	background: rgba(255, 255, 255, 0.1);
+	// box-shadow: -6px 6px 40px 0px rgba(0, 0, 0, 0.05);
+	backdrop-filter: blur(50px);
+	width: 100%;
 	cursor: pointer;
 
-	.labelContentWrapper {
+	.imageContainer {
 		display: flex;
-		flex-direction: column;
-		align-items: flex-start;
-		gap: 16px;
-		align-self: stretch;
+		flex-direction: row;
+		width: 100%;
+		justify-content: center;
+		gap: 60px;
 
-		.globalWorkflowTitle {
-			color: var(--primary-font);
-			font-family: var(--primary-font-family);
-			font-size: 18px;
-			font-style: normal;
-			font-weight: 500;
-			line-height: 18px; /* 100% */
-		}
-		.globalWorkflowSubTitle {
-			color: var(--secodary-font);
-			font-family: var(--primary-font-family);
-			font-size: 14px;
-			font-style: normal;
-			font-weight: 400;
-			line-height: 20px; /* 142.857% */
-			letter-spacing: -0.004px;
-		}
-		.actionContainer {
+		.imageContainer2 {
 			display: flex;
 			flex-direction: column;
-			align-items: flex-start;
-			gap: 12px;
-			align-self: stretch;
-			.actionsTitle {
-				color: var(--primary-font);
-				text-align: justify;
-				font-family: var(--primary-font-family);
-				font-size: 12px;
-				font-style: normal;
-				font-weight: 500;
-				line-height: 12px; /* 100% */
-				letter-spacing: 0.24px;
-				text-transform: capitalize;
+			border-radius: 20px;
+			width: 221px;
+			height: 238px;
+			background-color: #fff;
+			overflow-y: auto;
+
+			iframe {
+				border-radius: 20px;
+				box-shadow: -77px 98px 35px 0px rgba(0, 0, 0, 0),
+					-49px 63px 32px 0px rgba(0, 0, 0, 0.02), -28px 35px 27px 0px rgba(0, 0, 0, 0.08),
+					-12px 16px 20px 0px rgba(0, 0, 0, 0.13), -3px 4px 11px 0px rgba(0, 0, 0, 0.15);
 			}
-
-			.actionBTnContainer {
+		}
+		.labelContentWrapper {
+			display: flex;
+			flex: 1 0 0;
+			flex-direction: column;
+			flex-wrap: wrap;
+			align-items: flex-start;
+			gap: 16px;
+			width: 100%;
+			height: auto;
+			justify-content: space-between;
+			.labelContent {
 				display: flex;
-				justify-content: center;
-				align-items: center;
-				gap: 8px;
+				margin-top: 12px;
+				flex-direction: column;
+				gap: 30px;
+				.globalWorkflowTitle {
+					color: white;
+					font-family: Inter;
+					font-size: 18px;
+					font-style: normal;
+					font-weight: 600;
+					line-height: normal;
+					width: 90%;
+					overflow: hidden;
+					text-overflow: ellipsis;
+					white-space: nowrap;
+				}
+				.globalWorkflowSubTitle {
+					color: white;
+					font-family: Inter;
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 400;
+					line-height: normal; /* 142.857% */
+					letter-spacing: -0.004px;
+					width: 90%;
+				}
+			}
+			.actionContainer {
+				display: flex;
+				flex-direction: column;
+				align-items: flex-start;
+				gap: 12px;
+				align-self: stretch;
 
-				.actionBtnWrapper {
+				.actionsTitle {
+					// color: #e4e5e6;
+					color: white;
+					text-align: justify;
+					font-family: Inter;
+					font-size: 13px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal; /* 100% */
+					letter-spacing: 0.24px;
+					text-transform: capitalize;
+				}
+
+				.actionBTnContainer {
 					display: flex;
 					justify-content: center;
 					align-items: center;
 					gap: 8px;
-					.actionBtn {
+					flex-wrap: wrap;
+					.actionBtnWrapper {
 						display: flex;
 						justify-content: center;
 						align-items: center;
-						gap: 4px;
+						gap: 8px;
 
-						.actionBtnTitlestyling {
-							color: var(--secondary-font);
-							text-align: justify;
-							font-family: var(--primary-font-family);
-							font-size: 11px;
-							font-style: normal;
-							font-weight: 400;
-							line-height: normal;
-							letter-spacing: 0.22px;
-							text-transform: capitalize;
+						.actionBtn {
+							display: flex;
+							justify-content: center;
+							align-items: center;
+							gap: 4px;
+
+							.actionBtnTitlestyling {
+								// color: rgba(247, 249, 250, 0.7);'
+								color: white;
+								text-align: justify;
+								font-family: Inter;
+								font-size: 13px;
+								font-style: normal;
+								font-weight: 400;
+								line-height: normal;
+								letter-spacing: 0.22px;
+								text-transform: capitalize;
+							}
 						}
 					}
 				}
 			}
 		}
 	}
+}
 
-	.imageContainer {
-		display: flex;
-		flex-direction: column;
-		border-radius: 20px;
-		width: 240px;
-		height: 291px;
-		background-color: var(--background-color);
-		overflow-y: auto;
+@media screen and (min-width: 1501px) and (max-width: 1900px) {
+	.globalWorkflowCardContainer {
+		width: 100%;
+		height: auto;
+		flex-wrap: wrap;
+		justify-content: center;
+		.imageContainer {
+			gap: 14px;
+			.imageContainer2 {
+				width: 221px;
+				height: 238px;
+			}
+			.labelContentWrapper {
+				.labelContent {
+					.globalWorkflowTitle {
+						color: #fff !important;
+						font-family: Inter !important;
+						font-size: 18px !important;
+						font-style: normal !important;
+						font-weight: 600 !important;
+						line-height: normal !important;
+					}
+					.globalWorkflowSubTitle {
+						color: #fff !important;
+						font-family: Inter !important;
+						font-size: 12px !important;
+						font-style: normal !important;
+						font-weight: 400 !important;
+						line-height: normal !important;
+					}
+				}
+				.actionContainer {
+					.actionsTitle {
+						color: #fff !important;
+						font-family: Inter !important;
+						font-size: 13px !important;
+						font-style: normal !important;
+						font-weight: 500 !important;
+						line-height: normal !important;
+						text-transform: capitalize !important;
+					}
+					.actionBTnContainer {
+						margin-left: 0px;
+						.actionBtnWrapper {
+							.actionBtnTitlestyling {
+								color: rgba(255, 255, 255, 0.7) !important;
+								text-align: justify !important;
+								font-family: Inter !important;
+								font-size: 12px !important;
+								font-style: normal !important;
+								font-weight: 400 !important;
+								line-height: normal !important;
+								text-transform: capitalize;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}
+@media screen and (min-width: 1024px) and (max-width: 1500px) {
+	.globalWorkflowCardContainer {
+		height: auto;
+		width: 90%;
+		padding: 14px;
+		margin-left: 10%;
+		.imageContainer {
+			gap: 14px;
+			.imageContainer2 {
+				width: 221px;
+				height: 238px;
+			}
+			.labelContentWrapper {
+				.labelContent {
+					.globalWorkflowTitle {
+						color: #fff !important;
+						font-family: Inter !important;
+						font-size: 18px !important;
+						font-style: normal !important;
+						font-weight: 600 !important;
+						line-height: normal !important;
+					}
+					.globalWorkflowSubTitle {
+						color: #fff !important;
+						font-family: Inter !important;
+						font-size: 12px !important;
+						font-style: normal !important;
+						font-weight: 400 !important;
+						line-height: normal !important;
+					}
+				}
+				.actionContainer {
+					.actionsTitle {
+						color: #fff !important;
+						font-family: Inter !important;
+						font-size: 13px !important;
+						font-style: normal !important;
+						font-weight: 500 !important;
+						line-height: normal !important;
+						text-transform: capitalize !important;
+					}
+					.actionBTnContainer {
+						margin-left: 0px;
+						.actionBtnWrapper {
+							.actionBtnTitlestyling {
+								color: rgba(255, 255, 255, 0.7) !important;
+								text-align: justify !important;
+								font-family: Inter !important;
+								font-size: 12px !important;
+								font-style: normal !important;
+								font-weight: 400 !important;
+								line-height: normal !important;
+								text-transform: capitalize;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}
+@media screen and (min-width: 700px) and (max-width: 1024px) {
+	.globalWorkflowCardContainer {
+		.imageContainer {
+			flex-direction: column;
+			gap: 20px;
 
-		iframe {
-			border-radius: 20px;
+			.imageContainer2 {
+				display: none;
+			}
+
+			.labelContentWrapper {
+				width: 100%;
+
+				.labelContent {
+					.globalWorkflowSubTitle {
+						width: 100%;
+					}
+				}
+			}
 		}
 	}
 }
 
-.globalWorkflowCardContainer:hover {
-	border: 1px var(--stroke);
-	box-shadow: 0px 4px 30px 0px rgba(224, 224, 224, 0.06);
+@media screen and (min-width: 360px) and (max-width: 700px) {
+	.globalWorkflowCardContainer {
+		.imageContainer {
+			flex-direction: column;
+			gap: 20px;
+
+			.imageContainer2 {
+				display: none;
+			}
+
+			.labelContentWrapper {
+				width: 100%;
+
+				.labelContent {
+					.globalWorkflowSubTitle {
+						width: 100%;
+					}
+				}
+			}
+		}
+	}
+}
+.globalWorkflowCardContainer {
+	display: flex;
+	flex: 1;
+	padding: 24px;
+	flex-direction: column;
+	gap: 24px;
+	border-radius: 24px;
+	border: 1px solid rgba(246, 246, 248, 0);
+	color: #000;
+	transition: all 0.3s ease-out;
+	background: rgba(255, 255, 255, 0.1);
+	// box-shadow: -6px 6px 40px 0px rgba(0, 0, 0, 0.05);
+	backdrop-filter: blur(50px);
+	width: 100%;
+	cursor: pointer;
+
+	.imageContainer {
+		display: flex;
+		flex-direction: row;
+		width: 100%;
+		justify-content: center;
+		gap: 60px;
+
+		.imageContainer2 {
+			display: flex;
+			flex-direction: column;
+			border-radius: 20px;
+			width: 221px;
+			height: 238px;
+			background-color: #fff;
+			overflow-y: auto;
+
+			iframe {
+				border-radius: 20px;
+				box-shadow: -77px 98px 35px 0px rgba(0, 0, 0, 0),
+					-49px 63px 32px 0px rgba(0, 0, 0, 0.02), -28px 35px 27px 0px rgba(0, 0, 0, 0.08),
+					-12px 16px 20px 0px rgba(0, 0, 0, 0.13), -3px 4px 11px 0px rgba(0, 0, 0, 0.15);
+			}
+		}
+		.labelContentWrapper {
+			display: flex;
+			flex: 1 0 0;
+			flex-direction: column;
+			flex-wrap: wrap;
+			align-items: flex-start;
+			gap: 16px;
+			width: 100%;
+			height: auto;
+			justify-content: space-between;
+			.labelContent {
+				display: flex;
+				margin-top: 12px;
+				flex-direction: column;
+				gap: 30px;
+				.globalWorkflowTitle {
+					color: white;
+					font-family: Inter;
+					font-size: 18px;
+					font-style: normal;
+					font-weight: 600;
+					line-height: normal;
+					width: 90%;
+					overflow: hidden;
+					text-overflow: ellipsis;
+					white-space: nowrap;
+				}
+				.globalWorkflowSubTitle {
+					color: white;
+					font-family: Inter;
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 400;
+					line-height: normal; /* 142.857% */
+					letter-spacing: -0.004px;
+					width: 90%;
+				}
+			}
+			.actionContainer {
+				display: flex;
+				flex-direction: column;
+				align-items: flex-start;
+				gap: 12px;
+				align-self: stretch;
+
+				.actionsTitle {
+					// color: #e4e5e6;
+					color: white;
+					text-align: justify;
+					font-family: Inter;
+					font-size: 13px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal; /* 100% */
+					letter-spacing: 0.24px;
+					text-transform: capitalize;
+				}
+
+				.actionBTnContainer {
+					display: flex;
+					justify-content: center;
+					align-items: center;
+					gap: 8px;
+					flex-wrap: wrap;
+					.actionBtnWrapper {
+						display: flex;
+						justify-content: center;
+						align-items: center;
+						gap: 8px;
+
+						.actionBtn {
+							display: flex;
+							justify-content: center;
+							align-items: center;
+							gap: 4px;
+
+							.actionBtnTitlestyling {
+								// color: rgba(247, 249, 250, 0.7);'
+								color: white;
+								text-align: justify;
+								font-family: Inter;
+								font-size: 13px;
+								font-style: normal;
+								font-weight: 400;
+								line-height: normal;
+								letter-spacing: 0.22px;
+								text-transform: capitalize;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+@media screen and (min-width: 1501px) and (max-width: 1900px) {
+	.globalWorkflowCardContainer {
+		width: 100%;
+		height: auto;
+		flex-wrap: wrap;
+		justify-content: center;
+		.imageContainer {
+			gap: 14px;
+			.imageContainer2 {
+				width: 221px;
+				height: 238px;
+			}
+			.labelContentWrapper {
+				.labelContent {
+					.globalWorkflowTitle {
+						color: #fff !important;
+						font-family: Inter !important;
+						font-size: 18px !important;
+						font-style: normal !important;
+						font-weight: 600 !important;
+						line-height: normal !important;
+					}
+					.globalWorkflowSubTitle {
+						color: #fff !important;
+						font-family: Inter !important;
+						font-size: 12px !important;
+						font-style: normal !important;
+						font-weight: 400 !important;
+						line-height: normal !important;
+					}
+				}
+				.actionContainer {
+					.actionsTitle {
+						color: #fff !important;
+						font-family: Inter !important;
+						font-size: 13px !important;
+						font-style: normal !important;
+						font-weight: 500 !important;
+						line-height: normal !important;
+						text-transform: capitalize !important;
+					}
+					.actionBTnContainer {
+						margin-left: 0px;
+						.actionBtnWrapper {
+							.actionBtnTitlestyling {
+								color: rgba(255, 255, 255, 0.7) !important;
+								text-align: justify !important;
+								font-family: Inter !important;
+								font-size: 12px !important;
+								font-style: normal !important;
+								font-weight: 400 !important;
+								line-height: normal !important;
+								text-transform: capitalize;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}
+@media screen and (min-width: 1024px) and (max-width: 1500px) {
+	.globalWorkflowCardContainer {
+		height: auto;
+		width: 90%;
+		padding: 14px;
+		margin-left: 10%;
+		.imageContainer {
+			gap: 14px;
+			.imageContainer2 {
+				width: 221px;
+				height: 238px;
+			}
+			.labelContentWrapper {
+				.labelContent {
+					.globalWorkflowTitle {
+						color: #fff !important;
+						font-family: Inter !important;
+						font-size: 18px !important;
+						font-style: normal !important;
+						font-weight: 600 !important;
+						line-height: normal !important;
+					}
+					.globalWorkflowSubTitle {
+						color: #fff !important;
+						font-family: Inter !important;
+						font-size: 12px !important;
+						font-style: normal !important;
+						font-weight: 400 !important;
+						line-height: normal !important;
+					}
+				}
+				.actionContainer {
+					.actionsTitle {
+						color: #fff !important;
+						font-family: Inter !important;
+						font-size: 13px !important;
+						font-style: normal !important;
+						font-weight: 500 !important;
+						line-height: normal !important;
+						text-transform: capitalize !important;
+					}
+					.actionBTnContainer {
+						margin-left: 0px;
+						.actionBtnWrapper {
+							.actionBtnTitlestyling {
+								color: rgba(255, 255, 255, 0.7) !important;
+								text-align: justify !important;
+								font-family: Inter !important;
+								font-size: 12px !important;
+								font-style: normal !important;
+								font-weight: 400 !important;
+								line-height: normal !important;
+								text-transform: capitalize;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}
+@media screen and (min-width: 700px) and (max-width: 1024px) {
+	.globalWorkflowCardContainer {
+		.imageContainer {
+			flex-direction: column;
+			gap: 20px;
+
+			.imageContainer2 {
+				display: none;
+			}
+
+			.labelContentWrapper {
+				width: 100%;
+
+				.labelContent {
+					.globalWorkflowSubTitle {
+						width: 100%;
+					}
+				}
+			}
+		}
+	}
+}
+
+@media screen and (min-width: 360px) and (max-width: 700px) {
+	.globalWorkflowCardContainer {
+		.imageContainer {
+			flex-direction: column;
+			gap: 20px;
+
+			.imageContainer2 {
+				display: none;
+			}
+
+			.labelContentWrapper {
+				width: 100%;
+
+				.labelContent {
+					.globalWorkflowSubTitle {
+						width: 100%;
+					}
+				}
+			}
+		}
+	}
 }

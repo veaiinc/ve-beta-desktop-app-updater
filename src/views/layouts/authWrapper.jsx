@@ -1,4 +1,4 @@
-import React, { useEffect, memo } from 'react';
+import React, { useEffect, memo, useContext } from 'react';
 import '../../assets/scss/authWrapper.scss';
 import { Helmet } from 'react-helmet';
 import useActiveWorkspace from '../hooks/useActiveWorkspace';
@@ -9,14 +9,20 @@ import useAuth from '../hooks/useAuth';
 import useSubscription from '../hooks/useSubscription';
 import useTokenExpiry from '../hooks/useTokenExpiry';
 import BottomToolbar from '../components/ai_agents/BottomToolbar';
-
-const AuthWrapper = ({ title, children, maxWidth = '', showBottomToolbar = true }) => {
+import useAccessControls from '../hooks/useAcessControls';
+const AuthWrapper = ({
+	title,
+	children,
+	maxWidth = '',
+	showBottomToolbar = true,
+	outerContainerStyle,
+}) => {
 	const [workspaceId, setActiveWorkspaceId] = useActiveWorkspace();
 
 	const checkAuth = useAuth();
 	const data = useSubscription();
 	const tokenData = useTokenExpiry();
-
+	const accessControls = useAccessControls();
 	useEffect(() => {
 		checkAuth();
 	}, []);
@@ -33,6 +39,7 @@ const AuthWrapper = ({ title, children, maxWidth = '', showBottomToolbar = true 
 					display: 'flex',
 					height: '100vh',
 					padding: '60px 0 0 32px',
+					...outerContainerStyle,
 				}}
 			>
 				<SkeletonTheme baseColor={'#313131'} highlightColor={'#525252'}>

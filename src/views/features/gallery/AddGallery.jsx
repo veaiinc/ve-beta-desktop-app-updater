@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, useCallback } from 'react';
+import React, { useState, useEffect, useContext, useCallback, memo } from 'react';
 import '../../../assets/scss/gallery/index.scss';
 import '../../../assets/scss/gallery/allGalleries.scss';
 import Search from '../../../assets/svg/seach-magnifier.svg';
@@ -11,6 +11,7 @@ import Skeleton from 'react-loading-skeleton';
 import { ReactComponent as FilterIcon } from '../../../assets/svg/chat/filter.svg';
 import { Result, message, Tooltip } from 'antd';
 import { getCurrentWorkspaceId } from '../../../helpers';
+import QuickActions from '../../components/globalComponents/QuickActions';
 
 const noImage =
 	'https://png.pngtree.com/png-clipart/20230917/original/pngtree-no-image-available-icon-flatvector-illustration-thumbnail-graphic-illustration-vector-png-image_12323920.png';
@@ -243,6 +244,15 @@ const AddGallery = () => {
 
 	return (
 		<div className="gallery-main-container">
+			<div className="gallery-header-container">
+				<div className="gallery-header-text">
+					<span className="lineOne">Classic</span>
+					<span className="lineTwo">Gallery</span>
+				</div>
+				<div className="quickActionsBtn">
+					<QuickActions />
+				</div>
+			</div>
 			<div className="seachbar-container">
 				<div className="gallery-filter">
 					<img src={Search} alt="search" />
@@ -411,4 +421,4 @@ const AddGallery = () => {
 	);
 };
 
-export default AddGallery;
+export default memo(AddGallery);

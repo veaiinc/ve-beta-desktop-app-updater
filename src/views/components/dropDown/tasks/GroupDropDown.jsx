@@ -11,13 +11,16 @@ import ToggleSwitch from '../../../../views/components/input/slider';
 
 import '../../../../assets/scss/dropdown/tasks/groupDropDown.scss';
 import DropDown from './DropDown';
+import { message } from 'antd';
+
+const availableGroups = ['status', 'priority'];
 
 const groupByOptions = {
 	status: {
 		label: 'Status by',
 		options: [
 			{ value: 'option', label: 'Option' },
-			{ value: 'group', label: 'Group' },
+			// { value: 'group', label: 'Group' },
 		],
 	},
 	text: {
@@ -39,10 +42,17 @@ const groupByOptions = {
 	},
 };
 
-const GroupDropDown = ({ handleClose, handleBack, properties }) => {
+const GroupDropDown = ({
+	handleClose,
+	handleBack,
+	properties,
+	group,
+	updateViewInfo,
+	viewType,
+}) => {
 	const [info, setInfo] = useState({
 		hideEmptyGroups: false,
-		groupBy: null,
+		groupBy: group,
 		showSelectionDropDown: false,
 		sort: [],
 		search: '',
@@ -56,13 +66,34 @@ const GroupDropDown = ({ handleClose, handleBack, properties }) => {
 		}));
 	}, [info?.groupBy]);
 
+	useEffect(() => {
+		const groupBy = properties?.find((property) => property?.value === group);
+		setInfo((prevInfo) => ({
+			...prevInfo,
+			groupBy: group
+				? {
+						value: group,
+						label: groupBy?.label,
+						type: groupBy?.type,
+				  }
+				: null,
+		}));
+	}, [group, properties]);
+
 	const handleGroupByChange = (value) => {
+		if (!value && viewType === 'board') {
+			message.error('Grouping is required in board view');
+			return;
+		}
 		setInfo((prevInfo) => ({
 			...prevInfo,
 			groupBy: value,
 			showSelectionDropDown: value ? false : true,
 			search: value ? '' : prevInfo?.search,
 		}));
+		updateViewInfo({
+			group: value?.value || null,
+		});
 	};
 
 	const handleGroupByTypeChange = (value) => {
@@ -92,27 +123,29 @@ const GroupDropDown = ({ handleClose, handleBack, properties }) => {
 							onChange={(e) => setInfo({ ...info, search: e.target.value })}
 						/>
 						<div className="group-dropDown-select-options">
-							{'none'?.includes(info?.search?.toLowerCase()) && (
-								<div
-									className="group-dropDown-select-options-item"
-									key="none"
-									onClick={() => handleGroupByChange(null)}
-								>
-									<span className="group-dropDown-select-options-item-label">
-										None
-									</span>
-									{info?.groupBy === null ? (
-										<CheckSvg className="icon-check" />
-									) : null}
-								</div>
-							)}
+							{viewType !== 'board' &&
+								'none'?.includes(info?.search?.toLowerCase()) && (
+									<div
+										className="group-dropDown-select-options-item"
+										key="none"
+										onClick={() => handleGroupByChange(null)}
+									>
+										<span className="group-dropDown-select-options-item-label">
+											None
+										</span>
+										{info?.groupBy === null ? (
+											<CheckSvg className="icon-check" />
+										) : null}
+									</div>
+								)}
 							{properties
-								.filter((property) =>
+								?.filter((property) => availableGroups?.includes(property?.value))
+								?.filter((property) =>
 									property?.label
 										?.toLowerCase()
 										?.includes(info?.search?.toLowerCase()),
 								)
-								.map((property) => (
+								?.map((property) => (
 									<div
 										className="group-dropDown-select-options-item"
 										key={property?.value}
@@ -185,13 +218,13 @@ const GroupDropDown = ({ handleClose, handleBack, properties }) => {
 								</div>
 							</DropDown>
 						) : null}
-						<div className="group-dropDown-options-item">
+						{/* <div className="group-dropDown-options-item">
 							<span className="group-dropDown-options-item-label">Sort</span>
 							<span className="group-dropDown-options-item-value">
 								Ascending
 								<ChevronRightThinSvg />
 							</span>
-						</div>
+						</div> */}
 						<div className="group-dropDown-options-item">
 							<span className="group-dropDown-options-item-label">
 								Hide empty groups
@@ -202,7 +235,7 @@ const GroupDropDown = ({ handleClose, handleBack, properties }) => {
 							/>
 						</div>
 					</div>
-					<div className="group-drag-list">
+					{/* <div className="group-drag-list">
 						<div className="group-drag-list-header">
 							<span className="group-drag-list-header-title">Visible groups</span>
 							<button className="group-drag-list-header-button">Hide all</button>
@@ -221,9 +254,12 @@ const GroupDropDown = ({ handleClose, handleBack, properties }) => {
 							<span className="group-drag-list-item-label">Status</span>
 							<span className="group-drag-list-item-value">Option</span>
 						</div>
-					</div>
+					</div> */}
 					<div className="group-dropDown-footer">
-						<button className="group-dropDown-footer-button">
+						<button
+							className="group-dropDown-footer-button"
+							onClick={() => handleGroupByChange(null)}
+						>
 							<DustbinOutlined />
 							Remove grouping
 						</button>

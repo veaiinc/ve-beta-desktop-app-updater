@@ -61,13 +61,12 @@ const OptionsDropDown = ({
 	};
 
 	const handleBack = useCallback(() => {
-		console.log('handleBack');
 		setInfo((prev) => ({ ...prev, selected: null }));
 	}, []);
 
 	const handleLayoutChange = useCallback(
 		(option) => {
-			updateViewInfo({ view: option });
+			updateViewInfo({ viewType: option });
 		},
 		[updateViewInfo],
 	);
@@ -90,8 +89,10 @@ const OptionsDropDown = ({
 	);
 
 	const handleViewNameBlur = useCallback(() => {
-		updateViewInfo({ label: info.pendingLabel });
-	}, [info.pendingLabel, updateViewInfo]);
+		if (info.pendingLabel !== viewData?.label) {
+			updateViewInfo({ label: info.pendingLabel });
+		}
+	}, [info.pendingLabel, updateViewInfo, viewData?.label]);
 
 	const handlePropertyToggle = useCallback(
 		(property) => {
@@ -136,6 +137,9 @@ const OptionsDropDown = ({
 					handleClose={handleClose}
 					handleBack={handleBack}
 					properties={properties}
+					group={viewData?.group}
+					viewType={viewData?.viewType}
+					updateViewInfo={updateViewInfo}
 				/>
 			),
 			layout: (
@@ -143,7 +147,7 @@ const OptionsDropDown = ({
 					handleBack={handleBack}
 					handleClose={handleClose}
 					handleLayoutChange={handleLayoutChange}
-					view={viewData?.view}
+					view={viewData?.viewType}
 					layoutOptions={layoutOptions}
 				/>
 			),
@@ -155,9 +159,12 @@ const OptionsDropDown = ({
 			colors,
 			handleClose,
 			handleBack,
-			handleLayoutChange,
-			viewData,
 			handlePropertyToggle,
+			viewData?.group,
+			viewData?.viewType,
+			updateViewInfo,
+			handleLayoutChange,
+			layoutOptions,
 		],
 	);
 
@@ -201,7 +208,8 @@ const OptionsDropDown = ({
 										<span className="view-details-listItem-value">
 											{
 												layoutOptions.find(
-													(option) => option?.value === viewData?.view,
+													(option) =>
+														option?.value === viewData?.viewType,
 												)?.label
 											}
 											<ChevronRightThinSvg />
@@ -226,17 +234,19 @@ const OptionsDropDown = ({
 											<ChevronRightThinSvg />
 										</span>
 									</div>
-									{/* <div
+									<div
 										className="view-options-list-item"
 										onClick={() => handleOptionChange('group')}
 									>
 										<ListSvg width={16} height={16} />
 										<span className="view-options-list-item-label">Group</span>
 										<span className="view-options-list-item-value">
-											None
+											{properties?.find(
+												(property) => property?.value === viewData?.group,
+											)?.label || 'None'}
 											<ChevronRightThinSvg />
 										</span>
-									</div> */}
+									</div>
 									<div className="view-options-list-item">
 										<span className="view-options-list-item-label">
 											ID Prefix

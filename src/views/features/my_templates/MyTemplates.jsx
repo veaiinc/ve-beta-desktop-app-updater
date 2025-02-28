@@ -1,4 +1,5 @@
 import React, { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import '../../../assets/scss/my_templates/myTemplates.scss';
 import { ReactComponent as Stars } from '../../../assets/svg/my_templates/stars.svg';
 import { ReactComponent as Plus } from '../../../assets/svg/my_templates/plus.svg';
@@ -8,12 +9,12 @@ import { ReactComponent as Filter } from '../../../assets/svg/my_templates/filte
 import { ReactComponent as ThreeDots } from '../../../assets/svg/my_templates/three-dots.svg';
 import TemplateCards from '../../components/myTemplate/TemplateCards';
 import Context from '../../../context/context';
+import QuickActions from '../../components/globalComponents/QuickActions';
 
 const SubTitle = () => {
 	return (
 		<div className="subTitleContainer">
-			<Stars />
-			<span>This is a template</span>
+			<span>with AI</span>
 		</div>
 	);
 };
@@ -21,18 +22,18 @@ const SubTitle = () => {
 const cards = [
 	{
 		id: 1,
-		title: `Let's Create a New Template`,
+		title: `Create a Template`,
 		subTitle: <SubTitle />,
 	},
-	{
-		id: 2,
-		title: 'Import file or URL',
-		subTitle: 'Create template from your file or URL',
-	},
+	// {
+	// 	id: 2,
+	// 	title: 'Import file or URL',
+	// 	subTitle: 'Create template from your file or URL',
+	// },
 	{
 		id: 3,
 		title: 'Install template from playbook',
-		subTitle: 'Pick your template from playbook',
+		subTitle: 'find your templates in Ve.Ai Marketplace',
 	},
 ];
 
@@ -76,8 +77,11 @@ const MyTemplates = () => {
 			myMoreWorkflows,
 			getSpecificTemplatesInfo,
 			specificTemplatesInfo,
+			updateStateValues,
+			templatesRefetch,
 		},
 	} = useContext(Context);
+	const navigate = useNavigate();
 
 	const [info, setInfo] = useState({
 		...initialState,
@@ -92,6 +96,13 @@ const MyTemplates = () => {
 			}));
 		};
 	}, []);
+
+	useEffect(() => {
+		if (templatesRefetch) {
+			getMyWorkflowTemplatesData(1);
+			updateStateValues({ templatesRefetch: null });
+		}
+	}, [templatesRefetch]);
 
 	useEffect(() => {
 		if (myWorkflows) {
@@ -192,18 +203,45 @@ const MyTemplates = () => {
 		[info?.activeTab],
 	);
 
+	const handleCardClick = (card) => {
+		if (card?.id === 3) {
+			navigate('/playbook');
+		}
+	};
+
 	return (
 		<div className="myTemplatesContainer">
 			<div className="headerContainer">
-				<h1 className="title">My Templates</h1>
+				<div className="myTemplatesHeader">
+					<div className="headerTextContainer">
+						<div className="headerText">
+							<span className="lineOne">Templates</span>
+							<span className="lineTwo">You Created</span>
+						</div>
+						<div className="headerSubText">
+							Create, save, and reuse templates for documents, proposals, invoices,
+							contracts, and presentations.
+						</div>
+					</div>
+					<div className="quickActionsBtn">
+						<QuickActions />
+					</div>
+				</div>
+
 				<div className="cardsContainer">
 					{cards.map((card) => (
-						<div className="card" key={card?.id}>
+						<div
+							className="card"
+							key={card?.id}
+							onClick={() => handleCardClick(card)}
+							style={{ cursor: card?.id === 3 ? 'pointer' : 'default' }}
+						>
 							<h2 className="cardTitle">{card?.title}</h2>
 							<p className="cardSubTitle">{card?.subTitle}</p>
 						</div>
 					))}
 				</div>
+				<h1 className="title">My Templates</h1>
 			</div>
 
 			<div className="templateWrapper">

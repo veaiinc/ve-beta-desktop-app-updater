@@ -1,0 +1,152 @@
+.chat-container {
+	height: calc(100vh - 60px);
+
+	.chatBarContainer {
+		width: 400px;
+		height: 100%;
+		display: flex;
+		flex-direction: column;
+		.containerHeader {
+			width: 400px;
+			height: 68px;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			padding: 24px;
+
+			.containerHeaderTitle {
+				color: #f2f2f3;
+				font-family: Inter;
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 600;
+				line-height: normal;
+			}
+
+			.iconContainer {
+				display: flex;
+				gap: 10px;
+				align-items: center;
+			}
+		}
+
+		// display: flex;
+		// justify-content: flex-end;
+		// flex-grow: 1;
+
+		.chatBodyContainer {
+			// width: calc(100% - 200px);
+			width: 100%;
+			height: calc(100% - 70px);
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			transition: width 300ms ease-in-out;
+
+			.chatBodyParentContainer {
+				display: flex;
+				padding-right: 20px;
+				height: calc(100% - 125px);
+				flex-direction: column;
+				justify-content: flex-start;
+				overflow-y: scroll;
+				width: 100%;
+				max-width: 700px;
+				// justify-content: flex-end;
+				scroll-behavior: smooth;
+				transition: all 0.3s ease;
+				.chatContent {
+					display: flex;
+					flex-direction: column;
+					gap: 24px;
+					width: 100%;
+					// overflow-y: scroll;
+
+					.chat-message {
+						display: flex;
+						opacity: 0;
+						transform: translateY(20px);
+						animation: fadeInUp 0.3s ease forwards;
+
+						.message-content {
+							width: fit-content;
+							display: flex;
+							flex-direction: column;
+							gap: 6px;
+							max-width: 100%;
+							color: white;
+							border-radius: 100px;
+							font-size: 15px;
+							line-height: 22px;
+							padding-top: 0px;
+							transition: all 0.3s ease;
+						}
+					}
+
+					.user-message {
+						display: flex;
+						justify-content: flex-end;
+						.message-content {
+							justify-content: flex-end;
+							padding: 12px 16px;
+							border-radius: 24px;
+							background: #202123;
+							line-height: 21px;
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+.message-content-user {
+	width: fit-content;
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	max-width: 100%;
+	color: white;
+
+	padding: 12px 16px;
+	border-radius: 12px;
+	font-size: 14px;
+	line-height: 1.4;
+	padding-left: 24px;
+	padding-top: 0px;
+	background-color: #2b6eff;
+	border-radius: 12px;
+	padding: 12px 14px;
+}
+
+@keyframes fadeInUp {
+	from {
+		opacity: 0;
+		transform: translateY(20px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+/* Improve infinite scroll container */
+.infinite-scroll-component {
+	transition: all 0.3s ease;
+	scroll-behavior: smooth;
+}
+
+/* Add smooth transition for chat container width changes */
+.chatBodyContainer {
+	transition: width 0.3s ease;
+}
+
+/* Smooth loading state transitions */
+.loader {
+	opacity: 0;
+	transition: opacity 0.3s ease;
+}
+
+.loader.visible {
+	opacity: 1;
+}

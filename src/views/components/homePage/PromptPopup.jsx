@@ -11,6 +11,8 @@ import FilterPopUp from '../globalComponents/FilterPopUp';
 import BottomToolbar from '../ai_agents/BottomToolbar';
 import ToolBarChatContainerModal from '../modalsV2/ToolBarChatContainerModal';
 import Context from '../../../context/context';
+import { useNavigate } from 'react-router-dom';
+import ObjectID from 'bson-objectid';
 const files = [
 	'My Templates',
 	'Wedding Proposals',
@@ -35,6 +37,7 @@ const PromptPopup = ({ open, closeModal, selectedCard }) => {
 	const [isOpen, setIsOpen] = useState(false);
 	const [clientSearch, setClientSearch] = useState('');
 	const [dynamicPrompt, setDynamicPrompt] = useState(selectedCard?.prompt || '');
+	const navigate = useNavigate();
 
 	const selectedCardVariables = selectedCard?.variables;
 
@@ -84,6 +87,7 @@ const PromptPopup = ({ open, closeModal, selectedCard }) => {
 	const handleClickRun = useCallback(() => {
 		updateStateValues({ activePromptForChat: dynamicPrompt });
 		closeModal();
+		navigate(`/chat/${ObjectID().toString()}`);
 	}, [dynamicPrompt]);
 
 	return (
@@ -129,7 +133,7 @@ const PromptPopup = ({ open, closeModal, selectedCard }) => {
 					</div>
 				)}
 
-				<div className="promptPopupContainerFilesDiv">
+				{/* <div className="promptPopupContainerFilesDiv">
 					<div className="promptPopupContainerSelectionFiles">
 						<div className="promptPopupContainerSelectionFilesTitle">Select file</div>
 						<div className="promptPopupContainerSelectionFilesSearch">
@@ -171,7 +175,7 @@ const PromptPopup = ({ open, closeModal, selectedCard }) => {
 							);
 						})}
 					</div>
-				</div>
+				</div> */}
 				<button className="promptPopupContainerRunButton" onClick={handleClickRun}>
 					Run
 				</button>

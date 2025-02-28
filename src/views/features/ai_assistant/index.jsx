@@ -7,29 +7,6 @@ import Context from '../../../context/context';
 import Spinner from '../../components/loaders/Spinner';
 import InfiniteScroll from 'react-infinite-scroll-component';
 
-const staticCreateActions = [
-	{
-		type: 'Minimal',
-		prompt: 'Wedding Day Timeline Generator',
-	},
-	{
-		type: 'Professional',
-		prompt: 'Wedding Day Timeline Generator',
-	},
-	{
-		type: 'Traditional',
-		prompt: 'Wedding Day Timeline Generator',
-	},
-	{
-		type: 'Sales',
-		prompt: 'Track invoice status, Payment schedule, amounts, and more.',
-	},
-	{
-		type: 'Consise',
-		prompt: 'Wedding Day Timeline Generator',
-	},
-];
-
 const AiAssistants = () => {
 	const navigate = useNavigate();
 
@@ -103,7 +80,7 @@ const AiAssistants = () => {
 	}, [info?.currentPage, info?.hasNextPage]);
 
 	const assistants = info?.aiAssistantsList?.length
-		? info.aiAssistantsList.map((ele) => ({
+		? info.aiAssistantsList?.map((ele) => ({
 				aiAssistantId: ele?._id,
 				assistantName: ele?.name,
 				createdBy: ele?.createdBy || 'AI',
@@ -115,7 +92,7 @@ const AiAssistants = () => {
 		<div className="aiAssistantsParentContainer" style={{ paddingRight: 10 }}>
 			<div className="pageHeadContainer">
 				<div className="headTitleContainer">
-					<span className="lineOne">Explore</span>
+					<span className="lineOne">Create</span>
 					<span className="lineTwo">AI Assistants</span>
 				</div>
 
@@ -125,12 +102,12 @@ const AiAssistants = () => {
 							Building AI Assistant <Spinner width="18px" height="18px" />
 						</span>
 					) : (
-						<span>Create a AI Assistant</span>
+						<span>Create an AI Assistant</span>
 					)}
 				</div>
 			</div>
 
-			<div className="promtsContainer">
+			{/* <div className="promtsContainer">
 				<div className="promptHeader">
 					<span>Suggested Prompt</span>
 					<Sync />
@@ -144,7 +121,7 @@ const AiAssistants = () => {
 						</div>
 					))}
 				</div>
-			</div>
+			</div> */}
 
 			<div className="displayAgenstsContainer">
 				<div className="titleContainer">
@@ -153,7 +130,7 @@ const AiAssistants = () => {
 
 				<div className="agentsCardContainer">
 					<InfiniteScroll
-						dataLength={assistants?.length}
+						dataLength={assistants?.length || 0}
 						next={getMoreAiAssistants}
 						hasMore={info?.hasNextPage}
 						loader={
@@ -170,7 +147,7 @@ const AiAssistants = () => {
 							</div>
 						}
 						className="agentsCardContainer"
-						height={`calc( 100vh - 520px)`}
+						height={`calc( 100vh - 240px)`}
 					>
 						{assistants ? (
 							assistants?.map((assistant) => (
@@ -183,7 +160,19 @@ const AiAssistants = () => {
 									}
 								>
 									<div>
-										<AgentIcon />
+										{assistant?.assitant_profile_picture_s3Key ? (
+											<img
+												src={assistant?.assitant_profile_picture_s3Key}
+												alt="agent"
+												style={{
+													borderRadius: '50%',
+													width: '32px',
+													height: '32px',
+												}}
+											/>
+										) : (
+											<AgentIcon />
+										)}
 									</div>
 									<div className="agentName">{assistant?.name}</div>
 									<div className="createdBy">

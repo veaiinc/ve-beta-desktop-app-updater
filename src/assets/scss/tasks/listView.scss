@@ -12,6 +12,26 @@
 		padding: 8px 0;
 		border-bottom: 1px solid #171819;
 	}
+
+	.noDataMessage {
+		padding: 30px 20px;
+		width: 100%;
+		font-size: 14px;
+		color: #e7e7e7;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+
+	.errorContainer {
+		padding: 30px 20px;
+		width: 100%;
+		font-size: 14px;
+		color: #e7e7e7;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
 }
 
 .avatar {

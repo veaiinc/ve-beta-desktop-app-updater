@@ -93,10 +93,10 @@ const CalendarSelector = ({
 
 	return (
 		<div className="calendarContainer">
-			<header>
-				<div className="calendarCaption">
+			<div className="calendarHeader">
+				<div className="dateSelectorContainer">
 					{/* Month Selector */}
-					<div className="captionMonth" onClick={toggleMonthDropDown}>
+					<div className="monthSelector" onClick={toggleMonthDropDown}>
 						<span>{monthName}</span>
 						<span className="captionDropDown">
 							<DownSvg />
@@ -130,7 +130,7 @@ const CalendarSelector = ({
 					</div>
 
 					{/* Year Selector */}
-					<div className="captionYear" onClick={toggleYearDropDown}>
+					<div className="yearSelector" onClick={toggleYearDropDown}>
 						<span>{currentYear}</span>
 						<span className="captionDropDown">
 							<DownSvg />
@@ -173,7 +173,7 @@ const CalendarSelector = ({
 						<RightSvg />
 					</button>
 				</div>
-			</header>
+			</div>
 
 			{/* Day Names */}
 			<div className="calendarDayNameGrid">

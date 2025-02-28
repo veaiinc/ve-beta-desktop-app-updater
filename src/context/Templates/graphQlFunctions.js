@@ -12,6 +12,7 @@ export const getTemmplatesQuery = gql`
 					_id
 					isPublic
 					label
+					actions
 				}
 				status
 
@@ -246,6 +247,7 @@ export const getWorkflowListQuery = gql`
 				formResponse
 				requiredAction
 				templateId
+				version
 			}
 		}
 	}
@@ -260,6 +262,7 @@ export const getTemplatesListForCreateLeadQuery = gql`
 				_id
 				title
 				status
+				slug
 			}
 		}
 	}
@@ -445,10 +448,9 @@ export const getActivityLogsQuery = gql`
 			currentPage
 			data {
 				_id
-
 				timestamp
-
 				summary
+				action
 			}
 			hasNextPage
 		}

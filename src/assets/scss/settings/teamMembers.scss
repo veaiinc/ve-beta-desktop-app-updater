@@ -3,108 +3,6 @@
 	flex-direction: column;
 	gap: 48px;
 
-	.inviteMemberComponent {
-		border: 1px solid var(--primary-button);
-		background: var(--card);
-		// box-shadow: 2px 2px 8px 0px rgba(74, 40, 210, 0.06),
-		// 	4px 4px 10px 0px rgba(104, 93, 247, 0.02) inset;
-		backdrop-filter: blur(8px);
-
-		.inviteMemberText {
-			h1 {
-				color: var(--primary-font);
-				font-family: var(--primary-font-family);
-				font-size: 16px;
-				font-style: normal;
-				font-weight: 500;
-				line-height: 24px; /* 150% */
-				margin: 0 0 9px 0;
-				padding: 0;
-			}
-
-			p {
-				color: var(--secondary-font);
-				font-family: var(--primary-font-family);
-				font-size: 13px;
-				font-style: normal;
-				font-weight: 400;
-				line-height: 20px; /* 153.846% */
-			}
-		}
-
-		.sendRequestInputContainer {
-			display: flex;
-			gap: 24px;
-			width: 100%;
-			align-items: center;
-
-			.sendRequestInput {
-				display: flex;
-				width: 516px;
-				height: 40px;
-				padding: 8px 16px;
-				align-items: center;
-				gap: 10px;
-				border-radius: 10px;
-				border: 0.5px solid var(--stroke);
-				input {
-					width: 100%;
-					background: none;
-					border: none;
-					color: var(--primary-font);
-				}
-				.dropdownContainer {
-					// background-color: none;
-					.dropdownInput {
-						background: none;
-						border: none;
-						color: var(--primary-font);
-					}
-				}
-			}
-		}
-
-		.buttonsContainer {
-			display: flex;
-			justify-content: space-between;
-			align-items: center;
-
-			.addmore {
-				color: var(--secondary-font);
-				font-family: var(--primary-font-family);
-				font-size: 14px;
-				font-style: normal;
-				font-weight: 400;
-				line-height: 22px; /* 157.143% */
-				letter-spacing: -0.28px;
-				cursor: pointer;
-				display: flex;
-				align-items: center;
-				gap: 4px;
-
-				span {
-					svg {
-						transform: rotate(45deg);
-						margin-top: 3px;
-					}
-				}
-			}
-
-			button {
-				padding: 9px 16px;
-				border-radius: 20px;
-				border: 1px solid var(--stroke);
-				background: var(--card);
-				color: var(--secondary-font);
-				font-size: 14px;
-				font-weight: 400;
-				line-height: 22px;
-				letter-spacing: -0.28px;
-				min-width: 130px;
-			}
-		}
-	}
-
 	.yourTeamComponent {
 		.yourTeamTitle {
 			display: flex;
@@ -119,25 +17,40 @@
 				font-weight: 500;
 				line-height: 24px; /* 150% */
 			}
-
-			.yourTeamFilter {
+			button {
 				display: flex;
+				padding: 12px 16px;
 				align-items: center;
-				padding: 12px;
-				gap: 10px;
-				border-radius: 50px;
-				border: 0.5px solid var(--stroke);
-				width: 232px;
+				gap: 12px;
+				border-radius: 24px;
+				background: #f2f2f3;
+				color: #111;
+				font-family: Inter;
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+				border: none;
+				cursor: pointer;
+			}
+		}
+		.yourTeamFilter {
+			display: flex;
+			align-items: center;
+			padding: 12px;
+			gap: 10px;
+			border-radius: 50px;
+			border: 0.5px solid #333;
+			width: 100%;
 
-				input {
-					background: none;
-					border: none;
-					color: var(--primary-font);
+			input {
+				background: none;
+				border: none;
+				color: #e4e5e6;
 
-					font-size: 12px;
-					font-weight: 400;
-					line-height: 16px;
-				}
+				font-size: 12px;
+				font-weight: 400;
+				line-height: 16px;
 			}
 		}
 
@@ -146,6 +59,11 @@
 			justify-content: space-between;
 			align-items: center;
 			padding: 16px 0px;
+			border-radius: 16px;
+			cursor: pointer;
+			&:hover {
+				background-color: #1c1c1c;
+			}
 			.tenantProfileContainer {
 				display: flex;
 				gap: 16px;
@@ -300,5 +218,179 @@
 			gap: 10px;
 			margin-top: 10px;
 		}
+	}
+}
+
+.inviteMemberComponent {
+	display: flex;
+	width: 600px;
+	padding: 32px;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 24px;
+	border-radius: 32px;
+	background: #171819;
+	.inviteMemberText {
+		width: 100%;
+		.inviteMemberTitle {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			margin-bottom: 12px;
+			width: 100%;
+			h1 {
+				color: #e4e5e6;
+				font-family: Inter;
+				font-size: 16px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: 24px; /* 150% */
+			}
+		}
+
+		.inviteMemberDescription {
+			color: #666;
+			font-family: Inter;
+			font-size: 13px;
+			font-style: normal;
+			font-weight: 400;
+			line-height: 20px; /* 153.846% */
+		}
+	}
+
+	.sendRequestInputContainer {
+		display: flex;
+		gap: 24px;
+		width: 100%;
+		align-items: center;
+
+		.sendRequestInput {
+			width: 100%;
+			display: flex;
+			padding: 12px 16px;
+			align-items: center;
+			gap: 12px;
+			align-self: stretch;
+			border-radius: 12px;
+			border: 1px solid #2c2d2e;
+			.textInput {
+				color: #7a7e85;
+				font-family: Inter;
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+				flex: 1 0 0;
+				background-color: transparent !important;
+				border: none;
+			}
+			.dropdownContainer {
+				// background-color: none;
+				.dropdownInput {
+					background: none;
+					border: none;
+					color: #fff;
+				}
+			}
+		}
+	}
+	.accessControls {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 16px;
+		align-self: stretch;
+		.accessControlTitle {
+			color: #f2f2f3;
+			font-family: Inter;
+			font-size: 16px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+		}
+		.accessControlOptions {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 4px;
+			align-self: stretch;
+			height: 300px;
+			overflow-y: auto;
+			.accessControlOption {
+				display: flex;
+				padding: 12px 0px;
+				justify-content: center;
+				align-items: center;
+				gap: 10px;
+				align-self: stretch;
+				.accessControlOptionIcon {
+					display: flex;
+					width: 16px;
+					height: 16px;
+					padding: 4px;
+					align-items: center;
+					gap: 10px;
+					border-radius: 2px;
+					border: 2px solid rgba(0, 0, 0, 0);
+					background: #202123;
+				}
+				.accessControlOptionText {
+					flex: 1 0 0;
+					color: #f2f2f3;
+					font-family: Inter;
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 400;
+					line-height: normal;
+				}
+			}
+		}
+	}
+
+	.buttonsContainer {
+		display: flex;
+		justify-content: flex-end;
+		align-items: center;
+		width: 100%;
+		.addmore {
+			color: #666;
+			font-family: Inter;
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 400;
+			line-height: 22px; /* 157.143% */
+			letter-spacing: -0.28px;
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			gap: 4px;
+
+			span {
+				svg {
+					transform: rotate(45deg);
+					margin-top: 3px;
+				}
+			}
+		}
+
+		button {
+			padding: 9px 16px;
+			border-radius: 20px;
+			border: 1px solid #1c1c1c;
+			background: #1c1c1c;
+			color: #666;
+			font-size: 14px;
+			font-weight: 400;
+			line-height: 22px;
+			letter-spacing: -0.28px;
+			min-width: 130px;
+		}
+	}
+}
+
+.ant-checkbox-checked {
+	.ant-checkbox-inner {
+		background-color: #1c1c1c;
+		border-color: #666;
 	}
 }

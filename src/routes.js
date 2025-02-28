@@ -42,6 +42,11 @@ import HomePage from './views/features/home_page/HomePage';
 import AiAssistants from './views/features/ai_assistant/index';
 import EditAgent from './views/features/ai_assistant/EditAgent';
 import AgentDetails from './views/features/ai_assistant/AgentDetails';
+import InitialHomePage from './views/features/home_page/InitialHomePage';
+import Chat from './views/features/chat/Chat';
+import RecentChat from './views/features/chat/RecentChat';
+import AutomationBuilder from './views/features/automation_builder';
+import AutomationBuilderLayout from './views/layouts/automationBuilderLayout';
 const routes = [
 	{
 		path: '/',
@@ -112,13 +117,16 @@ const routes = [
 	{
 		path: '/home',
 		component: (
-			<AuthWrapper title={'Home'}>
-				<HomePage />
+			<AuthWrapper
+				title={'Home'}
+				outerContainerStyle={{ padding: '0 32px' }}
+				showBottomToolbar={false}
+			>
+				<InitialHomePage />
 			</AuthWrapper>
 		),
 		exact: true,
 	},
-
 	{
 		path: '/sales',
 		component: (
@@ -278,7 +286,7 @@ const routes = [
 	{
 		path: '/calendar',
 		component: (
-			<AuthWrapper title={'Calendar'} maxWidth={'1700px'}>
+			<AuthWrapper title={'Calendar'} maxWidth={'95%'}>
 				<Calendar />
 			</AuthWrapper>
 		),
@@ -287,7 +295,11 @@ const routes = [
 	{
 		path: '/notes',
 		component: (
-			<AuthWrapper title={'Notes'}>
+			<AuthWrapper
+				title={'Notes'}
+				outerContainerStyle={{ padding: '0 0 0 32px', backgroundColor: '#1e1e1e' }}
+				maxWidth={'100%'}
+			>
 				<Notes />
 			</AuthWrapper>
 		),
@@ -378,6 +390,15 @@ const routes = [
 		exact: true,
 	},
 	{
+		path: '/automation-builder/:automationId',
+		component: (
+			<AutomationBuilderLayout title={'Automation Builder'}>
+				<AutomationBuilder />
+			</AutomationBuilderLayout>
+		),
+		exact: true,
+	},
+	{
 		path: '/forms',
 		component: (
 			<AuthWrapper title={'Forms'}>
@@ -394,6 +415,22 @@ const routes = [
 			</AuthWrapper>
 		),
 		exact: true,
+	},
+	{
+		path: '/chat',
+		component: (
+			<AuthWrapper title={'Chat'} showBottomToolbar={false}>
+				<Chat />
+			</AuthWrapper>
+		),
+	},
+	{
+		path: '/chat/:sessionId',
+		component: (
+			<AuthWrapper title={'Chat'} showBottomToolbar={false}>
+				<RecentChat />
+			</AuthWrapper>
+		),
 	},
 ];
 

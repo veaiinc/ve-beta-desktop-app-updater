@@ -1,4 +1,4 @@
-import React, { useState, useEffect, memo, useMemo, useCallback, useContext } from 'react';
+import React, { useState, useEffect, memo, useMemo, useContext } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import '../../../assets/scss/home_page/homepage.scss';
 import NavBar from '../../components/homePage/navBar';
@@ -7,11 +7,9 @@ import PromptPopup from '../../components/homePage/PromptPopup';
 import HomePageDashboard from '../../components/homePage/dashboard/HomePageDashboard';
 import HomePageStart from '../../components/homePage/HomePageStart';
 import { PromptData } from '../../components/homePage/PromptData';
-import { Tooltip } from 'antd';
-import { useNavigate } from 'react-router-dom';
-import CreateLeadModal from '../../components/modalsV2/proposalModals/CreateLeadModal';
-import { useRef } from 'react';
 import Context from '../../../context/context';
+import QuickActions from '../../components/globalComponents/QuickActions';
+import jwtDecode from 'jwt-decode';
 
 const topNavOptions = [
 	{ id: 0, title: 'Start', value: 'start' },
@@ -20,44 +18,36 @@ const topNavOptions = [
 
 const navbarOptions = {
 	start: [
-		{ id: 1, title: 'All', value: 'All' },
-		{ id: 2, title: 'Sales', value: 'Sales' },
-		{ id: 3, title: 'Marketing', value: 'Marketing' },
-		{ id: 4, title: 'Operations', value: 'Operations' },
+		{ id: 1, title: 'All', value: 'all' },
+		{ id: 2, title: 'Sales', value: 'sales' },
+		{ id: 3, title: 'Marketing', value: 'marketing' },
+		{ id: 4, title: 'Operations', value: 'operations' },
 	],
 	dashboard: [
 		{ id: 1, title: 'Priority', value: 'Priority' },
-		// { id: 2, title: 'Tasks', value: 'Tasks' },
+		{ id: 2, title: 'Tasks', value: 'Tasks' },
 		{ id: 3, title: 'Workflows', value: 'Workflows' },
 		// { id: 4, title: 'Recent Chats', value: 'Recent Chats' },
 		{ id: 5, title: 'Drafts & Activity', value: 'Drafts & Activity' },
 	],
 };
 
-const dropdownOptions = [
-	{ id: 0, title: 'Client ', value: 'client' },
-	{ id: 2, title: 'Meeting', value: 'meeting' },
-	{ id: 3, title: 'Task', value: 'task' },
-	{ id: 4, title: 'Document', value: 'document' },
-	{ id: 5, title: 'Form', value: 'form' },
-	{ id: 6, title: 'Proposal', value: 'proposal' },
-	{ id: 7, title: 'Invoice', value: 'invoice' },
-	{ id: 8, title: 'Contract', value: 'contract' },
-];
-const thresholdTopOffset = 150;
 let timeoutId = null;
 
-const HomePage = () => {
+const HomePage = ({ getSelectedOption, start, setGoBackToInitialHomePage, promptsData }) => {
 	const [searchParams, setSearchParams] = useSearchParams();
 	let {
 		profileInfo: { userDetailsData },
-		templates: { toggleCreateLeadModal, createLeadModalContextState },
+		templates: { getTabItemCount, tabItemCount },
 	} = useContext(Context);
+	const username =
+		jwtDecode(localStorage.getItem('usertoken'))?.userName ??
+		`${userDetailsData?.firstName} ${userDetailsData?.lastName}` ??
+		'User';
 	const [info, setInfo] = useState({
-		activeTab: searchParams?.get('tab') ?? 'start',
+		activeTab: start ? 'start' : searchParams?.get('tab') ?? 'dashboard',
 		showPromptPopup: false,
-		isNavbarFixed: false,
-		selectedOptionInStart: searchParams?.get('startTab') || 'All',
+		selectedOptionInStart: start ? getSelectedOption : searchParams?.get('startTab') || 'All',
 		selectedOptionInDashboard: searchParams?.get('dashboardTab') || 'Priority',
 		searchValue: '',
 		selectedCard: null,
@@ -65,52 +55,12 @@ const HomePage = () => {
 		dropdown: false,
 		dropdownOptions: '',
 		openCreateLeadModal: false,
+		selectedOptionInPriorityTab: 'all',
 	});
 
-	const navigate = useNavigate();
-
 	useEffect(() => {
-		const homePageContainer = document.querySelector('.home-page-container');
-		homePageContainer?.addEventListener('scroll', setNavbarFixed);
-
-		return () => homePageContainer?.removeEventListener('scroll', setNavbarFixed);
-	}, [info?.isNavbarFixed]);
-
-	const handleDropdownOptionClick = useCallback((type) => {
-		if (type === 'meeting') {
-			navigate('/calendar');
-		} else if (type === 'document') {
-			navigate('/docs');
-		} else if (type === 'client') {
-			toggleCreateLeadModal({ createLeadModalContextState: true });
-		} else if (type === 'task') {
-			navigate('/tasks');
-		}
+		if (!tabItemCount) getTabItemCount();
 	}, []);
-
-	const closeCreateLeadModal = () => {
-		setInfo((prev) => ({
-			...prev,
-			openCreateLeadModal: false,
-		}));
-	};
-	const openCreateLeadModal = () => {
-		setInfo((prev) => ({
-			...prev,
-			openCreateLeadModal: true,
-		}));
-	};
-
-	const setNavbarFixed = (e) => {
-		const topOffset = e?.target?.scrollTop;
-		if (topOffset >= thresholdTopOffset) {
-			if (info?.isNavbarFixed) return;
-			setInfo((prev) => ({ ...prev, isNavbarFixed: true }));
-		} else {
-			if (!info?.isNavbarFixed) return;
-			setInfo((prev) => ({ ...prev, isNavbarFixed: false }));
-		}
-	};
 
 	const filteredPromptData = PromptData?.filter((prompt) => {
 		const filter = info?.selectedOptionInStart?.toLowerCase();
@@ -136,6 +86,11 @@ const HomePage = () => {
 	};
 
 	const handleSetActiveTab = (tab) => {
+		if (tab === 'start') {
+			setGoBackToInitialHomePage(true);
+		} else {
+			setSearchParams({ tab });
+		}
 		if (info?.activeTab === tab) {
 			return;
 		}
@@ -143,14 +98,13 @@ const HomePage = () => {
 			...prev,
 			activeTab: tab,
 		}));
-		setSearchParams({ tab });
 	};
 
 	const propsForHeaderInfoAndNavBar = useMemo(() => {
 		return {
 			start: {
-				title: `Hey ${userDetailsData?.firstName},`,
-				subTitle: "I'm here to help",
+				title: `All your Prompts`,
+				subTitle: 'you need to ask me',
 				selectedOption: 'selectedOptionInStart',
 			},
 			dashboard: {
@@ -170,104 +124,78 @@ const HomePage = () => {
 				<HomePageStart
 					cards={filteredPromptData}
 					setInfo={setInfo}
-					isNavbarFixed={info?.isNavbarFixed}
 					searchValue={info?.searchValue}
+					promptsData={promptsData}
 				/>
 			),
 			dashboard: (
 				<HomePageDashboard
 					selectedOption={info?.[selectedOption]}
 					options={navbarOptions?.dashboard}
-					isNavbarFixed={info?.isNavbarFixed}
 					searchValue={info?.searchValue}
 				/>
 			),
 		}),
-		[filteredPromptData, info?.isNavbarFixed, info?.searchValue, info?.[selectedOption]],
+		[filteredPromptData, info?.searchValue, info?.[selectedOption]],
 	);
 
 	return (
 		<div className="home-page-container">
 			<div className="black-linear-gradient"></div>
-			<div className="home-page-container-header">
-				<div className="home-page-container-content">
-					<div className="home-page-container-content-item-container">
-						<div className="home-page-container-content-item-container-left">
-							{topNavOptions?.map((option) => (
-								<div
-									key={option?.id}
-									className="home-page-container-content-item-container-left"
-								>
-									<div
-										className={`home-page-container-content-item ${
-											info?.activeTab === option?.value ? 'active' : ''
-										}`}
-										onClick={() => handleSetActiveTab(option?.value)}
-									>
-										{option?.title}
-									</div>
-									{option?.id !== topNavOptions?.length - 1 && (
-										<div className="home-page-container-content-item-divider"></div>
-									)}
-								</div>
-							))}
+			{/* <div className="home-page-container-header"> */}
+			{/* <div className="background-for-stickies"></div> */}
+			<div className="home-page-container-content">
+				<div className="home-page-container-content-item-container">
+					<div className="home-page-container-content-item-container-left">
+						<div className="priority-count">
+							{tabItemCount?.all > 99 ? '99+' : tabItemCount?.all}
 						</div>
-					</div>
-					<div className="home-page-container-tooltip-container">
-						<Tooltip
-							placement="bottom"
-							open={info?.dropdown}
-							trigger={'click'}
-							onOpenChange={(open) => setInfo({ ...info, dropdown: open })}
-							color="transparent"
-							title={
-								<div className="home-page-dropdown-options-container">
-									{dropdownOptions?.map((option) => (
-										<div
-											key={option?.id}
-											className="dropdown-option"
-											onClick={
-												() => handleDropdownOptionClick(option?.value)
-												// setInfo({ ...info, dropdownOptions: option?.value })
-											}
-										>
-											{option?.title}
-										</div>
-									))}
-								</div>
-							}
-						>
-							<button
-								className="home-page-container-content-item-container-right"
-								onClick={() => setInfo({ ...info, dropdown: !info?.dropdown })}
+						{topNavOptions?.map((option) => (
+							<div
+								key={option?.id}
+								className="home-page-container-content-item-container-left"
 							>
-								+ New
-							</button>
-						</Tooltip>
-					</div>
-				</div>
+								<div
+									className={`home-page-container-content-item ${
+										info?.activeTab === option?.value &&
+										info?.activeTab !== 'start'
+											? 'active'
+											: ''
+									}`}
+									onClick={() => handleSetActiveTab(option?.value)}
+								>
+									{option?.title}
+								</div>
 
-				<div className="home-page-welcome-container">
+								{option?.id !== topNavOptions?.length - 1 && (
+									<div className="home-page-container-content-item-divider"></div>
+								)}
+							</div>
+						))}
+					</div>
 					<div
-						className={`home-page-welcome-container-left ${
-							info?.isNavbarFixed ? 'fixed' : ''
-						}`}
+						className="home-page-welcome-container-right"
+						style={{ marginRight: '32px' }}
 					>
-						<HeaderInfo
-							isNavbarFixed={info?.isNavbarFixed}
-							title={title}
-							subTitle={subTitle}
-						/>
-						<NavBar
-							options={navbarOptions[info?.activeTab]}
-							selectedOption={info?.[selectedOption]}
-							handleSelectedOption={handleSelectedOption}
-							handleSearchValue={handleSearchValue}
-							showSearchBar={showSearchBar}
-						/>
+						<QuickActions />
 					</div>
 				</div>
 			</div>
+
+			{/* <div className="home-page-welcome-container"> */}
+			{/* <div className="home-page-welcome-container-left"> */}
+			<HeaderInfo title={title} subTitle={subTitle} />
+			<NavBar
+				options={navbarOptions[info?.activeTab]}
+				selectedOption={info?.[selectedOption]}
+				handleSelectedOption={handleSelectedOption}
+				handleSearchValue={handleSearchValue}
+				showSearchBar={showSearchBar}
+				tabItemCount={tabItemCount}
+			/>
+			{/* </div> */}
+			{/* </div> */}
+			{/* </div> */}
 			{componentMapper?.[info?.activeTab]}
 			<PromptPopup
 				open={info?.showPromptPopup}

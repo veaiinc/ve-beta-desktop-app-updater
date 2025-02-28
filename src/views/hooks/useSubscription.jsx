@@ -19,9 +19,11 @@ const calculateTimeLeft = (expiryTimestamp) => {
 const restrictMapper = {
 	restrictTasks: false,
 	restrictWorkflows: false,
-	restrictGalleries: false,
+	restrictGalleries: true,
 	restrictCalendar: false,
 	restrictContacts: false,
+	restrictClassicGallery: false,
+	restrictConversationalAgent: false,
 };
 
 const useSubscription = () => {
@@ -51,27 +53,35 @@ const useSubscription = () => {
 			);
 
 			const {
-				storageLimitInGB = 0,
+				storageLimitInBytes = 0,
 				tenantUsersLimit = 0,
-				totalStorageUsedInBytes = 0,
-				totalTenantUsers = 0,
+				storageUsedInBytes = 0,
+				tenantUsers = 0,
+				liteImageLimit = 0,
+				liteImageUsed = 0,
 			} = currentPlan;
+			const storageLimitInGB = parseFloat(storageLimitInBytes / (1024 * 1024 * 1024));
+			const totalStorageUsedInGB = parseFloat(storageUsedInBytes / (1024 * 1024 * 1024));
 			const obj = {
-				...(validateExpiryData || {}),
+				// ...(validateExpiryData || {}),
 				storageLimitInGB,
 				tenantUsersLimit,
-				totalStorageUsedInBytes,
-				totalTenantUsers,
+				totalStorageUsedInGB,
+				tenantUsers,
 				...restrictMapper,
 			};
-			const usedStorageLimitInGB = (totalStorageUsedInBytes / (1024 * 1024)).toFixed(2);
-
 			let uploadAllowed = false;
 			if (storageLimitInGB) {
-				uploadAllowed = usedStorageLimitInGB < storageLimitInGB;
+				uploadAllowed = totalStorageUsedInGB < storageLimitInGB;
 			}
-			setInfo((prev) => ({ ...prev, ...obj, uploadAllowed }));
-			updateSubscriptionState({ validateExpiryData: { ...obj, uploadAllowed } });
+			let imagesAllowed = false;
+			if (liteImageLimit) {
+				imagesAllowed = liteImageUsed < liteImageLimit;
+			}
+			setInfo((prev) => ({ ...prev, ...obj, uploadAllowed, imagesAllowed }));
+			updateSubscriptionState({
+				validateExpiryData: { ...obj, uploadAllowed, imagesAllowed },
+			});
 			cleanupTimers();
 			if (validateExpiryData?.isExpired) {
 				return cleanupTimers;

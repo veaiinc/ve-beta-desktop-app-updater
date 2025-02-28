@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useMemo, useState } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import '../../../assets/scss/forms/formLeads.scss';
 import { ReactComponent as BackArrowSvg } from '../../../assets/svg/workflow/backarrow.svg';
 import { ReactComponent as CurlyBracesSvg } from '../../../assets/svg/docs/curly-bracess.svg';
@@ -11,12 +11,17 @@ import { ReactComponent as Search } from '../../../assets/svg/docs/search.svg';
 import { ReactComponent as UpDownArrow } from '../../../assets/svg/my_templates/up-down-arrow.svg';
 import { useNavigate, useLocation } from 'react-router-dom';
 import FormRes from '../../components/forms/FormRes';
-import FormSummary from '../../components/forms/FormSummary';
+import FormModal from '../../components/forms/FormModal';
+import { message } from 'antd';
+import { fetchOriginSelection } from '../../../helpers';
+let origin = fetchOriginSelection();
 
 const FormLeads = () => {
 	const navigate = useNavigate();
 	const location = useLocation();
 	const formData = location?.state?.formData;
+	const activeWorkspaceId = localStorage.getItem('workspaceId');
+	const copyCode = `${activeWorkspaceId}.ve.ai/${formData?.slug}`;
 
 	const [info, setInfo] = useState({
 		searchExpand: false,
@@ -32,14 +37,14 @@ const FormLeads = () => {
 			value: info?.totalSubmissions,
 			title: 'Total Submissions',
 		},
-		{
-			value: info?.completedEntries,
-			title: 'Completed Entries',
-		},
-		{
-			value: info?.partialEntries,
-			title: 'Partial Entries',
-		},
+		// {
+		// 	value: info?.completedEntries,
+		// 	title: 'Completed Entries',
+		// },
+		// {
+		// 	value: info?.partialEntries,
+		// 	title: 'Partial Entries',
+		// },
 	];
 
 	const updateTotalSubmissions = useCallback((length) => {
@@ -48,6 +53,28 @@ const FormLeads = () => {
 		// const partialEntries = length || 0;
 		setInfo((prev) => ({ ...prev, totalSubmissions }));
 	}, []);
+
+	const handleCopyForm = () => {
+		navigator.clipboard
+			.writeText(copyCode)
+			.then(() => {
+				message.success('Form copied successfully');
+			})
+			.catch(() => {
+				message.error('Failed to copy form');
+			});
+	};
+
+	const handleEmbededCopy = () => {
+		navigator.clipboard
+			.writeText(`<iframe src="${copyCode}" style="height: 100%; width: 100%;"></iframe>`)
+			.then(() => {
+				message.success('Form embedded copied successfully');
+			})
+			.catch(() => {
+				message.error('Failed to embed form');
+			});
+	};
 
 	const tabs = useMemo(() => {
 		return {
@@ -60,10 +87,11 @@ const FormLeads = () => {
 					/>
 				),
 			},
-			summary: {
-				label: 'Summary',
-				Component: <FormSummary />,
-			},
+			// TODO: when we have summary data, add this tab. Until then, commentting it out.
+			// summary: {
+			// 	label: 'Summary',
+			// 	Component: <FormSummary />,
+			// },
 		};
 	}, [info?.activeTab]);
 
@@ -78,11 +106,19 @@ const FormLeads = () => {
 
 			<div className="formEnquiryContainer">
 				<header className="headerContainer">
-					<h1 className="headerTitle">Student Application Form</h1>
+					<h1 className="headerTitle">{formData?.title}</h1>
 				</header>
 
 				<div className="formSummaryContainer">
-					<div className="imgContainer"></div>
+					<div className="imgContainer">
+						<iframe
+							src={`${origin}/preview/short/${formData?._id}?singleTemplatePreview=true&restrictClick=true`}
+							title="Builder Preview"
+							width="100%"
+							height="100%"
+							style={{ borderRadius: '24px', border: 'none' }}
+						/>
+					</div>
 					<div className="detailsContainer">
 						<div className="formMetricsContainer">
 							{metricsData?.map((metric, index) => (
@@ -93,12 +129,12 @@ const FormLeads = () => {
 							))}
 						</div>
 						<div className="formCTAContainer">
-							<span className="ctaBtn">
+							<span className="ctaBtn" onClick={handleCopyForm}>
 								<LinkSvg />
-								<span>Download</span>
+								<span>Copy </span>
 							</span>
 							<div className="divider"></div>
-							<span className="ctaBtn">
+							<span className="ctaBtn" onClick={handleEmbededCopy}>
 								<CurlyBracesSvg />
 								<span>Embed Form</span>
 							</span>

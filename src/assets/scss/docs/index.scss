@@ -9,22 +9,40 @@
 
 	.docsHeaderTitleContainer {
 		display: flex;
-		flex-direction: column;
-		align-items: flex-start;
-		width: fit-content;
+		flex-direction: row;
+		justify-content: space-between;
+		.docsHeaderTitleTextContainer {
+			.docsHeaderTitleText {
+				display: flex;
+				flex-direction: column;
+				align-items: flex-start;
+				width: fit-content;
 
-		font-family: Inter;
-		font-size: 40px;
-		font-style: normal;
-		font-weight: 500;
-		line-height: 43px;
+				font-family: Inter;
+				font-size: 40px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: 43px;
 
-		.lineOne {
-			color: #f2f2f3;
-			color: color(display-p3 0.949 0.949 0.9529);
+				.lineOne {
+					color: #f2f2f3;
+					color: color(display-p3 0.949 0.949 0.9529);
+				}
+				.lineTwo {
+					color: color(display-p3 0.4865 0.4865 0.5135);
+				}
+			}
+			.docsHeaderTitleTextSubTitle {
+				color: #7c7c84;
+				font-family: Inter;
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
 		}
-		.lineTwo {
-			color: color(display-p3 0.4865 0.4865 0.5135);
+		.quickActionsBtn {
+			align-self: flex-start;
 		}
 	}
 
@@ -35,17 +53,18 @@
 
 		.docsHeaderButtons {
 			display: flex;
+			width: 364.667px;
+			height: 100px;
 			padding: 32px;
 			flex-direction: column;
 			justify-content: center;
 			align-items: flex-start;
 			gap: 6px;
-			flex: 1 0 0;
+			flex-shrink: 0;
 			border-radius: 14px;
-			border: 1px solid color(display-p3 0.1133 0.1133 0.1133);
-			background: var(--background-color);
+			border: 1px solid var(--stroke);
+			background: var(--card);
 			cursor: pointer;
-
 			.docsHeaderButtonsTitle {
 				color: var(--primary-font);
 				font-family: var(--primary-font-family);

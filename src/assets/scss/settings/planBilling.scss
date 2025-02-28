@@ -284,15 +284,36 @@
 			border-radius: 32px;
 			background: var(--card);
 
-			.subscriptionPlanHeader {
-				color: var(--primary-font);
-
-				/* Heading/H2 - 24 px */
-				font-family: var(--primary-font-family);
-				font-size: 24px;
-				font-style: normal;
-				font-weight: 600;
-				line-height: normal;
+			.subscriptionPlanHeaderContainer {
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+				align-self: stretch;
+				.subscriptionPlanHeader {
+					color: #e8e8e8;
+					font-family: Inter;
+					font-size: 24px;
+					font-style: normal;
+					font-weight: 600;
+					line-height: normal;
+				}
+				.manageSubscriptionButton {
+					display: flex;
+					padding: 14px 24px;
+					justify-content: center;
+					align-items: center;
+					gap: 6px;
+					border-radius: 59px;
+					background: #e8e8e8;
+					cursor: pointer;
+					color: #000;
+					font-family: Inter;
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+					border: none;
+				}
 			}
 
 			.subscriptionPlanContent {
@@ -503,12 +524,79 @@
 						}
 					}
 				}
+				.storageContainer {
+					display: flex;
+					flex-wrap: wrap;
+					width: 100%;
+					gap: 24px;
+					.storageContainerHolder {
+						display: flex;
+						flex-direction: column;
+						justify-content: flex-start;
+						align-items: flex-start;
+						align-self: stretch;
+						gap: 8px;
+						.storageTitle {
+							color: #e4e5e6;
+							font-family: Inter;
+							font-size: 12px;
+							font-style: normal;
+							font-weight: 500;
+							line-height: 18px; /* 150% */
+							text-transform: uppercase;
+						}
+						.storageUsed {
+							color: #777783;
+							font-family: Inter;
+							font-size: 14px;
+							font-style: normal;
+							font-weight: 400;
+							line-height: normal;
+							.storageUsedValue {
+								color: #e4e5e6;
+								font-family: Inter;
+								font-size: 24px;
+								font-style: normal;
+								font-weight: 500;
+								line-height: normal;
+							}
+							.storageUsedUnit {
+								color: #e4e5e6;
+								font-family: Inter;
+								font-size: 14px;
+								font-style: normal;
+								font-weight: 500;
+								line-height: normal;
+							}
+						}
+						.storageProgress {
+							width: 219px;
+							height: 3px;
+							border-radius: 24px;
+							background: #2c2e30;
+							position: relative;
+							.storageProgressValue {
+								height: 3px;
+								border-radius: 24px;
+								background: #6055ec;
+							}
+						}
+						.storageProgressText {
+							color: #ff0000;
+							font-family: Inter;
+							font-size: 12px;
+							font-style: normal;
+							font-weight: 400;
+							line-height: normal;
+						}
+					}
+				}
 			}
 
 			.subscriptionSeperator {
 				width: 100%;
 				height: 1px;
-				background: var(--stroke);
+				background: #333334;
 			}
 
 			.subscriptionActionContainer {
@@ -524,18 +612,19 @@
 					align-items: center;
 					gap: 6px;
 					border-radius: 59px;
-					background: var(--primary-font);
+					background: #e8e8e8;
 					cursor: pointer;
-					color: var(--background-color);
-					font-family: var(--primary-font-family);
+					color: #000;
+					font-family: Inter;
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 500;
 					line-height: normal;
+					border: none;
 				}
 				.expiringText {
-					color: var(--secondary-font);
-					font-family: var(--primary-font-family);
+					color: var(--ve-ai-dark-theme-secondary-color, #939393);
+					font-family: Inter;
 					font-size: 11px;
 					font-style: normal;
 					font-weight: 400;
@@ -543,97 +632,6 @@
 				}
 			}
 		}
-
-		.addOnsContainer {
-			display: flex;
-			flex-direction: column;
-			align-items: flex-start;
-			gap: 16px;
-			width: 100%;
-
-			.title {
-				color: #f2f2f3;
-				font-family: Inter;
-				font-size: 16px;
-				font-style: normal;
-				font-weight: 500;
-				line-height: normal;
-			}
-
-			.addOnsCardsContainer {
-				display: grid;
-				grid-template-columns: repeat(2, 1fr);
-				gap: 16px;
-				width: 100%;
-
-				.addOnsCards {
-					display: flex;
-					height: 188px;
-					padding: 24px;
-					flex-direction: column;
-					justify-content: space-between;
-					align-items: flex-start;
-					flex: 1 0 0;
-					border-radius: 24px;
-					background: #171819;
-					backdrop-filter: blur(8px);
-
-					.addOnPlanName {
-						font-family: Inter;
-						font-size: 14px;
-						font-style: normal;
-						font-weight: 500;
-						line-height: normal;
-						color: #f2f2f3;
-					}
-
-					.priceContainer {
-						display: flex;
-						align-items: center;
-						gap: 4px;
-
-						.currencySymbol,
-						.priceValue {
-							color: #f2f2f3;
-							font-family: Inter;
-							font-size: 18px;
-							font-style: normal;
-							font-weight: 600;
-							line-height: normal;
-						}
-
-						.priceDuration {
-							color: #7a7e85;
-							font-family: Inter;
-							font-size: 12px;
-							font-style: normal;
-							font-weight: 500;
-							line-height: normal;
-						}
-					}
-
-					.addOnsButton {
-						border-radius: 100px;
-						border: 1px solid #2c2d2e;
-						display: flex;
-						padding: 8px 16px;
-						justify-content: center;
-						align-items: center;
-						gap: 16px;
-						align-self: stretch;
-						color: #f2f2f3;
-						font-family: Inter;
-						font-size: 14px;
-						font-style: normal;
-						font-weight: 500;
-						line-height: normal;
-						background: inherit;
-						cursor: pointer;
-					}
-				}
-			}
-		}
-
 		.updateSubscriptionPlanContainer {
 			display: flex;
 			width: 100%;
@@ -816,8 +814,8 @@
 				border-radius: 59px;
 				background: var(--primary-font);
 				cursor: pointer;
-				color: var(--primary-button-font);
-				font-family: var(--primary-font-family);
+				color: #000;
+				font-family: Inter;
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 500;

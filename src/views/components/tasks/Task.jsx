@@ -1,49 +1,33 @@
-import React, { memo, useCallback, useState } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import '../../../assets/scss/tasks/task.scss';
 import ListViewHeader from './listView/ListViewHeader';
 import { ReactComponent as ListViewIcon } from '../../../assets/svg/tasks/list.svg';
 import { ReactComponent as BoardViewIcon } from '../../../assets/svg/tasks/board.svg';
 import { ReactComponent as TableViewIcon } from '../../../assets/svg/tasks/grid.svg';
+import { ReactComponent as GalleryViewIcon } from '../../../assets/svg/tasks/blocks.svg';
 import ListView from './views/ListView';
-// import BoardView from './views/BoardView';
-
+import BoardView from './views/Board';
+import GalleryView from './views/GalleryView';
 import TableView from './views/TableView';
-import TabDropDown from '../dropDown/tasks/TabDropDown';
 
 const layouts = {
 	list: {
 		Icon: ListViewIcon,
-		label: 'List',
+		label: 'List view',
 	},
 	board: {
 		Icon: BoardViewIcon,
-		label: 'Board',
+		label: 'Board view',
 	},
 	table: {
 		Icon: TableViewIcon,
-		label: 'Table',
+		label: 'Table view',
+	},
+	gallery: {
+		Icon: GalleryViewIcon,
+		label: 'Gallery view',
 	},
 };
-const layoutOptions = [
-	{
-		value: 'list',
-		label: 'List',
-		Icon: ListViewIcon,
-	},
-	// {
-	// 	value: 'board',
-	// 	label: 'Board',
-	// },
-	{
-		value: 'table',
-		label: 'Table',
-		Icon: TableViewIcon,
-	},
-	// {
-	// 	value: 'gallery',
-	// 	label: 'Gallery',
-	// },
-];
 
 const Task = ({
 	blockTitle,
@@ -63,26 +47,87 @@ const Task = ({
 	fetchMoreData,
 	hasMore,
 	error,
+	views,
+	updateView = () => {},
+	deleteView = () => {},
 	prefix = null,
+	availableViews = ['list', 'board', 'table', 'gallery'],
 }) => {
 	const [taskInfo, setTaskInfo] = useState({
-		tabs: {
-			1: {
-				_id: '1',
-				view: 'list',
-				label: 'List',
-				Icon: layouts?.['list']?.Icon,
-				filters: [],
-				sort: [],
-				order: 0,
-			},
-		},
-		activeTab: '1',
+		tabs: null,
+		activeTab: null,
+		timeout: null,
 	});
 	const [showEditViewDropDown, setShowEditViewDropDown] = useState(false);
+	const timeoutRef = useRef(null);
 
 	const handleEditViewDropDown = useCallback(() => {
 		setShowEditViewDropDown(true);
+	}, []);
+
+	useEffect(() => {
+		if (views) {
+			setTaskInfo((prevInfo) => {
+				// Only update sort and filters if there was no previous activeTab
+				const isInitialLoad = !prevInfo?.activeTab;
+
+				if (isInitialLoad) {
+					updateTaskInfo({
+						sort: [...views[0]?.sort].map((item) => ({
+							sortBy: item?.sortBy,
+							sortType: item?.sortType,
+						})),
+						filters: [...views[0]?.filters].map((item) => ({
+							key: item?.key,
+							value: item?.value,
+						})),
+						group: views[0]?.viewType === 'board' ? views[0]?.group || 'status' : null,
+					});
+				}
+
+				return {
+					...prevInfo,
+					tabs: Object.fromEntries(
+						views?.map((view, index) => [
+							view?._id,
+							{
+								...view,
+								order: index,
+								Icon: layouts?.[view?.viewType]?.Icon || ListViewIcon,
+							},
+						]),
+					),
+					activeTab: views?.some((view) => view?._id === prevInfo?.activeTab)
+						? prevInfo?.activeTab
+						: views?.[0]?._id,
+				};
+			});
+		}
+	}, [views]);
+
+	const layoutOptions = useMemo(() => {
+		return [
+			{
+				value: 'list',
+				label: 'List',
+				Icon: ListViewIcon,
+			},
+			{
+				value: 'board',
+				label: 'Board',
+				Icon: BoardViewIcon,
+			},
+			{
+				value: 'table',
+				label: 'Table',
+				Icon: TableViewIcon,
+			},
+			{
+				value: 'gallery',
+				label: 'Gallery',
+				Icon: GalleryViewIcon,
+			},
+		].filter((item) => availableViews.includes(item?.value));
 	}, []);
 
 	const closeEditViewDropDown = useCallback(() => {
@@ -102,13 +147,17 @@ const Task = ({
 				loadingSkeleton: true,
 				sort: [...taskInfo?.tabs?.[tabData?._id]?.sort],
 				filters: [...taskInfo?.tabs?.[tabData?._id]?.filters],
+				group:
+					taskInfo?.tabs?.[tabData?._id]?.viewType === 'board'
+						? taskInfo?.tabs?.[tabData?._id]?.group || 'status'
+						: null,
 			});
 		},
 		[taskInfo.tabs, updateTaskInfo, taskInfo?.activeTab],
 	);
 
 	const handleTabsReorder = useCallback(
-		(newTabs) => {
+		(newTabs, movedItem, destinationIndex) => {
 			const reorderedTabs = {};
 			newTabs.forEach((tab, index) => {
 				reorderedTabs[tab?._id] = {
@@ -121,39 +170,25 @@ const Task = ({
 				...prev,
 				tabs: reorderedTabs,
 			}));
+			updateView(movedItem?._id, {
+				order: destinationIndex,
+			});
 		},
-		[taskInfo.tabs],
+		[taskInfo?.tabs, updateView],
 	);
-
-	const generateNewId = useCallback(() => {
-		return new Date().getTime().toString();
-	}, []);
 
 	const handleAddTab = useCallback(
 		(option) => {
-			setTaskInfo((prev) => {
-				const newTabId = generateNewId();
-				const maxOrder = Math.max(...Object.values(prev.tabs)?.map((tab) => tab.order), -1);
-
-				return {
-					...prev,
-					tabs: {
-						...prev.tabs,
-						[newTabId]: {
-							_id: newTabId,
-							view: option,
-							label: layouts?.[option]?.label,
-							Icon: layouts?.[option]?.Icon,
-							filters: [],
-							sort: [],
-							order: maxOrder + 1,
-						},
-					},
-					activeTab: newTabId,
-				};
+			updateView(null, {
+				viewType: option,
+				label: layouts?.[option]?.label,
+				filters: [],
+				sort: [],
+				order: views?.length || 0,
+				group: option === 'board' ? 'status' : null,
 			});
 		},
-		[generateNewId],
+		[views?.length, updateView],
 	);
 
 	const getDefaultLabel = (view) => {
@@ -164,6 +199,20 @@ const Task = ({
 		};
 		return labels[view] || 'List';
 	};
+
+	const handleDebounceViewUpdate = useCallback(
+		(viewId, updateData) => {
+			if (timeoutRef.current) {
+				clearTimeout(timeoutRef.current);
+			}
+			timeoutRef.current = setTimeout(() => {
+				updateView(viewId, {
+					...updateData,
+				});
+			}, 800);
+		},
+		[timeoutRef, updateView],
+	);
 
 	const updateViewInfo = useCallback(
 		(viewId, updateData) => {
@@ -182,21 +231,39 @@ const Task = ({
 
 			setTaskInfo((prev) => ({ ...prev, tabs: newTabs }));
 			if (updateData?.sort) {
+				updateData.sort = updateData?.sort?.map((item) => ({
+					sortBy: item?.sortBy,
+					sortType: item?.sortType,
+				}));
 				updateTaskInfo({ sort: updateData?.sort });
 			}
 			if (updateData?.filters) {
+				updateData.filters = updateData?.filters?.map((item) => ({
+					key: item?.key,
+					value: item?.value,
+				}));
 				updateTaskInfo({ filters: updateData?.filters });
 			}
+			if (updateData?.viewType === 'board') {
+				updateData.group = 'status';
+			}
+
+			if (updateData?.group) {
+				updateTaskInfo({ group: updateData?.group });
+			}
+			const { page, ...rest } = updateData;
+			handleDebounceViewUpdate(viewId, rest);
 		},
-		[taskInfo.tabs, updateTaskInfo],
+		[taskInfo.tabs, updateTaskInfo, handleDebounceViewUpdate],
 	);
 
 	const viewMapper = useCallback(
 		(view) => {
 			const views = {
 				list: ListView,
-				// board: BoardView,
+				board: BoardView,
 				table: TableView,
+				gallery: GalleryView,
 			};
 			const Component = views?.[view] || ListView;
 			return (
@@ -213,6 +280,7 @@ const Task = ({
 					handleRowClick={handleRowClick}
 					hasMore={hasMore}
 					error={error}
+					handleAddButtonOnClick={handleAddButtonOnClick}
 				/>
 			);
 		},
@@ -232,72 +300,33 @@ const Task = ({
 		],
 	);
 
-	const handleDeleteTab = useCallback((tabId) => {
-		setTaskInfo((prev) => {
-			// Prevent deletion if there's only one tab
-			if (Object.keys(prev.tabs)?.length <= 1) {
-				return prev;
+	const handleDeleteTab = useCallback(
+		(tabId) => {
+			if (Object.keys(taskInfo?.tabs || {})?.length <= 1) {
+				return;
 			}
-
-			const newTabs = { ...prev.tabs };
-			delete newTabs[tabId];
-
-			// If deleting active tab, switch to first available tab
-			let newActiveTab = prev.activeTab;
-			if (tabId === prev.activeTab) {
-				const remainingTabs = Object.keys(newTabs);
-				newActiveTab = remainingTabs[0] || null;
-			}
-
-			return {
-				...prev,
-				tabs: newTabs,
-				activeTab: newActiveTab,
-			};
-		});
-	}, []);
+			deleteView(tabId);
+			updateTaskInfo({ activeTab: null });
+		},
+		[taskInfo?.tabs, deleteView, updateTaskInfo],
+	);
 
 	const handleDuplicateTab = useCallback(
 		(tabId) => {
-			setTaskInfo((prev) => {
-				const tabToDuplicate = prev?.tabs?.[tabId];
-				const newTabId = new Date().getTime().toString();
-				const maxOrder = Math.max(
-					...Object.values(prev?.tabs)?.map((tab) => tab?.order),
-					-1,
-				);
+			const selectedTab = taskInfo?.tabs?.[tabId];
 
-				// Check if the tab exists and can be duplicated
-				if (!tabToDuplicate) {
-					return prev;
-				}
-
-				const newTabs = {
-					...prev?.tabs,
-					[newTabId]: {
-						...tabToDuplicate,
-						_id: newTabId,
-						label: `${tabToDuplicate?.label} (Copy)`,
-						order: maxOrder + 1,
-					},
-				};
-
-				return {
-					...prev,
-					tabs: newTabs,
-				};
+			updateView(null, {
+				viewType: selectedTab?.viewType,
+				label: `${selectedTab?.label} (Copy)`,
+				order: views?.length || 0,
 			});
 		},
-		[generateNewId],
+		[taskInfo?.tabs, updateView, views?.length],
 	);
 
 	const handleTabDropdownClick = useCallback(
 		(option) => {
 			if (option?.value === 'deleteView') {
-				// Check if deletion is allowed
-				if (Object.keys(taskInfo?.tabs)?.length <= 1) {
-					return;
-				}
 				handleDeleteTab(taskInfo?.activeTab);
 			}
 			if (option?.value === 'duplicateView') {
@@ -307,13 +336,7 @@ const Task = ({
 				handleEditViewDropDown();
 			}
 		},
-		[
-			handleDeleteTab,
-			handleDuplicateTab,
-			handleEditViewDropDown,
-			taskInfo?.activeTab,
-			taskInfo?.tabs,
-		],
+		[handleDeleteTab, handleDuplicateTab, handleEditViewDropDown, taskInfo?.activeTab],
 	);
 
 	return (
@@ -331,7 +354,7 @@ const Task = ({
 				editingProperty={null}
 				handleEditPropertyChange={() => {}}
 				colors={colors}
-				view={taskInfo?.tabs?.[taskInfo?.activeTab]?.view}
+				// view={taskInfo?.tabs?.[taskInfo?.activeTab]?.view}
 				handleTabChange={handleTabChange}
 				tabs={taskInfo?.tabs}
 				handleAddTab={handleAddTab}
@@ -347,7 +370,23 @@ const Task = ({
 				handleLayoutOptionClick={handleAddTab}
 			/>
 			<div className="task-content-area">
-				{viewMapper(taskInfo?.tabs?.[taskInfo?.activeTab]?.view)}
+				{taskInfo?.tabs?.[taskInfo?.activeTab]?.viewType === 'board' ? (
+					<BoardView
+						handleUpdate={handleUpdate}
+						responseMetadata={responseMetadata}
+						handleAddButtonOnClick={handleAddButtonOnClick}
+						colors={colors}
+						fetchMoreData={fetchMoreData}
+						properties={properties}
+						rowTypes={rowTypes}
+						groupBy={taskInfo?.tabs?.[taskInfo?.activeTab]?.group}
+						sort={taskInfo?.tabs?.[taskInfo?.activeTab]?.sort}
+						filters={taskInfo?.tabs?.[taskInfo?.activeTab]?.filters}
+						handleRowClick={handleRowClick}
+					/>
+				) : (
+					viewMapper(taskInfo?.tabs?.[taskInfo?.activeTab]?.viewType)
+				)}
 			</div>
 		</div>
 	);
