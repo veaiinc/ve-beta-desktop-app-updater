@@ -2,10 +2,8 @@ import React, { memo, useCallback, useState, useRef, useEffect, useContext, useM
 import '../../../assets/scss/chat/chat.scss';
 import { ReactComponent as ExpandChatIcon } from '../../../assets/svg/ai_agents/expand-chat-icon.svg';
 import Context from '../../../context/context';
-import ObjectID from 'bson-objectid';
 import Markdown from 'react-markdown';
 import { TypingEffect } from '../../../helpers/markdownHelper';
-import useVoiceIntegration from '../../hooks/useVoiceIntegration';
 import CitationsModal from '../../components/modalsV2/chat/CitationsModal';
 import NoteComponentModal from '../../components/notes/NoteComponentModal';
 import ChatBox from '../../components/homePage/ChatBox';
@@ -13,12 +11,8 @@ import { useParams } from 'react-router-dom';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { FetchMoreLoaderComp } from '../../../helpers';
 import { debounce } from 'lodash';
+import useChatStream from '../../hooks/useChatStream';
 
-const moduleHelper = {
-	tasks: 'tasks',
-	'smart-file': 'form_filling',
-	calendar: 'calendar',
-};
 const RecentChat = ({
 	outerContainerStyle = {},
 	chatList = [],
@@ -37,19 +31,12 @@ const RecentChat = ({
 			getRecentChatMessages,
 			recentChatStorage,
 			moreRecentChatStorage,
+			handleStreamIncomingMessage,
+			handleStreamMessageChunk,
 		},
 	} = useContext(Context);
 
-	const {
-		isConnected,
-		isMuted,
-		audioLevel,
-		connectToRoom,
-		disconnect,
-		toggleMute,
-		toggleKrispNoiseFilter,
-	} = useVoiceIntegration();
-
+	const { socketRef, createWebSocketConnection, sendMessage } = useChatStream();
 	const [info, setInfo] = useState({
 		expanded: false,
 		inputExpanded: false,
@@ -66,6 +53,8 @@ const RecentChat = ({
 		citationsModalIsOpen: false,
 		page: 1,
 		currentPage: true,
+		latestStreamMesage: null,
+		lastQuery: '',
 	});
 
 	const chatContentRef = useRef(null);
@@ -85,7 +74,13 @@ const RecentChat = ({
 	useEffect(() => {
 		if (sessionId) {
 			getRecentChatMessages(sessionId);
-			setInfo((prev) => ({ ...prev, chatLoading: true }));
+			setInfo((prev) => ({ ...prev, chatLoading: true, chatSessionId: sessionId }));
+			updateStateValues({ currentSessionId: sessionId });
+			createWebSocketConnection(sessionId, onMessageFunc);
+
+			return () => {
+				socketRef?.current?.close();
+			};
 		}
 	}, [sessionId]);
 
@@ -104,46 +99,20 @@ const RecentChat = ({
 	}, [citations]);
 
 	useEffect(() => {
-		if (currentSessionId) {
-			setInfo((prev) => ({ ...prev, chatSessionId: currentSessionId }));
-		} else {
-			updateStateValues({ currentSessionId: ObjectID().toString() });
-		}
-	}, [currentSessionId]);
-
-	useEffect(() => {
 		if (recentChatStorage) {
-			const { data, hasNextPage, currentPage } = recentChatStorage;
-			let messages = [];
-			for (let i = 0; i < data?.length; i++) {
-				const { originalQuery = '', response, messageId } = data?.[i] || {};
-				messages = [
-					{
-						message: originalQuery,
-						type: 'user',
-						typingEffect: false,
-						messageId,
-					},
-					{
-						message: response,
-						type: 'AI',
-						messageId,
-						typingEffect: false,
-						rating: null,
-					},
-				]?.concat(messages);
-			}
-			updateStateValues({ globalChatMessages: messages });
-			setInfo((prev) => ({ ...prev, chatLoading: false, hasNextPage, currentPage }));
-			setTimeout(() => {
-				smoothScrollToBottom();
-			}, 1000);
+			recentChatHandler(recentChatStorage, true);
 		}
 	}, [recentChatStorage]);
 
 	useEffect(() => {
 		if (moreRecentChatStorage) {
-			const { data, hasNextPage, currentPage } = moreRecentChatStorage;
+			recentChatHandler(moreRecentChatStorage, true);
+		}
+	}, [moreRecentChatStorage]);
+
+	const recentChatHandler = useCallback(
+		(inComingData, fetcMore = false) => {
+			const { data, hasNextPage, currentPage } = inComingData;
 			let messages = [];
 			for (let i = 0; i < data?.length; i++) {
 				const { originalQuery = '', response, messageId } = data?.[i] || {};
@@ -164,22 +133,25 @@ const RecentChat = ({
 				]?.concat(messages);
 			}
 
-			// First update messages
-			updateStateValues({ globalChatMessages: messages?.concat(globalChatMessages) });
-
-			// Then smoothly scroll after a short delay to allow render
-			setTimeout(() => {
+			if (fetcMore) {
+				updateStateValues({ globalChatMessages: messages?.concat(globalChatMessages) });
 				if (chatContentRef?.current) {
 					chatContentRef.current.scrollBy({
 						top: 300, // Reduced from 500 for smoother feel
 						behavior: 'smooth',
 					});
 				}
-			}, 100);
+			} else {
+				updateStateValues({ globalChatMessages: messages });
+				setTimeout(() => {
+					smoothScrollToBottom();
+				}, 1000);
+			}
 
 			setInfo((prev) => ({ ...prev, chatLoading: false, hasNextPage, currentPage }));
-		}
-	}, [moreRecentChatStorage]);
+		},
+		[info, chatContentRef],
+	);
 
 	const handleRatingClick = async (type, messageId) => {
 		try {
@@ -268,6 +240,42 @@ const RecentChat = ({
 		[info, sessionId],
 	);
 
+	// stream chat
+
+	const onMessageFunc = useCallback(
+		(event) => {
+			let { data = '' } = event || {};
+			data = JSON.parse(data);
+
+			if (data?.stream_end) {
+				handleStreamIncomingMessage(data);
+				setInfo((prev) => ({ ...prev, latestStreamMesage: data }));
+			}
+			const { message_chunk_id } = data;
+			if (message_chunk_id) {
+				handleStreamMessageChunk(data, message_chunk_id);
+			}
+		},
+		[info],
+	);
+
+	const handleSendWebsocketMessage = useCallback(
+		async (data, lastQuery) => {
+			try {
+				await sendMessage(data);
+				setInfo((prev) => ({ ...prev, lastQuery: lastQuery }));
+			} catch (error) {
+				console.error('Failed to send message:', error);
+				// Handle error appropriately (show notification, etc.)
+			}
+		},
+		[sendMessage, setInfo],
+	);
+
+	const toggleLatestStreamMessage = useCallback(() => {
+		setInfo((prev) => ({ ...prev, latestStreamMesage: null }));
+	}, []);
+
 	return (
 		<>
 			<div className="chat-container">
@@ -343,7 +351,8 @@ const RecentChat = ({
 																	handleRatingClick
 																}
 																showTypingEffect={
-																	chat?.typingEffect
+																	false
+																	// chat?.typingEffect
 																}
 																onComplete={handleStopTypingEffect}
 																rating={chat?.rating}
@@ -360,7 +369,12 @@ const RecentChat = ({
 							</InfiniteScroll>
 						</div>
 
-						<ChatBox autoFocus={true} />
+						<ChatBox
+							handleSendWebsocketMessage={handleSendWebsocketMessage}
+							latestStreamMesage={info?.latestStreamMesage}
+							lastQuery={info?.lastQuery}
+							toggleLatestStreamMessage={toggleLatestStreamMessage}
+						/>
 					</div>
 				</div>
 			</div>
