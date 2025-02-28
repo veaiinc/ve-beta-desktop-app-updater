@@ -14,6 +14,8 @@ export const intialState = {
 	userWorkSpaceList: null,
 	defaultNotificationSettings: null,
 	updatedNotificationSettings: null,
+	tenantUserAccessControls: null,
+	accessControlOpenModal: false,
 };
 export const ProfileState = () => {
 	const [state, dispatch] = useReducer(Reducer, intialState);
@@ -398,12 +400,44 @@ export const ProfileState = () => {
 		}
 	};
 
+	const updateAccessControlOpenModal = (payload) => {
+		try {
+			dispatch({
+				type: Actions.UPDATE_ACCESS_CONTROL_OPEN_MODAL,
+				payload,
+			});
+		} catch (error) {
+			console.log('error==>updateAccessControlOpenModal', error);
+		}
+	};
 	const resetProfileSettingsState = async () => {
 		dispatch({ type: Actions.RESET_STATE });
 	};
 
 	const updateProfileState = async (payload) => {
 		dispatch({ type: Actions.UPDATE_PROFILE_STATE, payload: payload });
+	};
+
+	// https://us.api.ve.ai/auth/dev/tenant/:workspaceId/tenant-user-access-control/:tenantUser_id
+	const getTenantUserAccessControls = async () => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			let decoded = jwt_decode(usertoken);
+			const response = await service.fetchGet(
+				`/tenant/${workspaceId}/tenant-user-access-control/${decoded.user_id}`,
+				usertoken,
+				'auth',
+			);
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.GET_TENANT_USER_ACCESS_CONTROLS,
+					payload: response?.[1],
+				});
+			}
+		} catch (error) {
+			console.log('error==>getTenantUserAccessControls', error);
+		}
 	};
 	return {
 		...state,
@@ -429,5 +463,7 @@ export const ProfileState = () => {
 		updateDefaultNotificationSettings,
 		updateNotificationMethod,
 		updateAppNotificationPreferenceForModule,
+		getTenantUserAccessControls,
+		updateAccessControlOpenModal,
 	};
 };

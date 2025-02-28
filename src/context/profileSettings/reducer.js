@@ -65,6 +65,14 @@ const actionHandlers = {
 		...state,
 		defaultNotificationSettings: action?.payload,
 	}),
+	GET_TENANT_USER_ACCESS_CONTROLS: (state, action) => ({
+		...state,
+		tenantUserAccessControls: action.payload,
+	}),
+	UPDATE_ACCESS_CONTROL_OPEN_MODAL: (state, action) => ({
+		...state,
+		...action.payload,
+	}),
 	RESET_STATE: () => ({ ...intialState }),
 };
 
