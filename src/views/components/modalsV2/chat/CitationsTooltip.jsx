@@ -4,26 +4,32 @@ import Context from '../../../../context/context';
 import '../../../../assets/scss/chat/citationsTooltip.scss';
 import { Markdown } from '../../../../helpers/markdownHelper';
 
-export const CitationsTooltip = ({ citationId }) => {
+// ... existing code ...
+
+export const CitationsTooltip = ({ citationId, citations }) => {
 	const {
-		templates: { citations, getCitationData, currentSessionId },
+		templates: { getCitationData, currentSessionId },
 	} = useContext(Context);
 	const [citationData, setCitationData] = useState(null);
-	const citation = citations?.find((citation) => citation?.id === citationId);
-	const name = citation?.name || '';
-	const type = citation?.type || '';
-	const link = citation?.[type] || '';
-	const number = citation?.id?.slice(4);
+	const [citationInfo, setCitationInfo] = useState({});
+	const number = citationId?.slice(4);
 
 	useEffect(() => {
-		const fetchCitationData = async () => {
-			if (citation?.source) {
-				const response = await getCitationData(currentSessionId, citation?.source);
-				setCitationData(response);
-			}
-		};
-		fetchCitationData();
-	}, []);
+		if (citations?.length > 0) {
+			const citation = citations?.find((citation) => citation?.id === citationId);
+			const { name, type, snippet, source } = citation || {};
+			setCitationInfo({ name, type, link: citation?.[type], snippet, source });
+			fetchCitationData(citation);
+		}
+	}, [citations, citationId]); // Added citationId as dependency
+
+	const fetchCitationData = async (citation) => {
+		if (citation?.source) {
+			const response = await getCitationData(currentSessionId, citation?.source);
+			setCitationData(response);
+		}
+	};
+
 	return (
 		<Tooltip
 			arrow={false}
@@ -32,18 +38,22 @@ export const CitationsTooltip = ({ citationId }) => {
 			placement="topLeft"
 			title={
 				<a
-					href={link}
+					href={citationInfo?.link}
 					target="_blank"
 					rel="noreferrer"
 					className="citation-tooltip-container"
 				>
 					<div className="tooltip-content">
-						{citation?.source ? <Markdown>{citationData}</Markdown> : citation?.snippet}
+						{citationInfo?.source ? (
+							<Markdown>{citationData}</Markdown>
+						) : (
+							citationInfo?.snippet
+						)}
 					</div>
 
 					<div className="info">
 						<div className="image"></div>
-						<div className="citation-link">{name}</div>
+						<div className="citation-link">{citationInfo?.name}</div>
 					</div>
 				</a>
 			}

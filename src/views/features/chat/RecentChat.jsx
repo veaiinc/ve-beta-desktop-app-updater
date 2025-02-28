@@ -55,11 +55,16 @@ const RecentChat = ({
 		currentPage: true,
 		latestStreamMesage: null,
 		lastQuery: '',
+		lastVisibleMessageId: null,
+		lastVisibleUserMessageIndex: null,
 	});
 
 	const chatContentRef = useRef(null);
 	const chatMessagesRef = useRef(globalChatMessages || []);
 	const { sessionId } = useParams();
+
+	const aiMessagesRef = useRef([]);
+	const aiCitationsByIdRef = useRef({});
 
 	useEffect(() => {
 		return () => {
@@ -86,8 +91,72 @@ const RecentChat = ({
 
 	useEffect(() => {
 		chatMessagesRef.current = [...(globalChatMessages || [])];
+
+		chatMessagesRef.current?.forEach((message) => {
+			if (message?.type?.toLowerCase() === 'ai') {
+				const messageId = message?.messageId;
+				if (message?.citations && !aiCitationsByIdRef.current[messageId]) {
+					aiCitationsByIdRef.current[messageId] = message?.citations;
+				}
+			}
+		});
 		smoothScrollToBottom();
+
+		const visibleMessagesSet = new Set();
+		const observer = new IntersectionObserver(
+			(entries) => {
+				entries.forEach((entry) => {
+					if (entry.isIntersecting) {
+						visibleMessagesSet.add(entry.target);
+					} else {
+						visibleMessagesSet.delete(entry.target);
+					}
+				});
+				const visibleMessages = Array.from(visibleMessagesSet).sort(
+					(a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top,
+				);
+				if (visibleMessages.length > 0) {
+					const lastVisibleMessage = visibleMessages[visibleMessages.length - 1];
+					let lastVisibleAIMessageIndex = chatMessagesRef.current.findIndex(
+						(msg) => msg.messageId === lastVisibleMessage.dataset.messageId,
+					);
+					let lastVisibleUserMessageIndex = null;
+					if (lastVisibleAIMessageIndex && lastVisibleAIMessageIndex > 0) {
+						lastVisibleUserMessageIndex = lastVisibleAIMessageIndex - 1;
+						if (
+							chatMessagesRef.current[
+								lastVisibleUserMessageIndex
+							]?.type?.toLowerCase() !== 'user'
+						) {
+							lastVisibleUserMessageIndex = null;
+						}
+					}
+					setInfo((prev) => ({
+						...prev,
+						lastVisibleMessageId: lastVisibleMessage.dataset.messageId,
+						lastVisibleUserMessageIndex,
+					}));
+				}
+			},
+			{
+				root: chatContentRef.current,
+				threshold: 0.01,
+			},
+		);
+		aiMessagesRef.current.forEach((msg) => observer.observe(msg));
+		return () => {
+			aiMessagesRef.current.forEach((msg) => observer.unobserve(msg));
+			visibleMessagesSet.clear();
+		};
 	}, [globalChatMessages]);
+
+	useEffect(() => {
+		if (info?.lastVisibleMessageId) {
+			updateStateValues({
+				citations: aiCitationsByIdRef.current[info?.lastVisibleMessageId],
+			});
+		}
+	}, [info?.lastVisibleMessageId]);
 
 	useEffect(() => {
 		if (citations?.length > 0) {
@@ -115,7 +184,8 @@ const RecentChat = ({
 			const { data, hasNextPage, currentPage } = inComingData;
 			let messages = [];
 			for (let i = 0; i < data?.length; i++) {
-				const { originalQuery = '', response, messageId } = data?.[i] || {};
+				const { originalQuery = '', response, _id: messageId, citations } = data?.[i] || {};
+
 				messages = [
 					{
 						message: originalQuery,
@@ -129,6 +199,7 @@ const RecentChat = ({
 						messageId,
 						typingEffect: false,
 						rating: null,
+						citations,
 					},
 				]?.concat(messages);
 			}
@@ -337,7 +408,29 @@ const RecentChat = ({
 											>
 												<div className="message-content">
 													{chat?.type?.toLowerCase() === 'ai' ? (
-														<div className="content">
+														<div
+															className="content"
+															style={{
+																opacity:
+																	chat?.messageId ===
+																	info?.lastVisibleMessageId
+																		? 1
+																		: 0.6,
+															}}
+															ref={(el) => {
+																if (
+																	el &&
+																	!aiMessagesRef.current.includes(
+																		el,
+																	)
+																) {
+																	aiMessagesRef?.current?.push(
+																		el,
+																	);
+																}
+															}}
+															data-message-id={chat?.messageId}
+														>
 															<TypingEffect
 																text={chat?.message}
 																messageId={chat?.messageId}
@@ -356,10 +449,21 @@ const RecentChat = ({
 																}
 																onComplete={handleStopTypingEffect}
 																rating={chat?.rating}
+																citations={chat?.citations}
 															/>
 														</div>
 													) : (
-														<Markdown>{chat?.message}</Markdown>
+														<div
+															style={{
+																opacity:
+																	index ===
+																	info?.lastVisibleUserMessageIndex
+																		? 1
+																		: 0.6,
+															}}
+														>
+															<Markdown>{chat?.message}</Markdown>
+														</div>
 													)}
 												</div>
 											</div>
@@ -386,7 +490,7 @@ const RecentChat = ({
 				modalIsOpen={info?.noteModalIsOpen}
 				closeModal={handleNoteComponentModalClose}
 				handleRatingClick={handleRatingClick}
-				chatList={chatMessagesRef.current || []}
+				chatList={globalChatMessages || []}
 			/>
 		</>
 	);

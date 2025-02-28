@@ -1,4 +1,4 @@
-import React, { memo, useContext, useEffect, useState } from 'react';
+import React, { memo, useContext, useEffect, useState, useMemo } from 'react';
 import { default as ReactMarkdown } from 'react-markdown';
 import { Link } from 'react-router-dom'; // Adjust if you're using another router
 import '../assets/scss/markdown.scss';
@@ -166,7 +166,120 @@ const rehypeCITPlugin = () => {
 	};
 };
 
-const NonMemoizedMarkdown = ({ children }) => {
+const NonMemoizedMarkdown = ({ children, citations }) => {
+	const components = useMemo(() => {
+		return {
+			pre: ({ children }) => <>{children}</>,
+			ol: ({ children, ...props }) => {
+				return (
+					<ol className="list-decimal list-outside ml-4" {...props}>
+						{children}
+					</ol>
+				);
+			},
+			li: ({ children, ...props }) => {
+				return (
+					<li className="py-1" {...props}>
+						{children}
+					</li>
+				);
+			},
+			ul: ({ children, ...props }) => {
+				return (
+					<ul className="list-decimal list-outside ml-4" {...props}>
+						{children}
+					</ul>
+				);
+			},
+			strong: ({ children, ...props }) => {
+				return (
+					<span className="font-semibold" {...props}>
+						{children}
+					</span>
+				);
+			},
+			a: ({ children, ...props }) => {
+				return (
+					<Link
+						className="text-blue-500 hover:underline"
+						target="_blank"
+						rel="noreferrer"
+						{...props}
+					>
+						{children}
+					</Link>
+				);
+			},
+			h1: ({ children, ...props }) => {
+				return (
+					<h1 className="text-3xl font-semibold mt-6 mb-2" {...props}>
+						{children}
+					</h1>
+				);
+			},
+			h2: ({ children, ...props }) => {
+				return (
+					<h2 className="text-2xl font-semibold mt-6 mb-2" {...props}>
+						{children}
+					</h2>
+				);
+			},
+			h3: ({ children, ...props }) => {
+				return (
+					<h3 className="text-xl font-semibold mt-6 mb-2" {...props}>
+						{children}
+					</h3>
+				);
+			},
+			h4: ({ children, ...props }) => {
+				return (
+					<h4 className="text-lg font-semibold mt-6 mb-2" {...props}>
+						{children}
+					</h4>
+				);
+			},
+			h5: ({ children, ...props }) => {
+				return (
+					<h5 className="text-base font-semibold mt-6 mb-2" {...props}>
+						{children}
+					</h5>
+				);
+			},
+			h6: ({ children, ...props }) => {
+				return (
+					<h6 className="text-sm font-semibold mt-6 mb-2" {...props}>
+						{children}
+					</h6>
+				);
+			},
+			p: ({ children, ...props }) => {
+				return (
+					<p className="text-white" {...props}>
+						{children}
+					</p>
+				);
+			},
+			img: ({ children, ...props }) => {
+				return (
+					<div className="markdown-image-wrapper">
+						<img
+							className="w-full h-auto"
+							{...props}
+							src={props?.src}
+							alt="img"
+							style={{ maxWidth: '50%', maxHeight: '50%', borderRadius: '4px' }}
+						/>
+					</div>
+				);
+			},
+			span: ({ children, citationId, ...props }) => {
+				if (citationId)
+					return <CitationsTooltip citationId={citationId} citations={citations} />;
+				return <span {...props}>{children}</span>;
+			},
+		};
+	}, [citations]);
+
 	return (
 		<ReactMarkdown remarkPlugins={[]} rehypePlugins={[rehypeCITPlugin]} components={components}>
 			{children}
@@ -188,6 +301,7 @@ export const TypingEffect = ({
 	handleRatingClick = null,
 	showTypingEffect = false,
 	rating = null,
+	citations = [],
 }) => {
 	const {
 		documentPreview: { setNoteContent },
@@ -234,7 +348,7 @@ export const TypingEffect = ({
 			{showTypingEffect ? (
 				<Markdown>{displayedText?.replace(/\\n/g, '\n')}</Markdown>
 			) : (
-				<Markdown>{text?.replace(/\\n/g, '\n')}</Markdown>
+				<Markdown citations={citations}>{text?.replace(/\\n/g, '\n')}</Markdown>
 			)}
 
 			{currentIndex === text?.length ? (

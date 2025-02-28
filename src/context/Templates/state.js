@@ -1661,18 +1661,18 @@ export const TemplatesState = (props) => {
 	const handleStreamIncomingMessage = (response) => {
 		const citations = response?.citations;
 		const followUpQuery = response?.['follow_up_query'];
-		const messageId = response?.['message_id'];
-		if (citations && citations?.length > 0) {
-			dispatch({
-				type: Actions?.CHAT_CITATIONS_SUCCESS,
-				payload: citations,
-			});
-		} else {
-			dispatch({
-				type: Actions?.CHAT_CITATIONS_SUCCESS,
-				payload: null,
-			});
-		}
+		// const messageId = response?.['message_id'];
+		// if (citations && citations?.length > 0) {
+		// 	dispatch({
+		// 		type: Actions?.CHAT_CITATIONS_SUCCESS,
+		// 		payload: citations,
+		// 	});
+		// } else {
+		// 	dispatch({
+		// 		type: Actions?.CHAT_CITATIONS_SUCCESS,
+		// 		payload: null,
+		// 	});
+		// }
 		if (followUpQuery?.length) {
 			dispatch({
 				type: Actions?.CHAT_FOLLOW_UP_QUERY,
