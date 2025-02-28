@@ -20,7 +20,7 @@ const CreateTask = ({ onBack, onSave, addTriggerLoading, variables }) => {
 		let { task, title, description, dueDate } = info;
 		const variables = {};
 		if (task?.match(variableRegex)) {
-			variables.task = task;
+			variables.task = [task?.slice(2, -2)];
 		} else if (!task?.trim().length) {
 			message.error('Task name is mandatory');
 			return;
@@ -34,7 +34,7 @@ const CreateTask = ({ onBack, onSave, addTriggerLoading, variables }) => {
 			return;
 		}
 		if (dueDate?.match(variableRegex)) {
-			variables.dueDate = dueDate;
+			variables.dueDate = [dueDate?.slice(2, -2)];
 		} else if (!dueDate) {
 			message.error('Due date is mandatory');
 			return;

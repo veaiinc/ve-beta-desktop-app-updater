@@ -32,9 +32,15 @@ const actionTypeIconMapper = {
 };
 
 const eventTypeMapper = {
+	// triggers
 	messageReceived: 'Message Received',
+	formResponse_create: 'Form Response',
+	task_create: 'Task Created',
+	task_update: 'Task Updated',
+	task_delete: 'Task Deleted',
+
+	// actions
 	sendMessage: 'Send Message',
-	formResponse: 'Form Response',
 	createTask: 'Create Task',
 	createFile: 'Create Document',
 };
@@ -91,7 +97,9 @@ export const TriggerNode = ({ data }) => {
 					<div className="triggerUpperContent">
 						<span className="triggerUpperContentTitle">
 							{eventTypeMapper?.[
-								data?.currentStep?.module || data?.currentStep?.event
+								data?.currentStep?.module
+									? `${data?.currentStep?.module}_${data?.currentStep?.event}`
+									: data?.currentStep?.event
 							] ?? data?.currentStep?.event}
 						</span>
 						<span className="triggerUpperContentSubtitle">

@@ -143,7 +143,7 @@ export const AutomationBuilderState = () => {
 				usertoken,
 				'automation_builder_api',
 			);
-			if (response?.[0]) {
+			if (response?.[0] === true) {
 				dispatch({
 					type: Actions.SET_AUTOMATION,
 					payload: response?.[1]?.updatedAutomation,
@@ -166,7 +166,7 @@ export const AutomationBuilderState = () => {
 				usertoken,
 				'third_party_integrations_api',
 			);
-			if (response?.[0]) {
+			if (response?.[0] === true) {
 				dispatch({
 					type: Actions.SET_CONNECTION_DETAILS,
 					payload: response?.[1],
@@ -187,7 +187,7 @@ export const AutomationBuilderState = () => {
 				usertoken,
 				'automation_builder_api',
 			);
-			if (response?.[0]) {
+			if (response?.[0] === true) {
 				dispatch({
 					type: Actions.UPDATE_AUTOMATION,
 					payload: response?.[1]?.updatedAutomation,
