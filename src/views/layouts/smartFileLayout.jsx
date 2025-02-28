@@ -8,10 +8,12 @@ import useAuth from '../hooks/useAuth';
 import useSubscription from '../hooks/useSubscription';
 import useTokenExpiry from '../hooks/useTokenExpiry';
 import BottomToolbar from '../components/ai_agents/BottomToolbar';
+import useAccessControls from '../hooks/useAcessControls';
 const SmartFileLayout = ({ title, children, hideQuickNav = false, showBottomToolbar = true }) => {
 	const checkAuth = useAuth();
 	const data = useSubscription();
 	const tokenData = useTokenExpiry();
+	const accessControls = useAccessControls();
 	useEffect(() => {
 		checkAuth();
 	}, []);

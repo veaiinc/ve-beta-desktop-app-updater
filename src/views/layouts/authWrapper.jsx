@@ -1,4 +1,4 @@
-import React, { useEffect, memo } from 'react';
+import React, { useEffect, memo, useContext } from 'react';
 import '../../assets/scss/authWrapper.scss';
 import { Helmet } from 'react-helmet';
 import useActiveWorkspace from '../hooks/useActiveWorkspace';
@@ -9,7 +9,7 @@ import useAuth from '../hooks/useAuth';
 import useSubscription from '../hooks/useSubscription';
 import useTokenExpiry from '../hooks/useTokenExpiry';
 import BottomToolbar from '../components/ai_agents/BottomToolbar';
-
+import useAccessControls from '../hooks/useAcessControls';
 const AuthWrapper = ({
 	title,
 	children,
@@ -22,7 +22,7 @@ const AuthWrapper = ({
 	const checkAuth = useAuth();
 	const data = useSubscription();
 	const tokenData = useTokenExpiry();
-
+	const accessControls = useAccessControls();
 	useEffect(() => {
 		checkAuth();
 	}, []);

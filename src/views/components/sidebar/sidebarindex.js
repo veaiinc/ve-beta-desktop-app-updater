@@ -88,7 +88,7 @@ export const veAiModulesItemsList = [
 		],
 	},
 	{ id: 4, name: 'Tasks', moduleRoute: '/tasks', route: '/tasks', icon: '' },
-	{ id: 5, name: 'Contacts', moduleRoute: '/contacts', route: '/contacts' },
+	{ id: 5, name: 'Contacts', moduleRoute: '/contacts', route: '/contacts', icon: '' },
 	{
 		id: 6,
 		name: 'Calendar',

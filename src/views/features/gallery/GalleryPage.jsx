@@ -62,6 +62,7 @@ import GridImage from '../../../assets/images/workflow_builder/dotgrid.png';
 // import EarnAndShareOverlay from './galleryPage/EditAndShareOverlay';
 
 const workspaceId = localStorage.getItem('workspaceId');
+
 const GalleryPage = () => {
 	const { galleryId } = useParams();
 	const navigate = useNavigate();
@@ -256,7 +257,6 @@ const GalleryPage = () => {
 		},
 		scrolledTillEnd: false,
 	});
-
 	const optionsRef = useRef(null);
 	const iconRef = useRef(null);
 	const galleryOptionsRef = useRef(null);
@@ -3223,6 +3223,7 @@ const GalleryPage = () => {
 		};
 	};
 	const galleryUrl = `${galleryCredentials?.baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${albumImagesCount?.coverImage?.givenFileName}?Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
+
 	return (
 		<>
 			<div className="galleryContainer">
