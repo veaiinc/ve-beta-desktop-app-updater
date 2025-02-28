@@ -1,0 +1,144 @@
+.ifElseInputContainer {
+	display: flex;
+	padding: 12px 24px;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 12px;
+	align-self: stretch;
+	flex-grow: 1;
+
+	.ifElseInputHeading {
+		color: #f2f2f3;
+		font-family: Inter;
+		font-size: 14px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
+	}
+
+	.ifElseInputConditionContainer {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 10px;
+		width: 100%;
+
+		.ifElseInputHeading {
+			color: #7a7e85;
+			font-family: Inter;
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+		}
+
+		.ifElseInputCondition {
+			display: flex;
+			align-items: center;
+			gap: 4px;
+			width: 100%;
+			padding: 12px 8px;
+			border-radius: 8px;
+			cursor: pointer;
+			border: 1px solid #2a2a2a;
+
+			.ifElseInputConditionText {
+				color: #7a7e85;
+				font-family: Inter;
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 500;
+			}
+
+			.ifElseInputConditionTextSelected {
+				color: #f2f2f3;
+				background-color: #58397f;
+				border-radius: 4px;
+				padding: 0px 4px;
+			}
+
+			&:hover {
+				background-color: #2a2a2a;
+				border-radius: 8px;
+			}
+		}
+		.ifElseInputValue {
+			width: 100%;
+			padding: 12px 8px;
+			border-radius: 8px;
+			border: 1px solid #2a2a2a;
+			background-color: transparent;
+			color: #f2f2f3;
+			font-family: Inter;
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 500;
+			&::placeholder {
+				color: #7a7e85;
+			}
+		}
+	}
+}
+
+.ifElseInputButton {
+	display: flex;
+	padding: 12px 16px;
+	align-self: stretch;
+	background: #202123;
+	border: none;
+	color: #f2f2f3;
+	font-family: Inter;
+	font-size: 13px;
+	font-style: normal;
+	font-weight: 400;
+	line-height: 16px; /* 123.077% */
+	cursor: pointer;
+	transition: all 0.3s ease;
+	justify-content: center;
+
+	&:hover {
+		background: #2c2d2f;
+	}
+}
+.ifElseInputConditionTooltip {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 10px;
+	background-color: #1a1a1a;
+	padding: 10px;
+	border-radius: 12px;
+	width: 200px;
+
+	.ifElseInputConditionText {
+		color: #7a7e85;
+		font-family: Inter;
+		font-size: 12px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
+	}
+
+	.ifElseInputConditionList {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		width: 100%;
+
+		.ifElseInputConditionItem {
+			color: #f2f2f3;
+			font-family: Inter;
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			padding: 4px 8px;
+			border-radius: 8px;
+			cursor: pointer;
+			width: 100%;
+
+			&:hover {
+				background-color: #2a2a2a;
+			}
+		}
+	}
+}

@@ -83,6 +83,8 @@ const BuilderToolbar = ({
 					activeStepsData={activeStepsData}
 					editMode={editMode}
 					refetchWorkflowBuilderData={refetchWorkflowBuilderData}
+					variables={variables}
+					automationId={automationId}
 				/>
 			),
 			notifications: (
