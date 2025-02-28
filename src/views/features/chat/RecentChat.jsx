@@ -2,10 +2,8 @@ import React, { memo, useCallback, useState, useRef, useEffect, useContext, useM
 import '../../../assets/scss/chat/chat.scss';
 import { ReactComponent as ExpandChatIcon } from '../../../assets/svg/ai_agents/expand-chat-icon.svg';
 import Context from '../../../context/context';
-// import ObjectID from 'bson-objectid';
 import Markdown from 'react-markdown';
 import { TypingEffect } from '../../../helpers/markdownHelper';
-// import useVoiceIntegration from '../../hooks/useVoiceIntegration';
 import CitationsModal from '../../components/modalsV2/chat/CitationsModal';
 import NoteComponentModal from '../../components/notes/NoteComponentModal';
 import ChatBox from '../../components/homePage/ChatBox';
@@ -13,12 +11,8 @@ import { useParams } from 'react-router-dom';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { FetchMoreLoaderComp } from '../../../helpers';
 import { debounce } from 'lodash';
+import useChatStream from '../../hooks/useChatStream';
 
-const moduleHelper = {
-	tasks: 'tasks',
-	'smart-file': 'form_filling',
-	calendar: 'calendar',
-};
 const RecentChat = ({
 	outerContainerStyle = {},
 	chatList = [],
@@ -42,18 +36,7 @@ const RecentChat = ({
 		},
 	} = useContext(Context);
 
-	// const {
-	// 	isConnected,
-	// 	isMuted,
-	// 	audioLevel,
-	// 	connectToRoom,
-	// 	disconnect,
-	// 	toggleMute,
-	// 	toggleKrispNoiseFilter,
-	// } = useVoiceIntegration();
-
-	const socketRef = useRef(null);
-
+	const { socketRef, createWebSocketConnection, sendMessage } = useChatStream();
 	const [info, setInfo] = useState({
 		expanded: false,
 		inputExpanded: false,
@@ -93,7 +76,7 @@ const RecentChat = ({
 			getRecentChatMessages(sessionId);
 			setInfo((prev) => ({ ...prev, chatLoading: true, chatSessionId: sessionId }));
 			updateStateValues({ currentSessionId: sessionId });
-			createWebSocketConnection(sessionId);
+			createWebSocketConnection(sessionId, onMessageFunc);
 
 			return () => {
 				socketRef?.current?.close();
@@ -259,54 +242,34 @@ const RecentChat = ({
 
 	// stream chat
 
-	const createWebSocketConnection = useCallback(
-		(sessionId) => {
-			const usertoken = localStorage.getItem('usertoken');
-			const workspaceId = localStorage.getItem('workspaceId');
-			const baseUrl = `wss://ai.ap-south-1.ve.ai/${workspaceId}/${
-				sessionId || info?.chatSessionId
-			}/multi_agent_chat_streaming?token=${usertoken}`;
-			if (socketRef.current) {
-				socketRef.current.close();
+	const onMessageFunc = useCallback(
+		(event) => {
+			let { data = '' } = event || {};
+			data = JSON.parse(data);
+
+			if (data?.stream_end) {
+				handleStreamIncomingMessage(data);
+				setInfo((prev) => ({ ...prev, latestStreamMesage: data }));
 			}
-			socketRef.current = new WebSocket(baseUrl);
-			socketRef.current.onopen = () => {
-				console.log('Connected to WebSocket server');
-			};
-
-			socketRef.current.onclose = () => {
-				console.log('Disconnected from WebSocket server');
-			};
-
-			socketRef.current.onmessage = (event) => {
-				let { data = '' } = event || {};
-				data = JSON.parse(data);
-				// console.log('data==>', data);
-				console.log('event==>', data);
-
-				if (data?.stream_end) {
-					handleStreamIncomingMessage(data);
-					setInfo((prev) => ({ ...prev, latestStreamMesage: data }));
-					//also need to handle one logic to trigger
-				}
-				const { message_chunk_id } = data;
-				if (message_chunk_id) {
-					handleStreamMessageChunk(data, message_chunk_id);
-				}
-			};
+			const { message_chunk_id } = data;
+			if (message_chunk_id) {
+				handleStreamMessageChunk(data, message_chunk_id);
+			}
 		},
 		[info],
 	);
 
 	const handleSendWebsocketMessage = useCallback(
-		(data, lastQuery) => {
-			if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
-				console.log('data==>', data);
-				socketRef.current.send(JSON.stringify(data));
+		async (data, lastQuery) => {
+			try {
+				await sendMessage(data);
 				setInfo((prev) => ({ ...prev, lastQuery: lastQuery }));
+			} catch (error) {
+				console.error('Failed to send message:', error);
+				// Handle error appropriately (show notification, etc.)
 			}
 		},
-		[socketRef, info],
+		[sendMessage, setInfo],
 	);
 
 	const toggleLatestStreamMessage = useCallback(() => {

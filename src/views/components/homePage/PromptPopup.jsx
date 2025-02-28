@@ -12,6 +12,7 @@ import BottomToolbar from '../ai_agents/BottomToolbar';
 import ToolBarChatContainerModal from '../modalsV2/ToolBarChatContainerModal';
 import Context from '../../../context/context';
 import { useNavigate } from 'react-router-dom';
+import ObjectID from 'bson-objectid';
 const files = [
 	'My Templates',
 	'Wedding Proposals',
@@ -86,7 +87,7 @@ const PromptPopup = ({ open, closeModal, selectedCard }) => {
 	const handleClickRun = useCallback(() => {
 		updateStateValues({ activePromptForChat: dynamicPrompt });
 		closeModal();
-		navigate('/chat');
+		navigate(`/chat/${ObjectID().toString()}`);
 	}, [dynamicPrompt]);
 
 	return (

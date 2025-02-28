@@ -1,36 +1,13 @@
 import React, { memo, useCallback, useState, useRef, useEffect, useContext, useMemo } from 'react';
 import '../../../assets/scss/ai_agents/bottomToolbar.scss';
-import { ReactComponent as Plus } from '../../../assets/svg/ai_agents/Plus.svg';
-import { ReactComponent as Home } from '../../../assets/svg/ai_agents/home.svg';
-import { ReactComponent as Settings } from '../../../assets/svg/ai_agents/settings.svg';
 import { ReactComponent as Close } from '../../../assets/svg/close.svg';
-import { ReactComponent as Expand } from '../../../assets/svg/bottomToolbar/expand.svg';
-
-import { ReactComponent as ArrowUp } from '../../../assets/svg/ai_agents/arrow-up.svg';
-import { Alert, Image, message, Spin, Tooltip } from 'antd';
-import { UploadOutlined } from '@ant-design/icons';
-import { Upload } from 'antd';
 import Context from '../../../context/context';
 import ObjectID from 'bson-objectid';
 import { useLocation, useNavigate } from 'react-router-dom';
-// import Markdown from 'react-markdown';
-// import { TypingEffect } from '../../../helpers/markdownHelper';
-// import { ReactComponent as AiStarInChat } from '../../../assets/svg/ai_agents/ai-star-in-chat.svg';
-import { ReactComponent as Filter } from '../../../assets/svg/ai_agents/filter.svg';
-import { ReactComponent as Arroba } from '../../../assets/svg/ai_agents/arroba.svg';
 import { ReactComponent as PaperClip } from '../../../assets/svg/ai_agents/paper-clip.svg';
 import { ReactComponent as Mic } from '../../../assets/svg/ai_agents/mic.svg';
-import { getBase64 } from '../../../helpers';
-import WorkflowSlugSelector from '../calendar/WorkflowSlugSelector';
-import { ReactComponent as AiSparkel } from '../../../assets/svg/calendar/aiSparkel.svg';
 import useVoiceIntegration from '../../hooks/useVoiceIntegration';
 import ChatBox from '../homePage/ChatBox';
-
-const moduleHelper = {
-	tasks: 'tasks',
-	'smart-file': 'form_filling',
-	calendar: 'calendar',
-};
 
 const BottomToolbar = ({
 	outerContainerStyle = {},
@@ -188,6 +165,11 @@ const BottomToolbar = ({
 		}));
 	};
 
+	const handleCustomOnSendFunction = useCallback((data) => {
+		updateStateValues({ activePromptForChat: data });
+		navigate(`/chat/${ObjectID().toString()}`);
+	}, []);
+
 	return (
 		<div
 			ref={toolbarRef}
@@ -216,7 +198,7 @@ const BottomToolbar = ({
 			{!info?.chatModalIsOpen ? (
 				info?.bigToolbarIsOpen ? (
 					<div className="chatBoxContainer">
-						<ChatBox />
+						<ChatBox onSend={handleCustomOnSendFunction} customChatActions={true} />
 					</div>
 				) : (
 					<div className="bottomToolbarSmall" onClick={handleSmallToolbarClick}>

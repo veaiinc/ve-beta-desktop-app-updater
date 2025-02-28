@@ -1,10 +1,12 @@
-import React, { memo, useContext, useState, useEffect } from 'react';
+import React, { memo, useContext, useState, useEffect, useCallback } from 'react';
 import '../../../assets/scss/home_page/initialHomepage.scss';
 import jwtDecode from 'jwt-decode';
 import Context from '../../../context/context';
 import PromptPopup from '../../components/homePage/PromptPopup';
 import HomePage from './HomePage';
 import ChatBox from '../../components/homePage/ChatBox';
+import { useNavigate } from 'react-router-dom';
+import ObjectID from 'bson-objectid';
 const initialHomePageOptions = [
 	{ id: 1, title: 'All Prompts', type: 'all' },
 	{ id: 2, title: 'Sales', type: 'sales' },
@@ -20,6 +22,12 @@ const navBarOptions = [
 ];
 
 const InitialHomePage = () => {
+	const {
+		templates: { updateStateValues },
+	} = useContext(Context);
+
+	const navigate = useNavigate();
+
 	const [info, setInfo] = useState({
 		isStart: false,
 		selectedOption: null,
@@ -70,6 +78,10 @@ const InitialHomePage = () => {
 		}));
 	};
 
+	const handleCustomOnSendFunction = useCallback((data) => {
+		updateStateValues({ activePromptForChat: data });
+		navigate(`/chat/${ObjectID().toString()}`);
+	}, []);
 	return (
 		<>
 			{info?.selectedOption !== null || info?.dashboardSelected ? (
@@ -134,7 +146,7 @@ const InitialHomePage = () => {
 						</div>
 					</div>
 					<div className="initialHomePageContainer-chatBox">
-						<ChatBox />
+						<ChatBox onSend={handleCustomOnSendFunction} customChatActions={true} />
 					</div>
 					<div className="initialHomePageContainer-prompts">
 						<div className="initialHomePageContainerCards">
