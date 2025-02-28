@@ -96,6 +96,7 @@ export const intialState = {
 	leftSidebarState: null,
 	recentChatStorage: null,
 	moreRecentChatStorage: null,
+	activePayloadForChat: null,
 };
 
 export const TemplatesState = (props) => {
