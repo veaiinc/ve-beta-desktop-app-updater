@@ -45,6 +45,8 @@ import AgentDetails from './views/features/ai_assistant/AgentDetails';
 import InitialHomePage from './views/features/home_page/InitialHomePage';
 import Chat from './views/features/chat/Chat';
 import RecentChat from './views/features/chat/RecentChat';
+import AutomationBuilder from './views/features/automation_builder';
+import AutomationBuilderLayout from './views/layouts/automationBuilderLayout';
 import SchedulerMainPage from './views/features/calendar/SchedulerMainPage';
 import EditScheduler from './views/features/calendar/EditScheduler';
 const routes = [
@@ -396,6 +398,15 @@ const routes = [
 			<AuthWrapper title={'My Templates'}>
 				<MyTemplates />
 			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/automation-builder/:automationId',
+		component: (
+			<AutomationBuilderLayout title={'Automation Builder'}>
+				<AutomationBuilder />
+			</AutomationBuilderLayout>
 		),
 		exact: true,
 	},
