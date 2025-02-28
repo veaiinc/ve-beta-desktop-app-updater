@@ -50,9 +50,6 @@ const Notifications = () => {
 		email: false,
 		whatsapp: false,
 		slack: false,
-		emailAll: false,
-		whatsappAll: false,
-		slackAll: false,
 		selectedOptions: {},
 	});
 
@@ -168,23 +165,41 @@ const Notifications = () => {
 									<div className="notificationContainerOptions-item">
 										{module}
 									</div>
-									{/* <div className="notificationContainerOptions-item-checkbox">
+									<div className="notificationContainerOptions-item-checkbox">
 										<input
 											type="checkbox"
 											style={{ width: '36px' }}
-											checked={info.emailAll}
+											checked={info?.emailAll}
+											onChange={() =>
+												setInfo({
+													...info,
+													emailAll: !info?.emailAll,
+												})
+											}
 										/>
 										<input
 											type="checkbox"
 											style={{ width: '70px' }}
-											checked={info.whatsappAll}
+											checked={info?.whatsappAll}
+											onChange={() =>
+												setInfo({
+													...info,
+													whatsappAll: !info?.whatsappAll,
+												})
+											}
 										/>
 										<input
 											type="checkbox"
 											style={{ width: '36px' }}
 											checked={info.slackAll}
+											onChange={() =>
+												setInfo({
+													...info,
+													slackAll: !info?.slackAll,
+												})
+											}
 										/>
-									</div> */}
+									</div>
 								</div>
 								<div className="notificationContainerOptions-items">
 									{actions?.map(({ action, apps }) => {
@@ -273,6 +288,7 @@ const Notifications = () => {
 										);
 									})}
 								</div>
+								<div className="divider"></div>
 							</React.Fragment>
 						))}
 					</div>
