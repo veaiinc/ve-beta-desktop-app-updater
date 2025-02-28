@@ -171,7 +171,6 @@ const actionHandlers = {
 			}
 		}
 		if (requiredIndex !== -1) {
-			console.log('messages==>', messages[requiredIndex]);
 			messages[requiredIndex] = {
 				...messages[requiredIndex],
 				...payload,
