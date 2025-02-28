@@ -12,6 +12,7 @@ export const getTemmplatesQuery = gql`
 					_id
 					isPublic
 					label
+					actions
 				}
 				status
 
