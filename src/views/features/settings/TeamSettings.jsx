@@ -392,7 +392,7 @@ const TeamSettings = () => {
 
 		setInfo((prev) => ({ ...prev, isloading: true }));
 		const response = await addTenantUser(finalData);
-		if (response?.[1] === true) {
+		if (response?.[0] === true) {
 			messageApi.success('User invited successfully');
 			setInfo((prev) => ({ ...prev, showAddTenantUserModal: false, isloading: false }));
 			setAccessControls((prev) => ({
