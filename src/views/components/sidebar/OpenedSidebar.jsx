@@ -209,7 +209,6 @@ const OpenedSideBarHoverStateIcons2 = ({
 	};
 
 	const redirectToFunction = () => {
-		console.log('route', route);
 		if (!route) return;
 		navigateTo(route);
 	};
@@ -373,9 +372,6 @@ const OpenedSideBarItemsComponent = ({
 	};
 
 	const filterModules = (modulesList, accessControls, allPossibleApps) => {
-		console.log('Modules List:', modulesList);
-		console.log('Access Controls:', accessControls);
-		console.log('All Possible Apps:', allPossibleApps);
 		if (!accessControls?.length) {
 			return modulesList; // If no access control data, return the modules as is
 		}
