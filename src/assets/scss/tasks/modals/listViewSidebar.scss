@@ -104,14 +104,14 @@
 					width: 16px;
 					svg {
 						path {
-							fill: #787e87;
+							fill: var(--secondary-font);
 						}
 					}
 				}
 
 				.breadCrumbs-item {
-					color: #787e87;
-					font-family: Inter;
+					color: var(--secondary-font);
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 500;
@@ -123,18 +123,18 @@
 					white-space: nowrap;
 
 					&:hover {
-						color: #f2f2f3;
+						color: var(--primary-font);
 						.right-svg {
 							svg {
 								path {
-									fill: #f2f2f3;
+									fill: var(--primary-font);
 								}
 							}
 						}
 					}
 
 					&.active {
-						color: #f2f2f3;
+						color: var(--primary-font);
 					}
 				}
 			}
@@ -158,14 +158,14 @@
 					width: 16px;
 					svg {
 						path {
-							fill: #787e87;
+							fill: var(--secondary-font);
 						}
 					}
 				}
 
 				.breadCrumbs-item {
-					color: #787e87;
-					font-family: Inter;
+					color: var(--secondary-font);
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 500;
@@ -177,18 +177,18 @@
 					white-space: nowrap;
 
 					&:hover {
-						color: #f2f2f3;
+						color: var(--primary-font);
 						.right-svg {
 							svg {
 								path {
-									fill: #f2f2f3;
+									fill: var(--primary-font);
 								}
 							}
 						}
 					}
 
 					&.active {
-						color: #f2f2f3;
+						color: var(--primary-font);
 					}
 				}
 			}

@@ -361,16 +361,16 @@
 		border: none;
 		margin: 24px;
 		margin-top: 0;
-		color: black;
-		font-family: Inter;
+		color: var(--primary-font);
+		font-family: var(--primary-font-family);
 		font-size: 16px;
 		font-style: normal;
 		font-weight: 500;
 		cursor: pointer;
 
 		&:hover {
-			background-color: #e4e5e6;
-			color: black;
+			background-color: var(--card);
+			color: var(--primary-font);
 		}
 	}
 
@@ -378,9 +378,8 @@
 		margin: 0 24px;
 		padding: 5px;
 		border-radius: 5px;
-		background: rgba(239, 68, 68, 0.1);
-		border-left: 4px solid #ef4444;
-		box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+		background: var(--card);
+		border-left: 4px solid var(--error);
 		display: flex;
 		align-items: center;
 		justify-content: center;
@@ -389,11 +388,11 @@
 		svg {
 			width: 24px;
 			height: 24px;
-			color: #ef4444;
+			color: var(--error);
 		}
 
 		span {
-			color: #fca5a5;
+			color: var(--error);
 			font-weight: 500;
 			font-size: 14px;
 		}

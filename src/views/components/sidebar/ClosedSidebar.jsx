@@ -1,15 +1,15 @@
 import React, { useState, memo, useEffect, useContext } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 // import PlusSvg from '../../../assets/svg/sidebar/PlusSvg';
-import LeadPlusSvg from '../../../assets/svg/sidebar/LeadPlusSvg.jsx';
+// import LeadPlusSvg from '../../../assets/svg/sidebar/LeadPlusSvg.jsx';
 import AppartmentHomeSvg from '../../../assets/svg/sidebar/AppartmentHomeSvg';
 import { veAiModulesItemsList } from './sidebarindex';
-import DropDrownMenu from './DropDrownMenu';
+// import DropDrownMenu from './DropDrownMenu';
 import { ReactComponent as SidebarClosingSvg } from '../../../assets/svg/sidebar/SidebarClosing.svg';
 import { ReactComponent as HamburgerSvg } from '../../../assets/svg/sidebar/Hamburger.svg';
 import { Tooltip } from 'antd';
-import { closedSidebarIcons } from './sidebarindex';
-import { AiOptions } from './sidebarindex';
+// import { closedSidebarIcons } from './sidebarindex';
+// import { AiOptions } from './sidebarindex';
 import Cookies from 'js-cookie';
 import Context from '../../../context/context.js';
 const ClosedSideBarHoverStateIcons = ({
@@ -132,55 +132,55 @@ const ClosedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info, se
 		}
 	}, [window.location.pathname]);
 
-	useEffect(() => {
-		const selectedModule = veAiModulesItemsList.find(
-			(module) => module.name === sidebarStates.selectedModule,
-		);
+	// useEffect(() => {
+	// 	const selectedModule = veAiModulesItemsList.find(
+	// 		(module) => module.name === sidebarStates.selectedModule,
+	// 	);
 
-		const iconsToShow =
-			selectedModule?.subModules?.map((subModule) => ({
-				icon: subModule.icon,
-				route: subModule.route || '#',
-				name: subModule.name,
-			})) || [];
+	// 	const iconsToShow =
+	// 		selectedModule?.subModules?.map((subModule) => ({
+	// 			icon: subModule.icon,
+	// 			route: subModule.route || '#',
+	// 			name: subModule.name,
+	// 		})) || [];
 
-		setVisibleIcons(iconsToShow);
-	}, [sidebarStates.selectedModule]);
+	// 	setVisibleIcons(iconsToShow);
+	// }, [sidebarStates.selectedModule]);
 
 	// ... existing code ...
 
 	useEffect(() => {
 		const currentPath = window.location.pathname;
-		const selectedAiOption = AiOptions.find(
-			(option) =>
-				currentPath === option.route ||
-				currentPath.startsWith(option.route + '/') ||
-				option.subModules?.some(
-					(subModule) =>
-						currentPath === subModule.route ||
-						currentPath.startsWith(subModule.route + '/'),
-				),
-		);
+		// const selectedAiOption = AiOptions.find(
+		// 	(option) =>
+		// 		currentPath === option.route ||
+		// 		currentPath.startsWith(option.route + '/') ||
+		// 		option.subModules?.some(
+		// 			(subModule) =>
+		// 				currentPath === subModule.route ||
+		// 				currentPath.startsWith(subModule.route + '/'),
+		// 		),
+		// );
 
 		// If we found an AI option, use its submodules
-		if (selectedAiOption) {
-			const iconsToShow =
-				selectedAiOption.subModules?.map((subModule) => ({
-					icon: subModule.icon,
-					route: subModule.route || '#',
-					name: subModule.name,
-					description: subModule.description,
-				})) || [];
+		// if (selectedAiOption) {
+		// 	const iconsToShow =
+		// 		selectedAiOption.subModules?.map((subModule) => ({
+		// 			icon: subModule.icon,
+		// 			route: subModule.route || '#',
+		// 			name: subModule.name,
+		// 			description: subModule.description,
+		// 		})) || [];
 
-			setVisibleIcons(iconsToShow);
-			const activeIndex = iconsToShow.findIndex(
-				(icon) => currentPath === icon.route || currentPath.startsWith(icon.route + '/'),
-			);
+		// 	setVisibleIcons(iconsToShow);
+		// 	const activeIndex = iconsToShow.findIndex(
+		// 		(icon) => currentPath === icon.route || currentPath.startsWith(icon.route + '/'),
+		// 	);
 
-			// Set the found index or default to 0 if no match
-			setSelectedIcon(activeIndex !== -1 ? activeIndex : 0);
-			return;
-		}
+		// 	// Set the found index or default to 0 if no match
+		// 	setSelectedIcon(activeIndex !== -1 ? activeIndex : 0);
+		// 	return;
+		// }
 
 		// If not an AI route, check regular modules
 		const selectedModule = veAiModulesItemsList.find((module) =>
@@ -229,41 +229,41 @@ const ClosedSideBarItemsComponent = ({ sidebarStates, setsidebarStates, info, se
 	const openNewFeaturePlus = () => {
 		setInfo((prev) => ({ ...prev, isNewFeaturePlusOpen: !prev.isNewFeaturePlusOpen }));
 	};
-	const handleIconClick = (index, route) => {
-		setSelectedIcon(index);
-		const selectedIconName = closedSidebarIcons[index]?.name || 'Home';
-		setLastVisitedLocation(selectedIconName);
-	};
-	const getFilteredAiOptions = () => {
-		const currentPath = window.location.pathname;
+	// const handleIconClick = (index, route) => {
+	// 	setSelectedIcon(index);
+	// 	const selectedIconName = closedSidebarIcons[index]?.name || 'Home';
+	// 	setLastVisitedLocation(selectedIconName);
+	// };
+	// const getFilteredAiOptions = () => {
+	// 	const currentPath = window.location.pathname;
 
-		// Find parent module if we're in a submodule
-		const parentModule = AiOptions.find((option) =>
-			option.subModules?.some(
-				(subModule) =>
-					currentPath === subModule.route ||
-					currentPath.startsWith(subModule.route + '/'),
-			),
-		);
+	// 	// Find parent module if we're in a submodule
+	// 	const parentModule = AiOptions.find((option) =>
+	// 		option.subModules?.some(
+	// 			(subModule) =>
+	// 				currentPath === subModule.route ||
+	// 				currentPath.startsWith(subModule.route + '/'),
+	// 		),
+	// 	);
 
-		return AiOptions.filter(
-			(option) =>
-				// Exclude if it's the current direct route
-				!currentPath.startsWith(option.route) &&
-				// Exclude if it's the parent module of current submodule
-				option.route !== parentModule?.route,
-		);
-	};
+	// 	return AiOptions.filter(
+	// 		(option) =>
+	// 			// Exclude if it's the current direct route
+	// 			!currentPath.startsWith(option.route) &&
+	// 			// Exclude if it's the parent module of current submodule
+	// 			option.route !== parentModule?.route,
+	// 	);
+	// };
 
-	const getParentAiModuleImage = (pathname) => {
-		const parentModule = AiOptions.find((option) =>
-			option.subModules?.some(
-				(subModule) =>
-					pathname === subModule.route || pathname.startsWith(subModule.route + '/'),
-			),
-		);
-		return parentModule?.image;
-	};
+	// const getParentAiModuleImage = (pathname) => {
+	// 	const parentModule = AiOptions.find((option) =>
+	// 		option.subModules?.some(
+	// 			(subModule) =>
+	// 				pathname === subModule.route || pathname.startsWith(subModule.route + '/'),
+	// 		),
+	// 	);
+	// 	return parentModule?.image;
+	// };
 
 	return (
 		<>

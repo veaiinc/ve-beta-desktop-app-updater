@@ -15,11 +15,11 @@
 		align-self: stretch;
 		flex-wrap: wrap;
 		border-radius: 8px 8px 0px 0px;
-		background: #27282b;
+		background: var(--card);
 		&-title {
-			color: #e4e5e6;
+			color: var(--primary-font);
 			text-align: center;
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 12px;
 			font-style: normal;
 			font-weight: 500;
@@ -40,7 +40,7 @@
 			&.ant-select-item-option-selected {
 				background-color: transparent !important;
 				.person-dropdown-menu-option {
-					background: #2f2f2f;
+					background: var(--card);
 				}
 			}
 		}
@@ -63,16 +63,16 @@
 			width: 20px;
 			height: 20px;
 			border-radius: 50%;
-			background: #2f2f2f;
+			background: var(--card);
 			display: flex;
 			align-items: center;
 			justify-content: center;
-			border: 1px solid #414141;
+			border: 1px solid var(--stroke);
 
 			&-icon {
-				color: #e4e5e6;
+				color: var(--primary-font);
 				text-align: center;
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 500;
@@ -82,9 +82,9 @@
 		}
 
 		&-label {
-			color: #e4e5e6;
+			color: var(--primary-font);
 			text-align: center;
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 12px;
 			font-style: normal;
 			font-weight: 500;
@@ -92,26 +92,26 @@
 		}
 
 		&:hover {
-			background: #2f2f2fb4;
+			background: var(--card);
 		}
 	}
 }
 
 // Override Ant Design styles
 .ant-select-dropdown {
-	background-color: #1f1f1f !important;
+	background-color: var(--card) !important;
 	padding: 0 !important;
-	border: 1px solid #303030 !important;
+	border: 1px solid var(--stroke) !important;
 
 	.ant-select-item {
-		color: #ffffff !important;
+		color: var(--primary-font) !important;
 
 		&:hover {
-			background-color: #2f2f2f !important;
+			background-color: var(--card) !important;
 		}
 
 		&.ant-select-item-option-selected {
-			background-color: #3f3f3f !important;
+			background-color: var(--card) !important;
 		}
 	}
 }
@@ -194,29 +194,29 @@
 
 		.ant-select-item {
 			padding: 8px 12px !important;
-			color: #ffffff !important;
+			color: var(--primary-font) !important;
 
 			&:hover {
-				background-color: #2f2f2f !important;
+				background-color: var(--card) !important;
 			}
 
 			&.ant-select-item-option-selected {
-				background-color: #3f3f3f !important;
+				background-color: var(--card) !important;
 			}
 		}
 
 		.person-dropdown-menu {
-			background-color: #1f1f1f !important;
+			background-color: var(--card) !important;
 
 			.person-dropdown-menu-option {
 				padding: 8px 12px;
 
 				&:hover {
-					background-color: #2f2f2f;
+					background-color: var(--card);
 				}
 
 				.person-dropdown-menu-option-label {
-					color: #ffffff !important;
+					color: var(--primary-font) !important;
 				}
 			}
 		}
@@ -224,27 +224,27 @@
 
 	// Override any Ant Design default styles
 	.ant-select-item-option-content {
-		color: #ffffff !important;
+		color: var(--primary-font) !important;
 	}
 
 	.ant-select-dropdown-menu {
-		background-color: #1f1f1f !important;
+		background-color: var(--card) !important;
 	}
 }
 
 // Add these global styles to ensure dropdown is visible
 :where(.css-dev-only-do-not-override-xxx).ant-select-dropdown {
-	background-color: #1f1f1f !important;
+	background-color: var(--card) !important;
 
 	.ant-select-item-option {
-		color: #ffffff !important;
+		color: var(--primary-font) !important;
 
 		&:hover {
-			background-color: #2f2f2f !important;
+			background-color: var(--card) !important;
 		}
 
 		&-selected {
-			background-color: #3f3f3f !important;
+			background-color: var(--card) !important;
 		}
 	}
 }
@@ -339,18 +339,18 @@
 	border: none !important;
 	.ant-select-item {
 		padding: 8px 12px !important;
-		color: #ffffff !important;
+		color: var(--primary-font) !important;
 
 		&:hover {
-			background-color: #2f2f2f !important;
+			background-color: var(--card) !important;
 		}
 
 		&.ant-select-item-option-selected {
-			background-color: #3f3f3f !important;
+			background-color: var(--card) !important;
 		}
 	}
 
 	.ant-select-item-option-content {
-		color: #ffffff !important;
+		color: var(--primary-font) !important;
 	}
 }

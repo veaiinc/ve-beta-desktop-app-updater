@@ -322,7 +322,7 @@
 	justify-content: space-between;
 	align-items: flex-start;
 	border-radius: 32px;
-	background: #202123;
+	background: var(--popup);
 	gap: 16px;
 
 	.titleAndDescriptionContainer {
@@ -390,7 +390,7 @@
 			gap: 8px;
 			flex: 1 0 0;
 			border-radius: 16px;
-			border: 1px solid #2c2d2e;
+			border: 1px solid var(--stroke);
 			cursor: pointer;
 
 			svg {
@@ -411,11 +411,11 @@
 
 		.active {
 			border-radius: 16px;
-			border: 1px solid rgba(232, 232, 232, 0.5);
-			background: rgba(232, 232, 232, 0.1);
+			border: 1px solid var(--stroke);
+			background: var(--card);
 
 			span {
-				color: #f2f2f3;
+				color: var(--primary-font);
 			}
 		}
 	}
@@ -551,7 +551,7 @@
 		overflow-y: auto;
 		max-height: 256px;
 
-		border: 1px dashed rgb(109, 108, 108);
+		border: 1px dashed var(--stroke);
 		border-radius: 16px;
 		padding: 16px;
 
@@ -562,16 +562,16 @@
 			width: 100%;
 			justify-content: space-between;
 			span {
-				color: #7f7f82;
-				font-family: Inter;
+				color: var(--secondary-font);
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 500;
 			}
 
 			.addAllSubLinksBtn {
-				color: #7f7f82;
-				font-family: Inter;
+				color: var(--secondary-font);
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 500;
@@ -580,12 +580,12 @@
 				align-items: center;
 				gap: 8px;
 				border-radius: 50px;
-				border: 1px solid #7f7f82;
+				border: 1px solid var(--stroke);
 				padding: 4px 8px;
 				transition: all 0.3s ease-in-out;
 				&:hover {
-					color: #ffffff;
-					border: 1px solid #ffffff;
+					color: var(--primary-font);
+					border: 1px solid var(--stroke);
 				}
 			}
 		}
@@ -607,7 +607,7 @@
 				align-items: center;
 				gap: 8.571px;
 				border-radius: 3.429px;
-				background: #333;
+				background: var(--card-hover);
 				cursor: pointer;
 			}
 
@@ -616,8 +616,8 @@
 				text-overflow: ellipsis;
 				overflow: hidden;
 				white-space: nowrap;
-				color: #e4e5e6;
-				font-family: Inter;
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 400;
@@ -643,8 +643,8 @@
 				justify-content: center;
 				align-items: center;
 				border-radius: 50px;
-				color: #7f7f82;
-				font-family: Inter;
+				color: var(--secondary-font);
+				font-family: var(--primary-font-family);
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 500;
@@ -652,7 +652,7 @@
 				background: transparent;
 				transition: all 0.3s ease-in-out;
 				&:hover {
-					color: #ffffff;
+					color: var(--primary-font);
 				}
 			}
 		}
@@ -675,7 +675,6 @@
 			input {
 				border-radius: 10px;
 				border: 1px solid var(--stroke);
-				background: var(--card-hover);
 				display: flex;
 				padding: 8px 14px;
 				align-items: center;
@@ -686,6 +685,16 @@
 				width: 335px;
 				height: 46px;
 				align-items: center;
+
+				&:hover {
+					border: 1px solid var(--stroke);
+					background: var(--card-hover);
+				}
+
+				&:active {
+					border: 1px solid var(--stroke);
+					background: var(--card-hover);
+				}
 			}
 
 			button {
@@ -700,6 +709,9 @@
 				font-family: var(--primary-font-family);
 				font-size: 12px;
 				cursor: pointer;
+				border-radius: 8px;
+				border: 1px solid var(--stroke);
+				background: var(--card-hover);
 			}
 		}
 
@@ -790,10 +802,10 @@
 			align-items: center;
 			gap: 16px;
 			border-radius: 50px;
-			border: 1px solid #2c2d2e;
+			border: 1px solid var(--stroke);
 			cursor: pointer;
-			color: #f2f2f3;
-			font-family: Inter;
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 500;
@@ -803,7 +815,7 @@
 
 			&:hover {
 				border-radius: 50px;
-				border: 1px solid #424548;
+				border: 1px solid var(--stroke);
 			}
 		}
 
@@ -815,12 +827,12 @@
 			align-items: center;
 			gap: 6px;
 			border-radius: 59px;
-			background: #f2f2f3;
+			background: var(--primary-button);
 			cursor: pointer;
 			border: none;
-			border: 1px solid #f2f2f3;
-			color: #1c1d1f;
-			font-family: Inter;
+			border: 1px solid var(--stroke);
+			color: var(--primary-button-font);
+			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 500;
@@ -836,13 +848,13 @@
 
 			&:enabled:hover {
 				background-color: transparent;
-				color: #f2f2f3;
-				border: 1px solid #f2f2f3;
+				color: var(--primary-font);
+				border: 1px solid var(--stroke);
 			}
 			&:disabled {
-				background-color: #2c2e30;
-				border: 1px solid #2c2e30;
-				color: #797e86;
+				background-color: var(--card-hover);
+				border: 1px solid var(--card-hover);
+				color: var(--secondary-font);
 				cursor: not-allowed;
 				&:hover {
 					opacity: 0.8;

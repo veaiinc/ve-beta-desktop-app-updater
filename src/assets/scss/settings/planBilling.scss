@@ -49,8 +49,8 @@
 				align-items: flex-start;
 				gap: 24px;
 				border-radius: 16px;
-				border: 0.2px solid rgba(100, 100, 100, 0.16);
-				background: rgba(32, 32, 33, 0.24);
+				border: 0.2px solid var(--stroke);
+				background: var(--card);
 				backdrop-filter: blur(18px);
 				position: relative;
 
@@ -290,8 +290,8 @@
 				align-items: center;
 				align-self: stretch;
 				.subscriptionPlanHeader {
-					color: #e8e8e8;
-					font-family: Inter;
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
 					font-size: 24px;
 					font-style: normal;
 					font-weight: 600;
@@ -304,10 +304,10 @@
 					align-items: center;
 					gap: 6px;
 					border-radius: 59px;
-					background: #e8e8e8;
+					background: var(--primary-font);
 					cursor: pointer;
-					color: #000;
-					font-family: Inter;
+					color: var(--card);
+					font-family: var(--primary-font-family);
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 500;
@@ -415,11 +415,11 @@
 
 				.currentAddOnsContainer {
 					width: 100%;
-					border-bottom: 1px solid #333334;
+					border-bottom: 1px solid var(--stroke);
 
 					.currentAddOns {
-						color: #f2f2f3;
-						font-family: Inter;
+						color: var(--primary-font);
+						font-family: var(--primary-font-family);
 						font-size: 14px;
 						font-style: normal;
 						font-weight: 500;
@@ -537,8 +537,8 @@
 						align-self: stretch;
 						gap: 8px;
 						.storageTitle {
-							color: #e4e5e6;
-							font-family: Inter;
+							color: var(--primary-font);
+							font-family: var(--primary-font-family);
 							font-size: 12px;
 							font-style: normal;
 							font-weight: 500;
@@ -546,23 +546,23 @@
 							text-transform: uppercase;
 						}
 						.storageUsed {
-							color: #777783;
-							font-family: Inter;
+							color: var(--secondary-font);
+							font-family: var(--primary-font-family);
 							font-size: 14px;
 							font-style: normal;
 							font-weight: 400;
 							line-height: normal;
 							.storageUsedValue {
-								color: #e4e5e6;
-								font-family: Inter;
+								color: var(--primary-font);
+								font-family: var(--primary-font-family);
 								font-size: 24px;
 								font-style: normal;
 								font-weight: 500;
 								line-height: normal;
 							}
 							.storageUsedUnit {
-								color: #e4e5e6;
-								font-family: Inter;
+								color: var(--primary-font);
+								font-family: var(--primary-font-family);
 								font-size: 14px;
 								font-style: normal;
 								font-weight: 500;
@@ -573,17 +573,17 @@
 							width: 219px;
 							height: 3px;
 							border-radius: 24px;
-							background: #2c2e30;
+							background: var(--stroke);
 							position: relative;
 							.storageProgressValue {
 								height: 3px;
 								border-radius: 24px;
-								background: #6055ec;
+								background: var(--info);
 							}
 						}
 						.storageProgressText {
-							color: #ff0000;
-							font-family: Inter;
+							color: var(--error);
+							font-family: var(--primary-font-family);
 							font-size: 12px;
 							font-style: normal;
 							font-weight: 400;
@@ -596,7 +596,7 @@
 			.subscriptionSeperator {
 				width: 100%;
 				height: 1px;
-				background: #333334;
+				background: var(--stroke);
 			}
 
 			.subscriptionActionContainer {
@@ -612,10 +612,10 @@
 					align-items: center;
 					gap: 6px;
 					border-radius: 59px;
-					background: #e8e8e8;
+					background: var(--primary-font);
 					cursor: pointer;
-					color: #000;
-					font-family: Inter;
+					color: var(--card);
+					font-family: var(--primary-font-family);
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 500;
@@ -623,8 +623,8 @@
 					border: none;
 				}
 				.expiringText {
-					color: var(--ve-ai-dark-theme-secondary-color, #939393);
-					font-family: Inter;
+					color: var(--secondary-font);
+					font-family: var(--primary-font-family);
 					font-size: 11px;
 					font-style: normal;
 					font-weight: 400;
@@ -814,8 +814,8 @@
 				border-radius: 59px;
 				background: var(--primary-font);
 				cursor: pointer;
-				color: #000;
-				font-family: Inter;
+				color: var(--card);
+				font-family: var(--primary-font-family);
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 500;

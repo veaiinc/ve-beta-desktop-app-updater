@@ -348,12 +348,12 @@ const Drafts = memo(() => {
 										<span
 											className="aiAgentsDraftsCardText"
 											style={{
-												fontFamily: 'Inter',
+												fontFamily: 'var(--primary-font-family)',
 												fontSize: '12px',
 												fontStyle: 'normal',
 												fontWeight: '500',
 												lineHeight: 'normal',
-												color: '#E8E8E8',
+												color: 'var(--primary-font)',
 											}}
 										>
 											{ele?.title}

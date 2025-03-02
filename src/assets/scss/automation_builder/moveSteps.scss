@@ -6,8 +6,7 @@
 	align-items: flex-start;
 	gap: 24px;
 	border-radius: 32px;
-	background: #202123;
-	box-shadow: 0px 53px 53px 0px rgba(0, 0, 0, 0.09), 0px 13px 29px 0px rgba(0, 0, 0, 0.1);
+	background: var(--popup);
 
 	.modalHeaderContainer {
 		display: flex;
@@ -16,8 +15,8 @@
 		align-self: stretch;
 
 		.modalHeaderContainerText {
-			color: #e8e8e8;
-			font-family: Inter;
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
 			font-size: 20px;
 			font-style: normal;
 			font-weight: 500;
@@ -33,10 +32,10 @@
 	}
 
 	.subTitleTextStyling {
-		color: var(--ve-ai-dark-theme-secondary-color, #939393);
+		color: var(--secondary-font);
 
 		/* Body/Body Text - 14 Px */
-		font-family: Inter;
+		font-family: var(--primary-font-family);
 		font-size: 14px;
 		font-style: normal;
 		font-weight: 500;
@@ -59,9 +58,9 @@
 			gap: 8px;
 			flex: 1 0 0;
 			border-radius: 50px;
-			background: rgba(27, 152, 61, 0.06);
-			color: #1b983d;
-			font-family: Inter;
+			background: var(--success);
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 500;
@@ -78,9 +77,9 @@
 			gap: 8px;
 			flex: 1 0 0;
 			border-radius: 50px;
-			background: rgba(231, 72, 87, 0.06);
-			color: #e74857;
-			font-family: Inter;
+			background: var(--error);
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 500;

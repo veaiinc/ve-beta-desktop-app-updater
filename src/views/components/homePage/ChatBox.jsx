@@ -800,7 +800,9 @@ const ChatBox = ({
 														onClick={handleGoDeepSearchClick}
 														style={{
 															background: `${
-																info?.goDeep ? '#B39DFA' : '#2E2F33'
+																info?.goDeep
+																	? 'var(--accent-color)'
+																	: ''
 															}`,
 														}}
 													>
@@ -815,11 +817,7 @@ const ChatBox = ({
 															<div
 																className="right-text"
 																style={{
-																	color: `${
-																		info?.goDeep
-																			? '#0C0C0D'
-																			: '#f2f2f3'
-																	}`,
+																	color: 'var(--primary-font)',
 																}}
 															>
 																Explore

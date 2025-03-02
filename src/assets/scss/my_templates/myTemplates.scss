@@ -30,23 +30,22 @@
 					align-items: flex-start;
 					width: fit-content;
 
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 40px;
 					font-style: normal;
 					font-weight: 500;
 					line-height: 43px;
 
 					.lineOne {
-						color: #f2f2f3;
-						color: color(display-p3 0.949 0.949 0.9529);
+						color: var(--primary-font);
 					}
 					.lineTwo {
-						color: color(display-p3 0.4865 0.4865 0.5135);
+						color: var(--secondary-font);
 					}
 				}
 				.headerSubText {
-					color: #7c7c84;
-					font-family: Inter;
+					color: var(--secondary-font);
+					font-family: var(--primary-font-family);
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 500;
@@ -100,12 +99,12 @@
 
 					.subTitleContainer {
 						text-align: center;
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 14px;
 						font-style: normal;
 						font-weight: 500;
 						line-height: normal;
-						background: linear-gradient(94deg, #ca9bfe -2.06%, #fd749d 95.85%);
+						background: var(--ai-color-code);
 						background-clip: text;
 						-webkit-background-clip: text;
 						-webkit-text-fill-color: transparent;
@@ -273,13 +272,12 @@
 						gap: 4px;
 						align-self: stretch;
 						padding: 0px 16px;
-						background: #121315;
+						background: var(--card);
 						padding-bottom: 16px;
 						padding-top: 12px;
 						.docsFooterContentTitle {
-							color: #e4e5e6;
-							color: color(display-p3 0.8941 0.898 0.902);
-							font-family: Inter;
+							color: var(--primary-font);
+							font-family: var(--primary-font-family);
 							font-size: 14px;
 							font-style: normal;
 							font-weight: 500;
@@ -292,9 +290,8 @@
 							display: block;
 						}
 						.docsFooterContentSubTitle {
-							color: #e4e5e6;
-							color: color(display-p3 0.8941 0.898 0.902);
-							font-family: Inter;
+							color: var(--primary-font);
+							font-family: var(--primary-font-family);
 							font-size: 12px;
 							font-style: normal;
 							font-weight: 400;
@@ -320,7 +317,7 @@
 	align-items: flex-start;
 	gap: 4px;
 	border-radius: 12px;
-	background: #26282a;
+	background: var(--popup);
 	.docsFooterContentActionsTooltipItem {
 		display: flex;
 		padding: 6px 8px;
@@ -328,8 +325,8 @@
 		align-items: center;
 		align-self: stretch;
 		border-radius: 8px;
-		color: #f2f2f3;
-		font-family: Inter;
+		color: var(--primary-font);
+		font-family: var(--primary-font-family);
 		font-size: 14px;
 		font-style: normal;
 		font-weight: 500;
@@ -337,7 +334,7 @@
 		flex: 1 0 0;
 		cursor: pointer;
 		&:hover {
-			background: #333537;
+			background: var(--card);
 		}
 	}
 }

@@ -17,8 +17,7 @@
 .sales-page {
 	background-color: inherit;
 	color: var(--primary-font);
-	// padding: 20px;
-	font-family: 'Arial, sans-serif';
+	font-family: var(--primary-font-family);
 	position: relative;
 
 	.header-image {
@@ -121,8 +120,8 @@
 
 	.greeting {
 		position: relative;
-		background-color: #000;
-		color: #fff;
+		background-color: var(--card);
+		color: var(--primary-font);
 		padding: 20px;
 		margin-top: 20px;
 		display: flex;
@@ -145,8 +144,8 @@
 
 			.greeting-text-content {
 				p {
-					color: rgba(228, 229, 230, 0.64);
-					font-family: Inter;
+					color: var(--secondary-font);
+					font-family: var(--primary-font-family);
 					font-size: 20px;
 					font-style: normal;
 					font-weight: 500;
@@ -154,8 +153,8 @@
 				}
 
 				h1 {
-					color: #e4e5e6;
-					font-family: Inter;
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
 					font-size: 36px;
 					font-style: normal;
 					font-weight: 500;
@@ -169,8 +168,8 @@
 			text-align: center;
 
 			p.date {
-				color: rgba(255, 255, 255, 0.43);
-				font-family: Inter;
+				color: var(--secondary-font);
+				font-family: var(--primary-font-family);
 				font-size: 10.347px;
 				font-style: normal;
 				font-weight: 500;
@@ -178,8 +177,8 @@
 			}
 
 			p.location {
-				color: rgba(255, 255, 255, 0.43);
-				font-family: Inter;
+				color: var(--secondary-font);
+				font-family: var(--primary-font-family);
 				font-size: 9.551px;
 				font-style: normal;
 				font-weight: 500;
@@ -187,8 +186,8 @@
 			}
 
 			h2.time {
-				color: #fff;
-				font-family: Inter;
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
 				font-size: 44.571px;
 				font-style: normal;
 				font-weight: 600;
@@ -219,7 +218,7 @@
 	// 			color: rgba(228, 229, 230, 0.48);
 	// 			color: color(display-p3 0.8941 0.898 0.902 / 0.48);
 	// 			cursor: pointer;
-	// 			font-family: Inter;
+	// 			font-family: var(--primary-font-family);
 	// 			font-size: 12px;
 	// 			font-style: normal;
 	// 			font-weight: 500;
@@ -269,7 +268,7 @@
 				flex-shrink: 0;
 
 				&:hover {
-					background: #202123;
+					background: var(--card-hover);
 				}
 				.agentsWorkflowJobCards {
 					display: flex;
@@ -279,8 +278,8 @@
 					align-self: stretch;
 					flex: 1;
 					.agentsWorkflowJobCardsHeader {
-						color: var(--primary-font, #f2f2f3);
-						font-family: Inter;
+						color: var(--primary-font);
+						font-family: var(--primary-font-family);
 						font-size: 14px;
 						font-style: normal;
 						font-weight: 500;

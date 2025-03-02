@@ -37,8 +37,8 @@ const AuthWrapper = ({
 			<div
 				style={{
 					display: 'flex',
-					height: '100vh',
-					padding: '60px 0 0 32px',
+					height: '100dvh',
+					padding: '0 32px',
 					...outerContainerStyle,
 				}}
 			>

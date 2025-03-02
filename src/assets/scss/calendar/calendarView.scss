@@ -62,7 +62,7 @@
 	.rbc-timeslot-group {
 		border: none;
 		border-radius: 3px;
-		background-color: #1c1d1f;
+		background-color: var(--card);
 	}
 
 	.rbc-time-gutter {
@@ -144,7 +144,7 @@
 				// }
 
 				.rbc-off-range-bg {
-					background: #1c1d1f;
+					background: var(--card);
 				}
 			}
 			.rbc-row-content {
@@ -159,7 +159,7 @@
 							display: flex;
 							padding: 8px 10px;
 							padding-bottom: 4px;
-							color: #e0e0e0;
+							color: var(--secondary-font);
 							text-align: center;
 							font-family: var(--primary-font-family);
 							font-size: 13px;
@@ -216,14 +216,13 @@
 					.rbc-current {
 						.rbc-button-link {
 							border-radius: 4px;
-							background: var(--primary-font, #f2f2f3);
-							background: var(--primary-font, color(display-p3 0.949 0.949 0.9529));
+							background: var(--primary-font);
 							display: flex;
 							padding: 4px;
 							justify-content: center;
 							align-items: center;
 							gap: 10px;
-							color: #0c0c0d;
+							color: var(--primary-font);
 							margin: 10px 5px 5px 8px;
 						}
 					}
@@ -231,14 +230,13 @@
 					.rbc-current {
 						.rbc-button-link {
 							border-radius: 4px;
-							background: var(--primary-font, #f2f2f3);
-							background: var(--primary-font, color(display-p3 0.949 0.949 0.9529));
+							background: var(--primary-font);
 							display: flex;
 							padding: 4px;
 							justify-content: center;
 							align-items: center;
 							gap: 10px;
-							color: #0c0c0d;
+							color: var(--primary-font);
 							margin: 10px 5px 5px 8px;
 						}
 					}
@@ -253,7 +251,7 @@
 				padding: 3px;
 				min-width: 100%;
 				background: none;
-				// background: #1d1d1d;
+				// background: var(--card);
 			}
 		}
 	}
@@ -310,8 +308,8 @@ body > .rbc-overlay {
 
 .customGutterHeader {
 	width: 100%;
-	color: rgba(228, 229, 230, 0.48);
-	font-family: Inter;
+	color: var(--secondary-font);
+	font-family: var(--primary-font-family);
 	font-size: 7px;
 	font-style: normal;
 	line-height: normal;

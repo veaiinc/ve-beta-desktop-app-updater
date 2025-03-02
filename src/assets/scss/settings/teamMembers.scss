@@ -23,9 +23,9 @@
 				align-items: center;
 				gap: 12px;
 				border-radius: 24px;
-				background: #f2f2f3;
-				color: #111;
-				font-family: Inter;
+				background: var(--card);
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 500;
@@ -40,14 +40,14 @@
 			padding: 12px;
 			gap: 10px;
 			border-radius: 50px;
-			border: 0.5px solid #333;
+			border: 0.5px solid var(--stroke);
 			width: 100%;
 
 			input {
 				background: none;
 				border: none;
-				color: #e4e5e6;
-
+				color: var(--secondary-font);
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-weight: 400;
 				line-height: 16px;
@@ -62,7 +62,7 @@
 			border-radius: 16px;
 			cursor: pointer;
 			&:hover {
-				background-color: #1c1c1c;
+				background-color: var(--card-hover);
 			}
 			.tenantProfileContainer {
 				display: flex;
@@ -126,7 +126,7 @@
 					display: flex;
 					justify-content: center;
 					align-items: center;
-					color: #fff;
+					color: var(--secondary-font);
 					font-size: 10px;
 					&:hover {
 						cursor: pointer;
@@ -229,7 +229,7 @@
 	align-items: flex-start;
 	gap: 24px;
 	border-radius: 32px;
-	background: #171819;
+	background: var(--card);
 	.inviteMemberText {
 		width: 100%;
 		.inviteMemberTitle {
@@ -239,8 +239,8 @@
 			margin-bottom: 12px;
 			width: 100%;
 			h1 {
-				color: #e4e5e6;
-				font-family: Inter;
+				color: var(--secondary-font);
+				font-family: var(--primary-font-family);
 				font-size: 16px;
 				font-style: normal;
 				font-weight: 500;
@@ -249,8 +249,8 @@
 		}
 
 		.inviteMemberDescription {
-			color: #666;
-			font-family: Inter;
+			color: var(--secondary-font);
+			font-family: var(--primary-font-family);
 			font-size: 13px;
 			font-style: normal;
 			font-weight: 400;
@@ -272,10 +272,10 @@
 			gap: 12px;
 			align-self: stretch;
 			border-radius: 12px;
-			border: 1px solid #2c2d2e;
+			border: 1px solid var(--stroke);
 			.textInput {
-				color: #7a7e85;
-				font-family: Inter;
+				color: var(--secondary-font);
+				font-family: var(--primary-font-family);
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 500;
@@ -289,7 +289,7 @@
 				.dropdownInput {
 					background: none;
 					border: none;
-					color: #fff;
+					color: var(--secondary-font);
 				}
 			}
 		}
@@ -301,8 +301,8 @@
 		gap: 16px;
 		align-self: stretch;
 		.accessControlTitle {
-			color: #f2f2f3;
-			font-family: Inter;
+			color: var(--secondary-font);
+			font-family: var(--primary-font-family);
 			font-size: 16px;
 			font-style: normal;
 			font-weight: 500;
@@ -331,13 +331,13 @@
 					align-items: center;
 					gap: 10px;
 					border-radius: 2px;
-					border: 2px solid rgba(0, 0, 0, 0);
-					background: #202123;
+					border: 2px solid var(--stroke);
+					background: var(--card);
 				}
 				.accessControlOptionText {
 					flex: 1 0 0;
-					color: #f2f2f3;
-					font-family: Inter;
+					color: var(--secondary-font);
+					font-family: var(--primary-font-family);
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 400;
@@ -353,8 +353,8 @@
 		align-items: center;
 		width: 100%;
 		.addmore {
-			color: #666;
-			font-family: Inter;
+			color: var(--secondary-font);
+			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 400;
@@ -376,9 +376,9 @@
 		button {
 			padding: 9px 16px;
 			border-radius: 20px;
-			border: 1px solid #1c1c1c;
-			background: #1c1c1c;
-			color: #666;
+			border: 1px solid var(--stroke);
+			background: var(--card);
+			color: var(--secondary-font);
 			font-size: 14px;
 			font-weight: 400;
 			line-height: 22px;
@@ -390,7 +390,7 @@
 
 .ant-checkbox-checked {
 	.ant-checkbox-inner {
-		background-color: #1c1c1c;
-		border-color: #666;
+		background-color: var(--card);
+		border-color: var(--stroke);
 	}
 }

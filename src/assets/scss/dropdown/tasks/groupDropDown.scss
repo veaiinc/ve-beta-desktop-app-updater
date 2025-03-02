@@ -6,7 +6,7 @@
 	align-items: flex-start;
 	gap: 12px;
 	border-radius: 14px;
-	background: #202123;
+	background: var(--popup);
 
 	&-header {
 		display: flex;
@@ -18,8 +18,8 @@
 		user-select: none;
 
 		&-title {
-			color: #f2f2f3;
-			font-family: Inter;
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
 			font-size: 12px;
 			font-style: normal;
 			font-weight: 500;
@@ -35,7 +35,7 @@
 		gap: 4px;
 		align-self: stretch;
 		padding-bottom: 12px;
-		border-bottom: 1px solid #333334;
+		border-bottom: 1px solid var(--stroke);
 
 		&-item {
 			display: flex;
@@ -52,8 +52,8 @@
 			user-select: none;
 
 			&-label {
-				color: #f2f2f3;
-				font-family: Inter;
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 500;
@@ -62,8 +62,8 @@
 			}
 
 			&-value {
-				color: #787e87;
-				font-family: Inter;
+				color: var(--secondary-font);
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 500;
@@ -73,7 +73,7 @@
 			}
 
 			&:hover {
-				background-color: #333334;
+				background-color: var(--card);
 			}
 		}
 	}
@@ -85,7 +85,7 @@
 		align-items: flex-start;
 		gap: 12px;
 		padding-bottom: 12px;
-		border-bottom: 1px solid #333334;
+		border-bottom: 1px solid var(--stroke);
 
 		&-header {
 			display: flex;
@@ -96,8 +96,8 @@
 			user-select: none;
 
 			&-title {
-				color: #787e87;
-				font-family: Inter;
+				color: var(--secondary-font);
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 500;
@@ -105,8 +105,8 @@
 			}
 
 			&-button {
-				color: #008dff;
-				font-family: Inter;
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
 				font-size: 11px;
 				font-style: normal;
 				font-weight: 500;
@@ -127,8 +127,8 @@
 			align-items: center;
 			gap: 6px;
 			border-radius: 8px;
-			color: #f2f2f3;
-			font-family: Inter;
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
 			font-size: 12px;
 			font-style: normal;
 			font-weight: 500;
@@ -141,12 +141,12 @@
 				height: 16px;
 				width: 16px;
 				path {
-					stroke: #f2f2f3 !important;
+					stroke: var(--primary-font) !important;
 				}
 			}
 
 			&:hover {
-				background-color: #333334;
+				background-color: var(--card);
 			}
 		}
 	}
@@ -157,7 +157,7 @@
 		align-items: flex-start;
 		gap: 12px;
 		align-self: stretch;
-		border-top: 1px solid #333334;
+		border-top: 1px solid var(--stroke);
 		padding-top: 12px;
 
 		&-search {
@@ -169,18 +169,18 @@
 			gap: 10px;
 			align-self: stretch;
 			border-radius: 8px;
-			border: 1px solid #333334;
+			border: 1px solid var(--stroke);
 			background: transparent;
-			color: #e8e8e8;
-			font-family: Inter;
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
 			font-size: 11px;
 			font-style: normal;
 			font-weight: 400;
 			line-height: normal;
 
 			::placeholder {
-				color: #787e87;
-				font-family: Inter;
+				color: var(--secondary-font);
+				font-family: var(--primary-font-family);
 				font-size: 11px;
 				font-style: normal;
 				font-weight: 400;
@@ -230,13 +230,13 @@
 				.icon-status,
 				.icon-childTasks {
 					path {
-						stroke: #f2f2f3 !important;
+						stroke: var(--primary-font) !important;
 					}
 				}
 
 				&-label {
-					color: #f2f2f3;
-					font-family: Inter;
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 500;
@@ -254,7 +254,7 @@
 				}
 
 				&:hover {
-					background-color: #333334;
+					background-color: var(--card);
 				}
 			}
 		}

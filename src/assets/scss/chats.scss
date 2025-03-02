@@ -9,9 +9,9 @@
 		}
 
 		.ant-drawer-body {
-			background-color: #202123;
+			background-color: var(--card);
 			padding: 0px;
-			border-left: 0.5px solid rgb(51, 51, 52);
+			border-left: 0.5px solid var(--stroke);
 
 			.chats-drawer-container {
 				.header {
@@ -22,8 +22,8 @@
 
 					.title {
 						overflow: hidden;
-						color: #e8e8e8;
-						font-family: Inter;
+						color: var(--primary-font);
+						font-family: var(--primary-font-family);
 						font-size: 14px;
 						font-style: normal;
 						font-weight: 500;
@@ -48,8 +48,8 @@
 						height: 100%;
 
 						.message {
-							color: #e8e8e8;
-							font-family: Inter;
+							color: var(--primary-font);
+							font-family: var(--primary-font-family);
 							font-size: 14px;
 							font-style: normal;
 							font-weight: 500;
@@ -65,8 +65,8 @@
 						height: 100%;
 
 						.message {
-							color: #e8e8e8;
-							font-family: Inter;
+							color: var(--primary-font);
+							font-family: var(--primary-font-family);
 							font-size: 14px;
 							font-style: normal;
 							font-weight: 500;
@@ -78,18 +78,18 @@
 						display: flex;
 						justify-content: space-between;
 						align-items: flex-start;
-						border-bottom: 0.5px solid rgb(51, 51, 52);
+						border-bottom: 0.5px solid var(--stroke);
 						padding: 16px 20px;
 						width: 100%;
 
 						&:hover {
-							background-color: #2e2f33;
+							background-color: var(--card-hover);
 						}
 
 						.chat-title {
 							width: 85%;
-							color: #e8e8e8;
-							font-family: Inter;
+							color: var(--primary-font);
+							font-family: var(--primary-font-family);
 							font-size: 14px;
 							font-style: normal;
 							font-weight: 500;
@@ -102,8 +102,8 @@
 						.chat-timestamp {
 							text-align: right;
 							width: 15%;
-							color: #939393;
-							font-family: Inter;
+							color: var(--secondary-font);
+							font-family: var(--primary-font-family);
 							font-size: 12px;
 							font-style: normal;
 							font-weight: 400;

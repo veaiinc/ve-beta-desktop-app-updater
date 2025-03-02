@@ -7,8 +7,8 @@
 	align-items: center;
 	gap: 16px;
 	border-radius: 8px;
-	border: 1px solid #2c2d2e;
-	background: #171819;
+	border: 1px solid var(--stroke);
+	background: var(--background-color);
 	z-index: 1;
 
 	.zoomControls {
@@ -17,7 +17,7 @@
 		align-items: center;
 		gap: 10px;
 		border-radius: 6px;
-		background: #2c2d2e;
+		background: var(--card);
 		height: 34px;
 		padding: 0 8px;
 
@@ -38,8 +38,8 @@
 		}
 
 		.zoomLevelText {
-			color: #f2f2f3;
-			font-family: Inter;
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 500;
@@ -56,7 +56,7 @@
 		align-items: center;
 		gap: 10px;
 		border-radius: 6px;
-		background: #2c2d2e;
+		background: var(--card);
 		border: none;
 		outline: none;
 		cursor: pointer;
@@ -65,12 +65,12 @@
 
 .rearrangeTooltipContainer {
 	border-radius: 10px;
-	background: #f2f2f3;
+	background: var(--primary-font);
 	padding: 6px 10px;
 
 	.rearrangeTooltipText {
-		color: #0c0c0d;
-		font-family: Inter;
+		color: var(--primary-font);
+		font-family: var(--primary-font-family);
 		font-size: 13px;
 		font-style: normal;
 		font-weight: 500;

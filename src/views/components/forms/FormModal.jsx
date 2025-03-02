@@ -224,7 +224,7 @@ const FormModal = ({ isOpen, onClose, selectedRow }) => {
 			open={isOpen}
 			onClose={onClose}
 			width={width}
-			style={{ background: '#171819', gap: '24px' }}
+			style={{ background: 'var(--card)', gap: '24px' }}
 			closeIcon={null}
 		>
 			<div

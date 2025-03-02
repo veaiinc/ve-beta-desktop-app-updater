@@ -1,7 +1,6 @@
 .deleteAgentModalContainer {
 	border-radius: 32px;
-	background: #171819;
-	background: color(display-p3 0.0902 0.0941 0.098);
+	background: var(--popup);
 	user-select: none;
 
 	display: flex;
@@ -19,11 +18,10 @@
 		padding: 4px;
 
 		span {
-			color: #f2f2f3;
-			color: color(display-p3 0.949 0.949 0.9529);
+			color: var(--primary-font);
 
 			/* Heading/H3 - 20 Px */
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 20px;
 			font-style: normal;
 			font-weight: 500;
@@ -33,7 +31,7 @@
 		.closeButton {
 			background: none;
 			border: none;
-			color: #ffffff;
+			color: var(--primary-font);
 			font-size: 24px;
 			cursor: pointer;
 			padding: 0;
@@ -52,7 +50,7 @@
 
 		.deleteAllConversations,
 		.deleteChatbot {
-			background: rgba(255, 255, 255, 0.05);
+			background: var(--card-over-card-hover);
 			border-radius: 12px;
 			padding: 20px;
 
@@ -66,12 +64,12 @@
 			h3 {
 				font-size: 18px;
 				font-weight: 600;
-				color: #ffffff;
+				color: var(--primary-font);
 				margin: 0 0 12px 0;
 			}
 
 			p {
-				color: #9ca3af;
+				color: var(--secondary-font);
 				font-size: 14px;
 				line-height: 1.5;
 				margin: 0 0 16px 0;
@@ -86,36 +84,35 @@
 					width: 16px;
 					height: 16px;
 					path {
-						fill: #ef4444;
+						fill: var(--error);
 					}
 				}
 
 				span {
-					color: #ef4444;
+					color: var(--error);
 					font-size: 14px;
 				}
 			}
 
 			.deleteButton {
 				border-radius: 59px;
-				border: 1px solid var(--error, #e40039);
-				border: 1px solid var(--error, color(display-p3 0.7529 0.2157 0.2667));
+				border: 1px solid var(--error);
 				display: flex;
 				padding: 12px 24px;
 				justify-content: center;
 				align-items: center;
 				gap: 6px;
 				background: transparent;
-				color: #dc2626;
+				color: var(--error);
 				cursor: pointer;
 
 				&:hover {
-					background: #dc2626;
-					color: #ffffff;
+					background: var(--error);
+					color: var(--primary-font);
 				}
 
 				&:disabled {
-					background: #6b7280;
+					background: var(--card-hover);
 					cursor: not-allowed;
 				}
 			}

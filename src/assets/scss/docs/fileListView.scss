@@ -187,22 +187,21 @@
 			align-items: center;
 			gap: 6px;
 			border-radius: 59px;
-			color: #0b1215;
-			background: #e8e8e8;
-			border: 1px solid #e8e8e8;
-			background: color(display-p3 0.9098 0.9098 0.9098);
+			color: var(--primary-font);
+			background: var(--primary-font);
+			border: 1px solid var(--primary-font);
 			transition: all 0.3s ease;
 
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 500;
 			line-height: normal;
 
 			&:hover {
-				background: #0b1215;
-				color: #e8e8e8;
-				border: 1px solid #e8e8e8;
+				background: var(--card);
+				color: var(--primary-font);
+				border: 1px solid var(--primary-font);
 			}
 		}
 
@@ -219,10 +218,10 @@
 				width: 6px;
 				height: 6px;
 				border-radius: 100%;
-				background: #939393;
+				background: var(--secondary-font);
 			}
 			.DocsButtontext {
-				color: #fff;
+				color: var(--primary-font);
 				text-align: center;
 				font-family: var(--primary-font-family);
 				font-size: 12px;
@@ -241,9 +240,9 @@
 			align-items: center;
 			align-self: stretch;
 			border-radius: 14px;
-			background: var(--card-over-card, color(display-p3 0.1255 0.1294 0.1373));
+			background: var(--card);
 			user-select: none;
-			color: var(--primary-font, color(display-p3 0.949 0.949 0.9529));
+			color: var(--primary-font);
 			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
@@ -252,7 +251,7 @@
 
 			&:hover {
 				border-radius: 14px;
-				background: var(--card-over-card-hover, color(display-p3 0.1529 0.1569 0.1686));
+				background: var(--card);
 			}
 
 			.requiredAction {
@@ -262,7 +261,7 @@
 
 			.requiredActionBtn {
 				border-radius: 29px;
-				border: 1px solid color(display-p3 0.2 0.2 0.2039);
+				border: 1px solid var(--stroke);
 				display: flex;
 				height: 33px;
 				padding: 6px 12px;
@@ -287,7 +286,7 @@
 			// height: 700px;
 			height: 100%;
 			overflow-y: auto;
-			background-color: #fff;
+			background-color: var(--card);
 		}
 	}
 }
@@ -313,8 +312,7 @@
 	align-items: flex-start;
 	gap: 4px;
 	border-radius: 14px;
-	background: var(--Popup, #202123);
-	box-shadow: 0px 2px 44px 0px rgba(0, 0, 0, 0.25);
+	background: var(--popup);
 	.items {
 		display: flex;
 		height: 31px;
@@ -325,10 +323,10 @@
 		border-radius: 8px;
 		transition: all 0.2s ease;
 		&:hover {
-			background-color: #363636;
+			background-color: var(--card);
 		}
 
-		color: var(--Primary-Font, #f2f2f3);
+		color: var(--primary-font);
 		text-align: center;
 		font-family: var(--primary-font-family);
 		font-size: 12px;
@@ -349,11 +347,11 @@
 		align-self: stretch;
 		border-radius: 8px;
 		&:hover {
-			background-color: #363636;
+			background-color: var(--card);
 		}
 		span {
-			color: #ad2538;
-			font-family: Inter;
+			color: var(--error);
+			font-family: var(--primary-font-family);
 			font-size: 12px;
 			font-style: normal;
 			font-weight: 400;

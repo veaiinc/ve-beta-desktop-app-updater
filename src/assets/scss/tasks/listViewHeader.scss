@@ -68,10 +68,10 @@
 					gap: 16px;
 					border-radius: 100px;
 					border: 1px solid transparent;
-					background-color: #e8e8e8;
-					color: #0b1215;
+					background-color: var(--primary-font);
+					color: var(--card);
 					cursor: pointer;
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 500;
@@ -81,17 +81,17 @@
 
 					&:hover {
 						background-color: transparent;
-						border: 1px solid #e8e8e8;
-						color: #e8e8e8;
+						border: 1px solid var(--primary-font);
+						color: var(--primary-font);
 					}
 
 					&:disabled {
-						background-color: #2c2e30;
-						color: #939393;
+						background-color: var(--card);
+						color: var(--secondary-font);
 						cursor: not-allowed;
 
 						&:hover {
-							background: rgba(44, 46, 48, 0.7);
+							background: var(--card);
 							border: 1px solid transparent;
 						}
 					}
@@ -127,18 +127,18 @@
 							.searchInputTag {
 								flex: 1;
 								background-color: transparent;
-								color: #e4e5e6;
+								color: var(--primary-font);
 								transition: all 0.3s ease;
 								border: none;
-								font-family: Inter;
+								font-family: var(--primary-font-family);
 								font-size: 13px;
 								font-style: normal;
 								font-weight: 400;
 								line-height: normal;
 
 								&::placeholder {
-									color: #939393;
-									font-family: Inter;
+									color: var(--secondary-font);
+									font-family: var(--primary-font-family);
 									font-size: 13px;
 									font-style: normal;
 									font-weight: 400;

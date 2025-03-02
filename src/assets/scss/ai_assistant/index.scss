@@ -17,18 +17,17 @@
 			align-items: flex-start;
 			width: fit-content;
 
-			font-family: Inter;
+			font-family: var(--secondary-font-family);
 			font-size: 40px;
 			font-style: normal;
 			font-weight: 500;
 			line-height: 43px;
 
 			.lineOne {
-				color: #f2f2f3;
-				color: color(display-p3 0.949 0.949 0.9529);
+				color: var(--primary-font);
 			}
 			.lineTwo {
-				color: color(display-p3 0.4865 0.4865 0.5135);
+				color: var(--secondary-font);
 			}
 		}
 
@@ -49,19 +48,19 @@
 				inset: 0;
 				border-radius: 100px;
 				padding: 1px;
-				background: linear-gradient(94deg, #ca9bfe -2.06%, #fd749d 95.85%);
-				-webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-				mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+				background: var(--ai-color-code);
+				-webkit-mask: var(--ai-color-code) content-box, var(--ai-color-code);
+				mask: var(--ai-color-code) content-box, var(--ai-color-code);
 				-webkit-mask-composite: xor;
 				mask-composite: exclude;
 			}
 
 			span {
-				background: linear-gradient(94deg, #ca9bfe -2.06%, #fd749d 95.85%);
+				background: var(--ai-color-code);
 				background-clip: text;
 				-webkit-background-clip: text;
 				-webkit-text-fill-color: transparent;
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 16px;
 				font-style: normal;
 				font-weight: 500;
@@ -85,9 +84,8 @@
 			align-self: stretch;
 
 			span {
-				color: #f2f2f3;
-				color: color(display-p3 0.949 0.949 0.9529);
-				font-family: Inter;
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
 				font-size: 18px;
 				font-style: normal;
 				font-weight: 500;
@@ -110,9 +108,7 @@
 				width: 269px;
 				height: 137px;
 				border-radius: 24px;
-				background: #171819;
-				background: color(display-p3 0.0902 0.0941 0.098);
-				cursor: pointer;
+				background: var(--card);
 
 				display: flex;
 				padding: 24px;
@@ -121,13 +117,17 @@
 				gap: 8px;
 				flex-shrink: 0;
 
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-style: normal;
 				font-weight: 500;
 
+				&:hover {
+					background: var(--card-hover);
+					cursor: pointer;
+				}
+
 				.agentName {
-					color: #f2f2f3;
-					color: color(display-p3 0.949 0.949 0.9529);
+					color: var(--primary-font);
 					font-size: 18px;
 					line-height: 24px;
 					width: 220px;
@@ -137,8 +137,7 @@
 				}
 
 				.createdBy {
-					color: #797e86;
-					color: color(display-p3 0.4784 0.4941 0.5216);
+					color: var(--secondary-font);
 					font-size: 14px;
 					line-height: normal;
 				}
@@ -160,9 +159,8 @@
 			align-self: stretch;
 			user-select: none;
 
-			color: #f2f2f3;
-			color: color(display-p3 0.949 0.949 0.9529);
-			font-family: Inter;
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
 			font-size: 18px;
 			font-style: normal;
 			font-weight: 500;
@@ -192,14 +190,12 @@
 				flex-shrink: 0;
 				gap: 8px;
 				border-radius: 24px;
-				background: #171819;
-				background: color(display-p3 0.0902 0.0941 0.098);
+				background: var(--card);
 				cursor: pointer;
 
 				.createStaticActionsCardsSubTitle {
-					color: var(--Primary-Font, #f2f2f3);
-					color: var(--Primary-Font, color(display-p3 0.949 0.949 0.9529));
-					font-family: Inter;
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
 					font-size: 16px;
 					font-style: normal;
 					font-weight: 500;
@@ -207,9 +203,8 @@
 				}
 
 				.createStaticActionsCardsTitle {
-					color: var(--Secondary-Font, #787e87);
-					color: var(--Secondary-Font, color(display-p3 0.4784 0.4941 0.5216));
-					font-family: Inter;
+					color: var(--secondary-font);
+					font-family: var(--primary-font-family);
 					font-size: 13px;
 					font-style: normal;
 					font-weight: 400;
@@ -224,13 +219,11 @@
 				align-items: flex-start;
 				gap: 12px;
 				border-radius: 14px;
-				border: 0.5px solid rgba(100, 100, 100, 0.16);
-				border: 0.5px solid color(display-p3 0.3932 0.3932 0.3932 / 0.16);
-				background: #121315;
-				background: color(display-p3 0.0706 0.0745 0.0824);
+				border: 0.5px solid var(--stroke);
+				background: var(--card);
 				overflow: hidden;
 				flex-shrink: 0;
-				background-color: #25292f;
+				background-color: var(--card);
 				.docsTemplateImageContainer {
 					width: 100%;
 					height: 177px;
@@ -259,9 +252,8 @@
 							gap: 10px;
 							padding: 7px 24px;
 							.docsHoverOptionsStyling {
-								color: #fff;
-								color: color(display-p3 1 1 1);
-								font-family: Inter;
+								color: var(--primary-font);
+								font-family: var(--primary-font-family);
 								font-size: 12px;
 								font-style: normal;
 								font-weight: 500;
@@ -302,22 +294,20 @@
 					gap: 4px;
 					align-self: stretch;
 					padding: 0px 16px;
-					background: #121315;
+					background: var(--card);
 					padding-bottom: 16px;
 					padding-top: 12px;
 					.docsFooterContentTitle {
-						color: #e4e5e6;
-						color: color(display-p3 0.8941 0.898 0.902);
-						font-family: Inter;
+						color: var(--primary-font);
+						font-family: var(--primary-font-family);
 						font-size: 14px;
 						font-style: normal;
 						font-weight: 500;
 						line-height: normal;
 					}
 					.docsFooterContentSubTitle {
-						color: #e4e5e6;
-						color: color(display-p3 0.8941 0.898 0.902);
-						font-family: Inter;
+						color: var(--secondary-font);
+						font-family: var(--primary-font-family);
 						font-size: 12px;
 						font-style: normal;
 						font-weight: 400;

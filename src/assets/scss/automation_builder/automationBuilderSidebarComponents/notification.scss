@@ -4,10 +4,8 @@
 	flex: 1;
 	align-self: stretch;
 	height: 100%;
-	border-left: 1px solid #2c2d2e;
-	border-left: 1px solid color(display-p3 0.1719 0.1753 0.1787);
-	background: #141415;
-	background: color(display-p3 0.0784 0.0784 0.0824);
+	border-left: 1px solid var(--stroke);
+	background: var(--card);
 
 	.actionSidebarComponentsHeader {
 		display: flex;
@@ -18,10 +16,8 @@
 		gap: 12px;
 		flex-shrink: 0;
 		align-self: stretch;
-		border-left: 1px solid #2c2d2e;
-		border-left: 1px solid color(display-p3 0.1719 0.1753 0.1787);
-		background: #202123;
-		background: color(display-p3 0.1249 0.1304 0.1358);
+		border-left: 1px solid var(--stroke);
+		background: var(--card);
 		margin-bottom: 12px;
 	}
 
@@ -41,8 +37,7 @@
 			gap: 8px;
 			align-self: stretch;
 			border-radius: 12px;
-			border: 1px solid #2c2d2e;
-			border: 1px solid color(display-p3 0.1719 0.1753 0.1787);
+			border: 1px solid var(--stroke);
 
 			.actionSideBarSearchInput {
 				flex: 1;
@@ -50,11 +45,10 @@
 				background-color: transparent;
 				border: none;
 				outline: none;
-				color: #797e86;
-				color: color(display-p3 0.4784 0.4941 0.5216);
+				color: var(--secondary-font);
 
 				/* Body/Body - 12 px */
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 500;
@@ -71,9 +65,8 @@
 		margin-top: 16px;
 
 		.notificationTitle {
-			color: #f2f2f3;
-			color: color(display-p3 0.949 0.949 0.9529);
-			font-family: Inter;
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
 			font-size: 12px;
 			font-style: normal;
 			font-weight: 500;
@@ -88,13 +81,11 @@
 			align-items: center;
 			gap: 12px;
 			border-radius: 12px;
-			border: 1px solid #2c2d2e;
-			border: 1px solid color(display-p3 0.1719 0.1753 0.1787);
-			color: #f2f2f3;
-			color: color(display-p3 0.949 0.949 0.9529);
+			border: 1px solid var(--stroke);
+			color: var(--primary-font);
 
 			/* Body/Body - 12 px */
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 12px;
 			font-style: normal;
 			font-weight: 500;
@@ -114,19 +105,17 @@
 	align-items: center;
 	flex-shrink: 0;
 	border-radius: 4px;
-	border: 0.706px solid #2c2d2e;
-	border: 0.706px solid color(display-p3 0.1719 0.1753 0.1787);
+	border: 0.706px solid var(--stroke);
 }
 .notificationConnectionContainer {
 	display: flex;
 	justify-content: flex-end;
 	align-items: center;
 	gap: 6px;
-	color: #f2f2f3;
-	color: color(display-p3 0.949 0.949 0.9529);
+	color: var(--primary-font);
 
 	/* Body/Body - 12 px */
-	font-family: Inter;
+	font-family: var(--primary-font-family);
 	font-size: 12px;
 	font-style: normal;
 	font-weight: 500;
@@ -142,12 +131,11 @@
 	gap: 12px;
 	align-self: stretch;
 
-	border-bottom: 1px solid #2c2d2e;
+	border-bottom: 1px solid var(--stroke);
 
 	.chooseEmailTemplateLabel {
-		color: #f2f2f3;
-		color: color(display-p3 0.949 0.949 0.9529);
-		font-family: Inter;
+		color: var(--primary-font);
+		font-family: var(--primary-font-family);
 		font-size: 14px;
 		font-style: normal;
 		font-weight: 500;
@@ -161,11 +149,9 @@
 		gap: 12px;
 		align-self: stretch;
 		border-radius: 12px;
-		background: #202123;
-		background: color(display-p3 0.1255 0.1294 0.1373);
-		color: #f2f2f3;
-		color: color(display-p3 0.949 0.949 0.9529);
-		font-family: Inter;
+		background: var(--card);
+		color: var(--primary-font);
+		font-family: var(--primary-font-family);
 		font-size: 13px;
 		font-style: normal;
 		font-weight: 400;
@@ -181,11 +167,10 @@
 		align-self: stretch;
 
 		.emailTemplateSubTitle {
-			color: #797e86;
-			color: color(display-p3 0.4784 0.4941 0.5216);
+			color: var(--secondary-font);
 
 			/* Body/Body - 12 px */
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 12px;
 			font-style: normal;
 			font-weight: 500;
@@ -199,13 +184,11 @@
 			align-items: center;
 			align-self: stretch;
 			border-radius: 12px;
-			border: 1px solid #2c2d2e;
-			border: 1px solid color(display-p3 0.1719 0.1753 0.1787);
-			color: #797e86;
-			color: color(display-p3 0.4784 0.4941 0.5216);
+			border: 1px solid var(--stroke);
+			color: var(--secondary-font);
 
 			/* Body/Body - 12 px */
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 12px;
 			font-style: normal;
 			font-weight: 500;
@@ -216,9 +199,8 @@
 				justify-content: flex-end;
 				align-items: center;
 				gap: 8px;
-				color: #797e86;
-				color: color(display-p3 0.4784 0.4941 0.5216);
-				font-family: Inter;
+				color: var(--secondary-font);
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 500;
@@ -237,12 +219,10 @@
 				align-items: center;
 				gap: 12px;
 				border-radius: 6px;
-				background: #202123;
-				background: color(display-p3 0.1249 0.1304 0.1358);
+				background: var(--card);
 				cursor: pointer;
-				color: #f2f2f3;
-				color: color(display-p3 0.949 0.949 0.9529);
-				font-family: Inter;
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 500;
@@ -266,12 +246,11 @@
 		align-items: center;
 		align-self: stretch;
 		// padding-bottom: 24px;
-		border-bottom: 1px solid #2c2d2e;
-		color: var(--ve-ai-dark-theme-primary-font-color, #e8e8e8);
-		color: var(--ve-ai-dark-theme-primary-font-color, color(display-p3 0.9098 0.9098 0.9098));
+		border-bottom: 1px solid var(--stroke);
+		color: var(--primary-font);
 
 		/* Body/Body Text - 14 Px */
-		font-family: Inter;
+		font-family: var(--primary-font-family);
 		font-size: 14px;
 		font-style: normal;
 		font-weight: 500;
@@ -284,11 +263,9 @@
 		gap: 12px;
 		align-self: stretch;
 		border-radius: 12px;
-		background: #202123;
-		background: color(display-p3 0.1255 0.1294 0.1373);
-		color: #f2f2f3;
-		color: color(display-p3 0.949 0.949 0.9529);
-		font-family: Inter;
+		background: var(--card);
+		color: var(--primary-font);
+		font-family: var(--primary-font-family);
 		font-size: 13px;
 		font-style: normal;
 		font-weight: 400;
@@ -301,12 +278,10 @@
 		align-items: center;
 		gap: 12px;
 		border-radius: 6px;
-		background: #202123;
-		background: color(display-p3 0.1249 0.1304 0.1358);
+		background: var(--card);
 		cursor: pointer;
-		color: #f2f2f3;
-		color: color(display-p3 0.949 0.949 0.9529);
-		font-family: Inter;
+		color: var(--primary-font);
+		font-family: var(--primary-font-family);
 		font-size: 14px;
 		font-style: normal;
 		font-weight: 500;
@@ -319,12 +294,10 @@
 		align-items: center;
 		gap: 12px;
 		border-radius: 6px;
-		background: #202123;
-		background: color(display-p3 0.1249 0.1304 0.1358);
+		background: var(--card);
 		cursor: pointer;
-		color: #f2f2f3;
-		color: color(display-p3 0.949 0.949 0.9529);
-		font-family: Inter;
+		color: var(--primary-font);
+		font-family: var(--primary-font-family);
 		font-size: 14px;
 		font-style: normal;
 		font-weight: 500;
@@ -352,10 +325,9 @@
 			gap: 4px;
 			flex: 1;
 			.emailTemplateTitle {
-				color: #f2f2f3;
-				color: color(display-p3 0.949 0.949 0.9529);
+				color: var(--primary-font);
 				text-align: justify;
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 500;
@@ -364,10 +336,9 @@
 			}
 
 			.emailTemplateSubjectStyling {
-				color: #797e86;
-				color: color(display-p3 0.4784 0.4941 0.5216);
+				color: var(--secondary-font);
 				text-align: justify;
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 400;
@@ -377,7 +348,7 @@
 		}
 	}
 	.emailTemplatesCard:hover {
-		background-color: #202123;
+		background-color: var(--card);
 	}
 }
 
@@ -389,11 +360,10 @@
 	align-self: stretch;
 
 	.actionTitle {
-		color: #797e86;
-		color: color(display-p3 0.4784 0.4941 0.5216);
+		color: var(--secondary-font);
 
 		/* Body/Body - 12 px */
-		font-family: Inter;
+		font-family: var(--primary-font-family);
 		font-size: 12px;
 		font-style: normal;
 		font-weight: 500;
@@ -409,16 +379,14 @@
 		align-items: flex-start;
 		align-self: stretch;
 		border-radius: 12px;
-		border: 1px solid #2c2d2e;
-		border: 1px solid color(display-p3 0.1719 0.1753 0.1787);
+		border: 1px solid var(--stroke);
 		background-color: transparent;
 		resize: none;
 		outline: none;
-		color: #797e86;
-		color: color(display-p3 0.4784 0.4941 0.5216);
+		color: var(--secondary-font);
 
 		/* Body/Body - 12 px */
-		font-family: Inter;
+		font-family: var(--primary-font-family);
 		font-size: 12px;
 		font-style: normal;
 		font-weight: 500;
@@ -449,8 +417,8 @@
 		background-color: transparent;
 		border: none;
 		outline: none;
-		color: #f2f2f3;
-		font-family: Inter;
+		color: var(--primary-font);
+		font-family: var(--primary-font-family);
 		font-size: 14px;
 		font-style: normal;
 		font-weight: 600;
@@ -470,8 +438,8 @@
 		background-color: transparent;
 		border: none;
 		outline: none;
-		color: #f2f2f3;
-		font-family: Inter;
+		color: var(--primary-font);
+		font-family: var(--primary-font-family);
 		font-size: 12px;
 		font-style: normal;
 		font-weight: 400;
@@ -492,8 +460,8 @@
 	align-self: stretch;
 
 	.notificationInputsTitle {
-		color: #f2f2f3;
-		font-family: Inter;
+		color: var(--primary-font);
+		font-family: var(--primary-font-family);
 		font-size: 14px;
 		font-style: normal;
 		font-weight: 500;
@@ -501,8 +469,8 @@
 	}
 	.notificationInputItem {
 		width: 100%;
-		color: #f2f2f3;
-		font-family: Inter;
+		color: var(--primary-font);
+		font-family: var(--primary-font-family);
 		font-size: 14px;
 		font-style: normal;
 		font-weight: 500;
@@ -512,8 +480,8 @@
 		gap: 4px;
 
 		.notificationInputTitle {
-			color: #7a7e85;
-			font-family: Inter;
+			color: var(--secondary-font);
+			font-family: var(--primary-font-family);
 			font-size: 12px;
 			font-style: normal;
 			font-weight: 500;
@@ -535,10 +503,10 @@
 			gap: 12px;
 			align-self: stretch;
 			border-radius: 12px;
-			background: #2c2e30;
+			background: var(--card);
 
-			color: var(--ve-ai-dark-theme-primary-font-color, #e8e8e8);
-			font-family: Inter;
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
 			font-size: 13px;
 			font-style: normal;
 			font-weight: 400;
@@ -554,8 +522,8 @@
 			align-self: stretch;
 
 			.emailTemplateSubTitle {
-				color: #7a7e85;
-				font-family: Inter;
+				color: var(--secondary-font);
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 500;
@@ -569,11 +537,11 @@
 				align-items: center;
 				align-self: stretch;
 				border-radius: 12px;
-				border: 1px solid #2c2d2e;
+				border: 1px solid var(--stroke);
 
 				span {
-					color: #7a7e85;
-					font-family: Inter;
+					color: var(--secondary-font);
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 500;
@@ -581,8 +549,8 @@
 				}
 
 				.editSelectedEmailOptionContainer {
-					color: #7a7e85;
-					font-family: Inter;
+					color: var(--secondary-font);
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 500;
@@ -608,18 +576,18 @@
 		align-items: center;
 		gap: 12px;
 		border: none;
-		color: #f2f2f3;
-		font-family: Inter;
+		color: var(--primary-font);
+		font-family: var(--primary-font-family);
 		font-size: 12px;
 		font-style: normal;
 		font-weight: 500;
 		line-height: normal;
 		border-radius: 6px;
-		background: #202123;
+		background: var(--card);
 		cursor: pointer;
 
 		&:hover {
-			background: #2c2d2e;
+			background: var(--card);
 		}
 	}
 }

@@ -121,7 +121,7 @@
 // 			outline: none;
 // 			background: transparent;
 // 			color: white;
-// 			font-family: Inter;
+// 			font-family: var(--primary-font-family);
 // 			font-size: 12px;
 // 			font-style: normal;
 // 			font-weight: 400;
@@ -141,19 +141,19 @@
 	height: 100vh;
 	display: flex;
 	flex-direction: column;
-	background-color: #0e0f0f;
+	background-color: var(--background-color);
 	.toolExpandedChatBarContainerHeader {
 		width: 400px;
 		height: 68px;
-		background-color: #0e0f0f;
+		background-color: var(--background-color);
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
 		padding: 24px;
 
 		.toolExpandedChatBarContainerHeaderTitle {
-			color: #f2f2f3;
-			font-family: Inter;
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 600;
@@ -188,7 +188,7 @@
 				width: 700px;
 				max-width: 100%;
 				justify-content: flex-start;
-				background: #0e0f0f;
+				background: var(--background-color);
 				.chatContent {
 					display: flex;
 					flex-direction: column;
@@ -206,7 +206,7 @@
 							flex-direction: column;
 							gap: 6px;
 							max-width: 100%;
-							color: white;
+							color: var(--primary-font);
 
 							padding: 12px 16px;
 							border-radius: 12px;
@@ -222,7 +222,7 @@
 						.message-content {
 							justify-content: flex-end;
 							border-radius: 12px;
-							background: #202123;
+							background: var(--card);
 							padding: 12px 14px;
 						}
 					}
@@ -245,9 +245,9 @@
 						width: fit-content;
 						gap: 6px;
 						border-radius: 37px;
-						background: #202123;
-						color: #f2f2f3;
-						font-family: Inter;
+						background: var(--card);
+						color: var(--primary-font);
+						font-family: var(--primary-font-family);
 						font-size: 12px;
 						font-style: normal;
 						font-weight: 500;
@@ -276,7 +276,7 @@
 					.previewOfUploadedImage {
 						height: 70px;
 						width: 70px;
-						background-color: #fff;
+						background-color: var(--background-color);
 						border-radius: 12px;
 						position: relative;
 
@@ -284,7 +284,7 @@
 							position: absolute;
 							top: -4px;
 							right: -5px;
-							background-color: #202123;
+							background-color: var(--card);
 							border-radius: 50%;
 							width: 20px;
 							height: 20px;
@@ -303,7 +303,7 @@
 							position: absolute;
 							top: 0;
 							left: 0;
-							background-color: #f7fcfe;
+							background-color: var(--background-color);
 							border-radius: 12px;
 							opacity: 0.5;
 						}
@@ -317,7 +317,7 @@
 					flex-direction: column;
 					align-items: flex-start;
 					gap: 12px;
-					background: #202123;
+					background: var(--card);
 					width: 700px;
 					align-self: center;
 					margin-bottom: 20px;
@@ -329,8 +329,8 @@
 						border: none;
 						outline: none;
 						background: transparent;
-						color: white;
-						font-family: Inter;
+						color: var(--primary-font);
+						font-family: var(--primary-font-family);
 						font-size: 14px;
 						font-style: normal;
 						font-weight: 400;
@@ -360,9 +360,9 @@
 								align-items: center;
 								gap: 6px;
 								border-radius: 24px;
-								background: #2e2f33;
+								background: var(--card);
 								.text {
-									color: #f2f2f3;
+									color: var(--primary-font);
 								}
 							}
 
@@ -374,11 +374,11 @@
 								align-items: center;
 								gap: 6px;
 								border-radius: 24px;
-								background: #2e2f33;
+								background: var(--card);
 								.text {
-									color: var(--primary-font, #f2f2f3);
+									color: var(--primary-font);
 									text-align: center;
-									font-family: Inter;
+									font-family: var(--primary-font-family);
 									font-size: 14px;
 									font-style: normal;
 									font-weight: 500;
@@ -419,7 +419,7 @@
 							cursor: pointer;
 
 							border-radius: 24px;
-							background: #b2a1e8;
+							background: var(--ai-color-code);
 						}
 					}
 				}

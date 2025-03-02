@@ -35,7 +35,9 @@ const SearchTypeTooltip = ({
 										}}
 										style={{
 											background: `${
-												searchType?.[type] ? '#F2F2F3' : '#484D51'
+												searchType?.[type]
+													? 'var(--primary-button)'
+													: 'var(--card-over-card-hover)'
 											}`,
 										}}
 										className="custom-switch"
