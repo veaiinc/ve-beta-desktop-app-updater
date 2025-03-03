@@ -49,23 +49,14 @@ const useSubscription = () => {
 		};
 	}, []);
 
-	// useEffect(() => {
-	// 	if (reFetchSubscription || location.pathname) {
-	// 		getCurrentSubscriptionPlan();
-	// 		if (reFetchSubscription) {
-	// 			updateStateValues({ reFetchSubscription: false });
-	// 		}
-	// 	}
-	// }, [location.pathname, reFetchSubscription]);
 	useEffect(() => {
-		getCurrentSubscriptionPlan();
-	}, [location.pathname]);
-	useEffect(() => {
-		if (reFetchSubscription) {
+		if (reFetchSubscription || location.pathname) {
 			getCurrentSubscriptionPlan();
+		}
+		if (reFetchSubscription) {
 			updateStateValues({ reFetchSubscription: false });
 		}
-	}, [reFetchSubscription]);
+	}, [location.pathname, reFetchSubscription]);
 
 	useEffect(() => {
 		if (currentPlan) {
