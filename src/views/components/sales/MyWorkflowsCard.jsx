@@ -111,7 +111,7 @@ const MyWorkflowsCard = ({ data, openModal, openCopyLinkModal, navigateToWorkflo
 	//useEFFects
 	useEffect(() => {
 		if (data) {
-			handleIncomingData();
+			// handleIncomingData();
 		}
 	}, [data]);
 

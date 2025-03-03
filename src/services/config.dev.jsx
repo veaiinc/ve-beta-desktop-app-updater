@@ -2,8 +2,7 @@ module.exports = {
 	//please add both region urls
 
 	//india
-	// tenant_api: 'https://ap.api.ve.ai/tenants/1.0',
-	tenant_api: 'https://us.api.ve.ai/tenants/dev',
+	tenant_api: 'https://ap.api.ve.ai/tenants/1.0',
 	tenant_users_api: 'https://ap.api.ve.ai/tenant-users/1.0',
 	ve_conversations_api: 'https://api.ve.co/ve-conversations/1.0',
 	proposals_api: 'https://ap.api.ve.ai/proposals/1.0',
@@ -16,9 +15,12 @@ module.exports = {
 	calendar_api: 'https://ap.api.ve.ai/google/1.0',
 	third_party_integrations_api: 'https://ap.api.ve.ai/third-party-integrations/1.0',
 	slack_api: 'https://slack.com/api',
+	// multi_agent_chat: 'ws://ai.ap-south-1.ve.ai',
+	automation_builder_api: 'https://ap.api.ve.ai/automations/1.0/automation',
 
 	//outside India
-	tenant_api_US: 'https://us.api.ve.ai/tenants/dev',
+	auth_Api_US: 'https://auth.ve.ai',
+	tenant_api_US: 'https://us.api.ve.ai/tenants/1.0',
 	tenant_users_api_US: 'https://us.api.ve.ai/tenant-users/1.0',
 	ve_conversations_api_US: 'https://us.api.ve.ai/ve-conversations/1.0',
 	proposals_api_US: 'https://us.api.ve.ai/proposals/1.0',
@@ -26,8 +28,10 @@ module.exports = {
 	ai_assistant_api_US: 'https://api.us-east-1.ve.ai',
 	activity_api_US: 'https://ap.api.ve.ai/workflow-user-analytics/1.0',
 	galleries_api_US: 'https://us.api.ve.ai/galleries/1.0',
-	ai_predictions_US: 'https://ai.ap-south-1.ve.ai',
-	calendar_api_US: 'https://ap.api.ve.ai/google/1.0',
+	ai_predictions_US: 'https://ai.us-east-1.ve.ai',
+	calendar_api_US: 'https://us.api.ve.ai/google/1.0',
 	third_party_integrations_api_US: 'https://us.api.ve.ai/third-party-integrations/1.0',
 	slack_api_US: 'https://slack.com/api',
+	// multi_agent_chat_US: 'ws://api.us-east-1.ve.ai',
+	automation_builder_api_US: 'https://us.api.ve.ai/automations/1.0/automation',
 };
