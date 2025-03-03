@@ -132,12 +132,7 @@ const RecentChat = ({
 
 					if (lastVisibleAIMessageIndex > 0) {
 						lastVisibleUserMessageIndex = lastVisibleAIMessageIndex - 1;
-						console.log(
-							lastVisibleUserMessageIndex,
-							'lastVisibleUserMessageIndex',
-							chatMessagesRef.current,
-							lastVisibleMessage.dataset.messageId,
-						);
+
 						if (
 							chatMessagesRef.current[
 								lastVisibleUserMessageIndex
