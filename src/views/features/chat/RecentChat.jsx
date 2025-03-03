@@ -77,11 +77,12 @@ const RecentChat = ({
 
 	useEffect(() => {
 		if (sessionId) {
+			//clearing context state
 			updateStateValues({
 				moreRecentChatStorage: null,
 				recentChatStorage: null,
 				globalChatMessages: [],
-			}); //when recent chat Id changes, clear the previous chat messages
+			});
 
 			getRecentChatMessages(sessionId);
 			setInfo((prev) => ({ ...prev, chatLoading: true, chatSessionId: sessionId }));
@@ -138,12 +139,7 @@ const RecentChat = ({
 
 					if (lastVisibleAIMessageIndex > 0) {
 						lastVisibleUserMessageIndex = lastVisibleAIMessageIndex - 1;
-						console.log(
-							lastVisibleUserMessageIndex,
-							'lastVisibleUserMessageIndex',
-							chatMessagesRef.current,
-							lastVisibleMessage.dataset.messageId,
-						);
+
 						if (
 							chatMessagesRef.current[
 								lastVisibleUserMessageIndex
@@ -309,16 +305,6 @@ const RecentChat = ({
 		},
 		[chatContentRef],
 	);
-	const handleStopTypingEffect = () => {
-		let messages = [...globalChatMessages];
-		messages = messages?.map((message) => {
-			if (message?.typingEffect) {
-				message.typingEffect = false;
-			}
-			return message;
-		});
-		updateStateValues({ globalChatMessages: messages });
-	};
 
 	const fetchMoreData = useCallback(
 		debounce(async () => {
@@ -464,13 +450,9 @@ const RecentChat = ({
 																handleRatingClick={
 																	handleRatingClick
 																}
-																showTypingEffect={
-																	false
-																	// chat?.typingEffect
-																}
-																onComplete={handleStopTypingEffect}
 																rating={chat?.rating}
 																citations={chat?.citations}
+																messageData={chat}
 															/>
 														</div>
 													) : (

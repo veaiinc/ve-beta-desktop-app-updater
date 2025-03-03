@@ -1,4 +1,4 @@
-import React, { memo, useContext, useEffect, useState, useMemo } from 'react';
+import React, { memo, useContext, useEffect, useState, useMemo, useCallback } from 'react';
 import { default as ReactMarkdown } from 'react-markdown';
 import '../assets/scss/markdown.scss';
 import '../assets/scss/markdownHelper.scss';
@@ -55,119 +55,128 @@ const rehypeCITPlugin = () => {
 	};
 };
 
+// Move components outside to prevent recreation on every render
+const baseComponents = {
+	pre: ({ children }) => <>{children}</>,
+	ol: ({ children, ...props }) => (
+		<ol className="list-decimal list-outside ml-4" {...props}>
+			{children}
+		</ol>
+	),
+	li: ({ children, ...props }) => {
+		return (
+			<li className="py-1" {...props}>
+				{children}
+			</li>
+		);
+	},
+	ul: ({ children, ...props }) => {
+		return (
+			<ul className="list-decimal list-outside ml-4" {...props}>
+				{children}
+			</ul>
+		);
+	},
+	strong: ({ children, ...props }) => {
+		return (
+			<span className="font-semibold" {...props}>
+				{children}
+			</span>
+		);
+	},
+	a: ({ children, ...props }) => {
+		return (
+			<a
+				className="text-blue-500 hover:underline"
+				target="_blank"
+				rel="noreferrer"
+				{...props}
+			>
+				{children}
+			</a>
+		);
+	},
+	h1: ({ children, ...props }) => {
+		return (
+			<h1 className="text-3xl font-semibold mt-6 mb-2" {...props}>
+				{children}
+			</h1>
+		);
+	},
+	h2: ({ children, ...props }) => {
+		return (
+			<h2 className="text-2xl font-semibold mt-6 mb-2" {...props}>
+				{children}
+			</h2>
+		);
+	},
+	h3: ({ children, ...props }) => {
+		return (
+			<h3 className="text-xl font-semibold mt-6 mb-2" {...props}>
+				{children}
+			</h3>
+		);
+	},
+	h4: ({ children, ...props }) => {
+		return (
+			<h4 className="text-lg font-semibold mt-6 mb-2" {...props}>
+				{children}
+			</h4>
+		);
+	},
+	h5: ({ children, ...props }) => {
+		return (
+			<h5 className="text-base font-semibold mt-6 mb-2" {...props}>
+				{children}
+			</h5>
+		);
+	},
+	h6: ({ children, ...props }) => {
+		return (
+			<h6 className="text-sm font-semibold mt-6 mb-2" {...props}>
+				{children}
+			</h6>
+		);
+	},
+	p: ({ children, ...props }) => {
+		return (
+			<p className="text-white" {...props}>
+				{children}
+			</p>
+		);
+	},
+	img: ({ children, ...props }) => {
+		return (
+			<div className="markdown-image-wrapper">
+				<img
+					className="w-full h-auto"
+					{...props}
+					src={props?.src}
+					alt="img"
+					style={{ maxWidth: '50%', maxHeight: '50%', borderRadius: '4px' }}
+				/>
+			</div>
+		);
+	},
+};
+
+// Memoize citation-specific components
+const createCitationComponents = (citations) => ({
+	span: ({ children, citationId, ...props }) => {
+		if (citationId) return <CitationsTooltip citationId={citationId} citations={citations} />;
+		return <span {...props}>{children}</span>;
+	},
+});
+
 const NonMemoizedMarkdown = ({ children, citations }) => {
-	const components = useMemo(() => {
-		return {
-			pre: ({ children }) => <>{children}</>,
-			ol: ({ children, ...props }) => {
-				return (
-					<ol className="list-decimal list-outside ml-8" {...props}>
-						{children}
-					</ol>
-				);
-			},
-			li: ({ children, ...props }) => {
-				return (
-					<li className="py-1" {...props}>
-						{children}
-					</li>
-				);
-			},
-			ul: ({ children, ...props }) => {
-				return (
-					<ul className="list-decimal list-outside ml-4" {...props}>
-						{children}
-					</ul>
-				);
-			},
-			strong: ({ children, ...props }) => {
-				return (
-					<span className="font-semibold" {...props}>
-						{children}
-					</span>
-				);
-			},
-			a: ({ children, ...props }) => {
-				return (
-					<a
-						className="text-blue-500 hover:underline"
-						target="_blank"
-						rel="noreferrer"
-						{...props}
-					>
-						{children}
-					</a>
-				);
-			},
-			h1: ({ children, ...props }) => {
-				return (
-					<h1 className="text-3xl font-semibold mt-6 mb-2" {...props}>
-						{children}
-					</h1>
-				);
-			},
-			h2: ({ children, ...props }) => {
-				return (
-					<h2 className="text-2xl font-semibold mt-6 mb-2" {...props}>
-						{children}
-					</h2>
-				);
-			},
-			h3: ({ children, ...props }) => {
-				return (
-					<h3 className="text-xl font-semibold mt-6 mb-2" {...props}>
-						{children}
-					</h3>
-				);
-			},
-			h4: ({ children, ...props }) => {
-				return (
-					<h4 className="text-lg font-semibold mt-6 mb-2" {...props}>
-						{children}
-					</h4>
-				);
-			},
-			h5: ({ children, ...props }) => {
-				return (
-					<h5 className="text-base font-semibold mt-6 mb-2" {...props}>
-						{children}
-					</h5>
-				);
-			},
-			h6: ({ children, ...props }) => {
-				return (
-					<h6 className="text-sm font-semibold mt-6 mb-2" {...props}>
-						{children}
-					</h6>
-				);
-			},
-			p: ({ children, ...props }) => {
-				return (
-					<p className="text-white" {...props}>
-						{children}
-					</p>
-				);
-			},
-			img: ({ children, ...props }) => {
-				return (
-					<div className="markdown-image-wrapper">
-						<img
-							className="w-full h-auto"
-							{...props}
-							src={props?.src}
-							alt="img"
-							style={{ maxWidth: '50%', maxHeight: '50%', borderRadius: '4px' }}
-						/>
-					</div>
-				);
-			},
-			span: ({ children, citationId, ...props }) => {
-				if (citationId)
-					return <CitationsTooltip citationId={citationId} citations={citations} />;
-				return <span {...props}>{children}</span>;
-			},
-		};
-	}, [citations]);
+	// Memoize the combined components object
+	const components = useMemo(
+		() => ({
+			...baseComponents,
+			...createCitationComponents(citations),
+		}),
+		[citations],
+	);
 
 	return (
 		<ReactMarkdown remarkPlugins={[]} rehypePlugins={[rehypeCITPlugin]} components={components}>
@@ -176,147 +185,140 @@ const NonMemoizedMarkdown = ({ children, citations }) => {
 	);
 };
 
-export const Markdown = memo(
-	NonMemoizedMarkdown,
-	(prevProps, nextProps) =>
-		prevProps.children === nextProps.children && prevProps.citations === nextProps.citations,
-);
+// Improve memo comparison
+export const Markdown = memo(NonMemoizedMarkdown, (prevProps, nextProps) => {
+	const citationsEqual =
+		(!prevProps.citations && !nextProps.citations) ||
+		(prevProps.citations?.length === nextProps.citations?.length &&
+			JSON.stringify(prevProps.citations) === JSON.stringify(nextProps.citations));
 
-export const TypingEffect = ({
-	text,
-	onComplete = null,
-	customePencilClickFunc = null,
-	smoothScrollToBottom,
-	messageId = null,
-	handleRatingClick = null,
-	showTypingEffect = false,
-	rating = null,
-	citations = [],
-}) => {
-	const {
-		documentPreview: { setNoteContent },
-	} = useContext(Context);
+	return prevProps.children === nextProps.children && citationsEqual;
+});
 
-	const [displayedText, setDisplayedText] = useState('');
-	const [currentIndex, setCurrentIndex] = useState(0);
-	const [isCopiedToClipboard, setIsCopiedToClipboard] = useState(false);
+export const TypingEffect = memo(
+	({
+		text,
+		customePencilClickFunc = null,
+		smoothScrollToBottom,
+		messageId = null,
+		handleRatingClick = null,
+		rating = null,
+		citations = [],
+		messageData,
+	}) => {
+		const {
+			documentPreview: { setNoteContent },
+		} = useContext(Context);
 
-	useEffect(() => {
-		if (currentIndex < text?.length) {
-			const timeout = setTimeout(() => {
-				setDisplayedText((prev) => prev + text[currentIndex]);
-				setCurrentIndex((prev) => prev + 1);
-				if (smoothScrollToBottom) {
-					smoothScrollToBottom();
-				}
-			}, 5); // Adjust speed as needed
+		const [isCopiedToClipboard, setIsCopiedToClipboard] = useState(false);
 
-			return () => clearTimeout(timeout);
-		} else if (onComplete && showTypingEffect) {
-			onComplete();
-		}
-	}, [currentIndex, text, onComplete]);
+		const handleCopyTextClick = useCallback((text) => {
+			navigator?.clipboard?.writeText(text).then(() => {
+				setIsCopiedToClipboard(true);
+				setTimeout(() => {
+					setIsCopiedToClipboard(false);
+				}, 1000);
+			});
+		}, []);
 
-	useEffect(() => {
-		if (!showTypingEffect) {
-			setCurrentIndex(text?.length);
-			setDisplayedText(text);
-		}
-	}, [showTypingEffect]);
+		const handlePencilClick = useCallback(() => {
+			if (customePencilClickFunc) {
+				customePencilClickFunc();
+			}
+			setNoteContent(text);
+		}, [customePencilClickFunc, text, setNoteContent]);
 
-	const handleCopyTextClick = (text) => {
-		navigator?.clipboard?.writeText(text).then(() => {
-			setIsCopiedToClipboard(true);
-			setTimeout(() => {
-				setIsCopiedToClipboard(false);
-			}, 1000);
-		});
-	};
+		const handleThumbsUp = useCallback(() => {
+			handleRatingClick && handleRatingClick('thumbsUp', messageId);
+		}, [handleRatingClick, messageId]);
 
-	return (
-		<div className="typing-effect-container">
-			{showTypingEffect ? (
-				<Markdown>{displayedText?.replace(/\\n/g, '\n')}</Markdown>
-			) : (
+		const handleThumbsDown = useCallback(() => {
+			handleRatingClick && handleRatingClick('thumbsDown', messageId);
+		}, [handleRatingClick, messageId]);
+
+		return (
+			<div className="typing-effect-container">
 				<Markdown citations={citations}>{text?.replace(/\\n/g, '\n')}</Markdown>
-			)}
 
-			{currentIndex === text?.length ? (
-				<div className="hover-actions-container">
-					<div className="icon-container">
-						<Tooltip placement="bottom" arrow={false} trigger={'hover'} title={'Like'}>
-							<ThumpsUpSvg
-								fill={rating === 'thumbsUp' ? '#f2f2f3' : 'none'}
-								onClick={() =>
-									handleRatingClick && handleRatingClick('thumbsUp', messageId)
-								}
-							/>
-						</Tooltip>
-					</div>
-
-					<div className="icon-container">
-						<Tooltip
-							placement="bottom"
-							arrow={false}
-							trigger={'hover'}
-							title={'Dislike'}
-						>
-							<ThumpsDownSvg
-								fill={rating === 'thumbsDown' ? '#f2f2f3' : 'none'}
-								onClick={() =>
-									handleRatingClick && handleRatingClick('thumbsDown', messageId)
-								}
-							/>
-						</Tooltip>
-					</div>
-
-					<div className="icon-container">
-						<Tooltip placement="bottom" arrow={false} trigger={'hover'} title={'Audio'}>
-							<HeadPhoneSvg />
-						</Tooltip>
-					</div>
-
-					<div className="icon-container">
-						<Tooltip placement="bottom" arrow={false} trigger={'hover'} title={'Edit'}>
-							<PencilSparkleIcon
-								onClick={() => {
-									if (customePencilClickFunc) {
-										customePencilClickFunc();
-									}
-									setNoteContent(text);
-								}}
-							/>
-						</Tooltip>
-					</div>
-
-					<div className="icon-container">
-						<Tooltip
-							placement="bottom"
-							arrow={false}
-							trigger={'hover'}
-							title={isCopiedToClipboard ? 'Copied' : 'Copy'}
-						>
-							{isCopiedToClipboard ? (
-								<TickSvg />
-							) : (
-								<CopyIcon
-									onClick={() => {
-										handleCopyTextClick(text);
-									}}
+				{messageData?.messageId && (
+					<div className="hover-actions-container">
+						<div className="icon-container">
+							<Tooltip
+								placement="bottom"
+								arrow={false}
+								trigger={'hover'}
+								title={'Like'}
+							>
+								<ThumpsUpSvg
+									fill={rating === 'thumbsUp' ? '#f2f2f3' : 'none'}
+									onClick={handleThumbsUp}
 								/>
-							)}
-						</Tooltip>
-					</div>
+							</Tooltip>
+						</div>
 
-					{/* <CopyIcon
-						onClick={() => {
-							handleCopyTextClick(text);
-						}}
-					/> */}
-				</div>
-			) : (
-				''
-			)}
-		</div>
-	);
-};
+						<div className="icon-container">
+							<Tooltip
+								placement="bottom"
+								arrow={false}
+								trigger={'hover'}
+								title={'Dislike'}
+							>
+								<ThumpsDownSvg
+									fill={rating === 'thumbsDown' ? '#f2f2f3' : 'none'}
+									onClick={handleThumbsDown}
+								/>
+							</Tooltip>
+						</div>
+
+						<div className="icon-container">
+							<Tooltip
+								placement="bottom"
+								arrow={false}
+								trigger={'hover'}
+								title={'Audio'}
+							>
+								<HeadPhoneSvg />
+							</Tooltip>
+						</div>
+
+						<div className="icon-container">
+							<Tooltip
+								placement="bottom"
+								arrow={false}
+								trigger={'hover'}
+								title={'Edit'}
+							>
+								<PencilSparkleIcon onClick={handlePencilClick} />
+							</Tooltip>
+						</div>
+
+						<div className="icon-container">
+							<Tooltip
+								placement="bottom"
+								arrow={false}
+								trigger={'hover'}
+								title={isCopiedToClipboard ? 'Copied' : 'Copy'}
+							>
+								{isCopiedToClipboard ? (
+									<TickSvg />
+								) : (
+									<CopyIcon onClick={() => handleCopyTextClick(text)} />
+								)}
+							</Tooltip>
+						</div>
+					</div>
+				)}
+			</div>
+		);
+	},
+	(prevProps, nextProps) => {
+		// Custom comparison function for TypingEffect
+		return (
+			prevProps.text === nextProps.text &&
+			prevProps.messageId === nextProps.messageId &&
+			prevProps.rating === nextProps.rating &&
+			JSON.stringify(prevProps.citations) === JSON.stringify(nextProps.citations) &&
+			prevProps.messageData?.messageId === nextProps.messageData?.messageId
+		);
+	},
+);
