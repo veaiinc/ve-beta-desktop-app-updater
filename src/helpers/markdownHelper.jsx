@@ -1,6 +1,5 @@
 import React, { memo, useContext, useEffect, useState, useMemo } from 'react';
 import { default as ReactMarkdown } from 'react-markdown';
-import { Link } from 'react-router-dom'; // Adjust if you're using another router
 import '../assets/scss/markdown.scss';
 import '../assets/scss/markdownHelper.scss';
 import { ReactComponent as PencilSparkleIcon } from '../assets/svg/notes/pencilSparkle.svg';
@@ -19,7 +18,7 @@ const rehypeCITPlugin = () => {
 			if (!node || typeof node !== 'object') return;
 
 			if (node?.type === 'text' && node?.value) {
-				const regex = /(\[CIT-\d+\])/g;
+				const regex = /(\[C\d+\])/g;
 				const matches = node?.value?.match(regex);
 				if (!matches) return;
 
@@ -32,7 +31,7 @@ const rehypeCITPlugin = () => {
 						?.split(regex)
 						?.filter((part) => part !== '')
 						?.map((part) => {
-							const match = part.match(/\[CIT-\d+\]/);
+							const match = part.match(/\[C\d+\]/);
 							if (match) {
 								return {
 									type: 'element',
@@ -62,7 +61,7 @@ const NonMemoizedMarkdown = ({ children, citations }) => {
 			pre: ({ children }) => <>{children}</>,
 			ol: ({ children, ...props }) => {
 				return (
-					<ol className="list-decimal list-outside ml-4" {...props}>
+					<ol className="list-decimal list-outside ml-8" {...props}>
 						{children}
 					</ol>
 				);
@@ -90,14 +89,14 @@ const NonMemoizedMarkdown = ({ children, citations }) => {
 			},
 			a: ({ children, ...props }) => {
 				return (
-					<Link
+					<a
 						className="text-blue-500 hover:underline"
 						target="_blank"
 						rel="noreferrer"
 						{...props}
 					>
 						{children}
-					</Link>
+					</a>
 				);
 			},
 			h1: ({ children, ...props }) => {
