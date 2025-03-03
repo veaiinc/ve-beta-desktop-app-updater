@@ -77,6 +77,13 @@ const RecentChat = ({
 
 	useEffect(() => {
 		if (sessionId) {
+			//clearing context state
+			updateStateValues({
+				moreRecentChatStorage: null,
+				recentChatStorage: null,
+				globalChatMessages: [],
+			});
+
 			getRecentChatMessages(sessionId);
 			setInfo((prev) => ({ ...prev, chatLoading: true, chatSessionId: sessionId }));
 			updateStateValues({ currentSessionId: sessionId });
