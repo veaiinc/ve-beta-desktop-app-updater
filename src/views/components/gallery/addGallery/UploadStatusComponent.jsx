@@ -1,17 +1,32 @@
-import React, { memo, useContext } from 'react';
+import React, { memo, useContext, useEffect } from 'react';
 import { ReactComponent as UploadButtonSvg } from '../../../../assets/svg/gallery/upload_gray.svg';
 import { ReactComponent as CancelUploadSvg } from '../../../../assets/svg/gallery/cancel-bold-gray.svg';
 import { Progress } from 'antd';
 import DuplicateComponent from './DuplicateComponent';
+import AiEnabledSwitch from './AiEnabledSwitch';
 import Context from '../../../../context/context';
 import { getImageSizeFormat } from '../../../../helpers';
 
-const UploadStatusComponent = ({ info, setinfo, uploadFilesConcurrently, galleryId }) => {
+const UploadStatusComponent = ({
+	info,
+	setinfo,
+	uploadFilesConcurrently,
+	galleryId,
+	aiFacesLogic,
+	lightGallery,
+}) => {
 	const {
 		galleryInfo: { setUpImageUpload },
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 	} = useContext(Context);
 	// func for removing the image
+	// const params = new URLSearchParams(window.location.search);
+	// const lightGallery = params.get('light-gallery');
+
+	// const aiFacesLogic = info?.isAiEnabled
+	// 	? Object.keys(info?.uploadImages).length > validateExpiryData?.liteImageLimitWithAiFace
+	// 	: false;
+
 	const deleteFromUploads = (fileName) => {
 		const update = { ...info };
 		const image = update.uploadImages[fileName];
@@ -24,23 +39,21 @@ const UploadStatusComponent = ({ info, setinfo, uploadFilesConcurrently, gallery
 	};
 
 	const uploadPhotosSubmitHandler = (e) => {
-		const params = new URLSearchParams(window.location.search);
-		const lightGallery = params.get('light-gallery');
-
 		if (
 			lightGallery === 'true' &&
-			validateExpiryData &&
 			validateExpiryData?.restrictGalleries &&
-			(validateExpiryData?.isExpired || !validateExpiryData?.imagesAllowed)
+			(validateExpiryData?.liteImagesLimit <= validateExpiryData?.liteImageUsed ||
+				(info?.isAiEnabled && validateExpiryData?.liteImageLimitWithAiFace === 0)) &&
+			!validateExpiryData?.imagesAllowed
 		) {
 			return updateSubscriptionState({ expiredSubscriptionModal: true });
 		}
 
 		if (
 			lightGallery === 'false' &&
-			validateExpiryData &&
 			validateExpiryData?.restrictGalleries &&
-			(validateExpiryData?.isExpired || !validateExpiryData?.uploadAllowed)
+			validateExpiryData?.totalStorageUsedInGB >= validateExpiryData?.storageLimitInGB &&
+			!validateExpiryData?.uploadAllowed
 		) {
 			return updateSubscriptionState({ expiredSubscriptionModal: true });
 		}
@@ -60,6 +73,13 @@ const UploadStatusComponent = ({ info, setinfo, uploadFilesConcurrently, gallery
 
 	return (
 		<div style={{ display: 'flex', flexDirection: 'column', width: '100%', gap: '12px' }}>
+			{lightGallery === 'true' && (
+				<AiEnabledSwitch
+					isAiEnabled={info?.isAiEnabled}
+					isProcessing={info?.startedUploading}
+					setinfo={setinfo}
+				/>
+			)}
 			<DuplicateComponent info={info} setinfo={setinfo} />
 
 			<div className="upload_status_container">

@@ -439,7 +439,12 @@ const routes = [
 	{
 		path: '/chat/:sessionId',
 		component: (
-			<AuthWrapper title={'Chat'} showBottomToolbar={false}>
+			<AuthWrapper
+				title={'Chat'}
+				showBottomToolbar={false}
+				outerContainerStyle={{ paddingRight: '0px' }}
+				maxWidth="100%"
+			>
 				<RecentChat />
 			</AuthWrapper>
 		),

@@ -23,14 +23,26 @@ const NoteComponentModal = ({ modalIsOpen, closeModal, handleRatingClick, chatLi
 		smoothScrollToBottom();
 	}, [chatList]); // Scroll when chat updates
 
-	const smoothScrollToBottom = useCallback(() => {
-		if (chatContentRef?.current) {
-			chatContentRef.current.scrollTo({
-				top: chatContentRef.current.scrollHeight,
-				behavior: 'smooth', // Enables smooth scrolling
-			});
-		}
-	}, [chatContentRef]);
+	const smoothScrollToBottom = useCallback(
+		(type) => {
+			const scrollElement = chatContentRef?.current;
+			if (!scrollElement) return;
+			const scrollToPosition = (position) => {
+				scrollElement.scrollTo({
+					top: position,
+					behavior: type === 'instant' ? 'auto' : 'smooth',
+				});
+			};
+			if (type === 'custom') {
+				const scrollHeight = scrollElement.scrollHeight;
+				const scrollOffset = 100;
+				scrollToPosition(scrollHeight - scrollOffset);
+			} else {
+				scrollToPosition(scrollElement.scrollHeight);
+			}
+		},
+		[chatContentRef],
+	);
 	return (
 		<Drawer
 			open={modalIsOpen}
@@ -64,6 +76,7 @@ const NoteComponentModal = ({ modalIsOpen, closeModal, handleRatingClick, chatLi
 														messageId={chat?.messageId}
 														showTypingEffect={chat?.typingEffect}
 														rating={chat?.rating}
+														messageData={chat}
 													/>
 												</div>
 											) : (

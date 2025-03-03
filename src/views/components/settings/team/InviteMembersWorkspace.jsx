@@ -77,7 +77,7 @@ const InviteMembersWorkspaceComponent = ({
 		};
 
 		updateData();
-	}, [updatedData, selectedUser, selectedOption]);
+	}, [updatedData]);
 
 	const filterFunction = (options) => {
 		return options?.filter((option) => {
