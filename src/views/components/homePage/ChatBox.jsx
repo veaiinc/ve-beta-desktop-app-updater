@@ -419,12 +419,22 @@ const ChatBox = ({
 					if (customChatActions) {
 						return onSend({ payload, localPayload, currentQuery });
 					}
-
+					handleStreamSendMessage(payload, localPayload, currentQuery);
 					if (handleSendWebsocketMessage) {
+						if (info?.recentFiles?.length > 0) {
+							if (payload?.files && payload.files?.length > 0) {
+								payload.files = [
+									...payload.files,
+									...info?.recentFiles?.map((ele) => ele?.originalFileName),
+								];
+							} else {
+								payload.files = info?.recentFiles?.map(
+									(ele) => ele?.originalFileName,
+								);
+							}
+						}
 						handleSendWebsocketMessage(payload, currentQuery);
 					}
-
-					handleStreamSendMessage(payload, localPayload, currentQuery);
 				}
 			}
 		},
