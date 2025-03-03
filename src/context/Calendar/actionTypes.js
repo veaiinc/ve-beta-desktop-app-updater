@@ -16,5 +16,5 @@ export const CALENDAR = {
 	resetCalendarAiChat: 'RESET_CALENDAR_AI_CHAT',
 
 	//Scheduler Apis ================================>
-	getSchedulerList: '/scheduler/all-sessions',
+	schedulerList: '/scheduler/all-sessions',
 };

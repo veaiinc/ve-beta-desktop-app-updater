@@ -90,7 +90,6 @@ const CreateSessionModal = ({ open, closeModal }) => {
 	};
 
 	const handleCreateSession = useCallback(() => {
-		console.log('Session Created');
 		ModifyCloseModal();
 		navigate('/scheduling/edit');
 	}, [info, ModifyCloseModal, navigate]);

@@ -7,26 +7,39 @@ import { ReactComponent as EyeIcon } from '../../../assets/svg/worflow_builder/b
 import { Tooltip } from 'antd';
 
 const SessionCards = ({ item }) => {
+	const formatDuration = (duration) => {
+		if (!duration) return '';
+		return `${duration.unitCount} ${duration.unitType}`;
+	};
+
 	return (
 		<>
-			<div className="sessionGridContainer" key={item.id}>
+			<div className="sessionGridContainer" key={item._id}>
 				<div className="sessionGridItem">
 					<div className="sessionImage">
-						<img src={item?.image} alt={item.title} />
+						<img
+							src={
+								item?.image ||
+								'https://images.pexels.com/photos/8471810/pexels-photo-8471810.jpeg?auto=compress&cs=tinysrgb&w=1200'
+							}
+							alt={item.sessionName}
+						/>
 					</div>
 					<div className="sessionContent">
 						<div className="sessionHeader">
-							<h3>{item.title}</h3>
+							<span>{item.sessionName}</span>
 							<ToggleSwitch
-								checked={item.isActive}
+								id={item._id}
+								value={item.sessionEnabled}
 								onChange={() => {
 									console.log('toggle');
 								}}
 							/>
 						</div>
 						<div className="sessionInfo">
-							<div className="duration">{item.duration}</div>
-							<div className="price">{item.price}</div>
+							<div className="duration">{formatDuration(item.sessionDuration)}</div>
+							<div className="priceSeparator">|</div>
+							<div className="price">{item.price || 'FREE'}</div>
 						</div>
 						<div className="location">{item.location}</div>
 					</div>

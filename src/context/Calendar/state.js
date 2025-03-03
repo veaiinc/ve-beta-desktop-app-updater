@@ -326,7 +326,7 @@ export const Calendar = () => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
-			const url = `/${workspaceId}${API.CALENDAR.getSchedulerList}`;
+			const url = `/${workspaceId}${API.CALENDAR.schedulerList}`;
 			const response = await service.fetchGet(url, usertoken, 'calendar_api');
 
 			if (response?.[0] === true) {

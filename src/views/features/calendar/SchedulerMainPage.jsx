@@ -5,62 +5,6 @@ import SchedulerAvailability from '../../components/scheduler/SchedulerAvailabil
 import CreateSessionModal from '../../components/modalsV2/calendar/CreateSessionModal';
 import UpdateSessionSlot from '../../components/modalsV2/calendar/UpdateSessionSlot';
 import Context from '../../../context/context';
-const sessionGridItems = [
-	{
-		id: 1,
-		title: 'Yoga Session',
-		duration: '45 minutes',
-		price: 'Rs.3200',
-		location: 'Moonshine Studio, Banjara hills',
-		image: 'https://images.pexels.com/photos/8471810/pexels-photo-8471810.jpeg?auto=compress&cs=tinysrgb&w=1200',
-		isActive: true,
-	},
-	{
-		id: 2,
-		title: 'Meditation Class',
-		duration: '30 minutes',
-		price: 'Rs.2500',
-		location: 'Peace Studio, Jubilee Hills',
-		image: 'https://images.pexels.com/photos/8471810/pexels-photo-8471810.jpeg?auto=compress&cs=tinysrgb&w=1200',
-		isActive: false,
-	},
-	{
-		id: 3,
-		title: 'Technical Class',
-		duration: '30 minutes',
-		price: 'Rs.2500',
-		location: 'Peace Studio, Jubilee Hills',
-		image: 'https://images.pexels.com/photos/8471810/pexels-photo-8471810.jpeg?auto=compress&cs=tinysrgb&w=1200',
-		isActive: false,
-	},
-	{
-		id: 4,
-		title: 'Clasical Session',
-		duration: '30 minutes',
-		price: 'Rs.2500',
-		location: 'Peace Studio, Jubilee Hills',
-		image: 'https://images.pexels.com/photos/8471810/pexels-photo-8471810.jpeg?auto=compress&cs=tinysrgb&w=1200',
-		isActive: false,
-	},
-	{
-		id: 5,
-		title: 'Dance Session',
-		duration: '30 minutes',
-		price: 'Rs.2500',
-		location: 'Peace Studio, Jubilee Hills',
-		image: 'https://images.pexels.com/photos/8471810/pexels-photo-8471810.jpeg?auto=compress&cs=tinysrgb&w=1200',
-		isActive: false,
-	},
-	{
-		id: 6,
-		title: 'Nutrition Class',
-		duration: '30 minutes',
-		price: 'Rs.2500',
-		location: 'Peace Studio, Jubilee Hills',
-		image: 'https://images.pexels.com/photos/8471810/pexels-photo-8471810.jpeg?auto=compress&cs=tinysrgb&w=1200',
-		isActive: false,
-	},
-];
 
 const SchedulerMainPage = () => {
 	const {
@@ -70,6 +14,7 @@ const SchedulerMainPage = () => {
 	const [info, setInfo] = useState({
 		createSessionModal: false,
 		updateSessionSlot: false,
+		sessionsLoading: true,
 		schedulerList: null,
 	});
 
@@ -82,9 +27,12 @@ const SchedulerMainPage = () => {
 			setInfo((prev) => ({
 				...prev,
 				schedulerList: schedulerList,
+				sessionsLoading: false,
 			}));
 		}
 	}, [schedulerList]);
+
+	console.log('schedulerList==>', info?.schedulerList);
 
 	const handleCreateSessionModal = useCallback(() => {
 		setInfo((prev) => ({
@@ -119,8 +67,14 @@ const SchedulerMainPage = () => {
 						>
 							<div>+ New session</div>
 						</div>
-						{sessionGridItems?.length > 0 &&
-							sessionGridItems?.map((item) => <SessionCards item={item} />)}
+						{info.sessionsLoading ? (
+							<SessionCardSkeleton />
+						) : (
+							info?.schedulerList?.length > 0 &&
+							info?.schedulerList?.map((item) => (
+								<SessionCards key={item.id} item={item} />
+							))
+						)}
 					</div>
 
 					<SchedulerAvailability
@@ -142,3 +96,28 @@ const SchedulerMainPage = () => {
 };
 
 export default memo(SchedulerMainPage);
+
+export const SessionCardSkeleton = () => {
+	return (
+		<>
+			{[{}, {}, {}].map((item) => (
+				<div key={item} className="sessionGridContainer sessionCardSkeleton">
+					<div className="sessionGridItem">
+						<div className="sessionImage" />
+						<div className="sessionContent">
+							<div className="sessionHeader">
+								<span />
+							</div>
+							<div className="sessionInfo">
+								<div className="duration" />
+								<div className="priceSeparator">|</div>
+								<div className="price" />
+							</div>
+							<div className="location" />
+						</div>
+					</div>
+				</div>
+			))}
+		</>
+	);
+};
