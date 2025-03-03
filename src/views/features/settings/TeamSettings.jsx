@@ -382,13 +382,13 @@ const TeamSettings = () => {
 				messageApi.error('At least one access control must be enabled.');
 				return;
 			}
-			updatedAccessControls = currentPlan?.apps.map((app) => {
+			updatedAccessControls = currentPlan?.apps?.map((app) => {
 				// Find the existing control in the updated list
-				const existingControl = updatedAccessControls.find(
-					(control) => control.app === app.app,
+				const existingControl = updatedAccessControls?.find(
+					(control) => control?.app === app?.app,
 				);
 				// Keep its state if it exists, otherwise default to disabled
-				return existingControl || { app: app.app, isEnabled: false, hasFullAccess: false };
+				return existingControl || { app: app?.app, isEnabled: false, hasFullAccess: false };
 			});
 		}
 
