@@ -223,16 +223,21 @@
 		.home-page-welcome-container-right {
 			display: flex;
 			flex-direction: row;
-			padding-bottom: 15px;
 			width: 268px;
 			padding: 12px 16px;
 			align-items: center;
 			gap: 8px;
 			border-radius: 50px;
-			background: var(--background-color);
+			background: var(--card);
 			align-self: flex-start;
+			:hover {
+				background: var(--card-hover);
+			}
+			:focus {
+				border: 1px solid var(--stroke);
+				background: var(--card-hover);
+			}
 			.search-bar-input {
-				background: var(--background-color);
 				border: none;
 				color: var(--secondary-font);
 				font-family: var(--primary-font-family);
