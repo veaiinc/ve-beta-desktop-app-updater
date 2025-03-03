@@ -37,6 +37,8 @@ import {
 	addNewStepsQuery,
 	updateStepsQuery,
 	getFormResponsesListQuery,
+	createBlankWorkflowQuery,
+	createBlankTemplateQuery,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -45,6 +47,7 @@ import Service from '../../services/index';
 import { sendCustomMailMutation } from '../subscription/graphqlFunctions';
 import { getBase64 } from '../../helpers';
 import Skeleton from 'react-loading-skeleton';
+import { responsiveArray } from 'antd/es/_util/responsiveObserver';
 
 export const intialState = {
 	workflowslist: null,
@@ -1940,6 +1943,47 @@ export const TemplatesState = (props) => {
 			console.log('errror ==>getRecentChatMessages', error);
 		}
 	};
+	const createBlankWorkflow = async (payload) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				createBlankWorkflowQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+			if (response?.[0]) {
+				return response;
+			} else {
+				return response;
+			}
+		} catch (error) {
+			console.log('error==>createBlankWorkflow', error);
+		}
+	};
+
+	const createBlankTemplate = async (payload) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				createBlankTemplateQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+			if (response?.[0]) {
+				return response;
+			} else {
+				return response;
+			}
+		} catch (error) {
+			console.log('error==>createBlankTemplate', error);
+		}
+	};
 	return {
 		...state,
 		getMyWorkflows,
@@ -2013,5 +2057,7 @@ export const TemplatesState = (props) => {
 		handleStreamSendMessage,
 		handleStreamIncomingMessage,
 		handleStreamMessageChunk,
+		createBlankWorkflow,
+		createBlankTemplate,
 	};
 };

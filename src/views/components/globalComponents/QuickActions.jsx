@@ -10,7 +10,7 @@ import CreateTaskPopup from '../../components/modalsV2/tasks/CreateTaskPopup';
 
 const dropdownOptions = [
 	{ id: 0, title: 'Lead', value: 'client', controlValue: 'contact' },
-	{ id: 2, title: 'Meeting', value: 'meeting' },
+	{ id: 2, title: 'Meeting', value: 'meeting', controlValue: 'calendar' },
 	{ id: 3, title: 'Task', value: 'task', controlValue: 'task' },
 	{ id: 4, title: 'Document', value: 'document', controlValue: 'workflow' },
 	{ id: 5, title: 'Form', value: 'form-submission', controlValue: 'form' },
