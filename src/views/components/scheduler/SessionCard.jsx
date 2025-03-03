@@ -5,8 +5,11 @@ import { ReactComponent as DuplicateIcon } from '../../../assets/svg/worflow_bui
 import { ReactComponent as LinkIcon } from '../../../assets/svg/activity/link.svg';
 import { ReactComponent as EyeIcon } from '../../../assets/svg/worflow_builder/buildercard/eye.svg';
 import { Tooltip } from 'antd';
+import { useNavigate } from 'react-router-dom';
 
 const SessionCards = ({ item }) => {
+	const navigate = useNavigate();
+
 	const formatDuration = (duration) => {
 		if (!duration) return '';
 		return `${duration.unitCount} ${duration.unitType}`;
@@ -40,7 +43,11 @@ const SessionCards = ({ item }) => {
 				</div>
 				<div className="sessionActions">
 					<Tooltip title="Edit" placement="bottom">
-						<EditIcon />
+						<EditIcon
+							onClick={() => {
+								navigate(`/scheduling/edit/${item._id}`);
+							}}
+						/>
 					</Tooltip>
 					<Tooltip title="Duplicate" placement="bottom">
 						<DuplicateIcon />

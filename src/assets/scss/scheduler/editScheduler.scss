@@ -62,6 +62,7 @@
 			display: flex;
 			align-items: center;
 			gap: 5px;
+			user-select: none;
 
 			overflow: hidden;
 			color: #e4e5e6;
@@ -314,6 +315,7 @@
 					justify-content: space-between;
 					align-items: center;
 					padding: 8px 12px;
+					gap: 5px;
 
 					overflow: hidden;
 					color: rgba(228, 229, 230, 0.48);
@@ -337,7 +339,7 @@
 
 			&:last-child {
 				.session-input {
-					width: 100px;
+					width: 115px;
 				}
 			}
 		}
@@ -433,7 +435,7 @@
 			background: #202123;
 			color: #e4e5e6;
 			font-family: Inter;
-			font-size: 14px;
+			font-size: 12px;
 
 			&:hover {
 				border-color: #444445;
@@ -645,6 +647,36 @@
 		gap: 8px;
 		flex: 1 0 0;
 		user-select: none;
+
+		.inputHeight {
+			width: 100%;
+			height: 40px;
+			padding: 8px 12px;
+			border-radius: 8px;
+			border: 1px solid #333334;
+			background: #202123;
+			color: #e4e5e6;
+			font-family: Inter;
+			font-size: 12px;
+
+			&:hover {
+				border-color: #444445;
+			}
+
+			&::placeholder {
+				color: #787e87;
+			}
+		}
+
+		.input-component input:placeholder-shown + label {
+			top: 50%;
+			transform: translateY(-50%);
+			background-color: transparent;
+		}
+
+		.input-component label {
+			top: -5.5px;
+		}
 
 		span {
 			color: var(--secondary-font, #787e87);

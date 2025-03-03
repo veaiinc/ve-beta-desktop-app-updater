@@ -18,6 +18,7 @@ export const initialState = {
 export const initialSchedulerState = {
 	schedulerList: null,
 	createdSession: null,
+	sessionDetail: null,
 };
 
 export const Calendar = () => {
@@ -26,7 +27,7 @@ export const Calendar = () => {
 		...initialSchedulerState,
 	});
 
-	// Calendar AI Apis ================================>
+	// Calendar AI Apis =================>
 	const getCalendarChat = async (sessionId, body) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
@@ -65,7 +66,7 @@ export const Calendar = () => {
 		}
 	};
 
-	// Calendar Categories Apis ================================>
+	// Calendar Categories Apis ==================>
 	const createCalendarCategory = async (body) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
@@ -166,7 +167,7 @@ export const Calendar = () => {
 		}
 	};
 
-	// Calendar Events Apis ================================>
+	// Calendar Events Apis =================>
 	const getCalendarAllEvents = async () => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
@@ -350,18 +351,36 @@ export const Calendar = () => {
 			const url = `/${workspaceId}${API.CALENDAR.createSchedulerSession}`;
 			const response = await service.fetchPost(url, body, usertoken, 'calendar_api');
 
-			console.log('response==>createSchedulerSession', response);
-
 			if (response?.[0] === true) {
 				dispatch({
 					type: Actions.CREATE_SCHEDULER_SESSION,
-					payload: response?.[1],
+					payload: response?.[1]?.data,
 				});
 			} else {
 				console.log('API failed ==> createSchedulerSession', response);
 			}
 		} catch (error) {
 			console.log('error==>createSchedulerSession', error);
+		}
+	};
+
+	const getSchedulerSessionDetail = async (sessionId) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const url = `/${workspaceId}/scheduler/${sessionId}${API.CALENDAR.getSchedulerSessionDetail}`;
+			const response = await service.fetchGet(url, usertoken, 'calendar_api');
+
+			if (response?.[0] === true) {
+				dispatch({
+					type: Actions.GET_SCHEDULER_SESSION_DETAIL,
+					payload: response?.[1]?.data,
+				});
+			} else {
+				console.log('API failed ==> getSchedulerSessionDetail', response);
+			}
+		} catch (error) {
+			console.log('error==>getSchedulerSessionDetail', error);
 		}
 	};
 
@@ -405,6 +424,7 @@ export const Calendar = () => {
 
 		getSchedulerList,
 		createSchedulerSession,
+		getSchedulerSessionDetail,
 		resetSchedulerState,
 	};
 };

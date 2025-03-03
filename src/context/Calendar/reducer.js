@@ -78,6 +78,11 @@ const actionHandlers = {
 		createdSession: action?.payload,
 	}),
 
+	GET_SCHEDULER_SESSION_DETAIL: (state, action) => ({
+		...state,
+		sessionDetail: action?.payload,
+	}),
+
 	RESET_SCHEDULER_STATE: () => ({ ...initialSchedulerState }),
 };
 

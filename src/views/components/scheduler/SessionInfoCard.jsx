@@ -33,7 +33,7 @@ const SessionInfoCard = ({ sessionData }) => {
 			</div>
 			<div className="sessionInfoDetails">
 				<div className="sessionTitle">
-					<span>{sessionData?.name || 'session Name'}</span>
+					<span>{sessionData?.sessionName || 'session Name'}</span>
 					<Dot />
 				</div>
 
