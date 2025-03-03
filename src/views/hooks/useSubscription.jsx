@@ -79,8 +79,8 @@ const useSubscription = () => {
 				liteImageUsed = 0,
 				liteImageLimitWithAiFace = 0,
 			} = currentPlan;
-			const storageLimitInGB = (storageLimitInBytes / (1024 * 1024 * 1024)).toFixed(2);
-			const totalStorageUsedInGB = (storageUsedInBytes / (1024 * 1024 * 1024)).toFixed(2);
+			const storageLimitInGB = parseFloat(storageLimitInBytes / (1024 * 1024 * 1024));
+			const totalStorageUsedInGB = parseFloat(storageUsedInBytes / (1024 * 1024 * 1024));
 			const obj = {
 				storageLimitInGB,
 				tenantUsersLimit,
