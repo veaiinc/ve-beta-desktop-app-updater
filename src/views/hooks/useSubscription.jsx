@@ -1,4 +1,5 @@
 import React, { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import Context from '../../context/context';
 const calculateTimeLeft = (expiryTimestamp) => {
 	const now = Date.now();
@@ -30,20 +31,44 @@ const restrictMapper = {
 
 const useSubscription = () => {
 	let {
-		subscriptionInfo: { currentPlan, getCurrentSubscriptionPlan, updateSubscriptionState },
+		subscriptionInfo: {
+			currentPlan,
+			getCurrentSubscriptionPlan,
+			updateSubscriptionState,
+			updateStateValues,
+			reFetchSubscription,
+		},
 	} = useContext(Context);
 	const [info, setInfo] = useState({});
 	const timerRef = useRef({ timer: null, interval: null }); // Use ref for timers to prevent memory leaks
+	const location = useLocation();
 	// Cleanup on unmount
 	useEffect(() => {
 		return () => {
 			cleanupTimers();
 		};
 	}, []);
+
+	// useEffect(() => {
+	// 	if (reFetchSubscription || location.pathname) {
+	// 		getCurrentSubscriptionPlan();
+	// 		if (reFetchSubscription) {
+	// 			updateStateValues({ reFetchSubscription: false });
+	// 		}
+	// 	}
+	// }, [location.pathname, reFetchSubscription]);
 	useEffect(() => {
-		if (!currentPlan) {
+		getCurrentSubscriptionPlan();
+	}, [location.pathname]);
+	useEffect(() => {
+		if (reFetchSubscription) {
 			getCurrentSubscriptionPlan();
-		} else {
+			updateStateValues({ reFetchSubscription: false });
+		}
+	}, [reFetchSubscription]);
+
+	useEffect(() => {
+		if (currentPlan) {
 			handleExpiryCheckLogic();
 		}
 	}, [currentPlan]);

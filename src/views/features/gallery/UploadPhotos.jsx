@@ -11,6 +11,7 @@ import Context from '../../../context/context';
 import { Link, useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import UploadCompletedPopup from '../../components/gallery/addGallery/UploadCompletedPopup';
+import useSubscription from '../../hooks/useSubscription';
 // import RefreshPopup from '../../components/gallery/addGallery/RefreshPopup';
 
 const UploadPhotos = () => {
@@ -29,7 +30,7 @@ const UploadPhotos = () => {
 			getAlbums,
 			getImageDuplicatesList,
 		},
-		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
+		subscriptionInfo: { validateExpiryData, updateSubscriptionState, updateStateValues },
 	} = useContext(Context);
 
 	const [info, setinfo] = useState({
@@ -59,6 +60,7 @@ const UploadPhotos = () => {
 		title: '',
 		isRefreshPopupOpen: false,
 		isAiEnabled: false,
+		isUploadComplete: false,
 	});
 	const recentImageInitiatedRef = useRef(info.recentImageInitiated);
 	const params = new URLSearchParams(window.location.search);
@@ -157,8 +159,16 @@ const UploadPhotos = () => {
 		}
 		let totalSize = 0;
 
-		files?.map((file) => {
+		let uploadImagesLength = Object.keys(updateInfo?.uploadImages).length;
+
+		const imagesLimit = validateExpiryData?.liteImageLimit - validateExpiryData?.liteImageUsed;
+
+		files?.some((file) => {
 			let uploadedImages = { ...updateInfo?.uploadImages };
+
+			if (uploadImagesLength > imagesLimit && lightGallery === 'true') {
+				return updateSubscriptionState({ expiredSubscriptionModal: true });
+			}
 
 			let findDuplicateImage = imageDuplicatesList?.list?.find(
 				(image) => image?.displayName === file?.name,
@@ -351,6 +361,7 @@ const UploadPhotos = () => {
 
 			if (response[1].processedCount === response[1].uploadedCount && shouldClearInterval) {
 				clearInterval(interval);
+				updateStateValues({ reFetchSubscription: true });
 				setinfo((prev) => ({ ...prev, isPopupOpen: true }));
 			}
 		}, 3000);
