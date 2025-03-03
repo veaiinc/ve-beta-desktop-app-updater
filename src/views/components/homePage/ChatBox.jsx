@@ -35,7 +35,6 @@ import { ReactComponent as PaperClip } from '../../../assets/svg/ai_agents/paper
 import { ReactComponent as Mic } from '../../../assets/svg/ai_agents/mic.svg';
 import { getBase64 } from '../../../helpers';
 import WorkflowSlugSelector from '../../components/calendar/WorkflowSlugSelector';
-import { ReactComponent as AiSparkel } from '../../../assets/svg/calendar/aiSparkel.svg';
 import useVoiceIntegration from '../../hooks/useVoiceIntegration';
 import SearchDropdown from '../chat/SearchDropdown';
 import UploadFileTooltip from '../chat/UploadFileTooltip';
@@ -124,6 +123,7 @@ const ChatBox = ({
 			deepResearch,
 			handleStreamSendMessage,
 			activePayloadForChat,
+			followUpQuery,
 		},
 		calendarInfo: { updateCalendarState },
 		tasks: { updateTaskState },
@@ -170,6 +170,7 @@ const ChatBox = ({
 		recentFiles: [],
 		isSearchTypeOpen: false,
 		isVoiceMuted: false,
+		followUpQuery: '',
 	});
 
 	const [previewOpen, setPreviewOpen] = useState(false);
@@ -210,6 +211,15 @@ const ChatBox = ({
 			goDeep: deepResearch,
 		}));
 	}, [deepResearch]);
+	useEffect(() => {
+		if (followUpQuery) {
+			setInfo((prev) => ({
+				...prev,
+				followUpQuery,
+			}));
+			updateStateValues({ followUpQuery: null });
+		}
+	}, [followUpQuery]);
 
 	useEffect(() => {
 		if (latestStreamMesage && lastQuery) {
@@ -658,6 +668,17 @@ const ChatBox = ({
 		}));
 	};
 
+	const handleFollowUpQueryClick = () => {
+		if (info?.chatLoading) {
+			return;
+		}
+		setInfo((prev) => ({
+			...prev,
+			followUpQuery: '',
+		}));
+		updateStateValues({ activePromptForChat: info?.followUpQuery });
+	};
+
 	return (
 		<div className="chatParentWrapper">
 			<div className={`chatWrapper`}>
@@ -987,6 +1008,19 @@ const ChatBox = ({
 								</div>
 							</div>
 						))}
+					</div>
+				)}
+
+				{info?.followUpQuery && (
+					<div className="follow-up-query-container">
+						<div className="follow-up-query">
+							<div
+								className="follow-up-query-text"
+								onClick={handleFollowUpQueryClick}
+							>
+								{info?.followUpQuery}
+							</div>
+						</div>
 					</div>
 				)}
 			</div>
