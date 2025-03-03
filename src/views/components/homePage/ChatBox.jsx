@@ -669,6 +669,9 @@ const ChatBox = ({
 	};
 
 	const handleFollowUpQueryClick = () => {
+		if (info?.chatLoading) {
+			return;
+		}
 		setInfo((prev) => ({
 			...prev,
 			followUpQuery: '',
