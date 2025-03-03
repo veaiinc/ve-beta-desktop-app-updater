@@ -289,7 +289,8 @@ const NonMemoizedMarkdown = ({ children, citations }) => {
 
 export const Markdown = memo(
 	NonMemoizedMarkdown,
-	(prevProps, nextProps) => prevProps.children === nextProps.children,
+	(prevProps, nextProps) =>
+		prevProps.children === nextProps.children && prevProps.citations === nextProps.citations,
 );
 
 export const TypingEffect = ({

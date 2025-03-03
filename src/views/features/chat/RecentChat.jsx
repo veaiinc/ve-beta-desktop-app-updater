@@ -207,7 +207,6 @@ const RecentChat = ({
 						message: originalQuery,
 						type: 'user',
 						typingEffect: false,
-						messageId,
 					},
 					{
 						message: response,
@@ -409,7 +408,7 @@ const RecentChat = ({
 									flexDirection: 'column-reverse',
 									transition: 'all 0.3s ease',
 								}}
-								height={'700px'}
+								height={'calc(100vh - 180px)'}
 								scrollThreshold={0.8}
 								className="smooth-scroll"
 							>
@@ -471,6 +470,7 @@ const RecentChat = ({
 													) : (
 														<div
 															style={{
+																transition: 'opacity 0.3s ease',
 																opacity:
 																	index ===
 																	info?.lastVisibleUserMessageIndex
