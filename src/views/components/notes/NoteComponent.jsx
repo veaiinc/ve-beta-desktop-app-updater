@@ -25,7 +25,7 @@ const NoteComponent = ({
 	useEffect(() => {
 		async function loadInitialHTML() {
 			const preprocessMarkdown = (markdown) => {
-				return markdown?.replace(/\n{2,}/g, '\n\n&nbsp;\n\n'); // Add a non-breaking space for empty lines
+				return markdown?.replace(/\\n/g, '\n'); // Add a non-breaking space for empty lines
 			};
 
 			const blocks = await editor.tryParseMarkdownToBlocks(preprocessMarkdown(noteContent));

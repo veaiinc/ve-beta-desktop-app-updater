@@ -1,4 +1,5 @@
 import React, { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import Context from '../../context/context';
 const calculateTimeLeft = (expiryTimestamp) => {
 	const now = Date.now();
@@ -28,29 +29,46 @@ const restrictMapper = {
 
 const useSubscription = () => {
 	let {
-		subscriptionInfo: { currentPlan, getCurrentSubscriptionPlan, updateSubscriptionState },
+		subscriptionInfo: {
+			currentPlan,
+			getCurrentSubscriptionPlan,
+			updateSubscriptionState,
+			updateStateValues,
+			reFetchSubscription,
+		},
 	} = useContext(Context);
 	const [info, setInfo] = useState({});
 	const timerRef = useRef({ timer: null, interval: null }); // Use ref for timers to prevent memory leaks
+	const location = useLocation();
 	// Cleanup on unmount
 	useEffect(() => {
 		return () => {
 			cleanupTimers();
 		};
 	}, []);
+
 	useEffect(() => {
-		if (!currentPlan) {
+		getCurrentSubscriptionPlan();
+	}, [location.pathname]);
+
+	useEffect(() => {
+		if (reFetchSubscription) {
 			getCurrentSubscriptionPlan();
-		} else {
+			updateStateValues({ reFetchSubscription: false });
+		}
+	}, [reFetchSubscription]);
+
+	useEffect(() => {
+		if (currentPlan) {
 			handleExpiryCheckLogic();
 		}
 	}, [currentPlan]);
 
 	const handleExpiryCheckLogic = useCallback(() => {
 		if (currentPlan) {
-			const validateExpiryData = calculateTimeLeft(
-				currentPlan?.currentSubscriptionPlan?.expiresAt || 0,
-			);
+			// const validateExpiryData = calculateTimeLeft(
+			// 	currentPlan?.currentSubscriptionPlan?.expiresAt || 0,
+			// );
 
 			const {
 				storageLimitInBytes = 0,
@@ -59,15 +77,18 @@ const useSubscription = () => {
 				tenantUsers = 0,
 				liteImageLimit = 0,
 				liteImageUsed = 0,
+				liteImageLimitWithAiFace = 0,
 			} = currentPlan;
 			const storageLimitInGB = parseFloat(storageLimitInBytes / (1024 * 1024 * 1024));
 			const totalStorageUsedInGB = parseFloat(storageUsedInBytes / (1024 * 1024 * 1024));
 			const obj = {
-				// ...(validateExpiryData || {}),
 				storageLimitInGB,
 				tenantUsersLimit,
 				totalStorageUsedInGB,
 				tenantUsers,
+				liteImageLimit,
+				liteImageUsed,
+				liteImageLimitWithAiFace,
 				...restrictMapper,
 			};
 			let uploadAllowed = false;
@@ -82,22 +103,22 @@ const useSubscription = () => {
 			updateSubscriptionState({
 				validateExpiryData: { ...obj, uploadAllowed, imagesAllowed },
 			});
-			cleanupTimers();
-			if (validateExpiryData?.isExpired) {
-				return cleanupTimers;
-			}
-			if (validateExpiryData.hoursLeft > 24) {
-				timerRef.current.timer = setTimeout(handleExpiryCheckLogic, 24 * 60 * 60 * 1000); //more than 24 hrs -check after 24 hrs
-			}
-			if (validateExpiryData?.hoursLeft > 6) {
-				timerRef.current.timer = setTimeout(handleExpiryCheckLogic, 6 * 60 * 60 * 1000); // Between 6 and 24 hours - check after 6 hours
-			} else if (validateExpiryData?.hoursLeft > 1) {
-				timerRef.current.interval = setInterval(handleExpiryCheckLogic, 60 * 60 * 1000); // Between 1 and 6 hours - check every hour
-			} else if (validateExpiryData?.secondsLeft > 60) {
-				timerRef.current.interval = setInterval(handleExpiryCheckLogic, 60 * 1000); // Between 1 minute and 1 hour - check every minute
-			} else {
-				timerRef.current.interval = setInterval(handleExpiryCheckLogic, 1000); // Less than 1 minute - check every second
-			}
+			// cleanupTimers();
+			// if (validateExpiryData?.isExpired) {
+			// 	return cleanupTimers;
+			// }
+			// if (validateExpiryData.hoursLeft > 24) {
+			// 	timerRef.current.timer = setTimeout(handleExpiryCheckLogic, 24 * 60 * 60 * 1000); //more than 24 hrs -check after 24 hrs
+			// }
+			// if (validateExpiryData?.hoursLeft > 6) {
+			// 	timerRef.current.timer = setTimeout(handleExpiryCheckLogic, 6 * 60 * 60 * 1000); // Between 6 and 24 hours - check after 6 hours
+			// } else if (validateExpiryData?.hoursLeft > 1) {
+			// 	timerRef.current.interval = setInterval(handleExpiryCheckLogic, 60 * 60 * 1000); // Between 1 and 6 hours - check every hour
+			// } else if (validateExpiryData?.secondsLeft > 60) {
+			// 	timerRef.current.interval = setInterval(handleExpiryCheckLogic, 60 * 1000); // Between 1 minute and 1 hour - check every minute
+			// } else {
+			// 	timerRef.current.interval = setInterval(handleExpiryCheckLogic, 1000); // Less than 1 minute - check every second
+			// }
 		}
 	}, [currentPlan]);
 	const cleanupTimers = useCallback(() => {

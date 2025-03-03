@@ -320,22 +320,18 @@ const GalleryPage = () => {
 		// { name: 'Videos', number: 2 },
 		// { name: 'Slide Show', number: 1 },
 		{ name: 'Client Selections', number: clientSelectionsData?.totalDocs },
-		...(info.isLightGallery
-			? []
-			: [
-					{
-						name: 'Ai People',
-						number:
-							imageProcessingStatus?.numberOfImagesPeoples > 0
-								? parseInt(
-										(imageProcessingStatus?.numberOfImagesGroupedFaces /
-											imageProcessingStatus?.numberOfImagesPeoples) *
-											100,
-										0,
-								  ) + '%'
-								: 'Updating...',
-					},
-			  ]),
+		{
+			name: 'Ai People',
+			number:
+				imageProcessingStatus?.numberOfImagesPeoples > 0
+					? parseInt(
+							(imageProcessingStatus?.numberOfImagesGroupedFaces /
+								imageProcessingStatus?.numberOfImagesPeoples) *
+								100,
+							0,
+					  ) + '%'
+					: '0',
+		},
 		{
 			name: 'breaker',
 		},
