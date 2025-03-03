@@ -646,7 +646,7 @@ const Docs = () => {
 						{info?.blankWorkflowLoading ? (
 							<Spinner height="20px" width="20px" />
 						) : (
-							'Create a Blank Workflow'
+							'Create a Blank Document'
 						)}
 					</div>
 					<div className="docsHeaderSubButtonsSubTitleColored">
