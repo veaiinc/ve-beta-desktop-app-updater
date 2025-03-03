@@ -35,7 +35,6 @@ import { ReactComponent as PaperClip } from '../../../assets/svg/ai_agents/paper
 import { ReactComponent as Mic } from '../../../assets/svg/ai_agents/mic.svg';
 import { getBase64 } from '../../../helpers';
 import WorkflowSlugSelector from '../../components/calendar/WorkflowSlugSelector';
-import { ReactComponent as AiSparkel } from '../../../assets/svg/calendar/aiSparkel.svg';
 import useVoiceIntegration from '../../hooks/useVoiceIntegration';
 import SearchDropdown from '../chat/SearchDropdown';
 import UploadFileTooltip from '../chat/UploadFileTooltip';
@@ -125,6 +124,7 @@ const ChatBox = ({
 			deepResearch,
 			handleStreamSendMessage,
 			activePayloadForChat,
+			followUpQuery,
 		},
 		calendarInfo: { updateCalendarState },
 		tasks: { updateTaskState },
@@ -173,10 +173,12 @@ const ChatBox = ({
 		recentFiles: [],
 		isSearchTypeOpen: false,
 		isVoiceMuted: false,
+		followUpQuery: '',
 	});
 
 	const [previewOpen, setPreviewOpen] = useState(false);
 	const [previewImage, setPreviewImage] = useState('');
+	const textAreaRef = useRef(null);
 
 	useEffect(() => {
 		if (activePromptForChat) {
@@ -212,6 +214,15 @@ const ChatBox = ({
 			goDeep: deepResearch,
 		}));
 	}, [deepResearch]);
+	useEffect(() => {
+		if (followUpQuery) {
+			setInfo((prev) => ({
+				...prev,
+				followUpQuery,
+			}));
+			updateStateValues({ followUpQuery: null });
+		}
+	}, [followUpQuery]);
 
 	useEffect(() => {
 		if (latestStreamMesage && lastQuery) {
@@ -422,12 +433,22 @@ const ChatBox = ({
 					if (customChatActions) {
 						return onSend({ payload, localPayload, currentQuery });
 					}
-
+					handleStreamSendMessage(payload, localPayload, currentQuery);
 					if (handleSendWebsocketMessage) {
+						if (info?.recentFiles?.length > 0) {
+							if (payload?.files && payload.files?.length > 0) {
+								payload.files = [
+									...payload.files,
+									...info?.recentFiles?.map((ele) => ele?.originalFileName),
+								];
+							} else {
+								payload.files = info?.recentFiles?.map(
+									(ele) => ele?.originalFileName,
+								);
+							}
+						}
 						handleSendWebsocketMessage(payload, currentQuery);
 					}
-
-					handleStreamSendMessage(payload, localPayload, currentQuery);
 				}
 			}
 		},
@@ -645,6 +666,29 @@ const ChatBox = ({
 		return Object?.keys(info?.searchType)?.some((type) => info?.searchType[type]);
 	}, [info?.searchType]);
 
+	const handleTextAreaChange = (e) => {
+		const textArea = textAreaRef?.current;
+		if (textArea) {
+			textArea.style.height = 'auto';
+			textArea.style.height = textArea.scrollHeight + 'px';
+		}
+		setInfo((prev) => ({
+			...prev,
+			chatQuery: e.target.value,
+		}));
+	};
+
+	const handleFollowUpQueryClick = () => {
+		if (info?.chatLoading) {
+			return;
+		}
+		setInfo((prev) => ({
+			...prev,
+			followUpQuery: '',
+		}));
+		updateStateValues({ activePromptForChat: info?.followUpQuery });
+	};
+
 	return (
 		<div className="chatParentWrapper">
 			<div className={`chatWrapper`}>
@@ -670,16 +714,11 @@ const ChatBox = ({
 										type="text"
 										placeholder="Hey! Need help? Ask me anything."
 										value={info?.chatQuery}
-										onChange={(e) =>
-											setInfo((prev) => ({
-												...prev,
-												chatQuery: e.target.value,
-											}))
-										}
+										onChange={handleTextAreaChange}
 										autoFocus={true}
 										onKeyDown={handleSendMessageFunc}
 										className="textArea"
-										// rows={1}
+										ref={textAreaRef}
 									/>
 									<div className="options-container">
 										{info?.showFilters ? (
@@ -834,7 +873,7 @@ const ChatBox = ({
 																	}`,
 																}}
 															>
-																Explore
+																Deep Search
 															</div>
 														)}
 													</div>
@@ -979,6 +1018,19 @@ const ChatBox = ({
 								</div>
 							</div>
 						))}
+					</div>
+				)}
+
+				{info?.followUpQuery && (
+					<div className="follow-up-query-container">
+						<div className="follow-up-query">
+							<div
+								className="follow-up-query-text"
+								onClick={handleFollowUpQueryClick}
+							>
+								{info?.followUpQuery}
+							</div>
+						</div>
 					</div>
 				)}
 			</div>
