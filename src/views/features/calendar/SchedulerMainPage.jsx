@@ -8,7 +8,7 @@ import Context from '../../../context/context';
 
 const SchedulerMainPage = () => {
 	const {
-		calendarInfo: { getSchedulerList, schedulerList },
+		calendarInfo: { getSchedulerList, schedulerList, createdSession, resetSchedulerState },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -16,6 +16,7 @@ const SchedulerMainPage = () => {
 		updateSessionSlot: false,
 		sessionsLoading: true,
 		schedulerList: null,
+		createdSession: null,
 	});
 
 	useEffect(() => {
@@ -26,13 +27,41 @@ const SchedulerMainPage = () => {
 		if (schedulerList) {
 			setInfo((prev) => ({
 				...prev,
-				schedulerList: schedulerList,
+				schedulerList,
 				sessionsLoading: false,
 			}));
 		}
 	}, [schedulerList]);
 
-	console.log('schedulerList==>', info?.schedulerList);
+	useEffect(() => {
+		if (createdSession) {
+			setInfo((prev) => ({
+				...prev,
+				createSessionModal: false,
+				schedulerList: [...prev.schedulerList, createdSession],
+			}));
+		}
+	}, [createdSession]);
+
+	//cleanup
+	useEffect(() => {
+		return () => {
+			console.log('Cleaning up SchedulerMainPage...');
+			resetSchedulerState();
+			setInfo({
+				createSessionModal: false,
+				updateSessionSlot: false,
+				sessionsLoading: true,
+				schedulerList: null,
+				createdSession: null,
+			});
+		};
+	}, []);
+
+	useEffect(() => {
+		// console.log('schedulerList changed:', info?.schedulerList);
+		console.log('createdSession changed:', info?.createdSession);
+	}, [info.schedulerList, info.createdSession]);
 
 	const handleCreateSessionModal = useCallback(() => {
 		setInfo((prev) => ({
@@ -72,7 +101,7 @@ const SchedulerMainPage = () => {
 						) : (
 							info?.schedulerList?.length > 0 &&
 							info?.schedulerList?.map((item) => (
-								<SessionCards key={item.id} item={item} />
+								<SessionCards key={item._id} item={item} />
 							))
 						)}
 					</div>
@@ -100,8 +129,8 @@ export default memo(SchedulerMainPage);
 export const SessionCardSkeleton = () => {
 	return (
 		<>
-			{[{}, {}, {}].map((item) => (
-				<div key={item} className="sessionGridContainer sessionCardSkeleton">
+			{[{}, {}, {}].map((item, index) => (
+				<div key={index} className="sessionGridContainer sessionCardSkeleton">
 					<div className="sessionGridItem">
 						<div className="sessionImage" />
 						<div className="sessionContent">

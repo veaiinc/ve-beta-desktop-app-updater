@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import ReactModal from '../index';
 import '../../../../assets/scss/calendar/modal/createSessionModal.scss';
 import { ReactComponent as Close } from '../../../../assets/svg/close.svg';
@@ -8,6 +8,8 @@ import InputComponent from '../../ai_assistant/InputComponent';
 import { Tooltip, DatePicker } from 'antd';
 import dayjs from 'dayjs';
 import { useNavigate } from 'react-router-dom';
+import Context from '../../../../context/context';
+import Spinner from '../../loaders/Spinner';
 
 const sessionTypeOptions = ['In Person', 'Phone Call', 'Video Call'];
 
@@ -25,7 +27,7 @@ const sessionTypeInputConfig = {
 		placeholder: 'Enter phone number',
 	},
 	'Video Call': {
-		value: 'videoLink',
+		value: 'meetingLink',
 		tag: 'Platform Link',
 		type: 'url',
 		placeholder: 'Enter video call link',
@@ -33,23 +35,79 @@ const sessionTypeInputConfig = {
 };
 
 const initialInfo = {
-	sessionName: '',
-	sessionDescription: '',
+	creatingSessionLoading: false,
+	sessionName: null,
+	sessionDescription: null,
 	addDiscription: false,
 	sessionType: 'In Person',
 	sessionTypeOpen: false,
-	location: '',
-	phoneNumber: '',
-	videoLink: '',
+	location: null,
+	phoneNumber: null,
+	meetingLink: null,
 	scheduleFrom: dayjs(),
 	scheduleTo: dayjs().add(1, 'weeks'),
+	errors: {
+		sessionName: false,
+		sessionTypeInput: false,
+	},
 };
 
 const CreateSessionModal = ({ open, closeModal }) => {
+	const {
+		calendarInfo: { createdSession, createSchedulerSession },
+	} = useContext(Context);
+
 	const navigate = useNavigate();
 	const [info, setInfo] = useState({
 		...initialInfo,
 	});
+
+	useEffect(() => {
+		if (createdSession) {
+			console.log('createdSession==>', createdSession);
+			ModifyCloseModal();
+			navigate(`/scheduling/edit/${createdSession._id}`);
+		}
+	}, [createdSession]);
+
+	const handleCreateSession = useCallback(() => {
+		// Validate required fields
+		const errors = {
+			sessionName: !info?.sessionName,
+			sessionTypeInput: !info[sessionTypeInputConfig[info.sessionType].value],
+		};
+
+		if (errors.sessionName || errors.sessionTypeInput) {
+			setInfo((prev) => ({
+				...prev,
+				errors,
+			}));
+			return;
+		}
+
+		setInfo((prev) => ({
+			...prev,
+			creatingSessionLoading: true,
+			errors: { sessionName: false, sessionTypeInput: false },
+		}));
+
+		const sessionPayload = {
+			sessionName: info?.sessionName,
+			sessionDescription: info?.sessionDescription,
+			sessionTypeInfo: {
+				sessionType: info?.sessionType,
+				location: info?.location,
+				phone: info?.phoneNumber,
+				meetingLink: info?.meetingLink,
+			},
+			sessionWindow: {
+				type: 'fixed_date_range',
+				startDate: info?.scheduleFrom,
+				endDate: info?.scheduleTo,
+			},
+		};
+		createSchedulerSession(sessionPayload);
+	}, [info]);
 
 	const ModifyCloseModal = useCallback(() => {
 		setInfo((prev) => ({
@@ -67,7 +125,7 @@ const CreateSessionModal = ({ open, closeModal }) => {
 			sessionTypeOpen: false,
 			location: '',
 			phoneNumber: '',
-			videoLink: '',
+			meetingLink: '',
 		}));
 	}, []);
 
@@ -81,18 +139,15 @@ const CreateSessionModal = ({ open, closeModal }) => {
 					setInfo((prev) => ({
 						...prev,
 						[config.value]: e.target.value,
+						errors: { ...prev.errors, sessionTypeInput: false },
 					}))
 				}
 				placeholder={config.placeholder}
-				className="inputHeight"
+				className={`inputHeight ${info.errors.sessionTypeInput ? 'error' : ''}`}
 			/>
 		);
 	};
 
-	const handleCreateSession = useCallback(() => {
-		ModifyCloseModal();
-		navigate('/scheduling/edit');
-	}, [info, ModifyCloseModal, navigate]);
 	return (
 		<ReactModal
 			isOpen={open}
@@ -107,9 +162,15 @@ const CreateSessionModal = ({ open, closeModal }) => {
 				</div>
 
 				<InputComponent
-					className="inputHeight"
+					className={`inputHeight ${info.errors.sessionName ? 'error' : ''}`}
 					value={info?.sessionName}
-					onChange={(e) => setInfo({ ...info, sessionName: e.target.value })}
+					onChange={(e) =>
+						setInfo((prev) => ({
+							...prev,
+							sessionName: e.target.value,
+							errors: { ...prev.errors, sessionName: false },
+						}))
+					}
 					placeholder={'Session name'}
 				/>
 				<div
@@ -226,8 +287,19 @@ const CreateSessionModal = ({ open, closeModal }) => {
 				</div>
 
 				<div className="scheduleBtnContainer">
-					<button className="scheduleBtn" onClick={handleCreateSession}>
-						Create
+					<button
+						className={`scheduleBtn `}
+						style={info?.creatingSessionLoading ? { background: 'grey' } : {}}
+						onClick={handleCreateSession}
+					>
+						{info?.creatingSessionLoading ? (
+							<span className="loading">
+								<Spinner width="16px" height="16px" />
+								Creating...
+							</span>
+						) : (
+							'Create'
+						)}
 					</button>
 				</div>
 			</div>

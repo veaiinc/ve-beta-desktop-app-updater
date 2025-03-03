@@ -17,4 +17,6 @@ export const CALENDAR = {
 
 	//Scheduler Apis ================================>
 	schedulerList: '/scheduler/all-sessions',
+	createSchedulerSession: '/scheduler/createsession',
+	resetSchedulerState: 'RESET_SCHEDULER_STATE',
 };

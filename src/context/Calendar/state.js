@@ -17,6 +17,7 @@ export const initialState = {
 
 export const initialSchedulerState = {
 	schedulerList: null,
+	createdSession: null,
 };
 
 export const Calendar = () => {
@@ -342,6 +343,32 @@ export const Calendar = () => {
 		}
 	};
 
+	const createSchedulerSession = async (body) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const url = `/${workspaceId}${API.CALENDAR.createSchedulerSession}`;
+			const response = await service.fetchPost(url, body, usertoken, 'calendar_api');
+
+			console.log('response==>createSchedulerSession', response);
+
+			if (response?.[0] === true) {
+				dispatch({
+					type: Actions.CREATE_SCHEDULER_SESSION,
+					payload: response?.[1],
+				});
+			} else {
+				console.log('API failed ==> createSchedulerSession', response);
+			}
+		} catch (error) {
+			console.log('error==>createSchedulerSession', error);
+		}
+	};
+
+	const resetSchedulerState = () => {
+		dispatch({ type: Actions.RESET_SCHEDULER_STATE });
+	};
+
 	// Calendar State Reset ================================>
 	const resetCalendarState = () => {
 		dispatch({ type: Actions.RESET_CALENDAR_STATE });
@@ -375,6 +402,9 @@ export const Calendar = () => {
 		getCalendarEventDetails,
 		getCalendarAllEvents,
 		updateCalendarState,
+
 		getSchedulerList,
+		createSchedulerSession,
+		resetSchedulerState,
 	};
 };

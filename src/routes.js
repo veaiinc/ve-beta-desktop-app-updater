@@ -295,7 +295,7 @@ const routes = [
 		exact: true,
 	},
 	{
-		path: '/scheduling/edit',
+		path: '/scheduling/edit/:sessionId',
 		component: (
 			<AuthWrapper title={'Scheduling'} maxWidth={'95%'}>
 				{/* <SchedulerMainPage /> */}

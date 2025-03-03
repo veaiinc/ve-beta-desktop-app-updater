@@ -16,14 +16,8 @@ const SessionCards = ({ item }) => {
 		<>
 			<div className="sessionGridContainer" key={item._id}>
 				<div className="sessionGridItem">
-					<div className="sessionImage">
-						<img
-							src={
-								item?.image ||
-								'https://images.pexels.com/photos/8471810/pexels-photo-8471810.jpeg?auto=compress&cs=tinysrgb&w=1200'
-							}
-							alt={item.sessionName}
-						/>
+					<div className="sessionImage letterAvatar">
+						<span>{item.sessionName.charAt(0).toUpperCase() || '?'}</span>
 					</div>
 					<div className="sessionContent">
 						<div className="sessionHeader">
