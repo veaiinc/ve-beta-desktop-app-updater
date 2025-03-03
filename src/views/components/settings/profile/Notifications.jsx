@@ -213,78 +213,41 @@ const Notifications = () => {
 									</div>
 								</div>
 								<div className="notificationContainerOptions-items">
-									{actions?.map(({ action, apps }) => {
-										const { email, slack, whatsapp } = apps;
-										return (
-											<div className="notificationContainerOptions-item-container">
-												<div className="notificationContainerOptionsTitle">
-													{action}
-												</div>
-												<div className="notificationContainerOptions-item-checkbox">
-													{info?.email && (
-														<input
-															type="checkbox"
-															style={{
-																width: '36px',
-															}}
-															checked={
-																info?.selectedOptions?.[module]?.[
-																	action
-																]?.email ?? email
-															}
-															onChange={() =>
-																handleModuleNotificationPreference(
-																	module,
-																	action,
-																	'email',
-																)
-															}
-														/>
-													)}
-													{info?.whatsapp && (
-														<input
-															type="checkbox"
-															style={{
-																width: '70px',
-															}}
-															checked={
-																info?.selectedOptions?.[module]?.[
-																	action
-																]?.whatsapp ?? whatsapp
-															}
-															onChange={() =>
-																handleModuleNotificationPreference(
-																	module,
-																	action,
-																	'whatsapp',
-																)
-															}
-														/>
-													)}
-													{info?.slack && (
-														<input
-															type="checkbox"
-															style={{
-																width: '36px',
-															}}
-															checked={
-																info?.selectedOptions?.[module]?.[
-																	action
-																]?.slack ?? slack
-															}
-															onChange={() =>
-																handleModuleNotificationPreference(
-																	module,
-																	action,
-																	'slack',
-																)
-															}
-														/>
-													)}
-												</div>
+									{actions?.map(({ action, apps }) => (
+										<div className="notificationContainerOptions-item-container">
+											<div className="notificationContainerOptionsTitle">
+												{action}
 											</div>
-										);
-									})}
+											<div className="notificationContainerOptions-item-checkbox">
+												{appTypes
+													.filter(({ appType }) => info?.[appType])
+													.map(({ id, appType }) => (
+														<input
+															key={id}
+															type="checkbox"
+															style={{
+																width:
+																	appType === 'whatsapp'
+																		? '70px'
+																		: '36px',
+															}}
+															checked={
+																info?.selectedOptions?.[module]?.[
+																	action
+																]?.[appType] ?? apps?.[appType]
+															}
+															onChange={() =>
+																handleModuleNotificationPreference(
+																	module,
+																	action,
+																	appType,
+																)
+															}
+														/>
+													))}
+											</div>
+										</div>
+									))}
 								</div>
 								<div className="divider"></div>
 							</React.Fragment>
