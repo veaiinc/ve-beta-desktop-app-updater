@@ -56,6 +56,7 @@ const RecentChat = ({
 		lastQuery: '',
 		lastVisibleMessageId: null,
 		lastVisibleUserMessageIndex: null,
+		renderingTwice: false,
 	});
 
 	const chatContentRef = useRef(null);
@@ -77,15 +78,22 @@ const RecentChat = ({
 
 	useEffect(() => {
 		if (sessionId) {
-			//clearing context state
-			updateStateValues({
-				moreRecentChatStorage: null,
-				recentChatStorage: null,
-				globalChatMessages: [],
-			});
+			if (info?.renderingTwice) {
+				//clearing context state when rendering different session
+				updateStateValues({
+					moreRecentChatStorage: null,
+					recentChatStorage: null,
+					globalChatMessages: [],
+				});
+			}
 
 			getRecentChatMessages(sessionId);
-			setInfo((prev) => ({ ...prev, chatLoading: true, chatSessionId: sessionId }));
+			setInfo((prev) => ({
+				...prev,
+				chatLoading: true,
+				chatSessionId: sessionId,
+				renderingTwice: true,
+			}));
 			updateStateValues({ currentSessionId: sessionId });
 			createWebSocketConnection(sessionId, onMessageFunc);
 

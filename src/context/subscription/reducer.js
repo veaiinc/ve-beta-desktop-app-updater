@@ -38,7 +38,10 @@ const actionHandlers = {
 		...state,
 		...action.payload,
 	}),
-
+	UPDATE_STATE_VALUES_SUCCESS: (state, action) => ({
+		...state,
+		...action.payload,
+	}),
 	RESET_STATE: () => intialState,
 };
 
