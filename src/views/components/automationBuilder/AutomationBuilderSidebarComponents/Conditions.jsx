@@ -80,9 +80,11 @@ const Conditions = ({
 				return;
 			}
 			const previousStepId = activeEdge?.split('-')?.[0];
+			const previousStepPath = activeEdge?.split('-')?.[2] || null;
 			const payload = {
 				isEnabled: true,
 				previousStepId,
+				...(previousStepPath && { previousStepPath }),
 				...data,
 			};
 			setInfo((prev) => ({ ...prev, isLoading: true }));

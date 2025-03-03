@@ -4,34 +4,23 @@ import ActionDetailsBlock from './ActionDetailsBlock';
 import { message, Tooltip } from 'antd';
 import VariableComponent from './VariableComponent';
 
-// isExit: "isexit",
-//     doesNotExit: "doesnotexist",
-//     isEmpty: "isempty", // use
-//     isNotEmpty: "isnotempty", // use
-//     isEqualTo: "isequalto", //use
-//     isNotEqualTo: "isnotequalto", //use
-//     contains: "contains", //use
-//     doesNotContain: "doesnotcontain", // use
-//     isTrue: "istrue", // use
-//     isFalse: "isfalse", //use
-
 const conditionsList = [
-	// {
-	// 	label: 'Is exist',
-	// 	value: 'isexit',
-	// },
-	// {
-	// 	label: 'Does not exist',
-	// 	value: 'doesnotexist',
-	// },
-	// {
-	// 	label: 'Is empty',
-	// 	value: 'isempty',
-	// },
-	// {
-	// 	label: 'Is not empty',
-	// 	value: 'isnotempty',
-	// },
+	{
+		label: 'Is exist',
+		value: 'isexit',
+	},
+	{
+		label: 'Does not exist',
+		value: 'doesnotexist',
+	},
+	{
+		label: 'Is empty',
+		value: 'isempty',
+	},
+	{
+		label: 'Is not empty',
+		value: 'isnotempty',
+	},
 	{
 		label: 'Is equal to',
 		value: 'isequalto',
@@ -52,14 +41,14 @@ const conditionsList = [
 		value: 'doesnotcontain',
 		needValue: true,
 	},
-	// {
-	// 	label: 'Is true',
-	// 	value: 'istrue',
-	// },
-	// {
-	// 	label: 'Is false',
-	// 	value: 'isfalse',
-	// },
+	{
+		label: 'Is true',
+		value: 'istrue',
+	},
+	{
+		label: 'Is false',
+		value: 'isfalse',
+	},
 ];
 
 const IfElse = ({ variables, addConditionNode, isLoading, hasNextNode, onBack }) => {
@@ -123,8 +112,8 @@ const IfElse = ({ variables, addConditionNode, isLoading, hasNextNode, onBack })
 			inputBody: {
 				key: info?.key?.trim(),
 				condition: info?.selectedCondition?.value,
-				value: info?.value?.trim(),
 				moveTo: info?.moveToYes ? 'yes' : 'no',
+				...(info?.selectedCondition?.needValue && { value: info?.value?.trim() }),
 			},
 		});
 	}, [info, addConditionNode]);

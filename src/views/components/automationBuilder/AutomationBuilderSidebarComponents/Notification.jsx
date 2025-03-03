@@ -511,6 +511,7 @@ const Notification = ({
 				return message.error('Email template is mandatory');
 			}
 			const previousStepId = activeEdge?.split('-')?.[0];
+			const previousStepPath = activeEdge?.split('-')?.[2] || null;
 			const payload = {
 				title: info?.stepTitle,
 				description: info?.stepDescription,
@@ -518,6 +519,7 @@ const Notification = ({
 				app: 'gmail',
 				isEnabled: true,
 				previousStepId: previousStepId,
+				...(previousStepPath && { previousStepPath }),
 			};
 
 			if (type === 'sendMessage') {
@@ -533,28 +535,6 @@ const Notification = ({
 					return message.error('Google account is mandatory');
 				}
 
-				// let a = {
-				// 	title: 'dcj test automation',
-				// 	description: 'the best',
-				// 	previousStepId: '67bc0a13f5355daed1fbffa2',
-				// 	isEnabled: true,
-				// 	type: 'action',
-				// 	app: 'gmail',
-				// 	actionType: 'sendMessage',
-
-				// 	variables: {
-				// 		toEmail: ['66accb967410edda114c1a05.answer'],
-				// 	},
-				// 	inputBody: {
-				// 		toEmail: '{{66accb967410edda114c1a05.answer}}',
-
-				// 		action: 'sendMessage',
-				// 		emailTemplateId: '670f83c1d538ad442aad77a0',
-				// 		emailTemplateSubject: 'emailTemplateSubject',
-				// 		emailTemplateTitle: 'emailTemplateTitle',
-				// 		connectedEmail: 'dheeraj@ve.ai',
-				// 	},
-				// };
 				payload.actionType = 'sendMessage';
 
 				payload.inputBody = {

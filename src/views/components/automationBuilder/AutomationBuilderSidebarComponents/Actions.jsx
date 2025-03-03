@@ -131,12 +131,14 @@ const Actions = ({
 			setInfo((prev) => ({ ...prev, saveLoader: true }));
 
 			const previousStepId = activeEdge?.split('-')?.[0];
+			const previousStepPath = activeEdge?.split('-')?.[2] || null;
 
 			const payload = {
 				type: 'action',
 				app: 'inApp',
 				isEnabled: true,
 				previousStepId,
+				...(previousStepPath && { previousStepPath }),
 				...data,
 			};
 			const response = await addStep(automationId, payload);

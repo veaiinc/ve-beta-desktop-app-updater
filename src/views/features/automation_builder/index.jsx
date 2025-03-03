@@ -257,7 +257,15 @@ const AutomationBuilder = () => {
 						target: ifYes.nextStepId,
 						label: 'Yes',
 						animated: true,
-						type: 'smoothstep',
+						type: 'custom',
+						data: {
+							currentStep,
+							onToolBarOpen: handleToolBarOpen,
+							stepsMapper: stepsMapper,
+							automationId: automationId,
+							refetchWorkflowBuilderData: refetchWorkflowBuilderData,
+							label: 'Yes',
+						},
 					});
 					generateNodesAndEdges(ifYes.nextStepId, nodeX, branchY, 'yes', true);
 				} else {
@@ -277,9 +285,16 @@ const AutomationBuilder = () => {
 						id: `${stepId}-${endNodeId}-yes`,
 						source: stepId,
 						target: endNodeId,
-						label: 'Yes',
 						animated: true,
-						type: 'smoothstep',
+						type: 'custom',
+						data: {
+							currentStep,
+							onToolBarOpen: handleToolBarOpen,
+							stepsMapper: stepsMapper,
+							automationId: automationId,
+							refetchWorkflowBuilderData: refetchWorkflowBuilderData,
+							label: 'Yes',
+						},
 					});
 				}
 
@@ -291,7 +306,15 @@ const AutomationBuilder = () => {
 						target: ifNo.nextStepId,
 						label: 'No',
 						animated: true,
-						type: 'smoothstep',
+						type: 'custom',
+						data: {
+							currentStep,
+							onToolBarOpen: handleToolBarOpen,
+							stepsMapper: stepsMapper,
+							automationId: automationId,
+							refetchWorkflowBuilderData: refetchWorkflowBuilderData,
+							label: 'No',
+						},
 					});
 					generateNodesAndEdges(ifNo.nextStepId, nodeX, branchY, 'no', true);
 				} else {
@@ -311,9 +334,16 @@ const AutomationBuilder = () => {
 						id: `${stepId}-${endNodeId}-no`,
 						source: stepId,
 						target: endNodeId,
-						label: 'No',
 						animated: true,
-						type: 'smoothstep',
+						type: 'custom',
+						data: {
+							currentStep,
+							onToolBarOpen: handleToolBarOpen,
+							stepsMapper: stepsMapper,
+							automationId: automationId,
+							refetchWorkflowBuilderData: refetchWorkflowBuilderData,
+							label: 'No',
+						},
 					});
 				}
 			} else if (currentStep.nextStepId) {
@@ -324,7 +354,13 @@ const AutomationBuilder = () => {
 					target: currentStep.nextStepId,
 					animated: true,
 					type: 'custom',
-					data: { onToolBarOpen: handleToolBarOpen },
+					data: {
+						currentStep,
+						onToolBarOpen: handleToolBarOpen,
+						stepsMapper: stepsMapper,
+						automationId: automationId,
+						refetchWorkflowBuilderData: refetchWorkflowBuilderData,
+					},
 				});
 				generateNodesAndEdges(currentStep.nextStepId, nodeX, nextY, branchType, false);
 			} else {
@@ -346,7 +382,13 @@ const AutomationBuilder = () => {
 					target: endNodeId,
 					animated: true,
 					type: 'custom',
-					data: { onToolBarOpen: handleToolBarOpen },
+					data: {
+						currentStep,
+						onToolBarOpen: handleToolBarOpen,
+						stepsMapper: stepsMapper,
+						automationId: automationId,
+						refetchWorkflowBuilderData: refetchWorkflowBuilderData,
+					},
 				});
 			}
 		};
