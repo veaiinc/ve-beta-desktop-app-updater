@@ -85,17 +85,18 @@ const UploadPhotos = () => {
 			updateSubscriptionState({ expiredSubscriptionModal: true });
 			return;
 		}
-
-		setinfo((prev) => {
-			const updatedUploadImages = { ...prev.uploadImages };
+		const updatedUploadImages = info?.uploadImages || {};
+		if (Object.keys(updatedUploadImages)?.length > 0) {
 			Object.keys(updatedUploadImages)?.forEach((key) => {
 				updatedUploadImages[key].isAIFacesEnabled =
 					lightGallery === 'true'
 						? info?.isAiEnabled && validateExpiryData?.liteImageLimitWithAiFace > 0
 						: true;
 			});
-			return { ...prev, uploadImages: updatedUploadImages };
-		});
+			setinfo((prev) => {
+				return { ...prev, uploadImages: updatedUploadImages };
+			});
+		}
 	}, [aiFacesLogic, info?.isAiEnabled]);
 
 	useEffect(() => {

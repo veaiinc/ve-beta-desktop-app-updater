@@ -25,8 +25,6 @@ const restrictMapper = {
 	restrictContacts: false,
 	restrictClassicGallery: false,
 	restrictConversationalAgent: false,
-	restrictClassicGallery: false,
-	restrictConversationalAgent: false,
 };
 
 const useSubscription = () => {
@@ -50,13 +48,15 @@ const useSubscription = () => {
 	}, []);
 
 	useEffect(() => {
-		if (reFetchSubscription || location.pathname) {
-			getCurrentSubscriptionPlan();
-		}
+		getCurrentSubscriptionPlan();
+	}, [location.pathname]);
+
+	useEffect(() => {
 		if (reFetchSubscription) {
+			getCurrentSubscriptionPlan();
 			updateStateValues({ reFetchSubscription: false });
 		}
-	}, [location.pathname, reFetchSubscription]);
+	}, [reFetchSubscription]);
 
 	useEffect(() => {
 		if (currentPlan) {
@@ -66,9 +66,9 @@ const useSubscription = () => {
 
 	const handleExpiryCheckLogic = useCallback(() => {
 		if (currentPlan) {
-			const validateExpiryData = calculateTimeLeft(
-				currentPlan?.currentSubscriptionPlan?.expiresAt || 0,
-			);
+			// const validateExpiryData = calculateTimeLeft(
+			// 	currentPlan?.currentSubscriptionPlan?.expiresAt || 0,
+			// );
 
 			const {
 				storageLimitInBytes = 0,
@@ -82,8 +82,6 @@ const useSubscription = () => {
 			const storageLimitInGB = (storageLimitInBytes / (1024 * 1024 * 1024)).toFixed(2);
 			const totalStorageUsedInGB = (storageUsedInBytes / (1024 * 1024 * 1024)).toFixed(2);
 			const obj = {
-				// ...(validateExpiryData || {}),
-				// ...(validateExpiryData || {}),
 				storageLimitInGB,
 				tenantUsersLimit,
 				totalStorageUsedInGB,
@@ -105,22 +103,22 @@ const useSubscription = () => {
 			updateSubscriptionState({
 				validateExpiryData: { ...obj, uploadAllowed, imagesAllowed },
 			});
-			cleanupTimers();
-			if (validateExpiryData?.isExpired) {
-				return cleanupTimers;
-			}
-			if (validateExpiryData.hoursLeft > 24) {
-				timerRef.current.timer = setTimeout(handleExpiryCheckLogic, 24 * 60 * 60 * 1000); //more than 24 hrs -check after 24 hrs
-			}
-			if (validateExpiryData?.hoursLeft > 6) {
-				timerRef.current.timer = setTimeout(handleExpiryCheckLogic, 6 * 60 * 60 * 1000); // Between 6 and 24 hours - check after 6 hours
-			} else if (validateExpiryData?.hoursLeft > 1) {
-				timerRef.current.interval = setInterval(handleExpiryCheckLogic, 60 * 60 * 1000); // Between 1 and 6 hours - check every hour
-			} else if (validateExpiryData?.secondsLeft > 60) {
-				timerRef.current.interval = setInterval(handleExpiryCheckLogic, 60 * 1000); // Between 1 minute and 1 hour - check every minute
-			} else {
-				timerRef.current.interval = setInterval(handleExpiryCheckLogic, 1000); // Less than 1 minute - check every second
-			}
+			// cleanupTimers();
+			// if (validateExpiryData?.isExpired) {
+			// 	return cleanupTimers;
+			// }
+			// if (validateExpiryData.hoursLeft > 24) {
+			// 	timerRef.current.timer = setTimeout(handleExpiryCheckLogic, 24 * 60 * 60 * 1000); //more than 24 hrs -check after 24 hrs
+			// }
+			// if (validateExpiryData?.hoursLeft > 6) {
+			// 	timerRef.current.timer = setTimeout(handleExpiryCheckLogic, 6 * 60 * 60 * 1000); // Between 6 and 24 hours - check after 6 hours
+			// } else if (validateExpiryData?.hoursLeft > 1) {
+			// 	timerRef.current.interval = setInterval(handleExpiryCheckLogic, 60 * 60 * 1000); // Between 1 and 6 hours - check every hour
+			// } else if (validateExpiryData?.secondsLeft > 60) {
+			// 	timerRef.current.interval = setInterval(handleExpiryCheckLogic, 60 * 1000); // Between 1 minute and 1 hour - check every minute
+			// } else {
+			// 	timerRef.current.interval = setInterval(handleExpiryCheckLogic, 1000); // Less than 1 minute - check every second
+			// }
 		}
 	}, [currentPlan]);
 	const cleanupTimers = useCallback(() => {
