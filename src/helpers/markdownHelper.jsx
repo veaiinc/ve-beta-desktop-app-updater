@@ -158,6 +158,33 @@ const baseComponents = {
 			</div>
 		);
 	},
+	table: ({ children, ...props }) => (
+		<div className="table-container my-4 overflow-x-auto">
+			<table className="markdown-table w-full" {...props}>
+				{children}
+			</table>
+		</div>
+	),
+	thead: ({ children, ...props }) => (
+		<thead className="bg-gray-800" {...props}>
+			{children}
+		</thead>
+	),
+	th: ({ children, ...props }) => (
+		<th className="px-4 py-2 text-left border border-gray-700" {...props}>
+			{children}
+		</th>
+	),
+	td: ({ children, ...props }) => (
+		<td className="px-4 py-2 border border-gray-700" {...props}>
+			{children}
+		</td>
+	),
+	tr: ({ children, ...props }) => (
+		<tr className="border-b border-gray-700 hover:bg-gray-800" {...props}>
+			{children}
+		</tr>
+	),
 };
 
 // Memoize citation-specific components
