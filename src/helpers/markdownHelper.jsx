@@ -11,7 +11,7 @@ import { ReactComponent as CopyIcon } from '../assets/svg/ai_agents/copy.svg';
 import Context from '../context/context';
 import { Tooltip } from 'antd';
 import { CitationsTooltip } from '../views/components/modalsV2/chat/CitationsTooltip';
-
+import remarkGfm from 'remark-gfm';
 const rehypeCITPlugin = () => {
 	return (tree) => {
 		const visit = (node) => {
@@ -158,6 +158,33 @@ const baseComponents = {
 			</div>
 		);
 	},
+	table: ({ children, ...props }) => (
+		<div className="table-container my-4 overflow-x-auto">
+			<table className="markdown-table w-full" {...props}>
+				{children}
+			</table>
+		</div>
+	),
+	thead: ({ children, ...props }) => (
+		<thead className="bg-gray-800" {...props}>
+			{children}
+		</thead>
+	),
+	th: ({ children, ...props }) => (
+		<th className="px-4 py-2 text-left border border-gray-700" {...props}>
+			{children}
+		</th>
+	),
+	td: ({ children, ...props }) => (
+		<td className="px-4 py-2 border border-gray-700" {...props}>
+			{children}
+		</td>
+	),
+	tr: ({ children, ...props }) => (
+		<tr className="border-b border-gray-700 hover:bg-gray-800" {...props}>
+			{children}
+		</tr>
+	),
 };
 
 // Memoize citation-specific components
@@ -167,7 +194,7 @@ const createCitationComponents = (citations) => ({
 		return <span {...props}>{children}</span>;
 	},
 });
-
+const remarkPlugins = [remarkGfm];
 const NonMemoizedMarkdown = ({ children, citations }) => {
 	// Memoize the combined components object
 	const components = useMemo(
@@ -179,7 +206,11 @@ const NonMemoizedMarkdown = ({ children, citations }) => {
 	);
 
 	return (
-		<ReactMarkdown remarkPlugins={[]} rehypePlugins={[rehypeCITPlugin]} components={components}>
+		<ReactMarkdown
+			remarkPlugins={remarkPlugins}
+			rehypePlugins={[rehypeCITPlugin]}
+			components={components}
+		>
 			{children}
 		</ReactMarkdown>
 	);

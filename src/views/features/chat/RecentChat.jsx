@@ -495,6 +495,10 @@ const RecentChat = ({
 				closeModal={handleNoteComponentModalClose}
 				handleRatingClick={handleRatingClick}
 				chatList={globalChatMessages || []}
+				handleSendWebsocketMessage={handleSendWebsocketMessage}
+				latestStreamMesage={info?.latestStreamMesage}
+				lastQuery={info?.lastQuery}
+				toggleLatestStreamMessage={toggleLatestStreamMessage}
 			/>
 		</>
 	);
