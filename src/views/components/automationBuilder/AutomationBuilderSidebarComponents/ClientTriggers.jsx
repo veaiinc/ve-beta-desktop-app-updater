@@ -1,53 +1,29 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import HeaderComponent from './HeaderComponent';
 import ActionDetailsBlock from './ActionDetailsBlock';
-import '../../../../assets/scss/automation_builder/automationBuilderSidebarComponents/taskTriggers.scss';
+import '../../../../assets/scss/automation_builder/automationBuilderSidebarComponents/clientTriggers.scss';
 import { Tooltip } from 'antd';
 
-const taskFields = [
+const clientFields = [
 	{
-		label: 'Title',
-		value: 'title',
+		label: 'Name',
+		value: 'name',
 	},
 	{
-		label: 'Description',
-		value: 'description',
+		label: 'Email',
+		value: 'email',
 	},
 	{
-		label: 'Status',
-		value: 'status',
+		label: 'Phone',
+		value: 'phone',
 	},
 	{
-		label: 'Priority',
-		value: 'priority',
-	},
-	{
-		label: 'Assignee',
-		value: 'ssignedTo',
-	},
-	{
-		label: 'Due Date',
-		value: 'dueDate',
-	},
-	{
-		label: 'Updated By',
-		value: 'updatedBy',
-	},
-	{
-		label: 'Assigned By',
-		value: 'assignedBy',
-	},
-	{
-		label: 'Assigned At',
-		value: 'assignedAt',
-	},
-	{
-		label: 'Updated At',
-		value: 'updatedAt',
+		label: 'Source',
+		value: 'source',
 	},
 ];
 
-const TaskTriggers = ({ onClose, onSave, addTriggerLoading, triggerData }) => {
+const ClientTriggers = ({ onClose, onSave, addTriggerLoading, triggerData }) => {
 	const [info, setInfo] = useState({
 		title: '',
 		description: '',
@@ -63,21 +39,21 @@ const TaskTriggers = ({ onClose, onSave, addTriggerLoading, triggerData }) => {
 	const eventMapper = useMemo(() => {
 		return {
 			create: (
-				<CreateTaskTrigger
+				<CreateClientTrigger
 					onSave={onSave}
 					info={info}
 					addTriggerLoading={addTriggerLoading}
 				/>
 			),
 			update: (
-				<UpdateTaskTrigger
+				<UpdateClientTrigger
 					onSave={onSave}
 					info={info}
 					addTriggerLoading={addTriggerLoading}
 				/>
 			),
 			delete: (
-				<DeleteTaskTrigger
+				<DeleteClientTrigger
 					onSave={onSave}
 					info={info}
 					addTriggerLoading={addTriggerLoading}
@@ -87,11 +63,11 @@ const TaskTriggers = ({ onClose, onSave, addTriggerLoading, triggerData }) => {
 	}, [onSave, info, addTriggerLoading]);
 
 	return (
-		<div className="taskTriggerContainer">
-			<HeaderComponent onBack={onClose} heading={`Task ${triggerData?.event}d`} />
+		<div className="clientTriggerContainer">
+			<HeaderComponent onBack={onClose} heading={`Client ${triggerData?.event}d`} />
 			<ActionDetailsBlock
 				type="trigger"
-				actionLabel={`Task ${triggerData?.event}d`}
+				actionLabel={`Client ${triggerData?.event}d`}
 				heading={'Trigger'}
 				description={info?.description}
 				title={info?.title}
@@ -100,24 +76,24 @@ const TaskTriggers = ({ onClose, onSave, addTriggerLoading, triggerData }) => {
 				}}
 				onChangeButtonClick={onClose}
 			/>
-			<div className="taskTriggerContent">{eventMapper?.[triggerData?.event]}</div>
+			<div className="clientTriggerContent">{eventMapper?.[triggerData?.event]}</div>
 		</div>
 	);
 };
 
-export default TaskTriggers;
+export default ClientTriggers;
 
-const CreateTaskTrigger = ({ onSave, info, addTriggerLoading }) => {
+const CreateClientTrigger = ({ onSave, info, addTriggerLoading }) => {
 	return (
 		<>
-			<div className="taskTriggerInputContainer"> </div>
+			<div className="clientTriggerInputContainer"> </div>
 			<button
-				className="taskTriggerContentButton"
+				className="clientTriggerContentButton"
 				disabled={addTriggerLoading}
 				onClick={() =>
 					onSave({
 						...info,
-						inApp: { module: 'task', event: 'create' },
+						inApp: { module: 'client', event: 'create' },
 					})
 				}
 			>
@@ -127,7 +103,7 @@ const CreateTaskTrigger = ({ onSave, info, addTriggerLoading }) => {
 	);
 };
 
-const UpdateTaskTrigger = ({ onSave, info, addTriggerLoading }) => {
+const UpdateClientTrigger = ({ onSave, info, addTriggerLoading }) => {
 	const [updateInfo, setUpdateInfo] = useState({
 		selectedFields: [],
 		isOpen: false,
@@ -137,7 +113,7 @@ const UpdateTaskTrigger = ({ onSave, info, addTriggerLoading }) => {
 		if (updateInfo.selectedFields.some((f) => f?.value === field?.value)) {
 			setUpdateInfo((prev) => ({
 				...prev,
-				selectedFields: prev?.selectedFields?.filter((f) => f?.value !== field?.value),
+				selectedFields: prev.selectedFields.filter((f) => f?.value !== field?.value),
 			}));
 		} else {
 			setUpdateInfo((prev) => ({
@@ -157,16 +133,16 @@ const UpdateTaskTrigger = ({ onSave, info, addTriggerLoading }) => {
 	const handleRemoveField = (fieldValue) => {
 		setUpdateInfo((prev) => ({
 			...prev,
-			selectedFields: prev?.selectedFields?.filter((field) => field?.value !== fieldValue),
+			selectedFields: prev.selectedFields.filter((field) => field?.value !== fieldValue),
 		}));
 	};
 
 	return (
 		<>
-			<div className="taskTriggerInputContainer">
-				<h3 className="taskTriggerInputHeading">Inputs</h3>
-				<div className="taskTriggerInputItem">
-					<span className="taskTriggerInputLabel">Select fields</span>
+			<div className="clientTriggerInputContainer">
+				<h3 className="clientTriggerInputHeading">Inputs</h3>
+				<div className="clientTriggerInputItem">
+					<span className="clientTriggerInputLabel">Select fields</span>
 					<Tooltip
 						placement="bottomLeft"
 						arrow={false}
@@ -178,15 +154,15 @@ const UpdateTaskTrigger = ({ onSave, info, addTriggerLoading }) => {
 							}
 						}}
 						title={
-							<div className="taskTriggerInputTooltip">
-								{taskFields?.map((field) => (
+							<div className="clientTriggerInputTooltip">
+								{clientFields?.map((field) => (
 									<span
 										key={field?.value}
-										className={`taskTriggerInputTooltipItem ${
+										className={`clientTriggerInputTooltipItem ${
 											updateInfo?.selectedFields?.some(
 												(f) => f?.value === field?.value,
 											)
-												? 'taskTriggerInputTooltipItemSelected'
+												? 'clientTriggerInputTooltipItemSelected'
 												: ''
 										}`}
 										onClick={() => handleFieldSelection(field)}
@@ -198,14 +174,14 @@ const UpdateTaskTrigger = ({ onSave, info, addTriggerLoading }) => {
 						}
 					>
 						<div
-							className="taskTriggerInputTooltipTrigger"
+							className="clientTriggerInputTooltipTrigger"
 							onClick={() => handleOpenTooltip(true)}
 						>
 							{updateInfo?.selectedFields?.length > 0 ? (
 								updateInfo?.selectedFields?.map((field) => (
 									<div
 										key={field?.value}
-										className="taskTriggerInputTooltipTriggerItem"
+										className="clientTriggerInputTooltipTriggerItem"
 									>
 										{field?.label}
 										<span
@@ -220,7 +196,7 @@ const UpdateTaskTrigger = ({ onSave, info, addTriggerLoading }) => {
 									</div>
 								))
 							) : (
-								<div className="taskTriggerInputTooltipTriggerPlaceholder">
+								<div className="clientTriggerInputTooltipTriggerPlaceholder">
 									Select fields
 								</div>
 							)}
@@ -229,13 +205,13 @@ const UpdateTaskTrigger = ({ onSave, info, addTriggerLoading }) => {
 				</div>
 			</div>
 			<button
-				className="taskTriggerContentButton"
+				className="clientTriggerContentButton"
 				disabled={addTriggerLoading}
 				onClick={() =>
 					onSave({
 						...info,
 						inApp: {
-							module: 'task',
+							module: 'client',
 							event: 'update',
 							fields: updateInfo.selectedFields?.map((field) => field.value),
 						},
@@ -248,17 +224,17 @@ const UpdateTaskTrigger = ({ onSave, info, addTriggerLoading }) => {
 	);
 };
 
-const DeleteTaskTrigger = ({ onSave, info, addTriggerLoading }) => {
+const DeleteClientTrigger = ({ onSave, info, addTriggerLoading }) => {
 	return (
 		<>
-			<div className="taskTriggerInputContainer"> </div>
+			<div className="clientTriggerInputContainer"> </div>
 			<button
-				className="taskTriggerContentButton"
+				className="clientTriggerContentButton"
 				disabled={addTriggerLoading}
 				onClick={() =>
 					onSave({
 						...info,
-						inApp: { module: 'task', event: 'delete' },
+						inApp: { module: 'client', event: 'delete' },
 					})
 				}
 			>

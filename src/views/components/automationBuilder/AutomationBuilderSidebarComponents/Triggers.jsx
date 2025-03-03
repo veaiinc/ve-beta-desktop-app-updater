@@ -66,6 +66,27 @@ const triggersList = {
 				event: 'delete',
 				module: 'task',
 			},
+			{
+				app: 'inApp',
+				icon: null,
+				label: 'Client Created',
+				event: 'create',
+				module: 'client',
+			},
+			{
+				app: 'inApp',
+				icon: null,
+				label: 'Client Updated',
+				event: 'update',
+				module: 'client',
+			},
+			{
+				app: 'inApp',
+				icon: null,
+				label: 'Client Deleted',
+				event: 'delete',
+				module: 'client',
+			},
 		],
 	},
 };
@@ -88,20 +109,11 @@ const Triggers = ({ onCLose, automationId, editMode, activeStepsData, step }) =>
 		automationBuilder: { connectedIntegrations, addTrigger, getAutomation },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
-		search: '',
-		list: Object.values(actionsList),
-		searchChanged: false,
 		activeStage: `stage${step || 1}`, //stage1, stage2, stage3
 		saveLoader: false,
 		connectedIntegrations,
 		selectedTrigger: null,
 	});
-
-	useEffect(() => {
-		if (info?.searchChanged) {
-			handleDebouce();
-		}
-	}, [info?.searchChanged, info?.search]);
 
 	useEffect(() => {
 		if (connectedIntegrations) {
@@ -120,21 +132,6 @@ const Triggers = ({ onCLose, automationId, editMode, activeStepsData, step }) =>
 		}
 	}, [editMode, activeStepsData]);
 
-	// const handleSearch = (e) => {
-	// 	setInfo((prev) => ({ ...prev, search: e.target.value, searchChanged: true }));
-	// };
-
-	const handleDebouce = useCallback(() => {
-		clearTimeout(info?.timeout);
-		let timeout = setTimeout(() => {
-			const filtered = Object.values(actionsList)?.filter((action) =>
-				action.title.toLowerCase().includes(info?.search?.toLowerCase()),
-			);
-			setInfo((prev) => ({ ...prev, list: filtered }));
-		}, 800);
-		setInfo((prev) => ({ ...prev, timeout }));
-	}, [info?.timeout, info?.search]);
-
 	const checkConnection = useCallback(
 		(integration) => {
 			if (integration === 'inApp') {
@@ -146,32 +143,9 @@ const Triggers = ({ onCLose, automationId, editMode, activeStepsData, step }) =>
 		[connectedIntegrations],
 	);
 
-	// useEffect(() => {
-	// 	if (activeStepsData?.app) {
-	// 		const trigger = triggersList?.[activeStepsData?.app]?.triggers?.find(
-	// 			(trigger) => trigger?.event === activeStepsData?.criteria?.event,
-	// 		);
-	// 		updateTriggerInfo({
-	// 			selectedTrigger: {
-	// 				...trigger,
-	// 				triggerType: trigger?.triggerType,
-	// 			},
-	// 		});
-	// 	}
-	// }, [activeStepsData]);
-
 	const updateTriggerInfo = useCallback((updateData) => {
 		setInfo((prev) => ({ ...prev, ...updateData }));
 	}, []);
-
-	// const handleBack = useCallback(() => {
-	// 	if (info?.activeStage === 'stage2') {
-	// 		setInfo((prev) => ({ ...prev, activeStage: 'stage1' }));
-	// 	}
-	// 	if (info?.activeStage === 'stage1') {
-	// 		onCLose();
-	// 	}
-	// }, [info?.activeStage, onCLose]);
 
 	const addNewTrigger = useCallback(
 		async (data) => {
@@ -180,7 +154,6 @@ const Triggers = ({ onCLose, automationId, editMode, activeStepsData, step }) =>
 			updateTriggerInfo({ saveLoader: false });
 			if (response?.[0]) {
 				setInfo((prev) => ({ ...prev, activeStage: 'stage2' }));
-				getAutomation(automationId);
 				onCLose();
 			} else {
 				message?.error(response?.[1] || 'Failed to add trigger');
@@ -237,6 +210,14 @@ const Triggers = ({ onCLose, automationId, editMode, activeStepsData, step }) =>
 export default memo(Triggers);
 
 const Step1 = ({ checkConnection, updateTriggerInfo }) => {
+	const [info, setInfo] = useState({
+		search: '',
+	});
+
+	const handleSearch = (e) => {
+		setInfo((prev) => ({ ...prev, search: e.target.value }));
+	};
+
 	return (
 		<>
 			<div className="triggersHeaderContainer">
@@ -254,36 +235,67 @@ const Step1 = ({ checkConnection, updateTriggerInfo }) => {
 						type="text"
 						className="triggerSidebarSearch"
 						placeholder="Search trigger"
+						value={info?.search}
+						onChange={handleSearch}
 					/>
 				</div>
 			</div>
 			<div className="triggersContentContainer">
-				{Object?.values(triggersList)
-					?.filter((integration) => checkConnection(integration.value))
-					?.map((integration) => (
-						<div className="triggerContainer" key={integration.label}>
-							<h2 className="triggerIntegrationName">{integration.label}</h2>
-							<div className="availableIntegrationsList">
-								{integration?.triggers?.map((trigger) => (
-									<div
-										className="availableIntegrationItem"
-										key={trigger.event}
-										onClick={() =>
-											updateTriggerInfo({
-												selectedTrigger: {
-													...trigger,
-													triggerType: integration?.triggerType,
-												},
-											})
-										}
-									>
-										<span className="integrationIcon">{trigger.icon}</span>
-										<span className="integrationLabel">{trigger.label}</span>
+				{
+					Object.values(triggersList)
+						.map((integration) => {
+							// Filter triggers based on search (case insensitive)
+							const filteredTriggers = integration.triggers.filter(
+								(trigger) =>
+									!info?.search ||
+									trigger.label.toLowerCase().includes(info.search.toLowerCase()),
+							);
+
+							// Remove duplicates based on event + module (if module exists)
+							const uniqueTriggers = Array.from(
+								new Map(
+									filteredTriggers.map((t) => [
+										`${t.event}-${t.module || ''}`,
+										t,
+									]),
+								).values(),
+							);
+
+							// Only return groups that have matching triggers
+							if (!uniqueTriggers.length || !checkConnection(integration.value))
+								return null;
+
+							return (
+								<div className="triggerContainer" key={integration.label}>
+									<h2 className="triggerIntegrationName">{integration.label}</h2>
+									<div className="availableIntegrationsList">
+										{uniqueTriggers.map((trigger) => (
+											<div
+												className="availableIntegrationItem"
+												key={`${trigger.event}-${trigger.module || ''}`} // Ensure unique key
+												onClick={() =>
+													updateTriggerInfo({
+														selectedTrigger: {
+															...trigger,
+															triggerType: integration?.triggerType,
+														},
+													})
+												}
+											>
+												<span className="integrationIcon">
+													{trigger.icon}
+												</span>
+												<span className="integrationLabel">
+													{trigger.label}
+												</span>
+											</div>
+										))}
 									</div>
-								))}
-							</div>
-						</div>
-					))}
+								</div>
+							);
+						})
+						.filter(Boolean) // Remove null groups
+				}
 
 				<div className="availableIntegrationsContainer">
 					<h2 className="availableIntegrationHeading">Available Integrations</h2>

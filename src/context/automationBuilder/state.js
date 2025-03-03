@@ -121,8 +121,8 @@ export const AutomationBuilderState = () => {
 			);
 			if (response?.[0] === true) {
 				dispatch({
-					type: Actions.ADD_TRIGGER,
-					payload: response?.[1]?.newTrigger,
+					type: Actions.SET_AUTOMATION,
+					payload: response?.[1]?.updatedAutomation,
 				});
 				return [true, response?.[1]?.newTrigger];
 			}

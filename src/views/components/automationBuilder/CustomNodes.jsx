@@ -38,6 +38,9 @@ const eventTypeMapper = {
 	task_create: 'Task Created',
 	task_update: 'Task Updated',
 	task_delete: 'Task Deleted',
+	client_create: 'Client Created',
+	client_update: 'Client Updated',
+	client_delete: 'Client Deleted',
 
 	// actions
 	sendMessage: 'Send Message',
