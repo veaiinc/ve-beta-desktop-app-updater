@@ -173,7 +173,7 @@ const ChatBox = ({
 		recentFiles: [],
 		isSearchTypeOpen: false,
 		isVoiceMuted: false,
-		followUpQuery: '',
+		followUpQuery: null,
 	});
 
 	const [previewOpen, setPreviewOpen] = useState(false);
@@ -364,7 +364,7 @@ const ChatBox = ({
 
 				if (
 					(aiChatLoading || info?.chatLoading) &&
-					(info?.chatQuery?.length || info?.uploadedImages?.length)
+					(info?.chatQuery?.length < 0 || info?.uploadedImages?.length)
 				) {
 					return message.error('Please wait for the AI response');
 				}
@@ -684,7 +684,7 @@ const ChatBox = ({
 		}
 		setInfo((prev) => ({
 			...prev,
-			followUpQuery: '',
+			followUpQuery: null,
 		}));
 		updateStateValues({ activePromptForChat: info?.followUpQuery });
 	};

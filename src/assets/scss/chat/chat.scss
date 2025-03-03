@@ -97,6 +97,10 @@
 							word-wrap: break-word;
 							overflow-wrap: break-word;
 							transition: all 0.3s ease;
+
+							.content {
+								transition: opacity 0.3s ease-in-out;
+							}
 						}
 					}
 

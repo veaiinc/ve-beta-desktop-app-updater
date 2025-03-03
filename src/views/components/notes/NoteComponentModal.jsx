@@ -17,7 +17,16 @@ import { ReactComponent as FullScreenSvg } from '../../../assets/svg/notes/fullS
 import { ReactComponent as LinkLightSvg } from '../../../assets/svg/notes/loop-light.svg';
 import { ReactComponent as LinkDarkSvg } from '../../../assets/svg/notes/loop-dark.svg';
 const noteIcons = [<PreviousSvg />, <NextSvg />, <CopySvg />, <ShareSvg />];
-const NoteComponentModal = ({ modalIsOpen, closeModal, handleRatingClick, chatList }) => {
+const NoteComponentModal = ({
+	modalIsOpen,
+	closeModal,
+	handleRatingClick,
+	chatList,
+	handleSendWebsocketMessage,
+	latestStreamMesage,
+	lastQuery,
+	toggleLatestStreamMessage,
+}) => {
 	const chatContentRef = useRef(null);
 
 	const [info, setInfo] = useState({
@@ -121,7 +130,14 @@ const NoteComponentModal = ({ modalIsOpen, closeModal, handleRatingClick, chatLi
 						</div>
 					</div>
 					<div className="chat-box-wrapper">
-						<ChatBox showChatLabels={false} chatToNoteLoopOn={info?.chatToNoteLoopOn} />
+						<ChatBox
+							showChatLabels={false}
+							chatToNoteLoopOn={info?.chatToNoteLoopOn}
+							handleSendWebsocketMessage={handleSendWebsocketMessage}
+							latestStreamMesage={info?.latestStreamMesage}
+							lastQuery={info?.lastQuery}
+							toggleLatestStreamMessage={toggleLatestStreamMessage}
+						/>
 					</div>
 				</div>
 				<div
