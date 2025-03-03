@@ -112,7 +112,7 @@ const FormLeads = () => {
 				<div className="formSummaryContainer">
 					<div className="imgContainer">
 						<iframe
-							src={`${origin}/preview/${formData?._id}?singleTemplatePreview=true&restrictClick=true`}
+							src={`${origin}/preview/short/${formData?._id}?singleTemplatePreview=true&restrictClick=true`}
 							title="Builder Preview"
 							width="100%"
 							height="100%"

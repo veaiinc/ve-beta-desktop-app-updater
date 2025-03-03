@@ -24,6 +24,8 @@ const restrictMapper = {
 	restrictContacts: false,
 	restrictClassicGallery: false,
 	restrictConversationalAgent: false,
+	restrictClassicGallery: false,
+	restrictConversationalAgent: false,
 };
 
 const useSubscription = () => {
@@ -64,6 +66,7 @@ const useSubscription = () => {
 			const storageLimitInGB = (storageLimitInBytes / (1024 * 1024 * 1024)).toFixed(2);
 			const totalStorageUsedInGB = (storageUsedInBytes / (1024 * 1024 * 1024)).toFixed(2);
 			const obj = {
+				// ...(validateExpiryData || {}),
 				// ...(validateExpiryData || {}),
 				storageLimitInGB,
 				tenantUsersLimit,

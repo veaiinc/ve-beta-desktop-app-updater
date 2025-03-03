@@ -263,6 +263,43 @@ export const SubscriptionState = (props) => {
 			console.log('errror ==>updateTokenExpiryState', error);
 		}
 	};
+
+	const purchaseAddOnPlan = async (payload) => {
+		const workspaceId = localStorage.getItem('workspaceId');
+		const usertoken = localStorage.getItem('usertoken');
+		const path = `/addon-plan/${workspaceId}/purchase-add-on-plan`;
+		const type = 'auth';
+		try {
+			const response = await Service.fetchPost(path, payload, usertoken, type);
+			if (response?.[0] === true) {
+				return [true, response?.[1]];
+			} else {
+				message.error('Unable to purchase add on plan');
+				return [false];
+			}
+		} catch (error) {
+			console.log('errror ==>purchaseAddOnPlan', error);
+		}
+	};
+
+	const purchaseSubscriptionPlan = async (payload) => {
+		const workspaceId = localStorage.getItem('workspaceId');
+		const usertoken = localStorage.getItem('usertoken');
+		const path = `/subscription/${workspaceId}/purchase-subscription`;
+		const type = 'auth';
+		try {
+			const response = await Service.fetchPost(path, payload, usertoken, type);
+			if (response?.[0] === true) {
+				return [true, response?.[1]];
+			} else {
+				message.error('Unable to purchase subscription plan');
+				return [false];
+			}
+		} catch (error) {
+			console.log('errror ==>purchaseSubscriptionPlan', error);
+		}
+	};
+
 	return {
 		...state,
 		getAllSubscriptionPlan,
@@ -277,5 +314,7 @@ export const SubscriptionState = (props) => {
 		createManageSubscriptionLinkforExistingUsers,
 		updateSubscriptionState,
 		updateTokenExpiryState,
+		purchaseAddOnPlan,
+		purchaseSubscriptionPlan,
 	};
 };

@@ -16,8 +16,6 @@ import Context from '../../../context/context';
 import DropDown from '../../components/dropDown/tasks/DropDown';
 import QuickActions from '../../components/globalComponents/QuickActions';
 
-// let origin = fetchOriginSelection();
-
 const Forms = () => {
 	const navigate = useNavigate();
 

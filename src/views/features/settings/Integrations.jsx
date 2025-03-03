@@ -230,22 +230,7 @@ const Integrations = () => {
 							<div className="buttonsContainer">
 								{info?.connectedThirdParties?.[singleIntegration?.connect_type] ===
 								true ? (
-									<>
-										<div className="disconnectButton">
-											<ReusableButtonSettings
-												text={'Disconnect'}
-												loader={info?.loader}
-												active={info?.metaInteg}
-												disableHover={!info?.metaInteg}
-											/>
-										</div>
-
-										{singleIntegration?.hasConfigure && (
-											<div className="configButton">
-												<ReusableButtonSettings text={'Configure'} />
-											</div>
-										)}
-									</>
+									<span className="connected-indicator">Connected</span>
 								) : (
 									<div className="connectButton">
 										<ReusableButtonSettings

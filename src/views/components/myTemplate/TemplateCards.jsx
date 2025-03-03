@@ -179,7 +179,7 @@ const TemplateCards = ({ data, loading, hasNextPage, fetchMoreMyWorkflows }) => 
 							>
 								<div className="docsTemplateImageContainer">
 									<iframe
-										src={`${origin}/preview/${template?._id}?module=${template?.moduleTemplates?.[0]?._id}&isPubic=${template?.moduleTemplates?.[0]?.isPublic}&restrictClick=true`}
+										src={`${origin}/preview/short/${template?._id}?module=${template?.moduleTemplates?.[0]?._id}&isPubic=${template?.moduleTemplates?.[0]?.isPublic}&restrictClick=true`}
 										title="Builder Preview"
 										width="100%"
 										height="100%"
@@ -187,7 +187,8 @@ const TemplateCards = ({ data, loading, hasNextPage, fetchMoreMyWorkflows }) => 
 										onMouseDown={(e) => e.stopPropagation()}
 										onMouseUp={(e) => e.stopPropagation()}
 										style={{
-											zoom: 0.3,
+											// zoom: 0.2,
+											backgroundColor: '#fff',
 											pointerEvents: 'none',
 										}}
 									/>
