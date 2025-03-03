@@ -85,7 +85,7 @@ const NoteComponentModal = ({
 		>
 			<div className="modal-container">
 				<div className="chatBarContainer">
-					<div className="chat-to-note-link-container">
+					{/* <div className="chat-to-note-link-container">
 						<div className="title">Link all chat to note</div>
 						<div
 							className={`link-icon-container ${
@@ -95,7 +95,7 @@ const NoteComponentModal = ({
 						>
 							{info?.chatToNoteLoopOn ? <LinkDarkSvg /> : <LinkLightSvg />}
 						</div>
-					</div>
+					</div> */}
 					{/* chat body */}
 					<div className={`chatBodyParentContainer`} ref={chatContentRef}>
 						<div className="chatContent">

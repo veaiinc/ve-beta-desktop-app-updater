@@ -692,7 +692,6 @@ const ChatBox = ({
 	return (
 		<div className="chatParentWrapper">
 			<div className={`chatWrapper`}>
-				{/* {info?.voiceIntegration ? ( */}
 				<div className={`voiceContainer ${info?.voiceIntegration ? 'active' : 'inactive'}`}>
 					<Voice
 						handleDisConnect={handleDisConnect}
@@ -700,7 +699,6 @@ const ChatBox = ({
 						isVoiceMuted={info?.isVoiceMuted}
 					/>
 				</div>
-				{/* ) : ( */}
 				<div
 					className={`chat-box-container ${
 						info?.voiceIntegration ? 'inactive' : 'active'
