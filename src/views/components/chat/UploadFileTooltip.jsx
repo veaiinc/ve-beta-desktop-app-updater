@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useContext, useCallback, memo } from 'react';
+import React, { useState, useEffect, useContext, useCallback, memo, useMemo } from 'react';
 import { ReactComponent as UploadSvg } from '../../../assets/svg/ai_agents/upload.svg';
 import { Tooltip, Upload } from 'antd';
 import { ReactComponent as SearchSvg } from '../../../assets/svg/workflow/search.svg';
 import Context from '../../../context/context';
 import { FetchMoreLoaderComp } from '../../../helpers';
 import InfiniteScroll from 'react-infinite-scroll-component';
-
+import { ReactComponent as TickSvg } from '../../../assets/svg/home_page/Tick.svg';
 let timeoutId = null;
 
 const UploadFileTooltip = ({
@@ -15,6 +15,7 @@ const UploadFileTooltip = ({
 	setIsUploadFileOpen,
 	handleRecentFileClick,
 	fileTypeIcons = {},
+	recentFiles = [],
 }) => {
 	const {
 		aiSetup: { filesUploadedInAiChat, getFilesUploadedInAiChat },
@@ -53,6 +54,10 @@ const UploadFileTooltip = ({
 		}, 1000);
 	}, []);
 
+	const selectedRecentFiles = useMemo(() => {
+		return recentFiles?.map((file) => file?._id);
+	}, [recentFiles]);
+
 	return (
 		<div className="upload-file-wrapper">
 			<Tooltip
@@ -68,7 +73,7 @@ const UploadFileTooltip = ({
 							<SearchSvg />
 							<input
 								type="text"
-								placeholder="Search by module"
+								placeholder="Search"
 								onChange={(e) => {
 									setInfo((prev) => ({
 										...prev,
@@ -101,9 +106,13 @@ const UploadFileTooltip = ({
 											{filesUploadedInAiChat?.data?.map((file) => {
 												return (
 													<div
-														className="recent-file"
+														className={`recent-file ${
+															selectedRecentFiles?.includes(file?._id)
+																? 'selected'
+																: ''
+														}`}
 														onClick={() => handleRecentFileClick(file)}
-														key={file?.id}
+														key={file?._id}
 													>
 														<div className="file-type-icon">
 															{fileTypeIcons?.[file?.sourceType]}
@@ -111,6 +120,13 @@ const UploadFileTooltip = ({
 														<div className="file-name">
 															{file?.originalFileName}
 														</div>
+														{selectedRecentFiles?.includes(
+															file?._id,
+														) && (
+															<div className="selected-icon">
+																<TickSvg />
+															</div>
+														)}
 													</div>
 												);
 											})}

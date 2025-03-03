@@ -174,6 +174,7 @@ const ChatBox = ({
 
 	const [previewOpen, setPreviewOpen] = useState(false);
 	const [previewImage, setPreviewImage] = useState('');
+	const textAreaRef = useRef(null);
 
 	useEffect(() => {
 		if (activePromptForChat) {
@@ -419,12 +420,22 @@ const ChatBox = ({
 					if (customChatActions) {
 						return onSend({ payload, localPayload, currentQuery });
 					}
-
+					handleStreamSendMessage(payload, localPayload, currentQuery);
 					if (handleSendWebsocketMessage) {
+						if (info?.recentFiles?.length > 0) {
+							if (payload?.files && payload.files?.length > 0) {
+								payload.files = [
+									...payload.files,
+									...info?.recentFiles?.map((ele) => ele?.originalFileName),
+								];
+							} else {
+								payload.files = info?.recentFiles?.map(
+									(ele) => ele?.originalFileName,
+								);
+							}
+						}
 						handleSendWebsocketMessage(payload, currentQuery);
 					}
-
-					handleStreamSendMessage(payload, localPayload, currentQuery);
 				}
 			}
 		},
@@ -635,6 +646,18 @@ const ChatBox = ({
 		return Object?.keys(info?.searchType)?.some((type) => info?.searchType[type]);
 	}, [info?.searchType]);
 
+	const handleTextAreaChange = (e) => {
+		const textArea = textAreaRef?.current;
+		if (textArea) {
+			textArea.style.height = 'auto';
+			textArea.style.height = textArea.scrollHeight + 'px';
+		}
+		setInfo((prev) => ({
+			...prev,
+			chatQuery: e.target.value,
+		}));
+	};
+
 	return (
 		<div className="chatParentWrapper">
 			<div className={`chatWrapper`}>
@@ -660,16 +683,11 @@ const ChatBox = ({
 										type="text"
 										placeholder="Hey! Need help? Ask me anything."
 										value={info?.chatQuery}
-										onChange={(e) =>
-											setInfo((prev) => ({
-												...prev,
-												chatQuery: e.target.value,
-											}))
-										}
+										onChange={handleTextAreaChange}
 										autoFocus={true}
 										onKeyDown={handleSendMessageFunc}
 										className="textArea"
-										// rows={1}
+										ref={textAreaRef}
 									/>
 									<div className="options-container">
 										{info?.showFilters ? (
@@ -780,18 +798,20 @@ const ChatBox = ({
 																	<WebLightSvg />
 																)}
 															</div>
-															<div
-																className="right-text"
-																style={{
-																	color: `${
-																		isSearchTypeEnabled
-																			? '#0C0C0D'
-																			: '#f2f2f3'
-																	}`,
-																}}
-															>
-																{showChatLabels ? 'Search' : ''}
-															</div>
+															{showChatLabels && (
+																<div
+																	className="right-text"
+																	style={{
+																		color: `${
+																			isSearchTypeEnabled
+																				? '#0C0C0D'
+																				: '#f2f2f3'
+																		}`,
+																	}}
+																>
+																	Search
+																</div>
+															)}
 														</div>
 													</SearchTypeTooltip>
 
@@ -822,7 +842,7 @@ const ChatBox = ({
 																	}`,
 																}}
 															>
-																Explore
+																Deep Search
 															</div>
 														)}
 													</div>
@@ -864,9 +884,11 @@ const ChatBox = ({
 														<div className="icon">
 															<Filter />
 														</div>
-														<div className="right-text">
-															{showChatLabels ? 'Filters' : ''}
-														</div>
+														{showChatLabels && (
+															<div className="right-text">
+																Filters
+															</div>
+														)}
 													</div>
 												</div>
 												{info?.chatQuery?.trim()?.length > 0 ? (
