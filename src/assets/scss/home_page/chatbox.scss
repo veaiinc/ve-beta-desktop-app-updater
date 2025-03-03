@@ -77,7 +77,7 @@
 
 						.chatInputParentContainer {
 							display: flex;
-							max-height: 200px;
+							max-height: 400px;
 							width: 100%;
 							padding: 16px;
 							flex-direction: column;
@@ -89,7 +89,7 @@
 							.textArea {
 								width: 100%;
 								min-height: 24px;
-								max-height: 118px;
+								max-height: 320px;
 								border: none;
 								outline: none;
 								background: transparent;
