@@ -11,7 +11,7 @@ import { ReactComponent as CopyIcon } from '../assets/svg/ai_agents/copy.svg';
 import Context from '../context/context';
 import { Tooltip } from 'antd';
 import { CitationsTooltip } from '../views/components/modalsV2/chat/CitationsTooltip';
-
+import remarkGfm from 'remark-gfm';
 const rehypeCITPlugin = () => {
 	return (tree) => {
 		const visit = (node) => {
@@ -167,7 +167,7 @@ const createCitationComponents = (citations) => ({
 		return <span {...props}>{children}</span>;
 	},
 });
-
+const remarkPlugins = [remarkGfm];
 const NonMemoizedMarkdown = ({ children, citations }) => {
 	// Memoize the combined components object
 	const components = useMemo(
@@ -179,7 +179,11 @@ const NonMemoizedMarkdown = ({ children, citations }) => {
 	);
 
 	return (
-		<ReactMarkdown remarkPlugins={[]} rehypePlugins={[rehypeCITPlugin]} components={components}>
+		<ReactMarkdown
+			remarkPlugins={remarkPlugins}
+			rehypePlugins={[rehypeCITPlugin]}
+			components={components}
+		>
 			{children}
 		</ReactMarkdown>
 	);
