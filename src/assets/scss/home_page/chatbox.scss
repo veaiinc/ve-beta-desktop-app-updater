@@ -485,6 +485,11 @@
 					gap: 12px;
 					align-self: stretch;
 					cursor: pointer;
+					border-radius: 12px;
+
+					&:hover {
+						background: #2f3336;
+					}
 					.file-type-icon {
 						display: flex;
 						padding: 10px;
@@ -505,7 +510,17 @@
 						font-style: normal;
 						font-weight: 500;
 						line-height: normal;
+						width: 230px;
 					}
+					.selected-icon {
+						display: flex;
+						align-items: center;
+						justify-content: center;
+						padding: 6px;
+					}
+				}
+				.recent-file.selected {
+					background: #2f3336;
 				}
 			}
 		}
@@ -526,8 +541,16 @@
 			border-radius: 8px;
 			cursor: pointer;
 
+			&:hover {
+				background: #2f3336;
+			}
+
 			.upload-file-text {
+				width: 250px;
 				color: #f2f2f3;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				white-space: nowrap;
 				font-family: Inter;
 				font-size: 14px;
 				font-style: normal;

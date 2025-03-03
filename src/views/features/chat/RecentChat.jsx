@@ -49,7 +49,7 @@ const RecentChat = ({
 		showFullPage: true,
 		voiceIntegration: false,
 		noteModalIsOpen: false,
-		citationsModalIsOpen: false,
+		citationsModalIsOpen: true,
 		page: 1,
 		currentPage: true,
 		latestStreamMesage: null,
@@ -174,15 +174,6 @@ const RecentChat = ({
 			});
 		}
 	}, [info?.lastVisibleMessageId]);
-
-	useEffect(() => {
-		if (citations?.length > 0) {
-			setInfo((prev) => ({
-				...prev,
-				citationsModalIsOpen: true,
-			}));
-		}
-	}, [citations]);
 
 	useEffect(() => {
 		if (recentChatStorage) {
