@@ -125,7 +125,7 @@ const SchedulerAvailability = ({ updateSessionSlot, handleUpdateSessionSlot, sch
 
 			weekDays?.push({
 				day: currentDay.format('ddd'),
-				date: currentDay.format('M/D'),
+				date: currentDay.format('D/M'),
 				slots: slots.sort((a, b) =>
 					moment(a.startTime, 'HH:mm').diff(moment(b.startTime, 'HH:mm')),
 				),

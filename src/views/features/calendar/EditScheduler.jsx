@@ -22,21 +22,18 @@ const sessionTypeInputConfig = {
 		tag: 'Location',
 		type: 'text',
 		placeholder: 'Enter location',
-		apiKey: 'in_person',
 	},
 	'Phone Call': {
 		value: 'phoneNumber',
 		tag: 'Phone Number',
 		type: 'tel',
 		placeholder: 'Enter phone number',
-		apiKey: 'phone',
 	},
 	'Video Call': {
 		value: 'videoLink',
 		tag: 'Platform Link',
 		type: 'url',
 		placeholder: 'Enter video call link',
-		apiKey: 'virtual',
 	},
 };
 
@@ -133,7 +130,7 @@ const EditScheduler = () => {
 			let videoLink = '';
 
 			if (sessionDetail.sessionTypeInfo) {
-				switch (sessionDetail.sessionTypeInfo.sessionType) {
+				switch (sessionDetail.sessionTypeInfo.sessionType.toLowerCase()) {
 					case 'virtual':
 						sessionType = 'Video Call';
 						videoLink = sessionDetail.sessionTypeInfo.meetingLink || '';
@@ -142,20 +139,24 @@ const EditScheduler = () => {
 						sessionType = 'Phone Call';
 						phoneNumber = sessionDetail.sessionTypeInfo.phone || '';
 						break;
+					case 'in person':
 					case 'in_person':
 						sessionType = 'In Person';
 						location = sessionDetail.sessionTypeInfo.location || '';
 						break;
+					default:
+						sessionType = sessionDetail.sessionTypeInfo.sessionType || 'In Person';
+						location = sessionDetail.sessionTypeInfo.location || '';
 				}
 			}
 
 			setInfo((prev) => ({
 				...prev,
-				startTime: dayjs(sessionDetail.sessionWindow.startDate.$date),
-				endTime: dayjs(sessionDetail.sessionWindow.endDate.$date),
-				duration: `${sessionDetail.sessionDuration.unitCount} ${
-					sessionDetail.sessionDuration.unitType.charAt(0).toUpperCase() +
-					sessionDetail.sessionDuration.unitType.slice(1)
+				startTime: dayjs(sessionDetail.sessionWindow?.startDate || new Date()),
+				endTime: dayjs(sessionDetail.sessionWindow?.endDate || new Date()),
+				duration: `${sessionDetail.sessionDuration?.unitCount || 30} ${
+					(sessionDetail.sessionDuration?.unitType || 'minutes').charAt(0).toUpperCase() +
+					(sessionDetail.sessionDuration?.unitType || 'minutes').slice(1)
 				}`,
 				sessionDescription: sessionDetail.sessionDescription || '',
 				addDescription: !!sessionDetail.sessionDescription,
@@ -164,16 +165,19 @@ const EditScheduler = () => {
 				phoneNumber,
 				videoLink,
 				timezone: sessionDetail.sessionTimezone || prev.timezone,
-				maxParticipants: sessionDetail.sessionMetadata.maxParticipants || 1,
-				allowRescheduling: sessionDetail.bookingRules.allowRescheduling,
-				allowCanceling: sessionDetail.bookingRules.allowCanceling,
+				maxParticipants: sessionDetail.sessionMetadata?.maxParticipants || 1,
+				allowRescheduling: sessionDetail.bookingRules?.allowRescheduling ?? true,
+				allowCanceling: sessionDetail.bookingRules?.allowCanceling ?? true,
 				minCancelNotice:
-					sessionDetail.bookingRules.cancellationPolicy?.minCancelNotice?.unitCount || 30,
-				minBookingNotice: sessionDetail.availabilityRules.minBookingNotice.unitCount || 15,
-				maxBookingAdvance: sessionDetail.availabilityRules.maxBookingAdvance.unitCount || 5,
-				maxBookingsPerSession: sessionDetail.availabilityRules.maxBookingsPerSession || 1,
+					sessionDetail.bookingRules?.cancellationPolicy?.minCancelNotice?.unitCount ||
+					30,
+				minBookingNotice:
+					sessionDetail.availabilityRules?.minBookingNotice?.unitCount || 15,
+				maxBookingAdvance:
+					sessionDetail.availabilityRules?.maxBookingAdvance?.unitCount || 5,
+				maxBookingsPerSession: sessionDetail.availabilityRules?.maxBookingsPerSession || 1,
 				preparationInstructions:
-					sessionDetail.sessionMetadata.preparationInstructions || '',
+					sessionDetail.sessionMetadata?.preparationInstructions || '',
 				weeklyAvailability,
 				bookingPeriod: 'Day',
 				sessionDetail,
