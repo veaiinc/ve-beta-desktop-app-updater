@@ -447,7 +447,6 @@ const OpenedSideBarItemsComponent = ({
 			? veAiModules
 			: filterModules(veAiModules, tenantUserAccessControls?.accessControls, allPossibleApps);
 
-	console.log(filteredModules, 'filterModules');
 	return (
 		<>
 			{tenantUserAccessControls && (
