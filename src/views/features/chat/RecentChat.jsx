@@ -488,13 +488,14 @@ const RecentChat = ({
 								</div>
 							</InfiniteScroll>
 						</div>
-
-						<ChatBox
-							handleSendWebsocketMessage={handleSendWebsocketMessage}
-							latestStreamMesage={info?.latestStreamMesage}
-							lastQuery={info?.lastQuery}
-							toggleLatestStreamMessage={toggleLatestStreamMessage}
-						/>
+						<div className="chatBoxWrapper">
+							<ChatBox
+								handleSendWebsocketMessage={handleSendWebsocketMessage}
+								latestStreamMesage={info?.latestStreamMesage}
+								lastQuery={info?.lastQuery}
+								toggleLatestStreamMessage={toggleLatestStreamMessage}
+							/>
+						</div>
 					</div>
 				</div>
 			</div>

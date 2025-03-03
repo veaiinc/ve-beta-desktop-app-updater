@@ -146,7 +146,9 @@ const InitialHomePage = () => {
 						</div>
 					</div>
 					<div className="initialHomePageContainer-chatBox">
-						<ChatBox onSend={handleCustomOnSendFunction} customChatActions={true} />
+						<div className="chatBoxWrapper">
+							<ChatBox onSend={handleCustomOnSendFunction} customChatActions={true} />
+						</div>
 					</div>
 					<div className="initialHomePageContainer-prompts">
 						<div className="initialHomePageContainerCards">

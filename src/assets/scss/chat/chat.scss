@@ -47,9 +47,17 @@
 			align-items: center;
 			transition: width 300ms ease-in-out;
 
+			.chatBoxWrapper {
+				position: relative;
+				width: 100%;
+				max-width: 700px;
+				height: 100%;
+				margin-bottom: 5px;
+			}
+
 			.chatBodyParentContainer {
 				display: flex;
-				height: calc(100% - 105px);
+				height: calc(100% - 120px);
 				flex-direction: column;
 				justify-content: flex-start;
 				scroll-behavior: smooth;
