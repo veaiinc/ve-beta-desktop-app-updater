@@ -41,7 +41,7 @@ const useAccessControls = () => {
 			return updateAccessControlOpenModal({ accessControlOpenModal: false });
 		}
 		const currentPath = location?.pathname?.split('/')[1];
-		const matchedLocation = locationMapper[currentPath];
+		const matchedLocation = locationMapper?.[currentPath];
 
 		if (!matchedLocation) {
 			return updateAccessControlOpenModal({ accessControlOpenModal: false });

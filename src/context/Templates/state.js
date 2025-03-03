@@ -47,7 +47,6 @@ import Service from '../../services/index';
 import { sendCustomMailMutation } from '../subscription/graphqlFunctions';
 import { getBase64 } from '../../helpers';
 import Skeleton from 'react-loading-skeleton';
-import { responsiveArray } from 'antd/es/_util/responsiveObserver';
 
 export const intialState = {
 	workflowslist: null,
