@@ -60,8 +60,8 @@ const useSubscription = () => {
 				liteImageLimit = 0,
 				liteImageUsed = 0,
 			} = currentPlan;
-			const storageLimitInGB = (storageLimitInBytes / (1024 * 1024 * 1024)).toFixed(2);
-			const totalStorageUsedInGB = (storageUsedInBytes / (1024 * 1024 * 1024)).toFixed(2);
+			const storageLimitInGB = parseFloat(storageLimitInBytes / (1024 * 1024 * 1024));
+			const totalStorageUsedInGB = parseFloat(storageUsedInBytes / (1024 * 1024 * 1024));
 			const obj = {
 				// ...(validateExpiryData || {}),
 				storageLimitInGB,
