@@ -412,7 +412,7 @@ const RecentChat = ({
 								scrollThreshold={0.8}
 								className="smooth-scroll"
 							>
-								<div className="chatContent">
+								<div className="chatContent" style={{ flex: 1 }}>
 									{(globalChatMessages || [])?.map((chat, index) =>
 										chat?.content ? (
 											chat?.content
