@@ -185,45 +185,19 @@ export const Markdown = memo(
 
 export const TypingEffect = ({
 	text,
-	onComplete = null,
 	customePencilClickFunc = null,
 	smoothScrollToBottom,
 	messageId = null,
 	handleRatingClick = null,
-	showTypingEffect = false,
 	rating = null,
 	citations = [],
+	messageData,
 }) => {
 	const {
 		documentPreview: { setNoteContent },
 	} = useContext(Context);
 
-	const [displayedText, setDisplayedText] = useState('');
-	const [currentIndex, setCurrentIndex] = useState(0);
 	const [isCopiedToClipboard, setIsCopiedToClipboard] = useState(false);
-
-	useEffect(() => {
-		if (currentIndex < text?.length) {
-			const timeout = setTimeout(() => {
-				setDisplayedText((prev) => prev + text[currentIndex]);
-				setCurrentIndex((prev) => prev + 1);
-				if (smoothScrollToBottom) {
-					smoothScrollToBottom();
-				}
-			}, 5); // Adjust speed as needed
-
-			return () => clearTimeout(timeout);
-		} else if (onComplete && showTypingEffect) {
-			onComplete();
-		}
-	}, [currentIndex, text, onComplete]);
-
-	useEffect(() => {
-		if (!showTypingEffect) {
-			setCurrentIndex(text?.length);
-			setDisplayedText(text);
-		}
-	}, [showTypingEffect]);
 
 	const handleCopyTextClick = (text) => {
 		navigator?.clipboard?.writeText(text).then(() => {
@@ -236,13 +210,9 @@ export const TypingEffect = ({
 
 	return (
 		<div className="typing-effect-container">
-			{showTypingEffect ? (
-				<Markdown>{displayedText?.replace(/\\n/g, '\n')}</Markdown>
-			) : (
-				<Markdown citations={citations}>{text?.replace(/\\n/g, '\n')}</Markdown>
-			)}
+			<Markdown citations={citations}>{text?.replace(/\\n/g, '\n')}</Markdown>
 
-			{currentIndex === text?.length ? (
+			{messageData?.messageId ? (
 				<div className="hover-actions-container">
 					<div className="icon-container">
 						<Tooltip placement="bottom" arrow={false} trigger={'hover'} title={'Like'}>
@@ -308,12 +278,6 @@ export const TypingEffect = ({
 							)}
 						</Tooltip>
 					</div>
-
-					{/* <CopyIcon
-						onClick={() => {
-							handleCopyTextClick(text);
-						}}
-					/> */}
 				</div>
 			) : (
 				''

@@ -298,16 +298,6 @@ const RecentChat = ({
 		},
 		[chatContentRef],
 	);
-	const handleStopTypingEffect = () => {
-		let messages = [...globalChatMessages];
-		messages = messages?.map((message) => {
-			if (message?.typingEffect) {
-				message.typingEffect = false;
-			}
-			return message;
-		});
-		updateStateValues({ globalChatMessages: messages });
-	};
 
 	const fetchMoreData = useCallback(
 		debounce(async () => {
@@ -453,13 +443,9 @@ const RecentChat = ({
 																handleRatingClick={
 																	handleRatingClick
 																}
-																showTypingEffect={
-																	false
-																	// chat?.typingEffect
-																}
-																onComplete={handleStopTypingEffect}
 																rating={chat?.rating}
 																citations={chat?.citations}
+																messageData={chat}
 															/>
 														</div>
 													) : (
