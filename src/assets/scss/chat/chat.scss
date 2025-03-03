@@ -95,6 +95,9 @@
 							line-height: 22px;
 							padding-top: 0px;
 							transition: all 0.3s ease;
+							word-wrap: break-word;
+							overflow-wrap: break-word;
+
 							.content {
 								transition: opacity 0.3s ease;
 							}
@@ -103,13 +106,15 @@
 
 					.user-message {
 						display: flex;
+						width: 100%;
 						justify-content: flex-end;
 						.message-content {
-							justify-content: flex-end;
 							padding: 12px 16px;
 							border-radius: 24px;
 							background: #202123;
 							line-height: 21px;
+							word-wrap: break-word;
+							overflow-wrap: break-word;
 						}
 					}
 				}

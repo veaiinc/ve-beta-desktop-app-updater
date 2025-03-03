@@ -842,7 +842,7 @@ const ChatBox = ({
 																	}`,
 																}}
 															>
-																Explore
+																Deep Search
 															</div>
 														)}
 													</div>
