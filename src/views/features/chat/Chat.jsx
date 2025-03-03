@@ -200,7 +200,11 @@ const Chat = ({
 							width: `${info?.citationsModalIsOpen ? 'calc(100% - 400px)' : '100%'}`,
 						}}
 					>
-						<div className={`chatBodyParentContainer`} ref={chatContentRef}>
+						<div
+							className={`chatBodyParentContainer`}
+							style={{ paddingRight: '20px' }}
+							ref={chatContentRef}
+						>
 							<div className="chatContent">
 								{info?.chatList?.map((chat, index) =>
 									chat?.content ? (
