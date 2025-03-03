@@ -1581,7 +1581,7 @@ export const TemplatesState = (props) => {
 		}
 	};
 
-	const handleStreamSendMessage = (payload, localPayload, queryMessage) => {
+	const handleStreamSendMessage = (payload, localPayload, queryMessage, recentFiles = []) => {
 		let updatedGlobalChatMessages = [];
 
 		if (localPayload.showCustomChatOptions) {

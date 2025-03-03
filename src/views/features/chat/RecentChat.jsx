@@ -26,7 +26,6 @@ const RecentChat = ({
 			globalChatMessages,
 			updateStateValues,
 			citations,
-			currentSessionId,
 			updateAiChatMessageRating,
 			getRecentChatMessages,
 			recentChatStorage,
@@ -407,6 +406,7 @@ const RecentChat = ({
 									display: 'flex',
 									flexDirection: 'column-reverse',
 									transition: 'all 0.3s ease',
+									// justifyContent: 'flex-end',
 								}}
 								height={'calc(100vh - 180px)'}
 								scrollThreshold={0.8}
