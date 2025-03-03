@@ -47,7 +47,7 @@ const useAccessControls = () => {
 			return updateAccessControlOpenModal({ accessControlOpenModal: false });
 		}
 		const appAccess = tenantUserAccessControls?.accessControls?.find(
-			(app) => app?.app === matchedLocation?.value,
+			(app) => app?.app === matchedLocation,
 		);
 		const shouldOpenModal = !appAccess || !appAccess?.isEnabled;
 		updateAccessControlOpenModal({
