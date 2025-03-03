@@ -29,7 +29,7 @@ const WeeklySlot = ({ day, date, slots, handleUpdateSessionSlot }) => {
 							style={{ background: slot?.sessionColor || '#6366F1' }}
 						/>
 						<div className="slotContent">
-							<div className="slotName">{slot.sessionName || 'Session'}</div>
+							<div className="slotName">{slot.sessionName}</div>
 							<div className="slotTime">
 								{slot.startTime} - {slot.endTime}
 							</div>
@@ -39,7 +39,7 @@ const WeeklySlot = ({ day, date, slots, handleUpdateSessionSlot }) => {
 				<div className="emptySlotItem newSlot">
 					<div className="emptySlotContent">
 						<div className="plusIcon">+</div>
-						<div className="newSessionText">New Session</div>
+						<div className="newSessionText">New Slot</div>
 					</div>
 				</div>
 			</div>
@@ -47,35 +47,10 @@ const WeeklySlot = ({ day, date, slots, handleUpdateSessionSlot }) => {
 	);
 };
 
-const SchedulerAvailability = ({ isUpdateSessionSlot, handleUpdateSessionSlot }) => {
+const SchedulerAvailability = ({ updateSessionSlot, handleUpdateSessionSlot, schedulerList }) => {
 	const [info, setInfo] = useState({
 		currentDate: moment(),
 	});
-
-	// Sample session data - In real app, this would come from props or API
-	const sessionData = {
-		Yoga: {
-			sessionName: 'Yoga',
-			startTime: '9:00 AM',
-			endTime: '9:45 AM',
-			sessionColor: '#4CAF50',
-			days: ['Monday', 'Tuesday', 'Wednesday', 'Friday', 'Saturday', 'Sunday'],
-		},
-		Cardio: {
-			sessionName: 'Cardio',
-			startTime: '10:00 AM',
-			endTime: '12:00 AM',
-			sessionColor: '#F44336',
-			days: ['Monday', 'Wednesday', 'Friday', 'Sunday'],
-		},
-		Dance: {
-			sessionName: 'Dance Class',
-			startTime: '4:30 PM',
-			endTime: '6:00 PM',
-			sessionColor: '#2196F3',
-			days: ['Wednesday'],
-		},
-	};
 
 	const getWeekDuration = useMemo(() => {
 		const startOfWeek = moment(info?.currentDate).startOf('isoWeek');
@@ -97,35 +72,73 @@ const SchedulerAvailability = ({ isUpdateSessionSlot, handleUpdateSessionSlot })
 		for (let i = 0; i < 7; i++) {
 			const currentDay = moment(startOfWeek).add(i, 'days');
 			const dayName = currentDay.format('dddd');
+			const currentDate = currentDay.format('YYYY-MM-DD');
 			const slots = [];
 
-			// Add sessions for this day
-			Object.values(sessionData).forEach((session) => {
-				if (session.days.includes(dayName)) {
-					slots.push({
-						sessionName: session.sessionName,
-						startTime: session.startTime,
-						endTime: session.endTime,
-						sessionColor: session.sessionColor,
-					});
+			// Process each session in schedulerList
+			schedulerList?.forEach((session) => {
+				// Check if the current date falls within the session window
+				const sessionStart = moment(session.sessionWindow.startDate);
+				const sessionEnd = moment(session.sessionWindow.endDate);
+
+				if (currentDay.isBetween(sessionStart, sessionEnd, 'day', '[]')) {
+					// Check for custom exceptions first
+					const customException = session.customExceptions?.find(
+						(exception) => moment(exception.date).format('YYYY-MM-DD') === currentDate,
+					);
+
+					if (customException) {
+						// If overrideAvailability is true, use custom time ranges
+						if (
+							customException.overrideAvailability &&
+							customException.customTimeRanges
+						) {
+							customException.customTimeRanges?.forEach((range) => {
+								slots?.push({
+									sessionName: session.sessionName,
+									startTime: range.startTime,
+									endTime: range.endTime,
+									sessionColor: session.sessionColor,
+								});
+							});
+						}
+						// If overrideAvailability is false, skip this day
+					} else {
+						// Check regular availability slots
+						const dayAvailability = session.availabilitySlots?.find(
+							(slot) => slot.dayOfWeek === dayName,
+						);
+
+						if (dayAvailability) {
+							dayAvailability.timeRanges.forEach((range) => {
+								slots.push({
+									sessionName: session.sessionName,
+									startTime: range.startTime,
+									endTime: range.endTime,
+									sessionColor: session.sessionColor,
+								});
+							});
+						}
+					}
 				}
 			});
 
-			weekDays.push({
+			weekDays?.push({
 				day: currentDay.format('ddd'),
 				date: currentDay.format('M/D'),
-				slots,
+				slots: slots.sort((a, b) =>
+					moment(a.startTime, 'HH:mm').diff(moment(b.startTime, 'HH:mm')),
+				),
 			});
 		}
 
 		return weekDays;
-	}, [getWeekDuration]);
+	}, [getWeekDuration, schedulerList]);
 
 	const handlePreviousWeek = useCallback(() => {
 		const newDate = moment(info.currentDate).subtract(1, 'week');
 		const currentWeekStart = moment().startOf('isoWeek');
 
-		// Only allow navigation if the new date is not before the current week
 		if (!newDate.startOf('isoWeek').isBefore(currentWeekStart, 'day')) {
 			setInfo((prev) => ({
 				...prev,
@@ -163,7 +176,7 @@ const SchedulerAvailability = ({ isUpdateSessionSlot, handleUpdateSessionSlot })
 				</div>
 			</div>
 			<div className="weeklySlotsContainer">
-				{weeklySlots.map((dayData, index) => (
+				{weeklySlots?.map((dayData, index) => (
 					<WeeklySlot
 						key={index}
 						{...dayData}

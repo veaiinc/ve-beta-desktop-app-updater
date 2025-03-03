@@ -107,8 +107,9 @@ const SchedulerMainPage = () => {
 					</div>
 
 					<SchedulerAvailability
-						isUpdateSessionSlot={info?.updateSessionSlot}
+						updateSessionSlot={info?.updateSessionSlot}
 						handleUpdateSessionSlot={handleUpdateSessionSlot}
+						schedulerList={info?.schedulerList}
 					/>
 				</div>
 			</div>
