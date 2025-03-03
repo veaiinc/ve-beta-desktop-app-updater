@@ -76,6 +76,7 @@ const NoteComponentModal = ({ modalIsOpen, closeModal, handleRatingClick, chatLi
 														messageId={chat?.messageId}
 														showTypingEffect={chat?.typingEffect}
 														rating={chat?.rating}
+														messageData={chat}
 													/>
 												</div>
 											) : (

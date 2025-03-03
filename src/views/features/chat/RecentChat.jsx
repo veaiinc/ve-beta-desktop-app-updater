@@ -49,7 +49,7 @@ const RecentChat = ({
 		showFullPage: true,
 		voiceIntegration: false,
 		noteModalIsOpen: false,
-		citationsModalIsOpen: false,
+		citationsModalIsOpen: true,
 		page: 1,
 		currentPage: true,
 		latestStreamMesage: null,
@@ -182,15 +182,6 @@ const RecentChat = ({
 			});
 		}
 	}, [info?.lastVisibleMessageId]);
-
-	useEffect(() => {
-		if (citations?.length > 0) {
-			setInfo((prev) => ({
-				...prev,
-				citationsModalIsOpen: true,
-			}));
-		}
-	}, [citations]);
 
 	useEffect(() => {
 		if (recentChatStorage) {
@@ -484,13 +475,14 @@ const RecentChat = ({
 								</div>
 							</InfiniteScroll>
 						</div>
-
-						<ChatBox
-							handleSendWebsocketMessage={handleSendWebsocketMessage}
-							latestStreamMesage={info?.latestStreamMesage}
-							lastQuery={info?.lastQuery}
-							toggleLatestStreamMessage={toggleLatestStreamMessage}
-						/>
+						<div className="chatBoxWrapper">
+							<ChatBox
+								handleSendWebsocketMessage={handleSendWebsocketMessage}
+								latestStreamMesage={info?.latestStreamMesage}
+								lastQuery={info?.lastQuery}
+								toggleLatestStreamMessage={toggleLatestStreamMessage}
+							/>
+						</div>
 					</div>
 				</div>
 			</div>
