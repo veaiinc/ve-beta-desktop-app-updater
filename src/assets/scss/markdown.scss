@@ -10,6 +10,9 @@
 .ml-4 {
 	margin-left: 1rem; /* 16px */
 }
+.ml-8 {
+	margin-left: 2rem; /* 32px */
+}
 
 .py-1 {
 	padding-top: 0.25rem; /* 4px */
@@ -79,4 +82,61 @@
 
 .text-white {
 	color: #f2f2f3;
+}
+
+.markdown-table {
+	border-collapse: collapse;
+	border-spacing: 0;
+	width: 100%;
+	margin: 1rem 0;
+
+	th {
+		background-color: #1f2937;
+		color: #f3f4f6;
+		font-weight: 600;
+		text-align: left;
+	}
+
+	tr:nth-child(even) {
+		background-color: #1a1a1a;
+	}
+
+	tr:nth-child(odd) {
+		background-color: #262626;
+	}
+
+	tr:hover {
+		background-color: #374151;
+	}
+
+	th,
+	td {
+		padding: 0.75rem 1rem;
+		border: 1px solid #4b5563;
+	}
+}
+
+.table-container {
+	max-width: 100%;
+	overflow-x: auto;
+	margin: 1rem 0;
+	border-radius: 0.375rem;
+
+	&::-webkit-scrollbar {
+		height: 8px;
+	}
+
+	&::-webkit-scrollbar-track {
+		background: #1f2937;
+		border-radius: 4px;
+	}
+
+	&::-webkit-scrollbar-thumb {
+		background: #4b5563;
+		border-radius: 4px;
+
+		&:hover {
+			background: #6b7280;
+		}
+	}
 }

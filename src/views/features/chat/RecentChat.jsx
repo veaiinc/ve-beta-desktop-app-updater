@@ -26,7 +26,6 @@ const RecentChat = ({
 			globalChatMessages,
 			updateStateValues,
 			citations,
-			currentSessionId,
 			updateAiChatMessageRating,
 			getRecentChatMessages,
 			recentChatStorage,
@@ -50,16 +49,22 @@ const RecentChat = ({
 		showFullPage: true,
 		voiceIntegration: false,
 		noteModalIsOpen: false,
-		citationsModalIsOpen: false,
+		citationsModalIsOpen: true,
 		page: 1,
 		currentPage: true,
 		latestStreamMesage: null,
 		lastQuery: '',
+		lastVisibleMessageId: null,
+		lastVisibleUserMessageIndex: null,
+		renderingTwice: false,
 	});
 
 	const chatContentRef = useRef(null);
 	const chatMessagesRef = useRef(globalChatMessages || []);
 	const { sessionId } = useParams();
+
+	const aiMessagesRef = useRef([]);
+	const aiCitationsByIdRef = useRef({});
 
 	useEffect(() => {
 		return () => {
@@ -73,8 +78,22 @@ const RecentChat = ({
 
 	useEffect(() => {
 		if (sessionId) {
+			if (info?.renderingTwice) {
+				//clearing context state when rendering different session
+				updateStateValues({
+					moreRecentChatStorage: null,
+					recentChatStorage: null,
+					globalChatMessages: [],
+				});
+			}
+
 			getRecentChatMessages(sessionId);
-			setInfo((prev) => ({ ...prev, chatLoading: true, chatSessionId: sessionId }));
+			setInfo((prev) => ({
+				...prev,
+				chatLoading: true,
+				chatSessionId: sessionId,
+				renderingTwice: true,
+			}));
 			updateStateValues({ currentSessionId: sessionId });
 			createWebSocketConnection(sessionId, onMessageFunc);
 
@@ -86,17 +105,83 @@ const RecentChat = ({
 
 	useEffect(() => {
 		chatMessagesRef.current = [...(globalChatMessages || [])];
+
+		chatMessagesRef.current?.forEach((message) => {
+			if (message?.type?.toLowerCase() === 'ai') {
+				const messageId = message?.messageId;
+				if (message?.citations && !aiCitationsByIdRef.current[messageId]) {
+					aiCitationsByIdRef.current[messageId] = message?.citations;
+				}
+			}
+		});
 		smoothScrollToBottom();
+
+		const visibleMessagesSet = new Set();
+		const observer = new IntersectionObserver(
+			(entries) => {
+				entries.forEach((entry) => {
+					if (entry.isIntersecting) {
+						visibleMessagesSet.add(entry.target);
+					} else {
+						visibleMessagesSet.delete(entry.target);
+					}
+				});
+				const visibleMessages = Array.from(visibleMessagesSet).sort(
+					(a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top,
+				);
+				if (visibleMessages.length > 0) {
+					const lastVisibleMessage = visibleMessages[visibleMessages.length - 1];
+
+					let lastVisibleAIMessageIndex = -1;
+					for (let i = 0; i < chatMessagesRef.current.length; i++) {
+						if (
+							chatMessagesRef.current[i].messageId ===
+								lastVisibleMessage.dataset.messageId &&
+							chatMessagesRef.current[i]?.type?.toLowerCase() === 'ai'
+						) {
+							lastVisibleAIMessageIndex = i;
+							break;
+						}
+					}
+					let lastVisibleUserMessageIndex = null;
+
+					if (lastVisibleAIMessageIndex > 0) {
+						lastVisibleUserMessageIndex = lastVisibleAIMessageIndex - 1;
+
+						if (
+							chatMessagesRef.current[
+								lastVisibleUserMessageIndex
+							]?.type?.toLowerCase() !== 'user'
+						) {
+							lastVisibleUserMessageIndex = null;
+						}
+					}
+					setInfo((prev) => ({
+						...prev,
+						lastVisibleMessageId: lastVisibleMessage.dataset.messageId,
+						lastVisibleUserMessageIndex,
+					}));
+				}
+			},
+			{
+				root: chatContentRef.current,
+				threshold: 0.01,
+			},
+		);
+		aiMessagesRef.current.forEach((msg) => observer.observe(msg));
+		return () => {
+			aiMessagesRef.current.forEach((msg) => observer.unobserve(msg));
+			visibleMessagesSet.clear();
+		};
 	}, [globalChatMessages]);
 
 	useEffect(() => {
-		if (citations?.length > 0) {
-			setInfo((prev) => ({
-				...prev,
-				citationsModalIsOpen: true,
-			}));
+		if (info?.lastVisibleMessageId) {
+			updateStateValues({
+				citations: aiCitationsByIdRef.current[info?.lastVisibleMessageId],
+			});
 		}
-	}, [citations]);
+	}, [info?.lastVisibleMessageId]);
 
 	useEffect(() => {
 		if (recentChatStorage) {
@@ -115,13 +200,13 @@ const RecentChat = ({
 			const { data, hasNextPage, currentPage } = inComingData;
 			let messages = [];
 			for (let i = 0; i < data?.length; i++) {
-				const { originalQuery = '', response, messageId } = data?.[i] || {};
+				const { originalQuery = '', response, _id: messageId, citations } = data?.[i] || {};
+
 				messages = [
 					{
 						message: originalQuery,
 						type: 'user',
 						typingEffect: false,
-						messageId,
 					},
 					{
 						message: response,
@@ -129,6 +214,7 @@ const RecentChat = ({
 						messageId,
 						typingEffect: false,
 						rating: null,
+						citations,
 					},
 				]?.concat(messages);
 			}
@@ -218,16 +304,6 @@ const RecentChat = ({
 		},
 		[chatContentRef],
 	);
-	const handleStopTypingEffect = () => {
-		let messages = [...globalChatMessages];
-		messages = messages?.map((message) => {
-			if (message?.typingEffect) {
-				message.typingEffect = false;
-			}
-			return message;
-		});
-		updateStateValues({ globalChatMessages: messages });
-	};
 
 	const fetchMoreData = useCallback(
 		debounce(async () => {
@@ -321,12 +397,13 @@ const RecentChat = ({
 									display: 'flex',
 									flexDirection: 'column-reverse',
 									transition: 'all 0.3s ease',
+									// justifyContent: 'flex-end',
 								}}
-								height={'700px'}
+								height={'calc(100vh - 180px)'}
 								scrollThreshold={0.8}
 								className="smooth-scroll"
 							>
-								<div className="chatContent">
+								<div className="chatContent" style={{ flex: 1 }}>
 									{(globalChatMessages || [])?.map((chat, index) =>
 										chat?.content ? (
 											chat?.content
@@ -337,7 +414,29 @@ const RecentChat = ({
 											>
 												<div className="message-content">
 													{chat?.type?.toLowerCase() === 'ai' ? (
-														<div className="content">
+														<div
+															className="content"
+															style={{
+																opacity:
+																	chat?.messageId ===
+																	info?.lastVisibleMessageId
+																		? 1
+																		: 0.6,
+															}}
+															ref={(el) => {
+																if (
+																	el &&
+																	!aiMessagesRef.current.includes(
+																		el,
+																	)
+																) {
+																	aiMessagesRef?.current?.push(
+																		el,
+																	);
+																}
+															}}
+															data-message-id={chat?.messageId}
+														>
 															<TypingEffect
 																text={chat?.message}
 																messageId={chat?.messageId}
@@ -350,16 +449,24 @@ const RecentChat = ({
 																handleRatingClick={
 																	handleRatingClick
 																}
-																showTypingEffect={
-																	false
-																	// chat?.typingEffect
-																}
-																onComplete={handleStopTypingEffect}
 																rating={chat?.rating}
+																citations={chat?.citations}
+																messageData={chat}
 															/>
 														</div>
 													) : (
-														<Markdown>{chat?.message}</Markdown>
+														<div
+															style={{
+																transition: 'opacity 0.3s ease',
+																opacity:
+																	index ===
+																	info?.lastVisibleUserMessageIndex
+																		? 1
+																		: 0.6,
+															}}
+														>
+															<Markdown>{chat?.message}</Markdown>
+														</div>
 													)}
 												</div>
 											</div>
@@ -368,13 +475,14 @@ const RecentChat = ({
 								</div>
 							</InfiniteScroll>
 						</div>
-
-						<ChatBox
-							handleSendWebsocketMessage={handleSendWebsocketMessage}
-							latestStreamMesage={info?.latestStreamMesage}
-							lastQuery={info?.lastQuery}
-							toggleLatestStreamMessage={toggleLatestStreamMessage}
-						/>
+						<div className="chatBoxWrapper">
+							<ChatBox
+								handleSendWebsocketMessage={handleSendWebsocketMessage}
+								latestStreamMesage={info?.latestStreamMesage}
+								lastQuery={info?.lastQuery}
+								toggleLatestStreamMessage={toggleLatestStreamMessage}
+							/>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -386,7 +494,11 @@ const RecentChat = ({
 				modalIsOpen={info?.noteModalIsOpen}
 				closeModal={handleNoteComponentModalClose}
 				handleRatingClick={handleRatingClick}
-				chatList={chatMessagesRef.current || []}
+				chatList={globalChatMessages || []}
+				handleSendWebsocketMessage={handleSendWebsocketMessage}
+				latestStreamMesage={info?.latestStreamMesage}
+				lastQuery={info?.lastQuery}
+				toggleLatestStreamMessage={toggleLatestStreamMessage}
 			/>
 		</>
 	);
