@@ -180,12 +180,11 @@ const Notifications = () => {
 		if (response?.[0]) {
 			setInfo((prev) => {
 				const updatedSelectedOptions = {
-					...prev.selectedOptions,
+					...prev?.selectedOptions,
 					[module]: Object.fromEntries(
-						Object.entries(prev.selectedOptions[module] || {}).map(([action, apps]) => [
-							action,
-							{ ...apps, [appType]: isEnabled },
-						]),
+						Object.entries(prev?.selectedOptions?.[module] || {})?.map(
+							([action, apps]) => [action, { ...apps, [appType]: isEnabled }],
+						),
 					),
 				};
 				return {
