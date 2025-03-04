@@ -1,36 +1,78 @@
 import { Drawer } from 'antd';
-import React, { useEffect, useRef, useCallback } from 'react';
+import React, { useEffect, useRef, useCallback, useState } from 'react';
 import '../../../assets/scss/notes/noteComponentModal.scss';
 import NoteComponent from './NoteComponent';
 import { TypingEffect } from '../../../helpers/markdownHelper';
 import Markdown from 'react-markdown';
-import { ReactComponent as ChevronRightThinSvg } from '../../../assets/svg/tasks/chevronRightThin.svg';
+import { ReactComponent as BackSvg } from '../../../assets/svg/sidebar/leftarrowwhite.svg';
 import { ReactComponent as PreviousSvg } from '../../../assets/svg/notes/previous.svg';
 import { ReactComponent as NextSvg } from '../../../assets/svg/notes/next.svg';
 import { ReactComponent as CopySvg } from '../../../assets/svg/notes/copy.svg';
 import { ReactComponent as ShareSvg } from '../../../assets/svg/notes/share.svg';
+import { ReactComponent as RightDoubleArrowSvg } from '../../../assets/svg/notes/right-double-arrow.svg';
 import ChatBox from '../homePage/ChatBox';
 import { useContext } from 'react';
 import Context from '../../../context/context';
+import { ReactComponent as FullScreenSvg } from '../../../assets/svg/notes/fullScreen.svg';
+import { ReactComponent as LinkLightSvg } from '../../../assets/svg/notes/loop-light.svg';
+import { ReactComponent as LinkDarkSvg } from '../../../assets/svg/notes/loop-dark.svg';
 const noteIcons = [<PreviousSvg />, <NextSvg />, <CopySvg />, <ShareSvg />];
-const NoteComponentModal = ({ modalIsOpen, closeModal, handleRatingClick, chatList }) => {
-	const {
-		templates: { globalChatMessages },
-	} = useContext(Context);
+const NoteComponentModal = ({
+	modalIsOpen,
+	closeModal,
+	handleRatingClick,
+	chatList,
+	handleSendWebsocketMessage,
+	latestStreamMesage,
+	lastQuery,
+	toggleLatestStreamMessage,
+}) => {
 	const chatContentRef = useRef(null);
+
+	const [info, setInfo] = useState({
+		noteComponentFullScreen: false,
+		chatToNoteLoopOn: true,
+	});
 
 	useEffect(() => {
 		smoothScrollToBottom();
 	}, [chatList]); // Scroll when chat updates
 
-	const smoothScrollToBottom = useCallback(() => {
-		if (chatContentRef?.current) {
-			chatContentRef.current.scrollTo({
-				top: chatContentRef.current.scrollHeight,
-				behavior: 'smooth', // Enables smooth scrolling
-			});
-		}
-	}, [chatContentRef]);
+	const smoothScrollToBottom = useCallback(
+		(type) => {
+			const scrollElement = chatContentRef?.current;
+			if (!scrollElement) return;
+			const scrollToPosition = (position) => {
+				scrollElement.scrollTo({
+					top: position,
+					behavior: type === 'instant' ? 'auto' : 'smooth',
+				});
+			};
+			if (type === 'custom') {
+				const scrollHeight = scrollElement.scrollHeight;
+				const scrollOffset = 100;
+				scrollToPosition(scrollHeight - scrollOffset);
+			} else {
+				scrollToPosition(scrollElement.scrollHeight);
+			}
+		},
+		[chatContentRef],
+	);
+
+	const handleFullScreenClick = () => {
+		setInfo({
+			...info,
+			noteComponentFullScreen: !info?.noteComponentFullScreen,
+		});
+	};
+
+	const handleChatToNoteLoopClick = () => {
+		setInfo({
+			...info,
+			chatToNoteLoopOn: !info?.chatToNoteLoopOn,
+		});
+	};
+
 	return (
 		<Drawer
 			open={modalIsOpen}
@@ -43,6 +85,17 @@ const NoteComponentModal = ({ modalIsOpen, closeModal, handleRatingClick, chatLi
 		>
 			<div className="modal-container">
 				<div className="chatBarContainer">
+					{/* <div className="chat-to-note-link-container">
+						<div className="title">Link all chat to note</div>
+						<div
+							className={`link-icon-container ${
+								info?.chatToNoteLoopOn ? 'active' : ''
+							}`}
+							onClick={handleChatToNoteLoopClick}
+						>
+							{info?.chatToNoteLoopOn ? <LinkDarkSvg /> : <LinkLightSvg />}
+						</div>
+					</div> */}
 					{/* chat body */}
 					<div className={`chatBodyParentContainer`} ref={chatContentRef}>
 						<div className="chatContent">
@@ -64,6 +117,7 @@ const NoteComponentModal = ({ modalIsOpen, closeModal, handleRatingClick, chatLi
 														messageId={chat?.messageId}
 														showTypingEffect={chat?.typingEffect}
 														rating={chat?.rating}
+														messageData={chat}
 													/>
 												</div>
 											) : (
@@ -76,14 +130,37 @@ const NoteComponentModal = ({ modalIsOpen, closeModal, handleRatingClick, chatLi
 						</div>
 					</div>
 					<div className="chat-box-wrapper">
-						<ChatBox showChatLabels={false} />
+						<ChatBox
+							showChatLabels={false}
+							chatToNoteLoopOn={info?.chatToNoteLoopOn}
+							handleSendWebsocketMessage={handleSendWebsocketMessage}
+							latestStreamMesage={info?.latestStreamMesage}
+							lastQuery={info?.lastQuery}
+							toggleLatestStreamMessage={toggleLatestStreamMessage}
+						/>
 					</div>
 				</div>
-				<div className="note-component">
+				<div
+					className="note-component"
+					style={{
+						width: info?.noteComponentFullScreen ? '100%' : 'calc(100% - 400px)',
+					}}
+				>
 					<div className="header">
 						<div className="left">
-							<div className="chevron-icon" onClick={closeModal}>
-								<ChevronRightThinSvg />
+							<div
+								className="back-icon"
+								onClick={handleFullScreenClick}
+								style={{
+									transform: info?.noteComponentFullScreen
+										? 'rotate(180deg)'
+										: 'none',
+								}}
+							>
+								<BackSvg />
+							</div>
+							<div className="full-screen-icon" onClick={closeModal}>
+								<RightDoubleArrowSvg />
 							</div>
 							<div className="title">wedding timeline</div>
 						</div>

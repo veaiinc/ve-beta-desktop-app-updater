@@ -175,6 +175,7 @@ const actionHandlers = {
 				...messages[requiredIndex],
 				...payload,
 				message: (messages?.[requiredIndex]?.message || '') + payload?.answer,
+				messageId: payload?.message_id,
 			};
 		} else {
 			messages.push({

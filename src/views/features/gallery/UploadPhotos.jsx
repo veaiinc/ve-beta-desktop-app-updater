@@ -11,6 +11,7 @@ import Context from '../../../context/context';
 import { Link, useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import UploadCompletedPopup from '../../components/gallery/addGallery/UploadCompletedPopup';
+import useSubscription from '../../hooks/useSubscription';
 // import RefreshPopup from '../../components/gallery/addGallery/RefreshPopup';
 
 const UploadPhotos = () => {
@@ -29,7 +30,7 @@ const UploadPhotos = () => {
 			getAlbums,
 			getImageDuplicatesList,
 		},
-		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
+		subscriptionInfo: { validateExpiryData, updateSubscriptionState, updateStateValues },
 	} = useContext(Context);
 
 	const [info, setinfo] = useState({
@@ -58,14 +59,51 @@ const UploadPhotos = () => {
 		isPopupOpen: false,
 		title: '',
 		isRefreshPopupOpen: false,
+		isAiEnabled: false,
+		isUploadComplete: false,
 	});
 	const recentImageInitiatedRef = useRef(info.recentImageInitiated);
+	const params = new URLSearchParams(window.location.search);
+	const lightGallery = params.get('light-gallery');
+
+	const aiFacesLogic =
+		info?.isAiEnabled &&
+		(validateExpiryData?.liteImageLimitWithAiFace === 0 ||
+			validateExpiryData?.liteImageLimitWithAiFace <= validateExpiryData?.liteImageUsed);
+
+	useEffect(() => {
+		if (
+			lightGallery === 'true' &&
+			info?.isAiEnabled &&
+			validateExpiryData?.liteImageLimitWithAiFace === 0
+		) {
+			// If AI is enabled but user has no AI face limit, disable AI and show subscription popup
+			setinfo((prev) => ({
+				...prev,
+				isAiEnabled: false,
+			}));
+			updateSubscriptionState({ expiredSubscriptionModal: true });
+			return;
+		}
+		const updatedUploadImages = info?.uploadImages || {};
+		if (Object.keys(updatedUploadImages)?.length > 0) {
+			Object.keys(updatedUploadImages)?.forEach((key) => {
+				updatedUploadImages[key].isAIFacesEnabled =
+					lightGallery === 'true'
+						? info?.isAiEnabled && validateExpiryData?.liteImageLimitWithAiFace > 0
+						: true;
+			});
+			setinfo((prev) => {
+				return { ...prev, uploadImages: updatedUploadImages };
+			});
+		}
+	}, [aiFacesLogic, info?.isAiEnabled]);
 
 	useEffect(() => {
 		if (!waterMarks) {
 			getWaterMarks();
 		} else if (waterMarks && waterMarks?.length > 0) {
-			setinfo((prev) => ({ ...prev, watermarkProfileId: waterMarks[0].profileId }));
+			setinfo((prev) => ({ ...prev, watermarkProfileId: waterMarks?.[0]?.profileId }));
 		}
 	}, [waterMarks]);
 
@@ -74,7 +112,7 @@ const UploadPhotos = () => {
 			setinfo((prev) => ({
 				...prev,
 				title:
-					tenantAlbums?.albums?.find((album) => album._id === albumId)?.title || 'Back',
+					tenantAlbums?.albums?.find((album) => album?._id === albumId)?.title || 'Back',
 			}));
 		} else {
 			getAlbums(galleryId).then((response) => {
@@ -95,14 +133,13 @@ const UploadPhotos = () => {
 
 	// drop function
 	const onDropFunction = async (files) => {
-		const params = new URLSearchParams(window.location.search);
-		const lightGallery = params.get('light-gallery');
-
 		if (
 			lightGallery === 'true' &&
 			validateExpiryData &&
 			validateExpiryData?.restrictGalleries &&
-			(validateExpiryData?.isExpired || !validateExpiryData?.imagesAllowed)
+			(validateExpiryData?.liteImageLimit < validateExpiryData?.liteImageUsed ||
+				aiFacesLogic) &&
+			!validateExpiryData?.imagesAllowed
 		) {
 			return updateSubscriptionState({ expiredSubscriptionModal: true });
 		}
@@ -111,7 +148,7 @@ const UploadPhotos = () => {
 			lightGallery === 'false' &&
 			validateExpiryData &&
 			validateExpiryData?.restrictGalleries &&
-			(validateExpiryData?.isExpired || !validateExpiryData?.uploadAllowed)
+			!validateExpiryData?.uploadAllowed
 		) {
 			return updateSubscriptionState({ expiredSubscriptionModal: true });
 		}
@@ -123,8 +160,16 @@ const UploadPhotos = () => {
 		}
 		let totalSize = 0;
 
-		files?.map((file) => {
+		let uploadImagesLength = Object.keys(updateInfo?.uploadImages).length;
+
+		const imagesLimit = validateExpiryData?.liteImageLimit - validateExpiryData?.liteImageUsed;
+
+		files?.some((file) => {
 			let uploadedImages = { ...updateInfo?.uploadImages };
+
+			if (uploadImagesLength > imagesLimit && lightGallery === 'true') {
+				return updateSubscriptionState({ expiredSubscriptionModal: true });
+			}
 
 			let findDuplicateImage = imageDuplicatesList?.list?.find(
 				(image) => image?.displayName === file?.name,
@@ -187,7 +232,10 @@ const UploadPhotos = () => {
 			originalDateTime: moment(image?.['originalDate']).unix() || 0,
 			uploadBatchId: info?.uploadBatchID,
 			tag_ids: tags,
-			isAIFacesEnabled: true,
+			isAIFacesEnabled:
+				lightGallery === 'true'
+					? info?.isAiEnabled && validateExpiryData?.liteImageLimitWithAiFace > 0
+					: true,
 		};
 
 		// for duplicates
@@ -314,6 +362,7 @@ const UploadPhotos = () => {
 
 			if (response[1].processedCount === response[1].uploadedCount && shouldClearInterval) {
 				clearInterval(interval);
+				updateStateValues({ reFetchSubscription: true });
 				setinfo((prev) => ({ ...prev, isPopupOpen: true }));
 			}
 		}, 3000);
@@ -322,7 +371,7 @@ const UploadPhotos = () => {
 			if (queue.length === 0) return;
 
 			const currentFile = queue.shift();
-			const json = getJsonFunction(currentFile);
+			const json = getJsonFunction(currentFile, aiFacesLogic);
 
 			if (info.isSkipDuplicates && info.uploadImages[currentFile]?.isDuplicate) {
 				setinfo((prev) => {
@@ -407,6 +456,8 @@ const UploadPhotos = () => {
 					setinfo={setinfo}
 					uploadFilesConcurrently={uploadFilesConcurrently}
 					galleryId={galleryId}
+					aiFacesLogic={aiFacesLogic}
+					lightGallery={lightGallery}
 				/>
 			</div>
 
