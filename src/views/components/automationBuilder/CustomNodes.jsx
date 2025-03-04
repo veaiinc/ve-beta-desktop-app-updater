@@ -44,6 +44,12 @@ const eventTypeMapper = {
 
 	// actions
 	sendMessage: 'Send Message',
+	sendReply: 'Send Reply',
+	getLabelInfo: 'Get Label Info',
+	createLabel: 'Create Label',
+	createDraft: 'Create Draft',
+	deleteDraft: 'Delete Draft',
+	getDraft: 'Get Draft',
 	createTask: 'Create Task',
 	createFile: 'Create Document',
 };

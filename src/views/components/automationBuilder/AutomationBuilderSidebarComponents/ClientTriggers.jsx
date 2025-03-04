@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { memo, useCallback, useMemo, useState } from 'react';
 import HeaderComponent from './HeaderComponent';
 import ActionDetailsBlock from './ActionDetailsBlock';
 import '../../../../assets/scss/automation_builder/automationBuilderSidebarComponents/clientTriggers.scss';
@@ -81,9 +81,9 @@ const ClientTriggers = ({ onClose, onSave, addTriggerLoading, triggerData }) => 
 	);
 };
 
-export default ClientTriggers;
+export default memo(ClientTriggers);
 
-const CreateClientTrigger = ({ onSave, info, addTriggerLoading }) => {
+const CreateClientTrigger = memo(({ onSave, info, addTriggerLoading }) => {
 	return (
 		<>
 			<div className="clientTriggerInputContainer"> </div>
@@ -101,9 +101,9 @@ const CreateClientTrigger = ({ onSave, info, addTriggerLoading }) => {
 			</button>
 		</>
 	);
-};
+});
 
-const UpdateClientTrigger = ({ onSave, info, addTriggerLoading }) => {
+const UpdateClientTrigger = memo(({ onSave, info, addTriggerLoading }) => {
 	const [updateInfo, setUpdateInfo] = useState({
 		selectedFields: [],
 		isOpen: false,
@@ -222,9 +222,9 @@ const UpdateClientTrigger = ({ onSave, info, addTriggerLoading }) => {
 			</button>
 		</>
 	);
-};
+});
 
-const DeleteClientTrigger = ({ onSave, info, addTriggerLoading }) => {
+const DeleteClientTrigger = memo(({ onSave, info, addTriggerLoading }) => {
 	return (
 		<>
 			<div className="clientTriggerInputContainer"> </div>
@@ -242,4 +242,4 @@ const DeleteClientTrigger = ({ onSave, info, addTriggerLoading }) => {
 			</button>
 		</>
 	);
-};
+});

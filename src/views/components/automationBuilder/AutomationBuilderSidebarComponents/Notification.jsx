@@ -24,12 +24,13 @@ import {
 } from '../../../features/automation_builder/automationContentsHelper';
 import validator from 'validator';
 import VariableComponent from './VariableComponent';
+import HeaderComponent from './HeaderComponent';
 
 const notificationList = {
 	Google: {
 		title: 'Google',
 		// notification: ['Send Email', 'Send Reply'],
-		notification: ['Send Email'],
+		notification: ['Send Email', 'Send Reply'],
 		icon: <Google />,
 		id: 'email',
 	},
@@ -686,11 +687,7 @@ const Notification = ({
 
 	return (
 		<div className="actionSidebarComponents">
-			<div className="actionSidebarComponentsHeader">
-				<span onClick={modifiedClose} style={{ cursor: 'pointer' }}>
-					<DoubleArrow />
-				</span>
-			</div>
+			<HeaderComponent heading={'Send Email'} onBack={modifiedClose} />
 			{stageMapper?.[info?.activeStage]}
 		</div>
 	);
