@@ -105,6 +105,7 @@ const CreateSessionModal = ({ open, closeModal }) => {
 				startDate: info?.scheduleFrom,
 				endDate: info?.scheduleTo,
 			},
+			sessionTimezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
 		};
 		createSchedulerSession(sessionPayload);
 	}, [info]);
