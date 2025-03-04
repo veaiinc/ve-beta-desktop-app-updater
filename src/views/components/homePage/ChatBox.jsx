@@ -988,7 +988,9 @@ const ChatBox = ({
 																className="icon-container"
 																style={{
 																	opacity: `${
-																		chatInfo?.deepResearch
+																		chatInfo?.deepResearch ||
+																		chatInfo?.webSearch ||
+																		chatInfo?.workspaceSearch
 																			? '0.5'
 																			: '1'
 																	}`,
