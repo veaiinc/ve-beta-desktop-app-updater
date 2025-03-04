@@ -1,11 +1,12 @@
-import React, { useContext, useEffect, useMemo, useState } from 'react';
+import React, { memo, useContext, useEffect, useMemo, useState } from 'react';
 import { Tooltip } from 'antd';
 import { ReactComponent as SearchSvg } from '../../../assets/svg/workflow/search.svg';
 import { ReactComponent as TickSvg } from '../../../assets/svg/home_page/Tick.svg';
 import Context from '../../../context/context';
+
 const LLMTooltip = ({ children, isOpen, setIsLLMModelOpen, handleOptionClick, selectedModel }) => {
 	const {
-		templates: { getLLMModels, llmModels },
+		templates: { getLLMModels, llmModels, updateStateValues, chatInfo },
 	} = useContext(Context);
 	const [searchQuery, setSearchQuery] = useState('');
 	const [models, setModels] = useState([]);
@@ -15,6 +16,12 @@ const LLMTooltip = ({ children, isOpen, setIsLLMModelOpen, handleOptionClick, se
 			getLLMModels();
 		} else {
 			setModels(llmModels?.models);
+			updateStateValues({
+				chatInfo: {
+					...chatInfo,
+					selectedLLMModel: llmModels?.default_model_code,
+				},
+			});
 		}
 	}, [llmModels]);
 
@@ -64,4 +71,4 @@ const LLMTooltip = ({ children, isOpen, setIsLLMModelOpen, handleOptionClick, se
 	);
 };
 
-export default LLMTooltip;
+export default memo(LLMTooltip);

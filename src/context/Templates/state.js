@@ -1970,7 +1970,7 @@ export const TemplatesState = (props) => {
 
 			if (response?.[0]) {
 				dispatch({
-					type: Actions.GET_LLM_MODELS_SUCCESS,
+					type: Actions?.GET_LLM_MODELS_SUCCESS,
 					payload: response?.[1],
 				});
 			} else {

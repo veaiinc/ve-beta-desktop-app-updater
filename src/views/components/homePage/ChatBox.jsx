@@ -108,7 +108,6 @@ const ChatBox = ({
 			handleStreamSendMessage,
 			activePayloadForChat,
 			followUpQuery,
-			llmModels,
 			chatInfo,
 		},
 		calendarInfo: { updateCalendarState },
@@ -167,17 +166,6 @@ const ChatBox = ({
 	}, [activePromptForChat]);
 
 	useEffect(() => {
-		if (llmModels) {
-			updateStateValues({
-				chatInfo: {
-					...chatInfo,
-					selectedLLMModel: llmModels?.default_model_code,
-				},
-			});
-		}
-	}, [llmModels]);
-
-	useEffect(() => {
 		if (activePayloadForChat) {
 			setInfo((prev) => ({ ...prev, chatLoading: true }));
 			const { payload, localPayload, currentQuery } = activePayloadForChat;
@@ -197,12 +185,6 @@ const ChatBox = ({
 			updateStateValues({ currentSessionId: ObjectID().toString() });
 		}
 	}, [currentSessionId]);
-
-	useEffect(() => {
-		if (chatInfo) {
-			setInfo((prev) => ({ ...prev, ...chatInfo }));
-		}
-	}, [chatInfo]);
 
 	useEffect(() => {
 		if (followUpQuery) {
@@ -254,7 +236,7 @@ const ChatBox = ({
 	};
 
 	const handleWebSearchClick = () => {
-		if (info?.deepResearch) return;
+		if (chatInfo?.deepResearch) return;
 		updateStateValues({
 			chatInfo: {
 				...chatInfo,
@@ -269,7 +251,7 @@ const ChatBox = ({
 				chatInfo: {
 					...chatInfo,
 					...resetChatInfo,
-					deepResearch: !chatInfo?.deepResearch,
+					deepResearch: true,
 				},
 			});
 			setInfo((prev) => ({
@@ -284,7 +266,7 @@ const ChatBox = ({
 			updateStateValues({
 				chatInfo: {
 					...chatInfo,
-					deepResearch: !chatInfo?.deepResearch,
+					deepResearch: false,
 				},
 			});
 		}
@@ -691,10 +673,6 @@ const ChatBox = ({
 		}
 	};
 
-	// const isSearchTypeEnabled = useMemo(() => {
-	// 	return Object?.keys(info?.searchType)?.some((type) => info?.searchType[type]);
-	// }, [info?.searchType]);
-
 	const handleTextAreaChange = (e) => {
 		const textArea = textAreaRef?.current;
 		if (textArea) {
@@ -866,6 +844,11 @@ const ChatBox = ({
 																		? '#B39DFA'
 																		: '#2E2F33'
 																}`,
+																opacity: `${
+																	chatInfo?.deepResearch
+																		? '0.5'
+																		: '1'
+																}`,
 															}}
 														>
 															<div className="icon">
@@ -886,6 +869,11 @@ const ChatBox = ({
 																	chatInfo?.workspaceSearch
 																		? '#B39DFA'
 																		: '#2E2F33'
+																}`,
+																opacity: `${
+																	chatInfo?.deepResearch
+																		? '0.5'
+																		: '1'
 																}`,
 															}}
 														>
@@ -918,20 +906,6 @@ const ChatBox = ({
 																	<MicroscopeLightSvg />
 																)}
 															</div>
-															{showChatLabels && (
-																<div
-																	className="right-text"
-																	style={{
-																		color: `${
-																			chatInfo?.deepResearch
-																				? '#0C0C0D'
-																				: '#f2f2f3'
-																		}`,
-																	}}
-																>
-																	Deep Research
-																</div>
-															)}
 														</div>
 													</Tooltip>
 
@@ -952,7 +926,16 @@ const ChatBox = ({
 														recentFiles={info?.recentFiles}
 													>
 														<Tooltip title="Upload File">
-															<div className="icon-container">
+															<div
+																className="icon-container"
+																style={{
+																	opacity: `${
+																		chatInfo?.deepResearch
+																			? '0.5'
+																			: '1'
+																	}`,
+																}}
+															>
 																<div className="icon">
 																	<PaperClip
 																		width={15}
@@ -960,11 +943,6 @@ const ChatBox = ({
 																		fill={'#f2f2f3'}
 																	/>
 																</div>
-																{showChatLabels && (
-																	<div className="right-text">
-																		Add
-																	</div>
-																)}
 															</div>
 														</Tooltip>
 													</UploadFileTooltip>
@@ -973,15 +951,17 @@ const ChatBox = ({
 														<div
 															className="icon-container"
 															onClick={handleShowFiltersClick}
+															style={{
+																opacity: `${
+																	chatInfo?.deepResearch
+																		? '0.5'
+																		: '1'
+																}`,
+															}}
 														>
 															<div className="icon">
 																<Filter />
 															</div>
-															{showChatLabels && (
-																<div className="right-text">
-																	Filters
-																</div>
-															)}
 														</div>
 													</Tooltip>
 													<LLMTooltip
@@ -1004,15 +984,19 @@ const ChatBox = ({
 														isOpen={info?.isLLMModelOpen}
 													>
 														<Tooltip title="Select LLM Model">
-															<div className="icon-container">
+															<div
+																className="icon-container"
+																style={{
+																	opacity: `${
+																		chatInfo?.deepResearch
+																			? '0.5'
+																			: '1'
+																	}`,
+																}}
+															>
 																<div className="icon">
 																	<LLMSvg />
 																</div>
-																{showChatLabels && (
-																	<div className="right-text">
-																		LLM
-																	</div>
-																)}
 															</div>
 														</Tooltip>
 													</LLMTooltip>
