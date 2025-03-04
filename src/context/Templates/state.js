@@ -80,7 +80,6 @@ export const intialState = {
 	createLeadModalContextState: false,
 	globalChatMessages: [], // { type: 'AI', message: 'Hello, how can I help you today?' }
 	currentSessionId: null,
-	deepResearch: false,
 	citations: null,
 	followUpQuery: null,
 	docsFilesList: null,
@@ -97,6 +96,13 @@ export const intialState = {
 	recentChatStorage: null,
 	moreRecentChatStorage: null,
 	activePayloadForChat: null,
+	llmModels: null,
+	chatInfo: {
+		deepResearch: false,
+		selectedLLMModel: null,
+		webSearch: false,
+		workspaceSearch: true,
+	},
 };
 
 export const TemplatesState = (props) => {
@@ -1954,6 +1960,27 @@ export const TemplatesState = (props) => {
 			console.log('errror ==>getRecentChatMessages', error);
 		}
 	};
+
+	const getLLMModels = async () => {
+		try {
+			const usertoken = localStorage.getItem('usertoken');
+			const path = '/available_models';
+			const type = 'ai_predictions';
+			const response = await Service?.fetchGet(path, usertoken, type);
+
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.GET_LLM_MODELS_SUCCESS,
+					payload: response?.[1],
+				});
+			} else {
+				console.log('errror ==>getLLMModels', response);
+				return [false];
+			}
+		} catch (error) {
+			console.log('errror ==>getLLMModels', error);
+		}
+	};
 	return {
 		...state,
 		getMyWorkflows,
@@ -2027,5 +2054,6 @@ export const TemplatesState = (props) => {
 		handleStreamSendMessage,
 		handleStreamIncomingMessage,
 		handleStreamMessageChunk,
+		getLLMModels,
 	};
 };
