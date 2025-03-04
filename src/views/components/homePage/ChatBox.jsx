@@ -1,19 +1,15 @@
 import React, { memo, useCallback, useState, useRef, useEffect, useContext, useMemo } from 'react';
 import '../../../assets/scss/home_page/chatbox.scss';
-import { ReactComponent as Plus } from '../../../assets/svg/ai_agents/Plus.svg';
-import { ReactComponent as Home } from '../../../assets/svg/ai_agents/home.svg';
-import { ReactComponent as Settings } from '../../../assets/svg/ai_agents/settings.svg';
 import { ReactComponent as Close } from '../../../assets/svg/close.svg';
-import { ReactComponent as Expand } from '../../../assets/svg/bottomToolbar/expand.svg';
 import { ReactComponent as ArrowUp } from '../../../assets/svg/ai_agents/arrow-up-dark.svg';
-import { ReactComponent as ExpandChatIcon } from '../../../assets/svg/ai_agents/expand-chat-icon.svg';
 import { ReactComponent as ChevronSvg } from '../../../assets/svg/tasks/chevronRightThin.svg';
 import { ReactComponent as MicroscopeLightSvg } from '../../../assets/svg/ai_agents/microscope-light.svg';
 import { ReactComponent as MicroscopeDarkSvg } from '../../../assets/svg/ai_agents/microscope-dark.svg';
 import { ReactComponent as WebLightSvg } from '../../../assets/svg/ai_agents/web-light.svg';
 import { ReactComponent as WebDarkSvg } from '../../../assets/svg/ai_agents/web-dark.svg';
 import { ReactComponent as CloseSvg } from '../../../assets/svg/calendar/close.svg';
-import { ReactComponent as BuildingSvg } from '../../../assets/svg/ai_agents/building.svg';
+import { ReactComponent as BuildingDarkSvg } from '../../../assets/svg/ai_agents/building-dark.svg';
+import { ReactComponent as BuildingLightSvg } from '../../../assets/svg/ai_agents/building-light.svg';
 import { ReactComponent as TextSvg } from '../../../assets/svg/ai_agents/text.svg';
 import { ReactComponent as DocxSvg } from '../../../assets/svg/ai_agents/docx.svg';
 import { ReactComponent as JsonSvg } from '../../../assets/svg/ai_agents/json.svg';
@@ -22,27 +18,24 @@ import { ReactComponent as JpgSvg } from '../../../assets/svg/ai_agents/jpg.svg'
 import { ReactComponent as PngSvg } from '../../../assets/svg/ai_agents/png.svg';
 import { ReactComponent as MdSvg } from '../../../assets/svg/ai_agents/md.svg';
 import { ReactComponent as AudioSvg } from '../../../assets/svg/ai_agents/audio.svg';
-import { Alert, Image, message, Spin, Tooltip } from 'antd';
-import { Upload } from 'antd';
+import { ReactComponent as LLMSvg } from '../../../assets/svg/ai_agents/llm.svg';
 import Context from '../../../context/context';
 import ObjectID from 'bson-objectid';
 import { useLocation, useNavigate } from 'react-router-dom';
-import Markdown from 'react-markdown';
-import { TypingEffect } from '../../../helpers/markdownHelper';
 import { ReactComponent as Filter } from '../../../assets/svg/my_templates/filter.svg';
-import { ReactComponent as Arroba } from '../../../assets/svg/ai_agents/arroba.svg';
 import { ReactComponent as PaperClip } from '../../../assets/svg/ai_agents/paper-clip.svg';
-import { ReactComponent as Mic } from '../../../assets/svg/ai_agents/mic.svg';
 import { getBase64 } from '../../../helpers';
 import WorkflowSlugSelector from '../../components/calendar/WorkflowSlugSelector';
 import useVoiceIntegration from '../../hooks/useVoiceIntegration';
 import SearchDropdown from '../chat/SearchDropdown';
 import UploadFileTooltip from '../chat/UploadFileTooltip';
 import DateRangeDropdown from '../chat/DateRangeDropdown';
-import SearchTypeTooltip from '../chat/SearchTypeTooltip';
 import moment from 'moment';
 import Voice from '../chat/Voice';
 import Skeleton from 'react-loading-skeleton';
+import { message, Image, Spin, Tooltip } from 'antd';
+import LLMTooltip from '../chat/LLMTooltip';
+
 const moduleHelper = {
 	tasks: 'tasks',
 	'smart-file': 'form_filling',
@@ -70,19 +63,10 @@ const modulesOptions = {
 	clients: 'Clients',
 };
 
-const searchTypeOptions = {
-	webSearch: {
-		label: 'World Knowledge',
-		value: 'webSearch',
-		icon: <WebLightSvg />,
-	},
-	workspaceSearch: {
-		label: 'Workspace Search',
-		value: 'workspaceSearch',
-		icon: <BuildingSvg />,
-	},
+const resetChatInfo = {
+	webSearch: false,
+	workspaceSearch: false,
 };
-
 const fileTypeIcons = {
 	docx: <DocxSvg />,
 	txt: <TextSvg />,
@@ -121,10 +105,10 @@ const ChatBox = ({
 			updateApplicationChat,
 			activePromptForChat,
 			currentSessionId,
-			deepResearch,
 			handleStreamSendMessage,
 			activePayloadForChat,
 			followUpQuery,
+			chatInfo,
 		},
 		calendarInfo: { updateCalendarState },
 		tasks: { updateTaskState },
@@ -159,21 +143,15 @@ const ChatBox = ({
 		noteModalIsOpen: false,
 		citationsModalIsOpen: false,
 		filtersEnabled: false,
-		webSearch: false,
-		goDeep: false,
 		isUploadFileOpen: false,
 		showFilters: false,
 		chatFilters: initialChatFilters,
 		isIntegrationsDropdownOpen: false,
 		isModulesDropdownOpen: false,
-		searchType: {
-			webSearch: false,
-			workspaceSearch: true,
-		},
 		recentFiles: [],
-		isSearchTypeOpen: false,
 		isVoiceMuted: false,
 		followUpQuery: null,
+		isLLMModelOpen: false,
 	});
 
 	const [previewOpen, setPreviewOpen] = useState(false);
@@ -209,12 +187,6 @@ const ChatBox = ({
 	}, [currentSessionId]);
 
 	useEffect(() => {
-		setInfo((prev) => ({
-			...prev,
-			goDeep: deepResearch,
-		}));
-	}, [deepResearch]);
-	useEffect(() => {
 		if (followUpQuery) {
 			setInfo((prev) => ({
 				...prev,
@@ -240,7 +212,12 @@ const ChatBox = ({
 				handleVariablesRequired(variables_required, lastQuery);
 			}
 			if (deepResearch) {
-				updateStateValues({ deepResearch: false });
+				updateStateValues({
+					chatInfo: {
+						...chatInfo,
+						deepResearch: false,
+					},
+				});
 			}
 
 			if (toggleLatestStreamMessage) {
@@ -259,17 +236,44 @@ const ChatBox = ({
 	};
 
 	const handleWebSearchClick = () => {
-		setInfo((prev) => ({
-			...prev,
-			webSearch: !prev?.webSearch,
-		}));
+		if (chatInfo?.deepResearch) return;
+		updateStateValues({
+			chatInfo: {
+				...chatInfo,
+				webSearch: !chatInfo?.webSearch,
+			},
+		});
 	};
 
-	const handleGoDeepSearchClick = () => {
-		updateStateValues({ deepResearch: !info?.goDeep });
+	const handleDeepResearchClick = () => {
+		if (!chatInfo?.deepResearch) {
+			updateStateValues({
+				chatInfo: {
+					...chatInfo,
+					...resetChatInfo,
+					deepResearch: true,
+				},
+			});
+			setInfo((prev) => ({
+				...prev,
+				isLLMModelOpen: false,
+				isUploadFileOpen: false,
+				showFilters: false,
+				chatFilters: initialChatFilters,
+				recentFiles: [],
+			}));
+		} else {
+			updateStateValues({
+				chatInfo: {
+					...chatInfo,
+					deepResearch: false,
+				},
+			});
+		}
 	};
 
 	const handleShowFiltersClick = () => {
+		if (chatInfo?.deepResearch) return;
 		setInfo((prev) => ({
 			...prev,
 			showFilters: true,
@@ -397,11 +401,11 @@ const ChatBox = ({
 					const payload = {
 						query,
 						timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-						knowledge_base_search: info?.searchType?.workspaceSearch,
-						web_search: info?.searchType?.webSearch,
+						knowledge_base_search: chatInfo?.workspaceSearch,
+						web_search: chatInfo?.webSearch,
 						modules: Object?.keys(info?.chatFilters?.modules),
 						date: date,
-						deep_research: info?.goDeep,
+						deep_research: chatInfo?.deepResearch,
 					};
 
 					if (moduleHelper?.[location?.pathname?.split('/')?.[1]]) {
@@ -422,6 +426,10 @@ const ChatBox = ({
 						payload.workflow_slug = activeWorkflowSlugForSmartFile;
 					}
 
+					if (!chatInfo?.webSearch && !chatInfo?.workspaceSearch) {
+						payload.selected_model = chatInfo?.selectedLLMModel;
+					}
+
 					setInfo((prev) => ({
 						...prev,
 						uploadedImages: [],
@@ -429,6 +437,8 @@ const ChatBox = ({
 						recentFiles: [],
 						chatFilters: initialChatFilters,
 					}));
+
+					clearTextArea();
 
 					if (customChatActions) {
 						return onSend({ payload, localPayload, currentQuery });
@@ -458,6 +468,7 @@ const ChatBox = ({
 			customChatActions,
 			chatToNoteLoopOn,
 			info,
+			chatInfo,
 			activeWorkflowSlugForSmartFile,
 		],
 	);
@@ -662,10 +673,6 @@ const ChatBox = ({
 		}
 	};
 
-	const isSearchTypeEnabled = useMemo(() => {
-		return Object?.keys(info?.searchType)?.some((type) => info?.searchType[type]);
-	}, [info?.searchType]);
-
 	const handleTextAreaChange = (e) => {
 		const textArea = textAreaRef?.current;
 		if (textArea) {
@@ -678,6 +685,13 @@ const ChatBox = ({
 		}));
 	};
 
+	const clearTextArea = () => {
+		const textArea = textAreaRef?.current;
+		if (textArea) {
+			textArea.style.height = '34px'; // Reset to initial min-height
+		}
+	};
+
 	const handleFollowUpQueryClick = () => {
 		if (info?.chatLoading) {
 			return;
@@ -687,6 +701,29 @@ const ChatBox = ({
 			followUpQuery: null,
 		}));
 		updateStateValues({ activePromptForChat: info?.followUpQuery });
+	};
+
+	const handleLLMModelOptionClick = (model) => {
+		updateStateValues({
+			chatInfo: {
+				...chatInfo,
+				selectedLLMModel: model?.model_code,
+			},
+		});
+		setInfo((prev) => ({
+			...prev,
+			isLLMModelOpen: false,
+		}));
+	};
+
+	const handleWorkspaceSearchClick = () => {
+		if (chatInfo?.deepResearch) return;
+		updateStateValues({
+			chatInfo: {
+				...chatInfo,
+				workspaceSearch: !chatInfo?.workspaceSearch,
+			},
+		});
 	};
 
 	return (
@@ -797,126 +834,174 @@ const ChatBox = ({
 										) : (
 											<div className="buttons-container">
 												<div className="chat-icons-container">
-													<SearchTypeTooltip
-														searchTypeOptions={searchTypeOptions}
-														onOpenChange={(value) =>
-															setInfo((prev) => ({
-																...prev,
-																isSearchTypeOpen: value,
-															}))
-														}
-														searchType={info?.searchType}
-														isOpen={info?.isSearchTypeOpen}
-														onSearchTypeChange={handleSearchTypeChange}
-													>
+													<Tooltip title="Enable Web Search">
 														<div
 															className="icon-container"
 															onClick={handleWebSearchClick}
 															style={{
 																background: `${
-																	isSearchTypeEnabled
+																	chatInfo?.webSearch
+																		? '#B39DFA'
+																		: '#2E2F33'
+																}`,
+																opacity: `${
+																	chatInfo?.deepResearch
+																		? '0.5'
+																		: '1'
+																}`,
+															}}
+														>
+															<div className="icon">
+																{chatInfo?.webSearch ? (
+																	<WebDarkSvg />
+																) : (
+																	<WebLightSvg />
+																)}
+															</div>
+														</div>
+													</Tooltip>
+													<Tooltip title="Enable Workspace Search">
+														<div
+															className="icon-container"
+															onClick={handleWorkspaceSearchClick}
+															style={{
+																background: `${
+																	chatInfo?.workspaceSearch
+																		? '#B39DFA'
+																		: '#2E2F33'
+																}`,
+																opacity: `${
+																	chatInfo?.deepResearch
+																		? '0.5'
+																		: '1'
+																}`,
+															}}
+														>
+															<div className="icon">
+																{chatInfo?.workspaceSearch ? (
+																	<BuildingDarkSvg />
+																) : (
+																	<BuildingLightSvg />
+																)}
+															</div>
+														</div>
+													</Tooltip>
+
+													<Tooltip title="Enable Deep Research">
+														<div
+															className="icon-container"
+															onClick={handleDeepResearchClick}
+															style={{
+																background: `${
+																	chatInfo?.deepResearch
 																		? '#B39DFA'
 																		: '#2E2F33'
 																}`,
 															}}
 														>
 															<div className="icon">
-																{isSearchTypeEnabled ? (
-																	<WebDarkSvg />
+																{chatInfo?.deepResearch ? (
+																	<MicroscopeDarkSvg />
 																) : (
-																	<WebLightSvg />
+																	<MicroscopeLightSvg />
 																)}
 															</div>
-															{showChatLabels && (
-																<div
-																	className="right-text"
-																	style={{
-																		color: `${
-																			isSearchTypeEnabled
-																				? '#0C0C0D'
-																				: '#f2f2f3'
-																		}`,
-																	}}
-																>
-																	Search
-																</div>
-															)}
 														</div>
-													</SearchTypeTooltip>
+													</Tooltip>
 
-													<div
-														className="icon-container"
-														onClick={handleGoDeepSearchClick}
-														style={{
-															background: `${
-																info?.goDeep
-																	? 'var(--accent-color)'
-																	: ''
-															}`,
-														}}
-													>
-														<div className="icon">
-															{info?.goDeep ? (
-																<MicroscopeDarkSvg />
-															) : (
-																<MicroscopeLightSvg />
-															)}
-														</div>
-														{showChatLabels && (
-															<div
-																className="right-text"
-																style={{
-																	color: 'var(--primary-font)',
-																}}
-															>
-																Deep Search
-															</div>
-														)}
-													</div>
 													<UploadFileTooltip
 														fileTypeIcons={fileTypeIcons}
 														handleChange={handleChange}
 														isUploadFileOpen={info?.isUploadFileOpen}
-														setIsUploadFileOpen={(value) =>
+														setIsUploadFileOpen={(value) => {
+															if (chatInfo?.deepResearch) return;
 															setInfo((prev) => ({
 																...prev,
 																isUploadFileOpen: value,
-															}))
-														}
+															}));
+														}}
 														handleRecentFileClick={
 															handleRecentFileClick
 														}
 														recentFiles={info?.recentFiles}
 													>
-														<div className="icon-container">
-															<div className="icon">
-																<PaperClip
-																	width={15}
-																	height={15}
-																	fill={'#f2f2f3'}
-																/>
-															</div>
-															{showChatLabels && (
-																<div className="right-text">
-																	Add
+														<Tooltip title="Upload File">
+															<div
+																className="icon-container"
+																style={{
+																	opacity: `${
+																		chatInfo?.deepResearch
+																			? '0.5'
+																			: '1'
+																	}`,
+																}}
+															>
+																<div className="icon">
+																	<PaperClip
+																		width={15}
+																		height={15}
+																		fill={'#f2f2f3'}
+																	/>
 																</div>
-															)}
-														</div>
+															</div>
+														</Tooltip>
 													</UploadFileTooltip>
 
-													<div
-														className="icon-container"
-														onClick={handleShowFiltersClick}
-													>
-														<div className="icon">
-															<Filter />
-														</div>
-														{showChatLabels && (
-															<div className="right-text">
-																Filters
+													<Tooltip title="Add Filters">
+														<div
+															className="icon-container"
+															onClick={handleShowFiltersClick}
+															style={{
+																opacity: `${
+																	chatInfo?.deepResearch
+																		? '0.5'
+																		: '1'
+																}`,
+															}}
+														>
+															<div className="icon">
+																<Filter />
 															</div>
-														)}
-													</div>
+														</div>
+													</Tooltip>
+													<LLMTooltip
+														selectedModel={chatInfo?.selectedLLMModel}
+														handleOptionClick={
+															handleLLMModelOptionClick
+														}
+														setIsLLMModelOpen={(value) => {
+															if (
+																chatInfo?.deepResearch ||
+																chatInfo?.webSearch ||
+																chatInfo?.workspaceSearch
+															)
+																return;
+															setInfo((prev) => ({
+																...prev,
+																isLLMModelOpen: value,
+															}));
+														}}
+														isOpen={info?.isLLMModelOpen}
+													>
+														<Tooltip title="Select LLM Model">
+															<div
+																className="icon-container"
+																style={{
+																	opacity: `${
+																		chatInfo?.deepResearch ||
+																		chatInfo?.webSearch ||
+																		chatInfo?.workspaceSearch
+																			? '0.5'
+																			: '1'
+																	}`,
+																}}
+															>
+																<div className="icon">
+																	<LLMSvg />
+																</div>
+															</div>
+														</Tooltip>
+													</LLMTooltip>
 												</div>
 												{info?.chatQuery?.trim()?.length > 0 ? (
 													<div
