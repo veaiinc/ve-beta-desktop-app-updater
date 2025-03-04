@@ -28,7 +28,7 @@ const RenewBanner = () => {
 	});
 	const location = useLocation();
 	const route = location.pathname.split('/')[1];
-	const currentRoute = MappedApp[route];
+	const currentRoute = MappedApp?.[route];
 
 	const handleUpgradeSubscriptionClick = async () => {
 		setInfo((prev) => ({ ...prev, subscriptionLoading: true }));

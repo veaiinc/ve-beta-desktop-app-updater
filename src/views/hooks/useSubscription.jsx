@@ -27,7 +27,7 @@ const restrictMapper = {
 	restrictConversationalAgent: false,
 };
 
-const newMappedApp = {
+const MappedApps = {
 	workflow: 'docs',
 	conversationalAgent: 'ai-assistant',
 	classicGallery: 'galleries',
@@ -84,7 +84,7 @@ const useSubscription = () => {
 
 		if (currentPlan?.apps?.length) {
 			const shouldShowRenewBanner = currentPlan?.apps?.some((eachApp) => {
-				return newMappedApp[eachApp?.app] === currentPath && eachApp?.isPaidPlan === false;
+				return MappedApps?.[eachApp?.app] === currentPath && eachApp?.isPaidPlan === false;
 			});
 
 			updateRenewBanner({ renewBanner: shouldShowRenewBanner });
