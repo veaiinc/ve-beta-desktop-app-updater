@@ -42,6 +42,10 @@ const actionHandlers = {
 		...state,
 		...action.payload,
 	}),
+	UPDATE_RENEW_BANNER: (state, action) => ({
+		...state,
+		...action.payload,
+	}),
 	RESET_STATE: () => intialState,
 };
 

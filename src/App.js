@@ -1,10 +1,15 @@
 import { Routes, Route } from 'react-router-dom';
 import routes from './routes';
-import React, { memo, useEffect } from 'react';
+import React, { memo, useEffect, useContext } from 'react';
+import Context from './context/context';
 import ExpiredSubscriptionModal from './views/components/modalsV2/subscription/ExpiredSubscriptionModal';
 import ExpiredTokenModal from './views/components/modalsV2/subscription/ExpiredTokenModal';
 import AccessDeniedPopup from './views/components/accessPopups/accessDeniedPopup';
+import RenewBanner from './views/components/modalsV2/subscription/RenewBanner';
 function App() {
+	const {
+		subscriptionInfo: { renewBanner },
+	} = useContext(Context);
 	useEffect(() => {
 		if (window.navigator.appVersion.indexOf('Mac') !== -1) {
 			document.getElementsByTagName('html')[0].classList.add('macos');
@@ -16,6 +21,7 @@ function App() {
 
 	return (
 		<>
+			{renewBanner && <RenewBanner />}
 			<Routes>
 				{routes.map((route, index) => (
 					<Route

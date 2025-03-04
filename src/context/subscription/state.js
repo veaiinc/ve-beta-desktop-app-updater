@@ -18,6 +18,7 @@ export const intialState = {
 	tokenExpiryData: null,
 	expiredTokenModal: false,
 	reFetchSubscription: false,
+	renewBanner: false,
 };
 
 export const SubscriptionState = (props) => {
@@ -300,6 +301,16 @@ export const SubscriptionState = (props) => {
 			console.log('errror ==>purchaseSubscriptionPlan', error);
 		}
 	};
+	const updateRenewBanner = (payload) => {
+		try {
+			dispatch({
+				type: Actions.UPDATE_RENEW_BANNER,
+				payload,
+			});
+		} catch (error) {
+			console.log('error==>updateRenewBanner', error);
+		}
+	};
 	const updateStateValues = async (updatedVaribaleValuesObj) => {
 		try {
 			dispatch({
@@ -327,5 +338,6 @@ export const SubscriptionState = (props) => {
 		purchaseAddOnPlan,
 		purchaseSubscriptionPlan,
 		updateStateValues,
+		updateRenewBanner,
 	};
 };
