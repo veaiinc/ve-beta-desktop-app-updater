@@ -84,47 +84,39 @@ const actionGroups = [
 				actionLabel: 'Delete Message',
 				actionType: 'deleteMessage',
 			},
-			{
-				actionLabel: 'Get channel Info',
-				actionType: 'channelInfo',
-			},
-			{
-				actionLabel: 'Get many channels',
-				actionType: 'getManyChannels',
-			},
-			{
-				actionLabel: 'Join Channel',
-				actionType: 'joinChannel',
-			},
-			{
-				actionLabel: 'Leave Channel',
-				actionType: 'leaveChannel',
-			},
-			{
-				actionLabel: 'Rename Channel',
-				actionType: 'renameChannel',
-			},
-			{
-				actionLabel: 'Delete Channel',
-				actionType: 'deleteChannel',
-			},
-			{
-				actionLabel: 'Get channel members',
-				actionType: 'channelMembers',
-			},
+			// {
+			// 	actionLabel: 'Get channel Info',
+			// 	actionType: 'channelInfo',
+			// },
+			// {
+			// 	actionLabel: 'Get many channels',
+			// 	actionType: 'getManyChannels',
+			// },
+			// {
+			// 	actionLabel: 'Join Channel',
+			// 	actionType: 'joinChannel',
+			// },
+			// {
+			// 	actionLabel: 'Leave Channel',
+			// 	actionType: 'leaveChannel',
+			// },
+			// {
+			// 	actionLabel: 'Rename Channel',
+			// 	actionType: 'renameChannel',
+			// },
+			// {
+			// 	actionLabel: 'Delete Channel',
+			// 	actionType: 'deleteChannel',
+			// },
+			// {
+			// 	actionLabel: 'Get channel members',
+			// 	actionType: 'channelMembers',
+			// },
 		],
 	},
 ];
 
-const Actions = ({
-	onCLose,
-	templateId,
-	activeEdge,
-	editMode,
-	activeStepsData,
-	refetchWorkflowBuilderData,
-	automationId,
-}) => {
+const Actions = ({ onCLose, activeEdge, editMode, activeStepsData, automationId }) => {
 	const {
 		automationBuilder: { connectedIntegrations, variables, addStep },
 	} = useContext(Context);
