@@ -13,6 +13,7 @@ import CreateFile from './CreateFile';
 import CreateTask from './CreateTask';
 import HeaderComponent from './HeaderComponent';
 import GoogleActions from './GoogleActions';
+import SlackActions from './SlackActions';
 
 const integrations = [
 	{
@@ -63,6 +64,53 @@ const actionGroups = [
 			{
 				actionLabel: 'Create draft',
 				actionType: 'createDraft',
+			},
+		],
+	},
+	{
+		_id: 'slack',
+		groupName: 'Slack',
+		icon: <Slack />,
+		actions: [
+			{
+				actionLabel: 'Create Channel',
+				actionType: 'createChannel',
+			},
+			{
+				actionLabel: 'Send Message',
+				actionType: 'sendMessage',
+			},
+			{
+				actionLabel: 'Delete Message',
+				actionType: 'deleteMessage',
+			},
+			{
+				actionLabel: 'Get channel Info',
+				actionType: 'channelInfo',
+			},
+			{
+				actionLabel: 'Get many channels',
+				actionType: 'getManyChannels',
+			},
+			{
+				actionLabel: 'Join Channel',
+				actionType: 'joinChannel',
+			},
+			{
+				actionLabel: 'Leave Channel',
+				actionType: 'leaveChannel',
+			},
+			{
+				actionLabel: 'Rename Channel',
+				actionType: 'renameChannel',
+			},
+			{
+				actionLabel: 'Delete Channel',
+				actionType: 'deleteChannel',
+			},
+			{
+				actionLabel: 'Get channel members',
+				actionType: 'channelMembers',
 			},
 		],
 	},
@@ -169,6 +217,14 @@ const Actions = ({
 					selectedAction={info?.selectedAction}
 				/>
 			),
+			slack: (
+				<SlackActions
+					onBack={() => updateInfo({ selectedAction: null })}
+					onSave={addNode}
+					loading={info?.saveLoader}
+					selectedAction={info?.selectedAction}
+				/>
+			),
 		};
 	}, [updateInfo, addNode, info?.saveLoader, variables, info?.selectedAction]);
 
@@ -209,8 +265,15 @@ const Actions = ({
 						{actionGroups
 							?.filter((ele) => info?.connectedIntegrations?.includes(ele?._id))
 							?.map((ele, index) => {
+								// Check if search matches group name
+								const groupNameMatches =
+									!info?.search ||
+									ele.groupName.toLowerCase().includes(info.search.toLowerCase());
+
+								// Filter actions based on search in action label or show all if group name matches
 								const filteredActions = ele.actions.filter(
 									(action) =>
+										groupNameMatches ||
 										!info?.search ||
 										action.actionLabel
 											.toLowerCase()
@@ -249,7 +312,7 @@ const Actions = ({
 
 						{!info.search && (
 							<div className="actionGroupItem">
-								<h3>Integrations</h3>
+								<h3>Available Integrations</h3>
 								{integrations?.map((action, index) => (
 									<div
 										className="actionItem"
@@ -265,8 +328,7 @@ const Actions = ({
 										<div className="actionItemIcon">{action?.icon}</div>
 										<div className="actionItemLabel">{action?.groupName}</div>
 										<div className="actionItemStatus">
-											{action?._id === 'google' &&
-											info?.connectedIntegrations?.includes(action?._id) ? (
+											{info?.connectedIntegrations?.includes(action?._id) ? (
 												'Connected'
 											) : (
 												<span className="actionItemConnect">

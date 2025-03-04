@@ -62,12 +62,6 @@ const GoogleActions = ({ onBack, onSave, loading, selectedAction }) => {
 				},
 			}));
 		}
-		if (connectedIntegrations?.slack) {
-			setInfo((prev) => ({
-				...prev,
-				slackConnected: true,
-			}));
-		}
 	}, [connectedIntegrations]);
 
 	const updateInfo = useCallback((data) => {

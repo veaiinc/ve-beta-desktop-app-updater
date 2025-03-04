@@ -241,85 +241,86 @@ const Step1 = ({ checkConnection, updateTriggerInfo }) => {
 				</div>
 			</div>
 			<div className="triggersContentContainer">
-				{
-					Object.values(triggersList)
-						.map((integration) => {
-							// Filter triggers based on search (case insensitive)
-							const filteredTriggers = integration.triggers.filter(
-								(trigger) =>
-									!info?.search ||
-									trigger.label.toLowerCase().includes(info.search.toLowerCase()),
-							);
+				{Object.values(triggersList)
+					.map((integration) => {
+						// Check if search matches group name
+						const groupNameMatches =
+							!info?.search ||
+							integration.label.toLowerCase().includes(info.search.toLowerCase());
 
-							// Remove duplicates based on event + module (if module exists)
-							const uniqueTriggers = Array.from(
-								new Map(
-									filteredTriggers.map((t) => [
-										`${t.event}-${t.module || ''}`,
-										t,
-									]),
-								).values(),
-							);
+						// Filter triggers based on search in label or show all if group name matches
+						const filteredTriggers = integration.triggers.filter(
+							(trigger) =>
+								groupNameMatches ||
+								!info?.search ||
+								trigger.label.toLowerCase().includes(info.search.toLowerCase()),
+						);
 
-							// Only return groups that have matching triggers
-							if (!uniqueTriggers.length || !checkConnection(integration.value))
-								return null;
+						// Remove duplicates based on event + module (if module exists)
+						const uniqueTriggers = Array.from(
+							new Map(
+								filteredTriggers.map((t) => [`${t.event}-${t.module || ''}`, t]),
+							).values(),
+						);
 
-							return (
-								<div className="triggerContainer" key={integration.label}>
-									<h2 className="triggerIntegrationName">{integration.label}</h2>
-									<div className="availableIntegrationsList">
-										{uniqueTriggers.map((trigger) => (
-											<div
-												className="availableIntegrationItem"
-												key={`${trigger.event}-${trigger.module || ''}`} // Ensure unique key
-												onClick={() =>
-													updateTriggerInfo({
-														selectedTrigger: {
-															...trigger,
-															triggerType: integration?.triggerType,
-														},
-													})
-												}
-											>
-												<span className="integrationIcon">
-													{trigger.icon}
-												</span>
-												<span className="integrationLabel">
-													{trigger.label}
-												</span>
-											</div>
-										))}
-									</div>
+						// Only return groups that have matching triggers and are connected
+						if (!uniqueTriggers.length || !checkConnection(integration.value))
+							return null;
+
+						return (
+							<div className="triggerContainer" key={integration.label}>
+								<h2 className="triggerIntegrationName">{integration.label}</h2>
+								<div className="availableIntegrationsList">
+									{uniqueTriggers.map((trigger) => (
+										<div
+											className="availableIntegrationItem"
+											key={`${trigger.event}-${trigger.module || ''}`}
+											onClick={() =>
+												updateTriggerInfo({
+													selectedTrigger: {
+														...trigger,
+														triggerType: integration?.triggerType,
+													},
+												})
+											}
+										>
+											<span className="integrationIcon">{trigger.icon}</span>
+											<span className="integrationLabel">
+												{trigger.label}
+											</span>
+										</div>
+									))}
 								</div>
-							);
-						})
-						.filter(Boolean) // Remove null groups
-				}
-
-				<div className="availableIntegrationsContainer">
-					<h2 className="availableIntegrationHeading">Available Integrations</h2>
-					<div className="availableIntegrationsList">
-						{availableIntegrations?.map((integration) => (
-							<div className="availableIntegrationItem" key={integration.value}>
-								<span className="integrationIcon">{integration.icon}</span>
-								<span className="integrationLabel">{integration.label}</span>
-								{checkConnection(integration.value) ? (
-									<button className="integrationButton">Connected</button>
-								) : (
-									<button
-										className="integrationButton"
-										onClick={() =>
-											(window.location.href = '/settings/integrations')
-										}
-									>
-										Connect <RightArrow />
-									</button>
-								)}
 							</div>
-						))}
+						);
+					})
+					.filter(Boolean)}
+
+				{!info.search && (
+					<div className="availableIntegrationsContainer">
+						<h2 className="availableIntegrationHeading">Available Integrations</h2>
+						<div className="availableIntegrationsList">
+							{availableIntegrations?.map((integration) => (
+								<div className="availableIntegrationItem" key={integration.value}>
+									<span className="integrationIcon">{integration.icon}</span>
+									<span className="integrationLabel">{integration.label}</span>
+									{checkConnection(integration.value) ? (
+										<button className="integrationButton">Connected</button>
+									) : (
+										<button
+											className="integrationButton"
+											onClick={() =>
+												(window.location.href = '/settings/integrations')
+											}
+										>
+											Connect <RightArrow />
+										</button>
+									)}
+								</div>
+							))}
+						</div>
 					</div>
-				</div>
+				)}
 			</div>
 		</>
 	);
