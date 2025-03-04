@@ -1,8 +1,8 @@
 import React, { useState, useContext } from 'react';
-import '../../../../assets/scss/subscriptions/renewBanner.scss';
+import '../../../assets/scss/subscriptions/renewBanner.scss';
 import { useLocation } from 'react-router-dom';
-import Context from '../../../../context/context';
-import AddOnPlans from '../../../components/settings/planbilling/addOnCards';
+import Context from '../../../context/context';
+import AddOnPlans from '../settings/planbilling/addOnCards';
 
 const MappedApp = {
 	docs: 'Documents',

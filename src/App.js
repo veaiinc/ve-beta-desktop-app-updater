@@ -5,7 +5,7 @@ import Context from './context/context';
 import ExpiredSubscriptionModal from './views/components/modalsV2/subscription/ExpiredSubscriptionModal';
 import ExpiredTokenModal from './views/components/modalsV2/subscription/ExpiredTokenModal';
 import AccessDeniedPopup from './views/components/accessPopups/accessDeniedPopup';
-import RenewBanner from './views/components/modalsV2/subscription/RenewBanner';
+import RenewBanner from './views/components/globalComponents/RenewBanner';
 function App() {
 	const {
 		subscriptionInfo: { renewBanner },
