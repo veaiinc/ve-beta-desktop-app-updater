@@ -80,7 +80,7 @@ const useSubscription = () => {
 	}, [currentPlan]);
 
 	useEffect(() => {
-		const currentPath = location.pathname.split('/')[1];
+		const currentPath = location?.pathname?.split('/')[1];
 
 		if (currentPlan?.apps?.length) {
 			const shouldShowRenewBanner = currentPlan?.apps?.some((eachApp) => {
@@ -89,7 +89,7 @@ const useSubscription = () => {
 
 			updateRenewBanner({ renewBanner: shouldShowRenewBanner });
 		}
-	}, [currentPlan, location.pathname]);
+	}, [currentPlan, location?.pathname]);
 
 	const handleExpiryCheckLogic = useCallback(() => {
 		if (currentPlan) {
