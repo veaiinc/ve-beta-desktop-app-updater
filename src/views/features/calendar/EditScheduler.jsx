@@ -39,7 +39,7 @@ const sessionTypeInputConfig = {
 
 const EditScheduler = () => {
 	const {
-		calendarInfo: { getSchedulerSessionDetail, sessionDetail },
+		calendarInfo: { getSchedulerSessionDetail, updateSchedulerSession, sessionDetail },
 	} = useContext(Context);
 
 	const { sessionId } = useParams();
@@ -462,9 +462,9 @@ const EditScheduler = () => {
 											/>
 											<span>{day}</span>
 										</div>
-										{info.weeklyAvailability[day].enabled && (
+										{info?.weeklyAvailability[day]?.enabled && (
 											<div className="time-slots">
-												{info.weeklyAvailability[day].slots.map(
+												{info?.weeklyAvailability[day]?.slots?.map(
 													(slot, index) => (
 														<React.Fragment key={index}>
 															{index > 0 && <span>and</span>}
@@ -592,8 +592,8 @@ const EditScheduler = () => {
 																		+
 																	</div>
 																</Tooltip>
-																{info.weeklyAvailability[day].slots
-																	.length > 1 && (
+																{info?.weeklyAvailability[day]
+																	?.slots?.length > 1 && (
 																	<Tooltip
 																		title="Remove time slot"
 																		placement="top"

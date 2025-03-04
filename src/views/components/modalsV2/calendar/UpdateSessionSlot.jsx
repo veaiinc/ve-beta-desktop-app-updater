@@ -44,7 +44,10 @@ const UpdateSessionSlot = ({ open, closeModal }) => {
 			isOpen={open}
 			closeModal={ModifyCloseModal}
 			modalType={'center'}
-			customStyles={{ content: { borderRadius: '24px' } }}
+			customStyles={{
+				content: { zIndex: 1003, borderRadius: '24px' },
+				overlay: { zIndex: 1002 },
+			}}
 		>
 			<div className="updateSessionSlotContainer">
 				<div className="sessionHeader">

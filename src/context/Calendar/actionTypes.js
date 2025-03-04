@@ -19,5 +19,6 @@ export const CALENDAR = {
 	schedulerList: '/scheduler/all-sessions',
 	createSchedulerSession: '/scheduler/createsession',
 	getSchedulerSessionDetail: '/get-session',
+	updateSchedulerSession: '/update',
 	resetSchedulerState: 'RESET_SCHEDULER_STATE',
 };

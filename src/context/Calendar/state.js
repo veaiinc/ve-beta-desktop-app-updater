@@ -384,6 +384,26 @@ export const Calendar = () => {
 		}
 	};
 
+	const updateSchedulerSession = async (sessionId, body) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const url = `/${workspaceId}/scheduler/${sessionId}${API.CALENDAR.updateSchedulerSession}`;
+			const response = await service.fetchPut(url, body, usertoken, 'calendar_api');
+
+			if (response?.[0] === true) {
+				dispatch({
+					type: Actions.UPDATE_SCHEDULER_SESSION,
+					payload: response?.[1]?.data,
+				});
+			} else {
+				console.log('API failed ==> updateSchedulerSession', response);
+			}
+		} catch (error) {
+			console.log('error==>updateSchedulerSession', error);
+		}
+	};
+
 	const resetSchedulerState = () => {
 		dispatch({ type: Actions.RESET_SCHEDULER_STATE });
 	};
@@ -425,6 +445,7 @@ export const Calendar = () => {
 		getSchedulerList,
 		createSchedulerSession,
 		getSchedulerSessionDetail,
+		updateSchedulerSession,
 		resetSchedulerState,
 	};
 };
