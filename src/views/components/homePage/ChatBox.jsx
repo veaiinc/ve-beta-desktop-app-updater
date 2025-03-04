@@ -35,7 +35,6 @@ import { ReactComponent as PaperClip } from '../../../assets/svg/ai_agents/paper
 import { ReactComponent as Mic } from '../../../assets/svg/ai_agents/mic.svg';
 import { getBase64 } from '../../../helpers';
 import WorkflowSlugSelector from '../../components/calendar/WorkflowSlugSelector';
-import { ReactComponent as AiSparkel } from '../../../assets/svg/calendar/aiSparkel.svg';
 import useVoiceIntegration from '../../hooks/useVoiceIntegration';
 import SearchDropdown from '../chat/SearchDropdown';
 import UploadFileTooltip from '../chat/UploadFileTooltip';
@@ -108,6 +107,7 @@ const ChatBox = ({
 	latestStreamMesage,
 	lastQuery,
 	toggleLatestStreamMessage,
+	chatToNoteLoopOn = false,
 }) => {
 	const {
 		templates: {
@@ -124,10 +124,13 @@ const ChatBox = ({
 			deepResearch,
 			handleStreamSendMessage,
 			activePayloadForChat,
+			followUpQuery,
 		},
 		calendarInfo: { updateCalendarState },
 		tasks: { updateTaskState },
+		documentPreview: { noteContent, setNoteContent },
 	} = useContext(Context);
+
 	const {
 		isConnected,
 		isMuted,
@@ -170,6 +173,7 @@ const ChatBox = ({
 		recentFiles: [],
 		isSearchTypeOpen: false,
 		isVoiceMuted: false,
+		followUpQuery: null,
 	});
 
 	const [previewOpen, setPreviewOpen] = useState(false);
@@ -210,6 +214,15 @@ const ChatBox = ({
 			goDeep: deepResearch,
 		}));
 	}, [deepResearch]);
+	useEffect(() => {
+		if (followUpQuery) {
+			setInfo((prev) => ({
+				...prev,
+				followUpQuery,
+			}));
+			updateStateValues({ followUpQuery: null });
+		}
+	}, [followUpQuery]);
 
 	useEffect(() => {
 		if (latestStreamMesage && lastQuery) {
@@ -351,7 +364,7 @@ const ChatBox = ({
 
 				if (
 					(aiChatLoading || info?.chatLoading) &&
-					(info?.chatQuery?.length || info?.uploadedImages?.length)
+					(info?.chatQuery?.length < 0 || info?.uploadedImages?.length)
 				) {
 					return message.error('Please wait for the AI response');
 				}
@@ -439,7 +452,14 @@ const ChatBox = ({
 				}
 			}
 		},
-		[aiChatLoading, onSend, customChatActions, info, activeWorkflowSlugForSmartFile],
+		[
+			aiChatLoading,
+			onSend,
+			customChatActions,
+			chatToNoteLoopOn,
+			info,
+			activeWorkflowSlugForSmartFile,
+		],
 	);
 
 	const handleWorkflowSlugSelection = useCallback(
@@ -658,10 +678,20 @@ const ChatBox = ({
 		}));
 	};
 
+	const handleFollowUpQueryClick = () => {
+		if (info?.chatLoading) {
+			return;
+		}
+		setInfo((prev) => ({
+			...prev,
+			followUpQuery: null,
+		}));
+		updateStateValues({ activePromptForChat: info?.followUpQuery });
+	};
+
 	return (
 		<div className="chatParentWrapper">
 			<div className={`chatWrapper`}>
-				{/* {info?.voiceIntegration ? ( */}
 				<div className={`voiceContainer ${info?.voiceIntegration ? 'active' : 'inactive'}`}>
 					<Voice
 						handleDisConnect={handleDisConnect}
@@ -669,7 +699,6 @@ const ChatBox = ({
 						isVoiceMuted={info?.isVoiceMuted}
 					/>
 				</div>
-				{/* ) : ( */}
 				<div
 					className={`chat-box-container ${
 						info?.voiceIntegration ? 'inactive' : 'active'
@@ -987,6 +1016,19 @@ const ChatBox = ({
 								</div>
 							</div>
 						))}
+					</div>
+				)}
+
+				{info?.followUpQuery && (
+					<div className="follow-up-query-container">
+						<div className="follow-up-query">
+							<div
+								className="follow-up-query-text"
+								onClick={handleFollowUpQueryClick}
+							>
+								{info?.followUpQuery}
+							</div>
+						</div>
 					</div>
 				)}
 			</div>
