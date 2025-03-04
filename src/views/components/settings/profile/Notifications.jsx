@@ -265,23 +265,31 @@ const Notifications = () => {
 										{module.replace(/workflow/g, 'document')}
 									</div>
 									<div className="notificationContainerOptions-item-container">
-										{appTypes?.map(({ id, appType }) => (
-											<input
-												key={id}
-												type="checkbox"
-												style={{
-													width: appType === 'whatsapp' ? '70px' : '36px',
-												}}
-												checked={
-													info?.moduleAppTypeSelectAll?.[module]?.[
-														appType
-													]
-												}
-												onChange={() =>
-													handleSetModuleAppTypeSelectAll(module, appType)
-												}
-											/>
-										))}
+										{appTypes
+											?.filter(({ appType }) => info?.[appType])
+											?.map(({ id, appType }) => (
+												<input
+													key={id}
+													type="checkbox"
+													style={{
+														width:
+															appType === 'whatsapp'
+																? '70px'
+																: '36px',
+													}}
+													checked={
+														info?.moduleAppTypeSelectAll?.[module]?.[
+															appType
+														]
+													}
+													onChange={() =>
+														handleSetModuleAppTypeSelectAll(
+															module,
+															appType,
+														)
+													}
+												/>
+											))}
 									</div>
 								</div>
 								<div className="notificationContainerOptions-items">
