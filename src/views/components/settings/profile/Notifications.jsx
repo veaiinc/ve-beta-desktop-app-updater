@@ -26,6 +26,8 @@ const appTypes = [
 	},
 ];
 
+const defaultModuleAppTypeSelectAll = { email: false, whatsapp: false, slack: false };
+
 const Notifications = () => {
 	const {
 		profileInfo: {
@@ -36,6 +38,7 @@ const Notifications = () => {
 			updatedNotificationSettings,
 			updateNotificationMethod, // requires tenantId, app, appType
 			updateAppNotificationPreferenceForModule,
+			updateModuleAppTypeSelectAll,
 		},
 	} = useContext(Context);
 
@@ -50,6 +53,7 @@ const Notifications = () => {
 		whatsapp: false,
 		slack: false,
 		selectedOptions: {},
+		moduleAppTypeSelectAll: {}, // {module: {appType: boolean}}
 	});
 
 	const areAllNotificationMethodsDisabled = useMemo(() => {
@@ -60,13 +64,43 @@ const Notifications = () => {
 		notificationPreferences?.length && !areAllNotificationMethodsDisabled;
 
 	useEffect(() => {
+		if (showNotificationPreferences) {
+			notificationPreferences?.forEach(({ module, actions }) => {
+				actions?.forEach(({ action, apps }) => {
+					const { email, whatsapp, slack } = apps;
+					setInfo((prev) => ({
+						...prev,
+						selectedOptions: {
+							...prev?.selectedOptions,
+							[module]: {
+								...prev?.selectedOptions?.[module],
+								[action]: { email, whatsapp, slack },
+							},
+						},
+					}));
+				});
+
+				setInfo((prev) => ({
+					...prev,
+					// set the moduleAppTypeSelectAll to false for all the modules by default
+					moduleAppTypeSelectAll: {
+						...prev?.moduleAppTypeSelectAll,
+						[module]: defaultModuleAppTypeSelectAll,
+					},
+				}));
+			});
+		}
+	}, [showNotificationPreferences]);
+
+	useEffect(() => {
 		if (notificationMethods) {
 			const { email, whatsapp, slack } = notificationMethods;
-			setInfo({
+			setInfo((prev) => ({
+				...prev,
 				email,
 				whatsapp,
 				slack,
-			});
+			}));
 		}
 	}, [notificationMethods]);
 
@@ -140,6 +174,39 @@ const Notifications = () => {
 		}
 	};
 
+	const handleSetModuleAppTypeSelectAll = async (module, appType) => {
+		const isEnabled = !info?.moduleAppTypeSelectAll?.[module]?.[appType];
+		const response = await updateModuleAppTypeSelectAll(module, appType, isEnabled, tenantId);
+		if (response?.[0]) {
+			setInfo((prev) => {
+				const updatedSelectedOptions = {
+					...prev.selectedOptions,
+					[module]: Object.fromEntries(
+						Object.entries(prev.selectedOptions[module] || {}).map(([action, apps]) => [
+							action,
+							{ ...apps, [appType]: isEnabled },
+						]),
+					),
+				};
+				return {
+					...prev,
+					moduleAppTypeSelectAll: {
+						...prev?.moduleAppTypeSelectAll,
+						[module]: {
+							...prev?.moduleAppTypeSelectAll?.[module],
+							[appType]: isEnabled,
+						},
+					},
+					selectedOptions: updatedSelectedOptions,
+				};
+			});
+		} else {
+			message?.error(
+				'An unexpected error occurred while updating your notification preferences!',
+			);
+		}
+	};
+
 	return (
 		<div className="notifications-container">
 			<div className="notifications-container-header">
@@ -195,28 +262,35 @@ const Notifications = () => {
 							<React.Fragment key={idx}>
 								<div className="notificationContainerOptions-item-container">
 									<div className="notificationContainerOptions-item">
-										{module}
+										{/* replace "workflow" with "document" */}
+										{module.replace(/workflow/g, 'document')}
 									</div>
 									<div className="notificationContainerOptions-item-container">
-										{/* TODO-> wip: Sheshant will work on this */}
-										{/* {appTypes?.map(({ id, appType }) => (
+										{appTypes?.map(({ id, appType }) => (
 											<input
 												key={id}
 												type="checkbox"
 												style={{
 													width: appType === 'whatsapp' ? '70px' : '36px',
 												}}
-												checked={info?.[appType]}
-												onChange={() => {}}
+												checked={
+													info?.moduleAppTypeSelectAll?.[module]?.[
+														appType
+													]
+												}
+												onChange={() =>
+													handleSetModuleAppTypeSelectAll(module, appType)
+												}
 											/>
-										))} */}
+										))}
 									</div>
 								</div>
 								<div className="notificationContainerOptions-items">
-									{actions?.map(({ action, apps }) => (
+									{actions?.map(({ action }) => (
 										<div className="notificationContainerOptions-item-container">
 											<div className="notificationContainerOptionsTitle">
-												{action}
+												{/* replace "workflow" with "document" */}
+												{action.replace(/workflow/g, 'document')}
 											</div>
 											<div className="notificationContainerOptions-item-checkbox">
 												{appTypes
@@ -234,7 +308,7 @@ const Notifications = () => {
 															checked={
 																info?.selectedOptions?.[module]?.[
 																	action
-																]?.[appType] ?? apps?.[appType]
+																]?.[appType]
 															}
 															onChange={() =>
 																handleModuleNotificationPreference(

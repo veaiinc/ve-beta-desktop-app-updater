@@ -331,6 +331,24 @@ export const ProfileState = () => {
 		}
 	};
 
+	const updateModuleAppTypeSelectAll = async (module, appType, isEnabled, tenantId) => {
+		const token = localStorage.getItem('usertoken');
+		const path = '/updateMultipleActions';
+		const type = 'tenant-users';
+		const body = {
+			module,
+			app: appType,
+			isEnabled,
+			tenantId,
+		};
+		const response = await service?.fetchPut(path, body, token, type);
+		if (response?.[0]) {
+			return [true];
+		} else {
+			return [false];
+		}
+	};
+
 	const updateDefaultNotificationSettings = async (payload) => {
 		try {
 			let userToken = localStorage.getItem('usertoken');
@@ -465,5 +483,6 @@ export const ProfileState = () => {
 		updateAppNotificationPreferenceForModule,
 		getTenantUserAccessControls,
 		updateAccessControlOpenModal,
+		updateModuleAppTypeSelectAll,
 	};
 };
