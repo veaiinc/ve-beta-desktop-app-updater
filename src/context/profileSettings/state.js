@@ -358,7 +358,7 @@ export const ProfileState = () => {
 				tenantId,
 				isEnabled,
 			};
-			const response = await service.fetchPut(path, payload, usertoken, type);
+			const response = await service?.fetchPut(path, payload, usertoken, type);
 			if (response?.[0]) {
 				return [true];
 			} else {

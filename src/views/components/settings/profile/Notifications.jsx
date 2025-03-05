@@ -1,4 +1,4 @@
-import React, { memo, useState, useEffect, useContext, useMemo } from 'react';
+import React, { memo, useState, useEffect, useContext } from 'react';
 import { ReactComponent as EmailIcon } from '../../../../assets/svg/notification/email.svg';
 import { ReactComponent as WhatsappIcon } from '../../../../assets/svg/notification/whatsApp.svg';
 import { ReactComponent as SlackIcon } from '../../../../assets/svg/notification/slack.svg';
@@ -42,10 +42,8 @@ const Notifications = () => {
 
 	const tenantId = tennantSettingsData?._id;
 	const notificationMethods = defaultNotificationSettings?.global;
-	const notificationPreferences = useMemo(
-		() => defaultNotificationSettings?.events,
-		[defaultNotificationSettings],
-	);
+	const notificationPreferences = defaultNotificationSettings?.events;
+
 	const [info, setInfo] = useState({
 		email: false,
 		whatsapp: false,
@@ -54,9 +52,7 @@ const Notifications = () => {
 		moduleAppTypeSelectAll: {}, // {module: {appType: boolean}}
 	});
 
-	const areAllNotificationMethodsDisabled = useMemo(() => {
-		return !info?.email && !info?.whatsapp && !info?.slack;
-	}, [info?.email, info?.whatsapp, info?.slack]);
+	const areAllNotificationMethodsDisabled = !info?.email && !info?.whatsapp && !info?.slack;
 
 	const showNotificationPreferences =
 		notificationPreferences?.length && !areAllNotificationMethodsDisabled;
