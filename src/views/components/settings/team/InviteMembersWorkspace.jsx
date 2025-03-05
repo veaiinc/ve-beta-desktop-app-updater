@@ -96,8 +96,12 @@ const InviteMembersWorkspaceComponent = ({
 		}
 	};
 
+	const customStyles = {
+		content: { zIndex: 99999 },
+		overlay: { zIndex: 99998 },
+	};
 	return (
-		<ReactModal isOpen={isOpen} closeModal={closeModal}>
+		<ReactModal isOpen={isOpen} closeModal={closeModal} customStyles={customStyles}>
 			<div className="settingsBoxContainer inviteMemberComponent">
 				<div className="inviteMemberText">
 					<div className="inviteMemberTitle">

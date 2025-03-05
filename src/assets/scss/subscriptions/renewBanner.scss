@@ -1,0 +1,40 @@
+.renew-banner-container {
+	position: fixed;
+	top: 0px;
+	width: 100vw;
+	z-index: 1000;
+	.renew-banner {
+		display: flex;
+		width: 100vw;
+		padding: 0px 32px;
+		justify-content: center;
+		align-items: center;
+		background: var(--stroke-hover, #404548);
+		.renew-banner-title {
+			color: var(--primary-font, #f2f2f3);
+			font-family: Inter;
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 600;
+			line-height: normal;
+		}
+		.renew-banner-button {
+			display: flex;
+			padding: 12px 16px;
+			justify-content: center;
+			align-items: center;
+			gap: 12px;
+			border-radius: 100px;
+			// background: var(--primary-font, #f2f2f3);
+			background: transparent;
+			color: var(--accent-color, #a98df8);
+			font-family: Inter;
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+			border: none;
+			cursor: pointer;
+		}
+	}
+}
