@@ -59,27 +59,24 @@ const Notifications = () => {
 
 	useEffect(() => {
 		if (showNotificationPreferences) {
-			const updatedSelectedOptions = {};
-			const updatedModuleAppTypeSelectAll = {};
+			const selectedOptions = info?.selectedOptions;
+			const moduleAppTypeSelectAll = info?.moduleAppTypeSelectAll;
 
 			notificationPreferences?.forEach(({ module, actions }) => {
 				actions?.forEach(({ action, apps }) => {
 					const { email, whatsapp, slack } = apps;
-					if (!updatedSelectedOptions[module]) {
-						updatedSelectedOptions[module] = {};
+					if (!selectedOptions[module]) {
+						selectedOptions[module] = {};
 					}
-					updatedSelectedOptions[module][action] = { email, whatsapp, slack };
+					selectedOptions[module][action] = { email, whatsapp, slack };
 				});
-				updatedModuleAppTypeSelectAll[module] = defaultModuleAppTypeSelectAll;
+				moduleAppTypeSelectAll[module] = defaultModuleAppTypeSelectAll;
 			});
 
 			setInfo((prev) => ({
 				...prev,
-				selectedOptions: { ...prev?.selectedOptions, ...updatedSelectedOptions },
-				moduleAppTypeSelectAll: {
-					...prev?.moduleAppTypeSelectAll,
-					...updatedModuleAppTypeSelectAll,
-				},
+				selectedOptions,
+				moduleAppTypeSelectAll,
 			}));
 		}
 	}, [showNotificationPreferences]);
@@ -123,18 +120,14 @@ const Notifications = () => {
 			tenantId,
 		);
 		if (response?.[0]) {
+			const selectedOptions = { ...(info?.selectedOptions || {}) };
+			selectedOptions[module] = {
+				...selectedOptions[module],
+				[action]: { ...selectedOptions[module]?.[action], [app]: isEnabled },
+			};
 			setInfo((prev) => ({
 				...prev,
-				selectedOptions: {
-					...prev?.selectedOptions,
-					[module]: {
-						...prev?.selectedOptions?.[module],
-						[action]: {
-							...prev?.selectedOptions?.[module]?.[action],
-							[app]: isEnabled,
-						},
-					},
-				},
+				selectedOptions,
 			}));
 		} else {
 			message?.error(
@@ -146,29 +139,26 @@ const Notifications = () => {
 	const handleSetModuleAppTypeSelectAll = async (module, appType) => {
 		try {
 			const isEnabled = !info?.moduleAppTypeSelectAll?.[module]?.[appType];
-			setInfo((prev) => {
-				const updatedSelectedOptions = Object.fromEntries(
-					Object.entries(prev?.selectedOptions?.[module] || {}).map(([action, apps]) => [
-						action,
-						{ ...apps, [appType]: isEnabled },
-					]),
-				);
-
-				return {
-					...prev,
-					moduleAppTypeSelectAll: {
-						...prev?.moduleAppTypeSelectAll,
-						[module]: {
-							...prev?.moduleAppTypeSelectAll?.[module],
-							[appType]: isEnabled,
-						},
+			const updatedSelectedOptions = Object.fromEntries(
+				Object.entries(info?.selectedOptions?.[module] || {}).map(([action, apps]) => [
+					action,
+					{ ...apps, [appType]: isEnabled },
+				]),
+			);
+			setInfo((prev) => ({
+				...prev,
+				moduleAppTypeSelectAll: {
+					...prev?.moduleAppTypeSelectAll,
+					[module]: {
+						...prev?.moduleAppTypeSelectAll?.[module],
+						[appType]: isEnabled,
 					},
-					selectedOptions: {
-						...prev?.selectedOptions,
-						[module]: updatedSelectedOptions,
-					},
-				};
-			});
+				},
+				selectedOptions: {
+					...prev?.selectedOptions,
+					[module]: updatedSelectedOptions,
+				},
+			}));
 			const response = await updateModuleAppTypeSelectAll(
 				module,
 				appType,
