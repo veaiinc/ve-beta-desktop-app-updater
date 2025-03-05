@@ -360,9 +360,9 @@ export const ProfileState = () => {
 			};
 			const response = await service.fetchPut(path, payload, usertoken, type);
 			if (response?.[0]) {
-				return [true, response[1]];
+				return [true];
 			} else {
-				return [false, response[1]];
+				return [false];
 			}
 		} catch (error) {
 			console.log('error==>updateNotificationMethod', error);

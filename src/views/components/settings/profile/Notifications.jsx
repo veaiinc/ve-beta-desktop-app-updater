@@ -113,6 +113,10 @@ const Notifications = () => {
 		const response = await updateNotificationMethod(tenantId, app, isEnabled);
 		if (response?.[0]) {
 			setInfo({ ...info, [app]: isEnabled });
+		} else {
+			message?.error(
+				'An unexpected error occured while updating your notification preferences!',
+			);
 		}
 	};
 
