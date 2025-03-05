@@ -13,6 +13,8 @@ import { FetchMoreLoaderComp } from '../../../helpers';
 import { debounce } from 'lodash';
 import useChatStream from '../../hooks/useChatStream';
 
+let animationFrameId;
+let debounceTimer;
 const RecentChat = ({
 	outerContainerStyle = {},
 	chatList = [],
@@ -67,7 +69,13 @@ const RecentChat = ({
 	const aiCitationsByIdRef = useRef({});
 
 	useEffect(() => {
+		window.addEventListener('resize', handleResize);
+
 		return () => {
+			window.removeEventListener('resize', handleResize);
+			cancelAnimationFrame(animationFrameId);
+			clearTimeout(debounceTimer);
+
 			updateStateValues({
 				moreRecentChatStorage: null,
 				recentChatStorage: null,
@@ -194,6 +202,27 @@ const RecentChat = ({
 			recentChatHandler(moreRecentChatStorage, true);
 		}
 	}, [moreRecentChatStorage]);
+
+	const handleResize = () => {
+		if (animationFrameId) cancelAnimationFrame(animationFrameId);
+
+		animationFrameId = requestAnimationFrame(() => {
+			clearTimeout(debounceTimer);
+			debounceTimer = setTimeout(() => {
+				if (window.innerWidth < 1400) {
+					setInfo((prev) => ({
+						...prev,
+						citationsModalIsOpen: false,
+					}));
+				} else {
+					setInfo((prev) => ({
+						...prev,
+						citationsModalIsOpen: true,
+					}));
+				}
+			}, 300);
+		});
+	};
 
 	const recentChatHandler = useCallback(
 		(inComingData, fetcMore = false) => {
