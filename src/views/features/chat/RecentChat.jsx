@@ -13,7 +13,6 @@ import { FetchMoreLoaderComp } from '../../../helpers';
 import { debounce } from 'lodash';
 import useChatStream from '../../hooks/useChatStream';
 
-let animationFrameId;
 let debounceTimer;
 const RecentChat = ({
 	outerContainerStyle = {},
@@ -70,10 +69,10 @@ const RecentChat = ({
 
 	useEffect(() => {
 		window.addEventListener('resize', handleResize);
+		handleResize();
 
 		return () => {
 			window.removeEventListener('resize', handleResize);
-			cancelAnimationFrame(animationFrameId);
 			clearTimeout(debounceTimer);
 
 			updateStateValues({
@@ -204,24 +203,20 @@ const RecentChat = ({
 	}, [moreRecentChatStorage]);
 
 	const handleResize = () => {
-		if (animationFrameId) cancelAnimationFrame(animationFrameId);
-
-		animationFrameId = requestAnimationFrame(() => {
-			clearTimeout(debounceTimer);
-			debounceTimer = setTimeout(() => {
-				if (window.innerWidth < 1400) {
-					setInfo((prev) => ({
-						...prev,
-						citationsModalIsOpen: false,
-					}));
-				} else {
-					setInfo((prev) => ({
-						...prev,
-						citationsModalIsOpen: true,
-					}));
-				}
-			}, 300);
-		});
+		clearTimeout(debounceTimer);
+		debounceTimer = setTimeout(() => {
+			if (window.innerWidth < 1400) {
+				setInfo((prev) => ({
+					...prev,
+					citationsModalIsOpen: false,
+				}));
+			} else {
+				setInfo((prev) => ({
+					...prev,
+					citationsModalIsOpen: true,
+				}));
+			}
+		}, 300);
 	};
 
 	const recentChatHandler = useCallback(
@@ -426,7 +421,6 @@ const RecentChat = ({
 									display: 'flex',
 									flexDirection: 'column-reverse',
 									transition: 'all 0.3s ease',
-									// justifyContent: 'flex-end',
 								}}
 								height={'calc(100vh - 180px)'}
 								scrollThreshold={0.8}

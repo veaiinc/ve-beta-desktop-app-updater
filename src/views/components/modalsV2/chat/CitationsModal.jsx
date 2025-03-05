@@ -15,7 +15,7 @@ const CitationsModal = ({ closeModal, modalIsOpen }) => {
 	});
 
 	useEffect(() => {
-		if (citations?.length > 0) {
+		if (citations) {
 			const aggregatedCitations = aggregateCitations(citations);
 			setInfo((prev) => ({
 				...prev,
