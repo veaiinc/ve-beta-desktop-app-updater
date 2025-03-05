@@ -28,6 +28,10 @@ const NoteComponentModal = ({
 	toggleLatestStreamMessage,
 }) => {
 	const chatContentRef = useRef(null);
+	const {
+		templates: { globalChatMessages },
+		documentPreview: { noteContent },
+	} = useContext(Context);
 
 	const [info, setInfo] = useState({
 		noteComponentFullScreen: false,
@@ -85,7 +89,7 @@ const NoteComponentModal = ({
 		>
 			<div className="modal-container">
 				<div className="chatBarContainer">
-					{/* <div className="chat-to-note-link-container">
+					<div className="chat-to-note-link-container">
 						<div className="title">Link all chat to note</div>
 						<div
 							className={`link-icon-container ${
@@ -95,7 +99,7 @@ const NoteComponentModal = ({
 						>
 							{info?.chatToNoteLoopOn ? <LinkDarkSvg /> : <LinkLightSvg />}
 						</div>
-					</div> */}
+					</div>
 					{/* chat body */}
 					<div className={`chatBodyParentContainer`} ref={chatContentRef}>
 						<div className="chatContent">
@@ -189,6 +193,8 @@ const NoteComponentModal = ({
 							height: '100%',
 							backgroundColor: '#171819',
 						}}
+						initialContent={info?.chatToNoteLoopOn ? globalChatMessages : noteContent}
+						loopOn={info?.chatToNoteLoopOn}
 					/>
 				</div>
 			</div>

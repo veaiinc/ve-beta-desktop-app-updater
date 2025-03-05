@@ -272,7 +272,7 @@ export const TypingEffect = memo(
 			if (customePencilClickFunc) {
 				customePencilClickFunc();
 			}
-			setNoteContent(text);
+			setNoteContent(messageData);
 		}, [customePencilClickFunc, text, setNoteContent]);
 
 		const handleThumbsUp = useCallback(() => {
