@@ -58,8 +58,7 @@
 				align-items: center;
 				gap: 16px;
 				border-radius: 100px;
-				border: 1px solid #333334;
-				border: 1px solid color(display-p3 0.2 0.2 0.2039);
+				border: 1px solid var(--stroke);
 				color: var(--primary-font);
 				font-family: var(--primary-font-family);
 				font-size: 14px;

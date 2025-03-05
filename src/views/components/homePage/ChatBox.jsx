@@ -841,8 +841,8 @@ const ChatBox = ({
 															style={{
 																background: `${
 																	chatInfo?.webSearch
-																		? '#B39DFA'
-																		: '#2E2F33'
+																		? 'var(--accent-color)'
+																		: 'var(--card)'
 																}`,
 																opacity: `${
 																	chatInfo?.deepResearch
@@ -867,8 +867,8 @@ const ChatBox = ({
 															style={{
 																background: `${
 																	chatInfo?.workspaceSearch
-																		? '#B39DFA'
-																		: '#2E2F33'
+																		? 'var(--accent-color)'
+																		: 'var(--card)'
 																}`,
 																opacity: `${
 																	chatInfo?.deepResearch
@@ -894,8 +894,8 @@ const ChatBox = ({
 															style={{
 																background: `${
 																	chatInfo?.deepResearch
-																		? '#B39DFA'
-																		: '#2E2F33'
+																		? 'var(--accent-color)'
+																		: 'var(--card)'
 																}`,
 															}}
 														>
@@ -1008,7 +1008,7 @@ const ChatBox = ({
 														className="click-btn"
 														onClick={(e) => handleSendBtnClick(e)}
 														style={{
-															backgroundColor: '#b2a1e8',
+															backgroundColor: 'var(--accent-color)',
 														}}
 													>
 														<ArrowUp />
@@ -1018,7 +1018,7 @@ const ChatBox = ({
 														className="click-btn"
 														onClick={(e) => handleMicIconClick(e)}
 														style={{
-															backgroundColor: '#b2a1e8',
+															backgroundColor: 'var(--accent-color)',
 														}}
 													>
 														<AudioSvg />

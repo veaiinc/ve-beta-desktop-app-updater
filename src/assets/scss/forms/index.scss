@@ -314,14 +314,13 @@
 						align-items: center;
 						gap: 4px;
 						border-radius: 35px;
-						background: #373737;
-						background: color(display-p3 0.2161 0.2161 0.2161);
+						background: var(--card);
 
 						.DocsStatusCircle {
 							width: 6px;
 							height: 6px;
 							border-radius: 100%;
-							background: #939393;
+							background: var(--secondary-font);
 						}
 						.DocsButtontext {
 							color: var(--primary-font);
@@ -346,7 +345,7 @@
 				}
 
 				&:hover {
-					background: var(--card, #171819);
+					background: var(--card);
 				}
 			}
 		}
