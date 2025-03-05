@@ -27,6 +27,19 @@ const restrictMapper = {
 	restrictConversationalAgent: false,
 };
 
+const MappedApps = {
+	workflow: 'docs',
+	conversationalAgent: 'ai-assistant',
+	classicGallery: 'galleries',
+	liteGallery: 'lite-gallery',
+	template: 'my-templates',
+	task: 'tasks',
+	form: 'forms',
+	calendar: 'calendar',
+	automation: 'automation',
+	contact: 'contacts',
+};
+
 const useSubscription = () => {
 	let {
 		subscriptionInfo: {
@@ -35,6 +48,8 @@ const useSubscription = () => {
 			updateSubscriptionState,
 			updateStateValues,
 			reFetchSubscription,
+			updateRenewBanner,
+			renewBanner,
 		},
 	} = useContext(Context);
 	const [info, setInfo] = useState({});
@@ -63,6 +78,18 @@ const useSubscription = () => {
 			handleExpiryCheckLogic();
 		}
 	}, [currentPlan]);
+
+	useEffect(() => {
+		const currentPath = location?.pathname?.split('/')[1];
+
+		if (currentPlan?.apps?.length) {
+			const shouldShowRenewBanner = currentPlan?.apps?.some((eachApp) => {
+				return MappedApps?.[eachApp?.app] === currentPath && eachApp?.isPaidPlan === false;
+			});
+
+			updateRenewBanner({ renewBanner: shouldShowRenewBanner });
+		}
+	}, [currentPlan, location?.pathname]);
 
 	const handleExpiryCheckLogic = useCallback(() => {
 		if (currentPlan) {

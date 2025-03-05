@@ -18,6 +18,7 @@ export const intialState = {
 	tokenExpiryData: null,
 	expiredTokenModal: false,
 	reFetchSubscription: false,
+	renewBanner: false,
 };
 
 export const SubscriptionState = (props) => {
@@ -275,8 +276,7 @@ export const SubscriptionState = (props) => {
 			if (response?.[0] === true) {
 				return [true, response?.[1]];
 			} else {
-				message.error('Unable to purchase add on plan');
-				return [false];
+				return [false, response?.[1]];
 			}
 		} catch (error) {
 			console.log('errror ==>purchaseAddOnPlan', error);
@@ -293,11 +293,20 @@ export const SubscriptionState = (props) => {
 			if (response?.[0] === true) {
 				return [true, response?.[1]];
 			} else {
-				message.error('Unable to purchase subscription plan');
-				return [false];
+				return [false, response?.[1]];
 			}
 		} catch (error) {
 			console.log('errror ==>purchaseSubscriptionPlan', error);
+		}
+	};
+	const updateRenewBanner = (payload) => {
+		try {
+			dispatch({
+				type: Actions.UPDATE_RENEW_BANNER,
+				payload,
+			});
+		} catch (error) {
+			console.log('error==>updateRenewBanner', error);
 		}
 	};
 	const updateStateValues = async (updatedVaribaleValuesObj) => {
@@ -327,5 +336,6 @@ export const SubscriptionState = (props) => {
 		purchaseAddOnPlan,
 		purchaseSubscriptionPlan,
 		updateStateValues,
+		updateRenewBanner,
 	};
 };
