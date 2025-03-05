@@ -1,4 +1,4 @@
-import React, { memo, useEffect } from 'react';
+import React, { memo, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../../assets/scss/gallery/galleryViewLayout.scss';
 import { SkeletonTheme } from 'react-loading-skeleton';
@@ -8,7 +8,12 @@ import useAuth from '../hooks/useAuth';
 import useTokenExpiry from '../hooks/useTokenExpiry';
 import useSubscription from '../hooks/useSubscription';
 import useAccessControls from '../hooks/useAcessControls';
+import Context from '../../context/context';
+import RenewBanner from '../components/globalComponents/RenewBanner';
 const GalleryViewLayout = ({ title, children }) => {
+	const {
+		subscriptionInfo: { renewBanner },
+	} = useContext(Context);
 	const checkAuth = useAuth();
 	const data = useSubscription();
 	const tokenData = useTokenExpiry();
@@ -25,6 +30,7 @@ const GalleryViewLayout = ({ title, children }) => {
 			<div className="galleryViewHeader">
 				<VE />
 			</div>
+			{renewBanner && <RenewBanner />}
 			<SkeletonTheme baseColor={'#313131'} highlightColor={'#525252'}>
 				<div className="childrenContainer">{children}</div>
 			</SkeletonTheme>
