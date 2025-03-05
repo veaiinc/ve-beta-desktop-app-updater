@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState, memo } from 'react';
 import '../../../../assets/scss/automation_builder/automationBuilderSidebarComponents/variableComponent.scss';
 import { ReactComponent as CrossIcon } from '../../../../assets/svg/workspaceSettings/cross.svg';
+import { ReactComponent as ChevronRightThinSvg } from '../../../../assets/svg/tasks/chevronRightThin.svg';
 import { Dropdown, Tooltip } from 'antd';
 
 const VariableComponent = ({ value, onChange, variables, type = 'text', options = [] }) => {
@@ -9,6 +10,7 @@ const VariableComponent = ({ value, onChange, variables, type = 'text', options 
 		optionDropdownOpen: false,
 		variables: null,
 		selectedVariable: null,
+		value: '',
 	});
 
 	const handleInfo = (updateInfo) => {
@@ -81,9 +83,9 @@ const VariableComponent = ({ value, onChange, variables, type = 'text', options 
 	return (
 		<div className="variableComponentContainer">
 			<div className="inputContainer">
-				{info?.selectedVariable ? (
+				{info?.value ? (
 					<p className="selectedVariable">
-						{`{ ${info?.variables?.actionType} > ${info?.selectedVariable?.name}${
+						{`{ ${info?.value}${
 							info?.variables?.actionType === 'formResponse' ? `.answer` : ''
 						} }`}
 						<CrossIcon
@@ -91,7 +93,7 @@ const VariableComponent = ({ value, onChange, variables, type = 'text', options 
 							height={14}
 							style={{ cursor: 'pointer' }}
 							onClick={() => {
-								handleInfo({ selectedVariable: null });
+								handleInfo({ value: '' });
 								onChange('');
 							}}
 						/>
@@ -113,7 +115,7 @@ const VariableComponent = ({ value, onChange, variables, type = 'text', options 
 						title={
 							<div className="variableTooltipContainer">
 								<div className="variableTooltipHeader">
-									{/* <ChevronRightThinSvg style={{ rotate: '180deg' }} /> */}
+									<ChevronRightThinSvg style={{ rotate: '180deg' }} />
 									<span className="variableTooltipHeaderTitle">
 										Select an option
 									</span>
@@ -179,19 +181,72 @@ const VariableComponent = ({ value, onChange, variables, type = 'text', options 
 				title={
 					<div className="variableTooltipContainer">
 						<div className="variableTooltipHeader">
-							{/* <ChevronRightThinSvg style={{ rotate: '180deg' }} /> */}
+							{info?.selectedVariable?.type === 'Object' ? (
+								<ChevronRightThinSvg
+									style={{ rotate: '180deg' }}
+									onClick={() => {
+										handleInfo({ value: '', selectedVariable: null });
+										onChange('');
+									}}
+								/>
+							) : null}
 							<span className="variableTooltipHeaderTitle">
-								{info?.variables?.actionType}
+								{info?.selectedVariable?.type === 'Object'
+									? info?.selectedVariable?.name
+									: info?.variables?.actionType}
 							</span>
 						</div>
-						{info?.variables?.variables?.length > 0 ? (
+						{info?.selectedVariable?.type === 'Object' ? (
+							info?.selectedVariable?.values?.length > 0 ? (
+								<div className="variableTooltipBody">
+									{info?.selectedVariable?.values?.map((variable, idx) => (
+										<div
+											className="variableListItem"
+											key={idx}
+											onClick={() => {
+												handleInfo({
+													open: false,
+													value: `${info?.selectedVariable?.name}.${variable?.name}`,
+												});
+												onChange(
+													`{{${
+														info?.variables?.actionType ===
+														'formResponse'
+															? `${variable?._id}.answer`
+															: `${info?.selectedVariable?.name}.${variable?.name}`
+													}}}`,
+												);
+											}}
+										>
+											<span className="variableListItemTitle">
+												{variable?.name}
+											</span>
+											{variable?.type === 'Object' ? (
+												<span className="variableListItemSubtitle">
+													{variable?.values?.length}
+													<ChevronRightThinSvg />
+												</span>
+											) : null}
+										</div>
+									))}
+								</div>
+							) : (
+								<span className="variableTooltipBody" style={{ color: '#808080' }}>
+									No variables found for this action type
+								</span>
+							)
+						) : info?.variables?.variables?.length > 0 ? (
 							<div className="variableTooltipBody">
 								{info?.variables?.variables?.map((variable, idx) => (
 									<div
 										className="variableListItem"
 										key={idx}
 										onClick={() => {
-											handleInfo({ selectedVariable: variable, open: false });
+											handleInfo({
+												value: variable?.name,
+												selectedVariable: variable,
+												open: false,
+											});
 											onChange(
 												`{{${
 													info?.variables?.actionType === 'formResponse'
@@ -204,6 +259,20 @@ const VariableComponent = ({ value, onChange, variables, type = 'text', options 
 										<span className="variableListItemTitle">
 											{variable?.name}
 										</span>
+										{variable?.type === 'Object' ? (
+											<span
+												className="variableListItemSubtitle"
+												style={{
+													color: '#808080',
+													display: 'flex',
+													alignItems: 'center',
+													fontSize: '12px',
+												}}
+											>
+												{variable?.values?.length}
+												<ChevronRightThinSvg />
+											</span>
+										) : null}
 									</div>
 								))}
 							</div>

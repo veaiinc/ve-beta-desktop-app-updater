@@ -8,29 +8,29 @@ import '../../../../assets/scss/automation_builder/automationBuilderSidebarCompo
 
 const CreateTask = ({ onBack, onSave, addTriggerLoading, variables }) => {
 	const [info, setInfo] = useState({
-		task: '',
+		title: '',
 		dueDate: '',
 		assignee: '',
-		title: '',
-		description: '',
+		stepTitle: '',
+		stepDescription: '',
 		loading: false,
 	});
 
 	const createNewTaskNode = useCallback(async () => {
 		const variableRegex = /^\{\{.*\}\}$/;
-		let { task, title, description, dueDate } = info;
+		let { title, stepTitle, stepDescription, dueDate } = info;
 		const variables = {};
-		if (task?.match(variableRegex)) {
-			variables.task = [task?.slice(2, -2)];
-		} else if (!task?.trim().length) {
-			message.error('Task name is mandatory');
-			return;
-		}
-		if (!title?.trim().length) {
+		if (title?.match(variableRegex)) {
+			variables.title = [title?.slice(2, -2)];
+		} else if (!title?.trim().length) {
 			message.error('Title is mandatory');
 			return;
 		}
-		if (!description?.trim().length) {
+		if (!stepTitle?.trim().length) {
+			message.error('Title is mandatory');
+			return;
+		}
+		if (!stepDescription?.trim().length) {
 			message.error('Title is mandatory');
 			return;
 		}
@@ -44,11 +44,11 @@ const CreateTask = ({ onBack, onSave, addTriggerLoading, variables }) => {
 		}
 
 		const payload = {
-			title,
-			description,
+			title: stepTitle,
+			description: stepDescription,
 			actionType: 'createTask',
 			inputBody: {
-				title: task,
+				title: title,
 				dueDate: dueDate,
 				action: 'createTask',
 			},
@@ -69,9 +69,16 @@ const CreateTask = ({ onBack, onSave, addTriggerLoading, variables }) => {
 			<ActionDetailsBlock
 				heading="Actions"
 				actionLabel="Create Task"
-				title={info?.title}
-				description={info?.description}
-				updaterFn={updateInfo}
+				title={info?.stepTitle}
+				description={info?.stepDescription}
+				updaterFn={(data) => {
+					if (data?.title) {
+						updateInfo({ stepTitle: data?.title });
+					}
+					if (data?.description) {
+						updateInfo({ stepDescription: data?.description });
+					}
+				}}
 				onChangeButtonClick={onBack}
 			/>
 			<div className="inAppActionsInputsContainer">
@@ -80,7 +87,8 @@ const CreateTask = ({ onBack, onSave, addTriggerLoading, variables }) => {
 					<span className="inputLabel">Task</span>
 					<VariableComponent
 						variables={variables?.data}
-						onChange={(value) => updateInfo({ task: value })}
+						onChange={(value) => updateInfo({ title: value })}
+						value={info?.title}
 					/>
 				</div>
 				<div className="inputWrapper">
@@ -90,6 +98,7 @@ const CreateTask = ({ onBack, onSave, addTriggerLoading, variables }) => {
 						variables={variables?.data}
 						onChange={(value) => updateInfo({ dueDate: value })}
 						type="date"
+						value={info?.dueDate}
 					/>
 				</div>
 			</div>

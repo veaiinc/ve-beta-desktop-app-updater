@@ -247,9 +247,8 @@ export const AutomationBuilderState = () => {
 		try {
 			const usertoken = localStorage.getItem('usertoken');
 			const workspaceId = localStorage.getItem('workspaceId');
-			const response = await restService.fetchPost(
-				`/${workspaceId}/variable/variables`,
-				payload,
+			const response = await restService.fetchGet(
+				`/${workspaceId}/variable/variables/${payload?.automationId}/steps/${payload?.previousStepId}`,
 				usertoken,
 				'automation_builder_api',
 			);
@@ -261,7 +260,7 @@ export const AutomationBuilderState = () => {
 							variables:
 								payload?.action === 'formResponse'
 									? response?.[1]?.[0]?.blocks || []
-									: response?.[1],
+									: response?.[1]?.at(-1)?.variables,
 							actionType: payload?.action,
 						},
 					},

@@ -5,12 +5,10 @@ import { useNavigate, useParams } from 'react-router-dom';
 import {
 	addEdge,
 	Background,
-	Controls,
 	ReactFlow,
 	ReactFlowProvider,
 	useEdgesState,
 	useNodesState,
-	useReactFlow,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import {
@@ -158,9 +156,9 @@ const AutomationBuilder = () => {
 				payload.action = data?.criteria?.event;
 				payload.app = data?.app;
 			}
-			getVariables(payload);
+			getVariables({ automationId, previousStepId: data?._id, action: data?.module });
 		}
-	}, [info?.previousNode]);
+	}, [info?.previousNode, automationId]);
 
 	useEffect(() => {
 		if (variables) {
