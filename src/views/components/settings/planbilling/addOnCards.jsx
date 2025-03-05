@@ -64,6 +64,7 @@ const AddOnPlans = ({ addOnsLoading = false, isOpen, closeModal, subscriptionSta
 				closeModal();
 				setInfo((prev) => ({ ...prev, checkoutLoader: false }));
 			} else {
+				message?.error(response?.[1]?.message);
 				setInfo((prev) => ({ ...prev, checkoutLoader: false }));
 			}
 		}

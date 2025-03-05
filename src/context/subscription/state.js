@@ -276,8 +276,7 @@ export const SubscriptionState = (props) => {
 			if (response?.[0] === true) {
 				return [true, response?.[1]];
 			} else {
-				message.error('Unable to purchase add on plan');
-				return [false];
+				return [false, response?.[1]];
 			}
 		} catch (error) {
 			console.log('errror ==>purchaseAddOnPlan', error);
@@ -294,8 +293,7 @@ export const SubscriptionState = (props) => {
 			if (response?.[0] === true) {
 				return [true, response?.[1]];
 			} else {
-				message.error('Unable to purchase subscription plan');
-				return [false];
+				return [false, response?.[1]];
 			}
 		} catch (error) {
 			console.log('errror ==>purchaseSubscriptionPlan', error);

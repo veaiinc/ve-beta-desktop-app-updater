@@ -195,8 +195,8 @@ const SubscribedUserPlanCard = ({
 		{
 			id: 1,
 			title: 'Storage',
-			usedValue: parseFloat(data?.storageUsedInBytes / (1024 * 1024 * 1024)),
-			totalValue: parseFloat(data?.storageLimitInBytes / (1024 * 1024 * 1024)),
+			usedValue: parseFloat(data?.storageUsedInBytes / (1024 * 1024 * 1024)).toFixed(3),
+			totalValue: parseFloat(data?.storageLimitInBytes / (1024 * 1024 * 1024)).toFixed(3),
 			barGraph: true,
 		},
 		{
