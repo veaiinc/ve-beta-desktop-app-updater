@@ -52,29 +52,44 @@
 					flex-grow: 1;
 					align-items: center;
 					.link {
-						color: var(--primary-font);
-						font-family: var(--primary-font-family);
+						width: 100px;
+						flex-grow: 1;
+						flex-shrink: 1;
+						color: #f2f2f3;
+						font-family: Inter;
 						font-size: 14px;
 						font-style: normal;
 						font-weight: 500;
 						line-height: normal;
-						width: 265px;
 						padding-right: 5px;
 						overflow: hidden;
 						text-overflow: ellipsis;
 						white-space: nowrap;
 					}
-					.order {
+					.orders-container {
 						display: flex;
-						padding: 2px 12px;
-						flex-direction: column;
-						justify-content: center;
-						align-items: center;
-						color: var(--primary-font);
+						gap: 5px;
+						max-width: 110px;
+						flex-shrink: 0;
 
-						gap: 10px;
-						border-radius: 100px;
-						background: var(--card-hover);
+						.order {
+							display: flex;
+							padding: 2px 12px;
+							flex-direction: column;
+							justify-content: center;
+							align-items: center;
+							color: #f2f2f3;
+							gap: 10px;
+							border-radius: 100px;
+							background: #202123;
+							cursor: pointer;
+							transition: all 0.2s ease-in-out;
+
+							&:hover {
+								background: #f2f2f3;
+								color: #202123;
+							}
+						}
 					}
 				}
 			}

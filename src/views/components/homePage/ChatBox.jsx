@@ -198,7 +198,7 @@ const ChatBox = ({
 
 	useEffect(() => {
 		if (latestStreamMesage && lastQuery) {
-			const { db_updates, variables_required, deepResearch } = latestStreamMesage;
+			const { db_updates, variables_required, deep_research } = latestStreamMesage;
 			if (db_updates?.calendar_db_update) {
 				updateCalendarState({ refetchCalendarState: true });
 			}
@@ -211,7 +211,7 @@ const ChatBox = ({
 			if (variables_required) {
 				handleVariablesRequired(variables_required, lastQuery);
 			}
-			if (deepResearch) {
+			if (deep_research) {
 				updateStateValues({
 					chatInfo: {
 						...chatInfo,

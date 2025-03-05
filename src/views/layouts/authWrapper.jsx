@@ -10,6 +10,8 @@ import useSubscription from '../hooks/useSubscription';
 import useTokenExpiry from '../hooks/useTokenExpiry';
 import BottomToolbar from '../components/ai_agents/BottomToolbar';
 import useAccessControls from '../hooks/useAcessControls';
+import RenewBanner from '../components/globalComponents/RenewBanner';
+import Context from '../../context/context';
 const AuthWrapper = ({
 	title,
 	children,
@@ -17,6 +19,9 @@ const AuthWrapper = ({
 	showBottomToolbar = true,
 	outerContainerStyle,
 }) => {
+	const {
+		subscriptionInfo: { renewBanner },
+	} = useContext(Context);
 	const [workspaceId, setActiveWorkspaceId] = useActiveWorkspace();
 
 	const checkAuth = useAuth();
@@ -33,7 +38,7 @@ const AuthWrapper = ({
 				<meta charSet="utf-8" />
 				<title>{title} | VE</title>
 			</Helmet>
-
+			{renewBanner && <RenewBanner />}
 			<div
 				style={{
 					display: 'flex',

@@ -821,6 +821,194 @@
 				font-weight: 500;
 				line-height: normal;
 				align-self: center;
+				border: none;
+			}
+		}
+	}
+}
+.addOnsContainer {
+	display: inline-flex;
+	padding: 32px;
+	flex-direction: column;
+	align-items: center;
+	gap: 24px;
+	flex-shrink: 0;
+	width: 100%;
+	border-radius: 32px;
+	background: #171819;
+	.addOnsHeader {
+		display: flex;
+		height: 45px;
+		justify-content: space-between;
+		align-items: center;
+		flex-shrink: 0;
+		align-self: stretch;
+		.title {
+			color: var(--ve-ai-dark-theme-primary-font-color, #f2f2f3);
+			font-family: Inter;
+			font-size: 20px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+		}
+		.checkoutContainer {
+			display: flex;
+			align-items: center;
+			gap: 24px;
+			.total {
+				color: var(--ve-ai-dark-theme-primary-font-color, #f2f2f3);
+				font-family: Inter;
+				font-size: 16px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+			.checkout {
+				display: flex;
+				padding: 14px 24px;
+				justify-content: center;
+				align-items: center;
+				gap: 6px;
+				border-radius: 59px;
+				background: #f2f2f3;
+				color: #000;
+				font-family: Inter;
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+				cursor: pointer;
+			}
+		}
+	}
+
+	.addOnsCardsContainer {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		gap: 16px;
+		width: 100%;
+		.addOnsCards {
+			display: flex;
+			height: 250px;
+			width: 300px;
+			padding: 24px;
+			flex-direction: column;
+			justify-content: space-between;
+			align-items: flex-start;
+			flex: 1 0 0;
+			border-radius: 24px;
+			background: #202123;
+			backdrop-filter: blur(8px);
+			user-select: none;
+			.addOnsCardsHeader {
+				display: flex;
+				flex-direction: column;
+				align-items: flex-start;
+				gap: 16px;
+				align-self: stretch;
+				.addOnPlanName {
+					text-transform: capitalize;
+					font-family: Inter;
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+					color: #f2f2f3;
+				}
+
+				.priceContainer {
+					display: flex;
+					align-items: center;
+					gap: 4px;
+
+					.currencySymbol,
+					.priceValue {
+						color: #f2f2f3;
+						font-family: Inter;
+						font-size: 18px;
+						font-style: normal;
+						font-weight: 600;
+						line-height: normal;
+					}
+
+					.priceDuration {
+						color: #7a7e85;
+						font-family: Inter;
+						font-size: 12px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+					}
+				}
+				.addOnsStorageLimit {
+					color: #f2f2f3;
+					font-family: Inter;
+					font-size: 18px;
+					font-style: normal;
+					font-weight: 600;
+					line-height: normal;
+					span {
+						color: #7a7e85;
+						font-family: Inter;
+						font-size: 12px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+					}
+				}
+			}
+			.addOnsButton {
+				display: flex;
+				padding: 12px 16px;
+				justify-content: center;
+				align-items: center;
+				gap: 16px;
+				align-self: stretch;
+				border-radius: 100px;
+				background: #2c2d2e;
+				border: 1px solid #2c2d2e;
+				color: #f2f2f3;
+				font-family: Inter;
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+			.addOnsQuantityContainer {
+				display: flex;
+				align-items: flex-start;
+				gap: 12px;
+				align-self: stretch;
+				.minusIcon {
+					display: flex;
+					padding: 12px 16px;
+					justify-content: center;
+					align-items: center;
+					gap: 16px;
+					border-radius: 100px;
+					border: 1px solid #2c2d2e;
+					background: #202123;
+					cursor: pointer;
+				}
+				.countIndicators {
+					display: flex;
+					padding: 12px 16px;
+					justify-content: center;
+					align-items: center;
+					gap: 16px;
+					flex: 1 0 0;
+					align-self: stretch;
+					background: #2c2d2e;
+					border-radius: 100px;
+					border: 1px solid #2c2d2e;
+					color: #f2f2f3;
+					font-family: Inter;
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+					user-select: none;
+				}
 			}
 		}
 	}

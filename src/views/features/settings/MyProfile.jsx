@@ -7,6 +7,7 @@ import ThemePreferenceComponent from '../../components/settings/profile/ThemePre
 import UpdatePasswordComponent from '../../components/settings/profile/UpdatePassword';
 import TwoFactorAuthenticationComponent from '../../components/settings/profile/TwoFactorAuthentication';
 import LeaveWorkspaceComponent from '../../components/settings/profile/LeaveWorkspace';
+import Notifications from '../../components/settings/profile/Notifications';
 import { message } from 'antd';
 import Cookies from 'js-cookie';
 
@@ -351,6 +352,7 @@ const MyProfile = () => {
 				</div> */}
 
 				{/* Temporary Hide */}
+				<Notifications />
 				<div className={'accessSettingsContainer'} id="leaveworkspace">
 					<LeaveWorkspaceComponent />
 				</div>

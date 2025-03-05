@@ -10,11 +10,10 @@ import ChatBox from '../../components/homePage/ChatBox';
 import { useParams } from 'react-router-dom';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { FetchMoreLoaderComp } from '../../../helpers';
-import { debounce } from 'lodash';
+import { debounce, escape } from 'lodash';
 import useChatStream from '../../hooks/useChatStream';
 
-let animationFrameId;
-let debounceTimer;
+let throttleTimer = null;
 const RecentChat = ({
 	outerContainerStyle = {},
 	chatList = [],
@@ -51,7 +50,7 @@ const RecentChat = ({
 		showFullPage: true,
 		voiceIntegration: false,
 		noteModalIsOpen: false,
-		citationsModalIsOpen: true,
+		citationsModalIsOpen: false,
 		page: 1,
 		currentPage: true,
 		latestStreamMesage: null,
@@ -70,11 +69,11 @@ const RecentChat = ({
 
 	useEffect(() => {
 		window.addEventListener('resize', handleResize);
+		handleResize(0);
 
 		return () => {
 			window.removeEventListener('resize', handleResize);
-			cancelAnimationFrame(animationFrameId);
-			clearTimeout(debounceTimer);
+			clearTimeout(throttleTimer);
 
 			updateStateValues({
 				moreRecentChatStorage: null,
@@ -203,25 +202,23 @@ const RecentChat = ({
 		}
 	}, [moreRecentChatStorage]);
 
-	const handleResize = () => {
-		if (animationFrameId) cancelAnimationFrame(animationFrameId);
+	const handleResize = (time = 300) => {
+		if (throttleTimer) return;
 
-		animationFrameId = requestAnimationFrame(() => {
-			clearTimeout(debounceTimer);
-			debounceTimer = setTimeout(() => {
-				if (window.innerWidth < 1400) {
-					setInfo((prev) => ({
-						...prev,
-						citationsModalIsOpen: false,
-					}));
-				} else {
-					setInfo((prev) => ({
-						...prev,
-						citationsModalIsOpen: true,
-					}));
-				}
-			}, 300);
-		});
+		throttleTimer = setTimeout(() => {
+			if (window.innerWidth < 1400) {
+				setInfo((prev) => ({
+					...prev,
+					citationsModalIsOpen: false,
+				}));
+			} else {
+				setInfo((prev) => ({
+					...prev,
+					citationsModalIsOpen: true,
+				}));
+			}
+			throttleTimer = null;
+		}, time);
 	};
 
 	const recentChatHandler = useCallback(
@@ -426,7 +423,6 @@ const RecentChat = ({
 									display: 'flex',
 									flexDirection: 'column-reverse',
 									transition: 'all 0.3s ease',
-									// justifyContent: 'flex-end',
 								}}
 								height={'calc(100vh - 180px)'}
 								scrollThreshold={0.8}
