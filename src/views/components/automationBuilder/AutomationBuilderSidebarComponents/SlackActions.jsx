@@ -107,6 +107,7 @@ const SlackActions = ({ onBack, onSave, loading, selectedAction }) => {
 					slackTeamOptions={info?.slackTeamOptions}
 					changeTeam={handleChangeTeam}
 					customSave={customSave}
+					variables={variables}
 				/>
 			),
 			sendMessage: (
@@ -133,24 +134,76 @@ const SlackActions = ({ onBack, onSave, loading, selectedAction }) => {
 					customSave={customSave}
 				/>
 			),
-			channelInfo: (
+			getChannelInfo: (
 				<ChannelInfo
 					loading={loading}
 					selectedTeam={info?.selectedTeam}
 					slackTeamOptions={info?.slackTeamOptions}
 					selectedChannel={info?.selectedChannel}
 					changeChannel={(option) => updateInfo({ selectedChannel: option })}
+					changeTeam={handleChangeTeam}
+					customSave={customSave}
 					variables={variables}
+				/>
+			),
+			getManyChannels: (
+				<GetManyChannels
+					loading={loading}
+					selectedTeam={info?.selectedTeam}
+					slackTeamOptions={info?.slackTeamOptions}
 					changeTeam={handleChangeTeam}
 					customSave={customSave}
 				/>
 			),
-			getManyChannels: <GetManyChannels />,
-			joinChannel: <JoinChannel />,
-			leaveChannel: <LeaveChannel />,
-			renameChannel: <RenameChannel />,
+			joinChannel: (
+				<JoinChannel
+					loading={loading}
+					selectedTeam={info?.selectedTeam}
+					slackTeamOptions={info?.slackTeamOptions}
+					changeTeam={handleChangeTeam}
+					customSave={customSave}
+					variables={variables}
+					selectedChannel={info?.selectedChannel}
+					changeChannel={(option) => updateInfo({ selectedChannel: option })}
+				/>
+			),
+			leaveChannel: (
+				<LeaveChannel
+					loading={loading}
+					selectedTeam={info?.selectedTeam}
+					slackTeamOptions={info?.slackTeamOptions}
+					changeTeam={handleChangeTeam}
+					customSave={customSave}
+					variables={variables}
+					selectedChannel={info?.selectedChannel}
+					changeChannel={(option) => updateInfo({ selectedChannel: option })}
+				/>
+			),
+			renameChannel: (
+				<RenameChannel
+					loading={loading}
+					selectedTeam={info?.selectedTeam}
+					slackTeamOptions={info?.slackTeamOptions}
+					changeTeam={handleChangeTeam}
+					customSave={customSave}
+					variables={variables}
+					selectedChannel={info?.selectedChannel}
+					changeChannel={(option) => updateInfo({ selectedChannel: option })}
+				/>
+			),
+			channelMembers: (
+				<ChannelMembers
+					loading={loading}
+					selectedTeam={info?.selectedTeam}
+					slackTeamOptions={info?.slackTeamOptions}
+					changeTeam={handleChangeTeam}
+					customSave={customSave}
+					variables={variables}
+					selectedChannel={info?.selectedChannel}
+					changeChannel={(option) => updateInfo({ selectedChannel: option })}
+				/>
+			),
 			deleteChannel: <DeleteChannel />,
-			channelMembers: <ChannelMembers />,
 		};
 	}, [
 		loading,
@@ -195,6 +248,11 @@ const CreateChannel = memo(
 		const [info, setInfo] = useState({
 			channelName: '',
 		});
+
+		const updateStateInfo = useCallback((data) => {
+			setInfo((prev) => ({ ...prev, ...data }));
+		}, []);
+
 		const handleSave = useCallback(() => {
 			if (!selectedTeam) {
 				return message.error('Select a Slack workspace');
@@ -215,7 +273,7 @@ const CreateChannel = memo(
 					<div className="inputWrapper">
 						<span className="inputLabel">Slack Workspace</span>
 						<HeadersDropDownComp
-							options={slackTeamOptions}
+							options={slackTeamOptions || []}
 							selectedValue={selectedTeam?.label}
 							onChangeFunc={(option) => changeTeam(option)}
 							showIcon={false}
@@ -252,7 +310,7 @@ const CreateChannel = memo(
 							className="inputField"
 							placeholder="Enter channel name"
 							value={info?.channelName}
-							onChange={(e) => setInfo({ channelName: e.target.value })}
+							onChange={(e) => updateStateInfo({ channelName: e.target.value })}
 						/>
 					</div>
 				</div>
@@ -306,7 +364,7 @@ const SendMessage = memo(
 					<div className="inputWrapper">
 						<span className="inputLabel">Slack Workspace</span>
 						<HeadersDropDownComp
-							options={slackTeamOptions}
+							options={slackTeamOptions || []}
 							selectedValue={selectedTeam?.label}
 							onChangeFunc={(option) => changeTeam(option)}
 							showIcon={false}
@@ -338,35 +396,12 @@ const SendMessage = memo(
 					</div>
 					<div className="inputWrapper">
 						<span className="inputLabel">Channel</span>
-						<HeadersDropDownComp
+						<VariableComponent
+							type="dropdown"
+							variables={variables?.data}
+							value={selectedChannel}
+							onChange={(value) => changeChannel(value)}
 							options={selectedTeam?.channels}
-							selectedValue={selectedChannel?.label}
-							onChangeFunc={(option) => changeChannel(option)}
-							showIcon={false}
-							containerStyle={{
-								...containerStyle,
-								background: '#1C1C1C',
-								border: '1px solid #2C2D2E',
-								borderRadius: '12px',
-								height: '40px',
-							}}
-							outerContainerStyle={{ width: '100%' }}
-							dropDownStyle={{
-								...dropDownStyle,
-								background: '#1C1C1C',
-								border: '1px solid #2C2C2C',
-							}}
-							dropDownTextStyling={{
-								...dropDownTextStyling,
-								color: '#FFFFFF',
-							}}
-							showSelectedValueTick={true}
-							uniqueIdentifierForTickIcon={'value'}
-							selectedValueObj={selectedChannel}
-							selectedValueStyle={{
-								...selectedValueStyling,
-								color: '#FFFFFF',
-							}}
 						/>
 					</div>
 					<div className="inputWrapper">
@@ -460,35 +495,12 @@ const DeleteMessage = memo(
 					</div>
 					<div className="inputWrapper">
 						<span className="inputLabel">Channel</span>
-						<HeadersDropDownComp
+						<VariableComponent
+							type="dropdown"
+							variables={variables?.data}
+							value={selectedChannel}
+							onChange={(value) => changeChannel(value)}
 							options={selectedTeam?.channels}
-							selectedValue={selectedChannel?.label}
-							onChangeFunc={(option) => changeChannel(option)}
-							showIcon={false}
-							containerStyle={{
-								...containerStyle,
-								background: '#1C1C1C',
-								border: '1px solid #2C2D2E',
-								borderRadius: '12px',
-								height: '40px',
-							}}
-							outerContainerStyle={{ width: '100%' }}
-							dropDownStyle={{
-								...dropDownStyle,
-								background: '#1C1C1C',
-								border: '1px solid #2C2C2C',
-							}}
-							dropDownTextStyling={{
-								...dropDownTextStyling,
-								color: '#FFFFFF',
-							}}
-							showSelectedValueTick={true}
-							uniqueIdentifierForTickIcon={'value'}
-							selectedValueObj={selectedChannel}
-							selectedValueStyle={{
-								...selectedValueStyling,
-								color: '#FFFFFF',
-							}}
 						/>
 					</div>
 					<div className="inputWrapper">
@@ -509,23 +521,16 @@ const DeleteMessage = memo(
 );
 
 const ChannelInfo = memo(
-	(
+	({
 		loading,
 		selectedTeam,
 		slackTeamOptions,
 		changeTeam,
-		variables,
 		changeChannel,
 		selectedChannel,
 		customSave,
-	) => {
-		const [info, setInfo] = useState({
-			messageId: '',
-		});
-
-		const updateStateInfo = (data) => {
-			setInfo((prev) => ({ ...prev, ...data }));
-		};
+		variables,
+	}) => {
 		const handleSave = useCallback(() => {
 			if (!selectedTeam) {
 				return message.error('Select a Slack workspace');
@@ -533,16 +538,13 @@ const ChannelInfo = memo(
 			if (!selectedChannel?.value?.trim()?.length) {
 				return message.error('Channel is mandatory');
 			}
-			if (!info?.messageId?.trim()?.length) {
-				return message.error('Message id is mandatory');
-			}
 			customSave({
-				action: 'deleteMessage',
+				action: 'getChannelInfo',
 				channelId: selectedChannel?.value,
-				messageId: info?.messageId,
 				connectedTeamId: selectedTeam?.value,
 			});
-		}, [customSave, info, selectedChannel, selectedTeam]);
+		}, [customSave, selectedChannel, selectedTeam]);
+
 		return (
 			<>
 				<h3 className="slackActionsContainerBodyItemHeader">Inputs</h3>
@@ -550,7 +552,7 @@ const ChannelInfo = memo(
 					<div className="inputWrapper">
 						<span className="inputLabel">Slack Workspace</span>
 						<HeadersDropDownComp
-							options={slackTeamOptions}
+							options={slackTeamOptions || []}
 							selectedValue={selectedTeam?.label}
 							onChangeFunc={(option) => changeTeam(option)}
 							showIcon={false}
@@ -582,10 +584,57 @@ const ChannelInfo = memo(
 					</div>
 					<div className="inputWrapper">
 						<span className="inputLabel">Channel</span>
-						<HeadersDropDownComp
+						<VariableComponent
+							type="dropdown"
+							variables={variables?.data}
+							value={selectedChannel}
+							onChange={(value) => changeChannel(value)}
 							options={selectedTeam?.channels}
-							selectedValue={selectedChannel?.label}
-							onChangeFunc={(option) => changeChannel(option)}
+						/>
+					</div>
+				</div>
+				<button className="actionsSaveButton" disabled={loading} onClick={handleSave}>
+					{loading ? <Spinner /> : 'Save'}
+				</button>
+			</>
+		);
+	},
+);
+
+const GetManyChannels = memo(
+	({ loading, selectedTeam, slackTeamOptions, changeTeam, customSave }) => {
+		const [info, setInfo] = useState({
+			limit: null,
+		});
+
+		const updateStateInfo = useCallback((data) => {
+			setInfo((prev) => ({ ...prev, ...data }));
+		}, []);
+
+		const handleSave = useCallback(() => {
+			if (!selectedTeam) {
+				return message.error('Select a Slack workspace');
+			}
+			if (!info?.limit) {
+				return message.error('Limit is mandatory');
+			}
+			customSave({
+				action: 'getManyChannels',
+				connectedTeamId: selectedTeam?.value,
+				limit: info?.limit,
+			});
+		}, [customSave, info, selectedTeam]);
+
+		return (
+			<>
+				<h3 className="slackActionsContainerBodyItemHeader">Inputs</h3>
+				<div className="slackActionsContainerBodyItem">
+					<div className="inputWrapper">
+						<span className="inputLabel">Slack Workspace</span>
+						<HeadersDropDownComp
+							options={slackTeamOptions || []}
+							selectedValue={selectedTeam?.label}
+							onChangeFunc={(option) => changeTeam(option)}
 							showIcon={false}
 							containerStyle={{
 								...containerStyle,
@@ -606,7 +655,7 @@ const ChannelInfo = memo(
 							}}
 							showSelectedValueTick={true}
 							uniqueIdentifierForTickIcon={'value'}
-							selectedValueObj={selectedChannel}
+							selectedValueObj={selectedTeam}
 							selectedValueStyle={{
 								...selectedValueStyling,
 								color: '#FFFFFF',
@@ -614,11 +663,13 @@ const ChannelInfo = memo(
 						/>
 					</div>
 					<div className="inputWrapper">
-						<span className="inputLabel">Message id</span>
-						<VariableComponent
-							variables={variables?.data}
-							value={info?.messageId}
-							onChange={(value) => updateStateInfo({ messageId: value })}
+						<span className="inputLabel">Limit</span>
+						<input
+							type="number"
+							className="inputField"
+							placeholder="Enter limit"
+							value={info?.limit}
+							onChange={(e) => updateStateInfo({ limit: e.target.value })}
 						/>
 					</div>
 				</div>
@@ -630,26 +681,353 @@ const ChannelInfo = memo(
 	},
 );
 
-const GetManyChannels = memo(() => {
-	return <div>GetManyChannels</div>;
-});
+const JoinChannel = memo(
+	({
+		loading,
+		selectedTeam,
+		slackTeamOptions,
+		changeTeam,
+		customSave,
+		variables,
+		selectedChannel,
+		changeChannel,
+	}) => {
+		const handleSave = useCallback(() => {
+			if (!selectedTeam) {
+				return message.error('Select a Slack workspace');
+			}
+			if (!selectedChannel?.value?.trim()?.length) {
+				return message.error('Channel is mandatory');
+			}
+			customSave({
+				action: 'joinChannel',
+				channelId: selectedChannel?.value,
+				connectedTeamId: selectedTeam?.value,
+			});
+		}, [customSave, selectedChannel, selectedTeam]);
 
-const JoinChannel = memo(() => {
-	return <div>JoinChannel</div>;
-});
+		return (
+			<>
+				<h3 className="slackActionsContainerBodyItemHeader">Inputs</h3>
+				<div className="slackActionsContainerBodyItem">
+					<div className="inputWrapper">
+						<span className="inputLabel">Slack Workspace</span>
+						<HeadersDropDownComp
+							options={slackTeamOptions || []}
+							selectedValue={selectedTeam?.label}
+							onChangeFunc={(option) => changeTeam(option)}
+							showIcon={false}
+							containerStyle={{
+								...containerStyle,
+								background: '#1C1C1C',
+								border: '1px solid #2C2D2E',
+								borderRadius: '12px',
+								height: '40px',
+							}}
+							outerContainerStyle={{ width: '100%' }}
+							dropDownStyle={{
+								...dropDownStyle,
+								background: '#1C1C1C',
+								border: '1px solid #2C2C2C',
+							}}
+							dropDownTextStyling={{
+								...dropDownTextStyling,
+								color: '#FFFFFF',
+							}}
+							showSelectedValueTick={true}
+							uniqueIdentifierForTickIcon={'value'}
+							selectedValueObj={selectedTeam}
+							selectedValueStyle={{
+								...selectedValueStyling,
+								color: '#FFFFFF',
+							}}
+						/>
+					</div>
+					<div className="inputWrapper">
+						<span className="inputLabel">Channel</span>
+						<VariableComponent
+							type="dropdown"
+							variables={variables?.data}
+							value={selectedChannel}
+							onChange={(value) => changeChannel(value)}
+							options={selectedTeam?.channels}
+						/>
+					</div>
+				</div>
+				<button className="actionsSaveButton" disabled={loading} onClick={handleSave}>
+					{loading ? <Spinner /> : 'Save'}
+				</button>
+			</>
+		);
+	},
+);
 
-const LeaveChannel = memo(() => {
-	return <div>LeaveChannel</div>;
-});
+const LeaveChannel = memo(
+	({
+		loading,
+		selectedTeam,
+		slackTeamOptions,
+		changeTeam,
+		customSave,
+		variables,
+		selectedChannel,
+		changeChannel,
+	}) => {
+		const handleSave = useCallback(() => {
+			if (!selectedTeam) {
+				return message.error('Select a Slack workspace');
+			}
+			if (!selectedChannel?.value?.trim()?.length) {
+				return message.error('Channel is mandatory');
+			}
+			customSave({
+				action: 'leaveChannel',
+				channelId: selectedChannel?.value,
+				connectedTeamId: selectedTeam?.value,
+			});
+		}, [customSave, selectedChannel, selectedTeam]);
 
-const RenameChannel = memo(() => {
-	return <div>RenameChannel</div>;
-});
+		return (
+			<>
+				<h3 className="slackActionsContainerBodyItemHeader">Inputs</h3>
+				<div className="slackActionsContainerBodyItem">
+					<div className="inputWrapper">
+						<span className="inputLabel">Slack Workspace</span>
+						<HeadersDropDownComp
+							options={slackTeamOptions || []}
+							selectedValue={selectedTeam?.label}
+							onChangeFunc={(option) => changeTeam(option)}
+							showIcon={false}
+							containerStyle={{
+								...containerStyle,
+								background: '#1C1C1C',
+								border: '1px solid #2C2D2E',
+								borderRadius: '12px',
+								height: '40px',
+							}}
+							outerContainerStyle={{ width: '100%' }}
+							dropDownStyle={{
+								...dropDownStyle,
+								background: '#1C1C1C',
+								border: '1px solid #2C2C2C',
+							}}
+							dropDownTextStyling={{
+								...dropDownTextStyling,
+								color: '#FFFFFF',
+							}}
+							showSelectedValueTick={true}
+							uniqueIdentifierForTickIcon={'value'}
+							selectedValueObj={selectedTeam}
+							selectedValueStyle={{
+								...selectedValueStyling,
+								color: '#FFFFFF',
+							}}
+						/>
+					</div>
+					<div className="inputWrapper">
+						<span className="inputLabel">Channel</span>
+						<VariableComponent
+							type="dropdown"
+							variables={variables?.data}
+							value={selectedChannel}
+							onChange={(value) => changeChannel(value)}
+							options={selectedTeam?.channels}
+						/>
+					</div>
+				</div>
+				<button className="actionsSaveButton" disabled={loading} onClick={handleSave}>
+					{loading ? <Spinner /> : 'Save'}
+				</button>
+			</>
+		);
+	},
+);
+
+const RenameChannel = memo(
+	({
+		loading,
+		selectedTeam,
+		slackTeamOptions,
+		changeTeam,
+		customSave,
+		variables,
+		selectedChannel,
+		changeChannel,
+	}) => {
+		const [info, setInfo] = useState({
+			channelName: '',
+		});
+
+		const updateStateInfo = useCallback((data) => {
+			setInfo((prev) => ({ ...prev, ...data }));
+		}, []);
+
+		const handleSave = useCallback(() => {
+			if (!selectedTeam) {
+				return message.error('Select a Slack workspace');
+			}
+
+			if (!selectedChannel?.value?.trim()?.length) {
+				return message.error('Channel is mandatory');
+			}
+
+			if (!info?.channelName?.trim()) {
+				return message.error('Channel new name is mandatory');
+			}
+			customSave({
+				action: 'renameChannel',
+				channelId: selectedChannel?.value,
+				connectedTeamId: selectedTeam?.value,
+				channelName: info?.channelName,
+			});
+		}, [customSave, info, selectedChannel, selectedTeam]);
+		return (
+			<>
+				<h3 className="slackActionsContainerBodyItemHeader">Inputs</h3>
+				<div className="slackActionsContainerBodyItem">
+					<div className="inputWrapper">
+						<span className="inputLabel">Slack Workspace</span>
+						<HeadersDropDownComp
+							options={slackTeamOptions || []}
+							selectedValue={selectedTeam?.label}
+							onChangeFunc={(option) => changeTeam(option)}
+							showIcon={false}
+							containerStyle={{
+								...containerStyle,
+								background: '#1C1C1C',
+								border: '1px solid #2C2D2E',
+								borderRadius: '12px',
+								height: '40px',
+							}}
+							outerContainerStyle={{ width: '100%' }}
+							dropDownStyle={{
+								...dropDownStyle,
+								background: '#1C1C1C',
+								border: '1px solid #2C2C2C',
+							}}
+							dropDownTextStyling={{
+								...dropDownTextStyling,
+								color: '#FFFFFF',
+							}}
+							showSelectedValueTick={true}
+							uniqueIdentifierForTickIcon={'value'}
+							selectedValueObj={selectedTeam}
+							selectedValueStyle={{
+								...selectedValueStyling,
+								color: '#FFFFFF',
+							}}
+						/>
+					</div>
+					<div className="inputWrapper">
+						<span className="inputLabel">Channel</span>
+						<VariableComponent
+							type="dropdown"
+							variables={variables?.data}
+							value={selectedChannel}
+							onChange={(value) => changeChannel(value)}
+							options={selectedTeam?.channels}
+						/>
+					</div>
+					<div className="inputWrapper">
+						<span className="inputLabel">New Channel Name</span>
+						<input
+							type="text"
+							className="inputField"
+							placeholder="Enter channel name"
+							value={info?.channelName}
+							onChange={(e) => updateStateInfo({ channelName: e.target.value })}
+						/>
+					</div>
+				</div>
+				<button className="actionsSaveButton" disabled={loading} onClick={handleSave}>
+					{loading ? <Spinner /> : 'Save'}
+				</button>
+			</>
+		);
+	},
+);
+
+const ChannelMembers = memo(
+	({
+		loading,
+		selectedTeam,
+		slackTeamOptions,
+		changeTeam,
+		customSave,
+		variables,
+		selectedChannel,
+		changeChannel,
+	}) => {
+		const handleSave = useCallback(() => {
+			if (!selectedTeam) {
+				return message.error('Select a Slack workspace');
+			}
+			if (!selectedChannel?.value?.trim()?.length) {
+				return message.error('Channel is mandatory');
+			}
+			customSave({
+				action: 'channelMembers',
+				channelId: selectedChannel?.value,
+				connectedTeamId: selectedTeam?.value,
+			});
+		}, [customSave, selectedChannel, selectedTeam]);
+
+		return (
+			<>
+				<h3 className="slackActionsContainerBodyItemHeader">Inputs</h3>
+				<div className="slackActionsContainerBodyItem">
+					<div className="inputWrapper">
+						<span className="inputLabel">Slack Workspace</span>
+						<HeadersDropDownComp
+							options={slackTeamOptions || []}
+							selectedValue={selectedTeam?.label}
+							onChangeFunc={(option) => changeTeam(option)}
+							showIcon={false}
+							containerStyle={{
+								...containerStyle,
+								background: '#1C1C1C',
+								border: '1px solid #2C2D2E',
+								borderRadius: '12px',
+								height: '40px',
+							}}
+							outerContainerStyle={{ width: '100%' }}
+							dropDownStyle={{
+								...dropDownStyle,
+								background: '#1C1C1C',
+								border: '1px solid #2C2C2C',
+							}}
+							dropDownTextStyling={{
+								...dropDownTextStyling,
+								color: '#FFFFFF',
+							}}
+							showSelectedValueTick={true}
+							uniqueIdentifierForTickIcon={'value'}
+							selectedValueObj={selectedTeam}
+							selectedValueStyle={{
+								...selectedValueStyling,
+								color: '#FFFFFF',
+							}}
+						/>
+					</div>
+					<div className="inputWrapper">
+						<span className="inputLabel">Channel</span>
+						<VariableComponent
+							type="dropdown"
+							variables={variables?.data}
+							value={selectedChannel}
+							onChange={(value) => changeChannel(value)}
+							options={selectedTeam?.channels}
+						/>
+					</div>
+				</div>
+				<button className="actionsSaveButton" disabled={loading} onClick={handleSave}>
+					{loading ? <Spinner /> : 'Save'}
+				</button>
+			</>
+		);
+	},
+);
 
 const DeleteChannel = memo(() => {
 	return <div>DeleteChannel</div>;
-});
-
-const ChannelMembers = memo(() => {
-	return <div>ChannelMembers</div>;
 });

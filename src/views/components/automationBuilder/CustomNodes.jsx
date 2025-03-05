@@ -52,6 +52,12 @@ const eventTypeMapper = {
 	getDraft: 'Get Draft',
 	createTask: 'Create Task',
 	createFile: 'Create Document',
+	joinChannel: 'Join Channel',
+	leaveChannel: 'Leave Channel',
+	renameChannel: 'Rename Channel',
+	channelMembers: 'Channel Members',
+	getChannelInfo: 'Get Channel Info',
+	getManyChannels: 'Get Many Channels',
 };
 
 const appNameMapper = {

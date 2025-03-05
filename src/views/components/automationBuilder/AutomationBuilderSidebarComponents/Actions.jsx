@@ -84,33 +84,33 @@ const actionGroups = [
 				actionLabel: 'Delete Message',
 				actionType: 'deleteMessage',
 			},
-			// {
-			// 	actionLabel: 'Get channel Info',
-			// 	actionType: 'channelInfo',
-			// },
-			// {
-			// 	actionLabel: 'Get many channels',
-			// 	actionType: 'getManyChannels',
-			// },
-			// {
-			// 	actionLabel: 'Join Channel',
-			// 	actionType: 'joinChannel',
-			// },
-			// {
-			// 	actionLabel: 'Leave Channel',
-			// 	actionType: 'leaveChannel',
-			// },
-			// {
-			// 	actionLabel: 'Rename Channel',
-			// 	actionType: 'renameChannel',
-			// },
+			{
+				actionLabel: 'Get channel Info',
+				actionType: 'getChannelInfo',
+			},
+			{
+				actionLabel: 'Get many channels',
+				actionType: 'getManyChannels',
+			},
+			{
+				actionLabel: 'Join Channel',
+				actionType: 'joinChannel',
+			},
+			{
+				actionLabel: 'Leave Channel',
+				actionType: 'leaveChannel',
+			},
+			{
+				actionLabel: 'Rename Channel',
+				actionType: 'renameChannel',
+			},
+			{
+				actionLabel: 'Get channel members',
+				actionType: 'channelMembers',
+			},
 			// {
 			// 	actionLabel: 'Delete Channel',
 			// 	actionType: 'deleteChannel',
-			// },
-			// {
-			// 	actionLabel: 'Get channel members',
-			// 	actionType: 'channelMembers',
 			// },
 		],
 	},
@@ -240,99 +240,111 @@ const Actions = ({ onCLose, activeEdge, editMode, activeStepsData, automationId 
 						}}
 						heading="Actions"
 					/>
-					<div className="actionSideBarSearchbarContainer">
-						<div className="actionSidebarSearch">
-							<span style={{ paddingTop: '12px', paddingBottom: '12px' }}>
-								<Search />
-							</span>
-							<input
-								className="actionSideBarSearchInput"
-								placeholder="Search Actions"
-								value={info?.search}
-								onChange={handleSearch}
-							/>
-						</div>
-					</div>
-					<div className="actionGroupsContainer">
-						{actionGroups
-							?.filter((ele) => info?.connectedIntegrations?.includes(ele?._id))
-							?.map((ele, index) => {
-								// Check if search matches group name
-								const groupNameMatches =
-									!info?.search ||
-									ele.groupName.toLowerCase().includes(info.search.toLowerCase());
-
-								// Filter actions based on search in action label or show all if group name matches
-								const filteredActions = ele.actions.filter(
-									(action) =>
-										groupNameMatches ||
-										!info?.search ||
-										action.actionLabel
-											.toLowerCase()
-											.includes(info.search.toLowerCase()),
-								);
-
-								if (!filteredActions.length) return null;
-
-								return (
-									<div className="actionGroupItem" key={index}>
-										<h3>{ele?.groupName}</h3>
-										{filteredActions?.map((action, index) => (
-											<div
-												className="actionItem"
-												key={index}
-												onClick={() =>
-													updateInfo({
-														selectedAction: {
-															actionType: action?.actionType,
-															groupId: ele?._id,
-															actionLabel: action?.actionLabel,
-														},
-													})
-												}
-											>
-												<div className="actionItemIcon">{ele?.icon}</div>
-												<div className="actionItemLabel">
-													{action?.actionLabel}
-												</div>
-											</div>
-										))}
-									</div>
-								);
-							})
-							.filter(Boolean)}
-
-						{!info.search && (
-							<div className="actionGroupItem">
-								<h3>Available Integrations</h3>
-								{integrations?.map((action, index) => (
-									<div
-										className="actionItem"
-										key={index}
-										onClick={() => {
-											if (
-												!info?.connectedIntegrations?.includes(action?._id)
-											) {
-												window.location.href = '/settings/integrations';
-											}
-										}}
-									>
-										<div className="actionItemIcon">{action?.icon}</div>
-										<div className="actionItemLabel">{action?.groupName}</div>
-										<div className="actionItemStatus">
-											{info?.connectedIntegrations?.includes(action?._id) ? (
-												'Connected'
-											) : (
-												<span className="actionItemConnect">
-													Connect
-													<RightArrrow />
-												</span>
-											)}
-										</div>
-									</div>
-								))}
+					<div className="actionSidebarContainer">
+						<div className="actionSideBarSearchbarContainer">
+							<div className="actionSidebarSearch">
+								<span style={{ paddingTop: '12px', paddingBottom: '12px' }}>
+									<Search />
+								</span>
+								<input
+									className="actionSideBarSearchInput"
+									placeholder="Search Actions"
+									value={info?.search}
+									onChange={handleSearch}
+								/>
 							</div>
-						)}
+						</div>
+						<div className="actionGroupsContainer">
+							{actionGroups
+								?.filter((ele) => info?.connectedIntegrations?.includes(ele?._id))
+								?.map((ele, index) => {
+									// Check if search matches group name
+									const groupNameMatches =
+										!info?.search ||
+										ele.groupName
+											.toLowerCase()
+											.includes(info.search.toLowerCase());
+
+									// Filter actions based on search in action label or show all if group name matches
+									const filteredActions = ele.actions.filter(
+										(action) =>
+											groupNameMatches ||
+											!info?.search ||
+											action.actionLabel
+												.toLowerCase()
+												.includes(info.search.toLowerCase()),
+									);
+
+									if (!filteredActions.length) return null;
+
+									return (
+										<div className="actionGroupItem" key={index}>
+											<h3>{ele?.groupName}</h3>
+											{filteredActions?.map((action, index) => (
+												<div
+													className="actionItem"
+													key={index}
+													onClick={() =>
+														updateInfo({
+															selectedAction: {
+																actionType: action?.actionType,
+																groupId: ele?._id,
+																actionLabel: action?.actionLabel,
+															},
+														})
+													}
+												>
+													<div className="actionItemIcon">
+														{ele?.icon}
+													</div>
+													<div className="actionItemLabel">
+														{action?.actionLabel}
+													</div>
+												</div>
+											))}
+										</div>
+									);
+								})
+								.filter(Boolean)}
+
+							{!info.search && (
+								<div className="actionGroupItem">
+									<h3>Available Integrations</h3>
+									{integrations?.map((action, index) => (
+										<div
+											className="actionItem"
+											key={index}
+											onClick={() => {
+												if (
+													!info?.connectedIntegrations?.includes(
+														action?._id,
+													)
+												) {
+													window.location.href = '/settings/integrations';
+												}
+											}}
+										>
+											<div className="actionItemIcon">{action?.icon}</div>
+											<div className="actionItemLabel">
+												{action?.groupName}
+											</div>
+											<div className="actionItemStatus">
+												{info?.connectedIntegrations?.includes(
+													action?._id,
+												) ? (
+													'Connected'
+												) : (
+													<span className="actionItemConnect">
+														Connect
+														<RightArrrow />
+													</span>
+												)}
+											</div>
+										</div>
+									))}
+								</div>
+							)}
+						</div>
 					</div>
 				</>
 			)}

@@ -1,11 +1,12 @@
 import React, { useCallback, useEffect, useState, memo } from 'react';
 import '../../../../assets/scss/automation_builder/automationBuilderSidebarComponents/variableComponent.scss';
 import { ReactComponent as CrossIcon } from '../../../../assets/svg/workspaceSettings/cross.svg';
-import { Tooltip } from 'antd';
+import { Dropdown, Tooltip } from 'antd';
 
-const VariableComponent = ({ value, onChange, variables, type = 'text' }) => {
+const VariableComponent = ({ value, onChange, variables, type = 'text', options = [] }) => {
 	const [info, setInfo] = useState({
-		open: false,
+		variableDropdownOpen: false,
+		optionDropdownOpen: false,
 		variables: null,
 		selectedVariable: null,
 	});
@@ -95,6 +96,67 @@ const VariableComponent = ({ value, onChange, variables, type = 'text' }) => {
 							}}
 						/>
 					</p>
+				) : type === 'dropdown' ? (
+					<Tooltip
+						placement="bottom"
+						arrow={false}
+						color="transparent"
+						overlayStyle={{
+							minWidth: 'fit-content',
+						}}
+						open={info?.optionDropdownOpen}
+						onOpenChange={(open) => {
+							if (!open) {
+								handleInfo({ optionDropdownOpen: false });
+							}
+						}}
+						title={
+							<div className="variableTooltipContainer">
+								<div className="variableTooltipHeader">
+									{/* <ChevronRightThinSvg style={{ rotate: '180deg' }} /> */}
+									<span className="variableTooltipHeaderTitle">
+										Select an option
+									</span>
+								</div>
+								{options?.length > 0 ? (
+									<div className="variableTooltipBody">
+										{options?.map((option, idx) => (
+											<div
+												className={`variableListItem ${
+													value?.value === option?.value ? 'selected' : ''
+												}`}
+												key={idx}
+												onClick={() => {
+													onChange(option);
+													handleInfo({ optionDropdownOpen: false });
+												}}
+											>
+												<span className="variableListItemTitle">
+													{option?.label}
+												</span>
+											</div>
+										))}
+									</div>
+								) : (
+									<span
+										className="variableTooltipBody"
+										style={{ color: '#808080' }}
+									>
+										No options found
+									</span>
+								)}
+							</div>
+						}
+					>
+						<div
+							className="inputDropdownContainer"
+							onClick={() =>
+								handleInfo({ optionDropdownOpen: !info?.optionDropdownOpen })
+							}
+						>
+							{value?.label || 'Select an option'}
+						</div>
+					</Tooltip>
 				) : (
 					<input
 						type={type}
@@ -105,11 +167,11 @@ const VariableComponent = ({ value, onChange, variables, type = 'text' }) => {
 				)}
 			</div>
 			<Tooltip
-				open={info?.open}
+				open={info?.variableDropdownOpen}
 				onOpenChange={(open) => {
 					if (!open) {
 						handleInfo({
-							open: false,
+							variableDropdownOpen: false,
 						});
 					}
 				}}
@@ -163,7 +225,7 @@ const VariableComponent = ({ value, onChange, variables, type = 'text' }) => {
 					className="insertVariableButton"
 					onClick={() => {
 						handleInfo({
-							open: !info?.open,
+							variableDropdownOpen: !info?.variableDropdownOpen,
 						});
 					}}
 				>
