@@ -17,63 +17,66 @@
 	}
 }
 
-.citation-tooltip-container {
-	display: flex;
-	width: 312px;
-	padding: 24px;
-	flex-direction: column;
-	justify-content: center;
-	align-items: center;
-	gap: 24px;
-	border-radius: 16px;
-	background: #202123;
-
-	.tooltip-content {
-		width: 280px;
-		height: 270px;
-		overflow-y: auto;
-		flex-shrink: 0;
-		color: #f2f2f3;
-		font-family: Inter;
-		font-size: 14px;
-		font-style: normal;
-		font-weight: 500;
-		line-height: 18px; /* 150% */
-	}
-
-	.info {
+.citation-tooltip-wrapper {
+	max-width: unset;
+	.citation-tooltip-container {
 		display: flex;
+		width: 312px;
+		padding: 24px;
+		flex-direction: column;
+		justify-content: center;
 		align-items: center;
-		padding: 10px;
-		flex-direction: row;
-		gap: 10px;
-		align-self: stretch;
-		border-radius: 10px;
-		background: #26282a;
+		gap: 24px;
+		border-radius: 16px;
+		background: #202123;
 
-		.image {
-			display: flex;
-			width: 24px;
-			height: 24px;
-			padding: 4px;
-			justify-content: center;
-			align-items: center;
-			color: #f2f2f3;
-			border-radius: 4px;
-			background: #202123;
-		}
-
-		.citation-link {
-			width: 100%;
+		.tooltip-content {
+			width: 280px;
+			height: 270px;
+			overflow-y: auto;
+			flex-shrink: 0;
 			color: #f2f2f3;
 			font-family: Inter;
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 500;
-			line-height: normal;
-			text-overflow: ellipsis;
-			overflow: hidden;
-			white-space: nowrap;
+			line-height: 18px; /* 150% */
+		}
+
+		.info {
+			display: flex;
+			align-items: center;
+			padding: 10px;
+			flex-direction: row;
+			gap: 10px;
+			align-self: stretch;
+			border-radius: 10px;
+			background: #26282a;
+
+			.image {
+				display: flex;
+				width: 24px;
+				height: 24px;
+				padding: 4px;
+				justify-content: center;
+				align-items: center;
+				color: #f2f2f3;
+				border-radius: 4px;
+				background: #202123;
+			}
+
+			.citation-link {
+				width: 100%;
+				color: #f2f2f3;
+				font-family: Inter;
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+				text-overflow: ellipsis;
+				overflow: hidden;
+				white-space: nowrap;
+			}
 		}
 	}
 }

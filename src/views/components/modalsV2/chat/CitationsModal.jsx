@@ -3,6 +3,7 @@ import '../../../../assets/scss/chat/modal/citationsModal.scss';
 import { ReactComponent as CitationCloseIcon } from '../../../../assets/svg/ai_agents/expand-chat-icon.svg';
 import { useContext, useEffect, useState } from 'react';
 import Context from '../../../../context/context';
+import { CitationsTooltip } from './CitationsTooltip';
 
 const CitationsModal = ({ closeModal, modalIsOpen }) => {
 	const {
@@ -14,11 +15,34 @@ const CitationsModal = ({ closeModal, modalIsOpen }) => {
 	});
 
 	useEffect(() => {
-		setInfo((prev) => ({
-			...prev,
-			citations: citations,
-		}));
+		if (citations?.length > 0) {
+			const aggregatedCitations = aggregateCitations(citations);
+			setInfo((prev) => ({
+				...prev,
+				citations: aggregatedCitations,
+			}));
+		}
 	}, [citations]);
+
+	const aggregateCitations = (citations) => {
+		const grouped = {};
+
+		citations.forEach((citation) => {
+			const { source, id } = citation;
+			const baseSource = source ? source.split('::')[0] : `NULL_SOURCE_${id}`;
+
+			if (!grouped[baseSource]) {
+				grouped[baseSource] = {
+					...citation,
+					commonIds: [],
+				};
+			}
+
+			grouped[baseSource].commonIds.push(id);
+		});
+
+		return Object.values(grouped);
+	};
 
 	return (
 		<Drawer
@@ -54,7 +78,17 @@ const CitationsModal = ({ closeModal, modalIsOpen }) => {
 										>
 											{name}
 										</a>
-										<div className="order">{index + 1}</div>
+										<div className="orders-container">
+											{citation?.commonIds?.map((id) => {
+												return (
+													<CitationsTooltip
+														citationId={id}
+														citations={citations}
+														placement={'bottomRight'}
+													/>
+												);
+											})}
+										</div>
 									</div>
 								</div>
 							);
