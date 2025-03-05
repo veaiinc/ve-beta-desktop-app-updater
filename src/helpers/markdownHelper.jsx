@@ -15,6 +15,8 @@ import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import 'katex/dist/katex.min.css';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { dracula } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 const rehypeCITPlugin = () => {
 	return (tree) => {
@@ -186,11 +188,18 @@ const baseComponents = {
 			{children}
 		</tr>
 	),
-	code: ({ children, ...props }) => (
-		<code {...props} className="markdown-code">
-			{children}
-		</code>
-	),
+	code({ node, inline, className, children, ...props }) {
+		const match = /language-(\w+)/.exec(className || '');
+		return !inline && match ? (
+			<SyntaxHighlighter style={dracula} language={match[1]} PreTag="div">
+				{String(children).replace(/\n$/, '')}
+			</SyntaxHighlighter>
+		) : (
+			<code {...props} className="markdown-code px-1 py-0.5 rounded text-sm">
+				{children}
+			</code>
+		);
+	},
 };
 
 // Memoize citation-specific components
