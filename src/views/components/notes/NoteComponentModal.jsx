@@ -118,6 +118,7 @@ const NoteComponentModal = ({
 														showTypingEffect={chat?.typingEffect}
 														rating={chat?.rating}
 														messageData={chat}
+														citations={chat?.citations}
 													/>
 												</div>
 											) : (
