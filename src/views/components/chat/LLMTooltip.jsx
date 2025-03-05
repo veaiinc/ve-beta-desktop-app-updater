@@ -16,12 +16,14 @@ const LLMTooltip = ({ children, isOpen, setIsLLMModelOpen, handleOptionClick, se
 			getLLMModels();
 		} else {
 			setModels(llmModels?.models);
-			updateStateValues({
-				chatInfo: {
-					...chatInfo,
-					selectedLLMModel: llmModels?.default_model_code,
-				},
-			});
+			if (!chatInfo?.selectedLLMModel) {
+				updateStateValues({
+					chatInfo: {
+						...chatInfo,
+						selectedLLMModel: llmModels?.default_model_code,
+					},
+				});
+			}
 		}
 	}, [llmModels]);
 
