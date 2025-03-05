@@ -4,6 +4,7 @@ import { message, Spin } from 'antd';
 import moment from 'moment';
 import VariableComponent from './VariableComponent';
 import HeaderComponent from './HeaderComponent';
+import '../../../../assets/scss/automation_builder/automationBuilderSidebarComponents/inAppActions.scss';
 
 const CreateTask = ({ onBack, onSave, addTriggerLoading, variables }) => {
 	const [info, setInfo] = useState({
@@ -63,7 +64,7 @@ const CreateTask = ({ onBack, onSave, addTriggerLoading, variables }) => {
 		setInfo((prev) => ({ ...prev, ...data }));
 	}, []);
 	return (
-		<div className="createTaskUiContainer">
+		<div className="inAppActionsContainer">
 			<HeaderComponent onBack={onBack} heading="Create Task" />
 			<ActionDetailsBlock
 				heading="Actions"
@@ -73,17 +74,17 @@ const CreateTask = ({ onBack, onSave, addTriggerLoading, variables }) => {
 				updaterFn={updateInfo}
 				onChangeButtonClick={onBack}
 			/>
-			<div className="createTasksUi">
-				<h2 className="taskInputHeading">Inputs</h2>
-				<div className="addTaskTitleContainer">
-					<span className="addTaskTitleTextStyle">Task</span>
+			<div className="inAppActionsInputsContainer">
+				<h2 className="InputBlockHeading">Inputs</h2>
+				<div className="inputWrapper">
+					<span className="inputLabel">Task</span>
 					<VariableComponent
 						variables={variables?.data}
 						onChange={(value) => updateInfo({ task: value })}
 					/>
 				</div>
-				<div className="addTaskTitleContainer">
-					<span className="addTaskTitleTextStyle">Due (optional)</span>
+				<div className="inputWrapper">
+					<span className="inputLabel">Due (optional)</span>
 
 					<VariableComponent
 						variables={variables?.data}

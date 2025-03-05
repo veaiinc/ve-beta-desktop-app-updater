@@ -203,7 +203,6 @@ const SlackActions = ({ onBack, onSave, loading, selectedAction }) => {
 					changeChannel={(option) => updateInfo({ selectedChannel: option })}
 				/>
 			),
-			deleteChannel: <DeleteChannel />,
 		};
 	}, [
 		loading,
@@ -1027,7 +1026,3 @@ const ChannelMembers = memo(
 		);
 	},
 );
-
-const DeleteChannel = memo(() => {
-	return <div>DeleteChannel</div>;
-});

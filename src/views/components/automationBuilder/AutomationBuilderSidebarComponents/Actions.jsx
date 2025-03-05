@@ -14,6 +14,7 @@ import CreateTask from './CreateTask';
 import HeaderComponent from './HeaderComponent';
 import GoogleActions from './GoogleActions';
 import SlackActions from './SlackActions';
+import CreateMeeting from './CreateMeeting';
 
 const integrations = [
 	{
@@ -42,6 +43,10 @@ const actionGroups = [
 				actionLabel: 'Create Task',
 				actionType: 'createTask',
 			},
+			// {
+			// 	actionLabel: 'Create Meeting',
+			// 	actionType: 'createMeeting',
+			// },
 		],
 	},
 	{
@@ -108,10 +113,6 @@ const actionGroups = [
 				actionLabel: 'Get channel members',
 				actionType: 'channelMembers',
 			},
-			// {
-			// 	actionLabel: 'Delete Channel',
-			// 	actionType: 'deleteChannel',
-			// },
 		],
 	},
 ];
@@ -194,6 +195,14 @@ const Actions = ({ onCLose, activeEdge, editMode, activeStepsData, automationId 
 			),
 			createTask: (
 				<CreateTask
+					onBack={() => updateInfo({ selectedAction: null })}
+					onSave={addNode}
+					addTriggerLoading={info?.saveLoader}
+					variables={variables}
+				/>
+			),
+			createMeeting: (
+				<CreateMeeting
 					onBack={() => updateInfo({ selectedAction: null })}
 					onSave={addNode}
 					addTriggerLoading={info?.saveLoader}
