@@ -753,7 +753,7 @@
 		align-items: flex-start;
 		gap: 24px;
 		border-radius: 32px;
-		background: #171819;
+		background: var(--card);
 		.notificationTitleContainer {
 			display: flex;
 			flex-direction: column;
@@ -827,10 +827,10 @@
 		align-items: flex-start;
 		gap: 24px;
 		border-radius: 32px;
-		background: #171819;
+		background: var(--card);
 		.notificationContainerContentTitle {
-			color: var(--ve-ai-dark-theme-primary-font-color, #e8e8e8);
-			font-family: Inter;
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
 			font-size: 20px;
 			font-style: normal;
 			font-weight: 500;
