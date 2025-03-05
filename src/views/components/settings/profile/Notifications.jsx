@@ -59,16 +59,15 @@ const Notifications = () => {
 
 	useEffect(() => {
 		if (showNotificationPreferences) {
-			const selectedOptions = info?.selectedOptions;
-			const moduleAppTypeSelectAll = info?.moduleAppTypeSelectAll;
+			const selectedOptions = { ...(info?.selectedOptions || {}) };
+			const moduleAppTypeSelectAll = { ...(info?.moduleAppTypeSelectAll || {}) };
 
 			notificationPreferences?.forEach(({ module, actions }) => {
 				actions?.forEach(({ action, apps }) => {
-					const { email, whatsapp, slack } = apps;
 					if (!selectedOptions[module]) {
 						selectedOptions[module] = {};
 					}
-					selectedOptions[module][action] = { email, whatsapp, slack };
+					selectedOptions[module][action] = apps;
 				});
 				moduleAppTypeSelectAll[module] = defaultModuleAppTypeSelectAll;
 			});
@@ -139,26 +138,26 @@ const Notifications = () => {
 	const handleSetModuleAppTypeSelectAll = async (module, appType) => {
 		try {
 			const isEnabled = !info?.moduleAppTypeSelectAll?.[module]?.[appType];
+			const selectedOptions = info?.selectedOptions;
 			const updatedSelectedOptions = Object.fromEntries(
 				Object.entries(info?.selectedOptions?.[module] || {}).map(([action, apps]) => [
 					action,
 					{ ...apps, [appType]: isEnabled },
 				]),
 			);
+			const moduleAppTypeSelectAll = info?.moduleAppTypeSelectAll;
+			moduleAppTypeSelectAll[module] = {
+				...moduleAppTypeSelectAll[module],
+				[appType]: isEnabled,
+			};
+			selectedOptions[module] = updatedSelectedOptions;
+
 			setInfo((prev) => ({
 				...prev,
-				moduleAppTypeSelectAll: {
-					...prev?.moduleAppTypeSelectAll,
-					[module]: {
-						...prev?.moduleAppTypeSelectAll?.[module],
-						[appType]: isEnabled,
-					},
-				},
-				selectedOptions: {
-					...prev?.selectedOptions,
-					[module]: updatedSelectedOptions,
-				},
+				moduleAppTypeSelectAll,
+				selectedOptions,
 			}));
+
 			const response = await updateModuleAppTypeSelectAll(
 				module,
 				appType,

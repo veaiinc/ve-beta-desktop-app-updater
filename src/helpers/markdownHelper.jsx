@@ -12,6 +12,12 @@ import Context from '../context/context';
 import { Tooltip } from 'antd';
 import { CitationsTooltip } from '../views/components/modalsV2/chat/CitationsTooltip';
 import remarkGfm from 'remark-gfm';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
+import 'katex/dist/katex.min.css';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { dracula } from 'react-syntax-highlighter/dist/esm/styles/prism';
+
 const rehypeCITPlugin = () => {
 	return (tree) => {
 		const visit = (node) => {
@@ -22,32 +28,29 @@ const rehypeCITPlugin = () => {
 				const matches = node?.value?.match(regex);
 				if (!matches) return;
 
-				// Transform the current node in place
-				Object.assign(node, {
+				// Create a new node instead of modifying in place
+				const newNode = {
 					type: 'element',
 					tagName: 'span',
 					properties: node?.properties || {},
-					children: node?.value
-						?.split(regex)
-						?.filter((part) => part !== '')
-						?.map((part) => {
-							const match = part.match(/\[C\d+\]/);
-							if (match) {
-								return {
-									type: 'element',
-									tagName: 'span',
-									properties: { citationId: match[0]?.slice(1, -1) },
-									children: [{ type: 'text', value: 'Citation' }],
-								};
-							}
-							return { type: 'text', value: part };
-						}),
-				});
+					children: node?.value?.split(regex)?.map((part) => {
+						if (regex?.test(part)) {
+							return {
+								type: 'element',
+								tagName: 'span',
+								properties: { citationId: part?.slice(1, -1) },
+								children: [{ type: 'text', value: 'Citation' }],
+							};
+						}
+						return { type: 'text', value: part };
+					}),
+				};
+
+				Object.assign(node, newNode);
 			}
 
-			// Recursively visit children
-			if (node?.children && Array.isArray(node?.children)) {
-				node.children.forEach(visit);
+			if (node?.children && Array?.isArray(node?.children)) {
+				node?.children?.forEach(visit);
 			}
 		};
 
@@ -59,7 +62,7 @@ const rehypeCITPlugin = () => {
 const baseComponents = {
 	pre: ({ children }) => <>{children}</>,
 	ol: ({ children, ...props }) => (
-		<ol className="list-decimal list-outside ml-4" {...props}>
+		<ol className="list-decimal list-outside ml-8" {...props}>
 			{children}
 		</ol>
 	),
@@ -72,7 +75,7 @@ const baseComponents = {
 	},
 	ul: ({ children, ...props }) => {
 		return (
-			<ul className="list-decimal list-outside ml-4" {...props}>
+			<ul className="list-decimal list-outside ml-8" {...props}>
 				{children}
 			</ul>
 		);
@@ -185,6 +188,18 @@ const baseComponents = {
 			{children}
 		</tr>
 	),
+	code({ node, inline, className, children, ...props }) {
+		const match = /language-(\w+)/.exec(className || '');
+		return !inline && match ? (
+			<SyntaxHighlighter style={dracula} language={match[1]} PreTag="div">
+				{String(children).replace(/\n$/, '')}
+			</SyntaxHighlighter>
+		) : (
+			<code {...props} className="markdown-code px-1 py-0.5 rounded text-sm">
+				{children}
+			</code>
+		);
+	},
 };
 
 // Memoize citation-specific components
@@ -194,7 +209,8 @@ const createCitationComponents = (citations) => ({
 		return <span {...props}>{children}</span>;
 	},
 });
-const remarkPlugins = [remarkGfm];
+const remarkPlugins = [remarkGfm, remarkMath];
+const rehypePlugins = [rehypeKatex, rehypeCITPlugin];
 const NonMemoizedMarkdown = ({ children, citations }) => {
 	// Memoize the combined components object
 	const components = useMemo(
@@ -208,7 +224,7 @@ const NonMemoizedMarkdown = ({ children, citations }) => {
 	return (
 		<ReactMarkdown
 			remarkPlugins={remarkPlugins}
-			rehypePlugins={[rehypeCITPlugin]}
+			rehypePlugins={rehypePlugins}
 			components={components}
 		>
 			{children}
@@ -256,7 +272,7 @@ export const TypingEffect = memo(
 			if (customePencilClickFunc) {
 				customePencilClickFunc();
 			}
-			setNoteContent(text);
+			setNoteContent(messageData);
 		}, [customePencilClickFunc, text, setNoteContent]);
 
 		const handleThumbsUp = useCallback(() => {
