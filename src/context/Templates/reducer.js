@@ -188,6 +188,10 @@ const actionHandlers = {
 
 		return { ...state, globalChatMessages: messages };
 	},
+	GET_LLM_MODELS_SUCCESS: (state, action) => ({
+		...state,
+		llmModels: action?.payload,
+	}),
 	RESET_STATE: () => intialState,
 };
 
