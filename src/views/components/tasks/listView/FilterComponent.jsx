@@ -6,7 +6,7 @@ import { Tooltip } from 'antd';
 import Person from './Person';
 import WorkFlow from './WorkFlow';
 import Status from './Status';
-import Priority from './Priority';
+import Select from './Select';
 import DateView from './DateView';
 import moment from 'moment';
 const FilterComponent = ({
@@ -16,7 +16,7 @@ const FilterComponent = ({
 	value,
 	fieldName,
 	filters,
-	updateListViewInfo,
+	updateViewInfo,
 	isPending,
 	onConfirm,
 	setPendingFilters,
@@ -33,10 +33,10 @@ const FilterComponent = ({
 				const newFilters = filters.map((item) =>
 					item.key === key ? { ...item, value } : item,
 				);
-				updateListViewInfo('filters', newFilters);
+				updateViewInfo({ filters: newFilters });
 			}
 		},
-		[filters, updateListViewInfo, isPending, onConfirm],
+		[filters, updateViewInfo, isPending, onConfirm],
 	);
 
 	const handleInputKeyDown = (e) => {
@@ -50,9 +50,9 @@ const FilterComponent = ({
 			setPendingFilters((prev) => prev.filter((f) => f.key !== fieldName));
 		} else {
 			const newFilters = filters.filter((item) => item.key !== fieldName);
-			updateListViewInfo('filters', newFilters);
+			updateViewInfo({ filters: newFilters });
 		}
-	}, [fieldName, filters, updateListViewInfo, isPending, setPendingFilters]);
+	}, [fieldName, filters, updateViewInfo, isPending, setPendingFilters]);
 	const componentOptionsMapper = {
 		workflow: (value) => (
 			<WorkFlow
@@ -84,11 +84,13 @@ const FilterComponent = ({
 				colors={colors}
 			/>
 		),
-		priority: (value) => (
-			<Priority
+		select: (value) => (
+			<Select
 				value={value}
 				onOptionClick={(value) => handleFilterChange(fieldName, value)}
+				{...props}
 				setDefault={false}
+				colors={colors}
 			/>
 		),
 		date: (value) => (
@@ -149,6 +151,12 @@ const FilterComponent = ({
 					{type === 'date' && value
 						? moment.unix(value).format('MMM DD')
 						: type === 'status' && value
+						? [
+								...(props?.options?.todo || []),
+								...(props?.options?.inProgress || []),
+								...(props?.options?.completed || []),
+						  ].find((option) => option._id === value)?.label
+						: type === 'select' && value
 						? props?.options?.find((option) => option._id === value)?.label
 						: typeof value === 'object'
 						? value?.title || value?.name || value?.label

@@ -1,15 +1,18 @@
 import { useReducer } from 'react';
 import Reducer from './reducer';
+import { Actions } from './actions';
 import service from '../../services/';
 import Cookies from 'js-cookie';
-import { fetchDomainName, getLocationsDetails } from '../../helpers';
-import { message } from 'antd';
+import { fetchDomainName } from '../../helpers';
 import { NEWSLETTER_SUBSCRIPTION_URL } from '../../helpers/ConstantUrls';
 const { auth_Api: authBaseUrl } = require('../../services/config.live');
 
+export const initialState = {
+	currentPlanAddOns: null,
+};
+
 export const AuthState = () => {
-	const intialState = {};
-	const [state, dispatch] = useReducer(Reducer, intialState);
+	const [state, dispatch] = useReducer(Reducer, initialState);
 
 	const requestEmailVerificationCode = async (email) => {
 		const path = '/email-verification-code';
@@ -180,8 +183,8 @@ export const AuthState = () => {
 	};
 
 	const updateUserDetails = async (username = '', phoneNumber = false) => {
-		const firstName = username?.split(' ')?.[0] || '';
-		const lastName = username?.split(' ')?.[1] || '';
+		const firstName = username?.length ? username?.split(' ')?.[0] : '';
+		const lastName = username?.length ? username?.split(' ')?.[1] : '';
 		const path = '/tenant-user';
 
 		const body = {};
@@ -370,7 +373,51 @@ export const AuthState = () => {
 		}
 	};
 
+	const getAddOnsForCurrentPlan = async () => {
+		try {
+			const token = localStorage?.getItem('usertoken') || '';
+			const workspaceId = localStorage?.getItem('workspaceId') || '';
+			const path = `/addon-plan/${workspaceId}/list-add-on-plans`;
+
+			const response = await service?.fetchGet(path, token, 'auth');
+			if (response?.[0] === true) {
+				dispatch({
+					type: Actions?.GET_ADD_ONS_FOR_CURRENT_PLAN_SUCCESS,
+					payload: response?.[1],
+				});
+				return [true];
+			} else {
+				return [false, { message: response?.[1]?.message?.trim() + '. Please try again!' }];
+			}
+		} catch (error) {
+			console.error('Error getting add-ons for current plan:', error);
+			throw error;
+		}
+	};
+
+	const purchaseAddOn = async (planId) => {
+		try {
+			const workspaceId = localStorage?.getItem('workspaceId') || '';
+			const path = `/addon-plan/${workspaceId}/purchase-add-on-plan`;
+			const token = localStorage?.getItem('usertoken') || '';
+			const body = {
+				addOnPlanId: planId,
+			};
+
+			const response = await service?.fetchPost(path, body, token, 'auth');
+			if (response?.[0] === true) {
+				return [true, { url: response?.[1]?.url }];
+			} else {
+				return [false, { message: response?.[1]?.message?.trim() + '. Please try again!' }];
+			}
+		} catch (error) {
+			console.error('Error purchasing add-on:', error);
+			throw error;
+		}
+	};
+
 	return {
+		...state,
 		checkAccountExistsUsingEmail,
 		createAccountUsingEmail,
 		continueWithGoogle,
@@ -382,5 +429,7 @@ export const AuthState = () => {
 		verifyMobileOtpCode,
 		requestResendOTPToMobile,
 		subscribeToNewsletter,
+		getAddOnsForCurrentPlan,
+		purchaseAddOn,
 	};
 };

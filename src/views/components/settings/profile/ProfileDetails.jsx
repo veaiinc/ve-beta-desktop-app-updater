@@ -1,4 +1,4 @@
-import React, { memo, useState } from 'react';
+import React, { memo, useContext, useState } from 'react';
 import { getInitials } from '../../../../helpers/index';
 import MySettingsChangePasword from '../../../features/settings/MySettingsChangePasword';
 import PhoneInput from 'react-phone-number-input';
@@ -9,6 +9,7 @@ import { ReactComponent as PencilkSvg } from '../../../../assets/svg/Settings/pe
 import UploadAvatarPopupComponent from './UploadAvatarPopup';
 import UploadFileProiflePopup from './UploadFileProiflePopup';
 import Cropper from 'react-easy-crop';
+import Context from '../../../../context/context';
 
 // profile details component
 const ProfileDetailsComponent = ({
@@ -26,6 +27,9 @@ const ProfileDetailsComponent = ({
 	updateDpThemeHandler,
 }) => {
 	const [uploadAvatarPopup, setuploadAvatarPopup] = useState({ theme: false, file: false });
+	const {
+		themeInfo: { theme },
+	} = useContext(Context);
 
 	const handleImageChange = (acceptedFiles) => {
 		const file = acceptedFiles[0];
@@ -68,11 +72,7 @@ const ProfileDetailsComponent = ({
 									background: userDetails?.cropSettings?.profileDpColor || '',
 								}}
 							>
-								{getInitials(
-									userDetailsData?.firstName,
-
-									userDetailsData?.lastName,
-								)}
+								{getInitials(userDetailsData?.firstName, userDetailsData?.lastName)}
 							</div>
 						)}
 

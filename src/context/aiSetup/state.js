@@ -1,11 +1,20 @@
 import { useReducer } from 'react';
 import Reducer from './reducer';
-import { AI_PERSONALITY, KNOWLEDGE_BASE } from './actionTypes';
+import {
+	AI_PERSONALITY,
+	KNOWLEDGE_BASE,
+	AI_ASSISTANT_INSTRUCTIONS,
+	AI_PROMPT,
+	AI_ACTIONS,
+	AI_CHAT_LOGS,
+} from './actionTypes';
 import { Actions } from './actions';
 import service from '../../services';
 import gqlService from '../../services/graphQlServices';
 import { generatePDFsBatchId } from '../../helpers';
 import { getTemmplatesQuery } from '../Templates/graphQlFunctions';
+import ObjectID from 'bson-objectid';
+import axios from 'axios';
 
 export const initialState = {
 	knowledgeBaseFiles: {
@@ -13,6 +22,8 @@ export const initialState = {
 		areKnowledgeBaseFilesLoading: true,
 	},
 	existingAiAssistants: null,
+	aiAssistants: null,
+	moreAiAssistants: null,
 	activeAiAssistantDetails: null,
 	workflows: {
 		data: [],
@@ -24,6 +35,21 @@ export const initialState = {
 		hasMore: false,
 		currentPage: 1,
 	},
+	aiChatSessions: null,
+	aiAssistant: null,
+	aiInstructions: null,
+	aiPrompt: null,
+	aiDefaultPrompt: null,
+	aiActions: null,
+	aiAction: null,
+	tokenForVoice: null,
+	aiChatLogs: null,
+	moreAiChatLogs: null,
+	aiCrawlLinks: null,
+	promptsData: null,
+	updatedKnowledgeBaseFiles: null,
+	moreUpdatedKnowledgeBaseFiles: null,
+	filesUploadedInAiChat: null,
 };
 
 export const AiSetupState = () => {
@@ -126,7 +152,7 @@ export const AiSetupState = () => {
 		return response?.[0];
 	};
 
-	const getKnowledgeBaseFiles = async (assistantId, page = 1, limit = 10, reset = false) => {
+	const getKnowledgeBaseFiles = async (assistantId, page = 1, limit = 10, fetchMore = false) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
@@ -135,24 +161,50 @@ export const AiSetupState = () => {
 				workspaceId +
 				KNOWLEDGE_BASE?.listFilesInKnowledgeBase +
 				`?page=${page}&limit=${limit}&assistantId=${assistantId}`;
-			const response = await service.fetchGet(url, usertoken, 'ai_assistant_api'); // change the type to ai_setup later
-			const knowledgeBaseData = {
-				data: reset
-					? [...response?.[1]?.data]
-					: [...state?.knowledgeBaseFiles?.data, ...response?.[1]?.data],
-				hasMore: response?.[1]?.hasNextPage,
-				currentPage: response?.[1]?.currentPage,
-				totalPages: response?.[1]?.totalDocs,
-				areKnowledgeBaseFilesLoading: false,
-			};
+			const response = await service.fetchGet(url, usertoken, 'ai_assistant_api');
+
+			const selectedVariable = fetchMore
+				? 'moreUpdatedKnowledgeBaseFiles'
+				: 'updatedKnowledgeBaseFiles';
+
 			if (response?.[0]) {
 				dispatch({
-					type: Actions?.SET_KNOWLEDGE_BASE_FILES,
-					payload: knowledgeBaseData,
+					type: Actions?.SET_KNOWLEDGE_BASE_FILES_USING_UPDATED_LOGIC,
+					payload: response?.[1],
+					selectedVariable: selectedVariable,
 				});
 			}
 		} catch (error) {
 			console.log('error==>getKnowledgeBaseFiles', error);
+		}
+	};
+
+	const getAiChatSessions = async (page = 1, limit = 10, reset = false) => {
+		try {
+			const token = localStorage.getItem('usertoken');
+			const workspaceId = localStorage.getItem('workspaceId');
+			const type = 'tenant';
+			const params = {
+				page,
+				limit,
+			};
+			const url = '/' + workspaceId + '/list-multiagent-sessions';
+			const response = await service?.fetchGet(url, token, type, params);
+			if (response?.[0]) {
+				const aiChatSessions = {
+					data: reset
+						? [...response?.[1]?.data]
+						: [...state?.aiChatSessions?.data, ...response?.[1]?.data],
+					hasMore: response?.[1]?.hasNextPage,
+					currentPage: response?.[1]?.currentPage,
+				};
+				dispatch({
+					type: Actions?.SET_AI_CHAT_SESSIONS,
+					payload: aiChatSessions,
+				});
+			}
+		} catch (error) {
+			console.log('error==>getAiChatSessions', error);
 		}
 	};
 
@@ -176,6 +228,25 @@ export const AiSetupState = () => {
 			console.log('error==>getExistingAiAssistants', error);
 		}
 	};
+	const getAiAssistants = async (page = 1, limit = 20, fetchMore = false) => {
+		let workspaceId = localStorage.getItem('workspaceId');
+		let usertoken = localStorage.getItem('usertoken');
+		const url = `/${workspaceId}${AI_PERSONALITY?.listAiAssistants}?page=${page}&limit=${limit}`;
+		try {
+			const response = await service?.fetchGet(url, usertoken, 'ai_assistant_api');
+			if (response?.[0]) {
+				const selectedVariable = fetchMore ? 'moreAiAssistants' : 'aiAssistants';
+				dispatch({
+					type: Actions?.SET_AI_ASSISTANTS,
+					payload: response?.[1],
+					selectedVariable: selectedVariable,
+				});
+				return response?.[1];
+			}
+		} catch (error) {
+			console.log('error==>getAiAssistants', error);
+		}
+	};
 
 	const createNewAiAssistant = async (data) => {
 		let workspaceId = localStorage.getItem('workspaceId');
@@ -184,6 +255,10 @@ export const AiSetupState = () => {
 		try {
 			const response = await service?.fetchPost(url, data, usertoken, 'ai_assistant_api'); // change the type to ai_setup later
 			if (response?.[0]) {
+				dispatch({
+					type: Actions?.SET_AI_ASSISTANT,
+					payload: response?.[1],
+				});
 				return response?.[1]?._id;
 			}
 		} catch (error) {
@@ -202,6 +277,7 @@ export const AiSetupState = () => {
 					type: Actions?.SET_ACTIVE_AI_ASSISTANT_DETAILS,
 					payload: response?.[1],
 				});
+				return response?.[1];
 			}
 		} catch (error) {
 			console.log('error==>updateAiAssistant', error);
@@ -287,13 +363,9 @@ export const AiSetupState = () => {
 				};
 
 				let signedUrl = '';
+				let response = null;
 				try {
-					const response = await service?.fetchPost(
-						url,
-						body,
-						usertoken,
-						'ai_assistant_api',
-					); // change the type to ai_setup later
+					response = await service?.fetchPost(url, body, usertoken, 'ai_assistant_api'); // change the type to ai_setup later
 					if (response?.[0] && response?.[1]?.signedUrl) {
 						signedUrl = response[1].signedUrl;
 					} else {
@@ -313,10 +385,15 @@ export const AiSetupState = () => {
 							body: file,
 						});
 
-						if (uploadResponse.ok) {
-							return resolve({ file: file.name, status: 'resolved' });
+						if (uploadResponse?.ok) {
+							return resolve({
+								_id: response?.[1]?._id,
+								file: file?.name,
+								status: 'resolved',
+							});
 						} else {
 							return reject({
+								_id: response?.[1]?._id,
 								file: file.name,
 								status: 'rejected',
 								error: 'Failed to upload to S3',
@@ -324,7 +401,12 @@ export const AiSetupState = () => {
 						}
 					}
 				} catch (error) {
-					return reject({ file: file.name, status: 'rejected', error: error.message });
+					return reject({
+						_id: response?.[1]?._id,
+						file: file.name,
+						status: 'rejected',
+						error: error.message,
+					});
 				}
 			});
 		});
@@ -332,7 +414,11 @@ export const AiSetupState = () => {
 		const uploadResults = await Promise.allSettled(fileUploadPromises);
 		const statusSummary = uploadResults.map((result) => {
 			if (result.status === 'fulfilled') {
-				return { file: result.value.file, status: result.value.status };
+				return {
+					_id: result.value._id,
+					file: result.value.file,
+					status: result.value.status,
+				};
 			} else {
 				return {
 					file: result.reason.file,
@@ -366,6 +452,513 @@ export const AiSetupState = () => {
 		}
 	};
 
+	const uploadImageToKnowledgeBase = async (file) => {
+		let workspaceId = localStorage.getItem('workspaceId');
+		let usertoken = localStorage.getItem('usertoken');
+		const path = '/' + workspaceId + KNOWLEDGE_BASE?.uploadImageToKnowledgeBase;
+		const uploadBatchId = Date?.now()?.toString();
+		const sessionId = ObjectID()?.toString();
+		const body = {
+			originalFileName: file?.name,
+			uploadBatchId,
+			sessionId,
+		};
+
+		try {
+			const response = await service?.fetchPost(path, body, usertoken, 'ai_assistant_api');
+			if (response?.[0]) {
+				const { signedUrl, _id } = response?.[1];
+				if (signedUrl) {
+					const uploadResponse = await fetch(signedUrl, {
+						method: 'PUT',
+						headers: {
+							'Content-Type': file.type || 'application/pdf',
+						},
+						body: file,
+					});
+
+					if (uploadResponse?.ok && uploadResponse?.status === 200) {
+						return [true, { _id, uploadBatchId, sessionId }];
+					} else {
+						return [false, uploadResponse];
+					}
+				}
+			} else {
+				return [false, response?.[1]];
+			}
+		} catch (error) {
+			console.log('error==>uploadImageToKnowledgeBase', error);
+		}
+	};
+
+	const checkFileUploadStatus = async (batchId, fileId) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const url = '/' + workspaceId + KNOWLEDGE_BASE?.checkFileUploadStatus;
+			const body = {
+				uploadBatchId: batchId,
+				_id: fileId,
+			};
+			const response = await service?.fetchPost(url, body, usertoken, 'ai_assistant_api');
+			if (response?.[0]) {
+				return [true, response?.[1]];
+			} else {
+				return [false, response?.[1]];
+			}
+		} catch (error) {
+			console.log('error==>checkFileUploadStatus', error);
+		}
+	};
+
+	//from herer
+	const updateKnowledgeBaseFile = async (knowledgeId, data) => {
+		let workspaceId = localStorage.getItem('workspaceId');
+		let usertoken = localStorage.getItem('usertoken');
+		const url = '/' + workspaceId + KNOWLEDGE_BASE?.updateKnowledgeBaseFile + '/' + knowledgeId;
+		try {
+			const response = await service?.fetchPut(url, data, usertoken, 'ai_assistant_api');
+			return response;
+		} catch (error) {
+			console.log('error==>updateKnowledgeBaseFile', error);
+		}
+	};
+
+	const getInstructions = async (assistantId) => {
+		let workspaceId = localStorage.getItem('workspaceId');
+		let usertoken = localStorage.getItem('usertoken');
+		const url =
+			'/' +
+			workspaceId +
+			'/ai-assistants/' +
+			assistantId +
+			AI_ASSISTANT_INSTRUCTIONS?.getInstructions;
+
+		try {
+			const response = await service?.fetchGet(url, usertoken, 'ai_assistant_api');
+			if (response?.[0]) {
+				dispatch({
+					type: Actions?.GET_AI_INSTRUCTIONS,
+					payload: response?.[1]?.instructions,
+				});
+				return response?.[1];
+			}
+		} catch (error) {
+			console.log('error==>getInstructions', error);
+		}
+	};
+
+	const createInstruction = async (assistantId, data) => {
+		let workspaceId = localStorage.getItem('workspaceId');
+		let usertoken = localStorage.getItem('usertoken');
+		const url =
+			'/' +
+			workspaceId +
+			'/ai-assistants/' +
+			assistantId +
+			AI_ASSISTANT_INSTRUCTIONS?.createInstruction;
+
+		try {
+			const response = await service?.fetchPost(url, data, usertoken, 'ai_assistant_api');
+			if (response?.[0]) {
+				dispatch({
+					type: Actions?.SET_AI_INSTRUCTION,
+					payload: response?.[1]?.instructions,
+				});
+				return response?.[1];
+			}
+		} catch (error) {
+			console.log('error==>createInstruction', error);
+		}
+	};
+
+	const updateInstruction = async (assistantId, instructionId, data) => {
+		let workspaceId = localStorage.getItem('workspaceId');
+		let usertoken = localStorage.getItem('usertoken');
+		const url =
+			'/' +
+			workspaceId +
+			'/ai-assistants/' +
+			assistantId +
+			AI_ASSISTANT_INSTRUCTIONS?.updateInstruction +
+			'/' +
+			instructionId;
+		try {
+			const response = await service?.fetchPut(url, data, usertoken, 'ai_assistant_api');
+			if (response?.[0]) {
+				dispatch({
+					type: Actions?.SET_AI_INSTRUCTION,
+					payload: response?.[1]?.instructions,
+				});
+				return response?.[1];
+			}
+		} catch (error) {
+			console.log('error==>updateInstruction', error);
+		}
+	};
+
+	const deleteInstruction = async (assistantId, instructionId) => {
+		let workspaceId = localStorage.getItem('workspaceId');
+		let usertoken = localStorage.getItem('usertoken');
+		const url =
+			'/' + workspaceId + '/ai-assistants/' + assistantId + '/instructions/' + instructionId;
+		try {
+			const response = await service?.fetchDelete(url, usertoken, {}, 'ai_assistant_api');
+			if (response?.[0]) {
+				dispatch({
+					type: Actions?.DELETE_AI_INSTRUCTION,
+					payload: response?.[1]?.instructions,
+				});
+				return response?.[1]?.instructions;
+			}
+		} catch (error) {
+			console.log('error==>deleteInstruction', error);
+		}
+	};
+
+	const getAiPrompt = async (assistantId) => {
+		let workspaceId = localStorage.getItem('workspaceId');
+		let usertoken = localStorage.getItem('usertoken');
+		const url = '/' + workspaceId + '/ai-assistants/' + assistantId + AI_PROMPT?.getAiPrompt;
+		try {
+			const response = await service?.fetchGet(url, usertoken, 'ai_assistant_api');
+			if (response?.[0]) {
+				dispatch({
+					type: Actions?.GET_AI_PROMPT,
+					payload: response?.[1],
+				});
+
+				return response?.[1];
+			}
+		} catch (error) {
+			console.log('error==>getAiPrompt', error);
+		}
+	};
+
+	const editAiPrompt = async (assistantId, promptId, data) => {
+		let workspaceId = localStorage.getItem('workspaceId');
+		let usertoken = localStorage.getItem('usertoken');
+		const url =
+			'/' +
+			workspaceId +
+			'/ai-assistants/' +
+			assistantId +
+			AI_PROMPT?.editAiPrompt +
+			'/' +
+			promptId;
+		try {
+			const response = await service?.fetchPut(url, data, usertoken, 'ai_assistant_api');
+			if (response?.[0]) {
+				dispatch({
+					type: Actions?.SET_AI_PROMPT,
+					payload: response?.[1],
+				});
+				return response?.[1];
+			}
+		} catch (error) {
+			console.log('error==>editAiPrompt', error);
+		}
+	};
+
+	const getDefaultAiPrompt = async (assistantId) => {
+		let workspaceId = localStorage.getItem('workspaceId');
+		let usertoken = localStorage.getItem('usertoken');
+		const url =
+			'/' + workspaceId + '/ai-assistants/' + assistantId + AI_PROMPT?.defaultAiPrompt;
+		try {
+			const response = await service?.fetchGet(url, usertoken, 'ai_assistant_api');
+			if (response?.[0]) {
+				dispatch({
+					type: Actions?.GET_DEFAULT_AI_PROMPT,
+					payload: response?.[1]?.data,
+				});
+				return response?.[1]?.data;
+			}
+		} catch (error) {
+			console.log('error==>getDefaultAiPrompt', error);
+		}
+	};
+
+	const selectAiPrompt = async (assistantId, promptId) => {
+		let workspaceId = localStorage.getItem('workspaceId');
+		let usertoken = localStorage.getItem('usertoken');
+		const url =
+			'/' +
+			workspaceId +
+			'/ai-assistants/' +
+			assistantId +
+			AI_PROMPT?.selectAiPrompt +
+			'/' +
+			promptId;
+		try {
+			const response = await service?.fetchPost(url, {}, usertoken, 'ai_assistant_api');
+			if (response?.[0]) {
+				dispatch({
+					type: Actions?.SELECT_AI_PROMPT,
+					payload: response?.[1],
+				});
+				return response?.[1];
+			}
+		} catch (error) {
+			console.log('error==>selectAiPrompt', error);
+		}
+	};
+
+	const resetAiPrompt = async (assistantId) => {
+		let workspaceId = localStorage.getItem('workspaceId');
+		let usertoken = localStorage.getItem('usertoken');
+		const url = '/' + workspaceId + '/ai-assistants/' + assistantId + AI_PROMPT?.resetAiPrompt;
+		try {
+			const response = await service?.fetchPut(url, {}, usertoken, 'ai_assistant_api');
+			if (response?.[0]) {
+				dispatch({
+					type: Actions?.RESET_AI_PROMPT,
+					payload: response?.[1],
+				});
+				return response?.[1];
+			}
+		} catch (error) {
+			console.log('error==>resetAiPrompt', error);
+		}
+	};
+
+	const uploadFile = async (assistantId, data, type) => {
+		let workspaceId = localStorage.getItem('workspaceId');
+		let usertoken = localStorage.getItem('usertoken');
+		const url = '/' + workspaceId + '/ai-assistants/' + assistantId + '/upload-file';
+		try {
+			const response = await service?.fetchPost(url, { type }, usertoken, 'ai_assistant_api');
+			if (response?.[0]) {
+				const signedUrl = response?.[1]?.signedUrl;
+				const uploadResponse = await axios.put(signedUrl, data, {
+					headers: {
+						'Content-Type': data?.type,
+					},
+				});
+				if (uploadResponse.status === 200) {
+					return {
+						ok: true,
+						message: 'File uploaded successfully',
+					};
+				}
+			}
+		} catch (error) {
+			console.log('error==>uploadFile', error);
+		}
+	};
+
+	const removeFile = async (assistantId, type) => {
+		let workspaceId = localStorage.getItem('workspaceId');
+		let usertoken = localStorage.getItem('usertoken');
+		const url = '/' + workspaceId + '/ai-assistants/' + assistantId + '/delete-file/' + type;
+		try {
+			const response = await service?.fetchDelete(url, usertoken, {}, 'ai_assistant_api');
+			return response;
+		} catch (error) {
+			console.log('error==>removeFile', error);
+		}
+	};
+
+	const getActions = async (assistantId) => {
+		let workspaceId = localStorage.getItem('workspaceId');
+		let usertoken = localStorage.getItem('usertoken');
+		const url = '/' + workspaceId + '/ai-assistants/' + assistantId + AI_ACTIONS?.aiActions;
+		try {
+			const response = await service?.fetchGet(url, usertoken, 'ai_assistant_api');
+			if (response?.[0]) {
+				dispatch({
+					type: Actions?.GET_AI_ACTIONS,
+					payload: response?.[1]?.data,
+				});
+				return response?.[1]?.data;
+			}
+		} catch (error) {
+			console.log('error==>getActions', error);
+		}
+	};
+
+	const addAiAction = async (assistantId, data) => {
+		let workspaceId = localStorage.getItem('workspaceId');
+		let usertoken = localStorage.getItem('usertoken');
+		const url = '/' + workspaceId + '/ai-assistants/' + assistantId + AI_ACTIONS?.aiActions;
+		try {
+			const response = await service?.fetchPost(url, data, usertoken, 'ai_assistant_api');
+			if (response?.[0]) {
+				dispatch({
+					type: Actions?.ADD_AI_ACTION,
+					payload: response?.[1]?.insertData,
+				});
+				return response?.[1]?.insertData;
+			}
+		} catch (error) {
+			console.log('error==>addAiAction', error);
+		}
+	};
+
+	const updateAiAction = async (assistantId, actionId, data) => {
+		let workspaceId = localStorage.getItem('workspaceId');
+		let usertoken = localStorage.getItem('usertoken');
+		const url =
+			'/' +
+			workspaceId +
+			'/ai-assistants/' +
+			assistantId +
+			AI_ACTIONS?.aiActions +
+			'/' +
+			actionId;
+		try {
+			const response = await service?.fetchPut(url, data, usertoken, 'ai_assistant_api');
+			if (response?.[0]) {
+				dispatch({
+					type: Actions?.UPDATE_AI_ACTION,
+					payload: response?.[1]?.assistant,
+				});
+				return response?.[1]?.assistant;
+			}
+		} catch (error) {
+			console.log('error==>updateAiAction', error);
+		}
+	};
+
+	const deleteAiAction = async (assistantId, actionId) => {
+		let workspaceId = localStorage.getItem('workspaceId');
+		let usertoken = localStorage.getItem('usertoken');
+		const url =
+			'/' +
+			workspaceId +
+			'/ai-assistants/' +
+			assistantId +
+			AI_ACTIONS?.aiActions +
+			'/' +
+			actionId;
+		try {
+			const response = await service?.fetchDelete(url, usertoken, {}, 'ai_assistant_api');
+			if (response?.[0]) {
+				dispatch({
+					type: Actions?.DELETE_AI_ACTION,
+					payload: response?.[1],
+				});
+				return response?.[1];
+			}
+		} catch (error) {
+			console.log('error==>deleteAiAction', error);
+		}
+	};
+
+	const getTokenForVoice = async () => {
+		try {
+			const usertoken = localStorage.getItem('usertoken');
+			const workspaceId = localStorage.getItem('workspaceId');
+
+			const response = await service?.fetchPost(
+				`/${workspaceId}/generate-livekit-token`,
+				{},
+				usertoken,
+				'ai_predictions',
+			);
+
+			if (response?.[0]) {
+				return response?.[1];
+			} else {
+				throw new Error('Failed to fetch token');
+			}
+		} catch (error) {
+			console.error('Error fetching token:', error);
+			throw error;
+		}
+	};
+
+	const getAiChatLogs = async (assistantId, page = 1, limit = 20, fetchMore = false) => {
+		let workspaceId = localStorage.getItem('workspaceId');
+		let usertoken = localStorage.getItem('usertoken');
+		const url = '/' + workspaceId + '/ai-assistants/' + assistantId + AI_CHAT_LOGS?.aiChatLogs;
+		try {
+			const response = await service?.fetchGet(url, usertoken, 'ai_assistant_api');
+			if (response?.[0]) {
+				const selectedVariable = fetchMore ? 'moreAiChatLogs' : 'aiChatLogs';
+				dispatch({
+					type: Actions?.GET_AI_CHAT_LOGS,
+					payload: response?.[1],
+					selectedVariable,
+				});
+				return response?.[1];
+			}
+		} catch (error) {
+			console.log('error==>getAiChatLogs', error);
+		}
+	};
+
+	const crawlAiAssistant = async (data) => {
+		let workspaceId = localStorage.getItem('workspaceId');
+		let usertoken = localStorage.getItem('usertoken');
+		const url = '/' + workspaceId + AI_ACTIONS?.aiCrawl;
+		try {
+			const response = await service?.fetchPost(url, data, usertoken, 'ai_predictions');
+			if (response?.[0]) {
+				dispatch({
+					type: Actions?.CRAWL_AI_ASSISTANT,
+					payload: response?.[1],
+				});
+				return response?.[1].urls;
+			}
+		} catch (error) {
+			console.log('error==>crawlAiAssistant', error);
+		}
+	};
+
+	// https://api.ap-south-1.ve.ai/businessconsultant/ai-suggested-prompts
+	const getPromptsData = async (queryParams = {}) => {
+		let workspaceId = localStorage.getItem('workspaceId');
+		let usertoken = localStorage.getItem('usertoken');
+		const url = '/' + workspaceId + '/ai-suggested-prompts';
+		try {
+			const response = await service?.fetchGet(
+				url,
+				usertoken,
+				'ai_assistant_api',
+				queryParams,
+			);
+			if (response?.[0]) {
+				dispatch({
+					type: Actions?.GET_PROMPTS_DATA,
+					payload: response?.[1],
+				});
+				return response?.[1];
+			}
+		} catch (error) {
+			console.log('error==>getPromptsData', error);
+		}
+	};
+
+	const getFilesUploadedInAiChat = async (payload, isSearchQueryChanged = false) => {
+		let workspaceId = localStorage.getItem('workspaceId');
+		let usertoken = localStorage.getItem('usertoken');
+		const url = '/' + workspaceId + '/ai-chat/list-ai-chat-file-uploads';
+		try {
+			const response = await service?.fetchGet(url, usertoken, 'ai_assistant_api', payload);
+
+			if (response?.[0]) {
+				const { data, currentPage, hasNextPage } = response?.[1];
+				let updatedData;
+				if (isSearchQueryChanged || !state?.filesUploadedInAiChat) {
+					updatedData = data;
+				} else {
+					updatedData = [...state?.filesUploadedInAiChat?.data, ...data];
+				}
+				dispatch({
+					type: Actions?.GET_FILES_UPLOADED_IN_AI_CHAT,
+					payload: {
+						data: updatedData,
+						currentPage,
+						hasNextPage,
+					},
+				});
+			}
+		} catch (error) {
+			console.log('error==>getFilesUploadedInAiChat', error);
+		}
+	};
+
 	const resetAiSetupState = () => {
 		dispatch({ type: Actions?.RESET_STATE });
 	};
@@ -385,5 +978,30 @@ export const AiSetupState = () => {
 		getWorkflows,
 		resetAiSetupState,
 		deleteKnowledge,
+		uploadImageToKnowledgeBase,
+		checkFileUploadStatus,
+		getAiChatSessions,
+		getAiAssistants,
+		updateKnowledgeBaseFile,
+		getInstructions,
+		createInstruction,
+		updateInstruction,
+		deleteInstruction,
+		uploadFile,
+		getAiPrompt,
+		editAiPrompt,
+		selectAiPrompt,
+		getDefaultAiPrompt,
+		resetAiPrompt,
+		getActions,
+		addAiAction,
+		updateAiAction,
+		deleteAiAction,
+		crawlAiAssistant,
+		getAiChatLogs,
+		removeFile,
+		getTokenForVoice,
+		getPromptsData,
+		getFilesUploadedInAiChat,
 	};
 };

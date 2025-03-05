@@ -1,0 +1,366 @@
+.fileListViewDrawerWrapper {
+	height: 100%;
+	// padding: 10px;
+	.fileListViewDrawer {
+		color: var(--primary-font);
+		display: flex;
+		width: 100%;
+		height: 100%;
+		padding: 24px;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 20px;
+		border-radius: 16px;
+		background-color: var(--popup);
+		overflow-y: hidden;
+
+		.headerContainer {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			align-self: stretch;
+
+			.headerLeftLabel {
+				display: flex;
+				align-items: center;
+				gap: 8px;
+				cursor: pointer;
+
+				> svg {
+					width: 16px;
+					height: 16px;
+					flex-shrink: 0;
+					opacity: 0.7;
+					transition: opacity 0.3s ease;
+					&:hover {
+						opacity: 1;
+						filter: drop-shadow(0 0 8px #c8c4c4);
+					}
+				}
+			}
+
+			.headerRightLabel {
+				display: flex;
+				align-items: center;
+				gap: 8px;
+				cursor: pointer;
+
+				> svg {
+					width: 20px;
+					height: 20px;
+
+					&:hover {
+						filter: drop-shadow(0 0 8px #c8c4c4);
+					}
+				}
+			}
+		}
+
+		.maxedOutView {
+			color: var(--primary-font);
+
+			display: flex;
+			width: 100%;
+			height: 100%;
+			padding: 24px 0px;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 20px;
+			border-radius: 16px;
+			background-color: var(--popup);
+			overflow-y: hidden;
+
+			.listviewContainer {
+				display: flex;
+				flex-direction: column;
+				align-items: flex-start;
+				gap: 20px;
+				align-self: stretch;
+				padding: 0px 32px;
+
+				.listDataMapper {
+					display: flex;
+					flex-direction: column;
+					align-items: flex-start;
+					gap: 8px;
+					align-self: stretch;
+
+					.listDataMapperRow {
+						display: flex;
+						height: 31px;
+						align-items: center;
+						align-self: stretch;
+
+						.listDataMapperRowLabel {
+							display: flex;
+							width: 130px;
+							align-items: center;
+							gap: 8px;
+							align-self: stretch;
+
+							color: var(--secondary-color);
+							font-family: var(--primary-font-family);
+							font-size: 13px;
+							font-style: normal;
+							font-weight: 500;
+							line-height: normal;
+
+							> svg {
+								width: 16px;
+								height: 16px;
+							}
+						}
+
+						.listDataMapperRowValue {
+							color: var(--primary-font);
+							/* Body/Body - 12 px */
+							font-family: var(--primary-font-family);
+							font-size: 12px;
+							font-style: normal;
+							font-weight: 500;
+							line-height: normal;
+						}
+					}
+				}
+			}
+
+			.tabsViewWrapper {
+				display: flex;
+				flex-direction: column;
+				align-items: flex-start;
+				gap: 24px;
+				flex: 1 0 0;
+				align-self: stretch;
+				overflow-y: auto;
+
+				.tabsView {
+					display: flex;
+					align-items: flex-start;
+					gap: 24px;
+					padding: 0px 32px;
+					align-self: stretch;
+					cursor: pointer;
+					user-select: none;
+
+					.tabViewLabel {
+						display: flex;
+						// padding: 12px 0px;
+						padding: 8px 0px;
+						justify-content: center;
+						align-items: center;
+						gap: 10px;
+						opacity: 0.7;
+						transition: opacity 0.3s ease;
+
+						&:hover {
+							opacity: 1;
+						}
+
+						color: var(--secondary-color);
+						font-family: var(--primary-font-family);
+						font-size: 16px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+					}
+
+					.active {
+						color: var(--primary-font);
+						border-radius: 3px;
+						border-bottom: 2px solid var(--primary-font);
+						opacity: 1;
+					}
+				}
+
+				.respectiveView {
+					width: 100%;
+					height: 775px;
+					overflow-y: auto;
+				}
+			}
+		}
+		.editLabel {
+			display: flex;
+			height: 23px;
+			padding: 6px 12px;
+			justify-content: center;
+			align-items: center;
+			gap: 6px;
+			border-radius: 59px;
+			color: var(--primary-font);
+			background: var(--primary-font);
+			border: 1px solid var(--primary-font);
+			transition: all 0.3s ease;
+
+			font-family: var(--primary-font-family);
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+
+			&:hover {
+				background: var(--card);
+				color: var(--primary-font);
+				border: 1px solid var(--primary-font);
+			}
+		}
+
+		.DocsStatusButtonOuterContainer {
+			display: flex;
+			padding: 4px 6px;
+			justify-content: center;
+			align-items: center;
+			gap: 4px;
+			border-radius: 35px;
+			background-color: var(--popup);
+
+			.DocsStatusCircle {
+				width: 6px;
+				height: 6px;
+				border-radius: 100%;
+				background: var(--secondary-font);
+			}
+			.DocsButtontext {
+				color: var(--primary-font);
+				text-align: center;
+				font-family: var(--primary-font-family);
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+		}
+
+		.requiredActionsWrapper {
+			display: flex;
+			width: 100%;
+			height: 52px;
+			padding: 12px 16px;
+			justify-content: space-between;
+			align-items: center;
+			align-self: stretch;
+			border-radius: 14px;
+			background: var(--card);
+			user-select: none;
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+
+			&:hover {
+				border-radius: 14px;
+				background: var(--card);
+			}
+
+			.requiredAction {
+				color: var(--secondary-color);
+				text-transform: capitalize;
+			}
+
+			.requiredActionBtn {
+				border-radius: 29px;
+				border: 1px solid var(--stroke);
+				display: flex;
+				height: 33px;
+				padding: 6px 12px;
+				justify-content: center;
+				align-items: center;
+				gap: 10px;
+				cursor: pointer;
+				opacity: 0.7;
+				transition: opacity 0.3s ease;
+
+				&:hover {
+					opacity: 1;
+				}
+			}
+		}
+
+		.previewContainer {
+			display: flex;
+			flex-direction: column;
+			width: 100%;
+			border-radius: 24px;
+			// height: 700px;
+			height: 100%;
+			overflow-y: auto;
+			background-color: var(--card);
+		}
+	}
+}
+.fileListViewDrawer-expanded {
+	padding: 0px;
+	width: 100vw;
+	height: 100vh;
+	.fileListViewDrawer {
+		border-radius: 0px;
+
+		.maxedOutView {
+			margin: 0px auto;
+			max-width: 650px;
+		}
+	}
+}
+
+.dot-svg-tooltip-content {
+	display: flex;
+	width: 220px;
+	padding: 12px 10px;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 4px;
+	border-radius: 14px;
+	background: var(--popup);
+	.items {
+		display: flex;
+		height: 31px;
+		padding: 4px;
+		align-items: center;
+		gap: 6px;
+		align-self: stretch;
+		border-radius: 8px;
+		transition: all 0.2s ease;
+		&:hover {
+			background-color: var(--card);
+		}
+
+		color: var(--primary-font);
+		text-align: center;
+		font-family: var(--primary-font-family);
+		font-size: 12px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
+		> svg {
+			width: 14px;
+			height: 14px;
+			flex-shrink: 0;
+		}
+	}
+	.deleteItem {
+		display: flex;
+		padding: 6px;
+		align-items: center;
+		gap: 8px;
+		align-self: stretch;
+		border-radius: 8px;
+		&:hover {
+			background-color: var(--card);
+		}
+		span {
+			color: var(--error);
+			font-family: var(--primary-font-family);
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 400;
+			line-height: normal;
+		}
+		> svg {
+			width: 14px;
+			height: 14px;
+			flex-shrink: 0;
+		}
+	}
+}

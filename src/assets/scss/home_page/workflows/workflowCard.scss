@@ -1,0 +1,219 @@
+.workflow-card-container {
+	display: flex;
+	flex-shrink: 0;
+	width: calc(32% + 2px);
+	min-width: 340px;
+	height: 424px;
+	padding: 24px;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 24px;
+	position: relative;
+	border-radius: 24px;
+	background: var(--card);
+
+	.card-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		align-self: stretch;
+
+		.header-text {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			gap: 4px;
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
+			font-size: 16px;
+			font-style: normal;
+			font-weight: 600;
+			line-height: normal;
+			width: 300px;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+			overflow: hidden;
+
+			.rename-input {
+				outline: none;
+				border: none;
+				background: inherit;
+				color: inherit;
+				font-size: inherit;
+				width: inherit;
+			}
+		}
+	}
+
+	.workflow-card-options-container {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		align-self: stretch;
+		.workflow-card-option {
+			color: var(--secondary-font);
+			font-family: var(--primary-font-family);
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+			cursor: pointer;
+		}
+		.active {
+			color: var(--primary-font);
+		}
+	}
+
+	.workflow-container {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 8px;
+		align-self: stretch;
+		overflow-y: auto;
+
+		.workflow-inner-card {
+			display: flex;
+			justify-content: space-between;
+			padding: 14px 16px;
+			border-radius: 16px;
+			align-items: center;
+			align-self: stretch;
+			background: var(--card);
+			cursor: pointer;
+			transition: all 0.2s ease;
+			&:hover {
+				background-color: var(--card-hover);
+				color: var(--primary-font);
+
+				.left-text {
+					color: var(--primary-font);
+				}
+				transition: all 0.2s ease;
+			}
+
+			.left-text {
+				color: var(--secondary-font);
+				font-family: var(--primary-font-family);
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+				text-transform: capitalize;
+			}
+			.right-text {
+				color: var(--primary-font);
+				font-weight: 500;
+				font-size: 1.1rem;
+			}
+		}
+	}
+
+	.pending-actions-container {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 8px;
+		align-self: stretch;
+		height: 292px;
+
+		.workflow-inner-card {
+			display: flex;
+			justify-content: space-between;
+			padding: 14px 16px;
+			border-radius: 16px;
+			align-items: center;
+			align-self: stretch;
+			background: var(--card-over-card);
+			cursor: pointer;
+
+			&:hover {
+				background-color: var(--card-over-card-hover);
+			}
+
+			.left-text {
+				color: var(--secondary-font);
+				font-family: var(--primary-font-family);
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+				text-transform: capitalize;
+			}
+			.right-text {
+				color: var(--primary-font);
+				font-weight: 500;
+				font-size: 1.1rem;
+			}
+			.pending-actions-title {
+				color: var(--primary-font);
+				font-weight: 500;
+				font-size: 12px;
+				display: flex;
+				align-items: center;
+				gap: 4px;
+			}
+		}
+	}
+	.files-container {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 2px;
+		flex: 1 0 0;
+		align-self: stretch;
+		.file {
+			display: flex;
+			flex-direction: row;
+			gap: 1rem;
+			.left {
+				width: 50px;
+				height: 60px;
+				border-radius: 6px;
+				background: var(--card-over-card);
+			}
+			.right-text {
+				display: flex;
+				flex-direction: column;
+				align-items: flex-start;
+				gap: 7px;
+				flex: 1 0 0;
+				align-self: stretch;
+				.title {
+					align-self: stretch;
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+				}
+				.labels {
+					display: flex;
+					align-items: center;
+					color: var(--secondary-font);
+					display: flex;
+					flex-direction: row;
+					gap: 2px;
+					flex-wrap: wrap;
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					// line-height: normal;
+				}
+			}
+		}
+	}
+}
+
+@media (max-width: 1242px) {
+	.workflow-card-container {
+		width: 49% !important;
+	}
+}
+
+@media (max-width: 942px) {
+	.workflow-card-container {
+		width: 100% !important;
+	}
+}

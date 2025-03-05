@@ -314,17 +314,16 @@
 }
 
 .addKnowledgeModalContainer {
+	min-height: 583px;
 	display: flex;
-	width: 580px;
-	height: 650px;
+	width: 520px;
 	padding: 32px;
 	flex-direction: column;
+	justify-content: space-between;
 	align-items: flex-start;
-	gap: 24px;
-	border-radius: 40px;
-	background: var(--card);
-	border: 1px solid var(--stroke);
-	// box-shadow: 0px 53px 53px 0px rgba(0, 0, 0, 0.09), 0px 13px 29px 0px rgba(0, 0, 0, 0.1);
+	border-radius: 32px;
+	background: var(--popup);
+	gap: 16px;
 
 	.titleAndDescriptionContainer {
 		display: flex;
@@ -352,13 +351,21 @@
 		}
 
 		h2 {
-			color: var(--primary-font);
+			color: var(--secondary-font);
 			font-family: var(--primary-font-family);
-			font-size: 12px;
+			font-size: 14px;
 			font-style: normal;
 			font-weight: 400;
-			line-height: 18px;
+			line-height: normal;
 		}
+	}
+	.contentWrapper {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 24px;
+		width: 100%;
+		flex-grow: 1;
 	}
 
 	.knowledgeFileTypesContainer {
@@ -375,15 +382,16 @@
 
 		.knowledgeFileType {
 			display: flex;
-			width: 120px;
-			height: 64px;
-			padding: 8px 16px;
+			height: 72px;
+			padding: 12px;
+			flex-direction: column;
 			justify-content: center;
 			align-items: center;
-			flex-direction: column;
-			gap: 10px;
-			border-radius: 8px;
+			gap: 8px;
+			flex: 1 0 0;
+			border-radius: 16px;
 			border: 1px solid var(--stroke);
+			cursor: pointer;
 
 			svg {
 				width: 20px;
@@ -402,12 +410,12 @@
 		}
 
 		.active {
-			border-radius: 8px;
+			border-radius: 16px;
 			border: 1px solid var(--stroke);
-			background: var(--card-hover);
+			background: var(--card);
 
 			span {
-				color: var(--primary-button-font);
+				color: var(--primary-font);
 			}
 		}
 	}
@@ -425,7 +433,8 @@
 			align-items: flex-start;
 			gap: 16px;
 			width: 100%;
-			height: 256px;
+			// height: 256px;
+			max-height: 256px;
 			overflow-y: auto;
 
 			.urlItem {
@@ -532,9 +541,126 @@
 		}
 	}
 
+	.crawlLinksContainer {
+		flex-grow: 1;
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 16px;
+		width: 100%;
+		overflow-y: auto;
+		max-height: 256px;
+
+		border: 1px dashed var(--stroke);
+		border-radius: 16px;
+		padding: 16px;
+
+		.subLinksHeader {
+			display: flex;
+			align-items: center;
+			gap: 16px;
+			width: 100%;
+			justify-content: space-between;
+			span {
+				color: var(--secondary-font);
+				font-family: var(--primary-font-family);
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 500;
+			}
+
+			.addAllSubLinksBtn {
+				color: var(--secondary-font);
+				font-family: var(--primary-font-family);
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 500;
+				cursor: pointer;
+				display: flex;
+				align-items: center;
+				gap: 8px;
+				border-radius: 50px;
+				border: 1px solid var(--stroke);
+				padding: 4px 8px;
+				transition: all 0.3s ease-in-out;
+				&:hover {
+					color: var(--primary-font);
+					border: 1px solid var(--stroke);
+				}
+			}
+		}
+
+		.urlItem {
+			display: flex;
+			align-items: center;
+			gap: 16px;
+			width: 100%;
+			position: relative;
+
+			.linkIconContainer {
+				display: flex;
+				width: 36px;
+				height: 36px;
+				padding: 10.286px 0.857px;
+				flex-direction: column;
+				justify-content: center;
+				align-items: center;
+				gap: 8.571px;
+				border-radius: 3.429px;
+				background: var(--card-hover);
+				cursor: pointer;
+			}
+
+			.url {
+				max-width: 75%;
+				text-overflow: ellipsis;
+				overflow: hidden;
+				white-space: nowrap;
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 400;
+				line-height: 16px;
+			}
+
+			.removeIconContainer {
+				position: absolute;
+				right: 14px;
+				top: 50%;
+				transform: translateY(-50%);
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				cursor: pointer;
+			}
+
+			.addSubUrlBtn {
+				cursor: pointer;
+				display: flex;
+				width: 10px;
+				height: 46px;
+				justify-content: center;
+				align-items: center;
+				border-radius: 50px;
+				color: var(--secondary-font);
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: 20px;
+				background: transparent;
+				transition: all 0.3s ease-in-out;
+				&:hover {
+					color: var(--primary-font);
+				}
+			}
+		}
+	}
+
 	.knowledgeFileInputContainer {
-		position: absolute;
-		width: calc(100% - 64px);
+		// position: absolute;
+		width: 100%;
 		bottom: 106px;
 		display: flex;
 		align-items: flex-start;
@@ -547,10 +673,8 @@
 			width: 100%;
 
 			input {
-				width: 70%;
 				border-radius: 10px;
 				border: 1px solid var(--stroke);
-				background: var(--card-hover);
 				display: flex;
 				padding: 8px 14px;
 				align-items: center;
@@ -558,21 +682,36 @@
 				flex: 1 0 0;
 				align-self: stretch;
 				color: var(--primary-font);
+				width: 335px;
+				height: 46px;
+				align-items: center;
+
+				&:hover {
+					border: 1px solid var(--stroke);
+					background: var(--card-hover);
+				}
+
+				&:active {
+					border: 1px solid var(--stroke);
+					background: var(--card-hover);
+				}
 			}
 
 			button {
-				width: 30%;
-				padding: 12px;
-				border-radius: 10px;
-				border: 1px solid var(--stroke);
-				background: var(--card-hover);
+				cursor: pointer;
 				display: flex;
+				width: 102px;
+				height: 46px;
+				padding: 12px 24px;
 				justify-content: center;
 				align-items: center;
-				color: var(--primary-font);
+				color: var(--secondary-font);
 				font-family: var(--primary-font-family);
 				font-size: 12px;
 				cursor: pointer;
+				border-radius: 8px;
+				border: 1px solid var(--stroke);
+				background: var(--card-hover);
 			}
 		}
 
@@ -647,32 +786,80 @@
 		}
 	}
 
-	.updateBtn {
-		position: absolute;
-		bottom: 32px;
-		width: calc(100% - 64px);
-		border-radius: 100px;
-		border: 1px solid var(--stroke);
-		background: var(--card-hover);
+	.updateBtnContainer {
+		margin-top: auto;
 		display: flex;
-		padding: 16px 24px;
-		justify-content: center;
+		justify-content: space-between;
 		align-items: center;
-		gap: 16px;
-		align-self: stretch;
-		color: var(--primary-font);
-		font-family: var(--primary-font-family);
-		font-size: 13px;
-		font-style: normal;
-		font-weight: 500;
-		line-height: 16px;
-		letter-spacing: 0.26px;
+		width: 100%;
 
-		.loader {
+		.cancelBtn {
 			display: flex;
+			width: 102px;
+			height: 46px;
+			padding: 12px 24px;
 			justify-content: center;
 			align-items: center;
-			gap: 8px;
+			gap: 16px;
+			border-radius: 50px;
+			border: 1px solid var(--stroke);
+			cursor: pointer;
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 20px; /* 142.857% */
+			background: transparent;
+			transition: all 0.3s ease-in-out;
+
+			&:hover {
+				border-radius: 50px;
+				border: 1px solid var(--stroke);
+			}
+		}
+
+		.updateBtn {
+			display: flex;
+			height: 46px;
+			padding: 12px 22px;
+			justify-content: center;
+			align-items: center;
+			gap: 6px;
+			border-radius: 59px;
+			background: var(--primary-button);
+			cursor: pointer;
+			border: none;
+			border: 1px solid var(--stroke);
+			color: var(--primary-button-font);
+			font-family: var(--primary-font-family);
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 20px;
+			transition: all 0.3s ease-in-out;
+
+			.loader {
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				gap: 8px;
+			}
+
+			&:enabled:hover {
+				background-color: transparent;
+				color: var(--primary-font);
+				border: 1px solid var(--stroke);
+			}
+			&:disabled {
+				background-color: var(--card-hover);
+				border: 1px solid var(--card-hover);
+				color: var(--secondary-font);
+				cursor: not-allowed;
+				&:hover {
+					opacity: 0.8;
+				}
+			}
 		}
 	}
 }

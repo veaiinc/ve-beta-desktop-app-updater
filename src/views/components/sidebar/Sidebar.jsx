@@ -7,19 +7,34 @@ import ClosedSideBarItemsComponent from './ClosedSidebar';
 import Context from '../../../context/context';
 import { styles } from './sidebarindex';
 import CreateLeadModal from '../modalsV2/proposalModals/CreateLeadModal';
+import { ReactComponent as SidebarClosingSvg } from '../../../assets/svg/sidebar/SidebarClosing.svg';
 import { veAiModulesItemsList } from './sidebarindex';
+import { Tooltip } from 'antd';
+import Notifications from './notifications/Notifications';
+import Chats from './chats/Chats';
 const Sidebar = ({ activeWorkspaceId }) => {
 	const {
 		profileInfo: { userWorkSpaceList, getUserWorkSpaceList, userDetailsData, getUserDetails },
+		templates: { leftSidebarState, updateStateValues },
 	} = useContext(Context);
 	const location = useLocation();
-
+	const [showNotificationsDrawer, setShowNotificationsDrawer] = useState(false);
+	const [showChatsDrawer, setShowChatsDrawer] = useState(false);
 	const [sidebarStates, setsidebarStates] = useState({
-		isOpen: false,
 		workSpaceOpen: false,
 		navStyle: 'close',
 		selectedModule: null,
 	});
+
+	// conditional margin top for home page
+	const isHome = location?.pathname?.includes('home') || location?.pathname?.includes('notes');
+
+	const [isOpen, setIsOpen] = useState(() => {
+		return JSON.parse(localStorage.getItem('isOpen')) ?? true;
+	});
+	useEffect(() => {
+		localStorage.setItem('isOpen', JSON.stringify(isOpen));
+	}, [isOpen]);
 
 	const [info, setInfo] = useState({
 		switchWorkspaceModal: false,
@@ -29,6 +44,13 @@ const Sidebar = ({ activeWorkspaceId }) => {
 		activeRoute: '/' + location.pathname.split('/')[1],
 		selectedModule: null,
 	});
+
+	useEffect(() => {
+		if (leftSidebarState && leftSidebarState === 'open') {
+			setIsOpen(true);
+			updateStateValues({ leftSidebarState: null });
+		}
+	}, [leftSidebarState]);
 
 	useEffect(() => {
 		if (!userWorkSpaceList) {
@@ -93,7 +115,7 @@ const Sidebar = ({ activeWorkspaceId }) => {
 	return (
 		<>
 			<div
-				className={`FullScreenSidebar ${sidebarStates?.isOpen ? 'opened' : ''} ${
+				className={`FullScreenSidebar ${isOpen ? 'opened' : ''} ${
 					sidebarStates.selectedModule &&
 					veAiModulesItemsList.find(
 						(module) => module.name === sidebarStates.selectedModule,
@@ -103,31 +125,49 @@ const Sidebar = ({ activeWorkspaceId }) => {
 				}`}
 				style={{
 					alignItems: sidebarStates?.workSpaceOpen ? 'flex-start' : ' ',
-					maxHeight:
-						info?.activeRoute === '/home' ? (sidebarStates?.isOpen ? '' : '') : '',
-					minHeight:
-						info?.activeRoute === '/home' ? (sidebarStates?.isOpen ? '' : '250px') : '',
+					maxHeight: info?.activeRoute === '/home' ? (isOpen ? '' : '') : '',
+					minHeight: info?.activeRoute === '/home' ? (isOpen ? '' : '250px') : '',
+					marginTop: isHome && '0',
 				}}
 			>
 				<nav
-					className={`sidebarComponent ${sidebarStates?.isOpen ? 'open' : ''}`}
+					className={`sidebarComponent ${isOpen ? 'open' : ''} ${
+						!isOpen && isHome && 'padding-48'
+					}`}
 					style={styles[sidebarStates?.navStyle]}
 				>
-					{sidebarStates?.isOpen ? (
+					{isOpen ? (
 						<OpenedSideBarItemsComponent
 							setsidebarStates={setsidebarStates}
 							sidebarStates={sidebarStates}
 							info={info}
 							setInfo={setInfo}
 							userWorkSpaceList={userWorkSpaceList}
+							isOpen={isOpen}
+							setIsOpen={setIsOpen}
+							setShowChatsDrawer={setShowChatsDrawer}
+							setShowNotificationsDrawer={setShowNotificationsDrawer}
 						/>
 					) : (
-						<ClosedSideBarItemsComponent
-							setsidebarStates={setsidebarStates}
-							sidebarStates={sidebarStates}
-							info={info}
-							setInfo={setInfo}
-						/>
+						<Tooltip
+							title="Open Sidebar"
+							placement="right"
+							arrow={false}
+							overlayInnerStyle={{
+								padding: '6px 10px',
+								borderRadius: '10px',
+								fontSize: '14px',
+								background: '#E8E8E8',
+								color: '#202123',
+								textAlign: 'center',
+								marginLeft: '12px',
+							}}
+						>
+							<SidebarClosingSvg
+								onClick={() => setIsOpen(true)}
+								style={{ cursor: 'pointer' }}
+							/>
+						</Tooltip>
 					)}
 				</nav>
 
@@ -135,9 +175,14 @@ const Sidebar = ({ activeWorkspaceId }) => {
 					modalIsOpen={info?.createLeadModal}
 					closeModal={closeCreateLeadModal}
 				/>
+				<Notifications
+					showNotificationsDrawer={showNotificationsDrawer}
+					setShowNotificationsDrawer={setShowNotificationsDrawer}
+				/>
+				<Chats showChatsDrawer={showChatsDrawer} setShowChatsDrawer={setShowChatsDrawer} />
 			</div>
 
-			{sidebarStates?.isOpen && <div className="sidebar__overlay"></div>}
+			{isOpen && <div className="sidebar__overlay"></div>}
 		</>
 	);
 };

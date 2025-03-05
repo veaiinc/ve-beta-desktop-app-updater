@@ -2,6 +2,8 @@ import { gql } from '@apollo/client';
 export const getListItemsQuery = gql`
 	query Query($taskFilterInput: TaskFilterInput) {
 		listTasks(taskFilterInput: $taskFilterInput) {
+			hasNextPage
+			currentPage
 			data {
 				_id
 				taskSlNo
@@ -44,6 +46,66 @@ export const getListItemsQuery = gql`
 					name
 				}
 			}
+		}
+	}
+`;
+
+export const getListItemsByTenantUserQuery = gql`
+	query ListTasksByTenantUser($filters: ListTaskInput) {
+		listTasksByTenantUser(filters: $filters) {
+			hasNextPage
+			currentPage
+			totalDocs
+			data {
+				_id
+				taskSlNo
+				title
+				parentTask {
+					_id
+					title
+				}
+				childTasks {
+					_id
+					title
+					status
+				}
+				description
+				assignedTo {
+					_id
+					name
+				}
+				status
+				dueDate
+				priority
+				workflow {
+					_id
+					title
+				}
+				assignedBy {
+					_id
+					name
+				}
+				assignedAt
+				completedAt
+				createdAt
+				updatedAt
+				createdBy {
+					_id
+					name
+				}
+				updatedBy {
+					_id
+					name
+				}
+			}
+		}
+	}
+`;
+
+export const getTasksCountQuery = gql`
+	query ListTasksByTenantUser($filters: ListTaskInput) {
+		listTasksByTenantUser(filters: $filters) {
+			totalDocs
 		}
 	}
 `;
@@ -219,40 +281,184 @@ export const getTaskStatusDefaultLabelQuery = gql`
 	}
 `;
 
-export const createTaskStatusLabelMutation = gql`
-	mutation Mutation($input: TaskLabelInput!) {
-		createTaskLabel(input: $input) {
+export const deleteTaskStatusLabelMutation = gql`
+	mutation DeleteTaskLabel($taskMetadataId: ID!, $labelId: ID!, $group: groupEnum!) {
+		deleteTaskLabel(taskMetadataId: $taskMetadataId, labelId: $labelId, group: $group) {
+			message
+		}
+	}
+`;
+
+export const taskMetadataQuery = gql`
+	query GetTaskMetadata {
+		getTaskMetadata {
 			_id
 			tenantId
-			userId
+			createdBy
+			updatedBy
+			todoGroupLabels {
+				_id
+				label
+				group
+				color
+				isDefault
+			}
+			inProgressGroupLabels {
+				_id
+				label
+				group
+				color
+				isDefault
+			}
+			completedGroupLabels {
+				_id
+				label
+				group
+				color
+				isDefault
+			}
+			prefix
+			views {
+				_id
+				label
+				filters
+				sort {
+					sortBy
+					sortType
+				}
+				viewType
+				icon
+				group
+			}
+			createdAt
+			updatedAt
+		}
+	}
+`;
+
+export const createTaskStatusLabelMutation = gql`
+	mutation Mutation($input: TaskLabelInput!, $taskMetadataId: ID!) {
+		createTaskLabel(input: $input, taskMetadataId: $taskMetadataId) {
+			_id
 			label
-			groupId
 			group
 			color
-			order
+			isDefault
 		}
 	}
 `;
 
 export const updateTaskStatusLabelMutation = gql`
-	mutation UpdateTaskLabel($labelId: ID!, $input: UpdateTaskLabelInput!) {
-		updateTaskLabel(labelId: $labelId, input: $input) {
+	mutation UpdateTaskLabel(
+		$taskMetadataId: ID!
+		$labelId: ID!
+		$group: groupEnum!
+		$input: UpdateTaskLabelInput!
+	) {
+		updateTaskLabel(
+			taskMetadataId: $taskMetadataId
+			labelId: $labelId
+			group: $group
+			input: $input
+		) {
 			_id
-			tenantId
-			userId
 			label
-			groupId
 			group
 			color
-			order
+			isDefault
 		}
 	}
 `;
 
-export const deleteTaskStatusLabelMutation = gql`
-	mutation DeleteTaskLabel($labelId: ID!) {
-		deleteTaskLabel(labelId: $labelId) {
+export const updateTaskViewMutation = gql`
+	mutation UpdateTaskView($taskMetadataId: ID!, $input: UpdateTaskViewInput!, $viewId: ID) {
+		updateTaskView(taskMetadataId: $taskMetadataId, input: $input, viewId: $viewId) {
+			views {
+				_id
+				label
+				filters
+				sort {
+					sortBy
+					sortType
+				}
+				viewType
+				group
+				icon
+			}
+		}
+	}
+`;
+
+export const deleteTaskViewMutation = gql`
+	mutation DeleteTaskView($taskMetadataId: ID!, $viewId: ID!) {
+		deleteTaskView(taskMetadataId: $taskMetadataId, viewId: $viewId) {
 			message
+		}
+	}
+`;
+
+export const listTaskWithGroupQuery = gql`
+	query ListTasksWithGroup($taskFilterInput: TaskGroupFilterInput) {
+		listTasksWithGroup(taskFilterInput: $taskFilterInput) {
+			groups {
+				group
+				totalPages
+				totalDocs
+				limit
+				currentPage
+				hasNextPage
+				hasPrevPage
+				prevPage
+				nextPage
+				data {
+					_id
+					title
+					description
+					status
+					priority
+					workflowTemplate {
+						_id
+						title
+					}
+					workflow {
+						_id
+						title
+					}
+					assignedTo {
+						_id
+						name
+					}
+					dueDate
+					assignedBy {
+						_id
+						name
+					}
+					assignedAt
+					completedAt
+					createdAt
+					updatedAt
+					taskSlNo
+					createdBy {
+						_id
+						name
+					}
+					updatedBy {
+						_id
+						name
+					}
+					childTasks {
+						_id
+						title
+						status
+					}
+					parentTask {
+						_id
+						title
+					}
+				}
+				groupName
+			}
+			groupBy
 		}
 	}
 `;

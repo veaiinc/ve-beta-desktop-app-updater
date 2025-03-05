@@ -17,12 +17,14 @@ import { ReactComponent as VE } from '../../../assets/svg/smallVe.svg';
 import UpdatedPageLoader from '../../components/loaders/UpdatedPageLoader';
 import DeleteWorkflowModal from '../../components/modalsV2/workflowBuilderModals/DeleteWorkflowModal';
 import { message } from 'antd';
+import { fetchOriginSelection } from '../../../helpers';
 const options = [
 	{ label: 'Rename Workflow' },
 	{ label: 'Duplicate Workflow' },
 	{ label: 'Delete Worklfow' },
 ];
 
+let origin = fetchOriginSelection();
 const WorkflowBuilder = () => {
 	const {
 		templates: {
@@ -80,7 +82,6 @@ const WorkflowBuilder = () => {
 			stepsData?.push({
 				module: 'preview',
 				_id: steps?.[0]?._id,
-				parsedHtmlContent: incomingData?.templates?.[0]?.parsedHtmlContent,
 			});
 			steps.shift();
 			stepsData = [...stepsData, ...steps];
@@ -143,7 +144,6 @@ const WorkflowBuilder = () => {
 			updatedData?.splice(1, 0, {
 				module: 'preview',
 				_id: updatedData?.[0]?._id,
-				parsedHtmlContent: info?.incomingTemplateData?.templates?.[0]?.parsedHtmlContent,
 			});
 			updatedData?.push({ module: 'theEnd' });
 			setInfo((prev) => ({ ...prev, data: updatedData }));
@@ -265,7 +265,7 @@ const WorkflowBuilder = () => {
 		};
 		const response = await duplicateGlobalWorkflowTemplate(payload);
 		if (response?.[0]) {
-			window.location.href = `https://builder.ve.ai/${response?.[1]?._id}`;
+			window.location.href = `${origin}/${response?.[1]?._id}`;
 		}
 		closeDuplicateWorkflowModal();
 	}, [info?.incomingTemplateData, closeDuplicateWorkflowModal]);

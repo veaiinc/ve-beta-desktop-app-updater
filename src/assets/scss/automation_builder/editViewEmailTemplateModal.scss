@@ -1,0 +1,87 @@
+.editViewEmaiTemplateModalParentContainer {
+	display: flex;
+	width: 510px;
+	padding: 24px 20px;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: var(--Spacing-space-8, 16px);
+	border-radius: 15px;
+	border: 1px solid var(--stroke);
+	background: var(--popup);
+	.editViewEmaiTemplateModalSubContainer {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: var(--Spacing-space-8, 16px);
+		align-self: stretch;
+
+		.editEmailTemplateHeader {
+			display: flex;
+			align-items: center;
+			align-self: stretch;
+
+			.editEmailTemplateHeaderTitle {
+				overflow: hidden;
+				color: var(--primary-font);
+				text-overflow: ellipsis;
+				font-family: var(--primary-font-family);
+				font-size: 13px;
+				font-style: normal;
+				font-weight: 400;
+				line-height: normal;
+				letter-spacing: -0.26px;
+			}
+		}
+
+		.inputWrapperForSubjectInput {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: var(--Spacing-space-4, 6px);
+			align-self: stretch;
+
+			.inputlabel {
+				color: var(--secondary-font);
+				font-family: var(--primary-font-family);
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 400;
+				line-height: 16px; /* 133.333% */
+				padding-left: 14px;
+			}
+			.inputForeditEmailInput {
+				display: flex;
+				padding: 11px 14px;
+				align-items: center;
+				gap: 10px;
+				align-self: stretch;
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 400;
+				line-height: 26px; /* 185.714% */
+				background-color: transparent;
+				border-radius: 10px;
+				border: 1px solid var(--stroke);
+			}
+		}
+		.doneEditingBtn {
+			display: flex;
+			width: 112px;
+			padding: var(--Spacing-space-8, 16px) 24px;
+			justify-content: center;
+			align-items: center;
+			gap: var(--Spacing-space-8, 16px);
+			border-radius: 100px;
+			background: var(--primary-button-font);
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
+			font-size: 13px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 16px; /* 123.077% */
+			align-self: flex-end;
+		}
+	}
+}

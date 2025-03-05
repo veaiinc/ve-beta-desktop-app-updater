@@ -376,7 +376,7 @@ const SendProposalModal = ({
 			}, 800);
 			setInfo((prev) => ({ ...prev, timeout }));
 		},
-		[info?.timeout],
+		[info?.timeout, info],
 	);
 
 	const checkSlugAvailability = useCallback(
@@ -454,22 +454,21 @@ const SendProposalModal = ({
 			},
 		};
 
-		if (info?.toogleExpiryChnaged) {
-			let expiryData;
-			if (info?.enableLinkExpiry) {
-				if (info?.expiryInDays && info?.expiryInDays > 0) {
-					expiryData = moment().add(info?.expiryInDays, 'days').unix();
-					payload.updateWorkflowInput.expiresAt = expiryData;
-				} else {
-					expiryData = moment().add(7, 'days').unix();
-					payload.updateWorkflowInput.expiresAt = moment().add(7, 'days').unix();
-				}
+		// if (info?.toogleExpiryChnaged) {
+		let expiryData;
+		if (info?.enableLinkExpiry) {
+			if (info?.expiryInDays && info?.expiryInDays > 0) {
+				expiryData = moment().add(info?.expiryInDays, 'days').unix();
+				payload.updateWorkflowInput.expiresAt = expiryData;
 			} else {
-				expiryData = null;
-				payload.updateWorkflowInput.expiresAt = null;
+				expiryData = moment().add(7, 'days').unix();
+				payload.updateWorkflowInput.expiresAt = moment().add(7, 'days').unix();
 			}
-			updateSendSmartFileExpiryData(expiryData);
+		} else {
+			expiryData = null;
+			payload.updateWorkflowInput.expiresAt = null;
 		}
+		updateSendSmartFileExpiryData(expiryData);
 
 		const response = await updateSendSmartFileSettings(payload);
 		if (response?.[0]) {
@@ -483,6 +482,7 @@ const SendProposalModal = ({
 		info?.isAlChatEnabled,
 		info?.enableLinkExpiry,
 		info?.toogleExpiryChnaged,
+		info,
 	]);
 
 	const closeAssignAssistantModal = useCallback(() => {
@@ -494,7 +494,10 @@ const SendProposalModal = ({
 			isOpen={open}
 			closeModal={modifiedCloseModal}
 			modalType={'center'}
-			customStyles={{ content: { borderRadius: '15px' } }}
+			customStyles={{
+				overlay: { zIndex: 1001 },
+				content: { borderRadius: '15px', zIndex: 1002 },
+			}}
 		>
 			<div
 				className={`sendSmartFileupdatedContainer ${info?.showEmail ? 'showEmail' : ''} ${

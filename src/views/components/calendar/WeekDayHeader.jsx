@@ -27,10 +27,8 @@ const WeekDayHeader = ({ selectedWeek }) => {
 					className={`weekDayBlock ${new Date().getDate() === day?.date ? 'active' : ''}`}
 				>
 					<div className="weekDayWrapper">
-						<span style={{ color: 'rgba(var(--primary-font), 0.48)' }}>
-							{day?.name}
-						</span>
-						<span style={{ color: 'var(--primary-font)' }}>{day?.date}</span>
+						<span>{day?.name}</span>
+						<span>{day?.date}</span>
 					</div>
 				</div>
 			))}

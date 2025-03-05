@@ -1,0 +1,72 @@
+.editAgentBtn {
+	display: flex;
+	padding: 8px 14px;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
+	border-radius: 100px;
+	background: var(--card);
+
+	color: var(--primary-font);
+	font-family: var(--primary-font-family);
+	font-size: 14px;
+	font-style: normal;
+	font-weight: 500;
+	line-height: normal;
+	user-select: none;
+}
+
+.aiPlayGroundParentContainer {
+	width: 100%;
+	height: calc(100vh - 180px);
+	padding-top: 20px;
+
+	.ai-playground-container {
+		width: 100%;
+		height: 100%;
+		position: relative;
+		overflow: hidden;
+		display: flex;
+		align-items: center;
+		flex-direction: column;
+		gap: 20px;
+		justify-content: flex-start;
+
+		border-radius: 32px;
+		background: var(--card);
+
+		.ai-playground-header {
+			// margin-bottom: 50px;
+
+			padding: 20px;
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
+			font-size: 40px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 43px; /* 107.5% */
+		}
+	}
+}
+
+.ai-playground-iframe {
+	border: none;
+	position: relative;
+	min-width: 700px;
+	min-height: 700px;
+	z-index: 10000;
+
+	@media screen and (min-width: 1024px) and (max-width: 1440px) {
+		zoom: 0.6;
+	}
+
+	.css-1hpnbz2 {
+		bottom: 40%;
+		right: 35%;
+	}
+
+	.ai-chat-model-popup {
+		bottom: 40%;
+		right: 35%;
+	}
+}

@@ -60,7 +60,6 @@ const File = ({
 		servicesTableData: null,
 		loading: true,
 		smartFileStatus: '',
-		templatesMapper: null,
 		duplicateLoader: false,
 		expiryInDays: null,
 		varibalesModified: false,
@@ -136,7 +135,7 @@ const File = ({
 				for (let k = 0; k < activeVersionData?.tables?.length; k++) {
 					const currentTableData = activeVersionData?.tables?.[k];
 
-					if (currentTableData?.type === 'events') {
+					if (currentTableData?.type === 'events' && updatedModules?.[i] === 'proposal') {
 						eventsTable?.push({
 							...currentTableData,
 							moduleType: updatedModules?.[i],
@@ -164,17 +163,6 @@ const File = ({
 			}));
 		}
 	}, [smartFileInfo]);
-
-	useEffect(() => {
-		if (templateData) {
-			let templatesMapper = {};
-			const { templates } = templateData || {};
-			for (let i = 0; i < templates?.length; i++) {
-				templatesMapper[templates[i]?._id] = templates?.[i]?.parsedHtmlContent;
-			}
-			setInfo((prev) => ({ ...prev, templatesMapper }));
-		}
-	}, [templateData]);
 
 	useEffect(() => {
 		if (info?.proposal) {
@@ -405,7 +393,7 @@ const File = ({
 			}));
 			handleDebounceUpdate('proposal', proposalData);
 		},
-		[info?.servicesTableData, info?.proposal],
+		[info?.servicesTableData, info?.proposal, info],
 	);
 
 	//events table onChange
@@ -603,7 +591,11 @@ const File = ({
 	);
 
 	const duplicateTemplateFromSmartFile = useCallback(async () => {
-		if (validateExpiryData?.isExpired) {
+		if (
+			validateExpiryData &&
+			validateExpiryData?.restrictWorkflows &&
+			validateExpiryData?.isExpired
+		) {
 			return updateSubscriptionState({ expiredSubscriptionModal: true });
 		}
 		window.location.href = `${origin}/${workflowId}?workflow=true&templateId=${templateId}`;
@@ -865,7 +857,11 @@ const File = ({
 
 	const onChangeAiPrediction = useCallback(
 		(value) => {
-			if (validateExpiryData?.isExpired) {
+			if (
+				validateExpiryData &&
+				validateExpiryData?.restrictWorkflows &&
+				validateExpiryData?.isExpired
+			) {
 				return updateSubscriptionState({ expiredSubscriptionModal: true });
 			}
 			setInfo((prev) => ({ ...prev, useAiPredictions: value }));

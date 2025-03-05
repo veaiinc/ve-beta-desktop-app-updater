@@ -1,4 +1,4 @@
-import React, { memo, useEffect } from 'react';
+import React, { memo, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../../assets/scss/workflowBuilder/workflowBuilderLayout.scss';
 import { SkeletonTheme } from 'react-loading-skeleton';
@@ -6,10 +6,17 @@ import { Helmet } from 'react-helmet';
 import useAuth from '../hooks/useAuth';
 import useSubscription from '../hooks/useSubscription';
 import useTokenExpiry from '../hooks/useTokenExpiry';
+import useAccessControls from '../hooks/useAcessControls';
+import Context from '../../context/context';
+import RenewBanner from '../components/globalComponents/RenewBanner';
 const WorkflowBuilderLayout = ({ title, children, hideQuickNav = false }) => {
+	const {
+		subscriptionInfo: { renewBanner },
+	} = useContext(Context);
 	const checkAuth = useAuth();
-	// const data = useSubscription();
+	const data = useSubscription();
 	const tokenData = useTokenExpiry();
+	const accessControls = useAccessControls();
 	useEffect(() => {
 		checkAuth();
 	}, []);
@@ -19,6 +26,7 @@ const WorkflowBuilderLayout = ({ title, children, hideQuickNav = false }) => {
 				<meta charSet="utf-8" />
 				<title>{title} | VE</title>
 			</Helmet>
+			{renewBanner && <RenewBanner />}
 			<SkeletonTheme baseColor={'#313131'} highlightColor={'#525252'}>
 				<div className="childrenContainer">{children}</div>
 			</SkeletonTheme>

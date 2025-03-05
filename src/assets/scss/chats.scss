@@ -1,0 +1,117 @@
+.sidebar-chats-drawer {
+	left: 250px;
+
+	.ant-drawer-content-wrapper {
+		.ant-drawer-header {
+			.ant-drawer-header-close-only {
+				display: none;
+			}
+		}
+
+		.ant-drawer-body {
+			background-color: var(--card);
+			padding: 0px;
+			border-left: 0.5px solid var(--stroke);
+
+			.chats-drawer-container {
+				.header {
+					padding: 24px;
+					display: flex;
+					justify-content: space-between;
+					align-items: center;
+
+					.title {
+						overflow: hidden;
+						color: var(--primary-font);
+						font-family: var(--primary-font-family);
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 500;
+					}
+
+					.cta-container {
+						cursor: pointer;
+					}
+				}
+
+				.chats-container {
+					display: flex;
+					flex-direction: column;
+					height: calc(100vh - 70px);
+					width: 100%;
+
+					.loading-state {
+						display: flex;
+						justify-content: center;
+						align-items: center;
+						width: 100%;
+						height: 100%;
+
+						.message {
+							color: var(--primary-font);
+							font-family: var(--primary-font-family);
+							font-size: 14px;
+							font-style: normal;
+							font-weight: 500;
+							line-height: normal;
+						}
+					}
+
+					.empty-state {
+						display: flex;
+						justify-content: center;
+						align-items: center;
+						width: 100%;
+						height: 100%;
+
+						.message {
+							color: var(--primary-font);
+							font-family: var(--primary-font-family);
+							font-size: 14px;
+							font-style: normal;
+							font-weight: 500;
+							line-height: normal;
+						}
+					}
+
+					.chat-container {
+						display: flex;
+						justify-content: space-between;
+						align-items: flex-start;
+						border-bottom: 0.5px solid var(--stroke);
+						padding: 16px 20px;
+						width: 100%;
+
+						&:hover {
+							background-color: var(--card-hover);
+						}
+
+						.chat-title {
+							width: 85%;
+							color: var(--primary-font);
+							font-family: var(--primary-font-family);
+							font-size: 14px;
+							font-style: normal;
+							font-weight: 500;
+							line-height: normal;
+							overflow: hidden;
+							text-overflow: ellipsis;
+							white-space: nowrap;
+						}
+
+						.chat-timestamp {
+							text-align: right;
+							width: 15%;
+							color: var(--secondary-font);
+							font-family: var(--primary-font-family);
+							font-size: 12px;
+							font-style: normal;
+							font-weight: 400;
+							line-height: normal;
+						}
+					}
+				}
+			}
+		}
+	}
+}

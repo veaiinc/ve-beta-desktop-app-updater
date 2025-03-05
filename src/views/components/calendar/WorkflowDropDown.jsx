@@ -97,7 +97,7 @@ const WorkflowDropDown = ({ selectedWorkflowId, updateCalendarInfo }) => {
 			// showSearch
 			allowClear
 			loading={info?.loading}
-			style={{ width: 250, height: 35 }}
+			style={{ width: 200, height: 35 }}
 			placeholder="Workflows"
 			options={info?.workflowOptions || []}
 			optionFilterProp="label"

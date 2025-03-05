@@ -26,8 +26,8 @@
 		.ant-select-selection-search-input,
 		.ant-select-selection-placeholder,
 		.ant-select-selection-item {
-			color: #e4e5e6;
-			font-family: Inter;
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
 			font-size: 12px;
 			font-style: normal;
 			font-weight: 500;
@@ -36,28 +36,26 @@
 		}
 
 		.ant-select-selection-placeholder {
-			color: #646567;
+			color: var(--secondary-font);
 		}
 	}
 
 	.ant-select-arrow {
-		color: #e4e5e6;
+		color: var(--primary-font);
 		display: none;
 	}
 
 	.ant-select-dropdown {
 		border-radius: 5px;
-		background: #202123;
-		background: color(display-p3 0.1255 0.1294 0.1373);
-		box-shadow: 0px 2px 44px 0px rgba(0, 0, 0, 0.25);
-		box-shadow: 0px 2px 44px 0px color(display-p3 0 0 0 / 0.25);
+		background: var(--card);
+		box-shadow: 0px 2px 44px 0px var(--card);
 		.ant-select-item-option {
-			background: #1c1d1d;
+			background: var(--card);
 			padding: 2px 5px;
 		}
 		.rc-virtual-list-holder-inner {
 			.ant-select-item-option-selected {
-				background: #202123;
+				background: var(--card);
 				display: flex;
 				align-items: center;
 				justify-content: space-between;
@@ -65,7 +63,7 @@
 				font-size: 12px;
 
 				.ant-select-item-option-state {
-					color: #91969d; //option tick color
+					color: var(--secondary-font); //option tick color
 				}
 			}
 			.ant-select-item-option-content {
@@ -76,7 +74,7 @@
 
 		//custom option render list of attendees
 		.option-container {
-			color: #e4e5e6;
+			color: var(--primary-font);
 
 			display: flex;
 			align-items: center;
@@ -89,13 +87,13 @@
 				justify-content: center;
 				align-items: center;
 				font-size: 9px;
-				background-color: #2e2f36;
+				background-color: var(--card);
 				border-radius: 50%;
 			}
 			.option-name {
 				font-weight: 500;
 				line-height: 16px;
-				color: #e4e5e6;
+				color: var(--primary-font);
 				width: 200px;
 				white-space: nowrap;
 				overflow: hidden;

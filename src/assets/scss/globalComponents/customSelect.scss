@@ -48,7 +48,7 @@
 				cursor: pointer;
 				font-size: 1rem; // Adjust icon size
 				&:hover {
-					color: #f56565; // Hover color for remove button
+					color: var(--error); // Hover color for remove button
 				}
 			}
 		}
@@ -88,7 +88,7 @@
 		}
 
 		.select-placeholder {
-			color: #cbd5e0; // Placeholder text color
+			color: var(--primary-font); // Placeholder text color
 			font-size: 0.875rem;
 		}
 	}

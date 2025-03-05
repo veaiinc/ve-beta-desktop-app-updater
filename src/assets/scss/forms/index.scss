@@ -1,0 +1,353 @@
+.formsParentContainer {
+	color: var(--primary-font);
+
+	width: 100%;
+	height: calc(100vh - 110px);
+	display: flex;
+	flex-direction: column;
+	gap: 36px;
+
+	.formsHeaderContainer {
+		display: flex;
+		flex-direction: row;
+		justify-content: space-between;
+		align-items: flex-start;
+
+		.headerText {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			width: fit-content;
+
+			font-family: var(--primary-font-family);
+			font-size: 40px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 43px;
+
+			.lineOne {
+				color: var(--primary-font);
+			}
+			.lineTwo {
+				color: var(--secondary-font);
+			}
+		}
+	}
+
+	.formsParentHeaderContainer {
+		display: flex;
+		align-items: flex-start;
+		gap: 24px;
+		user-select: none;
+		.formsHeaderButtons {
+			display: flex;
+			padding: 32px;
+			flex-direction: column;
+			justify-content: center;
+			align-items: flex-start;
+			gap: 6px;
+			flex: 1 0 0;
+			border-radius: 14px;
+			background: var(--card);
+			cursor: pointer;
+			.formsHeaderButtonsTitle {
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
+				font-size: 16px;
+				font-style: normal;
+				font-weight: 600;
+				line-height: normal;
+			}
+			.formsHeaderSubButtonsSubTitleColored {
+				color: var(--primary-font);
+				text-align: center;
+				font-family: var(--primary-font-family);
+				font-size: 13px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+
+				&.colorful {
+					background: var(--ai-color-code);
+					background-clip: text;
+					-webkit-background-clip: text;
+					-webkit-text-fill-color: transparent;
+				}
+			}
+			.formsHeaderSubButtonsSubTitle {
+				color: var(--secondary-font);
+				font-family: var(--primary-font-family);
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 400;
+				line-height: normal;
+			}
+		}
+	}
+
+	.formsContainer {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 24px;
+		align-self: stretch;
+
+		.formsHeaderContainer {
+			display: flex;
+			align-items: flex-start;
+			justify-content: space-between;
+			gap: 16px;
+			align-self: stretch;
+			padding-bottom: 16px;
+			border-bottom: 1px solid var(--stroke);
+
+			.formsHeaderContainerTitle {
+				display: flex;
+				justify-content: flex-start;
+				align-items: center;
+				gap: 8px;
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
+				font-size: 24px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+
+				.appliedFiltersContainer {
+					display: flex;
+					justify-content: flex-start;
+					align-items: center;
+					gap: 8px;
+
+					.appliedFilter {
+						display: flex;
+						padding: 8px 16px;
+						padding-right: 38px;
+						justify-content: center;
+						flex-shrink: 0;
+						align-items: center;
+						gap: 8px;
+						border-radius: 42px;
+						border: 1px solid var(--stroke);
+						background: var(--card-hover);
+						color: var(--ai-color-code);
+						font-family: var(--primary-font-family);
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: 20px;
+						cursor: pointer;
+						position: relative;
+						user-select: none;
+
+						svg {
+							path {
+								fill: var(--ai-color-code) !important;
+							}
+						}
+
+						.removeFilterBtn {
+							position: absolute;
+							right: 0;
+							top: 0;
+							width: 38px;
+							height: 100%;
+							cursor: pointer;
+							display: flex;
+							justify-content: center;
+							align-items: center;
+							border-radius: 0 21px 21px 0;
+
+							&:hover {
+								svg {
+									path {
+										stroke: #fff !important;
+									}
+								}
+							}
+						}
+
+						.templateName {
+							color: var(--primary-font);
+							font-family: var(--primary-font-family);
+							font-size: 14px;
+							font-style: normal;
+							font-weight: 500;
+							line-height: normal;
+							padding: 12px 10px;
+							bottom: -32px;
+						}
+					}
+				}
+			}
+
+			.formsHeaderContainerActionsContainer {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				gap: 16px;
+
+				svg {
+					cursor: pointer;
+				}
+
+				.searchContainer {
+					position: relative;
+					// background-color: red;
+					min-width: 16px;
+					display: inline-block;
+					height: 16px;
+					transition: all 0.3s ease;
+
+					.searchBtn {
+						display: flex;
+						width: 16px;
+						transform: rotate(-0.037deg);
+						padding: 0px;
+						align-items: center;
+						gap: 10px;
+						flex-shrink: 0;
+						border-radius: 100px;
+						background: transparent;
+						cursor: pointer;
+						transition: all 0.3s ease;
+						position: absolute;
+						right: 0;
+						top: 50%;
+						transform: translateY(-50%);
+
+						.inputAndCloseContainer {
+							display: none;
+							transition: all 0.3s ease;
+							overflow: hidden;
+							.searchInputTag {
+								flex: 1;
+								background-color: transparent;
+								color: var(--primary-font);
+								transition: all 0.3s ease;
+								border: none;
+								font-family: var(--primary-font-family);
+								font-size: 13px;
+								font-style: normal;
+								font-weight: 400;
+								line-height: normal;
+
+								&::placeholder {
+									color: var(--secondary-font);
+									font-family: var(--primary-font-family);
+									font-size: 13px;
+									font-style: normal;
+									font-weight: 400;
+									line-height: normal;
+								}
+							}
+						}
+					}
+
+					.searchExpand {
+						display: flex;
+						width: 140px;
+						opacity: 1;
+						z-index: 99;
+
+						.inputAndCloseContainer {
+							width: 120px;
+							display: flex;
+							align-items: center;
+							input {
+								width: 100px;
+							}
+						}
+					}
+				}
+			}
+		}
+
+		.formsInfiniteContainer {
+			display: flex;
+			flex-direction: column;
+			gap: 8px;
+			width: 100%;
+			flex: 1;
+
+			.docsRow {
+				display: flex;
+				display: flex;
+				padding: 8px 12px;
+				justify-content: space-between;
+				align-items: center;
+				border-radius: 14px;
+				cursor: pointer;
+				transition: background 0.2s ease-in-out;
+
+				.docsFilesRowTitle {
+					overflow: hidden;
+					color: var(--primary-font);
+					text-overflow: ellipsis;
+					font-family: var(--primary-font-family);
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+				}
+				.docsKeyWordsContainer {
+					display: flex;
+					align-items: center;
+					gap: 8px;
+					flex: 1;
+					justify-content: flex-end;
+
+					.docsclientdetailsName {
+						color: var(--primary-font);
+						font-family: var(--primary-font-family);
+						font-size: 13px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+					}
+
+					.DocsStatusButtonOuterContainer {
+						display: flex;
+						padding: 4px 6px;
+						justify-content: center;
+						align-items: center;
+						gap: 4px;
+						border-radius: 35px;
+						background: var(--card);
+
+						.DocsStatusCircle {
+							width: 6px;
+							height: 6px;
+							border-radius: 100%;
+							background: var(--secondary-font);
+						}
+						.DocsButtontext {
+							color: var(--primary-font);
+							text-align: center;
+							font-family: var(--primary-font-family);
+							font-size: 12px;
+							font-style: normal;
+							font-weight: 500;
+							line-height: normal;
+						}
+					}
+
+					.docsStatusButton {
+						display: flex;
+						padding: 4px 6px;
+						justify-content: center;
+						align-items: center;
+						gap: 4px;
+						border-radius: 35px;
+						background: var(--card-hover);
+					}
+				}
+
+				&:hover {
+					background: var(--card);
+				}
+			}
+		}
+	}
+}

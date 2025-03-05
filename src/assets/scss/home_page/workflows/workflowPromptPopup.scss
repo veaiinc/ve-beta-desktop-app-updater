@@ -1,0 +1,26 @@
+.workflow-prompt-popup {
+	width: 150px;
+	padding: 8px;
+
+	background-color: var(--popup);
+	border-radius: 12px;
+
+	.workflow-prompt-option {
+		padding: 6px 8px;
+		display: inline-block;
+		width: 100%;
+		color: var(--primary-font);
+		font-family: var(--primary-font-family);
+		font-size: 14px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: 22px; /* 157.143% */
+		width: 100%;
+		border-radius: 8px;
+		cursor: pointer;
+
+		&:hover {
+			background-color: var(--card);
+		}
+	}
+}

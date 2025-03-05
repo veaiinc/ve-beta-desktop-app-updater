@@ -67,7 +67,11 @@ const EventDetailsModal = ({
 			}
 
 			updateEventDebounceRef.current = setTimeout(async () => {
-				if (validateExpiryData?.isExpired) {
+				if (
+					validateExpiryData &&
+					validateExpiryData?.restrictCalendar &&
+					validateExpiryData?.isExpired
+				) {
 					return updateSubscriptionState({ expiredSubscriptionModal: true });
 				}
 				try {
@@ -88,7 +92,11 @@ const EventDetailsModal = ({
 	);
 
 	const deleteEvent = useCallback(async () => {
-		if (validateExpiryData?.isExpired) {
+		if (
+			validateExpiryData &&
+			validateExpiryData?.restrictCalendar &&
+			validateExpiryData?.isExpired
+		) {
 			return updateSubscriptionState({ expiredSubscriptionModal: true });
 		}
 		if (selectedEvent?.id) {
@@ -142,6 +150,7 @@ const EventDetailsModal = ({
 					}}
 					className="dateInput"
 					format="MMMM DD, YYYY hh:mm A"
+					title="Start Date"
 				/>
 			),
 			endDateTime: (value) => (
@@ -153,6 +162,7 @@ const EventDetailsModal = ({
 					}}
 					className="dateInput"
 					format="MMMM DD, YYYY hh:mm A"
+					title="End Date"
 				/>
 			),
 			meetingLink: (value) =>
@@ -268,7 +278,7 @@ const EventDetailsModal = ({
 	return (
 		<Drawer
 			onClose={modifiedOnClose}
-			width={450}
+			width={window.innerWidth >= 1440 ? 450 : 380}
 			open={isEventSelected}
 			style={{ padding: '0px', backgroundColor: 'transparent' }}
 			headerStyle={{ display: 'none' }}

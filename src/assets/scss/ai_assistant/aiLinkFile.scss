@@ -1,0 +1,165 @@
+.aiLinkFileParentContainer {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 30px;
+	height: 100%;
+
+	.aiLinkFileHeaderContainer {
+		display: flex;
+		width: 100%;
+		justify-content: space-between;
+		align-items: center;
+		gap: 24px;
+
+		.aiLinkFileHeader {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 4px;
+
+			.lineone {
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
+				font-size: 16px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+
+			.linetwo {
+				color: var(--secondary-font);
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 400;
+				line-height: normal;
+			}
+		}
+
+		.addLinkFile {
+			border-radius: 100px;
+			border: 1px solid var(--stroke);
+			display: flex;
+			padding: 12px 16px;
+			justify-content: center;
+			align-items: center;
+			gap: 16px;
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+			cursor: pointer;
+		}
+	}
+
+	.aiLinkFileListContainer {
+		width: 100%;
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+		flex-grow: 1;
+		overflow: scroll;
+		position: relative;
+
+		.header {
+			border-radius: 6px;
+			background: var(--card-over-card-hover);
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			padding: 12px;
+			align-items: center;
+			gap: 10px;
+			align-self: stretch;
+			flex-shrink: 0;
+
+			span:last-child {
+				text-align: right;
+			}
+
+			overflow: hidden;
+			color: var(--primary-font);
+			text-overflow: ellipsis;
+			font-family: var(--primary-font-family);
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+			position: sticky;
+			top: 0;
+		}
+
+		.actionItem {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			padding: 12px;
+			align-items: center;
+			gap: 10px;
+			align-self: stretch;
+			border-radius: 6px;
+
+			span {
+				display: flex;
+				align-items: center;
+				gap: 8px;
+			}
+
+			span:last-child {
+				justify-self: end;
+				justify-content: flex-end;
+			}
+
+			overflow: hidden;
+			color: var(--primary-font);
+			text-overflow: ellipsis;
+			font-family: var(--primary-font-family);
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+
+			.template-remove {
+				border: none;
+				background: none;
+				color: var(--error);
+				cursor: pointer;
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-weight: 500;
+
+				&:disabled {
+					opacity: 0.5;
+					cursor: not-allowed;
+				}
+			}
+		}
+
+		.emptyState {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			padding: 40px 0;
+			gap: 8px;
+			width: 100%;
+
+			p {
+				margin: 0;
+				color: var(--secondary-font);
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 400;
+				line-height: normal;
+				text-align: center;
+
+				&:first-child {
+					color: var(--primary-font);
+					font-weight: 500;
+				}
+			}
+		}
+	}
+}

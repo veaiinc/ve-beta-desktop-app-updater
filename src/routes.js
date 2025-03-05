@@ -33,6 +33,20 @@ import Ai_agent from './views/features/ai_agent';
 import AgentsJobs from './views/features/ai_agent/AgentsJobs';
 import AgentsSetup from './views/features/ai_agent/AgentsSetup';
 import Docs from './views/features/docs';
+import LiteGallery from './views/features/gallery/Litegallery';
+import MyTemplates from './views/features/my_templates/MyTemplates';
+import Workflow_builder_updated from './views/features/workflow_builder_updated';
+import Forms from './views/features/forms';
+import FormLeads from './views/features/forms/FormLeads';
+import HomePage from './views/features/home_page/HomePage';
+import AiAssistants from './views/features/ai_assistant/index';
+import EditAgent from './views/features/ai_assistant/EditAgent';
+import AgentDetails from './views/features/ai_assistant/AgentDetails';
+import InitialHomePage from './views/features/home_page/InitialHomePage';
+import Chat from './views/features/chat/Chat';
+import RecentChat from './views/features/chat/RecentChat';
+import AutomationBuilder from './views/features/automation_builder';
+import AutomationBuilderLayout from './views/layouts/automationBuilderLayout';
 const routes = [
 	{
 		path: '/',
@@ -103,7 +117,20 @@ const routes = [
 	{
 		path: '/home',
 		component: (
-			<AuthWrapper title={'Home'}>
+			<AuthWrapper
+				title={'Home'}
+				outerContainerStyle={{ padding: '0 32px' }}
+				showBottomToolbar={false}
+			>
+				<InitialHomePage />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/sales',
+		component: (
+			<AuthWrapper title={'Sales'}>
 				<Sales />
 			</AuthWrapper>
 		),
@@ -134,6 +161,15 @@ const routes = [
 		component: (
 			<WorkflowBuilderLayout title={'Workflow Builder'}>
 				<WorkflowBuilder />
+			</WorkflowBuilderLayout>
+		),
+		exact: true,
+	},
+	{
+		path: '/automation_builder/:templateId',
+		component: (
+			<WorkflowBuilderLayout title={'Workflow Builder'}>
+				<Workflow_builder_updated />
 			</WorkflowBuilderLayout>
 		),
 		exact: true,
@@ -169,8 +205,17 @@ const routes = [
 	{
 		path: '/galleries',
 		component: (
-			<AuthWrapper title={'Galleries'}>
+			<AuthWrapper title={'Galleries'} showBottomToolbar={false}>
 				<AddGallery />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/lite-gallery',
+		component: (
+			<AuthWrapper title={'Lite Gallery'} showBottomToolbar={false}>
+				<LiteGallery />
 			</AuthWrapper>
 		),
 		exact: true,
@@ -178,7 +223,7 @@ const routes = [
 	{
 		path: '/galleries/:galleryId',
 		component: (
-			<AuthWrapper title={'Gallery'} maxWidth={'1200px'}>
+			<AuthWrapper title={'Gallery'} maxWidth={'1200px'} showBottomToolbar={false}>
 				<GalleryPage />
 			</AuthWrapper>
 		),
@@ -187,7 +232,7 @@ const routes = [
 	{
 		path: '/galleries/:galleryId/:albumId/upload-photos',
 		component: (
-			<AuthWrapper title={'Upload Photos'}>
+			<AuthWrapper title={'Upload Photos'} showBottomToolbar={false}>
 				<UploadPhotos />
 			</AuthWrapper>
 		),
@@ -196,7 +241,7 @@ const routes = [
 	{
 		path: '/galleries/:galleryId/:albumId/album-settings',
 		component: (
-			<AuthWrapper title={'Album Settings'}>
+			<AuthWrapper title={'Album Settings'} showBottomToolbar={false}>
 				<AlbumSettings />
 			</AuthWrapper>
 		),
@@ -241,7 +286,7 @@ const routes = [
 	{
 		path: '/calendar',
 		component: (
-			<AuthWrapper title={'Calendar'} maxWidth={'1700px'} showBottomToolbar={false}>
+			<AuthWrapper title={'Calendar'} maxWidth={'95%'}>
 				<Calendar />
 			</AuthWrapper>
 		),
@@ -250,7 +295,11 @@ const routes = [
 	{
 		path: '/notes',
 		component: (
-			<AuthWrapper title={'Notes'}>
+			<AuthWrapper
+				title={'Notes'}
+				outerContainerStyle={{ padding: '0 0 0 32px', backgroundColor: '#1e1e1e' }}
+				maxWidth={'100%'}
+			>
 				<Notes />
 			</AuthWrapper>
 		),
@@ -295,6 +344,34 @@ const routes = [
 		exact: true,
 	},
 	{
+		path: '/ai-assistant',
+		component: (
+			<AuthWrapper title={'AI Assistant'}>
+				<AiAssistants />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/ai-assistant/:aiAssistantId',
+		component: (
+			<AuthWrapper title={'AI Assistant'}>
+				<AgentDetails />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		// path: '/ai-assistant/create-assistant',
+		path: '/ai-assistant/:aiAssistantId/edit',
+		component: (
+			<AuthWrapper title={'AI Assistant'}>
+				<EditAgent />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
 		path: '/docs',
 		component: (
 			<AuthWrapper title={'Docs'}>
@@ -302,6 +379,63 @@ const routes = [
 			</AuthWrapper>
 		),
 		exact: true,
+	},
+	{
+		path: '/my-templates',
+		component: (
+			<AuthWrapper title={'My Templates'}>
+				<MyTemplates />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/automation-builder/:automationId',
+		component: (
+			<AutomationBuilderLayout title={'Automation Builder'}>
+				<AutomationBuilder />
+			</AutomationBuilderLayout>
+		),
+		exact: true,
+	},
+	{
+		path: '/forms',
+		component: (
+			<AuthWrapper title={'Forms'}>
+				<Forms />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/form-leads',
+		component: (
+			<AuthWrapper title={'Form Leads'}>
+				<FormLeads />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/chat',
+		component: (
+			<AuthWrapper title={'Chat'} showBottomToolbar={false}>
+				<Chat />
+			</AuthWrapper>
+		),
+	},
+	{
+		path: '/chat/:sessionId',
+		component: (
+			<AuthWrapper
+				title={'Chat'}
+				showBottomToolbar={false}
+				outerContainerStyle={{ paddingRight: '0px' }}
+				maxWidth="100%"
+			>
+				<RecentChat />
+			</AuthWrapper>
+		),
 	},
 ];
 

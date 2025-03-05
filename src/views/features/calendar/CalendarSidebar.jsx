@@ -1,12 +1,12 @@
 import React, { memo, useState, useCallback } from 'react';
 import '../../../assets/scss/calendar/calendar.scss';
 import CalendarSelector from '../../components/calendar/CalendarSelector';
-import AskAI from '../../components/calendar/AskAI';
 import CalendarCategories from '../../components/calendar/CalendarCategories';
 import MeetingDetails from '../../components/calendar/MeetingDetails';
 import CalendarAiChat from '../../components/calendar/CalendarAiChat';
 import CreateEvent from '../../components/calendar/CreateEvent';
-import GoogleCalendar from '../../components/calendar/GoogleCalendar';
+// import AskAI from '../../components/calendar/AskAI';
+// import GoogleCalendar from '../../components/calendar/GoogleCalendar';
 
 const CalendarSidebar = ({
 	currentCalendarDate,
@@ -51,7 +51,7 @@ const CalendarSidebar = ({
 						selectedDate={selectedDate}
 						updateCalendarInfo={updateCalendarInfo}
 					/>
-					<AskAI toggleAskAi={toggleAskAi} />
+					{/* <AskAI toggleAskAi={toggleAskAi} /> */}
 					<CalendarCategories
 						categoryList={categoryList}
 						selectedCategory={selectedCategory}

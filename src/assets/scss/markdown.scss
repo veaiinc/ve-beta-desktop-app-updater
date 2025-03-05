@@ -1,0 +1,149 @@
+/* Minimal CSS for the classes used */
+.list-decimal {
+	list-style-type: decimal;
+}
+
+.list-outside {
+	list-style-position: outside;
+}
+
+.ml-4 {
+	margin-left: 1rem; /* 16px */
+}
+.ml-8 {
+	margin-left: 2rem; /* 32px */
+}
+
+.py-1 {
+	padding-top: 0.25rem; /* 4px */
+	padding-bottom: 0.25rem; /* 4px */
+}
+
+.font-semibold {
+	font-weight: 600;
+}
+
+/* Tailwind uses color variables for alpha values, 
+     but here's the direct color rule. */
+.text-blue-500 {
+	--tw-text-opacity: 1;
+	color: rgb(59 130 246 / var(--tw-text-opacity));
+}
+
+.hover\:underline:hover {
+	text-decoration: underline;
+}
+
+.text-3xl {
+	font-size: 1.875rem; /* 30px */
+	line-height: 2.25rem; /* 36px */
+}
+
+.text-2xl {
+	font-size: 1.5rem; /* 24px */
+	line-height: 2rem; /* 32px */
+}
+
+.text-xl {
+	font-size: 1.25rem; /* 20px */
+	line-height: 1.75rem; /* 28px */
+}
+
+.text-lg {
+	font-size: 1.125rem; /* 18px */
+	line-height: 1.75rem; /* 28px */
+}
+
+.text-base {
+	font-size: 1rem; /* 16px */
+	line-height: 1.5rem; /* 24px */
+}
+
+.text-sm {
+	font-size: 0.875rem; /* 14px */
+	line-height: 1.25rem; /* 20px */
+}
+
+.mt-6 {
+	margin-top: 1.5rem; /* 24px */
+}
+
+.mb-2 {
+	margin-bottom: 0.5rem; /* 8px */
+}
+
+.markdown-image-wrapper {
+	display: flex;
+	justify-content: flex-start;
+	align-items: center;
+	width: fit-content;
+	height: fit-content;
+}
+
+.text-white {
+	color: var(--primary-font);
+}
+
+.markdown-table {
+	border-collapse: collapse;
+	border-spacing: 0;
+	width: 100%;
+	margin: 1rem 0;
+
+	th {
+		background-color: #1f2937;
+		color: #f3f4f6;
+		font-weight: 600;
+		text-align: left;
+	}
+
+	tr:nth-child(even) {
+		background-color: #1a1a1a;
+	}
+
+	tr:nth-child(odd) {
+		background-color: #262626;
+	}
+
+	tr:hover {
+		background-color: #374151;
+	}
+
+	th,
+	td {
+		padding: 0.75rem 1rem;
+		border: 1px solid #4b5563;
+	}
+}
+
+.table-container {
+	max-width: 100%;
+	overflow-x: auto;
+	margin: 1rem 0;
+	border-radius: 0.375rem;
+
+	&::-webkit-scrollbar {
+		height: 8px;
+	}
+
+	&::-webkit-scrollbar-track {
+		background: #1f2937;
+		border-radius: 4px;
+	}
+
+	&::-webkit-scrollbar-thumb {
+		background: #4b5563;
+		border-radius: 4px;
+
+		&:hover {
+			background: #6b7280;
+		}
+	}
+}
+
+.markdown-code {
+	background-color: #2d2d2d;
+	padding: 2px 5px;
+	border-radius: 4px;
+	font-size: 0.9rem;
+}

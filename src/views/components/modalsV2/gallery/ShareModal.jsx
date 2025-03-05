@@ -22,6 +22,7 @@ const ShareModal = ({
 	handleManageCollaboratorPopup,
 	handleLinkChange,
 	data,
+	isLightGallery,
 }) => {
 	const {
 		galleryInfo: {
@@ -169,18 +170,18 @@ const ShareModal = ({
 	};
 
 	const handleVisitorFormAccess = useCallback(() => {
-		setInfo((prevInfo) => ({
-			...prevInfo,
-			visitorFormAccess: {
-				...visitorFormAccess,
-				isEnabled: !prevInfo?.visitorFormAccess?.isEnabled,
-			},
-		}));
-		const payload = {
-			isEnabled: !info?.visitorFormAccess?.isEnabled,
-		};
-		editVisitorFormAccess(payload, galleryId);
-	}, [info?.visitorFormAccess?.isEnabled]);
+		const newEnabled = !info?.visitorFormAccess?.isEnabled;
+		editVisitorFormAccess({ isEnabled: newEnabled }, galleryId);
+		setInfo((prevInfo) => {
+			return {
+				...prevInfo,
+				visitorFormAccess: {
+					...prevInfo.visitorFormAccess,
+					isEnabled: newEnabled,
+				},
+			};
+		});
+	}, [info]);
 
 	const handleGalleryProtection = (name) => {
 		let payload = {};
@@ -534,18 +535,20 @@ const ShareModal = ({
 												info?.showClientDownloadOptions ? 'expanded' : ''
 											}`}
 										>
-											<div className="downloadOptions">
-												<p>Can Download Original Images</p>
-												<input
-													type="checkbox"
-													checked={info?.canClientDownloadOriginals}
-													onChange={() =>
-														handleGalleryProtection(
-															'canClientDownloadOriginals',
-														)
-													}
-												/>
-											</div>
+											{!isLightGallery && (
+												<div className="downloadOptions">
+													<p>Can Download Original Images</p>
+													<input
+														type="checkbox"
+														checked={info?.canClientDownloadOriginals}
+														onChange={() =>
+															handleGalleryProtection(
+																'canClientDownloadOriginals',
+															)
+														}
+													/>
+												</div>
+											)}
 											<div className="downloadOptions">
 												<p>Can Download Optimised Images</p>
 												<input
@@ -602,18 +605,20 @@ const ShareModal = ({
 													}
 												/>
 											</div> */}
-											<div className="downloadOptions">
-												<p>Can Download Originals Images</p>
-												<input
-													type="checkbox"
-													checked={info?.canGuestDownloadOriginals}
-													onChange={() =>
-														handleGalleryProtection(
-															'canGuestDownloadOriginals',
-														)
-													}
-												/>
-											</div>
+											{!isLightGallery && (
+												<div className="downloadOptions">
+													<p>Can Download Originals Images</p>
+													<input
+														type="checkbox"
+														checked={info?.canGuestDownloadOriginals}
+														onChange={() =>
+															handleGalleryProtection(
+																'canGuestDownloadOriginals',
+															)
+														}
+													/>
+												</div>
+											)}
 											<div className="downloadOptions">
 												<p>Can Download Optimised Images</p>
 												<input
@@ -638,7 +643,7 @@ const ShareModal = ({
 					<div className="toggleContainer">
 						<div style={{ width: '32px' }}>
 							<ToggleSlider
-								value={data?.visitorFormAccess?.isEnabled}
+								value={info?.visitorFormAccess?.isEnabled}
 								onChange={handleVisitorFormAccess}
 							/>
 						</div>
@@ -652,7 +657,9 @@ const ShareModal = ({
 							{[
 								{ label: 'Client', apiKey: 'master' },
 								{ label: 'Guest', apiKey: 'guest' },
-								{ label: 'AI Face Recognition', apiKey: 'face' },
+								...(!isLightGallery
+									? [{ label: 'AI Face Recognition', apiKey: 'face' }]
+									: []),
 							].map((item) => (
 								<div key={item.label} className="visitorFormAccessItem">
 									<input

@@ -1,0 +1,46 @@
+.linkText-wrapper {
+	display: flex;
+	align-items: center;
+	cursor: pointer;
+	padding: 4px 10px;
+	border-radius: 8px;
+	// height: 100%;
+
+	.linkText-value {
+		color: var(--primary-font);
+		font-family: var(--primary-font-family);
+		font-size: 12px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
+		word-break: break-all;
+	}
+
+	.linkText-textarea {
+		background-color: transparent;
+		border: none;
+		resize: none;
+		overflow: hidden;
+		color: var(--primary-font);
+		font-family: var(--primary-font-family);
+		font-size: 12px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
+	}
+
+	&:hover {
+		background-color: var(--card);
+
+		.linkText-value {
+			text-decoration: underline;
+		}
+	}
+}
+
+.takeFullspace {
+	width: 100%;
+	min-height: 32px;
+	height: 100% !important;
+	border-radius: 8px;
+}

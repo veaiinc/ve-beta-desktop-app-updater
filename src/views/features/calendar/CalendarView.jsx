@@ -6,12 +6,12 @@ import CalendarHeader from '../../components/calendar/CalendarHeader';
 import CustomTimeGutterHeader from '../../components/calendar/CustomTimeGutterHeader';
 import CustomEventCard from '../../components/calendar/CustomEventCard';
 import CustomEventWrapper from '../../components/calendar/CustomEventWrapper';
-// import CustomEventContainer from '../../components/calendar/CustomEventContainer';
 import MonthEventWrapper from '../../components/calendar/MonthEventWrapper';
-import UpdatedPageLoader from '../../components/loaders/UpdatedPageLoader';
 import Context from '../../../context/context';
 import moment from 'moment';
 import EventDetailsModal from '../../components/modalsV2/calendar/EventDetailsModal';
+// import CustomEventContainer from '../../components/calendar/CustomEventContainer';
+// import UpdatedPageLoader from '../../components/loaders/UpdatedPageLoader';
 
 const initialState = {
 	eventsList: [],
@@ -20,6 +20,7 @@ const initialState = {
 	isEventCreated: false,
 	updateEventsList: false,
 	selectedEvent: null,
+	categoryBasedEventsList: [],
 };
 
 const CalendarView = ({
@@ -101,6 +102,27 @@ const CalendarView = ({
 			}));
 		}
 	}, [calendarEventsList]);
+
+	useEffect(() => {
+		// Filter events based on categoryFilter
+		const defaultCategory = categoryList?.find(
+			(cat) =>
+				cat?.name?.toLowerCase() === 'default' || cat?.type?.toLowerCase() === 'default',
+		)?._id;
+
+		// If default category is selected, show all events
+		if (categoryFilter?.includes(defaultCategory)) {
+			setInfo((prev) => ({ ...prev, categoryBasedEventsList: info?.eventsList }));
+			return;
+		}
+
+		// Otherwise filter events based on selected categories
+		const filteredEvents = info?.eventsList?.filter((event) => {
+			const eventCategory = event?.calendarCategory;
+			return categoryFilter?.includes(eventCategory?._id);
+		});
+		setInfo((prev) => ({ ...prev, categoryBasedEventsList: filteredEvents }));
+	}, [categoryFilter, info?.eventsList, categoryList]);
 
 	const handleSendEventToAi = useCallback(async () => {
 		if (calendarEvent?._id) {
@@ -184,39 +206,37 @@ const CalendarView = ({
 
 	return (
 		<>
-			{info?.isLoading ? (
-				<UpdatedPageLoader />
-			) : (
-				<div className="calendarViewParentContainer">
-					<div className="scheduler">
-						<CalendarWrapper
-							events={info?.eventsList || []}
-							defaultView={'month'}
-							views={['month', 'week', 'day']}
-							toolbar={true}
-							className="custom"
-							selectable
-							onSelectSlot={(event) => onSelectSlot(event)}
-							onSelectEvent={(event) => handleSelectEvent(event)}
-							date={selectedDate}
-							popup
-							components={components}
-							allDayMaxRows={1}
-							// showAllEvents={true}
-						/>
-					</div>
-					<EventDetailsModal
-						selectedEvent={info?.selectedEvent}
-						isEventSelected={isEventSelected}
-						updateCalendarInfo={updateCalendarInfo}
-						handleSelectEvent={setInfo}
-						categoryList={categoryList}
-						updateCalenderEventsList={updateCalenderEventsList}
-						filterDeletedEvent={filterDeletedEvent}
-						onClose={onClose}
+			{/* UpdatedPageLoader has been removed to Eliminate the loader from the calendar view */}
+			<div className="calendarViewParentContainer">
+				<div className="scheduler">
+					<CalendarWrapper
+						// events={info?.eventsList || []}
+						events={info?.categoryBasedEventsList || []}
+						defaultView={'month'}
+						views={['month', 'week', 'day']}
+						toolbar={true}
+						className="custom"
+						selectable
+						onSelectSlot={(event) => onSelectSlot(event)}
+						onSelectEvent={(event) => handleSelectEvent(event)}
+						date={selectedDate}
+						popup
+						components={components}
+						allDayMaxRows={1}
+						// showAllEvents={true}
 					/>
 				</div>
-			)}
+				<EventDetailsModal
+					selectedEvent={info?.selectedEvent}
+					isEventSelected={isEventSelected}
+					updateCalendarInfo={updateCalendarInfo}
+					handleSelectEvent={setInfo}
+					categoryList={categoryList}
+					updateCalenderEventsList={updateCalenderEventsList}
+					filterDeletedEvent={filterDeletedEvent}
+					onClose={onClose}
+				/>
+			</div>
 		</>
 	);
 };

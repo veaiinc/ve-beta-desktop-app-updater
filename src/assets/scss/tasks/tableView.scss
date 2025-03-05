@@ -1,0 +1,226 @@
+.table-view {
+	width: 100%;
+	height: 100%;
+	flex-grow: 1;
+	* {
+		box-sizing: border-box;
+	}
+
+	.table-scroll-container {
+		width: 100%;
+		height: 100%;
+		overflow: auto;
+		position: relative;
+
+		.table-content {
+			min-width: 100%;
+			border-collapse: separate;
+			border-spacing: 0;
+			table-layout: fixed;
+
+			.noDataMessage {
+				padding: 30px 20px;
+				font-size: 14px;
+				color: #e7e7e7;
+			}
+
+			.errorContainer {
+				padding: 30px 20px;
+				font-size: 14px;
+				color: #e7e7e7;
+			}
+		}
+	}
+
+	.table-header {
+		width: 100%;
+		min-width: 100%;
+		position: sticky;
+		top: 0;
+		z-index: 1;
+		background-color: rgb(17, 17, 17);
+
+		tr {
+			display: flex;
+			width: 100%;
+			min-width: 100%;
+
+			.table-header-cell {
+				position: relative;
+				font-weight: 500;
+				color: #787e87;
+				font-size: 13px;
+				background: transparent;
+				border: 1px solid #171819;
+				border-right: none;
+				border-top: none;
+				min-width: 80px;
+				display: flex;
+				align-items: center;
+				box-sizing: border-box;
+
+				&:first-child {
+					border-left: none;
+				}
+
+				&:last-child {
+					border-right: none;
+				}
+
+				&:hover {
+					background-color: rgba(255, 255, 255, 0.02);
+
+					.resize-handle {
+						opacity: 1;
+						z-index: 1;
+					}
+				}
+
+				&.dragging {
+					background: #202123;
+					border-radius: 4px;
+					box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+				}
+
+				.header-content {
+					padding: 12px 8px;
+					display: flex;
+					align-items: center;
+					justify-content: flex-start;
+					gap: 4px;
+					flex: 1;
+					overflow: hidden;
+					cursor: grab;
+					min-width: 0;
+
+					.table-header-icon {
+						width: 16px;
+						height: 16px;
+						flex-shrink: 0;
+					}
+
+					.header-label {
+						flex: 1;
+						overflow: hidden;
+						text-overflow: ellipsis;
+						white-space: nowrap;
+						text-align: left;
+					}
+
+					&:active {
+						cursor: grabbing;
+					}
+				}
+
+				.resize-handle {
+					position: absolute;
+					right: -2px; // Slightly overlapping both cells
+					top: 0;
+					bottom: 0;
+					width: 4px; // Wider by default for easier targeting
+					background-color: transparent; // Invisible by default
+					opacity: 0;
+					cursor: col-resize;
+					transition: opacity 0.2s, background-color 0.2s;
+
+					&:hover {
+						opacity: 1;
+						background-color: #6055ec;
+						z-index: 1;
+					}
+				}
+			}
+		}
+	}
+
+	.table-body {
+		width: 100%;
+		min-width: 100%;
+
+		.table-row {
+			display: flex;
+			width: 100%;
+			min-width: 100%;
+			transition: background-color 0.2s;
+
+			&:hover {
+				background-color: rgba(255, 255, 255, 0.02);
+			}
+
+			.table-cell {
+				position: relative;
+				color: #e4e5e6;
+				font-size: 13px;
+				background: transparent;
+				border: 1px solid #171819;
+				border-top: none;
+				border-right: none;
+				min-width: 80px;
+				display: flex;
+				align-items: center;
+				box-sizing: border-box;
+				padding: 12px 8px;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				white-space: nowrap;
+				cursor: pointer;
+
+				&:first-child {
+					border-left: none;
+				}
+
+				// Remove right border from last body cell
+				&:last-child {
+					border-right: none;
+				}
+
+				// Component styles within cell
+				> * {
+					width: 100%;
+					min-width: 0;
+					overflow: hidden;
+					text-overflow: ellipsis;
+					white-space: nowrap;
+				}
+			}
+		}
+	}
+
+	&.resizing {
+		cursor: col-resize;
+		user-select: none;
+
+		* {
+			cursor: col-resize !important;
+		}
+	}
+
+	// Ensure consistent box-sizing across all elements
+	*,
+	*::before,
+	*::after {
+		box-sizing: border-box;
+	}
+
+	// Add skeleton styles
+	.react-loading-skeleton {
+		background-color: #202020;
+
+		&::after {
+			background-image: linear-gradient(90deg, #202020 0%, #444 50%, #202020 100%);
+		}
+	}
+
+	// Disable interactions during loading
+	&.loading {
+		pointer-events: none;
+
+		.resize-handle {
+			display: none;
+		}
+
+		.header-content {
+			cursor: default;
+		}
+	}
+}

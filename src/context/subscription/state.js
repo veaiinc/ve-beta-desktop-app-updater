@@ -17,6 +17,8 @@ export const intialState = {
 	expiredSubscriptionModal: false,
 	tokenExpiryData: null,
 	expiredTokenModal: false,
+	reFetchSubscription: false,
+	renewBanner: false,
 };
 
 export const SubscriptionState = (props) => {
@@ -231,7 +233,7 @@ export const SubscriptionState = (props) => {
 				usertoken,
 				'auth',
 			);
-			if (response?.[0]) {
+			if (response?.[0] === true) {
 				return [true, response?.[1]?.customerPortalLink];
 			} else {
 				message.error('Unable to create  user stripe sessions');
@@ -263,6 +265,60 @@ export const SubscriptionState = (props) => {
 			console.log('errror ==>updateTokenExpiryState', error);
 		}
 	};
+
+	const purchaseAddOnPlan = async (payload) => {
+		const workspaceId = localStorage.getItem('workspaceId');
+		const usertoken = localStorage.getItem('usertoken');
+		const path = `/addon-plan/${workspaceId}/purchase-add-on-plan`;
+		const type = 'auth';
+		try {
+			const response = await Service.fetchPost(path, payload, usertoken, type);
+			if (response?.[0] === true) {
+				return [true, response?.[1]];
+			} else {
+				return [false, response?.[1]];
+			}
+		} catch (error) {
+			console.log('errror ==>purchaseAddOnPlan', error);
+		}
+	};
+
+	const purchaseSubscriptionPlan = async (payload) => {
+		const workspaceId = localStorage.getItem('workspaceId');
+		const usertoken = localStorage.getItem('usertoken');
+		const path = `/subscription/${workspaceId}/purchase-subscription`;
+		const type = 'auth';
+		try {
+			const response = await Service.fetchPost(path, payload, usertoken, type);
+			if (response?.[0] === true) {
+				return [true, response?.[1]];
+			} else {
+				return [false, response?.[1]];
+			}
+		} catch (error) {
+			console.log('errror ==>purchaseSubscriptionPlan', error);
+		}
+	};
+	const updateRenewBanner = (payload) => {
+		try {
+			dispatch({
+				type: Actions.UPDATE_RENEW_BANNER,
+				payload,
+			});
+		} catch (error) {
+			console.log('error==>updateRenewBanner', error);
+		}
+	};
+	const updateStateValues = async (updatedVaribaleValuesObj) => {
+		try {
+			dispatch({
+				type: Actions.UPDATE_STATE_VALUES_SUCCESS,
+				payload: updatedVaribaleValuesObj,
+			});
+		} catch (error) {
+			console.log('error==>updateStateValues', error);
+		}
+	};
 	return {
 		...state,
 		getAllSubscriptionPlan,
@@ -277,5 +333,9 @@ export const SubscriptionState = (props) => {
 		createManageSubscriptionLinkforExistingUsers,
 		updateSubscriptionState,
 		updateTokenExpiryState,
+		purchaseAddOnPlan,
+		purchaseSubscriptionPlan,
+		updateStateValues,
+		updateRenewBanner,
 	};
 };

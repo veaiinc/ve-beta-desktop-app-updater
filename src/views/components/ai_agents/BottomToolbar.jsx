@@ -1,22 +1,13 @@
-import React, { memo, useCallback, useState, useRef, useEffect, useContext } from 'react';
+import React, { memo, useCallback, useState, useRef, useEffect, useContext, useMemo } from 'react';
 import '../../../assets/scss/ai_agents/bottomToolbar.scss';
-import { ReactComponent as Plus } from '../../../assets/svg/ai_agents/Plus.svg';
-import { ReactComponent as Home } from '../../../assets/svg/ai_agents/home.svg';
-import { ReactComponent as Settings } from '../../../assets/svg/ai_agents/settings.svg';
 import { ReactComponent as Close } from '../../../assets/svg/close.svg';
-import { ReactComponent as Expand } from '../../../assets/svg/bottomToolbar/expand.svg';
-import ToolBarChatContainerModal from '../modalsV2/ToolBarChatContainerModal';
-import { message, Tooltip } from 'antd';
-import ReactMarkdown from 'react-markdown';
-import { UploadOutlined } from '@ant-design/icons';
-import { Upload } from 'antd';
 import Context from '../../../context/context';
 import ObjectID from 'bson-objectid';
-import { useLocation } from 'react-router-dom';
-
-const moduleHelper = {
-	'/tasks': 'tasks',
-};
+import { useLocation, useNavigate } from 'react-router-dom';
+import { ReactComponent as PaperClip } from '../../../assets/svg/ai_agents/paper-clip.svg';
+import { ReactComponent as Mic } from '../../../assets/svg/ai_agents/mic.svg';
+import useVoiceIntegration from '../../hooks/useVoiceIntegration';
+import ChatBox from '../homePage/ChatBox';
 
 const BottomToolbar = ({
 	outerContainerStyle = {},
@@ -27,21 +18,51 @@ const BottomToolbar = ({
 	customChatActions = false,
 }) => {
 	const {
-		templates: { handleGlobalChatMessages, globalChatMessages, updateStateValues },
+		templates: {
+			handleGlobalChatMessages,
+			globalChatMessages,
+			updateStateValues,
+			handleGlobalUploadImage,
+			checkIndividualImageUploadedStatus,
+			deleteUploadedImageThroughChat,
+			activeWorkflowSlugForSmartFile,
+			updateApplicationChat,
+			activePromptForChat,
+			currentSessionId,
+		},
+		calendarInfo: { updateCalendarState },
+		tasks: { updateTaskState },
 	} = useContext(Context);
+	const {
+		isConnected,
+		isMuted,
+		audioLevel,
+		connectToRoom,
+		disconnect,
+		toggleMute,
+		toggleKrispNoiseFilter,
+	} = useVoiceIntegration();
 
 	const location = useLocation();
+	const navigate = useNavigate();
 
 	const [info, setInfo] = useState({
 		expanded: false,
 		inputExpanded: false,
 		chatModalIsOpen: false,
+		bigToolbarIsOpen: false,
 		chatQuery: '',
-		position: { x: 0, y: 0 },
+		position: { x: window.innerWidth / 2 - 900, y: 0 },
 		addQuickAction: false,
-		chatSessionId: ObjectID().toString(),
+		chatSessionId: null,
+		uploadedImages: [],
+		chatLoading: false,
+		showFullPage: true,
+		voiceIntegration: false,
 	});
 
+	const [previewOpen, setPreviewOpen] = useState(false);
+	const [previewImage, setPreviewImage] = useState('');
 	const toolbarRef = useRef(null);
 	const isDraggingRef = useRef(false);
 	const startPosRef = useRef({ x: 0, y: 0 });
@@ -58,11 +79,32 @@ const BottomToolbar = ({
 		};
 	}, []);
 	// Add this useEffect for auto-scrolling
-	useEffect(() => {
-		if (chatContentRef.current) {
-			chatContentRef.current.scrollTop = chatContentRef.current.scrollHeight;
-		}
-	}, [chatList]); // Scroll whenever chatList changes
+	// useEffect(() => {
+	// 	if (chatContentRef.current) {
+	// 		chatContentRef.current.scrollTop = chatContentRef.current.scrollHeight;
+	// 	}
+	// }, [chatList]); // Scroll whenever chatList changes
+
+	// useEffect(() => {
+	// 	if (currentSessionId) {
+	// 		setInfo((prev) => ({ ...prev, chatSessionId: currentSessionId }));
+	// 	} else {
+	// 		updateStateValues({ currentSessionId: ObjectID().toString() });
+	// 	}
+	// }, [currentSessionId]);
+
+	// useEffect(() => {
+	// 	if (activePromptForChat) {
+	// 		setInfo((prev) => ({
+	// 			...prev,
+	// 			// chatQuery: activePromptForChat,
+	// 			chatModalIsOpen: true,
+	// 			showFullPage: true,
+	// 		}));
+	// 		handleSendMessageFunc(null, true, activePromptForChat);
+	// 		updateStateValues({ activePromptForChat: null });
+	// 	}
+	// }, [activePromptForChat]);
 
 	const handleMouseDown = useCallback(
 		(e) => {
@@ -93,84 +135,40 @@ const BottomToolbar = ({
 		isDraggingRef.current = false;
 	}, []);
 
-	//function definitions
-	const handleInputFocus = useCallback(() => {
-		setInfo((prev) => ({
-			...prev,
-			expanded: true,
-			inputExpanded: true,
-		}));
-	}, [info]);
-
-	const handleClose = useCallback(() => {
-		setInfo((prev) => ({
-			...prev,
-			expanded: false,
-		}));
-	}, [info]);
-
-	const handleChatExpand = useCallback(() => {
-		setInfo((prev) => ({
-			...prev,
-			chatModalIsOpen: true,
-			expanded: false,
-			inputExpanded: false,
-		}));
-	}, []);
-
-	const handleCloseChatModal = useCallback(() => {
-		setInfo((prev) => ({ ...prev, chatModalIsOpen: false }));
-	}, [info]);
-
-	const handleSendMessageFunc = useCallback(
-		(e) => {
-			if (e.key === 'Enter') {
-				// If Shift+Enter, allow new line
-				if (e.shiftKey) {
-					return;
-				}
-
-				// Prevent default to avoid unwanted new line
-				e.preventDefault();
-
-				if (aiChatLoading && info?.chatQuery?.length) {
-					return message.error('Please wait for the AI response');
-				}
-
-				if (info?.chatQuery?.trim().length) {
-					if (customChatActions) {
-						onSend(info?.chatQuery);
-					} else {
-						const payload = {
-							query: info?.chatQuery,
-							timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-						};
-
-						if (moduleHelper?.[location?.pathname]) {
-							payload.module = moduleHelper?.[location?.pathname];
-						}
-						handleGlobalChatMessages(payload, info?.chatSessionId);
-					}
-
-					setInfo((prev) => ({ ...prev, chatQuery: '' }));
-				}
+	const handleMicIconClick = useCallback(
+		(event) => {
+			if (!info?.voiceIntegration) {
+				connectToRoom();
+				setInfo((prev) => ({ ...prev, voiceIntegration: true, bigToolbarIsOpen: false }));
+			} else {
+				toggleMute();
 			}
+			event.stopPropagation();
 		},
-		[info?.chatQuery, aiChatLoading, onSend, customChatActions, info?.chatSessionId],
+
+		[info, connectToRoom],
 	);
 
-	const handleChange = useCallback(
-		({ file }) => {
-			handleAiUploadImage(file);
-			setInfo((prev) => ({
-				...prev,
-				addQuickAction: false,
-				expanded: true,
-				inputExpanded: true,
-			}));
+	const handleDisConnect = useCallback(
+		(event) => {
+			disconnect();
+			setInfo((prev) => ({ ...prev, voiceIntegration: false }));
+			event.stopPropagation();
 		},
-		[handleAiUploadImage],
+		[info],
 	);
+
+	const handleSmallToolbarClick = () => {
+		setInfo((prev) => ({
+			...prev,
+			bigToolbarIsOpen: true,
+		}));
+	};
+
+	const handleCustomOnSendFunction = useCallback((data) => {
+		updateStateValues({ activePayloadForChat: data });
+		navigate(`/chat/${ObjectID().toString()}`);
+	}, []);
 
 	return (
 		<div
@@ -184,117 +182,50 @@ const BottomToolbar = ({
 			}}
 			onMouseDown={handleMouseDown}
 		>
-			<div
-				className={`${
-					info?.expanded ? 'expandedChatContainer' : ''
-				} bottomToolbarChatContainer`}
-			>
-				<div className="bottomToolBarChatHeader">
-					<span>AI Assistant</span>
-					<div style={{ display: 'flex', alignItems: 'center' }}>
-						<button className="closeButton" onClick={handleChatExpand}>
-							<Expand />
-						</button>
-						<button className="closeButton" onClick={handleClose}>
-							<Close />
-						</button>
-					</div>
-				</div>
-				<div className="chatContent" ref={chatContentRef}>
-					{(!customChatActions ? globalChatMessages : chatList).map((chat, index) =>
-						chat?.content ? (
-							<div
-								className={`chat-message ${chat.type.toLowerCase()}-message`}
-								key={index}
-							>
-								{chat?.content}
-							</div>
-						) : (
-							<div
-								key={index}
-								className={`chat-message ${chat.type.toLowerCase()}-message`}
-							>
-								<div className="message-content">
-									<ReactMarkdown>{chat.message}</ReactMarkdown>
-								</div>
-							</div>
-						),
-					)}
-				</div>
-			</div>
-
-			{/* bottom toolBarContent */}
-			{!info?.chatModalIsOpen ? (
-				<div className="bottomToolbar">
-					<textarea
-						className={`bottomToolbarInputs ${info.inputExpanded ? 'expanded' : ''}`}
-						placeholder="Ask AI"
-						onFocus={handleInputFocus}
-						value={info?.chatQuery}
-						onChange={(e) =>
-							setInfo((prev) => ({ ...prev, chatQuery: e.target.value }))
-						}
-						onKeyDown={handleSendMessageFunc}
-						style={{ resize: 'none' }}
+			{info?.voiceIntegration ? (
+				<div style={{ display: 'flex', justifyContent: 'center' }}>
+					<img
+						src={'https://ap.assets.ve.ai/logo/speaking%20final.gif'}
+						width={'40px'}
+						height={'40px'}
+						style={{ marginBottom: '12px' }}
 					/>
-					<div className="quickActionsButtons">
-						<Home />
-					</div>
-					<div className="quickActionsButtons">
-						<Tooltip
-							placement="top"
-							title={<QuickActionsPlusParentContainer handleChange={handleChange} />}
-							color={'#202020'}
-							arrow={true}
-							trigger="click"
-							overlayClassName="quickActionsTooltipContainer"
-							open={info?.addQuickAction}
-							onOpenChange={(open) => {
-								// if (!open) {
-								setInfo((prev) => ({ ...prev, addQuickAction: open }));
-								// }
-							}}
-						>
-							<Plus />
-						</Tooltip>
-					</div>
-					<div className="quickActionsButtons">
-						<Settings />
-					</div>
 				</div>
 			) : (
 				''
 			)}
-			<ToolBarChatContainerModal
-				onClose={handleCloseChatModal}
-				modalIsOpen={info?.chatModalIsOpen}
-				chatList={!customChatActions ? globalChatMessages : chatList}
-				onSend={onSend}
-				chatQuery={info?.chatQuery}
-				onChange={(e) => setInfo((prev) => ({ ...prev, chatQuery: e.target.value }))}
-				onKeyDown={handleSendMessageFunc}
-				aiChatLoading={aiChatLoading}
-			/>
+			{/* bottom toolBarContent */}
+			{!info?.chatModalIsOpen ? (
+				info?.bigToolbarIsOpen ? (
+					<div className="chatBoxContainer">
+						<ChatBox onSend={handleCustomOnSendFunction} customChatActions={true} />
+					</div>
+				) : (
+					<div className="bottomToolbarSmall" onClick={handleSmallToolbarClick}>
+						<div className="toolbarText">Hey, need help ask me anything !</div>
+						<div className="chat-icons-container">
+							<div className="upload-icon">
+								<PaperClip />
+							</div>
+
+							<div className="mic-icon" onClick={handleMicIconClick}>
+								<Mic />
+							</div>
+							{info?.voiceIntegration ? (
+								<div className="mic-icon" onClick={handleDisConnect}>
+									<Close style={{ width: '20px', height: '20px' }} />
+								</div>
+							) : (
+								''
+							)}
+						</div>
+					</div>
+				)
+			) : (
+				''
+			)}
 		</div>
 	);
 };
 
 export default memo(BottomToolbar);
-
-const QuickActionsPlusParentContainer = ({ handleChange }) => {
-	return (
-		<div className="QuickActionsPlusParentContainer">
-			<Upload
-				onChange={handleChange}
-				showUploadList={false}
-				beforeUpload={() => false} // Prevent default upload behavior
-				maxCount={1} // Allow only one file at a time
-				accept="image/*" // Accept only images
-			>
-				<button className="quick-action-upload-button">
-					<UploadOutlined /> Upload Images
-				</button>
-			</Upload>
-		</div>
-	);
-};

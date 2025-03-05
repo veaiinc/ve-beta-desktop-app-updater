@@ -134,3 +134,120 @@ export const returnDurationOption = (type) => {
 	}
 	return selectedDuration;
 };
+
+export const PriorityOptions = [
+	{
+		label: 'Low',
+		value: 'low',
+	},
+
+	{
+		label: 'Medium',
+		value: 'medium',
+	},
+	{
+		label: 'High',
+		value: 'high',
+	},
+];
+
+export const statusOptions = [
+	{
+		label: 'To Do',
+		value: 'todo',
+	},
+
+	{
+		label: 'Done',
+		value: 'done',
+	},
+	{
+		label: 'Pending',
+		value: 'pending',
+	},
+	{
+		label: 'In Progress',
+		value: 'inProgress',
+	},
+];
+
+export const conditionOptions = [
+	{
+		label: 'Contract Signed',
+		value: 'contractSigned',
+	},
+
+	{
+		label: 'Proposal Accepted',
+		value: 'proposalAccepted',
+	},
+	// {
+	// 	label: 'Payment is completed',
+	// 	value: 'Payment is completed',
+	// },
+];
+
+export const MoveStepsOptions = [
+	{
+		label: 'Yes',
+		value: 'yes',
+	},
+
+	{
+		label: 'No',
+		value: 'no',
+	},
+];
+
+export const containerStyle = {
+	padding: '12px 24px',
+	height: '44px',
+	padding: '12px',
+	color: 'var(--primary-font)',
+	width: '100%',
+	flex: 1,
+	alignSelf: 'stretch',
+	backgroundColor: 'var(--card)',
+	borderRadius: '14px',
+	border: '1px solid var(--stroke)',
+};
+
+export const dropDownStyle = {
+	top: '55px',
+	borderRadius: '14px',
+	border: '1px solid var(--stroke)',
+	backgroundColor: 'var(--card)',
+};
+
+export const dropDownTextStyling = {
+	color: 'var(--primary-font)',
+	fontFamily: 'var(--primary-font-family)',
+	fontSize: '13px',
+	fontStyle: 'normal',
+	fontWeight: '400',
+	lineHeight: 'normal',
+};
+export const selectedValueStyling = {
+	color: 'var(--secondary-font)',
+	fontFamily: 'var(--primary-font-family)',
+	fontSize: '12px',
+	fontStyle: 'normal',
+	fontWeight: '500',
+	lineHeight: 'normal',
+};
+
+export const getTotalNumnerofNodesRecursively = (nodeId, stepsMapper) => {
+	if (!nodeId) {
+		return 0;
+	}
+
+	const count1 = getTotalNumnerofNodesRecursively(
+		stepsMapper?.[nodeId]?.data?.ifYes?.['nextStepId'],
+		stepsMapper,
+	);
+	const count2 = getTotalNumnerofNodesRecursively(
+		stepsMapper?.[nodeId]?.data?.ifNo?.['nextStepId'],
+		stepsMapper,
+	);
+	return count1 + count2 + 1;
+};

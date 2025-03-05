@@ -1,0 +1,73 @@
+.date-header {
+	display: flex;
+	height: 32px;
+	padding: 8px 14px;
+	align-items: center;
+	gap: 6px;
+	border-radius: 100px;
+	background: var(--card);
+	color: var(--primary-font);
+	width: fit-content;
+	height: fit-content;
+	font-family: var(--primary-font-family);
+	font-size: 12px;
+	font-style: normal;
+	font-weight: 500;
+	line-height: normal;
+	white-space: nowrap;
+	svg {
+		path {
+			stroke: var(--primary-font) !important;
+		}
+	}
+
+	.chevron-icon-container {
+		transform: rotate(90deg);
+	}
+}
+
+.date-rangePicker {
+	border: none;
+	background-color: transparent !important;
+	color: var(--primary-font) !important;
+	border-radius: 36px;
+	font-family: var(--primary-font-family) !important;
+	font-size: 12px !important;
+	font-style: normal !important;
+	font-weight: 400 !important;
+	line-height: normal !important;
+	padding: 4px 6px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
+	margin-right: 0;
+	border: 1px solid var(--stroke) !important;
+	outline: none !important;
+	input {
+		color: var(--primary-font) !important;
+		background-color: transparent !important;
+		background: transparent !important;
+		font-size: 12px !important;
+		font-weight: 400 !important;
+		&::placeholder {
+			opacity: 1;
+			color: var(--primary-font) !important;
+		}
+	}
+	svg {
+		path {
+			stroke: var(--primary-font) !important;
+			fill: var(--primary-font) !important;
+		}
+	}
+	&:hover {
+		background-color: transparent;
+		color: var(--primary-font) !important;
+		border: 1px solid var(--stroke);
+	}
+	&:placeholder {
+		color: var(--primary-font) !important;
+		opacity: 1;
+	}
+}

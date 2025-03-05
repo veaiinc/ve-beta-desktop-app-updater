@@ -18,12 +18,12 @@
 			gap: 16px;
 			border-radius: 100px;
 			border: 1px solid rgba(36, 36, 36, 0.64);
-			background: rgba(42, 42, 42, 0.16);
+			background: var(--background-color);
 			min-width: 320px;
 			margin-bottom: 16px;
 
 			input {
-				color: rgba(224, 224, 224, 0.32);
+				color: var(--secondary-font);
 				font-family: var(--primary-font-family);
 				font-size: 15px;
 				font-style: normal;
@@ -173,7 +173,7 @@
 				gap: 8px;
 				align-self: stretch;
 				.platformIntegrationMessage {
-					color: #e4e5e6;
+					color: var(--primary-font);
 					text-align: center;
 					font-family: var(--primary-font-family);
 					font-size: 18px;
@@ -182,7 +182,7 @@
 					line-height: 20px; /* 111.111% */
 				}
 				.platformSuppportingText {
-					color: #b0b0b0;
+					color: var(--secondary-font);
 					text-align: center;
 					font-family: var(--primary-font-family);
 					font-size: 13px;
@@ -198,9 +198,9 @@
 				align-items: center;
 				gap: 16px;
 				border-radius: 100px;
-				border: 1px solid rgba(36, 36, 36, 0.64);
-				background: rgba(42, 42, 42, 0.16);
-				color: #e4e5e6;
+				border: 1px solid var(--background-color);
+				background: var(--background-color);
+				color: var(--primary-font);
 				font-family: var(--primary-font-family);
 				font-size: 13px;
 				font-style: normal;
@@ -211,7 +211,7 @@
 			}
 
 			.labeData {
-				color: #b0b0b0;
+				color: var(--secondary-font);
 				text-align: center;
 				font-family: var(--primary-font-family);
 				font-size: 13px;
@@ -228,11 +228,11 @@
 			height: 52px;
 			border-radius: 100px;
 			border: 1px solid #2f2f2f;
-			background: rgba(42, 42, 42, 0.16);
+			background: var(--background-color);
 
 			.placeHolder {
 				flex: 1;
-				color: rgba(224, 224, 224, 0.32);
+				color: var(--secondary-font);
 				font-family: var(--primary-font-family);
 				font-size: 15px;
 				font-style: normal;
@@ -262,7 +262,7 @@
 		align-self: stretch;
 
 		.platformIntegrationMessage {
-			color: #e4e5e6;
+			color: var(--primary-font);
 			text-align: center;
 			font-family: var(--primary-font-family);
 			font-size: 18px;
@@ -271,7 +271,7 @@
 			line-height: 20px; /* 111.111% */
 		}
 		.platformSuppportingText {
-			color: #b0b0b0;
+			color: var(--secondary-font);
 			text-align: center;
 			font-family: var(--primary-font-family);
 			font-size: 13px;

@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect, useRef } from 'react';
+import React, { useState, useContext, useEffect, useRef, memo } from 'react';
 import '../../../assets/scss/gallery/uploadGallery.scss';
 import AddLables from '../../components/gallery/addGallery/AddLablesComponent';
 import UploadInputComponent from '../../components/gallery/addGallery/UploadInputComponent';
@@ -11,7 +11,8 @@ import Context from '../../../context/context';
 import { Link, useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import UploadCompletedPopup from '../../components/gallery/addGallery/UploadCompletedPopup';
-import RefreshPopup from '../../components/gallery/addGallery/RefreshPopup';
+import useSubscription from '../../hooks/useSubscription';
+// import RefreshPopup from '../../components/gallery/addGallery/RefreshPopup';
 
 const UploadPhotos = () => {
 	const { galleryId, albumId } = useParams();
@@ -29,6 +30,7 @@ const UploadPhotos = () => {
 			getAlbums,
 			getImageDuplicatesList,
 		},
+		subscriptionInfo: { validateExpiryData, updateSubscriptionState, updateStateValues },
 	} = useContext(Context);
 
 	const [info, setinfo] = useState({
@@ -57,14 +59,51 @@ const UploadPhotos = () => {
 		isPopupOpen: false,
 		title: '',
 		isRefreshPopupOpen: false,
+		isAiEnabled: false,
+		isUploadComplete: false,
 	});
 	const recentImageInitiatedRef = useRef(info.recentImageInitiated);
+	const params = new URLSearchParams(window.location.search);
+	const lightGallery = params.get('light-gallery');
+
+	const aiFacesLogic =
+		info?.isAiEnabled &&
+		(validateExpiryData?.liteImageLimitWithAiFace === 0 ||
+			validateExpiryData?.liteImageLimitWithAiFace <= validateExpiryData?.liteImageUsed);
+
+	useEffect(() => {
+		if (
+			lightGallery === 'true' &&
+			info?.isAiEnabled &&
+			validateExpiryData?.liteImageLimitWithAiFace === 0
+		) {
+			// If AI is enabled but user has no AI face limit, disable AI and show subscription popup
+			setinfo((prev) => ({
+				...prev,
+				isAiEnabled: false,
+			}));
+			updateSubscriptionState({ expiredSubscriptionModal: true });
+			return;
+		}
+		const updatedUploadImages = info?.uploadImages || {};
+		if (Object.keys(updatedUploadImages)?.length > 0) {
+			Object.keys(updatedUploadImages)?.forEach((key) => {
+				updatedUploadImages[key].isAIFacesEnabled =
+					lightGallery === 'true'
+						? info?.isAiEnabled && validateExpiryData?.liteImageLimitWithAiFace > 0
+						: true;
+			});
+			setinfo((prev) => {
+				return { ...prev, uploadImages: updatedUploadImages };
+			});
+		}
+	}, [aiFacesLogic, info?.isAiEnabled]);
 
 	useEffect(() => {
 		if (!waterMarks) {
 			getWaterMarks();
 		} else if (waterMarks && waterMarks?.length > 0) {
-			setinfo((prev) => ({ ...prev, watermarkProfileId: waterMarks[0].profileId }));
+			setinfo((prev) => ({ ...prev, watermarkProfileId: waterMarks?.[0]?.profileId }));
 		}
 	}, [waterMarks]);
 
@@ -73,7 +112,7 @@ const UploadPhotos = () => {
 			setinfo((prev) => ({
 				...prev,
 				title:
-					tenantAlbums?.albums?.find((album) => album._id === albumId)?.title || 'Back',
+					tenantAlbums?.albums?.find((album) => album?._id === albumId)?.title || 'Back',
 			}));
 		} else {
 			getAlbums(galleryId).then((response) => {
@@ -94,6 +133,26 @@ const UploadPhotos = () => {
 
 	// drop function
 	const onDropFunction = async (files) => {
+		if (
+			lightGallery === 'true' &&
+			validateExpiryData &&
+			validateExpiryData?.restrictGalleries &&
+			(validateExpiryData?.liteImageLimit < validateExpiryData?.liteImageUsed ||
+				aiFacesLogic) &&
+			!validateExpiryData?.imagesAllowed
+		) {
+			return updateSubscriptionState({ expiredSubscriptionModal: true });
+		}
+
+		if (
+			lightGallery === 'false' &&
+			validateExpiryData &&
+			validateExpiryData?.restrictGalleries &&
+			!validateExpiryData?.uploadAllowed
+		) {
+			return updateSubscriptionState({ expiredSubscriptionModal: true });
+		}
+
 		let updateInfo = { ...info };
 
 		if (updateInfo?.initialUpload) {
@@ -101,8 +160,16 @@ const UploadPhotos = () => {
 		}
 		let totalSize = 0;
 
-		files?.map((file) => {
+		let uploadImagesLength = Object.keys(updateInfo?.uploadImages).length;
+
+		const imagesLimit = validateExpiryData?.liteImageLimit - validateExpiryData?.liteImageUsed;
+
+		files?.some((file) => {
 			let uploadedImages = { ...updateInfo?.uploadImages };
+
+			if (uploadImagesLength > imagesLimit && lightGallery === 'true') {
+				return updateSubscriptionState({ expiredSubscriptionModal: true });
+			}
 
 			let findDuplicateImage = imageDuplicatesList?.list?.find(
 				(image) => image?.displayName === file?.name,
@@ -119,6 +186,7 @@ const UploadPhotos = () => {
 					isDuplicate: findDuplicateImage ? true : false,
 					originalImage: findDuplicateImage,
 					originalDate: 0,
+					isFailed: false,
 				};
 
 				updateInfo.uploadImages = uploadedImages;
@@ -134,6 +202,7 @@ const UploadPhotos = () => {
 					uploadedPerct: 0,
 					isDuplicate: !!findDuplicateImage,
 					originalImage: findDuplicateImage,
+					isFailed: false,
 				};
 			}
 		});
@@ -163,7 +232,10 @@ const UploadPhotos = () => {
 			originalDateTime: moment(image?.['originalDate']).unix() || 0,
 			uploadBatchId: info?.uploadBatchID,
 			tag_ids: tags,
-			isAIFacesEnabled: true,
+			isAIFacesEnabled:
+				lightGallery === 'true'
+					? info?.isAiEnabled && validateExpiryData?.liteImageLimitWithAiFace > 0
+					: true,
 		};
 
 		// for duplicates
@@ -224,6 +296,7 @@ const UploadPhotos = () => {
 					let uploadImages = { ...prev.uploadImages };
 					uploadImages[key]['isUploaded'] = true;
 					uploadImages[key]['uploadedPerct'] = 100;
+					uploadImages[key]['isFailed'] = false;
 					const size = uploadImages[key]['file'].size;
 					delete uploadImages[key]['file'];
 					uploadImages[key]['file'] = { size, name: key };
@@ -251,6 +324,9 @@ const UploadPhotos = () => {
 
 		const interval = setInterval(async () => {
 			const response = await getImageUploadStatus(galleryId, albumId, info?.uploadBatchID);
+			if (response[0] === false) {
+				return;
+			}
 			const { processedCount, uploadedCount } = response[1];
 
 			let result = 0,
@@ -264,19 +340,13 @@ const UploadPhotos = () => {
 			} else if (info?.isSkipDuplicates && totalImages !== info?.duplciatesFound) {
 				let totalImagesWithoutDuplicates = totalImages - info?.duplciatesFound;
 				processed25Percent =
-					processedCount > 0
-						? parseInt((processedCount / totalImagesWithoutDuplicates) * 25)
-						: 0;
+					processedCount > 0 ? (processedCount / totalImagesWithoutDuplicates) * 25 : 0;
 				uploaded75Percent =
-					uploadedCount > 0
-						? parseInt((uploadedCount / totalImagesWithoutDuplicates) * 75)
-						: 0;
+					uploadedCount > 0 ? (uploadedCount / totalImagesWithoutDuplicates) * 75 : 0;
 				result = uploaded75Percent + processed25Percent;
 			} else {
-				processed25Percent =
-					processedCount > 0 ? parseInt((processedCount / totalImages) * 25) : 0;
-				uploaded75Percent =
-					uploadedCount > 0 ? parseInt((uploadedCount / totalImages) * 75) : 0;
+				processed25Percent = processedCount > 0 ? (processedCount / totalImages) * 25 : 0;
+				uploaded75Percent = uploadedCount > 0 ? (uploadedCount / totalImages) * 75 : 0;
 				result = uploaded75Percent + processed25Percent;
 			}
 
@@ -284,10 +354,15 @@ const UploadPhotos = () => {
 				shouldClearInterval = true;
 			}
 
-			setinfo((prev) => ({ ...prev, uploadStatus: response[1], overAllProgress: result }));
+			setinfo((prev) => ({
+				...prev,
+				uploadStatus: response[1],
+				overAllProgress: Number(result.toFixed(2)),
+			}));
 
 			if (response[1].processedCount === response[1].uploadedCount && shouldClearInterval) {
 				clearInterval(interval);
+				updateStateValues({ reFetchSubscription: true });
 				setinfo((prev) => ({ ...prev, isPopupOpen: true }));
 			}
 		}, 3000);
@@ -296,7 +371,7 @@ const UploadPhotos = () => {
 			if (queue.length === 0) return;
 
 			const currentFile = queue.shift();
-			const json = getJsonFunction(currentFile);
+			const json = getJsonFunction(currentFile, aiFacesLogic);
 
 			if (info.isSkipDuplicates && info.uploadImages[currentFile]?.isDuplicate) {
 				setinfo((prev) => {
@@ -331,6 +406,24 @@ const UploadPhotos = () => {
 						break;
 					}
 				}
+
+				if (attempts !== 0) {
+					// Wait for 1 minute before retrying
+					setinfo((prev) => ({
+						...prev,
+						uploadImages: {
+							...prev.uploadImages,
+							[currentFile]: { ...prev.uploadImages[currentFile], isFailed: true },
+						},
+					}));
+					let waitTime = 2000 * attempts;
+					await new Promise((resolve) => {
+						console.log('waiting  for ', waitTime, 'seconds');
+						setTimeout(() => {
+							resolve();
+						}, waitTime);
+					});
+				}
 				attempts++;
 			}
 			if (isSuccessUpload) {
@@ -363,6 +456,8 @@ const UploadPhotos = () => {
 					setinfo={setinfo}
 					uploadFilesConcurrently={uploadFilesConcurrently}
 					galleryId={galleryId}
+					aiFacesLogic={aiFacesLogic}
+					lightGallery={lightGallery}
 				/>
 			</div>
 
@@ -376,4 +471,4 @@ const UploadPhotos = () => {
 	);
 };
 
-export default UploadPhotos;
+export default memo(UploadPhotos);

@@ -1,53 +1,36 @@
-.listViewParentContainer {
-	width: 100%;
+.listViewContainer {
 	display: flex;
 	flex-direction: column;
-	gap: 20px;
+	min-width: 100%;
+	width: fit-content;
+	overflow-x: auto;
 
-	button {
-		border: none;
+	.listItemSkeleton {
+		// display: flex;
+		min-width: 100%;
+		width: fit-content;
+		padding: 8px 0;
+		border-bottom: 1px solid #171819;
 	}
 
-	.listContainer {
-		display: flex;
-		flex-direction: column;
+	.noDataMessage {
+		padding: 30px 20px;
 		width: 100%;
-		overflow-x: auto;
-		.listInnerContainer {
-			display: flex;
-			flex-direction: column;
-			min-width: 100%;
-			width: fit-content;
-			overflow-x: auto;
-
-			.listItemSkeleton {
-				// display: flex;
-				min-width: 100%;
-				width: fit-content;
-				padding: 8px 0;
-				border-bottom: 1px solid var(--stroke);
-			}
-		}
-	}
-	.loadMoreContainer {
+		font-size: 14px;
+		color: #e7e7e7;
 		display: flex;
-		justify-content: flex-start;
+		justify-content: center;
 		align-items: center;
-		width: 100%;
-		padding: 10px 0;
-		button {
-			background-color: var(--card);
-			border: 1px solid var(--stroke);
-			border-radius: 16px;
-			padding: 10px 16px;
-			color: var(--primary-font);
-			cursor: pointer;
-			transition: background-color 0.2s;
+	}
 
-			&:hover {
-				background-color: var(--card);
-			}
-		}
+	.errorContainer {
+		padding: 30px 20px;
+		width: 100%;
+		font-size: 14px;
+		color: #e7e7e7;
+		display: flex;
+		justify-content: center;
+		align-items: center;
 	}
 }
 
@@ -72,11 +55,74 @@
 		border-radius: 10px;
 		background: #e8e8e8;
 		color: #131314;
-		font-family: Inter;
+		font-family: var(--primary-font-family);
 		font-size: 13px;
 		font-style: normal;
 		font-weight: 500;
 		line-height: 13px; /* 100% */
 		letter-spacing: -0.26px;
+	}
+}
+
+.tableViewContainer {
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	height: 100%;
+	position: relative;
+
+	.tableBodyWrapper {
+		padding: 8px;
+
+		.tableRowSkeleton {
+			margin: 8px 0;
+			border-radius: 8px;
+			overflow: hidden;
+		}
+	}
+
+	.errorContainer {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		padding: 20px;
+
+		.errorMessage {
+			color: #ff9b9b;
+			font-size: 14px;
+		}
+	}
+
+	.noDataContainer {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		padding: 20px;
+
+		.noDataMessage {
+			color: #808080;
+			font-size: 14px;
+		}
+	}
+
+	// Infinite scroll styles
+	.infinite-scroll-component {
+		overflow: auto !important;
+		-webkit-overflow-scrolling: touch;
+
+		&::-webkit-scrollbar {
+			width: 6px;
+		}
+
+		&::-webkit-scrollbar-thumb {
+			background-color: rgba(0, 0, 0, 0.2);
+			border-radius: 3px;
+		}
+	}
+
+	// Loader styles
+	.fetch-more-loader {
+		padding: 10px;
+		text-align: center;
 	}
 }

@@ -345,7 +345,7 @@ const WorkflowCardEditModal = ({
 							{info?.editState ? 'Edit Email' : `Edit Action`}
 						</span>
 						<div className="closeDeleteContainer">
-							{!info?.editState && mode === 'edit' ? (
+							{/* {!info?.editState && mode === 'edit' ? (
 								<div
 									style={{ display: 'flex', alignItems: 'center', gap: '4px' }}
 									onClick={() =>
@@ -359,7 +359,7 @@ const WorkflowCardEditModal = ({
 								</div>
 							) : (
 								''
-							)}
+							)} */}
 							<div className="closeBtn" onClick={closeModal}>
 								<Close />
 							</div>
@@ -555,12 +555,12 @@ const WorkflowCardEditModal = ({
 					)}
 
 					{/* footer */}
-					<div className="workflowEditorFooter">
+					{/* <div className="workflowEditorFooter">
 						<div className="saveBtn" onClick={saveChangesFunc}>
 							{info?.saveLoader ? <Spinner width={'16px'} height={'16px'} /> : ''}
 							{info?.saveLoader ? 'Saving...' : 'Save Changes'}
 						</div>
-					</div>
+					</div> */}
 				</div>
 			</div>
 

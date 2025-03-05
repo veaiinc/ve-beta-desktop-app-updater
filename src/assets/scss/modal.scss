@@ -262,7 +262,7 @@
 	.active {
 		background-color: $themev4Color !important;
 		p {
-			color: #ffffff !important;
+			color: var(--primary-font) !important;
 		}
 	}
 	.form-submit {
@@ -286,13 +286,13 @@
 			line-height: 16px;
 			text-align: center;
 			letter-spacing: -0.3px;
-			color: #f5f5f5;
+			color: var(--primary-font);
 		}
 	}
 	.form-submit.disabled {
 		@include theme-aware(background, proposalPopUpGrayBtnBg);
 		p {
-			color: #f5f5f5 !important;
+			color: var(--primary-font) !important;
 		}
 	}
 	.error-input {
@@ -463,7 +463,7 @@
 						margin-right: 10px;
 					}
 					&:hover {
-						background-color: #f5f5f5;
+						background-color: var(--card);
 					}
 				}
 				a {
@@ -1673,15 +1673,15 @@
 
 			letter-spacing: -0.1px;
 
-			color: #ffffff;
+			color: var(--primary-font);
 			text-transform: uppercase;
-			background: #dd095e;
+			background: var(--error);
 			border-radius: 30px;
 		}
 		svg {
 			margin-right: 10px;
 			path {
-				fill: #ffffff;
+				fill: var(--secondary-font);
 				stroke: #333333;
 				stroke-width: 1;
 			}
@@ -1797,7 +1797,7 @@
 	}
 }
 .title-help-text {
-	color: #707070;
+	color: var(--secondary-font);
 	font-size: 11px;
 	line-height: 16px;
 	top: 60px;
@@ -1979,7 +1979,7 @@
 
 				letter-spacing: -0.1px;
 
-				color: #b0b0b0;
+				color: var(--secondary-font);
 			}
 			.d-text {
 				vertical-align: middle;
@@ -1993,7 +1993,7 @@
 
 				letter-spacing: -0.1px;
 
-				color: #b0b0b0;
+				color: var(--secondary-font);
 			}
 		}
 	}
@@ -2040,7 +2040,7 @@
 			margin-right: 25px;
 			padding-bottom: 8px;
 			@include font-11p-m;
-			color: #b0b0b0;
+			color: var(--secondary-font);
 			text-decoration: none;
 		}
 		.nav-link:focus {
@@ -2079,7 +2079,7 @@
 
 			letter-spacing: -0.1px;
 
-			color: #b0b0b0;
+			color: var(--secondary-font);
 		}
 		.d-text {
 			vertical-align: middle;
@@ -2093,7 +2093,7 @@
 
 			letter-spacing: -0.1px;
 
-			color: #b0b0b0;
+			color: var(--secondary-font);
 		}
 	}
 
@@ -2293,7 +2293,7 @@
 			line-height: 16px;
 			letter-spacing: 0em;
 			text-align: center;
-			color: #e4e5e6;
+			color: var(--primary-font);
 			height: 24px;
 			line-height: 24px;
 		}
@@ -2404,7 +2404,7 @@
 		font-size: 12px;
 		line-height: 20px;
 
-		color: #707070;
+		color: var(--secondary-font);
 	}
 	.margin-tb {
 		margin: 15px 0px;
@@ -2427,7 +2427,7 @@
 			font-weight: 500;
 			font-size: 13px;
 			line-height: 16px;
-			color: #ffffff;
+			color: var(--primary-font);
 			padding: 13px 54px;
 			background-color: #2153cc;
 			cursor: pointer;
@@ -2446,17 +2446,17 @@
 				font-size: 12px;
 				line-height: 20px;
 				text-align: left;
-				color: #707070;
+				color: var(--secondary-font);
 				margin-bottom: 15px;
 			}
 			.storage-consumed-text {
 				text-align: left;
-				color: #cc4c21;
+				color: var(--primary-font);
 				font-weight: 500;
 				font-size: 18px;
 				line-height: 16px;
 				padding: 8px;
-				background-color: #f5f5f5;
+				background-color: var(--background-color);
 				width: fit-content;
 			}
 		}
@@ -2467,7 +2467,7 @@
 				font-size: 12px;
 				line-height: 20px;
 				text-align: right;
-				color: #707070;
+				color: var(--secondary-font);
 				margin-bottom: 15px;
 			}
 			.storage-plan-text-container {
@@ -2494,7 +2494,7 @@
 			color: #333333;
 		}
 		.completed-text {
-			color: #707070;
+			color: var(--secondary-font);
 			font-size: 12px;
 			line-height: 20px;
 			font-weight: 400;
@@ -2527,7 +2527,7 @@
 					margin-bottom: 15px;
 				}
 				.table-content {
-					color: #707070;
+					color: var(--secondary-font);
 					font-weight: 500;
 					font-size: 12px;
 					line-height: 20px;
@@ -2932,7 +2932,7 @@
 
 				letter-spacing: -0.3px;
 
-				color: #b0b0b0;
+				color: var(--secondary-font);
 			}
 		}
 	}
@@ -2991,7 +2991,7 @@
 			line-height: 16px;
 			text-align: right;
 			letter-spacing: -0.1px;
-			color: #707070;
+			color: var(--secondary-font);
 			margin-right: 40px;
 			cursor: pointer;
 			border-radius: 40px;
@@ -3332,7 +3332,7 @@
 			line-height: 16px;
 			text-align: right;
 			letter-spacing: -0.1px;
-			color: #707070;
+			color: var(--secondary-font);
 			margin-right: 40px;
 			cursor: pointer;
 			border-radius: 40px;
@@ -3513,7 +3513,7 @@
 
 					letter-spacing: -0.3px;
 
-					color: #707070;
+					color: var(--secondary-font);
 				}
 			}
 			.bottom-check-desc {
@@ -3525,7 +3525,7 @@
 				font-size: 11px;
 				line-height: 16px;
 				letter-spacing: -0.3px;
-				color: #707070;
+				color: var(--secondary-font);
 			}
 			.bottom-check-desc:last-child {
 				margin-bottom: 0px;
@@ -3575,7 +3575,7 @@
 			line-height: 16px;
 			text-align: right;
 			letter-spacing: -0.1px;
-			color: #707070;
+			color: var(--secondary-font);
 			margin-right: 40px;
 			border-radius: 4px;
 			cursor: pointer;
@@ -3688,7 +3688,7 @@
 			line-height: 16px;
 			text-align: right;
 			letter-spacing: -0.1px;
-			color: #707070;
+			color: var(--secondary-font);
 			margin-right: 40px;
 			cursor: pointer;
 			border-radius: 40px;
@@ -3713,7 +3713,7 @@
 			line-height: 16px;
 			text-align: right;
 			letter-spacing: -0.1px;
-			color: #ffffff;
+			color: var(--primary-font);
 			cursor: pointer;
 		}
 		.accept-button {
@@ -7323,7 +7323,7 @@ span.inputError {
 				line-height: 16px;
 				letter-spacing: -0.3px;
 
-				color: #b0b0b0;
+				color: var(--secondary-font);
 			}
 		}
 		.submit-btn {
@@ -7368,7 +7368,7 @@ span.inputError {
 
 	letter-spacing: -0.3px;
 
-	color: #b0b0b0;
+	color: var(--secondary-font);
 	font-family: var(--primary-font-family);
 	text-transform: uppercase;
 	margin-bottom: 56px;
@@ -7603,7 +7603,7 @@ span.inputError {
 	background: #272727 !important;
 	.new-upload-header {
 		.header-text-new {
-			color: #e4e5e6;
+			color: var(--primary-font);
 		}
 		.header-close-new {
 			top: 11px;
@@ -7644,7 +7644,7 @@ span.inputError {
 				font-size: 13px;
 				line-height: 16px;
 				text-align: center;
-				color: #e4e5e6;
+				color: var(--primary-font);
 			}
 			.scale-right-container {
 				.plus-minus-container {
@@ -7945,7 +7945,7 @@ span.inputError {
 						line-height: 20px;
 						text-align: center;
 						letter-spacing: -0.3px;
-						color: #8687a5;
+						color: var(--secondary-font);
 						@include theme-aware(color, createNoteColor);
 						align-self: flex-start;
 					}

@@ -1,6 +1,5 @@
 import service from '../../services/graphQlServices';
 import { message } from 'antd';
-import { ReactComponent as AiSparkel } from '../../assets/svg/calendar/aiSparkel.svg';
 import {
 	getTemmplatesQuery,
 	duplicateTemplateQuery,
@@ -35,6 +34,9 @@ import {
 	updateSendSmartFileSettingsMutation,
 	getLatestSendSmartFileSettingsQuery,
 	getActivityLogsQuery,
+	addNewStepsQuery,
+	updateStepsQuery,
+	getFormResponsesListQuery,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -42,13 +44,17 @@ import { Actions } from './Actions';
 import Service from '../../services/index';
 import { sendCustomMailMutation } from '../subscription/graphqlFunctions';
 import { getBase64 } from '../../helpers';
+import Skeleton from 'react-loading-skeleton';
 
 export const intialState = {
 	workflowslist: null,
 	moreWorkList: null,
 	clientList: null,
+	clientListForDocs: null,
+	templatesListForDocs: null,
 	allEmailTemplates: null,
 	myWorkflows: null,
+	workflowslistForFiles: null,
 	myMoreWorkflows: null,
 	globalWorkflows: null,
 	globalMoreWorkflows: null,
@@ -60,7 +66,8 @@ export const intialState = {
 	contractSignedLocalState: null,
 	specificTemplatesInfo: null,
 	smartFileEmailTemplateData: null,
-	requiredActions: { actions: [], hasMore: false, loading: true },
+	requiredActions: null,
+	requiredActionsForTemplate: null,
 	tabItemCount: null,
 	eventsPresetData: null,
 	sendSmartFileSettings: null,
@@ -71,7 +78,31 @@ export const intialState = {
 	draftStateWorkflowtemplates: null,
 	moreDraftStateWorkflowtemplates: null,
 	createLeadModalContextState: false,
-	globalChatMessages: [{ type: 'AI', message: 'Hello, how can I help you today?' }],
+	globalChatMessages: [], // { type: 'AI', message: 'Hello, how can I help you today?' }
+	currentSessionId: null,
+	citations: null,
+	followUpQuery: null,
+	docsFilesList: null,
+	moreDocsFilesList: null,
+	smartFileRefetch: false,
+	activeWorkflowSlugForSmartFile: null,
+	slackChannels: null,
+	formsTemplatesList: null,
+	moreFormsTemplatesList: null,
+	formResponsesList: null,
+	moreFormResponsesList: null,
+	activePromptForChat: null,
+	leftSidebarState: null,
+	recentChatStorage: null,
+	moreRecentChatStorage: null,
+	activePayloadForChat: null,
+	llmModels: null,
+	chatInfo: {
+		deepResearch: false,
+		selectedLLMModel: null,
+		webSearch: false,
+		workspaceSearch: true,
+	},
 };
 
 export const TemplatesState = (props) => {
@@ -139,7 +170,30 @@ export const TemplatesState = (props) => {
 
 			if (response?.[0]) {
 				dispatch({
-					type: Actions.GET_ALL_CLIENT_LIST_SUCCESS,
+					type: Actions?.GET_ALL_CLIENT_LIST_SUCCESS,
+					payload: response?.[1]?.data?.clientsList,
+				});
+			}
+		} catch (error) {
+			console.error('Error==>getClientList', error);
+		}
+	};
+
+	const getClientListForDocs = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				getClientListQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+
+			if (response?.[0]) {
+				dispatch({
+					type: Actions?.GET_ALL_CLIENT_LIST_FOR_DOCS_SUCCESS,
 					payload: response?.[1]?.data?.clientsList,
 				});
 			}
@@ -429,6 +483,57 @@ export const TemplatesState = (props) => {
 			console.log('error==>updateThankyou', error);
 		}
 	};
+	const getWorkflowsListForFiles = async (payload, fetchMore = false) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				getWorkflowListQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+
+			if (response?.[0]) {
+				const templateId = payload?.filters?.templateId;
+				const { data, currentPage, hasNextPage } = response?.[1]?.data?.workflows;
+				let dispatchPayload;
+				if (!state?.workflowslistForFiles?.[templateId]) {
+					dispatchPayload = {
+						...state?.workflowslistForFiles,
+						[templateId]: {
+							data,
+							currentPage,
+							hasNextPage,
+						},
+					};
+				} else {
+					dispatchPayload = {
+						...state?.workflowslistForFiles,
+						[templateId]: {
+							data: [
+								...(state?.workflowslistForFiles?.[templateId]?.data || []),
+								...data,
+							],
+							currentPage,
+							hasNextPage,
+						},
+					};
+				}
+
+				dispatch({
+					type: Actions?.GET_WORKFLOW_DETAILS_FOR_FILES_SUCCESS,
+					payload: dispatchPayload,
+					selectedvariable: 'workflowslistForFiles',
+				});
+			} else {
+				console.log('Api failed==>getWorkflowsList', response);
+			}
+		} catch (error) {
+			console.log('error==>getWorkflowsList', error);
+		}
+	};
 
 	const getWorkflowsList = async (payload, fetchMore = false) => {
 		try {
@@ -487,6 +592,105 @@ export const TemplatesState = (props) => {
 		}
 	};
 
+	const getTemplatesListForDocs = async (page = 1, limit = 10, searchValue = '') => {
+		let workspaceId = localStorage.getItem('workspaceId');
+		let usertoken = localStorage.getItem('usertoken');
+
+		const payload = {
+			filters: {
+				limit,
+				page,
+				type: 'workspace',
+				status: 'published',
+				title: searchValue,
+			},
+		};
+		const response = await service.query(
+			getTemplatesListForCreateLeadQuery,
+			payload,
+			workspaceId,
+			usertoken,
+			'workflows_Api',
+		);
+
+		if (response?.[0]) {
+			dispatch({
+				type: Actions.GET_TEMPLATES_LIST_FOR_DOCS_SUCCESS,
+				payload: response?.[1]?.data?.templates,
+			});
+		} else {
+			console.log('api failed ==>getTemplatesListForDocs', response);
+		}
+	};
+	const getTemplatesListForForms = async (page = 1, limit = 10, fetchMore = false) => {
+		let workspaceId = localStorage.getItem('workspaceId');
+		let usertoken = localStorage.getItem('usertoken');
+
+		const payload = {
+			filters: {
+				limit,
+				page,
+				type: 'workspace',
+				status: 'published',
+				sortBy: 'createdAt',
+				sortType: -1,
+				action: 'form-submission',
+			},
+		};
+		const response = await service.query(
+			getTemplatesListForCreateLeadQuery,
+			payload,
+			workspaceId,
+			usertoken,
+			'workflows_Api',
+		);
+
+		if (response?.[0]) {
+			const selectedvariable = fetchMore ? 'moreFormsTemplatesList' : 'formsTemplatesList';
+			dispatch({
+				type: Actions.GET_TEMPLATES_LIST_FOR_FORMS_SUCCESS,
+				payload: response?.[1]?.data?.templates,
+				selectedvariable,
+			});
+		} else {
+			console.log('api failed ==>getTemplatesListForForms', response);
+		}
+	};
+
+	const getFormResponsesList = async (formId, page = 1, limit = 10, fetchMore = false) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+
+			const payload = {
+				filters: {
+					workflowTemplateId: formId,
+					page,
+					limit,
+				},
+			};
+			const response = await service.query(
+				getFormResponsesListQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+			if (response?.[0]) {
+				const selectedvariable = fetchMore ? 'moreFormResponsesList' : 'formResponsesList';
+				dispatch({
+					type: Actions.GET_FORM_RESPONSES_LIST_SUCCESS,
+					payload: response?.[1]?.data?.formResponsesList,
+					selectedvariable,
+				});
+			} else {
+				console.log('api failed ==>getFormResponsesList', response);
+			}
+		} catch (error) {
+			console.log('api failed ==>getFormResponsesList', error);
+		}
+	};
+
 	const createLeadfromTemplates = async (payload) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
@@ -499,7 +703,7 @@ export const TemplatesState = (props) => {
 				'workflows_Api',
 			);
 			if (response?.[0]) {
-				return [true];
+				return [true, response?.[1]?.data?.createWorkflowFromTemplate?._id];
 			} else {
 				return [false, response?.[1]?.message || 'Something went Worng'];
 			}
@@ -841,13 +1045,13 @@ export const TemplatesState = (props) => {
 				dispatch({
 					type: Actions.GET_REQUIRED_ACTIONS_SUCCESS,
 					payload: {
+						...state?.requiredActions,
+						hasNextPage: response?.[1]?.data?.listRequiredActions?.hasNextPage,
 						actions: resetRequiredActions
 							? response?.[1]?.data?.listRequiredActions?.data
 							: state?.requiredActions?.actions?.concat(
 									response?.[1]?.data?.listRequiredActions?.data,
 							  ),
-						hasMore: response?.[1]?.data?.listRequiredActions?.hasNextPage,
-						loading: false,
 					},
 				});
 			} else {
@@ -855,6 +1059,50 @@ export const TemplatesState = (props) => {
 			}
 		} catch (error) {
 			console.log('api failed ==>getRequiredActionDetails', error);
+		}
+	};
+
+	const getRequiredActionsForTemplate = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const { resetRequiredActions, ...queryPayload } = payload;
+			const response = await service.query(
+				getRequiredActionDetailsQuery,
+				queryPayload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+			const workflowTemplateId = queryPayload?.filters?.workflowTemplateId;
+			if (response?.[0]) {
+				const data = response?.[1]?.data?.listRequiredActions?.data;
+				dispatch({
+					type: Actions.GET_REQUIRED_ACTIONS_FOR_TEMPLATE_SUCCESS,
+					payload: {
+						...state?.requiredActionsForTemplate,
+						[workflowTemplateId]: {
+							...response?.[1]?.data?.listRequiredActions,
+							data: state?.requiredActionsForTemplate?.[workflowTemplateId]
+								? [
+										...(Array?.isArray(
+											state?.requiredActionsForTemplate?.[workflowTemplateId]
+												?.data,
+										)
+											? state.requiredActionsForTemplate[workflowTemplateId]
+													?.data
+											: []),
+										...data,
+								  ]
+								: data,
+						},
+					},
+				});
+			} else {
+				return [false];
+			}
+		} catch (error) {
+			console.log('api failed ==>getRequiredActionDetailsForTemplate', error);
 		}
 	};
 
@@ -1196,37 +1444,151 @@ export const TemplatesState = (props) => {
 			return [true, 'We made the changes accordingly'];
 		} catch (error) {}
 	};
+	const getCitationData = async (sessionId, sourceId) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			const url = `/${workspaceId}/${sessionId}/${sourceId}/get_chunk`;
 
-	const handleGlobalChatMessages = async (payload, sessionId) => {
+			const usertoken = localStorage.getItem('usertoken');
+			const response = await Service.fetchGet(url, usertoken, 'ai_predictions');
+			if (response?.[0]) {
+				return response?.[1]?.chunk;
+			}
+		} catch (error) {
+			console.log('errror ==>getCitationData', error);
+		}
+	};
+
+	const handleGlobalChatMessages = async (
+		payload,
+		sessionId,
+		localPayload,
+		recentFiles = null,
+	) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const url = `/${workspaceId}/${sessionId}/multi_agent_chat`;
-			const updatedGlobalChatMessages = [
-				{ type: 'user', message: payload?.query || '' },
-				{
-					type: 'AI',
-					message: 'loading....',
-					content: (
-						<div className="aiMessageWrapper">
-							<AiSparkel />
-							<div className="aiMessage">
-								<span>Thinking...</span>
+
+			let updatedGlobalChatMessages = [];
+
+			if (localPayload.showCustomChatOptions) {
+				updatedGlobalChatMessages = [...(localPayload.showCustomChatOptions || [])];
+			} else if (payload.files) {
+				let str = '  ';
+				for (let i = 0; i < localPayload?.files?.length; i++) {
+					str += localPayload?.files?.[i]?.name || '' + ' ,';
+				}
+
+				updatedGlobalChatMessages = [
+					{
+						type: 'user',
+						content: (
+							<div
+								className="uploadedImagesContainer"
+								style={{
+									display: 'flex',
+									flexDirection: 'column',
+									gap: '2px',
+									alignItems: 'flex-end',
+								}}
+							>
+								{localPayload?.files?.map((ele, index) => (
+									<img
+										src={ele.preview}
+										alt="filetochat"
+										width={'75px'}
+										onClick={() => localPayload?.handlePreview(ele)}
+										style={{ cursor: 'pointer' }}
+									/>
+								))}
+
+								<div className="message-content-user" style={{ marginTop: '8px' }}>
+									<span>{payload?.query}</span>
+								</div>
 							</div>
-						</div>
-					),
-					contentType: 'loading',
-				},
-			];
+						),
+					},
+					{
+						type: 'AI',
+						message: 'loading....',
+						content: (
+							<div className="aiMessageWrapper">
+								<Skeleton height={20} width={'100%'} borderRadius={'100px'} />
+								<Skeleton height={20} width={'75%'} borderRadius={'100px'} />
+								<Skeleton height={20} width={'50%'} borderRadius={'100px'} />
+							</div>
+						),
+						contentType: 'loading',
+					},
+				];
+
+				payload.query += str;
+			} else {
+				updatedGlobalChatMessages = [
+					{ type: 'user', message: payload?.query || '', typingEffect: false },
+					{
+						type: 'AI',
+						message: 'loading....',
+						content: (
+							<div className="aiMessageWrapper">
+								<Skeleton height={20} width={'100%'} borderRadius={'100px'} />
+								<Skeleton height={20} width={'75%'} borderRadius={'100px'} />
+								<Skeleton height={20} width={'50%'} borderRadius={'100px'} />
+							</div>
+						),
+						contentType: 'loading',
+					},
+				];
+			}
+
 			dispatch({
 				type: Actions.GLOBAL_CHAT_MESSAGES_ACTIONS_REQUESTS,
 				payload: updatedGlobalChatMessages,
 			});
+
+			if (payload.files && recentFiles?.length) {
+				payload.files = payload?.files?.concat(
+					recentFiles?.map((ele) => ele?.originalFileName),
+				);
+			} else if (recentFiles?.length) {
+				payload.files = recentFiles?.map((ele) => ele?.originalFileName);
+			}
+
 			const response = await Service.fetchPost(url, payload, usertoken, 'ai_predictions');
 			if (response?.[0]) {
+				const citations = response?.[1]?.citations;
+				const followUpQuery = response?.[1]?.['follow_up_query'];
+				const messageId = response?.[1]?.['message_id'];
+				if (citations && citations?.length > 0) {
+					dispatch({
+						type: Actions?.CHAT_CITATIONS_SUCCESS,
+						payload: citations,
+					});
+				} else {
+					dispatch({
+						type: Actions?.CHAT_CITATIONS_SUCCESS,
+						payload: null,
+					});
+				}
+				if (followUpQuery?.length) {
+					dispatch({
+						type: Actions?.CHAT_FOLLOW_UP_QUERY,
+						payload: followUpQuery,
+					});
+				} else {
+					dispatch({
+						type: Actions?.CHAT_FOLLOW_UP_QUERY,
+						payload: null,
+					});
+				}
 				const updatedGlobalChatMessages = {
 					type: 'AI',
 					message: response?.[1]?.answer,
+					messageId: response?.[1]?.['message_id'],
+					typingEffect: true,
+					rating: null,
+					deepResearch: response?.[1]?.['deep_research'],
 				};
 				dispatch({
 					type: Actions.GLOBAL_CHAT_MESSAGES_ACTIONS_SUCCESS,
@@ -1239,11 +1601,393 @@ export const TemplatesState = (props) => {
 		}
 	};
 
+	const handleStreamSendMessage = (payload, localPayload, queryMessage, recentFiles = []) => {
+		let updatedGlobalChatMessages = [];
+
+		if (localPayload.showCustomChatOptions) {
+			updatedGlobalChatMessages = [...(localPayload.showCustomChatOptions || [])];
+		} else if (payload.files) {
+			let str = '  ';
+			for (let i = 0; i < localPayload?.files?.length; i++) {
+				str += localPayload?.files?.[i]?.name || '' + ' ,';
+			}
+
+			updatedGlobalChatMessages = [
+				{
+					type: 'user',
+					content: (
+						<div
+							className="uploadedImagesContainer"
+							style={{
+								display: 'flex',
+								flexDirection: 'column',
+								gap: '2px',
+								alignItems: 'flex-end',
+							}}
+						>
+							{localPayload?.files?.map((ele, index) => (
+								<img
+									src={ele.preview}
+									alt="filetochat"
+									width={'75px'}
+									onClick={() => localPayload?.handlePreview(ele)}
+									style={{ cursor: 'pointer' }}
+								/>
+							))}
+
+							<div className="message-content-user" style={{ marginTop: '8px' }}>
+								<span>{queryMessage}</span>
+							</div>
+						</div>
+					),
+				},
+				{
+					type: 'AI',
+					message: 'loading....',
+					content: (
+						<div className="aiMessageWrapper">
+							<Skeleton height={20} width={'100%'} borderRadius={'100px'} />
+							<Skeleton height={20} width={'75%'} borderRadius={'100px'} />
+							<Skeleton height={20} width={'50%'} borderRadius={'100px'} />
+						</div>
+					),
+					contentType: 'loading',
+				},
+			];
+
+			payload.query += str;
+		} else {
+			updatedGlobalChatMessages = [
+				{ type: 'user', message: queryMessage || '', typingEffect: false },
+				{
+					type: 'AI',
+					message: 'loading....',
+					content: (
+						<div className="aiMessageWrapper">
+							<Skeleton height={20} width={'100%'} borderRadius={'100px'} />
+							<Skeleton height={20} width={'75%'} borderRadius={'100px'} />
+							<Skeleton height={20} width={'50%'} borderRadius={'100px'} />
+						</div>
+					),
+					contentType: 'loading',
+				},
+			];
+		}
+
+		dispatch({
+			type: Actions.GLOBAL_CHAT_MESSAGES_ACTIONS_REQUESTS,
+			payload: updatedGlobalChatMessages,
+		});
+	};
+	const handleStreamIncomingMessage = (response) => {
+		const citations = response?.citations;
+		const followUpQuery = response?.['follow_up_query'];
+		// const messageId = response?.['message_id'];
+		// if (citations && citations?.length > 0) {
+		// 	dispatch({
+		// 		type: Actions?.CHAT_CITATIONS_SUCCESS,
+		// 		payload: citations,
+		// 	});
+		// } else {
+		// 	dispatch({
+		// 		type: Actions?.CHAT_CITATIONS_SUCCESS,
+		// 		payload: null,
+		// 	});
+		// }
+		if (followUpQuery?.length) {
+			dispatch({
+				type: Actions?.CHAT_FOLLOW_UP_QUERY,
+				payload: followUpQuery,
+			});
+		} else {
+			dispatch({
+				type: Actions?.CHAT_FOLLOW_UP_QUERY,
+				payload: null,
+			});
+		}
+	};
+
+	const handleStreamMessageChunk = (payload, chunkId) => {
+		try {
+			dispatch({ type: Actions.HANDLE_STREAM_MESSAGE_CHUNK, payload: { payload, chunkId } });
+		} catch (error) {
+			console.log('error==>handleStreamMessageChunk', error);
+		}
+	};
+
+	const updateAiChatMessageRating = async (payload, messageId) => {
+		let workspaceId = localStorage.getItem('workspaceId');
+		let usertoken = localStorage.getItem('usertoken');
+		const url = '/' + workspaceId + '/ai-chat/' + messageId + '/ai-chat-message-feedback';
+		try {
+			const response = await Service?.fetchPut(url, payload, usertoken, 'ai_assistant_api');
+			if (response?.[0]) {
+				return [true];
+			}
+		} catch (error) {
+			console.log('error==>updatedAiChatMessageRating', error);
+		}
+	};
+
+	const handleGlobalUploadImage = async (file, payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+
+			const response = await Service.fetchPost(
+				`/${workspaceId}/knowledge-bases/upload-file`,
+				payload,
+				usertoken,
+				'ai_assistant_api',
+			);
+
+			if (response?.[0]) {
+				const base64 = await getBase64(file);
+
+				const newResponse = await fetch(base64);
+				const blob = await newResponse.blob();
+
+				const { signedUrl } = response?.[1];
+
+				const uploadResponse = await fetch(signedUrl, {
+					method: 'PUT',
+					body: blob,
+					headers: {
+						'Content-Type': file.type, // Set the content type based on the file type
+					},
+				});
+
+				if (!uploadResponse.ok) {
+					return [false, 'Failed to upload image'];
+				}
+
+				return [true, response?.[1]];
+			}
+
+			return [false, 'Failed to upload image'];
+		} catch (error) {
+			console.log('error==>handleGlobalUploadImage', error);
+			return [false, 'Failed to upload image'];
+		}
+	};
+
+	const deleteUploadedImageThroughChat = async (fileId) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await Service.fetchDelete(
+				`/${workspaceId}/ai-chat/delete-file/${fileId}`,
+				usertoken,
+				null,
+				'ai_assistant_api',
+			);
+			if (response?.[0]) {
+				return [true];
+			} else {
+				return [false];
+			}
+		} catch (error) {
+			console.log('error==>deleteUploadedImageThroughChat', error);
+			return [false];
+		}
+	};
+
+	const checkIndividualImageUploadedStatus = async (uploadBatchId) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const url = `/${workspaceId}/knowledge-bases/file-upload-status/${uploadBatchId}`;
+			const response = await Service.fetchGet(url, usertoken, 'ai_assistant_api');
+			return response;
+		} catch (error) {
+			message.error('Error checking image upload status');
+			return [false, 'Error checking image upload status'];
+		}
+	};
+
+	//docs
+
+	const getDocsFilesList = async (payload, fetchMore = false) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				getWorkflowListQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+
+			if (response?.[0]) {
+				const selectedvariable = fetchMore ? 'moreDocsFilesList' : 'docsFilesList';
+				dispatch({
+					type: Actions?.GET_DOCS_FILES_LIST_SUCCESS,
+					payload: response?.[1]?.data?.workflows,
+					selectedvariable,
+				});
+			} else {
+				console.log('Api failed==>getDocsFilesList', response);
+			}
+		} catch (error) {
+			console.log('error==>getDocsFilesList', error);
+		}
+	};
+
+	const updateApplicationChat = (payload) => {
+		dispatch({ type: Actions.UPDATE_APPLICATION_CHAT, payload });
+	};
+	//updated steps functions
+	const addNewSteps = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				addNewStepsQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+
+			if (response?.[0]) {
+				const dataResponse = response?.[1];
+				return [true, dataResponse?.data?.addStep];
+			} else {
+				console.log('Api failed ==>addNewSteps', response);
+				return [false];
+			}
+		} catch (error) {
+			console.log('error==>addNewSteps', error);
+		}
+	};
+
+	const updateSteps = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				updateStepsQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+
+			if (response?.[0]) {
+				return [true];
+			} else {
+				return [false];
+			}
+		} catch (error) {
+			console.log('error==>updateSteps', error);
+		}
+	};
+	//slack Apis
+	const getAllSlackChannels = async (slackAccessToken) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await Service.fetchGet(
+				`/slack/${workspaceId}/channels`,
+				usertoken,
+				'third_party_integrations_api',
+				{
+					exclude_archived: true,
+					limit: 1000,
+				},
+			);
+
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.GET_SLACK_CHANNEL_SUCCESS,
+					payload: response?.[1],
+				});
+			} else {
+				message.error('Unable to fetch Slack Channels');
+			}
+		} catch (error) {
+			console.log('error==>getAllSlackChannels', error);
+		}
+	};
+
+	const getModuleTemplate = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await Service.fetchPost(
+				`/${workspaceId}/templates/templates-list`,
+				payload,
+				usertoken,
+				'proposals_api',
+			);
+			if (response?.[0] === true) {
+				dispatch({ type: Actions.GET_MODULE_TEMPLATE_SUCCESS, payload: response?.[1] });
+				return [true, response?.[1]];
+			} else {
+				return [false, response?.[1]?.message];
+			}
+		} catch (error) {
+			console.log('errror ==>getModuleTemplate', error);
+			return [false, error?.message];
+		}
+	};
+
+	const getRecentChatMessages = async (sessionId, page = 1, fetchMore = false, limit = 10) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const selectedvariable = fetchMore ? 'moreRecentChatStorage' : 'recentChatStorage';
+			const response = await Service.fetchGet(
+				`/${workspaceId}/list-multiagent-conversations/${encodeURIComponent(
+					sessionId,
+				)}?page=${page}&limit=${limit}&sortBy=createdAt&sortType=-1`,
+				usertoken,
+				'tenant',
+			);
+
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.RECENT_CHAT_MESSAGES_ACTIONS_REQUESTS,
+					payload: response?.[1],
+					selectedvariable,
+				});
+			} else {
+				console.log('errror ==>getRecentChatMessages', response);
+				return [false];
+			}
+		} catch (error) {
+			console.log('errror ==>getRecentChatMessages', error);
+		}
+	};
+
+	const getLLMModels = async () => {
+		try {
+			const usertoken = localStorage.getItem('usertoken');
+			const path = '/available_models';
+			const type = 'ai_predictions';
+			const response = await Service?.fetchGet(path, usertoken, type);
+
+			if (response?.[0]) {
+				dispatch({
+					type: Actions?.GET_LLM_MODELS_SUCCESS,
+					payload: response?.[1],
+				});
+			} else {
+				console.log('errror ==>getLLMModels', response);
+				return [false];
+			}
+		} catch (error) {
+			console.log('errror ==>getLLMModels', error);
+		}
+	};
 	return {
 		...state,
 		getMyWorkflows,
 		resetTemplateState,
 		getClientList,
+		getClientListForDocs,
+		getTemplatesListForDocs,
 		updateStateValues,
 		getAllEmailTemplates,
 		addEmailTriggersInWorkflow,
@@ -1259,6 +2003,7 @@ export const TemplatesState = (props) => {
 		updateForm,
 		updateThankyou,
 		getWorkflowsList,
+		getWorkflowsListForFiles,
 		getTemplatesListForCreateLead,
 		createLeadfromTemplates,
 		sendSmartFile,
@@ -1275,6 +2020,7 @@ export const TemplatesState = (props) => {
 		deleteWorkflowTemplates,
 		getTabItemCount,
 		getRequiredActions,
+		getRequiredActionsForTemplate,
 		updateSendSmartFileSettings,
 		getEventsPresets,
 		addEventsPresets,
@@ -1291,5 +2037,23 @@ export const TemplatesState = (props) => {
 		smartFileAiChat,
 		uploadImageInSmartFileAi,
 		handleGlobalChatMessages,
+		getDocsFilesList,
+		handleGlobalUploadImage,
+		checkIndividualImageUploadedStatus,
+		deleteUploadedImageThroughChat,
+		updateApplicationChat,
+		addNewSteps,
+		getAllSlackChannels,
+		updateSteps,
+		getTemplatesListForForms,
+		getFormResponsesList,
+		updateAiChatMessageRating,
+		getModuleTemplate,
+		getCitationData,
+		getRecentChatMessages,
+		handleStreamSendMessage,
+		handleStreamIncomingMessage,
+		handleStreamMessageChunk,
+		getLLMModels,
 	};
 };

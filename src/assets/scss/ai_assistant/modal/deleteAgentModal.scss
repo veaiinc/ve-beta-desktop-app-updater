@@ -1,0 +1,121 @@
+.deleteAgentModalContainer {
+	border-radius: 32px;
+	background: var(--popup);
+	user-select: none;
+
+	display: flex;
+	max-width: 635px;
+	padding: 32px;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 24px;
+	.header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		gap: 12px;
+		align-self: stretch;
+		padding: 4px;
+
+		span {
+			color: var(--primary-font);
+
+			/* Heading/H3 - 20 Px */
+			font-family: var(--primary-font-family);
+			font-size: 20px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+		}
+
+		.closeButton {
+			background: none;
+			border: none;
+			color: var(--primary-font);
+			font-size: 24px;
+			cursor: pointer;
+			padding: 0;
+			line-height: 1;
+
+			&:hover {
+				opacity: 0.8;
+			}
+		}
+	}
+
+	.contentSection {
+		display: flex;
+		flex-direction: column;
+		gap: 24px;
+
+		.deleteAllConversations,
+		.deleteChatbot {
+			background: var(--card-over-card-hover);
+			border-radius: 12px;
+			padding: 20px;
+
+			.deleteButtonContainer {
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+				gap: 12px;
+			}
+
+			h3 {
+				font-size: 18px;
+				font-weight: 600;
+				color: var(--primary-font);
+				margin: 0 0 12px 0;
+			}
+
+			p {
+				color: var(--secondary-font);
+				font-size: 14px;
+				line-height: 1.5;
+				margin: 0 0 16px 0;
+			}
+
+			.warningText {
+				display: flex;
+				align-items: center;
+				gap: 8px;
+
+				svg {
+					width: 16px;
+					height: 16px;
+					path {
+						fill: var(--error);
+					}
+				}
+
+				span {
+					color: var(--error);
+					font-size: 14px;
+				}
+			}
+
+			.deleteButton {
+				border-radius: 59px;
+				border: 1px solid var(--error);
+				display: flex;
+				padding: 12px 24px;
+				justify-content: center;
+				align-items: center;
+				gap: 6px;
+				background: transparent;
+				color: var(--error);
+				cursor: pointer;
+
+				&:hover {
+					background: var(--error);
+					color: var(--primary-font);
+				}
+
+				&:disabled {
+					background: var(--card-hover);
+					cursor: not-allowed;
+				}
+			}
+		}
+	}
+}

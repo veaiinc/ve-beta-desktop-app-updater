@@ -1,0 +1,19 @@
+.typing-effect-container {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	position: relative;
+	// padding-bottom: 10px;
+
+	.hover-actions-container {
+		display: flex;
+		gap: 18px;
+		flex-direction: row;
+		align-items: center;
+		visibility: hidden;
+
+		.icon-container {
+			cursor: pointer;
+		}
+	}
+}

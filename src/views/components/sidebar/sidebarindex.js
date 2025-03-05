@@ -1,6 +1,8 @@
 // import { ReactComponent as VELogo } from '../../../assets/svg/ve.svg';
 
 import CalendarSvg from '../../../assets/svg/sidebar/CalendarSvg.jsx';
+import { ReactComponent as NotificationSvg } from '../../../assets/svg/sidebar/notification.svg';
+
 // import LayoutSvg from '../../../assets/svg/sidebar/LayoutSvg.jsx';
 // import AtSignSvg from '../../../assets/svg/sidebar/AtSignSvg.jsx';
 // import AttachMoneySvg from '../../../assets/svg/sidebar/AttachMoneySvg.jsx';
@@ -34,74 +36,96 @@ import DaVinciSetupSvg from '../../../assets/svg/sidebar/DaVinciSetupSvg.jsx';
 
 export const veAiModulesItemsList = [
 	{
+		id: 0,
 		name: 'Home',
 		moduleRoute: '/home',
 		route: '/home',
 		icon: '',
 	},
 	{
-		name: 'Gallery',
-		moduleRoute: '/galleries',
-		route: '/galleries',
+		id: 1,
+		name: 'Conversational Agent',
+		moduleRoute: '/ai-assistant',
+		route: '/ai-assistant',
 		icon: '',
 	},
 	{
+		id: 2,
+		name: 'Design Builder',
+		moduleRoute: '/',
+		route: null,
+		icon: '',
+		subModules: [
+			{ id: 0, icon: '', name: 'Documents', route: '/docs' },
+			{ id: 1, icon: '', name: 'My Templates', route: '/my-templates' },
+			{ id: 2, icon: '', name: 'Forms', route: '/forms' },
+			// { icon: '', name: 'Client Portal', route: '' },
+			// { icon: '', name: 'Link in bio', route: '' },
+			// { icon: '', name: 'Website', route: '' },
+		],
+	},
+	{
+		id: 3,
+		name: 'Storage',
+		moduleRoute: '',
+		route: '',
+		icon: '',
+		subModules: [
+			{
+				id: 0,
+				name: 'Classic Gallery',
+				moduleRoute: '/galleries',
+				route: '/galleries',
+				icon: '',
+			},
+			{
+				id: 1,
+				name: 'Lite Gallery',
+				moduleRoute: '/lite-gallery',
+				route: '/lite-gallery',
+				icon: '',
+			},
+		],
+	},
+	{ id: 4, name: 'Tasks', moduleRoute: '/tasks', route: '/tasks', icon: '' },
+	{ id: 5, name: 'Contacts', moduleRoute: '/contacts', route: '/contacts', icon: '' },
+	{
+		id: 6,
 		name: 'Calendar',
 		moduleRoute: '/calendar',
 		route: '/calendar',
 		icon: '',
-		subModules: [
-			{ icon: AddCalenderSvg, route: '', name: 'Scheduler' },
-			{ icon: TranscriptSvg, route: '', name: 'Transcript' },
-			{
-				icon: SettingsSvg,
-				route: '/settings/my-profile',
-				fill: 'white',
-				name: 'Settings',
-			},
-		],
+		// subModules: [
+		// 	{ icon: AddCalenderSvg, route: '', name: 'Scheduler' },
+		// 	{ icon: TranscriptSvg, route: '', name: 'Transcript' },
+		// 	{
+		// 		icon: SettingsSvg,
+		// 		route: '/settings/my-profile',
+		// 		fill: 'white',
+		// 		name: 'Settings',
+		// 	},
+		// ],
 	},
-
-	{ name: 'Tasks', moduleRoute: '/tasks', route: '/tasks', icon: '' },
-	{
-		name: 'Da-Vinci',
-		moduleRoute: '/ai-agents/home/da-vinici',
-		route: '/ai-agents/home/da-vinici',
-		icon: '',
-		subModules: [
-			{ icon: AddCalenderSvg, route: '/ai-agents/home/da-vinici', name: 'Home' },
-			{ icon: TranscriptSvg, route: '/ai-agents/jobs/:agent-name', name: 'Jobs' },
-			{
-				icon: SettingsSvg,
-				route: '/ai-agents/setup/da-vinici',
-				fill: 'white',
-				name: 'Setup',
-			},
-		],
-	},
-	{
-		name: 'AI Agents',
-		moduleRoute: '/ai-agents',
-		route: '/ai-agents',
-		icon: AIAssistantSvg,
-	},
-	{
-		name: 'Playbook',
-		moduleRoute: '/playbook',
-		route: '/playbook',
-		icon: PlaybookSvg,
-	},
-	{ name: 'Contacts', moduleRoute: '/contact', route: '/contact' },
-	{ name: 'Teams', moduleRoute: '/teams', route: '/teams' },
+	// { name: 'Teams', moduleRoute: '/teams', route: '/teams' },
+	// {
+	// 	id: 7,
+	// 	name: 'Notes',
+	// 	moduleRoute: '/notes',
+	// 	route: '/notes',
+	// 	icon: '',
+	// },
 ];
 
 //
 
 export const veAiModules = [
-	{ icon: OrchestratorSvg, name: 'Orchestrator', route: '/orchestrator' },
-	{ icon: GiftSvg, name: 'Share and Earn', route: '/share-and-earn' },
-	{ icon: TemplatesSvg, name: 'Templates', route: '/playbook' },
+	{ icon: OrchestratorSvg, name: 'Chats', route: null },
+	{ icon: NotificationSvg, name: 'Notifications', route: null },
+	// { icon: NotificationSvg, name: 'Trash', route: '/trash' },
+	{ id: 1, icon: GiftSvg, name: 'Share and Earn', route: '/share-and-earn' },
+	{ id: 2, icon: TemplatesSvg, name: 'Templates', route: '/playbook' },
 	{
+		id: 3,
 		icon: SettingsSvg,
 		name: 'Settings',
 		route: '/settings/my-profile',
@@ -121,20 +145,20 @@ export const veAiModules = [
 	},
 ];
 
-export const bottomOptionsList = [
-	// {
-	// 	name: 'Share and Earn',
-	// 	moduleRoute: '',
-	// 	route: '/share-and-earn',
-	// 	icon: GiftSvg,
-	// },
-	// {
-	// 	name: 'Settings',
-	// 	moduleRoute: '/settings',
-	// 	route: '/settings/my-profile',
-	// 	icon: SettingsSvg,
-	// },
-];
+// export const bottomOptionsList = [
+// {
+// 	name: 'Share and Earn',
+// 	moduleRoute: '',
+// 	route: '/share-and-earn',
+// 	icon: GiftSvg,
+// },
+// {
+// 	name: 'Settings',
+// 	moduleRoute: '/settings',
+// 	route: '/settings/my-profile',
+// 	icon: SettingsSvg,
+// },
+// ];
 
 export const styles = {
 	open: {
@@ -153,50 +177,50 @@ export const styles = {
 	},
 };
 
-export const newBtnActions = [
-	{ label: 'Lead', action: 'functionCall', funcName: 'openLeadPopup', redirect: null },
-	{ label: 'Workflow', action: 'redirect', funcName: null, redirect: '/playbook' },
-];
+// export const newBtnActions = [
+// 	{ label: 'Lead', action: 'functionCall', funcName: 'openLeadPopup', redirect: null },
+// 	{ label: 'Workflow', action: 'redirect', funcName: null, redirect: '/playbook' },
+// ];
 
-export const closedSidebarIcons = [
-	{ icon: CalendarSvg, route: '', name: 'Calendar' },
-	{ icon: AddCalenderSvg, route: '', name: 'Scheduler' },
-	{ icon: TranscriptSvg, route: '', name: 'Transcript' },
-	{
-		icon: SettingsSvg,
-		route: '/settings/my-profile',
-		fill: 'white',
-		name: 'Settings',
-	},
-];
+// export const closedSidebarIcons = [
+// 	{ icon: CalendarSvg, route: '', name: 'Calendar' },
+// 	{ icon: AddCalenderSvg, route: '', name: 'Scheduler' },
+// 	{ icon: TranscriptSvg, route: '', name: 'Transcript' },
+// 	{
+// 		icon: SettingsSvg,
+// 		route: '/settings/my-profile',
+// 		fill: 'white',
+// 		name: 'Settings',
+// 	},
+// ];
 
-export const AiOptions = [
-	{
-		icon: '',
-		name: 'Da Vinci',
-		route: '/ai-agents/home/da-vinci',
-		image: DaVinci,
-		subModules: [
-			{
-				icon: TaskSvg,
-				route: '/ai-agents/home/da-vinici',
-				name: 'Home',
-				description: 'Da Vinci',
-			},
-			{
-				icon: DaVinciJobsSvg,
-				route: '/ai-agents/jobs/:agent-name',
-				name: 'Jobs',
-				description: 'Da Vinci',
-			},
-			{
-				icon: DaVinciSetupSvg,
-				route: '/ai-agents/setup/da-vinici',
-				name: 'Setup',
-				description: 'Da Vinci',
-			},
-		],
-	},
-	{ icon: '', name: 'Jarvis', route: '/jarvis', image: Jarvis },
-	{ icon: '', name: 'Ari', route: '/ari', image: Ari },
-];
+// export const AiOptions = [
+// 	{
+// 		icon: '',
+// 		name: 'Da Vinci',
+// 		route: '/ai-agents/home/da-vinci',
+// 		image: DaVinci,
+// 		subModules: [
+// 			{
+// 				icon: TaskSvg,
+// 				route: '/ai-agents/home/da-vinici',
+// 				name: 'Home',
+// 				description: 'Da Vinci',
+// 			},
+// 			{
+// 				icon: DaVinciJobsSvg,
+// 				route: '/ai-agents/jobs/:agent-name',
+// 				name: 'Jobs',
+// 				description: 'Da Vinci',
+// 			},
+// 			{
+// 				icon: DaVinciSetupSvg,
+// 				route: '/ai-agents/setup/da-vinici',
+// 				name: 'Setup',
+// 				description: 'Da Vinci',
+// 			},
+// 		],
+// 	},
+// 	{ icon: '', name: 'Jarvis', route: '/jarvis', image: Jarvis },
+// 	{ icon: '', name: 'Ari', route: '/ari', image: Ari },
+// ];

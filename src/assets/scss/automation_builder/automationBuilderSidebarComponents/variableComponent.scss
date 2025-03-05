@@ -1,0 +1,148 @@
+.variableComponentContainer {
+	display: flex;
+	padding: 12px 12px 0;
+	flex-direction: column;
+	align-items: flex-start;
+	align-self: stretch;
+	border-radius: 12px;
+	border: 1px solid var(--stroke);
+
+	.inputContainer {
+		display: flex;
+		gap: 10px;
+		flex-direction: row;
+		align-self: stretch;
+		padding-bottom: 12px;
+		border-bottom: 1px solid var(--stroke);
+
+		input {
+			width: 100%;
+			background: transparent;
+			border: none;
+			outline: none;
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+			padding: 4px;
+
+			&::placeholder {
+				color: var(--secondary-font);
+			}
+		}
+
+		.selectedVariable {
+			display: flex;
+			padding: 4px;
+			justify-content: center;
+			align-items: center;
+			gap: 10px;
+			border-radius: 6px;
+			background: var(--primary-button);
+			color: var(--primary-button-font);
+			font-family: var(--primary-font-family);
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+		}
+	}
+
+	.insertVariableButton {
+		width: 100%;
+		color: var(--secondary-font);
+		text-align: right;
+		font-family: var(--primary-font-family);
+		font-size: 12px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
+		padding: 12px 0;
+		background-color: transparent;
+		border: none;
+		outline: none;
+		cursor: pointer;
+	}
+}
+
+.variableTooltipContainer {
+	display: flex;
+	width: 312px;
+	padding: 14px;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 12px;
+	border-radius: 12px;
+	background: var(--card);
+
+	.variableTooltipHeader {
+		display: flex;
+		align-items: flex-start;
+		gap: 6px;
+		cursor: pointer;
+
+		.variableTooltipHeaderTitle {
+			color: var(--secondary-font);
+			font-family: var(--primary-font-family);
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+		}
+	}
+
+	.variableTooltipBody {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		align-self: stretch;
+		max-height: 300px;
+		overflow-y: auto;
+		.variableListItem {
+			display: flex;
+			padding: 8px;
+			justify-content: space-between;
+			align-items: center;
+			align-self: stretch;
+			border-radius: 8px;
+			cursor: pointer;
+
+			.variableListItemTitle {
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+				flex-grow: 1;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				white-space: nowrap;
+			}
+
+			.variableListRightContainer {
+				display: flex;
+				align-items: center;
+				gap: 4px;
+				color: var(--secondary-font);
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+
+			&:hover {
+				background-color: var(--card);
+			}
+		}
+	}
+
+	svg {
+		path {
+			stroke: var(--secondary-font) !important;
+		}
+	}
+}

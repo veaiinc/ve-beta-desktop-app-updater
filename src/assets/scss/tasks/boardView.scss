@@ -1,0 +1,233 @@
+.board-view {
+	height: 100%;
+	overflow: hidden;
+	position: relative;
+
+	&-container {
+		display: flex;
+		gap: 1rem;
+		padding: 1rem;
+		height: 100%;
+		overflow-x: auto;
+		position: relative;
+		overflow-y: hidden;
+	}
+
+	&-empty-columns {
+		position: absolute;
+		right: 0;
+		top: 1rem;
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+		padding-right: 1rem;
+	}
+
+	&-item {
+		min-height: fit-content;
+		min-width: 246px;
+		border-radius: 12px;
+		display: flex;
+		flex-direction: column;
+		height: 100%;
+		transition: all 0.3s ease;
+
+		// Style for empty groups
+
+		&-header {
+			padding: 1rem 0.5rem;
+			display: flex;
+			align-items: center;
+			gap: 8px;
+
+			&-count {
+				color: var(--secondary-font);
+				text-align: center;
+				font-family: var(--primary-font-family);
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+
+			&-title {
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+			}
+		}
+
+		// New wrapper to handle height
+		&-wrapper {
+			flex: 1;
+			// min-height: 0; // Important for nested flex scrolling
+			overflow-y: hidden;
+		}
+
+		&-cards {
+			max-height: 100%;
+			height: 100%;
+			width: fit-content;
+			min-width: 246px;
+			padding: 0.5rem;
+
+			// Optional: Hide scrollbar but keep functionality
+			&::-webkit-scrollbar {
+				width: 6px;
+			}
+
+			&::-webkit-scrollbar-thumb {
+				background-color: var(--card);
+				border-radius: 3px;
+			}
+		}
+
+		&.empty-groups-column {
+			min-width: 246px;
+			// background: #202123;
+			margin-left: 1rem;
+
+			.empty-group-item {
+				padding: 0.5rem;
+				margin: 0.5rem;
+				border-radius: 8px;
+				background: var(--card);
+				cursor: pointer;
+				transition: all 0.2s ease;
+
+				&:hover {
+					background: var(--card);
+				}
+			}
+
+			.board-view-item-wrapper {
+				padding: 0.5rem;
+				display: flex;
+				flex-direction: column;
+				gap: 0.5rem;
+				max-height: calc(100vh - 200px);
+				overflow-y: auto;
+			}
+		}
+
+		&.empty {
+			min-width: 50px;
+			width: 50px;
+			height: 50px;
+			margin-bottom: -35px;
+			opacity: 0.6;
+			cursor: pointer;
+
+			&:hover {
+				min-width: 246px;
+				width: 246px;
+				height: fit-content;
+				margin-bottom: 0;
+				opacity: 1;
+				z-index: 10;
+			}
+
+			.board-view-item-header {
+				overflow: hidden;
+				padding: 0.5rem;
+			}
+
+			.board-view-item-wrapper {
+				display: none;
+			}
+
+			&:hover {
+				.board-view-item-header {
+					padding: 1rem;
+				}
+
+				.board-view-item-wrapper {
+					display: block;
+				}
+			}
+		}
+
+		// Add styles for skeleton loading
+		.react-loading-skeleton {
+			background-color: var(--card);
+
+			&::after {
+				background-image: linear-gradient(90deg, var(--card), var(--card), var(--card));
+			}
+		}
+	}
+
+	&-card {
+		margin-bottom: 0.5rem;
+
+		&.dragging {
+			opacity: 0.5;
+		}
+	}
+
+	&-item-add-card {
+		display: flex;
+		width: 230px;
+		height: 42px;
+		padding: 12px 24px;
+		justify-content: center;
+		align-items: center;
+		cursor: pointer;
+		border-radius: 50px;
+		border: 1px solid var(--card);
+		color: var(--secondary-font);
+		font-family: var(--primary-font-family);
+		font-size: 13px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
+		gap: 8px;
+		svg {
+			width: 16px;
+			height: 16px;
+			path {
+				stroke: var(--secondary-font) !important;
+			}
+		}
+
+		&:hover {
+			background: rgba(0, 0, 0, 0.05);
+		}
+	}
+
+	&-message {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		height: 100%;
+		width: 100%;
+		color: var(--secondary-font);
+		font-family: var(--primary-font-family);
+		font-size: 14px;
+		font-weight: 500;
+	}
+
+	&-card-skeleton {
+		margin-bottom: 0.75rem;
+		width: 230px;
+	}
+}
+
+.board-view-item-wrapper {
+	height: calc(100vh - 200px); // Adjust based on your layout
+	overflow-y: auto;
+
+	.board-view-item-cards {
+		min-height: 100%;
+		padding-bottom: 16px;
+	}
+}
+
+.board-view-loader {
+	display: flex;
+	justify-content: center;
+	padding: 16px;
+	color: var(--secondary-font);
+}

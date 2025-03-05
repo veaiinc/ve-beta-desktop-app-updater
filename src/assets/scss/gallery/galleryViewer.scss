@@ -56,7 +56,11 @@
 			}
 
 			&:hover {
-				transform: scale(1.4);
+				transform: scale(1.3);
+				margin: 15px;
+			}
+			&:hover {
+				transform: scale(1.3);
 				margin: 15px;
 			}
 		}
@@ -77,23 +81,26 @@
 			gap: 72px;
 			width: 100%;
 			overflow: auto;
-			max-width: 70%;
+			max-width: 100%;
 			max-height: inherit;
 			scroll-snap-type: y mandatory;
-			.imageContainer {
-				display: flex;
-				align-items: center;
-				justify-content: center;
-				border-radius: 24px;
-				height: 85vh;
-				scroll-snap-align: center;
-				img {
-					width: 100%;
-					max-height: 85vh;
-					aspect-ratio: 1/1;
-					object-fit: contain;
+			.infinite-scroll-component__outerdiv {
+				width: 100%;
+				.imageContainer {
+					display: flex;
+					align-items: center;
+					justify-content: center;
 					border-radius: 24px;
-					cursor: pointer;
+					height: 85vh;
+					scroll-snap-align: center;
+					img {
+						width: 100%;
+						max-height: 85vh;
+						aspect-ratio: 1/1;
+						object-fit: contain;
+						border-radius: 24px;
+						cursor: pointer;
+					}
 				}
 			}
 		}
@@ -120,7 +127,7 @@
 				flex-direction: column;
 				gap: 22px;
 				p {
-					color: var(--white);
+					color: var(--primary-font);
 					font-size: 11px;
 					font-weight: 500;
 					line-height: 14px;
@@ -136,7 +143,7 @@
 					gap: 8px;
 					border-radius: 16px;
 					border: 1px solid rgba(244, 244, 244, 0.7);
-					background: rgba(255, 255, 255, 0.15);
+					background: var(--background-color);
 					box-shadow: 2px 2px 2px 0px rgba(0, 0, 0, 0.06);
 					overflow: auto;
 
@@ -300,7 +307,7 @@
 			}
 			.shareIcon {
 				path {
-					fill: var(--white);
+					fill: var(--primary-font);
 				}
 			}
 		}

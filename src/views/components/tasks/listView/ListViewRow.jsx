@@ -4,11 +4,9 @@ const ListViewRow = ({
 	task,
 	properties,
 	rowTypes,
-	updatePropertyValue,
+	handleUpdate,
 	handleRowClick,
-	isSubTask = false,
 	responseMetadata,
-	handleEditPropertyChange,
 	colors,
 }) => {
 	const generateRow = useCallback(
@@ -53,8 +51,7 @@ const ListViewRow = ({
 					key === '_id' ||
 					key === 'parentTaskId' ||
 					key === 'workflowTemplateId' ||
-					key === 'completedAt' ||
-					(isSubTask && key === 'workflow')
+					key === 'completedAt'
 				) {
 					return;
 				}
@@ -64,13 +61,11 @@ const ListViewRow = ({
 						key={key}
 						value={value}
 						title={name}
-						onOptionClick={(value) =>
-							updatePropertyValue(task?._id, key, value, isSubTask)
-						}
+						onOptionClick={(value) => handleUpdate(task?._id, key, value)}
 						{...props}
-						handleEditPropertyChange={handleEditPropertyChange}
 						colors={colors}
 						showTitle={true}
+						showEditProperty={true}
 					/>
 				) : null;
 
@@ -90,13 +85,15 @@ const ListViewRow = ({
 				</div>,
 			];
 		},
-		[task, properties, rowTypes, updatePropertyValue, isSubTask, responseMetadata],
+		[properties, responseMetadata, rowTypes, colors, handleUpdate, task?._id],
 	);
 
 	return (
 		<div
-			className={`listItemRowContainer ${isSubTask ? 'subTaskRowContainer' : ''}`}
-			onClick={() => handleRowClick(task?._id)}
+			className={`listItemRowContainer`}
+			onClick={() => {
+				handleRowClick(task);
+			}}
 		>
 			<div className="listItemRow">{generateRow(task)}</div>
 		</div>

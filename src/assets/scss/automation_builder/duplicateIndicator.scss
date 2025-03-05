@@ -1,0 +1,34 @@
+.duplicateWorkflowContainer {
+	display: flex;
+	width: 480px;
+	height: 284px;
+	padding: 40px;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 24px;
+	border-radius: 32px;
+	background: var(--popup);
+	justify-content: center;
+	align-items: center;
+
+	.duplicateWorkflowContainerHeader {
+		color: var(--primary-font);
+		text-align: center;
+		font-family: var(--primary-font-family);
+		font-size: 18px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: 26px; /* 144.444% */
+	}
+	.duplicateContainerSubtitle {
+		color: var(--secondary-font);
+		text-align: center;
+		font-family: var(--primary-font-family);
+		font-size: 12px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: 20px; /* 166.667% */
+		letter-spacing: 0.24px;
+		// text-transform: capitalize;
+	}
+}

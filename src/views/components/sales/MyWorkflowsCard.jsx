@@ -105,14 +105,13 @@ const MyWorkflowsCard = ({ data, openModal, openCopyLinkModal, navigateToWorkflo
 		actionCards: [...generateCardsInfoData(data, 'actionCards')],
 		statstCards: [...generateCardsInfoData(data, 'statstCards')],
 		showCopyModalButton: false,
-		formParsedContentHtml: '',
 		contractExist: true,
 	});
 
 	//useEFFects
 	useEffect(() => {
 		if (data) {
-			handleIncomingData();
+			// handleIncomingData();
 		}
 	}, [data]);
 
@@ -121,7 +120,6 @@ const MyWorkflowsCard = ({ data, openModal, openCopyLinkModal, navigateToWorkflo
 		const { moduleTemplates, templates } = data;
 		let isPublic = false;
 		let formData;
-		let formParsedContentHtml = '';
 		let contractExist = false;
 
 		for (let i = 0; i < moduleTemplates.length; i++) {
@@ -137,11 +135,6 @@ const MyWorkflowsCard = ({ data, openModal, openCopyLinkModal, navigateToWorkflo
 			}
 		}
 
-		for (let i = 0; i < templates?.length; i++) {
-			if (templates?.[i]?._id === formData?._id) {
-				formParsedContentHtml = templates?.[i]?.parsedHtmlContent;
-			}
-		}
 		let actionCards = [
 			...generateCardsInfoData(data, 'actionCards', contractExist ? false : true),
 		];
@@ -154,7 +147,7 @@ const MyWorkflowsCard = ({ data, openModal, openCopyLinkModal, navigateToWorkflo
 			showCopyModalButton: isPublic,
 			actionCards,
 			statstCards,
-			formParsedContentHtml,
+
 			contractExist,
 		}));
 	}, [data]);

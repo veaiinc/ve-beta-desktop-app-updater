@@ -37,6 +37,7 @@ export const intialState = {
 		numberOfImagesPeoples: 0,
 		imagesCount: 0,
 	},
+	clientSelectionLightRoomCopy: null,
 };
 
 export const Galleries = () => {
@@ -570,6 +571,7 @@ export const Galleries = () => {
 			return response;
 		} catch (error) {
 			console.log('error==>updateUserLogo', error);
+			return [false, { message: 'Failed to get upload image sign url' }];
 		}
 	};
 
@@ -585,7 +587,8 @@ export const Galleries = () => {
 
 			return response;
 		} catch (error) {
-			console.log('error==>getTags', error);
+			console.log('error==>getImageUploadStatus', error);
+			return [false, { message: 'Failed to get upload image status' }];
 		}
 	};
 
@@ -1185,23 +1188,53 @@ export const Galleries = () => {
 		});
 	};
 	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/gallery-collections/{{ _.collection_id }}/images
-	const getClientSelectionImages = async (collectionId) => {
+	const getClientSelectionImages = async (collectionId, page = 1, limit = 15) => {
 		try {
 			let usertoken = localStorage.getItem('usertoken');
 			let workspaceId = localStorage.getItem('workspaceId');
 			const response = await service.fetchGet(
-				`/${workspaceId}/gallery-collections/${collectionId}/images`,
+				`/${workspaceId}/gallery-collections/${collectionId}/images?page=${page}&limit=${limit}`,
+				usertoken,
+				'galleries',
+			);
+			const payload = state.clientSelectionImages
+				? {
+						...state.clientSelectionImages,
+						...response?.[1],
+						docs: [...state.clientSelectionImages.docs, ...(response?.[1]?.docs || [])],
+				  }
+				: response?.[1];
+			if (response[0]) {
+				dispatch({
+					type: Actions.GET_CLIENT_SELECTION_IMAGES,
+					payload: payload,
+				});
+			}
+		} catch (error) {
+			console.log('error==>getClientSelectionImages', error);
+		}
+	};
+
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/gallery-collections/{{ _.collection_id }}/image-file-names.
+
+	const getClientSelectionLightRoomCopy = async (collectionId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchGet(
+				`/${workspaceId}/gallery-collections/${collectionId}/image-file-names`,
 				usertoken,
 				'galleries',
 			);
 			if (response[0]) {
 				dispatch({
-					type: Actions.GET_CLIENT_SELECTION_IMAGES,
+					type: Actions.GET_CLIENT_SELECTION_LIGHTROOM_COPY,
 					payload: response?.[1],
 				});
+				return response;
 			}
 		} catch (error) {
-			console.log('error==>getClientSelectionImages', error);
+			console.log('error==>getClientSelectionLightRoomCopy', error);
 		}
 	};
 	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/albums/{{ _.albumSlug }}/move-images
@@ -1482,16 +1515,17 @@ export const Galleries = () => {
 		}
 	};
 	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/gallery-images/{{ _.image_id }}/download
-	const getDownloadLinkForImage = async (imageId) => {
+	const getDownloadLinkForImage = async (imageId, isLightGallery) => {
 		try {
 			let usertoken = localStorage.getItem('usertoken');
 			let workspaceId = localStorage.getItem('workspaceId');
+			const path = isLightGallery ? '?imageType=optimized' : '';
 			const response = await service.fetchGet(
-				`/${workspaceId}/gallery-images/${imageId}/download`,
+				`/${workspaceId}/gallery-images/${imageId}/download${path}`,
 				usertoken,
 				'galleries',
 			);
-			console.log('response==>getDownloadLinkForImage', response);
+
 			if (response[0] === true) {
 				const imageResponse = await fetch(response[1].signedUrl);
 				const blob = await imageResponse.blob();
@@ -1619,7 +1653,6 @@ export const Galleries = () => {
 				const regionPrefix = region === 'ap-south-1' ? 'in' : 'us';
 
 				const url = `https://downloads.ve.ai/${regionPrefix}/${response[1].downloadId}`;
-				console.log('url==>downloadImages', url);
 				window.open(url, '_blank');
 				return [true, response?.[1]];
 			}
@@ -1630,6 +1663,28 @@ export const Galleries = () => {
 		}
 	};
 
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/gallery-collections/{{ _.collection_id }}/download/
+	const downloadImagesForClientSelection = async (payload, collectionId) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			let region = localStorage.getItem('region');
+			const response = await service.fetchPost(
+				`/${workspaceId}/gallery-collections/${collectionId}/download`,
+				payload,
+				usertoken,
+				'galleries',
+			);
+			if (response?.[0] === true && response?.[1]?.downloadId) {
+				const regionPrefix = region === 'ap-south-1' ? 'in' : 'us';
+				const url = `https://downloads.ve.ai/${regionPrefix}/${response?.[1]?.downloadId}`;
+				return [response?.[0], url];
+			}
+			return [false, null];
+		} catch (error) {
+			console.log('error==>downloadImagesForClientSelection', error);
+		}
+	};
 	const clearGalleryShareDetails = () => {
 		dispatch({
 			type: Actions.GET_GALLERY_SHARE_DETAILS,
@@ -1709,6 +1764,33 @@ export const Galleries = () => {
 			}
 		} catch (error) {
 			console.log('error==>getFaceGroupingStatus', error);
+		}
+	};
+
+	const deleteWaterMark = async (json) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchDelete(
+				`/${workspaceId}/watermarks`,
+				usertoken,
+				json,
+				'tenant',
+			);
+			if (response[0] === true) {
+				const updatedWaterMarks = state.waterMarks.filter(
+					(watermark) => watermark.profileId !== json?.watermarkProfileId,
+				);
+				dispatch({
+					type: Actions.GET_WATERMARKS_LIST,
+					payload: updatedWaterMarks,
+				});
+				return response;
+			} else {
+				return response;
+			}
+		} catch (error) {
+			console.log('error==>deleteWaterMark', error);
 		}
 	};
 
@@ -1809,5 +1891,8 @@ export const Galleries = () => {
 		editAlbum,
 		getImageProcessingStatus,
 		setUpImageUpload,
+		getClientSelectionLightRoomCopy,
+		deleteWaterMark,
+		downloadImagesForClientSelection,
 	};
 };

@@ -6,20 +6,7 @@ import { Drawer } from 'antd';
 import { fetchOriginSelection } from '../../../../helpers';
 let origin = fetchOriginSelection();
 const WorkflowPreviewModal = ({ modalIsOpen, closeModal, incomingTemplateData, previewType }) => {
-	const [info, setInfo] = useState({
-		templatesMapper: null,
-	});
-
-	useEffect(() => {
-		if (incomingTemplateData) {
-			const { templates } = incomingTemplateData || {};
-			let obj = {};
-			for (let i = 0; i < templates?.length; i++) {
-				obj[templates[i]?._id] = templates?.[i]?.parsedHtmlContent;
-			}
-			setInfo((prev) => ({ ...prev, templatesMapper: obj }));
-		}
-	}, [incomingTemplateData]);
+	const [info, setInfo] = useState({});
 
 	return (
 		<Drawer

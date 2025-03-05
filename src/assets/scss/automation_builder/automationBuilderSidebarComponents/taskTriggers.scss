@@ -1,0 +1,146 @@
+.taskTriggerContainer {
+	height: 100%;
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+
+	.taskTriggerContent {
+		display: flex;
+		flex-direction: column;
+		gap: 12px;
+		flex-grow: 1;
+
+		.taskTriggerInputContainer {
+			display: flex;
+			flex-direction: column;
+			gap: 12px;
+			flex-grow: 1;
+			overflow-y: auto;
+		}
+
+		.taskTriggerContentButton {
+			display: flex;
+			padding: 12px 16px;
+			align-self: stretch;
+			background: var(--card);
+			border: none;
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
+			font-size: 13px;
+			font-style: normal;
+			font-weight: 400;
+			line-height: 16px; /* 123.077% */
+			cursor: pointer;
+			transition: all 0.3s ease;
+			justify-content: center;
+
+			&:hover {
+				background: #2c2d2f;
+			}
+		}
+
+		.taskTriggerInputContainer {
+			display: flex;
+			flex-direction: column;
+			padding: 12px 24px;
+			gap: 12px;
+
+			.taskTriggerInputHeading {
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+
+			.taskTriggerInputItem {
+				display: flex;
+				flex-direction: column;
+				align-items: flex-start;
+				gap: 8px;
+				align-self: stretch;
+
+				.taskTriggerInputLabel {
+					color: var(--secondary-font);
+					font-family: var(--primary-font-family);
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+				}
+			}
+		}
+	}
+}
+
+.taskTriggerInputTooltip {
+	background-color: var(--card);
+	padding: 12px;
+	border-radius: 6px;
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	align-self: stretch;
+	width: 200px;
+
+	.taskTriggerInputTooltipItem {
+		color: var(--primary-font);
+		font-family: var(--primary-font-family);
+		font-size: 12px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
+		padding: 8px;
+		border-radius: 6px;
+		cursor: pointer;
+
+		&:hover {
+			background-color: var(--card);
+		}
+	}
+
+	.taskTriggerInputTooltipItemSelected {
+		background-color: var(--card);
+	}
+}
+
+.taskTriggerInputTooltipTrigger {
+	min-height: 36px;
+	padding: 8px;
+	background: var(--card);
+	border-radius: 6px;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	cursor: pointer;
+	width: 100%;
+}
+
+.taskTriggerInputTooltipTriggerItem {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	background: var(--card);
+	padding: 4px 8px;
+	border-radius: 4px;
+	color: var(--primary-font);
+	font-size: 12px;
+
+	.removeField {
+		cursor: pointer;
+		font-size: 14px;
+		line-height: 1;
+		padding: 0 2px;
+
+		&:hover {
+			color: var(--error);
+		}
+	}
+}
+
+.taskTriggerInputTooltipTriggerPlaceholder {
+	color: var(--secondary-font);
+	font-size: 12px;
+	align-self: center;
+}

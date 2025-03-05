@@ -1,0 +1,219 @@
+.promptPopupContainer {
+	display: flex;
+	width: 600px;
+	padding: 36px;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 24px;
+	border-radius: 32px;
+	background: var(--popup);
+	.promptPopupContainerHeader {
+		display: flex;
+		justify-content: space-between;
+		align-items: flex-start;
+		align-self: stretch;
+		.promptPopupContainerHeaderLeft {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 4px;
+			.promptPopupContainerHeaderLeftTitle {
+				color: var(--primary-font, #f2f2f3);
+				font-family: var(--primary-font-family, 'Inter');
+				font-size: 20px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+			.promptPopupContainerHeaderLeftSubtitle {
+				background: var(--ai-color-code);
+				-webkit-background-clip: text;
+				-webkit-text-fill-color: transparent;
+				font-family: var(--primary-font-family, 'Inter');
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+		}
+
+		.promptPopupContainerHeaderRight {
+			cursor: pointer;
+		}
+	}
+	.promptPopupContainerBody {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: flex-end;
+		gap: 12px;
+		align-self: stretch;
+		.promptPopupContainerBodyText {
+			align-self: stretch;
+			border-radius: 12px;
+			border: 1px solid var(--stroke);
+			background: var(--card);
+			padding: 18px;
+			color: var(--primary-font, #f2f2f3);
+			font-family: var(--primary-font-family);
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 24px;
+			.promptPopupContainerBodyTextTooltip {
+				display: inline-flex;
+				flex-direction: row;
+				align-items: center;
+				gap: 4px;
+				padding: 4px 10px;
+				border-radius: 37px;
+				border: 1px solid var(--stroke);
+				background: var(--popup);
+			}
+		}
+		.promptPopupContainerEmailPromptContainer {
+			display: flex;
+			align-items: center;
+			gap: 4px;
+			.promptPopupContainerEmailPrompt {
+				color: var(--secondary-font, #797e86);
+				font-family: var(--primary-font-family, 'Inter');
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+		}
+	}
+	.promptPopupContainerSelectedFilesDiv {
+		display: flex;
+		flex-direction: row;
+		gap: 12px;
+		align-items: flex-start;
+		width: 100%;
+		flex-wrap: wrap;
+		.promptPopupContainerEachSelectedFile {
+			display: flex;
+			padding: 8px 12px;
+			min-width: 158px;
+			justify-content: space-between;
+			align-items: center;
+			gap: 10px;
+			border-radius: 100px;
+			background: var(--card);
+			.promptPopupContainerEachSelectedFileText {
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: 22px;
+			}
+		}
+	}
+	.promptPopupContainerFilesDiv {
+		display: flex;
+		padding: 18px;
+		flex-direction: column;
+		align-items: center;
+		gap: 10px;
+		align-self: stretch;
+		border-radius: 16px;
+		background: var(--card);
+		.promptPopupContainerSelectionFiles {
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: flex-start;
+			gap: 12px;
+			align-self: stretch;
+			.promptPopupContainerSelectionFilesTitle {
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+			.promptPopupContainerSelectionFilesSearch {
+				display: flex;
+				padding: 12px;
+				align-items: center;
+				gap: 8px;
+				align-self: stretch;
+				border-radius: 12px;
+				border: 1px solid var(--stroke);
+				.inputSearchText {
+					color: var(--secondary-font);
+					background-color: transparent;
+					border: none;
+					font-family: var(--primary-font-family);
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+					flex: 1 0 0;
+				}
+			}
+		}
+		.promptPopupOptionsContainer {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 2px;
+			align-self: stretch;
+			.promptPopupOptionsContainerFiles {
+				display: flex;
+				padding: 8px 12px;
+				justify-content: space-between;
+				align-items: center;
+				gap: 10px;
+				align-self: stretch;
+				border-radius: 10px;
+				&.selected {
+					background: var(--card-hover);
+				}
+				.promptPopupContainerFilesList {
+					display: flex;
+					flex-direction: row;
+					align-items: center;
+					gap: 10px;
+					.promptPopupContainerFilesListFileIcon {
+						width: 24px;
+						height: 24px;
+						border-radius: 6px;
+						background: var(--card);
+					}
+					.promptPopupContainerFilesListFile {
+						color: var(--primary-font);
+						font-family: var(--primary-font-family);
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: 22px;
+						flex: 1 0 0;
+					}
+				}
+			}
+		}
+	}
+	.promptPopupContainerRunButton {
+		display: flex;
+		padding: 16px 24px;
+		justify-content: center;
+		align-items: center;
+		width: 100%;
+		gap: 16px;
+		flex: 1 0 0;
+		border-radius: 50px;
+		background: var(--primary-button);
+		border: none;
+		cursor: pointer;
+		color: var(--primary-button-font);
+		font-family: var(--primary-font-family);
+		font-size: 14px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
+	}
+}

@@ -8,10 +8,10 @@
 	width: 160px;
 	padding: var(--Spacing-space-7, 12px);
 	border-radius: 4px;
-	background: #202020;
+	background: var(--popup);
 
 	.tooltipHeadertext {
-		color: #e8e8e8;
+		color: var(--primary-font);
 		text-align: center;
 		font-family: var(--primary-font-family);
 		font-size: 11px;
@@ -20,7 +20,7 @@
 		line-height: normal;
 	}
 	.tooltipHeaderSubtext {
-		color: #797979;
+		color: var(--secondary-font);
 		font-family: var(--primary-font-family);
 		font-size: 10px;
 		font-style: normal;

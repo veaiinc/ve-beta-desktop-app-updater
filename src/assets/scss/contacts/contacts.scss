@@ -1,0 +1,27 @@
+.contacts-header-container {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	align-items: flex-start;
+	margin-bottom: 20px;
+
+	.header-text {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		width: fit-content;
+
+		font-family: var(--secondary-font-family);
+		font-size: 40px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: 43px;
+
+		.lineOne {
+			color: var(--primary-font);
+		}
+		.lineTwo {
+			color: var(--secondary-font);
+		}
+	}
+}

@@ -12,6 +12,9 @@ export const intialState = {
 	qrcode: null,
 	set2factorSettings: null,
 	userWorkSpaceList: null,
+	defaultNotificationSettings: null,
+	tenantUserAccessControls: null,
+	accessControlOpenModal: false,
 };
 export const ProfileState = () => {
 	const [state, dispatch] = useReducer(Reducer, intialState);
@@ -307,12 +310,132 @@ export const ProfileState = () => {
 		}
 	};
 
+	const getDefaultNotificationSettings = async (tenantId) => {
+		try {
+			const token = localStorage.getItem('usertoken');
+			const path = '/defaultNotificationSettings';
+			const type = 'tenant-users';
+			const body = {
+				tenantId,
+			};
+			const response = await service?.fetchPost(path, body, token, type);
+			if (response?.[0]) {
+				dispatch({
+					type: Actions?.GET_DEFAULT_NOTIFICATION_SETTINGS,
+					payload: response?.[1],
+				});
+			}
+		} catch (error) {
+			console.log('error==>getDefaultNotificationSettings', error);
+		}
+	};
+
+	const updateModuleAppTypeSelectAll = async (module, appType, isEnabled, tenantId) => {
+		const token = localStorage.getItem('usertoken');
+		const path = '/updateMultipleActions';
+		const type = 'tenant-users';
+		const body = {
+			module,
+			app: appType,
+			isEnabled,
+			tenantId,
+		};
+		const response = await service?.fetchPut(path, body, token, type);
+		if (response?.[0]) {
+			return [true];
+		} else {
+			return [false];
+		}
+	};
+
+	const updateNotificationMethod = async (tenantId, app, isEnabled) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			const path = '/notificationMethods';
+			const type = 'tenant-users';
+			const payload = {
+				app, // email, slack, whatsapp
+				tenantId,
+				isEnabled,
+			};
+			const response = await service?.fetchPut(path, payload, usertoken, type);
+			if (response?.[0]) {
+				return [true];
+			} else {
+				return [false];
+			}
+		} catch (error) {
+			console.log('error==>updateNotificationMethod', error);
+		}
+	};
+
+	const updateAppNotificationPreferenceForModule = async (
+		module,
+		action,
+		app,
+		isEnabled,
+		tenantId,
+	) => {
+		try {
+			const token = localStorage.getItem('usertoken');
+			const path = '/notificationPreferences';
+			const type = 'tenant-users';
+			const body = {
+				module,
+				action,
+				app,
+				isEnabled,
+				tenantId,
+			};
+			const response = await service?.fetchPut(path, body, token, type);
+			if (response?.[0] === true && response?.[1]?.code !== 500) {
+				return [true];
+			} else {
+				return [false];
+			}
+		} catch (error) {
+			console.log('error==>updateAppNotificationPreferenceForModule', error);
+		}
+	};
+
+	const updateAccessControlOpenModal = (payload) => {
+		try {
+			dispatch({
+				type: Actions.UPDATE_ACCESS_CONTROL_OPEN_MODAL,
+				payload,
+			});
+		} catch (error) {
+			console.log('error==>updateAccessControlOpenModal', error);
+		}
+	};
 	const resetProfileSettingsState = async () => {
 		dispatch({ type: Actions.RESET_STATE });
 	};
 
 	const updateProfileState = async (payload) => {
 		dispatch({ type: Actions.UPDATE_PROFILE_STATE, payload: payload });
+	};
+
+	// https://us.api.ve.ai/auth/dev/tenant/:workspaceId/tenant-user-access-control/:tenantUser_id
+	const getTenantUserAccessControls = async () => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			let decoded = jwt_decode(usertoken);
+			const response = await service.fetchGet(
+				`/tenant/${workspaceId}/tenant-user-access-control/${decoded.user_id}`,
+				usertoken,
+				'auth',
+			);
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.GET_TENANT_USER_ACCESS_CONTROLS,
+					payload: response?.[1],
+				});
+			}
+		} catch (error) {
+			console.log('error==>getTenantUserAccessControls', error);
+		}
 	};
 	return {
 		...state,
@@ -334,5 +457,11 @@ export const ProfileState = () => {
 		updateCompanyDetailsState,
 		updateUserDetailsState,
 		updateProfileState,
+		getDefaultNotificationSettings,
+		updateNotificationMethod,
+		updateAppNotificationPreferenceForModule,
+		getTenantUserAccessControls,
+		updateAccessControlOpenModal,
+		updateModuleAppTypeSelectAll,
 	};
 };
