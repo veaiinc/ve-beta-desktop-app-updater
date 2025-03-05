@@ -59,16 +59,15 @@ const Notifications = () => {
 
 	useEffect(() => {
 		if (showNotificationPreferences) {
-			const selectedOptions = info?.selectedOptions;
-			const moduleAppTypeSelectAll = info?.moduleAppTypeSelectAll;
+			const selectedOptions = { ...(info?.selectedOptions || {}) };
+			const moduleAppTypeSelectAll = { ...(info?.moduleAppTypeSelectAll || {}) };
 
 			notificationPreferences?.forEach(({ module, actions }) => {
 				actions?.forEach(({ action, apps }) => {
-					const { email, whatsapp, slack } = apps;
 					if (!selectedOptions[module]) {
 						selectedOptions[module] = {};
 					}
-					selectedOptions[module][action] = { email, whatsapp, slack };
+					selectedOptions[module][action] = apps;
 				});
 				moduleAppTypeSelectAll[module] = defaultModuleAppTypeSelectAll;
 			});
