@@ -485,9 +485,9 @@ const EditScheduler = () => {
 	}, [info.weeklyAvailability, handleAvailabilityUpdate]);
 
 	// Modify the weekly availability handlers to work with both new and existing sessions
-	const handleWeeklyAvailabilityChange = (day, enabled) => {
+	const handleWeeklyAvailabilityChange = useCallback((day, enabled) => {
 		setInfo((prev) => {
-			const newInfo = {
+			const changedSlots = {
 				...prev,
 				weeklyAvailability: {
 					...prev.weeklyAvailability,
@@ -497,20 +497,22 @@ const EditScheduler = () => {
 						slots:
 							enabled && prev.weeklyAvailability[day].slots.length === 0
 								? [{ start: '09:00', end: '17:00' }]
-								: prev.weeklyAvailability[day].slots,
+								: enabled
+								? prev.weeklyAvailability[day].slots
+								: [],
 					},
 				},
 			};
-			return newInfo;
+			return changedSlots;
 		});
-	};
+	}, []);
 
-	const handleTimeSlotChange = (day, index, field, value) => {
+	const handleTimeSlotChange = useCallback((day, index, field, value) => {
 		setInfo((prev) => {
 			const newSlots = [...prev.weeklyAvailability[day].slots];
 			newSlots[index] = {
 				...newSlots[index],
-				[field]: value,
+				[field]: value || '00:00', // Default to '00:00' if value is null
 			};
 			return {
 				...prev,
@@ -523,9 +525,9 @@ const EditScheduler = () => {
 				},
 			};
 		});
-	};
+	}, []);
 
-	const handleAddTimeSlot = (day) => {
+	const handleAddTimeSlot = useCallback((day) => {
 		setInfo((prev) => {
 			const newSlots = [
 				...prev.weeklyAvailability[day].slots,
@@ -542,9 +544,9 @@ const EditScheduler = () => {
 				},
 			};
 		});
-	};
+	}, []);
 
-	const handleRemoveTimeSlot = (day, index) => {
+	const handleRemoveTimeSlot = useCallback((day, index) => {
 		setInfo((prev) => {
 			const newSlots = [...prev.weeklyAvailability[day].slots];
 			newSlots.splice(index, 1);
@@ -559,27 +561,20 @@ const EditScheduler = () => {
 				},
 			};
 		});
-	};
+	}, []);
 
-	const handleCopyTimeSlot = (day, index) => {
+	const handleCopyTimeSlot = useCallback((day, index) => {
 		setInfo((prev) => {
 			const currentSlot = prev.weeklyAvailability[day].slots[index];
 			const updatedAvailability = { ...prev.weeklyAvailability };
 
-			// Copy the slot to all other days and enable them
+			// Copy the slot to all other days
 			['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'].forEach((d) => {
 				if (d !== day) {
-					// Check if the slot already exists to avoid duplicates
-					const slotExists = prev.weeklyAvailability[d].slots.some(
-						(slot) => slot.start === currentSlot.start && slot.end === currentSlot.end,
-					);
-
-					if (!slotExists) {
-						updatedAvailability[d] = {
-							enabled: true, // Enable the day when copying slot
-							slots: [...prev.weeklyAvailability[d].slots, { ...currentSlot }],
-						};
-					}
+					updatedAvailability[d] = {
+						enabled: true,
+						slots: [{ ...currentSlot }],
+					};
 				}
 			});
 
@@ -588,7 +583,11 @@ const EditScheduler = () => {
 				weeklyAvailability: updatedAvailability,
 			};
 		});
-	};
+	}, []);
+
+	useEffect(() => {
+		console.log('info.weeklyAvailability', info.weeklyAvailability);
+	}, [info.weeklyAvailability]);
 
 	return (
 		<div className="editSchedulerParentContainer">
@@ -798,13 +797,19 @@ const EditScheduler = () => {
 																format="HH:mm"
 																picker="time"
 																className="timePicker"
-																value={dayjs(slot.start, 'HH:mm')}
+																value={
+																	slot.start
+																		? dayjs(slot.start, 'HH:mm')
+																		: null
+																}
 																onChange={(time) =>
 																	handleTimeSlotChange(
 																		day,
 																		index,
 																		'start',
-																		time.format('HH:mm'),
+																		time
+																			? time.format('HH:mm')
+																			: null,
 																	)
 																}
 																suffixIcon={
@@ -817,13 +822,19 @@ const EditScheduler = () => {
 																format="HH:mm"
 																picker="time"
 																className="timePicker"
-																value={dayjs(slot.end, 'HH:mm')}
+																value={
+																	slot.end
+																		? dayjs(slot.end, 'HH:mm')
+																		: null
+																}
 																onChange={(time) =>
 																	handleTimeSlotChange(
 																		day,
 																		index,
 																		'end',
-																		time.format('HH:mm'),
+																		time
+																			? time.format('HH:mm')
+																			: null,
 																	)
 																}
 																suffixIcon={
