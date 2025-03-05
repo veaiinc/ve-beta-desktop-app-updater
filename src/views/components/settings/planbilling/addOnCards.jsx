@@ -193,7 +193,9 @@ const AddOnPlans = ({ addOnsLoading = false, isOpen, closeModal, subscriptionSta
 													<span className="currencySymbol">
 														{currency === 'INR' ? '₹ ' : '$ '}
 													</span>
-													<span className="priceValue">{totalPrice}</span>
+													<span className="priceValue">
+														{totalPrice || 0}
+													</span>
 													<span
 														className={`priceDuration ${
 															!isRecurring ? 'oneTime' : ''
