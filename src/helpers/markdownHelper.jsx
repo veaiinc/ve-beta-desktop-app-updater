@@ -21,22 +21,22 @@ const rehypeCITPlugin = () => {
 		const visit = (node) => {
 			if (!node || typeof node !== 'object') return;
 
-			if (node.type === 'text' && node.value) {
+			if (node?.type === 'text' && node?.value) {
 				const regex = /(\[C\d+\])/g;
-				const matches = node.value.match(regex);
+				const matches = node?.value?.match(regex);
 				if (!matches) return;
 
 				// Create a new node instead of modifying in place
 				const newNode = {
 					type: 'element',
 					tagName: 'span',
-					properties: node.properties || {},
-					children: node.value.split(regex).map((part) => {
-						if (regex.test(part)) {
+					properties: node?.properties || {},
+					children: node?.value?.split(regex)?.map((part) => {
+						if (regex?.test(part)) {
 							return {
 								type: 'element',
 								tagName: 'span',
-								properties: { citationId: part.slice(1, -1) },
+								properties: { citationId: part?.slice(1, -1) },
 								children: [{ type: 'text', value: 'Citation' }],
 							};
 						}
@@ -47,8 +47,8 @@ const rehypeCITPlugin = () => {
 				Object.assign(node, newNode);
 			}
 
-			if (node.children && Array.isArray(node.children)) {
-				node.children.forEach(visit);
+			if (node?.children && Array?.isArray(node?.children)) {
+				node?.children?.forEach(visit);
 			}
 		};
 
