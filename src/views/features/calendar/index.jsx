@@ -12,7 +12,7 @@ const modules = [
 const CalendarModule = () => {
 	const navigate = useNavigate();
 	const [info, setInfo] = useState({
-		activeModule: 'scheduler', // calendar or scheduler
+		activeModule: 'calendar', // calendar or scheduler
 	});
 
 	const CompMapper = useMemo(
