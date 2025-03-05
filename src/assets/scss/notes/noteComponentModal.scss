@@ -84,6 +84,26 @@
 						gap: 24px;
 						width: 100%;
 
+						.aiMessageWrapper {
+							.ai-message-loader {
+								color: var(--secondary-font, #787e87);
+								font-family: Inter;
+								font-size: 15px;
+								font-style: normal;
+								font-weight: 400;
+								line-height: 24px;
+								position: relative;
+
+								.animated-bar {
+									width: 0%;
+									height: 4px;
+									position: absolute;
+									background-color: #f2f2f3;
+									animation: pulseWidth 500ms ease-in-out infinite;
+								}
+							}
+						}
+
 						.chat-message {
 							display: flex;
 							// justify-content: flex-end;

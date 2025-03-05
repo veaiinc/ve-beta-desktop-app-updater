@@ -72,6 +72,34 @@
 					max-width: 700px;
 					margin: 0 auto 40px auto;
 
+					.aiMessageWrapper {
+						.ai-message-loader {
+							color: var(--secondary-font, #787e87);
+							font-family: Inter;
+							font-size: 15px;
+							font-style: normal;
+							font-weight: 400;
+							line-height: 24px;
+							position: relative;
+							z-index: 1;
+
+							// .animated-bar {
+							// 	border: 1px solid white;
+							// 	width: 40px;
+							// 	height: 100%;
+							// 	position: absolute;
+							// 	top: 0;
+							// 	left: 0;
+							// 	background-color: #f2f2f3;
+							// 	filter: blur(px);
+							// 	animation: pulseWidth 5000ms ease-in-out infinite;
+							// 	background-clip: text;
+							// 	-webkit-background-clip: text;
+							// 	-webkit-text-fill-color: transparent;
+							// }
+						}
+					}
+
 					.ai-message:hover {
 						.hover-actions-container {
 							visibility: visible;
@@ -153,7 +181,14 @@
 		transform: translateY(0);
 	}
 }
-
+@keyframes pulseWidth {
+	0% {
+		left: 0%;
+	}
+	100% {
+		left: 100%;
+	}
+}
 /* Improve infinite scroll container */
 .infinite-scroll-component {
 	transition: all 0.3s ease;
