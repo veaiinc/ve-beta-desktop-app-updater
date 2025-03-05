@@ -562,13 +562,20 @@
 
 					.time-slots {
 						display: flex;
+						flex-direction: column;
 						align-items: center;
 						gap: 8px;
 
-						span {
-							color: #787e87;
-							font-family: Inter;
-							font-size: 12px;
+						.time-slot-wrapper {
+							display: flex;
+							align-items: center;
+							gap: 8px;
+
+							span {
+								color: #787e87;
+								font-family: Inter;
+								font-size: 12px;
+							}
 						}
 
 						.timePicker {

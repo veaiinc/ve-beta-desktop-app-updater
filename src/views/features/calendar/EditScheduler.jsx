@@ -336,7 +336,7 @@ const EditScheduler = () => {
 		const payload = {};
 
 		// Map changed fields to API payload format
-		Object.entries(changedFields).forEach(([key, value]) => {
+		Object.entries(changedFields)?.forEach(([key, value]) => {
 			switch (key) {
 				case 'sessionType':
 					payload.sessionType = value.toLowerCase().replace(' ', '_');
@@ -582,16 +582,12 @@ const EditScheduler = () => {
 				}
 			});
 
-			console.log('Updated availability:', updatedAvailability);
-
 			return {
 				...prev,
 				weeklyAvailability: updatedAvailability,
 			};
 		});
 	};
-
-	console.log('weeklyAvailability', info.weeklyAvailability);
 
 	return (
 		<div className="editSchedulerParentContainer">
@@ -791,8 +787,11 @@ const EditScheduler = () => {
 											<div className="time-slots">
 												{info?.weeklyAvailability[day]?.slots?.map(
 													(slot, index) => (
-														<React.Fragment key={index}>
-															{index > 0 && <span>and</span>}
+														<div
+															key={index}
+															className="time-slot-wrapper"
+														>
+															{/* {index > 0 && <span>and</span>} */}
 															<DatePicker
 																showTime
 																format="HH:mm"
@@ -898,7 +897,7 @@ const EditScheduler = () => {
 																	</div>
 																</Tooltip>
 															</div>
-														</React.Fragment>
+														</div>
 													),
 												)}
 											</div>
