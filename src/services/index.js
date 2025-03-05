@@ -129,12 +129,12 @@ const handleParams = (params) => {
 };
 
 const Service = {
-	fetchGet: async (url, token = null, type = null, params = {}, body = null) => {
+	fetchGet: async (url, token = null, type = null, params = {}) => {
 		let completeUrl = url;
 		if (Object.keys(params)?.length) {
 			completeUrl += handleParams(params);
 		}
-		return await apiFetch(completeUrl, 'GET', body, token, type);
+		return await apiFetch(completeUrl, 'GET', null, token, type);
 	},
 	fetchPost: async (url, body, token = null, type = null) =>
 		await apiFetch(url, 'POST', body, token, type),
