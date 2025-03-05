@@ -41,7 +41,7 @@ const SessionInfoCard = ({ sessionData }) => {
 					<div className="settingRow">
 						<div className="labelWithIcon">
 							<Tooltip
-								title="Ai-powred company Insights from multiple sources"
+								title="Ai-powered company insights from multiple sources"
 								placement="top"
 							>
 								<div className="question-icon">

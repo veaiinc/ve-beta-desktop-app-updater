@@ -68,10 +68,10 @@ const EditScheduler = () => {
 		minCancelNotice: 30,
 		minBookingNotice: 15,
 		maxBookingAdvance: 5,
-		maxBookingsPerSession: 1,
+		maxBookingsPerSession: 5,
 		preparationInstructions: '',
 		weeklyAvailability: {
-			MON: { enabled: true, slots: [{ start: '09:00', end: '17:00' }] },
+			MON: { enabled: true, slots: [{ start: '00:00', end: '00:00' }] },
 			TUE: { enabled: false, slots: [] },
 			WED: { enabled: false, slots: [] },
 			THU: { enabled: false, slots: [] },
@@ -85,6 +85,8 @@ const EditScheduler = () => {
 
 	// Add a ref to track the previous state
 	const previousStateRef = useRef(null);
+	// Add debounce ref for session type input
+	const sessionTypeInputTimeoutRef = useRef(null);
 
 	useEffect(() => {
 		if (sessionId) {
@@ -160,13 +162,12 @@ const EditScheduler = () => {
 						sessionType = 'Phone Call';
 						phoneNumber = sessionDetail.sessionTypeInfo.phone || '';
 						break;
-					case 'in person':
-					case 'in_person':
+					case 'inperson':
 						sessionType = 'In Person';
 						location = sessionDetail.sessionTypeInfo.location || '';
 						break;
 					default:
-						sessionType = sessionDetail.sessionTypeInfo.sessionType || 'In Person';
+						sessionType = 'In Person';
 						location = sessionDetail.sessionTypeInfo.location || '';
 				}
 			}
@@ -206,78 +207,413 @@ const EditScheduler = () => {
 		}
 	}, [sessionDetail]);
 
+	// Update effect to trigger availability update
+	useEffect(() => {
+		// Only trigger update if there are actual changes in weeklyAvailability
+		const hasChanges = Object.entries(info.weeklyAvailability)?.some(([day, value]) => {
+			const prevValue = previousStateRef.current?.weeklyAvailability[day];
+			return JSON.stringify(value) !== JSON.stringify(prevValue);
+		});
+
+		if (hasChanges) {
+			handleAvailabilityUpdate();
+			previousStateRef.current = { ...info };
+		}
+
+		return () => {
+			if (availabilityUpdateTimeoutRef.current) {
+				clearTimeout(availabilityUpdateTimeoutRef.current);
+			}
+		};
+	}, [info.weeklyAvailability]);
+
 	useEffect(() => {
 		return () => {
 			setInfo((prev) => ({
 				...prev,
 				sessionDetail: null,
 			}));
+			// Cleanup previousStateRef
+			previousStateRef.current = null;
 		};
 	}, []);
 
+	useEffect(() => {
+		return () => {
+			if (sessionTypeInputTimeoutRef.current) {
+				clearTimeout(sessionTypeInputTimeoutRef.current);
+			}
+		};
+	}, []);
+
+	// Initialize previousStateRef when sessionDetail is loaded
+	useEffect(() => {
+		if (sessionDetail) {
+			previousStateRef.current = { ...info };
+		}
+	}, [sessionDetail]);
+
+	// Add useEffect to trigger updates when relevant fields change
+	useEffect(() => {
+		// Only trigger update if there are actual changes in the monitored fields
+		const monitoredFields = [
+			'sessionType',
+			'duration',
+			'startTime',
+			'endTime',
+			'maxBookingsPerSession',
+			'minBookingNotice',
+			'maxBookingAdvance',
+			'allowRescheduling',
+			'allowCanceling',
+			'minCancelNotice',
+			'maxParticipants',
+			'preparationInstructions',
+			'timezone',
+			'sessionDescription',
+			'location',
+			'phoneNumber',
+			'videoLink',
+		];
+
+		const hasChanges = monitoredFields?.some((field) => {
+			const currentValue = info[field];
+			const previousValue = previousStateRef.current?.[field];
+
+			// Special handling for dayjs objects
+			if (field === 'startTime' || field === 'endTime') {
+				return currentValue?.toISOString() !== previousValue?.toISOString();
+			}
+
+			return JSON.stringify(currentValue) !== JSON.stringify(previousValue);
+		});
+
+		if (hasChanges) {
+			handleDebouncedUpdate();
+		}
+	}, [
+		info.sessionType,
+		info.duration,
+		info.startTime,
+		info.endTime,
+		info.maxBookingsPerSession,
+		info.minBookingNotice,
+		info.maxBookingAdvance,
+		info.allowRescheduling,
+		info.allowCanceling,
+		info.minCancelNotice,
+		info.maxParticipants,
+		info.preparationInstructions,
+		info.timezone,
+		info.sessionDescription,
+		info.location,
+		info.phoneNumber,
+		info.videoLink,
+	]);
+
 	// Function to handle start date change
-	const handleStartDateChange = (value) => {
-		setInfo((prev) => {
-			// If selected start date is after current end date, reset end date
-			if (prev.endTime && value && value.isAfter(prev.endTime)) {
+	const handleStartDateChange = useCallback(
+		(value) => {
+			setInfo((prev) => {
+				// If selected start date is after current end date, reset end date
+				if (prev.endTime && value && value.isAfter(prev.endTime)) {
+					return {
+						...prev,
+						startTime: value,
+						endTime: null,
+					};
+				}
 				return {
 					...prev,
 					startTime: value,
-					endTime: null,
 				};
+			});
+
+			// Update session window
+			if (sessionId && info.sessionDetail) {
+				const payload = {
+					sessionWindow: {
+						type: 'fixed_date_range',
+						startDate: value.toISOString(),
+						endDate: info.endTime?.toISOString(),
+					},
+				};
+				updateSchedulerSession(sessionId, payload);
 			}
-			return {
-				...prev,
-				startTime: value,
-			};
-		});
-	};
+		},
+		[sessionId, info.sessionDetail, info.endTime],
+	);
 
 	// Function to handle end date change
-	const handleEndDateChange = (value) => {
-		setInfo((prev) => {
-			// If selected end date is before current start date, reset start date
-			if (prev.startTime && value && value.isBefore(prev.startTime)) {
+	const handleEndDateChange = useCallback(
+		(value) => {
+			setInfo((prev) => {
+				// If selected end date is before current start date, reset start date
+				if (prev.startTime && value && value.isBefore(prev.startTime)) {
+					return {
+						...prev,
+						startTime: null,
+						endTime: value,
+					};
+				}
 				return {
 					...prev,
-					startTime: null,
 					endTime: value,
 				};
-			}
-			return {
-				...prev,
-				endTime: value,
-			};
-		});
-	};
+			});
 
-	const handleSessionTypeChange = useCallback((type) => {
+			// Update session window
+			if (sessionId && info.sessionDetail) {
+				const payload = {
+					sessionWindow: {
+						type: 'fixed_date_range',
+						startDate: info.startTime?.toISOString(),
+						endDate: value.toISOString(),
+					},
+				};
+				updateSchedulerSession(sessionId, payload);
+			}
+		},
+		[sessionId, info.sessionDetail, info.startTime],
+	);
+
+	// Function to handle session type change
+	const handleSessionTypeOption = useCallback((type) => {
 		setInfo((prev) => ({
 			...prev,
 			sessionType: type,
 			sessionTypeOpen: false,
+			// Reset related fields when changing session type
 			location: '',
 			phoneNumber: '',
 			videoLink: '',
 		}));
 	}, []);
 
+	// Function to handle session type specific info changes
+	const handleSessionTypeInput = useCallback(
+		(field, value) => {
+			if (!value) return; // Don't proceed if value is empty
+
+			setInfo((prev) => ({
+				...prev,
+				[field]: value,
+			}));
+
+			// Map UI session types to API session types
+			const sessionTypeMapping = {
+				'Video Call': 'virtual',
+				'Phone Call': 'phone',
+				'In Person': 'inperson',
+			};
+
+			const apiSessionType = sessionTypeMapping[info.sessionType];
+			if (!apiSessionType) return; // Don't proceed if invalid session type
+
+			// Update session type info
+			if (sessionId && info.sessionDetail) {
+				const payload = {
+					sessionTypeInfo: {
+						sessionType: apiSessionType,
+						...(field === 'location' && { location: value }),
+						...(field === 'phoneNumber' && { phone: value }),
+						...(field === 'videoLink' && { meetingLink: value }),
+					},
+				};
+				updateSchedulerSession(sessionId, payload);
+			}
+		},
+		[sessionId, info.sessionDetail, info.sessionType],
+	);
+
+	// Function to handle duration change
+	const handleDurationChange = useCallback(
+		(duration) => {
+			setInfo((prev) => ({
+				...prev,
+				duration,
+				isDurationOpen: false,
+			}));
+
+			// Update session duration
+			if (sessionId && info.sessionDetail) {
+				const payload = {
+					sessionDuration: {
+						unitCount: parseInt(duration),
+						unitType: 'minutes',
+					},
+				};
+				updateSchedulerSession(sessionId, payload);
+			}
+		},
+		[sessionId, info.sessionDetail],
+	);
+
+	// Function to handle availability rules changes
+	const handleAvailabilityRulesChange = useCallback(
+		(field, value) => {
+			setInfo((prev) => ({
+				...prev,
+				[field]: value,
+			}));
+
+			// Update availability rules
+			if (sessionId && info.sessionDetail) {
+				const payload = {
+					availabilityRules: {
+						...(field === 'maxBookingsPerSession' && { maxBookingsPerSession: value }),
+						...(field === 'minBookingNotice' && {
+							minBookingNotice: {
+								unitCount: value,
+								unitType: 'minutes',
+							},
+						}),
+						...(field === 'maxBookingAdvance' && {
+							maxBookingAdvance: {
+								unitCount: value,
+								unitType: 'days',
+							},
+						}),
+					},
+				};
+				updateSchedulerSession(sessionId, payload);
+			}
+		},
+		[sessionId, info.sessionDetail],
+	);
+
+	// Function to handle booking rules changes
+	const handleBookingRulesChange = useCallback(
+		(field, value) => {
+			setInfo((prev) => ({
+				...prev,
+				[field]: value,
+			}));
+
+			// Update booking rules
+			if (sessionId && info.sessionDetail) {
+				const payload = {
+					bookingRules: {
+						...(field === 'allowRescheduling' && { allowRescheduling: value }),
+						...(field === 'allowCanceling' && {
+							allowCanceling: value,
+							...(value && {
+								cancellationPolicy: {
+									minCancelNotice: {
+										unitCount: info.minCancelNotice,
+										unitType: 'minutes',
+									},
+								},
+							}),
+						}),
+					},
+				};
+				updateSchedulerSession(sessionId, payload);
+			}
+		},
+		[sessionId, info.sessionDetail, info.minCancelNotice],
+	);
+
+	// Function to handle session metadata changes
+	const handleSessionMetadataChange = useCallback(
+		(field, value) => {
+			setInfo((prev) => ({
+				...prev,
+				[field]: value,
+			}));
+
+			// Update session metadata
+			if (sessionId && info.sessionDetail) {
+				const payload = {
+					sessionMetadata: {
+						...(field === 'maxParticipants' && { maxParticipants: value }),
+						...(field === 'preparationInstructions' && {
+							preparationInstructions: value,
+						}),
+					},
+				};
+				updateSchedulerSession(sessionId, payload);
+			}
+		},
+		[sessionId, info.sessionDetail],
+	);
+
+	// Function to handle timezone change
+	const handleTimezoneChange = useCallback(
+		(timezone) => {
+			setInfo((prev) => ({
+				...prev,
+				timezone,
+			}));
+
+			// Update session timezone
+			if (sessionId && info.sessionDetail) {
+				const payload = {
+					sessionTimezone: timezone,
+				};
+				updateSchedulerSession(sessionId, payload);
+			}
+		},
+		[sessionId, info.sessionDetail],
+	);
+
+	// Function to handle session description change
+	const handleSessionDescriptionChange = useCallback(
+		(description) => {
+			setInfo((prev) => ({
+				...prev,
+				sessionDescription: description,
+			}));
+
+			// Update session description
+			if (sessionId && info.sessionDetail) {
+				const payload = {
+					sessionDescription: description,
+				};
+				updateSchedulerSession(sessionId, payload);
+			}
+		},
+		[sessionId, info.sessionDetail],
+	);
+
+	// Create a debounced handler for session type input
+	const handleDebouncedSessionTypeInput = useCallback(
+		(field, value) => {
+			if (sessionTypeInputTimeoutRef.current) {
+				clearTimeout(sessionTypeInputTimeoutRef.current);
+			}
+
+			// Update the input value immediately in the UI
+			setInfo((prev) => ({
+				...prev,
+				[field]: value,
+			}));
+
+			// Debounce the API call
+			sessionTypeInputTimeoutRef.current = setTimeout(() => {
+				handleSessionTypeInput(field, value);
+			}, 800);
+		},
+		[handleSessionTypeInput],
+	);
+
+	// Update the renderSessionTypeInput function to use the debounced handler
 	const renderSessionTypeInput = () => {
 		const config = sessionTypeInputConfig[info.sessionType];
 		return (
 			<InputComponent
-				type={config.type}
-				value={info[config.value]}
-				onChange={(e) =>
-					setInfo((prev) => ({
-						...prev,
-						[config.value]: e.target.value,
-					}))
-				}
-				placeholder={config.placeholder}
+				type={config?.type}
+				value={info[config?.value]}
+				onChange={(e) => handleDebouncedSessionTypeInput(config?.value, e.target.value)}
+				placeholder={config?.placeholder}
 				className="inputHeight"
 			/>
 		);
+	};
+
+	// Update the duration selector to use the new handler
+	const handleDurationSelect = (duration) => {
+		handleDurationChange(duration);
 	};
 
 	// Function to get changed fields between two states
@@ -288,8 +624,12 @@ const EditScheduler = () => {
 
 		// Helper function to check if two values are different
 		const isDifferent = (val1, val2) => {
+			if (val1 === null || val2 === null) return val1 !== val2;
 			if (typeof val1 !== typeof val2) return true;
-			if (typeof val1 === 'object' && val1 !== null) {
+			if (typeof val1 === 'object') {
+				if (val1 instanceof Date || val2 instanceof Date) {
+					return val1.getTime() !== val2.getTime();
+				}
 				return JSON.stringify(val1) !== JSON.stringify(val2);
 			}
 			return val1 !== val2;
@@ -297,15 +637,47 @@ const EditScheduler = () => {
 
 		// Check each field for changes
 		Object.entries(currentState).forEach(([key, value]) => {
-			if (key === 'sessionDetail' || key === 'timeout') return; // Skip internal fields
+			// Skip internal fields and undefined values
+			if (key === 'sessionDetail' || key === 'timeout' || value === undefined) return;
 
-			if (isDifferent(value, previousState[key])) {
+			// Special handling for dayjs objects
+			if (key === 'startTime' || key === 'endTime') {
+				if (isDifferent(value?.toISOString(), previousState[key]?.toISOString())) {
+					changes[key] = value;
+				}
+			} else if (isDifferent(value, previousState[key])) {
 				changes[key] = value;
 			}
 		});
 
 		return changes;
 	};
+
+	// Function to handle debounced update
+	const handleDebouncedUpdate = useCallback(() => {
+		if (updateTimeoutRef.current) {
+			clearTimeout(updateTimeoutRef.current);
+		}
+
+		const timeout = setTimeout(() => {
+			if (sessionId && info.sessionDetail) {
+				const changedFields = getChangedFields(info, previousStateRef.current);
+
+				if (Object.keys(changedFields).length > 0) {
+					const payload = prepareUpdatePayload(info, changedFields);
+
+					// Only call API if there are valid changes
+					if (Object.keys(payload)?.length > 0) {
+						updateSchedulerSession(sessionId, payload);
+						// Update previous state after successful API call
+						previousStateRef.current = { ...info };
+					}
+				}
+			}
+		}, 800);
+
+		updateTimeoutRef.current = timeout;
+	}, [sessionId, info.sessionDetail]);
 
 	// Function to transform weekly availability to API format
 	const transformWeeklyAvailabilityToApi = (weeklyAvailability) => {
@@ -332,116 +704,6 @@ const EditScheduler = () => {
 		}));
 	};
 
-	// Function to prepare update payload with only changed fields
-	const prepareUpdatePayload = (currentInfo, changedFields) => {
-		const payload = {};
-
-		// Map changed fields to API payload format
-		Object.entries(changedFields)?.forEach(([key, value]) => {
-			switch (key) {
-				case 'sessionType':
-					payload.sessionType = value.toLowerCase().replace(' ', '_');
-					payload.sessionTypeInfo = {
-						sessionType: value.toLowerCase().replace(' ', '_'),
-						...(value === 'In Person' && { location: currentInfo.location }),
-						...(value === 'Phone Call' && { phone: currentInfo.phoneNumber }),
-						...(value === 'Video Call' && { meetingLink: currentInfo.videoLink }),
-					};
-					break;
-
-				case 'duration':
-					payload.sessionDuration = {
-						unitCount: parseInt(value),
-						unitType: 'minutes',
-					};
-					break;
-
-				case 'startTime':
-				case 'endTime':
-					payload.sessionWindow = {
-						type: 'fixed_date_range',
-						startDate: currentInfo.startTime.toISOString(),
-						endDate: currentInfo.endTime.toISOString(),
-					};
-					break;
-
-				case 'maxBookingsPerSession':
-				case 'minBookingNotice':
-				case 'maxBookingAdvance':
-					payload.availabilityRules = {
-						...payload.availabilityRules,
-						[key]:
-							key === 'maxBookingsPerSession'
-								? value
-								: {
-										unitCount: value,
-										unitType: key === 'minBookingNotice' ? 'minutes' : 'days',
-								  },
-					};
-					break;
-
-				case 'allowRescheduling':
-				case 'allowCanceling':
-				case 'minCancelNotice':
-					payload.bookingRules = {
-						...payload.bookingRules,
-						[key]: value,
-						...(key === 'allowCanceling' &&
-							value && {
-								cancellationPolicy: {
-									minCancelNotice: {
-										unitCount: currentInfo.minCancelNotice,
-										unitType: 'minutes',
-									},
-								},
-							}),
-					};
-					break;
-
-				case 'maxParticipants':
-				case 'preparationInstructions':
-					payload.sessionMetadata = {
-						...payload.sessionMetadata,
-						[key]: value,
-					};
-					break;
-
-				case 'timezone':
-					payload.sessionTimezone = value;
-					break;
-
-				default:
-					// Skip fields that aren't part of the API schema
-					break;
-			}
-		});
-
-		return payload;
-	};
-
-	// Function to handle debounced update
-	const handleDebouncedUpdate = useCallback(() => {
-		if (updateTimeoutRef.current) {
-			clearTimeout(updateTimeoutRef.current);
-		}
-
-		const timeout = setTimeout(() => {
-			if (sessionId && info.sessionDetail) {
-				const changedFields = getChangedFields(info, previousStateRef.current);
-				if (Object.keys(changedFields).length > 0) {
-					const payload = prepareUpdatePayload(info, changedFields);
-					// Only call API if there are valid changes
-					if (Object.keys(payload)?.length > 0) {
-						updateSchedulerSession(sessionId, payload);
-						previousStateRef.current = { ...info };
-					}
-				}
-			}
-		}, 800);
-
-		updateTimeoutRef.current = timeout;
-	}, [sessionId, info.sessionDetail]);
-
 	// Separate function to handle availability updates
 	const handleAvailabilityUpdate = useCallback(() => {
 		if (availabilityUpdateTimeoutRef.current) {
@@ -463,26 +725,6 @@ const EditScheduler = () => {
 
 		availabilityUpdateTimeoutRef.current = timeout;
 	}, [sessionId, info.weeklyAvailability]);
-
-	// Update effect to trigger availability update
-	useEffect(() => {
-		// Only trigger update if there are actual changes in weeklyAvailability
-		const hasChanges = Object.entries(info.weeklyAvailability).some(([day, value]) => {
-			const prevValue = previousStateRef.current?.weeklyAvailability[day];
-			return JSON.stringify(value) !== JSON.stringify(prevValue);
-		});
-
-		if (hasChanges) {
-			handleAvailabilityUpdate();
-			previousStateRef.current = { ...info };
-		}
-
-		return () => {
-			if (availabilityUpdateTimeoutRef.current) {
-				clearTimeout(availabilityUpdateTimeoutRef.current);
-			}
-		};
-	}, [info.weeklyAvailability, handleAvailabilityUpdate]);
 
 	// Modify the weekly availability handlers to work with both new and existing sessions
 	const handleWeeklyAvailabilityChange = useCallback((day, enabled) => {
@@ -585,9 +827,108 @@ const EditScheduler = () => {
 		});
 	}, []);
 
-	useEffect(() => {
-		console.log('info.weeklyAvailability', info.weeklyAvailability);
-	}, [info.weeklyAvailability]);
+	// Function to prepare update payload with only changed fields
+	const prepareUpdatePayload = (currentInfo, changedFields) => {
+		const payload = {};
+
+		// Map changed fields to API payload format
+		Object.entries(changedFields)?.forEach(([key, value]) => {
+			switch (key) {
+				case 'sessionType':
+					payload.sessionType = value.toLowerCase().replace(' ', '_');
+					payload.sessionTypeInfo = {
+						sessionType: value.toLowerCase().replace(' ', '_'),
+						...(value === 'In Person' && { location: currentInfo.location }),
+						...(value === 'Phone Call' && { phone: currentInfo.phoneNumber }),
+						...(value === 'Video Call' && { meetingLink: currentInfo.videoLink }),
+					};
+					break;
+
+				case 'duration':
+					payload.sessionDuration = {
+						unitCount: parseInt(value),
+						unitType: 'minutes',
+					};
+					break;
+
+				case 'startTime':
+				case 'endTime':
+					payload.sessionWindow = {
+						type: 'fixed_date_range',
+						startDate: currentInfo.startTime.toISOString(),
+						endDate: currentInfo.endTime.toISOString(),
+					};
+					break;
+
+				case 'maxBookingsPerSession':
+				case 'minBookingNotice':
+				case 'maxBookingAdvance':
+					payload.availabilityRules = {
+						...payload.availabilityRules,
+						[key]:
+							key === 'maxBookingsPerSession'
+								? value
+								: {
+										unitCount: value,
+										unitType: key === 'minBookingNotice' ? 'minutes' : 'days',
+								  },
+					};
+					break;
+
+				case 'allowRescheduling':
+				case 'allowCanceling':
+				case 'minCancelNotice':
+					payload.bookingRules = {
+						...payload.bookingRules,
+						[key]: value,
+						...(key === 'allowCanceling' &&
+							value && {
+								cancellationPolicy: {
+									minCancelNotice: {
+										unitCount: currentInfo.minCancelNotice,
+										unitType: 'minutes',
+									},
+								},
+							}),
+					};
+					break;
+
+				case 'maxParticipants':
+				case 'preparationInstructions':
+					payload.sessionMetadata = {
+						...payload.sessionMetadata,
+						[key]: value,
+					};
+					break;
+
+				case 'timezone':
+					payload.sessionTimezone = value;
+					break;
+
+				case 'sessionDescription':
+					payload.sessionDescription = value;
+					break;
+
+				case 'location':
+				case 'phoneNumber':
+				case 'videoLink':
+					// These fields are part of sessionTypeInfo
+					payload.sessionTypeInfo = {
+						...payload.sessionTypeInfo,
+						...(key === 'location' && { location: value }),
+						...(key === 'phoneNumber' && { phone: value }),
+						...(key === 'videoLink' && { meetingLink: value }),
+					};
+					break;
+
+				default:
+					// Skip fields that aren't part of the API schema
+					break;
+			}
+		});
+
+		return payload;
+	};
 
 	return (
 		<div className="editSchedulerParentContainer">
@@ -657,11 +998,7 @@ const EditScheduler = () => {
 												key={duration}
 												className="duration-item"
 												onClick={() => {
-													setInfo((prev) => ({
-														...prev,
-														duration,
-														isDurationOpen: false,
-													}));
+													handleDurationSelect(duration);
 												}}
 											>
 												{duration}
@@ -702,12 +1039,7 @@ const EditScheduler = () => {
 							<InputComponent
 								className="inputHeight"
 								value={info?.sessionDescription}
-								onChange={(e) =>
-									setInfo((prev) => ({
-										...prev,
-										sessionDescription: e.target.value,
-									}))
-								}
+								onChange={(e) => handleSessionDescriptionChange(e.target.value)}
 								placeholder={'Session description'}
 							/>
 						</div>
@@ -731,7 +1063,7 @@ const EditScheduler = () => {
 											<div
 												key={option}
 												className="sessionType-dropdown-item"
-												onClick={() => handleSessionTypeChange(option)}
+												onClick={() => handleSessionTypeOption(option)}
 											>
 												{option}
 											</div>
@@ -930,10 +1262,10 @@ const EditScheduler = () => {
 								id="additional-attendees"
 								checked={info.maxParticipants > 1}
 								onChange={(e) =>
-									setInfo((prev) => ({
-										...prev,
-										maxParticipants: e.target.checked ? 2 : 1,
-									}))
+									handleSessionMetadataChange(
+										'maxParticipants',
+										e.target.checked ? 5 : 1,
+									)
 								}
 							/>
 							<label htmlFor="additional-attendees">
@@ -946,10 +1278,10 @@ const EditScheduler = () => {
 								id="next-booking"
 								checked={info.minBookingNotice > 0}
 								onChange={(e) =>
-									setInfo((prev) => ({
-										...prev,
-										minBookingNotice: e.target.checked ? 15 : 0,
-									}))
+									handleAvailabilityRulesChange(
+										'minBookingNotice',
+										e.target.checked ? 15 : 0,
+									)
 								}
 							/>
 							<label htmlFor="next-booking">
@@ -962,10 +1294,7 @@ const EditScheduler = () => {
 								id="allow-reschedule"
 								checked={info.allowRescheduling}
 								onChange={(e) =>
-									setInfo((prev) => ({
-										...prev,
-										allowRescheduling: e.target.checked,
-									}))
+									handleBookingRulesChange('allowRescheduling', e.target.checked)
 								}
 							/>
 							<label htmlFor="allow-reschedule">Allow guests to reschedule</label>
@@ -976,10 +1305,7 @@ const EditScheduler = () => {
 								id="allow-cancel"
 								checked={info.allowCanceling}
 								onChange={(e) =>
-									setInfo((prev) => ({
-										...prev,
-										allowCanceling: e.target.checked,
-									}))
+									handleBookingRulesChange('allowCanceling', e.target.checked)
 								}
 							/>
 							<label htmlFor="allow-cancel">
@@ -993,10 +1319,10 @@ const EditScheduler = () => {
 									id="booking-limit"
 									checked={info.maxBookingsPerSession > 0}
 									onChange={(e) =>
-										setInfo((prev) => ({
-											...prev,
-											maxBookingsPerSession: e.target.checked ? 1 : 0,
-										}))
+										handleAvailabilityRulesChange(
+											'maxBookingsPerSession',
+											e.target.checked ? 1 : 0,
+										)
 									}
 								/>
 								<label htmlFor="booking-limit">Only allow</label>
@@ -1004,10 +1330,10 @@ const EditScheduler = () => {
 									type="number"
 									value={info.maxBookingsPerSession}
 									onChange={(e) =>
-										setInfo((prev) => ({
-											...prev,
-											maxBookingsPerSession: parseInt(e.target.value) || 0,
-										}))
+										handleAvailabilityRulesChange(
+											'maxBookingsPerSession',
+											parseInt(e.target.value) || 0,
+										)
 									}
 									className="number-input"
 									min="1"
@@ -1026,10 +1352,10 @@ const EditScheduler = () => {
 												key={period}
 												className="period-item"
 												onClick={() =>
-													setInfo((prev) => ({
-														...prev,
-														bookingPeriod: period.toLowerCase(),
-													}))
+													handleAvailabilityRulesChange(
+														'bookingPeriod',
+														period.toLowerCase(),
+													)
 												}
 											>
 												{period}
