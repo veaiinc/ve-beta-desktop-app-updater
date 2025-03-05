@@ -35,7 +35,6 @@ export const CitationsTooltip = memo(({ citationId, citations, placement = 'topL
 			color="transparent"
 			placement={placement}
 			rootClassName="citation-tooltip-wrapper"
-			getPopupContainer={() => document.body}
 			title={
 				<a
 					href={citationInfo?.link}

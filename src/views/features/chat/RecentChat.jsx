@@ -33,6 +33,7 @@ const RecentChat = ({
 			moreRecentChatStorage,
 			handleStreamIncomingMessage,
 			handleStreamMessageChunk,
+			globalLoadingMesssage,
 		},
 	} = useContext(Context);
 
@@ -61,6 +62,7 @@ const RecentChat = ({
 	});
 
 	const chatContentRef = useRef(null);
+	const loadingMessageRef = useRef(globalLoadingMesssage);
 	const chatMessagesRef = useRef(globalChatMessages || []);
 	const { sessionId } = useParams();
 
@@ -348,9 +350,21 @@ const RecentChat = ({
 		(event) => {
 			let { data = '' } = event || {};
 			data = JSON.parse(data);
+			if (data?.intermediate_response?.length > 0) {
+				loadingMessageRef.current = loadingMessageRef.current || '';
+				loadingMessageRef.current += data?.intermediate_response;
+				updateStateValues({ globalLoadingMesssage: loadingMessageRef.current });
+				return;
+			}
+
+			if (data?.intermediate_response_done === true) {
+				loadingMessageRef.current = null;
+				return;
+			}
 
 			if (data?.stream_end) {
 				handleStreamIncomingMessage(data);
+				updateStateValues({ globalLoadingMesssage: null });
 				setInfo((prev) => ({ ...prev, latestStreamMesage: data }));
 			}
 			const { message_chunk_id } = data;
