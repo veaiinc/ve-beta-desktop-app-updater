@@ -19,7 +19,7 @@ const WeeklySlot = ({ day, date, slots, handleUpdateSessionSlot }) => {
 							className="slotOverlay"
 							onClick={(event) => {
 								event.stopPropagation();
-								handleUpdateSessionSlot();
+								// handleUpdateSessionSlot();
 							}}
 						>
 							Edit Session

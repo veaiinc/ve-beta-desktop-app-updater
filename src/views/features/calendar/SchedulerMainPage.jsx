@@ -46,7 +46,6 @@ const SchedulerMainPage = () => {
 	//cleanup
 	useEffect(() => {
 		return () => {
-			console.log('Cleaning up SchedulerMainPage...');
 			resetSchedulerState();
 			setInfo({
 				createSessionModal: false,
@@ -57,11 +56,6 @@ const SchedulerMainPage = () => {
 			});
 		};
 	}, []);
-
-	useEffect(() => {
-		// console.log('schedulerList changed:', info?.schedulerList);
-		console.log('createdSession changed:', info?.createdSession);
-	}, [info.schedulerList, info.createdSession]);
 
 	const handleCreateSessionModal = useCallback(() => {
 		setInfo((prev) => ({

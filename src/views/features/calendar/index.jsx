@@ -1,5 +1,5 @@
-import React, { memo, useCallback, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { memo, useCallback, useMemo, useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import '../../../assets/scss/calendar/calendarModule.scss';
 import CalendarMainPage from './CalendarMainPage';
 import SchedulerMainPage from './SchedulerMainPage';
@@ -11,9 +11,19 @@ const modules = [
 
 const CalendarModule = () => {
 	const navigate = useNavigate();
+	const [searchParams, setSearchParams] = useSearchParams();
 	const [info, setInfo] = useState({
-		activeModule: 'calendar', // calendar or scheduler
+		activeModule: searchParams.get('module') || 'calendar',
 	});
+
+	useEffect(() => {
+		const moduleFromUrl = searchParams.get('module');
+		if (moduleFromUrl && moduleFromUrl !== info.activeModule) {
+			setInfo({
+				activeModule: moduleFromUrl,
+			});
+		}
+	}, [searchParams]);
 
 	const CompMapper = useMemo(
 		() => ({
@@ -29,15 +39,16 @@ const CalendarModule = () => {
 			setInfo({
 				activeModule: module,
 			});
-			// Navigate to the appropriate route based on the selected module
+			// Only include module parameter if it's not the default view
 			if (module === 'scheduler') {
-				// navigate('/scheduling');
-				navigate('/calendar');
-			} else if (module === 'calendar') {
+				setSearchParams({ module });
+				navigate(`/calendar?module=${module}`);
+			} else {
+				setSearchParams({});
 				navigate('/calendar');
 			}
 		},
-		[info?.activeModule, navigate],
+		[info?.activeModule, navigate, setSearchParams],
 	);
 
 	return (

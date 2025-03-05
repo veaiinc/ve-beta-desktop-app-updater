@@ -45,7 +45,7 @@ const SessionCards = ({ item }) => {
 					<Tooltip title="Edit" placement="bottom">
 						<EditIcon
 							onClick={() => {
-								navigate(`/scheduling/edit/${item._id}`);
+								navigate(`/scheduling/edit/${item._id}?from=scheduler`);
 							}}
 						/>
 					</Tooltip>
