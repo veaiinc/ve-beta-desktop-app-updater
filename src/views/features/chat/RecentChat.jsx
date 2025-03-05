@@ -210,11 +210,6 @@ const RecentChat = ({
 					...prev,
 					citationsModalIsOpen: false,
 				}));
-			} else {
-				setInfo((prev) => ({
-					...prev,
-					citationsModalIsOpen: true,
-				}));
 			}
 		}, 300);
 	};
