@@ -122,11 +122,12 @@ const EditScheduler = () => {
 					const day = dayMapping[slot.dayOfWeek];
 					if (day) {
 						weeklyAvailability[day] = {
-							enabled: true,
-							slots: slot.timeRanges?.map((range) => ({
-								start: range.startTime,
-								end: range.endTime,
-							})),
+							enabled: slot.timeRanges && slot.timeRanges.length > 0,
+							slots:
+								slot.timeRanges?.map((range) => ({
+									start: range.startTime,
+									end: range.endTime,
+								})) || [],
 						};
 					}
 				});
