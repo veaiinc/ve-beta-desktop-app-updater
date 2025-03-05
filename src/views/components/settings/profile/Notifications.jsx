@@ -34,8 +34,6 @@ const Notifications = () => {
 			tennantSettingsData,
 			getDefaultNotificationSettings,
 			defaultNotificationSettings,
-			updateDefaultNotificationSettings,
-			updatedNotificationSettings,
 			updateNotificationMethod, // requires tenantId, app, appType
 			updateAppNotificationPreferenceForModule,
 			updateModuleAppTypeSelectAll,
@@ -109,32 +107,6 @@ const Notifications = () => {
 			getDefaultNotificationSettings(tenantId);
 		}
 	}, [tenantId]);
-
-	const updatedNotificationSettingsApiCall = async () => {
-		const payloadData = transformDataForAPI(info?.selectedOptions, defaultNotificationSettings);
-		const response = await updateDefaultNotificationSettings(payloadData?.[0]);
-		if (response?.[0]) {
-			setInfo({ ...info, selectedOptions: {} });
-		}
-	};
-
-	const transformDataForAPI = (selectedOptions, defaultNotificationSettings) => {
-		return Object.entries(selectedOptions)?.map(([event, apps]) => {
-			const module =
-				defaultNotificationSettings?.find((item) =>
-					item?.events?.some((e) => e?.event === event),
-				)?.module || 'Unknown';
-
-			return {
-				module,
-				event,
-				apps:
-					apps && Object.keys(apps).length > 0
-						? apps
-						: { email: false, slack: false, whatsapp: false },
-			};
-		});
-	};
 
 	const handleNotificationMethodChange = async (app) => {
 		const isEnabled = !info?.[app];

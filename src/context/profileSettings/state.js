@@ -13,7 +13,6 @@ export const intialState = {
 	set2factorSettings: null,
 	userWorkSpaceList: null,
 	defaultNotificationSettings: null,
-	updatedNotificationSettings: null,
 	tenantUserAccessControls: null,
 	accessControlOpenModal: false,
 };
@@ -349,25 +348,6 @@ export const ProfileState = () => {
 		}
 	};
 
-	const updateDefaultNotificationSettings = async (payload) => {
-		try {
-			let userToken = localStorage.getItem('usertoken');
-			const response = await service.fetchPut(
-				'/notificationPreferences',
-				payload,
-				userToken,
-				'tenant-users',
-			);
-			if (response?.[0]) {
-				return [true, response[1]];
-			} else {
-				return [false, response[1]];
-			}
-		} catch (error) {
-			console.log('error==>updateDefaultNotificationSettings', error);
-		}
-	};
-
 	const updateNotificationMethod = async (tenantId, app, isEnabled) => {
 		try {
 			let usertoken = localStorage.getItem('usertoken');
@@ -478,7 +458,6 @@ export const ProfileState = () => {
 		updateUserDetailsState,
 		updateProfileState,
 		getDefaultNotificationSettings,
-		updateDefaultNotificationSettings,
 		updateNotificationMethod,
 		updateAppNotificationPreferenceForModule,
 		getTenantUserAccessControls,
