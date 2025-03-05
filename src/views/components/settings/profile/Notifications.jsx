@@ -269,12 +269,12 @@ const Notifications = () => {
 										<div className="notificationContainerOptions-item-container">
 											<div className="notificationContainerOptionsTitle">
 												{/* replace "workflow" with "document" */}
-												{action.replace(/workflow/g, 'document')}
+												{action?.replace(/workflow/g, 'document')}
 											</div>
 											<div className="notificationContainerOptions-item-checkbox">
 												{appTypes
-													.filter(({ appType }) => info?.[appType])
-													.map(({ id, appType }) => (
+													?.filter(({ appType }) => info?.[appType])
+													?.map(({ id, appType }) => (
 														<input
 															key={id}
 															type="checkbox"
