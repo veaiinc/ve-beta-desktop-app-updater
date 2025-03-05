@@ -139,26 +139,26 @@ const Notifications = () => {
 	const handleSetModuleAppTypeSelectAll = async (module, appType) => {
 		try {
 			const isEnabled = !info?.moduleAppTypeSelectAll?.[module]?.[appType];
+			const selectedOptions = info?.selectedOptions;
 			const updatedSelectedOptions = Object.fromEntries(
 				Object.entries(info?.selectedOptions?.[module] || {}).map(([action, apps]) => [
 					action,
 					{ ...apps, [appType]: isEnabled },
 				]),
 			);
+			const moduleAppTypeSelectAll = info?.moduleAppTypeSelectAll;
+			moduleAppTypeSelectAll[module] = {
+				...moduleAppTypeSelectAll[module],
+				[appType]: isEnabled,
+			};
+			selectedOptions[module] = updatedSelectedOptions;
+
 			setInfo((prev) => ({
 				...prev,
-				moduleAppTypeSelectAll: {
-					...prev?.moduleAppTypeSelectAll,
-					[module]: {
-						...prev?.moduleAppTypeSelectAll?.[module],
-						[appType]: isEnabled,
-					},
-				},
-				selectedOptions: {
-					...prev?.selectedOptions,
-					[module]: updatedSelectedOptions,
-				},
+				moduleAppTypeSelectAll,
+				selectedOptions,
 			}));
+
 			const response = await updateModuleAppTypeSelectAll(
 				module,
 				appType,
