@@ -11,7 +11,6 @@ const AIMessageLoader = () => {
 	const [highlightIndex, setHighlightIndex] = useState(-3); // Start off-screen
 	const highlightLength = 3; // Number of highlighted characters
 
-	// Update message & restart animation when globalLoadingMessage changes
 	useEffect(() => {
 		if (!globalLoadingMesssage || globalLoadingMesssage?.length === 0) {
 			setMessage(defaultMessage);
@@ -21,7 +20,6 @@ const AIMessageLoader = () => {
 		setHighlightIndex(-highlightLength); // Restart animation
 	}, [globalLoadingMesssage]);
 
-	// Animation effect
 	useEffect(() => {
 		const speed = message?.length > 15 ? 40 : 100; // Adjust speed dynamically
 
