@@ -35,7 +35,7 @@ const NoteComponentModal = ({
 
 	const [info, setInfo] = useState({
 		noteComponentFullScreen: false,
-		chatToNoteLoopOn: true,
+		chatToNoteLoopOn: false,
 	});
 
 	useEffect(() => {
