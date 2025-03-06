@@ -59,9 +59,6 @@ export const veAiModulesItemsList = [
 			{ id: 0, icon: '', name: 'Documents', route: '/docs' },
 			{ id: 1, icon: '', name: 'My Templates', route: '/my-templates' },
 			{ id: 2, icon: '', name: 'Forms', route: '/forms' },
-			// { icon: '', name: 'Client Portal', route: '' },
-			// { icon: '', name: 'Link in bio', route: '' },
-			// { icon: '', name: 'Website', route: '' },
 		],
 	},
 	{
