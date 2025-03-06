@@ -138,8 +138,8 @@ const NoteComponentModal = ({
 						<ChatBox
 							showChatLabels={false}
 							handleSendWebsocketMessage={handleSendWebsocketMessage}
-							latestStreamMesage={info?.latestStreamMesage}
-							lastQuery={info?.lastQuery}
+							latestStreamMesage={latestStreamMesage}
+							lastQuery={lastQuery}
 							toggleLatestStreamMessage={toggleLatestStreamMessage}
 						/>
 					</div>
