@@ -1,4 +1,4 @@
-import React, { memo, useState } from 'react';
+import React, { memo, useEffect, useState } from 'react';
 import '../../../../assets/scss/calendar/modal/udateSessionSlot.scss';
 import ReactModal from '../index';
 import { ReactComponent as Delete } from '../../../../assets/svg/ai_assistant/delete.svg';
@@ -8,14 +8,25 @@ import { Tooltip, DatePicker } from 'antd';
 import moment from 'moment';
 import ToggleSwitch from '../../../components/input/slider';
 
-const sessionName = ['Yoga', 'Cardio', 'Dance'];
+// const sessionName = ['Yoga', 'Cardio', 'Dance'];
 
-const UpdateSessionSlot = ({ open, closeModal }) => {
+const UpdateSessionSlot = ({ open, closeModal, schedulerList }) => {
 	const [info, setInfo] = useState({
 		repeat: false,
 		slots: [{ from: moment(), to: moment().add(1, 'hours') }],
-		sellectedSession: 'Yoga',
+		sellectedSession: null,
 	});
+
+	useEffect(() => {
+		if (schedulerList?.length > 0) {
+			setInfo((prev) => ({
+				...prev,
+				sellectedSession: schedulerList[0],
+			}));
+		}
+	}, [schedulerList]);
+
+	console.log('info.sellectedSession', info?.sellectedSession);
 
 	const addSlot = () => {
 		setInfo((prev) => ({
@@ -33,10 +44,12 @@ const UpdateSessionSlot = ({ open, closeModal }) => {
 
 	const ModifyCloseModal = () => {
 		closeModal();
-		setInfo({
+		setInfo((prev) => ({
+			...prev,
 			repeat: false,
 			slots: [{ from: moment(), to: moment().add(1, 'hours') }],
-		});
+			sellectedSession: schedulerList[0],
+		}));
 	};
 
 	return (
@@ -63,11 +76,12 @@ const UpdateSessionSlot = ({ open, closeModal }) => {
 						placement="bottom"
 						title={
 							<div className="sessionName-dropdown">
-								{sessionName?.map((option) => (
+								{schedulerList?.map((option) => (
 									<div
-										key={option}
+										key={option._id}
 										className="sessionName-dropdown-item"
-										onClick={() => {
+										onClick={(e) => {
+											console.log('e', e);
 											setInfo((prev) => ({
 												...prev,
 												sellectedSession: option,
@@ -75,7 +89,7 @@ const UpdateSessionSlot = ({ open, closeModal }) => {
 											}));
 										}}
 									>
-										{option}
+										{option.sessionName}
 									</div>
 								))}
 							</div>
@@ -86,7 +100,7 @@ const UpdateSessionSlot = ({ open, closeModal }) => {
 						overlayStyle={{ minWidth: 'fit-content', padding: '0' }}
 					>
 						<div className="selectedSession-lable">
-							{info?.sellectedSession}
+							{info?.sellectedSession?.sessionName}
 							<Down className={`${info?.sessionTypeOpen ? 'open' : ''}`} />
 						</div>
 					</Tooltip>
