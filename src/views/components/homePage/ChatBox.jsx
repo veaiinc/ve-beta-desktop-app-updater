@@ -697,11 +697,13 @@ const ChatBox = ({
 		if (info?.chatLoading) {
 			return;
 		}
-		setInfo((prev) => ({
-			...prev,
-			followUpQuery: null,
-		}));
-		updateStateValues({ activePromptForChat: info?.followUpQuery });
+		if (info?.followUpQuery?.trim()?.length > 0) {
+			updateStateValues({ activePromptForChat: info?.followUpQuery, followUpQuery: null });
+			setInfo((prev) => ({
+				...prev,
+				followUpQuery: null,
+			}));
+		}
 	};
 
 	const handleLLMModelOptionClick = (model) => {
