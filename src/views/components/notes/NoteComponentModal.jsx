@@ -39,8 +39,10 @@ const NoteComponentModal = ({
 	});
 
 	useEffect(() => {
-		smoothScrollToBottom();
-	}, [chatList]); // Scroll when chat updates
+		if (modalIsOpen) {
+			smoothScrollToBottom();
+		}
+	}, [chatList, modalIsOpen]); // Scroll when chat updates
 
 	const smoothScrollToBottom = useCallback(
 		(type) => {
