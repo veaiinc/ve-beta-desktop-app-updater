@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import Context from '../../../context/context';
 
 const AIMessageLoader = () => {
@@ -6,12 +6,54 @@ const AIMessageLoader = () => {
 		templates: { globalLoadingMesssage },
 	} = useContext(Context);
 
+	const defaultMessage = 'Thinking'; // Default text when globalLoadingMessage is null or empty
+	const [message, setMessage] = useState(globalLoadingMesssage || defaultMessage);
+	const [highlightIndex, setHighlightIndex] = useState(-3); // Start off-screen
+	const highlightLength = 3; // Number of highlighted characters
+
+	// Update message & restart animation when globalLoadingMessage changes
+	useEffect(() => {
+		if (!globalLoadingMesssage || globalLoadingMesssage?.length === 0) {
+			setMessage(defaultMessage);
+		} else {
+			setMessage(globalLoadingMesssage);
+		}
+		setHighlightIndex(-highlightLength); // Restart animation
+	}, [globalLoadingMesssage]);
+
+	// Animation effect
+	useEffect(() => {
+		const speed = message?.length > 15 ? 40 : 100; // Adjust speed dynamically
+
+		const interval = setInterval(() => {
+			setHighlightIndex((prev) => {
+				if (prev < message?.length) {
+					return prev + 1; // Move highlight forward
+				} else {
+					return -highlightLength; // Restart off-screen
+				}
+			});
+		}, speed);
+
+		return () => clearInterval(interval);
+	}, [message]); // Restart animation when message changes
+
 	return (
 		<div className="ai-message-loader">
-			<div className="animated-bar"></div>
-			<p className="message-text-content">
-				{globalLoadingMesssage?.length ? globalLoadingMesssage : 'Thinking'}
-			</p>
+			<div className="text-container">
+				{message?.split('')?.map((char, index) => (
+					<span
+						key={index}
+						className={`char ${
+							index >= highlightIndex && index < highlightIndex + highlightLength
+								? 'highlight-char'
+								: ''
+						}`}
+					>
+						{char}
+					</span>
+				))}
+			</div>
 		</div>
 	);
 };
