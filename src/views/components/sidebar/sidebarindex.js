@@ -32,7 +32,6 @@ import Jarvis from '../../../assets/images/Jarvis.jpeg';
 import Ari from '../../../assets/images/Ari.jpeg';
 import DaVinciJobsSvg from '../../../assets/svg/sidebar/DaVinciJobsSvg.jsx';
 import DaVinciSetupSvg from '../../../assets/svg/sidebar/DaVinciSetupSvg.jsx';
-// import { subDays } from 'react-datepicker/dist/date_utils.js';
 
 export const veAiModulesItemsList = [
 	{
@@ -61,8 +60,17 @@ export const veAiModulesItemsList = [
 			{ id: 2, icon: '', name: 'Forms', route: '/forms' },
 		],
 	},
+	{ id: 3, name: 'Tasks', moduleRoute: '/tasks', route: '/tasks', icon: '' },
+	{ id: 4, name: 'Contacts', moduleRoute: '/contacts', route: '/contacts', icon: '' },
 	{
-		id: 3,
+		id: 5,
+		name: 'Calendar',
+		moduleRoute: '/calendar',
+		route: '/calendar',
+		icon: '',
+	},
+	{
+		id: 6,
 		name: 'Storage',
 		moduleRoute: '',
 		route: '',
@@ -84,42 +92,7 @@ export const veAiModulesItemsList = [
 			},
 		],
 	},
-	{ id: 4, name: 'Tasks', moduleRoute: '/tasks', route: '/tasks', icon: '' },
-	{ id: 5, name: 'Contacts', moduleRoute: '/contacts', route: '/contacts', icon: '' },
-	{
-		id: 6,
-		name: 'Calendar',
-		moduleRoute: '/calendar',
-		route: '/calendar',
-		icon: '',
-		// subModules: [
-		// 	{ icon: AddCalenderSvg, route: '', name: 'Scheduler' },
-		// 	{ icon: TranscriptSvg, route: '', name: 'Transcript' },
-		// 	{
-		// 		icon: SettingsSvg,
-		// 		route: '/settings/my-profile',
-		// 		fill: 'white',
-		// 		name: 'Settings',
-		// 	},
-		// ],
-	},
-	// {
-	// 	name: 'Playbook',
-	// 	moduleRoute: '/playbook',
-	// 	route: '/playbook',
-	// 	icon: PlaybookSvg,
-	// },
-	// { name: 'Teams', moduleRoute: '/teams', route: '/teams' },
-	// {
-	// 	id: 7,
-	// 	name: 'Notes',
-	// 	moduleRoute: '/notes',
-	// 	route: '/notes',
-	// 	icon: '',
-	// },
 ];
-
-//
 
 export const veAiModules = [
 	{ icon: OrchestratorSvg, name: 'Chats', route: null },
