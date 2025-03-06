@@ -1648,9 +1648,6 @@ export const TemplatesState = (props) => {
 					message: 'loading....',
 					content: (
 						<div className="aiMessageWrapper">
-							{/* <Skeleton height={20} width={'100%'} borderRadius={'100px'} />
-							<Skeleton height={20} width={'75%'} borderRadius={'100px'} />
-							<Skeleton height={20} width={'50%'} borderRadius={'100px'} /> */}
 							<AIMessageLoader />
 						</div>
 					),
@@ -1667,9 +1664,6 @@ export const TemplatesState = (props) => {
 					message: 'loading....',
 					content: (
 						<div className="aiMessageWrapper">
-							{/* <Skeleton height={20} width={'100%'} borderRadius={'100px'} />
-							<Skeleton height={20} width={'75%'} borderRadius={'100px'} />
-							<Skeleton height={20} width={'50%'} borderRadius={'100px'} /> */}
 							<AIMessageLoader />
 						</div>
 					),

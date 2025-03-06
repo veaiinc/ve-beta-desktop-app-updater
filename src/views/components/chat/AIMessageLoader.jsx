@@ -9,7 +9,9 @@ const AIMessageLoader = () => {
 	return (
 		<div className="ai-message-loader">
 			<div className="animated-bar"></div>
-			{globalLoadingMesssage?.length ? globalLoadingMesssage : 'Thinking'}
+			<p className="message-text-content">
+				{globalLoadingMesssage?.length ? globalLoadingMesssage : 'Thinking'}
+			</p>
 		</div>
 	);
 };
