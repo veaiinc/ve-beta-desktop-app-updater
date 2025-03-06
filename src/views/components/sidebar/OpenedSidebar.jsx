@@ -16,7 +16,7 @@ import { ReactComponent as CrossSvg } from '../../../assets/svg/sidebar/CrossSvg
 import { ReactComponent as RightArrowSvg } from '../../../assets/svg/sidebar/RightArrow.svg';
 import WorkspaceListComponent from './Workspace';
 import useLogout from '../../hooks/useLogout';
-import { Tooltip } from 'antd';
+import { message, Tooltip } from 'antd';
 import Notifications from './notifications/Notifications';
 import Chats from './chats/Chats';
 
@@ -52,6 +52,10 @@ const OpenedSideBarHoverStateIcons = ({
 	setShowNotificationsDrawer,
 	setShowChatsDrawer,
 }) => {
+	let {
+		aiSetup: { isVoiceIntegrationActive },
+	} = useContext(Context);
+
 	const location = useLocation();
 	const [isHover, setisHover] = useState(false);
 
@@ -106,6 +110,11 @@ const OpenedSideBarHoverStateIcons = ({
 				onMouseEnter={onMoutseEnter}
 				onMouseLeave={onMoutseLeave}
 				onClick={() => {
+					if (isVoiceIntegrationActive) {
+						return message.error(
+							'Voice integration is active, please disable it to use this feature',
+						);
+					}
 					redirectToFunction(subModules, route, name);
 				}}
 				style={{

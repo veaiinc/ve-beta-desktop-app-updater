@@ -73,30 +73,19 @@
 					margin: 0 auto 40px auto;
 
 					.aiMessageWrapper {
-						.ai-message-loader {
+						.text-container {
 							color: var(--secondary-font, #787e87);
 							font-family: Inter;
 							font-size: 15px;
-							font-style: normal;
 							font-weight: 400;
 							line-height: 24px;
-							position: relative;
-							z-index: 1;
+							.char {
+								transition: color 0.2s ease-in-out;
+							}
 
-							// .animated-bar {
-							// 	border: 1px solid white;
-							// 	width: 40px;
-							// 	height: 100%;
-							// 	position: absolute;
-							// 	top: 0;
-							// 	left: 0;
-							// 	background-color: #f2f2f3;
-							// 	filter: blur(px);
-							// 	animation: pulseWidth 5000ms ease-in-out infinite;
-							// 	background-clip: text;
-							// 	-webkit-background-clip: text;
-							// 	-webkit-text-fill-color: transparent;
-							// }
+							.highlight-char {
+								color: #f2f2f3;
+							}
 						}
 					}
 
@@ -117,7 +106,7 @@
 							flex-direction: column;
 							gap: 6px;
 							max-width: 100%;
-							color: white;
+							color: #f2f2f3;
 							border-radius: 100px;
 							font-size: 15px;
 							line-height: 22px;
@@ -127,7 +116,7 @@
 							transition: all 0.3s ease;
 
 							.content {
-								transition: opacity 0.3s ease-in-out;
+								transition: opacity 0.1s ease-in-out;
 							}
 						}
 					}
