@@ -92,7 +92,6 @@ const ChatBox = ({
 	latestStreamMesage,
 	lastQuery,
 	toggleLatestStreamMessage,
-	chatToNoteLoopOn = false,
 }) => {
 	const {
 		templates: {
@@ -465,15 +464,7 @@ const ChatBox = ({
 				}
 			}
 		},
-		[
-			aiChatLoading,
-			onSend,
-			customChatActions,
-			chatToNoteLoopOn,
-			info,
-			chatInfo,
-			activeWorkflowSlugForSmartFile,
-		],
+		[aiChatLoading, onSend, customChatActions, info, chatInfo, activeWorkflowSlugForSmartFile],
 	);
 
 	const handleWorkflowSlugSelection = useCallback(
