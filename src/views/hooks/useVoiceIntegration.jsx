@@ -1,6 +1,23 @@
 import React, { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { Room, RoomEvent, createLocalTracks } from 'livekit-client';
 import Context from '../../context/context';
+import { message } from 'antd';
+
+const getPermissions = () => {
+	return navigator.mediaDevices
+		.getUserMedia({ audio: true })
+		.then((stream) => {
+			// Successfully got microphone access
+			console.log('Microphone access granted');
+			stream.getTracks().forEach((track) => track.stop()); // Clean up the stream
+			return true;
+		})
+		.catch((error) => {
+			console.error('Error accessing microphone: ', error);
+			return false;
+		});
+};
+
 export const useVoiceIntegration = () => {
 	let {
 		aiSetup: { getTokenForVoice, updateAiSetupState },
@@ -158,6 +175,12 @@ export const useVoiceIntegration = () => {
 	const connectToRoom = useCallback(async () => {
 		if (isConnected) {
 			console.log('Already connected to room');
+			return;
+		}
+		// Get permissions first
+		const hasPermission = await getPermissions();
+		if (!hasPermission) {
+			message.error('Please Provide Microphone permission ');
 			return;
 		}
 
