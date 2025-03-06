@@ -5,15 +5,15 @@
 	align-items: flex-start;
 	gap: 32px;
 	border-radius: 32px;
-	background: #1c1d1f;
+	background: var(--card);
 	width: 520px;
 	.expiredSubscriptionModalHeader {
 		display: flex;
 		align-items: flex-start;
 		align-self: stretch;
 		.expiredModalHeaderText {
-			color: var(--Dark-Theme-Primary-Font-Color, #e8e8e8);
-			font-family: var(--secondary-font-family);
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
 			font-size: 32px;
 			font-style: normal;
 			font-weight: 500;
@@ -25,7 +25,7 @@
 		}
 	}
 	.expiredSubText {
-		color: #939393;
+		color: var(--secondary-font);
 		font-family: var(--primary-font-family);
 		font-size: 14px;
 		font-style: normal;
@@ -47,8 +47,8 @@
 			flex: 1 0 0;
 			align-self: stretch;
 			border-radius: 59px;
-			background: var(--L-Primary-Color, #b89cf9);
-			color: var(--L-Primary-text, #0a1217);
+			background: var(--primary-button);
+			color: var(--primary-button-font);
 			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
@@ -65,15 +65,14 @@
 			flex: 1 0 0;
 			align-self: stretch;
 			border-radius: 50px;
-			border: 1px solid var(--dark-theme-text-field-stroke-pop-up, #2c2d2e);
+			border: 1px solid var(--stroke);
 			cursor: pointer;
-			color: var(--Dark-Theme-Primary-Font-Color, #e8e8e8);
-			/* Body/Body Text - 14 Px */
+			color: var(--primary-font);
 			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 500;
-			line-height: 20px; /* 142.857% */
+			line-height: normal;
 		}
 	}
 }

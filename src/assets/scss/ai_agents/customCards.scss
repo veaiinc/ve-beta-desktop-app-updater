@@ -301,15 +301,14 @@
 				line-height: normal;
 				flex: 1;
 			}
-
-			.aiAgentsActivityCardTime {
-				color: var(--secondary-font);
-				font-family: var(--primary-font-family);
-				font-size: 12px;
-				font-style: normal;
-				font-weight: 500;
-				line-height: normal;
-			}
+		}
+		.aiAgentsDraftCardTime {
+			color: var(--secondary-font);
+			font-family: var(--primary-font-family);
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
 		}
 	}
 	.drafLoaderContainer {

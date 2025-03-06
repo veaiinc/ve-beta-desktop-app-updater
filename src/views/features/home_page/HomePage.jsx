@@ -28,7 +28,7 @@ const navbarOptions = {
 		{ id: 2, title: 'Tasks', value: 'Tasks' },
 		{ id: 3, title: 'Workflows', value: 'Workflows' },
 		// { id: 4, title: 'Recent Chats', value: 'Recent Chats' },
-		{ id: 5, title: 'Drafts & Activity', value: 'Drafts & Activity' },
+		{ id: 5, title: 'Activity', value: 'Drafts & Activity' },
 	],
 };
 

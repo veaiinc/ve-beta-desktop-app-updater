@@ -8,7 +8,7 @@ import moment from 'moment';
 import HeaderInfo from './HeaderInfo';
 import RequiredActionsLoader from '../../components/sales/RequiredActionsLoader';
 import FilterCheckBox from '../../components/sales/FilterCheckBox';
-import CreateCards, { Activity, Drafts } from '../../components/ai_agents/CreateCards';
+import CreateCards, { Drafts } from '../../components/ai_agents/CreateCards';
 
 const tabItems = [
 	{ id: 'all', label: 'All', checkBoxBorder: null },
@@ -202,7 +202,7 @@ const SalesInfo = () => {
 				</div>
 				<div className="salesExtraContentCards">
 					<CreateCards />
-					<Activity />
+					{/* <Activity /> */}
 					<Drafts />
 				</div>
 			</div>

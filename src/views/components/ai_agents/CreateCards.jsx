@@ -83,136 +83,136 @@ const CreateCards = () => {
 
 export default memo(CreateCards);
 
-const Activity = memo(() => {
-	let {
-		templates: { getActivityLogs, activityLogs, moreActivityLogs },
-	} = useContext(Context);
+// const Activity = memo(() => {
+// 	let {
+// 		templates: { getActivityLogs, activityLogs, moreActivityLogs },
+// 	} = useContext(Context);
 
-	const [info, setInfo] = useState({
-		loading: true,
-		activityLogsData: [],
-		currentPage: 1,
-		hasNextPage: false,
-	});
+// 	const [info, setInfo] = useState({
+// 		loading: true,
+// 		activityLogsData: [],
+// 		currentPage: 1,
+// 		hasNextPage: false,
+// 	});
 
-	useEffect(() => {
-		getActivityLogsData(1);
-	}, []);
+// 	useEffect(() => {
+// 		getActivityLogsData(1);
+// 	}, []);
 
-	useEffect(() => {
-		if (activityLogs) {
-			handleActivityLogsData(activityLogs);
-		}
-	}, [activityLogs]);
+// 	useEffect(() => {
+// 		if (activityLogs) {
+// 			handleActivityLogsData(activityLogs);
+// 		}
+// 	}, [activityLogs]);
 
-	useEffect(() => {
-		if (moreActivityLogs) {
-			handleActivityLogsData(moreActivityLogs, true);
-		}
-	}, [moreActivityLogs]);
+// 	useEffect(() => {
+// 		if (moreActivityLogs) {
+// 			handleActivityLogsData(moreActivityLogs, true);
+// 		}
+// 	}, [moreActivityLogs]);
 
-	const handleActivityLogsData = useCallback(
-		(incomingData, fetchMore = false) => {
-			const { currentPage, data, hasNextPage } = incomingData;
-			let activityLogsData = data;
-			if (fetchMore) {
-				activityLogsData = [...info?.activityLogsData, ...data];
-			}
+// 	const handleActivityLogsData = useCallback(
+// 		(incomingData, fetchMore = false) => {
+// 			const { currentPage, data, hasNextPage } = incomingData;
+// 			let activityLogsData = data;
+// 			if (fetchMore) {
+// 				activityLogsData = [...info?.activityLogsData, ...data];
+// 			}
 
-			setInfo((prev) => ({
-				...prev,
-				loading: false,
-				activityLogsData: activityLogsData,
-				hasNextPage,
-				currentPage,
-			}));
-		},
-		[info],
-	);
+// 			setInfo((prev) => ({
+// 				...prev,
+// 				loading: false,
+// 				activityLogsData: activityLogsData,
+// 				hasNextPage,
+// 				currentPage,
+// 			}));
+// 		},
+// 		[info],
+// 	);
 
-	const getActivityLogsData = useCallback(
-		(page, fetchMore = false) => {
-			const payload = {
-				filters: {
-					limit: 30,
-					page: page,
-				},
-			};
+// 	const getActivityLogsData = useCallback(
+// 		(page, fetchMore = false) => {
+// 			const payload = {
+// 				filters: {
+// 					limit: 30,
+// 					page: page,
+// 				},
+// 			};
 
-			getActivityLogs(payload, fetchMore);
-		},
-		[info?.hasNextPage, info?.loading],
-	);
+// 			getActivityLogs(payload, fetchMore);
+// 		},
+// 		[info?.hasNextPage, info?.loading],
+// 	);
 
-	const fetchMoreActivityLogs = useCallback(() => {
-		if (info?.hasNextPage) {
-			getActivityLogsData(info?.currentPage + 1, true);
-		}
-	}, [info?.currentPage, info?.hasNextPage]);
+// 	const fetchMoreActivityLogs = useCallback(() => {
+// 		if (info?.hasNextPage) {
+// 			getActivityLogsData(info?.currentPage + 1, true);
+// 		}
+// 	}, [info?.currentPage, info?.hasNextPage]);
 
-	const formatTimestamp = (timestamp) => {
-		return moment.unix(timestamp).fromNow();
-	};
+// 	const formatTimestamp = (timestamp) => {
+// 		return moment.unix(timestamp).fromNow();
+// 	};
 
-	return (
-		<>
-			{info?.activityLogsData?.length > 0 && (
-				<div className="aiAgentsAcitivityContainer">
-					<div className="createCardsHeader">
-						<span className="createCardsHeaderTexct">Activity</span>
-					</div>
+// 	return (
+// 		<>
+// 			{info?.activityLogsData?.length > 0 && (
+// 				<div className="aiAgentsAcitivityContainer">
+// 					<div className="createCardsHeader">
+// 						<span className="createCardsHeaderTexct">Activity</span>
+// 					</div>
 
-					{info?.loading ? (
-						<div className="drafLoaderContainer">
-							{[{}, {}, {}, {}]?.map((ele, index) => (
-								<Skeleton
-									key={index}
-									height={83}
-									width={300}
-									style={{ borderRadius: '16px' }}
-								/>
-							))}
-						</div>
-					) : (
-						<div style={{ width: '100%' }}>
-							<InfiniteScroll
-								dataLength={info?.activityLogsData?.length || 0}
-								next={fetchMoreActivityLogs}
-								hasMore={info?.hasNextPage}
-								loader={<FetchMoreLoaderComp />}
-								style={{
-									display: 'flex',
-									flexDirection: 'column',
-									alignItems: 'flex-start',
-									gap: '8px',
-									flex: '1 0 0',
-									alignSelf: 'stretch',
-								}}
-								height={'348px'}
-							>
-								{info?.activityLogsData?.map((ele, index) => (
-									<div className="aiAgentsActivityCards" key={index}>
-										<span
-											className="aiAgentsActivityCardsHeaderText"
-											style={{ textTransform: 'capitalize' }}
-										>
-											{ele?.summary || ''}
-										</span>
+// 					{info?.loading ? (
+// 						<div className="drafLoaderContainer">
+// 							{[{}, {}, {}, {}]?.map((ele, index) => (
+// 								<Skeleton
+// 									key={index}
+// 									height={83}
+// 									width={300}
+// 									style={{ borderRadius: '16px' }}
+// 								/>
+// 							))}
+// 						</div>
+// 					) : (
+// 						<div style={{ width: '100%' }}>
+// 							<InfiniteScroll
+// 								dataLength={info?.activityLogsData?.length || 0}
+// 								next={fetchMoreActivityLogs}
+// 								hasMore={info?.hasNextPage}
+// 								loader={<FetchMoreLoaderComp />}
+// 								style={{
+// 									display: 'flex',
+// 									flexDirection: 'column',
+// 									alignItems: 'flex-start',
+// 									gap: '8px',
+// 									flex: '1 0 0',
+// 									alignSelf: 'stretch',
+// 								}}
+// 								height={'348px'}
+// 							>
+// 								{info?.activityLogsData?.map((ele, index) => (
+// 									<div className="aiAgentsActivityCards" key={index}>
+// 										<span
+// 											className="aiAgentsActivityCardsHeaderText"
+// 											style={{ textTransform: 'capitalize' }}
+// 										>
+// 											{ele?.summary || ''}
+// 										</span>
 
-										<div className="aiAgentsActivityCardsSubText">text</div>
-										<span className="aiAgentsActivityCardTime">
-											{ele?.timestamp ? formatTimestamp(ele?.timestamp) : ''}
-										</span>
-									</div>
-								))}
-							</InfiniteScroll>
-						</div>
-					)}
-				</div>
-			)}
-		</>
-	);
-});
+// 										<div className="aiAgentsActivityCardsSubText">text</div>
+// 										<span className="aiAgentsActivityCardTime">
+// 											{ele?.timestamp ? formatTimestamp(ele?.timestamp) : ''}
+// 										</span>
+// 									</div>
+// 								))}
+// 							</InfiniteScroll>
+// 						</div>
+// 					)}
+// 				</div>
+// 			)}
+// 		</>
+// 	);
+// });
 
 const Drafts = memo(() => {
 	let {
@@ -344,7 +344,6 @@ const Drafts = memo(() => {
 										}}
 										onClick={() => onDraftClick(ele?._id)}
 									>
-										<span className="aiAgentsDraftsCardIcon"></span>
 										<span
 											className="aiAgentsDraftsCardText"
 											style={{
@@ -358,7 +357,7 @@ const Drafts = memo(() => {
 										>
 											{ele?.title}
 										</span>
-										<span className="aiAgentsDraftsCardTime">
+										<span className="aiAgentsDraftCardTime">
 											{ele?.createdAt ? formatTimestamp(ele?.createdAt) : ''}
 										</span>
 									</div>
@@ -372,27 +371,27 @@ const Drafts = memo(() => {
 	);
 });
 
-const Notes = memo(() => {
-	return (
-		<div className="aiAgentsNotesContainer">
-			<div className="createCardsHeader">
-				<span className="createCardsHeaderTexct">Notes</span>
-				<ThreeDotsVerticalIcon />
-			</div>
+// const Notes = memo(() => {
+// 	return (
+// 		<div className="aiAgentsNotesContainer">
+// 			<div className="createCardsHeader">
+// 				<span className="createCardsHeaderTexct">Notes</span>
+// 				<ThreeDotsVerticalIcon />
+// 			</div>
 
-			<div className="aiAgentsNotesCard">
-				<span
-					className="aiAgentsNotesCardHeaderText"
-					style={{ textTransform: 'capitalize' }}
-				>
-					jgkrke
-				</span>
+// 			<div className="aiAgentsNotesCard">
+// 				<span
+// 					className="aiAgentsNotesCardHeaderText"
+// 					style={{ textTransform: 'capitalize' }}
+// 				>
+// 					jgkrke
+// 				</span>
 
-				<div className="aiAgentsNotesCardSubText">text</div>
-				<span className="aiAgentsNotesCardTime">a day ago</span>
-			</div>
-		</div>
-	);
-});
+// 				<div className="aiAgentsNotesCardSubText">text</div>
+// 				<span className="aiAgentsNotesCardTime">a day ago</span>
+// 			</div>
+// 		</div>
+// 	);
+// });
 
-export { Activity, Drafts, Notes };
+export { Drafts };

@@ -8,10 +8,10 @@
 	.childrenContainer {
 		flex: 1;
 		// padding: 1.5rem 6rem 3rem 6rem;
-		background: var(--background-color, #0c0c0d);
+		background: inherit;
 		margin-top: 5rem;
 		width: 100%;
-		max-width: 1200px;
+		// max-width: 1200px;
 		margin: auto;
 	}
 }

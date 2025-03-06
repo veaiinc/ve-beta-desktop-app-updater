@@ -48,9 +48,9 @@ const SettingsWrapper = (props) => {
 		<div className="accountSettingsMainWrapper">
 			<div className="accountSettingsWrapper">
 				<div className={`accountSettingsMapper`}>{mapper?.[type]}</div>
-				<div className="accountSettingsSidebar">
+				{/* <div className="accountSettingsSidebar">
 					<SettingsPageSideBar {...props} type={type} setType1={setType} />
-				</div>
+				</div> */}
 			</div>
 		</div>
 	);

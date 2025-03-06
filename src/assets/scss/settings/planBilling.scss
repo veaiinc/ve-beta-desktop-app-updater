@@ -835,7 +835,7 @@
 	flex-shrink: 0;
 	width: 100%;
 	border-radius: 32px;
-	background: #171819;
+	background: var(--card);
 	.addOnsHeader {
 		display: flex;
 		height: 45px;
@@ -844,8 +844,8 @@
 		flex-shrink: 0;
 		align-self: stretch;
 		.title {
-			color: var(--ve-ai-dark-theme-primary-font-color, #f2f2f3);
-			font-family: Inter;
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
 			font-size: 20px;
 			font-style: normal;
 			font-weight: 500;
@@ -856,8 +856,8 @@
 			align-items: center;
 			gap: 24px;
 			.total {
-				color: var(--ve-ai-dark-theme-primary-font-color, #f2f2f3);
-				font-family: Inter;
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
 				font-size: 16px;
 				font-style: normal;
 				font-weight: 500;
@@ -870,9 +870,9 @@
 				align-items: center;
 				gap: 6px;
 				border-radius: 59px;
-				background: #f2f2f3;
-				color: #000;
-				font-family: Inter;
+				background: var(--primary-button);
+				color: var(--primary-button-font);
+				font-family: var(--primary-font-family);
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 500;
@@ -908,12 +908,12 @@
 				align-self: stretch;
 				.addOnPlanName {
 					text-transform: capitalize;
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 500;
 					line-height: normal;
-					color: #f2f2f3;
+					color: var(--primary-font);
 				}
 
 				.priceContainer {
@@ -923,8 +923,8 @@
 
 					.currencySymbol,
 					.priceValue {
-						color: #f2f2f3;
-						font-family: Inter;
+						color: var(--primary-font);
+						font-family: var(--primary-font-family);
 						font-size: 18px;
 						font-style: normal;
 						font-weight: 600;
@@ -932,8 +932,8 @@
 					}
 
 					.priceDuration {
-						color: #7a7e85;
-						font-family: Inter;
+						color: var(--secondary-font);
+						font-family: var(--primary-font-family);
 						font-size: 12px;
 						font-style: normal;
 						font-weight: 500;
@@ -941,15 +941,15 @@
 					}
 				}
 				.addOnsStorageLimit {
-					color: #f2f2f3;
-					font-family: Inter;
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
 					font-size: 18px;
 					font-style: normal;
 					font-weight: 600;
 					line-height: normal;
 					span {
-						color: #7a7e85;
-						font-family: Inter;
+						color: var(--secondary-font);
+						font-family: var(--primary-font-family);
 						font-size: 12px;
 						font-style: normal;
 						font-weight: 500;
@@ -965,10 +965,10 @@
 				gap: 16px;
 				align-self: stretch;
 				border-radius: 100px;
-				background: #2c2d2e;
-				border: 1px solid #2c2d2e;
-				color: #f2f2f3;
-				font-family: Inter;
+				background: var(--card);
+				border: 1px solid var(--stroke);
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 500;

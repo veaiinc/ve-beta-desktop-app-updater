@@ -5,11 +5,9 @@ import { ReactComponent as ArrowUp } from '../../../assets/svg/ai_agents/arrow-u
 import { ReactComponent as ChevronSvg } from '../../../assets/svg/tasks/chevronRightThin.svg';
 import { ReactComponent as MicroscopeLightSvg } from '../../../assets/svg/ai_agents/microscope-light.svg';
 import { ReactComponent as MicroscopeDarkSvg } from '../../../assets/svg/ai_agents/microscope-dark.svg';
-import { ReactComponent as WebLightSvg } from '../../../assets/svg/ai_agents/web-light.svg';
 import { ReactComponent as WebDarkSvg } from '../../../assets/svg/ai_agents/web-dark.svg';
 import { ReactComponent as CloseSvg } from '../../../assets/svg/calendar/close.svg';
 import { ReactComponent as BuildingDarkSvg } from '../../../assets/svg/ai_agents/building-dark.svg';
-import { ReactComponent as BuildingLightSvg } from '../../../assets/svg/ai_agents/building-light.svg';
 import { ReactComponent as TextSvg } from '../../../assets/svg/ai_agents/text.svg';
 import { ReactComponent as DocxSvg } from '../../../assets/svg/ai_agents/docx.svg';
 import { ReactComponent as JsonSvg } from '../../../assets/svg/ai_agents/json.svg';
@@ -842,7 +840,7 @@ const ChatBox = ({
 																background: `${
 																	chatInfo?.webSearch
 																		? 'var(--accent-color)'
-																		: 'var(--card)'
+																		: 'var(--card-over-card)'
 																}`,
 																opacity: `${
 																	chatInfo?.deepResearch
@@ -852,11 +850,7 @@ const ChatBox = ({
 															}}
 														>
 															<div className="icon">
-																{chatInfo?.webSearch ? (
-																	<WebDarkSvg />
-																) : (
-																	<WebLightSvg />
-																)}
+																<WebDarkSvg />
 															</div>
 														</div>
 													</Tooltip>
@@ -878,11 +872,7 @@ const ChatBox = ({
 															}}
 														>
 															<div className="icon">
-																{chatInfo?.workspaceSearch ? (
-																	<BuildingDarkSvg />
-																) : (
-																	<BuildingLightSvg />
-																)}
+																<BuildingDarkSvg />
 															</div>
 														</div>
 													</Tooltip>
@@ -900,11 +890,7 @@ const ChatBox = ({
 															}}
 														>
 															<div className="icon">
-																{chatInfo?.deepResearch ? (
-																	<MicroscopeDarkSvg />
-																) : (
-																	<MicroscopeLightSvg />
-																)}
+																<MicroscopeDarkSvg />
 															</div>
 														</div>
 													</Tooltip>

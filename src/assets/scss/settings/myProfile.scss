@@ -759,8 +759,8 @@
 			flex-direction: column;
 			gap: 8px;
 			.notificationTitle {
-				color: var(--Primary-Font-Color, #f2f2f3);
-				font-family: Inter;
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
 				font-size: 20px;
 				font-style: normal;
 				font-weight: 500;
@@ -768,8 +768,8 @@
 				align-self: stretch;
 			}
 			.notificationTitleDescription {
-				color: #7c7c83;
-				font-family: Inter;
+				color: var(--secondary-font);
+				font-family: var(--primary-font-family);
 				font-size: 13px;
 				font-style: normal;
 				font-weight: 400;
@@ -797,8 +797,8 @@
 						flex-direction: column;
 						gap: 8px;
 						.notifiactionSwitchesContainerContent-title {
-							color: var(--Primary-Font-Color, #f2f2f3);
-							font-family: Inter;
+							color: var(--primary-font);
+							font-family: var(--primary-font-family);
 							font-size: 16px;
 							font-style: normal;
 							font-weight: 500;
@@ -806,8 +806,8 @@
 							align-self: stretch;
 						}
 						.notifiactionSwitchesContainerContent-description {
-							color: #7c7c83;
-							font-family: Inter;
+							color: var(--secondary-font);
+							font-family: var(--primary-font-family);
 							font-size: 13px;
 							font-style: normal;
 							font-weight: 400;
@@ -843,8 +843,8 @@
 			gap: 40px;
 			align-self: stretch;
 			.notificationContainerContent-items-item {
-				color: #7c7c83;
-				font-family: Inter;
+				color: var(--secondary-font);
+				font-family: var(--primary-font-family);
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 500;
@@ -865,8 +865,8 @@
 				gap: 40px;
 				align-self: stretch;
 				.notificationContainerOptions-item {
-					color: var(--Primary-Font-Color, #f2f2f3);
-					font-family: Inter;
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
 					font-size: 16px;
 					font-style: normal;
 					font-weight: 500;
@@ -888,8 +888,8 @@
 				gap: 12px;
 				align-self: stretch;
 				.notificationContainerOptionsTitle {
-					color: #7c7c83;
-					font-family: Inter;
+					color: var(--secondary-font);
+					font-family: var(--primary-font-family);
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 500;
@@ -900,7 +900,7 @@
 			}
 			.divider {
 				width: 100%;
-				border-bottom: 0.5px solid #7c7c83;
+				border-bottom: 0.5px solid var(--stroke);
 			}
 		}
 	}
