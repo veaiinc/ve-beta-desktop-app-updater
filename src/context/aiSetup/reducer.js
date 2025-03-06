@@ -106,6 +106,10 @@ const actionHandlers = {
 		...state,
 		[action?.selectedVariable]: action?.payload,
 	}),
+	UPDATE_AI_SETUP_STATE: (state, action) => ({
+		...state,
+		...action?.payload,
+	}),
 
 	RESET_STATE: () => initialState,
 };

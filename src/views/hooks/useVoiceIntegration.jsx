@@ -3,7 +3,7 @@ import { Room, RoomEvent, createLocalTracks } from 'livekit-client';
 import Context from '../../context/context';
 export const useVoiceIntegration = () => {
 	let {
-		aiSetup: { getTokenForVoice },
+		aiSetup: { getTokenForVoice, updateAiSetupState },
 	} = useContext(Context);
 	const roomRef = useRef(
 		new Room({
@@ -261,7 +261,10 @@ export const useVoiceIntegration = () => {
 			});
 
 			// ======= Update State After Successful Connection =======
+
 			setIsConnected(true);
+			//also update the state of the room in the context
+			updateAiSetupState({ isVoiceIntegrationActive: true });
 			setReconnectAttempt(0);
 			console.log('Successfully connected to room:', roomName);
 		} catch (error) {
@@ -310,6 +313,8 @@ export const useVoiceIntegration = () => {
 			await roomRef.current.disconnect();
 
 			setIsConnected(false);
+			//also update the state of the room in the context
+			updateAiSetupState({ isVoiceIntegrationActive: null });
 			setReconnectAttempt(0);
 			console.log('Disconnected from room');
 		} catch (error) {
