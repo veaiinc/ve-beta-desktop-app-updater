@@ -48,6 +48,7 @@ const CalendarModule = () => {
 				navigate('/calendar');
 			}
 		},
+
 		[info?.activeModule, navigate, setSearchParams],
 	);
 

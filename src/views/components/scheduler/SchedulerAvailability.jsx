@@ -4,7 +4,7 @@ import '../../../assets/scss/scheduler/schedulerAvailability.scss';
 import { ReactComponent as Right } from '../../../assets/svg/activity/right.svg';
 import { ReactComponent as Left } from '../../../assets/svg/activity/left.svg';
 
-const WeeklySlot = ({ day, date, slots, handleUpdateSessionSlot }) => {
+const WeeklySlot = ({ day, date, slots, toggleUpdateSlotModal }) => {
 	return (
 		<div className="daySlotContainer">
 			<div className="dayHeader">
@@ -19,7 +19,7 @@ const WeeklySlot = ({ day, date, slots, handleUpdateSessionSlot }) => {
 							className="slotOverlay"
 							onClick={(event) => {
 								event.stopPropagation();
-								// handleUpdateSessionSlot();
+								// toggleUpdateSlotModal();
 							}}
 						>
 							Edit Session
@@ -47,7 +47,7 @@ const WeeklySlot = ({ day, date, slots, handleUpdateSessionSlot }) => {
 	);
 };
 
-const SchedulerAvailability = ({ updateSessionSlot, handleUpdateSessionSlot, schedulerList }) => {
+const SchedulerAvailability = ({ updateSlotModal, toggleUpdateSlotModal, schedulerList }) => {
 	const [info, setInfo] = useState({
 		currentDate: moment(),
 	});
@@ -180,7 +180,7 @@ const SchedulerAvailability = ({ updateSessionSlot, handleUpdateSessionSlot, sch
 					<WeeklySlot
 						key={index}
 						{...dayData}
-						handleUpdateSessionSlot={handleUpdateSessionSlot}
+						toggleUpdateSlotModal={toggleUpdateSlotModal}
 					/>
 				))}
 			</div>

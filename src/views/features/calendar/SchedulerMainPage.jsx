@@ -13,7 +13,7 @@ const SchedulerMainPage = () => {
 
 	const [info, setInfo] = useState({
 		createSessionModal: false,
-		updateSessionSlot: false,
+		updateSlotModal: false,
 		sessionsLoading: true,
 		schedulerList: null,
 		createdSession: null,
@@ -64,12 +64,13 @@ const SchedulerMainPage = () => {
 		}));
 	}, []);
 
-	const handleUpdateSessionSlot = useCallback(() => {
+	const toggleUpdateSlotModal = useCallback(() => {
 		setInfo((prev) => ({
 			...prev,
-			updateSessionSlot: !prev.updateSessionSlot,
+			updateSlotModal: !prev.updateSlotModal,
 		}));
 	}, []);
+
 	return (
 		<>
 			<div className="schedulerMainPageParentContainer">
@@ -101,8 +102,8 @@ const SchedulerMainPage = () => {
 					</div>
 
 					<SchedulerAvailability
-						updateSessionSlot={info?.updateSessionSlot}
-						handleUpdateSessionSlot={handleUpdateSessionSlot}
+						updateSlotModal={info?.updateSlotModal}
+						toggleUpdateSlotModal={toggleUpdateSlotModal}
 						schedulerList={info?.schedulerList}
 					/>
 				</div>
@@ -111,10 +112,7 @@ const SchedulerMainPage = () => {
 				open={info?.createSessionModal}
 				closeModal={handleCreateSessionModal}
 			/>
-			<UpdateSessionSlot
-				open={info?.updateSessionSlot}
-				closeModal={handleUpdateSessionSlot}
-			/>
+			<UpdateSessionSlot open={info?.updateSlotModal} closeModal={toggleUpdateSlotModal} />
 		</>
 	);
 };
