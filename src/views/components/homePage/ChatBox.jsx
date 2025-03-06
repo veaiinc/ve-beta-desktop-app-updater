@@ -35,6 +35,7 @@ import Voice from '../chat/Voice';
 import Skeleton from 'react-loading-skeleton';
 import { message, Image, Spin, Tooltip } from 'antd';
 import LLMTooltip from '../chat/LLMTooltip';
+import AIMessageLoader from '../chat/AIMessageLoader';
 
 const moduleHelper = {
 	tasks: 'tasks',
@@ -366,10 +367,7 @@ const ChatBox = ({
 				// Prevent default to avoid unwanted new line
 				e?.preventDefault();
 
-				if (
-					(aiChatLoading || info?.chatLoading) &&
-					(info?.chatQuery?.length < 0 || info?.uploadedImages?.length)
-				) {
+				if (aiChatLoading || info?.chatLoading) {
 					return message.error('Please wait for the AI response');
 				}
 
@@ -426,7 +424,12 @@ const ChatBox = ({
 						payload.workflow_slug = activeWorkflowSlugForSmartFile;
 					}
 
-					if (!chatInfo?.webSearch && !chatInfo?.workspaceSearch) {
+					if (
+						!chatInfo?.webSearch &&
+						!chatInfo?.workspaceSearch &&
+						!info?.uploadedImages?.length &&
+						!info?.recentFiles?.length
+					) {
 						payload.selected_model = chatInfo?.selectedLLMModel;
 					}
 
@@ -482,9 +485,7 @@ const ChatBox = ({
 					message: 'loading....',
 					content: (
 						<div className="aiMessageWrapper">
-							<Skeleton height={20} width={'100%'} borderRadius={'100px'} />
-							<Skeleton height={20} width={'75%'} borderRadius={'100px'} />
-							<Skeleton height={20} width={'50%'} borderRadius={'100px'} />
+							<AIMessageLoader />
 						</div>
 					),
 					contentType: 'loading',
@@ -696,11 +697,13 @@ const ChatBox = ({
 		if (info?.chatLoading) {
 			return;
 		}
-		setInfo((prev) => ({
-			...prev,
-			followUpQuery: null,
-		}));
-		updateStateValues({ activePromptForChat: info?.followUpQuery });
+		if (info?.followUpQuery?.trim()?.length > 0) {
+			updateStateValues({ activePromptForChat: info?.followUpQuery, followUpQuery: null });
+			setInfo((prev) => ({
+				...prev,
+				followUpQuery: null,
+			}));
+		}
 	};
 
 	const handleLLMModelOptionClick = (model) => {
@@ -973,7 +976,9 @@ const ChatBox = ({
 															if (
 																chatInfo?.deepResearch ||
 																chatInfo?.webSearch ||
-																chatInfo?.workspaceSearch
+																chatInfo?.workspaceSearch ||
+																info?.uploadedImages?.length ||
+																info?.recentFiles?.length
 															)
 																return;
 															setInfo((prev) => ({
@@ -990,7 +995,10 @@ const ChatBox = ({
 																	opacity: `${
 																		chatInfo?.deepResearch ||
 																		chatInfo?.webSearch ||
-																		chatInfo?.workspaceSearch
+																		chatInfo?.workspaceSearch ||
+																		info?.uploadedImages
+																			?.length ||
+																		info?.recentFiles?.length
 																			? '0.5'
 																			: '1'
 																	}`,
