@@ -10,6 +10,7 @@ import { ReactComponent as MailLetter } from '../../../assets/svg/docs/mail-lett
 import { ReactComponent as StatusCircle } from '../../../assets/svg/docs/status-circle.svg';
 import { ReactComponent as CrossPurple } from '../../../assets/svg/docs/cross-purple.svg';
 import { ReactComponent as Sync } from '../../../assets/svg/docs/sync.svg';
+
 import { FetchMoreLoaderComp, fetchOriginSelection } from '../../../helpers';
 import Context from '../../../context/context';
 import InfiniteScroll from 'react-infinite-scroll-component';
@@ -30,6 +31,14 @@ const payload = {
 		limit: 10,
 	},
 };
+
+const suggestedOptions = [
+	{ id: 0, title: 'Create new Document', value: 'create_document' },
+	{ id: 1, title: 'Create new Form', value: 'create_form' },
+	{ id: 2, title: 'Create new Proposal', value: 'create_proposal' },
+	{ id: 3, title: 'Create new Invoice', value: 'create_invoice' },
+	{ id: 4, title: 'Create new Contact', value: 'create_contract' },
+];
 
 const staticCreateActions = [
 	{
@@ -219,6 +228,7 @@ export const Filters = [
 		},
 	},
 ];
+
 const Docs = () => {
 	const navigate = useNavigate();
 	let {
@@ -593,7 +603,7 @@ const Docs = () => {
 					</div>
 				</div>
 				<div className="quickActionsBtn">
-					<QuickActions />
+					<QuickActions suggestedOptions={suggestedOptions} />
 				</div>
 			</div>
 

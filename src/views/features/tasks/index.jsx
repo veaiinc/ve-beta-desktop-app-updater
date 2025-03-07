@@ -83,6 +83,18 @@ const rowTypes = {
 
 const availableViews = ['table', 'board', 'list', 'gallery'];
 
+const optionsForQuickActions = ({ new_task_action }) => {
+	console.log('new_task_action', new_task_action);
+	const options = [];
+	options.push({
+		id: 0,
+		title: 'Create new task',
+		value: 'create_atsk',
+		action: new_task_action,
+	});
+	return options;
+};
+
 const Tasks = () => {
 	const {
 		tasks: {
@@ -918,7 +930,11 @@ const Tasks = () => {
 					<span className="lineTwo">You Created</span>
 				</div>
 				<div className="quick-actions-btn">
-					<QuickActions />
+					<QuickActions
+						suggestedOptions={optionsForQuickActions({
+							new_task_action: handleAddButtonOnClick,
+						})}
+					/>
 				</div>
 			</div>
 			<Task
