@@ -45,6 +45,7 @@ import Service from '../../services/index';
 import { sendCustomMailMutation } from '../subscription/graphqlFunctions';
 import { getBase64 } from '../../helpers';
 import Skeleton from 'react-loading-skeleton';
+import AIMessageLoader from '../../views/components/chat/AIMessageLoader';
 
 export const intialState = {
 	workflowslist: null,
@@ -103,6 +104,7 @@ export const intialState = {
 		webSearch: false,
 		workspaceSearch: true,
 	},
+	globalLoadingMesssage: null,
 };
 
 export const TemplatesState = (props) => {
@@ -1646,9 +1648,7 @@ export const TemplatesState = (props) => {
 					message: 'loading....',
 					content: (
 						<div className="aiMessageWrapper">
-							<Skeleton height={20} width={'100%'} borderRadius={'100px'} />
-							<Skeleton height={20} width={'75%'} borderRadius={'100px'} />
-							<Skeleton height={20} width={'50%'} borderRadius={'100px'} />
+							<AIMessageLoader />
 						</div>
 					),
 					contentType: 'loading',
@@ -1664,9 +1664,7 @@ export const TemplatesState = (props) => {
 					message: 'loading....',
 					content: (
 						<div className="aiMessageWrapper">
-							<Skeleton height={20} width={'100%'} borderRadius={'100px'} />
-							<Skeleton height={20} width={'75%'} borderRadius={'100px'} />
-							<Skeleton height={20} width={'50%'} borderRadius={'100px'} />
+							<AIMessageLoader />
 						</div>
 					),
 					contentType: 'loading',

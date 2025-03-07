@@ -4,9 +4,7 @@ import Context from '../../../../context/context';
 import '../../../../assets/scss/chat/citationsTooltip.scss';
 import { Markdown } from '../../../../helpers/markdownHelper';
 
-// ... existing code ...
-
-export const CitationsTooltip = memo(({ citationId, citations }) => {
+export const CitationsTooltip = memo(({ citationId, citations, placement = 'topLeft' }) => {
 	const {
 		templates: { getCitationData, currentSessionId },
 	} = useContext(Context);
@@ -35,7 +33,8 @@ export const CitationsTooltip = memo(({ citationId, citations }) => {
 			arrow={false}
 			trigger={'hover'}
 			color="transparent"
-			placement="topLeft"
+			placement={placement}
+			rootClassName="citation-tooltip-wrapper"
 			title={
 				<a
 					href={citationInfo?.link}

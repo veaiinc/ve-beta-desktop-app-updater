@@ -84,6 +84,23 @@
 						gap: 24px;
 						width: 100%;
 
+						.aiMessageWrapper {
+							.text-container {
+								color: var(--secondary-font, #787e87);
+								font-family: Inter;
+								font-size: 15px;
+								font-weight: 400;
+								line-height: 24px;
+								.char {
+									transition: color 0.2s ease-in-out;
+								}
+
+								.highlight-char {
+									color: #f2f2f3;
+								}
+							}
+						}
+
 						.chat-message {
 							display: flex;
 							// justify-content: flex-end;
@@ -93,7 +110,7 @@
 								display: flex;
 								flex-direction: column;
 								gap: 6px;
-								color: white;
+								color: #f2f2f3;
 							}
 						}
 						.ai-message:hover {
