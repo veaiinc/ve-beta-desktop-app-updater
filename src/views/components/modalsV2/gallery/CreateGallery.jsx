@@ -151,7 +151,7 @@ const CreateGallery = ({
 				shotDuring: galleryData.shotDuring.replace(/-/g, ''),
 				dueDateEpoch: new Date(
 					new Date(galleryData.shotDuring).setMonth(
-						new Date(galleryData.shotDuring).getMonth() + 1,
+						new Date(galleryData.shotDuring).getMonth() + 12,
 					),
 				).getTime(),
 				tenantUsers: [
