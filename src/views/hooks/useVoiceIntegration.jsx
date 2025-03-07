@@ -1,9 +1,26 @@
 import React, { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { Room, RoomEvent, createLocalTracks } from 'livekit-client';
 import Context from '../../context/context';
+import { message } from 'antd';
+
+const getPermissions = () => {
+	return navigator.mediaDevices
+		.getUserMedia({ audio: true })
+		.then((stream) => {
+			// Successfully got microphone access
+			console.log('Microphone access granted');
+			stream.getTracks().forEach((track) => track.stop()); // Clean up the stream
+			return true;
+		})
+		.catch((error) => {
+			console.error('Error accessing microphone: ', error);
+			return false;
+		});
+};
+
 export const useVoiceIntegration = () => {
 	let {
-		aiSetup: { getTokenForVoice },
+		aiSetup: { getTokenForVoice, updateAiSetupState },
 	} = useContext(Context);
 	const roomRef = useRef(
 		new Room({
@@ -160,6 +177,12 @@ export const useVoiceIntegration = () => {
 			console.log('Already connected to room');
 			return;
 		}
+		// Get permissions first
+		const hasPermission = await getPermissions();
+		if (!hasPermission) {
+			message.error('Please Provide Microphone permission ');
+			return;
+		}
 
 		try {
 			console.log('Starting connection process...');
@@ -261,7 +284,10 @@ export const useVoiceIntegration = () => {
 			});
 
 			// ======= Update State After Successful Connection =======
+
 			setIsConnected(true);
+			//also update the state of the room in the context
+			updateAiSetupState({ isVoiceIntegrationActive: true });
 			setReconnectAttempt(0);
 			console.log('Successfully connected to room:', roomName);
 		} catch (error) {
@@ -310,6 +336,8 @@ export const useVoiceIntegration = () => {
 			await roomRef.current.disconnect();
 
 			setIsConnected(false);
+			//also update the state of the room in the context
+			updateAiSetupState({ isVoiceIntegrationActive: null });
 			setReconnectAttempt(0);
 			console.log('Disconnected from room');
 		} catch (error) {

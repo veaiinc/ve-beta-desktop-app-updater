@@ -35,12 +35,14 @@ const NoteComponentModal = ({
 
 	const [info, setInfo] = useState({
 		noteComponentFullScreen: false,
-		chatToNoteLoopOn: true,
+		chatToNoteLoopOn: false,
 	});
 
 	useEffect(() => {
-		smoothScrollToBottom();
-	}, [chatList]); // Scroll when chat updates
+		if (modalIsOpen) {
+			smoothScrollToBottom();
+		}
+	}, [chatList, modalIsOpen]); // Scroll when chat updates
 
 	const smoothScrollToBottom = useCallback(
 		(type) => {
@@ -137,10 +139,9 @@ const NoteComponentModal = ({
 					<div className="chat-box-wrapper">
 						<ChatBox
 							showChatLabels={false}
-							chatToNoteLoopOn={info?.chatToNoteLoopOn}
 							handleSendWebsocketMessage={handleSendWebsocketMessage}
-							latestStreamMesage={info?.latestStreamMesage}
-							lastQuery={info?.lastQuery}
+							latestStreamMesage={latestStreamMesage}
+							lastQuery={lastQuery}
 							toggleLatestStreamMessage={toggleLatestStreamMessage}
 						/>
 					</div>
