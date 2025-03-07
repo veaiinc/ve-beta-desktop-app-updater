@@ -15,15 +15,14 @@
 	.automationHeader {
 		display: flex;
 		justify-content: space-between;
-		align-items: flex-start;
+		align-items: center;
 		width: 100%;
 
 		.automationTitleAndStatus {
 			display: flex;
-			flex-direction: column;
-			align-items: flex-start;
+			align-items: center;
 			gap: 4px;
-			width: 296px;
+			width: 316px;
 
 			.automationTitle {
 				width: 100%;
@@ -36,11 +35,11 @@
 				text-overflow: ellipsis;
 				white-space: nowrap;
 				overflow: hidden;
+				padding: 4px 0;
 			}
 
 			.renameAutomationTitle {
 				width: 100%;
-				border: none;
 				background: none;
 				color: var(--primary-font, #f2f2f3);
 				font-family: Inter;
@@ -50,10 +49,12 @@
 				line-height: normal;
 				outline: none;
 				caret-color: var(--primary-font, #f2f2f3);
+				padding: 4px 0;
+				border: none;
 			}
 
 			.automationStatus {
-				color: var(--secondary-font, #7a7e85);
+				color: var(--success, #00ff99);
 				font-family: Inter;
 				font-size: 12px;
 				font-style: normal;

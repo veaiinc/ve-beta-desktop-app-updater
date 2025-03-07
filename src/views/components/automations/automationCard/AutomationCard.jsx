@@ -1,5 +1,4 @@
 import React, { memo, useContext, useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
 import '../../../../assets/scss/automations/automationCard.scss';
 import { ReactComponent as ThreeDotsVerticalIcon } from '../../../../assets/svg/home_page/workflows/DotsThreeVertical.svg';
 import Context from '../../../../context/context';
@@ -17,7 +16,6 @@ const options = [
 ];
 
 const AutomationCard = ({ automationId, automationTitle, automationStatus, automationSteps }) => {
-	const navigate = useNavigate();
 	const [info, setInfo] = useState({
 		showAutomationMenu: false,
 		editAutomationTitle: false,
@@ -92,9 +90,13 @@ const AutomationCard = ({ automationId, automationTitle, automationStatus, autom
 							autoFocus
 						/>
 					) : (
-						<h1 className="automationTitle">{info?.automationTitle}</h1>
+						<>
+							<h1 className="automationTitle">{info?.automationTitle}</h1>
+							<h2 className="automationStatus">
+								{automationStatus === 'published' && 'Live'}
+							</h2>
+						</>
 					)}
-					<h2 className="automationStatus">Status: {automationStatus}</h2>
 				</div>
 				{info?.isRenaming && <Spinner width="16px" height="16px" />}
 				<AutomationMenu

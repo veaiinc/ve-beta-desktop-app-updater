@@ -5,12 +5,12 @@ import { useNavigate } from 'react-router-dom';
 const menuItems = [
 	{
 		id: 1,
-		title: 'Rename Automation',
+		title: 'Rename',
 		value: 'renameAutomation',
 	},
 	{
 		id: 2,
-		title: 'Open Automation Builder',
+		title: 'Edit',
 		value: 'openAutomationBuilder',
 	},
 ];
