@@ -47,38 +47,6 @@ const AutomationMenuItems = ({
 				</li>
 			))}
 		</ul>
-		// <div className={`workflow-prompt-popup`}>
-		// 	{isAutomation ? (
-		// 		<span
-		// 			onClick={editMode ? handleRename : handleEnableEditMode}
-		// 			className="workflow-prompt-option"
-		// 		>
-		// 			{editMode ? 'Save Changes' : 'Rename'}
-		// 		</span>
-		// 	) : (
-		// 		<span onClick={() => openCopyLinkModal(data)} className="workflow-prompt-option">
-		// 			Copy link
-		// 		</span>
-		// 	)}
-
-		// 	<span
-		// 		onClick={() => {
-		// 			navigateToWorkflowBuilder(data);
-		// 		}}
-		// 		className={'workflow-prompt-option'}
-		// 	>
-		// 		Edit Workflow
-		// 	</span>
-
-		// 	<span
-		// 		onClick={() => {
-		// 			window.location.href = `${origin}/${data?._id} `;
-		// 		}}
-		// 		className={'workflow-prompt-option'}
-		// 	>
-		// 		Edit Design
-		// 	</span>
-		// </div>
 	);
 };
 
