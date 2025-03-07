@@ -69,21 +69,10 @@ export const AutomationBuilderState = () => {
 			};
 			const response = await Service?.fetchGet(path, token, type, query);
 			if (response?.[0]) {
-				const formattedData = response?.[1]?.automations?.data?.map((automation) => {
-					const { _id, name, steps, tenantId, status } = automation;
-					return {
-						_id,
-						title: name,
-						steps,
-						tenantId,
-						status,
-						moduleTemplates: [], // TODO: add module templates key once we have it
-						isAutomation: true,
-					};
-				});
+				const automationsList = response?.[1]?.automations?.data;
 				const data = append
-					? [...(state?.automations?.automations?.data || []), ...formattedData]
-					: formattedData;
+					? [...(state?.automationsList?.data || []), ...automationsList]
+					: automationsList;
 				const currentPage = response?.[1]?.automations?.currentPage;
 				const hasNextPage = response?.[1]?.automations?.hasNextPage;
 				const payload = {

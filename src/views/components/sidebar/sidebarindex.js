@@ -71,6 +71,13 @@ export const veAiModulesItemsList = [
 	},
 	{
 		id: 6,
+		name: 'Automations',
+		moduleRoute: '/automations',
+		route: '/automations',
+		icon: '',
+	},
+	{
+		id: 7,
 		name: 'Storage',
 		moduleRoute: '',
 		route: '',

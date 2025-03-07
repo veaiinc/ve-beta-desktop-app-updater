@@ -1,0 +1,27 @@
+.menuItemsContainer {
+	width: 200px;
+	padding: 8px;
+	background-color: #26282a;
+	border-radius: 12px;
+	list-style: none;
+
+	.menuItem {
+		padding: 6px 8px;
+		width: 100%;
+		border-radius: 8px;
+		cursor: pointer;
+
+		&:hover {
+			background-color: #303336;
+		}
+
+		.title {
+			color: #f2f2f3;
+			font-family: Inter;
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 22px;
+		}
+	}
+}
