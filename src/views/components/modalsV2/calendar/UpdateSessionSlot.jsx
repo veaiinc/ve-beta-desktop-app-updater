@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useState } from 'react';
+import React, { memo, useCallback, useEffect, useState } from 'react';
 import '../../../../assets/scss/calendar/modal/udateSessionSlot.scss';
 import ReactModal from '../index';
 import { ReactComponent as Delete } from '../../../../assets/svg/ai_assistant/delete.svg';
@@ -10,23 +10,37 @@ import ToggleSwitch from '../../../components/input/slider';
 
 // const sessionName = ['Yoga', 'Cardio', 'Dance'];
 
-const UpdateSessionSlot = ({ open, closeModal, schedulerList }) => {
+const UpdateSessionSlot = ({ open, closeModal, schedulerList, selectedSlotData }) => {
 	const [info, setInfo] = useState({
 		repeat: false,
 		slots: [{ from: moment(), to: moment().add(1, 'hours') }],
-		sellectedSession: null,
+		selectedSession: null,
 	});
 
 	useEffect(() => {
-		if (schedulerList?.length > 0) {
+		if (schedulerList?.length > 0 && selectedSlotData) {
+			const session = schedulerList?.find(
+				(s) => s.sessionName === selectedSlotData.selectedSlot.sessionName,
+			);
+			if (session) {
+				setInfo((prev) => ({
+					...prev,
+					selectedSession: session,
+					slots: [
+						{
+							from: moment(selectedSlotData.selectedSlot.startTime, 'HH:mm'),
+							to: moment(selectedSlotData.selectedSlot.endTime, 'HH:mm'),
+						},
+					],
+				}));
+			}
+		} else if (schedulerList?.length > 0) {
 			setInfo((prev) => ({
 				...prev,
-				sellectedSession: schedulerList[0],
+				selectedSession: schedulerList[0],
 			}));
 		}
-	}, [schedulerList]);
-
-	console.log('info.sellectedSession', info?.sellectedSession);
+	}, [schedulerList, selectedSlotData]);
 
 	const addSlot = () => {
 		setInfo((prev) => ({
@@ -48,9 +62,13 @@ const UpdateSessionSlot = ({ open, closeModal, schedulerList }) => {
 			...prev,
 			repeat: false,
 			slots: [{ from: moment(), to: moment().add(1, 'hours') }],
-			sellectedSession: schedulerList[0],
+			selectedSession: schedulerList[0] || null,
 		}));
 	};
+
+	const handleSave = useCallback(() => {
+		ModifyCloseModal();
+	}, []);
 
 	return (
 		<ReactModal
@@ -80,11 +98,10 @@ const UpdateSessionSlot = ({ open, closeModal, schedulerList }) => {
 									<div
 										key={option._id}
 										className="sessionName-dropdown-item"
-										onClick={(e) => {
-											console.log('e', e);
+										onClick={() => {
 											setInfo((prev) => ({
 												...prev,
-												sellectedSession: option,
+												selectedSession: option,
 												sessionTypeOpen: false,
 											}));
 										}}
@@ -100,11 +117,15 @@ const UpdateSessionSlot = ({ open, closeModal, schedulerList }) => {
 						overlayStyle={{ minWidth: 'fit-content', padding: '0' }}
 					>
 						<div className="selectedSession-lable">
-							{info?.sellectedSession?.sessionName}
+							{info?.selectedSession?.sessionName}
 							<Down className={`${info?.sessionTypeOpen ? 'open' : ''}`} />
 						</div>
 					</Tooltip>
-					<span className="sessionDate">Friday, 25th Feb 2025</span>
+					<span className="sessionDate">
+						{selectedSlotData
+							? `${selectedSlotData.selectedDay}, ${selectedSlotData.selectedDate}`
+							: 'Select a date'}
+					</span>
 				</div>
 
 				{info?.slots?.map((slot, index) => (
@@ -114,6 +135,7 @@ const UpdateSessionSlot = ({ open, closeModal, schedulerList }) => {
 							format="hh:mm A"
 							picker="time"
 							className="timePicker"
+							value={slot.from}
 							onChange={(value) =>
 								setInfo((prev) => ({
 									...prev,
@@ -130,6 +152,7 @@ const UpdateSessionSlot = ({ open, closeModal, schedulerList }) => {
 							format="hh:mm A"
 							picker="time"
 							className="timePicker"
+							value={slot.to}
 							onChange={(value) =>
 								setInfo((prev) => ({
 									...prev,
@@ -151,12 +174,15 @@ const UpdateSessionSlot = ({ open, closeModal, schedulerList }) => {
 				<div className="disableAvailability">Disable Availability</div>
 
 				<div className="repeatToggle">
-					<span>Repeat Every Monday</span>
-					<ToggleSwitch onChange={(value) => console.log('value', value)} value={true} />
+					<span>Repeat Every {selectedSlotData?.selectedDay || 'day'}</span>
+					<ToggleSwitch
+						onChange={(value) => setInfo((prev) => ({ ...prev, repeat: value }))}
+						value={info.repeat}
+					/>
 				</div>
 
 				<div className="saveButton">
-					<button>Save</button>
+					<button onClick={handleSave}>Save</button>
 				</div>
 			</div>
 		</ReactModal>

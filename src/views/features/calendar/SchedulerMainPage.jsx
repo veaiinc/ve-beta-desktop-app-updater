@@ -17,6 +17,7 @@ const SchedulerMainPage = () => {
 		sessionsLoading: true,
 		schedulerList: null,
 		createdSession: null,
+		selectedSlotData: null,
 	});
 
 	useEffect(() => {
@@ -53,6 +54,7 @@ const SchedulerMainPage = () => {
 				sessionsLoading: true,
 				schedulerList: null,
 				createdSession: null,
+				selectedSlotData: null,
 			});
 		};
 	}, []);
@@ -64,10 +66,11 @@ const SchedulerMainPage = () => {
 		}));
 	}, []);
 
-	const toggleUpdateSlotModal = useCallback(() => {
+	const toggleUpdateSlotModal = useCallback((slotData) => {
 		setInfo((prev) => ({
 			...prev,
 			updateSlotModal: !prev.updateSlotModal,
+			selectedSlotData: slotData || null,
 		}));
 	}, []);
 
@@ -116,6 +119,7 @@ const SchedulerMainPage = () => {
 				open={info?.updateSlotModal}
 				closeModal={toggleUpdateSlotModal}
 				schedulerList={info?.schedulerList}
+				selectedSlotData={info?.selectedSlotData}
 			/>
 		</>
 	);

@@ -19,7 +19,11 @@ const WeeklySlot = ({ day, date, slots, toggleUpdateSlotModal }) => {
 							className="slotOverlay"
 							onClick={(event) => {
 								event.stopPropagation();
-								toggleUpdateSlotModal();
+								toggleUpdateSlotModal({
+									selectedDate: date,
+									selectedDay: day,
+									selectedSlot: slot,
+								});
 							}}
 						>
 							Edit Session
