@@ -278,6 +278,29 @@ export const AutomationBuilderState = () => {
 		}
 	};
 
+	const deleteStep = async (automationId, payload) => {
+		try {
+			const usertoken = localStorage.getItem('usertoken');
+			const workspaceId = localStorage.getItem('workspaceId');
+			const response = await restService.fetchPut(
+				`/${workspaceId}/${automationId}/deleteStep`,
+				payload,
+				usertoken,
+				'automation_builder_api',
+			);
+			if (response?.[0] === true) {
+				dispatch({
+					type: Actions.SET_AUTOMATION,
+					payload: response?.[1]?.updatedAutomation,
+				});
+				return [true];
+			}
+			return [false];
+		} catch (error) {
+			console.log('API failed ==> deleteStep', error);
+		}
+	};
+
 	// const getPreviousStepResponse = async (automationId, batchId, stepId) => {
 	// 	try {
 	// 		const usertoken = localStorage.getItem('usertoken');
@@ -357,5 +380,6 @@ export const AutomationBuilderState = () => {
 		// executeAutomation,
 		getVariables,
 		renameAutomationTitle,
+		deleteStep,
 	};
 };

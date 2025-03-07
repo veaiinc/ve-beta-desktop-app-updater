@@ -237,18 +237,18 @@ export const selectedValueStyling = {
 	lineHeight: 'normal',
 };
 
-export const getTotalNumnerofNodesRecursively = (nodeId, stepsMapper) => {
-	if (!nodeId) {
-		return 0;
-	}
+export const checkConditionNodeChild = (nodeId, stepsMapper) => {
+	const hasYesChild = stepsMapper?.[nodeId]?.data?.ifYes?.['nextStepId'];
+	const hasNoChild = stepsMapper?.[nodeId]?.data?.ifNo?.['nextStepId'];
 
-	const count1 = getTotalNumnerofNodesRecursively(
-		stepsMapper?.[nodeId]?.data?.ifYes?.['nextStepId'],
-		stepsMapper,
-	);
-	const count2 = getTotalNumnerofNodesRecursively(
-		stepsMapper?.[nodeId]?.data?.ifNo?.['nextStepId'],
-		stepsMapper,
-	);
-	return count1 + count2 + 1;
+	if (hasYesChild && hasNoChild) {
+		return 'both';
+	}
+	if (hasYesChild) {
+		return 'yes';
+	}
+	if (hasNoChild) {
+		return 'no';
+	}
+	return false;
 };

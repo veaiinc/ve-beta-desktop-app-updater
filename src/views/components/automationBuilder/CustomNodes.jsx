@@ -10,7 +10,7 @@ import { ReactComponent as Dustbin } from '../../../assets/svg/worflow_builder/b
 import { ReactComponent as Copy } from '../../../assets/svg/worflow_builder/buildercard/labelledCopy.svg';
 import { ReactComponent as Eye } from '../../../assets/svg/worflow_builder/buildercard/labelledEye.svg';
 import { ReactComponent as ShockIcon } from '../../../assets/svg/automation_builder/shock.svg';
-import UpdatedDeleteWorkflowStep from '../modalsV2/workflowBuilderModals/UpdatedDeleteStepsModal';
+import UpdatedDeleteWorkflowStep from '../modalsV2/automationBuilder/UpdatedDeleteStepsModal';
 import { Tooltip } from 'antd';
 const actionTypeMapper = {
 	email: 'Send Email',
@@ -203,10 +203,9 @@ export const ActionNode = ({ data }) => {
 				<UpdatedDeleteWorkflowStep
 					modalIsOpen={info?.deleteModal}
 					closeModal={handleCloseDeleteModal}
-					templateId={data?.templateId}
+					automationId={data?.automationId}
 					stepId={data?.currentStep?._id}
-					workflowdata={data?.currentStep}
-					refetchWorkflowBuilderData={data?.refetchWorkflowBuilderData}
+					stepData={data?.currentStep}
 					stepsMapper={data?.stepsMapper}
 				/>
 			</div>
@@ -266,10 +265,9 @@ export const ConditionNode = ({ data }) => {
 				<UpdatedDeleteWorkflowStep
 					modalIsOpen={info?.deleteModal}
 					closeModal={handleCloseDeleteModal}
-					templateId={data?.templateId}
+					automationId={data?.automationId}
 					stepId={data?.currentStep?._id}
-					workflowdata={data?.currentStep}
-					refetchWorkflowBuilderData={data?.refetchWorkflowBuilderData}
+					stepData={data?.currentStep}
 					stepsMapper={data?.stepsMapper}
 				/>
 			</div>
