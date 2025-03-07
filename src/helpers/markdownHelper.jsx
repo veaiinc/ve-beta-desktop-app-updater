@@ -14,6 +14,7 @@ import { CitationsTooltip } from '../views/components/modalsV2/chat/CitationsToo
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
+import rehypeRaw from 'rehype-raw';
 import 'katex/dist/katex.min.css';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { dracula } from 'react-syntax-highlighter/dist/esm/styles/prism';
@@ -60,29 +61,26 @@ const rehypeCITPlugin = () => {
 
 // Move components outside to prevent recreation on every render
 const baseComponents = {
-	pre: ({ children }) => <>{children}</>,
+	pre: ({ children }) => <pre className="markdown-pre mb-4">{children}</pre>,
+	hr: ({ children }) => <hr className="mb-2" />,
 	ol: ({ children, ...props }) => (
-		<ol className="list-decimal list-outside ml-8" {...props}>
+		<ol className="list-decimal list-outside ml-8 mb-4" {...props}>
 			{children}
 		</ol>
 	),
 	li: ({ children, ...props }) => {
-		return (
-			<li className="py-1" {...props}>
-				{children}
-			</li>
-		);
+		return <li {...props}>{children}</li>;
 	},
 	ul: ({ children, ...props }) => {
 		return (
-			<ul className="list-decimal list-outside ml-8" {...props}>
+			<ul className="list-decimal list-outside ml-8 mb-4" {...props}>
 				{children}
 			</ul>
 		);
 	},
 	strong: ({ children, ...props }) => {
 		return (
-			<span className="font-semibold" {...props}>
+			<span className="font-semibold text-white" {...props}>
 				{children}
 			</span>
 		);
@@ -101,14 +99,14 @@ const baseComponents = {
 	},
 	h1: ({ children, ...props }) => {
 		return (
-			<h1 className="text-3xl font-semibold mt-6 mb-2" {...props}>
+			<h1 className="text-3xl font-semibold mt-6 mb-4" {...props}>
 				{children}
 			</h1>
 		);
 	},
 	h2: ({ children, ...props }) => {
 		return (
-			<h2 className="text-2xl font-semibold mt-6 mb-2" {...props}>
+			<h2 className="text-2xl font-semibold mt-6 mb-4" {...props}>
 				{children}
 			</h2>
 		);
@@ -143,7 +141,7 @@ const baseComponents = {
 	},
 	p: ({ children, ...props }) => {
 		return (
-			<p className="text-white" {...props}>
+			<p className="text-white  mb-2 mt-2" {...props}>
 				{children}
 			</p>
 		);
@@ -195,9 +193,7 @@ const baseComponents = {
 				{String(children).replace(/\n$/, '')}
 			</SyntaxHighlighter>
 		) : (
-			<code {...props} className="markdown-code px-1 py-0.5 rounded text-sm">
-				{children}
-			</code>
+			<code {...props}>{children}</code>
 		);
 	},
 };
@@ -210,7 +206,7 @@ const createCitationComponents = (citations) => ({
 	},
 });
 const remarkPlugins = [remarkGfm, remarkMath];
-const rehypePlugins = [rehypeKatex, rehypeCITPlugin];
+const rehypePlugins = [rehypeKatex, rehypeCITPlugin, rehypeRaw];
 const NonMemoizedMarkdown = ({ children, citations }) => {
 	// Memoize the combined components object
 	const components = useMemo(
