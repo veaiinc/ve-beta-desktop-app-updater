@@ -150,9 +150,7 @@ const CreateGallery = ({
 				category: 'wedding',
 				shotDuring: galleryData.shotDuring.replace(/-/g, ''),
 				dueDateEpoch: new Date(
-					new Date(galleryData.shotDuring).setMonth(
-						new Date(galleryData.shotDuring).getMonth() + 12,
-					),
+					new Date().setMonth(new Date().getMonth() + 12), // Add 12 months to today
 				).getTime(),
 				tenantUsers: [
 					{
