@@ -97,7 +97,7 @@ const Chats = ({ showChatsDrawer, setShowChatsDrawer }) => {
 									onClick={() => handleChatNavigation(chat)}
 									style={{ cursor: 'pointer' }}
 								>
-									<p className="chat-title">{chat?.query}</p>
+									<p className="chat-title">{chat?.title}</p>
 									<p className="chat-timestamp">
 										{formatTimestamp(chat?.createdAt)}
 									</p>
