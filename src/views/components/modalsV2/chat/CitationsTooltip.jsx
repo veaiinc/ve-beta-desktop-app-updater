@@ -59,7 +59,7 @@ export const CitationsTooltip = memo(({ citationId, citations, placement = 'topL
 	return (
 		<Tooltip
 			arrow={false}
-			trigger={'click'}
+			trigger={'hover'}
 			color="transparent"
 			placement={placement}
 			rootClassName="citation-tooltip-wrapper"
