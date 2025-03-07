@@ -356,6 +356,7 @@ const OpenedSideBarItemsComponent = ({
 		// e.stopPropagation();
 		setsidebarStates({ ...sidebarStates, navStyle: 'close' });
 		setIsOpen(false);
+		setShowChatsDrawer(false);
 	};
 
 	const handleChatSelect = (chatName) => {
