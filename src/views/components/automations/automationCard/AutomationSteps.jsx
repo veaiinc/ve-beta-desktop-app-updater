@@ -2,8 +2,8 @@ import React, { memo } from 'react';
 import '../../../../assets/scss/automations/automationSteps.scss';
 
 const AutomationSteps = ({ automationSteps }) => {
-	console.log(automationSteps);
 	const emptyAutomationSteps = automationSteps?.length === 0;
+
 	return (
 		<div className="automationStepsContainer">
 			{emptyAutomationSteps ? (
