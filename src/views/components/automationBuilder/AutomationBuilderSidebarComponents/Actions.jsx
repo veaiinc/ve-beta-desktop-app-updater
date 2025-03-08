@@ -93,10 +93,10 @@ const actionGroups = [
 				actionLabel: 'Send Message',
 				actionType: 'sendMessage',
 			},
-			{
-				actionLabel: 'Delete Message',
-				actionType: 'deleteMessage',
-			},
+			// {
+			// 	actionLabel: 'Delete Message',
+			// 	actionType: 'deleteMessage',
+			// },
 			{
 				actionLabel: 'Get channel Info',
 				actionType: 'getChannelInfo',

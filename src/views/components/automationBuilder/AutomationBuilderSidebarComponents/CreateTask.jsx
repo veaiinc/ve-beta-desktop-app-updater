@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useState } from 'react';
+import React, { memo, useCallback, useEffect, useState } from 'react';
 import ActionDetailsBlock from './ActionDetailsBlock';
 import { message, Spin } from 'antd';
 import moment from 'moment';
@@ -6,7 +6,7 @@ import VariableComponent from './VariableComponent';
 import HeaderComponent from './HeaderComponent';
 import '../../../../assets/scss/automation_builder/automationBuilderSidebarComponents/inAppActions.scss';
 
-const CreateTask = ({ onBack, onSave, addTriggerLoading, variables }) => {
+const CreateTask = ({ onBack, onSave, addTriggerLoading, variables, activeStepsData }) => {
 	const [info, setInfo] = useState({
 		title: '',
 		dueDate: '',
@@ -63,6 +63,21 @@ const CreateTask = ({ onBack, onSave, addTriggerLoading, variables }) => {
 	const updateInfo = useCallback((data) => {
 		setInfo((prev) => ({ ...prev, ...data }));
 	}, []);
+
+	useEffect(() => {
+		if (activeStepsData) {
+			setInfo((prev) => ({
+				...prev,
+				title: activeStepsData?.inputBody?.title,
+				dueDate: new Date(activeStepsData?.inputBody?.dueDate * 1000)
+					.toISOString()
+					.split('T')[0],
+				stepTitle: activeStepsData?.title,
+				stepDescription: activeStepsData?.description,
+			}));
+		}
+	}, [activeStepsData]);
+
 	return (
 		<div className="inAppActionsContainer">
 			<HeaderComponent onBack={onBack} heading="Create Task" />
@@ -92,7 +107,7 @@ const CreateTask = ({ onBack, onSave, addTriggerLoading, variables }) => {
 					/>
 				</div>
 				<div className="inputWrapper">
-					<span className="inputLabel">Due (optional)</span>
+					<span className="inputLabel">Due Date</span>
 
 					<VariableComponent
 						variables={variables?.data}

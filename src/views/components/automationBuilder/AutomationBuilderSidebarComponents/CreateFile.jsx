@@ -24,6 +24,7 @@ const CreateFile = ({ onBack, onSave, addTriggerLoading, variables }) => {
 		hasNextPage: false,
 		selectedTemplate: null,
 		chooseFromTemplate: false,
+		activeStepsData: null,
 	});
 
 	useEffect(() => {
