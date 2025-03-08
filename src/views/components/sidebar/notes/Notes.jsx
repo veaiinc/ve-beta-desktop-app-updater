@@ -94,7 +94,7 @@ const Notes = ({ showNotesDrawer, setShowNotesDrawer }) => {
 	const getNotesData = useCallback(
 		(page, fetchMore = false) => {
 			const payload = {
-				filters: {
+				input: {
 					limit: 30,
 					page: page,
 				},
@@ -191,12 +191,12 @@ const Notes = ({ showNotesDrawer, setShowNotesDrawer }) => {
 								<div key={notes?._id} className="activity-log">
 									<WhiteDot />
 									<p className="summary">
-										{notes?.summary || ''}
+										{notes?.title || ''}
 										<br />
 										<span className="action">{notes?.action}</span>
 									</p>
 									<p className="time">
-										{notes?.timestamp ? formatTimestamp(notes?.timestamp) : ''}
+										{notes?.updatedAt ? formatTimestamp(notes?.updatedAt) : ''}
 									</p>
 								</div>
 							))}

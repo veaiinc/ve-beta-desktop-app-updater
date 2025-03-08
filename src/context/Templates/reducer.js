@@ -192,11 +192,6 @@ const actionHandlers = {
 		...state,
 		llmModels: action?.payload,
 	}),
-	GET_NOTES_SUCCESS: (state, action) => ({ ...state, notes: action?.payload }),
-	GET_MORE_NOTES_SUCCESS: (state, action) => ({
-		...state,
-		moreNotes: action?.payload,
-	}),
 	RESET_STATE: () => intialState,
 };
 

@@ -1982,55 +1982,6 @@ export const TemplatesState = (props) => {
 		}
 	};
 
-	const getNotesList = async (payload, fetchMore = false) => {
-		try {
-			let workspaceId = localStorage.getItem('workspaceId');
-			let usertoken = localStorage.getItem('usertoken');
-			const response = await service.query(
-				getNotesListQuery,
-				payload,
-				workspaceId,
-				usertoken,
-				'workflows_Api',
-			);
-
-			if (response?.[0]) {
-				dispatch({
-					type: fetchMore ? Actions.GET_MORE_NOTES_SUCCESS : Actions.GET_NOTES_SUCCESS,
-					payload: response?.[1]?.data?.listPrivatePages,
-				});
-			} else {
-				message.error('Error fetching notes logs');
-			}
-		} catch (error) {
-			console.log('errror ==>getNotesList', error);
-		}
-	};
-
-	const createNotesList = async (payload) => {
-		try {
-			let workspaceId = localStorage.getItem('workspaceId');
-			let usertoken = localStorage.getItem('usertoken');
-			const response = await service.query(
-				createNotesQuery,
-				payload,
-				workspaceId,
-				usertoken,
-				'workflows_Api',
-			);
-
-			if (response?.[0]) {
-				const dataResponse = response?.[1]?.data?.createPage;
-				return [true, dataResponse];
-			} else {
-				console.log('Api failed ==>createNotesList', response);
-				return [false];
-			}
-		} catch (error) {
-			console.log('error==>createNotesList', error);
-		}
-	};
-
 	return {
 		...state,
 		getMyWorkflows,
@@ -2105,7 +2056,5 @@ export const TemplatesState = (props) => {
 		handleStreamIncomingMessage,
 		handleStreamMessageChunk,
 		getLLMModels,
-		getNotesList,
-		createNotesList,
 	};
 };

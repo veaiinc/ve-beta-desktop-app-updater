@@ -3,7 +3,7 @@ import { message } from 'antd';
 import { getNotesListQuery, createNotesQuery } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
-import { Actions } from './Actions';
+import { Actions } from './action';
 
 export const intialState = {
 	notes: null,
@@ -17,12 +17,13 @@ export const NotesState = (props) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
+
 			const response = await service.query(
 				getNotesListQuery,
 				payload,
 				workspaceId,
 				usertoken,
-				'workflows_Api',
+				'page_notes_api',
 			);
 
 			if (response?.[0]) {
@@ -47,7 +48,7 @@ export const NotesState = (props) => {
 				payload,
 				workspaceId,
 				usertoken,
-				'workflows_Api',
+				'page_notes_api',
 			);
 
 			if (response?.[0]) {

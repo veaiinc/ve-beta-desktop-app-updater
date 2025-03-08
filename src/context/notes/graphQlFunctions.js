@@ -1,32 +1,32 @@
 import { gql } from '@apollo/client';
 export const getNotesListQuery = gql`
-	query ListPrivatePages($input: PageFilterInput) {
+	query ListPrivatePages($input: PageFilterInput!) {
 		listPrivatePages(input: $input) {
 			totalPages
 			totalDocs
+			limit
+			currentPage
+			hasNextPage
+			hasPrevPage
 			prevPage
 			nextPage
-			limit
-			hasPrevPage
-			hasNextPage
 			data {
-				coverImage
-				createdAt
-				createdBy
-				icon
 				id
+				title
+				icon
+				coverImage
 				permissions {
 					private
 					sharedWith {
-						access
 						userId
+						access
 					}
 				}
 				tenantId
-				title
+				createdAt
 				updatedAt
+				createdBy
 			}
-			currentPage
 		}
 	}
 `;
