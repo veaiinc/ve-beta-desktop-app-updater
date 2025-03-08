@@ -1,167 +1,275 @@
-import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
-import '../../../assets/scss/sales/globalWorkflow.scss';
-import { ReactComponent as BackArrowSvg } from '../../../assets/svg/workflow/backarrow.svg';
+import React, { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import GlobalWorkflowCard from '../../components/sales/globalWorkflowCard';
+import '../../../assets/scss/my_templates/myTemplates.scss';
+import { ReactComponent as Stars } from '../../../assets/svg/my_templates/stars.svg';
+import { ReactComponent as Plus } from '../../../assets/svg/my_templates/plus.svg';
+import { ReactComponent as Search } from '../../../assets/svg/my_templates/search.svg';
+import { ReactComponent as UpDownArrow } from '../../../assets/svg/my_templates/up-down-arrow.svg';
+import { ReactComponent as Filter } from '../../../assets/svg/my_templates/filter.svg';
+import { ReactComponent as ThreeDots } from '../../../assets/svg/my_templates/three-dots.svg';
+import TemplateCards from '../../components/myTemplate/TemplateCards';
 import Context from '../../../context/context';
-import InfiniteScroll from 'react-infinite-scroll-component';
-import Spinner from '../../components/loaders/Spinner';
-import GlobalWorkflowModal from '../../components/modalsV2/workflowsModals/GlobalWorkflowModal';
-import UpdatedPageLoader from '../../components/loaders/UpdatedPageLoader';
+import QuickActions from '../../components/globalComponents/QuickActions';
 
-const FetchMoreLoaderComp = () => {
+const SubTitle = () => {
 	return (
-		<h4
-			style={{
-				display: 'flex',
-				gap: '12px',
-				color: '#fff',
-				justifyContent: 'center',
-				alignItems: 'center',
-			}}
-		>
-			<Spinner width={'12px'} height={'12px'} />
-			Fetching More...
-		</h4>
-	);
-};
-
-const servicesList = [
-	'Sell a Service',
-	'Weddings',
-	'Events',
-	'Parties',
-	'Sell a Session',
-	'Sell a Digital Product',
-];
-const GlobalWorkflows = () => {
-	const navigate = useNavigate();
-	let {
-		templates: { getGlobalWorkflows, globalMoreWorkflows, globalWorkflows },
-	} = useContext(Context);
-
-	const [info, setInfo] = useState({
-		loading: true,
-		globalWorkflowData: null,
-		hasNextPage: false,
-		currentPage: 1,
-		modalIsOpen: false,
-		activeTemplateData: null,
-	});
-
-	//useEffects
-	useEffect(() => {
-		getGlobalWorkflowTemplatesData(1);
-	}, []);
-
-	useEffect(() => {
-		if (globalWorkflows) {
-			globalWorkflowsDataParser(globalWorkflows);
-		}
-	}, [globalWorkflows]);
-
-	useEffect(() => {
-		if (globalMoreWorkflows) {
-			globalWorkflowsDataParser(globalMoreWorkflows, true);
-		}
-	}, [globalMoreWorkflows]);
-
-	//function definations
-
-	const getGlobalWorkflowTemplatesData = useCallback((page, fetchMore = false) => {
-		const payload = {
-			filters: {
-				limit: 10,
-				page: page,
-				type: 'workspace',
-				sortBy: 'createdAt',
-				sortType: -1,
-			},
-		};
-		getGlobalWorkflows(payload, fetchMore);
-	}, []);
-
-	const globalWorkflowsDataParser = useCallback(
-		(dataToBeUsed, fetchMore = false) => {
-			let { data, currentPage, hasNextPage } = dataToBeUsed;
-			let globalWorkflowData = [];
-
-			for (let i = 0; i < data?.length; i++) {
-				if (!data?.[i]?.tenantId || data?.[i]?.tenantId === null) {
-					globalWorkflowData?.push(data?.[i]);
-				}
-			}
-
-			if (fetchMore) {
-				globalWorkflowData = [...(info?.globalWorkflowData || [])]?.concat(
-					globalWorkflowData,
-				);
-			}
-			if (!fetchMore && globalWorkflowData?.length < 3 && hasNextPage) {
-				getGlobalWorkflowTemplatesData(currentPage + 1, true);
-			}
-			setInfo((prev) => ({
-				...prev,
-				loading: false,
-				globalWorkflowData,
-				currentPage,
-				hasNextPage,
-			}));
-		},
-		[info?.globalWorkflowData],
-	);
-
-	const fetchMoreGlobalWorkflows = useCallback(() => {
-		getGlobalWorkflowTemplatesData(info?.currentPage + 1, true);
-	}, [info?.hasNextPage, info?.currentPage]);
-
-	const openModal = useCallback((data) => {
-		setInfo((prev) => ({ ...prev, modalIsOpen: true, activeTemplateData: data }));
-	}, []);
-
-	const closeModal = useCallback(() => {
-		setInfo((prev) => ({ ...prev, modalIsOpen: false, activeTemplateData: null }));
-	}, []);
-
-	return (
-		<div className="globalWorkflowContainer">
-			<div className="mainContentContainer">
-				<div className="gloablWorkflowHeader">
-					<span className="backArrowBtn" onClick={() => navigate(-1)}>
-						<BackArrowSvg />
-					</span>
-					<span className="gloablHeaderTitle">Choose a Workflow</span>
-				</div>
-				<InfiniteScroll
-					dataLength={info?.globalWorkflowData?.length || 0}
-					next={fetchMoreGlobalWorkflows}
-					hasMore={info?.hasNextPage}
-					loader={<FetchMoreLoaderComp />}
-					scrollableTarget={'scrollableTarget'}
-				>
-					<div className="globalWorkflowParentCardContainer">
-						{info?.loading ? (
-							<UpdatedPageLoader />
-						) : (
-							info?.globalWorkflowData?.map((ele, index) => (
-								<GlobalWorkflowCard
-									key={index}
-									data={ele}
-									onClickFunc={openModal}
-								/>
-							))
-						)}
-					</div>
-				</InfiniteScroll>
-			</div>
-
-			<GlobalWorkflowModal
-				modalIsOpen={info?.modalIsOpen}
-				closeModal={closeModal}
-				globalTemplateId={info?.activeTemplateData?._id}
-			/>
+		<div className="subTitleContainer">
+			<span>with AI</span>
 		</div>
 	);
 };
 
-export default memo(GlobalWorkflows);
+const cards = [
+	{
+		id: 1,
+		title: `Create a Template`,
+		subTitle: <SubTitle />,
+	},
+	// {
+	// 	id: 2,
+	// 	title: 'Import file or URL',
+	// 	subTitle: 'Create template from your file or URL',
+	// },
+	{
+		id: 3,
+		title: 'Install template from playbook',
+		subTitle: 'find your templates in Ve.Ai Marketplace',
+	},
+];
+
+const ctaItems = [
+	{
+		id: 1,
+		icon: <Plus />,
+	},
+	{
+		id: 1,
+		icon: <Search />,
+	},
+	{
+		id: 1,
+		icon: <UpDownArrow />,
+	},
+	{
+		id: 1,
+		icon: <Filter />,
+	},
+	{
+		id: 1,
+		icon: <ThreeDots />,
+	},
+];
+
+const initialState = {
+	activeNav: 1,
+	loading: true,
+	workflowTemplates: [],
+	hasNextPage: false,
+	currentPage: 1,
+	activeTab: 'all', //all, proposals, invoices, contracts, presentations
+};
+
+const MyTemplates = () => {
+	const {
+		templates: {
+			getMyWorkflows,
+			myWorkflows,
+			myMoreWorkflows,
+			getSpecificTemplatesInfo,
+			specificTemplatesInfo,
+			updateStateValues,
+			templatesRefetch,
+		},
+	} = useContext(Context);
+	const navigate = useNavigate();
+
+	const [info, setInfo] = useState({
+		...initialState,
+	});
+
+	useEffect(() => {
+		getMyWorkflowTemplatesData(1);
+		return () => {
+			setInfo((prev) => ({
+				...prev,
+				...initialState,
+			}));
+		};
+	}, []);
+
+	useEffect(() => {
+		if (templatesRefetch) {
+			getMyWorkflowTemplatesData(1);
+			updateStateValues({ templatesRefetch: null });
+		}
+	}, [templatesRefetch]);
+
+	useEffect(() => {
+		if (myWorkflows) {
+			myWorkflowsDataParser(myWorkflows);
+		}
+	}, [myWorkflows]);
+
+	useEffect(() => {
+		if (myMoreWorkflows) {
+			myWorkflowsDataParser(myMoreWorkflows, true);
+		}
+	}, [myMoreWorkflows]);
+
+	const getMyWorkflowTemplatesData = useCallback((page, fetchMore = false) => {
+		const payload = {
+			filters: {
+				limit: 16,
+				page: page,
+				type: 'workspace',
+				status: 'published',
+				sortBy: 'createdAt',
+				sortType: -1,
+			},
+		};
+		getMyWorkflows(payload, fetchMore);
+	}, []);
+
+	const fetchMoreMyWorkflows = useCallback(() => {
+		getMyWorkflowTemplatesData(info?.currentPage + 1, true);
+	}, [info?.hasNextPage, info?.currentPage]);
+
+	const myWorkflowsDataParser = useCallback(
+		(dataToBeUsed, fetchMore = false) => {
+			let { data, currentPage, hasNextPage } = dataToBeUsed;
+			let workflowTemplates = [];
+
+			for (let i = 0; i < data?.length; i++) {
+				if (
+					data?.[i]?.tenantId &&
+					data?.[i]?.tenantId !== null &&
+					data?.[i]?.status === 'published'
+				) {
+					workflowTemplates?.push(data?.[i]);
+				}
+			}
+
+			if (fetchMore) {
+				workflowTemplates = [...(info?.workflowTemplates || [])]?.concat(workflowTemplates);
+			}
+			setInfo((prev) => ({
+				...prev,
+				loading: false,
+				workflowTemplates,
+				currentPage,
+				hasNextPage,
+			}));
+		},
+		[info?.workflowTemplates],
+	);
+
+	const tabs = useMemo(() => {
+		return {
+			all: {
+				label: 'All',
+				comp: (
+					<TemplateCards
+						data={info?.workflowTemplates}
+						loading={info?.loading}
+						hasNextPage={info?.hasNextPage}
+						fetchMoreMyWorkflows={fetchMoreMyWorkflows}
+					/>
+				),
+			},
+			// proposals: {
+			// 	label: 'Proposals',
+			// 	comp: <div>Proposals</div>,
+			// },
+			// invoices: {
+			// 	label: 'Invoices',
+			// 	comp: <div>Invoices</div>,
+			// },
+			// contracts: {
+			// 	label: 'Contracts',
+			// 	comp: <div>Contracts</div>,
+			// },
+			// presentations: {
+			// 	label: 'Presentations',
+			// 	comp: <div>Presentations</div>,
+			// },
+		};
+	}, [info?.activeTab, info?.workflowTemplates]);
+
+	const handleTabChange = useCallback(
+		(tab) => {
+			if (tab === info?.activeTab) return;
+			setInfo((prev) => ({ ...prev, activeTab: tab }));
+		},
+		[info?.activeTab],
+	);
+
+	const handleCardClick = (card) => {
+		if (card?.id === 3) {
+			navigate('/playbook');
+		}
+	};
+
+	return (
+		<div className="myTemplatesContainer">
+			<div className="headerContainer">
+				<div className="myTemplatesHeader">
+					<div className="headerTextContainer">
+						<div className="headerText">
+							<span className="lineOne">Templates</span>
+							<span className="lineTwo">You Created</span>
+						</div>
+						<div className="headerSubText">
+							Create, save, and reuse templates for documents, proposals, invoices,
+							contracts, and presentations.
+						</div>
+					</div>
+					<div className="quickActionsBtn">
+						<QuickActions />
+					</div>
+				</div>
+
+				<div className="cardsContainer">
+					{cards.map((card) => (
+						<div
+							className="card"
+							key={card?.id}
+							onClick={() => handleCardClick(card)}
+							style={{ cursor: card?.id === 3 ? 'pointer' : 'default' }}
+						>
+							<h2 className="cardTitle">{card?.title}</h2>
+							<p className="cardSubTitle">{card?.subTitle}</p>
+						</div>
+					))}
+				</div>
+				<h1 className="title">My Templates</h1>
+			</div>
+
+			<div className="templateWrapper">
+				<nav className="navContainer">
+					<div className="navItemsContainer">
+						{Object?.keys(tabs)?.map((tab) => (
+							<div
+								className={`navItem ${tab === info?.activeTab ? 'active' : ''}`}
+								key={tab}
+								onClick={() => handleTabChange(tab)}
+							>
+								{tabs?.[tab]?.label}
+							</div>
+						))}
+					</div>
+					<div className="ctaContainer">
+						{ctaItems?.map((ctaItem) => (
+							<div className="ctaItem" key={ctaItem?.id}>
+								{ctaItem?.icon}
+							</div>
+						))}
+					</div>
+				</nav>
+
+				{tabs?.[info?.activeTab]?.comp || ''}
+			</div>
+		</div>
+	);
+};
+
+export default memo(MyTemplates);
