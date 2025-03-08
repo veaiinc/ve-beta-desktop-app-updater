@@ -1,12 +1,12 @@
 import { Drawer } from 'antd';
 import React, { useContext, useEffect, useState, useCallback, memo } from 'react';
 import '../../../../assets/scss/sidebarNotes.scss';
-import { ReactComponent as Back } from '../../../../assets/svg/sidebar/notifications/back.svg';
-import { ReactComponent as Search } from '../../../../assets/svg/sidebar/notifications/search.svg';
-import { ReactComponent as Filter } from '../../../../assets/svg/sidebar/notifications/filter.svg';
-import { ReactComponent as Menu } from '../../../../assets/svg/sidebar/notifications/menu.svg';
+import { ReactComponent as Back } from '../../../../assets/svg/sidebar/notes/back.svg';
+import { ReactComponent as Search } from '../../../../assets/svg/sidebar/notes/search.svg';
+import { ReactComponent as Filter } from '../../../../assets/svg/sidebar/notes/filter.svg';
+import { ReactComponent as Menu } from '../../../../assets/svg/sidebar/notes/menu.svg';
 import { ReactComponent as NoteIcon } from '../../../../assets/svg/sidebar/notes/note.svg';
-import { ReactComponent as PlusIcon } from './Plus.svg';
+import { ReactComponent as PlusIcon } from '../../../../assets/svg/sidebar/notes/Plus.svg';
 import Context from '../../../../context/context';
 import moment from 'moment';
 import InfiniteScroll from 'react-infinite-scroll-component';
@@ -92,6 +92,7 @@ const Notes = ({ showNotesDrawer, setShowNotesDrawer }) => {
 	);
 
 	const handleNotesClick = (notesId) => {
+		handleCloseDrawer();
 		navigate(`/notes/${notesId}`);
 	};
 
@@ -131,7 +132,7 @@ const Notes = ({ showNotesDrawer, setShowNotesDrawer }) => {
 			},
 		};
 		const response = await createNotesList(payload);
-		console.log('response', response);
+		handleCloseDrawer();
 		navigate(`/notes/${response[1]?.id}`);
 	};
 
