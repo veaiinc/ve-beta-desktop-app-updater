@@ -47,7 +47,7 @@ const infiniteScrollHeight = 'calc(100vh - 72px)';
 
 const Notes = ({ showNotesDrawer, setShowNotesDrawer }) => {
 	let {
-		templates: { getNotesList, notes, moreNotes, createNotesList },
+		notes: { getNotesList, notes, moreNotes, createNotesList },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({ ...initialState });
