@@ -91,6 +91,10 @@ const Notes = ({ showNotesDrawer, setShowNotesDrawer }) => {
 		[info],
 	);
 
+	const handleNotesClick = (notesId) => {
+		navigate(`/notes/${notesId}`);
+	};
+
 	const getNotesData = useCallback(
 		(page, fetchMore = false) => {
 			const payload = {
@@ -188,7 +192,13 @@ const Notes = ({ showNotesDrawer, setShowNotesDrawer }) => {
 							height={infiniteScrollHeight}
 						>
 							{info?.notesData?.map((notes) => (
-								<div key={notes?._id} className="notes-list">
+								<div
+									key={notes?._id}
+									className="notes-list"
+									onClick={() => {
+										handleNotesClick(notes?.id);
+									}}
+								>
 									<div className="notes-list-content">
 										<NoteIcon className="notes-icon" />
 										{notes?.title || ''}
