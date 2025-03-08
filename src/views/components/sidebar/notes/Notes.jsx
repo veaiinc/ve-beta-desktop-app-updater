@@ -1,11 +1,11 @@
 import { Drawer } from 'antd';
 import React, { useContext, useEffect, useState, useCallback, memo } from 'react';
-import '../../../../assets/scss/sidebarNotifications.scss';
+import '../../../../assets/scss/sidebarNotes.scss';
 import { ReactComponent as Back } from '../../../../assets/svg/sidebar/notifications/back.svg';
 import { ReactComponent as Search } from '../../../../assets/svg/sidebar/notifications/search.svg';
 import { ReactComponent as Filter } from '../../../../assets/svg/sidebar/notifications/filter.svg';
 import { ReactComponent as Menu } from '../../../../assets/svg/sidebar/notifications/menu.svg';
-import { ReactComponent as WhiteDot } from '../../../../assets/svg/sidebar/notifications/white-dot.svg';
+import { ReactComponent as NoteIcon } from '../../../../assets/svg/sidebar/notes/note.svg';
 import { ReactComponent as PlusIcon } from './Plus.svg';
 import Context from '../../../../context/context';
 import moment from 'moment';
@@ -188,13 +188,11 @@ const Notes = ({ showNotesDrawer, setShowNotesDrawer }) => {
 							height={infiniteScrollHeight}
 						>
 							{info?.notesData?.map((notes) => (
-								<div key={notes?._id} className="activity-log">
-									<WhiteDot />
-									<p className="summary">
+								<div key={notes?._id} className="notes-list">
+									<div className="notes-list-content">
+										<NoteIcon className="notes-icon" />
 										{notes?.title || ''}
-										<br />
-										<span className="action">{notes?.action}</span>
-									</p>
+									</div>
 									<p className="time">
 										{notes?.updatedAt ? formatTimestamp(notes?.updatedAt) : ''}
 									</p>
