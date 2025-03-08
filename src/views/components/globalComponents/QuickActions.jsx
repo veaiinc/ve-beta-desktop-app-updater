@@ -16,7 +16,7 @@ const dropdownOptions = [
 	{ id: 5, title: 'Form', value: 'form-submission', controlValue: 'form' },
 	{ id: 6, title: 'Proposal', value: 'proposal', controlValue: 'workflow' },
 	{ id: 7, title: 'Invoice', value: 'invoice', controlValue: 'workflow' },
-	{ id: 8, title: 'Contacts', value: 'contact', controlValue: 'contact' },
+	// { id: 8, title: 'Contacts', value: 'contact', controlValue: 'contact' },
 ];
 const QuickActions = ({ styles, customActions = [], clientDetails = null }) => {
 	const [info, setInfo] = useState({
@@ -95,7 +95,7 @@ const QuickActions = ({ styles, customActions = [], clientDetails = null }) => {
 					className="dropdown-header"
 					onClick={() => setInfo({ ...info, dropdown: !info?.dropdown })}
 				>
-					+ New
+					New
 				</button>
 			</Tooltip>
 			<ProposalsPopup
