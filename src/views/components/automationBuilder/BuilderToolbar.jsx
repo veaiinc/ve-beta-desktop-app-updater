@@ -56,7 +56,7 @@ const BuilderToolbar = ({
 		return {
 			triggers: (
 				<Triggers
-					onCLose={onClose}
+					onClose={onClose}
 					activeEdge={activeEdge}
 					templateId={templateId}
 					automationId={automationId}
@@ -66,7 +66,7 @@ const BuilderToolbar = ({
 			),
 			actions: (
 				<Actions
-					onCLose={onClose}
+					onClose={onClose}
 					activeEdge={activeEdge}
 					templateId={templateId}
 					activeStepsData={activeStepsData}
@@ -79,7 +79,7 @@ const BuilderToolbar = ({
 			),
 			conditions: (
 				<Conditions
-					onCLose={onClose}
+					onClose={onClose}
 					activeEdge={activeEdge}
 					templateId={templateId}
 					activeStepsData={activeStepsData}

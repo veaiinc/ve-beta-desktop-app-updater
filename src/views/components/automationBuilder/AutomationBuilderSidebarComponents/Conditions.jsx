@@ -11,7 +11,7 @@ import {
 	MoveStepsOptions,
 	selectedValueStyling,
 } from '../../../features/workflow_builder/workflowContantsHelpers';
-import { message, Spin } from 'antd';
+import { message } from 'antd';
 import Context from '../../../../context/context';
 import HeaderComponent from './HeaderComponent';
 import IfElse from './IfElse';
@@ -20,18 +20,16 @@ const conditionsList = {
 	ifElse: { title: 'If / Else', id: 'ifElse' },
 };
 const Conditions = ({
-	onCLose,
+	onClose,
 	activeEdge,
 	templateId,
 	editMode,
 	activeStepsData,
 	refetchWorkflowBuilderData,
 	automationId,
-	// variables,
 }) => {
 	const {
-		templates: { addNewSteps, updateStateValues, specificTemplatesInfo, updateSteps },
-		automationBuilder: { variables, addStep },
+		automationBuilder: { variables, addStep, updateStep },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		search: '',
@@ -58,6 +56,12 @@ const Conditions = ({
 			setInfo((prev) => ({ ...prev, hasNextNode: previousStepId !== nextStepId }));
 		}
 	}, [activeEdge]);
+
+	useEffect(() => {
+		if (activeStepsData) {
+			setInfo((prev) => ({ ...prev, activeScreen: 'ifElse' }));
+		}
+	}, [activeStepsData]);
 
 	const handleDebouce = useCallback(() => {
 		clearTimeout(info?.timeout);
@@ -91,39 +95,74 @@ const Conditions = ({
 			const response = await addStep(automationId, payload);
 			if (response?.[0]) {
 				setInfo((prev) => ({ ...prev, isLoading: false }));
-				onCLose();
+				onClose();
 			} else {
 				setInfo((prev) => ({ ...prev, isLoading: false }));
 				message.error('Failed to add node');
 			}
 		},
-		[info?.saveLoader, activeEdge, addStep, automationId, onCLose],
+		[info?.saveLoader, activeEdge, addStep, automationId, onClose],
 	);
+
+	const updateConditionNode = useCallback(
+		async (data) => {
+			if (info?.saveLoader) {
+				return;
+			}
+			const payload = {
+				stepId: activeStepsData?._id,
+				...data,
+			};
+			setInfo((prev) => ({ ...prev, isLoading: true }));
+			const response = await updateStep(automationId, payload);
+			if (response?.[0]) {
+				message.success('Condition updated successfully');
+			} else {
+				message.error('Failed to update condition');
+			}
+			setInfo((prev) => ({ ...prev, isLoading: false }));
+		},
+		[activeStepsData?.id, addStep, automationId, info?.saveLoader],
+	);
+
+	const onSave = useCallback(
+		(data) => {
+			if (activeStepsData) {
+				updateConditionNode(data);
+			} else {
+				addConditionNode(data);
+			}
+		},
+		[activeStepsData, addConditionNode, updateConditionNode],
+	);
+
+	const onBack = useCallback(() => {
+		if (activeStepsData) {
+			onClose();
+		} else {
+			changeStage({ activeScreen: null });
+		}
+	}, [changeStage, activeStepsData]);
 
 	const screenMapper = useMemo(() => {
 		return {
 			ifElse: (
 				<IfElse
 					variables={variables}
-					addConditionNode={addConditionNode}
+					onSave={onSave}
 					isLoading={info?.isLoading}
 					hasNextNode={info?.hasNextNode}
-					onBack={() => changeStage({ activeScreen: null })}
+					onBack={onBack}
+					activeStepsData={activeStepsData}
 				/>
 			),
 		};
-	}, [variables, addConditionNode, info?.isLoading, info?.hasNextNode, changeStage]);
-
-	// useEffect(() => {
-	// 	if (info?.activeStage) {
-	// 		changeStage({ activeStage: info?.activeStage });
-	// 	}
-	// }, [info?.activeStage]);
+	}, [variables, info?.isLoading, info?.hasNextNode, activeStepsData, onBack, onSave]);
 
 	return (
 		<div className="actionSidebarComponents">
 			<HeaderComponent
-				onBack={info?.activeScreen ? () => changeStage({ activeScreen: null }) : onCLose}
+				onBack={info?.activeScreen ? () => changeStage({ activeScreen: null }) : onClose}
 				heading="Conditions"
 			/>
 			{info?.activeScreen ? (
@@ -162,199 +201,3 @@ const Conditions = ({
 };
 
 export default memo(Conditions);
-
-// const Stage1 = ({ info, handleSearch, changeStage }) => {
-// 	const conditionListOnClick = useCallback((data) => {
-// 		if (data?.id === 'ifElse') changeStage({ activeStage: 'stage2' });
-// 	}, []);
-
-// 	return (
-// 		<>
-// 			<div className="actionSideBarSearchbarContainer">
-// 				<div className="actionSidebarSearch">
-// 					<span style={{ paddingTop: '12px', paddingBottom: '12px' }}>
-// 						<Search />
-// 					</span>
-// 					<input
-// 						className="actionSideBarSearchInput"
-// 						placeholder="Search Conditions"
-// 						value={info?.search}
-// 						onChange={handleSearch}
-// 					/>
-// 				</div>
-// 			</div>
-
-// 			<div className="actionsListContainer">
-// 				{info?.list?.map((ele, index) => (
-// 					<div
-// 						className="actionListItem"
-// 						key={index}
-// 						onClick={() => conditionListOnClick(ele?.id)}
-// 					>
-// 						{ele?.title}
-// 					</div>
-// 				))}
-// 			</div>
-// 		</>
-// 	);
-// };
-
-// const Stage2 = ({
-// 	info,
-// 	changeStage,
-// 	createNewConditionNode,
-// 	editMode,
-// 	activeStepsData,
-// 	editConditionNode,
-// }) => {
-// 	const [stageInfo, setStageInfo] = useState({
-// 		criteria: conditionOptions?.[0],
-// 		title: '',
-// 		moveSteps: MoveStepsOptions?.[0],
-// 	});
-
-// 	useEffect(() => {
-// 		if (editMode && activeStepsData) {
-// 			const { title, criteria } = activeStepsData;
-// 			let selectedCriteria = null;
-
-// 			for (let i = 0; i < conditionOptions?.length; i++) {
-// 				if (conditionOptions[i]?.value === criteria?.status) {
-// 					selectedCriteria = conditionOptions[i];
-// 					break;
-// 				}
-// 			}
-
-// 			setStageInfo((prev) => ({ ...prev, title, criteria: selectedCriteria }));
-// 		}
-// 	}, [editMode, activeStepsData]);
-
-// 	const onConditionSelection = useCallback(
-// 		(data) => {
-// 			if (data?.value === stageInfo?.priority?.value) {
-// 				return;
-// 			}
-// 			setStageInfo((prev) => ({ ...prev, criteria: data }));
-// 		},
-// 		[stageInfo],
-// 	);
-
-// 	const onMoveStepsSelection = useCallback(
-// 		(data) => {
-// 			if (data?.value === stageInfo?.moveSteps?.value) {
-// 				return;
-// 			}
-// 			setStageInfo((prev) => ({ ...prev, moveSteps: data }));
-// 		},
-// 		[stageInfo],
-// 	);
-
-// 	const handleChange = useCallback((e) => {
-// 		setStageInfo((prev) => ({ ...prev, title: e.target.value }));
-// 	}, []);
-
-// 	const modifiedHandleClick = useCallback(() => {
-// 		if (!stageInfo?.title?.length) {
-// 			return message.error('title is mandatory');
-// 		}
-// 		if (editMode) {
-// 			return editConditionNode({
-// 				title: stageInfo?.title,
-// 				status: stageInfo?.criteria?.value,
-// 			});
-// 		}
-// 		createNewConditionNode({
-// 			title: stageInfo?.title,
-// 			status: stageInfo?.criteria?.value,
-// 			moveTo: stageInfo?.moveSteps?.value,
-// 		});
-// 	}, [stageInfo, editMode]);
-// 	return (
-// 		<div className="createTaskUiContainer">
-// 			<div className="createTasksUi">
-// 				<div className="createTasksHeadingContainer">
-// 					<div className="createHeadingLabelContainer">
-// 						<div className="createTaskHeadingLabel">
-// 							<span className="actionsCreateHeader">Condition</span>
-// 							<span className="createTaskHeading">If / Else</span>
-// 						</div>
-// 						<div
-// 							className="changeActionStageButton"
-// 							onClick={() => changeStage({ activeStage: 'stage1' })}
-// 						>
-// 							Change
-// 						</div>
-// 					</div>
-// 				</div>
-
-// 				{/* condition title */}
-// 				<div className="addTaskTitleContainer">
-// 					<span className="addTaskTitleTextStyle">Add Title</span>
-// 					<textarea
-// 						className="addTaskTitleTextArea"
-// 						placeholder="Add  Title ...."
-// 						value={stageInfo?.title}
-// 						onChange={handleChange}
-// 					/>
-// 				</div>
-
-// 				{!editMode ? (
-// 					<div className="addTaskTitleContainer">
-// 						<span className="addTaskTitleTextStyle">Move Steps</span>
-// 						<HeadersDropDownComp
-// 							options={MoveStepsOptions}
-// 							showIcon={false}
-// 							containerStyle={{
-// 								...containerStyle,
-// 							}}
-// 							outerContainerStyle={{ width: '100%' }}
-// 							dropDownStyle={{ ...dropDownStyle }}
-// 							dropDownTextStyling={{ ...dropDownTextStyling }}
-// 							showSelectedValueTick={true}
-// 							uniqueIdentifierForTickIcon={'value'}
-// 							selectedValueObj={stageInfo?.moveSteps}
-// 							selectedValueStyle={{
-// 								...selectedValueStyling,
-// 							}}
-// 							selectedValue={stageInfo?.moveSteps?.label || ''}
-// 							onChangeFunc={onMoveStepsSelection}
-// 						/>
-// 					</div>
-// 				) : (
-// 					''
-// 				)}
-
-// 				<div className="addTaskTitleContainer">
-// 					<span className="addTaskTitleTextStyle">Criteria</span>
-// 					<HeadersDropDownComp
-// 						options={conditionOptions}
-// 						showIcon={false}
-// 						containerStyle={{
-// 							...containerStyle,
-// 						}}
-// 						outerContainerStyle={{ width: '100%' }}
-// 						dropDownStyle={{ ...dropDownStyle }}
-// 						dropDownTextStyling={{ ...dropDownTextStyling }}
-// 						showSelectedValueTick={true}
-// 						uniqueIdentifierForTickIcon={'value'}
-// 						selectedValueObj={stageInfo?.criteria}
-// 						selectedValueStyle={{
-// 							...selectedValueStyling,
-// 						}}
-// 						selectedValue={stageInfo?.criteria?.label || ''}
-// 						onChangeFunc={onConditionSelection}
-// 					/>
-// 				</div>
-// 			</div>
-// 			{editMode ? (
-// 				<div className="actionsSaveButton" onClick={modifiedHandleClick}>
-// 					{info?.saveLoader ? <Spin /> : 'Update'}
-// 				</div>
-// 			) : (
-// 				<div className="actionsSaveButton" onClick={modifiedHandleClick}>
-// 					{info?.saveLoader ? <Spin /> : 'Save'}
-// 				</div>
-// 			)}
-// 		</div>
-// 	);
-// };

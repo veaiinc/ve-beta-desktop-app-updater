@@ -126,7 +126,7 @@ const actionGroups = [
 ];
 
 const Actions = ({
-	onCLose,
+	onClose,
 	activeEdge,
 	editMode,
 	activeStepsData,
@@ -134,7 +134,7 @@ const Actions = ({
 	handleActiveStepData,
 }) => {
 	const {
-		automationBuilder: { connectedIntegrations, variables, addStep },
+		automationBuilder: { connectedIntegrations, variables, addStep, updateStep },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		search: '',
@@ -201,13 +201,49 @@ const Actions = ({
 			};
 			const response = await addStep(automationId, payload);
 			if (response?.[0]) {
-				onCLose();
+				onClose();
 			} else {
 				message.error('Failed to add step');
 			}
 			setInfo((prev) => ({ ...prev, saveLoader: false }));
 		},
-		[info?.saveLoader, activeEdge, automationId, onCLose, addStep],
+		[info?.saveLoader, activeEdge, automationId, onClose, addStep],
+	);
+
+	const updateNode = useCallback(
+		async (data) => {
+			if (info?.saveLoader) {
+				return;
+			}
+			setInfo((prev) => ({ ...prev, saveLoader: true }));
+
+			const payload = {
+				type: 'action',
+				app: 'inApp',
+				isEnabled: true,
+				stepId: activeStepsData?._id,
+				...data,
+			};
+			const response = await updateStep(automationId, payload);
+			if (response?.[0]) {
+				onClose();
+			} else {
+				message.error('Failed to add step');
+			}
+			setInfo((prev) => ({ ...prev, saveLoader: false }));
+		},
+		[info?.saveLoader, activeStepsData, automationId, onClose, updateStep],
+	);
+
+	const onSave = useCallback(
+		(data) => {
+			if (activeStepsData) {
+				updateNode(data);
+			} else {
+				addNode(data);
+			}
+		},
+		[activeStepsData, updateNode, addNode],
 	);
 
 	const updateInfo = useCallback((data) => {
@@ -217,7 +253,7 @@ const Actions = ({
 	const handleBack = () => {
 		if (activeStepsData) {
 			handleActiveStepData(null);
-			onCLose();
+			onClose();
 		} else {
 			updateInfo({ selectedAction: null });
 		}
@@ -228,7 +264,7 @@ const Actions = ({
 			createForm: (
 				<CreateFile
 					onBack={handleBack}
-					onSave={addNode}
+					onSave={onSave}
 					addTriggerLoading={info?.saveLoader}
 					variables={variables}
 				/>
@@ -236,7 +272,7 @@ const Actions = ({
 			createTask: (
 				<CreateTask
 					onBack={handleBack}
-					onSave={addNode}
+					onSave={onSave}
 					addTriggerLoading={info?.saveLoader}
 					variables={variables}
 					activeStepsData={activeStepsData}
@@ -245,7 +281,7 @@ const Actions = ({
 			createMeeting: (
 				<CreateMeeting
 					onBack={handleBack}
-					onSave={addNode}
+					onSave={onSave}
 					addTriggerLoading={info?.saveLoader}
 					variables={variables}
 					activeStepsData={activeStepsData}
@@ -254,7 +290,7 @@ const Actions = ({
 			gmail: (
 				<GoogleActions
 					onBack={handleBack}
-					onSave={addNode}
+					onSave={onSave}
 					loading={info?.saveLoader}
 					variables={variables}
 					selectedAction={info?.selectedAction}
@@ -264,14 +300,14 @@ const Actions = ({
 			slack: (
 				<SlackActions
 					onBack={handleBack}
-					onSave={addNode}
+					onSave={onSave}
 					loading={info?.saveLoader}
 					selectedAction={info?.selectedAction}
 					activeStepsData={activeStepsData}
 				/>
 			),
 		};
-	}, [updateInfo, addNode, info?.saveLoader, variables, info?.selectedAction, activeStepsData]);
+	}, [updateInfo, onSave, info?.saveLoader, variables, info?.selectedAction, activeStepsData]);
 
 	return (
 		<div className="actionSidebarComponents">
@@ -288,7 +324,7 @@ const Actions = ({
 							if (info?.selectedAction) {
 								updateInfo({ selectedAction: null });
 							} else {
-								onCLose();
+								onClose();
 							}
 						}}
 						heading="Actions"

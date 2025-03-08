@@ -104,9 +104,9 @@ const availableIntegrations = [
 	},
 ];
 
-const Triggers = ({ onCLose, automationId, editMode, activeStepsData, step }) => {
+const Triggers = ({ onClose, automationId, editMode, activeStepsData, step }) => {
 	const {
-		automationBuilder: { connectedIntegrations, addTrigger, getAutomation },
+		automationBuilder: { connectedIntegrations, addTrigger, getAutomation, updateStep },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		activeStage: `stage${step || 1}`, //stage1, stage2, stage3
@@ -123,25 +123,25 @@ const Triggers = ({ onCLose, automationId, editMode, activeStepsData, step }) =>
 
 	useEffect(() => {
 		if (activeStepsData) {
-			const trigger = triggersList?.[activeStepsData?.app]?.triggers?.find(
-				(trigger) => trigger?.event === activeStepsData?.event,
-			);
+			const trigger = triggersList?.[
+				activeStepsData?.app === 'gmail' ? 'google' : activeStepsData?.app
+			]?.triggers?.find((trigger) => trigger?.event === activeStepsData?.event);
 			if (trigger) {
 				setInfo((prev) => ({ ...prev, selectedTrigger: trigger }));
 			}
 		}
 	}, [activeStepsData]);
 
-	useEffect(() => {
-		if (editMode && activeStepsData) {
-			if (activeStepsData?.actionType === 'createTask') {
-				setInfo((prev) => ({ ...prev, activeStage: 'stage2' }));
-			}
-			if (activeStepsData?.actionType === 'createMeeting') {
-				setInfo((prev) => ({ ...prev, activeStage: 'stage3' }));
-			}
-		}
-	}, [editMode, activeStepsData]);
+	// useEffect(() => {
+	// 	if (editMode && activeStepsData) {
+	// 		if (activeStepsData?.actionType === 'createTask') {
+	// 			setInfo((prev) => ({ ...prev, activeStage: 'stage2' }));
+	// 		}
+	// 		if (activeStepsData?.actionType === 'createMeeting') {
+	// 			setInfo((prev) => ({ ...prev, activeStage: 'stage3' }));
+	// 		}
+	// 	}
+	// }, [editMode, activeStepsData]);
 
 	const checkConnection = useCallback(
 		(integration) => {
@@ -164,8 +164,7 @@ const Triggers = ({ onCLose, automationId, editMode, activeStepsData, step }) =>
 			const response = await addTrigger(automationId, data);
 			updateTriggerInfo({ saveLoader: false });
 			if (response?.[0]) {
-				setInfo((prev) => ({ ...prev, activeStage: 'stage2' }));
-				onCLose();
+				onClose();
 			} else {
 				message?.error(response?.[1] || 'Failed to add trigger');
 			}
@@ -173,14 +172,50 @@ const Triggers = ({ onCLose, automationId, editMode, activeStepsData, step }) =>
 		[connectedIntegrations, addTrigger, automationId, getAutomation],
 	);
 
+	const updateTrigger = useCallback(
+		async (data) => {
+			// updateTriggerInfo({ saveLoader: true });
+			// data.stepId = activeStepsData?._id;
+			// const response = await updateStep(automationId, data);
+			// updateTriggerInfo({ saveLoader: false });
+			// if (response?.[0]) {
+			// 	message?.success('Trigger updated successfully');
+			// 	onClose();
+			// } else {
+			// 	message?.error(response?.[1] || 'Failed to update trigger');
+			// }
+			onClose();
+		},
+		[updateTriggerInfo],
+	);
+
+	const onSave = useCallback(
+		(data) => {
+			if (activeStepsData) {
+				updateTrigger(data);
+			} else {
+				addNewTrigger(data);
+			}
+		},
+		[activeStepsData, updateTrigger, addNewTrigger],
+	);
+
+	const handleOnClose = useCallback(() => {
+		if (activeStepsData) {
+			updateTriggerInfo({ selectedTrigger: null });
+			onClose();
+		}
+		updateTriggerInfo({ selectedTrigger: null });
+	}, [onClose, activeStepsData, updateTriggerInfo]);
+
 	const triggerMapper = useMemo(() => {
 		return {
 			gmail: (
 				<GoogleTriggers
 					addNewTrigger={addNewTrigger}
 					selectedTrigger={info?.selectedTrigger}
-					onClose={() => updateTriggerInfo({ selectedTrigger: null })}
-					onSave={addNewTrigger}
+					onClose={onClose}
+					onSave={onSave}
 					addTriggerLoading={info?.saveLoader}
 					triggerData={info?.selectedTrigger}
 					connectedIntegrations={connectedIntegrations}
@@ -191,8 +226,8 @@ const Triggers = ({ onCLose, automationId, editMode, activeStepsData, step }) =>
 				<InAppTriggers
 					addNewTrigger={addNewTrigger}
 					selectedTrigger={info?.selectedTrigger}
-					onClose={() => updateTriggerInfo({ selectedTrigger: null })}
-					onSave={addNewTrigger}
+					onClose={onClose}
+					onSave={onSave}
 					addTriggerLoading={info?.saveLoader}
 					triggerData={info?.selectedTrigger}
 					connectedIntegrations={connectedIntegrations}
@@ -212,7 +247,7 @@ const Triggers = ({ onCLose, automationId, editMode, activeStepsData, step }) =>
 		triggerMapper?.[info?.selectedTrigger?.app]
 	) : (
 		<>
-			<HeaderComponent onBack={() => onCLose()} heading="Triggers" />
+			<HeaderComponent onBack={handleOnClose} heading="Triggers" />
 			<Step1 checkConnection={checkConnection} updateTriggerInfo={updateTriggerInfo} />
 		</>
 	);

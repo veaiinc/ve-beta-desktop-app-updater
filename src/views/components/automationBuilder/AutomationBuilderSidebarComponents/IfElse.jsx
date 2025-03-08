@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useState } from 'react';
+import React, { memo, useCallback, useEffect, useState } from 'react';
 import '../../../../assets/scss/automation_builder/automationBuilderSidebarComponents/ifElse.scss';
 import ActionDetailsBlock from './ActionDetailsBlock';
 import { message, Tooltip } from 'antd';
@@ -51,7 +51,7 @@ const conditionsList = [
 	},
 ];
 
-const IfElse = ({ variables, addConditionNode, isLoading, hasNextNode, onBack }) => {
+const IfElse = ({ variables, onSave, isLoading, hasNextNode, onBack, activeStepsData = null }) => {
 	const [info, setInfo] = useState({
 		heading: 'Conditions',
 		title: '',
@@ -62,6 +62,21 @@ const IfElse = ({ variables, addConditionNode, isLoading, hasNextNode, onBack })
 		value: '',
 		moveToYes: true,
 	});
+
+	useEffect(() => {
+		if (activeStepsData) {
+			setInfo((prev) => ({
+				...prev,
+				title: activeStepsData?.title,
+				description: activeStepsData?.description,
+				key: activeStepsData?.inputBody?.key,
+				selectedCondition: conditionsList.find(
+					(condition) => condition?.value === activeStepsData?.inputBody?.condition,
+				),
+				value: activeStepsData?.inputBody?.value,
+			}));
+		}
+	}, [activeStepsData]);
 
 	const updateInfo = useCallback((data) => {
 		setInfo((prev) => ({ ...prev, ...data }));
@@ -104,7 +119,7 @@ const IfElse = ({ variables, addConditionNode, isLoading, hasNextNode, onBack })
 			variables.value = [info?.value?.slice(2, -2)];
 		}
 
-		addConditionNode({
+		onSave({
 			title: info?.title,
 			description: info?.description,
 			type: 'condition',
@@ -112,11 +127,11 @@ const IfElse = ({ variables, addConditionNode, isLoading, hasNextNode, onBack })
 			inputBody: {
 				key: info?.key?.trim(),
 				condition: info?.selectedCondition?.value,
-				moveTo: info?.moveToYes ? 'yes' : 'no',
+				...(!activeStepsData && { moveTo: info?.moveToYes ? 'yes' : 'no' }),
 				...(info?.selectedCondition?.needValue && { value: info?.value?.trim() }),
 			},
 		});
-	}, [info, addConditionNode]);
+	}, [info, onSave, activeStepsData]);
 
 	return (
 		<>
@@ -231,7 +246,7 @@ const IfElse = ({ variables, addConditionNode, isLoading, hasNextNode, onBack })
 				)}
 			</div>
 			<button className="ifElseInputButton" onClick={handleAddCondition} disabled={isLoading}>
-				{isLoading ? 'Adding...' : 'Add Condition'}
+				{isLoading ? 'Saving...' : 'Save'}
 			</button>
 		</>
 	);
