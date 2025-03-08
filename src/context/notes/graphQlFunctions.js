@@ -15,13 +15,6 @@ export const getNotesListQuery = gql`
 				title
 				icon
 				coverImage
-				permissions {
-					private
-					sharedWith {
-						userId
-						access
-					}
-				}
 				tenantId
 				createdAt
 				updatedAt
@@ -40,13 +33,6 @@ export const createNotesQuery = gql`
 			tenantId
 			title
 			updatedAt
-			permissions {
-				private
-				sharedWith {
-					access
-					userId
-				}
-			}
 			coverImage
 		}
 	}
