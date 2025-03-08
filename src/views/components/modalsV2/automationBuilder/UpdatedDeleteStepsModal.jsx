@@ -1,11 +1,11 @@
 import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import ReactModal from '../../modalsV2/index';
-import '../../../../assets/scss/workflowBuilder/updatedDeleteWorkflowStep.scss';
+import '../../../../assets/scss/automation_builder/updatedDeleteWorkflowStep.scss';
 import Spinner from '../../loaders/Spinner';
 import { ReactComponent as Close } from '../../../../assets/svg/close.svg';
 import Context from '../../../../context/context';
-import { Spin } from 'antd';
-import { getTotalNumnerofNodesRecursively } from '../../../features/workflow_builder/workflowContantsHelpers';
+import { message, Spin } from 'antd';
+import { checkConditionNodeChild } from '../../../features/automation_builder/automationContentsHelper';
 const customStyles = {
 	content: { zIndex: 99999 },
 	overlay: { zIndex: 99998 },
@@ -13,20 +13,27 @@ const customStyles = {
 const UpdatedDeleteWorkflowStep = ({
 	modalIsOpen,
 	closeModal,
-	templateId,
+	automationId,
 	stepId,
-	workflowdata,
-	refetchWorkflowBuilderData,
+	stepData,
 	stepsMapper,
 }) => {
 	const {
-		templates: { deleteWorkflowStep },
+		automationBuilder: { deleteStep },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
 		deleteLoader: false,
 		calculatedSteps: null,
+		conditionNodeChild: null,
 	});
+
+	useEffect(() => {
+		if (stepId && modalIsOpen && stepData?.type === 'condition') {
+			const conditionNodeChild = checkConditionNodeChild(stepId, stepsMapper);
+			setInfo((prev) => ({ ...prev, conditionNodeChild }));
+		}
+	}, [stepId, modalIsOpen, stepData, stepsMapper]);
 
 	const deleteWorkflowStepFunc = useCallback(
 		async (deleteOptions = null) => {
@@ -35,38 +42,41 @@ const UpdatedDeleteWorkflowStep = ({
 			}
 			setInfo((prev) => ({ ...prev, deleteLoader: true }));
 			const payload = {
-				removeStepInput: {
-					stepId,
-					templateId,
-				},
+				stepId,
+				type: stepData?.type,
 			};
 
-			if (deleteOptions && deleteOptions !== null) {
-				payload.removeStepInput.deleteBranch = deleteOptions;
+			if (stepData?.type === 'condition') {
+				if (deleteOptions && deleteOptions !== null) {
+					payload.deleteBranch = deleteOptions;
+				} else {
+					payload.deleteBranch = info?.conditionNodeChild === 'yes' ? 'no' : 'yes';
+				}
 			}
 
-			const response = await deleteWorkflowStep(payload);
+			const response = await deleteStep(automationId, payload);
 			if (response?.[0]) {
-				const refetchData = await refetchWorkflowBuilderData({ closeSideBar: true });
-				if (refetchData?.[0]) {
-					closeModal();
-				}
+				message.success('Step deleted successfully');
+				closeModal();
+			} else {
+				message.error('Failed to delete step');
 			}
 			setInfo((prev) => ({ ...prev, deleteLoader: false }));
 		},
-		[templateId, stepId, info?.deleteLoader],
+		[
+			info?.deleteLoader,
+			info?.conditionNodeChild,
+			stepId,
+			stepData?.type,
+			deleteStep,
+			automationId,
+			closeModal,
+		],
 	);
-
-	useEffect(() => {
-		if (stepId && modalIsOpen && workflowdata?.type === 'condition') {
-			const count = getTotalNumnerofNodesRecursively(stepId, stepsMapper);
-			setInfo((prev) => ({ ...prev, calculatedSteps: count }));
-		}
-	}, [stepId, modalIsOpen, workflowdata]);
 
 	return (
 		<ReactModal isOpen={modalIsOpen} closeModal={closeModal} customStyles={customStyles}>
-			{workflowdata?.type === 'action' ? (
+			{info?.conditionNodeChild !== 'both' ? (
 				<div className="deleteWorkflowStepsContainer">
 					<div className="deleteWorklfowHeaderParentContainer">
 						<div className="deleteWorklfowHeaderContainer">
@@ -105,8 +115,7 @@ const UpdatedDeleteWorkflowStep = ({
 						</span>
 					</div>
 					<span className="deleteHeaderSubtitle">
-						There are {info?.calculatedSteps || 0} steps after this condition. Where
-						would you like to move them?
+						There are two branches after this step. How would you like to handle them?
 					</span>
 					{!info?.deleteLoader ? (
 						<div className="differentDeleteOptionsContainer">

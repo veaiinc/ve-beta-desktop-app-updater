@@ -24,6 +24,7 @@ const CreateFile = ({ onBack, onSave, addTriggerLoading, variables }) => {
 		hasNextPage: false,
 		selectedTemplate: null,
 		chooseFromTemplate: false,
+		activeStepsData: null,
 	});
 
 	useEffect(() => {
@@ -146,28 +147,36 @@ const CreateFile = ({ onBack, onSave, addTriggerLoading, variables }) => {
 						}}
 						height="calc(100vh - 52px - 80px)"
 					>
-						{info?.workflowTemplates?.map((template, index) => (
-							<div
-								className={`chooseFromTemplateFormContainer ${
-									info?.selectedTemplate?._id === template?._id ? 'selected' : ''
-								}`}
-								key={index}
-								onClick={() =>
-									updateInfo({
-										selectedTemplate: template,
-										chooseFromTemplate: false,
-									})
-								}
-							>
-								<div className="templatePreview"></div>
-								<div className="templateDetails">
-									<h2 className="templateName">{template?.title}</h2>
-									<p className="templateDescription">
-										{template?.description || 'Enquiry Form'}
-									</p>
+						{info?.workflowTemplates?.length > 0 ? (
+							info?.workflowTemplates?.map((template, index) => (
+								<div
+									className={`chooseFromTemplateFormContainer ${
+										info?.selectedTemplate?._id === template?._id
+											? 'selected'
+											: ''
+									}`}
+									key={index}
+									onClick={() =>
+										updateInfo({
+											selectedTemplate: template,
+											chooseFromTemplate: false,
+										})
+									}
+								>
+									<div className="templatePreview"></div>
+									<div className="templateDetails">
+										<h2 className="templateName">{template?.title}</h2>
+										<p className="templateDescription">
+											{template?.description || 'Enquiry Form'}
+										</p>
+									</div>
 								</div>
+							))
+						) : (
+							<div className="noTemplatesContainer">
+								<p>No templates found</p>
 							</div>
-						))}
+						)}
 					</InfiniteScroll>
 				</div>
 			) : (
@@ -220,18 +229,6 @@ const CreateFile = ({ onBack, onSave, addTriggerLoading, variables }) => {
 							</>
 						)}
 					</div>
-					{/* <div className="createFileFormSelectionBlockContainer">
-						<h3>Inputs</h3>
-						<div className="addTaskTitleContainer">
-							<span className="addTaskTitleTextStyle">Client</span>
-
-							<VariableComponent
-								variables={null}
-								onChange={(value) => updateInfo({ dueDate: value })}
-								type="date"
-							/>
-						</div>
-					</div> */}
 					<div className="triggerSaveButtonContainer">
 						<button
 							className="triggerSaveButton"

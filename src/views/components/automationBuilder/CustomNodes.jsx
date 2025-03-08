@@ -10,7 +10,7 @@ import { ReactComponent as Dustbin } from '../../../assets/svg/worflow_builder/b
 import { ReactComponent as Copy } from '../../../assets/svg/worflow_builder/buildercard/labelledCopy.svg';
 import { ReactComponent as Eye } from '../../../assets/svg/worflow_builder/buildercard/labelledEye.svg';
 import { ReactComponent as ShockIcon } from '../../../assets/svg/automation_builder/shock.svg';
-import UpdatedDeleteWorkflowStep from '../modalsV2/workflowBuilderModals/UpdatedDeleteStepsModal';
+import UpdatedDeleteWorkflowStep from '../modalsV2/automationBuilder/UpdatedDeleteStepsModal';
 import { Tooltip } from 'antd';
 const actionTypeMapper = {
 	email: 'Send Email',
@@ -38,11 +38,28 @@ const eventTypeMapper = {
 	task_create: 'Task Created',
 	task_update: 'Task Updated',
 	task_delete: 'Task Deleted',
+	client_create: 'Client Created',
+	client_update: 'Client Updated',
+	client_delete: 'Client Deleted',
 
 	// actions
 	sendMessage: 'Send Message',
+	sendReply: 'Send Reply',
+	getLabelInfo: 'Get Label Info',
+	createLabel: 'Create Label',
+	createDraft: 'Create Draft',
+	deleteDraft: 'Delete Draft',
+	getDraft: 'Get Draft',
 	createTask: 'Create Task',
 	createFile: 'Create Document',
+	joinChannel: 'Join Channel',
+	leaveChannel: 'Leave Channel',
+	renameChannel: 'Rename Channel',
+	channelMembers: 'Channel Members',
+	getChannelInfo: 'Get Channel Info',
+	getManyChannels: 'Get Many Channels',
+	createChannel: 'Create Channel',
+	replyMessage: 'Reply to message',
 };
 
 const appNameMapper = {
@@ -188,10 +205,9 @@ export const ActionNode = ({ data }) => {
 				<UpdatedDeleteWorkflowStep
 					modalIsOpen={info?.deleteModal}
 					closeModal={handleCloseDeleteModal}
-					templateId={data?.templateId}
+					automationId={data?.automationId}
 					stepId={data?.currentStep?._id}
-					workflowdata={data?.currentStep}
-					refetchWorkflowBuilderData={data?.refetchWorkflowBuilderData}
+					stepData={data?.currentStep}
 					stepsMapper={data?.stepsMapper}
 				/>
 			</div>
@@ -251,10 +267,9 @@ export const ConditionNode = ({ data }) => {
 				<UpdatedDeleteWorkflowStep
 					modalIsOpen={info?.deleteModal}
 					closeModal={handleCloseDeleteModal}
-					templateId={data?.templateId}
+					automationId={data?.automationId}
 					stepId={data?.currentStep?._id}
-					workflowdata={data?.currentStep}
-					refetchWorkflowBuilderData={data?.refetchWorkflowBuilderData}
+					stepData={data?.currentStep}
 					stepsMapper={data?.stepsMapper}
 				/>
 			</div>
