@@ -1,4 +1,4 @@
-import { Tooltip } from 'antd';
+import { message, Tooltip } from 'antd';
 import React, { useContext, useState, useCallback } from 'react';
 // import '../../../assets/scss/home_page/homepage.scss';
 import '../../../assets/scss/globalComponents/quickActions.scss';
@@ -7,6 +7,7 @@ import Context from '../../../context/context';
 import ProposalsPopup from '../../components/docs/ProposalsPopup';
 import CreateClientModal from '../../components/modalsV2/contacts/CreateClientModal';
 import CreateTaskPopup from '../../components/modalsV2/tasks/CreateTaskPopup';
+import Spinner from '../loaders/Spinner';
 
 const dropdownOptions = [
 	{ id: 0, title: 'Lead', value: 'client', controlValue: 'contact' },
@@ -17,6 +18,7 @@ const dropdownOptions = [
 	{ id: 6, title: 'Proposal', value: 'proposal', controlValue: 'workflow' },
 	{ id: 7, title: 'Invoice', value: 'invoice', controlValue: 'workflow' },
 	{ id: 8, title: 'Contacts', value: 'contact', controlValue: 'contact' },
+	{ id: 9, title: 'Automation', value: 'automation' },
 ];
 const QuickActions = ({ styles, customActions = [], clientDetails = null }) => {
 	const [info, setInfo] = useState({
@@ -31,6 +33,7 @@ const QuickActions = ({ styles, customActions = [], clientDetails = null }) => {
 	let {
 		templates: { toggleCreateLeadModal },
 		profileInfo: { tenantUserAccessControls },
+		automationBuilder: { createAutomation },
 	} = useContext(Context);
 	const navigate = useNavigate();
 
@@ -67,8 +70,28 @@ const QuickActions = ({ styles, customActions = [], clientDetails = null }) => {
 			setInfo({ ...info, openProposalPopup: true, commonState: 'invoice' });
 		} else if (type === 'contract') {
 			setInfo({ ...info, openProposalPopup: true, commonState: 'contract' });
+		} else if (type === 'automation') {
+			handleCreateAutomation();
 		}
 	}, []);
+
+	const handleCreateAutomation = useCallback(async () => {
+		if (info?.isAutomationLoading) return;
+		setInfo({ ...info, isAutomationLoading: true });
+		const response = await createAutomation({
+			name: 'Untitled Automation',
+			version: 1,
+			steps: [],
+			status: 'draft',
+		});
+		if (response?.[0]) {
+			navigate(`/automation-builder/${response?.[1]?._id}`);
+		} else {
+			message.error('Failed to create automation');
+		}
+		setInfo({ ...info, isAutomationLoading: false });
+	}, [createAutomation, navigate]);
+
 	return (
 		<div className="quick-actions-dropdown-container" style={{ ...styles }}>
 			<Tooltip
@@ -85,7 +108,19 @@ const QuickActions = ({ styles, customActions = [], clientDetails = null }) => {
 								className="dropdown-option"
 								onClick={() => handleDropdownOptionClick(option?.value)}
 							>
-								{option?.title}
+								{option?.value === 'automation' ? (
+									info?.isAutomationLoading ? (
+										<Spinner
+											width="20px"
+											height="20px"
+											cssstyle={{ margin: '0 auto' }}
+										/>
+									) : (
+										option?.title
+									)
+								) : (
+									option?.title
+								)}
 							</div>
 						))}
 					</div>

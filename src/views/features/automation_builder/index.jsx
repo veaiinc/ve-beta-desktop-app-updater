@@ -5,12 +5,10 @@ import { useNavigate, useParams } from 'react-router-dom';
 import {
 	addEdge,
 	Background,
-	Controls,
 	ReactFlow,
 	ReactFlowProvider,
 	useEdgesState,
 	useNodesState,
-	useReactFlow,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import {
@@ -158,9 +156,9 @@ const AutomationBuilder = () => {
 				payload.action = data?.criteria?.event;
 				payload.app = data?.app;
 			}
-			getVariables(payload);
+			getVariables({ automationId, previousStepId: data?._id, action: data?.module });
 		}
-	}, [info?.previousNode]);
+	}, [info?.previousNode, automationId]);
 
 	useEffect(() => {
 		if (variables) {
@@ -257,7 +255,15 @@ const AutomationBuilder = () => {
 						target: ifYes.nextStepId,
 						label: 'Yes',
 						animated: true,
-						type: 'smoothstep',
+						type: 'custom',
+						data: {
+							currentStep,
+							onToolBarOpen: handleToolBarOpen,
+							stepsMapper: stepsMapper,
+							automationId: automationId,
+							refetchWorkflowBuilderData: refetchWorkflowBuilderData,
+							label: 'Yes',
+						},
 					});
 					generateNodesAndEdges(ifYes.nextStepId, nodeX, branchY, 'yes', true);
 				} else {
@@ -277,9 +283,16 @@ const AutomationBuilder = () => {
 						id: `${stepId}-${endNodeId}-yes`,
 						source: stepId,
 						target: endNodeId,
-						label: 'Yes',
 						animated: true,
-						type: 'smoothstep',
+						type: 'custom',
+						data: {
+							currentStep,
+							onToolBarOpen: handleToolBarOpen,
+							stepsMapper: stepsMapper,
+							automationId: automationId,
+							refetchWorkflowBuilderData: refetchWorkflowBuilderData,
+							label: 'Yes',
+						},
 					});
 				}
 
@@ -291,7 +304,15 @@ const AutomationBuilder = () => {
 						target: ifNo.nextStepId,
 						label: 'No',
 						animated: true,
-						type: 'smoothstep',
+						type: 'custom',
+						data: {
+							currentStep,
+							onToolBarOpen: handleToolBarOpen,
+							stepsMapper: stepsMapper,
+							automationId: automationId,
+							refetchWorkflowBuilderData: refetchWorkflowBuilderData,
+							label: 'No',
+						},
 					});
 					generateNodesAndEdges(ifNo.nextStepId, nodeX, branchY, 'no', true);
 				} else {
@@ -311,9 +332,16 @@ const AutomationBuilder = () => {
 						id: `${stepId}-${endNodeId}-no`,
 						source: stepId,
 						target: endNodeId,
-						label: 'No',
 						animated: true,
-						type: 'smoothstep',
+						type: 'custom',
+						data: {
+							currentStep,
+							onToolBarOpen: handleToolBarOpen,
+							stepsMapper: stepsMapper,
+							automationId: automationId,
+							refetchWorkflowBuilderData: refetchWorkflowBuilderData,
+							label: 'No',
+						},
 					});
 				}
 			} else if (currentStep.nextStepId) {
@@ -324,7 +352,13 @@ const AutomationBuilder = () => {
 					target: currentStep.nextStepId,
 					animated: true,
 					type: 'custom',
-					data: { onToolBarOpen: handleToolBarOpen },
+					data: {
+						currentStep,
+						onToolBarOpen: handleToolBarOpen,
+						stepsMapper: stepsMapper,
+						automationId: automationId,
+						refetchWorkflowBuilderData: refetchWorkflowBuilderData,
+					},
 				});
 				generateNodesAndEdges(currentStep.nextStepId, nodeX, nextY, branchType, false);
 			} else {
@@ -346,7 +380,13 @@ const AutomationBuilder = () => {
 					target: endNodeId,
 					animated: true,
 					type: 'custom',
-					data: { onToolBarOpen: handleToolBarOpen },
+					data: {
+						currentStep,
+						onToolBarOpen: handleToolBarOpen,
+						stepsMapper: stepsMapper,
+						automationId: automationId,
+						refetchWorkflowBuilderData: refetchWorkflowBuilderData,
+					},
 				});
 			}
 		};
@@ -381,6 +421,10 @@ const AutomationBuilder = () => {
 
 	const handleToolBarOpen = useCallback((obj = {}) => {
 		setInfo((prev) => ({ ...prev, ...obj }));
+	}, []);
+
+	const handleActiveStepData = useCallback((data) => {
+		setInfo((prev) => ({ ...prev, activeStepsData: data }));
 	}, []);
 
 	const refetchWorkflowBuilderData = useCallback(async (data) => {
@@ -554,6 +598,7 @@ const AutomationBuilder = () => {
 						step={info?.step}
 						previousNode={info?.previousNode}
 						variables={info?.variables}
+						handleActiveStepData={handleActiveStepData}
 					/>
 				</div>
 			)}
