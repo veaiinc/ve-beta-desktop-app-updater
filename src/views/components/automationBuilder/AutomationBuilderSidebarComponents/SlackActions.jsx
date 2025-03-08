@@ -15,7 +15,7 @@ import VariableComponent from './VariableComponent';
 import { useCallback } from 'react';
 import { message } from 'antd';
 
-const SlackActions = ({ onBack, onSave, loading, selectedAction }) => {
+const SlackActions = ({ onBack, onSave, loading, selectedAction, activeStepsData }) => {
 	const {
 		automationBuilder: { connectedIntegrations, variables },
 	} = useContext(Context);
@@ -59,6 +59,22 @@ const SlackActions = ({ onBack, onSave, loading, selectedAction }) => {
 			}));
 		}
 	}, [connectedIntegrations]);
+
+	useEffect(() => {
+		if (activeStepsData) {
+			setInfo((prev) => ({
+				...prev,
+				title: activeStepsData?.title,
+				description: activeStepsData?.description,
+				selectedTeam: info?.slackTeamOptions?.find(
+					(ele) => ele?.value === activeStepsData?.inputBody?.connectedTeamId,
+				),
+				selectedChannel: info?.slackTeamOptions
+					?.find((ele) => ele?.value === activeStepsData?.inputBody?.connectedTeamId)
+					?.channels?.find((ele) => ele?.value === activeStepsData?.inputBody?.channelId),
+			}));
+		}
+	}, [activeStepsData, info?.slackTeamOptions]);
 
 	const updateInfo = useCallback((data) => {
 		setInfo((prev) => ({ ...prev, ...data }));
@@ -108,6 +124,7 @@ const SlackActions = ({ onBack, onSave, loading, selectedAction }) => {
 					changeTeam={handleChangeTeam}
 					customSave={customSave}
 					variables={variables}
+					inputBody={activeStepsData?.inputBody || null}
 				/>
 			),
 			sendMessage: (
@@ -120,6 +137,7 @@ const SlackActions = ({ onBack, onSave, loading, selectedAction }) => {
 					variables={variables}
 					changeTeam={handleChangeTeam}
 					customSave={customSave}
+					inputBody={activeStepsData?.inputBody || null}
 				/>
 			),
 			deleteMessage: (
@@ -132,6 +150,7 @@ const SlackActions = ({ onBack, onSave, loading, selectedAction }) => {
 					variables={variables}
 					changeTeam={handleChangeTeam}
 					customSave={customSave}
+					inputBody={activeStepsData?.inputBody || null}
 				/>
 			),
 			getChannelInfo: (
@@ -144,6 +163,7 @@ const SlackActions = ({ onBack, onSave, loading, selectedAction }) => {
 					changeTeam={handleChangeTeam}
 					customSave={customSave}
 					variables={variables}
+					inputBody={activeStepsData?.inputBody || null}
 				/>
 			),
 			getManyChannels: (
@@ -153,6 +173,7 @@ const SlackActions = ({ onBack, onSave, loading, selectedAction }) => {
 					slackTeamOptions={info?.slackTeamOptions}
 					changeTeam={handleChangeTeam}
 					customSave={customSave}
+					inputBody={activeStepsData?.inputBody || null}
 				/>
 			),
 			joinChannel: (
@@ -165,6 +186,7 @@ const SlackActions = ({ onBack, onSave, loading, selectedAction }) => {
 					variables={variables}
 					selectedChannel={info?.selectedChannel}
 					changeChannel={(option) => updateInfo({ selectedChannel: option })}
+					inputBody={activeStepsData?.inputBody || null}
 				/>
 			),
 			leaveChannel: (
@@ -177,6 +199,7 @@ const SlackActions = ({ onBack, onSave, loading, selectedAction }) => {
 					variables={variables}
 					selectedChannel={info?.selectedChannel}
 					changeChannel={(option) => updateInfo({ selectedChannel: option })}
+					inputBody={activeStepsData?.inputBody || null}
 				/>
 			),
 			renameChannel: (
@@ -189,6 +212,7 @@ const SlackActions = ({ onBack, onSave, loading, selectedAction }) => {
 					variables={variables}
 					selectedChannel={info?.selectedChannel}
 					changeChannel={(option) => updateInfo({ selectedChannel: option })}
+					inputBody={activeStepsData?.inputBody || null}
 				/>
 			),
 			channelMembers: (
@@ -201,6 +225,7 @@ const SlackActions = ({ onBack, onSave, loading, selectedAction }) => {
 					variables={variables}
 					selectedChannel={info?.selectedChannel}
 					changeChannel={(option) => updateInfo({ selectedChannel: option })}
+					inputBody={activeStepsData?.inputBody || null}
 				/>
 			),
 		};
@@ -213,6 +238,7 @@ const SlackActions = ({ onBack, onSave, loading, selectedAction }) => {
 		variables,
 		customSave,
 		updateInfo,
+		activeStepsData?.inputBody,
 	]);
 
 	return (
@@ -243,10 +269,16 @@ const SlackActions = ({ onBack, onSave, loading, selectedAction }) => {
 export default memo(SlackActions);
 
 const CreateChannel = memo(
-	({ loading, selectedTeam, slackTeamOptions, changeTeam, customSave }) => {
+	({ loading, selectedTeam, slackTeamOptions, changeTeam, customSave, inputBody }) => {
 		const [info, setInfo] = useState({
 			channelName: '',
 		});
+
+		useEffect(() => {
+			if (inputBody) {
+				updateStateInfo({ channelName: inputBody?.channelName });
+			}
+		}, [inputBody]);
 
 		const updateStateInfo = useCallback((data) => {
 			setInfo((prev) => ({ ...prev, ...data }));
@@ -331,14 +363,22 @@ const SendMessage = memo(
 		changeChannel,
 		selectedChannel,
 		customSave,
+		inputBody,
 	}) => {
 		const [info, setInfo] = useState({
 			message: '',
 		});
 
+		useEffect(() => {
+			if (inputBody) {
+				updateStateInfo({ message: inputBody?.message });
+			}
+		}, [inputBody]);
+
 		const updateStateInfo = (data) => {
 			setInfo((prev) => ({ ...prev, ...data }));
 		};
+
 		const handleSave = useCallback(() => {
 			if (!selectedTeam) {
 				return message.error('Select a Slack workspace');
@@ -430,10 +470,17 @@ const DeleteMessage = memo(
 		changeChannel,
 		selectedChannel,
 		customSave,
+		inputBody,
 	}) => {
 		const [info, setInfo] = useState({
 			messageId: '',
 		});
+
+		useEffect(() => {
+			if (inputBody) {
+				updateStateInfo({ messageId: inputBody?.messageId });
+			}
+		}, [inputBody]);
 
 		const updateStateInfo = (data) => {
 			setInfo((prev) => ({ ...prev, ...data }));
@@ -601,10 +648,16 @@ const ChannelInfo = memo(
 );
 
 const GetManyChannels = memo(
-	({ loading, selectedTeam, slackTeamOptions, changeTeam, customSave }) => {
+	({ loading, selectedTeam, slackTeamOptions, changeTeam, customSave, inputBody }) => {
 		const [info, setInfo] = useState({
 			limit: null,
 		});
+
+		useEffect(() => {
+			if (inputBody) {
+				updateStateInfo({ limit: inputBody?.limit });
+			}
+		}, [inputBody]);
 
 		const updateStateInfo = useCallback((data) => {
 			setInfo((prev) => ({ ...prev, ...data }));
@@ -852,10 +905,17 @@ const RenameChannel = memo(
 		variables,
 		selectedChannel,
 		changeChannel,
+		inputBody,
 	}) => {
 		const [info, setInfo] = useState({
 			channelName: '',
 		});
+
+		useEffect(() => {
+			if (inputBody) {
+				updateStateInfo({ channelName: inputBody?.channelName });
+			}
+		}, [inputBody]);
 
 		const updateStateInfo = useCallback((data) => {
 			setInfo((prev) => ({ ...prev, ...data }));

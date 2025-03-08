@@ -122,6 +122,17 @@ const Triggers = ({ onCLose, automationId, editMode, activeStepsData, step }) =>
 	}, [connectedIntegrations]);
 
 	useEffect(() => {
+		if (activeStepsData) {
+			const trigger = triggersList?.[activeStepsData?.app]?.triggers?.find(
+				(trigger) => trigger?.event === activeStepsData?.event,
+			);
+			if (trigger) {
+				setInfo((prev) => ({ ...prev, selectedTrigger: trigger }));
+			}
+		}
+	}, [activeStepsData]);
+
+	useEffect(() => {
 		if (editMode && activeStepsData) {
 			if (activeStepsData?.actionType === 'createTask') {
 				setInfo((prev) => ({ ...prev, activeStage: 'stage2' }));

@@ -423,6 +423,10 @@ const AutomationBuilder = () => {
 		setInfo((prev) => ({ ...prev, ...obj }));
 	}, []);
 
+	const handleActiveStepData = useCallback((data) => {
+		setInfo((prev) => ({ ...prev, activeStepsData: data }));
+	}, []);
+
 	const refetchWorkflowBuilderData = useCallback(async (data) => {
 		await getAutomation(automationId);
 
@@ -594,6 +598,7 @@ const AutomationBuilder = () => {
 						step={info?.step}
 						previousNode={info?.previousNode}
 						variables={info?.variables}
+						handleActiveStepData={handleActiveStepData}
 					/>
 				</div>
 			)}

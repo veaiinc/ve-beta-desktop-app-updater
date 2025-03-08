@@ -16,8 +16,8 @@ import {
 } from '../../../features/automation_builder/automationContentsHelper';
 import { message } from 'antd';
 import Spinner from '../../loaders/Spinner';
-
-const GoogleActions = ({ onBack, onSave, loading, selectedAction }) => {
+import validator from 'validator';
+const GoogleActions = ({ onBack, onSave, loading, selectedAction, activeStepsData }) => {
 	const {
 		templates: { allEmailTemplates },
 		automationBuilder: { connectedIntegrations, getAutomation, addStep, variables },
@@ -33,12 +33,15 @@ const GoogleActions = ({ onBack, onSave, loading, selectedAction }) => {
 		selectedGoogleAccount: null,
 	});
 	useEffect(() => {
-		setInfo((prevInfo) => ({
-			...prevInfo,
-			title: '',
-			description: '',
-		}));
+		if (!activeStepsData) {
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				title: '',
+				description: '',
+			}));
+		}
 	}, [selectedAction]);
+
 	useEffect(() => {
 		if (allEmailTemplates) {
 			setInfo((prev) => ({
@@ -63,6 +66,23 @@ const GoogleActions = ({ onBack, onSave, loading, selectedAction }) => {
 			}));
 		}
 	}, [connectedIntegrations]);
+
+	useEffect(() => {
+		if (activeStepsData) {
+			setInfo((prev) => ({
+				...prev,
+				title: activeStepsData.title,
+				description: activeStepsData.description,
+				selectedGoogleAccount: {
+					label: activeStepsData?.inputBody?.connectedEmail,
+					value: activeStepsData?.inputBody?.connectedEmail,
+				},
+				selectedEmailTemplate: info?.emailTemplates?.find(
+					(ele) => ele?._id === activeStepsData?.inputBody?.emailTemplateId,
+				),
+			}));
+		}
+	}, [activeStepsData, info?.emailTemplates]);
 
 	const updateInfo = useCallback((data) => {
 		setInfo((prevInfo) => ({ ...prevInfo, ...data }));
@@ -123,6 +143,7 @@ const GoogleActions = ({ onBack, onSave, loading, selectedAction }) => {
 					openPreviewAndEditModal={() => updateInfo({ previewAndEdit: true })}
 					modifiedOnSave={modifiedOnSave}
 					loading={loading}
+					inputBody={activeStepsData?.inputBody || null}
 				/>
 			),
 			getDraft: (
@@ -135,6 +156,7 @@ const GoogleActions = ({ onBack, onSave, loading, selectedAction }) => {
 					changeGoogleAccount={(option) => updateInfo({ selectedGoogleAccount: option })}
 					modifiedOnSave={modifiedOnSave}
 					loading={loading}
+					inputBody={activeStepsData?.inputBody || null}
 				/>
 			),
 			deleteDraft: (
@@ -145,6 +167,7 @@ const GoogleActions = ({ onBack, onSave, loading, selectedAction }) => {
 					changeGoogleAccount={(option) => updateInfo({ selectedGoogleAccount: option })}
 					modifiedOnSave={modifiedOnSave}
 					loading={loading}
+					inputBody={activeStepsData?.inputBody || null}
 				/>
 			),
 			getLabelInfo: (
@@ -155,15 +178,34 @@ const GoogleActions = ({ onBack, onSave, loading, selectedAction }) => {
 					changeGoogleAccount={(option) => updateInfo({ selectedGoogleAccount: option })}
 					modifiedOnSave={modifiedOnSave}
 					loading={loading}
+					inputBody={activeStepsData?.inputBody || null}
 				/>
 			),
-			// replyMessage: (
-			// 	<ReplyMessage
-			// 		selectedEmailTemplate={info?.selectedEmailTemplate}
-			// 		openTemplates={() => updateInfo({ emailTemplateIsShown: true })}
-			// 		variables={variables}
-			// 	/>
-			// ),
+			replyMessage: (
+				<ReplyMessage
+					selectedEmailTemplate={info?.selectedEmailTemplate}
+					openTemplates={() => updateInfo({ emailTemplateIsShown: true })}
+					variables={variables}
+					googleAccountOptions={info?.googleAccountOptions}
+					selectedGoogleAccount={info?.selectedGoogleAccount}
+					changeGoogleAccount={(option) => updateInfo({ selectedGoogleAccount: option })}
+					modifiedOnSave={modifiedOnSave}
+					loading={loading}
+					inputBody={activeStepsData?.inputBody || null}
+				/>
+			),
+			sendMessage: (
+				<SendMessage
+					selectedEmailTemplate={info?.selectedEmailTemplate}
+					openTemplates={() => updateInfo({ emailTemplateIsShown: true })}
+					googleAccountOptions={info?.googleAccountOptions}
+					selectedGoogleAccount={info?.selectedGoogleAccount}
+					changeGoogleAccount={(option) => updateInfo({ selectedGoogleAccount: option })}
+					modifiedOnSave={modifiedOnSave}
+					loading={loading}
+					inputBody={activeStepsData?.inputBody || null}
+				/>
+			),
 		};
 	}, [
 		selectedAction,
@@ -173,6 +215,7 @@ const GoogleActions = ({ onBack, onSave, loading, selectedAction }) => {
 		info?.selectedGoogleAccount,
 		modifiedOnSave,
 		loading,
+		activeStepsData?.inputBody,
 	]);
 
 	return (
@@ -346,10 +389,17 @@ const GetDraft = memo(
 		changeGoogleAccount,
 		modifiedOnSave,
 		loading,
+		inputBody,
 	}) => {
 		const [info, setInfo] = useState({
 			draftId: '',
 		});
+
+		useEffect(() => {
+			if (inputBody) {
+				handleStateChange({ draftId: inputBody?.draftId });
+			}
+		}, [inputBody]);
 
 		const handleStateChange = useCallback((data) => {
 			setInfo((prev) => ({ ...prev, ...data }));
@@ -431,10 +481,17 @@ const DeleteDraft = memo(
 		changeGoogleAccount,
 		modifiedOnSave,
 		loading,
+		inputBody,
 	}) => {
 		const [info, setInfo] = useState({
 			draftId: '',
 		});
+
+		useEffect(() => {
+			if (inputBody) {
+				handleStateChange({ draftId: inputBody?.draftId });
+			}
+		}, [inputBody]);
 
 		const handleStateChange = useCallback((data) => {
 			setInfo((prev) => ({ ...prev, ...data }));
@@ -516,10 +573,17 @@ const GetLabelInfo = memo(
 		changeGoogleAccount,
 		modifiedOnSave,
 		loading,
+		inputBody,
 	}) => {
 		const [info, setInfo] = useState({
 			labelId: '',
 		});
+
+		useEffect(() => {
+			if (inputBody) {
+				handleStateChange({ labelId: inputBody?.labelId });
+			}
+		}, [inputBody]);
 
 		const handleStateChange = useCallback((data) => {
 			setInfo((prev) => ({ ...prev, ...data }));
@@ -593,57 +657,262 @@ const GetLabelInfo = memo(
 	},
 );
 
-// const ReplyMessage = memo(
-// 	({ selectedEmailTemplate, openTemplates, variables, googleAccountOptions }) => {
-// 		const [info, setInfo] = useState({
-// 			selectedVariable: '',
-// 		});
-// 		return (
-// 			<>
-// 				<h3 className="googleActionsContainerBodyItemHeader">Inputs</h3>
-// 				<div className="googleActionsContainerBodyItem">
-// 					<div className="notificationInputItem">
-// 						<span className="notificationInputTitle">Google Account</span>
-// 						<HeadersDropDownComp
-// 							options={googleAccountOptions}
-// 							selectedValue={info.selectedGoogleAccount?.label}
-// 							onChangeFunc={(option) => setInfo({ selectedGoogleAccount: option })}
-// 							showIcon={false}
-// 							containerStyle={{
-// 								...containerStyle,
-// 								background: '#1C1C1C',
-// 								border: '1px solid #2C2D2E',
-// 								borderRadius: '12px',
-// 								height: '40px',
-// 							}}
-// 							outerContainerStyle={{ width: '100%' }}
-// 							dropDownStyle={{
-// 								...dropDownStyle,
-// 								background: '#1C1C1C',
-// 								border: '1px solid #2C2C2C',
-// 							}}
-// 							dropDownTextStyling={{
-// 								...dropDownTextStyling,
-// 								color: '#FFFFFF',
-// 							}}
-// 							showSelectedValueTick={true}
-// 							uniqueIdentifierForTickIcon={'value'}
-// 							selectedValueObj={info.selectedGoogleAccount}
-// 							selectedValueStyle={{
-// 								...selectedValueStyling,
-// 								color: '#FFFFFF',
-// 							}}
-// 						/>
-// 					</div>
-// 					<div className="inputWrapper">
-// 						<span className="inputLabel">Message id</span>
-// 						<VariableComponent
-// 							variables={variables?.data}
-// 							handleVariableChange={(value) => setInfo({ selectedVariable: value })}
-// 						/>
-// 					</div>
-// 				</div>
-// 			</>
-// 		);
-// 	},
-// );
+const ReplyMessage = memo(
+	({
+		selectedEmailTemplate,
+		openTemplates,
+		googleAccountOptions,
+		selectedGoogleAccount,
+		changeGoogleAccount,
+		openPreviewAndEditModal,
+		modifiedOnSave,
+		loading,
+		inputBody,
+		variables,
+	}) => {
+		const [info, setInfo] = useState({
+			messageId: '',
+		});
+
+		useEffect(() => {
+			if (inputBody) {
+				handleStateChange({ messageId: inputBody?.messageId });
+			}
+		}, [inputBody]);
+
+		const handleStateChange = useCallback((data) => {
+			setInfo((prev) => ({ ...prev, ...data }));
+		}, []);
+
+		const handleSave = useCallback(() => {
+			if (!selectedEmailTemplate) {
+				return message.error('Email template is mandatory');
+			}
+			if (!selectedGoogleAccount?.value?.trim()?.length) {
+				return message.error('Google account is mandatory');
+			}
+			if (!info?.messageId?.trim()?.length) {
+				return message.error('Message id is mandatory');
+			}
+			modifiedOnSave({
+				action: 'replyMessage',
+				emailTemplateTitle: selectedEmailTemplate?.title,
+				connectedEmail: selectedGoogleAccount?.value,
+				htmlBody: selectedEmailTemplate?.htmlBody,
+				emailTemplateSubject: selectedEmailTemplate?.subject,
+				emailTemplateId: selectedEmailTemplate?._id,
+				messageId: info?.messageId?.trim(),
+			});
+		}, [modifiedOnSave, selectedEmailTemplate, selectedGoogleAccount, info?.messageId]);
+
+		return (
+			<>
+				<h3 className="googleActionsContainerBodyItemHeader">Inputs</h3>
+				<div className="googleActionsContainerBodyItem">
+					<div className="inputWrapper">
+						<span className="inputLabel">Google Account</span>
+						<HeadersDropDownComp
+							options={googleAccountOptions}
+							selectedValue={selectedGoogleAccount?.label}
+							onChangeFunc={(option) => changeGoogleAccount(option)}
+							showIcon={false}
+							containerStyle={{
+								...containerStyle,
+								background: '#1C1C1C',
+								border: '1px solid #2C2D2E',
+								borderRadius: '12px',
+								height: '40px',
+							}}
+							outerContainerStyle={{ width: '100%' }}
+							dropDownStyle={{
+								...dropDownStyle,
+								background: '#1C1C1C',
+								border: '1px solid #2C2C2C',
+							}}
+							dropDownTextStyling={{
+								...dropDownTextStyling,
+								color: '#FFFFFF',
+							}}
+							showSelectedValueTick={true}
+							uniqueIdentifierForTickIcon={'value'}
+							selectedValueObj={selectedGoogleAccount}
+							selectedValueStyle={{
+								...selectedValueStyling,
+								color: '#FFFFFF',
+							}}
+						/>
+					</div>
+					<div className="inputWrapper">
+						<span className="inputLabel">Template</span>
+						{!selectedEmailTemplate ? (
+							<div className="chooseEmailTemplateButton" onClick={openTemplates}>
+								Choose from Template
+							</div>
+						) : (
+							<div className="editEmailTemplateContainer">
+								<span className="emailTemplateSubTitle">Email Template</span>
+								<div
+									className="editSelectedTemplateOptions"
+									onClick={openPreviewAndEditModal}
+								>
+									<span>{selectedEmailTemplate?.title}</span>
+									<div className="editSelectedEmailOptionContainer">
+										Email Template <Edit />
+									</div>
+								</div>
+								<div className="emailTemplateActionContainer">
+									<button className="sidebarButton" onClick={openTemplates}>
+										Change
+									</button>
+								</div>
+							</div>
+						)}
+					</div>
+					<div className="inputWrapper">
+						<span className="inputLabel">Message id</span>
+						<VariableComponent
+							variables={variables?.data}
+							value={info?.messageId}
+							onChange={(value) => handleStateChange({ messageId: value })}
+						/>
+					</div>
+				</div>
+				<button className="actionsSaveButton" disabled={loading} onClick={handleSave}>
+					{loading ? <Spinner /> : 'Save'}
+				</button>
+			</>
+		);
+	},
+);
+
+const SendMessage = memo(
+	({
+		selectedEmailTemplate,
+		openTemplates,
+		googleAccountOptions,
+		selectedGoogleAccount,
+		changeGoogleAccount,
+		openPreviewAndEditModal,
+		modifiedOnSave,
+		loading,
+		inputBody,
+		variables,
+	}) => {
+		const [info, setInfo] = useState({
+			toEmail: '',
+		});
+
+		useEffect(() => {
+			if (inputBody) {
+				handleStateChange({ toEmail: inputBody?.toEmail });
+			}
+		}, [inputBody]);
+
+		const handleStateChange = useCallback((data) => {
+			setInfo((prev) => ({ ...prev, ...data }));
+		}, []);
+
+		const handleSave = useCallback(() => {
+			const variableRegex = /^\{\{.*\}\}$/;
+			if (!selectedEmailTemplate) {
+				return message.error('Email template is mandatory');
+			}
+			if (!selectedGoogleAccount?.value?.trim()?.length) {
+				return message.error('Google account is mandatory');
+			}
+			if (!info?.toEmail?.trim()?.length) {
+				return message.error('Recipient email is mandatory');
+			}
+			if (!variableRegex.test(info?.toEmail) && !validator.isEmail(info?.toEmail)) {
+				return message.error('Please enter a valid recipient email address');
+			}
+			modifiedOnSave({
+				action: 'sendMessage',
+				emailTemplateTitle: selectedEmailTemplate?.title,
+				connectedEmail: selectedGoogleAccount?.value,
+				htmlBody: selectedEmailTemplate?.htmlBody,
+				emailTemplateSubject: selectedEmailTemplate?.subject,
+				emailTemplateId: selectedEmailTemplate?._id,
+				toEmail: info?.toEmail?.trim(),
+			});
+		}, [modifiedOnSave, selectedEmailTemplate, selectedGoogleAccount, info?.toEmail]);
+
+		return (
+			<>
+				<h3 className="googleActionsContainerBodyItemHeader">Inputs</h3>
+				<div className="googleActionsContainerBodyItem">
+					<div className="inputWrapper">
+						<span className="inputLabel">Google Account</span>
+						<HeadersDropDownComp
+							options={googleAccountOptions}
+							selectedValue={selectedGoogleAccount?.label}
+							onChangeFunc={(option) => changeGoogleAccount(option)}
+							showIcon={false}
+							containerStyle={{
+								...containerStyle,
+								background: '#1C1C1C',
+								border: '1px solid #2C2D2E',
+								borderRadius: '12px',
+								height: '40px',
+							}}
+							outerContainerStyle={{ width: '100%' }}
+							dropDownStyle={{
+								...dropDownStyle,
+								background: '#1C1C1C',
+								border: '1px solid #2C2C2C',
+							}}
+							dropDownTextStyling={{
+								...dropDownTextStyling,
+								color: '#FFFFFF',
+							}}
+							showSelectedValueTick={true}
+							uniqueIdentifierForTickIcon={'value'}
+							selectedValueObj={selectedGoogleAccount}
+							selectedValueStyle={{
+								...selectedValueStyling,
+								color: '#FFFFFF',
+							}}
+						/>
+					</div>
+					<div className="inputWrapper">
+						<span className="inputLabel">Template</span>
+						{!selectedEmailTemplate ? (
+							<div className="chooseEmailTemplateButton" onClick={openTemplates}>
+								Choose from Template
+							</div>
+						) : (
+							<div className="editEmailTemplateContainer">
+								<span className="emailTemplateSubTitle">Email Template</span>
+								<div
+									className="editSelectedTemplateOptions"
+									onClick={openPreviewAndEditModal}
+								>
+									<span>{selectedEmailTemplate?.title}</span>
+									<div className="editSelectedEmailOptionContainer">
+										Email Template <Edit />
+									</div>
+								</div>
+								<div className="emailTemplateActionContainer">
+									<button className="sidebarButton" onClick={openTemplates}>
+										Change
+									</button>
+								</div>
+							</div>
+						)}
+					</div>
+					<div className="inputWrapper">
+						<span className="inputLabel">Recipient Email</span>
+						<VariableComponent
+							variables={variables?.data}
+							value={info?.toEmail}
+							onChange={(value) => handleStateChange({ toEmail: value })}
+						/>
+					</div>
+				</div>
+				<button className="actionsSaveButton" disabled={loading} onClick={handleSave}>
+					{loading ? <Spinner /> : 'Save'}
+				</button>
+			</>
+		);
+	},
+);

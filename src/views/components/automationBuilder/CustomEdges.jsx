@@ -114,12 +114,29 @@ const CustomEdges = ({
 	const onAddOptionsClick = useCallback(
 		(type) => {
 			if (data?.onToolBarOpen) {
-				data.onToolBarOpen({ toolBarOpen: true, sidebarType: type, activeEdge: id });
+				data.onToolBarOpen({
+					toolBarOpen: true,
+					sidebarType: type,
+					activeEdge: id,
+					activeStepsData: null,
+				});
 			}
 			setInfo((prev) => ({ ...prev, addNodesPopUp: false }));
 		},
 		[data, id],
 	);
+
+	const handleAddButtonClick = useCallback(() => {
+		if (data?.onToolBarOpen) {
+			data.onToolBarOpen({
+				toolBarOpen: false,
+				sidebarType: null,
+				activeEdge: null,
+				editMode: false,
+				activeStepsData: null,
+			});
+		}
+	}, [data, id]);
 
 	return (
 		<>
@@ -174,6 +191,7 @@ const CustomEdges = ({
 								type="button"
 								className="edgeButton nodrag nopan"
 								style={{ pointerEvents: 'all', cursor: 'pointer' }}
+								onClick={handleAddButtonClick}
 							>
 								+
 							</button>

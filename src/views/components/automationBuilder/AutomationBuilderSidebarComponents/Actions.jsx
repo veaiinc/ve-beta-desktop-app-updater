@@ -50,7 +50,7 @@ const actionGroups = [
 		],
 	},
 	{
-		_id: 'google',
+		_id: 'gmail',
 		groupName: 'Google',
 		icon: <Google />,
 		actions: [
@@ -69,6 +69,14 @@ const actionGroups = [
 			{
 				actionLabel: 'Create draft',
 				actionType: 'createDraft',
+			},
+			{
+				actionLabel: 'Reply to message',
+				actionType: 'replyMessage',
+			},
+			{
+				actionLabel: 'Send Message',
+				actionType: 'sendMessage',
 			},
 		],
 	},
@@ -117,7 +125,14 @@ const actionGroups = [
 	},
 ];
 
-const Actions = ({ onCLose, activeEdge, editMode, activeStepsData, automationId }) => {
+const Actions = ({
+	onCLose,
+	activeEdge,
+	editMode,
+	activeStepsData,
+	automationId,
+	handleActiveStepData,
+}) => {
 	const {
 		automationBuilder: { connectedIntegrations, variables, addStep },
 	} = useContext(Context);
@@ -136,6 +151,22 @@ const Actions = ({ onCLose, activeEdge, editMode, activeStepsData, automationId 
 			setInfo((prev) => ({ ...prev, previousStepId: activeEdge?.split('-')?.[0] }));
 		}
 	}, [activeEdge]);
+
+	useEffect(() => {
+		if (activeStepsData) {
+			updateInfo({
+				selectedAction: {
+					actionType: activeStepsData?.actionType,
+					groupId: activeStepsData?.app,
+					actionLabel: actionGroups
+						?.find((group) => group?._id === activeStepsData?.app)
+						?.actions?.find(
+							(action) => action?.actionType === activeStepsData?.actionType,
+						)?.actionLabel,
+				},
+			});
+		}
+	}, [activeStepsData]);
 
 	useEffect(() => {
 		if (connectedIntegrations) {
@@ -183,11 +214,20 @@ const Actions = ({ onCLose, activeEdge, editMode, activeStepsData, automationId 
 		setInfo((prev) => ({ ...prev, ...data }));
 	}, []);
 
+	const handleBack = () => {
+		if (activeStepsData) {
+			handleActiveStepData(null);
+			onCLose();
+		} else {
+			updateInfo({ selectedAction: null });
+		}
+	};
+
 	const actionMapper = useMemo(() => {
 		return {
 			createForm: (
 				<CreateFile
-					onBack={() => updateInfo({ selectedAction: null })}
+					onBack={handleBack}
 					onSave={addNode}
 					addTriggerLoading={info?.saveLoader}
 					variables={variables}
@@ -195,39 +235,43 @@ const Actions = ({ onCLose, activeEdge, editMode, activeStepsData, automationId 
 			),
 			createTask: (
 				<CreateTask
-					onBack={() => updateInfo({ selectedAction: null })}
+					onBack={handleBack}
 					onSave={addNode}
 					addTriggerLoading={info?.saveLoader}
 					variables={variables}
+					activeStepsData={activeStepsData}
 				/>
 			),
 			createMeeting: (
 				<CreateMeeting
-					onBack={() => updateInfo({ selectedAction: null })}
+					onBack={handleBack}
 					onSave={addNode}
 					addTriggerLoading={info?.saveLoader}
 					variables={variables}
+					activeStepsData={activeStepsData}
 				/>
 			),
-			google: (
+			gmail: (
 				<GoogleActions
-					onBack={() => updateInfo({ selectedAction: null })}
+					onBack={handleBack}
 					onSave={addNode}
 					loading={info?.saveLoader}
 					variables={variables}
 					selectedAction={info?.selectedAction}
+					activeStepsData={activeStepsData}
 				/>
 			),
 			slack: (
 				<SlackActions
-					onBack={() => updateInfo({ selectedAction: null })}
+					onBack={handleBack}
 					onSave={addNode}
 					loading={info?.saveLoader}
 					selectedAction={info?.selectedAction}
+					activeStepsData={activeStepsData}
 				/>
 			),
 		};
-	}, [updateInfo, addNode, info?.saveLoader, variables, info?.selectedAction]);
+	}, [updateInfo, addNode, info?.saveLoader, variables, info?.selectedAction, activeStepsData]);
 
 	return (
 		<div className="actionSidebarComponents">
@@ -265,7 +309,11 @@ const Actions = ({ onCLose, activeEdge, editMode, activeStepsData, automationId 
 						</div>
 						<div className="actionGroupsContainer">
 							{actionGroups
-								?.filter((ele) => info?.connectedIntegrations?.includes(ele?._id))
+								?.filter((ele) =>
+									info?.connectedIntegrations?.includes(
+										ele?._id === 'gmail' ? 'google' : ele?._id,
+									),
+								)
 								?.map((ele, index) => {
 									// Check if search matches group name
 									const groupNameMatches =

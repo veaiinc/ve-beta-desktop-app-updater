@@ -58,6 +58,8 @@ const eventTypeMapper = {
 	channelMembers: 'Channel Members',
 	getChannelInfo: 'Get Channel Info',
 	getManyChannels: 'Get Many Channels',
+	createChannel: 'Create Channel',
+	replyMessage: 'Reply to message',
 };
 
 const appNameMapper = {
