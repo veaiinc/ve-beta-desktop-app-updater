@@ -18,6 +18,7 @@ const GoogleTriggers = ({
 	addTriggerLoading,
 	triggerData,
 	connectedIntegrations,
+	activeStepsData,
 }) => {
 	const [info, setInfo] = useState({
 		googleAccountOptions: [],
@@ -49,6 +50,20 @@ const GoogleTriggers = ({
 			}));
 		}
 	}, [connectedIntegrations]);
+
+	useEffect(() => {
+		if (activeStepsData) {
+			setInfo((prev) => ({
+				...prev,
+				selectedGoogleAccount: {
+					label: activeStepsData?.connectedEmail,
+					value: activeStepsData?.connectedEmail,
+				},
+				title: activeStepsData?.title,
+				description: activeStepsData?.description,
+			}));
+		}
+	}, [activeStepsData]);
 
 	const onChangeGoogleAccount = (data) => {
 		if (data?.value === info?.selectedGoogleAccount?.value) return;

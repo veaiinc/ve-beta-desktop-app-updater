@@ -1,35 +1,36 @@
-import React, { memo, useCallback, useState } from 'react';
+import React, { memo, useCallback, useEffect, useState } from 'react';
 import ActionDetailsBlock from './ActionDetailsBlock';
 import { message, Spin } from 'antd';
 import moment from 'moment';
 import VariableComponent from './VariableComponent';
 import HeaderComponent from './HeaderComponent';
+import '../../../../assets/scss/automation_builder/automationBuilderSidebarComponents/inAppActions.scss';
 
-const CreateTask = ({ onBack, onSave, addTriggerLoading, variables }) => {
+const CreateTask = ({ onBack, onSave, addTriggerLoading, variables, activeStepsData }) => {
 	const [info, setInfo] = useState({
-		task: '',
+		title: '',
 		dueDate: '',
 		assignee: '',
-		title: '',
-		description: '',
+		stepTitle: '',
+		stepDescription: '',
 		loading: false,
 	});
 
 	const createNewTaskNode = useCallback(async () => {
 		const variableRegex = /^\{\{.*\}\}$/;
-		let { task, title, description, dueDate } = info;
+		let { title, stepTitle, stepDescription, dueDate } = info;
 		const variables = {};
-		if (task?.match(variableRegex)) {
-			variables.task = [task?.slice(2, -2)];
-		} else if (!task?.trim().length) {
-			message.error('Task name is mandatory');
-			return;
-		}
-		if (!title?.trim().length) {
+		if (title?.match(variableRegex)) {
+			variables.title = [title?.slice(2, -2)];
+		} else if (!title?.trim().length) {
 			message.error('Title is mandatory');
 			return;
 		}
-		if (!description?.trim().length) {
+		if (!stepTitle?.trim().length) {
+			message.error('Title is mandatory');
+			return;
+		}
+		if (!stepDescription?.trim().length) {
 			message.error('Title is mandatory');
 			return;
 		}
@@ -43,11 +44,11 @@ const CreateTask = ({ onBack, onSave, addTriggerLoading, variables }) => {
 		}
 
 		const payload = {
-			title,
-			description,
+			title: stepTitle,
+			description: stepDescription,
 			actionType: 'createTask',
 			inputBody: {
-				title: task,
+				title: title,
 				dueDate: dueDate,
 				action: 'createTask',
 			},
@@ -62,33 +63,57 @@ const CreateTask = ({ onBack, onSave, addTriggerLoading, variables }) => {
 	const updateInfo = useCallback((data) => {
 		setInfo((prev) => ({ ...prev, ...data }));
 	}, []);
+
+	useEffect(() => {
+		if (activeStepsData) {
+			setInfo((prev) => ({
+				...prev,
+				title: activeStepsData?.inputBody?.title,
+				dueDate: new Date(activeStepsData?.inputBody?.dueDate * 1000)
+					.toISOString()
+					.split('T')[0],
+				stepTitle: activeStepsData?.title,
+				stepDescription: activeStepsData?.description,
+			}));
+		}
+	}, [activeStepsData]);
+
 	return (
-		<div className="createTaskUiContainer">
+		<div className="inAppActionsContainer">
 			<HeaderComponent onBack={onBack} heading="Create Task" />
 			<ActionDetailsBlock
 				heading="Actions"
 				actionLabel="Create Task"
-				title={info?.title}
-				description={info?.description}
-				updaterFn={updateInfo}
+				title={info?.stepTitle}
+				description={info?.stepDescription}
+				updaterFn={(data) => {
+					if (data?.title) {
+						updateInfo({ stepTitle: data?.title });
+					}
+					if (data?.description) {
+						updateInfo({ stepDescription: data?.description });
+					}
+				}}
 				onChangeButtonClick={onBack}
 			/>
-			<div className="createTasksUi">
-				<h2 className="taskInputHeading">Inputs</h2>
-				<div className="addTaskTitleContainer">
-					<span className="addTaskTitleTextStyle">Task</span>
+			<div className="inAppActionsInputsContainer">
+				<h2 className="InputBlockHeading">Inputs</h2>
+				<div className="inputWrapper">
+					<span className="inputLabel">Task</span>
 					<VariableComponent
 						variables={variables?.data}
-						onChange={(value) => updateInfo({ task: value })}
+						onChange={(value) => updateInfo({ title: value })}
+						value={info?.title}
 					/>
 				</div>
-				<div className="addTaskTitleContainer">
-					<span className="addTaskTitleTextStyle">Due (optional)</span>
+				<div className="inputWrapper">
+					<span className="inputLabel">Due Date</span>
 
 					<VariableComponent
 						variables={variables?.data}
 						onChange={(value) => updateInfo({ dueDate: value })}
 						type="date"
+						value={info?.dueDate}
 					/>
 				</div>
 			</div>

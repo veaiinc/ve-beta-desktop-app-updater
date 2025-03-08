@@ -20,6 +20,7 @@ const BuilderToolbar = ({
 	automationId,
 	step,
 	variables,
+	handleActiveStepData,
 }) => {
 	const {
 		templates: { getAllSlackChannels },
@@ -55,7 +56,7 @@ const BuilderToolbar = ({
 		return {
 			triggers: (
 				<Triggers
-					onCLose={onClose}
+					onClose={onClose}
 					activeEdge={activeEdge}
 					templateId={templateId}
 					automationId={automationId}
@@ -65,7 +66,7 @@ const BuilderToolbar = ({
 			),
 			actions: (
 				<Actions
-					onCLose={onClose}
+					onClose={onClose}
 					activeEdge={activeEdge}
 					templateId={templateId}
 					activeStepsData={activeStepsData}
@@ -73,30 +74,32 @@ const BuilderToolbar = ({
 					refetchWorkflowBuilderData={refetchWorkflowBuilderData}
 					variables={variables}
 					automationId={automationId}
+					handleActiveStepData={handleActiveStepData}
 				/>
 			),
 			conditions: (
 				<Conditions
-					onCLose={onClose}
+					onClose={onClose}
 					activeEdge={activeEdge}
 					templateId={templateId}
 					activeStepsData={activeStepsData}
 					editMode={editMode}
 					refetchWorkflowBuilderData={refetchWorkflowBuilderData}
+					variables={variables}
+					automationId={automationId}
 				/>
 			),
 			notifications: (
 				<Notification
-					onCLose={onClose}
+					onClose={onClose}
 					activeEdge={activeEdge}
 					templateId={templateId}
-					slackConnected={info?.slackConnected}
-					googleConnected={info?.googleConnected}
 					activeStepsData={activeStepsData}
 					editMode={editMode}
 					refetchWorkflowBuilderData={refetchWorkflowBuilderData}
-					automationId={automationId}
 					variables={variables}
+					automationId={automationId}
+					handleActiveStepData={handleActiveStepData}
 				/>
 			),
 
