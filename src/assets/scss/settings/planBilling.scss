@@ -897,7 +897,7 @@
 			align-items: flex-start;
 			flex: 1 0 0;
 			border-radius: 24px;
-			background: #202123;
+			background: var(--card,rgba(23, 24, 25, 1));
 			backdrop-filter: blur(8px);
 			user-select: none;
 			.addOnsCardsHeader {

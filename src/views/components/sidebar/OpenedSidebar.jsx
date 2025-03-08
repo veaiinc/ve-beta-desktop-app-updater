@@ -90,7 +90,6 @@ const OpenedSideBarHoverStateIcons = ({
 		const routePath = route?.replace(/\/$/, '');
 		return currentPath === routePath;
 	}, [location.pathname, route]);
-
 	return (
 		<div
 			style={{
@@ -125,9 +124,7 @@ const OpenedSideBarHoverStateIcons = ({
 					}}
 				>
 					<p>{name}</p>
-					{Icon && (
-						<Icon fill={isExactPathMatch() ? '#FFF' : isHover ? '#FFF' : '#FFF'} />
-					)}
+					{Icon && <Icon fill={'var(--setting-color)'} />}
 				</div>
 				{isDropdownVisible && subModules?.length > 0 && (
 					<div>

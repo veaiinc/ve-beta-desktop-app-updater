@@ -28,6 +28,11 @@
 		#ec7c9d 95.85%
 	);
 	--primary-button-font: var(--background-color);
+
+	--spinner-color-light: #000; // Example for light theme
+    --spinner-color-dark: #fff;  // Example for dark theme
+	--setting-color-light:#fff;
+	--setting-color-dark:#000;
 }
 
 // dark theme global css variables
@@ -52,6 +57,8 @@
 	--secondary-button-hover: rgba(228, 228, 231, 1);
 	--secondary-button-active: rgba(228, 228, 231, 1);
 	--primary-button-font: var(--background-color);
+	--spinner-color: var(--spinner-color-dark);
+	--setting-color:var(--setting-color-light)
 }
 
 // system dark theme global css variables
@@ -76,6 +83,8 @@
 	--secondary-button-hover: rgba(228, 228, 231, 1);
 	--secondary-button-active: rgba(228, 228, 231, 1);
 	--primary-button-font: var(--background-color);
+	--spinner-color: var(--spinner-color-dark);
+	--setting-color:var(--spinner-color-light)
 }
 
 // light theme global css variables
@@ -101,6 +110,8 @@
 	--secondary-button-hover: rgba(228, 228, 231, 1);
 	--secondary-button-active: rgba(228, 228, 231, 1);
 	--primary-button-font: var(--background-color);
+	--spinner-color: var(--spinner-color-light);
+	--setting-color:var(--setting-color-dark)
 }
 
 // system light theme global css variables
@@ -126,4 +137,6 @@
 	--secondary-button-hover: rgba(228, 228, 231, 1);
 	--secondary-button-active: rgba(228, 228, 231, 1);
 	--primary-button-font: var(--background-color);
+	--spinner-color: var(--spinner-color-light);
+	--setting-color:var(--setting-color-dark)
 }
