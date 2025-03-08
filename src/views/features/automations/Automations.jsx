@@ -23,11 +23,12 @@ const Automations = () => {
 	const {
 		automationBuilder: { automationsList, getAutomationsList },
 	} = useContext(Context);
+
 	const automations = automationsList?.data;
 	const automationsLoading = automationsList ? false : true;
 	const automationsLength = automations?.length ?? 0;
 	const automationsEmpty = automationsLength === 0 && !automationsLoading;
-	const automationsHasNextPage = automationsList?.hasNextPage;
+	const automationsHasNextPage = Boolean(automationsList?.hasNextPage);
 	const automationsCurrentPage = Number(automationsList?.currentPage) || 1;
 
 	useEffect(() => {

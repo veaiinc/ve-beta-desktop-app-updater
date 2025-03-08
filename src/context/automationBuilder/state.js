@@ -59,7 +59,7 @@ export const AutomationBuilderState = () => {
 
 	const getAutomationsList = async (page = 1, limit = 10, append = false) => {
 		try {
-			let workspaceId = localStorage.getItem('workspaceId');
+			const workspaceId = localStorage.getItem('workspaceId');
 			const path = `/${workspaceId}/getAutomations`;
 			const token = localStorage.getItem('usertoken');
 			const type = 'automation_builder_api';
