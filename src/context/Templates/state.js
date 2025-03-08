@@ -37,8 +37,6 @@ import {
 	addNewStepsQuery,
 	updateStepsQuery,
 	getFormResponsesListQuery,
-	getNotesListQuery,
-	createNotesQuery,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
