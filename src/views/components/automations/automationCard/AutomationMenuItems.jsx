@@ -23,7 +23,7 @@ const AutomationMenuItems = ({
 	const navigate = useNavigate();
 
 	const navigateToAutomationBuilder = () => {
-		navigate(`/automation_builder/${automationId}`);
+		navigate(`/automation-builder/${automationId}`);
 	};
 
 	const handleAutomationMenu = (action) => {
