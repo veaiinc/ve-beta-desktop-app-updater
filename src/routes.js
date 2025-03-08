@@ -437,6 +437,19 @@ const routes = [
 			</AuthWrapper>
 		),
 	},
+	{
+		path: '/notes/:noteId',
+		component: (
+			<AuthWrapper
+				title={'Notes'}
+				outerContainerStyle={{ padding: '0 0 0 32px', backgroundColor: '#1e1e1e' }}
+				maxWidth={'100%'}
+			>
+				<Notes />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
 ];
 
 export default routes;
