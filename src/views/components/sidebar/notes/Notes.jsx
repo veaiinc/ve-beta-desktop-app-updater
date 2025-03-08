@@ -131,7 +131,8 @@ const Notes = ({ showNotesDrawer, setShowNotesDrawer }) => {
 			},
 		};
 		const response = await createNotesList(payload);
-		navigate(`/notes`);
+		console.log('response', response);
+		navigate(`/notes/${response[1]?.id}`);
 	};
 
 	const handleCtaClick = (action) => {
