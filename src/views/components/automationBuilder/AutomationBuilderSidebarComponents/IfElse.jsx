@@ -124,10 +124,10 @@ const IfElse = ({ variables, onSave, isLoading, hasNextNode, onBack, activeSteps
 			description: info?.description,
 			type: 'condition',
 			variables,
+			...(!activeStepsData && { moveTo: info?.moveToYes ? 'yes' : 'no' }),
 			inputBody: {
 				key: info?.key?.trim(),
 				condition: info?.selectedCondition?.value,
-				...(!activeStepsData && { moveTo: info?.moveToYes ? 'yes' : 'no' }),
 				...(info?.selectedCondition?.needValue && { value: info?.value?.trim() }),
 			},
 		});
