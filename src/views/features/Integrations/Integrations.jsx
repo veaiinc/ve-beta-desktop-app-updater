@@ -24,6 +24,7 @@ const ConnectedIntegrationCard = ({ icon, title, description }) => {
 				</div>
 			</div>
 			<div className="card-right">
+				<span className="connected-dot"></span>
 				<span className="connected-badge">Connected</span>
 			</div>
 		</div>

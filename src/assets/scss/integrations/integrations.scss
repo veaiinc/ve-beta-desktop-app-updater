@@ -5,6 +5,7 @@ $text-primary: #ffffff;
 $text-secondary: #a0a0a0;
 $accent-green: #00ff00;
 $border-radius: 12px;
+$card-hover-color: #27282b;
 
 .integrations-container {
 	padding: 2rem;
@@ -19,8 +20,8 @@ $border-radius: 12px;
 		margin-bottom: 2rem;
 
 		.integrations-title {
-			font-size: 2rem;
-			font-weight: 600;
+			font-size: 24px;
+			font-weight: 500;
 		}
 
 		.search-container {
@@ -29,7 +30,8 @@ $border-radius: 12px;
 			background-color: rgba(255, 255, 255, 0.1);
 			border-radius: 24px;
 			padding: 0.5rem 1rem;
-			width: 300px;
+			width: 346px;
+			height: 46px;
 
 			.search-image {
 				width: 20px;
@@ -69,8 +71,8 @@ $border-radius: 12px;
 
 	.integrations-grid {
 		display: grid;
-		grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-		gap: 1rem;
+		grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+		gap: 12px;
 	}
 
 	.connected-integrations {
@@ -119,12 +121,16 @@ $border-radius: 12px;
 					font-size: 0.9rem;
 				}
 			}
-
+			.connected-dot {
+				width: 12px;
+				height: 12px;
+				background-color: #1c993e;
+			}
 			.connected-badge {
-				background-color: rgba(0, 255, 0, 0.1);
-				color: $accent-green;
+				border: 1px solid #333334;
+				color: #1c993e;
 				padding: 0.3rem 0.8rem;
-				border-radius: 1rem;
+				border-radius: 8px;
 				font-size: 0.8rem;
 				font-weight: 500;
 			}
@@ -135,20 +141,26 @@ $border-radius: 12px;
 		background-color: $card-background;
 		border-radius: $border-radius;
 		padding: 1.5rem;
+		width: 260px;
+		height: 320px;
 		display: flex;
 		flex-direction: column;
-		gap: 1rem;
-		transition: transform 0.2s ease;
+		align-items: flex-start;
+		gap: 12px;
+		transition: all 0.2s ease;
+		cursor: pointer;
 
 		&:hover {
-			transform: translateY(-2px);
+			transform: scale(1.02);
+			background-color: $card-hover-color;
 		}
 
 		.integration-icon {
-			width: 40px;
-			height: 40px;
+			width: 48px;
+			height: 48px;
 			border-radius: 8px;
 			overflow: hidden;
+			flex-shrink: 0;
 
 			img {
 				width: 100%;
@@ -158,43 +170,54 @@ $border-radius: 12px;
 		}
 
 		.integration-content {
+			flex: 1;
+
 			h3 {
 				font-size: 1.1rem;
 				font-weight: 500;
 				margin-bottom: 0.5rem;
+				color: $text-primary;
 			}
 
 			p {
 				color: $text-secondary;
 				font-size: 0.9rem;
 				line-height: 1.4;
+				margin-bottom: 1rem;
 			}
 		}
 
 		.integration-button {
-			margin-top: auto;
+			width: auto;
+			min-width: 100px;
 			padding: 0.6rem 1.2rem;
-			border-radius: 6px;
-			border: none;
+			border-radius: 20px;
+			border: 1px solid #7a7e85;
+			font-size: 0.9rem;
 			font-weight: 500;
 			cursor: pointer;
 			transition: all 0.2s ease;
 
 			&.connect {
-				background-color: rgba(255, 255, 255, 0.1);
-				color: $text-primary;
+				background-color: transparent;
+
+				color: #7a7e85;
 
 				&:hover {
-					background-color: rgba(255, 255, 255, 0.2);
+					// background-color: rgba(255, 255, 255, 0.1);
+					border-color: var(--Primary-Font, #f2f2f3);
+					color: var(--Primary-Font, #f2f2f3);
 				}
 			}
 
 			&.disconnect {
-				background-color: rgba(255, 0, 0, 0.1);
+				background-color: transparent;
 				color: #ff4444;
+				border-color: rgba(255, 0, 0, 0.2);
 
 				&:hover {
-					background-color: rgba(255, 0, 0, 0.2);
+					background-color: rgba(255, 0, 0, 0.1);
+					border-color: rgba(255, 0, 0, 0.3);
 				}
 			}
 		}
@@ -204,7 +227,7 @@ $border-radius: 12px;
 		margin-bottom: 3rem;
 
 		h2 {
-			font-size: 1.5rem;
+			font-size: 18px;
 			font-weight: 600;
 			margin-bottom: 1.5rem;
 			color: $text-primary;
@@ -212,26 +235,27 @@ $border-radius: 12px;
 
 		.request-integrations-grid {
 			display: grid;
-			grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-			gap: 1rem;
+			grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+			
 		}
 
 		.integration-request-card {
 			background-color: $card-background;
-			border-radius: $border-radius;
-			padding: 1.5rem;
+			border-radius: 24px;
+			padding: 24px;
 			display: flex;
 			flex-direction: column;
+			width: 190px;
+			height: 264px;
 			align-items: center;
 			text-align: center;
-			gap: 1rem;
+			gap: 12px;
 			transition: transform 0.2s ease;
 			border: 1px solid rgba(255, 255, 255, 0.1);
 			cursor: pointer;
 
 			&:hover {
-				transform: translateY(-2px);
-				border-color: rgba(255, 255, 255, 0.2);
+				border-color: var(--Primary-Font, #f2f2f3);
 			}
 
 			.integration-icon {
