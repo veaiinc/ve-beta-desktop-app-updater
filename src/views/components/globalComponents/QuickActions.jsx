@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { message, Tooltip } from 'antd';
 import React, { useContext, useState, useCallback } from 'react';
 // import '../../../assets/scss/home_page/homepage.scss';
@@ -7,7 +8,6 @@ import Context from '../../../context/context';
 import ProposalsPopup from '../../components/docs/ProposalsPopup';
 import CreateClientModal from '../../components/modalsV2/contacts/CreateClientModal';
 import CreateTaskPopup from '../../components/modalsV2/tasks/CreateTaskPopup';
-import Spinner from '../loaders/Spinner';
 
 const dropdownOptions = [
 	{ id: 0, title: 'Lead', value: 'client', controlValue: 'contact' },
@@ -17,8 +17,8 @@ const dropdownOptions = [
 	{ id: 5, title: 'Form', value: 'form-submission', controlValue: 'form' },
 	{ id: 6, title: 'Proposal', value: 'proposal', controlValue: 'workflow' },
 	{ id: 7, title: 'Invoice', value: 'invoice', controlValue: 'workflow' },
-	{ id: 8, title: 'Contacts', value: 'contact', controlValue: 'contact' },
 	{ id: 9, title: 'Automation', value: 'automation' },
+	// { id: 8, title: 'Contacts', value: 'contact', controlValue: 'contact' },
 ];
 const QuickActions = ({ styles, customActions = [], clientDetails = null }) => {
 	const [info, setInfo] = useState({
@@ -90,7 +90,7 @@ const QuickActions = ({ styles, customActions = [], clientDetails = null }) => {
 			message.error('Failed to create automation');
 		}
 		setInfo({ ...info, isAutomationLoading: false });
-	}, [createAutomation, navigate]);
+	}, [createAutomation, info]);
 
 	return (
 		<div className="quick-actions-dropdown-container" style={{ ...styles }}>
@@ -108,19 +108,7 @@ const QuickActions = ({ styles, customActions = [], clientDetails = null }) => {
 								className="dropdown-option"
 								onClick={() => handleDropdownOptionClick(option?.value)}
 							>
-								{option?.value === 'automation' ? (
-									info?.isAutomationLoading ? (
-										<Spinner
-											width="20px"
-											height="20px"
-											cssstyle={{ margin: '0 auto' }}
-										/>
-									) : (
-										option?.title
-									)
-								) : (
-									option?.title
-								)}
+								{option?.title}
 							</div>
 						))}
 					</div>
@@ -130,7 +118,7 @@ const QuickActions = ({ styles, customActions = [], clientDetails = null }) => {
 					className="dropdown-header"
 					onClick={() => setInfo({ ...info, dropdown: !info?.dropdown })}
 				>
-					+ New
+					New
 				</button>
 			</Tooltip>
 			<ProposalsPopup
