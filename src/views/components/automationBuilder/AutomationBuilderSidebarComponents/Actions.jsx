@@ -144,6 +144,7 @@ const Actions = ({
 		selectedAction: null,
 		previousStepId: '',
 		connectedIntegrations: ['inApp'],
+		selectedGroupId: '',
 	});
 
 	useEffect(() => {
@@ -349,6 +350,11 @@ const Actions = ({
 									info?.connectedIntegrations?.includes(
 										ele?._id === 'gmail' ? 'google' : ele?._id,
 									),
+								)
+								?.filter(
+									(ele) =>
+										!info?.selectedGroupId ||
+										ele?._id === info?.selectedGroupId,
 								)
 								?.map((ele, index) => {
 									// Check if search matches group name
