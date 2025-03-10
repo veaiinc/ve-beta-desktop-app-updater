@@ -1,4 +1,5 @@
-import { Tooltip } from 'antd';
+/* eslint-disable react-hooks/exhaustive-deps */
+import { message, Tooltip } from 'antd';
 import React, { useContext, useState, useCallback } from 'react';
 // import '../../../assets/scss/home_page/homepage.scss';
 import '../../../assets/scss/globalComponents/quickActions.scss';
@@ -16,6 +17,7 @@ const dropdownOptions = [
 	{ id: 5, title: 'Form', value: 'form-submission', controlValue: 'form' },
 	{ id: 6, title: 'Proposal', value: 'proposal', controlValue: 'workflow' },
 	{ id: 7, title: 'Invoice', value: 'invoice', controlValue: 'workflow' },
+	{ id: 9, title: 'Automation', value: 'automation' },
 	// { id: 8, title: 'Contacts', value: 'contact', controlValue: 'contact' },
 ];
 const QuickActions = ({ styles, customActions = [], clientDetails = null }) => {
@@ -31,6 +33,7 @@ const QuickActions = ({ styles, customActions = [], clientDetails = null }) => {
 	let {
 		templates: { toggleCreateLeadModal },
 		profileInfo: { tenantUserAccessControls },
+		automationBuilder: { createAutomation },
 	} = useContext(Context);
 	const navigate = useNavigate();
 
@@ -67,8 +70,28 @@ const QuickActions = ({ styles, customActions = [], clientDetails = null }) => {
 			setInfo({ ...info, openProposalPopup: true, commonState: 'invoice' });
 		} else if (type === 'contract') {
 			setInfo({ ...info, openProposalPopup: true, commonState: 'contract' });
+		} else if (type === 'automation') {
+			handleCreateAutomation();
 		}
 	}, []);
+
+	const handleCreateAutomation = useCallback(async () => {
+		if (info?.isAutomationLoading) return;
+		setInfo({ ...info, isAutomationLoading: true });
+		const response = await createAutomation({
+			name: 'Untitled Automation',
+			version: 1,
+			steps: [],
+			status: 'draft',
+		});
+		if (response?.[0]) {
+			navigate(`/automation-builder/${response?.[1]?._id}`);
+		} else {
+			message.error('Failed to create automation');
+		}
+		setInfo({ ...info, isAutomationLoading: false });
+	}, [createAutomation, info]);
+
 	return (
 		<div className="quick-actions-dropdown-container" style={{ ...styles }}>
 			<Tooltip
