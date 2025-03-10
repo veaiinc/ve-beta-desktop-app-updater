@@ -37,7 +37,7 @@ const actionGroups = [
 		actions: [
 			{
 				actionLabel: 'Create Document',
-				actionType: 'createForm',
+				actionType: 'createFile',
 			},
 			{
 				actionLabel: 'Create Task',
@@ -260,14 +260,19 @@ const Actions = ({
 		}
 	};
 
+	const handleChangeClick = (groupId) => {
+		updateInfo({ selectedGroupId: groupId, selectedAction: null });
+	};
+
 	const actionMapper = useMemo(() => {
 		return {
-			createForm: (
+			createFile: (
 				<CreateFile
 					onBack={handleBack}
 					onSave={onSave}
 					addTriggerLoading={info?.saveLoader}
-					variables={variables}
+					activeStepsData={activeStepsData}
+					handleChangeClick={handleChangeClick}
 				/>
 			),
 			createTask: (
@@ -277,6 +282,7 @@ const Actions = ({
 					addTriggerLoading={info?.saveLoader}
 					variables={variables}
 					activeStepsData={activeStepsData}
+					handleChangeClick={handleChangeClick}
 				/>
 			),
 			createMeeting: (
@@ -286,6 +292,7 @@ const Actions = ({
 					addTriggerLoading={info?.saveLoader}
 					variables={variables}
 					activeStepsData={activeStepsData}
+					handleChangeClick={handleChangeClick}
 				/>
 			),
 			gmail: (
@@ -293,9 +300,9 @@ const Actions = ({
 					onBack={handleBack}
 					onSave={onSave}
 					loading={info?.saveLoader}
-					variables={variables}
 					selectedAction={info?.selectedAction}
 					activeStepsData={activeStepsData}
+					handleChangeClick={handleChangeClick}
 				/>
 			),
 			slack: (
@@ -305,10 +312,19 @@ const Actions = ({
 					loading={info?.saveLoader}
 					selectedAction={info?.selectedAction}
 					activeStepsData={activeStepsData}
+					handleChangeClick={handleChangeClick}
 				/>
 			),
 		};
-	}, [updateInfo, onSave, info?.saveLoader, variables, info?.selectedAction, activeStepsData]);
+	}, [
+		updateInfo,
+		onSave,
+		info?.saveLoader,
+		variables,
+		info?.selectedAction,
+		activeStepsData,
+		handleChangeClick,
+	]);
 
 	return (
 		<div className="actionSidebarComponents">

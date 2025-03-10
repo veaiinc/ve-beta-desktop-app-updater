@@ -6,7 +6,14 @@ import VariableComponent from './VariableComponent';
 import HeaderComponent from './HeaderComponent';
 import '../../../../assets/scss/automation_builder/automationBuilderSidebarComponents/inAppActions.scss';
 
-const CreateTask = ({ onBack, onSave, addTriggerLoading, variables, activeStepsData }) => {
+const CreateTask = ({
+	onBack,
+	onSave,
+	addTriggerLoading,
+	variables,
+	activeStepsData,
+	handleChangeClick,
+}) => {
 	const [info, setInfo] = useState({
 		title: '',
 		dueDate: '',
@@ -15,6 +22,20 @@ const CreateTask = ({ onBack, onSave, addTriggerLoading, variables, activeStepsD
 		stepDescription: '',
 		loading: false,
 	});
+
+	useEffect(() => {
+		if (activeStepsData) {
+			setInfo((prev) => ({
+				...prev,
+				title: activeStepsData?.inputBody?.title,
+				dueDate: new Date(activeStepsData?.inputBody?.dueDate * 1000)
+					.toISOString()
+					.split('T')[0],
+				stepTitle: activeStepsData?.title,
+				stepDescription: activeStepsData?.description,
+			}));
+		}
+	}, [activeStepsData]);
 
 	const createNewTaskNode = useCallback(async () => {
 		const variableRegex = /^\{\{.*\}\}$/;
@@ -64,19 +85,13 @@ const CreateTask = ({ onBack, onSave, addTriggerLoading, variables, activeStepsD
 		setInfo((prev) => ({ ...prev, ...data }));
 	}, []);
 
-	useEffect(() => {
+	const onChangeButtonClick = useCallback(() => {
 		if (activeStepsData) {
-			setInfo((prev) => ({
-				...prev,
-				title: activeStepsData?.inputBody?.title,
-				dueDate: new Date(activeStepsData?.inputBody?.dueDate * 1000)
-					.toISOString()
-					.split('T')[0],
-				stepTitle: activeStepsData?.title,
-				stepDescription: activeStepsData?.description,
-			}));
+			handleChangeClick(activeStepsData?.app);
+		} else {
+			onBack();
 		}
-	}, [activeStepsData]);
+	}, [handleChangeClick, activeStepsData, onBack]);
 
 	return (
 		<div className="inAppActionsContainer">
@@ -94,7 +109,7 @@ const CreateTask = ({ onBack, onSave, addTriggerLoading, variables, activeStepsD
 						updateInfo({ stepDescription: data?.description });
 					}
 				}}
-				onChangeButtonClick={onBack}
+				onChangeButtonClick={onChangeButtonClick}
 			/>
 			<div className="inAppActionsInputsContainer">
 				<h2 className="InputBlockHeading">Inputs</h2>

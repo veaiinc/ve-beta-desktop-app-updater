@@ -15,7 +15,14 @@ import VariableComponent from './VariableComponent';
 import { useCallback } from 'react';
 import { message } from 'antd';
 
-const SlackActions = ({ onBack, onSave, loading, selectedAction, activeStepsData }) => {
+const SlackActions = ({
+	onBack,
+	onSave,
+	loading,
+	selectedAction,
+	activeStepsData,
+	handleChangeClick,
+}) => {
 	const {
 		automationBuilder: { connectedIntegrations, variables },
 	} = useContext(Context);
@@ -79,6 +86,14 @@ const SlackActions = ({ onBack, onSave, loading, selectedAction, activeStepsData
 	const updateInfo = useCallback((data) => {
 		setInfo((prev) => ({ ...prev, ...data }));
 	}, []);
+
+	const onChangeButtonClick = useCallback(() => {
+		if (activeStepsData) {
+			handleChangeClick(activeStepsData?.app);
+		} else {
+			onBack();
+		}
+	}, [handleChangeClick, activeStepsData, onBack]);
 
 	const handleChangeTeam = useCallback((option) => {
 		updateInfo({ selectedTeam: option, selectedChannel: option?.channels?.[0] });
@@ -256,7 +271,7 @@ const SlackActions = ({ onBack, onSave, loading, selectedAction, activeStepsData
 				title={info?.title}
 				description={info?.description}
 				updaterFn={updateInfo}
-				onChangeButtonClick={onBack}
+				onChangeButtonClick={onChangeButtonClick}
 				actionLabel={selectedAction?.actionLabel}
 			/>
 			<div className="slackActionsContainerBody">

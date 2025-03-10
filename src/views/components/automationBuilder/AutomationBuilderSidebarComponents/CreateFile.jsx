@@ -8,7 +8,7 @@ import '../../../../assets/scss/automation_builder/automationBuilderSidebarCompo
 import VariableComponent from './VariableComponent';
 import { message } from 'antd';
 
-const CreateFile = ({ onBack, onSave, addTriggerLoading, variables }) => {
+const CreateFile = ({ onBack, onSave, activeStepsData, addTriggerLoading, handleChangeClick }) => {
 	const {
 		templates: { getMyWorkflows, myWorkflows, myMoreWorkflows },
 	} = useContext(Context);
@@ -24,8 +24,17 @@ const CreateFile = ({ onBack, onSave, addTriggerLoading, variables }) => {
 		hasNextPage: false,
 		selectedTemplate: null,
 		chooseFromTemplate: false,
-		activeStepsData: null,
 	});
+
+	useEffect(() => {
+		if (activeStepsData) {
+			setInfo((prev) => ({
+				...prev,
+				title: activeStepsData?.title,
+				description: activeStepsData?.description,
+			}));
+		}
+	}, [activeStepsData]);
 
 	useEffect(() => {
 		getMyWorkflowTemplatesData(1);
@@ -85,6 +94,14 @@ const CreateFile = ({ onBack, onSave, addTriggerLoading, variables }) => {
 			},
 		});
 	}, [onSave, info?.selectedTemplate, info?.title, info?.description]);
+
+	const onChangeButtonClick = useCallback(() => {
+		if (activeStepsData) {
+			handleChangeClick(activeStepsData?.app);
+		} else {
+			onBack();
+		}
+	}, [handleChangeClick, activeStepsData, onBack]);
 
 	const myWorkflowsDataParser = useCallback(
 		(dataToBeUsed, fetchMore = false) => {
@@ -187,7 +204,7 @@ const CreateFile = ({ onBack, onSave, addTriggerLoading, variables }) => {
 						title={info?.title}
 						description={info?.description}
 						updaterFn={updateInfo}
-						onChangeButtonClick={onBack}
+						onChangeButtonClick={onChangeButtonClick}
 					/>
 					<div className="createFileFormSelectionBlockContainer">
 						{info?.selectedTemplate ? (
