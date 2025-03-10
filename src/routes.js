@@ -46,6 +46,7 @@ import InitialHomePage from './views/features/home_page/InitialHomePage';
 import RecentChat from './views/features/chat/RecentChat';
 import AutomationBuilder from './views/features/automation_builder';
 import AutomationBuilderLayout from './views/layouts/automationBuilderLayout';
+import Automations from './views/features/automations/Automations';
 const routes = [
 	{
 		path: '/',
@@ -440,6 +441,14 @@ const routes = [
 			</AuthWrapper>
 		),
 		exact: true,
+	},
+	{
+		path: '/automations',
+		component: (
+			<AuthWrapper title={'Automations'}>
+				<Automations />
+			</AuthWrapper>
+		),
 	},
 ];
 
