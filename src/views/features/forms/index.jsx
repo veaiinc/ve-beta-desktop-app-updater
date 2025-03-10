@@ -90,7 +90,7 @@ const Forms = () => {
 					<QuickActions />
 				</div>
 			</div>
-			<div className="formsParentHeaderContainer">
+			{/* <div className="formsParentHeaderContainer">
 				<div className="formsHeaderButtons " onClick={() => {}}>
 					<div className="formsHeaderButtonsTitle">Let's Create a Form</div>
 					<div className="formsHeaderSubButtonsSubTitleColored colorful">
@@ -111,7 +111,7 @@ const Forms = () => {
 						Pick your template from playbook
 					</div>
 				</div>
-			</div>
+			</div> */}
 
 			<div className="formsContainer">
 				<div className="formsHeaderContainer">
@@ -170,7 +170,7 @@ const Forms = () => {
 						</div>
 					</div>
 
-					<div className="formsHeaderContainerActionsContainer">
+					{/* <div className="formsHeaderContainerActionsContainer">
 						<div
 							className="searchContainer"
 							style={{
@@ -243,7 +243,7 @@ const Forms = () => {
 							<Filter style={{ width: '20px', height: '20px', marginTop: '6px' }} />
 						</DropDown>
 						<ThreeDots />
-					</div>
+					</div> */}
 				</div>
 
 				<div className="formsInfiniteContainer">

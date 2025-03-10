@@ -137,7 +137,7 @@ const Header = ({ title, hideQuickNav = false, activeWorkspaceId }) => {
 
 			<div className="headersTopRightButtonsContainer">
 				<HeadersDropDownComp
-					selectedValue={'+ New'}
+					selectedValue={'New'}
 					activeImage={info?.activeBusniessName?.logo_s3_500w_key}
 					options={newBtnActions}
 					containerStyle={{

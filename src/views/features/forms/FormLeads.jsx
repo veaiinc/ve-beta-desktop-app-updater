@@ -138,11 +138,11 @@ const FormLeads = () => {
 								<CurlyBracesSvg />
 								<span>Embed Form</span>
 							</span>
-							<div className="divider"></div>
-							<span className="ctaBtn">
+							{/* <div className="divider"></div> */}
+							{/* <span className="ctaBtn">
 								<LinkShareSvg />
 								<span>Share as Template</span>
-							</span>
+							</span> */}
 						</div>
 					</div>
 				</div>
@@ -168,7 +168,7 @@ const FormLeads = () => {
 						))}
 					</div>
 
-					<div className="filterActionsContainer">
+					{/* <div className="filterActionsContainer">
 						<div
 							className="searchContainer"
 							style={{
@@ -230,7 +230,7 @@ const FormLeads = () => {
 						<Filter style={{ width: '20px', height: '20px' }} />
 						<UpDownArrow style={{ width: '20px', height: '20px' }} />
 						<ThreeDots />
-					</div>
+					</div> */}
 				</div>
 				{tabs?.[info?.activeTab]?.Component}
 			</div>
