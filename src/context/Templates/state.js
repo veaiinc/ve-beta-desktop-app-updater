@@ -37,6 +37,8 @@ import {
 	addNewStepsQuery,
 	updateStepsQuery,
 	getFormResponsesListQuery,
+	createBlankWorkflowQuery,
+	createBlankTemplateQuery,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -67,7 +69,7 @@ export const intialState = {
 	contractSignedLocalState: null,
 	specificTemplatesInfo: null,
 	smartFileEmailTemplateData: null,
-	requiredActions: null,
+	requiredActions: { actions: [], hasMore: false, loading: true },
 	requiredActionsForTemplate: null,
 	tabItemCount: null,
 	eventsPresetData: null,
@@ -1958,6 +1960,47 @@ export const TemplatesState = (props) => {
 			console.log('errror ==>getRecentChatMessages', error);
 		}
 	};
+	const createBlankWorkflow = async (payload) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				createBlankWorkflowQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+			if (response?.[0]) {
+				return response;
+			} else {
+				return response;
+			}
+		} catch (error) {
+			console.log('error==>createBlankWorkflow', error);
+		}
+	};
+
+	const createBlankTemplate = async (payload) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				createBlankTemplateQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+			if (response?.[0]) {
+				return response;
+			} else {
+				return response;
+			}
+		} catch (error) {
+			console.log('error==>createBlankTemplate', error);
+		}
+	};
 
 	const getLLMModels = async () => {
 		try {
@@ -2054,5 +2097,7 @@ export const TemplatesState = (props) => {
 		handleStreamIncomingMessage,
 		handleStreamMessageChunk,
 		getLLMModels,
+		createBlankWorkflow,
+		createBlankTemplate,
 	};
 };
