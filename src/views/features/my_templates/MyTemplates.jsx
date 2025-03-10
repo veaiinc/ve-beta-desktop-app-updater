@@ -20,11 +20,11 @@ const SubTitle = () => {
 };
 
 const cards = [
-	{
-		id: 1,
-		title: `Create a Template`,
-		subTitle: <SubTitle />,
-	},
+	// {
+	// 	id: 1,
+	// 	title: `Create a Template`,
+	// 	subTitle: <SubTitle />,
+	// },
 	// {
 	// 	id: 2,
 	// 	title: 'Import file or URL',
@@ -38,26 +38,26 @@ const cards = [
 ];
 
 const ctaItems = [
-	{
-		id: 1,
-		icon: <Plus />,
-	},
-	{
-		id: 1,
-		icon: <Search />,
-	},
-	{
-		id: 1,
-		icon: <UpDownArrow />,
-	},
-	{
-		id: 1,
-		icon: <Filter />,
-	},
-	{
-		id: 1,
-		icon: <ThreeDots />,
-	},
+	// {
+	// 	id: 1,
+	// 	icon: <Plus />,
+	// },
+	// {
+	// 	id: 1,
+	// 	icon: <Search />,
+	// },
+	// {
+	// 	id: 1,
+	// 	icon: <UpDownArrow />,
+	// },
+	// {
+	// 	id: 1,
+	// 	icon: <Filter />,
+	// },
+	// {
+	// 	id: 1,
+	// 	icon: <ThreeDots />,
+	// },
 ];
 
 const initialState = {
