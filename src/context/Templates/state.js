@@ -47,6 +47,7 @@ import Service from '../../services/index';
 import { sendCustomMailMutation } from '../subscription/graphqlFunctions';
 import { getBase64 } from '../../helpers';
 import Skeleton from 'react-loading-skeleton';
+import AIMessageLoader from '../../views/components/chat/AIMessageLoader';
 
 export const intialState = {
 	workflowslist: null,
@@ -68,7 +69,7 @@ export const intialState = {
 	contractSignedLocalState: null,
 	specificTemplatesInfo: null,
 	smartFileEmailTemplateData: null,
-	requiredActions: null,
+	requiredActions: { actions: [], hasMore: false, loading: true },
 	requiredActionsForTemplate: null,
 	tabItemCount: null,
 	eventsPresetData: null,
@@ -82,7 +83,6 @@ export const intialState = {
 	createLeadModalContextState: false,
 	globalChatMessages: [], // { type: 'AI', message: 'Hello, how can I help you today?' }
 	currentSessionId: null,
-	deepResearch: false,
 	citations: null,
 	followUpQuery: null,
 	docsFilesList: null,
@@ -99,6 +99,14 @@ export const intialState = {
 	recentChatStorage: null,
 	moreRecentChatStorage: null,
 	activePayloadForChat: null,
+	llmModels: null,
+	chatInfo: {
+		deepResearch: false,
+		selectedLLMModel: null,
+		webSearch: false,
+		workspaceSearch: true,
+	},
+	globalLoadingMesssage: null,
 };
 
 export const TemplatesState = (props) => {
@@ -1642,9 +1650,7 @@ export const TemplatesState = (props) => {
 					message: 'loading....',
 					content: (
 						<div className="aiMessageWrapper">
-							<Skeleton height={20} width={'100%'} borderRadius={'100px'} />
-							<Skeleton height={20} width={'75%'} borderRadius={'100px'} />
-							<Skeleton height={20} width={'50%'} borderRadius={'100px'} />
+							<AIMessageLoader />
 						</div>
 					),
 					contentType: 'loading',
@@ -1660,9 +1666,7 @@ export const TemplatesState = (props) => {
 					message: 'loading....',
 					content: (
 						<div className="aiMessageWrapper">
-							<Skeleton height={20} width={'100%'} borderRadius={'100px'} />
-							<Skeleton height={20} width={'75%'} borderRadius={'100px'} />
-							<Skeleton height={20} width={'50%'} borderRadius={'100px'} />
+							<AIMessageLoader />
 						</div>
 					),
 					contentType: 'loading',
@@ -1997,6 +2001,28 @@ export const TemplatesState = (props) => {
 			console.log('error==>createBlankTemplate', error);
 		}
 	};
+
+	const getLLMModels = async () => {
+		try {
+			const usertoken = localStorage.getItem('usertoken');
+			const path = '/available_models';
+			const type = 'ai_predictions';
+			const response = await Service?.fetchGet(path, usertoken, type);
+
+			if (response?.[0]) {
+				dispatch({
+					type: Actions?.GET_LLM_MODELS_SUCCESS,
+					payload: response?.[1],
+				});
+			} else {
+				console.log('errror ==>getLLMModels', response);
+				return [false];
+			}
+		} catch (error) {
+			console.log('errror ==>getLLMModels', error);
+		}
+	};
+
 	return {
 		...state,
 		getMyWorkflows,
@@ -2070,6 +2096,7 @@ export const TemplatesState = (props) => {
 		handleStreamSendMessage,
 		handleStreamIncomingMessage,
 		handleStreamMessageChunk,
+		getLLMModels,
 		createBlankWorkflow,
 		createBlankTemplate,
 	};

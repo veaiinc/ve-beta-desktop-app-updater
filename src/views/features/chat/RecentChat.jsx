@@ -10,9 +10,10 @@ import ChatBox from '../../components/homePage/ChatBox';
 import { useParams } from 'react-router-dom';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { FetchMoreLoaderComp } from '../../../helpers';
-import { debounce } from 'lodash';
+import { debounce, escape } from 'lodash';
 import useChatStream from '../../hooks/useChatStream';
 
+let throttleTimer = null;
 const RecentChat = ({
 	outerContainerStyle = {},
 	chatList = [],
@@ -32,6 +33,7 @@ const RecentChat = ({
 			moreRecentChatStorage,
 			handleStreamIncomingMessage,
 			handleStreamMessageChunk,
+			globalLoadingMesssage,
 		},
 	} = useContext(Context);
 
@@ -49,7 +51,7 @@ const RecentChat = ({
 		showFullPage: true,
 		voiceIntegration: false,
 		noteModalIsOpen: false,
-		citationsModalIsOpen: true,
+		citationsModalIsOpen: false,
 		page: 1,
 		currentPage: true,
 		latestStreamMesage: null,
@@ -60,6 +62,7 @@ const RecentChat = ({
 	});
 
 	const chatContentRef = useRef(null);
+	const loadingMessageRef = useRef(globalLoadingMesssage);
 	const chatMessagesRef = useRef(globalChatMessages || []);
 	const { sessionId } = useParams();
 
@@ -67,7 +70,13 @@ const RecentChat = ({
 	const aiCitationsByIdRef = useRef({});
 
 	useEffect(() => {
+		window.addEventListener('resize', handleResize);
+		handleResize(0);
+
 		return () => {
+			window.removeEventListener('resize', handleResize);
+			clearTimeout(throttleTimer);
+
 			updateStateValues({
 				moreRecentChatStorage: null,
 				recentChatStorage: null,
@@ -194,6 +203,25 @@ const RecentChat = ({
 			recentChatHandler(moreRecentChatStorage, true);
 		}
 	}, [moreRecentChatStorage]);
+
+	const handleResize = (time = 300) => {
+		if (throttleTimer) return;
+
+		throttleTimer = setTimeout(() => {
+			if (window.innerWidth < 1400) {
+				setInfo((prev) => ({
+					...prev,
+					citationsModalIsOpen: false,
+				}));
+			} else {
+				setInfo((prev) => ({
+					...prev,
+					citationsModalIsOpen: true,
+				}));
+			}
+			throttleTimer = null;
+		}, time);
+	};
 
 	const recentChatHandler = useCallback(
 		(inComingData, fetcMore = false) => {
@@ -322,9 +350,21 @@ const RecentChat = ({
 		(event) => {
 			let { data = '' } = event || {};
 			data = JSON.parse(data);
+			if (data?.hasOwnProperty('intermediate_response')) {
+				if (data?.intermediate_response_done === true) {
+					loadingMessageRef.current = null;
+					return;
+				}
+
+				loadingMessageRef.current = loadingMessageRef.current || '';
+				loadingMessageRef.current += data?.intermediate_response;
+				updateStateValues({ globalLoadingMesssage: loadingMessageRef.current });
+				return;
+			}
 
 			if (data?.stream_end) {
 				handleStreamIncomingMessage(data);
+				updateStateValues({ globalLoadingMesssage: null });
 				setInfo((prev) => ({ ...prev, latestStreamMesage: data }));
 			}
 			const { message_chunk_id } = data;
@@ -397,7 +437,6 @@ const RecentChat = ({
 									display: 'flex',
 									flexDirection: 'column-reverse',
 									transition: 'all 0.3s ease',
-									// justifyContent: 'flex-end',
 								}}
 								height={'calc(100vh - 180px)'}
 								scrollThreshold={0.8}

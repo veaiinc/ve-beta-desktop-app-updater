@@ -28,15 +28,21 @@ const NoteComponentModal = ({
 	toggleLatestStreamMessage,
 }) => {
 	const chatContentRef = useRef(null);
+	const {
+		templates: { globalChatMessages },
+		documentPreview: { noteContent },
+	} = useContext(Context);
 
 	const [info, setInfo] = useState({
 		noteComponentFullScreen: false,
-		chatToNoteLoopOn: true,
+		chatToNoteLoopOn: false,
 	});
 
 	useEffect(() => {
-		smoothScrollToBottom();
-	}, [chatList]); // Scroll when chat updates
+		if (modalIsOpen) {
+			smoothScrollToBottom();
+		}
+	}, [chatList, modalIsOpen]); // Scroll when chat updates
 
 	const smoothScrollToBottom = useCallback(
 		(type) => {
@@ -85,7 +91,7 @@ const NoteComponentModal = ({
 		>
 			<div className="modal-container">
 				<div className="chatBarContainer">
-					{/* <div className="chat-to-note-link-container">
+					<div className="chat-to-note-link-container">
 						<div className="title">Link all chat to note</div>
 						<div
 							className={`link-icon-container ${
@@ -95,7 +101,7 @@ const NoteComponentModal = ({
 						>
 							{info?.chatToNoteLoopOn ? <LinkDarkSvg /> : <LinkLightSvg />}
 						</div>
-					</div> */}
+					</div>
 					{/* chat body */}
 					<div className={`chatBodyParentContainer`} ref={chatContentRef}>
 						<div className="chatContent">
@@ -118,6 +124,7 @@ const NoteComponentModal = ({
 														showTypingEffect={chat?.typingEffect}
 														rating={chat?.rating}
 														messageData={chat}
+														citations={chat?.citations}
 													/>
 												</div>
 											) : (
@@ -132,10 +139,9 @@ const NoteComponentModal = ({
 					<div className="chat-box-wrapper">
 						<ChatBox
 							showChatLabels={false}
-							chatToNoteLoopOn={info?.chatToNoteLoopOn}
 							handleSendWebsocketMessage={handleSendWebsocketMessage}
-							latestStreamMesage={info?.latestStreamMesage}
-							lastQuery={info?.lastQuery}
+							latestStreamMesage={latestStreamMesage}
+							lastQuery={lastQuery}
 							toggleLatestStreamMessage={toggleLatestStreamMessage}
 						/>
 					</div>
@@ -188,6 +194,8 @@ const NoteComponentModal = ({
 							height: '100%',
 							backgroundColor: '#171819',
 						}}
+						initialContent={info?.chatToNoteLoopOn ? globalChatMessages : noteContent}
+						loopOn={info?.chatToNoteLoopOn}
 					/>
 				</div>
 			</div>

@@ -72,6 +72,23 @@
 					max-width: 700px;
 					margin: 0 auto 40px auto;
 
+					.aiMessageWrapper {
+						.text-container {
+							color: var(--secondary-font, #787e87);
+							font-family: Inter;
+							font-size: 15px;
+							font-weight: 400;
+							line-height: 24px;
+							.char {
+								transition: color 0.2s ease-in-out;
+							}
+
+							.highlight-char {
+								color: #f2f2f3;
+							}
+						}
+					}
+
 					.ai-message:hover {
 						.hover-actions-container {
 							visibility: visible;
@@ -89,7 +106,7 @@
 							flex-direction: column;
 							gap: 6px;
 							max-width: 100%;
-							color: white;
+							color: #f2f2f3;
 							border-radius: 100px;
 							font-size: 15px;
 							line-height: 22px;
@@ -99,7 +116,7 @@
 							transition: all 0.3s ease;
 
 							.content {
-								transition: opacity 0.3s ease-in-out;
+								transition: opacity 0.1s ease-in-out;
 							}
 						}
 					}
@@ -153,7 +170,14 @@
 		transform: translateY(0);
 	}
 }
-
+@keyframes pulseWidth {
+	0% {
+		left: 0%;
+	}
+	100% {
+		left: 100%;
+	}
+}
 /* Improve infinite scroll container */
 .infinite-scroll-component {
 	transition: all 0.3s ease;

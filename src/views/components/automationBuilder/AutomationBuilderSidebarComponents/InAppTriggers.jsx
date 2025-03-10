@@ -3,6 +3,7 @@ import React, { memo, useMemo } from 'react';
 import '../../../../assets/scss/automation_builder/automationBuilderSidebarComponents/inAppTriggers.scss';
 import TaskTriggers from './TaskTriggers';
 import FormResponseTrigger from './FormResponseTrigger';
+import ClientTriggers from './ClientTriggers';
 
 const InAppTriggers = ({ onClose, onSave, addTriggerLoading, triggerData }) => {
 	const moduleMapper = useMemo(() => {
@@ -17,6 +18,14 @@ const InAppTriggers = ({ onClose, onSave, addTriggerLoading, triggerData }) => {
 			),
 			formResponse: (
 				<FormResponseTrigger
+					onClose={onClose}
+					onSave={onSave}
+					addTriggerLoading={addTriggerLoading}
+					triggerData={triggerData}
+				/>
+			),
+			client: (
+				<ClientTriggers
 					onClose={onClose}
 					onSave={onSave}
 					addTriggerLoading={addTriggerLoading}

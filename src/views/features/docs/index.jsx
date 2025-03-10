@@ -817,7 +817,7 @@ const Docs = () => {
 						>
 							<Filter style={{ width: '20px', height: '20px', marginTop: '6px' }} />
 						</DropDown>
-						<ThreeDots />
+						{/* <ThreeDots /> */}
 					</div>
 				</div>
 
