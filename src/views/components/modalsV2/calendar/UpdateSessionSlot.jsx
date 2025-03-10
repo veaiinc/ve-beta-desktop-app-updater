@@ -8,8 +8,6 @@ import { Tooltip, DatePicker } from 'antd';
 import moment from 'moment';
 import ToggleSwitch from '../../../components/input/slider';
 
-// const sessionName = ['Yoga', 'Cardio', 'Dance'];
-
 const UpdateSessionSlot = ({ open, closeModal, schedulerList, selectedSlotData }) => {
 	const [info, setInfo] = useState({
 		repeat: false,
