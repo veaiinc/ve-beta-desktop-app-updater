@@ -491,6 +491,8 @@ export const createBlankWorkflowQuery = gql`
 	mutation CreateBlankWorkflow($workflowInput: BlankWorkflowInput) {
 		createBlankWorkflow(workflowInput: $workflowInput) {
 			_id
+			templateId
+			templateTitle
 		}
 	}
 `;
