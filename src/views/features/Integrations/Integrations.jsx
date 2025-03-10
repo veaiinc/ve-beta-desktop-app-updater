@@ -54,11 +54,13 @@ const AvailableIntegrationCard = ({ icon, title, description, onConnect }) => {
 const IntegrationRequestCard = ({ icon, title }) => {
 	return (
 		<div className="integration-request-card">
-			<div className="integration-icon">
-				<img src={icon} alt={title} className="integraton-image" />
+			<div className="card-content">
+				<div className="integration-icon">
+					<img src={icon} alt={title} className="integraton-image" />
+				</div>
+				<h3>{title}</h3>
 			</div>
-			<h3>{title}</h3>
-			<button className="request-button">Request</button>
+			<span className="request-button">Request</span>
 		</div>
 	);
 };
