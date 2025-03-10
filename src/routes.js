@@ -47,6 +47,7 @@ import Chat from './views/features/chat/Chat';
 import RecentChat from './views/features/chat/RecentChat';
 import AutomationBuilder from './views/features/automation_builder';
 import AutomationBuilderLayout from './views/layouts/automationBuilderLayout';
+import IntegrationsUpdate from './views/features/Integrations/IntegrationsUpdate';
 const routes = [
 	{
 		path: '/',
@@ -270,6 +271,15 @@ const routes = [
 		component: (
 			<AuthWrapper title={'Tasks'}>
 				<Tasks />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/integrations',
+		component: (
+			<AuthWrapper title={'Integrations'}>
+				<IntegrationsUpdate />
 			</AuthWrapper>
 		),
 		exact: true,

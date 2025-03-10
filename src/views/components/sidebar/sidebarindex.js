@@ -120,6 +120,13 @@ export const veAiModulesItemsList = [
 	// 	route: '/notes',
 	// 	icon: '',
 	// },
+	{
+		id: 7,
+		name: 'Integrations',
+		moduleRoute: '/integrations',
+		route: '/integrations',
+		icon: '',
+	},
 ];
 
 //
