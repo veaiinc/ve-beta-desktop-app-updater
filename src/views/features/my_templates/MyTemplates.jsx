@@ -10,6 +10,7 @@ import { ReactComponent as ThreeDots } from '../../../assets/svg/my_templates/th
 import TemplateCards from '../../components/myTemplate/TemplateCards';
 import Context from '../../../context/context';
 import QuickActions from '../../components/globalComponents/QuickActions';
+import { ReactComponent as Cross } from '../../../assets/svg/docs/cross.svg';
 
 const SubTitle = () => {
 	return (
@@ -67,6 +68,10 @@ const initialState = {
 	hasNextPage: false,
 	currentPage: 1,
 	activeTab: 'all', //all, proposals, invoices, contracts, presentations
+	searchValue: '',
+	searchExpand: false,
+	searchChanged: false,
+	timeout: null,
 };
 
 const MyTemplates = () => {
@@ -116,19 +121,31 @@ const MyTemplates = () => {
 		}
 	}, [myMoreWorkflows]);
 
-	const getMyWorkflowTemplatesData = useCallback((page, fetchMore = false) => {
-		const payload = {
-			filters: {
-				limit: 16,
-				page: page,
-				type: 'workspace',
-				status: 'published',
-				sortBy: 'createdAt',
-				sortType: -1,
-			},
-		};
-		getMyWorkflows(payload, fetchMore);
-	}, []);
+	useEffect(() => {
+		if (info?.searchChanged) {
+			handleDebounceFetchSearchResults();
+		}
+	}, [info?.searchValue, info?.searchChanged]);
+
+	const getMyWorkflowTemplatesData = useCallback(
+		(page, fetchMore = false) => {
+			const payload = {
+				filters: {
+					limit: 16,
+					page: page,
+					type: 'workspace',
+					status: 'published',
+					sortBy: 'createdAt',
+					sortType: -1,
+				},
+			};
+			if (info?.searchChanged) {
+				payload.filters.title = info?.searchValue || '';
+			}
+			getMyWorkflows(payload, fetchMore);
+		},
+		[info],
+	);
 
 	const fetchMoreMyWorkflows = useCallback(() => {
 		getMyWorkflowTemplatesData(info?.currentPage + 1, true);
@@ -209,6 +226,14 @@ const MyTemplates = () => {
 		}
 	};
 
+	const handleDebounceFetchSearchResults = useCallback(() => {
+		clearInterval(info?.timeout);
+		const timeout = setTimeout(() => {
+			getMyWorkflowTemplatesData(1);
+		}, 500);
+		setInfo((prev) => ({ ...prev, timeout }));
+	}, [info]);
+
 	return (
 		<div className="myTemplatesContainer">
 			<div className="headerContainer">
@@ -263,6 +288,64 @@ const MyTemplates = () => {
 								{ctaItem?.icon}
 							</div>
 						))}
+					</div>
+
+					<div
+						className="searchContainer"
+						style={{
+							width: info?.searchExpand ? '140px' : '16px',
+						}}
+					>
+						<div className={`searchBtn ${info?.searchExpand ? 'searchExpand' : ''}`}>
+							<span
+								style={{
+									display: 'flex',
+									justifyContent: 'center',
+									alignItems: 'center',
+									cursor: 'pointer',
+								}}
+								onClick={() =>
+									setInfo((prev) => ({
+										...prev,
+										searchExpand: true,
+									}))
+								}
+							>
+								<Search />
+							</span>
+
+							<div className="inputAndCloseContainer">
+								<input
+									className="searchInputTag"
+									placeholder="Search"
+									value={info?.searchValue}
+									onChange={(e) =>
+										setInfo((prev) => ({
+											...prev,
+											searchValue: e?.target?.value,
+											searchChanged: true,
+										}))
+									}
+								/>
+								<span
+									style={{
+										display: 'flex',
+										justifyContent: 'center',
+										alignItems: 'center',
+										cursor: 'pointer',
+									}}
+									onClick={() => {
+										setInfo((prev) => ({
+											...prev,
+											searchExpand: false,
+											searchValue: '',
+										}));
+									}}
+								>
+									<Cross style={{ width: '20px', height: '20px' }} />
+								</span>
+							</div>
+						</div>
 					</div>
 				</nav>
 
