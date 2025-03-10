@@ -4,17 +4,12 @@ export const getNotesListQuery = gql`
 		listPrivatePages(input: $input) {
 			totalPages
 			totalDocs
-			limit
-			currentPage
 			hasNextPage
 			hasPrevPage
-			prevPage
-			nextPage
 			data {
 				id
 				title
 				icon
-				coverImage
 				tenantId
 				createdAt
 				updatedAt

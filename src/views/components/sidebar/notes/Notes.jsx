@@ -1,6 +1,6 @@
 import { Drawer } from 'antd';
 import React, { useContext, useEffect, useState, useCallback, memo } from 'react';
-import '../../../../assets/scss/sidebarNotes.scss';
+import '../../../../assets/scss/notes/sidebarNotes.scss';
 import { ReactComponent as Back } from '../../../../assets/svg/sidebar/notes/back.svg';
 import { ReactComponent as Search } from '../../../../assets/svg/sidebar/notes/search.svg';
 import { ReactComponent as Filter } from '../../../../assets/svg/sidebar/notes/filter.svg';
