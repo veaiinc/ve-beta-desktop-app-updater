@@ -15,9 +15,10 @@ import { message } from 'antd';
 import Context from '../../../../context/context';
 import HeaderComponent from './HeaderComponent';
 import IfElse from './IfElse';
-
+import SwitchStep from './SwitchStep';
 const conditionsList = {
-	ifElse: { title: 'If / Else', id: 'ifElse' },
+	ifElse: { label: 'If / Else', value: 'ifElse' },
+	switch: { label: 'Switch', value: 'switch' },
 };
 const Conditions = ({
 	onClose,
@@ -156,6 +157,16 @@ const Conditions = ({
 					activeStepsData={activeStepsData}
 				/>
 			),
+			switch: (
+				<SwitchStep
+					variables={variables}
+					onSave={onSave}
+					isLoading={info?.isLoading}
+					hasNextNode={info?.hasNextNode}
+					onBack={onBack}
+					activeStepsData={activeStepsData}
+				/>
+			),
 		};
 	}, [variables, info?.isLoading, info?.hasNextNode, activeStepsData, onBack, onSave]);
 
@@ -188,9 +199,9 @@ const Conditions = ({
 							<div
 								className="actionListItem"
 								key={index}
-								onClick={() => changeStage({ activeScreen: ele?.id })}
+								onClick={() => changeStage({ activeScreen: ele?.value })}
 							>
-								{ele?.title}
+								{ele?.label}
 							</div>
 						))}
 					</div>

@@ -1,0 +1,84 @@
+.switchStepInputContainer {
+	display: flex;
+	padding: 12px 24px;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 12px;
+	align-self: stretch;
+	flex-grow: 1;
+	overflow-y: auto;
+
+	.switchStepInputHeading {
+		color: #f2f2f3;
+		font-family: Inter;
+		font-size: 14px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
+	}
+
+	.switchStepInputConditionContainer {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 10px;
+		width: 100%;
+
+		.switchStepInputHeading {
+			color: #7a7e85;
+			font-family: Inter;
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+		}
+		.switchStepInputCheckboxContainer {
+			display: flex;
+			align-items: center;
+			gap: 12px;
+			width: 100%;
+
+			label {
+				color: #7a7e85;
+				font-family: Inter;
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 500;
+				cursor: pointer;
+				padding: 12px 8px;
+				border-radius: 8px;
+				border: 1px solid #2a2a2a;
+
+				input {
+					display: none;
+				}
+
+				&:has(input:checked) {
+					background-color: #2a2a2a;
+					color: #f2f2f3;
+				}
+			}
+		}
+	}
+}
+
+.switchStepInputButton {
+	display: flex;
+	padding: 12px 16px;
+	align-self: stretch;
+	background: #202123;
+	border: none;
+	color: #f2f2f3;
+	font-family: Inter;
+	font-size: 13px;
+	font-style: normal;
+	font-weight: 400;
+	line-height: 16px; /* 123.077% */
+	cursor: pointer;
+	transition: all 0.3s ease;
+	justify-content: center;
+
+	&:hover {
+		background: #2c2d2f;
+	}
+}

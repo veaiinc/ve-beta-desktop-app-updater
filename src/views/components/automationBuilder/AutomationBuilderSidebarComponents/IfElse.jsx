@@ -173,7 +173,7 @@ const IfElse = ({ variables, onSave, isLoading, hasNextNode, onBack, activeSteps
 							<div className="ifElseInputConditionTooltip">
 								<span className="ifElseInputConditionText">Select Condition</span>
 								<div className="ifElseInputConditionList">
-									{conditionsList.map((condition) => (
+									{conditionsList?.map((condition) => (
 										<div
 											className="ifElseInputConditionItem"
 											key={condition?.value}
