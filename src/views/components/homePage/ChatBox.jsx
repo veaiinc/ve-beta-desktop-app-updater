@@ -65,7 +65,6 @@ const modulesOptions = {
 };
 
 const resetChatInfo = {
-	webSearch: false,
 	workspaceSearch: false,
 };
 const fileTypeIcons = {
@@ -236,7 +235,6 @@ const ChatBox = ({
 	};
 
 	const handleWebSearchClick = () => {
-		if (chatInfo?.deepResearch) return;
 		updateStateValues({
 			chatInfo: {
 				...chatInfo,
@@ -552,7 +550,7 @@ const ChatBox = ({
 		async (fileData, uploadBatchId) => {
 			let uploadedImages = [...info?.uploadedImages];
 			let uploadedCount = 0,
-				maxAttempts = 15,
+				maxAttempts = 30,
 				errorCount = 0,
 				successCount = 0;
 			while (!(uploadedCount && successCount) && maxAttempts) {
@@ -572,7 +570,7 @@ const ChatBox = ({
 				await new Promise((resolve) => setTimeout(resolve, 1000));
 				maxAttempts--;
 			}
-			if (errorCount) {
+			if (errorCount || maxAttempts === 0) {
 				uploadedImages.splice(fileData?.uniqueId, 1);
 				setInfo((prev) => ({ ...prev, uploadedImages }));
 				return message.error('Something went wrong while processing the image');
@@ -828,7 +826,13 @@ const ChatBox = ({
 										) : (
 											<div className="buttons-container">
 												<div className="chat-icons-container">
-													<Tooltip title="Enable Web Search">
+													<Tooltip
+														title={`${
+															chatInfo?.webSearch
+																? 'Disable'
+																: 'Enable'
+														} Web Search`}
+													>
 														<div
 															className="icon-container"
 															onClick={handleWebSearchClick}
@@ -837,11 +841,6 @@ const ChatBox = ({
 																	chatInfo?.webSearch
 																		? '#B39DFA'
 																		: '#2E2F33'
-																}`,
-																opacity: `${
-																	chatInfo?.deepResearch
-																		? '0.5'
-																		: '1'
 																}`,
 															}}
 														>
@@ -854,7 +853,15 @@ const ChatBox = ({
 															</div>
 														</div>
 													</Tooltip>
-													<Tooltip title="Enable Workspace Search">
+													<Tooltip
+														title={`${
+															chatInfo?.deepResearch
+																? 'Disable Deep Research'
+																: chatInfo?.workspaceSearch
+																? 'Disable Workspace Search'
+																: 'Enable Workspace Search'
+														} `}
+													>
 														<div
 															className="icon-container"
 															onClick={handleWorkspaceSearchClick}
@@ -881,7 +888,13 @@ const ChatBox = ({
 														</div>
 													</Tooltip>
 
-													<Tooltip title="Enable Deep Research">
+													<Tooltip
+														title={`${
+															chatInfo?.deepResearch
+																? 'Disable Deep Research'
+																: 'Enable Deep Research'
+														} `}
+													>
 														<div
 															className="icon-container"
 															onClick={handleDeepResearchClick}
@@ -919,7 +932,13 @@ const ChatBox = ({
 														}
 														recentFiles={info?.recentFiles}
 													>
-														<Tooltip title="Upload File">
+														<Tooltip
+															title={`${
+																chatInfo?.deepResearch
+																	? 'Disable Deep Research'
+																	: 'Upload File'
+															} `}
+														>
 															<div
 																className="icon-container"
 																style={{
@@ -941,7 +960,13 @@ const ChatBox = ({
 														</Tooltip>
 													</UploadFileTooltip>
 
-													<Tooltip title="Add Filters">
+													<Tooltip
+														title={`${
+															chatInfo?.deepResearch
+																? 'Disable Deep Research'
+																: 'Add Filters'
+														} `}
+													>
 														<div
 															className="icon-container"
 															onClick={handleShowFiltersClick}
@@ -958,49 +983,59 @@ const ChatBox = ({
 															</div>
 														</div>
 													</Tooltip>
-													<LLMTooltip
-														selectedModel={chatInfo?.selectedLLMModel}
-														handleOptionClick={
-															handleLLMModelOptionClick
-														}
-														setIsLLMModelOpen={(value) => {
-															if (
-																chatInfo?.deepResearch ||
-																chatInfo?.webSearch ||
-																chatInfo?.workspaceSearch ||
-																info?.uploadedImages?.length ||
-																info?.recentFiles?.length
-															)
-																return;
-															setInfo((prev) => ({
-																...prev,
-																isLLMModelOpen: value,
-															}));
-														}}
-														isOpen={info?.isLLMModelOpen}
-													>
-														<Tooltip title="Select LLM Model">
-															<div
-																className="icon-container"
-																style={{
-																	opacity: `${
-																		chatInfo?.deepResearch ||
-																		chatInfo?.webSearch ||
-																		chatInfo?.workspaceSearch ||
-																		info?.uploadedImages
-																			?.length ||
-																		info?.recentFiles?.length
-																			? '0.5'
-																			: '1'
-																	}`,
-																}}
-															>
-																<div className="icon">
-																	<LLMSvg />
+
+													{!(
+														chatInfo?.deepResearch ||
+														chatInfo?.webSearch ||
+														chatInfo?.workspaceSearch
+													) && (
+														<LLMTooltip
+															selectedModel={
+																chatInfo?.selectedLLMModel
+															}
+															handleOptionClick={
+																handleLLMModelOptionClick
+															}
+															setIsLLMModelOpen={(value) => {
+																if (
+																	chatInfo?.deepResearch ||
+																	chatInfo?.webSearch ||
+																	chatInfo?.workspaceSearch ||
+																	info?.uploadedImages?.length ||
+																	info?.recentFiles?.length
+																)
+																	return;
+																setInfo((prev) => ({
+																	...prev,
+																	isLLMModelOpen: value,
+																}));
+															}}
+															isOpen={info?.isLLMModelOpen}
+														>
+															<Tooltip title="Select LLM Model">
+																<div
+																	className="icon-container"
+																	style={{
+																		opacity: `${
+																			chatInfo?.deepResearch ||
+																			chatInfo?.webSearch ||
+																			chatInfo?.workspaceSearch ||
+																			info?.uploadedImages
+																				?.length ||
+																			info?.recentFiles
+																				?.length
+																				? '0.5'
+																				: '1'
+																		}`,
+																	}}
+																>
+																	<div className="icon">
+																		<LLMSvg />
+																	</div>
 																</div>
-															</div>
-														</Tooltip>
-													</LLMTooltip>
+															</Tooltip>
+														</LLMTooltip>
+													)}
 												</div>
 												{info?.chatQuery?.trim()?.length > 0 ? (
 													<div
