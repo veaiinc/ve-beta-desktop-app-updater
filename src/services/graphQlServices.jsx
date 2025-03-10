@@ -19,6 +19,8 @@ const {
 	multi_agent_chat_US,
 	automation_builder_api,
 	automation_builder_api_US,
+	page_notes_api,
+	page_notes_api_US,
 } = config || {};
 
 const graphQLAPICall = {
@@ -27,6 +29,7 @@ const graphQLAPICall = {
 	activity_api,
 	multi_agent_chat,
 	automation_builder_api,
+	page_notes_api,
 };
 const graphQLAPICallUS = {
 	ve_conversations_api: ve_conversations_api_US,
@@ -34,6 +37,7 @@ const graphQLAPICallUS = {
 	activity_api: activity_api_US,
 	multi_agent_chat: multi_agent_chat_US,
 	automation_builder_api: automation_builder_api_US,
+	page_notes_api: page_notes_api_US,
 };
 
 const defaultOptions = {

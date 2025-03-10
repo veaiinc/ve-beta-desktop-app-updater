@@ -32,6 +32,7 @@ import Jarvis from '../../../assets/images/Jarvis.jpeg';
 import Ari from '../../../assets/images/Ari.jpeg';
 import DaVinciJobsSvg from '../../../assets/svg/sidebar/DaVinciJobsSvg.jsx';
 import DaVinciSetupSvg from '../../../assets/svg/sidebar/DaVinciSetupSvg.jsx';
+// import { subDays } from 'react-datepicker/dist/date_utils.js';
 
 export const veAiModulesItemsList = [
 	{
@@ -99,7 +100,16 @@ export const veAiModulesItemsList = [
 			},
 		],
 	},
+	{
+		id: 8,
+		name: 'Notes',
+		moduleRoute: '/notes',
+		route: null,
+		icon: '',
+	},
 ];
+
+//
 
 export const veAiModules = [
 	{ icon: OrchestratorSvg, name: 'Chats', route: null },
