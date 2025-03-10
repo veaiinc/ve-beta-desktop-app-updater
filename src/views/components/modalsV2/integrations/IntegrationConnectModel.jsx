@@ -41,9 +41,13 @@ const IntegrationConnectModel = ({ isOpen, closeModal, integration }) => {
 						<BackIcon />
 					</div>
 					<div className="integration-logo">
-						<img src={integration?.icon} alt={integration?.title} />
+						<img
+							className="integration-image"
+							src={integration?.icon}
+							alt={integration?.title}
+						/>
 					</div>
-					<h2>{integration?.title}</h2>
+					<h2 className="integration-title">{integration?.title}</h2>
 				</div>
 
 				<div className="connection-flow">
@@ -72,11 +76,13 @@ const IntegrationConnectModel = ({ isOpen, closeModal, integration }) => {
 				</div>
 
 				<div className="privacy-notice">
-					<h3>Permission and Privacy</h3>
-					<p>
+					<h3 className="privacy-notice-title">Permission and Privacy</h3>
+					<p className="privacy-notice-description">
 						Only you will be able to see content from this integration when connected.
 						Sana AI will never use your data for training.
-						<a href="#">Read more</a>
+						<a className="privacy-notice-link" href="#">
+							Read more
+						</a>
 					</p>
 				</div>
 			</div>

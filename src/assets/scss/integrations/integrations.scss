@@ -6,7 +6,7 @@ $text-secondary: #a0a0a0;
 $accent-green: #00ff00;
 $border-radius: 12px;
 
-.integrations-update-container {
+.integrations-container {
 	padding: 2rem;
 	background-color: $background-dark;
 	min-height: 100vh;
@@ -18,7 +18,7 @@ $border-radius: 12px;
 		align-items: center;
 		margin-bottom: 2rem;
 
-		h1 {
+		.integrations-title {
 			font-size: 2rem;
 			font-weight: 600;
 		}
@@ -31,14 +31,14 @@ $border-radius: 12px;
 			padding: 0.5rem 1rem;
 			width: 300px;
 
-			img {
+			.search-image {
 				width: 20px;
 				height: 20px;
 				margin-right: 0.5rem;
 				opacity: 0.7;
 			}
 
-			input {
+			.search-input {
 				background: transparent;
 				border: none;
 				color: $text-primary;
@@ -100,7 +100,7 @@ $border-radius: 12px;
 				border-radius: 8px;
 				overflow: hidden;
 
-				img {
+				.integraton-image {
 					width: 100%;
 					height: 100%;
 					object-fit: cover;
@@ -108,13 +108,13 @@ $border-radius: 12px;
 			}
 
 			.integration-content {
-				h3 {
+				.integration-content-title {
 					font-size: 1.1rem;
 					font-weight: 500;
 					margin-bottom: 0.25rem;
 				}
 
-				p {
+				.integration-content-description {
 					color: $text-secondary;
 					font-size: 0.9rem;
 				}

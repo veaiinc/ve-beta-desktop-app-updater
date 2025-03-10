@@ -24,14 +24,14 @@
 			height: 48px;
 			margin: 0 auto 1rem;
 
-			img {
+			.integration-image {
 				width: 100%;
 				height: 100%;
 				object-fit: contain;
 			}
 		}
 
-		h2 {
+		.integration-title {
 			font-size: 1.5rem;
 			font-weight: 600;
 		}
@@ -100,18 +100,18 @@
 		padding: 1.5rem;
 		border-radius: 12px;
 
-		h3 {
+		.privacy-notice-title {
 			font-size: 1.1rem;
 			margin-bottom: 0.5rem;
 			color: rgba(255, 255, 255, 0.9);
 		}
 
-		p {
+		.privacy-notice-description {
 			color: rgba(255, 255, 255, 0.7);
 			font-size: 0.9rem;
 			line-height: 1.4;
 
-			a {
+			.privacy-notice-link {
 				color: #ffffff;
 				text-decoration: underline;
 				margin-left: 0.3rem;

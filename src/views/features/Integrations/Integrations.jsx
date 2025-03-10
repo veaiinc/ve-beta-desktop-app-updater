@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { memo } from 'react';
-import '../../../assets/scss/integrations/integrationsUpdate.scss';
+import '../../../assets/scss/integrations/integrations.scss';
 import Search from '../../../assets/svg/seach-magnifier.svg';
 import slack from '../../../assets/svg/Settings/slack.svg';
 import google from '../../../assets/svg/Settings/google.svg';
@@ -16,11 +16,11 @@ const ConnectedIntegrationCard = ({ icon, title, description }) => {
 		<div className="connected-integration-card">
 			<div className="card-left">
 				<div className="integration-icon">
-					<img src={icon} alt={title} />
+					<img src={icon} alt={title} className="integraton-image" />
 				</div>
 				<div className="integration-content">
-					<h3>{title}</h3>
-					<p>{description}</p>
+					<h3 className="integration-content-title">{title}</h3>
+					<p className="integration-content-description">{description}</p>
 				</div>
 			</div>
 			<div className="card-right">
@@ -34,7 +34,7 @@ const AvailableIntegrationCard = ({ icon, title, description, onConnect }) => {
 	return (
 		<div className="available-integration-card">
 			<div className="integration-icon">
-				<img src={icon} alt={title} />
+				<img src={icon} alt={title} className="integraton-image" />
 			</div>
 			<div className="integration-content">
 				<h3>{title}</h3>
@@ -54,7 +54,7 @@ const IntegrationRequestCard = ({ icon, title }) => {
 	return (
 		<div className="integration-request-card">
 			<div className="integration-icon">
-				<img src={icon} alt={title} />
+				<img src={icon} alt={title} className="integraton-image" />
 			</div>
 			<h3>{title}</h3>
 			<button className="request-button">Request</button>
@@ -62,7 +62,7 @@ const IntegrationRequestCard = ({ icon, title }) => {
 	);
 };
 
-const IntegrationsUpdate = () => {
+const Integrations = () => {
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [selectedIntegration, setSelectedIntegration] = useState(null);
 
@@ -155,19 +155,19 @@ const IntegrationsUpdate = () => {
 
 	return (
 		<>
-			<div className="integrations-update-container">
+			<div className="integrations-container">
 				<div className="title-container">
-					<h1>Integrations</h1>
+					<h1 className="integrations-title">Integrations</h1>
 					<div className="search-container">
-						<img src={Search} alt="search" />
-						<input type="text" placeholder="Search" />
+						<img src={Search} alt="search" className="search-image" />
+						<input type="text" placeholder="Search" className="search-input" />
 					</div>
 				</div>
 
 				<section className="connected-integrations">
 					<h2>Connected Integrations</h2>
 					<div className="connected-integrations-list">
-						{connectedIntegrations.map((integration, index) => (
+						{connectedIntegrations?.map((integration, index) => (
 							<ConnectedIntegrationCard key={index} {...integration} />
 						))}
 					</div>
@@ -176,7 +176,7 @@ const IntegrationsUpdate = () => {
 				<section className="available-integrations">
 					<h2>Available Integrations</h2>
 					<div className="integrations-grid">
-						{availableIntegrations.map((integration, index) => (
+						{availableIntegrations?.map((integration, index) => (
 							<AvailableIntegrationCard
 								key={index}
 								{...integration}
@@ -189,7 +189,7 @@ const IntegrationsUpdate = () => {
 				<section className="request-integrations">
 					<h2>Which integrations you would like to connect?</h2>
 					<div className="request-integrations-grid">
-						{requestIntegrations.map((integration, index) => (
+						{requestIntegrations?.map((integration, index) => (
 							<IntegrationRequestCard key={index} {...integration} />
 						))}
 					</div>
@@ -205,4 +205,4 @@ const IntegrationsUpdate = () => {
 	);
 };
 
-export default memo(IntegrationsUpdate);
+export default memo(Integrations);

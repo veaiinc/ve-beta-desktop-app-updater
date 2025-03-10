@@ -47,7 +47,8 @@ import Chat from './views/features/chat/Chat';
 import RecentChat from './views/features/chat/RecentChat';
 import AutomationBuilder from './views/features/automation_builder';
 import AutomationBuilderLayout from './views/layouts/automationBuilderLayout';
-import IntegrationsUpdate from './views/features/Integrations/IntegrationsUpdate';
+import Integrations from './views/features/Integrations/Integrations';
+
 const routes = [
 	{
 		path: '/',
@@ -279,7 +280,7 @@ const routes = [
 		path: '/integrations',
 		component: (
 			<AuthWrapper title={'Integrations'}>
-				<IntegrationsUpdate />
+				<Integrations />
 			</AuthWrapper>
 		),
 		exact: true,

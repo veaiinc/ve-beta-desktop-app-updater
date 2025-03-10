@@ -7,18 +7,18 @@ import MyProfile from './MyProfile';
 import SettingsWorkspace from './Workspace';
 import PublicInformation from './PublicInformation';
 import BrandingSetup from './BrandSetup';
-import Integrations from './Integrations';
+import OldIntegrationsPage from './OdIntegrationsPage';
 import TeamSettings from './TeamSettings';
 import PlanBilling from './PlanBilling';
 import AiSetup from './ai_settings/AiSetup';
 import Notifications from './Notifications';
-import IntegrationsUpdate from '../Integrations/IntegrationsUpdate';
+import Integrations from '../Integrations/Integrations';
 const mapper = {
 	'my-profile': <MyProfile />,
 	workspace: <SettingsWorkspace />,
 	'public-information': <PublicInformation />,
 	'brand-setup': <BrandingSetup />,
-	integrations: <IntegrationsUpdate />,
+	integrations: <Integrations />,
 	notifications: <Notifications />,
 	'team-settings': <TeamSettings />,
 	'plan-billing': <PlanBilling />,
