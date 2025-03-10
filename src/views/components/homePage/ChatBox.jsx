@@ -550,7 +550,7 @@ const ChatBox = ({
 		async (fileData, uploadBatchId) => {
 			let uploadedImages = [...info?.uploadedImages];
 			let uploadedCount = 0,
-				maxAttempts = 90,
+				maxAttempts = 40,
 				errorCount = 0,
 				successCount = 0;
 			while (!(uploadedCount && successCount) && maxAttempts) {
@@ -567,7 +567,7 @@ const ChatBox = ({
 					}
 				}
 				//dealying the check
-				await new Promise((resolve) => setTimeout(resolve, 1000));
+				await new Promise((resolve) => setTimeout(resolve, 2000));
 				maxAttempts--;
 			}
 			if (errorCount || maxAttempts === 0) {
