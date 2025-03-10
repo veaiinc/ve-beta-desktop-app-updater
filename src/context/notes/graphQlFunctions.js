@@ -2,10 +2,8 @@ import { gql } from '@apollo/client';
 export const getNotesListQuery = gql`
 	query ListPrivatePages($input: PageFilterInput!) {
 		listPrivatePages(input: $input) {
-			totalPages
-			totalDocs
 			hasNextPage
-			hasPrevPage
+			currentPage
 			data {
 				id
 				title
@@ -28,7 +26,6 @@ export const createNotesQuery = gql`
 			tenantId
 			title
 			updatedAt
-			coverImage
 		}
 	}
 `;
