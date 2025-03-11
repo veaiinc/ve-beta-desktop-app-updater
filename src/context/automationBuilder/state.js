@@ -241,6 +241,7 @@ export const AutomationBuilderState = () => {
 				usertoken,
 				'automation_builder_api',
 			);
+
 			if (response?.[0] === true) {
 				dispatch({
 					type: Actions.SET_VARIABLES,
@@ -248,8 +249,9 @@ export const AutomationBuilderState = () => {
 						data: {
 							variables:
 								payload?.action === 'formResponse'
-									? response?.[1]?.[0]?.blocks || []
-									: response?.[1]?.at(-1)?.variables,
+									? response?.[1]?.at(payload?.editMode ? -2 : -1)?.variables?.[0]
+											?.blocks || []
+									: response?.[1]?.at(payload?.editMode ? -2 : -1)?.variables,
 							actionType: payload?.action,
 						},
 					},

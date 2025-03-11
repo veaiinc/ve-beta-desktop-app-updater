@@ -294,12 +294,12 @@ export const EndNode = ({ data }) => {
 const HoverComponentForNodes = ({ openDeleteModal }) => {
 	return (
 		<div className="rightNodeToolBar">
-			{/* <span>
+			<span>
 				<Eye />
 			</span>
 			<span>
 				<Copy />
-			</span> */}
+			</span>
 			<span onClick={openDeleteModal}>
 				<Dustbin />
 			</span>

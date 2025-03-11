@@ -158,9 +158,14 @@ const AutomationBuilder = () => {
 				payload.action = data?.criteria?.event;
 				payload.app = data?.app;
 			}
-			getVariables({ automationId, previousStepId: data?._id, action: data?.module });
+			getVariables({
+				automationId,
+				previousStepId: info?.activeStepsData ? info?.activeStepsData?._id : data?._id,
+				action: data?.module,
+				editMode: info?.activeStepsData ? true : false,
+			});
 		}
-	}, [info?.previousNode, automationId]);
+	}, [info?.previousNode, automationId, info?.activeStepsData]);
 
 	useEffect(() => {
 		if (variables) {

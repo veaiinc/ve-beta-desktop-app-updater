@@ -73,10 +73,12 @@ const actionGroups = [
 			{
 				actionLabel: 'Reply to message',
 				actionType: 'replyMessage',
+				hide: true,
 			},
 			{
 				actionLabel: 'Send Message',
 				actionType: 'sendMessage',
+				hide: true,
 			},
 		],
 	},
@@ -92,6 +94,7 @@ const actionGroups = [
 			{
 				actionLabel: 'Send Message',
 				actionType: 'sendMessage',
+				hide: true,
 			},
 			// {
 			// 	actionLabel: 'Delete Message',
@@ -383,11 +386,12 @@ const Actions = ({
 									// Filter actions based on search in action label or show all if group name matches
 									const filteredActions = ele.actions.filter(
 										(action) =>
-											groupNameMatches ||
-											!info?.search ||
-											action.actionLabel
-												.toLowerCase()
-												.includes(info.search.toLowerCase()),
+											!action?.hide &&
+											(groupNameMatches ||
+												!info?.search ||
+												action.actionLabel
+													.toLowerCase()
+													.includes(info.search.toLowerCase())),
 									);
 
 									if (!filteredActions.length) return null;
@@ -422,43 +426,59 @@ const Actions = ({
 								})
 								.filter(Boolean)}
 
-							{!info.search && (
-								<div className="actionGroupItem">
-									<h3>Available Integrations</h3>
-									{integrations?.map((action, index) => (
-										<div
-											className="actionItem"
-											key={index}
-											onClick={() => {
-												if (
+							{!info.search &&
+								integrations?.filter(
+									(ele) =>
+										!info?.connectedIntegrations?.includes(
+											ele?._id === 'gmail' ? 'google' : ele?._id,
+										),
+								)?.length > 0 && (
+									<div className="actionGroupItem">
+										<h3>Available Integrations</h3>
+										{integrations
+											?.filter(
+												(ele) =>
 													!info?.connectedIntegrations?.includes(
-														action?._id,
-													)
-												) {
-													window.location.href = '/settings/integrations';
-												}
-											}}
-										>
-											<div className="actionItemIcon">{action?.icon}</div>
-											<div className="actionItemLabel">
-												{action?.groupName}
-											</div>
-											<div className="actionItemStatus">
-												{info?.connectedIntegrations?.includes(
-													action?._id,
-												) ? (
-													'Connected'
-												) : (
-													<span className="actionItemConnect">
-														Connect
-														<RightArrrow />
-													</span>
-												)}
-											</div>
-										</div>
-									))}
-								</div>
-							)}
+														ele?._id === 'gmail' ? 'google' : ele?._id,
+													),
+											)
+											?.map((action, index) => (
+												<div
+													className="actionItem"
+													key={index}
+													onClick={() => {
+														if (
+															!info?.connectedIntegrations?.includes(
+																action?._id,
+															)
+														) {
+															window.location.href =
+																'/settings/integrations';
+														}
+													}}
+												>
+													<div className="actionItemIcon">
+														{action?.icon}
+													</div>
+													<div className="actionItemLabel">
+														{action?.groupName}
+													</div>
+													<div className="actionItemStatus">
+														{info?.connectedIntegrations?.includes(
+															action?._id,
+														) ? (
+															'Connected'
+														) : (
+															<span className="actionItemConnect">
+																Connect
+																<RightArrrow />
+															</span>
+														)}
+													</div>
+												</div>
+											))}
+									</div>
+								)}
 						</div>
 					</div>
 				</>
