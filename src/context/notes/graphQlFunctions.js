@@ -5,7 +5,7 @@ export const getNotesListQuery = gql`
 			hasNextPage
 			currentPage
 			data {
-				id
+				_id
 				title
 				icon
 				tenantId
@@ -17,15 +17,31 @@ export const getNotesListQuery = gql`
 	}
 `;
 export const createNotesQuery = gql`
-	mutation Mutation($input: CreatePageInput!) {
+	mutation CreatePage($input: CreatePageInput!) {
 		createPage(input: $input) {
-			id
-			icon
-			createdBy
-			createdAt
-			tenantId
+			_id
+		}
+	}
+`;
+
+export const getPageQuery = gql`
+	query GetPage($pageId: ID!) {
+		getPage(pageId: $pageId) {
+			blocks
 			title
 			updatedAt
+			tenantId
+			createdBy
+			createdAt
+			coverImage
+		}
+	}
+`;
+
+export const saveNotesPageQuery = gql`
+	mutation UpdateBlocks($pageId: ID!, $blocks: [JSON]) {
+		updateBlocks(pageId: $pageId, blocks: $blocks) {
+			_id
 		}
 	}
 `;
