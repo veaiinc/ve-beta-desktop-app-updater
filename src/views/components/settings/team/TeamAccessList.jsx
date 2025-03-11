@@ -3,8 +3,9 @@ import Skeleton from 'react-loading-skeleton';
 import { getInitials } from '../../../../helpers/index';
 import { ReactComponent as TickSvg } from '../../../../assets/svg/tick.svg';
 import { ReactComponent as DownArrow } from '../../../../assets/svg/Settings/Downarrowwhite.svg';
-import { useState } from 'react';
+import { useContext } from 'react';
 import { Select } from 'antd';
+import Context from '../../../../context/context';
 
 const TeamAccessListComponent = ({
 	search,
@@ -15,6 +16,15 @@ const TeamAccessListComponent = ({
 	handleInviteMembers,
 	handleUserClick,
 }) => {
+	const {
+		subscriptionInfo: { currentPlan },
+	} = useContext(Context);
+
+	const tenantUsersLimit = currentPlan?.tenantUsersLimit;
+	const tenantUsersCount = filteredUsers?.length;
+	const disableInviteMembers = tenantUsersCount >= tenantUsersLimit;
+	const showTeamMembersCount = tenantUsersCount && tenantUsersLimit ? true : false;
+
 	const updateUserRoleFunction = (tenantid, role) => {
 		updateTenantRoleFunc(tenantid, role);
 	};
@@ -22,8 +32,24 @@ const TeamAccessListComponent = ({
 	return (
 		<>
 			<div className="yourTeamTitle">
-				<h1>Your Team Access</h1>
-				<button onClick={handleInviteMembers}>Invite Members</button>
+				<h1>
+					Your Team Access{' '}
+					{showTeamMembersCount && (
+						<span className="teamMembersCount">
+							{tenantUsersCount} / {tenantUsersLimit}
+						</span>
+					)}
+				</h1>
+				<button
+					style={{
+						backgroundColor: disableInviteMembers ? 'gray' : '#f2f2f3',
+						cursor: disableInviteMembers ? 'not-allowed' : 'pointer',
+					}}
+					onClick={handleInviteMembers}
+					disabled={disableInviteMembers}
+				>
+					Invite Members
+				</button>
 			</div>
 			<div className="yourTeamFilter">
 				<img src={search} alt="searchh" />
