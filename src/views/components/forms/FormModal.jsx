@@ -57,15 +57,30 @@ const eventsTableHeaderData = [
 const removeHTMLTagsAndnbsp = (text) =>
 	text?.replace(/<\/?[^>]+(>|$)/g, '')?.replace(/&nbsp;/g, ' ');
 
-const removeQuotes = (text) => text?.replace(/^["']|["']$/g, '');
+const removeQuotes = (text) => {
+	if (typeof text !== 'string') {
+		return text || '';
+	}
+	return text?.replace(/^["']|["']$/g, '');
+};
 
 const DropdownAnswer = ({ answer }) => {
+	let text = answer;
+	try {
+		// Try parsing as JSON first
+		const parsed = JSON.parse(text);
+		text = parsed;
+	} catch (e) {
+		// If it's not valid JSON, treat as regular string
+		text = answer;
+		if (typeof text === 'string') {
+			text = text?.replace(/^["']|["']$/g, '');
+		}
+	}
 	return (
 		<>
 			<p className={`answer`}>
-				<span className="selectedOption">
-					{JSON?.parse(answer || '[]')[0] || 'No answer'}
-				</span>
+				<span className="selectedOption">{text || ''}</span>
 			</p>
 			<div className="divider"></div>
 		</>
@@ -113,13 +128,25 @@ const RatingAnswer = ({ answer }) => {
 };
 
 const TimeAnswer = ({ answer }) => {
+	let text = answer;
+	try {
+		// Try parsing as JSON first
+		const parsed = JSON.parse(text);
+		text = parsed;
+	} catch (e) {
+		// If it's not valid JSON, treat as regular string
+		text = answer;
+		if (typeof text === 'string') {
+			text = text.replace(/^["']|["']$/g, '');
+		}
+	}
 	return (
 		<>
 			<p className={`answer timeContainer`}>
-				<span className="time">{JSON?.parse(answer)?.hours}</span>
+				<span className="time">{text?.hours || ''}</span>
 				<TimeDivider />
-				<span className="time">{JSON?.parse(answer)?.minutes}</span>
-				<span className="time-division">{JSON?.parse(answer)?.timeDivision}</span>
+				<span className="time">{text?.minutes || ''}</span>
+				<span className="time-division">{text?.timeDivision || ''}</span>
 			</p>
 			<div className="divider"></div>
 		</>
