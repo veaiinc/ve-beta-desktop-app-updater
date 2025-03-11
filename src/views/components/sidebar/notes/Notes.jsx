@@ -133,7 +133,7 @@ const Notes = ({ showNotesDrawer, setShowNotesDrawer }) => {
 		};
 		const response = await createNotesList(payload);
 		handleCloseDrawer();
-		navigate(`/notes/${response[1]?.id}`);
+		navigate(`/notes/${response[1]?._id}`);
 	};
 
 	const handleCtaClick = (action) => {
@@ -198,7 +198,7 @@ const Notes = ({ showNotesDrawer, setShowNotesDrawer }) => {
 									key={notes?._id}
 									className="notes-list"
 									onClick={() => {
-										handleNotesClick(notes?.id);
+										handleNotesClick(notes?._id);
 									}}
 								>
 									<div className="notes-list-content">
