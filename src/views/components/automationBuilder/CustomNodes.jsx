@@ -294,12 +294,12 @@ export const EndNode = ({ data }) => {
 const HoverComponentForNodes = ({ openDeleteModal }) => {
 	return (
 		<div className="rightNodeToolBar">
-			<span>
+			{/* <span>
 				<Eye />
 			</span>
 			<span>
 				<Copy />
-			</span>
+			</span> */}
 			<span onClick={openDeleteModal}>
 				<Dustbin />
 			</span>
@@ -322,7 +322,7 @@ export const SwitchNode = ({ data }) => {
 		if (data?.onToolBarOpen) {
 			data.onToolBarOpen({
 				toolBarOpen: true,
-				sidebarType: 'switch',
+				sidebarType: 'conditions',
 				activeStepsData: data?.currentStep,
 				editMode: true,
 			});

@@ -17,7 +17,7 @@ import HeaderComponent from './HeaderComponent';
 import IfElse from './IfElse';
 import SwitchStep from './SwitchStep';
 const conditionsList = {
-	ifElse: { label: 'If / Else', value: 'ifElse' },
+	condition: { label: 'If / Else', value: 'condition' },
 	switch: { label: 'Switch', value: 'switch' },
 };
 const Conditions = ({
@@ -60,7 +60,7 @@ const Conditions = ({
 
 	useEffect(() => {
 		if (activeStepsData) {
-			setInfo((prev) => ({ ...prev, activeScreen: 'ifElse' }));
+			setInfo((prev) => ({ ...prev, activeScreen: activeStepsData?.type }));
 		}
 	}, [activeStepsData]);
 
@@ -147,7 +147,7 @@ const Conditions = ({
 
 	const screenMapper = useMemo(() => {
 		return {
-			ifElse: (
+			condition: (
 				<IfElse
 					variables={variables}
 					onSave={onSave}

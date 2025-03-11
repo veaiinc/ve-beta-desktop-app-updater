@@ -48,9 +48,9 @@ const UpdatedDeleteWorkflowStep = ({
 
 			if (stepData?.type === 'condition') {
 				if (deleteOptions && deleteOptions !== null) {
-					payload.deleteBranch = deleteOptions;
+					payload.keepBranch = deleteOptions;
 				} else {
-					payload.deleteBranch = info?.conditionNodeChild === 'yes' ? 'no' : 'yes';
+					payload.keepBranch = info?.conditionNodeChild === 'yes' ? 'yes' : 'no';
 				}
 			}
 
@@ -121,7 +121,7 @@ const UpdatedDeleteWorkflowStep = ({
 						<div className="differentDeleteOptionsContainer">
 							<div
 								className="deleteCondtionStepOptions"
-								onClick={() => deleteWorkflowStepFunc('both')}
+								onClick={() => deleteWorkflowStepFunc('none')}
 							>
 								Delete both branch and all steps below
 							</div>
@@ -129,13 +129,13 @@ const UpdatedDeleteWorkflowStep = ({
 								className="deleteCondtionStepOptions"
 								onClick={() => deleteWorkflowStepFunc('yes')}
 							>
-								Delete only yes branch and steps below
+								Keep 'Yes' branch and delete 'No' branch
 							</div>
 							<div
 								className="deleteCondtionStepOptions"
 								onClick={() => deleteWorkflowStepFunc('no')}
 							>
-								Delete only no branch and steps below
+								Keep 'No' branch and delete 'Yes' branch
 							</div>
 						</div>
 					) : (

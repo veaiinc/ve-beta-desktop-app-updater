@@ -1,4 +1,4 @@
-import React, { memo, useState } from 'react';
+import React, { memo, useState, useEffect } from 'react';
 import ActionDetailsBlock from './ActionDetailsBlock';
 import VariableComponent from './VariableComponent';
 import ConditionInput from './ConditionInput';
@@ -68,6 +68,32 @@ const SwitchStep = ({
 		conditions: [{ key: '', value: '', condition: '' }],
 		moveTo: `case1`,
 	});
+
+	useEffect(() => {
+		if (activeStepsData) {
+			// Convert inputBody cases to conditions array
+			const conditions = Object.entries(activeStepsData.inputBody).map(
+				([caseKey, caseData]) => ({
+					key: caseData.key,
+					condition: caseData.condition,
+					value: caseData.value || '',
+				}),
+			);
+
+			// Find which case has the next steps
+			const moveToCase =
+				Object.entries(activeStepsData.cases).find(
+					([key, value]) => value.nextStepId !== null,
+				)?.[0] || 'case1';
+
+			updateInfo({
+				title: activeStepsData.title,
+				description: activeStepsData.description,
+				conditions: conditions,
+				moveTo: moveToCase,
+			});
+		}
+	}, [activeStepsData]);
 
 	const updateInfo = (data) => {
 		setInfo((prevInfo) => ({ ...prevInfo, ...data }));
@@ -174,7 +200,8 @@ const SwitchStep = ({
 				<button className="switchStepInputAddConditionButton" onClick={addNewCondition}>
 					Add new case
 				</button>
-				{hasNextNode && (
+				{/* Only show moveTo UI if there's no activeStepsData and hasNextNode is true */}
+				{!activeStepsData && hasNextNode && (
 					<div className="switchStepInputConditionContainer">
 						<span className="switchStepInputHeading">
 							Where should the existing steps go?
