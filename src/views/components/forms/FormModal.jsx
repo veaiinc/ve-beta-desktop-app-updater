@@ -58,6 +58,9 @@ const removeHTMLTagsAndnbsp = (text) =>
 	text?.replace(/<\/?[^>]+(>|$)/g, '')?.replace(/&nbsp;/g, ' ');
 
 const removeQuotes = (text) => {
+	if (!text) {
+		return '';
+	}
 	if (typeof text !== 'string') {
 		return text || '';
 	}
@@ -65,6 +68,9 @@ const removeQuotes = (text) => {
 };
 
 const DropdownAnswer = ({ answer }) => {
+	if (!answer) {
+		return '';
+	}
 	let text = answer;
 
 	try {
@@ -89,7 +95,10 @@ const DropdownAnswer = ({ answer }) => {
 };
 
 const EventsAnswer = ({ answer }) => {
-	return (
+	if (!answer) {
+		return '';
+	}
+	return answer ? (
 		<>
 			<table className="eventsContainer">
 				<thead className="eventsTableHeader">
@@ -114,10 +123,15 @@ const EventsAnswer = ({ answer }) => {
 			</table>
 			<div className="divider"></div>
 		</>
+	) : (
+		''
 	);
 };
 
 const RatingAnswer = ({ answer }) => {
+	if (!answer) {
+		return '';
+	}
 	return (
 		<>
 			<Flex gap="middle" vertical>
@@ -129,6 +143,9 @@ const RatingAnswer = ({ answer }) => {
 };
 
 const TimeAnswer = ({ answer }) => {
+	if (!answer) {
+		return '';
+	}
 	let text = answer;
 	try {
 		// Try parsing as JSON first
@@ -155,6 +172,9 @@ const TimeAnswer = ({ answer }) => {
 };
 
 const SingleChoiceAnswer = ({ answer }) => {
+	if (!answer) {
+		return '';
+	}
 	return (
 		<>
 			<p className="answer">
@@ -167,6 +187,9 @@ const SingleChoiceAnswer = ({ answer }) => {
 };
 
 const LinkAnswer = ({ answer }) => {
+	if (!answer) {
+		return '';
+	}
 	return (
 		<>
 			<p className="answer link">
@@ -180,6 +203,9 @@ const LinkAnswer = ({ answer }) => {
 };
 
 const FileUploadAnswer = ({ answer }) => {
+	if (!answer) {
+		return '';
+	}
 	return (
 		<>
 			<img
@@ -279,6 +305,7 @@ const FormModal = ({ isOpen, onClose, selectedRow }) => {
 					{selectedRow?.isRead ? 'notCompleted' : 'Completed'}
 				</div>
 			</div> */}
+				{console.log('selectedRow==>', selectedRow)}
 				<div className="formResponsesParentContainer">
 					{selectedRow?.response?.map(
 						(formData) =>
