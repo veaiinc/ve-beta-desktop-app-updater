@@ -78,7 +78,7 @@
 			font-style: normal;
 			font-weight: 600;
 			line-height: normal;
-			color: rgba(var(--primary-font), 0.48);
+			color: var(--primary-font,rgba(242, 242, 243, 1));
 
 			.meetingTitle {
 				white-space: nowrap;

@@ -86,17 +86,37 @@
 							background-color: var(--card-hover);
 						}
 
-						.chat-title {
-							width: 85%;
-							color: var(--primary-font);
-							font-family: var(--primary-font-family);
-							font-size: 14px;
-							font-style: normal;
-							font-weight: 500;
-							line-height: normal;
-							overflow: hidden;
-							text-overflow: ellipsis;
-							white-space: nowrap;
+						.chat-title-and-query {
+							display: flex;
+							flex-direction: column;
+							align-items: flex-start;
+							gap: 4px;
+
+							.chat-title {
+								width: 280px;
+								color: var(--primary-font, #f2f2f3);
+								font-family: Inter;
+								font-size: 14px;
+								font-style: normal;
+								font-weight: 500;
+								line-height: normal;
+								overflow: hidden;
+								text-overflow: ellipsis;
+								white-space: nowrap;
+							}
+
+							.chat-query {
+								width: 280px;
+								color: var(--secondary-font, #7a7e85);
+								font-family: Inter;
+								font-size: 12px;
+								font-style: normal;
+								font-weight: 400;
+								line-height: normal;
+								overflow: hidden;
+								text-overflow: ellipsis;
+								white-space: nowrap;
+							}
 						}
 
 						.chat-timestamp {

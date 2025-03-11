@@ -496,7 +496,8 @@ const RecentChat = ({
 													) : (
 														<div
 															style={{
-																transition: 'opacity 0.3s ease',
+																transition:
+																	'opacity 0.3s ease-in-out',
 																opacity:
 																	index ===
 																	info?.lastVisibleUserMessageIndex
