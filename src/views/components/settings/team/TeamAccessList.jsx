@@ -6,6 +6,7 @@ import { ReactComponent as DownArrow } from '../../../../assets/svg/Settings/Dow
 import { useContext } from 'react';
 import { Select } from 'antd';
 import Context from '../../../../context/context';
+import ExpiredSubscriptionModal from '../../../components/modalsV2/subscription/ExpiredSubscriptionModal';
 
 const TeamAccessListComponent = ({
 	search,
@@ -17,13 +18,21 @@ const TeamAccessListComponent = ({
 	handleUserClick,
 }) => {
 	const {
-		subscriptionInfo: { currentPlan },
+		subscriptionInfo: { currentPlan, updateSubscriptionState },
 	} = useContext(Context);
 
 	const tenantUsersLimit = currentPlan?.tenantUsersLimit;
 	const tenantUsersCount = filteredUsers?.length;
-	const disableInviteMembers = tenantUsersCount >= tenantUsersLimit;
+	const tenantUserLimitReached = tenantUsersCount >= tenantUsersLimit;
 	const showTeamMembersCount = tenantUsersCount && tenantUsersLimit ? true : false;
+
+	const handleInviteMembersAndExpiredSubscriptionModal = () => {
+		if (tenantUserLimitReached) {
+			updateSubscriptionState({ expiredSubscriptionModal: true });
+		} else {
+			handleInviteMembers();
+		}
+	};
 
 	const updateUserRoleFunction = (tenantid, role) => {
 		updateTenantRoleFunc(tenantid, role);
@@ -31,6 +40,7 @@ const TeamAccessListComponent = ({
 
 	return (
 		<>
+			<ExpiredSubscriptionModal />
 			<div className="yourTeamTitle">
 				<h1>
 					Your Team Access{' '}
@@ -40,14 +50,7 @@ const TeamAccessListComponent = ({
 						</span>
 					)}
 				</h1>
-				<button
-					style={{
-						backgroundColor: disableInviteMembers ? 'gray' : '#f2f2f3',
-						cursor: disableInviteMembers ? 'not-allowed' : 'pointer',
-					}}
-					onClick={handleInviteMembers}
-					disabled={disableInviteMembers}
-				>
+				<button onClick={handleInviteMembersAndExpiredSubscriptionModal}>
 					Invite Members
 				</button>
 			</div>
