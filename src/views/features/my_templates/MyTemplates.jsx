@@ -316,13 +316,6 @@ const MyTemplates = () => {
 							</div>
 						))}
 					</div>
-					<div className="ctaContainer">
-						{ctaItems?.map((ctaItem) => (
-							<div className="ctaItem" key={ctaItem?.id}>
-								{ctaItem?.icon}
-							</div>
-						))}
-					</div>
 
 					<div
 						className="searchContainer"
