@@ -34,11 +34,15 @@ const ConnectedIntegrationCard = ({ icon, title, description }) => {
 const AvailableIntegrationCard = ({ icon, title, description, onConnect }) => {
 	return (
 		<div className="available-integration-card">
-			<div className="integration-icon">
-				<img src={icon} alt={title} className="integraton-image" />
+			<div className="card-top-row">
+				<div className="integration-icon">
+					<img src={icon} alt={title} className="integraton-image" />
+				</div>
+				<div className="integration-content">
+					<h3>{title}</h3>
+				</div>
 			</div>
 			<div className="integration-content">
-				<h3>{title}</h3>
 				<p>{description}</p>
 			</div>
 			<button

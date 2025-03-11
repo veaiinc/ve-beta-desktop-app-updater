@@ -190,10 +190,9 @@ $card-hover-color: #27282b;
 		@media screen and (max-width: 768px) {
 			width: 100%;
 			height: auto;
-			min-height: 88px;
+			min-height: 120px;
 			padding: 1rem;
-			flex-direction: row;
-			align-items: center;
+			flex-direction: column;
 			gap: 12px;
 			background-color: rgba(26, 26, 26, 0.5);
 			backdrop-filter: blur(8px);
@@ -208,6 +207,15 @@ $card-hover-color: #27282b;
 				transform: none;
 				background-color: rgba(39, 40, 43, 0.8);
 				border-color: rgba(255, 255, 255, 0.2);
+			}
+		}
+
+		.card-top-row {
+			@media screen and (max-width: 768px) {
+				display: flex;
+				align-items: center;
+				gap: 12px;
+				width: 100%;
 			}
 		}
 
@@ -236,9 +244,8 @@ $card-hover-color: #27282b;
 			@media screen and (max-width: 768px) {
 				display: flex;
 				flex-direction: column;
-				gap: 4px;
-				flex: 1;
-				min-width: 0;
+				gap: 8px;
+				width: 100%;
 			}
 
 			h3 {
@@ -250,8 +257,6 @@ $card-hover-color: #27282b;
 				@media screen and (max-width: 768px) {
 					font-size: 0.95rem;
 					margin-bottom: 0;
-					white-space: normal;
-					word-wrap: break-word;
 				}
 			}
 
@@ -265,12 +270,6 @@ $card-hover-color: #27282b;
 					font-size: 0.8rem;
 					margin-bottom: 0;
 					opacity: 0.6;
-					white-space: normal;
-					word-wrap: break-word;
-					display: block;
-					-webkit-line-clamp: unset;
-					-webkit-box-orient: unset;
-					overflow: visible;
 				}
 			}
 		}
@@ -287,13 +286,11 @@ $card-hover-color: #27282b;
 			transition: all 0.2s ease;
 
 			@media screen and (max-width: 768px) {
+				align-self: flex-end;
 				padding: 0.35rem 0.9rem;
 				min-width: 80px;
 				font-size: 0.8rem;
-				flex-shrink: 0;
-				background-color: transparent;
-				border: 1px solid rgba(255, 255, 255, 0.2);
-				color: rgba(255, 255, 255, 0.6);
+				margin-top: 4px;
 			}
 
 			&.connect {
