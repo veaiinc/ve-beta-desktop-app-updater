@@ -1,6 +1,11 @@
 import service from '../../services/graphQlServices';
 import { message } from 'antd';
-import { getNotesListQuery, createNotesQuery } from './graphQlFunctions';
+import {
+	getNotesListQuery,
+	createNotesQuery,
+	getPageQuery,
+	saveNotesPageQuery,
+} from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
 import { Actions } from './action';
@@ -8,6 +13,7 @@ import { Actions } from './action';
 export const intialState = {
 	notes: null,
 	moreNotes: null,
+	notesPageData: null,
 };
 
 export const NotesState = (props) => {
@@ -63,9 +69,56 @@ export const NotesState = (props) => {
 		}
 	};
 
+	const getNotesPageData = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				getPageQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'page_notes_api',
+			);
+
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.GET_NOTES_PAGE_DATA_SUCCESS,
+					payload: response?.[1]?.data?.getPage,
+				});
+			} else {
+				console.log('Api failed ==>getNotesPageData', response);
+			}
+		} catch (error) {
+			console.log('error==>getNotesPageData', error);
+		}
+	};
+
+	const saveNotesdata = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				saveNotesPageQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'page_notes_api',
+			);
+
+			if (response?.[0]) {
+			} else {
+				message.error('Error saving notes');
+			}
+		} catch (error) {
+			console.log('error==>getNotesPageData', error);
+		}
+	};
 	return {
 		...state,
 		getNotesList,
 		createNotesList,
+		getNotesPageData,
+		saveNotesdata,
 	};
 };
