@@ -123,6 +123,9 @@ const IfElse = ({ variables, onSave, isLoading, hasNextNode, onBack, activeSteps
 			title: info?.title,
 			description: info?.description,
 			type: 'condition',
+			...(activeStepsData && {
+				app: null,
+			}),
 			variables,
 			...(!activeStepsData && { moveTo: info?.moveToYes ? 'yes' : 'no' }),
 			inputBody: {

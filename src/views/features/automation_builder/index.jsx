@@ -17,6 +17,7 @@ import {
 	ConditionNode,
 	EndNode,
 	StartStepNode,
+	SwitchNode,
 } from '../../components/automationBuilder/CustomNodes';
 import CustomEdges from '../../components/automationBuilder/CustomEdges';
 import UpdatedPageLoader from '../../components/loaders/UpdatedPageLoader';
@@ -35,6 +36,7 @@ const nodeTypes = {
 	end: EndNode,
 	startStep: StartStepNode,
 	createTask: ActionNode,
+	switch: SwitchNode,
 };
 
 const edgeTypes = {
@@ -211,9 +213,15 @@ const AutomationBuilder = () => {
 			if (isFirstBranch) {
 				// Only offset for first nodes in yes/no branches
 				if (branchType === 'yes') {
-					xOffset = -250;
+					xOffset = -400; // Specific spacing for condition branches
 				} else if (branchType === 'no') {
-					xOffset = 250;
+					xOffset = 400; // Specific spacing for condition branches
+				} else if (branchType && branchType.startsWith('case')) {
+					// Keep wider spacing for switch cases since there can be many
+					xOffset = 0; // The parent function already calculated the appropriate offset
+				} else if (branchType === 'default') {
+					// Default case already positioned by the parent function
+					xOffset = 0;
 				}
 			}
 
@@ -271,7 +279,7 @@ const AutomationBuilder = () => {
 					const endNodeId = `${stepId}-yes-end`;
 					nodes.push({
 						id: endNodeId,
-						position: { x: nodeX - 250, y: parentY + 400 },
+						position: { x: nodeX - 400, y: parentY + 400 },
 						type: 'end',
 						data: {
 							type: 'end',
@@ -320,7 +328,7 @@ const AutomationBuilder = () => {
 					const endNodeId = `${stepId}-no-end`;
 					nodes.push({
 						id: endNodeId,
-						position: { x: nodeX + 250, y: parentY + 400 },
+						position: { x: nodeX + 400, y: parentY + 400 },
 						type: 'end',
 						data: {
 							type: 'end',
@@ -343,6 +351,86 @@ const AutomationBuilder = () => {
 							label: 'No',
 						},
 					});
+				}
+			} else if (currentStep.type === 'switch') {
+				// Handle switch node with multiple cases
+				const { cases } = currentStep;
+				const branchY = nextY;
+
+				// Calculate horizontal spread based on number of cases
+				const numCases = Object.keys(cases).length;
+
+				// Process each case in the switch node
+				let caseIndex = 0;
+
+				for (const [caseKey, caseValue] of Object.entries(cases)) {
+					// Calculate position offset for this case based on 296px node width
+					// Add extra space for visual separation between branches
+					const caseOffset = (caseIndex - (numCases - 1) / 2) * 450;
+					caseIndex++;
+
+					const label =
+						caseKey === 'default' ? 'Default' : `Case ${caseKey.replace('case', '')}`;
+
+					if (caseValue?.nextStepId) {
+						// Create edge to next step
+						edges.push({
+							id: `${stepId}-${caseValue.nextStepId}-${caseKey}`,
+							source: stepId,
+							target: caseValue.nextStepId,
+							label: label,
+							animated: true,
+							type: 'custom',
+							data: {
+								currentStep,
+								onToolBarOpen: handleToolBarOpen,
+								stepsMapper: stepsMapper,
+								automationId: automationId,
+								refetchWorkflowBuilderData: refetchWorkflowBuilderData,
+								label: label,
+							},
+						});
+
+						// Generate child nodes recursively
+						generateNodesAndEdges(
+							caseValue.nextStepId,
+							nodeX + caseOffset,
+							branchY,
+							caseKey,
+							true,
+						);
+					} else {
+						// Add end node for this case
+						const endNodeId = `${stepId}-${caseKey}-end`;
+						nodes.push({
+							id: endNodeId,
+							position: { x: nodeX + caseOffset, y: parentY + 400 },
+							type: 'end',
+							data: {
+								type: 'end',
+								label: 'End',
+								onToolBarOpen: handleToolBarOpen,
+							},
+						});
+
+						// Create edge to end node
+						edges.push({
+							id: `${stepId}-${endNodeId}-${caseKey}`,
+							source: stepId,
+							target: endNodeId,
+							label: label,
+							animated: true,
+							type: 'custom',
+							data: {
+								currentStep,
+								onToolBarOpen: handleToolBarOpen,
+								stepsMapper: stepsMapper,
+								automationId: automationId,
+								refetchWorkflowBuilderData: refetchWorkflowBuilderData,
+								label: label,
+							},
+						});
+					}
 				}
 			} else if (currentStep.nextStepId) {
 				// Handle regular step with next step
