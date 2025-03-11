@@ -66,6 +66,7 @@ const removeQuotes = (text) => {
 
 const DropdownAnswer = ({ answer }) => {
 	let text = answer;
+
 	try {
 		// Try parsing as JSON first
 		const parsed = JSON.parse(text);
@@ -235,7 +236,7 @@ const FormModal = ({ isOpen, onClose, selectedRow }) => {
 			time: <TimeAnswer answer={answer} />,
 			singleChoice: <SingleChoiceAnswer answer={answer} />,
 			link: <LinkAnswer answer={answer} />,
-			fileUpload: <FileUploadAnswer answer={answer} />,
+			fileupload: <FileUploadAnswer answer={answer} />,
 		};
 		return (
 			answerComponentMapper[type] ?? (
