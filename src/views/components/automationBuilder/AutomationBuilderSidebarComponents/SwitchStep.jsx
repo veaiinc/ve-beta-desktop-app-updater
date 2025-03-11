@@ -3,6 +3,56 @@ import ActionDetailsBlock from './ActionDetailsBlock';
 import VariableComponent from './VariableComponent';
 import ConditionInput from './ConditionInput';
 import '../../../../assets/scss/automation_builder/automationBuilderSidebarComponents/switchStep.scss';
+import { message } from 'antd';
+
+const conditionsList = [
+	{
+		label: 'Is exist',
+		value: 'isexit',
+	},
+	{
+		label: 'Does not exist',
+		value: 'doesnotexist',
+	},
+	{
+		label: 'Is empty',
+		value: 'isempty',
+	},
+	{
+		label: 'Is not empty',
+		value: 'isnotempty',
+	},
+	{
+		label: 'Is equal to',
+		value: 'isequalto',
+		needValue: true,
+	},
+	{
+		label: 'Is not equal to',
+		value: 'isnotequalto',
+		needValue: true,
+	},
+	{
+		label: 'Contains',
+		value: 'contains',
+		needValue: true,
+	},
+	{
+		label: 'Does not contain',
+		value: 'doesnotcontain',
+		needValue: true,
+	},
+	{
+		label: 'Is true',
+		value: 'istrue',
+	},
+	{
+		label: 'Is false',
+		value: 'isfalse',
+	},
+];
+
+const variableRegex = /^\{\{.*\}\}$/;
 
 const SwitchStep = ({
 	variables,
@@ -15,11 +65,7 @@ const SwitchStep = ({
 	const [info, setInfo] = useState({
 		title: '',
 		description: '',
-		conditions: [
-			{ key: 'key', value: 'value', condition: 'isequalto' },
-			{ key: 'key', value: 'value', condition: 'isequalto' },
-			{ key: 'key', value: 'value', condition: 'isequalto' },
-		],
+		conditions: [{ key: '', value: '', condition: '' }],
 		moveTo: `case1`,
 	});
 
@@ -32,6 +78,62 @@ const SwitchStep = ({
 
 		newConditions[index] = { ...newConditions[index], ...data };
 		updateInfo({ conditions: newConditions });
+	};
+	const addNewCondition = () => {
+		updateInfo({
+			conditions: [...info?.conditions, { key: '', value: '', condition: '' }],
+		});
+	};
+	const removeCondition = (index) => {
+		const newConditions = [...info?.conditions];
+		newConditions?.splice(index, 1);
+		updateInfo({ conditions: newConditions });
+	};
+
+	const handleSave = () => {
+		const hasEmptyCondition = info?.conditions?.some((condition) => {
+			const selectedCondition = conditionsList.find((c) => c.value === condition.condition);
+			const isValueRequired = selectedCondition?.needValue;
+			const isValueEmpty = isValueRequired && condition.value === '';
+			return condition.key === '' || condition.condition === '' || isValueEmpty;
+		});
+
+		if (hasEmptyCondition) {
+			message.error('Please fill all the required fields');
+			return;
+		}
+
+		// Format the payload
+		const formattedPayload = {
+			title: info?.title,
+			description: info?.description,
+			type: 'switch',
+			moveTo: info?.moveTo,
+			variables: {},
+			inputBody: {},
+		};
+
+		// Format conditions into cases
+		info?.conditions?.forEach((condition, index) => {
+			const caseNumber = `case${index + 1}`;
+
+			// Only add to variables if key is in {{}} format
+			if (variableRegex.test(condition.key)) {
+				const key = condition.key.slice(2, -2); // Remove {{ }}
+				formattedPayload.variables[caseNumber] = {
+					key: [key],
+				};
+			}
+
+			// Format inputBody
+			formattedPayload.inputBody[caseNumber] = {
+				key: condition.key,
+				condition: condition.condition,
+				...(condition.value && { value: condition.value }),
+			};
+		});
+
+		onSave(formattedPayload);
 	};
 
 	return (
@@ -46,17 +148,32 @@ const SwitchStep = ({
 			<div className="switchStepInputContainer">
 				<h3 className="switchStepInputHeading">Inputs</h3>
 				{info?.conditions?.map((condition, index) => (
-					<ConditionInput
-						key={index}
-						updateInfo={updateInfo}
-						variables={variables?.data}
-						title={`Case ${index + 1}`}
-						value={condition?.value}
-						condition={condition?.condition}
-						conditionKey={condition?.key}
-						onUpdateCondition={(data) => updateConditionData(index, data)}
-					/>
+					<React.Fragment key={index}>
+						<ConditionInput
+							updateInfo={updateInfo}
+							variables={variables?.data}
+							title={`Case ${index + 1}`}
+							value={condition?.value}
+							condition={condition?.condition}
+							conditionKey={condition?.key}
+							onUpdateCondition={(data) => updateConditionData(index, data)}
+						/>
+						{info?.conditions?.length > 1 && (
+							<button
+								className="switchStepInputRemoveCaseButton"
+								onClick={() => removeCondition(index)}
+							>
+								Remove case
+							</button>
+						)}
+						{index !== info?.conditions?.length - 1 && (
+							<div className="switchStepInputSeparator"></div>
+						)}
+					</React.Fragment>
 				))}
+				<button className="switchStepInputAddConditionButton" onClick={addNewCondition}>
+					Add new case
+				</button>
 				{hasNextNode && (
 					<div className="switchStepInputConditionContainer">
 						<span className="switchStepInputHeading">
@@ -78,7 +195,7 @@ const SwitchStep = ({
 					</div>
 				)}
 			</div>
-			<button className="switchStepInputButton" onClick={() => {}} disabled={isLoading}>
+			<button className="switchStepInputButton" onClick={handleSave} disabled={isLoading}>
 				{isLoading ? 'Saving...' : 'Save'}
 			</button>
 		</>

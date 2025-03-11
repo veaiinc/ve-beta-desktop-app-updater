@@ -84,7 +84,7 @@ const ConditionInput = ({
 					onChange={(value) => {
 						onUpdateCondition({ key: value });
 					}}
-					variables={variables?.data}
+					variables={variables}
 				/>
 			</div>
 			<div className="conditionInputContainerFilterContainer">
