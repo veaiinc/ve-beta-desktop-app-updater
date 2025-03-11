@@ -131,6 +131,14 @@ const Notifications = () => {
 			message?.error(
 				'An unexpected error occured while updating your notification preferences!',
 			);
+			selectedOptions[module] = {
+				...selectedOptions[module],
+				[action]: { ...selectedOptions[module]?.[action], [app]: !isEnabled },
+			};
+			setInfo((prev) => ({
+				...prev,
+				selectedOptions,
+			}));
 		}
 	};
 
