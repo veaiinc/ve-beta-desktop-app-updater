@@ -111,6 +111,15 @@ const Notifications = () => {
 
 	const handleModuleNotificationPreference = async (module, action, app) => {
 		const isEnabled = !info?.selectedOptions?.[module]?.[action]?.[app];
+		const selectedOptions = { ...(info?.selectedOptions || {}) };
+		selectedOptions[module] = {
+			...selectedOptions[module],
+			[action]: { ...selectedOptions[module]?.[action], [app]: isEnabled },
+		};
+		setInfo((prev) => ({
+			...prev,
+			selectedOptions,
+		}));
 		const response = await updateAppNotificationPreferenceForModule(
 			module,
 			action,
@@ -118,17 +127,7 @@ const Notifications = () => {
 			isEnabled,
 			tenantId,
 		);
-		if (response?.[0]) {
-			const selectedOptions = { ...(info?.selectedOptions || {}) };
-			selectedOptions[module] = {
-				...selectedOptions[module],
-				[action]: { ...selectedOptions[module]?.[action], [app]: isEnabled },
-			};
-			setInfo((prev) => ({
-				...prev,
-				selectedOptions,
-			}));
-		} else {
+		if (!response?.[0]) {
 			message?.error(
 				'An unexpected error occured while updating your notification preferences!',
 			);
