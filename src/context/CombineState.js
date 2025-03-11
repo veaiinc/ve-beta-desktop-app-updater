@@ -15,6 +15,7 @@ import { theme } from 'antd';
 import { ContactsState } from './contacts/state';
 import { DocumentPreviewState } from './DocumentPreview/state';
 import { AutomationBuilderState } from './automationBuilder/state';
+import { NotesState } from './notes/state';
 
 const useCombineState = () => {
 	// Call all hooks at the top level
@@ -33,6 +34,7 @@ const useCombineState = () => {
 	const themeInfo = ThemeState();
 	const documentPreview = DocumentPreviewState();
 	const automationBuilder = AutomationBuilderState();
+	const notes = NotesState();
 	// Only memoize the final combined object
 	return useMemo(
 		() => ({
@@ -51,6 +53,7 @@ const useCombineState = () => {
 			themeInfo,
 			documentPreview,
 			automationBuilder,
+			notes,
 		}),
 		[
 			chatInfo,
@@ -68,6 +71,7 @@ const useCombineState = () => {
 			contacts,
 			documentPreview,
 			automationBuilder,
+			notes,
 		],
 	);
 };

@@ -350,15 +350,15 @@ const RecentChat = ({
 		(event) => {
 			let { data = '' } = event || {};
 			data = JSON.parse(data);
-			if (data?.intermediate_response?.length > 0) {
+			if (data?.hasOwnProperty('intermediate_response')) {
+				if (data?.intermediate_response_done === true) {
+					loadingMessageRef.current = null;
+					return;
+				}
+
 				loadingMessageRef.current = loadingMessageRef.current || '';
 				loadingMessageRef.current += data?.intermediate_response;
 				updateStateValues({ globalLoadingMesssage: loadingMessageRef.current });
-				return;
-			}
-
-			if (data?.intermediate_response_done === true) {
-				loadingMessageRef.current = null;
 				return;
 			}
 
@@ -496,7 +496,8 @@ const RecentChat = ({
 													) : (
 														<div
 															style={{
-																transition: 'opacity 0.3s ease',
+																transition:
+																	'opacity 0.3s ease-in-out',
 																opacity:
 																	index ===
 																	info?.lastVisibleUserMessageIndex

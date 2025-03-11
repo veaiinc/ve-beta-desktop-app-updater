@@ -4,7 +4,7 @@ import ActionDetailsBlock from './ActionDetailsBlock';
 import '../../../../assets/scss/automation_builder/automationBuilderSidebarComponents/taskTriggers.scss';
 import { Tooltip } from 'antd';
 
-const takFields = [
+const taskFields = [
 	{
 		label: 'Title',
 		value: 'title',
@@ -88,12 +88,7 @@ const TaskTriggers = ({ onClose, onSave, addTriggerLoading, triggerData }) => {
 
 	return (
 		<div className="taskTriggerContainer">
-			<HeaderComponent
-				onBack={() => {
-					onClose();
-				}}
-				heading={`Task ${triggerData?.event}d`}
-			/>
+			<HeaderComponent onBack={onClose} heading={`Task ${triggerData?.event}d`} />
 			<ActionDetailsBlock
 				type="trigger"
 				actionLabel={`Task ${triggerData?.event}d`}
@@ -103,6 +98,7 @@ const TaskTriggers = ({ onClose, onSave, addTriggerLoading, triggerData }) => {
 				updaterFn={(updatedData) => {
 					updateStateInfo(updatedData);
 				}}
+				onChangeButtonClick={onClose}
 			/>
 			<div className="taskTriggerContent">{eventMapper?.[triggerData?.event]}</div>
 		</div>
@@ -183,7 +179,7 @@ const UpdateTaskTrigger = ({ onSave, info, addTriggerLoading }) => {
 						}}
 						title={
 							<div className="taskTriggerInputTooltip">
-								{takFields?.map((field) => (
+								{taskFields?.map((field) => (
 									<span
 										key={field?.value}
 										className={`taskTriggerInputTooltipItem ${

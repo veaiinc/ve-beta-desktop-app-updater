@@ -16,7 +16,7 @@ import { ReactComponent as CrossSvg } from '../../../assets/svg/sidebar/CrossSvg
 import { ReactComponent as RightArrowSvg } from '../../../assets/svg/sidebar/RightArrow.svg';
 import WorkspaceListComponent from './Workspace';
 import useLogout from '../../hooks/useLogout';
-import { Tooltip } from 'antd';
+import { message, Tooltip } from 'antd';
 import Notifications from './notifications/Notifications';
 import Chats from './chats/Chats';
 
@@ -51,7 +51,12 @@ const OpenedSideBarHoverStateIcons = ({
 	handleSubModuleClick,
 	setShowNotificationsDrawer,
 	setShowChatsDrawer,
+	setShowNotesDrawer,
 }) => {
+	let {
+		aiSetup: { isVoiceIntegrationActive },
+	} = useContext(Context);
+
 	const location = useLocation();
 	const [isHover, setisHover] = useState(false);
 
@@ -65,6 +70,12 @@ const OpenedSideBarHoverStateIcons = ({
 	};
 
 	const redirectToFunction = (subModules, route, name) => {
+		if (name === 'Notes') {
+			setShowNotesDrawer((prev) => !prev);
+		} else {
+			setShowNotesDrawer(false);
+		}
+
 		if (name === 'Notifications') {
 			setShowNotificationsDrawer((prev) => !prev);
 		} else {
@@ -105,6 +116,11 @@ const OpenedSideBarHoverStateIcons = ({
 				onMouseEnter={onMoutseEnter}
 				onMouseLeave={onMoutseLeave}
 				onClick={() => {
+					if (isVoiceIntegrationActive) {
+						return message.error(
+							'Voice integration is active, please disable it to use this feature',
+						);
+					}
 					redirectToFunction(subModules, route, name);
 				}}
 				style={{
@@ -273,6 +289,7 @@ const OpenedSideBarItemsComponent = ({
 	setIsOpen,
 	setShowNotificationsDrawer,
 	setShowChatsDrawer,
+	setShowNotesDrawer,
 }) => {
 	const {
 		templates: { leftSidebarState, updateStateValues },
@@ -344,6 +361,7 @@ const OpenedSideBarItemsComponent = ({
 		// e.stopPropagation();
 		setsidebarStates({ ...sidebarStates, navStyle: 'close' });
 		setIsOpen(false);
+		setShowChatsDrawer(false);
 	};
 
 	const handleChatSelect = (chatName) => {
@@ -593,6 +611,7 @@ const OpenedSideBarItemsComponent = ({
 															setShowNotificationsDrawer={
 																setShowNotificationsDrawer
 															}
+															setShowNotesDrawer={setShowNotesDrawer}
 														/>
 													</div>
 												))}
@@ -643,6 +662,7 @@ const OpenedSideBarItemsComponent = ({
 															setShowNotificationsDrawer={
 																setShowNotificationsDrawer
 															}
+															setShowNotesDrawer={setShowNotesDrawer}
 														/>
 													</div>
 												))}

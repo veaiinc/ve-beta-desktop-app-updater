@@ -1,15 +1,7 @@
 import React, { useState, memo, useEffect, useCallback, useContext } from 'react';
 import ReactModal from '../modalsV2';
 import { ReactComponent as CrossSvg } from '../../../assets/svg/gallery/cross.svg';
-import { ReactComponent as SearchIcon } from '../../../assets/svg/workflow/search.svg';
-import { ReactComponent as TickSvg } from '../../../assets/svg/home_page/Tick.svg';
-import { ReactComponent as EmailPromptSvg } from '../../../assets/svg/home_page/emailPrompt.svg';
-import { ReactComponent as DropdownArrow } from '../../../assets/svg/chat/downArrow.svg';
 import '../../../assets/scss/home_page/promptPopup.scss';
-import { Tooltip } from 'antd';
-import FilterPopUp from '../globalComponents/FilterPopUp';
-import BottomToolbar from '../ai_agents/BottomToolbar';
-import ToolBarChatContainerModal from '../modalsV2/ToolBarChatContainerModal';
 import Context from '../../../context/context';
 import { useNavigate } from 'react-router-dom';
 import ObjectID from 'bson-objectid';

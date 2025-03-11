@@ -59,7 +59,7 @@ export const AutomationBuilderState = () => {
 
 	const getAutomationsList = async (page = 1, limit = 10, append = false) => {
 		try {
-			let workspaceId = localStorage.getItem('workspaceId');
+			const workspaceId = localStorage.getItem('workspaceId');
 			const path = `/${workspaceId}/getAutomations`;
 			const token = localStorage.getItem('usertoken');
 			const type = 'automation_builder_api';
@@ -69,21 +69,10 @@ export const AutomationBuilderState = () => {
 			};
 			const response = await Service?.fetchGet(path, token, type, query);
 			if (response?.[0]) {
-				const formattedData = response?.[1]?.automations?.data?.map((automation) => {
-					const { _id, name, steps, tenantId, status } = automation;
-					return {
-						_id,
-						title: name,
-						steps,
-						tenantId,
-						status,
-						moduleTemplates: [], // TODO: add module templates key once we have it
-						isAutomation: true,
-					};
-				});
+				const automationsList = response?.[1]?.automations?.data;
 				const data = append
-					? [...(state?.automations?.automations?.data || []), ...formattedData]
-					: formattedData;
+					? [...(state?.automationsList?.data || []), ...automationsList]
+					: automationsList;
 				const currentPage = response?.[1]?.automations?.currentPage;
 				const hasNextPage = response?.[1]?.automations?.hasNextPage;
 				const payload = {
@@ -121,8 +110,8 @@ export const AutomationBuilderState = () => {
 			);
 			if (response?.[0] === true) {
 				dispatch({
-					type: Actions.ADD_TRIGGER,
-					payload: response?.[1]?.newTrigger,
+					type: Actions.SET_AUTOMATION,
+					payload: response?.[1]?.updatedAutomation,
 				});
 				return [true, response?.[1]?.newTrigger];
 			}
@@ -247,9 +236,8 @@ export const AutomationBuilderState = () => {
 		try {
 			const usertoken = localStorage.getItem('usertoken');
 			const workspaceId = localStorage.getItem('workspaceId');
-			const response = await restService.fetchPost(
-				`/${workspaceId}/variable/variables`,
-				payload,
+			const response = await restService.fetchGet(
+				`/${workspaceId}/variable/variables/${payload?.automationId}/steps/${payload?.previousStepId}`,
 				usertoken,
 				'automation_builder_api',
 			);
@@ -261,7 +249,7 @@ export const AutomationBuilderState = () => {
 							variables:
 								payload?.action === 'formResponse'
 									? response?.[1]?.[0]?.blocks || []
-									: response?.[1],
+									: response?.[1]?.at(-1)?.variables,
 							actionType: payload?.action,
 						},
 					},
@@ -276,6 +264,52 @@ export const AutomationBuilderState = () => {
 			}
 		} catch (error) {
 			console.log('API failed ==> getVariables', error);
+		}
+	};
+
+	const deleteStep = async (automationId, payload) => {
+		try {
+			const usertoken = localStorage.getItem('usertoken');
+			const workspaceId = localStorage.getItem('workspaceId');
+			const response = await restService.fetchPut(
+				`/${workspaceId}/${automationId}/deleteStep`,
+				payload,
+				usertoken,
+				'automation_builder_api',
+			);
+			if (response?.[0] === true) {
+				dispatch({
+					type: Actions.SET_AUTOMATION,
+					payload: response?.[1]?.updatedAutomation,
+				});
+				return [true];
+			}
+			return [false];
+		} catch (error) {
+			console.log('API failed ==> deleteStep', error);
+		}
+	};
+
+	const updateStep = async (automationId, payload) => {
+		try {
+			const usertoken = localStorage.getItem('usertoken');
+			const workspaceId = localStorage.getItem('workspaceId');
+			const response = await restService.fetchPut(
+				`/${workspaceId}/${automationId}/updateStep`,
+				payload,
+				usertoken,
+				'automation_builder_api',
+			);
+			if (response?.[0] === true) {
+				dispatch({
+					type: Actions.SET_AUTOMATION,
+					payload: response?.[1]?.updatedStep,
+				});
+				return [true];
+			}
+			return [false];
+		} catch (error) {
+			console.log('API failed ==> updateStep', error);
 		}
 	};
 
@@ -358,5 +392,7 @@ export const AutomationBuilderState = () => {
 		// executeAutomation,
 		getVariables,
 		renameAutomationTitle,
+		deleteStep,
+		updateStep,
 	};
 };

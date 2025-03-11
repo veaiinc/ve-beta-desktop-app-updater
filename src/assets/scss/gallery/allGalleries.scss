@@ -105,14 +105,7 @@
 			}
 			.all-gallery {
 				overflow: auto;
-				height: 85vh;
-				display: flex;
-				justify-content: space-between;
-				align-items: flex-start;
-				align-content: flex-start;
-				row-gap: 40px;
-				align-self: stretch;
-				flex-wrap: wrap;
+				height: 75vh;
 
 				.add-gallery {
 					display: flex;

@@ -14,15 +14,6 @@ import { Tooltip } from 'antd';
 import CreateFileLead from '../myTemplate/CreateFileLead';
 const origin = fetchOriginSelection();
 
-const filterOptions = [
-	{ id: 1, title: 'All', value: '' },
-	{ id: 2, title: 'Form', value: 'form-submission' },
-	{ id: 3, title: 'Proposal', value: 'proposal' },
-	{ id: 4, title: 'Presentation', value: 'presentation' },
-	{ id: 5, title: 'Invoice', value: 'invoice' },
-	{ id: 6, title: 'Contract', value: 'contract' },
-];
-
 const initialState = {
 	search: '',
 	selectedOption: 'All',
@@ -38,17 +29,12 @@ const initialState = {
 	smartfileIdFromExistingClient: null,
 	filterOption: false,
 };
+const customStyles = {
+	content: { zIndex: 999 },
+	overlay: { zIndex: 998 },
+};
 
 const ProposalPopup = ({ open, closeModal, clientDetails = null, commonState }) => {
-	const navigate = useNavigate();
-	const customStyles = {
-		content: { zIndex: 999 },
-		overlay: { zIndex: 998 },
-	};
-	const [info, setInfo] = useState({
-		...initialState,
-	});
-
 	const {
 		templates: {
 			getMyWorkflows,
@@ -58,7 +44,27 @@ const ProposalPopup = ({ open, closeModal, clientDetails = null, commonState }) 
 			duplicateGlobalWorkflowTemplate,
 		},
 		activityInfo: { createSmartfile, smartfile },
+		profileInfo: { tenantUserAccessControls },
 	} = useContext(Context);
+
+	const hasAccessToWorkflows = tenantUserAccessControls?.accessControls?.find(
+		(accessControl) => accessControl?.app === 'workflow',
+	);
+
+	const filterOptions = hasAccessToWorkflows
+		? [
+				{ id: 1, title: 'All', value: '' },
+				{ id: 2, title: 'Form', value: 'form-submission' },
+				{ id: 3, title: 'Proposal', value: 'proposal' },
+				{ id: 4, title: 'Presentation', value: 'presentation' },
+				{ id: 5, title: 'Invoice', value: 'invoice' },
+				{ id: 6, title: 'Contract', value: 'contract' },
+		  ]
+		: [{ id: 1, title: 'Form', value: 'form-submission' }];
+
+	const [info, setInfo] = useState({
+		...initialState,
+	});
 
 	useEffect(() => {
 		setInfo((prev) => ({ ...prev, selectedOption: commonState }));

@@ -50,6 +50,7 @@ export const initialState = {
 	updatedKnowledgeBaseFiles: null,
 	moreUpdatedKnowledgeBaseFiles: null,
 	filesUploadedInAiChat: null,
+	isVoiceIntegrationActive: null,
 };
 
 export const AiSetupState = () => {
@@ -959,6 +960,13 @@ export const AiSetupState = () => {
 		}
 	};
 
+	const updateAiSetupState = (payload) => {
+		dispatch({
+			type: Actions?.UPDATE_AI_SETUP_STATE,
+			payload,
+		});
+	};
+
 	const resetAiSetupState = () => {
 		dispatch({ type: Actions?.RESET_STATE });
 	};
@@ -1003,5 +1011,6 @@ export const AiSetupState = () => {
 		getTokenForVoice,
 		getPromptsData,
 		getFilesUploadedInAiChat,
+		updateAiSetupState,
 	};
 };
