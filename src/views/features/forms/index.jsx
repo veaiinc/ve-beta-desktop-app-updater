@@ -18,8 +18,6 @@ import QuickActions from '../../components/globalComponents/QuickActions';
 
 // let origin = fetchOriginSelection();
 
-const suggestedOptions = [{ id: 1, title: 'Create new Form', value: 'client' }];
-
 const Forms = () => {
 	const navigate = useNavigate();
 
@@ -36,6 +34,18 @@ const Forms = () => {
 		searchValue: '',
 		searchExpand: false,
 	});
+
+	const suggestedOptions = [
+		{
+			id: 0,
+			title: `Create new Form`,
+			value: 'form-submission',
+			controlValue: 'form',
+			action: ({ setInfo, info }) => {
+				setInfo({ ...info, openProposalPopup: true, commonState: 'form-submission' });
+			},
+		},
+	];
 
 	useEffect(() => {
 		fetchInitialForms();

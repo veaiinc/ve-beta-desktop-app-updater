@@ -37,7 +37,6 @@
 	gap: 12px;
 	border-radius: 24px;
 	background: #26282a;
-	overflow: scroll;
 	.dropdown-option {
 		display: flex;
 		column-gap: 10px;
@@ -89,6 +88,8 @@
 	width: 100%;
 	border-radius: 16px;
 	padding: 14px;
+	overflow: scroll;
+	min-height: 94px;
 	.modules-container-header {
 		color: var(--secondary-font, #787e87);
 		font-size: 13px;

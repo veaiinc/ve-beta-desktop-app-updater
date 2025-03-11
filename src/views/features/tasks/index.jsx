@@ -83,18 +83,6 @@ const rowTypes = {
 
 const availableViews = ['table', 'board', 'list', 'gallery'];
 
-const optionsForQuickActions = ({ new_task_action }) => {
-	console.log('new_task_action', new_task_action);
-	const options = [];
-	options.push({
-		id: 0,
-		title: 'Create new task',
-		value: 'create_atsk',
-		action: new_task_action,
-	});
-	return options;
-};
-
 const Tasks = () => {
 	const {
 		tasks: {
@@ -836,6 +824,18 @@ const Tasks = () => {
 		updateTaskInfo({ isCreatingSubtask: false, isCreateModalOpen: true });
 	};
 
+	const suggestedOptions = [
+		{
+			id: 0,
+			title: 'Create new Task',
+			value: 'task',
+			controlValue: 'task',
+			action: () => {
+				handleAddButtonOnClick();
+			},
+		},
+	];
+
 	const handleCloseCreateModal = useCallback(() => {
 		if (info?.isCreatingSubtask) {
 			updateTaskInfo({ sidebarIsOpen: true });
@@ -930,11 +930,7 @@ const Tasks = () => {
 					<span className="lineTwo">You Created</span>
 				</div>
 				<div className="quick-actions-btn">
-					<QuickActions
-						suggestedOptions={optionsForQuickActions({
-							new_task_action: handleAddButtonOnClick,
-						})}
-					/>
+					<QuickActions suggestedOptions={suggestedOptions} />
 				</div>
 			</div>
 			<Task

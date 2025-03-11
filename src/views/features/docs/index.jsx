@@ -32,14 +32,6 @@ const payload = {
 	},
 };
 
-const suggestedOptions = [
-	{ id: 0, title: 'Create new Document', value: 'create_document' },
-	{ id: 1, title: 'Create new Form', value: 'create_form' },
-	{ id: 2, title: 'Create new Proposal', value: 'create_proposal' },
-	{ id: 3, title: 'Create new Invoice', value: 'create_invoice' },
-	{ id: 4, title: 'Create new Contact', value: 'create_contract' },
-];
-
 const staticCreateActions = [
 	{
 		type: 'Minimal',
@@ -288,6 +280,54 @@ const Docs = () => {
 	});
 
 	const activeFileRef = useRef(null);
+
+	const suggestedOptions = [
+		{
+			id: 0,
+			title: 'Create new Document',
+			value: 'form-submission',
+			controlValue: 'form',
+			action: ({ setInfo, info }) => {
+				setInfo({ ...info, openProposalPopup: true, commonState: 'form-submission' });
+			},
+		},
+		{
+			id: 1,
+			title: 'Create new Form',
+			value: 'form-submission',
+			controlValue: 'form',
+			action: ({ setInfo, info }) => {
+				setInfo({ ...info, openProposalPopup: true, commonState: 'form-submission' });
+			},
+		},
+		{
+			id: 2,
+			title: 'Create new Proposal',
+			value: 'proposal',
+			controlValue: 'workflow',
+			action: ({ setInfo, info }) => {
+				setInfo({ ...info, openProposalPopup: true, commonState: 'proposal' });
+			},
+		},
+		{
+			id: 3,
+			title: 'Create new Invoice',
+			value: 'invoice',
+			controlValue: 'workflow',
+			action: ({ setInfo, info }) => {
+				setInfo({ ...info, openProposalPopup: true, commonState: 'invoice' });
+			},
+		},
+		{
+			id: 4,
+			title: 'Create new Contact',
+			value: 'contract',
+			controlValue: 'workflow',
+			action: ({ setInfo, info }) => {
+				setInfo({ ...info, openProposalPopup: true, commonState: 'contract' });
+			},
+		},
+	];
 
 	useEffect(() => {
 		getDocsFilesListFunc(1);

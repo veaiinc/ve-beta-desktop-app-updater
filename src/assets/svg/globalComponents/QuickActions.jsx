@@ -3,21 +3,21 @@ import React, { useContext, useState, useCallback } from 'react';
 // import '../../../assets/scss/home_page/homepage.scss';
 import '../../../assets/scss/globalComponents/quickActions.scss';
 import Search from '../../../assets/svg/seach-magnifier.svg';
-import Network from '../../../assets/svg/globalComponents/Network.svg';
-import Note from '../../../assets/svg/globalComponents/Note.svg';
+import Network from '../../../assets/svg/Network.svg';
+import Note from '../../../assets/svg/Note.svg';
 import Tick from '../../../assets/svg/tick.svg';
-import User from '../../../assets/svg/globalComponents/User.svg';
-import UsersThree from '../../../assets/svg/globalComponents/UsersThree.svg';
-import CheckCircle from '../../../assets/svg/globalComponents/CheckCircle.svg';
-import Document from '../../../assets/svg/globalComponents/Document.svg';
-import GoogleMeet from '../../../assets/svg/globalComponents/google_meet.svg';
-import ProjectorScreen from '../../../assets/svg/globalComponents/ProjectorScreen.svg';
+import User from '../../../assets/svg/User.svg';
+import UsersThree from '../../../assets/svg/UsersThree.svg';
+import CheckCircle from '../../../assets/svg/CheckCircle.svg';
+import Document from '../../../assets/svg/Document.svg';
+import GoogleMeet from '../../../assets/svg/google_meet.svg';
+import ProjectorScreen from '../../../assets/svg/ProjectorScreen.svg';
 import { useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
-import ProposalsPopup from '../../../views/components/docs/ProposalsPopup';
-import CreateClientModal from '../../../views/components/modalsV2/contacts/CreateClientModal';
-import CreateTaskPopup from '../../../views/components/modalsV2/tasks/CreateTaskPopup';
-import CreateGallery from '../../../views/components/modalsV2/gallery/CreateGallery';
+import ProposalsPopup from '../../components/docs/ProposalsPopup';
+import CreateClientModal from '../../components/modalsV2/contacts/CreateClientModal';
+import CreateTaskPopup from '../../components/modalsV2/tasks/CreateTaskPopup';
+import CreateGallery from '../modalsV2/gallery/CreateGallery';
 
 let moduleOptions = [
 	{

@@ -12,12 +12,6 @@ import Skeleton from 'react-loading-skeleton';
 import CustomTextArea from '../../globalComponents/CusomTextArea';
 import QuickActions from '../../globalComponents/QuickActions';
 
-const optionsForQuickActions = (title) => {
-	const options = [];
-	options.push({ id: 0, title: `Create meeting on ${title}`, value: 'document' });
-	return options;
-};
-
 const ListViewSidebar = ({
 	selectedRow,
 	sidebarIsOpen,
@@ -49,6 +43,18 @@ const ListViewSidebar = ({
 	const [localDescription, setLocalDescription] = useState('');
 	const titleDebounceRef = useRef(null);
 	const descriptionDebounceRef = useRef(null);
+
+	const suggestedOptions = [
+		{
+			id: 0,
+			title: `Create meeting on ${localTitle}`,
+			value: 'meeting',
+			controlValue: 'calendar',
+			action: ({ navigate }) => {
+				navigate('/calendar');
+			},
+		},
+	];
 
 	useEffect(() => {
 		if (selectedRow?.title !== localTitle) {
@@ -273,9 +279,7 @@ const ListViewSidebar = ({
 							<div className="sidebar-header-right-container">
 								{showQuickActions && isSidebarExpanded && (
 									<QuickActions
-										suggestedOptions={optionsForQuickActions(
-											selectedRow?.title,
-										)}
+										suggestedOptions={suggestedOptions}
 										// clientDetails={selectedRow}
 									/>
 								)}
