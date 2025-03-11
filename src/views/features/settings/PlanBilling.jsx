@@ -51,6 +51,7 @@ const ApproximateCreditsRowData = [
 
 const PlanBilling = () => {
 	let {
+		authInfo: { currentPlanAddOns },
 		subscriptionInfo: { getCurrentSubscriptionPlan, currentPlan },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
@@ -167,7 +168,7 @@ const SubscribedUserPlanCard = ({
 	const navigate = useNavigate();
 	let {
 		subscriptionInfo: { createManageSubscriptionLinkforExistingUsers, getAllSubscriptionPlan },
-		authInfo: { getAddOnsForCurrentPlan },
+		authInfo: { getAddOnsForCurrentPlan, currentPlanAddOns },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -254,12 +255,17 @@ const SubscribedUserPlanCard = ({
 	const handleAddOnsClick = async () => {
 		setInfo((prev) => ({ ...prev, addOnsLoading: true }));
 		await getAddOnsForCurrentPlan();
+		const addOnPlansExists = currentPlanAddOns?.length > 0;
+		const openAddOnPlansModal = addOnPlansExists ? true : false;
 		setInfo((prev) => ({
 			...prev,
 			addOnsLoading: false,
-			isOpen: true,
+			isOpen: openAddOnPlansModal,
 			subscriptionState: 'addOnPlans',
 		}));
+		if (!openAddOnPlansModal) {
+			message.error('No Add-on Plans found!');
+		}
 	};
 
 	const handleUpgradeSubscriptionClick = async () => {
