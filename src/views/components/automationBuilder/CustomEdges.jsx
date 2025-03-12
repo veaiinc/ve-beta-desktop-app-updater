@@ -106,10 +106,12 @@ const CustomEdges = ({
 		targetY,
 		sourcePosition,
 		targetPosition,
-		borderRadius: 0, // Ensure sharp 90-degree angles
+		borderRadius: 0, // 90-degree angles
 	});
 
-	const [info, setInfo] = useState({ addNodesPopUp: false });
+	const [info, setInfo] = useState({
+		addNodesPopUp: false,
+	});
 
 	const onAddOptionsClick = useCallback(
 		(type) => {
@@ -138,10 +140,47 @@ const CustomEdges = ({
 		}
 	}, [data, id]);
 
+	const getEdgeLabelColor = () => {
+		// Handle condition node labels
+		if (data?.label === 'Yes') return '#4CAF50'; // Green for Yes
+		if (data?.label === 'No') return '#F44336'; // Red for No
+
+		// Handle switch node case labels - use different colors for different cases
+		if (data?.label && data.label.startsWith('Case')) {
+			// Generate colors based on case number for visual distinction
+			const caseNumber = parseInt(data.label.replace('Case ', ''), 10) || 0;
+			const colors = ['#FF9800', '#2196F3', '#9C27B0', '#00BCD4', '#FFEB3B', '#795548'];
+			return colors[caseNumber % colors.length]; // Cycle through colors
+		}
+
+		// Handle switch default case
+		if (data?.label === 'Default') return '#607D8B'; // Gray-blue for default
+
+		// Default color for other edges
+		return '#ffffff';
+	};
+
+	// Determine background color and text style based on label type
+	const getLabelStyle = () => {
+		if (!data?.label) return {};
+
+		const color = getEdgeLabelColor();
+
+		return {
+			backgroundColor: `${color}20`, // 20% opacity of the text color
+			color: color,
+			padding: '4px 8px',
+			borderRadius: '4px',
+			fontWeight: 'bold',
+			border: `1px solid ${color}40`, // 40% opacity border
+		};
+	};
+
 	return (
 		<>
-			{/* Use 90-degree step path */}
+			{/* Custom 90-degree edge path */}
 			<BaseEdge path={edgePath} markerEnd={markerEnd} style={style} />
+
 			<EdgeLabelRenderer>
 				<div
 					style={{
@@ -153,7 +192,7 @@ const CustomEdges = ({
 						zIndex: 1000,
 						pointerEvents: 'all',
 						background: 'transparent',
-						padding: data?.label ? '4px 8px' : '0',
+						padding: 0,
 						borderRadius: '4px',
 						boxShadow: data?.label ? '0px 2px 5px rgba(0, 0, 0, 0.2)' : 'none',
 						display: 'flex',
@@ -162,18 +201,19 @@ const CustomEdges = ({
 						justifyContent: 'center',
 					}}
 				>
-					{/* Show Yes/No labels only for conditional edges */}
+					{/* Display labels for condition and switch nodes */}
 					{data?.label && (
 						<span
 							style={{
 								textAlign: 'center',
 								fontSize: '12px',
-								color: '#ffffff',
+								...getLabelStyle(),
 							}}
 						>
 							{data.label}
 						</span>
 					)}
+
 					<Tooltip
 						placement="bottom"
 						title={<AddNodesPopUp onAddOptionsClick={onAddOptionsClick} />}
@@ -190,7 +230,11 @@ const CustomEdges = ({
 							<button
 								type="button"
 								className="edgeButton nodrag nopan"
-								style={{ pointerEvents: 'all', cursor: 'pointer' }}
+								style={{
+									pointerEvents: 'all',
+									cursor: 'pointer',
+									marginTop: data?.label ? '6px' : '0', // Add space if there's a label
+								}}
 								onClick={handleAddButtonClick}
 							>
 								+

@@ -241,16 +241,23 @@ export const AutomationBuilderState = () => {
 				usertoken,
 				'automation_builder_api',
 			);
+
 			if (response?.[0] === true) {
+				const variable = response?.[1]?.at(payload?.editMode ? -2 : -1)?.variables;
+				const actionType = variable?.[0]?.type?.includes('form')
+					? 'formResponse'
+					: 'variable';
+
 				dispatch({
 					type: Actions.SET_VARIABLES,
 					payload: {
 						data: {
 							variables:
-								payload?.action === 'formResponse'
-									? response?.[1]?.[0]?.blocks || []
-									: response?.[1]?.at(-1)?.variables,
-							actionType: payload?.action,
+								actionType === 'formResponse'
+									? response?.[1]?.at(payload?.editMode ? -2 : -1)?.variables?.[0]
+											?.blocks || []
+									: response?.[1]?.at(payload?.editMode ? -2 : -1)?.variables,
+							actionType,
 						},
 					},
 				});
@@ -258,7 +265,7 @@ export const AutomationBuilderState = () => {
 				dispatch({
 					type: Actions.SET_VARIABLES,
 					payload: {
-						data: { variables: [], actionType: payload?.action },
+						data: { variables: [], actionType: null },
 					},
 				});
 			}

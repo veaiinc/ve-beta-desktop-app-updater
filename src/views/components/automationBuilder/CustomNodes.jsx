@@ -10,6 +10,7 @@ import { ReactComponent as Dustbin } from '../../../assets/svg/worflow_builder/b
 import { ReactComponent as Copy } from '../../../assets/svg/worflow_builder/buildercard/labelledCopy.svg';
 import { ReactComponent as Eye } from '../../../assets/svg/worflow_builder/buildercard/labelledEye.svg';
 import { ReactComponent as ShockIcon } from '../../../assets/svg/automation_builder/shock.svg';
+import { ReactComponent as SwitchIcon } from '../../../assets/svg/automation_builder/switch.svg';
 import UpdatedDeleteWorkflowStep from '../modalsV2/automationBuilder/UpdatedDeleteStepsModal';
 import { Tooltip } from 'antd';
 const actionTypeMapper = {
@@ -303,6 +304,66 @@ const HoverComponentForNodes = ({ openDeleteModal }) => {
 				<Dustbin />
 			</span>
 		</div>
+	);
+};
+
+export const SwitchNode = ({ data }) => {
+	const [info, setInfo] = useState({ deleteModal: false });
+
+	const handleCloseDeleteModal = useCallback(() => {
+		setInfo((prev) => ({ ...prev, deleteModal: false }));
+	}, []);
+
+	const openDeleteModal = useCallback(() => {
+		setInfo((prev) => ({ ...prev, deleteModal: true }));
+	}, []);
+
+	const onSwitchNodeClick = useCallback(() => {
+		if (data?.onToolBarOpen) {
+			data.onToolBarOpen({
+				toolBarOpen: true,
+				sidebarType: 'conditions',
+				activeStepsData: data?.currentStep,
+				editMode: true,
+			});
+		}
+	}, [data]);
+
+	return (
+		<Tooltip
+			placement="right"
+			title={<HoverComponentForNodes openDeleteModal={openDeleteModal} />}
+			arrow={false}
+			rootClassName="customNodesToolTip"
+		>
+			<div className="action-node" onClick={onSwitchNodeClick}>
+				<div className="upper-action-node-container">
+					<span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+						<SwitchIcon />
+						Switch
+					</span>
+					<span> Condition</span>
+				</div>
+				<div className="lower-action-node-container">
+					<span className="lower-action-node-title">
+						{data?.currentStep?.title || 'Switch Title'}
+					</span>
+					<span className="lower-action-node-subtitle">
+						{data?.currentStep?.description || 'Switch Description'}
+					</span>
+				</div>
+				<Handle type="source" position={Position.Bottom} />
+				<Handle type="target" position={Position.Top} />
+				<UpdatedDeleteWorkflowStep
+					modalIsOpen={info?.deleteModal}
+					closeModal={handleCloseDeleteModal}
+					automationId={data?.automationId}
+					stepId={data?.currentStep?._id}
+					stepData={data?.currentStep}
+					stepsMapper={data?.stepsMapper}
+				/>
+			</div>
+		</Tooltip>
 	);
 };
 
