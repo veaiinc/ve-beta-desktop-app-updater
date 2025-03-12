@@ -41,13 +41,13 @@
 		gap: 24px;
 		user-select: none;
 		.formsHeaderButtons {
+			width: 400px;
 			display: flex;
 			padding: 32px;
 			flex-direction: column;
 			justify-content: center;
 			align-items: flex-start;
 			gap: 6px;
-			flex: 1 0 0;
 			border-radius: 14px;
 			background: #171819;
 			background: color(display-p3 0.0902 0.0941 0.098);

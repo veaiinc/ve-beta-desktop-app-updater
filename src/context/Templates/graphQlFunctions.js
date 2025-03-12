@@ -486,3 +486,21 @@ export const getFormResponsesListQuery = gql`
 		}
 	}
 `;
+
+export const createBlankWorkflowQuery = gql`
+	mutation CreateBlankWorkflow($workflowInput: BlankWorkflowInput) {
+		createBlankWorkflow(workflowInput: $workflowInput) {
+			_id
+			templateId
+			templateTitle
+		}
+	}
+`;
+
+export const createBlankTemplateQuery = gql`
+	mutation CreateBlankTemplate($templateInput: BlankTemplateInput!) {
+		createBlankTemplate(templateInput: $templateInput) {
+			_id
+		}
+	}
+`;

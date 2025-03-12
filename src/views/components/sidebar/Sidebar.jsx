@@ -12,6 +12,7 @@ import { veAiModulesItemsList } from './sidebarindex';
 import { Tooltip } from 'antd';
 import Notifications from './notifications/Notifications';
 import Chats from './chats/Chats';
+import Notes from './notes/Notes';
 const Sidebar = ({ activeWorkspaceId }) => {
 	const {
 		profileInfo: { userWorkSpaceList, getUserWorkSpaceList, userDetailsData, getUserDetails },
@@ -19,6 +20,7 @@ const Sidebar = ({ activeWorkspaceId }) => {
 	} = useContext(Context);
 	const location = useLocation();
 	const [showNotificationsDrawer, setShowNotificationsDrawer] = useState(false);
+	const [showNotesDrawer, setShowNotesDrawer] = useState(false);
 	const [showChatsDrawer, setShowChatsDrawer] = useState(false);
 	const [sidebarStates, setsidebarStates] = useState({
 		workSpaceOpen: false,
@@ -147,6 +149,7 @@ const Sidebar = ({ activeWorkspaceId }) => {
 							setIsOpen={setIsOpen}
 							setShowChatsDrawer={setShowChatsDrawer}
 							setShowNotificationsDrawer={setShowNotificationsDrawer}
+							setShowNotesDrawer={setShowNotesDrawer}
 						/>
 					) : (
 						<Tooltip
@@ -179,6 +182,7 @@ const Sidebar = ({ activeWorkspaceId }) => {
 					showNotificationsDrawer={showNotificationsDrawer}
 					setShowNotificationsDrawer={setShowNotificationsDrawer}
 				/>
+				<Notes showNotesDrawer={showNotesDrawer} setShowNotesDrawer={setShowNotesDrawer} />
 				<Chats showChatsDrawer={showChatsDrawer} setShowChatsDrawer={setShowChatsDrawer} />
 			</div>
 

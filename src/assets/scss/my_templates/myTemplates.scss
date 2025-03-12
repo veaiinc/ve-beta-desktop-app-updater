@@ -167,6 +167,77 @@
 					cursor: pointer;
 				}
 			}
+
+			.searchContainer {
+				position: relative;
+				// background-color: red;
+				min-width: 16px;
+				display: inline-block;
+				height: 16px;
+				transition: all 0.3s ease;
+				margin-right: 70px;
+
+				.searchBtn {
+					display: flex;
+					width: 16px;
+					transform: rotate(-0.037deg);
+					padding: 0px;
+					align-items: center;
+					gap: 10px;
+					flex-shrink: 0;
+					border-radius: 100px;
+					background: transparent;
+					cursor: pointer;
+					transition: all 0.3s ease;
+					position: absolute;
+					right: 0;
+					top: 50%;
+					transform: translateY(-50%);
+
+					.inputAndCloseContainer {
+						display: none;
+						transition: all 0.3s ease;
+						overflow: hidden;
+						.searchInputTag {
+							flex: 1;
+							background-color: transparent;
+							color: #e4e5e6;
+							transition: all 0.3s ease;
+							border: none;
+							font-family: Inter;
+							font-size: 13px;
+							font-style: normal;
+							font-weight: 400;
+							line-height: normal;
+
+							&::placeholder {
+								color: #939393;
+								font-family: Inter;
+								font-size: 13px;
+								font-style: normal;
+								font-weight: 400;
+								line-height: normal;
+							}
+						}
+					}
+				}
+
+				.searchExpand {
+					display: flex;
+					width: 140px;
+					opacity: 1;
+					z-index: 99;
+
+					.inputAndCloseContainer {
+						width: 120px;
+						display: flex;
+						align-items: center;
+						input {
+							width: 100px;
+						}
+					}
+				}
+			}
 		}
 
 		.myTemplatesInfiniteContainer {

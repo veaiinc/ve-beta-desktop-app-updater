@@ -51,6 +51,7 @@ const OpenedSideBarHoverStateIcons = ({
 	handleSubModuleClick,
 	setShowNotificationsDrawer,
 	setShowChatsDrawer,
+	setShowNotesDrawer,
 }) => {
 	let {
 		aiSetup: { isVoiceIntegrationActive },
@@ -69,6 +70,12 @@ const OpenedSideBarHoverStateIcons = ({
 	};
 
 	const redirectToFunction = (subModules, route, name) => {
+		if (name === 'Notes') {
+			setShowNotesDrawer((prev) => !prev);
+		} else {
+			setShowNotesDrawer(false);
+		}
+
 		if (name === 'Notifications') {
 			setShowNotificationsDrawer((prev) => !prev);
 		} else {
@@ -285,6 +292,7 @@ const OpenedSideBarItemsComponent = ({
 	setIsOpen,
 	setShowNotificationsDrawer,
 	setShowChatsDrawer,
+	setShowNotesDrawer,
 }) => {
 	const {
 		templates: { leftSidebarState, updateStateValues },
@@ -356,6 +364,7 @@ const OpenedSideBarItemsComponent = ({
 		// e.stopPropagation();
 		setsidebarStates({ ...sidebarStates, navStyle: 'close' });
 		setIsOpen(false);
+		setShowChatsDrawer(false);
 	};
 
 	const handleChatSelect = (chatName) => {
@@ -606,6 +615,7 @@ const OpenedSideBarItemsComponent = ({
 															setShowNotificationsDrawer={
 																setShowNotificationsDrawer
 															}
+															setShowNotesDrawer={setShowNotesDrawer}
 														/>
 													</div>
 												))}
@@ -656,6 +666,7 @@ const OpenedSideBarItemsComponent = ({
 															setShowNotificationsDrawer={
 																setShowNotificationsDrawer
 															}
+															setShowNotesDrawer={setShowNotesDrawer}
 														/>
 													</div>
 												))}

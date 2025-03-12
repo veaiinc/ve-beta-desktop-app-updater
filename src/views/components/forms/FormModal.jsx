@@ -57,15 +57,37 @@ const eventsTableHeaderData = [
 const removeHTMLTagsAndnbsp = (text) =>
 	text?.replace(/<\/?[^>]+(>|$)/g, '')?.replace(/&nbsp;/g, ' ');
 
-const removeQuotes = (text) => text?.replace(/^["']|["']$/g, '');
+const removeQuotes = (text) => {
+	if (!text) {
+		return '';
+	}
+	if (typeof text !== 'string') {
+		return text || '';
+	}
+	return text?.replace(/^["']|["']$/g, '');
+};
 
 const DropdownAnswer = ({ answer }) => {
+	if (!answer) {
+		return '';
+	}
+	let text = answer;
+
+	try {
+		// Try parsing as JSON first
+		const parsed = JSON.parse(text);
+		text = parsed;
+	} catch (e) {
+		// If it's not valid JSON, treat as regular string
+		text = answer;
+		if (typeof text === 'string') {
+			text = text?.replace(/^["']|["']$/g, '');
+		}
+	}
 	return (
 		<>
 			<p className={`answer`}>
-				<span className="selectedOption">
-					{JSON?.parse(answer || '[]')[0] || 'No answer'}
-				</span>
+				<span className="selectedOption">{text || ''}</span>
 			</p>
 			<div className="divider"></div>
 		</>
@@ -73,7 +95,10 @@ const DropdownAnswer = ({ answer }) => {
 };
 
 const EventsAnswer = ({ answer }) => {
-	return (
+	if (!answer) {
+		return '';
+	}
+	return answer ? (
 		<>
 			<table className="eventsContainer">
 				<thead className="eventsTableHeader">
@@ -98,10 +123,15 @@ const EventsAnswer = ({ answer }) => {
 			</table>
 			<div className="divider"></div>
 		</>
+	) : (
+		''
 	);
 };
 
 const RatingAnswer = ({ answer }) => {
+	if (!answer) {
+		return '';
+	}
 	return (
 		<>
 			<Flex gap="middle" vertical>
@@ -113,13 +143,28 @@ const RatingAnswer = ({ answer }) => {
 };
 
 const TimeAnswer = ({ answer }) => {
+	if (!answer) {
+		return '';
+	}
+	let text = answer;
+	try {
+		// Try parsing as JSON first
+		const parsed = JSON.parse(text);
+		text = parsed;
+	} catch (e) {
+		// If it's not valid JSON, treat as regular string
+		text = answer;
+		if (typeof text === 'string') {
+			text = text.replace(/^["']|["']$/g, '');
+		}
+	}
 	return (
 		<>
 			<p className={`answer timeContainer`}>
-				<span className="time">{JSON?.parse(answer)?.hours}</span>
+				<span className="time">{text?.hours || ''}</span>
 				<TimeDivider />
-				<span className="time">{JSON?.parse(answer)?.minutes}</span>
-				<span className="time-division">{JSON?.parse(answer)?.timeDivision}</span>
+				<span className="time">{text?.minutes || ''}</span>
+				<span className="time-division">{text?.timeDivision || ''}</span>
 			</p>
 			<div className="divider"></div>
 		</>
@@ -127,6 +172,9 @@ const TimeAnswer = ({ answer }) => {
 };
 
 const SingleChoiceAnswer = ({ answer }) => {
+	if (!answer) {
+		return '';
+	}
 	return (
 		<>
 			<p className="answer">
@@ -139,6 +187,9 @@ const SingleChoiceAnswer = ({ answer }) => {
 };
 
 const LinkAnswer = ({ answer }) => {
+	if (!answer) {
+		return '';
+	}
 	return (
 		<>
 			<p className="answer link">
@@ -152,6 +203,9 @@ const LinkAnswer = ({ answer }) => {
 };
 
 const FileUploadAnswer = ({ answer }) => {
+	if (!answer) {
+		return '';
+	}
 	return (
 		<>
 			<img
@@ -208,7 +262,7 @@ const FormModal = ({ isOpen, onClose, selectedRow }) => {
 			time: <TimeAnswer answer={answer} />,
 			singleChoice: <SingleChoiceAnswer answer={answer} />,
 			link: <LinkAnswer answer={answer} />,
-			fileUpload: <FileUploadAnswer answer={answer} />,
+			fileupload: <FileUploadAnswer answer={answer} />,
 		};
 		return (
 			answerComponentMapper[type] ?? (
@@ -251,6 +305,7 @@ const FormModal = ({ isOpen, onClose, selectedRow }) => {
 					{selectedRow?.isRead ? 'notCompleted' : 'Completed'}
 				</div>
 			</div> */}
+				{console.log('selectedRow==>', selectedRow)}
 				<div className="formResponsesParentContainer">
 					{selectedRow?.response?.map(
 						(formData) =>
