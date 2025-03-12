@@ -3,8 +3,10 @@ import Skeleton from 'react-loading-skeleton';
 import { getInitials } from '../../../../helpers/index';
 import { ReactComponent as TickSvg } from '../../../../assets/svg/tick.svg';
 import { ReactComponent as DownArrow } from '../../../../assets/svg/Settings/Downarrowwhite.svg';
-import { useState } from 'react';
+import { useContext } from 'react';
 import { Select } from 'antd';
+import Context from '../../../../context/context';
+import ExpiredSubscriptionModal from '../../../components/modalsV2/subscription/ExpiredSubscriptionModal';
 
 const TeamAccessListComponent = ({
 	search,
@@ -15,15 +17,42 @@ const TeamAccessListComponent = ({
 	handleInviteMembers,
 	handleUserClick,
 }) => {
+	const {
+		subscriptionInfo: { currentPlan, updateSubscriptionState },
+	} = useContext(Context);
+
+	const tenantUsersLimit = currentPlan?.tenantUsersLimit;
+	const tenantUsersCount = filteredUsers?.length;
+	const tenantUserLimitReached = tenantUsersCount >= tenantUsersLimit;
+	const showTeamMembersCount = tenantUsersCount && tenantUsersLimit ? true : false;
+
+	const handleInviteMembersAndExpiredSubscriptionModal = () => {
+		if (tenantUserLimitReached) {
+			updateSubscriptionState({ expiredSubscriptionModal: true });
+		} else {
+			handleInviteMembers();
+		}
+	};
+
 	const updateUserRoleFunction = (tenantid, role) => {
 		updateTenantRoleFunc(tenantid, role);
 	};
 
 	return (
 		<>
+			<ExpiredSubscriptionModal />
 			<div className="yourTeamTitle">
-				<h1>Your Team Access</h1>
-				<button onClick={handleInviteMembers}>Invite Members</button>
+				<h1>
+					Your Team Access{' '}
+					{showTeamMembersCount && (
+						<span className="teamMembersCount">
+							{tenantUsersCount} / {tenantUsersLimit}
+						</span>
+					)}
+				</h1>
+				<button onClick={handleInviteMembersAndExpiredSubscriptionModal}>
+					Invite Members
+				</button>
 			</div>
 			<div className="yourTeamFilter">
 				<img src={search} alt="searchh" />

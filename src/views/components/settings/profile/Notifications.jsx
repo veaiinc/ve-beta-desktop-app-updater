@@ -111,6 +111,15 @@ const Notifications = () => {
 
 	const handleModuleNotificationPreference = async (module, action, app) => {
 		const isEnabled = !info?.selectedOptions?.[module]?.[action]?.[app];
+		const selectedOptions = { ...(info?.selectedOptions || {}) };
+		selectedOptions[module] = {
+			...selectedOptions[module],
+			[action]: { ...selectedOptions[module]?.[action], [app]: isEnabled },
+		};
+		setInfo((prev) => ({
+			...prev,
+			selectedOptions,
+		}));
 		const response = await updateAppNotificationPreferenceForModule(
 			module,
 			action,
@@ -118,20 +127,18 @@ const Notifications = () => {
 			isEnabled,
 			tenantId,
 		);
-		if (response?.[0]) {
-			const selectedOptions = { ...(info?.selectedOptions || {}) };
+		if (!response?.[0]) {
+			message?.error(
+				'An unexpected error occured while updating your notification preferences!',
+			);
 			selectedOptions[module] = {
 				...selectedOptions[module],
-				[action]: { ...selectedOptions[module]?.[action], [app]: isEnabled },
+				[action]: { ...selectedOptions[module]?.[action], [app]: !isEnabled },
 			};
 			setInfo((prev) => ({
 				...prev,
 				selectedOptions,
 			}));
-		} else {
-			message?.error(
-				'An unexpected error occured while updating your notification preferences!',
-			);
 		}
 	};
 
@@ -168,6 +175,17 @@ const Notifications = () => {
 				message?.error(
 					'An unexpected error occurred while updating your notification preferences!',
 				);
+				moduleAppTypeSelectAll[module] = {
+					...moduleAppTypeSelectAll[module],
+					[appType]: !isEnabled,
+				};
+				selectedOptions[module] = updatedSelectedOptions;
+
+				setInfo((prev) => ({
+					...prev,
+					moduleAppTypeSelectAll,
+					selectedOptions,
+				}));
 			}
 		} catch (error) {
 			message?.error('Failed to update notification preferences');
