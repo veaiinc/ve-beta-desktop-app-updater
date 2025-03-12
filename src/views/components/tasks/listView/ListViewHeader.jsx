@@ -1,7 +1,5 @@
 import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import '../../../../assets/scss/tasks/listViewHeader.scss';
-import { ReactComponent as PlusSvg } from '../../../../assets/svg/tasks/plus.svg';
-import { ReactComponent as SearchSvg } from '../../../../assets/svg/tasks/searchWhite.svg';
 import { ReactComponent as FilterLinesSvg } from '../../../../assets/svg/tasks/filterLines.svg';
 import { ReactComponent as ArrowUpAndDown } from '../../../../assets/svg/tasks/arrowUpAndDown.svg';
 import { ReactComponent as CrossIcon } from '../../../../assets/svg/workspaceSettings/cross.svg';
@@ -10,6 +8,11 @@ import DropDown from '../../dropDown/tasks/DropDown';
 import SortComponent from './SortComponent';
 import FilterComponent from './FilterComponent';
 import TabHeader from './TabHeader';
+import SearchSvg from '../../../../assets/svg/activity/SearchSvg';
+import CrossSvg from '../../../../assets/svg/docs/CrossSvg';
+import FilterSvg from '../../../../assets/svg/my_templates/FilterSvg';
+import PlusSvg from '../../../../assets/svg/my_templates/PlusSvg';
+import UpDownArrowSvg from '../../../../assets/svg/my_templates/UpDownArrowSvg';
 
 const defaultFilterValue = {
 	text: '',
@@ -225,7 +228,7 @@ const ListViewHeader = ({
 											updateTaskInfo({ searchValue: '' });
 										}}
 									>
-										<CrossIcon style={{ width: '20px', height: '20px' }} />
+										<CrossSvg />
 									</span>
 								</div>
 							</div>
@@ -240,7 +243,7 @@ const ListViewHeader = ({
 								className="listViewHeaderActionButton"
 								onClick={() => handelSortClick()}
 							>
-								<ArrowUpAndDown style={{ width: '20px', height: '20px' }} />
+								<UpDownArrowSvg />
 							</button>
 						) : (
 							<DropDown
@@ -255,7 +258,7 @@ const ListViewHeader = ({
 									className="listViewHeaderActionButton"
 									onClick={() => handelSortClick()}
 								>
-									<ArrowUpAndDown style={{ width: '20px', height: '20px' }} />
+									<UpDownArrowSvg />
 								</button>
 							</DropDown>
 						)}
@@ -265,7 +268,7 @@ const ListViewHeader = ({
 								className="listViewHeaderActionButton"
 								onClick={() => handelFilterClick()}
 							>
-								<FilterLinesSvg />
+								<FilterSvg />
 							</button>
 						) : (
 							<DropDown
@@ -280,7 +283,7 @@ const ListViewHeader = ({
 									className="listViewHeaderActionButton"
 									onClick={() => handelFilterClick()}
 								>
-									<FilterLinesSvg />
+									<FilterSvg />
 								</button>
 							</DropDown>
 						)}

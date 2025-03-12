@@ -22,6 +22,9 @@ import { message } from 'antd';
 import Skeleton from 'react-loading-skeleton';
 import { Tooltip } from 'antd';
 import QuickActions from '../../components/globalComponents/QuickActions.jsx';
+import SearchSvg from '../../../assets/svg/activity/SearchSvg.jsx';
+import FilterSvg from '../../../assets/svg/my_templates/FilterSvg.jsx';
+import ThreeDotsSvg from '../../../assets/svg/my_templates/ThreeDotsSvg.jsx';
 import Spinner from '../../components/loaders/Spinner';
 let origin = fetchOriginSelection();
 
@@ -747,7 +750,7 @@ const Docs = () => {
 										}))
 									}
 								>
-									<Search />
+									<SearchSvg />
 								</span>
 
 								<div className="inputAndCloseContainer">
@@ -788,14 +791,14 @@ const Docs = () => {
 							valueSelector="valueSelector"
 							containerStyles={{
 								borderRadius: '14px',
-								background: '#202123',
+								background: 'var(--primary-font)',
 								boxShadow: '0px 2px 44px 0px rgba(0, 0, 0, 0.25)',
 							}}
 							onOptionClick={handleSetActiveFilter}
 						>
-							<Filter style={{ width: '20px', height: '20px', marginTop: '6px' }} />
+							<FilterSvg />
 						</DropDown>
-						{/* <ThreeDots /> */}
+						<ThreeDotsSvg />
 					</div>
 				</div>
 

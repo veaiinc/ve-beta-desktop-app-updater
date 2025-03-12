@@ -15,6 +15,10 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import Context from '../../../context/context';
 import DropDown from '../../components/dropDown/tasks/DropDown';
 import QuickActions from '../../components/globalComponents/QuickActions';
+import SearchSvg from '../../../assets/svg/activity/SearchSvg';
+import CrossSvg from '../../../assets/svg/docs/CrossSvg';
+import FilterSvg from '../../../assets/svg/my_templates/FilterSvg';
+import ThreeDotsSvg from '../../../assets/svg/my_templates/ThreeDotsSvg';
 import ProposalsPopup from '../../components/docs/ProposalsPopup';
 
 const Forms = () => {
@@ -182,18 +186,45 @@ const Forms = () => {
 							</div>
 						</div>
 
-						<div className="formsHeaderContainerActionsContainer">
+					<div className="formsHeaderContainerActionsContainer">
+						<div
+							className="searchContainer"
+							style={{
+								width: info?.searchExpand ? '140px' : '16px',
+							}}
+						>
 							<div
-								className="searchContainer"
-								style={{
-									width: info?.searchExpand ? '140px' : '16px',
-								}}
+								className={`searchBtn ${info?.searchExpand ? 'searchExpand' : ''}`}
 							>
-								<div
-									className={`searchBtn ${
-										info?.searchExpand ? 'searchExpand' : ''
-									}`}
+								<span
+									style={{
+										display: 'flex',
+										justifyContent: 'center',
+										alignItems: 'center',
+										cursor: 'pointer',
+									}}
+									onClick={() =>
+										setInfo((prev) => ({
+											...prev,
+											searchExpand: true,
+										}))
+									}
 								>
+									<SearchSvg />
+								</span>
+
+								<div className="inputAndCloseContainer">
+									<input
+										className="searchInputTag"
+										placeholder="Search"
+										value={info?.searchValue}
+										onChange={(e) =>
+											setInfo((prev) => ({
+												...prev,
+												searchValue: e?.target?.value,
+											}))
+										}
+									/>
 									<span
 										style={{
 											display: 'flex',
@@ -201,66 +232,35 @@ const Forms = () => {
 											alignItems: 'center',
 											cursor: 'pointer',
 										}}
-										onClick={() =>
+										onClick={() => {
 											setInfo((prev) => ({
 												...prev,
-												searchExpand: true,
-											}))
-										}
+												searchExpand: false,
+												searchValue: '',
+											}));
+										}}
 									>
-										<Search />
+										<CrossSvg />
 									</span>
-
-									<div className="inputAndCloseContainer">
-										<input
-											className="searchInputTag"
-											placeholder="Search"
-											value={info?.searchValue}
-											onChange={(e) =>
-												setInfo((prev) => ({
-													...prev,
-													searchValue: e?.target?.value,
-												}))
-											}
-										/>
-										<span
-											style={{
-												display: 'flex',
-												justifyContent: 'center',
-												alignItems: 'center',
-												cursor: 'pointer',
-											}}
-											onClick={() => {
-												setInfo((prev) => ({
-													...prev,
-													searchExpand: false,
-													searchValue: '',
-												}));
-											}}
-										>
-											<Cross style={{ width: '20px', height: '20px' }} />
-										</span>
-									</div>
 								</div>
 							</div>
-							<DropDown
-								title="Add Filters"
-								options={Filters}
-								valueSelector="valueSelector"
-								containerStyles={{
-									borderRadius: '14px',
-									background: '#202123',
-									boxShadow: '0px 2px 44px 0px rgba(0, 0, 0, 0.25)',
-								}}
-								onOptionClick={() => {}}
-							>
-								<Filter
-									style={{ width: '20px', height: '20px', marginTop: '6px' }}
-								/>
-							</DropDown>
-							<ThreeDots />
 						</div>
+						<DropDown
+							title="Add Filters"
+							options={Filters}
+							valueSelector="valueSelector"
+							containerStyles={{
+								borderRadius: '14px',
+								background: '#202123',
+								boxShadow: '0px 2px 44px 0px rgba(0, 0, 0, 0.25)',
+							}}
+							onOptionClick={() => {}}
+						>
+							<FilterSvg />
+						</DropDown>
+						<ThreeDotsSvg />
 					</div>
+				</div>
 
 					<div className="formsInfiniteContainer">
 						{info?.loading ? (
