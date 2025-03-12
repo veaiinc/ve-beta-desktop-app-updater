@@ -23,7 +23,7 @@ import Skeleton from 'react-loading-skeleton';
 import { Tooltip } from 'antd';
 import QuickActions from '../../components/globalComponents/QuickActions.jsx';
 import Spinner from '../../components/loaders/Spinner';
-let origin = fetchOriginSelection();
+const origin = fetchOriginSelection();
 
 const payload = {
 	filters: {
