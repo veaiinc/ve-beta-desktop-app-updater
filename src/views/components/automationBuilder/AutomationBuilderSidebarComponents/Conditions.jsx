@@ -15,9 +15,10 @@ import { message } from 'antd';
 import Context from '../../../../context/context';
 import HeaderComponent from './HeaderComponent';
 import IfElse from './IfElse';
-
+import SwitchStep from './SwitchStep';
 const conditionsList = {
-	ifElse: { title: 'If / Else', id: 'ifElse' },
+	condition: { label: 'If / Else', value: 'condition' },
+	switch: { label: 'Switch', value: 'switch' },
 };
 const Conditions = ({
 	onClose,
@@ -59,7 +60,7 @@ const Conditions = ({
 
 	useEffect(() => {
 		if (activeStepsData) {
-			setInfo((prev) => ({ ...prev, activeScreen: 'ifElse' }));
+			setInfo((prev) => ({ ...prev, activeScreen: activeStepsData?.type }));
 		}
 	}, [activeStepsData]);
 
@@ -146,8 +147,18 @@ const Conditions = ({
 
 	const screenMapper = useMemo(() => {
 		return {
-			ifElse: (
+			condition: (
 				<IfElse
+					variables={variables}
+					onSave={onSave}
+					isLoading={info?.isLoading}
+					hasNextNode={info?.hasNextNode}
+					onBack={onBack}
+					activeStepsData={activeStepsData}
+				/>
+			),
+			switch: (
+				<SwitchStep
 					variables={variables}
 					onSave={onSave}
 					isLoading={info?.isLoading}
@@ -159,12 +170,17 @@ const Conditions = ({
 		};
 	}, [variables, info?.isLoading, info?.hasNextNode, activeStepsData, onBack, onSave]);
 
+	const handleBack = useCallback(() => {
+		if (activeStepsData || !info?.activeScreen) {
+			onClose();
+		} else {
+			changeStage({ activeScreen: null });
+		}
+	}, [changeStage, info?.activeScreen, onClose, activeStepsData]);
+
 	return (
 		<div className="actionSidebarComponents">
-			<HeaderComponent
-				onBack={info?.activeScreen ? () => changeStage({ activeScreen: null }) : onClose}
-				heading="Conditions"
-			/>
+			<HeaderComponent onBack={handleBack} heading="Conditions" />
 			{info?.activeScreen ? (
 				screenMapper?.[info?.activeScreen]
 			) : (
@@ -188,9 +204,9 @@ const Conditions = ({
 							<div
 								className="actionListItem"
 								key={index}
-								onClick={() => changeStage({ activeScreen: ele?.id })}
+								onClick={() => changeStage({ activeScreen: ele?.value })}
 							>
-								{ele?.title}
+								{ele?.label}
 							</div>
 						))}
 					</div>

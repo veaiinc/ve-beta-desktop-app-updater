@@ -18,20 +18,6 @@ const actionsList = {
 };
 
 const triggersList = {
-	google: {
-		label: 'Google',
-		icon: <Google />,
-		value: 'google',
-		triggerType: 'app',
-		triggers: [
-			{
-				app: 'gmail',
-				icon: <Google />,
-				label: 'On Message received',
-				event: 'messageReceived',
-			},
-		],
-	},
 	inApp: {
 		label: 'In App',
 		// icon: <InApp />,
@@ -86,6 +72,20 @@ const triggersList = {
 				label: 'Client Deleted',
 				event: 'delete',
 				module: 'client',
+			},
+		],
+	},
+	google: {
+		label: 'Google',
+		icon: <Google />,
+		value: 'google',
+		triggerType: 'app',
+		triggers: [
+			{
+				app: 'gmail',
+				icon: <Google />,
+				label: 'On Message received',
+				event: 'messageReceived',
 			},
 		],
 	},
@@ -342,31 +342,44 @@ const Step1 = ({ checkConnection, updateTriggerInfo }) => {
 					})
 					.filter(Boolean)}
 
-				{!info.search && (
-					<div className="availableIntegrationsContainer">
-						<h2 className="availableIntegrationHeading">Available Integrations</h2>
-						<div className="availableIntegrationsList">
-							{availableIntegrations?.map((integration) => (
-								<div className="availableIntegrationItem" key={integration.value}>
-									<span className="integrationIcon">{integration.icon}</span>
-									<span className="integrationLabel">{integration.label}</span>
-									{checkConnection(integration.value) ? (
-										<button className="integrationButton">Connected</button>
-									) : (
-										<button
-											className="integrationButton"
-											onClick={() =>
-												(window.location.href = '/settings/integrations')
-											}
+				{!info.search &&
+					(() => {
+						const unconnectedIntegrations = availableIntegrations?.filter(
+							(integration) => !checkConnection(integration?.value),
+						);
+
+						return unconnectedIntegrations?.length > 0 ? (
+							<div className="availableIntegrationsContainer">
+								<h2 className="availableIntegrationHeading">
+									Available Integrations
+								</h2>
+								<div className="availableIntegrationsList">
+									{unconnectedIntegrations?.map((integration) => (
+										<div
+											className="availableIntegrationItem"
+											key={integration?.value}
 										>
-											Connect <RightArrow />
-										</button>
-									)}
+											<span className="integrationIcon">
+												{integration?.icon}
+											</span>
+											<span className="integrationLabel">
+												{integration?.label}
+											</span>
+											<button
+												className="integrationButton"
+												onClick={() =>
+													(window.location.href =
+														'/settings/integrations')
+												}
+											>
+												Connect <RightArrow />
+											</button>
+										</div>
+									))}
 								</div>
-							))}
-						</div>
-					</div>
-				)}
+							</div>
+						) : null;
+					})()}
 			</div>
 		</>
 	);

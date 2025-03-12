@@ -205,7 +205,7 @@ const VariableComponent = ({ value, onChange, variables, type = 'text', options 
 											key={idx}
 											onClick={() => {
 												handleInfo({
-													open: false,
+													variableDropdownOpen: false,
 													value: `${info?.selectedVariable?.name}.${variable?.name}`,
 												});
 												onChange(
@@ -245,7 +245,8 @@ const VariableComponent = ({ value, onChange, variables, type = 'text', options 
 											handleInfo({
 												value: variable?.name,
 												selectedVariable: variable,
-												open: false,
+												variableDropdownOpen:
+													variable?.type === 'Object' ? true : false,
 											});
 											onChange(
 												`{{${

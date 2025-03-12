@@ -8,6 +8,7 @@ import Context from '../../../context/context';
 import ProposalsPopup from '../../components/docs/ProposalsPopup';
 import CreateClientModal from '../../components/modalsV2/contacts/CreateClientModal';
 import CreateTaskPopup from '../../components/modalsV2/tasks/CreateTaskPopup';
+import AutomationLoaderModal from '../../components/modalsV2/automationBuilder/AutomationLoaderModal';
 
 const dropdownOptions = [
 	{ id: 0, title: 'Lead', value: 'client', controlValue: 'contact' },
@@ -28,6 +29,7 @@ const QuickActions = ({ styles, customActions = [], clientDetails = null }) => {
 		// openTaskPopup: false,
 		dropdownOptions: customActions?.length > 0 ? customActions : dropdownOptions,
 		commonState: null,
+		isAutomationLoading: false,
 	});
 
 	let {
@@ -85,6 +87,7 @@ const QuickActions = ({ styles, customActions = [], clientDetails = null }) => {
 			status: 'draft',
 		});
 		if (response?.[0]) {
+			setInfo({ ...info, isAutomationLoading: false });
 			navigate(`/automation-builder/${response?.[1]?._id}`);
 		} else {
 			message.error('Failed to create automation');
@@ -131,6 +134,7 @@ const QuickActions = ({ styles, customActions = [], clientDetails = null }) => {
 				modalIsOpen={info?.openClientPopup}
 				closeModal={() => setInfo({ ...info, openClientPopup: false })}
 			/>
+			<AutomationLoaderModal loading={info?.isAutomationLoading} />
 		</div>
 	);
 };
