@@ -143,28 +143,15 @@ const RatingAnswer = ({ answer }) => {
 };
 
 const TimeAnswer = ({ answer }) => {
-	if (!answer) {
-		return '';
-	}
-	let text = answer;
-	try {
-		// Try parsing as JSON first
-		const parsed = JSON.parse(text);
-		text = parsed;
-	} catch (e) {
-		// If it's not valid JSON, treat as regular string
-		text = answer;
-		if (typeof text === 'string') {
-			text = text.replace(/^["']|["']$/g, '');
-		}
-	}
+	const hours = answer?.split(':')[0];
+	const minutes = answer?.split(':')[1];
 	return (
 		<>
 			<p className={`answer timeContainer`}>
-				<span className="time">{text?.hours || ''}</span>
+				<span className="time">{hours}</span>
 				<TimeDivider />
-				<span className="time">{text?.minutes || ''}</span>
-				<span className="time-division">{text?.timeDivision || ''}</span>
+				<span className="time">{minutes}</span>
+				{/* <span className="time-division">{timeDivision}</span> */}
 			</p>
 			<div className="divider"></div>
 		</>
