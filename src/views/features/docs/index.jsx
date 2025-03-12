@@ -23,7 +23,7 @@ import Skeleton from 'react-loading-skeleton';
 import { Tooltip } from 'antd';
 import QuickActions from '../../components/globalComponents/QuickActions.jsx';
 import Spinner from '../../components/loaders/Spinner';
-let origin = fetchOriginSelection();
+const origin = fetchOriginSelection();
 
 const payload = {
 	filters: {
@@ -146,12 +146,10 @@ export const statusTextmapper = {
 	// },
 };
 
-const statusList = Object.values(statusTextmapper)
-	.filter((status) => status?.label !== 'Expired') // Exclude the status with label 'Expired'
-	.map((status) => ({
-		name: status?.label,
-		_id: status?.id,
-	}));
+const statusList = Object.values(statusTextmapper)?.map((status) => ({
+	name: status?.label,
+	_id: status?.id,
+}));
 
 export const FilterIcons = {
 	templateName: <UppercaseLowercaseA />,

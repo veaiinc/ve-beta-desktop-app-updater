@@ -15,7 +15,13 @@ const options = [
 	},
 ];
 
-const AutomationCard = ({ automationId, automationTitle, automationStatus, automationSteps }) => {
+const AutomationCard = ({
+	automationId,
+	automationTitle,
+	automationStatus,
+	automationSteps,
+	handleDeleteAutomation,
+}) => {
 	const [info, setInfo] = useState({
 		showAutomationMenu: false,
 		editAutomationTitle: false,
@@ -104,6 +110,7 @@ const AutomationCard = ({ automationId, automationTitle, automationStatus, autom
 					showAutomationMenu={info?.showAutomationMenu}
 					toggleAutomationMenu={toggleAutomationMenu}
 					enableAutomationTitleEditMode={enableAutomationTitleEditMode}
+					handleDeleteAutomation={handleDeleteAutomation}
 				>
 					<ThreeDotsVerticalIcon />
 				</AutomationMenu>
