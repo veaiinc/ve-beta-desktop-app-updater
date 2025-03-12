@@ -31,9 +31,6 @@ const InviteMembersWorkspaceComponent = ({
 	const [isLoading, setIsLoading] = useState(false);
 
 	useEffect(() => {
-		console.log(selectedOption, 'selectedOption');
-	}, [selectedOption]);
-	useEffect(() => {
 		const updateData = async () => {
 			if (updatedData) {
 				try {
