@@ -40,21 +40,14 @@
 					height: calc(100vh - 70px);
 					width: 100%;
 
-					.loading-state {
+					.skeleton-loader-container {
 						display: flex;
-						justify-content: center;
+						flex-direction: column;
+						justify-content: flex-start;
 						align-items: center;
+						gap: 16px;
 						width: 100%;
 						height: 100%;
-
-						.message {
-							color: #e8e8e8;
-							font-family: Inter;
-							font-size: 14px;
-							font-style: normal;
-							font-weight: 500;
-							line-height: normal;
-						}
 					}
 
 					.empty-state {
