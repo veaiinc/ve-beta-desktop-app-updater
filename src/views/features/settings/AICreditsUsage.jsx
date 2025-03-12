@@ -50,7 +50,7 @@ const AICreditsUsage = () => {
 		getAICreditsUsedData(nextPage, limit);
 	};
 
-	return (
+	return AICreditsData?.data?.length ? (
 		<div className="notifications-main-container">
 			<div className="notifications-container">
 				<h1 className="notifications-header-title">AI Credits Used</h1>
@@ -110,6 +110,8 @@ const AICreditsUsage = () => {
 				</div>
 			</div>
 		</div>
+	) : (
+		<></>
 	);
 };
 
