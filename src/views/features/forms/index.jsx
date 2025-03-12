@@ -186,45 +186,18 @@ const Forms = () => {
 							</div>
 						</div>
 
-					<div className="formsHeaderContainerActionsContainer">
-						<div
-							className="searchContainer"
-							style={{
-								width: info?.searchExpand ? '140px' : '16px',
-							}}
-						>
+						<div className="formsHeaderContainerActionsContainer">
 							<div
-								className={`searchBtn ${info?.searchExpand ? 'searchExpand' : ''}`}
+								className="searchContainer"
+								style={{
+									width: info?.searchExpand ? '140px' : '16px',
+								}}
 							>
-								<span
-									style={{
-										display: 'flex',
-										justifyContent: 'center',
-										alignItems: 'center',
-										cursor: 'pointer',
-									}}
-									onClick={() =>
-										setInfo((prev) => ({
-											...prev,
-											searchExpand: true,
-										}))
-									}
+								<div
+									className={`searchBtn ${
+										info?.searchExpand ? 'searchExpand' : ''
+									}`}
 								>
-									<SearchSvg />
-								</span>
-
-								<div className="inputAndCloseContainer">
-									<input
-										className="searchInputTag"
-										placeholder="Search"
-										value={info?.searchValue}
-										onChange={(e) =>
-											setInfo((prev) => ({
-												...prev,
-												searchValue: e?.target?.value,
-											}))
-										}
-									/>
 									<span
 										style={{
 											display: 'flex',
@@ -232,35 +205,64 @@ const Forms = () => {
 											alignItems: 'center',
 											cursor: 'pointer',
 										}}
-										onClick={() => {
+										onClick={() =>
 											setInfo((prev) => ({
 												...prev,
-												searchExpand: false,
-												searchValue: '',
-											}));
-										}}
+												searchExpand: true,
+											}))
+										}
 									>
-										<CrossSvg />
+										<SearchSvg />
 									</span>
+
+									<div className="inputAndCloseContainer">
+										<input
+											className="searchInputTag"
+											placeholder="Search"
+											value={info?.searchValue}
+											onChange={(e) =>
+												setInfo((prev) => ({
+													...prev,
+													searchValue: e?.target?.value,
+												}))
+											}
+										/>
+										<span
+											style={{
+												display: 'flex',
+												justifyContent: 'center',
+												alignItems: 'center',
+												cursor: 'pointer',
+											}}
+											onClick={() => {
+												setInfo((prev) => ({
+													...prev,
+													searchExpand: false,
+													searchValue: '',
+												}));
+											}}
+										>
+											<CrossSvg />
+										</span>
+									</div>
 								</div>
 							</div>
+							<DropDown
+								title="Add Filters"
+								options={Filters}
+								valueSelector="valueSelector"
+								containerStyles={{
+									borderRadius: '14px',
+									background: '#202123',
+									boxShadow: '0px 2px 44px 0px rgba(0, 0, 0, 0.25)',
+								}}
+								onOptionClick={() => {}}
+							>
+								<FilterSvg />
+							</DropDown>
+							<ThreeDotsSvg />
 						</div>
-						<DropDown
-							title="Add Filters"
-							options={Filters}
-							valueSelector="valueSelector"
-							containerStyles={{
-								borderRadius: '14px',
-								background: '#202123',
-								boxShadow: '0px 2px 44px 0px rgba(0, 0, 0, 0.25)',
-							}}
-							onOptionClick={() => {}}
-						>
-							<FilterSvg />
-						</DropDown>
-						<ThreeDotsSvg />
 					</div>
-				</div>
 
 					<div className="formsInfiniteContainer">
 						{info?.loading ? (

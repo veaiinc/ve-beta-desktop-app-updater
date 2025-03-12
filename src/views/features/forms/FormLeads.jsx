@@ -238,6 +238,7 @@ const FormLeads = () => {
 						<UpDownArrowSvg />
 						<ThreeDotsSvg />
 					</div>
+					*/}
 				</div>
 				{tabs?.[info?.activeTab]?.Component}
 			</div>
