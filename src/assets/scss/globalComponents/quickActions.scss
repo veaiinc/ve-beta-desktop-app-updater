@@ -95,3 +95,9 @@
 		font-size: 13px;
 	}
 }
+
+.customQuickActionsToolTip {
+	.ant-tooltip-content {
+		right: 100px;
+	}
+}

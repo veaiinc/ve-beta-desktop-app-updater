@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { message, Tooltip } from 'antd';
-import React, { useContext, useState, useCallback } from 'react';
+import React, { useContext, useState, useCallback, useEffect } from 'react';
 // import '../../../assets/scss/home_page/homepage.scss';
 import '../../../assets/scss/globalComponents/quickActions.scss';
 import Search from '../../../assets/svg/seach-magnifier.svg';
@@ -19,6 +19,7 @@ import ProposalsPopup from '../../../views/components/docs/ProposalsPopup';
 import CreateClientModal from '../../../views/components/modalsV2/contacts/CreateClientModal';
 import CreateTaskPopup from '../../../views/components/modalsV2/tasks/CreateTaskPopup';
 import CreateGallery from '../../../views/components/modalsV2/gallery/CreateGallery';
+import { useEdges } from '@xyflow/react';
 
 let moduleOptions = [
 	{
@@ -44,7 +45,7 @@ let moduleOptions = [
 		title: 'Event',
 		value: 'event',
 		controlValue: 'calendar',
-		action: (navigate) => {
+		action: ({ navigate }) => {
 			navigate('/calendar');
 		},
 	},
@@ -53,7 +54,7 @@ let moduleOptions = [
 		title: 'Session',
 		value: 'session',
 		controlValue: 'calendar',
-		action: (navigate) => {
+		action: ({ navigate }) => {
 			navigate('/calendar');
 		},
 	},
@@ -171,6 +172,7 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 						if (!option?.controlValue) {
 							return true;
 						}
+						console.log(tenantUserAccessControls?.accessControls);
 						const matchedApp = tenantUserAccessControls?.accessControls?.find(
 							(item) =>
 								item?.app?.toLowerCase() === option?.controlValue?.toLowerCase(),
@@ -202,6 +204,11 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 		[info],
 	);
 
+	useEffect(() => {
+		const options = filtereOptions('');
+		setInfo((prev) => ({ ...prev, timeout, fileterOptions: options }));
+	}, []);
+
 	const handleSearch = (e) => {
 		setInfo((prev) => ({ ...prev, search: e.target.value }));
 		if (e.target.value === '' || e.target.value === null) {
@@ -220,6 +227,7 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 				trigger={'hover'}
 				onOpenChange={(open) => setInfo({ ...info, dropdown: open })}
 				color="transparent"
+				rootClassName="customQuickActionsToolTip"
 				title={
 					<div className="quick-actions-dropdown-options-container">
 						<div className="top-search-container">
