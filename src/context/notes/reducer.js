@@ -6,6 +6,7 @@ const actionHandlers = {
 		...state,
 		moreNotes: action?.payload,
 	}),
+	GET_NOTES_PAGE_DATA_SUCCESS: (state, action) => ({ ...state, notesPageData: action?.payload }),
 	RESET_STATE: () => intialState,
 };
 
