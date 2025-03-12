@@ -76,7 +76,7 @@ const StepsTab = ({ data, openModal }) => {
 		let formParsedContentHtml = '';
 		let contractExist = false;
 
-		for (let i = 0; i < moduleTemplates.length; i++) {
+		for (let i = 0; i < moduleTemplates?.length; i++) {
 			if (moduleTemplates?.[i]?.isPublic) {
 				isPublic = true;
 			}

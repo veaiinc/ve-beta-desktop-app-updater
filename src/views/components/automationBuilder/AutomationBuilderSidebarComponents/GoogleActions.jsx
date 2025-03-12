@@ -17,10 +17,17 @@ import {
 import { message } from 'antd';
 import Spinner from '../../loaders/Spinner';
 import validator from 'validator';
-const GoogleActions = ({ onBack, onSave, loading, selectedAction, activeStepsData }) => {
+const GoogleActions = ({
+	onBack,
+	onSave,
+	loading,
+	selectedAction,
+	activeStepsData,
+	handleChangeClick,
+}) => {
 	const {
 		templates: { allEmailTemplates },
-		automationBuilder: { connectedIntegrations, getAutomation, addStep, variables },
+		automationBuilder: { connectedIntegrations, variables },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		title: '',
@@ -87,6 +94,14 @@ const GoogleActions = ({ onBack, onSave, loading, selectedAction, activeStepsDat
 	const updateInfo = useCallback((data) => {
 		setInfo((prevInfo) => ({ ...prevInfo, ...data }));
 	}, []);
+
+	const onChangeButtonClick = useCallback(() => {
+		if (activeStepsData) {
+			handleChangeClick(activeStepsData?.app);
+		} else {
+			onBack();
+		}
+	}, [handleChangeClick, activeStepsData, onBack]);
 
 	const changeSubjectOrEmailBody = useCallback(
 		(updatedData) => {
@@ -204,6 +219,7 @@ const GoogleActions = ({ onBack, onSave, loading, selectedAction, activeStepsDat
 					modifiedOnSave={modifiedOnSave}
 					loading={loading}
 					inputBody={activeStepsData?.inputBody || null}
+					variables={variables}
 				/>
 			),
 		};
@@ -260,7 +276,7 @@ const GoogleActions = ({ onBack, onSave, loading, selectedAction, activeStepsDat
 						title={info?.title}
 						description={info?.description}
 						updaterFn={updateInfo}
-						onChangeButtonClick={onBack}
+						onChangeButtonClick={onChangeButtonClick}
 						actionLabel={selectedAction?.actionLabel}
 					/>
 					<div className="googleActionsContainerBody">
