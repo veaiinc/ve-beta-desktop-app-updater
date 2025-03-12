@@ -79,7 +79,14 @@ export const veAiModulesItemsList = [
 	},
 	{
 		id: 7,
-		name: 'Storage',
+		name: 'Notes',
+		moduleRoute: '/notes',
+		route: null,
+		icon: '',
+	},
+	{
+		id: 8,
+		name: 'Files',
 		moduleRoute: '',
 		route: '',
 		icon: '',
@@ -99,13 +106,6 @@ export const veAiModulesItemsList = [
 				icon: '',
 			},
 		],
-	},
-	{
-		id: 8,
-		name: 'Notes',
-		moduleRoute: '/notes',
-		route: null,
-		icon: '',
 	},
 ];
 
