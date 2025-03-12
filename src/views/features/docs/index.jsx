@@ -147,7 +147,7 @@ export const statusTextmapper = {
 };
 
 const statusList = Object.values(statusTextmapper)
-	// .filter((status) => status?.label !== 'Expired') // Exclude the status with label 'Expired'
+	.filter((status) => status?.label !== 'Expired') // Exclude the status with label 'Expired'
 	.map((status) => ({
 		name: status?.label,
 		_id: status?.id,
