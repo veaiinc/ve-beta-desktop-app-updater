@@ -170,12 +170,17 @@ const Conditions = ({
 		};
 	}, [variables, info?.isLoading, info?.hasNextNode, activeStepsData, onBack, onSave]);
 
+	const handleBack = useCallback(() => {
+		if (activeStepsData || !info?.activeScreen) {
+			onClose();
+		} else {
+			changeStage({ activeScreen: null });
+		}
+	}, [changeStage, info?.activeScreen, onClose, activeStepsData]);
+
 	return (
 		<div className="actionSidebarComponents">
-			<HeaderComponent
-				onBack={info?.activeScreen ? () => changeStage({ activeScreen: null }) : onClose}
-				heading="Conditions"
-			/>
+			<HeaderComponent onBack={handleBack} heading="Conditions" />
 			{info?.activeScreen ? (
 				screenMapper?.[info?.activeScreen]
 			) : (

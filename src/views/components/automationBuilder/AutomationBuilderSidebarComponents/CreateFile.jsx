@@ -10,7 +10,13 @@ import { message } from 'antd';
 
 const CreateFile = ({ onBack, onSave, activeStepsData, addTriggerLoading, handleChangeClick }) => {
 	const {
-		templates: { getMyWorkflows, myWorkflows, myMoreWorkflows },
+		templates: {
+			getMyWorkflows,
+			myWorkflows,
+			myMoreWorkflows,
+			specificTemplatesInfo,
+			getSpecificTemplatesInfo,
+		},
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -33,12 +39,24 @@ const CreateFile = ({ onBack, onSave, activeStepsData, addTriggerLoading, handle
 				title: activeStepsData?.title,
 				description: activeStepsData?.description,
 			}));
+			getSpecificTemplatesInfo({
+				templateInfoId: activeStepsData?.inputBody?.fileId,
+			});
 		}
 	}, [activeStepsData]);
 
 	useEffect(() => {
 		getMyWorkflowTemplatesData(1);
 	}, []);
+
+	useEffect(() => {
+		if (specificTemplatesInfo && activeStepsData) {
+			setInfo((prev) => ({
+				...prev,
+				selectedTemplate: specificTemplatesInfo,
+			}));
+		}
+	}, [specificTemplatesInfo]);
 
 	useEffect(() => {
 		if (myWorkflows) {
