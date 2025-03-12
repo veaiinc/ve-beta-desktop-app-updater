@@ -13,7 +13,6 @@ import Cookies from 'js-cookie';
 
 const MyProfile = () => {
 	const fullNameRef = useRef(null);
-	// # Context
 	const {
 		profileInfo: {
 			get2FAQrCode,
@@ -31,15 +30,10 @@ const MyProfile = () => {
 		authInfo: { updateUserDetails },
 	} = useContext(Context);
 
-	// # States
 	const [showForm, setShowForm] = useState(false);
 	const [isEditMode, setIsEditMode] = useState({ isValueChanged: false, timeout: null });
 	const [errors, setErrors] = useState({});
-	// const [activeTheme, setActiveTheme] = useState(() => {
-	// 	// const theme = localStorage.getItem('theme') || Cookies.get('theme') || 'dark';
-	// 	// document.documentElement.setAttribute('theme', theme);
-	// 	return theme;
-	// });
+
 	const [userDetails, setUserDetails] = useState({
 		fullName: '',
 		email: '',
@@ -48,12 +42,10 @@ const MyProfile = () => {
 		logoURL: '',
 		cropSettings: { crop: { x: 0, y: 0 }, zoom: 1 },
 	});
-	const [usernameUpdateLoader, setUsernameUpdateLoader] = useState(false);
 	const [initialState, setInitialState] = useState({ ...userDetails });
 
 	const [logoFile, setlogoFile] = useState(null);
 
-	// # Useeffects
 	useEffect(() => {
 		if (!tenantPreferenceData) {
 			getTenantPreferences();
@@ -87,12 +79,6 @@ const MyProfile = () => {
 			}));
 		}
 	}, [userDetailsData]);
-
-	useEffect(() => {
-		if (tenantPreferenceData) {
-			updateTheme(tenantPreferenceData?.theme);
-		}
-	}, [tenantPreferenceData?.theme]);
 
 	useEffect(() => {
 		if (userDetails.is2FAEnabled) {
@@ -282,29 +268,8 @@ const MyProfile = () => {
 		}
 	};
 
-	const updateThemeSubmitHandler = async (mode) => {
-		if (mode === 'system') {
-			const systemTheme = window?.matchMedia('(prefers-color-scheme: dark)')?.matches
-				? 'dark'
-				: 'light';
-			mode = systemTheme;
-			Cookies?.set('theme', `system-${systemTheme}`);
-			localStorage?.setItem('theme', `system-${systemTheme}`);
-			document?.documentElement?.setAttribute('theme', mode);
-		}
-
-		const json = {
-			theme: mode,
-		};
-
-		const response = await updatePrefernces(json);
-		if (response?.[0]) {
-			// setActiveTheme(mode);
-			// document?.documentElement?.setAttribute('theme', mode);
-			updateTheme(mode);
-		} else {
-			message.error(response?.[1]?.message);
-		}
+	const updateThemeSubmitHandler = async (theme) => {
+		updateTheme(theme);
 	};
 
 	return (
