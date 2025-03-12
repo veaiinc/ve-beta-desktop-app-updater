@@ -123,7 +123,7 @@ const PlanBilling = () => {
 				/>
 			)}
 
-			<div className="notifications-main-container">
+			{/* <div className="notifications-main-container">
 				<div className="notifications-container">
 					<h1 className="notifications-header-title">Approximate Credit Charges Menu</h1>
 					<div className="row">
@@ -145,7 +145,7 @@ const PlanBilling = () => {
 						))}
 					</ul>
 				</div>
-			</div>
+			</div> */}
 		</div>
 	);
 };
