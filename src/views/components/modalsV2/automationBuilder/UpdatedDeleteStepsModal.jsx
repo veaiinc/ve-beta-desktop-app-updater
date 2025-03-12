@@ -4,7 +4,7 @@ import '../../../../assets/scss/automation_builder/updatedDeleteWorkflowStep.scs
 import Spinner from '../../loaders/Spinner';
 import { ReactComponent as Close } from '../../../../assets/svg/close.svg';
 import Context from '../../../../context/context';
-import { message, Spin } from 'antd';
+import { message, Spin, Tooltip } from 'antd';
 import { checkConditionNodeChild } from '../../../features/automation_builder/automationContentsHelper';
 const customStyles = {
 	content: { zIndex: 99999 },
@@ -26,6 +26,8 @@ const UpdatedDeleteWorkflowStep = ({
 		deleteLoader: false,
 		calculatedSteps: null,
 		conditionNodeChild: null,
+		switchBranchOptions: [],
+		selectedOption: 'default',
 	});
 
 	useEffect(() => {
@@ -34,6 +36,22 @@ const UpdatedDeleteWorkflowStep = ({
 			setInfo((prev) => ({ ...prev, conditionNodeChild }));
 		}
 	}, [stepId, modalIsOpen, stepData, stepsMapper]);
+
+	useEffect(() => {
+		if (stepData?.type === 'switch') {
+			const options = Object?.entries(stepData?.cases)
+				?.filter(([key, value]) => value?.nextStepId !== null)
+				?.map(([key, value]) => ({
+					label:
+						key === 'default'
+							? 'Default Branch'
+							: key?.replace('case', 'Case ') + ' Branch',
+					value: key,
+				}));
+			const selectedOption = options?.[0]?.value || 'default';
+			setInfo((prev) => ({ ...prev, switchBranchOptions: options, selectedOption }));
+		}
+	}, [stepData?.cases]);
 
 	const deleteWorkflowStepFunc = useCallback(
 		async (deleteOptions = null) => {
@@ -53,6 +71,9 @@ const UpdatedDeleteWorkflowStep = ({
 					payload.keepBranch = info?.conditionNodeChild === 'yes' ? 'yes' : 'no';
 				}
 			}
+			if (stepData?.type === 'switch') {
+				payload.keepBranch = info?.selectedOption;
+			}
 
 			const response = await deleteStep(automationId, payload);
 			if (response?.[0]) {
@@ -71,8 +92,13 @@ const UpdatedDeleteWorkflowStep = ({
 			deleteStep,
 			automationId,
 			closeModal,
+			info?.selectedOption,
 		],
 	);
+
+	const updateStateInfo = useCallback((data) => {
+		setInfo((prev) => ({ ...prev, ...data }));
+	}, []);
 
 	return (
 		<ReactModal isOpen={modalIsOpen} closeModal={closeModal} customStyles={customStyles}>
@@ -85,9 +111,57 @@ const UpdatedDeleteWorkflowStep = ({
 								<Close />
 							</span>
 						</div>
-						<span className="deleteHeaderSubtitle">
-							Are you sure you want to delete this step?
-						</span>
+
+						{stepData?.type === 'switch' && info?.switchBranchOptions?.length > 1 ? (
+							<div className="deleteHeaderSubtitle">
+								<span>
+									This step has multiple branches. Which branch would you like to
+									keep?
+								</span>
+								<Tooltip
+									title={
+										<div className="deleteHeaderSubtitleTooltip">
+											<span className="deleteHeaderSubtitleTooltipTitle">
+												Select a branch
+											</span>
+											<div className="deleteHeaderSubtitleTooltipOptionsContainer">
+												{info?.switchBranchOptions?.map((option) => (
+													<div
+														className="deleteHeaderSubtitleTooltipOption"
+														key={option?.value}
+														onClick={() =>
+															updateStateInfo({
+																selectedOption: option?.value,
+															})
+														}
+													>
+														{option?.label}
+													</div>
+												))}
+											</div>
+										</div>
+									}
+									placement="bottomLeft"
+									arrow={false}
+									color="transparent"
+									overlayStyle={{
+										zIndex: 100000,
+									}}
+								>
+									<div className="switchSelectedBranch">
+										{
+											info?.switchBranchOptions?.find(
+												(option) => option?.value === info?.selectedOption,
+											)?.label
+										}
+									</div>
+								</Tooltip>
+							</div>
+						) : (
+							<span className="deleteHeaderSubtitle">
+								Are you sure you want to delete this step?
+							</span>
+						)}
 					</div>
 
 					<div className="deleteStepActionContainer">

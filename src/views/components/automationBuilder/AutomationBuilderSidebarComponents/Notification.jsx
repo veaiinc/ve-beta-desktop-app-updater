@@ -87,9 +87,12 @@ const Notification = ({
 
 	useEffect(() => {
 		if (connectedIntegrations) {
+			const connected = Object?.entries(connectedIntegrations)
+				?.map(([key, value]) => (value?.length > 0 ? key : null))
+				?.filter(Boolean);
 			setInfo((prev) => ({
 				...prev,
-				connectedIntegrations: [...Object.keys(connectedIntegrations), 'inApp'],
+				connectedIntegrations: [...connected, 'inApp'],
 			}));
 		}
 	}, [connectedIntegrations]);

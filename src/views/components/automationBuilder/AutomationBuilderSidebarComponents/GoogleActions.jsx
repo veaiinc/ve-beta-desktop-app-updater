@@ -219,6 +219,7 @@ const GoogleActions = ({
 					modifiedOnSave={modifiedOnSave}
 					loading={loading}
 					inputBody={activeStepsData?.inputBody || null}
+					variables={variables}
 				/>
 			),
 		};

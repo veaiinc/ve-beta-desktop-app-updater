@@ -72,7 +72,7 @@ const SwitchStep = ({
 	useEffect(() => {
 		if (activeStepsData) {
 			// Convert inputBody cases to conditions array
-			const conditions = Object.entries(activeStepsData.inputBody).map(
+			const conditions = Object.entries(activeStepsData?.inputBody || {}).map(
 				([caseKey, caseData]) => ({
 					key: caseData.key,
 					condition: caseData.condition,
@@ -82,13 +82,13 @@ const SwitchStep = ({
 
 			// Find which case has the next steps
 			const moveToCase =
-				Object.entries(activeStepsData.cases).find(
+				Object.entries(activeStepsData?.cases || {}).find(
 					([key, value]) => value.nextStepId !== null,
 				)?.[0] || 'case1';
 
 			updateInfo({
-				title: activeStepsData.title,
-				description: activeStepsData.description,
+				title: activeStepsData?.title,
+				description: activeStepsData?.description,
 				conditions: conditions,
 				moveTo: moveToCase,
 			});
