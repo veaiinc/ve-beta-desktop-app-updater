@@ -190,17 +190,20 @@ const LinkAnswer = ({ answer }) => {
 };
 
 const FileUploadAnswer = ({ answer }) => {
-	if (!answer) {
-		return '';
-	}
+	const files = answer;
 	return (
 		<>
-			<img
-				className="answer fileUpload"
-				onClick={() => window.open(answer, '_blank')}
-				src={answer}
-				alt="fileUpload"
-			/>
+			{files?.length > 0 &&
+				files?.map((file) => {
+					const { name, previewUrl, lastModified } = file;
+					return (
+						<div key={lastModified}>
+							<a href={previewUrl} target="_blank" rel="noopener noreferrer">
+								{name}
+							</a>
+						</div>
+					);
+				})}
 			<div className="divider"></div>
 		</>
 	);
