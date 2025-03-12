@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import Skeleton from 'react-loading-skeleton';
 import { message, Spin } from 'antd';
 import AddOnPlans from '../../components/settings/planbilling/addOnCards';
+import AICreditsUsage from './AICreditsUsage';
 // const features = [
 // 	'Form Management Assistant',
 // 	'Proposal Builder',
@@ -425,6 +426,7 @@ const SubscribedUserPlanCard = ({
 					</div> */}
 				</div>
 			</div>
+			<AICreditsUsage />
 			<AddOnPlans
 				isOpen={info?.isOpen}
 				closeModal={() => setInfo((prev) => ({ ...prev, isOpen: false }))}
