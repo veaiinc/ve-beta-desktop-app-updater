@@ -2,7 +2,7 @@ import React, { memo } from 'react';
 import ReactModal from '../../modalsV2/index';
 import { ReactComponent as BackIcon } from '../../../../assets/svg/left-arrow.svg';
 import { useNavigate } from 'react-router-dom';
-import '../../../../assets/scss/integrations/integrationModel.scss';
+import '../../../../assets/scss/integrations/ConnectedCardIntegrationModel.scss';
 
 const ConnectedIntegrationModel = ({ isOpen, closeModal, connectedIntegration }) => {
 	console.log(connectedIntegration);
@@ -15,54 +15,78 @@ const ConnectedIntegrationModel = ({ isOpen, closeModal, connectedIntegration })
 			customStyles={{
 				content: {
 					width: '100%',
-					maxWidth: '600px',
-					display: 'flex',
-					justifyContent: 'center',
-					alignItems: 'center',
-					inset: 'auto',
-					transform: 'none',
-					margin: '2rem',
-					backgroundColor: '#1a1a1a',
+					height: '80vh',
+					maxWidth: '1440px',
+					position: 'absolute',
+					top: '50%',
+					left: '50%',
+					transform: 'translate(-50%, -50%)',
+					background: 'var(--background-color, #0C0C0D)',
 					borderRadius: '12px',
-					padding: '2rem',
+					padding: '0',
+					margin: '0',
+					border: 'none',
 				},
 				overlay: {
-					backdropFilter: 'blur(8px)',
-					zIndex: 4,
+					position: 'fixed',
+					top: 0,
+					left: 0,
+					right: 0,
+					bottom: 0,
+					backgroundColor: 'rgba(0, 0, 0, 0.75)',
+					backdropFilter: 'blur(5px)',
 					display: 'flex',
 					justifyContent: 'center',
 					alignItems: 'center',
-					backgroundColor: 'rgba(0, 0, 0, 0.5)',
+					zIndex: 1000,
 				},
 			}}
 		>
 			<div className="connected-integration-modal">
-				<div className="modal-header">
-					<div className="back-button" onClick={closeModal}>
-						<BackIcon />
-					</div>
-					<h2>Connected Accounts</h2>
-				</div>
-
-				<div className="accounts-list">
-					{connectedIntegration?.map((account, index) => (
-						<div key={index} className="account-item">
-							<div className="account-info">
-								{account.workspace_name && (
-									<h3 className="workspace-name">{account.workspace_name}</h3>
-								)}
-								{account.name && <h3 className="account-name">{account.name}</h3>}
-								{account.email && <p className="account-email">{account.email}</p>}
-								{account.owner?.user?.email && (
-									<p className="owner-email">{account.owner.user.email}</p>
-								)}
-							</div>
-							<div className="account-status">
-								<span className="status-dot"></span>
-								<span className="status-text">Connected</span>
+				<div className="modal-content-wrapper">
+					<div className="modal-header">
+						<div className="integration-info">
+							<BackIcon onClick={() => closeModal} />
+							<img
+								src={connectedIntegration?.icon}
+								alt={connectedIntegration?.title}
+								className="integration-icon"
+							/>
+							<div className="integration-text">
+								<h2>{connectedIntegration?.title}</h2>
+								<p>
+									Enhance Team Collaboration with {connectedIntegration?.title}{' '}
+									Integration
+								</p>
 							</div>
 						</div>
-					))}
+					</div>
+
+					<div className="modal-content">
+						<div className="section-header">
+							<h3>Connect {connectedIntegration?.title} Workspaces</h3>
+							<div className="add-workspace-btn">
+								<span>+</span> Add Workspace
+							</div>
+						</div>
+
+						<div className="accounts-list">
+							{connectedIntegration?.accounts?.map((account, index) => (
+								<div key={index} className="account-item">
+									<div className="account-info">
+										<span className="account-name">
+											{account?.email || account?.name}
+										</span>
+										<span className={`status ${account?.isActive}`}>
+											{account?.isActive === true
+												? 'connected'
+												: 'Authentication error'}
+										</span>
+									</div>
+								</div>
+							))}
+						</div>
+					</div>
 				</div>
 			</div>
 		</ReactModal>

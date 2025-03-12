@@ -14,10 +14,14 @@ import zoho from '../../../assets/svg/Settings/zoho-logo.svg';
 import IntegrationConnectModel from '../../components/modalsV2/integrations/IntegrationConnectModel';
 import Context from '../../../context/context';
 import { message, Modal } from 'antd';
+import ConnectedIntegrationModel from '../../components/modalsV2/integrations/ConnectedIntegrationModel';
 
 const ConnectedIntegrationCard = ({ icon, title, description, accounts, onViewAccounts }) => {
 	return (
-		<div className="connected-integration-card">
+		<div
+			className="connected-integration-card"
+			onClick={() => onViewAccounts(accounts, { icon, title, description })}
+		>
 			<div className="card-left">
 				<div className="integration-icon">
 					<img src={icon} alt={title} className="integraton-image" />
@@ -44,11 +48,11 @@ const AvailableIntegrationCard = ({ icon, title, description, connectType, onCon
 					<img src={icon} alt={title} className="integraton-image" />
 				</div>
 				<div className="integration-content">
-					<h3>{title}</h3>
+					<h3 className="integration-content-title">{title}</h3>
 				</div>
 			</div>
 			<div className="integration-content">
-				<p>{description}</p>
+				<p className="integration-content-description">{description}</p>
 			</div>
 			<button
 				className="integration-button connect"
@@ -78,9 +82,9 @@ const Integrations = () => {
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [selectedIntegration, setSelectedIntegration] = useState(null);
 	const [connectedPlatforms, setConnectedPlatforms] = useState([]);
-	// const [showAccountsModal, setShowAccountsModal] = useState(false);
 	const [selectedAccounts, setSelectedAccounts] = useState();
 	const [connectedAccountsModel, setConnectedAccountsModel] = useState(false);
+	const [activeTab, setActiveTab] = useState('private');
 
 	const handleConnect = (integration) => {
 		setSelectedIntegration(integration);
@@ -247,9 +251,12 @@ const Integrations = () => {
 		}
 	}, [info.connectedThirdParties]);
 
-	const handleSelectedCardModel = (accounts) => {
-		setSelectedAccounts(accounts);
+	const handleSelectedCardModel = (accounts, integration) => {
 		setConnectedAccountsModel(true);
+		setSelectedIntegration({
+			...integration,
+			accounts: accounts,
+		});
 	};
 
 	return (
@@ -263,61 +270,71 @@ const Integrations = () => {
 					</div>
 				</div>
 
-				<section className="connected-integrations">
-					<h2>Connected Integrations</h2>
-					<div className="connected-integrations-list">
-						{connectedPlatforms.map((integration, index) => (
-							<ConnectedIntegrationCard
-								key={index}
-								{...integration}
-								onViewAccounts={handleSelectedCardModel}
-							/>
-						))}
-					</div>
-				</section>
+				<div className="tabs-wrapper">
+					<button
+						className={`tab-button ${activeTab === 'private' ? 'active' : ''}`}
+						onClick={() => setActiveTab('private')}
+					>
+						Private
+					</button>
+					<button
+						className={`tab-button ${activeTab === 'shared' ? 'active' : ''}`}
+						onClick={() => setActiveTab('shared')}
+					>
+						Shared
+					</button>
+				</div>
 
-				<section className="available-integrations">
-					<h2>Available Integrations</h2>
-					<div className="integrations-grid">
-						{availableIntegrations?.map((integration, index) => (
-							<AvailableIntegrationCard
-								key={index}
-								{...integration}
-								onConnect={handleConnect}
-							/>
-						))}
-					</div>
-				</section>
-
-				<section className="request-integrations">
-					<h2>Which integrations you would like to connect?</h2>
-					<div className="request-integrations-grid">
-						{requestIntegrations?.map((integration, index) => (
-							<IntegrationRequestCard key={index} {...integration} />
-						))}
-					</div>
-				</section>
-			</div>
-			{/* 
-			{showAccountsModal && (
-				<Modal
-					title="Connected Accounts"
-					visible={showAccountsModal}
-					onCancel={() => setShowAccountsModal(false)}
-					footer={null}
-				>
-					<div className="connected-accounts-list">
-						{selectedAccounts.map((account, index) => (
-							<div key={index} className="account-item">
-								{account.name && <h4>{account.name}</h4>}
-								{account.email && <p>{account.email}</p>}
-								{account.workspace_name && <h4>{account.workspace_name}</h4>}
-								{account.owner?.user?.email && <p>{account.owner.user.email}</p>}
+				{activeTab === 'private' ? (
+					<>
+						<section className="connected-integrations">
+							<h2>Connected Integrations</h2>
+							<div className="connected-integrations-list">
+								{connectedPlatforms.map((integration, index) => (
+									<ConnectedIntegrationCard
+										key={index}
+										{...integration}
+										onViewAccounts={handleSelectedCardModel}
+									/>
+								))}
 							</div>
-						))}
+						</section>
+
+						<section className="available-integrations">
+							<h2>Available Integrations</h2>
+							<div className="integrations-grid">
+								{availableIntegrations?.map((integration, index) => (
+									<AvailableIntegrationCard
+										key={index}
+										{...integration}
+										onConnect={handleConnect}
+									/>
+								))}
+							</div>
+						</section>
+
+						<section className="request-integrations">
+							<h2>Which integrations you would like to connect?</h2>
+							<div className="request-integrations-grid">
+								{requestIntegrations?.map((integration, index) => (
+									<IntegrationRequestCard key={index} {...integration} />
+								))}
+							</div>
+						</section>
+					</>
+				) : (
+					<div className="shared-integrations">
+						<h2>Shared Integrations</h2>
+						<p>No shared integrations available</p>
 					</div>
-				</Modal>
-			)} */}
+				)}
+			</div>
+
+			<ConnectedIntegrationModel
+				isOpen={connectedAccountsModel}
+				closeModal={() => setConnectedAccountsModel(false)}
+				connectedIntegration={selectedIntegration}
+			/>
 
 			<IntegrationConnectModel
 				isOpen={isModalOpen}

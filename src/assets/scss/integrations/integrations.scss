@@ -117,9 +117,9 @@ $card-hover-color: #27282b;
 			}
 
 			.integration-icon {
-				width: 40px;
-				height: 40px;
-				border-radius: 8px;
+				width: 24px;
+				height: 24px;
+				border-radius: 24px;
 				overflow: hidden;
 
 				.integraton-image {
@@ -130,6 +130,7 @@ $card-hover-color: #27282b;
 			}
 
 			.integration-content {
+			
 				.integration-content-title {
 					font-size: 1.1rem;
 					font-weight: 500;
@@ -139,6 +140,9 @@ $card-hover-color: #27282b;
 				.integration-content-description {
 					color: $text-secondary;
 					font-size: 0.9rem;
+				}
+				.connected-accounts{
+					color: var(--Secondary-Font,#7A7E85);
 				}
 			}
 			.connected-dot {
@@ -185,7 +189,11 @@ $card-hover-color: #27282b;
 		gap: 12px;
 		transition: all 0.2s ease;
 		cursor: pointer;
-
+      .card-top-row{
+		display: flex;
+		flex-direction: column;
+		gap: 20px;
+	  }
 		@media screen and (max-width: 768px) {
 			width: 100%;
 			height: auto;
@@ -219,9 +227,9 @@ $card-hover-color: #27282b;
 		}
 
 		.integration-icon {
-			width: 48px;
-			height: 48px;
-			border-radius: 8px;
+			width: 24px;
+			height: 24px;
+			border-radius: 24px;
 			overflow: hidden;
 			flex-shrink: 0;
 
@@ -361,9 +369,9 @@ $card-hover-color: #27282b;
 			}
 
 			.integration-icon {
-				width: 48px;
-				height: 48px;
-				border-radius: 12px;
+				width: 24px;
+				height: 24px;
+				border-radius: 24px;
 				background-color: transparent;
 				display: flex;
 				align-items: center;
@@ -414,6 +422,37 @@ $card-hover-color: #27282b;
 				height: 220px;
 				padding: 16px;
 			}
+		}
+	}
+}
+
+.tabs-wrapper {
+	margin: 20px 0;
+	display: flex;
+	gap: 12px;
+
+	.tab-button {
+		padding: 8px 24px;
+		border-radius: 20px;
+		border: 1px solid rgba(255, 255, 255, 0.1);
+		background: transparent;
+		font-family: Inter;
+		font-size: 14px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: 21px;
+		color: var(--secondary-font, #787e87);
+		cursor: pointer;
+		transition: all 0.3s ease;
+
+		&.active {
+			background: rgba(255, 255, 255, 0.1);
+			color: var(--Primary-Font, #f2f2f3);
+			border: 1px solid var(--Primary-Font, #f2f2f3);
+		}
+
+		&:hover {
+			background: rgba(255, 255, 255, 0.05);
 		}
 	}
 }
