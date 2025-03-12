@@ -198,9 +198,9 @@ const FileUploadAnswer = ({ answer }) => {
 					const { name, previewUrl, lastModified } = file;
 					return (
 						<div key={lastModified}>
-							<a href={previewUrl} target="_blank" rel="noopener noreferrer">
-								{name}
-							</a>
+							{/* TODO: Add file preview/download functionality when previewUrl is available */}
+							{/* <a href={previewUrl} target="_blank" rel="noopener noreferrer"> */}
+							<a>{name}</a>
 						</div>
 					);
 				})}
