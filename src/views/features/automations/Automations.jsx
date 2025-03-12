@@ -6,6 +6,7 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import { FetchMoreLoaderComp } from '../../../helpers';
 import QuickActions from '../../components/globalComponents/QuickActions';
 import { message } from 'antd';
+import Skeleton from 'react-loading-skeleton';
 
 const limit = 10;
 const append = true;
@@ -19,6 +20,7 @@ const infiniteScrollStyle = {
 	overflowX: 'hidden',
 };
 const infiniteScrollHeight = 'calc(100vh - 240px)';
+const skeletonLoaders = Array.from({ length: 6 }, (_, index) => index + 1);
 
 const Automations = () => {
 	const {
@@ -68,7 +70,16 @@ const Automations = () => {
 				<QuickActions />
 			</header>
 			{automationsLoading ? (
-				<h1 className="loadingAutomations">Loading Automations...</h1>
+				<div className="skeletonLoaderContainer">
+					{skeletonLoaders?.map((skeletonId) => (
+						<Skeleton
+							key={skeletonId}
+							width="340px"
+							height="424px"
+							borderRadius="24px"
+						/>
+					))}
+				</div>
 			) : automationsEmpty ? (
 				<h1 className="emptyAutomations">No automations found!</h1>
 			) : (
