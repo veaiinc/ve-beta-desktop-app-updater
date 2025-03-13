@@ -43,7 +43,7 @@ let moduleOptions = [
 		title: 'Event',
 		value: 'event',
 		controlValue: 'calendar',
-		action: (navigate) => {
+		action: ({ navigate }) => {
 			navigate('/calendar');
 		},
 	},
@@ -52,7 +52,7 @@ let moduleOptions = [
 		title: 'Session',
 		value: 'session',
 		controlValue: 'calendar',
-		action: (navigate) => {
+		action: ({ navigate }) => {
 			navigate('/calendar');
 		},
 	},
