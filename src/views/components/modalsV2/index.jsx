@@ -18,7 +18,7 @@ const ReactModal = ({ isOpen, closeModal, modalType, children, customStyles = {}
 			backgroundColor: 'transparent',
 		},
 		overlay: {
-			backgroundColor: 'rgba(0, 0, 0, 0.5)',
+			backgroundColor: 'transparent',
 			//transition: 'opacity 0.3s ease-in-out',
 		},
 	};
@@ -47,7 +47,7 @@ const ReactModal = ({ isOpen, closeModal, modalType, children, customStyles = {}
 			left: 0,
 			right: 0,
 			bottom: 0,
-			backgroundColor: 'var(--stroke)',
+			// backgroundColor: 'var(--stroke)',
 			transition: 'opacity 0.3s ease-in-out',
 			zIndex: 9998,
 			opacity: isOpen ? 1 : 0, // Fade-in effect

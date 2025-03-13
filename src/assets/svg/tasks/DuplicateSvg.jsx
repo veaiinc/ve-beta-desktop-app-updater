@@ -1,0 +1,54 @@
+import React from 'react';
+
+const DuplicateSvg = ({ className, style }) => {
+	return (
+		<svg
+			className={className}
+			style={{ stroke: 'var(--primary-font)', ...style }}
+			width="16"
+			height="17"
+			viewBox="0 0 16 17"
+			xmlns="http://www.w3.org/2000/svg"
+			fill="none"
+		>
+			<path
+				d="M11.334 9.43329V11.4333C11.334 14.1 10.2673 15.1666 7.60065 15.1666H5.06732C2.40065 15.1666 1.33398 14.1 1.33398 11.4333V8.89996C1.33398 6.23329 2.40065 5.16663 5.06732 5.16663H7.06732"
+				stroke="var(--primary-font)"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+			<path
+				d="M11.3331 9.43329H9.19974C7.59974 9.43329 7.06641 8.89996 7.06641 7.29996V5.16663L11.3331 9.43329Z"
+				stroke="var(--primary-font)"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+			<path
+				d="M7.73242 1.83337H10.3991"
+				stroke="var(--primary-font)"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+			<path
+				d="M4.66602 3.83337C4.66602 2.72671 5.55935 1.83337 6.66602 1.83337H8.41268"
+				stroke="var(--primary-font)"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+			<path
+				d="M14.6663 5.83337V9.96004C14.6663 10.9934 13.8263 11.8334 12.793 11.8334"
+				stroke="var(--primary-font)"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+			<path
+				d="M14.666 5.83337H12.666C11.166 5.83337 10.666 5.33337 10.666 3.83337V1.83337L14.666 5.83337Z"
+				stroke="var(--primary-font)"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+		</svg>
+	);
+};
+
+export default DuplicateSvg;

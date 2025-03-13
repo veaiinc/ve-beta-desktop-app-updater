@@ -2,14 +2,14 @@ import React, { memo, useContext, useState } from 'react';
 import { getInitials } from '../../../../helpers/index';
 import MySettingsChangePasword from '../../../features/settings/MySettingsChangePasword';
 import PhoneInput from 'react-phone-number-input';
-import { ReactComponent as UserAccountSvg } from '../../../../assets/svg/Settings/useraccount.svg';
-import { ReactComponent as EmailSvg } from '../../../../assets/svg/Settings/emailwhite.svg';
 import { ReactComponent as GreenTickSvg } from '../../../../assets/svg/Settings/TickCirclegree.svg';
 import { ReactComponent as PencilkSvg } from '../../../../assets/svg/Settings/pencilwhite.svg';
 import UploadAvatarPopupComponent from './UploadAvatarPopup';
 import UploadFileProiflePopup from './UploadFileProiflePopup';
 import Cropper from 'react-easy-crop';
 import Context from '../../../../context/context';
+import UserSvg from '../../../../assets/svg/Settings/UserSvg';
+import EmailSvg from '../../../../assets/svg/Settings/EmailSvg';
 
 // profile details component
 const ProfileDetailsComponent = ({
@@ -103,7 +103,7 @@ const ProfileDetailsComponent = ({
 					<div className="name_phone_container">
 						<div>
 							<div className="iconAlignclass">
-								<UserAccountSvg />
+								<UserSvg />
 
 								<input
 									ref={fullNameRef}

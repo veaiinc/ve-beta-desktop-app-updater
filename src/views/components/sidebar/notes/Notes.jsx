@@ -175,7 +175,7 @@ const Notes = ({ showNotesDrawer, setShowNotesDrawer }) => {
 						</div>
 					) : info?.notesData?.length === 0 ? (
 						<div className="empty-state">
-							<p className="message">No notes yet!</p>
+							<p className="¸¸ˀ">No notes yet!</p>
 						</div>
 					) : (
 						<InfiniteScroll

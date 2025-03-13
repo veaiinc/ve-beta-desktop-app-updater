@@ -5,15 +5,18 @@
 		.ant-drawer-header {
 			.ant-drawer-header-close-only {
 				display: none;
+				color: var(--primary-font);
 			}
 		}
 
 		.ant-drawer-body {
 			background-color: var(--card);
+			color: var(--primary-font);
 			padding: 0px;
-
+			
 			.notifications-drawer-container {
 				border: 1px solid var(--stroke);
+				color: var(--primary-font);
 
 				.header {
 					padding: 24px 20px;

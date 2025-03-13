@@ -140,7 +140,7 @@ const OpenedSideBarHoverStateIcons = ({
 					}}
 				>
 					<p>{name}</p>
-					{Icon && <Icon fill={'var(--setting-color)'} />}
+					{Icon && <Icon fill={'var(--primary-font)'} />}
 				</div>
 				{isDropdownVisible && subModules?.length > 0 && (
 					<div>

@@ -45,7 +45,7 @@ const DropDown = ({
 							className="dropdown-title"
 							style={titleStyles ? { ...titleStyles } : {}}
 						>
-							{title}
+							<span style={{ color: 'var(--primary-font)' }}>{title}</span>
 						</div>
 					) : (
 						''

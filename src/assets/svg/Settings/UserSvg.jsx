@@ -1,0 +1,32 @@
+import React from 'react';
+
+const UserSvg = ({ className, style }) => {
+	return (
+		<svg
+			className={className}
+			style={{ stroke: 'var(--primary-font)', ...style }}
+			width="18"
+			height="18"
+			viewBox="0 0 18 18"
+			xmlns="http://www.w3.org/2000/svg"
+			fill="none"
+		>
+			<path
+				d="M8.99999 1C4.5816 1 1 4.5816 1 8.99999C1 13.4184 4.5816 17 8.99999 17C13.4184 17 17 13.4184 17 8.99999C17 4.5816 13.4184 1 8.99999 1Z"
+				stroke="var(--primary-font)"
+				strokeWidth="0.875"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+			<path
+				d="M2.81641 14.0721C2.81641 14.0721 4.5996 11.7953 8.9996 11.7953C13.3996 11.7953 15.1836 14.0721 15.1836 14.0721M8.9996 8.99531C9.63612 8.99531 10.2466 8.74245 10.6967 8.29236C11.1467 7.84228 11.3996 7.23183 11.3996 6.59531C11.3996 5.95879 11.1467 5.34834 10.6967 4.89826C10.2466 4.44817 9.63612 4.19531 8.9996 4.19531C8.36308 4.19531 7.75263 4.44817 7.30255 4.89826C6.85246 5.34834 6.5996 5.95879 6.5996 6.59531C6.5996 7.23183 6.85246 7.84228 7.30255 8.29236C7.75263 8.74245 8.36308 8.99531 8.9996 8.99531Z"
+				stroke="var(--primary-font)"
+				strokeWidth="0.875"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+		</svg>
+	);
+};
+
+export default UserSvg;

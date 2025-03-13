@@ -7,7 +7,7 @@ const FilterSvg = () => {
 			width="18"
 			height="17"
 			viewBox="0 0 18 17"
-			fill="none"
+			fill="var(--primary-font)"
 		>
 			<path
 				d="M1.89062 4.4375H16.1094"

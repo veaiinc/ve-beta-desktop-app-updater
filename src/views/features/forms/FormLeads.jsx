@@ -175,7 +175,7 @@ const FormLeads = () => {
 						))}
 					</div>
 
-					{/* <div className="filterActionsContainer">
+					<div className="filterActionsContainer">
 						<div
 							className="searchContainer"
 							style={{

@@ -239,12 +239,12 @@ const ListViewHeader = ({
 							}
 						</div>
 						{hasSort ? (
-							<button
+							<div
 								className="listViewHeaderActionButton"
 								onClick={() => handelSortClick()}
 							>
 								<UpDownArrowSvg />
-							</button>
+							</div>
 						) : (
 							<DropDown
 								title="Sort"
@@ -254,22 +254,22 @@ const ListViewHeader = ({
 								onOptionClick={handelSortClick}
 								valueSelector="value"
 							>
-								<button
+								<div
 									className="listViewHeaderActionButton"
 									onClick={() => handelSortClick()}
 								>
 									<UpDownArrowSvg />
-								</button>
+								</div>
 							</DropDown>
 						)}
 
 						{hasFilters ? (
-							<button
+							<div
 								className="listViewHeaderActionButton"
 								onClick={() => handelFilterClick()}
 							>
 								<FilterSvg />
-							</button>
+							</div>
 						) : (
 							<DropDown
 								title="Filter"
@@ -279,12 +279,13 @@ const ListViewHeader = ({
 								onOptionClick={handelFilterClick}
 								valueSelector="value"
 							>
-								<button
+								<div
 									className="listViewHeaderActionButton"
 									onClick={() => handelFilterClick()}
+									style={{ color: 'var(--primary-color)' }}
 								>
 									<FilterSvg />
-								</button>
+								</div>
 							</DropDown>
 						)}
 						<OptionsDropDown
@@ -376,10 +377,10 @@ const ListViewHeader = ({
 								onOptionClick={handelFilterClick}
 								valueSelector="value"
 							>
-								<button className="listView-addFilterButton">
+								<div className="listView-addFilterButton">
 									<PlusSvg />
 									<span className="listView-addFilterButtonText">Add Filter</span>
-								</button>
+								</div>
 							</DropDown>
 						</div>
 					) : null}

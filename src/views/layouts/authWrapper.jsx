@@ -47,7 +47,7 @@ const AuthWrapper = ({
 					...outerContainerStyle,
 				}}
 			>
-				<SkeletonTheme baseColor={'#313131'} highlightColor={'#525252'}>
+				<SkeletonTheme baseColor={'var(--card)'} highlightColor={'var(--card-hover)'}>
 					<Sidebar
 						setActiveWorkspaceId={setActiveWorkspaceId}
 						activeWorkspaceId={workspaceId}

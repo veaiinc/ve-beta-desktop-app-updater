@@ -8,6 +8,8 @@ import WeekHeader from './WeekHeader';
 import DayHeader from './DaysHeader';
 import WeekDayHeader from './WeekDayHeader';
 import moment from 'moment';
+import LeftSvg from '../../../assets/svg/activity/LeftSvg';
+import RightSvg from '../../../assets/svg/activity/RightSvg';
 
 const MIN_YEAR = 1990;
 const MAX_YEAR = 2050;
@@ -114,6 +116,8 @@ const CalendarHeader = ({
 						<div className="calendarDate">
 							<Left onClick={() => goToPrevious(label)} />
 							<Right onClick={() => goToNext(label)} />
+							{/* <LeftSvg onClick={() => goToPrevious(label)} /> */}
+							{/* <RightSvg onClick={() => goToNext(label)} /> */}
 							{label}
 						</div>
 						<div className="viewToggleWrapper">
