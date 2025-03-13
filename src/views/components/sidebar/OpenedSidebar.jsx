@@ -567,8 +567,10 @@ const OpenedSideBarItemsComponent = ({
 											<>
 												<hr
 													style={{
-														border: '0.5px solid var(--stroke)',
-														margin: '12px 0px',
+														border: '0.1px solid var(--stroke)',
+														opacity: '.4',
+														width: '212px',
+														alignSelf: 'center',
 													}}
 												/>
 
@@ -618,8 +620,10 @@ const OpenedSideBarItemsComponent = ({
 
 												<hr
 													style={{
-														border: '0.5px solid var(--stroke)',
-														margin: '12px 0px',
+														border: '0.1px solid var(--stroke)',
+														opacity: '.4',
+														width: '212px',
+														alignSelf: 'center',
 													}}
 												/>
 

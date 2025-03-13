@@ -939,7 +939,7 @@ const ChatBox = ({
 																	<PaperClip
 																		width={15}
 																		height={15}
-																		fill={'#f2f2f3'}
+																		fill={''}
 																	/>
 																</div>
 															</div>

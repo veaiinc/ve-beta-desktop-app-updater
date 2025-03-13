@@ -11,9 +11,8 @@ import TabHeader from './TabHeader';
 import SearchSvg from '../../../../assets/svg/activity/SearchSvg';
 import CrossSvg from '../../../../assets/svg/docs/CrossSvg';
 import FilterSvg from '../../../../assets/svg/my_templates/FilterSvg';
-import PlusSvg from '../../../../assets/svg/my_templates/PlusSvg';
 import UpDownArrowSvg from '../../../../assets/svg/my_templates/UpDownArrowSvg';
-
+import { ReactComponent as PlusSvg } from '../../../../assets/svg/my_templates/plus.svg';
 const defaultFilterValue = {
 	text: '',
 	linkText: '',
@@ -174,9 +173,10 @@ const ListViewHeader = ({
 					</div>
 
 					<div className="listViewHeaderActions">
-						<button className="listViewHeaderAddTaskButton" onClick={addButtonOnClick}>
+						{/* <button className="listViewHeaderAddTaskButton" onClick={addButtonOnClick}>
 							{createButtonText || 'Add'}
-						</button>
+						</button> */}
+						<PlusSvg onClick={addButtonOnClick} />
 						<div
 							className="searchContainer"
 							style={{

@@ -158,7 +158,8 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 						<div className="workspaceListFooter">
 							<hr
 								style={{
-									border: '0.7px solid var(--stroke)',
+									border: '0.1px solid var(--stroke)',
+									opacity: '.4',
 									width: '212px',
 									alignSelf: 'center',
 								}}
