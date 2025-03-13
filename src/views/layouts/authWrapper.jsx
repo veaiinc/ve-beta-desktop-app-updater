@@ -17,7 +17,8 @@ const AuthWrapper = ({
 	children,
 	maxWidth = '',
 	showBottomToolbar = true,
-	outerContainerStyle,
+	outerContainerStyle = {},
+	authParentContainerStyle = {},
 }) => {
 	const {
 		subscriptionInfo: { renewBanner },
@@ -33,7 +34,7 @@ const AuthWrapper = ({
 	}, []);
 
 	return (
-		<div className="authParentContainer">
+		<div className="authParentContainer" style={{ ...(authParentContainerStyle || {}) }}>
 			<Helmet>
 				<meta charSet="utf-8" />
 				<title>{title} | VE</title>

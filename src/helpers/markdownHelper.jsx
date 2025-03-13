@@ -80,7 +80,7 @@ const baseComponents = {
 	},
 	strong: ({ children, ...props }) => {
 		return (
-			<span className="font-semibold text-white" {...props}>
+			<span className="font-semibold text-white common-markdown-font" {...props}>
 				{children}
 			</span>
 		);
@@ -88,7 +88,7 @@ const baseComponents = {
 	a: ({ children, ...props }) => {
 		return (
 			<a
-				className="text-blue-500 hover:underline"
+				className="text-blue-500 hover:underline common-markdown-font"
 				target="_blank"
 				rel="noreferrer"
 				{...props}
@@ -141,7 +141,7 @@ const baseComponents = {
 	},
 	p: ({ children, ...props }) => {
 		return (
-			<p className="text-white  mb-2 mt-2" {...props}>
+			<p className="text-white  mb-2 mt-2 common-markdown-font" {...props}>
 				{children}
 			</p>
 		);
@@ -222,6 +222,7 @@ const NonMemoizedMarkdown = ({ children, citations }) => {
 			remarkPlugins={remarkPlugins}
 			rehypePlugins={rehypePlugins}
 			components={components}
+			className="markdown-custom-content"
 		>
 			{children}
 		</ReactMarkdown>
