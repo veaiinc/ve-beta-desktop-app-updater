@@ -143,9 +143,6 @@ const AddOnPlans = ({ addOnsLoading = false, isOpen, closeModal, subscriptionSta
 		});
 	};
 
-	console.log('totalPrice: ', info?.totalPrice);
-	console.log('addOns: ', info?.addOns);
-
 	return (
 		<ReactModal
 			isOpen={isOpen}
