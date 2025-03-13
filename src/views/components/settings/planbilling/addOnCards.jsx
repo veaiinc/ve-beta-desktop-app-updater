@@ -185,8 +185,7 @@ const AddOnPlans = ({ addOnsLoading = false, isOpen, closeModal, subscriptionSta
 									const {
 										_id: planId,
 										plan,
-										isRecurring,
-										recurringType,
+										subscriptionType,
 										totalPrice,
 										currency,
 									} = addOn;
@@ -204,12 +203,12 @@ const AddOnPlans = ({ addOnsLoading = false, isOpen, closeModal, subscriptionSta
 													</span>
 													<span
 														className={`priceDuration ${
-															!isRecurring ? 'oneTime' : ''
+															!subscriptionType ? 'oneTime' : ''
 														}`}
 													>
-														{isRecurring
-															? `/ ${recurringType}`
-															: 'Yearly'}
+														{subscriptionType
+															? `/ ${subscriptionType}`
+															: ''}
 													</span>
 												</div>
 
