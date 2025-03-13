@@ -12,6 +12,7 @@ const customStyles = {
 };
 const ExpiredSubscriptionModal = () => {
 	let {
+		profileInfo: { tenantUserAccessControls },
 		subscriptionInfo: {
 			validateExpiryData,
 			updateSubscriptionState,
@@ -19,6 +20,9 @@ const ExpiredSubscriptionModal = () => {
 			getAllSubscriptionPlan,
 		},
 	} = useContext(Context);
+
+	const isAdmin = tenantUserAccessControls?.role === 'admin';
+
 	const [info, setInfo] = useState({
 		isAddOnOpen: false,
 	});
@@ -57,8 +61,7 @@ const ExpiredSubscriptionModal = () => {
 							</span>
 						) : (
 							<span className="expiredModalHeaderText">
-								You may have either crossed the provided limit ,check your plan
-								once!
+								You have reached the limit of your current plan.
 							</span>
 						)}
 						<span className="closeExpiredModalWrapper" onClick={closeModal}>
@@ -66,26 +69,28 @@ const ExpiredSubscriptionModal = () => {
 						</span>
 					</div>
 					<span className="expiredSubText">
-						Renew now to continue enjoying uninterrupted access to premium features and
-						services.
+						{isAdmin
+							? 'Upgrade your plan to continue.'
+							: 'Contact your Admin to upgrade the current plan.'}
 					</span>
-					<div className="expiredActionBtnContainer">
-						<div
-							className="renewSubscriptionContainer"
-							onClick={handleRenewSubscirption}
-						>
-							Upgrade Now
-							<Arrow />
+					{isAdmin && (
+						<div className="expiredActionBtnContainer">
+							<div
+								className="renewSubscriptionContainer"
+								onClick={handleRenewSubscirption}
+							>
+								Upgrade Now
+								<Arrow />
+							</div>
+							<div
+								className="contactSupportButton"
+								onClick={() => (window.location.href = 'mailto:support@ve.ai')}
+							>
+								Contact support
+							</div>
 						</div>
-						<div
-							className="contactSupportButton"
-							onClick={() => (window.location.href = 'mailto:support@ve.ai')}
-						>
-							Contact support
-						</div>
-					</div>
+					)}
 				</div>
-				;
 			</ReactModal>
 			<AddOnCards
 				isOpen={info?.isAddOnOpen}
