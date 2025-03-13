@@ -842,6 +842,12 @@
 		align-items: center;
 		flex-shrink: 0;
 		align-self: stretch;
+		position: sticky;
+		left: 0;
+		top: 0;
+		z-index: 1;
+		background: inherit;
+		padding-bottom: 16px;
 		.title {
 			color: var(--ve-ai-dark-theme-primary-font-color, #f2f2f3);
 			font-family: Inter;
