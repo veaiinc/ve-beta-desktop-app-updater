@@ -21,7 +21,6 @@ import AlbumSettings from './views/features/gallery/AlbumSettings';
 import UploadPhotos from './views/features/gallery/UploadPhotos';
 import GalleryViewLayout from './views/layouts/galleryViewLayout';
 import { Navigate } from 'react-router-dom';
-import Subscription from './views/features/subscription';
 import TermsOfService from './views/features/signin/TermsOfService';
 import CookiePolicy from './views/features/signin/CookiePolicy';
 import WorkflowBuilder from './views/features/workflow_builder';
@@ -277,11 +276,6 @@ const routes = [
 	{
 		path: '*',
 		component: <Navigate to="/" />,
-	},
-	{
-		path: '/subscription',
-		component: <Subscription />,
-		exact: true,
 	},
 	{
 		path: '/calendar',
