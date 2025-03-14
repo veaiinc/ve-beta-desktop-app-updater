@@ -265,7 +265,11 @@ const TabHeader = ({
 															: undefined,
 												}}
 											>
-												{tab?.Icon && <tab.Icon />}
+												{tab?.Icon && (
+													<tab.Icon
+														style={{ color: 'var(--primary-font)' }}
+													/>
+												)}
 												<span className="tab-label">{tab?.label}</span>
 												<span className="tab-underline" />
 											</div>

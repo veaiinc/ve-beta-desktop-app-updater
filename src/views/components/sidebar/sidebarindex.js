@@ -107,6 +107,13 @@ export const veAiModulesItemsList = [
 			},
 		],
 	},
+	{
+		id: 8,
+		name: 'Notes',
+		moduleRoute: '/notes',
+		route: null,
+		icon: '',
+	},
 ];
 
 //
