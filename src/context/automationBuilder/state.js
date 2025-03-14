@@ -262,15 +262,6 @@ export const AutomationBuilderState = () => {
 				const variable = response?.[1]?.at(payload?.editMode ? -2 : -1)?.variables;
 				const actionType = variable?.[0]?.blocks ? 'formResponse' : 'variable';
 
-				console.log('variable', {
-					variables:
-						actionType === 'formResponse'
-							? response?.[1]?.at(payload?.editMode ? -2 : -1)?.variables?.[0]
-									?.blocks || []
-							: response?.[1]?.at(payload?.editMode ? -2 : -1)?.variables,
-					actionType,
-				});
-
 				dispatch({
 					type: Actions.SET_VARIABLES,
 					payload: {

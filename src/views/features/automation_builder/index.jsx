@@ -18,6 +18,7 @@ import {
 	EndNode,
 	StartStepNode,
 	SwitchNode,
+	DelayNode,
 } from '../../components/automationBuilder/CustomNodes';
 import CustomEdges from '../../components/automationBuilder/CustomEdges';
 import UpdatedPageLoader from '../../components/loaders/UpdatedPageLoader';
@@ -37,6 +38,7 @@ const nodeTypes = {
 	startStep: StartStepNode,
 	createTask: ActionNode,
 	switch: SwitchNode,
+	delay: DelayNode,
 };
 
 const edgeTypes = {
