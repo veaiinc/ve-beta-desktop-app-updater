@@ -42,6 +42,8 @@ const eventTypeMapper = {
 	client_create: 'Client Created',
 	client_update: 'Client Updated',
 	client_delete: 'Client Deleted',
+	createFile_create: 'File Created',
+	createFile_delete: 'File Deleted',
 
 	// actions
 	sendMessage: 'Send Message',

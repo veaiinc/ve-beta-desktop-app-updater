@@ -145,6 +145,7 @@ const IfElse = ({ variables, onSave, isLoading, hasNextNode, onBack, activeSteps
 				description={info?.description}
 				updaterFn={updateInfo}
 				onChangeButtonClick={onBack}
+				showChangeButton={activeStepsData ? false : true}
 			/>
 
 			<div className="ifElseInputContainer">

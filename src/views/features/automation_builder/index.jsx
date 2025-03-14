@@ -665,6 +665,7 @@ const AutomationBuilder = () => {
 								edgeTypes={edgeTypes}
 								fitView
 								defaultViewport={{ x: 0, y: 0, zoom: 0 }}
+								proOptions={{ hideAttribution: true }}
 							>
 								<Background variant="dots" gap={12} size={0.5} />
 							</ReactFlow>
