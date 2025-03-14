@@ -26,7 +26,7 @@ import SearchSvg from '../../../assets/svg/activity/SearchSvg.jsx';
 import FilterSvg from '../../../assets/svg/my_templates/FilterSvg.jsx';
 import ThreeDotsSvg from '../../../assets/svg/my_templates/ThreeDotsSvg.jsx';
 import Spinner from '../../components/loaders/Spinner';
-let origin = fetchOriginSelection();
+const origin = fetchOriginSelection();
 
 const payload = {
 	filters: {
@@ -126,12 +126,10 @@ export const statusTextmapper = {
 	// },
 };
 
-const statusList = Object.values(statusTextmapper)
-	.filter((status) => status?.label !== 'Expired') // Exclude the status with label 'Expired'
-	.map((status) => ({
-		name: status?.label,
-		_id: status?.id,
-	}));
+const statusList = Object.values(statusTextmapper)?.map((status) => ({
+	name: status?.label,
+	_id: status?.id,
+}));
 
 export const FilterIcons = {
 	templateName: <UppercaseLowercaseA />,

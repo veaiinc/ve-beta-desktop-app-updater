@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import Skeleton from 'react-loading-skeleton';
 import { message, Spin } from 'antd';
 import AddOnPlans from '../../components/settings/planbilling/addOnCards';
+import AICreditsUsage from './AICreditsUsage';
 // const features = [
 // 	'Form Management Assistant',
 // 	'Proposal Builder',
@@ -51,6 +52,7 @@ const ApproximateCreditsRowData = [
 
 const PlanBilling = () => {
 	let {
+		authInfo: { currentPlanAddOns },
 		subscriptionInfo: { getCurrentSubscriptionPlan, currentPlan },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
@@ -122,7 +124,7 @@ const PlanBilling = () => {
 				/>
 			)}
 
-			<div className="notifications-main-container">
+			{/* <div className="notifications-main-container">
 				<div className="notifications-container">
 					<h1 className="notifications-header-title">Approximate Credit Charges Menu</h1>
 					<div className="row">
@@ -144,7 +146,7 @@ const PlanBilling = () => {
 						))}
 					</ul>
 				</div>
-			</div>
+			</div> */}
 		</div>
 	);
 };
@@ -166,9 +168,16 @@ const SubscribedUserPlanCard = ({
 }) => {
 	const navigate = useNavigate();
 	let {
-		subscriptionInfo: { createManageSubscriptionLinkforExistingUsers, getAllSubscriptionPlan },
-		authInfo: { getAddOnsForCurrentPlan },
+		subscriptionInfo: {
+			createManageSubscriptionLinkforExistingUsers,
+			subscriptionPlans,
+			getAllSubscriptionPlan,
+		},
+		authInfo: { getAddOnsForCurrentPlan, currentPlanAddOns },
 	} = useContext(Context);
+
+	const addOnPlansExists = currentPlanAddOns?.length > 0 ?? false;
+	const subscriptionPlansExists = subscriptionPlans?.length > 0 ?? false;
 
 	const [info, setInfo] = useState({
 		manageSubscriptionLoader: false,
@@ -181,16 +190,6 @@ const SubscribedUserPlanCard = ({
 		addOnsLoading: false,
 		subscriptionLoading: false,
 	});
-
-	// useEffect(() => {
-	// 	if (data && info?.features?.length && data?.numberOfUsers && !info?.featureChanged) {
-	// 		let features = [...(info?.features || [])];
-	// 		const users = data?.numberOfUsers;
-	// 		features?.pop();
-	// 		features?.push(`${users} Team Members`);
-	// 		setInfo((prev) => ({ ...prev, features, featureChanged: true }));
-	// 	}
-	// }, [data, info?.features, info?.featureChanged]);
 	const progressData = [
 		{
 			id: 1,
@@ -242,6 +241,18 @@ const SubscribedUserPlanCard = ({
 		},
 	];
 
+	useEffect(() => {
+		if (currentPlanAddOns === null) {
+			getAddOnsForCurrentPlan();
+		}
+	}, [currentPlanAddOns]);
+
+	useEffect(() => {
+		if (subscriptionPlans === null) {
+			getAllSubscriptionPlan();
+		}
+	}, [subscriptionPlans]);
+
 	const handleManageSubscriptionClick = useCallback(async () => {
 		setInfo((prev) => ({ ...prev, manageSubscriptionLoader: true }));
 		const response = await createManageSubscriptionLinkforExistingUsers();
@@ -249,29 +260,31 @@ const SubscribedUserPlanCard = ({
 			return (window.location.href = response?.[1]);
 		}
 		setInfo((prev) => ({ ...prev, manageSubscriptionLoader: false }));
-	});
+	}, []);
 
-	const handleAddOnsClick = async () => {
-		setInfo((prev) => ({ ...prev, addOnsLoading: true }));
-		await getAddOnsForCurrentPlan();
-		setInfo((prev) => ({
-			...prev,
-			addOnsLoading: false,
-			isOpen: true,
-			subscriptionState: 'addOnPlans',
-		}));
-	};
+	const handleAddOnsClick = useCallback(async () => {
+		if (addOnPlansExists) {
+			setInfo((prev) => ({
+				...prev,
+				subscriptionState: 'addOnPlans',
+				isOpen: true,
+			}));
+		} else {
+			message?.error('No Add-on Plans found!');
+		}
+	}, [currentPlanAddOns]);
 
-	const handleUpgradeSubscriptionClick = async () => {
-		setInfo((prev) => ({ ...prev, subscriptionLoading: true }));
-		await getAllSubscriptionPlan();
-		setInfo((prev) => ({
-			...prev,
-			isOpen: true,
-			subscriptionState: 'upgradeSubscription',
-			subscriptionLoading: false,
-		}));
-	};
+	const handleUpgradeSubscriptionClick = useCallback(async () => {
+		if (subscriptionPlansExists) {
+			setInfo((prev) => ({
+				...prev,
+				subscriptionState: 'upgradeSubscription',
+				isOpen: true,
+			}));
+		} else {
+			message?.error('No Subscription Plans found!');
+		}
+	}, [subscriptionPlans]);
 
 	return (
 		<div className="subscriptionWrapperContainer">
@@ -413,6 +426,7 @@ const SubscribedUserPlanCard = ({
 					</div> */}
 				</div>
 			</div>
+			<AICreditsUsage />
 			<AddOnPlans
 				isOpen={info?.isOpen}
 				closeModal={() => setInfo((prev) => ({ ...prev, isOpen: false }))}

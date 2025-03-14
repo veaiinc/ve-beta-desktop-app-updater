@@ -373,25 +373,33 @@
 					width: 240px;
 					margin-left: 0px;
 					padding: 24px 16px;
+
 					.workspaceDetailsDiv {
+						width: 180px;
 						display: flex;
+						justify-content: space-between;
 						align-items: center;
 						gap: 12px;
-						img {
+
+						.workspaceLogoContainer {
 							width: 24px;
 							height: 24px;
-							border-radius: 50%;
+
+							.workspaceLogo {
+								width: 100%;
+								height: 100%;
+								border-radius: 50%;
+							}
 						}
 
-						h6 {
+						.workspaceName {
+							width: 64%;
 							color: var(--primary-font);
-							text-align: right;
 							font-family: var(--primary-font-family);
 							font-size: 14px;
 							font-style: normal;
 							font-weight: 500;
 							line-height: normal;
-							// max-width: 120px; // Adjust this value as needed
 							white-space: nowrap;
 							overflow: hidden;
 							text-overflow: ellipsis;
