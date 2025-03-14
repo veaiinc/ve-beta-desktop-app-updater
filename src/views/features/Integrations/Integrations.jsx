@@ -270,7 +270,7 @@ const Integrations = () => {
 					</div>
 				</div>
 
-				<div className="tabs-wrapper">
+				{/* <div className="tabs-wrapper">
 					<button
 						className={`tab-button ${activeTab === 'private' ? 'active' : ''}`}
 						onClick={() => setActiveTab('private')}
@@ -283,7 +283,7 @@ const Integrations = () => {
 					>
 						Shared
 					</button>
-				</div>
+				</div> */}
 
 				{activeTab === 'private' ? (
 					<>
@@ -312,7 +312,7 @@ const Integrations = () => {
 								))}
 							</div>
 						</section>
-
+						{/* 
 						<section className="request-integrations">
 							<h2>Which integrations you would like to connect?</h2>
 							<div className="request-integrations-grid">
@@ -320,7 +320,7 @@ const Integrations = () => {
 									<IntegrationRequestCard key={index} {...integration} />
 								))}
 							</div>
-						</section>
+						</section> */}
 					</>
 				) : (
 					<div className="shared-integrations">

@@ -46,7 +46,7 @@ const ConnectedIntegrationModel = ({ isOpen, closeModal, connectedIntegration })
 				<div className="modal-content-wrapper">
 					<div className="modal-header">
 						<div className="integration-info">
-							<BackIcon onClick={() => closeModal} />
+							<BackIcon onClick={closeModal} />
 							<img
 								src={connectedIntegration?.icon}
 								alt={connectedIntegration?.title}
@@ -75,10 +75,10 @@ const ConnectedIntegrationModel = ({ isOpen, closeModal, connectedIntegration })
 								<div key={index} className="account-item">
 									<div className="account-info">
 										<span className="account-name">
-											{account?.email || account?.name}
+											{account?.email || account?.workspace_name}
 										</span>
 										<span className={`status ${account?.isActive}`}>
-											{account?.isActive === true
+											{account?.isActive === true || account.workspace_id
 												? 'connected'
 												: 'Authentication error'}
 										</span>
