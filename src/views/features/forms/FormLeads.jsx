@@ -14,9 +14,10 @@ import FormRes from '../../components/forms/FormRes';
 import FormModal from '../../components/forms/FormModal';
 import { message } from 'antd';
 import { fetchOriginSelection } from '../../../helpers';
-let origin = fetchOriginSelection();
 
 const FormLeads = () => {
+	const origin = fetchOriginSelection();
+	console.log(origin, 'origin');
 	const navigate = useNavigate();
 	const location = useLocation();
 	const formData = location?.state?.formData;
@@ -26,7 +27,11 @@ const FormLeads = () => {
 	const [info, setInfo] = useState({
 		searchExpand: false,
 		searchValue: '',
+		totalViews: 0,
+		starts: 0,
 		totalSubmissions: 0,
+		submissionRate: 0,
+		avgSubmissionTime: 0,
 		completedEntries: 0,
 		partialEntries: 0,
 		activeTab: 'individualEntries', //summary

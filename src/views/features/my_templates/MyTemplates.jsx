@@ -14,6 +14,7 @@ import QuickActions from '../../components/globalComponents/QuickActions';
 import { ReactComponent as Cross } from '../../../assets/svg/docs/cross.svg';
 import Spinner from '../../components/loaders/Spinner';
 import { message } from 'antd';
+
 let origin = fetchOriginSelection();
 const SubTitle = () => {
 	return (
