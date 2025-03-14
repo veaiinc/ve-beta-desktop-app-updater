@@ -83,7 +83,7 @@ const AddOnPlans = ({ addOnsLoading = false, isOpen, closeModal, subscriptionSta
 
 			return {
 				...prev,
-				totalPrice: prev?.totalPrice + addOn?.totalPrice,
+				totalPrice: prev?.totalPrice + (addOn?.totalPrice ?? 0),
 				addOns,
 			};
 		});
@@ -136,6 +136,9 @@ const AddOnPlans = ({ addOnsLoading = false, isOpen, closeModal, subscriptionSta
 		content: { zIndex: 1003 },
 		overlay: { zIndex: 1002 },
 	};
+
+	console.log('totalPrice: ', info?.totalPrice);
+	console.log('addOns: ', info?.addOns);
 
 	return (
 		<ReactModal

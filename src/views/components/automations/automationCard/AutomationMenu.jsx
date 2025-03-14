@@ -8,6 +8,7 @@ const AutomationMenu = ({
 	showAutomationMenu,
 	toggleAutomationMenu,
 	enableAutomationTitleEditMode,
+	handleDeleteAutomation,
 	children,
 }) => {
 	return (
@@ -24,6 +25,7 @@ const AutomationMenu = ({
 					automationId={automationId}
 					toggleAutomationMenu={toggleAutomationMenu}
 					enableAutomationTitleEditMode={enableAutomationTitleEditMode}
+					handleDeleteAutomation={handleDeleteAutomation}
 				/>
 			}
 		>

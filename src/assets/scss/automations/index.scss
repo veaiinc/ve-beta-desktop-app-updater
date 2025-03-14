@@ -28,7 +28,12 @@
 		}
 	}
 
-	.loadingAutomations,
+	.skeletonLoaderContainer {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 14px;
+	}
+
 	.emptyAutomations {
 		color: var(--primary-font, #f2f2f3);
 		font-family: Inter;

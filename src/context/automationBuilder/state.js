@@ -91,6 +91,22 @@ export const AutomationBuilderState = () => {
 		}
 	};
 
+	const deleteAutomation = async (automationId) => {
+		try {
+			const token = localStorage.getItem('usertoken');
+			const workspaceId = localStorage.getItem('workspaceId');
+			const path = `/${workspaceId}/${automationId}/delete-automation`;
+			const type = 'automation_builder_api';
+			const body = {};
+			const response = await Service?.fetchDelete(path, token, body, type);
+			const isSuccess = response?.[0] === true;
+			return [isSuccess];
+		} catch (error) {
+			console.log('API failed ==> deleteAutomation', error);
+			return false;
+		}
+	};
+
 	const updateStateValues = (payload) => {
 		dispatch({
 			type: Actions.UPDATE_STATE_VALUES,
@@ -408,5 +424,6 @@ export const AutomationBuilderState = () => {
 		renameAutomationTitle,
 		deleteStep,
 		updateStep,
+		deleteAutomation,
 	};
 };

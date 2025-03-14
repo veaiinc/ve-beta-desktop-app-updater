@@ -496,15 +496,24 @@ const OpenedSideBarItemsComponent = ({
 											onClick={openWorkspacesFunction}
 											style={{ cursor: 'pointer' }}
 										>
-											{info?.activeBusniessName?.logo_s3_500w_key && (
-												<img
-													src={info?.activeBusniessName?.logo_s3_500w_key}
-													alt={
-														info?.activeBusniessName?.activeWorkspaceId
-													}
-												/>
+											{info?.activeBusniessName?.logo_s3_500w_key ? (
+												<div className="workspaceLogoContainer">
+													<img
+														className="workspaceLogo"
+														src={
+															info?.activeBusniessName
+																?.logo_s3_500w_key
+														}
+														alt={
+															info?.activeBusniessName
+																?.activeWorkspaceId
+														}
+													/>
+												</div>
+											) : (
+												<div className="workspaceLogoContainer"></div>
 											)}
-											<h6 style={{ maxWidth: '100px' }}>
+											<h6 className="workspaceName">
 												{info?.activeBusniessName?.businessName}
 											</h6>
 											<DownArrowSmallSvg
