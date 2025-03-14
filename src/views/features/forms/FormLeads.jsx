@@ -9,26 +9,31 @@ import { ReactComponent as ThreeDots } from '../../../assets/svg/docs/three-dots
 import { ReactComponent as Cross } from '../../../assets/svg/docs/cross.svg';
 import { ReactComponent as Search } from '../../../assets/svg/docs/search.svg';
 import { ReactComponent as UpDownArrow } from '../../../assets/svg/my_templates/up-down-arrow.svg';
+import { ReactComponent as Vector } from '../../../assets/svg/vector.svg';
 import { useNavigate, useLocation } from 'react-router-dom';
 import FormRes from '../../components/forms/FormRes';
 import FormModal from '../../components/forms/FormModal';
 import { message } from 'antd';
 import { fetchOriginSelection } from '../../../helpers';
-
+import QuickActions from '../../components/globalComponents/QuickActions';
+import { Switch } from 'antd';
 const FormLeads = () => {
 	const origin = fetchOriginSelection();
-	console.log(origin, 'origin');
+
 	const navigate = useNavigate();
 	const location = useLocation();
 	const formData = location?.state?.formData;
 	const activeWorkspaceId = localStorage.getItem('workspaceId');
 	const copyCode = `${activeWorkspaceId}.ve.ai/${formData?.slug}`;
-
+	console.log(
+		origin,
+		`${origin}/preview/short/${formData?._id}?singleTemplatePreview=true&restrictClick=true`,
+	);
 	const [info, setInfo] = useState({
 		searchExpand: false,
 		searchValue: '',
 		totalViews: 0,
-		starts: 0,
+		totalStarts: 0,
 		totalSubmissions: 0,
 		submissionRate: 0,
 		avgSubmissionTime: 0,
@@ -39,9 +44,26 @@ const FormLeads = () => {
 
 	const metricsData = [
 		{
+			value: info?.totalViews,
+			title: 'Total Views',
+		},
+		{
 			value: info?.totalSubmissions,
 			title: 'Total Submissions',
 		},
+		{
+			value: info?.totalStarts,
+			title: 'Total Starts',
+		},
+		{
+			value: info?.submissionRate,
+			title: 'Submission Rate',
+		},
+		{
+			value: info?.avgSubmissionTime,
+			title: 'Avg. Submission Time',
+		},
+
 		// {
 		// 	value: info?.completedEntries,
 		// 	title: 'Completed Entries',
@@ -84,7 +106,7 @@ const FormLeads = () => {
 	const tabs = useMemo(() => {
 		return {
 			individualEntries: {
-				label: 'Individual Entries',
+				label: 'Responses',
 				Component: (
 					<FormRes
 						formId={formData?._id}
@@ -92,6 +114,15 @@ const FormLeads = () => {
 					/>
 				),
 			},
+			summary: {
+				label: 'Summary',
+				Component: <></>,
+			},
+			analytics: {
+				label: 'Analytics',
+				Component: <></>,
+			},
+
 			// TODO: when we have summary data, add this tab. Until then, commentting it out.
 			// summary: {
 			// 	label: 'Summary',
@@ -110,10 +141,6 @@ const FormLeads = () => {
 			</div>
 
 			<div className="formEnquiryContainer">
-				<header className="headerContainer">
-					<h1 className="headerTitle">{formData?.title}</h1>
-				</header>
-
 				<div className="formSummaryContainer">
 					<div className="imgContainer">
 						<iframe
@@ -125,32 +152,34 @@ const FormLeads = () => {
 						/>
 					</div>
 					<div className="detailsContainer">
+						<h1 className="headerTitle">{formData?.title}</h1>
+						<div className="switchContainer">
+							<Vector />
+							<p>Data Enrichment</p>
+							<Switch />
+						</div>
 						<div className="formMetricsContainer">
 							{metricsData?.map((metric, index) => (
-								<div key={index} className="metricsCard">
-									<span className="value">{metric?.value}</span>
-									<span className="title">{metric?.title}</span>
+								<div className="metricsCard" key={index}>
+									<p className="value">{metric?.value}</p>
+									<p className="title">{metric?.title}</p>
 								</div>
 							))}
 						</div>
-						<div className="formCTAContainer">
+						{/* <div className="formCTAContainer">
 							<span className="ctaBtn" onClick={handleCopyForm}>
 								<LinkSvg />
-								<span>Copy </span>
+								<span>Copy</span>
 							</span>
 							<div className="divider"></div>
 							<span className="ctaBtn" onClick={handleEmbededCopy}>
 								<CurlyBracesSvg />
 								<span>Embed Form</span>
 							</span>
-							{/* <div className="divider"></div> */}
-							{/* <span className="ctaBtn">
-								<LinkShareSvg />
-								<span>Share as Template</span>
-							</span> */}
-						</div>
+						</div> */}
 					</div>
 				</div>
+				<QuickActions />
 			</div>
 
 			<div className="formDetailsContainer">
@@ -172,70 +201,6 @@ const FormLeads = () => {
 							</div>
 						))}
 					</div>
-
-					{/* <div className="filterActionsContainer">
-						<div
-							className="searchContainer"
-							style={{
-								width: info?.searchExpand ? '140px' : '16px',
-							}}
-						>
-							<div
-								className={`searchBtn ${info?.searchExpand ? 'searchExpand' : ''}`}
-							>
-								<span
-									style={{
-										display: 'flex',
-										justifyContent: 'center',
-										alignItems: 'center',
-										cursor: 'pointer',
-									}}
-									onClick={() =>
-										setInfo((prev) => ({
-											...prev,
-											searchExpand: true,
-										}))
-									}
-								>
-									<Search />
-								</span>
-
-								<div className="inputAndCloseContainer">
-									<input
-										className="searchInputTag"
-										placeholder="Search"
-										value={info?.searchValue}
-										onChange={(e) =>
-											setInfo((prev) => ({
-												...prev,
-												searchValue: e?.target?.value,
-											}))
-										}
-									/>
-									<span
-										style={{
-											display: 'flex',
-											justifyContent: 'center',
-											alignItems: 'center',
-											cursor: 'pointer',
-										}}
-										onClick={() =>
-											setInfo((prev) => ({
-												...prev,
-												searchExpand: false,
-												searchValue: '',
-											}))
-										}
-									>
-										<Cross style={{ width: '20px', height: '20px' }} />
-									</span>
-								</div>
-							</div>
-						</div>
-						<Filter style={{ width: '20px', height: '20px' }} />
-						<UpDownArrow style={{ width: '20px', height: '20px' }} />
-						<ThreeDots />
-					</div> */}
 				</div>
 				{tabs?.[info?.activeTab]?.Component}
 			</div>
