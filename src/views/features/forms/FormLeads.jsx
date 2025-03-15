@@ -28,10 +28,6 @@ const FormLeads = () => {
 	console.log(formData);
 	const activeWorkspaceId = localStorage.getItem('workspaceId');
 	const copyCode = `${activeWorkspaceId}.ve.ai/${formData?.slug}`;
-	console.log(
-		origin,
-		`${origin}/preview/short/${formData?._id}?singleTemplatePreview=true&restrictClick=true`,
-	);
 	const [info, setInfo] = useState({
 		searchExpand: false,
 		searchValue: '',
@@ -77,6 +73,7 @@ const FormLeads = () => {
 	];
 
 	const updateTotalSubmissions = useCallback((length) => {
+		console.log('length', length);
 		const totalSubmissions = length || 0;
 		// const completedEntries = length || 0;
 		// const partialEntries = length || 0;
@@ -134,7 +131,7 @@ const FormLeads = () => {
 	}, [info?.activeTab]);
 
 	const handleEditDesign = () => {
-		const editUrl = `${origin}/edit/${formData?._id}`;
+		const editUrl = `${origin}/preview/short/${formData?._id}?singleTemplatePreview=true&restrictClick=true`;
 		window.open(editUrl, '_blank');
 	};
 
