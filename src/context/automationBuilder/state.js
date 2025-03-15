@@ -275,8 +275,6 @@ export const AutomationBuilderState = () => {
 						  }
 						: variables?.[0];
 
-				console.log(variables);
-
 				dispatch({
 					type: Actions.SET_VARIABLES,
 					payload: {

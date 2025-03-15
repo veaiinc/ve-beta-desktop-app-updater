@@ -95,7 +95,6 @@ const VariableComponent = ({
 				const parsedValue = value?.split('.');
 
 				parsedValue[0] = labelMapper[info?.selectedStep?.labelId];
-				console.log(parsedValue);
 				handleInfo({
 					variableDropdownOpen: false,
 					value: parsedValue?.join('.'),
