@@ -101,13 +101,49 @@
 				gap: 16px;
 				flex: 1 0 0;
 				align-self: stretch;
+				.headerContainer {
+					display: flex;
+					align-items: center;
+					gap: 10px;
+					border-radius: 100px;
+					color: var(--primary-font);
+					font-family: Inter;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+					.headerLeftContainer {
+						display: flex;
+						align-items: center;
+						gap: 14px;
+						border-radius: 100px;
+						color: var(--primary-font);
+						.liveBadge {
+							display: flex;
+							align-items: center;
+							gap: 4px;
+							font-size: 12px;
+							border-radius: 100px;
+							color: var(--primary-font);
+							padding: 4px 8px;
+							&.complete {
+								background-color: #375841;
+								color: var(--primary-font);
+							}
+
+							&.incomplete {
+								background-color: #373737;
+								color: var(--primary-font);
+							}
+						}
+					}
+				}
 
 				.headerTitle {
 					display: flex;
 					align-items: center;
 					gap: 14px;
 					border-radius: 100px;
-					color: #f2f2f3;
+					color: var(--primary-font);
 					font-family: Inter;
 					font-size: 18px;
 					font-style: normal;
@@ -139,7 +175,7 @@
 						gap: 4px;
 
 						.value {
-							color: #f2f2f3;
+							color: var(--primary-font);
 							color: color(display-p3 0.949 0.949 0.9529);
 							font-family: Inter;
 							font-size: 20px;
@@ -251,7 +287,7 @@
 					.divider {
 						width: 25px;
 						height: 1px;
-						background: #f2f2f3;
+						background: var(--primary-font);
 						opacity: 0;
 						transition: opacity 0.3s ease;
 

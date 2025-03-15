@@ -5,7 +5,6 @@ import { ReactComponent as CurlyBracesSvg } from '../../../assets/svg/docs/curly
 import { ReactComponent as LinkSvg } from '../../../assets/svg/activity/link.svg';
 import { ReactComponent as LinkShareSvg } from '../../../assets/svg/docs/link-share.svg';
 import { ReactComponent as Filter } from '../../../assets/svg/docs/filter.svg';
-import { ReactComponent as ThreeDots } from '../../../assets/svg/docs/three-dots.svg';
 import { ReactComponent as Cross } from '../../../assets/svg/docs/cross.svg';
 import { ReactComponent as Search } from '../../../assets/svg/docs/search.svg';
 import { ReactComponent as UpDownArrow } from '../../../assets/svg/my_templates/up-down-arrow.svg';
@@ -17,13 +16,16 @@ import FormModal from '../../components/forms/FormModal';
 import { message } from 'antd';
 import { fetchOriginSelection } from '../../../helpers';
 import QuickActions from '../../components/globalComponents/QuickActions';
-import { Switch } from 'antd';
+import { ReactComponent as ThreeDots } from '../../../assets/svg/workflow/threeDots.svg';
+import { Switch, Tooltip } from 'antd';
+import FormResponsesMenuItem from './FormResponsesMenuItem';
 const FormLeads = () => {
 	const origin = fetchOriginSelection();
 
 	const navigate = useNavigate();
 	const location = useLocation();
 	const formData = location?.state?.formData;
+	console.log(formData);
 	const activeWorkspaceId = localStorage.getItem('workspaceId');
 	const copyCode = `${activeWorkspaceId}.ve.ai/${formData?.slug}`;
 	console.log(
@@ -42,7 +44,6 @@ const FormLeads = () => {
 		partialEntries: 0,
 		activeTab: 'individualEntries', //summary
 	});
-
 	const metricsData = [
 		{
 			value: info?.totalViews,
@@ -137,6 +138,12 @@ const FormLeads = () => {
 		window.open(editUrl, '_blank');
 	};
 
+	const [isTooltipVisible, setTooltipVisible] = useState(false);
+
+	const handleThreeDotsClick = () => {
+		setTooltipVisible((prev) => !prev);
+	};
+
 	return (
 		<div className="formLeadsParentContainer">
 			<div className="headerContainer">
@@ -164,7 +171,51 @@ const FormLeads = () => {
 						</div>
 					</div>
 					<div className="detailsContainer">
-						<h1 className="headerTitle">{formData?.title}</h1>
+						<div className="headerContainer">
+							<div className="headerLeftContainer">
+								<h1 className="headerTitle">{formData?.title}</h1>
+								<div
+									className={`liveBadge ${
+										formData?.status === 'published' ? 'complete' : 'incomplete'
+									}`}
+								>
+									<span
+										style={{
+											width: '6px',
+											height: '6px',
+											borderRadius: '50%',
+											backgroundColor:
+												formData?.status === 'published'
+													? '#34d399'
+													: '#fbbf24',
+										}}
+									/>
+									<span>
+										{formData?.status === 'published' ? 'Live' : 'Draft'}
+									</span>
+								</div>
+							</div>
+							<Tooltip
+								trigger={'click'}
+								open={isTooltipVisible}
+								onOpenChange={handleThreeDotsClick}
+								placement={'bottomRight'}
+								arrow={false}
+								color="transparent"
+								title={
+									<FormResponsesMenuItem
+										formId={formData?._id}
+										enableFormResponsesMenuTitleEditMode={() => {}}
+										toggleFormResponsesMenu={() => {}}
+										handleDeleteFormResponsesMenu={() => {}}
+									/>
+								}
+							>
+								<ThreeDots
+									style={{ width: '17px', height: '17px', cursor: 'pointer' }}
+								/>
+							</Tooltip>
+						</div>
 						<div className="switchContainer">
 							<Vector />
 							<p>Data Enrichment</p>
