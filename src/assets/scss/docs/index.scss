@@ -527,8 +527,6 @@
 					gap: 4px;
 					border-radius: 35px;
 
-					background: var(--background-color);
-
 					.DocsStatusCircle {
 						width: 6px;
 						height: 6px;
@@ -536,7 +534,7 @@
 						background: var(--card-hover);
 					}
 					.DocsButtontext {
-						color: #fff;
+						color: var(--primary-font);
 						text-align: center;
 						font-family: var(--primary-font-family);
 						font-size: 12px;

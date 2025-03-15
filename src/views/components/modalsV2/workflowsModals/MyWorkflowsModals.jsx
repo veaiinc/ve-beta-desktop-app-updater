@@ -15,6 +15,8 @@ import MyWorkflowModalsLoader from './MyWorkflowModalsLoader';
 import { Drawer } from 'antd';
 import moment from 'moment';
 import { memo } from 'react';
+import SearchSvg from '../../../../assets/svg/activity/SearchSvg';
+import CrossSvg from '../../../../assets/svg/docs/CrossSvg';
 
 const timeOptions = [
 	{
@@ -442,7 +444,7 @@ const MyWorkflowsModals = ({
 									}))
 								}
 							>
-								<Search />
+								<SearchSvg />
 							</span>
 
 							<div className="inputAndCloseContainer">
@@ -474,7 +476,7 @@ const MyWorkflowsModals = ({
 										}))
 									}
 								>
-									<CircledCross />
+									<CrossSvg />
 								</span>
 							</div>
 						</div>

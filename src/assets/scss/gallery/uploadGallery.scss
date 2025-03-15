@@ -248,7 +248,7 @@
 			gap: 10px;
 			flex-shrink: 0;
 			border-radius: 14px;
-			background: #151515;
+			background: var(--card);
 			height: fit-content;
 
 			.text_div {
@@ -377,7 +377,7 @@
 			flex-direction: column;
 			align-items: flex-start;
 			border-radius: 14px;
-			background: #151515;
+			background: var(--card);
 			// overflow: auto;
 			// max-height: calc(100vh - 500px);
 

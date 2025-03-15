@@ -789,8 +789,6 @@ const Docs = () => {
 							valueSelector="valueSelector"
 							containerStyles={{
 								borderRadius: '14px',
-								background: 'var(--primary-font)',
-								boxShadow: '0px 2px 44px 0px rgba(0, 0, 0, 0.25)',
 							}}
 							onOptionClick={handleSetActiveFilter}
 						>

@@ -244,6 +244,7 @@ const Insights = () => {
 						<SearchIcon />
 						<input
 							type="text"
+							className="search-bar"
 							placeholder="Search"
 							value={searchQuery}
 							onChange={(e) => debouncedSearch(e.target.value)}
