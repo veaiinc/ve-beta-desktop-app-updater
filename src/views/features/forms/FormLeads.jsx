@@ -9,6 +9,7 @@ import { ReactComponent as ThreeDots } from '../../../assets/svg/docs/three-dots
 import { ReactComponent as Cross } from '../../../assets/svg/docs/cross.svg';
 import { ReactComponent as Search } from '../../../assets/svg/docs/search.svg';
 import { ReactComponent as UpDownArrow } from '../../../assets/svg/my_templates/up-down-arrow.svg';
+import { ReactComponent as Edit } from '../../../assets/svg/ai_agents/edit.svg';
 import { ReactComponent as Vector } from '../../../assets/svg/vector.svg';
 import { useNavigate, useLocation } from 'react-router-dom';
 import FormRes from '../../components/forms/FormRes';
@@ -131,6 +132,11 @@ const FormLeads = () => {
 		};
 	}, [info?.activeTab]);
 
+	const handleEditDesign = () => {
+		const editUrl = `${origin}/edit/${formData?._id}`;
+		window.open(editUrl, '_blank');
+	};
+
 	return (
 		<div className="formLeadsParentContainer">
 			<div className="headerContainer">
@@ -150,6 +156,12 @@ const FormLeads = () => {
 							height="100%"
 							style={{ borderRadius: '24px', border: 'none' }}
 						/>
+						<div className="editDesignContainer">
+							<button onClick={handleEditDesign}>
+								<Edit />
+								<span>Edit Design</span>
+							</button>
+						</div>
 					</div>
 					<div className="detailsContainer">
 						<h1 className="headerTitle">{formData?.title}</h1>
