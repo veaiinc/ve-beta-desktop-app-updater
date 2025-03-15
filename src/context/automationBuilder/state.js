@@ -259,19 +259,29 @@ export const AutomationBuilderState = () => {
 			);
 
 			if (response?.[0] === true) {
-				const variable = response?.[1]?.at(payload?.editMode ? -2 : -1)?.variables;
-				const actionType = variable?.[0]?.blocks ? 'formResponse' : 'variable';
+				const variables = payload?.editMode ? response?.[1]?.slice(0, -1) : response?.[1];
+
+				variables[0] =
+					variables?.[0]?.stepName === 'create-formResponse'
+						? {
+								stepName: variables?.[0]?.stepName,
+								stepId: variables?.[0]?.stepId,
+								stepApp: variables?.[0]?.stepApp,
+								variables: variables?.[0]?.variables?.[0]?.blocks?.map((item) => ({
+									name: item?.question,
+									type: item?.type,
+									_id: item?._id,
+								})),
+						  }
+						: variables?.[0];
+
+				console.log(variables);
 
 				dispatch({
 					type: Actions.SET_VARIABLES,
 					payload: {
 						data: {
-							variables:
-								actionType === 'formResponse'
-									? response?.[1]?.at(payload?.editMode ? -2 : -1)?.variables?.[0]
-											?.blocks || []
-									: response?.[1]?.at(payload?.editMode ? -2 : -1)?.variables,
-							actionType,
+							variables,
 						},
 					},
 				});
@@ -279,7 +289,7 @@ export const AutomationBuilderState = () => {
 				dispatch({
 					type: Actions.SET_VARIABLES,
 					payload: {
-						data: { variables: [], actionType: null },
+						data: { variables: [] },
 					},
 				});
 			}
