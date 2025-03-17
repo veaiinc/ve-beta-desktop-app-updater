@@ -282,7 +282,9 @@ export const TypingEffect = memo(
 
 		return (
 			<div className="typing-effect-container">
-				<Markdown citations={citations}>{text?.replace(/\\n/g, '\n')}</Markdown>
+				<Markdown citations={citations}>
+					{text?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')?.replace(/\\n/g, '\n')}
+				</Markdown>
 
 				{messageData?.messageId && (
 					<div className="hover-actions-container">
