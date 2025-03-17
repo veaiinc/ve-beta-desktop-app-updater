@@ -36,7 +36,9 @@
      but here's the direct color rule. */
 .text-blue-500 {
 	--tw-text-opacity: 1;
-	color: rgba(232, 232, 232, 0.9);
+	color: #e8e8e8;
+	font-weight: 600;
+	// color: rgba(232, 232, 232, 0.9);
 	// color: rgb(59 130 246 / var(--tw-text-opacity));
 }
 
@@ -95,12 +97,12 @@
 }
 
 .text-white {
-	color: rgba(232, 232, 232, 0.9);
+	color: #e8e8e8e6;
 }
-.common-markdown-font {
-	font-size: 16px;
-	// line-height: 1.55;
-}
+// .common-markdown-font {
+// 	font-size: 16px;
+// 	// line-height: 1.55;
+// }
 
 .markdown-table {
 	border-collapse: collapse;
@@ -167,5 +169,16 @@
 }
 
 .markdown-custom-content {
-	color: rgba(232, 232, 232, 0.9);
+	color: #e8e8e8e6;
+	font-size: 14px;
+	font-family: 'Inter', sans-serif;
+
+	h1,
+	h2,
+	h3,
+	h4,
+	h5,
+	h6 {
+		color: #e8e8e8;
+	}
 }
