@@ -1,0 +1,45 @@
+.automationsContainer {
+	width: 100%;
+
+	.header {
+		width: 100%;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin-bottom: 20px;
+
+		.titleAndSubtitle {
+			.title,
+			.subtitle {
+				font-family: Inter, sans-serif;
+				font-size: 40px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: 43px;
+			}
+
+			.title {
+				color: var(--primary-font, #f2f2f3);
+			}
+
+			.subtitle {
+				color: var(--secondary-font, #7a7e85);
+			}
+		}
+	}
+
+	.skeletonLoaderContainer {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 14px;
+	}
+
+	.emptyAutomations {
+		color: var(--primary-font, #f2f2f3);
+		font-family: Inter;
+		font-size: 20px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: 43px;
+	}
+}

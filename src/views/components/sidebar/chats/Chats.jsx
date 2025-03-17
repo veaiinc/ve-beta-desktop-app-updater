@@ -1,4 +1,5 @@
 import { Drawer } from 'antd';
+import Skeleton from 'react-loading-skeleton';
 import React, { useContext, useEffect, memo, useCallback } from 'react';
 import '../../../../assets/scss/chats.scss';
 import { ReactComponent as Back } from '../../../../assets/svg/sidebar/notifications/back.svg';
@@ -9,6 +10,7 @@ import moment from 'moment';
 import { useNavigate } from 'react-router-dom';
 
 const infiniteScrollHeight = 'calc(100vh - 72px)';
+const skeletonLoaders = Array.from({ length: 30 }, (_, index) => index + 1);
 
 const Chats = ({ showChatsDrawer, setShowChatsDrawer }) => {
 	const navigate = useNavigate();
@@ -68,8 +70,15 @@ const Chats = ({ showChatsDrawer, setShowChatsDrawer }) => {
 				</div>
 				<div className="chats-container">
 					{loadingState ? (
-						<div className="loading-state">
-							<p className="message">Loading AI chats...</p>
+						<div className="skeleton-loader-container">
+							{skeletonLoaders?.map((skeletonId) => (
+								<Skeleton
+									key={skeletonId}
+									width="316px"
+									height="46px"
+									borderRadius="12px"
+								/>
+							))}
 						</div>
 					) : emptyChatsState ? (
 						<div className="empty-state">
@@ -97,7 +106,10 @@ const Chats = ({ showChatsDrawer, setShowChatsDrawer }) => {
 									onClick={() => handleChatNavigation(chat)}
 									style={{ cursor: 'pointer' }}
 								>
-									<p className="chat-title">{chat?.query}</p>
+									<div className="chat-title-and-query">
+										<p className="chat-title">{chat?.title}</p>
+										<p className="chat-query">{chat?.query}</p>
+									</div>
 									<p className="chat-timestamp">
 										{formatTimestamp(chat?.createdAt)}
 									</p>

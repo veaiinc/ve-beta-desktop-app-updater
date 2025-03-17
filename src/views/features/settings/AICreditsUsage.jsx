@@ -1,4 +1,4 @@
-import React, { useEffect, useContext } from 'react';
+import React, { useEffect, useContext, memo } from 'react';
 import '../../../assets/scss/settings/notifications.scss';
 import Context from '../../../context/context';
 import moment from 'moment';
@@ -33,25 +33,24 @@ const AICreditsUsedRowData = [
 		width: '240px',
 	},
 ];
+const page = 1;
+const limit = 15;
 
-const Notifications = () => {
+const AICreditsUsage = () => {
 	const {
 		companyInfo: { getAICreditsUsedData, AICreditsData },
 	} = useContext(Context);
+	const nextPage = AICreditsData?.nextPage;
 
 	useEffect(() => {
-		getAICreditsUsedData(1, 15);
+		getAICreditsUsedData(page, limit);
 	}, []);
 
-	useEffect(() => {
-		console.log('AICreditsData', AICreditsData);
-	}, [AICreditsData]);
-
 	const fetchMoreAICredits = () => {
-		getAICreditsUsedData(AICreditsData?.nextPage, 15);
+		getAICreditsUsedData(nextPage, limit);
 	};
 
-	return (
+	return AICreditsData?.data?.length ? (
 		<div className="notifications-main-container">
 			<div className="notifications-container">
 				<h1 className="notifications-header-title">AI Credits Used</h1>
@@ -109,10 +108,11 @@ const Notifications = () => {
 						</InfiniteScroll>
 					</div>
 				</div>
-				<ul className="menu-items"></ul>
 			</div>
 		</div>
+	) : (
+		<></>
 	);
 };
 
-export default Notifications;
+export default memo(AICreditsUsage);

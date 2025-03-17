@@ -51,6 +51,7 @@ const OpenedSideBarHoverStateIcons = ({
 	handleSubModuleClick,
 	setShowNotificationsDrawer,
 	setShowChatsDrawer,
+	setShowNotesDrawer,
 }) => {
 	let {
 		aiSetup: { isVoiceIntegrationActive },
@@ -69,6 +70,12 @@ const OpenedSideBarHoverStateIcons = ({
 	};
 
 	const redirectToFunction = (subModules, route, name) => {
+		if (name === 'Notes') {
+			setShowNotesDrawer((prev) => !prev);
+		} else {
+			setShowNotesDrawer(false);
+		}
+
 		if (name === 'Notifications') {
 			setShowNotificationsDrawer((prev) => !prev);
 		} else {
@@ -285,6 +292,7 @@ const OpenedSideBarItemsComponent = ({
 	setIsOpen,
 	setShowNotificationsDrawer,
 	setShowChatsDrawer,
+	setShowNotesDrawer,
 }) => {
 	const {
 		templates: { leftSidebarState, updateStateValues },
@@ -356,6 +364,7 @@ const OpenedSideBarItemsComponent = ({
 		// e.stopPropagation();
 		setsidebarStates({ ...sidebarStates, navStyle: 'close' });
 		setIsOpen(false);
+		setShowChatsDrawer(false);
 	};
 
 	const handleChatSelect = (chatName) => {
@@ -487,15 +496,24 @@ const OpenedSideBarItemsComponent = ({
 											onClick={openWorkspacesFunction}
 											style={{ cursor: 'pointer' }}
 										>
-											{info?.activeBusniessName?.logo_s3_500w_key && (
-												<img
-													src={info?.activeBusniessName?.logo_s3_500w_key}
-													alt={
-														info?.activeBusniessName?.activeWorkspaceId
-													}
-												/>
+											{info?.activeBusniessName?.logo_s3_500w_key ? (
+												<div className="workspaceLogoContainer">
+													<img
+														className="workspaceLogo"
+														src={
+															info?.activeBusniessName
+																?.logo_s3_500w_key
+														}
+														alt={
+															info?.activeBusniessName
+																?.activeWorkspaceId
+														}
+													/>
+												</div>
+											) : (
+												<div className="workspaceLogoContainer"></div>
 											)}
-											<h6 style={{ maxWidth: '100px' }}>
+											<h6 className="workspaceName">
 												{info?.activeBusniessName?.businessName}
 											</h6>
 											<DownArrowSmallSvg
@@ -606,6 +624,7 @@ const OpenedSideBarItemsComponent = ({
 															setShowNotificationsDrawer={
 																setShowNotificationsDrawer
 															}
+															setShowNotesDrawer={setShowNotesDrawer}
 														/>
 													</div>
 												))}
@@ -656,6 +675,7 @@ const OpenedSideBarItemsComponent = ({
 															setShowNotificationsDrawer={
 																setShowNotificationsDrawer
 															}
+															setShowNotesDrawer={setShowNotesDrawer}
 														/>
 													</div>
 												))}

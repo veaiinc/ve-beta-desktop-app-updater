@@ -5,12 +5,10 @@ import { useNavigate, useParams } from 'react-router-dom';
 import {
 	addEdge,
 	Background,
-	Controls,
 	ReactFlow,
 	ReactFlowProvider,
 	useEdgesState,
 	useNodesState,
-	useReactFlow,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import {
@@ -19,6 +17,8 @@ import {
 	ConditionNode,
 	EndNode,
 	StartStepNode,
+	SwitchNode,
+	DelayNode,
 } from '../../components/automationBuilder/CustomNodes';
 import CustomEdges from '../../components/automationBuilder/CustomEdges';
 import UpdatedPageLoader from '../../components/loaders/UpdatedPageLoader';
@@ -37,6 +37,8 @@ const nodeTypes = {
 	end: EndNode,
 	startStep: StartStepNode,
 	createTask: ActionNode,
+	switch: SwitchNode,
+	delay: DelayNode,
 };
 
 const edgeTypes = {
@@ -148,7 +150,7 @@ const AutomationBuilder = () => {
 	}, [info?.activeEdge]);
 
 	useEffect(() => {
-		if (info?.previousNode) {
+		if (info?.previousNode || info?.activeStepsData) {
 			const data = info?.previousNode?.data?.currentStep;
 			const payload = {};
 			if (data?.app === 'inApp') {
@@ -158,9 +160,14 @@ const AutomationBuilder = () => {
 				payload.action = data?.criteria?.event;
 				payload.app = data?.app;
 			}
-			getVariables(payload);
+			getVariables({
+				automationId,
+				previousStepId: info?.activeStepsData ? info?.activeStepsData?._id : data?._id,
+				action: data?.module,
+				editMode: info?.activeStepsData ? true : false,
+			});
 		}
-	}, [info?.previousNode]);
+	}, [info?.previousNode, automationId, info?.activeStepsData]);
 
 	useEffect(() => {
 		if (variables) {
@@ -213,9 +220,15 @@ const AutomationBuilder = () => {
 			if (isFirstBranch) {
 				// Only offset for first nodes in yes/no branches
 				if (branchType === 'yes') {
-					xOffset = -250;
+					xOffset = -400; // Specific spacing for condition branches
 				} else if (branchType === 'no') {
-					xOffset = 250;
+					xOffset = 400; // Specific spacing for condition branches
+				} else if (branchType && branchType.startsWith('case')) {
+					// Keep wider spacing for switch cases since there can be many
+					xOffset = 0; // The parent function already calculated the appropriate offset
+				} else if (branchType === 'default') {
+					// Default case already positioned by the parent function
+					xOffset = 0;
 				}
 			}
 
@@ -257,7 +270,15 @@ const AutomationBuilder = () => {
 						target: ifYes.nextStepId,
 						label: 'Yes',
 						animated: true,
-						type: 'smoothstep',
+						type: 'custom',
+						data: {
+							currentStep,
+							onToolBarOpen: handleToolBarOpen,
+							stepsMapper: stepsMapper,
+							automationId: automationId,
+							refetchWorkflowBuilderData: refetchWorkflowBuilderData,
+							label: 'Yes',
+						},
 					});
 					generateNodesAndEdges(ifYes.nextStepId, nodeX, branchY, 'yes', true);
 				} else {
@@ -265,7 +286,7 @@ const AutomationBuilder = () => {
 					const endNodeId = `${stepId}-yes-end`;
 					nodes.push({
 						id: endNodeId,
-						position: { x: nodeX - 250, y: parentY + 400 },
+						position: { x: nodeX - 400, y: parentY + 400 },
 						type: 'end',
 						data: {
 							type: 'end',
@@ -277,9 +298,16 @@ const AutomationBuilder = () => {
 						id: `${stepId}-${endNodeId}-yes`,
 						source: stepId,
 						target: endNodeId,
-						label: 'Yes',
 						animated: true,
-						type: 'smoothstep',
+						type: 'custom',
+						data: {
+							currentStep,
+							onToolBarOpen: handleToolBarOpen,
+							stepsMapper: stepsMapper,
+							automationId: automationId,
+							refetchWorkflowBuilderData: refetchWorkflowBuilderData,
+							label: 'Yes',
+						},
 					});
 				}
 
@@ -291,7 +319,15 @@ const AutomationBuilder = () => {
 						target: ifNo.nextStepId,
 						label: 'No',
 						animated: true,
-						type: 'smoothstep',
+						type: 'custom',
+						data: {
+							currentStep,
+							onToolBarOpen: handleToolBarOpen,
+							stepsMapper: stepsMapper,
+							automationId: automationId,
+							refetchWorkflowBuilderData: refetchWorkflowBuilderData,
+							label: 'No',
+						},
 					});
 					generateNodesAndEdges(ifNo.nextStepId, nodeX, branchY, 'no', true);
 				} else {
@@ -299,7 +335,7 @@ const AutomationBuilder = () => {
 					const endNodeId = `${stepId}-no-end`;
 					nodes.push({
 						id: endNodeId,
-						position: { x: nodeX + 250, y: parentY + 400 },
+						position: { x: nodeX + 400, y: parentY + 400 },
 						type: 'end',
 						data: {
 							type: 'end',
@@ -311,10 +347,97 @@ const AutomationBuilder = () => {
 						id: `${stepId}-${endNodeId}-no`,
 						source: stepId,
 						target: endNodeId,
-						label: 'No',
 						animated: true,
-						type: 'smoothstep',
+						type: 'custom',
+						data: {
+							currentStep,
+							onToolBarOpen: handleToolBarOpen,
+							stepsMapper: stepsMapper,
+							automationId: automationId,
+							refetchWorkflowBuilderData: refetchWorkflowBuilderData,
+							label: 'No',
+						},
 					});
+				}
+			} else if (currentStep.type === 'switch') {
+				// Handle switch node with multiple cases
+				const { cases } = currentStep;
+				const branchY = nextY;
+
+				// Calculate horizontal spread based on number of cases
+				const numCases = Object.keys(cases).length;
+
+				// Process each case in the switch node
+				let caseIndex = 0;
+
+				for (const [caseKey, caseValue] of Object.entries(cases)) {
+					// Calculate position offset for this case based on 296px node width
+					// Add extra space for visual separation between branches
+					const caseOffset = (caseIndex - (numCases - 1) / 2) * 450;
+					caseIndex++;
+
+					const label =
+						caseKey === 'default' ? 'Default' : `Case ${caseKey.replace('case', '')}`;
+
+					if (caseValue?.nextStepId) {
+						// Create edge to next step
+						edges.push({
+							id: `${stepId}-${caseValue.nextStepId}-${caseKey}`,
+							source: stepId,
+							target: caseValue.nextStepId,
+							label: label,
+							animated: true,
+							type: 'custom',
+							data: {
+								currentStep,
+								onToolBarOpen: handleToolBarOpen,
+								stepsMapper: stepsMapper,
+								automationId: automationId,
+								refetchWorkflowBuilderData: refetchWorkflowBuilderData,
+								label: label,
+							},
+						});
+
+						// Generate child nodes recursively
+						generateNodesAndEdges(
+							caseValue.nextStepId,
+							nodeX + caseOffset,
+							branchY,
+							caseKey,
+							true,
+						);
+					} else {
+						// Add end node for this case
+						const endNodeId = `${stepId}-${caseKey}-end`;
+						nodes.push({
+							id: endNodeId,
+							position: { x: nodeX + caseOffset, y: parentY + 400 },
+							type: 'end',
+							data: {
+								type: 'end',
+								label: 'End',
+								onToolBarOpen: handleToolBarOpen,
+							},
+						});
+
+						// Create edge to end node
+						edges.push({
+							id: `${stepId}-${endNodeId}-${caseKey}`,
+							source: stepId,
+							target: endNodeId,
+							label: label,
+							animated: true,
+							type: 'custom',
+							data: {
+								currentStep,
+								onToolBarOpen: handleToolBarOpen,
+								stepsMapper: stepsMapper,
+								automationId: automationId,
+								refetchWorkflowBuilderData: refetchWorkflowBuilderData,
+								label: label,
+							},
+						});
+					}
 				}
 			} else if (currentStep.nextStepId) {
 				// Handle regular step with next step
@@ -324,7 +447,13 @@ const AutomationBuilder = () => {
 					target: currentStep.nextStepId,
 					animated: true,
 					type: 'custom',
-					data: { onToolBarOpen: handleToolBarOpen },
+					data: {
+						currentStep,
+						onToolBarOpen: handleToolBarOpen,
+						stepsMapper: stepsMapper,
+						automationId: automationId,
+						refetchWorkflowBuilderData: refetchWorkflowBuilderData,
+					},
 				});
 				generateNodesAndEdges(currentStep.nextStepId, nodeX, nextY, branchType, false);
 			} else {
@@ -346,7 +475,13 @@ const AutomationBuilder = () => {
 					target: endNodeId,
 					animated: true,
 					type: 'custom',
-					data: { onToolBarOpen: handleToolBarOpen },
+					data: {
+						currentStep,
+						onToolBarOpen: handleToolBarOpen,
+						stepsMapper: stepsMapper,
+						automationId: automationId,
+						refetchWorkflowBuilderData: refetchWorkflowBuilderData,
+					},
 				});
 			}
 		};
@@ -381,6 +516,10 @@ const AutomationBuilder = () => {
 
 	const handleToolBarOpen = useCallback((obj = {}) => {
 		setInfo((prev) => ({ ...prev, ...obj }));
+	}, []);
+
+	const handleActiveStepData = useCallback((data) => {
+		setInfo((prev) => ({ ...prev, activeStepsData: data }));
 	}, []);
 
 	const refetchWorkflowBuilderData = useCallback(async (data) => {
@@ -528,6 +667,7 @@ const AutomationBuilder = () => {
 								edgeTypes={edgeTypes}
 								fitView
 								defaultViewport={{ x: 0, y: 0, zoom: 0 }}
+								proOptions={{ hideAttribution: true }}
 							>
 								<Background variant="dots" gap={12} size={0.5} />
 							</ReactFlow>
@@ -554,6 +694,7 @@ const AutomationBuilder = () => {
 						step={info?.step}
 						previousNode={info?.previousNode}
 						variables={info?.variables}
+						handleActiveStepData={handleActiveStepData}
 					/>
 				</div>
 			)}

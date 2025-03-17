@@ -20,5 +20,9 @@
 	"postman.settings.dotenv-detection-notification-visibility": false,
 	"[javascriptreact]": {
 		"editor.defaultFormatter": "esbenp.prettier-vscode"
+	},
+	"editor.quickSuggestions": {
+		"strings": "on",
+		"comments": "on"
 	}
 }

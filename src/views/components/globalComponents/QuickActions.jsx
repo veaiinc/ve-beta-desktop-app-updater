@@ -1,4 +1,5 @@
-import { Tooltip } from 'antd';
+/* eslint-disable react-hooks/exhaustive-deps */
+import { message, Tooltip } from 'antd';
 import React, { useContext, useState, useCallback } from 'react';
 // import '../../../assets/scss/home_page/homepage.scss';
 import '../../../assets/scss/globalComponents/quickActions.scss';
@@ -282,7 +283,7 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 					className="dropdown-header"
 					onClick={() => setInfo({ ...info, dropdown: !info?.dropdown })}
 				>
-					+ New
+					New
 				</button>
 			</Tooltip>
 			<ProposalsPopup

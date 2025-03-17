@@ -8,10 +8,10 @@ import ChatBox from '../../components/homePage/ChatBox';
 import { useNavigate } from 'react-router-dom';
 import ObjectID from 'bson-objectid';
 const initialHomePageOptions = [
-	{ id: 1, title: 'All Prompts', type: 'all' },
-	{ id: 2, title: 'Sales', type: 'sales' },
-	{ id: 3, title: 'Marketing', type: 'marketing' },
-	{ id: 4, title: 'Operations', type: 'operations' },
+	// { id: 1, title: 'All Prompts', type: 'all' },
+	// { id: 2, title: 'Sales', type: 'sales' },
+	// { id: 3, title: 'Marketing', type: 'marketing' },
+	// { id: 4, title: 'Operations', type: 'operations' },
 ];
 
 const navBarOptions = [
@@ -23,7 +23,7 @@ const navBarOptions = [
 
 const InitialHomePage = () => {
 	const {
-		templates: { updateStateValues },
+		templates: { updateStateValues, currentSessionId },
 	} = useContext(Context);
 
 	const navigate = useNavigate();
@@ -78,10 +78,14 @@ const InitialHomePage = () => {
 		}));
 	};
 
-	const handleCustomOnSendFunction = useCallback((data) => {
-		updateStateValues({ activePayloadForChat: data });
-		navigate(`/chat/${ObjectID().toString()}`);
-	}, []);
+	const handleCustomOnSendFunction = useCallback(
+		(data) => {
+			updateStateValues({ activePayloadForChat: data });
+
+			navigate(`/chat/${currentSessionId}`);
+		},
+		[currentSessionId],
+	);
 	return (
 		<>
 			{info?.selectedOption !== null || info?.dashboardSelected ? (

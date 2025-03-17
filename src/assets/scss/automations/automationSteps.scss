@@ -1,0 +1,46 @@
+.automationStepsContainer {
+	width: 100%;
+	height: 100%;
+
+	.emptyAutomationSteps {
+		width: 100%;
+		height: 100%;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		font-size: 16px;
+		font-weight: 500;
+		line-height: normal;
+		color: var(--primary-font, #f2f2f3);
+	}
+
+	.automationSteps {
+		width: 100%;
+		height: 100%;
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 8px;
+		align-self: stretch;
+		overflow-y: auto;
+
+		.automationStep {
+			display: flex;
+			justify-content: space-between;
+			padding: 14px 16px;
+			border-radius: 16px;
+			align-items: center;
+			align-self: stretch;
+			background: #202123;
+			cursor: pointer;
+			transition: all 0.2s ease;
+			color: var(--secondary-font, #7a7e85);
+			font-family: Inter;
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+			text-transform: capitalize;
+		}
+	}
+}

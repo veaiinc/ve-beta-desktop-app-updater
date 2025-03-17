@@ -1,0 +1,85 @@
+.inAppActionsContainer {
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+	align-self: stretch;
+	height: 100%;
+	width: 100%;
+
+	.inAppActionsInputsContainer {
+		display: flex;
+		padding: 12px 24px;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 12px;
+		align-self: stretch;
+		flex-grow: 1;
+		width: 100%;
+		overflow-y: auto;
+
+		.InputBlockHeading {
+			color: #f2f2f3;
+			font-family: Inter;
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+		}
+
+		.inputWrapper {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 8px;
+			align-self: stretch;
+
+			.inputLabel {
+				color: #7a7e85;
+				font-family: Inter;
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+
+			.inputField {
+				display: flex;
+				padding: 12px;
+				justify-content: space-between;
+				align-items: center;
+				align-self: stretch;
+				border-radius: 12px;
+				border: 1px solid #2c2d2e;
+				color: #f2f2f3;
+				font-family: Inter;
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+				background-color: transparent;
+
+				&::placeholder {
+					color: #7a7e85;
+				}
+			}
+		}
+	}
+
+	.actionsSaveButton {
+		display: flex;
+		padding: 12px;
+		background-color: #202123;
+		justify-content: center;
+		align-items: center;
+		cursor: pointer;
+		color: #f2f2f3;
+		color: color(display-p3 0.949 0.949 0.9529);
+		font-family: Inter;
+		font-size: 14px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
+		border: none;
+		outline: none;
+	}
+}
