@@ -10,6 +10,13 @@ import moment from 'moment';
 import { useNavigate, useParams } from 'react-router-dom';
 
 const infiniteScrollHeight = 'calc(100vh - 72px)';
+const infiniteScrollStyle = {
+	display: 'flex',
+	flexDirection: 'column',
+	alignItems: 'flex-start',
+	flex: '1 0 0',
+	alignSelf: 'stretch',
+};
 const skeletonLoaders = Array.from({ length: 30 }, (_, index) => index + 1);
 const page = 1;
 const limit = 30;
@@ -95,13 +102,7 @@ const Chats = ({ showChatsDrawer, setShowChatsDrawer, setHideClosedSidebarIcon }
 							next={fetchMoreChats}
 							hasMore={hasNextPage || false}
 							loader={<FetchMoreLoaderComp wrapperStyle={{ width: '100%' }} />}
-							style={{
-								display: 'flex',
-								flexDirection: 'column',
-								alignItems: 'flex-start',
-								flex: '1 0 0',
-								alignSelf: 'stretch',
-							}}
+							style={infiniteScrollStyle}
 							height={infiniteScrollHeight}
 						>
 							{chats?.map((chat) => (
