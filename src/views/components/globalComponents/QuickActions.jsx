@@ -174,7 +174,6 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 						if (!option?.controlValue) {
 							return true;
 						}
-						console.log(tenantUserAccessControls?.accessControls);
 						const matchedApp = tenantUserAccessControls?.accessControls?.find(
 							(item) =>
 								item?.app?.toLowerCase() === option?.controlValue?.toLowerCase(),
@@ -241,21 +240,6 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 								onChange={handleSearch}
 							/>
 						</div>
-						{/* {info?.fileterOptions?.suggestedActions?.length > 0 && (
-							<div className="modules-container">
-								<div className="modules-container-header">Things you can do</div>
-								{info?.fileterOptions?.suggestedActions?.map((option) => (
-									<div
-										key={option?.id}
-										className="dropdown-option"
-										onClick={() => option?.action({ setInfo, info, navigate })}
-									>
-										{option?.icon && <img src={option?.icon} alt="icon" />}
-										{option?.title}
-									</div>
-								))}
-							</div>
-						)} */}
 						{info?.fileterOptions?.suggestedOptions?.length > 0 && (
 							<div className="modules-container">
 								<div className="modules-container-header">Suggested</div>
