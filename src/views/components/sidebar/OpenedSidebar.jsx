@@ -385,7 +385,6 @@ const OpenedSideBarItemsComponent = ({
 		setActiveSubModule(null);
 	};
 	const handleSubModuleClick = (e, subModule) => {
-		console.log('subModule', subModule);
 		setActiveSubModule(subModule);
 		e.stopPropagation();
 		if (subModule.route) {
