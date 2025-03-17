@@ -23,7 +23,7 @@ const navBarOptions = [
 
 const InitialHomePage = () => {
 	const {
-		templates: { updateStateValues },
+		templates: { updateStateValues, currentSessionId },
 	} = useContext(Context);
 
 	const navigate = useNavigate();
@@ -78,10 +78,14 @@ const InitialHomePage = () => {
 		}));
 	};
 
-	const handleCustomOnSendFunction = useCallback((data) => {
-		updateStateValues({ activePayloadForChat: data });
-		navigate(`/chat/${ObjectID().toString()}`);
-	}, []);
+	const handleCustomOnSendFunction = useCallback(
+		(data) => {
+			updateStateValues({ activePayloadForChat: data });
+
+			navigate(`/chat/${currentSessionId}`);
+		},
+		[currentSessionId],
+	);
 	return (
 		<>
 			{info?.selectedOption !== null || info?.dashboardSelected ? (
