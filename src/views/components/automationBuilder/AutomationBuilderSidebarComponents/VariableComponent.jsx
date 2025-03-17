@@ -2,15 +2,40 @@ import React, { useCallback, useEffect, useState, memo } from 'react';
 import '../../../../assets/scss/automation_builder/automationBuilderSidebarComponents/variableComponent.scss';
 import { ReactComponent as CrossIcon } from '../../../../assets/svg/workspaceSettings/cross.svg';
 import { ReactComponent as ChevronRightThinSvg } from '../../../../assets/svg/tasks/chevronRightThin.svg';
-import { Dropdown, Tooltip } from 'antd';
+import { Tooltip } from 'antd';
 
 const labelMapper = {
 	messageReceived: 'Message received',
-	deleteDraft: 'Delete draft',
-	createTask: 'Create task',
-	createFile: 'Create document',
-	condition: 'Condition',
 	'create-formResponse': 'Form response',
+
+	'create-task': 'Create task',
+	'update-task': 'Update task',
+	'delete-task': 'Delete task',
+	'create-client': 'Create client',
+	'update-client': 'Update client',
+	'delete-client': 'Delete client',
+	'create-createFile': 'Create document',
+	'delete-createFile': 'Delete document',
+
+	sendMessage: 'Send Message',
+	sendReply: 'Send Reply',
+	getLabelInfo: 'Get Label Info',
+	createLabel: 'Create Label',
+	createDraft: 'Create Draft',
+	deleteDraft: 'Delete Draft',
+	getDraft: 'Get Draft',
+	createTask: 'Create Task',
+	createFile: 'Create Document',
+	joinChannel: 'Join Channel',
+	leaveChannel: 'Leave Channel',
+	renameChannel: 'Rename Channel',
+	channelMembers: 'Channel Members',
+	getChannelInfo: 'Get Channel Info',
+	getManyChannels: 'Get Many Channels',
+	createChannel: 'Create Channel',
+	replyMessage: 'Reply to message',
+	condition: 'If / Else',
+	switch: 'Switch',
 };
 
 const appMapper = {
@@ -36,7 +61,24 @@ const VariableComponent = ({
 		options: [],
 		variablePath: [],
 		selectedStep: null,
+		error: '',
 	});
+
+	useEffect(() => {
+		if (variables) {
+			if (value) {
+				parseValue(value);
+			}
+
+			setInfo((prev) => ({ ...prev, variables: variables?.variables }));
+		}
+	}, [variables]);
+
+	useEffect(() => {
+		if (value && variables && !info?.value) {
+			parseValue(value);
+		}
+	}, [value]);
 
 	const handleInfo = (updateInfo) => {
 		setInfo((prevInfo) => ({
@@ -45,38 +87,43 @@ const VariableComponent = ({
 		}));
 	};
 
-	useEffect(() => {
-		if (variables) {
-			setInfo((prev) => ({ ...prev, variables: variables?.variables }));
-		}
-	}, [variables]);
-
-	useEffect(() => {
-		if (value) {
+	const parseValue = useCallback(
+		(value) => {
 			const variableRegex = /^\{\{.*\}\}$/;
 			if (variableRegex?.test(value)) {
-				handleInfo({ value: value?.slice(2, -2) });
+				const newValueArray = value?.slice(2, -2)?.split('.');
+
+				let selectedStep =
+					variables?.variables?.find((step) => step?.stepId === newValueArray[0]) || null;
+
+				if (selectedStep) {
+					newValueArray[0] = labelMapper[selectedStep?.stepName];
+
+					if (newValueArray[2] === 'answer') {
+						newValueArray[1] = selectedStep?.variables?.find(
+							(variable) => variable?._id === newValueArray[1],
+						)?.name;
+					}
+
+					const newValue = newValueArray?.join('.');
+
+					handleInfo({
+						value: newValue,
+						selectedStep: {
+							stepId: selectedStep?.stepId,
+							app: selectedStep?.stepApp,
+							labelId: selectedStep?.stepName,
+						},
+						options: [],
+						variablePath: [],
+					});
+				} else {
+					handleInfo({ error: 'Invalid variable' });
+				}
 			}
-		}
-	}, []);
-
-	const decodeHtmlEntities = (htmlText) => {
-		const textArea = document.createElement('textarea');
-		textArea.innerHTML = htmlText?.replace(/<\/?[^>]+(>|$)/g, '').trim();
-		return textArea?.value?.trim();
-	};
-
-	const parseFormVariables = useCallback((variables) => {
-		return {
-			actionType: 'formResponse',
-			variables: Array.isArray(variables)
-				? variables.map((variable) => ({
-						name: decodeHtmlEntities(variable?.question),
-						_id: variable?._id,
-				  }))
-				: [], // Ensure it's always an array
-		};
-	}, []);
+		},
+		[variables?.variables],
+	);
 
 	const onOptionClick = useCallback(
 		(option) => {
@@ -88,28 +135,40 @@ const VariableComponent = ({
 				handleInfo({
 					options: newOptions,
 					variablePath: newVariablePath,
-					// variableDropdownOpen: true,
 				});
 			} else {
-				const value = info?.variablePath?.join('.') + '.' + option?.name;
+				const value =
+					info?.variablePath?.join('.') +
+					`.${
+						info?.selectedStep?.labelId === 'create-formResponse'
+							? `${option?._id}.answer`
+							: option?.name
+					}`;
 				const parsedValue = value?.split('.');
 
 				parsedValue[0] = labelMapper[info?.selectedStep?.labelId];
+				if (info?.selectedStep?.labelId === 'create-formResponse') {
+					parsedValue[1] = `${option?.name}`;
+				}
+
 				handleInfo({
 					variableDropdownOpen: false,
 					value: parsedValue?.join('.'),
+					error: '',
 				});
 
 				onChange(`{{${value}}}`);
 			}
 		},
-		[info?.options, info?.variablePath],
+		[info?.options, info?.variablePath, info?.selectedStep],
 	);
 
 	return (
 		<div className="variableComponentContainer">
 			<div className="inputContainer">
-				{info?.value ? (
+				{info?.error ? (
+					<p className="selectedVariable errorMessage">&#9888; {info?.error}</p>
+				) : info?.value ? (
 					<p className="selectedVariable">
 						{`{ ${info?.value}}`}
 
