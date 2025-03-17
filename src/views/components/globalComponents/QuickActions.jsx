@@ -19,6 +19,7 @@ import ProposalsPopup from '../../../views/components/docs/ProposalsPopup';
 import CreateClientModal from '../../../views/components/modalsV2/contacts/CreateClientModal';
 import CreateTaskPopup from '../../../views/components/modalsV2/tasks/CreateTaskPopup';
 import CreateGallery from '../../../views/components/modalsV2/gallery/CreateGallery';
+import AutomationLoaderModal from '../modalsV2/automationBuilder/AutomationLoaderModal';
 
 let moduleOptions = [
 	{
@@ -147,6 +148,7 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 		// openTaskPopup: false,
 		options: { suggestedOptions, moduleOptions },
 		fileterOptions: { suggestedOptions, moduleOptions },
+		isAutomationLoading: false,
 		commonState: null,
 		search: '',
 	});
@@ -211,6 +213,25 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 			handleDebounceSearch(e.target.value);
 		}
 	};
+
+	const handleCreateAutomation = useCallback(async () => {
+		if (info?.isAutomationLoading) return;
+		setInfo({ ...info, isAutomationLoading: true });
+		const response = await createAutomation({
+			name: 'Untitled Automation',
+			version: 1,
+			steps: [],
+			status: 'draft',
+		});
+		if (response?.[0]) {
+			setInfo({ ...info, isAutomationLoading: false });
+			navigate(`/automation-builder/${response?.[1]?._id}`);
+		} else {
+			message.error('Failed to create automation');
+		}
+		setInfo({ ...info, isAutomationLoading: false });
+	}, [createAutomation, info]);
+
 	return (
 		<div className="quick-actions-dropdown-container" style={{ ...styles }}>
 			<Tooltip
@@ -300,6 +321,7 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 				open={info?.openGalleryPopup}
 				closeModal={() => setInfo({ ...info, openGalleryPopup: false })}
 			/>
+			<AutomationLoaderModal loading={info?.isAutomationLoading} />
 		</div>
 	);
 };
