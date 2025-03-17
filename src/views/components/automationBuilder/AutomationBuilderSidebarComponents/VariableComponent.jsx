@@ -2,92 +2,176 @@ import React, { useCallback, useEffect, useState, memo } from 'react';
 import '../../../../assets/scss/automation_builder/automationBuilderSidebarComponents/variableComponent.scss';
 import { ReactComponent as CrossIcon } from '../../../../assets/svg/workspaceSettings/cross.svg';
 import { ReactComponent as ChevronRightThinSvg } from '../../../../assets/svg/tasks/chevronRightThin.svg';
-import { Dropdown, Tooltip } from 'antd';
+import { Tooltip } from 'antd';
 
-const VariableComponent = ({ value, onChange, variables, type = 'text', options = [] }) => {
+const labelMapper = {
+	messageReceived: 'Message received',
+	'create-formResponse': 'Form response',
+
+	'create-task': 'Create task',
+	'update-task': 'Update task',
+	'delete-task': 'Delete task',
+	'create-client': 'Create client',
+	'update-client': 'Update client',
+	'delete-client': 'Delete client',
+	'create-createFile': 'Create document',
+	'delete-createFile': 'Delete document',
+
+	sendMessage: 'Send Message',
+	sendReply: 'Send Reply',
+	getLabelInfo: 'Get Label Info',
+	createLabel: 'Create Label',
+	createDraft: 'Create Draft',
+	deleteDraft: 'Delete Draft',
+	getDraft: 'Get Draft',
+	createTask: 'Create Task',
+	createFile: 'Create Document',
+	joinChannel: 'Join Channel',
+	leaveChannel: 'Leave Channel',
+	renameChannel: 'Rename Channel',
+	channelMembers: 'Channel Members',
+	getChannelInfo: 'Get Channel Info',
+	getManyChannels: 'Get Many Channels',
+	createChannel: 'Create Channel',
+	replyMessage: 'Reply to message',
+	condition: 'If / Else',
+	switch: 'Switch',
+};
+
+const appMapper = {
+	slack: 'Slack',
+	gmail: 'Gmail',
+	inApp: 'In App',
+};
+
+const VariableComponent = ({
+	value,
+	onChange,
+	variables,
+	type = 'text',
+	options = [],
+	editMode,
+}) => {
 	const [info, setInfo] = useState({
 		variableDropdownOpen: false,
 		optionDropdownOpen: false,
 		variables: null,
 		selectedVariable: null,
 		value: '',
+		options: [],
+		variablePath: [],
+		selectedStep: null,
+		error: '',
 	});
-
-	const handleInfo = (updateInfo) => {
-		setInfo({
-			...info,
-			...updateInfo,
-		});
-	};
 
 	useEffect(() => {
 		if (variables) {
-			if (variables?.actionType === 'formResponse') {
-				setInfo((prev) => ({
-					...prev,
-					variables: parseFormVariables(variables?.variables),
-				}));
-			} else {
-				setInfo((prev) => ({ ...prev, variables: variables }));
+			if (value) {
+				parseValue(value);
 			}
+
+			setInfo((prev) => ({ ...prev, variables: variables?.variables }));
 		}
 	}, [variables]);
 
 	useEffect(() => {
-		if (value && variables) {
-			const variableRegex = /^\{\{.*\}\}$/;
-			if (variableRegex.test(value)) {
-				if (variables?.actionType === 'formResponse') {
-					const selectedVariable = variables?.variables?.find(
-						(variable) => variable?._id === value.slice(2, -2)?.replace('.answer', ''),
-					);
-
-					setInfo((prev) => ({
-						...prev,
-						selectedVariable: {
-							...selectedVariable,
-							name: decodeHtmlEntities(selectedVariable?.question),
-						},
-					}));
-				} else {
-					setInfo((prev) => ({
-						...prev,
-						selectedVariable: variables?.variables?.find(
-							(variable) => variable?.name === value.slice(2, -2),
-						),
-					}));
-				}
-			}
+		if (value && variables && !info?.value) {
+			parseValue(value);
 		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
+	}, [value]);
 
-	const decodeHtmlEntities = (htmlText) => {
-		const textArea = document.createElement('textarea');
-		textArea.innerHTML = htmlText?.replace(/<\/?[^>]+(>|$)/g, '').trim();
-		return textArea?.value?.trim();
+	const handleInfo = (updateInfo) => {
+		setInfo((prevInfo) => ({
+			...prevInfo,
+			...updateInfo,
+		}));
 	};
 
-	const parseFormVariables = useCallback((variables) => {
-		return {
-			actionType: 'formResponse',
-			variables: Array.isArray(variables)
-				? variables.map((variable) => ({
-						name: decodeHtmlEntities(variable?.question),
-						_id: variable?._id,
-				  }))
-				: [], // Ensure it's always an array
-		};
-	}, []);
+	const parseValue = useCallback(
+		(value) => {
+			const variableRegex = /^\{\{.*\}\}$/;
+			if (variableRegex?.test(value)) {
+				const newValueArray = value?.slice(2, -2)?.split('.');
+
+				let selectedStep =
+					variables?.variables?.find((step) => step?.stepId === newValueArray[0]) || null;
+
+				if (selectedStep) {
+					newValueArray[0] = labelMapper[selectedStep?.stepName];
+
+					if (newValueArray[2] === 'answer') {
+						newValueArray[1] = selectedStep?.variables?.find(
+							(variable) => variable?._id === newValueArray[1],
+						)?.name;
+					}
+
+					const newValue = newValueArray?.join('.');
+
+					handleInfo({
+						value: newValue,
+						selectedStep: {
+							stepId: selectedStep?.stepId,
+							app: selectedStep?.stepApp,
+							labelId: selectedStep?.stepName,
+						},
+						options: [],
+						variablePath: [],
+					});
+				} else {
+					handleInfo({ error: 'Invalid variable' });
+				}
+			}
+		},
+		[variables?.variables],
+	);
+
+	const onOptionClick = useCallback(
+		(option) => {
+			if (option?.type === 'Object') {
+				const newOptions = [...(info?.options || []), option?.values];
+
+				const newVariablePath = [...(info?.variablePath || []), option?.name];
+
+				handleInfo({
+					options: newOptions,
+					variablePath: newVariablePath,
+				});
+			} else {
+				const value =
+					info?.variablePath?.join('.') +
+					`.${
+						info?.selectedStep?.labelId === 'create-formResponse'
+							? `${option?._id}.answer`
+							: option?.name
+					}`;
+				const parsedValue = value?.split('.');
+
+				parsedValue[0] = labelMapper[info?.selectedStep?.labelId];
+				if (info?.selectedStep?.labelId === 'create-formResponse') {
+					parsedValue[1] = `${option?.name}`;
+				}
+
+				handleInfo({
+					variableDropdownOpen: false,
+					value: parsedValue?.join('.'),
+					error: '',
+				});
+
+				onChange(`{{${value}}}`);
+			}
+		},
+		[info?.options, info?.variablePath, info?.selectedStep],
+	);
 
 	return (
 		<div className="variableComponentContainer">
 			<div className="inputContainer">
-				{info?.value ? (
+				{info?.error ? (
+					<p className="selectedVariable errorMessage">&#9888; {info?.error}</p>
+				) : info?.value ? (
 					<p className="selectedVariable">
-						{`{ ${info?.value}${
-							info?.variables?.actionType === 'formResponse' ? `.answer` : ''
-						} }`}
+						{`{ ${info?.value}}`}
+
 						<CrossIcon
 							width={14}
 							height={14}
@@ -180,108 +264,91 @@ const VariableComponent = ({ value, onChange, variables, type = 'text', options 
 				trigger="click"
 				title={
 					<div className="variableTooltipContainer">
-						<div className="variableTooltipHeader">
-							{info?.selectedVariable?.type === 'Object' ? (
-								<ChevronRightThinSvg
-									style={{ rotate: '180deg' }}
-									onClick={() => {
-										handleInfo({ value: '', selectedVariable: null });
-										onChange('');
-									}}
-								/>
+						<div
+							className="variableTooltipHeader"
+							onClick={
+								info?.options?.length > 0
+									? () => {
+											handleInfo({
+												options: info?.options?.slice(0, -1),
+												variablePath: info?.variablePath?.slice(0, -1),
+											});
+									  }
+									: () => {}
+							}
+						>
+							{info?.options?.length > 0 ? (
+								<ChevronRightThinSvg style={{ rotate: '180deg' }} />
 							) : null}
 							<span className="variableTooltipHeaderTitle">
-								{info?.selectedVariable?.type === 'Object'
-									? info?.selectedVariable?.name
-									: info?.variables?.actionType}
+								{info?.variablePath?.length === 0
+									? `Choose a step`
+									: info?.variablePath?.length === 1
+									? labelMapper[info?.selectedStep?.labelId] ||
+									  info?.selectedStep?.labelId ||
+									  'Step id'
+									: info?.variablePath?.at(-1)}
 							</span>
 						</div>
-						{info?.selectedVariable?.type === 'Object' ? (
-							info?.selectedVariable?.values?.length > 0 ? (
-								<div className="variableTooltipBody">
-									{info?.selectedVariable?.values?.map((variable, idx) => (
-										<div
-											className="variableListItem"
-											key={idx}
-											onClick={() => {
-												handleInfo({
-													variableDropdownOpen: false,
-													value: `${info?.selectedVariable?.name}.${variable?.name}`,
-												});
-												onChange(
-													`{{${
-														info?.variables?.actionType ===
-														'formResponse'
-															? `${variable?._id}.answer`
-															: `${info?.selectedVariable?.name}.${variable?.name}`
-													}}}`,
-												);
-											}}
-										>
-											<span className="variableListItemTitle">
-												{variable?.name}
-											</span>
-											{variable?.type === 'Object' ? (
-												<span className="variableListItemSubtitle">
-													{variable?.values?.length}
-													<ChevronRightThinSvg />
+
+						<div className="variableTooltipBody">
+							{info?.options?.length > 0 ? (
+								<>
+									{info?.options?.at(-1)?.length > 0 ? (
+										info?.options?.at(-1)?.map((option, idx) => (
+											<div
+												className="variableListItem"
+												key={idx}
+												onClick={() => onOptionClick(option)}
+											>
+												<span className="variableListItemTitle">
+													{option?.name}
 												</span>
-											) : null}
-										</div>
-									))}
-								</div>
+												{option?.type === 'Object' ? (
+													<span className="variableListRightContainer">
+														{option?.values?.length}
+														<ChevronRightThinSvg />
+													</span>
+												) : null}
+											</div>
+										))
+									) : (
+										<span
+											className="variableTooltipBody"
+											style={{ color: '#808080' }}
+										>
+											No variables found for this step
+										</span>
+									)}
+								</>
 							) : (
-								<span className="variableTooltipBody" style={{ color: '#808080' }}>
-									No variables found for this action type
-								</span>
-							)
-						) : info?.variables?.variables?.length > 0 ? (
-							<div className="variableTooltipBody">
-								{info?.variables?.variables?.map((variable, idx) => (
+								info?.variables?.map((step) => (
 									<div
+										key={step?.stepId}
 										className="variableListItem"
-										key={idx}
 										onClick={() => {
-											handleInfo({
-												value: variable?.name,
-												selectedVariable: variable,
-												variableDropdownOpen:
-													variable?.type === 'Object' ? true : false,
+											onOptionClick({
+												values: step?.variables,
+												name: step?.stepId,
+												type: 'Object',
 											});
-											onChange(
-												`{{${
-													info?.variables?.actionType === 'formResponse'
-														? `${variable?._id}.answer`
-														: variable?.name
-												}}}`,
-											);
+											handleInfo({
+												selectedStep: {
+													stepId: step?.stepId,
+													app: step?.stepApp,
+													labelId: step?.stepName,
+												},
+											});
 										}}
 									>
 										<span className="variableListItemTitle">
-											{variable?.name}
+											{(labelMapper[step?.stepName] || step?.stepName) +
+												` (${appMapper[step?.stepApp || 'inApp']})`}
 										</span>
-										{variable?.type === 'Object' ? (
-											<span
-												className="variableListItemSubtitle"
-												style={{
-													color: '#808080',
-													display: 'flex',
-													alignItems: 'center',
-													fontSize: '12px',
-												}}
-											>
-												{variable?.values?.length}
-												<ChevronRightThinSvg />
-											</span>
-										) : null}
 									</div>
-								))}
-							</div>
-						) : (
-							<span className="variableTooltipBody" style={{ color: '#808080' }}>
-								No variables found for this action type
-							</span>
-						)}
+								))
+							)}
+						</div>
 					</div>
 				}
 				placement="bottom"

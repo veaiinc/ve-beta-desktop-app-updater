@@ -59,13 +59,17 @@
 			align-items: center;
 			gap: 10px;
 			border-radius: 6px;
-			background: #58397f;
+			background-color: #58397f;
 			color: #f2f2f3;
 			font-family: Inter;
 			font-size: 12px;
 			font-style: normal;
 			font-weight: 500;
 			line-height: normal;
+
+			&.errorMessage {
+				background-color: #7a2929;
+			}
 		}
 	}
 
