@@ -423,6 +423,7 @@ const routes = [
 				title={'Chat'}
 				showBottomToolbar={false}
 				outerContainerStyle={{ paddingRight: '0px' }}
+				authParentContainerStyle={{ backgroundColor: 'rgb(20,20,21)' }}
 				maxWidth="100%"
 			>
 				<RecentChat />
