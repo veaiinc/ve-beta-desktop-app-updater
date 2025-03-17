@@ -134,7 +134,7 @@ const SwitchStep = ({
 			title: info?.title,
 			description: info?.description,
 			type: 'switch',
-			moveTo: info?.moveTo,
+			...(!activeStepsData && { moveTo: info?.moveTo }),
 			variables: {},
 			inputBody: {},
 		};
@@ -170,6 +170,7 @@ const SwitchStep = ({
 				title={info?.title}
 				description={info?.description}
 				updaterFn={updateInfo}
+				showChangeButton={activeStepsData ? false : true}
 			/>
 			<div className="switchStepInputContainer">
 				<h3 className="switchStepInputHeading">Inputs</h3>

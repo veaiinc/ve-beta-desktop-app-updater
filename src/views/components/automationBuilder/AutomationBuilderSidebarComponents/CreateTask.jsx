@@ -44,15 +44,15 @@ const CreateTask = ({
 		if (title?.match(variableRegex)) {
 			variables.title = [title?.slice(2, -2)];
 		} else if (!title?.trim().length) {
-			message.error('Title is mandatory');
+			message.error('Task title is mandatory');
 			return;
 		}
 		if (!stepTitle?.trim().length) {
-			message.error('Title is mandatory');
+			message.error('Step title is mandatory');
 			return;
 		}
 		if (!stepDescription?.trim().length) {
-			message.error('Title is mandatory');
+			message.error('Step description is mandatory');
 			return;
 		}
 		if (dueDate?.match(variableRegex)) {

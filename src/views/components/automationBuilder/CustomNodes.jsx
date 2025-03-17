@@ -12,7 +12,9 @@ import { ReactComponent as Eye } from '../../../assets/svg/worflow_builder/build
 import { ReactComponent as ShockIcon } from '../../../assets/svg/automation_builder/shock.svg';
 import { ReactComponent as SwitchIcon } from '../../../assets/svg/automation_builder/switch.svg';
 import UpdatedDeleteWorkflowStep from '../modalsV2/automationBuilder/UpdatedDeleteStepsModal';
+import { ReactComponent as ClockSvg } from '../../../assets/svg/activity/clock.svg';
 import { Tooltip } from 'antd';
+
 const actionTypeMapper = {
 	email: 'Send Email',
 	whatsapp: 'Whatsapp',
@@ -42,6 +44,8 @@ const eventTypeMapper = {
 	client_create: 'Client Created',
 	client_update: 'Client Updated',
 	client_delete: 'Client Deleted',
+	createFile_create: 'File Created',
+	createFile_delete: 'File Deleted',
 
 	// actions
 	sendMessage: 'Send Message',
@@ -350,6 +354,67 @@ export const SwitchNode = ({ data }) => {
 					</span>
 					<span className="lower-action-node-subtitle">
 						{data?.currentStep?.description || 'Switch Description'}
+					</span>
+				</div>
+				<Handle type="source" position={Position.Bottom} />
+				<Handle type="target" position={Position.Top} />
+				<UpdatedDeleteWorkflowStep
+					modalIsOpen={info?.deleteModal}
+					closeModal={handleCloseDeleteModal}
+					automationId={data?.automationId}
+					stepId={data?.currentStep?._id}
+					stepData={data?.currentStep}
+					stepsMapper={data?.stepsMapper}
+				/>
+			</div>
+		</Tooltip>
+	);
+};
+
+export const DelayNode = ({ data }) => {
+	const [info, setInfo] = useState({ deleteModal: false });
+
+	const handleCloseDeleteModal = useCallback(() => {
+		setInfo((prev) => ({ ...prev, deleteModal: false }));
+	}, []);
+
+	const openDeleteModal = useCallback(() => {
+		setInfo((prev) => ({ ...prev, deleteModal: true }));
+	}, []);
+
+	const onDelayNodeClick = useCallback(() => {
+		if (data?.onToolBarOpen) {
+			data.onToolBarOpen({
+				toolBarOpen: true,
+				sidebarType: 'actions',
+				activeStepsData: data?.currentStep,
+				editMode: true,
+			});
+		}
+	}, [data]);
+
+	return (
+		<Tooltip
+			placement="right"
+			title={<HoverComponentForNodes openDeleteModal={openDeleteModal} />}
+			arrow={false}
+			rootClassName="customNodesToolTip"
+		>
+			<div className="action-node" onClick={onDelayNodeClick}>
+				<div className="upper-action-node-container">
+					<span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+						<ClockSvg />
+						Delay{' '}
+						{`( ${data?.currentStep?.inputBody?.duration} ${data?.currentStep?.inputBody?.delayIn} )`}
+					</span>
+					<span> In App</span>
+				</div>
+				<div className="lower-action-node-container">
+					<span className="lower-action-node-title">
+						{data?.currentStep?.title || 'Delay Title'}
+					</span>
+					<span className="lower-action-node-subtitle">
+						{data?.currentStep?.description || 'Delay Description'}
 					</span>
 				</div>
 				<Handle type="source" position={Position.Bottom} />

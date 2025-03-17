@@ -32,7 +32,7 @@ const actionHandlers = {
 
 	SET_VARIABLES: (state, action) => ({
 		...state,
-		variables: action.payload,
+		variables: action?.payload,
 	}),
 
 	// SET_PREVIOUS_STEP_RESPONSE: (state, action) => ({
