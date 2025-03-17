@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { message, Tooltip } from 'antd';
-import React, { useContext, useState, useCallback } from 'react';
+import React, { useContext, useState, useCallback, useEffect } from 'react';
 // import '../../../assets/scss/home_page/homepage.scss';
 import '../../../assets/scss/globalComponents/quickActions.scss';
 import Search from '../../../assets/svg/seach-magnifier.svg';
@@ -20,6 +20,7 @@ import CreateClientModal from '../../../views/components/modalsV2/contacts/Creat
 import CreateTaskPopup from '../../../views/components/modalsV2/tasks/CreateTaskPopup';
 import CreateGallery from '../../../views/components/modalsV2/gallery/CreateGallery';
 import AutomationLoaderModal from '../modalsV2/automationBuilder/AutomationLoaderModal';
+import { useEdges } from '@xyflow/react';
 
 let moduleOptions = [
 	{
@@ -173,6 +174,7 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 						if (!option?.controlValue) {
 							return true;
 						}
+						console.log(tenantUserAccessControls?.accessControls);
 						const matchedApp = tenantUserAccessControls?.accessControls?.find(
 							(item) =>
 								item?.app?.toLowerCase() === option?.controlValue?.toLowerCase(),
@@ -204,6 +206,11 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 		[info],
 	);
 
+	useEffect(() => {
+		const options = filtereOptions('');
+		setInfo((prev) => ({ ...prev, timeout, fileterOptions: options }));
+	}, []);
+
 	const handleSearch = (e) => {
 		setInfo((prev) => ({ ...prev, search: e.target.value }));
 		if (e.target.value === '' || e.target.value === null) {
@@ -213,25 +220,6 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 			handleDebounceSearch(e.target.value);
 		}
 	};
-
-	const handleCreateAutomation = useCallback(async () => {
-		if (info?.isAutomationLoading) return;
-		setInfo({ ...info, isAutomationLoading: true });
-		const response = await createAutomation({
-			name: 'Untitled Automation',
-			version: 1,
-			steps: [],
-			status: 'draft',
-		});
-		if (response?.[0]) {
-			setInfo({ ...info, isAutomationLoading: false });
-			navigate(`/automation-builder/${response?.[1]?._id}`);
-		} else {
-			message.error('Failed to create automation');
-		}
-		setInfo({ ...info, isAutomationLoading: false });
-	}, [createAutomation, info]);
-
 	return (
 		<div className="quick-actions-dropdown-container" style={{ ...styles }}>
 			<Tooltip
@@ -241,6 +229,7 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 				trigger={'hover'}
 				onOpenChange={(open) => setInfo({ ...info, dropdown: open })}
 				color="transparent"
+				rootClassName="customQuickActionsToolTip"
 				title={
 					<div className="quick-actions-dropdown-options-container">
 						<div className="top-search-container">
