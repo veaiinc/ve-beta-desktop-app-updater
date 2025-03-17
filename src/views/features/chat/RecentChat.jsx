@@ -12,6 +12,7 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import { FetchMoreLoaderComp } from '../../../helpers';
 import { debounce, escape } from 'lodash';
 import useChatStream from '../../hooks/useChatStream';
+import ObjectID from 'bson-objectid';
 
 let throttleTimer = null;
 const RecentChat = ({
@@ -81,6 +82,7 @@ const RecentChat = ({
 				moreRecentChatStorage: null,
 				recentChatStorage: null,
 				globalChatMessages: [],
+				currentSessionId: ObjectID().toString(),
 			});
 		};
 	}, []);
