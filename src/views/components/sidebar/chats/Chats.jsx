@@ -29,17 +29,10 @@ const Chats = ({ showChatsDrawer, setShowChatsDrawer, setHideClosedSidebarIcon }
 	}, [showChatsDrawer]);
 
 	const chats = aiChatSessions?.data;
-	const firstChatSessionId = aiChatSessions?.data?.[0]?._id;
 	const emptyChatsState = aiChatSessions?.data?.length === 0;
 	const loadingState = aiChatSessions?.data === undefined;
 	const hasNextPage = aiChatSessions?.hasMore || false;
 	const currentPage = aiChatSessions?.currentPage || 1;
-
-	useEffect(() => {
-		if (showChatsDrawer && firstChatSessionId) {
-			navigate(`/chat/${firstChatSessionId}`);
-		}
-	}, [showChatsDrawer, firstChatSessionId]);
 
 	const handleCloseDrawer = () => {
 		setShowChatsDrawer(false);
