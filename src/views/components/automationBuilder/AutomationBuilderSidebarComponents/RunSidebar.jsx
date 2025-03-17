@@ -6,6 +6,7 @@ import HeaderComponent from './HeaderComponent';
 import { Tooltip } from 'antd';
 import Context from '../../../../context/context';
 import Skeleton from 'react-loading-skeleton';
+import moment from 'moment';
 
 const RunSidebar = ({ automationId, onClose }) => {
 	const {
@@ -79,7 +80,7 @@ const RunSidebar = ({ automationId, onClose }) => {
 													Runtime
 												</span>
 												<span className="run-sidebar-tooltip-item-value">
-													30s
+													Not available
 												</span>
 											</div>
 											<div className="run-sidebar-tooltip-item">
@@ -87,7 +88,11 @@ const RunSidebar = ({ automationId, onClose }) => {
 													Triggered
 												</span>
 												<span className="run-sidebar-tooltip-item-value">
-													14 Feb, 2025 at 12:30 PM
+													{item?.createdAt
+														? moment
+																.unix(item?.createdAt)
+																?.format('DD MMM, YYYY hh:mm A')
+														: 'Not available'}
 												</span>
 											</div>
 											<div className="run-sidebar-tooltip-item">
@@ -95,7 +100,11 @@ const RunSidebar = ({ automationId, onClose }) => {
 													Completed
 												</span>
 												<span className="run-sidebar-tooltip-item-value">
-													14 Feb, 2025 at 12:30 PM
+													{item?.completedAt
+														? moment
+																.unix(item?.completedAt)
+																?.format('DD MMM, YYYY hh:mm A')
+														: 'Not available'}
 												</span>
 											</div>
 											<div className="run-sidebar-tooltip-item">
@@ -121,7 +130,11 @@ const RunSidebar = ({ automationId, onClose }) => {
 										<Tick height={20} width={20} className="tick-icon" />
 									</div>
 									<div className="execution-item-title">Run {index + 1}</div>
-									<div className="execution-item-date">10 mins ago</div>
+									<div className="execution-item-date">
+										{item?.createdAt
+											? moment.unix(item?.createdAt).fromNow()
+											: 'Not available'}
+									</div>
 								</div>
 							</Tooltip>
 						))
