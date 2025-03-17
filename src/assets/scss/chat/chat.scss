@@ -198,3 +198,9 @@
 .loader.visible {
 	opacity: 1;
 }
+
+.chat-message.user-message {
+	.message-content {
+		overflow: auto;
+	}
+}
