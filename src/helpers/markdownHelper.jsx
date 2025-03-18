@@ -262,9 +262,12 @@ export const TypingEffect = memo(
 		const delayTime = 500; // Initial delay before starting the text update (500ms)
 
 		useEffect(() => {
+			if (messageData?.messageId) {
+				return setChunk(text);
+			}
 			setTimeout(() => {
 				setStartRendering(true);
-			}, 100);
+			}, 500);
 		}, []);
 
 		useEffect(() => {
@@ -272,41 +275,6 @@ export const TypingEffect = memo(
 				setChunk(text);
 			}
 		}, [text, startRendering]);
-
-		// const handleChunkRendering = () => {
-		// 	setChunk(text);
-		// }, [text]);
-
-		// useEffect(() => {
-		// 	// Wait for the initial delay before starting chunking
-		// 	const delayStart = setTimeout(() => {
-		// 		let currentIndex = 0;
-		// 		const textLength = text.length;
-
-		// 		// Function to update chunk progressively after delay
-		// 		const interval = setInterval(() => {
-		// 			setChunk((prevChunk) => {
-		// 				const nextIndex = currentIndex + chunkSize;
-		// 				currentIndex = nextIndex;
-
-		// 				// Stop when we have processed the entire text
-		// 				if (nextIndex >= textLength) {
-		// 					clearInterval(interval);
-		// 					return text; // Set complete text once done
-		// 				}
-
-		// 				return text.slice(0, nextIndex); // Add next chunk
-		// 			});
-		// 		}, 100); // Interval to add chunk (100ms)
-
-		// 		// Mark text as visible once chunking starts
-		// 		setIsTextVisible(true);
-
-		// 		return () => clearInterval(interval); // Cleanup interval on unmount
-		// 	}, delayTime); // Initial delay
-
-		// 	return () => clearTimeout(delayStart); // Cleanup timeout on unmount
-		// }, [text]);
 
 		const handleCopyTextClick = useCallback((text) => {
 			navigator?.clipboard?.writeText(text).then(() => {
