@@ -7,20 +7,31 @@ import Context from '../../../../context/context';
 import { FetchMoreLoaderComp } from '../../../../helpers';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import moment from 'moment';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 const infiniteScrollHeight = 'calc(100vh - 72px)';
+const infiniteScrollStyle = {
+	display: 'flex',
+	flexDirection: 'column',
+	alignItems: 'flex-start',
+	flex: '1 0 0',
+	alignSelf: 'stretch',
+};
 const skeletonLoaders = Array.from({ length: 30 }, (_, index) => index + 1);
+const page = 1;
+const limit = 30;
+const append = true;
 
-const Chats = ({ showChatsDrawer, setShowChatsDrawer }) => {
+const Chats = ({ showChatsDrawer, setShowChatsDrawer, setHideClosedSidebarIcon }) => {
 	const navigate = useNavigate();
-	let {
+	const { sessionId } = useParams();
+	const {
 		aiSetup: { getAiChatSessions, aiChatSessions },
 	} = useContext(Context);
 
 	useEffect(() => {
 		if (showChatsDrawer) {
-			getAiChatSessions(1, 30, true);
+			getAiChatSessions(page, limit, append);
 		}
 	}, [showChatsDrawer]);
 
@@ -32,6 +43,7 @@ const Chats = ({ showChatsDrawer, setShowChatsDrawer }) => {
 
 	const handleCloseDrawer = () => {
 		setShowChatsDrawer(false);
+		setHideClosedSidebarIcon(false);
 	};
 
 	const formatTimestamp = (timestamp) => {
@@ -42,13 +54,13 @@ const Chats = ({ showChatsDrawer, setShowChatsDrawer }) => {
 
 	const fetchMoreChats = () => {
 		if (hasNextPage) {
-			getAiChatSessions(currentPage + 1, 30, false);
+			const nextPage = currentPage + 1;
+			getAiChatSessions(nextPage, limit, !append);
 		}
 	};
 
 	const handleChatNavigation = useCallback((chat) => {
 		navigate(`/chat/${chat?._id}`);
-		handleCloseDrawer();
 	}, []);
 
 	return (
@@ -90,21 +102,16 @@ const Chats = ({ showChatsDrawer, setShowChatsDrawer }) => {
 							next={fetchMoreChats}
 							hasMore={hasNextPage || false}
 							loader={<FetchMoreLoaderComp wrapperStyle={{ width: '100%' }} />}
-							style={{
-								display: 'flex',
-								flexDirection: 'column',
-								alignItems: 'flex-start',
-								flex: '1 0 0',
-								alignSelf: 'stretch',
-							}}
+							style={infiniteScrollStyle}
 							height={infiniteScrollHeight}
 						>
 							{chats?.map((chat) => (
 								<div
 									key={chat?.id}
-									className="chat-container"
+									className={`chat-container ${
+										sessionId === chat?._id ? 'active-chat' : ''
+									}`}
 									onClick={() => handleChatNavigation(chat)}
-									style={{ cursor: 'pointer' }}
 								>
 									<div className="chat-title-and-query">
 										<p className="chat-title">{chat?.title}</p>
