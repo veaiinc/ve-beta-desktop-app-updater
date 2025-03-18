@@ -69,7 +69,7 @@ const ProposalPopup = ({ open, closeModal, clientDetails = null, commonState }) 
 	}, [commonState]);
 
 	useEffect(() => {
-		if (info?.selectedOption !== 'All') {
+		if (info?.selectedOption !== 'All' && open) {
 			getMyWorkflowsTemplatesData(1, info?.search, false, info?.selectedOption);
 		} else {
 			if (open && !myWorkflowsForProposalPopup?.length) getMyWorkflowsForProposalPopup(1);
@@ -77,13 +77,13 @@ const ProposalPopup = ({ open, closeModal, clientDetails = null, commonState }) 
 	}, [info?.selectedOption]);
 
 	useEffect(() => {
-		if (myWorkflowsForProposalPopup) {
+		if (myWorkflowsForProposalPopup && open) {
 			myWorkflowsDataParser(myWorkflowsForProposalPopup);
 		}
 	}, [myWorkflowsForProposalPopup]);
 
 	useEffect(() => {
-		if (myMoreWorkflowsForProposalPopup) {
+		if (myMoreWorkflowsForProposalPopup && open) {
 			myWorkflowsDataParser(myMoreWorkflowsForProposalPopup, true);
 		}
 	}, [myMoreWorkflowsForProposalPopup]);
