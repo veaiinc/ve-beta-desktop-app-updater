@@ -31,6 +31,7 @@ const Automations = () => {
 			getAutomationsList,
 			createAutomation,
 			deleteAutomation,
+			updateContextStateInAutomationBuilder,
 		},
 	} = useContext(Context);
 
@@ -65,6 +66,15 @@ const Automations = () => {
 				deletedAutomationIds: [...prev?.deletedAutomationIds, automationId],
 			}));
 			message?.success('Automation deleted successfully');
+			if (automationsLength === 1) {
+				updateContextStateInAutomationBuilder({
+					automationsList: {
+						data: [],
+						hasNextPage: false,
+						currentPage: 1,
+					},
+				});
+			}
 		} else message?.error('Failed to delete automation');
 	};
 
