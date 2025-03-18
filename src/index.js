@@ -8,6 +8,7 @@ import './assets/fonts/Inter/inter.css';
 import './assets/fonts/brasley/brasley.css';
 import './assets/fonts/brasley/brasley.css';
 import './assets/fonts/Manrope/manrope.css';
+import './assets/fonts/TNY_Adobe_Caslon_Pro_Regular/calson.css';
 import './assets/scss/global.scss';
 import './index.css';
 
