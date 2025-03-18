@@ -35,6 +35,11 @@ const actionHandlers = {
 		variables: action?.payload,
 	}),
 
+	UPDATE_CONTEXT_STATE_IN_AUTOMATION_BUILDER: (state, action) => ({
+		...state,
+		...action?.payload,
+	}),
+
 	// SET_PREVIOUS_STEP_RESPONSE: (state, action) => ({
 	// 	...state,
 	// 	previousStepResponse: action.payload,
