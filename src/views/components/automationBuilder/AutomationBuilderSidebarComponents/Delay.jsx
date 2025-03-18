@@ -26,6 +26,14 @@ const delayInOptions = [
 	},
 ];
 
+const enforceMinMax = (val) => {
+	let min = 1;
+	if (val < min) {
+		return min + '';
+	}
+	return val;
+};
+
 const Delay = ({
 	onBack,
 	onSave,
@@ -90,14 +98,6 @@ const Delay = ({
 	const updateInfo = useCallback((data) => {
 		setInfo((prev) => ({ ...prev, ...data }));
 	}, []);
-
-	function enforceMinMax(val) {
-		let min = 1;
-		if (val < min) {
-			return min + '';
-		}
-		return val;
-	}
 
 	return (
 		<div className="inAppActionsContainer">

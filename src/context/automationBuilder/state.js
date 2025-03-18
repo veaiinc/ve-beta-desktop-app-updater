@@ -261,20 +261,6 @@ export const AutomationBuilderState = () => {
 			if (response?.[0] === true) {
 				const variables = payload?.editMode ? response?.[1]?.slice(0, -1) : response?.[1];
 
-				variables[0] =
-					variables?.[0]?.stepName === 'create-formResponse'
-						? {
-								stepName: variables?.[0]?.stepName,
-								stepId: variables?.[0]?.stepId,
-								stepApp: variables?.[0]?.stepApp,
-								variables: variables?.[0]?.variables?.[0]?.blocks?.map((item) => ({
-									name: item?.question,
-									type: item?.type,
-									_id: item?._id,
-								})),
-						  }
-						: variables?.[0];
-
 				dispatch({
 					type: Actions.SET_VARIABLES,
 					payload: {

@@ -117,6 +117,16 @@ const SwitchStep = ({
 	};
 
 	const handleSave = () => {
+		if (!info?.title) {
+			message.error('Title is required');
+			return;
+		}
+
+		if (!info?.description) {
+			message.error('Description is required');
+			return;
+		}
+
 		const hasEmptyCondition = info?.conditions?.some((condition) => {
 			const selectedCondition = conditionsList.find((c) => c.value === condition.condition);
 			const isValueRequired = selectedCondition?.needValue;
