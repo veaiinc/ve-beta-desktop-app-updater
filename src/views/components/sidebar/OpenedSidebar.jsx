@@ -18,9 +18,8 @@ import WorkspaceListComponent from './Workspace';
 import useLogout from '../../hooks/useLogout';
 import { message, Tooltip } from 'antd';
 import Notifications from './notifications/Notifications';
-import Chats from './chats/Chats';
-
 import Context from '../../../context/context';
+import ChatHistory from './chatHistory/ChatHistory';
 
 const MODULE_NAME_MAP = {
 	'conversational agent': 'conversationalAgent',

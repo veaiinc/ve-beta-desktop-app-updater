@@ -22,7 +22,7 @@ const page = 1;
 const limit = 30;
 const append = true;
 
-const Chats = ({ showChatsDrawer, setShowChatsDrawer, setHideClosedSidebarIcon }) => {
+const ChatHistory = ({ showChatsDrawer, setShowChatsDrawer, setHideClosedSidebarIcon }) => {
 	const navigate = useNavigate();
 	const { sessionId } = useParams();
 	const {
@@ -130,4 +130,4 @@ const Chats = ({ showChatsDrawer, setShowChatsDrawer, setHideClosedSidebarIcon }
 	);
 };
 
-export default memo(Chats);
+export default memo(ChatHistory);
