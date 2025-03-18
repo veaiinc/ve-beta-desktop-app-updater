@@ -87,6 +87,20 @@ const triggersList = {
 				event: 'delete',
 				module: 'createFile',
 			},
+			{
+				app: 'inApp',
+				icon: null,
+				label: 'Template Created',
+				event: 'create',
+				module: 'template',
+			},
+			{
+				app: 'inApp',
+				icon: null,
+				label: 'Template Deleted',
+				event: 'delete',
+				module: 'template',
+			},
 		],
 	},
 	google: {

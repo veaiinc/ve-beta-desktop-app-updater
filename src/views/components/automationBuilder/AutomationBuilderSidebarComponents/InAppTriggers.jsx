@@ -5,6 +5,7 @@ import TaskTriggers from './TaskTriggers';
 import FormResponseTrigger from './FormResponseTrigger';
 import ClientTriggers from './ClientTriggers';
 import FileTriggers from './FileTriggers';
+import TemplateTriggers from './TemplateTriggers';
 
 const InAppTriggers = ({ onClose, onSave, addTriggerLoading, triggerData, activeStepsData }) => {
 	const moduleMapper = useMemo(() => {
@@ -38,6 +39,15 @@ const InAppTriggers = ({ onClose, onSave, addTriggerLoading, triggerData, active
 			),
 			createFile: (
 				<FileTriggers
+					onClose={onClose}
+					onSave={onSave}
+					addTriggerLoading={addTriggerLoading}
+					triggerData={triggerData}
+					activeStepsData={activeStepsData}
+				/>
+			),
+			template: (
+				<TemplateTriggers
 					onClose={onClose}
 					onSave={onSave}
 					addTriggerLoading={addTriggerLoading}
