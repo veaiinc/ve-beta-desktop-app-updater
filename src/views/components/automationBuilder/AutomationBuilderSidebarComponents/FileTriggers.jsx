@@ -6,6 +6,7 @@ import Context from '../../../../context/context';
 import { message } from 'antd';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { FetchMoreLoaderComp } from '../../../../helpers';
+import Spinner from '../../loaders/Spinner';
 
 const FileTriggers = ({
 	onClose,
@@ -27,14 +28,13 @@ const FileTriggers = ({
 	const [info, setInfo] = useState({
 		title: '',
 		description: '',
-		actionType: '',
-		previousStepId: '',
 		workflowTemplates: [],
 		loading: false,
 		currentPage: 1,
 		hasNextPage: false,
 		selectedTemplate: null,
 		chooseFromTemplate: false,
+		selectedTemplateLoading: false,
 	});
 
 	useEffect(() => {
@@ -43,9 +43,11 @@ const FileTriggers = ({
 				...prev,
 				title: activeStepsData?.title,
 				description: activeStepsData?.description,
+				selectedTemplate: null,
+				selectedTemplateLoading: true,
 			}));
 			getSpecificTemplatesInfo({
-				templateInfoId: activeStepsData?.inputBody?.fileId,
+				templateInfoId: activeStepsData?.workflowTemplateId,
 			});
 		}
 	}, [activeStepsData]);
@@ -55,13 +57,14 @@ const FileTriggers = ({
 	}, []);
 
 	useEffect(() => {
-		if (specificTemplatesInfo && activeStepsData) {
+		if (activeStepsData && specificTemplatesInfo) {
 			setInfo((prev) => ({
 				...prev,
 				selectedTemplate: specificTemplatesInfo,
+				selectedTemplateLoading: false,
 			}));
 		}
-	}, [specificTemplatesInfo]);
+	}, [specificTemplatesInfo, activeStepsData]);
 
 	useEffect(() => {
 		if (myWorkflows) {
@@ -120,14 +123,6 @@ const FileTriggers = ({
 			},
 		});
 	}, [onSave, info?.selectedTemplate, info?.title, info?.description, triggerData?.event]);
-
-	// const onChangeButtonClick = useCallback(() => {
-	// 	if (activeStepsData) {
-	// 		handleChangeClick(activeStepsData?.app);
-	// 	} else {
-	// 		onBack();
-	// 	}
-	// }, [handleChangeClick, activeStepsData, onBack]);
 
 	const myWorkflowsDataParser = useCallback(
 		(dataToBeUsed, fetchMore = false) => {
@@ -259,6 +254,8 @@ const FileTriggers = ({
 									</button>
 								</div>
 							</div>
+						) : info?.selectedTemplateLoading ? (
+							<Spinner cssstyle={{ margin: '0 auto' }} />
 						) : (
 							<>
 								<button

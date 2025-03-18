@@ -146,7 +146,10 @@ const AutomationBuilder = () => {
 	}, [info?.activeEdge]);
 
 	useEffect(() => {
-		if (info?.previousNode || info?.activeStepsData) {
+		if (
+			info?.previousNode ||
+			(info?.activeStepsData && info?.activeStepsData?.type !== 'trigger')
+		) {
 			const data = info?.previousNode?.data?.currentStep;
 			const payload = {};
 			if (data?.app === 'inApp') {
