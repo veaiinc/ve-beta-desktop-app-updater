@@ -7,6 +7,7 @@ import { FetchMoreLoaderComp } from '../../../helpers';
 import QuickActions from '../../components/globalComponents/QuickActions';
 import { message } from 'antd';
 import Skeleton from 'react-loading-skeleton';
+import { useNavigate } from 'react-router-dom';
 
 const limit = 10;
 const append = true;
@@ -23,12 +24,19 @@ const infiniteScrollHeight = 'calc(100vh - 240px)';
 const skeletonLoaders = Array.from({ length: 6 }, (_, index) => index + 1);
 
 const Automations = () => {
+	const navigate = useNavigate();
 	const {
-		automationBuilder: { automationsList, getAutomationsList, deleteAutomation },
+		automationBuilder: {
+			automationsList,
+			getAutomationsList,
+			createAutomation,
+			deleteAutomation,
+		},
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
 		deletedAutomationIds: [],
+		createAutomationLoading: false,
 	});
 
 	const automations = automationsList?.data;
@@ -60,6 +68,25 @@ const Automations = () => {
 		} else message?.error('Failed to delete automation');
 	};
 
+	const handleCreateAutomation = async () => {
+		if (info?.createAutomationLoading) return;
+		setInfo((prev) => ({ ...prev, createAutomationLoading: true }));
+		const response = await createAutomation({
+			name: 'Untitled Automation',
+			version: 1,
+			steps: [],
+			status: 'draft',
+		});
+		if (response?.[0]) {
+			setInfo((prev) => ({ ...prev, createAutomationLoading: false }));
+			const automationId = response?.[1]?._id;
+			navigate(`/automation-builder/${automationId}`);
+		} else {
+			message?.error('Failed to create automation');
+			setInfo((prev) => ({ ...prev, createAutomationLoading: false }));
+		}
+	};
+
 	return (
 		<div className="automationsContainer">
 			<header className="header">
@@ -81,7 +108,12 @@ const Automations = () => {
 					))}
 				</div>
 			) : automationsEmpty ? (
-				<h1 className="emptyAutomations">No automations found!</h1>
+				<div className="emptyAutomationsContainer">
+					<h1 className="emptyAutomations">No automations found!</h1>
+					<button className="createAutomationButton" onClick={handleCreateAutomation}>
+						Create Automation
+					</button>
+				</div>
 			) : (
 				<InfiniteScroll
 					dataLength={automationsLength}

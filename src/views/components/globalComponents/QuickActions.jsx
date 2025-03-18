@@ -32,8 +32,7 @@ const QuickActions = ({ styles, customActions = [], clientDetails = null }) => {
 		isAutomationLoading: false,
 	});
 
-	let {
-		templates: { toggleCreateLeadModal },
+	const {
 		profileInfo: { tenantUserAccessControls },
 		automationBuilder: { createAutomation },
 	} = useContext(Context);
