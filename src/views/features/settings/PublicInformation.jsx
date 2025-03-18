@@ -264,10 +264,9 @@ const PublicInformation = () => {
 
 	return (
 		<div className="settingsBoxContainer publicInformationComponent">
+			<h1>Public Information</h1>
 			<div className="header">
-				<h1>Public Information</h1>
-
-				<span className="svgHolder">
+				{/* <span className="svgHolder">
 					<Tooltip
 						placement="bottomRight"
 						title={
@@ -282,162 +281,163 @@ const PublicInformation = () => {
 					>
 						<QuestionMark />
 					</Tooltip>
-				</span>
-			</div>
+				</span> */}
 
-			{logoUrl ? (
-				<Dropzone
-					onDrop={checkUploadLogo}
-					accept={'image/png'}
-					multiple={false}
-					// disabled={!isAdmin}
-				>
-					{({ getRootProps, getInputProps }) => (
-						<div
-							className="upload-brand-embeded-btn"
-							{...getRootProps()}
-							onClick={() => {
-								logoRef?.current?.click();
-							}}
+				<div className="logoDivProfile">
+					{logoUrl ? (
+						<Dropzone
+							onDrop={checkUploadLogo}
+							accept={'image/png'}
+							multiple={false}
+							// disabled={!isAdmin}
 						>
-							<input {...getInputProps()} ref={logoRef} />
-
-							<div className="imageCircleDiv">
-								<img src={logoUrl} alt="logo" />
-								<div className="editImage">
-									<EditSvg />
-								</div>
-							</div>
-						</div>
-					)}
-				</Dropzone>
-			) : (
-				<Dropzone
-					onDrop={checkUploadLogo}
-					accept={'image/png'}
-					multiple={false}
-					// disabled={!isAdmin}
-				>
-					{({ getRootProps, getInputProps }) => (
-						<div
-							className="upload-brand-embeded-btn"
-							{...getRootProps()}
-							// style={{ cursor: !isAdmin ? 'not-allowed' : '' }}
-						>
-							<input {...getInputProps()} />
-							<div className="upload-brand-placeholder">
-								<input
-									type="file"
-									style={{
-										opacity: 0,
-										position: 'absolute',
-										top: 0,
-										left: 0,
-										width: '100%',
-										height: '100%',
-										cursor: 'pointer',
+							{({ getRootProps, getInputProps }) => (
+								<div
+									className="upload-brand-embeded-btn"
+									{...getRootProps()}
+									onClick={() => {
+										logoRef?.current?.click();
 									}}
-									{...getInputProps()}
-								/>
-								<div className="icon_name_div">
-									{' '}
-									<CloudFileUploadSvg />
-									<p>Upload image</p>
+								>
+									<input {...getInputProps()} ref={logoRef} />
+
+									<div className="imageCircleDiv">
+										<img src={logoUrl} alt="logo" />
+										<div className="editImage">
+											<EditSvg />
+										</div>
+									</div>
 								</div>
-							</div>
-						</div>
+							)}
+						</Dropzone>
+					) : (
+						<Dropzone
+							onDrop={checkUploadLogo}
+							accept={'image/png'}
+							multiple={false}
+							// disabled={!isAdmin}
+						>
+							{({ getRootProps, getInputProps }) => (
+								<div
+									className="upload-brand-embeded-btn"
+									{...getRootProps()}
+									// style={{ cursor: !isAdmin ? 'not-allowed' : '' }}
+								>
+									<input {...getInputProps()} />
+									<div className="upload-brand-placeholder">
+										<input
+											type="file"
+											style={{
+												opacity: 0,
+												position: 'absolute',
+												top: 0,
+												left: 0,
+												width: '100%',
+												height: '100%',
+												cursor: 'pointer',
+											}}
+											{...getInputProps()}
+										/>
+										<div className="icon_name_div">
+											{' '}
+											<CloudFileUploadSvg />
+											<p>Upload image</p>
+										</div>
+									</div>
+								</div>
+							)}
+						</Dropzone>
 					)}
-				</Dropzone>
-			)}
-
-			<div className="detailsBody">
-				<div className="inputDiv">
-					<InputForModules
-						label={'Business Name'}
-						type={'text'}
-						placeholder={'Enter your Business Name'}
-						name={'businessName'}
-						onChange={handleChange}
-						value={overviewState?.businessName}
-						isError={false}
-						errorMessage={''}
-						key={'businessname'}
-					/>
 				</div>
-
-				<div className="inputDiv">
-					<InputForModules
-						label={'Company Email'}
-						type={'email'}
-						placeholder={overviewState?.email || ''}
-						name={'email'}
-						value={overviewState?.email}
-						onChange={handleChange}
-						isError={error?.erroremail?.error || false}
-						errorMessage={error?.erroremail?.message || ''}
-						key={'businessemail'}
-					/>
-				</div>
-
-				<div className="inputDiv">
-					<InputForModules
-						label={'Website'}
-						type={'text'}
-						value={overviewState?.website || ''}
-						onChange={handleChange}
-						placeholder={'https://www.studio.com'}
-						name={'website'}
-						isError={error?.errorwebsite?.error || false}
-						errorMessage={error?.errorwebsite?.message || ''}
-						key={'businesswebsite'}
-					/>
-				</div>
-
-				<div className="flex-gap">
+				<div className="detailsBody">
 					<div className="inputDiv">
 						<InputForModules
-							label="Company Type"
-							type={'dropdown'}
-							options={businessTypesOptions}
-							placeholder="Choose your Company Type"
+							label={'Business Name'}
+							type={'text'}
+							placeholder={'Enter your Business Name'}
 							name={'businessName'}
-							value={overviewState?.businessType || ''}
 							onChange={handleChange}
+							value={overviewState?.businessName}
 							isError={false}
-							disabled={true}
 							errorMessage={''}
-							key={'businessType'}
+							key={'businessname'}
 						/>
 					</div>
 
 					<div className="inputDiv">
 						<InputForModules
-							label={'Phone Number'}
-							type={'phoneNumber'}
+							label={'Company Email'}
+							type={'email'}
+							placeholder={overviewState?.email || ''}
+							name={'email'}
+							value={overviewState?.email}
 							onChange={handleChange}
-							value={overviewState.phoneNumber || ''}
-							placeholder={'Enter your Phone Number'}
-							name={'phoneNumber'}
-							isError={error?.errorphoneNumber?.error || false}
-							errorMessage={error?.errorphoneNumber?.message || ''}
-							defaultCountry={'IN'}
-							key={'businessphone'}
+							isError={error?.erroremail?.error || false}
+							errorMessage={error?.erroremail?.message || ''}
+							key={'businessemail'}
 						/>
 					</div>
-				</div>
 
-				<div className="inputDiv">
-					<InputForModules
-						label={'Address'}
-						type={'text'}
-						onChange={handleChange}
-						value={overviewState.address || ''}
-						placeholder={'Enter your Company Address'}
-						name={'address'}
-						isError={false}
-						errorMessage={''}
-						key={'businessaddress'}
-					/>
+					<div className="inputDiv">
+						<InputForModules
+							label={'Website'}
+							type={'text'}
+							value={overviewState?.website || ''}
+							onChange={handleChange}
+							placeholder={'https://www.studio.com'}
+							name={'website'}
+							isError={error?.errorwebsite?.error || false}
+							errorMessage={error?.errorwebsite?.message || ''}
+							key={'businesswebsite'}
+						/>
+					</div>
+
+					<div className="flex-gap">
+						<div className="inputDiv">
+							<InputForModules
+								label="Company Type"
+								type={'dropdown'}
+								options={businessTypesOptions}
+								placeholder="Choose your Company Type"
+								name={'businessName'}
+								value={overviewState?.businessType || ''}
+								onChange={handleChange}
+								isError={false}
+								disabled={true}
+								errorMessage={''}
+								key={'businessType'}
+							/>
+						</div>
+
+						<div className="inputDiv">
+							<InputForModules
+								label={'Phone Number'}
+								type={'phoneNumber'}
+								onChange={handleChange}
+								value={overviewState.phoneNumber || ''}
+								placeholder={'Enter your Phone Number'}
+								name={'phoneNumber'}
+								isError={error?.errorphoneNumber?.error || false}
+								errorMessage={error?.errorphoneNumber?.message || ''}
+								defaultCountry={'IN'}
+								key={'businessphone'}
+							/>
+						</div>
+					</div>
+
+					<div className="inputDiv">
+						<InputForModules
+							label={'Address'}
+							type={'text'}
+							onChange={handleChange}
+							value={overviewState.address || ''}
+							placeholder={'Enter your Company Address'}
+							name={'address'}
+							isError={false}
+							errorMessage={''}
+							key={'businessaddress'}
+						/>
+					</div>
 				</div>
 			</div>
 		</div>

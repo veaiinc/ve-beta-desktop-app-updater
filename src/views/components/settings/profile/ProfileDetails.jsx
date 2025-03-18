@@ -47,6 +47,7 @@ const ProfileDetailsComponent = ({
 	return (
 		<>
 			<div className={`${'formsMain'} `}>
+				<h2 className="profile-title">My Profile </h2>
 				<div className="profileHeader">
 					<div className="imageCircleDiv">
 						{userDetails?.logoURL ? (
@@ -85,7 +86,7 @@ const ProfileDetailsComponent = ({
 							<PencilkSvg />
 						</div>
 					</div>
-					<div className="details">
+					{/* <div className="details">
 						<div>
 							<div className="full_name_div">
 								<p>{userDetails?.fullName || ''}</p>
@@ -96,29 +97,30 @@ const ProfileDetailsComponent = ({
 
 							<p>{userDetails?.email}</p>
 						</div>
-					</div>
-				</div>
+					</div> */}
 
-				<div className="profileBody">
-					<div className="name_phone_container">
+					<div className="profileBody">
 						<div>
 							<div className="iconAlignclass">
 								<UserAccountSvg />
-
-								<input
-									ref={fullNameRef}
-									type="text"
-									placeholder={'Enter Your Full Name'}
-									value={userDetails?.fullName}
-									name="fullName"
-									onChange={(e) =>
-										handleUsernameAndPhoneNumberUpdate({
-											type: 'fullName',
-											value: e?.target?.value,
-										})
-									}
-									required
-								/>
+								<div className="input-container">
+									<input
+										ref={fullNameRef}
+										type="text"
+										placeholder={'Enter Your Full Name'}
+										value={userDetails?.fullName}
+										name="fullName"
+										className="role-input"
+										onChange={(e) =>
+											handleUsernameAndPhoneNumberUpdate({
+												type: 'fullName',
+												value: e?.target?.value,
+											})
+										}
+										required
+									/>
+									<p className="role">{role || ''}</p>
+								</div>
 							</div>
 							{errors?.fullName && <p className="errorMessage">{errors?.fullName}</p>}
 						</div>
@@ -130,6 +132,7 @@ const ProfileDetailsComponent = ({
 									placeholder={'Enter Phone Number'}
 									value={userDetails?.phoneNumber || ''}
 									name="phoneNumber"
+									className="PhoneInput"
 									onChange={(phoneNumber) =>
 										handleUsernameAndPhoneNumberUpdate({
 											type: 'phoneNumber',
@@ -142,21 +145,21 @@ const ProfileDetailsComponent = ({
 								<p className="errorMessage">{errors?.phoneNumber}</p>
 							)}
 						</div>
-					</div>
-					<div>
-						<div className="iconAlignclass">
-							<EmailSvg />
+						<div>
+							<div className="iconAlignclass">
+								<EmailSvg />
 
-							<input
-								type="text"
-								placeholder={'Enter the Name'}
-								value={userDetails?.email}
-								disabled={true}
-								readOnly={true}
-								required
-							/>
+								<input
+									type="text"
+									placeholder={'Enter the Name'}
+									value={userDetails?.email}
+									disabled={true}
+									readOnly={true}
+									required
+								/>
 
-							<GreenTickSvg />
+								<GreenTickSvg />
+							</div>
 						</div>
 					</div>
 				</div>

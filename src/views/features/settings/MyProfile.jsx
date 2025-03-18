@@ -26,9 +26,10 @@ const MyProfile = () => {
 			updateUserDetailsState,
 		},
 		companyInfo: { updatePrefernces, getTenantPreferences, tenantPreferenceData },
+		themeInfo: { theme, updateTheme },
 		authInfo: { updateUserDetails },
 	} = useContext(Context);
-
+	console.log(theme);
 	// # States
 	const [showForm, setShowForm] = useState(false);
 	const [isEditMode, setIsEditMode] = useState({ isValueChanged: false, timeout: null });
@@ -276,14 +277,21 @@ const MyProfile = () => {
 		}
 	};
 
-	const updateThemeSubmitHandler = async (mode) => {
-		const json = {
-			theme: mode,
-		};
-		const response = await updatePrefernces(json);
-		if (response[0]) {
-			setActiveTheme(mode);
-		}
+	// const updateThemeSubmitHandler = async (mode) => {
+	// 	const json = {
+	// 		theme: mode,
+	// 	};
+	// 	const response = await updatePrefernces(json);
+	// 	if (response[0]) {
+	// 		setActiveTheme(mode);
+	// 	}
+	// };
+	const updateThemeSubmitHandler = async (theme) => {
+		updateTheme(theme);
+	};
+
+	const handleThemeChange = (selectedTheme) => {
+		updateThemeSubmitHandler(selectedTheme);
 	};
 
 	return (
@@ -329,11 +337,38 @@ const MyProfile = () => {
 						qrcode={qrcode}
 					/>
 				</div> */}
-
+				<div className="theme-container">
+					<div className="theme-container-item">
+						<p>Change Theme</p>
+						<div className="theme-container-item-content">
+							<p
+								onClick={() => handleThemeChange('light')}
+								className={theme === 'light' ? 'active' : ''}
+								style={{ cursor: 'pointer' }}
+							>
+								Light Mode
+							</p>
+							<span className="theme-container-item-content-separator">|</span>
+							<p
+								onClick={() => handleThemeChange('dark')}
+								className={theme === 'dark' ? 'active' : ''}
+								style={{ cursor: 'pointer' }}
+							>
+								Dark Mode
+							</p>
+						</div>
+					</div>
+				</div>
 				{/* Temporary Hide */}
 				<Notifications />
-				<div className={'accessSettingsContainer'} id="leaveworkspace">
-					<LeaveWorkspaceComponent />
+
+				<div className="danger-zone">
+					<div className="danger-zone-header">
+						<p className="danger-zone-title">DANGER ZONE</p>
+					</div>
+					<div className={'accessSettingsContainer'} id="leaveworkspace">
+						<LeaveWorkspaceComponent />
+					</div>
 				</div>
 			</div>
 		</div>

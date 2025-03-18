@@ -14,11 +14,13 @@ import { ContactsState } from './contacts/state';
 import { DocumentPreviewState } from './DocumentPreview/state';
 import { AutomationBuilderState } from './automationBuilder/state';
 import { NotesState } from './notes/state';
+import { ThemeState } from './Theme/state';
 
 const useCombineState = () => {
 	// Call all hooks at the top level
 	const chatInfo = ChatState();
 	const templates = TemplatesState();
+	const themeInfo = ThemeState();
 	const profileInfo = ProfileState();
 	const companyInfo = CompanySettingsState();
 	const galleryInfo = Galleries();
@@ -37,6 +39,7 @@ const useCombineState = () => {
 		() => ({
 			chatInfo,
 			templates,
+			themeInfo,
 			profileInfo,
 			companyInfo,
 			galleryInfo,
@@ -54,6 +57,7 @@ const useCombineState = () => {
 		[
 			chatInfo,
 			templates,
+			themeInfo,
 			profileInfo,
 			companyInfo,
 			galleryInfo,

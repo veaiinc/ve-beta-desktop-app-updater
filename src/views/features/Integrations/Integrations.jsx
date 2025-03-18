@@ -208,7 +208,7 @@ const Integrations = () => {
 		};
 		fetchConnectedPlatforms();
 	}, []);
-
+	console.log(info);
 	useEffect(() => {
 		if (info?.connectedThirdParties) {
 			const platforms = [];
@@ -231,7 +231,7 @@ const Integrations = () => {
 					accounts: info.connectedThirdParties.notion,
 				});
 			}
-			if (info.connectedThirdParties?.length > 0) {
+			if (info.connectedThirdParties.zoho?.length > 0) {
 				platforms.push({
 					icon: zoho,
 					title: 'Zoho',
@@ -239,7 +239,7 @@ const Integrations = () => {
 					accounts: info.connectedThirdParties.zoho,
 				});
 			}
-			if (info.connectedThirdParties?.length > 0) {
+			if (info.connectedThirdParties.slack?.length > 0) {
 				platforms.push({
 					icon: slack,
 					title: 'Slack',
