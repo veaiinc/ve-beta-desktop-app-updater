@@ -1,6 +1,5 @@
 import React, { useEffect, useCallback, useState } from 'react';
 import { useContext } from 'react';
-import Sales from '../../../features/sales/Sales';
 import WorkflowCard from './workflows/workflowCard/WorkflowCard';
 import '../../../../assets/scss/home_page/homepage.scss';
 import Context from '../../../../context/context';
@@ -13,11 +12,7 @@ import MyWorkflowsModals from '../../modalsV2/workflowsModals/MyWorkflowsModals'
 import CopiedModal from '../../modalsV2/workflowsModals/CopiedModal';
 import { Spin } from 'antd';
 import PublicLinkGeneratedModal from '../../modalsV2/workflowsModals/PublicLinkGeneratedModal';
-import UpdatedPageLoader from '../../loaders/UpdatedPageLoader';
-import InitialPageLoader from '../../loaders/PageLoader';
 import Skeleton from 'react-loading-skeleton';
-
-const limit = 10;
 
 const WorkflowsTab = ({ searchValue }) => {
 	const {
@@ -57,6 +52,14 @@ const WorkflowsTab = ({ searchValue }) => {
 			updateStateValues({ salePageRefresh: null });
 		}
 	}, [salePageRefresh]);
+
+	useEffect(() => {
+		const page = 1;
+		const fetchMore = false;
+		updateStateValues({ myWorkflows: null, myMoreWorkflows: null });
+		setInfo((prev) => ({ ...prev, myWorkflowData: null }));
+		getMyWorkflowTemplatesData(page, fetchMore);
+	}, [searchValue]);
 
 	useEffect(() => {
 		if (myWorkflows) {
@@ -106,9 +109,9 @@ const WorkflowsTab = ({ searchValue }) => {
 		async (page, fetchMore = false) => {
 			const payload = {
 				filters: {
+					title: searchValue,
 					limit: 10,
 					page: page,
-					title: searchValue,
 					type: 'workspace',
 					status: 'published',
 					sortBy: 'createdAt',
