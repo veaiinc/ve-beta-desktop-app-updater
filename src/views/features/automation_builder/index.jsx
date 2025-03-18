@@ -46,13 +46,7 @@ const edgeTypes = {
 };
 const AutomationBuilder = () => {
 	const {
-		templates: {
-			addEmailTriggersInWorkflow,
-			getMyWorkflows,
-			getTemplatesListForCreateLead,
-			getAllEmailTemplates,
-			allEmailTemplates,
-		},
+		templates: { getAllEmailTemplates, allEmailTemplates },
 		automationBuilder: {
 			getAutomation,
 			specificAutomationInfo,
@@ -521,6 +515,7 @@ const AutomationBuilder = () => {
 			deleteModalOpen: false,
 			deleteStepData: null,
 			activeStepsData: null,
+			toolBarOpen: false,
 		}));
 	}, []);
 
