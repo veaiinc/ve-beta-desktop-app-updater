@@ -1,4 +1,4 @@
-import React, { memo, useContext, useEffect, useState, useMemo, useCallback } from 'react';
+import React, { memo, useContext, useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import { default as ReactMarkdown } from 'react-markdown';
 import '../assets/scss/markdown.scss';
 import '../assets/scss/markdownHelper.scss';
@@ -18,6 +18,56 @@ import rehypeRaw from 'rehype-raw';
 import 'katex/dist/katex.min.css';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { dracula } from 'react-syntax-highlighter/dist/esm/styles/prism';
+
+let newText = `# The Impact and Evolution of Artificial Intelligence  
+
+## Introduction  
+Artificial Intelligence (AI) is one of the most transformative technological advancements of our time. It enables machines to perform tasks that typically require human intelligence, such as learning, reasoning, problem-solving, and decision-making. AI has already revolutionized various industries, from healthcare and finance to manufacturing and entertainment. This essay explores the evolution of AI, its key applications, ethical considerations, and future prospects.  
+
+## The Evolution of AI  
+The concept of AI dates back to the mid-20th century when mathematicians and scientists like Alan Turing proposed the idea of machines simulating human intelligence. By the 1950s and 1960s, researchers developed the first AI programs capable of solving mathematical problems and playing chess. AI development continued in cycles, experiencing periods of rapid growth (AI booms) and stagnation (AI winters).  
+
+In recent years, AI has witnessed an unprecedented surge, thanks to advancements in machine learning, deep learning, and neural networks. The availability of massive datasets, improved computational power, and breakthroughs in natural language processing (NLP) have propelled AI research to new heights. Models like OpenAI’s GPT-4, Google’s Gemini, and Mixtral’s AI systems are now capable of generating human-like text, translating languages, and assisting in complex problems.  
+
+## Key Applications of AI  
+AI is integrated into numerous sectors, improving efficiency, accuracy, and decision-making. Some of the most impactful applications include:  
+
+### **Healthcare**  
+AI models are being used for early disease detection, medical diagnosis, robot-assisted surgeries, and personalized treatment plans. AI-driven medical imaging and predictive analytics have significantly improved patient outcomes.  
+
+### **Finance**  
+AI helps detect fraudulent transactions, automate trading strategies, and enhance customer service through AI-powered chatbots and financial advisors. Predictive analytics enables better risk assessment and investment decisions.  
+
+### **Education**  
+AI-powered ed-tech platforms offer personalized learning experiences, automated grading, and virtual tutors, making education more accessible and engaging for students worldwide.  
+
+### **Manufacturing and Robotics**  
+AI-enabled robots improve precision in industrial processes, automate repetitive tasks, and increase productivity in industries such as automobile manufacturing and supply chain optimization.  
+
+### **Entertainment and Media**  
+AI creates personalized content recommendations on streaming platforms, develops AI-generated works of art and music, and plays a role in deepfake technology.  
+
+## Ethical Considerations and Challenges  
+Despite its benefits, AI also raises ethical and social concerns. Some challenges include:  
+
+- **Bias and Discrimination**: AI models trained on biased data can lead to unfair outcomes, particularly in hiring processes, criminal justice, and facial recognition.  
+- **Privacy and Security Risks**: AI-driven surveillance and data collection pose threats to personal privacy.  
+- **Job Displacement**: The automation of repetitive and cognitive tasks may lead to job losses in various industries, affecting employment rates and economic stability.  
+- **Autonomous Weapons and Misinformation**: AI's potential misuse in military applications and the spread of deepfakes raise concerns about security and misinformation.  
+
+Governments and organizations are working on AI regulations and ethical guidelines to ensure responsible AI development and deployment.  
+
+## Future Prospects of AI  
+The future of AI holds exciting possibilities:  
+
+- **Explainable AI (XAI)**: Researchers are working on transparent AI models that can explain decision-making processes to increase trust and accountability.  
+- **Artificial General Intelligence (AGI)**: While current AI systems specialize in narrow tasks, AGI aims to create machines that can think and reason like humans across multiple domains.  
+- **AI in Space Exploration**: AI-driven robots assist in space missions, helping space agencies gather critical data and conduct research on distant planets.  
+- **AI and Quantum Computing**: The fusion of AI and quantum computing can accelerate problem-solving capabilities and lead to breakthroughs in science and medicine.  
+
+## Conclusion  
+AI is a powerful and evolving technology with the potential to reshape society. Its applications span multiple industries, enhancing efficiency and productivity while presenting ethical challenges that must be addressed. As AI research progresses, it is crucial to develop secure, fair, and responsible AI systems to benefit humanity. The future of AI depends on how we balance its advantages with ethical considerations, ensuring a world where technology serves as a force for good.
+`;
 
 const rehypeCITPlugin = () => {
 	return (tree) => {
@@ -256,25 +306,61 @@ export const TypingEffect = memo(
 
 		const [isCopiedToClipboard, setIsCopiedToClipboard] = useState(false);
 		const [startRendering, setStartRendering] = useState(false);
-		const [chunk, setChunk] = useState(''); // State to store current chunk
+		// const [chunk, setChunk] = useState(''); // State to store current chunk
 		const [isTextVisible, setIsTextVisible] = useState(false); // To track visibility of text
+		// const [currentIndex, setCurrentIndex] = useState(0);
+		const [timeInterval, setTimeInterval] = useState(null);
 		const chunkSize = 200; // Size of each chunk (200 characters)
 		const delayTime = 500; // Initial delay before starting the text update (500ms)
+		const textRef = useRef(text); // Store the latest text in a ref
+
+		const chunkRef = useRef(''); // Ref for storing chunk
+		const currentIndexRef = useRef(0); // Ref for storing currentIndex
+		const timeIntervalRef = useRef(null);
+		useEffect(() => {
+			textRef.current = messageData;
+		}, [messageData]);
 
 		useEffect(() => {
 			if (messageData?.messageId) {
-				return setChunk(text);
+				// setChunk(text);
+				chunkRef.current = text;
+				return;
 			}
 			setTimeout(() => {
 				setStartRendering(true);
+				const interval = setInterval(() => {
+					handleChunkRendering();
+				}, 500);
+				timeIntervalRef.current = interval;
 			}, 500);
 		}, []);
 
-		useEffect(() => {
-			if (startRendering) {
-				setChunk(text);
+		// useEffect(() => {
+		// 	if (startRendering) {
+		// 		setChunk(text);
+		// 	}
+		// }, [text, startRendering]);
+
+		const handleChunkRendering = () => {
+			const currentText = textRef.current?.message;
+
+			if (currentIndexRef.current >= currentText?.length && textRef.current?.messageId) {
+				clearInterval(timeIntervalRef.current);
+				return (timeIntervalRef.current = null);
 			}
-		}, [text, startRendering]);
+
+			// Slice the current chunk from the text
+			let startIndex = currentIndexRef.current;
+			let endIndex =
+				currentIndexRef.current + chunkSize < currentText?.length
+					? currentIndexRef.current + chunkSize
+					: currentText?.length;
+			let subChunk = currentText?.slice(startIndex, endIndex);
+
+			chunkRef.current += subChunk;
+			currentIndexRef.current = endIndex;
+		};
 
 		const handleCopyTextClick = useCallback((text) => {
 			navigator?.clipboard?.writeText(text).then(() => {
@@ -300,61 +386,12 @@ export const TypingEffect = memo(
 			handleRatingClick && handleRatingClick('thumbsDown', messageId);
 		}, [handleRatingClick, messageId]);
 
-		let newText = `# The Impact and Evolution of Artificial Intelligence  
-
-## Introduction  
-Artificial Intelligence (AI) is one of the most transformative technological advancements of our time. It enables machines to perform tasks that typically require human intelligence, such as learning, reasoning, problem-solving, and decision-making. AI has already revolutionized various industries, from healthcare and finance to manufacturing and entertainment. This essay explores the evolution of AI, its key applications, ethical considerations, and future prospects.  
-
-## The Evolution of AI  
-The concept of AI dates back to the mid-20th century when mathematicians and scientists like Alan Turing proposed the idea of machines simulating human intelligence. By the 1950s and 1960s, researchers developed the first AI programs capable of solving mathematical problems and playing chess. AI development continued in cycles, experiencing periods of rapid growth (AI booms) and stagnation (AI winters).  
-
-In recent years, AI has witnessed an unprecedented surge, thanks to advancements in machine learning, deep learning, and neural networks. The availability of massive datasets, improved computational power, and breakthroughs in natural language processing (NLP) have propelled AI research to new heights. Models like OpenAI’s GPT-4, Google’s Gemini, and Mixtral’s AI systems are now capable of generating human-like text, translating languages, and assisting in complex problems.  
-
-## Key Applications of AI  
-AI is integrated into numerous sectors, improving efficiency, accuracy, and decision-making. Some of the most impactful applications include:  
-
-### **Healthcare**  
-AI models are being used for early disease detection, medical diagnosis, robot-assisted surgeries, and personalized treatment plans. AI-driven medical imaging and predictive analytics have significantly improved patient outcomes.  
-
-### **Finance**  
-AI helps detect fraudulent transactions, automate trading strategies, and enhance customer service through AI-powered chatbots and financial advisors. Predictive analytics enables better risk assessment and investment decisions.  
-
-### **Education**  
-AI-powered ed-tech platforms offer personalized learning experiences, automated grading, and virtual tutors, making education more accessible and engaging for students worldwide.  
-
-### **Manufacturing and Robotics**  
-AI-enabled robots improve precision in industrial processes, automate repetitive tasks, and increase productivity in industries such as automobile manufacturing and supply chain optimization.  
-
-### **Entertainment and Media**  
-AI creates personalized content recommendations on streaming platforms, develops AI-generated works of art and music, and plays a role in deepfake technology.  
-
-## Ethical Considerations and Challenges  
-Despite its benefits, AI also raises ethical and social concerns. Some challenges include:  
-
-- **Bias and Discrimination**: AI models trained on biased data can lead to unfair outcomes, particularly in hiring processes, criminal justice, and facial recognition.  
-- **Privacy and Security Risks**: AI-driven surveillance and data collection pose threats to personal privacy.  
-- **Job Displacement**: The automation of repetitive and cognitive tasks may lead to job losses in various industries, affecting employment rates and economic stability.  
-- **Autonomous Weapons and Misinformation**: AI's potential misuse in military applications and the spread of deepfakes raise concerns about security and misinformation.  
-
-Governments and organizations are working on AI regulations and ethical guidelines to ensure responsible AI development and deployment.  
-
-## Future Prospects of AI  
-The future of AI holds exciting possibilities:  
-
-- **Explainable AI (XAI)**: Researchers are working on transparent AI models that can explain decision-making processes to increase trust and accountability.  
-- **Artificial General Intelligence (AGI)**: While current AI systems specialize in narrow tasks, AGI aims to create machines that can think and reason like humans across multiple domains.  
-- **AI in Space Exploration**: AI-driven robots assist in space missions, helping space agencies gather critical data and conduct research on distant planets.  
-- **AI and Quantum Computing**: The fusion of AI and quantum computing can accelerate problem-solving capabilities and lead to breakthroughs in science and medicine.  
-
-## Conclusion  
-AI is a powerful and evolving technology with the potential to reshape society. Its applications span multiple industries, enhancing efficiency and productivity while presenting ethical challenges that must be addressed. As AI research progresses, it is crucial to develop secure, fair, and responsible AI systems to benefit humanity. The future of AI depends on how we balance its advantages with ethical considerations, ensuring a world where technology serves as a force for good.
-`;
-
 		return (
 			<div className="typing-effect-container">
 				<Markdown citations={citations}>
-					{newText?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')?.replace(/\\n/g, '\n')}
-					{/* {chunk?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')?.replace(/\\n/g, '\n')} */}
+					{/* {newText?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')?.replace(/\\n/g, '\n')} */}
+					{chunkRef?.current?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')?.replace(/\\n/g, '\n')}
+					{/* {text?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')?.replace(/\\n/g, '\n')} */}
 				</Markdown>
 
 				{messageData?.messageId && (
