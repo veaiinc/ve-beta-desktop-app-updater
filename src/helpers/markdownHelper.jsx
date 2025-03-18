@@ -61,10 +61,10 @@ const rehypeCITPlugin = () => {
 
 // Move components outside to prevent recreation on every render
 const baseComponents = {
-	pre: ({ children }) => <pre className="markdown-pre mb-4">{children}</pre>,
-	hr: ({ children }) => <hr className="mb-2" />,
+	pre: ({ children }) => <pre className="markdown-pre mb-4 fade-in">{children}</pre>,
+	hr: ({ children }) => <hr className="mb-2 fade-in" />,
 	ol: ({ children, ...props }) => (
-		<ol className="list-decimal list-outside ml-8 mb-4" {...props}>
+		<ol className="list-decimal list-outside ml-8 mb-4 fade-in" {...props}>
 			{children}
 		</ol>
 	),
@@ -73,14 +73,14 @@ const baseComponents = {
 	},
 	ul: ({ children, ...props }) => {
 		return (
-			<ul className="list-decimal list-outside ml-8 mb-4" {...props}>
+			<ul className="list-decimal list-outside ml-8 mb-4 fade-in	" {...props}>
 				{children}
 			</ul>
 		);
 	},
 	strong: ({ children, ...props }) => {
 		return (
-			<span className="font-semibold text-white common-markdown-font" {...props}>
+			<span className="font-semibold text-white common-markdown-font fade-in" {...props}>
 				{children}
 			</span>
 		);
@@ -88,7 +88,7 @@ const baseComponents = {
 	a: ({ children, ...props }) => {
 		return (
 			<a
-				className="text-blue-500 hover:underline common-markdown-font"
+				className="text-blue-500 hover:underline common-markdown-font fade-in"
 				target="_blank"
 				rel="noreferrer"
 				{...props}
@@ -99,56 +99,56 @@ const baseComponents = {
 	},
 	h1: ({ children, ...props }) => {
 		return (
-			<h1 className="text-3xl font-semibold mt-6 mb-4" {...props}>
+			<h1 className="text-3xl font-semibold mt-6 mb-4 fade-in" {...props}>
 				{children}
 			</h1>
 		);
 	},
 	h2: ({ children, ...props }) => {
 		return (
-			<h2 className="text-2xl font-semibold mt-6 mb-4" {...props}>
+			<h2 className="text-2xl font-semibold mt-6 mb-4 fade-in" {...props}>
 				{children}
 			</h2>
 		);
 	},
 	h3: ({ children, ...props }) => {
 		return (
-			<h3 className="text-xl font-semibold mt-6 mb-2" {...props}>
+			<h3 className="text-xl font-semibold mt-6 mb-2 fade-in" {...props}>
 				{children}
 			</h3>
 		);
 	},
 	h4: ({ children, ...props }) => {
 		return (
-			<h4 className="text-lg font-semibold mt-6 mb-2" {...props}>
+			<h4 className="text-lg font-semibold mt-6 mb-2 fade-in" {...props}>
 				{children}
 			</h4>
 		);
 	},
 	h5: ({ children, ...props }) => {
 		return (
-			<h5 className="text-base font-semibold mt-6 mb-2" {...props}>
+			<h5 className="text-base font-semibold mt-6 mb-2 fade-in" {...props}>
 				{children}
 			</h5>
 		);
 	},
 	h6: ({ children, ...props }) => {
 		return (
-			<h6 className="text-sm font-semibold mt-6 mb-2" {...props}>
+			<h6 className="text-sm font-semibold mt-6 mb-2 fade-in" {...props}>
 				{children}
 			</h6>
 		);
 	},
 	p: ({ children, ...props }) => {
 		return (
-			<p className="text-white  mb-2 mt-2 common-markdown-font" {...props}>
+			<p className="text-white  mb-2 mt-2 common-markdown-font fade-in" {...props}>
 				{children}
 			</p>
 		);
 	},
 	img: ({ children, ...props }) => {
 		return (
-			<div className="markdown-image-wrapper">
+			<div className="markdown-image-wrapper fade-in">
 				<img
 					className="w-full h-auto"
 					{...props}
@@ -160,29 +160,29 @@ const baseComponents = {
 		);
 	},
 	table: ({ children, ...props }) => (
-		<div className="table-container my-4 overflow-x-auto">
+		<div className="table-container my-4 overflow-x-auto fade-in">
 			<table className="markdown-table w-full" {...props}>
 				{children}
 			</table>
 		</div>
 	),
 	thead: ({ children, ...props }) => (
-		<thead className="bg-gray-800" {...props}>
+		<thead className="bg-gray-800 fade-in" {...props}>
 			{children}
 		</thead>
 	),
 	th: ({ children, ...props }) => (
-		<th className="px-4 py-2 text-left border border-gray-700" {...props}>
+		<th className="px-4 py-2 text-left border border-gray-700 fade-in" {...props}>
 			{children}
 		</th>
 	),
 	td: ({ children, ...props }) => (
-		<td className="px-4 py-2 border border-gray-700" {...props}>
+		<td className="px-4 py-2 border border-gray-700 fade-in" {...props}>
 			{children}
 		</td>
 	),
 	tr: ({ children, ...props }) => (
-		<tr className="border-b border-gray-700 hover:bg-gray-800" {...props}>
+		<tr className="border-b border-gray-700 hover:bg-gray-800 fade-in" {...props}>
 			{children}
 		</tr>
 	),
@@ -255,6 +255,58 @@ export const TypingEffect = memo(
 		} = useContext(Context);
 
 		const [isCopiedToClipboard, setIsCopiedToClipboard] = useState(false);
+		const [startRendering, setStartRendering] = useState(false);
+		const [chunk, setChunk] = useState(''); // State to store current chunk
+		const [isTextVisible, setIsTextVisible] = useState(false); // To track visibility of text
+		const chunkSize = 200; // Size of each chunk (200 characters)
+		const delayTime = 500; // Initial delay before starting the text update (500ms)
+
+		useEffect(() => {
+			setTimeout(() => {
+				setStartRendering(true);
+			}, 100);
+		}, []);
+
+		useEffect(() => {
+			if (startRendering) {
+				setChunk(text);
+			}
+		}, [text, startRendering]);
+
+		// const handleChunkRendering = () => {
+		// 	setChunk(text);
+		// }, [text]);
+
+		// useEffect(() => {
+		// 	// Wait for the initial delay before starting chunking
+		// 	const delayStart = setTimeout(() => {
+		// 		let currentIndex = 0;
+		// 		const textLength = text.length;
+
+		// 		// Function to update chunk progressively after delay
+		// 		const interval = setInterval(() => {
+		// 			setChunk((prevChunk) => {
+		// 				const nextIndex = currentIndex + chunkSize;
+		// 				currentIndex = nextIndex;
+
+		// 				// Stop when we have processed the entire text
+		// 				if (nextIndex >= textLength) {
+		// 					clearInterval(interval);
+		// 					return text; // Set complete text once done
+		// 				}
+
+		// 				return text.slice(0, nextIndex); // Add next chunk
+		// 			});
+		// 		}, 100); // Interval to add chunk (100ms)
+
+		// 		// Mark text as visible once chunking starts
+		// 		setIsTextVisible(true);
+
+		// 		return () => clearInterval(interval); // Cleanup interval on unmount
+		// 	}, delayTime); // Initial delay
+
+		// 	return () => clearTimeout(delayStart); // Cleanup timeout on unmount
+		// }, [text]);
 
 		const handleCopyTextClick = useCallback((text) => {
 			navigator?.clipboard?.writeText(text).then(() => {
@@ -283,7 +335,7 @@ export const TypingEffect = memo(
 		return (
 			<div className="typing-effect-container">
 				<Markdown citations={citations}>
-					{text?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')?.replace(/\\n/g, '\n')}
+					{chunk?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')?.replace(/\\n/g, '\n')}
 				</Markdown>
 
 				{messageData?.messageId && (
