@@ -1,6 +1,6 @@
 /* Minimal CSS for the classes used */
 .list-decimal {
-	list-style-type: decimal;
+	// list-style-type: decimal;
 }
 
 .list-outside {
@@ -173,8 +173,10 @@
 
 .markdown-custom-content {
 	color: #e8e8e8e6;
-	font-size: 14px;
+	font-size: 15px;
 	font-family: 'Inter', sans-serif;
+	// font-size: 21px;
+	// font-family: 'Calson', sans-serif;
 
 	h1,
 	h2,
@@ -183,5 +185,18 @@
 	h5,
 	h6 {
 		color: #e8e8e8;
+	}
+}
+
+.fade-in {
+	animation: fadeIn 1s ease-in forwards;
+}
+
+@keyframes fadeIn {
+	0% {
+		opacity: 0; /* Start fully transparent */
+	}
+	100% {
+		opacity: 1; /* End fully opaque */
 	}
 }
