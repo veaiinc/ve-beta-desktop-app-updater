@@ -73,6 +73,20 @@ const triggersList = {
 				event: 'delete',
 				module: 'client',
 			},
+			{
+				app: 'inApp',
+				icon: null,
+				label: 'File Created',
+				event: 'create',
+				module: 'file',
+			},
+			{
+				app: 'inApp',
+				icon: null,
+				label: 'File Deleted',
+				event: 'delete',
+				module: 'file',
+			},
 		],
 	},
 	google: {
@@ -204,9 +218,12 @@ const Triggers = ({ onClose, automationId, editMode, activeStepsData, step }) =>
 		if (activeStepsData) {
 			updateTriggerInfo({ selectedTrigger: null });
 			onClose();
+		} else if (info?.selectedTrigger) {
+			updateTriggerInfo({ selectedTrigger: null });
+		} else {
+			onClose();
 		}
-		updateTriggerInfo({ selectedTrigger: null });
-	}, [onClose, activeStepsData, updateTriggerInfo]);
+	}, [onClose, activeStepsData, updateTriggerInfo, info?.selectedTrigger]);
 
 	const triggerMapper = useMemo(() => {
 		return {
@@ -214,7 +231,7 @@ const Triggers = ({ onClose, automationId, editMode, activeStepsData, step }) =>
 				<GoogleTriggers
 					addNewTrigger={addNewTrigger}
 					selectedTrigger={info?.selectedTrigger}
-					onClose={onClose}
+					onClose={handleOnClose}
 					onSave={onSave}
 					addTriggerLoading={info?.saveLoader}
 					triggerData={info?.selectedTrigger}
@@ -226,7 +243,7 @@ const Triggers = ({ onClose, automationId, editMode, activeStepsData, step }) =>
 				<InAppTriggers
 					addNewTrigger={addNewTrigger}
 					selectedTrigger={info?.selectedTrigger}
-					onClose={onClose}
+					onClose={handleOnClose}
 					onSave={onSave}
 					addTriggerLoading={info?.saveLoader}
 					triggerData={info?.selectedTrigger}
@@ -241,6 +258,7 @@ const Triggers = ({ onClose, automationId, editMode, activeStepsData, step }) =>
 		updateTriggerInfo,
 		connectedIntegrations,
 		activeStepsData,
+		handleOnClose,
 	]);
 
 	return info?.selectedTrigger ? (

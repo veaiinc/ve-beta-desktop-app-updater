@@ -550,7 +550,7 @@ const ChatBox = ({
 		async (fileData, uploadBatchId) => {
 			let uploadedImages = [...info?.uploadedImages];
 			let uploadedCount = 0,
-				maxAttempts = 40,
+				maxAttempts = 90,
 				errorCount = 0,
 				successCount = 0;
 			while (!(uploadedCount && successCount) && maxAttempts) {

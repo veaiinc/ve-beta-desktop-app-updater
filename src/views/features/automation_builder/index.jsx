@@ -18,6 +18,7 @@ import {
 	EndNode,
 	StartStepNode,
 	SwitchNode,
+	DelayNode,
 } from '../../components/automationBuilder/CustomNodes';
 import CustomEdges from '../../components/automationBuilder/CustomEdges';
 import UpdatedPageLoader from '../../components/loaders/UpdatedPageLoader';
@@ -27,7 +28,7 @@ import Configuration from '../../components/automationBuilder/AutomationBuilderS
 import TabHeader from '../../components/ai_assistant/TabHeader';
 import CustomControls from '../../components/automationBuilder/CustomControls';
 import { ReactComponent as ChevronRight } from '../../../assets/svg/tasks/chevronRightThin.svg';
-
+import UpdatedDeleteWorkflowStep from '../../components/modalsV2/automationBuilder/UpdatedDeleteStepsModal';
 // Define node types
 const nodeTypes = {
 	trigger: TriggerNode,
@@ -37,6 +38,7 @@ const nodeTypes = {
 	startStep: StartStepNode,
 	createTask: ActionNode,
 	switch: SwitchNode,
+	delay: DelayNode,
 };
 
 const edgeTypes = {
@@ -44,13 +46,7 @@ const edgeTypes = {
 };
 const AutomationBuilder = () => {
 	const {
-		templates: {
-			addEmailTriggersInWorkflow,
-			getMyWorkflows,
-			getTemplatesListForCreateLead,
-			getAllEmailTemplates,
-			allEmailTemplates,
-		},
+		templates: { getAllEmailTemplates, allEmailTemplates },
 		automationBuilder: {
 			getAutomation,
 			specificAutomationInfo,
@@ -91,6 +87,8 @@ const AutomationBuilder = () => {
 		step: '1',
 		previousNode: null,
 		variables: null,
+		deleteStepData: null,
+		deleteModalOpen: false,
 	});
 
 	const [nodes, setNodes, onNodesChange] = useNodesState([]);
@@ -245,7 +243,6 @@ const AutomationBuilder = () => {
 					onToolBarOpen: handleToolBarOpen,
 					stepsMapper: stepsMapper,
 					automationId: automationId,
-					refetchWorkflowBuilderData: refetchWorkflowBuilderData,
 				},
 			});
 
@@ -274,7 +271,6 @@ const AutomationBuilder = () => {
 							onToolBarOpen: handleToolBarOpen,
 							stepsMapper: stepsMapper,
 							automationId: automationId,
-							refetchWorkflowBuilderData: refetchWorkflowBuilderData,
 							label: 'Yes',
 						},
 					});
@@ -303,7 +299,6 @@ const AutomationBuilder = () => {
 							onToolBarOpen: handleToolBarOpen,
 							stepsMapper: stepsMapper,
 							automationId: automationId,
-							refetchWorkflowBuilderData: refetchWorkflowBuilderData,
 							label: 'Yes',
 						},
 					});
@@ -323,7 +318,6 @@ const AutomationBuilder = () => {
 							onToolBarOpen: handleToolBarOpen,
 							stepsMapper: stepsMapper,
 							automationId: automationId,
-							refetchWorkflowBuilderData: refetchWorkflowBuilderData,
 							label: 'No',
 						},
 					});
@@ -352,7 +346,6 @@ const AutomationBuilder = () => {
 							onToolBarOpen: handleToolBarOpen,
 							stepsMapper: stepsMapper,
 							automationId: automationId,
-							refetchWorkflowBuilderData: refetchWorkflowBuilderData,
 							label: 'No',
 						},
 					});
@@ -391,7 +384,6 @@ const AutomationBuilder = () => {
 								onToolBarOpen: handleToolBarOpen,
 								stepsMapper: stepsMapper,
 								automationId: automationId,
-								refetchWorkflowBuilderData: refetchWorkflowBuilderData,
 								label: label,
 							},
 						});
@@ -431,7 +423,6 @@ const AutomationBuilder = () => {
 								onToolBarOpen: handleToolBarOpen,
 								stepsMapper: stepsMapper,
 								automationId: automationId,
-								refetchWorkflowBuilderData: refetchWorkflowBuilderData,
 								label: label,
 							},
 						});
@@ -450,7 +441,6 @@ const AutomationBuilder = () => {
 						onToolBarOpen: handleToolBarOpen,
 						stepsMapper: stepsMapper,
 						automationId: automationId,
-						refetchWorkflowBuilderData: refetchWorkflowBuilderData,
 					},
 				});
 				generateNodesAndEdges(currentStep.nextStepId, nodeX, nextY, branchType, false);
@@ -478,7 +468,6 @@ const AutomationBuilder = () => {
 						onToolBarOpen: handleToolBarOpen,
 						stepsMapper: stepsMapper,
 						automationId: automationId,
-						refetchWorkflowBuilderData: refetchWorkflowBuilderData,
 					},
 				});
 			}
@@ -520,50 +509,15 @@ const AutomationBuilder = () => {
 		setInfo((prev) => ({ ...prev, activeStepsData: data }));
 	}, []);
 
-	const refetchWorkflowBuilderData = useCallback(async (data) => {
-		await getAutomation(automationId);
-
-		if (data?.closeSideBar) {
-			handleToolBarClose();
-		}
-
-		return [true];
+	const closeDeleteModal = useCallback(() => {
+		setInfo((prev) => ({
+			...prev,
+			deleteModalOpen: false,
+			deleteStepData: null,
+			activeStepsData: null,
+			toolBarOpen: false,
+		}));
 	}, []);
-
-	const refreshSalesModuleData = useCallback(async () => {
-		const payload = {
-			filters: {
-				limit: 10,
-				page: 1,
-				type: 'workspace',
-				status: 'published',
-				sortBy: 'createdAt',
-				sortType: -1,
-			},
-		};
-		getMyWorkflows(payload, false);
-		getTemplatesListForCreateLead();
-	}, []);
-
-	const setTriggerNode = useCallback(
-		(data) => {
-			const newNodes = [...nodes];
-			newNodes[0] = {
-				id: '1',
-				position: { x: 250, y: 0 },
-				type: 'trigger',
-				data: {
-					automationId: automationId,
-					group: 'Google',
-					action: 'On Message Received',
-					stepTitle: '',
-					stepDescription: '',
-				},
-			};
-			setNodes(newNodes);
-		},
-		[nodes],
-	);
 
 	const updateCurrentAutomation = useCallback(
 		async (payload) => {
@@ -665,6 +619,7 @@ const AutomationBuilder = () => {
 								edgeTypes={edgeTypes}
 								fitView
 								defaultViewport={{ x: 0, y: 0, zoom: 0 }}
+								proOptions={{ hideAttribution: true }}
 							>
 								<Background variant="dots" gap={12} size={0.5} />
 							</ReactFlow>
@@ -687,7 +642,6 @@ const AutomationBuilder = () => {
 						automationId={automationId}
 						activeStepsData={info?.activeStepsData}
 						editMode={info?.editMode}
-						refetchWorkflowBuilderData={refetchWorkflowBuilderData}
 						step={info?.step}
 						previousNode={info?.previousNode}
 						variables={info?.variables}
@@ -695,6 +649,14 @@ const AutomationBuilder = () => {
 					/>
 				</div>
 			)}
+			<UpdatedDeleteWorkflowStep
+				modalIsOpen={info?.deleteModalOpen}
+				closeModal={closeDeleteModal}
+				automationId={automationId}
+				stepId={info?.deleteStepData?._id}
+				stepData={info?.deleteStepData}
+				stepsMapper={info?.stepsMapper}
+			/>
 		</div>
 	);
 };
