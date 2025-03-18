@@ -7,7 +7,7 @@
 	.settingsContainer {
 		display: flex;
 		flex-direction: column;
-		gap:40px;
+		gap: 10px;
 		width: 100%;
 
 		// styles for profile details
@@ -794,7 +794,7 @@
 		background-color: none;
 		display: flex;
 		width: 580px;
-		padding: 32px;
+		padding: 32px 0px;
 		flex-direction: column;
 		align-items: flex-start;
 		gap: 24px;
@@ -868,17 +868,10 @@
 			}
 		}
 	}
-	.notifications-container-content {
+	.showNotificationPreference {
 		display: flex;
-		width: 580px;
-		padding: 32px;
 		flex-direction: column;
-		align-items: flex-start;
-		gap: 24px;
-		border-radius: 32px;
-		border-radius: 12px;
-		border: 1px solid var(--stroke, #313336);
-		border: 1px solid var(--stroke, color(display-p3 0.1939 0.1998 0.21));
+		gap: 20px;
 		.notificationContainerContentTitle {
 			color: var(--ve-ai-dark-theme-primary-font-color, #e8e8e8);
 			font-family: Inter;
@@ -887,71 +880,83 @@
 			font-weight: 500;
 			line-height: normal;
 		}
-		.notificationContainerContent-items {
+		.notifications-container-content {
 			display: flex;
-			justify-content: flex-end;
-			align-items: center;
-			gap: 40px;
-			align-self: stretch;
-			.notificationContainerContent-items-item {
-				color: #7c7c83;
-				font-family: Inter;
-				font-size: 14px;
-				font-style: normal;
-				font-weight: 500;
-				line-height: normal;
-				text-transform: capitalize;
-			}
-		}
-		.notificationContainerOptions {
-			display: flex;
+			width: 580px;
+			padding: 32px;
 			flex-direction: column;
 			align-items: flex-start;
-			gap: 16px;
-			align-self: stretch;
-			.notificationContainerOptions-item-container {
+			gap: 24px;
+			border-radius: 32px;
+			border-radius: 12px;
+			border: 1px solid var(--stroke, #313336);
+			border: 1px solid var(--stroke, color(display-p3 0.1939 0.1998 0.21));
+			.notificationContainerContent-items {
 				display: flex;
-				justify-content: center;
+				justify-content: flex-end;
 				align-items: center;
 				gap: 40px;
 				align-self: stretch;
-				.notificationContainerOptions-item {
-					color: var(--Primary-Font-Color, #f2f2f3);
-					font-family: Inter;
-					font-size: 16px;
-					font-style: normal;
-					font-weight: 500;
-					line-height: normal;
-					flex: 1 0 0;
-					text-transform: capitalize;
-				}
-				.notificationContainerOptions-item-checkbox {
-					display: flex;
-					justify-content: center;
-					align-items: center;
-					gap: 40px;
-				}
-			}
-			.notificationContainerOptions-items {
-				display: flex;
-				flex-direction: column;
-				align-items: flex-start;
-				gap: 12px;
-				align-self: stretch;
-				.notificationContainerOptionsTitle {
+				.notificationContainerContent-items-item {
 					color: #7c7c83;
 					font-family: Inter;
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 500;
 					line-height: normal;
-					flex: 1 0 0;
 					text-transform: capitalize;
 				}
 			}
-			.divider {
-				width: 100%;
-				border-bottom: 0.5px solid #7c7c83;
+			.notificationContainerOptions {
+				display: flex;
+				flex-direction: column;
+				align-items: flex-start;
+				gap: 16px;
+				align-self: stretch;
+				.notificationContainerOptions-item-container {
+					display: flex;
+					justify-content: center;
+					align-items: center;
+					gap: 40px;
+					align-self: stretch;
+					.notificationContainerOptions-item {
+						color: var(--Primary-Font-Color, #f2f2f3);
+						font-family: Inter;
+						font-size: 16px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+						flex: 1 0 0;
+						text-transform: capitalize;
+					}
+					.notificationContainerOptions-item-checkbox {
+						display: flex;
+						justify-content: center;
+						align-items: center;
+						gap: 40px;
+					}
+				}
+				.notificationContainerOptions-items {
+					display: flex;
+					flex-direction: column;
+					align-items: flex-start;
+					gap: 12px;
+					align-self: stretch;
+					.notificationContainerOptionsTitle {
+						color: #7c7c83;
+						font-family: Inter;
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+						flex: 1 0 0;
+						text-transform: capitalize;
+					}
+				}
+				.divider {
+					width: 100%;
+					border-bottom: 0.5px solid #7c7c83;
+				}
 			}
 		}
 	}
