@@ -194,8 +194,8 @@ const SubscribedUserPlanCard = ({
 		{
 			id: 1,
 			title: 'Storage',
-			usedValue: parseFloat(data?.storageUsedInBytes / (1024 * 1024 * 1024)).toFixed(3),
-			totalValue: parseFloat(data?.storageLimitInBytes / (1024 * 1024 * 1024)).toFixed(3),
+			usedValue: parseFloat(data?.storageUsedInBytes / (1024 * 1024 * 1024))?.toFixed(2),
+			totalValue: parseInt(data?.storageLimitInBytes / (1024 * 1024 * 1024)),
 			barGraph: true,
 		},
 		{
@@ -358,8 +358,8 @@ const SubscribedUserPlanCard = ({
 													{item?.usedValue}
 												</span>
 												<span className="storageUsedUnit">
-													{item?.title === 'Storage' ? 'GB' : ''}
-													{item?.title === 'AI Credits' ? 'Credits' : ''}
+													{item?.title === 'Storage' ? ' GB' : ''}
+													{item?.title === 'AI Credits' ? ' Credits' : ''}
 												</span>{' '}
 												{item?.barGraph
 													? `used out of ${item?.totalValue}${
@@ -393,8 +393,8 @@ const SubscribedUserPlanCard = ({
 												</div>
 											)}
 											<div className="storageProgressText">
-												{item?.usedValue > item?.totalValue
-													? 'Exceeded The Limit'
+												{item?.usedValue >= item?.totalValue
+													? 'Reached the limit'
 													: ''}
 											</div>
 										</div>

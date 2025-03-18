@@ -46,6 +46,8 @@ const eventTypeMapper = {
 	client_delete: 'Client Deleted',
 	createFile_create: 'File Created',
 	createFile_delete: 'File Deleted',
+	template_create: 'Template Created',
+	template_delete: 'Template Deleted',
 
 	// actions
 	sendMessage: 'Send Message',
@@ -147,17 +149,14 @@ export const TriggerNode = ({ data }) => {
 };
 
 export const ActionNode = ({ data }) => {
-	const [info, setInfo] = useState({
-		deleteModal: false,
-	});
-
-	const handleCloseDeleteModal = useCallback(() => {
-		setInfo((prev) => ({ ...prev, deleteModal: false }));
-	}, [info]);
-
 	const openDeleteModal = useCallback(() => {
-		setInfo((prev) => ({ ...prev, deleteModal: true }));
-	}, [info]);
+		if (data?.onToolBarOpen) {
+			data.onToolBarOpen({
+				deleteModalOpen: true,
+				deleteStepData: data?.currentStep,
+			});
+		}
+	}, [data]);
 
 	const onActionNodeClick = useCallback(() => {
 		if (data?.onToolBarOpen) {
@@ -206,31 +205,20 @@ export const ActionNode = ({ data }) => {
 				</div>
 				<Handle type="source" position={Position.Bottom} />
 				<Handle type="target" position={Position.Top} />
-
-				<UpdatedDeleteWorkflowStep
-					modalIsOpen={info?.deleteModal}
-					closeModal={handleCloseDeleteModal}
-					automationId={data?.automationId}
-					stepId={data?.currentStep?._id}
-					stepData={data?.currentStep}
-					stepsMapper={data?.stepsMapper}
-				/>
 			</div>
 		</Tooltip>
 	);
 };
 
 export const ConditionNode = ({ data }) => {
-	const [info, setInfo] = useState({
-		deleteModal: false,
-	});
-	const handleCloseDeleteModal = useCallback(() => {
-		setInfo((prev) => ({ ...prev, deleteModal: false }));
-	}, [info]);
-
 	const openDeleteModal = useCallback(() => {
-		setInfo((prev) => ({ ...prev, deleteModal: true }));
-	}, [info]);
+		if (data?.onToolBarOpen) {
+			data.onToolBarOpen({
+				deleteModalOpen: true,
+				deleteStepData: data?.currentStep,
+			});
+		}
+	}, [data]);
 
 	const onConditionNodeClick = useCallback(() => {
 		if (data?.onToolBarOpen) {
@@ -269,14 +257,6 @@ export const ConditionNode = ({ data }) => {
 				</div>
 				<Handle type="source" position={Position.Bottom} />
 				<Handle type="target" position={Position.Top} />
-				<UpdatedDeleteWorkflowStep
-					modalIsOpen={info?.deleteModal}
-					closeModal={handleCloseDeleteModal}
-					automationId={data?.automationId}
-					stepId={data?.currentStep?._id}
-					stepData={data?.currentStep}
-					stepsMapper={data?.stepsMapper}
-				/>
 			</div>
 		</Tooltip>
 	);
@@ -312,15 +292,14 @@ const HoverComponentForNodes = ({ openDeleteModal }) => {
 };
 
 export const SwitchNode = ({ data }) => {
-	const [info, setInfo] = useState({ deleteModal: false });
-
-	const handleCloseDeleteModal = useCallback(() => {
-		setInfo((prev) => ({ ...prev, deleteModal: false }));
-	}, []);
-
 	const openDeleteModal = useCallback(() => {
-		setInfo((prev) => ({ ...prev, deleteModal: true }));
-	}, []);
+		if (data?.onToolBarOpen) {
+			data.onToolBarOpen({
+				deleteModalOpen: true,
+				deleteStepData: data?.currentStep,
+			});
+		}
+	}, [data]);
 
 	const onSwitchNodeClick = useCallback(() => {
 		if (data?.onToolBarOpen) {
@@ -358,29 +337,20 @@ export const SwitchNode = ({ data }) => {
 				</div>
 				<Handle type="source" position={Position.Bottom} />
 				<Handle type="target" position={Position.Top} />
-				<UpdatedDeleteWorkflowStep
-					modalIsOpen={info?.deleteModal}
-					closeModal={handleCloseDeleteModal}
-					automationId={data?.automationId}
-					stepId={data?.currentStep?._id}
-					stepData={data?.currentStep}
-					stepsMapper={data?.stepsMapper}
-				/>
 			</div>
 		</Tooltip>
 	);
 };
 
 export const DelayNode = ({ data }) => {
-	const [info, setInfo] = useState({ deleteModal: false });
-
-	const handleCloseDeleteModal = useCallback(() => {
-		setInfo((prev) => ({ ...prev, deleteModal: false }));
-	}, []);
-
 	const openDeleteModal = useCallback(() => {
-		setInfo((prev) => ({ ...prev, deleteModal: true }));
-	}, []);
+		if (data?.onToolBarOpen) {
+			data.onToolBarOpen({
+				deleteModalOpen: true,
+				deleteStepData: data?.currentStep,
+			});
+		}
+	}, [data]);
 
 	const onDelayNodeClick = useCallback(() => {
 		if (data?.onToolBarOpen) {
@@ -419,19 +389,7 @@ export const DelayNode = ({ data }) => {
 				</div>
 				<Handle type="source" position={Position.Bottom} />
 				<Handle type="target" position={Position.Top} />
-				<UpdatedDeleteWorkflowStep
-					modalIsOpen={info?.deleteModal}
-					closeModal={handleCloseDeleteModal}
-					automationId={data?.automationId}
-					stepId={data?.currentStep?._id}
-					stepData={data?.currentStep}
-					stepsMapper={data?.stepsMapper}
-				/>
 			</div>
 		</Tooltip>
 	);
 };
-
-// const TriggerNode = ({ data }) => {
-// 	return <div className="trigger-node">Trigger Node</div>;
-// };

@@ -52,6 +52,7 @@ const OpenedSideBarHoverStateIcons = ({
 	setShowNotificationsDrawer,
 	setShowChatsDrawer,
 	setShowNotesDrawer,
+	setHideClosedSidebarIcon,
 }) => {
 	let {
 		aiSetup: { isVoiceIntegrationActive },
@@ -83,6 +84,7 @@ const OpenedSideBarHoverStateIcons = ({
 		}
 		if (name === 'Chats') {
 			setShowChatsDrawer((prev) => !prev);
+			setHideClosedSidebarIcon(true);
 		} else {
 			setShowChatsDrawer(false);
 		}
@@ -293,6 +295,7 @@ const OpenedSideBarItemsComponent = ({
 	setShowNotificationsDrawer,
 	setShowChatsDrawer,
 	setShowNotesDrawer,
+	setHideClosedSidebarIcon,
 }) => {
 	const {
 		templates: { leftSidebarState, updateStateValues },
@@ -364,7 +367,7 @@ const OpenedSideBarItemsComponent = ({
 		// e.stopPropagation();
 		setsidebarStates({ ...sidebarStates, navStyle: 'close' });
 		setIsOpen(false);
-		setShowChatsDrawer(false);
+		// setShowChatsDrawer(false);
 	};
 
 	const handleChatSelect = (chatName) => {
@@ -676,6 +679,12 @@ const OpenedSideBarItemsComponent = ({
 																setShowNotificationsDrawer
 															}
 															setShowNotesDrawer={setShowNotesDrawer}
+															handleSidebarCollapse={
+																handleSidebarCollapse
+															}
+															setHideClosedSidebarIcon={
+																setHideClosedSidebarIcon
+															}
 														/>
 													</div>
 												))}

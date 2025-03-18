@@ -113,6 +113,7 @@ const VariableComponent = ({
 							stepId: selectedStep?.stepId,
 							app: selectedStep?.stepApp,
 							labelId: selectedStep?.stepName,
+							isFormResponse: selectedStep?.isFormResponse,
 						},
 						options: [],
 						variablePath: [],
@@ -140,14 +141,12 @@ const VariableComponent = ({
 				const value =
 					info?.variablePath?.join('.') +
 					`.${
-						info?.selectedStep?.labelId === 'create-formResponse'
-							? `${option?._id}.answer`
-							: option?.name
+						info?.selectedStep?.isFormResponse ? `${option?._id}.answer` : option?.name
 					}`;
 				const parsedValue = value?.split('.');
 
 				parsedValue[0] = labelMapper[info?.selectedStep?.labelId];
-				if (info?.selectedStep?.labelId === 'create-formResponse') {
+				if (info?.selectedStep?.isFormResponse) {
 					parsedValue[1] = `${option?.name}`;
 				}
 
@@ -337,6 +336,7 @@ const VariableComponent = ({
 													stepId: step?.stepId,
 													app: step?.stepApp,
 													labelId: step?.stepName,
+													isFormResponse: step?.isFormResponse,
 												},
 											});
 										}}
