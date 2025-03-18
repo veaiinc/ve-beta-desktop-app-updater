@@ -78,14 +78,14 @@ const triggersList = {
 				icon: null,
 				label: 'File Created',
 				event: 'create',
-				module: 'file',
+				module: 'createFile',
 			},
 			{
 				app: 'inApp',
 				icon: null,
 				label: 'File Deleted',
 				event: 'delete',
-				module: 'file',
+				module: 'createFile',
 			},
 		],
 	},
@@ -135,28 +135,6 @@ const Triggers = ({ onClose, automationId, editMode, activeStepsData, step }) =>
 		}
 	}, [connectedIntegrations]);
 
-	// useEffect(() => {
-	// 	if (activeStepsData) {
-	// 		const trigger = triggersList?.[
-	// 			activeStepsData?.app === 'gmail' ? 'google' : activeStepsData?.app
-	// 		]?.triggers?.find((trigger) => trigger?.event === activeStepsData?.event);
-	// 		if (trigger) {
-	// 			setInfo((prev) => ({ ...prev, selectedTrigger: trigger }));
-	// 		}
-	// 	}
-	// }, [activeStepsData]);
-
-	// useEffect(() => {
-	// 	if (editMode && activeStepsData) {
-	// 		if (activeStepsData?.actionType === 'createTask') {
-	// 			setInfo((prev) => ({ ...prev, activeStage: 'stage2' }));
-	// 		}
-	// 		if (activeStepsData?.actionType === 'createMeeting') {
-	// 			setInfo((prev) => ({ ...prev, activeStage: 'stage3' }));
-	// 		}
-	// 	}
-	// }, [editMode, activeStepsData]);
-
 	const checkConnection = useCallback(
 		(integration) => {
 			if (integration === 'inApp') {
@@ -188,20 +166,38 @@ const Triggers = ({ onClose, automationId, editMode, activeStepsData, step }) =>
 
 	const updateTrigger = useCallback(
 		async (data) => {
-			// updateTriggerInfo({ saveLoader: true });
-			// data.stepId = activeStepsData?._id;
-			// const response = await updateStep(automationId, data);
-			// updateTriggerInfo({ saveLoader: false });
-			// if (response?.[0]) {
-			// 	message?.success('Trigger updated successfully');
-			// 	onClose();
-			// } else {
-			// 	message?.error(response?.[1] || 'Failed to update trigger');
-			// }
+			message?.error('Could not update trigger');
 			onClose();
 		},
 		[updateTriggerInfo],
 	);
+
+	useEffect(() => {
+		if (activeStepsData) {
+			const triggerGroup =
+				triggersList?.[activeStepsData?.app === 'gmail' ? 'google' : activeStepsData?.app];
+
+			if (activeStepsData?.app === 'inApp') {
+				const trigger = triggerGroup?.triggers?.find(
+					(trigger) =>
+						trigger?.module === activeStepsData?.module &&
+						trigger?.event === activeStepsData?.event,
+				);
+
+				if (trigger) {
+					setInfo((prev) => ({ ...prev, selectedTrigger: trigger }));
+				}
+			} else {
+				const trigger = triggerGroup?.triggers?.find(
+					(trigger) => trigger?.event === activeStepsData?.event,
+				);
+
+				if (trigger) {
+					setInfo((prev) => ({ ...prev, selectedTrigger: trigger }));
+				}
+			}
+		}
+	}, [activeStepsData]);
 
 	const onSave = useCallback(
 		(data) => {
