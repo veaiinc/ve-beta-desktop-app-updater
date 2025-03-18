@@ -45,9 +45,11 @@ const ProposalPopup = ({ open, closeModal, clientDetails = null, commonState }) 
 		profileInfo: { tenantUserAccessControls },
 	} = useContext(Context);
 
-	const hasAccessToWorkflows = tenantUserAccessControls?.accessControls?.find(
-		(accessControl) => accessControl?.app === 'workflow',
-	);
+	const hasAccessToWorkflows =
+		tenantUserAccessControls?.role === 'admin' ||
+		tenantUserAccessControls?.accessControls?.find(
+			(accessControl) => accessControl?.app === 'workflow',
+		);
 
 	const filterOptions = hasAccessToWorkflows
 		? [
