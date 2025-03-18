@@ -9,8 +9,6 @@ import '../../../assets/scss/docs/proposalsPopup.scss';
 import { fetchOriginSelection } from '../../../helpers';
 import Context from '../../../context/context';
 import moment from 'moment';
-import { useNavigate } from 'react-router-dom';
-import { Tooltip } from 'antd';
 import CreateFileLead from '../myTemplate/CreateFileLead';
 const origin = fetchOriginSelection();
 
@@ -71,7 +69,7 @@ const ProposalPopup = ({ open, closeModal, clientDetails = null, commonState }) 
 	}, [commonState]);
 
 	useEffect(() => {
-		if (info?.selectedOption !== 'All' && open) {
+		if (info?.selectedOption !== 'All') {
 			getMyWorkflowsTemplatesData(1, info?.search, false, info?.selectedOption);
 		} else {
 			if (open && !myWorkflowsForProposalPopup?.length) getMyWorkflowsForProposalPopup(1);
@@ -79,13 +77,13 @@ const ProposalPopup = ({ open, closeModal, clientDetails = null, commonState }) 
 	}, [info?.selectedOption]);
 
 	useEffect(() => {
-		if (myWorkflowsForProposalPopup && open) {
+		if (myWorkflowsForProposalPopup) {
 			myWorkflowsDataParser(myWorkflowsForProposalPopup);
 		}
 	}, [myWorkflowsForProposalPopup]);
 
 	useEffect(() => {
-		if (myMoreWorkflowsForProposalPopup && open) {
+		if (myMoreWorkflowsForProposalPopup) {
 			myWorkflowsDataParser(myMoreWorkflowsForProposalPopup, true);
 		}
 	}, [myMoreWorkflowsForProposalPopup]);
