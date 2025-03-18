@@ -7,10 +7,11 @@ import MyProfile from './MyProfile';
 import SettingsWorkspace from './Workspace';
 import PublicInformation from './PublicInformation';
 import BrandingSetup from './BrandSetup';
-import Integrations from './Integrations';
+import OldIntegrationsPage from './OdIntegrationsPage';
 import TeamSettings from './TeamSettings';
 import PlanBilling from './PlanBilling';
 import AiSetup from './ai_settings/AiSetup';
+import Integrations from '../Integrations/Integrations';
 const mapper = {
 	'my-profile': <MyProfile />,
 	workspace: <SettingsWorkspace />,
