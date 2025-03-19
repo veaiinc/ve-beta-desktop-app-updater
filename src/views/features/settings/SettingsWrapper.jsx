@@ -16,7 +16,7 @@ const mapper = {
 	'my-profile': <MyProfile />,
 	workspace: <SettingsWorkspace />,
 	'public-information': <PublicInformation />,
-	'brand-setup': <BrandingSetup />,
+	// 'brand-setup': <BrandingSetup />,
 	integrations: <Integrations />,
 	'team-settings': <TeamSettings />,
 	'plan-billing': <PlanBilling />,
@@ -25,7 +25,6 @@ const mapper = {
 
 const SettingsWrapper = (props) => {
 	const { type } = useParams();
-
 	const navigate = useNavigate();
 	const [urlType, setUrlype] = useState('');
 
@@ -44,9 +43,11 @@ const SettingsWrapper = (props) => {
 	}, [tennantSettingsData]);
 
 	return (
-		<div className="accountSettingsMainWrapper">
-			<div className="accountSettingsWrapper">
-				<div className={`accountSettingsMapper`}>{mapper?.[type]}</div>
+		<div className={`${type !== 'integrations' ? 'accountSettingsMainWrapper' : ''}`}>
+			<div className={`${type !== 'integrations' ? 'accountSettingsWrapper' : ''}`}>
+				<div className={`${type !== 'integrations' ? 'accountSettingsMapper' : ''}`}>
+					{mapper?.[type]}
+				</div>
 				{/* <div className="accountSettingsSidebar">
 					<SettingsPageSideBar {...props} type={type} setType1={setType} />
 				</div> */}

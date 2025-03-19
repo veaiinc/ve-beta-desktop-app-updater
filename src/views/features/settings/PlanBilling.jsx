@@ -292,7 +292,7 @@ const SubscribedUserPlanCard = ({
 			<div className="subscriptionUpdatedPlanCard">
 				<div className="subscriptionPlanHeaderContainer">
 					<span className="subscriptionPlanHeader">Current Perks</span>
-					{data?.isPaidTenant ? (
+					{/* {data?.isPaidTenant ? (
 						<button
 							className="manageSubscriptionButton"
 							onClick={handleManageSubscriptionClick}
@@ -301,7 +301,7 @@ const SubscribedUserPlanCard = ({
 						</button>
 					) : (
 						''
-					)}
+					)} */}
 				</div>
 				<div className="subscriptionPlanContent">
 					<div className="subscriptionPlanPricingDetails">
@@ -419,15 +419,25 @@ const SubscribedUserPlanCard = ({
 					''
 				)} */}
 				<div className="subscriptionActionContainer">
+					{data?.isPaidTenant ? (
+						<button
+							className="manageSubscriptionButton"
+							onClick={handleManageSubscriptionClick}
+						>
+							{info?.manageSubscriptionLoader ? <Spin /> : `	Manage Subscription`}
+						</button>
+					) : (
+						''
+					)}
 					<button
 						className="manageSubscriptionButton"
 						onClick={handleUpgradeSubscriptionClick}
 					>
 						{info?.subscriptionLoading ? <Spin /> : 'Upgrade Subscription'}
 					</button>
-					<button className="manageSubscriptionButton" onClick={handleAddOnsClick}>
-						{info?.addOnsLoading ? <Spin /> : 'Buy Add Ons'}
-					</button>
+					{/* <button className="manageSubscriptionButton" onClick={handleAddOnsClick}>
+						{info?.addOnsLoading ? <Spin /> : 'Upgrade'}
+					</button> */}
 
 					{/* <div className="expiringText">
 						{moment().unix() < +expiresAt ? 'Expiring' : 'Expired'} on{' '}

@@ -8,6 +8,7 @@ import { message, Tooltip } from 'antd';
 import ToolTipContainer from '../../components/popover/ToolTipContainer';
 import { ReactComponent as QuestionMark } from '../../../assets/svg/Settings/question_circle.svg';
 import PublicInformation from './PublicInformation';
+import BrandSetup from './BrandSetup';
 
 const temporaryPlaceholderText = `
 The voice embodies values of:
@@ -119,6 +120,7 @@ const SettingsWorkspace = () => {
 					<span className="wordCount">{info?.brandDescription?.length}/5000</span>
 				</div>
 			</div> */}
+				<BrandSetup />
 				<div className="settingsBoxContainer timezoneCurrencyComponent">
 					<TimeZoneCurrencyComponent overviewState={overviewState} />
 				</div>

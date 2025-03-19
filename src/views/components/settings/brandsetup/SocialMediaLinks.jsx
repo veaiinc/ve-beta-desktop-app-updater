@@ -65,7 +65,7 @@ const SocialMediaLinksComponent = ({
 
 	return (
 		<div className="socialLinkContainer">
-			<h1 className="socialLinkTitle">Brand setup</h1>
+			{/* <h1 className="socialLinkTitle">Brand setup</h1> */}
 			<div className="socialLinkTextContainer">
 				<h1>Social Media Links</h1>
 				<p>Add your social media links</p>

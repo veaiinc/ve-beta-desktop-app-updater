@@ -1,11 +1,16 @@
 import { useState, memo } from 'react';
 import ReusableButtonSettings from '../ReusableButtonSettings';
 import { ReactComponent as GlobeSettings } from '../../../../assets/svg/workspaceSettings/globeSettings.svg';
-import TimezoneCurrencypopups from './TimezoneCurrencypopups';
 import getSymbolFromCurrency from 'currency-symbol-map';
+import { ReactComponent as ChevronDown } from '../../../../assets/svg/tasks/chevronRightThin.svg';
+import currencyList from '../../../../helpers/Country-By-Currency-Code.json';
 const TimeZoneCurrencyComponent = ({ overviewState }) => {
-	const [openPopup, setopenPopup] = useState(false);
-	const [popupType, setpopupType] = useState(null);
+	const [selectedCurrency, setSelectedCurrency] = useState(currencyList);
+
+	const handleCurrencyChange = (e) => {
+		setSelectedCurrency(e.target.value);
+	};
+
 	return (
 		<>
 			<div className="timeZone">
@@ -40,30 +45,22 @@ const TimeZoneCurrencyComponent = ({ overviewState }) => {
 						symbol but not the actual value displayed.
 					</p>
 				</div>
-				<div>
-					<ReusableButtonSettings
-						text={
-							getSymbolFromCurrency(overviewState?.currency) +
-							' ' +
-							overviewState?.currency
-						}
-						// icon={getSymbolFromCurrency(overviewState?.currency)}
-						downArrow={false}
-						disableHover={true}
-						// func={() => {
-						// 	setpopupType('currency');
-						// 	setopenPopup(true);
-						// }}
-					/>
+				<div className="currency-select-wrapper">
+					<select
+						value={selectedCurrency}
+						onChange={handleCurrencyChange}
+						className="currency-select"
+					>
+						{currencyList.map((currency) => (
+							<option key={currency.value} value={currency.value}>
+								{`${getSymbolFromCurrency(currency.currency_code)} - ${
+									currency.country
+								}`}
+							</option>
+						))}
+					</select>
 				</div>
 			</div>
-
-			<TimezoneCurrencypopups
-				openPopup={openPopup}
-				setopenPopup={setopenPopup}
-				popupType={popupType}
-				setpopupType={setpopupType}
-			/>
 		</>
 	);
 };

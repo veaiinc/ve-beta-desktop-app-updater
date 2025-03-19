@@ -217,19 +217,19 @@ const BrandingSetup = () => {
 				</div> */}
 
 				{/* Branding color */}
-				<div className="settingsBoxContainer brandingContainer">
+				{/* <div className="settingsBoxContainer brandingContainer">
 					<BrandColorComponent
 						brandState={brandState}
 						setbrandState={setbrandState}
 						handleSelectedColor={handleSelectedColor}
 						handleRemoveColorFunc={handleRemoveColorFunc}
 					/>
-				</div>
+				</div> */}
 
 				{/* Brand Fonts */}
-				<div className="settingsBoxContainer brandFontContainer">
+				{/* <div className="settingsBoxContainer brandFontContainer">
 					<BrandFontsComponent setbrandState={setbrandState} brandState={brandState} />
-				</div>
+				</div> */}
 			</div>
 		</>
 	);

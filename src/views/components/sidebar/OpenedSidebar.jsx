@@ -289,7 +289,7 @@ const AiModulesList = ({ image, name, route, navigateTo }) => {
 const SETTINGS_OPTIONS = [
 	{ name: 'My Profile', route: '/settings/my-profile' },
 	{ name: 'Workspace', route: '/settings/workspace' },
-	{ name: 'Brand Setup', route: '/settings/brand-setup' },
+	// { name: 'Brand Setup', route: '/settings/brand-setup' },
 	{ name: 'Team Settings', route: '/settings/team-settings' },
 	{ name: 'Integration', route: '/settings/integrations' },
 	{ name: 'Plan Billing', route: '/settings/plan-billing' },

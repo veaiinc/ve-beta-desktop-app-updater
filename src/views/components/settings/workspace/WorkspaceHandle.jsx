@@ -144,7 +144,7 @@ const WorkspaceHandleComponent = ({ overviewState }) => {
 		<>
 			{contextHolder}
 
-			<div>
+			<div className="workSpaceHandleContainer">
 				<div>
 					<h1>Your Workspace Handle</h1>
 				</div>
