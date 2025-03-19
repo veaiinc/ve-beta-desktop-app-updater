@@ -116,9 +116,10 @@ const ChatHistory = ({ showChatsDrawer, setShowChatsDrawer, setHideClosedSidebar
 									onClick={() => handleChatNavigation(chat)}
 								>
 									<div className="chat-title-and-query">
-										<ChatTitleTooltip content={chat?.title}>
-											<p className="chat-title">{chat?.title}</p>
-										</ChatTitleTooltip>
+										{/* // Todo: uncomment after styling tooltip properly, no need to render tooltip in safari. Perform conditional rendering based on browser */}
+										{/* <ChatTitleTooltip content={chat?.title}> */}
+										<p className="chat-title">{chat?.title}</p>
+										{/* </ChatTitleTooltip> */}
 										<p className="chat-query">{chat?.query}</p>
 									</div>
 									<p className="chat-timestamp">
