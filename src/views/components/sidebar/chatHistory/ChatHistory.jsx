@@ -8,6 +8,7 @@ import { FetchMoreLoaderComp } from '../../../../helpers';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import moment from 'moment';
 import { useNavigate, useParams } from 'react-router-dom';
+import ChatTitleTooltip from './ChatTitleTooltip';
 
 const infiniteScrollHeight = 'calc(100vh - 72px)';
 const infiniteScrollStyle = {
@@ -69,13 +70,14 @@ const ChatHistory = ({ showChatsDrawer, setShowChatsDrawer, setHideClosedSidebar
 			open={showChatsDrawer}
 			onClose={handleCloseDrawer}
 			placement="left"
-			width={346}
+			width={250}
 			rootClassName="sidebar-chats-drawer"
 			closeIcon={null}
+			zIndex={1009}
 		>
 			<div className="chats-drawer-container">
 				<div className="header">
-					<h1 className="title">Recent AI Chats</h1>
+					<h1 className="title">AI Chat History</h1>
 					<div onClick={handleCloseDrawer} className="cta-container">
 						<Back />
 					</div>
@@ -114,7 +116,9 @@ const ChatHistory = ({ showChatsDrawer, setShowChatsDrawer, setHideClosedSidebar
 									onClick={() => handleChatNavigation(chat)}
 								>
 									<div className="chat-title-and-query">
-										<p className="chat-title">{chat?.title}</p>
+										<ChatTitleTooltip content={chat?.title}>
+											<p className="chat-title">{chat?.title}</p>
+										</ChatTitleTooltip>
 										<p className="chat-query">{chat?.query}</p>
 									</div>
 									<p className="chat-timestamp">
