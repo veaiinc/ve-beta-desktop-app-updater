@@ -41,26 +41,26 @@ const FormLeads = () => {
 		tooltipVisible: false,
 	});
 	const metricsData = [
-		{
-			value: info?.totalViews,
-			title: 'Total Views',
-		},
+		// {
+		// 	value: info?.totalViews,
+		// 	title: 'Total Views',
+		// },
 		{
 			value: info?.totalSubmissions,
 			title: 'Total Submissions',
 		},
-		{
-			value: info?.totalStarts,
-			title: 'Total Starts',
-		},
-		{
-			value: info?.submissionRate,
-			title: 'Submission Rate',
-		},
-		{
-			value: info?.avgSubmissionTime,
-			title: 'Avg. Submission Time',
-		},
+		// {
+		// 	value: info?.totalStarts,
+		// 	title: 'Total Starts',
+		// },
+		// {
+		// 	value: info?.submissionRate,
+		// 	title: 'Submission Rate',
+		// },
+		// {
+		// 	value: info?.avgSubmissionTime,
+		// 	title: 'Avg. Submission Time',
+		// },
 
 		// {
 		// 	value: info?.completedEntries,
@@ -112,14 +112,14 @@ const FormLeads = () => {
 					/>
 				),
 			},
-			summary: {
-				label: 'Summary',
-				Component: <></>,
-			},
-			analytics: {
-				label: 'Analytics',
-				Component: <></>,
-			},
+			// summary: {
+			// 	label: 'Summary',
+			// 	Component: <></>,
+			// },
+			// analytics: {
+			// 	label: 'Analytics',
+			// 	Component: <></>,
+			// },
 
 			// TODO: when we have summary data, add this tab. Until then, commentting it out.
 			// summary: {
@@ -202,11 +202,11 @@ const FormLeads = () => {
 								<ThreeDots className="three-dots-icon" />
 							</Tooltip>
 						</div>
-						<div className="switchContainer">
+						{/* <div className="switchContainer">
 							<Vector />
 							<p>Data Enrichment</p>
 							<Switch />
-						</div>
+						</div> */}
 						<div className="formMetricsContainer">
 							{metricsData?.map((metric, index) => (
 								<div className="metricsCard" key={index}>
