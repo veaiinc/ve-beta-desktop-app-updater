@@ -424,7 +424,7 @@ const SubscribedUserPlanCard = ({
 							className="manageSubscriptionButton"
 							onClick={handleManageSubscriptionClick}
 						>
-							{info?.manageSubscriptionLoader ? <Spin /> : `	Manage Subscription`}
+							{info?.manageSubscriptionLoader ? <Spin /> : `	Manage Billing`}
 						</button>
 					) : (
 						''
@@ -433,7 +433,7 @@ const SubscribedUserPlanCard = ({
 						className="manageSubscriptionButton"
 						onClick={handleUpgradeSubscriptionClick}
 					>
-						{info?.subscriptionLoading ? <Spin /> : 'Upgrade Subscription'}
+						{info?.subscriptionLoading ? <Spin /> : 'Upgrade'}
 					</button>
 					{/* <button className="manageSubscriptionButton" onClick={handleAddOnsClick}>
 						{info?.addOnsLoading ? <Spin /> : 'Upgrade'}

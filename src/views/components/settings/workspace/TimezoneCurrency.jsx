@@ -46,7 +46,7 @@ const TimeZoneCurrencyComponent = ({ overviewState }) => {
 					</p>
 				</div>
 				<div className="currency-select-wrapper">
-					<select
+					{/* <select
 						value={selectedCurrency}
 						onChange={handleCurrencyChange}
 						className="currency-select"
@@ -58,7 +58,21 @@ const TimeZoneCurrencyComponent = ({ overviewState }) => {
 								}`}
 							</option>
 						))}
-					</select>
+					</select> */}
+					<ReusableButtonSettings
+						text={
+							getSymbolFromCurrency(overviewState?.currency) +
+							' ' +
+							overviewState?.currency
+						}
+						// icon={getSymbolFromCurrency(overviewState?.currency)}
+						downArrow={false}
+						disableHover={true}
+						// func={() => {
+						// 	setpopupType('currency');
+						// 	setopenPopup(true);
+						// }}
+					/>
 				</div>
 			</div>
 		</>
