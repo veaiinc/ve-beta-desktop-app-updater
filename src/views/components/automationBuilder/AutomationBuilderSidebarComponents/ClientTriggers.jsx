@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useMemo, useState } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import HeaderComponent from './HeaderComponent';
 import ActionDetailsBlock from './ActionDetailsBlock';
 import '../../../../assets/scss/automation_builder/automationBuilderSidebarComponents/clientTriggers.scss';
@@ -23,7 +23,7 @@ const clientFields = [
 	},
 ];
 
-const ClientTriggers = ({ onClose, onSave, addTriggerLoading, triggerData }) => {
+const ClientTriggers = ({ onClose, onSave, addTriggerLoading, triggerData, activeStepsData }) => {
 	const [info, setInfo] = useState({
 		title: '',
 		description: '',
@@ -36,6 +36,16 @@ const ClientTriggers = ({ onClose, onSave, addTriggerLoading, triggerData }) => 
 		setInfo((prev) => ({ ...prev, ...updatedInfo }));
 	}, []);
 
+	useEffect(() => {
+		if (activeStepsData) {
+			setInfo((prev) => ({
+				...prev,
+				title: activeStepsData?.title,
+				description: activeStepsData?.description,
+			}));
+		}
+	}, [activeStepsData]);
+
 	const eventMapper = useMemo(() => {
 		return {
 			create: (
@@ -43,6 +53,7 @@ const ClientTriggers = ({ onClose, onSave, addTriggerLoading, triggerData }) => 
 					onSave={onSave}
 					info={info}
 					addTriggerLoading={addTriggerLoading}
+					activeStepsData={activeStepsData}
 				/>
 			),
 			update: (
@@ -50,6 +61,7 @@ const ClientTriggers = ({ onClose, onSave, addTriggerLoading, triggerData }) => 
 					onSave={onSave}
 					info={info}
 					addTriggerLoading={addTriggerLoading}
+					activeStepsData={activeStepsData}
 				/>
 			),
 			delete: (
@@ -57,10 +69,11 @@ const ClientTriggers = ({ onClose, onSave, addTriggerLoading, triggerData }) => 
 					onSave={onSave}
 					info={info}
 					addTriggerLoading={addTriggerLoading}
+					activeStepsData={activeStepsData}
 				/>
 			),
 		};
-	}, [onSave, info, addTriggerLoading]);
+	}, [onSave, info, addTriggerLoading, activeStepsData]);
 
 	return (
 		<div className="clientTriggerContainer">
@@ -103,11 +116,23 @@ const CreateClientTrigger = memo(({ onSave, info, addTriggerLoading }) => {
 	);
 });
 
-const UpdateClientTrigger = memo(({ onSave, info, addTriggerLoading }) => {
+const UpdateClientTrigger = memo(({ onSave, info, addTriggerLoading, activeStepsData }) => {
 	const [updateInfo, setUpdateInfo] = useState({
 		selectedFields: [],
 		isOpen: false,
 	});
+
+	useEffect(() => {
+		if (activeStepsData) {
+			setUpdateInfo((prev) => ({
+				...prev,
+				selectedFields: activeStepsData?.fields?.map((field) => {
+					const fieldObj = clientFields?.find((f) => f?.value === field);
+					return fieldObj;
+				}),
+			}));
+		}
+	}, [activeStepsData]);
 
 	const handleFieldSelection = (field) => {
 		if (updateInfo.selectedFields.some((f) => f?.value === field?.value)) {

@@ -9,6 +9,7 @@ const ActionDetailsBlock = ({
 	updaterFn,
 	type = 'action',
 	onChangeButtonClick = () => {},
+	showChangeButton = true,
 }) => {
 	return (
 		<div className="actionDetailsBlockContainer">
@@ -17,9 +18,14 @@ const ActionDetailsBlock = ({
 					<h3>{heading}</h3>
 					<span className="actionDetailsBlockHeaderActionName">{actionLabel}</span>
 				</div>
-				<button className="actionDetailsBlockHeaderButton" onClick={onChangeButtonClick}>
-					Change
-				</button>
+				{showChangeButton && (
+					<button
+						className="actionDetailsBlockHeaderButton"
+						onClick={onChangeButtonClick}
+					>
+						Change
+					</button>
+				)}
 			</div>
 			<div className="actionDetailsBlockBody">
 				<input

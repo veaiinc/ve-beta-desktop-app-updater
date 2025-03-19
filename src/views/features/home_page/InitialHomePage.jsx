@@ -23,7 +23,7 @@ const navBarOptions = [
 
 const InitialHomePage = () => {
 	const {
-		templates: { updateStateValues },
+		templates: { updateStateValues, currentSessionId },
 	} = useContext(Context);
 
 	const navigate = useNavigate();
@@ -42,6 +42,7 @@ const InitialHomePage = () => {
 		profileInfo: { userDetailsData },
 		aiSetup: { getPromptsData, promptsData },
 	} = useContext(Context);
+
 	const username =
 		jwtDecode(localStorage.getItem('usertoken'))?.userName?.split(' ')[0] ??
 		`${userDetailsData?.firstName}` ??
@@ -78,10 +79,14 @@ const InitialHomePage = () => {
 		}));
 	};
 
-	const handleCustomOnSendFunction = useCallback((data) => {
-		updateStateValues({ activePayloadForChat: data });
-		navigate(`/chat/${ObjectID().toString()}`);
-	}, []);
+	const handleCustomOnSendFunction = useCallback(
+		(data) => {
+			updateStateValues({ activePayloadForChat: data });
+
+			navigate(`/chat/${currentSessionId}`);
+		},
+		[currentSessionId],
+	);
 	return (
 		<>
 			{info?.selectedOption !== null || info?.dashboardSelected ? (

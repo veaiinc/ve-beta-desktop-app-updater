@@ -18,9 +18,8 @@ import WorkspaceListComponent from './Workspace';
 import useLogout from '../../hooks/useLogout';
 import { message, Tooltip } from 'antd';
 import Notifications from './notifications/Notifications';
-import Chats from './chats/Chats';
-
 import Context from '../../../context/context';
+import ChatHistory from './chatHistory/ChatHistory';
 
 const MODULE_NAME_MAP = {
 	'conversational agent': 'conversationalAgent',
@@ -52,6 +51,7 @@ const OpenedSideBarHoverStateIcons = ({
 	setShowNotificationsDrawer,
 	setShowChatsDrawer,
 	setShowNotesDrawer,
+	setHideClosedSidebarIcon,
 }) => {
 	let {
 		aiSetup: { isVoiceIntegrationActive },
@@ -83,6 +83,7 @@ const OpenedSideBarHoverStateIcons = ({
 		}
 		if (name === 'Chats') {
 			setShowChatsDrawer((prev) => !prev);
+			// setHideClosedSidebarIcon(true);
 		} else {
 			setShowChatsDrawer(false);
 		}
@@ -293,6 +294,7 @@ const OpenedSideBarItemsComponent = ({
 	setShowNotificationsDrawer,
 	setShowChatsDrawer,
 	setShowNotesDrawer,
+	setHideClosedSidebarIcon,
 }) => {
 	const {
 		templates: { leftSidebarState, updateStateValues },
@@ -364,7 +366,7 @@ const OpenedSideBarItemsComponent = ({
 		// e.stopPropagation();
 		setsidebarStates({ ...sidebarStates, navStyle: 'close' });
 		setIsOpen(false);
-		setShowChatsDrawer(false);
+		// setShowChatsDrawer(false);
 	};
 
 	const handleChatSelect = (chatName) => {
@@ -676,6 +678,12 @@ const OpenedSideBarItemsComponent = ({
 																setShowNotificationsDrawer
 															}
 															setShowNotesDrawer={setShowNotesDrawer}
+															handleSidebarCollapse={
+																handleSidebarCollapse
+															}
+															setHideClosedSidebarIcon={
+																setHideClosedSidebarIcon
+															}
 														/>
 													</div>
 												))}

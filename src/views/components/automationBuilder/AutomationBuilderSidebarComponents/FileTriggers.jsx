@@ -1,38 +1,39 @@
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import { useMemo, memo, useState, useCallback, useEffect, useContext } from 'react';
+import '../../../../assets/scss/automation_builder/automationBuilderSidebarComponents/fileTriggers.scss';
+import ActionDetailsBlock from './ActionDetailsBlock';
+import HeaderComponent from './HeaderComponent';
 import Context from '../../../../context/context';
 import { message } from 'antd';
-import HeaderComponent from './HeaderComponent';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { FetchMoreLoaderComp } from '../../../../helpers';
-import ActionDetailsBlock from './ActionDetailsBlock';
 import Spinner from '../../loaders/Spinner';
 
-const FormResponseTrigger = ({
+const FileTriggers = ({
 	onClose,
 	onSave,
 	addTriggerLoading,
 	triggerData,
-	activeStepsData,
+	activeStepsData = null,
 }) => {
 	const {
 		templates: {
 			getMyWorkflows,
 			myWorkflows,
 			myMoreWorkflows,
-			getSpecificTemplatesInfo,
 			specificTemplatesInfo,
+			getSpecificTemplatesInfo,
 		},
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
-		chooseFromTemplate: false,
-		workflowTemplates: [],
-		currentPage: 1,
-		hasNextPage: false,
-		loading: true,
-		selectedTemplate: null,
 		title: '',
 		description: '',
+		workflowTemplates: [],
+		loading: false,
+		currentPage: 1,
+		hasNextPage: false,
+		selectedTemplate: null,
+		chooseFromTemplate: false,
 		selectedTemplateLoading: false,
 	});
 
@@ -52,6 +53,10 @@ const FormResponseTrigger = ({
 	}, [activeStepsData]);
 
 	useEffect(() => {
+		getMyWorkflowTemplatesData(1);
+	}, []);
+
+	useEffect(() => {
 		if (activeStepsData && specificTemplatesInfo) {
 			setInfo((prev) => ({
 				...prev,
@@ -60,10 +65,6 @@ const FormResponseTrigger = ({
 			}));
 		}
 	}, [specificTemplatesInfo, activeStepsData]);
-
-	useEffect(() => {
-		getMyWorkflowTemplatesData(1);
-	}, []);
 
 	useEffect(() => {
 		if (myWorkflows) {
@@ -85,14 +86,43 @@ const FormResponseTrigger = ({
 				type: 'workspace',
 				status: 'published',
 				sortBy: 'createdAt',
-				sortType: -1,
-				action: 'form-submission',
 				version: 1,
+				sortType: -1,
 			},
 		};
 
 		getMyWorkflows(payload, fetchMore);
 	}, []);
+
+	const customSaveFn = useCallback(() => {
+		if (!info?.selectedTemplate) {
+			message.error('Please select a template');
+			return;
+		}
+
+		if (!info?.title?.trim()) {
+			message.error('Please enter a title');
+			return;
+		}
+
+		if (!info?.description?.trim()) {
+			message.error('Please enter a description');
+			return;
+		}
+
+		onSave({
+			title: info?.title?.trim(),
+			description: info?.description?.trim(),
+			app: 'inApp',
+			type: 'trigger',
+			triggerType: 'database',
+			inApp: {
+				module: 'createFile',
+				event: triggerData?.event,
+				workflowTemplateId: info?.selectedTemplate?._id,
+			},
+		});
+	}, [onSave, info?.selectedTemplate, info?.title, info?.description, triggerData?.event]);
 
 	const myWorkflowsDataParser = useCallback(
 		(dataToBeUsed, fetchMore = false) => {
@@ -127,58 +157,23 @@ const FormResponseTrigger = ({
 		getMyWorkflowTemplatesData(info?.currentPage + 1, true);
 	}, [info?.hasNextPage, info?.currentPage]);
 
-	const updateStateInfo = (updatedInfo) => {
-		setInfo((prev) => ({ ...prev, ...updatedInfo }));
-	};
-
-	const getFormTemplateId = useCallback((template) => {
-		if (template?.version) {
-			return template?.moduleTemplates?.find((item) =>
-				item?.actions?.includes('form-submission'),
-			)?._id;
-		} else {
-			return template?.moduleTemplates?.find((item) => item?.module === 'form')?._id;
-		}
+	const updateInfo = useCallback((data) => {
+		setInfo((prev) => ({ ...prev, ...data }));
 	}, []);
 
-	const customSaveFn = useCallback(() => {
-		if (!info?.selectedTemplate) {
-			message?.error('Please select a template');
-			return;
-		}
-		if (!info?.title || !info?.description) {
-			message?.error('Please enter title and description');
-			return;
-		}
-
-		onSave({
-			title: info?.title,
-			description: info?.description,
-			triggerType: triggerData?.triggerType,
-			app: triggerData?.app,
-			type: 'trigger',
-			inApp: {
-				event: triggerData?.event,
-				module: triggerData?.module,
-				workflowTemplateId: info?.selectedTemplate?._id,
-				formTemplateId: getFormTemplateId(info?.selectedTemplate),
-			},
-		});
-	}, [info?.selectedTemplate, info?.title, info?.description, triggerData, onSave]);
-
 	return (
-		<>
+		<div className="fileTriggerContainer">
 			<HeaderComponent
+				heading={`File ${triggerData?.event}d`}
 				onBack={() => {
 					if (info?.chooseFromTemplate) {
-						updateStateInfo({ chooseFromTemplate: false });
+						updateInfo({ chooseFromTemplate: false });
 					} else {
 						onClose();
 					}
 				}}
-				heading={info?.chooseFromTemplate ? 'Choose from Template' : 'Form Submitted'}
 			/>
-			{info.chooseFromTemplate ? (
+			{info?.chooseFromTemplate ? (
 				<div className="chooseFromTemplateContainer">
 					<InfiniteScroll
 						dataLength={info?.workflowTemplates?.length || 0}
@@ -192,63 +187,68 @@ const FormResponseTrigger = ({
 						}}
 						height="calc(100vh - 52px - 80px)"
 					>
-						{info?.workflowTemplates?.map((template, index) => (
-							<div
-								className={`chooseFromTemplateFormContainer ${
-									info?.selectedTemplate?._id === template?._id ? 'selected' : ''
-								}`}
-								key={index}
-								onClick={() =>
-									updateStateInfo({
-										selectedTemplate: template,
-										chooseFromTemplate: false,
-									})
-								}
-							>
-								<div className="templatePreview"></div>
-								<div className="templateDetails">
-									<h2 className="templateName">{template?.title}</h2>
-									<p className="templateDescription">
-										{template?.description || 'Enquiry Form'}
-									</p>
+						{info?.workflowTemplates?.length > 0 ? (
+							info?.workflowTemplates?.map((template, index) => (
+								<div
+									className={`chooseFromTemplateFormContainer ${
+										info?.selectedTemplate?._id === template?._id
+											? 'selected'
+											: ''
+									}`}
+									key={index}
+									onClick={() =>
+										updateInfo({
+											selectedTemplate: template,
+											chooseFromTemplate: false,
+										})
+									}
+								>
+									<div className="templatePreview"></div>
+									<div className="templateDetails">
+										<h2 className="templateName">{template?.title}</h2>
+										<p className="templateDescription">
+											{template?.description || 'Enquiry Form'}
+										</p>
+									</div>
 								</div>
+							))
+						) : (
+							<div className="noTemplatesContainer">
+								<p>No templates found</p>
 							</div>
-						))}
+						)}
 					</InfiniteScroll>
 				</div>
 			) : (
 				<>
 					<ActionDetailsBlock
-						actionLabel={'Form Submitted'}
-						heading={'Trigger'}
-						description={info?.description}
+						actionLabel={`File ${triggerData?.event}d`}
+						heading="Triggers"
 						title={info?.title}
-						updaterFn={(updatedData) => {
-							updateStateInfo(updatedData);
-						}}
+						description={info?.description}
+						updaterFn={updateInfo}
+						onChangeButtonClick={onClose}
+						showChangeButton={activeStepsData ? false : true}
 					/>
-					<div className="formSelectionBlockContainer">
-						<h3 className="formSelectionBlockHeading">Select form</h3>
+					<div className="createFileFormSelectionBlockContainer">
 						{info?.selectedTemplate ? (
 							<div className="selectedTemplateWrapper">
 								<div
 									className="chooseFromTemplateFormContainer"
-									onClick={() => updateStateInfo({ chooseFromTemplate: true })}
+									onClick={() => updateInfo({ chooseFromTemplate: true })}
 								>
 									<div className="templatePreview"></div>
 									<div className="templateDetails">
 										<h2 className="templateName">
-											{info.selectedTemplate.title}
+											{info?.selectedTemplate?.title}
 										</h2>
 										<p className="templateDescription">
-											{info.selectedTemplate.description || 'Enquiry Form'}
+											{info?.selectedTemplate?.description || 'Enquiry Form'}
 										</p>
 									</div>
 									<button
 										className="changeButton"
-										onClick={() =>
-											updateStateInfo({ chooseFromTemplate: true })
-										}
+										onClick={() => updateInfo({ chooseFromTemplate: true })}
 									>
 										Change
 									</button>
@@ -260,7 +260,7 @@ const FormResponseTrigger = ({
 							<>
 								<button
 									className="formSelectionBlockButton"
-									onClick={() => updateStateInfo({ chooseFromTemplate: true })}
+									onClick={() => updateInfo({ chooseFromTemplate: true })}
 								>
 									Choose from Template
 								</button>
@@ -271,20 +271,20 @@ const FormResponseTrigger = ({
 								</div>
 							</>
 						)}
-						<div className="triggerSaveButtonContainer">
-							<button
-								className="triggerSaveButton"
-								onClick={customSaveFn}
-								disabled={addTriggerLoading}
-							>
-								{addTriggerLoading ? 'Saving...' : 'Save'}
-							</button>
-						</div>
+					</div>
+					<div className="triggerSaveButtonContainer">
+						<button
+							className="triggerSaveButton"
+							onClick={customSaveFn}
+							disabled={addTriggerLoading}
+						>
+							{addTriggerLoading ? 'Saving...' : 'Save'}
+						</button>
 					</div>
 				</>
 			)}
-		</>
+		</div>
 	);
 };
 
-export default FormResponseTrigger;
+export default FileTriggers;

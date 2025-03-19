@@ -1,5 +1,7 @@
 .sidebar-chats-drawer {
-	left: 250px;
+	.ant-drawer-mask {
+		display: none;
+	}
 
 	.ant-drawer-content-wrapper {
 		.ant-drawer-header {
@@ -14,6 +16,8 @@
 			border-left: 0.5px solid rgb(51, 51, 52);
 
 			.chats-drawer-container {
+				width: 250px;
+
 				.header {
 					padding: 24px;
 					display: flex;
@@ -38,7 +42,7 @@
 					display: flex;
 					flex-direction: column;
 					height: calc(100vh - 70px);
-					width: 100%;
+					width: 250px;
 
 					.skeleton-loader-container {
 						display: flex;
@@ -74,6 +78,8 @@
 						border-bottom: 0.5px solid rgb(51, 51, 52);
 						padding: 16px 20px;
 						width: 100%;
+						height: 68px;
+						cursor: pointer;
 
 						&:hover {
 							background-color: #2e2f33;
@@ -86,7 +92,10 @@
 							gap: 4px;
 
 							.chat-title {
-								width: 280px;
+								width: 180px;
+								text-overflow: ellipsis;
+								white-space: nowrap;
+								overflow: hidden;
 								color: var(--primary-font, #f2f2f3);
 								font-family: Inter;
 								font-size: 14px;
@@ -99,16 +108,16 @@
 							}
 
 							.chat-query {
-								width: 280px;
+								width: 180px;
+								text-overflow: ellipsis;
+								white-space: nowrap;
+								overflow: hidden;
 								color: var(--secondary-font, #7a7e85);
 								font-family: Inter;
 								font-size: 12px;
 								font-style: normal;
 								font-weight: 400;
 								line-height: normal;
-								overflow: hidden;
-								text-overflow: ellipsis;
-								white-space: nowrap;
 							}
 						}
 
@@ -122,6 +131,10 @@
 							font-weight: 400;
 							line-height: normal;
 						}
+					}
+
+					.active-chat {
+						background-color: #2e2f33;
 					}
 				}
 			}

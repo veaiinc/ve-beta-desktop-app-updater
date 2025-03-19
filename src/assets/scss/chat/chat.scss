@@ -198,3 +198,22 @@
 .loader.visible {
 	opacity: 1;
 }
+
+.chat-message.user-message {
+	.message-content {
+		overflow: auto;
+	}
+}
+
+.fade-in {
+	animation: fadeIn 1s ease-in forwards;
+}
+
+@keyframes fadeIn {
+	0% {
+		opacity: 0; /* Start fully transparent */
+	}
+	100% {
+		opacity: 1; /* End fully opaque */
+	}
+}

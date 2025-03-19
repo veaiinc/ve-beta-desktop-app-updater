@@ -21,7 +21,6 @@ import AlbumSettings from './views/features/gallery/AlbumSettings';
 import UploadPhotos from './views/features/gallery/UploadPhotos';
 import GalleryViewLayout from './views/layouts/galleryViewLayout';
 import { Navigate } from 'react-router-dom';
-import Subscription from './views/features/subscription';
 import TermsOfService from './views/features/signin/TermsOfService';
 import CookiePolicy from './views/features/signin/CookiePolicy';
 import WorkflowBuilder from './views/features/workflow_builder';
@@ -279,11 +278,6 @@ const routes = [
 		component: <Navigate to="/" />,
 	},
 	{
-		path: '/subscription',
-		component: <Subscription />,
-		exact: true,
-	},
-	{
 		path: '/calendar',
 		component: (
 			<AuthWrapper title={'Calendar'} maxWidth={'95%'}>
@@ -423,6 +417,7 @@ const routes = [
 				title={'Chat'}
 				showBottomToolbar={false}
 				outerContainerStyle={{ paddingRight: '0px' }}
+				authParentContainerStyle={{ backgroundColor: 'rgb(20,20,21)' }}
 				maxWidth="100%"
 			>
 				<RecentChat />
@@ -434,7 +429,7 @@ const routes = [
 		component: (
 			<AuthWrapper
 				title={'Notes'}
-				outerContainerStyle={{ padding: '0 0 0 32px', backgroundColor: '#1e1e1e' }}
+				outerContainerStyle={{ padding: '0 0 0 32px' }}
 				maxWidth={'100%'}
 			>
 				<Notes />
