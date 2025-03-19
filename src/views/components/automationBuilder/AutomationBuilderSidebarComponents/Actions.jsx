@@ -15,6 +15,7 @@ import HeaderComponent from './HeaderComponent';
 import GoogleActions from './GoogleActions';
 import SlackActions from './SlackActions';
 import CreateMeeting from './CreateMeeting';
+import Delay from './Delay';
 
 const integrations = [
 	{
@@ -42,6 +43,10 @@ const actionGroups = [
 			{
 				actionLabel: 'Create Task',
 				actionType: 'createTask',
+			},
+			{
+				actionLabel: 'Delay',
+				actionType: 'delay',
 			},
 			// {
 			// 	actionLabel: 'Create Meeting',
@@ -160,8 +165,8 @@ const Actions = ({
 		if (activeStepsData) {
 			updateInfo({
 				selectedAction: {
-					actionType: activeStepsData?.actionType,
-					groupId: activeStepsData?.app,
+					actionType: activeStepsData?.actionType || activeStepsData?.type,
+					groupId: activeStepsData?.app || 'inApp',
 					actionLabel: actionGroups
 						?.find((group) => group?._id === activeStepsData?.app)
 						?.actions?.find(
@@ -189,7 +194,7 @@ const Actions = ({
 	};
 
 	const addNode = useCallback(
-		async (data) => {
+		async (data, hasAppType = true) => {
 			if (info?.saveLoader) {
 				return;
 			}
@@ -200,7 +205,8 @@ const Actions = ({
 
 			const payload = {
 				type: 'action',
-				app: 'inApp',
+				isHidden: false,
+				...(hasAppType && { app: 'inApp' }),
 				isEnabled: true,
 				previousStepId,
 				...(previousStepPath && { previousStepPath }),
@@ -218,7 +224,7 @@ const Actions = ({
 	);
 
 	const updateNode = useCallback(
-		async (data) => {
+		async (data, hasAppType = true) => {
 			if (info?.saveLoader) {
 				return;
 			}
@@ -226,7 +232,7 @@ const Actions = ({
 
 			const payload = {
 				type: 'action',
-				app: 'inApp',
+				...(hasAppType && { app: 'inApp' }),
 				isEnabled: true,
 				stepId: activeStepsData?._id,
 				...data,
@@ -235,7 +241,7 @@ const Actions = ({
 			if (response?.[0]) {
 				onClose();
 			} else {
-				message.error('Failed to add step');
+				message.error('Failed to update step');
 			}
 			setInfo((prev) => ({ ...prev, saveLoader: false }));
 		},
@@ -243,11 +249,11 @@ const Actions = ({
 	);
 
 	const onSave = useCallback(
-		(data) => {
+		(...data) => {
 			if (activeStepsData) {
-				updateNode(data);
+				updateNode(...data);
 			} else {
-				addNode(data);
+				addNode(...data);
 			}
 		},
 		[activeStepsData, updateNode, addNode],
@@ -291,8 +297,8 @@ const Actions = ({
 					handleChangeClick={handleChangeClick}
 				/>
 			),
-			createMeeting: (
-				<CreateMeeting
+			delay: (
+				<Delay
 					onBack={handleBack}
 					onSave={onSave}
 					addTriggerLoading={info?.saveLoader}

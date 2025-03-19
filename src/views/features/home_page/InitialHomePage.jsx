@@ -42,6 +42,7 @@ const InitialHomePage = () => {
 		profileInfo: { userDetailsData },
 		aiSetup: { getPromptsData, promptsData },
 	} = useContext(Context);
+
 	const username =
 		jwtDecode(localStorage.getItem('usertoken'))?.userName?.split(' ')[0] ??
 		`${userDetailsData?.firstName}` ??

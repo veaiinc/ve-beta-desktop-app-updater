@@ -508,6 +508,7 @@ const RecentChat = ({
 																		? 1
 																		: 0.6,
 															}}
+															className="fade-in"
 														>
 															<Markdown>{chat?.message}</Markdown>
 														</div>

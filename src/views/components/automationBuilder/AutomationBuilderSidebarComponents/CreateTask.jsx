@@ -44,24 +44,24 @@ const CreateTask = ({
 		if (title?.match(variableRegex)) {
 			variables.title = [title?.slice(2, -2)];
 		} else if (!title?.trim().length) {
-			message.error('Title is mandatory');
+			message.error('Task title is mandatory');
 			return;
 		}
 		if (!stepTitle?.trim().length) {
-			message.error('Title is mandatory');
+			message.error('Step title is mandatory');
 			return;
 		}
 		if (!stepDescription?.trim().length) {
-			message.error('Title is mandatory');
+			message.error('Step description is mandatory');
 			return;
 		}
-		if (dueDate?.match(variableRegex)) {
-			variables.dueDate = [dueDate?.slice(2, -2)];
-		} else if (!dueDate) {
-			message.error('Due date is mandatory');
-			return;
-		} else {
-			dueDate = moment(dueDate).unix();
+
+		if (dueDate) {
+			if (dueDate?.match(variableRegex)) {
+				variables.dueDate = [dueDate?.slice(2, -2)];
+			} else {
+				dueDate = moment(dueDate).unix();
+			}
 		}
 
 		const payload = {
@@ -70,7 +70,7 @@ const CreateTask = ({
 			actionType: 'createTask',
 			inputBody: {
 				title: title,
-				dueDate: dueDate,
+				...(dueDate && { dueDate: dueDate + '' }),
 				action: 'createTask',
 			},
 		};
@@ -122,7 +122,7 @@ const CreateTask = ({
 					/>
 				</div>
 				<div className="inputWrapper">
-					<span className="inputLabel">Due Date</span>
+					<span className="inputLabel">Due Date (Optional)</span>
 
 					<VariableComponent
 						variables={variables?.data}

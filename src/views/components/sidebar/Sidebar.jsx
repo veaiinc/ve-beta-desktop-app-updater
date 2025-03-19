@@ -11,8 +11,9 @@ import { ReactComponent as SidebarClosingSvg } from '../../../assets/svg/sidebar
 import { veAiModulesItemsList } from './sidebarindex';
 import { Tooltip } from 'antd';
 import Notifications from './notifications/Notifications';
-import Chats from './chats/Chats';
 import Notes from './notes/Notes';
+import ChatHistory from './chatHistory/ChatHistory';
+
 const Sidebar = ({ activeWorkspaceId }) => {
 	const {
 		profileInfo: { userWorkSpaceList, getUserWorkSpaceList, userDetailsData, getUserDetails },
@@ -27,13 +28,14 @@ const Sidebar = ({ activeWorkspaceId }) => {
 		navStyle: 'close',
 		selectedModule: null,
 	});
+	const [hideClosedSidebarIcon, setHideClosedSidebarIcon] = useState(false);
+	const [isOpen, setIsOpen] = useState(() => {
+		return JSON.parse(localStorage.getItem('isOpen')) ?? true;
+	});
 
 	// conditional margin top for home page
 	const isHome = location?.pathname?.includes('home') || location?.pathname?.includes('notes');
 
-	const [isOpen, setIsOpen] = useState(() => {
-		return JSON.parse(localStorage.getItem('isOpen')) ?? true;
-	});
 	useEffect(() => {
 		localStorage.setItem('isOpen', JSON.stringify(isOpen));
 	}, [isOpen]);
@@ -130,6 +132,7 @@ const Sidebar = ({ activeWorkspaceId }) => {
 					maxHeight: info?.activeRoute === '/home' ? (isOpen ? '' : '') : '',
 					minHeight: info?.activeRoute === '/home' ? (isOpen ? '' : '250px') : '',
 					marginTop: isHome && '0',
+					display: hideClosedSidebarIcon ? 'none' : '',
 				}}
 			>
 				<nav
@@ -150,6 +153,7 @@ const Sidebar = ({ activeWorkspaceId }) => {
 							setShowChatsDrawer={setShowChatsDrawer}
 							setShowNotificationsDrawer={setShowNotificationsDrawer}
 							setShowNotesDrawer={setShowNotesDrawer}
+							setHideClosedSidebarIcon={setHideClosedSidebarIcon}
 						/>
 					) : (
 						<Tooltip
@@ -183,7 +187,11 @@ const Sidebar = ({ activeWorkspaceId }) => {
 					setShowNotificationsDrawer={setShowNotificationsDrawer}
 				/>
 				<Notes showNotesDrawer={showNotesDrawer} setShowNotesDrawer={setShowNotesDrawer} />
-				<Chats showChatsDrawer={showChatsDrawer} setShowChatsDrawer={setShowChatsDrawer} />
+				<ChatHistory
+					showChatsDrawer={showChatsDrawer}
+					setShowChatsDrawer={setShowChatsDrawer}
+					setHideClosedSidebarIcon={setHideClosedSidebarIcon}
+				/>
 			</div>
 
 			{isOpen && <div className="sidebar__overlay"></div>}

@@ -47,7 +47,7 @@ const taskFields = [
 	},
 ];
 
-const TaskTriggers = ({ onClose, onSave, addTriggerLoading, triggerData }) => {
+const TaskTriggers = ({ onClose, onSave, addTriggerLoading, triggerData, activeStepsData }) => {
 	const [info, setInfo] = useState({
 		title: '',
 		description: '',
@@ -55,6 +55,16 @@ const TaskTriggers = ({ onClose, onSave, addTriggerLoading, triggerData }) => {
 		app: 'inApp',
 		triggerType: 'database',
 	});
+
+	useEffect(() => {
+		if (activeStepsData) {
+			setInfo((prev) => ({
+				...prev,
+				title: activeStepsData?.title,
+				description: activeStepsData?.description,
+			}));
+		}
+	}, [activeStepsData]);
 
 	const updateStateInfo = useCallback((updatedInfo) => {
 		setInfo((prev) => ({ ...prev, ...updatedInfo }));
@@ -67,6 +77,7 @@ const TaskTriggers = ({ onClose, onSave, addTriggerLoading, triggerData }) => {
 					onSave={onSave}
 					info={info}
 					addTriggerLoading={addTriggerLoading}
+					activeStepsData={activeStepsData}
 				/>
 			),
 			update: (
@@ -74,6 +85,7 @@ const TaskTriggers = ({ onClose, onSave, addTriggerLoading, triggerData }) => {
 					onSave={onSave}
 					info={info}
 					addTriggerLoading={addTriggerLoading}
+					activeStepsData={activeStepsData}
 				/>
 			),
 			delete: (
@@ -81,10 +93,11 @@ const TaskTriggers = ({ onClose, onSave, addTriggerLoading, triggerData }) => {
 					onSave={onSave}
 					info={info}
 					addTriggerLoading={addTriggerLoading}
+					activeStepsData={activeStepsData}
 				/>
 			),
 		};
-	}, [onSave, info, addTriggerLoading]);
+	}, [onSave, info, addTriggerLoading, activeStepsData]);
 
 	return (
 		<div className="taskTriggerContainer">
@@ -127,11 +140,23 @@ const CreateTaskTrigger = ({ onSave, info, addTriggerLoading }) => {
 	);
 };
 
-const UpdateTaskTrigger = ({ onSave, info, addTriggerLoading }) => {
+const UpdateTaskTrigger = ({ onSave, info, addTriggerLoading, activeStepsData }) => {
 	const [updateInfo, setUpdateInfo] = useState({
 		selectedFields: [],
 		isOpen: false,
 	});
+
+	useEffect(() => {
+		if (activeStepsData) {
+			setUpdateInfo((prev) => ({
+				...prev,
+				selectedFields: activeStepsData?.fields?.map((field) => {
+					const fieldObj = taskFields?.find((f) => f?.value === field);
+					return fieldObj;
+				}),
+			}));
+		}
+	}, [activeStepsData]);
 
 	const handleFieldSelection = (field) => {
 		if (updateInfo.selectedFields.some((f) => f?.value === field?.value)) {

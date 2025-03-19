@@ -32,18 +32,13 @@ const actionHandlers = {
 
 	SET_VARIABLES: (state, action) => ({
 		...state,
-		variables: action.payload,
+		variables: action?.payload,
 	}),
 
-	// SET_PREVIOUS_STEP_RESPONSE: (state, action) => ({
-	// 	...state,
-	// 	previousStepResponse: action.payload,
-	// }),
-
-	// SET_PREVIOUS_EXECUTION_DATA: (state, action) => ({
-	// 	...state,
-	// 	previousExecutionData: action.payload,
-	// }),
+	UPDATE_CONTEXT_STATE_IN_AUTOMATION_BUILDER: (state, action) => ({
+		...state,
+		...action?.payload,
+	}),
 
 	RESET_STATE: () => initialState,
 };

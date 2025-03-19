@@ -8,8 +8,6 @@ export const initialState = {
 	specificAutomationInfo: null,
 	connectedIntegrations: null,
 	executionHistory: null,
-	// previousStepResponse: null,
-	// previousExecutionData: null,
 	variables: null,
 	automationsList: null,
 };
@@ -259,21 +257,13 @@ export const AutomationBuilderState = () => {
 			);
 
 			if (response?.[0] === true) {
-				const variable = response?.[1]?.at(payload?.editMode ? -2 : -1)?.variables;
-				const actionType = variable?.[0]?.type?.includes('form')
-					? 'formResponse'
-					: 'variable';
+				const variables = payload?.editMode ? response?.[1]?.slice(0, -1) : response?.[1];
 
 				dispatch({
 					type: Actions.SET_VARIABLES,
 					payload: {
 						data: {
-							variables:
-								actionType === 'formResponse'
-									? response?.[1]?.at(payload?.editMode ? -2 : -1)?.variables?.[0]
-											?.blocks || []
-									: response?.[1]?.at(payload?.editMode ? -2 : -1)?.variables,
-							actionType,
+							variables,
 						},
 					},
 				});
@@ -281,7 +271,7 @@ export const AutomationBuilderState = () => {
 				dispatch({
 					type: Actions.SET_VARIABLES,
 					payload: {
-						data: { variables: [], actionType: null },
+						data: { variables: [] },
 					},
 				});
 			}
@@ -336,67 +326,36 @@ export const AutomationBuilderState = () => {
 		}
 	};
 
-	// const getPreviousStepResponse = async (automationId, batchId, stepId) => {
-	// 	try {
-	// 		const usertoken = localStorage.getItem('usertoken');
-	// 		const workspaceId = localStorage.getItem('workspaceId');
-	// 		const response = await restService.fetchGet(
-	// 			`/${workspaceId}/${automationId}/execution/batch/${batchId}/step/${stepId}`,
-	// 			usertoken,
-	// 			'automation_builder_api',
-	// 		);
-
-	// 		if (response?.[0]) {
-	// 			dispatch({
-	// 				type: Actions.SET_PREVIOUS_STEP_RESPONSE,
-	// 				payload: { data: response?.[1] },
-	// 			});
-	// 		} else {
-	// 			dispatch({
-	// 				type: Actions.SET_PREVIOUS_STEP_RESPONSE,
-	// 				payload: { error: response?.[1]?.message },
-	// 			});
-	// 		}
-	// 	} catch (error) {
-	// 		console.log('API failed ==> getPreviousStepResponse', error);
-	// 		dispatch({
-	// 			type: Actions.SET_PREVIOUS_STEP_RESPONSE,
-	// 			payload: { error: error?.message },
-	// 		});
-	// 		return [false];
-	// 	}
-	// };
-
-	// const executeAutomation = async (automationId) => {
-	// 	try {
-	// 		const usertoken = localStorage.getItem('usertoken');
-	// 		const workspaceId = localStorage.getItem('workspaceId');
-	// 		const response = await restService.fetchPost(
-	// 			`/${workspaceId}/${automationId}/execution/start`,
-	// 			{},
-	// 			usertoken,
-	// 			'automation_builder_api',
-	// 		);
-	// 		if (response?.[0]) {
-	// 			console.log('response', response);
-
-	// 			dispatch({
-	// 				type: Actions.SET_PREVIOUS_EXECUTION_DATA,
-	// 				payload: response?.[1],
-	// 			});
-	// 		} else {
-	// 			dispatch({
-	// 				type: Actions.SET_PREVIOUS_EXECUTION_DATA,
-	// 				payload: { error: response?.[1]?.message },
-	// 			});
-	// 		}
-	// 	} catch (error) {
-	// 		console.log('API failed ==> executeAutomation', error);
-	// 	}
-	// };
-
 	const resetAutomationBuilderState = () => {
-		dispatch({ type: Actions.RESET_STATE });
+		dispatch({ type: Actions?.RESET_STATE });
+	};
+
+	const updateContextStateInAutomationBuilder = (payload) => {
+		dispatch({ type: Actions?.UPDATE_CONTEXT_STATE_IN_AUTOMATION_BUILDER, payload });
+	};
+
+	const duplicateAutomationStep = async (automationId, stepId) => {
+		try {
+			const usertoken = localStorage.getItem('usertoken');
+			const workspaceId = localStorage.getItem('workspaceId');
+			const response = await restService.fetchPost(
+				`/${workspaceId}/${automationId}/duplicateStep/${stepId}`,
+				{},
+				usertoken,
+				'automation_builder_api',
+			);
+			if (response?.[0] === true) {
+				dispatch({
+					type: Actions.SET_AUTOMATION,
+					payload: response?.[1]?.updatedAutomation,
+				});
+				return [true];
+			} else {
+				return [false];
+			}
+		} catch (error) {
+			console.log('API failed ==> duplicateStep', error);
+		}
 	};
 
 	return {
@@ -411,12 +370,12 @@ export const AutomationBuilderState = () => {
 		getConnectionDetails,
 		updateAutomation,
 		getExecutionHistory,
-		// getPreviousStepResponse,
-		// executeAutomation,
 		getVariables,
 		renameAutomationTitle,
 		deleteStep,
 		updateStep,
 		deleteAutomation,
+		updateContextStateInAutomationBuilder,
+		duplicateAutomationStep,
 	};
 };
