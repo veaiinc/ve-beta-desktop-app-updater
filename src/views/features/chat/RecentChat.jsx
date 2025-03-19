@@ -83,6 +83,7 @@ const RecentChat = ({
 				recentChatStorage: null,
 				globalChatMessages: [],
 				currentSessionId: ObjectID().toString(),
+				citations: null,
 			});
 		};
 	}, []);
@@ -95,6 +96,7 @@ const RecentChat = ({
 					moreRecentChatStorage: null,
 					recentChatStorage: null,
 					globalChatMessages: [],
+					citations: null,
 				});
 			}
 
