@@ -495,7 +495,7 @@ const OpenedSideBarItemsComponent = ({
 								<div
 									className="openSideBarComponent"
 									style={{
-										height: '100vh',
+										height: '99.1vh',
 										display: 'flex',
 										flexDirection: 'column',
 										justifyContent: 'space-between',
