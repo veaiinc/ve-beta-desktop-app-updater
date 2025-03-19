@@ -47,6 +47,7 @@ import AutomationBuilder from './views/features/automation_builder';
 import AutomationBuilderLayout from './views/layouts/automationBuilderLayout';
 import Automations from './views/features/automations/Automations';
 import Integrations from './views/features/Integrations/Integrations';
+import BrandSetup from './views/features/settings/BrandSetup';
 
 const routes = [
 	{
@@ -202,6 +203,14 @@ const routes = [
 			</AuthWrapper>
 		),
 		exact: true,
+	},
+	{
+		path: '/brand-setup',
+		component: (
+			<AuthWrapper title={'Brand Setup'}>
+				<BrandSetup />
+			</AuthWrapper>
+		),
 	},
 	{
 		path: '/galleries',

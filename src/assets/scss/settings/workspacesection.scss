@@ -1,12 +1,15 @@
+.publicandworkspaceContainer{
+	display: flex;
+	flex-direction: column;
+	gap: 40px;
 .workspaceContainer {
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
-	gap: 48px;
 
 	.workspaceHandleComponent {
 		h1 {
-			color: #e4e5e6;
+			color: var(--primary-font);
 			font-family: Inter;
 			font-size: 16px;
 			font-style: normal;
@@ -15,7 +18,7 @@
 		}
 
 		.domainContainer {
-			margin-top: 24px;
+			margin-top: 4px;
 			h2 {
 				color: #b0b0b0;
 				font-family: Inter;
@@ -64,6 +67,9 @@
 				}
 
 				.activeDomainDiv {
+					border-radius: 12px;
+					border: 1px solid var(--stroke, #313336);
+					padding: 12px 18px;
 					display: flex;
 					gap: 8px;
 					justify-content: center;
@@ -451,4 +457,5 @@
 		text-align: center;
 		cursor: pointer;
 	}
+}
 }

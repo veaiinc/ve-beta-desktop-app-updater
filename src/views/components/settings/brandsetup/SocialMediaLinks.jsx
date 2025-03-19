@@ -23,9 +23,9 @@ import SocialMediaPopup from './SocialMediaPopup';
 
 const logoComponents = {
 	instagram: { inactive: InstagramLogoColorless, active: InstagramActive },
+	youtube: { inactive: YouTubeLogoColorless, active: ActiveYoutube },
 	facebook: { inactive: FacebookLogoColorless, active: FacebookActive },
 	pinterest: { inactive: PinterestLogoColorless, active: PinterestActive },
-	youtube: { inactive: YouTubeLogoColorless, active: ActiveYoutube },
 	linkedIn: { inactive: LinkedinLogoColorless, active: LinkedInActive },
 	tiktok: { inactive: TiktokLogoColorless, active: TiktokActive },
 	spotify: { inactive: SpotifyLogoColorless, active: ActiveSpotify },
@@ -64,9 +64,11 @@ const SocialMediaLinksComponent = ({
 	};
 
 	return (
-		<>
+		<div className="socialLinkContainer">
+			<h1 className="socialLinkTitle">Brand setup</h1>
 			<div className="socialLinkTextContainer">
 				<h1>Social Media Links</h1>
+				<p>Add your social media links</p>
 			</div>
 
 			<div className="logosWrapper">
@@ -77,11 +79,11 @@ const SocialMediaLinksComponent = ({
 						brandState?.[`${logoName}Profile`] === 'active' ||
 						false;
 
-					const logoToDisplay = isActive ? logoData?.active : logoData?.inactive;
+					const logoToDisplay = isActive ? logoData.active : logoData.inactive;
 
 					return (
 						<div
-							className="logoContainer"
+							className={`logoContainer ${isActive ? 'active' : ''}`}
 							key={index}
 							onClick={() => openPopupFunction(logoName, isActive)}
 						>
@@ -108,7 +110,7 @@ const SocialMediaLinksComponent = ({
 					isActive={isActive}
 				/>
 			)}
-		</>
+		</div>
 	);
 };
 

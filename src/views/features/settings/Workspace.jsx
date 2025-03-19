@@ -7,6 +7,7 @@ import DeleteWorkpsaceComponent from '../../components/settings/workspace/Delete
 import { message, Tooltip } from 'antd';
 import ToolTipContainer from '../../components/popover/ToolTipContainer';
 import { ReactComponent as QuestionMark } from '../../../assets/svg/Settings/question_circle.svg';
+import PublicInformation from './PublicInformation';
 
 const temporaryPlaceholderText = `
 The voice embodies values of:
@@ -61,11 +62,13 @@ const SettingsWorkspace = () => {
 	}, []);
 
 	return (
-		<div className="workspaceContainer">
-			<div className="settingsBoxContainer workspaceHandleComponent">
-				<WorkspaceHandleComponent overviewState={overviewState} />
-			</div>
-			<div className="brandVoiceContainer">
+		<div className="publicandworkspaceContainer">
+			<PublicInformation />
+			<div className="workspaceContainer">
+				<div className="settingsBoxContainer workspaceHandleComponent">
+					<WorkspaceHandleComponent overviewState={overviewState} />
+				</div>
+				{/* <div className="brandVoiceContainer">
 				<h1 className="title">Brand Voice</h1>
 				<Tooltip
 					placement="topRight"
@@ -115,15 +118,16 @@ const SettingsWorkspace = () => {
 				<div className="wordCountContainer">
 					<span className="wordCount">{info?.brandDescription?.length}/5000</span>
 				</div>
-			</div>
-			<div className="settingsBoxContainer timezoneCurrencyComponent">
-				<TimeZoneCurrencyComponent overviewState={overviewState} />
-			</div>
+			</div> */}
+				<div className="settingsBoxContainer timezoneCurrencyComponent">
+					<TimeZoneCurrencyComponent overviewState={overviewState} />
+				</div>
 
-			{/* tmeporary Hide */}
-			{/* <div className="settingsBoxContainer deleteWorkpsaceComponent">
+				{/* tmeporary Hide */}
+				{/* <div className="settingsBoxContainer deleteWorkpsaceComponent">
 				<DeleteWorkpsaceComponent />
 			</div> */}
+			</div>
 		</div>
 	);
 };

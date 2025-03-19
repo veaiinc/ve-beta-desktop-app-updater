@@ -13,18 +13,16 @@
 		overflow-y: scroll;
 		scroll-behavior: smooth;
 		.accountSettingsMapper {
-			width: 580px;
+			width: 680px;
 			height: 85vh;
 			// transition: opacity 0s, transform 0.5s;
 
 			// common box styles for every component
 			.settingsBoxContainer {
-				padding: 32px;
 				border-radius: 40px;
-				background: rgba(29, 29, 35, 0.24);
 				display: flex;
-				flex-direction: column;
 				gap: 24px;
+				flex-direction: column;
 			}
 		}
 

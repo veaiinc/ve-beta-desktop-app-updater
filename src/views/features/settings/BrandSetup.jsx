@@ -208,13 +208,13 @@ const BrandingSetup = () => {
 				</div>
 
 				{/* client portal */}
-				<div className="settingsBoxContainer clientPortalContainer">
+				{/* <div className="settingsBoxContainer clientPortalContainer">
 					<ClientPortalComponent
 						brandState={brandState}
 						updateSubmitThemeHandler={updateSubmitThemeHandler}
 						setbrandState={setbrandState}
 					/>
-				</div>
+				</div> */}
 
 				{/* Branding color */}
 				<div className="settingsBoxContainer brandingContainer">

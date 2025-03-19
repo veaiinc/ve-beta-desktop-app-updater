@@ -107,6 +107,7 @@ const PlanBilling = () => {
 
 	return (
 		<div className="planBillingContianer">
+			<h1 className="planBillingTitle">Plan & billing</h1>
 			{info?.loading ? (
 				<Skeleton height={'700px'} style={{ borderRadius: '32px' }} />
 			) : (
@@ -352,21 +353,28 @@ const SubscribedUserPlanCard = ({
 								<>
 									{(item?.totalValue > 0 || item?.usedValue > 0) && (
 										<div className="storageContainerHolder">
-											<div className="storageTitle">{item?.title}</div>
-											<div className="storageUsed">
-												<span className="storageUsedValue">
-													{item?.usedValue}
-												</span>
-												<span className="storageUsedUnit">
-													{item?.title === 'Storage' ? ' GB' : ''}
-													{item?.title === 'AI Credits' ? ' Credits' : ''}
-												</span>{' '}
-												{item?.barGraph
-													? `used out of ${item?.totalValue}${
-															item?.title === 'Storage' ? 'GB' : ''
-													  }`
-													: `/${item?.duration}`}
+											<div className="storageContainerHeader">
+												<div className="storageTitle">{item?.title}</div>
+												<div className="storageUsed">
+													<span className="storageUsedValue">
+														{item?.usedValue}
+													</span>
+													<span className="storageUsedUnit">
+														{item?.title === 'Storage' ? ' GB' : ''}
+														{item?.title === 'AI Credits'
+															? ' Credits'
+															: ''}
+													</span>{' '}
+													{item?.barGraph
+														? `used / ${item?.totalValue}${
+																item?.title === 'Storage'
+																	? 'GB'
+																	: ''
+														  }`
+														: `/${item?.duration}`}
+												</div>
 											</div>
+
 											{item?.barGraph && (
 												<div className="storageProgress">
 													<div
@@ -404,11 +412,12 @@ const SubscribedUserPlanCard = ({
 						})}
 					</div>
 				</div>
-				{data?.addOnPlan && Object.values(data?.addOnPlan)?.length ? (
+				<span className="planbilling-separator"></span>
+				{/* {data?.addOnPlan && Object.values(data?.addOnPlan)?.length ? (
 					<div className="subscriptionSeperator"></div>
 				) : (
 					''
-				)}
+				)} */}
 				<div className="subscriptionActionContainer">
 					<button
 						className="manageSubscriptionButton"
@@ -426,7 +435,7 @@ const SubscribedUserPlanCard = ({
 					</div> */}
 				</div>
 			</div>
-			<AICreditsUsage />
+			{/* <AICreditsUsage /> */}
 			<AddOnPlans
 				isOpen={info?.isOpen}
 				closeModal={() => setInfo((prev) => ({ ...prev, isOpen: false }))}

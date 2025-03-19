@@ -392,37 +392,35 @@ const PublicInformation = () => {
 						/>
 					</div>
 
-					<div className="flex-gap">
-						<div className="inputDiv">
-							<InputForModules
-								label="Company Type"
-								type={'dropdown'}
-								options={businessTypesOptions}
-								placeholder="Choose your Company Type"
-								name={'businessName'}
-								value={overviewState?.businessType || ''}
-								onChange={handleChange}
-								isError={false}
-								disabled={true}
-								errorMessage={''}
-								key={'businessType'}
-							/>
-						</div>
+					<div className="inputDiv">
+						<InputForModules
+							label="Company Type"
+							type={'dropdown'}
+							options={businessTypesOptions}
+							placeholder="Choose your Company Type"
+							name={'businessName'}
+							value={overviewState?.businessType || ''}
+							onChange={handleChange}
+							isError={false}
+							disabled={true}
+							errorMessage={''}
+							key={'businessType'}
+						/>
+					</div>
 
-						<div className="inputDiv">
-							<InputForModules
-								label={'Phone Number'}
-								type={'phoneNumber'}
-								onChange={handleChange}
-								value={overviewState.phoneNumber || ''}
-								placeholder={'Enter your Phone Number'}
-								name={'phoneNumber'}
-								isError={error?.errorphoneNumber?.error || false}
-								errorMessage={error?.errorphoneNumber?.message || ''}
-								defaultCountry={'IN'}
-								key={'businessphone'}
-							/>
-						</div>
+					<div className="inputDiv">
+						<InputForModules
+							label={'Phone Number'}
+							type={'phoneNumber'}
+							onChange={handleChange}
+							value={overviewState.phoneNumber || ''}
+							placeholder={'Enter your Phone Number'}
+							name={'phoneNumber'}
+							isError={error?.errorphoneNumber?.error || false}
+							errorMessage={error?.errorphoneNumber?.message || ''}
+							defaultCountry={'IN'}
+							key={'businessphone'}
+						/>
 					</div>
 
 					<div className="inputDiv">
