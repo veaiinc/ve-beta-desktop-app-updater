@@ -25,7 +25,6 @@ const FormLeads = () => {
 	const navigate = useNavigate();
 	const location = useLocation();
 	const formData = location?.state?.formData;
-	console.log(formData);
 	const activeWorkspaceId = localStorage.getItem('workspaceId');
 	const copyCode = `${activeWorkspaceId}.ve.ai/${formData?.slug}`;
 	const [info, setInfo] = useState({
@@ -39,6 +38,7 @@ const FormLeads = () => {
 		completedEntries: 0,
 		partialEntries: 0,
 		activeTab: 'individualEntries', //summary
+		tooltipVisible: false,
 	});
 	const metricsData = [
 		{
@@ -73,7 +73,6 @@ const FormLeads = () => {
 	];
 
 	const updateTotalSubmissions = useCallback((length) => {
-		console.log('length', length);
 		const totalSubmissions = length || 0;
 		// const completedEntries = length || 0;
 		// const partialEntries = length || 0;
@@ -131,14 +130,12 @@ const FormLeads = () => {
 	}, [info?.activeTab]);
 
 	const handleEditDesign = () => {
-		const editUrl = `${origin}/preview/short/${formData?._id}?singleTemplatePreview=true&restrictClick=true`;
+		const editUrl = `${origin}/${formData?._id}`;
 		window.open(editUrl, '_blank');
 	};
 
-	const [isTooltipVisible, setTooltipVisible] = useState(false);
-
 	const handleThreeDotsClick = () => {
-		setTooltipVisible((prev) => !prev);
+		setInfo((prev) => ({ ...prev, tooltipVisible: !prev.tooltipVisible }));
 	};
 
 	return (
@@ -156,9 +153,7 @@ const FormLeads = () => {
 						<iframe
 							src={`${origin}/preview/short/${formData?._id}?singleTemplatePreview=true&restrictClick=true`}
 							title="Builder Preview"
-							width="100%"
-							height="100%"
-							style={{ borderRadius: '24px', border: 'none' }}
+							className="iframe-preview"
 						/>
 						<div className="editDesignContainer">
 							<button onClick={handleEditDesign}>
@@ -169,23 +164,19 @@ const FormLeads = () => {
 					</div>
 					<div className="detailsContainer">
 						<div className="headerContainer">
-							<div className="headerLeftContainer">
+							<div className="header-left">
 								<h1 className="headerTitle">{formData?.title}</h1>
 								<div
 									className={`liveBadge ${
-										formData?.status === 'published' ? 'complete' : 'incomplete'
+										formData?.status === 'published'
+											? 'live-badge--complete'
+											: 'live-badge--incomplete'
 									}`}
 								>
 									<span
-										style={{
-											width: '6px',
-											height: '6px',
-											borderRadius: '50%',
-											backgroundColor:
-												formData?.status === 'published'
-													? '#34d399'
-													: '#fbbf24',
-										}}
+										className={`status-indicator status-indicator--${
+											formData?.status === 'published' ? 'published' : 'draft'
+										}`}
 									/>
 									<span>
 										{formData?.status === 'published' ? 'Live' : 'Draft'}
@@ -194,7 +185,7 @@ const FormLeads = () => {
 							</div>
 							<Tooltip
 								trigger={'click'}
-								open={isTooltipVisible}
+								open={info.tooltipVisible}
 								onOpenChange={handleThreeDotsClick}
 								placement={'bottomRight'}
 								arrow={false}
@@ -208,9 +199,7 @@ const FormLeads = () => {
 									/>
 								}
 							>
-								<ThreeDots
-									style={{ width: '17px', height: '17px', cursor: 'pointer' }}
-								/>
+								<ThreeDots className="three-dots-icon" />
 							</Tooltip>
 						</div>
 						<div className="switchContainer">

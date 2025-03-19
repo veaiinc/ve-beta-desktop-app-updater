@@ -36,13 +36,6 @@ const menuItems = [
 	},
 ];
 
-const deleteFormResponsesMenuStyle = {
-	display: 'flex',
-	alignItems: 'center',
-	gap: '4px',
-	color: 'red',
-};
-
 const FormResponsesMenuItem = ({
 	formId,
 	enableFormTitleEditMode,
@@ -54,28 +47,34 @@ const FormResponsesMenuItem = ({
 		deleteLoader: false,
 	});
 
-	const handleFormResponsesMenu = async (action) => {
-		if (action === 'renameForm') {
+	const actionHandlers = {
+		renameForm: () => {
 			enableFormTitleEditMode();
 			toggleFormMenu();
-		} else if (action === 'openForm') {
+		},
+		openForm: () => {
 			// navigateToForm();
-		} else if (action === 'copyLink') {
+		},
+		copyLink: () => {
 			// copyLink();
-		} else if (action === 'duplicateForm') {
+		},
+		duplicateForm: () => {
 			// duplicateForm();
-		} else if (action === 'shareForm') {
+		},
+		shareForm: () => {
 			// shareForm();
-		} else if (action === 'deleteForm') {
-			setInfo((prev) => ({
-				...prev,
-				deleteLoader: true,
-			}));
+		},
+		deleteForm: async () => {
+			setInfo((prev) => ({ ...prev, deleteLoader: true }));
 			await handleDeleteForm(formId);
-			setInfo((prev) => ({
-				...prev,
-				deleteLoader: false,
-			}));
+			setInfo((prev) => ({ ...prev, deleteLoader: false }));
+		},
+	};
+
+	const handleFormResponsesMenu = async (action) => {
+		const handler = actionHandlers[action];
+		if (handler) {
+			await handler();
 		}
 	};
 
@@ -87,14 +86,10 @@ const FormResponsesMenuItem = ({
 				return (
 					<li
 						key={id}
-						style={value === 'deleteForm' ? deleteFormResponsesMenuStyle : {}}
-						className="menuItem"
+						className={`menuItem ${value === 'deleteForm' ? 'delete-menu-item' : ''}`}
 						onClick={() => handleFormResponsesMenu(value)}
 					>
-						<span
-							className="title"
-							style={value === 'deleteForm' ? { color: 'red' } : {}}
-						>
+						<span className={`title ${value === 'deleteForm' ? 'delete-text' : ''}`}>
 							{title}
 						</span>
 						{deleteFormResponsesMenuLoader && <Spinner width="16px" height="16px" />}
