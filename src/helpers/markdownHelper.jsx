@@ -305,13 +305,9 @@ export const TypingEffect = memo(
 		} = useContext(Context);
 
 		const [isCopiedToClipboard, setIsCopiedToClipboard] = useState(false);
-		const [startRendering, setStartRendering] = useState(false);
-		// const [chunk, setChunk] = useState(''); // State to store current chunk
-		const [isTextVisible, setIsTextVisible] = useState(false); // To track visibility of text
-		// const [currentIndex, setCurrentIndex] = useState(0);
-		const [timeInterval, setTimeInterval] = useState(null);
+		const [renderTrigger, setRenderTrigger] = useState(0);
+
 		const chunkSize = 200; // Size of each chunk (200 characters)
-		const delayTime = 500; // Initial delay before starting the text update (500ms)
 		const textRef = useRef(text); // Store the latest text in a ref
 
 		const chunkRef = useRef(''); // Ref for storing chunk
@@ -328,19 +324,12 @@ export const TypingEffect = memo(
 				return;
 			}
 			setTimeout(() => {
-				setStartRendering(true);
 				const interval = setInterval(() => {
 					handleChunkRendering();
 				}, 500);
 				timeIntervalRef.current = interval;
 			}, 50);
 		}, []);
-
-		// useEffect(() => {
-		// 	if (startRendering) {
-		// 		setChunk(text);
-		// 	}
-		// }, [text, startRendering]);
 
 		const handleChunkRendering = () => {
 			const currentText = textRef.current?.message;
@@ -360,6 +349,7 @@ export const TypingEffect = memo(
 
 			chunkRef.current += subChunk;
 			currentIndexRef.current = endIndex;
+			setRenderTrigger((prev) => prev + 1);
 		};
 
 		const handleCopyTextClick = useCallback((text) => {
