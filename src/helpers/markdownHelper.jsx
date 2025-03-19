@@ -333,7 +333,7 @@ export const TypingEffect = memo(
 					handleChunkRendering();
 				}, 500);
 				timeIntervalRef.current = interval;
-			}, 500);
+			}, 50);
 		}, []);
 
 		// useEffect(() => {
