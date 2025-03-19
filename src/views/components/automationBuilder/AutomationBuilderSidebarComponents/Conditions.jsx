@@ -89,6 +89,7 @@ const Conditions = ({
 			const payload = {
 				isEnabled: true,
 				previousStepId,
+				isHidden: false,
 				...(previousStepPath && { previousStepPath }),
 				...data,
 			};
