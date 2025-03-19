@@ -88,7 +88,7 @@ const ChatHistory = ({ showChatsDrawer, setShowChatsDrawer, setHideClosedSidebar
 							{skeletonLoaders?.map((skeletonId) => (
 								<Skeleton
 									key={skeletonId}
-									width="316px"
+									width="230px"
 									height="46px"
 									borderRadius="12px"
 								/>
