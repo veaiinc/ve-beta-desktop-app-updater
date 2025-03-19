@@ -85,7 +85,7 @@ const VariableComponent = ({
 		if (value && variables && !info?.value) {
 			parseValue(value);
 		}
-		if (variableRegex?.test(value)) {
+		if (variableRegex?.test(value) && !info?.value) {
 			setInfo((prev) => ({ ...prev, loading: true }));
 		}
 	}, [value]);

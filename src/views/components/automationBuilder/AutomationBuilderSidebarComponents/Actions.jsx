@@ -205,6 +205,7 @@ const Actions = ({
 
 			const payload = {
 				type: 'action',
+				isHidden: false,
 				...(hasAppType && { app: 'inApp' }),
 				isEnabled: true,
 				previousStepId,

@@ -334,6 +334,30 @@ export const AutomationBuilderState = () => {
 		dispatch({ type: Actions?.UPDATE_CONTEXT_STATE_IN_AUTOMATION_BUILDER, payload });
 	};
 
+	const duplicateAutomationStep = async (automationId, stepId) => {
+		try {
+			const usertoken = localStorage.getItem('usertoken');
+			const workspaceId = localStorage.getItem('workspaceId');
+			const response = await restService.fetchPost(
+				`/${workspaceId}/${automationId}/duplicateStep/${stepId}`,
+				{},
+				usertoken,
+				'automation_builder_api',
+			);
+			if (response?.[0] === true) {
+				dispatch({
+					type: Actions.SET_AUTOMATION,
+					payload: response?.[1]?.updatedAutomation,
+				});
+				return [true];
+			} else {
+				return [false];
+			}
+		} catch (error) {
+			console.log('API failed ==> duplicateStep', error);
+		}
+	};
+
 	return {
 		...state,
 		createAutomation,
@@ -346,13 +370,12 @@ export const AutomationBuilderState = () => {
 		getConnectionDetails,
 		updateAutomation,
 		getExecutionHistory,
-		// getPreviousStepResponse,
-		// executeAutomation,
 		getVariables,
 		renameAutomationTitle,
 		deleteStep,
 		updateStep,
 		deleteAutomation,
 		updateContextStateInAutomationBuilder,
+		duplicateAutomationStep,
 	};
 };
