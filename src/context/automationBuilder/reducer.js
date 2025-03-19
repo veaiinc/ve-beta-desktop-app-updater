@@ -35,16 +35,6 @@ const actionHandlers = {
 		variables: action?.payload,
 	}),
 
-	// SET_PREVIOUS_STEP_RESPONSE: (state, action) => ({
-	// 	...state,
-	// 	previousStepResponse: action.payload,
-	// }),
-
-	// SET_PREVIOUS_EXECUTION_DATA: (state, action) => ({
-	// 	...state,
-	// 	previousExecutionData: action.payload,
-	// }),
-
 	RESET_STATE: () => initialState,
 };
 

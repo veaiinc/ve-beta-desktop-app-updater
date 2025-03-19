@@ -159,6 +159,9 @@ const AutomationBuilder = () => {
 				payload.action = data?.criteria?.event;
 				payload.app = data?.app;
 			}
+			updateStateValues({
+				variables: null,
+			});
 			getVariables({
 				automationId,
 				previousStepId: info?.activeStepsData ? info?.activeStepsData?._id : data?._id,

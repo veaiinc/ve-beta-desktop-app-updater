@@ -44,6 +44,8 @@ const appMapper = {
 	inApp: 'In App',
 };
 
+const variableRegex = /^\{\{.*\}\}$/;
+
 const VariableComponent = ({
 	value,
 	onChange,
@@ -62,6 +64,7 @@ const VariableComponent = ({
 		variablePath: [],
 		selectedStep: null,
 		error: '',
+		loading: false,
 	});
 
 	useEffect(() => {
@@ -70,13 +73,20 @@ const VariableComponent = ({
 				parseValue(value);
 			}
 
-			setInfo((prev) => ({ ...prev, variables: variables?.variables }));
+			setInfo((prev) => ({
+				...prev,
+				variables: variables?.variables,
+				loading: false,
+			}));
 		}
 	}, [variables]);
 
 	useEffect(() => {
 		if (value && variables && !info?.value) {
 			parseValue(value);
+		}
+		if (variableRegex?.test(value)) {
+			setInfo((prev) => ({ ...prev, loading: true }));
 		}
 	}, [value]);
 
@@ -89,7 +99,6 @@ const VariableComponent = ({
 
 	const parseValue = useCallback(
 		(value) => {
-			const variableRegex = /^\{\{.*\}\}$/;
 			if (variableRegex?.test(value)) {
 				const newValueArray = value?.slice(2, -2)?.split('.');
 
@@ -117,6 +126,7 @@ const VariableComponent = ({
 						},
 						options: [],
 						variablePath: [],
+						error: '',
 					});
 				} else {
 					handleInfo({ error: 'Invalid variable' });
@@ -165,7 +175,9 @@ const VariableComponent = ({
 	return (
 		<div className="variableComponentContainer">
 			<div className="inputContainer">
-				{info?.error ? (
+				{info?.loading ? (
+					<p className="selectedVariable">Loading...</p>
+				) : info?.error ? (
 					<p className="selectedVariable errorMessage">&#9888; {info?.error}</p>
 				) : info?.value ? (
 					<p className="selectedVariable">
