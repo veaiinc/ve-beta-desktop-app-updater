@@ -35,6 +35,11 @@ const actionHandlers = {
 		variables: action?.payload,
 	}),
 
+	UPDATE_CONTEXT_STATE_IN_AUTOMATION_BUILDER: (state, action) => ({
+		...state,
+		...action?.payload,
+	}),
+
 	RESET_STATE: () => initialState,
 };
 

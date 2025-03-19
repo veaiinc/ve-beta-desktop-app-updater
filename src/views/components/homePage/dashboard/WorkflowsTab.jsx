@@ -1,6 +1,5 @@
 import React, { useEffect, useCallback, useState } from 'react';
 import { useContext } from 'react';
-import Sales from '../../../features/sales/Sales';
 import WorkflowCard from './workflows/workflowCard/WorkflowCard';
 import '../../../../assets/scss/home_page/homepage.scss';
 import Context from '../../../../context/context';
@@ -13,11 +12,7 @@ import MyWorkflowsModals from '../../modalsV2/workflowsModals/MyWorkflowsModals'
 import CopiedModal from '../../modalsV2/workflowsModals/CopiedModal';
 import { Spin } from 'antd';
 import PublicLinkGeneratedModal from '../../modalsV2/workflowsModals/PublicLinkGeneratedModal';
-import UpdatedPageLoader from '../../loaders/UpdatedPageLoader';
-import InitialPageLoader from '../../loaders/PageLoader';
 import Skeleton from 'react-loading-skeleton';
-
-const limit = 10;
 
 const WorkflowsTab = ({ searchValue }) => {
 	const {
@@ -29,7 +24,6 @@ const WorkflowsTab = ({ searchValue }) => {
 			generatePublicLinkData,
 			salePageRefresh,
 		},
-		automationBuilder: { automationsList, getAutomationsList },
 		profileInfo: { userWorkSpaceList, getTenantSettings, tennantSettingsData },
 	} = useContext(Context);
 
@@ -52,20 +46,6 @@ const WorkflowsTab = ({ searchValue }) => {
 		copyLink: null,
 	});
 
-	const automationsData = automationsList?.data;
-	const automationsHasNextPage = automationsList?.hasNextPage;
-	const automationsCurrentPage = Number(automationsList?.currentPage) || 1;
-
-	useEffect(() => {
-		onMountFetchAutomations();
-	}, []);
-
-	useEffect(() => {
-		if (automationsHasNextPage === false) {
-			getMyWorkflowTemplatesData(1);
-		}
-	}, [automationsHasNextPage]);
-
 	useEffect(() => {
 		if (salePageRefresh) {
 			getMyWorkflowTemplatesData(1);
@@ -74,13 +54,12 @@ const WorkflowsTab = ({ searchValue }) => {
 	}, [salePageRefresh]);
 
 	useEffect(() => {
-		if (automationsData?.length) {
-			setInfo((prev) => ({
-				...prev,
-				myWorkflowData: [...(prev?.myWorkflowData || []), ...automationsData],
-			}));
-		}
-	}, [automationsData]);
+		const page = 1;
+		const fetchMore = false;
+		updateStateValues({ myWorkflows: null, myMoreWorkflows: null });
+		setInfo((prev) => ({ ...prev, myWorkflowData: null }));
+		getMyWorkflowTemplatesData(page, fetchMore);
+	}, [searchValue]);
 
 	useEffect(() => {
 		if (myWorkflows) {
@@ -114,19 +93,6 @@ const WorkflowsTab = ({ searchValue }) => {
 		}
 	}, [tennantSettingsData]);
 
-	const onMountFetchAutomations = async () => {
-		setInfo((prev) => ({ ...prev, loading: true }));
-		try {
-			if (!automationsList) {
-				await getAutomationsList();
-			}
-		} catch (error) {
-			console.error('Error fetching data:', error);
-		} finally {
-			setInfo((prev) => ({ ...prev, loading: false }));
-		}
-	};
-
 	const performExtraCheck = useCallback(
 		async (currentWorkspaceId) => {
 			setInfo((prev) => ({ ...prev, currentWorkspaceId }));
@@ -136,16 +102,16 @@ const WorkflowsTab = ({ searchValue }) => {
 				setInfo((prev) => ({ ...prev, pendingCopyAction: null, copyLink: link }));
 			}
 		},
-		[info?.pendingCopyAction, info],
+		[info?.pendingCopyAction],
 	);
 
 	const getMyWorkflowTemplatesData = useCallback(
 		async (page, fetchMore = false) => {
 			const payload = {
 				filters: {
+					title: searchValue,
 					limit: 10,
 					page: page,
-					title: searchValue,
 					type: 'workspace',
 					status: 'published',
 					sortBy: 'createdAt',
@@ -184,12 +150,8 @@ const WorkflowsTab = ({ searchValue }) => {
 	);
 
 	const fetchMoreMyWorkflows = () => {
-		if (automationsHasNextPage === false) {
-			getMyWorkflowTemplatesData(info?.currentPage + 1, true);
-		} else {
-			const page = automationsCurrentPage ? Number(automationsCurrentPage) + 1 : 1;
-			getAutomationsList(page, limit, true);
-		}
+		const nextPage = Number(info?.currentPage) + 1;
+		getMyWorkflowTemplatesData(nextPage, true);
 	};
 
 	const openMyWorkflowModal = useCallback(async (data, cardsData) => {
@@ -292,7 +254,7 @@ const WorkflowsTab = ({ searchValue }) => {
 				) : (
 					<InfiniteScroll
 						dataLength={info?.myWorkflowData?.length || 0}
-						hasMore={automationsHasNextPage || info?.hasNextPage}
+						hasMore={info?.hasNextPage}
 						next={fetchMoreMyWorkflows}
 						loader={<FetchMoreLoaderComp />}
 						style={{

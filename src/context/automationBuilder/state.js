@@ -327,7 +327,11 @@ export const AutomationBuilderState = () => {
 	};
 
 	const resetAutomationBuilderState = () => {
-		dispatch({ type: Actions.RESET_STATE });
+		dispatch({ type: Actions?.RESET_STATE });
+	};
+
+	const updateContextStateInAutomationBuilder = (payload) => {
+		dispatch({ type: Actions?.UPDATE_CONTEXT_STATE_IN_AUTOMATION_BUILDER, payload });
 	};
 
 	return {
@@ -349,5 +353,6 @@ export const AutomationBuilderState = () => {
 		deleteStep,
 		updateStep,
 		deleteAutomation,
+		updateContextStateInAutomationBuilder,
 	};
 };

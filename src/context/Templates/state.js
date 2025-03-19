@@ -57,8 +57,10 @@ export const intialState = {
 	templatesListForDocs: null,
 	allEmailTemplates: null,
 	myWorkflows: null,
+	myWorkflowsForProposalPopup: null,
 	workflowslistForFiles: null,
 	myMoreWorkflows: null,
+	myMoreWorkflowsForProposalPopup: null,
 	globalWorkflows: null,
 	globalMoreWorkflows: null,
 	smartFileInfo: null,
@@ -128,6 +130,32 @@ export const TemplatesState = (props) => {
 			const selectedvariable = fetchMore ? 'myMoreWorkflows' : 'myWorkflows';
 			dispatch({
 				type: Actions.GET_MY_WORKFLOWS_TEMPLATES_INFO_SUCCESS,
+				payload: response?.[1]?.data?.templates,
+				selectedvariable,
+			});
+		} else {
+			console.log('api failed ==>getTemplates', response);
+		}
+	};
+
+	const getMyWorkflowsForProposalPopup = async (payload, fetchMore = false) => {
+		let workspaceId = localStorage.getItem('workspaceId');
+		let usertoken = localStorage.getItem('usertoken');
+
+		const response = await service.query(
+			getTemmplatesQuery,
+			payload,
+			workspaceId,
+			usertoken,
+			'workflows_Api',
+		);
+
+		if (response?.[0]) {
+			const selectedvariable = fetchMore
+				? 'myMoreWorkflowsForProposalPopup'
+				: 'myWorkflowsForProposalPopup';
+			dispatch({
+				type: Actions.GET_MY_WORKFLOWS_TEMPLATES_FOR_PROPOSAL_POPUP_INFO_SUCCESS,
 				payload: response?.[1]?.data?.templates,
 				selectedvariable,
 			});
@@ -2026,6 +2054,7 @@ export const TemplatesState = (props) => {
 	return {
 		...state,
 		getMyWorkflows,
+		getMyWorkflowsForProposalPopup,
 		resetTemplateState,
 		getClientList,
 		getClientListForDocs,

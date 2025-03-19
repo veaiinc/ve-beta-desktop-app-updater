@@ -11,8 +11,9 @@ import { ReactComponent as SidebarClosingSvg } from '../../../assets/svg/sidebar
 import { veAiModulesItemsList } from './sidebarindex';
 import { Tooltip } from 'antd';
 import Notifications from './notifications/Notifications';
-import Chats from './chats/Chats';
 import Notes from './notes/Notes';
+import ChatHistory from './chatHistory/ChatHistory';
+
 const Sidebar = ({ activeWorkspaceId }) => {
 	const {
 		profileInfo: { userWorkSpaceList, getUserWorkSpaceList, userDetailsData, getUserDetails },
@@ -186,7 +187,7 @@ const Sidebar = ({ activeWorkspaceId }) => {
 					setShowNotificationsDrawer={setShowNotificationsDrawer}
 				/>
 				<Notes showNotesDrawer={showNotesDrawer} setShowNotesDrawer={setShowNotesDrawer} />
-				<Chats
+				<ChatHistory
 					showChatsDrawer={showChatsDrawer}
 					setShowChatsDrawer={setShowChatsDrawer}
 					setHideClosedSidebarIcon={setHideClosedSidebarIcon}
