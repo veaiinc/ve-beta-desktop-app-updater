@@ -136,7 +136,6 @@
 				}
 				.profileBody {
 					padding: 36px 32px 32px;
-					background: rgba(29, 29, 35, 0.24);
 					border-radius: 0 0 32px 32px;
 					display: flex;
 					flex-direction: column;
@@ -150,9 +149,9 @@
 						align-items: center;
 						gap: 10px;
 						border: 1px solid rgba(100, 100, 100, 0.16);
-						background: rgba(32, 32, 33, 0.24);
 						border-radius: 10px;
 						width: 100%;
+						background: var(--card, #fafafa);
 						transition: all 0.5s;
 						.input-container {
 							display: flex;
@@ -160,7 +159,7 @@
 							align-items: center;
 							width: 100%;
 							.role-input {
-								color: #e4e5e6;
+								color: var(--primary-font);
 								font-family: Inter;
 								font-size: 16px;
 								font-style: normal;
@@ -200,7 +199,7 @@
 
 					.phoneDiv {
 						justify-content: start;
-
+						
 						.PhoneInput {
 							width: 100%;
 						}
@@ -264,7 +263,7 @@
 				flex-direction: column;
 				gap: 24px;
 				h4 {
-					color: #e4e5e6;
+					color: var(--primary-font);
 					font-size: 16px;
 					font-weight: 500;
 					// margin: 24px;
@@ -814,7 +813,7 @@
 			flex-direction: column;
 			gap: 8px;
 			.notificationTitle {
-				color: var(--Primary-Font-Color, #f2f2f3);
+				color: var(--primary-font, #f2f2f3);
 				font-family: Inter;
 				font-size: 20px;
 				font-style: normal;
@@ -856,7 +855,7 @@
 						flex-direction: column;
 						gap: 8px;
 						.notifiactionSwitchesContainerContent-title {
-							color: var(--Primary-Font-Color, #f2f2f3);
+							color: var(--primary-font, #f2f2f3);
 							font-family: Inter;
 							font-size: 16px;
 							font-style: normal;
@@ -883,7 +882,7 @@
 		flex-direction: column;
 		gap: 20px;
 		.notificationContainerContentTitle {
-			color: var(--ve-ai-dark-theme-primary-font-color, #e8e8e8);
+			color: var(--primary-font, #f2f2f3);
 			font-family: Inter;
 			font-size: 20px;
 			font-style: normal;
@@ -930,7 +929,7 @@
 					gap: 40px;
 					align-self: stretch;
 					.notificationContainerOptions-item {
-						color: var(--Primary-Font-Color, #f2f2f3);
+						color: var(--primary-font, #f2f2f3);
 						font-family: Inter;
 						font-size: 16px;
 						font-style: normal;
