@@ -10,6 +10,28 @@ import { ReactComponent as LinkGrey } from '../../../../assets/svg/Settings/link
 import { Tooltip } from 'antd';
 import ToolTipContainer from '../../../components/popover/ToolTipContainer';
 
+const customContainerStyle = {
+	borderRadius: '16px',
+	border: '1px solid rgba(100, 100, 100, 0.16)',
+	background: '#151515',
+	boxShadow: '0px 53px 53px 0px rgba(0, 0, 0, 0.09), 0px 13px 29px 0px rgba(0, 0, 0, 0.1)',
+	width: '390px',
+	padding: '32px',
+};
+
+const contentStyling = {
+	color: 'rgba(228, 229, 230, 0.48)',
+	fontFamily: 'Inter',
+	fontSize: '13px',
+	fontStyle: 'normal',
+	fontWeight: '400',
+	lineHeight: '18px',
+	alignSelf: 'stretch',
+};
+
+const content =
+	'Your AI assistance is set to your default sales workflows. Set up your knowledge base for each workflow to access essential information.';
+
 const AiSetup = () => {
 	const {
 		aiSetup: { existingAiAssistants, getExistingAiAssistants, resetAiSetupState },
@@ -61,28 +83,10 @@ const AiSetup = () => {
 					<Tooltip
 						title={
 							<ToolTipContainer
-								customContainerStyle={{
-									borderRadius: '16px',
-									border: '1px solid rgba(100, 100, 100, 0.16)',
-									background: '#151515',
-									boxShadow:
-										'0px 53px 53px 0px rgba(0, 0, 0, 0.09), 0px 13px 29px 0px rgba(0, 0, 0, 0.1)',
-									width: '390px',
-									padding: '32px',
-								}}
-								contentStyling={{
-									color: 'rgba(228, 229, 230, 0.48)',
-									fontFamily: 'var(--primary-font-family)',
-									fontSize: '13px',
-									fontStyle: 'normal',
-									fontWeight: '400',
-									lineHeight: '18px',
-									alignSelf: 'stretch',
-								}}
+								customContainerStyle={customContainerStyle}
+								contentStyling={contentStyling}
 								title={''}
-								content={
-									'Your AI Assistance is set to your default sales workflows, set up your knowledge based to each workflow to get essential information.'
-								}
+								content={content}
 								removeClassName={true}
 							/>
 						}

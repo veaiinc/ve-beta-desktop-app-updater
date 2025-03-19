@@ -19,6 +19,10 @@ const actionHandlers = {
 		...state,
 		[action?.selectedvariable]: action?.payload,
 	}),
+	GET_MY_WORKFLOWS_TEMPLATES_FOR_PROPOSAL_POPUP_INFO_SUCCESS: (state, action) => ({
+		...state,
+		[action?.selectedvariable]: action?.payload,
+	}),
 	GET_GLOBAL_WORKFLOWS_TEMPLATES_INFO_SUCCESS: (state, action) => ({
 		...state,
 		[action?.selectedvariable]: action?.payload,

@@ -117,6 +117,16 @@ const SwitchStep = ({
 	};
 
 	const handleSave = () => {
+		if (!info?.title) {
+			message.error('Title is required');
+			return;
+		}
+
+		if (!info?.description) {
+			message.error('Description is required');
+			return;
+		}
+
 		const hasEmptyCondition = info?.conditions?.some((condition) => {
 			const selectedCondition = conditionsList.find((c) => c.value === condition.condition);
 			const isValueRequired = selectedCondition?.needValue;
@@ -134,7 +144,7 @@ const SwitchStep = ({
 			title: info?.title,
 			description: info?.description,
 			type: 'switch',
-			moveTo: info?.moveTo,
+			...(!activeStepsData && { moveTo: info?.moveTo }),
 			variables: {},
 			inputBody: {},
 		};
@@ -170,6 +180,7 @@ const SwitchStep = ({
 				title={info?.title}
 				description={info?.description}
 				updaterFn={updateInfo}
+				showChangeButton={activeStepsData ? false : true}
 			/>
 			<div className="switchStepInputContainer">
 				<h3 className="switchStepInputHeading">Inputs</h3>

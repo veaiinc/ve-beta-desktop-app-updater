@@ -165,10 +165,13 @@ const BottomToolbar = ({
 		}));
 	};
 
-	const handleCustomOnSendFunction = useCallback((data) => {
-		updateStateValues({ activePayloadForChat: data });
-		navigate(`/chat/${ObjectID().toString()}`);
-	}, []);
+	const handleCustomOnSendFunction = useCallback(
+		(data) => {
+			updateStateValues({ activePayloadForChat: data });
+			navigate(`/chat/${currentSessionId}`);
+		},
+		[currentSessionId],
+	);
 
 	return (
 		<div

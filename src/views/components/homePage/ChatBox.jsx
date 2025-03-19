@@ -438,23 +438,22 @@ const ChatBox = ({
 
 					clearTextArea();
 
+					if (info?.recentFiles?.length > 0) {
+						if (payload?.files && payload.files?.length > 0) {
+							payload.files = [
+								...payload.files,
+								...info?.recentFiles?.map((ele) => ele?.originalFileName),
+							];
+						} else {
+							payload.files = info?.recentFiles?.map((ele) => ele?.originalFileName);
+						}
+					}
+
 					if (customChatActions) {
 						return onSend({ payload, localPayload, currentQuery });
 					}
 					handleStreamSendMessage(payload, localPayload, currentQuery);
 					if (handleSendWebsocketMessage) {
-						if (info?.recentFiles?.length > 0) {
-							if (payload?.files && payload.files?.length > 0) {
-								payload.files = [
-									...payload.files,
-									...info?.recentFiles?.map((ele) => ele?.originalFileName),
-								];
-							} else {
-								payload.files = info?.recentFiles?.map(
-									(ele) => ele?.originalFileName,
-								);
-							}
-						}
 						handleSendWebsocketMessage(payload, currentQuery);
 					}
 				}
@@ -548,7 +547,7 @@ const ChatBox = ({
 		async (fileData, uploadBatchId) => {
 			let uploadedImages = [...info?.uploadedImages];
 			let uploadedCount = 0,
-				maxAttempts = 40,
+				maxAttempts = 90,
 				errorCount = 0,
 				successCount = 0;
 			while (!(uploadedCount && successCount) && maxAttempts) {

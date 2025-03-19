@@ -9,8 +9,6 @@ import '../../../assets/scss/docs/proposalsPopup.scss';
 import { fetchOriginSelection } from '../../../helpers';
 import Context from '../../../context/context';
 import moment from 'moment';
-import { useNavigate } from 'react-router-dom';
-import { Tooltip } from 'antd';
 import CreateFileLead from '../myTemplate/CreateFileLead';
 const origin = fetchOriginSelection();
 
@@ -37,9 +35,9 @@ const customStyles = {
 const ProposalPopup = ({ open, closeModal, clientDetails = null, commonState }) => {
 	const {
 		templates: {
-			getMyWorkflows,
-			myWorkflows,
-			myMoreWorkflows,
+			getMyWorkflowsForProposalPopup,
+			myWorkflowsForProposalPopup,
+			myMoreWorkflowsForProposalPopup,
 			createLeadfromTemplates,
 			duplicateGlobalWorkflowTemplate,
 		},
@@ -47,9 +45,11 @@ const ProposalPopup = ({ open, closeModal, clientDetails = null, commonState }) 
 		profileInfo: { tenantUserAccessControls },
 	} = useContext(Context);
 
-	const hasAccessToWorkflows = tenantUserAccessControls?.accessControls?.find(
-		(accessControl) => accessControl?.app === 'workflow',
-	);
+	const hasAccessToWorkflows =
+		tenantUserAccessControls?.role === 'admin' ||
+		tenantUserAccessControls?.accessControls?.find(
+			(accessControl) => accessControl?.app === 'workflow',
+		);
 
 	const filterOptions = hasAccessToWorkflows
 		? [
@@ -71,24 +71,24 @@ const ProposalPopup = ({ open, closeModal, clientDetails = null, commonState }) 
 	}, [commonState]);
 
 	useEffect(() => {
-		if (info?.selectedOption !== 'All') {
+		if (info?.selectedOption !== 'All' && open) {
 			getMyWorkflowsTemplatesData(1, info?.search, false, info?.selectedOption);
 		} else {
-			if (open && !myWorkflows?.length) getMyWorkflowsTemplatesData(1);
+			if (open && !myWorkflowsForProposalPopup?.length) getMyWorkflowsForProposalPopup(1);
 		}
 	}, [info?.selectedOption]);
 
 	useEffect(() => {
-		if (myWorkflows) {
-			myWorkflowsDataParser(myWorkflows);
+		if (myWorkflowsForProposalPopup && open) {
+			myWorkflowsDataParser(myWorkflowsForProposalPopup);
 		}
-	}, [myWorkflows]);
+	}, [myWorkflowsForProposalPopup]);
 
 	useEffect(() => {
-		if (myMoreWorkflows) {
-			myWorkflowsDataParser(myMoreWorkflows, true);
+		if (myMoreWorkflowsForProposalPopup && open) {
+			myWorkflowsDataParser(myMoreWorkflowsForProposalPopup, true);
 		}
-	}, [myMoreWorkflows]);
+	}, [myMoreWorkflowsForProposalPopup]);
 
 	useEffect(() => {
 		if (smartfile?._id && info?.activeTemplateData?._id) {
@@ -200,7 +200,7 @@ const ProposalPopup = ({ open, closeModal, clientDetails = null, commonState }) 
 			if (selectedOption !== 'All') {
 				payload.filters.action = selectedOption;
 			}
-			getMyWorkflows(payload, fetchMore);
+			getMyWorkflowsForProposalPopup(payload, fetchMore);
 		},
 		[],
 	);

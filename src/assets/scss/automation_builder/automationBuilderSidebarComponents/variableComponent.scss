@@ -66,6 +66,10 @@
 			font-style: normal;
 			font-weight: 500;
 			line-height: normal;
+
+			&.errorMessage {
+				background-color: #7a2929;
+			}
 		}
 	}
 
