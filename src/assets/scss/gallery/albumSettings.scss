@@ -330,15 +330,19 @@
 						width: 190px;
 						height: 48px;
 						overflow: hidden;
-						color: var(--secondary-font);
+						color: var(--primary-font);
 						text-overflow: ellipsis;
 						font-size: 14px;
 						font-weight: 500;
 						line-height: 16px;
 						letter-spacing: -0.3px;
 						border-radius: 10px;
-						border: 1px solid rgba(151, 151, 151, 0.2);
+						border: 1px solid var(--stroke);
 						cursor: pointer;
+						background: var(--card);
+						&:hover {
+							background-color: var(--primary-button);
+						}
 					}
 				}
 				.delete-container {

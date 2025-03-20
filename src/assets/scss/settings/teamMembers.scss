@@ -119,14 +119,14 @@
 			.AccessControl {
 				.owner {
 					border-radius: 4px;
-					background-color: var(--accent-color);
+					background-color: var(--primary-button);
 					padding: 14px 12px 14px 12px;
 					width: 103px;
 					height: 30px;
 					display: flex;
 					justify-content: center;
 					align-items: center;
-					color: var(--secondary-font);
+					color: var(--primary-button-font);
 					font-size: 10px;
 					&:hover {
 						cursor: pointer;

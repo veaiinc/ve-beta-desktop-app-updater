@@ -64,7 +64,7 @@ const ReusableButtonSettings = ({
 					display: 'flex',
 					alignItems: 'center',
 					gap: '10px',
-					background: 'var(--secondary-button)',
+					background: 'var(--card)',
 					padding: '8px 16px',
 					borderRadius: '20px',
 					justifyContent: 'center',

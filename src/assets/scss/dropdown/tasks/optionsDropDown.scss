@@ -156,6 +156,186 @@
 			}
 		}
 
+		.view-options {
+			display: flex;
+			width: 220px;
+			padding: 12px 10px;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 12px;
+			border-radius: 14px;
+			background: var(--popup);
+
+			&-header {
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+				width: 100%;
+				padding: 0 8px;
+				padding-bottom: 12px;
+				border-bottom: 1px solid var(--stroke);
+
+				&-title {
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+				}
+			}
+
+			&-body {
+				display: flex;
+				flex-direction: column;
+				align-items: flex-start;
+				width: 100%;
+				gap: 12px;
+
+				.view-details {
+					display: flex;
+					flex-direction: column;
+					align-items: flex-start;
+					width: 100%;
+					gap: 4px;
+					padding-bottom: 4px;
+					border-bottom: 1px solid var(--stroke);
+
+					&-nameInput {
+						display: flex;
+						height: 32.039px;
+						transform: rotate(-0.037deg);
+						padding: 6px;
+						align-items: center;
+						gap: 10px;
+						align-self: stretch;
+						border-radius: 8px;
+						border: 1px solid var(--stroke);
+						background-color: transparent;
+						color: var(--primary-font);
+						font-family: var(--primary-font-family);
+						font-size: 11px;
+						font-style: normal;
+						font-weight: 400;
+						line-height: normal;
+					}
+
+					&-listItem {
+						display: flex;
+						height: 31px;
+						transform: rotate(-0.037deg);
+						padding: 6px;
+						justify-content: space-between;
+						align-items: center;
+						align-self: stretch;
+						cursor: pointer;
+						border-radius: 8px;
+						transition: all 0.2s ease-in-out;
+						gap: 8px;
+						user-select: none;
+
+						&-label {
+							color: var(--primary-font);
+							font-family: var(--primary-font-family);
+							font-size: 12px;
+							font-style: normal;
+							font-weight: 500;
+							line-height: normal;
+							flex-grow: 1;
+						}
+
+						&-value {
+							color: var(--secondary-font);
+							font-family: var(--primary-font-family);
+							font-size: 12px;
+							font-style: normal;
+							font-weight: 500;
+							line-height: normal;
+							display: flex;
+							align-items: center;
+						}
+
+						&:hover {
+							background-color: var(--card);
+						}
+					}
+				}
+
+				.view-options-footer {
+					border-top: 1px solid var(--stroke);
+					padding-top: 2px;
+					width: 100%;
+				}
+			}
+
+			&-list {
+				display: flex;
+				flex-direction: column;
+				align-items: flex-start;
+				gap: 4px;
+				align-self: stretch;
+
+				&-item {
+					display: flex;
+					height: 31px;
+					transform: rotate(-0.037deg);
+					padding: 6px;
+					justify-content: space-between;
+					align-items: center;
+					align-self: stretch;
+					cursor: pointer;
+					border-radius: 8px;
+					transition: all 0.2s ease-in-out;
+					gap: 8px;
+					user-select: none;
+
+					&-label {
+						color: var(--primary-font);
+						font-family: var(--primary-font-family);
+						font-size: 12px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+						flex-grow: 1;
+					}
+
+					&-value {
+						color: var(--secondary-font);
+						font-family: var(--primary-font-family);
+						font-size: 12px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+						display: flex;
+						align-items: center;
+					}
+
+					.id-prefix-input {
+						height: 24px;
+						padding: 6px;
+						align-items: center;
+						gap: 10px;
+						border-radius: 8px;
+						border: 1px solid var(--stroke);
+						background-color: transparent;
+						color: var(--secondary-font);
+						font-family: var(--primary-font-family);
+						font-size: 12px;
+						font-style: normal;
+						font-weight: 400;
+						line-height: normal;
+						text-transform: uppercase;
+						flex-grow: 0;
+						max-width: 67px;
+					}
+
+					&:hover {
+						background-color: var(--card);
+					}
+				}
+			}
+		}
+
 		.cursor-pointer {
 			cursor: pointer;
 		}

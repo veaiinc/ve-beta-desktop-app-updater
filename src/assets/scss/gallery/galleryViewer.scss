@@ -8,7 +8,7 @@
 		cursor: pointer;
 	}
 	p {
-		color: var(--white);
+		color: var(--primary-font);
 		font-size: 14px;
 		font-weight: 500;
 		line-height: 17px;
@@ -118,8 +118,8 @@
 				align-items: center;
 				gap: 24px;
 				border-radius: 28px;
-				border: 1px solid rgba(0, 0, 0, 0.7);
-				background: rgba(255, 255, 255, 0.05);
+				border: 1px solid var(--stroke);
+				background: var(--card);
 				cursor: pointer;
 			}
 			.gallerySelectionContainer {
@@ -142,9 +142,9 @@
 					align-items: flex-start;
 					gap: 8px;
 					border-radius: 16px;
-					border: 1px solid rgba(244, 244, 244, 0.7);
-					background: var(--background-color);
-					box-shadow: 2px 2px 2px 0px rgba(0, 0, 0, 0.06);
+					border: 1px solid var(--stroke);
+					background: var(--card);
+					box-shadow: 2px 2px 2px 0px var(--card);
 					overflow: auto;
 
 					.clientSelectionImages {
@@ -180,9 +180,9 @@
 					align-items: flex-start;
 					gap: 8px;
 					border-radius: 16px;
-					border: 1px solid rgba(244, 244, 244, 0.7);
-					background: rgba(255, 255, 255, 0.15);
-					box-shadow: 2px 2px 2px 0px rgba(0, 0, 0, 0.06);
+					border: 1px solid var(--stroke);
+					background: var(--card);
+					box-shadow: 2px 2px 2px 0px var(--card);
 					.peopleHeader {
 						display: flex;
 						align-items: center;
@@ -222,9 +222,9 @@
 					align-items: flex-start;
 					gap: 16px;
 					border-radius: 16px;
-					border: 1px solid rgba(244, 244, 244, 0.7);
-					background: rgba(255, 255, 255, 0.15);
-					box-shadow: 2px 2px 2px 0px rgba(0, 0, 0, 0.06);
+					border: 1px solid var(--stroke);
+					background: var(--card);
+					box-shadow: 2px 2px 2px 0px var(--card);
 					.labelsHeader {
 						display: flex;
 						width: 100%;
