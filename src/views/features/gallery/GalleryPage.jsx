@@ -280,6 +280,8 @@ const GalleryPage = () => {
 		showTagOptions: false,
 		selectedFace: null,
 		loadingImagesList: null,
+		editGallery: false,
+		editingTitleValue: '',
 	});
 	const optionsRef = useRef(null);
 	const iconRef = useRef(null);
@@ -872,14 +874,12 @@ const GalleryPage = () => {
 			const returnedTagId = location?.state?.activeTagId;
 			const returnedActiveTab = location?.state?.activeTab;
 			const returnedSelectedFace = location?.state?.selectedFace;
-			const returnedSelectedImage = location?.state?.selectedImage;
 			if (returnedActiveTab === 'Ai People') {
 				setInfo((prev) => ({
 					...prev,
 					activeTab: 'Ai People',
 					activeAlbumId: returnedAlbumId || prev.activeAlbumId,
 					activeTagId: returnedTagId || prev.activeTagId,
-					selectedFace: returnedSelectedFace || prev.selectedFace,
 				}));
 			} else {
 				// Default behavior for Albums tab
@@ -891,13 +891,12 @@ const GalleryPage = () => {
 					if (activeAlbum) {
 						setInfo((prev) => ({
 							...prev,
-							activeTab: 'Albums', // Always default to Albums for non-AI People returns
+							activeTab: 'Albums',
 							albumName: activeAlbum.title,
 							activeAlbumId: activeAlbum._id,
 							activeAlbum: activeAlbum,
 							albumSlug: activeAlbum.slug,
 							albumTagId: returnedTagId || prev.albumTagId,
-							selectedImages: [...prev.selectedImages, returnedSelectedImage],
 						}));
 					}
 				}
@@ -913,7 +912,6 @@ const GalleryPage = () => {
 					});
 				}
 			}, 500);
-			// Clear the location state to prevent reapplying on subsequent renders
 			navigate(location.pathname, { replace: true });
 		}
 	}, [location?.state?.returnFromViewer, tenantAlbums?.albums]);
@@ -3717,9 +3715,64 @@ const GalleryPage = () => {
 											}
 										></div>
 										<div className="galleryTitle">
-											<p>
-												{info?.activeGallery?.title || 'Untitled Gallery'}
-											</p>
+											{info.editingTitle ? (
+												<input
+													type="text"
+													value={info.editingTitleValue}
+													onChange={(e) =>
+														setInfo((prev) => ({
+															...prev,
+															editingTitleValue: e.target.value,
+														}))
+													}
+													onKeyDown={async (e) => {
+														if (e.key === 'Enter') {
+															const response = await updateGallery(
+																info.editingTitleValue,
+															);
+															if (response?.[0]) {
+																setInfo((prev) => ({
+																	...prev,
+																	editingTitle: false,
+																	activeGallery: {
+																		...prev.activeGallery,
+																		title: info.editingTitleValue,
+																	},
+																}));
+															}
+														} else if (e.key === 'Escape') {
+															setInfo((prev) => ({
+																...prev,
+																editingTitle: false,
+															}));
+														}
+													}}
+													onBlur={() => {
+														setInfo((prev) => ({
+															...prev,
+															editingTitle: false,
+														}));
+													}}
+													autoFocus
+													className="gallery-title-input"
+												/>
+											) : (
+												<p
+													onClick={() =>
+														setInfo((prev) => ({
+															...prev,
+															editingTitle: true,
+															editingTitleValue:
+																prev.activeGallery?.title ||
+																'Untitled Gallery',
+														}))
+													}
+													style={{ cursor: 'pointer' }}
+												>
+													{info?.activeGallery?.title ||
+														'Untitled Gallery'}
+												</p>
+											)}
 										</div>
 									</div>
 									{data?.map((item, index) => (
@@ -4966,7 +5019,7 @@ const GalleryPage = () => {
 																						? 0.3
 																						: 1,
 																				padding: '10px',
-																				gap: '10px',
+																				gap: '15px',
 																				visibility:
 																					image?.isPlaceholderImg
 																						? 'hidden'

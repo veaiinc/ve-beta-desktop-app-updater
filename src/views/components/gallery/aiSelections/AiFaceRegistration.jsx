@@ -131,7 +131,15 @@ const AiFaceRegistration = ({ link }) => {
 			className="aiFaceRegistration"
 			style={{ height: info?.preRegisterLength ? '90vh' : '100%' }}
 		>
-			<p className="heading">All data from the client gallery, album and selection views</p>
+			<div className="aiFaceHeader">
+				<div className="aiFaceTitleContainer">
+					<div className="aiFaceTitle">Face Registration for guests</div>
+					<div className="aiFaceCount">{info?.preRegisterLength || 0}</div>
+				</div>
+				<div className="aiFaceDescription">
+					Share this QR code or link with guests to register their face.
+				</div>
+			</div>
 			<div
 				className="aiScannerContainer"
 				style={{

@@ -58,7 +58,7 @@ const AiPeopleContainer = ({
 					<div className="aiPeople-container-header">
 						<p>Ai People</p>
 						<div
-							className="aiPeople-person-arrow"
+							className={`aiPeople-person-arrow ${info?.showMore ? 'rotated' : ''}`}
 							onClick={(e) => {
 								e.stopPropagation();
 								setInfo((prev) => {
