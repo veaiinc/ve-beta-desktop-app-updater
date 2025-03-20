@@ -1,7 +1,7 @@
 .galleryViewLayoutParentContainer {
 	width: 100vw;
 	height: 100vh;
-	background: #111;
+	background: var(--background-color);
 	display: flex;
 	flex-direction: column;
 
@@ -12,7 +12,7 @@
 
 	.childrenContainer {
 		flex: 1;
-		background: #111;
+		background: var(--background-color);
 		flex: 1;
 		height: 100%;
 		width: 100%;

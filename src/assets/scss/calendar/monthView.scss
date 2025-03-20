@@ -44,9 +44,9 @@
 		padding: 0px 5px;
 		margin: 2px 0;
 		display: inline-block;
-		color: #e4e5e6;
+		color: var(--primary-font);
 		text-align: right;
-		font-family: Inter;
+		font-family: var(--primary-font-family);
 		font-size: 12px;
 		font-style: normal;
 		font-weight: 500;

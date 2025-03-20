@@ -10,8 +10,8 @@
 	align-items: flex-start;
 	gap: 16px;
 	border-radius: 40px;
-	border: 1px solid rgba(36, 36, 36, 0.48);
-	background: rgba(42, 42, 42, 0.16);
+	border: 1px solid var(--stroke);
+	background: var(--card);
 	width: 300px;
 
 	.cardContentContainerheader {
@@ -24,7 +24,7 @@
 	.imageContainer {
 		width: 100%;
 		height: 147px;
-		background: #fcfaf7;
+		background: var(--card);
 		border-radius: 20px;
 	}
 	.cardContentContainerfooter {
@@ -37,9 +37,9 @@
 
 	.cardContentContainerheaderSubTitle {
 		overflow: hidden;
-		color: rgba(228, 229, 230, 0.48);
+		color: var(--secondary-font);
 		text-overflow: ellipsis;
-		font-family: Inter;
+		font-family: var(--primary-font-family);
 		font-size: 10px;
 		font-style: normal;
 		font-weight: 500;
@@ -48,8 +48,8 @@
 		text-transform: capitalize;
 	}
 	.cardContentContainerheaderTitle {
-		color: #e4e5e6;
-		font-family: Inter;
+		color: var(--primary-font);
+		font-family: var(--primary-font-family);
 		font-size: 18px;
 		font-style: normal;
 		font-weight: 500;
@@ -68,10 +68,10 @@
 			align-items: center;
 			gap: 16px;
 			border-radius: 8px;
-			border: 1px solid rgba(36, 36, 36, 0.64);
-			background: rgba(42, 42, 42, 0.16);
-			color: #e4e5e6;
-			font-family: Inter;
+			border: 1px solid var(--stroke);
+			background: var(--card);
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
 			font-size: 13px;
 			font-style: normal;
 			font-weight: 500;
@@ -80,8 +80,8 @@
 			cursor: pointer;
 		}
 		.editBtn {
-			color: rgba(228, 229, 230, 0.64);
-			font-family: Inter;
+			color: var(--secondary-font);
+			font-family: var(--primary-font-family);
 			font-size: 12px;
 			font-style: normal;
 			font-weight: 400;
@@ -99,12 +99,12 @@
 	align-items: flex-start;
 	gap: 3.333px;
 	border-radius: 33.333px;
-	border: 0.833px solid rgba(36, 36, 36, 0.48);
-	background: rgba(42, 42, 42, 0.16);
+	border: 0.833px solid var(--stroke);
+	background: var(--card);
 	width: auto;
 	.subalabel {
-		color: rgba(228, 229, 230, 0.48);
-		font-family: Inter;
+		color: var(--secondary-font);
+		font-family: var(--primary-font-family);
 		font-size: 10px;
 		font-style: normal;
 		font-weight: 500;
@@ -117,8 +117,8 @@
 	flex-direction: column;
 	height: auto;
 	border-radius: 33.333px;
-	border: 0.833px solid rgba(36, 36, 36, 0.48);
-	background: rgba(42, 42, 42, 0.16);
+	border: 0.833px solid var(--stroke);
+	background: var(--card);
 
 	.htmlContentViewer {
 		display: flex;
@@ -128,7 +128,7 @@
 		border-top-left-radius: 33.333px;
 		border-top-right-radius: 33.333px;
 		.coverImage {
-			background: #fcfaf7;
+			background: var(--card);
 			border-top-left-radius: 33.333px;
 			border-top-right-radius: 33.333px;
 			height: 116px;
@@ -158,9 +158,9 @@
 
 		.topLabelStyle {
 			overflow: hidden;
-			color: rgba(228, 229, 230, 0.48);
+			color: var(--secondary-font);
 			text-overflow: ellipsis;
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 10px;
 			font-style: normal;
 			font-weight: 500;
@@ -169,16 +169,16 @@
 			text-transform: capitalize;
 		}
 		.labelTitle {
-			color: #e4e5e6;
-			font-family: Inter;
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
 			font-size: 15px;
 			font-style: normal;
 			font-weight: 500;
 			line-height: 21.667px; /* 144.444% */
 		}
 		.labelSubtitle {
-			color: rgba(228, 229, 230, 0.48);
-			font-family: Inter;
+			color: var(--secondary-font);
+			font-family: var(--primary-font-family);
 			font-size: 10px;
 			font-style: normal;
 			font-weight: 500;
@@ -198,10 +198,10 @@
 				align-items: center;
 				gap: 16px;
 				border-radius: 8px;
-				border: 1px solid rgba(36, 36, 36, 0.64);
-				background: rgba(42, 42, 42, 0.16);
-				color: #e4e5e6;
-				font-family: Inter;
+				border: 1px solid var(--stroke);
+				background: var(--card);
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
 				font-size: 13px;
 				font-style: normal;
 				font-weight: 500;
@@ -210,8 +210,8 @@
 				cursor: pointer;
 			}
 			.editBtn {
-				color: rgba(228, 229, 230, 0.64);
-				font-family: Inter;
+				color: var(--secondary-font);
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 400;

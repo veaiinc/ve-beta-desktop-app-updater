@@ -11,6 +11,11 @@ import { fetchOriginSelection } from '../../../helpers';
 import TemplateCards from '../../components/myTemplate/TemplateCards';
 import Context from '../../../context/context';
 import QuickActions from '../../components/globalComponents/QuickActions';
+import SearchSvg from '../../../assets/svg/activity/SearchSvg';
+import PlusSvg from '../../../assets/svg/my_templates/PlusSvg';
+import UpDownArrowSvg from '../../../assets/svg/my_templates/UpDownArrowSvg';
+import ThreeDotsSvg from '../../../assets/svg/my_templates/ThreeDotsSvg';
+import FilterSvg from '../../../assets/svg/my_templates/FilterSvg';
 import { ReactComponent as Cross } from '../../../assets/svg/docs/cross.svg';
 import Spinner from '../../components/loaders/Spinner';
 import { message } from 'antd';
@@ -45,23 +50,23 @@ const cards = [
 const ctaItems = [
 	{
 		id: 1,
-		icon: <Plus />,
+		icon: <PlusSvg />,
 	},
 	{
 		id: 1,
-		icon: <Search />,
+		icon: <SearchSvg />,
 	},
 	{
 		id: 1,
-		icon: <UpDownArrow />,
+		icon: <UpDownArrowSvg />,
 	},
 	{
 		id: 1,
-		icon: <Filter />,
+		icon: <FilterSvg />,
 	},
 	{
 		id: 1,
-		icon: <ThreeDots />,
+		icon: <ThreeDotsSvg />,
 	},
 ];
 

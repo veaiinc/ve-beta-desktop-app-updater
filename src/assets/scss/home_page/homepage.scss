@@ -12,7 +12,7 @@
 		bottom: 0;
 		left: 50%;
 		transform: translateX(-43%);
-		background: linear-gradient(180deg, transparent 0%, #0c0c0d 100%);
+		// background: linear-gradient(180deg, transparent 0%, var(--background-color) 100%);
 		width: 1250px;
 		height: 210px;
 	}
@@ -22,7 +22,7 @@
 		top: 0;
 		left: 0;
 		z-index: 10;
-		background: #0c0c0d;
+		background: var(--background-color);
 		width: 100%;
 		height: 252.5px;
 	}
@@ -43,7 +43,7 @@
 		top: 1.2%;
 		left: 0;
 		z-index: 10;
-		background: #0c0c0d;
+		background: var(--background-color);
 		.home-page-container-content-item-container {
 			display: flex;
 			flex-direction: row;
@@ -65,8 +65,8 @@
 					top: -2px;
 					transform: translateY(-100%);
 
-					color: #f2f2f3;
-					font-family: Inter;
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
 					font-size: 10px;
 					font-style: normal;
 					font-weight: 500;
@@ -92,7 +92,7 @@
 				.home-page-container-content-item-divider {
 					width: 1px;
 					height: 16px;
-					background: #2f3032;
+					background: var(--stroke);
 				}
 			}
 		}
@@ -106,10 +106,10 @@
 			align-items: center;
 			gap: 6px;
 			border-radius: 59px;
-			background: #f2f2f3;
+			background: var(--primary-font);
 			border: 1px solid transparent;
-			color: #0c0c0d;
-			font-family: Inter;
+			color: var(--card);
+			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 500;
@@ -118,8 +118,8 @@
 			cursor: pointer;
 			&:hover {
 				background: transparent;
-				color: #f2f2f3;
-				border: 1px solid #e8e8e8;
+				color: var(--primary-font);
+				border: 1px solid var(--stroke);
 			}
 		}
 	}
@@ -142,15 +142,15 @@
 		flex-direction: column;
 		.home-page-hey-there-text {
 			color: var(--primary-font, #f2f2f3);
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 40px;
 			font-style: normal;
 			font-weight: 500;
 			line-height: 43px; /* 107.5% */
 		}
 		.home-page-help-text {
-			color: var(--secondary-font, #797e86);
-			font-family: Inter;
+			color: var(--secondary-font);
+			font-family: var(--primary-font-family);
 			font-size: 40px;
 			font-style: normal;
 			font-weight: 500;
@@ -167,14 +167,14 @@
 		top: 5px;
 		left: 0;
 		z-index: 10;
-		background: #0c0c0d;
+		background: var(--background-color);
 		padding-top: 8px;
 		margin-bottom: 16px;
 		.home-page-welcome-container-left-text-options-container {
 			display: flex;
 			.home-page-welcome-container-left-text-option {
-				color: var(--secondary-font, #797e86);
-				font-family: Inter;
+				color: var(--secondary-font);
+				font-family: var(--primary-font-family);
 				font-size: 16px;
 				font-style: normal;
 				position: relative;
@@ -204,8 +204,8 @@
 					right: 16px;
 					top: -2px;
 
-					color: #f2f2f3;
-					font-family: Inter;
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
 					font-size: 10px;
 					font-style: normal;
 					font-weight: 500;
@@ -223,19 +223,25 @@
 		.home-page-welcome-container-right {
 			display: flex;
 			flex-direction: row;
-			padding-bottom: 15px;
 			width: 268px;
 			padding: 12px 16px;
 			align-items: center;
 			gap: 8px;
 			border-radius: 50px;
-			background: #202123;
+			background: var(--card);
 			align-self: flex-start;
+			:hover {
+				background: var(--card-hover);
+			}
+			:focus {
+				border: 1px solid var(--stroke);
+				background: var(--card-hover);
+			}
 			.search-bar-input {
-				background: #202123;
+				background: transparent;
 				border: none;
-				color: var(--secondary-font, #797e86);
-				font-family: Inter;
+				color: var(--secondary-font);
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 500;
@@ -266,15 +272,15 @@
 			align-items: flex-start;
 			flex-shrink: 0;
 			border-radius: 24px;
-			background: #171819;
+			background: var(--card);
 			cursor: pointer;
 			transition: 300ms;
 			&:hover {
-				background: #202123;
+				background: var(--card-hover);
 			}
 			.home-page-cards-container-card-sub-title {
-				color: var(--secondary-font, #797e86);
-				font-family: Inter;
+				color: var(--secondary-font);
+				font-family: var(--primary-font-family);
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 500;
@@ -286,7 +292,7 @@
 			}
 			.home-page-cards-container-card-title {
 				color: var(--primary-font, #f2f2f3);
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 18px;
 				font-style: normal;
 				font-weight: 500;
@@ -299,7 +305,7 @@
 	}
 	.home-page-cards-container-no-data {
 		margin-top: 16px;
-		color: #f2f2f3;
+		color: var(--primary-font);
 		text-align: center;
 		font-size: 16px;
 		font-weight: 500;
@@ -354,7 +360,7 @@
 	align-items: flex-start;
 	gap: 2px;
 	border-radius: 12px;
-	background: #26282a;
+	background: var(--card);
 	.dropdown-option {
 		display: flex;
 		padding: 6px 8px;
@@ -362,8 +368,8 @@
 		align-items: center;
 		align-self: stretch;
 		border-radius: 8px;
-		color: #f2f2f3;
-		font-family: Inter;
+		color: var(--primary-font);
+		font-family: var(--primary-font-family);
 		font-size: 14px;
 		font-style: normal;
 		font-weight: 500;
@@ -371,7 +377,7 @@
 		flex: 1 0 0;
 		cursor: pointer;
 		&:hover {
-			background: #303336;
+			background: var(--card-hover);
 		}
 	}
 }

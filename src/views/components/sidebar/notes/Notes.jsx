@@ -147,13 +147,15 @@ const Notes = ({ showNotesDrawer, setShowNotesDrawer }) => {
 		}
 	};
 
+	const drawerWidth = showNotesDrawer ? 346 : 0;
+
 	return (
 		<Drawer
 			title={null}
 			open={showNotesDrawer}
 			onClose={handleCloseDrawer}
 			placement="left"
-			width={346}
+			width={drawerWidth}
 			rootClassName="sidebar-notifications-drawer"
 			closeIcon={null}
 		>
@@ -175,7 +177,7 @@ const Notes = ({ showNotesDrawer, setShowNotesDrawer }) => {
 						</div>
 					) : info?.notesData?.length === 0 ? (
 						<div className="empty-state">
-							<p className="message">No notes yet!</p>
+							<p className="¸¸ˀ">No notes yet!</p>
 						</div>
 					) : (
 						<InfiniteScroll

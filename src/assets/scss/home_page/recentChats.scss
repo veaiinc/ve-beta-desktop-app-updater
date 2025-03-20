@@ -18,31 +18,31 @@
 		gap: 6px;
 		align-self: stretch;
 		border-radius: 16px;
-		background: #171819;
+		background: var(--card);
 		.recentAiChatsContainerEachTop {
 			display: flex;
 			justify-content: space-between;
 			align-items: center;
 			width: 100%;
 			.recentAiChatsContainerEachTopSubTitle {
-				color: var(--secondary-font, #787e87);
-				font-family: Inter;
+				color: var(--secondary-font);
+				font-family: var(--primary-font-family);
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 500;
 				line-height: normal;
 			}
 			.recentAiChatsContainerEachTopCreatedAt {
-				color: var(--secondary-font, #787e87);
-				font-family: Inter;
+				color: var(--secondary-font);
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 400;
 				line-height: normal;
 			}
 			.recentAiChatsContainerEachTopTitle {
-				color: var(--primary-font, #f2f2f3);
-				font-family: Inter;
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 500;

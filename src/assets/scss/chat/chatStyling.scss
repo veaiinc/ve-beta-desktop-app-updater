@@ -37,8 +37,8 @@
 		align-items: center;
 		gap: 4.2px;
 		border-radius: 100px;
-		color: #e4e5e6;
-		font-family: Inter;
+		color: var(--primary-font);
+		font-family: var(--primary-font-family);
 		font-size: 14px;
 		font-style: normal;
 		font-weight: 500;
@@ -48,8 +48,8 @@
 		cursor: pointer;
 		transition: all 1s;
 		span {
-			color: rgba(228, 229, 230, 0.48);
-			font-family: Inter;
+			color: var(--secondary-font);
+			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 500;
@@ -73,8 +73,8 @@
 		margin-bottom: 16px;
 
 		input {
-			color: rgba(224, 224, 224, 0.32);
-			font-family: Inter;
+			color: var(--secondary-font);
+			font-family: var(--primary-font-family);
 			font-size: 15px;
 			font-style: normal;
 			font-weight: 500;
@@ -116,7 +116,7 @@
 		flex-direction: column;
 		align-items: center;
 		justify-content: center;
-		color: #fff;
+		color: var(--primary-font);
 		gap: 12px;
 	}
 	.channelCard {
@@ -146,8 +146,8 @@
 			flex: 1 0 0;
 
 			.channelName {
-				color: #e4e5e6;
-				font-family: Inter;
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
 				font-size: 13px;
 				font-style: normal;
 				font-weight: 500;
@@ -158,8 +158,8 @@
 				align-self: stretch;
 
 				.channelSubMessage {
-					color: rgba(228, 229, 230, 0.48);
-					font-family: Inter;
+					color: var(--secondary-font);
+					font-family: var(--primary-font-family);
 					font-size: 11px;
 					font-style: normal;
 					font-weight: 500;
@@ -187,7 +187,7 @@
 					border-radius: 100px;
 					background: #3f8ae2;
 					color: #e4e5e6;
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 11px;
 					font-style: normal;
 					font-weight: 500;
@@ -225,18 +225,18 @@
 				gap: 8px;
 				align-self: stretch;
 				.label {
-					color: #e4e5e6;
+					color: var(--primary-font);
 					text-align: center;
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 18px;
 					font-style: normal;
 					font-weight: 500;
 					line-height: 20px; /* 111.111% */
 				}
 				.subLabel {
-					color: #b0b0b0;
+					color: var(--secondary-font);
 					text-align: center;
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 13px;
 					font-style: normal;
 					font-weight: 400;
@@ -268,9 +268,9 @@
 
 				.channelName {
 					overflow: hidden;
-					color: #e4e5e6;
+					color: var(--primary-font);
 					text-overflow: ellipsis;
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 500;
@@ -278,8 +278,8 @@
 					letter-spacing: -0.28px;
 				}
 				.channelSubMessage {
-					color: rgba(228, 229, 230, 0.48);
-					font-family: Inter;
+					color: var(--secondary-font);
+					font-family: var(--primary-font-family);
 					font-size: 11px;
 					font-style: normal;
 					font-weight: 500;
@@ -304,7 +304,7 @@
 			gap: 16px;
 			border-radius: 100px;
 			border: 1px solid #2f2f2f;
-			background: rgba(42, 42, 42, 0.16);
+			background: var(--background-color);
 			.inputElement {
 				flex: 1;
 				height: 20px;
@@ -314,8 +314,8 @@
 				resize: none;
 				outline: none;
 				background-color: transparent;
-				color: rgba(224, 224, 224, 0.32);
-				font-family: Inter;
+				color: var(--secondary-font);
+				font-family: var(--primary-font-family);
 				font-size: 15px;
 				font-style: normal;
 				font-weight: 500;
@@ -348,8 +348,8 @@
 				gap: 6px;
 
 				.userName {
-					color: #e4e5e6;
-					font-family: Inter;
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
 					font-size: 11px;
 					font-style: normal;
 					font-weight: 500;
@@ -362,8 +362,8 @@
 					text-overflow: ellipsis; /* Adds the ellipsis effect */
 				}
 				.timing {
-					color: rgba(228, 229, 230, 0.48);
-					font-family: Inter;
+					color:  var(--secondary-font);
+					font-family: var(--primary-font-family);
 					font-size: 11px;
 					font-style: normal;
 					font-weight: 500;
@@ -376,7 +376,7 @@
 				width: fit-content;
 				max-width: 80%;
 				border-radius: 13px;
-				color: #fff;
+				color: var(--secondary-font);
 			}
 		}
 	}
@@ -388,7 +388,7 @@
 	align-items: center;
 	gap: 13px;
 	border-radius: 12px;
-	background: rgba(255, 255, 255, 0.04);
+	background: var(--background-color);
 
 	.imageContainer {
 		width: 32px;

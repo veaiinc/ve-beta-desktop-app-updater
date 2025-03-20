@@ -16,8 +16,8 @@
 	opacity: 0;
 	animation: word 2s forwards 1.3s;
 
-	color: #e7e7e7;
-	color: color(display-p3 0.9075 0.9075 0.9075);
+	color: var(--primary-font);
+
 	text-align: center;
 	font-family: Outfit;
 	font-size: 16px;
@@ -90,7 +90,7 @@
 }
 
 .mainBody {
-	background-color: black;
+	background-color: var(--background-color);
 	height: 96%;
 	width: 100%;
 	display: flex;
@@ -99,7 +99,7 @@
 }
 
 .mainBody {
-	background-color: #111;
+	background-color: var(--background-color);
 	height: 100%;
 	width: 100%;
 	display: flex;

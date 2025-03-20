@@ -10,7 +10,9 @@ const MonthEventWrapper = ({ event }) => {
 					// boxShadow: `0px 0px 10px 0px ${event?.calendarCategory?.color || '#989898'}`,
 				}}
 			/>
-			<div className="textContainer">{event?.title}</div>
+			<div className="textContainer" style={{ color: 'var(--primary-font)' }}>
+				{event?.title}
+			</div>
 		</div>
 	);
 };

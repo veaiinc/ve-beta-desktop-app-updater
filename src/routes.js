@@ -118,7 +118,7 @@ const routes = [
 		component: (
 			<AuthWrapper
 				title={'Home'}
-				outerContainerStyle={{ padding: '0 32px' }}
+				// outerContainerStyle={{ padding: '0 32px' }}
 				showBottomToolbar={false}
 			>
 				<InitialHomePage />
@@ -429,7 +429,7 @@ const routes = [
 		component: (
 			<AuthWrapper
 				title={'Notes'}
-				outerContainerStyle={{ padding: '0 0 0 32px', backgroundColor: '#0c0c0d' }}
+				outerContainerStyle={{ padding: '32px 0 0 32px', backgroundColor: '#0c0c0d' }}
 				maxWidth={'100%'}
 			>
 				<Notes />

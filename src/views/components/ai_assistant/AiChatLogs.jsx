@@ -11,6 +11,8 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import { FetchMoreLoaderComp } from '../../../helpers';
 import moment from 'moment';
 import { Markdown } from '../../../helpers/markdownHelper';
+import RefershSvg from '../../../assets/svg/sidebar/RefershSvg';
+import DownSvg from '../../../assets/svg/activity/DownSvg';
 
 const initialInfo = {
 	aiChatLogsList: null,
@@ -93,7 +95,7 @@ const AiChatLogs = ({ assistant }) => {
 					<div className="leftActionBtnContainer">
 						{/* Date */}
 						<div className="chatLogsActionBtn">
-							Date <DownArrow />
+							Date <DownSvg />
 						</div>
 
 						{/* Source */}
@@ -130,7 +132,7 @@ const AiChatLogs = ({ assistant }) => {
 							overlayStyle={{ minWidth: 'fit-content', padding: '0' }}
 						>
 							<div className="chatLogsActionBtn">
-								Source <DownArrow />
+								Source <DownSvg />
 							</div>
 						</Tooltip>
 
@@ -180,7 +182,7 @@ const AiChatLogs = ({ assistant }) => {
 
 					<div className="rightActionBtnContainer">
 						<div className="chatLogsActionBtn" onClick={handleRefresh}>
-							Refresh <Refresh />
+							Refresh <RefershSvg />
 						</div>
 						{/* <div className="chatLogsActionBtn">
 							Export <Export />

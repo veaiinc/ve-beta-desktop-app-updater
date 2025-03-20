@@ -1,6 +1,6 @@
 .options-dropdown-tooltip {
 	.option-dropDown-wrapper {
-		background: #202123;
+		background: var(--popup);
 		border-radius: 14px;
 		.options-dropdown-container {
 			display: flex;
@@ -10,15 +10,14 @@
 			gap: 12px;
 			width: 220px;
 			border-radius: 14px;
-			background: #202123;
-			box-shadow: 0px 2px 44px 0px rgba(0, 0, 0, 0.25);
+			background: var(--popup);
 
 			.options-dropdown-header {
 				display: flex;
 				width: 100%;
 				justify-content: space-between;
 				align-items: center;
-				border-bottom: 1px solid #333334;
+				border-bottom: 1px solid var(--stroke);
 				padding: 0 8px;
 				padding-bottom: 12px;
 
@@ -28,8 +27,8 @@
 					gap: 12px;
 
 					.options-dropdown-header-title {
-						color: #f2f2f3;
-						font-family: Inter;
+						color: var(--primary-font);
+						font-family: var(--primary-font-family);
 						font-size: 12px;
 						font-style: normal;
 						text-align: left;
@@ -48,8 +47,8 @@
 				align-self: stretch;
 
 				.section-title {
-					color: #787e87;
-					font-family: Inter;
+					color: var(--secondary-font);
+					font-family: var(--primary-font-family);
 					font-size: 11px;
 					font-style: normal;
 					font-weight: 500;
@@ -59,8 +58,8 @@
 				.btn-show-all {
 					all: unset;
 					cursor: pointer;
-					color: #fff;
-					font-family: Inter;
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
 					font-size: 11px;
 					font-style: normal;
 					font-weight: 500;
@@ -103,9 +102,9 @@
 					}
 
 					.property-listItem-title {
-						color: #f2f2f3;
+						color: var(--primary-font);
 						text-align: start;
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 12px;
 						font-style: normal;
 						font-weight: 500;
@@ -123,7 +122,7 @@
 					}
 
 					&:hover {
-						background-color: #292b2d;
+						background-color: var(--card);
 					}
 				}
 			}
@@ -133,7 +132,7 @@
 				width: 100%;
 				justify-content: space-between;
 				align-items: center;
-				border-top: 1px solid #333334;
+				border-top: 1px solid var(--stroke);
 				padding: 12px;
 				padding-bottom: 0;
 
@@ -144,8 +143,8 @@
 				}
 
 				.add-new-property-title {
-					color: #fff;
-					font-family: Inter;
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 500;
@@ -165,8 +164,7 @@
 			align-items: flex-start;
 			gap: 12px;
 			border-radius: 14px;
-			background: #202123;
-			box-shadow: 0px 2px 44px 0px rgba(0, 0, 0, 0.25);
+			background: var(--popup);
 
 			&-header {
 				display: flex;
@@ -175,11 +173,11 @@
 				width: 100%;
 				padding: 0 8px;
 				padding-bottom: 12px;
-				border-bottom: 1px solid #333334;
+				border-bottom: 1px solid var(--stroke);
 
 				&-title {
-					color: #f2f2f3;
-					font-family: Inter;
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 500;
@@ -201,7 +199,7 @@
 					width: 100%;
 					gap: 4px;
 					padding-bottom: 4px;
-					border-bottom: 1px solid #333334;
+					border-bottom: 1px solid var(--stroke);
 
 					&-nameInput {
 						display: flex;
@@ -212,10 +210,10 @@
 						gap: 10px;
 						align-self: stretch;
 						border-radius: 8px;
-						border: 1px solid #333334;
+						border: 1px solid var(--stroke);
 						background-color: transparent;
-						color: #e8e8e8;
-						font-family: Inter;
+						color: var(--primary-font);
+						font-family: var(--primary-font-family);
 						font-size: 11px;
 						font-style: normal;
 						font-weight: 400;
@@ -237,8 +235,8 @@
 						user-select: none;
 
 						&-label {
-							color: #f2f2f3;
-							font-family: Inter;
+							color: var(--primary-font);
+							font-family: var(--primary-font-family);
 							font-size: 12px;
 							font-style: normal;
 							font-weight: 500;
@@ -247,8 +245,8 @@
 						}
 
 						&-value {
-							color: var(--Secondary-Font, #787e87);
-							font-family: Inter;
+							color: var(--secondary-font);
+							font-family: var(--primary-font-family);
 							font-size: 12px;
 							font-style: normal;
 							font-weight: 500;
@@ -258,13 +256,13 @@
 						}
 
 						&:hover {
-							background-color: #292b2d;
+							background-color: var(--card);
 						}
 					}
 				}
 
 				.view-options-footer {
-					border-top: 1px solid #333334;
+					border-top: 1px solid var(--stroke);
 					padding-top: 2px;
 					width: 100%;
 				}
@@ -292,8 +290,8 @@
 					user-select: none;
 
 					&-label {
-						color: var(--Primary-Font, #f2f2f3);
-						font-family: Inter;
+						color: var(--primary-font);
+						font-family: var(--primary-font-family);
 						font-size: 12px;
 						font-style: normal;
 						font-weight: 500;
@@ -302,8 +300,8 @@
 					}
 
 					&-value {
-						color: var(--Secondary-Font, #787e87);
-						font-family: Inter;
+						color: var(--secondary-font);
+						font-family: var(--primary-font-family);
 						font-size: 12px;
 						font-style: normal;
 						font-weight: 500;
@@ -318,10 +316,10 @@
 						align-items: center;
 						gap: 10px;
 						border-radius: 8px;
-						border: 1px solid #333334;
+						border: 1px solid var(--stroke);
 						background-color: transparent;
-						color: #787e87;
-						font-family: Inter;
+						color: var(--secondary-font);
+						font-family: var(--primary-font-family);
 						font-size: 12px;
 						font-style: normal;
 						font-weight: 400;
@@ -332,7 +330,7 @@
 					}
 
 					&:hover {
-						background-color: #292b2d;
+						background-color: var(--card);
 					}
 				}
 			}
