@@ -12,11 +12,11 @@ const menuItems = [
 		title: 'Open',
 		value: 'openForm',
 	},
-	{
-		id: 2,
-		title: 'Rename',
-		value: 'renameForm',
-	},
+	// {
+	// 	id: 2,
+	// 	title: 'Rename',
+	// 	value: 'renameForm',
+	// },
 	{
 		id: 3,
 		title: 'Copy Link',
@@ -27,16 +27,16 @@ const menuItems = [
 		title: 'Embed Form',
 		value: 'EmbedForm',
 	},
-	// {
-	// 	id: 5,
-	// 	title: 'Duplicate',
-	// 	value: 'duplicateForm',
-	// },
-	// {
-	// 	id: 6,
-	// 	title: 'Delete',
-	// 	value: 'deleteForm',
-	// },
+	{
+		id: 5,
+		title: 'Duplicate',
+		value: 'duplicateForm',
+	},
+	{
+		id: 6,
+		title: 'Delete',
+		value: 'deleteForm',
+	},
 ];
 
 const FormResponsesMenuItem = ({ formId, copyLink }) => {
