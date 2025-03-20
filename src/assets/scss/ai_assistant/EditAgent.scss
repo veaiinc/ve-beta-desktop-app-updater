@@ -17,9 +17,9 @@
 		justify-content: center;
 		width: 20px;
 		height: 20px;
-		background-color: #ffffff;
-		color: #040d1b;
-		font-family: Inter;
+		background-color: var(--background-color);
+		color: var(--primary-font);
+		font-family: var(--primary-font-family);
 		font-size: 12px;
 		font-style: normal;
 		text-align: center;

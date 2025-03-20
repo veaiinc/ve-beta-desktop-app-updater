@@ -191,9 +191,15 @@ const BoardItem = ({
 							<div
 								className="board-view-item-add-card"
 								onClick={() => handleAddButtonOnClick(group._id)}
+								style={{ borderColor: 'var(--secondary-font)' }}
 							>
 								<PlusIcon />
-								<span className="board-view-item-add-card-text">New Task</span>
+								<span
+									className="board-view-item-add-card-text"
+									style={{ color: 'var(--primary-font)' }}
+								>
+									New Task
+								</span>
 							</div>
 						</div>
 					)}

@@ -23,7 +23,12 @@ const ListView = ({
 	const generateSkeleton = useCallback(() => {
 		return [...Array(6)].map((_, index) => (
 			<div className="listItemSkeleton" key={index}>
-				<Skeleton width="100%" height="38px" borderRadius="12px" />
+				<Skeleton
+					color="var(--primary-font)"
+					width="100%"
+					height="38px"
+					borderRadius="12px"
+				/>
 			</div>
 		));
 	}, []);

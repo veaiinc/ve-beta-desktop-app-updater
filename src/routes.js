@@ -21,7 +21,6 @@ import AlbumSettings from './views/features/gallery/AlbumSettings';
 import UploadPhotos from './views/features/gallery/UploadPhotos';
 import GalleryViewLayout from './views/layouts/galleryViewLayout';
 import { Navigate } from 'react-router-dom';
-import Subscription from './views/features/subscription';
 import TermsOfService from './views/features/signin/TermsOfService';
 import CookiePolicy from './views/features/signin/CookiePolicy';
 import WorkflowBuilder from './views/features/workflow_builder';
@@ -119,7 +118,7 @@ const routes = [
 		component: (
 			<AuthWrapper
 				title={'Home'}
-				outerContainerStyle={{ padding: '0 32px' }}
+				// outerContainerStyle={{ padding: '0 32px' }}
 				showBottomToolbar={false}
 			>
 				<InitialHomePage />
@@ -279,11 +278,6 @@ const routes = [
 		component: <Navigate to="/" />,
 	},
 	{
-		path: '/subscription',
-		component: <Subscription />,
-		exact: true,
-	},
-	{
 		path: '/calendar',
 		component: (
 			<AuthWrapper title={'Calendar'} maxWidth={'95%'}>
@@ -408,7 +402,7 @@ const routes = [
 		exact: true,
 	},
 	{
-		path: '/form-leads',
+		path: '/forms/:id',
 		component: (
 			<AuthWrapper title={'Form Leads'}>
 				<FormLeads />
@@ -423,6 +417,7 @@ const routes = [
 				title={'Chat'}
 				showBottomToolbar={false}
 				outerContainerStyle={{ paddingRight: '0px' }}
+				authParentContainerStyle={{ backgroundColor: 'rgb(20,20,21)' }}
 				maxWidth="100%"
 			>
 				<RecentChat />
@@ -430,11 +425,11 @@ const routes = [
 		),
 	},
 	{
-		path: '/notes/:noteId',
+		path: '/note/:noteId',
 		component: (
 			<AuthWrapper
 				title={'Notes'}
-				outerContainerStyle={{ padding: '0 0 0 32px', backgroundColor: '#1e1e1e' }}
+				outerContainerStyle={{ padding: '32px 32px 0 32px' }}
 				maxWidth={'100%'}
 			>
 				<Notes />

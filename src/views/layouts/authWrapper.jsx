@@ -17,7 +17,8 @@ const AuthWrapper = ({
 	children,
 	maxWidth = '',
 	showBottomToolbar = true,
-	outerContainerStyle,
+	outerContainerStyle = {},
+	authParentContainerStyle = {},
 }) => {
 	const {
 		subscriptionInfo: { renewBanner },
@@ -33,7 +34,7 @@ const AuthWrapper = ({
 	}, []);
 
 	return (
-		<div className="authParentContainer">
+		<div className="authParentContainer" style={{ ...(authParentContainerStyle || {}) }}>
 			<Helmet>
 				<meta charSet="utf-8" />
 				<title>{title} | VE</title>
@@ -42,12 +43,12 @@ const AuthWrapper = ({
 			<div
 				style={{
 					display: 'flex',
-					height: '100vh',
-					padding: '60px 0 0 32px',
+					height: '100dvh',
+					padding: '32px 32px 0 32px',
 					...outerContainerStyle,
 				}}
 			>
-				<SkeletonTheme baseColor={'#313131'} highlightColor={'#525252'}>
+				<SkeletonTheme baseColor={'var(--card)'} highlightColor={'var(--card-hover)'}>
 					<Sidebar
 						setActiveWorkspaceId={setActiveWorkspaceId}
 						activeWorkspaceId={workspaceId}

@@ -89,7 +89,7 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 						left: 0,
 						right: 0,
 						bottom: 0,
-						backgroundColor: '#0a0a0b',
+						// background: 'var(--background-color)',
 						opacity: 0.5,
 						height: '100vh',
 						zIndex: 997,
@@ -158,7 +158,8 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 						<div className="workspaceListFooter">
 							<hr
 								style={{
-									border: '0.7px solid #333334',
+									border: '0.1px solid var(--stroke)',
+									opacity: '.4',
 									width: '212px',
 									alignSelf: 'center',
 								}}
@@ -170,7 +171,7 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 								</div>
 							</div>
 							<div className="singleWorkspace logoutOption" onClick={handleLogout}>
-								<h6 style={{ color: '#D73A49' }}>Logout</h6>
+								<h6 style={{ color: 'var(--error)' }}>Logout</h6>
 								<div className="workSpaceCircle">
 									<LogoutRedSvg />
 								</div>

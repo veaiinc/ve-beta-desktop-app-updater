@@ -5,15 +5,15 @@
 	width: 580px;
 	padding: 32px;
 	border-radius: 32px;
-	border: 1px solid rgba(151, 151, 151, 0.16);
-	background: rgba(29, 29, 35, 0.24);
-	box-shadow: 2px 2px 6px 0px rgba(115, 85, 236, 0.05),
-		4px 4px 10px 0px rgba(104, 93, 247, 0.02) inset;
+	border: 1px solid var(--stroke);
+	background: var(--card);
+	// box-shadow: 2px 2px 6px 0px rgba(115, 85, 236, 0.05),
+	// 	4px 4px 10px 0px rgba(104, 93, 247, 0.02) inset;
 	backdrop-filter: blur(8px);
 
 	.no-ai-assistants-found {
-		color: rgba(228, 229, 230, 0.48);
-		font-family: Inter;
+		color: var(--secondary-font);
+		font-family: var(--primary-font-family);
 		font-size: 13px;
 		font-style: normal;
 		font-weight: 400;
@@ -23,7 +23,7 @@
 	.line {
 		width: 516px;
 		height: 1px;
-		background: rgba(100, 100, 100, 0.16);
+		background: var(--stroke);
 		margin: 16px 0;
 	}
 
@@ -38,8 +38,8 @@
 			justify-content: flex-start;
 			align-items: center;
 			gap: 8px;
-			color: #e4e5e6;
-			font-family: Inter;
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
 			font-size: 16px;
 			font-style: normal;
 			font-weight: 500;
@@ -55,10 +55,10 @@
 				bottom: -123px;
 				right: -368px;
 				border-radius: 16px;
-				border: 1px solid rgba(100, 100, 100, 0.16);
-				background: #151515;
-				box-shadow: 0px 53px 53px 0px rgba(0, 0, 0, 0.09),
-					0px 13px 29px 0px rgba(0, 0, 0, 0.1);
+				border: 1px solid var(--stroke);
+				background: var(--card);
+				// box-shadow: 0px 53px 53px 0px rgba(0, 0, 0, 0.09),
+				// 	0px 13px 29px 0px rgba(0, 0, 0, 0.1);
 				display: flex;
 				width: 390px;
 				padding: 32px;
@@ -67,8 +67,8 @@
 				gap: 40px;
 
 				p {
-					color: rgba(228, 229, 230, 0.48);
-					font-family: Inter;
+					color: var(--secondary-font);
+					font-family: var(--primary-font-family);
 					font-size: 13px;
 					font-style: normal;
 					font-weight: 400;
@@ -83,8 +83,8 @@
 			justify-content: flex-start;
 			align-items: center;
 			gap: 2px;
-			color: #6055ec;
-			font-family: Inter;
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 400;
@@ -103,8 +103,8 @@
 		height: 26px;
 
 		h1 {
-			color: #e4e5e6;
-			font-family: Inter;
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
 			font-size: 13px;
 			font-style: normal;
 			font-weight: 400;
@@ -130,7 +130,7 @@
 
 			&:hover {
 				border-radius: 4px;
-				background: rgba(176, 176, 176, 0.1);
+				background: var(--card-hover);
 			}
 
 			.leftContent {
@@ -148,13 +148,13 @@
 					height: 36px;
 					padding: 8px;
 					border-radius: 100px;
-					background: rgba(46, 46, 46, 0.64);
+					background: var(--card-hover);
 				}
 
 				h1 {
-					color: #e4e5e6;
+					color: var(--primary-font);
 					text-overflow: ellipsis;
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 400;
@@ -163,9 +163,9 @@
 				}
 
 				h2 {
-					color: rgba(228, 229, 230, 0.48);
+					color: var(--primary-font);
 					text-overflow: ellipsis;
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 13px;
 					font-style: normal;
 					font-weight: 400;
@@ -188,8 +188,8 @@
 					height: 36px;
 				}
 				h1 {
-					color: rgba(228, 229, 230, 0.48);
-					font-family: Inter;
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
 					font-size: 13px;
 					font-style: normal;
 					font-weight: 400;
@@ -209,9 +209,9 @@
 	align-items: flex-start;
 	gap: 24px;
 	border-radius: 40px;
-	background-color: #151515;
-	opacity: 1;
-	box-shadow: 0px 53px 53px 0px rgba(0, 0, 0, 0.09), 0px 13px 29px 0px rgba(0, 0, 0, 0.1);
+	background: var(--card);
+	border: 1px solid var(--stroke);
+	// box-shadow: 0px 53px 53px 0px rgba(0, 0, 0, 0.09), 0px 13px 29px 0px rgba(0, 0, 0, 0.1);
 
 	.titleAndCloseBtnContainer {
 		display: flex;
@@ -226,8 +226,8 @@
 			display: flex;
 			justify-content: space-between;
 			align-items: center;
-			color: #e4e5e6;
-			font-family: Inter;
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
 			font-size: 18px;
 			font-style: normal;
 			font-weight: 500;
@@ -239,8 +239,8 @@
 		}
 
 		h2 {
-			color: rgba(228, 229, 230, 0.48);
-			font-family: Inter;
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
 			font-size: 12px;
 			font-style: normal;
 			font-weight: 400;
@@ -256,8 +256,8 @@
 		gap: 6px;
 
 		h1 {
-			color: #b0b0b0;
-			font-family: Inter;
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
 			font-size: 11px;
 			font-style: normal;
 			font-weight: 400;
@@ -274,18 +274,18 @@
 			gap: 10px;
 			align-self: stretch;
 			border-radius: 10px;
-			border: 1px solid rgba(100, 100, 100, 0.16);
-			background: rgba(32, 32, 33, 0.24);
-			color: #e4e5e6;
+			border: 1px solid var(--stroke);
+			background: var(--card-hover);
+			color: var(--primary-font);
 
 			&:focus {
 				.ai-assistant-name-input {
-					background: rgba(28, 28, 32, 0.9);
+					background: var(--card-hover);
 				}
 
 				border-radius: 10px;
-				border: 1px solid rgba(96, 85, 236, 0.4);
-				background: rgba(28, 28, 32, 0.9);
+				border: 1px solid var(--stroke);
+				background: var(--card-hover);
 			}
 		}
 	}
@@ -300,11 +300,11 @@
 		gap: 16px;
 		align-self: stretch;
 		border-radius: 100px;
-		border: 1px solid rgba(36, 36, 36, 0.64);
-		background: #1e1e1f;
+		border: 1px solid var(--stroke);
+		background: var(--primary-button);
 		cursor: pointer;
-		color: #e4e5e6;
-		font-family: Inter;
+		color: var(--primary-button-font);
+		font-family: var(--primary-font-family);
 		font-size: 13px;
 		font-style: normal;
 		font-weight: 500;
@@ -322,7 +322,7 @@
 	justify-content: space-between;
 	align-items: flex-start;
 	border-radius: 32px;
-	background: #202123;
+	background: var(--popup);
 	gap: 16px;
 
 	.titleAndDescriptionContainer {
@@ -338,8 +338,8 @@
 			display: flex;
 			justify-content: space-between;
 			align-items: center;
-			color: #e4e5e6;
-			font-family: Inter;
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
 			font-size: 18px;
 			font-style: normal;
 			font-weight: 500;
@@ -351,8 +351,8 @@
 		}
 
 		h2 {
-			color: #797e86;
-			font-family: Inter;
+			color: var(--secondary-font);
+			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 400;
@@ -390,7 +390,7 @@
 			gap: 8px;
 			flex: 1 0 0;
 			border-radius: 16px;
-			border: 1px solid #2c2d2e;
+			border: 1px solid var(--stroke);
 			cursor: pointer;
 
 			svg {
@@ -399,9 +399,9 @@
 			}
 
 			span {
-				color: rgba(228, 229, 230, 0.48);
+				color: var(--primary-font);
 				text-align: center;
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 11px;
 				font-style: normal;
 				font-weight: 400;
@@ -411,11 +411,11 @@
 
 		.active {
 			border-radius: 16px;
-			border: 1px solid rgba(232, 232, 232, 0.5);
-			background: rgba(232, 232, 232, 0.1);
+			border: 1px solid var(--stroke);
+			background: var(--card);
 
 			span {
-				color: #f2f2f3;
+				color: var(--primary-font);
 			}
 		}
 	}
@@ -454,7 +454,7 @@
 					align-items: center;
 					gap: 8.571px;
 					border-radius: 3.429px;
-					background: #333;
+					background: var(--card-hover);
 					cursor: pointer;
 				}
 
@@ -463,8 +463,8 @@
 					text-overflow: ellipsis;
 					overflow: hidden;
 					white-space: nowrap;
-					color: #e4e5e6;
-					font-family: Inter;
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 400;
@@ -510,7 +510,7 @@
 					align-items: center;
 					gap: 8.571px;
 					border-radius: 3.429px;
-					background: #333;
+					background: var(--card-hover);
 					cursor: pointer;
 				}
 
@@ -519,8 +519,8 @@
 					text-overflow: ellipsis;
 					overflow: hidden;
 					white-space: nowrap;
-					color: #e4e5e6;
-					font-family: Inter;
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 400;
@@ -551,7 +551,7 @@
 		overflow-y: auto;
 		max-height: 256px;
 
-		border: 1px dashed rgb(109, 108, 108);
+		border: 1px dashed var(--stroke);
 		border-radius: 16px;
 		padding: 16px;
 
@@ -562,16 +562,16 @@
 			width: 100%;
 			justify-content: space-between;
 			span {
-				color: #7f7f82;
-				font-family: Inter;
+				color: var(--secondary-font);
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 500;
 			}
 
 			.addAllSubLinksBtn {
-				color: #7f7f82;
-				font-family: Inter;
+				color: var(--secondary-font);
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 500;
@@ -580,12 +580,12 @@
 				align-items: center;
 				gap: 8px;
 				border-radius: 50px;
-				border: 1px solid #7f7f82;
+				border: 1px solid var(--stroke);
 				padding: 4px 8px;
 				transition: all 0.3s ease-in-out;
 				&:hover {
-					color: #ffffff;
-					border: 1px solid #ffffff;
+					color: var(--primary-font);
+					border: 1px solid var(--stroke);
 				}
 			}
 		}
@@ -607,7 +607,7 @@
 				align-items: center;
 				gap: 8.571px;
 				border-radius: 3.429px;
-				background: #333;
+				background: var(--card-hover);
 				cursor: pointer;
 			}
 
@@ -616,8 +616,8 @@
 				text-overflow: ellipsis;
 				overflow: hidden;
 				white-space: nowrap;
-				color: #e4e5e6;
-				font-family: Inter;
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 400;
@@ -643,8 +643,8 @@
 				justify-content: center;
 				align-items: center;
 				border-radius: 50px;
-				color: #7f7f82;
-				font-family: Inter;
+				color: var(--secondary-font);
+				font-family: var(--primary-font-family);
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 500;
@@ -652,7 +652,7 @@
 				background: transparent;
 				transition: all 0.3s ease-in-out;
 				&:hover {
-					color: #ffffff;
+					color: var(--primary-font);
 				}
 			}
 		}
@@ -674,18 +674,27 @@
 
 			input {
 				border-radius: 10px;
-				border: 1px solid rgba(100, 100, 100, 0.16);
-				background: rgba(32, 32, 33, 0.24);
+				border: 1px solid var(--stroke);
 				display: flex;
 				padding: 8px 14px;
 				align-items: center;
 				gap: 10px;
 				flex: 1 0 0;
 				align-self: stretch;
-				color: #e4e5e6;
+				color: var(--primary-font);
 				width: 335px;
 				height: 46px;
 				align-items: center;
+
+				&:hover {
+					border: 1px solid var(--stroke);
+					background: var(--card-hover);
+				}
+
+				&:active {
+					border: 1px solid var(--stroke);
+					background: var(--card-hover);
+				}
 			}
 
 			button {
@@ -696,21 +705,13 @@
 				padding: 12px 24px;
 				justify-content: center;
 				align-items: center;
-				gap: 16px;
-				border-radius: 50px;
-				border: 1px solid #2c2d2e;
-				color: #f2f2f3;
-				font-family: Inter;
-				font-size: 14px;
-				font-style: normal;
-				font-weight: 500;
-				line-height: 20px;
-				background: transparent;
-				transition: all 0.3s ease-in-out;
-				&:hover {
-					border-radius: 50px;
-					border: 1px solid #424548;
-				}
+				color: var(--secondary-font);
+				font-family: var(--primary-font-family);
+				font-size: 12px;
+				cursor: pointer;
+				border-radius: 8px;
+				border: 1px solid var(--stroke);
+				background: var(--card-hover);
 			}
 		}
 
@@ -722,15 +723,15 @@
 				width: 100%;
 				height: 112px;
 				border-radius: 24px;
-				border: 1px dashed #242424;
+				border: 1px dashed var(--stroke);
 				display: flex;
 				flex-direction: column;
 				align-items: center;
 				justify-content: center;
 				text-align: center;
-				color: rgba(228, 229, 230, 0.48);
+				color: var(--primary-font);
 				text-align: center;
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 400;
@@ -760,16 +761,16 @@
 		.line {
 			width: 100%;
 			height: 1px;
-			background: rgba(100, 100, 100, 0.16);
+			background: var(--stroke);
 		}
 
 		input {
 			width: 100%;
 			height: 48px;
 			border-radius: 10px;
-			border: 1px solid rgba(100, 100, 100, 0.16);
-			background: rgba(32, 32, 33, 0.24);
-			color: #e4e5e6;
+			border: 1px solid var(--stroke);
+			background: var(--card-hover);
+			color: var(--primary-font);
 			padding: 12px;
 		}
 
@@ -778,9 +779,9 @@
 			width: 100%;
 			height: 100%;
 			border-radius: 10px;
-			border: 1px solid rgba(100, 100, 100, 0.16);
-			background: rgba(32, 32, 33, 0.24);
-			color: #e4e5e6;
+			border: 1px solid var(--stroke);
+			background: var(--card-hover);
+			color: var(--primary-font);
 			resize: none;
 		}
 	}
@@ -801,10 +802,10 @@
 			align-items: center;
 			gap: 16px;
 			border-radius: 50px;
-			border: 1px solid #2c2d2e;
+			border: 1px solid var(--stroke);
 			cursor: pointer;
-			color: #f2f2f3;
-			font-family: Inter;
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 500;
@@ -814,7 +815,7 @@
 
 			&:hover {
 				border-radius: 50px;
-				border: 1px solid #424548;
+				border: 1px solid var(--stroke);
 			}
 		}
 
@@ -826,12 +827,12 @@
 			align-items: center;
 			gap: 6px;
 			border-radius: 59px;
-			background: #f2f2f3;
+			background: var(--primary-button);
 			cursor: pointer;
 			border: none;
-			border: 1px solid #f2f2f3;
-			color: #1c1d1f;
-			font-family: Inter;
+			border: 1px solid var(--stroke);
+			color: var(--primary-button-font);
+			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 500;
@@ -847,13 +848,13 @@
 
 			&:enabled:hover {
 				background-color: transparent;
-				color: #f2f2f3;
-				border: 1px solid #f2f2f3;
+				color: var(--primary-font);
+				border: 1px solid var(--stroke);
 			}
 			&:disabled {
-				background-color: #2c2e30;
-				border: 1px solid #2c2e30;
-				color: #797e86;
+				background-color: var(--card-hover);
+				border: 1px solid var(--card-hover);
+				color: var(--secondary-font);
 				cursor: not-allowed;
 				&:hover {
 					opacity: 0.8;
@@ -865,8 +866,8 @@
 
 .assign-ai-assistant-modal-container {
 	border-radius: 40px;
-	background: #151515;
-	box-shadow: 0px 53px 53px 0px rgba(0, 0, 0, 0.09), 0px 13px 29px 0px rgba(0, 0, 0, 0.1);
+	background: var(--card);
+	// box-shadow: 0px 53px 53px 0px rgba(0, 0, 0, 0.09), 0px 13px 29px 0px rgba(0, 0, 0, 0.1);
 	width: 480px;
 	height: 480px;
 	padding: 32px;
@@ -887,8 +888,8 @@
 			display: flex;
 			justify-content: space-between;
 			align-items: center;
-			color: #e4e5e6;
-			font-family: Inter;
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
 			font-size: 18px;
 			font-style: normal;
 			font-weight: 500;
@@ -912,15 +913,15 @@
 			align-items: center;
 
 			p {
-				color: rgba(228, 229, 230, 0.48);
-				font-family: Inter;
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
 				font-size: 13px;
 				font-style: normal;
 				font-weight: 400;
 				line-height: 18px;
 
 				.ai-assistant-name {
-					color: #e4e5e6;
+					color: var(--primary-font);
 				}
 			}
 		}
@@ -957,9 +958,9 @@
 
 					.template-name {
 						overflow: hidden;
-						color: #e4e5e6;
+						color: var(--primary-font);
 						text-overflow: ellipsis;
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 13px;
 						font-style: normal;
 						font-weight: 400;
@@ -976,9 +977,9 @@
 							gap: 4px;
 
 							span {
-								color: rgba(228, 229, 230, 0.7);
+								color: var(--primary-font);
 								text-align: justify;
-								font-family: Inter;
+								font-family: var(--primary-font-family);
 								font-size: 11px;
 								font-style: normal;
 								font-weight: 400;
@@ -992,8 +993,8 @@
 						display: flex;
 						align-items: center;
 						gap: 4px;
-						color: rgba(228, 229, 230, 0.48);
-						font-family: Inter;
+						color: var(--primary-font);
+						font-family: var(--primary-font-family);
 						font-size: 13px;
 						font-style: normal;
 						font-weight: 400;
@@ -1009,8 +1010,8 @@
 			}
 
 			.template-remove {
-				color: #e46b64;
-				font-family: Inter;
+				color: var(--error);
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 400;
@@ -1026,16 +1027,16 @@
 		bottom: 32px;
 		width: calc(100% - 64px);
 		border-radius: 100px;
-		border: 1px solid rgba(36, 36, 36, 0.64);
-		background: #1e1e1f;
+		border: 1px solid var(--stroke);
+		background: var(--card-hover);
 		display: flex;
 		padding: 16px 24px;
 		justify-content: center;
 		align-items: center;
 		gap: 16px;
 		align-self: stretch;
-		color: #e4e5e6;
-		font-family: Inter;
+		color: var(--primary-font);
+		font-family: var(--primary-font-family);
 		font-size: 13px;
 		font-style: normal;
 		font-weight: 500;

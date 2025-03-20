@@ -28,6 +28,7 @@ const UpdatedDeleteWorkflowStep = ({
 		conditionNodeChild: null,
 		switchBranchOptions: [],
 		selectedOption: 'default',
+		branchDropdownOpen: false,
 	});
 
 	useEffect(() => {
@@ -119,6 +120,15 @@ const UpdatedDeleteWorkflowStep = ({
 									keep?
 								</span>
 								<Tooltip
+									open={info?.branchDropdownOpen}
+									trigger="click"
+									onOpenChange={(open) => {
+										if (!open) {
+											updateStateInfo({
+												branchDropdownOpen: false,
+											});
+										}
+									}}
 									title={
 										<div className="deleteHeaderSubtitleTooltip">
 											<span className="deleteHeaderSubtitleTooltipTitle">
@@ -132,6 +142,7 @@ const UpdatedDeleteWorkflowStep = ({
 														onClick={() =>
 															updateStateInfo({
 																selectedOption: option?.value,
+																branchDropdownOpen: false,
 															})
 														}
 													>
@@ -148,7 +159,14 @@ const UpdatedDeleteWorkflowStep = ({
 										zIndex: 100000,
 									}}
 								>
-									<div className="switchSelectedBranch">
+									<div
+										className="switchSelectedBranch"
+										onClick={() =>
+											updateStateInfo({
+												branchDropdownOpen: !info?.branchDropdownOpen,
+											})
+										}
+									>
 										{
 											info?.switchBranchOptions?.find(
 												(option) => option?.value === info?.selectedOption,

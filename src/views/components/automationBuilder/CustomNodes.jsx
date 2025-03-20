@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState, useRef } from 'react';
 import { Handle, Position } from '@xyflow/react';
 import '../../../assets/scss/automation_builder/customNodes.scss';
 import { ReactComponent as Form } from '../../../assets/svg/worflow_builder/customNodes/form.svg';
@@ -8,10 +8,11 @@ import { ReactComponent as Slack } from '../../../assets/svg/worflow_builder/bui
 import { ReactComponent as Google } from '../../../assets/svg/worflow_builder/buildercard/google.svg';
 import { ReactComponent as Dustbin } from '../../../assets/svg/worflow_builder/buildercard/labelledDustbin.svg';
 import { ReactComponent as Copy } from '../../../assets/svg/worflow_builder/buildercard/labelledCopy.svg';
-import { ReactComponent as Eye } from '../../../assets/svg/worflow_builder/buildercard/labelledEye.svg';
 import { ReactComponent as ShockIcon } from '../../../assets/svg/automation_builder/shock.svg';
 import { ReactComponent as SwitchIcon } from '../../../assets/svg/automation_builder/switch.svg';
 import UpdatedDeleteWorkflowStep from '../modalsV2/automationBuilder/UpdatedDeleteStepsModal';
+import { ReactComponent as OpenEye } from '../../../assets/svg/gallery/open-eye.svg';
+import { ReactComponent as CrossedOpenEye } from '../../../assets/svg/gallery/crossedOpenEye.svg';
 import { ReactComponent as ClockSvg } from '../../../assets/svg/activity/clock.svg';
 import { Tooltip } from 'antd';
 
@@ -46,6 +47,8 @@ const eventTypeMapper = {
 	client_delete: 'Client Deleted',
 	createFile_create: 'File Created',
 	createFile_delete: 'File Deleted',
+	template_create: 'Template Created',
+	template_delete: 'Template Deleted',
 
 	// actions
 	sendMessage: 'Send Message',
@@ -147,17 +150,14 @@ export const TriggerNode = ({ data }) => {
 };
 
 export const ActionNode = ({ data }) => {
-	const [info, setInfo] = useState({
-		deleteModal: false,
-	});
-
-	const handleCloseDeleteModal = useCallback(() => {
-		setInfo((prev) => ({ ...prev, deleteModal: false }));
-	}, [info]);
-
 	const openDeleteModal = useCallback(() => {
-		setInfo((prev) => ({ ...prev, deleteModal: true }));
-	}, [info]);
+		if (data?.onToolBarOpen) {
+			data.onToolBarOpen({
+				deleteModalOpen: true,
+				deleteStepData: data?.currentStep,
+			});
+		}
+	}, [data]);
 
 	const onActionNodeClick = useCallback(() => {
 		if (data?.onToolBarOpen) {
@@ -174,7 +174,21 @@ export const ActionNode = ({ data }) => {
 	return (
 		<Tooltip
 			placement="right"
-			title={<HoverComponentForNodes openDeleteModal={openDeleteModal} />}
+			title={
+				<HoverComponentForNodes
+					openDeleteModal={openDeleteModal}
+					isHidden={data?.currentStep?.isHidden}
+					onHideClick={() => {
+						data?.changePipelineVisibility(
+							data?.currentStep?._id,
+							!data?.currentStep?.isHidden,
+						);
+					}}
+					onDuplicateClick={() => {
+						data?.duplicateStep(data?.currentStep?._id);
+					}}
+				/>
+			}
 			arrow={false}
 			rootClassName="customNodesToolTip"
 		>
@@ -206,31 +220,20 @@ export const ActionNode = ({ data }) => {
 				</div>
 				<Handle type="source" position={Position.Bottom} />
 				<Handle type="target" position={Position.Top} />
-
-				<UpdatedDeleteWorkflowStep
-					modalIsOpen={info?.deleteModal}
-					closeModal={handleCloseDeleteModal}
-					automationId={data?.automationId}
-					stepId={data?.currentStep?._id}
-					stepData={data?.currentStep}
-					stepsMapper={data?.stepsMapper}
-				/>
 			</div>
 		</Tooltip>
 	);
 };
 
 export const ConditionNode = ({ data }) => {
-	const [info, setInfo] = useState({
-		deleteModal: false,
-	});
-	const handleCloseDeleteModal = useCallback(() => {
-		setInfo((prev) => ({ ...prev, deleteModal: false }));
-	}, [info]);
-
 	const openDeleteModal = useCallback(() => {
-		setInfo((prev) => ({ ...prev, deleteModal: true }));
-	}, [info]);
+		if (data?.onToolBarOpen) {
+			data.onToolBarOpen({
+				deleteModalOpen: true,
+				deleteStepData: data?.currentStep,
+			});
+		}
+	}, [data]);
 
 	const onConditionNodeClick = useCallback(() => {
 		if (data?.onToolBarOpen) {
@@ -246,7 +249,22 @@ export const ConditionNode = ({ data }) => {
 	return (
 		<Tooltip
 			placement="right"
-			title={<HoverComponentForNodes openDeleteModal={openDeleteModal} />}
+			title={
+				<HoverComponentForNodes
+					openDeleteModal={openDeleteModal}
+					isHidden={data?.currentStep?.isHidden}
+					onHideClick={() => {
+						data?.changePipelineVisibility(
+							data?.currentStep?._id,
+							!data?.currentStep?.isHidden,
+						);
+					}}
+					onDuplicateClick={() => {
+						data?.duplicateStep(data?.currentStep?._id);
+					}}
+					showDuplicate={false}
+				/>
+			}
 			arrow={false}
 			rootClassName="customNodesToolTip"
 		>
@@ -269,14 +287,6 @@ export const ConditionNode = ({ data }) => {
 				</div>
 				<Handle type="source" position={Position.Bottom} />
 				<Handle type="target" position={Position.Top} />
-				<UpdatedDeleteWorkflowStep
-					modalIsOpen={info?.deleteModal}
-					closeModal={handleCloseDeleteModal}
-					automationId={data?.automationId}
-					stepId={data?.currentStep?._id}
-					stepData={data?.currentStep}
-					stepsMapper={data?.stepsMapper}
-				/>
 			</div>
 		</Tooltip>
 	);
@@ -295,15 +305,48 @@ export const EndNode = ({ data }) => {
 	);
 };
 
-const HoverComponentForNodes = ({ openDeleteModal }) => {
+const HoverComponentForNodes = ({
+	openDeleteModal,
+	isHidden,
+	onHideClick,
+	onDuplicateClick,
+	showDuplicate = true,
+}) => {
+	const hideTimeoutRef = useRef();
+	const duplicateTimeoutRef = useRef();
+
+	const handleDebouncedHide = useCallback(() => {
+		if (hideTimeoutRef.current) {
+			clearTimeout(hideTimeoutRef.current);
+		}
+		hideTimeoutRef.current = setTimeout(() => {
+			onHideClick();
+		}, 500);
+	}, [onHideClick]);
+
+	const handleDebouncedDuplicate = useCallback(() => {
+		if (duplicateTimeoutRef.current) {
+			clearTimeout(duplicateTimeoutRef.current);
+		}
+		duplicateTimeoutRef.current = setTimeout(() => {
+			onDuplicateClick();
+		}, 500);
+	}, [onDuplicateClick]);
+
 	return (
 		<div className="rightNodeToolBar">
 			<span>
-				<Eye />
+				{isHidden ? (
+					<CrossedOpenEye onClick={handleDebouncedHide} />
+				) : (
+					<OpenEye onClick={handleDebouncedHide} />
+				)}
 			</span>
-			<span>
-				<Copy />
-			</span>
+			{showDuplicate && (
+				<span onClick={handleDebouncedDuplicate}>
+					<Copy />
+				</span>
+			)}
 			<span onClick={openDeleteModal}>
 				<Dustbin />
 			</span>
@@ -312,15 +355,14 @@ const HoverComponentForNodes = ({ openDeleteModal }) => {
 };
 
 export const SwitchNode = ({ data }) => {
-	const [info, setInfo] = useState({ deleteModal: false });
-
-	const handleCloseDeleteModal = useCallback(() => {
-		setInfo((prev) => ({ ...prev, deleteModal: false }));
-	}, []);
-
 	const openDeleteModal = useCallback(() => {
-		setInfo((prev) => ({ ...prev, deleteModal: true }));
-	}, []);
+		if (data?.onToolBarOpen) {
+			data.onToolBarOpen({
+				deleteModalOpen: true,
+				deleteStepData: data?.currentStep,
+			});
+		}
+	}, [data]);
 
 	const onSwitchNodeClick = useCallback(() => {
 		if (data?.onToolBarOpen) {
@@ -336,7 +378,22 @@ export const SwitchNode = ({ data }) => {
 	return (
 		<Tooltip
 			placement="right"
-			title={<HoverComponentForNodes openDeleteModal={openDeleteModal} />}
+			title={
+				<HoverComponentForNodes
+					openDeleteModal={openDeleteModal}
+					isHidden={data?.currentStep?.isHidden}
+					onHideClick={() => {
+						data?.changePipelineVisibility(
+							data?.currentStep?._id,
+							!data?.currentStep?.isHidden,
+						);
+					}}
+					onDuplicateClick={() => {
+						data?.duplicateStep(data?.currentStep?._id);
+					}}
+					showDuplicate={false}
+				/>
+			}
 			arrow={false}
 			rootClassName="customNodesToolTip"
 		>
@@ -358,29 +415,20 @@ export const SwitchNode = ({ data }) => {
 				</div>
 				<Handle type="source" position={Position.Bottom} />
 				<Handle type="target" position={Position.Top} />
-				<UpdatedDeleteWorkflowStep
-					modalIsOpen={info?.deleteModal}
-					closeModal={handleCloseDeleteModal}
-					automationId={data?.automationId}
-					stepId={data?.currentStep?._id}
-					stepData={data?.currentStep}
-					stepsMapper={data?.stepsMapper}
-				/>
 			</div>
 		</Tooltip>
 	);
 };
 
 export const DelayNode = ({ data }) => {
-	const [info, setInfo] = useState({ deleteModal: false });
-
-	const handleCloseDeleteModal = useCallback(() => {
-		setInfo((prev) => ({ ...prev, deleteModal: false }));
-	}, []);
-
 	const openDeleteModal = useCallback(() => {
-		setInfo((prev) => ({ ...prev, deleteModal: true }));
-	}, []);
+		if (data?.onToolBarOpen) {
+			data.onToolBarOpen({
+				deleteModalOpen: true,
+				deleteStepData: data?.currentStep,
+			});
+		}
+	}, [data]);
 
 	const onDelayNodeClick = useCallback(() => {
 		if (data?.onToolBarOpen) {
@@ -396,7 +444,21 @@ export const DelayNode = ({ data }) => {
 	return (
 		<Tooltip
 			placement="right"
-			title={<HoverComponentForNodes openDeleteModal={openDeleteModal} />}
+			title={
+				<HoverComponentForNodes
+					openDeleteModal={openDeleteModal}
+					isHidden={data?.currentStep?.isHidden}
+					onHideClick={() => {
+						data?.changePipelineVisibility(
+							data?.currentStep?._id,
+							!data?.currentStep?.isHidden,
+						);
+					}}
+					onDuplicateClick={() => {
+						data?.duplicateStep(data?.currentStep?._id);
+					}}
+				/>
+			}
 			arrow={false}
 			rootClassName="customNodesToolTip"
 		>
@@ -419,19 +481,7 @@ export const DelayNode = ({ data }) => {
 				</div>
 				<Handle type="source" position={Position.Bottom} />
 				<Handle type="target" position={Position.Top} />
-				<UpdatedDeleteWorkflowStep
-					modalIsOpen={info?.deleteModal}
-					closeModal={handleCloseDeleteModal}
-					automationId={data?.automationId}
-					stepId={data?.currentStep?._id}
-					stepData={data?.currentStep}
-					stepsMapper={data?.stepsMapper}
-				/>
 			</div>
 		</Tooltip>
 	);
 };
-
-// const TriggerNode = ({ data }) => {
-// 	return <div className="trigger-node">Trigger Node</div>;
-// };

@@ -18,9 +18,8 @@ import WorkspaceListComponent from './Workspace';
 import useLogout from '../../hooks/useLogout';
 import { message, Tooltip } from 'antd';
 import Notifications from './notifications/Notifications';
-import Chats from './chats/Chats';
-
 import Context from '../../../context/context';
+import ChatHistory from './chatHistory/ChatHistory';
 
 const MODULE_NAME_MAP = {
 	'conversational agent': 'conversationalAgent',
@@ -52,6 +51,7 @@ const OpenedSideBarHoverStateIcons = ({
 	setShowNotificationsDrawer,
 	setShowChatsDrawer,
 	setShowNotesDrawer,
+	setHideClosedSidebarIcon,
 }) => {
 	let {
 		aiSetup: { isVoiceIntegrationActive },
@@ -83,6 +83,7 @@ const OpenedSideBarHoverStateIcons = ({
 		}
 		if (name === 'Chats') {
 			setShowChatsDrawer((prev) => !prev);
+			// setHideClosedSidebarIcon(true);
 		} else {
 			setShowChatsDrawer(false);
 		}
@@ -101,7 +102,6 @@ const OpenedSideBarHoverStateIcons = ({
 		const routePath = route?.replace(/\/$/, '');
 		return currentPath === routePath;
 	}, [location.pathname, route]);
-
 	return (
 		<div
 			style={{
@@ -141,9 +141,7 @@ const OpenedSideBarHoverStateIcons = ({
 					}}
 				>
 					<p>{name}</p>
-					{Icon && (
-						<Icon fill={isExactPathMatch() ? '#FFF' : isHover ? '#FFF' : '#FFF'} />
-					)}
+					{Icon && <Icon fill={'var(--primary-font)'} />}
 				</div>
 				{isDropdownVisible && subModules?.length > 0 && (
 					<div>
@@ -268,8 +266,8 @@ const AiModulesList = ({ image, name, route, navigateTo }) => {
 			<p
 				onClick={redirectToFunction}
 				style={{
-					color: '#E8E8E8',
-					fontFamily: 'Inter',
+					color: 'var(--primary-font)',
+					fontFamily: 'var(--primary-font-family)',
 					fontSize: '14px',
 					fontStyle: 'normal',
 					fontWeight: '500',
@@ -293,6 +291,7 @@ const OpenedSideBarItemsComponent = ({
 	setShowNotificationsDrawer,
 	setShowChatsDrawer,
 	setShowNotesDrawer,
+	setHideClosedSidebarIcon,
 }) => {
 	const {
 		templates: { leftSidebarState, updateStateValues },
@@ -364,7 +363,7 @@ const OpenedSideBarItemsComponent = ({
 		// e.stopPropagation();
 		setsidebarStates({ ...sidebarStates, navStyle: 'close' });
 		setIsOpen(false);
-		setShowChatsDrawer(false);
+		// setShowChatsDrawer(false);
 	};
 
 	const handleChatSelect = (chatName) => {
@@ -487,8 +486,8 @@ const OpenedSideBarItemsComponent = ({
 											cursor: 'pointer',
 											position: 'sticky',
 											top: '0',
-											backgroundColor: '#202123',
 											zIndex: '1000',
+											background: 'var(--card)',
 										}}
 									>
 										<div
@@ -520,7 +519,6 @@ const OpenedSideBarItemsComponent = ({
 												style={{ height: '16px', width: '16px' }}
 											/>
 										</div>
-										{/* <NotificationSvg /> */}
 										<Tooltip
 											title="Close Sidebar"
 											placement="right"
@@ -529,8 +527,8 @@ const OpenedSideBarItemsComponent = ({
 												padding: '6px 10px',
 												borderRadius: '10px',
 												fontSize: '14px',
-												background: '#E8E8E8',
-												color: '#202123',
+												background: 'var(--card)',
+												color: 'var(--primary-font)',
 												textAlign: 'center',
 												marginLeft: '12px',
 											}}
@@ -562,7 +560,7 @@ const OpenedSideBarItemsComponent = ({
 													marginLeft: '10px',
 													border: 'none',
 													zIndex: '1000',
-													background: '#202123',
+													background: 'var(--card)',
 													borderRadius: '16px',
 													animation: 'slideDown 0.3s ease-out',
 													transformOrigin: 'top',
@@ -580,8 +578,10 @@ const OpenedSideBarItemsComponent = ({
 											<>
 												<hr
 													style={{
-														border: '0.7px solid #333334',
-														margin: '16px 0px',
+														border: '0.1px solid var(--stroke)',
+														opacity: '.4',
+														width: '212px',
+														alignSelf: 'center',
 													}}
 												/>
 
@@ -631,8 +631,10 @@ const OpenedSideBarItemsComponent = ({
 
 												<hr
 													style={{
-														border: '0.7px solid #333334',
-														margin: '16px 0px',
+														border: '0.1px solid var(--stroke)',
+														opacity: '.4',
+														width: '212px',
+														alignSelf: 'center',
 													}}
 												/>
 
@@ -676,6 +678,12 @@ const OpenedSideBarItemsComponent = ({
 																setShowNotificationsDrawer
 															}
 															setShowNotesDrawer={setShowNotesDrawer}
+															handleSidebarCollapse={
+																handleSidebarCollapse
+															}
+															setHideClosedSidebarIcon={
+																setHideClosedSidebarIcon
+															}
 														/>
 													</div>
 												))}
@@ -684,10 +692,54 @@ const OpenedSideBarItemsComponent = ({
 									</div>
 								</div>
 
-								<div className="bottomOptionsList">
-									{
-										<>
-											{/* <div className="planExpiresDiv">
+								{/* <div className="bottomOptionsList"> */}
+								{/* <div className="creditsLeft">
+										<div>
+											<div className="credits">100</div>
+											<div className="content">Credits Left This Month</div>
+										</div>
+										<div className="creditSvg">
+											<svg width="30" height="30" viewBox="0 0 30 30">
+												<defs>
+													<linearGradient
+														id="paint0_linear_14532_74799"
+														x1="-0.661765"
+														y1="2.69729e-07"
+														x2="30.4666"
+														y2="1.98941"
+														gradientUnits="userSpaceOnUse"
+													>
+														<stop
+															offset="0.000100017"
+															stop-color="#C39DF8"
+														/>
+														<stop offset="1" stop-color="#EC7C9D" />
+													</linearGradient>
+												</defs>
+												<circle
+													cx="15"
+													cy="15"
+													r="12.5"
+													fill="none"
+													stroke="#333334"
+													strokeWidth="5"
+												/>
+												<circle
+													cx="15"
+													cy="15"
+													r="12.5"
+													fill="none"
+													stroke="url(#paint0_linear_14532_74799)"
+													strokeWidth="5"
+													strokeDasharray={`${(100 / 100) * 78.54} 78.54`}
+													transform="rotate(-90 15 15)"
+												/>
+											</svg>
+										</div>
+									</div> */}
+								{
+									<>
+										{/* <div className="planExpiresDiv">
 									<div
 										style={{
 											width: '100%',
@@ -719,69 +771,9 @@ const OpenedSideBarItemsComponent = ({
 										</button>
 									</div>
 								</div> */}
-											{/* <div className="creditsLeft">
-									<div>
-										<div
-											style={{
-												fontSize: '14px',
-												fontWeight: '500',
-												color: '#E8E8E8',
-											}}
-										>
-											100
-										</div>
-										<div
-											style={{
-												fontSize: '14px',
-												fontWeight: '400',
-												color: '#939393',
-											}}
-										>
-											Credits Left This Month
-										</div>
-									</div>
-									<div className="creditSvg">
-										<svg width="30" height="30" viewBox="0 0 30 30">
-											<defs>
-												<linearGradient
-													id="paint0_linear_14532_74799"
-													x1="-0.661765"
-													y1="2.69729e-07"
-													x2="30.4666"
-													y2="1.98941"
-													gradientUnits="userSpaceOnUse"
-												>
-													<stop
-														offset="0.000100017"
-														stop-color="#C39DF8"
-													/>
-													<stop offset="1" stop-color="#EC7C9D" />
-												</linearGradient>
-											</defs>
-											<circle
-												cx="15"
-												cy="15"
-												r="12.5"
-												fill="none"
-												stroke="#333334"
-												strokeWidth="5"
-											/>
-											<circle
-												cx="15"
-												cy="15"
-												r="12.5"
-												fill="none"
-												stroke="url(#paint0_linear_14532_74799)"
-												strokeWidth="5"
-												strokeDasharray={`${(100 / 100) * 78.54} 78.54`}
-												transform="rotate(-90 15 15)"
-											/>
-										</svg>
-									</div>
-								</div> */}
-										</>
-									}
-									{bottomOptionsList?.map((singleItems, index) => (
+									</>
+								}
+								{/* {bottomOptionsList?.map((singleItems, index) => (
 										<OpenedSideBarHoverStateIcons2
 											name={singleItems?.name}
 											Icon={singleItems?.icon}
@@ -800,8 +792,8 @@ const OpenedSideBarItemsComponent = ({
 												padding: '12px 16px',
 											}}
 										/>
-									))}
-								</div>
+									))} */}
+								{/* </div> */}
 							</div>
 						</>
 					)}
@@ -810,8 +802,8 @@ const OpenedSideBarItemsComponent = ({
 							className="chatDetailPanel"
 							style={{
 								width: isMobile ? '100%' : '300px',
-								backgroundColor: '#1E1E1E',
-								borderLeft: !isMobile ? '1px solid #333334' : 'none',
+								backgroundColor: 'var(--card)',
+								borderLeft: !isMobile ? '1px solid var(--stroke)' : 'none',
 								padding: '20px',
 								position: isMobile ? 'fixed' : 'absolute',
 								left: isMobile ? '0' : '100%',
@@ -828,7 +820,7 @@ const OpenedSideBarItemsComponent = ({
 									marginBottom: '20px',
 								}}
 							>
-								<h2 style={{ color: '#E8E8E8' }}>{selectedChat}</h2>
+								<h2 style={{ color: 'var(--primary-font)' }}>{selectedChat}</h2>
 								<CrossSvg
 									style={{ cursor: 'pointer' }}
 									onClick={handleCloseChatPanel}

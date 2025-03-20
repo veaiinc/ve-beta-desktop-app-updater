@@ -15,7 +15,7 @@
 		gap: 24px;
 		align-self: stretch;
 		border-radius: 16px;
-		border: 1px solid rgba(36, 36, 36, 0.64);
+		border: 1px solid var(--stroke);
 		background: #191919;
 		overflow-y: auto;
 		overflow-x: hidden;
@@ -29,8 +29,8 @@
 			align-items: center;
 			height: 100%;
 			align-self: stretch;
-			color: #e4e5e6;
-			font-family: Inter;
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
 			font-size: 12px;
 			font-style: normal;
 			font-weight: 600;
@@ -57,8 +57,8 @@
 					align-self: stretch;
 
 					.categoryText {
-						color: #7d7d7d;
-						font-family: Inter;
+						color: var(--secondary-font);
+						font-family: var(--primary-font-family);
 						font-size: 14px;
 						font-style: normal;
 						font-weight: 500;
@@ -67,8 +67,8 @@
 				}
 
 				.eventName {
-					color: #e4e5e6;
-					font-family: Inter;
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 500;
@@ -108,8 +108,8 @@
 				grid-template-columns: 1fr 3fr;
 
 				.detailsTitle {
-					color: rgba(228, 229, 230, 0.48);
-					font-family: Inter;
+					color: var(--secondary-font);
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 400;
@@ -119,9 +119,9 @@
 
 				.detailsValue {
 					overflow: hidden;
-					color: #e4e5e6;
+					color: var(--primary-font);
 					text-overflow: ellipsis;
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 500;
@@ -149,8 +149,8 @@
 				justify-content: space-between;
 
 				h3 {
-					color: #e4e5e6;
-					font-family: Inter;
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 500;
@@ -167,7 +167,7 @@
 					gap: 10px;
 					border-radius: 69px;
 					background: rgba(255, 255, 255, 0.05);
-					color: #ffffff;
+					color: var(--primary-font);
 				}
 			}
 
@@ -179,17 +179,17 @@
 				align-self: stretch;
 				border-radius: 10px;
 				border: 1px solid #292929;
-				color: #e4e5e6;
+				color: var(--primary-font);
 				background-color: transparent;
 				white-space: nowrap;
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 400;
 				line-height: 16px; /* 133.333% */
 
 				&::placeholder {
-					color: rgba(228, 229, 230, 0.48);
+					color: var(--secondary-font);
 				}
 			}
 
@@ -219,9 +219,9 @@
 
 						.name {
 							overflow: hidden;
-							color: #e4e5e6;
+							color: var(--primary-font);
 							text-overflow: ellipsis;
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 14px;
 							font-style: normal;
 							font-weight: 500;
@@ -230,9 +230,9 @@
 
 						.role {
 							overflow: hidden;
-							color: rgba(228, 229, 230, 0.48);
+							color: var(--secondary-font);
 							text-overflow: ellipsis;
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 12px;
 							font-style: normal;
 							font-weight: 400;
@@ -259,8 +259,8 @@
 				gap: 8px;
 
 				h3 {
-					color: #e4e5e6;
-					font-family: Inter;
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 500;
@@ -276,8 +276,8 @@
 				align-self: stretch;
 				border-radius: 8px;
 				border: 1px solid #292929;
-				color: #e4e5e6;
-				font-family: Inter;
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 500;
@@ -310,8 +310,8 @@
 						justify-content: center;
 						align-items: center;
 						gap: 10px;
-						color: #7d7d7d;
-						font-family: Inter;
+						color: var(--secondary-font);
+						font-family: var(--primary-font-family);
 						font-size: 12px;
 						font-style: normal;
 						font-weight: 400;
@@ -319,8 +319,8 @@
 						cursor: pointer;
 
 						&.active {
-							color: #e4e5e6;
-							border-bottom: 1px solid #e4e5e6;
+							color: var(--primary-font);
+							border-bottom: 1px solid var(--primary-font);
 						}
 					}
 				}
@@ -344,7 +344,7 @@
 					align-items: flex-start;
 					gap: 12px;
 					border-radius: 16px;
-					background: #212121;
+					background: var(--background-color);
 					flex-shrink: 0;
 					cursor: pointer;
 
@@ -388,10 +388,10 @@
 						overflow: hidden;
 
 						&.notesTitle {
-							color: #e4e5e6;
+							color: var(--primary-font);
 							text-align: justify;
 							text-overflow: ellipsis;
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 12px;
 							font-style: normal;
 							font-weight: 600;
@@ -399,11 +399,11 @@
 						}
 
 						&.notesDescription {
-							color: rgba(228, 229, 230, 0.48);
+							color: var(--secondary-font);
 							text-align: justify;
 							text-wrap: balance;
 							text-overflow: ellipsis;
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 12px;
 							font-style: normal;
 							font-weight: 400;

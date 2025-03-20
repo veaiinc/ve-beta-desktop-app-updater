@@ -5,10 +5,23 @@ import HeaderComponent from './HeaderComponent';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { FetchMoreLoaderComp } from '../../../../helpers';
 import ActionDetailsBlock from './ActionDetailsBlock';
+import Spinner from '../../loaders/Spinner';
 
-const FormResponseTrigger = ({ onClose, onSave, addTriggerLoading, triggerData }) => {
+const FormResponseTrigger = ({
+	onClose,
+	onSave,
+	addTriggerLoading,
+	triggerData,
+	activeStepsData,
+}) => {
 	const {
-		templates: { getMyWorkflows, myWorkflows, myMoreWorkflows },
+		templates: {
+			getMyWorkflows,
+			myWorkflows,
+			myMoreWorkflows,
+			getSpecificTemplatesInfo,
+			specificTemplatesInfo,
+		},
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -20,7 +33,33 @@ const FormResponseTrigger = ({ onClose, onSave, addTriggerLoading, triggerData }
 		selectedTemplate: null,
 		title: '',
 		description: '',
+		selectedTemplateLoading: false,
 	});
+
+	useEffect(() => {
+		if (activeStepsData) {
+			setInfo((prev) => ({
+				...prev,
+				title: activeStepsData?.title,
+				description: activeStepsData?.description,
+				selectedTemplate: null,
+				selectedTemplateLoading: true,
+			}));
+			getSpecificTemplatesInfo({
+				templateInfoId: activeStepsData?.workflowTemplateId,
+			});
+		}
+	}, [activeStepsData]);
+
+	useEffect(() => {
+		if (activeStepsData && specificTemplatesInfo) {
+			setInfo((prev) => ({
+				...prev,
+				selectedTemplate: specificTemplatesInfo,
+				selectedTemplateLoading: false,
+			}));
+		}
+	}, [specificTemplatesInfo, activeStepsData]);
 
 	useEffect(() => {
 		getMyWorkflowTemplatesData(1);
@@ -215,6 +254,8 @@ const FormResponseTrigger = ({ onClose, onSave, addTriggerLoading, triggerData }
 									</button>
 								</div>
 							</div>
+						) : info?.selectedTemplateLoading ? (
+							<Spinner cssstyle={{ margin: '0 auto' }} />
 						) : (
 							<>
 								<button

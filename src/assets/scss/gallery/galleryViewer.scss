@@ -8,7 +8,7 @@
 		cursor: pointer;
 	}
 	p {
-		color: #fff;
+		color: var(--primary-font);
 		font-size: 14px;
 		font-weight: 500;
 		line-height: 17px;
@@ -50,7 +50,7 @@
 				cursor: pointer;
 			}
 			&.active {
-				border: 2px solid #6055ec;
+				border: 2px solid var(--accent-color);
 				border-radius: 8px;
 				padding: 2px;
 			}
@@ -118,8 +118,8 @@
 				align-items: center;
 				gap: 24px;
 				border-radius: 28px;
-				border: 1px solid rgba(0, 0, 0, 0.7);
-				background: rgba(255, 255, 255, 0.05);
+				border: 1px solid var(--stroke);
+				background: var(--card);
 				cursor: pointer;
 			}
 			.gallerySelectionContainer {
@@ -127,7 +127,7 @@
 				flex-direction: column;
 				gap: 22px;
 				p {
-					color: #fff;
+					color: var(--primary-font);
 					font-size: 11px;
 					font-weight: 500;
 					line-height: 14px;
@@ -142,9 +142,9 @@
 					align-items: flex-start;
 					gap: 8px;
 					border-radius: 16px;
-					border: 1px solid rgba(244, 244, 244, 0.7);
-					background: rgba(255, 255, 255, 0.15);
-					box-shadow: 2px 2px 2px 0px rgba(0, 0, 0, 0.06);
+					border: 1px solid var(--stroke);
+					background: var(--card);
+					box-shadow: 2px 2px 2px 0px var(--card);
 					overflow: auto;
 
 					.clientSelectionImages {
@@ -161,7 +161,7 @@
 							}
 							p {
 								overflow: hidden;
-								color: #979797;
+								color: var(--secondary-font);
 								text-align: center;
 								text-overflow: ellipsis;
 								white-space: nowrap;
@@ -180,9 +180,9 @@
 					align-items: flex-start;
 					gap: 8px;
 					border-radius: 16px;
-					border: 1px solid rgba(244, 244, 244, 0.7);
-					background: rgba(255, 255, 255, 0.15);
-					box-shadow: 2px 2px 2px 0px rgba(0, 0, 0, 0.06);
+					border: 1px solid var(--stroke);
+					background: var(--card);
+					box-shadow: 2px 2px 2px 0px var(--card);
 					.peopleHeader {
 						display: flex;
 						align-items: center;
@@ -191,7 +191,7 @@
 							width: 24px;
 							height: 24px;
 							border-radius: 100px;
-							background-color: #111;
+							background-color: var(--background-color);
 							display: flex;
 							justify-content: center;
 							align-items: center;
@@ -205,7 +205,7 @@
 							width: 48px;
 							height: 48px;
 							border-radius: 100px;
-							background-color: #111;
+							background-color: var(--background-color);
 							overflow: hidden;
 							position: relative;
 							img {
@@ -222,9 +222,9 @@
 					align-items: flex-start;
 					gap: 16px;
 					border-radius: 16px;
-					border: 1px solid rgba(244, 244, 244, 0.7);
-					background: rgba(255, 255, 255, 0.15);
-					box-shadow: 2px 2px 2px 0px rgba(0, 0, 0, 0.06);
+					border: 1px solid var(--stroke);
+					background: var(--card);
+					box-shadow: 2px 2px 2px 0px var(--card);
 					.labelsHeader {
 						display: flex;
 						width: 100%;
@@ -240,7 +240,7 @@
 								width: 24px;
 								height: 24px;
 								border-radius: 100px;
-								background-color: #111;
+								background-color: var(--background-color);
 								svg {
 									width: 13px;
 								}
@@ -264,7 +264,7 @@
 								border: none;
 								outline: none;
 								background-color: transparent;
-								color: #fff;
+								color: var(--white);
 							}
 
 							svg {
@@ -275,7 +275,7 @@
 						.line {
 							width: 100%;
 							height: 1px;
-							background-color: gray;
+							background-color: var(--secondary-font);
 						}
 
 						.labelsList {
@@ -289,11 +289,11 @@
 								padding: 10px 16px;
 
 								.checkboxText {
-									color: #fff;
+									color: var(--white);
 									overflow: hidden;
 									text-overflow: ellipsis;
 									white-space: nowrap;
-									font-family: Inter;
+									font-family: var(--primary-font-family);
 									font-size: 12px;
 									font-style: normal;
 									font-weight: 400;
@@ -307,7 +307,7 @@
 			}
 			.shareIcon {
 				path {
-					fill: #fff;
+					fill: var(--primary-font);
 				}
 			}
 		}

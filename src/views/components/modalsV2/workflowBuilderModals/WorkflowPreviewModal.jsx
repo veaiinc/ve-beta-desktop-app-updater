@@ -25,7 +25,7 @@ const WorkflowPreviewModal = ({ modalIsOpen, closeModal, incomingTemplateData, p
 								<span
 									style={{
 										color: '#E4E5E6',
-										fontFamily: 'Inter',
+										fontFamily: 'var(--primary-font-family)',
 										fontSize: '14px',
 										fontStyle: 'normal',
 										fontWeight: '500',

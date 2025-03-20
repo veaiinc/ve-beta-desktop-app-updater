@@ -21,6 +21,8 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 	const editor = useCreateBlockNote();
 	const [info, setInfo] = useState({
 		timeout: null,
+		titleTimeout: null,
+		title: '',
 	});
 
 	const { noteId } = useParams();
@@ -33,10 +35,11 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 
 	useEffect(() => {
 		if (notesPageData) {
-			const { blocks = [] } = notesPageData || {};
+			const { blocks = [], title = '' } = notesPageData || {};
 			if (blocks?.length) {
 				loadNotesContent(blocks);
 			}
+			setInfo((prev) => ({ ...prev, title }));
 		}
 	}, [notesPageData]);
 
@@ -75,16 +78,44 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 		[info, noteId],
 	);
 
+	const handleTitleChange = (e) => {
+		setInfo((prev) => ({ ...prev, title: e?.target?.value }));
+		// clearTimeout(info?.titleTimeout);
+		// const titleTimeout = setTimeout(() => {
+		// 	saveNotesdata({
+		// 		pageId: noteId,
+		// 		title: e?.target?.value,
+		// 	});
+		// }, 500);
+
+		// setInfo((prev) => ({ ...prev, titleTimeout }));
+	};
+
 	return (
 		<div className="notes-container" style={outerContainerStyle || {}}>
-			<BlockNoteView
-				editor={editor}
-				formattingToolbar={false}
-				onChange={onChange}
-				style={innerContainerStyle || {}}
-			>
-				<NoteToolbar />
-			</BlockNoteView>
+			<div className="notes-nav-menu">
+				{/* <span className="notes-nav-menu-item-last-edited">Edited 5 min ago</span> */}
+				{/* <button className="notes-nav-menu-item-comment">Comment</button> */}
+				{/* <button className="notes-nav-menu-item-share">Share</button>  // Todo: uncomment when share api is ready */}
+				{/* <button className="notes-nav-menu-item-more">...</button> */}
+			</div>
+			<div className="notes-editor-container">
+				<div className="notes-editor-wrapper">
+					<input
+						className="notes-title"
+						value={info?.title}
+						onChange={handleTitleChange}
+					/>
+					<BlockNoteView
+						editor={editor}
+						formattingToolbar={false}
+						onChange={onChange}
+						style={innerContainerStyle || {}}
+					>
+						<NoteToolbar />
+					</BlockNoteView>
+				</div>
+			</div>
 		</div>
 	);
 };

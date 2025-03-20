@@ -1,6 +1,6 @@
 .unsendModalParentContainer {
 	width: 420px;
-	background: rgb(21, 21, 21);
+	background: var(--background-color);
 	overflow: auto;
 	border-radius: 40px;
 	outline: none;
@@ -19,8 +19,8 @@
 		align-self: stretch;
 		gap: 24px;
 		.headerQuestion {
-			color: #e4e5e6;
-			font-family: Inter;
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
 			font-size: 18px;
 			font-style: normal;
 			font-weight: 500;
@@ -39,9 +39,9 @@
 			justify-content: center;
 			align-items: center;
 			border-radius: 20px;
-			background: #1c1c1c;
-			color: #fff;
-			font-family: Inter;
+			background: var(--background-color);
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
 			font-size: 12px;
 			font-style: normal;
 			font-weight: 500;
@@ -55,7 +55,7 @@
 			border-radius: 20px;
 			background: #6055ec;
 			color: #fff;
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 12px;
 			font-style: normal;
 			font-weight: 500;

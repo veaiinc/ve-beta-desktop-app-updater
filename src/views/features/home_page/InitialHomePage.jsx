@@ -7,12 +7,12 @@ import HomePage from './HomePage';
 import ChatBox from '../../components/homePage/ChatBox';
 import { useNavigate } from 'react-router-dom';
 import ObjectID from 'bson-objectid';
-const initialHomePageOptions = [
-	// { id: 1, title: 'All Prompts', type: 'all' },
-	// { id: 2, title: 'Sales', type: 'sales' },
-	// { id: 3, title: 'Marketing', type: 'marketing' },
-	// { id: 4, title: 'Operations', type: 'operations' },
-];
+// const initialHomePageOptions = [
+// 	{ id: 1, title: 'All Prompts', type: 'all' },
+// 	{ id: 2, title: 'Sales', type: 'sales' },
+// 	{ id: 3, title: 'Marketing', type: 'marketing' },
+// 	{ id: 4, title: 'Operations', type: 'operations' },
+// ];
 
 const navBarOptions = [
 	{ id: 1, title: 'Start', type: 'start' },
@@ -42,6 +42,7 @@ const InitialHomePage = () => {
 		profileInfo: { userDetailsData },
 		aiSetup: { getPromptsData, promptsData },
 	} = useContext(Context);
+
 	const username =
 		jwtDecode(localStorage.getItem('usertoken'))?.userName?.split(' ')[0] ??
 		`${userDetailsData?.firstName}` ??
@@ -130,7 +131,7 @@ const InitialHomePage = () => {
 								Ask me anything about your business or let me handle a task for you.
 							</div>
 						</div>
-						<div className="initialHomePageContainerOptions">
+						{/* <div className="initialHomePageContainerOptions">
 							{initialHomePageOptions?.map((item) => {
 								return (
 									<div
@@ -147,7 +148,7 @@ const InitialHomePage = () => {
 									</div>
 								);
 							})}
-						</div>
+						</div> */}
 					</div>
 					<div className="initialHomePageContainer-chatBox">
 						<div className="chatBoxWrapper">

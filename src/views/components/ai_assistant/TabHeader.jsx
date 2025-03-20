@@ -36,7 +36,7 @@ const TabHeader = ({ activeTab, onTabChange, tabs }) => {
 						...indicatorStyle,
 						width: '24px',
 						height: '2px',
-						backgroundColor: '#f2f2f3',
+						backgroundColor: 'var(--primary-font)',
 						position: 'absolute',
 						bottom: '-1px',
 						left: '0',

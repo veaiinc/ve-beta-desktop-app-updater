@@ -169,7 +169,7 @@ const Header = ({ title, hideQuickNav = false, activeWorkspaceId }) => {
 						overflow: 'hidden',
 						color: '#E4E5E6',
 						textOverflow: 'ellipsis',
-						fontFamily: 'Inter',
+						fontFamily: 'var(--primary-font-family)',
 						fontSize: '14px',
 						fontStyle: 'normal',
 						fontWeight: '400',

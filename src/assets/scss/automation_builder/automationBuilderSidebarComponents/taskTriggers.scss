@@ -22,10 +22,10 @@
 			display: flex;
 			padding: 12px 16px;
 			align-self: stretch;
-			background: #202123;
+			background: var(--card);
 			border: none;
-			color: #f2f2f3;
-			font-family: Inter;
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
 			font-size: 13px;
 			font-style: normal;
 			font-weight: 400;
@@ -46,8 +46,8 @@
 			gap: 12px;
 
 			.taskTriggerInputHeading {
-				color: #f2f2f3;
-				font-family: Inter;
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 500;
@@ -62,8 +62,8 @@
 				align-self: stretch;
 
 				.taskTriggerInputLabel {
-					color: #7a7e85;
-					font-family: Inter;
+					color: var(--secondary-font);
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 500;
@@ -75,7 +75,7 @@
 }
 
 .taskTriggerInputTooltip {
-	background-color: #202123;
+	background-color: var(--card);
 	padding: 12px;
 	border-radius: 6px;
 	display: flex;
@@ -85,8 +85,8 @@
 	width: 200px;
 
 	.taskTriggerInputTooltipItem {
-		color: #f2f2f3;
-		font-family: Inter;
+		color: var(--primary-font);
+		font-family: var(--primary-font-family);
 		font-size: 12px;
 		font-style: normal;
 		font-weight: 500;
@@ -96,19 +96,19 @@
 		cursor: pointer;
 
 		&:hover {
-			background-color: #2c2d2f;
+			background-color: var(--card);
 		}
 	}
 
 	.taskTriggerInputTooltipItemSelected {
-		background-color: #2c2d2f;
+		background-color: var(--card);
 	}
 }
 
 .taskTriggerInputTooltipTrigger {
 	min-height: 36px;
 	padding: 8px;
-	background: #202123;
+	background: var(--card);
 	border-radius: 6px;
 	display: flex;
 	flex-wrap: wrap;
@@ -121,10 +121,10 @@
 	display: flex;
 	align-items: center;
 	gap: 6px;
-	background: #2c2d2f;
+	background: var(--card);
 	padding: 4px 8px;
 	border-radius: 4px;
-	color: #f2f2f3;
+	color: var(--primary-font);
 	font-size: 12px;
 
 	.removeField {
@@ -134,13 +134,13 @@
 		padding: 0 2px;
 
 		&:hover {
-			color: #ff4d4f;
+			color: var(--error);
 		}
 	}
 }
 
 .taskTriggerInputTooltipTriggerPlaceholder {
-	color: #7a7e85;
+	color: var(--secondary-font);
 	font-size: 12px;
 	align-self: center;
 }

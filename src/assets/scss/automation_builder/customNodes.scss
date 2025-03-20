@@ -10,17 +10,12 @@
 		align-items: center;
 		gap: 4px;
 		border-radius: 12px 12px 0px 0px;
-		border-top: 1px solid #2c2d2e;
-		border-top: 1px solid color(display-p3 0.1719 0.1753 0.1787);
-		border-right: 1px solid #2c2d2e;
-		border-right: 1px solid color(display-p3 0.1719 0.1753 0.1787);
-		border-left: 1px solid #2c2d2e;
-		border-left: 1px solid color(display-p3 0.1719 0.1753 0.1787);
-		background: #202123;
-		background: color(display-p3 0.1249 0.1304 0.1358);
-		color: #797e86;
-		color: color(display-p3 0.4784 0.4941 0.5216);
-		font-family: Inter;
+		border-top: 1px solid var(--stroke);
+		border-right: 1px solid var(--stroke);
+		border-left: 1px solid var(--stroke);
+		background: var(--card);
+		color: var(--secondary-font);
+		font-family: var(--primary-font-family);
 		font-size: 14px;
 		font-style: normal;
 		font-weight: 500;
@@ -36,10 +31,8 @@
 		align-items: flex-start;
 		gap: 14px;
 		border-radius: 0px 12px 12px 12px;
-		border: 1px solid #2c2d2e;
-		border: 1px solid color(display-p3 0.1719 0.1753 0.1787);
-		background: #202123;
-		background: color(display-p3 0.1249 0.1304 0.1358);
+		border: 1px solid var(--stroke);
+		background: var(--card);
 		cursor: pointer;
 
 		.triggerIconContainer {
@@ -51,7 +44,7 @@
 			align-items: center;
 			flex-shrink: 0;
 			border-radius: 4px;
-			border: 0.706px solid #2c2d2e;
+			border: 0.706px solid var(--stroke);
 		}
 
 		.triggerAcutalContentContainer {
@@ -68,20 +61,19 @@
 				gap: 2px;
 				align-self: stretch;
 				padding-bottom: 12px;
-				border-bottom: 1px solid #2c2d2e;
+				border-bottom: 1px solid var(--stroke);
 
 				.triggerUpperContentTitle {
-					color: #f2f2f3;
-					color: color(display-p3 0.949 0.949 0.9529);
-					font-family: Inter;
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 600;
 					line-height: normal;
 				}
 				.triggerUpperContentSubtitle {
-					color: #f2f2f3;
-					font-family: Inter;
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 500;
@@ -97,8 +89,8 @@
 				align-self: stretch;
 
 				.triggerBottomContentTitle {
-					color: #f2f2f3;
-					font-family: Inter;
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 500;
@@ -106,8 +98,8 @@
 				}
 
 				.triggerBottomContentSubtitle {
-					color: #7a7e85;
-					font-family: Inter;
+					color: var(--secondary-font);
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 400;
@@ -126,25 +118,22 @@
 	align-items: flex-start;
 	gap: 16px;
 	border-radius: 12px;
-	border: 1px solid #2c2d2e;
-	border: 1px solid color(display-p3 0.1719 0.1753 0.1787);
-	background: #202123;
-	background: color(display-p3 0.1249 0.1304 0.1358);
+	border: 1px solid var(--stroke);
+	background: var(--card);
 
 	.upper-action-node-container {
 		display: flex;
 		justify-content: space-between;
 		align-items: flex-start;
 		align-self: stretch;
-		color: #f2f2f3;
-		color: color(display-p3 0.949 0.949 0.9529);
-		font-family: Inter;
+		color: var(--primary-font);
+		font-family: var(--primary-font-family);
 		font-size: 14px;
 		font-style: normal;
 		font-weight: 600;
 		line-height: normal;
 		padding-bottom: 12px;
-		border-bottom: 1px solid #2c2d2e;
+		border-bottom: 1px solid var(--stroke);
 	}
 
 	.lower-action-node-container {
@@ -155,18 +144,16 @@
 		align-self: stretch;
 
 		.lower-action-node-title {
-			color: #f2f2f3;
-			color: color(display-p3 0.949 0.949 0.9529);
-			font-family: Inter;
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
 			font-size: 12px;
 			font-style: normal;
 			font-weight: 500;
 			line-height: normal;
 		}
 		.lower-action-node-subtitle {
-			color: #797e86;
-			color: color(display-p3 0.4784 0.4941 0.5216);
-			font-family: Inter;
+			color: var(--secondary-font);
+			font-family: var(--primary-font-family);
 			font-size: 12px;
 			font-style: normal;
 			font-weight: 400;
@@ -203,12 +190,12 @@
 	gap: 16px;
 	flex-shrink: 0;
 	border-radius: 12px;
-	border: 1px solid #2c2d2e;
-	background: #202123;
+	border: 1px solid var(--stroke);
+	background: var(--card);
 
 	.start-trigger-node-title {
-		color: #f2f2f3;
-		font-family: Inter;
+		color: var(--primary-font);
+		font-family: var(--primary-font-family);
 		font-size: 14px;
 		font-style: normal;
 		font-weight: 500;

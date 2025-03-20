@@ -4,7 +4,7 @@
 	--background-color: rgba(12, 12, 13, 1);
 	--accent-color: rgba(179, 157, 250, 1);
 	--card: rgba(23, 24, 25, 1);
-	--card-hover: rgba(32, 33, 35, 1);
+	--card-hover: rgb(46, 47, 51);
 	--popup: rgba(32, 33, 35, 1);
 	--navbar: rgba(32, 33, 35, 1);
 	--card-over-card: rgba(32, 33, 35, 1);
@@ -33,6 +33,11 @@
 	--spinner-color-dark: #fff; // Example for dark theme
 	--setting-color-light: #fff;
 	--setting-color-dark: #000;
+
+	--error-color: #ff4d4f;
+	--success-bg: #375841;
+	--draft-bg: #373737;
+	// Add other color variables as needed
 }
 
 // dark theme global css variables

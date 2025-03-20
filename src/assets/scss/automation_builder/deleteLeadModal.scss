@@ -6,27 +6,26 @@
 	align-items: center;
 	gap: 32px;
 	border-radius: 24px;
-	border: var(--cartCount, 1px) solid #2b2b2b;
-	background: #151515;
-	box-shadow: 0px 4px 20px 0px rgba(17, 17, 17, 0.15);
+	border: 1px solid var(--stroke);
+	background: var(--card);
 
 	.deleteLeadTextContainer {
 		display: flex;
 		flex-direction: column;
 		gap: 8px;
 		.deleteLeadHeaderText {
-			color: #e4e5e6;
+			color: var(--primary-font);
 			text-align: center;
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 20px;
 			font-style: normal;
 			font-weight: 500;
 			line-height: 26px; /* 130% */
 		}
 		.deleteLeadSubtext {
-			color: rgba(228, 229, 230, 0.48);
+			color: var(--secondary-font);
 			text-align: center;
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 400;
@@ -45,10 +44,10 @@
 			align-items: center;
 			gap: var(--Spacing-space-8, 16px);
 			border-radius: 100px;
-			border: 1px solid rgba(36, 36, 36, 0.64);
-			background: rgba(42, 42, 42, 0.16);
-			color: #fff;
-			font-family: Inter;
+			border: 1px solid var(--stroke);
+			background: var(--popup);
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
 			font-size: 13px;
 			font-style: normal;
 			font-weight: 500;
@@ -63,8 +62,8 @@
 			align-items: center;
 			gap: var(--Spacing-space-8, 16px);
 			border-radius: 100px;
-			color: #9b9290;
-			font-family: Inter;
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
 			font-size: 13px;
 			font-style: normal;
 			font-weight: 500;

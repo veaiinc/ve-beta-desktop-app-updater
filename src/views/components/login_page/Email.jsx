@@ -220,7 +220,7 @@ const Email = ({ email, setEmail, setActiveStage, setEmailVerified }) => {
 						<Spinner
 							width="20px"
 							height="20px"
-							color="black"
+							color="var(--background-color)"
 							borderTopColor="transparent"
 						/>
 					)}
@@ -244,7 +244,9 @@ const Email = ({ email, setEmail, setActiveStage, setEmailVerified }) => {
 						style={{
 							cursor:
 								!info.isEmailValid || info.isLoading ? 'not-allowed' : 'pointer',
-							background: !info.isEmailValid ? 'rgba(255, 255, 255, 0.1)' : 'white',
+							background: !info.isEmailValid
+								? 'var(--card-over-card)'
+								: 'var(--primary-font)',
 						}}
 						onClick={() => handleContinueWithEmail(null, 'click')}
 					>
@@ -253,15 +255,23 @@ const Email = ({ email, setEmail, setActiveStage, setEmailVerified }) => {
 								width="20px"
 								height="20px"
 								borderTopColor="transparent"
-								color="black"
+								color="var(--background-color)"
 							/>
 						) : info?.isEmailValid ? (
 							<span ref={arrowRef}>
-								<UpArrowBlackHover />
+								<UpArrowBlackHover
+									style={{
+										stroke: 'var(--primary-font)',
+									}}
+								/>
 							</span>
 						) : (
 							<span ref={arrowRef}>
-								<UpArrowGrey />
+								<UpArrowGrey
+									style={{
+										stroke: 'var(--card-over-color)',
+									}}
+								/>
 							</span>
 						)}
 					</button>

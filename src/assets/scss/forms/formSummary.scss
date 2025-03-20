@@ -16,12 +16,10 @@
 		gap: 16px;
 		align-self: stretch;
 		border-radius: 10px;
-		border: 1px solid #242628;
-		border: 1px solid color(display-p3 0.1412 0.149 0.1569);
+		border: 1px solid var(--stroke);
 
 		.header {
-			border-bottom: 1px solid #242628;
-			border-bottom: 1px solid color(display-p3 0.1412 0.149 0.1569);
+			border-bottom: 1px solid var(--stroke);
 			display: flex;
 			padding-bottom: 16px;
 			align-items: center;
@@ -34,9 +32,8 @@
 				align-items: center;
 
 				.title {
-					color: #f2f2f3;
-					color: color(display-p3 0.949 0.949 0.9529);
-					font-family: Inter;
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
 					font-size: 20px;
 					font-style: normal;
 					font-weight: 500;
@@ -50,9 +47,8 @@
 					gap: 10px;
 					border-radius: 4px;
 
-					color: #797e86;
-					color: color(display-p3 0.4784 0.4941 0.5216);
-					font-family: Inter;
+					color: var(--secondary-font);
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 500;
@@ -97,13 +93,12 @@
 		transition: background-color 0.2s ease;
 
 		&:hover {
-			background-color: #121213;
+			background-color: var(--card);
 		}
 
 		&-name {
-			color: #f2f2f3;
-			color: color(display-p3 0.949 0.949 0.9529);
-			font-family: Inter;
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 400;
@@ -111,10 +106,9 @@
 		}
 
 		&-timestamp {
-			color: #797e86;
-			color: color(display-p3 0.4784 0.4941 0.5216);
+			color: var(--secondary-font);
 			text-align: right;
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 13px;
 			font-style: normal;
 			font-weight: 400;
@@ -130,10 +124,9 @@
 		span {
 			cursor: pointer;
 			opacity: 0.8;
-			color: #3a8bff;
-			color: color(display-p3 0.3137 0.5373 0.9765);
+			color: var(--primary-font);
 			text-align: center;
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 11px;
 			font-style: normal;
 			font-weight: 400;
@@ -144,12 +137,12 @@
 			text-decoration-thickness: auto;
 			text-underline-offset: auto;
 			text-underline-position: from-font;
-			text-decoration-color: #3a8bff;
+			text-decoration-color: var(--primary-font);
 
 			&:hover {
 				opacity: 1;
 				text-decoration: underline;
-				text-decoration-color: #3a8bff;
+				text-decoration-color: var(--primary-font);
 			}
 		}
 	}

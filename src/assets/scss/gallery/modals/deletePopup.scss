@@ -1,48 +1,46 @@
 .deletePopupMainContainer {
-    display: flex;
-    flex-direction: column;
-    width: 469px;
-    padding: 32px;
-    gap: 32px;
-    border-radius: 32px;
-    background: #151515;
-    box-shadow:
-        0px 53px 53px 0px rgba(0, 0, 0, 0.09),
-        0px 13px 29px 0px rgba(0, 0, 0, 0.1);
-    .headingContainer {
-        display: flex;
-        align-items: center;
-        flex-direction: column;
-        gap: 16px;
-        .heading {
-            color: #fafafa;
-            text-align: center;
-            font-size: 18px;
-            font-weight: 500;
-            line-height: 26px;
-        }
-        .paragraph {
-            color: #979797;
-            text-align: center;
-            font-size: 12px;
-            font-weight: 500;
-            line-height: 14px;
-            letter-spacing: 0.24px;
-        }
-    }
-    .buttonContainer {
-        display: flex;
-        justify-content: center;
-        gap: 16px;
-        p {
-            padding: 16px 24px;
-            border-radius: 100px;
-            color: #fff;
-            font-size: 13px;
-            font-weight: 500;
-            line-height: 16px;
-            letter-spacing: 0.26px;
-            cursor: pointer;
-        }
-    }
+	display: flex;
+	flex-direction: column;
+	width: 469px;
+	padding: 32px;
+	gap: 32px;
+	border-radius: 32px;
+	background: var(--popup);
+	box-shadow: 0px 53px 53px 0px rgba(0, 0, 0, 0.09), 0px 13px 29px 0px rgba(0, 0, 0, 0.1);
+	.headingContainer {
+		display: flex;
+		align-items: center;
+		flex-direction: column;
+		gap: 16px;
+		.heading {
+			color: var(--primary-font);
+			text-align: center;
+			font-size: 18px;
+			font-weight: 500;
+			line-height: 26px;
+		}
+		.paragraph {
+			color: var(--secondary-font);
+			text-align: center;
+			font-size: 12px;
+			font-weight: 500;
+			line-height: 14px;
+			letter-spacing: 0.24px;
+		}
+	}
+	.buttonContainer {
+		display: flex;
+		justify-content: center;
+		gap: 16px;
+		p {
+			padding: 16px 24px;
+			border-radius: 100px;
+			color: var(--primary-font);
+			font-size: 13px;
+			font-weight: 500;
+			line-height: 16px;
+			letter-spacing: 0.26px;
+			cursor: pointer;
+		}
+	}
 }
