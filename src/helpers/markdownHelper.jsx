@@ -114,7 +114,7 @@ const baseComponents = {
 	pre: ({ children }) => <pre className="markdown-pre mb-4 fade-in">{children}</pre>,
 	hr: ({ children }) => <hr className="mb-2 fade-in" />,
 	ol: ({ children, ...props }) => (
-		<ol className="list-decimal list-outside ml-8 mb-4 fade-in" {...props}>
+		<ol className=" list-outside ml-8 mb-4 fade-in" {...props}>
 			{children}
 		</ol>
 	),
