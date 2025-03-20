@@ -692,8 +692,8 @@ const OpenedSideBarItemsComponent = ({
 									</div>
 								</div>
 
-								<div className="bottomOptionsList">
-									<div className="creditsLeft">
+								{/* <div className="bottomOptionsList"> */}
+								{/* <div className="creditsLeft">
 										<div>
 											<div className="credits">100</div>
 											<div className="content">Credits Left This Month</div>
@@ -736,10 +736,10 @@ const OpenedSideBarItemsComponent = ({
 												/>
 											</svg>
 										</div>
-									</div>
-									{
-										<>
-											{/* <div className="planExpiresDiv">
+									</div> */}
+								{
+									<>
+										{/* <div className="planExpiresDiv">
 									<div
 										style={{
 											width: '100%',
@@ -771,9 +771,9 @@ const OpenedSideBarItemsComponent = ({
 										</button>
 									</div>
 								</div> */}
-										</>
-									}
-									{/* {bottomOptionsList?.map((singleItems, index) => (
+									</>
+								}
+								{/* {bottomOptionsList?.map((singleItems, index) => (
 										<OpenedSideBarHoverStateIcons2
 											name={singleItems?.name}
 											Icon={singleItems?.icon}
@@ -793,7 +793,7 @@ const OpenedSideBarItemsComponent = ({
 											}}
 										/>
 									))} */}
-								</div>
+								{/* </div> */}
 							</div>
 						</>
 					)}
@@ -802,8 +802,8 @@ const OpenedSideBarItemsComponent = ({
 							className="chatDetailPanel"
 							style={{
 								width: isMobile ? '100%' : '300px',
-								backgroundColor: '#1E1E1E',
-								borderLeft: !isMobile ? '1px solid #333334' : 'none',
+								backgroundColor: 'var(--card)',
+								borderLeft: !isMobile ? '1px solid var(--stroke)' : 'none',
 								padding: '20px',
 								position: isMobile ? 'fixed' : 'absolute',
 								left: isMobile ? '0' : '100%',
@@ -820,7 +820,7 @@ const OpenedSideBarItemsComponent = ({
 									marginBottom: '20px',
 								}}
 							>
-								<h2 style={{ color: '#E8E8E8' }}>{selectedChat}</h2>
+								<h2 style={{ color: 'var(--primary-font)' }}>{selectedChat}</h2>
 								<CrossSvg
 									style={{ cursor: 'pointer' }}
 									onClick={handleCloseChatPanel}
