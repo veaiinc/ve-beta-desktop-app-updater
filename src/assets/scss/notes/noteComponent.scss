@@ -34,24 +34,6 @@
 			font-weight: 500;
 			line-height: 22px; /* 157.143% */
 		}
-
-		.notes-nav-menu-item-share {
-			display: flex;
-			height: 32px;
-			padding: 8px 14px;
-			align-items: center;
-			gap: 6px;
-			border-radius: 8px;
-			background-color: #2c2e30;
-			color: #f2f2f3;
-			font-family: Inter;
-			font-size: 14px;
-			font-style: normal;
-			font-weight: 500;
-			line-height: normal;
-			border: none;
-			cursor: pointer;
-		}
 	}
 
 	.notes-editor-container {
@@ -208,6 +190,10 @@
 				th,
 				td {
 					border: 1px solid #232325;
+				}
+
+				.bn-block-outer:not([data-prev-depth-changed]):before {
+					border-left: 3px solid #e8e8e8;
 				}
 			}
 		}

@@ -6,6 +6,7 @@ import { useCreateBlockNote } from '@blocknote/react';
 import '../../../assets/scss/notes/noteComponent.scss';
 import { createBlockSpec, locales } from '@blocknote/core';
 import NoteToolbar from '../../components/notes/NoteToolbar';
+import ShareComponent from '../../components/notes/ShareComponent';
 import { useEffect, memo, useContext, useCallback, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import Context from '../../../context/context';
@@ -95,9 +96,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 		<div className="notes-container" style={outerContainerStyle || {}}>
 			<div className="notes-nav-menu">
 				<span className="notes-nav-menu-item-last-edited">Edited 5 min ago</span>
-				{/* <button className="notes-nav-menu-item-comment">Comment</button> */}
-				<button className="notes-nav-menu-item-share">Share</button>
-				{/* <button className="notes-nav-menu-item-more">...</button> */}
+				<ShareComponent pageId={noteId} />
 			</div>
 			<div className="notes-editor-container">
 				<div className="notes-editor-wrapper">

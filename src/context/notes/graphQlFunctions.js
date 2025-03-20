@@ -45,3 +45,24 @@ export const saveNotesPageQuery = gql`
 		}
 	}
 `;
+
+export const getNotesAccessQuery = gql`
+	query Query($pageId: ID!) {
+		listSharedUsers(pageId: $pageId) {
+			_id
+			userId
+			access
+			fullName
+			email
+		}
+	}
+`;
+
+export const addNotesAccessQuery = gql`
+	mutation SharePage($pageId: ID!, $usersPermissionInput: [UserPermissionInput]!) {
+		sharePage(pageId: $pageId, usersPermissionInput: $usersPermissionInput) {
+			success
+			message
+		}
+	}
+`;

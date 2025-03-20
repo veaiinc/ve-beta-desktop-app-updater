@@ -5,6 +5,8 @@ import {
 	createNotesQuery,
 	getPageQuery,
 	saveNotesPageQuery,
+	getNotesAccessQuery,
+	addNotesAccessQuery,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -14,6 +16,7 @@ export const intialState = {
 	notes: null,
 	moreNotes: null,
 	notesPageData: null,
+	notesAccess: null,
 };
 
 export const NotesState = (props) => {
@@ -114,11 +117,72 @@ export const NotesState = (props) => {
 			console.log('error==>getNotesPageData', error);
 		}
 	};
+
+	const getNotesAccess = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				getNotesAccessQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'page_notes_api',
+			);
+
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.GET_NOTES_ACCESS_SUCCESS,
+					payload: response?.[1]?.data?.listSharedUsers,
+				});
+			} else {
+				dispatch({
+					type: Actions.GET_NOTES_ACCESS_SUCCESS,
+					payload: [],
+				});
+			}
+		} catch (error) {
+			console.log('error==>getNotesAccess', error);
+		}
+	};
+
+	const addNotesAccess = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				addNotesAccessQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'page_notes_api',
+			);
+
+			if (response?.[0]) {
+				return [true, response?.[1]?.data?.sharePage];
+			} else {
+				return [false, response?.[1]?.[0]];
+			}
+		} catch (error) {
+			console.log('error==>addNotesAccess', error);
+		}
+	};
+
+	const updateNotesState = (payload) => {
+		dispatch({
+			type: Actions.UPDATE_NOTES_STATE,
+			payload,
+		});
+	};
+
 	return {
 		...state,
 		getNotesList,
 		createNotesList,
 		getNotesPageData,
 		saveNotesdata,
+		getNotesAccess,
+		addNotesAccess,
+		updateNotesState,
 	};
 };
