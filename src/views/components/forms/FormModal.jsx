@@ -295,7 +295,6 @@ const FormModal = ({ isOpen, onClose, selectedRow }) => {
 					{selectedRow?.isRead ? 'notCompleted' : 'Completed'}
 				</div>
 			</div> */}
-				{console.log('selectedRow==>', selectedRow)}
 				<div className="formResponsesParentContainer">
 					{selectedRow?.response?.map(
 						(formData) =>

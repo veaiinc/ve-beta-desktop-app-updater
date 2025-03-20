@@ -11,19 +11,15 @@ const IntegrationConnectModel = ({ isOpen, closeModal, integration }) => {
 		<ReactModal
 			isOpen={isOpen}
 			closeModal={closeModal}
+			modalType="center"
 			customStyles={{
 				content: {
 					width: '100%',
 					maxWidth: '600px',
-					display: 'flex',
-					justifyContent: 'center',
-					alignItems: 'center',
-					inset: 'auto',
-					transform: 'none',
-					margin: '2rem',
 					backgroundColor: '#1a1a1a',
 					borderRadius: '12px',
 					padding: '2rem',
+					margin: '2rem',
 				},
 				overlay: {
 					backdropFilter: 'blur(8px)',

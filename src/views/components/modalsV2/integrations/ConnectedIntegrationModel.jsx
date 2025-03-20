@@ -5,22 +5,18 @@ import { useNavigate } from 'react-router-dom';
 import '../../../../assets/scss/integrations/ConnectedCardIntegrationModel.scss';
 
 const ConnectedIntegrationModel = ({ isOpen, closeModal, connectedIntegration }) => {
-	console.log(connectedIntegration);
 	const navigate = useNavigate();
 
 	return (
 		<ReactModal
 			isOpen={isOpen}
 			closeModal={closeModal}
+			modalType="center"
 			customStyles={{
 				content: {
 					width: '100%',
 					height: '80vh',
 					maxWidth: '1440px',
-					position: 'absolute',
-					top: '50%',
-					left: '50%',
-					transform: 'translate(-50%, -50%)',
 					background: 'var(--background-color, #0C0C0D)',
 					borderRadius: '12px',
 					padding: '0',
@@ -28,11 +24,6 @@ const ConnectedIntegrationModel = ({ isOpen, closeModal, connectedIntegration })
 					border: 'none',
 				},
 				overlay: {
-					position: 'fixed',
-					top: 0,
-					left: 0,
-					right: 0,
-					bottom: 0,
 					backgroundColor: 'rgba(0, 0, 0, 0.75)',
 					backdropFilter: 'blur(5px)',
 					display: 'flex',
