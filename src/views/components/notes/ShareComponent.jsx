@@ -235,7 +235,10 @@ const ShareComponent = ({ pageId }) => {
 								<div className="notes-nav-menu-item-share-dropdown-body-select">
 									{info?.membersWithAccess?.length > 0 &&
 										info?.membersWithAccess?.map((member) => (
-											<div className="notes-nav-menu-item-share-dropdown-body-select-item">
+											<div
+												className="notes-nav-menu-item-share-dropdown-body-select-item"
+												key={member?.userId}
+											>
 												<div className="notes-share-dropdown-avatar">
 													{member?.fullName?.charAt(0)}
 												</div>
@@ -266,7 +269,7 @@ const ShareComponent = ({ pageId }) => {
 				placement="bottomLeft"
 				color="transparent"
 				trigger="click"
-				open={info.isOpen || true}
+				open={info.isOpen}
 				arrow={false}
 				onOpenChange={(open) => {
 					if (!open) {
