@@ -16,7 +16,7 @@
 		left: 50%;
 		transform: translateX(-50%);
 		border-radius: 14px;
-		border: 1px solid #333334;
+		border: 1px solid var(--stroke);
 		background: var(--background-color);
 		padding: 24px;
 		display: flex;
@@ -167,7 +167,7 @@
 					gap: 16px;
 					border-radius: 60px;
 					border: none;
-					background: var(--background-color);
+					background: var(--card);
 					color: var(--primary-font);
 					font-family: var(--secondary-font-family);
 					font-size: 12px;
@@ -178,8 +178,8 @@
 					transition: all 0.3s ease;
 
 					&:hover {
-						background: white;
-						color: rgba(0, 0, 0, 0.8);
+						background: var(--primary-font);
+						color: var(--background-color);
 					}
 				}
 
@@ -203,7 +203,7 @@
 					.line {
 						width: 141.5px;
 						height: 0.5px;
-						background-color: rgba(91, 91, 91, 0.5);
+						background-color: var(--stroke);
 					}
 				}
 
@@ -215,7 +215,7 @@
 					height: 45px;
 					gap: 12px;
 					border-radius: 60px;
-					background: var(--background-color);
+					background: var(--card);
 
 					input {
 						padding: 14px 24px;
@@ -226,7 +226,7 @@
 					}
 					button {
 						border-radius: 60px;
-						background: rgba(255, 255, 255, 0.1);
+						background: var(--card-over-card);
 						height: 45px;
 						padding: 14px 24px;
 						border: none;
@@ -237,7 +237,7 @@
 						justify-content: center;
 
 						&:hover {
-							background: white;
+							background: var(--primary-font);
 						}
 					}
 				}
@@ -355,17 +355,17 @@
 
 						.ant-otp {
 							.ant-input {
-								background-color: rgba(255, 255, 255, 0.05);
+								background-color: var(--card);
 								border: none;
 								outline: none;
 								border-radius: 50%;
 								padding: 20px;
 								width: 50px;
 								height: 50px;
-								color: #fff;
+								color: var(--primary-font);
 
 								&::placeholder {
-									color: #fff;
+									color: var(--primary-font);
 								}
 							}
 							.ant-input-otp-input::placeholder {
@@ -378,7 +378,7 @@
 				.verification-code-button {
 					margin-top: 40px;
 					border-radius: 60px;
-					background: rgba(255, 255, 255, 0.05);
+					background: var(--card-over-card);
 					border: none;
 					transition: all 0.3s ease;
 					width: 100%;

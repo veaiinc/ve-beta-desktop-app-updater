@@ -1,8 +1,8 @@
 <svg width="18" height="19" viewBox="0 0 18 19" fill="var(--primary-font)" xmlns="http://www.w3.org/2000/svg">
 <g id="DotsThreeVertical" clip-path="url(#clip0_1196_5614)">
-<path id="Vector" d="M9 5.84375C9.62132 5.84375 10.125 5.34007 10.125 4.71875C10.125 4.09743 9.62132 3.59375 9 3.59375C8.37868 3.59375 7.875 4.09743 7.875 4.71875C7.875 5.34007 8.37868 5.84375 9 5.84375Z" fill="var(--primary-font)" style="fill:var(--primary-font);fill:color(display-p3 0.9490 0.9490 0.9529);fill-opacity:1;"/>
-<path id="Vector_2" d="M9 10.625C9.62132 10.625 10.125 10.1213 10.125 9.5C10.125 8.87868 9.62132 8.375 9 8.375C8.37868 8.375 7.875 8.87868 7.875 9.5C7.875 10.1213 8.37868 10.625 9 10.625Z" fill="var(--primary-font)" style="fill:var(--primary-font);fill:color(display-p3 0.9490 0.9490 0.9529);fill-opacity:1;"/>
-<path id="Vector_3" d="M9 15.4062C9.62132 15.4062 10.125 14.9026 10.125 14.2812C10.125 13.6599 9.62132 13.1562 9 13.1562C8.37868 13.1562 7.875 13.6599 7.875 14.2812C7.875 14.9026 8.37868 15.4062 9 15.4062Z" fill="var(--primary-font)" style="fill:var(--primary-font);fill:color(display-p3 0.9490 0.9490 0.9529);fill-opacity:1;"/>
+<path id="Vector" d="M9 5.84375C9.62132 5.84375 10.125 5.34007 10.125 4.71875C10.125 4.09743 9.62132 3.59375 9 3.59375C8.37868 3.59375 7.875 4.09743 7.875 4.71875C7.875 5.34007 8.37868 5.84375 9 5.84375Z" fill="var(--primary-font)" style="fill:var(--primary-font);fill-opacity:1;"/>
+<path id="Vector_2" d="M9 10.625C9.62132 10.625 10.125 10.1213 10.125 9.5C10.125 8.87868 9.62132 8.375 9 8.375C8.37868 8.375 7.875 8.87868 7.875 9.5C7.875 10.1213 8.37868 10.625 9 10.625Z" fill="var(--primary-font)" style="fill:var(--primary-font);fill-opacity:1;"/>
+<path id="Vector_3" d="M9 15.4062C9.62132 15.4062 10.125 14.9026 10.125 14.2812C10.125 13.6599 9.62132 13.1562 9 13.1562C8.37868 13.1562 7.875 13.6599 7.875 14.2812C7.875 14.9026 8.37868 15.4062 9 15.4062Z" fill="var(--primary-font)" style="fill:var(--primary-font);fill-opacity:1;"/>
 </g>
 <defs>
 <clipPath id="clip0_1196_5614">

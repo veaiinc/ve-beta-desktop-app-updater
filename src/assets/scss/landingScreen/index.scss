@@ -53,7 +53,7 @@
 					width: 50%;
 					height: 2px;
 					bottom: 6px;
-					background-color: #f2f2f3;
+					background-color: var(--primary-font);
 					border-radius: 10px;
 				}
 				.login-line {
@@ -126,12 +126,12 @@
 					.get-started-button {
 						width: 135px;
 						border-radius: 59px;
-						background: #f2f2f3;
+						background: var(--primary-font);
 						display: flex;
 						align-items: center;
 						justify-content: center;
 						gap: 8px;
-						color: #000;
+						color: var(--background-color);
 						font-family: var(--secondary-font-family);
 						font-size: 14px;
 						font-style: normal;
@@ -147,7 +147,7 @@
 					.request-demo-button {
 						border-radius: 59px;
 						background: transparent;
-						border: 1px solid #2c2d2e;
+						border: 1px solid var(--stroke);
 						color: var(--primary-font);
 						font-family: var(--secondary-font-family);
 						font-size: 14px;
@@ -158,8 +158,8 @@
 
 						&:hover {
 							border: 1px solid var(--secondary-font);
-							background: #0c0c0d;
-							box-shadow: 0px 0px 30px 0px rgba(242, 242, 243, 0.07);
+							background: var(--error);
+							box-shadow: 0px 0px 30px 0px var(--secondary-font);
 						}
 					}
 				}
@@ -206,7 +206,7 @@
 		justify-content: center;
 		flex-direction: row-reverse;
 		align-items: center;
-		background: #131313;
+		background: var(--card);
 		padding: 48px 120px;
 
 		.left-div {
@@ -255,9 +255,9 @@
 
 			.integration-button {
 				border-radius: 100px;
-				background: #f2f2f3;
+				background: var(--primary-font);
 				border: none;
-				color: #202123;
+				color: var(--background-color);
 				font-family: var(--secondary-font-family);
 				font-size: 14px;
 				font-style: normal;
@@ -290,7 +290,7 @@
 					right: -3px;
 					width: 6px;
 					height: 100%;
-					background: #131313;
+					background: var(--card);
 					z-index: 9;
 				}
 				.integrations-video {
@@ -342,7 +342,7 @@
 				border-radius: 100px;
 				background: var(--primary-font);
 				border: none;
-				color: #202123;
+				color: var(--background-color);
 				font-family: var(--secondary-font-family);
 				font-size: 14px;
 				font-style: normal;
@@ -413,7 +413,7 @@
 			}
 
 			.get-demo-btn {
-				color: #3d3f43;
+				color: var(--primary-font);
 				font-family: var(--secondary-font-family);
 				font-size: 14px;
 				font-style: normal;
@@ -471,7 +471,7 @@
 						width: 90%;
 						border: none;
 						background-color: inherit;
-						border-bottom: 1px solid #797e86;
+						border-bottom: 1px solid var(--stroke);
 						padding: 14px 0;
 						color: var(--secondary-font);
 						font-family: var(--secondary-font-family);
@@ -481,7 +481,7 @@
 						line-height: normal;
 
 						&:hover {
-							border-bottom: 1px solid #f2f2f3;
+							border-bottom: 1px solid var(--primary-font);
 						}
 
 						&::placeholder {
@@ -545,7 +545,7 @@
 					transition: color 0.3s ease-in;
 
 					&:hover {
-						color: #f2f2f3;
+						color: var(--primary-font);
 					}
 				}
 			}
@@ -556,13 +556,13 @@
 			display: flex;
 			justify-content: space-between;
 			align-items: center;
-			border-top: 1px solid #313235;
+			border-top: 1px solid var(--stroke);
 			padding: 24px 0;
 			position: relative;
 
 			.left,
 			.right {
-				background: linear-gradient(98deg, #e9ccf2 0%, #a6bcdd 47.5%, #cfecd7 100%);
+				background: var(--ai-color-code);
 				background-clip: text;
 				-webkit-background-clip: text;
 				-webkit-text-fill-color: transparent;
@@ -592,7 +592,7 @@
 					transition: color 0.3s ease-in;
 
 					&:hover {
-						color: #f2f2f3;
+						color: var(--primary-font);
 					}
 				}
 			}
@@ -616,7 +616,7 @@
 				background-color: transparent;
 
 				&:hover {
-					color: #f2f2f3;
+					color: var(--primary-font);
 				}
 			}
 		}
@@ -741,7 +741,7 @@
 		}
 
 		.caroursel-container {
-			background: #0c0d0d !important;
+			background: var(--background-color) !important;
 
 			.description-container {
 				.title {
@@ -772,7 +772,7 @@
 		}
 
 		.footer-container {
-			background: #0c0d0d !important;
+			background: var(--background-color) !important;
 
 			.banner,
 			.main-content {

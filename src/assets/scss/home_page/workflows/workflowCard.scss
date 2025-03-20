@@ -79,11 +79,11 @@
 			border-radius: 16px;
 			align-items: center;
 			align-self: stretch;
-			background: var(--card);
+			background: var(--card-over-card);
 			cursor: pointer;
 			transition: all 0.2s ease;
 			&:hover {
-				background-color: var(--card-hover);
+				background-color: var(--card-over-card-hover);
 				color: var(--primary-font);
 
 				.left-text {

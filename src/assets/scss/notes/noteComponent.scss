@@ -43,8 +43,8 @@
 			gap: 6px;
 			border-radius: 8px;
 			background-color: #2c2e30;
-			color: #f2f2f3;
-			font-family: Inter;
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 500;
@@ -75,8 +75,8 @@
 			.notes-title {
 				margin: 0;
 				padding: 0;
-				color: #f2f2f3;
-				font-family: Inter;
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
 				font-size: 32px;
 				font-style: normal;
 				font-weight: 500;
@@ -100,13 +100,13 @@
 				min-height: 500px;
 				padding: 0px;
 				text-align: left;
-				background-color: #0c0c0d;
+				background-color: var(--error);
 				border-radius: 8px;
 				margin: 0 auto;
 
 				h1.bn-inline-content {
-					color: #e8e8e8;
-					font-family: Inter;
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
 					font-size: 36px;
 					font-style: normal;
 					font-weight: 600;
@@ -114,8 +114,8 @@
 				}
 
 				h2.bn-inline-content {
-					color: #e8e8e8;
-					font-family: Inter;
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
 					font-size: 28px;
 					font-style: normal;
 					font-weight: 600;
@@ -123,8 +123,8 @@
 				}
 
 				h3.bn-inline-content {
-					color: #e8e8e8;
-					font-family: Inter;
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
 					font-size: 24px;
 					font-style: normal;
 					font-weight: 500;
@@ -132,8 +132,8 @@
 				}
 
 				p.bn-inline-content {
-					color: #e8e8e8;
-					font-family: Inter;
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
 					font-size: 16px;
 					font-style: normal;
 					font-weight: 400;
@@ -142,26 +142,26 @@
 				.bn-block-outer:not([data-prev-type])
 					> .bn-block
 					> .bn-block-content[data-content-type='bulletListItem']:before {
-					color: #e8e8e8;
+					color: var(--primary-font);
 					content: '';
 					width: 8px;
 					height: 8px;
 					border-radius: 50%;
-					background-color: #e8e8e8;
+					background-color: var(--primary-font);
 					margin-right: 5px;
 					margin-top: 8px;
 				}
 
 				.bn-inline-content::before {
-					color: #7c7c83;
+					color: var(--secondary-font);
 					font-style: normal;
 				}
 
 				.bn-block-outer:not([data-prev-type])
 					> .bn-block
 					> .bn-block-content[data-content-type='numberedListItem']:before {
-					color: #e8e8e8;
-					font-family: Inter;
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
 					font-size: 16px;
 					font-style: normal;
 					font-weight: 400;
@@ -179,21 +179,21 @@
 					height: 16px;
 					padding: 3px;
 					border-radius: 4px;
-					border: 1.5px solid #939393;
+					border: 1.5px solid var(--stroke);
 					position: relative;
 				}
 
 				input[type='checkbox']:checked {
-					background-color: #e8e8e8; /* Keep white background */
-					border-color: #e8e8e8;
+					background-color: var(--primary-font); /* Keep white background */
+					border-color: var(--primary-font);
 				}
 
 				input[type='checkbox']:checked::after {
 					content: '✓'; /* Unicode checkmark */
 					font-size: 16px;
 					font-weight: bold;
-					color: #0b1215; /* Checkmark color */
-					font-family: Inter;
+					color: var(--background-color); /* Checkmark color */
+					font-family: var(--primary-font-family);
 					position: absolute;
 					left: 50%;
 					top: 50%;
@@ -201,13 +201,13 @@
 				}
 
 				table {
-					border: 2px solid #232325;
+					border: 2px solid var(--stroke);
 					border-collapse: collapse;
 				}
 
 				th,
 				td {
-					border: 1px solid #232325;
+					border: 1px solid var(--stroke);
 				}
 			}
 		}

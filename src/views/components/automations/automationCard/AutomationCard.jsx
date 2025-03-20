@@ -6,7 +6,6 @@ import AutomationMenu from './AutomationMenu';
 import AutomationSteps from './AutomationSteps';
 import { message } from 'antd';
 import Spinner from '../../loaders/Spinner';
-import ThreeDotsSvg from '../../../../assets/svg/my_templates/ThreeDotsSvg';
 
 const options = [
 	{
@@ -113,7 +112,7 @@ const AutomationCard = ({
 					enableAutomationTitleEditMode={enableAutomationTitleEditMode}
 					handleDeleteAutomation={handleDeleteAutomation}
 				>
-					<ThreeDotsSvg />
+					<ThreeDotsVerticalIcon />
 				</AutomationMenu>
 			</header>
 			<ul className="automationOptions">
