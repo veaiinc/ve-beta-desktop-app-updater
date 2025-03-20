@@ -17,7 +17,6 @@ import { useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
 import ProposalsPopup from '../../../views/components/docs/ProposalsPopup';
 import CreateClientModal from '../../../views/components/modalsV2/contacts/CreateClientModal';
-import CreateTaskPopup from '../../../views/components/modalsV2/tasks/CreateTaskPopup';
 import CreateGallery from '../../../views/components/modalsV2/gallery/CreateGallery';
 import AutomationLoaderModal from '../modalsV2/automationBuilder/AutomationLoaderModal';
 import { useEdges } from '@xyflow/react';
@@ -25,7 +24,7 @@ import { useEdges } from '@xyflow/react';
 let moduleOptions = [
 	{
 		id: 0,
-		title: 'Contact',
+		title: 'Contact/Lead',
 		value: 'contacts',
 		controlValue: 'contact',
 		action: ({ setInfo, info }) => {
@@ -109,28 +108,36 @@ let moduleOptions = [
 		title: 'Automation',
 		value: 'automation',
 		controlValue: 'automation',
-		action: () => {},
+		action: ({ navigate }) => {
+			navigate('/automations');
+		},
 	},
 	{
 		id: 10,
 		title: 'Conversational Agent',
 		value: 'ai-assistant',
 		controlValue: 'conversationalAgent',
-		action: () => {},
+		action: ({ navigate }) => {
+			navigate('/ai-assistant');
+		},
 	},
 	{
 		id: 11,
-		title: 'Classic Gllery',
+		title: 'Classic Gallery',
 		value: 'galleries',
 		controlValue: 'classicGallery',
-		action: () => {},
+		action: ({ setInfo, info }) => {
+			setInfo({ ...info, openGalleryPopup: true });
+		},
 	},
 	{
 		id: 12,
-		title: 'Lite Gllery',
+		title: 'Lite Gallery',
 		value: 'lite-gallery',
 		controlValue: 'liteGallery',
-		action: () => {},
+		action: ({ setInfo, info }) => {
+			setInfo({ ...info, openLiteGalleryPopup: true });
+		},
 	},
 ];
 
@@ -146,6 +153,7 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 		openProposalPopup: false,
 		openClientPopup: false,
 		openGalleryPopup: false,
+		openLiteGalleryPopup: false,
 		// openTaskPopup: false,
 		options: { suggestedOptions, moduleOptions },
 		fileterOptions: { suggestedOptions, moduleOptions },
@@ -293,6 +301,11 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 			<CreateGallery
 				open={info?.openGalleryPopup}
 				closeModal={() => setInfo({ ...info, openGalleryPopup: false })}
+			/>
+			<CreateGallery
+				open={info?.openLiteGalleryPopup}
+				closeModal={() => setInfo({ ...info, openLiteGalleryPopup: false })}
+				isLightGallery={true}
 			/>
 			<AutomationLoaderModal loading={info?.isAutomationLoading} />
 		</div>

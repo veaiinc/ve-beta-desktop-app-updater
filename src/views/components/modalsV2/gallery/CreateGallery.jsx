@@ -6,6 +6,7 @@ import Context from '../../../../context/context';
 import jwt_decode from 'jwt-decode';
 import { DatePicker } from 'antd';
 import slugify from 'slugify';
+import { useNavigate } from 'react-router-dom';
 
 const CreateGallery = ({
 	open,
@@ -15,6 +16,7 @@ const CreateGallery = ({
 	message,
 	isLightGallery,
 }) => {
+	const navigate = useNavigate();
 	const {
 		galleryInfo: { createNewGallery, checkGallerySlugAvailable },
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
@@ -168,6 +170,7 @@ const CreateGallery = ({
 				closeModalFunc();
 				fetchGalleries(1, null, true);
 				message.success('Gallery created successfully');
+				navigate(`/gallery/${response[1]?._id}`);
 			} else {
 				message.error(response?.[1]?.message || 'Failed to create gallery');
 			}

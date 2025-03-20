@@ -17,6 +17,7 @@
 	border: none;
 	border: 1px solid transparent;
 	transition: all 0.3s ease-in;
+	background-color: var(--card);
 
 	&:enabled:hover {
 		color: var(--primary-button-font);
@@ -25,7 +26,7 @@
 	}
 	&:disabled {
 		background-color: var(--card-over-card);
-		border: 1px solid var(--card-over-card);
+		border: 1px solid var(--stroke);
 		color: var(--secondary-font);
 		cursor: not-allowed;
 		&:hover {
