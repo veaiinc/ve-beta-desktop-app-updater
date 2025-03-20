@@ -141,6 +141,25 @@
 						font-weight: 500;
 						line-height: normal;
 					}
+
+					.actionItemStatus {
+						color: var(--primary-font);
+						font-family: var(--primary-font-family);
+						font-size: 12px;
+						font-style: normal;
+						font-weight: 500;
+						flex-grow: 1;
+						text-align: right;
+						display: flex;
+						align-items: center;
+						justify-content: flex-end;
+
+						.actionItemConnect {
+							display: flex;
+							align-items: center;
+							gap: 4px;
+						}
+					}
 				}
 			}
 		}
