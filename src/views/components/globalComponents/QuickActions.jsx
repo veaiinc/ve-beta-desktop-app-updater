@@ -265,7 +265,7 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 						)}
 						{info?.fileterOptions?.moduleOptions?.length > 0 && (
 							<div className="modules-container">
-								<div className="modules-container-header">Module Task</div>
+								<div className="modules-container-header">Module Actions</div>
 								{info?.fileterOptions?.moduleOptions?.map((option) => (
 									<div
 										key={option?.id}

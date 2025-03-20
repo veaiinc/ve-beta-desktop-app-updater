@@ -36,7 +36,7 @@
 	align-items: flex-start;
 	gap: 12px;
 	border-radius: 24px;
-	background: var(--card);
+	background: var(--card, #26282a);
 	.dropdown-option {
 		display: flex;
 		column-gap: 10px;
@@ -54,7 +54,7 @@
 		flex: 1 0 0;
 		cursor: pointer;
 		&:hover {
-			background: var(--card-hover);
+			background: var(--card-over-card-hover);
 		}
 	}
 }
@@ -66,8 +66,8 @@
 	padding: 10px 24px;
 	gap: 10px;
 	border-radius: 50px;
-	border: 0.5px solid #333;
-	background-color: #202123;
+	border: 0.5px solid var(--stroke);
+	background-color: var(--card);
 	width: 100%;
 
 	input {
@@ -83,7 +83,50 @@
 
 .modules-container {
 	display: flex;
-	background-color: #202123;
+	background-color: var(--card-over-card);
+	flex-direction: column;
+	width: 100%;
+	border-radius: 16px;
+	padding: 14px;
+	overflow: scroll;
+	min-height: 94px;
+	.modules-container-header {
+		color: var(--secondary-font, #787e87);
+		font-size: 13px;
+	}
+}
+
+.customQuickActionsToolTip {
+	.ant-tooltip-content {
+		right: 100px;
+	}
+}
+
+.top-search-container {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 10px 24px;
+	gap: 10px;
+	border-radius: 50px;
+	border: 0.5px solid var(--stroke);
+	background-color: var(--card);
+	width: 100%;
+
+	input {
+		background: none;
+		border: none;
+		color: var(--secondary-font, #787e87);
+		font-size: 14px;
+		font-weight: 400;
+		line-height: 16px;
+		width: 100%;
+	}
+}
+
+.modules-container {
+	display: flex;
+	background-color: var(--card);
 	flex-direction: column;
 	width: 100%;
 	border-radius: 16px;
