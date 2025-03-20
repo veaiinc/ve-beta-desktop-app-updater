@@ -355,7 +355,7 @@
 				display: flex;
 				flex-direction: column;
 				align-items: center;
-				height: 90vh !important;
+				// height: 90vh !important;
 				overflow-y: scroll;
 				overflow-x: hidden !important;
 				-ms-overflow-style: none;
@@ -786,7 +786,7 @@
 					position: sticky;
 					bottom: -0%;
 					width: 100%;
-					background: var(--card);
+					background: var(--card-over-card);
 					z-index: 2;
 					padding: 0px;
 					display: flex;
