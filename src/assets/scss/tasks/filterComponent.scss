@@ -6,20 +6,20 @@
 	align-items: center;
 	gap: 8px;
 	border-radius: 42px;
-	border: 1px solid rgba(98, 84, 245, 0.09);
-	background: rgba(82, 128, 255, 0.05);
+	border: 1px solid var(--stroke);
+	background: var(--card-over-card);
 	cursor: pointer;
 
 	.filterComponent-icon {
 		path {
-			fill: #6254f5 !important;
+			fill: var(--primary-font) !important;
 		}
 	}
 
 	.filterComponent-title,
 	.filterComponent-value {
-		color: #6254f5;
-		font-family: Inter;
+		color: var(--primary-button);
+		font-family: var(--primary-font-family);
 		font-size: 14px;
 		font-style: normal;
 		font-weight: 500;
@@ -41,8 +41,7 @@
 		align-items: flex-start;
 		gap: 12px;
 		border-radius: 14px;
-		background: #202123;
-		box-shadow: 0px 2px 44px 0px rgba(0, 0, 0, 0.25);
+		background: var(--popup);
 
 		.filterComponent-header {
 			display: flex;
@@ -56,8 +55,8 @@
 
 			.filterComponent-header-title {
 				flex: 1 0 0;
-				color: #e8e8e8;
-				font-family: Inter;
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 500;
@@ -76,8 +75,8 @@
 			align-self: stretch;
 
 			.filterComponent-field-title {
-				color: #939393;
-				font-family: Inter;
+				color: var(--secondary-font);
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 500;
@@ -92,8 +91,8 @@
 				align-items: center;
 				gap: 4px;
 				border-radius: 5px;
-				color: #939393;
-				font-family: Inter;
+				color: var(--secondary-font);
+				font-family: var(--primary-font-family);
 				font-size: 13px;
 				font-style: normal;
 				font-weight: 400;
@@ -111,10 +110,10 @@
 			justify-content: space-between;
 			align-items: center;
 			border-radius: 8px;
-			border: 1px solid #939393;
+			border: 1px solid var(--stroke);
 
-			color: #e8e8e8;
-			font-family: Inter;
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
 			font-size: 11px;
 			font-style: normal;
 			font-weight: 500;

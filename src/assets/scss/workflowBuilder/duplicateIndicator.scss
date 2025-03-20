@@ -15,7 +15,7 @@
 	.duplicateWorkflowContainerHeader {
 		color: #e4e5e6;
 		text-align: center;
-		font-family: Inter;
+		font-family: var(--primary-font-family);
 		font-size: 18px;
 		font-style: normal;
 		font-weight: 500;
@@ -24,7 +24,7 @@
 	.duplicateContainerSubtitle {
 		color: rgba(228, 229, 230, 0.48);
 		text-align: center;
-		font-family: Inter;
+		font-family: var(--primary-font-family);
 		font-size: 12px;
 		font-style: normal;
 		font-weight: 500;

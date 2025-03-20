@@ -6,8 +6,8 @@
 
 	.workspaceHandleComponent {
 		h1 {
-			color: #e4e5e6;
-			font-family: Inter;
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
 			font-size: 16px;
 			font-style: normal;
 			font-weight: 500;
@@ -17,8 +17,8 @@
 		.domainContainer {
 			margin-top: 24px;
 			h2 {
-				color: #b0b0b0;
-				font-family: Inter;
+				color: var(--secondary-font);
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 400;
@@ -37,12 +37,12 @@
 					justify-content: space-between;
 					align-items: center;
 					border-radius: 10px;
-					border: 1px solid rgba(100, 100, 100, 0.16);
-					background: rgba(32, 32, 33, 0.24);
+					border: 1px solid var(--stroke);
+					background: var(--card);
 
 					input {
-						color: #e4e5e6;
-						font-family: Inter;
+						color: var(--primary-font);
+						font-family: var(--primary-font-family);
 						font-size: 16px;
 						font-style: normal;
 						font-weight: 400;
@@ -54,8 +54,8 @@
 					}
 
 					.domainName {
-						color: rgba(228, 229, 230, 0.24);
-						font-family: Inter;
+						color: var(--secondary-font);
+						font-family: var(--primary-font-family);
 						font-size: 16px;
 						font-style: normal;
 						font-weight: 400;
@@ -68,8 +68,8 @@
 					gap: 8px;
 					justify-content: center;
 					align-items: center;
-					color: #09a935;
-					font-family: Inter;
+					color: var(--success);
+					font-family: var(--primary-font-family);
 					font-size: 16px;
 					font-style: normal;
 					font-weight: 400;
@@ -81,10 +81,10 @@
 					text-align: center;
 					cursor: pointer;
 					border-radius: 10px;
-					border: 1px solid rgba(100, 100, 100, 0.16);
-					background: rgba(32, 32, 33, 0.24);
-					color: #666;
-					font-family: Inter;
+					border: 1px solid var(--stroke);
+					background: var(--card);
+					color: var(--secondary-font);
+					font-family: var(--primary-font-family);
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 400;
@@ -95,7 +95,7 @@
 		}
 
 		.messsageShow {
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 13px;
 			font-style: normal;
 			font-weight: 400;
@@ -112,11 +112,11 @@
 		align-items: flex-start;
 		gap: 24px;
 		border-radius: 32px;
-		background: #0f0f11;
+		background: var(--card);
 
 		.title {
-			color: #e4e5e6;
-			font-family: Inter;
+			color: var(--secondary-font);
+			font-family: var(--primary-font-family);
 			font-size: 16px;
 			font-style: normal;
 			font-weight: 500;
@@ -124,8 +124,8 @@
 		}
 
 		.description-tooltip {
-			color: #f2f2f3;
-			font-family: Inter;
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
 			font-size: 16px;
 			font-style: normal;
 			font-weight: 500;
@@ -142,11 +142,11 @@
 			align-items: center;
 			gap: 10px;
 			border-radius: 12px;
-			background: #f2f2f3;
+			background: var(--card);
 
 			.description {
-				color: #0e0f0f;
-				font-family: Inter;
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 500;
@@ -163,11 +163,11 @@
 			gap: 10px;
 			align-self: stretch;
 			border-radius: 12px;
-			border: 1px solid #2c2d2e;
-			background-color: #0f0f11;
+			border: 1px solid var(--stroke);
+			background-color: var(--card);
 			resize: none;
-			color: #f2f2f3;
-			font-family: Inter;
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
 			font-size: 12px;
 			font-style: normal;
 			font-weight: 400;
@@ -181,8 +181,8 @@
 			width: 100%;
 
 			.wordCount {
-				color: #b0b0b0;
-				font-family: Inter;
+				color: var(--secondary-font);
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 400;
@@ -201,8 +201,8 @@
 			.timeZoneHeadding,
 			.currencyheadding {
 				h1 {
-					color: #e4e5e6;
-					font-family: Inter;
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
 					font-size: 16px;
 					font-style: normal;
 					font-weight: 500;
@@ -210,8 +210,8 @@
 				}
 
 				p {
-					color: rgba(228, 229, 230, 0.48);
-					font-family: Inter;
+					color: var(--secondary-font);
+					font-family: var(--primary-font-family);
 					font-size: 13px;
 					font-style: normal;
 					font-weight: 400;
@@ -223,8 +223,8 @@
 
 	.deleteWorkpsaceComponent {
 		h1 {
-			color: #e4e5e6;
-			font-family: Inter;
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
 			font-size: 16px;
 			font-style: normal;
 			font-weight: 500;
@@ -233,8 +233,8 @@
 		}
 
 		p {
-			color: rgba(228, 229, 230, 0.48);
-			font-family: Inter;
+			color: var(--secondary-font);
+			font-family: var(--primary-font-family);
 			font-size: 13px;
 			font-style: normal;
 			font-weight: 400;
@@ -252,8 +252,8 @@
 	align-items: flex-start;
 	gap: 24px;
 	border-radius: 40px;
-	background: #151515;
-	box-shadow: 0px 53px 53px 0px rgba(0, 0, 0, 0.09), 0px 13px 29px 0px rgba(0, 0, 0, 0.1);
+	background: var(--card);
+	// box-shadow: 0px 53px 53px 0px rgba(0, 0, 0, 0.09), 0px 13px 29px 0px rgba(0, 0, 0, 0.1);
 
 	.header {
 		display: flex;
@@ -262,8 +262,8 @@
 		width: 100%;
 
 		h1 {
-			color: #e4e5e6;
-			font-family: Inter;
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
 			font-size: 18px;
 			font-style: normal;
 			font-weight: 500;
@@ -282,12 +282,12 @@
 		gap: 10px;
 		align-self: stretch;
 		border-radius: 10px;
-		border: 1px solid rgba(36, 36, 36, 0.64);
+		border: 1px solid var(--stroke);
 		width: 100%;
 
 		input {
-			color: rgba(228, 229, 230, 0.24);
-			font-family: Inter;
+			color: var(--secondary-font);
+			font-family: var(--primary-font-family);
 			font-size: 16px;
 			font-style: normal;
 			font-weight: 400;
@@ -320,20 +320,20 @@
 					border-radius: 50%;
 					margin: 0 10px;
 					cursor: pointer;
-					border: 2px solid #6055ec;
+					border: 2px solid var(--primary-button);
 					width: 12px;
 					height: 12px;
 
 					&:checked {
-						background-color: #6055ec;
+						background-color: var(--primary-button);
 						border: none;
-						outline: 1px solid #6055ec;
+						outline: 1px solid var(--primary-button);
 					}
 				}
 
 				label {
-					color: rgba(228, 229, 230, 0.48);
-					font-family: Inter;
+					color: var(--secondary-font);
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 500;
@@ -343,9 +343,9 @@
 				}
 
 				p {
-					color: rgba(228, 229, 230, 0.48);
+					color: var(--secondary-font);
 					text-align: right;
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 500;
@@ -365,16 +365,16 @@
 	flex-direction: column;
 	gap: 24px;
 	border-radius: 40px;
-	background: #151515;
-	box-shadow: 0px 53px 53px 0px rgba(0, 0, 0, 0.09), 0px 13px 29px 0px rgba(0, 0, 0, 0.1);
+	background: var(--card);
+	// box-shadow: 0px 53px 53px 0px rgba(0, 0, 0, 0.09), 0px 13px 29px 0px rgba(0, 0, 0, 0.1);
 
 	.headerPopup {
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
 		h1 {
-			color: #e4e5e6;
-			font-family: Inter;
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
 			font-size: 18px;
 			font-style: normal;
 			font-weight: 500;
@@ -395,8 +395,8 @@
 		h5 {
 			margin: 0;
 			padding: 0;
-			color: #b0b0b0;
-			font-family: Inter;
+			color: var(--secondary-font);
+			font-family: var(--primary-font-family);
 			font-size: 11px;
 			font-style: normal;
 			font-weight: 400;
@@ -409,14 +409,14 @@
 			justify-content: center;
 			align-items: center;
 			gap: 10px;
-			color: #e4e5e6;
-			font-family: Inter;
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
 			font-size: 16px;
 			font-style: normal;
 			font-weight: 400;
 			line-height: 26px; /* 162.5% */
 			border-radius: 10px;
-			border: 1px solid rgba(36, 36, 36, 0.64);
+			border: 1px solid var(--stroke);
 			background: none;
 		}
 	}
@@ -426,8 +426,8 @@
 		gap: 8px;
 		align-items: center;
 		p {
-			color: rgba(228, 229, 230, 0.48);
-			font-family: Inter;
+			color: var(--secondary-font);
+			font-family: var(--primary-font-family);
 			font-size: 13px;
 			font-style: normal;
 			font-weight: 400;
@@ -438,11 +438,11 @@
 	.updateFinalWorkspaceButton {
 		border-radius: 100px;
 		width: 100%;
-		border: 1px solid rgba(36, 36, 36, 0.64);
-		background: #1e1e1f;
+		border: 1px solid var(--stroke);
+		background: var(--card);
 		padding: 16px 24px;
-		color: #e4e5e6;
-		font-family: Inter;
+		color: var(--primary-font);
+		font-family: var(--primary-font-family);
 		font-size: 13px;
 		font-style: normal;
 		font-weight: 500;

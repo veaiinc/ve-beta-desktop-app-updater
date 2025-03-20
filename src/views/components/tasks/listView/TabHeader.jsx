@@ -1,21 +1,21 @@
 import React, { memo, useRef, useLayoutEffect, useState, useCallback } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { Tooltip } from 'antd';
-import { ReactComponent as SixDotsSvg } from '../../../../assets/svg/tasks/sixDots.svg';
-import { ReactComponent as EditIcon } from '../../../../assets/svg/tasks/pencilWithLine.svg';
-import { ReactComponent as DuplicateIcon } from '../../../../assets/svg/tasks/duplicate.svg';
-import { ReactComponent as DeleteIcon } from '../../../../assets/svg/tasks/dustBin.svg';
 import { ReactComponent as PlusSvg } from '../../../../assets/svg/tasks/plus.svg';
 import '../../../../assets/scss/tasks/tabHeader.scss';
 import TabDropDown from '../../dropDown/tasks/TabDropDown';
 import DropDown from '../../dropDown/tasks/DropDown';
+import SixDotsSvg from '../../../../assets/svg/tasks/SixDotsSvg';
+import EditSvg from '../../../../assets/svg/ai_assistant/EditSvg';
+import DuplicateSvg from '../../../../assets/svg/tasks/DuplicateSvg';
+import DeleteSvg from '../../../../assets/svg/tasks/DeleteSvg';
 
 const tabDropdownOptions = [
-	{ icon: <EditIcon />, label: 'Rename View', value: 'renameView' },
-	{ icon: <EditIcon />, label: 'Edit View', value: 'editView' },
-	{ icon: <DuplicateIcon />, label: 'Duplicate View', value: 'duplicateView' },
+	{ icon: <EditSvg />, label: 'Rename View', value: 'renameView' },
+	{ icon: <EditSvg />, label: 'Edit View', value: 'editView' },
+	{ icon: <DuplicateSvg />, label: 'Duplicate View', value: 'duplicateView' },
 	{
-		icon: <DeleteIcon className="task-delete-icon" />,
+		icon: <DeleteSvg />,
 		label: 'Delete View',
 		value: 'deleteView',
 	},
@@ -265,7 +265,11 @@ const TabHeader = ({
 															: undefined,
 												}}
 											>
-												{tab?.Icon && <tab.Icon />}
+												{tab?.Icon && (
+													<tab.Icon
+														style={{ color: 'var(--primary-font)' }}
+													/>
+												)}
 												<span className="tab-label">{tab?.label}</span>
 												<span className="tab-underline" />
 											</div>

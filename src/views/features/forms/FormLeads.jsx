@@ -2,8 +2,7 @@ import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import '../../../assets/scss/forms/formLeads.scss';
 import { ReactComponent as BackArrowSvg } from '../../../assets/svg/workflow/backarrow.svg';
 import { ReactComponent as CurlyBracesSvg } from '../../../assets/svg/docs/curly-bracess.svg';
-import { ReactComponent as LinkSvg } from '../../../assets/svg/activity/link.svg';
-import { ReactComponent as LinkShareSvg } from '../../../assets/svg/docs/link-share.svg';
+
 import { ReactComponent as Filter } from '../../../assets/svg/docs/filter.svg';
 import { ReactComponent as Cross } from '../../../assets/svg/docs/cross.svg';
 import { ReactComponent as Search } from '../../../assets/svg/docs/search.svg';
@@ -221,7 +220,7 @@ const FormLeads = () => {
 							</span>
 							<div className="divider"></div>
 							<span className="ctaBtn" onClick={handleEmbededCopy}>
-								<CurlyBracesSvg />
+								<CurlyBracessSvg />
 								<span>Embed Form</span>
 							</span>
 						</div> */}

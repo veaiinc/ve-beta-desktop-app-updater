@@ -8,8 +8,10 @@ import { ActivityState } from './Activity/state';
 import { SubscriptionState } from './subscription/state';
 import { AuthState } from './auth/state';
 import { Calendar } from './Calendar/state';
+import { ThemeState } from './Theme/state';
 import { TasksState } from './tasks/state';
 import { useMemo } from 'react';
+import { theme } from 'antd';
 import { ContactsState } from './contacts/state';
 import { DocumentPreviewState } from './DocumentPreview/state';
 import { AutomationBuilderState } from './automationBuilder/state';
@@ -29,6 +31,7 @@ const useCombineState = () => {
 	const calendarInfo = Calendar();
 	const tasks = TasksState();
 	const contacts = ContactsState();
+	const themeInfo = ThemeState();
 	const documentPreview = DocumentPreviewState();
 	const automationBuilder = AutomationBuilderState();
 	const notes = NotesState();
@@ -47,6 +50,7 @@ const useCombineState = () => {
 			calendarInfo,
 			tasks,
 			contacts,
+			themeInfo,
 			documentPreview,
 			automationBuilder,
 			notes,
@@ -63,6 +67,7 @@ const useCombineState = () => {
 			authInfo,
 			calendarInfo,
 			tasks,
+			themeInfo,
 			contacts,
 			documentPreview,
 			automationBuilder,

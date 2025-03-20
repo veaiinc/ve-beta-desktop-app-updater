@@ -556,8 +556,8 @@ const RenderNotificationUi = ({
 						uniqueIdentifierForTickIcon={'value'}
 						selectedValueObj={info?.valueObjectMapper?.[localOptionType]}
 						selectedValueStyle={{
-							color: 'var(--ve-ai-dark-theme-secondary-color, #939393)',
-							fontFamily: 'Inter',
+							color: 'var(--secondary-font)',
+							fontFamily: 'var(--primary-font-family)',
 							fontSize: '12px',
 							fontStyle: 'normal',
 							fontWeight: '500',

@@ -7,8 +7,7 @@
 	align-items: flex-start;
 	gap: 24px;
 	border-radius: 32px;
-	background: #151515;
-	box-shadow: 0px 53px 53px 0px rgba(0, 0, 0, 0.09), 0px 13px 29px 0px rgba(0, 0, 0, 0.1);
+	background: var(--popup);
 
 	.renameWorkflowModalHeader {
 		display: flex;
@@ -17,8 +16,8 @@
 		align-self: stretch;
 
 		.headerTitle {
-			color: #e4e5e6;
-			font-family: Inter;
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
 			font-size: 18px;
 			font-style: normal;
 			font-weight: 500;
@@ -43,8 +42,8 @@
 		flex: 1 0 0;
 		align-self: stretch;
 		.inputActionContainerLabel {
-			color: #b0b0b0;
-			font-family: Inter;
+			color: var(--secondary-font);
+			font-family: var(--primary-font-family);
 			font-size: 11px;
 			font-style: normal;
 			font-weight: 400;
@@ -59,10 +58,10 @@
 			gap: 10px;
 			align-self: stretch;
 			border-radius: 10px;
-			border: 1px solid rgba(36, 36, 36, 0.64);
+			border: 1px solid var(--stroke);
 			background-color: transparent;
-			color: rgba(228, 229, 230, 0.8);
-			font-family: Inter;
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 400;
@@ -70,9 +69,9 @@
 		}
 		.errorMessage {
 			overflow: hidden;
-			color: rgba(204, 87, 86, 0.8);
+			color: var(--error);
 			text-overflow: ellipsis;
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 400;
@@ -92,9 +91,9 @@
 			align-items: center;
 			gap: 16px;
 			border-radius: 100px;
-			background-color: #6055ec;
-			color: #e4e5e6;
-			font-family: Inter;
+			background-color: var(--primary-button);
+			color: var(--primary-button-font);
+			font-family: var(--primary-font-family);
 			font-size: 13px;
 			font-style: normal;
 			font-weight: 500;
@@ -104,8 +103,8 @@
 		}
 
 		.cancelBtn {
-			color: rgba(228, 229, 230, 0.64);
-			font-family: Inter;
+			color: var(--secondary-font);
+			font-family: var(--primary-font-family);
 			font-size: 13px;
 			font-style: normal;
 			font-weight: 500;

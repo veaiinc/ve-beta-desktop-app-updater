@@ -49,7 +49,7 @@ body {
 	// scroll-behavior: smooth;
 	// overscroll-behavior: none;
 
-	font-family: 'Inter', sans-serif !important;
+	font-family: var(--primary-font-family), sans-serif !important;
 	font-style: normal;
 	-webkit-font-smoothing: antialiased;
 	margin: 0;
@@ -337,7 +337,7 @@ html {
 	color: #fff;
 	margin: 0px;
 	font-size: 13px;
-	font-family: 'Inter';
+	font-family: var(--primary-font-family);
 	z-index: 99;
 	transition: top 0.2s ease-in-out;
 }
@@ -387,7 +387,7 @@ html {
 	}
 	b {
 		margin-left: 4px;
-		@include os-aware-font('Inter');
+		@include os-aware-font(var(--primary-font-family));
 		font-style: normal;
 		font-weight: 500;
 		font-size: 13px;
@@ -421,7 +421,7 @@ html {
 		}
 	}
 	.lrDiscontinuedText {
-		@include os-aware-font('Inter');
+		@include os-aware-font(var(--primary-font-family));
 		font-style: normal;
 		font-weight: 400;
 		font-size: 14px;
@@ -438,7 +438,7 @@ html {
 	.accept-proposal-top-desc {
 		margin-left: 24px;
 		margin-top: 24px;
-		@include os-aware-font('Inter SemiBold');
+		@include os-aware-font('var(--primary-font-family) SemiBold');
 		font-style: normal;
 		font-weight: 600;
 		font-size: 12px;
@@ -466,7 +466,7 @@ html {
 			width: 100%;
 			@include theme-aware(border, proposalListTableListRowBorder, 1px solid);
 			border-radius: 4px;
-			@include os-aware-font('Inter');
+			@include os-aware-font(var(--primary-font-family));
 			font-style: normal;
 			font-weight: 500;
 			font-size: 14px;
@@ -487,7 +487,7 @@ html {
 		width: 100%;
 		margin-top: 24px;
 		.never-expire {
-			@include os-aware-font('Inter');
+			@include os-aware-font(var(--primary-font-family));
 			font-style: normal;
 			font-weight: 500;
 			font-size: 14px;
@@ -507,7 +507,7 @@ html {
 			min-height: 32px;
 			border-radius: 12px;
 			@include theme-aware(background-color, proposalPopUpGrayBtnBg);
-			@include os-aware-font('Inter');
+			@include os-aware-font(var(--primary-font-family));
 			font-style: normal;
 			font-weight: 500;
 			font-size: 14px;
@@ -538,7 +538,7 @@ html {
 		}
 	}
 	label.labelInput {
-		@include os-aware-font('Inter');
+		@include os-aware-font(var(--primary-font-family));
 		padding: 0px;
 		font-style: normal;
 		font-weight: 400;
@@ -581,7 +581,7 @@ html {
 		padding-bottom: 0px !important;
 		height: 41px !important;
 		margin: 0px;
-		font-family: 'Inter';
+		font-family: var(--primary-font-family);
 		font-style: normal;
 		font-weight: 500;
 		font-size: 12px;
@@ -594,7 +594,7 @@ html {
 	input[type='tel'] {
 		outline: none !important;
 		box-shadow: none !important;
-		@include os-aware-font('Inter');
+		@include os-aware-font(var(--primary-font-family));
 		@include theme-aware(color, primaryColor);
 		font-style: normal;
 		font-weight: 500;
@@ -618,7 +618,7 @@ html {
 		opacity: 0;
 	}
 	label {
-		font-family: 'Inter';
+		font-family: var(--primary-font-family);
 		font-style: normal;
 		font-weight: 500;
 		font-size: 12px;
@@ -781,7 +781,7 @@ html {
 			position: absolute;
 			top: 18px;
 			left: 0px;
-			font-family: 'Inter';
+			font-family: var(--primary-font-family);
 			font-style: normal;
 			font-weight: 400;
 			font-size: 13px;
@@ -797,7 +797,7 @@ html {
 	.cp_mrsContainer {
 		padding: 10px 0px 0px 9px;
 		span {
-			font-family: 'Inter';
+			font-family: var(--primary-font-family);
 			font-style: normal;
 			font-weight: 500;
 			font-size: 14px;
@@ -871,7 +871,7 @@ html {
 		}
 	}
 	.bride-groom-warning-text {
-		@include os-aware-font('Inter');
+		@include os-aware-font(var(--primary-font-family));
 		font-style: normal;
 		font-weight: 500;
 		font-size: 16px;
@@ -890,7 +890,7 @@ html {
 				margin: 0px;
 				width: 100%;
 				height: 40px;
-				font-family: 'Inter';
+				font-family: var(--primary-font-family);
 				font-style: normal;
 				font-weight: 400;
 				font-size: 14px;
@@ -942,7 +942,7 @@ html {
 	div {
 		padding: 10px !important;
 		a {
-			font-family: 'Inter';
+			font-family: var(--primary-font-family);
 			font-style: normal;
 			font-weight: 500 !important;
 			font-size: 11px;
@@ -1073,7 +1073,7 @@ html {
 b.new-tag {
 	margin-left: 10px;
 	padding: 3px 12px;
-	font-family: 'Inter';
+	font-family: var(--primary-font-family);
 	font-style: normal;
 	font-weight: 600;
 	font-size: 11px;
@@ -1159,7 +1159,7 @@ b.new-tag {
 			letter-spacing: -0.3px;
 			font-weight: 600;
 			@include theme-aware(color, primaryColor);
-			font-family: 'Inter SemiBold';
+			font-family: 'var(--primary-font-family) SemiBold';
 		}
 	}
 	span {
@@ -1176,7 +1176,7 @@ b.new-tag {
 			letter-spacing: -0.3px;
 			font-weight: 400;
 			@include theme-aware(color, secondaryColor);
-			font-family: 'Inter';
+			font-family: var(--primary-font-family);
 		}
 	}
 }
@@ -1254,7 +1254,7 @@ $time: 3000ms;
 }
 .floating-input,
 .floating-select {
-	@include os-aware-font('Inter');
+	@include os-aware-font(var(--primary-font-family));
 	@include theme-aware(color, primaryColor);
 	font-style: normal;
 	font-weight: 500;
@@ -1517,7 +1517,7 @@ $duration: 15s;
 	box-sizing: content-box;
 	color: #e4e5e6;
 	padding: 5px 0px 5px 100%;
-	font-family: 'Inter';
+	font-family: var(--primary-font-family);
 	font-size: 14px;
 	z-index: 99;
 }
@@ -1796,7 +1796,7 @@ $duration: 15s;
 }
 .tabs-group-logo-preview {
 	a {
-		@include os-aware-font('Inter');
+		@include os-aware-font(var(--primary-font-family));
 		font-style: normal;
 		font-weight: 400;
 		font-size: 14px;
@@ -1820,7 +1820,7 @@ $duration: 15s;
 	border-radius: 12px;
 	span {
 		padding: 8px 12px;
-		font-family: 'Inter';
+		font-family: var(--primary-font-family);
 		font-size: 14px;
 		line-height: 16px;
 		letter-spacing: -0.3px;
@@ -1862,7 +1862,7 @@ $duration: 15s;
 			margin-left: 10px;
 			height: 100%;
 			@include theme-aware(color, primaryColor);
-			font-family: 'Inter';
+			font-family: var(--primary-font-family);
 			font-size: 11px;
 
 			svg {
@@ -1908,7 +1908,7 @@ $duration: 15s;
 		letter-spacing: -0.3px;
 
 		@include theme-aware(color, secondaryColor);
-		font-family: 'Inter';
+		font-family: var(--primary-font-family);
 		@include theme-aware(background-color, tableHeaderBG);
 		padding: 6px 12px;
 		display: flex;
@@ -1927,7 +1927,7 @@ $duration: 15s;
 		position: absolute;
 		right: 0;
 		cursor: pointer;
-		font-family: 'Inter';
+		font-family: var(--primary-font-family);
 		font-size: 14px;
 		line-height: 16px;
 		/* identical to box height, or 114% */
@@ -1978,7 +1978,7 @@ $duration: 15s;
 		padding: 9px 12px;
 		background: #3f8ae2;
 		border-radius: 4px;
-		@include os-aware-font('Inter');
+		@include os-aware-font(var(--primary-font-family));
 		font-style: normal;
 		font-weight: 500;
 		font-size: 14px;
@@ -1989,7 +1989,7 @@ $duration: 15s;
 		cursor: pointer;
 	}
 	.empty-title {
-		@include os-aware-font('Inter');
+		@include os-aware-font(var(--primary-font-family));
 		font-style: normal;
 		font-weight: 500;
 		font-size: 18px;
@@ -2010,7 +2010,7 @@ $duration: 15s;
 	gap: 13px;
 	.form-header-title {
 		display: block;
-		@include os-aware-font('Inter');
+		@include os-aware-font(var(--primary-font-family));
 		font-style: normal;
 		font-weight: 700;
 		font-size: 24px;
@@ -2045,7 +2045,7 @@ $duration: 15s;
 			width: 298px;
 			.desc-title {
 				white-space: nowrap;
-				@include os-aware-font('Inter SemiBold');
+				@include os-aware-font('var(--primary-font-family) SemiBold');
 				font-style: normal;
 				font-weight: 600;
 				font-size: 18px;
@@ -2054,7 +2054,7 @@ $duration: 15s;
 				@include theme-aware(color, primaryColor);
 			}
 			.desc-text {
-				@include os-aware-font('Inter');
+				@include os-aware-font(var(--primary-font-family));
 				font-style: normal;
 				font-weight: 400;
 				font-size: 14px;
@@ -2075,7 +2075,7 @@ $duration: 15s;
 	height: 100vh;
 	gap: 24px;
 	.h3-no-activity {
-		font-family: 'Inter';
+		font-family: var(--primary-font-family);
 		font-size: 24px;
 		font-weight: 500;
 		line-height: 29px;
@@ -2085,7 +2085,7 @@ $duration: 15s;
 		margin: 0;
 	}
 	.p-no-activity {
-		font-family: 'Inter';
+		font-family: var(--primary-font-family);
 		font-size: 14px;
 		font-weight: 400;
 		line-height: 20px;
@@ -2100,7 +2100,7 @@ $duration: 15s;
 		}
 	}
 	.projects-empty-text-new {
-		@include os-aware-font('Inter');
+		@include os-aware-font(var(--primary-font-family));
 		font-style: normal;
 		font-weight: 400;
 		font-size: 14px;
@@ -2147,7 +2147,7 @@ $duration: 15s;
 			gap: 8px;
 			width: 100%;
 			.no-access-title {
-				@include os-aware-font('Inter');
+				@include os-aware-font(var(--primary-font-family));
 				font-style: normal;
 				font-weight: 700;
 				font-size: 24px;
@@ -2155,7 +2155,7 @@ $duration: 15s;
 				@include theme-aware(color, primaryColor);
 			}
 			.no-access-desc {
-				@include os-aware-font('Inter');
+				@include os-aware-font(var(--primary-font-family));
 				font-style: normal;
 				font-weight: 400;
 				font-size: 16px;
@@ -2191,7 +2191,7 @@ $duration: 15s;
 				}
 			}
 			.okay-text {
-				@include os-aware-font('Inter');
+				@include os-aware-font(var(--primary-font-family));
 				font-style: normal;
 				font-weight: 500;
 				font-size: 14px;
@@ -2228,7 +2228,7 @@ $duration: 15s;
 		border-radius: 40px;
 		cursor: pointer;
 		.title {
-			@include os-aware-font('Inter');
+			@include os-aware-font(var(--primary-font-family));
 			font-style: normal;
 			font-weight: 500;
 			font-size: 13px;
@@ -2237,7 +2237,7 @@ $duration: 15s;
 			color: #b0b0b0;
 		}
 		.count {
-			@include os-aware-font('Inter');
+			@include os-aware-font(var(--primary-font-family));
 			font-style: normal;
 			font-weight: 500;
 			font-size: 13px;
@@ -2276,7 +2276,7 @@ $duration: 15s;
 			color: #e4e5e6;
 			font-size: 14px;
 			line-height: 16px;
-			font-family: 'Inter SemiBold';
+			font-family: 'var(--primary-font-family) SemiBold';
 			letter-spacing: -0.3px;
 			text-transform: uppercase;
 		}
@@ -2329,7 +2329,7 @@ $duration: 15s;
 					gap: 16px;
 					width: 220px;
 					height: 40px;
-					@include os-aware-font('Inter');
+					@include os-aware-font(var(--primary-font-family));
 					font-style: normal;
 					font-weight: 400;
 					font-size: 14px;
@@ -2390,7 +2390,7 @@ $duration: 15s;
 			}
 			input[type='text'] {
 				transition: width 0.3s linear;
-				font-family: 'Inter';
+				font-family: var(--primary-font-family);
 				font-style: normal;
 				font-weight: 400;
 				font-size: 14px;
@@ -2448,7 +2448,7 @@ $duration: 15s;
 	}
 	input[type='text'] {
 		transition: width 0.3s linear;
-		font-family: 'Inter';
+		font-family: var(--primary-font-family);
 		font-style: normal;
 		font-weight: 400;
 		font-size: 14px;
@@ -2580,7 +2580,7 @@ $duration: 15s;
 				width: 100%;
 				text-align: center;
 				color: #b0b0b0;
-				font-family: 'Inter';
+				font-family: var(--primary-font-family);
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 300;
@@ -2601,7 +2601,7 @@ $duration: 15s;
 					padding: 0px 16px;
 					color: #b0b0b0;
 					text-align: center;
-					font-family: 'Inter';
+					font-family: var(--primary-font-family);
 					font-size: 13px;
 					font-style: normal;
 					font-weight: 500;
@@ -2614,7 +2614,7 @@ $duration: 15s;
 					label {
 						padding: 0px 8px;
 						color: #fff;
-						font-family: 'Inter';
+						font-family: var(--primary-font-family);
 						font-size: 12px;
 						font-style: normal;
 						font-weight: 400;
@@ -2645,7 +2645,7 @@ $duration: 15s;
 				width: 430px;
 				h3 {
 					color: #b0b0b0;
-					font-family: 'Inter SemiBold';
+					font-family: 'var(--primary-font-family) SemiBold';
 					font-size: 15px;
 					font-style: normal;
 					font-weight: 600;
@@ -2654,13 +2654,13 @@ $duration: 15s;
 				}
 				p {
 					color: #b0b0b0;
-					font-family: 'Inter';
+					font-family: var(--primary-font-family);
 					font-size: 13px;
 					font-style: normal;
 					font-weight: 500;
 					line-height: 16px; /* 123.077% */
 					b {
-						font-family: 'Inter';
+						font-family: var(--primary-font-family);
 						font-size: 20px;
 						font-style: normal;
 						font-weight: 500;
@@ -2671,7 +2671,7 @@ $duration: 15s;
 				.details {
 					color: #e4e5e6;
 					text-align: center;
-					font-family: 'Inter';
+					font-family: var(--primary-font-family);
 					font-size: 13px;
 					font-style: normal;
 					font-weight: 300;
@@ -2692,7 +2692,7 @@ $duration: 15s;
 				}
 				.item-header {
 					color: #b0b0b0;
-					font-family: 'Inter';
+					font-family: var(--primary-font-family);
 					font-size: 15px;
 					font-style: normal;
 					font-weight: 600;
@@ -2700,7 +2700,7 @@ $duration: 15s;
 				}
 				.item-footer {
 					color: #b0b0b0;
-					font-family: 'Inter';
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 300;
@@ -2715,7 +2715,7 @@ $duration: 15s;
 							font-size: 12px;
 							line-height: 16px;
 							/* or 133% */
-							font-family: 'Inter';
+							font-family: var(--primary-font-family);
 							@include theme-aware(color, secondaryColor);
 						}
 					}
@@ -2773,7 +2773,7 @@ $duration: 15s;
 
 							b {
 								color: #e4e5e6;
-								font-family: 'Inter';
+								font-family: var(--primary-font-family);
 								font-size: 13px;
 								font-style: normal;
 								font-weight: 500;
@@ -2791,14 +2791,14 @@ $duration: 15s;
 									justify-content: center;
 									display: flex;
 									@include theme-aware(color, secondaryColor);
-									font-family: 'Inter';
+									font-family: var(--primary-font-family);
 									margin-top: 5px;
 								}
 							}
 							span {
 								width: 100%;
 								color: #e4e5e6;
-								font-family: 'Inter';
+								font-family: var(--primary-font-family);
 								font-size: 13px;
 								font-style: normal;
 								font-weight: 400;
@@ -2807,19 +2807,19 @@ $duration: 15s;
 								margin-top: 4px;
 							}
 							.cost-bold {
-								font-family: 'Inter SemiBold';
+								font-family: 'var(--primary-font-family) SemiBold';
 							}
 							.bottom-abs {
 								position: absolute;
 								bottom: 12px;
 								font-size: 14px;
 								@include theme-aware(color, primaryColor);
-								font-family: 'Inter SemiBold';
+								font-family: 'var(--primary-font-family) SemiBold';
 							}
 							.bold {
 								font-size: 14px;
 								@include theme-aware(color, primaryColor);
-								font-family: 'Inter SemiBold';
+								font-family: 'var(--primary-font-family) SemiBold';
 							}
 							&:hover {
 								border-color: #9256d9;
@@ -2840,7 +2840,7 @@ $duration: 15s;
 				display: flex;
 				flex-direction: row;
 				color: #e4e5e6;
-				font-family: 'Inter';
+				font-family: var(--primary-font-family);
 				font-size: 13px;
 				font-style: normal;
 				font-weight: 500;
@@ -2874,7 +2874,7 @@ $duration: 15s;
 				}
 				span {
 					font-size: 11px;
-					font-family: 'Inter';
+					font-family: var(--primary-font-family);
 					color: red;
 					width: 100%;
 				}
@@ -2888,7 +2888,7 @@ $duration: 15s;
 					border-radius: 8px;
 					border: 0.5px solid #707070;
 					color: #e4e5e6;
-					font-family: 'Inter';
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 300;
@@ -2897,7 +2897,7 @@ $duration: 15s;
 				a {
 					margin-left: auto;
 					color: #e4e5e6;
-					font-family: 'Inter';
+					font-family: var(--primary-font-family);
 					font-size: 13px;
 					font-style: normal;
 					font-weight: 500;
@@ -2917,7 +2917,7 @@ $duration: 15s;
 					flex-direction: column;
 					.pmbil-top {
 						color: #e4e5e6;
-						font-family: 'Inter';
+						font-family: var(--primary-font-family);
 						font-size: 13px;
 						font-style: normal;
 						font-weight: 500;
@@ -2926,7 +2926,7 @@ $duration: 15s;
 					}
 					.pmbil-bottom {
 						color: #e4e5e6;
-						font-family: 'Inter';
+						font-family: var(--primary-font-family);
 						font-size: 13px;
 						font-style: normal;
 						font-weight: 400;
@@ -2939,7 +2939,7 @@ $duration: 15s;
 				.pmbi-right {
 					text-align: right;
 					color: #e4e5e6;
-					font-family: 'Inter';
+					font-family: var(--primary-font-family);
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 400;
@@ -2954,7 +2954,7 @@ $duration: 15s;
 		}
 
 		.pmb-button {
-			font-family: 'Inter';
+			font-family: var(--primary-font-family);
 			font-size: 14px;
 			line-height: 16px;
 			/* identical to box height, or 114% */
@@ -3023,7 +3023,7 @@ $duration: 15s;
 	font-size: 12px;
 	line-height: 28px;
 	@include theme-aware(color, secondaryColor);
-	font-family: 'Inter';
+	font-family: var(--primary-font-family);
 }
 .event-grouping-row {
 	td {
@@ -3054,7 +3054,7 @@ $duration: 15s;
 	@include theme-aware(color, bg);
 	padding: 0px 7px;
 	border-radius: 50px;
-	font-family: 'Inter';
+	font-family: var(--primary-font-family);
 
 	font-weight: 600;
 	font-size: 11px;
@@ -3068,7 +3068,7 @@ $duration: 15s;
 }
 .child-event {
 	min-width: 102px;
-	font-family: 'Inter';
+	font-family: var(--primary-font-family);
 	font-style: normal;
 	font-weight: 500;
 	font-size: 12px;
@@ -3126,7 +3126,7 @@ $duration: 15s;
 			@include theme-aware(background-color, shootAddPopupHeaderBg);
 			padding: 6px !important;
 			font-size: 18px !important;
-			font-family: 'Inter' !important;
+			font-family: var(--primary-font-family) !important;
 			border-radius: 12px;
 			border: none;
 			outline: none;
@@ -3169,7 +3169,7 @@ $duration: 15s;
 	flex-direction: column;
 	width: 100%;
 	span {
-		@include os-aware-font('Inter');
+		@include os-aware-font(var(--primary-font-family));
 		font-style: normal;
 		font-weight: 400;
 		font-size: 13px;
@@ -3193,7 +3193,7 @@ $duration: 15s;
 			letter-spacing: -0.3px;
 			@include theme-aware(color, primaryColor);
 			@include theme-aware(background-color, shootAddPopupHeaderBg);
-			@include os-aware-font('Inter');
+			@include os-aware-font(var(--primary-font-family));
 			border-radius: 12px;
 		}
 		.lc-copy {
@@ -3207,7 +3207,7 @@ $duration: 15s;
 			font-size: 12px;
 			line-height: 16px;
 			/* identical to box height, or 133% */
-			@include os-aware-font('Inter');
+			@include os-aware-font(var(--primary-font-family));
 			letter-spacing: -0.3px;
 			border-radius: 0px 12px 12px 0px;
 			background: #3f8ae2;
@@ -3215,7 +3215,7 @@ $duration: 15s;
 	}
 }
 .pl-download {
-	@include os-aware-font('Inter');
+	@include os-aware-font(var(--primary-font-family));
 	font-weight: 500;
 	font-size: 12px;
 	line-height: 16px;
@@ -3239,7 +3239,7 @@ $duration: 15s;
 	}
 }
 .paymentTopbar {
-	@include os-aware-font('Inter');
+	@include os-aware-font(var(--primary-font-family));
 	z-index: 10;
 	font-style: normal;
 	position: sticky;
@@ -3339,7 +3339,7 @@ $duration: 15s;
 	.no-items {
 		@include theme-aware(color, primaryColor);
 		font-size: 14px;
-		font-family: 'Inter';
+		font-family: var(--primary-font-family);
 		width: 100%;
 		justify-content: center;
 		padding: 0px 30px;
@@ -3370,7 +3370,7 @@ $duration: 15s;
 		font-size: 14px;
 		line-height: 16px;
 		/* identical to box height, or 114% */
-		font-family: 'Inter SemiBold';
+		font-family: 'var(--primary-font-family) SemiBold';
 		letter-spacing: -0.3px;
 		text-transform: uppercase;
 		//position: relative;
@@ -3424,7 +3424,7 @@ $duration: 15s;
 						width: 45%;
 						@include theme-aware(color, secondaryColor);
 						font-size: 11px;
-						font-family: 'Inter SemiBold';
+						font-family: 'var(--primary-font-family) SemiBold';
 						text-transform: uppercase;
 						border: 1px solid #707070;
 					}
@@ -3438,7 +3438,7 @@ $duration: 15s;
 						width: 10%;
 					}
 					span {
-						font-family: 'Inter';
+						font-family: var(--primary-font-family);
 
 						@include theme-aware(color, primaryColor);
 						padding: 8px;
@@ -3472,7 +3472,7 @@ $duration: 15s;
 						width: 25%;
 						@include theme-aware(color, secondaryColor);
 						font-size: 11px;
-						font-family: 'Inter SemiBold';
+						font-family: 'var(--primary-font-family) SemiBold';
 						text-transform: uppercase;
 						border: 1px solid #707070;
 					}
@@ -3487,7 +3487,7 @@ $duration: 15s;
 						width: 30%;
 					}
 					span {
-						font-family: 'Inter';
+						font-family: var(--primary-font-family);
 
 						@include theme-aware(color, primaryColor);
 						padding: 8px;
@@ -3536,7 +3536,7 @@ $duration: 15s;
 					cursor: pointer;
 					padding: 9px 12px;
 					font-size: 13px;
-					font-family: 'Inter';
+					font-family: var(--primary-font-family);
 					&:hover {
 						@include theme-aware(background-color, tableHeaderBG);
 					}
@@ -3560,7 +3560,7 @@ $duration: 15s;
 								text-align: left;
 								overflow: hidden;
 								@include ellipsis;
-								@include os-aware-font('Inter SemiBold');
+								@include os-aware-font('var(--primary-font-family) SemiBold');
 								font-style: normal;
 								font-weight: 600;
 								font-size: 11px;
@@ -3636,7 +3636,7 @@ $duration: 15s;
 								text-align: left;
 								overflow: hidden;
 								@include ellipsis;
-								font-family: 'Inter';
+								font-family: var(--primary-font-family);
 								font-style: normal;
 								font-weight: 400;
 								font-size: 13px;
@@ -3730,7 +3730,7 @@ $duration: 15s;
 						width: 28%;
 						@include theme-aware(color, secondaryColor);
 						font-size: 11px;
-						font-family: 'Inter SemiBold';
+						font-family: 'var(--primary-font-family) SemiBold';
 						text-transform: uppercase;
 						border: 1px solid #707070;
 					}
@@ -3752,7 +3752,7 @@ $duration: 15s;
 						display: flex;
 						justify-content: center;
 
-						font-family: 'Inter SemiBold';
+						font-family: 'var(--primary-font-family) SemiBold';
 						font-size: 11px;
 						line-height: 16px;
 						/* identical to box height, or 145% */
@@ -3760,7 +3760,7 @@ $duration: 15s;
 						letter-spacing: -0.3px;
 					}
 					span {
-						font-family: 'Inter';
+						font-family: var(--primary-font-family);
 
 						@include theme-aware(color, primaryColor);
 						padding: 8px;
@@ -3792,13 +3792,13 @@ $duration: 15s;
 			text-transform: uppercase;
 			@include theme-aware(color, secondaryColor);
 			font-size: 11px;
-			font-family: 'Inter SemiBold';
+			font-family: 'var(--primary-font-family) SemiBold';
 			border-right: 1px solid #b0b0b0;
 		}
 
 		b {
 			padding: 8px;
-			font-family: 'Inter';
+			font-family: var(--primary-font-family);
 
 			@include theme-aware(color, primaryColor);
 			margin-left: 15px;
@@ -3849,7 +3849,7 @@ $duration: 15s;
 				cursor: pointer;
 				padding: 9px 12px;
 				font-size: 13px;
-				font-family: 'Inter';
+				font-family: var(--primary-font-family);
 				&:hover {
 					@include theme-aware(background-color, tableHeaderBG);
 				}
@@ -3859,7 +3859,7 @@ $duration: 15s;
 }
 .equipment-assign-popup {
 	h4 {
-		font-family: 'Inter';
+		font-family: var(--primary-font-family);
 		margin: 0;
 		@include theme-aware(color, primaryColor);
 
@@ -3883,7 +3883,7 @@ $duration: 15s;
 					width: 40%;
 					@include theme-aware(color, secondaryColor);
 					font-size: 11px;
-					font-family: 'Inter SemiBold';
+					font-family: 'var(--primary-font-family) SemiBold';
 					text-transform: uppercase;
 					border: 1px solid #707070;
 				}
@@ -3899,7 +3899,7 @@ $duration: 15s;
 					align-items: center;
 				}
 				span {
-					font-family: 'Inter';
+					font-family: var(--primary-font-family);
 					font-size: 14px;
 					@include theme-aware(color, primaryColor);
 					padding: 8px;
@@ -3934,7 +3934,7 @@ $duration: 15s;
 				}
 				p {
 					margin-top: 9px;
-					font-family: 'Inter';
+					font-family: var(--primary-font-family);
 					font-size: 14px;
 					color: red;
 				}
@@ -3947,7 +3947,7 @@ $duration: 15s;
 	font-size: 14px;
 	line-height: 24px;
 	/* or 171% */
-	font-family: 'Inter';
+	font-family: var(--primary-font-family);
 	letter-spacing: -0.3px;
 
 	color: #fdb946;
@@ -3967,7 +3967,7 @@ $duration: 15s;
 	p {
 		@include theme-aware(color, secondaryColor);
 		font-size: 16px;
-		font-family: 'Inter';
+		font-family: var(--primary-font-family);
 		text-align: center;
 		width: 100%;
 		line-height: 150%;
@@ -3979,7 +3979,7 @@ $duration: 15s;
 		padding: 16px 9px;
 		color: #fff;
 		font-size: 14px;
-		font-family: 'Inter';
+		font-family: var(--primary-font-family);
 		background: #3f8ae2;
 	}
 }
@@ -4001,7 +4001,7 @@ $duration: 15s;
 		border-bottom: 1px solid #707070;
 		font-size: 14px;
 		@include theme-aware(color, primaryColor);
-		font-family: 'Inter';
+		font-family: var(--primary-font-family);
 	}
 }
 .table-row-two-rows-expense-tu {
@@ -4017,22 +4017,22 @@ $duration: 15s;
 		width: 100%;
 		text-align: left;
 		font-size: 12px;
-		font-family: 'Inter';
+		font-family: var(--primary-font-family);
 		@include theme-aware(color, secondaryColor);
 	}
 	font-size: 14px;
-	font-family: 'Inter';
+	font-family: var(--primary-font-family);
 	@include theme-aware(color, primary);
 }
 .no-access {
 	@include theme-aware(color, secondaryColor);
 	font-size: 14px;
-	font-family: 'Inter';
+	font-family: var(--primary-font-family);
 }
 .access-denied-finances {
 	@include theme-aware(color, primaryColor);
 	font-size: 16px;
-	font-family: 'Inter';
+	font-family: var(--primary-font-family);
 	height: 100%;
 	display: flex;
 	align-items: center;
@@ -4100,14 +4100,14 @@ button.sl-button-new {
 	border: 1px solid rgba(228, 229, 230, 0.1);
 	border-radius: 4px;
 	cursor: pointer;
-	@include os-aware-font('Inter');
+	@include os-aware-font(var(--primary-font-family));
 	font-style: normal;
 	font-weight: 400;
 	font-size: 16px;
 	line-height: 24px;
 	color: #ffffff;
 	.sl-button-highlighted-text {
-		@include os-aware-font('Inter SemiBold');
+		@include os-aware-font('var(--primary-font-family) SemiBold');
 		font-style: normal;
 		font-weight: 600;
 		font-size: 16px;
@@ -4155,7 +4155,7 @@ button.sl-button-new.disabled {
 			// width: 501px;
 			// max-width: 501px;
 			.renew-sbpln-bottom-top-text {
-				@include os-aware-font('Inter');
+				@include os-aware-font(var(--primary-font-family));
 				font-style: normal;
 				font-weight: 700;
 				font-size: 36px;
@@ -4163,7 +4163,7 @@ button.sl-button-new.disabled {
 				@include theme-aware(color, primaryColor);
 			}
 			.renew-sbpln-bottom-bottom-text {
-				@include os-aware-font('Inter');
+				@include os-aware-font(var(--primary-font-family));
 				font-style: normal;
 				font-weight: 400;
 				font-size: 18px;
@@ -4194,7 +4194,7 @@ button.sl-button-new.disabled {
 				height: 24px;
 			}
 			.renew-sbpln-btn-text {
-				@include os-aware-font('Inter');
+				@include os-aware-font(var(--primary-font-family));
 				font-style: normal;
 				font-weight: 500;
 				font-size: 14px;
@@ -4253,7 +4253,7 @@ button.sl-button-new.disabled {
 		text-align: center;
 
 		color: #e4e5e6;
-		font-family: 'Inter';
+		font-family: var(--primary-font-family);
 		border-top-right-radius: 12px;
 		border-top-left-radius: 12px;
 	}
@@ -4270,7 +4270,7 @@ button.sl-button-new.disabled {
 		text-align: center;
 
 		color: #e4e5e6;
-		font-family: 'Inter';
+		font-family: var(--primary-font-family);
 		border-top-right-radius: 12px;
 		border-top-left-radius: 12px;
 		padding: 0 24px;
@@ -4289,7 +4289,7 @@ button.sl-button-new.disabled {
 		text-align: center;
 
 		color: #e4e5e6;
-		font-family: 'Inter';
+		font-family: var(--primary-font-family);
 		border-top-right-radius: 12px;
 		border-top-left-radius: 12px;
 	}
@@ -4305,7 +4305,7 @@ button.sl-button-new.disabled {
 			letter-spacing: -0.3px;
 
 			color: #f8532b;
-			font-family: 'Inter';
+			font-family: var(--primary-font-family);
 		}
 		p {
 			font-size: 14px;
@@ -4315,7 +4315,7 @@ button.sl-button-new.disabled {
 			letter-spacing: -0.3px;
 
 			color: #e4e5e6;
-			font-family: 'Inter';
+			font-family: var(--primary-font-family);
 			margin-top: 20px;
 		}
 	}
@@ -4331,7 +4331,7 @@ button.sl-button-new.disabled {
 			letter-spacing: -0.3px;
 
 			// color: #f8532b;
-			font-family: 'Inter';
+			font-family: var(--primary-font-family);
 		}
 		p {
 			font-size: 14px;
@@ -4341,7 +4341,7 @@ button.sl-button-new.disabled {
 			letter-spacing: -0.3px;
 
 			color: #e4e5e6;
-			font-family: 'Inter';
+			font-family: var(--primary-font-family);
 			margin-top: 20px;
 		}
 	}
@@ -4359,7 +4359,7 @@ button.sl-button-new.disabled {
 			letter-spacing: -0.3px;
 
 			color: #b0b0b0;
-			font-family: 'Inter';
+			font-family: var(--primary-font-family);
 			padding: 10px 12px;
 			background: #272727;
 			border-radius: 4px;
@@ -4380,7 +4380,7 @@ button.sl-button-new.disabled {
 			letter-spacing: -0.3px;
 
 			color: #b0b0b0;
-			font-family: 'Inter';
+			font-family: var(--primary-font-family);
 			padding: 10px 12px;
 			background: #272727;
 			border-radius: 4px;
@@ -4391,7 +4391,7 @@ button.sl-button-new.disabled {
 
 .create-task-checkbox-text {
 	color: #e4e5e6;
-	font-family: 'Inter';
+	font-family: var(--primary-font-family);
 	font-size: 14px;
 	font-style: 'normal';
 	font-weight: 500;
@@ -4417,7 +4417,7 @@ button.sl-button-new.disabled {
 }
 .graph-text {
 	color: #fff;
-	// font-family: 'Inter';
+	// font-family: var(--primary-font-family);
 	font-size: 24px;
 	font-style: normal;
 	font-weight: 500;
@@ -4459,7 +4459,7 @@ button.sl-button-new.disabled {
 	box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.25);
 	border-radius: 12px;
 	overflow: clip;
-	font-family: 'Inter';
+	font-family: var(--primary-font-family);
 	font-style: normal;
 	font-weight: 500;
 	font-size: 16px;
@@ -4492,7 +4492,7 @@ button.sl-button-new.disabled {
 				}
 			}
 			.header-text {
-				font-family: 'Inter';
+				font-family: var(--primary-font-family);
 				font-style: normal;
 				font-weight: 500;
 				font-size: 13px;
@@ -4559,7 +4559,7 @@ button.sl-button-new.disabled {
 			background: #232323;
 			border-radius: 4px;
 			cursor: pointer;
-			font-family: 'Inter';
+			font-family: var(--primary-font-family);
 			font-style: normal;
 			font-weight: 500;
 			font-size: 14px;
@@ -4578,7 +4578,7 @@ button.sl-button-new.disabled {
 			height: 36px;
 			background: #3f8ae2;
 			border-radius: 4px;
-			font-family: 'Inter';
+			font-family: var(--primary-font-family);
 			font-style: normal;
 			font-weight: 500;
 			font-size: 14px;
@@ -4600,7 +4600,7 @@ button.sl-button-new.disabled {
 	gap: 4px;
 	background: #3f8ae2;
 	border-radius: 4px;
-	@include os-aware-font('Inter');
+	@include os-aware-font(var(--primary-font-family));
 	font-style: normal;
 	font-weight: 500;
 	font-size: 14px;
@@ -4632,7 +4632,7 @@ button.sl-button-new.disabled {
 		position: absolute;
 		right: 16px;
 		font-size: 12px;
-		font-family: 'Inter';
+		font-family: var(--primary-font-family);
 		color: #f8532b;
 		text-decoration: underline;
 		display: flex;
@@ -4656,7 +4656,7 @@ button.sl-button-new.disabled {
 	width: 80%;
 	position: relative;
 	.total-unique-responses-count {
-		@include os-aware-font('Inter SemiBold');
+		@include os-aware-font('var(--primary-font-family) SemiBold');
 		font-style: normal;
 		font-weight: 600;
 		font-size: 18px;
@@ -4668,7 +4668,7 @@ button.sl-button-new.disabled {
 		@include theme-aware(color, primaryColor);
 	}
 	.total-unique-responses-title {
-		@include os-aware-font('Inter');
+		@include os-aware-font(var(--primary-font-family));
 		font-style: normal;
 		font-weight: 400;
 		font-size: 14px;
@@ -4705,7 +4705,7 @@ button.sl-button-new.disabled {
 	width: 100%;
 
 	font-size: 12px;
-	font-family: 'Inter';
+	font-family: var(--primary-font-family);
 	color: #f8532b;
 
 	display: flex;
@@ -4735,7 +4735,7 @@ button.sl-button-new.disabled {
 		flex-direction: column;
 		.title {
 			color: #fff;
-			font-family: 'Inter SemiBold';
+			font-family: 'var(--primary-font-family) SemiBold';
 			font-size: 17px;
 			font-weight: 600;
 			line-height: 20px;
@@ -4745,7 +4745,7 @@ button.sl-button-new.disabled {
 		.description {
 			color: #fff;
 			margin-top: 8px;
-			font-family: 'Inter';
+			font-family: var(--primary-font-family);
 			font-size: 13px;
 			font-weight: 400;
 			line-height: 16px;
@@ -4761,7 +4761,7 @@ button.sl-button-new.disabled {
 				margin-right: 12px;
 				color: #e4e5e6;
 				cursor: pointer;
-				font-family: 'Inter SemiBold';
+				font-family: 'var(--primary-font-family) SemiBold';
 				font-size: 13px;
 				font-weight: 600;
 				line-height: 32px;
@@ -4802,7 +4802,7 @@ button.sl-button-new.disabled {
 }
 .pgraph-title {
 	@include theme-aware(color, primaryColor);
-	font-family: 'Inter SemiBold';
+	font-family: 'var(--primary-font-family) SemiBold';
 	font-size: 18px;
 	font-style: normal;
 	font-weight: 600;
@@ -4812,7 +4812,7 @@ button.sl-button-new.disabled {
 }
 .pgraph-desc {
 	@include theme-aware(color, secondaryColor);
-	font-family: 'Inter';
+	font-family: var(--primary-font-family);
 	font-size: 13.5px;
 	font-style: normal;
 	font-weight: 400;
@@ -4848,7 +4848,7 @@ button.sl-button-new.disabled {
 		align-items: center;
 		margin-left: 24px;
 		@include theme-aware(color, primaryColor);
-		font-family: 'Inter SemiBold';
+		font-family: 'var(--primary-font-family) SemiBold';
 		font-size: 13px;
 		font-style: normal;
 		font-weight: 600;
@@ -4933,7 +4933,7 @@ button.sl-button-new.disabled {
 .proposal-count-text {
 	color: #fffefe;
 	font-size: 18px;
-	font-family: 'Inter';
+	font-family: var(--primary-font-family);
 	font-style: normal;
 	font-weight: 400;
 	line-height: 28px;
@@ -5004,7 +5004,7 @@ button.sl-button-new.disabled {
 	@include theme-aware(color, fg);
 	margin-left: 7px;
 	text-align: center;
-	font-family: 'Inter';
+	font-family: var(--primary-font-family);
 	font-size: 12px;
 	font-style: normal;
 	font-weight: 500;
@@ -5024,7 +5024,7 @@ button.sl-button-new.disabled {
 	.svg-loader {
 	}
 	.text {
-		font-family: 'Inter';
+		font-family: var(--primary-font-family);
 		font-size: 12px;
 		font-style: normal;
 		font-weight: 500;
@@ -5142,7 +5142,7 @@ button.sl-button-new.disabled {
 					background-color: #1e1e1e;
 
 					.no-data-block {
-						font-family: 'Inter';
+						font-family: var(--primary-font-family);
 						font-size: 12px;
 						font-weight: 400;
 						line-height: 16px;
@@ -5186,7 +5186,7 @@ button.sl-button-new.disabled {
 	}
 }
 .data-end {
-	font-family: 'Inter';
+	font-family: var(--primary-font-family);
 	font-size: 12px;
 	font-weight: 400;
 	line-height: 16px;
@@ -5211,7 +5211,7 @@ button.sl-button-new.disabled {
 		@include theme-aware(background-color, advanced-filter-bg);
 		border-radius: 36px;
 		height: 36px;
-		font-family: 'Inter';
+		font-family: var(--primary-font-family);
 		font-size: 13px;
 		font-weight: 500;
 		line-height: 16px;
@@ -5242,7 +5242,7 @@ button.sl-button-new.disabled {
 				border-radius: 50%;
 				background-color: #c8c8c8;
 				color: #121212;
-				font-family: 'Inter';
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 
 				line-height: 16px;
@@ -5377,7 +5377,7 @@ button.sl-button-new.disabled {
 		padding: 0;
 		div {
 			font-size: 13px;
-			font-family: 'Inter';
+			font-family: var(--primary-font-family);
 			color: #e4e5e6;
 			padding-left: 10px !important;
 		}
@@ -5397,7 +5397,7 @@ button.sl-button-new.disabled {
 	align-items: center;
 	justify-content: center;
 	.title {
-		font-family: 'Inter';
+		font-family: var(--primary-font-family);
 		font-size: 16px;
 		font-weight: 500;
 		line-height: 19px;
@@ -5406,7 +5406,7 @@ button.sl-button-new.disabled {
 		color: #e4e5e6;
 	}
 	.info {
-		font-family: 'Inter';
+		font-family: var(--primary-font-family);
 		font-size: 13px;
 		font-weight: 400;
 		line-height: 20px;
@@ -5446,7 +5446,7 @@ button.sl-button-new.disabled {
 
 	i {
 		font-size: 12px;
-		font-family: 'Inter';
+		font-family: var(--primary-font-family);
 		color: #fff;
 	}
 	.item {
@@ -5456,7 +5456,7 @@ button.sl-button-new.disabled {
 		p {
 			text-align: left;
 			font-size: 12px;
-			font-family: 'Inter';
+			font-family: var(--primary-font-family);
 			color: #fff;
 		}
 		&:hover {
@@ -5507,7 +5507,7 @@ button.sl-button-new.disabled {
 	h3 {
 		text-align: center;
 		font-size: 16px;
-		font-family: 'Inter';
+		font-family: var(--primary-font-family);
 		color: #b0b0b0;
 	}
 	a {
@@ -5536,7 +5536,7 @@ button.sl-button-new.disabled {
 	width: 24px;
 	height: 24px;
 	background-color: #b0b0b0;
-	font-family: 'Inter';
+	font-family: var(--primary-font-family);
 	font-size: 12px;
 	font-weight: 500;
 	line-height: 24px;
@@ -5550,7 +5550,7 @@ button.sl-button-new.disabled {
 	border-radius: 50%;
 }
 .i-crew-select {
-	font-family: 'Inter';
+	font-family: var(--primary-font-family);
 	font-size: 11px;
 	font-weight: 400;
 	line-height: 24px;
@@ -5560,7 +5560,7 @@ button.sl-button-new.disabled {
 }
 .menu {
 	span {
-		font-family: 'Inter' !important;
+		font-family: var(--primary-font-family) !important;
 		font-size: 11px !important;
 		font-weight: 500 !important;
 		line-height: 16px !important;
@@ -5591,7 +5591,7 @@ button.sl-button-new.disabled {
 		flex-direction: column;
 	}
 	.title {
-		font-family: 'Inter';
+		font-family: var(--primary-font-family);
 		font-size: 18px;
 		font-weight: 500;
 		line-height: 20px;
@@ -5601,7 +5601,7 @@ button.sl-button-new.disabled {
 		margin-top: 24px;
 	}
 	.info {
-		font-family: 'Inter';
+		font-family: var(--primary-font-family);
 		font-size: 13px;
 		font-weight: 400;
 		line-height: 16px;
@@ -5620,7 +5620,7 @@ button.sl-button-new.disabled {
 		padding: 16px;
 		width: 100%;
 		h2 {
-			font-family: 'Inter';
+			font-family: var(--primary-font-family);
 			font-size: 18px;
 			font-weight: 500;
 			line-height: 20px;
@@ -5629,7 +5629,7 @@ button.sl-button-new.disabled {
 			@include theme-aware(color, primaryColor);
 		}
 		p {
-			font-family: 'Inter';
+			font-family: var(--primary-font-family);
 			font-size: 13px;
 			font-weight: 400;
 			line-height: 20px;
@@ -5642,7 +5642,7 @@ button.sl-button-new.disabled {
 			flex-direction: row;
 			gap: 20px;
 			a {
-				font-family: 'Inter';
+				font-family: var(--primary-font-family);
 				font-size: 13px;
 				font-weight: 500;
 				line-height: 16px;
@@ -5698,7 +5698,7 @@ button.sl-button-new.disabled {
 	flex-direction: column;
 	background: none !important;
 	.title {
-		font-family: 'Inter';
+		font-family: var(--primary-font-family);
 		font-size: 18px;
 		font-weight: 500;
 		line-height: 20px;
@@ -5707,7 +5707,7 @@ button.sl-button-new.disabled {
 		color: #e4e5e6;
 	}
 	.info {
-		font-family: 'Inter';
+		font-family: var(--primary-font-family);
 		font-size: 13px;
 		font-weight: 400;
 		line-height: 16px;
@@ -5795,7 +5795,7 @@ button.sl-button-new.disabled {
 	flex-direction: column;
 	margin-bottom: 24px;
 	p {
-		font-family: 'Inter SemiBold';
+		font-family: 'var(--primary-font-family) SemiBold';
 		font-size: 20px;
 		font-weight: 600;
 		line-height: 32px;
@@ -5804,7 +5804,7 @@ button.sl-button-new.disabled {
 		color: #e4e5e6;
 	}
 	span {
-		font-family: 'Inter';
+		font-family: var(--primary-font-family);
 		font-size: 14px;
 		font-weight: 400;
 		line-height: 20px;
@@ -5841,7 +5841,7 @@ button.sl-button-new.disabled {
 		height: 60px;
 		width: 600px;
 		p {
-			font-family: 'Inter SemiBold';
+			font-family: 'var(--primary-font-family) SemiBold';
 			font-size: 14px;
 			font-weight: 600;
 			line-height: 24px;
@@ -5921,7 +5921,7 @@ button.sl-button-new.disabled {
 					flex-direction: column;
 					gap: 8px;
 					h3 {
-						font-family: 'Inter';
+						font-family: var(--primary-font-family);
 						font-size: 14px;
 						font-weight: 500;
 						line-height: 16px;
@@ -5931,7 +5931,7 @@ button.sl-button-new.disabled {
 						margin: 0;
 					}
 					p {
-						font-family: 'Inter';
+						font-family: var(--primary-font-family);
 						font-size: 12px;
 						font-weight: 400;
 						line-height: 16px;
@@ -5945,7 +5945,7 @@ button.sl-button-new.disabled {
 						display: flex;
 						align-items: center;
 						justify-content: center;
-						font-family: 'Inter';
+						font-family: var(--primary-font-family);
 						font-size: 11px;
 						font-weight: 400;
 						line-height: 16px;
@@ -5997,7 +5997,7 @@ button.sl-button-new.disabled {
 .coupon-code-applied {
 	b {
 		color: #e4e5e6;
-		font-family: 'Inter';
+		font-family: var(--primary-font-family);
 		font-size: 12px;
 		font-style: normal;
 		font-weight: 500;
@@ -6005,7 +6005,7 @@ button.sl-button-new.disabled {
 	}
 	legend {
 		color: #e4e5e6;
-		font-family: 'Inter';
+		font-family: var(--primary-font-family);
 		font-size: 12px;
 		font-style: normal;
 		font-weight: 300;
@@ -6045,7 +6045,7 @@ input[type='number'] {
 	align-items: center;
 	height: 48px;
 	font-size: 14px;
-	font-family: 'Inter SemiBold';
+	font-family: 'var(--primary-font-family) SemiBold';
 	cursor: pointer;
 	color: #333;
 	&:hover {
@@ -6106,7 +6106,7 @@ input[type='number'] {
 		}
 	}
 	font-size: 13px;
-	font-family: 'Inter';
+	font-family: var(--primary-font-family);
 	color: #707070;
 }
 
@@ -6156,4 +6156,13 @@ input[type='number'] {
 		background-color: transparent !important;
 		padding: 0 !important;
 	}
+}
+
+.aiAgentsActivityCardssubTextStyling {
+	font-family: var(--primary-font-family);
+	font-size: 12px;
+	font-style: normal;
+	font-weight: 500;
+	line-height: normal;
+	color: #e8e8e8;
 }

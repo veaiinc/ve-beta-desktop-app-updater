@@ -30,8 +30,8 @@
 				gap: 8px;
 				cursor: pointer;
 
-				color: #e4e5e6;
-				font-family: Inter;
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
 				font-size: 18px;
 				font-style: normal;
 				font-weight: 500;
@@ -45,7 +45,7 @@
 				align-items: flex-start;
 				gap: 10px;
 				border-radius: 8px;
-				background: #1c1d1f;
+				background: var(--card);
 
 				.viewToggle {
 					display: flex;
@@ -62,8 +62,8 @@
 						flex: 1 0 0;
 						cursor: pointer;
 
-						color: rgba(228, 229, 230, 0.48);
-						font-family: Inter;
+						color: rgba(var(--primary-font), 0.48);
+						font-family: var(--primary-font-family);
 						font-size: 12px;
 						font-style: normal;
 						font-weight: 500;
@@ -72,8 +72,8 @@
 
 					.active {
 						border-radius: 4px;
-						background: #171819;
-						color: #e4e5e6;
+						background: var(--card-over-card-hover);
+						color: var(--primary-font);
 						cursor: default;
 					}
 				}
@@ -97,12 +97,12 @@
 					align-items: center;
 					gap: var(--Spacing-space-7, 12px);
 					border-radius: 8px;
-					background: #1d1d1d;
-					box-shadow: 0px 4px 30px 0px rgba(0, 0, 0, 0.03);
+					background: var(--card);
+					// box-shadow: 0px 4px 30px 0px rgba(0, 0, 0, 0.03);
 					cursor: pointer;
 
-					color: #e4e5e6;
-					font-family: Inter, sans-serif;
+					color: var(--primary-font);
+					font-family: var(--primary-font-family), sans-serif;
 					font-size: 12px;
 					font-weight: 500;
 					line-height: normal;
@@ -115,15 +115,15 @@
 
 				.ant-select-selector {
 					border-radius: 8px;
-					background: #1a1a1a;
-					box-shadow: 0px 4px 30px 0px rgba(0, 0, 0, 0.03);
+					background: var(--card);
+					// box-shadow: 0px 4px 30px 0px rgba(0, 0, 0, 0.03);
 					border: none;
 
 					.ant-select-selection-search-input,
 					.ant-select-selection-placeholder,
 					.ant-select-selection-item {
-						color: #e4e5e6;
-						font-family: Inter;
+						color: var(--primary-font);
+						font-family: var(--primary-font-family);
 						font-size: 12px;
 						font-style: normal;
 						font-weight: 500;
@@ -135,23 +135,23 @@
 					// }
 
 					.ant-select-selection-placeholder {
-						color: #646567;
+						color: rgba(var(--primary-font), 0.48);
 					}
 				}
 
 				.ant-select-arrow {
-					color: #818285;
+					color: rgba(var(--primary-font), 0.48);
 				}
 
 				.ant-select-dropdown {
 					border-radius: 8px;
-					background: #1a1a1a;
-					box-shadow: 0px 4px 30px 0px rgba(0, 0, 0, 0.03);
+					background: var(--card);
+					box-shadow: 0px 4px 30px 0px var(--stroke);
 					border: none;
 
 					.ant-select-item {
-						color: #e4e5e6;
-						font-family: Inter;
+						color: var(--primary-font);
+						font-family: var(--primary-font-family);
 						font-size: 12px;
 						font-style: normal;
 						font-weight: 500;
@@ -159,9 +159,9 @@
 					}
 
 					.ant-select-item-option-selected {
-						background: rgba(176, 176, 176, 0.15);
-						box-shadow: -4px -4px 6px 0px rgba(228, 229, 230, 0.07) inset,
-							4px 4px 6px 0px rgba(17, 17, 17, 0.51) inset;
+						background: var(--card-over-card);
+						box-shadow: -4px -4px 6px 0px var(--stroke) inset,
+							4px 4px 6px 0px var(--stroke) inset;
 					}
 
 					.ant-select-item-option-content {
@@ -182,9 +182,9 @@
 
 			.dayHeader {
 				flex: 1 0 0;
-				color: rgba(228, 229, 230, 0.48);
+				color: var(--secondary-font);
 				text-align: center;
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 500;
@@ -192,8 +192,7 @@
 				user-select: none;
 
 				border-radius: 4px;
-				background: #1c1d1f;
-				background: color(display-p3 0.1098 0.1137 0.1216);
+				background: var(--card-over-card-hover);
 				display: flex;
 				height: 44px;
 				flex-direction: column;
@@ -203,7 +202,7 @@
 				flex: 1 0 0;
 
 				&:hover {
-					color: #e4e5e6;
+					color: var(--primary-font);
 					border-radius: 8px;
 				}
 
@@ -239,8 +238,7 @@
 				gap: 8px;
 				flex: 1 0 0;
 				border-radius: 4px;
-				background: #1c1d1f;
-				background: color(display-p3 0.1098 0.1137 0.1216);
+				background: var(--card-over-card-hover);
 
 				.weekDayWrapper {
 					display: flex;
@@ -249,10 +247,9 @@
 					justify-content: center;
 					align-items: center;
 					gap: 4px;
-					color: var(--secondary-font, #787e87);
-					color: var(--secondary-font, color(display-p3 0.4784 0.4941 0.5216));
+					color: var(--secondary-font);
 					text-align: center;
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 
 					span {
 						font-size: 11px;
@@ -271,10 +268,10 @@
 				}
 			}
 			.active {
-				background: #f2f2f3;
+				background: var(--primary-font);
 				span,
 				span:nth-child(2) {
-					color: #111;
+					color: var(--card);
 				}
 			}
 		}

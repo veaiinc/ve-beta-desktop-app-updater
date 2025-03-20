@@ -153,7 +153,7 @@ const InviteMembersWorkspaceComponent = ({
 									style={{
 										color: 'crimson',
 										fontSize: '11px',
-										fontFamily: 'Inter',
+										fontFamily: 'var(--primary-font-family)',
 										textAlign: 'end',
 										marginTop: '10px',
 									}}
@@ -167,7 +167,7 @@ const InviteMembersWorkspaceComponent = ({
 									style={{
 										color: 'green',
 										fontSize: '11px',
-										fontFamily: 'Inter',
+										fontFamily: 'var(--primary-font-family)',
 										textAlign: 'end',
 										marginTop: '10px',
 									}}

@@ -12,6 +12,8 @@ import { ReactComponent as DeleteIcon } from '../../../../assets/svg/tasks/dustB
 import PropertiesDropDown from './PropertiesDropDown';
 import GroupDropDown from './GroupDropDown';
 import LayoutDropDown from './LayoutDropDown';
+import ThreeDotsSvg from '../../../../assets/svg/my_templates/ThreeDotsSvg';
+// import CrossSvg from '../../../../assets/svg/docs/CrossSvg';
 
 const OptionsDropDown = ({
 	properties,
@@ -178,10 +180,11 @@ const OptionsDropDown = ({
 					{info?.selected ? (
 						optionsMapper?.[info.selected]
 					) : (
-						<div className="view-options">
+						<div className="view-options" style={{ color: 'var(--primary-font)' }}>
 							<div className="view-options-header">
 								<span className="view-options-header-title">View Options</span>
 								<CrossSvg onClick={handleClose} className="cursor-pointer" />
+								{/* <CrossSvg onClick={handleClose} /> */}
 							</div>
 							<div className="view-options-body">
 								<div className="view-details">
@@ -289,9 +292,9 @@ const OptionsDropDown = ({
 			overlayStyle={{ minWidth: 'fit-content' }}
 			overlayClassName="options-dropdown-tooltip"
 		>
-			<button className="btn-options">
-				<HorizontalMoreIcon style={{ width: '20px', height: '20px' }} />
-			</button>
+			<div className="btn-options">
+				<ThreeDotsSvg />
+			</div>
 		</Tooltip>
 	);
 };

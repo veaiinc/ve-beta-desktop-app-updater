@@ -3,8 +3,8 @@
 	width: 510px;
 	padding: 24px 20px;
 	border-radius: 15px;
-	border: 1px solid #313131;
-	background: #151515;
+	border: 1px solid var(--stroke);
+	background: var(--popup);
 	flex-direction: column;
 	height: 355px;
 	transition: all 0.2s;
@@ -24,12 +24,12 @@
 				align-items: center;
 				align-self: stretch;
 				padding-bottom: 4px;
-				border-bottom: 1px solid #232323;
+				border-bottom: 1px solid var(--stroke);
 				.linkDetailText {
 					overflow: hidden;
-					color: #e4e5e6;
+					color: var(--primary-font);
 					text-overflow: ellipsis;
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 13px;
 					font-style: normal;
 					font-weight: 400;
@@ -42,8 +42,8 @@
 					.editableSlugInput {
 						background-color: transparent;
 						border: none;
-						color: #e4e5e6;
-						font-family: Inter;
+						color: var(--primary-font);
+						font-family: var(--primary-font-family);
 						font-size: 13px;
 						font-style: normal;
 						font-weight: 400;
@@ -63,8 +63,8 @@
 				display: flex;
 				align-items: center;
 				align-self: stretch;
-				color: #cc5756;
-				font-family: Inter;
+				color: var(--error);
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 400;
@@ -98,7 +98,7 @@
 						align-items: center;
 						gap: 12.5px;
 						border-radius: 6.25px;
-						background: #292929;
+						background: var(--card);
 					}
 					.settingsLabelholder {
 						display: flex;
@@ -106,9 +106,9 @@
 						flex: 1;
 
 						.settingsLabelText {
-							color: #e8e8e8;
+							color: var(--secondary-font);
 							// text-align: center;
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 12px;
 							font-style: normal;
 							font-weight: 500;
@@ -119,7 +119,7 @@
 				}
 				.settingsContainer:hover {
 					border-radius: 8px;
-					background: #1b1b1b;
+					background: var(--card);
 				}
 
 				.enableLinkSettingsContainer {
@@ -136,16 +136,16 @@
 						gap: 8px;
 						flex: 1;
 						.expiryHeadingLabel {
-							color: #e8e8e8;
-							font-family: Inter;
+							color: var(--secondary-font);
+							font-family: var(--primary-font-family);
 							font-size: 14px;
 							font-style: normal;
 							font-weight: 500;
 							line-height: normal;
 						}
 						.expirySubLabel {
-							color: #797979;
-							font-family: Inter;
+							color: var(--secondary-font);
+							font-family: var(--primary-font-family);
 							font-size: 9px;
 							font-style: normal;
 							font-weight: 400;
@@ -162,10 +162,10 @@
 							width: 24px;
 							height: 24px;
 							border-radius: 100%;
-							border: 1px solid #797979;
-							color: #797979;
+							border: 1px solid var(--secondary-font);
+							color: var(--secondary-font);
 							text-align: center;
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 9px;
 							font-style: normal;
 							font-weight: 500;
@@ -176,8 +176,8 @@
 							cursor: pointer;
 						}
 						.daysButtons:hover {
-							border: 1px solid #fff;
-							color: #fff;
+							border: 1px solid var(--primary-font);
+							color: var(--primary-font);
 						}
 						.incrementContainer {
 							display: flex;
@@ -185,11 +185,11 @@
 							align-items: center;
 							gap: 10px;
 							border-radius: 10px;
-							border: 1px solid rgba(36, 36, 36, 0.64);
+							border: 1px solid var(--stroke);
 
 							.incrementFontstyling {
-								color: #c7c7c7;
-								font-family: Inter;
+								color: var(--secondary-font);
+								font-family: var(--primary-font-family);
 								font-size: 14px;
 								font-style: normal;
 								font-weight: 400;
@@ -198,9 +198,9 @@
 							}
 						}
 						.customDateButton {
-							color: #e8e8e8;
+							color: var(--secondary-font);
 							cursor: pointer;
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 12px;
 							font-style: normal;
 							font-weight: 400;
@@ -216,8 +216,8 @@
 					align-items: flex-start;
 					gap: var(--Spacing-space-7, 12px);
 					border-radius: 8px;
-					border: 1px solid rgba(36, 36, 36, 0.64);
-					background: rgba(42, 42, 42, 0.16);
+					border: 1px solid var(--stroke);
+					background: var(--card);
 					margin-top: 8px;
 
 					.identificationContainer {
@@ -227,15 +227,15 @@
 						gap: var(--Spacing-space-7, 12px);
 						align-self: stretch;
 						padding-bottom: 12px;
-						border-bottom: 1px solid #232323;
+						border-bottom: 1px solid var(--stroke);
 
 						.accessSettingsLabelContainer {
 							display: flex;
 							align-items: center;
 							gap: var(--Spacing-space-3, 4px);
 							.headingLabel {
-								color: #e8e8e8;
-								font-family: Inter;
+								color: var(--secondary-font);
+								font-family: var(--primary-font-family);
 								font-size: 14px;
 								font-style: normal;
 								font-weight: 500;
@@ -252,13 +252,13 @@
 								align-items: center;
 								gap: var(--Spacing-space-3, 4px);
 								.sendSmartFileCheckbox {
-									accent-color: #6055ec;
+									accent-color: var(--primary-button);
 								}
 
 								.checkboxLabel {
-									color: #8c8c8c;
+									color: var(--secondary-font);
 									text-align: center;
-									font-family: Inter;
+									font-family: var(--primary-font-family);
 									font-size: 11px;
 									font-style: normal;
 									font-weight: 400;
@@ -279,8 +279,8 @@
 							align-items: center;
 							gap: var(--Spacing-space-3, 4px);
 							.headingLabel {
-								color: #e8e8e8;
-								font-family: Inter;
+								color: var(--secondary-font);
+								font-family: var(--primary-font-family);
 								font-size: 14px;
 								font-style: normal;
 								font-weight: 500;
@@ -296,13 +296,13 @@
 								align-items: center;
 								gap: var(--Spacing-space-3, 4px);
 								.sendSmartFileCheckbox {
-									accent-color: #6055ec;
+									accent-color: var(--primary-button);
 								}
 
 								.checkboxLabel {
-									color: #8c8c8c;
+									color: var(--secondary-font);
 									text-align: center;
-									font-family: Inter;
+									font-family: var(--primary-font-family);
 									font-size: 11px;
 									font-style: normal;
 									font-weight: 400;
@@ -333,9 +333,9 @@
 					flex: 1;
 
 					.aiLabelText {
-						color: #e8e8e8;
+						color: var(--secondary-font);
 						text-align: center;
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 12px;
 						font-style: normal;
 						font-weight: 500;
@@ -344,8 +344,8 @@
 				}
 			}
 			.assignedAssitant {
-				color: #797979;
-				font-family: Inter;
+				color: var(--secondary-font);
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 400;
@@ -362,7 +362,7 @@
 			align-items: center;
 			gap: 12px;
 			padding-bottom: 12px;
-			border-bottom: 1px solid rgba(36, 36, 36, 0.64);
+			border-bottom: 1px solid var(--stroke);
 			.sendSmartFileBtn {
 				display: flex;
 				height: 36px;
@@ -372,10 +372,10 @@
 				gap: var(--Spacing-space-3, 4px);
 				align-self: stretch;
 				border-radius: 8px;
-				background: #6055ec;
-				color: #f5f5f5;
+				background: var(--primary-button);
+				color: var(--primary-font);
 				text-align: center;
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 13px;
 				font-style: normal;
 				font-weight: 500;
@@ -383,9 +383,9 @@
 				cursor: pointer;
 			}
 			.orText {
-				color: #797979;
+				color: var(--secondary-font);
 				text-align: center;
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 9px;
 				font-style: normal;
 				font-weight: 400;
@@ -398,9 +398,9 @@
 				gap: 8px;
 
 				.copyLinkText {
-					color: #6055ec;
+					color: var(--primary-button);
 					text-align: center;
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 13px;
 					font-style: normal;
 					font-weight: 500;
@@ -432,8 +432,8 @@
 				gap: 4px;
 				align-self: stretch;
 				.sendSmartFileHeaderTitle {
-					color: #e4e5e6;
-					font-family: Inter;
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
 					font-size: 16px;
 					font-style: normal;
 					font-weight: 500;
@@ -457,7 +457,7 @@
 					width: 6px;
 					height: 48px;
 					border-radius: 100px var(--cartCount, 0px) var(--cartCount, 0px) 100px;
-					background: #6055ec;
+					background: var(--primary-button);
 				}
 				.clientAuthenticationContentContainer {
 					display: flex;
@@ -469,12 +469,12 @@
 					border-radius: 8px;
 					border-top-left-radius: 0px;
 					border-bottom-left-radius: 0px;
-					background: #202020;
+					background: var(--card);
 					flex: 1;
 
 					.clientContentLabel {
-						color: #e4e5e6;
-						font-family: Inter;
+						color: var(--primary-font);
+						font-family: var(--primary-font-family);
 						font-size: 12px;
 						font-style: normal;
 						font-weight: 400;
@@ -495,8 +495,8 @@
 					align-items: flex-start;
 					gap: 10px;
 					align-self: stretch;
-					color: #b0b0b0;
-					font-family: Inter;
+					color: var(--secondary-font);
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 400;
@@ -509,9 +509,9 @@
 					gap: 10px;
 					align-self: stretch;
 					border-radius: 10px;
-					border: 1px solid rgba(36, 36, 36, 0.64);
-					color: rgba(228, 229, 230, 0.8);
-					font-family: Inter;
+					border: 1px solid var(--stroke);
+					color: var(--secondary-font);
+					font-family: var(--primary-font-family);
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 400;
@@ -527,8 +527,8 @@
 			}
 
 			.modalHeader {
-				color: #e4e5e6;
-				font-family: Inter;
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
 				font-size: 18px;
 				font-style: normal;
 				font-weight: 500;
@@ -541,10 +541,10 @@
 				align-items: center;
 				gap: 16px;
 				border-radius: 100px;
-				border: 1px solid rgba(36, 36, 36, 0.64);
-				background: #6055ec;
-				color: #e4e5e6;
-				font-family: Inter;
+				border: 1px solid var(--stroke);
+				background: var(--primary-button);
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
 				font-size: 13px;
 				font-style: normal;
 				font-weight: 500;
@@ -560,8 +560,8 @@
 				flex: 1 0 0;
 				align-self: stretch;
 				.labelStyling {
-					color: #b0b0b0;
-					font-family: Inter;
+					color: var(--secondary-font);
+					font-family: var(--primary-font-family);
 					font-size: 11px;
 					font-style: normal;
 					font-weight: 400;
@@ -576,10 +576,10 @@
 					gap: 10px;
 					align-self: stretch;
 					border-radius: 10px;
-					border: 1px solid rgba(36, 36, 36, 0.64);
+					border: 1px solid var(--stroke);
 					background-color: transparent;
-					color: rgba(228, 229, 230, 0.8);
-					font-family: Inter;
+					color: var(--secondary-font);
+					font-family: var(--primary-font-family);
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 400;
@@ -595,10 +595,10 @@
 					gap: 10px;
 					align-self: stretch;
 					border-radius: 10px;
-					border: 1px solid rgba(36, 36, 36, 0.64);
+					border: 1px solid var(--stroke);
 					background-color: transparent;
-					color: rgba(228, 229, 230, 0.8);
-					font-family: Inter;
+					color: var(--secondary-font);
+					font-family: var(--primary-font-family);
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 400;
@@ -612,7 +612,7 @@
 			align-items: flex-start;
 			gap: 32px;
 			align-self: stretch;
-			background: #1e1f20;
+			background: var(--card);
 			border-bottom-left-radius: 40px;
 			border-bottom-right-radius: 40px;
 			.footerLabel {
@@ -623,16 +623,16 @@
 				gap: 4px;
 
 				.mainfooterTitle {
-					color: #e4e5e6;
-					font-family: Inter;
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 500;
 					line-height: 26px; /* 185.714% */
 				}
 				.mainFooterSubTitle {
-					color: rgba(228, 229, 230, 0.48);
-					font-family: Inter;
+					color: var(--secondary-font);
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 500;
@@ -649,10 +649,10 @@
 				align-items: center;
 				gap: 16px;
 				border-radius: 100px;
-				border: 1px solid rgba(36, 36, 36, 0.64);
-				background: #262626;
-				color: #e4e5e6;
-				font-family: Inter;
+				border: 1px solid var(--stroke);
+				background: var(--card);
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
 				font-size: 13px;
 				font-style: normal;
 				font-weight: 500;

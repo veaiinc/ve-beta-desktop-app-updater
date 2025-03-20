@@ -64,9 +64,9 @@
 								width: fit-content;
 								gap: 6px;
 								border-radius: 37px;
-								background: #202123;
-								color: #f2f2f3;
-								font-family: Inter;
+								background: var(--card);
+								color: var(--primary-font);
+								font-family: var(--primary-font-family);
 								font-size: 12px;
 								font-style: normal;
 								font-weight: 500;
@@ -82,7 +82,7 @@
 							padding: 16px;
 							flex-direction: column;
 							gap: 12px;
-							background: #202123;
+							background: var(--card);
 							align-self: center;
 							border-radius: 16px;
 
@@ -93,8 +93,8 @@
 								border: none;
 								outline: none;
 								background: transparent;
-								color: white;
-								font-family: Inter;
+								color: var(--primary-font);
+								font-family: var(--primary-font-family);
 								font-size: 14px;
 								font-style: normal;
 								font-weight: 400;
@@ -133,19 +133,19 @@
 													align-items: center;
 													gap: 6px;
 													border-radius: 100px;
-													background: #2c2e30;
+													background: var(--card-hover);
 													cursor: pointer;
 													.selected-options-count {
-														color: #b39dfa;
-														font-family: Inter;
+														color: var(--primary-font);
+														font-family: var(--primary-font-family);
 														font-size: 13px;
 														font-style: normal;
 														font-weight: 500;
 														line-height: normal;
 													}
 													.header-title {
-														color: #f2f2f3;
-														font-family: Inter;
+														color: var(--primary-font);
+														font-family: var(--primary-font-family);
 														font-size: 13px;
 														font-style: normal;
 														font-weight: 500;
@@ -156,7 +156,9 @@
 														transform: rotate(90deg);
 														svg {
 															path {
-																stroke: #e4e5e6 !important;
+																stroke: var(
+																	--primary-font
+																) !important;
 															}
 														}
 													}
@@ -193,11 +195,11 @@
 											align-items: center;
 											gap: 6px;
 											border-radius: 24px;
-											background: #2e2f33;
+											background: var(--card);
 											transition: 200ms ease-in-out;
 
 											&:hover {
-												background-color: #3c3e44;
+												background-color: var(--card-hover);
 											}
 											.icon {
 												display: flex;
@@ -206,7 +208,7 @@
 											.right-text {
 												color: var(--primary-font, #f2f2f3);
 												text-align: center;
-												font-family: Inter;
+												font-family: var(--primary-font-family);
 												font-size: 14px;
 												font-style: normal;
 												font-weight: 500;
@@ -227,7 +229,7 @@
 										cursor: pointer;
 
 										border-radius: 24px;
-										background: #b2a1e8;
+										background: var(--accent-font);
 									}
 								}
 							}
@@ -305,7 +307,7 @@
 					text-overflow: ellipsis;
 					color: var(--primary-font, #f2f2f3);
 					text-align: center;
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 500;
@@ -336,7 +338,7 @@
 			.previewOfUploadedImage {
 				height: 70px;
 				width: 70px;
-				background-color: #fff;
+				background-color: var(--primary-font);
 				border-radius: 12px;
 				position: relative;
 
@@ -344,7 +346,7 @@
 					position: absolute;
 					top: -4px;
 					right: -5px;
-					background-color: #202123;
+					background-color: var(--card);
 					border-radius: 50%;
 					width: 20px;
 					height: 20px;
@@ -363,7 +365,7 @@
 					position: absolute;
 					top: 0;
 					left: 0;
-					background-color: #f7fcfe;
+					background-color: var(--primary-font);
 					border-radius: 12px;
 					opacity: 0.5;
 				}
@@ -452,7 +454,7 @@
 	align-items: flex-start;
 	gap: 4px;
 	border-radius: 16px;
-	background: #26282a;
+	background: var(--card);
 	box-shadow: 4px 4px 13px 0px rgba(23, 24, 25, 0.4);
 
 	.input-container {
@@ -462,15 +464,15 @@
 		gap: 8px;
 		align-self: stretch;
 		border-radius: 24px;
-		background: #2f3336;
+		background: var(--card-hover);
 		input {
 			width: 100%;
 			height: 100%;
 			border: none;
 			outline: none;
-			background: #2f3336;
-			color: #f2f2f3;
-			font-family: Inter;
+			background: var(--card-hover);
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 400;
@@ -494,8 +496,8 @@
 			cursor: pointer;
 			.option-title {
 				flex: 1 0 0;
-				color: #f2f2f3;
-				font-family: Inter;
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 500;
@@ -513,7 +515,7 @@
 	align-items: flex-start;
 	gap: 4px;
 	border-radius: 16px;
-	background: #26282a;
+	background: var(--card);
 	box-shadow: 4px 4px 13px 0px rgba(23, 24, 25, 0.4);
 
 	.input-container {
@@ -523,16 +525,16 @@
 		gap: 8px;
 		align-self: stretch;
 		border-radius: 24px;
-		background: #2f3336;
+		background: var(--card-hover);
 		input {
 			flex: 1 0 0;
 			width: 100%;
 			height: 100%;
 			border: none;
 			outline: none;
-			background: #2f3336;
-			color: #797e86;
-			font-family: Inter;
+			background: var(--card-hover);
+			color: var(--secondary-font);
+			font-family: var(--primary-font-family);
 			font-size: 12px;
 			font-style: normal;
 			font-weight: 500;
@@ -562,8 +564,8 @@
 				align-self: stretch;
 				border-radius: 8px;
 				flex: 1 0 0;
-				color: var(--secondary-font, #787e87);
-				font-family: Inter;
+				color: var(--secondary-font);
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 500;
@@ -596,14 +598,14 @@
 						align-items: center;
 						gap: 7.2px;
 						border-radius: 6px;
-						background: #2c2e30;
+						background: var(--card-hover);
 					}
 					.file-name {
 						overflow: hidden;
-						color: #f2f2f3;
+						color: var(--primary-font);
 						text-overflow: ellipsis;
 						white-space: nowrap;
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 14px;
 						font-style: normal;
 						font-weight: 500;
@@ -626,7 +628,7 @@
 		.horizontal-line {
 			width: 100%;
 			height: 1px;
-			background: #2f3032;
+			background: var(--card-hover);
 		}
 
 		.upload-file-header {
@@ -645,11 +647,11 @@
 
 			.upload-file-text {
 				width: 250px;
-				color: #f2f2f3;
+				color: var(--primary-font);
 				overflow: hidden;
 				text-overflow: ellipsis;
 				white-space: nowrap;
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 500;
@@ -666,7 +668,7 @@
 	align-items: flex-start;
 	gap: 4px;
 	border-radius: 12px;
-	background: #26282a;
+	background: var(--card);
 	box-shadow: 4px 4px 13px 0px rgba(23, 24, 25, 0.4);
 
 	.title {
@@ -676,8 +678,8 @@
 		align-items: center;
 		align-self: stretch;
 		border-radius: 8px;
-		color: #797e86;
-		font-family: Inter;
+		color: var(--secondary-font);
+		font-family: var(--primary-font-family);
 		font-size: 12px;
 		font-style: normal;
 		font-weight: 500;
@@ -709,8 +711,8 @@
 				display: flex;
 				align-items: center;
 				justify-content: flex-start;
-				color: #f2f2f3;
-				font-family: Inter;
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 500;
@@ -726,12 +728,12 @@
 	}
 }
 .custom-switch .ant-switch-handle::before {
-	background-color: #939a9e !important; /* Default white handle */
+	background-color: var(--secondary-font) !important; /* Default white handle */
 }
 
 /* Custom switch handle when ON */
 .custom-switch.ant-switch-checked .ant-switch-handle::before {
-	background-color: #171819 !important; /* Custom handle color when ON */
+	background-color: var(--primary-font) !important; /* Custom handle color when ON */
 }
 
 .preview-image-container {

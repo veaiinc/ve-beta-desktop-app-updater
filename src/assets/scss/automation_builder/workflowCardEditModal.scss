@@ -7,8 +7,8 @@
 	.innerContainer {
 		flex: 1;
 		border-radius: 32px;
-		border: 1px solid #1f1f1f;
-		background: #151515;
+		border: 1px solid var(--stroke);
+		background: var(--card);
 		padding: 24px 0px;
 		display: flex;
 		flex-direction: column;
@@ -18,14 +18,14 @@
 			display: flex;
 			align-self: stretch;
 			padding-bottom: 8px;
-			border-bottom: 1px solid rgba(40, 39, 40, 0.48);
+			border-bottom: 1px solid var(--stroke);
 			justify-content: space-between;
 			align-items: center;
 			padding: 8px 24px;
 
 			.headerTitle {
-				color: #e4e5e6;
-				font-family: Inter;
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 500;
@@ -41,8 +41,8 @@
 				gap: 8px;
 
 				.deleteBtn {
-					color: #cc5756;
-					font-family: Inter;
+					color: var(--error);
+					font-family: var(--primary-font-family);
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 500;
@@ -72,7 +72,7 @@
 				align-items: flex-start;
 				gap: 6px;
 				align-self: stretch;
-				border-bottom: 1px solid rgba(40, 39, 40, 0.48);
+				border-bottom: 1px solid var(--stroke);
 
 				.emailTemplateHeaderWrapper {
 					display: flex;
@@ -82,8 +82,8 @@
 					justify-content: space-between;
 				}
 				.previewAndEdit {
-					color: #6055ec;
-					font-family: Inter;
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 500;
@@ -92,8 +92,8 @@
 				}
 
 				.actionTypeTitle {
-					color: #b0b0b0;
-					font-family: Inter;
+					color: var(--secondary-font);
+					font-family: var(--primary-font-family);
 					font-size: 11px;
 					font-style: normal;
 					font-weight: 400;
@@ -107,9 +107,9 @@
 					gap: 10px;
 					align-self: stretch;
 					border-radius: 10px;
-					border: 1px solid rgba(36, 36, 36, 0.64);
-					color: rgba(228, 229, 230, 0.8);
-					font-family: Inter;
+					border: 1px solid var(--stroke);
+					color: var(--secondary-font);
+					font-family: var(--primary-font-family);
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 400;
@@ -124,9 +124,9 @@
 					gap: 10px;
 					align-self: stretch;
 					border-radius: 10px;
-					border: 1px solid rgba(36, 36, 36, 0.64);
-					color: rgba(228, 229, 230, 0.8);
-					font-family: Inter;
+					border: 1px solid var(--stroke);
+					color: var(--secondary-font);
+					font-family: var(--primary-font-family);
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 400;
@@ -148,8 +148,8 @@
 					align-self: stretch;
 
 					.emailTemplateNameStyling {
-						color: #b0b0b0;
-						font-family: Inter;
+						color: var(--secondary-font);
+						font-family: var(--primary-font-family);
 						font-size: 11px;
 						font-style: normal;
 						font-weight: 400;
@@ -164,8 +164,8 @@
 						cursor: pointer;
 
 						.EditBtn {
-							color: #6055ec;
-							font-family: Inter;
+							color: var(--primary-font);
+							font-family: var(--primary-font-family);
 							font-size: 13px;
 							font-style: normal;
 							font-weight: 500;
@@ -183,7 +183,7 @@
 					display: flex;
 					padding: 11px 14px;
 					color: rgba(228, 229, 230, 0.32);
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 400;
@@ -203,9 +203,9 @@
 					gap: 10px;
 					align-self: stretch;
 					border-radius: 10px;
-					border: 1px solid rgba(36, 36, 36, 0.64);
-					color: rgba(228, 229, 230, 0.32);
-					font-family: Inter;
+					border: 1px solid var(--stroke);
+					color: var(--secondary-font);
+					font-family: var(--primary-font-family);
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 400;
@@ -221,10 +221,10 @@
 				align-self: stretch;
 				flex-direction: column;
 				padding-bottom: 24px;
-				border-bottom: 1px solid rgba(40, 39, 40, 0.48);
+				border-bottom: 1px solid var(--stroke);
 				.emailScheduleTimingContainerheader {
-					color: #b0b0b0;
-					font-family: Inter;
+					color: var(--secondary-font);
+					font-family: var(--primary-font-family);
 					font-size: 11px;
 					font-style: normal;
 					font-weight: 400;
@@ -248,8 +248,8 @@
 						border: 1px solid rgba(36, 36, 36, 0.64);
 						gap: 10px;
 						.incrementorButtons {
-							color: #6055ec;
-							font-family: Inter;
+							color: var(--primary-font);
+							font-family: var(--primary-font-family);
 							font-size: 14px;
 							font-style: normal;
 							font-weight: 400;
@@ -262,7 +262,7 @@
 							background-color: transparent;
 							border: none;
 							text-align: center;
-							color: #fff;
+							color: var(--primary-font);
 						}
 					}
 				}
@@ -275,16 +275,16 @@
 				gap: 10px;
 				align-self: stretch;
 				.editWorkflowBuilderModalFooterTextStyling {
-					color: #b0b0b0;
-					font-family: Inter;
+					color: var(--secondary-font);
+					font-family: var(--primary-font-family);
 					font-size: 13px;
 					font-style: normal;
 					font-weight: 400;
 					line-height: 20px; /* 153.846% */
 
 					.supportVeText {
-						color: #6055ec;
-						font-family: Inter;
+						color: var(--primary-font);
+						font-family: var(--primary-font-family);
 						font-size: 13px;
 						font-style: normal;
 						font-weight: 400;
@@ -300,13 +300,13 @@
 			align-items: center;
 			gap: 16px;
 			align-self: stretch;
-			border-bottom: 1px solid rgba(40, 39, 40, 0.48);
+			border-bottom: 1px solid var(--stroke);
 			border-right: 0px;
 			border-left: 0px;
 
 			.approvalContainerHeader {
-				color: rgba(228, 229, 230, 0.8);
-				font-family: Inter;
+				color: var(--secondary-font);
+				font-family: var(--primary-font-family);
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 400;
@@ -327,8 +327,8 @@
 				flex-direction: column;
 				gap: 6px;
 				.emailSubjectHeader {
-					color: #b0b0b0;
-					font-family: Inter;
+					color: var(--secondary-font);
+					font-family: var(--primary-font-family);
 					font-size: 11px;
 					font-style: normal;
 					font-weight: 400;
@@ -344,8 +344,8 @@
 					align-self: stretch;
 					border-radius: 10px;
 					border: 1px solid rgba(224, 224, 224, 0.2);
-					color: rgba(228, 229, 230, 0.8);
-					font-family: Inter;
+					color: var(--secondary-font);
+					font-family: var(--primary-font-family);
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 400;
@@ -369,10 +369,10 @@
 				gap: 16px;
 				align-self: stretch;
 				border-radius: 100px;
-				border: 1px solid rgba(36, 36, 36, 0.64);
-				background: rgba(42, 42, 42, 0.16);
-				color: #e4e5e6;
-				font-family: Inter;
+				border: 1px solid var(--stroke);
+				background: var(--card);
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
 				font-size: 13px;
 				font-style: normal;
 				font-weight: 500;

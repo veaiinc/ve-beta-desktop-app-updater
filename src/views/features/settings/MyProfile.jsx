@@ -9,10 +9,10 @@ import TwoFactorAuthenticationComponent from '../../components/settings/profile/
 import LeaveWorkspaceComponent from '../../components/settings/profile/LeaveWorkspace';
 import Notifications from '../../components/settings/profile/Notifications';
 import { message } from 'antd';
+import Cookies from 'js-cookie';
 
 const MyProfile = () => {
 	const fullNameRef = useRef(null);
-	// # Context
 	const {
 		profileInfo: {
 			get2FAQrCode,
@@ -26,14 +26,14 @@ const MyProfile = () => {
 			updateUserDetailsState,
 		},
 		companyInfo: { updatePrefernces, getTenantPreferences, tenantPreferenceData },
+		themeInfo: { theme, updateTheme },
 		authInfo: { updateUserDetails },
 	} = useContext(Context);
 
-	// # States
 	const [showForm, setShowForm] = useState(false);
 	const [isEditMode, setIsEditMode] = useState({ isValueChanged: false, timeout: null });
 	const [errors, setErrors] = useState({});
-	const [activeTheme, setActiveTheme] = useState('dark');
+
 	const [userDetails, setUserDetails] = useState({
 		fullName: '',
 		email: '',
@@ -42,12 +42,10 @@ const MyProfile = () => {
 		logoURL: '',
 		cropSettings: { crop: { x: 0, y: 0 }, zoom: 1 },
 	});
-	const [usernameUpdateLoader, setUsernameUpdateLoader] = useState(false);
 	const [initialState, setInitialState] = useState({ ...userDetails });
 
 	const [logoFile, setlogoFile] = useState(null);
 
-	// # Useeffects
 	useEffect(() => {
 		if (!tenantPreferenceData) {
 			getTenantPreferences();
@@ -81,12 +79,6 @@ const MyProfile = () => {
 			}));
 		}
 	}, [userDetailsData]);
-
-	useEffect(() => {
-		if (tenantPreferenceData) {
-			setActiveTheme(tenantPreferenceData?.theme);
-		}
-	}, [tenantPreferenceData?.theme]);
 
 	useEffect(() => {
 		if (userDetails.is2FAEnabled) {
@@ -276,14 +268,8 @@ const MyProfile = () => {
 		}
 	};
 
-	const updateThemeSubmitHandler = async (mode) => {
-		const json = {
-			theme: mode,
-		};
-		const response = await updatePrefernces(json);
-		if (response[0]) {
-			setActiveTheme(mode);
-		}
+	const updateThemeSubmitHandler = async (theme) => {
+		updateTheme(theme);
 	};
 
 	return (
@@ -309,12 +295,12 @@ const MyProfile = () => {
 				</div>
 
 				{/* Theme Preference */}
-				{/* <div className="settingsTheme activeBackgroundColor" id="theme">
+				<div className="settingsTheme activeBackgroundColor" id="theme">
 					<ThemePreferenceComponent
 						updateThemeSubmitHandler={updateThemeSubmitHandler}
-						activeTheme={activeTheme}
+						activeTheme={theme}
 					/>
-				</div> */}
+				</div>
 
 				{/* Access Settings */}
 				{/* <div className={'accessSettingsContainer'} id="updatepassword">
