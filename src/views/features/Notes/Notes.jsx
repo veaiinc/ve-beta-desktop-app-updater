@@ -94,7 +94,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 	return (
 		<div className="notes-container" style={outerContainerStyle || {}}>
 			<div className="notes-nav-menu">
-				<span className="notes-nav-menu-item-last-edited">Edited 5 min ago</span>
+				{/* <span className="notes-nav-menu-item-last-edited">Edited 5 min ago</span> */}
 				{/* <button className="notes-nav-menu-item-comment">Comment</button> */}
 				{/* <button className="notes-nav-menu-item-share">Share</button>  // Todo: uncomment when share api is ready */}
 				{/* <button className="notes-nav-menu-item-more">...</button> */}

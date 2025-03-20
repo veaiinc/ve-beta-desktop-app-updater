@@ -425,11 +425,11 @@ const routes = [
 		),
 	},
 	{
-		path: '/notes/:noteId',
+		path: '/note/:noteId',
 		component: (
 			<AuthWrapper
 				title={'Notes'}
-				outerContainerStyle={{ padding: '0 0 0 32px' }}
+				outerContainerStyle={{ padding: '32px 32px 0 32px' }}
 				maxWidth={'100%'}
 			>
 				<Notes />
