@@ -40,6 +40,7 @@ const FormLeads = () => {
 		activeTab: 'individualEntries', //summary
 		tooltipVisible: false,
 	});
+	const [formTitle, setFormTitle] = useState(formData?.title);
 	const metricsData = [
 		// {
 		// 	value: info?.totalViews,
@@ -78,29 +79,6 @@ const FormLeads = () => {
 		// const partialEntries = length || 0;
 		setInfo((prev) => ({ ...prev, totalSubmissions }));
 	}, []);
-
-	const handleCopyForm = () => {
-		navigator.clipboard
-			.writeText(copyCode)
-			.then(() => {
-				message.success('Form copied successfully');
-			})
-			.catch(() => {
-				message.error('Failed to copy form');
-			});
-	};
-
-	const handleEmbededCopy = () => {
-		navigator.clipboard
-			.writeText(`<iframe src="${copyCode}" style="height: 100%; width: 100%;"></iframe>`)
-			.then(() => {
-				message.success('Form embedded copied successfully');
-			})
-			.catch(() => {
-				message.error('Failed to embed form');
-			});
-	};
-
 	const tabs = useMemo(() => {
 		return {
 			individualEntries: {
@@ -136,6 +114,29 @@ const FormLeads = () => {
 
 	const handleThreeDotsClick = () => {
 		setInfo((prev) => ({ ...prev, tooltipVisible: !prev.tooltipVisible }));
+	};
+
+	const handleDeleteForm = async (formId) => {
+		try {
+			// Add your API call here to delete the form
+			// Example:
+			// await deleteFormAPI(formId);
+			message.success('Form deleted successfully');
+			navigate(-1); // Navigate back after successful deletion
+		} catch (error) {
+			message.error('Failed to delete form');
+		}
+	};
+
+	const handleRenameForm = async (newTitle) => {
+		try {
+			// Add your API call here to rename the form
+			// await updateFormAPI(formData?._id, { title: newTitle });
+			setFormTitle(newTitle);
+			message.success('Form renamed successfully');
+		} catch (error) {
+			message.error('Failed to rename form');
+		}
 	};
 
 	return (
@@ -193,9 +194,7 @@ const FormLeads = () => {
 								title={
 									<FormResponsesMenuItem
 										formId={formData?._id}
-										enableFormResponsesMenuTitleEditMode={() => {}}
-										toggleFormResponsesMenu={() => {}}
-										handleDeleteFormResponsesMenu={() => {}}
+										handleDeleteForm={handleDeleteForm}
 									/>
 								}
 							>
