@@ -3,7 +3,7 @@ import { ReactComponent as ShareIcon } from '../../../assets/svg/gallery/share.s
 import sixDots from '../../../assets/svg/gallery/sixdots.svg';
 import { ReactComponent as ThreeDotsIcon } from '../../../assets/svg/gallery/threeDots.svg';
 import { ReactComponent as SearchIcon } from '../../../assets/svg/workflow/search.svg';
-import { ReactComponent as FilterIcon } from '../../../assets/svg/chat/filter.svg';
+import { ReactComponent as FilterIcon } from '../../../assets/svg/gallery/newFilter.svg';
 import { ReactComponent as ExpandIcon } from '../../../assets/svg/gallery/expand.svg';
 import { ReactComponent as ForwardIcon } from '../../../assets/svg/gallery/forward.svg';
 import { ReactComponent as PinIcon } from '../../../assets/svg/gallery/pin.svg';
@@ -64,6 +64,14 @@ import GridImage from '../../../assets/images/workflow_builder/dotgrid.png';
 const workspaceId = localStorage.getItem('workspaceId');
 
 const dummyImagesArray = Array.from({ length: 10 }, () => ({ isPlaceholderImg: true }));
+
+const sortingOptions = [
+	{ label: 'Recently Added', value: 'createdAt' },
+	{ label: 'A - Z', value: 'displayName' },
+	{ label: 'Date Captured', value: 'originalDateTime' },
+	{ label: 'Date Uploaded', value: '-originalDateTime' },
+	{ label: 'Custom', value: 'custom' },
+];
 
 const GalleryPage = () => {
 	const { galleryId } = useParams();
@@ -412,9 +420,7 @@ const GalleryPage = () => {
 
 		const { scrollTop, scrollHeight, clientHeight } = container;
 
-		const isEndOfPage = info?.isRearranging
-			? true
-			: scrollTop + clientHeight >= scrollHeight - 10;
+		const isEndOfPage = info?.isRearranging || scrollTop + clientHeight >= scrollHeight - 10;
 		const isStartOfPage = scrollTop === 0;
 
 		setInfo((prev) => ({
@@ -3794,10 +3800,10 @@ const GalleryPage = () => {
 								<div className="shareContainer">
 									<Tooltip
 										open={info?.showOptions}
-										onOpenChange={() =>
+										onOpenChange={(open) =>
 											setInfo((prev) => ({
 												...prev,
-												showOptions: !prev?.showOptions,
+												showOptions: open,
 											}))
 										}
 										placement="bottomRight"
@@ -3837,14 +3843,14 @@ const GalleryPage = () => {
 										<div
 											className="settingsIcon"
 											// ref={iconRef}
-											onClick={(e) => {
-												e.stopPropagation();
-												e.preventDefault();
-												setInfo((prevInfo) => ({
-													...prevInfo,
-													showOptions: true,
-												}));
-											}}
+											// onClick={(e) => {
+											// 	e.stopPropagation();
+											// 	e.preventDefault();
+											// 	setInfo((prevInfo) => ({
+											// 		...prevInfo,
+											// 		showOptions: true,
+											// 	}));
+											// }}
 										>
 											<div className="threeDotsIcon">Settings</div>
 										</div>
@@ -4208,246 +4214,233 @@ const GalleryPage = () => {
 						<div className="galleryViewer">
 							<div className="galleryNavbar">
 								<div className="albumDetailsContainer">
-									{!info?.isRearranging && (
-										<div className="albumContains">
-											<DragDropContext onDragEnd={onDragEnd}>
-												<Droppable
-													droppableId="tags"
-													direction="horizontal"
-												>
-													{(provided) => (
-														<div
-															{...provided.droppableProps}
-															ref={provided.innerRef}
-															style={{
-																display: 'flex',
-																gap: '8px',
-																alignItems: 'center',
-																overflowX: 'auto',
-															}}
-															className="hideScrollBar"
-														>
-															{info?.albumTags
-																?.sort(
-																	(a, b) =>
-																		a.customSortIndex -
-																		b.customSortIndex,
-																)
-																?.map((contain, index) => (
-																	<Draggable
-																		key={contain._id || index}
-																		draggableId={
-																			contain._id ||
-																			`tag-${index}`
-																		}
-																		index={index}
-																		isDragDisabled={
-																			contain?.displayName ===
-																			'All'
-																				? true
-																				: false
-																		}
-																		boundaries="hideScrollBar"
-																	>
-																		{(provided, snapshot) => (
+									<div className="albumContains">
+										<DragDropContext onDragEnd={onDragEnd}>
+											<Droppable droppableId="tags" direction="horizontal">
+												{(provided) => (
+													<div
+														{...provided.droppableProps}
+														ref={provided.innerRef}
+														style={{
+															display: 'flex',
+															gap: '8px',
+															alignItems: 'center',
+															overflowX: 'auto',
+														}}
+														className="hideScrollBar"
+													>
+														{info?.albumTags
+															?.sort(
+																(a, b) =>
+																	a.customSortIndex -
+																	b.customSortIndex,
+															)
+															?.map((contain, index) => (
+																<Draggable
+																	key={contain._id || index}
+																	draggableId={
+																		contain._id ||
+																		`tag-${index}`
+																	}
+																	index={index}
+																	isDragDisabled={
+																		contain?.displayName ===
+																		'All'
+																			? true
+																			: false
+																	}
+																	boundaries="hideScrollBar"
+																>
+																	{(provided, snapshot) => (
+																		<div
+																			ref={provided.innerRef}
+																			{...provided.draggableProps}
+																			className={`albumContain ${
+																				snapshot.isDragging
+																					? 'dragging'
+																					: ''
+																			}`}
+																			style={{
+																				...provided
+																					.draggableProps
+																					.style,
+																			}}
+																			onMouseEnter={() => {
+																				setInfo((prev) => ({
+																					...prev,
+																					galleryTagHover:
+																						{
+																							...prev.galleryTagHover,
+																							[index]: true,
+																						},
+																				}));
+																			}}
+																			onMouseLeave={() => {
+																				setInfo((prev) => ({
+																					...prev,
+																					galleryTagHover:
+																						{
+																							...prev.galleryTagHover,
+																							[index]: false,
+																						},
+																				}));
+																			}}
+																		>
 																			<div
-																				ref={
-																					provided.innerRef
-																				}
-																				{...provided.draggableProps}
-																				className={`albumContain ${
-																					snapshot.isDragging
-																						? 'dragging'
-																						: ''
-																				}`}
+																				{...provided.dragHandleProps}
 																				style={{
-																					...provided
-																						.draggableProps
-																						.style,
-																				}}
-																				onMouseEnter={() => {
-																					setInfo(
-																						(prev) => ({
-																							...prev,
-																							galleryTagHover:
-																								{
-																									...prev.galleryTagHover,
-																									[index]: true,
-																								},
-																						}),
-																					);
-																				}}
-																				onMouseLeave={() => {
-																					setInfo(
-																						(prev) => ({
-																							...prev,
-																							galleryTagHover:
-																								{
-																									...prev.galleryTagHover,
-																									[index]: false,
-																								},
-																						}),
-																					);
+																					width: '14px',
+																					height: '15px',
+																					cursor:
+																						contain?.displayName ===
+																						'All'
+																							? 'not-allowed'
+																							: 'grab',
 																				}}
 																			>
-																				<div
-																					{...provided.dragHandleProps}
-																					style={{
-																						width: '14px',
-																						height: '15px',
-																						cursor:
-																							contain?.displayName ===
-																							'All'
-																								? 'not-allowed'
-																								: 'grab',
-																					}}
-																				>
-																					<img
-																						src={
-																							sixDots
-																						}
-																						alt="sixDots"
-																					/>
-																				</div>
-																				<p
-																					className={
-																						info?.albumContains ===
-																						contain.displayName
-																							? 'active'
-																							: ''
-																					}
-																					onClick={() =>
-																						handleClickAlbum(
-																							contain,
-																							'containName',
-																						)
-																					}
-																				>
-																					{
-																						contain.displayName
-																					}
-																				</p>
-																				<p
-																					className={
-																						info?.albumContains ===
-																						contain?.displayName
-																							? 'count-active'
-																							: 'count'
-																					}
-																					onClick={() =>
-																						handleClickAlbum(
-																							contain,
-																							'containName',
-																						)
-																					}
-																				>
-																					{
-																						contain.imagesCount
-																					}
-																				</p>
-																				{info
-																					?.galleryTagHover[
-																					index
-																				] &&
-																					contain?.displayName !==
-																						'All' && (
-																						<Tooltip
-																							open={
-																								info?.showTagOptions
-																							}
-																							onOpenChange={() =>
-																								setInfo(
-																									(
-																										prev,
-																									) => ({
-																										...prev,
-																										showTagOptions:
-																											!prev?.showTagOptions,
-																									}),
-																								)
-																							}
-																							title={
-																								<div className="tagOptionsContainer">
-																									<p
-																										onClick={() =>
-																											setInfo(
-																												(
-																													prev,
-																												) => ({
-																													...prev,
-																													editTagPopup: true,
-																													activeTag:
-																														contain,
-																												}),
-																											)
-																										}
-																									>
-																										Edit
-																										Tag
-																									</p>
-																									<p
-																										onClick={() =>
-																											setInfo(
-																												(
-																													prev,
-																												) => ({
-																													...prev,
-																													deleteTagPopup: true,
-																													activeTag:
-																														contain,
-																												}),
-																											)
-																										}
-																									>
-																										Delete
-																										Tag
-																									</p>
-																								</div>
-																							}
-																							placement="bottom"
-																							arrow={
-																								false
-																							}
-																							color="transparent"
-																							trigger={
-																								'click'
-																							}
-																						>
-																							<ThreeDotsIcon
-																								style={{
-																									cursor: 'pointer',
-																								}}
-																							/>
-																						</Tooltip>
-																					)}
+																				<img
+																					src={sixDots}
+																					alt="sixDots"
+																				/>
 																			</div>
-																		)}
-																	</Draggable>
-																))}
-															{provided.placeholder}
-														</div>
-													)}
-												</Droppable>
-											</DragDropContext>
-										</div>
-									)}
+																			<p
+																				className={
+																					info?.albumContains ===
+																					contain.displayName
+																						? 'active'
+																						: ''
+																				}
+																				onClick={() =>
+																					handleClickAlbum(
+																						contain,
+																						'containName',
+																					)
+																				}
+																			>
+																				{
+																					contain.displayName
+																				}
+																			</p>
+																			<p
+																				className={
+																					info?.albumContains ===
+																					contain?.displayName
+																						? 'count-active'
+																						: 'count'
+																				}
+																				onClick={() =>
+																					handleClickAlbum(
+																						contain,
+																						'containName',
+																					)
+																				}
+																			>
+																				{
+																					contain.imagesCount
+																				}
+																			</p>
+																			{info?.galleryTagHover[
+																				index
+																			] &&
+																				contain?.displayName !==
+																					'All' && (
+																					<Tooltip
+																						open={
+																							info?.showTagOptions
+																						}
+																						onOpenChange={() =>
+																							setInfo(
+																								(
+																									prev,
+																								) => ({
+																									...prev,
+																									showTagOptions:
+																										!prev?.showTagOptions,
+																								}),
+																							)
+																						}
+																						title={
+																							<div className="tagOptionsContainer">
+																								<p
+																									onClick={() =>
+																										setInfo(
+																											(
+																												prev,
+																											) => ({
+																												...prev,
+																												editTagPopup: true,
+																												activeTag:
+																													contain,
+																											}),
+																										)
+																									}
+																								>
+																									Edit
+																									Tag
+																								</p>
+																								<p
+																									onClick={() =>
+																										setInfo(
+																											(
+																												prev,
+																											) => ({
+																												...prev,
+																												deleteTagPopup: true,
+																												activeTag:
+																													contain,
+																											}),
+																										)
+																									}
+																								>
+																									Delete
+																									Tag
+																								</p>
+																							</div>
+																						}
+																						placement="bottom"
+																						arrow={
+																							false
+																						}
+																						color="transparent"
+																						trigger={
+																							'click'
+																						}
+																					>
+																						<ThreeDotsIcon
+																							style={{
+																								cursor: 'pointer',
+																							}}
+																						/>
+																					</Tooltip>
+																				)}
+																		</div>
+																	)}
+																</Draggable>
+															))}
+														{provided.placeholder}
+													</div>
+												)}
+											</Droppable>
+										</DragDropContext>
+									</div>
 									{!info?.isRearranging && (
 										<div className="aboutAlbum">
 											<div className="albumSearchCotainer">
 												<div
+													className={`searchContainer ${
+														info?.showShearch ? 'expanded' : ''
+													}`}
 													onClick={() =>
-														setInfo((prevInfo) => ({
-															...prevInfo,
-															showShearch: !prevInfo.showShearch,
+														setInfo((prev) => ({
+															...prev,
+															showShearch: true,
 														}))
 													}
-													className="searchContainer"
 													style={{
-														width: info?.showShearch && '200px',
+														width: info?.showShearch ? '200px' : '',
 													}}
 												>
 													<SearchIcon />
-
 													<input
 														type="text"
 														placeholder="Search"
@@ -4455,122 +4448,58 @@ const GalleryPage = () => {
 														onChange={(e) =>
 															handleSearch(e.target.value)
 														}
+														onFocus={() =>
+															setInfo((prev) => ({
+																...prev,
+																showShearch: true,
+															}))
+														}
+														onBlur={() =>
+															setInfo((prev) => ({
+																...prev,
+																showShearch: false,
+															}))
+														}
 														style={{
-															display: info?.searchValue && 'block',
+															display: info?.showShearch
+																? 'block'
+																: 'none',
 														}}
 													/>
 												</div>
 
-												<div style={{ position: 'relative' }}>
-													<div
-														onClick={() =>
-															setInfo((prevInfo) => ({
-																...prevInfo,
-																showFilter: !prevInfo.showFilter,
-															}))
-														}
-														ref={filtersRef}
-														className="iconsContainer"
-													>
+												<Tooltip
+													placement="bottom"
+													trigger="hover"
+													color="transparent"
+													title={
+														<div className="optionsContainer">
+															{sortingOptions?.map((option) => {
+																return (
+																	<li
+																		onClick={() =>
+																			handleFilter(
+																				option?.value,
+																			)
+																		}
+																		className={
+																			info?.sortType ===
+																			option?.value
+																				? 'active'
+																				: ''
+																		}
+																	>
+																		{option?.label}
+																	</li>
+																);
+															})}
+														</div>
+													}
+												>
+													<div className="iconsContainer">
 														<FilterIcon />
 													</div>
-													{info.showFilter && (
-														<div
-															ref={filtersOptionsRef}
-															className="filterContianer"
-														>
-															<li
-																onClick={() =>
-																	handleFilter('displayName')
-																}
-																className={
-																	info?.sortType === 'displayName'
-																		? 'active'
-																		: ''
-																}
-															>
-																File name
-															</li>
-															<li
-																onClick={() =>
-																	handleFilter('-displayName')
-																}
-																className={
-																	info?.sortType ===
-																	'-displayName'
-																		? 'active'
-																		: ''
-																}
-															>
-																File name (reverse)
-															</li>
-															<li
-																onClick={() =>
-																	handleFilter('originalDateTime')
-																}
-																className={
-																	info?.sortType ===
-																	'originalDateTime'
-																		? 'active'
-																		: ''
-																}
-															>
-																Date Captured
-															</li>
-															<li
-																onClick={() =>
-																	handleFilter(
-																		'-originalDateTime',
-																	)
-																}
-																className={
-																	info?.sortType ===
-																	'-originalDateTime'
-																		? 'active'
-																		: ''
-																}
-															>
-																Date captured (reverse)
-															</li>
-															<li
-																onClick={() =>
-																	handleFilter('createdAt')
-																}
-																className={
-																	info?.sortType === 'createdAt'
-																		? 'active'
-																		: ''
-																}
-															>
-																upload time
-															</li>
-															<li
-																onClick={() =>
-																	handleFilter('-createdAt')
-																}
-																className={
-																	info?.sortType === '-createdAt'
-																		? 'active'
-																		: ''
-																}
-															>
-																upload time (reverse)
-															</li>
-															<li
-																onClick={() =>
-																	handleFilter('custom')
-																}
-																className={
-																	info?.sortType === 'custom'
-																		? 'active'
-																		: ''
-																}
-															>
-																Random
-															</li>
-														</div>
-													)}
-												</div>
+												</Tooltip>
 												<div
 													className="rearrangeManually"
 													onClick={handleRearrange}
@@ -4821,7 +4750,11 @@ const GalleryPage = () => {
 
 								<div
 									style={{
-										overflow: info?.scrolledTillEnd ? 'auto' : 'hidden',
+										overflow: info?.isRearranging
+											? 'auto'
+											: info?.scrolledTillEnd
+											? 'auto'
+											: 'hidden',
 										height: info?.isRearranging ? '79vh' : '83vh',
 									}}
 									className="galleryImagesContainer"
