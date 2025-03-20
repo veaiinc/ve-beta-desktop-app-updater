@@ -26,7 +26,7 @@ import { ReactComponent as LockIcon } from '../../../assets/svg/gallery/lockIcon
 import { ReactComponent as ArrowsOut } from '../../../assets/svg/gallery/arrowsOut.svg';
 import Masonry, { ResponsiveMasonry } from 'react-responsive-masonry';
 import { ReactComponent as UpArrow } from '../../../assets/svg/workflow/downArrow.svg';
-import { message, Result, theme, Tooltip } from 'antd';
+import { Checkbox, message, Result, theme, Tooltip } from 'antd';
 import ShareModal from '../../../views/components/modalsV2/gallery/ShareModal';
 import CreateAlbum from '../../components/modalsV2/gallery/CreateAlbum';
 import CollaboratorPopup from '../../components/modalsV2/gallery/CollaboratorPopup';
@@ -62,6 +62,8 @@ import GridImage from '../../../assets/images/workflow_builder/dotgrid.png';
 // import EarnAndShareOverlay from './galleryPage/EditAndShareOverlay';
 
 const workspaceId = localStorage.getItem('workspaceId');
+
+const dummyImagesArray = Array.from({ length: 10 }, () => ({ isPlaceholderImg: true }));
 
 const GalleryPage = () => {
 	const { galleryId } = useParams();
@@ -139,9 +141,12 @@ const GalleryPage = () => {
 			clientSelectionLightRoomCopy,
 			getScrolledTillEnd,
 			downloadImagesForClientSelection,
+			editTag,
+			deleteTag,
 		},
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 		profileInfo: { userWorkSpaceList, getTenantSettings, tennantSettingsData },
+		templates: { leftSidebarState, updateStateValues },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		albumName: '',
@@ -256,6 +261,17 @@ const GalleryPage = () => {
 			numberOfImagesPeoples: 0,
 		},
 		scrolledTillEnd: false,
+		animationProgress: 0,
+		isImagesLess: false,
+		editTagPopup: false,
+		deleteTagPopup: false,
+		activeTag: null,
+		galleryTagHover: {},
+		selectedDropDownValue: 'delete_images',
+		tagLoading: false,
+		showTagOptions: false,
+		selectedFace: null,
+		loadingImagesList: null,
 	});
 	const optionsRef = useRef(null);
 	const iconRef = useRef(null);
@@ -273,48 +289,7 @@ const GalleryPage = () => {
 	const settingsRef = useRef(null);
 	const albumSettingsIconRef = useRef(null);
 	const albumSettingsRef = useRef(null);
-	useEffect(() => {
-		if (galleryId) {
-			getImageProcessingStatus(galleryId);
-		}
-
-		const handleScroll = (e) => {
-			const container = document.querySelector('.galleryContainer');
-			if (!container) return;
-
-			const { scrollTop, scrollHeight, clientHeight } = container;
-
-			const isEndOfPage = scrollTop + clientHeight >= scrollHeight - 10;
-			const isStartOfPage = scrollTop === 0;
-
-			setInfo((prev) => {
-				if (isEndOfPage && prev.scrolledTillEnd !== true) {
-					return { ...prev, scrolledTillEnd: true };
-				}
-				if (isStartOfPage && prev.scrolledTillEnd !== false) {
-					return { ...prev, scrolledTillEnd: false };
-				}
-				return prev;
-			});
-		};
-
-		const timeoutId = setTimeout(() => {
-			const container = document?.querySelector('.galleryContainer');
-			if (container) {
-				container?.addEventListener('scroll', handleScroll);
-				handleScroll();
-			}
-		}, 100);
-
-		return () => {
-			clearTimeout(timeoutId);
-			const container = document?.querySelector('.galleryContainer');
-			if (container) {
-				container?.removeEventListener('scroll', handleScroll);
-			}
-		};
-	}, []);
-
+	const containerRef = useRef(null);
 	const data = [
 		{ name: 'Albums', number: albumImagesCount?.albums?.length },
 		// { name: 'Videos', number: 2 },
@@ -431,6 +406,93 @@ const GalleryPage = () => {
 		clickOutsideCheck(optionsContainerRef, optionsIconRef, 'showAlbumOptionsMenu');
 	}, []);
 
+	const handleScroll = (setInfo, info) => {
+		const container = document.querySelector('.galleryContainer');
+		if (!container) return;
+
+		const { scrollTop, scrollHeight, clientHeight } = container;
+
+		const isEndOfPage = info?.isRearranging
+			? true
+			: scrollTop + clientHeight >= scrollHeight - 10;
+		const isStartOfPage = scrollTop === 0;
+
+		setInfo((prev) => ({
+			...prev,
+			scrolledTillEnd: isEndOfPage ? true : isStartOfPage ? false : prev.scrolledTillEnd,
+		}));
+	};
+	useEffect(() => {
+		updateStateValues({ leftSidebarState: 'close' });
+		return () => {
+			updateStateValues({ leftSidebarState: null });
+		};
+	}, []);
+
+	useEffect(() => {
+		let startTime;
+		let animationFrame;
+
+		const animate = (timestamp) => {
+			if (!startTime) startTime = timestamp;
+			const progress = Math.min((timestamp - startTime) / 1000, 1); // 1000ms duration
+
+			setInfo((prev) => ({
+				...prev,
+				animationProgress: progress,
+			}));
+
+			if (progress < 1) {
+				animationFrame = requestAnimationFrame(animate);
+			}
+		};
+
+		if (info?.activeTab === 'Ai People') {
+			animationFrame = requestAnimationFrame(animate);
+		} else {
+			setInfo((prev) => ({
+				...prev,
+				animationProgress: 0,
+			}));
+		}
+
+		return () => {
+			if (animationFrame) {
+				cancelAnimationFrame(animationFrame);
+			}
+		};
+	}, [info?.activeTab]);
+	useEffect(() => {
+		if (imagesList) {
+			const imagesCount = imagesList?.totalDocs || 0;
+			setInfo((prev) => {
+				if (prev.isImagesLess !== imagesCount < 20) {
+					return { ...prev, isImagesLess: imagesCount < 20 };
+				}
+				return prev;
+			});
+		}
+	}, [imagesList]);
+
+	useEffect(() => {
+		if (galleryId) {
+			getImageProcessingStatus(galleryId);
+		}
+
+		const container = document.querySelector('.galleryContainer');
+
+		if (container) {
+			const boundHandleScroll = () => handleScroll(setInfo, info);
+
+			container.addEventListener('scroll', boundHandleScroll);
+			boundHandleScroll();
+
+			return () => {
+				container.removeEventListener('scroll', boundHandleScroll);
+			};
+		}
+	}, [galleryId]);
+
 	useEffect(() => {
 		const childrenContainer = document.querySelector('.childrenContainer');
 		if (childrenContainer) {
@@ -505,7 +567,9 @@ const GalleryPage = () => {
 					navigate('/galleries');
 				}
 			});
-			getAlbumImagesCount(galleryId);
+			if (!albumImagesCount) {
+				getAlbumImagesCount(galleryId);
+			}
 		}
 		if (!tenantPreferences || tenantPreferences?._id !== galleryId) {
 			getEditPreferences(galleryId);
@@ -550,7 +614,6 @@ const GalleryPage = () => {
 	// 		getAlbumCount(galleryId, tenantAlbums?.albums?.[0]?._id);
 	// 	}
 	// }, [tenantAlbums?.albums?.[0]?.title]);
-
 	useEffect(() => {
 		if (!layoutSettings) {
 			getLayoutSettings(galleryId);
@@ -561,7 +624,7 @@ const GalleryPage = () => {
 				gridStyle: layoutSettings?.layoutSettings?.gridStyle,
 				thumbnailSize: layoutSettings?.layoutSettings?.thumbnailSize,
 				gridSpacing: layoutSettings?.layoutSettings?.gridSpacing,
-				themeMode: layoutSettings?.theme,
+				themeMode: layoutSettings?.theme || 'dark',
 			}));
 		}
 	}, [layoutSettings]);
@@ -594,8 +657,16 @@ const GalleryPage = () => {
 	}, [info?.activeAlbumId]);
 
 	useEffect(() => {
+		!imagesList && handleGetGalleryImages();
+	}, [info?.albumTagId, info?.activeAlbumId, info?.activeTab]);
+
+	const handleGetGalleryImages = async () => {
 		if (info?.albumTagId && info?.activeAlbumId && info?.activeTab === 'Albums') {
-			getGalleryImages(
+			setInfo((prev) => ({
+				...prev,
+				loadingImagesList: true,
+			}));
+			const response = await getGalleryImages(
 				galleryId,
 				info?.activeAlbumId,
 				info?.albumTagId,
@@ -604,14 +675,15 @@ const GalleryPage = () => {
 				'',
 				true,
 			);
-		}
-		if (imagesList) {
+			if (response?.[0] === true) {
+				checkAndSetDefaultCovers(response?.[1]?.docs?.[0]);
+			}
 			setInfo((prev) => ({
 				...prev,
-				imagesList: imagesList,
+				loadingImagesList: false,
 			}));
 		}
-	}, [info?.albumTagId, info?.activeAlbumId, info?.activeTab]);
+	};
 
 	useEffect(() => {
 		if (imagesList) {
@@ -684,7 +756,6 @@ const GalleryPage = () => {
 				opacity: '0.7',
 			});
 			t1.to('.albums', {
-				height: '160px',
 				duration: 0.3,
 				ease: 'power2.out',
 			});
@@ -789,6 +860,193 @@ const GalleryPage = () => {
 		}
 	}, [info?.currentWorkspaceId, tennantSettingsData, info?.activeGallery]);
 
+	useEffect(() => {
+		if (location?.state?.returnFromViewer) {
+			const returnedAlbumId = location?.state?.activeAlbumId;
+			const returnedTagId = location?.state?.activeTagId;
+			const returnedActiveTab = location?.state?.activeTab;
+			const returnedSelectedFace = location?.state?.selectedFace;
+			const returnedSelectedImage = location?.state?.selectedImage;
+			if (returnedActiveTab === 'Ai People') {
+				setInfo((prev) => ({
+					...prev,
+					activeTab: 'Ai People',
+					activeAlbumId: returnedAlbumId || prev.activeAlbumId,
+					activeTagId: returnedTagId || prev.activeTagId,
+					selectedFace: returnedSelectedFace || prev.selectedFace,
+				}));
+			} else {
+				// Default behavior for Albums tab
+				if (tenantAlbums?.albums && returnedAlbumId) {
+					const activeAlbum = tenantAlbums.albums.find(
+						(album) => album._id === returnedAlbumId,
+					);
+
+					if (activeAlbum) {
+						setInfo((prev) => ({
+							...prev,
+							activeTab: 'Albums', // Always default to Albums for non-AI People returns
+							albumName: activeAlbum.title,
+							activeAlbumId: activeAlbum._id,
+							activeAlbum: activeAlbum,
+							albumSlug: activeAlbum.slug,
+							albumTagId: returnedTagId || prev.albumTagId,
+							selectedImages: [...prev.selectedImages, returnedSelectedImage],
+						}));
+					}
+				}
+			}
+			setTimeout(() => {
+				const imageElement = document.getElementById(
+					`image-${location?.state?.selectedImage}`,
+				);
+				if (imageElement) {
+					imageElement.scrollIntoView({
+						behavior: 'instant',
+						block: 'center',
+					});
+				}
+			}, 500);
+			// Clear the location state to prevent reapplying on subsequent renders
+			navigate(location.pathname, { replace: true });
+		}
+	}, [location?.state?.returnFromViewer, tenantAlbums?.albums]);
+
+	useEffect(() => {
+		// Get initial values from URL params
+		const searchParams = new URLSearchParams(location.search);
+		const albumIdFromParams = searchParams.get('albumId');
+		const activeTabFromParams = searchParams.get('activeTab');
+
+		// Set initial state based on URL params or defaults
+		if (tenantAlbums?.albums && albumIdFromParams) {
+			const albumFromParams = tenantAlbums.albums.find(
+				(album) => album._id === albumIdFromParams,
+			);
+			if (albumFromParams) {
+				setInfo((prev) => ({
+					...prev,
+					albumName: albumFromParams.title,
+					activeAlbumId: albumFromParams._id,
+					activeAlbum: albumFromParams,
+					albumSlug: albumFromParams.slug,
+					isPublished: albumFromParams.isPublished,
+				}));
+			}
+		}
+
+		if (
+			activeTabFromParams &&
+			['Albums', 'Client Selections', 'Ai People', 'Insights'].includes(activeTabFromParams)
+		) {
+			setInfo((prev) => ({
+				...prev,
+				activeTab: activeTabFromParams,
+			}));
+		}
+	}, [tenantAlbums?.albums, location.search]);
+
+	// Update URL params when album or tab changes
+	useEffect(() => {
+		if (info.activeAlbumId || info.activeTab) {
+			const searchParams = new URLSearchParams(location.search);
+
+			if (info.activeAlbumId) {
+				searchParams.set('albumId', info.activeAlbumId);
+			}
+
+			if (info.activeTab) {
+				searchParams.set('activeTab', info.activeTab);
+			}
+
+			// Update URL without causing a navigation/reload
+			const newUrl = `${location.pathname}?${searchParams.toString()}`;
+			window.history.replaceState(null, '', newUrl);
+		}
+	}, [info.activeAlbumId, info.activeTab, location.pathname]);
+
+	const checkAndSetDefaultCovers = async (firstImage) => {
+		try {
+			const firstImageId = firstImage?._id;
+			let updatesNeeded = false;
+
+			// Check if gallery needs a cover
+			if (!info?.activeGallery?.coverImage?.givenFileName && firstImage) {
+				const payload = {
+					image_id: firstImageId,
+					xPosition: 0,
+					yPosition: 0,
+					givenFileName: firstImage?.activeVersion?.givenFileName,
+					width: 100,
+					height: 100,
+					zoom: 1,
+				};
+
+				const galleryCoverResponse = await updateGalleryCoverImage(payload, galleryId);
+
+				if (galleryCoverResponse?.[0] === true) {
+					updatesNeeded = true;
+					message.success('Gallery cover has been automatically set');
+				} else {
+					message.error('Failed to set gallery cover image');
+				}
+			}
+
+			// Check if album needs a cover
+			if (
+				info?.activeAlbum?._id &&
+				!info?.activeAlbum?.coverImage?.givenFileName &&
+				firstImage
+			) {
+				const payload = {
+					image_id: firstImage._id,
+					xPosition: 0,
+					yPosition: 0,
+					givenFileName: firstImage.activeVersion.givenFileName,
+					width: 100,
+					height: 100,
+					zoom: 1,
+				};
+
+				const albumCoverResponse = await updateAlbumCoverImage(
+					payload,
+					galleryId,
+					info.activeAlbum._id,
+				);
+
+				if (albumCoverResponse?.[0] === true) {
+					updatesNeeded = true;
+					message.success('Album cover has been automatically set');
+				} else {
+					message.error('Failed to set album cover image');
+				}
+			}
+
+			// If we made updates, refresh the data
+			if (updatesNeeded) {
+				await getAlbums(galleryId);
+				await getAlbumImagesCount(galleryId);
+			}
+
+			setInfo((prev) => ({
+				...prev,
+				loadingImagesList: undefined,
+			}));
+		} catch (error) {
+			console.error('Error setting default covers:', error);
+			message.error('Failed to set cover images');
+		}
+	};
+
+	useEffect(() => {
+		if (
+			imagesList?.docs?.length > 0 &&
+			(!info?.activeGallery?.coverImage?.givenFileName ||
+				(info?.activeAlbum?._id && !info?.activeAlbum?.coverImage?.givenFileName))
+		) {
+			checkAndSetDefaultCovers();
+		}
+	}, [info?.imagesList?.docs]);
 	const fetchMoreImages = () => {
 		const nextPage = info.page + 1;
 		getGalleryImages(
@@ -817,28 +1075,6 @@ const GalleryPage = () => {
 		});
 	};
 
-	// const handleHideAlbum = async () =>
-	// 	console.log('Current isPublished:', info?.isPublished);
-	// 	const payload = {
-	// 		isPublished: !info?.isPublished,
-	// 	};
-
-	// 	const response = await editAlbum(payload, galleryId, info?.activeAlbumId);
-	// 	if (response?.[0]) {
-	// 		setInfo((prev) => {
-	// 			const newState = {
-	// 				...prev,
-	// 				isPublished: !prev.isPublished,
-	// 				showGalleryOptions: false,
-	// 			};
-	// 			console.log('New State:', newState);
-	// 			return newState;
-	// 		});
-	// 		message.success('Album visibility updated successfully');
-	// 	} else {
-	// 		message.error('Failed to update album visibility');
-	// 	}
-	// };
 	const handleHideAlbum = async () => {
 		try {
 			// Store current active album details before making any changes
@@ -883,6 +1119,12 @@ const GalleryPage = () => {
 		}
 	};
 
+	const handleDeselect = () => {
+		setInfo((prev) => ({
+			...prev,
+			selectedImages: [],
+		}));
+	};
 	const handleLockAlbum = useCallback(async () => {
 		const newGuestAccessState = !info?.activeAlbum?.guestAccess?.isEnabled;
 
@@ -1034,6 +1276,9 @@ const GalleryPage = () => {
 
 	// ... rest of the code ...
 	const handleImageSelect = (index, images) => {
+		if (images?.isPlaceholderImg) {
+			return;
+		}
 		setInfo((prevInfo) => {
 			const isDeselecting = prevInfo?.selectedImages?.includes(images?._id);
 			const newSelectedImages = isDeselecting
@@ -1048,22 +1293,22 @@ const GalleryPage = () => {
 			} else {
 				// For regular albums, process tags as before
 				if (isDeselecting) {
-					const remainingImages = info?.imagesList?.docs.filter(
-						(img) => newSelectedImages.includes(img._id) && img._id !== images?._id,
+					const remainingImages = info?.imagesList?.docs?.filter(
+						(img) => newSelectedImages?.includes(img?._id) && img?._id !== images?._id,
 					);
 					newSelectedImagesTags = [
 						...new Set(
 							remainingImages
-								.filter((img) => img.galleryTags) // Add null check
-								.flatMap((img) => img.galleryTags)
-								.map((tag) => tag._id),
+								?.filter((img) => img?.galleryTags) // Add null check
+								?.flatMap((img) => img?.galleryTags)
+								?.map((tag) => tag?._id),
 						),
 					];
 				} else {
 					newSelectedImagesTags = [
 						...new Set([
 							...(prevInfo?.selectedImagesTags || []),
-							...(images?.galleryTags?.map((tag) => tag._id) || []), // Add null check
+							...(images?.galleryTags?.map((tag) => tag?._id) || []), // Add null check
 						]),
 					];
 				}
@@ -1078,6 +1323,70 @@ const GalleryPage = () => {
 		});
 	};
 
+	const handleEditTag = async (tagId, name) => {
+		if (info?.tagLoading) return;
+		setInfo((prev) => ({
+			...prev,
+			tagLoading: true,
+		}));
+		const response = await editTag(galleryId, tagId, {
+			displayName: name,
+		});
+
+		if (response?.[0]) {
+			message.success('Tag updated successfully');
+			getGalleryTagsList(galleryId);
+			setInfo((prev) => ({
+				...prev,
+				albumTags: prev?.albumTags?.map((tag) =>
+					tag?._id === tagId ? { ...tag, displayName: name } : tag,
+				),
+				tagLoading: false,
+			}));
+		} else {
+			message.error('Failed to update tag');
+		}
+
+		setInfo((prev) => ({
+			...prev,
+			editTagPopup: false,
+		}));
+	};
+
+	const handleDeleteTag = async (tagId, albumSlug) => {
+		if (info?.tagLoading) return;
+		setInfo((prev) => ({
+			...prev,
+			tagLoading: true,
+		}));
+		const response = await deleteTag(galleryId, tagId, albumSlug, info?.selectedDropDownValue);
+		if (response?.[0]) {
+			message.success(response?.[1]?.message);
+			getGalleryTagsList(galleryId);
+			setInfo((prev) => ({
+				...prev,
+				albumTags: prev?.albumTags?.filter((tag) => tag?._id !== tagId),
+				albumTagId: prev?.albumTags?.[0]?._id,
+				albumContains: prev?.albumTags?.[0]?.displayName,
+				tagLoading: false,
+			}));
+		} else {
+			message.error(response?.[1]?.message);
+		}
+
+		setInfo((prev) => ({
+			...prev,
+			deleteTagPopup: false,
+		}));
+	};
+
+	const handleDeleteTypeChange = (e) => {
+		setInfo((prev) => ({
+			...prev,
+			selectedDropDownValue: e.target.value,
+		}));
+	};
+
 	const handleNewAlbumCreated = (newAlbum) => {
 		setInfo((prev) => ({
 			...prev,
@@ -1087,6 +1396,11 @@ const GalleryPage = () => {
 			activeAlbumId: newAlbum?._id,
 			activeAlbum: newAlbum,
 		}));
+		const searchParams = new URLSearchParams(location.search);
+		searchParams.set('albumId', newAlbum?._id);
+		searchParams.set('activeTab', 'Albums');
+		const newUrl = `${location.pathname}?${searchParams.toString()}`;
+		window.history.replaceState(null, '', newUrl);
 	};
 
 	const handleClickAlbum = (album, name) => {
@@ -1234,7 +1548,10 @@ const GalleryPage = () => {
 			activeLink: 'gallery-overview',
 			page: 1,
 			uploadImageId: null,
-			selectedImages: [],
+			selectedImages:
+				location?.state?.returnFromViewer && location?.state?.selectedImage
+					? [location?.state?.selectedImage]
+					: [],
 			imagesList: {
 				...prevInfo.imagesList,
 				docs: [],
@@ -1450,12 +1767,6 @@ const GalleryPage = () => {
 		},
 		[info?.timeout],
 	);
-
-	// ... existing code ...
-
-	// ... existing code ...
-
-	// ... existing code ...
 
 	const albumChanges = useCallback(
 		async (value) => {
@@ -2011,8 +2322,11 @@ const GalleryPage = () => {
 		if (response[0] === true) {
 			message.destroy();
 			message.success('Gallery deleted successfully');
-
-			navigate('/galleries');
+			if (!info?.isLightGallery) {
+				navigate('/galleries');
+			} else {
+				navigate(`/lite-gallery`);
+			}
 			await getGalleries({}, true);
 		} else {
 			message.destroy();
@@ -2156,7 +2470,6 @@ const GalleryPage = () => {
 			duration: 0,
 		});
 		if (info?.imageURL) {
-			console.log('info?.imageURL3', info?.imageURL);
 			setInfo((prev) => ({
 				...prev,
 				crop: {
@@ -2818,7 +3131,18 @@ const GalleryPage = () => {
 				message.destroy('deleteAlbum');
 				message.success('Album deleted successfully');
 				await getAlbums(galleryId);
-				navigate(`/galleries/${galleryId}`);
+
+				const newAlbumId = tenantAlbums?.albums?.[0]?._id;
+				setInfo((prev) => ({
+					...prev,
+					activeAlbumId: newAlbumId,
+				}));
+				navigate(`/galleries/${galleryId}?albumId=${newAlbumId}`);
+				// const searchParams = new URLSearchParams(location.search);
+				// searchParams.set('albumId', newAlbumId);
+				// searchParams.set('activeTab', 'Albums');
+				// const newUrl = `${location.pathname}?${searchParams.toString()}`;
+				// window.history.replaceState(null, '', newUrl);
 			} else {
 				message.destroy('deleteAlbum');
 				message.error(response[1].message);
@@ -2854,7 +3178,7 @@ const GalleryPage = () => {
 			},
 		}));
 
-		// Create and append ghost image container
+		// // Create and append ghost image container
 		const ghostContainer = document.createElement('div');
 		ghostContainer.style.position = 'fixed';
 		ghostContainer.style.pointerEvents = 'none';
@@ -2865,13 +3189,31 @@ const GalleryPage = () => {
 	};
 
 	const handleDrag = (e) => {
-		if (!e.clientX || !e.clientY) return; // Ignore invalid drag events
+		if (!e.clientX || !e.clientY) return;
+		const { clientX, clientY } = e;
 
+		const container = rearrangeContainerRef.current;
+		if (!container) return;
+
+		const scrollSpeed = 20;
+		const buffer = 50;
+
+		const { top, bottom } = container.getBoundingClientRect();
+
+		if (clientY < top + buffer) {
+			// Scroll up
+			container.scrollTop -= scrollSpeed;
+		} else if (clientY > bottom - buffer) {
+			// Scroll down
+			container.scrollTop += scrollSpeed;
+		}
+
+		// Always update the drag position and calculate drop position
 		setInfo((prev) => ({
 			...prev,
 			dragPosition: {
-				x: e.clientX,
-				y: e.clientY,
+				x: clientX,
+				y: clientY,
 			},
 			dropPlaceholder: calculateDropPosition(e, rearrangeContainerRef),
 		}));
@@ -2889,39 +3231,39 @@ const GalleryPage = () => {
 		}
 
 		const currentImages = [...info.imagesList.docs];
-		const selectedImageObjects = currentImages.filter((img) =>
-			info.selectedImages.includes(img._id),
-		);
-		const remainingImages = currentImages.filter(
-			(img) => !info.selectedImages.includes(img._id),
+		const selectedImageObjects = info?.selectedImages
+			?.map((id) => currentImages?.find((img) => img?._id === id))
+			?.filter(Boolean);
+		const remainingImages = currentImages?.filter(
+			(img) => !info?.selectedImages?.includes(img?._id),
 		);
 
 		const beforeIndex =
-			info.dropPlaceholder > 0
-				? getCustomSortIndex(remainingImages[info.dropPlaceholder - 1])
+			info?.dropPlaceholder > 0
+				? getCustomSortIndex(remainingImages[info?.dropPlaceholder - 1])
 				: 0;
 		const afterIndex =
-			info.dropPlaceholder < remainingImages.length
-				? getCustomSortIndex(remainingImages[info.dropPlaceholder])
-				: beforeIndex + (selectedImageObjects.length + 1);
+			info?.dropPlaceholder < remainingImages?.length
+				? getCustomSortIndex(remainingImages[info?.dropPlaceholder])
+				: beforeIndex + (selectedImageObjects?.length + 1);
 
 		// Calculate step size for even distribution
-		const stepSize = (afterIndex - beforeIndex) / (selectedImageObjects.length + 1);
+		const stepSize = (afterIndex - beforeIndex) / (selectedImageObjects?.length + 1);
 
 		// Create payload with new sort indices
 
-		const payload = selectedImageObjects.map((image, index) => ({
-			image_id: image._id,
+		const payload = selectedImageObjects?.map((image, index) => ({
+			image_id: image?._id,
 			customSortIndex: beforeIndex + (index + 1) * stepSize,
 		}));
 		setInfo((prev) => ({
 			...prev,
 			totalPayload: [...prev.totalPayload, ...payload],
 		}));
-		const updatedImages = selectedImageObjects.map((image, index) => ({
+		const updatedImages = selectedImageObjects?.map((image, index) => ({
 			...image,
-			galleryTags: image.galleryTags.map((tag) =>
-				tag._id === info.albumTagId
+			galleryTags: image?.galleryTags?.map((tag) =>
+				tag?._id === info?.albumTagId
 					? {
 							...tag,
 							customSortIndex: beforeIndex + (index + 1) * stepSize,
@@ -2930,7 +3272,7 @@ const GalleryPage = () => {
 			),
 		}));
 
-		remainingImages.splice(info.dropPlaceholder, 0, ...updatedImages);
+		remainingImages?.splice(info?.dropPlaceholder, 0, ...updatedImages);
 
 		setInfo((prev) => ({
 			...prev,
@@ -2941,7 +3283,6 @@ const GalleryPage = () => {
 		updateImageOrder(remainingImages);
 	};
 	const handleSaveImage = async () => {
-		message.loading('Rearranging images...');
 		// setInfo((prev) => ({
 		// 	...prev,
 		// 	imagesList: [],
@@ -2957,6 +3298,7 @@ const GalleryPage = () => {
 				info.albumTagId,
 			);
 			if (response?.[0] === true) {
+				message.loading('Rearranging images...');
 				message.destroy();
 				message.success('Images rearranged successfully');
 				setInfo((prev) => ({
@@ -2968,6 +3310,11 @@ const GalleryPage = () => {
 				message.destroy();
 				message.error('Something went wrong, please try again later');
 			}
+		} else {
+			setInfo((prev) => ({
+				...prev,
+				isRearranging: false,
+			}));
 		}
 	};
 
@@ -3112,9 +3459,6 @@ const GalleryPage = () => {
 		}
 	};
 
-	// ... rest of the code ...
-
-	// Add this function to calculate drop position
 	const calculateDropPosition = (e, containerRef) => {
 		if (!containerRef.current) return null;
 
@@ -3223,14 +3567,30 @@ const GalleryPage = () => {
 	return (
 		<>
 			<div className="galleryContainer">
-				<div
-					className="mainGalleryContainer"
-					style={{
-						height: 'fit-content',
-					}}
-				>
-					<div className="galleryPic">
-						<div className="galleryHeaderColumn">
+				{!info?.isRearranging && (
+					<div className="galleryTitleWhenScrolled">
+						<span
+							className="galleryTitle"
+							style={{ cursor: 'pointer' }}
+							onClick={() => navigate(`/galleries`)}
+						>
+							Files
+						</span>
+						<span style={{ color: 'white' }}>/</span>
+						<span
+							className="albumTitle"
+							style={{ cursor: 'pointer' }}
+							onClick={() => setInfo((prev) => ({ ...prev, activeTab: 'Albums' }))}
+						>
+							{info?.activeGallery?.title}
+						</span>
+						<span style={{ color: 'white' }}>/</span>
+						<span className="activeTab">{info?.activeTab}</span>
+					</div>
+				)}
+				{info?.isRearranging ? (
+					<div className="galleryRearrangingContainer">
+						<div className="galleryRearrangingImageContainer">
 							<div
 								className="imageContaienr"
 								style={{
@@ -3250,11 +3610,35 @@ const GalleryPage = () => {
 									setInfo((prev) => ({ ...prev, showCoverButton: false }))
 								}
 							></div>
-							<div className="galleryTitle">
-								<p>{info?.activeGallery?.title || 'Untitled Gallery'}</p>
+							<div className="galleryRearrangingTitle">Files</div>
+							<div className="galleryRearrangingSlash">/</div>
+							<div className="galleryRearrangingTitle">
+								{info?.activeGallery?.title || 'Untitled Gallery'}
+							</div>
+							<div className="galleryRearrangingSlash">/</div>
+							<div className="galleryRearrangingTitle">
+								{info?.activeAlbum?.title}
 							</div>
 						</div>
-						{/* <div className="galleryOptionsContainer">
+						<div>
+							<button
+								className="rearrangeSaveButton"
+								onClick={handleSaveImage}
+								style={{ cursor: 'pointer' }}
+							>
+								Save Changes
+							</button>
+						</div>
+					</div>
+				) : (
+					<div
+						className="mainGalleryContainer"
+						style={{
+							height: 'fit-content',
+						}}
+					>
+						<div className="galleryPic">
+							{/* <div className="galleryOptionsContainer">
 							<Tooltip
 								trigger="click"
 								arrow={false}
@@ -3296,184 +3680,428 @@ const GalleryPage = () => {
 								{info?.isOnline ? 'Publish' : 'Unpublish'}
 							</div>
 						</div> */}
-					</div>
-					<div className="albumsContianer">
-						<div className="galleryContentContainer">
-							<div className="content">
-								{data?.map((item, index) => (
-									<>
-										{item?.name !== 'breaker' && (
-											<div
-												key={index}
-												className={`galleryContent ${
-													info?.activeTab === item?.name ? 'active' : ''
-												}`}
-												onClick={() =>
-													handleClickContent(item?.name, item?.number)
-												}
-											>
-												<p
-													className={`galleryName ${
-														info?.activeTab === item?.name
-															? 'active'
-															: ''
-													}`}
-												>
-													{item?.name}
-												</p>
-												<p
-													className={`count ${
-														info?.activeTab === item?.name
-															? 'active'
-															: ''
-													}`}
-												>
-													{item?.number}
-												</p>
-											</div>
-										)}
-										{item?.name === 'breaker' && (
-											<div className="breaker"></div>
-										)}
-									</>
-								))}
-							</div>
-							<div className="shareContainer">
-								<div
-									className="onlineContainer"
-									onClick={handleOnlineToggle}
-									style={{ cursor: 'pointer' }}
-								>
-									{info.isOnline ? (
-										<>
-											<OpenEye />
-											<p className="onlineText">Online</p>
-										</>
-									) : (
-										<>
-											<CrossedOpenEye />
-											<p className="onlineText">Offline</p>
-										</>
-									)}
-								</div>
-								<div className="icon" onClick={openShareModal}>
-									<ShareIcon className="shareIcon" />
-								</div>
-								<div
-									className="icon"
-									ref={iconRef}
-									onClick={(e) => {
-										e.stopPropagation();
-										e.preventDefault();
-										setInfo((prevInfo) => ({
-											...prevInfo,
-											showOptions: !prevInfo.showOptions,
-										}));
-									}}
-								>
-									<ThreeDotsIcon className="threeDotsIcon" />
-									{info.showOptions && (
-										<div
-											className="optionsContainer"
-											ref={optionsRef}
-											onClick={(e) => e.stopPropagation()}
-										>
-											{/* <li>
-												<GalleryPreview />
-												<span>Preview Gallery</span>
-											</li> */}
-											{galleryOptions.map((option, index) =>
-												option.divider ? (
-													<hr
-														key={`divider-${index}`}
-														style={{
-															border: '1px solid #424548',
-															opacity: '0.2',
-															width: '100%',
-														}}
-													/>
-												) : (
-													<li
-														key={option.label}
-														onClick={option.onClick}
-														className={option.className}
-													>
-														{option.icon}
-														<span>{option.label}</span>
-													</li>
-												),
-											)}
-										</div>
-									)}
-								</div>
-							</div>
 						</div>
-						{info.activeTab !== 'Insights' && info.activeTab !== 'Ai People' && (
-							<div
-								style={{
-									display: 'flex',
-									height: '100%',
-									alignItems: 'center',
-									justifyContent: 'space-between',
-									gap: '20px',
-
-									// height: '160px',
-								}}
-								id="droppableAlblumId"
-							>
-								<DragDropContext onDragEnd={handleAlbumDragEnd}>
-									<Droppable
-										droppableId="droppableAlblumId"
-										direction="horizontal"
-									>
-										{(provided) => (
-											<div
-												className="albums"
-												style={{
-													height: '160px',
-												}}
-												{...provided.droppableProps}
-												ref={provided.innerRef}
-											>
-												{(info.activeTab === 'Albums' ||
-													info.activeTab !== 'Client Selections') && (
-													<div
-														className="create-album"
-														onClick={() =>
-															setInfo((prevData) => ({
-																...prevData,
-																showCreateAlbum: true,
-															}))
-														}
-													>
-														<p>+ New Album</p>
-													</div>
-												)}
-
-												{(info.activeTab === 'Albums' ||
-													info.activeTab !== 'Client Selections') &&
-													sortByCustomIndex(
-														albumImagesCount?.albums,
-													)?.map((album, index) => {
-														let src = null;
-														if (album?.coverImage?._id) {
-															const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
-															src = `${galleryCredentials?.baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${album?.coverImage?.givenFileName}?${params}`;
-														}
-														const isActive =
-															info?.albumSlug === album?.slug;
-														return (
-															<Draggable
-																key={album._id}
-																draggableId={album._id}
-																index={index}
+						<div className="albumsContianer">
+							<div className="galleryContentContainer">
+								<div className="content">
+									<div className="galleryHeaderColumn">
+										<div
+											className="imageContaienr"
+											style={{
+												background:
+													albumImagesCount?.coverImage?.givenFileName &&
+													galleryCredentials
+														? `linear-gradient(180deg, rgba(0, 0, 0, 0.00) 0%, #000 100%), url(${galleryUrl}) lightgray 50% / cover no-repeat`
+														: '#000000',
+												backgroundSize: 'cover',
+												backgroundPosition: 'center',
+												backgroundRepeat: 'no-repeat',
+											}}
+											onMouseEnter={() =>
+												setInfo((prev) => ({
+													...prev,
+													showCoverButton: true,
+												}))
+											}
+											onMouseLeave={() =>
+												setInfo((prev) => ({
+													...prev,
+													showCoverButton: false,
+												}))
+											}
+										></div>
+										<div className="galleryTitle">
+											<p>
+												{info?.activeGallery?.title || 'Untitled Gallery'}
+											</p>
+										</div>
+									</div>
+									{data?.map((item, index) => (
+										<>
+											{item?.name !== 'breaker' &&
+											item?.name === 'Client Selections' &&
+											item?.number === 0
+												? null
+												: item?.name !== 'breaker' && (
+														<div
+															key={index}
+															className={`galleryContent ${
+																info?.activeTab === item?.name
+																	? 'active'
+																	: ''
+															}`}
+															style={{
+																background:
+																	item.name === 'Ai People'
+																		? info?.activeTab ===
+																		  'Ai People'
+																			? `linear-gradient(to right, white ${
+																					info?.animationProgress *
+																					100
+																			  }%, #202123 ${
+																					info?.animationProgress *
+																					100
+																			  }%)`
+																			: '#202123'
+																		: info?.activeTab ===
+																		  item?.name
+																		? '#f2f2f3'
+																		: '#202123',
+																backgroundRepeat: 'no-repeat',
+																cursor: 'pointer',
+															}}
+															onClick={() =>
+																handleClickContent(
+																	item?.name,
+																	item?.number,
+																)
+															}
+														>
+															<p
+																className={`galleryName ${
+																	info?.activeTab === item?.name
+																		? 'active'
+																		: ''
+																}`}
 															>
-																{(provided) => (
+																{item?.name}
+															</p>
+															<p
+																className={`count ${
+																	info?.activeTab === item?.name
+																		? 'active'
+																		: ''
+																}`}
+															>
+																{item?.name === 'Ai People'
+																	? info?.activeTab ===
+																			'Ai People' &&
+																	  info?.animationProgress *
+																			100 <
+																			100
+																		? 'Updating...'
+																		: item?.number
+																	: item?.number}
+															</p>
+														</div>
+												  )}
+											{item?.name === 'breaker' && (
+												<div className="breaker"></div>
+											)}
+										</>
+									))}
+								</div>
+								<div className="shareContainer">
+									<Tooltip
+										open={info?.showOptions}
+										onOpenChange={() =>
+											setInfo((prev) => ({
+												...prev,
+												showOptions: !prev?.showOptions,
+											}))
+										}
+										placement="bottomRight"
+										trigger="click"
+										color="transparent"
+										arrow={false}
+										title={
+											<div
+												className="optionsContainer"
+												ref={optionsRef}
+												onClick={(e) => e.stopPropagation()}
+											>
+												{galleryOptions?.map((option, index) =>
+													option?.divider ? (
+														<hr
+															key={`divider-${index}`}
+															style={{
+																border: '1px solid #424548',
+																opacity: '0.2',
+																width: '100%',
+															}}
+														/>
+													) : (
+														<li
+															key={option?.label}
+															onClick={option?.onClick}
+															className={option?.className}
+														>
+															{option?.icon}
+															<span>{option?.label}</span>
+														</li>
+													),
+												)}
+											</div>
+										}
+									>
+										<div
+											className="settingsIcon"
+											// ref={iconRef}
+											onClick={(e) => {
+												e.stopPropagation();
+												e.preventDefault();
+												setInfo((prevInfo) => ({
+													...prevInfo,
+													showOptions: true,
+												}));
+											}}
+										>
+											<div className="threeDotsIcon">Settings</div>
+										</div>
+									</Tooltip>
+									<div
+										className="onlineContainer"
+										onClick={handleOnlineToggle}
+										style={{ cursor: 'pointer' }}
+									>
+										<div className="onlineIndicatorContainer">
+											<div
+												className="onlineStatus"
+												style={{
+													backgroundColor: info.isOnline
+														? '#e3fb4e'
+														: 'red',
+												}}
+											></div>
+											<p className="onlineText">
+												{info.isOnline ? 'Online' : 'Offline'}
+											</p>
+										</div>
+										<Switch
+											checked={info.isOnline}
+											onChange={handleOnlineToggle}
+											size="small"
+										/>
+									</div>
+									<div className="icon" onClick={openShareModal}>
+										<ShareIcon className="shareIcon" />
+										<div className="shareText">Share</div>
+									</div>
+								</div>
+							</div>
+							{info.activeTab !== 'Insights' && info.activeTab !== 'Ai People' && (
+								<div
+									style={{
+										display: 'flex',
+										height: '100%',
+										alignItems: 'center',
+										justifyContent: 'space-between',
+										gap: '20px',
+									}}
+									id="droppableAlblumId"
+								>
+									<DragDropContext onDragEnd={handleAlbumDragEnd}>
+										<Droppable
+											droppableId="droppableAlblumId"
+											direction="horizontal"
+										>
+											{(provided) => (
+												<div
+													className="albums"
+													{...provided.droppableProps}
+													ref={provided.innerRef}
+													style={{
+														height: '100%',
+													}}
+												>
+													{(info.activeTab === 'Albums' ||
+														info.activeTab !== 'Client Selections') && (
+														<div
+															className="create-album"
+															onClick={() =>
+																setInfo((prevData) => ({
+																	...prevData,
+																	showCreateAlbum: true,
+																}))
+															}
+														>
+															<p>+ New Album</p>
+														</div>
+													)}
+
+													{(info.activeTab === 'Albums' ||
+														info.activeTab !== 'Client Selections') &&
+														sortByCustomIndex(
+															albumImagesCount?.albums,
+														)?.map((album, index) => {
+															let src = null;
+															if (album?.coverImage?._id) {
+																const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
+																src = `${galleryCredentials?.baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${album?.coverImage?.givenFileName}?${params}`;
+															}
+															const isActive =
+																info?.albumSlug === album?.slug;
+															return (
+																<Draggable
+																	key={album._id}
+																	draggableId={album._id}
+																	index={index}
+																>
+																	{(provided) => (
+																		<div
+																			ref={provided.innerRef}
+																			{...provided.draggableProps}
+																			className={`album ${
+																				info?.albumSlug ===
+																				album?.slug
+																					? 'active'
+																					: ''
+																			}`}
+																			style={{
+																				background: src
+																					? `url(${src})`
+																					: `linear-gradient(180deg, rgba(0, 0, 0, 0.00) 0%, #000 100%), #C4C4C4`,
+																				...provided
+																					.draggableProps
+																					.style,
+																			}}
+																			onClick={() =>
+																				handleClickAlbum(
+																					album,
+																					'albumName',
+																				)
+																			}
+																			onMouseEnter={() =>
+																				setInfo((prev) => ({
+																					...prev,
+																					showDragIconOfAlbum:
+																						album?._id,
+																				}))
+																			}
+																			onMouseLeave={() =>
+																				setInfo((prev) => ({
+																					...prev,
+																					showDragIconOfAlbum:
+																						null,
+																				}))
+																			}
+																		>
+																			{src && (
+																				<img
+																					src={src}
+																					style={{
+																						width: '100%',
+																						height: '100%',
+																						objectFit:
+																							'cover',
+																					}}
+																				/>
+																			)}
+																			{!isActive && (
+																				<div
+																					style={{
+																						position:
+																							'absolute',
+																						top: 0,
+																						left: 0,
+																						right: 0,
+																						bottom: 0,
+																						backgroundColor:
+																							'rgba(0, 0, 0, 0.8)', // Adjust opacity as needed
+																						transition:
+																							'background-color 0.3s ease',
+																					}}
+																				/>
+																			)}
+																			{!album?.isPublished && (
+																				<div className="unpublished">
+																					<CrossedOpenEye />
+																					Unpublished
+																				</div>
+																			)}
+																			<span
+																				{...provided.dragHandleProps}
+																				style={{
+																					position:
+																						'absolute',
+																					top: '10px',
+																					left: '10px',
+																					zIndex: '10',
+																					transition:
+																						'all 0.3s ease',
+																					opacity:
+																						info?.showDragIconOfAlbum ===
+																						album?._id
+																							? 1
+																							: 0,
+																				}}
+																			>
+																				<DragIcon />
+																			</span>
+
+																			<div
+																				className="albumDetails"
+																				onClick={() =>
+																					handleClickAlbum(
+																						album,
+																						'albumName',
+																						album?.imagesCount,
+																					)
+																				}
+																			>
+																				<p>
+																					{album?.title}
+																				</p>
+																				<p
+																					style={{
+																						display:
+																							'flex',
+																						flexDirection:
+																							'row',
+																						alignItems:
+																							'center',
+																						gap: '5px',
+																					}}
+																				>
+																					{album
+																						?.guestAccess
+																						?.isEnabled && (
+																						<div
+																							style={{
+																								position:
+																									'relative',
+																							}}
+																						>
+																							<LockIcon
+																								style={{
+																									color: '#fff',
+																									fontSize:
+																										'12px',
+																								}}
+																							/>
+																						</div>
+																					)}
+																					{`${
+																						album?.imagesCount ||
+																						0
+																					} ${
+																						album?.imagesCount >
+																						1
+																							? 'photos'
+																							: 'photo'
+																					}`}
+																				</p>
+																			</div>
+																			<div className="overlay"></div>
+																		</div>
+																	)}
+																</Draggable>
+															);
+														})}
+
+													{info.activeTab === 'Client Selections' &&
+														clientSelectionsData?.data?.map(
+															(album, index) => {
+																let src = null;
+																if (album?.coverImage?._id) {
+																	const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
+																	src = `${galleryCredentials?.baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${album?.coverImage?.givenFileName}?${params}`;
+																}
+																return (
 																	<div
-																		ref={provided.innerRef}
-																		{...provided.draggableProps}
+																		key={album._id}
 																		className={`album ${
-																			info?.albumSlug ===
+																			info?.activeClientSelection ===
 																			album?.slug
 																				? 'active'
 																				: ''
@@ -3482,177 +4110,10 @@ const GalleryPage = () => {
 																			background: src
 																				? `url(${src})`
 																				: `linear-gradient(180deg, rgba(0, 0, 0, 0.00) 0%, #000 100%), #C4C4C4`,
-																			...provided
-																				.draggableProps
-																				.style,
+																			backgroundSize: 'cover',
+																			backgroundPosition:
+																				'center',
 																		}}
-																		onClick={() =>
-																			handleClickAlbum(
-																				album,
-																				'albumName',
-																			)
-																		}
-																		onMouseEnter={() =>
-																			setInfo((prev) => ({
-																				...prev,
-																				showDragIconOfAlbum:
-																					album?._id,
-																			}))
-																		}
-																		onMouseLeave={() =>
-																			setInfo((prev) => ({
-																				...prev,
-																				showDragIconOfAlbum:
-																					null,
-																			}))
-																		}
-																	>
-																		{src && (
-																			<img
-																				src={src}
-																				style={{
-																					width: '100%',
-																					height: '100%',
-																					objectFit:
-																						'cover',
-																				}}
-																			/>
-																		)}
-																		{!isActive && (
-																			<div
-																				style={{
-																					position:
-																						'absolute',
-																					top: 0,
-																					left: 0,
-																					right: 0,
-																					bottom: 0,
-																					backgroundColor:
-																						'rgba(0, 0, 0, 0.8)', // Adjust opacity as needed
-																					transition:
-																						'background-color 0.3s ease',
-																				}}
-																			/>
-																		)}
-																		{!album?.isPublished && (
-																			<div className="unpublished">
-																				Unpublished
-																			</div>
-																		)}
-																		<span
-																			{...provided.dragHandleProps}
-																			style={{
-																				position:
-																					'absolute',
-																				top: '10px',
-																				left: '10px',
-																				zIndex: '10',
-																				transition:
-																					'all 0.3s ease',
-																				opacity:
-																					info?.showDragIconOfAlbum ===
-																					album?._id
-																						? 1
-																						: 0,
-																			}}
-																		>
-																			<DragIcon />
-																		</span>
-
-																		<div
-																			className="albumDetails"
-																			onClick={() =>
-																				handleClickAlbum(
-																					album,
-																					'albumName',
-																					album?.imagesCount,
-																				)
-																			}
-																		>
-																			<p>{album?.title}</p>
-																			<p
-																				style={{
-																					display: 'flex',
-																					flexDirection:
-																						'row',
-																					alignItems:
-																						'center',
-																					gap: '5px',
-																				}}
-																			>
-																				{album?.guestAccess
-																					?.isEnabled && (
-																					<div
-																						style={{
-																							position:
-																								'relative',
-																						}}
-																					>
-																						<LockIcon
-																							style={{
-																								color: '#fff',
-																								fontSize:
-																									'12px',
-																							}}
-																						/>
-																					</div>
-																				)}
-																				{`${
-																					album?.imagesCount ||
-																					0
-																				} ${
-																					album?.imagesCount >
-																					1
-																						? 'photos'
-																						: 'photo'
-																				}`}
-																			</p>
-																		</div>
-																		<div className="overlay"></div>
-																	</div>
-																)}
-															</Draggable>
-														);
-													})}
-
-												{info.activeTab === 'Client Selections' &&
-													clientSelectionsData?.data?.map(
-														(album, index) => {
-															let src = null;
-															if (album?.coverImage?._id) {
-																const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
-																src = `${galleryCredentials?.baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${album?.coverImage?.givenFileName}?${params}`;
-															}
-															return (
-																<div
-																	key={album._id}
-																	className={`album ${
-																		info?.activeClientSelection ===
-																		album?.slug
-																			? 'active'
-																			: ''
-																	}`}
-																	style={{
-																		background: src
-																			? `url(${src})`
-																			: `linear-gradient(180deg, rgba(0, 0, 0, 0.00) 0%, #000 100%), #C4C4C4`,
-																		backgroundSize: 'cover',
-																		backgroundPosition:
-																			'center',
-																	}}
-																	onClick={() =>
-																		handleClickAlbum(
-																			album,
-																			'clientSelection',
-																		)
-																	}
-																>
-																	{album.image && (
-																		<img src={src} />
-																	)}
-
-																	<div
-																		className="albumDetails"
 																		onClick={() =>
 																			handleClickAlbum(
 																				album,
@@ -3660,53 +4121,67 @@ const GalleryPage = () => {
 																			)
 																		}
 																	>
-																		<p>{album?.title}</p>
-																		<p>{`${
-																			album?.numberOfImages ||
-																			0
-																		} photos`}</p>
-																	</div>
-																	<div className="overlay"></div>
-																</div>
-															);
-														},
-													)}
-												{provided.placeholder}
-											</div>
-										)}
-									</Droppable>
-								</DragDropContext>
+																		{album.image && (
+																			<img src={src} />
+																		)}
 
-								{albumImagesCount?.albums?.length > 4 && (
-									<div
-										className="fullScreenContainer"
-										onClick={() =>
-											setInfo((prev) => ({
-												...prev,
-												albumFullScreen: !prev.albumFullScreen,
-											}))
-										}
-										style={{
-											...(info?.albumFullScreen && {
-												rotate: '180deg',
-											}),
-										}}
-									>
-										<UpArrow />
-									</div>
-								)}
-								{/* </div> */}
-							</div>
-						)}
+																		<div
+																			className="albumDetails"
+																			onClick={() =>
+																				handleClickAlbum(
+																					album,
+																					'clientSelection',
+																				)
+																			}
+																		>
+																			<p>{album?.title}</p>
+																			<p>{`${
+																				album?.numberOfImages ||
+																				0
+																			} photos`}</p>
+																		</div>
+																		<div className="overlay"></div>
+																	</div>
+																);
+															},
+														)}
+													{provided.placeholder}
+												</div>
+											)}
+										</Droppable>
+									</DragDropContext>
+
+									{albumImagesCount?.albums?.length > 4 && (
+										<div
+											className="fullScreenContainer"
+											onClick={() =>
+												setInfo((prev) => ({
+													...prev,
+													albumFullScreen: !prev.albumFullScreen,
+												}))
+											}
+											style={{
+												...(info?.albumFullScreen && {
+													rotate: '180deg',
+												}),
+											}}
+										>
+											<UpArrow />
+										</div>
+									)}
+									{/* </div> */}
+								</div>
+							)}
+						</div>
 					</div>
-				</div>
-				{info?.scrolledTillEnd && (
+				)}
+				{/* {info?.scrolledTillEnd && (
 					<div className="galleryTitleWhenScrolled">
 						<span className="galleryTitle">{info?.activeGallery?.title}</span>
 						<span style={{ color: 'white' }}>/</span>
 						<span className="albumTitle">{info?.activeAlbum?.title}</span>
 					</div>
-				)}
+				)}{' '} */}
 				{info.activeTab === 'Albums' &&
 					(albumImagesCount?.albums?.length === 0 ? (
 						<div className="noAlbumContainer">
@@ -3733,7 +4208,7 @@ const GalleryPage = () => {
 						<div className="galleryViewer">
 							<div className="galleryNavbar">
 								<div className="albumDetailsContainer">
-									{!info?.isRearranging ? (
+									{!info?.isRearranging && (
 										<div className="albumContains">
 											<DragDropContext onDragEnd={onDragEnd}>
 												<Droppable
@@ -3789,6 +4264,30 @@ const GalleryPage = () => {
 																					...provided
 																						.draggableProps
 																						.style,
+																				}}
+																				onMouseEnter={() => {
+																					setInfo(
+																						(prev) => ({
+																							...prev,
+																							galleryTagHover:
+																								{
+																									...prev.galleryTagHover,
+																									[index]: true,
+																								},
+																						}),
+																					);
+																				}}
+																				onMouseLeave={() => {
+																					setInfo(
+																						(prev) => ({
+																							...prev,
+																							galleryTagHover:
+																								{
+																									...prev.galleryTagHover,
+																									[index]: false,
+																								},
+																						}),
+																					);
 																				}}
 																			>
 																				<div
@@ -3846,6 +4345,81 @@ const GalleryPage = () => {
 																						contain.imagesCount
 																					}
 																				</p>
+																				{info
+																					?.galleryTagHover[
+																					index
+																				] &&
+																					contain?.displayName !==
+																						'All' && (
+																						<Tooltip
+																							open={
+																								info?.showTagOptions
+																							}
+																							onOpenChange={() =>
+																								setInfo(
+																									(
+																										prev,
+																									) => ({
+																										...prev,
+																										showTagOptions:
+																											!prev?.showTagOptions,
+																									}),
+																								)
+																							}
+																							title={
+																								<div className="tagOptionsContainer">
+																									<p
+																										onClick={() =>
+																											setInfo(
+																												(
+																													prev,
+																												) => ({
+																													...prev,
+																													editTagPopup: true,
+																													activeTag:
+																														contain,
+																												}),
+																											)
+																										}
+																									>
+																										Edit
+																										Tag
+																									</p>
+																									<p
+																										onClick={() =>
+																											setInfo(
+																												(
+																													prev,
+																												) => ({
+																													...prev,
+																													deleteTagPopup: true,
+																													activeTag:
+																														contain,
+																												}),
+																											)
+																										}
+																									>
+																										Delete
+																										Tag
+																									</p>
+																								</div>
+																							}
+																							placement="bottom"
+																							arrow={
+																								false
+																							}
+																							color="transparent"
+																							trigger={
+																								'click'
+																							}
+																						>
+																							<ThreeDotsIcon
+																								style={{
+																									cursor: 'pointer',
+																								}}
+																							/>
+																						</Tooltip>
+																					)}
 																			</div>
 																		)}
 																	</Draggable>
@@ -3856,346 +4430,314 @@ const GalleryPage = () => {
 												</Droppable>
 											</DragDropContext>
 										</div>
-									) : (
-										<div className="saveRearrange">
-											<p onClick={handleSaveImage}>Save</p>
-										</div>
 									)}
-									<div className="aboutAlbum">
-										<div className="albumSearchCotainer">
-											<div
-												onClick={() =>
-													setInfo((prevInfo) => ({
-														...prevInfo,
-														showShearch: !prevInfo.showShearch,
-													}))
-												}
-												className="searchContainer"
-												style={{
-													width: info?.searchValue && '200px',
-												}}
-											>
-												<SearchIcon />
-
-												<input
-													type="text"
-													placeholder="Search"
-													value={info.searchValue}
-													onChange={(e) => handleSearch(e.target.value)}
-													style={{
-														display: info?.searchValue && 'block',
-													}}
-												/>
-											</div>
-
-											<div style={{ position: 'relative' }}>
+									{!info?.isRearranging && (
+										<div className="aboutAlbum">
+											<div className="albumSearchCotainer">
 												<div
 													onClick={() =>
 														setInfo((prevInfo) => ({
 															...prevInfo,
-															showFilter: !prevInfo.showFilter,
+															showShearch: !prevInfo.showShearch,
 														}))
 													}
-													ref={filtersRef}
-													className="iconsContainer"
+													className="searchContainer"
+													style={{
+														width: info?.showShearch && '200px',
+													}}
 												>
-													<FilterIcon />
+													<SearchIcon />
+
+													<input
+														type="text"
+														placeholder="Search"
+														value={info.searchValue}
+														onChange={(e) =>
+															handleSearch(e.target.value)
+														}
+														style={{
+															display: info?.searchValue && 'block',
+														}}
+													/>
 												</div>
-												{info.showFilter && (
+
+												<div style={{ position: 'relative' }}>
 													<div
-														ref={filtersOptionsRef}
-														className="filterContianer"
+														onClick={() =>
+															setInfo((prevInfo) => ({
+																...prevInfo,
+																showFilter: !prevInfo.showFilter,
+															}))
+														}
+														ref={filtersRef}
+														className="iconsContainer"
 													>
-														<li
-															onClick={() =>
-																handleFilter('displayName')
-															}
-															className={
-																info?.sortType === 'displayName'
-																	? 'active'
-																	: ''
-															}
-														>
-															File name
-														</li>
-														<li
-															onClick={() =>
-																handleFilter('-displayName')
-															}
-															className={
-																info?.sortType === '-displayName'
-																	? 'active'
-																	: ''
-															}
-														>
-															File name (reverse)
-														</li>
-														<li
-															onClick={() =>
-																handleFilter('originalDateTime')
-															}
-															className={
-																info?.sortType ===
-																'originalDateTime'
-																	? 'active'
-																	: ''
-															}
-														>
-															Date Captured
-														</li>
-														<li
-															onClick={() =>
-																handleFilter('-originalDateTime')
-															}
-															className={
-																info?.sortType ===
-																'-originalDateTime'
-																	? 'active'
-																	: ''
-															}
-														>
-															Date captured (reverse)
-														</li>
-														<li
-															onClick={() =>
-																handleFilter('createdAt')
-															}
-															className={
-																info?.sortType === 'createdAt'
-																	? 'active'
-																	: ''
-															}
-														>
-															upload time
-														</li>
-														<li
-															onClick={() =>
-																handleFilter('-createdAt')
-															}
-															className={
-																info?.sortType === '-createdAt'
-																	? 'active'
-																	: ''
-															}
-														>
-															upload time (reverse)
-														</li>
-														<li
-															onClick={() => handleFilter('custom')}
-															className={
-																info?.sortType === 'custom'
-																	? 'active'
-																	: ''
-															}
-														>
-															Random
-														</li>
+														<FilterIcon />
 													</div>
-												)}
-											</div>
-											<div
-												style={{
-													cursor: 'pointer',
-													color: '#E4E5E6',
-													fontFamily: 'Inter',
-													fontSize: '14px',
-													fontWeight: '400',
-													lineHeight: '16px',
-													textTransform: 'capitalize',
-												}}
-												onClick={handleRearrange}
-											>
-												Rearrange Manually
-											</div>
-											<div
-												style={{ position: 'relative' }}
-												ref={albumSettingsIconRef}
-												onClick={() =>
-													setInfo((prevInfo) => ({
-														...prevInfo,
-														showAlbumSettings:
-															!prevInfo.showAlbumSettings,
-													}))
-												}
-											>
-												{/* <ThreeDotsIcon
+													{info.showFilter && (
+														<div
+															ref={filtersOptionsRef}
+															className="filterContianer"
+														>
+															<li
+																onClick={() =>
+																	handleFilter('displayName')
+																}
+																className={
+																	info?.sortType === 'displayName'
+																		? 'active'
+																		: ''
+																}
+															>
+																File name
+															</li>
+															<li
+																onClick={() =>
+																	handleFilter('-displayName')
+																}
+																className={
+																	info?.sortType ===
+																	'-displayName'
+																		? 'active'
+																		: ''
+																}
+															>
+																File name (reverse)
+															</li>
+															<li
+																onClick={() =>
+																	handleFilter('originalDateTime')
+																}
+																className={
+																	info?.sortType ===
+																	'originalDateTime'
+																		? 'active'
+																		: ''
+																}
+															>
+																Date Captured
+															</li>
+															<li
+																onClick={() =>
+																	handleFilter(
+																		'-originalDateTime',
+																	)
+																}
+																className={
+																	info?.sortType ===
+																	'-originalDateTime'
+																		? 'active'
+																		: ''
+																}
+															>
+																Date captured (reverse)
+															</li>
+															<li
+																onClick={() =>
+																	handleFilter('createdAt')
+																}
+																className={
+																	info?.sortType === 'createdAt'
+																		? 'active'
+																		: ''
+																}
+															>
+																upload time
+															</li>
+															<li
+																onClick={() =>
+																	handleFilter('-createdAt')
+																}
+																className={
+																	info?.sortType === '-createdAt'
+																		? 'active'
+																		: ''
+																}
+															>
+																upload time (reverse)
+															</li>
+															<li
+																onClick={() =>
+																	handleFilter('custom')
+																}
+																className={
+																	info?.sortType === 'custom'
+																		? 'active'
+																		: ''
+																}
+															>
+																Random
+															</li>
+														</div>
+													)}
+												</div>
+												<div
+													className="rearrangeManually"
+													onClick={handleRearrange}
+												>
+													Rearrange
+												</div>
+												<div
+													style={{ position: 'relative' }}
+													ref={albumSettingsIconRef}
+													onClick={() =>
+														setInfo((prevInfo) => ({
+															...prevInfo,
+															showAlbumSettings:
+																!prevInfo.showAlbumSettings,
+														}))
+													}
+												>
+													{/* <ThreeDotsIcon
 												className="threeDotsIcon"
 												style={{ cursor: 'pointer' }}
 											/> */}
-												<p style={{ cursor: 'pointer' }}>Album Settings</p>
-												{info.showAlbumSettings && (
-													<div
-														className="galleryEditOptions"
-														ref={albumSettingsRef}
+													<p
+														style={{ cursor: 'pointer' }}
+														className="rearrangeManually"
 													>
+														Album Settings
+													</p>
+													{info.showAlbumSettings && (
 														<div
-															className="album-toggles"
-															style={{
-																display: 'flex',
-																flexDirection: 'column',
-																gap: '16px',
-															}}
+															className="galleryEditOptions"
+															ref={albumSettingsRef}
 														>
 															<div
-																className="toggle-option"
+																className="album-toggles"
 																style={{
 																	display: 'flex',
-																	justifyContent: 'space-between',
-																	alignItems: 'center',
-																	gap: '8px',
+																	flexDirection: 'column',
+																	gap: '16px',
 																}}
 															>
-																<span
+																<div
+																	className="toggle-option"
 																	style={{
-																		color: '#E4E5E6',
-																		fontFamily: 'Inter',
-																		fontSize: '14px',
-																		fontWeight: '400',
-																		lineHeight: '16px',
-																		textTransform: 'capitalize',
+																		display: 'flex',
+																		justifyContent:
+																			'space-between',
+																		alignItems: 'center',
+																		gap: '8px',
 																	}}
 																>
-																	Hide Album
-																</span>
-																<Switch
-																	checked={
-																		!info?.activeAlbum
-																			?.isPublished
-																	}
-																	onClick={handleHideAlbum}
-																	size="medium"
-																	style={{
-																		backgroundColor:
-																			info?.isPublished
-																				? '#575858'
-																				: '#575858',
-																	}}
-																/>
+																	<span
+																		style={{
+																			color: '#E4E5E6',
+																			fontFamily: 'Inter',
+																			fontSize: '14px',
+																			fontWeight: '400',
+																			lineHeight: '16px',
+																			textTransform:
+																				'capitalize',
+																		}}
+																	>
+																		Lock Album
+																	</span>
+																	<Switch
+																		checked={
+																			info?.activeAlbum
+																				?.guestAccess
+																				?.isEnabled
+																		}
+																		onClick={handleLockAlbum}
+																		size="medium"
+																		style={{
+																			backgroundColor:
+																				!info.isEnabled
+																					? '#575858'
+																					: '#575858',
+																		}}
+																	/>
+																</div>
 															</div>
-															<div
-																className="toggle-option"
+															<li
+																onClick={() => {
+																	setInfo((prev) => ({
+																		...prev,
+																		showMainPopup: true,
+																		showGalleryOptions: false,
+																		showOptions: false,
+																		galleryName:
+																			info?.albumName || '',
+																		isAlbumRename: true,
+																	}));
+																}}
 																style={{
 																	display: 'flex',
-																	justifyContent: 'space-between',
 																	alignItems: 'center',
-																	gap: '8px',
+																	gap: '4px',
 																}}
 															>
-																<span
-																	style={{
-																		color: '#E4E5E6',
-																		fontFamily: 'Inter',
-																		fontSize: '14px',
-																		fontWeight: '400',
-																		lineHeight: '16px',
-																		textTransform: 'capitalize',
-																	}}
-																>
-																	Lock Album
-																</span>
-																<Switch
-																	checked={
-																		info?.activeAlbum
-																			?.guestAccess?.isEnabled
-																	}
-																	onClick={handleLockAlbum}
-																	size="medium"
-																	style={{
-																		backgroundColor:
-																			!info.isEnabled
-																				? '#575858'
-																				: '#575858',
-																	}}
-																/>
-															</div>
-														</div>
-														<li
-															onClick={() => {
-																setInfo((prev) => ({
-																	...prev,
-																	showMainPopup: true,
-																	showGalleryOptions: false,
-																	showOptions: false,
-																	galleryName:
-																		info?.albumName || '',
-																	isAlbumRename: true,
-																}));
-															}}
-															style={{
-																display: 'flex',
-																alignItems: 'center',
-																gap: '4px',
-															}}
-														>
-															<EditPen />
-															Rename Album
-														</li>
-														<li
-															onClick={() => {
-																setInfo((prev) => ({
-																	...prev,
-																	showShareAlbum: true,
-																	showGalleryOptions: false,
-																	showOptions: false,
-																}));
-															}}
-															style={{
-																display: 'flex',
-																alignItems: 'center',
-																gap: '4px',
-															}}
-														>
-															<ShareIcon />
-															Share Album
-														</li>
-														<li
-															onClick={() =>
-																setInfo((prev) => ({
-																	...prev,
-																	showDownloadAlbum: true,
-																	showGalleryOptions: false,
-																	showOptions: false,
-																	activeTagId:
-																		albumDetails?.tags?.[0]
-																			?._id,
-																	originalDownload: false,
-																	webviewDownload: true,
-																}))
-															}
-															style={{
-																display: 'flex',
-																alignItems: 'center',
-																gap: '4px',
-															}}
-														>
-															<DownloadIcon />
-															Download album
-														</li>
-														<li
-															onClick={handleLightRoomCopy}
-															style={{
-																display: 'flex',
-																alignItems: 'center',
-																gap: '4px',
-															}}
-														>
-															<LightRoomIcon />
-															Light Room Copy List
-														</li>
-														<li
-															onClick={() =>
-																handleUploadCoverOpen('album')
-															}
-															style={{
-																display: 'flex',
-																alignItems: 'center',
-																gap: '4px',
-															}}
-														>
-															<AlbumCoverIcon />
-															Album Cover
-														</li>
-														{/* <li
+																<EditPen />
+																Rename Album
+															</li>
+															<li
+																onClick={() => {
+																	setInfo((prev) => ({
+																		...prev,
+																		showShareAlbum: true,
+																		showGalleryOptions: false,
+																		showOptions: false,
+																	}));
+																}}
+																style={{
+																	display: 'flex',
+																	alignItems: 'center',
+																	gap: '4px',
+																}}
+															>
+																<ShareIcon />
+																Share Album
+															</li>
+															<li
+																onClick={() =>
+																	setInfo((prev) => ({
+																		...prev,
+																		showDownloadAlbum: true,
+																		showGalleryOptions: false,
+																		showOptions: false,
+																		activeTagId:
+																			albumDetails?.tags?.[0]
+																				?._id,
+																		originalDownload: false,
+																		webviewDownload: true,
+																	}))
+																}
+																style={{
+																	display: 'flex',
+																	alignItems: 'center',
+																	gap: '4px',
+																}}
+															>
+																<DownloadIcon />
+																Download album
+															</li>
+															<li
+																onClick={handleLightRoomCopy}
+																style={{
+																	display: 'flex',
+																	alignItems: 'center',
+																	gap: '4px',
+																}}
+															>
+																<LightRoomIcon />
+																Light Room Copy List
+															</li>
+															<li
+																onClick={() =>
+																	handleUploadCoverOpen('album')
+																}
+																style={{
+																	display: 'flex',
+																	alignItems: 'center',
+																	gap: '4px',
+																}}
+															>
+																<AlbumCoverIcon />
+																Album Cover
+															</li>
+															{/* <li
 														onClick={() =>
 															handleAlbumSettings('album-overview')
 														}
@@ -4203,49 +4745,85 @@ const GalleryPage = () => {
 														Album overview
 													</li> */}
 
-														<hr
-															style={{
-																border: '1px solid #1F1F1F',
-																width: '100%',
-																margin: '0px',
-																opacity: 0.5,
-															}}
-														/>
-
-														<div
-															onClick={() => {
-																setInfo((prev) => ({
-																	...prev,
-																	showDeleteAlbum: true,
-																	showOptionsContainer: false, // Close options menu if it exists
-																}));
-															}}
-															style={{
-																display: 'flex',
-																alignItems: 'center',
-																gap: '4px',
-															}}
-														>
-															<DeleteIcon />
-															<span
+															<hr
 																style={{
-																	color: '#A74A49',
-																	cursor: 'pointer',
+																	border: '1px solid #1F1F1F',
+																	width: '100%',
+																	margin: '0px',
+																	opacity: 0.5,
+																}}
+															/>
+
+															<div
+																onClick={() => {
+																	setInfo((prev) => ({
+																		...prev,
+																		showDeleteAlbum: true,
+																		showOptionsContainer: false, // Close options menu if it exists
+																	}));
+																}}
+																style={{
+																	display: 'flex',
+																	alignItems: 'center',
+																	gap: '4px',
 																}}
 															>
-																Delete Album
-															</span>
+																<DeleteIcon />
+																<span
+																	style={{
+																		color: '#A74A49',
+																		cursor: 'pointer',
+																	}}
+																>
+																	Delete Album
+																</span>
+															</div>
 														</div>
+													)}
+													<div></div>
+												</div>
+												<div
+													className="rearrangeManually"
+													onClick={handleHideAlbum}
+												>
+													<div
+														className="albumStatus"
+														style={{
+															backgroundColor: info?.activeAlbum
+																?.isPublished
+																? '#e3fb4e'
+																: 'red',
+														}}
+													></div>
+													<div className="albumStatusText">
+														Album{' '}
+														{info?.activeAlbum?.isPublished
+															? 'Online'
+															: 'Offline'}
+													</div>
+													<Switch
+														checked={info?.activeAlbum?.isPublished}
+														size="small"
+													/>
+												</div>
+												{info?.selectedImages?.length > 0 && (
+													<div
+														className="rearrangeManually"
+														onClick={handleDeselect}
+													>
+														Deselect All
 													</div>
 												)}
-												<div></div>
 											</div>
 										</div>
-									</div>
+									)}
 								</div>
 
 								<div
-									style={{ overflow: info?.scrolledTillEnd ? 'auto' : 'hidden' }}
+									style={{
+										overflow: info?.scrolledTillEnd ? 'auto' : 'hidden',
+										height: info?.isRearranging ? '79vh' : '83vh',
+									}}
 									className="galleryImagesContainer"
 									id="galleryScrollTarget"
 									onMouseEnter={() =>
@@ -4260,6 +4838,7 @@ const GalleryPage = () => {
 											isMouseInGallery: false,
 										}))
 									}
+									ref={rearrangeContainerRef}
 								>
 									<InfiniteScroll
 										dataLength={imagesList?.docs?.length || 0}
@@ -4273,19 +4852,22 @@ const GalleryPage = () => {
 										scrollableTarget="galleryScrollTarget"
 										refreshFunction={info?.resetInfinityScroll}
 										disableDrop={true}
-										scrollThreshold={info?.isRearranging ? 0.2 : 0.8}
+										scrollThreshold={info?.isRearranging ? 0.8 : 0.8}
 									>
 										{!info.isRearranging ? (
 											<ResponsiveMasonry
 												columnsCountBreakPoints={{
-													300: 1,
-													600: 2,
-													900: 3,
-													1300: 4,
-													1600: 5,
+													250: 1,
+													500: 2,
+													750: 3,
+													1000: 4,
+													1250: 5,
+													1500: 6,
+													1750: 7,
+													2000: 8,
 												}}
 											>
-												<Masonry gutter="10px" columnsCount={4}>
+												<Masonry gutter="20px" columnsCount={4}>
 													<div
 														className="imageContainer"
 														onClick={handleNavigateUpload}
@@ -4295,7 +4877,6 @@ const GalleryPage = () => {
 															<p>Add Photos</p>
 														</div>
 													</div>
-
 													{info?.imagesList?.docs && !info?.albumLoading
 														? info?.imagesList?.docs?.map(
 																(image, index) => {
@@ -4304,6 +4885,7 @@ const GalleryPage = () => {
 																	return (
 																		<div
 																			key={index}
+																			id={`image-${image?._id}`}
 																			className={`imageContainer ${
 																				info.selectedImages.includes(
 																					image?._id,
@@ -4311,12 +4893,13 @@ const GalleryPage = () => {
 																					? 'selected'
 																					: ''
 																			}`}
-																			onClick={() =>
-																				handleImageSelect(
-																					index,
-																					image,
-																				)
-																			}
+																			onClick={(e) => {
+																				e.stopPropagation();
+																				handleExpandClick(
+																					image?._id,
+																					'single',
+																				);
+																			}}
 																		>
 																			<img
 																				src={src}
@@ -4333,21 +4916,34 @@ const GalleryPage = () => {
 																			)}
 
 																			<div
-																				onClick={() =>
-																					handleExpandClick(
-																						image?._id,
-																						'single',
-																					)
-																				}
 																				style={{
 																					zIndex: 3,
 																				}}
+																				onClick={(e) => {
+																					e.stopPropagation();
+																					handleImageSelect(
+																						index,
+																						image,
+																					);
+																				}}
 																			>
 																				<Tooltip
-																					title="Full View"
+																					title="Click to Select"
 																					placement="top"
 																				>
-																					<ArrowsOut className="rotating-circle" />
+																					{/* <ArrowsOut className="rotating-circle" /> */}
+																					<Checkbox
+																						className={`rotating-circle ${
+																							info.selectedImages.includes(
+																								image?._id,
+																							)
+																								? 'checked'
+																								: ''
+																						}`}
+																						checked={info.selectedImages.includes(
+																							image?._id,
+																						)}
+																					></Checkbox>
 																				</Tooltip>
 																			</div>
 																		</div>
@@ -4372,20 +4968,25 @@ const GalleryPage = () => {
 												{!info?.rearrangingLoading ? (
 													<div
 														className="rearrange-image-container-wrapper"
-														ref={rearrangeContainerRef}
+														ref={containerRef}
 													>
-														{info?.imagesList?.docs
+														{[
+															...info?.imagesList?.docs,
+															...(info?.isImagesLess
+																? dummyImagesArray
+																: []),
+														]
 															// Filter out selected images during drag
-															?.filter(
-																(image) =>
-																	!info.isDragging ||
-																	!info.selectedImages.includes(
-																		image._id,
-																	),
-															)
+															?.filter((image) => image && image._id)
+
 															?.map((image, index) => {
-																const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
-																const src = `${galleryCredentials?.baseURL}/${image?.activeVersion?.s3_optimized?.key}?${params}`;
+																const params =
+																	image?.isPlaceholderImg
+																		? ''
+																		: `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
+																const src = image?.isPlaceholderImg
+																	? ''
+																	: `${galleryCredentials?.baseURL}/${image?.activeVersion?.s3_optimized?.key}?${params}`;
 
 																const isSelected =
 																	info.selectedImages.includes(
@@ -4419,8 +5020,8 @@ const GalleryPage = () => {
 																					: ''
 																			}`}
 																			style={{
-																				width: '200px',
-																				height: '200px',
+																				width: '190px',
+																				height: '250px',
 																				position:
 																					'relative',
 																				cursor: isSelected
@@ -4431,6 +5032,12 @@ const GalleryPage = () => {
 																					info.isDragging
 																						? 0.3
 																						: 1,
+																				padding: '10px',
+																				gap: '10px',
+																				visibility:
+																					image?.isPlaceholderImg
+																						? 'hidden'
+																						: 'visible',
 																			}}
 																			onClick={() =>
 																				handleImageSelect(
@@ -4455,6 +5062,8 @@ const GalleryPage = () => {
 																					height: '100%',
 																					objectFit:
 																						'cover',
+																					borderRadius:
+																						'8px',
 																				}}
 																				draggable={false}
 																			/>
@@ -4735,7 +5344,7 @@ const GalleryPage = () => {
 												}
 												className="searchContainer"
 												style={{
-													width: info?.searchValue && '200px',
+													width: info?.showShearch && '200px',
 												}}
 											>
 												<SearchIcon />
@@ -5021,12 +5630,14 @@ const GalleryPage = () => {
 												</p>
 											</div>
 											{tagsList?.list
-												?.filter((tag) =>
-													tag?.displayName
-														?.toLowerCase()
-														.includes(
-															info.tagSearchValue.toLowerCase(),
-														),
+												?.filter(
+													(tag) =>
+														tag?.displayName.toLowerCase() !== 'all' &&
+														tag?.displayName
+															?.toLowerCase()
+															.includes(
+																info.tagSearchValue.toLowerCase(),
+															),
 												)
 												.map((tag) => (
 													<div className="pinOptionsList">
@@ -5094,7 +5705,6 @@ const GalleryPage = () => {
 						)}
 					</div>
 				)}
-
 				{info.activeTab === 'Settings' && (
 					<div className="settingsMainContainer">
 						<div className="settingsContianer">
@@ -5161,11 +5771,28 @@ const GalleryPage = () => {
 						galleryId={galleryId}
 						galleryCredentials={galleryCredentials}
 						link={`https://${workspaceId}.ve.ai/gallery/${info?.activeGallery?.slug}/pre-register`}
+						activeAlbumId={info?.activeAlbumId}
+						activeTagId={info?.activeTagId}
+						selectedFace={info?.selectedFace}
 					/>
 				)}
 				{info.activeTab === 'Insights' && <Insights galleryId={galleryId} />}
 			</div>
 
+			<MainPopup
+				open={info.editTagPopup}
+				onClose={() => setInfo((prev) => ({ ...prev, editTagPopup: false }))}
+				heading="Edit Tag"
+				placeholder="Enter new tag name"
+				value={info.activeTag?.displayName}
+				onChange={(e) =>
+					setInfo((prev) => ({
+						...prev,
+						activeTag: { ...prev.activeTag, displayName: e.target.value },
+					}))
+				}
+				onSubmit={() => handleEditTag(info.activeTag._id, info.activeTag.displayName)}
+			/>
 			<ShareModal
 				open={info.shareModal}
 				closeModal={openShareModal}
@@ -5217,11 +5844,24 @@ const GalleryPage = () => {
 				open={info?.showDeleteAlbum}
 				closeModal={() => setInfo((prev) => ({ ...prev, showDeleteAlbum: false }))}
 				galleryId={galleryId}
+				isTagDelete={false}
 				title={'Album'}
 				paragraph={'Images'}
 				handleDelete={handleDeleteAlbum}
 			/>
-
+			<DeletePopup
+				open={info.deleteTagPopup}
+				closeModal={() => setInfo((prev) => ({ ...prev, deleteTagPopup: false }))}
+				galleryId={galleryId}
+				title={'Delete Tag'}
+				isTagDelete={true}
+				paragraph={'Are you sure you want to delete this tag?'}
+				selectedDropDownValue={info.selectedDropDownValue}
+				handleDeleteTypeChange={handleDeleteTypeChange}
+				handleDelete={() =>
+					handleDeleteTag(info.activeTag._id, info?.activeAlbum?.slug, 'remove_images')
+				}
+			/>
 			<MainPopup
 				open={info.showMainPopup}
 				heading={

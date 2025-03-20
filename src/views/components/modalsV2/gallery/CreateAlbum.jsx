@@ -6,7 +6,7 @@ import Context from '../../../../context/context';
 import { useLocation } from 'react-router-dom';
 import { ReactComponent as CrossWhite } from '../../../../assets/svg/workspaceSettings/cross.svg';
 import slugify from 'slugify';
-const CreateAlbum = ({ open, closeModal, galleryId }) => {
+const CreateAlbum = ({ open, closeModal, galleryId, handleNewAlbumCreated }) => {
 	const {
 		galleryInfo: { createNewAlbum, checkAlbumSlugIsAvalible },
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
@@ -50,7 +50,7 @@ const CreateAlbum = ({ open, closeModal, galleryId }) => {
 		}
 	};
 
-	const handleCreateAlbum = () => {
+	const handleCreateAlbum = async () => {
 		if (
 			validateExpiryData &&
 			validateExpiryData?.restrictGalleries &&
@@ -77,7 +77,16 @@ const CreateAlbum = ({ open, closeModal, galleryId }) => {
 			eventDateEpoch: new Date(info.eventDate).getTime() / 1000,
 		};
 		setInfo((prev) => ({ ...prev, isSubmitting: true }));
-		createNewAlbum(payload, galleryId);
+		const response = await createNewAlbum(payload, galleryId);
+		if (response?.[0]) {
+			const newAlbum = {
+				_id: response?.[1]?.album_id,
+				slug: response?.[1]?.albumSlug,
+			};
+			if (handleNewAlbumCreated) {
+				handleNewAlbumCreated(newAlbum);
+			}
+		}
 		closeModelFunction();
 		setInfo((prev) => ({ ...prev, isSubmitting: false }));
 	};

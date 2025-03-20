@@ -57,6 +57,9 @@ const GalleryViewer = () => {
 	const [searchkeys, setsearchkeys] = useSearchParams();
 	const location = useLocation();
 	const selectedImages = location.state?.selectedImages || null;
+	const [searchParams] = useSearchParams(); // Get query params
+	const aiface = searchParams.get('aiface') === 'true';
+	const faceId = searchParams.get('faceId');
 
 	const {
 		galleryInfo: {
@@ -74,6 +77,9 @@ const GalleryViewer = () => {
 			removeTagFromImage,
 			addTagToImage,
 			getDownloadLinkForImage,
+			getAiFaceImages,
+			aiFaceImages,
+			aiFaceImagesReset,
 		},
 	} = useContext(Context);
 
@@ -90,7 +96,7 @@ const GalleryViewer = () => {
 	const navigate = useNavigate();
 
 	useEffect(() => {
-		if (!imagesList) {
+		if (!aiface && !imagesList) {
 			getGalleryImages(
 				galleryId,
 				albumId,
@@ -102,9 +108,13 @@ const GalleryViewer = () => {
 			);
 		}
 
+		if (aiface && faceId && (!aiFaceImages || aiFaceImages.images?.length === 0)) {
+			getAiFaceImages(galleryId, faceId, info?.page, info?.limit, true);
+		}
+
 		const imageId = searchkeys.get('image');
 
-		if (imagesList && imageId) {
+		if ((imagesList || (aiFaceImages && aiFaceImages.images?.length > 0)) && imageId) {
 			setInfo((prev) => ({
 				...prev,
 				activeImage: searchkeys.get('image'),
@@ -125,14 +135,12 @@ const GalleryViewer = () => {
 			}, 1500);
 		}
 
-		// if ( imagesList&& selectedImages) {
-
-		// }
-
 		if (!galleryCredentials) {
 			getGalleryCredentials(galleryId);
 		}
-	}, [imagesList, selectedImages]);
+	}, [imagesList, selectedImages, faceId, galleryId, aiface]);
+
+	// ... existing code ...
 
 	useEffect(() => {
 		if (info?.activeImage) {
@@ -142,7 +150,22 @@ const GalleryViewer = () => {
 			}
 
 			if (searchkeys.get('image')) {
-				setsearchkeys({ tagId: searchkeys.get('tagId') });
+				// Preserve all existing parameters when updating the URL
+				const newParams = {
+					tagId: searchkeys.get('tagId'),
+				};
+
+				// Keep the aiface parameter if it exists
+				if (searchkeys.get('aiface')) {
+					newParams.aiface = searchkeys.get('aiface');
+				}
+
+				// Keep the faceId parameter if it exists
+				if (searchkeys.get('faceId')) {
+					newParams.faceId = searchkeys.get('faceId');
+				}
+
+				setsearchkeys(newParams);
 			}
 		}
 	}, [info?.activeImage]);
@@ -192,14 +215,27 @@ const GalleryViewer = () => {
 
 	const fetchMoreImages = () => {
 		const nextPage = info.page + 1;
-		getGalleryImages(galleryId, albumId, searchkeys.get('tagId'), nextPage, info?.limit).then(
-			() => {
+		if (aiface) {
+			getAiFaceImages(galleryId, searchkeys.get('faceId'), nextPage, info?.limit).then(() => {
 				setInfo((prev) => ({
 					...prev,
 					page: nextPage,
 				}));
-			},
-		);
+			});
+		} else {
+			getGalleryImages(
+				galleryId,
+				albumId,
+				searchkeys.get('tagId'),
+				nextPage,
+				info?.limit,
+			).then(() => {
+				setInfo((prev) => ({
+					...prev,
+					page: nextPage,
+				}));
+			});
+		}
 	};
 
 	const activeThumbnailFunction = (id, index) => {
@@ -250,7 +286,18 @@ const GalleryViewer = () => {
 	};
 
 	const handleCloseGallery = () => {
-		navigate(`/galleries/${galleryId}`);
+		const fromAiPeople =
+			aiface || location.state?.fromAiFaces || location.state?.activeTab === 'Ai People';
+
+		navigate(`/galleries/${galleryId}`, {
+			state: {
+				returnFromViewer: true,
+				activeAlbumId: albumId,
+				activeTagId: searchkeys.get('tagId'),
+				activeTab: fromAiPeople ? 'Ai People' : 'Albums',
+				selectedImage: info?.activeImage,
+			},
+		});
 	};
 
 	const handleRotateImage = async (degree) => {
@@ -279,21 +326,23 @@ const GalleryViewer = () => {
 				<Thumbnails
 					galleryCredentials={galleryCredentials}
 					fetchMoreImages={fetchMoreImages}
-					imagesList={imagesList}
+					imagesList={aiface ? aiFaceImages : imagesList}
 					activeThumbnailFunction={activeThumbnailFunction}
 					info={info}
 					selectedImages={selectedImages}
+					isAiFace={aiface}
 				/>
 
 				<div className="activeImageContainer">
 					<FullImagesComponent
 						galleryCredentials={galleryCredentials}
 						fetchMoreImages={fetchMoreImages}
-						imagesList={imagesList}
+						imagesList={aiface ? aiFaceImages : imagesList}
 						largeImageFunction={largeImageFunction}
 						info={info}
 						setInfo={setInfo}
 						selectedImages={selectedImages}
+						isAiFace={aiface}
 					/>
 
 					{info?.imageDetailId && (

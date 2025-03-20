@@ -22,6 +22,7 @@ const AiFaceRegistration = ({ link }) => {
 		imagesCount: 0,
 		initialLoading: false,
 		scrollLoading: false,
+		preRegisterLength: 0,
 	});
 
 	const {
@@ -34,12 +35,17 @@ const AiFaceRegistration = ({ link }) => {
 		},
 	} = useContext(Context);
 	const { galleryId } = useParams();
+
 	useEffect(() => {
 		if (!preRegisteredUsers) {
 			setinfo((prev) => ({ ...prev, initialLoading: true }));
-			getPreRegisteredUsers(galleryId, page).finally(() =>
-				setinfo((prev) => ({ ...prev, initialLoading: false })),
-			);
+			getPreRegisteredUsers(galleryId, page).finally(() => {
+				setinfo((prev) => ({
+					...prev,
+					initialLoading: false,
+					preRegisterLength: preRegisteredUsers?.data?.length,
+				}));
+			});
 		}
 	}, [preRegisteredUsers]);
 
@@ -120,7 +126,10 @@ const AiFaceRegistration = ({ link }) => {
 	};
 
 	return (
-		<div className="aiFaceRegistration">
+		<div
+			className="aiFaceRegistration"
+			style={{ height: info?.preRegisterLength ? '90vh' : '100%' }}
+		>
 			<p className="heading">All data from the client gallery, album and selection views</p>
 			<div className="aiScannerContainer">
 				<div style={{ display: 'flex', gap: '30px' }}>
@@ -219,28 +228,29 @@ const AiFaceRegistration = ({ link }) => {
 					</div>
 				)}
 			</div>
-			<div
-				className="tableWrapper"
-				style={{ flex: 1, overflowY: 'auto', maxHeight: '100%', height: '100%' }}
-				id="table-scroll-container"
-			>
-				<InfiniteScroll
-					dataLength={preRegisteredUsers?.data?.length || 0}
-					next={fetchMoreData}
-					hasMore={preRegisteredUsers?.metadata?.hasNextPage || false}
-					loader={null}
-					scrollableTarget="table-scroll-container"
-					style={{ overflow: 'visible' }} // Important!
+			{info?.preRegisterLength > 0 && (
+				<div
+					className="tableWrapper"
+					style={{ flex: 1, overflowY: 'auto', maxHeight: '100%', height: '100%' }}
+					id="table-scroll-container"
 				>
-					<Table
-						tableData={preRegisteredUsers}
-						thead={'Register Stage'}
-						loading={info.initialLoading}
-						scrollLoading={info.scrollLoading}
-					/>
-				</InfiniteScroll>
-			</div>
-
+					<InfiniteScroll
+						dataLength={info?.preRegisterLength || 0}
+						next={fetchMoreData}
+						hasMore={preRegisteredUsers?.metadata?.hasNextPage || false}
+						loader={null}
+						scrollableTarget="table-scroll-container"
+						style={{ overflow: 'visible' }} // Important!
+					>
+						<Table
+							tableData={preRegisteredUsers}
+							thead={'Register Stage'}
+							loading={info.initialLoading}
+							scrollLoading={info.scrollLoading}
+						/>
+					</InfiniteScroll>
+				</div>
+			)}
 			<NotifyPopup info={info} setinfo={setinfo} />
 		</div>
 	);

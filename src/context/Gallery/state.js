@@ -138,6 +138,7 @@ export const Galleries = () => {
 			if (response?.[0]) {
 				getAlbums(galleryId);
 				getAlbumImagesCount(galleryId);
+				return response;
 			}
 		} catch (error) {
 			console.log('error==>createNewAlbum', error);
@@ -725,6 +726,7 @@ export const Galleries = () => {
 					type: Actions.GET_IMAGES_LIST,
 					payload: reset ? response?.[1] : payload,
 				});
+				return [true, response?.[1]];
 			}
 		} catch (error) {
 			console.log('error==>getGalleryImages', error);
