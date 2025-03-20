@@ -24,8 +24,8 @@ const WorkflowPreviewModal = ({ modalIsOpen, closeModal, incomingTemplateData, p
 							<div className="tabBtnContainer">
 								<span
 									style={{
-										color: '#E4E5E6',
-										fontFamily: 'Inter',
+										color: 'var(--primary-font)',
+										fontFamily: 'var(--primary-font-family)',
 										fontSize: '14px',
 										fontStyle: 'normal',
 										fontWeight: '500',

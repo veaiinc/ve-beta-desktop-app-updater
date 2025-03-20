@@ -1,10 +1,11 @@
 import React, { memo, useState, useEffect, useMemo, useCallback, useContext } from 'react';
 import '../../../assets/scss/calendar/meetingDetails.scss';
-import { ReactComponent as MeetClock } from '../../../assets/svg/calendar/meetClock.svg';
+// import { ReactComponent as MeetClock } from '../../../assets/svg/calendar/meetClock.svg';
 // import Meetwomen from '../../../assets/svg/calendar/meetwomen.png';
 // import { ReactComponent as Ellipse } from '../../../assets/svg/calendar/ellipseCircle.svg';
 import Context from '../../../context/context';
 import moment from 'moment';
+import MeetingSvg from '../../../assets/svg/calendar/meetClockSvg';
 
 const MeetingDetails = ({ selectedDate }) => {
 	const {
@@ -71,7 +72,7 @@ const MeetingDetails = ({ selectedDate }) => {
 						No Upcoming Meetings are scheduled!
 					</div>
 					<div className="durationBadge">
-						<MeetClock />
+						<MeetingSvg />
 						<span style={{ fontSize: '10px', fontWeight: '600' }}>00:00</span>
 						<span className="indicatorDot"></span>
 					</div>
@@ -94,7 +95,7 @@ const MeetingDetails = ({ selectedDate }) => {
 						{eventDetails?.start} - {eventDetails?.end}
 					</div>
 					<div className="durationBadge">
-						<MeetClock />
+						<MeetingSvg />
 						<span style={{ fontSize: '10px', fontWeight: '600' }}>
 							{eventDetails?.timeRemaining}
 						</span>

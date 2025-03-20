@@ -12,6 +12,7 @@ import { ReactComponent as FilterIcon } from '../../../assets/svg/chat/filter.sv
 import { Result, message, Tooltip } from 'antd';
 import { getCurrentWorkspaceId } from '../../../helpers';
 import QuickActions from '../../components/globalComponents/QuickActions';
+import SearchSvg from '../../../assets/svg/activity/SearchSvg';
 
 const noImage =
 	'https://png.pngtree.com/png-clipart/20230917/original/pngtree-no-image-available-icon-flatvector-illustration-thumbnail-graphic-illustration-vector-png-image_12323920.png';
@@ -263,7 +264,7 @@ const LiteGallery = () => {
 			</div>
 			<div className="seachbar-container">
 				<div className="gallery-filter">
-					<img src={Search} alt="searchh" />
+					<SearchSvg />
 					<input
 						type="text"
 						placeholder="Search by title"
@@ -284,6 +285,7 @@ const LiteGallery = () => {
 										key={index}
 										onClick={() => handleSort(option.value)}
 										className={info.activeSort === option.value ? 'active' : ''}
+										style={{ color: 'var(--primary-font)' }}
 									>
 										{option.name}
 									</p>

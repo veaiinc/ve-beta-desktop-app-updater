@@ -32,7 +32,7 @@
 				visibility: hidden;
 			}
 			&.dark {
-				background: rgba(3, 0, 0, 0.7);
+				background: var(--card-over-card-hover);
 			}
 
 			.left_child_div {
@@ -44,9 +44,9 @@
 
 				.side_heading {
 					margin-bottom: 60px;
-					color: #fff;
+					color: var(--primary-font);
 					text-align: center;
-					text-shadow: 0px 0px 10px rgba(255, 255, 255, 0.4);
+					text-shadow: 0px 0px 10px var(--card-hover);
 					font-family: 'Libre Caslon Display';
 					font-size: 80px;
 					font-style: normal;
@@ -54,8 +54,8 @@
 					text-transform: capitalize;
 				}
 				.side_text {
-					color: #fff;
-					font-family: 'Inter';
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
 					font-style: italic;
 					font-size: 18px;
 					font-style: normal;
@@ -71,14 +71,14 @@
 					align-items: center;
 					gap: 25px;
 					border-radius: 12px;
-					border: 1px solid rgba(255, 255, 255, 0.2);
-					background: rgba(255, 255, 255, 0.05);
-					color: white;
+					border: 1px solid var(--stroke);
+					background: var(--card-hover);
+					color: var(--primary-font);
 					height: 50px;
 					margin-bottom: 30px;
 				}
 				.search_bar::placeholder {
-					color: white;
+					color: var(--primary-font);
 				}
 				.search_bar:focus {
 					outline: none;
@@ -90,7 +90,7 @@
 					flex-direction: column;
 					align-items: flex-start;
 					gap: 20px;
-					color: #fff;
+					color: var(--primary-font);
 					.options_style {
 						font-size: 14px !important;
 						margin-bottom: 18px;
@@ -102,7 +102,7 @@
 					}
 					.options_style.selected::before {
 						content: '•';
-						color: white;
+						color: var(--primary-font);
 						position: absolute;
 						left: 2px;
 						bottom: -1px;
@@ -146,10 +146,10 @@
 				padding-bottom: 30px;
 			}
 			.dior-studio-text {
-				color: white;
+				color: var(--primary-font);
 				font-size: 16px;
 				font-weight: 400;
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				line-height: normal;
 			}
 			.workflow-title-container {
@@ -159,19 +159,19 @@
 				gap: 18px;
 				align-self: stretch;
 				.workflow-title {
-					color: white;
+					color: var(--primary-font);
 					font-size: 24px;
 					font-weight: 600;
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-style: normal;
 					line-height: normal;
 					text-transform: capitalize;
 				}
 				.workflow-description {
-					color: white;
+					color: var(--primary-font);
 					font-size: 14px;
 					font-weight: 400;
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-style: normal;
 					line-height: normal;
 					text-transform: capitalize;
@@ -183,9 +183,11 @@
 					align-items: center;
 					gap: 8px;
 					border-radius: 100px;
-					background: #fff;
+					background: var(--primary-font);
 					border: none;
 					cursor: pointer;
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
 				}
 			}
 		}
@@ -197,12 +199,12 @@
 			flex-direction: column;
 			align-items: flex-start;
 			gap: 16px;
-			color: #fff;
+			color: var(--primary-font);
 			.sidebarLabel {
 				overflow: hidden;
-				color: rgba(228, 229, 230, 0.32);
+				color: var(--secondary-font);
 				text-overflow: ellipsis;
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 500;
@@ -212,7 +214,7 @@
 				transition: all 0.5s;
 			}
 			.sidebarLabel:hover {
-				color: #e4e5e6;
+				color: var(--card-hover);
 			}
 		}
 	}
@@ -282,7 +284,7 @@
 						line-height: 20px;
 						font-weight: 400;
 						line-height: 20px;
-						font-family: 'Inter';
+						font-family: var(--primary-font-family);
 						height: 40px;
 						width: 316px;
 					}
@@ -297,8 +299,8 @@
 						gap: 12px !important;
 						align-self: stretch;
 						.options_style {
-							color: rgba(255, 255, 255, 0.6);
-							font-family: Inter;
+							color: var(--secondary-font);
+							font-family: var(--primary-font-family);
 							font-size: 14px !important;
 							font-style: normal;
 							font-weight: 500 !important;
@@ -350,7 +352,7 @@
 						line-height: 20px;
 						font-weight: 400;
 						line-height: 20px;
-						font-family: 'Inter';
+						font-family: var(--primary-font-family);
 						height: 40px;
 						width: 316px;
 					}
@@ -365,8 +367,8 @@
 						gap: 12px !important;
 						align-self: stretch;
 						.options_style {
-							color: rgba(255, 255, 255, 0.6);
-							font-family: Inter;
+							color: var(--secondary-font);
+							font-family: var(--primary-font-family);
 							font-size: 14px !important;
 							font-style: normal;
 							font-weight: 500 !important;
@@ -417,7 +419,7 @@
 						line-height: 20px;
 						font-weight: 400;
 						line-height: 20px;
-						font-family: 'Inter';
+						font-family: var(--primary-font-family);
 						height: 40px;
 						width: 316px;
 					}
@@ -432,8 +434,8 @@
 						gap: 12px !important;
 						align-self: stretch;
 						.options_style {
-							color: rgba(255, 255, 255, 0.6);
-							font-family: Inter;
+							color: var(--secondary-font);
+							font-family: var(--primary-font-family);
 							font-size: 14px !important;
 							font-style: normal;
 							font-weight: 500 !important;

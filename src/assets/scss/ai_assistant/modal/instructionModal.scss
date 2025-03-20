@@ -6,8 +6,7 @@
 	align-items: flex-start;
 	gap: 24px;
 	border-radius: 32px;
-	background: #202123;
-	background: color(display-p3 0.1255 0.1294 0.1373);
+	background: var(--card-over-card);
 
 	&-header {
 		display: flex;
@@ -18,8 +17,8 @@
 		width: 100%;
 
 		h2 {
-			color: #f2f2f3;
-			font-family: Inter;
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
 			font-size: 20px;
 			font-style: normal;
 			font-weight: 500;
@@ -53,16 +52,16 @@
 				width: 24px;
 				height: 24px;
 				path {
-					stroke: #f2f2f3 !important;
+					stroke: var(--primary-font) !important;
 				}
 			}
 
 			&:hover {
 				svg {
 					path {
-						stroke: #b12712 !important;
+						stroke: var(--error) !important;
 					}
-					filter: drop-shadow(0px 0px 1px #b12712cf);
+					filter: drop-shadow(0px 0px 1px var(--error));
 				}
 			}
 		}

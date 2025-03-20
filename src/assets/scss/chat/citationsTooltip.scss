@@ -1,19 +1,19 @@
 .citation-tooltip-header {
 	padding: 5px 10px;
 	flex-direction: column;
-	color: #f2f2f3;
-	font-family: Inter;
+	color: var(--primary-font);
+	font-family: var(--primary-font-family);
 	font-size: 12px;
 	font-style: normal;
 	font-weight: 500;
 	line-height: normal;
 	border-radius: 100px;
-	background: #202123;
+	background: var(--card);
 	transition: all 0.2s ease-in-out;
 	cursor: pointer;
 	&:hover {
-		background: #f2f2f3;
-		color: #202123;
+		background: var(--card);
+		color: var(--card);
 	}
 }
 

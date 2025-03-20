@@ -196,8 +196,8 @@ const AiPersonalityCustomization = () => {
 							}}
 							style={{
 								minWidth: '120px',
-								backgroundColor: '#202028',
-								color: '#FFFFFF',
+								backgroundColor: 'var(--primary-button)',
+								color: 'var(--primary-button-font)',
 								borderRadius: '8px',
 								border: 'none',
 								padding: '12px 16px',

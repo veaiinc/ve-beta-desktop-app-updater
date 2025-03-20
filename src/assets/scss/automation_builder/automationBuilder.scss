@@ -1,7 +1,7 @@
 .updatedAutomationBuilderContainer {
 	width: 100vw;
 	height: 100vh;
-	background-color: #141414;
+	background-color: var(--background-color);
 
 	.updatedBuilderHeaderContainer {
 		display: flex;
@@ -10,17 +10,14 @@
 		justify-content: space-between;
 		align-items: center;
 		flex-shrink: 0;
-		border-bottom: 1px solid #2c2d2e;
-		border-bottom: 1px solid color(display-p3 0.1719 0.1753 0.1787);
-		background: #141415;
-		background: color(display-p3 0.0784 0.0784 0.0824);
+		border-bottom: 1px solid var(--stroke);
+		background: var(--background-color);
 
 		.previousStepText {
-			color: #f2f2f3;
-			color: color(display-p3 0.949 0.949 0.9529);
+			color: var(--primary-font);
 
 			/* Body/Body Text - 14 Px */
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 500;
@@ -45,11 +42,9 @@
 			align-items: center;
 			gap: 12px;
 			border-radius: 6px;
-			background: #202123;
-			background: color(display-p3 0.1249 0.1304 0.1358);
-			color: #f2f2f3;
-			color: color(display-p3 0.949 0.949 0.9529);
-			font-family: Inter;
+			background: var(--background-color);
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 500;
@@ -70,11 +65,9 @@
 				align-items: center;
 				gap: 6px;
 				border-radius: 59px;
-				background: #f2f2f3;
-				background: color(display-p3 0.949 0.949 0.9529);
-				color: #091215;
-				color: color(display-p3 0.0431 0.0706 0.0824);
-				font-family: Inter;
+				background: var(--primary-font);
+				color: var(--background-color);
+				font-family: var(--primary-font-family);
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 500;
@@ -94,7 +87,7 @@
 		display: flex;
 		.reactFlowContainer {
 			flex-grow: 1;
-			background-color: #141415;
+			background-color: var(--background-color);
 			position: relative;
 
 			.react-flow {
@@ -111,10 +104,10 @@
 				align-items: center;
 				gap: 6px;
 				border-radius: 59px;
-				border: 1px solid #4f8c51;
+				border: 1px solid var(--success);
 				background: rgba(79, 140, 81, 0.2);
-				color: #fff;
-				font-family: Inter;
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 500;
@@ -131,15 +124,15 @@
 			align-items: flex-start;
 			gap: 12px;
 			flex-shrink: 0;
-			border-left: 1px solid #2c2d2e;
-			background: #141415;
+			border-left: 1px solid var(--stroke);
+			background: var(--background-color);
 		}
 	}
 
 	.react-flow__edge {
 		&[data-type='smoothstep'] {
 			.react-flow__edge-path {
-				stroke: #b1b1b7;
+				stroke: var(--stroke);
 				stroke-width: 2;
 			}
 		}

@@ -5,11 +5,9 @@ import { ReactComponent as ArrowUp } from '../../../assets/svg/ai_agents/arrow-u
 import { ReactComponent as ChevronSvg } from '../../../assets/svg/tasks/chevronRightThin.svg';
 import { ReactComponent as MicroscopeLightSvg } from '../../../assets/svg/ai_agents/microscope-light.svg';
 import { ReactComponent as MicroscopeDarkSvg } from '../../../assets/svg/ai_agents/microscope-dark.svg';
-import { ReactComponent as WebLightSvg } from '../../../assets/svg/ai_agents/web-light.svg';
 import { ReactComponent as WebDarkSvg } from '../../../assets/svg/ai_agents/web-dark.svg';
 import { ReactComponent as CloseSvg } from '../../../assets/svg/calendar/close.svg';
 import { ReactComponent as BuildingDarkSvg } from '../../../assets/svg/ai_agents/building-dark.svg';
-import { ReactComponent as BuildingLightSvg } from '../../../assets/svg/ai_agents/building-light.svg';
 import { ReactComponent as TextSvg } from '../../../assets/svg/ai_agents/text.svg';
 import { ReactComponent as DocxSvg } from '../../../assets/svg/ai_agents/docx.svg';
 import { ReactComponent as JsonSvg } from '../../../assets/svg/ai_agents/json.svg';
@@ -838,17 +836,13 @@ const ChatBox = ({
 															style={{
 																background: `${
 																	chatInfo?.webSearch
-																		? '#B39DFA'
-																		: '#2E2F33'
+																		? 'var(--accent-color)'
+																		: 'var(--card-over-card)'
 																}`,
 															}}
 														>
 															<div className="icon">
-																{chatInfo?.webSearch ? (
-																	<WebDarkSvg />
-																) : (
-																	<WebLightSvg />
-																)}
+																<WebDarkSvg />
 															</div>
 														</div>
 													</Tooltip>
@@ -867,8 +861,8 @@ const ChatBox = ({
 															style={{
 																background: `${
 																	chatInfo?.workspaceSearch
-																		? '#B39DFA'
-																		: '#2E2F33'
+																		? 'var(--accent-color)'
+																		: 'var(--card)'
 																}`,
 																opacity: `${
 																	chatInfo?.deepResearch
@@ -878,11 +872,7 @@ const ChatBox = ({
 															}}
 														>
 															<div className="icon">
-																{chatInfo?.workspaceSearch ? (
-																	<BuildingDarkSvg />
-																) : (
-																	<BuildingLightSvg />
-																)}
+																<BuildingDarkSvg />
 															</div>
 														</div>
 													</Tooltip>
@@ -900,17 +890,13 @@ const ChatBox = ({
 															style={{
 																background: `${
 																	chatInfo?.deepResearch
-																		? '#B39DFA'
-																		: '#2E2F33'
+																		? 'var(--accent-color)'
+																		: 'var(--card)'
 																}`,
 															}}
 														>
 															<div className="icon">
-																{chatInfo?.deepResearch ? (
-																	<MicroscopeDarkSvg />
-																) : (
-																	<MicroscopeLightSvg />
-																)}
+																<MicroscopeDarkSvg />
 															</div>
 														</div>
 													</Tooltip>
@@ -952,7 +938,7 @@ const ChatBox = ({
 																	<PaperClip
 																		width={15}
 																		height={15}
-																		fill={'#f2f2f3'}
+																		fill={'none'}
 																	/>
 																</div>
 															</div>
@@ -1041,7 +1027,7 @@ const ChatBox = ({
 														className="click-btn"
 														onClick={(e) => handleSendBtnClick(e)}
 														style={{
-															backgroundColor: '#b2a1e8',
+															backgroundColor: 'var(--accent-color)',
 														}}
 													>
 														<ArrowUp />
@@ -1051,7 +1037,7 @@ const ChatBox = ({
 														className="click-btn"
 														onClick={(e) => handleMicIconClick(e)}
 														style={{
-															backgroundColor: '#b2a1e8',
+															backgroundColor: 'var(--accent-color)',
 														}}
 													>
 														<AudioSvg />

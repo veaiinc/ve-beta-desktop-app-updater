@@ -23,8 +23,8 @@
 		justify-content: center;
 		align-items: center;
 		gap: 8px;
-		color: #7a7e85;
-		font-family: Inter;
+		color: var(--primary-font);
+		font-family: var(--primary-font-family);
 		font-style: normal;
 		font-weight: 500;
 		line-height: normal;
@@ -37,7 +37,7 @@
 		flex-shrink: 0;
 
 		&.dragging {
-			background: #2f2f2f;
+			background: var(--card-over-card-hover);
 			border-radius: 4px;
 			z-index: 1;
 		}
@@ -60,19 +60,19 @@
 		}
 
 		&:hover {
-			color: #e4e5e6;
+			color: var(--primary-font);
 			svg {
 				opacity: 1;
 			}
 		}
 
 		&.active {
-			color: #f2f2f3;
+			color: var(--primary-font);
 			svg {
 				opacity: 1;
 			}
 			.tab-underline {
-				background-color: #ffffff;
+				background-color: var(--stroke);
 			}
 		}
 	}
@@ -86,14 +86,14 @@
 		background: transparent;
 		border: none;
 		cursor: pointer;
-		color: #7a7e85;
+		color: var(--secondary-font);
 		font-size: 12px;
-		font-family: Inter;
+		font-family: var(--primary-font-family);
 		white-space: nowrap;
 		flex-shrink: 0;
 
 		&:hover {
-			color: #e4e5e6;
+			color: var(--primary-font);
 		}
 	}
 
@@ -132,19 +132,19 @@
 
 	.tabs-overflow-content {
 		width: 220px;
-		background: #202123;
+		background: var(--card-hover);
 		border-radius: 14px;
 		overflow: hidden;
 
 		.tabs-overflow-header {
 			padding: 12px;
-			color: #e4e5e6;
+			color: var(--primary-font);
 			font-size: 12px;
 			font-weight: 500;
-			border-bottom: 1px solid #2f2f2f;
+			border-bottom: 1px solid var(--stroke);
 			position: sticky;
 			top: 0;
-			background: #202123;
+			background: var(--card-hover);
 			z-index: 1;
 		}
 
@@ -166,12 +166,12 @@
 			}
 
 			&::-webkit-scrollbar-thumb {
-				background: #3f3f3f;
+				background: var(--stroke);
 				border-radius: 3px;
 			}
 
 			&::-webkit-scrollbar-thumb:hover {
-				background: #4f4f4f;
+				background: var(--stroke);
 			}
 
 			.overflow-tab-item {
@@ -179,7 +179,7 @@
 				align-items: center;
 				gap: 8px;
 				padding: 6px;
-				color: #e4e5e6;
+				color: var(--primary-font);
 				font-size: 12px;
 				cursor: pointer;
 				border-radius: 8px;
@@ -198,15 +198,15 @@
 				}
 
 				&:hover {
-					background: #2f2f2f;
+					background: var(--card-hover);
 				}
 
 				&.active {
-					background: #2f2f2f;
+					background: var(--card-over-card--card-hover);
 				}
 
 				&.dragging {
-					background: #3f3f3f;
+					background: var(--card-over-card-hover);
 				}
 
 				.drag-handle {

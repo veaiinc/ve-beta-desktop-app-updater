@@ -11,8 +11,8 @@
 		align-items: center;
 		gap: 16px;
 		border-radius: 100px;
-		border: 1px solid rgba(36, 36, 36, 0.64);
-		background: rgba(42, 42, 42, 0.16);
+		border: 1px solid var(--stroke);
+		// background: var(--card);
 		cursor: pointer;
 		.activelogo {
 			width: 18px;
@@ -23,7 +23,7 @@
 			display: flex;
 			justify-content: center;
 			align-items: center;
-			background-color: white;
+			background: var(--primary-font);
 			max-width: 18px;
 			max-height: 18px;
 			min-height: 18px;
@@ -36,8 +36,8 @@
 		}
 		.selectedPage {
 			flex: 1;
-			color: rgba(224, 224, 224, 0.32);
-			font-family: 'Inter';
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
 			font-size: 15px;
 			font-style: normal;
 			font-weight: 500;
@@ -71,8 +71,8 @@
 		// max-height: 200px;
 		overflow-y: auto;
 		border-radius: 16px;
-		border: 1px solid rgba(36, 36, 36, 0.64);
-		background: #151515;
+		border: 1px solid var(--stroke);
+		background: var(--card);
 	}
 	.dropdown-item {
 		cursor: pointer;
@@ -84,33 +84,36 @@
 		border-radius: 8px;
 		overflow: hidden;
 		justify-content: space-between;
-
+		background: var(--card);
 		text-overflow: ellipsis;
-		font-family: 'Inter';
+		font-family: var(--primary-font-family);
 		font-size: 14px;
 		font-style: normal;
 		font-weight: 400;
 		line-height: 16px; /* 114.286% */
 		letter-spacing: -0.3px;
-		color: rgba(224, 224, 224, 0.48);
+		color: var(--primary-font);
 		&:hover {
-			background: rgba(255, 255, 255, 0.02);
+			background: var(--card-hover);
+		}
+		&:active {
+			background: var(--card-hover);
 		}
 	}
 
 	.newHeaderBtn:hover {
-		background-color: #6055ec !important;
+		background-color: var(--card-hover) !important;
 
 		.selectedPage {
-			color: #fff !important;
+			color: var(--primary-button) !important;
 		}
 	}
 
 	.newHeaderBtn-open {
-		background-color: #6055ec !important;
+		background-color: var(--card-hover) !important;
 
 		.selectedPage {
-			color: #fff !important;
+			color: var(--primary-button) !important;
 		}
 	}
 }

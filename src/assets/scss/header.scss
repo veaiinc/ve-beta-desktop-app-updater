@@ -28,11 +28,11 @@
 			gap: 1.75rem;
 			border-radius: 6.25rem;
 			border: 1px solid rgba(36, 36, 36, 0.64);
-			background: rgba(42, 42, 42, 0.16);
+			background: var(--background-color);
 
 			.filterButton {
-				color: rgba(224, 224, 224, 0.48);
-				font-family: Inter;
+				color: var(--secondary-font);
+				font-family: var(--primary-font-family);
 				font-size: 0.9375rem;
 				font-style: normal;
 				font-weight: 500;
@@ -42,10 +42,10 @@
 				transition: all 1s;
 			}
 			.filterButton:hover {
-				color: #e0e0e0;
+				color: var(--primary-font);
 			}
 			.filterButtonActive {
-				color: #e0e0e0;
+				color: var(--primary-font);
 			}
 		}
 	}
