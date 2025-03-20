@@ -4494,31 +4494,32 @@ const GalleryPage = () => {
 													}}
 												>
 													<SearchIcon />
-													<input
-														type="text"
-														placeholder="Search"
-														value={info.searchValue}
-														onChange={(e) =>
-															handleSearch(e.target.value)
-														}
-														onFocus={() =>
-															setInfo((prev) => ({
-																...prev,
-																showShearch: true,
-															}))
-														}
-														onBlur={() =>
-															setInfo((prev) => ({
-																...prev,
-																showShearch: false,
-															}))
-														}
-														style={{
-															display: info?.showShearch
-																? 'block'
-																: 'none',
-														}}
-													/>
+													{info?.showShearch && (
+														<input
+															key={
+																info?.showShearch
+																	? 'search-visible'
+																	: 'search-hidden'
+															}
+															type="text"
+															placeholder="Search"
+															value={info.searchValue}
+															onChange={(e) =>
+																handleSearch(e.target.value)
+															}
+															autoFocus
+															onClick={(e) => e.stopPropagation()}
+															onBlur={() =>
+																setTimeout(() => {
+																	setInfo((prev) => ({
+																		...prev,
+																		showShearch: false,
+																		searchValue: '',
+																	}));
+																}, 200)
+															}
+														/>
+													)}
 												</div>
 
 												<Tooltip
