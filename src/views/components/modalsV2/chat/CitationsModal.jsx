@@ -94,7 +94,9 @@ const CitationsModal = ({ closeModal, modalIsOpen }) => {
 							);
 						})
 					) : (
-						<div style={{ color: '#f2f2f3', textAlign: 'center' }}>No citations</div>
+						<div style={{ color: 'var(--primary-font)', textAlign: 'center' }}>
+							No citations
+						</div>
 					)}
 				</div>
 			</div>

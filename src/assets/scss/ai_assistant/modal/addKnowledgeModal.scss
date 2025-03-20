@@ -7,8 +7,7 @@
 	justify-content: space-between;
 	align-items: flex-start;
 	border-radius: 32px;
-	background: #202123;
-	background: color(display-p3 0.1255 0.1294 0.1373);
+	background: var(--background-color);
 	gap: 24px;
 
 	&-header {
@@ -20,8 +19,8 @@
 		justify-content: space-between;
 
 		h2 {
-			color: #f2f2f3;
-			font-family: Inter;
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
 			font-size: 20px;
 			font-style: normal;
 			font-weight: 500;
@@ -45,8 +44,8 @@
 			align-self: stretch;
 
 			&-title {
-				color: #797e86;
-				font-family: Inter;
+				color: var(--secondary-font);
+				font-family: var(--primary-font-family);
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 400;
@@ -69,13 +68,13 @@
 					gap: 8px;
 					flex: 1 0 0;
 					border-radius: 16px;
-					border: 1px solid #2c2d2e;
+					border: 1px solid var(--stroke);
 					cursor: pointer;
 
 					&-label {
-						color: #797e86;
+						color: var(--secondary-font);
 						text-align: center;
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 14px;
 						font-style: normal;
 						font-weight: 400;
@@ -85,20 +84,19 @@
 
 				.active-tab {
 					border-radius: 16px;
-					border: 1px solid rgba(232, 232, 232, 0.5);
-					background: rgba(232, 232, 232, 0.1);
+					border: 1px solid var(--stroke);
+					background: var(--card);
 
 					svg {
 						path {
-							stroke: #f2f2f3 !important;
+							stroke: var(--secondary-font) !important;
 						}
 					}
 
 					.knowledge-tab-label {
-						color: #f2f2f3;
-						color: color(display-p3 0.949 0.949 0.9529);
+						color: var(--primary-font);
 						text-align: center;
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 14px;
 						font-style: normal;
 						font-weight: 400;
@@ -150,10 +148,10 @@
 		align-items: center;
 		gap: 16px;
 		border-radius: 50px;
-		border: 1px solid #2c2d2e;
+		border: 1px solid var(--stroke);
 		background: transparent;
-		color: #f2f2f3;
-		font-family: Inter;
+		color: var(--primary-font);
+		font-family: var(--primary-font-family);
 		font-size: 14px;
 		font-style: normal;
 		font-weight: 500;
@@ -163,7 +161,7 @@
 
 		&:hover {
 			border-radius: 50px;
-			border: 1px solid #424548;
+			border: 1px solid var(--stroke);
 		}
 	}
 }

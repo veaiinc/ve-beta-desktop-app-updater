@@ -203,34 +203,33 @@ export const containerStyle = {
 	padding: '12px 24px',
 	height: '44px',
 	padding: '12px',
-	color: '#e4e5e6',
+	color: 'var(--primary-font)',
 	width: '100%',
 	flex: 1,
 	alignSelf: 'stretch',
-	backgroundColor: '#151515',
+	backgroundColor: 'var(--card)',
 	borderRadius: '14px',
-	border: '1px solid var(--ve-ai-dark-theme-text-field-stroke-pop-up, #2C2D2E)',
+	border: '1px solid var(--stroke)',
 };
 
 export const dropDownStyle = {
 	top: '55px',
-	backgroundColor: 'red',
 	borderRadius: '14px',
-	border: '1px solid var(--ve-ai-dark-theme-text-field-stroke-pop-up, #2C2D2E)',
-	backgroundColor: '#202123',
+	border: '1px solid var(--stroke)',
+	backgroundColor: 'var(--card)',
 };
 
 export const dropDownTextStyling = {
-	color: 'var(--ve-ai-dark-theme-primary-font-color, #E8E8E8)',
-	fontFamily: 'Inter',
+	color: 'var(--primary-font)',
+	fontFamily: 'var(--primary-font-family)',
 	fontSize: '13px',
 	fontStyle: 'normal',
 	fontWeight: '400',
 	lineHeight: 'normal',
 };
 export const selectedValueStyling = {
-	color: 'var(--ve-ai-dark-theme-secondary-color, #939393)',
-	fontFamily: 'Inter',
+	color: 'var(--secondary-font)',
+	fontFamily: 'var(--primary-font-family)',
 	fontSize: '12px',
 	fontStyle: 'normal',
 	fontWeight: '500',

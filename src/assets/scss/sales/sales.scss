@@ -16,9 +16,8 @@
 
 .sales-page {
 	background-color: inherit;
-	color: #fff;
-	// padding: 20px;
-	font-family: 'Arial, sans-serif';
+	color: var(--primary-font);
+	font-family: var(--primary-font-family);
 	position: relative;
 
 	.header-image {
@@ -41,8 +40,8 @@
 			padding: 6px 24px;
 
 			p {
-				color: #e4e5e6;
-				font-family: Inter;
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
 				font-size: 16px;
 				font-style: normal;
 				font-weight: 500;
@@ -51,8 +50,8 @@
 			}
 
 			h1 {
-				color: #fff;
-				font-family: Inter;
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
 				font-size: 32px;
 				font-style: normal;
 				font-weight: 600;
@@ -71,9 +70,9 @@
 			padding: 16px 24px;
 
 			p {
-				color: rgba(228, 229, 230, 0.48);
+				color: var(--secondary-font);
 				text-align: right;
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 13px;
 				font-style: normal;
 				font-weight: 400;
@@ -82,8 +81,8 @@
 			}
 
 			h1 {
-				color: #e4e5e6;
-				font-family: Inter;
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
 				font-size: 36px;
 				font-style: normal;
 				font-weight: 600;
@@ -121,8 +120,8 @@
 
 	.greeting {
 		position: relative;
-		background-color: #000;
-		color: #fff;
+		background-color: var(--card);
+		color: var(--primary-font);
 		padding: 20px;
 		margin-top: 20px;
 		display: flex;
@@ -145,8 +144,8 @@
 
 			.greeting-text-content {
 				p {
-					color: rgba(228, 229, 230, 0.64);
-					font-family: Inter;
+					color: var(--secondary-font);
+					font-family: var(--primary-font-family);
 					font-size: 20px;
 					font-style: normal;
 					font-weight: 500;
@@ -154,8 +153,8 @@
 				}
 
 				h1 {
-					color: #e4e5e6;
-					font-family: Inter;
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
 					font-size: 36px;
 					font-style: normal;
 					font-weight: 500;
@@ -169,8 +168,8 @@
 			text-align: center;
 
 			p.date {
-				color: rgba(255, 255, 255, 0.43);
-				font-family: Inter;
+				color: var(--secondary-font);
+				font-family: var(--primary-font-family);
 				font-size: 10.347px;
 				font-style: normal;
 				font-weight: 500;
@@ -178,8 +177,8 @@
 			}
 
 			p.location {
-				color: rgba(255, 255, 255, 0.43);
-				font-family: Inter;
+				color: var(--secondary-font);
+				font-family: var(--primary-font-family);
 				font-size: 9.551px;
 				font-style: normal;
 				font-weight: 500;
@@ -187,8 +186,8 @@
 			}
 
 			h2.time {
-				color: #fff;
-				font-family: Inter;
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
 				font-size: 44.571px;
 				font-style: normal;
 				font-weight: 600;
@@ -219,7 +218,7 @@
 	// 			color: rgba(228, 229, 230, 0.48);
 	// 			color: color(display-p3 0.8941 0.898 0.902 / 0.48);
 	// 			cursor: pointer;
-	// 			font-family: Inter;
+	// 			font-family: var(--primary-font-family);
 	// 			font-size: 12px;
 	// 			font-style: normal;
 	// 			font-weight: 500;
@@ -263,14 +262,13 @@
 				flex-direction: column;
 				align-items: flex-start;
 				border-radius: 24px;
-				background: #171819;
-				background: color(display-p3 0.0902 0.0941 0.098);
+				background: var(--card);
 				cursor: pointer;
 				transition: 300ms;
 				flex-shrink: 0;
 
 				&:hover {
-					background: #202123;
+					background: var(--card-hover);
 				}
 				.agentsWorkflowJobCards {
 					display: flex;
@@ -280,8 +278,8 @@
 					align-self: stretch;
 					flex: 1;
 					.agentsWorkflowJobCardsHeader {
-						color: var(--primary-font, #f2f2f3);
-						font-family: Inter;
+						color: var(--primary-font);
+						font-family: var(--primary-font-family);
 						font-size: 14px;
 						font-style: normal;
 						font-weight: 500;
@@ -295,12 +293,8 @@
 						align-self: stretch;
 						flex: 1;
 						.agentsWorkflowJobCardsTitle {
-							color: var(--ve-ai-dark-theme-primary-font-color, #e8e8e8);
-							color: var(
-								--ve-ai-dark-theme-primary-font-color,
-								color(display-p3 0.9098 0.9098 0.9098)
-							);
-							font-family: Inter;
+							color: var(--primary-font);
+							font-family: var(--primary-font-family);
 							font-size: 18px;
 							font-style: normal;
 							font-weight: 500;
@@ -312,12 +306,8 @@
 						}
 
 						.agentsWorkflowJobCardsSubTitle {
-							color: var(--ve-ai-dark-theme-secondary-color, #939393);
-							color: var(
-								--ve-ai-dark-theme-secondary-color,
-								color(display-p3 0.5755 0.5755 0.5755)
-							);
-							font-family: Inter;
+							color: var(--secondary-font);
+							font-family: var(--primary-font-family);
 							font-size: 14px;
 							font-style: normal;
 							font-weight: 500;
@@ -329,21 +319,16 @@
 						}
 					}
 					.agentsTabType {
-						color: #e8e8e8;
-						color: color(display-p3 0.9098 0.9098 0.9098);
-						font-family: Inter;
+						color: var(--primary-font);
+						font-family: var(--primary-font-family);
 						font-size: 14px;
 						font-style: normal;
 						font-weight: 500;
 						line-height: normal;
 						text-transform: capitalize;
 						.agentsWorkflowJobCardsSubTitle {
-							color: var(--ve-ai-dark-theme-secondary-color, #939393);
-							color: var(
-								--ve-ai-dark-theme-secondary-color,
-								color(display-p3 0.5755 0.5755 0.5755)
-							);
-							font-family: Inter;
+							color: var(--secondary-font);
+							font-family: var(--primary-font-family);
 							font-size: 14px;
 							font-style: normal;
 							font-weight: 500;
@@ -354,7 +339,7 @@
 			}
 		}
 		.card-div-end-black-shadow {
-			background: linear-gradient(270deg, #111 6.77%, rgba(17, 17, 17, 0) 112.5%);
+			// background: linear-gradient(270deg, #111 6.77%, rgba(17, 17, 17, 0) 112.5%);
 			position: absolute;
 			top: 0;
 			right: 0;

@@ -45,7 +45,7 @@ const DropDown = ({
 							className="dropdown-title"
 							style={titleStyles ? { ...titleStyles } : {}}
 						>
-							{title}
+							<span style={{ color: 'var(--primary-font)' }}>{title}</span>
 						</div>
 					) : (
 						''
@@ -68,7 +68,11 @@ const DropDown = ({
 										<div className="list-details">
 											{option?.Icon ? (
 												<option.Icon
-													style={{ width: '14px', height: '14px' }}
+													style={{
+														width: '14px',
+														height: '14px',
+														color: 'var(--primary-font)',
+													}}
 												/>
 											) : (
 												''

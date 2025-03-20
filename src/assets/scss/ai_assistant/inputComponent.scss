@@ -10,10 +10,10 @@
 		gap: 5px;
 		align-self: stretch;
 		border-radius: 14px;
-		border: 1px solid #2c2d2e;
-		background-color: #202123;
-		color: #f2f2f3;
-		font-family: Inter;
+		border: 1px solid var(--stroke);
+		background-color: var(--card-over-card);
+		color: var(--primary-font);
+		font-family: var(--primary-font-family);
 		font-size: 14px;
 		font-style: normal;
 		font-weight: 500;
@@ -21,8 +21,8 @@
 	}
 
 	label {
-		color: #797e86;
-		font-family: Inter;
+		color: var(--secondary-font);
+		font-family: var(--primary-font-family);
 		font-size: 12px;
 		font-style: normal;
 		font-weight: 500;
@@ -36,7 +36,7 @@
 		gap: 10px;
 		border-radius: 4px;
 		top: -8px;
-		background-color: #202123;
+		background-color: var(--card-over-card);
 		transition: all 0.2s ease-in-out;
 	}
 

@@ -1,7 +1,7 @@
 .listItem-border {
 	border-radius: 6px;
 	box-sizing: border-box;
-	border: 1px solid #1d1d1d;
+	border: 1px solid var(--stroke);
 	display: flex;
 	gap: 10px;
 	padding: 6px 12px;
@@ -10,8 +10,8 @@
 	gap: 10px;
 
 	.listItem-label {
-		color: #e4e5e6;
-		font-family: Inter;
+		color: var(--primary-font);
+		font-family: var(--primary-font-family);
 		font-size: 12px;
 		font-style: normal;
 		font-weight: 400;
@@ -21,8 +21,8 @@
 }
 
 .listItem-text {
-	color: #e4e5e6;
-	font-family: Inter;
+	color: var(--primary-font);
+	font-family: var(--primary-font-family);
 	font-size: 14px;
 	font-style: normal;
 	font-weight: 500;
@@ -31,9 +31,9 @@
 }
 
 .listItem-title {
-	color: #e8e8e8;
+	color: var(--primary-font);
 	text-overflow: ellipsis;
-	font-family: Inter;
+	font-family: var(--primary-font-family);
 	font-size: 14px;
 	font-style: normal;
 	font-weight: 500;
@@ -41,8 +41,8 @@
 }
 
 .listItem-id {
-	color: rgba(228, 229, 230, 0.48);
-	font-family: Inter;
+	color: var(--secondary-font);
+	font-family: var(--primary-font-family);
 	font-size: 12px;
 	font-style: normal;
 	font-weight: 500;
@@ -67,7 +67,45 @@
 		}
 	}
 }
-
+.listItem-person {
+	display: flex;
+	gap: 5px;
+	align-items: center;
+	align-self: center;
+	cursor: pointer;
+	max-height: 32px;
+	.avatar {
+		width: 20px;
+		height: 20px;
+		border-radius: 50px;
+		background-color: var(--card);
+		img {
+			object-fit: cover;
+			width: 100%;
+			height: 100%;
+		}
+		.profile-name {
+			height: 100%;
+			width: 100%;
+			border-radius: 30px;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			color: var(--primary-font);
+			font-size: small;
+			border: 1px solid var(--stroke);
+		}
+	}
+	.name {
+		color: var(--primary-font);
+		font-family: var(--primary-font-family);
+		font-size: 13px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
+		padding: 12px 0;
+	}
+}
 .listItem-multiSelect {
 	padding: 12px 0;
 	.multiSelectContainer {
@@ -82,8 +120,8 @@
 				border-radius: 10px;
 			}
 			border-radius: 6px;
-			border: 1px solid #1d1d1d;
-			background: #111;
+			border: 1px solid var(--stroke);
+			background: var(--card);
 			display: flex;
 			gap: 10px;
 			padding: 6px 12px;
@@ -91,8 +129,8 @@
 			align-items: center;
 			gap: 10px;
 
-			color: #e4e5e6;
-			font-family: Inter;
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
 			font-size: 12px;
 			font-style: normal;
 			font-weight: 400;
@@ -106,20 +144,35 @@
 	justify-content: center;
 	align-items: center;
 	gap: 3px;
-	color: #e4e5e6;
+	color: var(--primary-font);
 	width: fit-content;
 	height: fit-content;
-	font-family: Inter;
+	font-family: var(--primary-font-family);
 	font-size: 12px;
 	font-style: normal;
 	font-weight: 500;
 	line-height: normal;
 	svg {
 		path {
-			stroke: #e4e5e6 !important;
+			stroke: var(--stroke) !important;
 		}
 	}
 }
+// .datePicker {
+// 	width: 100%;
+// 	height: 100%;
+// 	border: 1px solid var(--stroke);
+// 	background: transparent;
+// 	color: var(--primary-font);
+// 	font-family: var(--primary-font-family);
+// 	font-size: 12px;
+// 	font-style: normal;
+// 	font-weight: 400;
+// 	line-height: normal;
+// 	border-radius: 6px;
+// 	padding: 6px;
+// 	margin: 0 6px;
+// }
 
 .listItem-priority,
 .listItem-status,
@@ -136,8 +189,8 @@
 .listItem-url,
 .listItem-email {
 	padding: 12px 0;
-	color: #e4e5e6;
-	font-family: Inter;
+	color: var(--primary-font);
+	font-family: var(--primary-font-family);
 	font-size: 13px;
 	font-style: normal;
 	font-weight: 500;
@@ -149,7 +202,7 @@
 	width: 28px;
 	height: 28px;
 	border-radius: 6px;
-	border: 2px solid #1d1d1d;
+	border: 2px solid var(--stroke);
 	display: flex;
 	justify-content: center;
 	align-items: center;
@@ -170,10 +223,9 @@
 		gap: 4px;
 		border-radius: 35px;
 		border: none;
-		color: #e8e8e8;
-		color: color(display-p3 0.9098 0.9098 0.9098);
+		color: var(--primary-font);
 		text-align: center;
-		font-family: Inter;
+		font-family: var(--primary-font-family);
 		font-size: 12px;
 		font-style: normal;
 		font-weight: 500;
@@ -188,10 +240,9 @@
 		gap: 4px;
 		border-radius: 4px;
 		padding: 4px 6px;
-		color: #e8e8e8;
-		color: color(display-p3 0.9098 0.9098 0.9098);
+		color: #fff;
 		text-align: center;
-		font-family: Inter;
+		font-family: var(--primary-font-family);
 		font-size: 12px;
 		font-style: normal;
 		font-weight: 500;
@@ -201,16 +252,15 @@
 
 .listItem-workflow {
 	.currentItem {
-		background-color: #603b2c;
+		background-color: var(--card);
 		border-radius: 4px;
 		display: flex;
 		padding: 4px 6px;
 		align-items: center;
 		gap: 4px;
-		color: #e8e8e8;
-		color: color(display-p3 0.9098 0.9098 0.9098);
+		color: var(--primary-font);
 		text-align: center;
-		font-family: Inter;
+		font-family: var(--primary-font-family);
 		font-size: 12px;
 		font-style: normal;
 		font-weight: 500;
@@ -230,9 +280,9 @@
 .dateView-datePicker {
 	border: none;
 	background-color: transparent !important;
-	color: #e4e5e6 !important;
+	color: var(--primary-font) !important;
 	border-radius: 36px;
-	font-family: Inter !important;
+	font-family: var(--primary-font-family) !important;
 	font-size: 12px !important;
 	font-style: normal !important;
 	font-weight: 400 !important;
@@ -243,32 +293,32 @@
 	justify-content: center;
 	width: 100%;
 	margin-right: 0;
-	border: 1px solid #424548 !important;
+	border: 1px solid var(--stroke) !important;
 	outline: none !important;
 	input {
-		color: #e4e5e6 !important;
+		color: var(--primary-font) !important;
 		background-color: transparent !important;
 		background: transparent !important;
 		font-size: 12px !important;
 		font-weight: 400 !important;
 		&::placeholder {
 			opacity: 1;
-			color: #e4e5e6 !important;
+			color: var(--primary-font) !important;
 		}
 	}
 	svg {
 		path {
-			stroke: #e4e5e6 !important;
-			fill: #e4e5e6 !important;
+			stroke: var(--primary-font) !important;
+			fill: var(--primary-font) !important;
 		}
 	}
 	&:hover {
 		background-color: transparent;
-		color: #e4e5e6 !important;
-		border: 1px solid #424548;
+		color: var(--primary-font) !important;
+		border: 1px solid var(--stroke);
 	}
 	&:placeholder {
-		color: #e4e5e6 !important;
+		color: var(--primary-font) !important;
 		opacity: 1;
 	}
 }
@@ -279,10 +329,10 @@
 	gap: 4px;
 	.parent-task-title {
 		overflow: hidden;
-		color: #939393;
+		color: var(--secondary-font);
 		text-overflow: ellipsis;
 		white-space: nowrap;
-		font-family: Inter;
+		font-family: var(--primary-font-family);
 		font-size: 14px;
 		font-style: normal;
 		font-weight: 500;
@@ -298,8 +348,8 @@
 	gap: 6px;
 
 	.child-task-progress-count {
-		color: #e4e5e6;
-		font-family: Inter;
+		color: var(--primary-font);
+		font-family: var(--primary-font-family);
 		font-size: 12px;
 		font-style: normal;
 		font-weight: 500;

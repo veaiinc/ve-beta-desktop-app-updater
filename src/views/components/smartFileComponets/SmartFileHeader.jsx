@@ -164,7 +164,7 @@ const SmartFileHeader = ({
 				<div className="tabBtnContainer">
 					<span
 						className="tabBtns"
-						style={{ color: activeTab === 'form' ? '#e4e5e6' : '' }}
+						style={{ color: activeTab === 'form' ? 'var(--primary-font)' : '' }}
 						onClick={() => chnageActiveTab('form')}
 					>
 						Form Response
@@ -182,7 +182,7 @@ const SmartFileHeader = ({
 									alignItems: 'center',
 									gap: 'var(--Spacing-space-3, 4px)',
 									color: '#3D7E4B',
-									fontFamily: 'Inter',
+									fontFamily: 'var(--primary-font-family)',
 									fontSize: '8px',
 									fontStyle: 'normal',
 									fontWeight: '600',
@@ -199,7 +199,7 @@ const SmartFileHeader = ({
 						)}
 						<span
 							className="tabBtns "
-							style={{ color: activeTab === 'file' ? '#e4e5e6' : '' }}
+							style={{ color: activeTab === 'file' ? 'var(--primary-font)' : '' }}
 							onClick={() => chnageActiveTab('file')}
 						>
 							Smart File
@@ -207,7 +207,7 @@ const SmartFileHeader = ({
 					</div>
 					<span
 						className="tabBtns"
-						style={{ color: activeTab === 'activity' ? '#e4e5e6' : '' }}
+						style={{ color: activeTab === 'activity' ? 'var(--primary-font)' : '' }}
 						onClick={() => chnageActiveTab('activity')}
 					>
 						Activity
@@ -295,7 +295,7 @@ const SmartFileHeader = ({
 						overflow: 'hidden',
 						color: '#E4E5E6',
 						textOverflow: 'ellipsis',
-						fontFamily: 'Inter',
+						fontFamily: 'var(--primary-font-family)',
 						fontSize: '14px',
 						fontStyle: 'normal',
 						fontWeight: '400',

@@ -25,8 +25,8 @@
 			}
 
 			h1 {
-				color: #e4e5e6;
-				font-family: Inter;
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
 				font-size: 20px;
 				font-style: normal;
 				font-weight: 500;
@@ -43,8 +43,8 @@
 				list-style: none;
 
 				.nav-item {
-					color: rgba(228, 229, 230, 0.48);
-					font-family: Inter;
+					color: var(--secondary-font);
+					font-family: var(--primary-font-family);
 					font-size: 15px;
 					font-style: normal;
 					font-weight: 500;
@@ -54,8 +54,8 @@
 					cursor: pointer;
 
 					&.active {
-						color: #e4e5e6;
-						border-bottom: 2px solid #e4e5e6;
+						color: var(--primary-font);
+						border-bottom: 2px solid var(--stroke);
 					}
 				}
 			}
@@ -68,11 +68,12 @@
 			flex-direction: column;
 			gap: 24px;
 			border-radius: 16px;
-			border: 1px solid rgba(100, 100, 100, 0.16);
+			border: 1px solid var(--stroke);
+			background: var(--card);
 
 			.description {
-				color: rgba(228, 229, 230, 0.48);
-				font-family: Inter;
+				color: var(--secondary-font);
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 400;
@@ -85,8 +86,8 @@
 				gap: 8px;
 
 				.ai-assistant-name {
-					color: rgba(228, 229, 230, 0.48);
-					font-family: Inter;
+					color: var(--secondary-font);
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 400;
@@ -98,22 +99,22 @@
 					height: 48px;
 					padding: 14px;
 					border-radius: 10px;
-					border: 1px solid rgba(100, 100, 100, 0.16);
+					border: 1px solid var(--stroke);
 					display: flex;
 					align-items: center;
 					justify-content: center;
 					border: none;
 					outline: none;
-					background: #151515;
-					color: #e4e5e6;
+					background: transparent;
+					color: var(--primary-font);
 					cursor: pointer;
-					border: 1px solid rgba(100, 100, 100, 0.16);
+					border: 1px solid var(--stroke);
 
 					&:focus,
 					&:hover {
 						border-radius: 10px;
-						border: 1px solid rgba(96, 85, 236, 0.4);
-						background: rgba(28, 28, 32, 0.9);
+						border: 1px solid var(--stroke);
+						background: var(--card-hover);
 					}
 				}
 			}
@@ -124,8 +125,8 @@
 				gap: 8px;
 
 				h1 {
-					color: #e4e5e6;
-					font-family: Inter;
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
 					font-size: 16px;
 					font-style: normal;
 					font-weight: 500;
@@ -134,8 +135,8 @@
 				}
 
 				h2 {
-					color: rgba(228, 229, 230, 0.48);
-					font-family: Inter;
+					color: var(--secondary-font);
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 400;
@@ -148,22 +149,22 @@
 				height: 156px;
 				padding: 14px;
 				resize: none;
-				color: #e4e5e6;
-				font-family: Inter;
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 400;
 				line-height: 21px;
-				border: 1px solid rgba(100, 100, 100, 0.16);
-				background: rgba(32, 32, 33, 0.24);
+				border: 1px solid var(--stroke);
+				background: var(--card-hover);
 				border-radius: 10px;
 				cursor: pointer;
 
 				&:hover,
 				&:focus {
 					border-radius: 10px;
-					border: 1px solid rgba(96, 85, 236, 0.4);
-					background: rgba(28, 28, 32, 0.9);
+					border: 1px solid var(--stroke);
+					background: var(--card-hover);
 				}
 			}
 		}
@@ -179,8 +180,8 @@
 				gap: 8px;
 
 				h1 {
-					color: #e4e5e6;
-					font-family: Inter;
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
 					font-size: 16px;
 					font-style: normal;
 					font-weight: 500;
@@ -188,8 +189,8 @@
 				}
 
 				h2 {
-					color: rgba(228, 229, 230, 0.48);
-					font-family: Inter;
+					color: var(--secondary-font);
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 400;
@@ -215,7 +216,7 @@
 					align-items: center;
 					gap: 6px;
 					border-radius: 10px;
-					background: rgba(32, 32, 33, 0.24);
+					background: var(--card-over-card);
 					padding: 4px;
 
 					svg {
@@ -228,8 +229,8 @@
 						align-items: center;
 						width: 50%;
 						height: 40px;
-						color: rgba(228, 229, 230, 0.48);
-						font-family: Inter;
+						color: var(--secondary-font);
+						font-family: var(--primary-font-family);
 						font-size: 12px;
 						font-style: normal;
 						font-weight: 400;
@@ -240,9 +241,9 @@
 
 					.persona-option-selected {
 						border-radius: 6px;
-						border: 1px solid rgba(100, 100, 100, 0.16);
-						background: #202028;
-						box-shadow: 2px 2px 4px 0px rgba(0, 0, 0, 0.25) inset;
+						border: 1px solid var(--stroke);
+						// background: var(--background-color);
+						// box-shadow: 2px 2px 4px 0px rgba(0, 0, 0, 0.25) inset;
 					}
 				}
 			}
@@ -257,11 +258,11 @@
 				gap: 16px;
 				align-self: stretch;
 				border-radius: 100px;
-				border: 1px solid rgba(36, 36, 36, 0.64);
-				background: #1e1e1f;
+				border: 1px solid var(--stroke);
+				background: var(--background-color);
 				cursor: pointer;
-				color: #e4e5e6;
-				font-family: Inter;
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
 				font-size: 13px;
 				font-style: normal;
 				font-weight: 500;
@@ -288,7 +289,7 @@
 				flex-direction: column;
 				gap: 24px;
 				border-radius: 16px;
-				border: 1px solid rgba(100, 100, 100, 0.24);
+				border: 1px solid var(--stroke);
 				padding: 32px;
 				height: 440px;
 
@@ -298,8 +299,8 @@
 					align-items: center;
 
 					h1 {
-						color: #e4e5e6;
-						font-family: Inter;
+						color: var(--primary-font);
+						font-family: var(--primary-font-family);
 						font-size: 16px;
 						font-style: normal;
 						font-weight: 500;
@@ -312,15 +313,15 @@
 						justify-content: flex-end;
 						align-items: center;
 						border-radius: 100px;
-						border: 1px solid #6055ec;
-						color: #6055ec;
-						font-family: Inter;
+						border: 1px solid var(--stroke);
+						color: var(--primary-button-font);
+						font-family: var(--primary-font-family);
 						font-size: 14px;
 						font-style: normal;
 						font-weight: 400;
 						line-height: 22px; /* 157.143% */
 						letter-spacing: -0.28px;
-						background: transparent;
+						background: var(--primary-button);
 						cursor: pointer;
 					}
 				}
@@ -328,7 +329,7 @@
 				.line {
 					width: 100%;
 					height: 1px;
-					background: rgba(100, 100, 100, 0.16);
+					background: var(--stroke);
 				}
 
 				.no-workflows-container {
@@ -339,16 +340,16 @@
 					height: 292px;
 
 					p {
-						color: rgba(228, 229, 230, 0.48);
-						font-family: Inter;
+						color: var(--secondary-font);
+						font-family: var(--primary-font-family);
 						font-size: 13px;
 
 						span {
-							color: #6055ec;
+							color: var(--primary-font);
 						}
 
 						.ai-name {
-							color: #e4e5e6;
+							color: var(--primary-font);
 						}
 					}
 				}
@@ -386,9 +387,9 @@
 
 								.template-name {
 									overflow: hidden;
-									color: #e4e5e6;
+									color: var(--primary-font);
 									text-overflow: ellipsis;
-									font-family: Inter;
+									font-family: var(--primary-font-family);
 									font-size: 13px;
 									font-style: normal;
 									font-weight: 400;
@@ -405,9 +406,9 @@
 										gap: 4px;
 
 										span {
-											color: rgba(228, 229, 230, 0.7);
+											color: var(--secondary-font);
 											text-align: justify;
-											font-family: Inter;
+											font-family: var(--primary-font-family);
 											font-size: 11px;
 											font-style: normal;
 											font-weight: 400;
@@ -421,8 +422,8 @@
 									display: flex;
 									align-items: center;
 									gap: 4px;
-									color: rgba(228, 229, 230, 0.48);
-									font-family: Inter;
+									color: var(--secondary-font);
+									font-family: var(--primary-font-family);
 									font-size: 13px;
 									font-style: normal;
 									font-weight: 400;
@@ -440,8 +441,8 @@
 						.template-remove {
 							border: none;
 							background: transparent;
-							color: #e46b64;
-							font-family: Inter;
+							color: var(--error);
+							font-family: var(--primary-font-family);
 							font-size: 12px;
 							font-style: normal;
 							font-weight: 400;
@@ -468,8 +469,8 @@
 					align-items: center;
 
 					h1 {
-						color: #e4e5e6;
-						font-family: Inter;
+						color: var(--primary-font);
+						font-family: var(--primary-font-family);
 						font-size: 16px;
 						font-style: normal;
 						font-weight: 500;
@@ -482,9 +483,9 @@
 						justify-content: flex-end;
 						align-items: center;
 						border-radius: 100px;
-						border: 1px solid #6055ec;
-						color: #6055ec;
-						font-family: Inter;
+						border: 1px solid var(--stroke);
+						color: var(--primary-button);
+						font-family: var(--primary-font-family);
 						font-size: 14px;
 						font-style: normal;
 						font-weight: 400;
@@ -502,11 +503,11 @@
 					list-style: none;
 					padding: 8px;
 					border-radius: 4px;
-					background: rgba(29, 29, 35, 0.64);
+					background: var(--card-over-card);
 
 					li {
-						color: #e4e5e6;
-						font-family: Inter;
+						color: var(--primary-font);
+						font-family: var(--primary-font-family);
 						font-size: 13px;
 						font-style: normal;
 						font-weight: 400;
@@ -532,8 +533,8 @@
 						overflow: auto !important;
 
 						.no-knowledge-files-found {
-							color: rgba(228, 229, 230, 0.48);
-							font-family: Inter;
+							color: var(--secondary-font);
+							font-family: var(--primary-font-family);
 							font-size: 13px;
 							font-style: normal;
 							font-weight: 400;
@@ -544,7 +545,7 @@
 					.knowledge-item {
 						padding: 8px;
 						padding-bottom: 16px;
-						border-bottom: 1px solid rgba(100, 100, 100, 0.16);
+						border-bottom: 1px solid var(--stroke);
 
 						.knowledge-link-container {
 							display: flex;
@@ -553,9 +554,9 @@
 							gap: 12px;
 							width: 70%;
 							height: auto;
-							color: rgba(228, 229, 230, 0.48);
+							color: var(--primary-font);
 							text-overflow: ellipsis;
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 13px;
 							font-style: normal;
 							font-weight: 400;
@@ -578,8 +579,8 @@
 							align-items: center;
 
 							.notStarted {
-								color: rgba(228, 229, 230, 0.48);
-								font-family: Inter;
+								color: var(--primary-font);
+								font-family: var(--primary-font-family);
 								font-size: 13px;
 								font-style: normal;
 								font-weight: 400;
@@ -587,8 +588,8 @@
 							}
 
 							.processing {
-								color: #6055ec;
-								font-family: Inter;
+								color: var(--primary-button);
+								font-family: var(--primary-font-family);
 								font-size: 13px;
 								font-style: normal;
 								font-weight: 400;
@@ -605,20 +606,14 @@
 									width: 14px;
 									height: 14px;
 									border-radius: 70%;
-									border-top-color: #c39df8;
-									background: conic-gradient(
-										#c39df800 0%,
-										#c39df8 25%,
-										#6055ec 50%,
-										#edecff1a 75%,
-										#c39df800 100%
-									);
+									border-top-color: var(--primary-button);
+									background: var(--ai-color-code);
 									animation: spin 1s linear infinite;
 
 									.inner-div {
 										width: 8px;
 										height: 8px;
-										background-color: #151515;
+										background-color: var(--card-over-card);
 										border-radius: 60%;
 									}
 								}
@@ -634,8 +629,8 @@
 							}
 
 							.ready {
-								color: rgba(19, 213, 72, 0.48);
-								font-family: Inter;
+								color: var(--success);
+								font-family: var(--primary-font-family);
 								font-size: 13px;
 								font-style: normal;
 								font-weight: 400;
@@ -643,8 +638,8 @@
 							}
 
 							.time {
-								color: rgba(228, 229, 230, 0.48);
-								font-family: Inter;
+								color: var(--primary-font);
+								font-family: var(--primary-font-family);
 								font-size: 11px;
 								font-style: normal;
 								font-weight: 400;
@@ -665,11 +660,11 @@
 
 		.ai-query-response {
 			padding: 54px 0 16px;
-			border-bottom: 1.196px solid rgba(100, 100, 100, 0.16);
+			border-bottom: 1.196px solid var(--stroke);
 
 			h1 {
-				color: rgba(228, 229, 230, 0.48);
-				font-family: Inter;
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
 				font-size: 13px;
 				font-style: normal;
 				font-weight: 400;
@@ -688,8 +683,8 @@
 				gap: 8px;
 
 				.test-case-number {
-					color: rgba(228, 229, 230, 0.48);
-					font-family: Inter;
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
 					font-size: 13px;
 					font-style: normal;
 					font-weight: 400;
@@ -706,11 +701,11 @@
 					gap: 16px;
 					align-self: stretch;
 					border-radius: 16px;
-					background: #1d1d1d;
+					background: var(--card);
 
 					.test-case-query {
-						color: rgba(228, 229, 230, 0.48);
-						font-family: Inter;
+						color: var(--primary-font);
+						font-family: var(--primary-font-family);
 						font-size: 10px;
 						font-style: normal;
 						font-weight: 400;
@@ -721,7 +716,7 @@
 						width: 100%;
 						height: 40px;
 						border-radius: 10px;
-						border: 1px solid rgba(100, 100, 100, 0.24);
+						border: 1px solid var(--stroke);
 						padding: 11px 16px;
 
 						input {
@@ -729,12 +724,11 @@
 							height: 100%;
 							border: none;
 							outline: none;
-							background: #1d1d1d;
-							color: rgba(228, 229, 230, 0.48);
+							background: transparent;
+							color: var(--primary-font);
 							display: flex;
 							align-items: center;
 							justify-content: center;
-							color: #e4e5e6;
 						}
 					}
 
@@ -743,8 +737,8 @@
 						justify-content: flex-start;
 						align-items: center;
 						gap: 4px;
-						color: rgba(228, 229, 230, 0.48);
-						font-family: Inter;
+						color: var(--primary-font);
+						font-family: var(--primary-font-family);
 						font-size: 10px;
 						font-style: normal;
 						font-weight: 400;
@@ -759,8 +753,8 @@
 						}
 
 						.ai-name {
-							color: #e4e5e6;
-							font-family: Inter;
+							color: var(--primary-font);
+							font-family: var(--primary-font-family);
 							font-size: 10px;
 							font-style: normal;
 							font-weight: 400;
@@ -775,10 +769,10 @@
 							height: 16px;
 							padding: 1.196px 4.782px;
 							border-radius: 6px;
-							border: 0.598px solid rgba(100, 100, 100, 0.48);
-							background: rgba(100, 100, 100, 0.16);
-							color: #e4e5e6;
-							font-family: Inter;
+							border: 0.598px solid var(--stroke);
+							background: var(--card-over-card);
+							color: var(--primary-font);
+							font-family: var(--primary-font-family);
 							font-size: 10px;
 							font-style: normal;
 							font-weight: 400;
@@ -808,8 +802,8 @@
 
 					.response-container {
 						p {
-							color: #e4e5e6;
-							font-family: Inter;
+							color: var(--primary-font);
+							font-family: var(--primary-font-family);
 							font-size: 13px;
 							font-style: normal;
 							font-weight: 400;
@@ -846,10 +840,10 @@
 					align-items: center;
 					gap: 10px;
 					border-radius: 100px;
-					border: 1px solid rgba(100, 100, 100, 0.16);
+					border: 1px solid var(--stroke);
 					background: transparent;
-					color: rgba(228, 229, 230, 0.64);
-					font-family: Inter;
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
 					font-size: 13px;
 					font-style: normal;
 					font-weight: 400;

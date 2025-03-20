@@ -375,7 +375,7 @@ const WorkflowCardEditModal = ({
 								alignItems: 'center',
 								flex: 1,
 								gap: '24px',
-								color: '#fff',
+								color: 'var(--primary-font)',
 							}}
 						>
 							<Spinner />
@@ -416,13 +416,13 @@ const WorkflowCardEditModal = ({
 											padding: '12px 24px',
 											height: '48px',
 											padding: '12px 24px',
-											color: '#e4e5e6',
+											color: 'var(--primary-font)',
 											// width: 'inherit',
 											flex: 1,
 											alignSelf: 'stretch',
 											borderRadius: '0.625rem',
-											border: '1px solid rgba(36, 36, 36, 0.64)',
-											backgroundColor: '#151515',
+											border: '1px solid var(--stroke)',
+											backgroundColor: 'var(--card)',
 											width: '100%',
 										}}
 										dropDownStyle={{
@@ -437,8 +437,8 @@ const WorkflowCardEditModal = ({
 										uniqueIdentifierForTickIcon={'_id'}
 										selectedValueObj={info?.selectedEmailTemplate}
 										dropDownTextStyling={{
-											color: 'var(--nav-bar-button-text, #FFF)',
-											fontFamily: 'Inter',
+											color: 'var(--primary-font)',
+											fontFamily: 'var(--primary-font-family)',
 											fontSize: '14px',
 											fontStyle: 'normal',
 											fontWeight: '400',
@@ -480,13 +480,13 @@ const WorkflowCardEditModal = ({
 											padding: '12px 24px',
 											height: '48px',
 											padding: '12px 24px',
-											color: '#e4e5e6',
+											color: 'var(--primary-font)',
 											width: 'inherit',
 											flex: 1,
 											alignSelf: 'stretch',
 											borderRadius: '0.625rem',
-											border: '1px solid rgba(36, 36, 36, 0.64)',
-											backgroundColor: '#151515',
+											border: '1px solid var(--stroke)',
+											backgroundColor: 'var(--card)',
 										}}
 										dropDownStyle={{
 											right: 0,
@@ -500,8 +500,8 @@ const WorkflowCardEditModal = ({
 										uniqueIdentifierForTickIcon={'value'}
 										selectedValueObj={info?.selectedDuration}
 										dropDownTextStyling={{
-											color: 'var(--nav-bar-button-text, #FFF)',
-											fontFamily: 'Inter',
+											color: 'var(--primary-font)',
+											fontFamily: 'var(--primary-font-family)',
 											fontSize: '14px',
 											fontStyle: 'normal',
 											fontWeight: '400',
@@ -517,13 +517,13 @@ const WorkflowCardEditModal = ({
 										padding: '12px 24px',
 										height: '48px',
 										padding: '12px 24px',
-										color: '#e4e5e6',
+										color: 'var(--primary-font)',
 										width: 'inherit',
 										flex: 1,
 										alignSelf: 'stretch',
 										borderRadius: '0.625rem',
-										border: '1px solid rgba(36, 36, 36, 0.64)',
-										backgroundColor: '#151515',
+										border: '1px solid var(--stroke)',
+										backgroundColor: 'var(--card)',
 									}}
 									dropDownStyle={{
 										right: 0,

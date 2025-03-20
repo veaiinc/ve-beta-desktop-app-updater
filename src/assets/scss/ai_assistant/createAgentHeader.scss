@@ -28,9 +28,9 @@
 
 			&-text {
 				overflow: hidden;
-				color: #f2f2f3;
+				color: var(--primary-font);
 				text-overflow: ellipsis;
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 500;
@@ -45,11 +45,11 @@
 			align-items: center;
 			gap: 10px;
 			border-radius: 100px;
-			background: #2c2e30;
+			background: var(--card);
 			overflow: hidden;
-			color: #f2f2f3;
+			color: var(--primary-font);
 			text-overflow: ellipsis;
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 500;
@@ -76,9 +76,9 @@
 			align-items: center;
 			gap: 6px;
 			border-radius: 20px;
-			border: 1px solid #2c2d2e;
-			color: #f2f2f3;
-			font-family: Inter;
+			border: 1px solid var(--stroke);
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 400;
@@ -87,7 +87,7 @@
 			&-icon {
 				width: 10px;
 				height: 10px;
-				background-color: #009b13;
+				background-color: var(--success);
 				border-radius: 50%;
 			}
 		}
@@ -98,9 +98,9 @@
 			align-items: center;
 			gap: 6px;
 			border-radius: 20px;
-			background: #f2f2f3;
-			color: #0c0c0d;
-			font-family: Inter;
+			background: var(--primary-font);
+			color: var(--card);
+			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 400;
@@ -119,12 +119,10 @@
 	gap: 6px;
 
 	border-radius: 20px;
-	border: 1px solid var(--error, #e40039);
-	border: 1px solid var(--error, color(display-p3 0.7529 0.2157 0.2667));
+	border: 1px solid var(--error);
 
-	color: var(--error, #e40039);
-	color: var(--error, color(display-p3 0.7529 0.2157 0.2667));
-	font-family: Inter;
+	color: var(--error);
+	font-family: var(--primary-font-family);
 	font-size: 14px;
 	font-style: normal;
 	font-weight: 400;

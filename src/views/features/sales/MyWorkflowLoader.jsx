@@ -42,7 +42,7 @@ const MyWorkflowLoader = () => {
 								overflow: 'hidden',
 								color: '#e4e5e6',
 								textOverflow: 'ellipsis',
-								fontFamily: 'Inter',
+								fontFamily: 'var(--primary-font-family)',
 								fontSize: '14px',
 								fontStyle: 'normal',
 								fontWeight: '500',

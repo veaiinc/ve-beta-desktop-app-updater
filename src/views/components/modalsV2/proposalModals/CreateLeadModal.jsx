@@ -389,7 +389,7 @@ const CreateLead = ({ workflow, modalIsOpen, closeModal }) => {
 								onChangeFunc={(e) => onChangeSelectedSource(e)}
 								dropDownTextStyling={{
 									color: 'var(--nav-bar-button-text, #FFF)',
-									fontFamily: 'Inter',
+									fontFamily: 'var(--primary-font-family)',
 									fontSize: '12px',
 									fontStyle: 'normal',
 									fontWeight: '400',
@@ -429,7 +429,7 @@ const CreateLead = ({ workflow, modalIsOpen, closeModal }) => {
 								onChangeFunc={(e) => onChangeSelectedTemplate(e)}
 								dropDownTextStyling={{
 									color: 'var(--nav-bar-button-text, #FFF)',
-									fontFamily: 'Inter',
+									fontFamily: 'var(--primary-font-family)',
 									fontSize: '12px',
 									fontStyle: 'normal',
 									fontWeight: '400',
@@ -459,13 +459,13 @@ const CreateLead = ({ workflow, modalIsOpen, closeModal }) => {
 								containerStyle={{
 									height: '48px',
 									padding: '12px 14px',
-									color: '#e4e5e6',
+									color: 'var(--primary-font)',
 									width: 'inherit',
 									flex: 1,
 									alignSelf: 'stretch',
 									borderRadius: '0.625rem',
 									border: '1px solid rgba(36, 36, 36, 0.64)',
-									backgroundColor: '#151515',
+									backgroundColor: 'var(--background-color)',
 								}}
 								dropDownStyle={{
 									right: 0,
@@ -475,8 +475,8 @@ const CreateLead = ({ workflow, modalIsOpen, closeModal }) => {
 								}}
 								onChangeFunc={(e) => onChangeClientLists(e)}
 								dropDownTextStyling={{
-									color: 'var(--nav-bar-button-text, #FFF)',
-									fontFamily: 'Inter',
+									color: 'var(--primary-font)',
+									fontFamily: 'var(--primary-font-family)',
 									fontSize: '12px',
 									fontStyle: 'normal',
 									fontWeight: '400',
@@ -498,13 +498,13 @@ const CreateLead = ({ workflow, modalIsOpen, closeModal }) => {
 								containerStyle={{
 									height: '48px',
 									padding: '12px 14px',
-									color: '#e4e5e6',
+									color: 'var(--primary-font)',
 									width: 'inherit',
 									flex: 1,
 									alignSelf: 'stretch',
 									borderRadius: '0.625rem',
 									border: '1px solid rgba(36, 36, 36, 0.64)',
-									backgroundColor: '#151515',
+									backgroundColor: 'var(--background-color)',
 								}}
 								dropDownStyle={{
 									right: 0,
@@ -515,8 +515,8 @@ const CreateLead = ({ workflow, modalIsOpen, closeModal }) => {
 								}}
 								onChangeFunc={(e) => onChangeSelectedTemplate(e)}
 								dropDownTextStyling={{
-									color: 'var(--nav-bar-button-text, #FFF)',
-									fontFamily: 'Inter',
+									color: 'var(--primary-font)',
+									fontFamily: 'var(--primary-font-family)',
 									fontSize: '12px',
 									fontStyle: 'normal',
 									fontWeight: '400',

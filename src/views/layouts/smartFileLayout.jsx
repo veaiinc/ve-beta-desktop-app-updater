@@ -32,7 +32,7 @@ const SmartFileLayout = ({ title, children, hideQuickNav = false, showBottomTool
 				<VE />
 			</div>
 			{renewBanner && <RenewBanner />}
-			<SkeletonTheme baseColor={'#313131'} highlightColor={'#525252'}>
+			<SkeletonTheme baseColor={'var(--card)'} highlightColor={'var(--card-hover)'}>
 				<div className="childrenContainer">{children}</div>
 			</SkeletonTheme>
 

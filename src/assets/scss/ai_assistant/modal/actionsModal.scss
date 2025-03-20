@@ -6,8 +6,9 @@
 	align-items: flex-start;
 	gap: 20px;
 	border-radius: 32px;
-	background: #202123;
-	background: color(display-p3 0.1255 0.1294 0.1373);
+	background: var(--popup);
+	max-height: 80dvh;
+	overflow-y: auto;
 
 	&-header {
 		display: flex;
@@ -18,8 +19,8 @@
 		width: 100%;
 
 		h2 {
-			color: #f2f2f3;
-			font-family: Inter;
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
 			font-size: 20px;
 			font-style: normal;
 			font-weight: 500;
@@ -47,9 +48,8 @@
 		align-self: stretch;
 
 		h2 {
-			color: #f2f2f3;
-			color: color(display-p3 0.949 0.949 0.9529);
-			font-family: Inter;
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
 			font-size: 18px;
 			font-style: normal;
 			font-weight: 500;
@@ -57,8 +57,8 @@
 		}
 
 		p {
-			color: #797e86;
-			font-family: Inter;
+			color: var(--secondary-font);
+			font-family: var(--primary-font-family);
 			font-size: 12px;
 			font-style: normal;
 			font-weight: 500;
@@ -80,16 +80,16 @@
 				width: 24px;
 				height: 24px;
 				path {
-					stroke: #f2f2f3 !important;
+					stroke: var(--stroke) !important;
 				}
 			}
 
 			&:hover {
 				svg {
 					path {
-						stroke: #b12712 !important;
+						stroke: var(--error) !important;
 					}
-					filter: drop-shadow(0px 0px 1px #b12712cf);
+					filter: drop-shadow(0px 0px 1px var(--error));
 				}
 			}
 		}
@@ -109,22 +109,21 @@
 			align-items: center;
 			gap: 10px;
 			cursor: pointer;
-			color: #797e86;
-			color: color(display-p3 0.4784 0.4941 0.5216);
-			font-family: Inter;
+			color: var(--secondary-font);
+			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 500;
 			line-height: normal;
 		}
 		.active {
-			color: #f2f2f3;
-			font-family: Inter;
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 500;
 			line-height: normal;
-			border-bottom: 1px solid white;
+			border-bottom: 1px solid var(--stroke);
 		}
 	}
 
@@ -142,8 +141,8 @@
 			gap: 4px;
 
 			h2 {
-				color: #f2f2f3;
-				font-family: Inter;
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
 				font-size: 16px;
 				font-style: normal;
 				font-weight: 500;
@@ -151,8 +150,8 @@
 			}
 
 			p {
-				color: #797e86;
-				font-family: Inter;
+				color: var(--secondary-font);
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 500;
@@ -168,8 +167,8 @@
 			align-self: stretch;
 			padding: 12px;
 			border-radius: 14px;
-			border: 1px solid #2c2d2e;
-			background: #202123;
+			border: 1px solid var(--stroke);
+			background: var(--card-over-card);
 			max-height: 250px;
 			overflow-y: auto;
 
@@ -187,17 +186,17 @@
 					align-items: center;
 					gap: 8px;
 					border-radius: 14px;
-					border: 1px solid #2c2d2e;
-					background: #202123;
-					color: #f2f2f3;
-					font-family: Inter;
+					border: 1px solid var(--stroke);
+					background: var(--card-over-card);
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 500;
 					line-height: normal;
 
 					&::placeholder {
-						color: #797e86;
+						color: var(--secondary-font);
 					}
 				}
 
@@ -213,10 +212,10 @@
 						align-items: center;
 						align-self: stretch;
 						border-radius: 14px;
-						border: 1px solid #2c2d2e;
-						background: #202123;
-						color: #797e86;
-						font-family: Inter;
+						border: 1px solid var(--stroke);
+						background: var(--card-over-card);
+						color: var(--secondary-font);
+						font-family: var(--primary-font-family);
 						font-size: 12px;
 						font-style: normal;
 						font-weight: 500;
@@ -227,7 +226,7 @@
 							width: 16px;
 							height: 16px;
 							path {
-								stroke: #797e86;
+								stroke: var(--secondary-font);
 							}
 							&.open {
 								transform: rotate(180deg);
@@ -238,14 +237,14 @@
 
 					.actions-dropdown {
 						margin-top: 4px;
-						background: #292b2e;
+						background: var(--card-over-card);
 						border-radius: 14px;
 						padding: 6px;
 						width: 117px;
 
 						&-item {
 							padding: 6px;
-							color: #f2f2f3;
+							color: var(--primary-font);
 							font-size: 12px;
 							border-radius: 6px;
 							cursor: pointer;
@@ -254,7 +253,7 @@
 							align-items: center;
 
 							&:hover {
-								background: #383c3f;
+								background: var(--card-over-card-hover);
 							}
 						}
 					}
@@ -265,17 +264,17 @@
 					display: flex;
 					justify-content: center;
 					align-items: center;
-					background: #202123;
+					background: var(--card-over-card);
 					cursor: pointer;
 
 					.trash {
 						width: 18px;
 						height: 18px;
 						path {
-							stroke: #797e86 !important;
+							stroke: var(--stroke) !important;
 						}
 						&:hover path {
-							stroke: #ff4d4d !important;
+							stroke: var(--error) !important;
 						}
 					}
 				}
@@ -290,13 +289,13 @@
 				gap: 4px;
 				align-self: stretch;
 				border-radius: 14px;
-				border: 1px dashed #2c2d2e;
-				background: #202123;
+				border: 1px dashed var(--stroke);
+				background: var(--card-over-card);
 
 				p {
-					color: #797e86;
+					color: var(--secondary-font);
 					text-align: center;
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 500;
@@ -312,9 +311,9 @@
 				align-items: center;
 				gap: 6px;
 				border-radius: 8px;
-				background: #292b2e;
-				color: #f2f2f3;
-				font-family: Inter;
+				background: var(--card-over-card);
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 500;
@@ -323,14 +322,14 @@
 				cursor: pointer;
 
 				&:hover {
-					background: #383c3f;
+					background: var(--card-over-card-hover);
 				}
 
 				svg {
 					width: 16px;
 					height: 16px;
 					path {
-						stroke: #f2f2f3;
+						stroke: var(--primary-font);
 					}
 				}
 			}
@@ -346,9 +345,8 @@
 	align-items: center;
 	gap: 6px;
 	border-radius: 14px;
-	background: #292b2e;
+	background: var(--card-over-card);
 	min-width: 117px;
-	box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
 
 	&-item {
 		display: flex;
@@ -358,9 +356,9 @@
 		align-items: center;
 		gap: 10px;
 		border-radius: 6px;
-		background: #292b2e;
-		color: #f2f2f3;
-		font-family: Inter;
+		background: var(--card-over-card);
+		color: var(--primary-font);
+		font-family: var(--primary-font-family);
 		font-size: 12px;
 		font-style: normal;
 		font-weight: 400;
@@ -368,7 +366,7 @@
 		cursor: pointer;
 
 		&:hover {
-			background: #383c3f;
+			background: var(--card-over-card-hover);
 		}
 	}
 }
@@ -376,7 +374,7 @@
 .actions-dropdown-selected {
 	width: 114px;
 	border-radius: 14px;
-	border: 1px solid #2c2d2e;
+	border: 1px solid var(--stroke);
 
 	display: flex;
 	height: 44px;
@@ -385,8 +383,8 @@
 	align-items: center;
 	flex-shrink: 0;
 	align-self: stretch;
-	color: #797e86;
-	font-family: Inter;
+	color: var(--secondary-font);
+	font-family: var(--primary-font-family);
 	font-size: 12px;
 	font-style: normal;
 	font-weight: 500;
@@ -417,17 +415,17 @@
 			gap: 8px;
 			align-self: stretch;
 			border-radius: 14px;
-			border: 1px solid #2c2d2e;
-			background: #202123;
-			color: #f2f2f3;
-			font-family: Inter;
+			border: 1px solid var(--stroke);
+			background: var(--card-over-card);
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
 			font-size: 12px;
 			font-style: normal;
 			font-weight: 500;
 			line-height: normal;
 
 			&::placeholder {
-				color: #797e86;
+				color: var(--secondary-font);
 			}
 		}
 
@@ -438,21 +436,21 @@
 			width: 100%;
 			max-height: 200px;
 			overflow-y: auto;
-			background: #2c2d2e;
-			border: 1px solid #3a3b3c;
+			background: var(--card-over-card);
+			border: 1px solid var(--stroke);
 			border-radius: 8px;
 			margin-top: 4px;
 			z-index: 1000;
 
 			.variableSuggestion {
 				padding: 8px 12px;
-				color: #f2f2f3;
+				color: var(--primary-font);
 				cursor: pointer;
 				transition: background-color 0.2s ease;
 				font-size: 12px;
 
 				&:hover {
-					background: #3a3b3c;
+					background: var(--card-over-card-hover);
 				}
 			}
 		}
@@ -470,8 +468,8 @@
 				flex: 1 0 0;
 
 				&-label {
-					color: #797e86;
-					font-family: Inter;
+					color: var(--secondary-font);
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 500;
@@ -487,10 +485,10 @@
 					align-items: center;
 					align-self: stretch;
 					border-radius: 14px;
-					border: 1px solid #2c2d2e;
-					background: #202123;
-					color: #797e86;
-					font-family: Inter;
+					border: 1px solid var(--stroke);
+					background: var(--card-over-card);
+					color: var(--secondary-font);
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 500;
@@ -501,7 +499,7 @@
 						width: 16px;
 						height: 16px;
 						path {
-							stroke: #797e86;
+							stroke: var(--secondary-font);
 						}
 						&.open {
 							transform: rotate(180deg);
@@ -521,7 +519,7 @@
 	gap: 8px;
 	align-self: stretch;
 	width: 100%;
-	border: 1px solid #2c2d2e;
+	border: 1px solid var(--stroke);
 	padding: 12px;
 	border-radius: 14px;
 	max-height: 250px;
@@ -536,8 +534,8 @@
 
 		div {
 			flex: 1;
-			color: #797e86;
-			font-family: Inter;
+			color: var(--secondary-font);
+			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-weight: 500;
 			line-height: normal;
@@ -568,17 +566,17 @@
 				align-items: center;
 				gap: 8px;
 				border-radius: 14px;
-				border: 1px solid #2c2d2e;
-				background: #202123;
-				color: #f2f2f3;
-				font-family: Inter;
+				border: 1px solid var(--stroke);
+				background: var(--card-over-card);
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 500;
 				line-height: normal;
 
 				&::placeholder {
-					color: #797e86;
+					color: var(--secondary-font);
 				}
 			}
 		}
@@ -596,7 +594,7 @@
 				width: 20px;
 				height: 20px;
 				path {
-					stroke: #ff4d4d !important;
+					stroke: var(--error) !important;
 				}
 			}
 		}
@@ -609,9 +607,9 @@
 		align-items: center;
 		gap: 6px;
 		border-radius: 8px;
-		background: #292b2e;
-		color: #f2f2f3;
-		font-family: Inter;
+		background: var(--card-over-card);
+		color: var(--primary-font);
+		font-family: var(--primary-font-family);
 		font-size: 12px;
 		font-style: normal;
 		font-weight: 500;
@@ -620,14 +618,14 @@
 		cursor: pointer;
 
 		&:hover {
-			background: #383c3f;
+			background: var(--card-over-card-hover);
 		}
 
 		svg {
 			width: 16px;
 			height: 16px;
 			path {
-				stroke: #f2f2f3;
+				stroke: var(--primary-font);
 			}
 		}
 	}
@@ -641,13 +639,13 @@
 		gap: 4px;
 		align-self: stretch;
 		border-radius: 14px;
-		border: 1px dashed #2c2d2e;
-		background: #202123;
+		border: 1px dashed var(--stroke);
+		background: var(--card-over-card);
 
 		p {
-			color: #797e86;
+			color: var(--secondary-font);
 			text-align: center;
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 12px;
 			font-style: normal;
 			font-weight: 500;
@@ -666,8 +664,8 @@
 	position: relative;
 
 	div {
-		color: #797e86;
-		font-family: Inter;
+		color: var(--secondary-font);
+		font-family: var(--primary-font-family);
 		font-size: 14px;
 		font-weight: 500;
 		line-height: normal;
@@ -681,10 +679,10 @@
 		gap: 8px;
 		align-self: stretch;
 		border-radius: 14px;
-		border: 1px solid #2c2d2e;
-		background: #202123;
-		color: #f2f2f3;
-		font-family: Inter;
+		border: 1px solid var(--stroke);
+		background: var(--card-over-card);
+		color: var(--primary-font);
+		font-family: var(--primary-font-family);
 		font-size: 14px;
 		font-style: normal;
 		font-weight: 500;
@@ -692,13 +690,12 @@
 		resize: none;
 
 		&::placeholder {
-			color: #797e86;
+			color: var(--secondary-font);
 		}
 	}
 
 	.bodyInputHelperText {
-		// color: #797e86;
-		color: #9ba1ab;
+		color: var(--secondary-font);
 		font-size: 12px;
 		font-weight: 700;
 	}
@@ -710,20 +707,20 @@
 		width: 100%;
 		max-height: 200px;
 		overflow-y: auto;
-		background: #2c2d2e;
-		border: 1px solid #3a3b3c;
+		background: var(--card-over-card);
+		border: 1px solid var(--stroke);
 		border-radius: 8px;
 		margin-top: 4px;
 		z-index: 1000;
 
 		.variableSuggestion {
 			padding: 8px 12px;
-			color: #f2f2f3;
+			color: var(--primary-font);
 			cursor: pointer;
 			transition: background-color 0.2s ease;
 
 			&:hover {
-				background: #3a3b3c;
+				background: var(--card-over-card-hover);
 			}
 		}
 	}

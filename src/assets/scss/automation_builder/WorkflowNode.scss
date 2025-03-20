@@ -15,7 +15,7 @@
 		align-items: flex-start;
 		gap: 16px;
 		border-radius: var(--Spacing-m, 14px);
-		background: var(--ve-ai-dark-theme-pop-up-color, #202123);
+		background: var(--card);
 		height: 94px;
 		position: relative;
 		z-index: 8;
@@ -55,13 +55,13 @@
 .connector {
 	width: 2px;
 	height: 40px;
-	background: #333334;
+	background: var(--stroke);
 	margin: 8px 0;
 }
 .conditionConnector {
 	width: 1px;
 	height: 90px;
-	background: #333334;
+	background: var(--stroke);
 }
 .condition-branches {
 	width: max-content; // Changed from 100%
@@ -94,11 +94,11 @@
 					align-items: center;
 					gap: 16px;
 					border-radius: 14px;
-					background: var(--ve-ai-dark-theme-pop-up-color, #202123);
-					color: var(--ve-ai-dark-theme-primary-font-color, #e8e8e8);
+					background: var(--card);
+					color: var(--primary-font);
 
 					/* Body/Body - 12 px */
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 500;
@@ -108,7 +108,7 @@
 				.yes-right-seperator {
 					flex: 1;
 					height: 1px;
-					background: #333334;
+					background: var(--stroke);
 				}
 			}
 		}
@@ -142,11 +142,11 @@
 					align-items: center;
 					gap: 16px;
 					border-radius: 14px;
-					background: var(--ve-ai-dark-theme-pop-up-color, #202123);
-					color: var(--ve-ai-dark-theme-primary-font-color, #e8e8e8);
+					background: var(--card);
+					color: var(--primary-font);
 
 					/* Body/Body - 12 px */
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 500;
@@ -155,7 +155,7 @@
 				.right-seperator {
 					flex: 1;
 					height: 1px;
-					background: #333334;
+					background: var(--stroke);
 				}
 			}
 		}

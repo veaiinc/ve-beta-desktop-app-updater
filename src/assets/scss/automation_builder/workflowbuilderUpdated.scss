@@ -33,16 +33,16 @@
 				align-self: stretch;
 				flex: 1;
 				.builderHeaderText {
-					color: #e4e5e6;
-					font-family: Inter;
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
 					font-size: 16px;
 					font-style: normal;
 					font-weight: 500;
 					line-height: 24px; /* 150% */
 				}
 				.headerSubText {
-					color: rgba(228, 229, 230, 0.48);
-					font-family: Inter;
+					color: var(--secondary-font);
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 500;
@@ -57,8 +57,8 @@
 				gap: 4px;
 				border-radius: 4px;
 				background: rgba(176, 176, 176, 0.16);
-				color: #e4e5e6;
-				font-family: Inter;
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
 				font-size: 10px;
 				font-style: normal;
 				font-weight: 500;
@@ -78,8 +78,8 @@
 				padding-right: 0px;
 				justify-content: center;
 				align-items: center;
-				color: rgba(228, 229, 230, 0.64);
-				font-family: Inter;
+				color: var(--secondary-font);
+				font-family: var(--primary-font-family);
 				font-size: 13px;
 				font-style: normal;
 				font-weight: 500;
@@ -88,7 +88,7 @@
 				cursor: pointer;
 			}
 			.discardBtn:hover {
-				color: #e4e5e6;
+				color: var(--primary-font);
 			}
 
 			.saveChangesbtn {
@@ -100,8 +100,8 @@
 				border-radius: 100px;
 				border: 1px solid rgba(36, 36, 36, 0.64);
 				background: rgba(42, 42, 42, 0.16);
-				color: #e4e5e6;
-				font-family: Inter;
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
 				font-size: 13px;
 				font-style: normal;
 				font-weight: 500;
@@ -135,10 +135,9 @@
 		align-items: center;
 		gap: 32px;
 		.workflowBuilderNameContainer {
-			color: #e8e8e8;
-			color: color(display-p3 0.9098 0.9098 0.9098);
+			color: var(--primary-font);
 			text-align: center;
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 20px;
 			font-style: normal;
 			font-weight: 500;
@@ -153,12 +152,8 @@
 			align-self: stretch;
 
 			.stagesSubTextStyling {
-				color: var(--ve-ai-dark-theme-secondary-color, #939393);
-				color: var(
-					--ve-ai-dark-theme-secondary-color,
-					color(display-p3 0.5755 0.5755 0.5755)
-				);
-				font-family: Inter;
+				color: var(--secondary-font);
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 500;
@@ -178,19 +173,11 @@
 					justify-content: space-between;
 					align-items: flex-start;
 					border-radius: 14px;
-					background: var(--ve-ai-dark-theme-pop-up-color, #202123);
-					background: var(
-						--ve-ai-dark-theme-pop-up-color,
-						color(display-p3 0.1249 0.1304 0.1358)
-					);
-					color: var(--ve-ai-dark-theme-primary-font-color, #e8e8e8);
-					color: var(
-						--ve-ai-dark-theme-primary-font-color,
-						color(display-p3 0.9098 0.9098 0.9098)
-					);
+					background: var(--card);
+					color: var(--primary-font);
 
 					/* Body/Body - 12 px */
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 500;
@@ -209,11 +196,11 @@
 
 		&::-webkit-scrollbar {
 			height: 8px;
-			background: rgba(255, 255, 255, 0.1);
+			background: var(--stroke);
 		}
 
 		&::-webkit-scrollbar-thumb {
-			background: rgba(255, 255, 255, 0.2);
+			background: var(--stroke);
 			border-radius: 4px;
 		}
 
@@ -230,10 +217,10 @@
 		display: flex;
 		flex-direction: column;
 		gap: 8px;
-		background: #202123;
+		background: var(--card);
 		padding: 8px;
 		border-radius: 8px;
-		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+		box-shadow: 0 2px 8px var(--stroke);
 		z-index: 1000;
 		align-items: center;
 
@@ -241,9 +228,9 @@
 			width: 32px;
 			height: 32px;
 			border-radius: 4px;
-			border: 1px solid rgba(36, 36, 36, 0.64);
-			background: rgba(42, 42, 42, 0.32);
-			color: #e4e5e6;
+			border: 1px solid var(--stroke);
+			background: var(--card);
+			color: var(--primary-font);
 			font-size: 18px;
 			cursor: pointer;
 			display: flex;
@@ -256,12 +243,12 @@
 			}
 
 			&:hover:not(:disabled) {
-				background: rgba(42, 42, 42, 0.5);
+				background: var(--card-over-card-hover);
 			}
 		}
 
 		.zoom-level {
-			color: #e4e5e6;
+			color: var(--primary-font);
 			font-size: 12px;
 			text-align: center;
 			padding: 4px 0;

@@ -5,7 +5,7 @@
 	align-items: flex-start;
 	gap: 24px;
 	border-radius: 8px;
-	background: #191919;
+	background: var(--background-color);
 	box-shadow: 0px 4px 20px 0px rgba(224, 224, 224, 0.07);
 
 	.uploadLogoContentContainer {
@@ -28,8 +28,8 @@
 				gap: var(--Spacing-space-3, 4px);
 				align-self: stretch;
 				.uploadLogoNotificationHeader {
-					color: #f8587e;
-					font-family: Inter;
+					color: var(--error);
+					font-family: var(--primary-font-family);
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 500;
@@ -37,8 +37,8 @@
 					letter-spacing: -0.28px;
 				}
 				.uploadLogoNotificationHeaderSubText {
-					color: rgba(255, 255, 255, 0.48);
-					font-family: Inter;
+					color: var(--secondary-font);
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 400;
@@ -58,8 +58,8 @@
 					gap: 10px;
 					border-radius: 8px;
 					border: 1px solid #464646;
-					color: #fff;
-					font-family: Inter;
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 400;
@@ -68,8 +68,8 @@
 					cursor: pointer;
 				}
 				.mayBeLaterButton {
-					color: #f8587e;
-					font-family: Inter;
+					color: var(--error);
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 400;
