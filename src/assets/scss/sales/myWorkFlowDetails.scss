@@ -14,8 +14,8 @@
 			gap: 0.5rem;
 
 			p {
-				color: #e4e5e6;
-				font-family: 'Inter';
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
 				font-size: 0.875rem;
 				font-style: normal;
 				font-weight: 500;
@@ -25,7 +25,7 @@
 				span {
 					color: #6055ec;
 					text-align: right;
-					font-family: 'Inter';
+					font-family: var(--primary-font-family);
 					font-size: 0.875rem;
 					font-style: normal;
 					font-weight: 500;
@@ -54,11 +54,11 @@
 				flex: 1 0 0;
 
 				border-radius: 6.25rem;
-				border: 1px solid rgba(36, 36, 36, 0.64);
+				border: 1px solid var(--stroke);
 				background: rgba(42, 42, 42, 0.16);
 
-				color: #e4e5e6;
-				font-family: 'Inter';
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
 				font-size: 0.9375rem;
 				font-style: normal;
 				font-weight: 500;
@@ -96,9 +96,9 @@
 			align-self: stretch;
 
 			.mainText {
-				color: #e4e5e6;
+				color: var(--primary-font);
 				text-align: center;
-				font-family: 'Inter';
+				font-family: var(--primary-font-family);
 				font-size: 1.125rem;
 				font-style: normal;
 				font-weight: 500;
@@ -106,9 +106,9 @@
 			}
 
 			.subText {
-				color: #b0b0b0;
+				color: var(--secondary-font);
 				text-align: center;
-				font-family: 'Inter';
+				font-family: var(--primary-font-family);
 				font-size: 0.8125rem;
 				font-style: normal;
 				font-weight: 400;
@@ -136,8 +136,8 @@
 		border-top-left-radius: 1rem;
 		border-top-right-radius: 1rem;
 
-		border: 1px solid rgba(36, 36, 36, 0.64);
-		background: #1e1f20;
+		border: 1px solid var(--stroke);
+		background: var(--background-color);
 
 		.status {
 			display: flex;
@@ -155,8 +155,8 @@
 				p {
 					align-items: center;
 					justify-items: center;
-					color: rgba(228, 229, 230, 0.64);
-					font-family: 'Inter';
+					color: var(--secondary-font);
+					font-family: var(--primary-font-family);
 					font-size: 0.8125rem;
 					font-style: normal;
 					font-weight: 500;
@@ -178,8 +178,8 @@
 					gap: 0.625rem;
 
 					border-radius: 6.25rem;
-					border: 1px solid rgba(36, 36, 36, 0.64);
-					background: rgba(42, 42, 42, 0.32);
+					border: 1px solid var(--stroke);
+					background: var(--background-color);
 
 					cursor: pointer;
 				}
@@ -204,12 +204,12 @@
 				height: 2rem;
 
 				border-radius: 6.25rem;
-				background: rgba(42, 42, 42, 0.64);
+				background: var(--background-color);
 
 				p {
-					color: #e4e5e6;
+					color: var(--primary-font);
 					text-align: center;
-					font-family: 'Inter';
+					font-family: var(--primary-font-family);
 					font-size: 0.8125rem;
 					font-style: normal;
 					font-weight: 500;
@@ -225,16 +225,16 @@
 				flex: 1 0 0;
 
 				.fullName {
-					color: #e4e5e6;
-					font-family: 'Inter';
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
 					font-size: 0.8125rem;
 					font-style: normal;
 					font-weight: 500;
 					line-height: 1.3125rem; /* 161.538% */
 				}
 				.username {
-					color: rgba(228, 229, 230, 0.48);
-					font-family: 'Inter';
+					color: var(--secondary-font);
+					font-family: var(--primary-font-family);
 					font-size: 0.6875rem;
 					font-style: normal;
 					font-weight: 500;
@@ -244,8 +244,8 @@
 			}
 			.cost {
 				p {
-					color: #e4e5e6;
-					font-family: 'Inter';
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
 					font-size: 0.9375rem;
 					font-style: normal;
 					font-weight: 500;
@@ -255,17 +255,17 @@
 		}
 	}
 	.bottomLayer {
-		border-top: 1px solid rgba(36, 36, 36, 0.64);
+		border-top: 1px solid var(--stroke);
 		display: flex;
 		padding: 0.75rem 1rem;
 		justify-content: space-between;
 		align-items: center;
 		align-self: stretch;
 
-		background: rgba(42, 42, 42, 0.24);
+		background: var(--card);
 		border-bottom-left-radius: 1rem;
 		border-bottom-right-radius: 1rem;
-		border: 1px solid rgba(36, 36, 36, 0.64);
+		border: 1px solid var(--stroke);
 
 		.createdUserDetails {
 			display: flex;
@@ -280,9 +280,9 @@
 				border-radius: 6.25rem;
 				background: rgba(42, 42, 42, 0.64);
 
-				color: #e4e5e6;
+				color: var(--primary-font);
 				text-align: center;
-				font-family: 'Inter';
+				font-family: var(--primary-font-family);
 				font-size: 0.5rem;
 				font-style: normal;
 				font-weight: 500;
@@ -290,8 +290,8 @@
 			}
 
 			.fullName {
-				color: rgba(228, 229, 230, 0.64);
-				font-family: 'Inter';
+				color: var(--secondary-font);
+				font-family: var(--primary-font-family);
 				font-size: 0.75rem;
 				font-style: normal;
 				font-weight: 400;
@@ -308,7 +308,7 @@
 			p {
 				color: #6055ec;
 				text-align: right;
-				font-family: 'Inter';
+				font-family: var(--primary-font-family);
 				font-size: 0.75rem;
 				font-style: normal;
 				font-weight: 500;
@@ -348,9 +348,9 @@
 			align-self: stretch;
 
 			overflow: hidden;
-			color: #e4e5e6;
+			color: var(--primary-font);
 			text-overflow: ellipsis;
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 0.875rem;
 			font-style: normal;
 			font-weight: 400;
@@ -384,7 +384,7 @@
 
 		.title {
 			color: #e4e5e6;
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 1.125rem;
 			font-style: normal;
 			font-weight: 500;
@@ -403,7 +403,7 @@
 
 	.modalDescription {
 		color: rgba(228, 229, 230, 0.48);
-		font-family: 'Inter';
+		font-family: var(--primary-font-family);
 		font-size: 0.75rem;
 		font-style: normal;
 		font-weight: 500;
@@ -433,7 +433,7 @@
 
 			p {
 				color: #e4e5e6;
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 0.6875rem;
 				font-style: normal;
 				font-weight: 500;
@@ -456,7 +456,7 @@
 
 			p {
 				color: #e4e5e6;
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 0.75rem;
 				font-style: normal;
 				font-weight: 500;
@@ -488,7 +488,7 @@
 		.headingText {
 			width: 95%;
 			color: #e4e5e6;
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 1.125rem;
 			font-style: normal;
 			font-weight: 500;
@@ -520,7 +520,7 @@
 
 			p {
 				color: #e4e5e6;
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 0.8125rem;
 				font-style: normal;
 				font-weight: 500;
@@ -531,7 +531,7 @@
 
 		.cancelText {
 			color: rgba(228, 229, 230, 0.64);
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 0.8125rem;
 			font-style: normal;
 			font-weight: 500;

@@ -15,8 +15,8 @@
 		align-self: stretch;
 
 		.label {
-			color: #b0b0b0;
-			font-family: Inter;
+			color: var(--secondary-font);
+			font-family: var(--primary-font-family);
 			font-size: 0.6875rem;
 			font-style: normal;
 			font-weight: 400;
@@ -24,8 +24,8 @@
 		}
 
 		.errorMessage {
-			color: #cc5756;
-			font-family: Inter;
+			color: var(--error);
+			font-family: var(--primary-font-family);
 			font-size: 0.6875rem;
 			font-style: normal;
 			font-weight: 400;
@@ -44,10 +44,10 @@
 		align-self: stretch;
 
 		border-radius: 0.625rem;
-		border: 1px solid rgba(36, 36, 36, 0.64);
+		border: 1px solid var(--stroke);
 
-		color: #e4e5e6;
-		font-family: 'Inter';
+		color: var(--primary-font);
+		font-family: var(--primary-font-family);
 		font-size: 0.875rem;
 		font-style: normal;
 		font-weight: 400;
@@ -61,7 +61,7 @@
 		resize: vertical;
 
 		.placeholder {
-			color: #aaa;
+			color: var(--secondary-font);
 		}
 	}
 
@@ -75,24 +75,24 @@
 		padding: 0 0.875rem;
 
 		border-radius: 0.625rem;
-		border: 1px solid rgba(36, 36, 36, 0.64);
+		border: 1px solid var(--stroke);
 
 		.symbol {
-			color: rgba(228, 229, 230, 0.8);
-			font-family: 'Inter';
+			color: var(--secondary-font);
+			font-family: var(--primary-font-family);
 			font-size: 0.875rem;
 			font-style: normal;
 			font-weight: 400;
 		}
 
 		.increments {
-			color: #6055ec;
+			color: var(--primary-button);
 			cursor: pointer;
 		}
 
 		input {
-			color: #e4e5e6;
-			font-family: 'Inter';
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
 			font-size: 0.875rem;
 			font-style: normal;
 			font-weight: 400;
@@ -109,19 +109,19 @@
 			width: 100%;
 
 			select {
-				color: #000000;
-				background-color: #ffffff;
+				color: var(--primary-font);
+				background-color: var(--card);
 
 				option {
-					color: #000000;
-					background-color: #ffffff;
+					color: var(--primary-font);
+					background-color: var(--card);
 				}
 			}
 		}
 	}
 
 	.inputBoxError {
-		border: 1px solid rgba(204, 87, 86, 0.48);
+		border: 1px solid var(--error);
 	}
 }
 
@@ -145,7 +145,7 @@
 		left: 0;
 		right: 0;
 		bottom: 0;
-		background-color: #ccc;
+		background-color: var(--stroke);
 		transition: 0.4s;
 		border-radius: 34px;
 	}
@@ -157,13 +157,13 @@
 		width: 1rem;
 		left: 0.2rem;
 		bottom: 0.12rem;
-		background-color: white;
+		background-color: var(--primary-font);
 		transition: 0.4s;
 		border-radius: 50%;
 	}
 
 	input:checked + .slider {
-		background-color: #6055ec;
+		background-color: var(--accent-color);
 	}
 
 	input:checked + .slider:before {

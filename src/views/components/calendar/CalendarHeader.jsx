@@ -8,6 +8,8 @@ import WeekHeader from './WeekHeader';
 import DayHeader from './DaysHeader';
 import WeekDayHeader from './WeekDayHeader';
 import moment from 'moment';
+import LeftSvg from '../../../assets/svg/activity/LeftSvg';
+import RightSvg from '../../../assets/svg/activity/RightSvg';
 
 const MIN_YEAR = 1990;
 const MAX_YEAR = 2050;
@@ -114,6 +116,8 @@ const CalendarHeader = ({
 						<div className="calendarDate">
 							<Left onClick={() => goToPrevious(label)} />
 							<Right onClick={() => goToNext(label)} />
+							{/* <LeftSvg onClick={() => goToPrevious(label)} /> */}
+							{/* <RightSvg onClick={() => goToNext(label)} /> */}
 							{label}
 						</div>
 						<div className="viewToggleWrapper">
@@ -134,16 +138,16 @@ const CalendarHeader = ({
 							</div>
 						</div>
 						{/* wrokflow and team dropdown */}
-						<div className="calendarHeaderRight">
+						{/* <div className="calendarHeaderRight">
 							<WorkflowDropDown
 								selectedWorkflowId={selectedWorkflowId}
 								updateCalendarInfo={updateCalendarInfo}
 							/>
-							{/* <div className="dropDown">
+							<div className="dropDown">
 								<span>Team</span>
 								<Down />
-							</div> */}
-						</div>
+							</div>
+						</div> */}
 					</div>
 
 					{/* Render the active calendar day Header */}

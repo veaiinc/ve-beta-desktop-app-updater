@@ -6,7 +6,7 @@
 	align-items: flex-start;
 	gap: 12px;
 	border-radius: 14px;
-	background: #202123;
+	background: var(--popup);
 
 	&-header {
 		display: flex;
@@ -16,12 +16,12 @@
 		width: 100%;
 		padding: 0 8px;
 		padding-bottom: 12px;
-		border-bottom: 1px solid #343538;
+		border-bottom: 1px solid var(--stroke);
 
 		&-title {
 			flex-grow: 1;
-			color: #f2f2f3;
-			font-family: Inter;
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
 			font-size: 12px;
 			font-style: normal;
 			font-weight: 500;
@@ -45,13 +45,13 @@
 			align-items: center;
 			gap: 4px;
 			border-radius: 7px;
-			border: 1px solid #333334;
+			border: 1px solid var(--stroke);
 			cursor: pointer;
 			transition: all 0.3s ease;
 			&-title {
-				color: #787e87;
+				color: var(--secondary-font);
 				text-align: center;
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 500;
@@ -65,9 +65,9 @@
 			}
 
 			&:hover {
-				background: #333334;
+				background: var(--card);
 				.layout-drop-down-body-item-title {
-					color: #f2f2f3;
+					color: var(--primary-font);
 				}
 				svg {
 					opacity: 1;
@@ -75,9 +75,9 @@
 			}
 		}
 		.active-layout {
-			border-color: #f2f2f3;
+			border-color: var(--primary-font);
 			.layout-drop-down-body-item-title {
-				color: #f2f2f3;
+				color: var(--primary-font);
 			}
 			svg {
 				opacity: 1;

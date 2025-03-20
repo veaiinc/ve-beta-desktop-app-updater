@@ -5,12 +5,10 @@
 	justify-content: center;
 	gap: 6px;
 	border-radius: 100px;
-	background: #2c2e30;
-	background: color(display-p3 0.1725 0.1804 0.1882);
+	background: var(--card);
 
-	color: #f2f2f3;
-	color: color(display-p3 0.949 0.949 0.9529);
-	font-family: Inter;
+	color: var(--primary-font);
+	font-family: var(--primary-font-family);
 	font-size: 14px;
 	font-style: normal;
 	font-weight: 500;
@@ -35,16 +33,14 @@
 		justify-content: flex-start;
 
 		border-radius: 32px;
-		background: #171819;
-		background: color(display-p3 0.0902 0.0941 0.098);
+		background: var(--card);
 
 		.ai-playground-header {
 			// margin-bottom: 50px;
 
 			padding: 20px;
-			color: #f2f2f3;
-			color: color(display-p3 0.949 0.949 0.9529);
-			font-family: Inter;
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
 			font-size: 40px;
 			font-style: normal;
 			font-weight: 500;

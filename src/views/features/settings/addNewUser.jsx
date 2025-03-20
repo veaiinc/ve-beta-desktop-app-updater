@@ -310,7 +310,7 @@ const AddNewUserModal = (props) => {
 							<div
 								style={{
 									fontSize: '16px',
-									fontStyle: 'Inter',
+									fontStyle: 'var(--primary-font-family)',
 									color: '#e4e5e6',
 								}}
 							>
@@ -319,7 +319,7 @@ const AddNewUserModal = (props) => {
 							<div
 								style={{
 									fontSize: '13px',
-									fontStyle: 'Inter',
+									fontStyle: 'var(--primary-font-family)',
 									color: '#a6a6a6',
 								}}
 							>
@@ -448,7 +448,7 @@ const AddNewUserModal = (props) => {
 								// marginTop: '1rem',
 								// display: 'inline-block',
 								fontSize: '13px',
-								fontFamily: 'Inter',
+								fontFamily: 'var(--primary-font-family)',
 								textAlign: 'center',
 							}}
 							onClick={InviteNewUser}

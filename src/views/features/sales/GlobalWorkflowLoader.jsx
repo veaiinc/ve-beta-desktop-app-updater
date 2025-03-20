@@ -39,7 +39,7 @@ const GlobalWorkflowLoader = () => {
 						<span
 							style={{
 								color: '#e4e5e6',
-								fontFamily: 'Inter',
+								fontFamily: 'var(--primary-font-family)',
 								fontSize: '18px',
 								fontStyle: 'normal',
 								fontWeight: '500',
@@ -51,7 +51,7 @@ const GlobalWorkflowLoader = () => {
 						<span
 							style={{
 								color: 'rgba(228, 229, 230, 0.48)',
-								fontFamily: 'Inter',
+								fontFamily: 'var(--primary-font-family)',
 								fontSize: '14px',
 								fontStyle: 'normal',
 								fontWeight: '400',

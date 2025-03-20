@@ -1,0 +1,30 @@
+import React, { memo } from 'react';
+
+const PlusSvg = () => {
+	return (
+		<svg
+			xmlns="http://www.w3.org/2000/svg"
+			width="21"
+			height="21"
+			viewBox="0 0 21 21"
+			fill="none"
+		>
+			<path
+				d="M5.36182 10.3975H16.6118"
+				stroke="var(--primary-font)"
+				strokeWidth="1.25"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+			<path
+				d="M10.9868 16.0225L10.9868 4.77246"
+				stroke="var(--primary-font)"
+				strokeWidth="1.25"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+		</svg>
+	);
+};
+
+export default memo(PlusSvg);

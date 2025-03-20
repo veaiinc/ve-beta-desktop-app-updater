@@ -394,13 +394,13 @@ const ShareModal = ({
 						You can share your gallery and manage Gallery Protection
 					</p>
 				</div>
-				<p className="line"></p>
+				{/* <p className="line"></p> */}
 				<div className="galleryLinkContainer">
 					<p>Gallery link</p>
 					<div className="galleryLinkInputContainer">
 						<div className="galleryLinkInput">
 							<input
-								placeholder="tussgabscgausgcharxyz//ail.com"
+								placeholder="businessname.ve.ai/gallery/galleryname"
 								disabled
 								value={info?.galleryLink}
 								// value={`https://${workspaceId}.ve.ai/gallery/${activeGallery?.slug}`}
@@ -427,7 +427,7 @@ const ShareModal = ({
 						</div> */}
 					</div>
 				</div>
-				<p className="line"></p>
+				{/* <p className="line"></p> */}
 				<div className="optionsContainer">
 					{/* <div className="optionsToggleContainer">
 						<ToggleSlider

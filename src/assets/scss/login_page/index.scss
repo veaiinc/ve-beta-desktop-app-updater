@@ -4,7 +4,7 @@
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	background: linear-gradient(180deg, #0e0f0f 0%, #19191b 100%);
+	background: var(--background-color);
 	position: relative;
 
 	.cookies-notice {
@@ -16,8 +16,8 @@
 		left: 50%;
 		transform: translateX(-50%);
 		border-radius: 14px;
-		border: 1px solid #333334;
-		background: #191a1b;
+		border: 1px solid var(--stroke);
+		background: var(--background-color);
 		padding: 24px;
 		display: flex;
 		align-items: center;
@@ -36,8 +36,8 @@
 			}
 
 			p {
-				color: #e8e8e8;
-				font-family: Inter;
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 500;
@@ -55,7 +55,7 @@
 			padding: 12px 18px;
 			border-radius: 50px;
 			background: #fff;
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 12px;
 			font-style: normal;
 			font-weight: 500;
@@ -98,9 +98,9 @@
 				gap: 12px;
 
 				.login-page-subtitle {
-					color: rgba(255, 255, 255, 0.56);
+					color: var(--secondary-font);
 					text-align: center;
-					font-family: Brasley;
+					font-family: var(--secondary-font-family);
 					font-size: 20px;
 					font-style: normal;
 					font-weight: 500;
@@ -116,7 +116,7 @@
 						background-clip: text;
 						-webkit-background-clip: text;
 						-webkit-text-fill-color: transparent;
-						font-family: Brasley;
+						font-family: var(--secondary-font-family);
 						font-size: 20px;
 						font-style: normal;
 						font-weight: 500;
@@ -125,9 +125,9 @@
 				}
 
 				.login-page-title {
-					color: #fff;
+					color: var(--primary-font);
 					text-align: center;
-					font-family: Brasley;
+					font-family: var(--secondary-font-family);
 					font-size: 32px;
 					font-style: normal;
 					font-weight: 600;
@@ -139,15 +139,15 @@
 
 			.login-page-title {
 				width: 100%;
-				color: #fff;
-				font-family: Brasley;
+				color: var(--primary-font);
+				font-family: var(--secondary-font-family);
 				font-size: 32px;
 				font-style: normal;
 				font-weight: 500;
 				line-height: normal;
 
 				span {
-					color: rgba(255, 255, 255, 0.5);
+					color: var(--secondary-font);
 					font-size: 32px;
 					font-style: normal;
 					font-weight: 500;
@@ -167,9 +167,9 @@
 					gap: 16px;
 					border-radius: 60px;
 					border: none;
-					background: rgba(255, 255, 255, 0.05);
-					color: rgba(255, 255, 255, 0.8);
-					font-family: Brasley;
+					background: var(--card);
+					color: var(--primary-font);
+					font-family: var(--secondary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 500;
@@ -178,8 +178,8 @@
 					transition: all 0.3s ease;
 
 					&:hover {
-						background: white;
-						color: rgba(0, 0, 0, 0.8);
+						background: var(--primary-font);
+						color: var(--background-color);
 					}
 				}
 
@@ -192,8 +192,8 @@
 					width: 100%;
 
 					span {
-						color: rgba(255, 255, 255, 0.5);
-						font-family: Brasley;
+						color: var(--secondary-font);
+						font-family: var(--secondary-font-family);
 						font-size: 12px;
 						font-style: normal;
 						font-weight: 500;
@@ -203,7 +203,7 @@
 					.line {
 						width: 141.5px;
 						height: 0.5px;
-						background-color: rgba(91, 91, 91, 0.5);
+						background-color: var(--stroke);
 					}
 				}
 
@@ -215,18 +215,18 @@
 					height: 45px;
 					gap: 12px;
 					border-radius: 60px;
-					background: rgba(255, 255, 255, 0.05);
+					background: var(--card);
 
 					input {
 						padding: 14px 24px;
 						width: 75%;
 						border: none;
 						background-color: transparent;
-						color: #fff;
+						color: var(--primary-font);
 					}
 					button {
 						border-radius: 60px;
-						background: rgba(255, 255, 255, 0.1);
+						background: var(--card-over-card);
 						height: 45px;
 						padding: 14px 24px;
 						border: none;
@@ -237,7 +237,7 @@
 						justify-content: center;
 
 						&:hover {
-							background: white;
+							background: var(--primary-font);
 						}
 					}
 				}
@@ -256,8 +256,8 @@
 					transition: all 0.3s ease;
 
 					span {
-						color: rgba(255, 255, 255, 0.5);
-						font-family: Brasley;
+						color: var(--secondary-font);
+						font-family: var(--secondary-font-family);
 						font-size: 15px;
 						font-style: normal;
 						font-weight: 500;
@@ -272,8 +272,8 @@
 
 				.verification-code-title {
 					margin-top: 24px;
-					color: #fff;
-					font-family: Brasley;
+					color: var(--primary-font);
+					font-family: var(--secondary-font-family);
 					font-size: 32px;
 					font-style: normal;
 					font-weight: 600;
@@ -282,8 +282,8 @@
 
 				.verification-code-subtitle {
 					margin-top: 24px;
-					color: rgba(255, 255, 255, 0.5);
-					font-family: Brasley;
+					color: var(--secondary-font);
+					font-family: var(--secondary-font-family);
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 500;
@@ -299,8 +299,8 @@
 					gap: 12px;
 
 					p {
-						color: rgba(255, 255, 255, 0.5);
-						font-family: Brasley;
+						color: var(--secondary-font);
+						font-family: var(--secondary-font-family);
 						font-size: 14px;
 						font-style: normal;
 						font-weight: 500;
@@ -337,8 +337,8 @@
 					.otp-error-message {
 						position: absolute;
 						top: -24px;
-						color: #ff7070;
-						font-family: Brasley;
+						color: var(--error);
+						font-family: var(--secondary-font-family);
 						font-size: 12px;
 						font-style: normal;
 						font-weight: 500;
@@ -355,17 +355,17 @@
 
 						.ant-otp {
 							.ant-input {
-								background-color: rgba(255, 255, 255, 0.05);
+								background-color: var(--card);
 								border: none;
 								outline: none;
 								border-radius: 50%;
 								padding: 20px;
 								width: 50px;
 								height: 50px;
-								color: #fff;
+								color: var(--primary-font);
 
 								&::placeholder {
-									color: #fff;
+									color: var(--primary-font);
 								}
 							}
 							.ant-input-otp-input::placeholder {
@@ -378,7 +378,7 @@
 				.verification-code-button {
 					margin-top: 40px;
 					border-radius: 60px;
-					background: rgba(255, 255, 255, 0.05);
+					background: var(--card-over-card);
 					border: none;
 					transition: all 0.3s ease;
 					width: 100%;
@@ -388,8 +388,8 @@
 					align-items: center;
 					justify-content: center;
 					gap: 12px;
-					color: rgba(255, 255, 255, 0.5);
-					font-family: Brasley;
+					color: var(--secondary-font);
+					font-family: var(--secondary-font-family);
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 500;
@@ -408,8 +408,8 @@
 				}
 
 				.resend-code-text {
-					color: #fff;
-					font-family: Brasley;
+					color: var(--primary-font);
+					font-family: var(--secondary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 500;

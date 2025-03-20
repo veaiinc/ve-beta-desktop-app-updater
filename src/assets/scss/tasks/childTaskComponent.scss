@@ -5,7 +5,7 @@
 	border-left: none;
 	border-right: none;
 	flex-direction: column;
-	border-bottom: 1px solid #424548;
+	border-bottom: 1px solid var(--stroke);
 
 	.sidebar-subtask-header {
 		display: flex;
@@ -16,8 +16,8 @@
 		gap: 16px;
 		padding-bottom: 12px;
 		.sidebar-subtask-header-title {
-			color: #e4e5e6;
-			font-family: Inter;
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 500;
@@ -30,8 +30,8 @@
 			gap: 10px;
 
 			.task-count {
-				color: #e4e5e6;
-				font-family: Inter;
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 400;
@@ -63,8 +63,8 @@
 		overflow-x: auto;
 
 		.no-subtasks {
-			color: #7d7d7d;
-			font-family: Inter;
+			color: var(--secondary-font);
+			font-family: var(--primary-font-family);
 			font-size: 12px;
 			font-style: normal;
 			font-weight: 400;

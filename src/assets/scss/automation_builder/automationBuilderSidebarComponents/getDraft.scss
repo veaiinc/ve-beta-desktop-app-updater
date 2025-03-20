@@ -7,8 +7,8 @@
 	align-self: stretch;
 
 	h3 {
-		color: #f2f2f3;
-		font-family: Inter;
+		color: var(--primary-font);
+		font-family: var(--primary-font-family);
 		font-size: 14px;
 		font-style: normal;
 		font-weight: 500;
@@ -30,8 +30,8 @@
 			align-self: stretch;
 
 			.getDraftInputLabel {
-				color: #7a7e85;
-				font-family: Inter;
+				color: var(--secondary-font);
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 500;

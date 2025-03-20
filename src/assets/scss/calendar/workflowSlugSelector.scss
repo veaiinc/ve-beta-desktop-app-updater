@@ -15,8 +15,8 @@
 		align-items: center;
 		justify-content: flex-start;
 		width: 100%;
-		color: #e8e8e8;
-		font-family: Inter;
+		color: var(--primary-font);
+		font-family: var(--primary-font-family);
 		font-size: 13px;
 		font-style: normal;
 		font-weight: 400;
@@ -78,8 +78,8 @@
 			.ant-select-selection-search-input,
 			.ant-select-selection-placeholder,
 			.ant-select-selection-item {
-				color: #e4e5e6;
-				font-family: Inter;
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 500;
@@ -91,23 +91,23 @@
 			}
 
 			.ant-select-selection-placeholder {
-				color: #646567;
+				color: var(--secondary-font);
 			}
 		}
 
 		.ant-select-arrow {
-			color: #818285;
+			color: var(--secondary-font);
 		}
 
 		.ant-select-dropdown {
 			border-radius: 8px;
-			background: #1a1a1a;
+			background: var(--card);
 			box-shadow: 0px 4px 30px 0px rgba(0, 0, 0, 0.03);
 			border: none;
 
 			.ant-select-item {
-				color: #e4e5e6;
-				font-family: Inter;
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 500;

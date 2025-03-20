@@ -2,8 +2,7 @@ import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import '../../../assets/scss/forms/formLeads.scss';
 import { ReactComponent as BackArrowSvg } from '../../../assets/svg/workflow/backarrow.svg';
 import { ReactComponent as CurlyBracesSvg } from '../../../assets/svg/docs/curly-bracess.svg';
-import { ReactComponent as LinkSvg } from '../../../assets/svg/activity/link.svg';
-import { ReactComponent as LinkShareSvg } from '../../../assets/svg/docs/link-share.svg';
+
 import { ReactComponent as Filter } from '../../../assets/svg/docs/filter.svg';
 import { ReactComponent as ThreeDots } from '../../../assets/svg/docs/three-dots.svg';
 import { ReactComponent as Cross } from '../../../assets/svg/docs/cross.svg';
@@ -14,6 +13,14 @@ import FormRes from '../../components/forms/FormRes';
 import FormModal from '../../components/forms/FormModal';
 import { message } from 'antd';
 import { fetchOriginSelection } from '../../../helpers';
+import SearchSvg from '../../../assets/svg/activity/SearchSvg';
+import LinkSvg from '../../../assets/svg/activity/LinkSvg';
+import LinkShareSvg from '../../../assets/svg/docs/LinkShareSvg';
+import CurlyBracessSvg from '../../../assets/svg/docs/CurlyBracessSvg';
+import ThreeDotsSvg from '../../../assets/svg/my_templates/ThreeDotsSvg';
+import FilterSvg from '../../../assets/svg/my_templates/FilterSvg';
+import UpDownArrowSvg from '../../../assets/svg/my_templates/UpDownArrowSvg';
+import CrossSvg from '../../../assets/svg/docs/CrossSvg';
 let origin = fetchOriginSelection();
 
 const FormLeads = () => {
@@ -135,7 +142,7 @@ const FormLeads = () => {
 							</span>
 							<div className="divider"></div>
 							<span className="ctaBtn" onClick={handleEmbededCopy}>
-								<CurlyBracesSvg />
+								<CurlyBracessSvg />
 								<span>Embed Form</span>
 							</span>
 							{/* <div className="divider"></div> */}
@@ -168,7 +175,7 @@ const FormLeads = () => {
 						))}
 					</div>
 
-					{/* <div className="filterActionsContainer">
+					<div className="filterActionsContainer">
 						<div
 							className="searchContainer"
 							style={{
@@ -192,7 +199,7 @@ const FormLeads = () => {
 										}))
 									}
 								>
-									<Search />
+									<SearchSvg />
 								</span>
 
 								<div className="inputAndCloseContainer">
@@ -222,15 +229,15 @@ const FormLeads = () => {
 											}))
 										}
 									>
-										<Cross style={{ width: '20px', height: '20px' }} />
+										<CrossSvg />
 									</span>
 								</div>
 							</div>
 						</div>
-						<Filter style={{ width: '20px', height: '20px' }} />
-						<UpDownArrow style={{ width: '20px', height: '20px' }} />
-						<ThreeDots />
-					</div> */}
+						<FilterSvg />
+						<UpDownArrowSvg />
+						<ThreeDotsSvg />
+					</div>
 				</div>
 				{tabs?.[info?.activeTab]?.Component}
 			</div>

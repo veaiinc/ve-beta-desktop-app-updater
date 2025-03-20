@@ -9,7 +9,7 @@
 		padding: 8px 0px;
 		gap: 24px;
 		p {
-			color: #fafafa;
+			color: var(--primary-font);
 			font-size: 15px;
 			font-weight: 500;
 			line-height: 21px; /* 140% */
@@ -23,13 +23,13 @@
 		position: relative; // Add this
 
 		.title {
-			color: #fafafa;
+			color: var(--primary-font);
 			font-size: 14px;
 			font-weight: 500;
 			line-height: 22px; /* 157.143% */
 		}
 		.subtitle {
-			color: #979797;
+			color: var(--secondary-font);
 			font-size: 13px;
 			font-weight: 400;
 			line-height: 21px; /* 161.538% */
@@ -69,7 +69,7 @@
 							border: none;
 							outline: none;
 							background: transparent;
-							color: #fafafa;
+							color: var(--primary-font);
 							font-size: 14px;
 							font-weight: 400;
 						}
@@ -103,7 +103,7 @@
 						p {
 							overflow: hidden;
 							text-overflow: ellipsis;
-							color: #fafafa;
+							color: var(--primary-font);
 							font-size: 14px;
 							font-weight: 400;
 						}
@@ -145,18 +145,18 @@
 								gap: 10px;
 								border-radius: 1000px;
 								border: 1px solid rgba(234, 234, 234, 0.2);
-								color: #979797;
+								color: var(--secondary-font);
 								font-size: 13px;
 								font-weight: 400;
 								line-height: 16px;
 								cursor: pointer;
 								span {
-									color: #6055ec;
+									color: var(accent-color);
 								}
 							}
 							.active-tag {
-								border: 1px solid #6055ec;
-								color: #6055ec;
+								border: 1px solid var(accent-color);
+								color: var(accent-color);
 							}
 						}
 					}
@@ -175,7 +175,7 @@
 								display: flex;
 								gap: 16px;
 								p {
-									color: #fafafa;
+									color: var(--primary-font);
 									font-size: 13px;
 									font-weight: 500;
 									line-height: 16px; /* 123.077% */
@@ -197,8 +197,8 @@
 						justify-content: center;
 						align-items: center;
 						border-radius: 100px;
-						background: #6055ec;
-						color: #fff;
+						background: var(accent-color);
+						color: var(--white);
 						font-size: 12px;
 						font-weight: 500;
 						line-height: 24px; /* 200% */
@@ -218,11 +218,11 @@
 						align-items: center;
 						gap: 4px;
 						border-radius: 100px;
-						background: #6055ec;
+						background: var(accent-color);
 						cursor: pointer;
 						p {
-							color: #fff;
-							font-family: Inter;
+							color: var(--white);
+							font-family: var(--primary-font-family);
 							font-size: 12px;
 							font-style: normal;
 							font-weight: 500;
@@ -233,7 +233,7 @@
 							height: 16px;
 							svg {
 								path {
-									fill: #fff;
+									fill: var(--white);
 								}
 							}
 						}
@@ -312,7 +312,7 @@
 
 						img {
 							border-radius: 24px;
-							border: 1px solid #eaeaea;
+							border: 1px solid var(--white);
 							cursor: pointer;
 							overflow: hidden;
 						}
@@ -330,15 +330,19 @@
 						width: 190px;
 						height: 48px;
 						overflow: hidden;
-						color: #979797;
+						color: var(--primary-font);
 						text-overflow: ellipsis;
 						font-size: 14px;
 						font-weight: 500;
 						line-height: 16px;
 						letter-spacing: -0.3px;
 						border-radius: 10px;
-						border: 1px solid rgba(151, 151, 151, 0.2);
+						border: 1px solid var(--stroke);
 						cursor: pointer;
+						background: var(--card);
+						&:hover {
+							background-color: var(--primary-button);
+						}
 					}
 				}
 				.delete-container {
@@ -362,9 +366,9 @@
 								align-items: center;
 								gap: 10px;
 								border-radius: 100px;
-								background: #ea4f4f;
+								background: var(--error-red);
 								overflow: hidden;
-								color: #fff;
+								color: var(--white);
 								text-overflow: ellipsis;
 								font-size: 13px;
 								font-weight: 500;
@@ -386,7 +390,7 @@
 								align-items: center;
 								border-radius: 100px;
 								border: 1px solid #2f2f2f;
-								color: #fff;
+								color: var(--primary-font);
 							}
 
 							svg {
@@ -402,7 +406,7 @@
 					max-height: 90px;
 					overflow-y: auto;
 					p {
-						color: #979797;
+						color: var(--secondary-font);
 						font-size: 16px;
 						font-weight: 400;
 						line-height: 24px;
@@ -423,7 +427,7 @@
 			overflow-y: auto;
 			li {
 				list-style: none;
-				color: #979797;
+				color: var(--secondary-font);
 				text-align: right;
 				font-size: 13px;
 				font-weight: 400;
@@ -433,7 +437,7 @@
 				cursor: pointer;
 			}
 			.activeLink {
-				color: #6055ec;
+				color: var(--accent-color);
 			}
 		}
 	}

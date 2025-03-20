@@ -6,7 +6,7 @@
 	align-items: flex-start;
 	gap: 24px;
 	border-radius: 32px;
-	background-color: #202123;
+	background-color: var(--card);
 
 	.modalHeading {
 		display: flex;
@@ -15,8 +15,8 @@
 		align-self: stretch;
 
 		.client-modal-title {
-			color: #f2f2f3;
-			font-family: Inter;
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
 			font-size: 20px;
 			font-style: normal;
 			font-weight: 500;
@@ -49,8 +49,8 @@
 			.errorMessage {
 				padding-top: 4px;
 				padding-left: 12px;
-				color: #ce4c4f;
-				font-family: Inter;
+				color: var(--error);
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 500;
@@ -66,7 +66,7 @@
 			border-radius: 14px;
 			width: 100%;
 			border-radius: 14px;
-			border: 1px solid #2c2d2e;
+			border: 1px solid var(--stroke);
 			height: 44px;
 		}
 
@@ -87,11 +87,11 @@
 			border: none;
 			outline: none;
 			background-color: transparent;
-			color: #f2f2f3;
+			color: var(--primary-font);
 
 			&::placeholder {
-				color: #797e86;
-				font-family: Inter;
+				color: var(--secondary-font);
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 500;
@@ -108,8 +108,8 @@
 			width: 100%;
 			border-radius: 14px;
 			.selectedPage {
-				color: #e8e8e8;
-				font-family: Inter;
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
 				font-size: 13px;
 				font-style: normal;
 				font-weight: 400;

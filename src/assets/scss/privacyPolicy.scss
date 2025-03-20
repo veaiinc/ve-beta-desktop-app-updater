@@ -36,8 +36,8 @@
 					cursor: pointer;
 				}
 				.privacyPolicyText {
-					color: #e4e5e6;
-					font-family: Inter;
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
 					font-size: 3rem;
 					font-style: normal;
 					font-weight: 600;
@@ -49,7 +49,7 @@
 	.pdfViewer {
 		width: 100vw;
 		height: 100%;
-		background-color: #343434;
+		background-color: var(--background-color);
 
 		.pdfViewerIframer {
 			height: calc(100vh - 210px);
