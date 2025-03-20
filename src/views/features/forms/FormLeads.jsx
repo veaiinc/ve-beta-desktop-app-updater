@@ -2,8 +2,7 @@ import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import '../../../assets/scss/forms/formLeads.scss';
 import { ReactComponent as BackArrowSvg } from '../../../assets/svg/workflow/backarrow.svg';
 import { ReactComponent as CurlyBracesSvg } from '../../../assets/svg/docs/curly-bracess.svg';
-import { ReactComponent as LinkSvg } from '../../../assets/svg/activity/link.svg';
-import { ReactComponent as LinkShareSvg } from '../../../assets/svg/docs/link-share.svg';
+
 import { ReactComponent as Filter } from '../../../assets/svg/docs/filter.svg';
 import { ReactComponent as Cross } from '../../../assets/svg/docs/cross.svg';
 import { ReactComponent as Search } from '../../../assets/svg/docs/search.svg';
@@ -15,6 +14,14 @@ import FormRes from '../../components/forms/FormRes';
 import FormModal from '../../components/forms/FormModal';
 import { message } from 'antd';
 import { fetchOriginSelection } from '../../../helpers';
+import SearchSvg from '../../../assets/svg/activity/SearchSvg';
+import LinkSvg from '../../../assets/svg/activity/LinkSvg';
+import LinkShareSvg from '../../../assets/svg/docs/LinkShareSvg';
+import CurlyBracessSvg from '../../../assets/svg/docs/CurlyBracessSvg';
+import ThreeDotsSvg from '../../../assets/svg/my_templates/ThreeDotsSvg';
+import FilterSvg from '../../../assets/svg/my_templates/FilterSvg';
+import UpDownArrowSvg from '../../../assets/svg/my_templates/UpDownArrowSvg';
+import CrossSvg from '../../../assets/svg/docs/CrossSvg';
 import QuickActions from '../../components/globalComponents/QuickActions';
 import { ReactComponent as ThreeDots } from '../../../assets/svg/workflow/threeDots.svg';
 import { Switch, Tooltip } from 'antd';
@@ -221,7 +228,7 @@ const FormLeads = () => {
 							</span>
 							<div className="divider"></div>
 							<span className="ctaBtn" onClick={handleEmbededCopy}>
-								<CurlyBracesSvg />
+								<CurlyBracessSvg />
 								<span>Embed Form</span>
 							</span>
 						</div> */}
@@ -248,6 +255,70 @@ const FormLeads = () => {
 								></div>
 							</div>
 						))}
+					</div>
+
+					<div className="filterActionsContainer">
+						<div
+							className="searchContainer"
+							style={{
+								width: info?.searchExpand ? '140px' : '16px',
+							}}
+						>
+							<div
+								className={`searchBtn ${info?.searchExpand ? 'searchExpand' : ''}`}
+							>
+								<span
+									style={{
+										display: 'flex',
+										justifyContent: 'center',
+										alignItems: 'center',
+										cursor: 'pointer',
+									}}
+									onClick={() =>
+										setInfo((prev) => ({
+											...prev,
+											searchExpand: true,
+										}))
+									}
+								>
+									<SearchSvg />
+								</span>
+
+								<div className="inputAndCloseContainer">
+									<input
+										className="searchInputTag"
+										placeholder="Search"
+										value={info?.searchValue}
+										onChange={(e) =>
+											setInfo((prev) => ({
+												...prev,
+												searchValue: e?.target?.value,
+											}))
+										}
+									/>
+									<span
+										style={{
+											display: 'flex',
+											justifyContent: 'center',
+											alignItems: 'center',
+											cursor: 'pointer',
+										}}
+										onClick={() =>
+											setInfo((prev) => ({
+												...prev,
+												searchExpand: false,
+												searchValue: '',
+											}))
+										}
+									>
+										<CrossSvg />
+									</span>
+								</div>
+							</div>
+						</div>
+						<FilterSvg />
+						<UpDownArrowSvg />
+						<ThreeDotsSvg />
 					</div>
 				</div>
 				{tabs?.[info?.activeTab]?.Component}
