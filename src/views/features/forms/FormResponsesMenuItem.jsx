@@ -5,6 +5,7 @@ import Spinner from '../../components/loaders/Spinner';
 import { message, Modal, Input } from 'antd';
 import DeleteWorkflowModal from '../../components/modalsV2/workflowBuilderModals/DeleteWorkflowModal';
 import Context from '../../../context/context';
+import { fetchOriginSelection } from '../../../helpers';
 const menuItems = [
 	{
 		id: 1,
@@ -38,7 +39,8 @@ const menuItems = [
 	// },
 ];
 
-const FormResponsesMenuItem = ({ formId, handleDeleteForm }) => {
+const FormResponsesMenuItem = ({ formId, copyLink }) => {
+	const origin = fetchOriginSelection();
 	const {
 		templates: { deleteWorkflowTemplates },
 	} = useContext(Context);
@@ -49,8 +51,6 @@ const FormResponsesMenuItem = ({ formId, handleDeleteForm }) => {
 		deleteWorkflowLoader: false,
 		deleteTemplateData: null,
 	});
-
-	const activeWorkspaceId = localStorage.getItem('workspaceId');
 
 	const deleteWorkflowFunc = useCallback(async () => {
 		if (!formId) {
@@ -80,12 +80,11 @@ const FormResponsesMenuItem = ({ formId, handleDeleteForm }) => {
 			// You can implement direct edit functionality here if needed
 		},
 		openForm: () => {
-			// navigateToForm();
+			window.open(`${origin}/${formId}`, '_blank');
 		},
 		copyLink: () => {
-			const formUrl = `https://${activeWorkspaceId}.ve.ai/${formId}`;
 			navigator.clipboard
-				.writeText(formUrl)
+				.writeText(copyLink)
 				.then(() => {
 					message.success('Form link copied successfully');
 				})
@@ -107,8 +106,7 @@ const FormResponsesMenuItem = ({ formId, handleDeleteForm }) => {
 			}));
 		},
 		EmbedForm: () => {
-			const formUrl = `https://${activeWorkspaceId}.ve.ai/${formId}`;
-			const embedCode = `<iframe src="${formUrl}" style="height: 100%; width: 100%;"></iframe>`;
+			const embedCode = `<iframe src="${copyLink}" style="height: 100%; width: 100%;"></iframe>`;
 
 			navigator.clipboard
 				.writeText(embedCode)

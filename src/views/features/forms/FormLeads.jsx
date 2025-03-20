@@ -194,7 +194,7 @@ const FormLeads = () => {
 								title={
 									<FormResponsesMenuItem
 										formId={formData?._id}
-										handleDeleteForm={handleDeleteForm}
+										copyLink={copyCode}
 									/>
 								}
 							>
