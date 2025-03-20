@@ -84,7 +84,7 @@
 					align-items: flex-start;
 					gap: 18px;
 					border-radius: 0px 0px 32px 32px;
-					background: var(--background-color);
+					background: var(--primary-button);
 					position: absolute;
 					top: -15px;
 					left: 10%;
@@ -241,7 +241,7 @@
 								min-height: 60px;
 								padding: 12px;
 								border: 0.1px solid var(--stroke);
-								background: var(--background-color);
+								background: var(--card);
 								border-radius: 20px;
 								resize: vertical;
 								font-family: inherit;
