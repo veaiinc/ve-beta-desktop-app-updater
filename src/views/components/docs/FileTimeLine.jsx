@@ -6,7 +6,6 @@ import { ReactComponent as FileArrowUp } from '../../../assets/svg/activity/file
 import { ReactComponent as EventUser } from '../../../assets/svg/activity/eventUserImg.svg';
 
 const FileTimeLine = ({ data }) => {
-	console.log('dataaaa', data);
 	return (
 		<div className="fileTimeLineParentContainer">
 			{data?.timeline?.map((item) => (

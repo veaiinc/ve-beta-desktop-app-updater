@@ -167,10 +167,10 @@ const CreateGallery = ({
 			let response = await createNewGallery(payload);
 
 			if (response?.[0] === true) {
+				navigate(`/galleries/${response[1]?._id}`);
 				closeModalFunc();
 				fetchGalleries(1, null, true);
 				message.success('Gallery created successfully');
-				navigate(`/gallery/${response[1]?._id}`);
 			} else {
 				message.error(response?.[1]?.message || 'Failed to create gallery');
 			}
