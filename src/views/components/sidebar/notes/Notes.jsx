@@ -93,7 +93,7 @@ const Notes = ({ showNotesDrawer, setShowNotesDrawer }) => {
 
 	const handleNotesClick = (notesId) => {
 		handleCloseDrawer();
-		navigate(`/notes/${notesId}`);
+		navigate(`/note/${notesId}`);
 	};
 
 	const getNotesData = useCallback(
@@ -133,7 +133,7 @@ const Notes = ({ showNotesDrawer, setShowNotesDrawer }) => {
 		};
 		const response = await createNotesList(payload);
 		handleCloseDrawer();
-		navigate(`/notes/${response[1]?._id}`);
+		navigate(`/note/${response[1]?._id}`);
 	};
 
 	const handleCtaClick = (action) => {

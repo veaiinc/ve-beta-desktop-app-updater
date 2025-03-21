@@ -21,14 +21,14 @@
 	.notes-nav-menu {
 		display: flex;
 		width: 100%;
-		padding: 24px 36px;
+		// padding: 24px 36px;
 		align-items: center;
 		justify-content: flex-end;
 		gap: 10px;
 
 		.notes-nav-menu-item-last-edited {
-			color: #787e87;
-			font-family: Inter;
+			color: var(--secondary-font);
+			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 500;

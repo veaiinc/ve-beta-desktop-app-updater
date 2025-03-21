@@ -402,7 +402,7 @@ const routes = [
 		exact: true,
 	},
 	{
-		path: '/form-leads',
+		path: '/forms/:id',
 		component: (
 			<AuthWrapper title={'Form Leads'}>
 				<FormLeads />
@@ -425,7 +425,7 @@ const routes = [
 		),
 	},
 	{
-		path: '/notes/:noteId',
+		path: '/note/:noteId',
 		component: (
 			<AuthWrapper
 				title={'Notes'}
