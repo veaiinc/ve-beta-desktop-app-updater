@@ -417,7 +417,7 @@ const routes = [
 				title={'Chat'}
 				showBottomToolbar={false}
 				outerContainerStyle={{ paddingRight: '0px' }}
-				authParentContainerStyle={{ backgroundColor: 'rgb(20,20,21)' }}
+				authParentContainerStyle={{ backgroundColor: 'var(--background-color)' }}
 				maxWidth="100%"
 			>
 				<RecentChat />
@@ -429,7 +429,9 @@ const routes = [
 		component: (
 			<AuthWrapper
 				title={'Notes'}
-				outerContainerStyle={{ padding: '32px 32px 0 32px' }}
+				outerContainerStyle={{
+					backgroundColor: 'var(--background-color)',
+				}}
 				maxWidth={'100%'}
 			>
 				<Notes />

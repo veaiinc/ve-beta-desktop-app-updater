@@ -45,3 +45,66 @@ export const saveNotesPageQuery = gql`
 		}
 	}
 `;
+
+export const getNotesAccessQuery = gql`
+	query Query($pageId: ID!) {
+		listSharedUsers(pageId: $pageId) {
+			_id
+			userId
+			access
+			fullName
+			email
+		}
+	}
+`;
+
+export const addNotesAccessMutation = gql`
+	mutation SharePage($pageId: ID!, $usersPermissionInput: [UserPermissionInput]!) {
+		sharePage(pageId: $pageId, usersPermissionInput: $usersPermissionInput) {
+			success
+			message
+		}
+	}
+`;
+
+export const changeNotesAccessMutation = gql`
+	mutation Mutation($pageId: ID!, $userPermissionInput: UserPermissionInput!) {
+		changePageAccess(pageId: $pageId, UserPermissionInput: $userPermissionInput) {
+			success
+			message
+		}
+	}
+`;
+
+export const updatePageMutation = gql`
+	mutation Mutation($pageId: ID!, $input: UpdatePageInput!) {
+		updatePage(pageId: $pageId, input: $input) {
+			_id
+			title
+			icon
+			coverImage
+			permissions {
+				private
+				sharedWith {
+					userId
+					access
+				}
+			}
+			blocks
+			isDeleted
+			tenantId
+			createdAt
+			updatedAt
+			createdBy
+		}
+	}
+`;
+
+export const removeNotesAccessMutation = gql`
+	mutation Mutation($pageId: ID!, $userId: ID!) {
+		unsharePage(pageId: $pageId, userId: $userId) {
+			message
+			success
+		}
+	}
+`;
