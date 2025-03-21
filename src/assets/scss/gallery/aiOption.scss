@@ -101,17 +101,17 @@
 				flex-wrap: wrap;
 				padding-bottom: 30px;
 				gap: 4px;
-				max-height: 85px;
+				max-height: 195px;
 				overflow-y: hidden;
 				transition: max-height 0.9s ease-in-out;
 				&.aiPeople-showMore {
-					max-height: 320px;
+					max-height: 390px;
 					overflow-y: scroll;
 				}
 				.aiPeople-person {
 					display: flex;
 					// min-width: 100px;
-					height: 100%;
+					height: 95px;
 					padding: 8px;
 					flex-direction: column;
 					align-items: center;
@@ -119,10 +119,9 @@
 					align-self: stretch;
 					border-radius: 12px;
 					cursor: pointer;
-					border-radius: 50%;
 					img {
 						width: 80px;
-						height: 80px;
+						height: 95px;
 						border-radius: 50%;
 					}
 					&:hover {
@@ -142,51 +141,84 @@
 		height: 90vh;
 		overflow: scroll;
 		box-shadow: 0px 4px 30px 0px rgba(0, 0, 0, 0.03);
-		.aiFaceHeader {
+		.aiFaceHeaderContainer {
+			width: 100%;
 			display: flex;
-			flex-direction: column;
-			justify-content: center;
-			align-items: flex-start;
-			gap: 10px;
-			.aiFaceTitleContainer {
+			flex-direction: row;
+			justify-content: space-between;
+			.aiFaceHeader {
 				display: flex;
+				flex-direction: column;
+				justify-content: center;
+				align-items: flex-start;
+				gap: 10px;
+				.aiFaceTitleContainer {
+					display: flex;
+					justify-content: center;
+					align-items: center;
+					gap: 10px;
+					.aiFaceTitle {
+						color: var(--primary-font, #f2f2f3);
+						font-family: Inter;
+						font-size: 16px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+						text-transform: capitalize;
+					}
+					.aiFaceCount {
+						display: flex;
+						padding: 4px;
+						justify-content: center;
+						align-items: center;
+						gap: 10px;
+						border-radius: 4px;
+						background: var(--primary-font, #f2f2f3);
+						color: var(--card, #151515);
+						color: #000;
+						text-align: center;
+						font-family: Inter;
+						font-size: 12px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+					}
+				}
+				.aiFaceDescription {
+					color: var(--secondary-font, #787e87);
+					font-family: Inter;
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 400;
+					line-height: 12px; /* 100% */
+				}
+			}
+			.aiFaceHeaderButtonContainer {
+				display: flex;
+				padding: 8px 8px 8px 16px;
 				justify-content: center;
 				align-items: center;
 				gap: 10px;
-				.aiFaceTitle {
+				border-radius: 100px;
+				background: var(--card-over-card, #202123);
+				.aiFaceHeaderButton {
 					color: var(--primary-font, #f2f2f3);
 					font-family: Inter;
-					font-size: 16px;
+					font-size: 14px;
 					font-style: normal;
 					font-weight: 500;
 					line-height: normal;
 					text-transform: capitalize;
 				}
-				.aiFaceCount {
-					display: flex;
-					padding: 4px;
-					justify-content: center;
-					align-items: center;
-					gap: 10px;
-					border-radius: 4px;
-					background: var(--primary-font, #f2f2f3);
-					color: var(--card, #151515);
-					color: #000;
-					text-align: center;
-					font-family: Inter;
-					font-size: 12px;
-					font-style: normal;
-					font-weight: 500;
-					line-height: normal;
+				.ant-switch {
+					background: var(--stroke, #333334) !important;
 				}
-			}
-			.aiFaceDescription {
-				color: var(--secondary-font, #787e87);
-				font-family: Inter;
-				font-size: 12px;
-				font-style: normal;
-				font-weight: 400;
-				line-height: 12px; /* 100% */
+				.ant-switch-checked {
+					background: #e3fb4e !important;
+				}
+				.ant-switch.ant-switch-checked .ant-switch-handle::before {
+					background: var(--stroke, #333334) !important;
+				}
 			}
 		}
 		.heading {
@@ -476,6 +508,31 @@
 						border: none;
 					}
 				}
+			}
+		}
+		.noPreRegistration {
+			display: flex;
+			width: 100%;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+			gap: 4px;
+			flex: 1 0 0;
+			.noPreRegistration-title {
+				color: var(--primary-font, #f2f2f3);
+				font-family: Inter;
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+			.noPreRegistration-description {
+				color: var(--secondary-font, #787e87);
+				font-family: Inter;
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: 16px; /* 133.333% */
 			}
 		}
 	}

@@ -1809,6 +1809,44 @@ export const Galleries = () => {
 		});
 	};
 
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/tags/{{ _.tag_id }}
+	const editTag = async (galleryId, tagId, payload) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchPut(
+				`/${workspaceId}/galleries/${galleryId}/tags/${tagId}`,
+				payload,
+				usertoken,
+				'galleries',
+			);
+			return response;
+		} catch (error) {
+			console.log('error==>editTag', error);
+		}
+	};
+
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/albums/{{ _.albumSlug }}/tags/{{ _.tag_id }}
+
+	const deleteTag = async (galleryId, tagId, albumSlug, selectedDropDownValue) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const payload = {
+				removeType: selectedDropDownValue,
+			};
+			const response = await service.fetchDelete(
+				`/${workspaceId}/galleries/${galleryId}/albums/${albumSlug}/tags/${tagId}`,
+				usertoken,
+				payload,
+				'galleries',
+			);
+			return response;
+		} catch (error) {
+			console.log('error==>deleteTag', error);
+		}
+	};
+
 	return {
 		...state,
 		getGalleries,
@@ -1896,5 +1934,7 @@ export const Galleries = () => {
 		getClientSelectionLightRoomCopy,
 		deleteWaterMark,
 		downloadImagesForClientSelection,
+		editTag,
+		deleteTag,
 	};
 };

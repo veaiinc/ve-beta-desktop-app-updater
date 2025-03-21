@@ -22,6 +22,7 @@ const AiSelection = ({
 		showShearch: false,
 		searchValue: '',
 		selectedFace: selectedFace ? selectedFace : null,
+		preRegistration: true,
 	});
 	const handleOptionClick = (value) => {
 		setInfo((prev) => ({
@@ -43,6 +44,12 @@ const AiSelection = ({
 			search: 'Ai Faces',
 		}));
 	};
+	const handlePreRegistration = (value) => {
+		setInfo((prev) => ({
+			...prev,
+			preRegistration: value,
+		}));
+	};
 	return (
 		<div className="aiSelection-container">
 			<div className="aiOptions-navbar">
@@ -58,7 +65,7 @@ const AiSelection = ({
 					))}
 				</div> */}
 			</div>
-			{info?.search === 'AI People' && (
+			{info?.search === 'AI People' && info?.preRegistration && (
 				<AiPeopleContainer
 					galleryId={galleryId}
 					galleryCredentials={galleryCredentials}
@@ -81,7 +88,13 @@ const AiSelection = ({
 					activeTagId={activeTagId}
 				/>
 			)}
-			{!info?.selectedFace && <AiFaceRegistration link={link} />}
+			{!info?.selectedFace && (
+				<AiFaceRegistration
+					link={link}
+					handlePreRegistration={(value) => handlePreRegistration(value)}
+					preRegistration={info?.preRegistration}
+				/>
+			)}
 		</div>
 	);
 };

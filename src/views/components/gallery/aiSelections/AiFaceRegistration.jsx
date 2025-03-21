@@ -7,11 +7,11 @@ import Table from './RegisteredUsersTable';
 // import QRCode from 'react-qr-code';
 import { QRCodeCanvas } from 'qrcode.react';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import { message, Progress, Tooltip } from 'antd';
+import { message, Progress, Switch, Tooltip } from 'antd';
 import NotifyPopup from './NotifyPopup';
 import { useParams } from 'react-router-dom';
 
-const AiFaceRegistration = ({ link }) => {
+const AiFaceRegistration = ({ link, handlePreRegistration, preRegistration }) => {
 	const qrRef = useRef(null);
 	const [loading, setLoading] = useState(false);
 	const [page, setPage] = useState(1);
@@ -131,13 +131,22 @@ const AiFaceRegistration = ({ link }) => {
 			className="aiFaceRegistration"
 			style={{ height: info?.preRegisterLength ? '90vh' : '100%' }}
 		>
-			<div className="aiFaceHeader">
-				<div className="aiFaceTitleContainer">
-					<div className="aiFaceTitle">Face Registration for guests</div>
-					<div className="aiFaceCount">{info?.preRegisterLength || 0}</div>
+			<div className="aiFaceHeaderContainer">
+				<div className="aiFaceHeader">
+					<div className="aiFaceTitleContainer">
+						<div className="aiFaceTitle">Face Registration for guests</div>
+						<div className="aiFaceCount">{info?.preRegisterLength || 0}</div>
+					</div>
+					<div className="aiFaceDescription">
+						Share this QR code or link with guests to register their face.
+					</div>
 				</div>
-				<div className="aiFaceDescription">
-					Share this QR code or link with guests to register their face.
+				<div
+					className="aiFaceHeaderButtonContainer"
+					onClick={() => handlePreRegistration(!preRegistration)}
+				>
+					<div className="aiFaceHeaderButton">Enable Preregistration</div>
+					<Switch size="small" checked={preRegistration} />
 				</div>
 			</div>
 			<div
@@ -181,7 +190,7 @@ const AiFaceRegistration = ({ link }) => {
 					</div>
 				</div>
 			</div>
-			{info?.preRegisterLength > 0 && (
+			{/* {info?.preRegisterLength > 0 && preRegistration ? (
 				<div
 					className="tableWrapper"
 					style={{ flex: 1, overflowY: 'auto', maxHeight: '100%', height: '100%' }}
@@ -202,6 +211,59 @@ const AiFaceRegistration = ({ link }) => {
 							scrollLoading={info.scrollLoading}
 						/>
 					</InfiniteScroll>
+				</div>
+			) : (
+				<div className="noPreRegistration">
+					<div className="noPreRegistration-title">Preregistration Disabled</div>
+					<div className="noPreRegistration-description">
+						Keep your schedule organized by allowing users to preregister.
+					</div>
+				</div>
+			)} */}
+			{preRegistration ? (
+				<>
+					{info?.preRegisterLength > 0 ? (
+						<div
+							className="tableWrapper"
+							style={{
+								flex: 1,
+								overflowY: 'auto',
+								maxHeight: '100%',
+								height: '100%',
+							}}
+							id="table-scroll-container"
+						>
+							<InfiniteScroll
+								dataLength={info?.preRegisterLength || 0}
+								next={fetchMoreData}
+								hasMore={preRegisteredUsers?.metadata?.hasNextPage || false}
+								loader={null}
+								scrollableTarget="table-scroll-container"
+								style={{ overflow: 'visible' }} // Important!
+							>
+								<Table
+									tableData={preRegisteredUsers}
+									thead={'Register Stage'}
+									loading={info.initialLoading}
+									scrollLoading={info.scrollLoading}
+								/>
+							</InfiniteScroll>
+						</div>
+					) : (
+						<div className="noPreRegistration">
+							<div className="noPreRegistration-title">No registered users</div>
+							<div className="noPreRegistration-description">
+								Keep your schedule organized by allowing users to preregister.
+							</div>
+						</div>
+					)}
+				</>
+			) : (
+				<div className="noPreRegistration">
+					<div className="noPreRegistration-title">Preregistration Disabled</div>
+					<div className="noPreRegistration-description">
+						Keep your schedule organized by allowing users to preregister.
+					</div>
 				</div>
 			)}
 			<NotifyPopup info={info} setinfo={setinfo} />

@@ -23,7 +23,12 @@ import { ReactComponent as LightRoomIcon } from '../../../assets/svg/gallery/lig
 import { ReactComponent as AlbumCoverIcon } from '../../../assets/svg/gallery/changeAlbumCover.svg';
 import { ReactComponent as DeleteIcon } from '../../../assets/svg/gallery/delete-red.svg';
 import { ReactComponent as LockIcon } from '../../../assets/svg/gallery/lockIcon.svg';
-import { ReactComponent as ArrowsOut } from '../../../assets/svg/gallery/arrowsOut.svg';
+import { ReactComponent as HomeIcon } from '../../../assets/svg/gallery/home.svg';
+import { ReactComponent as RightArrow } from '../../../assets/svg/gallery/rightArrow.svg';
+import { ReactComponent as ToastSuccess } from '../../../assets/svg/gallery/toastSuccess.svg';
+import { ReactComponent as ToastWarning } from '../../../assets/svg/gallery/toastWarning.svg';
+import { ReactComponent as ToastError } from '../../../assets/svg/gallery/toastError.svg';
+import { ReactComponent as SettingsIcon } from '../../../assets/svg/gallery/settingIcon.svg';
 import Masonry, { ResponsiveMasonry } from 'react-responsive-masonry';
 import { ReactComponent as UpArrow } from '../../../assets/svg/workflow/downArrow.svg';
 import { Checkbox, message, Result, theme, Tooltip } from 'antd';
@@ -73,6 +78,31 @@ const sortingOptions = [
 	{ label: 'Custom', value: 'custom' },
 ];
 
+const showMessage = (type, content) => {
+	const icons = {
+		success: <ToastSuccess />,
+		error: <ToastError />,
+		warning: <ToastWarning />,
+	};
+
+	const key = `message-${Date.now()}`;
+
+	message.open({
+		key, // Assign a unique key
+		content: (
+			<div className="message-container">
+				<span>{content}</span>
+				<span className="divider">|</span>
+				<button onClick={() => message.destroy(key)} className="dismiss-button">
+					Dismiss
+				</button>
+			</div>
+		),
+		icon: icons[type],
+		duration: 2,
+		className: 'custom-message',
+	});
+};
 const GalleryPage = () => {
 	const { galleryId } = useParams();
 	const navigate = useNavigate();
@@ -665,7 +695,9 @@ const GalleryPage = () => {
 	}, [info?.activeAlbumId]);
 
 	useEffect(() => {
-		!imagesList && handleGetGalleryImages();
+		if (info?.albumTagId && info?.activeAlbumId && info?.activeTab === 'Albums') {
+			handleGetGalleryImages();
+		}
 	}, [info?.albumTagId, info?.activeAlbumId, info?.activeTab]);
 
 	const handleGetGalleryImages = async () => {
@@ -990,9 +1022,9 @@ const GalleryPage = () => {
 
 				if (galleryCoverResponse?.[0] === true) {
 					updatesNeeded = true;
-					message.success('Gallery cover has been automatically set');
+					showMessage('success', 'Gallery cover has been automatically set');
 				} else {
-					message.error('Failed to set gallery cover image');
+					showMessage('error', 'Failed to set gallery cover image');
 				}
 			}
 
@@ -1020,9 +1052,9 @@ const GalleryPage = () => {
 
 				if (albumCoverResponse?.[0] === true) {
 					updatesNeeded = true;
-					message.success('Album cover has been automatically set');
+					showMessage('success', 'Album cover has been automatically set');
 				} else {
-					message.error('Failed to set album cover image');
+					showMessage('error', 'Failed to set album cover image');
 				}
 			}
 
@@ -1038,7 +1070,7 @@ const GalleryPage = () => {
 			}));
 		} catch (error) {
 			console.error('Error setting default covers:', error);
-			message.error('Failed to set cover images');
+			showMessage('error', 'Failed to set cover images');
 		}
 	};
 
@@ -1113,13 +1145,13 @@ const GalleryPage = () => {
 				// Refresh data without changing the active album
 				await Promise.all([getAlbumImagesCount(galleryId), getAlbums(galleryId)]);
 
-				message.success('Album visibility updated successfully');
+				showMessage('success', 'Album visibility updated successfully');
 			} else {
-				message.error('Failed to update album visibility');
+				showMessage('error', 'Failed to update album visibility');
 			}
 		} catch (error) {
 			console.error('Error updating album visibility:', error);
-			message.error('An error occurred while updating album visibility');
+			showMessage('error', 'An error occurred while updating album visibility');
 		}
 	};
 
@@ -1178,7 +1210,7 @@ const GalleryPage = () => {
 			const response = await editLockAlbum(payload, galleryId, info.activeAlbumId);
 
 			if (response?.[0] === true) {
-				message.success('Album access updated successfully');
+				showMessage('success', 'Album access updated successfully');
 			} else {
 				// If the update failed, revert the optimistic update
 				setInfo((prev) => ({
@@ -1192,11 +1224,11 @@ const GalleryPage = () => {
 					},
 					// ... similar reversions for tenantAlbums and albumImagesCount
 				}));
-				message.error('Failed to update album access');
+				showMessage('error', 'Failed to update album access');
 			}
 		} catch (error) {
 			console.error('Error updating album access:', error);
-			message.error('An error occurred while updating album access');
+			showMessage('error', 'An error occurred while updating album access');
 		}
 	}, [galleryId, info?.activeAlbumId, info?.activeAlbum?.guestAccess?.isEnabled]);
 
@@ -1204,10 +1236,10 @@ const GalleryPage = () => {
 		const newOnlineState = !info?.isOnline;
 
 		// Show loading message
-		message.loading({
-			content: 'Updating gallery status...',
-			key: 'galleryUpdate',
-		});
+		// message.loading({
+		// 	content: 'Updating gallery status...',
+		// 	key: 'galleryUpdate',
+		// });
 
 		try {
 			const galleryPayload = {
@@ -1231,11 +1263,8 @@ const GalleryPage = () => {
 
 			if (response?.[0]) {
 				await getAlbums(galleryId);
-
-				message.success({
-					content: `Gallery is now ${newOnlineState ? 'online' : 'offline'}`,
-					key: 'galleryUpdate',
-				});
+				message.destroy();
+				showMessage('success', `Gallery is now ${newOnlineState ? 'online' : 'offline'}`);
 			} else {
 				setInfo((prev) => ({
 					...prev,
@@ -1249,7 +1278,6 @@ const GalleryPage = () => {
 						})),
 					},
 				}));
-
 				message.error({
 					content: response?.[1]?.message || 'Failed to update gallery status',
 					key: 'galleryUpdate',
@@ -1338,7 +1366,7 @@ const GalleryPage = () => {
 		});
 
 		if (response?.[0]) {
-			message.success('Tag updated successfully');
+			showMessage('success', 'Tag updated successfully');
 			getGalleryTagsList(galleryId);
 			setInfo((prev) => ({
 				...prev,
@@ -1348,7 +1376,7 @@ const GalleryPage = () => {
 				tagLoading: false,
 			}));
 		} else {
-			message.error('Failed to update tag');
+			showMessage('error', 'Failed to update tag');
 		}
 
 		setInfo((prev) => ({
@@ -1365,7 +1393,7 @@ const GalleryPage = () => {
 		}));
 		const response = await deleteTag(galleryId, tagId, albumSlug, info?.selectedDropDownValue);
 		if (response?.[0]) {
-			message.success(response?.[1]?.message);
+			showMessage('success', response?.[1]?.message);
 			getGalleryTagsList(galleryId);
 			setInfo((prev) => ({
 				...prev,
@@ -1375,7 +1403,7 @@ const GalleryPage = () => {
 				tagLoading: false,
 			}));
 		} else {
-			message.error(response?.[1]?.message);
+			showMessage('error', response?.[1]?.message);
 		}
 
 		setInfo((prev) => ({
@@ -1491,7 +1519,7 @@ const GalleryPage = () => {
 		if (info.isOnline) {
 			setInfo((prevInfo) => ({ ...prevInfo, shareModal: !prevInfo.shareModal }));
 		} else {
-			message.error('Publish the Gallery To Share');
+			showMessage('error', 'Publish the Gallery To Share');
 		}
 	};
 	const handleClearSelectedImages = () => {
@@ -1634,7 +1662,7 @@ const GalleryPage = () => {
 
 			// Validate input length
 			if (value.length > 255) {
-				message.warning('Gallery name is too long');
+				showMessage('warning', 'Gallery name is too long');
 				return false;
 			}
 
@@ -1665,22 +1693,13 @@ const GalleryPage = () => {
 						showMainPopup: false,
 					}));
 
-					message.success({
-						content: 'Gallery renamed successfully',
-						key: 'renameGallery',
-					});
+					showMessage('success', 'Gallery renamed successfully');
 				} else {
-					message.error({
-						content: response?.[1]?.message || 'Failed to rename gallery',
-						key: 'renameGallery',
-					});
+					showMessage('error', response?.[1]?.message || 'Failed to rename gallery');
 				}
 			} catch (error) {
 				console.error('Error renaming gallery:', error);
-				message.error({
-					content: 'An unexpected error occurred',
-					key: 'renameGallery',
-				});
+				showMessage('error', 'An unexpected error occurred');
 			} finally {
 				handleGalleryChange.isProcessing = false;
 			}
@@ -1702,15 +1721,15 @@ const GalleryPage = () => {
 			const response = await postGallery({ title: name }, galleryId);
 
 			if (response?.[0] === true) {
-				message.success('Gallery renamed successfully');
+				showMessage('success', 'Gallery renamed successfully');
 				await getGalleries({}, true);
 			} else {
-				message.error('Failed to rename gallery');
+				showMessage('error', 'Failed to rename gallery');
 			}
 			return response;
 		} catch (error) {
 			console.error('Error updating gallery:', error);
-			message.error('Failed to rename gallery');
+			showMessage('error', 'Failed to rename gallery');
 		} finally {
 			// Reset processing flag
 			updateGallery.isProcessing = false;
@@ -1731,7 +1750,7 @@ const GalleryPage = () => {
 
 			const response = await editPreferences(galleryId, payload);
 			if (response?.[0]) {
-				message.success('edited preferences');
+				showMessage('success', 'edited preferences');
 			} else {
 				setInfo((prev) => ({
 					...prev,
@@ -1786,7 +1805,7 @@ const GalleryPage = () => {
 
 			// Validate input length
 			if (value.length > 255) {
-				message.warning('Album name is too long');
+				showMessage('warning', 'Album name is too long');
 				return false;
 			}
 
@@ -1824,26 +1843,17 @@ const GalleryPage = () => {
 					}));
 
 					// Show success message
-					message.success({
-						content: 'Album renamed successfully',
-						key: 'renameAlbum',
-					});
+					showMessage('success', 'Album renamed successfully');
 
 					// Refresh album data
 					await Promise.all([getAlbumImagesCount(galleryId), getAlbums(galleryId)]);
 				} else {
 					// Show error message
-					message.error({
-						content: response?.[1]?.message || 'Failed to rename album',
-						key: 'renameAlbum',
-					});
+					showMessage('error', response?.[1]?.message || 'Failed to rename album');
 				}
 			} catch (error) {
 				console.error('Error renaming album:', error);
-				message.error({
-					content: 'An unexpected error occurred',
-					key: 'renameAlbum',
-				});
+				showMessage('error', 'An unexpected error occurred');
 			} finally {
 				albumChanges.isProcessing = false;
 			}
@@ -1862,7 +1872,7 @@ const GalleryPage = () => {
 		try {
 			// Try the modern clipboard API first
 			await navigator.clipboard.writeText(albumLink);
-			message.success('Album link copied to clipboard');
+			showMessage('success', 'Album link copied to clipboard');
 		} catch (err) {
 			// Fallback for older browsers or when clipboard API fails
 			const textArea = document.createElement('textarea');
@@ -1872,9 +1882,9 @@ const GalleryPage = () => {
 
 			try {
 				document.execCommand('copy');
-				message.success('Album link copied to clipboard');
+				showMessage('success', 'Album link copied to clipboard');
 			} catch (err) {
-				message.error('Failed to copy link');
+				showMessage('error', 'Failed to copy link');
 			} finally {
 				document.body.removeChild(textArea);
 			}
@@ -1905,7 +1915,7 @@ const GalleryPage = () => {
 				isDownloading: true,
 			}));
 
-			message.loading('Downloading album...');
+			showMessage('loading', 'Downloading album...');
 
 			const payload = {
 				imageType: info?.originalDownload ? 'original' : 'optimized',
@@ -1925,7 +1935,7 @@ const GalleryPage = () => {
 				window.open(downloadUrl, '_blank');
 
 				message.destroy();
-				message.success('Download started');
+				showMessage('success', 'Download started');
 
 				setInfo((prev) => ({
 					...prev,
@@ -1933,8 +1943,7 @@ const GalleryPage = () => {
 					isDownloading: false,
 				}));
 			} else {
-				message.destroy();
-				message.error('Failed to generate download link');
+				showMessage('error', 'Failed to generate download link');
 				setInfo((prev) => ({
 					...prev,
 					isDownloading: false,
@@ -1943,7 +1952,7 @@ const GalleryPage = () => {
 		} catch (error) {
 			console.error('Download error:', error);
 			message.destroy();
-			message.error('Something went wrong, please try again later');
+			showMessage('error', 'Something went wrong, please try again later');
 			setInfo((prev) => ({
 				...prev,
 				isDownloading: false,
@@ -1985,14 +1994,14 @@ const GalleryPage = () => {
 				}));
 
 				message.destroy('lightroomCopy');
-				message.success('Image list fetched successfully');
+				showMessage('success', 'Image list fetched successfully');
 				return;
 			}
 
 			// Handle regular album case
 			if (!info.activeAlbumId) {
 				message.destroy('lightroomCopy');
-				message.error('No active album selected');
+				showMessage('error', 'No active album selected');
 				return;
 			}
 
@@ -2007,15 +2016,15 @@ const GalleryPage = () => {
 					showOptionsContainer: false,
 				}));
 				message.destroy('lightroomCopy');
-				message.success('Image list fetched successfully');
+				showMessage('success', 'Image list fetched successfully');
 			} else {
 				message.destroy('lightroomCopy');
-				message.error('Failed to fetch lightroom copy list');
+				showMessage('error', 'Failed to fetch lightroom copy list');
 			}
 		} catch (error) {
 			console.error('Error fetching lightroom copy list:', error);
 			message.destroy('lightroomCopy');
-			message.error('Failed to fetch lightroom copy list');
+			showMessage('error', 'Failed to fetch lightroom copy list');
 		}
 	};
 
@@ -2029,7 +2038,7 @@ const GalleryPage = () => {
 			navigator.clipboard
 				.writeText(textToCopy)
 				.then(() => {
-					message.success('Lightroom list copied successfully!');
+					showMessage('success', 'Lightroom list copied successfully!');
 					setInfo((prev) => ({
 						...prev,
 						showLightRoomCopy: false,
@@ -2037,10 +2046,10 @@ const GalleryPage = () => {
 					}));
 				})
 				.catch(() => {
-					message.error('Failed to copy list');
+					showMessage('error', 'Failed to copy list');
 				});
 		} else {
-			message.warning('No items to copy');
+			showMessage('warning', 'No items to copy');
 		}
 	};
 
@@ -2325,16 +2334,17 @@ const GalleryPage = () => {
 
 		if (response[0] === true) {
 			message.destroy();
-			message.success('Gallery deleted successfully');
+			showMessage('success', 'Gallery deleted successfully');
 			if (!info?.isLightGallery) {
 				navigate('/galleries');
+				await getGalleries({}, true);
 			} else {
 				navigate(`/lite-gallery`);
+				await getGalleries({ isLightGallery: true }, true);
 			}
-			await getGalleries({}, true);
 		} else {
 			message.destroy();
-			message.error(response[1].message);
+			showMessage('error', response[1].message);
 		}
 	};
 	const handleManageCollaborator = (data) => {
@@ -2423,7 +2433,7 @@ const GalleryPage = () => {
 		try {
 			// Try the modern clipboard API first
 			await navigator.clipboard.writeText(galleryLink);
-			message.success('Gallery link copied to clipboard');
+			showMessage('success', 'Gallery link copied to clipboard');
 		} catch (err) {
 			// Fallback for older browsers or when clipboard API fails
 			const textArea = document.createElement('textarea');
@@ -2433,9 +2443,9 @@ const GalleryPage = () => {
 
 			try {
 				document.execCommand('copy');
-				message.success('Gallery link copied to clipboard');
+				showMessage('success', 'Gallery link copied to clipboard');
 			} catch (err) {
-				message.error('Failed to copy link');
+				showMessage('error', 'Failed to copy link');
 			} finally {
 				document.body.removeChild(textArea);
 			}
@@ -2533,7 +2543,7 @@ const GalleryPage = () => {
 			}
 		} else {
 			message.destroy();
-			message.error('Something went wrong, please try again later');
+			showMessage('error', 'Something went wrong, please try again later');
 		}
 	};
 
@@ -2629,22 +2639,19 @@ const GalleryPage = () => {
 						info.coverType === 'gallery' && getGalleries({}, true),
 					].filter(Boolean),
 				);
-
-				message.success({
-					content: `${
+				message.destroy();
+				showMessage(
+					'success',
+					`${
 						info.coverType === 'gallery' ? 'Gallery' : 'Album'
 					} cover updated successfully`,
-					key: 'coverUpdate',
-				});
+				);
 			} else {
 				throw new Error('Failed to update cover position');
 			}
 		} catch (error) {
 			console.error('Error updating cover position:', error);
-			message.error({
-				content: error.message || 'Failed to update cover position',
-				key: 'coverUpdate',
-			});
+			showMessage('error', error.message || 'Failed to update cover position');
 		} finally {
 			setTimeout(() => {
 				handleSetCoverPosition.isProcessing = false;
@@ -2672,7 +2679,7 @@ const GalleryPage = () => {
 			showImageDeletePopup: false,
 			selectedImages: [],
 		}));
-		message.success('Images deleted successfully');
+		showMessage('success', 'Images deleted successfully');
 	};
 
 	const handleFilter = async (filter) => {
@@ -2730,7 +2737,7 @@ const GalleryPage = () => {
 					...prev,
 					selectedImages: [],
 				}));
-				message.success('Tag removed successfully');
+				showMessage('success', 'Tag removed successfully');
 			}
 		} else {
 			const response = await addTagToImage(payload, galleryId, info?.activeAlbumId, tagId);
@@ -2741,7 +2748,7 @@ const GalleryPage = () => {
 					selectedImages: [],
 					// selectedImagesTags: [tagId],
 				}));
-				message.success('Tag added successfully');
+				showMessage('success', 'Tag added successfully');
 			}
 		}
 	};
@@ -2792,9 +2799,9 @@ const GalleryPage = () => {
 				selectedImages: [],
 				showMoveToAlbum: false,
 			}));
-			message.success('Images moved to album successfully');
+			showMessage('success', 'Images moved to album successfully');
 		} else {
-			message.error('Something went wrong, please try again later');
+			showMessage('error', 'Something went wrong, please try again later');
 		}
 	};
 
@@ -2855,7 +2862,7 @@ const GalleryPage = () => {
 			// 	...prev,
 			// 	// tagSearchValue: '',
 			// }));
-			message.success('Tag added successfully');
+			showMessage('success', 'Tag added successfully');
 		}
 	};
 	const handleAlbumDragEnd = (result) => {
@@ -2948,10 +2955,10 @@ const GalleryPage = () => {
 					zoom: selectedImage?.zoom || 1,
 				}));
 			} else {
-				message.error('Unable to set selected image as album cover');
+				showMessage('error', 'Unable to set selected image as album cover');
 			}
 		} else {
-			message.error('Please select only one image to set as album cover');
+			showMessage('error', 'Please select only one image to set as album cover');
 		}
 	};
 
@@ -3061,7 +3068,7 @@ const GalleryPage = () => {
 			}
 		} catch (error) {
 			console.error('Error opening cover upload:', error);
-			message.error('Failed to open cover upload');
+			showMessage('error', 'Failed to open cover upload');
 			setInfo((prev) => ({
 				...prev,
 				isLoadingCover: false,
@@ -3101,10 +3108,10 @@ const GalleryPage = () => {
 					hasFileName: !!selectedImage?.activeVersion?.givenFileName,
 					hasCredentials: !!galleryCredentials,
 				});
-				message.error('Unable to set selected image as gallery cover');
+				showMessage('error', 'Unable to set selected image as gallery cover');
 			}
 		} else {
-			message.error('Please select only one image to set as gallery cover');
+			showMessage('error', 'Please select only one image to set as gallery cover');
 		}
 	};
 
@@ -3133,7 +3140,7 @@ const GalleryPage = () => {
 
 			if (response[0] === true) {
 				message.destroy('deleteAlbum');
-				message.success('Album deleted successfully');
+				showMessage('success', 'Album deleted successfully');
 				await getAlbums(galleryId);
 
 				const newAlbumId = tenantAlbums?.albums?.[0]?._id;
@@ -3149,12 +3156,12 @@ const GalleryPage = () => {
 				// window.history.replaceState(null, '', newUrl);
 			} else {
 				message.destroy('deleteAlbum');
-				message.error(response[1].message);
+				showMessage('error', response[1].message);
 			}
 		} catch (error) {
 			console.error('Error deleting album:', error);
 			message.destroy('deleteAlbum');
-			message.error('Failed to delete album');
+			showMessage('error', 'Failed to delete album');
 		} finally {
 			handleDeleteAlbum.isProcessing = false;
 		}
@@ -3304,7 +3311,7 @@ const GalleryPage = () => {
 			if (response?.[0] === true) {
 				message.loading('Rearranging images...');
 				message.destroy();
-				message.success('Images rearranged successfully');
+				showMessage('success', 'Images rearranged successfully');
 				setInfo((prev) => ({
 					...prev,
 					totalPayload: [],
@@ -3312,7 +3319,7 @@ const GalleryPage = () => {
 				}));
 			} else {
 				message.destroy();
-				message.error('Something went wrong, please try again later');
+				showMessage('error', 'Something went wrong, please try again later');
 			}
 		} else {
 			setInfo((prev) => ({
@@ -3366,10 +3373,7 @@ const GalleryPage = () => {
 				const response = await getDownloadLinkForImage(selectedImageId, isLightGallery);
 
 				if (response?.[0] === true) {
-					message.success({
-						content: 'Download completed',
-						key: 'downloadMessage',
-					});
+					showMessage('success', 'Download completed');
 				} else {
 					throw new Error('Failed to get download link');
 				}
@@ -3397,10 +3401,7 @@ const GalleryPage = () => {
 					info?.clientSelectionID,
 				);
 				if (response?.[0] === true) {
-					message.success({
-						content: 'Download started',
-						key: 'downloadMessage',
-					});
+					showMessage('success', 'Download Started');
 					window.open(response[1], '_blank');
 				} else {
 					throw new Error('Failed to prepare download');
@@ -3417,10 +3418,8 @@ const GalleryPage = () => {
 				const response = await getDownloadForMultipleImages(payload, galleryId);
 
 				if (response?.[0] === true) {
-					message.success({
-						content: 'Download completed',
-						key: 'downloadMessage',
-					});
+					message.destroy();
+					showMessage('success', 'Download completed');
 				} else {
 					throw new Error('Failed to get download links');
 				}
@@ -3439,11 +3438,8 @@ const GalleryPage = () => {
 					document.body.appendChild(link);
 					link.click();
 					document.body.removeChild(link);
-
-					message.success({
-						content: 'Download started',
-						key: 'downloadMessage',
-					});
+					message.destroy();
+					showMessage('success', 'Download started');
 				} else {
 					throw new Error('Failed to prepare download');
 				}
@@ -3456,10 +3452,8 @@ const GalleryPage = () => {
 			}));
 		} catch (error) {
 			console.error('Download error:', error);
-			message.error({
-				content: error.message || 'An error occurred during download',
-				key: 'downloadMessage',
-			});
+			message.destroy();
+			showMessage('error', error.message || 'An error occurred during download');
 		}
 	};
 
@@ -3573,23 +3567,22 @@ const GalleryPage = () => {
 			<div className="galleryContainer">
 				{!info?.isRearranging && (
 					<div className="galleryTitleWhenScrolled">
+						<span onClick={() => navigate('/home')} className="homeIcon">
+							<HomeIcon />
+						</span>
+						<span className="rightArrowIcon">
+							<RightArrow />
+						</span>
 						<span
 							className="galleryTitle"
-							style={{ cursor: 'pointer' }}
-							onClick={() => navigate(`/galleries`)}
+							onClick={() =>
+								info?.isLightGallery
+									? navigate(`/lite-gallery`)
+									: navigate(`/galleries`)
+							}
 						>
 							Files
 						</span>
-						<span style={{ color: 'white' }}>/</span>
-						<span
-							className="albumTitle"
-							style={{ cursor: 'pointer' }}
-							onClick={() => setInfo((prev) => ({ ...prev, activeTab: 'Albums' }))}
-						>
-							{info?.activeGallery?.title}
-						</span>
-						<span style={{ color: 'white' }}>/</span>
-						<span className="activeTab">{info?.activeTab}</span>
 					</div>
 				)}
 				{info?.isRearranging ? (
@@ -3790,20 +3783,24 @@ const GalleryPage = () => {
 																	: ''
 															}`}
 															style={{
+																// background:
+																// 	item.name === 'Ai People'
+																// 		? info?.activeTab ===
+																// 		  'Ai People'
+																// 			? `linear-gradient(to right, white ${
+																// 					info?.animationProgress *
+																// 					100
+																// 			  }%, #202123 ${
+																// 					info?.animationProgress *
+																// 					100
+																// 			  }%)`
+																// 			: '#202123'
+																// 		: info?.activeTab ===
+																// 		  item?.name
+																// 		? '#f2f2f3'
+																// 		: '#202123',
 																background:
-																	item.name === 'Ai People'
-																		? info?.activeTab ===
-																		  'Ai People'
-																			? `linear-gradient(to right, white ${
-																					info?.animationProgress *
-																					100
-																			  }%, #202123 ${
-																					info?.animationProgress *
-																					100
-																			  }%)`
-																			: '#202123'
-																		: info?.activeTab ===
-																		  item?.name
+																	info?.activeTab === item?.name
 																		? '#f2f2f3'
 																		: '#202123',
 																backgroundRepeat: 'no-repeat',
@@ -3838,7 +3835,7 @@ const GalleryPage = () => {
 																	  info?.animationProgress *
 																			100 <
 																			100
-																		? 'Updating...'
+																		? item?.number
 																		: item?.number
 																	: item?.number}
 															</p>
@@ -3905,6 +3902,7 @@ const GalleryPage = () => {
 											// 	}));
 											// }}
 										>
+											<SettingsIcon />
 											<div className="threeDotsIcon">Settings</div>
 										</div>
 									</Tooltip>
@@ -4414,40 +4412,47 @@ const GalleryPage = () => {
 																						}
 																						title={
 																							<div className="tagOptionsContainer">
-																								<p
-																									onClick={() =>
-																										setInfo(
-																											(
-																												prev,
-																											) => ({
-																												...prev,
-																												editTagPopup: true,
-																												activeTag:
-																													contain,
-																											}),
-																										)
-																									}
-																								>
-																									Edit
-																									Tag
-																								</p>
-																								<p
-																									onClick={() =>
-																										setInfo(
-																											(
-																												prev,
-																											) => ({
-																												...prev,
-																												deleteTagPopup: true,
-																												activeTag:
-																													contain,
-																											}),
-																										)
-																									}
-																								>
-																									Delete
-																									Tag
-																								</p>
+																								<div className="tagOptionsEachOption">
+																									<EditPen />
+																									<p
+																										onClick={() =>
+																											setInfo(
+																												(
+																													prev,
+																												) => ({
+																													...prev,
+																													editTagPopup: true,
+																													activeTag:
+																														contain,
+																												}),
+																											)
+																										}
+																									>
+																										Edit
+																										Tag
+																									</p>
+																								</div>
+																								<div className="tagOptionsEachOption">
+																									<TrashIcon />
+																									<p
+																										className="deleteTag"
+																										onClick={() =>
+																											setInfo(
+																												(
+																													prev,
+																												) => ({
+																													...prev,
+																													deleteTagPopup: true,
+																													activeTag:
+																														contain,
+																												}),
+																											)
+																										}
+																									>
+																										Delete
+																										Tag
+																									</p>
+																								</div>
 																							</div>
 																						}
 																						placement="bottom"
@@ -5903,12 +5908,10 @@ const GalleryPage = () => {
 									},
 									'albumName',
 								);
-								message.success('Album renamed successfully');
-							} else {
-								// message.error('Failed to rename album');
+								showMessage('success', 'Album renamed successfully');
 							}
 						} catch (error) {
-							message.error('Error renaming album');
+							showMessage('error', 'Error renaming album');
 						}
 					} else if (info.isDatePopup) {
 						const dateValue =

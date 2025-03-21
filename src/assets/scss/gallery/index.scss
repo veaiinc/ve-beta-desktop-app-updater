@@ -78,33 +78,55 @@
 	}
 	.galleryTitleWhenScrolled {
 		display: flex;
-		justify-content: flex-start;
 		align-items: center;
-		width: 100%;
-		gap: 10px;
-		background: #0c0c0c;
+		gap: 4px;
 		padding: 0px 12px;
-		position: sticky;
-		min-height: 40px;
-		top: 0;
-		z-index: 1000;
-		.galleryTitle {
-			color: var(--secondary-font, #787e87);
-			font-family: Inter;
-			font-size: 16px;
-			font-style: normal;
-			font-weight: 500;
-			line-height: normal;
-			text-transform: capitalize;
+		.homeIcon {
+			display: flex;
+			width: 24px;
+			height: 24px;
+			padding: 4px;
+			align-items: center;
+			gap: 4px;
+			flex-shrink: 0;
+			aspect-ratio: 1/1;
+			cursor: pointer;
+			svg {
+				path {
+					color: #7a7e85;
+				}
+			}
+			&:hover {
+				border-radius: 4px;
+				background: var(--card, #171819);
+				svg {
+					path {
+						color: var(--primary-font);
+					}
+				}
+			}
 		}
-		.albumTitle {
-			color: var(--secondary-font, #787e87);
+		.rightArrowIcon {
+			display: flex;
+		}
+		.galleryTitle {
+			display: flex;
+			height: 24px;
+			padding: 8px;
+			justify-content: center;
+			align-items: center;
+			gap: 8px;
+			border-radius: 4px;
+			color: var(--primary-font, #f2f2f3);
 			font-family: Inter;
-			font-size: 16px;
+			font-size: 12px;
 			font-style: normal;
 			font-weight: 500;
-			line-height: normal;
+			line-height: 22.5px; /* 187.5% */
 			text-transform: capitalize;
+			&:hover {
+				background-color: var(--card-over-card);
+			}
 		}
 		.activeTab {
 			color: var(--primary-font, #f2f2f3);
@@ -114,6 +136,7 @@
 			font-weight: 500;
 			line-height: normal;
 			text-transform: capitalize;
+			cursor: pointer;
 		}
 	}
 	.galleryRearrangingContainer {
@@ -371,8 +394,6 @@
 							}
 						}
 						.count {
-							color: var(--primary-font);
-							font-family: var(--primary-font-family);
 							color: var(--primary-font);
 							font-family: var(--primary-font-family);
 							font-size: 16px;
@@ -915,8 +936,13 @@
 					.albumContain {
 						display: flex;
 						align-items: center;
-						gap: 7px;
+						gap: 4px 8px;
+						height: 33px;
 						cursor: pointer;
+						&:hover {
+							border-radius: 8px;
+							background: var(--card-over-card-hover, #27282b);
+						}
 						p {
 							color: var(--secondary-font);
 							font-family: var(--primary-font-family);
@@ -940,15 +966,18 @@
 						.count {
 							display: flex;
 							height: 20px;
-							padding: 4px;
+							padding: 8px;
+							justify-content: center;
+							align-items: center;
+							gap: 10px;
 							border-radius: 4px;
-							background: var(--card);
-							height: fit-content;
-							padding: 4px;
-							color: var(--primary-font);
+							background: var(--stroke, #333334);
+							color: var(--primary-font, #f2f2f3);
+							font-family: Inter;
 							font-size: 12px;
+							font-style: normal;
 							font-weight: 400;
-							line-height: 14px;
+							line-height: normal;
 						}
 						.count-active {
 							display: flex;
@@ -997,7 +1026,7 @@
 			}
 			.galleryImagesContainer {
 				width: 100%;
-				padding: 10px;
+				padding: 0px 10px;
 				height: 83vh;
 				overflow: auto;
 				.imageUpload {
@@ -1927,29 +1956,94 @@
 	}
 }
 .tagOptionsContainer {
-	display: flex;
-	flex-direction: column;
-	gap: 10px;
-	border-radius: 16px;
-	background: var(--card-over-card, #202123);
-	width: 100%;
-	padding: 12px 16px;
-	p {
+	display: inline-flex;
+	padding: 8px;
+	align-items: flex-start;
+	gap: 12px;
+	border-radius: 10px;
+	background: var(--Popup, #202123);
+	box-shadow: 0px 4px 5px 0px rgba(0, 0, 0, 0.15);
+	.tagOptionsEachOption {
 		display: flex;
+		flex-direction: row;
+		padding: 6px;
+		align-items: center;
 		gap: 8px;
-		padding: 4px;
-		border-radius: 4px;
-		justify-content: flex-start;
-		cursor: pointer;
-		color: var(--primary-font);
-		font-size: 14px;
-		font-weight: 400;
-		line-height: 16px;
-		letter-spacing: -0.42px;
-		text-transform: capitalize;
-		list-style: none;
-		&:hover {
-			background: var(--card, #171819);
+		border-radius: 6px;
+		p {
+			cursor: pointer;
+			color: var(--primary-font);
+			font-size: 14px;
+			font-weight: 400;
+			line-height: 16px;
+			letter-spacing: -0.42px;
+			text-transform: capitalize;
+			list-style: none;
+			&:hover {
+				background: var(--card, #171819);
+			}
 		}
+		.deleteTag {
+			color: var(--error, #e40039);
+			font-family: Inter;
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 400;
+			line-height: normal;
+		}
+	}
+}
+
+.custom-message {
+	display: inline-flex;
+	min-width: 225px;
+	padding: 8px;
+	align-items: center;
+	gap: 12px;
+	border-radius: 16px;
+	border: 1px solid rgba(42, 42, 42, 0.64);
+	background: var(--Popup, #202123);
+	box-shadow: 0px 4px 7px 0px rgba(0, 0, 0, 0.25);
+}
+
+/* Ensure Ant Design's wrapper also takes the custom background */
+.custom-message .ant-message-notice-content {
+	background: transparent !important; /* Make inner wrapper transparent */
+	box-shadow: none !important;
+	padding: 0 !important;
+}
+.message-container {
+	display: inline-flex;
+	padding: 8px;
+	align-items: center;
+	gap: 12px;
+	span {
+		color: #e4e5e6;
+		font-family: Inter;
+		font-size: 14px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: 96%; /* 13.44px */
+	}
+	.divider {
+		width: 1.5px;
+		height: 12px;
+		background: var(--stroke-hover, #404548);
+	}
+	.dismiss-button {
+		display: flex;
+		padding: 8px;
+		justify-content: center;
+		align-items: center;
+		gap: 8px;
+		border-radius: 8px;
+		color: var(--primary-font, #f2f2f3);
+		font-family: Inter;
+		font-size: 14px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: 16px; /* 114.286% */
+		border: none;
+		background: transparent;
 	}
 }
