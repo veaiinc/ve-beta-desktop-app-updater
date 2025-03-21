@@ -78,7 +78,7 @@ const sortingOptions = [
 	{ label: 'Custom', value: 'custom' },
 ];
 
-const showMessage = (type, content) => {
+const showMessage = (type, content, dismissFunction) => {
 	const icons = {
 		success: <ToastSuccess />,
 		error: <ToastError />,
@@ -88,13 +88,19 @@ const showMessage = (type, content) => {
 	const key = `message-${Date.now()}`;
 
 	message.open({
-		key, // Assign a unique key
+		key,
 		content: (
 			<div className="message-container">
 				<span>{content}</span>
 				<span className="divider">|</span>
-				<button onClick={() => message.destroy(key)} className="dismiss-button">
-					Dismiss
+				<button
+					onClick={() => {
+						message.destroy(key);
+						if (type === 'error') dismissFunction?.();
+					}}
+					className="dismiss-button"
+				>
+					{type === 'error' ? 'Try Again' : 'Dismiss'}
 				</button>
 			</div>
 		),
@@ -1024,7 +1030,11 @@ const GalleryPage = () => {
 					updatesNeeded = true;
 					showMessage('success', 'Gallery cover has been automatically set');
 				} else {
-					showMessage('error', 'Failed to set gallery cover image');
+					showMessage(
+						'error',
+						'Failed to set gallery cover image',
+						checkAndSetDefaultCovers(firstImage),
+					);
 				}
 			}
 
@@ -1143,11 +1153,11 @@ const GalleryPage = () => {
 				}));
 
 				// Refresh data without changing the active album
-				await Promise.all([getAlbumImagesCount(galleryId), getAlbums(galleryId)]);
+				Promise.all([getAlbumImagesCount(galleryId), getAlbums(galleryId)]);
 
 				showMessage('success', 'Album visibility updated successfully');
 			} else {
-				showMessage('error', 'Failed to update album visibility');
+				showMessage('error', 'Failed to update album visibility', handleHideAlbum);
 			}
 		} catch (error) {
 			console.error('Error updating album visibility:', error);
@@ -1224,11 +1234,11 @@ const GalleryPage = () => {
 					},
 					// ... similar reversions for tenantAlbums and albumImagesCount
 				}));
-				showMessage('error', 'Failed to update album access');
+				showMessage('error', 'Failed to update album access', handleLockAlbum);
 			}
 		} catch (error) {
 			console.error('Error updating album access:', error);
-			showMessage('error', 'An error occurred while updating album access');
+			showMessage('error', 'An error occurred while updating album access', handleLockAlbum);
 		}
 	}, [galleryId, info?.activeAlbumId, info?.activeAlbum?.guestAccess?.isEnabled]);
 
@@ -1299,10 +1309,8 @@ const GalleryPage = () => {
 			}));
 
 			console.error('Error updating gallery status:', error);
-			message.error({
-				content: 'Failed to update gallery status',
-				key: 'galleryUpdate',
-			});
+			message.destroy();
+			showMessage('error', 'Failed to update gallery status', handleOnlineToggle);
 		}
 	}, [info.isOnline, galleryId, tenantAlbums?.albums]);
 
@@ -1376,7 +1384,7 @@ const GalleryPage = () => {
 				tagLoading: false,
 			}));
 		} else {
-			showMessage('error', 'Failed to update tag');
+			showMessage('error', 'Failed to update tag', () => handleEditTag(tagId, name));
 		}
 
 		setInfo((prev) => ({
@@ -1403,7 +1411,7 @@ const GalleryPage = () => {
 				tagLoading: false,
 			}));
 		} else {
-			showMessage('error', response?.[1]?.message);
+			showMessage('error', response?.[1]?.message, () => handleDeleteTag(tagId, albumSlug));
 		}
 
 		setInfo((prev) => ({
@@ -1519,7 +1527,7 @@ const GalleryPage = () => {
 		if (info.isOnline) {
 			setInfo((prevInfo) => ({ ...prevInfo, shareModal: !prevInfo.shareModal }));
 		} else {
-			showMessage('error', 'Publish the Gallery To Share');
+			showMessage('error', 'Publish the Gallery To Share', openShareModal);
 		}
 	};
 	const handleClearSelectedImages = () => {
@@ -1695,11 +1703,15 @@ const GalleryPage = () => {
 
 					showMessage('success', 'Gallery renamed successfully');
 				} else {
-					showMessage('error', response?.[1]?.message || 'Failed to rename gallery');
+					showMessage(
+						'error',
+						response?.[1]?.message || 'Failed to rename gallery',
+						handleGalleryChange,
+					);
 				}
 			} catch (error) {
 				console.error('Error renaming gallery:', error);
-				showMessage('error', 'An unexpected error occurred');
+				showMessage('error', 'An unexpected error occurred', handleGalleryChange);
 			} finally {
 				handleGalleryChange.isProcessing = false;
 			}
@@ -1724,12 +1736,12 @@ const GalleryPage = () => {
 				showMessage('success', 'Gallery renamed successfully');
 				await getGalleries({}, true);
 			} else {
-				showMessage('error', 'Failed to rename gallery');
+				showMessage('error', 'Failed to rename gallery', () => updateGallery(name));
 			}
 			return response;
 		} catch (error) {
 			console.error('Error updating gallery:', error);
-			showMessage('error', 'Failed to rename gallery');
+			showMessage('error', 'Failed to rename gallery', () => updateGallery(name));
 		} finally {
 			// Reset processing flag
 			updateGallery.isProcessing = false;
@@ -1849,11 +1861,13 @@ const GalleryPage = () => {
 					await Promise.all([getAlbumImagesCount(galleryId), getAlbums(galleryId)]);
 				} else {
 					// Show error message
-					showMessage('error', response?.[1]?.message || 'Failed to rename album');
+					showMessage('error', response?.[1]?.message || 'Failed to rename album', () =>
+						albumChanges(value),
+					);
 				}
 			} catch (error) {
 				console.error('Error renaming album:', error);
-				showMessage('error', 'An unexpected error occurred');
+				showMessage('error', 'An unexpected error occurred', albumChanges(value));
 			} finally {
 				albumChanges.isProcessing = false;
 			}
@@ -1884,7 +1898,7 @@ const GalleryPage = () => {
 				document.execCommand('copy');
 				showMessage('success', 'Album link copied to clipboard');
 			} catch (err) {
-				showMessage('error', 'Failed to copy link');
+				showMessage('error', 'Failed to copy link', handleCopyAlbumLink);
 			} finally {
 				document.body.removeChild(textArea);
 			}
@@ -1943,7 +1957,7 @@ const GalleryPage = () => {
 					isDownloading: false,
 				}));
 			} else {
-				showMessage('error', 'Failed to generate download link');
+				showMessage('error', 'Failed to generate download link', handleDownloadAlbum);
 				setInfo((prev) => ({
 					...prev,
 					isDownloading: false,
@@ -1952,7 +1966,11 @@ const GalleryPage = () => {
 		} catch (error) {
 			console.error('Download error:', error);
 			message.destroy();
-			showMessage('error', 'Something went wrong, please try again later');
+			showMessage(
+				'error',
+				'Something went wrong, please try again later',
+				handleDownloadAlbum,
+			);
 			setInfo((prev) => ({
 				...prev,
 				isDownloading: false,
@@ -2019,12 +2037,12 @@ const GalleryPage = () => {
 				showMessage('success', 'Image list fetched successfully');
 			} else {
 				message.destroy('lightroomCopy');
-				showMessage('error', 'Failed to fetch lightroom copy list');
+				showMessage('error', 'Failed to fetch lightroom copy list', handleLightRoomCopy);
 			}
 		} catch (error) {
 			console.error('Error fetching lightroom copy list:', error);
 			message.destroy('lightroomCopy');
-			showMessage('error', 'Failed to fetch lightroom copy list');
+			showMessage('error', 'Failed to fetch lightroom copy list', handleLightRoomCopy);
 		}
 	};
 
@@ -2046,212 +2064,12 @@ const GalleryPage = () => {
 					}));
 				})
 				.catch(() => {
-					showMessage('error', 'Failed to copy list');
+					showMessage('error', 'Failed to copy list', handleCopyLightRoomList);
 				});
 		} else {
 			showMessage('warning', 'No items to copy');
 		}
 	};
-
-	// ... existing code ...
-
-	// ... existing code ...
-
-	// const uploadAlbumCoverChangeHandler = async (e) => {
-	// 	const image = e.target.files[0];
-	// 	if (!image) return;
-
-	// 	message.loading({
-	// 		content: 'Uploading album cover image..',
-	// 		key: 'coverUpload',
-	// 	});
-
-	// 	try {
-	// 		// Reset existing image data
-	// 		setInfo((prev) => ({
-	// 			...prev,
-	// 			crop: { x: 0, y: 0 },
-	// 			zoom: 1,
-	// 			uploadImageId: null,
-	// 			imageURL: '',
-	// 			coverImageDetails: null,
-	// 			coverPhoto: true,
-	// 			isLoadingCover: true,
-	// 		}));
-
-	// 		const batchId = randomize('Aa0', 10);
-
-	// 		// Check for duplicate images first
-	// 		const duplicateImage = await getImageDuplicatesList(galleryId, info.activeAlbumId);
-	// 		const isHavingDuplicateImage = duplicateImage?.[1]?.find(
-	// 			(item) => item?.displayName === image?.name,
-	// 		);
-
-	// 		if (isHavingDuplicateImage) {
-	// 			getImageDetail(isHavingDuplicateImage?._id);
-	// 			setInfo((prev) => ({
-	// 				...prev,
-	// 				uploadImageId: isHavingDuplicateImage?._id,
-	// 				isLoadingCover: false,
-	// 			}));
-	// 			message.destroy('coverUpload');
-	// 			return;
-	// 		}
-
-	// 		// Get gallery tags and upload image
-	// 		const responseGalleryTags = await getGalleryTagsList(galleryId);
-	// 		if (!responseGalleryTags?.[0]) {
-	// 			throw new Error('Failed to get gallery tags');
-	// 		}
-
-	// 		const allTagId = responseGalleryTags?.[1]?.find(
-	// 			(item) => item.displayName === 'All',
-	// 		)?._id;
-
-	// 		if (!allTagId) {
-	// 			throw new Error('All tag not found');
-	// 		}
-
-	// 		const uploadPayload = {
-	// 			originalFileName: image?.name,
-	// 			originalDateTime: moment(image?.['originalDate']).unix() || 0,
-	// 			uploadBatchId: batchId,
-	// 			tag_ids: [allTagId],
-	// 			isAIFacesEnabled: true,
-	// 		};
-
-	// 		const signedURLUpload = await getUploadImageSignUrl(
-	// 			galleryId,
-	// 			info.activeAlbumId,
-	// 			uploadPayload,
-	// 		);
-
-	// 		if (!signedURLUpload?.[0]) {
-	// 			throw new Error('Failed to get signed URL');
-	// 		}
-
-	// 		// Upload the image
-	// 		await axios.put(signedURLUpload[1]['signedUrl'], image, {
-	// 			headers: {
-	// 				'Content-Type': image?.type,
-	// 			},
-	// 		});
-
-	// 		const uploadedImageId = signedURLUpload?.[1]?._id;
-
-	// 		setInfo((prev) => ({
-	// 			...prev,
-	// 			uploadImageId: uploadedImageId,
-	// 			coverPhoto: true,
-	// 		}));
-
-	// 		// Wait for image processing
-	// 		let attempts = 0;
-	// 		const maxAttempts = 10;
-	// 		while (attempts < maxAttempts) {
-	// 			await new Promise((resolve) => setTimeout(resolve, 2000));
-	// 			const imageStatus = await getImageUploadStatus(
-	// 				galleryId,
-	// 				info.activeAlbumId,
-	// 				batchId,
-	// 			);
-	// 			if (imageStatus?.[0] && imageStatus?.[1]?.processedCount === 1) {
-	// 				const imageDetails = await getImageDetail(uploadedImageId);
-	// 				if (imageDetails?.[0]) {
-	// 					// Check if gallery or album has no cover image and set this as cover
-	// 					const shouldSetGalleryCover = !info?.activeGallery?.coverImage;
-	// 					const shouldSetAlbumCover = !info?.activeAlbum?.coverImage;
-
-	// 					if (shouldSetGalleryCover || shouldSetAlbumCover) {
-	// 						const coverPayload = {
-	// 							image_id: uploadedImageId,
-	// 							xPosition: 0,
-	// 							yPosition: 0,
-	// 							givenFileName: imageDetails[1]?.activeVersion?.givenFileName,
-	// 							width: 100,
-	// 							height: 100,
-	// 							zoom: 1,
-	// 						};
-
-	// 						// Set as gallery cover if needed
-	// 						if (shouldSetGalleryCover) {
-	// 							await updateGalleryCoverImage(coverPayload, galleryId);
-	// 						}
-
-	// 						// Set as album cover if needed
-	// 						if (shouldSetAlbumCover) {
-	// 							await updateAlbumCoverImage(
-	// 								coverPayload,
-	// 								galleryId,
-	// 								info.activeAlbumId,
-	// 							);
-	// 						}
-
-	// 						// Refresh data to show new covers
-	// 						await Promise.all([
-	// 							getAlbumImagesCount(galleryId),
-	// 							getAlbums(galleryId),
-	// 							getGalleries(),
-	// 						]);
-
-	// 						message.success('Cover images set automatically');
-	// 					}
-
-	// 					setInfo((prev) => ({
-	// 						...prev,
-	// 						coverImageDetails: imageDetails[1],
-	// 						isLoadingCover: false,
-	// 					}));
-
-	// 					message.success({
-	// 						content: 'Image uploaded successfully',
-	// 						key: 'coverUpload',
-	// 					});
-	// 					return;
-	// 				}
-	// 			}
-	// 			attempts++;
-	// 		}
-	// 		throw new Error('Image processing timed out');
-	// 	} catch (error) {
-	// 		console.error('Error uploading cover image:', error);
-	// 		message.error({
-	// 			content: error.message || 'Failed to upload cover image',
-	// 			key: 'coverUpload',
-	// 		});
-	// 		setInfo((prev) => ({
-	// 			...prev,
-	// 			isLoadingCover: false,
-	// 		}));
-	// 	}
-	// };
-
-	// ... rest of the code ...
-	// const handleSetCoverPosition = async (focalPoint) => {
-	// 	const payload = {
-	// 		image_id: info?.uploadImageId || info?.coverImageDetails?._id,
-	// 		xPosition: focalPoint?.x,
-	// 		yPosition: focalPoint?.y,
-	// 		givenFileName:
-	// 			imageDetail?.activeVersion?.givenFileName || info?.coverImageDetails?.givenFileName,
-	// 		width: 100,
-	// 		height: 100,
-	// 		zoom: 1,
-	// 	};
-
-	// 	try {
-	// 		const response = await updateAlbumCoverImage(payload, galleryId, info.activeAlbumId);
-	// 		if (response?.[0] === true) {
-	// 			message.success('Cover position set successfully!');
-	// 			// Refresh album details to show updated cover
-	// 			getAlbumImagesCount(galleryId);
-	// 		} else {
-	// 			message.error('Something went wrong, please try again later');
-	// 		}
-	// 	} catch (error) {
-	// 		message.error('Failed to update cover position');
-	// 	}
-	// };
 	const handleLayoutType = (styleName, value) => {
 		if (styleName === 'gridStyle') {
 			const newGridStyle = {
@@ -2344,7 +2162,7 @@ const GalleryPage = () => {
 			}
 		} else {
 			message.destroy();
-			showMessage('error', response[1].message);
+			showMessage('error', response[1].message, handleDeleteGallery);
 		}
 	};
 	const handleManageCollaborator = (data) => {
@@ -2445,7 +2263,7 @@ const GalleryPage = () => {
 				document.execCommand('copy');
 				showMessage('success', 'Gallery link copied to clipboard');
 			} catch (err) {
-				showMessage('error', 'Failed to copy link');
+				showMessage('error', 'Failed to copy link', handleCopyGalleryLink);
 			} finally {
 				document.body.removeChild(textArea);
 			}
@@ -2543,7 +2361,9 @@ const GalleryPage = () => {
 			}
 		} else {
 			message.destroy();
-			showMessage('error', 'Something went wrong, please try again later');
+			showMessage('error', 'Something went wrong, please try again later', () =>
+				uploadGalleryCoverChangeHandler(e),
+			);
 		}
 	};
 
@@ -2651,7 +2471,9 @@ const GalleryPage = () => {
 			}
 		} catch (error) {
 			console.error('Error updating cover position:', error);
-			showMessage('error', error.message || 'Failed to update cover position');
+			showMessage('error', error.message || 'Failed to update cover position', () =>
+				handleSetCoverPosition(focalPoint),
+			);
 		} finally {
 			setTimeout(() => {
 				handleSetCoverPosition.isProcessing = false;
@@ -2801,7 +2623,9 @@ const GalleryPage = () => {
 			}));
 			showMessage('success', 'Images moved to album successfully');
 		} else {
-			showMessage('error', 'Something went wrong, please try again later');
+			showMessage('error', 'Something went wrong, please try again later', () =>
+				handleMoveImageToAlbum(albumId),
+			);
 		}
 	};
 
@@ -2955,10 +2779,18 @@ const GalleryPage = () => {
 					zoom: selectedImage?.zoom || 1,
 				}));
 			} else {
-				showMessage('error', 'Unable to set selected image as album cover');
+				showMessage(
+					'error',
+					'Unable to set selected image as album cover',
+					handleSetAlbumCover,
+				);
 			}
 		} else {
-			showMessage('error', 'Please select only one image to set as album cover');
+			showMessage(
+				'error',
+				'Please select only one image to set as album cover',
+				handleSetAlbumCover,
+			);
 		}
 	};
 
@@ -3068,7 +2900,9 @@ const GalleryPage = () => {
 			}
 		} catch (error) {
 			console.error('Error opening cover upload:', error);
-			showMessage('error', 'Failed to open cover upload');
+			showMessage('error', 'Failed to open cover upload', () =>
+				handleUploadCoverOpen(coverType),
+			);
 			setInfo((prev) => ({
 				...prev,
 				isLoadingCover: false,
@@ -3108,10 +2942,18 @@ const GalleryPage = () => {
 					hasFileName: !!selectedImage?.activeVersion?.givenFileName,
 					hasCredentials: !!galleryCredentials,
 				});
-				showMessage('error', 'Unable to set selected image as gallery cover');
+				showMessage(
+					'error',
+					'Unable to set selected image as gallery cover',
+					handleSetGalleryCover,
+				);
 			}
 		} else {
-			showMessage('error', 'Please select only one image to set as gallery cover');
+			showMessage(
+				'error',
+				'Please select only one image to set as gallery cover',
+				handleSetGalleryCover,
+			);
 		}
 	};
 
@@ -3156,12 +2998,12 @@ const GalleryPage = () => {
 				// window.history.replaceState(null, '', newUrl);
 			} else {
 				message.destroy('deleteAlbum');
-				showMessage('error', response[1].message);
+				showMessage('error', response[1].message, handleDeleteAlbum);
 			}
 		} catch (error) {
 			console.error('Error deleting album:', error);
 			message.destroy('deleteAlbum');
-			showMessage('error', 'Failed to delete album');
+			showMessage('error', 'Failed to delete album', handleDeleteAlbum);
 		} finally {
 			handleDeleteAlbum.isProcessing = false;
 		}
@@ -3319,7 +3161,11 @@ const GalleryPage = () => {
 				}));
 			} else {
 				message.destroy();
-				showMessage('error', 'Something went wrong, please try again later');
+				showMessage(
+					'error',
+					'Something went wrong, please try again later',
+					handleSaveImage,
+				);
 			}
 		} else {
 			setInfo((prev) => ({
@@ -3453,7 +3299,11 @@ const GalleryPage = () => {
 		} catch (error) {
 			console.error('Download error:', error);
 			message.destroy();
-			showMessage('error', error.message || 'An error occurred during download');
+			showMessage(
+				'error',
+				error.message || 'An error occurred during download',
+				handleDownload,
+			);
 		}
 	};
 

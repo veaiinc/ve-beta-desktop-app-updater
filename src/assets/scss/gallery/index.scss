@@ -2045,5 +2045,10 @@
 		line-height: 16px; /* 114.286% */
 		border: none;
 		background: transparent;
+		cursor: pointer;
+		&:hover {
+			border-radius: 8px;
+			background: var(--stroke, #333334);
+		}
 	}
 }
