@@ -25,10 +25,8 @@
 		align-items: center;
 		flex-shrink: 0;
 		border-radius: 14px;
-		background: var(--Popup, #202123);
-		background: var(--Popup, color(display-p3 0.1255 0.1294 0.1373));
-		box-shadow: 4px 4px 73px 0px rgba(0, 0, 0, 0.2);
-		box-shadow: 4px 4px 73px 0px color(display-p3 0 0 0 / 0.2);
+		background: var(--card);
+		box-shadow: 4px 4px 73px 0px var(--stroke);
 
 		// position: fixed;
 		// left: 50%;
@@ -45,10 +43,9 @@
 		}
 
 		.toolbarText {
-			color: var(--secondary-font, #787e87);
-			color: var(--secondary-font, color(display-p3 0.4784 0.4941 0.5216));
+			color: var(--secondary-font);
 			text-align: center;
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 500;

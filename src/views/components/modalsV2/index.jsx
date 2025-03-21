@@ -13,12 +13,12 @@ const ReactModal = ({ isOpen, closeModal, modalType, children, customStyles = {}
 			outline: '0px',
 			border: '0px',
 			borderRadius: '8px',
-			boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.2)',
+			// boxShadow: '0px 4px 8px var(--stroke)',
 			transition: 'transform 0.3s ease-in-out',
 			backgroundColor: 'transparent',
 		},
 		overlay: {
-			backgroundColor: 'rgba(0, 0, 0, 0.5)',
+			backgroundColor: 'transparent',
 			//transition: 'opacity 0.3s ease-in-out',
 		},
 	};
@@ -33,7 +33,7 @@ const ReactModal = ({ isOpen, closeModal, modalType, children, customStyles = {}
 			transform: isOpen ? 'translate(0%) scale(1)' : 'translate(0%) scale(0)', // Scale for fade-in effect
 			transition: 'all 3s ease-in-out',
 			borderRadius: '8px',
-			boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.2)',
+			// boxShadow: '0px 4px 8px var(--stroke)',
 			border: 'none',
 			padding: '0px',
 			zIndex: 9999,
@@ -47,7 +47,7 @@ const ReactModal = ({ isOpen, closeModal, modalType, children, customStyles = {}
 			left: 0,
 			right: 0,
 			bottom: 0,
-			backgroundColor: 'rgba(0, 0, 0, 0.5)',
+			// backgroundColor: 'var(--stroke)',
 			transition: 'opacity 0.3s ease-in-out',
 			zIndex: 9998,
 			opacity: isOpen ? 1 : 0, // Fade-in effect

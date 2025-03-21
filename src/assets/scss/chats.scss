@@ -11,11 +11,13 @@
 		}
 
 		.ant-drawer-body {
-			background-color: #202123;
+			background-color: var(--card);
 			padding: 0px;
-			border-left: 0.5px solid rgb(51, 51, 52);
+			border-left: 0.5px solid var(--stroke);
 
 			.chats-drawer-container {
+				width: 250px;
+
 				.header {
 					padding: 24px;
 					display: flex;
@@ -24,8 +26,8 @@
 
 					.title {
 						overflow: hidden;
-						color: #e8e8e8;
-						font-family: Inter;
+						color: var(--primary-font);
+						font-family: var(--primary-font-family);
 						font-size: 14px;
 						font-style: normal;
 						font-weight: 500;
@@ -40,7 +42,7 @@
 					display: flex;
 					flex-direction: column;
 					height: calc(100vh - 70px);
-					width: 100%;
+					width: 250px;
 
 					.skeleton-loader-container {
 						display: flex;
@@ -60,8 +62,8 @@
 						height: 100%;
 
 						.message {
-							color: #e8e8e8;
-							font-family: Inter;
+							color: var(--primary-font);
+							font-family: var(--primary-font-family);
 							font-size: 14px;
 							font-style: normal;
 							font-weight: 500;
@@ -73,13 +75,14 @@
 						display: flex;
 						justify-content: space-between;
 						align-items: flex-start;
-						border-bottom: 0.5px solid rgb(51, 51, 52);
+						border-bottom: 0.5px solid var(--stroke);
 						padding: 16px 20px;
 						width: 100%;
+						height: 68px;
 						cursor: pointer;
 
 						&:hover {
-							background-color: #2e2f33;
+							background-color: var(--card-hover);
 						}
 
 						.chat-title-and-query {
@@ -89,7 +92,10 @@
 							gap: 4px;
 
 							.chat-title {
-								width: 280px;
+								width: 180px;
+								text-overflow: ellipsis;
+								white-space: nowrap;
+								overflow: hidden;
 								color: var(--primary-font, #f2f2f3);
 								font-family: Inter;
 								font-size: 14px;
@@ -102,24 +108,24 @@
 							}
 
 							.chat-query {
-								width: 280px;
+								width: 180px;
+								text-overflow: ellipsis;
+								white-space: nowrap;
+								overflow: hidden;
 								color: var(--secondary-font, #7a7e85);
 								font-family: Inter;
 								font-size: 12px;
 								font-style: normal;
 								font-weight: 400;
 								line-height: normal;
-								overflow: hidden;
-								text-overflow: ellipsis;
-								white-space: nowrap;
 							}
 						}
 
 						.chat-timestamp {
 							text-align: right;
 							width: 15%;
-							color: #939393;
-							font-family: Inter;
+							color: var(--secondary-font);
+							font-family: var(--primary-font-family);
 							font-size: 12px;
 							font-style: normal;
 							font-weight: 400;

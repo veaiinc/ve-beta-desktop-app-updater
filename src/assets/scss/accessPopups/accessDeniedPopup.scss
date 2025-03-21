@@ -9,7 +9,7 @@
 	align-items: flex-start;
 	gap: 32px;
 	border-radius: 32px;
-	background: #1c1d1f;
+	background: var(--popup);
 	.access-denied-popup-content {
 		display: flex;
 		flex-direction: column;
@@ -19,7 +19,7 @@
 		.access-denied-popup-title {
 			// width: 286px;
 			color: var(--primary-font, #f2f2f3);
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 32px;
 			font-style: normal;
 			font-weight: 500;
@@ -28,7 +28,7 @@
 		.access-denied-popup-description {
 			// width: 338px;
 			color: var(--secondary-font, #787e87);
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 400;
@@ -49,10 +49,10 @@
 			flex: 1 0 0;
 			align-self: stretch;
 			border-radius: 50px;
-			border: 1px solid #2c2d2e;
+			border: 1px solid var(--stroke);
 			background: transparent;
 			color: var(--primary-font, #f2f2f3);
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 500;
@@ -69,7 +69,7 @@
 			border-radius: 59px;
 			background: var(--primary-font, #f2f2f3);
 			color: var(--background-color, #0c0c0d);
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 500;

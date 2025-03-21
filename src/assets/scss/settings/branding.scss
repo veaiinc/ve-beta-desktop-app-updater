@@ -1,7 +1,7 @@
 .brandsetupContainer {
 	display: flex;
 	flex-direction: column;
-    gap: 40px;
+	gap: 40px;
 	.socialLinkContainer {
 		border-radius: 40px;
 		background: none;
@@ -370,7 +370,7 @@
 
 			.headerSection {
 				h1 {
-					color: var(--primary-font, #F2F2F3);
+					color: var(--primary-font, #f2f2f3);
 					font-family: Inter;
 					font-size: 16px;
 					font-style: normal;
@@ -379,7 +379,7 @@
 				}
 
 				p {
-					color: var(--secondary-font, #787E87);
+					color: var(--secondary-font, #787e87);
 					font-family: Inter;
 					font-size: 14px;
 					font-style: normal;
@@ -425,8 +425,8 @@
 				border-radius: 12px;
 				background: var(--card, #171819);
 				.fontPreview {
-					color: var(--primary-font, #F2F2F3);
-					font-family: "Times New Roman";
+					color: var(--primary-font, #f2f2f3);
+					font-family: 'Times New Roman';
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 400;

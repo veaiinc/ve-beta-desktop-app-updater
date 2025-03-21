@@ -6,17 +6,17 @@
 		border-collapse: collapse;
 
 		thead {
-			background: #1a1a1a;
+			background: var(--card);
 			position: sticky;
 			top: 0;
-			border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+			border-bottom: 1px solid var(--stroke);
 
 			tr {
 				th {
 					padding: 10px 8px;
 					width: 25%;
 					overflow: hidden;
-					color: #979797;
+					color: var(--secondary-font);
 					text-align: center;
 					text-overflow: ellipsis;
 					font-size: 12px;
@@ -36,7 +36,7 @@
 					text-align: center;
 					padding: 10px 8px;
 					overflow: hidden;
-					color: #979797;
+					color: var(--secondary-font);
 					text-align: center;
 					text-overflow: ellipsis;
 					font-size: 13px;

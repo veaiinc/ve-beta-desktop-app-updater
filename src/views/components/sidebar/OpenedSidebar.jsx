@@ -2,7 +2,6 @@ import React, { useState, memo, useCallback, useEffect, useContext } from 'react
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
 	veAiModulesItemsList,
-	bottomOptionsList,
 	veAiSubModulesItemsList,
 	veAiModules,
 	AiOptions,
@@ -18,8 +17,6 @@ import { ReactComponent as RightArrowSvg } from '../../../assets/svg/sidebar/Rig
 import WorkspaceListComponent from './Workspace';
 import useLogout from '../../hooks/useLogout';
 import { message, Tooltip } from 'antd';
-import Notifications from './notifications/Notifications';
-import Chats from './chats/Chats';
 
 import Context from '../../../context/context';
 
@@ -508,7 +505,6 @@ const OpenedSideBarItemsComponent = ({
 												cursor: 'pointer',
 												position: 'sticky',
 												top: '0',
-												backgroundColor: '#202123',
 												zIndex: '1000',
 											}}
 										>
@@ -733,126 +729,6 @@ const OpenedSideBarItemsComponent = ({
 												</>
 											)}
 										</div>
-									</div>
-
-									<div className="bottomOptionsList">
-										{
-											<>
-												{/* <div className="planExpiresDiv">
-											<div
-												style={{
-													width: '100%',
-													display: 'flex',
-													justifyContent: 'start',
-												}}
-											>
-												<div className="planExpiresTitle">
-													Your Plan has been Expired
-												</div>
-											</div>
-											<div
-												style={{
-													width: '100%',
-													display: 'flex',
-													justifyContent: 'end',
-												}}
-											>
-												<button
-													className="renewNowDiv"
-													onClick={() => {
-														navigate('/subscription');
-													}}
-													style={{
-														cursor: 'pointer',
-													}}
-												>
-													Renew Now
-												</button>
-											</div>
-										</div> */}
-												{/* <div className="creditsLeft">
-											<div>
-												<div
-													style={{
-														fontSize: '14px',
-														fontWeight: '500',
-														color: '#E8E8E8',
-													}}
-												>
-													100
-												</div>
-												<div
-													style={{
-														fontSize: '14px',
-														fontWeight: '400',
-														color: '#939393',
-													}}
-												>
-													Credits Left This Month
-												</div>
-											</div>
-											<div className="creditSvg">
-												<svg width="30" height="30" viewBox="0 0 30 30">
-													<defs>
-														<linearGradient
-															id="paint0_linear_14532_74799"
-															x1="-0.661765"
-															y1="2.69729e-07"
-															x2="30.4666"
-															y2="1.98941"
-															gradientUnits="userSpaceOnUse"
-														>
-															<stop
-																offset="0.000100017"
-																stop-color="#C39DF8"
-															/>
-															<stop offset="1" stop-color="#EC7C9D" />
-														</linearGradient>
-													</defs>
-													<circle
-														cx="15"
-														cy="15"
-														r="12.5"
-														fill="none"
-														stroke="#333334"
-														strokeWidth="5"
-													/>
-													<circle
-														cx="15"
-														cy="15"
-														r="12.5"
-														fill="none"
-														stroke="url(#paint0_linear_14532_74799)"
-														strokeWidth="5"
-														strokeDasharray={`${(100 / 100) * 78.54} 78.54`}
-														transform="rotate(-90 15 15)"
-													/>
-												</svg>
-											</div>
-										</div> */}
-											</>
-										}
-										{bottomOptionsList?.map((singleItems, index) => (
-											<OpenedSideBarHoverStateIcons2
-												name={singleItems?.name}
-												Icon={singleItems?.icon}
-												route={singleItems?.route}
-												initialColor={singleItems?.initialColor}
-												navigateTo={(route) =>
-													handleNavigateFunction(route, singleItems)
-												}
-												key={singleItems?.name}
-												isActive={
-													selectedOption === singleItems?.name ||
-													sidebarStates.selectedModule ===
-														singleItems?.name
-												}
-												style={{
-													fontSize: '14px',
-													padding: '12px 16px',
-												}}
-											/>
-										))}
 									</div>
 								</div>
 							</>

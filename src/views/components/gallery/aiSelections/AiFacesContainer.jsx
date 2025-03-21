@@ -54,7 +54,7 @@ const AiFacesContainer = ({ galleryId, galleryCredentials, handleBackClick }) =>
 	return (
 		<div className="aiFaces-container">
 			<div className="aiFaces-header-back" onClick={handleBackClick}>
-				<BackIcon />
+				<BackIcon style={{ fill: 'var(--primary-font)' }} />
 				<p>Back</p>
 			</div>
 			<div className="aiFaces-container-scroll" id="aiFaces-Trigger">

@@ -1,6 +1,7 @@
 /* Minimal CSS for the classes used */
 .list-decimal {
-	list-style-type: decimal;
+	// list-style-type: decimal;
+	list-style-type: disc;
 }
 
 .list-outside {
@@ -97,7 +98,7 @@
 }
 
 .text-white {
-	color: #e8e8e8e6;
+	color: var(--primary-font);
 }
 // .common-markdown-font {
 // 	font-size: 16px;
@@ -173,8 +174,10 @@
 
 .markdown-custom-content {
 	color: #e8e8e8e6;
-	font-size: 14px;
+	font-size: 15px;
 	font-family: 'Inter', sans-serif;
+	// font-size: 15px;
+	// font-family: 'Calson', sans-serif;
 
 	h1,
 	h2,
@@ -183,5 +186,41 @@
 	h5,
 	h6 {
 		color: #e8e8e8;
+	}
+
+	h1 {
+		font-size: 32px;
+		line-height: 40px;
+	}
+	h2 {
+		font-size: 28px;
+		line-height: 36px;
+	}
+	h3 {
+		font-size: 24px;
+		line-height: 30px;
+	}
+
+	p {
+		line-height: 25px;
+		color: #eaeaeb;
+		letter-spacing: -0.02em;
+		font-weight: 400;
+	}
+	span {
+		letter-spacing: -0.02em;
+	}
+}
+
+.fade-in {
+	animation: fadeIn 1s ease-in forwards;
+}
+
+@keyframes fadeIn {
+	0% {
+		opacity: 0; /* Start fully transparent */
+	}
+	100% {
+		opacity: 1; /* End fully opaque */
 	}
 }

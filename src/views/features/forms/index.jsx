@@ -15,6 +15,10 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import Context from '../../../context/context';
 import DropDown from '../../components/dropDown/tasks/DropDown';
 import QuickActions from '../../components/globalComponents/QuickActions';
+import SearchSvg from '../../../assets/svg/activity/SearchSvg';
+import CrossSvg from '../../../assets/svg/docs/CrossSvg';
+import FilterSvg from '../../../assets/svg/my_templates/FilterSvg';
+import ThreeDotsSvg from '../../../assets/svg/my_templates/ThreeDotsSvg';
 import ProposalsPopup from '../../components/docs/ProposalsPopup';
 
 const Forms = () => {
@@ -23,7 +27,6 @@ const Forms = () => {
 	const {
 		templates: { getTemplatesListForForms, formsTemplatesList, moreFormsTemplatesList },
 	} = useContext(Context);
-
 	const [info, setInfo] = useState({
 		appliedFilters: [],
 		currentPage: 1,
@@ -78,7 +81,8 @@ const Forms = () => {
 	}, [info?.hasNextPage, info?.currentPage]);
 
 	const handleFormClick = useCallback((formData) => {
-		navigate(`/form-leads`, { state: { formData } });
+		console.log(formData);
+		navigate(`/forms/${formData?._id}`, { state: { formData } });
 	}, []);
 
 	return (
@@ -208,7 +212,7 @@ const Forms = () => {
 											}))
 										}
 									>
-										<Search />
+										<SearchSvg />
 									</span>
 
 									<div className="inputAndCloseContainer">
@@ -238,7 +242,7 @@ const Forms = () => {
 												}));
 											}}
 										>
-											<Cross style={{ width: '20px', height: '20px' }} />
+											<CrossSvg />
 										</span>
 									</div>
 								</div>
@@ -254,11 +258,9 @@ const Forms = () => {
 								}}
 								onOptionClick={() => {}}
 							>
-								<Filter
-									style={{ width: '20px', height: '20px', marginTop: '6px' }}
-								/>
+								<FilterSvg />
 							</DropDown>
-							<ThreeDots />
+							<ThreeDotsSvg />
 						</div>
 					</div>
 

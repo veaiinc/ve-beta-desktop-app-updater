@@ -6,7 +6,7 @@
 	align-items: flex-start;
 	gap: 24px;
 	border-radius: 32px;
-	background: #202123;
+	background: var(--popup);
 	.promptPopupContainerHeader {
 		display: flex;
 		justify-content: space-between;
@@ -18,7 +18,7 @@
 			align-items: flex-start;
 			gap: 4px;
 			.promptPopupContainerHeaderLeftTitle {
-				color: var(--primary-font-color, #f2f2f3);
+				color: var(--primary-font, #f2f2f3);
 				font-family: var(--primary-font-family, 'Inter');
 				font-size: 20px;
 				font-style: normal;
@@ -26,7 +26,7 @@
 				line-height: normal;
 			}
 			.promptPopupContainerHeaderLeftSubtitle {
-				background: linear-gradient(94deg, #ca9bfe, #fd749d);
+				background: var(--ai-color-code);
 				-webkit-background-clip: text;
 				-webkit-text-fill-color: transparent;
 				font-family: var(--primary-font-family, 'Inter');
@@ -51,11 +51,11 @@
 		.promptPopupContainerBodyText {
 			align-self: stretch;
 			border-radius: 12px;
-			border: 1px solid #2c2d2e;
-			background: #26282a;
+			border: 1px solid var(--stroke);
+			background: var(--card);
 			padding: 18px;
-			color: var(--primary-font-color, #f2f2f3);
-			font-family: Inter;
+			color: var(--primary-font, #f2f2f3);
+			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 500;
@@ -67,8 +67,8 @@
 				gap: 4px;
 				padding: 4px 10px;
 				border-radius: 37px;
-				border: 1px solid #797e86;
-				background: #202123;
+				border: 1px solid var(--stroke);
+				background: var(--popup);
 			}
 		}
 		.promptPopupContainerEmailPromptContainer {
@@ -76,7 +76,7 @@
 			align-items: center;
 			gap: 4px;
 			.promptPopupContainerEmailPrompt {
-				color: var(--secondary-font-color, #797e86);
+				color: var(--secondary-font, #797e86);
 				font-family: var(--primary-font-family, 'Inter');
 				font-size: 14px;
 				font-style: normal;
@@ -100,11 +100,10 @@
 			align-items: center;
 			gap: 10px;
 			border-radius: 100px;
-			background: #26282a;
+			background: var(--card);
 			.promptPopupContainerEachSelectedFileText {
-				color: #f2f2f3;
-				color: color(display-p3 0.949 0.949 0.9529);
-				font-family: Inter;
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 500;
@@ -120,7 +119,7 @@
 		gap: 10px;
 		align-self: stretch;
 		border-radius: 16px;
-		background: #26282a;
+		background: var(--card);
 		.promptPopupContainerSelectionFiles {
 			display: flex;
 			flex-direction: column;
@@ -129,8 +128,8 @@
 			gap: 12px;
 			align-self: stretch;
 			.promptPopupContainerSelectionFilesTitle {
-				color: #f2f2f3;
-				font-family: Inter;
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 500;
@@ -143,13 +142,12 @@
 				gap: 8px;
 				align-self: stretch;
 				border-radius: 12px;
-				border: 1px solid #2c2d2e;
-				border: 1px solid color(display-p3 0.1719 0.1753 0.1787);
+				border: 1px solid var(--stroke);
 				.inputSearchText {
-					color: #797e86;
+					color: var(--secondary-font);
 					background-color: transparent;
 					border: none;
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 500;
@@ -173,7 +171,7 @@
 				align-self: stretch;
 				border-radius: 10px;
 				&.selected {
-					background: #303336;
+					background: var(--card-hover);
 				}
 				.promptPopupContainerFilesList {
 					display: flex;
@@ -184,12 +182,11 @@
 						width: 24px;
 						height: 24px;
 						border-radius: 6px;
-						background: #202123;
+						background: var(--card);
 					}
 					.promptPopupContainerFilesListFile {
-						color: #f2f2f3;
-						color: color(display-p3 0.949 0.949 0.9529);
-						font-family: Inter;
+						color: var(--primary-font);
+						font-family: var(--primary-font-family);
 						font-size: 14px;
 						font-style: normal;
 						font-weight: 500;
@@ -209,8 +206,14 @@
 		gap: 16px;
 		flex: 1 0 0;
 		border-radius: 50px;
-		background: #f2f2f3;
+		background: var(--primary-button);
 		border: none;
 		cursor: pointer;
+		color: var(--primary-button-font);
+		font-family: var(--primary-font-family);
+		font-size: 14px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
 	}
 }

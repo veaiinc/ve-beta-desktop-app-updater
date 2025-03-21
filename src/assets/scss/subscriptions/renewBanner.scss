@@ -12,7 +12,7 @@
 		background: var(--renewBannerColor, #e6ff4d);
 		.renew-banner-title {
 			color: #000000;
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 600;
@@ -28,7 +28,7 @@
 			// background: var(--primary-font, #f2f2f3);
 			background: transparent;
 			color: var(--accent-color, #a98df8);
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 500;

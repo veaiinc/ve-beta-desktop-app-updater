@@ -29,8 +29,8 @@
 				gap: 24px;
 				align-self: stretch;
 				border-radius: 24px;
-				background: rgba(255, 255, 255, 0.1);
-				box-shadow: -6px 6px 40px 0px rgba(0, 0, 0, 0.05);
+				background: var(--card);
+				box-shadow: -6px 6px 40px 0px var(--card-hover);
 
 				.iframeContainer {
 					height: 238px;
@@ -42,7 +42,7 @@
 			}
 		}
 		.templateTitle {
-			color: white;
+			color: var(--primary-font);
 			font-size: 18px;
 			padding-left: 5px;
 		}

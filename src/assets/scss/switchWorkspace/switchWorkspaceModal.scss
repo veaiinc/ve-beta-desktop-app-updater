@@ -28,7 +28,7 @@
 
 			.headerlabel {
 				color: #e4e5e6;
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 18px;
 				font-style: normal;
 				font-weight: 500;
@@ -36,7 +36,7 @@
 			}
 			.headerSubLabel {
 				color: rgba(228, 229, 230, 0.48);
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 500;
@@ -94,7 +94,7 @@
 				flex: 1 0 0;
 				.workspaceDetailsLabel {
 					color: #e0e0e0;
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 500;
@@ -107,7 +107,7 @@
 				}
 				.workspaceDetailsSubLabel {
 					color: rgba(224, 224, 224, 0.64);
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 11px;
 					font-style: normal;
 					font-weight: 400;
@@ -143,7 +143,7 @@
 		background: rgba(42, 42, 42, 0.16);
 		cursor: pointer;
 		color: #e4e5e6;
-		font-family: Inter;
+		font-family: var(--primary-font-family);
 		font-size: 13px;
 		font-style: normal;
 		font-weight: 500;
@@ -159,7 +159,7 @@
 		align-items: center;
 		gap: 10px;
 		color: rgba(202, 90, 79, 0.64);
-		font-family: Inter;
+		font-family: var(--primary-font-family);
 		font-size: 14px;
 		font-style: normal;
 		font-weight: 400;

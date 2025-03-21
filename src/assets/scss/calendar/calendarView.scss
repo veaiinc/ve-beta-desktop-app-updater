@@ -5,8 +5,8 @@
 	width: 100%;
 	height: 100%;
 
-	color: #e4e5e6;
-	font-family: Inter;
+	color: var(--primary-font);
+	font-family: var(--primary-font-family);
 	font-size: 12px;
 	font-style: normal;
 	font-weight: 500;
@@ -42,7 +42,7 @@
 
 	.rbc-allday-cell .rbc-row-content .rbc-button-link {
 		background: none;
-		color: #e4e5e6;
+		color: var(--primary-font);
 	}
 
 	.rbc-time-header.rbc-overflowing {
@@ -62,7 +62,7 @@
 	.rbc-timeslot-group {
 		border: none;
 		border-radius: 3px;
-		background-color: #1c1d1f;
+		background-color: var(--card);
 	}
 
 	.rbc-time-gutter {
@@ -98,7 +98,7 @@
 	}
 
 	.rbc-today {
-		background: transparent;
+		background-color: var(--card);
 	}
 
 	.rbc-time-view .rbc-time-gutter {
@@ -129,10 +129,10 @@
 				.rbc-day-bg {
 					padding: 16px;
 					border-radius: 4px;
-					background: #171819;
+					background: var(--card-over-card);
 					cursor: pointer;
 					&:hover {
-						background: #0d0e108a;
+						background: var(--card-over-card);
 						box-shadow: -4px -4px 6px 0px rgba(228, 229, 230, 0.07) inset,
 							4px 4px 6px 0px rgba(13, 14, 16, 0.54) inset;
 					}
@@ -144,7 +144,7 @@
 				// }
 
 				.rbc-off-range-bg {
-					background: #1c1d1f;
+					background: var(--card);
 				}
 			}
 			.rbc-row-content {
@@ -159,9 +159,9 @@
 							display: flex;
 							padding: 8px 10px;
 							padding-bottom: 4px;
-							color: #e0e0e0;
+							color: var(--secondary-font);
 							text-align: center;
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 13px;
 							font-style: normal;
 							font-weight: 600;
@@ -170,7 +170,7 @@
 
 					.rbc-off-range {
 						.rbc-button-link {
-							color: #7d7d7d;
+							color: rgba(var(--primary-font), 0.48);
 							width: 100% !important;
 						}
 					}
@@ -204,11 +204,11 @@
 							}
 						}
 						.rbc-show-more {
-							color: #e4e5e6;
+							color: var(--primary-font);
 							// pointer-events: auto;
 							background: none;
 							&:hover {
-								color: #7d7d7d;
+								color: rgba(var(--primary-font), 0.48);
 							}
 						}
 					}
@@ -216,14 +216,27 @@
 					.rbc-current {
 						.rbc-button-link {
 							border-radius: 4px;
-							background: var(--primary-font, #f2f2f3);
-							background: var(--primary-font, color(display-p3 0.949 0.949 0.9529));
+							background: var(--primary-font);
 							display: flex;
 							padding: 4px;
 							justify-content: center;
 							align-items: center;
 							gap: 10px;
-							color: #0c0c0d;
+							color: var(--secondary-font);
+							margin: 10px 5px 5px 8px;
+						}
+					}
+
+					.rbc-current {
+						.rbc-button-link {
+							border-radius: 4px;
+							background: var(--primary-font);
+							display: flex;
+							padding: 4px;
+							justify-content: center;
+							align-items: center;
+							gap: 10px;
+							color: var(--secondary-font);
 							margin: 10px 5px 5px 8px;
 						}
 					}
@@ -238,7 +251,7 @@
 				padding: 3px;
 				min-width: 100%;
 				background: none;
-				// background: #1d1d1d;
+				// background: var(--card);
 			}
 		}
 	}
@@ -251,24 +264,24 @@
 }
 
 body > .rbc-overlay {
-	background-color: #222222;
-	background: #222222;
+	background-color: var(--card);
+	background: var(--card);
 	border: none;
 	border-radius: 18px;
-	border: 1px solid #272727;
-	background: #1d1d1d;
+	border: 1px solid var(--stroke);
+	background: var(--card);
 	padding: 15px;
 	display: flex;
 	flex-direction: column;
 	align-items: start;
 	.rbc-overlay-header {
-		color: #e4e5e6;
+		color: var(--primary-font);
 		font-size: 13px;
 		font-style: normal;
 		font-weight: 500;
 		line-height: normal;
 		padding: 5px 0;
-		border-bottom: 1px solid #272727;
+		border-bottom: 1px solid var(--stroke);
 		text-align: center;
 		width: 100%;
 		align-self: center;
@@ -278,15 +291,15 @@ body > .rbc-overlay {
 		.rbc-event {
 			background-color: none;
 			background: none;
-			color: #e4e5e6;
-			font-family: Inter;
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
 			font-size: 12px;
 			font-style: normal;
 			font-weight: 500;
 			line-height: normal;
 			padding: 0;
 			padding: 5px 0;
-			border-bottom: 1px solid #272727;
+			border-bottom: 1px solid var(--stroke);
 			width: 100%;
 			border-radius: 0;
 		}
@@ -295,8 +308,8 @@ body > .rbc-overlay {
 
 .customGutterHeader {
 	width: 100%;
-	color: rgba(228, 229, 230, 0.48);
-	font-family: Inter;
+	color: var(--secondary-font);
+	font-family: var(--primary-font-family);
 	font-size: 7px;
 	font-style: normal;
 	line-height: normal;

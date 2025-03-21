@@ -28,8 +28,21 @@ const navbarOptions = {
 		{ id: 2, title: 'Tasks', value: 'Tasks' },
 		{ id: 3, title: 'Workflows', value: 'Workflows' },
 		// { id: 4, title: 'Recent Chats', value: 'Recent Chats' },
-		{ id: 5, title: 'Drafts & Activity', value: 'Drafts & Activity' },
+		{ id: 5, title: 'Activity', value: 'Drafts & Activity' },
 	],
+};
+
+const propsForHeaderInfoAndNavBar = {
+	start: {
+		title: `All your Prompts`,
+		subTitle: 'you need to ask me',
+		selectedOption: 'selectedOptionInStart',
+	},
+	dashboard: {
+		title: 'All Your',
+		subTitle: 'Task Collections',
+		selectedOption: 'selectedOptionInDashboard',
+	},
 };
 
 let timeoutId = null;
@@ -37,13 +50,9 @@ let timeoutId = null;
 const HomePage = ({ getSelectedOption, start, setGoBackToInitialHomePage, promptsData }) => {
 	const [searchParams, setSearchParams] = useSearchParams();
 	let {
-		profileInfo: { userDetailsData },
 		templates: { getTabItemCount, tabItemCount },
 	} = useContext(Context);
-	const username =
-		jwtDecode(localStorage.getItem('usertoken'))?.userName ??
-		`${userDetailsData?.firstName} ${userDetailsData?.lastName}` ??
-		'User';
+
 	const [info, setInfo] = useState({
 		activeTab: start ? 'start' : searchParams?.get('tab') ?? 'dashboard',
 		showPromptPopup: false,
@@ -100,21 +109,6 @@ const HomePage = ({ getSelectedOption, start, setGoBackToInitialHomePage, prompt
 		}));
 	};
 
-	const propsForHeaderInfoAndNavBar = useMemo(() => {
-		return {
-			start: {
-				title: `All your Prompts`,
-				subTitle: 'you need to ask me',
-				selectedOption: 'selectedOptionInStart',
-			},
-			dashboard: {
-				title: 'All Your',
-				subTitle: 'Task Collections',
-				selectedOption: 'selectedOptionInDashboard',
-			},
-		};
-	}, [userDetailsData?.firstName]);
-
 	const { title, subTitle, selectedOption } = propsForHeaderInfoAndNavBar?.[info?.activeTab];
 	const showSearchBar = info?.activeTab === 'start';
 
@@ -142,8 +136,6 @@ const HomePage = ({ getSelectedOption, start, setGoBackToInitialHomePage, prompt
 	return (
 		<div className="home-page-container">
 			<div className="black-linear-gradient"></div>
-			{/* <div className="home-page-container-header"> */}
-			{/* <div className="background-for-stickies"></div> */}
 			<div className="home-page-container-content">
 				<div className="home-page-container-content-item-container">
 					<div className="home-page-container-content-item-container-left">
@@ -181,9 +173,6 @@ const HomePage = ({ getSelectedOption, start, setGoBackToInitialHomePage, prompt
 					</div>
 				</div>
 			</div>
-
-			{/* <div className="home-page-welcome-container"> */}
-			{/* <div className="home-page-welcome-container-left"> */}
 			<HeaderInfo title={title} subTitle={subTitle} />
 			<NavBar
 				options={navbarOptions[info?.activeTab]}
@@ -193,9 +182,6 @@ const HomePage = ({ getSelectedOption, start, setGoBackToInitialHomePage, prompt
 				showSearchBar={showSearchBar}
 				tabItemCount={tabItemCount}
 			/>
-			{/* </div> */}
-			{/* </div> */}
-			{/* </div> */}
 			{componentMapper?.[info?.activeTab]}
 			<PromptPopup
 				open={info?.showPromptPopup}

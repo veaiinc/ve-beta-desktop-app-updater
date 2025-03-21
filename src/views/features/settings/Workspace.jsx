@@ -87,11 +87,11 @@ const SettingsWorkspace = () => {
 								alignItems: 'center',
 								gap: '10px',
 								borderRadius: '12px',
-								background: '#F2F2F3',
+								background: 'var(--card)',
 							}}
 							contentStyling={{
-								color: '#0E0F0F',
-								fontFamily: 'Inter',
+								color: 'var(--primary-font)',
+								fontFamily: 'var(--primary-font-family)',
 								fontSize: '12px',
 								fontStyle: 'normal',
 								fontWeight: '500',

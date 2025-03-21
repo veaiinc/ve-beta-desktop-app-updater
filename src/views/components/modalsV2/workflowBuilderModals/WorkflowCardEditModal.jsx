@@ -438,7 +438,7 @@ const WorkflowCardEditModal = ({
 										selectedValueObj={info?.selectedEmailTemplate}
 										dropDownTextStyling={{
 											color: 'var(--nav-bar-button-text, #FFF)',
-											fontFamily: 'Inter',
+											fontFamily: 'var(--primary-font-family)',
 											fontSize: '14px',
 											fontStyle: 'normal',
 											fontWeight: '400',
@@ -501,7 +501,7 @@ const WorkflowCardEditModal = ({
 										selectedValueObj={info?.selectedDuration}
 										dropDownTextStyling={{
 											color: 'var(--nav-bar-button-text, #FFF)',
-											fontFamily: 'Inter',
+											fontFamily: 'var(--primary-font-family)',
 											fontSize: '14px',
 											fontStyle: 'normal',
 											fontWeight: '400',
