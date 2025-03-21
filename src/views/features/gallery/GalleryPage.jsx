@@ -64,6 +64,7 @@ import { Switch } from 'antd';
 import ShowLightRoomCopy from '../../components/modalsV2/gallery/ShowLightRoomCopy';
 import { getCurrentWorkspaceId } from '../../../helpers';
 import GridImage from '../../../assets/images/workflow_builder/dotgrid.png';
+import SharePopup from '../../components/modalsV2/gallery/SharePopup';
 // import EarnAndShareOverlay from './galleryPage/EditAndShareOverlay';
 
 const workspaceId = localStorage.getItem('workspaceId');
@@ -3784,6 +3785,18 @@ const GalleryPage = () => {
 										<ShareIcon className="shareIcon" />
 										<div className="shareText">Share</div>
 									</div>
+									{/* <Tooltip
+										trigger="click"
+										placement="bottomRight"
+										arrow={false}
+										color="transparent"
+										title={<SharePopup />}
+									>
+										<div className="icon">
+											<ShareIcon className="shareIcon" />
+											<div className="shareText">Share</div>
+										</div>
+									</Tooltip> */}
 								</div>
 							</div>
 							{info.activeTab !== 'Insights' && info.activeTab !== 'Ai People' && (
