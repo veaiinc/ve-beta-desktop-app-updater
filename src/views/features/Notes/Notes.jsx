@@ -10,20 +10,22 @@ import ShareComponent from '../../components/notes/ShareComponent';
 import { useEffect, memo, useContext, useCallback, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import Context from '../../../context/context';
-
+import moment from 'moment';
+import CustomTextArea from '../../components/globalComponents/CustomTextArea';
 const preprocessMarkdown = (markdown) => {
 	return markdown?.replace(/\\n/g, '\n'); // Add a non-breaking space for empty lines
 };
 
 const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 	const {
-		notes: { getNotesPageData, notesPageData, saveNotesdata },
+		notes: { getNotesPageData, notesPageData, saveNotesdata, updatePage },
 	} = useContext(Context);
 	const editor = useCreateBlockNote();
 	const [info, setInfo] = useState({
 		timeout: null,
 		titleTimeout: null,
 		title: '',
+		updatedAt: '',
 	});
 
 	const { noteId } = useParams();
@@ -36,11 +38,11 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 
 	useEffect(() => {
 		if (notesPageData) {
-			const { blocks = [], title = '' } = notesPageData || {};
+			const { blocks = [], title = '', updatedAt = '' } = notesPageData || {};
 			if (blocks?.length) {
 				loadNotesContent(blocks);
 			}
-			setInfo((prev) => ({ ...prev, title }));
+			setInfo((prev) => ({ ...prev, title, updatedAt }));
 		}
 	}, [notesPageData]);
 
@@ -73,6 +75,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 					blocks: data || [],
 				};
 				saveNotesdata(payload);
+				setInfo((prev) => ({ ...prev, updatedAt: moment().unix() }));
 			}, 500);
 			setInfo((prev) => ({ ...prev, timeout }));
 		},
@@ -81,29 +84,35 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 
 	const handleTitleChange = (e) => {
 		setInfo((prev) => ({ ...prev, title: e?.target?.value }));
-		// clearTimeout(info?.titleTimeout);
-		// const titleTimeout = setTimeout(() => {
-		// 	saveNotesdata({
-		// 		pageId: noteId,
-		// 		title: e?.target?.value,
-		// 	});
-		// }, 500);
+		clearTimeout(info?.titleTimeout);
+		const titleTimeout = setTimeout(() => {
+			updatePage({
+				pageId: noteId,
+				input: {
+					title: e?.target?.value,
+				},
+			});
+			setInfo((prev) => ({ ...prev, updatedAt: moment().unix() }));
+		}, 500);
 
-		// setInfo((prev) => ({ ...prev, titleTimeout }));
+		setInfo((prev) => ({ ...prev, titleTimeout }));
 	};
 
 	return (
 		<div className="notes-container" style={outerContainerStyle || {}}>
 			<div className="notes-nav-menu">
-				<span className="notes-nav-menu-item-last-edited">Edited 5 min ago</span>
+				<span className="notes-nav-menu-item-last-edited">
+					{info?.updatedAt ? `Edited ${moment.unix(info?.updatedAt).fromNow()}` : ''}
+				</span>
 				<ShareComponent pageId={noteId} />
 			</div>
 			<div className="notes-editor-container">
 				<div className="notes-editor-wrapper">
-					<input
+					<CustomTextArea
 						className="notes-title"
 						value={info?.title}
 						onChange={handleTitleChange}
+						autoResize={true}
 					/>
 					<BlockNoteView
 						editor={editor}

@@ -6,7 +6,10 @@ import {
 	getPageQuery,
 	saveNotesPageQuery,
 	getNotesAccessQuery,
-	addNotesAccessQuery,
+	addNotesAccessMutation,
+	changeNotesAccessMutation,
+	updatePageMutation,
+	removeNotesAccessMutation,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -151,7 +154,7 @@ export const NotesState = (props) => {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const response = await service.query(
-				addNotesAccessQuery,
+				addNotesAccessMutation,
 				payload,
 				workspaceId,
 				usertoken,
@@ -165,6 +168,71 @@ export const NotesState = (props) => {
 			}
 		} catch (error) {
 			console.log('error==>addNotesAccess', error);
+		}
+	};
+
+	const changeNotesAccess = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				changeNotesAccessMutation,
+				payload,
+				workspaceId,
+				usertoken,
+				'page_notes_api',
+			);
+
+			if (response?.[0]) {
+				return [true, response?.[1]?.data?.changePageAccess];
+			} else {
+				return [false, response?.[1]?.[0]];
+			}
+		} catch (error) {
+			console.log('error==>changeNotesAccess', error);
+		}
+	};
+
+	const updatePage = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				updatePageMutation,
+				payload,
+				workspaceId,
+				usertoken,
+				'page_notes_api',
+			);
+
+			if (response?.[0]) {
+				return [true, response?.[1]?.data?.updatePage];
+			} else {
+				return [false, response?.[1]?.[0]];
+			}
+		} catch (error) {
+			console.log('error==>updatePage', error);
+		}
+	};
+
+	const removeNotesAccess = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				removeNotesAccessMutation,
+				payload,
+				workspaceId,
+				usertoken,
+				'page_notes_api',
+			);
+			if (response?.[0]) {
+				return [true, response?.[1]?.data?.unsharePage];
+			} else {
+				return [false, response?.[1]?.[0]];
+			}
+		} catch (error) {
+			console.log('error==>removeNotesAccess', error);
 		}
 	};
 
@@ -184,5 +252,8 @@ export const NotesState = (props) => {
 		getNotesAccess,
 		addNotesAccess,
 		updateNotesState,
+		changeNotesAccess,
+		updatePage,
+		removeNotesAccess,
 	};
 };
