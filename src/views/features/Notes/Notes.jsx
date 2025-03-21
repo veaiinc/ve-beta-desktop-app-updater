@@ -12,13 +12,22 @@ import { useParams } from 'react-router-dom';
 import Context from '../../../context/context';
 import moment from 'moment';
 import CustomTextArea from '../../components/globalComponents/CustomTextArea';
+import MoreOptions from '../../components/notes/MoreOptions';
+import { StarSvg } from '../../../assets/svg/notes/Star';
 const preprocessMarkdown = (markdown) => {
 	return markdown?.replace(/\\n/g, '\n'); // Add a non-breaking space for empty lines
 };
 
 const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 	const {
-		notes: { getNotesPageData, notesPageData, saveNotesdata, updatePage },
+		notes: {
+			getNotesPageData,
+			notesPageData,
+			saveNotesdata,
+			updatePage,
+			addToFavorite,
+			removeFromFavorite,
+		},
 	} = useContext(Context);
 	const editor = useCreateBlockNote();
 	const [info, setInfo] = useState({
@@ -26,6 +35,11 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 		titleTimeout: null,
 		title: '',
 		updatedAt: '',
+		notesConfigs: {
+			smallText: false,
+			fullWidth: false,
+		},
+		isFavorite: false,
 	});
 
 	const { noteId } = useParams();
@@ -39,7 +53,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 	useEffect(() => {
 		if (notesPageData) {
 			const { blocks = [], title = '', updatedAt = '' } = notesPageData || {};
-			if (blocks?.length) {
+			if (blocks) {
 				loadNotesContent(blocks);
 			}
 			setInfo((prev) => ({ ...prev, title, updatedAt }));
@@ -98,6 +112,23 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 		setInfo((prev) => ({ ...prev, titleTimeout }));
 	};
 
+	const handleFavorite = async (value) => {
+		const payload = {
+			pageId: noteId,
+		};
+		if (value) {
+			const [success, data] = await addToFavorite(payload);
+			if (success) {
+				setInfo((prev) => ({ ...prev, isFavorite: true }));
+			}
+		} else {
+			const [success, data] = await removeFromFavorite(payload);
+			if (success) {
+				setInfo((prev) => ({ ...prev, isFavorite: false }));
+			}
+		}
+	};
+
 	return (
 		<div className="notes-container" style={outerContainerStyle || {}}>
 			<div className="notes-nav-menu">
@@ -105,6 +136,14 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 					{info?.updatedAt ? `Edited ${moment.unix(info?.updatedAt).fromNow()}` : ''}
 				</span>
 				<ShareComponent pageId={noteId} />
+				<StarSvg
+					fill={info?.isFavorite}
+					width={18}
+					height={18}
+					onClick={() => handleFavorite(!info?.isFavorite)}
+					className="cursor-pointer"
+				/>
+				<MoreOptions notesConfigs={info?.notesConfigs} onChange={() => {}} />
 			</div>
 			<div className="notes-editor-container">
 				<div className="notes-editor-wrapper">

@@ -136,6 +136,9 @@ const ShareComponent = ({ pageId }) => {
 	};
 
 	const handleAddMembers = async () => {
+		if (info?.selectedUsers?.length === 0 || info?.btnLoading) {
+			return;
+		}
 		const usersPermissionInput = info?.selectedUsers?.map((user) => ({
 			userId: user?.userId,
 			access: info?.accessType,

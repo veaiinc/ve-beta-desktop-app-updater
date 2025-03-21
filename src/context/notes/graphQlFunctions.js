@@ -108,3 +108,21 @@ export const removeNotesAccessMutation = gql`
 		}
 	}
 `;
+
+export const addToFavoriteMutation = gql`
+	mutation AddToFavorite($pageId: ID!) {
+		addToFavorite(pageId: $pageId) {
+			success
+			message
+		}
+	}
+`;
+
+export const removeFromFavoriteMutation = gql`
+	mutation RemoveFromFavorite($pageId: ID!) {
+		removeFromFavorite(pageId: $pageId) {
+			success
+			message
+		}
+	}
+`;

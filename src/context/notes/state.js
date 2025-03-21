@@ -10,6 +10,8 @@ import {
 	changeNotesAccessMutation,
 	updatePageMutation,
 	removeNotesAccessMutation,
+	addToFavoriteMutation,
+	removeFromFavoriteMutation,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -236,6 +238,47 @@ export const NotesState = (props) => {
 		}
 	};
 
+	const addToFavorite = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				addToFavoriteMutation,
+				payload,
+				workspaceId,
+				usertoken,
+				'page_notes_api',
+			);
+			if (response?.[0]) {
+				return [true, response?.[1]?.data?.addToFavorite];
+			} else {
+				return [false, response?.[1]?.[0]];
+			}
+		} catch (error) {
+			console.log('error==>starNotes', error);
+		}
+	};
+
+	const removeFromFavorite = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				removeFromFavoriteMutation,
+				payload,
+				workspaceId,
+				usertoken,
+				'page_notes_api',
+			);
+			if (response?.[0]) {
+				return [true, response?.[1]?.data?.removeFromFavorite];
+			} else {
+				return [false, response?.[1]?.[0]];
+			}
+		} catch (error) {
+			console.log('error==>removeFromFavorite', error);
+		}
+	};
 	const updateNotesState = (payload) => {
 		dispatch({
 			type: Actions.UPDATE_NOTES_STATE,
@@ -255,5 +298,7 @@ export const NotesState = (props) => {
 		changeNotesAccess,
 		updatePage,
 		removeNotesAccess,
+		addToFavorite,
+		removeFromFavorite,
 	};
 };

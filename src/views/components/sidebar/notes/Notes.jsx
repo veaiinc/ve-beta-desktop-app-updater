@@ -7,6 +7,7 @@ import { ReactComponent as Filter } from '../../../../assets/svg/sidebar/notes/f
 import { ReactComponent as Menu } from '../../../../assets/svg/sidebar/notes/menu.svg';
 import { ReactComponent as NoteIcon } from '../../../../assets/svg/sidebar/notes/note.svg';
 import { ReactComponent as PlusIcon } from '../../../../assets/svg/sidebar/notes/Plus.svg';
+import LoaderModal from '../../modalsV2/automationBuilder/AutomationLoaderModal';
 import Context from '../../../../context/context';
 import moment from 'moment';
 import InfiniteScroll from 'react-infinite-scroll-component';
@@ -18,6 +19,7 @@ const initialState = {
 	notesData: [],
 	currentPage: 1,
 	hasNextPage: false,
+	creatingNoteLoader: false,
 };
 
 const ctaMapper = [
@@ -128,10 +130,12 @@ const Notes = ({ showNotesDrawer, setShowNotesDrawer }) => {
 	const handleNewNotes = async () => {
 		const payload = {
 			input: {
-				title: 'test title 2',
+				title: 'New Note',
 			},
 		};
+		setInfo((prev) => ({ ...prev, creatingNoteLoader: true }));
 		const response = await createNotesList(payload);
+		setInfo((prev) => ({ ...prev, creatingNoteLoader: false }));
 		handleCloseDrawer();
 		navigate(`/note/${response[1]?._id}`);
 	};
@@ -216,6 +220,7 @@ const Notes = ({ showNotesDrawer, setShowNotesDrawer }) => {
 					)}
 				</div>
 			</div>
+			<LoaderModal loading={info?.creatingNoteLoader} message="Creating note..." />
 		</Drawer>
 	);
 };
