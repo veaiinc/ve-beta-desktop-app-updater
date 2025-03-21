@@ -2,7 +2,6 @@ import { useReducer } from 'react';
 import Reducer from './reducer';
 import { Actions } from './actions';
 import Cookies from 'js-cookie';
-console.log(localStorage.getItem('theme'));
 export const initialThemeState = {
 	theme: localStorage.getItem('theme') || Cookies.get('theme') || 'dark',
 };
