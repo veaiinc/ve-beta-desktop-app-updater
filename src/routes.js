@@ -402,7 +402,7 @@ const routes = [
 		exact: true,
 	},
 	{
-		path: '/form-leads',
+		path: '/forms/:id',
 		component: (
 			<AuthWrapper title={'Form Leads'}>
 				<FormLeads />
@@ -417,7 +417,7 @@ const routes = [
 				title={'Chat'}
 				showBottomToolbar={false}
 				outerContainerStyle={{ paddingRight: '0px' }}
-				authParentContainerStyle={{ backgroundColor: 'rgb(20,20,21)' }}
+				authParentContainerStyle={{ backgroundColor: 'var(--background-color)' }}
 				maxWidth="100%"
 			>
 				<RecentChat />
@@ -425,11 +425,13 @@ const routes = [
 		),
 	},
 	{
-		path: '/notes/:noteId',
+		path: '/note/:noteId',
 		component: (
 			<AuthWrapper
 				title={'Notes'}
-				outerContainerStyle={{ padding: '0 0 0 32px' }}
+				outerContainerStyle={{
+					backgroundColor: 'var(--background-color)',
+				}}
 				maxWidth={'100%'}
 			>
 				<Notes />

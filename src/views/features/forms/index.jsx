@@ -27,7 +27,6 @@ const Forms = () => {
 	const {
 		templates: { getTemplatesListForForms, formsTemplatesList, moreFormsTemplatesList },
 	} = useContext(Context);
-
 	const [info, setInfo] = useState({
 		appliedFilters: [],
 		currentPage: 1,
@@ -82,7 +81,8 @@ const Forms = () => {
 	}, [info?.hasNextPage, info?.currentPage]);
 
 	const handleFormClick = useCallback((formData) => {
-		navigate(`/form-leads`, { state: { formData } });
+		console.log(formData);
+		navigate(`/forms/${formData?._id}`, { state: { formData } });
 	}, []);
 
 	return (
