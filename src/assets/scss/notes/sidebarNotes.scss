@@ -120,3 +120,47 @@
 		}
 	}
 }
+
+.notes-sidebar-menu-item-dropdown {
+	background-color: var(--popup);
+	width: 220px;
+	border-radius: 8px;
+	padding: 8px;
+
+	.notes-sidebar-menu-item-dropdown-title {
+		font-family: Inter;
+		font-size: 14px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
+		padding: 8px;
+		color: var(--primary-font);
+		border-bottom: 1px solid var(--stroke);
+	}
+
+	.notes-sidebar-menu-item-dropdown-body {
+		padding: 8px;
+		display: flex;
+		flex-direction: column;
+
+		.notes-sidebar-menu-item-dropdown-body-item {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			padding: 6px 0;
+			border-radius: 8px;
+			cursor: pointer;
+			color: var(--primary-font);
+			font-family: Inter;
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+			justify-content: space-between;
+
+			&:hover {
+				background-color: var(--card-hover);
+			}
+		}
+	}
+}
