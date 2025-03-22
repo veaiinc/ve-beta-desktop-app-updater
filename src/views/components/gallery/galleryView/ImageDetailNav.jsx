@@ -132,8 +132,29 @@ const ImageDetailNav = ({
 		}
 	};
 
-	const handlePeopleClick = () => {
-		navigate(-2, { state: { activePeopleState: 'AI' } });
+	const handlePeopleClick = (face) => {
+		const formattedFace = {
+			_id: face.face_id || face._id,
+			name: face.name || 'Unknown',
+			displayImage: face.displayImage || {
+				optimizedImageS3Key: face.optimizedImageS3Key || face.s3_optimized?.key,
+			},
+			tenant_id: face.tenant_id,
+			imageDetails: face.imageDetails || {
+				activeVersion: {
+					originalWidth: face.originalWidth || 0,
+					originalHeight: face.originalHeight || 0,
+				},
+			},
+		};
+		navigate(`/galleries/${galleryId}`, {
+			state: {
+				activePeopleState: 'AI',
+				activeTab: 'Ai People',
+				selectedFace: formattedFace,
+				returnFromViewer: true,
+			},
+		});
 	};
 
 	return (
@@ -196,7 +217,10 @@ const ImageDetailNav = ({
 								// 		backgroundRepeat: 'no-repeat',
 								// 	}}
 								// ></div>
-								<div onClick={handlePeopleClick} style={{ cursor: 'pointer' }}>
+								<div
+									onClick={() => handlePeopleClick(face)}
+									style={{ cursor: 'pointer' }}
+								>
 									<Peopleitem
 										url={src}
 										people={face}

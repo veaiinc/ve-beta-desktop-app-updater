@@ -913,12 +913,14 @@ const GalleryPage = () => {
 			const returnedTagId = location?.state?.activeTagId;
 			const returnedActiveTab = location?.state?.activeTab;
 			const returnedSelectedFace = location?.state?.selectedFace;
+			const returnedSelectedImage = location?.state?.selectedImage;
 			if (returnedActiveTab === 'Ai People') {
 				setInfo((prev) => ({
 					...prev,
 					activeTab: 'Ai People',
 					activeAlbumId: returnedAlbumId || prev.activeAlbumId,
 					activeTagId: returnedTagId || prev.activeTagId,
+					selectedFace: returnedSelectedFace || prev.selectedFace,
 				}));
 			} else {
 				// Default behavior for Albums tab

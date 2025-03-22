@@ -9,11 +9,14 @@ const Thumbnails = ({
 	activeThumbnailFunction,
 	info,
 	selectedImages,
+	isAiFace,
 }) => {
 	return (
 		<div className="galleryThumbnails" id="galleryThumbnails-target">
 			<InfiniteScroll
-				dataLength={imagesList?.docs?.length || 0}
+				dataLength={
+					isAiFace ? imagesList?.images?.length || 0 : imagesList?.docs?.length || 0
+				}
 				next={selectedImages ? () => {} : fetchMoreImages}
 				hasMore={selectedImages ? false : imagesList?.hasNextPage || false}
 				loader={<h6 style={{ color: 'white', textAlign: 'center' }}>loading..</h6>}
@@ -25,7 +28,7 @@ const Thumbnails = ({
 				}}
 			>
 				{galleryCredentials && imagesList
-					? imagesList?.docs
+					? (isAiFace ? imagesList?.images : imagesList?.docs)
 							?.filter(
 								(image) => selectedImages?.includes(image?._id) || !selectedImages,
 							)
@@ -35,7 +38,7 @@ const Thumbnails = ({
 								return (
 									<div
 										className={`imageContainer ${
-											info?.imageDetailId === image?._id ? 'active' : ''
+											info?.activeImageIndex === index ? 'active' : ''
 										}`}
 										id={'thumbnail' + image?._id}
 										key={'key-thumbnail' + index + '+' + image?._id}
@@ -43,7 +46,7 @@ const Thumbnails = ({
 										style={{
 											border:
 												info?.activeImage === image?._id &&
-												info?.imageDetailId !== image?._id
+												info?.activeImageIndex !== index
 													? '1.3px solid gray'
 													: '',
 										}}
