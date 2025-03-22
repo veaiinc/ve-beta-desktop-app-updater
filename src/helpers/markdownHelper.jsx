@@ -353,7 +353,8 @@ export const TypingEffect = memo(
 		};
 
 		const handleCopyTextClick = useCallback((text) => {
-			navigator?.clipboard?.writeText(text).then(() => {
+			const textToBeCopied = text?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')?.replace(/\\n/g, '\n');
+			navigator?.clipboard?.writeText(textToBeCopied).then(() => {
 				setIsCopiedToClipboard(true);
 				setTimeout(() => {
 					setIsCopiedToClipboard(false);

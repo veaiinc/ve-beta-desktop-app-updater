@@ -10,7 +10,7 @@ import ChatBox from '../../components/homePage/ChatBox';
 import { useParams } from 'react-router-dom';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { FetchMoreLoaderComp } from '../../../helpers';
-import { debounce, escape } from 'lodash';
+import { debounce } from 'lodash';
 import useChatStream from '../../hooks/useChatStream';
 import ObjectID from 'bson-objectid';
 
