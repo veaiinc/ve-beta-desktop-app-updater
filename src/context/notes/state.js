@@ -10,6 +10,10 @@ import {
 	changeNotesAccessMutation,
 	updatePageMutation,
 	removeNotesAccessMutation,
+	addToFavoriteMutation,
+	removeFromFavoriteMutation,
+	deletePageMutation,
+	duplicatePageMutation,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -41,7 +45,7 @@ export const NotesState = (props) => {
 			if (response?.[0]) {
 				dispatch({
 					type: fetchMore ? Actions.GET_MORE_NOTES_SUCCESS : Actions.GET_NOTES_SUCCESS,
-					payload: response?.[1]?.data?.listPrivatePages,
+					payload: response?.[1]?.data?.listPages,
 				});
 			} else {
 				message.error('Error fetching notes logs');
@@ -236,6 +240,90 @@ export const NotesState = (props) => {
 		}
 	};
 
+	const addToFavorite = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				addToFavoriteMutation,
+				payload,
+				workspaceId,
+				usertoken,
+				'page_notes_api',
+			);
+			if (response?.[0]) {
+				return [true, response?.[1]?.data?.addToFavorite];
+			} else {
+				return [false, response?.[1]?.[0]];
+			}
+		} catch (error) {
+			console.log('error==>starNotes', error);
+		}
+	};
+
+	const removeFromFavorite = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				removeFromFavoriteMutation,
+				payload,
+				workspaceId,
+				usertoken,
+				'page_notes_api',
+			);
+			if (response?.[0]) {
+				return [true, response?.[1]?.data?.removeFromFavorite];
+			} else {
+				return [false, response?.[1]?.[0]];
+			}
+		} catch (error) {
+			console.log('error==>removeFromFavorite', error);
+		}
+	};
+
+	const deletePage = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				deletePageMutation,
+				payload,
+				workspaceId,
+				usertoken,
+				'page_notes_api',
+			);
+			if (response?.[0]) {
+				return [true, response?.[1]?.data?.deletePage];
+			} else {
+				return [false, response?.[1]?.[0]];
+			}
+		} catch (error) {
+			console.log('error==>deletePage', error);
+		}
+	};
+
+	const duplicatePage = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				duplicatePageMutation,
+				payload,
+				workspaceId,
+				usertoken,
+				'page_notes_api',
+			);
+			if (response?.[0]) {
+				return [true, response?.[1]?.data?.duplicatePage];
+			} else {
+				return [false, response?.[1]?.[0]];
+			}
+		} catch (error) {
+			console.log('error==>duplicatePage', error);
+		}
+	};
+
 	const updateNotesState = (payload) => {
 		dispatch({
 			type: Actions.UPDATE_NOTES_STATE,
@@ -255,5 +343,9 @@ export const NotesState = (props) => {
 		changeNotesAccess,
 		updatePage,
 		removeNotesAccess,
+		addToFavorite,
+		removeFromFavorite,
+		deletePage,
+		duplicatePage,
 	};
 };
