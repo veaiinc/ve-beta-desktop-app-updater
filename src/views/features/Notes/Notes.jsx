@@ -29,6 +29,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 			addToFavorite,
 			removeFromFavorite,
 			deletePage,
+			duplicatePage,
 		},
 	} = useContext(Context);
 	const editor = useCreateBlockNote();
@@ -41,6 +42,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 			fullWidth: false,
 		},
 		isFavorite: false,
+		loading: false,
 	});
 
 	const { noteId } = useParams();
@@ -152,17 +154,41 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 		}
 	};
 
-	const handleMoreOptionsChange = (key, value) => {
-		setInfo((prev) => ({ ...prev, notesConfigs: { ...prev.notesConfigs, [key]: value } }));
-	};
+	const handleMoreOptionsChange = useCallback(
+		(key, value) => {
+			setInfo((prev) => ({
+				...prev,
+				notesConfigs: { ...prev.notesConfigs, [key]: value },
+			}));
+		},
+		[setInfo],
+	);
 
-	const handleDeletePage = async () => {
+	const handleDeletePage = useCallback(async () => {
+		if (info?.loading) return;
+		setInfo((prev) => ({ ...prev, loading: true }));
 		const [success] = await deletePage({ pageId: noteId });
 		if (success) {
 			message.success('Page deleted successfully');
 			navigate('/');
+		} else {
+			message.error('Failed to delete page');
 		}
-	};
+		setInfo((prev) => ({ ...prev, loading: false }));
+	}, [info?.loading, info?.notesConfigs, navigate, noteId, setInfo]);
+
+	const handleDuplicatePage = useCallback(async () => {
+		if (info?.loading) return;
+		setInfo((prev) => ({ ...prev, loading: true }));
+		const [success, data] = await duplicatePage({ pageId: noteId });
+		if (success) {
+			message.success('Page duplicated successfully');
+			// navigate(`/note/${data?._id}`);
+		} else {
+			message.error('Failed to duplicate page');
+		}
+		setInfo((prev) => ({ ...prev, loading: false }));
+	}, [info?.loading, info?.notesConfigs, navigate, noteId, setInfo]);
 
 	return (
 		<div className="notes-container" style={outerContainerStyle || {}}>
@@ -182,6 +208,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 					notesConfigs={info?.notesConfigs}
 					onChange={handleMoreOptionsChange}
 					onDelete={handleDeletePage}
+					onDuplicate={handleDuplicatePage}
 				/>
 			</div>
 			<div className="notes-editor-container">

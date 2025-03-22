@@ -41,11 +41,17 @@ const fontOptions = [
 	},
 ];
 
-const MoreOptions = ({ notesConfigs, onChange, onDelete }) => {
+const MoreOptions = ({ notesConfigs, onChange, onDelete, onDuplicate }) => {
 	const [info, setInfo] = useState({ isOpen: false });
 
 	const handleInfoChange = (data) => {
 		setInfo((prev) => ({ ...prev, ...data }));
+	};
+
+	const handleOptionClick = (option) => {
+		if (option?.id === 'duplicate') {
+			onDuplicate();
+		}
 	};
 
 	return (
@@ -65,7 +71,11 @@ const MoreOptions = ({ notesConfigs, onChange, onDelete }) => {
 				title={
 					<div className="notes-more-options-tooltip-content">
 						{options?.map((option) => (
-							<div className="items" key={option.id} onClick={() => {}}>
+							<div
+								className={`items ${!option?.toggler ? 'cursor-pointer' : ''}`}
+								key={option.id}
+								onClick={() => handleOptionClick(option)}
+							>
 								{option?.icon}
 								<span className="more-options-label">{option?.label}</span>
 								{option?.toggler && (

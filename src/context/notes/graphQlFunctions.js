@@ -161,3 +161,34 @@ export const deletePageMutation = gql`
 		}
 	}
 `;
+
+export const duplicatePageMutation = gql`
+	mutation DuplicatePage($pageId: ID!) {
+		duplicatePage(pageId: $pageId) {
+			_id
+			title
+			icon
+			coverImage
+			permissions {
+				private
+				sharedWith {
+					userId
+					access
+				}
+			}
+			blocks
+			isDeleted
+			tenantId
+			createdAt
+			updatedAt
+			createdBy
+			isFavorite
+			viewedBy {
+				userId
+				lastSeenAt
+				fullName
+				email
+			}
+		}
+	}
+`;

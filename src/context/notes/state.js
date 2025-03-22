@@ -13,6 +13,7 @@ import {
 	addToFavoriteMutation,
 	removeFromFavoriteMutation,
 	deletePageMutation,
+	duplicatePageMutation,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -301,6 +302,28 @@ export const NotesState = (props) => {
 			console.log('error==>deletePage', error);
 		}
 	};
+
+	const duplicatePage = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				duplicatePageMutation,
+				payload,
+				workspaceId,
+				usertoken,
+				'page_notes_api',
+			);
+			if (response?.[0]) {
+				return [true, response?.[1]?.data?.duplicatePage];
+			} else {
+				return [false, response?.[1]?.[0]];
+			}
+		} catch (error) {
+			console.log('error==>duplicatePage', error);
+		}
+	};
+
 	const updateNotesState = (payload) => {
 		dispatch({
 			type: Actions.UPDATE_NOTES_STATE,
@@ -323,5 +346,6 @@ export const NotesState = (props) => {
 		addToFavorite,
 		removeFromFavorite,
 		deletePage,
+		duplicatePage,
 	};
 };
