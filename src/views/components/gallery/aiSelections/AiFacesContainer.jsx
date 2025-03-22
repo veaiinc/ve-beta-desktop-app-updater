@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState, useRef, useCallback } from 'react';
+import React, { useContext, useEffect, useState, useRef, useCallback, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Context from '../../../../context/context';
 import InfiniteScroll from 'react-infinite-scroll-component';
@@ -112,15 +112,13 @@ const AiFacesContainer = ({
 		aiFaceImagesReset();
 	};
 	const handleExpandClick = (image) => {
-		navigate(
-			`/galleries/${image?.gallery_id}/${image?.album_id}/gallery-viewer?faceId=${info?.activeFace}&image=${image?._id}&aiface=true`,
-			{
-				state: {
-					selectedFace: info?.selectedFace,
-					fromAiFaces: true,
-				},
+		const galleryViewerRoute = `/galleries/${image?.gallery_id}/${image?.album_id}/gallery-viewer?faceId=${info?.activeFace}&image=${image?._id}&aiface=true`;
+		navigate(galleryViewerRoute, {
+			state: {
+				selectedFace: info?.selectedFace,
+				fromAiFaces: true,
 			},
-		);
+		});
 	};
 	const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
 	const src = `${galleryCredentials?.baseURL}/${info?.selectedFace?.displayImage?.optimizedImageS3Key}?${params}`;
@@ -297,4 +295,4 @@ const AiFacesContainer = ({
 	);
 };
 
-export default AiFacesContainer;
+export default memo(AiFacesContainer);

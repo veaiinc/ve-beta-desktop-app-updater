@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext, useEffect, memo } from 'react';
 import { ReactComponent as CancelTag } from '../../../../assets/svg/gallery/cancel_tag.svg';
 import Context from '../../../../context/context';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -33,7 +33,7 @@ const AddLables = ({ info, setinfo, searchParams }) => {
 				if (foundTag) {
 					selectedGalleryTags.push(foundTag);
 				} else {
-					console.warn(`Tag not found: ${searchTag}`);
+					message.warning(`Tag not found: ${searchTag}`);
 				}
 			}
 			setinfo((prev) => ({
@@ -176,4 +176,4 @@ const AddLables = ({ info, setinfo, searchParams }) => {
 	);
 };
 
-export default AddLables;
+export default memo(AddLables);

@@ -164,6 +164,7 @@ const LiteGallery = () => {
 		getGalleryCredentials(gallery?._id);
 		navigate(`/galleries/${gallery?._id}`, {
 			state: { galleryData: gallery, isLightGallery: true },
+			search: '?light-gallery=true',
 		});
 	};
 

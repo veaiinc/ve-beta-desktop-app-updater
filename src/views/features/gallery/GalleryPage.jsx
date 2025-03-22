@@ -79,13 +79,12 @@ const sortingOptions = [
 	{ label: 'Custom', value: 'custom' },
 ];
 
+const icons = {
+	success: <ToastSuccess />,
+	error: <ToastError />,
+	warning: <ToastWarning />,
+};
 const showMessage = (type, content, dismissFunction) => {
-	const icons = {
-		success: <ToastSuccess />,
-		error: <ToastError />,
-		warning: <ToastWarning />,
-	};
-
 	const key = `message-${Date.now()}`;
 
 	message.open({
@@ -110,6 +109,10 @@ const showMessage = (type, content, dismissFunction) => {
 		className: 'custom-message',
 	});
 };
+
+let startTime;
+let animationFrame;
+
 const GalleryPage = () => {
 	const { galleryId } = useParams();
 	const navigate = useNavigate();
@@ -476,9 +479,6 @@ const GalleryPage = () => {
 	}, []);
 
 	useEffect(() => {
-		let startTime;
-		let animationFrame;
-
 		const animate = (timestamp) => {
 			if (!startTime) startTime = timestamp;
 			const progress = Math.min((timestamp - startTime) / 1000, 1); // 1000ms duration
@@ -911,6 +911,7 @@ const GalleryPage = () => {
 	useEffect(() => {
 		if (!location?.state?.returnFromViewer) return;
 
+		const galleryLocation = location.pathname;
 		const {
 			activeAlbumId: returnedAlbumId,
 			activeTagId: returnedTagId,
@@ -959,7 +960,7 @@ const GalleryPage = () => {
 		};
 
 		scrollToImage();
-		navigate(location.pathname, { replace: true });
+		navigate(galleryLocation, { replace: true });
 	}, [location?.state?.returnFromViewer, tenantAlbums?.albums]);
 
 	useEffect(() => {
@@ -1436,6 +1437,7 @@ const GalleryPage = () => {
 	};
 
 	const handleNewAlbumCreated = (newAlbum) => {
+		// Update state with new album info
 		setInfo((prev) => ({
 			...prev,
 			activeTab: 'Albums',
@@ -1443,12 +1445,19 @@ const GalleryPage = () => {
 			albumName: newAlbum?.title,
 			activeAlbumId: newAlbum?._id,
 			activeAlbum: newAlbum,
+			// Reset any AI People related state
+			selectedFace: null,
+			selectedFaceId: null,
 		}));
+
 		const searchParams = new URLSearchParams(location.search);
 		searchParams.set('albumId', newAlbum?._id);
 		searchParams.set('activeTab', 'Albums');
-		const newUrl = `${location.pathname}?${searchParams.toString()}`;
-		window.history.replaceState(null, '', newUrl);
+
+		navigate(`${location.pathname}?${searchParams.toString()}`, {
+			replace: true, // Use replace to avoid adding to history stack
+			state: { from: 'newAlbum' }, // Add state to track source of navigation
+		});
 	};
 
 	const handleClickAlbum = (album, name) => {
@@ -1613,11 +1622,11 @@ const GalleryPage = () => {
 		const uploadUrl =
 			info?.albumContains === 'All'
 				? `/galleries/${galleryId}/${info?.activeAlbumId}/upload-photos?light-gallery=${
-						location?.state?.isLightGallery ? true : false
+						info?.isLightGallery ? true : false
 				  }`
 				: `/galleries/${galleryId}/${info?.activeAlbumId}/upload-photos?tag=${
 						info?.albumContains
-				  }?light-gallery=${location?.state?.isLightGallery ? true : false}`;
+				  }?light-gallery=${info?.isLightGallery ? true : false}`;
 
 		// Open in new tab
 		window.open(uploadUrl, '_blank');
@@ -3438,6 +3447,7 @@ const GalleryPage = () => {
 									? navigate(`/lite-gallery`)
 									: navigate(`/galleries`)
 							}
+							style={{ cursor: 'pointer' }}
 						>
 							Files
 						</span>
@@ -4167,7 +4177,7 @@ const GalleryPage = () => {
 																	isDragDisabled={
 																		contain?.displayName ===
 																		'All'
-																			? true
+																			? false
 																			: false
 																	}
 																	boundaries="hideScrollBar"
@@ -4215,7 +4225,7 @@ const GalleryPage = () => {
 																					cursor:
 																						contain?.displayName ===
 																						'All'
-																							? 'not-allowed'
+																							? 'grab'
 																							: 'grab',
 																				}}
 																			>

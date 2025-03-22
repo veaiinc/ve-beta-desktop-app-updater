@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, memo } from 'react';
 import { ReactComponent as Download } from '../../../../assets/svg/gallery/download.svg';
 import { ReactComponent as Image } from '../../../../assets/svg/gallery/gallery2.svg';
 import { ReactComponent as Rotate } from '../../../../assets/svg/gallery/rotate.svg';
@@ -330,4 +330,4 @@ const ImageDetailNav = ({
 	);
 };
 
-export default ImageDetailNav;
+export default memo(ImageDetailNav);

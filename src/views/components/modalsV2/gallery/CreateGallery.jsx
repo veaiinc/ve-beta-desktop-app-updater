@@ -169,8 +169,16 @@ const CreateGallery = ({
 				closeModalFunc();
 				fetchGalleries(1, null, true);
 				message.success('Gallery created successfully');
-				if (response?.[1]?._id) {
-					navigate(`/galleries/${response?.[1]?._id}`);
+				const galleryId = response?.[1]?._id;
+				if (galleryId) {
+					const searchParams = isLightGallery ? '?light-gallery=true' : '';
+					const state = {
+						galleryData: response?.[1],
+						isLightGallery: isLightGallery,
+						forceLight: isLightGallery,
+					};
+
+					navigate(`/galleries/${galleryId}${searchParams}`, { state });
 				}
 			} else {
 				message.error(response?.[1]?.message || 'Failed to create gallery');

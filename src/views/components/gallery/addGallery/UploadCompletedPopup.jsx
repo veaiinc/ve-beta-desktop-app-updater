@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import ReactModal from '../../modalsV2';
 import randomize from 'randomatic';
 import { useParams, Link } from 'react-router-dom';
@@ -53,4 +53,4 @@ const UploadCompletedPopup = ({ info, setinfo, getImageDuplicatesList }) => {
 	);
 };
 
-export default UploadCompletedPopup;
+export default memo(UploadCompletedPopup);
