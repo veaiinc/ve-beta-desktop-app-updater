@@ -206,12 +206,12 @@ const ChatBox = ({
 	}, [currentSessionId]);
 
 	useEffect(() => {
-		if (info?.recentFiles?.length > 0 || info?.uploadedImages?.length > 0) {
+		if (recentFilesRef?.current?.length > 0 || uploadedImagesRef?.current?.length > 0) {
 			updateStateValues({
 				chatInfo: { ...chatInfo, workspaceSearch: true },
 			});
 		}
-	}, [info?.recentFiles, info?.uploadedImages]);
+	}, [recentFilesRef?.current, uploadedImagesRef?.current]);
 
 	useEffect(() => {
 		if (followUpQuery) {
@@ -466,7 +466,7 @@ const ChatBox = ({
 
 					setInfo((prev) => ({
 						...prev,
-						// uploadedImages: [],
+						uploadedImages: [],
 						chatQuery: '',
 						// recentFiles: [],// not clearing the recent files , because they want like sana
 						chatFilters: initialChatFilters,

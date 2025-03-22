@@ -389,6 +389,7 @@ const RecentChat = ({
 
 			if (data?.stream_end) {
 				handleStreamIncomingMessage(data);
+				//removing loading messages
 				const filteredMessages = chatMessagesRef?.current?.filter(
 					(ele) => ele?.contentType !== 'loading',
 				);
