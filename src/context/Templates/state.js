@@ -1982,7 +1982,7 @@ export const TemplatesState = (props) => {
 		}
 	};
 
-	const getRecentChatMessages = async (sessionId, page = 1, fetchMore = false, limit = 10) => {
+	const getRecentChatMessages = async (sessionId, page = 1, fetchMore = false, limit = 1000) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
