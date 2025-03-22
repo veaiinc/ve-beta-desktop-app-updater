@@ -12,6 +12,7 @@ import {
 	removeNotesAccessMutation,
 	addToFavoriteMutation,
 	removeFromFavoriteMutation,
+	deletePageMutation,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -43,7 +44,7 @@ export const NotesState = (props) => {
 			if (response?.[0]) {
 				dispatch({
 					type: fetchMore ? Actions.GET_MORE_NOTES_SUCCESS : Actions.GET_NOTES_SUCCESS,
-					payload: response?.[1]?.data?.listPrivatePages,
+					payload: response?.[1]?.data?.listPages,
 				});
 			} else {
 				message.error('Error fetching notes logs');
@@ -279,6 +280,27 @@ export const NotesState = (props) => {
 			console.log('error==>removeFromFavorite', error);
 		}
 	};
+
+	const deletePage = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				deletePageMutation,
+				payload,
+				workspaceId,
+				usertoken,
+				'page_notes_api',
+			);
+			if (response?.[0]) {
+				return [true, response?.[1]?.data?.deletePage];
+			} else {
+				return [false, response?.[1]?.[0]];
+			}
+		} catch (error) {
+			console.log('error==>deletePage', error);
+		}
+	};
 	const updateNotesState = (payload) => {
 		dispatch({
 			type: Actions.UPDATE_NOTES_STATE,
@@ -300,5 +322,6 @@ export const NotesState = (props) => {
 		removeNotesAccess,
 		addToFavorite,
 		removeFromFavorite,
+		deletePage,
 	};
 };

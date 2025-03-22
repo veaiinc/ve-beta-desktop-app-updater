@@ -8,12 +8,12 @@ import DuplicateSvg from '../../../assets/svg/tasks/DuplicateSvg.jsx';
 import '../../../assets/scss/notes/noteComponent.scss';
 
 const options = [
-	{
-		id: 'smallText',
-		label: 'Small text',
-		toggler: true,
-		// icon: <SmallTextSvg />,
-	},
+	// {
+	// 	id: 'smallText',
+	// 	label: 'Small text',
+	// 	toggler: true,
+	// 	// icon: <SmallTextSvg />,
+	// },
 	{
 		id: 'fullWidth',
 		label: 'Full width',
@@ -25,13 +25,23 @@ const options = [
 		label: 'Duplicate',
 		icon: <DuplicateSvg />,
 	},
+];
+const fontOptions = [
 	{
-		id: 'share',
-		label: 'Share',
-		icon: <ShareSvg />,
+		id: '1',
+		label: 'Default',
+	},
+	{
+		id: '2',
+		label: 'Serif',
+	},
+	{
+		id: '3',
+		label: 'Mono',
 	},
 ];
-const MoreOptions = ({ notesConfigs, onChange }) => {
+
+const MoreOptions = ({ notesConfigs, onChange, onDelete }) => {
 	const [info, setInfo] = useState({ isOpen: false });
 
 	const handleInfoChange = (data) => {
@@ -57,17 +67,20 @@ const MoreOptions = ({ notesConfigs, onChange }) => {
 						{options?.map((option) => (
 							<div className="items" key={option.id} onClick={() => {}}>
 								{option?.icon}
-								<span>{option?.label}</span>
+								<span className="more-options-label">{option?.label}</span>
 								{option?.toggler && (
 									<Switch
 										checked={notesConfigs?.[option?.id]}
-										onChange={(checked) => onChange(option?.id, checked)}
+										onChange={(checked) =>
+											onChange(option?.id, !notesConfigs?.[option?.id])
+										}
+										size="small"
 									/>
 								)}
 							</div>
 						))}
 						<hr style={{ width: '100%', opacity: 0.1 }} />
-						<div className="deleteItem" onClick={() => {}}>
+						<div className="deleteItem cursor-pointer" onClick={onDelete}>
 							<DeleteSvg />
 							<span>Delete</span>
 						</div>

@@ -1,4 +1,4 @@
-import { Drawer } from 'antd';
+import { Drawer, Tooltip } from 'antd';
 import React, { useContext, useEffect, useState, useCallback, memo } from 'react';
 import '../../../../assets/scss/notes/sidebarNotes.scss';
 import { ReactComponent as Back } from '../../../../assets/svg/sidebar/notes/back.svg';
@@ -13,13 +13,16 @@ import moment from 'moment';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { FetchMoreLoaderComp } from '../../../../helpers';
 import { useNavigate } from 'react-router-dom';
-
+import { ReactComponent as Check } from '../../../../assets/svg/tasks/checkmark.svg';
 const initialState = {
 	loading: true,
 	notesData: [],
 	currentPage: 1,
 	hasNextPage: false,
 	creatingNoteLoader: false,
+	pageType: 'all',
+	menuDropdownOpen: false,
+	dropDownType: '',
 };
 
 const ctaMapper = [
@@ -45,6 +48,25 @@ const ctaMapper = [
 	},
 ];
 
+const filterOptions = [
+	{
+		id: 'all',
+		label: 'All',
+	},
+	{
+		id: 'favorite',
+		label: 'Favorite',
+	},
+	{
+		id: 'private',
+		label: 'Private',
+	},
+	{
+		id: 'shared',
+		label: 'Shared',
+	},
+];
+
 const infiniteScrollHeight = 'calc(100vh - 72px)';
 
 const Notes = ({ showNotesDrawer, setShowNotesDrawer }) => {
@@ -60,7 +82,7 @@ const Notes = ({ showNotesDrawer, setShowNotesDrawer }) => {
 		if (showNotesDrawer) {
 			getNotesData(1);
 		}
-	}, [showNotesDrawer]);
+	}, [showNotesDrawer, info?.pageType]);
 
 	useEffect(() => {
 		if (notes) {
@@ -73,6 +95,10 @@ const Notes = ({ showNotesDrawer, setShowNotesDrawer }) => {
 			handleNotesData(moreNotes, true);
 		}
 	}, [moreNotes]);
+
+	const handleInfoChange = (data) => {
+		setInfo((prev) => ({ ...prev, ...data }));
+	};
 
 	const handleNotesData = useCallback(
 		(incomingData, fetchMore = false) => {
@@ -104,12 +130,13 @@ const Notes = ({ showNotesDrawer, setShowNotesDrawer }) => {
 				input: {
 					limit: 30,
 					page: page,
+					pageType: info?.pageType,
 				},
 			};
 
 			getNotesList(payload, fetchMore);
 		},
-		[info?.hasNextPage, info?.loading],
+		[info?.hasNextPage, info?.loading, info?.pageType],
 	);
 
 	const fetchMoreNotes = useCallback(() => {
@@ -141,14 +168,28 @@ const Notes = ({ showNotesDrawer, setShowNotesDrawer }) => {
 	};
 
 	const handleCtaClick = (action) => {
-		switch (action) {
-			case 'back':
-				handleCloseDrawer();
-				break;
-			case 'plus':
-				handleNewNotes();
-				break;
-		}
+		const handleDropDown = (type) => {
+			if (info?.dropDownType === type && info?.menuDropdownOpen) {
+				setInfo((prev) => ({
+					...prev,
+					menuDropdownOpen: false,
+					dropDownType: '',
+				}));
+			} else {
+				setInfo((prev) => ({
+					...prev,
+					menuDropdownOpen: true,
+					dropDownType: type,
+				}));
+			}
+		};
+		const actionMapper = {
+			back: handleCloseDrawer,
+			plus: handleNewNotes,
+			filter: () => handleDropDown('filter'),
+			search: () => null,
+		};
+		actionMapper[action]();
 	};
 
 	const drawerWidth = showNotesDrawer ? 346 : 0;
@@ -166,13 +207,45 @@ const Notes = ({ showNotesDrawer, setShowNotesDrawer }) => {
 			<div className="notifications-drawer-container">
 				<div className="header">
 					<h1 className="title">Notes</h1>
-					<div className="cta-container">
-						{ctaMapper?.map((cta) => (
-							<div onClick={() => handleCtaClick(cta?.action)} key={cta?.id}>
-								{cta?.icon}
-							</div>
-						))}
-					</div>
+					<Tooltip
+						title={
+							<MenuItemDropDown
+								title={'Filter'}
+								type={info?.dropDownType}
+								selected={info?.pageType}
+								onChange={handleInfoChange}
+							/>
+						}
+						trigger={'click'}
+						arrow={false}
+						color="transparent"
+						placement="bottomRight"
+						style={{ body: { minWidth: 'fit-content' } }}
+						open={info?.menuDropdownOpen}
+						onOpenChange={(open) => {
+							if (!open) {
+								setInfo((prev) => ({
+									...prev,
+									dropDownType: '',
+									menuDropdownOpen: false,
+								}));
+							}
+						}}
+					>
+						<div className="cta-container">
+							{ctaMapper?.map((cta) => (
+								<div
+									onClick={(e) => {
+										e.stopPropagation();
+										handleCtaClick(cta?.action);
+									}}
+									key={cta?.id}
+								>
+									{cta?.icon}
+								</div>
+							))}
+						</div>
+					</Tooltip>
 				</div>
 				<div className="body">
 					{info?.loading ? (
@@ -226,3 +299,34 @@ const Notes = ({ showNotesDrawer, setShowNotesDrawer }) => {
 };
 
 export default memo(Notes);
+
+const MenuItemDropDown = memo(({ type, selected, onChange }) => {
+	return (
+		<div className="notes-sidebar-menu-item-dropdown">
+			<div className="notes-sidebar-menu-item-dropdown-title">
+				{type === 'filter' ? 'Filter' : 'Search'}
+			</div>
+			<div className="notes-sidebar-menu-item-dropdown-body">
+				{filterOptions?.map((option) => (
+					<div
+						className="notes-sidebar-menu-item-dropdown-body-item"
+						key={option?.id}
+						onClick={() => {
+							onChange({
+								pageType: option?.id,
+								notesData: [],
+								currentPage: 1,
+								menuDropdownOpen: false,
+								dropDownType: '',
+								loading: true,
+							});
+						}}
+					>
+						<p>{option?.label}</p>
+						{selected === option?.id && <Check />}
+					</div>
+				))}
+			</div>
+		</div>
+	);
+});
