@@ -1,0 +1,138 @@
+.addNewGoalModalContainer {
+	display: flex;
+	width: 520px;
+	padding: 32px;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 24px;
+	border-radius: 32px;
+	background: var(--card);
+
+	.header {
+		display: flex;
+		justify-content: space-between;
+		align-items: flex-start;
+		width: 100%;
+
+		.titleAndSubtitleContainer {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 8px;
+
+			.title {
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
+				font-size: 20px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+
+			.subTitleContainer {
+				display: flex;
+				align-items: center;
+				gap: 4px;
+
+				.subTitle {
+					color: var(--secondary-font, #7a7e85);
+					font-family: var(--primary-font-family);
+					font-size: 20px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+				}
+			}
+		}
+
+		.closeButton {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			width: 24px;
+			height: 24px;
+			border: none;
+			background: inherit;
+			cursor: pointer;
+			outline: none;
+		}
+	}
+
+	.main {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 16px;
+		width: 100%;
+
+		&::placeholder {
+			color: var(--secondary-font);
+		}
+
+		.titleInput {
+			width: 100%;
+			padding: 12px 16px;
+			border-radius: 12px;
+			border: 1px solid #2c2d2e;
+			font-family: var(--primary-font-family);
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+			background-color: inherit;
+			color: var(--primary-font);
+		}
+
+		.descriptionInput {
+			width: 100%;
+			padding: 12px 16px;
+			border-radius: 12px;
+			border: 1px solid #2c2d2e;
+			color: var(--secondary-font);
+			font-family: var(--primary-font-family);
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+			resize: none;
+			min-height: 200px;
+			background-color: inherit;
+			color: var(--primary-font);
+		}
+	}
+
+	.footer {
+		display: flex;
+		justify-content: flex-end;
+		align-items: center;
+		width: 100%;
+
+		.addGoalButton {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			gap: 8px;
+			width: fit-content;
+			height: 46px;
+			padding: 0 14px;
+			border-radius: 50px;
+			background: #2b2e31;
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 20px;
+			cursor: pointer;
+			outline: none;
+			border: none;
+			transition: all 0.2s ease-in-out;
+
+			&:hover {
+				background: var(--primary-font);
+				color: var(--background-color);
+				transition: all 0.2s ease-in-out;
+			}
+		}
+	}
+}
