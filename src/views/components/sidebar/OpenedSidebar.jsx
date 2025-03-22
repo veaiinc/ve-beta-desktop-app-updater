@@ -1,11 +1,6 @@
 import React, { useState, memo, useCallback, useEffect, useContext } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import {
-	veAiModulesItemsList,
-	veAiSubModulesItemsList,
-	veAiModules,
-	AiOptions,
-} from './sidebarindex';
+import { veAiModulesItemsList, veAiModules } from './sidebarindex';
 import { ReactComponent as ArrowUpRightSvg } from '../../../assets/svg/sidebar/arrowupright.svg';
 import { ReactComponent as DownArrowSmallSvg } from '../../../assets/svg/sidebar/downarrowsmall.svg';
 import { ReactComponent as NotificationSvg } from '../../../assets/svg/sidebar/notification.svg';
@@ -282,17 +277,6 @@ const AiModulesList = ({ image, name, route, navigateTo }) => {
 	);
 };
 
-// Add this constant for Settings options
-const SETTINGS_OPTIONS = [
-	{ name: 'My Profile', route: '/settings/my-profile' },
-	{ name: 'Workspace', route: '/settings/workspace' },
-	// { name: 'Brand Setup', route: '/settings/brand-setup' },
-	{ name: 'Team Settings', route: '/settings/team-settings' },
-	{ name: 'Integration', route: '/settings/integrations' },
-	{ name: 'Plan Billing', route: '/settings/plan-billing' },
-	{ name: 'AI Setup', route: '/settings/ai-setup' },
-];
-
 const OpenedSideBarItemsComponent = ({
 	sidebarStates,
 	setsidebarStates,
@@ -325,6 +309,19 @@ const OpenedSideBarItemsComponent = ({
 	const location = useLocation();
 
 	const [isThisEarlyAccessPage, setIsThisEarlyAccessPage] = useState(false);
+	const isAdmin = tenantUserAccessControls?.role === 'admin';
+
+	// Add this constant for Settings options
+	const SETTINGS_OPTIONS = isAdmin
+		? [
+				{ name: 'My Profile', route: '/settings/my-profile' },
+				{ name: 'Workspace', route: '/settings/workspace' },
+				{ name: 'Team Settings', route: '/settings/team-settings' },
+				{ name: 'Integration', route: '/settings/integrations' },
+				{ name: 'Plan Billing', route: '/settings/plan-billing' },
+				// { name: 'AI Setup', route: '/settings/ai-setup' },
+		  ]
+		: [{ name: 'My Profile', route: '/settings/my-profile' }];
 
 	useEffect(() => {
 		if (leftSidebarState && leftSidebarState === 'close') {
@@ -362,6 +359,7 @@ const OpenedSideBarItemsComponent = ({
 		(route, singleItems) => {
 			if (singleItems?.name === 'Settings') {
 				setShowSettingsSidebar(true);
+				navigate('/settings/my-profile');
 				return;
 			}
 
@@ -492,7 +490,7 @@ const OpenedSideBarItemsComponent = ({
 								<div
 									className="openSideBarComponent"
 									style={{
-										height: '99.1vh',
+										height: '100lvh',
 										display: 'flex',
 										flexDirection: 'column',
 										justifyContent: 'space-between',
@@ -818,7 +816,12 @@ const OpenedSideBarItemsComponent = ({
 								</div>
 							))}
 						</div>
-						<div className="settings-footer">
+						<div
+							className="settings-footer"
+							onClick={() => {
+								navigate('/create-workspace');
+							}}
+						>
 							<p>Create workspace</p>
 							<ArrowUpRightSvg />
 						</div>

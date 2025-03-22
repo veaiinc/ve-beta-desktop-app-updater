@@ -45,7 +45,7 @@ const SettingsWrapper = (props) => {
 	return (
 		<div
 			className={`${
-				type !== 'integrations' || type !== 'ai-setup' ? 'accountSettingsMainWrapper' : ''
+				type === 'integrations' || type === 'ai-setup' ? '' : 'accountSettingsMainWrapper'
 			}`}
 		>
 			{type === 'ai-setup' ? (

@@ -15,6 +15,7 @@ import IntegrationConnectModel from '../../components/modalsV2/integrations/Inte
 import Context from '../../../context/context';
 import { message, Modal } from 'antd';
 import ConnectedIntegrationModel from '../../components/modalsV2/integrations/ConnectedIntegrationModel';
+import Spinner from '../../components/loaders/Spinner';
 
 const ConnectedIntegrationCard = ({ icon, title, description, accounts, onViewAccounts }) => {
 	return (
@@ -40,7 +41,14 @@ const ConnectedIntegrationCard = ({ icon, title, description, accounts, onViewAc
 	);
 };
 
-const AvailableIntegrationCard = ({ icon, title, description, connectType, onConnect }) => {
+const AvailableIntegrationCard = ({
+	icon,
+	title,
+	description,
+	connectType,
+	onConnect,
+	connectLoader,
+}) => {
 	return (
 		<div className="available-integration-card">
 			<div className="card-top-row">
@@ -57,8 +65,10 @@ const AvailableIntegrationCard = ({ icon, title, description, connectType, onCon
 			<button
 				className="integration-button connect"
 				onClick={() => onConnect({ icon, title, description, connectType })}
+				disabled={connectLoader}
 			>
 				Connect
+				{connectLoader?.loader && connectLoader?.title === title && <Spinner />}
 			</button>
 		</div>
 	);
@@ -85,15 +95,25 @@ const Integrations = () => {
 	const [selectedAccounts, setSelectedAccounts] = useState();
 	const [connectedAccountsModel, setConnectedAccountsModel] = useState(false);
 	const [activeTab, setActiveTab] = useState('private');
+	const [connectLoader, setConnectLoader] = useState(false);
 
-	const handleConnect = (integration) => {
+	const handleConnect = async (integration) => {
 		setSelectedIntegration(integration);
-		handleConnectThirdParty(integration?.connectType);
-		setIsModalOpen(true);
+		setConnectLoader({
+			title: integration?.title,
+			loader: true,
+		});
+		await handleConnectThirdParty(integration?.connectType);
+		setConnectLoader({
+			title: integration?.title,
+			loader: false,
+		});
+		// setIsModalOpen(true);
 	};
 
 	const availableIntegrations = [
 		{
+			id: 1,
 			icon: google,
 			title: 'Google',
 			connectType: 'google',
@@ -102,6 +122,7 @@ const Integrations = () => {
 			isConnected: false,
 		},
 		{
+			id: 2,
 			icon: notion,
 			title: 'Notion',
 			connectType: 'notion',
@@ -110,6 +131,7 @@ const Integrations = () => {
 			isConnected: false,
 		},
 		{
+			id: 3,
 			icon: zoho,
 			title: 'Zoho',
 			connectType: 'zoho',
@@ -118,6 +140,7 @@ const Integrations = () => {
 			isConnected: false,
 		},
 		{
+			id: 4,
 			icon: slack,
 			title: 'Slack',
 			connectType: 'slack',
@@ -129,34 +152,42 @@ const Integrations = () => {
 
 	const requestIntegrations = [
 		{
+			id: 1,
 			icon: paypal,
 			title: 'PayPal',
 		},
 		{
+			id: 2,
 			icon: square,
 			title: 'Square',
 		},
 		{
+			id: 3,
 			icon: stripe,
 			title: 'Stripe',
 		},
 		{
+			id: 4,
 			icon: stripe,
 			title: 'Stripe',
 		},
 		{
+			id: 5,
 			icon: stripe,
 			title: 'Stripe',
 		},
 		{
+			id: 6,
 			icon: stripe,
 			title: 'Stripe',
 		},
 		{
+			id: 7,
 			icon: stripe,
 			title: 'Stripe',
 		},
 		{
+			id: 8,
 			icon: stripe,
 			title: 'Stripe',
 		},
@@ -208,7 +239,7 @@ const Integrations = () => {
 		};
 		fetchConnectedPlatforms();
 	}, []);
-	console.log(info);
+
 	useEffect(() => {
 		if (info?.connectedThirdParties) {
 			const platforms = [];
@@ -264,10 +295,10 @@ const Integrations = () => {
 			<div className="integrations-container">
 				<div className="title-container">
 					<h1 className="integrations-title">Integrations</h1>
-					<div className="search-container">
+					{/* <div className="search-container">
 						<img src={Search} alt="search" className="search-image" />
 						<input type="text" placeholder="Search" className="search-input" />
-					</div>
+					</div> */}
 				</div>
 
 				{/* <div className="tabs-wrapper">
@@ -290,9 +321,9 @@ const Integrations = () => {
 						<section className="connected-integrations">
 							<h2>Connected Integrations</h2>
 							<div className="connected-integrations-list">
-								{connectedPlatforms.map((integration, index) => (
+								{connectedPlatforms.map((integration) => (
 									<ConnectedIntegrationCard
-										key={index}
+										key={integration?.id}
 										{...integration}
 										onViewAccounts={handleSelectedCardModel}
 									/>
@@ -303,11 +334,12 @@ const Integrations = () => {
 						<section className="available-integrations">
 							<h2>Available Integrations</h2>
 							<div className="integrations-grid">
-								{availableIntegrations?.map((integration, index) => (
+								{availableIntegrations?.map((integration) => (
 									<AvailableIntegrationCard
-										key={index}
+										key={integration?.id}
 										{...integration}
 										onConnect={handleConnect}
+										connectLoader={connectLoader}
 									/>
 								))}
 							</div>

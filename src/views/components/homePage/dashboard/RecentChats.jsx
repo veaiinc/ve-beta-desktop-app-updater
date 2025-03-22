@@ -27,7 +27,6 @@ const RecentChats = () => {
 
 	useEffect(() => {
 		getAiChatSessions(1, 10, true);
-		console.log(aiChatSessions, 'aiChatSessions');
 	}, []);
 
 	const formatDate = (epochTime) => {
