@@ -356,6 +356,7 @@ const ChatBox = ({
 		async (e, click = null, query = null) => {
 			if (e?.key === 'Enter' || click) {
 				// If Shift+Enter, allow new line
+
 				if (e?.shiftKey) {
 					return;
 				}
@@ -432,7 +433,7 @@ const ChatBox = ({
 						...prev,
 						uploadedImages: [],
 						chatQuery: '',
-						recentFiles: [],
+						// recentFiles: [],// not clearing the recent files , because they want like sana
 						chatFilters: initialChatFilters,
 					}));
 
