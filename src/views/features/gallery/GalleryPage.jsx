@@ -909,49 +909,56 @@ const GalleryPage = () => {
 	}, [info?.currentWorkspaceId, tennantSettingsData, info?.activeGallery]);
 
 	useEffect(() => {
-		// if (!location?.state?.returnFromViewer) return;
-		if (location?.state?.returnFromViewer) {
-			const {
-				activeAlbumId: returnedAlbumId,
-				activeTagId: returnedTagId,
-				activeTab: returnedActiveTab,
-				selectedFace: returnedSelectedFace,
-				selectedFaceId: returnedSelectedFaceId,
-				selectedImage,
-			} = location.state;
+		if (!location?.state?.returnFromViewer) return;
 
-			if (returnedActiveTab === 'Ai People') {
+		const {
+			activeAlbumId: returnedAlbumId,
+			activeTagId: returnedTagId,
+			activeTab: returnedActiveTab,
+			selectedFace: returnedSelectedFace,
+			selectedFaceId: returnedSelectedFaceId,
+			selectedImage,
+		} = location.state;
+
+		if (returnedActiveTab === 'Ai People') {
+			setInfo((prev) => ({
+				...prev,
+				activeTab: 'Ai People',
+				activeAlbumId: returnedAlbumId || prev.activeAlbumId,
+				activeTagId: returnedTagId || prev.activeTagId,
+				selectedFace: returnedSelectedFace || prev.selectedFace,
+				selectedFaceId: returnedSelectedFaceId || prev.selectedFaceId,
+			}));
+		} else if (tenantAlbums?.albums && returnedAlbumId) {
+			const activeAlbum = tenantAlbums.albums.find(({ _id }) => _id === returnedAlbumId);
+
+			if (activeAlbum) {
 				setInfo((prev) => ({
 					...prev,
-					activeTab: 'Ai People',
-					activeAlbumId: returnedAlbumId || prev.activeAlbumId,
-					activeTagId: returnedTagId || prev.activeTagId,
-					selectedFace: returnedSelectedFace || prev.selectedFace,
-					selectedFaceId: returnedSelectedFaceId || prev.selectedFaceId,
+					activeTab: 'Albums',
+					albumName: activeAlbum.title,
+					activeAlbumId: activeAlbum._id,
+					activeAlbum: activeAlbum,
+					albumSlug: activeAlbum.slug,
+					albumTagId: returnedTagId || prev.albumTagId,
 				}));
-			} else if (tenantAlbums?.albums && returnedAlbumId) {
-				const activeAlbum = tenantAlbums.albums.find(({ _id }) => _id === returnedAlbumId);
-
-				if (activeAlbum) {
-					setInfo((prev) => ({
-						...prev,
-						activeTab: 'Albums',
-						albumName: activeAlbum.title,
-						activeAlbumId: activeAlbum._id,
-						activeAlbum: activeAlbum,
-						albumSlug: activeAlbum.slug,
-						albumTagId: returnedTagId || prev.albumTagId,
-					}));
-				}
 			}
+		}
 
-			setTimeout(() => {
-				document.getElementById(`image-${selectedImage}`)?.scrollIntoView({
-					behavior: 'instant',
+		// Retry scrolling until the element is available
+		const scrollToImage = () => {
+			const imageElement = document.getElementById(`image-${selectedImage}`);
+			if (imageElement) {
+				imageElement.scrollIntoView({
+					behavior: 'smooth',
 					block: 'center',
 				});
-			}, 500);
-		}
+			} else {
+				setTimeout(scrollToImage, 100); // Retry after 100ms
+			}
+		};
+
+		scrollToImage();
 		navigate(location.pathname, { replace: true });
 	}, [location?.state?.returnFromViewer, tenantAlbums?.albums]);
 
