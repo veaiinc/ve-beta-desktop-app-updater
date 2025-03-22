@@ -289,6 +289,8 @@ const GalleryViewer = () => {
 		const fromAiPeople =
 			aiface || location.state?.fromAiFaces || location.state?.activeTab === 'Ai People';
 
+		const selectedFaceId = faceId || null;
+
 		navigate(`/galleries/${galleryId}`, {
 			state: {
 				returnFromViewer: true,
@@ -296,6 +298,7 @@ const GalleryViewer = () => {
 				activeTagId: searchkeys.get('tagId'),
 				activeTab: fromAiPeople ? 'Ai People' : 'Albums',
 				selectedImage: info?.activeImage,
+				selectedFaceId: selectedFaceId,
 			},
 		});
 	};

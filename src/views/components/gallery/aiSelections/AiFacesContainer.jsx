@@ -15,6 +15,7 @@ const AiFacesContainer = ({
 	galleryCredentials,
 	handleBackClick,
 	selectedFace,
+	selectedFaceId,
 	activeAlbumId,
 	activeTagId,
 }) => {
@@ -25,7 +26,7 @@ const AiFacesContainer = ({
 	const [info, setInfo] = useState({
 		page: 1,
 		imagePage: 1,
-		activeFace: selectedFace?._id || aiFace?.faces?.[0]?._id,
+		activeFace: selectedFaceId || selectedFace?._id || aiFace?.faces?.[0]?._id,
 		selectedFace: selectedFace || null,
 		addNewPeople: false,
 		isHoveredIndex: null,
@@ -34,10 +35,18 @@ const AiFacesContainer = ({
 	const debounceTimerRef = useRef(null);
 
 	useEffect(() => {
+		console.log(selectedFaceId, 'testing');
+	}, [selectedFaceId]);
+	useEffect(() => {
 		if (!aiFace) {
 			getAiFace(galleryId, 1, 40, true);
 		} else if (selectedFace?._id) {
-			const matchedFace = aiFace.faces.find((face) => face._id === selectedFace._id);
+			let matchedFace;
+			if (selectedFaceId) {
+				matchedFace = aiFace.faces.find((face) => face._id === selectedFaceId);
+			} else if (selectedFace?._id) {
+				matchedFace = aiFace.faces.find((face) => face._id === selectedFace?._id);
+			}
 			if (matchedFace) {
 				setInfo((prev) => ({
 					...prev,
@@ -46,7 +55,7 @@ const AiFacesContainer = ({
 				}));
 			}
 		}
-	}, [aiFace, selectedFace]);
+	}, [aiFace, selectedFace, selectedFaceId]);
 
 	useEffect(() => {
 		getAiFaceImages(galleryId, info?.activeFace, info?.imagePage, 35, true);

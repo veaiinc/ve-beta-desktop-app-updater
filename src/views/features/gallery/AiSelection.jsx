@@ -16,14 +16,17 @@ const AiSelection = ({
 	activeAlbumId,
 	activeTagId,
 	selectedFace,
+	selectedFaceId,
 }) => {
 	const [info, setInfo] = useState({
-		search: selectedFace ? 'Ai Faces' : 'AI People',
+		search: selectedFace || selectedFaceId ? 'Ai Faces' : 'AI People',
 		showShearch: false,
 		searchValue: '',
 		selectedFace: selectedFace ? selectedFace : null,
+		selectedFaceId: selectedFaceId ? selectedFaceId : null,
 		preRegistration: true,
 	});
+
 	const handleOptionClick = (value) => {
 		setInfo((prev) => ({
 			...prev,
@@ -84,6 +87,7 @@ const AiSelection = ({
 					galleryCredentials={galleryCredentials}
 					handleBackClick={() => handleOptionClick('AI People')}
 					selectedFace={info?.selectedFace}
+					selectedFaceId={info?.selectedFaceId}
 					activeAlbumId={activeAlbumId}
 					activeTagId={activeTagId}
 				/>

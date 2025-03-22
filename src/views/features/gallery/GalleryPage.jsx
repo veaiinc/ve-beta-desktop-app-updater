@@ -319,6 +319,7 @@ const GalleryPage = () => {
 		loadingImagesList: null,
 		editGallery: false,
 		editingTitleValue: '',
+		selectedFaceId: null,
 	});
 	const optionsRef = useRef(null);
 	const iconRef = useRef(null);
@@ -913,7 +914,8 @@ const GalleryPage = () => {
 			const returnedTagId = location?.state?.activeTagId;
 			const returnedActiveTab = location?.state?.activeTab;
 			const returnedSelectedFace = location?.state?.selectedFace;
-			const returnedSelectedImage = location?.state?.selectedImage;
+			// const returnedSelectedImage = location?.state?.selectedImage;
+			const returnedSelectedFaceId = location?.state?.selectedFaceId;
 			if (returnedActiveTab === 'Ai People') {
 				setInfo((prev) => ({
 					...prev,
@@ -921,6 +923,7 @@ const GalleryPage = () => {
 					activeAlbumId: returnedAlbumId || prev.activeAlbumId,
 					activeTagId: returnedTagId || prev.activeTagId,
 					selectedFace: returnedSelectedFace || prev.selectedFace,
+					selectedFaceId: returnedSelectedFaceId || prev.selectedFaceId,
 				}));
 			} else {
 				// Default behavior for Albums tab
@@ -5631,6 +5634,7 @@ const GalleryPage = () => {
 						activeAlbumId={info?.activeAlbumId}
 						activeTagId={info?.activeTagId}
 						selectedFace={info?.selectedFace}
+						selectedFaceId={info?.selectedFaceId}
 					/>
 				)}
 				{info.activeTab === 'Insights' && <Insights galleryId={galleryId} />}
