@@ -74,7 +74,25 @@ const fileTypeIcons = {
 	json: <JsonSvg />,
 	md: <MdSvg />,
 	jpeg: <JpgSvg />,
+	'image/png': <PngSvg />,
+	'image/jpeg': <JpgSvg />,
+	'image/jpg': <JpgSvg />,
+	'application/pdf': <PdfSvg />,
+	'application/docx': <DocxSvg />,
+	'application/txt': <TextSvg />,
+	'application/json': <JsonSvg />,
+	'application/md': <MdSvg />,
+	'application/jpeg': <JpgSvg />,
+	'text/plain': <TextSvg />,
 };
+
+/*
+Note:
+We are using useRef at some places along with useState,
+This is because we want to avoid re-rendering the component when the state changes,
+and useRef does not cause re-rendering when the state changes and it always gives the latest value of the state.
+Dont change this otherwise chat functionality will break.
+*/
 
 const ChatBox = ({
 	outerContainerStyle = {},
@@ -154,6 +172,8 @@ const ChatBox = ({
 	const [previewOpen, setPreviewOpen] = useState(false);
 	const [previewImage, setPreviewImage] = useState('');
 	const textAreaRef = useRef(null);
+	const uploadedImagesRef = useRef(info?.uploadedImages || []);
+	const recentFilesRef = useRef(info?.recentFiles || []);
 
 	useEffect(() => {
 		if (activePromptForChat) {
@@ -165,13 +185,15 @@ const ChatBox = ({
 	useEffect(() => {
 		if (activePayloadForChat) {
 			setInfo((prev) => ({ ...prev, chatLoading: true }));
-			const { payload, localPayload, currentQuery } = activePayloadForChat;
+			const { payload, localPayload, currentQuery, recentFiles = [] } = activePayloadForChat;
 			if (handleSendWebsocketMessage) {
 				handleSendWebsocketMessage(payload, currentQuery);
 			}
 
 			handleStreamSendMessage(payload, localPayload, currentQuery);
 			updateStateValues({ activePayloadForChat: null });
+			recentFilesRef.current = recentFiles;
+			setInfo((prev) => ({ ...prev, recentFiles }));
 		}
 	}, [activePayloadForChat]);
 
@@ -291,23 +313,28 @@ const ChatBox = ({
 	};
 
 	const handleRecentFileClick = (file) => {
-		const isFileAlreadyPresent = info?.recentFiles?.some((ele) => ele?._id === file?._id);
-
+		let udpatedData = [...(recentFilesRef?.current || [])];
+		const isFileAlreadyPresent = recentFilesRef?.current?.some((ele) => ele?._id === file?._id);
+		udpatedData = recentFilesRef?.current?.filter((ele) => ele?._id !== file?._id);
+		recentFilesRef.current = udpatedData;
 		if (isFileAlreadyPresent) {
 			setInfo((prev) => ({
 				...prev,
-				recentFiles: prev?.recentFiles?.filter((ele) => ele?._id !== file?._id),
+				recentFiles: udpatedData,
 			}));
 		} else {
+			udpatedData?.push(file);
+			recentFilesRef.current = udpatedData;
 			setInfo((prev) => ({
 				...prev,
-				recentFiles: [...prev?.recentFiles, file],
+				recentFiles: udpatedData,
 			}));
 		}
 	};
 
 	const handleRemoveFileFromRecentFileClick = (file) => {
-		const updatedRecentFiles = info?.recentFiles?.filter((ele) => ele?._id !== file?._id);
+		const updatedRecentFiles = recentFilesRef?.current?.filter((ele) => ele?._id !== file?._id);
+		recentFilesRef.current = updatedRecentFiles;
 		setInfo((prev) => ({
 			...prev,
 			recentFiles: updatedRecentFiles,
@@ -383,11 +410,11 @@ const ChatBox = ({
 							  ]
 							: [];
 
-					if (info?.recentFiles?.length > 0) {
+					if (recentFilesRef?.current?.length > 0) {
 						query =
 							currentQuery +
 							',' +
-							info?.recentFiles?.map((ele) => ele?.originalFileName).join(',');
+							recentFilesRef?.current?.map((ele) => ele?.originalFileName).join(',');
 					} else {
 						query = currentQuery;
 					}
@@ -406,13 +433,13 @@ const ChatBox = ({
 						payload.screen = moduleHelper[location?.pathname?.split('/')?.[1]];
 					}
 					let localPayload = {};
-					if (info?.uploadedImages?.length) {
-						payload.files = info?.uploadedImages?.map(
+					if (uploadedImagesRef?.current?.length) {
+						payload.files = uploadedImagesRef?.current?.map(
 							(ele) => ele?.name || 'Untitled Image',
 						);
 
 						localPayload = {
-							files: info?.uploadedImages || [],
+							files: uploadedImagesRef?.current || [],
 							handlePreview,
 						};
 					}
@@ -423,8 +450,8 @@ const ChatBox = ({
 					if (
 						!chatInfo?.webSearch &&
 						!chatInfo?.workspaceSearch &&
-						!info?.uploadedImages?.length &&
-						!info?.recentFiles?.length
+						!uploadedImagesRef?.current?.length &&
+						!recentFilesRef?.current?.length
 					) {
 						payload.selected_model = chatInfo?.selectedLLMModel;
 					}
@@ -439,19 +466,26 @@ const ChatBox = ({
 
 					clearTextArea();
 
-					if (info?.recentFiles?.length > 0) {
+					if (recentFilesRef?.current?.length > 0) {
 						if (payload?.files && payload.files?.length > 0) {
 							payload.files = [
 								...payload.files,
-								...info?.recentFiles?.map((ele) => ele?.originalFileName),
+								...recentFilesRef?.current?.map((ele) => ele?.originalFileName),
 							];
 						} else {
-							payload.files = info?.recentFiles?.map((ele) => ele?.originalFileName);
+							payload.files = recentFilesRef?.current?.map(
+								(ele) => ele?.originalFileName,
+							);
 						}
 					}
 
 					if (customChatActions) {
-						return onSend({ payload, localPayload, currentQuery });
+						return onSend({
+							payload,
+							localPayload,
+							currentQuery,
+							recentFiles: recentFilesRef?.current || [],
+						});
 					}
 					handleStreamSendMessage(payload, localPayload, currentQuery);
 					if (handleSendWebsocketMessage) {
@@ -460,7 +494,16 @@ const ChatBox = ({
 				}
 			}
 		},
-		[aiChatLoading, onSend, customChatActions, info, chatInfo, activeWorkflowSlugForSmartFile],
+		[
+			aiChatLoading,
+			onSend,
+			customChatActions,
+			info,
+			chatInfo,
+			activeWorkflowSlugForSmartFile,
+			recentFilesRef.current,
+			uploadedImagesRef?.current,
+		],
 	);
 
 	const handleWorkflowSlugSelection = useCallback(
@@ -529,24 +572,72 @@ const ChatBox = ({
 				uploadBatchId,
 			};
 			const response = await handleGlobalUploadImage(file, payload);
-			let uploadedImages = [...info?.uploadedImages];
+			let uploadedImages = [...(uploadedImagesRef?.current || [])];
+			let recentFiles = [...(recentFilesRef?.current || [])];
+			let requiredFileIndex = -1;
+			let isImage = file?.type?.includes('image');
+			if (isImage) {
+				requiredFileIndex = uploadedImages?.findIndex(
+					(ele) => ele?.uniqueId === file?.uniqueId,
+				);
+			} else {
+				requiredFileIndex = recentFiles?.findIndex(
+					(ele) => ele?.uniqueId === file?.uniqueId,
+				);
+			}
+
+			if (requiredFileIndex === -1) {
+				return;
+			}
 			if (!response?.[0]) {
-				uploadedImages.splice(file?.uniqueId, 1);
-				setInfo((prev) => ({ ...prev, uploadedImages }));
+				if (isImage) {
+					uploadedImages.splice(requiredFileIndex, 1);
+					uploadedImagesRef.current = uploadedImages;
+				} else {
+					recentFiles.splice(requiredFileIndex, 1);
+					recentFilesRef.current = recentFiles;
+				}
+
+				setInfo((prev) => ({ ...prev, uploadedImages, recentFiles }));
 				return message.error(response?.[1] || 'failed to upload image');
 			}
 			const { _id } = response?.[1] || {};
 			file.fileId = _id;
-			uploadedImages.splice(file?.uniqueId, 1, file);
-			setInfo((prev) => ({ ...prev, uploadedImages }));
+			if (isImage) {
+				uploadedImages.splice(requiredFileIndex, 1, file);
+				uploadedImagesRef.current = uploadedImages;
+			} else {
+				recentFiles.splice(requiredFileIndex, 1, file);
+				recentFilesRef.current = recentFiles;
+			}
+
+			setInfo((prev) => ({ ...prev, uploadedImages, recentFiles }));
 			checkIndividualImageUploadedStatusFunc(file, uploadBatchId);
 		},
-		[info],
+		[info, uploadedImagesRef?.current, recentFilesRef?.current],
 	);
 
 	const checkIndividualImageUploadedStatusFunc = useCallback(
 		async (fileData, uploadBatchId) => {
-			let uploadedImages = [...info?.uploadedImages];
+			let uploadedImages = [...(uploadedImagesRef?.current || [])];
+			let recentFiles = [...(recentFilesRef?.current || [])];
+			let requiredFileIndex = -1;
+			let isImage = fileData?.type?.includes('image');
+
+			if (isImage) {
+				requiredFileIndex = uploadedImages?.findIndex(
+					(ele) => ele?.uniqueId === fileData?.uniqueId,
+				);
+			} else {
+				requiredFileIndex = recentFiles?.findIndex(
+					(ele) => ele?.uniqueId === fileData?.uniqueId,
+				);
+			}
+
+			if (requiredFileIndex === -1) {
+				return;
+			}
+
 			let uploadedCount = 0,
 				maxAttempts = 90,
 				errorCount = 0,
@@ -569,58 +660,98 @@ const ChatBox = ({
 				maxAttempts--;
 			}
 			if (errorCount || maxAttempts === 0) {
-				uploadedImages.splice(fileData?.uniqueId, 1);
-				setInfo((prev) => ({ ...prev, uploadedImages }));
+				if (isImage) {
+					uploadedImages.splice(requiredFileIndex, 1);
+					uploadedImagesRef.current = uploadedImages;
+				} else {
+					recentFiles.splice(requiredFileIndex, 1);
+					recentFilesRef.current = recentFiles;
+				}
+
+				setInfo((prev) => ({ ...prev, uploadedImages, recentFiles }));
 				return message.error('Something went wrong while processing the image');
 			}
 			if (uploadedCount && uploadedCount > 0) {
 				fileData.loading = false;
-				uploadedImages.splice(fileData?.uniqueId, 1, fileData);
-				setInfo((prev) => ({ ...prev, uploadedImages }));
+				if (isImage) {
+					uploadedImages.splice(requiredFileIndex, 1, fileData);
+					uploadedImagesRef.current = uploadedImages;
+				} else {
+					recentFiles.splice(requiredFileIndex, 1, fileData);
+					recentFilesRef.current = recentFiles;
+				}
+
+				setInfo((prev) => ({ ...prev, uploadedImages, recentFiles }));
 			}
 		},
-		[info],
+		[info, recentFilesRef?.current, uploadedImagesRef?.current],
 	);
 
-	const handleChange = useCallback(
+	const handleFileAttachmentChange = useCallback(
 		async ({ file }) => {
-			let uploadedImages = [...(info?.uploadedImages || [])];
+			let uploadedImages = [...(uploadedImagesRef?.current || [])];
+			let recentFiles = [...(recentFilesRef?.current || [])];
 			file.preview = await getBase64(file);
 			file.loading = true;
-			file.uniqueId = uploadedImages?.length;
-			uploadedImages.push(file);
+			file.uniqueId = Date.now() + '_' + Math.floor(Math.random() * 1000000);
+
+			if (file.type.includes('image')) {
+				uploadedImages.push(file);
+				uploadedImagesRef.current = uploadedImages;
+			} else {
+				file.originalFileName = file.name;
+				file.sourceType = file.type;
+				recentFiles.push(file);
+				recentFilesRef.current = recentFiles;
+			}
 
 			handleGlobalImageProcessing(file);
 
 			setInfo((prev) => ({
 				...prev,
-				// addQuickAction: false,
 				expanded: true,
 				inputExpanded: true,
 				uploadedImages,
+				recentFiles,
 			}));
 		},
-		[handleAiUploadImage, info],
+		[handleAiUploadImage, info, recentFilesRef?.current, uploadedImagesRef?.current],
 	);
 
 	const checkAllUploadLoadingStatus = useCallback(() => {
-		const uploadedImages = [...(info?.uploadedImages || [])];
+		let uploadedImages = [...(uploadedImagesRef.current || [])];
+		let recentFiles = [...(recentFilesRef.current || [])];
 		for (let i = 0; i < uploadedImages?.length; i++) {
 			if (uploadedImages[i]?.loading) {
 				return false;
 			}
 		}
+		for (let i = 0; i < recentFiles?.length; i++) {
+			if (recentFiles?.[i]?.loading) {
+				return false;
+			}
+		}
 		return true;
-	}, [info]);
+	}, [info, recentFilesRef, uploadedImagesRef]);
 
 	const handleRemoveImage = useCallback(
 		(ele) => {
-			const uploadedImages = [...(info?.uploadedImages || [])];
-			uploadedImages.splice(ele?.uniqueId, 1);
+			let uploadedImages = [...(uploadedImagesRef.current || [])];
+
+			let requiredFileIndex = -1;
+			requiredFileIndex = uploadedImages?.findIndex(
+				(file) => ele?.uniqueId === file?.uniqueId,
+			);
+			if (requiredFileIndex === -1) {
+				return;
+			}
+
+			uploadedImages.splice(requiredFileIndex, 1);
+			uploadedImagesRef.current = uploadedImages;
 			setInfo((prev) => ({ ...prev, uploadedImages }));
 			deleteUploadedImageThroughChat(ele?.fileId);
 		},
-		[info],
+		[info, uploadedImagesRef],
 	);
 
 	const handleMicIconClick = useCallback(
@@ -904,7 +1035,7 @@ const ChatBox = ({
 
 													<UploadFileTooltip
 														fileTypeIcons={fileTypeIcons}
-														handleChange={handleChange}
+														handleChange={handleFileAttachmentChange}
 														isUploadFileOpen={info?.isUploadFileOpen}
 														setIsUploadFileOpen={(value) => {
 															if (chatInfo?.deepResearch) return;
@@ -916,7 +1047,7 @@ const ChatBox = ({
 														handleRecentFileClick={
 															handleRecentFileClick
 														}
-														recentFiles={info?.recentFiles}
+														recentFiles={recentFilesRef.current || []}
 													>
 														<Tooltip
 															title={`${
@@ -987,8 +1118,9 @@ const ChatBox = ({
 																	chatInfo?.deepResearch ||
 																	chatInfo?.webSearch ||
 																	chatInfo?.workspaceSearch ||
-																	info?.uploadedImages?.length ||
-																	info?.recentFiles?.length
+																	uploadedImagesRef?.current
+																		?.length ||
+																	recentFilesRef?.current?.length
 																)
 																	return;
 																setInfo((prev) => ({
@@ -1006,9 +1138,9 @@ const ChatBox = ({
 																			chatInfo?.deepResearch ||
 																			chatInfo?.webSearch ||
 																			chatInfo?.workspaceSearch ||
-																			info?.uploadedImages
-																				?.length ||
-																			info?.recentFiles
+																			uploadedImagesRef
+																				?.current?.length ||
+																			recentFilesRef?.current
 																				?.length
 																				? '0.5'
 																				: '1'
@@ -1069,9 +1201,9 @@ const ChatBox = ({
 				{/* )} */}
 			</div>
 			<div className="chatbarContainer" style={{ width: '100%' }}>
-				{info?.uploadedImages?.length > 0 ? (
+				{uploadedImagesRef?.current?.length > 0 ? (
 					<div className="imagePreviewBar">
-						{info?.uploadedImages?.map((ele, index) => (
+						{uploadedImagesRef?.current?.map((ele, index) => (
 							<div className="previewOfUploadedImage" key={index}>
 								<img
 									src={ele?.preview}
@@ -1103,14 +1235,21 @@ const ChatBox = ({
 				) : (
 					''
 				)}
-				{info?.recentFiles?.length > 0 && (
+				{recentFilesRef?.current?.length > 0 && (
 					<div className="recent-files-container">
-						{info?.recentFiles?.map((file) => (
+						{recentFilesRef?.current?.map((file) => (
 							<div className="recent-file" key={file?._id}>
 								<div className="file-type-icon">
 									{fileTypeIcons?.[file?.sourceType]}
 								</div>
-								<div className="file-name">{file?.originalFileName}</div>
+								<div
+									className="file-name"
+									style={{ display: 'flex', alignItems: 'center', gap: '10px' }}
+								>
+									{file?.originalFileName}
+
+									{file?.loading && <Spin />}
+								</div>
 								<div
 									className="close-icon-container"
 									onClick={() => handleRemoveFileFromRecentFileClick(file)}
