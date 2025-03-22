@@ -909,13 +909,17 @@ const GalleryPage = () => {
 	}, [info?.currentWorkspaceId, tennantSettingsData, info?.activeGallery]);
 
 	useEffect(() => {
+		// if (!location?.state?.returnFromViewer) return;
 		if (location?.state?.returnFromViewer) {
-			const returnedAlbumId = location?.state?.activeAlbumId;
-			const returnedTagId = location?.state?.activeTagId;
-			const returnedActiveTab = location?.state?.activeTab;
-			const returnedSelectedFace = location?.state?.selectedFace;
-			// const returnedSelectedImage = location?.state?.selectedImage;
-			const returnedSelectedFaceId = location?.state?.selectedFaceId;
+			const {
+				activeAlbumId: returnedAlbumId,
+				activeTagId: returnedTagId,
+				activeTab: returnedActiveTab,
+				selectedFace: returnedSelectedFace,
+				selectedFaceId: returnedSelectedFaceId,
+				selectedImage,
+			} = location.state;
+
 			if (returnedActiveTab === 'Ai People') {
 				setInfo((prev) => ({
 					...prev,
@@ -925,39 +929,30 @@ const GalleryPage = () => {
 					selectedFace: returnedSelectedFace || prev.selectedFace,
 					selectedFaceId: returnedSelectedFaceId || prev.selectedFaceId,
 				}));
-			} else {
-				// Default behavior for Albums tab
-				if (tenantAlbums?.albums && returnedAlbumId) {
-					const activeAlbum = tenantAlbums.albums.find(
-						(album) => album._id === returnedAlbumId,
-					);
+			} else if (tenantAlbums?.albums && returnedAlbumId) {
+				const activeAlbum = tenantAlbums.albums.find(({ _id }) => _id === returnedAlbumId);
 
-					if (activeAlbum) {
-						setInfo((prev) => ({
-							...prev,
-							activeTab: 'Albums',
-							albumName: activeAlbum.title,
-							activeAlbumId: activeAlbum._id,
-							activeAlbum: activeAlbum,
-							albumSlug: activeAlbum.slug,
-							albumTagId: returnedTagId || prev.albumTagId,
-						}));
-					}
+				if (activeAlbum) {
+					setInfo((prev) => ({
+						...prev,
+						activeTab: 'Albums',
+						albumName: activeAlbum.title,
+						activeAlbumId: activeAlbum._id,
+						activeAlbum: activeAlbum,
+						albumSlug: activeAlbum.slug,
+						albumTagId: returnedTagId || prev.albumTagId,
+					}));
 				}
 			}
+
 			setTimeout(() => {
-				const imageElement = document.getElementById(
-					`image-${location?.state?.selectedImage}`,
-				);
-				if (imageElement) {
-					imageElement.scrollIntoView({
-						behavior: 'instant',
-						block: 'center',
-					});
-				}
+				document.getElementById(`image-${selectedImage}`)?.scrollIntoView({
+					behavior: 'instant',
+					block: 'center',
+				});
 			}, 500);
-			navigate(location.pathname, { replace: true });
 		}
+		navigate(location.pathname, { replace: true });
 	}, [location?.state?.returnFromViewer, tenantAlbums?.albums]);
 
 	useEffect(() => {

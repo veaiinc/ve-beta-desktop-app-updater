@@ -35,18 +35,16 @@ const AiFacesContainer = ({
 	const debounceTimerRef = useRef(null);
 
 	useEffect(() => {
-		console.log(selectedFaceId, 'testing');
-	}, [selectedFaceId]);
-	useEffect(() => {
 		if (!aiFace) {
 			getAiFace(galleryId, 1, 40, true);
-		} else if (selectedFace?._id) {
-			let matchedFace;
-			if (selectedFaceId) {
-				matchedFace = aiFace.faces.find((face) => face._id === selectedFaceId);
-			} else if (selectedFace?._id) {
-				matchedFace = aiFace.faces.find((face) => face._id === selectedFace?._id);
-			}
+		} else if (selectedFace?._id || selectedFaceId) {
+			// Ensure aiFace.faces exists
+			if (!aiFace.faces || aiFace.faces.length === 0) return;
+
+			const matchedFace = aiFace.faces.find(
+				(face) => face._id === selectedFaceId || face._id === selectedFace?._id,
+			);
+
 			if (matchedFace) {
 				setInfo((prev) => ({
 					...prev,
