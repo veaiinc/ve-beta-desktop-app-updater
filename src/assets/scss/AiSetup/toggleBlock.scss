@@ -1,0 +1,64 @@
+.toggleBlockContainer {
+	display: flex;
+	height: 68px;
+	flex-direction: column;
+	align-items: flex-start;
+	align-self: stretch;
+	border-radius: 12px;
+	background: var(--card, #171819);
+	overflow: hidden;
+	transition: height 0.5s ease-in-out;
+
+	.toggleBlockHeader {
+		display: flex;
+		width: 100%;
+		padding: 24px;
+		height: 68px;
+		justify-content: space-between;
+		align-items: center;
+
+		.toggleBlockHeaderTitle {
+			color: var(--primary-font, #f2f2f3);
+			font-family: Inter;
+			font-size: 16px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+		}
+
+		.toggleBlockHeaderTitleOpen {
+			color: var(--secondary-font, #787e87);
+			font-family: Inter;
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+		}
+
+		.toggleBlockHeaderButton {
+			background-color: transparent;
+			border: none;
+			color: var(--primary-font, #f2f2f3);
+			font-family: Inter;
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			cursor: pointer;
+		}
+	}
+
+	.toggleBlockContent {
+		padding: 24px;
+		padding-top: 0;
+		color: var(--1-primary-font, #f2f2f3);
+		font-family: Inter;
+		font-size: 14px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: 22px; /* 157.143% */
+	}
+}
+
+.toggleBlockContainerOpen {
+	height: fit-content;
+}

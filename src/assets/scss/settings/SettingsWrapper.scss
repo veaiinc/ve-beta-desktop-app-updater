@@ -1,7 +1,7 @@
 .accountSettingsMainWrapper {
 	display: flex;
-	height: 100%;
-	width: 80%;
+	height: calc(100vh - 32px);
+	width: 100%;
 	margin: auto;
 
 	.accountSettingsWrapper {
@@ -12,6 +12,7 @@
 		max-height: 97%;
 		overflow-y: scroll;
 		scroll-behavior: smooth;
+		margin: auto;
 		.accountSettingsMapper {
 			width: 680px;
 			height: 85vh;

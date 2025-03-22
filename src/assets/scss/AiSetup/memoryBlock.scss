@@ -1,0 +1,13 @@
+.memoryBlockContainer {
+	display: flex;
+	max-height: 390px;
+	padding: 24px;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 14px;
+	align-self: stretch;
+
+	border-radius: 12px;
+	background: var(--card);
+	overflow-y: auto;
+}

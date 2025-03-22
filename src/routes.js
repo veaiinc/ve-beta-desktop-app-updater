@@ -266,15 +266,15 @@ const routes = [
 		),
 		exact: true,
 	},
-	{
-		path: '/settings/ai-setup-page/:aiAssistantId',
-		component: (
-			<AuthWrapper title={'AI Setup'}>
-				<AiSetupPage />
-			</AuthWrapper>
-		),
-		exact: true,
-	},
+	// {
+	// 	path: '/settings/ai-setup-page/:aiAssistantId',
+	// 	component: (
+	// 		<AuthWrapper title={'AI Setup'}>
+	// 			<AiSetupPage />
+	// 		</AuthWrapper>
+	// 	),
+	// 	exact: true,
+	// },
 	{
 		path: '/tasks',
 		component: (

@@ -290,7 +290,7 @@ const SETTINGS_OPTIONS = [
 	{ name: 'Team Settings', route: '/settings/team-settings' },
 	{ name: 'Integration', route: '/settings/integrations' },
 	{ name: 'Plan Billing', route: '/settings/plan-billing' },
-	// { name: 'AI Setup', route: '/settings/ai-setup' },
+	{ name: 'AI Setup', route: '/settings/ai-setup' },
 ];
 
 const OpenedSideBarItemsComponent = ({

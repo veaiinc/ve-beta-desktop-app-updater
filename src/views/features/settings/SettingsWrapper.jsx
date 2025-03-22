@@ -10,7 +10,7 @@ import BrandingSetup from './BrandSetup';
 import OldIntegrationsPage from './OdIntegrationsPage';
 import TeamSettings from './TeamSettings';
 import PlanBilling from './PlanBilling';
-import AiSetup from './ai_settings/AiSetup';
+import AiSetup from '../AiSetup/index';
 import Integrations from '../Integrations/Integrations';
 const mapper = {
 	'my-profile': <MyProfile />,
@@ -43,15 +43,23 @@ const SettingsWrapper = (props) => {
 	}, [tennantSettingsData]);
 
 	return (
-		<div className={`${type !== 'integrations' ? 'accountSettingsMainWrapper' : ''}`}>
-			<div className={`${type !== 'integrations' ? 'accountSettingsWrapper' : ''}`}>
-				<div className={`${type !== 'integrations' ? 'accountSettingsMapper' : ''}`}>
-					{mapper?.[type]}
+		<div
+			className={`${
+				type !== 'integrations' || type !== 'ai-setup' ? 'accountSettingsMainWrapper' : ''
+			}`}
+		>
+			{type === 'ai-setup' ? (
+				mapper?.[type]
+			) : (
+				<div className={`${type !== 'integrations' ? 'accountSettingsWrapper' : ''}`}>
+					<div className={`${type !== 'integrations' ? 'accountSettingsMapper' : ''}`}>
+						{mapper?.[type]}
+					</div>
+					{/* <div className="accountSettingsSidebar">
+				<SettingsPageSideBar {...props} type={type} setType1={setType} />
+			</div> */}
 				</div>
-				{/* <div className="accountSettingsSidebar">
-					<SettingsPageSideBar {...props} type={type} setType1={setType} />
-				</div> */}
-			</div>
+			)}
 		</div>
 	);
 };
