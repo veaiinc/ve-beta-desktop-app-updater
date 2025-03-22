@@ -383,14 +383,24 @@ const RecentChat = ({
 				updateStateValues({ globalLoadingMesssage: loadingMessageRef.current });
 				return;
 			}
+			if (data?.type === 'variableRequirement') {
+				loadingMessageRef.current = null;
+			}
 
 			if (data?.stream_end) {
 				handleStreamIncomingMessage(data);
-				updateStateValues({ globalLoadingMesssage: null });
+				//removing loading messages
+				const filteredMessages = chatMessagesRef?.current?.filter(
+					(ele) => ele?.contentType !== 'loading',
+				);
+				updateStateValues({
+					globalChatMessages: filteredMessages,
+					globalLoadingMesssage: null,
+				});
 				setInfo((prev) => ({ ...prev, latestStreamMesage: data }));
 			}
 			const { message_chunk_id } = data;
-			if (message_chunk_id) {
+			if (message_chunk_id && !data?.stream_end) {
 				handleStreamMessageChunk(data, message_chunk_id);
 			}
 		},

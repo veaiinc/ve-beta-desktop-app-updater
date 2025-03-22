@@ -206,6 +206,14 @@ const ChatBox = ({
 	}, [currentSessionId]);
 
 	useEffect(() => {
+		if (recentFilesRef?.current?.length > 0 || uploadedImagesRef?.current?.length > 0) {
+			updateStateValues({
+				chatInfo: { ...chatInfo, workspaceSearch: true },
+			});
+		}
+	}, [recentFilesRef?.current, uploadedImagesRef?.current]);
+
+	useEffect(() => {
 		if (followUpQuery) {
 			setInfo((prev) => ({
 				...prev,
