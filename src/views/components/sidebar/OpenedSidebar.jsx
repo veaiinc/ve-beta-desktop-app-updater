@@ -577,7 +577,7 @@ const OpenedSideBarItemsComponent = ({
 														marginLeft: '10px',
 														border: 'none',
 														zIndex: '1000',
-														background: '#202123',
+														// background: 'var(--primary-font)',
 														borderRadius: '16px',
 														animation: 'slideDown 0.3s ease-out',
 														transformOrigin: 'top',
@@ -595,7 +595,7 @@ const OpenedSideBarItemsComponent = ({
 												<>
 													<hr
 														style={{
-															border: '0.7px solid #333334',
+															border: '0.7px solid var(--stroke)',
 															margin: '16px 0px',
 														}}
 													/>
@@ -658,7 +658,7 @@ const OpenedSideBarItemsComponent = ({
 
 													<hr
 														style={{
-															border: '0.7px solid #333334',
+															border: '0.7px solid var(--stroke)',
 															margin: '16px 0px',
 														}}
 													/>
@@ -736,8 +736,8 @@ const OpenedSideBarItemsComponent = ({
 								className="chatDetailPanel"
 								style={{
 									width: isMobile ? '100%' : '300px',
-									backgroundColor: '#1E1E1E',
-									borderLeft: !isMobile ? '1px solid #333334' : 'none',
+									backgroundColor: 'var(--error)',
+									borderLeft: !isMobile ? '1px solid var(--stroke)' : 'none',
 									padding: '20px',
 									position: isMobile ? 'fixed' : 'absolute',
 									left: isMobile ? '0' : '100%',
@@ -754,7 +754,7 @@ const OpenedSideBarItemsComponent = ({
 										marginBottom: '20px',
 									}}
 								>
-									<h2 style={{ color: '#E8E8E8' }}>{selectedChat}</h2>
+									<h2 style={{ color: 'var(--primary-font)' }}>{selectedChat}</h2>
 									<CrossSvg
 										style={{ cursor: 'pointer' }}
 										onClick={handleCloseChatPanel}
@@ -785,8 +785,8 @@ const OpenedSideBarItemsComponent = ({
 									padding: '6px 10px',
 									borderRadius: '10px',
 									fontSize: '14px',
-									background: '#E8E8E8',
-									color: '#202123',
+									background: 'var(--primary-font)',
+									color: 'var(--secondary-font)',
 									textAlign: 'center',
 									marginLeft: '12px',
 								}}

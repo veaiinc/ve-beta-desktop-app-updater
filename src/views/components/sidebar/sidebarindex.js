@@ -27,11 +27,6 @@ import AddCalenderSvg from '../../../assets/svg/sidebar/AddCalenderSvg';
 import HomeSvg from '../../../assets/svg/sidebar/HomeSvg.jsx';
 import { ReactComponent as OrchestratorSvg } from '../../../assets/svg/sidebar/Orchestrator.svg';
 import TemplatesSvg from '../../../assets/svg/sidebar/TemplatesSvg.jsx';
-import DaVinci from '../../../assets/images/Da Vinci.jpeg';
-import Jarvis from '../../../assets/images/Jarvis.jpeg';
-import Ari from '../../../assets/images/Ari.jpeg';
-import DaVinciJobsSvg from '../../../assets/svg/sidebar/DaVinciJobsSvg.jsx';
-import DaVinciSetupSvg from '../../../assets/svg/sidebar/DaVinciSetupSvg.jsx';
 // import { subDays } from 'react-datepicker/dist/date_utils.js';
 
 export const veAiModulesItemsList = [
