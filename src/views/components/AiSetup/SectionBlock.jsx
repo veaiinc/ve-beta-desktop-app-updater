@@ -4,8 +4,7 @@ import '../../../assets/scss/AiSetup/sectionBlock.scss';
 import MemoryBlock from './MemoryBlock';
 const SectionBlock = ({
 	title,
-	onAddClick,
-	onEditClick,
+	openAddNewGoalModal,
 	onResetClick,
 	data = [{ _id: 1, title: 'Test', description: 'Test', content: 'Test' }],
 	type,
@@ -19,7 +18,7 @@ const SectionBlock = ({
 						Reset
 					</button>
 					<button
-						onClick={onAddClick}
+						onClick={openAddNewGoalModal}
 						className="sectionBlockHeaderButton sectionBlockHeaderButtonAdd"
 					>
 						Add new
