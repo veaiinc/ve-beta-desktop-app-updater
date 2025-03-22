@@ -546,7 +546,7 @@ const TeamSettings = () => {
 			{contextHolder}
 
 			<div className="TeamMemberContainer">
-				<h1 className="TeamMemberContainerTitle">Team Setting</h1>
+				<h1 className="TeamMemberContainerTitle">Team Members</h1>
 				<div className="settingsBoxContainer yourTeamComponent">
 					<TeamAccessListComponent
 						search={search}

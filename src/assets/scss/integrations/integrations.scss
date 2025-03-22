@@ -1,16 +1,7 @@
-// Variables
-$background-dark: #111111;
-$card-background: #1a1a1a;
-$text-primary: #ffffff;
-$text-secondary: #a0a0a0;
-$accent-green: #00ff00;
-$border-radius: 12px;
-$card-hover-color: #27282b;
-
 .integrations-container {
 	padding: 2rem;
 	min-height: 100vh;
-	color: $text-primary;
+	color: var(--primary-font);
 
 	.title-container {
 		display: flex;
@@ -36,7 +27,7 @@ $card-hover-color: #27282b;
 		.search-container {
 			display: flex;
 			align-items: center;
-			background-color: rgba(255, 255, 255, 0.1);
+			background-color: var(--card-over-card-hover);
 			border-radius: 24px;
 			padding: 0.5rem 1rem;
 			width: 346px;
@@ -57,12 +48,12 @@ $card-hover-color: #27282b;
 			.search-input {
 				background: transparent;
 				border: none;
-				color: $text-primary;
+				color: var(--primary-font);
 				width: 100%;
 				font-size: 0.9rem;
 
 				&::placeholder {
-					color: $text-secondary;
+					color: var(--secondary-font);
 				}
 
 				&:focus {
@@ -79,7 +70,7 @@ $card-hover-color: #27282b;
 			font-size: 1.2rem;
 			font-weight: 500;
 			margin-bottom: 1.5rem;
-			color: $text-secondary;
+			color: var(--secondary-font);
 		}
 	}
 
@@ -103,8 +94,8 @@ $card-hover-color: #27282b;
 		}
 
 		.connected-integration-card {
-			background-color: $card-background;
-			border-radius: $border-radius;
+			background-color: var(--card);
+			border-radius: 12px;
 			padding: 1.5rem;
 			display: flex;
 			justify-content: space-between;
@@ -130,7 +121,6 @@ $card-hover-color: #27282b;
 			}
 
 			.integration-content {
-			
 				.integration-content-title {
 					font-size: 1.1rem;
 					font-weight: 500;
@@ -138,21 +128,21 @@ $card-hover-color: #27282b;
 				}
 
 				.integration-content-description {
-					color: $text-secondary;
+					color: var(--secondary-font);
 					font-size: 0.9rem;
 				}
-				.connected-accounts{
-					color: var(--Secondary-Font,#7A7E85);
+				.connected-accounts {
+					color: var(--Secondary-Font, #7a7e85);
 				}
 			}
 			.connected-dot {
 				width: 12px;
 				height: 12px;
-				background-color: #1c993e;
+				background-color: var(--success);
 			}
 			.connected-badge {
-				border: 1px solid #333334;
-				color: #1c993e;
+				border: 1px solid var(--stroke);
+				color: var(--success);
 				padding: 0.3rem 0.8rem;
 				border-radius: 8px;
 				font-size: 0.8rem;
@@ -178,8 +168,8 @@ $card-hover-color: #27282b;
 	}
 
 	.available-integration-card {
-		background-color: $card-background;
-		border-radius: $border-radius;
+		background-color: var(--card);
+		border-radius: 12px;
 		padding: 1.5rem;
 		width: 260px;
 		height: 320px;
@@ -189,11 +179,11 @@ $card-hover-color: #27282b;
 		gap: 12px;
 		transition: all 0.2s ease;
 		cursor: pointer;
-      .card-top-row{
-		display: flex;
-		flex-direction: column;
-		gap: 20px;
-	  }
+		.card-top-row {
+			display: flex;
+			flex-direction: column;
+			gap: 20px;
+		}
 		@media screen and (max-width: 768px) {
 			width: 100%;
 			height: auto;
@@ -201,19 +191,19 @@ $card-hover-color: #27282b;
 			padding: 1rem;
 			flex-direction: column;
 			gap: 12px;
-			background-color: rgba(26, 26, 26, 0.5);
+			background-color: var(--card-over-card-hover);
 			backdrop-filter: blur(8px);
-			border: 1px solid rgba(255, 255, 255, 0.1);
+			border: 1px solid var(--stroke);
 		}
 
 		&:hover {
 			transform: scale(1.02);
-			background-color: $card-hover-color;
+			background-color: var(--card-over-card-hover);
 
 			@media screen and (max-width: 768px) {
 				transform: none;
-				background-color: rgba(39, 40, 43, 0.8);
-				border-color: rgba(255, 255, 255, 0.2);
+				background-color: var(--card-over-card-hover);
+				border-color: var(--stroke);
 			}
 		}
 
@@ -259,7 +249,7 @@ $card-hover-color: #27282b;
 				font-size: 1.1rem;
 				font-weight: 500;
 				margin-bottom: 0.5rem;
-				color: $text-primary;
+				color: var(--primary-font);
 
 				@media screen and (max-width: 768px) {
 					font-size: 0.95rem;
@@ -268,7 +258,7 @@ $card-hover-color: #27282b;
 			}
 
 			p {
-				color: $text-secondary;
+				color: var(--secondary-font);
 				font-size: 0.9rem;
 				line-height: 1.4;
 				margin-bottom: 1rem;
@@ -286,7 +276,7 @@ $card-hover-color: #27282b;
 			min-width: 100px;
 			padding: 0.6rem 1.2rem;
 			border-radius: 20px;
-			border: 1px solid #7a7e85;
+			border: 1px solid var(--stroke);
 			font-size: 0.9rem;
 			font-weight: 500;
 			cursor: pointer;
@@ -302,22 +292,22 @@ $card-hover-color: #27282b;
 
 			&.connect {
 				background-color: transparent;
-				color: #7a7e85;
+				color: var(--secondary-font);
 
 				&:hover {
-					border-color: var(--Primary-Font, #f2f2f3);
-					color: var(--Primary-Font, #f2f2f3);
+					border-color: var(--stroke);
+					color: var(--primary-font);
 				}
 			}
 
 			&.disconnect {
 				background-color: transparent;
-				color: #ff4444;
-				border-color: rgba(255, 0, 0, 0.2);
+				color: var(--error);
+				border-color: var(--stroke);
 
 				&:hover {
-					background-color: rgba(255, 0, 0, 0.1);
-					border-color: rgba(255, 0, 0, 0.3);
+					background-color: var(--card-over-card-hover);
+					border-color: var(--error);
 				}
 			}
 		}
@@ -330,7 +320,7 @@ $card-hover-color: #27282b;
 			font-size: 18px;
 			font-weight: 600;
 			margin-bottom: 1.5rem;
-			color: $text-primary;
+			color: var(--primary-font);
 		}
 
 		.request-integrations-grid {
@@ -387,7 +377,7 @@ $card-hover-color: #27282b;
 			h3 {
 				font-size: 16px;
 				font-weight: 500;
-				color: $text-primary;
+				color: var(--primary-font);
 				text-align: left;
 				margin: 0;
 			}
@@ -395,7 +385,7 @@ $card-hover-color: #27282b;
 			.request-button {
 				// background-color: transparent;
 				// border: 1px solid rgba(255, 255, 255, 0.2);
-				color: $text-secondary;
+				color: var(--secondary-font);
 				// padding: 8px 24px;
 				// border-radius: 20px;
 				font-size: 14px;
@@ -434,7 +424,7 @@ $card-hover-color: #27282b;
 	.tab-button {
 		padding: 8px 24px;
 		border-radius: 20px;
-		border: 1px solid rgba(255, 255, 255, 0.1);
+		border: 1px solid var(--stroke);
 		background: transparent;
 		font-family: Inter;
 		font-size: 14px;
@@ -446,13 +436,13 @@ $card-hover-color: #27282b;
 		transition: all 0.3s ease;
 
 		&.active {
-			background: rgba(255, 255, 255, 0.1);
+			background: var(--card-over-card);
 			color: var(--Primary-Font, #f2f2f3);
-			border: 1px solid var(--Primary-Font, #f2f2f3);
+			border: 1px solid var(--stroke, #f2f2f3);
 		}
 
 		&:hover {
-			background: rgba(255, 255, 255, 0.05);
+			background: var(--card-over-card-hover);
 		}
 	}
 }

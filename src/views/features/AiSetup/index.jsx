@@ -13,7 +13,6 @@ const AiSetup = () => {
 	});
 
 	useEffect(() => {
-		console.log('aiSetupData', aiSetupData);
 		if (!aiSetupData) {
 			getAiSetup();
 		} else {

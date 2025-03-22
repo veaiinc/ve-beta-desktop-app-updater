@@ -59,8 +59,6 @@ const AiKnowledgeBase = ({ assistant }) => {
 		}
 	}, [info?.assistantId]);
 
-	console.log('info?.knowledgeBaseFiles', info?.knowledgeBaseFiles);
-
 	useEffect(() => {
 		if (updatedKnowledgeBaseFiles) {
 			const { data = [], currentPage, hasNextPage } = updatedKnowledgeBaseFiles || [];

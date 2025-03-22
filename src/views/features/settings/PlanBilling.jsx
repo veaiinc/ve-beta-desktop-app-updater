@@ -263,17 +263,17 @@ const SubscribedUserPlanCard = ({
 		setInfo((prev) => ({ ...prev, manageSubscriptionLoader: false }));
 	}, []);
 
-	const handleAddOnsClick = useCallback(async () => {
-		if (addOnPlansExists) {
-			setInfo((prev) => ({
-				...prev,
-				subscriptionState: 'addOnPlans',
-				isOpen: true,
-			}));
-		} else {
-			message?.error('No Add-on Plans found!');
-		}
-	}, [currentPlanAddOns]);
+	// const handleAddOnsClick = useCallback(async () => {
+	// 	if (subscriptionPlansExists) {
+	// 		setInfo((prev) => ({
+	// 			...prev,
+	// 			subscriptionState: 'addOnPlans',
+	// 			isOpen: true,
+	// 		}));
+	// 	} else {
+	// 		message?.error('No Add-on Plans found!');
+	// 	}
+	// }, [currentPlanAddOns]);
 
 	const handleUpgradeSubscriptionClick = useCallback(async () => {
 		if (subscriptionPlansExists) {
@@ -286,6 +286,10 @@ const SubscribedUserPlanCard = ({
 			message?.error('No Subscription Plans found!');
 		}
 	}, [subscriptionPlans]);
+
+	const handleToggleSubscriptionState = useCallback((state) => {
+		setInfo((prev) => ({ ...prev, subscriptionState: state }));
+	}, []);
 
 	return (
 		<div className="subscriptionWrapperContainer">
@@ -450,6 +454,7 @@ const SubscribedUserPlanCard = ({
 				isOpen={info?.isOpen}
 				closeModal={() => setInfo((prev) => ({ ...prev, isOpen: false }))}
 				subscriptionState={info?.subscriptionState}
+				handleToggleSubscriptionState={handleToggleSubscriptionState}
 			/>
 		</div>
 	);

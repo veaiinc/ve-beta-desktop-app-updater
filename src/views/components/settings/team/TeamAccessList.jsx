@@ -43,7 +43,7 @@ const TeamAccessListComponent = ({
 			<ExpiredSubscriptionModal />
 			<div className="yourTeamTitle">
 				<h1>
-					Your Team Access
+					Manage Your Team Members Access
 					{showTeamMembersCount && (
 						<span className="teamMembersCount">
 							{tenantUsersCount} / {tenantUsersLimit}

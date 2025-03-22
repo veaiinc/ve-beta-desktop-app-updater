@@ -24,7 +24,7 @@ const ConnectedIntegrationModel = ({ isOpen, closeModal, connectedIntegration })
 					border: 'none',
 				},
 				overlay: {
-					backgroundColor: 'rgba(0, 0, 0, 0.75)',
+					backgroundColor: 'var(--card)',
 					backdropFilter: 'blur(5px)',
 					display: 'flex',
 					justifyContent: 'center',
@@ -57,7 +57,7 @@ const ConnectedIntegrationModel = ({ isOpen, closeModal, connectedIntegration })
 						<div className="section-header">
 							<h3>Connect {connectedIntegration?.title} Workspaces</h3>
 							<div className="add-workspace-btn">
-								<span>+</span> Add Workspace
+								<span>+</span> Connect Account
 							</div>
 						</div>
 

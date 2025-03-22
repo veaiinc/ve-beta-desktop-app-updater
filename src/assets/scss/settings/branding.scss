@@ -22,8 +22,8 @@
 			margin-bottom: 32px;
 
 			h1 {
-				color: #e4e5e6;
-				font-family: Inter;
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
 				font-size: 16px;
 				font-weight: 500;
 				line-height: 24px;
@@ -31,8 +31,8 @@
 			}
 
 			p {
-				color: #646464;
-				font-family: Inter;
+				color: var(--secondary-font);
+				font-family: var(--primary-font-family);
 				font-size: 13px;
 				font-weight: 400;
 				line-height: 21px;
@@ -63,7 +63,7 @@
 				}
 
 				&:hover {
-					border-color: rgba(85, 85, 85, 0.6);
+					border-color: var(--stroke);
 				}
 
 				&.active {
@@ -93,13 +93,13 @@
 			width: 100%;
 			min-width: 100%;
 			height: 1px;
-			background: rgba(100, 100, 100, 0.16);
+			background: var(--stroke);
 		}
 
 		.title {
 			h1 {
-				color: #e4e5e6;
-				font-family: Inter;
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
 				font-size: 16px;
 				font-style: normal;
 				font-weight: 500;
@@ -138,8 +138,8 @@
 				flex-shrink: 0;
 
 				h3 {
-					color: #e4e5e6;
-					font-family: Inter;
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
 					font-size: 16px;
 					font-style: normal;
 					font-weight: 500;
@@ -185,11 +185,11 @@
 						gap: 6px;
 						flex: 1 0 0;
 						width: 100%;
-						border-bottom: 1px solid rgba(100, 100, 100, 0.16);
+						border-bottom: 1px solid var(--stroke);
 						padding-bottom: 8px;
 						h6 {
-							color: #b0b0b0;
-							font-family: Inter;
+							color: var(--secondary-font);
+							font-family: var(--primary-font-family);
 							font-size: 12px;
 							font-style: normal;
 							font-weight: 400;
@@ -206,13 +206,13 @@
 								width: 30px;
 								height: 30px;
 								border-radius: 50%;
-								background-color: #0057ff;
+								background-color: var(--primary-button-font);
 								cursor: pointer;
 							}
 							input {
 								width: 70px;
-								color: rgba(228, 229, 230, 0.48);
-								font-family: Inter;
+								color: var(--secondary-font);
+								font-family: var(--primary-font-family);
 								font-size: 15px;
 								font-style: normal;
 								font-weight: 400;
@@ -234,16 +234,16 @@
 			justify-content: center;
 
 			.buttonApplyTheme {
-				color: #6055ec;
-				font-family: Inter;
+				color: var(--primary-button-font);
+				font-family: var(--primary-font-family);
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 400;
 				line-height: 22px; /* 157.143% */
 				letter-spacing: -0.28px;
 				border-radius: 20px;
-				border: 1px solid #6055ec;
-				background: rgba(28, 28, 32, 0.9);
+				border: 1px solid var(--primary-button-font);
+				background: var(--card-over-card-hover);
 				padding: 9px 16px;
 				cursor: pointer;
 			}
@@ -259,8 +259,8 @@
 
 			.headerSection {
 				h1 {
-					color: var(--primary-font, #f2f2f3);
-					font-family: Inter;
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
 					font-size: 16px;
 					font-style: normal;
 					font-weight: 500;
@@ -268,8 +268,8 @@
 				}
 
 				p {
-					color: var(--secondary-font, #787e87);
-					font-family: Inter;
+					color: var(--secondary-font);
+					font-family: var(--primary-font-family);
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 400;
@@ -278,21 +278,21 @@
 			}
 
 			button {
-				color: var(--primary-font, #f2f2f3);
-				font-family: Inter;
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 500;
 				line-height: normal;
 				border-radius: 24px;
-				border: 1px solid var(--stroke, #313336);
-				background: rgba(28, 28, 32, 0.9);
+				border: 1px solid var(--stroke);
+				background: var(--card-over-card-hover);
 				padding: 9px 16px;
 				cursor: pointer;
 				transition: all 0.3s ease;
 
 				&:hover {
-					background: rgba(96, 85, 236, 0.1);
+					background: var(--card-over-card-hover);
 				}
 			}
 		}
@@ -326,15 +326,15 @@
 					gap: 4px;
 
 					.colorCode {
-						color: #f2f2f3;
-						font-family: Inter;
+						color: var(--primary-font);
+						font-family: var(--primary-font-family);
 						font-size: 16px;
 						font-weight: 500;
 					}
 
 					.colorType {
-						color: #646464;
-						font-family: Inter;
+						color: var(--secondary-font);
+						font-family: var(--primary-font-family);
 						font-size: 14px;
 						font-weight: 400;
 					}
