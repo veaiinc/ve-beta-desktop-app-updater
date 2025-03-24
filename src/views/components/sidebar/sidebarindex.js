@@ -27,11 +27,6 @@ import AddCalenderSvg from '../../../assets/svg/sidebar/AddCalenderSvg';
 import HomeSvg from '../../../assets/svg/sidebar/HomeSvg.jsx';
 import { ReactComponent as OrchestratorSvg } from '../../../assets/svg/sidebar/Orchestrator.svg';
 import TemplatesSvg from '../../../assets/svg/sidebar/TemplatesSvg.jsx';
-import DaVinci from '../../../assets/images/Da Vinci.jpeg';
-import Jarvis from '../../../assets/images/Jarvis.jpeg';
-import Ari from '../../../assets/images/Ari.jpeg';
-import DaVinciJobsSvg from '../../../assets/svg/sidebar/DaVinciJobsSvg.jsx';
-import DaVinciSetupSvg from '../../../assets/svg/sidebar/DaVinciSetupSvg.jsx';
 // import { subDays } from 'react-datepicker/dist/date_utils.js';
 
 export const veAiModulesItemsList = [
@@ -107,13 +102,6 @@ export const veAiModulesItemsList = [
 			},
 		],
 	},
-	// {
-	// 	id: 8,
-	// 	name: 'Notes',
-	// 	moduleRoute: '/notes',
-	// 	route: null,
-	// 	icon: '',
-	// },
 ];
 
 //
@@ -129,19 +117,19 @@ export const veAiModules = [
 		icon: SettingsSvg,
 		name: 'Settings',
 		route: '/settings/my-profile',
-		subModules: [
-			{ icon: '', name: 'MyProfile', route: '/settings/my-profile' },
-			{ icon: '', name: 'Workspace', route: '/settings/workspace' },
-			{ icon: '', name: 'Public Information', route: '/settings/public-information' },
-			{
-				icon: '',
-				name: 'Brand Setup',
-				route: '/settings/brand-setup',
-			},
-			{ icon: '', name: 'Team Settings', route: '/settings/team-settings' },
-			{ icon: '', name: 'Integration', route: '/settings/integrations' },
-			{ icon: '', name: 'Plan Billing', route: '/settings/plan-billing' },
-		],
+		// subModules: [
+		// 	{ icon: '', name: 'MyProfile', route: '/settings/my-profile' },
+		// 	{ icon: '', name: 'Workspace', route: '/settings/workspace' },
+		// 	{ icon: '', name: 'Public Information', route: '/settings/public-information' },
+		// 	{
+		// 		icon: '',
+		// 		name: 'Brand Setup',
+		// 		route: '/settings/brand-setup',
+		// 	},
+		// 	{ icon: '', name: 'Team Settings', route: '/settings/team-settings' },
+		// 	{ icon: '', name: 'Integration', route: '/settings/integrations' },
+		// 	{ icon: '', name: 'Plan Billing', route: '/settings/plan-billing' },
+		// ],
 	},
 ];
 

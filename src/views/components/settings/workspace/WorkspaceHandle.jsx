@@ -144,7 +144,7 @@ const WorkspaceHandleComponent = ({ overviewState }) => {
 		<>
 			{contextHolder}
 
-			<div>
+			<div className="workSpaceHandleContainer">
 				<div>
 					<h1>Your Workspace Handle</h1>
 				</div>
@@ -171,7 +171,7 @@ const WorkspaceHandleComponent = ({ overviewState }) => {
 								onChange={workspaceChangeHandler}
 								disabled={domainUpdate?.isWorkspaceFull ? true : false}
 							/>
-							<p className="domainName">ve.ai</p>
+							<p className="domainName">.ve.ai</p>
 						</div>
 						{!domainUpdate?.isWorkspaceFull && domainUpdate?.isDomainPresent && (
 							<button

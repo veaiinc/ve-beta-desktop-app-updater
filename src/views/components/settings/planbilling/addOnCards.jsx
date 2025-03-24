@@ -12,7 +12,13 @@ const customStyles = {
 	overlay: { zIndex: 1002 },
 };
 
-const AddOnPlans = ({ addOnsLoading = false, isOpen, closeModal, subscriptionState }) => {
+const AddOnPlans = ({
+	addOnsLoading = false,
+	isOpen,
+	closeModal,
+	subscriptionState,
+	handleToggleSubscriptionState,
+}) => {
 	const [info, setInfo] = useState({
 		addOnPurchaseLoader: false,
 		planPurchaseId: null,
@@ -22,7 +28,6 @@ const AddOnPlans = ({ addOnsLoading = false, isOpen, closeModal, subscriptionSta
 		checkoutLoader: false,
 		initialLoader: true,
 	});
-
 	const {
 		authInfo: { currentPlanAddOns },
 		subscriptionInfo: { purchaseAddOnPlan, subscriptionPlans, purchaseSubscriptionPlan },
@@ -35,6 +40,23 @@ const AddOnPlans = ({ addOnsLoading = false, isOpen, closeModal, subscriptionSta
 				subscriptionState === 'upgradeSubscription' ? subscriptionPlans : currentPlanAddOns,
 		}));
 	}, [subscriptionState, subscriptionPlans, currentPlanAddOns]);
+
+	const handleToggle = (state) => {
+		setInfo((prev) => ({ ...prev, addOns: [], totalPrice: 0 }));
+		handleToggleSubscriptionState(state);
+	};
+
+	// const handleAddOnsClick = useCallback(async () => {
+	// 	if (addOnPlansExists) {
+	// 		setInfo((prev) => ({
+	// 			...prev,
+	// 			subscriptionState: 'addOnPlans',
+	// 			isOpen: true,
+	// 		}));
+	// 	} else {
+	// 		message?.error('No Add-on Plans found!');
+	// 	}
+	// }, [currentPlanAddOns]);
 
 	const handleCheckout = async () => {
 		if (info?.checkoutLoader) {
@@ -159,6 +181,24 @@ const AddOnPlans = ({ addOnsLoading = false, isOpen, closeModal, subscriptionSta
 								? 'Subscription Plans'
 								: 'Add-Ons for your current plan'}
 						</h1>
+						<div className="tabs-wrapper">
+							<button
+								className={`tab-button ${
+									subscriptionState === 'upgradeSubscription' ? 'active' : ''
+								}`}
+								onClick={() => handleToggle('upgradeSubscription')}
+							>
+								Subscription
+							</button>
+							<button
+								className={`tab-button ${
+									subscriptionState === 'addOnPlans' ? 'active' : ''
+								}`}
+								onClick={() => handleToggle('addOnPlans')}
+							>
+								Add-Ons
+							</button>
+						</div>
 						{info?.totalPrice > 0 && (
 							<div className="checkoutContainer">
 								<div className="total">

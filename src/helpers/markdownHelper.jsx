@@ -303,7 +303,6 @@ export const TypingEffect = memo(
 		const {
 			documentPreview: { setNoteContent },
 		} = useContext(Context);
-
 		const [isCopiedToClipboard, setIsCopiedToClipboard] = useState(false);
 		const [renderTrigger, setRenderTrigger] = useState(0);
 
