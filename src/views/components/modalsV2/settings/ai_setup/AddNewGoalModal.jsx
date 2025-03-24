@@ -1,20 +1,32 @@
-import { memo, useContext, useState } from 'react';
+import { memo, useState } from 'react';
 import ReactModal from '../..';
 import '../../../../../assets/scss/settings/aiSetup/addNewGoalModal.scss';
 import { ReactComponent as CrossMark } from '../../../../../assets/svg/Settings/CrossMark.svg';
-import Context from '../../../../../context/context';
 import { message } from 'antd';
 import Spinner from '../../../loaders/Spinner';
 
-const AddNewGoalModal = ({ openAddNewGoalModal, closeAddNewGoalModal }) => {
-	const {
-		aiSetup: { setGoalForAI },
-	} = useContext(Context);
+const types = {
+	goal: {
+		title: 'Goal',
+	},
+	focus: {
+		title: 'Things I need to know',
+	},
+	memory: {
+		title: 'Memory',
+	},
+};
 
+const AddNewGoalModal = ({
+	openAddNewGoalModal,
+	closeAddNewGoalModal,
+	type,
+	onSubmit,
+	submitLoading,
+}) => {
 	const [info, setInfo] = useState({
 		goalTitle: '',
 		goalDescription: '',
-		addGoalLoading: false,
 	});
 
 	const handleSetGoalTitle = (e) => {
@@ -33,25 +45,26 @@ const AddNewGoalModal = ({ openAddNewGoalModal, closeAddNewGoalModal }) => {
 		}));
 	};
 
-	const handleAddGoal = async () => {
+	const handleAddGoal = () => {
 		const { goalTitle, goalDescription } = info;
-		if (!goalTitle || !goalDescription) {
-			message?.error('Title and description are required fields!');
-			return;
-		}
-		setInfo((prev) => ({ ...prev, addGoalLoading: true }));
-		const [success] = await setGoalForAI(goalTitle, goalDescription);
-		if (success) {
-			closeAddNewGoalModal();
-			message?.success('Goal added successfully');
+		if (type === 'memory') {
+			if (!goalDescription) {
+				message?.error('Description is required!');
+				return;
+			}
 		} else {
-			message?.error('Failed to add goal');
+			if (!goalTitle || !goalDescription) {
+				message?.error('Title and description are required fields!');
+				return;
+			}
 		}
-		setInfo((prev) => ({ ...prev, addGoalLoading: false }));
-	};
 
-	const addGoalBtnDisabled = !info?.goalTitle || !info?.goalDescription;
-	const addGoalBtnLoader = info?.addGoalLoading;
+		onSubmit({
+			type,
+			...(type !== 'memory' && { heading: goalTitle }),
+			description: goalDescription,
+		});
+	};
 
 	return (
 		<ReactModal
@@ -62,22 +75,24 @@ const AddNewGoalModal = ({ openAddNewGoalModal, closeAddNewGoalModal }) => {
 			<div className="addNewGoalModalContainer">
 				<header className="header">
 					<div className="titleAndSubtitleContainer">
-						<h1 className="title">Add New Goal</h1>
-						<div className="subTitleContainer">
-							<h2 className="subTitle">Things AI needs to know</h2>
-						</div>
+						<h1 className="title">{types[type]?.title}</h1>
+						{/* <div className="subTitleContainer">
+							<h2 className="subTitle">Things I needs to know</h2>
+						</div> */}
 					</div>
 					<button className="closeButton" onClick={closeAddNewGoalModal}>
 						<CrossMark />
 					</button>
 				</header>
 				<main className="main">
-					<input
-						onChange={handleSetGoalTitle}
-						className="titleInput"
-						type="text"
-						placeholder="Title"
-					/>
+					{type !== 'memory' && (
+						<input
+							onChange={handleSetGoalTitle}
+							className="titleInput"
+							type="text"
+							placeholder="Title"
+						/>
+					)}
 					<textarea
 						onChange={handleSetGoalDescription}
 						className="descriptionInput"
@@ -87,14 +102,13 @@ const AddNewGoalModal = ({ openAddNewGoalModal, closeAddNewGoalModal }) => {
 				<footer className="footer">
 					<button
 						className="addGoalButton"
-						disabled={addGoalBtnDisabled}
+						disabled={submitLoading}
 						style={{
-							cursor: addGoalBtnDisabled ? 'not-allowed' : 'pointer',
+							cursor: submitLoading ? 'not-allowed' : 'pointer',
 						}}
 						onClick={handleAddGoal}
 					>
-						Add Goal
-						{addGoalBtnLoader && <Spinner width={'16px'} height={'16px'} />}
+						{submitLoading ? <Spinner width={'16px'} height={'16px'} /> : 'Update'}
 					</button>
 				</footer>
 			</div>

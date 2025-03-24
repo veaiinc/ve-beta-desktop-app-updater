@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, memo } from 'react';
 import '../../../assets/scss/AiSetup/toggleBlock.scss';
 import { ReactComponent as Plus } from '../../../assets/svg/ai_assistant/plus.svg';
 
-const ToggleBlock = ({ title, description }) => {
+const ToggleBlock = ({ heading, description }) => {
 	const [info, setInfo] = useState({
 		isOpen: false,
 	});
@@ -19,7 +19,7 @@ const ToggleBlock = ({ title, description }) => {
 						info.isOpen ? 'toggleBlockHeaderTitleOpen' : 'toggleBlockHeaderTitle'
 					}
 				>
-					{title}
+					{heading}
 				</h1>
 				<button
 					onClick={() => updateInfo({ isOpen: !info.isOpen })}
@@ -28,15 +28,9 @@ const ToggleBlock = ({ title, description }) => {
 					<Plus style={{ transform: info.isOpen ? 'rotate(45deg)' : 'rotate(0deg)' }} />
 				</button>
 			</div>
-			{info.isOpen && (
-				<div className="toggleBlockContent">
-					{
-						'ghjgsdjfg dshjgf sdgfhjsdgf sdgfjhgsdjh fhjsdgf ghjsdg fhjds gfhgsd fsdghjfg hjsdgfjds fgds f sdgfhsdg fgsdhj fsgdf hjdsgfh sdghf gsd fghjsdgf sdjhgfsd gfhjsd fgjhsdg jh'
-					}
-				</div>
-			)}
+			{info.isOpen && <div className="toggleBlockContent">{description}</div>}
 		</div>
 	);
 };
 
-export default ToggleBlock;
+export default memo(ToggleBlock);

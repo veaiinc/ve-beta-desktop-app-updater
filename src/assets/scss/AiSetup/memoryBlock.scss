@@ -10,4 +10,32 @@
 	border-radius: 12px;
 	background: var(--card);
 	overflow-y: auto;
+
+	.memoryBlockItem {
+		display: flex;
+		justify-content: space-between;
+		gap: 14px;
+		align-self: stretch;
+		width: 100%;
+
+		.memoryBlockItemTitle {
+			color: var(--1-secondary-font, color(display-p3 0.4784 0.4941 0.5216));
+			font-family: Inter;
+			font-size: 14px;
+			font-style: italic;
+			font-weight: 500;
+			line-height: 20px;
+		}
+
+		&:not(:last-child) {
+			padding-bottom: 14px;
+			border-bottom: 1px solid var(--stroke);
+		}
+
+		.deleteButton {
+			background: none;
+			border: none;
+			cursor: pointer;
+		}
+	}
 }

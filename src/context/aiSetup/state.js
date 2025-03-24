@@ -987,23 +987,26 @@ export const AiSetupState = () => {
 		}
 	};
 
-	const setGoalForAI = async (goalTitle, goalDescription) => {
+	const updateAiSetupData = async (data) => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
 			const path = '/' + workspaceId + '/ai-tenant-configurations/ai-setup';
-			const body = {
-				type: 'goal',
-				heading: goalTitle,
-				description: goalDescription,
-			};
 			const token = localStorage.getItem('usertoken');
 			const type = 'ai_assistant_api';
-			const response = await service?.fetchPost(path, body, token, type);
+			const response = await service?.fetchPut(path, data, token, type);
 			const success = response?.[0];
-			return [success];
+			if (success) {
+				dispatch({
+					type: Actions?.SET_AI_SETUP,
+					payload: response?.[1],
+				});
+				return [true];
+			} else {
+				return [false, response?.[1]];
+			}
 		} catch (error) {
-			console.log('error==>setGoalForAI', error);
-			return [false];
+			console.log('error==>updateAiSetupData', error);
+			return [false, error];
 		}
 	};
 
@@ -1053,6 +1056,6 @@ export const AiSetupState = () => {
 		getFilesUploadedInAiChat,
 		updateAiSetupState,
 		getAiSetup,
-		setGoalForAI,
+		updateAiSetupData,
 	};
 };
