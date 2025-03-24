@@ -388,13 +388,13 @@
 		&--complete {
 			padding: 4px;
 			border-radius: 20%;
-			background-color: var(--success-bg, #375841);
+			background-color: var(--success, #375841);
 		}
 
 		&--incomplete {
 			padding: 4px;
 			border-radius: 20%;
-			background-color: var(--draft-bg, #373737);
+			background-color: var(--pending, #373737);
 		}
 	}
 }
@@ -437,9 +437,9 @@
 	display: flex;
 	align-items: center;
 	gap: 4px;
-	color: var(--error-color);
+	color: var(--error);
 }
 
 .delete-text {
-	color: var(--error-color);
+	color: var(--error);
 }
