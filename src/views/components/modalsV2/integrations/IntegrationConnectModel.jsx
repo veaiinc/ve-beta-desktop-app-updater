@@ -4,32 +4,32 @@ import { ReactComponent as BackIcon } from '../../../../assets/svg/landingScreen
 import { useNavigate } from 'react-router-dom';
 import '../../../../assets/scss/integrations/integrationModel.scss';
 
-const IntegrationConnectModel = ({ isOpen, closeModal, integration }) => {
-	const navigate = useNavigate();
+const customStyles = {
+	content: {
+		width: '100%',
+		maxWidth: '600px',
+		backgroundColor: '#1a1a1a',
+		borderRadius: '12px',
+		padding: '2rem',
+		margin: '2rem',
+	},
+	overlay: {
+		backdropFilter: 'blur(8px)',
+		zIndex: 4,
+		display: 'flex',
+		justifyContent: 'center',
+		alignItems: 'center',
+		backgroundColor: 'rgba(0, 0, 0, 0.5)',
+	},
+};
 
+const IntegrationConnectModel = ({ isOpen, closeModal, integration }) => {
 	return (
 		<ReactModal
 			isOpen={isOpen}
 			closeModal={closeModal}
 			modalType="center"
-			customStyles={{
-				content: {
-					width: '100%',
-					maxWidth: '600px',
-					backgroundColor: '#1a1a1a',
-					borderRadius: '12px',
-					padding: '2rem',
-					margin: '2rem',
-				},
-				overlay: {
-					backdropFilter: 'blur(8px)',
-					zIndex: 4,
-					display: 'flex',
-					justifyContent: 'center',
-					alignItems: 'center',
-					backgroundColor: 'rgba(0, 0, 0, 0.5)',
-				},
-			}}
+			customStyles={customStyles}
 		>
 			<div className="integration-modal">
 				<div className="modal-header">

@@ -4,6 +4,27 @@ import { ReactComponent as BackIcon } from '../../../../assets/svg/left-arrow.sv
 import { useNavigate } from 'react-router-dom';
 import '../../../../assets/scss/integrations/ConnectedCardIntegrationModel.scss';
 
+const customStyles = {
+	content: {
+		width: '100%',
+		height: '80vh',
+		maxWidth: '1440px',
+		background: 'var(--background-color, #0C0C0D)',
+		borderRadius: '12px',
+		padding: '0',
+		margin: '0',
+		border: 'none',
+	},
+	overlay: {
+		backgroundColor: 'var(--card)',
+		backdropFilter: 'blur(5px)',
+		display: 'flex',
+		justifyContent: 'center',
+		alignItems: 'center',
+		zIndex: 1000,
+	},
+};
+
 const ConnectedIntegrationModel = ({ isOpen, closeModal, connectedIntegration }) => {
 	const navigate = useNavigate();
 
@@ -12,26 +33,7 @@ const ConnectedIntegrationModel = ({ isOpen, closeModal, connectedIntegration })
 			isOpen={isOpen}
 			closeModal={closeModal}
 			modalType="center"
-			customStyles={{
-				content: {
-					width: '100%',
-					height: '80vh',
-					maxWidth: '1440px',
-					background: 'var(--background-color, #0C0C0D)',
-					borderRadius: '12px',
-					padding: '0',
-					margin: '0',
-					border: 'none',
-				},
-				overlay: {
-					backgroundColor: 'var(--card)',
-					backdropFilter: 'blur(5px)',
-					display: 'flex',
-					justifyContent: 'center',
-					alignItems: 'center',
-					zIndex: 1000,
-				},
-			}}
+			customStyles={customStyles}
 		>
 			<div className="connected-integration-modal">
 				<div className="modal-content-wrapper">
