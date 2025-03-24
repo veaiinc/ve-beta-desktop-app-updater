@@ -2156,7 +2156,6 @@ const GalleryPage = () => {
 			duration: 0,
 		});
 		if (info?.imageURL) {
-			console.log('info?.imageURL3', info?.imageURL);
 			setInfo((prev) => ({
 				...prev,
 				crop: {

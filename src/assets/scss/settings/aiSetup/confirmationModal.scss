@@ -1,0 +1,73 @@
+.confirmationModalContainer {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 16px;
+	background-color: var(--card);
+	padding: 32px;
+	border-radius: 16px;
+
+	.title {
+		font-size: 24px;
+		font-weight: 600;
+		color: var(--primary-font);
+	}
+
+	.description {
+		font-size: 16px;
+		color: var(--secondary-font);
+	}
+
+	.buttonContainer {
+		display: flex;
+		gap: 16px;
+		width: 100%;
+		justify-content: flex-end;
+
+		.cancelButton {
+			background-color: transparent;
+			color: var(--primary-font);
+			border: none;
+			outline: none;
+			cursor: pointer;
+			transition: all 0.2s ease-in-out;
+			border-radius: 50px;
+			padding: 0 14px;
+			height: 46px;
+			font-family: var(--primary-font-family);
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 20px;
+			border: 1px solid var(--stroke);
+		}
+
+		.confirmButton {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			gap: 8px;
+			width: fit-content;
+			height: 46px;
+			padding: 0 14px;
+			border-radius: 50px;
+			background: #2b2e31;
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 20px;
+			cursor: pointer;
+			outline: none;
+			border: none;
+			transition: all 0.2s ease-in-out;
+
+			&:hover {
+				background: var(--primary-font);
+				color: var(--background-color);
+				transition: all 0.2s ease-in-out;
+			}
+		}
+	}
+}

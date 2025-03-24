@@ -43,25 +43,27 @@ const TeamAccessListComponent = ({
 			<ExpiredSubscriptionModal />
 			<div className="yourTeamTitle">
 				<h1>
-					Your Team Access{' '}
+					Manage Your Team Members Access
 					{showTeamMembersCount && (
 						<span className="teamMembersCount">
 							{tenantUsersCount} / {tenantUsersLimit}
 						</span>
 					)}
 				</h1>
-				<button onClick={handleInviteMembersAndExpiredSubscriptionModal}>
-					Invite Members
+				<button
+					className="inviteMemberButton"
+					onClick={handleInviteMembersAndExpiredSubscriptionModal}
+				>
+					Invite member
 				</button>
 			</div>
 			<div className="yourTeamFilter">
-				<img src={search} alt="searchh" />
+				<img src={search} alt="search" />
 				<input
 					type="text"
-					placeholder="Search by name, email"
+					placeholder="Add name or Email"
 					onChange={handleInputChange}
 					value={info.searchQuery}
-					style={{ width: '100%' }}
 				/>
 			</div>
 			<div>
@@ -76,11 +78,6 @@ const TeamAccessListComponent = ({
 						>
 							<div className="tenantProfileContainer">
 								<div className="tenantLogo">
-									{/* <img
-										src="https://randomuser.me/api/portraits/women/75.jpg"
-										alt=""
-										srcset=""
-									/> */}
 									<p>{getInitials(user?.firstName, user?.lastName)}</p>
 								</div>
 								<div className="tenantProfileName">
@@ -88,70 +85,13 @@ const TeamAccessListComponent = ({
 										{!user?.firstName && !user?.lastName
 											? 'No Name'
 											: user?.firstName
-											? user.firstName
-											: ' ' + ' ' + user?.lastName
-											? user.lastName
-											: ''}
+											? user.firstName + ' ' + (user?.lastName || '')
+											: user?.lastName || ''}
 									</h1>
-									<p>{user?.email ? user?.email : ''}</p>
+									<p>{user?.email || ''}</p>
 								</div>
 							</div>
 							<div>
-								{/* <div className="AccessControl">
-									{user?.isOwner ? (
-										<p className="owner">Owner</p>
-									) : (
-										<div className="editAccessControl">
-											<div
-												className="optionDiv"
-												onClick={() => toggleOption(user?._id, user?.role)}
-											>
-												<p>{rolesObject[user?.role]}</p>
-												{info?.isOwner && <DownArrow />}
-											</div>
-
-											{info?.isOwner &&
-												selectedOption?.tenantid === user?._id && (
-													<div className="allListContainer">
-														<div
-															className="option"
-															onClick={() =>
-																updateUserRoleFunction('admin')
-															}
-														>
-															<p>Admin</p>{' '}
-															{selectedOption?.role === 'admin' && (
-																<TickSvg />
-															)}{' '}
-														</div>
-														<div
-															className="option"
-															onClick={() =>
-																updateUserRoleFunction('default')
-															}
-														>
-															<p>Member</p>{' '}
-															{selectedOption?.role === 'default' && (
-																<TickSvg />
-															)}{' '}
-														</div>
-														<div
-															className="option"
-															onClick={() =>
-																updateUserRoleFunction('remove')
-															}
-														>
-															<p>Remove</p>{' '}
-															{selectedOption?.role === 'remove' && (
-																<TickSvg />
-															)}{' '}
-														</div>
-													</div>
-												)}
-										</div>
-									)}
-								</div> */}
-
 								<div className="AccessControl">
 									{user?.isOwner ? (
 										<p className="owner">Owner</p>

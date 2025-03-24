@@ -1,0 +1,39 @@
+.AiSetupContainer {
+	display: flex;
+	align-items: flex-start;
+	justify-content: center;
+	flex-grow: 1;
+	height: 100%;
+
+	.AiSetupWrapper {
+		display: flex;
+		width: 600px;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 40px;
+		height: 100%;
+
+		.ai-setup-tabs {
+			display: flex;
+			align-items: center;
+			gap: 10px;
+		}
+
+		.ai-setup-sections {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 40px;
+			flex-grow: 1;
+
+			.ai-setup-title {
+				color: var(--primary-font, #f2f2f3);
+				font-family: Inter;
+				font-size: 32px;
+				font-style: normal;
+				font-weight: 300;
+				line-height: normal;
+			}
+		}
+	}
+}

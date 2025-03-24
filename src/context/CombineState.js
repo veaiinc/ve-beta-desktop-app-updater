@@ -21,6 +21,7 @@ const useCombineState = () => {
 	// Call all hooks at the top level
 	const chatInfo = ChatState();
 	const templates = TemplatesState();
+	const themeInfo = ThemeState();
 	const profileInfo = ProfileState();
 	const companyInfo = CompanySettingsState();
 	const galleryInfo = Galleries();
@@ -31,7 +32,6 @@ const useCombineState = () => {
 	const calendarInfo = Calendar();
 	const tasks = TasksState();
 	const contacts = ContactsState();
-	const themeInfo = ThemeState();
 	const documentPreview = DocumentPreviewState();
 	const automationBuilder = AutomationBuilderState();
 	const notes = NotesState();
@@ -40,6 +40,7 @@ const useCombineState = () => {
 		() => ({
 			chatInfo,
 			templates,
+			themeInfo,
 			profileInfo,
 			companyInfo,
 			galleryInfo,
@@ -58,6 +59,7 @@ const useCombineState = () => {
 		[
 			chatInfo,
 			templates,
+			themeInfo,
 			profileInfo,
 			companyInfo,
 			galleryInfo,
