@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState, useRef, useCallback, memo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import Context from '../../../../context/context';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import PeopleCard from '../galleryView/PeopleCard';
@@ -18,8 +18,10 @@ const AiFacesContainer = ({
 	selectedFaceId,
 	activeAlbumId,
 	activeTagId,
+	selectedImage,
 }) => {
 	const navigate = useNavigate();
+	const location = useLocation();
 	const {
 		galleryInfo: { getAiFace, aiFace, getAiFaceImages, aiFaceImages, aiFaceImagesReset },
 	} = useContext(Context);
@@ -34,6 +36,21 @@ const AiFacesContainer = ({
 	const scrollRef = useRef(null);
 	const debounceTimerRef = useRef(null);
 
+	useEffect(() => {
+		if (selectedImage && aiFaceImages?.images?.length > 0) {
+			setTimeout(() => {
+				const selectedImageElement = document.querySelector(
+					`[data-image-id="${selectedImage}"]`,
+				);
+				if (selectedImageElement) {
+					selectedImageElement.scrollIntoView({
+						behavior: 'smooth',
+						block: 'center',
+					});
+				}
+			}, 1000);
+		}
+	}, [selectedImage, aiFaceImages?.images]);
 	useEffect(() => {
 		if (!aiFace) {
 			getAiFace(galleryId, 1, 40, true);
@@ -253,6 +270,7 @@ const AiFacesContainer = ({
 												<div
 													key={index}
 													className="aiFaces-image-singleImage"
+													data-image-id={image?._id}
 													onClick={() => handleExpandClick(image)}
 													onMouseEnter={() =>
 														setInfo((prev) => ({

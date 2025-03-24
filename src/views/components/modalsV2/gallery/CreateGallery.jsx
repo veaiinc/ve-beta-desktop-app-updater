@@ -178,7 +178,7 @@ const CreateGallery = ({
 						forceLight: isLightGallery,
 					};
 
-					navigate(`/galleries/${galleryId}${searchParams}`, { state });
+					navigate(`/galleries/${galleryId}?lite-gallery=true`, { state });
 				}
 			} else {
 				message.error(response?.[1]?.message || 'Failed to create gallery');

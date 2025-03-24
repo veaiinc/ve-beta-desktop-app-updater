@@ -214,7 +214,7 @@ const GalleryPage = () => {
 		isMouseInGallery: false,
 		showCollaborators: false,
 		activeGallery: location?.state?.galleryData,
-		isLightGallery: location?.state?.isLightGallery || false,
+		isLightGallery: searchkeys.get('lite-gallery') || false,
 		activeAlbumId: tenantAlbums?.albums?.[0]?._id,
 		callToAction: tenantPreferences?.ctaPreferences,
 		timeout: null,
@@ -323,6 +323,7 @@ const GalleryPage = () => {
 		editGallery: false,
 		editingTitleValue: '',
 		selectedFaceId: null,
+		selectedImage: null,
 	});
 	const optionsRef = useRef(null);
 	const iconRef = useRef(null);
@@ -929,6 +930,7 @@ const GalleryPage = () => {
 				activeTagId: returnedTagId || prev.activeTagId,
 				selectedFace: returnedSelectedFace || prev.selectedFace,
 				selectedFaceId: returnedSelectedFaceId || prev.selectedFaceId,
+				selectedImage: selectedImage || prev.selectedImage,
 			}));
 		} else if (tenantAlbums?.albums && returnedAlbumId) {
 			const activeAlbum = tenantAlbums.albums.find(({ _id }) => _id === returnedAlbumId);
@@ -5647,6 +5649,7 @@ const GalleryPage = () => {
 						activeTagId={info?.activeTagId}
 						selectedFace={info?.selectedFace}
 						selectedFaceId={info?.selectedFaceId}
+						selectedImage={info?.selectedImage}
 					/>
 				)}
 				{info.activeTab === 'Insights' && <Insights galleryId={galleryId} />}

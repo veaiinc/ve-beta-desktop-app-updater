@@ -162,7 +162,7 @@ const LiteGallery = () => {
 
 	const handleNavigateGallery = (gallery) => {
 		getGalleryCredentials(gallery?._id);
-		navigate(`/galleries/${gallery?._id}`, {
+		navigate(`/galleries/${gallery?._id}?lite-gallery=true`, {
 			state: { galleryData: gallery, isLightGallery: true },
 			search: '?light-gallery=true',
 		});

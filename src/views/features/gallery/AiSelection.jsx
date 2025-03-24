@@ -1,4 +1,5 @@
 import React, { useState, useContext, memo, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import '../../../assets/scss/gallery/aiOption.scss';
 import { ReactComponent as SearchIcon } from '../../../assets/svg/workflow/search.svg';
 import AiPeopleContainer from '../../components/gallery/aiSelections/AiPeopleContainer';
@@ -17,7 +18,9 @@ const AiSelection = ({
 	activeTagId,
 	selectedFace,
 	selectedFaceId,
+	selectedImage,
 }) => {
+	const location = useLocation();
 	const [info, setInfo] = useState({
 		search: selectedFace || selectedFaceId ? 'Ai Faces' : 'AI People',
 		showShearch: false,
@@ -25,6 +28,7 @@ const AiSelection = ({
 		selectedFace: selectedFace ? selectedFace : null,
 		selectedFaceId: selectedFaceId ? selectedFaceId : null,
 		preRegistration: true,
+		selectedImage: selectedImage || location.state?.selectedImage,
 	});
 
 	const handleOptionClick = (value) => {
@@ -90,6 +94,7 @@ const AiSelection = ({
 					selectedFaceId={info?.selectedFaceId}
 					activeAlbumId={activeAlbumId}
 					activeTagId={activeTagId}
+					selectedImage={info?.selectedImage}
 				/>
 			)}
 			{!info?.selectedFace && (
