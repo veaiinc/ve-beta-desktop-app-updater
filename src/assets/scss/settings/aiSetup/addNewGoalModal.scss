@@ -70,34 +70,12 @@
 		}
 
 		.titleInput {
-			width: 100%;
-			padding: 12px 16px;
-			border-radius: 12px;
-			border: 1px solid #2c2d2e;
-			font-family: var(--primary-font-family);
-			font-size: 12px;
-			font-style: normal;
-			font-weight: 500;
-			line-height: normal;
 			background-color: inherit;
-			color: var(--primary-font);
 		}
 
 		.descriptionInput {
-			width: 100%;
-			padding: 12px 16px;
-			border-radius: 12px;
-			border: 1px solid #2c2d2e;
-			color: var(--secondary-font);
-			font-family: var(--primary-font-family);
-			font-size: 12px;
-			font-style: normal;
-			font-weight: 500;
-			line-height: normal;
-			resize: none;
 			min-height: 200px;
 			background-color: inherit;
-			color: var(--primary-font);
 		}
 	}
 

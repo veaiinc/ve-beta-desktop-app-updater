@@ -1,6 +1,8 @@
 import React, { useState, memo } from 'react';
 import '../../../assets/scss/AiSetup/toggleBlock.scss';
 import { ReactComponent as Plus } from '../../../assets/svg/ai_assistant/plus.svg';
+import { ReactComponent as Dustbin } from '../../../assets/svg/worflow_builder/dustbin.svg';
+import { ReactComponent as Pencil } from '../../../assets/svg/calendar/pencil.svg';
 
 const ToggleBlock = ({ heading, description }) => {
 	const [info, setInfo] = useState({
@@ -21,6 +23,14 @@ const ToggleBlock = ({ heading, description }) => {
 				>
 					{heading}
 				</h1>
+				{/* <div className={info.isOpen ? 'actionButtons' : 'actionButtonsHidden'}>
+					<button className="actionButton">
+						<Pencil />
+					</button>
+					<button className="actionButton">
+						<Dustbin />
+					</button>
+				</div> */}
 				<button
 					onClick={() => updateInfo({ isOpen: !info.isOpen })}
 					className="toggleBlockHeaderButton"

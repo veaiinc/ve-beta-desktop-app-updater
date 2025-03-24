@@ -115,6 +115,10 @@ const actionHandlers = {
 		...state,
 		aiSetupData: action?.payload,
 	}),
+	RESET_AI_SETUP: (state, action) => ({
+		...state,
+		aiSetupData: { ...state?.aiSetupData, [action?.payload]: [] },
+	}),
 
 	RESET_STATE: () => initialState,
 };

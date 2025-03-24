@@ -987,13 +987,13 @@ export const AiSetupState = () => {
 		}
 	};
 
-	const updateAiSetupData = async (data) => {
+	const updateAiSetupData = async (body) => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
 			const path = '/' + workspaceId + '/ai-tenant-configurations/ai-setup';
 			const token = localStorage.getItem('usertoken');
 			const type = 'ai_assistant_api';
-			const response = await service?.fetchPut(path, data, token, type);
+			const response = await service?.fetchPut(path, body, token, type);
 			const success = response?.[0];
 			if (success) {
 				dispatch({
@@ -1006,6 +1006,26 @@ export const AiSetupState = () => {
 			}
 		} catch (error) {
 			console.log('error==>updateAiSetupData', error);
+			return [false, error];
+		}
+	};
+
+	const resetAiSetupData = async (dataType) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const path =
+				'/' + workspaceId + '/ai-tenant-configurations/ai-setup/' + dataType + '/reset';
+			const token = localStorage.getItem('usertoken');
+			const type = 'ai_assistant_api';
+			const response = await service?.fetchPut(path, {}, token, type);
+			if (response?.[0]) {
+				dispatch({ type: Actions?.RESET_AI_SETUP, payload: dataType });
+				return [true];
+			} else {
+				return [false, response?.[1]];
+			}
+		} catch (error) {
+			console.log('error==>resetAiSetupData', error);
 			return [false, error];
 		}
 	};
@@ -1057,5 +1077,6 @@ export const AiSetupState = () => {
 		updateAiSetupState,
 		getAiSetup,
 		updateAiSetupData,
+		resetAiSetupData,
 	};
 };

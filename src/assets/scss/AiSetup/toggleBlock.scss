@@ -16,6 +16,7 @@
 		height: 68px;
 		justify-content: space-between;
 		align-items: center;
+		gap: 16px;
 
 		.toggleBlockHeaderTitle {
 			color: var(--primary-font, #f2f2f3);
@@ -24,6 +25,7 @@
 			font-style: normal;
 			font-weight: 500;
 			line-height: normal;
+			flex-grow: 1;
 		}
 
 		.toggleBlockHeaderTitleOpen {
@@ -33,6 +35,31 @@
 			font-style: normal;
 			font-weight: 500;
 			line-height: normal;
+			flex-grow: 1;
+		}
+
+		.actionButtonsHidden {
+			display: none;
+		}
+
+		.actionButtons {
+			display: flex;
+			gap: 8px;
+			align-items: center;
+			justify-content: center;
+
+			.actionButton {
+				background-color: transparent;
+				border: none;
+				cursor: pointer;
+				width: 20px;
+				height: 20px;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				background-color: inherit;
+				border-radius: 5px;
+			}
 		}
 
 		.toggleBlockHeaderButton {

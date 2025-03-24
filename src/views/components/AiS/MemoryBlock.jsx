@@ -7,9 +7,9 @@ const MemoryBlock = ({ data }) => {
 			{data?.map((item) => (
 				<div key={item._id} className={`memoryBlockItem`}>
 					<h3 className="memoryBlockItemTitle">{item?.description}</h3>
-					<button className="deleteButton">
+					{/* <button className="deleteButton">
 						<Dustbin />
-					</button>
+					</button> */}
 				</div>
 			))}
 		</div>

@@ -9,7 +9,7 @@ const SectionBlock = ({ title, openAddNewGoalModal, onResetClick, data = [], typ
 			<div className="sectionBlockHeader">
 				<h1 className="sectionBlockTitle">{title}</h1>
 				<div className="sectionBlockHeaderButtons">
-					<button onClick={onResetClick} className="sectionBlockHeaderButton">
+					<button onClick={() => onResetClick(type)} className="sectionBlockHeaderButton">
 						Reset
 					</button>
 					<button

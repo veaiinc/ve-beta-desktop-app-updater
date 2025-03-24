@@ -4,7 +4,8 @@ import '../../../../../assets/scss/settings/aiSetup/addNewGoalModal.scss';
 import { ReactComponent as CrossMark } from '../../../../../assets/svg/Settings/CrossMark.svg';
 import { message } from 'antd';
 import Spinner from '../../../loaders/Spinner';
-
+import InputComponent from '../../../ai_assistant/InputComponent';
+import TextareaComponent from '../../../ai_assistant/TextareaComponent';
 const types = {
 	goal: {
 		title: 'Goal',
@@ -45,7 +46,7 @@ const AddNewGoalModal = ({
 		}));
 	};
 
-	const handleAddGoal = () => {
+	const handleAddGoal = async () => {
 		const { goalTitle, goalDescription } = info;
 		if (type === 'memory') {
 			if (!goalDescription) {
@@ -59,11 +60,18 @@ const AddNewGoalModal = ({
 			}
 		}
 
-		onSubmit({
+		const response = await onSubmit({
 			type,
 			...(type !== 'memory' && { heading: goalTitle }),
 			description: goalDescription,
 		});
+		if (response) {
+			setInfo((prev) => ({
+				...prev,
+				goalTitle: '',
+				goalDescription: '',
+			}));
+		}
 	};
 
 	return (
@@ -86,17 +94,24 @@ const AddNewGoalModal = ({
 				</header>
 				<main className="main">
 					{type !== 'memory' && (
-						<input
+						<InputComponent
+							placeholder="Title"
+							value={info?.goalTitle}
 							onChange={handleSetGoalTitle}
 							className="titleInput"
-							type="text"
-							placeholder="Title"
+							placeholderStyles={{
+								backgroundColor: 'var(--card)',
+							}}
 						/>
 					)}
-					<textarea
+					<TextareaComponent
+						placeholder="Description"
+						value={info?.goalDescription}
 						onChange={handleSetGoalDescription}
 						className="descriptionInput"
-						placeholder="Description ( e.g. 'Analyze order status for orderId #014872.' )"
+						placeholderStyles={{
+							backgroundColor: 'var(--card)',
+						}}
 					/>
 				</main>
 				<footer className="footer">
