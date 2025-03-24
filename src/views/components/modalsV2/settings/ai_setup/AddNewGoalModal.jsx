@@ -84,9 +84,6 @@ const AddNewGoalModal = ({
 				<header className="header">
 					<div className="titleAndSubtitleContainer">
 						<h1 className="title">{types[type]?.title}</h1>
-						{/* <div className="subTitleContainer">
-							<h2 className="subTitle">Things I needs to know</h2>
-						</div> */}
 					</div>
 					<button className="closeButton" onClick={closeAddNewGoalModal}>
 						<CrossMark />
