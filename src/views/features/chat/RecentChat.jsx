@@ -394,12 +394,35 @@ const RecentChat = ({
 				const filteredMessages = chatMessagesRef?.current?.filter(
 					(ele) => ele?.contentType !== 'loading',
 				);
+				let requiredIndex = -1;
+				for (let i = filteredMessages?.length - 1; i >= 0; i--) {
+					if (filteredMessages?.[i]?.message_chunk_id === data?.message_chunk_id) {
+						requiredIndex = i;
+						break;
+					}
+				}
+				if (requiredIndex !== -1) {
+					filteredMessages[requiredIndex] = {
+						...filteredMessages[requiredIndex],
+						...data,
+						message: (filteredMessages[requiredIndex]?.message || '') + data?.answer,
+						messageId: data?.message_id,
+					};
+				} else {
+					filteredMessages?.push({
+						...data,
+						type: 'AI',
+						contentType: 'message',
+						message: data?.answer,
+					});
+				}
 				updateStateValues({
 					globalChatMessages: filteredMessages,
 					globalLoadingMesssage: null,
 				});
 				setInfo((prev) => ({ ...prev, latestStreamMesage: data }));
 			}
+
 			const { message_chunk_id } = data;
 			if (message_chunk_id && !data?.stream_end) {
 				handleStreamMessageChunk(data, message_chunk_id);
