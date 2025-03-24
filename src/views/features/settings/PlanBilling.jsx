@@ -107,6 +107,7 @@ const PlanBilling = () => {
 
 	return (
 		<div className="planBillingContianer">
+			<h1 className="planBillingTitle">Plan & billing</h1>
 			{info?.loading ? (
 				<Skeleton height={'700px'} style={{ borderRadius: '32px' }} />
 			) : (
@@ -262,17 +263,17 @@ const SubscribedUserPlanCard = ({
 		setInfo((prev) => ({ ...prev, manageSubscriptionLoader: false }));
 	}, []);
 
-	const handleAddOnsClick = useCallback(async () => {
-		if (addOnPlansExists) {
-			setInfo((prev) => ({
-				...prev,
-				subscriptionState: 'addOnPlans',
-				isOpen: true,
-			}));
-		} else {
-			message?.error('No Add-on Plans found!');
-		}
-	}, [currentPlanAddOns]);
+	// const handleAddOnsClick = useCallback(async () => {
+	// 	if (subscriptionPlansExists) {
+	// 		setInfo((prev) => ({
+	// 			...prev,
+	// 			subscriptionState: 'addOnPlans',
+	// 			isOpen: true,
+	// 		}));
+	// 	} else {
+	// 		message?.error('No Add-on Plans found!');
+	// 	}
+	// }, [currentPlanAddOns]);
 
 	const handleUpgradeSubscriptionClick = useCallback(async () => {
 		if (subscriptionPlansExists) {
@@ -286,12 +287,16 @@ const SubscribedUserPlanCard = ({
 		}
 	}, [subscriptionPlans]);
 
+	const handleToggleSubscriptionState = useCallback((state) => {
+		setInfo((prev) => ({ ...prev, subscriptionState: state }));
+	}, []);
+
 	return (
 		<div className="subscriptionWrapperContainer">
 			<div className="subscriptionUpdatedPlanCard">
 				<div className="subscriptionPlanHeaderContainer">
 					<span className="subscriptionPlanHeader">Current Perks</span>
-					{data?.isPaidTenant ? (
+					{/* {data?.isPaidTenant ? (
 						<button
 							className="manageSubscriptionButton"
 							onClick={handleManageSubscriptionClick}
@@ -300,7 +305,7 @@ const SubscribedUserPlanCard = ({
 						</button>
 					) : (
 						''
-					)}
+					)} */}
 				</div>
 				<div className="subscriptionPlanContent">
 					<div className="subscriptionPlanPricingDetails">
@@ -352,21 +357,28 @@ const SubscribedUserPlanCard = ({
 								<>
 									{(item?.totalValue > 0 || item?.usedValue > 0) && (
 										<div className="storageContainerHolder">
-											<div className="storageTitle">{item?.title}</div>
-											<div className="storageUsed">
-												<span className="storageUsedValue">
-													{item?.usedValue}
-												</span>
-												<span className="storageUsedUnit">
-													{item?.title === 'Storage' ? ' GB' : ''}
-													{item?.title === 'AI Credits' ? ' Credits' : ''}
-												</span>{' '}
-												{item?.barGraph
-													? `used out of ${item?.totalValue}${
-															item?.title === 'Storage' ? 'GB' : ''
-													  }`
-													: `/${item?.duration}`}
+											<div className="storageContainerHeader">
+												<div className="storageTitle">{item?.title}</div>
+												<div className="storageUsed">
+													<span className="storageUsedValue">
+														{item?.usedValue}
+													</span>
+													<span className="storageUsedUnit">
+														{item?.title === 'Storage' ? ' GB' : ''}
+														{item?.title === 'AI Credits'
+															? ' Credits'
+															: ''}
+													</span>{' '}
+													{item?.barGraph
+														? `used / ${item?.totalValue}${
+																item?.title === 'Storage'
+																	? 'GB'
+																	: ''
+														  }`
+														: `/${item?.duration}`}
+												</div>
 											</div>
+
 											{item?.barGraph && (
 												<div className="storageProgress">
 													<div
@@ -404,21 +416,32 @@ const SubscribedUserPlanCard = ({
 						})}
 					</div>
 				</div>
-				{data?.addOnPlan && Object.values(data?.addOnPlan)?.length ? (
+				<span className="planbilling-separator"></span>
+				{/* {data?.addOnPlan && Object.values(data?.addOnPlan)?.length ? (
 					<div className="subscriptionSeperator"></div>
 				) : (
 					''
-				)}
+				)} */}
 				<div className="subscriptionActionContainer">
+					{data?.isPaidTenant ? (
+						<button
+							className="manageSubscriptionButton"
+							onClick={handleManageSubscriptionClick}
+						>
+							{info?.manageSubscriptionLoader ? <Spin /> : `	Manage Billing`}
+						</button>
+					) : (
+						''
+					)}
 					<button
 						className="manageSubscriptionButton"
 						onClick={handleUpgradeSubscriptionClick}
 					>
-						{info?.subscriptionLoading ? <Spin /> : 'Upgrade Subscription'}
+						{info?.subscriptionLoading ? <Spin /> : 'Upgrade'}
 					</button>
-					<button className="manageSubscriptionButton" onClick={handleAddOnsClick}>
-						{info?.addOnsLoading ? <Spin /> : 'Buy Add Ons'}
-					</button>
+					{/* <button className="manageSubscriptionButton" onClick={handleAddOnsClick}>
+						{info?.addOnsLoading ? <Spin /> : 'Upgrade'}
+					</button> */}
 
 					{/* <div className="expiringText">
 						{moment().unix() < +expiresAt ? 'Expiring' : 'Expired'} on{' '}
@@ -426,11 +449,12 @@ const SubscribedUserPlanCard = ({
 					</div> */}
 				</div>
 			</div>
-			<AICreditsUsage />
+			{/* <AICreditsUsage /> */}
 			<AddOnPlans
 				isOpen={info?.isOpen}
 				closeModal={() => setInfo((prev) => ({ ...prev, isOpen: false }))}
 				subscriptionState={info?.subscriptionState}
+				handleToggleSubscriptionState={handleToggleSubscriptionState}
 			/>
 		</div>
 	);

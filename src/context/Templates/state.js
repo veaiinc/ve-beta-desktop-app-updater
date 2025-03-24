@@ -78,6 +78,7 @@ export const intialState = {
 	sendSmartFileSettings: null,
 	aiPredictedData: null,
 	connectUrl: null,
+	connectThirdParties: null,
 	activityLogs: null,
 	moreActivityLogs: null,
 	draftStateWorkflowtemplates: null,
@@ -1370,6 +1371,26 @@ export const TemplatesState = (props) => {
 		}
 	};
 
+	const getConnectedThirdParties = async () => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const path = `/connect-account/${workspaceId}`;
+			const usertoken = localStorage.getItem('usertoken');
+			const type = 'third_party_integrations_api';
+			const response = await Service?.fetchGet(path, usertoken, type);
+			return response;
+			// if (response?.[0] === true) {
+			// 	dispatch({
+			// 		type: Actions?.SET_CONNECTED_THIRDPARTIES,
+			// 		payload: response?.[1],
+			// 	});
+			// } else {
+			// 	console.log('api failed==>getConnectedThirdParties', response);
+			// }
+		} catch (error) {
+			console.log('error==>getConnectedThirdParties', error);
+		}
+	};
 	const getActivityLogs = async (payload, fetchMore = false) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
@@ -1961,7 +1982,7 @@ export const TemplatesState = (props) => {
 		}
 	};
 
-	const getRecentChatMessages = async (sessionId, page = 1, fetchMore = false, limit = 10) => {
+	const getRecentChatMessages = async (sessionId, page = 1, fetchMore = false, limit = 1000) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
@@ -2128,5 +2149,6 @@ export const TemplatesState = (props) => {
 		getLLMModels,
 		createBlankWorkflow,
 		createBlankTemplate,
+		getConnectedThirdParties,
 	};
 };

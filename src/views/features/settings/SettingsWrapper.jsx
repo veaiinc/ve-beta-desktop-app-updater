@@ -7,15 +7,16 @@ import MyProfile from './MyProfile';
 import SettingsWorkspace from './Workspace';
 import PublicInformation from './PublicInformation';
 import BrandingSetup from './BrandSetup';
-import Integrations from './Integrations';
+import OldIntegrationsPage from './OdIntegrationsPage';
 import TeamSettings from './TeamSettings';
 import PlanBilling from './PlanBilling';
-import AiSetup from './ai_settings/AiSetup';
+import AiSetup from '../AiSetup/index';
+import Integrations from '../Integrations/Integrations';
 const mapper = {
 	'my-profile': <MyProfile />,
 	workspace: <SettingsWorkspace />,
 	'public-information': <PublicInformation />,
-	'brand-setup': <BrandingSetup />,
+	// 'brand-setup': <BrandingSetup />,
 	integrations: <Integrations />,
 	'team-settings': <TeamSettings />,
 	'plan-billing': <PlanBilling />,
@@ -24,7 +25,6 @@ const mapper = {
 
 const SettingsWrapper = (props) => {
 	const { type } = useParams();
-
 	const navigate = useNavigate();
 	const [urlType, setUrlype] = useState('');
 
@@ -43,13 +43,23 @@ const SettingsWrapper = (props) => {
 	}, [tennantSettingsData]);
 
 	return (
-		<div className="accountSettingsMainWrapper">
-			<div className="accountSettingsWrapper">
-				<div className={`accountSettingsMapper`}>{mapper?.[type]}</div>
-				{/* <div className="accountSettingsSidebar">
-					<SettingsPageSideBar {...props} type={type} setType1={setType} />
-				</div> */}
-			</div>
+		<div
+			className={`${
+				type === 'integrations' || type === 'ai-setup' ? '' : 'accountSettingsMainWrapper'
+			}`}
+		>
+			{type === 'ai-setup' ? (
+				mapper?.[type]
+			) : (
+				<div className={`${type !== 'integrations' ? 'accountSettingsWrapper' : ''}`}>
+					<div className={`${type !== 'integrations' ? 'accountSettingsMapper' : ''}`}>
+						{mapper?.[type]}
+					</div>
+					{/* <div className="accountSettingsSidebar">
+				<SettingsPageSideBar {...props} type={type} setType1={setType} />
+			</div> */}
+				</div>
+			)}
 		</div>
 	);
 };

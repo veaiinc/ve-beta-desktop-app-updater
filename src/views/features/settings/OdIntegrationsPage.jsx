@@ -7,7 +7,7 @@ import square from '../../../assets/svg/Settings/square.svg';
 import zoho from '../../../assets/svg/Settings/zoho-logo.svg';
 import slack from '../../../assets/svg/Settings/slack.svg';
 import hubspot from '../../../assets/svg/Settings/hubspot.svg';
-import '../../../assets/scss/settings/integrations.scss';
+import '../../../assets/scss/settings/OldintegrationsPage.scss';
 import Context from '../../../context/context';
 import ReusableButtonSettings from '../../components/settings/ReusableButtonSettings';
 import { ve_conversations_api } from '../../../services/config.live';
@@ -55,7 +55,7 @@ const upcommingIntegrations = [
 	},
 ];
 
-const Integrations = () => {
+const OldIntegrationsPage = () => {
 	const {
 		chatInfo: { getPageInfo, pageInfoData },
 		templates: { connectUrl, connectThirdParty },
@@ -265,4 +265,4 @@ const Integrations = () => {
 	);
 };
 
-export default memo(Integrations);
+export default memo(OldIntegrationsPage);

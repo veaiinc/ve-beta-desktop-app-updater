@@ -1,8 +1,9 @@
 .accountSettingsMainWrapper {
 	display: flex;
-	height: 100%;
-	// width: 80%;
+	height: calc(100vh - 32px);
+	width: 100%;
 	margin: auto;
+	justify-content: center;
 
 	.accountSettingsWrapper {
 		display: flex;
@@ -12,20 +13,18 @@
 		max-height: 97%;
 		overflow-y: scroll;
 		scroll-behavior: smooth;
+		margin: auto;
 		.accountSettingsMapper {
-			width: 580px;
+			width: 680px;
 			height: 85vh;
 			// transition: opacity 0s, transform 0.5s;
 
 			// common box styles for every component
 			.settingsBoxContainer {
-				padding: 32px;
 				border-radius: 40px;
-				background: var(--card);
-				border: 1px solid var(--stroke);
 				display: flex;
-				flex-direction: column;
 				gap: 24px;
+				flex-direction: column;
 			}
 		}
 

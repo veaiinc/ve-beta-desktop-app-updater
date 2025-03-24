@@ -230,96 +230,101 @@ const Notifications = () => {
 				</div>
 			</div>
 			{showNotificationPreferences && (
-				<div className="notifications-container-content">
+				<div className="showNotificationPreference">
 					<div className="notificationContainerContentTitle">
 						Notification Preferences
 					</div>
-					<div className="notificationContainerContent-items">
-						{appTypes
-							?.filter(({ appType }) => info?.[appType])
-							?.map(({ id, appType }) => (
-								<div key={id} className="notificationContainerContent-items-item">
-									{appType}
-								</div>
-							))}
-					</div>
-					<div className="notificationContainerOptions">
-						{notificationPreferences?.map(({ module, actions }, idx) => (
-							<React.Fragment key={idx}>
-								<div className="notificationContainerOptions-item-container">
-									<div className="notificationContainerOptions-item">
-										{/* replace "workflow" with "document" */}
-										{module.replace(/workflow/g, 'document')}
+					<div className="notifications-container-content">
+						<div className="notificationContainerContent-items">
+							{appTypes
+								?.filter(({ appType }) => info?.[appType])
+								?.map(({ id, appType }) => (
+									<div
+										key={id}
+										className="notificationContainerContent-items-item"
+									>
+										{appType}
 									</div>
+								))}
+						</div>
+						<div className="notificationContainerOptions">
+							{notificationPreferences?.map(({ module, actions }, idx) => (
+								<React.Fragment key={idx}>
 									<div className="notificationContainerOptions-item-container">
-										{appTypes
-											?.filter(({ appType }) => info?.[appType])
-											?.map(({ id, appType }) => (
-												<input
-													key={id}
-													type="checkbox"
-													style={{
-														width:
-															appType === 'whatsapp'
-																? '70px'
-																: '36px',
-													}}
-													checked={
-														info?.moduleAppTypeSelectAll?.[module]?.[
-															appType
-														]
-													}
-													onChange={() =>
-														handleSetModuleAppTypeSelectAll(
-															module,
-															appType,
-														)
-													}
-												/>
-											))}
-									</div>
-								</div>
-								<div className="notificationContainerOptions-items">
-									{actions?.map(({ action }) => (
-										<div className="notificationContainerOptions-item-container">
-											<div className="notificationContainerOptionsTitle">
-												{/* replace "workflow" with "document" */}
-												{action?.replace(/workflow/g, 'document')}
-											</div>
-											<div className="notificationContainerOptions-item-checkbox">
-												{appTypes
-													?.filter(({ appType }) => info?.[appType])
-													?.map(({ id, appType }) => (
-														<input
-															key={id}
-															type="checkbox"
-															style={{
-																width:
-																	appType === 'whatsapp'
-																		? '70px'
-																		: '36px',
-															}}
-															checked={
-																info?.selectedOptions?.[module]?.[
-																	action
-																]?.[appType]
-															}
-															onChange={() =>
-																handleModuleNotificationPreference(
-																	module,
-																	action,
-																	appType,
-																)
-															}
-														/>
-													))}
-											</div>
+										<div className="notificationContainerOptions-item">
+											{/* replace "workflow" with "document" */}
+											{module.replace(/workflow/g, 'document')}
 										</div>
-									))}
-								</div>
-								<div className="divider"></div>
-							</React.Fragment>
-						))}
+										<div className="notificationContainerOptions-item-container">
+											{appTypes
+												?.filter(({ appType }) => info?.[appType])
+												?.map(({ id, appType }) => (
+													<input
+														key={id}
+														type="checkbox"
+														style={{
+															width:
+																appType === 'whatsapp'
+																	? '70px'
+																	: '36px',
+														}}
+														checked={
+															info?.moduleAppTypeSelectAll?.[
+																module
+															]?.[appType]
+														}
+														onChange={() =>
+															handleSetModuleAppTypeSelectAll(
+																module,
+																appType,
+															)
+														}
+													/>
+												))}
+										</div>
+									</div>
+									<div className="notificationContainerOptions-items">
+										{actions?.map(({ action }) => (
+											<div className="notificationContainerOptions-item-container">
+												<div className="notificationContainerOptionsTitle">
+													{/* replace "workflow" with "document" */}
+													{action?.replace(/workflow/g, 'document')}
+												</div>
+												<div className="notificationContainerOptions-item-checkbox">
+													{appTypes
+														?.filter(({ appType }) => info?.[appType])
+														?.map(({ id, appType }) => (
+															<input
+																key={id}
+																type="checkbox"
+																style={{
+																	width:
+																		appType === 'whatsapp'
+																			? '70px'
+																			: '36px',
+																}}
+																checked={
+																	info?.selectedOptions?.[
+																		module
+																	]?.[action]?.[appType]
+																}
+																onChange={() =>
+																	handleModuleNotificationPreference(
+																		module,
+																		action,
+																		appType,
+																	)
+																}
+															/>
+														))}
+												</div>
+											</div>
+										))}
+									</div>
+									<div className="divider"></div>
+								</React.Fragment>
+							))}
+						</div>
 					</div>
 				</div>
 			)}

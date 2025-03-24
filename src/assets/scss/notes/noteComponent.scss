@@ -17,7 +17,7 @@
 	height: calc(100vh - 32px);
 	gap: 24px;
 	background-color: var(--background-color);
-	padding-bottom: 100px;
+
 	.notes-nav-menu {
 		display: flex;
 		width: 100%;
@@ -83,6 +83,7 @@
 				border-radius: 8px;
 				margin: 0 auto;
 				background-color: var(--background-color);
+				padding-bottom: 100px;
 
 				h1.bn-inline-content {
 					color: var(--primary-font);
@@ -126,6 +127,7 @@
 					content: '';
 					width: 8px;
 					height: 8px;
+					flex-shrink: 0;
 					border-radius: 50%;
 					background-color: var(--primary-font);
 					margin-right: 5px;

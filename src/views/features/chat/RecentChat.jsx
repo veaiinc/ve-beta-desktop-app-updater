@@ -60,6 +60,8 @@ const RecentChat = ({
 		lastVisibleMessageId: null,
 		lastVisibleUserMessageIndex: null,
 		renderingTwice: false,
+		initialRendering: false,
+		scrollExecuted: false,
 	});
 
 	const chatContentRef = useRef(null);
@@ -72,6 +74,7 @@ const RecentChat = ({
 
 	useEffect(() => {
 		window.addEventListener('resize', handleResize);
+		// chatContentRef.current = document.querySelector('.smooth-scroll');
 		handleResize(0);
 
 		return () => {
@@ -117,8 +120,22 @@ const RecentChat = ({
 	}, [sessionId]);
 
 	useEffect(() => {
-		chatMessagesRef.current = [...(globalChatMessages || [])];
+		if (globalChatMessages && globalChatMessages?.length > 5 && !info?.scrollExecuted) {
+			setTimeout(() => {
+				let lastMessageSelector = globalChatMessages?.length - 1;
+				const lastMessage = document.querySelector(`.chat-${lastMessageSelector}`);
+				if (lastMessage) {
+					lastMessage?.scrollIntoView({
+						behavior: 'smooth',
+					});
+				}
+			}, 500);
+			setInfo((prev) => ({ ...prev, scrollExecuted: true }));
+		}
+	}, [globalChatMessages, chatContentRef, info?.scrollExecuted]);
 
+	useEffect(() => {
+		chatMessagesRef.current = [...(globalChatMessages || [])];
 		chatMessagesRef.current?.forEach((message) => {
 			if (message?.type?.toLowerCase() === 'ai') {
 				const messageId = message?.messageId;
@@ -127,7 +144,7 @@ const RecentChat = ({
 				}
 			}
 		});
-		smoothScrollToBottom();
+		// smoothScrollToBottom();
 
 		const visibleMessagesSet = new Set();
 		const observer = new IntersectionObserver(
@@ -182,11 +199,13 @@ const RecentChat = ({
 			},
 		);
 		aiMessagesRef.current.forEach((msg) => observer.observe(msg));
+
+		// smoothScrollToBottom();
 		return () => {
 			aiMessagesRef.current.forEach((msg) => observer.unobserve(msg));
 			visibleMessagesSet.clear();
 		};
-	}, [globalChatMessages]);
+	}, [globalChatMessages, chatContentRef]);
 
 	useEffect(() => {
 		if (info?.lastVisibleMessageId) {
@@ -253,17 +272,17 @@ const RecentChat = ({
 
 			if (fetcMore) {
 				updateStateValues({ globalChatMessages: messages?.concat(globalChatMessages) });
-				if (chatContentRef?.current) {
-					chatContentRef.current.scrollBy({
-						top: 300, // Reduced from 500 for smoother feel
-						behavior: 'smooth',
-					});
-				}
+				// if (chatContentRef?.current) {
+				// 	chatContentRef.current.scrollBy({
+				// 		top: 300, // Reduced from 500 for smoother feel
+				// 		behavior: 'smooth',
+				// 	});
+				// }
 			} else {
 				updateStateValues({ globalChatMessages: messages });
-				setTimeout(() => {
-					smoothScrollToBottom();
-				}, 1000);
+				// setTimeout(() => {
+				// 	// smoothScrollToBottom();
+				// }, 1000);
 			}
 
 			setInfo((prev) => ({ ...prev, chatLoading: false, hasNextPage, currentPage }));
@@ -334,7 +353,7 @@ const RecentChat = ({
 				scrollToPosition(scrollElement.scrollHeight);
 			}
 		},
-		[chatContentRef],
+		[chatContentRef?.current, info?.initialRendering],
 	);
 
 	const fetchMoreData = useCallback(
@@ -365,14 +384,47 @@ const RecentChat = ({
 				updateStateValues({ globalLoadingMesssage: loadingMessageRef.current });
 				return;
 			}
+			if (data?.type === 'variableRequirement') {
+				loadingMessageRef.current = null;
+			}
 
 			if (data?.stream_end) {
 				handleStreamIncomingMessage(data);
-				updateStateValues({ globalLoadingMesssage: null });
+				//removing loading messages
+				const filteredMessages = chatMessagesRef?.current?.filter(
+					(ele) => ele?.contentType !== 'loading',
+				);
+				let requiredIndex = -1;
+				for (let i = filteredMessages?.length - 1; i >= 0; i--) {
+					if (filteredMessages?.[i]?.message_chunk_id === data?.message_chunk_id) {
+						requiredIndex = i;
+						break;
+					}
+				}
+				if (requiredIndex !== -1) {
+					filteredMessages[requiredIndex] = {
+						...filteredMessages[requiredIndex],
+						...data,
+						message: (filteredMessages[requiredIndex]?.message || '') + data?.answer,
+						messageId: data?.message_id,
+					};
+				} else {
+					filteredMessages?.push({
+						...data,
+						type: 'AI',
+						contentType: 'message',
+						message: data?.answer,
+					});
+				}
+				updateStateValues({
+					globalChatMessages: filteredMessages,
+					globalLoadingMesssage: null,
+				});
 				setInfo((prev) => ({ ...prev, latestStreamMesage: data }));
 			}
+
 			const { message_chunk_id } = data;
-			if (message_chunk_id) {
+			if (message_chunk_id && !data?.stream_end) {
 				handleStreamMessageChunk(data, message_chunk_id);
 			}
 		},
@@ -383,6 +435,7 @@ const RecentChat = ({
 		async (data, lastQuery) => {
 			try {
 				await sendMessage(data);
+				smoothScrollToBottom();
 				setInfo((prev) => ({ ...prev, lastQuery: lastQuery }));
 			} catch (error) {
 				console.error('Failed to send message:', error);
@@ -441,8 +494,9 @@ const RecentChat = ({
 									display: 'flex',
 									flexDirection: 'column-reverse',
 									transition: 'all 0.3s ease',
+									// overflowY: 'scroll',
 								}}
-								height={'calc(100vh - 180px)'}
+								// height={'calc(100vh - 180px)'}
 								scrollThreshold={0.8}
 								className="smooth-scroll"
 							>
@@ -453,7 +507,7 @@ const RecentChat = ({
 										) : (
 											<div
 												key={index}
-												className={`chat-message ${chat?.type?.toLowerCase()}-message`}
+												className={`chat-message ${chat?.type?.toLowerCase()}-message chat-${index}`}
 											>
 												<div className="message-content">
 													{chat?.type?.toLowerCase() === 'ai' ? (

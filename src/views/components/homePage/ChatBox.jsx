@@ -206,6 +206,14 @@ const ChatBox = ({
 	}, [currentSessionId]);
 
 	useEffect(() => {
+		if (recentFilesRef?.current?.length > 0 || uploadedImagesRef?.current?.length > 0) {
+			updateStateValues({
+				chatInfo: { ...chatInfo, workspaceSearch: true },
+			});
+		}
+	}, [recentFilesRef?.current, uploadedImagesRef?.current]);
+
+	useEffect(() => {
 		if (followUpQuery) {
 			setInfo((prev) => ({
 				...prev,
@@ -1160,7 +1168,8 @@ const ChatBox = ({
 														className="click-btn"
 														onClick={(e) => handleSendBtnClick(e)}
 														style={{
-															backgroundColor: 'var(--accent-color)',
+															backgroundColor:
+																'var(--primary-button)',
 														}}
 													>
 														<ArrowUp />
@@ -1170,7 +1179,8 @@ const ChatBox = ({
 														className="click-btn"
 														onClick={(e) => handleMicIconClick(e)}
 														style={{
-															backgroundColor: 'var(--accent-color)',
+															backgroundColor:
+																'var(--primary-button)',
 														}}
 													>
 														<AudioSvg />

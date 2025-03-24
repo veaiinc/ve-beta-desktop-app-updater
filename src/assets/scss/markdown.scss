@@ -29,7 +29,7 @@
 	overflow: auto;
 	font-size: 85%;
 	line-height: 1.45;
-	background-color: #1f2937;
+	background-color: var(--card);
 	border-radius: 6px;
 }
 
@@ -37,7 +37,7 @@
      but here's the direct color rule. */
 .text-blue-500 {
 	--tw-text-opacity: 1;
-	color: #e8e8e8;
+	color: var(--primary-font);
 	font-weight: 600;
 	// color: rgba(232, 232, 232, 0.9);
 	// color: rgb(59 130 246 / var(--tw-text-opacity));
@@ -113,15 +113,15 @@
 	padding: 0px 16px;
 
 	th {
-		color: #e8e8e8;
+		color: var(--primary-font);
 		font-weight: 500;
 		text-align: left;
-		border-bottom: 1px solid #333;
+		border-bottom: 1px solid var(--stroke);
 	}
 
 	tr {
 		&:hover {
-			background-color: #262626;
+			background-color: var(--card-hover);
 		}
 	}
 
@@ -129,8 +129,8 @@
 	td {
 		padding: 0.5rem 1rem;
 		border: none;
-		border-top: 1px solid rgba(232, 232, 232, 0.05);
-		color: #e8e8e8;
+		border-top: 1px solid var(--stroke);
+		color: var(--primary-font);
 	}
 
 	th {
@@ -143,7 +143,7 @@
 	overflow-x: auto;
 	margin: 1rem 0;
 	border-radius: 16px;
-	background-color: rgb(30, 31, 32);
+	background-color: var(--card);
 	border: 1px solid transparent;
 
 	&::-webkit-scrollbar {
@@ -151,31 +151,31 @@
 	}
 
 	&::-webkit-scrollbar-track {
-		background: #262626;
+		background: var(--card);
 		border-radius: 3px;
 	}
 
 	&::-webkit-scrollbar-thumb {
-		background: #404040;
+		background: var(--card);
 		border-radius: 3px;
 
 		&:hover {
-			background: #4a4a4a;
+			background: var(--card-hover);
 		}
 	}
 }
 
 .markdown-code {
-	background-color: #2d2d2d;
+	background-color: var(--card);
 	padding: 2px 5px;
 	border-radius: 4px;
 	font-size: 0.9rem;
 }
 
 .markdown-custom-content {
-	color: #e8e8e8e6;
+	color: var(--primary-font);
 	font-size: 15px;
-	font-family: 'Inter', sans-serif;
+	font-family: var(--primary-font-family);
 	// font-size: 15px;
 	// font-family: 'Calson', sans-serif;
 
@@ -185,7 +185,7 @@
 	h4,
 	h5,
 	h6 {
-		color: #e8e8e8;
+		color: var(--primary-font);
 	}
 
 	h1 {
@@ -203,7 +203,7 @@
 
 	p {
 		line-height: 25px;
-		color: #eaeaeb;
+		color: var(--primary-font);
 		letter-spacing: -0.02em;
 		font-weight: 400;
 	}
