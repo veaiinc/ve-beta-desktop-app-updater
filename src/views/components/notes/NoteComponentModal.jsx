@@ -171,7 +171,7 @@ const NoteComponentModal = ({
 							<div className="title"></div>
 						</div>
 						<div className="right">
-							{noteIcons.map((icon, index) => {
+							{noteIcons?.map((icon, index) => {
 								return (
 									<div className="icon-container" key={index}>
 										{icon}

@@ -121,7 +121,6 @@ const RecentChat = ({
 
 	useEffect(() => {
 		if (globalChatMessages && globalChatMessages?.length > 5 && !info?.scrollExecuted) {
-			console.log('globalChatMessages', globalChatMessages);
 			setTimeout(() => {
 				let lastMessageSelector = globalChatMessages?.length - 1;
 				const lastMessage = document.querySelector(`.chat-${lastMessageSelector}`);
@@ -137,7 +136,6 @@ const RecentChat = ({
 
 	useEffect(() => {
 		chatMessagesRef.current = [...(globalChatMessages || [])];
-		console.log('chatMessagesRef.current', chatMessagesRef.current?.length);
 		chatMessagesRef.current?.forEach((message) => {
 			if (message?.type?.toLowerCase() === 'ai') {
 				const messageId = message?.messageId;

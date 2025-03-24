@@ -25,7 +25,7 @@ const MyProfile = () => {
 			tenantUserDetails,
 			updateUserDetailsState,
 		},
-		companyInfo: { updatePrefernces, getTenantPreferences, tenantPreferenceData },
+		companyInfo: { getTenantPreferences, tenantPreferenceData },
 		themeInfo: { theme, updateTheme },
 		authInfo: { updateUserDetails },
 	} = useContext(Context);

@@ -1168,7 +1168,8 @@ const ChatBox = ({
 														className="click-btn"
 														onClick={(e) => handleSendBtnClick(e)}
 														style={{
-															backgroundColor: 'var(--accent-color)',
+															backgroundColor:
+																'var(--primary-button)',
 														}}
 													>
 														<ArrowUp />
@@ -1178,7 +1179,8 @@ const ChatBox = ({
 														className="click-btn"
 														onClick={(e) => handleMicIconClick(e)}
 														style={{
-															backgroundColor: 'var(--accent-color)',
+															backgroundColor:
+																'var(--primary-button)',
 														}}
 													>
 														<AudioSvg />

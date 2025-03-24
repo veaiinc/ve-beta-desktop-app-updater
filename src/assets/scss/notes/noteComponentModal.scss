@@ -16,21 +16,19 @@
 				flex-direction: column;
 				align-items: center;
 				flex-shrink: 0;
-				background-color: var(--background-color);
 				transition: 300ms ease-in-out;
 				position: absolute;
 				top: 0;
 				left: 0;
 				width: 400px;
-
+				background-color: var(--navbar);
 				.chat-to-note-link-container {
 					display: flex;
 					justify-content: space-between;
 					width: 100%;
 					padding: 12px 20px;
 					gap: 24px;
-					background-color: var(--card);
-					box-shadow: 4px 4px 73px 0px rgba(0, 0, 0, 0.2);
+					background-color: var(--card-over-card-hover);
 
 					.title {
 						display: flex;
@@ -55,10 +53,21 @@
 						background: var(--popup, #202123);
 						cursor: pointer;
 						transition: 100ms ease-in-out;
+
+						svg {
+							path {
+								stroke: var(--primary-font) !important;
+							}
+						}
 					}
 
 					.link-icon-container.active {
-						background-color: #f2f2f3;
+						background-color: var(--primary-button);
+						svg {
+							path {
+								stroke: var(--primary-button-font) !important;
+							}
+						}
 					}
 				}
 
@@ -77,7 +86,7 @@
 					width: 100%;
 					height: calc(100% - 204px);
 					transition: 300ms ease-in-out;
-					background-color: var(--background-color);
+					background-color: var(--card);
 
 					.chatContent {
 						display: flex;
@@ -156,7 +165,7 @@
 								max-width: 100%;
 								max-width: 100%;
 								padding: 12px 16px;
-								background: var(--card);
+								background-color: var(--popup);
 								word-wrap: break-word;
 								overflow-wrap: break-word;
 								border-radius: 24px;
@@ -172,13 +181,12 @@
 
 			.note-component {
 				height: 100%;
-				background-color: var(--background-color);
 				display: flex;
 				flex-direction: column;
 				gap: 32px;
 				transition: 300ms ease-in-out;
 				position: relative;
-
+				background-color: var(--background-color);
 				.header {
 					display: flex;
 					width: 100%;
@@ -186,7 +194,7 @@
 					padding: 0 26px;
 					justify-content: space-between;
 					align-items: center;
-					background-color: var(--card);
+					background-color: var(--background-color);
 					flex-shrink: 0;
 
 					.left {
@@ -218,6 +226,12 @@
 						display: flex;
 						align-items: center;
 						gap: 18px;
+					}
+
+					svg {
+						path {
+							stroke: var(--secondary-font) !important;
+						}
 					}
 				}
 
