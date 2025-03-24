@@ -37,6 +37,20 @@ export const CitationsTooltip = memo(({ citationId, citations, placement = 'topL
 		}
 	}, [citations, citationId]);
 
+	useEffect(() => {
+		if (citationData) {
+			const observer = new MutationObserver(() => {
+				const snippetElement = document?.querySelector('#citation-snippet');
+				if (snippetElement) {
+					snippetElement?.scrollIntoView({ behavior: 'instant', block: 'center' });
+					observer?.disconnect(); // Stop observing after finding the element
+				}
+			});
+			observer?.observe(document?.body, { childList: true, subtree: true });
+			return () => observer?.disconnect();
+		}
+	}, [citationData]);
+
 	const fetchCitationData = async (citation) => {
 		if (citation?.source) {
 			const response = await getCitationData(currentSessionId, citation?.source);
@@ -50,7 +64,7 @@ export const CitationsTooltip = memo(({ citationId, citations, placement = 'topL
 		if (citationInfo?.snippet && citationInfo.snippet?.trim() !== '') {
 			updatedText = updatedText.replace(
 				citationInfo?.snippet,
-				`<span style="background-color: rgb(178, 161, 232); padding: 1px 3px; border-radius: 4px; box-decoration-break: clone;">${citationInfo.snippet}</span>`,
+				`<span id="citation-snippet" style="background-color: rgb(178, 161, 232); padding: 1px 3px; border-radius: 4px; box-decoration-break: clone;">${citationInfo.snippet}</span>`,
 			);
 		}
 		return updatedText;
