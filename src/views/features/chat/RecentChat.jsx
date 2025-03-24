@@ -121,12 +121,15 @@ const RecentChat = ({
 
 	useEffect(() => {
 		if (globalChatMessages && globalChatMessages?.length > 5 && !info?.scrollExecuted) {
+			console.log('globalChatMessages', globalChatMessages);
 			setTimeout(() => {
 				let lastMessageSelector = globalChatMessages?.length - 1;
 				const lastMessage = document.querySelector(`.chat-${lastMessageSelector}`);
-				lastMessage.scrollIntoView({
-					behavior: 'smooth',
-				});
+				if (lastMessage) {
+					lastMessage?.scrollIntoView({
+						behavior: 'smooth',
+					});
+				}
 			}, 500);
 			setInfo((prev) => ({ ...prev, scrollExecuted: true }));
 		}

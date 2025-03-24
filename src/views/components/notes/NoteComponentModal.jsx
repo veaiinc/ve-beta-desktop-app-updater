@@ -168,7 +168,7 @@ const NoteComponentModal = ({
 							<div className="full-screen-icon" onClick={closeModal}>
 								<RightDoubleArrowSvg />
 							</div>
-							<div className="title">wedding timeline</div>
+							<div className="title"></div>
 						</div>
 						<div className="right">
 							{noteIcons.map((icon, index) => {
@@ -185,14 +185,7 @@ const NoteComponentModal = ({
 						outerContainerStyle={{
 							width: '100%',
 							height: '100%',
-							padding: 0,
-							margin: 'auto',
-							backgroundColor: '#171819',
-						}}
-						innerContainerStyle={{
-							width: '100%',
-							height: '100%',
-							backgroundColor: '#171819',
+							overflow: 'scroll',
 						}}
 						initialContent={info?.chatToNoteLoopOn ? globalChatMessages : noteContent}
 						loopOn={info?.chatToNoteLoopOn}
