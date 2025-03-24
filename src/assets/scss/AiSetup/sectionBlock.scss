@@ -44,14 +44,15 @@
 				cursor: pointer;
 
 				&.sectionBlockHeaderButtonAdd {
-					background-color: var(--stroke);
+					background-color: var(--primary-button);
+					color: var(--primary-button-font);
 					&:hover {
-						background-color: var(--stroke-hover);
-						border-color: var(--stroke-hover);
+						background-color: var(--primary-button);
+						border-color: var(--stroke);
 					}
 					&:active {
-						background-color: var(--stroke-active);
-						border-color: var(--stroke-active);
+						background-color: var(--primary-button);
+						border-color: var(--stroke);
 					}
 				}
 			}
