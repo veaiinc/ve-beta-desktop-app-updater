@@ -124,9 +124,11 @@ const RecentChat = ({
 			setTimeout(() => {
 				let lastMessageSelector = globalChatMessages?.length - 1;
 				const lastMessage = document.querySelector(`.chat-${lastMessageSelector}`);
-				lastMessage?.scrollIntoView({
-					behavior: 'smooth',
-				});
+				if (lastMessage) {
+					lastMessage?.scrollIntoView({
+						behavior: 'smooth',
+					});
+				}
 			}, 500);
 			setInfo((prev) => ({ ...prev, scrollExecuted: true }));
 		}
@@ -134,7 +136,6 @@ const RecentChat = ({
 
 	useEffect(() => {
 		chatMessagesRef.current = [...(globalChatMessages || [])];
-		console.log('chatMessagesRef.current', chatMessagesRef.current?.length);
 		chatMessagesRef.current?.forEach((message) => {
 			if (message?.type?.toLowerCase() === 'ai') {
 				const messageId = message?.messageId;

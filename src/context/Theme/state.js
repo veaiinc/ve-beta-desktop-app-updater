@@ -18,6 +18,29 @@ export const ThemeState = (props) => {
 		localStorage?.setItem('theme', payload);
 	};
 
+	// const updatePrefernces = async (json) => {
+	// 	try {
+	// 		let usertoken = localStorage.getItem('usertoken');
+	// 		let workspaceId = localStorage.getItem('workspaceId');
+	// 		const response = await service.fetchPut(
+	// 			'/' + workspaceId + API.TENANTS.preferences,
+	// 			json,
+	// 			usertoken,
+	// 			'tenant',
+	// 		);
+
+	// 		if (response?.[0] === true) {
+	// 			cookie.set('theme', json?.theme, { expires: 365 });
+	// 			localStorage.setItem('theme', json?.theme);
+	// 			return [true, response[1]];
+	// 		} else {
+	// 			return [false, response[1]];
+	// 		}
+	// 	} catch (error) {
+	// 		console.log('error => updatePrefernces ', error);
+	// 	}
+	// };
+
 	return {
 		...state,
 		updateTheme,
