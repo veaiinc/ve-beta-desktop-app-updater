@@ -51,6 +51,8 @@ export const initialState = {
 	moreUpdatedKnowledgeBaseFiles: null,
 	filesUploadedInAiChat: null,
 	isVoiceIntegrationActive: null,
+
+	aiSetupData: null,
 };
 
 export const AiSetupState = () => {
@@ -967,6 +969,67 @@ export const AiSetupState = () => {
 		});
 	};
 
+	const getAiSetup = async () => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const url = '/' + workspaceId + '/ai-tenant-configurations/ai-setup';
+
+			const response = await service?.fetchGet(url, usertoken, 'ai_assistant_api');
+			if (response?.[0]) {
+				dispatch({
+					type: Actions?.SET_AI_SETUP,
+					payload: response?.[1],
+				});
+			}
+		} catch (error) {
+			console.log('error==>setAiSetup', error);
+		}
+	};
+
+	const updateAiSetupData = async (body) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const path = '/' + workspaceId + '/ai-tenant-configurations/ai-setup';
+			const token = localStorage.getItem('usertoken');
+			const type = 'ai_assistant_api';
+			const response = await service?.fetchPut(path, body, token, type);
+			const success = response?.[0];
+			if (success) {
+				dispatch({
+					type: Actions?.SET_AI_SETUP,
+					payload: response?.[1],
+				});
+				return [true];
+			} else {
+				return [false, response?.[1]];
+			}
+		} catch (error) {
+			console.log('error==>updateAiSetupData', error);
+			return [false, error];
+		}
+	};
+
+	const resetAiSetupData = async (dataType) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const path =
+				'/' + workspaceId + '/ai-tenant-configurations/ai-setup/' + dataType + '/reset';
+			const token = localStorage.getItem('usertoken');
+			const type = 'ai_assistant_api';
+			const response = await service?.fetchPut(path, {}, token, type);
+			if (response?.[0]) {
+				dispatch({ type: Actions?.RESET_AI_SETUP, payload: dataType });
+				return [true];
+			} else {
+				return [false, response?.[1]];
+			}
+		} catch (error) {
+			console.log('error==>resetAiSetupData', error);
+			return [false, error];
+		}
+	};
+
 	const resetAiSetupState = () => {
 		dispatch({ type: Actions?.RESET_STATE });
 	};
@@ -1012,5 +1075,8 @@ export const AiSetupState = () => {
 		getPromptsData,
 		getFilesUploadedInAiChat,
 		updateAiSetupState,
+		getAiSetup,
+		updateAiSetupData,
+		resetAiSetupData,
 	};
 };

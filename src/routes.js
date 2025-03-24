@@ -46,6 +46,9 @@ import RecentChat from './views/features/chat/RecentChat';
 import AutomationBuilder from './views/features/automation_builder';
 import AutomationBuilderLayout from './views/layouts/automationBuilderLayout';
 import Automations from './views/features/automations/Automations';
+import Integrations from './views/features/Integrations/Integrations';
+import BrandSetup from './views/features/settings/BrandSetup';
+
 const routes = [
 	{
 		path: '/',
@@ -202,6 +205,14 @@ const routes = [
 		exact: true,
 	},
 	{
+		path: '/brand-setup',
+		component: (
+			<AuthWrapper title={'Brand Setup'}>
+				<BrandSetup />
+			</AuthWrapper>
+		),
+	},
+	{
 		path: '/galleries',
 		component: (
 			<AuthWrapper title={'Galleries'} showBottomToolbar={false}>
@@ -255,20 +266,29 @@ const routes = [
 		),
 		exact: true,
 	},
-	{
-		path: '/settings/ai-setup-page/:aiAssistantId',
-		component: (
-			<AuthWrapper title={'AI Setup'}>
-				<AiSetupPage />
-			</AuthWrapper>
-		),
-		exact: true,
-	},
+	// {
+	// 	path: '/settings/ai-setup-page/:aiAssistantId',
+	// 	component: (
+	// 		<AuthWrapper title={'AI Setup'}>
+	// 			<AiSetupPage />
+	// 		</AuthWrapper>
+	// 	),
+	// 	exact: true,
+	// },
 	{
 		path: '/tasks',
 		component: (
 			<AuthWrapper title={'Tasks'}>
 				<Tasks />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/integrations',
+		component: (
+			<AuthWrapper title={'Integrations'}>
+				<Integrations />
 			</AuthWrapper>
 		),
 		exact: true,

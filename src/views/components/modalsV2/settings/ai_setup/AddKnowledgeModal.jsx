@@ -71,11 +71,8 @@ const AddKnowledgeModal = ({ isOpen, toggleModal, assistantId }) => {
 		}));
 	}, [knowledgeBaseFiles]);
 
-	console.log('contect crawllink', aiCrawlLinks);
-
 	const fetchSubLinks = useCallback(async (payload) => {
 		const subLinks = await crawlAiAssistant(payload);
-		console.log('subLinks', subLinks);
 		if (subLinks?.length > 0) {
 			setInfo((prev) => ({
 				...prev,
