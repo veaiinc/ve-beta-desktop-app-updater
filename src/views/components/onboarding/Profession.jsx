@@ -4,36 +4,23 @@ const professions = {
 	professional: {
 		id: 1,
 		professions: [
-			{
-				id: 1,
-				name: 'Photography',
-				value: 'photographer',
-			},
-			{
-				id: 2,
-				name: 'Agency',
-				value: 'agency',
-			},
-			{
-				id: 3,
-				name: 'Interior Designing',
-				value: 'interiorDesigner',
-			},
+			{ id: 1, name: 'Photography', value: 'photographer' },
+			{ id: 2, name: 'Agency', value: 'agency' },
+			{ id: 3, name: 'Interior Designer', value: 'interiorDesigner' },
+			{ id: 4, name: 'Consultant', value: 'consultant' },
+			{ id: 5, name: 'Salon and Spa', value: 'salonAndSpa' },
+			{ id: 6, name: 'Architecture', value: 'architecture' },
+			{ id: 7, name: 'Fashion Designer', value: 'fashionDesigner' },
+			{ id: 8, name: 'Event Management', value: 'eventManagement' },
+			{ id: 9, name: 'Business Coach', value: 'businessCoach' },
+			{ id: 10, name: 'Restaurateur', value: 'restaurateur' },
 		],
 	},
 	enterprise: {
 		id: 2,
 		professions: [
-			{
-				id: 1,
-				name: 'Information Technology',
-				value: 'informationTechnology',
-			},
-			{
-				id: 2,
-				name: 'Healthcare',
-				value: 'healthCare',
-			},
+			{ id: 1, name: 'Information Technology', value: 'informationTechnology' },
+			{ id: 2, name: 'Healthcare', value: 'healthCare' },
 		],
 	},
 };
