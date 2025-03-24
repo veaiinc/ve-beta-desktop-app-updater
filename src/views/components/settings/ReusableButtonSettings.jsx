@@ -27,7 +27,9 @@ const ReusableButtonSettings = ({
 		}
 	};
 
-	const handleConnectToThirdParty = async () => {};
+	const handleConnectToThirdParty = async () => {
+		await func();
+	};
 
 	// const styles = {
 	// 	base: {
