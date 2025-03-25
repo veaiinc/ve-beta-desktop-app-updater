@@ -137,7 +137,7 @@
 		gap: 24px;
 		padding: 40px;
 		border-radius: 24px;
-		background: #151515;
+		background: var(--card, #171819);
 		height: 90vh;
 		overflow: scroll;
 		box-shadow: 0px 4px 30px 0px rgba(0, 0, 0, 0.03);
@@ -211,13 +211,13 @@
 					text-transform: capitalize;
 				}
 				.ant-switch {
-					background: var(--stroke, #333334) !important;
+					background-color: var(--stroke);
 				}
 				.ant-switch-checked {
-					background: #e3fb4e !important;
+					background-color: var(--accent-color);
 				}
 				.ant-switch.ant-switch-checked .ant-switch-handle::before {
-					background: var(--stroke, #333334) !important;
+					background-color: var(--primary-font);
 				}
 			}
 		}

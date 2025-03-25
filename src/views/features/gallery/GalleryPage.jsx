@@ -3669,10 +3669,7 @@ const GalleryPage = () => {
 																// 		  item?.name
 																// 		? '#f2f2f3'
 																// 		: '#202123',
-																background:
-																	info?.activeTab === item?.name
-																		? '#f2f2f3'
-																		: '#202123',
+
 																backgroundRepeat: 'no-repeat',
 																cursor: 'pointer',
 															}}
@@ -3786,7 +3783,7 @@ const GalleryPage = () => {
 												className="onlineStatus"
 												style={{
 													backgroundColor: info.isOnline
-														? '#e3fb4e'
+														? 'var(--accent-color)'
 														: 'red',
 												}}
 											></div>
@@ -4380,7 +4377,9 @@ const GalleryPage = () => {
 														width: info?.showShearch ? '200px' : '',
 													}}
 												>
-													<SearchIcon />
+													<SearchIcon
+														style={{ color: 'var(--secondaryFont)' }}
+													/>
 													{info?.showShearch && (
 														<input
 															key={
@@ -4430,7 +4429,7 @@ const GalleryPage = () => {
 																				: ''
 																		}
 																	>
-																		{option?.label}
+																		<span>{option?.label}</span>
 																	</li>
 																);
 															})}
@@ -4438,7 +4437,11 @@ const GalleryPage = () => {
 													}
 												>
 													<div className="iconsContainer">
-														<FilterIcon />
+														<FilterIcon
+															style={{
+																color: 'var(--secondaryFont)',
+															}}
+														/>
 													</div>
 												</Tooltip>
 												<div
@@ -4661,7 +4664,7 @@ const GalleryPage = () => {
 														style={{
 															backgroundColor: info?.activeAlbum
 																?.isPublished
-																? '#e3fb4e'
+																? 'var(--accent-color)'
 																: 'red',
 														}}
 													></div>
@@ -4817,6 +4820,12 @@ const GalleryPage = () => {
 																						checked={info.selectedImages.includes(
 																							image?._id,
 																						)}
+																						style={{
+																							borderRadius:
+																								'50%', // Ensures round shape
+																							width: '24px', // Set width
+																							height: '24px', // Set height (must be equal to width)
+																						}}
 																					></Checkbox>
 																				</Tooltip>
 																			</div>
@@ -5221,7 +5230,9 @@ const GalleryPage = () => {
 													width: info?.showShearch && '200px',
 												}}
 											>
-												<SearchIcon />
+												<SearchIcon
+													style={{ color: 'var(--secondaryFont)' }}
+												/>
 
 												<input
 													type="text"
