@@ -3,13 +3,22 @@ import routes from './routes';
 import React, { memo, useContext, useEffect } from 'react';
 import ExpiredSubscriptionModal from './views/components/modalsV2/subscription/ExpiredSubscriptionModal';
 import ExpiredTokenModal from './views/components/modalsV2/subscription/ExpiredTokenModal';
-// import Cookies from 'js-cookie';
+import Cookies from 'js-cookie';
 import Context from './context/context';
 import AccessDeniedPopup from './views/components/accessPopups/accessDeniedPopup';
 function App() {
 	const {
 		themeInfo: { theme },
 	} = useContext(Context);
+
+	let themePreference = localStorage?.getItem('theme') || Cookies.get('theme') || 'systemDefault';
+	if (themePreference === 'systemDefault') {
+		themePreference = window.matchMedia('(prefers-color-scheme: dark)').matches
+			? 'dark'
+			: 'light';
+	} else {
+		themePreference = theme;
+	}
 
 	useEffect(() => {
 		if (window.navigator.appVersion.indexOf('Mac') !== -1) {
@@ -19,8 +28,7 @@ function App() {
 		}
 		// document.getElementsByTagName('html')[0].classList.add('theme-dark');
 		// const theme = localStorage.getItem('theme') || Cookies.get('theme') || 'dark';
-		// console.log(theme);
-		document.documentElement.setAttribute('theme', theme);
+		document.documentElement.setAttribute('theme', themePreference);
 	}, []);
 
 	return (
