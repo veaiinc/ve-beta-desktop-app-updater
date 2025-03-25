@@ -70,13 +70,15 @@
 			padding: 60px;
 			border-radius: 24px;
 			background: var(--card, #171819);
-			color: var(--primary-font, #f2f2f3);
-			font-family: Inter;
-			font-size: 14px;
-			font-style: normal;
-			font-weight: 500;
-			line-height: 20px;
-			flex: 1 0 0;
+
+			.aboutVe {
+				color: var(--primary-font, #f2f2f3);
+				font-family: Inter;
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: 20px;
+			}
 		}
 	}
 }

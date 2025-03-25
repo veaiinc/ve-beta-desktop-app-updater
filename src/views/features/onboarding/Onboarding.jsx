@@ -29,7 +29,7 @@ const Onboarding = () => {
 					</header>
 				</section>
 				<section className="rightSection">
-					<p className="title">{aboutVe}</p>
+					<p className="aboutVe">{aboutVe}</p>
 				</section>
 			</main>
 		</div>
