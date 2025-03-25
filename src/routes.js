@@ -467,6 +467,11 @@ const routes = [
 			</AuthWrapper>
 		),
 	},
+
+	{
+		path: '/voice-test',
+		component: <AuthWrapper title={'Automations'}></AuthWrapper>,
+	},
 ];
 
 export default routes;
