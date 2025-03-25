@@ -379,8 +379,8 @@ const RecentChat = ({
 					return;
 				}
 
-				loadingMessageRef.current = loadingMessageRef.current || '';
-				loadingMessageRef.current += data?.intermediate_response;
+				loadingMessageRef.current = loadingMessageRef?.current || '';
+				loadingMessageRef.current += data?.intermediate_response || '';
 				updateStateValues({ globalLoadingMesssage: loadingMessageRef.current });
 				return;
 			}
@@ -390,41 +390,11 @@ const RecentChat = ({
 
 			if (data?.stream_end) {
 				handleStreamIncomingMessage(data);
-				//removing loading messages
-				const filteredMessages = chatMessagesRef?.current?.filter(
-					(ele) => ele?.contentType !== 'loading',
-				);
-				let requiredIndex = -1;
-				for (let i = filteredMessages?.length - 1; i >= 0; i--) {
-					if (filteredMessages?.[i]?.message_chunk_id === data?.message_chunk_id) {
-						requiredIndex = i;
-						break;
-					}
-				}
-				if (requiredIndex !== -1) {
-					filteredMessages[requiredIndex] = {
-						...filteredMessages[requiredIndex],
-						...data,
-						message: (filteredMessages[requiredIndex]?.message || '') + data?.answer,
-						messageId: data?.message_id,
-					};
-				} else {
-					filteredMessages?.push({
-						...data,
-						type: 'AI',
-						contentType: 'message',
-						message: data?.answer,
-					});
-				}
-				updateStateValues({
-					globalChatMessages: filteredMessages,
-					globalLoadingMesssage: null,
-				});
+				updateStateValues({ globalLoadingMesssage: null });
 				setInfo((prev) => ({ ...prev, latestStreamMesage: data }));
 			}
-
 			const { message_chunk_id } = data;
-			if (message_chunk_id && !data?.stream_end) {
+			if (message_chunk_id) {
 				handleStreamMessageChunk(data, message_chunk_id);
 			}
 		},
