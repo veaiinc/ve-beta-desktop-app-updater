@@ -7,7 +7,13 @@ import { message } from 'antd';
 import ConfirmationModal from '../../components/modalsV2/settings/ai_setup/ConfirmationModal';
 const AiSetup = () => {
 	const {
-		aiSetup: { getAiSetup, aiSetupData, updateAiSetupData, resetAiSetupData },
+		aiSetup: {
+			getAiSetup,
+			aiSetupData,
+			updateAiSetupData,
+			resetAiSetupData,
+			deleteAiSetupData,
+		},
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -19,6 +25,8 @@ const AiSetup = () => {
 		openConfirmationModal: false,
 		resetLoading: false,
 		resetSelectedType: null,
+		confirmType: null,
+		deleteSelectedData: null,
 	});
 
 	useEffect(() => {
@@ -42,7 +50,11 @@ const AiSetup = () => {
 	}, []);
 
 	const handleResetBtnClick = useCallback((type) => {
-		updateState({ openConfirmationModal: true, resetSelectedType: type });
+		updateState({
+			openConfirmationModal: true,
+			resetSelectedType: type,
+			confirmType: 'reset',
+		});
 	}, []);
 
 	const handleSubmit = useCallback(async (data) => {
@@ -64,12 +76,45 @@ const AiSetup = () => {
 		const response = await resetAiSetupData(info?.resetSelectedType);
 		if (response?.[0]) {
 			message?.success('Reset successfully');
-			updateState({ resetLoading: false, openConfirmationModal: false });
+			updateState({
+				resetLoading: false,
+				openConfirmationModal: false,
+				confirmType: null,
+				resetSelectedType: null,
+			});
 		} else {
 			message?.error('Failed to reset');
 			updateState({ resetLoading: false });
 		}
 	}, [info?.resetSelectedType]);
+
+	const handleDeleteAiSetupData = useCallback(async () => {
+		updateState({ resetLoading: true });
+		const response = await deleteAiSetupData(
+			info?.deleteSelectedData?.type,
+			info?.deleteSelectedData?.id,
+		);
+		if (response?.[0]) {
+			message?.success('Deleted successfully');
+			updateState({
+				resetLoading: false,
+				openConfirmationModal: false,
+				confirmType: null,
+				deleteSelectedData: null,
+			});
+		} else {
+			message?.error('Failed to delete');
+			updateState({ resetLoading: false });
+		}
+	}, [info?.deleteSelectedData]);
+
+	const handleDeleteButtonClick = useCallback((type, id) => {
+		updateState({
+			openConfirmationModal: true,
+			deleteSelectedData: { type, id },
+			confirmType: 'delete',
+		});
+	}, []);
 
 	return (
 		<>
@@ -87,6 +132,7 @@ const AiSetup = () => {
 							data={aiSetupData?.goal}
 							loading={info?.loading}
 							onResetClick={handleResetBtnClick}
+							onDeleteClick={handleDeleteButtonClick}
 						/>
 						<SectionBlock
 							openAddNewGoalModal={handleOpenAddNewGoalModal}
@@ -95,6 +141,7 @@ const AiSetup = () => {
 							data={aiSetupData?.focus}
 							loading={info?.loading}
 							onResetClick={handleResetBtnClick}
+							onDeleteClick={handleDeleteButtonClick}
 						/>
 						<SectionBlock
 							openAddNewGoalModal={handleOpenAddNewGoalModal}
@@ -103,6 +150,7 @@ const AiSetup = () => {
 							data={aiSetupData?.memory}
 							loading={info?.loading}
 							onResetClick={handleResetBtnClick}
+							onDeleteClick={handleDeleteButtonClick}
 						/>
 					</div>
 				</div>
@@ -117,9 +165,15 @@ const AiSetup = () => {
 			<ConfirmationModal
 				open={info?.openConfirmationModal}
 				close={() => updateState({ openConfirmationModal: false })}
-				onConfirm={handleResetAiSetup}
-				title="Reset AI Setup"
-				description="Are you sure you want to reset the AI Setup? This action cannot be undone."
+				onConfirm={
+					info?.confirmType === 'reset' ? handleResetAiSetup : handleDeleteAiSetupData
+				}
+				title={info?.confirmType === 'reset' ? 'Reset AI Setup' : 'Delete AI Setup Data'}
+				description={
+					info?.confirmType === 'reset'
+						? 'Are you sure you want to reset the AI Setup? This action cannot be undone.'
+						: 'Are you sure you want to delete the AI Setup Data? This action cannot be undone.'
+				}
 				resetLoading={info?.resetLoading}
 			/>
 		</>

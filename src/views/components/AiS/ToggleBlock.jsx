@@ -4,7 +4,7 @@ import { ReactComponent as Plus } from '../../../assets/svg/ai_assistant/plus.sv
 import { ReactComponent as Dustbin } from '../../../assets/svg/worflow_builder/dustbin.svg';
 import { ReactComponent as Pencil } from '../../../assets/svg/calendar/pencil.svg';
 
-const ToggleBlock = ({ heading, description }) => {
+const ToggleBlock = ({ data, type, onDeleteClick }) => {
 	const [info, setInfo] = useState({
 		isOpen: false,
 	});
@@ -21,16 +21,16 @@ const ToggleBlock = ({ heading, description }) => {
 						info.isOpen ? 'toggleBlockHeaderTitleOpen' : 'toggleBlockHeaderTitle'
 					}
 				>
-					{heading}
+					{data?.heading}
 				</h1>
-				{/* <div className={info.isOpen ? 'actionButtons' : 'actionButtonsHidden'}>
+				<div className={info.isOpen ? 'actionButtons' : 'actionButtonsHidden'}>
 					<button className="actionButton">
 						<Pencil />
 					</button>
-					<button className="actionButton">
+					<button className="actionButton" onClick={() => onDeleteClick(type, data?._id)}>
 						<Dustbin />
 					</button>
-				</div> */}
+				</div>
 				<button
 					onClick={() => updateInfo({ isOpen: !info.isOpen })}
 					className="toggleBlockHeaderButton"
@@ -38,7 +38,7 @@ const ToggleBlock = ({ heading, description }) => {
 					<Plus style={{ transform: info.isOpen ? 'rotate(45deg)' : 'rotate(0deg)' }} />
 				</button>
 			</div>
-			{info.isOpen && <div className="toggleBlockContent">{description}</div>}
+			{info.isOpen && <div className="toggleBlockContent">{data?.description}</div>}
 		</div>
 	);
 };

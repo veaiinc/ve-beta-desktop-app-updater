@@ -1030,6 +1030,25 @@ export const AiSetupState = () => {
 		}
 	};
 
+	const deleteAiSetupData = async (dataType, id) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const path = `/${workspaceId}/ai-tenant-configurations/ai-setup/${dataType}/${id}`;
+			const token = localStorage.getItem('usertoken');
+			const type = 'ai_assistant_api';
+			const response = await service?.fetchDelete(path, token, null, type);
+			if (response?.[0]) {
+				dispatch({ type: Actions?.DELETE_AI_SETUP_DATA, payload: { type: dataType, id } });
+				return [true];
+			} else {
+				return [false, response?.[1]];
+			}
+		} catch (error) {
+			console.log('error==>deleteAiSetupData', error);
+			return [false, error];
+		}
+	};
+
 	const resetAiSetupState = () => {
 		dispatch({ type: Actions?.RESET_STATE });
 	};
@@ -1078,5 +1097,6 @@ export const AiSetupState = () => {
 		getAiSetup,
 		updateAiSetupData,
 		resetAiSetupData,
+		deleteAiSetupData,
 	};
 };

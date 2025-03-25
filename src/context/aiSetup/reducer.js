@@ -119,6 +119,15 @@ const actionHandlers = {
 		...state,
 		aiSetupData: { ...state?.aiSetupData, [action?.payload]: [] },
 	}),
+	DELETE_AI_SETUP_DATA: (state, action) => ({
+		...state,
+		aiSetupData: {
+			...state?.aiSetupData,
+			[action?.payload?.type]: state?.aiSetupData?.[action?.payload?.type]?.filter(
+				(item) => item?._id !== action?.payload?.id,
+			),
+		},
+	}),
 
 	RESET_STATE: () => initialState,
 };
