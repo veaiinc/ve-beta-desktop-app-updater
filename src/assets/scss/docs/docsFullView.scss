@@ -1,0 +1,280 @@
+.docsFullView {
+	display: flex;
+	justify-content: center;
+	width: 100%;
+	height: 100vh;
+	background: var(--background-color);
+	padding: 24px;
+
+	.docsFullViewContent {
+		width: 100%;
+		max-width: 1200px;
+		display: flex;
+		flex-direction: column;
+		gap: 20px;
+
+		.headerContainer {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			width: 100%;
+
+			.headerLeft {
+				display: flex;
+				align-items: center;
+				gap: 16px;
+
+				svg {
+					cursor: pointer;
+					width: 16px;
+					height: 16px;
+					opacity: 0.7;
+					transition: opacity 0.3s ease;
+
+					&:hover {
+						opacity: 1;
+					}
+				}
+			}
+
+			.headerRight {
+				display: flex;
+				align-items: center;
+				gap: 8px;
+
+				.editLabel {
+					display: flex;
+					height: 23px;
+					padding: 6px 12px;
+					justify-content: center;
+					align-items: center;
+					gap: 6px;
+					border-radius: 59px;
+					color: var(--primary-font);
+					border: 1px solid var(--primary-font);
+					transition: all 0.3s ease;
+					cursor: pointer;
+
+					&:hover {
+						background: var(--card);
+						color: var(--primary-font);
+					}
+				}
+
+				svg {
+					width: 20px;
+					height: 20px;
+					cursor: pointer;
+
+					&:hover {
+						filter: drop-shadow(0 0 8px #c8c4c4);
+					}
+				}
+			}
+		}
+
+		.listviewContainer {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 20px;
+			padding: 0px 32px;
+
+			.listDataMapper {
+				display: flex;
+				flex-direction: column;
+				align-items: flex-start;
+				gap: 8px;
+				align-self: stretch;
+
+				.listDataMapperRow {
+					display: flex;
+					height: 31px;
+					align-items: center;
+					align-self: stretch;
+
+					.listDataMapperRowLabel {
+						display: flex;
+						width: 130px;
+						align-items: center;
+						gap: 8px;
+						align-self: stretch;
+
+						color: var(--primary-font);
+						font-family: var(--primary-font-family);
+						font-size: 13px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+
+						> svg {
+							width: 16px;
+							height: 16px;
+						}
+					}
+
+					.listDataMapperRowValue {
+						color: var(--primary-font);
+						font-family: var(--primary-font-family);
+						font-size: 12px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+					}
+				}
+			}
+		}
+
+		.tabsViewWrapper {
+			flex: 1;
+			display: flex;
+			flex-direction: column;
+			gap: 24px;
+			overflow: hidden;
+
+			.tabsView {
+				display: flex;
+				align-items: flex-start;
+				gap: 24px;
+				padding: 0px 32px;
+				border-bottom: 1px solid var(--stroke);
+
+				.tabViewLabel {
+					padding: 8px 0px;
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
+					font-size: 16px;
+					font-weight: 500;
+					opacity: 0.7;
+					cursor: pointer;
+					transition: opacity 0.3s ease;
+
+					&:hover {
+						opacity: 1;
+					}
+
+					&.active {
+						color: var(--primary-font);
+						border-bottom: 2px solid var(--primary-font);
+						opacity: 1;
+					}
+				}
+			}
+
+			.respectiveView {
+				flex: 1;
+				overflow: auto;
+				padding: 0 32px;
+			}
+		}
+	}
+
+	.DocsStatusButtonOuterContainer {
+		display: flex;
+		padding: 4px 6px;
+		justify-content: center;
+		align-items: center;
+		gap: 4px;
+		border-radius: 35px;
+		background: var(--background-color);
+
+		.DocsStatusCircle {
+			width: 6px;
+			height: 6px;
+			border-radius: 100%;
+			background: var(--card-hover);
+		}
+
+		.DocsButtontext {
+			color: var(--primary-font);
+			text-align: center;
+			font-family: var(--primary-font-family);
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+		}
+	}
+
+	.headerRight {
+		.DocsStatusButtonOuterContainer {
+			margin-right: 8px;
+		}
+	}
+
+	.listDataMapperRowValue {
+		.DocsStatusButtonOuterContainer {
+		}
+	}
+}
+
+// Add the tooltip styles
+.dot-svg-tooltip-content {
+	display: flex;
+	width: 220px;
+	padding: 12px 10px;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 4px;
+	border-radius: 14px;
+	background: var(--card);
+
+	.items {
+		display: flex;
+		height: 31px;
+		padding: 4px;
+		align-items: center;
+		gap: 6px;
+		align-self: stretch;
+		border-radius: 8px;
+		transition: all 0.2s ease;
+		cursor: pointer;
+
+		&:hover {
+			background-color: var(--card);
+		}
+
+		color: var(--primary-font);
+		text-align: center;
+		font-family: var(--primary-font-family);
+		font-size: 12px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
+
+		> svg {
+			width: 14px;
+			height: 14px;
+			flex-shrink: 0;
+		}
+	}
+
+	.deleteItem {
+		display: flex;
+		padding: 6px;
+		align-items: center;
+		gap: 8px;
+		align-self: stretch;
+		border-radius: 8px;
+		cursor: pointer;
+
+		&:hover {
+			background-color: var(--card);
+		}
+
+		span {
+			color: var(--error);
+			font-family: var(--primary-font-family);
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 400;
+			line-height: normal;
+		}
+
+		> svg {
+			width: 14px;
+			height: 14px;
+			flex-shrink: 0;
+		}
+	}
+}

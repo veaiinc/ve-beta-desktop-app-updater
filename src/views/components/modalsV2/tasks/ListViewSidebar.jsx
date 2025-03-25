@@ -11,7 +11,7 @@ import Spinner from '../../loaders/Spinner';
 import Skeleton from 'react-loading-skeleton';
 import CustomTextArea from '../../globalComponents/CusomTextArea';
 import QuickActions from '../../globalComponents/QuickActions';
-
+import { useSearchParams } from 'react-router-dom';
 const optionsForQuickActions = [
 	{ id: 4, title: 'Document', value: 'document' },
 	{ id: 6, title: 'Proposal', value: 'proposal' },
@@ -77,6 +77,14 @@ const ListViewSidebar = ({
 			}
 		};
 	}, []);
+
+	useEffect(() => {
+		if (isSidebarExpanded && selectedRow?._id) {
+			const newUrl = new URL(window.location.href);
+			newUrl.searchParams.set('itemId', selectedRow._id);
+			window.history.pushState({}, '', newUrl);
+		}
+	}, [isSidebarExpanded, selectedRow?._id]);
 
 	const debouncedTitleUpdate = useCallback(
 		(value) => {

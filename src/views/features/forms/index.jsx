@@ -81,7 +81,7 @@ const Forms = () => {
 	}, [info?.hasNextPage, info?.currentPage]);
 
 	const handleFormClick = useCallback((formData) => {
-		navigate(`/forms/${formData?._id}`, { state: { formData } });
+		navigate(`/form/${formData?._id}`, { state: { formData } });
 	}, []);
 
 	return (

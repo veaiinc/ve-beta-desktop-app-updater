@@ -17,6 +17,8 @@ import { ReactComponent as Clock } from '../../../assets/svg/smartFiles/formResp
 import { ReactComponent as Signature } from '../../../assets/svg/smartFiles/formResponse/signature.svg';
 import { ReactComponent as Star } from '../../../assets/svg/smartFiles/formResponse/star.svg';
 import { ReactComponent as TimeDivider } from '../../../assets/svg/smartFiles/formResponse/time-divider.svg';
+import { ReactComponent as ExpandSvg } from '../../../assets/svg/docs/expand.svg';
+import { useNavigate } from 'react-router-dom';
 
 const iconsForQuestions = {
 	shortText: <BiDash />,
@@ -214,6 +216,7 @@ const FormModal = ({ isOpen, onClose, selectedRow }) => {
 	const isResizing = useRef(false);
 	const startX = useRef(0);
 	const startWidth = useRef(0);
+	const navigate = useNavigate();
 
 	// Start resizing
 	const handleMouseDown = (e) => {
@@ -243,6 +246,13 @@ const FormModal = ({ isOpen, onClose, selectedRow }) => {
 			document.removeEventListener('mouseup', handleMouseUp);
 		};
 	}, []);
+
+	const handleExpandView = () => {
+		if (selectedRow?._id) {
+			navigate(`/form/response/${selectedRow._id}`);
+			onClose();
+		}
+	};
 
 	const formAnswer = (type, answer) => {
 		const answerComponentMapper = {
@@ -288,7 +298,10 @@ const FormModal = ({ isOpen, onClose, selectedRow }) => {
 			/>
 			<div className="formModalContainer">
 				<div className="formModalHeader">
-					<CrossSvg onClick={onClose} style={{ cursor: 'pointer' }} />
+					<div className="headerActions">
+						<ExpandSvg onClick={handleExpandView} />
+						<CrossSvg onClick={onClose} />
+					</div>
 				</div>
 				{/* <div className="completedStatus">
 				<div className="completedStatusText">
