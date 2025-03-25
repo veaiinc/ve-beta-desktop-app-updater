@@ -48,6 +48,8 @@ const MyProfile = () => {
 		authInfo: { updateUserDetails },
 	} = useContext(Context);
 
+	console.log('theme', theme);
+
 	const [showForm, setShowForm] = useState(false);
 	const [isEditMode, setIsEditMode] = useState({ isValueChanged: false, timeout: null });
 	const [errors, setErrors] = useState({});
@@ -301,6 +303,8 @@ const MyProfile = () => {
 		const success = response?.[0];
 		if (success) {
 			message?.success('Theme updated successfully');
+			localStorage.setItem('theme', themeValue);
+			Cookies.set('theme', themeValue);
 		} else {
 			message?.error('Failed to update theme, Please refresh the page and try again!');
 		}

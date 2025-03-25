@@ -11,13 +11,13 @@ function App() {
 		themeInfo: { theme },
 	} = useContext(Context);
 
-	let themePreference = localStorage?.getItem('theme') || Cookies.get('theme') || 'systemDefault';
+	const themePreference =
+		theme || localStorage?.getItem('theme') || Cookies.get('theme') || 'systemDefault';
+	let themeAttribute = themePreference;
 	if (themePreference === 'systemDefault') {
-		themePreference = window.matchMedia('(prefers-color-scheme: dark)').matches
+		themeAttribute = window.matchMedia('(prefers-color-scheme: dark)').matches
 			? 'dark'
 			: 'light';
-	} else {
-		themePreference = theme;
 	}
 
 	useEffect(() => {
@@ -28,7 +28,7 @@ function App() {
 		}
 		// document.getElementsByTagName('html')[0].classList.add('theme-dark');
 		// const theme = localStorage.getItem('theme') || Cookies.get('theme') || 'dark';
-		document.documentElement.setAttribute('theme', themePreference);
+		document.documentElement.setAttribute('theme', themeAttribute);
 	}, []);
 
 	return (
