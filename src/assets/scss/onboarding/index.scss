@@ -14,6 +14,8 @@
 		display: flex;
 		justify-content: space-between;
 		gap: 120px;
+		opacity: 0;
+		transition: opacity 0.5s ease-in; // useEffect to animate fade in on opacity: 1;
 
 		& > * {
 			height: 100%;
@@ -31,11 +33,12 @@
 					height: 6px;
 					border-radius: 100px;
 					background: var(--stroke, #2c2d2e);
-				}
+					transition: width 0.3s ease-in, background 0.3s ease-in;
 
-				.active {
-					width: 40px;
-					background: var(--brand-lime, #cfff48);
+					&.active {
+						width: 40px;
+						background: var(--brand-lime, #cfff48);
+					}
 				}
 			}
 

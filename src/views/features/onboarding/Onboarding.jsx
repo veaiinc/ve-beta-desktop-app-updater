@@ -1,4 +1,4 @@
-import { memo, useState } from 'react';
+import { memo, useEffect, useState } from 'react';
 import '../../../assets/scss/onboarding/index.scss';
 
 const aboutVe = `Hi! Welcome to VEAI, you can give me access to everything from your Slack, Google Drive files, Calendar, Notion documents, and Salesforce. I'll help you get answers from data you don't have the time or energy to go through, help find connections between points in multiple different documents, record and summarize meetings you join (or the ones you skip).`;
@@ -8,6 +8,17 @@ const Onboarding = () => {
 	const [info, setInfo] = useState({
 		progressStep: 1, // total 4 steps
 	});
+
+	const animateFadeIn = () => {
+		const mainContent = document.querySelector('.mainContent');
+		if (mainContent) {
+			mainContent.style.opacity = '1';
+		}
+	};
+
+	useEffect(() => {
+		animateFadeIn();
+	}, []);
 
 	return (
 		<div className="onboardingContainer">
