@@ -575,7 +575,6 @@ const ChatBox = ({
 						),
 					},
 				];
-
 				updateApplicationChat(workflowSlug);
 			}
 		},
