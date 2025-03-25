@@ -12,7 +12,7 @@ function App() {
 	} = useContext(Context);
 
 	const themePreference =
-		theme || localStorage?.getItem('theme') || Cookies.get('theme') || 'systemDefault';
+		theme || localStorage?.getItem('theme') || Cookies.get('theme') || 'dark'; // TODO: change this to systemDefault after light theme is good
 	let themeAttribute = themePreference;
 	if (themePreference === 'systemDefault') {
 		themeAttribute = window.matchMedia('(prefers-color-scheme: dark)').matches
