@@ -14,7 +14,7 @@ export const ThemeState = () => {
 	const updateTheme = async (themeValue) => {
 		try {
 			// Dispatch before API call for better UX
-			dispatch({ type: Actions.UPDATE_THEME, payload: themeValue });
+			dispatch({ type: Actions?.UPDATE_THEME, payload: themeValue });
 
 			const theme =
 				themeValue === 'systemDefault'
@@ -32,9 +32,9 @@ export const ThemeState = () => {
 			const token = localStorage.getItem('usertoken');
 			const type = 'auth';
 
-			const response = await Service.fetchPut(path, body, token, type);
-
-			return [!!response?.[0]];
+			const response = await Service?.fetchPut(path, body, token, type);
+			const success = !!response?.[0];
+			return [success];
 		} catch (error) {
 			console.error('Error updating theme:', error);
 			return [false];
