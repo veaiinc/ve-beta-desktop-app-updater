@@ -976,7 +976,7 @@ export const AiSetupState = () => {
 			const url = '/' + workspaceId + '/ai-tenant-configurations/ai-setup';
 
 			const response = await service?.fetchGet(url, usertoken, 'ai_assistant_api');
-			if (response?.[0]) {
+			if (response?.[0] === true) {
 				dispatch({
 					type: Actions?.SET_AI_SETUP,
 					payload: response?.[1],
@@ -994,7 +994,7 @@ export const AiSetupState = () => {
 			const token = localStorage.getItem('usertoken');
 			const type = 'ai_assistant_api';
 			const response = await service?.fetchPut(path, body, token, type);
-			const success = response?.[0];
+			const success = response?.[0] === true;
 			if (success) {
 				dispatch({
 					type: Actions?.SET_AI_SETUP,
@@ -1018,7 +1018,7 @@ export const AiSetupState = () => {
 			const token = localStorage.getItem('usertoken');
 			const type = 'ai_assistant_api';
 			const response = await service?.fetchPut(path, {}, token, type);
-			if (response?.[0]) {
+			if (response?.[0] === true) {
 				dispatch({ type: Actions?.RESET_AI_SETUP, payload: dataType });
 				return [true];
 			} else {
@@ -1037,7 +1037,7 @@ export const AiSetupState = () => {
 			const token = localStorage.getItem('usertoken');
 			const type = 'ai_assistant_api';
 			const response = await service?.fetchDelete(path, token, null, type);
-			if (response?.[0]) {
+			if (response?.[0] === true) {
 				dispatch({ type: Actions?.DELETE_AI_SETUP_DATA, payload: { type: dataType, id } });
 				return [true];
 			} else {
@@ -1045,6 +1045,31 @@ export const AiSetupState = () => {
 			}
 		} catch (error) {
 			console.log('error==>deleteAiSetupData', error);
+			return [false, error];
+		}
+	};
+
+	const editAiSetupData = async (dataType, _id, data) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const path = `/${workspaceId}/ai-tenant-configurations/ai-setup/${dataType}/${_id}`;
+			const token = localStorage.getItem('usertoken');
+			const type = 'ai_assistant_api';
+			const body = {
+				...data,
+			};
+			const response = await service?.fetchPut(path, body, token, type);
+			if (response?.[0] === true) {
+				dispatch({
+					type: Actions?.UPDATE_AI_SETUP_DATA,
+					payload: { type: dataType, data: { ...data, _id } },
+				});
+				return [true];
+			} else {
+				return [false, response?.[1]];
+			}
+		} catch (error) {
+			console.log('error==>editAiSetupData', error);
 			return [false, error];
 		}
 	};
@@ -1098,5 +1123,6 @@ export const AiSetupState = () => {
 		updateAiSetupData,
 		resetAiSetupData,
 		deleteAiSetupData,
+		editAiSetupData,
 	};
 };

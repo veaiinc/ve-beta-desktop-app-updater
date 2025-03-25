@@ -11,6 +11,7 @@ const SectionBlock = ({
 	data = [],
 	type,
 	loading,
+	onEditClick,
 }) => {
 	return (
 		<div className="SectionBlockContainer">
@@ -41,7 +42,11 @@ const SectionBlock = ({
 				))
 			) : data?.length > 0 ? (
 				type === 'memory' ? (
-					<MemoryBlock data={data} onDeleteClick={onDeleteClick} />
+					<MemoryBlock
+						data={data}
+						onDeleteClick={onDeleteClick}
+						onEditClick={onEditClick}
+					/>
 				) : (
 					<div className="sectionBlockContent">
 						{data?.map((item) => (
@@ -50,6 +55,7 @@ const SectionBlock = ({
 								data={item}
 								type={type}
 								onDeleteClick={onDeleteClick}
+								onEditClick={onEditClick}
 							/>
 						))}
 					</div>

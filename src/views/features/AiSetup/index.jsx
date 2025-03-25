@@ -13,6 +13,7 @@ const AiSetup = () => {
 			updateAiSetupData,
 			resetAiSetupData,
 			deleteAiSetupData,
+			editAiSetupData,
 		},
 	} = useContext(Context);
 
@@ -27,6 +28,7 @@ const AiSetup = () => {
 		resetSelectedType: null,
 		confirmType: null,
 		deleteSelectedData: null,
+		editSelectedData: null,
 	});
 
 	useEffect(() => {
@@ -46,7 +48,7 @@ const AiSetup = () => {
 	}, []);
 
 	const handleCloseAddNewGoalModal = useCallback(() => {
-		updateState({ openAddNewGoalModal: false });
+		updateState({ openAddNewGoalModal: false, editSelectedData: null });
 	}, []);
 
 	const handleResetBtnClick = useCallback((type) => {
@@ -70,6 +72,30 @@ const AiSetup = () => {
 			return false;
 		}
 	}, []);
+
+	const handleEditSubmit = useCallback(
+		async (data) => {
+			updateState({ submitLoading: true });
+			const response = await editAiSetupData(
+				info?.editSelectedData?.type,
+				info?.editSelectedData?.id,
+				{
+					...(data?.type !== 'memory' && { heading: data?.heading }),
+					description: data?.description,
+				},
+			);
+			if (response?.[0]) {
+				message?.success('Updated successfully');
+				updateState({ submitLoading: false, openAddNewGoalModal: false });
+				return true;
+			} else {
+				message?.error('Failed to update');
+				updateState({ submitLoading: false });
+				return false;
+			}
+		},
+		[info?.editSelectedData],
+	);
 
 	const handleResetAiSetup = useCallback(async () => {
 		updateState({ resetLoading: true });
@@ -116,6 +142,19 @@ const AiSetup = () => {
 		});
 	}, []);
 
+	const handleEditButtonClick = useCallback((type, id, heading, description) => {
+		updateState({
+			openAddNewGoalModal: true,
+			modalType: type,
+			editSelectedData: {
+				type,
+				id,
+				...(type !== 'memory' && { heading }),
+				description,
+			},
+		});
+	}, []);
+
 	return (
 		<>
 			<div className="AiSetupContainer">
@@ -133,6 +172,7 @@ const AiSetup = () => {
 							loading={info?.loading}
 							onResetClick={handleResetBtnClick}
 							onDeleteClick={handleDeleteButtonClick}
+							onEditClick={handleEditButtonClick}
 						/>
 						<SectionBlock
 							openAddNewGoalModal={handleOpenAddNewGoalModal}
@@ -142,6 +182,7 @@ const AiSetup = () => {
 							loading={info?.loading}
 							onResetClick={handleResetBtnClick}
 							onDeleteClick={handleDeleteButtonClick}
+							onEditClick={handleEditButtonClick}
 						/>
 						<SectionBlock
 							openAddNewGoalModal={handleOpenAddNewGoalModal}
@@ -151,6 +192,7 @@ const AiSetup = () => {
 							loading={info?.loading}
 							onResetClick={handleResetBtnClick}
 							onDeleteClick={handleDeleteButtonClick}
+							onEditClick={handleEditButtonClick}
 						/>
 					</div>
 				</div>
@@ -159,8 +201,9 @@ const AiSetup = () => {
 				openAddNewGoalModal={info?.openAddNewGoalModal}
 				closeAddNewGoalModal={handleCloseAddNewGoalModal}
 				type={info?.modalType}
-				onSubmit={handleSubmit}
+				onSubmit={info?.editSelectedData ? handleEditSubmit : handleSubmit}
 				submitLoading={info?.submitLoading}
+				editSelectedData={info?.editSelectedData}
 			/>
 			<ConfirmationModal
 				open={info?.openConfirmationModal}

@@ -4,7 +4,7 @@ import { ReactComponent as Plus } from '../../../assets/svg/ai_assistant/plus.sv
 import { ReactComponent as Dustbin } from '../../../assets/svg/worflow_builder/dustbin.svg';
 import { ReactComponent as Pencil } from '../../../assets/svg/calendar/pencil.svg';
 
-const ToggleBlock = ({ data, type, onDeleteClick }) => {
+const ToggleBlock = ({ data, type, onDeleteClick, onEditClick }) => {
 	const [info, setInfo] = useState({
 		isOpen: false,
 	});
@@ -24,7 +24,12 @@ const ToggleBlock = ({ data, type, onDeleteClick }) => {
 					{data?.heading}
 				</h1>
 				<div className={info.isOpen ? 'actionButtons' : 'actionButtonsHidden'}>
-					<button className="actionButton">
+					<button
+						className="actionButton"
+						onClick={() =>
+							onEditClick(type, data?._id, data?.heading, data?.description)
+						}
+					>
 						<Pencil />
 					</button>
 					<button className="actionButton" onClick={() => onDeleteClick(type, data?._id)}>

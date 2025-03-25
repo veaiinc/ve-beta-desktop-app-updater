@@ -129,6 +129,16 @@ const actionHandlers = {
 		},
 	}),
 
+	UPDATE_AI_SETUP_DATA: (state, action) => ({
+		...state,
+		aiSetupData: {
+			...state?.aiSetupData,
+			[action?.payload?.type]: state?.aiSetupData?.[action?.payload?.type]?.map((item) =>
+				item?._id === action?.payload?.data?._id ? action?.payload?.data : item,
+			),
+		},
+	}),
+
 	RESET_STATE: () => initialState,
 };
 
