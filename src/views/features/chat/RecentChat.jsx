@@ -424,7 +424,7 @@ const RecentChat = ({
 			<div className="chat-container">
 				<div className="chatBarContainer" style={{ width: '100%' }}>
 					{/* header */}
-					<div className="containerHeader" style={{ width: '100%' }}>
+					<div className="containerHeader">
 						<h1 className="containerHeaderTitle"></h1>
 						<div className="iconContainer">
 							{!info?.citationsModalIsOpen && (

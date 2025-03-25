@@ -43,7 +43,7 @@ const AuthWrapper = ({
 			<div
 				style={{
 					display: 'flex',
-					height: '100dvh',
+					height: renewBanner ? 'calc(100dvh - 41px)' : '100dvh',
 					padding: '32px 32px 0 32px',
 					...outerContainerStyle,
 				}}
