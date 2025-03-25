@@ -33,6 +33,8 @@ import Voice from '../chat/Voice';
 import { message, Image, Spin, Tooltip } from 'antd';
 import LLMTooltip from '../chat/LLMTooltip';
 import AIMessageLoader from '../chat/AIMessageLoader';
+import useUpdatedVoiceIntegration from '../../hooks/useUpdatedVoiceIntegration';
+import { LiveKitRoom, RoomAudioRenderer, StartAudio } from '@livekit/components-react';
 
 const moduleHelper = {
 	tasks: 'tasks',
@@ -129,15 +131,18 @@ const ChatBox = ({
 		documentPreview: { noteContent, setNoteContent },
 	} = useContext(Context);
 
-	const {
-		isConnected,
-		isMuted,
-		audioLevel,
-		connectToRoom,
-		disconnect,
-		toggleMute,
-		toggleKrispNoiseFilter,
-	} = useVoiceIntegration();
+	// const {
+	// 	isConnected,
+	// 	isMuted,
+	// 	audioLevel,
+	// 	connectToRoom,
+	// 	disconnect,
+	// 	toggleMute,
+	// 	toggleKrispNoiseFilter,
+	// } = useVoiceIntegration();
+
+	const { shouldConnect, token, serverUrl, handleConnect, handleDisconnect } =
+		useUpdatedVoiceIntegration();
 
 	const navigate = useNavigate();
 	const location = useLocation();
@@ -776,29 +781,26 @@ const ChatBox = ({
 	const handleMicIconClick = useCallback(
 		(event) => {
 			if (!info?.voiceIntegration) {
-				connectToRoom();
+				handleConnect();
 				setInfo((prev) => ({ ...prev, voiceIntegration: true }));
 			} else {
-				toggleMute();
+				// toggleMute();
 			}
 			event.stopPropagation();
 		},
 
-		[info, connectToRoom],
+		[info, handleConnect],
 	);
 
-	const handleToggleMute = useCallback(
-		(event) => {
-			toggleMute();
-			event.stopPropagation();
-			setInfo((prev) => ({ ...prev, isVoiceMuted: !prev?.isVoiceMuted }));
-		},
-		[toggleMute],
-	);
+	const handleToggleMute = useCallback((event) => {
+		// toggleMute();
+		event.stopPropagation();
+		setInfo((prev) => ({ ...prev, isVoiceMuted: !prev?.isVoiceMuted }));
+	}, []);
 
 	const handleDisConnect = useCallback(
 		(event) => {
-			disconnect();
+			handleDisconnect();
 			setInfo((prev) => ({ ...prev, voiceIntegration: false, isVoiceMuted: false }));
 			event.stopPropagation();
 		},
@@ -882,11 +884,25 @@ const ChatBox = ({
 		<div className="chatParentWrapper">
 			<div className={`chatWrapper`}>
 				<div className={`voiceContainer ${info?.voiceIntegration ? 'active' : 'inactive'}`}>
-					<Voice
-						handleDisConnect={handleDisConnect}
-						handleToggleMute={handleToggleMute}
-						isVoiceMuted={info?.isVoiceMuted}
-					/>
+					<LiveKitRoom
+						className="flex flex-col h-full w-full"
+						serverUrl={serverUrl}
+						token={token}
+						connect={shouldConnect}
+						onError={(e) => {
+							message.error(e.message);
+							console.error(e);
+						}}
+					>
+						<Voice
+							shouldConnect={shouldConnect}
+							token={token}
+							serverUrl={serverUrl}
+							handleDisconnect={handleDisConnect}
+						/>
+						<RoomAudioRenderer />
+						<StartAudio label="Click to enable audio playback" />
+					</LiveKitRoom>
 				</div>
 				<div
 					className={`chat-box-container ${
