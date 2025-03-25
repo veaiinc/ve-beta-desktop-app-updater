@@ -1,8 +1,7 @@
 import { memo, useState } from 'react';
 import '../../../assets/scss/onboarding/index.scss';
 
-const aboutVe =
-	'Hi! Welcome to VEAI, you can give me access to everything from your Slack, Google Drive files, Calendar, Notion documents, and Salesforce. I’ll help you get answers from data you don’t have the time or energy to go through, help find connections between points in multiple different documents, record and summarize meetings you join (or the ones you skip).';
+const aboutVe = `Hi! Welcome to VEAI, you can give me access to everything from your Slack, Google Drive files, Calendar, Notion documents, and Salesforce. I'll help you get answers from data you don't have the time or energy to go through, help find connections between points in multiple different documents, record and summarize meetings you join (or the ones you skip).`;
 const progressStep = Array.from({ length: 4 }, (_, index) => index + 1);
 
 const Onboarding = () => {
