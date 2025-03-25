@@ -38,6 +38,7 @@
 		z-index: 1;
 		scrollbar-width: none; // Hide Firefox scrollbar
 		-ms-overflow-style: none; // Hide IE scrollbarf
+		position: relative;
 		&::-webkit-scrollbar {
 			display: none; // Hide Chrome/Safari/Opera scrollbar
 		}
@@ -46,6 +47,7 @@
 			height: 100dvh !important;
 			width: 250px !important;
 			transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+			position: relative;
 		}
 
 		&.padding-48 {
