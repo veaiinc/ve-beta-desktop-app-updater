@@ -92,7 +92,7 @@ const showMessage = (type, content, dismissFunction) => {
 		content: (
 			<div className="message-container">
 				<span>{content}</span>
-				<span className="divider">|</span>
+				<span className="divider"></span>
 				<button
 					onClick={() => {
 						message.destroy(key);
@@ -359,9 +359,9 @@ const GalleryPage = () => {
 					  ) + '%'
 					: '0',
 		},
-		{
-			name: 'breaker',
-		},
+		// {
+		// 	name: 'breaker',
+		// },
 		{
 			name: 'Insights',
 			number: '',
@@ -370,7 +370,7 @@ const GalleryPage = () => {
 
 	const galleryOptions = [
 		{
-			icon: <EditPen />,
+			icon: <EditPen style={{ color: 'var(--secondary-font)' }} />,
 			label: 'Rename Gallery',
 			onClick: () =>
 				setInfo((prev) => ({
@@ -3487,7 +3487,15 @@ const GalleryPage = () => {
 								{info?.activeAlbum?.title}
 							</div>
 						</div>
-						<div>
+						<div className="rearrangeButtonsContainer">
+							<button
+								className="rearrangeCancelButton"
+								onClick={() =>
+									setInfo((prev) => ({ ...prev, isRearranging: false }))
+								}
+							>
+								Cancel
+							</button>
 							<button
 								className="rearrangeSaveButton"
 								onClick={handleSaveImage}
@@ -3653,6 +3661,8 @@ const GalleryPage = () => {
 																	: ''
 															}`}
 															style={{
+																// maxWidth: '130px',
+																// minWidth: '100px',
 																// background:
 																// 	item.name === 'Ai People'
 																// 		? info?.activeTab ===
@@ -3783,7 +3793,7 @@ const GalleryPage = () => {
 												className="onlineStatus"
 												style={{
 													backgroundColor: info.isOnline
-														? 'var(--accent-color)'
+														? 'var(--primary-button)'
 														: 'red',
 												}}
 											></div>
@@ -4000,9 +4010,7 @@ const GalleryPage = () => {
 																						>
 																							<LockIcon
 																								style={{
-																									color: '#fff',
-																									fontSize:
-																										'12px',
+																									color: 'var(--secondary-font)',
 																								}}
 																							/>
 																						</div>
@@ -4292,7 +4300,11 @@ const GalleryPage = () => {
 																						title={
 																							<div className="tagOptionsContainer">
 																								<div className="tagOptionsEachOption">
-																									<EditPen />
+																									<EditPen
+																										style={{
+																											color: 'var(--secondary-font)',
+																										}}
+																									/>
 																									<p
 																										onClick={() =>
 																											setInfo(
@@ -4378,7 +4390,7 @@ const GalleryPage = () => {
 													}}
 												>
 													<SearchIcon
-														style={{ color: 'var(--secondaryFont)' }}
+														style={{ color: 'var(--secondary-font)' }}
 													/>
 													{info?.showShearch && (
 														<input
@@ -4439,7 +4451,7 @@ const GalleryPage = () => {
 													<div className="iconsContainer">
 														<FilterIcon
 															style={{
-																color: 'var(--secondaryFont)',
+																color: 'var(--secondary-font)',
 															}}
 														/>
 													</div>
@@ -4496,7 +4508,7 @@ const GalleryPage = () => {
 																>
 																	<span
 																		style={{
-																			color: '#E4E5E6',
+																			color: 'var(--secondary-font)',
 																			fontFamily: 'Inter',
 																			fontSize: '14px',
 																			fontWeight: '400',
@@ -4515,12 +4527,12 @@ const GalleryPage = () => {
 																		}
 																		onClick={handleLockAlbum}
 																		size="medium"
-																		style={{
-																			backgroundColor:
-																				!info.isEnabled
-																					? '#575858'
-																					: '#575858',
-																		}}
+																		// style={{
+																		// 	backgroundColor:
+																		// 		!info.isEnabled
+																		// 			? '#575858'
+																		// 			: '#575858',
+																		// }}
 																	/>
 																</div>
 															</div>
@@ -4542,7 +4554,11 @@ const GalleryPage = () => {
 																	gap: '4px',
 																}}
 															>
-																<EditPen />
+																<EditPen
+																	style={{
+																		color: 'var(--secondary-font)',
+																	}}
+																/>
 																Rename Album
 															</li>
 															<li
@@ -4664,7 +4680,7 @@ const GalleryPage = () => {
 														style={{
 															backgroundColor: info?.activeAlbum
 																?.isPublished
-																? 'var(--accent-color)'
+																? 'var(--primary-button)'
 																: 'red',
 														}}
 													></div>
@@ -4679,14 +4695,14 @@ const GalleryPage = () => {
 														size="small"
 													/>
 												</div>
-												{info?.selectedImages?.length > 0 && (
+												{/* {info?.selectedImages?.length > 0 && (
 													<div
 														className="rearrangeManually"
 														onClick={handleDeselect}
 													>
 														Deselect All
 													</div>
-												)}
+												)} */}
 											</div>
 										</div>
 									)}

@@ -40,15 +40,22 @@ const AiFaceRegistration = ({ link, handlePreRegistration, preRegistration }) =>
 	useEffect(() => {
 		if (!preRegisteredUsers) {
 			setinfo((prev) => ({ ...prev, initialLoading: true }));
+
 			getPreRegisteredUsers(galleryId, page).finally(() => {
 				setinfo((prev) => ({
 					...prev,
 					initialLoading: false,
-					preRegisterLength: preRegisteredUsers?.data?.length,
+					preRegisterLength: 0, // Default to 0 if data is not yet available
 				}));
 			});
+		} else {
+			// Update preRegisterLength when preRegisteredUsers updates
+			setinfo((prev) => ({
+				...prev,
+				preRegisterLength: preRegisteredUsers?.data?.length || 0,
+			}));
 		}
-	}, [preRegisteredUsers]);
+	}, [preRegisteredUsers, galleryId, page]);
 
 	useEffect(() => {
 		if (galleryId) {

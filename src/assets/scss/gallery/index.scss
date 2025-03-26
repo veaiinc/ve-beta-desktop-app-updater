@@ -188,16 +188,42 @@
 				text-transform: capitalize;
 			}
 		}
-		.rearrangeSaveButton {
+		.rearrangeButtonsContainer {
 			display: flex;
-			height: 36px;
-			padding: 12px 16px;
-			justify-content: center;
-			align-items: center;
-			gap: 4px;
-			border-radius: 38px;
-			border: 1px solid var(--stroke, #333334);
-			background: var(--primary-font, #f2f2f3);
+			align-items: flex-start;
+			gap: 10px;
+			.rearrangeCancelButton {
+				display: flex;
+				height: 36px;
+				padding: 12px 16px;
+				justify-content: center;
+				align-items: center;
+				gap: 8px;
+				border-radius: 100px;
+				background: var(--card-over-card, #202123);
+				color: var(--secondary-font, #787e87);
+				font-family: Inter;
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+				cursor: pointer;
+				border: none;
+				&:hover {
+				}
+			}
+			.rearrangeSaveButton {
+				display: flex;
+				height: 36px;
+				padding: 12px 16px;
+				justify-content: center;
+				align-items: center;
+				gap: 4px;
+				border-radius: 38px;
+				border: 1px solid var(--stroke, #333334);
+				background: var(--primary-font, #f2f2f3);
+				color: var(--background-color, #0c0c0d);
+			}
 		}
 	}
 	.mainGalleryContainer {
@@ -370,13 +396,16 @@
 						display: flex;
 						gap: 4px;
 						height: 66px;
+						width: 130px;
 						flex-direction: column;
-						width: 133px;
 						padding: 12px 16px;
 						border-radius: 16px;
 						border: 1px solid transparent;
 						background: var(--popup, #202123);
 
+						@media (max-width: 1440px) {
+							width: 100px;
+						}
 						&.active {
 							background: var(--primary-font, #f2f2f3);
 						}
@@ -462,7 +491,7 @@
 							background-color: var(--stroke);
 						}
 						.ant-switch-checked {
-							background-color: var(--accent-color);
+							background-color: var(--primary-button);
 						}
 						.ant-switch.ant-switch-checked .ant-switch-handle::before {
 							background-color: var(--primary-font);
@@ -768,11 +797,22 @@
 							padding: 16px;
 							border-radius: 16px;
 							background: var(--card);
+							.album-toggles {
+								.toggle-option {
+									.ant-switch {
+										background-color: var(--stroke);
+									}
+									.ant-switch-checked {
+										background-color: var(--primary-button);
+									}
+									.ant-switch.ant-switch-checked .ant-switch-handle::before {
+										background-color: var(--primary-font);
+									}
+								}
+							}
 							li {
 								cursor: pointer;
 								list-style: none;
-								color: var(--secondary-font);
-								font-family: var(--primary-font-family);
 								color: var(--secondary-font);
 								font-family: var(--primary-font-family);
 								font-size: 14px;
@@ -891,7 +931,7 @@
 								background-color: var(--stroke);
 							}
 							.ant-switch-checked {
-								background-color: var(--accent-color);
+								background-color: var(--primary-button);
 							}
 							.ant-switch.ant-switch-checked .ant-switch-handle::before {
 								background-color: var(--primary-font);
@@ -926,7 +966,7 @@
 								background-color: var(--stroke);
 							}
 							.ant-switch-checked {
-								background-color: var(--accent-color);
+								background-color: var(--primary-button);
 							}
 							.ant-switch.ant-switch-checked .ant-switch-handle::before {
 								background-color: var(--primary-font);
@@ -1947,8 +1987,7 @@
 	align-items: flex-start;
 	gap: 8px;
 	border-radius: 12px;
-	background: var(--card);
-	box-shadow: 0px 2px 44px 0px rgba(0, 0, 0, 0.25);
+	background: var(--navbar);
 	li {
 		display: flex;
 		height: 30px;
@@ -1971,6 +2010,15 @@
 			line-height: normal;
 		}
 	}
+	.ant-switch {
+		background-color: var(--stroke);
+	}
+	.ant-switch-checked {
+		background-color: var(--primary-button);
+	}
+	.ant-switch.ant-switch-checked .ant-switch-handle::before {
+		background-color: var(--primary-font);
+	}
 	.active {
 		background: var(--card-over-card, #202123);
 	}
@@ -1981,7 +2029,7 @@
 	align-items: flex-start;
 	gap: 12px;
 	border-radius: 10px;
-	background: var(--Popup, #202123);
+	background: var(--popup, #202123);
 	box-shadow: 0px 4px 5px 0px rgba(0, 0, 0, 0.15);
 	.tagOptionsEachOption {
 		display: flex;
@@ -2022,7 +2070,7 @@
 	gap: 12px;
 	border-radius: 16px;
 	border: 1px solid rgba(42, 42, 42, 0.64);
-	background: var(--Popup, #202123);
+	background: var(--popup, #202123);
 	box-shadow: 0px 4px 7px 0px rgba(0, 0, 0, 0.25);
 }
 
@@ -2038,7 +2086,7 @@
 	align-items: center;
 	gap: 12px;
 	span {
-		color: #e4e5e6;
+		color: var(--primary-font, #f2f2f3);
 		font-family: Inter;
 		font-size: 14px;
 		font-style: normal;

@@ -435,6 +435,7 @@
 			}
 			&:checked::before {
 				transform: scale(1);
+				background: var(--stroke);
 				border: 0.1px solid var(--primary-button-font);
 			}
 		}

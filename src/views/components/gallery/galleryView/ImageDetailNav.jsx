@@ -42,10 +42,10 @@ const ImageDetailNav = ({
 			icon: <Rotate />,
 			label: 'Rotate',
 		},
-		{
-			icon: <Share className="shareIcon" />,
-			label: 'Share',
-		},
+		// {
+		// 	icon: <Share className="shareIcon" />,
+		// 	label: 'Share',
+		// },
 		{
 			icon: <Download />,
 			label: 'Download',
@@ -176,67 +176,74 @@ const ImageDetailNav = ({
 			</div>
 
 			<div className="gallerySelectionContainer">
-				<div className="clientSelection stagger_step_animation2">
-					<p>Client Selection</p>
-					<div className="clientSelectionImages">
-						{imageDetail?.galleryCollections?.map((singleAlbum) => {
-							let src = null;
-							if (singleAlbum?.coverImage?._id) {
-								const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
-								src = `${galleryCredentials?.baseURL}/${imageDetail?.tenant_id}/${galleryId}/optimized/${singleAlbum?.coverImage?.givenFileName}?${params}`;
-							}
-							return (
-								<div className="clientAlbum" key={singleAlbum?._id}>
-									<img src={src} />
-									<p>{singleAlbum?.title}</p>
-								</div>
-							);
-						})}
-					</div>
-				</div>
-
-				<div className="peopleSelection">
-					<div className="peopleHeader ">
-						<div className="personIcon">
-							<People />
+				{imageDetail?.galleryCollections > 0 && (
+					<div className="clientSelection stagger_step_animation2">
+						<p>Client Selection</p>
+						<div className="clientSelectionImages">
+							{imageDetail?.galleryCollections?.map((singleAlbum) => {
+								let src = null;
+								if (singleAlbum?.coverImage?._id) {
+									const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
+									src = `${galleryCredentials?.baseURL}/${imageDetail?.tenant_id}/${galleryId}/optimized/${singleAlbum?.coverImage?.givenFileName}?${params}`;
+								}
+								return (
+									<div className="clientAlbum" key={singleAlbum?._id}>
+										<img src={src} />
+										<p>{singleAlbum?.title}</p>
+									</div>
+								);
+							})}
 						</div>
-						<p>People</p>
 					</div>
-					<div className="peopleSelectionImages ">
-						{imageDetail?.activeVersion?.faces?.map((face) => {
-							const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
-							const src = `${galleryCredentials?.baseURL}/${imageDetail?.activeVersion?.s3_optimized?.key}?${params}`;
+				)}
+				{imageDetail?.activeVersion?.faces && (
+					<div className="peopleSelection">
+						<div className="peopleHeader ">
+							<div className="personIcon">
+								<People />
+							</div>
+							<p>People</p>
+						</div>
+						<div className="peopleSelectionImages ">
+							{imageDetail?.activeVersion?.faces?.map((face) => {
+								const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
+								const src = `${galleryCredentials?.baseURL}/${imageDetail?.activeVersion?.s3_optimized?.key}?${params}`;
 
-							return (
-								// <div
-								// 	className="rounded"
-								// 	key={face?._id}
-								// 	style={{
-								// 		backgroundImage: `url(${src})`,
-								// 		backgroundSize: 'cover',
-								// 		backgroundRepeat: 'no-repeat',
-								// 	}}
-								// ></div>
-								<div
-									onClick={() => handlePeopleClick(face)}
-									style={{ cursor: 'pointer' }}
-								>
-									<Peopleitem
-										url={src}
-										people={face}
-										thumbwidth={48}
-										thumbHeight={48}
-										key={face?._id}
-										originalWidth={imageDetail?.activeVersion?.originalWidth}
-										originalHeight={imageDetail?.activeVersion?.originalHeight}
-									/>
-								</div>
-							);
-						})}
-						{/* <div className="rounded"></div>  */}
-						{/* <div className="rounded"></div> */}
+								return (
+									// <div
+									// 	className="rounded"
+									// 	key={face?._id}
+									// 	style={{
+									// 		backgroundImage: `url(${src})`,
+									// 		backgroundSize: 'cover',
+									// 		backgroundRepeat: 'no-repeat',
+									// 	}}
+									// ></div>
+									<div
+										onClick={() => handlePeopleClick(face)}
+										style={{ cursor: 'pointer' }}
+									>
+										<Peopleitem
+											url={src}
+											people={face}
+											thumbwidth={48}
+											thumbHeight={48}
+											key={face?._id}
+											originalWidth={
+												imageDetail?.activeVersion?.originalWidth
+											}
+											originalHeight={
+												imageDetail?.activeVersion?.originalHeight
+											}
+										/>
+									</div>
+								);
+							})}
+							{/* <div className="rounded"></div>  */}
+							{/* <div className="rounded"></div> */}
+						</div>
 					</div>
-				</div>
+				)}
 
 				<div
 					className="labelsSelection stagger_step_animation4"
