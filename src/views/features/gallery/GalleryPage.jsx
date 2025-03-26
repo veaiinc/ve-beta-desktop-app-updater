@@ -2168,7 +2168,6 @@ const GalleryPage = () => {
 		});
 
 		const response = await deleteGallery(galleryId);
-
 		if (response[0] === true) {
 			message.destroy();
 			showMessage('success', 'Gallery deleted successfully');
@@ -2181,7 +2180,7 @@ const GalleryPage = () => {
 			}
 		} else {
 			message.destroy();
-			showMessage('error', response[1].message, handleDeleteGallery);
+			showMessage('error', response[1].message);
 		}
 	};
 	const handleManageCollaborator = (data) => {
@@ -3041,6 +3040,7 @@ const GalleryPage = () => {
 	const handleDragStart = (e) => {
 		if (info.selectedImages.length === 0) return;
 
+		// e.dataTransfer.setData('text/plain', '');
 		setInfo((prev) => ({
 			...prev,
 			isDragging: true,
@@ -3057,12 +3057,16 @@ const GalleryPage = () => {
 		ghostContainer.style.zIndex = '1000';
 		ghostContainer.style.left = '-1000px';
 		document.body.appendChild(ghostContainer);
-		e.dataTransfer.setDragImage(ghostContainer, 0, 0);
+		setTimeout(() => {
+			e.dataTransfer.setDragImage(ghostContainer, 0, 0);
+		}, 0);
 	};
 
 	const handleDrag = (e) => {
-		if (!e.clientX || !e.clientY) return;
-		const { clientX, clientY } = e;
+		const clientX = e.clientX || e.screenX;
+		const clientY = e.clientY || e.screenY;
+
+		if (!clientX || !clientY) return;
 
 		const container = rearrangeContainerRef.current;
 		if (!container) return;
@@ -3943,7 +3947,7 @@ const GalleryPage = () => {
 																						right: 0,
 																						bottom: 0,
 																						backgroundColor:
-																							'rgba(0, 0, 0, 0.8)', // Adjust opacity as needed
+																							'rgba(0, 0, 0, 0.8)',
 																						transition:
 																							'background-color 0.3s ease',
 																					}}

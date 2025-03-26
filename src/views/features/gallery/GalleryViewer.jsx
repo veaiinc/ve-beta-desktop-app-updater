@@ -60,7 +60,6 @@ const GalleryViewer = () => {
 	const [searchParams] = useSearchParams(); // Get query params
 	const aiface = searchParams.get('aiface') === 'true';
 	const faceId = searchParams.get('faceId');
-
 	const {
 		galleryInfo: {
 			getGalleryImages,
@@ -284,7 +283,6 @@ const GalleryViewer = () => {
 			message.error('Failed to delete images');
 		}
 	};
-
 	const handleCloseGallery = () => {
 		const fromAiPeople =
 			aiface || location.state?.fromAiFaces || location.state?.activeTab === 'Ai People';
@@ -293,16 +291,20 @@ const GalleryViewer = () => {
 		const currentImageId =
 			info?.imageDetailId || info?.activeImage || searchParams.get('image');
 
-		navigate(`/galleries/${galleryId}`, {
-			state: {
-				returnFromViewer: true,
-				activeAlbumId: albumId,
-				activeTagId: searchkeys.get('tagId'),
-				activeTab: fromAiPeople ? 'Ai People' : 'Albums',
-				selectedImage: currentImageId,
-				selectedFaceId: selectedFaceId,
-			},
-		});
+		if (fromAiPeople) {
+			navigate(`/galleries/${galleryId}`, {
+				state: {
+					returnFromViewer: true,
+					activeAlbumId: albumId,
+					activeTagId: searchkeys.get('tagId'),
+					activeTab: fromAiPeople ? 'Ai People' : 'Albums',
+					selectedImage: currentImageId,
+					selectedFaceId: selectedFaceId,
+				},
+			});
+		} else {
+			navigate(-1);
+		}
 	};
 
 	const handleRotateImage = async (degree) => {

@@ -210,6 +210,7 @@
 				cursor: pointer;
 				border: none;
 				&:hover {
+					background: var(--card-over-card, #27282b);
 				}
 			}
 			.rearrangeSaveButton {
@@ -651,7 +652,7 @@
 					&:hover {
 						img {
 							transform: scale(1.1);
-							filter: brightness(0.5);
+							// filter: brightness(0.5);
 						}
 					}
 
@@ -692,7 +693,7 @@
 							width: 100%;
 							height: 16px;
 							overflow: auto;
-							color: var(--primary-font);
+							color: #f2f2f3;
 							text-overflow: ellipsis;
 							font-size: 12px;
 							font-weight: 500;
@@ -708,7 +709,13 @@
 						z-index: 1;
 						left: 0;
 						cursor: pointer;
-						// background-color: rgba(0, 0, 0, 0.3);
+						background: linear-gradient(
+							180deg,
+							rgba(0, 0, 0, 0.6) 0%,
+							rgba(21, 21, 21, 0.8) 100%
+						);
+						opacity: 0.5;
+						mix-blend-mode: multiply;
 					}
 				}
 			}

@@ -149,23 +149,10 @@ const WaterMarkComponent = ({ info, setinfo, waterMarks }) => {
 						style={{
 							width: '100%',
 							display: 'flex',
-							justifyContent: 'space-between',
+							justifyContent: 'flex-end',
 							marginTop: '12px',
 						}}
 					>
-						<button
-							className="upload-watermark-button"
-							onClick={() => fileInputRef.current.click()}
-						>
-							Upload Watermark
-						</button>
-						<input
-							ref={fileInputRef}
-							type="file"
-							hidden
-							onChange={uploadWaterMarkChangeHandler}
-						/>
-
 						{waterMarks && waterMarks.length > 0 && (
 							<div className="dropdown_div_container">
 								<a
@@ -212,6 +199,18 @@ const WaterMarkComponent = ({ info, setinfo, waterMarks }) => {
 													</div>
 												</a>
 											))}
+											<button
+												className="upload-watermark-button"
+												onClick={() => fileInputRef.current.click()}
+											>
+												Upload Watermark
+											</button>
+											<input
+												ref={fileInputRef}
+												type="file"
+												hidden
+												onChange={uploadWaterMarkChangeHandler}
+											/>
 										</div>
 									) : (
 										''

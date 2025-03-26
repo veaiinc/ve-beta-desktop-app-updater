@@ -1027,13 +1027,22 @@ export const Galleries = () => {
 				null,
 				'galleries',
 			);
-			if (response[0] === true) {
-				let updateGallery = [...state.tenantGalleries?.galleries];
-				updateGallery = updateGallery.filter((item) => galleryId !== item._id);
-				dispatch({
-					type: Actions.GET_TENANT_GALLERIES,
-					payload: { ...state.tenantGalleries, galleries: updateGallery },
-				});
+			if (response && response[0] === true) {
+				// Check if tenantGalleries and galleries exist before spreading
+				if (state?.tenantGalleries?.galleries) {
+					const updateGallery = state.tenantGalleries.galleries.filter(
+						(item) => galleryId !== item?._id,
+					);
+
+					dispatch({
+						type: Actions.GET_TENANT_GALLERIES,
+						payload: {
+							...state.tenantGalleries,
+							galleries: updateGallery,
+						},
+					});
+				}
+				return response;
 			}
 			return response;
 		} catch (error) {
@@ -1381,7 +1390,7 @@ export const Galleries = () => {
 		}
 	};
 	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/default-sort
-	const setDefaultSort = async (payload) => {
+	const setDefaultSort = async (payload, storeOriginals = true) => {
 		try {
 			dispatch({
 				type: Actions.GET_TENANT_GALLERIES,
@@ -1398,7 +1407,7 @@ export const Galleries = () => {
 				'galleries',
 			);
 			if (response[0] === true) {
-				getGalleries({ page: 1, limit: 15 }, true);
+				getGalleries({ page: 1, limit: 15, storeOriginals }, true);
 			}
 		} catch (error) {
 			console.log('error==>setDefaultSort', error);

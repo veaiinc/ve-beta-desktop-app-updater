@@ -248,7 +248,13 @@
 		align-items: center;
 		gap: 16px;
 		border-radius: 50px;
-		background: var(--primary-button-font);
+		background: var(--card, #171819);
+		border: none;
+		cursor: pointer;
+		&:hover {
+			background: var(--card-over-card, #202123);
+			box-shadow: 0px 0px 30px 0px rgba(122, 122, 122, 0.1);
+		}
 	}
 }
 

@@ -144,6 +144,7 @@ const LiteGallery = () => {
 				page,
 				limit: info.limit,
 				storeOriginals: false,
+				// isLightGallery: true,
 			};
 			if (title) {
 				options.title = title;
@@ -248,7 +249,7 @@ const LiteGallery = () => {
 		const payload = {
 			sort: value,
 		};
-		setDefaultSort(payload);
+		setDefaultSort(payload, false);
 	};
 
 	return (
