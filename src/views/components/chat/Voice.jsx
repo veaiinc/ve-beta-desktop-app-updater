@@ -59,6 +59,7 @@ const Voice = ({ shouldConnect, token, serverUrl, handleDisconnect }) => {
 		if (voiceAssistant.state === 'speaking') {
 			transcripts.clear();
 			setTransScriptMessages([]);
+			return;
 		}
 		// agentMessages.segments.forEach((s) =>
 		// 	transcripts.set(
