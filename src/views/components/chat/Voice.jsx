@@ -20,18 +20,31 @@ import {
 	useVoiceAssistant,
 	useRoomContext,
 	useTrackToggle,
+	useTrackTranscription,
 } from '@livekit/components-react';
 
 const Voice = ({ shouldConnect, token, serverUrl, handleDisconnect }) => {
 	const { name } = useRoomInfo();
-	const [transcripts, setTranscripts] = useState([]);
-	const { localParticipant } = useLocalParticipant();
-
+	const [transcripts, setTranscripts] = useState(new Map());
+	const localdata = useLocalParticipant();
+	const { localParticipant } = localdata;
+	const [transScriptMessages, setTransScriptMessages] = useState([]);
 	const voiceAssistant = useVoiceAssistant();
 
 	const roomState = useConnectionState();
 	const tracks = useTracks();
 	const room = useRoomContext();
+
+	const localTracks = tracks.filter(({ participant }) => participant instanceof LocalParticipant);
+	const localVideoTrack = localTracks.find(({ source }) => source === Track.Source.Camera);
+	const localMicTrack = localTracks.find(({ source }) => source === Track.Source.Microphone);
+
+	const agentMessages = useTrackTranscription(voiceAssistant.audioTrack);
+	const localMessages = useTrackTranscription({
+		publication: localdata.microphoneTrack,
+		source: Track.Source.Microphone,
+		participant: localParticipant,
+	});
 
 	useEffect(() => {
 		if (roomState === ConnectionState.Connected) {
@@ -39,42 +52,34 @@ const Voice = ({ shouldConnect, token, serverUrl, handleDisconnect }) => {
 		}
 	}, [localParticipant, roomState]);
 
-	const localTracks = tracks.filter(({ participant }) => participant instanceof LocalParticipant);
-	const localVideoTrack = localTracks.find(({ source }) => source === Track.Source.Camera);
-	const localMicTrack = localTracks.find(({ source }) => source === Track.Source.Microphone);
+	useEffect(() => {
+		if (voiceAssistant.state === 'disconnected') {
+			return;
+		}
+		agentMessages.segments.forEach((s) =>
+			transcripts.set(
+				s.id,
+				segmentToChatMessage(
+					s,
+					transcripts.get(s.id),
+					voiceAssistant?.audioTrack?.participant,
+				),
+			),
+		);
+		localMessages.segments.forEach((s) =>
+			transcripts.set(s.id, segmentToChatMessage(s, transcripts.get(s.id), localParticipant)),
+		);
 
-	const onDataReceived = useCallback(
-		(msg) => {
-			if (msg.topic === 'transcription') {
-				const decoded = JSON.parse(new TextDecoder('utf-8').decode(msg.payload));
-				let timestamp = new Date().getTime();
-				if ('timestamp' in decoded && decoded.timestamp > 0) {
-					timestamp = decoded.timestamp;
-				}
-				setTranscripts([
-					...transcripts,
-					{
-						name: 'You',
-						message: decoded.text,
-						timestamp: timestamp,
-						isSelf: true,
-					},
-				]);
-			}
-		},
-		[transcripts],
-	);
+		const allMessages = Array.from(transcripts.values());
+		allMessages.sort((a, b) => a.timestamp - b.timestamp);
+		setTransScriptMessages(allMessages);
+	}, [
+		voiceAssistant.audioTrack,
+		localParticipant,
+		agentMessages?.segments,
+		localMessages?.segments,
+	]);
 
-	useDataChannel(onDataReceived);
-
-	// console.log(
-	// 	'Asssistant==>',
-	// 	voiceAssistant.state,
-	// 	'\n\nuser===>',
-	// 	localParticipant?.isSpeaking,
-	// 	'\ntransripts==>',
-	// 	transcripts,
-	// );
 	return (
 		<div className="voiceIntegrationContainer">
 			<div className="voiceIntegrationIconsContainer">
@@ -103,3 +108,13 @@ const Voice = ({ shouldConnect, token, serverUrl, handleDisconnect }) => {
 };
 
 export default Voice;
+
+function segmentToChatMessage(s, existingMessage, participant) {
+	const msg = {
+		message: s.final ? s.text : `${s.text} ...`,
+		name: participant instanceof LocalParticipant ? 'You' : 'Agent',
+		isSelf: participant instanceof LocalParticipant,
+		timestamp: existingMessage?.timestamp ?? Date.now(),
+	};
+	return msg;
+}
