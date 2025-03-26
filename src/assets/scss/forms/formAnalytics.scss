@@ -1,0 +1,164 @@
+.form-analytics {
+	padding: 20px;
+	background: #1a1a1a;
+	border-radius: 8px;
+	font-family: 'Inter', 'Roboto', sans-serif;
+	width: 100%;
+	box-sizing: border-box;
+}
+
+.analytics-content {
+	width: 100%;
+}
+
+.submissions-section {
+	width: 100%;
+	margin-bottom: 30px;
+
+	.submissions-header {
+		margin-bottom: 20px;
+		width: 100%;
+
+		h3 {
+			font-size: 18px;
+			font-weight: 600;
+			color: #fff;
+			margin-bottom: 10px;
+		}
+
+		.date-filter {
+			display: flex;
+			justify-content: flex-end;
+			gap: 10px;
+			align-items: center;
+
+			.ant-select {
+				width: 160px;
+
+				.ant-select-selector {
+					background: #333;
+					color: #fff;
+					border: none;
+					border-radius: 4px;
+					font-size: 16px;
+					height: 32px;
+					display: flex;
+					align-items: center;
+					padding: 0 10px;
+				}
+
+				.ant-select-arrow {
+					color: #fff;
+				}
+			}
+
+			.ant-picker {
+				width: 180px;
+				background: #333;
+				border: none;
+				border-radius: 4px;
+				height: 32px;
+
+				.ant-picker-input {
+					color: #fff;
+					font-size: 14px;
+
+					input {
+						color: #fff;
+						font-size: 14px;
+					}
+				}
+
+				.ant-picker-suffix {
+					color: #fff;
+				}
+
+				.ant-picker-separator {
+					color: #fff;
+					font-size: 14px;
+				}
+			}
+		}
+	}
+
+	.submissions-graph {
+		background: #1a1a1a;
+		padding: 20px;
+		border-radius: 8px;
+		height: 300px;
+		width: 100%;
+		box-sizing: border-box;
+	}
+}
+
+.filters-section {
+	display: flex;
+	gap: 20px;
+	width: 100%;
+
+	.filter-group {
+		flex: 1;
+		background: #1a1a1a;
+		padding: 15px;
+		border-radius: 8px;
+		box-sizing: border-box;
+
+		h4 {
+			font-size: 14px;
+			font-weight: 600;
+			color: #fff;
+			margin-bottom: 10px;
+		}
+
+		.ant-select {
+			width: 100%;
+			margin-bottom: 10px;
+
+			.ant-select-selector {
+				background: #333;
+				color: #fff;
+				border: none;
+				border-radius: 4px;
+				font-size: 14px;
+				height: 32px;
+				display: flex;
+				align-items: center;
+			}
+
+			.ant-select-arrow {
+				color: #fff;
+			}
+		}
+
+		.filter-item {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			width: 100%;
+			height: 40px;
+			padding: 0 10px;
+			font-size: 14px;
+			font-weight: 400;
+			box-sizing: border-box;
+			margin-bottom: 5px;
+
+			span:first-child {
+				background: #d3d3d3;
+				color: #333;
+				padding: 5px 10px;
+				border-radius: 4px;
+				flex: 1;
+				text-align: left;
+				font-weight: 500;
+			}
+
+			span:last-child {
+				flex: 0 0 auto;
+				text-align: right;
+				color: #fff;
+				padding: 5px 10px;
+				font-weight: 500;
+			}
+		}
+	}
+}

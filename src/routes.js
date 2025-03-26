@@ -48,16 +48,9 @@ import AutomationBuilderLayout from './views/layouts/automationBuilderLayout';
 import Automations from './views/features/automations/Automations';
 import Integrations from './views/features/Integrations/Integrations';
 import BrandSetup from './views/features/settings/BrandSetup';
-import DocsFullView from './views/components/docs/DocsFullView';
-import FormFullView from './views/components/forms/FormFullView';
-import TaskFullView from './views/features/tasks/TaskFullView';
-import ExpandedClientView from './views/features/contacts/ExpandedClientView';
-import ElasticSearch from './views/features/elastic_search';
-import PublicChat from './views/features/public_chat/PublicChat';
-import Files from './views/features/files/Files';
-import KnowledgeAgents from './views/features/knowledge_agent';
-import KnowledgeAgentDetails from './views/features/knowledge_agent/AgentDetails';
-import EditKnowledgeAgent from './views/features/knowledge_agent/EditAgent';
+import FormSummary from './views/components/forms/FormSummary';
+import FormRes from './views/components/forms/FormRes';
+import FormAnalytics from './views/components/forms/FormAnalytics';
 
 const routes = [
 	{
@@ -496,10 +489,28 @@ const routes = [
 		exact: true,
 	},
 	{
-		path: '/form-response/:id',
+		path: '/forms/:id/analytics',
 		component: (
-			<AuthWrapper title={'Form Response'}>
-				<FormFullView />
+			<AuthWrapper title={'Form Analytics'}>
+				<FormAnalytics view="analytics" />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/forms/:id/responses',
+		component: (
+			<AuthWrapper title={'Form Responses'}>
+				<FormRes view="responses" />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/forms/:id/summary',
+		component: (
+			<AuthWrapper title={'Form Summary'}>
+				<FormSummary view="summary" />
 			</AuthWrapper>
 		),
 		exact: true,

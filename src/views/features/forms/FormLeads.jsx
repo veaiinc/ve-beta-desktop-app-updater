@@ -2,7 +2,6 @@ import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import '../../../assets/scss/forms/formLeads.scss';
 import { ReactComponent as BackArrowSvg } from '../../../assets/svg/workflow/backarrow.svg';
 import { ReactComponent as CurlyBracesSvg } from '../../../assets/svg/docs/curly-bracess.svg';
-
 import { ReactComponent as Filter } from '../../../assets/svg/docs/filter.svg';
 import { ReactComponent as Cross } from '../../../assets/svg/docs/cross.svg';
 import { ReactComponent as Search } from '../../../assets/svg/docs/search.svg';
@@ -18,68 +17,72 @@ import QuickActions from '../../components/globalComponents/QuickActions';
 import { ReactComponent as ThreeDots } from '../../../assets/svg/workflow/threeDots.svg';
 import { Switch, Tooltip } from 'antd';
 import FormResponsesMenuItem from './FormResponsesMenuItem';
+import FormSummary from '../../../views/components/forms/FormSummary';
+import FormAnalytics from '../../../views/components/forms/FormAnalytics';
+
 const FormLeads = () => {
 	const origin = fetchOriginSelection();
-
 	const navigate = useNavigate();
 	const location = useLocation();
 	const formData = location?.state?.formData;
 	const activeWorkspaceId = localStorage.getItem('workspaceId');
 	const copyCode = `${activeWorkspaceId}.ve.ai/${formData?.slug}`;
+
 	const [info, setInfo] = useState({
 		searchExpand: false,
 		searchValue: '',
-		totalViews: 0,
-		totalStarts: 0,
-		totalSubmissions: 0,
-		submissionRate: 0,
-		avgSubmissionTime: 0,
+		totalViews: 120,
+		totalStarts: 50,
+		totalSubmissions: 70,
+		submissionRate: 58,
+		avgSubmissionTime: 34,
 		completedEntries: 0,
 		partialEntries: 0,
-		activeTab: 'individualEntries', //summary
+		activeTab: 'individualEntries',
 		tooltipVisible: false,
+		dataEnrichment: false,
 	});
 	const [formTitle, setFormTitle] = useState(formData?.title);
-	const metricsData = [
-		// {
-		// 	value: info?.totalViews,
-		// 	title: 'Total Views',
-		// },
-		{
-			value: info?.totalSubmissions,
-			title: 'Total Submissions',
-		},
-		// {
-		// 	value: info?.totalStarts,
-		// 	title: 'Total Starts',
-		// },
-		// {
-		// 	value: info?.submissionRate,
-		// 	title: 'Submission Rate',
-		// },
-		// {
-		// 	value: info?.avgSubmissionTime,
-		// 	title: 'Avg. Submission Time',
-		// },
 
-		// {
-		// 	value: info?.completedEntries,
-		// 	title: 'Completed Entries',
-		// },
-		// {
-		// 	value: info?.partialEntries,
-		// 	title: 'Partial Entries',
-		// },
-	];
+	const metricsData = useMemo(
+		() => [
+			{
+				value: info?.totalViews,
+				title: 'Views',
+			},
+			{
+				value: info?.totalStarts,
+				title: 'Start',
+			},
+			{
+				value: info?.totalSubmissions,
+				title: 'Submissions',
+			},
+			{
+				value: `${info?.submissionRate}%`,
+				title: 'Submission Rate',
+			},
+			{
+				value: `${info?.avgSubmissionTime}s`,
+				title: 'Avg Submission Time',
+			},
+		],
+		[
+			info?.totalViews,
+			info?.totalStarts,
+			info?.totalSubmissions,
+			info?.submissionRate,
+			info?.avgSubmissionTime,
+		],
+	);
 
 	const updateTotalSubmissions = useCallback((length) => {
 		const totalSubmissions = length || 0;
-		// const completedEntries = length || 0;
-		// const partialEntries = length || 0;
 		setInfo((prev) => ({ ...prev, totalSubmissions }));
 	}, []);
-	const tabs = useMemo(() => {
-		return {
+
+	const tabs = useMemo(
+		() => ({
 			individualEntries: {
 				label: 'Responses',
 				Component: (
@@ -89,54 +92,52 @@ const FormLeads = () => {
 					/>
 				),
 			},
-			// summary: {
-			// 	label: 'Summary',
-			// 	Component: <></>,
-			// },
-			// analytics: {
-			// 	label: 'Analytics',
-			// 	Component: <></>,
-			// },
+			summary: {
+				label: 'Summary',
+				Component: <FormSummary />,
+			},
+			analytics: {
+				label: 'Analytics',
+				Component: <FormAnalytics formId={formData?._id} />,
+			},
+		}),
+		[formData?._id, updateTotalSubmissions],
+	);
 
-			// TODO: when we have summary data, add this tab. Until then, commentting it out.
-			// summary: {
-			// 	label: 'Summary',
-			// 	Component: <FormSummary />,
-			// },
-		};
-	}, [info?.activeTab]);
-
-	const handleEditDesign = () => {
+	const handleEditDesign = useCallback(() => {
 		const editUrl = `${origin}/${formData?._id}`;
 		window.open(editUrl, '_blank');
-	};
+	}, [origin, formData?._id]);
 
-	const handleThreeDotsClick = () => {
+	const handleThreeDotsClick = useCallback(() => {
 		setInfo((prev) => ({ ...prev, tooltipVisible: !prev.tooltipVisible }));
-	};
+	}, []);
 
-	const handleDeleteForm = async (formId) => {
-		try {
-			// Add your API call here to delete the form
-			// Example:
-			// await deleteFormAPI(formId);
-			message.success('Form deleted successfully');
-			navigate(-1); // Navigate back after successful deletion
-		} catch (error) {
-			message.error('Failed to delete form');
-		}
-	};
+	const handleDeleteForm = useCallback(
+		async (formId) => {
+			try {
+				message.success('Form deleted successfully');
+				navigate(-1);
+			} catch (error) {
+				message.error('Failed to delete form');
+			}
+		},
+		[navigate],
+	);
 
-	const handleRenameForm = async (newTitle) => {
+	const handleRenameForm = useCallback(async (newTitle) => {
 		try {
-			// Add your API call here to rename the form
-			// await updateFormAPI(formData?._id, { title: newTitle });
 			setFormTitle(newTitle);
 			message.success('Form renamed successfully');
 		} catch (error) {
 			message.error('Failed to rename form');
 		}
-	};
+	}, []);
+
+	const handleDataEnrichmentToggle = useCallback((checked) => {
+		setInfo((prev) => ({ ...prev, dataEnrichment: checked }));
+		message.info(`Data Enrichment ${checked ? 'enabled' : 'disabled'}`);
+	}, []);
 
 	return (
 		<div className="formLeadsParentContainer">
@@ -165,7 +166,7 @@ const FormLeads = () => {
 					<div className="detailsContainer">
 						<div className="headerContainer">
 							<div className="header-left">
-								<h1 className="headerTitle">{formData?.title}</h1>
+								<h1 className="headerTitle">{formTitle}</h1>
 								<div
 									className={`liveBadge ${
 										formData?.status === 'published'
@@ -194,36 +195,29 @@ const FormLeads = () => {
 									<FormResponsesMenuItem
 										formId={formData?._id}
 										copyLink={copyCode}
+										onDelete={handleDeleteForm}
+										onRename={handleRenameForm}
 									/>
 								}
 							>
 								<ThreeDots className="three-dots-icon" />
 							</Tooltip>
 						</div>
-						{/* <div className="switchContainer">
-							<Vector />
-							<p>Data Enrichment</p>
-							<Switch />
-						</div> */}
+						<div className="dataEnrichmentToggle">
+							<span>Data Enrichment</span>
+							<Switch
+								checked={info.dataEnrichment}
+								onChange={handleDataEnrichmentToggle}
+							/>
+						</div>
 						<div className="formMetricsContainer">
-							{metricsData?.map((metric, index) => (
+							{metricsData.map((metric, index) => (
 								<div className="metricsCard" key={index}>
-									<p className="value">{metric?.value}</p>
-									<p className="title">{metric?.title}</p>
+									<p className="value">{metric.value}</p>
+									<p className="title">{metric.title}</p>
 								</div>
 							))}
 						</div>
-						{/* <div className="formCTAContainer">
-							<span className="ctaBtn" onClick={handleCopyForm}>
-								<LinkSvg />
-								<span>Copy</span>
-							</span>
-							<div className="divider"></div>
-							<span className="ctaBtn" onClick={handleEmbededCopy}>
-								<CurlyBracessSvg />
-								<span>Embed Form</span>
-							</span>
-						</div> */}
 					</div>
 				</div>
 				<QuickActions />
@@ -232,24 +226,24 @@ const FormLeads = () => {
 			<div className="formDetailsContainer">
 				<div className="headerContainer">
 					<div className="formViewTabsContainer">
-						{Object?.keys(tabs)?.map((tab, index) => (
-							<div key={index} className="tabContainer">
+						{Object.keys(tabs).map((tab) => (
+							<div key={tab} className="tabContainer">
 								<div
 									className={`formViewTab ${
-										info?.activeTab === tab ? 'active' : ''
+										info.activeTab === tab ? 'active' : ''
 									}`}
 									onClick={() => setInfo((prev) => ({ ...prev, activeTab: tab }))}
 								>
-									{tabs?.[tab]?.label}
+									{tabs[tab].label}
 								</div>
 								<div
-									className={`divider ${info?.activeTab === tab ? 'active' : ''}`}
-								></div>
+									className={`divider ${info.activeTab === tab ? 'active' : ''}`}
+								/>
 							</div>
 						))}
 					</div>
 				</div>
-				{tabs?.[info?.activeTab]?.Component}
+				<div className="tabContent">{tabs[info.activeTab].Component}</div>
 			</div>
 		</div>
 	);
