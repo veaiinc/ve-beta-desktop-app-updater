@@ -20,18 +20,39 @@ import {
 	useVoiceAssistant,
 	useRoomContext,
 	useTrackToggle,
+	useTrackTranscription,
 } from '@livekit/components-react';
-
+import { useKrispNoiseFilter } from '@livekit/components-react/krisp';
 const Voice = ({ shouldConnect, token, serverUrl, handleDisconnect }) => {
 	const { name } = useRoomInfo();
-	const [transcripts, setTranscripts] = useState([]);
-	const { localParticipant } = useLocalParticipant();
-
+	const [transcripts, setTranscripts] = useState(new Map());
+	const localdata = useLocalParticipant();
+	const { localParticipant } = localdata;
+	const [transScriptMessages, setTransScriptMessages] = useState([]);
 	const voiceAssistant = useVoiceAssistant();
-
+	const krisp = useKrispNoiseFilter();
 	const roomState = useConnectionState();
 	const tracks = useTracks();
+
+	// tracks?.setMediaStreamTrack(
+	// 	new MediaStreamTrack({
+	// 		echoCancellation: true,
+	// 		noiseSuppression: true,
+	// 		autoGainControl: true,
+	// 	}),
+	// );
 	const room = useRoomContext();
+
+	const localTracks = tracks.filter(({ participant }) => participant instanceof LocalParticipant);
+	const localVideoTrack = localTracks.find(({ source }) => source === Track.Source.Camera);
+	const localMicTrack = localTracks.find(({ source }) => source === Track.Source.Microphone);
+
+	const agentMessages = useTrackTranscription(voiceAssistant.audioTrack);
+	const localMessages = useTrackTranscription({
+		publication: localdata.microphoneTrack,
+		source: Track.Source.Microphone,
+		participant: localParticipant,
+	});
 
 	useEffect(() => {
 		if (roomState === ConnectionState.Connected) {
@@ -39,44 +60,37 @@ const Voice = ({ shouldConnect, token, serverUrl, handleDisconnect }) => {
 		}
 	}, [localParticipant, roomState]);
 
-	const localTracks = tracks.filter(({ participant }) => participant instanceof LocalParticipant);
-	const localVideoTrack = localTracks.find(({ source }) => source === Track.Source.Camera);
-	const localMicTrack = localTracks.find(({ source }) => source === Track.Source.Microphone);
-	console.log('localMicTrack==>', localMicTrack);
+	useEffect(() => {
+		krisp.setNoiseFilterEnabled(true);
+	}, []);
 
-	const onDataReceived = useCallback(
-		(msg) => {
-			if (msg.topic === 'transcription') {
-				const decoded = JSON.parse(new TextDecoder('utf-8').decode(msg.payload));
-				let timestamp = new Date().getTime();
-				if ('timestamp' in decoded && decoded.timestamp > 0) {
-					timestamp = decoded.timestamp;
-				}
-				setTranscripts([
-					...transcripts,
-					{
-						name: 'You',
-						message: decoded.text,
-						timestamp: timestamp,
-						isSelf: true,
-					},
-				]);
-			}
-		},
-		[transcripts],
-	);
+	useEffect(() => {
+		if (voiceAssistant.state === 'disconnected') {
+			return;
+		}
+		if (voiceAssistant.state === 'speaking') {
+			transcripts.clear();
+			setTransScriptMessages([]);
+			return;
+		}
+		// agentMessages.segments.forEach((s) =>
+		// 	transcripts.set(
+		// 		s.id,
+		// 		segmentToChatMessage(
+		// 			s,
+		// 			transcripts.get(s.id),
+		// 			voiceAssistant?.audioTrack?.participant,
+		// 		),
+		// 	),
+		// );
+		localMessages.segments.forEach((s) =>
+			transcripts.set(s.id, segmentToChatMessage(s, transcripts.get(s.id), localParticipant)),
+		);
 
-	useDataChannel(onDataReceived);
-
-	console.log(
-		'Asssistant==>',
-		voiceAssistant.state,
-		'\n\nuser===>',
-		localParticipant?.isSpeaking,
-		'\ntransripts==>',
-		transcripts,
-	);
-
+		const allMessages = Array.from(transcripts.values());
+		allMessages.sort((a, b) => a.timestamp - b.timestamp);
+		setTransScriptMessages(allMessages);
+	}, [voiceAssistant, localParticipant, agentMessages?.segments, localMessages?.segments]);
 	const getStatusText = () => {
 		if (localParticipant?.isSpeaking) {
 			return 'Listening to you...';
@@ -113,7 +127,6 @@ const Voice = ({ shouldConnect, token, serverUrl, handleDisconnect }) => {
 		const isEnabled = localMicTrack?.publication?.isEnabled;
 		return isEnabled ? <VoiceSvg className="mic-icon" /> : <></>;
 	};
-
 	return (
 		<div className={`voice-input-container ${getStateClass()}`}>
 			<div className="input-area">
@@ -149,7 +162,6 @@ const Voice = ({ shouldConnect, token, serverUrl, handleDisconnect }) => {
 		</div>
 	);
 };
-
 export default Voice;
 
 function segmentToChatMessage(s, existingMessage, participant) {
