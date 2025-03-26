@@ -42,7 +42,6 @@ const Voice = ({ shouldConnect, token, serverUrl, handleDisconnect }) => {
 	const localTracks = tracks.filter(({ participant }) => participant instanceof LocalParticipant);
 	const localVideoTrack = localTracks.find(({ source }) => source === Track.Source.Camera);
 	const localMicTrack = localTracks.find(({ source }) => source === Track.Source.Microphone);
-	console.log('localMicTrack==>', localMicTrack);
 
 	const onDataReceived = useCallback(
 		(msg) => {
@@ -68,6 +67,14 @@ const Voice = ({ shouldConnect, token, serverUrl, handleDisconnect }) => {
 
 	useDataChannel(onDataReceived);
 
+	// console.log(
+	// 	'Asssistant==>',
+	// 	voiceAssistant.state,
+	// 	'\n\nuser===>',
+	// 	localParticipant?.isSpeaking,
+	// 	'\ntransripts==>',
+	// 	transcripts,
+	// );
 	return (
 		<div className="voiceIntegrationContainer">
 			<div className="voiceIntegrationIconsContainer">
