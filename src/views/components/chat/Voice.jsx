@@ -19,8 +19,8 @@ import {
 	useTracks,
 	useVoiceAssistant,
 	useRoomContext,
+	useTrackToggle,
 } from '@livekit/components-react';
-// import { Track } from 'livekit-client';
 
 const Voice = ({ shouldConnect, token, serverUrl, handleDisconnect }) => {
 	const { name } = useRoomInfo();
@@ -32,7 +32,8 @@ const Voice = ({ shouldConnect, token, serverUrl, handleDisconnect }) => {
 	const roomState = useConnectionState();
 	const tracks = useTracks();
 	const room = useRoomContext();
-
+	// const trackProps = useTrackToggle();
+	// console.log('trackProps==>', trackProps);
 	useEffect(() => {
 		if (roomState === ConnectionState.Connected) {
 			localParticipant.setMicrophoneEnabled(true);
@@ -42,6 +43,7 @@ const Voice = ({ shouldConnect, token, serverUrl, handleDisconnect }) => {
 	const localTracks = tracks.filter(({ participant }) => participant instanceof LocalParticipant);
 	const localVideoTrack = localTracks.find(({ source }) => source === Track.Source.Camera);
 	const localMicTrack = localTracks.find(({ source }) => source === Track.Source.Microphone);
+	console.log('localMicTrack==>', localMicTrack);
 
 	const onDataReceived = useCallback(
 		(msg) => {
@@ -67,25 +69,23 @@ const Voice = ({ shouldConnect, token, serverUrl, handleDisconnect }) => {
 
 	useDataChannel(onDataReceived);
 
-	console.log(
-		'Asssistant==>',
-		voiceAssistant.state,
-		'\n\nuser===>',
-		localParticipant?.isSpeaking,
-		'\ntransripts==>',
-		transcripts,
-	);
+	// console.log(
+	// 	'Asssistant==>',
+	// 	voiceAssistant.state,
+	// 	'\n\nuser===>',
+	// 	localParticipant?.isSpeaking,
+	// 	'\ntransripts==>',
+	// 	transcripts,
+	// );
 	return (
 		<div className="voiceIntegrationContainer">
-			{/* <div className="voiceIntegrationText">Speak I am Listening</div> */}
 			<div className="voiceIntegrationIconsContainer">
-				{/* <div className="icon-container" onClick={handleToggleMute}>
-						{isVoiceMuted ? <VoiceMuteSvg /> : <VoiceLightSvg />}
-					</div> */}
 				<TrackToggle
-					className="px-2 py-1 bg-gray-900 text-gray-300 border border-gray-800 rounded-sm hover:bg-gray-800"
+					className="px-2 py-1 bg-gray-900 text-gray-300 border border-gray-800 rounded-sm hover:bg-gray-800 chat-mic-icon-container icon-container"
 					source={Track.Source.Microphone}
+					style={{ border: 'none' }}
 				/>
+
 				<div className="speaking-icon-container">
 					<div className="voice-container">
 						<img
