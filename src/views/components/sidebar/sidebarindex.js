@@ -27,6 +27,7 @@ import AddCalenderSvg from '../../../assets/svg/sidebar/AddCalenderSvg';
 import HomeSvg from '../../../assets/svg/sidebar/HomeSvg.jsx';
 import { ReactComponent as OrchestratorSvg } from '../../../assets/svg/sidebar/Orchestrator.svg';
 import TemplatesSvg from '../../../assets/svg/sidebar/TemplatesSvg.jsx';
+import { ReactComponent as HelpSvg } from '../../../assets/svg/sidebar/help.svg';
 // import { subDays } from 'react-datepicker/dist/date_utils.js';
 
 export const veAiModulesItemsList = [
@@ -131,6 +132,7 @@ export const veAiModules = [
 		// 	{ icon: '', name: 'Plan Billing', route: '/settings/plan-billing' },
 		// ],
 	},
+	{ icon: HelpSvg, name: 'Help' },
 ];
 
 // export const bottomOptionsList = [
