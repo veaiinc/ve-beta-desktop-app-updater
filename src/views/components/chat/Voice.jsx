@@ -32,8 +32,7 @@ const Voice = ({ shouldConnect, token, serverUrl, handleDisconnect }) => {
 	const roomState = useConnectionState();
 	const tracks = useTracks();
 	const room = useRoomContext();
-	// const trackProps = useTrackToggle();
-	// console.log('trackProps==>', trackProps);
+
 	useEffect(() => {
 		if (roomState === ConnectionState.Connected) {
 			localParticipant.setMicrophoneEnabled(true);
@@ -69,14 +68,6 @@ const Voice = ({ shouldConnect, token, serverUrl, handleDisconnect }) => {
 
 	useDataChannel(onDataReceived);
 
-	// console.log(
-	// 	'Asssistant==>',
-	// 	voiceAssistant.state,
-	// 	'\n\nuser===>',
-	// 	localParticipant?.isSpeaking,
-	// 	'\ntransripts==>',
-	// 	transcripts,
-	// );
 	return (
 		<div className="voiceIntegrationContainer">
 			<div className="voiceIntegrationIconsContainer">
@@ -99,12 +90,6 @@ const Voice = ({ shouldConnect, token, serverUrl, handleDisconnect }) => {
 				<div className="icon-container" onClick={handleDisconnect}>
 					<CloseSvg />
 				</div>
-				<BarVisualizer
-					state={voiceAssistant.state}
-					trackRef={voiceAssistant.audioTrack}
-					barCount={5}
-					options={{ minHeight: 20 }}
-				/>
 			</div>
 		</div>
 	);
