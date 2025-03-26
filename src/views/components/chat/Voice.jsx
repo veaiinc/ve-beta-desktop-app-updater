@@ -22,7 +22,7 @@ import {
 	useTrackToggle,
 	useTrackTranscription,
 } from '@livekit/components-react';
-
+import { useKrispNoiseFilter } from '@livekit/components-react/krisp';
 const Voice = ({ shouldConnect, token, serverUrl, handleDisconnect }) => {
 	const { name } = useRoomInfo();
 	const [transcripts, setTranscripts] = useState(new Map());
@@ -30,9 +30,17 @@ const Voice = ({ shouldConnect, token, serverUrl, handleDisconnect }) => {
 	const { localParticipant } = localdata;
 	const [transScriptMessages, setTransScriptMessages] = useState([]);
 	const voiceAssistant = useVoiceAssistant();
-
+	const krisp = useKrispNoiseFilter();
 	const roomState = useConnectionState();
 	const tracks = useTracks();
+
+	// tracks?.setMediaStreamTrack(
+	// 	new MediaStreamTrack({
+	// 		echoCancellation: true,
+	// 		noiseSuppression: true,
+	// 		autoGainControl: true,
+	// 	}),
+	// );
 	const room = useRoomContext();
 
 	const localTracks = tracks.filter(({ participant }) => participant instanceof LocalParticipant);
@@ -51,6 +59,10 @@ const Voice = ({ shouldConnect, token, serverUrl, handleDisconnect }) => {
 			localParticipant.setMicrophoneEnabled(true);
 		}
 	}, [localParticipant, roomState]);
+
+	useEffect(() => {
+		krisp.setNoiseFilterEnabled(true);
+	}, []);
 
 	useEffect(() => {
 		if (voiceAssistant.state === 'disconnected') {
