@@ -9,6 +9,7 @@ import { ConnectionState, LocalParticipant, Track } from 'livekit-client';
 import useUpdatedVoiceIntegration from '../../hooks/useUpdatedVoiceIntegration';
 import { message } from 'antd';
 import {
+	TrackToggle,
 	BarVisualizer,
 	VideoTrack,
 	useConnectionState,
@@ -19,6 +20,7 @@ import {
 	useVoiceAssistant,
 	useRoomContext,
 } from '@livekit/components-react';
+// import { Track } from 'livekit-client';
 
 const Voice = ({ shouldConnect, token, serverUrl, handleDisconnect }) => {
 	const { name } = useRoomInfo();
@@ -65,7 +67,14 @@ const Voice = ({ shouldConnect, token, serverUrl, handleDisconnect }) => {
 
 	useDataChannel(onDataReceived);
 
-	console.log('name==>', name, transcripts, localParticipant);
+	console.log(
+		'Asssistant==>',
+		voiceAssistant.state,
+		'\n\nuser===>',
+		localParticipant?.isSpeaking,
+		'\ntransripts==>',
+		transcripts,
+	);
 	return (
 		<div className="voiceIntegrationContainer">
 			{/* <div className="voiceIntegrationText">Speak I am Listening</div> */}
@@ -73,6 +82,10 @@ const Voice = ({ shouldConnect, token, serverUrl, handleDisconnect }) => {
 				{/* <div className="icon-container" onClick={handleToggleMute}>
 						{isVoiceMuted ? <VoiceMuteSvg /> : <VoiceLightSvg />}
 					</div> */}
+				<TrackToggle
+					className="px-2 py-1 bg-gray-900 text-gray-300 border border-gray-800 rounded-sm hover:bg-gray-800"
+					source={Track.Source.Microphone}
+				/>
 				<div className="speaking-icon-container">
 					<div className="voice-container">
 						<img
@@ -86,6 +99,12 @@ const Voice = ({ shouldConnect, token, serverUrl, handleDisconnect }) => {
 				<div className="icon-container" onClick={handleDisconnect}>
 					<CloseSvg />
 				</div>
+				<BarVisualizer
+					state={voiceAssistant.state}
+					trackRef={voiceAssistant.audioTrack}
+					barCount={5}
+					options={{ minHeight: 20 }}
+				/>
 			</div>
 		</div>
 	);
