@@ -80,7 +80,7 @@ const Voice = ({ shouldConnect, token, serverUrl, handleDisconnect }) => {
 		setTransScriptMessages(allMessages);
 	}, [voiceAssistant, localParticipant, agentMessages?.segments, localMessages?.segments]);
 
-	console.log('transScriptMessages==>', transScriptMessages);
+	// console.log('transScriptMessages==>', transScriptMessages);
 	return (
 		<div className="voiceIntegrationContainer">
 			<div className="voiceIntegrationIconsContainer">
