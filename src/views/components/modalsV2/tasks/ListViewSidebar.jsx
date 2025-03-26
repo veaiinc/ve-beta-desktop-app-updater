@@ -11,7 +11,7 @@ import Spinner from '../../loaders/Spinner';
 import Skeleton from 'react-loading-skeleton';
 import CustomTextArea from '../../globalComponents/CusomTextArea';
 import QuickActions from '../../globalComponents/QuickActions';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 const optionsForQuickActions = [
 	{ id: 4, title: 'Document', value: 'document' },
 	{ id: 6, title: 'Proposal', value: 'proposal' },
@@ -50,7 +50,7 @@ const ListViewSidebar = ({
 	const [localDescription, setLocalDescription] = useState('');
 	const titleDebounceRef = useRef(null);
 	const descriptionDebounceRef = useRef(null);
-
+	const navigate = useNavigate();
 	useEffect(() => {
 		if (selectedRow?.title !== localTitle) {
 			const titlePropName = Object.keys(responseMetadata).find(
@@ -77,14 +77,6 @@ const ListViewSidebar = ({
 			}
 		};
 	}, []);
-
-	useEffect(() => {
-		if (isSidebarExpanded && selectedRow?._id) {
-			const newUrl = new URL(window.location.href);
-			newUrl.searchParams.set('itemId', selectedRow._id);
-			window.history.pushState({}, '', newUrl);
-		}
-	}, [isSidebarExpanded, selectedRow?._id]);
 
 	const debouncedTitleUpdate = useCallback(
 		(value) => {
@@ -229,6 +221,15 @@ const ListViewSidebar = ({
 		));
 	}, []);
 
+	const handleExpandClick = () => {
+		if (selectedRow?._id) {
+			const isTask = !!selectedRow?.taskSlNo;
+			const path = isTask ? `/task/${selectedRow._id}` : `/contact/${selectedRow._id}`;
+			navigate(path);
+			closeSidebar();
+		}
+	};
+
 	return (
 		<Drawer
 			onClose={closeSidebar}
@@ -261,7 +262,7 @@ const ListViewSidebar = ({
 								</div>
 								<div
 									className="sidebar-header-expand-button"
-									onClick={toggleSidebarExpand}
+									onClick={handleExpandClick}
 								>
 									{isSidebarExpanded ? (
 										<ExpandSvg

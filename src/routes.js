@@ -51,6 +51,7 @@ import BrandSetup from './views/features/settings/BrandSetup';
 import DocsFullView from './views/components/docs/DocsFullView';
 import FormFullView from './views/components/forms/FormFullView';
 import TaskFullView from './views/features/tasks/TaskFullView';
+import ExpandedClientView from './views/features/contacts/ExpandedClientView';
 
 const routes = [
 	{
@@ -288,7 +289,7 @@ const routes = [
 		exact: true,
 	},
 	{
-		path: '/tasks/view/:taskId',
+		path: '/task/:taskId',
 		component: (
 			<AuthWrapper title={'Tasks'}>
 				<TaskFullView />
@@ -340,8 +341,6 @@ const routes = [
 		),
 		exact: true,
 	},
-
-	//ai agents
 	{
 		path: '/ai-agents/home/:agent-name',
 		component: (
@@ -494,6 +493,14 @@ const routes = [
 		component: (
 			<AuthWrapper title={'Automations'}>
 				<Automations />
+			</AuthWrapper>
+		),
+	},
+	{
+		path: '/contact/:contactId',
+		component: (
+			<AuthWrapper title="Contact Details">
+				<ExpandedClientView />
 			</AuthWrapper>
 		),
 	},

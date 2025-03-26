@@ -184,10 +184,6 @@ export const getTaskQuery = gql`
 				_id
 				title
 			}
-			client {
-				_id
-				name
-			}
 			assignedBy {
 				_id
 				name

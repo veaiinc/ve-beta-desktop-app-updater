@@ -4,6 +4,7 @@ import restService from '../../services';
 
 import {
 	getClientsQuery,
+	getClientQuery,
 	createClientMutation,
 	deleteClientMutation,
 	updateClientMutation,
@@ -255,6 +256,26 @@ export const ContactsState = () => {
 		}
 	};
 
+	const getClient = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				getClientQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+			if (response?.[0]) {
+				return response?.[1]?.data?.getClient;
+			} else {
+				console.log('API failed ==> getClient', response);
+			}
+		} catch (error) {
+			console.log('API failed ==> getClient', error);
+		}
+	};
 	const resetContactsState = () => {
 		dispatch({ type: Actions.RESET_STATE });
 	};
@@ -272,5 +293,6 @@ export const ContactsState = () => {
 		deleteContactView,
 		getContactPreferences,
 		updateContactPreferences,
+		getClient,
 	};
 };

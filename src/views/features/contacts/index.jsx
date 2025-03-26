@@ -73,6 +73,7 @@ const Contacts = () => {
 		contacts: {
 			clientList,
 			getClients,
+			getClient,
 			refetchClientList,
 			updateStateValues,
 			deleteClient,
@@ -103,7 +104,6 @@ const Contacts = () => {
 		filters: [],
 		searchValue: '',
 		updated: false,
-		isSidebarExpanded: false,
 		showRightDrawer: false,
 		activeFileData: null,
 		refetchDocsFilesList: false,
@@ -432,12 +432,18 @@ const Contacts = () => {
 	);
 
 	const handleRowClick = useCallback(
-		(row) => {
+		async (row) => {
 			if (row) {
-				updateListViewInfo({ selectedRow: row, sidebarIsOpen: true });
+				const clientDetails = await getClient({ getClientId: row._id });
+				console.log('Complete client details:', clientDetails);
+
+				updateListViewInfo({
+					selectedRow: clientDetails || row,
+					sidebarIsOpen: true,
+				});
 			}
 		},
-		[info?.listItems, info?.selectedRow?._id],
+		[getClient],
 	);
 
 	const handleCloseSidebar = useCallback(() => {
@@ -478,6 +484,7 @@ const Contacts = () => {
 		},
 		[deleteContactView, info?.clientMetadata?._id],
 	);
+
 	return (
 		<div>
 			<div className="contacts-header-container">
@@ -524,7 +531,6 @@ const Contacts = () => {
 
 			<ListViewSidebar
 				selectedRow={info?.selectedRow}
-				parentTaskNo={info?.selectedRow?.taskSlNo}
 				sidebarIsOpen={info?.sidebarIsOpen}
 				closeSidebar={handleCloseSidebar}
 				handleUpdate={updatePropertyValue}
@@ -534,10 +540,8 @@ const Contacts = () => {
 				properties={info?.properties}
 				colors={colors}
 				sidebarChildren={<ListTabs tabs={tabs} defaultActiveTab={'files'} />}
-				toggleSidebarExpand={() =>
-					updateListViewInfo({ isSidebarExpanded: !info?.isSidebarExpanded })
-				}
-				isSidebarExpanded={info?.isSidebarExpanded}
+				toggleSidebarExpand={() => {}}
+				isSidebarExpanded={false}
 				showQuickActions={true}
 			/>
 

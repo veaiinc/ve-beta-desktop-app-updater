@@ -20,29 +20,27 @@ const optionsForQuickActions = [
 ];
 
 const TaskFullView = () => {
-	const { id } = useParams();
+	const { taskId } = useParams();
 	const navigate = useNavigate();
 	const [taskData, setTaskData] = useState(null);
 	const {
-		tasks: { getListItems, listTasks },
+		tasks: { getTask },
 	} = useContext(Context);
-
 	useEffect(() => {
-		if (id) {
-			// Using getListItems to fetch task data
-			getListItems({
-				taskFilterInput: {
-					filters: [{ key: '_id', value: id }],
-				},
-			});
-		}
-	}, [id]);
-
-	useEffect(() => {
-		if (listTasks?.data?.[0]) {
-			setTaskData(listTasks.data[0]);
-		}
-	}, [listTasks]);
+		const fetchTaskData = async () => {
+			if (taskId) {
+				try {
+					const response = await getTask({ taskId: taskId });
+					if (response) {
+						setTaskData(response);
+					}
+				} catch (error) {
+					console.error('Error fetching task:', error);
+				}
+			}
+		};
+		fetchTaskData();
+	}, [taskId, getTask]);
 
 	const handleClose = () => {
 		navigate(-1);
@@ -86,7 +84,7 @@ const TaskFullView = () => {
 								<span>Assigned To</span>
 							</div>
 							<div className="propertyValue">
-								{taskData.assignedTo?.name || 'Assigned To'}
+								{taskData.assignedTo?.name || 'Not assigned'}
 							</div>
 						</div>
 
@@ -95,7 +93,9 @@ const TaskFullView = () => {
 								<PieSvg />
 								<span>Status</span>
 							</div>
-							<div className="propertyValue status-badge">Department</div>
+							<div className="propertyValue status-badge">
+								{taskData.status || 'No status'}
+							</div>
 						</div>
 
 						<div className="propertyItem">
@@ -210,8 +210,16 @@ const TaskFullView = () => {
 										<div className="childTaskTitle">{childTask.title}</div>
 										<div className="childTaskMeta">
 											<span className="status">{childTask.status}</span>
-											<span className="priority">Medium</span>
-											<span className="date">Feb 08</span>
+											<span className="priority">
+												{childTask.priority || 'Medium'}
+											</span>
+											<span className="date">
+												{childTask.dueDate
+													? moment
+															.unix(childTask.dueDate)
+															.format('MMM DD')
+													: 'No date'}
+											</span>
 										</div>
 									</div>
 								))}
