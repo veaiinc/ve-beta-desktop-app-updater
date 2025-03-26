@@ -1,23 +1,21 @@
 import React, { memo, useCallback, useContext, useState } from 'react';
 import { ReactComponent as ArrowLeftSvg } from '../../../assets/svg/sidebar/leftarrowwhite.svg';
-import { ReactComponent as CircletickwhiteSvg } from '../../../assets/svg/sidebar/circletickwhite.svg';
 import SearchSvg from '../../../assets/svg/sidebar/SearchSvg';
 import { ReactComponent as LogoutRedSvg } from '../../../assets/svg/sidebar/logout_red.svg';
 import PlusSvg from '../../../assets/svg/sidebar/PlusSvg';
 import Cookies from 'js-cookie';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
 import useLogout from '../../hooks/useLogout';
 import { fetchDomainName } from '../../../helpers';
 
 const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpaceList, info }) => {
 	const navigate = useNavigate();
-	const { galleryId } = useParams();
 	const logoutFunc = useLogout();
 	const [searchWorkspace, setSearchWorkspace] = useState('');
 
 	const {
-		profileInfo: { userDetailsData },
+		subscriptionInfo: { renewBanner },
 	} = useContext(Context);
 
 	const closeWorkspaceList = () => {
@@ -98,7 +96,10 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 					onClick={closeWorkspaceList}
 				/>
 			)}
-			<div className="workspaceListComponent">
+			<div
+				style={{ maxHeight: renewBanner ? '93dvh' : '95dvh' }}
+				className="workspaceListComponent"
+			>
 				<div className="workspaceListHeader">
 					<div className="backContinaer" onClick={closeWorkspaceList}>
 						<ArrowLeftSvg />

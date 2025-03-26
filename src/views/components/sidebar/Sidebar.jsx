@@ -16,6 +16,7 @@ import ChatHistory from './chatHistory/ChatHistory';
 
 const Sidebar = ({ activeWorkspaceId }) => {
 	const {
+		subscriptionInfo: { renewBanner },
 		profileInfo: { userWorkSpaceList, getUserWorkSpaceList, userDetailsData, getUserDetails },
 		templates: { leftSidebarState, updateStateValues },
 	} = useContext(Context);
@@ -128,6 +129,7 @@ const Sidebar = ({ activeWorkspaceId }) => {
 						: 'no-submodules'
 				}`}
 				style={{
+					height: renewBanner ? 'calc(100dvh - 41px)' : '100dvh',
 					alignItems: sidebarStates?.workSpaceOpen ? 'flex-start' : ' ',
 					maxHeight: info?.activeRoute === '/home' ? (isOpen ? '' : '') : '',
 					minHeight: info?.activeRoute === '/home' ? (isOpen ? '' : '250px') : '',

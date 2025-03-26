@@ -11,6 +11,24 @@ import Notifications from '../../components/settings/profile/Notifications';
 import { message } from 'antd';
 import Cookies from 'js-cookie';
 
+const themePreferenceOptions = [
+	// {
+	// 	id: 0,
+	// 	title: 'System',
+	// 	value: 'systemDefault',
+	// },
+	{
+		id: 0,
+		title: 'Dark Mode',
+		value: 'dark',
+	},
+	{
+		id: 1,
+		title: 'Light Mode',
+		value: 'light',
+	},
+];
+
 const MyProfile = () => {
 	const fullNameRef = useRef(null);
 	const {
@@ -29,7 +47,9 @@ const MyProfile = () => {
 		themeInfo: { theme, updateTheme },
 		authInfo: { updateUserDetails },
 	} = useContext(Context);
-	// # States
+
+	console.log('theme', theme);
+
 	const [showForm, setShowForm] = useState(false);
 	const [isEditMode, setIsEditMode] = useState({ isValueChanged: false, timeout: null });
 	const [errors, setErrors] = useState({});
@@ -277,12 +297,17 @@ const MyProfile = () => {
 	// 		setActiveTheme(mode);
 	// 	}
 	// };
-	const updateThemeSubmitHandler = async (theme) => {
-		updateTheme(theme);
-	};
 
-	const handleThemeChange = (selectedTheme) => {
-		updateThemeSubmitHandler(selectedTheme);
+	const handleThemeChange = async (themeValue) => {
+		const response = await updateTheme(themeValue);
+		const success = response?.[0];
+		if (success) {
+			message?.success('Theme updated successfully');
+			localStorage.setItem('theme', themeValue);
+			Cookies.set('theme', themeValue);
+		} else {
+			message?.error('Failed to update theme, Please refresh the page and try again!');
+		}
 	};
 
 	return (
@@ -332,21 +357,23 @@ const MyProfile = () => {
 					<div className="theme-container-item">
 						<p>Change Theme</p>
 						<div className="theme-container-item-content">
-							<p
-								onClick={() => handleThemeChange('light')}
-								className={theme === 'light' ? 'active' : ''}
-								style={{ cursor: 'pointer' }}
-							>
-								Light Mode
-							</p>
-							<span className="theme-container-item-content-separator">|</span>
-							<p
-								onClick={() => handleThemeChange('dark')}
-								className={theme === 'dark' ? 'active' : ''}
-								style={{ cursor: 'pointer' }}
-							>
-								Dark Mode
-							</p>
+							{themePreferenceOptions?.map((themeOption) => (
+								<>
+									<p
+										key={themeOption?.id}
+										onClick={() => handleThemeChange(themeOption?.value)}
+										className={themeOption?.value === theme ? 'active' : ''}
+										style={{ cursor: 'pointer' }}
+									>
+										{themeOption?.title}
+									</p>
+									{themeOption?.id !== themePreferenceOptions?.length - 1 && (
+										<span className="theme-container-item-content-separator">
+											|
+										</span>
+									)}
+								</>
+							))}
 						</div>
 					</div>
 				</div>
