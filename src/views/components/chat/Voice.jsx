@@ -56,16 +56,20 @@ const Voice = ({ shouldConnect, token, serverUrl, handleDisconnect }) => {
 		if (voiceAssistant.state === 'disconnected') {
 			return;
 		}
-		agentMessages.segments.forEach((s) =>
-			transcripts.set(
-				s.id,
-				segmentToChatMessage(
-					s,
-					transcripts.get(s.id),
-					voiceAssistant?.audioTrack?.participant,
-				),
-			),
-		);
+		if (voiceAssistant.state === 'speaking') {
+			transcripts.clear();
+			setTransScriptMessages([]);
+		}
+		// agentMessages.segments.forEach((s) =>
+		// 	transcripts.set(
+		// 		s.id,
+		// 		segmentToChatMessage(
+		// 			s,
+		// 			transcripts.get(s.id),
+		// 			voiceAssistant?.audioTrack?.participant,
+		// 		),
+		// 	),
+		// );
 		localMessages.segments.forEach((s) =>
 			transcripts.set(s.id, segmentToChatMessage(s, transcripts.get(s.id), localParticipant)),
 		);
@@ -73,13 +77,9 @@ const Voice = ({ shouldConnect, token, serverUrl, handleDisconnect }) => {
 		const allMessages = Array.from(transcripts.values());
 		allMessages.sort((a, b) => a.timestamp - b.timestamp);
 		setTransScriptMessages(allMessages);
-	}, [
-		voiceAssistant.audioTrack,
-		localParticipant,
-		agentMessages?.segments,
-		localMessages?.segments,
-	]);
+	}, [voiceAssistant, localParticipant, agentMessages?.segments, localMessages?.segments]);
 
+	console.log('transScriptMessages==>', transScriptMessages);
 	return (
 		<div className="voiceIntegrationContainer">
 			<div className="voiceIntegrationIconsContainer">
