@@ -15,6 +15,10 @@ import CustomTextArea from '../globalComponents/CusomTextArea';
 import { Tooltip } from 'antd';
 import '../../../assets/scss/docs/docsFullView.scss';
 import { fetchOriginSelection } from '../../../helpers';
+import SendProposalModal from '../modalsV2/proposalModals/SendProposalModal.jsx';
+import CopiedModal from '../modalsV2/workflowsModals/CopiedModal.jsx';
+import { Spin } from 'antd';
+import DeleteLeadModal from '../../components/modalsV2/workflowsModals/DeleteLeadModal.jsx';
 
 // Import the status mapper directly
 export const statusTextmapper = {
@@ -104,6 +108,17 @@ const initialState = {
 	fileViewerList: null,
 	activityDataLoading: true,
 	sendSmartFileModal: false,
+	copyModal: false,
+	copyLink: '',
+	currentWorkspaceId: localStorage?.getItem('workspaceId'),
+	assisstanceData: null,
+	workflowExpiryAt: '',
+	isEmailAuth: true,
+	nameIdentification: false,
+	emailIdentification: false,
+	businessName: '',
+	isAlChatEnabled: false,
+	deleteLeadModal: false,
 };
 
 const origin = fetchOriginSelection();
@@ -116,7 +131,17 @@ const DocsFullView = () => {
 	const [info, setInfo] = useState(initialState);
 
 	const {
-		templates: { getSmartFileData, smartFileInfo },
+		templates: {
+			getSmartFileData,
+			smartFileInfo,
+			updateProposal,
+			updateContracts,
+			updateInvoice,
+			updateForm,
+			updateThankyou,
+			sendSmartFileSettings,
+			deleteLead,
+		},
 		activityInfo: {
 			resetActivityState,
 			activityData,
@@ -124,6 +149,7 @@ const DocsFullView = () => {
 			getSmartFileViewers,
 			viewersList,
 		},
+		profileInfo: { tennantSettingsData },
 	} = useContext(Context);
 
 	useEffect(() => {
@@ -175,6 +201,53 @@ const DocsFullView = () => {
 		}
 	}, [viewersList]);
 
+	useEffect(() => {
+		if (
+			tennantSettingsData &&
+			info?.currentWorkspaceId &&
+			info?.sendSmartFileModal &&
+			fileData
+		) {
+			let link;
+			if (tennantSettingsData?.customDomain?.length) {
+				link = `https://${tennantSettingsData?.customDomain}/portal/${fileData?.slug}`;
+			} else {
+				link = `https://${info?.currentWorkspaceId}.ve.ai/portal/${fileData?.slug}`;
+			}
+
+			setInfo((prev) => ({
+				...prev,
+				copyLink: link,
+				businessName: tennantSettingsData?.businessName,
+			}));
+		}
+	}, [tennantSettingsData, fileData, info?.sendSmartFileModal]);
+
+	useEffect(() => {
+		if (sendSmartFileSettings) {
+			const { isAlChatEnabled, access, userIdentification } = sendSmartFileSettings;
+			setInfo((prev) => ({
+				...prev,
+				isAlChatEnabled: isAlChatEnabled || false,
+				isEmailAuth: access?.isEnabled,
+				nameIdentification: userIdentification?.name,
+				emailIdentification: userIdentification?.email,
+			}));
+		}
+	}, [sendSmartFileSettings]);
+
+	useEffect(() => {
+		if (smartFileInfo) {
+			let assisstanceData = smartFileInfo?.aiAssistant || {};
+
+			setInfo((prev) => ({
+				...prev,
+				workflowExpiryAt: smartFileInfo?.expiresAt,
+				assisstanceData,
+			}));
+		}
+	}, [smartFileInfo]);
+
 	const handleClose = () => {
 		navigate('/docs');
 	};
@@ -188,7 +261,19 @@ const DocsFullView = () => {
 	};
 
 	const openDeleteModal = () => {
-		// Implement delete modal functionality
+		setInfo((prev) => ({ ...prev, deleteLeadModal: true }));
+		handleMoreVisibility(false);
+	};
+
+	const deleteLeadFunc = async () => {
+		if (fileData?._id) {
+			const payload = {
+				deleteWorkflowId: fileData._id,
+			};
+			await deleteLead(payload);
+			setInfo((prev) => ({ ...prev, deleteLeadModal: false }));
+			navigate('/docs');
+		}
 	};
 
 	const workflowRedirectionsToBuilder = () => {
@@ -229,6 +314,124 @@ const DocsFullView = () => {
 		}),
 		[fileData, info?.fileActivityData, info?.fileViewerList, info?.activityDataLoading],
 	);
+
+	const changelocalWorflowStatus = (data) => {
+		setFileData((prev) => ({
+			...prev,
+			status: data,
+		}));
+	};
+
+	const updateWorkflowSlug = (updatedSlug) => {
+		setFileData((prev) => ({
+			...prev,
+			slug: updatedSlug,
+		}));
+	};
+
+	const updateSendSmartFileExpiryData = (updatedValue) => {
+		setInfo((prev) => ({ ...prev, workflowExpiryAt: updatedValue }));
+	};
+
+	const updateIdentification = (data, type) => {
+		setInfo((prev) => ({ ...prev, [type]: data }));
+	};
+
+	const updateSmartFileEmailAuth = (data) => {
+		setInfo((prev) => ({ ...prev, isEmailAuth: data }));
+	};
+
+	const updateSmartFileIsAiChatEnabled = (data) => {
+		setInfo((prev) => ({ ...prev, isAlChatEnabled: data }));
+	};
+
+	const openCopyModal = () => {
+		setInfo((prev) => ({ ...prev, copyModal: true }));
+	};
+
+	const updateWorkspaceVariablesFunc = async (data, type) => {
+		if (!tennantSettingsData) {
+			return [false];
+		}
+		const updatedVariablesdata = [...(data || [])];
+		let changed = false;
+
+		for (let i = 0; i < updatedVariablesdata?.length; i++) {
+			if (
+				updatedVariablesdata?.[i]?.type === 'workspace' &&
+				tennantSettingsData?.[updatedVariablesdata?.[i]?.code]
+			) {
+				const currentVariableValue =
+					updatedVariablesdata?.[i]?.value || updatedVariablesdata?.[i]?.defaultValue;
+				const incomingValue = tennantSettingsData?.[updatedVariablesdata?.[i]?.code];
+
+				if (currentVariableValue !== incomingValue) {
+					updatedVariablesdata[i].value = incomingValue;
+					updatedVariablesdata[i].defaultValue = incomingValue;
+					changed = true;
+				}
+			}
+		}
+
+		return [changed, updatedVariablesdata, type];
+	};
+
+	const updateVariablesInAllModules = async () => {
+		if (smartFileInfo) {
+			const { contract, form, proposal, thankyou, thankyou2, invoice } = smartFileInfo || {};
+
+			//contract
+			const { variables: contractVariable } = contract?.versions?.[0] || {};
+
+			//invoice
+			const { variables: invoiceVariable } = invoice?.versions?.[0] || {};
+
+			//proposal
+			const { variables: proposalVariables } = proposal?.versions?.[0] || {};
+
+			//form
+			const { variables: formVariables } = form?.versions?.[0] || {};
+			//thankyou
+			const { variables: thankyouVariables } = thankyou?.versions?.[0] || {};
+			const { variables: thankyou2Variables } = thankyou2?.versions?.[0] || {};
+
+			const mapper = {
+				contract: { data: contract, func: updateContracts },
+				invoice: { data: invoice, func: updateInvoice },
+				proposal: { data: proposal, func: updateProposal },
+				form: { data: form, func: updateForm },
+				thankyou: { data: thankyou, func: updateThankyou },
+				thankyou2: { data: thankyou2, func: updateThankyou },
+			};
+
+			const response = await Promise.all([
+				updateWorkspaceVariablesFunc(contractVariable || [], 'contract'),
+				updateWorkspaceVariablesFunc(invoiceVariable || [], 'invoice'),
+				updateWorkspaceVariablesFunc(proposalVariables || [], 'proposal'),
+				updateWorkspaceVariablesFunc(formVariables || [], 'form'),
+				updateWorkspaceVariablesFunc(thankyouVariables || [], 'thankyou'),
+				updateWorkspaceVariablesFunc(thankyou2Variables || [], 'thankyou2'),
+			]);
+
+			for (let i = 0; i < response?.length; i++) {
+				if (response?.[i]?.[0]) {
+					const moduleType = response?.[i]?.[2];
+
+					const payload = {
+						[moduleType + 'Id']: mapper?.[moduleType]?.data?._id,
+						workflowId: fileData?._id,
+						[moduleType + 'Input']: {
+							versions: {
+								variables: response?.[i]?.[1],
+							},
+						},
+						versionId: mapper?.[moduleType]?.data?.activeVersion,
+					};
+					mapper?.[moduleType]?.func(payload);
+				}
+			}
+		}
+	};
 
 	return (
 		<div className="docsFullView">
@@ -326,6 +529,55 @@ const DocsFullView = () => {
 					<div className="respectiveView">{tabs[activeTab]?.Component}</div>
 				</div>
 			</div>
+
+			<SendProposalModal
+				open={info?.sendSmartFileModal}
+				closeModal={() => setInfo((prev) => ({ ...prev, sendSmartFileModal: false }))}
+				clientDetails={fileData?.clientDetails}
+				workflowSlug={fileData?.slug}
+				workflowId={fileData?._id}
+				openCopyModal={openCopyModal}
+				changelocalWorflowStatus={changelocalWorflowStatus}
+				workflowStatus={fileData?.status}
+				changeEditStatus={() => {}}
+				slug={fileData?.slug}
+				updateWorkflowSlug={updateWorkflowSlug}
+				expiresAt={info?.workflowExpiryAt || ''}
+				updateSendSmartFileExpiryData={updateSendSmartFileExpiryData}
+				isEnabled={info?.isEmailAuth}
+				updateSmartFileEmailAuth={updateSmartFileEmailAuth}
+				pin={smartFileInfo?.access?.pin}
+				businessName={info?.businessName}
+				isAlChatEnabled={info?.isAlChatEnabled}
+				updateSmartFileIsAiChatEnabled={updateSmartFileIsAiChatEnabled}
+				nameIdentification={info?.nameIdentification}
+				emailIdentification={info?.emailIdentification}
+				updateIdentification={updateIdentification}
+				assisstanceData={info?.assisstanceData}
+				updateVariablesInAllModules={updateVariablesInAllModules}
+				copyLink={info?.copyLink}
+			/>
+
+			<CopiedModal
+				open={info?.copyModal}
+				closeModal={() => setInfo((prev) => ({ ...prev, copyModal: false }))}
+				modules={fileData?.modules?.filter((e) => e?.type !== 'form')}
+				copyLink={
+					info?.copyLink || (
+						<span style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+							Generating Link ...
+							<Spin />
+						</span>
+					)
+				}
+				pin={smartFileInfo?.access?.pin}
+			/>
+
+			<DeleteLeadModal
+				open={info.deleteLeadModal}
+				closeModal={() => setInfo((prev) => ({ ...prev, deleteLeadModal: false }))}
+				deleteLeadFunc={deleteLeadFunc}
+			/>
 		</div>
 	);
 };

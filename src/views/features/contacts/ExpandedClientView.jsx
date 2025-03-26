@@ -11,6 +11,7 @@ import { ReactComponent as CalendarSvg } from '../../../assets/svg/tasks/calenda
 import { ReactComponent as textSvg } from '../../../assets/svg/tasks/letterA.svg';
 import Text from '../../components/tasks/listView/Text';
 import LinkText from '../../components/tasks/listView/LinkText';
+import Sidebar from '../../components/docs/Sidebar';
 import '../../../assets/scss/contacts/expandedClientView.scss';
 
 // Define rowTypes
@@ -89,6 +90,11 @@ const ExpandedClientView = () => {
 	const titleDebounceRef = useRef(null);
 	const descriptionDebounceRef = useRef(null);
 	const [isLoading, setIsLoading] = useState(true);
+	const [info, setInfo] = useState({
+		refetchDocsFilesList: false,
+		activeFileData: null,
+		showRightDrawer: false,
+	});
 
 	useEffect(() => {
 		if (contactId) {
@@ -164,6 +170,15 @@ const ExpandedClientView = () => {
 		[debouncedTitleUpdate],
 	);
 
+	// Handle file click from TabListFile
+	const handleFileClick = useCallback((fileData) => {
+		setInfo((prev) => ({
+			...prev,
+			activeFileData: fileData,
+			showRightDrawer: true,
+		}));
+	}, []);
+
 	const generatePropertyList = () => {
 		if (!clientData) return [];
 
@@ -227,7 +242,16 @@ const ExpandedClientView = () => {
 	const tabs = {
 		files: {
 			label: 'Files',
-			Component: <TabListFile rowTypes={rowTypes} colors={colors} selectedId={contactId} />,
+			Component: (
+				<TabListFile
+					rowTypes={rowTypes}
+					colors={colors}
+					selectedId={contactId}
+					handleRowClick={handleFileClick}
+					refetchDocsFilesList={info.refetchDocsFilesList}
+					onUpdate={(updatedInfo) => setInfo((prev) => ({ ...prev, ...updatedInfo }))}
+				/>
+			),
 		},
 	};
 
@@ -280,6 +304,25 @@ const ExpandedClientView = () => {
 					</>
 				)}
 			</div>
+
+			{/* Add Sidebar component for file preview */}
+			<Sidebar
+				open={info.showRightDrawer}
+				onClose={() => {
+					setInfo((prev) => ({
+						...prev,
+						showRightDrawer: false,
+						activeFileData: null,
+					}));
+				}}
+				activeFileData={info.activeFileData}
+				refetchDocsFilesList={() => {
+					setInfo((prev) => ({
+						...prev,
+						refetchDocsFilesList: true,
+					}));
+				}}
+			/>
 		</div>
 	);
 };
