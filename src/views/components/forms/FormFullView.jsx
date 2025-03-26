@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { Rate } from 'antd';
 import Context from '../../../context/context';
 import { ReactComponent as CloseSvg } from '../../../assets/svg/tasks/doubleRightArrow.svg';
 import { ReactComponent as BiDash } from '../../../assets/svg/smartFiles/formResponse/bi-dash.svg';
@@ -10,7 +11,7 @@ import { ReactComponent as Clock } from '../../../assets/svg/smartFiles/formResp
 import { ReactComponent as FileUpload } from '../../../assets/svg/smartFiles/formResponse/file-upload.svg';
 import { ReactComponent as Link } from '../../../assets/svg/smartFiles/formResponse/link.svg';
 import { ReactComponent as Hash } from '../../../assets/svg/smartFiles/formResponse/hash.svg';
-import { Rate } from 'antd';
+import { ReactComponent as TimeDivider } from '../../../assets/svg/smartFiles/formResponse/time-divider.svg';
 import '../../../assets/scss/forms/formFullView.scss';
 
 const iconsForQuestions = {
@@ -24,26 +25,41 @@ const iconsForQuestions = {
 	number: <Hash />,
 };
 
+const removeQuotes = (text) => {
+	if (!text) return '';
+	if (typeof text !== 'string') return text || '';
+	return text?.replace(/^["']|["']$/g, '');
+};
+
 const FormFullView = () => {
 	const { id } = useParams();
 	const navigate = useNavigate();
 	const [formData, setFormData] = useState(null);
-
+	const [loading, setLoading] = useState(true);
 	const {
-		templates: { getFormResponsesList, formResponsesList },
+		templates: { getFormResponse },
 	} = useContext(Context);
 
 	useEffect(() => {
-		if (id) {
-			getFormResponsesList(id, 1, 1);
-		}
-	}, [id]);
+		const fetchFormData = async () => {
+			if (id) {
+				setLoading(true);
+				try {
+					const response = await getFormResponse({ formId: id });
+					console.log('API Response:', response);
+					if (response && response._id) {
+						setFormData(response);
+					}
+				} catch (error) {
+					console.error('Error fetching form response:', error);
+				} finally {
+					setLoading(false);
+				}
+			}
+		};
 
-	useEffect(() => {
-		if (formResponsesList?.data?.[0]) {
-			setFormData(formResponsesList.data[0]);
-		}
-	}, [formResponsesList]);
+		fetchFormData();
+	}, [id, getFormResponse]);
 
 	const handleClose = () => {
 		navigate(-1);
@@ -56,30 +72,31 @@ const FormFullView = () => {
 				return (
 					<div className="timeAnswer">
 						<span className="time">{hours}</span>
-						<span className="timeDivider">:</span>
+						<TimeDivider />
 						<span className="time">{minutes}</span>
 					</div>
 				);
 			case 'fileupload':
 				return (
 					<div className="fileAnswer">
-						{answer.map((file, index) => (
-							<div key={index} className="fileItem">
-								<FileUpload />
-								<span>{file.name}</span>
-							</div>
-						))}
+						{Array.isArray(answer) &&
+							answer.map((file, index) => (
+								<div key={index} className="fileItem">
+									<FileUpload />
+									<span>{file.name}</span>
+								</div>
+							))}
 					</div>
 				);
 			case 'link':
 				return (
 					<a
-						href={answer}
+						href={removeQuotes(answer)}
 						target="_blank"
 						rel="noopener noreferrer"
 						className="linkAnswer"
 					>
-						{answer}
+						{removeQuotes(answer)}
 					</a>
 				);
 			default:
@@ -87,7 +104,23 @@ const FormFullView = () => {
 		}
 	};
 
-	if (!formData) return null;
+	if (loading) {
+		return (
+			<div className="formFullView">
+				<div className="loading">Loading...</div>
+			</div>
+		);
+	}
+
+	console.log('Form data state:', formData);
+
+	if (!formData) {
+		return (
+			<div className="formFullView">
+				<div className="loading">No form data found</div>
+			</div>
+		);
+	}
 
 	return (
 		<div className="formFullView">
@@ -99,18 +132,16 @@ const FormFullView = () => {
 					</div>
 					<div className="headerRight">
 						<span
-							className={`statusBadge ${
-								formData?.isRead ? 'incomplete' : 'complete'
-							}`}
+							className={`statusBadge ${formData.isRead ? 'incomplete' : 'complete'}`}
 						>
-							{formData?.isRead ? 'Incomplete' : 'Complete'}
+							{formData.isRead ? 'Incomplete' : 'Complete'}
 						</span>
 					</div>
 				</div>
 
 				<div className="responseContainer">
-					{formData.response.map((item, index) => (
-						<div key={index} className="responseItem">
+					{formData.response.map((item) => (
+						<div key={item._id} className="responseItem">
 							<div className="questionSection">
 								{iconsForQuestions[item.type] || <BiDash />}
 								<span className="questionText">{item.question}</span>

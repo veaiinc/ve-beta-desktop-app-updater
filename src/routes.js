@@ -451,7 +451,7 @@ const routes = [
 		exact: true,
 	},
 	{
-		path: '/form/response/:id',
+		path: '/form-response/:id',
 		component: (
 			<AuthWrapper title={'Form Response'}>
 				<FormFullView />

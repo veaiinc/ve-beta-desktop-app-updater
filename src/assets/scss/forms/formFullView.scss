@@ -1,10 +1,23 @@
 .formFullView {
+	position: fixed;
+	top: 0;
+	left: 240px; /* Adjust based on your sidebar width */
+	right: 0;
+	bottom: 0;
+	background: var(--card);
+	z-index: 1000;
+	overflow-y: auto;
 	display: flex;
 	justify-content: center;
-	width: 100%;
-	height: 100vh;
-	background: var(--background-color);
-	padding: 24px;
+
+	.loading {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		height: 100vh;
+		color: var(--primary-font);
+		font-size: 18px;
+	}
 
 	.formFullViewContent {
 		width: 100%;
@@ -12,6 +25,7 @@
 		display: flex;
 		flex-direction: column;
 		gap: 20px;
+		padding: 24px;
 
 		.headerContainer {
 			display: flex;
@@ -30,6 +44,7 @@
 					height: 16px;
 					opacity: 0.7;
 					transition: opacity 0.3s ease;
+					transform: rotate(180deg);
 
 					&:hover {
 						opacity: 1;
@@ -64,13 +79,9 @@
 		}
 
 		.responseContainer {
-			border-radius: 12px;
-			padding: 24px;
-			display: flex;
-			flex-direction: column;
-			gap: 20px;
-
 			.responseItem {
+				margin-bottom: 24px;
+
 				.questionSection {
 					display: flex;
 					align-items: center;
@@ -105,10 +116,6 @@
 							padding: 8px 12px;
 							border-radius: 6px;
 						}
-
-						.timeDivider {
-							font-weight: bold;
-						}
 					}
 
 					.fileAnswer {
@@ -127,6 +134,10 @@
 						color: var(--primary-font);
 						text-decoration: underline;
 					}
+
+					.defaultAnswer {
+						color: var(--primary-font);
+					}
 				}
 
 				.divider {
@@ -136,14 +147,5 @@
 				}
 			}
 		}
-	}
-
-	.loading {
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		height: 100vh;
-		color: var(--primary-font);
-		font-size: 18px;
 	}
 }

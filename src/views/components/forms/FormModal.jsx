@@ -249,7 +249,7 @@ const FormModal = ({ isOpen, onClose, selectedRow }) => {
 
 	const handleExpandView = () => {
 		if (selectedRow?._id) {
-			navigate(`/form/response/${selectedRow._id}`);
+			navigate(`/form-response/${selectedRow._id}`);
 			onClose();
 		}
 	};

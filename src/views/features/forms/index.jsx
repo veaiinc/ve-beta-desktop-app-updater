@@ -287,7 +287,9 @@ const Forms = () => {
 									<div
 										className="docsRow"
 										key={index}
-										onClick={() => handleFormClick(ele)}
+										onClick={() => {
+											handleFormClick(ele);
+										}}
 									>
 										<div className="docsFilesRowTitle">{ele?.title}</div>
 										<div className="docsKeyWordsContainer">

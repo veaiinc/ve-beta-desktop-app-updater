@@ -504,3 +504,9 @@ export const createBlankTemplateQuery = gql`
 		}
 	}
 `;
+
+export const getFormResponseQuery = gql`
+	query Query($formId: ID!) {
+		formResponse(formId: $formId)
+	}
+`;
