@@ -30,7 +30,6 @@ import UploadFileTooltip from '../chat/UploadFileTooltip';
 import DateRangeDropdown from '../chat/DateRangeDropdown';
 import moment from 'moment';
 import Voice from '../chat/Voice';
-import Skeleton from 'react-loading-skeleton';
 import { message, Image, Spin, Tooltip } from 'antd';
 import LLMTooltip from '../chat/LLMTooltip';
 import AIMessageLoader from '../chat/AIMessageLoader';
@@ -201,7 +200,7 @@ const ChatBox = ({
 		if (currentSessionId) {
 			setInfo((prev) => ({ ...prev, chatSessionId: currentSessionId }));
 		} else {
-			updateStateValues({ currentSessionId: ObjectID().toString() });
+			updateStateValues({ currentSessionId: ObjectID()?.toString() });
 		}
 	}, [currentSessionId]);
 
@@ -263,6 +262,16 @@ const ChatBox = ({
 	};
 
 	const handleWebSearchClick = () => {
+		if (chatInfo?.deepResearch && chatInfo?.workspaceSearch) {
+			updateStateValues({
+				chatInfo: {
+					...chatInfo,
+					workspaceSearch: false,
+					webSearch: !chatInfo?.webSearch,
+				},
+			});
+			return;
+		}
 		updateStateValues({
 			chatInfo: {
 				...chatInfo,
@@ -272,11 +281,20 @@ const ChatBox = ({
 	};
 
 	const handleDeepResearchClick = () => {
+		if (recentFilesRef.current?.length > 0 || uploadedImagesRef.current?.length > 0) {
+			return;
+		}
+		if (chatInfo?.webSearch && chatInfo?.workspaceSearch) {
+			message.error(
+				'You can enable deep research only if one of the websearch or workspace search is true',
+			);
+			return;
+		}
+
 		if (!chatInfo?.deepResearch) {
 			updateStateValues({
 				chatInfo: {
 					...chatInfo,
-					...resetChatInfo,
 					deepResearch: true,
 				},
 			});
@@ -418,14 +436,7 @@ const ChatBox = ({
 							  ]
 							: [];
 
-					if (recentFilesRef?.current?.length > 0) {
-						query =
-							currentQuery +
-							',' +
-							recentFilesRef?.current?.map((ele) => ele?.originalFileName).join(',');
-					} else {
-						query = currentQuery;
-					}
+					query = currentQuery;
 
 					const payload = {
 						query,
@@ -564,7 +575,6 @@ const ChatBox = ({
 						),
 					},
 				];
-
 				updateApplicationChat(workflowSlug);
 			}
 		},
@@ -573,7 +583,7 @@ const ChatBox = ({
 
 	const handleGlobalImageProcessing = useCallback(
 		async (file) => {
-			const uploadBatchId = ObjectID().toString();
+			const uploadBatchId = ObjectID()?.toString();
 			const payload = {
 				sessionId: info?.chatSessionId,
 				originalFileName: file?.name || 'Untitled file',
@@ -597,6 +607,7 @@ const ChatBox = ({
 			if (requiredFileIndex === -1) {
 				return;
 			}
+
 			if (!response?.[0]) {
 				if (isImage) {
 					uploadedImages.splice(requiredFileIndex, 1);
@@ -701,15 +712,15 @@ const ChatBox = ({
 			let recentFiles = [...(recentFilesRef?.current || [])];
 			file.preview = await getBase64(file);
 			file.loading = true;
-			file.uniqueId = Date.now() + '_' + Math.floor(Math.random() * 1000000);
+			file.uniqueId = Date?.now() + '_' + Math?.floor(Math?.random() * 1000000);
 
 			if (file.type.includes('image')) {
-				uploadedImages.push(file);
+				uploadedImages?.push(file);
 				uploadedImagesRef.current = uploadedImages;
 			} else {
 				file.originalFileName = file.name;
 				file.sourceType = file.type;
-				recentFiles.push(file);
+				recentFiles?.push(file);
 				recentFilesRef.current = recentFiles;
 			}
 
@@ -846,7 +857,19 @@ const ChatBox = ({
 	};
 
 	const handleWorkspaceSearchClick = () => {
-		if (chatInfo?.deepResearch) return;
+		if (recentFilesRef?.current?.length > 0 || uploadedImagesRef?.current?.length > 0) {
+			return;
+		}
+		if (chatInfo?.deepResearch && chatInfo?.webSearch) {
+			updateStateValues({
+				chatInfo: {
+					...chatInfo,
+					workspaceSearch: !chatInfo?.workspaceSearch,
+					webSearch: false,
+				},
+			});
+			return;
+		}
 		updateStateValues({
 			chatInfo: {
 				...chatInfo,
@@ -988,12 +1011,10 @@ const ChatBox = ({
 													</Tooltip>
 													<Tooltip
 														title={`${
-															chatInfo?.deepResearch
-																? 'Disable Deep Research'
-																: chatInfo?.workspaceSearch
-																? 'Disable Workspace Search'
-																: 'Enable Workspace Search'
-														} `}
+															chatInfo?.workspaceSearch
+																? 'Disable'
+																: 'Enable'
+														} workspace Search`}
 													>
 														<div
 															className="icon-container"
@@ -1003,11 +1024,6 @@ const ChatBox = ({
 																	chatInfo?.workspaceSearch
 																		? 'var(--accent-color)'
 																		: 'var(--card)'
-																}`,
-																opacity: `${
-																	chatInfo?.deepResearch
-																		? '0.5'
-																		: '1'
 																}`,
 															}}
 														>
@@ -1033,6 +1049,14 @@ const ChatBox = ({
 																		? 'var(--accent-color)'
 																		: 'var(--card)'
 																}`,
+																opacity: `${
+																	recentFilesRef.current?.length >
+																		0 ||
+																	uploadedImagesRef.current
+																		?.length > 0
+																		? '0.5'
+																		: '1'
+																}`,
 															}}
 														>
 															<div className="icon">
@@ -1057,13 +1081,7 @@ const ChatBox = ({
 														}
 														recentFiles={recentFilesRef.current || []}
 													>
-														<Tooltip
-															title={`${
-																chatInfo?.deepResearch
-																	? 'Disable Deep Research'
-																	: 'Upload File'
-															} `}
-														>
+														<Tooltip title={`Upload File`}>
 															<div
 																className="icon-container"
 																style={{
@@ -1085,13 +1103,7 @@ const ChatBox = ({
 														</Tooltip>
 													</UploadFileTooltip>
 
-													<Tooltip
-														title={`${
-															chatInfo?.deepResearch
-																? 'Disable Deep Research'
-																: 'Add Filters'
-														} `}
-													>
+													<Tooltip title={'Add Filters'}>
 														<div
 															className="icon-container"
 															onClick={handleShowFiltersClick}
@@ -1168,7 +1180,8 @@ const ChatBox = ({
 														className="click-btn"
 														onClick={(e) => handleSendBtnClick(e)}
 														style={{
-															backgroundColor: 'var(--accent-color)',
+															backgroundColor:
+																'var(--primary-button)',
 														}}
 													>
 														<ArrowUp />
@@ -1178,7 +1191,8 @@ const ChatBox = ({
 														className="click-btn"
 														onClick={(e) => handleMicIconClick(e)}
 														style={{
-															backgroundColor: 'var(--accent-color)',
+															backgroundColor:
+																'var(--primary-button)',
 														}}
 													>
 														<AudioSvg />

@@ -6,7 +6,7 @@ import { useCreateBlockNote } from '@blocknote/react';
 import '../../../assets/scss/notes/noteComponent.scss';
 import { createBlockSpec, locales } from '@blocknote/core';
 import NoteToolbar from './NoteToolbar';
-import { useEffect, memo, useContext, useCallback } from 'react';
+import { useEffect, memo, useContext, useCallback, useState } from 'react';
 import Context from '../../../context/context';
 
 const NoteComponent = ({
@@ -19,14 +19,41 @@ const NoteComponent = ({
 }) => {
 	const {
 		documentPreview: { noteContent },
+		notes: { createNotesList, saveNotesdata },
 	} = useContext(Context);
 	const editor = useCreateBlockNote();
+
+	const [info, setInfo] = useState({
+		timeouts: {},
+		noteId: null,
+	});
+
+	useEffect(() => {
+		handleNewNotes();
+	}, []);
 
 	useEffect(() => {
 		if (initialContent) {
 			loadNotesContent(initialContent);
 		}
 	}, [initialContent]);
+
+	const handleNewNotes = async () => {
+		const payload = {
+			input: {
+				title: 'New Note',
+			},
+		};
+		setInfo((prev) => ({ ...prev, creatingNoteLoader: true }));
+		const response = await createNotesList(payload);
+		if (response?.[1]?._id) {
+			const noteId = response[1]?._id;
+			setInfo((prev) => ({ ...prev, noteId }));
+			if (editor?.document?.length) {
+				handleContentChange(editor.document, noteId);
+			}
+		}
+	};
 
 	const loadNotesContent = useCallback(
 		async (data) => {
@@ -73,23 +100,53 @@ const NoteComponent = ({
 		[editor, loopOn],
 	);
 
+	const handleDebounce = useCallback(
+		(key, callback, delay = 500) => {
+			clearTimeout(info.timeouts[key]);
+			const timeout = setTimeout(callback, delay);
+			setInfo((prev) => ({
+				...prev,
+				timeouts: { ...prev.timeouts, [key]: timeout },
+			}));
+		},
+		[info.timeouts],
+	);
+
+	const handleContentChange = useCallback(
+		(data, noteId) => {
+			handleDebounce('content', () => {
+				const payload = {
+					pageId: noteId,
+					blocks: data || [],
+				};
+				saveNotesdata(payload);
+			});
+		},
+		[info?.noteId, handleDebounce],
+	);
+
 	const onChange = async () => {
-		// Converts the editor's contents from Block objects to Markdown and store to state.
-		const markdown = await editor.blocksToMarkdownLossy(editor.document);
+		if (info?.noteId && editor?.document?.length) {
+			handleContentChange(editor.document, info?.noteId);
+		}
 	};
 
 	// Renders the editor instance using a React component.
 	return (
 		<div className="notes-container" style={outerContainerStyle}>
-			<BlockNoteView
-				editor={editor}
-				formattingToolbar={false}
-				onChange={customOnChange ? customOnChange : onChange}
-				style={innerContainerStyle}
-				editable={editable}
-			>
-				<NoteToolbar />
-			</BlockNoteView>
+			<div className="notes-editor-container" style={innerContainerStyle}>
+				<div className="notes-editor-wrapper">
+					<BlockNoteView
+						editor={editor}
+						formattingToolbar={false}
+						onChange={customOnChange ? customOnChange : onChange}
+						style={innerContainerStyle}
+						editable={editable}
+					>
+						<NoteToolbar />
+					</BlockNoteView>
+				</div>
+			</div>
 		</div>
 	);
 };

@@ -124,9 +124,11 @@ const RecentChat = ({
 			setTimeout(() => {
 				let lastMessageSelector = globalChatMessages?.length - 1;
 				const lastMessage = document.querySelector(`.chat-${lastMessageSelector}`);
-				lastMessage.scrollIntoView({
-					behavior: 'smooth',
-				});
+				if (lastMessage) {
+					lastMessage?.scrollIntoView({
+						behavior: 'smooth',
+					});
+				}
 			}, 500);
 			setInfo((prev) => ({ ...prev, scrollExecuted: true }));
 		}
@@ -134,7 +136,6 @@ const RecentChat = ({
 
 	useEffect(() => {
 		chatMessagesRef.current = [...(globalChatMessages || [])];
-		console.log('chatMessagesRef.current', chatMessagesRef.current?.length);
 		chatMessagesRef.current?.forEach((message) => {
 			if (message?.type?.toLowerCase() === 'ai') {
 				const messageId = message?.messageId;
@@ -378,8 +379,8 @@ const RecentChat = ({
 					return;
 				}
 
-				loadingMessageRef.current = loadingMessageRef.current || '';
-				loadingMessageRef.current += data?.intermediate_response;
+				loadingMessageRef.current = loadingMessageRef?.current || '';
+				loadingMessageRef.current += data?.intermediate_response || '';
 				updateStateValues({ globalLoadingMesssage: loadingMessageRef.current });
 				return;
 			}
@@ -389,18 +390,11 @@ const RecentChat = ({
 
 			if (data?.stream_end) {
 				handleStreamIncomingMessage(data);
-				//removing loading messages
-				const filteredMessages = chatMessagesRef?.current?.filter(
-					(ele) => ele?.contentType !== 'loading',
-				);
-				updateStateValues({
-					globalChatMessages: filteredMessages,
-					globalLoadingMesssage: null,
-				});
+				updateStateValues({ globalLoadingMesssage: null });
 				setInfo((prev) => ({ ...prev, latestStreamMesage: data }));
 			}
 			const { message_chunk_id } = data;
-			if (message_chunk_id && !data?.stream_end) {
+			if (message_chunk_id) {
 				handleStreamMessageChunk(data, message_chunk_id);
 			}
 		},
@@ -430,7 +424,7 @@ const RecentChat = ({
 			<div className="chat-container">
 				<div className="chatBarContainer" style={{ width: '100%' }}>
 					{/* header */}
-					<div className="containerHeader" style={{ width: '100%' }}>
+					<div className="containerHeader">
 						<h1 className="containerHeaderTitle"></h1>
 						<div className="iconContainer">
 							{!info?.citationsModalIsOpen && (
