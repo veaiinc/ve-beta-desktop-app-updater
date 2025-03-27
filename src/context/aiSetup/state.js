@@ -1001,11 +1001,14 @@ export const AiSetupState = () => {
 			const token = localStorage.getItem('usertoken');
 			const type = 'ai_assistant_api';
 			const response = await service?.fetchPut(url, body, token, type);
-			const success = response?.[0] === true;
-			if (success) {
+
+			if (response?.[0] === true) {
+				// Calculate updated state here instead of in reducer
+				const payload = response?.[1];
+
 				dispatch({
 					type: isWorkspace ? Actions?.SET_AI_SETUP : Actions?.SET_AI_SETUP_DATA_USER,
-					payload: response?.[1],
+					payload,
 				});
 				return [true];
 			} else {
@@ -1027,10 +1030,18 @@ export const AiSetupState = () => {
 			const token = localStorage.getItem('usertoken');
 			const type = 'ai_assistant_api';
 			const response = await service?.fetchPut(url, {}, token, type);
+
 			if (response?.[0] === true) {
+				// Calculate updated state here
+				const currentState = isWorkspace ? state.aiSetupData : state.aiSetupDataUser;
+				const payload = {
+					...currentState,
+					[dataType]: [],
+				};
+
 				dispatch({
-					type: isWorkspace ? Actions?.RESET_AI_SETUP : Actions?.RESET_AI_SETUP_DATA_USER,
-					payload: dataType,
+					type: isWorkspace ? Actions?.SET_AI_SETUP : Actions?.SET_AI_SETUP_DATA_USER,
+					payload,
 				});
 				return [true];
 			} else {
@@ -1052,12 +1063,18 @@ export const AiSetupState = () => {
 			const token = localStorage.getItem('usertoken');
 			const type = 'ai_assistant_api';
 			const response = await service?.fetchDelete(url, token, null, type);
+
 			if (response?.[0] === true) {
+				// Calculate updated state here
+				const currentState = isWorkspace ? state.aiSetupData : state.aiSetupDataUser;
+				const payload = {
+					...currentState,
+					[dataType]: currentState?.[dataType]?.filter((item) => item?._id !== id),
+				};
+
 				dispatch({
-					type: isWorkspace
-						? Actions?.DELETE_AI_SETUP_DATA
-						: Actions?.DELETE_AI_SETUP_DATA_USER,
-					payload: { type: dataType, id },
+					type: isWorkspace ? Actions?.SET_AI_SETUP : Actions?.SET_AI_SETUP_DATA_USER,
+					payload,
 				});
 				return [true];
 			} else {
@@ -1082,12 +1099,20 @@ export const AiSetupState = () => {
 				...data,
 			};
 			const response = await service?.fetchPut(url, body, token, type);
+
 			if (response?.[0] === true) {
+				// Calculate updated state here
+				const currentState = isWorkspace ? state.aiSetupData : state.aiSetupDataUser;
+				const payload = {
+					...currentState,
+					[dataType]: currentState?.[dataType]?.map((item) =>
+						item?._id === _id ? { ...data, _id } : item,
+					),
+				};
+
 				dispatch({
-					type: isWorkspace
-						? Actions?.UPDATE_AI_SETUP_DATA
-						: Actions?.UPDATE_AI_SETUP_DATA_USER,
-					payload: { type: dataType, data: { ...data, _id } },
+					type: isWorkspace ? Actions?.SET_AI_SETUP : Actions?.SET_AI_SETUP_DATA_USER,
+					payload,
 				});
 				return [true];
 			} else {
