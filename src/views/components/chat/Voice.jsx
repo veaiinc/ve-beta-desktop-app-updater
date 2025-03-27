@@ -69,28 +69,26 @@ const Voice = ({ shouldConnect, token, serverUrl, handleDisconnect }) => {
 			return;
 		}
 		if (voiceAssistant.state === 'speaking') {
-			transcripts.clear();
+			setTranscripts(new Map());
 			setTransScriptMessages([]);
 			return;
 		}
-		// agentMessages.segments.forEach((s) =>
-		// 	transcripts.set(
-		// 		s.id,
-		// 		segmentToChatMessage(
-		// 			s,
-		// 			transcripts.get(s.id),
-		// 			voiceAssistant?.audioTrack?.participant,
-		// 		),
-		// 	),
-		// );
-		localMessages.segments.forEach((s) =>
-			transcripts.set(s.id, segmentToChatMessage(s, transcripts.get(s.id), localParticipant)),
-		);
 
-		const allMessages = Array.from(transcripts.values());
+		const newTranscripts = new Map(transcripts);
+
+		localMessages.segments?.forEach((s) => {
+			newTranscripts.set(
+				s.id,
+				segmentToChatMessage(s, transcripts.get(s.id), localParticipant),
+			);
+		});
+
+		setTranscripts(newTranscripts);
+
+		const allMessages = Array.from(newTranscripts.values());
 		allMessages.sort((a, b) => a.timestamp - b.timestamp);
 		setTransScriptMessages(allMessages);
-	}, [voiceAssistant, localParticipant, agentMessages?.segments, localMessages?.segments]);
+	}, [voiceAssistant.state, localParticipant, localMessages.segments]);
 	const getStatusText = () => {
 		if (localParticipant?.isSpeaking) {
 			return 'Listening to you...';
