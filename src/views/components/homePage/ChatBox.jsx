@@ -887,8 +887,6 @@ const ChatBox = ({
 		});
 	};
 
-	console.log('shouldConnect==>', shouldConnect);
-
 	return (
 		<div className="chatParentWrapper">
 			<div className={`chatWrapper`}>

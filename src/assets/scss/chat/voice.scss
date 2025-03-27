@@ -76,7 +76,7 @@
 		}
 
 		.placeholder {
-			color: var(--secondary-font);
+			color: var(--primary-font);
 			font-size: 10px;
 			// white-space: nowrap;
 			// overflow: hidden;
@@ -93,7 +93,7 @@
 		padding: 20px 0;
 
 		.state-label {
-			color: #ffffff;
+			color: var(--primary-font);
 			font-size: 16px;
 			font-weight: 500;
 			margin-bottom: 15px;
@@ -123,9 +123,9 @@
 			flex: 1 0 0;
 			align-self: stretch;
 			border-radius: 12px;
-			background: var(--Popup, #202123);
+			background: var(--card-over-card, #202123);
 			&:hover {
-				background-color: #333333;
+				background-color: var(--card-over-card-hover);
 			}
 
 			svg {
@@ -139,14 +139,14 @@
 				background-color: #4caf50;
 				.mic-icon {
 					path {
-						stroke: #fff;
+						stroke: var(--primary-font);
 					}
 				}
 			}
 
 			.mic-icon {
 				path {
-					stroke: #999;
+					stroke: var(--primary-font);
 				}
 			}
 		}
@@ -154,7 +154,7 @@
 		.cancel-button {
 			.cancel-icon {
 				path {
-					stroke: #999;
+					stroke: var(--primary-font);
 				}
 			}
 		}
@@ -185,7 +185,7 @@
 }
 
 .chat-mic-icon-container svg {
-	fill: #fff;
+	fill: var(--primary-font);
 }
 
 .voice-input-container {
@@ -201,11 +201,14 @@
 		flex: 1 0 0;
 		align-self: stretch;
 		border-radius: 12px;
-		background: var(--Popup, #202123);
+		background: var(--card-over-card, #202123);
 		svg {
 			path {
 				stroke: var(--primary-font);
 			}
+		}
+		&:hover {
+			background-color: var(--card-over-card-hover);
 		}
 	}
 }
