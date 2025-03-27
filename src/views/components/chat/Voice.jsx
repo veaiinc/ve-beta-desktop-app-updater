@@ -160,6 +160,13 @@ const Voice = ({ handleDisconnect }) => {
 				<span className="placeholder">{getDisplayText()}</span>
 			</div>
 
+			{localVideoTrack && (
+				<VideoTrack
+					trackRef={localVideoTrack}
+					className={`absolute top-1/2 -translate-y-1/2 object-position-center w-full h-full video-container`}
+				/>
+			)}
+
 			{shouldShowAnimation() && (
 				<div className="animation-container">
 					<div className="state-label">{getStatusText()}</div>
@@ -173,18 +180,15 @@ const Voice = ({ handleDisconnect }) => {
 					</div>
 				</div>
 			)}
-
-			{localVideoTrack && (
-				<VideoTrack
-					trackRef={localVideoTrack}
-					className={`absolute top-1/2 -translate-y-1/2 object-position-center w-full h-full`}
-				/>
-			)}
-
 			<div className="controls">
 				<TrackToggle
 					className="px-2 py-1 bg-gray-900 text-gray-300 border border-gray-800 rounded-sm hover:bg-gray-800 chat-mic-icon-container icon-container"
 					source={Track.Source.Microphone}
+					style={{ border: 'none' }}
+				/>
+				<TrackToggle
+					className="px-2 py-1 bg-gray-900 text-gray-300 border border-gray-800 rounded-sm hover:bg-gray-800 chat-mic-icon-container icon-container"
+					source={Track.Source.Camera}
 					style={{ border: 'none' }}
 				/>
 

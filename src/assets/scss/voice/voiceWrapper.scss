@@ -4,9 +4,9 @@
 	z-index: 1;
 
 	&.home-page {
-		left: 55%;
-		bottom: 0;
-		transform: translateX(-50%);
+		left: 5%;
+		top:30%;
+		// transform: translateX(-50%);
 
 		&.active {
 			transform: translate(-50%, -400px);
@@ -19,8 +19,8 @@
 	}
 
 	&.other-page {
-		right: 24px;
-		bottom: 24px;
+		left: 42%;
+		bottom: 0;
 
 		&.active {
 			transform: translateY(0);

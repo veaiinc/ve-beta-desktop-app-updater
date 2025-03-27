@@ -46,14 +46,15 @@
 // Voice input container styles
 .voice-input-container {
 	width: 250px;
-	height: 334px;
+	min-height: 334px;
+	max-height: fit-content;
 	background-color: var(--card, #171819);
 	border-radius: 12px;
-	padding: 20px;
+	padding: 16px;
 	display: flex;
 	flex-direction: column;
 	justify-content: space-between;
-	gap: 30px;
+	gap: 10px;
 	margin: 0 auto;
 
 	.input-area {
@@ -204,4 +205,8 @@
 			stroke: var(--primary-font);
 		}
 	}
+}
+
+.video-container {
+	border-radius: 12px;
 }

@@ -1,4 +1,4 @@
-import React, { memo, useContext, useCallback } from 'react';
+import React, { memo, useContext, useCallback, useState, useRef, useEffect } from 'react';
 import { LiveKitRoom, RoomAudioRenderer, StartAudio } from '@livekit/components-react';
 import Voice from '../components/chat/Voice';
 import Context from '../../context/context';
@@ -14,6 +14,48 @@ const VoiceWrapper = () => {
 	const location = useLocation();
 	const isHomePage = location.pathname === '/' || location.pathname === '/home';
 
+	const [position, setPosition] = useState({ x: window.innerWidth / 2 - 125, y: 0 });
+	const containerRef = useRef(null);
+	const isDraggingRef = useRef(false);
+	const startPosRef = useRef({ x: 0, y: 0 });
+
+	// Add and remove event listeners
+	useEffect(() => {
+		document.addEventListener('mousemove', handleMouseMove);
+		document.addEventListener('mouseup', handleMouseUp);
+
+		return () => {
+			document.removeEventListener('mousemove', handleMouseMove);
+			document.removeEventListener('mouseup', handleMouseUp);
+		};
+	}, []);
+
+	const handleMouseDown = useCallback(
+		(e) => {
+			if (e.target.closest('.controls')) return; // Prevent dragging when clicking controls
+
+			isDraggingRef.current = true;
+			startPosRef.current = {
+				x: e.clientX - position.x,
+				y: e.clientY - position.y,
+			};
+		},
+		[position],
+	);
+
+	const handleMouseMove = useCallback((e) => {
+		if (!isDraggingRef.current) return;
+
+		const newX = e.clientX - startPosRef.current.x;
+		const newY = e.clientY - startPosRef.current.y;
+
+		setPosition({ x: newX, y: newY });
+	}, []);
+
+	const handleMouseUp = useCallback(() => {
+		isDraggingRef.current = false;
+	}, []);
+
 	const customDisconnetFunc = useCallback(() => {
 		if (voiceIntegrationData?.shouldConnect) {
 			updateAiSetupState({
@@ -25,9 +67,16 @@ const VoiceWrapper = () => {
 
 	return (
 		<div
+			ref={containerRef}
 			className={`voiceContainer ${
 				voiceIntegrationData?.shouldConnect ? 'active' : 'inactive'
 			} ${isHomePage ? 'home-page' : 'other-page'}`}
+			onMouseDown={handleMouseDown}
+			style={{
+				position: 'fixed',
+				transform: `translate(${position.x}px, ${position.y}px)`,
+				cursor: isDraggingRef.current ? 'grabbing' : 'grab',
+			}}
 		>
 			<LiveKitRoom
 				className="flex flex-col h-full w-full"
