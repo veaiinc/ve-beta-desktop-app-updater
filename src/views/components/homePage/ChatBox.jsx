@@ -141,8 +141,7 @@ const ChatBox = ({
 	// 	toggleKrispNoiseFilter,
 	// } = useVoiceIntegration();
 
-	const { shouldConnect, token, serverUrl, handleConnect, handleDisconnect } =
-		useUpdatedVoiceIntegration();
+	const { handleConnect } = useUpdatedVoiceIntegration();
 
 	const navigate = useNavigate();
 	const location = useLocation();
@@ -883,27 +882,6 @@ const ChatBox = ({
 	return (
 		<div className="chatParentWrapper">
 			<div className={`chatWrapper`}>
-				<div className={`voiceContainer ${info?.voiceIntegration ? 'active' : 'inactive'}`}>
-					<LiveKitRoom
-						className="flex flex-col h-full w-full"
-						serverUrl={serverUrl}
-						token={token}
-						connect={shouldConnect}
-						onError={(e) => {
-							message.error(e.message);
-							console.error(e);
-						}}
-					>
-						<Voice
-							shouldConnect={shouldConnect}
-							token={token}
-							serverUrl={serverUrl}
-							handleDisconnect={handleDisConnect}
-						/>
-						<RoomAudioRenderer />
-						<StartAudio label="Click to enable audio playback" />
-					</LiveKitRoom>
-				</div>
 				<div
 					className={`chat-box-container ${
 						info?.voiceIntegration ? 'inactive' : 'active'

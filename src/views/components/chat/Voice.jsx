@@ -23,7 +23,7 @@ import {
 	useTrackTranscription,
 } from '@livekit/components-react';
 import { useKrispNoiseFilter } from '@livekit/components-react/krisp';
-const Voice = ({ shouldConnect, token, serverUrl, handleDisconnect }) => {
+const Voice = ({ handleDisconnect }) => {
 	const { name } = useRoomInfo();
 	const [transcripts, setTranscripts] = useState(new Map());
 	const localdata = useLocalParticipant();

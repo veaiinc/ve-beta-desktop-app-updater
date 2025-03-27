@@ -1,7 +1,5 @@
-import React, { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { Room, RoomEvent, createLocalTracks } from 'livekit-client';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import Context from '../../context/context';
-import { message } from 'antd';
 
 const useUpdatedVoiceIntegration = () => {
 	const [shouldConnect, setShouldConnect] = useState(false);
@@ -9,24 +7,46 @@ const useUpdatedVoiceIntegration = () => {
 	const [serverUrl, setServerUrl] = useState('wss://veai-naymm7ww.livekit.cloud');
 
 	let {
-		aiSetup: { getTokenForVoice, updateAiSetupState },
+		aiSetup: { getTokenForVoice, updateAiSetupState, triggerVoiceDisconnect },
 	} = useContext(Context);
+
+	useEffect(() => {
+		if (triggerVoiceDisconnect) {
+			handleDisconnect();
+			updateAiSetupState({ triggerVoiceDisconnect: null });
+		}
+	}, [triggerVoiceDisconnect]);
 
 	const fetchToken = useCallback(async () => {
 		const { token } = await getTokenForVoice();
 		setToken(token);
+		return token;
 	}, []);
 
 	const handleConnect = useCallback(async () => {
 		if (!shouldConnect) {
-			await fetchToken();
+			const token = await fetchToken();
 			setShouldConnect(true);
+			updateAiSetupState({
+				voiceIntegrationData: {
+					token,
+					serverUrl,
+					shouldConnect: true,
+				},
+			});
 		}
-	}, [token]);
+	}, [token, serverUrl, shouldConnect]);
 
 	const handleDisconnect = useCallback(() => {
 		if (shouldConnect) {
 			setShouldConnect(false);
+			updateAiSetupState({
+				voiceIntegrationData: {
+					token,
+					serverUrl,
+					shouldConnect: false,
+				},
+			});
 		}
 	}, [shouldConnect]);
 

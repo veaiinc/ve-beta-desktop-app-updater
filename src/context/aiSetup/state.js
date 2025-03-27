@@ -51,8 +51,9 @@ export const initialState = {
 	moreUpdatedKnowledgeBaseFiles: null,
 	filesUploadedInAiChat: null,
 	isVoiceIntegrationActive: null,
-
 	aiSetupData: null,
+	voiceIntegrationData: null, //{token,serverUrl,shouldConnect	}
+	triggerVoiceDisconnect: null,
 };
 
 export const AiSetupState = () => {
