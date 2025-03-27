@@ -10,11 +10,13 @@ const AiSetup = () => {
 		aiSetup: {
 			getAiSetup,
 			aiSetupData,
+			aiSetupDataUser,
 			updateAiSetupData,
 			resetAiSetupData,
 			deleteAiSetupData,
 			editAiSetupData,
 		},
+		profileInfo: { tenantUserAccessControls },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -29,15 +31,51 @@ const AiSetup = () => {
 		confirmType: null,
 		deleteSelectedData: null,
 		editSelectedData: null,
+		activeTab: 'user',
+		isOwner: false,
 	});
 
 	useEffect(() => {
-		if (!aiSetupData) {
-			getAiSetup();
+		if (info?.activeTab === 'workspace') {
+			if (aiSetupData) {
+				updateState({ aiSetup: { ...aiSetupData }, loading: false });
+			}
 		} else {
-			updateState({ aiSetup: aiSetupData, loading: false });
+			if (aiSetupDataUser) {
+				console.log('aiSetupDataUser', aiSetupDataUser);
+				updateState({ aiSetup: { ...aiSetupDataUser }, loading: false });
+			}
 		}
-	}, [aiSetupData]);
+	}, [aiSetupData, aiSetupDataUser]);
+
+	useEffect(() => {
+		if (info?.activeTab === 'workspace') {
+			if (!aiSetupData) {
+				updateState({ loading: true });
+				getAiSetup(true);
+			} else {
+				updateState({ aiSetup: { ...aiSetupData }, loading: false });
+			}
+		} else {
+			if (!aiSetupDataUser) {
+				updateState({ loading: true });
+				getAiSetup(false);
+			} else {
+				updateState({ aiSetup: { ...aiSetupDataUser }, loading: false });
+			}
+		}
+	}, [info?.activeTab]);
+
+	useEffect(() => {
+		if (!tenantUserAccessControls) {
+			return;
+		}
+		if (tenantUserAccessControls?.role === 'admin') {
+			updateState({ activeTab: 'workspace', isOwner: true });
+		} else {
+			updateState({ activeTab: 'user', isOwner: false });
+		}
+	}, [tenantUserAccessControls]);
 
 	const updateState = (data) => {
 		setInfo((prev) => ({ ...prev, ...data }));
@@ -59,23 +97,28 @@ const AiSetup = () => {
 		});
 	}, []);
 
-	const handleSubmit = useCallback(async (data) => {
-		updateState({ submitLoading: true });
-		const response = await updateAiSetupData(data);
-		if (response?.[0]) {
-			message?.success('Updated successfully');
-			updateState({ submitLoading: false, openAddNewGoalModal: false });
-			return true;
-		} else {
-			message?.error('Failed to update');
-			updateState({ submitLoading: false });
-			return false;
-		}
-	}, []);
+	const handleSubmit = useCallback(
+		async (data) => {
+			updateState({ submitLoading: true });
+			const isWorkspace = info?.activeTab === 'workspace';
+			const response = await updateAiSetupData(data, isWorkspace);
+			if (response?.[0]) {
+				message?.success('Updated successfully');
+				updateState({ submitLoading: false, openAddNewGoalModal: false });
+				return true;
+			} else {
+				message?.error('Failed to update');
+				updateState({ submitLoading: false });
+				return false;
+			}
+		},
+		[info?.activeTab],
+	);
 
 	const handleEditSubmit = useCallback(
 		async (data) => {
 			updateState({ submitLoading: true });
+			const isWorkspace = info?.activeTab === 'workspace';
 			const response = await editAiSetupData(
 				info?.editSelectedData?.type,
 				info?.editSelectedData?.id,
@@ -83,6 +126,7 @@ const AiSetup = () => {
 					...(data?.type !== 'memory' && { heading: data?.heading }),
 					description: data?.description,
 				},
+				isWorkspace,
 			);
 			if (response?.[0]) {
 				message?.success('Updated successfully');
@@ -94,12 +138,13 @@ const AiSetup = () => {
 				return false;
 			}
 		},
-		[info?.editSelectedData],
+		[info?.editSelectedData, info?.activeTab],
 	);
 
 	const handleResetAiSetup = useCallback(async () => {
 		updateState({ resetLoading: true });
-		const response = await resetAiSetupData(info?.resetSelectedType);
+		const isWorkspace = info?.activeTab === 'workspace';
+		const response = await resetAiSetupData(info?.resetSelectedType, isWorkspace);
 		if (response?.[0]) {
 			message?.success('Reset successfully');
 			updateState({
@@ -112,13 +157,15 @@ const AiSetup = () => {
 			message?.error('Failed to reset');
 			updateState({ resetLoading: false });
 		}
-	}, [info?.resetSelectedType]);
+	}, [info?.resetSelectedType, info?.activeTab]);
 
 	const handleDeleteAiSetupData = useCallback(async () => {
 		updateState({ resetLoading: true });
+		const isWorkspace = info?.activeTab === 'workspace';
 		const response = await deleteAiSetupData(
 			info?.deleteSelectedData?.type,
 			info?.deleteSelectedData?.id,
+			isWorkspace,
 		);
 		if (response?.[0]) {
 			message?.success('Deleted successfully');
@@ -132,7 +179,7 @@ const AiSetup = () => {
 			message?.error('Failed to delete');
 			updateState({ resetLoading: false });
 		}
-	}, [info?.deleteSelectedData]);
+	}, [info?.deleteSelectedData, info?.activeTab]);
 
 	const handleDeleteButtonClick = useCallback((type, id) => {
 		updateState({
@@ -159,7 +206,26 @@ const AiSetup = () => {
 		<>
 			<div className="AiSetupContainer">
 				<div className="AiSetupWrapper">
-					{/* <div className="ai-setup-tabs">Tabs goes here</div> */}
+					<div className="ai-setup-tabs">
+						{info?.isOwner && (
+							<button
+								className={`ai-setup-tab-button ${
+									info?.activeTab === 'workspace' ? 'active' : ''
+								}`}
+								onClick={() => updateState({ activeTab: 'workspace' })}
+							>
+								Workspace Goals
+							</button>
+						)}
+						<button
+							className={`ai-setup-tab-button ${
+								info?.activeTab === 'user' ? 'active' : ''
+							}`}
+							onClick={() => updateState({ activeTab: 'user' })}
+						>
+							My Goals
+						</button>
+					</div>
 					<div className="ai-setup-sections">
 						<h1 className="ai-setup-title">
 							Tell me about your business, and I'll help you achieve your goals!
@@ -168,7 +234,7 @@ const AiSetup = () => {
 							openAddNewGoalModal={handleOpenAddNewGoalModal}
 							type="goal"
 							title="Goals"
-							data={aiSetupData?.goal}
+							data={info?.aiSetup?.goal}
 							loading={info?.loading}
 							onResetClick={handleResetBtnClick}
 							onDeleteClick={handleDeleteButtonClick}
@@ -178,7 +244,7 @@ const AiSetup = () => {
 							openAddNewGoalModal={handleOpenAddNewGoalModal}
 							type="focus"
 							title="Things I need to know"
-							data={aiSetupData?.focus}
+							data={info?.aiSetup?.focus}
 							loading={info?.loading}
 							onResetClick={handleResetBtnClick}
 							onDeleteClick={handleDeleteButtonClick}
@@ -188,7 +254,7 @@ const AiSetup = () => {
 							openAddNewGoalModal={handleOpenAddNewGoalModal}
 							title="Memory"
 							type="memory"
-							data={aiSetupData?.memory}
+							data={info?.aiSetup?.memory}
 							loading={info?.loading}
 							onResetClick={handleResetBtnClick}
 							onDeleteClick={handleDeleteButtonClick}

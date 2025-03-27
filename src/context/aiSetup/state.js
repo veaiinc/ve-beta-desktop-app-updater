@@ -53,6 +53,7 @@ export const initialState = {
 	isVoiceIntegrationActive: null,
 
 	aiSetupData: null,
+	aiSetupDataUser: null,
 };
 
 export const AiSetupState = () => {
@@ -969,16 +970,19 @@ export const AiSetupState = () => {
 		});
 	};
 
-	const getAiSetup = async () => {
+	const getAiSetup = async (isWorkspace = true) => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
 			const usertoken = localStorage.getItem('usertoken');
-			const url = '/' + workspaceId + '/ai-tenant-configurations/ai-setup';
+			const path = isWorkspace
+				? '/ai-tenant-configurations'
+				: '/ai-tenant-user-configurations';
+			const url = '/' + workspaceId + path + '/ai-setup';
 
 			const response = await service?.fetchGet(url, usertoken, 'ai_assistant_api');
 			if (response?.[0] === true) {
 				dispatch({
-					type: Actions?.SET_AI_SETUP,
+					type: isWorkspace ? Actions?.SET_AI_SETUP : Actions?.SET_AI_SETUP_DATA_USER,
 					payload: response?.[1],
 				});
 			}
@@ -987,17 +991,20 @@ export const AiSetupState = () => {
 		}
 	};
 
-	const updateAiSetupData = async (body) => {
+	const updateAiSetupData = async (body, isWorkspace = true) => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
-			const path = '/' + workspaceId + '/ai-tenant-configurations/ai-setup';
+			const path = isWorkspace
+				? '/ai-tenant-configurations'
+				: '/ai-tenant-user-configurations';
+			const url = '/' + workspaceId + path + '/ai-setup';
 			const token = localStorage.getItem('usertoken');
 			const type = 'ai_assistant_api';
-			const response = await service?.fetchPut(path, body, token, type);
+			const response = await service?.fetchPut(url, body, token, type);
 			const success = response?.[0] === true;
 			if (success) {
 				dispatch({
-					type: Actions?.SET_AI_SETUP,
+					type: isWorkspace ? Actions?.SET_AI_SETUP : Actions?.SET_AI_SETUP_DATA_USER,
 					payload: response?.[1],
 				});
 				return [true];
@@ -1010,16 +1017,21 @@ export const AiSetupState = () => {
 		}
 	};
 
-	const resetAiSetupData = async (dataType) => {
+	const resetAiSetupData = async (dataType, isWorkspace = true) => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
-			const path =
-				'/' + workspaceId + '/ai-tenant-configurations/ai-setup/' + dataType + '/reset';
+			const path = isWorkspace
+				? '/ai-tenant-configurations'
+				: '/ai-tenant-user-configurations';
+			const url = '/' + workspaceId + path + '/ai-setup/' + dataType + '/reset';
 			const token = localStorage.getItem('usertoken');
 			const type = 'ai_assistant_api';
-			const response = await service?.fetchPut(path, {}, token, type);
+			const response = await service?.fetchPut(url, {}, token, type);
 			if (response?.[0] === true) {
-				dispatch({ type: Actions?.RESET_AI_SETUP, payload: dataType });
+				dispatch({
+					type: isWorkspace ? Actions?.RESET_AI_SETUP : Actions?.RESET_AI_SETUP_DATA_USER,
+					payload: dataType,
+				});
 				return [true];
 			} else {
 				return [false, response?.[1]];
@@ -1030,15 +1042,23 @@ export const AiSetupState = () => {
 		}
 	};
 
-	const deleteAiSetupData = async (dataType, id) => {
+	const deleteAiSetupData = async (dataType, id, isWorkspace = true) => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
-			const path = `/${workspaceId}/ai-tenant-configurations/ai-setup/${dataType}/${id}`;
+			const path = isWorkspace
+				? '/ai-tenant-configurations'
+				: '/ai-tenant-user-configurations';
+			const url = '/' + workspaceId + path + '/ai-setup/' + dataType + '/' + id;
 			const token = localStorage.getItem('usertoken');
 			const type = 'ai_assistant_api';
-			const response = await service?.fetchDelete(path, token, null, type);
+			const response = await service?.fetchDelete(url, token, null, type);
 			if (response?.[0] === true) {
-				dispatch({ type: Actions?.DELETE_AI_SETUP_DATA, payload: { type: dataType, id } });
+				dispatch({
+					type: isWorkspace
+						? Actions?.DELETE_AI_SETUP_DATA
+						: Actions?.DELETE_AI_SETUP_DATA_USER,
+					payload: { type: dataType, id },
+				});
 				return [true];
 			} else {
 				return [false, response?.[1]];
@@ -1049,19 +1069,24 @@ export const AiSetupState = () => {
 		}
 	};
 
-	const editAiSetupData = async (dataType, _id, data) => {
+	const editAiSetupData = async (dataType, _id, data, isWorkspace = true) => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
-			const path = `/${workspaceId}/ai-tenant-configurations/ai-setup/${dataType}/${_id}`;
+			const path = isWorkspace
+				? '/ai-tenant-configurations'
+				: '/ai-tenant-user-configurations';
+			const url = '/' + workspaceId + path + '/ai-setup/' + dataType + '/' + _id;
 			const token = localStorage.getItem('usertoken');
 			const type = 'ai_assistant_api';
 			const body = {
 				...data,
 			};
-			const response = await service?.fetchPut(path, body, token, type);
+			const response = await service?.fetchPut(url, body, token, type);
 			if (response?.[0] === true) {
 				dispatch({
-					type: Actions?.UPDATE_AI_SETUP_DATA,
+					type: isWorkspace
+						? Actions?.UPDATE_AI_SETUP_DATA
+						: Actions?.UPDATE_AI_SETUP_DATA_USER,
 					payload: { type: dataType, data: { ...data, _id } },
 				});
 				return [true];

@@ -139,6 +139,32 @@ const actionHandlers = {
 		},
 	}),
 
+	SET_AI_SETUP_DATA_USER: (state, action) => ({
+		...state,
+		aiSetupDataUser: action?.payload,
+	}),
+	RESET_AI_SETUP_DATA_USER: (state, action) => ({
+		...state,
+		aiSetupDataUser: { ...state?.aiSetupDataUser, [action?.payload]: [] },
+	}),
+	DELETE_AI_SETUP_DATA_USER: (state, action) => ({
+		...state,
+		aiSetupDataUser: {
+			...state?.aiSetupDataUser,
+			[action?.payload?.type]: state?.aiSetupDataUser?.[action?.payload?.type]?.filter(
+				(item) => item?._id !== action?.payload?.id,
+			),
+		},
+	}),
+	UPDATE_AI_SETUP_DATA_USER: (state, action) => ({
+		...state,
+		aiSetupDataUser: {
+			...state?.aiSetupDataUser,
+			[action?.payload?.type]: state?.aiSetupDataUser?.[action?.payload?.type]?.map((item) =>
+				item?._id === action?.payload?.data?._id ? action?.payload?.data : item,
+			),
+		},
+	}),
 	RESET_STATE: () => initialState,
 };
 
