@@ -13,6 +13,7 @@ const VoiceWrapper = () => {
 	const customDisconnetFunc = useCallback(() => {
 		if (voiceIntegrationData?.shouldConnect) {
 			updateAiSetupState({
+				triggerVoiceDisconnect: true,
 				voiceIntegrationData: null,
 			});
 		}
