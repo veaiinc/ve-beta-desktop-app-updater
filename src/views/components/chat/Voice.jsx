@@ -131,7 +131,7 @@ const Voice = ({ handleDisconnect }) => {
 		if (localParticipant?.isSpeaking) return 'user-speaking';
 		return voiceAssistant.state || '';
 	};
-	console.log(transScriptMessages);
+
 	const getMicIcon = () => {
 		const isEnabled = localMicTrack?.publication?.isEnabled;
 		return isEnabled ? <VoiceSvg className="mic-icon" /> : <></>;
