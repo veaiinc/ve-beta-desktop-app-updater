@@ -5,6 +5,7 @@ import { ReactComponent as CloseSvg } from '../../../assets/svg/calendar/close.s
 import { ReactComponent as VoiceSvg } from '../../../assets/svg/ai_agents/voice.svg';
 import { ReactComponent as VoiceLightSvg } from '../../../assets/svg/ai_agents/voice-light.svg';
 import { ReactComponent as VoiceMuteSvg } from '../../../assets/svg/ai_agents/voice-mute.svg';
+import { ReactComponent as UserSoundSvg } from '../../../assets/svg/chat/UserSound.svg';
 import { ConnectionState, LocalParticipant, Track } from 'livekit-client';
 import useUpdatedVoiceIntegration from '../../hooks/useUpdatedVoiceIntegration';
 import { message } from 'antd';
@@ -75,12 +76,29 @@ const Voice = ({ handleDisconnect }) => {
 			);
 		});
 
+		// Add agent messages
+		agentMessages.segments?.forEach((s) => {
+			newTranscripts.set(
+				s.id,
+				segmentToChatMessage(
+					s,
+					transcripts.get(s.id),
+					voiceAssistant.audioTrack?.participant,
+				),
+			);
+		});
+
 		setTranscripts(newTranscripts);
 
 		const allMessages = Array.from(newTranscripts.values());
 		allMessages.sort((a, b) => a.timestamp - b.timestamp);
 		setTransScriptMessages(allMessages);
-	}, [voiceAssistant.state, localParticipant, localMessages.segments]);
+	}, [
+		voiceAssistant.state,
+		localParticipant,
+		localMessages.segments,
+		voiceAssistant.audioTrack?.participant,
+	]);
 	const getStatusText = () => {
 		if (localParticipant?.isSpeaking) {
 			return 'Listening to you...';
@@ -112,16 +130,32 @@ const Voice = ({ handleDisconnect }) => {
 		if (localParticipant?.isSpeaking) return 'user-speaking';
 		return voiceAssistant.state || '';
 	};
-
+	console.log(transScriptMessages);
 	const getMicIcon = () => {
 		const isEnabled = localMicTrack?.publication?.isEnabled;
 		return isEnabled ? <VoiceSvg className="mic-icon" /> : <></>;
 	};
+
+	const getLatestMessage = () => {
+		if (transScriptMessages.length === 0) {
+			return null;
+		}
+		return transScriptMessages[transScriptMessages.length - 1];
+	};
+
+	const getDisplayText = () => {
+		const latestMessage = getLatestMessage();
+		if (latestMessage) {
+			return `${latestMessage.name}: ${latestMessage.message}`;
+		}
+		return getStatusText();
+	};
+
 	return (
 		<div className={`voice-input-container ${getStateClass()}`}>
 			<div className="input-area">
-				<VoiceLightSvg className="voice-icon" />
-				<span className="placeholder">{getStatusText()}</span>
+				<UserSoundSvg className="voice-icon" />
+				<span className="placeholder">{getDisplayText()}</span>
 			</div>
 
 			{shouldShowAnimation() && (

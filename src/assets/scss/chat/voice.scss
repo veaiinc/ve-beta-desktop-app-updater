@@ -76,7 +76,11 @@
 
 		.placeholder {
 			color: var(--secondary-font);
-			font-size: 14px;
+			font-size: 10px;
+			// white-space: nowrap;
+			// overflow: hidden;
+			text-overflow: ellipsis;
+			max-width: 80%;
 		}
 	}
 
@@ -88,7 +92,7 @@
 		padding: 20px 0;
 
 		.state-label {
-			color: var(--primary-font);
+			color: #ffffff;
 			font-size: 16px;
 			font-weight: 500;
 			margin-bottom: 15px;
@@ -104,25 +108,23 @@
 
 	.controls {
 		display: flex;
-		justify-content: center;
-		align-items: center;
-		gap: 20px;
-
+		gap: 12px;
 		.mic-button,
 		.cancel-button {
-			width: 60px;
-			height: 60px;
-			border-radius: 50%;
-			border: none;
-			background-color: var(--card-over-card);
+			flex: 1;
 			cursor: pointer;
 			display: flex;
+			padding: 12px;
 			justify-content: center;
 			align-items: center;
-			padding: 0;
-
+			gap: 12px;
+			border: none;
+			flex: 1 0 0;
+			align-self: stretch;
+			border-radius: 12px;
+			background: var(--Popup, #202123);
 			&:hover {
-				background-color: var(--card-over-card-hover);
+				background-color: #333333;
 			}
 
 			svg {
@@ -136,14 +138,14 @@
 				background-color: #4caf50;
 				.mic-icon {
 					path {
-						stroke: var(--primary-font);
+						stroke: #fff;
 					}
 				}
 			}
 
 			.mic-icon {
 				path {
-					stroke: var(--secondary-font);
+					stroke: #999;
 				}
 			}
 		}
@@ -151,7 +153,7 @@
 		.cancel-button {
 			.cancel-icon {
 				path {
-					stroke: var(--secondary-font);
+					stroke: #999;
 				}
 			}
 		}
@@ -182,19 +184,21 @@
 }
 
 .chat-mic-icon-container svg {
-	fill: var(--primary-font);
+	fill: #fff;
 }
 .icon-container {
+	flex: 1;
 	cursor: pointer;
 	display: flex;
-	width: 60px;
-	height: 60px;
-	padding: 6.4px;
+	padding: 12px;
 	justify-content: center;
 	align-items: center;
-	gap: 9.6px;
-	border-radius: 100px;
-	background: var(--card-over-card);
+	gap: 12px;
+	border: none;
+	flex: 1 0 0;
+	align-self: stretch;
+	border-radius: 12px;
+	background: var(--Popup, #202123);
 	svg {
 		path {
 			stroke: var(--primary-font);
