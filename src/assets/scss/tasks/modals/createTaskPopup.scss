@@ -216,8 +216,8 @@
 				gap: 6px;
 				border-radius: 100px;
 				border: 1px solid transparent;
-				background-color: var(--primary-font);
-				color: var(--popup);
+				background-color: var(--primary-button);
+				color: var(--primary-button-font);
 				cursor: pointer;
 				font-family: var(--primary-font-family);
 				font-size: 14px;
@@ -226,20 +226,12 @@
 				line-height: normal;
 				transition: all 0.3s ease;
 				&:hover {
-					background-color: transparent;
-					border: 1px solid var(--primary-font);
-					color: var(--primary-font);
+					background-color: var(--primary-button);
+					color: var(--primary-button-font);
 				}
 
 				&:disabled {
-					background-color: var(--card);
-					color: var(--secondary-font);
 					cursor: not-allowed;
-
-					&:hover {
-						background: rgba(var(--card), 0.7);
-						border: 1px solid transparent;
-					}
 				}
 			}
 		}
@@ -415,8 +407,8 @@
 			gap: 16px;
 			border-radius: 100px;
 			border: 1px solid transparent;
-			background-color: var(--primary-font);
-			color: var(--popup);
+			background-color: var(--primary-button);
+			color: var(--primary-button-font);
 			cursor: pointer;
 			font-family: var(--primary-font-family);
 			font-size: 14px;
@@ -426,20 +418,12 @@
 			transition: all 0.3s ease;
 
 			&:hover {
-				background-color: transparent;
-				border: 1px solid var(--primary-font);
-				color: var(--primary-font);
+				border: 1px solid var(--primary-button);
+				color: var(--primary-button-font);
 			}
 
 			&:disabled {
-				background-color: var(--card);
-				color: var(--secondary-font);
 				cursor: not-allowed;
-
-				&:hover {
-					background: rgba(var(--card), 0.7);
-					border: 1px solid transparent;
-				}
 			}
 		}
 
