@@ -194,3 +194,15 @@ export const getBase64 = (file) =>
 		reader.onload = () => resolve(reader.result);
 		reader.onerror = (error) => reject(error);
 	});
+
+export const checkDevices = async () => {
+	try {
+		const devices = await navigator.mediaDevices.enumerateDevices();
+		const hasMic = devices.some((device) => device.kind === 'audioinput');
+		const hasCamera = devices.some((device) => device.kind === 'videoinput');
+
+		return { hasMic, hasCamera };
+	} catch (error) {
+		console.error('Error checking devices:', error);
+	}
+};

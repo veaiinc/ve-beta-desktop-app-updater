@@ -22,7 +22,7 @@ import ObjectID from 'bson-objectid';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ReactComponent as Filter } from '../../../assets/svg/my_templates/filter.svg';
 import { ReactComponent as PaperClip } from '../../../assets/svg/ai_agents/paper-clip.svg';
-import { getBase64 } from '../../../helpers';
+import { checkDevices, getBase64 } from '../../../helpers';
 import WorkflowSlugSelector from '../../components/calendar/WorkflowSlugSelector';
 import useVoiceIntegration from '../../hooks/useVoiceIntegration';
 import SearchDropdown from '../chat/SearchDropdown';
@@ -786,7 +786,14 @@ const ChatBox = ({
 	);
 
 	const handleMicIconClick = useCallback(
-		(event) => {
+		async (event) => {
+			const { hasMic, hasCamera } = await checkDevices();
+
+			if (!hasMic) {
+				message.error('Mic is not available');
+				return;
+			}
+
 			if (!info?.voiceIntegration) {
 				handleConnect();
 				setInfo((prev) => ({ ...prev, voiceIntegration: true }));

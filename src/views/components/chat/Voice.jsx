@@ -24,7 +24,7 @@ import {
 	useTrackTranscription,
 } from '@livekit/components-react';
 import { useKrispNoiseFilter } from '@livekit/components-react/krisp';
-const Voice = ({ handleDisconnect }) => {
+const Voice = ({ handleDisconnect, deviceInfo }) => {
 	const { name = '' } = useRoomInfo();
 	const [transcripts, setTranscripts] = useState(new Map());
 	const localdata = useLocalParticipant();
@@ -50,9 +50,11 @@ const Voice = ({ handleDisconnect }) => {
 	useEffect(() => {
 		if (roomState === ConnectionState.Connected) {
 			localParticipant.setMicrophoneEnabled(true);
-			localParticipant.setCameraEnabled(true);
+			if (deviceInfo?.hasCamera) {
+				localParticipant.setCameraEnabled(true);
+			}
 		}
-	}, [localParticipant, roomState]);
+	}, [localParticipant, roomState, deviceInfo]);
 
 	useEffect(() => {
 		krisp.setNoiseFilterEnabled(true);
@@ -131,7 +133,7 @@ const Voice = ({ handleDisconnect }) => {
 		if (localParticipant?.isSpeaking) return 'user-speaking';
 		return voiceAssistant.state || '';
 	};
-
+	console.log(transScriptMessages);
 	const getMicIcon = () => {
 		const isEnabled = localMicTrack?.publication?.isEnabled;
 		return isEnabled ? <VoiceSvg className="mic-icon" /> : <></>;
@@ -159,13 +161,6 @@ const Voice = ({ handleDisconnect }) => {
 				<span className="placeholder">{getDisplayText()}</span>
 			</div>
 
-			{localVideoTrack && (
-				<VideoTrack
-					trackRef={localVideoTrack}
-					className={`absolute top-1/2 -translate-y-1/2 object-position-center w-full h-full video-container`}
-				/>
-			)}
-
 			{shouldShowAnimation() && (
 				<div className="animation-container">
 					<div className="state-label">{getStatusText()}</div>
@@ -179,15 +174,18 @@ const Voice = ({ handleDisconnect }) => {
 					</div>
 				</div>
 			)}
+
+			{localVideoTrack && (
+				<VideoTrack
+					trackRef={localVideoTrack}
+					className={`absolute top-1/2 -translate-y-1/2 object-position-center w-full h-full`}
+				/>
+			)}
+
 			<div className="controls">
 				<TrackToggle
 					className="px-2 py-1 bg-gray-900 text-gray-300 border border-gray-800 rounded-sm hover:bg-gray-800 chat-mic-icon-container icon-container"
 					source={Track.Source.Microphone}
-					style={{ border: 'none' }}
-				/>
-				<TrackToggle
-					className="px-2 py-1 bg-gray-900 text-gray-300 border border-gray-800 rounded-sm hover:bg-gray-800 chat-mic-icon-container icon-container"
-					source={Track.Source.Camera}
 					style={{ border: 'none' }}
 				/>
 

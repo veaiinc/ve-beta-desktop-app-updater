@@ -5,6 +5,7 @@ import Context from '../../context/context';
 import { message } from 'antd';
 import { useLocation } from 'react-router-dom';
 import '../../assets/scss/voice/voiceWrapper.scss';
+import { checkDevices } from '../../helpers';
 
 const VoiceWrapper = () => {
 	let {
@@ -13,7 +14,9 @@ const VoiceWrapper = () => {
 
 	const location = useLocation();
 	const isHomePage = location.pathname === '/' || location.pathname === '/home';
-
+	const [info, setInfo] = useState({
+		deviceInfo: {},
+	});
 	const [position, setPosition] = useState({ x: window.innerWidth / 2 - 125, y: 0 });
 	const containerRef = useRef(null);
 	const isDraggingRef = useRef(false);
@@ -28,6 +31,10 @@ const VoiceWrapper = () => {
 			document.removeEventListener('mousemove', handleMouseMove);
 			document.removeEventListener('mouseup', handleMouseUp);
 		};
+	}, []);
+
+	useEffect(() => {
+		getDeviceInfo();
 	}, []);
 
 	const handleMouseDown = useCallback(
@@ -65,6 +72,11 @@ const VoiceWrapper = () => {
 		}
 	}, [voiceIntegrationData]);
 
+	const getDeviceInfo = useCallback(async () => {
+		const deviceInfo = await checkDevices();
+		setInfo((prev) => ({ ...prev, deviceInfo }));
+	}, []);
+
 	return (
 		<div
 			ref={containerRef}
@@ -88,7 +100,7 @@ const VoiceWrapper = () => {
 					console.error(e);
 				}}
 			>
-				<Voice handleDisconnect={customDisconnetFunc} />
+				<Voice handleDisconnect={customDisconnetFunc} deviceInfo={info?.deviceInfo} />
 				<RoomAudioRenderer />
 				<StartAudio label="Click to enable audio playback" />
 			</LiveKitRoom>
