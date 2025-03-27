@@ -33,14 +33,6 @@ const Voice = ({ shouldConnect, token, serverUrl, handleDisconnect }) => {
 	const krisp = useKrispNoiseFilter();
 	const roomState = useConnectionState();
 	const tracks = useTracks();
-
-	// tracks?.setMediaStreamTrack(
-	// 	new MediaStreamTrack({
-	// 		echoCancellation: true,
-	// 		noiseSuppression: true,
-	// 		autoGainControl: true,
-	// 	}),
-	// );
 	const room = useRoomContext();
 
 	const localTracks = tracks.filter(({ participant }) => participant instanceof LocalParticipant);
