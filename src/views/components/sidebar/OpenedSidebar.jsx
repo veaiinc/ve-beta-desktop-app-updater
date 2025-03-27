@@ -1,14 +1,13 @@
 import React, { useState, memo, useCallback, useEffect, useContext } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { veAiModulesItemsList, veAiModules } from './sidebarindex';
+import { veAiModulesItemsList, veAiModules, photographerModules } from './sidebarindex';
 import { ReactComponent as ArrowUpRightSvg } from '../../../assets/svg/sidebar/arrowupright.svg';
 import { ReactComponent as DownArrowSmallSvg } from '../../../assets/svg/sidebar/downarrowsmall.svg';
 import { ReactComponent as NotificationSvg } from '../../../assets/svg/sidebar/notification.svg';
-import { ReactComponent as RefreshSvg } from '../../../assets/svg/sidebar/Refresh.svg';
 import { ReactComponent as SidebarClosingSvg } from '../../../assets/svg/sidebar/SidebarClosing.svg';
-import { ReactComponent as LogoutRedSvg } from '../../../assets/svg/sidebar/logout_red.svg';
 import { ReactComponent as CrossSvg } from '../../../assets/svg/sidebar/CrossSvg.svg';
 import { ReactComponent as RightArrowSvg } from '../../../assets/svg/sidebar/RightArrow.svg';
+
 import WorkspaceListComponent from './Workspace';
 import useLogout from '../../hooks/useLogout';
 import { message, Tooltip } from 'antd';
@@ -54,11 +53,11 @@ const OpenedSideBarHoverStateIcons = ({
 	const location = useLocation();
 	const [isHover, setisHover] = useState(false);
 
-	const onMoutseEnter = () => {
+	const onMouseEnter = () => {
 		if (isActive) return;
 		setisHover(true);
 	};
-	const onMoutseLeave = () => {
+	const onMouseLeave = () => {
 		if (isActive) return;
 		setisHover(false);
 	};
@@ -120,8 +119,8 @@ const OpenedSideBarHoverStateIcons = ({
 				className={`singleModuleItem ${isExactPathMatch() ? 'activeListModule' : ''} ${
 					isDropdownVisible ? 'calendar-active' : ''
 				}`}
-				onMouseEnter={onMoutseEnter}
-				onMouseLeave={onMoutseLeave}
+				onMouseEnter={onMouseEnter}
+				onMouseLeave={onMouseLeave}
 				onClick={() => {
 					if (isVoiceIntegrationActive) {
 						return message.error(
@@ -211,83 +210,6 @@ const OpenedSideBarHoverStateIcons = ({
 	);
 };
 
-const OpenedSideBarHoverStateIcons2 = ({
-	name,
-	Icon,
-	route,
-	initialColor = null,
-	isActive,
-	navigateTo,
-}) => {
-	const [isHover, setisHover] = useState(false);
-
-	const onMoutseEnter = () => {
-		if (isActive) return;
-		setisHover(true);
-	};
-	const onMoutseLeave = () => {
-		if (isActive) return;
-		setisHover(false);
-	};
-
-	const redirectToFunction = () => {
-		if (!route) return;
-		navigateTo(route);
-	};
-
-	return (
-		<div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginBottom: '4px' }}>
-			<div
-				className={`singleModuleItem ${isActive ? 'activeListModule' : ''} ${
-					isHover ? 'hover' : ''
-				}`}
-				onMouseEnter={onMoutseEnter}
-				onMouseLeave={onMoutseLeave}
-				onClick={redirectToFunction}
-				style={{
-					backgroundColor: isActive ? '#2E2F33' : '',
-				}}
-			>
-				<p>{name}</p>
-				{isActive ? (
-					<Icon fill={'#FFF'} />
-				) : (
-					<Icon fill={isHover ? '#FFF' : initialColor} />
-				)}
-			</div>
-		</div>
-	);
-};
-
-const AiModulesList = ({ image, name, route, navigateTo }) => {
-	const redirectToFunction = () => {
-		if (!route) return;
-		navigateTo(route);
-	};
-	return (
-		<div style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}>
-			<img
-				src={image}
-				alt={name}
-				style={{ width: '24px', height: '24px', borderRadius: '50%' }}
-			/>
-			<p
-				onClick={redirectToFunction}
-				style={{
-					color: '#E8E8E8',
-					fontFamily: 'Inter',
-					fontSize: '14px',
-					fontStyle: 'normal',
-					fontWeight: '500',
-					lineHeight: 'normal',
-				}}
-			>
-				{name}
-			</p>
-		</div>
-	);
-};
-
 const OpenedSideBarItemsComponent = ({
 	sidebarStates,
 	setsidebarStates,
@@ -303,7 +225,7 @@ const OpenedSideBarItemsComponent = ({
 }) => {
 	const {
 		templates: { leftSidebarState, updateStateValues },
-		profileInfo: { tenantUserAccessControls },
+		profileInfo: { tenantUserAccessControls, tennantSettingsData, getTenantSettings },
 	} = useContext(Context);
 	const navigate = useNavigate();
 	const logoutFunc = useLogout();
@@ -333,6 +255,12 @@ const OpenedSideBarItemsComponent = ({
 				{ name: 'AI Setup', route: '/settings/ai-setup' },
 		  ]
 		: [{ name: 'My Profile', route: '/settings/my-profile' }];
+
+	useEffect(() => {
+		if (!tennantSettingsData) {
+			getTenantSettings();
+		}
+	}, [tennantSettingsData]);
 
 	useEffect(() => {
 		if (leftSidebarState && leftSidebarState === 'close') {
@@ -477,11 +405,17 @@ const OpenedSideBarItemsComponent = ({
 	// Extract all possible app names (values from MODULE_NAME_MAP)
 	const allPossibleApps = Object.values(MODULE_NAME_MAP);
 
+	const tenantModules =
+		tennantSettingsData?.businessType === 'photography' ||
+		tennantSettingsData?.businessType === 'photographer'
+			? photographerModules
+			: veAiModulesItemsList;
+
 	const filteredModules =
 		tenantUserAccessControls?.role === 'admin'
-			? veAiModulesItemsList
+			? tenantModules
 			: filterModules(
-					veAiModulesItemsList,
+					tenantModules,
 					tenantUserAccessControls?.accessControls,
 					allPossibleApps,
 			  );
