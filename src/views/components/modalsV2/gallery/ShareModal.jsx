@@ -114,7 +114,6 @@ const ShareModal = ({
 		}
 	}, [galleryGuestAccessDetails]);
 
-	console.log('galleryGuestAccessDetails', galleryGuestAccessDetails);
 	useEffect(() => {
 		if (!tenantPreferences) {
 			getEditPreferences(galleryId);
