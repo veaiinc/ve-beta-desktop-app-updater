@@ -266,21 +266,13 @@ const ShareModal = ({
 				canDownloadOptimized: !galleryGuestAccessDetails?.canDownloadOptimized,
 			};
 			await updateGuestAccess(payload, galleryId);
+		} else if (name === 'isEnabled') {
+			payload = {
+				isEnabled: !galleryGuestAccessDetails?.isEnabled,
+			};
+			await updateGuestAccess(payload, galleryId);
 		}
 		await getGuestAccessDetails(galleryId);
-	};
-	const handleGalleryGuestAccess = () => {
-		setInfo((prevInfo) => ({
-			...prevInfo,
-			galleryGuestAccess: {
-				...prevInfo?.galleryGuestAccess,
-				isEnabled: !prevInfo?.galleryGuestAccess?.isEnabled,
-			},
-		}));
-		const payload = {
-			isEnabled: !info?.galleryGuestAccess?.isEnabled,
-		};
-		editGalleryGuestAccess(payload, galleryId);
 	};
 
 	const handleShareViaEmail = useCallback(async () => {
@@ -495,13 +487,13 @@ const ShareModal = ({
 						<div className="pinContainerItem">
 							<div className="optionsToggleContainer">
 								<ToggleSlider
-									value={info?.galleryGuestAccess?.isEnabled}
-									onChange={handleGalleryGuestAccess}
+									value={galleryGuestAccessDetails?.isEnabled}
+									onChange={() => handleGuestAccessUpdate('isEnabled')}
 								/>
 								<p>Guest PIN</p>
 							</div>
 							<p>If enabled gallery will be protected by PIN for guests</p>
-							{info?.galleryGuestAccess?.isEnabled && (
+							{galleryGuestAccessDetails?.isEnabled && (
 								<div className="editPinContainer">
 									<input
 										placeholder="Enter 3-digit PIN"
