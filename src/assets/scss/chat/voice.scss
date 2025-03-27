@@ -60,7 +60,7 @@
 		display: flex;
 		align-items: center;
 		gap: 10px;
-		background-color: #2a2a2a;
+		background-color: var(--card-over-card);
 		padding: 12px 16px;
 		border-radius: 8px;
 
@@ -70,12 +70,12 @@
 			display: inline-block;
 
 			path {
-				stroke: #999;
+				stroke: var(--stroke);
 			}
 		}
 
 		.placeholder {
-			color: #999;
+			color: var(--secondary-font);
 			font-size: 14px;
 		}
 	}
@@ -86,10 +86,9 @@
 		justify-content: center;
 		align-items: center;
 		padding: 20px 0;
-		
 
 		.state-label {
-			color: #ffffff;
+			color: var(--primary-font);
 			font-size: 16px;
 			font-weight: 500;
 			margin-bottom: 15px;
@@ -115,7 +114,7 @@
 			height: 60px;
 			border-radius: 50%;
 			border: none;
-			background-color: #2a2a2a;
+			background-color: var(--card-over-card);
 			cursor: pointer;
 			display: flex;
 			justify-content: center;
@@ -123,7 +122,7 @@
 			padding: 0;
 
 			&:hover {
-				background-color: #333333;
+				background-color: var(--card-over-card-hover);
 			}
 
 			svg {
@@ -137,14 +136,14 @@
 				background-color: #4caf50;
 				.mic-icon {
 					path {
-						stroke: #fff;
+						stroke: var(--primary-font);
 					}
 				}
 			}
 
 			.mic-icon {
 				path {
-					stroke: #999;
+					stroke: var(--secondary-font);
 				}
 			}
 		}
@@ -152,7 +151,7 @@
 		.cancel-button {
 			.cancel-icon {
 				path {
-					stroke: #999;
+					stroke: var(--secondary-font);
 				}
 			}
 		}
@@ -183,7 +182,7 @@
 }
 
 .chat-mic-icon-container svg {
-	fill: #fff;
+	fill: var(--primary-font);
 }
 .icon-container {
 	cursor: pointer;
@@ -195,7 +194,7 @@
 	align-items: center;
 	gap: 9.6px;
 	border-radius: 100px;
-	background: #2a2a2a;
+	background: var(--card-over-card);
 	svg {
 		path {
 			stroke: var(--primary-font);
