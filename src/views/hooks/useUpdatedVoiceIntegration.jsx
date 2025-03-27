@@ -41,11 +41,7 @@ const useUpdatedVoiceIntegration = () => {
 		if (shouldConnect) {
 			setShouldConnect(false);
 			updateAiSetupState({
-				voiceIntegrationData: {
-					token,
-					serverUrl,
-					shouldConnect: false,
-				},
+				voiceIntegrationData: null,
 			});
 		}
 	}, [shouldConnect]);
