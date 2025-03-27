@@ -12,17 +12,14 @@ const useUpdatedVoiceIntegration = () => {
 		aiSetup: { getTokenForVoice, updateAiSetupState },
 	} = useContext(Context);
 
-	useEffect(() => {
-		fetchToken();
-	}, []);
-
 	const fetchToken = useCallback(async () => {
 		const { token } = await getTokenForVoice();
 		setToken(token);
 	}, []);
 
-	const handleConnect = useCallback(() => {
+	const handleConnect = useCallback(async () => {
 		if (!shouldConnect) {
+			await fetchToken();
 			setShouldConnect(true);
 		}
 	}, [token]);
