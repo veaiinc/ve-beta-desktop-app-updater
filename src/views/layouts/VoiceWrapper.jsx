@@ -3,12 +3,16 @@ import { LiveKitRoom, RoomAudioRenderer, StartAudio } from '@livekit/components-
 import Voice from '../components/chat/Voice';
 import Context from '../../context/context';
 import { message } from 'antd';
+import { useLocation } from 'react-router-dom';
 import '../../assets/scss/voice/voiceWrapper.scss';
 
 const VoiceWrapper = () => {
 	let {
 		aiSetup: { updateAiSetupState, voiceIntegrationData },
 	} = useContext(Context);
+
+	const location = useLocation();
+	const isHomePage = location.pathname === '/' || location.pathname === '/home';
 
 	const customDisconnetFunc = useCallback(() => {
 		if (voiceIntegrationData?.shouldConnect) {
@@ -22,7 +26,7 @@ const VoiceWrapper = () => {
 		<div
 			className={`voiceContainer ${
 				voiceIntegrationData?.shouldConnect ? 'active' : 'inactive'
-			}`}
+			} ${isHomePage ? 'home-page' : 'other-page'}`}
 		>
 			<LiveKitRoom
 				className="flex flex-col h-full w-full"

@@ -129,6 +129,7 @@ const ChatBox = ({
 		calendarInfo: { updateCalendarState },
 		tasks: { updateTaskState },
 		documentPreview: { noteContent, setNoteContent },
+		aiSetup: { updateAiSetupState, voiceIntegrationData },
 	} = useContext(Context);
 
 	// const {
@@ -141,7 +142,7 @@ const ChatBox = ({
 	// 	toggleKrispNoiseFilter,
 	// } = useVoiceIntegration();
 
-	const { handleConnect } = useUpdatedVoiceIntegration();
+	const { handleConnect, shouldConnect } = useUpdatedVoiceIntegration();
 
 	const navigate = useNavigate();
 	const location = useLocation();
@@ -256,6 +257,13 @@ const ChatBox = ({
 			setInfo((prev) => ({ ...prev, chatLoading: false }));
 		}
 	}, [latestStreamMesage]);
+
+	useEffect(() => {
+		setInfo((prev) => ({
+			...prev,
+			voiceIntegration: voiceIntegrationData?.shouldConnect || false,
+		}));
+	}, [voiceIntegrationData]);
 
 	const handlePreview = async (file) => {
 		if (!file.url && !file.preview) {
@@ -791,20 +799,20 @@ const ChatBox = ({
 		[info, handleConnect],
 	);
 
-	const handleToggleMute = useCallback((event) => {
-		// toggleMute();
-		event.stopPropagation();
-		setInfo((prev) => ({ ...prev, isVoiceMuted: !prev?.isVoiceMuted }));
-	}, []);
+	// const handleToggleMute = useCallback((event) => {
+	// 	// toggleMute();
+	// 	event.stopPropagation();
+	// 	setInfo((prev) => ({ ...prev, isVoiceMuted: !prev?.isVoiceMuted }));
+	// }, []);
 
-	const handleDisConnect = useCallback(
-		(event) => {
-			handleDisconnect();
-			setInfo((prev) => ({ ...prev, voiceIntegration: false, isVoiceMuted: false }));
-			event.stopPropagation();
-		},
-		[info],
-	);
+	// const handleDisConnect = useCallback(
+	// 	(event) => {
+	// 		handleDisconnect();
+	// 		setInfo((prev) => ({ ...prev, voiceIntegration: false, isVoiceMuted: false }));
+	// 		event.stopPropagation();
+	// 	},
+	// 	[info],
+	// );
 
 	const handleSendBtnClick = (e) => {
 		if (info?.chatQuery?.trim()?.length > 0) {
@@ -878,6 +886,8 @@ const ChatBox = ({
 			},
 		});
 	};
+
+	console.log('shouldConnect==>', shouldConnect);
 
 	return (
 		<div className="chatParentWrapper">
