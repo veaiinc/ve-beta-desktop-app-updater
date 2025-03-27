@@ -23,6 +23,9 @@
 
 		.leftSection {
 			width: 40%;
+			display: flex;
+			flex-direction: column;
+			justify-content: space-between;
 
 			.progressBar {
 				display: flex;
@@ -39,31 +42,6 @@
 						width: 40px;
 						background: var(--brand-lime, #cfff48);
 					}
-				}
-			}
-
-			.header {
-				display: flex;
-				flex-direction: column;
-				gap: 6px;
-				margin: 50px 0;
-
-				.title {
-					color: var(--primary-font, #f2f2f3);
-					font-family: Inter;
-					font-size: 24px;
-					font-style: normal;
-					font-weight: 600;
-					line-height: normal;
-				}
-
-				.subtitle {
-					color: var(--secondary-font, #7a7e85);
-					font-family: Inter;
-					font-size: 16px;
-					font-style: normal;
-					font-weight: 400;
-					line-height: normal;
 				}
 			}
 		}

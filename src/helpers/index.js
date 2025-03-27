@@ -194,3 +194,38 @@ export const getBase64 = (file) =>
 		reader.onload = () => resolve(reader.result);
 		reader.onerror = (error) => reject(error);
 	});
+
+// format username to capitalize first letter of first name & last name and remove special characters
+export const formatUsername = (username) => {
+	username = username?.replace(/[^a-zA-Z\s]/g, '');
+	let firstNameWithSpace = false;
+	if (username?.includes(' ') && username?.split(' ')[1]?.length === 0) {
+		firstNameWithSpace = true;
+		username = username?.trim() + ' ';
+	}
+
+	const firstName = username?.split(' ')[0];
+	const lastName = username?.split(' ')[1];
+	const capitalizedFirstName = firstName
+		? firstName?.charAt(0)?.toUpperCase() + firstName?.slice(1)?.toLowerCase()
+		: '';
+	if (lastName) {
+		const capitalizedLastName = lastName
+			? lastName?.charAt(0)?.toUpperCase() + lastName?.slice(1)?.toLowerCase()
+			: '';
+
+		const formattedName = `${capitalizedFirstName} ${capitalizedLastName}`;
+		return formattedName;
+	} else {
+		const formattedName = capitalizedFirstName;
+		return firstNameWithSpace ? username : formattedName;
+	}
+};
+
+export const getCountryCode = () => {
+	const locationDetails = localStorage.getItem('locationDetails');
+	if (!locationDetails) return 'US';
+	const parsedDetails = JSON.parse(locationDetails);
+	const countryCode = parsedDetails?.countryCode ?? 'US';
+	return countryCode?.toLowerCase();
+};
