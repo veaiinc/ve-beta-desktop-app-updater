@@ -407,7 +407,8 @@ const OpenedSideBarItemsComponent = ({
 
 	const tenantModules =
 		tennantSettingsData?.businessType === 'photography' ||
-		tennantSettingsData?.businessType === 'photographer'
+		tennantSettingsData?.businessType === 'photographer' ||
+		tennantSettingsData?.businessType === 'agency'
 			? photographerModules
 			: veAiModulesItemsList;
 
