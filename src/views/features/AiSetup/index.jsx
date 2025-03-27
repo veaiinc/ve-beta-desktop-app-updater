@@ -42,7 +42,6 @@ const AiSetup = () => {
 			}
 		} else {
 			if (aiSetupDataUser) {
-				console.log('aiSetupDataUser', aiSetupDataUser);
 				updateState({ aiSetup: { ...aiSetupDataUser }, loading: false });
 			}
 		}
