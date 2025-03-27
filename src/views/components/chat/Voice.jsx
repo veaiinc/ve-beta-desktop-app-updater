@@ -25,7 +25,7 @@ import {
 } from '@livekit/components-react';
 import { useKrispNoiseFilter } from '@livekit/components-react/krisp';
 const Voice = ({ handleDisconnect }) => {
-	const { name } = useRoomInfo();
+	const { name = '' } = useRoomInfo();
 	const [transcripts, setTranscripts] = useState(new Map());
 	const localdata = useLocalParticipant();
 	const { localParticipant } = localdata;
@@ -38,7 +38,6 @@ const Voice = ({ handleDisconnect }) => {
 
 	const localTracks = tracks.filter(({ participant }) => participant instanceof LocalParticipant);
 	const localVideoTrack = localTracks.find(({ source }) => source === Track.Source.Camera);
-	console.log('localVideoTrack==>', localVideoTrack);
 	const localMicTrack = localTracks.find(({ source }) => source === Track.Source.Microphone);
 
 	const agentMessages = useTrackTranscription(voiceAssistant.audioTrack);

@@ -16,7 +16,7 @@ const NavBar = ({
 	const overrideShowSearchBar = selectedOption === 'Workflows';
 	return (
 		<div className="home-page-welcome-container-left-text-options">
-			{/* <div className="home-page-welcome-container-left-text-options-container">
+			<div className="home-page-welcome-container-left-text-options-container">
 				{options?.map((option) => (
 					<div
 						key={option?.id}
@@ -36,8 +36,8 @@ const NavBar = ({
 						)}
 					</div>
 				))}
-			</div> */}
-			<Voice />
+			</div>
+			{/* <Voice /> */}
 
 			{(showSearchBar || overrideShowSearchBar) && (
 				<div className="home-page-welcome-container-right">
