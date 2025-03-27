@@ -253,25 +253,21 @@ const ShareModal = ({
 		editPreferences(galleryId, payload);
 	};
 
-	const handleGuestAccessUpdate = async (name) => {
-		let payload = {};
-		if (name === 'canGuestDownloadOriginals') {
-			payload = {
-				canDownloadOriginals: !galleryGuestAccessDetails?.canDownloadOriginals,
+	const handleGuestAccessUpdate = (name) => {
+		const payloadKeyMap = {
+			canGuestDownloadOriginals: 'canDownloadOriginals',
+			canGuestDownloadOptimized: 'canDownloadOptimized',
+			isEnabled: 'isEnabled',
+		};
+
+		if (payloadKeyMap[name]) {
+			const payload = {
+				[payloadKeyMap[name]]: !galleryGuestAccessDetails?.[payloadKeyMap[name]],
 			};
-			await updateGuestAccess(payload, galleryId);
-		} else if (name === 'canGuestDownloadOptimized') {
-			payload = {
-				canDownloadOptimized: !galleryGuestAccessDetails?.canDownloadOptimized,
-			};
-			await updateGuestAccess(payload, galleryId);
-		} else if (name === 'isEnabled') {
-			payload = {
-				isEnabled: !galleryGuestAccessDetails?.isEnabled,
-			};
-			await updateGuestAccess(payload, galleryId);
+			updateGuestAccess(payload, galleryId);
 		}
-		await getGuestAccessDetails(galleryId);
+
+		getGuestAccessDetails(galleryId);
 	};
 
 	const handleShareViaEmail = useCallback(async () => {
@@ -594,12 +590,12 @@ const ShareModal = ({
 											onClick={() => handleOpenDownloadOptions('Guest')}
 										>
 											<p>
-												{info?.canGuestDownloadOriginals &&
-												info?.canGuestDownloadOptimized
+												{galleryGuestAccessDetails?.canClientDownloadOriginals &&
+												galleryGuestAccessDetails?.canDownloadOptimized
 													? 'Guest Download Originals , Guest Download Optimized'
-													: info?.canGuestDownloadOriginals
+													: galleryGuestAccessDetails?.canDownloadOriginals
 													? 'Guest Download Originals'
-													: info?.canGuestDownloadOptimized
+													: galleryGuestAccessDetails?.canDownloadOptimized
 													? 'Guest Download Optimized'
 													: ''}
 											</p>

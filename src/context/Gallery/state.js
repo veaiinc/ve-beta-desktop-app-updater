@@ -1813,7 +1813,8 @@ export const Galleries = () => {
 			let usertoken = localStorage.getItem('usertoken');
 			let workspaceId = localStorage.getItem('workspaceId');
 			const apiUrl = `/${workspaceId}/galleries/${galleryId}/guest-access`;
-			const response = await service.fetchPut(apiUrl, payload, usertoken, 'galleries');
+			const type = 'galleries';
+			const response = await service?.fetchPut(apiUrl, payload, usertoken, type);
 			if (response[0] === true) {
 				return response;
 			} else {
@@ -1830,7 +1831,8 @@ export const Galleries = () => {
 			let usertoken = localStorage.getItem('usertoken');
 			let workspaceId = localStorage.getItem('workspaceId');
 			const baseUrl = `/${workspaceId}/galleries/${galleryId}/guest-access`;
-			const response = await service.fetchGet(baseUrl, usertoken, 'galleries');
+			const type = 'galleries';
+			const response = await service?.fetchGet(baseUrl, usertoken, type);
 			if (response[0] === true) {
 				dispatch({
 					type: Actions.GET_GALLERY_GUEST_ACCESS_DETAILS,
