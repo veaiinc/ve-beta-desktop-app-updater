@@ -38,6 +38,7 @@ const Voice = ({ handleDisconnect }) => {
 
 	const localTracks = tracks.filter(({ participant }) => participant instanceof LocalParticipant);
 	const localVideoTrack = localTracks.find(({ source }) => source === Track.Source.Camera);
+	console.log('localVideoTrack==>', localVideoTrack);
 	const localMicTrack = localTracks.find(({ source }) => source === Track.Source.Microphone);
 
 	const agentMessages = useTrackTranscription(voiceAssistant.audioTrack);
@@ -50,6 +51,7 @@ const Voice = ({ handleDisconnect }) => {
 	useEffect(() => {
 		if (roomState === ConnectionState.Connected) {
 			localParticipant.setMicrophoneEnabled(true);
+			localParticipant.setCameraEnabled(true);
 		}
 	}, [localParticipant, roomState]);
 
@@ -170,6 +172,13 @@ const Voice = ({ handleDisconnect }) => {
 						/>
 					</div>
 				</div>
+			)}
+
+			{localVideoTrack && (
+				<VideoTrack
+					trackRef={localVideoTrack}
+					className={`absolute top-1/2 -translate-y-1/2 object-position-center w-full h-full`}
+				/>
 			)}
 
 			<div className="controls">
