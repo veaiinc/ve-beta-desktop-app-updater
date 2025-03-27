@@ -2,6 +2,7 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
+	background-color: var(--card-over-card);
 
 	.person-multi-select-selected {
 		font-size: 12px;
@@ -81,7 +82,7 @@
 
 .person-drop-down-container {
 	width: 220px;
-	background-color: var(--popup);
+	background-color: var(--card);
 	padding: 10px;
 	border-radius: 14px;
 	gap: 10px;
@@ -92,6 +93,12 @@
 		justify-content: space-between;
 		padding: 6px 10px;
 		border-bottom: 1px solid var(--stroke);
+	}
+
+	.person-drop-down-title {
+		font-size: 12px;
+		font-weight: 500;
+		color: var(--primary-font);
 	}
 
 	.person-drop-down-body {
@@ -191,8 +198,8 @@
 		align-items: center;
 		gap: 2px;
 		border-radius: 10px;
-		background: #e8e8e8;
-		color: #131314;
+		background: var(--card-over-card);
+		color: var(--primary-font);
 		font-family: var(--primary-font-family);
 		font-size: 13px;
 		font-style: normal;

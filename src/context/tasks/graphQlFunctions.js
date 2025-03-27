@@ -403,14 +403,6 @@ export const listTaskWithGroupQuery = gql`
 					description
 					status
 					priority
-					workflowTemplate {
-						_id
-						title
-					}
-					workflow {
-						_id
-						title
-					}
 					assignedTo {
 						_id
 						name
