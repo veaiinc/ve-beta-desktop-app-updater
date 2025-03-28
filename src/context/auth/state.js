@@ -186,7 +186,6 @@ export const AuthState = () => {
 		const firstName = username?.length ? username?.split(' ')?.[0] : '';
 		const lastName = username?.length ? username?.split(' ')?.[1] : '';
 		const path = '/tenant-user';
-
 		const body = {};
 		if (firstName) {
 			body.firstName = firstName;

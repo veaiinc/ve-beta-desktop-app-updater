@@ -1,0 +1,43 @@
+.workspaceTypeOptions {
+	position: absolute;
+	width: 100%;
+	height: 186px;
+	overflow: auto;
+	top: 137px;
+	left: 0;
+	display: flex;
+	padding: 12px;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 4px;
+	overflow: auto;
+	border-radius: 12px;
+	background: var(--Popup, #202123);
+	opacity: 0;
+	transition: opacity 0.5s ease-in;
+
+	.option {
+		display: flex;
+		padding: 10px 12px;
+		justify-content: space-between;
+		align-items: center;
+		align-self: stretch;
+		user-select: none;
+		cursor: pointer;
+		border-radius: 6px;
+
+		&.active,
+		&:hover {
+			background: var(--card-over-card-hover, #27282b);
+		}
+
+		.optionLabel {
+			color: var(--primary-font, #f2f2f3);
+			font-family: Inter;
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+		}
+	}
+}

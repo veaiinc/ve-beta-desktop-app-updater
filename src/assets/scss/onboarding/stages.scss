@@ -1,165 +1,72 @@
-.stage1,
-.stage2 {
+.stageContainer {
 	display: flex;
 	flex-direction: column;
-	gap: 50px;
+	gap: 10px;
 
-	.header {
-		display: flex;
-		flex-direction: column;
-		gap: 6px;
-
-		.title {
-			color: var(--primary-font, #f2f2f3);
-			font-family: Inter;
-			font-size: 24px;
-			font-style: normal;
-			font-weight: 600;
-			line-height: normal;
-		}
-
-		.subtitle {
-			color: var(--secondary-font, #7a7e85);
-			font-family: Inter;
-			font-size: 16px;
-			font-style: normal;
-			font-weight: 400;
-			line-height: normal;
-		}
+	.email {
+		color: var(--primary-font, #f2f2f3);
+		font-family: Inter;
+		font-size: 14px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
 	}
 
-	.stage1Content {
+	.stage1,
+	.stage2 {
 		display: flex;
 		flex-direction: column;
-		gap: 16px;
+		gap: 50px;
 
-		.nameInputContainer,
-		.phoneInputContainer,
-		.themeInputContainer {
-			width: 100%;
+		.header {
 			display: flex;
 			flex-direction: column;
-			gap: 8px;
+			gap: 6px;
 
-			.question {
-				color: var(--primary-font);
+			.title {
+				color: var(--primary-font, #f2f2f3);
 				font-family: Inter;
-				font-size: 14px;
+				font-size: 24px;
 				font-style: normal;
-				font-weight: 500;
+				font-weight: 600;
 				line-height: normal;
 			}
 
-			.nameInput {
-				width: 100%;
-				border-radius: 12px;
-				background: var(--card);
-				color: var(--primary-font);
+			.subtitle {
+				color: var(--secondary-font, #7a7e85);
 				font-family: Inter;
-				font-size: 14px;
+				font-size: 16px;
 				font-style: normal;
-				font-weight: 500;
+				font-weight: 400;
 				line-height: normal;
-				padding: 12px 16px;
-				outline: none;
-				border: none;
 			}
+		}
 
-			.phoneContainerClass {
+		.stage1Content {
+			display: flex;
+			flex-direction: column;
+			gap: 16px;
+
+			.nameInputContainer,
+			.phoneInputContainer,
+			.otpInputContainer,
+			.themeInputContainer {
 				width: 100%;
 				display: flex;
-				justify-content: flex-start;
-				align-items: center;
-				gap: 4px;
-				border-radius: 12px;
-				background: var(--card);
-				height: 41px;
-				padding-left: 10px;
+				flex-direction: column;
+				gap: 8px;
+				position: relative;
 
-				& > * {
-					background-color: inherit;
-					border: none;
-					outline: none;
-				}
-
-				.phoneInputClass {
+				.question {
 					color: var(--primary-font);
-					background-color: inherit;
-
-					&::placeholder {
-						color: var(--secondary-font, #7a7e85);
-						font-family: Inter;
-						font-size: 14px;
-						font-style: normal;
-						font-weight: 500;
-						line-height: normal;
-					}
-				}
-			}
-
-			.themeOptionsContainer {
-				width: 100%;
-				display: flex;
-				gap: 8px;
-
-				:nth-child(1) {
-					width: 60%;
-					display: flex;
-					justify-content: center;
-					align-items: center;
+					font-family: Inter;
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
 				}
 
-				.themeOption {
-					border-radius: 12px;
-					background: var(--card, #171819);
-					border: 1px solid transparent;
-					height: 41px;
-					padding: 12px 16px;
-					display: flex;
-					align-items: center;
-					gap: 8px;
-					cursor: pointer;
-
-					.themeOptionLabel {
-						color: var(--primary-font);
-						font-family: Inter;
-						font-size: 14px;
-						font-style: normal;
-						font-weight: 500;
-						line-height: normal;
-					}
-
-					&.active {
-						border: 1px solid var(--primary-font, #f2f2f3);
-					}
-				}
-			}
-		}
-	}
-
-	.stage2Content {
-		display: flex;
-		flex-direction: column;
-		gap: 16px;
-
-		.companyNameContainer {
-			display: flex;
-			flex-direction: column;
-			gap: 8px;
-
-			.question {
-				color: var(--primary-font);
-				font-family: Inter;
-				font-size: 14px;
-				font-style: normal;
-				font-weight: 500;
-				line-height: normal;
-			}
-			.companyNameAndLogoInputs {
-				display: flex;
-				gap: 8px;
-
-				.companyNameInput {
+				.nameInput {
 					width: 100%;
 					border-radius: 12px;
 					background: var(--card);
@@ -171,63 +78,272 @@
 					line-height: normal;
 					padding: 12px 16px;
 					outline: none;
-					border-radius: 12px;
 					border: none;
 				}
 
-				.companyLogoInput {
-					display: none;
+				.phoneContainerClass {
+					width: 100%;
+					display: flex;
+					justify-content: flex-start;
+					align-items: center;
+					gap: 4px;
+					border-radius: 12px;
+					background: var(--card);
+					height: 41px;
+					padding-left: 10px;
+
+					& > * {
+						background-color: inherit;
+						border: none;
+						outline: none;
+					}
+
+					.phoneInputClass {
+						color: var(--primary-font);
+						background-color: inherit;
+
+						&::placeholder {
+							color: var(--secondary-font, #7a7e85);
+							font-family: Inter;
+							font-size: 14px;
+							font-style: normal;
+							font-weight: 500;
+							line-height: normal;
+						}
+					}
 				}
 
-				.companyLogoLabel {
+				.otpInput {
+					width: 100%;
+					border-radius: 12px;
+					border: 1px solid var(--stroke-hover, #424548);
+					background: var(--card, #171819);
+					display: flex;
+					padding: 14px 18px;
+					align-items: center;
+					align-self: stretch;
+					color: var(--primary-font, #f2f2f3);
+					font-family: Inter;
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+					letter-spacing: 14px;
+
+					&::placeholder {
+						color: var(--secondary-font, #7a7e85);
+						font-family: Inter;
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+						letter-spacing: 14px;
+					}
+				}
+
+				.verifyPhoneNumberBtn,
+				.changePhoneNumberBtn,
+				.resendOtpBtn {
+					position: absolute;
+					right: 0;
+					bottom: -18px;
+					width: fit-content;
+					height: 12px;
+					color: var(--primary-font, #f2f2f3);
+					font-family: Inter;
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+					border: none;
+					outline: none;
+					background: transparent;
+					cursor: pointer;
+					padding: 8px;
+					display: flex;
+					justify-content: center;
+					align-items: center;
+				}
+
+				.changePhoneNumberBtn {
+					right: 80px;
+				}
+
+				.phoneNumberVerifiedContainer {
+					position: absolute;
+					right: 8px;
+					bottom: 8px;
+				}
+
+				.themeOptionsContainer {
+					width: 100%;
+					display: flex;
+					gap: 8px;
+
+					:nth-child(1) {
+						width: 60%;
+						display: flex;
+						justify-content: center;
+						align-items: center;
+					}
+
+					.themeOption {
+						border-radius: 12px;
+						background: var(--card, #171819);
+						border: 1px solid transparent;
+						height: 41px;
+						padding: 12px 16px;
+						display: flex;
+						align-items: center;
+						gap: 8px;
+						cursor: pointer;
+
+						.themeOptionLabel {
+							color: var(--primary-font);
+							font-family: Inter;
+							font-size: 14px;
+							font-style: normal;
+							font-weight: 500;
+							line-height: normal;
+						}
+
+						&.active {
+							border: 1px solid var(--primary-font, #f2f2f3);
+						}
+					}
+				}
+			}
+
+			.themeInputContainer {
+				margin-top: 12px;
+			}
+		}
+
+		.stage2Content {
+			display: flex;
+			flex-direction: column;
+			gap: 16px;
+
+			.companyNameContainer {
+				display: flex;
+				flex-direction: column;
+				gap: 8px;
+
+				.question {
 					color: var(--primary-font);
 					font-family: Inter;
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 500;
 					line-height: normal;
-					cursor: pointer;
+				}
+				.companyNameAndLogoInputs {
+					display: flex;
+					gap: 8px;
+
+					.companyNameInput {
+						width: 100%;
+						border-radius: 12px;
+						background: var(--card);
+						color: var(--primary-font);
+						font-family: Inter;
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+						padding: 12px 16px;
+						outline: none;
+						border-radius: 12px;
+						border: none;
+					}
+
+					.companyLogoInput {
+						display: none;
+					}
+
+					.companyLogoLabel {
+						color: var(--primary-font);
+						font-family: Inter;
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+						cursor: pointer;
+					}
+
+					.companyLogoContainer {
+						width: 41px;
+						height: 41px;
+						border-radius: 50%;
+						display: flex;
+						justify-content: center;
+						align-items: center;
+						cursor: pointer;
+
+						.companyLogo {
+							width: 40px;
+							height: 100%;
+							object-fit: cover;
+							border-radius: 50%;
+						}
+					}
 				}
 
-				.companyLogoContainer {
-					width: 41px;
-					height: 41px;
-					border-radius: 50%;
+				.domainInfoContainer {
 					display: flex;
-					justify-content: center;
-					align-items: center;
-					cursor: pointer;
+					gap: 4px;
+					color: var(--secondary-font, #7a7e85);
+					font-family: Inter;
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+					min-height: 17px;
 
-					.companyLogo {
-						width: 40px;
-						height: 100%;
-						object-fit: cover;
-						border-radius: 50%;
+					.domainName {
+						color: var(--primary-font);
+					}
+
+					.available {
+						color: var(--secondary-font);
+					}
+
+					.unavailable {
+						color: var(--error);
 					}
 				}
 			}
 
-			.domainInfoContainer {
+			.workspaceTypeContainer {
 				display: flex;
-				gap: 4px;
-				color: var(--secondary-font, #7a7e85);
-				font-family: Inter;
-				font-size: 14px;
-				font-style: normal;
-				font-weight: 500;
-				line-height: normal;
-				min-height: 17px;
+				flex-direction: column;
+				gap: 8px;
 
-				.domainName {
+				.question {
 					color: var(--primary-font);
+					font-family: Inter;
+					font-size: 14px;
+					font-style: normal;
 				}
 
-				.available {
-					color: var(--secondary-font);
-				}
+				.dropdown {
+					display: flex;
+					height: 45px;
+					padding: 14px 18px;
+					justify-content: space-between;
+					align-items: center;
+					align-self: stretch;
+					border-radius: 12px;
+					background: var(--card, #171819);
 
-				.unavailable {
-					color: var(--error);
+					.dropdownText {
+						color: var(--secondary-font, #7a7e85);
+						font-family: Inter;
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+					}
 				}
 			}
 		}

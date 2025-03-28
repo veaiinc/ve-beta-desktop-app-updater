@@ -48,7 +48,10 @@ export const ProfileState = () => {
 					type: Actions.GET_USER_DETAILS,
 					payload: userDetails?.[1],
 				});
+				return [true];
 			}
+			const statusCode = userDetails?.[1]?.code;
+			return [false, { statusCode }];
 		} catch (error) {
 			console.log('error==>getUserDetails', error);
 		}

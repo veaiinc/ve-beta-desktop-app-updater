@@ -2,6 +2,7 @@ import { memo } from 'react';
 import PhoneInput from 'react-phone-input-2';
 import { ReactComponent as DarkIcon } from '../../../assets/svg/onboarding/dark.svg';
 import { ReactComponent as LightIcon } from '../../../assets/svg/onboarding/light.svg';
+import { ReactComponent as GreenTick } from '../../../assets/svg/onboarding/green-tick.svg';
 
 const themePreferences = [
 	{
@@ -27,30 +28,54 @@ const themePreferences = [
 const Stage1 = ({
 	username,
 	phoneNumber,
+	isPhoneNumberVerified,
 	countryCode,
 	themePreference,
 	handleSetUsername,
 	handleSetPhoneNumber,
 	handleSetThemePreference,
-}) => {
-	return (
-		<div className="stage1">
-			<header className="header">
-				<h1 className="title">Let's get started</h1>
-				<h2 className="subtitle">Personalize your experience</h2>
-			</header>
-			<main className="stage1Content">
-				<div className="nameInputContainer">
-					<p className="question">What's your name?</p>
+	handleVerifyPhoneNumber,
+	otp,
+	handleSetOTP,
+	otpSent,
+	handleSetOTPSentToFalse,
+	handleResendOtp,
+}) => (
+	<div className="stage1">
+		<header className="header">
+			<h1 className="title">Let's get started</h1>
+			<h2 className="subtitle">Personalize your experience</h2>
+		</header>
+		<main className="stage1Content">
+			<div className="nameInputContainer">
+				<p className="question">What's your name?</p>
+				<input
+					className="nameInput"
+					value={username}
+					onChange={handleSetUsername}
+					type="text"
+					placeholder="Full Name"
+					autoFocus
+				/>
+			</div>
+			{otpSent ? (
+				<div className="otpInputContainer">
+					<p className="question">Enter the OTP that was sent to {phoneNumber}</p>
 					<input
-						className="nameInput"
-						value={username}
-						onChange={handleSetUsername}
+						className="otpInput"
+						value={otp}
+						placeholder="000000"
+						onChange={handleSetOTP}
 						type="text"
-						placeholder="Full Name"
-						autoFocus
 					/>
+					<button onClick={handleResendOtp} className="resendOtpBtn">
+						Resend OTP
+					</button>
+					<button onClick={handleSetOTPSentToFalse} className="changePhoneNumberBtn">
+						Change Phone Number
+					</button>
 				</div>
+			) : (
 				<div className="phoneInputContainer">
 					<p className="question">Enter your phone number</p>
 					<PhoneInput
@@ -62,28 +87,38 @@ const Stage1 = ({
 						country={countryCode}
 						countryCallingCodeEditable={true}
 						autoComplete="tel"
+						disabled={isPhoneNumberVerified}
 					/>
+					{isPhoneNumberVerified ? (
+						<div className="phoneNumberVerifiedContainer">
+							<GreenTick />
+						</div>
+					) : (
+						<button onClick={handleVerifyPhoneNumber} className="verifyPhoneNumberBtn">
+							Verify Phone Number
+						</button>
+					)}
 				</div>
-				<div className="themeInputContainer">
-					<p className="question">Select your theme preference</p>
-					<div className="themeOptionsContainer">
-						{themePreferences?.map((theme) => (
-							<button
-								className={`themeOption ${
-									themePreference === theme?.value ? 'active' : ''
-								}`}
-								key={theme?.id}
-								onClick={() => handleSetThemePreference(theme?.value)}
-							>
-								{theme?.icon}
-								<span className="themeOptionLabel">{theme?.label}</span>
-							</button>
-						))}
-					</div>
+			)}
+			<div className="themeInputContainer">
+				<p className="question">Select your theme preference</p>
+				<div className="themeOptionsContainer">
+					{themePreferences?.map((theme) => (
+						<button
+							className={`themeOption ${
+								themePreference === theme?.value ? 'active' : ''
+							}`}
+							key={theme?.id}
+							onClick={() => handleSetThemePreference(theme?.value)}
+						>
+							{theme?.icon}
+							<span className="themeOptionLabel">{theme?.label}</span>
+						</button>
+					))}
 				</div>
-			</main>
-		</div>
-	);
-};
+			</div>
+		</main>
+	</div>
+);
 
 export default memo(Stage1);
