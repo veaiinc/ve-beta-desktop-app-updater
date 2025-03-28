@@ -27,8 +27,8 @@ const moduleOptions = [
 		title: 'Contact/Lead',
 		value: 'contacts',
 		controlValue: 'contact',
-		action: ({ setInfo, info }) => {
-			setInfo({ ...info, openClientPopup: true });
+		action: ({ setInfo }) => {
+			setInfo((prev) => ({ ...prev, commonState: 'contact' }));
 		},
 	},
 	{
@@ -63,8 +63,8 @@ const moduleOptions = [
 		title: 'Documents',
 		value: '',
 		controlValue: 'all',
-		action: ({ setInfo, info }) => {
-			setInfo({ ...info, openProposalPopup: true, commonState: '' });
+		action: ({ setInfo }) => {
+			setInfo((prev) => ({ ...prev, openProposalPopup: true, commonState: '' }));
 		},
 	},
 	{
@@ -72,8 +72,8 @@ const moduleOptions = [
 		title: 'Form',
 		value: 'form-submission',
 		controlValue: 'form',
-		action: ({ setInfo, info }) => {
-			setInfo({ ...info, openProposalPopup: true, commonState: 'form-submission' });
+		action: ({ setInfo }) => {
+			setInfo((prev) => ({ ...prev, openProposalPopup: true, commonState: 'form' }));
 		},
 	},
 	{
@@ -81,8 +81,8 @@ const moduleOptions = [
 		title: 'Proposal',
 		value: 'proposal',
 		controlValue: 'workflow',
-		action: ({ setInfo, info }) => {
-			setInfo({ ...info, openProposalPopup: true, commonState: 'proposal' });
+		action: ({ setInfo }) => {
+			setInfo((prev) => ({ ...prev, openProposalPopup: true, commonState: 'proposal' }));
 		},
 	},
 	{
@@ -90,8 +90,8 @@ const moduleOptions = [
 		title: 'Invoice',
 		value: 'invoice',
 		controlValue: 'workflow',
-		action: ({ setInfo, info }) => {
-			setInfo({ ...info, openProposalPopup: true, commonState: 'invoice' });
+		action: ({ setInfo }) => {
+			setInfo((prev) => ({ ...prev, openProposalPopup: true, commonState: 'invoice' }));
 		},
 	},
 	{
@@ -99,8 +99,8 @@ const moduleOptions = [
 		title: 'Contracts',
 		value: 'contract',
 		controlValue: 'workflow',
-		action: ({ setInfo, info }) => {
-			setInfo({ ...info, openProposalPopup: true, commonState: 'contract' });
+		action: ({ setInfo }) => {
+			setInfo((prev) => ({ ...prev, openProposalPopup: true, commonState: 'contract' }));
 		},
 	},
 	{
@@ -108,8 +108,8 @@ const moduleOptions = [
 		title: 'Presentation',
 		value: 'presentation',
 		controlValue: 'workflow',
-		action: ({ setInfo, info }) => {
-			setInfo({ ...info, openProposalPopup: true, commonState: 'presentation' });
+		action: ({ setInfo }) => {
+			setInfo((prev) => ({ ...prev, openProposalPopup: true, commonState: 'presentation' }));
 		},
 	},
 	{
@@ -135,8 +135,8 @@ const moduleOptions = [
 		title: 'Classic Gallery',
 		value: 'galleries',
 		controlValue: 'classicGallery',
-		action: ({ setInfo, info }) => {
-			setInfo({ ...info, openGalleryPopup: true });
+		action: ({ setInfo }) => {
+			setInfo((prev) => ({ ...prev, openGalleryPopup: true }));
 		},
 	},
 	{
@@ -144,8 +144,8 @@ const moduleOptions = [
 		title: 'Lite Gallery',
 		value: 'lite-gallery',
 		controlValue: 'liteGallery',
-		action: ({ setInfo, info }) => {
-			setInfo({ ...info, openLiteGalleryPopup: true });
+		action: ({ setInfo }) => {
+			setInfo((prev) => ({ ...prev, openLiteGalleryPopup: true }));
 		},
 	},
 ];
@@ -173,21 +173,11 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 
 	const navigate = useNavigate();
 
-	const handleDebounceSearch = useCallback(
-		(search = null) => {
-			clearInterval(info?.timeout);
-			const timeout = setTimeout(() => {}, 100);
-			const options = filtereOptions(search);
-			setInfo((prev) => ({ ...prev, timeout, fileterOptions: options }));
-		},
-		[filtereOptions], // Only depend on filtereOptions function
-	);
-
 	const accessibleOptions = useCallback(
 		(options) => {
 			return tenantUserAccessControls?.role === 'admin'
 				? options
-				: options.filter((option) => {
+				: options?.filter((option) => {
 						if (!option?.controlValue) {
 							return true;
 						}
@@ -210,23 +200,23 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 
 			const searchTerm = searchKey.toLowerCase();
 			let suggestedOptions = searchKey
-				? info.options.suggestedOptions?.filter((option) =>
+				? info?.options?.suggestedOptions?.filter((option) =>
 						option?.title?.toLowerCase().includes(searchTerm),
 				  )
-				: info.options.suggestedOptions;
+				: info?.options?.suggestedOptions;
 
 			let moduleOptions = searchKey
-				? info.options.moduleOptions?.filter((option) =>
+				? info?.options?.moduleOptions?.filter((option) =>
 						option?.title?.toLowerCase().includes(searchTerm),
 				  )
-				: info.options.moduleOptions;
+				: info?.options?.moduleOptions;
 
 			moduleOptions = accessibleOptions(moduleOptions);
 			suggestedOptions = accessibleOptions(suggestedOptions);
 
 			return { suggestedOptions, moduleOptions };
 		},
-		[info?.options, accessibleOptions],
+		[info?.options],
 	);
 
 	useEffect(() => {
@@ -234,11 +224,20 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 		setInfo((prev) => ({ ...prev, fileterOptions: options }));
 	}, [filtereOptions]);
 
-	const handleSearch = (e) => {
-		setInfo((prev) => ({ ...prev, search: e.target.value }));
-		if (e.target.value === '' || e.target.value === null) {
-			handleDebounceSearch('');
+	const handleDebounceSearch = useCallback(
+		(search = null) => {
 			clearInterval(info?.timeout);
+			const timeout = setTimeout(() => {}, 100);
+			const options = filtereOptions(search);
+			setInfo((prev) => ({ ...prev, timeout, fileterOptions: options }));
+		},
+		[filtereOptions], // Only depend on filtereOptions function
+	);
+
+	const handleSearch = (e) => {
+		setInfo((prev) => ({ ...prev, search: e?.target?.value }));
+		if (e?.target?.value === '' || e?.target?.value === null) {
+			handleDebounceSearch('');
 		} else {
 			handleDebounceSearch(e.target.value);
 		}
@@ -271,7 +270,7 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 									<div
 										key={option?.id}
 										className="dropdown-option"
-										onClick={() => option?.action({ setInfo, info, navigate })}
+										onClick={() => option?.action({ setInfo, navigate })}
 									>
 										{option?.icon && <img src={option?.icon} alt="icon" />}
 										{option?.title}
