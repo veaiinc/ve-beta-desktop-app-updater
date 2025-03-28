@@ -131,7 +131,7 @@ const moduleOptions = [
 		},
 	},
 	{
-		id: 11,
+		id: 12,
 		title: 'Classic Gallery',
 		value: 'galleries',
 		controlValue: 'classicGallery',
@@ -140,7 +140,7 @@ const moduleOptions = [
 		},
 	},
 	{
-		id: 12,
+		id: 13,
 		title: 'Lite Gallery',
 		value: 'lite-gallery',
 		controlValue: 'liteGallery',
