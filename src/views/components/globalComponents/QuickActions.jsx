@@ -169,6 +169,7 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 		isAutomationLoading: false,
 		commonState: null,
 		search: '',
+		timeout: timeout || null,
 	});
 
 	const navigate = useNavigate();
@@ -231,7 +232,7 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 			const options = filtereOptions(search);
 			setInfo((prev) => ({ ...prev, timeout, fileterOptions: options }));
 		},
-		[filtereOptions], // Only depend on filtereOptions function
+		[filtereOptions],
 	);
 
 	const handleSearch = (e) => {
