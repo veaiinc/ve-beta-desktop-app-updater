@@ -169,7 +169,6 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 		isAutomationLoading: false,
 		commonState: null,
 		search: '',
-		timeout: timeout || null,
 	});
 
 	const navigate = useNavigate();
@@ -227,10 +226,11 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 
 	const handleDebounceSearch = useCallback(
 		(search = null) => {
-			clearInterval(info?.timeout);
-			const timeout = setTimeout(() => {}, 100);
+			if (timeout) {
+				clearTimeout(timeout);
+			}
 			const options = filtereOptions(search);
-			setInfo((prev) => ({ ...prev, timeout, fileterOptions: options }));
+			setInfo((prev) => ({ ...prev, fileterOptions: options }));
 		},
 		[filtereOptions],
 	);
