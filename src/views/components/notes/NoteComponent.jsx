@@ -126,9 +126,8 @@ const NoteComponent = ({
 	);
 
 	const onChange = async () => {
-		if (info?.noteId && editor?.document?.length) {
-			handleContentChange(editor.document, info?.noteId);
-		}
+		// Converts the editor's contents from Block objects to Markdown and store to state.
+		const markdown = await editor.blocksToMarkdownLossy(editor.document);
 	};
 
 	// Renders the editor instance using a React component.

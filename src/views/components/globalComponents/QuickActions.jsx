@@ -17,14 +17,14 @@ import { useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
 import ProposalsPopup from '../../../views/components/docs/ProposalsPopup';
 import CreateClientModal from '../../../views/components/modalsV2/contacts/CreateClientModal';
-import CreateTaskPopup from '../../../views/components/modalsV2/tasks/CreateTaskPopup';
 import CreateGallery from '../../../views/components/modalsV2/gallery/CreateGallery';
+import AutomationLoaderModal from '../modalsV2/automationBuilder/AutomationLoaderModal';
 import { useEdges } from '@xyflow/react';
 
 let moduleOptions = [
 	{
 		id: 0,
-		title: 'Contact',
+		title: 'Contact/Lead',
 		value: 'contacts',
 		controlValue: 'contact',
 		action: ({ setInfo, info }) => {
@@ -117,28 +117,36 @@ let moduleOptions = [
 		title: 'Automation',
 		value: 'automation',
 		controlValue: 'automation',
-		action: () => {},
+		action: ({ navigate }) => {
+			navigate('/automations');
+		},
 	},
 	{
 		id: 11,
 		title: 'Conversational Agent',
 		value: 'ai-assistant',
 		controlValue: 'conversationalAgent',
-		action: () => {},
+		action: ({ navigate }) => {
+			navigate('/ai-assistant');
+		},
 	},
 	{
-		id: 12,
+		id: 11,
 		title: 'Classic Gallery',
 		value: 'galleries',
 		controlValue: 'classicGallery',
-		action: () => {},
+		action: ({ setInfo, info }) => {
+			setInfo({ ...info, openGalleryPopup: true });
+		},
 	},
 	{
-		id: 13,
+		id: 12,
 		title: 'Lite Gallery',
 		value: 'lite-gallery',
 		controlValue: 'liteGallery',
-		action: () => {},
+		action: ({ setInfo, info }) => {
+			setInfo({ ...info, openLiteGalleryPopup: true });
+		},
 	},
 ];
 
@@ -154,9 +162,11 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 		openProposalPopup: false,
 		openClientPopup: false,
 		openGalleryPopup: false,
+		openLiteGalleryPopup: false,
 		// openTaskPopup: false,
 		options: { suggestedOptions, moduleOptions },
 		fileterOptions: { suggestedOptions, moduleOptions },
+		isAutomationLoading: false,
 		commonState: null,
 		search: '',
 	});
@@ -181,7 +191,6 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 						if (!option?.controlValue) {
 							return true;
 						}
-						console.log(tenantUserAccessControls?.accessControls);
 						const matchedApp = tenantUserAccessControls?.accessControls?.find(
 							(item) =>
 								item?.app?.toLowerCase() === option?.controlValue?.toLowerCase(),
@@ -248,21 +257,6 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 								onChange={handleSearch}
 							/>
 						</div>
-						{/* {info?.fileterOptions?.suggestedActions?.length > 0 && (
-							<div className="modules-container">
-								<div className="modules-container-header">Things you can do</div>
-								{info?.fileterOptions?.suggestedActions?.map((option) => (
-									<div
-										key={option?.id}
-										className="dropdown-option"
-										onClick={() => option?.action({ setInfo, info, navigate })}
-									>
-										{option?.icon && <img src={option?.icon} alt="icon" />}
-										{option?.title}
-									</div>
-								))}
-							</div>
-						)} */}
 						{info?.fileterOptions?.suggestedOptions?.length > 0 && (
 							<div className="modules-container">
 								<div className="modules-container-header">Suggested</div>
@@ -280,7 +274,7 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 						)}
 						{info?.fileterOptions?.moduleOptions?.length > 0 && (
 							<div className="modules-container">
-								<div className="modules-container-header">Module Task</div>
+								<div className="modules-container-header">Module Actions</div>
 								{info?.fileterOptions?.moduleOptions?.map((option) => (
 									<div
 										key={option?.id}
@@ -317,6 +311,12 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 				open={info?.openGalleryPopup}
 				closeModal={() => setInfo({ ...info, openGalleryPopup: false })}
 			/>
+			<CreateGallery
+				open={info?.openLiteGalleryPopup}
+				closeModal={() => setInfo({ ...info, openLiteGalleryPopup: false })}
+				isLightGallery={true}
+			/>
+			<AutomationLoaderModal loading={info?.isAutomationLoading} />
 		</div>
 	);
 };
