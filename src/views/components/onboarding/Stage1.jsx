@@ -48,7 +48,7 @@ const Stage1 = ({
 		</header>
 		<main className="stage1Content">
 			<div className="nameInputContainer">
-				<p className="question">What's your name?</p>
+				<p className="question">What is your name?</p>
 				<input
 					className="nameInput"
 					value={username}

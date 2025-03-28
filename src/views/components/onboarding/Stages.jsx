@@ -119,6 +119,12 @@ const Stages = () => {
 		}
 	}, [info?.otp]);
 
+	useEffect(() => {
+		if (theme) {
+			setInfo((prev) => ({ ...prev, themePreference: theme }));
+		}
+	}, [theme]);
+
 	const handleGetUserDetails = useCallback(async () => {
 		const response = await getUserDetails();
 		const success = response?.[0] === true;
@@ -244,10 +250,11 @@ const Stages = () => {
 
 	const handleSetThemePreference = useCallback(
 		async (themePreference) => {
+			setInfo((prev) => ({ ...prev, themePreference }));
 			const response = await updateTheme(themePreference);
 			const success = response?.[0] === true;
 			if (success) {
-				setInfo((prev) => ({ ...prev, themePreference }));
+				message?.success('Theme preference updated successfully');
 			} else {
 				message?.error(response?.[1]?.message);
 			}

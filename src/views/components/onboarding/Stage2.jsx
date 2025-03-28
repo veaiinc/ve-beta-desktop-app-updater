@@ -1,8 +1,7 @@
-import { memo, useEffect, useState } from 'react';
+import { memo, useState } from 'react';
 import '../../../assets/scss/onboarding/stages.scss';
 import Spinner from '../loaders/Spinner';
 import { ReactComponent as DownArrow } from '../../../assets/svg/onboarding/down-arrow.svg';
-import { Tooltip } from 'antd';
 import WorkspaceTypeOptions from './WorkspaceTypeOptions';
 
 const Stage2 = ({
@@ -32,7 +31,7 @@ const Stage2 = ({
 			</header>
 			<main className="stage2Content">
 				<div className="companyNameContainer">
-					<p className="question">What's the name of your company or team?</p>
+					<p className="question">What is the name of your company or team?</p>
 					<div className="companyNameAndLogoInputs">
 						<input
 							className="companyNameInput"
@@ -80,18 +79,12 @@ const Stage2 = ({
 					</div>
 				</div>
 				<div className="workspaceTypeContainer">
-					<p className="question">Your workspace type?</p>
-					<div className="dropdown" onClick={toggleDropdown}>
-						<span className="dropdownText">Please Select</span>
-						<DownArrow />
-						{info?.showDropdown && <WorkspaceTypeOptions />}
-					</div>
-				</div>
-				<div className="workspaceTypeContainer">
-					<p className="question">Your workspace type?</p>
-					<div className="dropdown" onClick={toggleDropdown}>
-						<span className="dropdownText">Please Select</span>
-						<DownArrow />
+					<p className="question">What is your company type?</p>
+					<div className="dropdown">
+						<div className="labelContainer" onClick={toggleDropdown}>
+							<span className="dropdownText">Please Select</span>
+							<DownArrow />
+						</div>
 						{info?.showDropdown && <WorkspaceTypeOptions />}
 					</div>
 				</div>
