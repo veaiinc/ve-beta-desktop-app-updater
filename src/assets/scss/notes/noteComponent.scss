@@ -206,6 +206,9 @@
 				.bn-inline-content {
 					width: 100%;
 				}
+				.bn-block-content[data-content-type='checkListItem'] > div {
+					width: 100%;
+				}
 			}
 		}
 	}
