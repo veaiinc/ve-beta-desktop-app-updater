@@ -262,16 +262,6 @@ const ChatBox = ({
 	};
 
 	const handleWebSearchClick = () => {
-		if (chatInfo?.deepResearch && chatInfo?.workspaceSearch) {
-			updateStateValues({
-				chatInfo: {
-					...chatInfo,
-					workspaceSearch: false,
-					webSearch: !chatInfo?.webSearch,
-				},
-			});
-			return;
-		}
 		updateStateValues({
 			chatInfo: {
 				...chatInfo,
@@ -282,12 +272,6 @@ const ChatBox = ({
 
 	const handleDeepResearchClick = () => {
 		if (recentFilesRef.current?.length > 0 || uploadedImagesRef.current?.length > 0) {
-			return;
-		}
-		if (chatInfo?.webSearch && chatInfo?.workspaceSearch) {
-			message.error(
-				'You can enable deep research only if one of the websearch or workspace search is true',
-			);
 			return;
 		}
 
@@ -575,7 +559,6 @@ const ChatBox = ({
 						),
 					},
 				];
-
 				updateApplicationChat(workflowSlug);
 			}
 		},
@@ -861,16 +844,6 @@ const ChatBox = ({
 		if (recentFilesRef?.current?.length > 0 || uploadedImagesRef?.current?.length > 0) {
 			return;
 		}
-		if (chatInfo?.deepResearch && chatInfo?.webSearch) {
-			updateStateValues({
-				chatInfo: {
-					...chatInfo,
-					workspaceSearch: !chatInfo?.workspaceSearch,
-					webSearch: false,
-				},
-			});
-			return;
-		}
 		updateStateValues({
 			chatInfo: {
 				...chatInfo,
@@ -1104,7 +1077,7 @@ const ChatBox = ({
 														</Tooltip>
 													</UploadFileTooltip>
 
-													<Tooltip title={'Add Filters'}>
+													{/* <Tooltip title={'Add Filters'}>
 														<div
 															className="icon-container"
 															onClick={handleShowFiltersClick}
@@ -1120,7 +1093,7 @@ const ChatBox = ({
 																<Filter />
 															</div>
 														</div>
-													</Tooltip>
+													</Tooltip> */}
 
 													{!(
 														chatInfo?.deepResearch ||

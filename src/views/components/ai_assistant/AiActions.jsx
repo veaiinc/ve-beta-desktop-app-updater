@@ -74,7 +74,7 @@ const AiActions = ({ assistant }) => {
 	}, []);
 
 	const handleToggleChange = useCallback(
-		async (actionId, currentStatus) => {
+		async (actionId, currentStatus, actionType) => {
 			try {
 				const updatedActions = info?.aiActionList?.map((action) =>
 					action?._id === actionId ? { ...action, status: !currentStatus } : action,
@@ -87,6 +87,7 @@ const AiActions = ({ assistant }) => {
 
 				const response = await updateAiAction(info?.assistantId, actionId, {
 					status: !currentStatus,
+					type: actionType,
 				});
 
 				if (response) {
@@ -156,7 +157,7 @@ const AiActions = ({ assistant }) => {
 								onClick={() => handleActionClick(item)}
 								style={{ cursor: 'pointer' }}
 							>
-								<span>{item?.name}</span>
+								<span>{item?.typeDependencies?.name}</span>
 								<span style={{ color: '#7C7C84' }}>
 									{moment.unix(item?.createdAt).format('MMM DD, YYYY')}
 								</span>
@@ -169,7 +170,9 @@ const AiActions = ({ assistant }) => {
 									<ToggleSwitch
 										id={item?._id}
 										value={item?.status}
-										onChange={() => handleToggleChange(item?._id, item?.status)}
+										onChange={() =>
+											handleToggleChange(item?._id, item?.status, item?.type)
+										}
 									/>
 								</span>
 							</div>

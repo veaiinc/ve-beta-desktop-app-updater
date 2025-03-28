@@ -10,9 +10,11 @@ const AutomationSteps = ({ automationSteps }) => {
 				<h1 className="emptyAutomationSteps">No steps found!</h1>
 			) : (
 				<div className="automationSteps">
-					{automationSteps?.map((step) => (
-						<h1 className="automationStep">{step?.title}</h1>
-					))}
+					{automationSteps
+						?.filter((step) => step?.isHidden !== true)
+						.map((step) => (
+							<h1 className="automationStep">{step?.title}</h1>
+						))}
 				</div>
 			)}
 		</div>

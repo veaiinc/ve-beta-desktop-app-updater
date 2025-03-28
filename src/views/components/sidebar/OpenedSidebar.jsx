@@ -64,6 +64,17 @@ const OpenedSideBarHoverStateIcons = ({
 	};
 
 	const redirectToFunction = (subModules, route, name) => {
+		if (name === 'Help') {
+			let iframe = document.getElementById('ve-ai-chat-iframe');
+			if (iframe) {
+				let requiredStyle = iframe.style.display === 'block' ? 'none' : 'block';
+				iframe.style.display = requiredStyle;
+			} else {
+				console.log('Iframe not found');
+			}
+			return;
+		}
+
 		if (name === 'Notes') {
 			setShowNotesDrawer((prev) => !prev);
 		} else {

@@ -4,7 +4,7 @@
 	// height: 93vh;
 	transition: height, width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 	&.opened {
-		height: 100dvh !important;
+		height: 100dvh;
 		position: relative;
 		margin-left: -32px !important;
 		margin-top: -32px !important;

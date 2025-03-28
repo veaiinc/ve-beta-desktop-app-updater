@@ -13,9 +13,11 @@ import { Tooltip } from 'antd';
 import Notifications from './notifications/Notifications';
 import Notes from './notes/Notes';
 import ChatHistory from './chatHistory/ChatHistory';
+import Cookies from 'js-cookie';
 
 const Sidebar = ({ activeWorkspaceId }) => {
 	const {
+		subscriptionInfo: { renewBanner },
 		profileInfo: { userWorkSpaceList, getUserWorkSpaceList, userDetailsData, getUserDetails },
 		templates: { leftSidebarState, updateStateValues },
 	} = useContext(Context);
@@ -32,6 +34,13 @@ const Sidebar = ({ activeWorkspaceId }) => {
 	const [isOpen, setIsOpen] = useState(() => {
 		return JSON.parse(localStorage.getItem('isOpen')) ?? true;
 	});
+
+	const themePreference = userDetailsData?.theme || 'dark'; // TODO: change this to systemDefault after light theme is good
+	if (themePreference) {
+		localStorage.setItem('theme', themePreference);
+		Cookies.set('theme', themePreference);
+		document.documentElement.setAttribute('theme', themePreference);
+	}
 
 	// conditional margin top for home page
 	const isHome = location?.pathname?.includes('home') || location?.pathname?.includes('notes');
@@ -128,6 +137,7 @@ const Sidebar = ({ activeWorkspaceId }) => {
 						: 'no-submodules'
 				}`}
 				style={{
+					height: renewBanner ? 'calc(100dvh - 41px)' : '100dvh',
 					alignItems: sidebarStates?.workSpaceOpen ? 'flex-start' : ' ',
 					maxHeight: info?.activeRoute === '/home' ? (isOpen ? '' : '') : '',
 					minHeight: info?.activeRoute === '/home' ? (isOpen ? '' : '250px') : '',

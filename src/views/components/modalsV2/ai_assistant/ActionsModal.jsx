@@ -69,8 +69,8 @@ const ActionsModal = ({
 		if (selectedAction) {
 			// Populate form data
 			setFormData({
-				title: selectedAction?.name || '',
-				description: selectedAction?.description || '',
+				title: selectedAction?.typeDependencies?.name || '',
+				description: selectedAction?.typeDependencies?.description || '',
 				status: selectedAction?.status,
 			});
 
@@ -79,7 +79,7 @@ const ActionsModal = ({
 				...prev,
 				method: selectedAction?.method || 'GET',
 				apiUses: selectedAction?.contentType?.toUpperCase() || 'JSON',
-				url: selectedAction?.api?.url || '',
+				url: selectedAction?.typeDependencies?.url || '',
 				variables:
 					selectedAction?.api?.variables?.map((v) => ({
 						id: Date.now() + Math.random(),
@@ -220,6 +220,7 @@ const ActionsModal = ({
 
 			const payload = {
 				name: formData?.title?.trim(),
+				type: selectedAction?.type,
 				description: formData?.description?.trim(),
 				status: formData?.status,
 				url: info?.url?.trim(),

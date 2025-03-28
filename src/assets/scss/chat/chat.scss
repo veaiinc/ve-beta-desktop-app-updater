@@ -8,7 +8,6 @@
 		display: flex;
 		flex-direction: column;
 		.containerHeader {
-			width: 400px;
 			height: 68px;
 			display: flex;
 			justify-content: space-between;
@@ -16,7 +15,6 @@
 			padding: 24px;
 			position: absolute;
 			top: 0;
-			left: 0;
 			right: 0;
 
 			.containerHeaderTitle {
