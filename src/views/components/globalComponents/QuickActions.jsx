@@ -180,7 +180,7 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 			const options = filtereOptions(search);
 			setInfo((prev) => ({ ...prev, timeout, fileterOptions: options }));
 		},
-		[info?.timeout],
+		[filtereOptions], // Only depend on filtereOptions function
 	);
 
 	const accessibleOptions = useCallback(
@@ -205,27 +205,34 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 	);
 
 	const filtereOptions = useCallback(
-		(key) => {
-			const regex = new RegExp(`\\b${key}\\w*`, 'i');
-			let suggestedOptions = info?.options?.suggestedOptions.filter((option) =>
-				regex.test(option?.title),
-			);
-			let moduleOptions = info?.options?.moduleOptions.filter((option) =>
-				regex.test(option?.title),
-			);
+		(searchKey = '') => {
+			if (!info?.options) return { suggestedOptions: [], moduleOptions: [] };
+
+			const searchTerm = searchKey.toLowerCase();
+			let suggestedOptions = searchKey
+				? info.options.suggestedOptions?.filter((option) =>
+						option?.title?.toLowerCase().includes(searchTerm),
+				  )
+				: info.options.suggestedOptions;
+
+			let moduleOptions = searchKey
+				? info.options.moduleOptions?.filter((option) =>
+						option?.title?.toLowerCase().includes(searchTerm),
+				  )
+				: info.options.moduleOptions;
 
 			moduleOptions = accessibleOptions(moduleOptions);
 			suggestedOptions = accessibleOptions(suggestedOptions);
 
 			return { suggestedOptions, moduleOptions };
 		},
-		[info],
+		[info?.options, accessibleOptions],
 	);
 
 	useEffect(() => {
-		const options = filtereOptions('');
-		setInfo((prev) => ({ ...prev, timeout, fileterOptions: options }));
-	}, []);
+		const options = filtereOptions();
+		setInfo((prev) => ({ ...prev, fileterOptions: options }));
+	}, [filtereOptions]);
 
 	const handleSearch = (e) => {
 		setInfo((prev) => ({ ...prev, search: e.target.value }));
