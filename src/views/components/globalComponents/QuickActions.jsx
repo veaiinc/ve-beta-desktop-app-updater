@@ -21,7 +21,7 @@ import CreateGallery from '../../../views/components/modalsV2/gallery/CreateGall
 import AutomationLoaderModal from '../modalsV2/automationBuilder/AutomationLoaderModal';
 import { useEdges } from '@xyflow/react';
 
-let moduleOptions = [
+const moduleOptions = [
 	{
 		id: 0,
 		title: 'Contact/Lead',
@@ -151,7 +151,7 @@ let moduleOptions = [
 ];
 
 const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDetails = null }) => {
-	let {
+	const {
 		templates: { toggleCreateLeadModal },
 		profileInfo: { tenantUserAccessControls },
 		automationBuilder: { createAutomation },
