@@ -60,6 +60,15 @@ let moduleOptions = [
 	},
 	{
 		id: 4,
+		title: 'Documents',
+		value: '',
+		controlValue: 'all',
+		action: ({ setInfo, info }) => {
+			setInfo({ ...info, openProposalPopup: true, commonState: '' });
+		},
+	},
+	{
+		id: 5,
 		title: 'Form',
 		value: 'form-submission',
 		controlValue: 'form',
@@ -68,7 +77,7 @@ let moduleOptions = [
 		},
 	},
 	{
-		id: 5,
+		id: 6,
 		title: 'Proposal',
 		value: 'proposal',
 		controlValue: 'workflow',
@@ -77,7 +86,7 @@ let moduleOptions = [
 		},
 	},
 	{
-		id: 6,
+		id: 7,
 		title: 'Invoice',
 		value: 'invoice',
 		controlValue: 'workflow',
@@ -86,7 +95,7 @@ let moduleOptions = [
 		},
 	},
 	{
-		id: 7,
+		id: 8,
 		title: 'Contracts',
 		value: 'contract',
 		controlValue: 'workflow',
@@ -95,7 +104,7 @@ let moduleOptions = [
 		},
 	},
 	{
-		id: 8,
+		id: 9,
 		title: 'Presentation',
 		value: 'presentation',
 		controlValue: 'workflow',
@@ -104,29 +113,29 @@ let moduleOptions = [
 		},
 	},
 	{
-		id: 9,
+		id: 10,
 		title: 'Automation',
 		value: 'automation',
 		controlValue: 'automation',
 		action: () => {},
 	},
 	{
-		id: 10,
+		id: 11,
 		title: 'Conversational Agent',
 		value: 'ai-assistant',
 		controlValue: 'conversationalAgent',
 		action: () => {},
 	},
 	{
-		id: 11,
-		title: 'Classic Gllery',
+		id: 12,
+		title: 'Classic Gallery',
 		value: 'galleries',
 		controlValue: 'classicGallery',
 		action: () => {},
 	},
 	{
-		id: 12,
-		title: 'Lite Gllery',
+		id: 13,
+		title: 'Lite Gallery',
 		value: 'lite-gallery',
 		controlValue: 'liteGallery',
 		action: () => {},
