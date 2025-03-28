@@ -69,6 +69,7 @@ const ShareModal = ({
 		canGuestDownloadOriginals: tenantPreferences?.canGuestDownloadOriginals || false,
 		currentWorkspaceId: null,
 		galleryLink: null,
+		galleryGuestAccessDetails: null,
 	});
 	useEffect(() => {
 		if (!galleryShareDetails) {
@@ -253,7 +254,7 @@ const ShareModal = ({
 		editPreferences(galleryId, payload);
 	};
 
-	const handleGuestAccessUpdate = (name) => {
+	const handleGuestAccessUpdate = async (name) => {
 		const payloadKeyMap = {
 			canGuestDownloadOriginals: 'canDownloadOriginals',
 			canGuestDownloadOptimized: 'canDownloadOptimized',
@@ -263,11 +264,12 @@ const ShareModal = ({
 		if (payloadKeyMap[name]) {
 			const payload = {
 				[payloadKeyMap[name]]: !galleryGuestAccessDetails?.[payloadKeyMap[name]],
+				accessPin: galleryGuestAccessDetails?.pin,
 			};
-			updateGuestAccess(payload, galleryId);
+			await updateGuestAccess(payload, galleryId);
 		}
 
-		getGuestAccessDetails(galleryId);
+		await getGuestAccessDetails(galleryId);
 	};
 
 	const handleShareViaEmail = useCallback(async () => {
@@ -393,7 +395,7 @@ const ShareModal = ({
 
 		editVisitorFormAccess(payload, galleryId);
 	};
-
+	console.log(info?.galleryGuestAccess, 'testing');
 	return (
 		<Drawer
 			open={open}
@@ -501,7 +503,7 @@ const ShareModal = ({
 										onChange={(e) => {
 											handleEditPin(e, 'guestAccessPin');
 										}}
-										value={galleryGuestAccessDetails?.pin}
+										value={info?.galleryGuestAccess?.pin}
 									/>
 									<div>
 										<Copy
