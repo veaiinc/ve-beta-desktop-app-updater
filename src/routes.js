@@ -21,7 +21,6 @@ import AlbumSettings from './views/features/gallery/AlbumSettings';
 import UploadPhotos from './views/features/gallery/UploadPhotos';
 import GalleryViewLayout from './views/layouts/galleryViewLayout';
 import { Navigate } from 'react-router-dom';
-import Subscription from './views/features/subscription';
 import TermsOfService from './views/features/signin/TermsOfService';
 import CookiePolicy from './views/features/signin/CookiePolicy';
 import WorkflowBuilder from './views/features/workflow_builder';
@@ -47,6 +46,9 @@ import RecentChat from './views/features/chat/RecentChat';
 import AutomationBuilder from './views/features/automation_builder';
 import AutomationBuilderLayout from './views/layouts/automationBuilderLayout';
 import Automations from './views/features/automations/Automations';
+import Integrations from './views/features/Integrations/Integrations';
+import BrandSetup from './views/features/settings/BrandSetup';
+
 const routes = [
 	{
 		path: '/',
@@ -119,7 +121,7 @@ const routes = [
 		component: (
 			<AuthWrapper
 				title={'Home'}
-				outerContainerStyle={{ padding: '0 32px' }}
+				// outerContainerStyle={{ padding: '0 32px' }}
 				showBottomToolbar={false}
 			>
 				<InitialHomePage />
@@ -203,6 +205,14 @@ const routes = [
 		exact: true,
 	},
 	{
+		path: '/brand-setup',
+		component: (
+			<AuthWrapper title={'Brand Setup'}>
+				<BrandSetup />
+			</AuthWrapper>
+		),
+	},
+	{
 		path: '/galleries',
 		component: (
 			<AuthWrapper title={'Galleries'} showBottomToolbar={false}>
@@ -256,15 +266,15 @@ const routes = [
 		),
 		exact: true,
 	},
-	{
-		path: '/settings/ai-setup-page/:aiAssistantId',
-		component: (
-			<AuthWrapper title={'AI Setup'}>
-				<AiSetupPage />
-			</AuthWrapper>
-		),
-		exact: true,
-	},
+	// {
+	// 	path: '/settings/ai-setup-page/:aiAssistantId',
+	// 	component: (
+	// 		<AuthWrapper title={'AI Setup'}>
+	// 			<AiSetupPage />
+	// 		</AuthWrapper>
+	// 	),
+	// 	exact: true,
+	// },
 	{
 		path: '/tasks',
 		component: (
@@ -275,13 +285,17 @@ const routes = [
 		exact: true,
 	},
 	{
-		path: '*',
-		component: <Navigate to="/" />,
+		path: '/integrations',
+		component: (
+			<AuthWrapper title={'Integrations'}>
+				<Integrations />
+			</AuthWrapper>
+		),
+		exact: true,
 	},
 	{
-		path: '/subscription',
-		component: <Subscription />,
-		exact: true,
+		path: '*',
+		component: <Navigate to="/" />,
 	},
 	{
 		path: '/calendar',
@@ -408,7 +422,7 @@ const routes = [
 		exact: true,
 	},
 	{
-		path: '/form-leads',
+		path: '/forms/:id',
 		component: (
 			<AuthWrapper title={'Form Leads'}>
 				<FormLeads />
@@ -423,6 +437,7 @@ const routes = [
 				title={'Chat'}
 				showBottomToolbar={false}
 				outerContainerStyle={{ paddingRight: '0px' }}
+				authParentContainerStyle={{ backgroundColor: 'var(--background-color)' }}
 				maxWidth="100%"
 			>
 				<RecentChat />
@@ -430,11 +445,13 @@ const routes = [
 		),
 	},
 	{
-		path: '/notes/:noteId',
+		path: '/note/:noteId',
 		component: (
 			<AuthWrapper
 				title={'Notes'}
-				outerContainerStyle={{ padding: '0 0 0 32px', backgroundColor: '#1e1e1e' }}
+				outerContainerStyle={{
+					backgroundColor: 'var(--background-color)',
+				}}
 				maxWidth={'100%'}
 			>
 				<Notes />

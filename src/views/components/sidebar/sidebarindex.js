@@ -27,11 +27,7 @@ import AddCalenderSvg from '../../../assets/svg/sidebar/AddCalenderSvg';
 import HomeSvg from '../../../assets/svg/sidebar/HomeSvg.jsx';
 import { ReactComponent as OrchestratorSvg } from '../../../assets/svg/sidebar/Orchestrator.svg';
 import TemplatesSvg from '../../../assets/svg/sidebar/TemplatesSvg.jsx';
-import DaVinci from '../../../assets/images/Da Vinci.jpeg';
-import Jarvis from '../../../assets/images/Jarvis.jpeg';
-import Ari from '../../../assets/images/Ari.jpeg';
-import DaVinciJobsSvg from '../../../assets/svg/sidebar/DaVinciJobsSvg.jsx';
-import DaVinciSetupSvg from '../../../assets/svg/sidebar/DaVinciSetupSvg.jsx';
+import { ReactComponent as HelpSvg } from '../../../assets/svg/sidebar/help.svg';
 // import { subDays } from 'react-datepicker/dist/date_utils.js';
 
 export const veAiModulesItemsList = [
@@ -79,6 +75,13 @@ export const veAiModulesItemsList = [
 	},
 	{
 		id: 7,
+		name: 'Notes',
+		moduleRoute: '/notes',
+		route: null,
+		icon: '',
+	},
+	{
+		id: 8,
 		name: 'Storage',
 		moduleRoute: '',
 		route: '',
@@ -99,13 +102,6 @@ export const veAiModulesItemsList = [
 				icon: '',
 			},
 		],
-	},
-	{
-		id: 8,
-		name: 'Notes',
-		moduleRoute: '/notes',
-		route: null,
-		icon: '',
 	},
 ];
 
@@ -136,22 +132,23 @@ export const veAiModules = [
 		// 	{ icon: '', name: 'Plan Billing', route: '/settings/plan-billing' },
 		// ],
 	},
+	{ icon: HelpSvg, name: 'Help' },
 ];
 
-export const bottomOptionsList = [
-	// {
-	// 	name: 'Share and Earn',
-	// 	moduleRoute: '',
-	// 	route: '/share-and-earn',
-	// 	icon: GiftSvg,
-	// },
-	// {
-	// 	name: 'Settings',
-	// 	moduleRoute: '/settings',
-	// 	route: '/settings/my-profile',
-	// 	icon: SettingsSvg,
-	// },
-];
+// export const bottomOptionsList = [
+// {
+// 	name: 'Share and Earn',
+// 	moduleRoute: '',
+// 	route: '/share-and-earn',
+// 	icon: GiftSvg,
+// },
+// {
+// 	name: 'Settings',
+// 	moduleRoute: '/settings',
+// 	route: '/settings/my-profile',
+// 	icon: SettingsSvg,
+// },
+// ];
 
 export const styles = {
 	open: {
@@ -170,50 +167,50 @@ export const styles = {
 	},
 };
 
-export const newBtnActions = [
-	{ label: 'Lead', action: 'functionCall', funcName: 'openLeadPopup', redirect: null },
-	{ label: 'Workflow', action: 'redirect', funcName: null, redirect: '/playbook' },
-];
+// export const newBtnActions = [
+// 	{ label: 'Lead', action: 'functionCall', funcName: 'openLeadPopup', redirect: null },
+// 	{ label: 'Workflow', action: 'redirect', funcName: null, redirect: '/playbook' },
+// ];
 
-export const closedSidebarIcons = [
-	{ icon: CalendarSvg, route: '', name: 'Calendar' },
-	{ icon: AddCalenderSvg, route: '', name: 'Scheduler' },
-	{ icon: TranscriptSvg, route: '', name: 'Transcript' },
-	{
-		icon: SettingsSvg,
-		route: '/settings/my-profile',
-		fill: 'white',
-		name: 'Settings',
-	},
-];
+// export const closedSidebarIcons = [
+// 	{ icon: CalendarSvg, route: '', name: 'Calendar' },
+// 	{ icon: AddCalenderSvg, route: '', name: 'Scheduler' },
+// 	{ icon: TranscriptSvg, route: '', name: 'Transcript' },
+// 	{
+// 		icon: SettingsSvg,
+// 		route: '/settings/my-profile',
+// 		fill: 'white',
+// 		name: 'Settings',
+// 	},
+// ];
 
-export const AiOptions = [
-	{
-		icon: '',
-		name: 'Da Vinci',
-		route: '/ai-agents/home/da-vinci',
-		image: DaVinci,
-		subModules: [
-			{
-				icon: TaskSvg,
-				route: '/ai-agents/home/da-vinici',
-				name: 'Home',
-				description: 'Da Vinci',
-			},
-			{
-				icon: DaVinciJobsSvg,
-				route: '/ai-agents/jobs/:agent-name',
-				name: 'Jobs',
-				description: 'Da Vinci',
-			},
-			{
-				icon: DaVinciSetupSvg,
-				route: '/ai-agents/setup/da-vinici',
-				name: 'Setup',
-				description: 'Da Vinci',
-			},
-		],
-	},
-	{ icon: '', name: 'Jarvis', route: '/jarvis', image: Jarvis },
-	{ icon: '', name: 'Ari', route: '/ari', image: Ari },
-];
+// export const AiOptions = [
+// 	{
+// 		icon: '',
+// 		name: 'Da Vinci',
+// 		route: '/ai-agents/home/da-vinci',
+// 		image: DaVinci,
+// 		subModules: [
+// 			{
+// 				icon: TaskSvg,
+// 				route: '/ai-agents/home/da-vinici',
+// 				name: 'Home',
+// 				description: 'Da Vinci',
+// 			},
+// 			{
+// 				icon: DaVinciJobsSvg,
+// 				route: '/ai-agents/jobs/:agent-name',
+// 				name: 'Jobs',
+// 				description: 'Da Vinci',
+// 			},
+// 			{
+// 				icon: DaVinciSetupSvg,
+// 				route: '/ai-agents/setup/da-vinici',
+// 				name: 'Setup',
+// 				description: 'Da Vinci',
+// 			},
+// 		],
+// 	},
+// 	{ icon: '', name: 'Jarvis', route: '/jarvis', image: Jarvis },
+// 	{ icon: '', name: 'Ari', route: '/ari', image: Ari },
+// ];

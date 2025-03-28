@@ -143,28 +143,15 @@ const RatingAnswer = ({ answer }) => {
 };
 
 const TimeAnswer = ({ answer }) => {
-	if (!answer) {
-		return '';
-	}
-	let text = answer;
-	try {
-		// Try parsing as JSON first
-		const parsed = JSON.parse(text);
-		text = parsed;
-	} catch (e) {
-		// If it's not valid JSON, treat as regular string
-		text = answer;
-		if (typeof text === 'string') {
-			text = text.replace(/^["']|["']$/g, '');
-		}
-	}
+	const hours = answer?.split(':')[0];
+	const minutes = answer?.split(':')[1];
 	return (
 		<>
 			<p className={`answer timeContainer`}>
-				<span className="time">{text?.hours || ''}</span>
+				<span className="time">{hours}</span>
 				<TimeDivider />
-				<span className="time">{text?.minutes || ''}</span>
-				<span className="time-division">{text?.timeDivision || ''}</span>
+				<span className="time">{minutes}</span>
+				{/* <span className="time-division">{timeDivision}</span> */}
 			</p>
 			<div className="divider"></div>
 		</>
@@ -203,17 +190,20 @@ const LinkAnswer = ({ answer }) => {
 };
 
 const FileUploadAnswer = ({ answer }) => {
-	if (!answer) {
-		return '';
-	}
+	const files = answer;
 	return (
 		<>
-			<img
-				className="answer fileUpload"
-				onClick={() => window.open(answer, '_blank')}
-				src={answer}
-				alt="fileUpload"
-			/>
+			{files?.length > 0 &&
+				files?.map((file) => {
+					const { name, previewUrl, lastModified } = file;
+					return (
+						<div key={lastModified}>
+							{/* TODO: Add file preview/download functionality when previewUrl is available */}
+							{/* <a href={previewUrl} target="_blank" rel="noopener noreferrer"> */}
+							<a>{name}</a>
+						</div>
+					);
+				})}
 			<div className="divider"></div>
 		</>
 	);
@@ -278,7 +268,7 @@ const FormModal = ({ isOpen, onClose, selectedRow }) => {
 			open={isOpen}
 			onClose={onClose}
 			width={width}
-			style={{ background: '#171819', gap: '24px' }}
+			style={{ background: 'var(--card)', gap: '24px' }}
 			closeIcon={null}
 		>
 			<div
@@ -305,7 +295,6 @@ const FormModal = ({ isOpen, onClose, selectedRow }) => {
 					{selectedRow?.isRead ? 'notCompleted' : 'Completed'}
 				</div>
 			</div> */}
-				{console.log('selectedRow==>', selectedRow)}
 				<div className="formResponsesParentContainer">
 					{selectedRow?.response?.map(
 						(formData) =>

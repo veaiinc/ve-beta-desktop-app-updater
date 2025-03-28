@@ -2156,7 +2156,6 @@ const GalleryPage = () => {
 			duration: 0,
 		});
 		if (info?.imageURL) {
-			console.log('info?.imageURL3', info?.imageURL);
 			setInfo((prev) => ({
 				...prev,
 				crop: {
@@ -3996,8 +3995,8 @@ const GalleryPage = () => {
 											<div
 												style={{
 													cursor: 'pointer',
-													color: '#E4E5E6',
-													fontFamily: 'Inter',
+													color: 'var(--primary-font)',
+													fontFamily: 'var(--primary-font-family)',
 													fontSize: '14px',
 													fontWeight: '400',
 													lineHeight: '16px',
@@ -4047,8 +4046,9 @@ const GalleryPage = () => {
 															>
 																<span
 																	style={{
-																		color: '#E4E5E6',
-																		fontFamily: 'Inter',
+																		color: 'var(--primary-font)',
+																		fontFamily:
+																			'var(--primary-font-family)',
 																		fontSize: '14px',
 																		fontWeight: '400',
 																		lineHeight: '16px',
@@ -4083,8 +4083,9 @@ const GalleryPage = () => {
 															>
 																<span
 																	style={{
-																		color: '#E4E5E6',
-																		fontFamily: 'Inter',
+																		color: 'var(--primary-font)',
+																		fontFamily:
+																			'var(--primary-font-family)',
 																		fontSize: '14px',
 																		fontWeight: '400',
 																		lineHeight: '16px',

@@ -6,7 +6,14 @@ import VariableComponent from './VariableComponent';
 import HeaderComponent from './HeaderComponent';
 import '../../../../assets/scss/automation_builder/automationBuilderSidebarComponents/inAppActions.scss';
 
-const CreateTask = ({ onBack, onSave, addTriggerLoading, variables, activeStepsData }) => {
+const CreateTask = ({
+	onBack,
+	onSave,
+	addTriggerLoading,
+	variables,
+	activeStepsData,
+	handleChangeClick,
+}) => {
 	const [info, setInfo] = useState({
 		title: '',
 		dueDate: '',
@@ -15,54 +22,6 @@ const CreateTask = ({ onBack, onSave, addTriggerLoading, variables, activeStepsD
 		stepDescription: '',
 		loading: false,
 	});
-
-	const createNewTaskNode = useCallback(async () => {
-		const variableRegex = /^\{\{.*\}\}$/;
-		let { title, stepTitle, stepDescription, dueDate } = info;
-		const variables = {};
-		if (title?.match(variableRegex)) {
-			variables.title = [title?.slice(2, -2)];
-		} else if (!title?.trim().length) {
-			message.error('Title is mandatory');
-			return;
-		}
-		if (!stepTitle?.trim().length) {
-			message.error('Title is mandatory');
-			return;
-		}
-		if (!stepDescription?.trim().length) {
-			message.error('Title is mandatory');
-			return;
-		}
-		if (dueDate?.match(variableRegex)) {
-			variables.dueDate = [dueDate?.slice(2, -2)];
-		} else if (!dueDate) {
-			message.error('Due date is mandatory');
-			return;
-		} else {
-			dueDate = moment(dueDate).unix();
-		}
-
-		const payload = {
-			title: stepTitle,
-			description: stepDescription,
-			actionType: 'createTask',
-			inputBody: {
-				title: title,
-				dueDate: dueDate,
-				action: 'createTask',
-			},
-		};
-		if (Object.keys(variables)?.length) {
-			payload.variables = variables;
-		}
-
-		onSave(payload);
-	}, [info, onSave]);
-
-	const updateInfo = useCallback((data) => {
-		setInfo((prev) => ({ ...prev, ...data }));
-	}, []);
 
 	useEffect(() => {
 		if (activeStepsData) {
@@ -77,6 +36,62 @@ const CreateTask = ({ onBack, onSave, addTriggerLoading, variables, activeStepsD
 			}));
 		}
 	}, [activeStepsData]);
+
+	const createNewTaskNode = useCallback(async () => {
+		const variableRegex = /^\{\{.*\}\}$/;
+		let { title, stepTitle, stepDescription, dueDate } = info;
+		const variables = {};
+		if (title?.match(variableRegex)) {
+			variables.title = [title?.slice(2, -2)];
+		} else if (!title?.trim().length) {
+			message.error('Task title is mandatory');
+			return;
+		}
+		if (!stepTitle?.trim().length) {
+			message.error('Step title is mandatory');
+			return;
+		}
+		if (!stepDescription?.trim().length) {
+			message.error('Step description is mandatory');
+			return;
+		}
+
+		if (dueDate) {
+			if (dueDate?.match(variableRegex)) {
+				variables.dueDate = [dueDate?.slice(2, -2)];
+			} else {
+				dueDate = moment(dueDate).unix();
+			}
+		}
+
+		const payload = {
+			title: stepTitle,
+			description: stepDescription,
+			actionType: 'createTask',
+			inputBody: {
+				title: title,
+				...(dueDate && { dueDate: dueDate + '' }),
+				action: 'createTask',
+			},
+		};
+		if (Object.keys(variables)?.length) {
+			payload.variables = variables;
+		}
+
+		onSave(payload);
+	}, [info, onSave]);
+
+	const updateInfo = useCallback((data) => {
+		setInfo((prev) => ({ ...prev, ...data }));
+	}, []);
+
+	const onChangeButtonClick = useCallback(() => {
+		if (activeStepsData) {
+			handleChangeClick(activeStepsData?.app);
+		} else {
+			onBack();
+		}
+	}, [handleChangeClick, activeStepsData, onBack]);
 
 	return (
 		<div className="inAppActionsContainer">
@@ -94,7 +109,7 @@ const CreateTask = ({ onBack, onSave, addTriggerLoading, variables, activeStepsD
 						updateInfo({ stepDescription: data?.description });
 					}
 				}}
-				onChangeButtonClick={onBack}
+				onChangeButtonClick={onChangeButtonClick}
 			/>
 			<div className="inAppActionsInputsContainer">
 				<h2 className="InputBlockHeading">Inputs</h2>
@@ -107,7 +122,7 @@ const CreateTask = ({ onBack, onSave, addTriggerLoading, variables, activeStepsD
 					/>
 				</div>
 				<div className="inputWrapper">
-					<span className="inputLabel">Due Date</span>
+					<span className="inputLabel">Due Date (Optional)</span>
 
 					<VariableComponent
 						variables={variables?.data}

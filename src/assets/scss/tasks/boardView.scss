@@ -41,9 +41,9 @@
 			gap: 8px;
 
 			&-count {
-				color: #797e86;
+				color: var(--secondary-font);
 				text-align: center;
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 500;
@@ -51,8 +51,8 @@
 			}
 
 			&-title {
-				color: #fff;
-				font-family: Inter;
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 500;
@@ -79,7 +79,7 @@
 			}
 
 			&::-webkit-scrollbar-thumb {
-				background-color: rgba(0, 0, 0, 0.2);
+				background-color: var(--card);
 				border-radius: 3px;
 			}
 		}
@@ -93,12 +93,12 @@
 				padding: 0.5rem;
 				margin: 0.5rem;
 				border-radius: 8px;
-				background: #2d2d30;
+				background: var(--card);
 				cursor: pointer;
 				transition: all 0.2s ease;
 
 				&:hover {
-					background: #3d3d40;
+					background: var(--card);
 				}
 			}
 
@@ -151,10 +151,10 @@
 
 		// Add styles for skeleton loading
 		.react-loading-skeleton {
-			background-color: #2d2d30;
+			background-color: var(--card);
 
 			&::after {
-				background-image: linear-gradient(90deg, #2d2d30, #3d3d40, #2d2d30);
+				background-image: linear-gradient(90deg, var(--card), var(--card), var(--card));
 			}
 		}
 	}
@@ -176,9 +176,9 @@
 		align-items: center;
 		cursor: pointer;
 		border-radius: 50px;
-		border: 1px solid #333334;
-		color: #787e87;
-		font-family: Inter;
+		border: 1px solid var(--card);
+		color: var(--secondary-font);
+		font-family: var(--primary-font-family);
 		font-size: 13px;
 		font-style: normal;
 		font-weight: 500;
@@ -188,7 +188,7 @@
 			width: 16px;
 			height: 16px;
 			path {
-				stroke: #787e87 !important;
+				stroke: var(--secondary-font) !important;
 			}
 		}
 
@@ -203,8 +203,8 @@
 		align-items: center;
 		height: 100%;
 		width: 100%;
-		color: #787e87;
-		font-family: Inter;
+		color: var(--secondary-font);
+		font-family: var(--primary-font-family);
 		font-size: 14px;
 		font-weight: 500;
 	}
@@ -229,5 +229,5 @@
 	display: flex;
 	justify-content: center;
 	padding: 16px;
-	color: #666;
+	color: var(--secondary-font);
 }

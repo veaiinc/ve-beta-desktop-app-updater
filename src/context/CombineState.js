@@ -8,8 +8,10 @@ import { ActivityState } from './Activity/state';
 import { SubscriptionState } from './subscription/state';
 import { AuthState } from './auth/state';
 import { Calendar } from './Calendar/state';
+import { ThemeState } from './Theme/state';
 import { TasksState } from './tasks/state';
 import { useMemo } from 'react';
+import { theme } from 'antd';
 import { ContactsState } from './contacts/state';
 import { DocumentPreviewState } from './DocumentPreview/state';
 import { AutomationBuilderState } from './automationBuilder/state';
@@ -19,6 +21,7 @@ const useCombineState = () => {
 	// Call all hooks at the top level
 	const chatInfo = ChatState();
 	const templates = TemplatesState();
+	const themeInfo = ThemeState();
 	const profileInfo = ProfileState();
 	const companyInfo = CompanySettingsState();
 	const galleryInfo = Galleries();
@@ -37,6 +40,7 @@ const useCombineState = () => {
 		() => ({
 			chatInfo,
 			templates,
+			themeInfo,
 			profileInfo,
 			companyInfo,
 			galleryInfo,
@@ -47,6 +51,7 @@ const useCombineState = () => {
 			calendarInfo,
 			tasks,
 			contacts,
+			themeInfo,
 			documentPreview,
 			automationBuilder,
 			notes,
@@ -54,6 +59,7 @@ const useCombineState = () => {
 		[
 			chatInfo,
 			templates,
+			themeInfo,
 			profileInfo,
 			companyInfo,
 			galleryInfo,
@@ -63,6 +69,7 @@ const useCombineState = () => {
 			authInfo,
 			calendarInfo,
 			tasks,
+			themeInfo,
 			contacts,
 			documentPreview,
 			automationBuilder,

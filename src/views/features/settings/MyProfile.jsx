@@ -9,10 +9,28 @@ import TwoFactorAuthenticationComponent from '../../components/settings/profile/
 import LeaveWorkspaceComponent from '../../components/settings/profile/LeaveWorkspace';
 import Notifications from '../../components/settings/profile/Notifications';
 import { message } from 'antd';
+import Cookies from 'js-cookie';
+
+const themePreferenceOptions = [
+	// {
+	// 	id: 0,
+	// 	title: 'System',
+	// 	value: 'systemDefault',
+	// },
+	{
+		id: 0,
+		title: 'Dark Mode',
+		value: 'dark',
+	},
+	{
+		id: 1,
+		title: 'Light Mode',
+		value: 'light',
+	},
+];
 
 const MyProfile = () => {
 	const fullNameRef = useRef(null);
-	// # Context
 	const {
 		profileInfo: {
 			get2FAQrCode,
@@ -25,15 +43,17 @@ const MyProfile = () => {
 			tenantUserDetails,
 			updateUserDetailsState,
 		},
-		companyInfo: { updatePrefernces, getTenantPreferences, tenantPreferenceData },
+		companyInfo: { getTenantPreferences, tenantPreferenceData },
+		themeInfo: { theme, updateTheme },
 		authInfo: { updateUserDetails },
 	} = useContext(Context);
 
-	// # States
+	console.log('theme', theme);
+
 	const [showForm, setShowForm] = useState(false);
 	const [isEditMode, setIsEditMode] = useState({ isValueChanged: false, timeout: null });
 	const [errors, setErrors] = useState({});
-	const [activeTheme, setActiveTheme] = useState('dark');
+
 	const [userDetails, setUserDetails] = useState({
 		fullName: '',
 		email: '',
@@ -42,12 +62,10 @@ const MyProfile = () => {
 		logoURL: '',
 		cropSettings: { crop: { x: 0, y: 0 }, zoom: 1 },
 	});
-	const [usernameUpdateLoader, setUsernameUpdateLoader] = useState(false);
 	const [initialState, setInitialState] = useState({ ...userDetails });
 
 	const [logoFile, setlogoFile] = useState(null);
 
-	// # Useeffects
 	useEffect(() => {
 		if (!tenantPreferenceData) {
 			getTenantPreferences();
@@ -81,12 +99,6 @@ const MyProfile = () => {
 			}));
 		}
 	}, [userDetailsData]);
-
-	useEffect(() => {
-		if (tenantPreferenceData) {
-			setActiveTheme(tenantPreferenceData?.theme);
-		}
-	}, [tenantPreferenceData?.theme]);
 
 	useEffect(() => {
 		if (userDetails.is2FAEnabled) {
@@ -276,13 +288,25 @@ const MyProfile = () => {
 		}
 	};
 
-	const updateThemeSubmitHandler = async (mode) => {
-		const json = {
-			theme: mode,
-		};
-		const response = await updatePrefernces(json);
-		if (response[0]) {
-			setActiveTheme(mode);
+	// const updateThemeSubmitHandler = async (mode) => {
+	// 	const json = {
+	// 		theme: mode,
+	// 	};
+	// 	const response = await updatePrefernces(json);
+	// 	if (response[0]) {
+	// 		setActiveTheme(mode);
+	// 	}
+	// };
+
+	const handleThemeChange = async (themeValue) => {
+		const response = await updateTheme(themeValue);
+		const success = response?.[0];
+		if (success) {
+			message?.success('Theme updated successfully');
+			localStorage.setItem('theme', themeValue);
+			Cookies.set('theme', themeValue);
+		} else {
+			message?.error('Failed to update theme, Please refresh the page and try again!');
 		}
 	};
 
@@ -312,7 +336,7 @@ const MyProfile = () => {
 				{/* <div className="settingsTheme activeBackgroundColor" id="theme">
 					<ThemePreferenceComponent
 						updateThemeSubmitHandler={updateThemeSubmitHandler}
-						activeTheme={activeTheme}
+						activeTheme={theme}
 					/>
 				</div> */}
 
@@ -329,11 +353,40 @@ const MyProfile = () => {
 						qrcode={qrcode}
 					/>
 				</div> */}
-
+				<div className="theme-container">
+					<div className="theme-container-item">
+						<p>Change Theme</p>
+						<div className="theme-container-item-content">
+							{themePreferenceOptions?.map((themeOption) => (
+								<>
+									<p
+										key={themeOption?.id}
+										onClick={() => handleThemeChange(themeOption?.value)}
+										className={themeOption?.value === theme ? 'active' : ''}
+										style={{ cursor: 'pointer' }}
+									>
+										{themeOption?.title}
+									</p>
+									{themeOption?.id !== themePreferenceOptions?.length - 1 && (
+										<span className="theme-container-item-content-separator">
+											|
+										</span>
+									)}
+								</>
+							))}
+						</div>
+					</div>
+				</div>
 				{/* Temporary Hide */}
 				<Notifications />
-				<div className={'accessSettingsContainer'} id="leaveworkspace">
-					<LeaveWorkspaceComponent />
+
+				<div className="danger-zone">
+					<div className="danger-zone-header">
+						<p className="danger-zone-title">DANGER ZONE</p>
+					</div>
+					<div className={'accessSettingsContainer'} id="leaveworkspace">
+						<LeaveWorkspaceComponent />
+					</div>
 				</div>
 			</div>
 		</div>

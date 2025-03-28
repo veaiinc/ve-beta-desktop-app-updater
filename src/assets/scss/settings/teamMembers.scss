@@ -1,209 +1,193 @@
 .TeamMemberContainer {
 	display: flex;
 	flex-direction: column;
-	gap: 48px;
+
+	.TeamMemberContainerTitle {
+		color: var(--primary-font, #f2f2f3);
+		font-family: var(--primary-font-family);
+		font-size: 32px;
+		font-style: normal;
+		font-weight: 300;
+		line-height: normal;
+	}
 
 	.yourTeamComponent {
 		.yourTeamTitle {
 			display: flex;
 			justify-content: space-between;
 			align-items: center;
+			margin-bottom: 20px;
 
 			h1 {
-				color: #e4e5e6;
-				font-family: Inter;
+				color: var(--secondary-font);
+				font-family: var(--primary-font-family);
 				font-size: 16px;
 				font-style: normal;
 				font-weight: 500;
-				line-height: 24px; /* 150% */
+				line-height: 24px;
+
+				.teamMembersCount {
+					color: var(--secondary-font);
+					margin-left: 8px;
+					font-size: 14px;
+				}
 			}
-			button {
+			.inviteMemberButton {
 				display: flex;
 				padding: 12px 16px;
+				justify-content: center;
 				align-items: center;
-				gap: 12px;
-				border-radius: 24px;
-				background: #f2f2f3;
-				color: #111;
-				font-family: Inter;
+				background: none;
+				color: var(--primary-font);
+				gap: 16px;
+				display: flex;
+				border-radius: 100px;
+				border: 1px solid var(--stroke);
+				font-family: var(--primary-font-family);
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 500;
 				line-height: normal;
-				border: none;
 				cursor: pointer;
 			}
 		}
+
 		.yourTeamFilter {
 			display: flex;
 			align-items: center;
-			padding: 12px;
+			padding: 12px 16px;
 			gap: 10px;
 			border-radius: 50px;
-			border: 0.5px solid #333;
+			border: 0.5px solid var(--stroke);
 			width: 100%;
+			margin-bottom: 20px;
 
 			input {
 				background: none;
 				border: none;
-				color: #e4e5e6;
-
-				font-size: 12px;
+				color: var(--primary-font);
+				font-size: 14px;
 				font-weight: 400;
 				line-height: 16px;
+				width: 100%;
+
+				&::placeholder {
+					color: var(--secondary-font);
+				}
+
+				&:focus {
+					outline: none;
+				}
 			}
 		}
 
 		.tenantDetailsContainer {
 			display: flex;
-			justify-content: space-between;
+			padding: 12px 16px;
 			align-items: center;
-			padding: 16px 0px;
-			border-radius: 16px;
+			gap: 12px;
+			align-self: stretch;
+			justify-content: space-between;
+			border-radius: 8px;
 			cursor: pointer;
+			margin-bottom: 8px;
+			border-radius: 12px;
+			background: var(--card, #171819);
+
 			&:hover {
-				background-color: #1c1c1c;
+				background-color: var(--card-hover);
 			}
+
 			.tenantProfileContainer {
 				display: flex;
 				gap: 16px;
+				align-items: center;
+
 				.tenantLogo {
 					display: flex;
 					justify-content: center;
 					align-items: center;
-					border: 1px solid #fff;
-					border-radius: 100%;
+					border-radius: 6px;
 					width: 40px;
 					height: 40px;
+					overflow: hidden;
+					background: var(--card-hover);
 
 					img {
 						width: 100%;
 						height: 100%;
 						border-radius: 100%;
+						object-fit: cover;
 					}
 
 					p {
-						width: 100%;
-						color: #666;
-						font-family: Inter;
-						font-size: 13px;
-						font-style: normal;
-						font-weight: 400;
-						text-align: center;
+						color: var(--primary-font);
+						font-family: var(--primary-font-family);
+						font-size: 14px;
+						font-weight: 500;
+						margin: 0;
 					}
 				}
+
 				.tenantProfileName {
 					display: flex;
 					flex-direction: column;
 					justify-content: center;
+
 					h1 {
-						margin: 0px;
-						color: #e4e5e6;
-						font-family: Inter;
+						margin: 0;
+						color: var(--primary-font);
+						font-family: var(--primary-font-family);
 						font-size: 14px;
-						font-style: normal;
 						font-weight: 500;
-						line-height: 20px; /* 142.857% */
+						line-height: 20px;
 					}
+
 					p {
-						color: #666;
-						font-family: Inter;
+						color: var(--secondary-font);
+						font-family: var(--primary-font-family);
 						font-size: 13px;
-						font-style: normal;
 						font-weight: 400;
-						line-height: 20px; /* 153.846% */
+						line-height: 20px;
+						margin: 0;
 					}
 				}
 			}
 
 			.AccessControl {
 				.owner {
-					border-radius: 4px;
-					background-color: #7871c030;
-					padding: 14px 12px 14px 12px;
-					width: 103px;
-					height: 30px;
-					display: flex;
-					justify-content: center;
-					align-items: center;
-					color: #e4e5e6;
-					font-size: 10px;
-					&:hover {
-						cursor: pointer;
-					}
+					border-radius: 6px;
+					background-color: var(--card);
+					padding: 8px 16px;
+					display: inline-block;
+					color: var(--primary-font);
+					font-size: 14px;
 				}
+
 				.editAccessControl {
-					display: flex;
-					gap: 24px;
-					align-items: center;
-					justify-content: center;
 					position: relative;
+					min-width: 120px;
+
+					.ant-select {
+						width: 100%;
+					}
 
 					.ant-select-selector {
-						color: #e4e5e6 !important;
+						color: var(--primary-font) !important;
 						background: none !important;
+						border: none !important;
+						padding: 0 8px !important;
+						height: 32px !important;
 					}
 
 					.ant-select-arrow {
-						color: #e4e5e6 !important;
+						color: var(--primary-font) !important;
 					}
 
 					.ant-select-selection-item {
-						color: #e4e5e6 !important;
-					}
-
-					.optionDiv {
-						display: flex;
-						gap: 10px;
-						align-items: center;
-						cursor: pointer;
-						p {
-							color: #e4e5e6;
-							font-family: Inter;
-							font-size: 14px;
-							font-style: normal;
-							font-weight: 400;
-							line-height: 20px; /* 142.857% */
-							text-transform: capitalize;
-						}
-					}
-
-					.allListContainer {
-						position: absolute;
-						display: flex;
-						flex-direction: column;
-						width: 183px;
-						padding: 0;
-						justify-content: space-between;
-						align-items: center;
-						align-self: stretch;
-						background: #151515;
-						top: 29px;
-						right: 12px;
-						z-index: 10;
-						border-radius: 15px;
-						overflow: hidden;
-
-						.option {
-							width: 100%;
-							display: flex;
-							justify-content: space-between;
-							align-items: center;
-							padding: 16px 24px;
-							p {
-								color: #fff;
-								font-family: Inter;
-								font-size: 12px;
-								font-style: normal;
-								font-weight: 400;
-								line-height: 14px; /* 116.667% */
-							}
-
-							&:hover {
-								background-color: #2f2f2f;
-								cursor: pointer;
-							}
-						}
+						color: var(--primary-font) !important;
+						font-size: 14px;
+						line-height: 32px !important;
 					}
 				}
 			}
@@ -226,7 +210,7 @@
 	align-items: flex-start;
 	gap: 24px;
 	border-radius: 32px;
-	background: #171819;
+	background: var(--popup);
 	.inviteMemberText {
 		width: 100%;
 		.inviteMemberTitle {
@@ -236,8 +220,8 @@
 			margin-bottom: 12px;
 			width: 100%;
 			h1 {
-				color: #e4e5e6;
-				font-family: Inter;
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
 				font-size: 16px;
 				font-style: normal;
 				font-weight: 500;
@@ -246,8 +230,8 @@
 		}
 
 		.inviteMemberDescription {
-			color: #666;
-			font-family: Inter;
+			color: var(--secondary-font);
+			font-family: var(--primary-font-family);
 			font-size: 13px;
 			font-style: normal;
 			font-weight: 400;
@@ -269,10 +253,10 @@
 			gap: 12px;
 			align-self: stretch;
 			border-radius: 12px;
-			border: 1px solid #2c2d2e;
+			border: 1px solid var(--stroke);
 			.textInput {
-				color: #7a7e85;
-				font-family: Inter;
+				color: var(--secondary-font);
+				font-family: var(--primary-font-family);
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 500;
@@ -286,7 +270,7 @@
 				.dropdownInput {
 					background: none;
 					border: none;
-					color: #fff;
+					color: var(--primary-font);
 				}
 			}
 		}
@@ -298,8 +282,8 @@
 		gap: 16px;
 		align-self: stretch;
 		.accessControlTitle {
-			color: #f2f2f3;
-			font-family: Inter;
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
 			font-size: 16px;
 			font-style: normal;
 			font-weight: 500;
@@ -328,13 +312,13 @@
 					align-items: center;
 					gap: 10px;
 					border-radius: 2px;
-					border: 2px solid rgba(0, 0, 0, 0);
-					background: #202123;
+					border: 2px solid var(--stroke);
+					background: var(--card-over-card-hover);
 				}
 				.accessControlOptionText {
 					flex: 1 0 0;
-					color: #f2f2f3;
-					font-family: Inter;
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 400;
@@ -350,8 +334,8 @@
 		align-items: center;
 		width: 100%;
 		.addmore {
-			color: #666;
-			font-family: Inter;
+			color: var(--secondary-font);
+			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 400;
@@ -373,9 +357,9 @@
 		button {
 			padding: 9px 16px;
 			border-radius: 20px;
-			border: 1px solid #1c1c1c;
-			background: #1c1c1c;
-			color: #666;
+			border: 1px solid var(--stroke);
+			background: var(--card-over-card-hover);
+			color: var(--secondary-font);
 			font-size: 14px;
 			font-weight: 400;
 			line-height: 22px;
@@ -387,7 +371,7 @@
 
 .ant-checkbox-checked {
 	.ant-checkbox-inner {
-		background-color: #1c1c1c;
-		border-color: #666;
+		background-color: var(--card-over-card-hover);
+		border-color: var(--stroke);
 	}
 }

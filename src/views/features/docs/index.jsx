@@ -23,8 +23,11 @@ import { message } from 'antd';
 import Skeleton from 'react-loading-skeleton';
 import { Tooltip } from 'antd';
 import QuickActions from '../../components/globalComponents/QuickActions.jsx';
+import SearchSvg from '../../../assets/svg/activity/SearchSvg.jsx';
+import FilterSvg from '../../../assets/svg/my_templates/FilterSvg.jsx';
+import ThreeDotsSvg from '../../../assets/svg/my_templates/ThreeDotsSvg.jsx';
 import Spinner from '../../components/loaders/Spinner';
-let origin = fetchOriginSelection();
+const origin = fetchOriginSelection();
 
 const payload = {
 	filters: {
@@ -32,29 +35,6 @@ const payload = {
 		limit: 10,
 	},
 };
-
-const staticCreateActions = [
-	{
-		type: 'Minimal',
-		prompt: 'Wedding Day Timeline Generator',
-	},
-	{
-		type: 'Professional',
-		prompt: 'Wedding Day Timeline Generator',
-	},
-	{
-		type: 'Traditional',
-		prompt: 'Wedding Day Timeline Generator',
-	},
-	{
-		type: 'Sales',
-		prompt: 'Track invoice status, Payment schedule, amounts, and more.',
-	},
-	{
-		type: 'Consise',
-		prompt: 'Wedding Day Timeline Generator',
-	},
-];
 
 export const statusTextmapper = {
 	filesViewed: {
@@ -147,12 +127,10 @@ export const statusTextmapper = {
 	// },
 };
 
-const statusList = Object.values(statusTextmapper)
-	.filter((status) => status?.label !== 'Expired') // Exclude the status with label 'Expired'
-	.map((status) => ({
-		name: status?.label,
-		_id: status?.id,
-	}));
+const statusList = Object.values(statusTextmapper)?.map((status) => ({
+	name: status?.label,
+	_id: status?.id,
+}));
 
 export const FilterIcons = {
 	templateName: <UppercaseLowercaseA />,
@@ -820,7 +798,7 @@ const Docs = () => {
 										}))
 									}
 								>
-									<Search />
+									<SearchSvg />
 								</span>
 
 								<div className="inputAndCloseContainer">
@@ -861,14 +839,12 @@ const Docs = () => {
 							valueSelector="valueSelector"
 							containerStyles={{
 								borderRadius: '14px',
-								background: '#202123',
-								boxShadow: '0px 2px 44px 0px rgba(0, 0, 0, 0.25)',
 							}}
 							onOptionClick={handleSetActiveFilter}
 						>
-							<Filter style={{ width: '20px', height: '20px', marginTop: '6px' }} />
+							<FilterSvg />
 						</DropDown>
-						{/* <ThreeDots /> */}
+						<ThreeDotsSvg />
 					</div>
 				</div>
 

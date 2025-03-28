@@ -35,8 +35,8 @@
 			}
 
 			.heading2 {
-				color: #fff;
-				font-family: Brasley, sans-serif !important;
+				color: var(--primary-font);
+				font-family: var(--secondary-font-family), sans-serif !important;
 				font-size: 36px;
 				font-style: normal;
 				font-weight: 500;
@@ -44,8 +44,8 @@
 			}
 
 			.description2 {
-				color: rgba(255, 255, 255, 0.5);
-				font-family: Inter;
+				color: var(--secondary-font);
+				font-family: var(--primary-font-family);
 				font-size: 16px;
 				font-style: normal;
 				font-weight: 500;
@@ -74,11 +74,7 @@
 				justify-content: center;
 				flex-shrink: 0;
 				border-radius: 40px;
-				background: var(--ve-ai-dark-theme-pop-up-color, #202123);
-				background: var(
-					--ve-ai-dark-theme-pop-up-color,
-					color(display-p3 0.1249 0.1304 0.1358)
-				);
+				background-color: var(--popup);
 				position: relative;
 				.top-container {
 					display: inline-flex;
@@ -88,25 +84,22 @@
 					align-items: flex-start;
 					gap: 18px;
 					border-radius: 0px 0px 32px 32px;
-					background: var(--L-Primary-Color, #be9bff);
-					background: var(--L-Primary-Color, color(display-p3 0.7235 0.6119 0.9765));
+					background: var(--primary-button);
 					position: absolute;
 					top: -15px;
 					left: 10%;
 
 					.top-container-text {
-						color: var(--Base-Base-Black, #090a0b);
-						color: var(--Base-Base-Black, color(display-p3 0.0353 0.0392 0.0431));
-						font-family: Inter;
+						color: var(--primary-font);
+						font-family: var(--primary-font-family);
 						font-size: 14px;
 						font-style: normal;
 						font-weight: 500;
 						line-height: normal;
 					}
 					.top-container-text2 {
-						color: var(--Base-Base-Black, #090a0b);
-						color: var(--Base-Base-Black, color(display-p3 0.0353 0.0392 0.0431));
-						font-family: Inter;
+						color: var(--primary-font);
+						font-family: var(--primary-font-family);
 						font-size: 32px;
 						font-style: normal;
 						font-weight: 600;
@@ -138,24 +131,16 @@
 							align-self: stretch;
 							.heading-container {
 								margin-top: 20px;
-								color: var(--ve-ai-dark-theme-primary-font-color, #e8e8e8);
-								color: var(
-									--ve-ai-dark-theme-primary-font-color,
-									color(display-p3 0.9098 0.9098 0.9098)
-								);
-								font-family: Inter;
+								color: var(--primary-font);
+								font-family: var(--primary-font-family);
 								font-size: 32px;
 								font-style: normal;
 								font-weight: 600;
 								line-height: normal;
 							}
 							.paragraph-container {
-								color: var(--ve-ai-dark-theme-secondary-color, #939393);
-								color: var(
-									--ve-ai-dark-theme-secondary-color,
-									color(display-p3 0.5755 0.5755 0.5755)
-								);
-								font-family: Inter;
+								color: var(--secondary-font);
+								font-family: var(--primary-font-family);
 								font-size: 16px;
 								font-style: normal;
 								font-weight: 500;
@@ -184,29 +169,19 @@
 									.progress-fill {
 										height: 100%;
 										border-radius: 24px;
-										background: linear-gradient(
-											94deg,
-											#ca9bfe -2.06%,
-											#fd749d 95.85%
-										);
-										background: linear-gradient(
-											94deg,
-											color(display-p3 0.7647 0.6157 0.9725) -2.06%,
-											color(display-p3 0.9255 0.4863 0.6157) 95.85%
-										);
+										background: var(--ai-color-code);
 									}
 									.progress-text {
 										position: absolute;
 										top: -20px;
 										right: 0;
-										color: white;
+										color: var(--primary-font);
 										font-weight: 500;
 									}
 								}
 								.content-bar-text {
-									color: #fff;
-									color: color(display-p3 1 1 1);
-									font-family: Inter;
+									color: var(--primary-font);
+									font-family: var(--primary-font-family);
 									font-size: 14px;
 									font-style: normal;
 									font-weight: 400;
@@ -224,14 +199,9 @@
 						flex-wrap: wrap;
 
 						.share-text {
-							color: var(--ve-ai-dark-theme-primary-font-color, #e8e8e8);
-							color: var(
-								--ve-ai-dark-theme-primary-font-color,
-								color(display-p3 0.9098 0.9098 0.9098)
-							);
-
+							color: var(--primary-font);
 							/* Body/Body Text - 14 Px */
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 14px;
 							font-style: normal;
 							font-weight: 500;
@@ -256,12 +226,7 @@
 								gap: 12px;
 								flex: 1 0 0;
 								border-radius: 24px;
-								border: 1px solid var(--ve-ai-dark-theme-stroke-color, #333334);
-								border: 1px solid
-									var(
-										--ve-ai-dark-theme-stroke-color,
-										color(display-p3 0.2 0.2 0.2039)
-									);
+								border: 1px solid var(--stroke);
 							}
 						}
 						.email-invitation-container2 {
@@ -275,24 +240,24 @@
 								width: 100%;
 								min-height: 60px;
 								padding: 12px;
-								border: 0.1px solid #838181;
-								background: #202123;
+								border: 0.1px solid var(--stroke);
+								background: var(--card);
 								border-radius: 20px;
 								resize: vertical;
 								font-family: inherit;
-								color: #ffffff; // Add this to ensure text is visible
+								color: var(--primary-font); // Add this to ensure text is visible
 								outline: none;
 
 								&::placeholder {
-									color: #f7f5f5;
+									color: var(--primary-font);
 								}
 							}
 
 							.send-invitation-button {
 								width: 100%;
 								height: 50px;
-								background: #b89cf9;
-								color: black;
+								background: var(--accent-color);
+								color: var(--primary-font);
 								border: none;
 								border-radius: 20px;
 								font-size: 16px;
@@ -310,7 +275,7 @@
 
 	.footer-container2 {
 		width: 100%;
-		border-top: 1px solid #333334;
+		border-top: 1px solid var(--stroke);
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
@@ -324,8 +289,8 @@
 				list-style: none;
 
 				li {
-					color: #e8e8e8;
-					font-family: Inter;
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 400;
@@ -341,8 +306,8 @@
 		}
 
 		.copyright2 {
-			color: #333334;
-			font-family: Inter;
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 500;

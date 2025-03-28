@@ -1,18 +1,17 @@
 .renew-banner-container {
-	position: fixed;
-	top: 0px;
 	width: 100vw;
+	height: 41px;
 	z-index: 1000;
 	.renew-banner {
 		display: flex;
 		width: 100vw;
-		padding: 0px 32px;
+		padding: 0px 24px;
 		justify-content: center;
 		align-items: center;
-		background: var(--stroke-hover, #404548);
+		background: var(--card, #e6ff4d);
 		.renew-banner-title {
-			color: var(--primary-font, #f2f2f3);
-			font-family: Inter;
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 600;
@@ -27,8 +26,8 @@
 			border-radius: 100px;
 			// background: var(--primary-font, #f2f2f3);
 			background: transparent;
-			color: var(--accent-color, #a98df8);
-			font-family: Inter;
+			color: var(--primary-button);
+			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 500;

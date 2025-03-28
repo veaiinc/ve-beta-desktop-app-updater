@@ -25,7 +25,7 @@ const AutomationBuilderLayout = ({ title, children, hideQuickNav = false }) => {
 				<title>{title} | VE</title>
 			</Helmet>
 			{renewBanner && <RenewBanner />}
-			<SkeletonTheme baseColor={'#313131'} highlightColor={'#525252'}>
+			<SkeletonTheme baseColor={'var(--card)'} highlightColor={'var(--card-hover)'}>
 				<div className="childrenContainer">{children}</div>
 			</SkeletonTheme>
 		</div>

@@ -237,14 +237,14 @@ const CreateClientModal = ({ modalIsOpen, closeModal, source }) => {
 								selectedValue={leadDetails['source'] || 'Select Source'}
 								containerStyle={{
 									padding: '12px 24px',
-									color: '#e4e5e6',
+									color: 'var(--primary-font)',
 									flex: 1,
 									alignSelf: 'stretch',
 									borderRadius: '14px',
 									height: '44px',
 									width: '448px',
-									border: '1px solid #2c2d2e',
-									fontFamily: 'Inter',
+									border: '1px solid var(--stroke)',
+									fontFamily: 'var(--primary-font-family)',
 									fontSize: '12px',
 									fontStyle: 'normal',
 									fontWeight: '500',
@@ -259,13 +259,13 @@ const CreateClientModal = ({ modalIsOpen, closeModal, source }) => {
 									gap: '10px',
 									alignSelf: 'stretch',
 									borderRadius: '14px',
-									border: '1px solid #2c2d2e',
-									background: '#202123',
+									border: '1px solid var(--stroke)',
+									background: 'var(--card)',
 								}}
 								onChangeFunc={(e) => onChangeSelectedSource(e)}
 								dropDownTextStyling={{
-									color: '#e4e5e6',
-									fontFamily: 'Inter',
+									color: 'var(--primary-font)',
+									fontFamily: 'var(--primary-font-family)',
 									fontSize: '12px',
 									fontStyle: 'normal',
 									fontWeight: '500',

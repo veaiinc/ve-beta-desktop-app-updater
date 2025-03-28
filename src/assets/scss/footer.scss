@@ -32,8 +32,8 @@
 				gap: var(--Spacing-space-8, 16px);
 
 				.footerBtn {
-					color: rgba(224, 224, 224, 0.48);
-					font-family: Inter;
+					color: var(--secondary-font);
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 500;
@@ -41,7 +41,7 @@
 					cursor: pointer;
 				}
 				.footerBtn:hover {
-					color: #fff;
+					color: var(--primary-font);
 				}
 			}
 			.socialMediaBtnGroup {

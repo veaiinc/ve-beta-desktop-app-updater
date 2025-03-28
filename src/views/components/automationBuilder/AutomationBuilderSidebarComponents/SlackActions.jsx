@@ -15,7 +15,14 @@ import VariableComponent from './VariableComponent';
 import { useCallback } from 'react';
 import { message } from 'antd';
 
-const SlackActions = ({ onBack, onSave, loading, selectedAction, activeStepsData }) => {
+const SlackActions = ({
+	onBack,
+	onSave,
+	loading,
+	selectedAction,
+	activeStepsData,
+	handleChangeClick,
+}) => {
 	const {
 		automationBuilder: { connectedIntegrations, variables },
 	} = useContext(Context);
@@ -79,6 +86,14 @@ const SlackActions = ({ onBack, onSave, loading, selectedAction, activeStepsData
 	const updateInfo = useCallback((data) => {
 		setInfo((prev) => ({ ...prev, ...data }));
 	}, []);
+
+	const onChangeButtonClick = useCallback(() => {
+		if (activeStepsData) {
+			handleChangeClick(activeStepsData?.app);
+		} else {
+			onBack();
+		}
+	}, [handleChangeClick, activeStepsData, onBack]);
 
 	const handleChangeTeam = useCallback((option) => {
 		updateInfo({ selectedTeam: option, selectedChannel: option?.channels?.[0] });
@@ -256,7 +271,7 @@ const SlackActions = ({ onBack, onSave, loading, selectedAction, activeStepsData
 				title={info?.title}
 				description={info?.description}
 				updaterFn={updateInfo}
-				onChangeButtonClick={onBack}
+				onChangeButtonClick={onChangeButtonClick}
 				actionLabel={selectedAction?.actionLabel}
 			/>
 			<div className="slackActionsContainerBody">
@@ -383,7 +398,7 @@ const SendMessage = memo(
 			if (!selectedTeam) {
 				return message.error('Select a Slack workspace');
 			}
-			if (!selectedChannel?.value?.trim()?.length) {
+			if (!selectedChannel?.value?.trim()?.length && !selectedChannel?.length) {
 				return message.error('Channel is mandatory');
 			}
 			if (!info?.message?.trim()?.length) {
@@ -391,7 +406,7 @@ const SendMessage = memo(
 			}
 			customSave({
 				action: 'sendMessage',
-				channelId: selectedChannel?.value,
+				channelId: selectedChannel?.value || selectedChannel,
 				message: info?.message,
 				connectedTeamId: selectedTeam?.value,
 			});
@@ -489,7 +504,7 @@ const DeleteMessage = memo(
 			if (!selectedTeam) {
 				return message.error('Select a Slack workspace');
 			}
-			if (!selectedChannel?.value?.trim()?.length) {
+			if (!selectedChannel?.value?.trim()?.length && !selectedChannel?.length) {
 				return message.error('Channel is mandatory');
 			}
 			if (!info?.messageId?.trim()?.length) {
@@ -497,7 +512,7 @@ const DeleteMessage = memo(
 			}
 			customSave({
 				action: 'deleteMessage',
-				channelId: selectedChannel?.value,
+				channelId: selectedChannel?.value || selectedChannel,
 				messageId: info?.messageId,
 				connectedTeamId: selectedTeam?.value,
 			});
@@ -581,12 +596,12 @@ const ChannelInfo = memo(
 			if (!selectedTeam) {
 				return message.error('Select a Slack workspace');
 			}
-			if (!selectedChannel?.value?.trim()?.length) {
+			if (!selectedChannel?.value?.trim()?.length && !selectedChannel?.length) {
 				return message.error('Channel is mandatory');
 			}
 			customSave({
 				action: 'getChannelInfo',
-				channelId: selectedChannel?.value,
+				channelId: selectedChannel?.value || selectedChannel,
 				connectedTeamId: selectedTeam?.value,
 			});
 		}, [customSave, selectedChannel, selectedTeam]);
@@ -748,12 +763,12 @@ const JoinChannel = memo(
 			if (!selectedTeam) {
 				return message.error('Select a Slack workspace');
 			}
-			if (!selectedChannel?.value?.trim()?.length) {
+			if (!selectedChannel?.value?.trim()?.length && !selectedChannel?.length) {
 				return message.error('Channel is mandatory');
 			}
 			customSave({
 				action: 'joinChannel',
-				channelId: selectedChannel?.value,
+				channelId: selectedChannel?.value || selectedChannel,
 				connectedTeamId: selectedTeam?.value,
 			});
 		}, [customSave, selectedChannel, selectedTeam]);
@@ -829,12 +844,12 @@ const LeaveChannel = memo(
 			if (!selectedTeam) {
 				return message.error('Select a Slack workspace');
 			}
-			if (!selectedChannel?.value?.trim()?.length) {
+			if (!selectedChannel?.value?.trim()?.length && !selectedChannel?.length) {
 				return message.error('Channel is mandatory');
 			}
 			customSave({
 				action: 'leaveChannel',
-				channelId: selectedChannel?.value,
+				channelId: selectedChannel?.value || selectedChannel,
 				connectedTeamId: selectedTeam?.value,
 			});
 		}, [customSave, selectedChannel, selectedTeam]);
@@ -926,7 +941,7 @@ const RenameChannel = memo(
 				return message.error('Select a Slack workspace');
 			}
 
-			if (!selectedChannel?.value?.trim()?.length) {
+			if (!selectedChannel?.value?.trim()?.length && !selectedChannel?.length) {
 				return message.error('Channel is mandatory');
 			}
 
@@ -935,7 +950,7 @@ const RenameChannel = memo(
 			}
 			customSave({
 				action: 'renameChannel',
-				channelId: selectedChannel?.value,
+				channelId: selectedChannel?.value || selectedChannel,
 				connectedTeamId: selectedTeam?.value,
 				channelName: info?.channelName,
 			});
@@ -1021,12 +1036,12 @@ const ChannelMembers = memo(
 			if (!selectedTeam) {
 				return message.error('Select a Slack workspace');
 			}
-			if (!selectedChannel?.value?.trim()?.length) {
+			if (!selectedChannel?.value?.trim()?.length && !selectedChannel?.length) {
 				return message.error('Channel is mandatory');
 			}
 			customSave({
 				action: 'channelMembers',
-				channelId: selectedChannel?.value,
+				channelId: selectedChannel?.value || selectedChannel,
 				connectedTeamId: selectedTeam?.value,
 			});
 		}, [customSave, selectedChannel, selectedTeam]);

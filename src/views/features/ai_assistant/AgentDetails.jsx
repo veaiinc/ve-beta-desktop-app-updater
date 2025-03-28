@@ -8,6 +8,7 @@ import TabHeader from '../../components/ai_assistant/TabHeader';
 import Context from '../../../context/context';
 import AiPlayGround from '../../components/ai_assistant/AiPlayGround';
 import AiChatLogs from '../../components/ai_assistant/AiChatLogs';
+import EditSvg from '../../../assets/svg/ai_assistant/EditSvg';
 
 const AgentDetails = () => {
 	const {
@@ -72,7 +73,7 @@ const AgentDetails = () => {
 				onBack={() => navigate('/ai-assistant')}
 				actionBtnClassName="editAgentBtn"
 				actionText="Edit"
-				actionIcon={<EditIcon width={18} height={18} />}
+				actionIcon={<EditSvg />}
 				onActionClick={() =>
 					navigate(`/ai-assistant/${aiAssistantId}/edit`, {
 						state: { assistant },

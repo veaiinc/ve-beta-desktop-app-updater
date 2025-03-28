@@ -19,6 +19,10 @@ const actionHandlers = {
 		...state,
 		[action?.selectedvariable]: action?.payload,
 	}),
+	GET_MY_WORKFLOWS_TEMPLATES_FOR_PROPOSAL_POPUP_INFO_SUCCESS: (state, action) => ({
+		...state,
+		[action?.selectedvariable]: action?.payload,
+	}),
 	GET_GLOBAL_WORKFLOWS_TEMPLATES_INFO_SUCCESS: (state, action) => ({
 		...state,
 		[action?.selectedvariable]: action?.payload,
@@ -162,6 +166,7 @@ const actionHandlers = {
 		const { payload, chunkId } = action?.payload;
 		let messages = [...state?.globalChatMessages] || [];
 		let requiredIndex = -1;
+
 		messages = messages?.filter((ele) => ele?.contentType !== 'loading');
 
 		for (let i = messages?.length - 1; i >= 0; i--) {
@@ -174,7 +179,7 @@ const actionHandlers = {
 			messages[requiredIndex] = {
 				...messages[requiredIndex],
 				...payload,
-				message: (messages?.[requiredIndex]?.message || '') + payload?.answer,
+				message: (messages?.[requiredIndex]?.message || '') + (payload?.answer || ''),
 				messageId: payload?.message_id,
 			};
 		} else {
@@ -182,7 +187,7 @@ const actionHandlers = {
 				...payload,
 				type: 'AI',
 				contentType: 'message',
-				message: payload?.answer,
+				message: payload?.answer || '',
 			});
 		}
 
@@ -192,6 +197,10 @@ const actionHandlers = {
 		...state,
 		llmModels: action?.payload,
 	}),
+	// SET_CONNECTED_THIRDPARTIES: (state, action) => ({
+	// 	...state,
+	// 	connectThirdParties: action?.payload,
+	// }),
 	RESET_STATE: () => intialState,
 };
 

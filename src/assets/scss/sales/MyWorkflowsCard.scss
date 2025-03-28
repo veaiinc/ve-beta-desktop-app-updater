@@ -5,7 +5,7 @@
 	gap: 28px;
 	align-self: stretch;
 	border-radius: 24px;
-	background: #111;
+	background: var(--card);
 	transition: all 0.5s ease-out;
 	padding-bottom: 0px;
 	cursor: pointer;
@@ -18,7 +18,7 @@
 		justify-content: flex-end;
 		margin-bottom: 24px;
 		border-radius: 16px;
-		background-color: #1d1d1d;
+		background-color: var(--card-over-card);
 
 		.hoverDropDownContainer {
 			display: flex;
@@ -29,23 +29,24 @@
 			align-items: flex-start;
 			flex: 1;
 			transition: transform 1s ease-in-out;
+			border-radius: 16px;
 			.arrowContainer {
 				display: flex;
 				align-self: stretch;
 				justify-content: center;
 				align-items: center;
 				padding: 8px;
-
 				svg {
 					transition: transform 0.5s ease-out;
+					fill: var(--secondary-font);
 				}
 			}
 
 			.hoverDropDownValues {
 				display: none;
 				transition: transform 1s ease-out;
-				color: #fff;
-				font-family: Inter;
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 500;
@@ -68,7 +69,7 @@
 			// opacity: 0.9;
 			align-self: flex-end;
 			transition: all 0.24s ease-out;
-			background-color: #fff;
+			background-color: var(--card);
 			.builder {
 				zoom: 0.1;
 				overflow: hidden;
@@ -94,7 +95,7 @@
 		padding-left: 24px;
 		// align-items: flex-start;
 		// border: 2px solid blue;
-		color: #fff;
+		color: var(--primary-font);
 		align-items: flex-start;
 		margin-top: 24px;
 	}
@@ -113,9 +114,9 @@
 
 		.myworkflowHeader {
 			overflow: hidden;
-			color: #e4e5e6;
+			color: var(--primary-font);
 			text-overflow: ellipsis;
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 500;
@@ -146,7 +147,7 @@
 					.verticalSeperator {
 						width: 1px;
 						height: 89px;
-						background: #2b2b2b;
+						background: var(--secondary-font);
 					}
 				}
 			}
@@ -161,30 +162,31 @@
 
 .myWorkflowCard:hover {
 	border-radius: 24px;
-	border: 1px solid rgba(224, 224, 224, 0.1);
-	background: #111;
-	box-shadow: 0px 4px 40px 0px rgba(224, 224, 224, 0.07);
-	.percentageSeperator {
-		display: flex;
-		align-self: stretch;
-		height: 2px;
-		border-radius: 100px;
-		margin-top: 11px;
-		background: rgba(36, 36, 36, 0.48);
+	border: 1px solid var(--stroke);
+	// background: var(--card-hover);
+	box-shadow: 0px 4px 40px 0px var(--card-over-card);
+	// .percentageSeperator {
+	// 	display: flex;
+	// 	align-self: stretch;
+	// 	height: 2px;
+	// 	border-radius: 100px;
+	// 	margin-top: 11px;
+	// 	background: red;
 
-		.percentageCovered {
-			width: 30%;
-			height: 2px;
-			border-radius: 100px;
-			background: rgba(224, 224, 224, 0.8);
-		}
-	}
+	// 	.percentageCovered {
+	// 		width: 30%;
+	// 		height: 2px;
+	// 		border-radius: 100px;
+	// 		background: red;
+	// 	}
+	// }
 }
 .myWorkflowCard:hover .imageContainer .coverImage {
 	height: 264px; /* Reduce height on hover */
 }
 .myWorkflowCard:hover .imageContainer .hoverDropDownContainer {
 	display: block;
+	background: var(--card-hover);
 }
 
 .actionCardContainer {
@@ -197,11 +199,11 @@
 	align-items: flex-start;
 	flex-shrink: 0;
 	border-radius: 16px;
-	background: #2a2a2a;
+	background: var(--card-over-card);
 	transition: all 0.24s ease-in-out;
 	.headerStyling {
-		color: rgba(228, 229, 230, 0.48);
-		font-family: Inter;
+		color: var(--secondary-font);
+		font-family: var(--primary-font-family);
 		font-size: 12px;
 		font-style: normal;
 		font-weight: 500;
@@ -210,8 +212,8 @@
 		text-transform: capitalize;
 	}
 	.textStyling {
-		color: #e4e5e6;
-		font-family: Inter;
+		color: var(--primary-font);
+		font-family: var(--primary-font-family);
 		font-size: 16px;
 		font-style: normal;
 		font-weight: 500;
@@ -221,7 +223,7 @@
 
 .actionCardContainer:hover {
 	border: 1px rgba(63, 63, 63, 0.64);
-	background: #333;
+	background: var(--card-over-card-hover);
 }
 
 .actionRequiredCardContainer {
@@ -238,7 +240,7 @@
 
 	.headerStyling {
 		color: rgba(174, 160, 82, 0.8);
-		font-family: Inter;
+		font-family: var(--primary-font-family);
 		font-size: 12px;
 		font-style: normal;
 		font-weight: 500;
@@ -249,7 +251,7 @@
 
 	.textStyling {
 		color: rgba(174, 160, 82, 0.8);
-		font-family: Inter;
+		font-family: var(--primary-font-family);
 		font-size: 24px;
 		font-style: normal;
 		font-weight: 500;
@@ -266,7 +268,7 @@
 	gap: 15px;
 	flex-shrink: 0;
 	border-radius: 16px;
-	background: #1d1d1d;
+	background: var(--card-over-card);
 	transition: all 0.24s ease-in-out;
 
 	.dotContainer {
@@ -281,8 +283,8 @@
 		}
 
 		.dotText {
-			color: rgba(228, 229, 230, 0.48);
-			font-family: Inter;
+			color: var(--secondary-font);
+			font-family: var(--primary-font-family);
 			font-size: 10px;
 			font-style: normal;
 			font-weight: 500;
@@ -298,16 +300,16 @@
 		align-self: stretch;
 
 		.titletextStyling {
-			color: #e4e5e6;
-			font-family: Inter;
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
 			font-size: 32px;
 			font-style: normal;
 			font-weight: 600;
 			line-height: 26px; /* 81.25% */
 		}
 		.enquiryText {
-			color: rgba(228, 229, 230, 0.6);
-			font-family: Inter;
+			color: var(--secondary-font);
+			font-family: var(--primary-font-family);
 			font-size: 12px;
 			font-style: normal;
 			font-weight: 500;
@@ -318,6 +320,6 @@
 	}
 }
 .statsCardParentCotnainer:hover {
-	border: 1px rgba(224, 224, 224, 0.1);
-	background: #2a2a2a;
+	border: 1px var(--stroke);
+	background: var(--card-over-card-hover);
 }

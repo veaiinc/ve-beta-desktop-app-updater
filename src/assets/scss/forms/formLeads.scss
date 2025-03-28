@@ -1,5 +1,5 @@
 .formLeadsParentContainer {
-	color: white; // TODO: remove this
+	color: var(--primary-font); // TODO: remove this
 
 	width: 100%;
 	height: calc(100vh - 110px);
@@ -24,9 +24,8 @@
 
 	.formEnquiryContainer {
 		display: flex;
-		flex-direction: column;
-		align-items: flex-start;
-		gap: 24px;
+		flex-direction: row;
+		justify-content: space-between;
 		align-self: stretch;
 
 		.headerContainer {
@@ -40,8 +39,8 @@
 				align-items: center;
 				gap: 14px;
 				border-radius: 100px;
-				color: #f2f2f3;
-				font-family: Inter;
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
 				font-size: 18px;
 				font-style: normal;
 				font-weight: 500;
@@ -51,27 +50,123 @@
 
 		.formSummaryContainer {
 			border-radius: 26px;
-			box-shadow: 0px 4px 30px 0px rgba(0, 0, 0, 0.03);
-			box-shadow: 0px 4px 30px 0px color(display-p3 0 0 0 / 0.03);
 			display: flex;
 			align-items: flex-start;
 			gap: 16px;
 			align-self: stretch;
 
 			.imgContainer {
-				width: 150px;
-				height: 185px;
+				width: 200px;
+				height: 150px;
 				border-radius: 12px;
+				position: relative;
+				.editDesignContainer {
+					display: none;
+					position: absolute;
+					left: 50%;
+					top: 50%;
+					transform: translate(-50%, -50%);
+
+					button {
+						background: none;
+						border: 1px solid var(--primary-font);
+						cursor: pointer;
+						display: inline-flex;
+						flex-direction: row;
+						align-items: center;
+						padding: 0;
+						margin: 0;
+						width: 110px;
+						font: inherit;
+						color: inherit;
+						font-size: 12px;
+						font-weight: 500;
+						line-height: 1.2;
+						letter-spacing: 0.05em;
+						color: var(--primary-font);
+						padding: 4px 8px;
+						border-radius: 4px;
+						justify-content: space-between;
+						span {
+							font-size: 12px;
+							font-style: normal;
+							font-weight: 500;
+						}
+					}
+				}
+				&:hover {
+					iframe {
+						opacity: 0.5;
+					}
+					.editDesignContainer {
+						display: block;
+					}
+				}
 			}
 
 			.detailsContainer {
 				display: flex;
 				flex-direction: column;
-				justify-content: space-between;
 				align-items: flex-start;
+				justify-content: space-between;
+				gap: 16px;
 				flex: 1 0 0;
 				align-self: stretch;
+				.headerContainer {
+					display: flex;
+					align-items: center;
+					gap: 10px;
+					border-radius: 100px;
+					color: var(--primary-font);
+					font-family: Inter;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+					.headerLeftContainer {
+						display: flex;
+						align-items: center;
+						gap: 14px;
+						border-radius: 100px;
+						color: var(--primary-font);
+						.liveBadge {
+							display: flex;
+							align-items: center;
+							gap: 4px;
+							font-size: 12px;
+							border-radius: 100px;
+							color: var(--primary-font);
+							padding: 4px 8px;
+							&.complete {
+								background-color: #375841;
+								color: var(--primary-font);
+							}
 
+							&.incomplete {
+								background-color: #373737;
+								color: var(--primary-font);
+							}
+						}
+					}
+				}
+
+				.headerTitle {
+					display: flex;
+					align-items: center;
+					gap: 14px;
+					border-radius: 100px;
+					color: var(--primary-font);
+					font-family: Inter;
+					font-size: 18px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+				}
+
+				.switchContainer {
+					display: flex;
+					align-items: center;
+					gap: 14px;
+				}
 				.formMetricsContainer {
 					display: flex;
 					align-items: flex-start;
@@ -80,8 +175,7 @@
 
 					.metricsCard {
 						border-radius: 16px;
-						background: #171819;
-						background: color(display-p3 0.0902 0.0941 0.098);
+						background: var(--card);
 						display: flex;
 						width: 166px;
 						padding: 16px;
@@ -91,9 +185,8 @@
 						gap: 4px;
 
 						.value {
-							color: #f2f2f3;
-							color: color(display-p3 0.949 0.949 0.9529);
-							font-family: Inter;
+							color: var(--primary-font);
+							font-family: var(--primary-font-family);
 							font-size: 20px;
 							font-style: normal;
 							font-weight: 500;
@@ -101,9 +194,8 @@
 						}
 
 						.title {
-							color: #7c7c84;
-							color: color(display-p3 0.4865 0.4865 0.5135);
-							font-family: Inter;
+							color: var(--secondary-font);
+							font-family: var(--primary-font-family);
 							font-size: 12px;
 							font-style: normal;
 							font-weight: 500;
@@ -121,23 +213,18 @@
 					.divider {
 						width: 1px;
 						height: 15px;
-						background: #313336;
-						background: color(display-p3 0.1922 0.2 0.2118);
+						background: var(--stroke);
 					}
 
 					.ctaBtn {
-						border-radius: 100px;
-						box-shadow: 1px 1px 4px 0px rgba(0, 0, 0, 0.25) inset;
-						box-shadow: 1px 1px 4px 0px color(display-p3 0 0 0 / 0.25) inset;
 						display: flex;
 						height: 34px;
 						padding: 8px 16px;
 						justify-content: center;
 						align-items: center;
 						gap: 10px;
-						color: #797e86;
-						color: color(display-p3 0.4784 0.4941 0.5216);
-						font-family: Inter;
+						color: var(--secondary-font);
+						font-family: var(--primary-font-family);
 						font-size: 13px;
 						font-style: normal;
 						font-weight: 500;
@@ -203,7 +290,7 @@
 					.divider {
 						width: 25px;
 						height: 1px;
-						background: #f2f2f3;
+						background: var(--secondary-font);
 						opacity: 0;
 						transition: opacity 0.3s ease;
 
@@ -256,18 +343,18 @@
 							.searchInputTag {
 								flex: 1;
 								background-color: transparent;
-								color: #e4e5e6;
+								color: var(--primary-font);
 								transition: all 0.3s ease;
 								border: none;
-								font-family: Inter;
+								font-family: var(--primary-font-family);
 								font-size: 13px;
 								font-style: normal;
 								font-weight: 400;
 								line-height: normal;
 
 								&::placeholder {
-									color: #939393;
-									font-family: Inter;
+									color: var(--secondary-font);
+									font-family: var(--primary-font-family);
 									font-size: 13px;
 									font-style: normal;
 									font-weight: 400;
@@ -296,4 +383,63 @@
 			}
 		}
 	}
+
+	.live-badge {
+		&--complete {
+			padding: 4px;
+			border-radius: 20%;
+			background-color: var(--success, #375841);
+		}
+
+		&--incomplete {
+			padding: 4px;
+			border-radius: 20%;
+			background-color: var(--pending, #373737);
+		}
+	}
+}
+
+.header-left {
+	display: flex;
+	align-items: center;
+	gap: 14px;
+	border-radius: 100px;
+	color: var(--primary-font);
+}
+
+.status-indicator {
+	width: 10px;
+	height: 6px;
+	border-radius: 50%;
+	&--published {
+		background-color: #34d399;
+	}
+
+	&--draft {
+		background-color: #fbbf24;
+	}
+}
+
+.three-dots-icon {
+	width: 17px;
+	height: 17px;
+	cursor: pointer;
+}
+
+.iframe-preview {
+	border-radius: 24px;
+	border: none;
+	width: 100%;
+	height: 100%;
+}
+
+.delete-menu-item {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	color: var(--error);
+}
+
+.delete-text {
+	color: var(--error);
 }

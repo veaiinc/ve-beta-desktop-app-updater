@@ -1,33 +1,79 @@
 .brandsetupContainer {
 	display: flex;
 	flex-direction: column;
-	gap: 48px;
-
+	gap: 40px;
 	.socialLinkContainer {
+		border-radius: 40px;
+		background: none;
+
+		.socialLinkTitle {
+			align-self: stretch;
+
+			color: var(--primary-font, #f2f2f3);
+			font-family: Inter;
+			font-size: 32px;
+			font-style: normal;
+			font-weight: 300;
+			margin-bottom: 20px;
+			line-height: normal;
+		}
+
 		.socialLinkTextContainer {
+			margin-bottom: 32px;
+
 			h1 {
-				color: #e4e5e6;
-				font-family: Inter;
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
 				font-size: 16px;
-				font-style: normal;
 				font-weight: 500;
-				line-height: 24px; /* 150% */
+				line-height: 24px;
+				margin: 0;
+			}
+
+			p {
+				color: var(--secondary-font);
+				font-family: var(--primary-font-family);
+				font-size: 13px;
+				font-weight: 400;
+				line-height: 21px;
+				margin-top: 8px;
 			}
 		}
+
 		.logosWrapper {
-			display: flex;
-			gap: 46px;
-			flex-wrap: wrap;
-			row-gap: 32px;
+			display: grid;
+			grid-template-columns: repeat(5, 1fr);
+			gap: 24px;
+			width: 100%;
+
 			.logoContainer {
-				width: 64px;
-				height: 64px;
-				border: 1px solid #555555;
-				border-radius: 100%;
 				display: flex;
+				height: 103px;
+				padding: 18px 18px;
 				justify-content: center;
 				align-items: center;
-				cursor: pointer;
+				gap: 10px;
+				background: var(--card, #171819);
+				border-radius: 12px;
+				border: 1px solid var(--stroke, #313336);
+				img {
+					width: 32px;
+					height: 32px;
+					opacity: 0.5;
+				}
+
+				&:hover {
+					border-color: var(--stroke);
+				}
+
+				&.active {
+					border-radius: 12px;
+					background: var(--card, #171819);
+
+					img {
+						opacity: 1;
+					}
+				}
 			}
 		}
 	}
@@ -47,13 +93,13 @@
 			width: 100%;
 			min-width: 100%;
 			height: 1px;
-			background: rgba(100, 100, 100, 0.16);
+			background: var(--stroke);
 		}
 
 		.title {
 			h1 {
-				color: #e4e5e6;
-				font-family: Inter;
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
 				font-size: 16px;
 				font-style: normal;
 				font-weight: 500;
@@ -92,8 +138,8 @@
 				flex-shrink: 0;
 
 				h3 {
-					color: #e4e5e6;
-					font-family: Inter;
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
 					font-size: 16px;
 					font-style: normal;
 					font-weight: 500;
@@ -139,11 +185,11 @@
 						gap: 6px;
 						flex: 1 0 0;
 						width: 100%;
-						border-bottom: 1px solid rgba(100, 100, 100, 0.16);
+						border-bottom: 1px solid var(--stroke);
 						padding-bottom: 8px;
 						h6 {
-							color: #b0b0b0;
-							font-family: Inter;
+							color: var(--secondary-font);
+							font-family: var(--primary-font-family);
 							font-size: 12px;
 							font-style: normal;
 							font-weight: 400;
@@ -160,13 +206,13 @@
 								width: 30px;
 								height: 30px;
 								border-radius: 50%;
-								background-color: #0057ff;
+								background-color: var(--primary-button-font);
 								cursor: pointer;
 							}
 							input {
 								width: 70px;
-								color: rgba(228, 229, 230, 0.48);
-								font-family: Inter;
+								color: var(--secondary-font);
+								font-family: var(--primary-font-family);
 								font-size: 15px;
 								font-style: normal;
 								font-weight: 400;
@@ -188,16 +234,16 @@
 			justify-content: center;
 
 			.buttonApplyTheme {
-				color: #6055ec;
-				font-family: Inter;
+				color: var(--primary-button-font);
+				font-family: var(--primary-font-family);
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 400;
 				line-height: 22px; /* 157.143% */
 				letter-spacing: -0.28px;
 				border-radius: 20px;
-				border: 1px solid #6055ec;
-				background: rgba(28, 28, 32, 0.9);
+				border: 1px solid var(--primary-button-font);
+				background: var(--card-over-card-hover);
 				padding: 9px 16px;
 				cursor: pointer;
 			}
@@ -206,66 +252,110 @@
 
 	.brandingContainer {
 		.brandingTextContainer {
-			h1 {
-				color: #e4e5e6;
-				font-family: Inter;
-				font-size: 16px;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			margin-bottom: 32px;
+
+			.headerSection {
+				h1 {
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
+					font-size: 16px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+				}
+
+				p {
+					color: var(--secondary-font);
+					font-family: var(--primary-font-family);
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 400;
+					line-height: normal;
+				}
+			}
+
+			button {
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
+				font-size: 14px;
 				font-style: normal;
 				font-weight: 500;
-				line-height: 24px;
+				line-height: normal;
+				border-radius: 24px;
+				border: 1px solid var(--stroke);
+				background: var(--card-over-card-hover);
+				padding: 9px 16px;
+				cursor: pointer;
+				transition: all 0.3s ease;
+
+				&:hover {
+					background: var(--card-over-card-hover);
+				}
 			}
 		}
-		.brandColorContainer {
-			width: 100%;
-			display: flex;
-			// justify-content: space-between;
-			flex-wrap: wrap;
-			gap: 15px;
 
-			.fullColorWrapper {
-				width: 162px;
-				position: relative;
-				.chooseBrandColor {
-					display: flex;
-					align-items: center;
-					width: 140px;
+		.brandColorContainer {
+			display: grid;
+			grid-template-columns: repeat(2, 1fr);
+			gap: 24px;
+			width: 100%;
+
+			.colorCard {
+				display: flex;
+				align-items: center;
+				gap: 16px;
+				padding: 24px;
+				background: #171819;
+				border-radius: 12px;
+				border: 1px solid #313336;
+
+				.colorCircle {
+					width: 48px;
 					height: 48px;
-					gap: 16px;
-					padding: 6px 11px 6px 6px;
-					border-radius: 100px;
-					background: #181819;
-					position: relative;
-					cursor: pointer;
-					z-index: 2;
-					.hashColor {
-						color: rgba(228, 229, 230, 0.48);
+					border-radius: 100%;
+					flex-shrink: 0;
+				}
+
+				.colorInfo {
+					flex-grow: 1;
+					display: flex;
+					flex-direction: column;
+					gap: 4px;
+
+					.colorCode {
+						color: var(--primary-font);
+						font-family: var(--primary-font-family);
 						font-size: 16px;
-						line-height: 26px;
+						font-weight: 500;
 					}
-					.circleColor {
-						width: 36px;
-						height: 36px;
-						border-radius: 100%;
-						background-color: #6055ec;
+
+					.colorType {
+						color: var(--secondary-font);
+						font-family: var(--primary-font-family);
+						font-size: 14px;
+						font-weight: 400;
 					}
 				}
 
-				.cancelDiv {
-					position: absolute;
-					top: 0;
-					right: 51px;
-					z-index: 1;
+				.infoButton {
+					width: 32px;
+					height: 32px;
 					display: flex;
-					width: 79px;
-					height: 48px;
-					padding: 16px 10px 16px 53px;
-					justify-content: flex-end;
 					align-items: center;
-					flex-shrink: 0;
-					border-radius: 100px;
-					background: #28282a;
-					transition: all 1s ease;
+					justify-content: center;
+					background: none;
+					border: none;
 					cursor: pointer;
+					padding: 0;
+					opacity: 0.5;
+					transition: opacity 0.3s ease;
+
+					&:hover {
+						opacity: 1;
+					}
 				}
 			}
 		}
@@ -273,40 +363,96 @@
 
 	.brandFontContainer {
 		.brandTextContainer {
-			h1 {
-				color: #e4e5e6;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			margin-bottom: 32px;
+
+			.headerSection {
+				h1 {
+					color: var(--primary-font, #f2f2f3);
+					font-family: Inter;
+					font-size: 16px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+				}
+
+				p {
+					color: var(--secondary-font, #787e87);
+					font-family: Inter;
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 400;
+					line-height: normal;
+				}
+			}
+
+			button {
+				color: #f2f2f3;
 				font-family: Inter;
-				font-size: 16px;
+				font-size: 14px;
 				font-style: normal;
 				font-weight: 500;
-				line-height: 24px;
+				line-height: normal;
+				border-radius: 24px;
+				border: 1px solid var(--stroke, #313336);
+				background: rgba(28, 28, 32, 0.9);
+				padding: 9px 16px;
+				cursor: pointer;
+				transition: all 0.3s ease;
+
+				&:hover {
+					background: rgba(49, 51, 54, 0.5);
+				}
 			}
 		}
 
-		.fontslistcontainer {
+		.fontsContainer {
+			display: grid;
+			grid-template-columns: repeat(1, 1fr);
+			gap: 20px;
 			width: 100%;
 
-			.singleListDiv {
+			.fontCard {
 				display: flex;
-				justify-content: space-between;
-
-				.fontName {
+				height: 41px;
+				padding: 12px 18px;
+				justify-content: center;
+				align-items: center;
+				gap: 10px;
+				align-self: stretch;
+				border-radius: 12px;
+				background: var(--card, #171819);
+				.fontPreview {
+					color: var(--primary-font, #f2f2f3);
+					font-family: 'Times New Roman';
+					font-size: 14px;
+					font-style: normal;
 					font-weight: 400;
-					font-size: 20px;
-					color: #fff;
+					line-height: normal;
+					text-transform: uppercase;
 				}
 
-				.fontType {
-					color: #e4e5e67a;
-					font-family: Inter;
-					font-size: 11px;
+				.infoButton {
+					width: 32px;
+					height: 32px;
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					background: none;
+					border: none;
+					cursor: pointer;
+					padding: 0;
+					opacity: 0.5;
+					transition: opacity 0.3s ease;
+
+					&:hover {
+						opacity: 1;
+					}
 				}
 			}
 		}
-
-		// .button{
-		//     butt
-		// }
 	}
 
 	.logoMainContainer {

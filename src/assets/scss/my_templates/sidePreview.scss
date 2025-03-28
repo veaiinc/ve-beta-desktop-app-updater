@@ -1,5 +1,6 @@
 .previewDrawer {
-	color: #fff;
+	color: var(--primary-font);
+
 	display: flex;
 	width: 100%;
 	height: 100%;
@@ -9,8 +10,7 @@
 	align-items: flex-start;
 	gap: 20px;
 	border-radius: 16px;
-	background: var(--Card-Default-Color, #171819);
-	background: var(--Card-Default-Color, color(display-p3 0.0902 0.0941 0.098));
+	background: var(--popup);
 
 	// overflow-y: hidden;
 	overflow-y: scroll;
@@ -34,8 +34,8 @@
 			flex: 1 0 0;
 			border-radius: 18px;
 			span {
-				color: #fff;
-				font-family: Inter;
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 500;
@@ -50,7 +50,7 @@
 				border-radius: 24px;
 				height: 700px;
 				overflow-y: auto;
-				background-color: #fff;
+				background-color: var(--primary-font);
 			}
 		}
 	}
@@ -65,18 +65,15 @@
 		.button {
 			border-radius: 23px;
 			width: 100%;
-			background: #fafafa;
-			background: color(display-p3 0.9804 0.9804 0.9804);
 			display: flex;
 			padding: 16px 32px;
 			justify-content: center;
 			align-items: center;
+			background-color: var(--card);
 			gap: 16px;
 			align-self: stretch;
-
-			color: #3f3f3f;
-			color: color(display-p3 0.2471 0.2471 0.2471);
-			font-family: Inter;
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
 			font-size: 12px;
 			font-style: normal;
 			font-weight: 500;
@@ -105,7 +102,7 @@
 				transition: opacity 0.3s ease;
 				&:hover {
 					opacity: 1;
-					filter: drop-shadow(0 0 8px #c8c4c4);
+					filter: drop-shadow(0 0 8px var(--secondary-font));
 				}
 			}
 		}
@@ -126,11 +123,10 @@
 				border-radius: 59px;
 				color: #0b1215;
 				background: #e8e8e8;
-				border: 1px solid #e8e8e8;
-				background: color(display-p3 0.9098 0.9098 0.9098);
+				border: 1px solid var(--primary-font);
 				transition: all 0.3s ease;
 
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 500;
@@ -138,8 +134,8 @@
 
 				&:hover {
 					background: #0b1215;
-					color: #e8e8e8;
-					border: 1px solid #e8e8e8;
+					color: var(--primary-font);
+					border: 1px solid var(--primary-font);
 				}
 			}
 
@@ -148,7 +144,7 @@
 				height: 20px;
 
 				&:hover {
-					filter: drop-shadow(0 0 8px #c8c4c4);
+					filter: drop-shadow(0 0 8px var(--secondary-font));
 				}
 			}
 
@@ -159,20 +155,18 @@
 				align-items: center;
 				gap: 4px;
 				border-radius: 35px;
-				background: #373737;
-				background: color(display-p3 0.2161 0.2161 0.2161);
+				background: var(--background-color);
 
 				.DocsStatusCircle {
 					width: 6px;
 					height: 6px;
 					border-radius: 100%;
-					background: #939393;
+					background: var(--secondary-font);
 				}
 				.DocsButtontext {
-					color: #e8e8e8;
-					color: color(display-p3 0.9098 0.9098 0.9098);
+					color: #fff;
 					text-align: center;
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 500;
@@ -183,9 +177,8 @@
 	}
 
 	.title {
-		color: var(--Primary-Font, #f2f2f3);
-		color: var(--Primary-Font, color(display-p3 0.949 0.949 0.9529));
-		font-family: Inter;
+		color: var(--primary-font);
+		font-family: var(--primary-font-family);
 		font-size: 20px;
 		font-style: normal;
 		font-weight: 500;

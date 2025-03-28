@@ -74,8 +74,8 @@
 					.headerCell {
 						position: relative;
 						flex-shrink: 0;
-						border-bottom: 1px solid #171718;
-						background: #0c0d0d;
+						border-bottom: 1px solid var(--stroke);
+						background: var(--card);
 
 						// border-right: 1px solid #374151;
 
@@ -106,7 +106,7 @@
 							z-index: 10;
 
 							&:hover {
-								background-color: #313132;
+								background-color: var(--card-hover);
 							}
 						}
 					}
@@ -114,7 +114,7 @@
 
 				.tableRow {
 					display: flex;
-					border-bottom: 1px solid #171718;
+					border-bottom: 1px solid var(--stroke);
 					transition: background-color 0.2s;
 
 					&:hover {
@@ -122,17 +122,17 @@
 					}
 
 					.tableCell {
-						background-color: #111111; //to hide overlapping text
+						background-color: var(--card); //to hide overlapping text
 						flex-shrink: 0;
 						padding: 0.75rem 1rem;
 						font-size: 0.875rem;
-						border-right: 1px solid #171718;
-						border-bottom: 1px solid #171718;
+						border-right: 1px solid var(--stroke);
+						border-bottom: 1px solid var(--stroke);
 						// border-top: 1px solid #171718;
-						color: #676d76;
+						color: var(--secondary-font);
 
 						&:last-child {
-							border-right: 1px solid #171718;
+							border-right: 1px solid var(--stroke);
 						}
 
 						.statusBadge {
@@ -142,13 +142,13 @@
 							font-size: 0.75rem;
 
 							&.complete {
-								background-color: rgba(6, 78, 59, 0.5);
-								color: #34d399;
+								background-color: var(--card-hover);
+								color: var(--success);
 							}
 
 							&.incomplete {
-								background-color: rgba(120, 53, 15, 0.5);
-								color: #fbbf24;
+								background-color: var(--card-hover);
+								color: var(--warning);
 							}
 						}
 					}

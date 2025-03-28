@@ -1,35 +1,31 @@
-.activeBackgroundColor {
-	border-radius: 32px;
-	border: 1px solid #7871c030;
-	background: rgba(29, 29, 35, 0.24);
-	box-shadow: 2px 2px 8px 0px rgba(74, 40, 210, 0.06),
-		4px 4px 10px 0px rgba(104, 93, 247, 0.02) inset;
-	backdrop-filter: blur(8px);
-}
-
 .myProfileComponent {
 	display: flex;
 	height: inherit;
 	width: 100%;
-	color: white;
+	color: var(--primary-font);
 
 	.settingsContainer {
 		display: flex;
 		flex-direction: column;
-		gap: 48px;
+		gap: 10px;
 		width: 100%;
 
 		// styles for profile details
 		.ProfileDetailsComponent {
+			.profile-title {
+				color: var(--primary-font, #f2f2f3);
+				font-family: Inter;
+				font-size: 32px;
+				font-style: normal;
+				font-weight: 300;
+				line-height: normal;
+			}
 			.profileHeader {
 				display: flex;
-				padding: 36px 0;
 				justify-content: center;
 				align-items: center;
 				gap: 24px;
 				align-self: stretch;
-				border-radius: 32px 32px 0 0;
-				background: #0b0b0d;
 
 				.imageCircleDiv {
 					width: 100px;
@@ -138,63 +134,118 @@
 					font-weight: 400;
 					line-height: 1rem;
 				}
-			}
-
-			.profileBody {
-				padding: 36px 32px 32px;
-				background: rgba(29, 29, 35, 0.24);
-				border-radius: 0 0 32px 32px;
-				display: flex;
-				flex-direction: column;
-				gap: 16px;
-
-				.iconAlignclass {
+				.profileBody {
+					padding: 36px 32px 32px;
+					border-radius: 0 0 32px 32px;
 					display: flex;
-					height: 48px;
-					padding: 11px 14px;
-					justify-content: center;
-					align-items: center;
-					gap: 10px;
-					border: 1px solid rgba(100, 100, 100, 0.16);
-					background: rgba(32, 32, 33, 0.24);
-					border-radius: 10px;
-					width: 100%;
-					transition: all 0.5s;
+					flex-direction: column;
+					gap: 16px;
 
-					input {
-						color: #e4e5e6;
-						font-family: Inter;
-						font-size: 16px;
-						font-style: normal;
-						font-weight: 400;
-						line-height: 26px; /* 162.5% */
-						background-color: transparent;
-						border: none;
-						outline: none;
+					.iconAlignclass {
+						display: flex;
+						height: 48px;
+						padding: 11px 14px;
+						justify-content: center;
+						align-items: center;
+						gap: 10px;
+						border: 1px solid rgba(100, 100, 100, 0.16);
+						border-radius: 10px;
 						width: 100%;
-					}
+						background: var(--card, #fafafa);
+						transition: all 0.5s;
+						.input-container {
+							display: flex;
+							gap: 4px;
+							align-items: center;
+							width: 100%;
+							.role-input {
+								color: var(--primary-font);
+								font-family: Inter;
+								font-size: 16px;
+								font-style: normal;
+								font-weight: 400;
+								line-height: 26px; /* 162.5% */
+							}
+							.role {
+								color: var(--secondary-font, #787e87);
+								text-align: right;
+								font-family: Inter;
+								font-size: 12px;
+								font-style: normal;
+								font-weight: 500;
+								line-height: normal;
+							}
+						}
+						input {
+							color: #e4e5e6;
+							font-family: Inter;
+							font-size: 16px;
+							font-style: normal;
+							font-weight: 400;
+							line-height: 26px; /* 162.5% */
+							background-color: transparent;
+							border: none;
+							outline: none;
+							width: 100%;
+						}
 
-					&:hover {
-						border: 1px solid #7871c030;
-						box-shadow: 2px 2px 8px 0px rgba(74, 40, 210, 0.06),
-							4px 4px 10px 0px rgba(104, 93, 247, 0.02) inset;
-						backdrop-filter: blur(8px);
-					}
-				}
-
-				.name_phone_container {
-					display: flex;
-					gap: 8px;
-
-					> div {
-						width: 100%;
+						&:hover {
+							border: 1px solid #7871c030;
+							box-shadow: 2px 2px 8px 0px rgba(74, 40, 210, 0.06),
+								4px 4px 10px 0px rgba(104, 93, 247, 0.02) inset;
+							backdrop-filter: blur(8px);
+						}
 					}
 
 					.phoneDiv {
 						justify-content: start;
-						.PhoneInputInput,
+
 						.PhoneInput {
 							width: 100%;
+						}
+					}
+				}
+			}
+		}
+		.theme-container {
+			.theme-container-item {
+				display: flex;
+				width: 680px;
+				height: 60px;
+				padding: 12px 18px;
+				justify-content: space-between;
+				align-items: center;
+				border-radius: 12px;
+				border: 1px solid var(--stroke, #313336);
+				.theme-container-item-content {
+					display: flex;
+					gap: 10px;
+					align-items: baseline;
+					color: var(--secondary-font, #787e87);
+					font-family: Inter;
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+					.theme-container-item-content-separator {
+						color: #787e87;
+						font-family: Inter;
+						font-size: 12px;
+						font-style: normal;
+						width: 12px;
+						height: 0px;
+					}
+					p {
+						&.active {
+							color: var(--primary-font, #f2f2f3);
+							font-family: Inter;
+							font-size: 14px;
+							font-style: normal;
+							font-weight: 500;
+							line-height: normal;
+						}
+						&:hover {
+							opacity: 0.8;
 						}
 					}
 				}
@@ -212,7 +263,7 @@
 				flex-direction: column;
 				gap: 24px;
 				h4 {
-					color: #e4e5e6;
+					color: var(--primary-font);
 					font-size: 16px;
 					font-weight: 500;
 					// margin: 24px;
@@ -748,22 +799,22 @@
 	flex-direction: column;
 	justify-content: flex-end;
 	align-items: flex-start;
-	gap: 32px;
+	gap: 48px;
 	.notifications-container-header {
+		background-color: none;
 		display: flex;
-		width: 580px;
-		padding: 32px;
+		width: 680px;
+		padding: 32px 0px;
 		flex-direction: column;
 		align-items: flex-start;
 		gap: 24px;
 		border-radius: 32px;
-		background: #171819;
 		.notificationTitleContainer {
 			display: flex;
 			flex-direction: column;
 			gap: 8px;
 			.notificationTitle {
-				color: var(--Primary-Font-Color, #f2f2f3);
+				color: var(--primary-font, #f2f2f3);
 				font-family: Inter;
 				font-size: 20px;
 				font-style: normal;
@@ -792,6 +843,10 @@
 				justify-content: space-between;
 				align-items: center;
 				align-self: stretch;
+				border-radius: 12px;
+				padding: 12px 18px;
+				border: 1px solid var(--stroke, #313336);
+
 				.notifiactionSwitchesContainer-item-left {
 					display: flex;
 					align-items: flex-start;
@@ -801,7 +856,7 @@
 						flex-direction: column;
 						gap: 8px;
 						.notifiactionSwitchesContainerContent-title {
-							color: var(--Primary-Font-Color, #f2f2f3);
+							color: var(--primary-font, #f2f2f3);
 							font-family: Inter;
 							font-size: 16px;
 							font-style: normal;
@@ -823,89 +878,134 @@
 			}
 		}
 	}
-	.notifications-container-content {
+	.showNotificationPreference {
 		display: flex;
-		width: 580px;
-		padding: 32px;
 		flex-direction: column;
-		align-items: flex-start;
-		gap: 24px;
-		border-radius: 32px;
-		background: #171819;
+		gap: 20px;
 		.notificationContainerContentTitle {
-			color: var(--ve-ai-dark-theme-primary-font-color, #e8e8e8);
+			color: var(--primary-font, #f2f2f3);
 			font-family: Inter;
 			font-size: 20px;
 			font-style: normal;
 			font-weight: 500;
 			line-height: normal;
 		}
-		.notificationContainerContent-items {
+		.notifications-container-content {
 			display: flex;
-			justify-content: flex-end;
-			align-items: center;
-			gap: 40px;
-			align-self: stretch;
-			.notificationContainerContent-items-item {
-				color: #7c7c83;
-				font-family: Inter;
-				font-size: 14px;
-				font-style: normal;
-				font-weight: 500;
-				line-height: normal;
-				text-transform: capitalize;
-			}
-		}
-		.notificationContainerOptions {
-			display: flex;
+			width: 680px;
+			padding: 32px;
 			flex-direction: column;
 			align-items: flex-start;
-			gap: 16px;
-			align-self: stretch;
-			.notificationContainerOptions-item-container {
+			gap: 24px;
+			border-radius: 32px;
+			border-radius: 12px;
+			border: 1px solid var(--stroke, #313336);
+			border: 1px solid var(--stroke, color(display-p3 0.1939 0.1998 0.21));
+			.notificationContainerContent-items {
 				display: flex;
-				justify-content: center;
+				justify-content: flex-end;
 				align-items: center;
 				gap: 40px;
 				align-self: stretch;
-				.notificationContainerOptions-item {
-					color: var(--Primary-Font-Color, #f2f2f3);
-					font-family: Inter;
-					font-size: 16px;
-					font-style: normal;
-					font-weight: 500;
-					line-height: normal;
-					flex: 1 0 0;
-					text-transform: capitalize;
-				}
-				.notificationContainerOptions-item-checkbox {
-					display: flex;
-					justify-content: center;
-					align-items: center;
-					gap: 40px;
-				}
-			}
-			.notificationContainerOptions-items {
-				display: flex;
-				flex-direction: column;
-				align-items: flex-start;
-				gap: 12px;
-				align-self: stretch;
-				.notificationContainerOptionsTitle {
+				.notificationContainerContent-items-item {
 					color: #7c7c83;
 					font-family: Inter;
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 500;
 					line-height: normal;
-					flex: 1 0 0;
 					text-transform: capitalize;
 				}
 			}
-			.divider {
-				width: 100%;
-				border-bottom: 0.5px solid #7c7c83;
+			.notificationContainerOptions {
+				display: flex;
+				flex-direction: column;
+				align-items: flex-start;
+				gap: 16px;
+				align-self: stretch;
+				.notificationContainerOptions-item-container {
+					display: flex;
+					justify-content: center;
+					align-items: center;
+					gap: 40px;
+					align-self: stretch;
+					.notificationContainerOptions-item {
+						color: var(--primary-font, #f2f2f3);
+						font-family: Inter;
+						font-size: 16px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+						flex: 1 0 0;
+						text-transform: capitalize;
+					}
+					.notificationContainerOptions-item-checkbox {
+						display: flex;
+						justify-content: center;
+						align-items: center;
+						gap: 40px;
+					}
+				}
+				.notificationContainerOptions-items {
+					display: flex;
+					flex-direction: column;
+					align-items: flex-start;
+					gap: 12px;
+					align-self: stretch;
+					.notificationContainerOptionsTitle {
+						color: #7c7c83;
+						font-family: Inter;
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+						flex: 1 0 0;
+						text-transform: capitalize;
+					}
+				}
+				.divider {
+					width: 100%;
+					border-bottom: 0.5px solid #7c7c83;
+				}
 			}
 		}
+	}
+}
+// ... existing styles ...
+
+.danger-zone {
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
+	margin-top: 24px;
+
+	.danger-zone-header {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 16px;
+		width: 100%;
+
+		&::before,
+		&::after {
+			content: '';
+			width: 238px;
+			height: 1px;
+			background: var(--stroke, #313336);
+		}
+
+		.danger-zone-title {
+			color: var(--secondary-font, #787e87);
+			font-family: Inter;
+			font-size: 10px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+		}
+	}
+
+	.accessSettingsContainer {
+		border: 1px solid rgba(204, 87, 86, 0.16);
+		background: rgba(204, 87, 86, 0.04);
 	}
 }

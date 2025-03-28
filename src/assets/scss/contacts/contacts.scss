@@ -11,18 +11,17 @@
 		align-items: flex-start;
 		width: fit-content;
 
-		font-family: Inter;
+		font-family: var(--secondary-font-family);
 		font-size: 40px;
 		font-style: normal;
 		font-weight: 500;
 		line-height: 43px;
 
 		.lineOne {
-			color: #f2f2f3;
-			color: color(display-p3 0.949 0.949 0.9529);
+			color: var(--primary-font);
 		}
 		.lineTwo {
-			color: color(display-p3 0.4865 0.4865 0.5135);
+			color: var(--secondary-font);
 		}
 	}
 }

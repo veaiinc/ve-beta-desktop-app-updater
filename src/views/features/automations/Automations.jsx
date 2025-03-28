@@ -1,10 +1,13 @@
-import React, { memo, useContext, useEffect } from 'react';
+import React, { memo, useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/automations/index.scss';
 import Context from '../../../context/context';
 import AutomationCard from '../../components/automations/automationCard/AutomationCard';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { FetchMoreLoaderComp } from '../../../helpers';
 import QuickActions from '../../components/globalComponents/QuickActions';
+import { message } from 'antd';
+import Skeleton from 'react-loading-skeleton';
+import { useNavigate } from 'react-router-dom';
 
 const limit = 10;
 const append = true;
@@ -18,11 +21,24 @@ const infiniteScrollStyle = {
 	overflowX: 'hidden',
 };
 const infiniteScrollHeight = 'calc(100vh - 240px)';
+const skeletonLoaders = Array.from({ length: 6 }, (_, index) => index + 1);
 
 const Automations = () => {
+	const navigate = useNavigate();
 	const {
-		automationBuilder: { automationsList, getAutomationsList },
+		automationBuilder: {
+			automationsList,
+			getAutomationsList,
+			createAutomation,
+			deleteAutomation,
+			updateContextStateInAutomationBuilder,
+		},
 	} = useContext(Context);
+
+	const [info, setInfo] = useState({
+		deletedAutomationIds: [],
+		createAutomationLoading: false,
+	});
 
 	const automations = automationsList?.data;
 	const automationsLoading = automationsList ? false : true;
@@ -42,6 +58,45 @@ const Automations = () => {
 		}
 	};
 
+	const handleDeleteAutomation = async (automationId) => {
+		const response = await deleteAutomation(automationId);
+		if (response?.[0]) {
+			setInfo((prev) => ({
+				...prev,
+				deletedAutomationIds: [...prev?.deletedAutomationIds, automationId],
+			}));
+			message?.success('Automation deleted successfully');
+			if (automationsLength === 1) {
+				updateContextStateInAutomationBuilder({
+					automationsList: {
+						data: [],
+						hasNextPage: false,
+						currentPage: 1,
+					},
+				});
+			}
+		} else message?.error('Failed to delete automation');
+	};
+
+	const handleCreateAutomation = async () => {
+		if (info?.createAutomationLoading) return;
+		setInfo((prev) => ({ ...prev, createAutomationLoading: true }));
+		const response = await createAutomation({
+			name: 'Untitled Automation',
+			version: 1,
+			steps: [],
+			status: 'draft',
+		});
+		if (response?.[0]) {
+			setInfo((prev) => ({ ...prev, createAutomationLoading: false }));
+			const automationId = response?.[1]?._id;
+			navigate(`/automation-builder/${automationId}`);
+		} else {
+			message?.error('Failed to create automation');
+			setInfo((prev) => ({ ...prev, createAutomationLoading: false }));
+		}
+	};
+
 	return (
 		<div className="automationsContainer">
 			<header className="header">
@@ -52,9 +107,23 @@ const Automations = () => {
 				<QuickActions />
 			</header>
 			{automationsLoading ? (
-				<h1 className="loadingAutomations">Loading Automations...</h1>
+				<div className="skeletonLoaderContainer">
+					{skeletonLoaders?.map((skeletonId) => (
+						<Skeleton
+							key={skeletonId}
+							width="340px"
+							height="424px"
+							borderRadius="24px"
+						/>
+					))}
+				</div>
 			) : automationsEmpty ? (
-				<h1 className="emptyAutomations">No automations found!</h1>
+				<div className="emptyAutomationsContainer">
+					<h1 className="emptyAutomations">No automations found!</h1>
+					<button className="createAutomationButton" onClick={handleCreateAutomation}>
+						Create Automation
+					</button>
+				</div>
 			) : (
 				<InfiniteScroll
 					dataLength={automationsLength}
@@ -64,15 +133,20 @@ const Automations = () => {
 					style={infiniteScrollStyle}
 					height={infiniteScrollHeight}
 				>
-					{automations?.map((automation) => (
-						<AutomationCard
-							key={automation?._id}
-							automationId={automation?._id}
-							automationTitle={automation?.name}
-							automationStatus={automation?.status}
-							automationSteps={automation?.steps}
-						/>
-					))}
+					{automations
+						?.filter(
+							(automation) => !info?.deletedAutomationIds?.includes(automation?._id),
+						)
+						?.map((automation) => (
+							<AutomationCard
+								key={automation?._id}
+								automationId={automation?._id}
+								automationTitle={automation?.name}
+								automationStatus={automation?.status}
+								automationSteps={automation?.steps}
+								handleDeleteAutomation={handleDeleteAutomation}
+							/>
+						))}
 				</InfiniteScroll>
 			)}
 		</div>

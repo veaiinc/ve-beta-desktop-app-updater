@@ -2,6 +2,7 @@ import ReusableButtonSettings from '../ReusableButtonSettings';
 import { ReactComponent as PlusSvg } from '../../../../assets/svg/workspaceSettings/plus-button.svg';
 import ColorPicker from '../../colorPicker/ColorPicker';
 import { ReactComponent as CloseSvg } from '../../../../assets/svg/Settings/CrossWhite.svg';
+import { ReactComponent as InfoIcon } from '../../../../assets/svg/workspaceSettings/info.svg';
 import { memo, useState } from 'react';
 
 const BrandColorComponent = ({
@@ -14,42 +15,36 @@ const BrandColorComponent = ({
 	return (
 		<>
 			<div className="brandingTextContainer">
-				<h1>Branding</h1>
+				<div className="headerSection">
+					<h1>Colours</h1>
+					<p>Add your brand colours</p>
+				</div>
+				<button onClick={() => setbrandState((prev) => ({ ...prev, brandingPopup: true }))}>
+					Add a colour
+				</button>
 			</div>
 			<div className="brandColorContainer">
 				{brandState?.brandingThemes?.map((singleColor, index) => (
-					<div
-						className="fullColorWrapper"
-						onMouseEnter={() => setdeleteColor(singleColor?.value)}
-						onMouseLeave={() => setdeleteColor('')}
-						key={index}
-					>
-						<div className="chooseBrandColor" key={singleColor?.label}>
-							<div
-								className="circleColor"
-								style={{ background: `${singleColor?.value || ''}` }}
-							></div>
-							<p className="hashColor">{singleColor?.value}</p>
-						</div>
-
+					<div className="colorCard" key={index}>
 						<div
-							className="cancelDiv"
-							style={{ right: singleColor?.value === deleteColor ? '-7px' : '51px' }}
-							onClick={() => handleRemoveColorFunc(singleColor?.value)}
-						>
-							<CloseSvg />
+							className="colorCircle"
+							style={{ backgroundColor: singleColor?.value }}
+						/>
+						<div className="colorInfo">
+							<span className="colorCode">{singleColor?.value}</span>
+							<span className="colorType">
+								{index === 0
+									? 'Primary Colour'
+									: index === 1
+									? 'Secondary Colour'
+									: 'Tertiary Colour'}
+							</span>
 						</div>
+						<button className="infoButton">
+							<InfoIcon />
+						</button>
 					</div>
 				))}
-			</div>
-
-			<div>
-				<ReusableButtonSettings
-					icon={<PlusSvg />}
-					className="reuseableButton"
-					text={'Add'}
-					func={() => setbrandState((prev) => ({ ...prev, brandingPopup: true }))}
-				/>
 			</div>
 
 			{brandState.brandingPopup && (

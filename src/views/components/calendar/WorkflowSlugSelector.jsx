@@ -79,7 +79,7 @@ const WorkflowSlugSelector = ({ workflowSlug, handleWorkflowSlugSelection, query
 
 	const [info, setInfo] = useState({
 		fetching: false,
-		isExpanded: false,
+		isExpanded: true,
 		workflowList: null,
 		hasNextPage: false,
 		currentPage: 1,
@@ -155,10 +155,10 @@ const WorkflowSlugSelector = ({ workflowSlug, handleWorkflowSlugSelection, query
 	return (
 		<div className="workflowSlugSelector">
 			<div className="selectorHeader">
-				<span>Choose a Project</span>
+				<span>Choose a Workflow</span>
 			</div>
 			<div className={`selectorContainer ${info?.isExpanded ? 'expanded' : ''}`}>
-				<div
+				{/* <div
 					className={`selectBtn ${info?.isExpanded ? 'expanded' : ''}`}
 					onClick={() =>
 						setInfo((prevInfo) => ({ ...prevInfo, isExpanded: !prevInfo?.isExpanded }))
@@ -166,7 +166,7 @@ const WorkflowSlugSelector = ({ workflowSlug, handleWorkflowSlugSelection, query
 				>
 					<span>Select One</span>
 					<DownSvg />
-				</div>
+				</div> */}
 			</div>
 
 			<div className={`workflowDropDown ${info?.isExpanded ? 'expanded' : ''}`}>

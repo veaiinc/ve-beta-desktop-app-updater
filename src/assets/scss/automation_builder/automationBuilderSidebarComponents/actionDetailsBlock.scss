@@ -22,8 +22,8 @@
 			gap: 2px;
 
 			h3 {
-				color: #7a7e85;
-				font-family: Inter;
+				color: var(--secondary-font);
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 500;
@@ -31,8 +31,8 @@
 			}
 
 			.actionDetailsBlockHeaderActionName {
-				color: #f2f2f3;
-				font-family: Inter;
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 500;
@@ -47,9 +47,9 @@
 			align-items: center;
 			gap: 12px;
 			border-radius: 6px;
-			background: #202123;
-			color: #f2f2f3;
-			font-family: Inter;
+			background: var(--card);
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 500;
@@ -57,7 +57,7 @@
 			cursor: pointer;
 
 			&:hover {
-				background: #202123;
+				background: var(--card);
 			}
 		}
 	}
@@ -70,7 +70,7 @@
 		align-self: stretch;
 		width: 100%;
 		padding-bottom: 24px;
-		border-bottom: 1px solid #2c2d2e;
+		border-bottom: 1px solid var(--stroke);
 
 		.actionDetailsBlockTitleInput {
 			width: 100%;
@@ -80,14 +80,14 @@
 			padding: 4px 0px;
 			flex-direction: column;
 			align-items: flex-start;
-			color: #f2f2f3;
-			font-family: Inter;
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 600;
 			line-height: normal;
 			&:placeholder {
-				color: #7a7e85;
+				color: var(--secondary-font);
 			}
 		}
 
@@ -99,14 +99,14 @@
 			padding: 4px 0px;
 			flex-direction: column;
 			align-items: flex-start;
-			color: #f2f2f3;
-			font-family: Inter;
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
 			font-size: 12px;
 			font-style: normal;
 			font-weight: 400;
 			line-height: normal;
 			&:placeholder {
-				color: #7a7e85;
+				color: var(--secondary-font);
 			}
 		}
 	}

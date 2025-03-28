@@ -5,8 +5,8 @@
 	gap: 16px;
 	align-self: stretch;
 	.paymentBlockHeader {
-		color: rgba(228, 229, 230, 0.48);
-		font-family: Inter;
+		color: var(--secondary-font);
+		font-family: var(--primary-font-family);
 		font-size: 0.625rem;
 		font-style: normal;
 		font-weight: 500;
@@ -23,7 +23,7 @@
 		align-self: stretch;
 		border-radius: 16px;
 		border: 1px solid #242424;
-		background: #1e1e1f;
+		background: var(--background-color);
 
 		.paymentRowWrapper {
 			display: flex;
@@ -33,8 +33,8 @@
 			align-self: stretch;
 
 			.rowHeader {
-				color: #b0b0b0;
-				font-family: Inter;
+				color: var(--secondary-font);
+				font-family: var(--primary-font-family);
 				font-size: 11px;
 				font-style: normal;
 				font-weight: 400;
@@ -59,8 +59,8 @@
 
 			.serviceTitle {
 				padding: 0px 14px;
-				color: #b0b0b0;
-				font-family: Inter;
+				color: var(--secondary-font);
+				font-family: var(--primary-font-family);
 				font-size: 0.6875rem;
 				font-style: normal;
 				font-weight: 400;
@@ -71,8 +71,8 @@
 				border-radius: 10px;
 				border: 1px solid #2f2f2f;
 				width: 100%;
-				color: #e4e5e6;
-				font-family: Inter;
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 400;
@@ -96,8 +96,8 @@
 				padding-left: 14px;
 
 				.currencyHolder {
-					color: rgba(228, 229, 230, 0.8);
-					font-family: Inter;
+					color: var(--secondary-font);
+					font-family: var(--primary-font-family);
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 400;
@@ -122,9 +122,9 @@
 			align-self: stretch;
 			border-radius: 8px;
 			border: 1px dashed #2f2f2f;
-			background: rgba(42, 42, 42, 0.2);
-			color: rgba(228, 229, 230, 0.48);
-			font-family: Inter;
+			background: var(--background-color);
+			color: var(--secondary-font);
+			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 400;

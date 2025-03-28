@@ -1,23 +1,40 @@
 import { Routes, Route } from 'react-router-dom';
 import routes from './routes';
-import React, { memo, useEffect } from 'react';
+import React, { memo, useContext, useEffect } from 'react';
 import ExpiredSubscriptionModal from './views/components/modalsV2/subscription/ExpiredSubscriptionModal';
 import ExpiredTokenModal from './views/components/modalsV2/subscription/ExpiredTokenModal';
+import Cookies from 'js-cookie';
+import Context from './context/context';
 import AccessDeniedPopup from './views/components/accessPopups/accessDeniedPopup';
 function App() {
+	const {
+		themeInfo: { theme },
+	} = useContext(Context);
+
+	const themePreference =
+		theme || localStorage?.getItem('theme') || Cookies.get('theme') || 'dark'; // TODO: change this to systemDefault after light theme is good
+	let themeAttribute = themePreference;
+	if (themePreference === 'systemDefault') {
+		themeAttribute = window.matchMedia('(prefers-color-scheme: dark)').matches
+			? 'dark'
+			: 'light';
+	}
+
 	useEffect(() => {
 		if (window.navigator.appVersion.indexOf('Mac') !== -1) {
 			document.getElementsByTagName('html')[0].classList.add('macos');
 		} else {
 			document.getElementsByTagName('html')[0].classList.add('otheros');
 		}
-		document.getElementsByTagName('html')[0].classList.add('theme-dark');
+		// document.getElementsByTagName('html')[0].classList.add('theme-dark');
+		// const theme = localStorage.getItem('theme') || Cookies.get('theme') || 'dark';
+		document.documentElement.setAttribute('theme', themeAttribute);
 	}, []);
 
 	return (
 		<>
 			<Routes>
-				{routes.map((route, index) => (
+				{routes?.map((route, index) => (
 					<Route
 						key={index}
 						path={route?.path}

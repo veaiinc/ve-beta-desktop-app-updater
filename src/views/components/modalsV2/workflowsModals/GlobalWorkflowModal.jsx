@@ -483,14 +483,14 @@ const GlobalWorkflowModal = ({
 													alignItems: 'center',
 													gap: '16px',
 													borderRadius: '23px',
-													background: '#FAFAFA',
+													background: 'var(--card)',
 													cursor: 'pointer',
 												}}
 											>
 												<span
 													style={{
-														color: '#3F3F3F',
-														fontFamily: 'Inter',
+														color: 'var(--primary-font)',
+														fontFamily: 'var(--primary-font-family)',
 														fontSize: '12px',
 														fontStyle: 'normal',
 														fontWeight: '500',
@@ -504,7 +504,7 @@ const GlobalWorkflowModal = ({
 														width={'16px'}
 														height="16px"
 														color={'#6055ec'}
-														borderTopColor="#111"
+														borderTopColor="var(--stroke)"
 													/>
 												)}
 											</div>
@@ -532,7 +532,7 @@ const GlobalWorkflowModal = ({
 										style={{
 											fontSize: '18px',
 											textTransform: 'capitalize',
-											color: '#fff',
+											color: 'var(--primary-font)',
 											// marginTop: '20px',
 											display: 'flex',
 											flexDirection: 'row',
@@ -552,8 +552,8 @@ const GlobalWorkflowModal = ({
 												textAlign: 'center',
 												alignItems: 'center',
 												borderRadius: '100px',
-												border: '1px solid rgba(255, 255, 255, 0.20)',
-												background: 'rgba(255, 255, 255, 0.05)',
+												border: '1px solid var(--stroke)',
+												background: 'var(--card)',
 											}}
 										>
 											{/* {info?.activeTemplateData?.__typename} */}
@@ -597,13 +597,13 @@ const GlobalWorkflowModal = ({
 										style={{
 											width: '100%',
 											padding: '0px !important',
-											border: '0.1px solid rgba(255, 255, 255, 0.20)',
+											border: '0.1px solid var(--stroke)',
 										}}
 									/>
 									<div
 										style={{
-											color: '#FFF',
-											fontFamily: 'Inter',
+											color: 'var(--primary-font)',
+											fontFamily: 'var(--primary-font-family)',
 											fontSize: '14px',
 											fontStyle: 'normal',
 											fontWeight: '500',
@@ -619,7 +619,7 @@ const GlobalWorkflowModal = ({
 									<div
 										className="modulesViewer"
 										style={{
-											backgroundColor: 'white',
+											backgroundColor: 'var(--card)',
 											height: '97vh',
 											overflow: 'hidden',
 											alignSelf: 'center',
@@ -636,7 +636,7 @@ const GlobalWorkflowModal = ({
 											style={{
 												height: '95vh',
 												width: '100%',
-												backgroundColor: 'white !important',
+												backgroundColor: 'var(--card) !important',
 												position: 'relative',
 												display: 'block',
 											}}
@@ -645,7 +645,7 @@ const GlobalWorkflowModal = ({
 												style={{
 													height: '100%',
 													width: '100%',
-													backgroundColor: 'white',
+													backgroundColor: 'var(--card)',
 												}}
 											>
 												<iframe
@@ -685,14 +685,15 @@ const GlobalWorkflowModal = ({
 														alignItems: 'center',
 														gap: '16px',
 														borderRadius: '23px',
-														background: '#FAFAFA',
+														background: 'var(--card)',
 														cursor: 'pointer',
 													}}
 												>
 													<span
 														style={{
-															color: '#3F3F3F',
-															fontFamily: 'Inter',
+															color: 'var(--primary-font)',
+															fontFamily:
+																'var(--primary-font-family)',
 															fontSize: '12px',
 															fontStyle: 'normal',
 															fontWeight: '500',
@@ -706,7 +707,7 @@ const GlobalWorkflowModal = ({
 															width={'16px'}
 															height="16px"
 															color={'#6055ec'}
-															borderTopColor="#111"
+															borderTopColor="var(--stroke)"
 														/>
 													)}
 												</div>
