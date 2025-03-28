@@ -36,5 +36,5 @@ module.exports = {
 	automation_builder_api_US: 'https://us.api.ve.ai/automations/1.0/automation',
 	// multi_agent_chat_US: 'ws://api.us-east-1.ve.ai',
 	automations_api_US: 'https://ap.api.ve.ai/automations/1.0/automation',
-	page_notes_api_US: 'https://ap.api.ve.ai/block-notes/1.0',
+	page_notes_api_US: 'https://us.api.ve.ai/block-notes/1.0',
 };
