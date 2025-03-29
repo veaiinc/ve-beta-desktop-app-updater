@@ -464,12 +464,29 @@ const CreateFileLead = ({ open, onClose, workflow }) => {
 								selectedValueObj={{ value: info?.leadDetails?.source }}
 							/>
 						</div>
-						<div className="leadSourceContainer">
-							<span className="leadSorcelabel">Selected Workflow</span>
-							<div style={{ ...selectedWorkflowStyles }}>
-								{workflow?.title || 'Untitled Workflow'}
+						{!workflow?.version ? (
+							<div className="leadSourceContainer">
+								<span className="leadSorcelabel">Selected Workflow</span>
+								<div style={{ ...selectedWorkflowStyles }}>
+									{workflow?.title || 'Untitled Workflow'}
+								</div>
 							</div>
-						</div>
+						) : (
+							<div className="leadSourceContainer">
+								<input
+									type="text"
+									placeholder="Title of Document"
+									className="createLeadInputContainer"
+									value={info?.documentTitle}
+									onChange={(e) =>
+										setInfo((prev) => ({
+											...prev,
+											documentTitle: e.target.value,
+										}))
+									}
+								/>
+							</div>
+						)}
 					</div>
 				) : (
 					<>
