@@ -30,7 +30,7 @@ function App() {
 		// document.getElementsByTagName('html')[0].classList.add('theme-dark');
 		// const theme = localStorage.getItem('theme') || Cookies.get('theme') || 'dark';
 		document.documentElement.setAttribute('theme', themeAttribute);
-	}, [themeAttribute]);
+	}, [theme]);
 
 	return (
 		<>
