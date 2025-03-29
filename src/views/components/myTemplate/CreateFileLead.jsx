@@ -8,9 +8,47 @@ import InputForModules from '../input/inputForModules';
 import HeadersDropDownComp from '../dropDown/HeadersDropDownComp';
 import '../../../assets/scss/sales/createLeadModal.scss';
 import { useNavigate } from 'react-router-dom';
-import { debounce } from 'lodash';
+import { debounce } from 'lodash/debounce';
 const validator = require('validator');
 
+const selectedWorkflowStyles = {
+	height: '48px',
+	padding: '12px 14px',
+	color: '#e4e5e6',
+	width: 'inherit',
+	flex: 1,
+	alignSelf: 'stretch',
+	borderRadius: '0.625rem',
+	border: '1px solid rgba(36, 36, 36, 0.64)',
+	backgroundColor: '#151515',
+	display: 'flex',
+	alignItems: 'center',
+	fontSize: '12px',
+	fontFamily: 'var(--primary-font-family)',
+	fontWeight: '500',
+};
+
+const headerDropdownStyles = {
+	padding: '12px 24px',
+	height: '48px',
+	padding: '12px 14px',
+	color: '#e4e5e6',
+	width: 'inherit',
+	flex: 1,
+	alignSelf: 'stretch',
+	borderRadius: '0.625rem',
+	border: '1px solid rgba(36, 36, 36, 0.64)',
+	backgroundColor: '#151515',
+};
+
+const dropdownTextStylings = {
+	color: 'var(--nav-bar-button-text, #FFF)',
+	fontFamily: 'var(--primary-font-family)',
+	fontSize: '12px',
+	fontStyle: 'normal',
+	fontWeight: '400',
+	lineHeight: '26px',
+};
 const CreateFileLead = ({ open, onClose, workflow }) => {
 	const navigate = useNavigate();
 	const customStyles = {
@@ -413,32 +451,14 @@ const CreateFileLead = ({ open, onClose, workflow }) => {
 									{ label: 'None', value: 'null' },
 								]}
 								selectedValue={info?.leadDetails?.source || 'Select Source'}
-								containerStyle={{
-									padding: '12px 24px',
-									height: '48px',
-									padding: '12px 14px',
-									color: '#e4e5e6',
-									width: 'inherit',
-									flex: 1,
-									alignSelf: 'stretch',
-									borderRadius: '0.625rem',
-									border: '1px solid rgba(36, 36, 36, 0.64)',
-									backgroundColor: '#151515',
-								}}
+								containerStyle={{ ...headerDropdownStyles }}
 								dropDownStyle={{
 									right: 0,
 									top: '55px',
 									maxHeight: '150px',
 								}}
 								onChangeFunc={(e) => onChangeSelectedSource(e)}
-								dropDownTextStyling={{
-									color: 'var(--nav-bar-button-text, #FFF)',
-									fontFamily: 'var(--primary-font-family)',
-									fontSize: '12px',
-									fontStyle: 'normal',
-									fontWeight: '400',
-									lineHeight: '26px',
-								}}
+								dropDownTextStyling={{ ...dropdownTextStylings }}
 								showSelectedValueTick={true}
 								uniqueIdentifierForTickIcon={'value'}
 								selectedValueObj={{ value: info?.leadDetails?.source }}
@@ -446,24 +466,7 @@ const CreateFileLead = ({ open, onClose, workflow }) => {
 						</div>
 						<div className="leadSourceContainer">
 							<span className="leadSorcelabel">Selected Workflow</span>
-							<div
-								style={{
-									height: '48px',
-									padding: '12px 14px',
-									color: '#e4e5e6',
-									width: 'inherit',
-									flex: 1,
-									alignSelf: 'stretch',
-									borderRadius: '0.625rem',
-									border: '1px solid rgba(36, 36, 36, 0.64)',
-									backgroundColor: '#151515',
-									display: 'flex',
-									alignItems: 'center',
-									fontSize: '12px',
-									fontFamily: 'var(--primary-font-family)',
-									fontWeight: '500',
-								}}
-							>
+							<div style={{ ...selectedWorkflowStyles }}>
 								{workflow?.title || 'Untitled Workflow'}
 							</div>
 						</div>
@@ -476,17 +479,7 @@ const CreateFileLead = ({ open, onClose, workflow }) => {
 								showIcon={false}
 								options={info?.clientData || []}
 								selectedValue={info?.leadDetails?.name || 'Select Lead'}
-								containerStyle={{
-									height: '48px',
-									padding: '12px 14px',
-									color: '#e4e5e6',
-									width: 'inherit',
-									flex: 1,
-									alignSelf: 'stretch',
-									borderRadius: '0.625rem',
-									border: '1px solid rgba(36, 36, 36, 0.64)',
-									backgroundColor: '#151515',
-								}}
+								containerStyle={{ ...headerDropdownStyles }}
 								dropDownStyle={{
 									right: 0,
 									top: '55px',
@@ -494,14 +487,7 @@ const CreateFileLead = ({ open, onClose, workflow }) => {
 									minHeight: '150px',
 								}}
 								onChangeFunc={handleDropdownChange}
-								dropDownTextStyling={{
-									color: 'var(--nav-bar-button-text, #FFF)',
-									fontFamily: 'var(--primary-font-family)',
-									fontSize: '12px',
-									fontStyle: 'normal',
-									fontWeight: '400',
-									lineHeight: '26px',
-								}}
+								dropDownTextStyling={{ ...dropdownTextStylings }}
 								showSelectedValueTick={true}
 								uniqueIdentifierForTickIcon={'_id'}
 								selectedValueObj={info?.selectedLead}
@@ -512,24 +498,7 @@ const CreateFileLead = ({ open, onClose, workflow }) => {
 						{!workflow?.version ? (
 							<div className="leadSourceContainer">
 								<span className="leadSorcelabel">Selected Workflow</span>
-								<div
-									style={{
-										height: '48px',
-										padding: '12px 14px',
-										color: '#e4e5e6',
-										width: 'inherit',
-										flex: 1,
-										alignSelf: 'stretch',
-										borderRadius: '0.625rem',
-										border: '1px solid rgba(36, 36, 36, 0.64)',
-										backgroundColor: '#151515',
-										display: 'flex',
-										alignItems: 'center',
-										fontSize: '12px',
-										fontFamily: 'var(--primary-font-family)',
-										fontWeight: '500',
-									}}
-								>
+								<div style={{ ...selectedWorkflowStyles }}>
 									{workflow?.title || 'Untitled Workflow'}
 								</div>
 							</div>
