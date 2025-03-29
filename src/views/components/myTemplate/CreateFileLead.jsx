@@ -96,6 +96,15 @@ const CreateFileLead = ({ open, onClose, workflow }) => {
 	useEffect(() => {
 		setInfo((prev) => ({
 			...prev,
+			documentTitle: prev.existingLeadSource
+				? workflow?.title || ''
+				: `Copy of ${workflow?.title || ''}`,
+		}));
+	}, [workflow, open]);
+	console.log(info?.documentTitle, 'testing');
+	useEffect(() => {
+		setInfo((prev) => ({
+			...prev,
 			documentTitle: workflow?.title || '',
 		}));
 	}, [workflow]);
@@ -225,18 +234,22 @@ const CreateFileLead = ({ open, onClose, workflow }) => {
 		}));
 	};
 
-	const handleSelectedLead = useCallback(async (val) => {
-		setInfo((prev) => ({
-			...prev,
-			leadDetails: {
-				...prev.leadDetails,
-				emailId: val?.email,
-				name: val?.name,
-				phoneNumber: val?.phoneNumber,
-			},
-			createButtonActive: true,
-		}));
-	}, []);
+	const handleSelectedLead = useCallback(
+		async (val) => {
+			setInfo((prev) => ({
+				...prev,
+				leadDetails: {
+					...prev.leadDetails,
+					emailId: val?.email,
+					name: val?.name,
+					phoneNumber: val?.phoneNumber,
+				},
+				documentTitle: `${workflow?.title || ''} for ${val?.name}`,
+				createButtonActive: true,
+			}));
+		},
+		[workflow],
+	);
 
 	const onChangeClientLists = useCallback(
 		async (data) => {
