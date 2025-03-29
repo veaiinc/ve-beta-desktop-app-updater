@@ -1,7 +1,7 @@
 import React, { memo, useState, useCallback, useContext, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import '../../../assets/scss/scheduler/editScheduler.scss';
-import { ReactComponent as Back } from '../../../assets/svg/subscription/back.svg';
+import { ReactComponent as Back } from '../../../assets/svg/gallery/backArrow.svg';
 import { ReactComponent as DateSvg } from '../../../assets/svg/calendar/date.svg';
 import { ReactComponent as DownArrow } from '../../../assets/svg/activity/down.svg';
 import { ReactComponent as Down } from '../../../assets/svg/calendar/down.svg';
