@@ -23,6 +23,16 @@ const iconComponent = (
 		}}
 	></div>
 );
+
+const logoutStyles = {
+	color: 'var(--secondary-button)',
+	fontFamily: 'var(--primary-font-family)',
+	fontSize: '14px',
+	fontStyle: 'normal',
+	fontWeight: '400',
+	lineHeight: '16px',
+	letterSpacing: '-0.3px',
+};
 const HeadersDropDownComp = ({
 	containerStyle,
 	dropDownStyle,
@@ -177,13 +187,7 @@ const HeadersDropDownComp = ({
 										className="dropdown-item"
 										onClick={handleLogout}
 										style={{
-											color: 'var(--secondary-button)',
-											fontFamily: 'var(--primary-font-family)',
-											fontSize: '14px',
-											fontStyle: 'normal',
-											fontWeight: '400',
-											lineHeight: '16px',
-											letterSpacing: '-0.3px',
+											...logoutStyles,
 										}}
 									>
 										Logout
