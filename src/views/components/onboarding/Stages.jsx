@@ -6,13 +6,19 @@ import ProgressBar from './ProgressBar';
 import { message } from 'antd';
 import Stage1 from './Stage1';
 import Stage2 from './Stage2';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 let usernameTimeoutId, companyLogoFile;
 
 const Stages = () => {
 	const navigate = useNavigate();
+	const location = useLocation();
+	const pathname = location?.pathname;
+	if (pathname === '/create-workspace') {
+		localStorage.setItem('stage', 2);
+	}
 	const stageFromLocalStorage = localStorage.getItem('stage') ?? 1;
+
 	const {
 		authInfo: {
 			checkWorkspaceHandleAvailability,
@@ -439,7 +445,7 @@ const Stages = () => {
 
 	return (
 		<>
-			<ProgressBar stage={info?.stage} />
+			<ProgressBar stage={info?.stage} pathname={pathname} />
 			<div className="stageContainer">
 				<h1 className="email">{emailCntxt}</h1>
 				{stageMapper?.[info?.stage]}

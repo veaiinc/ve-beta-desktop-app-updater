@@ -1,9 +1,13 @@
 import { memo } from 'react';
 import '../../../assets/scss/onboarding/index.scss';
 
-const progressSteps = Array.from({ length: 2 }, (_, index) => index + 1);
+const ProgressBar = ({ stage, pathname }) => {
+	const progressStepLength = pathname === '/create-workspace' ? 1 : 2;
+	const progressSteps = Array.from(
+		{ length: progressStepLength },
+		(_, index) => index + (pathname === '/create-workspace' ? 2 : 1),
+	);
 
-const ProgressBar = ({ stage }) => {
 	return (
 		<div className="progressBar">
 			{progressSteps?.map((step) => (
