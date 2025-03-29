@@ -19,6 +19,7 @@ import ProposalsPopup from '../../../views/components/docs/ProposalsPopup';
 import CreateClientModal from '../../../views/components/modalsV2/contacts/CreateClientModal';
 import CreateGallery from '../../../views/components/modalsV2/gallery/CreateGallery';
 import AutomationLoaderModal from '../modalsV2/automationBuilder/AutomationLoaderModal';
+import CreateTaskPopup from '../modalsV2/tasks/CreateTaskPopup';
 import { useEdges } from '@xyflow/react';
 
 const moduleOptions = [
@@ -36,8 +37,8 @@ const moduleOptions = [
 		title: 'Task',
 		value: 'task',
 		controlValue: 'task',
-		action: ({ navigate }) => {
-			navigate('/tasks');
+		action: ({ setInfo }) => {
+			setInfo((prev) => ({ ...prev, createTaskPopup: true }));
 		},
 	},
 	{
@@ -49,15 +50,15 @@ const moduleOptions = [
 			navigate('/calendar');
 		},
 	},
-	{
-		id: 3,
-		title: 'Session',
-		value: 'session',
-		controlValue: 'calendar',
-		action: ({ navigate }) => {
-			navigate('/calendar');
-		},
-	},
+	// {
+	// 	id: 3,
+	// 	title: 'Session',
+	// 	value: 'session',
+	// 	controlValue: 'calendar',
+	// 	action: ({ navigate }) => {
+	// 		navigate('/calendar');
+	// 	},
+	// },
 	{
 		id: 4,
 		title: 'Documents',
@@ -117,8 +118,27 @@ const moduleOptions = [
 		title: 'Automation',
 		value: 'automation',
 		controlValue: 'automation',
-		action: ({ navigate }) => {
-			navigate('/automations');
+		action: async ({ setInfo, navigate, createAutomation, info }) => {
+			// Add info to parameters
+			if (info?.isAutomationLoading) return;
+			try {
+				setInfo((prev) => ({ ...prev, isAutomationLoading: true }));
+				const response = await createAutomation({
+					name: 'Untitled Automation',
+					version: 1,
+					steps: [],
+					status: 'draft',
+				});
+				if (response?.[0]) {
+					navigate(`/automation-builder/${response?.[1]?._id}`);
+				} else {
+					message.error('Failed to create automation');
+				}
+			} catch (error) {
+				message.error('Failed to create automation');
+			} finally {
+				setInfo((prev) => ({ ...prev, isAutomationLoading: false }));
+			}
 		},
 	},
 	{
@@ -126,8 +146,20 @@ const moduleOptions = [
 		title: 'Conversational Agent',
 		value: 'ai-assistant',
 		controlValue: 'conversationalAgent',
-		action: ({ navigate }) => {
-			navigate('/ai-assistant');
+		action: async ({ setInfo, createNewAiAssistant, navigate }) => {
+			try {
+				setInfo((prev) => ({ ...prev, conversationalAgentLoading: true }));
+				const aiAssistantId = await createNewAiAssistant({
+					name: 'Untitled Assistant',
+				});
+				if (aiAssistantId) {
+					navigate(`/ai-assistant/${aiAssistantId}/edit`);
+				}
+			} catch (error) {
+				message.error('Failed to create AI Assistant');
+			} finally {
+				setInfo((prev) => ({ ...prev, conversationalAgentLoading: false }));
+			}
 		},
 	},
 	{
@@ -155,6 +187,7 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 		templates: { toggleCreateLeadModal },
 		profileInfo: { tenantUserAccessControls },
 		automationBuilder: { createAutomation },
+		aiSetup: { createNewAiAssistant },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -169,6 +202,8 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 		isAutomationLoading: false,
 		commonState: null,
 		search: '',
+		createTaskPopup: false,
+		conversationalAgentLoading: false,
 	});
 
 	const navigate = useNavigate();
@@ -271,7 +306,14 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 									<div
 										key={option?.id}
 										className="dropdown-option"
-										onClick={() => option?.action({ setInfo, navigate })}
+										onClick={() =>
+											option?.action({
+												setInfo,
+												navigate,
+												createNewAiAssistant,
+												createAutomation,
+											})
+										}
 									>
 										{option?.icon && <img src={option?.icon} alt="icon" />}
 										{option?.title}
@@ -286,7 +328,14 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 									<div
 										key={option?.id}
 										className="dropdown-option"
-										onClick={() => option?.action({ setInfo, info, navigate })}
+										onClick={() =>
+											option?.action({
+												setInfo,
+												navigate,
+												createNewAiAssistant,
+												createAutomation,
+											})
+										}
 									>
 										{option?.icon && <img src={option?.icon} alt="icon" />}
 										{option?.title}
@@ -324,6 +373,10 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 				isLightGallery={true}
 			/>
 			<AutomationLoaderModal loading={info?.isAutomationLoading} />
+			<CreateTaskPopup
+				isOpen={info?.createTaskPopup}
+				closeModal={() => setInfo({ ...info, createTaskPopup: false })}
+			/>
 		</div>
 	);
 };
