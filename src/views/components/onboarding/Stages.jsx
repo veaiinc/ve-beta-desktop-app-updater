@@ -3,10 +3,10 @@ import '../../../assets/scss/onboarding/stages.scss';
 import { formatUsername, getCountryCode } from '../../../helpers';
 import Context from '../../../context/context';
 import ProgressBar from './ProgressBar';
-import { message } from 'antd';
 import Stage1 from './Stage1';
 import Stage2 from './Stage2';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { message } from 'antd';
 
 let usernameTimeoutId, companyLogoFile;
 
