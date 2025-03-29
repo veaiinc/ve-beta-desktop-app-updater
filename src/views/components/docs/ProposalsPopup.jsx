@@ -416,7 +416,7 @@ const ProposalPopup = ({ open, closeModal, clientDetails = null, commonState }) 
 				)}
 			</div>
 			<CreateFileLead
-				open={info?.versionPopup}
+				open={info?.versionPopup && info?.selectedOption !== 'form-submission'}
 				onClose={() => setInfo((prev) => ({ ...prev, versionPopup: false }))}
 				workflow={info?.activeTemplateData}
 			/>

@@ -145,10 +145,10 @@ const CreateFileLead = ({ open, onClose, workflow }) => {
 	);
 
 	const getMoreClientData = useCallback(() => {
-		if (info.isLoading || !info.hasNextPage) return;
+		if (info?.isLoading || !info?.hasNextPage) return;
 
-		const nextPage = info.currentPage + 1;
-		getClientListData(info.searchQuery, nextPage);
+		const nextPage = info?.currentPage + 1;
+		getClientListData(info?.searchQuery, nextPage);
 	}, [info.isLoading, info.hasNextPage, info.currentPage, info.searchQuery, getClientListData]);
 
 	const closeModalFunc = () => {
@@ -171,7 +171,7 @@ const CreateFileLead = ({ open, onClose, workflow }) => {
 	};
 
 	const handleInputChange = (e) => {
-		const { name, value } = e.target;
+		const { name, value } = e?.target;
 
 		setInfo((prev) => ({
 			...prev,
@@ -213,7 +213,7 @@ const CreateFileLead = ({ open, onClose, workflow }) => {
 	const handleDropdownChange = useCallback(
 		(data) => {
 			if (data.searchQuery !== undefined) {
-				const searchQuery = data.searchQuery;
+				const searchQuery = data?.searchQuery;
 				setInfo((prev) => ({
 					...prev,
 					searchQuery,
@@ -472,17 +472,6 @@ const CreateFileLead = ({ open, onClose, workflow }) => {
 					<>
 						<div className="leadSourceContainer">
 							<span className="leadSorcelabel">Search from Leads</span>
-							{/* <input
-								type="text"
-								placeholder="search from leads"
-								value={info?.searchValue}
-								onChange={(e) => {
-									const value = e?.target?.value;
-									setInfo((prev) => ({ ...prev, searchValue: value }));
-									debouncedGetClientList(value);
-								}}
-								className="leadSorcelabel"
-							/> */}
 							<HeadersDropDownComp
 								showIcon={false}
 								options={info?.clientData || []}
