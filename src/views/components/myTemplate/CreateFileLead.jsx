@@ -8,7 +8,7 @@ import InputForModules from '../input/inputForModules';
 import HeadersDropDownComp from '../dropDown/HeadersDropDownComp';
 import '../../../assets/scss/sales/createLeadModal.scss';
 import { useNavigate } from 'react-router-dom';
-import { debounce } from 'lodash/debounce';
+import debounce from 'lodash/debounce';
 const validator = require('validator');
 
 const selectedWorkflowStyles = {
