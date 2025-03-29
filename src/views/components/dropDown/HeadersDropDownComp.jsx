@@ -5,6 +5,7 @@ import { ReactComponent as Tick } from '../../../assets/svg/tick.svg';
 import useLogout from '../../hooks/useLogout';
 import { getBuisnessName } from '../../../helpers/index';
 import InfiniteScroll from 'react-infinite-scroll-component';
+import { FetchMoreLoaderComp } from '../../../helpers/index';
 
 const iconComponent = (
 	<div
@@ -122,7 +123,7 @@ const HeadersDropDownComp = ({
 					value={searchValue}
 					onChange={handleInputChange}
 					className="selectedPage"
-					placeholder="Search for a Lead"
+					placeholder="Search for a Contact"
 				/>
 
 				{showArrow ? <DownArrow /> : ''}
@@ -145,7 +146,7 @@ const HeadersDropDownComp = ({
 							dataLength={options?.length || 0}
 							hasMore={hasNextPage}
 							next={fetchMoreData}
-							loader={<h4>Loading...</h4>}
+							loader={<FetchMoreLoaderComp />}
 							style={{ height: '150px' }}
 							scrollableTarget="dropdown-menu"
 						>
