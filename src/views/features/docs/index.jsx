@@ -18,11 +18,15 @@ import DropDown from '../../components/dropDown/tasks/DropDown';
 import FilterPopUp from '../../components/globalComponents/FilterPopUp';
 import DeleteLeadModal from '../../components/modalsV2/workflowsModals/DeleteLeadModal.jsx';
 import ProposalPopup from '../../components/docs/ProposalsPopup.jsx';
-
+import { message } from 'antd';
 import Skeleton from 'react-loading-skeleton';
 import { Tooltip } from 'antd';
 import QuickActions from '../../components/globalComponents/QuickActions.jsx';
-let origin = fetchOriginSelection();
+import SearchSvg from '../../../assets/svg/activity/SearchSvg.jsx';
+import FilterSvg from '../../../assets/svg/my_templates/FilterSvg.jsx';
+import ThreeDotsSvg from '../../../assets/svg/my_templates/ThreeDotsSvg.jsx';
+import Spinner from '../../components/loaders/Spinner';
+const origin = fetchOriginSelection();
 
 const payload = {
 	filters: {
@@ -30,29 +34,6 @@ const payload = {
 		limit: 10,
 	},
 };
-
-const staticCreateActions = [
-	{
-		type: 'Minimal',
-		prompt: 'Wedding Day Timeline Generator',
-	},
-	{
-		type: 'Professional',
-		prompt: 'Wedding Day Timeline Generator',
-	},
-	{
-		type: 'Traditional',
-		prompt: 'Wedding Day Timeline Generator',
-	},
-	{
-		type: 'Sales',
-		prompt: 'Track invoice status, Payment schedule, amounts, and more.',
-	},
-	{
-		type: 'Consise',
-		prompt: 'Wedding Day Timeline Generator',
-	},
-];
 
 export const statusTextmapper = {
 	filesViewed: {
@@ -145,12 +126,10 @@ export const statusTextmapper = {
 	// },
 };
 
-const statusList = Object.values(statusTextmapper)
-	.filter((status) => status?.label !== 'Expired') // Exclude the status with label 'Expired'
-	.map((status) => ({
-		name: status?.label,
-		_id: status?.id,
-	}));
+const statusList = Object.values(statusTextmapper)?.map((status) => ({
+	name: status?.label,
+	_id: status?.id,
+}));
 
 export const FilterIcons = {
 	templateName: <UppercaseLowercaseA />,
@@ -234,6 +213,7 @@ const Docs = () => {
 			clientListForDocs,
 			getClientListForDocs,
 			deleteLead,
+			createBlankWorkflow,
 		},
 		profileInfo: { tennantSettingsData, getTenantSettings },
 	} = useContext(Context);
@@ -275,6 +255,7 @@ const Docs = () => {
 		filtersGotChanged: false,
 		deleteLeadModal: false,
 		proposalPopup: false,
+		blankWorkflowLoading: false,
 	});
 
 	const activeFileRef = useRef(null);
@@ -579,6 +560,24 @@ const Docs = () => {
 		handleCloseSidebar();
 	}, []);
 
+	const handleCreateBlankWorkflow = async () => {
+		if (info?.blankWorkflowLoading) return;
+		setInfo((prev) => ({ ...prev, blankWorkflowLoading: true }));
+		const response = await createBlankWorkflow({
+			workflowInput: {
+				title: ' Untitled Workflow',
+			},
+		});
+		if (response?.[0]) {
+			window.location.href = `${origin}/workflow/${response?.[1]?.data?.createBlankWorkflow?._id}?workflow=true&templateId=${response?.[1]?.data?.createBlankWorkflow?.templateId}`;
+
+			setInfo((prev) => ({ ...prev, blankWorkflowLoading: false }));
+		} else {
+			setInfo((prev) => ({ ...prev, blankWorkflowLoading: false }));
+			message.error('Failed to create blank workflow');
+		}
+	};
+
 	return (
 		<div className="docsParentContainer">
 			<div className="docsHeaderTitleContainer">
@@ -619,6 +618,18 @@ const Docs = () => {
 					<div className="docsHeaderButtonsTitle">Create from Saved Template</div>
 					<div className="docsHeaderSubButtonsSubTitleColored">
 						Generate document using saved template
+					</div>
+				</div>
+				<div className="docsHeaderButtons" onClick={handleCreateBlankWorkflow}>
+					<div className="docsHeaderButtonsTitle">
+						{info?.blankWorkflowLoading ? (
+							<Spinner height="20px" width="20px" />
+						) : (
+							'Create a Blank Document'
+						)}
+					</div>
+					<div className="docsHeaderSubButtonsSubTitleColored">
+						Create a blank workflow to start from scratch
 					</div>
 				</div>
 			</div>
@@ -737,7 +748,7 @@ const Docs = () => {
 										}))
 									}
 								>
-									<Search />
+									<SearchSvg />
 								</span>
 
 								<div className="inputAndCloseContainer">
@@ -778,14 +789,12 @@ const Docs = () => {
 							valueSelector="valueSelector"
 							containerStyles={{
 								borderRadius: '14px',
-								background: '#202123',
-								boxShadow: '0px 2px 44px 0px rgba(0, 0, 0, 0.25)',
 							}}
 							onOptionClick={handleSetActiveFilter}
 						>
-							<Filter style={{ width: '20px', height: '20px', marginTop: '6px' }} />
+							<FilterSvg />
 						</DropDown>
-						{/* <ThreeDots /> */}
+						<ThreeDotsSvg />
 					</div>
 				</div>
 

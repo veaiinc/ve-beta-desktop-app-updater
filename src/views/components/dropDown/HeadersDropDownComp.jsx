@@ -88,7 +88,7 @@ const HeadersDropDownComp = ({
 				<span
 					className="selectedPage"
 					style={{
-						color: containerStyle?.color || 'rgba(224, 224, 224, 0.32)',
+						color: containerStyle?.color || 'var(--primary-button)',
 						...(selectedValueStyle || {}),
 					}}
 				>
@@ -136,7 +136,7 @@ const HeadersDropDownComp = ({
 										style={{
 											flex: 1,
 											height: '1px',
-											backgroundColor: 'rgba(40, 39, 40, 0.48)',
+											backgroundColor: 'var(--primary-button)',
 										}}
 									></div>
 								</div>
@@ -145,8 +145,8 @@ const HeadersDropDownComp = ({
 									className="dropdown-item"
 									onClick={handleLogout}
 									style={{
-										color: 'rgba(202, 90, 79, 0.64)',
-										fontFamily: 'Inter',
+										color: 'var(--secondary-button)',
+										fontFamily: 'var(--primary-font-family)',
 										fontSize: '14px',
 										fontStyle: 'normal',
 										fontWeight: '400',

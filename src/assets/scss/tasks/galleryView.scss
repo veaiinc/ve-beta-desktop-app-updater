@@ -35,7 +35,7 @@
 			gap: 10px;
 			font-size: 12px;
 			font-weight: 500;
-			color: #e7e7e7;
+			color: var(--primary-font,rgba(242, 242, 243, 1));
 			padding: 16px;
 			svg {
 				width: 16px;
@@ -43,7 +43,7 @@
 				transition: all 0.6s ease;
 			}
 			&:hover {
-				background-color: #171819;
+				background-color: var(--card,rgba(23, 24, 25, 1));
 
 				svg {
 					transform: rotate(180deg);

@@ -31,8 +31,8 @@ const GoogleTriggers = ({
 			{ label: 'Every Month', value: 'month' },
 		],
 		selectedPollMode: { label: 'Every Minute', value: 'minute' },
-		title: 'Message Received',
-		description: 'This will trigger when a message is received',
+		title: '',
+		description: '',
 	});
 
 	useEffect(() => {

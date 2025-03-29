@@ -1,14 +1,15 @@
-import React, { memo, useState } from 'react';
+import React, { memo, useContext, useState } from 'react';
 import { getInitials } from '../../../../helpers/index';
 import MySettingsChangePasword from '../../../features/settings/MySettingsChangePasword';
 import PhoneInput from 'react-phone-number-input';
-import { ReactComponent as UserAccountSvg } from '../../../../assets/svg/Settings/useraccount.svg';
-import { ReactComponent as EmailSvg } from '../../../../assets/svg/Settings/emailwhite.svg';
 import { ReactComponent as GreenTickSvg } from '../../../../assets/svg/Settings/TickCirclegree.svg';
 import { ReactComponent as PencilkSvg } from '../../../../assets/svg/Settings/pencilwhite.svg';
 import UploadAvatarPopupComponent from './UploadAvatarPopup';
 import UploadFileProiflePopup from './UploadFileProiflePopup';
 import Cropper from 'react-easy-crop';
+import Context from '../../../../context/context';
+import UserSvg from '../../../../assets/svg/Settings/UserSvg';
+import EmailSvg from '../../../../assets/svg/Settings/EmailSvg';
 
 // profile details component
 const ProfileDetailsComponent = ({
@@ -26,6 +27,9 @@ const ProfileDetailsComponent = ({
 	updateDpThemeHandler,
 }) => {
 	const [uploadAvatarPopup, setuploadAvatarPopup] = useState({ theme: false, file: false });
+	const {
+		themeInfo: { theme },
+	} = useContext(Context);
 
 	const handleImageChange = (acceptedFiles) => {
 		const file = acceptedFiles[0];
@@ -47,6 +51,7 @@ const ProfileDetailsComponent = ({
 	return (
 		<>
 			<div className={`${'formsMain'} `}>
+				<h2 className="profile-title">My Profile </h2>
 				<div className="profileHeader">
 					<div className="imageCircleDiv">
 						{userDetails?.logoURL ? (
@@ -68,11 +73,7 @@ const ProfileDetailsComponent = ({
 									background: userDetails?.cropSettings?.profileDpColor || '',
 								}}
 							>
-								{getInitials(
-									userDetailsData?.firstName,
-
-									userDetailsData?.lastName,
-								)}
+								{getInitials(userDetailsData?.firstName, userDetailsData?.lastName)}
 							</div>
 						)}
 
@@ -85,7 +86,7 @@ const ProfileDetailsComponent = ({
 							<PencilkSvg />
 						</div>
 					</div>
-					<div className="details">
+					{/* <div className="details">
 						<div>
 							<div className="full_name_div">
 								<p>{userDetails?.fullName || ''}</p>
@@ -96,29 +97,30 @@ const ProfileDetailsComponent = ({
 
 							<p>{userDetails?.email}</p>
 						</div>
-					</div>
-				</div>
+					</div> */}
 
-				<div className="profileBody">
-					<div className="name_phone_container">
+					<div className="profileBody">
 						<div>
 							<div className="iconAlignclass">
-								<UserAccountSvg />
-
-								<input
-									ref={fullNameRef}
-									type="text"
-									placeholder={'Enter Your Full Name'}
-									value={userDetails?.fullName}
-									name="fullName"
-									onChange={(e) =>
-										handleUsernameAndPhoneNumberUpdate({
-											type: 'fullName',
-											value: e?.target?.value,
-										})
-									}
-									required
-								/>
+								<UserSvg />
+								<div className="input-container">
+									<input
+										ref={fullNameRef}
+										type="text"
+										placeholder={'Enter Your Full Name'}
+										value={userDetails?.fullName}
+										name="fullName"
+										className="role-input"
+										onChange={(e) =>
+											handleUsernameAndPhoneNumberUpdate({
+												type: 'fullName',
+												value: e?.target?.value,
+											})
+										}
+										required
+									/>
+									<p className="role">{role || ''}</p>
+								</div>
 							</div>
 							{errors?.fullName && <p className="errorMessage">{errors?.fullName}</p>}
 						</div>
@@ -130,6 +132,7 @@ const ProfileDetailsComponent = ({
 									placeholder={'Enter Phone Number'}
 									value={userDetails?.phoneNumber || ''}
 									name="phoneNumber"
+									className="PhoneInput"
 									onChange={(phoneNumber) =>
 										handleUsernameAndPhoneNumberUpdate({
 											type: 'phoneNumber',
@@ -142,21 +145,21 @@ const ProfileDetailsComponent = ({
 								<p className="errorMessage">{errors?.phoneNumber}</p>
 							)}
 						</div>
-					</div>
-					<div>
-						<div className="iconAlignclass">
-							<EmailSvg />
+						<div>
+							<div className="iconAlignclass">
+								<EmailSvg />
 
-							<input
-								type="text"
-								placeholder={'Enter the Name'}
-								value={userDetails?.email}
-								disabled={true}
-								readOnly={true}
-								required
-							/>
+								<input
+									type="text"
+									placeholder={'Enter the Name'}
+									value={userDetails?.email}
+									disabled={true}
+									readOnly={true}
+									required
+								/>
 
-							<GreenTickSvg />
+								<GreenTickSvg />
+							</div>
 						</div>
 					</div>
 				</div>

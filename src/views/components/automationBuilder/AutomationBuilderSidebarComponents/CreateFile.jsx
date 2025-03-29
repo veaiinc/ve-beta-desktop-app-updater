@@ -8,9 +8,15 @@ import '../../../../assets/scss/automation_builder/automationBuilderSidebarCompo
 import VariableComponent from './VariableComponent';
 import { message } from 'antd';
 
-const CreateFile = ({ onBack, onSave, addTriggerLoading, variables }) => {
+const CreateFile = ({ onBack, onSave, activeStepsData, addTriggerLoading, handleChangeClick }) => {
 	const {
-		templates: { getMyWorkflows, myWorkflows, myMoreWorkflows },
+		templates: {
+			getMyWorkflows,
+			myWorkflows,
+			myMoreWorkflows,
+			specificTemplatesInfo,
+			getSpecificTemplatesInfo,
+		},
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -24,12 +30,33 @@ const CreateFile = ({ onBack, onSave, addTriggerLoading, variables }) => {
 		hasNextPage: false,
 		selectedTemplate: null,
 		chooseFromTemplate: false,
-		activeStepsData: null,
 	});
+
+	useEffect(() => {
+		if (activeStepsData) {
+			setInfo((prev) => ({
+				...prev,
+				title: activeStepsData?.title,
+				description: activeStepsData?.description,
+			}));
+			getSpecificTemplatesInfo({
+				templateInfoId: activeStepsData?.inputBody?.fileId,
+			});
+		}
+	}, [activeStepsData]);
 
 	useEffect(() => {
 		getMyWorkflowTemplatesData(1);
 	}, []);
+
+	useEffect(() => {
+		if (specificTemplatesInfo && activeStepsData) {
+			setInfo((prev) => ({
+				...prev,
+				selectedTemplate: specificTemplatesInfo,
+			}));
+		}
+	}, [specificTemplatesInfo]);
 
 	useEffect(() => {
 		if (myWorkflows) {
@@ -85,6 +112,14 @@ const CreateFile = ({ onBack, onSave, addTriggerLoading, variables }) => {
 			},
 		});
 	}, [onSave, info?.selectedTemplate, info?.title, info?.description]);
+
+	const onChangeButtonClick = useCallback(() => {
+		if (activeStepsData) {
+			handleChangeClick(activeStepsData?.app);
+		} else {
+			onBack();
+		}
+	}, [handleChangeClick, activeStepsData, onBack]);
 
 	const myWorkflowsDataParser = useCallback(
 		(dataToBeUsed, fetchMore = false) => {
@@ -187,7 +222,7 @@ const CreateFile = ({ onBack, onSave, addTriggerLoading, variables }) => {
 						title={info?.title}
 						description={info?.description}
 						updaterFn={updateInfo}
-						onChangeButtonClick={onBack}
+						onChangeButtonClick={onChangeButtonClick}
 					/>
 					<div className="createFileFormSelectionBlockContainer">
 						{info?.selectedTemplate ? (

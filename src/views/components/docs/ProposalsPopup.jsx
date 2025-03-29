@@ -9,19 +9,8 @@ import '../../../assets/scss/docs/proposalsPopup.scss';
 import { fetchOriginSelection } from '../../../helpers';
 import Context from '../../../context/context';
 import moment from 'moment';
-import { useNavigate } from 'react-router-dom';
-import { Tooltip } from 'antd';
 import CreateFileLead from '../myTemplate/CreateFileLead';
 const origin = fetchOriginSelection();
-
-const filterOptions = [
-	{ id: 1, title: 'All', value: '' },
-	{ id: 2, title: 'Form', value: 'form-submission' },
-	{ id: 3, title: 'Proposal', value: 'proposal' },
-	{ id: 4, title: 'Presentation', value: 'presentation' },
-	{ id: 5, title: 'Invoice', value: 'invoice' },
-	{ id: 6, title: 'Contract', value: 'contract' },
-];
 
 const initialState = {
 	search: '',
@@ -38,51 +27,68 @@ const initialState = {
 	smartfileIdFromExistingClient: null,
 	filterOption: false,
 };
+const customStyles = {
+	content: { zIndex: 999 },
+	overlay: { zIndex: 998 },
+};
 
 const ProposalPopup = ({ open, closeModal, clientDetails = null, commonState }) => {
-	const navigate = useNavigate();
-	const customStyles = {
-		content: { zIndex: 999 },
-		overlay: { zIndex: 998 },
-	};
-	const [info, setInfo] = useState({
-		...initialState,
-	});
-
 	const {
 		templates: {
-			getMyWorkflows,
-			myWorkflows,
-			myMoreWorkflows,
+			getMyWorkflowsForProposalPopup,
+			myWorkflowsForProposalPopup,
+			myMoreWorkflowsForProposalPopup,
 			createLeadfromTemplates,
 			duplicateGlobalWorkflowTemplate,
 		},
 		activityInfo: { createSmartfile, smartfile },
+		profileInfo: { tenantUserAccessControls },
 	} = useContext(Context);
+
+	const hasAccessToWorkflows =
+		tenantUserAccessControls?.role === 'admin' ||
+		tenantUserAccessControls?.accessControls?.find(
+			(accessControl) => accessControl?.app === 'workflow',
+		);
+
+	const filterOptions = hasAccessToWorkflows
+		? [
+				{ id: 1, title: 'All', value: '' },
+				{ id: 2, title: 'Form', value: 'form-submission' },
+				{ id: 3, title: 'Proposal', value: 'proposal' },
+				{ id: 4, title: 'Presentation', value: 'presentation' },
+				{ id: 5, title: 'Invoice', value: 'invoice' },
+				{ id: 6, title: 'Contract', value: 'contract' },
+		  ]
+		: [{ id: 1, title: 'Form', value: 'form-submission' }];
+
+	const [info, setInfo] = useState({
+		...initialState,
+	});
 
 	useEffect(() => {
 		setInfo((prev) => ({ ...prev, selectedOption: commonState }));
 	}, [commonState]);
 
 	useEffect(() => {
-		if (info?.selectedOption !== 'All') {
+		if (info?.selectedOption !== 'All' && open) {
 			getMyWorkflowsTemplatesData(1, info?.search, false, info?.selectedOption);
 		} else {
-			if (open && !myWorkflows?.length) getMyWorkflowsTemplatesData(1);
+			if (open && !myWorkflowsForProposalPopup?.length) getMyWorkflowsForProposalPopup(1);
 		}
 	}, [info?.selectedOption]);
 
 	useEffect(() => {
-		if (myWorkflows) {
-			myWorkflowsDataParser(myWorkflows);
+		if (myWorkflowsForProposalPopup && open) {
+			myWorkflowsDataParser(myWorkflowsForProposalPopup);
 		}
-	}, [myWorkflows]);
+	}, [myWorkflowsForProposalPopup]);
 
 	useEffect(() => {
-		if (myMoreWorkflows) {
-			myWorkflowsDataParser(myMoreWorkflows, true);
+		if (myMoreWorkflowsForProposalPopup && open) {
+			myWorkflowsDataParser(myMoreWorkflowsForProposalPopup, true);
 		}
-	}, [myMoreWorkflows]);
+	}, [myMoreWorkflowsForProposalPopup]);
 
 	useEffect(() => {
 		if (smartfile?._id && info?.activeTemplateData?._id) {
@@ -194,7 +200,7 @@ const ProposalPopup = ({ open, closeModal, clientDetails = null, commonState }) 
 			if (selectedOption !== 'All') {
 				payload.filters.action = selectedOption;
 			}
-			getMyWorkflows(payload, fetchMore);
+			getMyWorkflowsForProposalPopup(payload, fetchMore);
 		},
 		[],
 	);

@@ -71,10 +71,10 @@ const GlobalProposalsCard = ({ data, onClickFunc, modalIsOpen, isLoading }) => {
 									padding: '10px',
 								}}
 							>
-								<div style={{ color: 'white', fontSize: '14px' }}>
+								<div style={{ color: 'var(--primary-font)', fontSize: '14px' }}>
 									By <VeAiLogoGrey />
 								</div>
-								<div>
+								{/* <div>
 									<button
 										style={{
 											background: 'white',
@@ -87,7 +87,7 @@ const GlobalProposalsCard = ({ data, onClickFunc, modalIsOpen, isLoading }) => {
 									>
 										Free
 									</button>
-								</div>
+								</div> */}
 							</div>
 							<h4 className="templateTitle" style={{ fontSize: '14px' }}>
 								{template.title}
@@ -97,7 +97,9 @@ const GlobalProposalsCard = ({ data, onClickFunc, modalIsOpen, isLoading }) => {
 				)}
 			</div>
 			{data?.length === 0 && (
-				<div style={{ color: 'white', fontSize: '14px' }}>No results found</div>
+				<div style={{ color: 'var(--primary-font)', fontSize: '14px' }}>
+					No results found
+				</div>
 			)}
 		</div>
 	);

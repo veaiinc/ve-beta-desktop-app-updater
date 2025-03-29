@@ -16,7 +16,6 @@ const BuilderToolbar = ({
 	templateId,
 	activeStepsData,
 	editMode,
-	refetchWorkflowBuilderData,
 	automationId,
 	step,
 	variables,
@@ -71,7 +70,6 @@ const BuilderToolbar = ({
 					templateId={templateId}
 					activeStepsData={activeStepsData}
 					editMode={editMode}
-					refetchWorkflowBuilderData={refetchWorkflowBuilderData}
 					variables={variables}
 					automationId={automationId}
 					handleActiveStepData={handleActiveStepData}
@@ -84,7 +82,6 @@ const BuilderToolbar = ({
 					templateId={templateId}
 					activeStepsData={activeStepsData}
 					editMode={editMode}
-					refetchWorkflowBuilderData={refetchWorkflowBuilderData}
 					variables={variables}
 					automationId={automationId}
 				/>
@@ -96,7 +93,6 @@ const BuilderToolbar = ({
 					templateId={templateId}
 					activeStepsData={activeStepsData}
 					editMode={editMode}
-					refetchWorkflowBuilderData={refetchWorkflowBuilderData}
 					variables={variables}
 					automationId={automationId}
 					handleActiveStepData={handleActiveStepData}

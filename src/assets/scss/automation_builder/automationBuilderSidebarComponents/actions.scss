@@ -4,10 +4,8 @@
 	flex: 1;
 	align-self: stretch;
 	height: 100%;
-	border-left: 1px solid #2c2d2e;
-	border-left: 1px solid color(display-p3 0.1719 0.1753 0.1787);
-	background: #141415;
-	background: color(display-p3 0.0784 0.0784 0.0824);
+	border-left: 1px solid var(--stroke);
+	background: var(--card);
 
 	.actionSidebarComponentsHeader {
 		display: flex;
@@ -18,10 +16,8 @@
 		gap: 12px;
 		flex-shrink: 0;
 		align-self: stretch;
-		border-left: 1px solid #2c2d2e;
-		border-left: 1px solid color(display-p3 0.1719 0.1753 0.1787);
-		background: #202123;
-		background: color(display-p3 0.1249 0.1304 0.1358);
+		border-left: 1px solid var(--stroke);
+		background: var(--card);
 		margin-bottom: 12px;
 	}
 
@@ -47,8 +43,7 @@
 				gap: 8px;
 				align-self: stretch;
 				border-radius: 12px;
-				border: 1px solid #2c2d2e;
-				border: 1px solid color(display-p3 0.1719 0.1753 0.1787);
+				border: 1px solid var(--stroke);
 
 				.actionSideBarSearchInput {
 					flex: 1;
@@ -56,11 +51,10 @@
 					background-color: transparent;
 					border: none;
 					outline: none;
-					color: #797e86;
-					color: color(display-p3 0.4784 0.4941 0.5216);
+					color: var(--secondary-font);
 
 					/* Body/Body - 12 px */
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 500;
@@ -84,13 +78,11 @@
 				align-items: center;
 				gap: 12px;
 				border-radius: 12px;
-				border: 1px solid #2c2d2e;
-				border: 1px solid color(display-p3 0.1719 0.1753 0.1787);
-				color: #f2f2f3;
-				color: color(display-p3 0.949 0.949 0.9529);
+				border: 1px solid var(--stroke);
+				color: var(--primary-font);
 
 				/* Body/Body - 12 px */
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 500;
@@ -112,8 +104,8 @@
 				align-self: stretch;
 
 				h3 {
-					color: #f2f2f3;
-					font-family: Inter;
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 500;
@@ -128,7 +120,7 @@
 					align-items: center;
 					gap: 12px;
 					border-radius: 12px;
-					border: 1px solid #2c2d2e;
+					border: 1px solid var(--stroke);
 					cursor: pointer;
 					.actionItemIcon {
 						display: flex;
@@ -138,12 +130,12 @@
 						align-items: center;
 						flex-shrink: 0;
 						border-radius: 4px;
-						border: 0.706px solid #2c2d2e;
+						border: 0.706px solid var(--stroke);
 					}
 
 					.actionItemLabel {
-						color: #f2f2f3;
-						font-family: Inter;
+						color: var(--primary-font);
+						font-family: var(--primary-font-family);
 						font-size: 12px;
 						font-style: normal;
 						font-weight: 500;
@@ -151,8 +143,8 @@
 					}
 
 					.actionItemStatus {
-						color: #f2f2f3;
-						font-family: Inter;
+						color: var(--primary-font);
+						font-family: var(--primary-font-family);
 						font-size: 12px;
 						font-style: normal;
 						font-weight: 500;
@@ -187,8 +179,8 @@
 				flex: 1;
 
 				.taskInputHeading {
-					color: #f2f2f3;
-					font-family: Inter;
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 500;
@@ -203,8 +195,8 @@
 					align-self: stretch;
 
 					.addTaskTitleTextStyle {
-						color: #7a7e85;
-						font-family: Inter;
+						color: var(--secondary-font);
+						font-family: var(--primary-font-family);
 						font-size: 12px;
 						font-style: normal;
 						font-weight: 500;
@@ -217,11 +209,10 @@
 						outline: none;
 						resize: none;
 						border: none;
-						border-bottom: 2px solid #2c2d2e;
+						border-bottom: 2px solid var(--stroke);
 
-						color: #797e86;
-						color: color(display-p3 0.4784 0.4941 0.5216);
-						font-family: Inter;
+						color: var(--secondary-font);
+						font-family: var(--primary-font-family);
 						font-size: 12px;
 						font-style: normal;
 						font-weight: 400;
@@ -232,13 +223,12 @@
 			.actionsSaveButton {
 				display: flex;
 				padding: 12px;
-				background-color: #202123;
+				background-color: var(--card);
 				justify-content: center;
 				align-items: center;
 				cursor: pointer;
-				color: #f2f2f3;
-				color: color(display-p3 0.949 0.949 0.9529);
-				font-family: Inter;
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 500;
@@ -263,8 +253,8 @@
 				width: 100%;
 
 				.createMeetingInputHeading {
-					color: #f2f2f3;
-					font-family: Inter;
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 500;
@@ -278,8 +268,8 @@
 					align-self: stretch;
 
 					.addTaskTitleTextStyle {
-						color: #7a7e85;
-						font-family: Inter;
+						color: var(--secondary-font);
+						font-family: var(--primary-font-family);
 						font-size: 12px;
 						font-style: normal;
 						font-weight: 500;

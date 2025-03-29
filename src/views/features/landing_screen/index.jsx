@@ -83,25 +83,6 @@ const socials = [
 	},
 ];
 
-const agents = [
-	{
-		id: 1,
-		agentName: 'Da Vinci',
-	},
-	{
-		id: 1,
-		agentName: 'Ace',
-	},
-	{
-		id: 1,
-		agentName: 'Ari',
-	},
-	{
-		id: 1,
-		agentName: 'Jarvis',
-	},
-];
-
 const resources = [
 	{
 		id: 1,
@@ -425,14 +406,6 @@ const LandingPage = () => {
 									key={socialData?.id}
 								>
 									{socialData?.title}
-								</li>
-							))}
-						</ul>
-						<ul className="agents-container">
-							<li className="title">Agents</li>
-							{agents?.map((agentData) => (
-								<li className="list-item" key={agentData?.id}>
-									{agentData?.agentName}
 								</li>
 							))}
 						</ul>

@@ -24,7 +24,7 @@ const InviteMembersWorkspaceComponent = ({
 	isSubmitLoading,
 }) => {
 	const {
-		companyInfo: { updateTenantAccessControls, updateTenantRole },
+		companyInfo: { updateTenantAccessControls, updateTenantRole, getTeamMembers },
 	} = useContext(Context);
 
 	const [updatedData, setUpdatedData] = useState(null);
@@ -48,6 +48,7 @@ const InviteMembersWorkspaceComponent = ({
 							);
 							if (accessControlRes[0] === true) {
 								message.success(accessControlRes[1]?.message);
+								getTeamMembers();
 								closeModal();
 							} else {
 								message.error(accessControlRes[1]?.message);
@@ -62,6 +63,7 @@ const InviteMembersWorkspaceComponent = ({
 						if (accessControlRes[0] === true) {
 							message.success(accessControlRes[1]?.message);
 							closeModal();
+							getTeamMembers();
 						} else {
 							message.error(accessControlRes[1]?.message);
 							closeModal();
@@ -151,7 +153,7 @@ const InviteMembersWorkspaceComponent = ({
 									style={{
 										color: 'crimson',
 										fontSize: '11px',
-										fontFamily: 'Inter',
+										fontFamily: 'var(--primary-font-family)',
 										textAlign: 'end',
 										marginTop: '10px',
 									}}
@@ -165,7 +167,7 @@ const InviteMembersWorkspaceComponent = ({
 									style={{
 										color: 'green',
 										fontSize: '11px',
-										fontFamily: 'Inter',
+										fontFamily: 'var(--primary-font-family)',
 										textAlign: 'end',
 										marginTop: '10px',
 									}}

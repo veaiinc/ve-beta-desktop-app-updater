@@ -35,7 +35,7 @@ const ChangeFontPopup = ({ handleClose, show, isAdmin }) => {
 		<ReactModal closeModal={handleClose} isOpen={show}>
 			<div
 				style={{
-					backgroundColor: '#151515',
+					backgroundColor: 'var(--popup)',
 					width: '480px',
 					height: 'auto',
 					borderRadius: '40px',
@@ -52,9 +52,9 @@ const ChangeFontPopup = ({ handleClose, show, isAdmin }) => {
 					>
 						<span
 							style={{
-								fontFamily: 'Inter',
+								fontFamily: 'var(--primary-font-family)',
 								fontSize: '16px',
-								color: '#e4e5e6',
+								color: 'var(--primary-font)',
 								lineHeight: '24px',
 							}}
 						>
@@ -66,9 +66,9 @@ const ChangeFontPopup = ({ handleClose, show, isAdmin }) => {
 					</div>
 					<span
 						style={{
-							fontFamily: 'Inter',
+							fontFamily: 'var(--primary-font-family)',
 							fontSize: '12px',
-							color: '#E4E5E67A',
+							color: 'var(--secondary-font)',
 							lineHeight: '20px',
 						}}
 					>
@@ -88,7 +88,7 @@ const ChangeFontPopup = ({ handleClose, show, isAdmin }) => {
 								>
 									<div
 										style={{
-											color: '#ffffff',
+											color: 'var(--primary-font)',
 											fontFamily: `${font.name}`,
 											fontWeight: '400',
 											fontSize: '20px',
@@ -98,8 +98,8 @@ const ChangeFontPopup = ({ handleClose, show, isAdmin }) => {
 									</div>
 									<div
 										style={{
-											color: '#E4E5E67A',
-											fontFamily: 'Inter',
+											color: 'var(--secondary-font)',
+											fontFamily: 'var(--primary-font-family)',
 											fontSize: '11px',
 										}}
 									>
@@ -110,7 +110,7 @@ const ChangeFontPopup = ({ handleClose, show, isAdmin }) => {
 									<div
 										style={{
 											height: '1px',
-											backgroundColor: '#2827287A',
+											backgroundColor: 'var(--stroke)',
 											margin: '16px 0',
 										}}
 									/>
@@ -136,10 +136,10 @@ const ChangeFontPopup = ({ handleClose, show, isAdmin }) => {
 												alignItems: 'center',
 												width: '100%',
 												height: '100px',
-												border: '2px dashed #333',
+												border: '2px dashed var(--stroke)',
 												borderRadius: '10px',
-												backgroundColor: '#1c1c1c',
-												color: '#ccc',
+												background: 'var(--card)',
+												color: 'var(--secondary-font)',
 												cursor: 'pointer',
 												position: 'relative',
 											}}
@@ -163,10 +163,10 @@ const ChangeFontPopup = ({ handleClose, show, isAdmin }) => {
 							</Dropzone>
 							<div
 								style={{
-									fontFamily: 'Inter',
+									fontFamily: 'var(--primary-font-family)',
 									fontSize: '11px',
 									lineHeight: '16px',
-									color: '#b0b0b0',
+									color: 'var(--secondary-font)',
 									paddingTop: '8px',
 								}}
 							>
@@ -185,15 +185,15 @@ const ChangeFontPopup = ({ handleClose, show, isAdmin }) => {
 					<div style={{ padding: '32px 0 32px 0', width: '100%' }}>
 						<div
 							style={{
-								border: '1px solid #242424A3',
-								color: '#e4e5e6',
-								backgroundColor: '#181818',
+								border: '1px solid var(--stroke)',
+								color: 'var(--primary-font)',
+								backgroundColor: 'var(--card)',
 								cursor: 'pointer',
 								borderRadius: '100px',
 								padding: '16px 24px',
 								height: '48px',
 								fontSize: '13px',
-								fontFamily: 'Inter',
+								fontFamily: 'var(--primary-font-family)',
 								textAlign: 'center',
 							}}
 							onClick={handleStepChange}

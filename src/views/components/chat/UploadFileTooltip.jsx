@@ -141,7 +141,7 @@ const UploadFileTooltip = ({
 								beforeUpload={() => false} // Prevent default upload behavior
 								maxCount={1} // Allow only one file at a time
 								// accept="image/*" // Accept only images
-								accept=".pdf,.docx,.txt,.md,.json,.png,.jpg,.jpeg"
+								accept=".pdf,.docx,.txt,.md,.json,.png,.jpg,.jpeg,.csv,.xlsx,.xls"
 							>
 								<div className="upload-file-header">
 									<UploadSvg />

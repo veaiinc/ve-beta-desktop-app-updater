@@ -91,7 +91,10 @@ const useChatStream = () => {
 			messageHandlerRef.current = onMessageFunc;
 			const usertoken = localStorage.getItem('usertoken');
 			const workspaceId = localStorage.getItem('workspaceId');
-			const baseUrl = `wss://ai.ap-south-1.ve.ai/${workspaceId}/${sessionId}/multi_agent_chat_streaming?token=${usertoken}`;
+			const region = localStorage.getItem('region') || 'ap-south-1';
+			const baseUrl = `${
+				region === 'ap-south-1' ? 'wss://ai.ap-south-1.ve.ai' : 'wss://ai.us-east-1.ve.ai'
+			}/${workspaceId}/${sessionId}/multi_agent_chat_streaming?token=${usertoken}`;
 
 			if (socketRef.current) {
 				socketRef.current.close();

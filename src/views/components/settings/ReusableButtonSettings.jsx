@@ -64,12 +64,13 @@ const ReusableButtonSettings = ({
 					display: 'flex',
 					alignItems: 'center',
 					gap: '10px',
-					backgroundColor: '#3f3f46',
+					background: 'var(--card)',
 					padding: '8px 16px',
-					borderRadius: '6px',
+					borderRadius: '20px',
 					justifyContent: 'center',
 					cursor: 'pointer',
-					minWidth: '150px',
+					// minWidth: '150px',
+					border: '1px solid var(--stroke)',
 				}}
 			>
 				{icon && <span style={{ display: 'flex', alignItems: 'center' }}>{icon}</span>}
@@ -79,14 +80,18 @@ const ReusableButtonSettings = ({
 						fontStyle: 'normal',
 						fontWeight: '400',
 						lineHeight: '22px',
-						color: '#fff',
+						color: 'var(--primary-font)',
 					}}
 				>
 					{text}
 				</span>
 
 				{loader ? (
-					<Spinner width="10px" height={'10px'} cssstyle={{ border: '1px solid #fff' }} />
+					<Spinner
+						width="10px"
+						height={'10px'}
+						cssstyle={{ border: '1px solid var(--primary-font)' }}
+					/>
 				) : (
 					''
 				)}

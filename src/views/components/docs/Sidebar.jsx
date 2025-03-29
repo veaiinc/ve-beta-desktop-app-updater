@@ -9,7 +9,7 @@ import { ReactComponent as PieSvg } from '../../../assets/svg/tasks/pieHollow.sv
 import { ReactComponent as CostSvg } from '../../../assets/svg/docs/cost.svg';
 import { ReactComponent as ProjectDateSvg } from '../../../assets/svg/docs/projectDate.svg';
 // import { ReactComponent as ActivitySvg } from '../../../assets/svg/docs/activity.svg';
-import { ReactComponent as DuplicateSvg } from '../../../assets/svg/shareAndEarn/copy.svg';
+// import { ReactComponent as DuplicateSvg } from '../../../assets/svg/shareAndEarn/copy.svg';
 import { ReactComponent as DeleteSvg } from '../../../assets/svg/tasks/dustBin.svg';
 import CustomTextArea from '../globalComponents/CusomTextArea';
 import RequiredActions from './RequiredActions';
@@ -23,6 +23,7 @@ import SendProposalModal from '../modalsV2/proposalModals/SendProposalModal.jsx'
 import CopiedModal from '../modalsV2/workflowsModals/CopiedModal.jsx';
 import { fetchOriginSelection } from '../../../helpers/index.js';
 import { useNavigate } from 'react-router-dom';
+import DuplicateSvg from '../../../assets/svg/tasks/DuplicateSvg.jsx';
 
 const initialState = {
 	activeTab: 'preview', // reqActions, preview, activity

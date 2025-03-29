@@ -18,20 +18,6 @@ const actionsList = {
 };
 
 const triggersList = {
-	google: {
-		label: 'Google',
-		icon: <Google />,
-		value: 'google',
-		triggerType: 'app',
-		triggers: [
-			{
-				app: 'gmail',
-				icon: <Google />,
-				label: 'On Message received',
-				event: 'messageReceived',
-			},
-		],
-	},
 	inApp: {
 		label: 'In App',
 		// icon: <InApp />,
@@ -87,6 +73,48 @@ const triggersList = {
 				event: 'delete',
 				module: 'client',
 			},
+			{
+				app: 'inApp',
+				icon: null,
+				label: 'File Created',
+				event: 'create',
+				module: 'createFile',
+			},
+			{
+				app: 'inApp',
+				icon: null,
+				label: 'File Deleted',
+				event: 'delete',
+				module: 'createFile',
+			},
+			{
+				app: 'inApp',
+				icon: null,
+				label: 'Template Created',
+				event: 'create',
+				module: 'template',
+			},
+			{
+				app: 'inApp',
+				icon: null,
+				label: 'Template Deleted',
+				event: 'delete',
+				module: 'template',
+			},
+		],
+	},
+	google: {
+		label: 'Google',
+		icon: <Google />,
+		value: 'google',
+		triggerType: 'app',
+		triggers: [
+			{
+				app: 'gmail',
+				icon: <Google />,
+				label: 'On Message received',
+				event: 'messageReceived',
+			},
 		],
 	},
 };
@@ -121,28 +149,6 @@ const Triggers = ({ onClose, automationId, editMode, activeStepsData, step }) =>
 		}
 	}, [connectedIntegrations]);
 
-	// useEffect(() => {
-	// 	if (activeStepsData) {
-	// 		const trigger = triggersList?.[
-	// 			activeStepsData?.app === 'gmail' ? 'google' : activeStepsData?.app
-	// 		]?.triggers?.find((trigger) => trigger?.event === activeStepsData?.event);
-	// 		if (trigger) {
-	// 			setInfo((prev) => ({ ...prev, selectedTrigger: trigger }));
-	// 		}
-	// 	}
-	// }, [activeStepsData]);
-
-	// useEffect(() => {
-	// 	if (editMode && activeStepsData) {
-	// 		if (activeStepsData?.actionType === 'createTask') {
-	// 			setInfo((prev) => ({ ...prev, activeStage: 'stage2' }));
-	// 		}
-	// 		if (activeStepsData?.actionType === 'createMeeting') {
-	// 			setInfo((prev) => ({ ...prev, activeStage: 'stage3' }));
-	// 		}
-	// 	}
-	// }, [editMode, activeStepsData]);
-
 	const checkConnection = useCallback(
 		(integration) => {
 			if (integration === 'inApp') {
@@ -174,20 +180,38 @@ const Triggers = ({ onClose, automationId, editMode, activeStepsData, step }) =>
 
 	const updateTrigger = useCallback(
 		async (data) => {
-			// updateTriggerInfo({ saveLoader: true });
-			// data.stepId = activeStepsData?._id;
-			// const response = await updateStep(automationId, data);
-			// updateTriggerInfo({ saveLoader: false });
-			// if (response?.[0]) {
-			// 	message?.success('Trigger updated successfully');
-			// 	onClose();
-			// } else {
-			// 	message?.error(response?.[1] || 'Failed to update trigger');
-			// }
+			message?.error('Could not update trigger');
 			onClose();
 		},
 		[updateTriggerInfo],
 	);
+
+	useEffect(() => {
+		if (activeStepsData) {
+			const triggerGroup =
+				triggersList?.[activeStepsData?.app === 'gmail' ? 'google' : activeStepsData?.app];
+
+			if (activeStepsData?.app === 'inApp') {
+				const trigger = triggerGroup?.triggers?.find(
+					(trigger) =>
+						trigger?.module === activeStepsData?.module &&
+						trigger?.event === activeStepsData?.event,
+				);
+
+				if (trigger) {
+					setInfo((prev) => ({ ...prev, selectedTrigger: trigger }));
+				}
+			} else {
+				const trigger = triggerGroup?.triggers?.find(
+					(trigger) => trigger?.event === activeStepsData?.event,
+				);
+
+				if (trigger) {
+					setInfo((prev) => ({ ...prev, selectedTrigger: trigger }));
+				}
+			}
+		}
+	}, [activeStepsData]);
 
 	const onSave = useCallback(
 		(data) => {
@@ -204,9 +228,12 @@ const Triggers = ({ onClose, automationId, editMode, activeStepsData, step }) =>
 		if (activeStepsData) {
 			updateTriggerInfo({ selectedTrigger: null });
 			onClose();
+		} else if (info?.selectedTrigger) {
+			updateTriggerInfo({ selectedTrigger: null });
+		} else {
+			onClose();
 		}
-		updateTriggerInfo({ selectedTrigger: null });
-	}, [onClose, activeStepsData, updateTriggerInfo]);
+	}, [onClose, activeStepsData, updateTriggerInfo, info?.selectedTrigger]);
 
 	const triggerMapper = useMemo(() => {
 		return {
@@ -214,7 +241,7 @@ const Triggers = ({ onClose, automationId, editMode, activeStepsData, step }) =>
 				<GoogleTriggers
 					addNewTrigger={addNewTrigger}
 					selectedTrigger={info?.selectedTrigger}
-					onClose={onClose}
+					onClose={handleOnClose}
 					onSave={onSave}
 					addTriggerLoading={info?.saveLoader}
 					triggerData={info?.selectedTrigger}
@@ -226,7 +253,7 @@ const Triggers = ({ onClose, automationId, editMode, activeStepsData, step }) =>
 				<InAppTriggers
 					addNewTrigger={addNewTrigger}
 					selectedTrigger={info?.selectedTrigger}
-					onClose={onClose}
+					onClose={handleOnClose}
 					onSave={onSave}
 					addTriggerLoading={info?.saveLoader}
 					triggerData={info?.selectedTrigger}
@@ -241,6 +268,7 @@ const Triggers = ({ onClose, automationId, editMode, activeStepsData, step }) =>
 		updateTriggerInfo,
 		connectedIntegrations,
 		activeStepsData,
+		handleOnClose,
 	]);
 
 	return info?.selectedTrigger ? (
@@ -342,31 +370,44 @@ const Step1 = ({ checkConnection, updateTriggerInfo }) => {
 					})
 					.filter(Boolean)}
 
-				{!info.search && (
-					<div className="availableIntegrationsContainer">
-						<h2 className="availableIntegrationHeading">Available Integrations</h2>
-						<div className="availableIntegrationsList">
-							{availableIntegrations?.map((integration) => (
-								<div className="availableIntegrationItem" key={integration.value}>
-									<span className="integrationIcon">{integration.icon}</span>
-									<span className="integrationLabel">{integration.label}</span>
-									{checkConnection(integration.value) ? (
-										<button className="integrationButton">Connected</button>
-									) : (
-										<button
-											className="integrationButton"
-											onClick={() =>
-												(window.location.href = '/settings/integrations')
-											}
+				{!info.search &&
+					(() => {
+						const unconnectedIntegrations = availableIntegrations?.filter(
+							(integration) => !checkConnection(integration?.value),
+						);
+
+						return unconnectedIntegrations?.length > 0 ? (
+							<div className="availableIntegrationsContainer">
+								<h2 className="availableIntegrationHeading">
+									Available Integrations
+								</h2>
+								<div className="availableIntegrationsList">
+									{unconnectedIntegrations?.map((integration) => (
+										<div
+											className="availableIntegrationItem"
+											key={integration?.value}
 										>
-											Connect <RightArrow />
-										</button>
-									)}
+											<span className="integrationIcon">
+												{integration?.icon}
+											</span>
+											<span className="integrationLabel">
+												{integration?.label}
+											</span>
+											<button
+												className="integrationButton"
+												onClick={() =>
+													(window.location.href =
+														'/settings/integrations')
+												}
+											>
+												Connect <RightArrow />
+											</button>
+										</div>
+									))}
 								</div>
-							))}
-						</div>
-					</div>
-				)}
+							</div>
+						) : null;
+					})()}
 			</div>
 		</>
 	);

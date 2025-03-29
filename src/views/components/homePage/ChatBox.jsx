@@ -5,11 +5,9 @@ import { ReactComponent as ArrowUp } from '../../../assets/svg/ai_agents/arrow-u
 import { ReactComponent as ChevronSvg } from '../../../assets/svg/tasks/chevronRightThin.svg';
 import { ReactComponent as MicroscopeLightSvg } from '../../../assets/svg/ai_agents/microscope-light.svg';
 import { ReactComponent as MicroscopeDarkSvg } from '../../../assets/svg/ai_agents/microscope-dark.svg';
-import { ReactComponent as WebLightSvg } from '../../../assets/svg/ai_agents/web-light.svg';
 import { ReactComponent as WebDarkSvg } from '../../../assets/svg/ai_agents/web-dark.svg';
 import { ReactComponent as CloseSvg } from '../../../assets/svg/calendar/close.svg';
 import { ReactComponent as BuildingDarkSvg } from '../../../assets/svg/ai_agents/building-dark.svg';
-import { ReactComponent as BuildingLightSvg } from '../../../assets/svg/ai_agents/building-light.svg';
 import { ReactComponent as TextSvg } from '../../../assets/svg/ai_agents/text.svg';
 import { ReactComponent as DocxSvg } from '../../../assets/svg/ai_agents/docx.svg';
 import { ReactComponent as JsonSvg } from '../../../assets/svg/ai_agents/json.svg';
@@ -32,7 +30,6 @@ import UploadFileTooltip from '../chat/UploadFileTooltip';
 import DateRangeDropdown from '../chat/DateRangeDropdown';
 import moment from 'moment';
 import Voice from '../chat/Voice';
-import Skeleton from 'react-loading-skeleton';
 import { message, Image, Spin, Tooltip } from 'antd';
 import LLMTooltip from '../chat/LLMTooltip';
 import AIMessageLoader from '../chat/AIMessageLoader';
@@ -65,7 +62,6 @@ const modulesOptions = {
 };
 
 const resetChatInfo = {
-	webSearch: false,
 	workspaceSearch: false,
 };
 const fileTypeIcons = {
@@ -77,7 +73,25 @@ const fileTypeIcons = {
 	json: <JsonSvg />,
 	md: <MdSvg />,
 	jpeg: <JpgSvg />,
+	'image/png': <PngSvg />,
+	'image/jpeg': <JpgSvg />,
+	'image/jpg': <JpgSvg />,
+	'application/pdf': <PdfSvg />,
+	'application/docx': <DocxSvg />,
+	'application/txt': <TextSvg />,
+	'application/json': <JsonSvg />,
+	'application/md': <MdSvg />,
+	'application/jpeg': <JpgSvg />,
+	'text/plain': <TextSvg />,
 };
+
+/*
+Note:
+We are using useRef at some places along with useState,
+This is because we want to avoid re-rendering the component when the state changes,
+and useRef does not cause re-rendering when the state changes and it always gives the latest value of the state.
+Dont change this otherwise chat functionality will break.
+*/
 
 const ChatBox = ({
 	outerContainerStyle = {},
@@ -157,6 +171,8 @@ const ChatBox = ({
 	const [previewOpen, setPreviewOpen] = useState(false);
 	const [previewImage, setPreviewImage] = useState('');
 	const textAreaRef = useRef(null);
+	const uploadedImagesRef = useRef(info?.uploadedImages || []);
+	const recentFilesRef = useRef(info?.recentFiles || []);
 
 	useEffect(() => {
 		if (activePromptForChat) {
@@ -168,13 +184,15 @@ const ChatBox = ({
 	useEffect(() => {
 		if (activePayloadForChat) {
 			setInfo((prev) => ({ ...prev, chatLoading: true }));
-			const { payload, localPayload, currentQuery } = activePayloadForChat;
+			const { payload, localPayload, currentQuery, recentFiles = [] } = activePayloadForChat;
 			if (handleSendWebsocketMessage) {
 				handleSendWebsocketMessage(payload, currentQuery);
 			}
 
 			handleStreamSendMessage(payload, localPayload, currentQuery);
 			updateStateValues({ activePayloadForChat: null });
+			recentFilesRef.current = recentFiles;
+			setInfo((prev) => ({ ...prev, recentFiles }));
 		}
 	}, [activePayloadForChat]);
 
@@ -182,9 +200,17 @@ const ChatBox = ({
 		if (currentSessionId) {
 			setInfo((prev) => ({ ...prev, chatSessionId: currentSessionId }));
 		} else {
-			updateStateValues({ currentSessionId: ObjectID().toString() });
+			updateStateValues({ currentSessionId: ObjectID()?.toString() });
 		}
 	}, [currentSessionId]);
+
+	useEffect(() => {
+		if (recentFilesRef?.current?.length > 0 || uploadedImagesRef?.current?.length > 0) {
+			updateStateValues({
+				chatInfo: { ...chatInfo, workspaceSearch: true },
+			});
+		}
+	}, [recentFilesRef?.current, uploadedImagesRef?.current]);
 
 	useEffect(() => {
 		if (followUpQuery) {
@@ -236,7 +262,6 @@ const ChatBox = ({
 	};
 
 	const handleWebSearchClick = () => {
-		if (chatInfo?.deepResearch) return;
 		updateStateValues({
 			chatInfo: {
 				...chatInfo,
@@ -246,11 +271,14 @@ const ChatBox = ({
 	};
 
 	const handleDeepResearchClick = () => {
+		if (recentFilesRef.current?.length > 0 || uploadedImagesRef.current?.length > 0) {
+			return;
+		}
+
 		if (!chatInfo?.deepResearch) {
 			updateStateValues({
 				chatInfo: {
 					...chatInfo,
-					...resetChatInfo,
 					deepResearch: true,
 				},
 			});
@@ -295,23 +323,28 @@ const ChatBox = ({
 	};
 
 	const handleRecentFileClick = (file) => {
-		const isFileAlreadyPresent = info?.recentFiles?.some((ele) => ele?._id === file?._id);
-
+		let udpatedData = [...(recentFilesRef?.current || [])];
+		const isFileAlreadyPresent = recentFilesRef?.current?.some((ele) => ele?._id === file?._id);
+		udpatedData = recentFilesRef?.current?.filter((ele) => ele?._id !== file?._id);
+		recentFilesRef.current = udpatedData;
 		if (isFileAlreadyPresent) {
 			setInfo((prev) => ({
 				...prev,
-				recentFiles: prev?.recentFiles?.filter((ele) => ele?._id !== file?._id),
+				recentFiles: udpatedData,
 			}));
 		} else {
+			udpatedData?.push(file);
+			recentFilesRef.current = udpatedData;
 			setInfo((prev) => ({
 				...prev,
-				recentFiles: [...prev?.recentFiles, file],
+				recentFiles: udpatedData,
 			}));
 		}
 	};
 
 	const handleRemoveFileFromRecentFileClick = (file) => {
-		const updatedRecentFiles = info?.recentFiles?.filter((ele) => ele?._id !== file?._id);
+		const updatedRecentFiles = recentFilesRef?.current?.filter((ele) => ele?._id !== file?._id);
+		recentFilesRef.current = updatedRecentFiles;
 		setInfo((prev) => ({
 			...prev,
 			recentFiles: updatedRecentFiles,
@@ -360,6 +393,7 @@ const ChatBox = ({
 		async (e, click = null, query = null) => {
 			if (e?.key === 'Enter' || click) {
 				// If Shift+Enter, allow new line
+
 				if (e?.shiftKey) {
 					return;
 				}
@@ -386,14 +420,7 @@ const ChatBox = ({
 							  ]
 							: [];
 
-					if (info?.recentFiles?.length > 0) {
-						query =
-							currentQuery +
-							',' +
-							info?.recentFiles?.map((ele) => ele?.originalFileName).join(',');
-					} else {
-						query = currentQuery;
-					}
+					query = currentQuery;
 
 					const payload = {
 						query,
@@ -409,13 +436,13 @@ const ChatBox = ({
 						payload.screen = moduleHelper[location?.pathname?.split('/')?.[1]];
 					}
 					let localPayload = {};
-					if (info?.uploadedImages?.length) {
-						payload.files = info?.uploadedImages?.map(
+					if (uploadedImagesRef?.current?.length) {
+						payload.files = uploadedImagesRef?.current?.map(
 							(ele) => ele?.name || 'Untitled Image',
 						);
 
 						localPayload = {
-							files: info?.uploadedImages || [],
+							files: uploadedImagesRef?.current || [],
 							handlePreview,
 						};
 					}
@@ -426,8 +453,8 @@ const ChatBox = ({
 					if (
 						!chatInfo?.webSearch &&
 						!chatInfo?.workspaceSearch &&
-						!info?.uploadedImages?.length &&
-						!info?.recentFiles?.length
+						!uploadedImagesRef?.current?.length &&
+						!recentFilesRef?.current?.length
 					) {
 						payload.selected_model = chatInfo?.selectedLLMModel;
 					}
@@ -436,35 +463,50 @@ const ChatBox = ({
 						...prev,
 						uploadedImages: [],
 						chatQuery: '',
-						recentFiles: [],
+						// recentFiles: [],// not clearing the recent files , because they want like sana
 						chatFilters: initialChatFilters,
 					}));
 
 					clearTextArea();
 
+					if (recentFilesRef?.current?.length > 0) {
+						if (payload?.files && payload.files?.length > 0) {
+							payload.files = [
+								...payload.files,
+								...recentFilesRef?.current?.map((ele) => ele?.originalFileName),
+							];
+						} else {
+							payload.files = recentFilesRef?.current?.map(
+								(ele) => ele?.originalFileName,
+							);
+						}
+					}
+
 					if (customChatActions) {
-						return onSend({ payload, localPayload, currentQuery });
+						return onSend({
+							payload,
+							localPayload,
+							currentQuery,
+							recentFiles: recentFilesRef?.current || [],
+						});
 					}
 					handleStreamSendMessage(payload, localPayload, currentQuery);
 					if (handleSendWebsocketMessage) {
-						if (info?.recentFiles?.length > 0) {
-							if (payload?.files && payload.files?.length > 0) {
-								payload.files = [
-									...payload.files,
-									...info?.recentFiles?.map((ele) => ele?.originalFileName),
-								];
-							} else {
-								payload.files = info?.recentFiles?.map(
-									(ele) => ele?.originalFileName,
-								);
-							}
-						}
 						handleSendWebsocketMessage(payload, currentQuery);
 					}
 				}
 			}
 		},
-		[aiChatLoading, onSend, customChatActions, info, chatInfo, activeWorkflowSlugForSmartFile],
+		[
+			aiChatLoading,
+			onSend,
+			customChatActions,
+			info,
+			chatInfo,
+			activeWorkflowSlugForSmartFile,
+			recentFilesRef.current,
+			uploadedImagesRef?.current,
+		],
 	);
 
 	const handleWorkflowSlugSelection = useCallback(
@@ -517,7 +559,6 @@ const ChatBox = ({
 						),
 					},
 				];
-
 				updateApplicationChat(workflowSlug);
 			}
 		},
@@ -526,33 +567,82 @@ const ChatBox = ({
 
 	const handleGlobalImageProcessing = useCallback(
 		async (file) => {
-			const uploadBatchId = ObjectID().toString();
+			const uploadBatchId = ObjectID()?.toString();
 			const payload = {
 				sessionId: info?.chatSessionId,
 				originalFileName: file?.name || 'Untitled file',
 				uploadBatchId,
 			};
 			const response = await handleGlobalUploadImage(file, payload);
-			let uploadedImages = [...info?.uploadedImages];
+			let uploadedImages = [...(uploadedImagesRef?.current || [])];
+			let recentFiles = [...(recentFilesRef?.current || [])];
+			let requiredFileIndex = -1;
+			let isImage = file?.type?.includes('image');
+			if (isImage) {
+				requiredFileIndex = uploadedImages?.findIndex(
+					(ele) => ele?.uniqueId === file?.uniqueId,
+				);
+			} else {
+				requiredFileIndex = recentFiles?.findIndex(
+					(ele) => ele?.uniqueId === file?.uniqueId,
+				);
+			}
+
+			if (requiredFileIndex === -1) {
+				return;
+			}
+
 			if (!response?.[0]) {
-				uploadedImages.splice(file?.uniqueId, 1);
-				setInfo((prev) => ({ ...prev, uploadedImages }));
+				if (isImage) {
+					uploadedImages.splice(requiredFileIndex, 1);
+					uploadedImagesRef.current = uploadedImages;
+				} else {
+					recentFiles.splice(requiredFileIndex, 1);
+					recentFilesRef.current = recentFiles;
+				}
+
+				setInfo((prev) => ({ ...prev, uploadedImages, recentFiles }));
 				return message.error(response?.[1] || 'failed to upload image');
 			}
 			const { _id } = response?.[1] || {};
 			file.fileId = _id;
-			uploadedImages.splice(file?.uniqueId, 1, file);
-			setInfo((prev) => ({ ...prev, uploadedImages }));
+			if (isImage) {
+				uploadedImages.splice(requiredFileIndex, 1, file);
+				uploadedImagesRef.current = uploadedImages;
+			} else {
+				recentFiles.splice(requiredFileIndex, 1, file);
+				recentFilesRef.current = recentFiles;
+			}
+
+			setInfo((prev) => ({ ...prev, uploadedImages, recentFiles }));
 			checkIndividualImageUploadedStatusFunc(file, uploadBatchId);
 		},
-		[info],
+		[info, uploadedImagesRef?.current, recentFilesRef?.current],
 	);
 
 	const checkIndividualImageUploadedStatusFunc = useCallback(
 		async (fileData, uploadBatchId) => {
-			let uploadedImages = [...info?.uploadedImages];
+			let uploadedImages = [...(uploadedImagesRef?.current || [])];
+			let recentFiles = [...(recentFilesRef?.current || [])];
+			let requiredFileIndex = -1;
+			let isImage = fileData?.type?.includes('image');
+
+			if (isImage) {
+				requiredFileIndex = uploadedImages?.findIndex(
+					(ele) => ele?.uniqueId === fileData?.uniqueId,
+				);
+			} else {
+				requiredFileIndex = recentFiles?.findIndex(
+					(ele) => ele?.uniqueId === fileData?.uniqueId,
+				);
+			}
+
+			if (requiredFileIndex === -1) {
+				return;
+			}
+
 			let uploadedCount = 0,
-				maxAttempts = 15,
+				maxAttempts = 90,
 				errorCount = 0,
 				successCount = 0;
 			while (!(uploadedCount && successCount) && maxAttempts) {
@@ -569,62 +659,102 @@ const ChatBox = ({
 					}
 				}
 				//dealying the check
-				await new Promise((resolve) => setTimeout(resolve, 1000));
+				await new Promise((resolve) => setTimeout(resolve, 2000));
 				maxAttempts--;
 			}
-			if (errorCount) {
-				uploadedImages.splice(fileData?.uniqueId, 1);
-				setInfo((prev) => ({ ...prev, uploadedImages }));
+			if (errorCount || maxAttempts === 0) {
+				if (isImage) {
+					uploadedImages.splice(requiredFileIndex, 1);
+					uploadedImagesRef.current = uploadedImages;
+				} else {
+					recentFiles.splice(requiredFileIndex, 1);
+					recentFilesRef.current = recentFiles;
+				}
+
+				setInfo((prev) => ({ ...prev, uploadedImages, recentFiles }));
 				return message.error('Something went wrong while processing the image');
 			}
 			if (uploadedCount && uploadedCount > 0) {
 				fileData.loading = false;
-				uploadedImages.splice(fileData?.uniqueId, 1, fileData);
-				setInfo((prev) => ({ ...prev, uploadedImages }));
+				if (isImage) {
+					uploadedImages.splice(requiredFileIndex, 1, fileData);
+					uploadedImagesRef.current = uploadedImages;
+				} else {
+					recentFiles.splice(requiredFileIndex, 1, fileData);
+					recentFilesRef.current = recentFiles;
+				}
+
+				setInfo((prev) => ({ ...prev, uploadedImages, recentFiles }));
 			}
 		},
-		[info],
+		[info, recentFilesRef?.current, uploadedImagesRef?.current],
 	);
 
-	const handleChange = useCallback(
+	const handleFileAttachmentChange = useCallback(
 		async ({ file }) => {
-			let uploadedImages = [...(info?.uploadedImages || [])];
+			let uploadedImages = [...(uploadedImagesRef?.current || [])];
+			let recentFiles = [...(recentFilesRef?.current || [])];
 			file.preview = await getBase64(file);
 			file.loading = true;
-			file.uniqueId = uploadedImages?.length;
-			uploadedImages.push(file);
+			file.uniqueId = Date?.now() + '_' + Math?.floor(Math?.random() * 1000000);
+
+			if (file.type.includes('image')) {
+				uploadedImages?.push(file);
+				uploadedImagesRef.current = uploadedImages;
+			} else {
+				file.originalFileName = file.name;
+				file.sourceType = file.type;
+				recentFiles?.push(file);
+				recentFilesRef.current = recentFiles;
+			}
 
 			handleGlobalImageProcessing(file);
 
 			setInfo((prev) => ({
 				...prev,
-				// addQuickAction: false,
 				expanded: true,
 				inputExpanded: true,
 				uploadedImages,
+				recentFiles,
 			}));
 		},
-		[handleAiUploadImage, info],
+		[handleAiUploadImage, info, recentFilesRef?.current, uploadedImagesRef?.current],
 	);
 
 	const checkAllUploadLoadingStatus = useCallback(() => {
-		const uploadedImages = [...(info?.uploadedImages || [])];
+		let uploadedImages = [...(uploadedImagesRef.current || [])];
+		let recentFiles = [...(recentFilesRef.current || [])];
 		for (let i = 0; i < uploadedImages?.length; i++) {
 			if (uploadedImages[i]?.loading) {
 				return false;
 			}
 		}
+		for (let i = 0; i < recentFiles?.length; i++) {
+			if (recentFiles?.[i]?.loading) {
+				return false;
+			}
+		}
 		return true;
-	}, [info]);
+	}, [info, recentFilesRef, uploadedImagesRef]);
 
 	const handleRemoveImage = useCallback(
 		(ele) => {
-			const uploadedImages = [...(info?.uploadedImages || [])];
-			uploadedImages.splice(ele?.uniqueId, 1);
+			let uploadedImages = [...(uploadedImagesRef.current || [])];
+
+			let requiredFileIndex = -1;
+			requiredFileIndex = uploadedImages?.findIndex(
+				(file) => ele?.uniqueId === file?.uniqueId,
+			);
+			if (requiredFileIndex === -1) {
+				return;
+			}
+
+			uploadedImages.splice(requiredFileIndex, 1);
+			uploadedImagesRef.current = uploadedImages;
 			setInfo((prev) => ({ ...prev, uploadedImages }));
 			deleteUploadedImageThroughChat(ele?.fileId);
 		},
-		[info],
+		[info, uploadedImagesRef],
 	);
 
 	const handleMicIconClick = useCallback(
@@ -711,7 +841,9 @@ const ChatBox = ({
 	};
 
 	const handleWorkspaceSearchClick = () => {
-		if (chatInfo?.deepResearch) return;
+		if (recentFilesRef?.current?.length > 0 || uploadedImagesRef?.current?.length > 0) {
+			return;
+		}
 		updateStateValues({
 			chatInfo: {
 				...chatInfo,
@@ -828,84 +960,88 @@ const ChatBox = ({
 										) : (
 											<div className="buttons-container">
 												<div className="chat-icons-container">
-													<Tooltip title="Enable Web Search">
+													<Tooltip
+														title={`${
+															chatInfo?.webSearch
+																? 'Disable'
+																: 'Enable'
+														} Web Search`}
+													>
 														<div
 															className="icon-container"
 															onClick={handleWebSearchClick}
 															style={{
 																background: `${
 																	chatInfo?.webSearch
-																		? '#B39DFA'
-																		: '#2E2F33'
-																}`,
-																opacity: `${
-																	chatInfo?.deepResearch
-																		? '0.5'
-																		: '1'
+																		? 'var(--accent-color)'
+																		: 'var(--card-over-card)'
 																}`,
 															}}
 														>
 															<div className="icon">
-																{chatInfo?.webSearch ? (
-																	<WebDarkSvg />
-																) : (
-																	<WebLightSvg />
-																)}
+																<WebDarkSvg />
 															</div>
 														</div>
 													</Tooltip>
-													<Tooltip title="Enable Workspace Search">
+													<Tooltip
+														title={`${
+															chatInfo?.workspaceSearch
+																? 'Disable'
+																: 'Enable'
+														} workspace Search`}
+													>
 														<div
 															className="icon-container"
 															onClick={handleWorkspaceSearchClick}
 															style={{
 																background: `${
 																	chatInfo?.workspaceSearch
-																		? '#B39DFA'
-																		: '#2E2F33'
-																}`,
-																opacity: `${
-																	chatInfo?.deepResearch
-																		? '0.5'
-																		: '1'
+																		? 'var(--accent-color)'
+																		: 'var(--card)'
 																}`,
 															}}
 														>
 															<div className="icon">
-																{chatInfo?.workspaceSearch ? (
-																	<BuildingDarkSvg />
-																) : (
-																	<BuildingLightSvg />
-																)}
+																<BuildingDarkSvg />
 															</div>
 														</div>
 													</Tooltip>
 
-													<Tooltip title="Enable Deep Research">
+													<Tooltip
+														title={`${
+															chatInfo?.deepResearch
+																? 'Disable Deep Research'
+																: 'Enable Deep Research'
+														} `}
+													>
 														<div
 															className="icon-container"
 															onClick={handleDeepResearchClick}
 															style={{
 																background: `${
 																	chatInfo?.deepResearch
-																		? '#B39DFA'
-																		: '#2E2F33'
+																		? 'var(--accent-color)'
+																		: 'var(--card)'
+																}`,
+																opacity: `${
+																	recentFilesRef.current?.length >
+																		0 ||
+																	uploadedImagesRef.current
+																		?.length > 0
+																		? '0.5'
+																		: '1'
 																}`,
 															}}
 														>
 															<div className="icon">
-																{chatInfo?.deepResearch ? (
-																	<MicroscopeDarkSvg />
-																) : (
-																	<MicroscopeLightSvg />
-																)}
+																<MicroscopeDarkSvg />
 															</div>
 														</div>
 													</Tooltip>
 
 													<UploadFileTooltip
 														fileTypeIcons={fileTypeIcons}
-														handleChange={handleChange}
+														handleChange={handleFileAttachmentChange}
 														isUploadFileOpen={info?.isUploadFileOpen}
 														setIsUploadFileOpen={(value) => {
 															if (chatInfo?.deepResearch) return;
@@ -917,9 +1053,9 @@ const ChatBox = ({
 														handleRecentFileClick={
 															handleRecentFileClick
 														}
-														recentFiles={info?.recentFiles}
+														recentFiles={recentFilesRef.current || []}
 													>
-														<Tooltip title="Upload File">
+														<Tooltip title={`Upload File`}>
 															<div
 																className="icon-container"
 																style={{
@@ -934,14 +1070,14 @@ const ChatBox = ({
 																	<PaperClip
 																		width={15}
 																		height={15}
-																		fill={'#f2f2f3'}
+																		fill={'none'}
 																	/>
 																</div>
 															</div>
 														</Tooltip>
 													</UploadFileTooltip>
 
-													<Tooltip title="Add Filters">
+													{/* <Tooltip title={'Add Filters'}>
 														<div
 															className="icon-container"
 															onClick={handleShowFiltersClick}
@@ -957,57 +1093,69 @@ const ChatBox = ({
 																<Filter />
 															</div>
 														</div>
-													</Tooltip>
-													<LLMTooltip
-														selectedModel={chatInfo?.selectedLLMModel}
-														handleOptionClick={
-															handleLLMModelOptionClick
-														}
-														setIsLLMModelOpen={(value) => {
-															if (
-																chatInfo?.deepResearch ||
-																chatInfo?.webSearch ||
-																chatInfo?.workspaceSearch ||
-																info?.uploadedImages?.length ||
-																info?.recentFiles?.length
-															)
-																return;
-															setInfo((prev) => ({
-																...prev,
-																isLLMModelOpen: value,
-															}));
-														}}
-														isOpen={info?.isLLMModelOpen}
-													>
-														<Tooltip title="Select LLM Model">
-															<div
-																className="icon-container"
-																style={{
-																	opacity: `${
-																		chatInfo?.deepResearch ||
-																		chatInfo?.webSearch ||
-																		chatInfo?.workspaceSearch ||
-																		info?.uploadedImages
-																			?.length ||
-																		info?.recentFiles?.length
-																			? '0.5'
-																			: '1'
-																	}`,
-																}}
-															>
-																<div className="icon">
-																	<LLMSvg />
+													</Tooltip> */}
+
+													{!(
+														chatInfo?.deepResearch ||
+														chatInfo?.webSearch ||
+														chatInfo?.workspaceSearch
+													) && (
+														<LLMTooltip
+															selectedModel={
+																chatInfo?.selectedLLMModel
+															}
+															handleOptionClick={
+																handleLLMModelOptionClick
+															}
+															setIsLLMModelOpen={(value) => {
+																if (
+																	chatInfo?.deepResearch ||
+																	chatInfo?.webSearch ||
+																	chatInfo?.workspaceSearch ||
+																	uploadedImagesRef?.current
+																		?.length ||
+																	recentFilesRef?.current?.length
+																)
+																	return;
+																setInfo((prev) => ({
+																	...prev,
+																	isLLMModelOpen: value,
+																}));
+															}}
+															isOpen={info?.isLLMModelOpen}
+														>
+															<Tooltip title="Select LLM Model">
+																<div
+																	className="icon-container"
+																	style={{
+																		opacity: `${
+																			chatInfo?.deepResearch ||
+																			chatInfo?.webSearch ||
+																			chatInfo?.workspaceSearch ||
+																			uploadedImagesRef
+																				?.current?.length ||
+																			recentFilesRef?.current
+																				?.length
+																				? '0.5'
+																				: '1'
+																		}`,
+																	}}
+																>
+																	<div className="icon">
+																		<LLMSvg />
+																	</div>
 																</div>
-															</div>
-														</Tooltip>
-													</LLMTooltip>
+															</Tooltip>
+														</LLMTooltip>
+													)}
 												</div>
 												{info?.chatQuery?.trim()?.length > 0 ? (
 													<div
 														className="click-btn"
 														onClick={(e) => handleSendBtnClick(e)}
 														style={{
-															backgroundColor: '#b2a1e8',
+															backgroundColor:
+																'var(--primary-button)',
 														}}
 													>
 														<ArrowUp />
@@ -1017,7 +1165,8 @@ const ChatBox = ({
 														className="click-btn"
 														onClick={(e) => handleMicIconClick(e)}
 														style={{
-															backgroundColor: '#b2a1e8',
+															backgroundColor:
+																'var(--primary-button)',
 														}}
 													>
 														<AudioSvg />
@@ -1048,9 +1197,9 @@ const ChatBox = ({
 				{/* )} */}
 			</div>
 			<div className="chatbarContainer" style={{ width: '100%' }}>
-				{info?.uploadedImages?.length > 0 ? (
+				{uploadedImagesRef?.current?.length > 0 ? (
 					<div className="imagePreviewBar">
-						{info?.uploadedImages?.map((ele, index) => (
+						{uploadedImagesRef?.current?.map((ele, index) => (
 							<div className="previewOfUploadedImage" key={index}>
 								<img
 									src={ele?.preview}
@@ -1082,14 +1231,21 @@ const ChatBox = ({
 				) : (
 					''
 				)}
-				{info?.recentFiles?.length > 0 && (
+				{recentFilesRef?.current?.length > 0 && (
 					<div className="recent-files-container">
-						{info?.recentFiles?.map((file) => (
+						{recentFilesRef?.current?.map((file) => (
 							<div className="recent-file" key={file?._id}>
 								<div className="file-type-icon">
 									{fileTypeIcons?.[file?.sourceType]}
 								</div>
-								<div className="file-name">{file?.originalFileName}</div>
+								<div
+									className="file-name"
+									style={{ display: 'flex', alignItems: 'center', gap: '10px' }}
+								>
+									{file?.originalFileName}
+
+									{file?.loading && <Spin />}
+								</div>
 								<div
 									className="close-icon-container"
 									onClick={() => handleRemoveFileFromRecentFileClick(file)}

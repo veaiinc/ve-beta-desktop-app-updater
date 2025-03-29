@@ -1,4 +1,4 @@
-import React, { memo, useContext, useEffect, useState, useMemo, useCallback } from 'react';
+import React, { memo, useContext, useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import { default as ReactMarkdown } from 'react-markdown';
 import '../assets/scss/markdown.scss';
 import '../assets/scss/markdownHelper.scss';
@@ -61,10 +61,10 @@ const rehypeCITPlugin = () => {
 
 // Move components outside to prevent recreation on every render
 const baseComponents = {
-	pre: ({ children }) => <pre className="markdown-pre mb-4">{children}</pre>,
-	hr: ({ children }) => <hr className="mb-2" />,
+	pre: ({ children }) => <pre className="markdown-pre mb-4 fade-in">{children}</pre>,
+	hr: ({ children }) => <hr className="mb-2 fade-in" />,
 	ol: ({ children, ...props }) => (
-		<ol className="list-decimal list-outside ml-8 mb-4" {...props}>
+		<ol className=" list-outside ml-8 mb-4 fade-in" {...props}>
 			{children}
 		</ol>
 	),
@@ -73,14 +73,14 @@ const baseComponents = {
 	},
 	ul: ({ children, ...props }) => {
 		return (
-			<ul className="list-decimal list-outside ml-8 mb-4" {...props}>
+			<ul className="list-decimal list-outside ml-8 mb-4 fade-in	" {...props}>
 				{children}
 			</ul>
 		);
 	},
 	strong: ({ children, ...props }) => {
 		return (
-			<span className="font-semibold text-white" {...props}>
+			<span className="font-semibold text-white common-markdown-font " {...props}>
 				{children}
 			</span>
 		);
@@ -88,7 +88,7 @@ const baseComponents = {
 	a: ({ children, ...props }) => {
 		return (
 			<a
-				className="text-blue-500 hover:underline"
+				className="text-blue-500 hover:underline common-markdown-font fade-in"
 				target="_blank"
 				rel="noreferrer"
 				{...props}
@@ -99,56 +99,56 @@ const baseComponents = {
 	},
 	h1: ({ children, ...props }) => {
 		return (
-			<h1 className="text-3xl font-semibold mt-6 mb-4" {...props}>
+			<h1 className="text-3xl font-semibold mt-6 mb-4 fade-in" {...props}>
 				{children}
 			</h1>
 		);
 	},
 	h2: ({ children, ...props }) => {
 		return (
-			<h2 className="text-2xl font-semibold mt-6 mb-4" {...props}>
+			<h2 className="text-2xl font-semibold mt-6 mb-4 fade-in" {...props}>
 				{children}
 			</h2>
 		);
 	},
 	h3: ({ children, ...props }) => {
 		return (
-			<h3 className="text-xl font-semibold mt-6 mb-2" {...props}>
+			<h3 className="text-xl font-semibold mt-6 mb-2 fade-in" {...props}>
 				{children}
 			</h3>
 		);
 	},
 	h4: ({ children, ...props }) => {
 		return (
-			<h4 className="text-lg font-semibold mt-6 mb-2" {...props}>
+			<h4 className="text-lg font-semibold mt-6 mb-2 fade-in" {...props}>
 				{children}
 			</h4>
 		);
 	},
 	h5: ({ children, ...props }) => {
 		return (
-			<h5 className="text-base font-semibold mt-6 mb-2" {...props}>
+			<h5 className="text-base font-semibold mt-6 mb-2 fade-in" {...props}>
 				{children}
 			</h5>
 		);
 	},
 	h6: ({ children, ...props }) => {
 		return (
-			<h6 className="text-sm font-semibold mt-6 mb-2" {...props}>
+			<h6 className="text-sm font-semibold mt-6 mb-2 fade-in" {...props}>
 				{children}
 			</h6>
 		);
 	},
 	p: ({ children, ...props }) => {
 		return (
-			<p className="text-white  mb-2 mt-2" {...props}>
+			<p className="text-white  mb-2 mt-2 common-markdown-font fade-in" {...props}>
 				{children}
 			</p>
 		);
 	},
 	img: ({ children, ...props }) => {
 		return (
-			<div className="markdown-image-wrapper">
+			<div className="markdown-image-wrapper fade-in">
 				<img
 					className="w-full h-auto"
 					{...props}
@@ -160,29 +160,29 @@ const baseComponents = {
 		);
 	},
 	table: ({ children, ...props }) => (
-		<div className="table-container my-4 overflow-x-auto">
+		<div className="table-container my-4 overflow-x-auto fade-in">
 			<table className="markdown-table w-full" {...props}>
 				{children}
 			</table>
 		</div>
 	),
 	thead: ({ children, ...props }) => (
-		<thead className="bg-gray-800" {...props}>
+		<thead className="bg-gray-800 fade-in" {...props}>
 			{children}
 		</thead>
 	),
 	th: ({ children, ...props }) => (
-		<th className="px-4 py-2 text-left border border-gray-700" {...props}>
+		<th className="px-4 py-2 text-left border border-gray-700 fade-in" {...props}>
 			{children}
 		</th>
 	),
 	td: ({ children, ...props }) => (
-		<td className="px-4 py-2 border border-gray-700" {...props}>
+		<td className="px-4 py-2 border border-gray-700 fade-in" {...props}>
 			{children}
 		</td>
 	),
 	tr: ({ children, ...props }) => (
-		<tr className="border-b border-gray-700 hover:bg-gray-800" {...props}>
+		<tr className="border-b border-gray-700 hover:bg-gray-800 fade-in" {...props}>
 			{children}
 		</tr>
 	),
@@ -222,6 +222,7 @@ const NonMemoizedMarkdown = ({ children, citations }) => {
 			remarkPlugins={remarkPlugins}
 			rehypePlugins={rehypePlugins}
 			components={components}
+			className="markdown-custom-content"
 		>
 			{children}
 		</ReactMarkdown>
@@ -252,11 +253,57 @@ export const TypingEffect = memo(
 		const {
 			documentPreview: { setNoteContent },
 		} = useContext(Context);
-
 		const [isCopiedToClipboard, setIsCopiedToClipboard] = useState(false);
+		const [renderTrigger, setRenderTrigger] = useState(0);
+
+		const chunkSize = 200; // Size of each chunk (200 characters)
+		const textRef = useRef(text); // Store the latest text in a ref
+
+		const chunkRef = useRef(''); // Ref for storing chunk
+		const currentIndexRef = useRef(0); // Ref for storing currentIndex
+		const timeIntervalRef = useRef(null);
+		// useEffect(() => {
+		// 	textRef.current = messageData;
+		// }, [messageData]);
+
+		// useEffect(() => {
+		// 	if (messageData?.messageId) {
+		// 		// setChunk(text);
+		// 		chunkRef.current = text;
+		// 		return;
+		// 	}
+		// 	setTimeout(() => {
+		// 		const interval = setInterval(() => {
+		// 			handleChunkRendering();
+		// 		}, 500);
+		// 		timeIntervalRef.current = interval;
+		// 	}, 50);
+		// }, []);
+
+		// const handleChunkRendering = () => {
+		// 	const currentText = textRef.current?.message;
+
+		// 	if (currentIndexRef.current >= currentText?.length && textRef.current?.messageId) {
+		// 		clearInterval(timeIntervalRef.current);
+		// 		return (timeIntervalRef.current = null);
+		// 	}
+
+		// 	// Slice the current chunk from the text
+		// 	let startIndex = currentIndexRef.current;
+		// 	let endIndex =
+		// 		currentIndexRef.current + chunkSize < currentText?.length
+		// 			? currentIndexRef.current + chunkSize
+		// 			: currentText?.length;
+		// 	let subChunk = currentText?.slice(startIndex, endIndex);
+
+		// 	chunkRef.current += subChunk;
+		// 	currentIndexRef.current = endIndex;
+		// 	setRenderTrigger((prev) => prev + 1);
+		// };
 
 		const handleCopyTextClick = useCallback((text) => {
-			navigator?.clipboard?.writeText(text).then(() => {
+			const textToBeCopied = text?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')?.replace(/\\n/g, '\n');
+			navigator?.clipboard?.writeText(textToBeCopied).then(() => {
 				setIsCopiedToClipboard(true);
 				setTimeout(() => {
 					setIsCopiedToClipboard(false);
@@ -281,7 +328,11 @@ export const TypingEffect = memo(
 
 		return (
 			<div className="typing-effect-container">
-				<Markdown citations={citations}>{text?.replace(/\\n/g, '\n')}</Markdown>
+				<Markdown citations={citations}>
+					{/* {newText?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')?.replace(/\\n/g, '\n')} */}
+					{/* {chunkRef?.current?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')?.replace(/\\n/g, '\n')} */}
+					{text?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')?.replace(/\\n/g, '\n')}
+				</Markdown>
 
 				{messageData?.messageId && (
 					<div className="hover-actions-container">

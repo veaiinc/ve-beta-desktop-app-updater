@@ -5,10 +5,10 @@
 	flex-direction: column;
 	gap: 24px;
 	border-radius: 24px;
-	border: 1px solid rgba(246, 246, 248, 0);
-	color: #000;
+	border: 1px solid var(--stroke);
+	color: var(--primary-font);
 	transition: all 0.3s ease-out;
-	background: rgba(255, 255, 255, 0.1);
+	background: var(--card);
 	// box-shadow: -6px 6px 40px 0px rgba(0, 0, 0, 0.05);
 	backdrop-filter: blur(50px);
 	width: 100%;
@@ -27,14 +27,14 @@
 			border-radius: 20px;
 			width: 221px;
 			height: 238px;
-			background-color: #fff;
+			background-color: var(--card);
 			overflow-y: auto;
 
 			iframe {
 				border-radius: 20px;
-				box-shadow: -77px 98px 35px 0px rgba(0, 0, 0, 0),
-					-49px 63px 32px 0px rgba(0, 0, 0, 0.02), -28px 35px 27px 0px rgba(0, 0, 0, 0.08),
-					-12px 16px 20px 0px rgba(0, 0, 0, 0.13), -3px 4px 11px 0px rgba(0, 0, 0, 0.15);
+				box-shadow: -77px 98px 35px 0px var(--stroke), -49px 63px 32px 0px var(--stroke),
+					-28px 35px 27px 0px var(--stroke), -12px 16px 20px 0px var(--stroke),
+					-3px 4px 11px 0px var(--stroke);
 			}
 		}
 		.labelContentWrapper {
@@ -53,8 +53,8 @@
 				flex-direction: column;
 				gap: 30px;
 				.globalWorkflowTitle {
-					color: white;
-					font-family: Inter;
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
 					font-size: 18px;
 					font-style: normal;
 					font-weight: 600;
@@ -65,8 +65,8 @@
 					white-space: nowrap;
 				}
 				.globalWorkflowSubTitle {
-					color: white;
-					font-family: Inter;
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 400;
@@ -83,10 +83,9 @@
 				align-self: stretch;
 
 				.actionsTitle {
-					// color: #e4e5e6;
-					color: white;
+					color: var(--primary-font);
 					text-align: justify;
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 13px;
 					font-style: normal;
 					font-weight: 500;
@@ -114,10 +113,9 @@
 							gap: 4px;
 
 							.actionBtnTitlestyling {
-								// color: rgba(247, 249, 250, 0.7);'
-								color: white;
+								color: var(--primary-font);
 								text-align: justify;
-								font-family: Inter;
+								font-family: var(--primary-font-family);
 								font-size: 13px;
 								font-style: normal;
 								font-weight: 400;
@@ -148,16 +146,16 @@
 			.labelContentWrapper {
 				.labelContent {
 					.globalWorkflowTitle {
-						color: #fff !important;
-						font-family: Inter !important;
+						color: var(--primary-font) !important;
+						font-family: var(--primary-font-family) !important;
 						font-size: 18px !important;
 						font-style: normal !important;
 						font-weight: 600 !important;
 						line-height: normal !important;
 					}
 					.globalWorkflowSubTitle {
-						color: #fff !important;
-						font-family: Inter !important;
+						color: var(--primary-font) !important;
+						font-family: var(--primary-font-family) !important;
 						font-size: 12px !important;
 						font-style: normal !important;
 						font-weight: 400 !important;
@@ -166,8 +164,8 @@
 				}
 				.actionContainer {
 					.actionsTitle {
-						color: #fff !important;
-						font-family: Inter !important;
+						color: var(--primary-font) !important;
+						font-family: var(--primary-font-family) !important;
 						font-size: 13px !important;
 						font-style: normal !important;
 						font-weight: 500 !important;
@@ -178,9 +176,9 @@
 						margin-left: 0px;
 						.actionBtnWrapper {
 							.actionBtnTitlestyling {
-								color: rgba(255, 255, 255, 0.7) !important;
+								color: var(--primary-font) !important;
 								text-align: justify !important;
-								font-family: Inter !important;
+								font-family: var(--primary-font-family) !important;
 								font-size: 12px !important;
 								font-style: normal !important;
 								font-weight: 400 !important;
@@ -209,16 +207,16 @@
 			.labelContentWrapper {
 				.labelContent {
 					.globalWorkflowTitle {
-						color: #fff !important;
-						font-family: Inter !important;
+						color: var(--primary-font) !important;
+						font-family: var(--primary-font-family) !important;
 						font-size: 18px !important;
 						font-style: normal !important;
 						font-weight: 600 !important;
 						line-height: normal !important;
 					}
 					.globalWorkflowSubTitle {
-						color: #fff !important;
-						font-family: Inter !important;
+						color: var(--primary-font) !important;
+						font-family: var(--primary-font-family) !important;
 						font-size: 12px !important;
 						font-style: normal !important;
 						font-weight: 400 !important;
@@ -227,8 +225,8 @@
 				}
 				.actionContainer {
 					.actionsTitle {
-						color: #fff !important;
-						font-family: Inter !important;
+						color: var(--primary-font) !important;
+						font-family: var(--primary-font-family) !important;
 						font-size: 13px !important;
 						font-style: normal !important;
 						font-weight: 500 !important;
@@ -239,9 +237,9 @@
 						margin-left: 0px;
 						.actionBtnWrapper {
 							.actionBtnTitlestyling {
-								color: rgba(255, 255, 255, 0.7) !important;
+								color: var(--primary-font) !important;
 								text-align: justify !important;
-								font-family: Inter !important;
+								font-family: var(--primary-font-family) !important;
 								font-size: 12px !important;
 								font-style: normal !important;
 								font-weight: 400 !important;
@@ -307,10 +305,10 @@
 	flex-direction: column;
 	gap: 24px;
 	border-radius: 24px;
-	border: 1px solid rgba(246, 246, 248, 0);
-	color: #000;
+	border: 1px solid var(--stroke);
+	color: var(--primary-font);
 	transition: all 0.3s ease-out;
-	background: rgba(255, 255, 255, 0.1);
+	background: var(--card);
 	// box-shadow: -6px 6px 40px 0px rgba(0, 0, 0, 0.05);
 	backdrop-filter: blur(50px);
 	width: 100%;
@@ -329,14 +327,14 @@
 			border-radius: 20px;
 			width: 221px;
 			height: 238px;
-			background-color: #fff;
+			background-color: var(--card);
 			overflow-y: auto;
 
 			iframe {
 				border-radius: 20px;
-				box-shadow: -77px 98px 35px 0px rgba(0, 0, 0, 0),
-					-49px 63px 32px 0px rgba(0, 0, 0, 0.02), -28px 35px 27px 0px rgba(0, 0, 0, 0.08),
-					-12px 16px 20px 0px rgba(0, 0, 0, 0.13), -3px 4px 11px 0px rgba(0, 0, 0, 0.15);
+				box-shadow: -77px 98px 35px 0px var(--stroke), -49px 63px 32px 0px var(--stroke),
+					-28px 35px 27px 0px var(--stroke), -12px 16px 20px 0px var(--stroke),
+					-3px 4px 11px 0px var(--stroke);
 			}
 		}
 		.labelContentWrapper {
@@ -355,8 +353,8 @@
 				flex-direction: column;
 				gap: 30px;
 				.globalWorkflowTitle {
-					color: white;
-					font-family: Inter;
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
 					font-size: 18px;
 					font-style: normal;
 					font-weight: 600;
@@ -367,8 +365,8 @@
 					white-space: nowrap;
 				}
 				.globalWorkflowSubTitle {
-					color: white;
-					font-family: Inter;
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 400;
@@ -385,10 +383,9 @@
 				align-self: stretch;
 
 				.actionsTitle {
-					// color: #e4e5e6;
-					color: white;
+					color: var(--primary-font);
 					text-align: justify;
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 13px;
 					font-style: normal;
 					font-weight: 500;
@@ -416,10 +413,9 @@
 							gap: 4px;
 
 							.actionBtnTitlestyling {
-								// color: rgba(247, 249, 250, 0.7);'
-								color: white;
+								color: var(--primary-font);
 								text-align: justify;
-								font-family: Inter;
+								font-family: var(--primary-font-family);
 								font-size: 13px;
 								font-style: normal;
 								font-weight: 400;
@@ -450,16 +446,16 @@
 			.labelContentWrapper {
 				.labelContent {
 					.globalWorkflowTitle {
-						color: #fff !important;
-						font-family: Inter !important;
+						color: var(--primary-font) !important;
+						font-family: var(--primary-font-family) !important;
 						font-size: 18px !important;
 						font-style: normal !important;
 						font-weight: 600 !important;
 						line-height: normal !important;
 					}
 					.globalWorkflowSubTitle {
-						color: #fff !important;
-						font-family: Inter !important;
+						color: var(--primary-font) !important;
+						font-family: var(--primary-font-family) !important;
 						font-size: 12px !important;
 						font-style: normal !important;
 						font-weight: 400 !important;
@@ -468,8 +464,8 @@
 				}
 				.actionContainer {
 					.actionsTitle {
-						color: #fff !important;
-						font-family: Inter !important;
+						color: var(--primary-font) !important;
+						font-family: var(--primary-font-family) !important;
 						font-size: 13px !important;
 						font-style: normal !important;
 						font-weight: 500 !important;
@@ -480,9 +476,9 @@
 						margin-left: 0px;
 						.actionBtnWrapper {
 							.actionBtnTitlestyling {
-								color: rgba(255, 255, 255, 0.7) !important;
+								color: var(--primary-font) !important;
 								text-align: justify !important;
-								font-family: Inter !important;
+								font-family: var(--primary-font-family) !important;
 								font-size: 12px !important;
 								font-style: normal !important;
 								font-weight: 400 !important;
@@ -511,16 +507,16 @@
 			.labelContentWrapper {
 				.labelContent {
 					.globalWorkflowTitle {
-						color: #fff !important;
-						font-family: Inter !important;
+						color: var(--primary-font) !important;
+						font-family: var(--primary-font-family) !important;
 						font-size: 18px !important;
 						font-style: normal !important;
 						font-weight: 600 !important;
 						line-height: normal !important;
 					}
 					.globalWorkflowSubTitle {
-						color: #fff !important;
-						font-family: Inter !important;
+						color: var(--primary-font) !important;
+						font-family: var(--primary-font-family) !important;
 						font-size: 12px !important;
 						font-style: normal !important;
 						font-weight: 400 !important;
@@ -529,8 +525,8 @@
 				}
 				.actionContainer {
 					.actionsTitle {
-						color: #fff !important;
-						font-family: Inter !important;
+						color: var(--primary-font) !important;
+						font-family: var(--primary-font-family) !important;
 						font-size: 13px !important;
 						font-style: normal !important;
 						font-weight: 500 !important;
@@ -541,9 +537,9 @@
 						margin-left: 0px;
 						.actionBtnWrapper {
 							.actionBtnTitlestyling {
-								color: rgba(255, 255, 255, 0.7) !important;
+								color: var(--primary-font) !important;
 								text-align: justify !important;
-								font-family: Inter !important;
+								font-family: var(--primary-font-family) !important;
 								font-size: 12px !important;
 								font-style: normal !important;
 								font-weight: 400 !important;

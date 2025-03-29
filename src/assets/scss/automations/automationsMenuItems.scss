@@ -1,0 +1,27 @@
+.menuItemsContainer {
+	width: 100px;
+	padding: 8px;
+	background-color: var(--popup, #1a1b1d);
+	border-radius: 12px;
+	list-style: none;
+
+	.menuItem {
+		padding: 6px 8px;
+		width: 100%;
+		border-radius: 8px;
+		cursor: pointer;
+
+		&:hover {
+			background-color: var(--card-hover, #2e2f33);
+		}
+
+		.title {
+			color: var(--primary-font, #f2f2f3);
+			font-family: Inter;
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 22px;
+		}
+	}
+}

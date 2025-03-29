@@ -11,27 +11,40 @@ import { ReactComponent as SidebarClosingSvg } from '../../../assets/svg/sidebar
 import { veAiModulesItemsList } from './sidebarindex';
 import { Tooltip } from 'antd';
 import Notifications from './notifications/Notifications';
-import Chats from './chats/Chats';
+import Notes from './notes/Notes';
+import ChatHistory from './chatHistory/ChatHistory';
+import Cookies from 'js-cookie';
+
 const Sidebar = ({ activeWorkspaceId }) => {
 	const {
+		subscriptionInfo: { renewBanner },
 		profileInfo: { userWorkSpaceList, getUserWorkSpaceList, userDetailsData, getUserDetails },
 		templates: { leftSidebarState, updateStateValues },
 	} = useContext(Context);
 	const location = useLocation();
 	const [showNotificationsDrawer, setShowNotificationsDrawer] = useState(false);
+	const [showNotesDrawer, setShowNotesDrawer] = useState(false);
 	const [showChatsDrawer, setShowChatsDrawer] = useState(false);
 	const [sidebarStates, setsidebarStates] = useState({
 		workSpaceOpen: false,
 		navStyle: 'close',
 		selectedModule: null,
 	});
+	const [hideClosedSidebarIcon, setHideClosedSidebarIcon] = useState(false);
+	const [isOpen, setIsOpen] = useState(() => {
+		return JSON.parse(localStorage.getItem('isOpen')) ?? true;
+	});
+
+	const themePreference = userDetailsData?.theme || 'dark'; // TODO: change this to systemDefault after light theme is good
+	if (themePreference) {
+		localStorage.setItem('theme', themePreference);
+		Cookies.set('theme', themePreference);
+		document.documentElement.setAttribute('theme', themePreference);
+	}
 
 	// conditional margin top for home page
 	const isHome = location?.pathname?.includes('home') || location?.pathname?.includes('notes');
 
-	const [isOpen, setIsOpen] = useState(() => {
-		return JSON.parse(localStorage.getItem('isOpen')) ?? true;
-	});
 	useEffect(() => {
 		localStorage.setItem('isOpen', JSON.stringify(isOpen));
 	}, [isOpen]);
@@ -124,10 +137,12 @@ const Sidebar = ({ activeWorkspaceId }) => {
 						: 'no-submodules'
 				}`}
 				style={{
+					height: renewBanner ? 'calc(100dvh - 41px)' : '100dvh',
 					alignItems: sidebarStates?.workSpaceOpen ? 'flex-start' : ' ',
 					maxHeight: info?.activeRoute === '/home' ? (isOpen ? '' : '') : '',
 					minHeight: info?.activeRoute === '/home' ? (isOpen ? '' : '250px') : '',
 					marginTop: isHome && '0',
+					display: hideClosedSidebarIcon ? 'none' : '',
 				}}
 			>
 				<nav
@@ -147,6 +162,8 @@ const Sidebar = ({ activeWorkspaceId }) => {
 							setIsOpen={setIsOpen}
 							setShowChatsDrawer={setShowChatsDrawer}
 							setShowNotificationsDrawer={setShowNotificationsDrawer}
+							setShowNotesDrawer={setShowNotesDrawer}
+							setHideClosedSidebarIcon={setHideClosedSidebarIcon}
 						/>
 					) : (
 						<Tooltip
@@ -179,7 +196,12 @@ const Sidebar = ({ activeWorkspaceId }) => {
 					showNotificationsDrawer={showNotificationsDrawer}
 					setShowNotificationsDrawer={setShowNotificationsDrawer}
 				/>
-				<Chats showChatsDrawer={showChatsDrawer} setShowChatsDrawer={setShowChatsDrawer} />
+				<Notes showNotesDrawer={showNotesDrawer} setShowNotesDrawer={setShowNotesDrawer} />
+				<ChatHistory
+					showChatsDrawer={showChatsDrawer}
+					setShowChatsDrawer={setShowChatsDrawer}
+					setHideClosedSidebarIcon={setHideClosedSidebarIcon}
+				/>
 			</div>
 
 			{isOpen && <div className="sidebar__overlay"></div>}

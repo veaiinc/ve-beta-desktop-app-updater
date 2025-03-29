@@ -591,10 +591,13 @@ const SendProposalModal = ({
 											<div
 												className="daysButtons"
 												style={{
-													color: info?.expiryInDays === 7 ? '#fff' : '',
+													color:
+														info?.expiryInDays === 7
+															? 'var(--primary-font)'
+															: '',
 													border:
 														info?.expiryInDays === 7
-															? '1px solid #fff'
+															? '1px solid var(--primary-font)'
 															: '',
 												}}
 												onClick={() => handleDaysButtonOnClick(7)}
@@ -604,10 +607,13 @@ const SendProposalModal = ({
 											<div
 												className="daysButtons"
 												style={{
-													color: info?.expiryInDays === 15 ? '#fff' : '',
+													color:
+														info?.expiryInDays === 15
+															? 'var(--primary-font)'
+															: '',
 													border:
 														info?.expiryInDays === 15
-															? '1px solid #fff'
+															? '1px solid var(--primary-font)'
 															: '',
 												}}
 												onClick={() => handleDaysButtonOnClick(15)}
@@ -617,10 +623,13 @@ const SendProposalModal = ({
 											<div
 												className="daysButtons"
 												style={{
-													color: info?.expiryInDays === 30 ? '#fff' : '',
+													color:
+														info?.expiryInDays === 30
+															? 'var(--primary-font)'
+															: '',
 													border:
 														info?.expiryInDays === 30
-															? '1px solid #fff'
+															? '1px solid var(--primary-font)'
 															: '',
 												}}
 												onClick={() => handleDaysButtonOnClick(30)}

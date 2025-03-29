@@ -37,6 +37,8 @@ import {
 	addNewStepsQuery,
 	updateStepsQuery,
 	getFormResponsesListQuery,
+	createBlankWorkflowQuery,
+	createBlankTemplateQuery,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -55,8 +57,10 @@ export const intialState = {
 	templatesListForDocs: null,
 	allEmailTemplates: null,
 	myWorkflows: null,
+	myWorkflowsForProposalPopup: null,
 	workflowslistForFiles: null,
 	myMoreWorkflows: null,
+	myMoreWorkflowsForProposalPopup: null,
 	globalWorkflows: null,
 	globalMoreWorkflows: null,
 	smartFileInfo: null,
@@ -67,13 +71,14 @@ export const intialState = {
 	contractSignedLocalState: null,
 	specificTemplatesInfo: null,
 	smartFileEmailTemplateData: null,
-	requiredActions: null,
+	requiredActions: { actions: [], hasMore: false, loading: true },
 	requiredActionsForTemplate: null,
 	tabItemCount: null,
 	eventsPresetData: null,
 	sendSmartFileSettings: null,
 	aiPredictedData: null,
 	connectUrl: null,
+	connectThirdParties: null,
 	activityLogs: null,
 	moreActivityLogs: null,
 	draftStateWorkflowtemplates: null,
@@ -126,6 +131,32 @@ export const TemplatesState = (props) => {
 			const selectedvariable = fetchMore ? 'myMoreWorkflows' : 'myWorkflows';
 			dispatch({
 				type: Actions.GET_MY_WORKFLOWS_TEMPLATES_INFO_SUCCESS,
+				payload: response?.[1]?.data?.templates,
+				selectedvariable,
+			});
+		} else {
+			console.log('api failed ==>getTemplates', response);
+		}
+	};
+
+	const getMyWorkflowsForProposalPopup = async (payload, fetchMore = false) => {
+		let workspaceId = localStorage.getItem('workspaceId');
+		let usertoken = localStorage.getItem('usertoken');
+
+		const response = await service.query(
+			getTemmplatesQuery,
+			payload,
+			workspaceId,
+			usertoken,
+			'workflows_Api',
+		);
+
+		if (response?.[0]) {
+			const selectedvariable = fetchMore
+				? 'myMoreWorkflowsForProposalPopup'
+				: 'myWorkflowsForProposalPopup';
+			dispatch({
+				type: Actions.GET_MY_WORKFLOWS_TEMPLATES_FOR_PROPOSAL_POPUP_INFO_SUCCESS,
 				payload: response?.[1]?.data?.templates,
 				selectedvariable,
 			});
@@ -1340,6 +1371,26 @@ export const TemplatesState = (props) => {
 		}
 	};
 
+	const getConnectedThirdParties = async () => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const path = `/connect-account/${workspaceId}`;
+			const usertoken = localStorage.getItem('usertoken');
+			const type = 'third_party_integrations_api';
+			const response = await Service?.fetchGet(path, usertoken, type);
+			return response;
+			// if (response?.[0] === true) {
+			// 	dispatch({
+			// 		type: Actions?.SET_CONNECTED_THIRDPARTIES,
+			// 		payload: response?.[1],
+			// 	});
+			// } else {
+			// 	console.log('api failed==>getConnectedThirdParties', response);
+			// }
+		} catch (error) {
+			console.log('error==>getConnectedThirdParties', error);
+		}
+	};
 	const getActivityLogs = async (payload, fetchMore = false) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
@@ -1931,7 +1982,7 @@ export const TemplatesState = (props) => {
 		}
 	};
 
-	const getRecentChatMessages = async (sessionId, page = 1, fetchMore = false, limit = 10) => {
+	const getRecentChatMessages = async (sessionId, page = 1, fetchMore = false, limit = 1000) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
@@ -1958,6 +2009,47 @@ export const TemplatesState = (props) => {
 			console.log('errror ==>getRecentChatMessages', error);
 		}
 	};
+	const createBlankWorkflow = async (payload) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				createBlankWorkflowQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+			if (response?.[0]) {
+				return response;
+			} else {
+				return response;
+			}
+		} catch (error) {
+			console.log('error==>createBlankWorkflow', error);
+		}
+	};
+
+	const createBlankTemplate = async (payload) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				createBlankTemplateQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+			if (response?.[0]) {
+				return response;
+			} else {
+				return response;
+			}
+		} catch (error) {
+			console.log('error==>createBlankTemplate', error);
+		}
+	};
 
 	const getLLMModels = async () => {
 		try {
@@ -1979,9 +2071,11 @@ export const TemplatesState = (props) => {
 			console.log('errror ==>getLLMModels', error);
 		}
 	};
+
 	return {
 		...state,
 		getMyWorkflows,
+		getMyWorkflowsForProposalPopup,
 		resetTemplateState,
 		getClientList,
 		getClientListForDocs,
@@ -2053,5 +2147,8 @@ export const TemplatesState = (props) => {
 		handleStreamIncomingMessage,
 		handleStreamMessageChunk,
 		getLLMModels,
+		createBlankWorkflow,
+		createBlankTemplate,
+		getConnectedThirdParties,
 	};
 };

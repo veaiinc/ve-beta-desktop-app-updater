@@ -7,7 +7,18 @@ import Spinner from '../../../components/loaders/Spinner';
 import { message, Spin } from 'antd';
 import ReactModal from '../../modalsV2';
 
-const AddOnPlans = ({ addOnsLoading = false, isOpen, closeModal, subscriptionState }) => {
+const customStyles = {
+	content: { zIndex: 1003 },
+	overlay: { zIndex: 1002 },
+};
+
+const AddOnPlans = ({
+	addOnsLoading = false,
+	isOpen,
+	closeModal,
+	subscriptionState,
+	handleToggleSubscriptionState,
+}) => {
 	const [info, setInfo] = useState({
 		addOnPurchaseLoader: false,
 		planPurchaseId: null,
@@ -17,8 +28,7 @@ const AddOnPlans = ({ addOnsLoading = false, isOpen, closeModal, subscriptionSta
 		checkoutLoader: false,
 		initialLoader: true,
 	});
-
-	let {
+	const {
 		authInfo: { currentPlanAddOns },
 		subscriptionInfo: { purchaseAddOnPlan, subscriptionPlans, purchaseSubscriptionPlan },
 	} = useContext(Context);
@@ -30,6 +40,23 @@ const AddOnPlans = ({ addOnsLoading = false, isOpen, closeModal, subscriptionSta
 				subscriptionState === 'upgradeSubscription' ? subscriptionPlans : currentPlanAddOns,
 		}));
 	}, [subscriptionState, subscriptionPlans, currentPlanAddOns]);
+
+	const handleToggle = (state) => {
+		setInfo((prev) => ({ ...prev, addOns: [], totalPrice: 0 }));
+		handleToggleSubscriptionState(state);
+	};
+
+	// const handleAddOnsClick = useCallback(async () => {
+	// 	if (addOnPlansExists) {
+	// 		setInfo((prev) => ({
+	// 			...prev,
+	// 			subscriptionState: 'addOnPlans',
+	// 			isOpen: true,
+	// 		}));
+	// 	} else {
+	// 		message?.error('No Add-on Plans found!');
+	// 	}
+	// }, [currentPlanAddOns]);
 
 	const handleCheckout = async () => {
 		if (info?.checkoutLoader) {
@@ -83,7 +110,7 @@ const AddOnPlans = ({ addOnsLoading = false, isOpen, closeModal, subscriptionSta
 
 			return {
 				...prev,
-				totalPrice: prev?.totalPrice + addOn?.totalPrice,
+				totalPrice: prev?.totalPrice + (addOn?.totalPrice ?? 0),
 				addOns,
 			};
 		});
@@ -112,29 +139,30 @@ const AddOnPlans = ({ addOnsLoading = false, isOpen, closeModal, subscriptionSta
 
 	const handleAddingAddOn = (addOn) => {
 		setInfo((prevInfo) => {
-			const updatedAddOns = prevInfo?.addOns?.map((item) => {
-				if (item?._id === addOn?._id) {
-					return { ...item, count: item?.count + 1 };
-				}
-				return item;
-			});
+			const prevAddOns = prevInfo?.addOns ?? [];
+			let totalPrice = prevInfo?.totalPrice ?? 0;
 
-			// If addOn doesn't exist in the list, add it
-			if (!updatedAddOns?.find((item) => item?._id === addOn?._id)) {
-				updatedAddOns?.push({ ...addOn, count: 1 });
+			const existingAddOnIndex = prevAddOns?.findIndex((item) => item?._id === addOn?._id);
+
+			let updatedAddOns;
+			if (existingAddOnIndex >= 0) {
+				updatedAddOns = [...prevAddOns];
+				updatedAddOns[existingAddOnIndex] = {
+					...updatedAddOns?.[existingAddOnIndex],
+					count: updatedAddOns?.[existingAddOnIndex]?.count + 1,
+				};
+			} else {
+				updatedAddOns = [...prevAddOns, { ...addOn, count: 1 }];
 			}
+
+			totalPrice += addOn?.totalPrice ?? 0;
 
 			return {
 				...prevInfo,
 				addOns: updatedAddOns,
-				totalPrice: prevInfo?.totalPrice + addOn?.totalPrice,
+				totalPrice,
 			};
 		});
-	};
-
-	const customStyles = {
-		content: { zIndex: 1003 },
-		overlay: { zIndex: 1002 },
 	};
 
 	return (
@@ -153,10 +181,28 @@ const AddOnPlans = ({ addOnsLoading = false, isOpen, closeModal, subscriptionSta
 								? 'Subscription Plans'
 								: 'Add-Ons for your current plan'}
 						</h1>
+						<div className="tabs-wrapper">
+							<button
+								className={`tab-button ${
+									subscriptionState === 'upgradeSubscription' ? 'active' : ''
+								}`}
+								onClick={() => handleToggle('upgradeSubscription')}
+							>
+								Subscription
+							</button>
+							<button
+								className={`tab-button ${
+									subscriptionState === 'addOnPlans' ? 'active' : ''
+								}`}
+								onClick={() => handleToggle('addOnPlans')}
+							>
+								Add-Ons
+							</button>
+						</div>
 						{info?.totalPrice > 0 && (
 							<div className="checkoutContainer">
 								<div className="total">
-									Total : {info?.addOns[0]?.currency === 'INR' ? '₹ ' : '$ '}
+									Total : {info?.addOns?.[0]?.currency === 'INR' ? '₹ ' : '$ '}
 									{info?.totalPrice}
 								</div>
 								<div className="checkout" onClick={handleCheckout}>
@@ -179,11 +225,9 @@ const AddOnPlans = ({ addOnsLoading = false, isOpen, closeModal, subscriptionSta
 									const {
 										_id: planId,
 										plan,
-										isRecurring,
-										recurringType,
+										subscriptionType,
 										totalPrice,
 										currency,
-										count,
 									} = addOn;
 
 									return (
@@ -199,12 +243,12 @@ const AddOnPlans = ({ addOnsLoading = false, isOpen, closeModal, subscriptionSta
 													</span>
 													<span
 														className={`priceDuration ${
-															!isRecurring ? 'oneTime' : ''
+															!subscriptionType ? 'oneTime' : ''
 														}`}
 													>
-														{isRecurring
-															? `/ ${recurringType}`
-															: 'Yearly'}
+														{subscriptionType
+															? `/ ${subscriptionType}`
+															: ''}
 													</span>
 												</div>
 

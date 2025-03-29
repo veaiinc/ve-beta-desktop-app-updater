@@ -1,0 +1,37 @@
+import React, { memo } from 'react';
+
+const EditSvg = () => {
+	return (
+		<svg
+			xmlns="http://www.w3.org/2000/svg"
+			width="20"
+			height="20"
+			viewBox="0 0 20 20"
+			fill="none"
+		>
+			<path
+				d="M8.125 15.1563H5.3125C5.18818 15.1563 5.06895 15.1069 4.98104 15.019C4.89314 14.9311 4.84375 14.8119 4.84375 14.6876V12.069C4.84381 11.9449 4.89312 11.8258 4.98086 11.738L12.2066 4.51219C12.2945 4.42434 12.4137 4.375 12.538 4.375C12.6623 4.375 12.7814 4.42434 12.8693 4.51219L15.4879 7.12898C15.5757 7.21688 15.6251 7.33606 15.6251 7.46033C15.6251 7.5846 15.5757 7.70378 15.4879 7.79168L8.125 15.1563Z"
+				stroke="var(--primary-font)"
+				strokeWidth="0.9375"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+			<path
+				d="M15.1562 15.1562H8.125"
+				stroke="var(--primary-font)"
+				strokeWidth="0.9375"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+			<path
+				d="M10.4688 6.25L13.75 9.53125"
+				stroke="var(--primary-font)"
+				strokeWidth="0.9375"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+		</svg>
+	);
+};
+
+export default memo(EditSvg);

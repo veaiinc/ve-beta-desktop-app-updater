@@ -338,7 +338,7 @@ const GlobalWorkflows = () => {
 									type="text"
 									placeholder="search"
 									className="search_bar"
-									style={{ color: 'white' }}
+									style={{ color: 'var(--primary-font)' }}
 									value={searchQuery}
 									onChange={handleSearch}
 								/>
@@ -346,7 +346,7 @@ const GlobalWorkflows = () => {
 									style={{
 										fontSize: '18px',
 										paddingBottom: '30px',
-										color: 'white',
+										color: 'var(--primary-font)',
 										fontWeight: '400',
 									}}
 								>

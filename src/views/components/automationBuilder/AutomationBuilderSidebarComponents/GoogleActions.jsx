@@ -17,10 +17,17 @@ import {
 import { message } from 'antd';
 import Spinner from '../../loaders/Spinner';
 import validator from 'validator';
-const GoogleActions = ({ onBack, onSave, loading, selectedAction, activeStepsData }) => {
+const GoogleActions = ({
+	onBack,
+	onSave,
+	loading,
+	selectedAction,
+	activeStepsData,
+	handleChangeClick,
+}) => {
 	const {
 		templates: { allEmailTemplates },
-		automationBuilder: { connectedIntegrations, getAutomation, addStep, variables },
+		automationBuilder: { connectedIntegrations, variables },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		title: '',
@@ -87,6 +94,14 @@ const GoogleActions = ({ onBack, onSave, loading, selectedAction, activeStepsDat
 	const updateInfo = useCallback((data) => {
 		setInfo((prevInfo) => ({ ...prevInfo, ...data }));
 	}, []);
+
+	const onChangeButtonClick = useCallback(() => {
+		if (activeStepsData) {
+			handleChangeClick(activeStepsData?.app);
+		} else {
+			onBack();
+		}
+	}, [handleChangeClick, activeStepsData, onBack]);
 
 	const changeSubjectOrEmailBody = useCallback(
 		(updatedData) => {
@@ -192,6 +207,7 @@ const GoogleActions = ({ onBack, onSave, loading, selectedAction, activeStepsDat
 					modifiedOnSave={modifiedOnSave}
 					loading={loading}
 					inputBody={activeStepsData?.inputBody || null}
+					openPreviewAndEditModal={() => updateInfo({ previewAndEdit: true })}
 				/>
 			),
 			sendMessage: (
@@ -204,6 +220,8 @@ const GoogleActions = ({ onBack, onSave, loading, selectedAction, activeStepsDat
 					modifiedOnSave={modifiedOnSave}
 					loading={loading}
 					inputBody={activeStepsData?.inputBody || null}
+					variables={variables}
+					openPreviewAndEditModal={() => updateInfo({ previewAndEdit: true })}
 				/>
 			),
 		};
@@ -221,53 +239,57 @@ const GoogleActions = ({ onBack, onSave, loading, selectedAction, activeStepsDat
 	return (
 		<div className="googleActionsContainer">
 			<HeaderComponent
-				heading={selectedAction?.actionLabel}
+				heading={
+					info?.emailTemplateIsShown ? 'Email Templates' : selectedAction?.actionLabel
+				}
 				onBack={
 					info?.emailTemplateIsShown
 						? () => updateInfo({ emailTemplateIsShown: false })
 						: onBack
 				}
 			/>
-			{info?.emailTemplateIsShown ? (
-				<div className="notificationEmailTemplatesContainer">
-					{info?.emailTemplates?.map((ele, index) => (
-						<div
-							className="emailTemplatesCard"
-							key={index}
-							style={{
-								backgroundColor:
-									ele?._id === info?.selectedEmailTemplate?._id ? '#202123' : '',
-							}}
-							onClick={() =>
-								updateInfo({
-									selectedEmailTemplate: ele,
-									emailTemplateIsShown: false,
-								})
-							}
-						>
-							<div className="emailTemplateCardContent">
-								<span className="emailTemplateTitle">{ele?.title}</span>
-								<span className="emailTemplateSubjectStyling">{ele?.subject}</span>
-							</div>
 
-							{ele?._id === info?.selectedEmailTemplate?._id ? <FilledTick /> : ''}
+			<div
+				className={`notificationEmailTemplatesContainer ${
+					info?.emailTemplateIsShown ? 'active' : ''
+				}`}
+			>
+				{info?.emailTemplates?.map((ele, index) => (
+					<div
+						className="emailTemplatesCard"
+						key={index}
+						style={{
+							backgroundColor:
+								ele?._id === info?.selectedEmailTemplate?._id ? '#202123' : '',
+						}}
+						onClick={() =>
+							updateInfo({
+								selectedEmailTemplate: ele,
+								emailTemplateIsShown: false,
+							})
+						}
+					>
+						<div className="emailTemplateCardContent">
+							<span className="emailTemplateTitle">{ele?.title}</span>
+							<span className="emailTemplateSubjectStyling">{ele?.subject}</span>
 						</div>
-					))}
-				</div>
-			) : (
-				<>
-					<ActionDetailsBlock
-						title={info?.title}
-						description={info?.description}
-						updaterFn={updateInfo}
-						onChangeButtonClick={onBack}
-						actionLabel={selectedAction?.actionLabel}
-					/>
-					<div className="googleActionsContainerBody">
-						{actionMapper?.[selectedAction?.actionType]}
+
+						{ele?._id === info?.selectedEmailTemplate?._id ? <FilledTick /> : ''}
 					</div>
-				</>
-			)}
+				))}
+			</div>
+
+			<ActionDetailsBlock
+				title={info?.title}
+				description={info?.description}
+				updaterFn={updateInfo}
+				onChangeButtonClick={onChangeButtonClick}
+				actionLabel={selectedAction?.actionLabel}
+			/>
+			<div className="googleActionsContainerBody">
+				{actionMapper?.[selectedAction?.actionType]}
+			</div>
+
 			<EditAndViewEmailTemplateModal
 				open={info?.previewAndEdit}
 				closeModal={() => updateInfo({ previewAndEdit: false })}

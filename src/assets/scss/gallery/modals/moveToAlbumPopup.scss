@@ -1,109 +1,109 @@
 .moveToAlbumPopupMainContainer {
-    display: flex;
-    width: 469px;
-    padding: 40px;
-    flex-direction: column;
-    gap: 24px;
-    border-radius: 32px;
-    background: #151515;
-    .headingContainer {
-        display: flex;
-        justify-content: space-between;
-        .heading {
-            color: #fafafa;
-            text-align: center;
-            font-size: 18px;
-            font-weight: 500;
-            line-height: 26px;
-        }
-        .closeIcon {
-            color: #979797;
-            font-size: 13px;
-            font-weight: 400;
-            line-height: 22px;
-            letter-spacing: 0.26px;
-            text-transform: capitalize;
-        }
-    }
-    .albumContainer {
-        .listAlbums {
-            p {
-                color: #979797;
-                font-size: 16px;
-                font-weight: 400;
-                line-height: 22px;
-                letter-spacing: 0.32px;
-            }
-            .currentAlbum {
-                display: flex;
-                align-items: center;
-                gap: 8px;
-                padding: 10px 16px;
-                .activeAlbum {
-                    color: #fafafa;
-                    line-height: 16px;
-                }
-            }
-            .listAlbumsContainer {
-                max-height: 200px;
-                overflow-y: auto;
-                .albumCard {
-                    display: flex;
-                    padding: 10px 16px;
-                    justify-content: space-between;
-                    align-items: center;
-                    cursor: pointer;
-                    border-top: 1px solid #262626;
-                    &:hover {
-                        background-color: #262626;
-                    }
-                }
-                .active {
-                    background-color: #262626;
-                }
-            }
-        }
-        .createNewAlbumContainer {
-            display: flex;
-            padding: 10px 0px;
-            align-items: center;
-            color: #6055ec;
-            font-size: 16px;
-            font-weight: 400;
-            line-height: 14px;
-            letter-spacing: 0.32px;
-            cursor: pointer;
-        }
-        .errorText {
-            color: #ff5757;
-            font-size: 12px;
-            font-weight: 400;
-            line-height: 16px;
-            letter-spacing: 0.24px;
-        }
-        .buttonContainer {
-            display: flex;
-            justify-content: flex-end;
-            p {
-                display: flex;
-                padding: 16px 24px;
-                justify-content: center;
-                align-items: center;
-                font-size: 13px;
-                font-weight: 500;
-                line-height: 16px;
-                letter-spacing: 0.26px;
-                color: #fafafa;
-                border-radius: 100px;
-                cursor: pointer;
-            }
+	display: flex;
+	width: 469px;
+	padding: 40px;
+	flex-direction: column;
+	gap: 24px;
+	border-radius: 32px;
+	background: var(--background-color);
+	.headingContainer {
+		display: flex;
+		justify-content: space-between;
+		.heading {
+			color: var(--primary-font);
+			text-align: center;
+			font-size: 18px;
+			font-weight: 500;
+			line-height: 26px;
+		}
+		.closeIcon {
+			color: var(--secondary-font);
+			font-size: 13px;
+			font-weight: 400;
+			line-height: 22px;
+			letter-spacing: 0.26px;
+			text-transform: capitalize;
+		}
+	}
+	.albumContainer {
+		.listAlbums {
+			p {
+				color: var(--secondary-font);
+				font-size: 16px;
+				font-weight: 400;
+				line-height: 22px;
+				letter-spacing: 0.32px;
+			}
+			.currentAlbum {
+				display: flex;
+				align-items: center;
+				gap: 8px;
+				padding: 10px 16px;
+				.activeAlbum {
+					color: var(--primary-font);
+					line-height: 16px;
+				}
+			}
+			.listAlbumsContainer {
+				max-height: 200px;
+				overflow-y: auto;
+				.albumCard {
+					display: flex;
+					padding: 10px 16px;
+					justify-content: space-between;
+					align-items: center;
+					cursor: pointer;
+					border-top: 1px solid #262626;
+					&:hover {
+						background-color: var(--background-color);
+					}
+				}
+				.active {
+					background-color: var(--background-color);
+				}
+			}
+		}
+		.createNewAlbumContainer {
+			display: flex;
+			padding: 10px 0px;
+			align-items: center;
+			color: #6055ec;
+			font-size: 16px;
+			font-weight: 400;
+			line-height: 14px;
+			letter-spacing: 0.32px;
+			cursor: pointer;
+		}
+		.errorText {
+			color: var(--error);
+			font-size: 12px;
+			font-weight: 400;
+			line-height: 16px;
+			letter-spacing: 0.24px;
+		}
+		.buttonContainer {
+			display: flex;
+			justify-content: flex-end;
+			p {
+				display: flex;
+				padding: 16px 24px;
+				justify-content: center;
+				align-items: center;
+				font-size: 13px;
+				font-weight: 500;
+				line-height: 16px;
+				letter-spacing: 0.26px;
+				color: #fafafa;
+				border-radius: 100px;
+				cursor: pointer;
+			}
 
-            .moveToAlbumButton {
-                background-color: #6055ec;
-            }
-        }
-    }
+			.moveToAlbumButton {
+				background-color: #6055ec;
+			}
+		}
+	}
 }
 .ReactModal__Overlay:has(> .moveAlbumContainer) {
-    z-index: 5;
+	z-index: 5;
 }

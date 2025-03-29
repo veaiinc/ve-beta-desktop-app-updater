@@ -15,6 +15,7 @@ import HeaderComponent from './HeaderComponent';
 import GoogleActions from './GoogleActions';
 import SlackActions from './SlackActions';
 import CreateMeeting from './CreateMeeting';
+import Delay from './Delay';
 
 const integrations = [
 	{
@@ -37,11 +38,15 @@ const actionGroups = [
 		actions: [
 			{
 				actionLabel: 'Create Document',
-				actionType: 'createForm',
+				actionType: 'createFile',
 			},
 			{
 				actionLabel: 'Create Task',
 				actionType: 'createTask',
+			},
+			{
+				actionLabel: 'Delay',
+				actionType: 'delay',
 			},
 			// {
 			// 	actionLabel: 'Create Meeting',
@@ -73,10 +78,12 @@ const actionGroups = [
 			{
 				actionLabel: 'Reply to message',
 				actionType: 'replyMessage',
+				hide: true,
 			},
 			{
 				actionLabel: 'Send Message',
 				actionType: 'sendMessage',
+				hide: true,
 			},
 		],
 	},
@@ -92,6 +99,7 @@ const actionGroups = [
 			{
 				actionLabel: 'Send Message',
 				actionType: 'sendMessage',
+				hide: true,
 			},
 			// {
 			// 	actionLabel: 'Delete Message',
@@ -144,6 +152,7 @@ const Actions = ({
 		selectedAction: null,
 		previousStepId: '',
 		connectedIntegrations: ['inApp'],
+		selectedGroupId: '',
 	});
 
 	useEffect(() => {
@@ -156,8 +165,8 @@ const Actions = ({
 		if (activeStepsData) {
 			updateInfo({
 				selectedAction: {
-					actionType: activeStepsData?.actionType,
-					groupId: activeStepsData?.app,
+					actionType: activeStepsData?.actionType || activeStepsData?.type,
+					groupId: activeStepsData?.app || 'inApp',
 					actionLabel: actionGroups
 						?.find((group) => group?._id === activeStepsData?.app)
 						?.actions?.find(
@@ -170,9 +179,12 @@ const Actions = ({
 
 	useEffect(() => {
 		if (connectedIntegrations) {
+			const connected = Object?.entries(connectedIntegrations)
+				?.map(([key, value]) => (value?.length > 0 ? key : null))
+				?.filter(Boolean);
 			setInfo((prev) => ({
 				...prev,
-				connectedIntegrations: [...Object.keys(connectedIntegrations), 'inApp'],
+				connectedIntegrations: [...connected, 'inApp'],
 			}));
 		}
 	}, [connectedIntegrations]);
@@ -182,7 +194,7 @@ const Actions = ({
 	};
 
 	const addNode = useCallback(
-		async (data) => {
+		async (data, hasAppType = true) => {
 			if (info?.saveLoader) {
 				return;
 			}
@@ -193,7 +205,8 @@ const Actions = ({
 
 			const payload = {
 				type: 'action',
-				app: 'inApp',
+				isHidden: false,
+				...(hasAppType && { app: 'inApp' }),
 				isEnabled: true,
 				previousStepId,
 				...(previousStepPath && { previousStepPath }),
@@ -211,7 +224,7 @@ const Actions = ({
 	);
 
 	const updateNode = useCallback(
-		async (data) => {
+		async (data, hasAppType = true) => {
 			if (info?.saveLoader) {
 				return;
 			}
@@ -219,7 +232,7 @@ const Actions = ({
 
 			const payload = {
 				type: 'action',
-				app: 'inApp',
+				...(hasAppType && { app: 'inApp' }),
 				isEnabled: true,
 				stepId: activeStepsData?._id,
 				...data,
@@ -228,7 +241,7 @@ const Actions = ({
 			if (response?.[0]) {
 				onClose();
 			} else {
-				message.error('Failed to add step');
+				message.error('Failed to update step');
 			}
 			setInfo((prev) => ({ ...prev, saveLoader: false }));
 		},
@@ -236,11 +249,11 @@ const Actions = ({
 	);
 
 	const onSave = useCallback(
-		(data) => {
+		(...data) => {
 			if (activeStepsData) {
-				updateNode(data);
+				updateNode(...data);
 			} else {
-				addNode(data);
+				addNode(...data);
 			}
 		},
 		[activeStepsData, updateNode, addNode],
@@ -259,14 +272,19 @@ const Actions = ({
 		}
 	};
 
+	const handleChangeClick = (groupId) => {
+		updateInfo({ selectedGroupId: groupId, selectedAction: null });
+	};
+
 	const actionMapper = useMemo(() => {
 		return {
-			createForm: (
+			createFile: (
 				<CreateFile
 					onBack={handleBack}
 					onSave={onSave}
 					addTriggerLoading={info?.saveLoader}
-					variables={variables}
+					activeStepsData={activeStepsData}
+					handleChangeClick={handleChangeClick}
 				/>
 			),
 			createTask: (
@@ -276,15 +294,17 @@ const Actions = ({
 					addTriggerLoading={info?.saveLoader}
 					variables={variables}
 					activeStepsData={activeStepsData}
+					handleChangeClick={handleChangeClick}
 				/>
 			),
-			createMeeting: (
-				<CreateMeeting
+			delay: (
+				<Delay
 					onBack={handleBack}
 					onSave={onSave}
 					addTriggerLoading={info?.saveLoader}
 					variables={variables}
 					activeStepsData={activeStepsData}
+					handleChangeClick={handleChangeClick}
 				/>
 			),
 			gmail: (
@@ -292,9 +312,9 @@ const Actions = ({
 					onBack={handleBack}
 					onSave={onSave}
 					loading={info?.saveLoader}
-					variables={variables}
 					selectedAction={info?.selectedAction}
 					activeStepsData={activeStepsData}
+					handleChangeClick={handleChangeClick}
 				/>
 			),
 			slack: (
@@ -304,10 +324,19 @@ const Actions = ({
 					loading={info?.saveLoader}
 					selectedAction={info?.selectedAction}
 					activeStepsData={activeStepsData}
+					handleChangeClick={handleChangeClick}
 				/>
 			),
 		};
-	}, [updateInfo, onSave, info?.saveLoader, variables, info?.selectedAction, activeStepsData]);
+	}, [
+		updateInfo,
+		onSave,
+		info?.saveLoader,
+		variables,
+		info?.selectedAction,
+		activeStepsData,
+		handleChangeClick,
+	]);
 
 	return (
 		<div className="actionSidebarComponents">
@@ -350,6 +379,11 @@ const Actions = ({
 										ele?._id === 'gmail' ? 'google' : ele?._id,
 									),
 								)
+								?.filter(
+									(ele) =>
+										!info?.selectedGroupId ||
+										ele?._id === info?.selectedGroupId,
+								)
 								?.map((ele, index) => {
 									// Check if search matches group name
 									const groupNameMatches =
@@ -361,11 +395,12 @@ const Actions = ({
 									// Filter actions based on search in action label or show all if group name matches
 									const filteredActions = ele.actions.filter(
 										(action) =>
-											groupNameMatches ||
-											!info?.search ||
-											action.actionLabel
-												.toLowerCase()
-												.includes(info.search.toLowerCase()),
+											!action?.hide &&
+											(groupNameMatches ||
+												!info?.search ||
+												action.actionLabel
+													.toLowerCase()
+													.includes(info.search.toLowerCase())),
 									);
 
 									if (!filteredActions.length) return null;
@@ -400,43 +435,59 @@ const Actions = ({
 								})
 								.filter(Boolean)}
 
-							{!info.search && (
-								<div className="actionGroupItem">
-									<h3>Available Integrations</h3>
-									{integrations?.map((action, index) => (
-										<div
-											className="actionItem"
-											key={index}
-											onClick={() => {
-												if (
+							{!info.search &&
+								integrations?.filter(
+									(ele) =>
+										!info?.connectedIntegrations?.includes(
+											ele?._id === 'gmail' ? 'google' : ele?._id,
+										),
+								)?.length > 0 && (
+									<div className="actionGroupItem">
+										<h3>Available Integrations</h3>
+										{integrations
+											?.filter(
+												(ele) =>
 													!info?.connectedIntegrations?.includes(
-														action?._id,
-													)
-												) {
-													window.location.href = '/settings/integrations';
-												}
-											}}
-										>
-											<div className="actionItemIcon">{action?.icon}</div>
-											<div className="actionItemLabel">
-												{action?.groupName}
-											</div>
-											<div className="actionItemStatus">
-												{info?.connectedIntegrations?.includes(
-													action?._id,
-												) ? (
-													'Connected'
-												) : (
-													<span className="actionItemConnect">
-														Connect
-														<RightArrrow />
-													</span>
-												)}
-											</div>
-										</div>
-									))}
-								</div>
-							)}
+														ele?._id === 'gmail' ? 'google' : ele?._id,
+													),
+											)
+											?.map((action, index) => (
+												<div
+													className="actionItem"
+													key={index}
+													onClick={() => {
+														if (
+															!info?.connectedIntegrations?.includes(
+																action?._id,
+															)
+														) {
+															window.location.href =
+																'/settings/integrations';
+														}
+													}}
+												>
+													<div className="actionItemIcon">
+														{action?.icon}
+													</div>
+													<div className="actionItemLabel">
+														{action?.groupName}
+													</div>
+													<div className="actionItemStatus">
+														{info?.connectedIntegrations?.includes(
+															action?._id,
+														) ? (
+															'Connected'
+														) : (
+															<span className="actionItemConnect">
+																Connect
+																<RightArrrow />
+															</span>
+														)}
+													</div>
+												</div>
+											))}
+									</div>
+								)}
 						</div>
 					</div>
 				</>

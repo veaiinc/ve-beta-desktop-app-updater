@@ -1,4 +1,4 @@
-import { memo, useContext, useMemo, useState } from 'react';
+import { memo, useMemo, useState } from 'react';
 import '../../../../../../assets/scss/home_page/workflows/workflowCard.scss';
 import StepsTab from './StepsTab';
 import InsightsTab from './InsightsTab';
@@ -6,9 +6,8 @@ import PendingActionsTab from './PendingActionsTab';
 import FilesTab from './FilesTab';
 import { ReactComponent as ThreeDotsVerticalIcon } from '../../../../../../assets/svg/home_page/workflows/DotsThreeVertical.svg';
 import WorkflowPopUp from '../workflowCard/WorkflowPopUp';
-import Context from '../../../../../../context/context';
-import { message } from 'antd';
 import Spinner from '../../../../loaders/Spinner';
+import ThreeDotsSvg from '../../../../../../assets/svg/my_templates/ThreeDotsSvg';
 
 const options = [
 	{
@@ -43,44 +42,11 @@ const WorkflowCard = memo(
 		activeTemplateData,
 		activeCardsData,
 	}) => {
-		const initialAutomationTitle = workflow?.title ?? '';
-		const {
-			automationBuilder: { renameAutomationTitle },
-		} = useContext(Context);
-
 		const [activeTab, setActiveTab] = useState('Steps');
 		const [info, setInfo] = useState({
 			openPrompt: false,
 			selectedCard: null,
 		});
-		const [editMode, setEditMode] = useState(false);
-		const [renamedAutomationTitle, setRenamedAutomationTitle] =
-			useState(initialAutomationTitle);
-		const [initialAutomationTitleLocalState, setInitialAutomationTitleLocalState] =
-			useState(initialAutomationTitle);
-		const [isRenaming, setIsRenaming] = useState(false);
-
-		const handleRename = async (e) => {
-			const enterPressed = e?.key === 'Enter';
-			if (enterPressed) {
-				const automationId = workflow?._id;
-				const rename = renamedAutomationTitle?.trim();
-				if (rename !== initialAutomationTitleLocalState) {
-					setIsRenaming(true);
-					const response = await renameAutomationTitle(automationId, rename);
-					if (response?.[0]) {
-						message?.success('Workflow renamed successfully!');
-						setEditMode(false);
-						setInitialAutomationTitleLocalState(rename);
-					} else {
-						message?.error('Failed to rename workflow!');
-					}
-					setIsRenaming(false);
-				} else {
-					message?.info('No changes found!');
-				}
-			}
-		};
 
 		const componentMapper = useMemo(() => {
 			return {
@@ -93,21 +59,7 @@ const WorkflowCard = memo(
 		return (
 			<div className="workflow-card-container">
 				<div className="card-header">
-					<div className="header-text">
-						{editMode ? (
-							<input
-								className="rename-input"
-								type="text"
-								value={renamedAutomationTitle}
-								onChange={(e) => setRenamedAutomationTitle(e?.target?.value)}
-								onKeyDown={handleRename}
-								autoFocus
-							/>
-						) : (
-							renamedAutomationTitle || workflow?.title || ''
-						)}
-						{isRenaming && <Spinner width="16px" height="16px" />}
-					</div>
+					<div className="header-text">{workflow?.title || ''}</div>
 					<WorkflowPopUp
 						open={info?.openPrompt}
 						closeModal={(open) => {
@@ -120,10 +72,6 @@ const WorkflowCard = memo(
 						data={info?.selectedCard}
 						openCopyLinkModal={openCopyLinkModal}
 						navigateToWorkflowBuilder={navigateToWorkflowBuilder}
-						editMode={editMode}
-						setEditMode={setEditMode}
-						renamedAutomationTitle={renamedAutomationTitle}
-						setIsRenaming={setIsRenaming}
 					>
 						<div
 							onClick={() => {
@@ -134,7 +82,7 @@ const WorkflowCard = memo(
 								}));
 							}}
 						>
-							<ThreeDotsVerticalIcon style={{ cursor: 'pointer' }} />
+							<ThreeDotsSvg />
 						</div>
 					</WorkflowPopUp>
 				</div>

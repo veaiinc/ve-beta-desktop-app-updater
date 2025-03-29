@@ -17,8 +17,8 @@
 			gap: 1rem;
 
 			p {
-				color: #e4e5e6;
-				font-family: 'Inter';
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
 				font-size: 0.875rem;
 				font-style: normal;
 				font-weight: 500;
@@ -34,11 +34,11 @@
 
 			border-radius: 6.25rem;
 			border: 1px solid rgba(36, 36, 36, 0.64);
-			background: #1e1e1f;
+			background: var(--background-color);
 			cursor: pointer;
 			p {
-				color: #e4e5e6;
-				font-family: 'Inter';
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
 				font-size: 0.8125rem;
 				font-style: normal;
 				font-weight: 500;
@@ -86,8 +86,8 @@
 			overflow-y: auto;
 
 			.heading {
-				color: #e4e5e6;
-				font-family: Inter;
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
 				font-size: 0.875rem;
 				font-style: normal;
 				font-weight: 500;

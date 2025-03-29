@@ -17,8 +17,7 @@
 
 		.insightsCard {
 			border-radius: 14px;
-			background: var(--card-over-card, #202123);
-			background: var(--card-over-card, color(display-p3 0.1255 0.1294 0.1373));
+			background: var(--card-over-card);
 			display: flex;
 			height: 96px;
 			padding: 16px;
@@ -28,9 +27,8 @@
 			flex: 1 0 0;
 
 			.title {
-				color: var(--Secondary-Font, #787e87);
-				color: var(--Secondary-Font, color(display-p3 0.4784 0.4941 0.5216));
-				font-family: Inter;
+				color: var(--secondary-font);
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 500;
@@ -50,9 +48,8 @@
 				}
 
 				.value {
-					color: #e4e5e6;
-					color: color(display-p3 0.8941 0.898 0.902);
-					font-family: Inter;
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
 					font-size: 18px;
 					font-style: normal;
 					font-weight: 600;
@@ -76,7 +73,7 @@
 			align-items: center;
 			gap: 8px;
 			align-self: stretch;
-			border-bottom: 1px solid #272727;
+			border-bottom: 1px solid var(--stroke);
 
 			.tab {
 				display: flex;
@@ -86,9 +83,8 @@
 				gap: 10px;
 				cursor: pointer;
 
-				color: #7d7d7d;
-				color: color(display-p3 0.4904 0.4904 0.4904);
-				font-family: Inter;
+				color: var(--secondary-font);
+				font-family: var(--primary-font-family);
 				font-size: 13px;
 				font-style: normal;
 				font-weight: 400;
@@ -96,11 +92,11 @@
 				transition: color 0.3s ease;
 
 				&:hover {
-					color: #e4e5e6;
+					color: var(--primary-font);
 				}
 				&.active {
-					color: #e4e5e6;
-					border-bottom: 1px solid #e4e5e6;
+					color: var(--primary-font);
+					border-bottom: 1px solid var(--primary-font);
 				}
 			}
 		}
@@ -129,7 +125,7 @@
 			transition: background-color 0.1s ease;
 
 			&:hover {
-				background: #262626;
+				background: var(--background-color);
 				cursor: pointer;
 			}
 
@@ -147,12 +143,12 @@
 					align-items: center;
 					gap: 8.837px;
 					border-radius: 87.488px;
-					background: #dae0ff;
+					background: var(--accent-color);
 					color: black; //has to change if required
 
 					span {
 						// color: #6c83ff;
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 12.372px;
 						font-style: normal;
 						font-weight: 500;
@@ -168,8 +164,8 @@
 					gap: 4px;
 
 					.viewerName {
-						color: #e4e5e6;
-						font-family: Inter;
+						color: var(--primary-font);
+						font-family: var(--primary-font-family);
 						font-size: 16px;
 						font-style: normal;
 						font-weight: 500;
@@ -177,8 +173,8 @@
 					}
 
 					.viewerEmail {
-						color: #929292;
-						font-family: Inter;
+						color: var(--secondary-font);
+						font-family: var(--primary-font-family);
 						font-size: 12px;
 						font-style: normal;
 						font-weight: 400;
@@ -196,8 +192,8 @@
 				gap: 4px;
 
 				.viewerSessions {
-					color: #e4e5e6;
-					font-family: Inter;
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 500;
@@ -207,8 +203,8 @@
 				}
 
 				.viewerTime {
-					color: #929292;
-					font-family: Inter;
+					color: var(--secondary-font);
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 500;
@@ -219,7 +215,6 @@
 			}
 		}
 	}
-
 
 	.timelineViewParentContainer {
 		display: flex;
@@ -264,20 +259,20 @@
 
 						p {
 							text-align: right;
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-style: normal;
 							line-height: normal;
 							align-self: stretch;
 						}
 
 						.dateLable {
-							color: #d3d3d3;
+							color: var(--secondary-font);
 							font-size: 12px;
 							font-weight: 500;
 						}
 
 						.timeLable {
-							color: #6f6f6f;
+							color: var(--secondary-font);
 							font-size: 11px;
 							font-weight: 400;
 						}
@@ -329,9 +324,9 @@
 							height: 100%;
 
 							.eventType {
-								color: #e4e5e6;
+								color: var(--primary-font);
 								align-self: stretch;
-								font-family: Inter;
+								font-family: var(--primary-font-family);
 								font-size: 14px;
 								font-style: normal;
 								font-weight: 500;
@@ -363,8 +358,8 @@
 										gap: 2px;
 
 										.labelKey {
-											color: #929292;
-											font-family: Inter;
+											color: var(--secondary-font);
+											font-family: var(--primary-font-family);
 											font-size: 12px;
 											font-style: normal;
 											font-weight: 400;
@@ -372,8 +367,8 @@
 										}
 
 										.labelValue {
-											color: #e4e5e6;
-											font-family: Inter;
+											color: var(--primary-font);
+											font-family: var(--primary-font-family);
 											font-size: 12px;
 											font-style: normal;
 											font-weight: 400;
@@ -391,23 +386,23 @@
 							align-items: center;
 							gap: 10px;
 							border-radius: 4px;
-							border: 1px solid #212121;
-							background: #131313;
+							border: 1px solid var(--stroke);
+							background: var(--card);
 							min-width: 108px;
 							width: auto;
 
 							cursor: pointer;
 
-							color: #e4e5e6;
-							font-family: Inter;
+							color: var(--primary-font);
+							font-family: var(--primary-font-family);
 							font-size: 12px;
 							font-style: normal;
 							font-weight: 500;
 							line-height: normal;
 
 							span {
-								color: #e4e5e6;
-								font-family: Inter;
+								color: var(--primary-font);
+								font-family: var(--primary-font-family);
 								font-size: 12px;
 								font-style: normal;
 								font-weight: 500;

@@ -1,0 +1,126 @@
+.connected-integration-modal {
+	width: 100%;
+	height: 100%;
+	background: var(--popup, #0c0c0d);
+	color: var(--secondary-font);
+
+	.modal-content-wrapper {
+		max-width: 1440px;
+		margin: 0 auto;
+		height: 100%;
+	}
+
+	.modal-header {
+		padding: 24px 32px;
+		border-bottom: 1px solid var(--border);
+
+		.integration-info {
+			display: flex;
+			align-items: center;
+			gap: 16px;
+
+			svg {
+				width: 24px;
+				height: 24px;
+				cursor: pointer;
+				path {
+					fill: var(--secondary-font);
+				}
+			}
+
+			.integration-icon {
+				width: 40px;
+				height: 40px;
+				border-radius: 8px;
+			}
+
+			.integration-text {
+				h2 {
+					font-size: 20px;
+					font-weight: 500;
+					color: var(--primary-font);
+					margin: 0;
+				}
+
+				p {
+					font-size: 14px;
+					color: var(--secondary-font);
+					margin: 4px 0 0;
+				}
+			}
+		}
+	}
+
+	.modal-content {
+		padding: 24px 32px;
+
+		.section-header {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			margin-bottom: 24px;
+
+			h3 {
+				font-size: 16px;
+				font-weight: 500;
+				color: var(--primary-font);
+			}
+
+			.add-workspace-btn {
+				display: flex;
+				align-items: center;
+				padding: 8px 12px;
+				background: var(--primary-button);
+				border-radius: 6px;
+				cursor: pointer;
+
+				span {
+					margin-right: 8px;
+					font-size: 16px;
+				}
+
+				font-size: 14px;
+				color: var(--primary-button-font);
+
+				&:hover {
+					background: var(--primary-button-hover);
+				}
+			}
+		}
+
+		.accounts-list {
+			.account-item {
+				padding: 16px;
+				background: var(--card-over-card);
+				border-radius: 8px;
+				margin-bottom: 8px;
+				cursor: pointer;
+
+				.account-info {
+					display: flex;
+					align-items: center;
+					justify-content: space-between;
+
+					.account-name {
+						font-size: 14px;
+						color: var(--primary-font);
+					}
+
+					.status {
+						font-size: 14px;
+						&.connected {
+							color: var(--success);
+						}
+						&.error {
+							color: var(--error);
+						}
+					}
+				}
+
+				&:hover {
+					background: var(--card-over-card-hover);
+				}
+			}
+		}
+	}
+}
