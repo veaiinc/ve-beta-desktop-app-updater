@@ -20,18 +20,17 @@ import CreateClientModal from '../../../views/components/modalsV2/contacts/Creat
 import CreateGallery from '../../../views/components/modalsV2/gallery/CreateGallery';
 import AutomationLoaderModal from '../modalsV2/automationBuilder/AutomationLoaderModal';
 import CreateTaskPopup from '../modalsV2/tasks/CreateTaskPopup';
-import { useEdges } from '@xyflow/react';
 
 const moduleOptions = [
-	{
-		id: 0,
-		title: 'Contact/Lead',
-		value: 'contacts',
-		controlValue: 'contact',
-		action: ({ setInfo }) => {
-			setInfo((prev) => ({ ...prev, commonState: 'contact' }));
-		},
-	},
+	// {
+	// 	id: 0,
+	// 	title: 'Contact/Lead',
+	// 	value: 'contacts',
+	// 	controlValue: 'contact',
+	// 	action: ({ setInfo }) => {
+	// 		setInfo((prev) => ({ ...prev, commonState: 'contact' }));
+	// 	},
+	// },
 	{
 		id: 1,
 		title: 'Task',
@@ -119,7 +118,6 @@ const moduleOptions = [
 		value: 'automation',
 		controlValue: 'automation',
 		action: async ({ setInfo, navigate, createAutomation, info }) => {
-			// Add info to parameters
 			if (info?.isAutomationLoading) return;
 			try {
 				setInfo((prev) => ({ ...prev, isAutomationLoading: true }));
