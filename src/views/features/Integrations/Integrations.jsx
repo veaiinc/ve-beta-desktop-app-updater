@@ -133,15 +133,6 @@ const Integrations = () => {
 		},
 		{
 			id: 3,
-			icon: zoho,
-			title: 'Zoho',
-			connectType: 'zoho',
-			description:
-				'Easily connect to Google Drive to store, share, and access your files directly.',
-			isConnected: false,
-		},
-		{
-			id: 4,
 			icon: slack,
 			title: 'Slack',
 			connectType: 'slack',
@@ -150,7 +141,7 @@ const Integrations = () => {
 			isConnected: false,
 		},
 		{
-			id: 5,
+			id: 4,
 			icon: googleDrive,
 			title: 'Google Drive',
 			connectType: 'google-drive',
@@ -159,21 +150,45 @@ const Integrations = () => {
 			isConnected: false,
 		},
 		{
-			id: 6,
+			id: 5,
 			icon: googleCalendar,
 			title: 'Google Calendar',
 			connectType: 'google-calendar',
 			description: 'Easily connect with Google Calendar to sync your calendar.',
 			isConnected: false,
 		},
-		{
-			id: 7,
-			icon: dropbox,
-			title: 'Dropbox',
-			connectType: 'dropbox',
-			description: 'Easily connect with Dropbox to sync your files.',
-			isConnected: false,
-		},
+		// {
+		// 	id: 6,
+		// 	icon: zoho,
+		// 	title: 'Zoho',
+		// 	connectType: 'zoho',
+		// 	description: 'Easily connect to Zoho to access your CRM and sales data.',
+		// 	isConnected: false,
+		// },
+		// {
+		// 	id: 7,
+		// 	icon: dropbox,
+		// 	title: 'Salesforce	',
+		// 	connectType: 'salesforce',
+		// 	description: 'Easily connect with Salesforce to sync your CRM and sales data.',
+		// 	isConnected: false,
+		// },
+		// {
+		// 	id: 8,
+		// 	icon: dropbox,
+		// 	title: 'Hubspot',
+		// 	connectType: 'hubspot',
+		// 	description: 'Easily connect with Hubspot to sync your CRM and sales data.',
+		// 	isConnected: false,
+		// },
+		// {
+		// 	id: 9,
+		// 	icon: dropbox,
+		// 	title: 'Dropbox',
+		// 	connectType: 'dropbox',
+		// 	description: 'Easily connect with Dropbox to sync your files.',
+		// 	isConnected: false,
+		// },
 	];
 
 	const requestIntegrations = [
@@ -227,6 +242,8 @@ const Integrations = () => {
 			googleDrive: false,
 			dropbox: false,
 			googleCalendar: false,
+			hubspot: false,
+			salesforce: false,
 		},
 		loader: false,
 	});
@@ -270,6 +287,8 @@ const Integrations = () => {
 						googleDrive: data.googleDrive || [],
 						dropbox: data.dropbox || [],
 						googleCalendar: data.googleCalendar || [],
+						hubspot: data.hubspot || [],
+						salesforce: data.salesforce || [],
 					},
 				}));
 			}
@@ -284,13 +303,11 @@ const Integrations = () => {
 			if (info.connectedThirdParties.google?.length > 0) {
 				platforms.push({
 					icon: google,
-					title: 'Google',
-					description:
-						'Connected Google accounts for calendar, files, and communication.',
+					title: 'Gmail',
+					description: 'Connected Gmail accounts for emails and communication.',
 					accounts: info.connectedThirdParties.google,
 				});
 			}
-
 			if (info.connectedThirdParties.notion?.length > 0) {
 				platforms.push({
 					icon: notion,
@@ -299,19 +316,11 @@ const Integrations = () => {
 					accounts: info.connectedThirdParties.notion,
 				});
 			}
-			if (info.connectedThirdParties.zoho?.length > 0) {
-				platforms.push({
-					icon: zoho,
-					title: 'Zoho',
-					description: 'Connected Zoho workspaces for task and project management.',
-					accounts: info.connectedThirdParties.zoho,
-				});
-			}
 			if (info.connectedThirdParties.slack?.length > 0) {
 				platforms.push({
 					icon: slack,
 					title: 'Slack',
-					description: 'Connected Slack workspaces for task and project management.',
+					description: 'Connected Slack workspaces for communication.',
 					accounts: info.connectedThirdParties.slack,
 				});
 			}
@@ -319,20 +328,50 @@ const Integrations = () => {
 				platforms.push({
 					icon: googleDrive,
 					title: 'Google Drive',
-				});
-			}
-			if (info.connectedThirdParties.dropbox?.length > 0) {
-				platforms.push({
-					icon: dropbox,
-					title: 'Dropbox',
+					description: 'Connected Google Drive accounts for files and storage.',
+					accounts: info.connectedThirdParties.googleDrive,
 				});
 			}
 			if (info.connectedThirdParties.googleCalendar?.length > 0) {
 				platforms.push({
 					icon: googleCalendar,
 					title: 'Google Calendar',
+					description: 'Connected Google Calendar accounts for scheduling and reminders.',
+					accounts: info.connectedThirdParties.googleCalendar,
 				});
 			}
+			// if (info.connectedThirdParties.zoho?.length > 0) {
+			// 	platforms.push({
+			// 		icon: zoho,
+			// 		title: 'Zoho',
+			// 		description: 'Connected Zoho workspaces for task and project management.',
+			// 		accounts: info.connectedThirdParties.zoho,
+			// 	});
+			// }
+			// if (info.connectedThirdParties.hubspot?.length > 0) {
+			// 	platforms.push({
+			// 		icon: hubspot,
+			// 		title: 'Hubspot',
+			// 		description: 'Connected Hubspot workspaces for task and project management.',
+			// 		accounts: info.connectedThirdParties.hubspot,
+			// 	});
+			// }
+			// if (info.connectedThirdParties.salesforce?.length > 0) {
+			// 	platforms.push({
+			// 		icon: salesforce,
+			// 		title: 'Salesforce',
+			// 		description: 'Connected Salesforce workspaces for task and project management.',
+			// 		accounts: info.connectedThirdParties.salesforce,
+			// 	});
+			// }
+			// if (info.connectedThirdParties.dropbox?.length > 0) {
+			// 	platforms.push({
+			// 		icon: dropbox,
+			// 		title: 'Dropbox',
+			// 		description: 'Connected Dropbox workspaces for files and storage.',
+			// 		accounts: info.connectedThirdParties.dropbox,
+			// 	});
+			// }
 
 			setConnectedPlatforms(platforms);
 		}
