@@ -66,19 +66,62 @@
 					line-height: normal;
 				}
 
-				.nameInput {
-					width: 100%;
+				.nameInputAndProfilePictureContainer {
+					display: flex;
+					gap: 8px;
+					align-items: center;
+					background-color: var(--card);
 					border-radius: 12px;
-					background: var(--card);
-					color: var(--primary-font);
-					font-family: Inter;
-					font-size: 14px;
-					font-style: normal;
-					font-weight: 500;
-					line-height: normal;
-					padding: 12px 16px;
-					outline: none;
-					border: none;
+
+					.nameInput {
+						width: calc(100% - 49px);
+						border-radius: 12px;
+						background: var(--card);
+						color: var(--primary-font);
+						font-family: Inter;
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+						padding: 12px 16px;
+						outline: none;
+						border: none;
+					}
+
+					.profilePictureContainer {
+						width: 41px;
+						height: 41px;
+						border-radius: 50%;
+						display: flex;
+						justify-content: center;
+						align-items: center;
+						cursor: pointer;
+
+						& > * {
+							cursor: pointer;
+						}
+
+						.profilePictureInput {
+							display: none;
+							cursor: pointer;
+
+							.profilePicture {
+								width: 41px;
+								height: 41px;
+								object-fit: cover;
+								border-radius: 50%;
+								padding: 6px;
+							}
+						}
+
+						.profilePicture {
+							width: 41px;
+							height: 41px;
+							object-fit: cover;
+							border-radius: 50%;
+							padding: 6px;
+						}
+					}
 				}
 
 				.phoneContainerClass {
@@ -237,12 +280,16 @@
 					font-weight: 500;
 					line-height: normal;
 				}
+
 				.companyNameAndLogoInputs {
 					display: flex;
+					justify-content: space-between;
 					gap: 8px;
+					background-color: var(--card);
+					border-radius: 12px;
 
 					.companyNameInput {
-						width: 100%;
+						width: calc(100% - 49px);
 						border-radius: 12px;
 						background: var(--card);
 						color: var(--primary-font);
@@ -257,21 +304,7 @@
 						border: none;
 					}
 
-					.companyLogoInput {
-						display: none;
-					}
-
-					.companyLogoLabel {
-						color: var(--primary-font);
-						font-family: Inter;
-						font-size: 14px;
-						font-style: normal;
-						font-weight: 500;
-						line-height: normal;
-						cursor: pointer;
-					}
-
-					.companyLogoContainer {
+					.companyLogoInputContainer {
 						width: 41px;
 						height: 41px;
 						border-radius: 50%;
@@ -280,11 +313,30 @@
 						align-items: center;
 						cursor: pointer;
 
+						& > * {
+							cursor: pointer;
+							width: 41px;
+							height: 41px;
+							display: flex;
+							justify-content: center;
+							align-items: center;
+						}
+
+						.companyLogoInput {
+							display: none;
+						}
+
+						.companyLogoContainer {
+							width: 100%;
+							height: 100%;
+						}
+
 						.companyLogo {
-							width: 40px;
+							width: 100%;
 							height: 100%;
 							object-fit: cover;
 							border-radius: 50%;
+							padding: 6px;
 						}
 					}
 				}
@@ -326,30 +378,45 @@
 					font-style: normal;
 				}
 
-				.dropdown {
+				.workspaceTypeInput {
+					width: 100%;
 					border-radius: 12px;
-					background: var(--card, #171819);
-
-					.labelContainer {
-						display: flex;
-						justify-content: space-between;
-						align-items: center;
-						cursor: pointer;
-						padding: 14px 18px;
-						width: 100%;
-						height: 100%;
-						user-select: none;
-
-						.dropdownText {
-							color: var(--secondary-font, #7a7e85);
-							font-family: Inter;
-							font-size: 14px;
-							font-style: normal;
-							font-weight: 500;
-							line-height: normal;
-						}
-					}
+					background: var(--card);
+					color: var(--primary-font);
+					font-family: Inter;
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+					padding: 12px 16px;
+					border: none;
+					outline: none;
 				}
+
+				// .dropdown {
+				// 	border-radius: 12px;
+				// 	background: var(--card, #171819);
+
+				// 	.labelContainer {
+				// 		display: flex;
+				// 		justify-content: space-between;
+				// 		align-items: center;
+				// 		cursor: pointer;
+				// 		padding: 14px 18px;
+				// 		width: 100%;
+				// 		height: 100%;
+				// 		user-select: none;
+
+				// 		.dropdownText {
+				// 			color: var(--secondary-font, #7a7e85);
+				// 			font-family: Inter;
+				// 			font-size: 14px;
+				// 			font-style: normal;
+				// 			font-weight: 500;
+				// 			line-height: normal;
+				// 		}
+				// 	}
+				// }
 			}
 		}
 	}

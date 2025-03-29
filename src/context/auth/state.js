@@ -287,14 +287,20 @@ export const AuthState = () => {
 		}
 	};
 
-	const createWorkspace = async (workspaceHandle, workspaceType, profession, businessName) => {
+	const createWorkspace = async ({ workspaceHandle, workspaceType, businessName }) => {
 		const path = '/tenant/create-workspace';
 		const token = localStorage?.getItem('usertoken') || '';
+		// const body = {
+		// 	workspaceId: workspaceHandle,
+		// 	businessType: profession,
+		// 	category: workspaceType,
+		// 	businessName,
+		// };
+
 		const body = {
 			workspaceId: workspaceHandle,
-			businessType: profession,
-			category: workspaceType,
-			businessName,
+			businessType: workspaceType,
+			businessName: businessName,
 		};
 
 		try {

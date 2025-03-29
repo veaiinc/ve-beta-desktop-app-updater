@@ -1,27 +1,31 @@
 import { memo, useState } from 'react';
 import '../../../assets/scss/onboarding/stages.scss';
 import Spinner from '../loaders/Spinner';
-import { ReactComponent as DownArrow } from '../../../assets/svg/onboarding/down-arrow.svg';
-import WorkspaceTypeOptions from './WorkspaceTypeOptions';
+// import { ReactComponent as DownArrow } from '../../../assets/svg/onboarding/down-arrow.svg';
+// import WorkspaceTypeOptions from './WorkspaceTypeOptions';
+import { ReactComponent as UploadIcon } from '../../../assets/svg/onboarding/upload-icon.svg';
 
 const Stage2 = ({
 	companyName,
+	workspaceHandle,
 	companyLogo,
 	handleSetCompanyName,
 	handleSetCompanyLogo,
 	checkingWorkspaceHandle,
 	isWorkspaceHandleAvailable,
+	workspaceType,
+	handleSetWorkspaceType,
 }) => {
-	const [info, setInfo] = useState({
-		showDropdown: false,
-	});
+	// const [info, setInfo] = useState({
+	// 	showDropdown: false,
+	// });
 
-	const toggleDropdown = () => {
-		setInfo((prev) => ({
-			...prev,
-			showDropdown: !prev?.showDropdown,
-		}));
-	};
+	// const toggleDropdown = () => {
+	// 	setInfo((prev) => ({
+	// 		...prev,
+	// 		showDropdown: !prev?.showDropdown,
+	// 	}));
+	// };
 
 	return (
 		<div className="stage2">
@@ -41,32 +45,32 @@ const Stage2 = ({
 							onChange={handleSetCompanyName}
 							autoFocus
 						/>
-						<label htmlFor="companyLogoInput">
-							<input
-								id="companyLogoInput"
-								type="file"
-								accept="image/*"
-								onChange={handleSetCompanyLogo}
-								className="companyLogoInput"
-							/>
-							{companyLogo ? (
-								<div className="companyLogoContainer">
+						<div className="companyLogoInputContainer">
+							<label htmlFor="companyLogoInput">
+								<input
+									id="companyLogoInput"
+									type="file"
+									accept="image/*"
+									onChange={handleSetCompanyLogo}
+									className="companyLogoInput"
+								/>
+								{companyLogo ? (
 									<img
 										className="companyLogo"
 										src={companyLogo}
 										alt="Company Logo"
 									/>
-								</div>
-							) : (
-								<span className="companyLogoLabel">Upload Logo</span>
-							)}
-						</label>
+								) : (
+									<UploadIcon />
+								)}
+							</label>
+						</div>
 					</div>
 
 					<div className="domainInfoContainer">
-						{companyName?.length > 1 && (
+						{workspaceHandle?.length > 1 && (
 							<>
-								<span className="domainName">{companyName}@ve.ai</span>
+								<span className="domainName">{workspaceHandle}.ve.ai</span>
 								{checkingWorkspaceHandle ? (
 									<Spinner width="16px" height="16px" />
 								) : isWorkspaceHandleAvailable === true ? (
@@ -80,13 +84,20 @@ const Stage2 = ({
 				</div>
 				<div className="workspaceTypeContainer">
 					<p className="question">What is your company type?</p>
-					<div className="dropdown">
+					<input
+						type="text"
+						placeholder="Company Type"
+						className="workspaceTypeInput"
+						value={workspaceType}
+						onChange={handleSetWorkspaceType}
+					/>
+					{/* <div className="dropdown">
 						<div className="labelContainer" onClick={toggleDropdown}>
 							<span className="dropdownText">Please Select</span>
 							<DownArrow />
 						</div>
 						{info?.showDropdown && <WorkspaceTypeOptions />}
-					</div>
+					</div> */}
 				</div>
 			</main>
 		</div>

@@ -15,6 +15,7 @@ export const intialState = {
 	defaultNotificationSettings: null,
 	tenantUserAccessControls: null,
 	accessControlOpenModal: false,
+	userLogo: null,
 };
 export const ProfileState = () => {
 	const [state, dispatch] = useReducer(Reducer, intialState);
@@ -247,6 +248,26 @@ export const ProfileState = () => {
 			console.log('error==>updateBusniessName', error);
 		}
 	};
+
+	const getUserLogo = async () => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.fetchGet(
+				API.TENANTS.getTenantUserLogo,
+				usertoken,
+				'tenant-users',
+			);
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.GET_USER_LOGO,
+					payload: response?.[1]?.dp_s3_500w_key,
+				});
+			}
+		} catch (error) {
+			console.log('error==>getUserLogo', error);
+		}
+	};
+
 	const updateUserLogo = async (file) => {
 		try {
 			let usertoken = localStorage.getItem('usertoken');
@@ -262,7 +283,13 @@ export const ProfileState = () => {
 						'Content-Type': file.type,
 					},
 				};
-				const resp = axios.put(response[1]?.signedUrl, file, options);
+				const resp = await axios.put(response[1]?.signedUrl, file, options);
+				const success = resp?.status === 200;
+				if (success) {
+					return [true];
+				} else {
+					return [false, resp?.data];
+				}
 			}
 		} catch (error) {
 			console.log('error==>updateUserLogo', error);
@@ -458,6 +485,7 @@ export const ProfileState = () => {
 		chooseDefaultWorkspace,
 		changelogo,
 		updateBusniessName,
+		getUserLogo,
 		updateUserLogo,
 		resetProfileSettingsState,
 		updateWorkSpaceId,

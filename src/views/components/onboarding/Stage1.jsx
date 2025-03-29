@@ -1,8 +1,10 @@
 import { memo } from 'react';
+import '../../../assets/scss/onboarding/stages.scss';
 import PhoneInput from 'react-phone-input-2';
 import { ReactComponent as DarkIcon } from '../../../assets/svg/onboarding/dark.svg';
 import { ReactComponent as LightIcon } from '../../../assets/svg/onboarding/light.svg';
 import { ReactComponent as GreenTick } from '../../../assets/svg/onboarding/green-tick.svg';
+import { ReactComponent as UploadIcon } from '../../../assets/svg/onboarding/upload-icon.svg';
 
 const themePreferences = [
 	{
@@ -29,6 +31,8 @@ const Stage1 = ({
 	username,
 	phoneNumber,
 	isPhoneNumberVerified,
+	profilePicture,
+	handleSetProfilePicture,
 	countryCode,
 	themePreference,
 	handleSetUsername,
@@ -40,6 +44,7 @@ const Stage1 = ({
 	otpSent,
 	handleSetOTPSentToFalse,
 	handleResendOtp,
+	verifyPhoneNumberLoading,
 }) => (
 	<div className="stage1">
 		<header className="header">
@@ -49,14 +54,36 @@ const Stage1 = ({
 		<main className="stage1Content">
 			<div className="nameInputContainer">
 				<p className="question">What is your name?</p>
-				<input
-					className="nameInput"
-					value={username}
-					onChange={handleSetUsername}
-					type="text"
-					placeholder="Full Name"
-					autoFocus
-				/>
+				<div className="nameInputAndProfilePictureContainer">
+					<input
+						className="nameInput"
+						value={username}
+						onChange={handleSetUsername}
+						type="text"
+						placeholder="Full Name"
+						autoFocus
+					/>
+					<div className="profilePictureContainer">
+						<label htmlFor="profilePictureInput">
+							<input
+								id="profilePictureInput"
+								type="file"
+								accept="image/*"
+								onChange={handleSetProfilePicture}
+								className="profilePictureInput"
+							/>
+							{profilePicture ? (
+								<img
+									src={profilePicture}
+									alt={username}
+									className="profilePicture"
+								/>
+							) : (
+								<UploadIcon />
+							)}
+						</label>
+					</div>
+				</div>
 			</div>
 			{otpSent ? (
 				<div className="otpInputContainer">
@@ -94,8 +121,12 @@ const Stage1 = ({
 							<GreenTick />
 						</div>
 					) : (
-						<button onClick={handleVerifyPhoneNumber} className="verifyPhoneNumberBtn">
-							Verify Phone Number
+						<button
+							onClick={handleVerifyPhoneNumber}
+							className="verifyPhoneNumberBtn"
+							disabled={verifyPhoneNumberLoading}
+						>
+							{verifyPhoneNumberLoading ? 'Verifying...' : 'Verify Phone Number'}
 						</button>
 					)}
 				</div>

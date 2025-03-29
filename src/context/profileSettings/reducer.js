@@ -24,6 +24,10 @@ const actionHandlers = {
 		...state,
 		userWorkSpaceList: action?.payload,
 	}),
+	GET_USER_LOGO: (state, action) => ({
+		...state,
+		userLogo: action?.payload,
+	}),
 	UPDATE_LOGO: (state, action) => {
 		const updatedTennantSettingsData = {
 			...(state?.tennantSettingsData || {}),

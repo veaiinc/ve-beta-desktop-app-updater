@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import '../../../assets/scss/onboarding/index.scss';
 
-const progressSteps = Array.from({ length: 4 }, (_, index) => index + 1);
+const progressSteps = Array.from({ length: 2 }, (_, index) => index + 1);
 
 const ProgressBar = ({ stage }) => {
 	return (

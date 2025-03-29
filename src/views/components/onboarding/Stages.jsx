@@ -6,28 +6,36 @@ import ProgressBar from './ProgressBar';
 import { message } from 'antd';
 import Stage1 from './Stage1';
 import Stage2 from './Stage2';
+import { useNavigate } from 'react-router-dom';
 
-let usernameTimeoutId;
+let usernameTimeoutId, companyLogoFile;
 
 const Stages = () => {
+	const navigate = useNavigate();
+	const stageFromLocalStorage = localStorage.getItem('stage') ?? 1;
 	const {
 		authInfo: {
 			checkWorkspaceHandleAvailability,
 			updateUserDetails,
 			requestResendOTPToMobile,
 			verifyMobileOtpCode,
+			createWorkspace,
 		},
-		profileInfo: { userDetailsData, getUserDetails },
+		profileInfo: { userDetailsData, getUserDetails, updateUserLogo, userLogo, getUserLogo },
+		companyInfo: { uploadTenantLogo },
 		themeInfo: { theme, updateTheme },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
-		stage: 1, // total 4 stages
+		stage: Number(stageFromLocalStorage),
 		username: '',
 		phoneNumber: '',
+		profilePicture: null,
 		countryCode: '',
 		themePreference: 'systemDefault',
-		companyName: '', // workspace handle
+		companyName: '',
+		workspaceHandle: '',
+		workspaceType: '',
 		companyLogo: null,
 		checkingWorkspaceHandle: false,
 		isWorkspaceHandleAvailable: null,
@@ -35,6 +43,7 @@ const Stages = () => {
 		otp: '',
 		otpSent: false,
 		isPhoneNumberVerified: false,
+		verifyPhoneNumberLoading: false,
 	});
 
 	const emailCntxt = userDetailsData?.email;
@@ -43,15 +52,24 @@ const Stages = () => {
 	const firstNameCntxt = userDetailsData?.firstName;
 	const lastNameCntxt = userDetailsData?.lastName;
 	const phoneNumberCntxt = userDetailsData?.phoneNumber;
+	const profilePictureCntxt = userDetailsData?.googleMeta?.picture ?? null;
 
 	useEffect(() => {
 		handleGetUserDetails();
+		getUserLogo();
 		const countryCode = getCountryCode(info?.phoneNumber);
 		setInfo((prev) => ({
 			...prev,
 			countryCode,
 		}));
+		return () => {
+			localStorage.removeItem('stage');
+		};
 	}, []);
+
+	useEffect(() => {
+		localStorage.setItem('stage', info?.stage);
+	}, [info?.stage]);
 
 	useEffect(() => {
 		if (firstNameCntxt || lastNameCntxt) {
@@ -90,6 +108,16 @@ const Stages = () => {
 	}, [isPhoneNumberVerifiedCntxt]);
 
 	useEffect(() => {
+		const profilePicture = userLogo ?? profilePictureCntxt;
+		if (profilePicture) {
+			setInfo((prev) => ({
+				...prev,
+				profilePicture,
+			}));
+		}
+	}, [profilePictureCntxt, userLogo]);
+
+	useEffect(() => {
 		setInfo((prev) => ({
 			...prev,
 			continueBtnDisabled:
@@ -100,7 +128,8 @@ const Stages = () => {
 	useEffect(() => {
 		if (info?.companyName?.length > 1) {
 			const timeout = setTimeout(async () => {
-				handleCheckWorkspaceHandleAvailability(info?.companyName);
+				const workspaceHandle = info?.companyName?.toLowerCase()?.replace(/[^a-z0-9]/g, '');
+				handleCheckWorkspaceHandleAvailability(workspaceHandle);
 			}, 500);
 
 			return () => clearTimeout(timeout);
@@ -145,11 +174,15 @@ const Stages = () => {
 				...prev,
 				checkingWorkspaceHandle: true,
 				isWorkspaceHandleAvailable: false,
+				workspaceHandle,
 			}));
 			const response = await checkWorkspaceHandleAvailability(workspaceHandle);
 			if (response?.[0] === true) {
 				const isAvailable = response?.[1]?.available;
-				setInfo((prev) => ({ ...prev, isWorkspaceHandleAvailable: isAvailable }));
+				setInfo((prev) => ({
+					...prev,
+					isWorkspaceHandleAvailable: isAvailable,
+				}));
 			} else {
 				message?.error(response?.[1]?.message);
 				setInfo((prev) => ({ ...prev, isWorkspaceHandleAvailable: false }));
@@ -161,6 +194,14 @@ const Stages = () => {
 			info?.isWorkspaceHandleAvailable,
 			info?.checkingWorkspaceHandle,
 		],
+	);
+
+	const handleSetWorkspaceType = useCallback(
+		(e) => {
+			const workspaceType = e?.target?.value ?? '';
+			setInfo((prev) => ({ ...prev, workspaceType }));
+		},
+		[info?.workspaceType],
 	);
 
 	const handleSetUsername = useCallback(
@@ -184,7 +225,23 @@ const Stages = () => {
 		[info?.phoneNumber, info?.isPhoneNumberVerified],
 	);
 
+	const handleSetProfilePicture = useCallback(async (e) => {
+		const file = e?.target?.files?.[0];
+		const profilePicture = file ? URL.createObjectURL(file) : null;
+		if (profilePicture) {
+			setInfo((prev) => ({ ...prev, profilePicture }));
+		}
+		const response = await updateUserLogo(file);
+		const success = response?.[0] === true;
+		if (success) {
+			message?.success('Profile picture uploaded successfully');
+		} else {
+			message?.error(response?.[1]?.message);
+		}
+	}, []);
+
 	const handleVerifyPhoneNumber = useCallback(async () => {
+		setInfo((prev) => ({ ...prev, verifyPhoneNumberLoading: true }));
 		const { username, phoneNumber } = info;
 		if (!isPhoneNumberVerifiedCntxt && phoneNumberExistsInDBCntxt) {
 			const response = await requestResendOTPToMobile();
@@ -205,6 +262,7 @@ const Stages = () => {
 				message?.error(response?.[1]?.message);
 			}
 		}
+		setInfo((prev) => ({ ...prev, verifyPhoneNumberLoading: false }));
 	}, [info?.username, info?.phoneNumber, info?.isPhoneNumberVerified]);
 
 	const handleSetOTP = useCallback(
@@ -250,6 +308,7 @@ const Stages = () => {
 
 	const handleSetThemePreference = useCallback(
 		async (themePreference) => {
+			if (themePreference === info?.themePreference) return;
 			setInfo((prev) => ({ ...prev, themePreference }));
 			const response = await updateTheme(themePreference);
 			const success = response?.[0] === true;
@@ -262,35 +321,84 @@ const Stages = () => {
 		[info?.themePreference],
 	);
 
-	const handleSetCompanyName = useCallback(
-		(e) => {
-			const companyName = e?.target?.value ?? '';
-			const formattedCompanyName = companyName
-				?.replace(/\s+/g, '')
-				?.toLowerCase()
-				?.slice(0, 64);
-			setInfo((prev) => ({ ...prev, companyName: formattedCompanyName }));
-		},
-		[info?.companyName],
-	);
+	const handleSetCompanyName = useCallback((e) => {
+		let companyName = e?.target?.value;
+		const formattedCompanyName = companyName
+			.replace(/[^a-zA-Z0-9 ]/g, '')
+			.split(' ')
+			.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+			.join(' ');
 
-	const handleSetCompanyLogo = useCallback((e) => {
-		const file = e?.target?.files?.[0];
-		const companyLogo = file ? URL.createObjectURL(file) : null;
-		if (companyLogo) {
-			setInfo((prev) => ({ ...prev, companyLogo }));
-		}
+		setInfo((prev) => ({
+			...prev,
+			companyName: formattedCompanyName,
+		}));
 	}, []);
+
+	const handleSetCompanyLogo = useCallback(
+		async (e) => {
+			companyLogoFile = e?.target?.files?.[0];
+			const companyLogo = companyLogoFile ? URL.createObjectURL(companyLogoFile) : null;
+			if (companyLogo) {
+				setInfo((prev) => ({ ...prev, companyLogo }));
+			}
+		},
+		[info?.companyLogo],
+	);
 
 	const handlePrevStage = useCallback(
 		() => setInfo((prev) => ({ ...prev, stage: prev?.stage - 1 })),
 		[info?.stage],
 	);
 
-	const handleNextStage = useCallback(
-		() => setInfo((prev) => ({ ...prev, stage: prev?.stage + 1 })),
-		[info?.stage],
-	);
+	const handleUploadCompanyLogo = useCallback(async () => {
+		if (companyLogoFile) {
+			const response = await uploadTenantLogo(companyLogoFile);
+			const success = response?.[0] === true;
+			return success;
+		} else {
+			return [false, 'No company logo file selected'];
+		}
+	}, [companyLogoFile]);
+
+	const handleCreateWorkspace = useCallback(async () => {
+		const response = await createWorkspace({
+			workspaceHandle: info?.workspaceHandle,
+			workspaceType: info?.workspaceType,
+			businessName: info?.companyName,
+		});
+		const success = response?.[0] === true;
+		if (success) {
+			if (companyLogoFile) {
+				const isCompanyLogoUploaded = await handleUploadCompanyLogo();
+				if (isCompanyLogoUploaded) {
+					message?.success('Workspace created successfully');
+					setTimeout(() => {
+						navigate('/home');
+					}, 1000);
+				} else {
+					message?.error(
+						'Workspace created successfully but failed to upload company logo',
+					);
+				}
+			} else {
+				message?.success('Workspace created successfully');
+				setTimeout(() => {
+					navigate('/home');
+				}, 1000);
+			}
+		} else {
+			message?.error(response?.[1]?.message);
+		}
+	}, [info?.companyName, info?.workspaceType]);
+
+	const handleNextStage = useCallback(() => {
+		if (info?.stage === 2) {
+			handleCreateWorkspace();
+			return;
+		}
+		setInfo((prev) => ({ ...prev, stage: prev?.stage + 1 }));
+	}, [info?.stage, info?.companyName, info?.workspaceType]);
 
 	const stageMapper = {
 		1: (
@@ -298,6 +406,8 @@ const Stages = () => {
 				username={info?.username}
 				phoneNumber={info?.phoneNumber}
 				isPhoneNumberVerified={info?.isPhoneNumberVerified}
+				profilePicture={info?.profilePicture}
+				handleSetProfilePicture={handleSetProfilePicture}
 				countryCode={info?.countryCode}
 				themePreference={info?.themePreference}
 				handleSetUsername={handleSetUsername}
@@ -309,20 +419,22 @@ const Stages = () => {
 				otpSent={info?.otpSent}
 				handleSetOTPSentToFalse={handleSetOTPSentToFalse}
 				handleResendOtp={handleResendOtp}
+				verifyPhoneNumberLoading={info?.verifyPhoneNumberLoading}
 			/>
 		),
 		2: (
 			<Stage2
 				companyName={info?.companyName}
+				workspaceHandle={info?.workspaceHandle}
 				companyLogo={info?.companyLogo}
 				handleSetCompanyName={handleSetCompanyName}
 				handleSetCompanyLogo={handleSetCompanyLogo}
 				checkingWorkspaceHandle={info?.checkingWorkspaceHandle}
 				isWorkspaceHandleAvailable={info?.isWorkspaceHandleAvailable}
+				workspaceType={info?.workspaceType}
+				handleSetWorkspaceType={handleSetWorkspaceType}
 			/>
 		),
-		3: <div>Stage 3</div>,
-		4: <div>Stage 4</div>,
 	};
 
 	return (
