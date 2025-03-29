@@ -8,6 +8,7 @@ import InputForModules from '../input/inputForModules';
 import HeadersDropDownComp from '../dropDown/HeadersDropDownComp';
 import '../../../assets/scss/sales/createLeadModal.scss';
 import { useNavigate } from 'react-router-dom';
+import { debounce } from 'lodash';
 const validator = require('validator');
 
 const CreateFileLead = ({ open, onClose, workflow }) => {
@@ -18,6 +19,7 @@ const CreateFileLead = ({ open, onClose, workflow }) => {
 	};
 	const {
 		templates: { getClientList, clientList, createLeadfromTemplates, updateStateValues },
+		activityInfo: { createSmartfile },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -43,13 +45,22 @@ const CreateFileLead = ({ open, onClose, workflow }) => {
 			source: 'instagram',
 		},
 		createButtonActive: false,
-		selectedLead: {},
+		selectedLead: null,
+		documentTitle: workflow?.title || '',
+		searchValue: '',
+		isSearching: false,
 	});
 
 	useEffect(() => {
 		getClientListData();
 	}, []);
 
+	useEffect(() => {
+		setInfo((prev) => ({
+			...prev,
+			documentTitle: workflow?.title || '',
+		}));
+	}, [workflow]);
 	useEffect(() => {
 		const isValidEmail =
 			info?.leadDetails?.emailId && validator?.isEmail(info?.leadDetails?.emailId);
@@ -67,7 +78,7 @@ const CreateFileLead = ({ open, onClose, workflow }) => {
 	useEffect(() => {
 		if (clientList) {
 			const { currentPage, hasNextPage, data } = clientList;
-			let clientData = [];
+			let newClientData = [];
 
 			for (let i = 0; i < data?.length; i++) {
 				let obj = {
@@ -76,18 +87,19 @@ const CreateFileLead = ({ open, onClose, workflow }) => {
 					_id: data?.[i]?._id,
 				};
 
-				clientData.push(obj);
+				newClientData.push(obj);
 			}
 
-			setInfo((prev) => ({ ...prev, currentPage, hasNextPage, clientData }));
+			setInfo((prev) => ({
+				...prev,
+				currentPage,
+				hasNextPage,
+				clientData: prev.clientData
+					? [...prev.clientData, ...newClientData]
+					: newClientData,
+			}));
 		}
 	}, [clientList]);
-
-	useEffect(() => {
-		if (info?.clientData?.length && info?.existingLeadSource && open) {
-			setExistingLeadData();
-		}
-	}, [info?.clientData, info?.existingLeadSource, open]);
 
 	const setExistingLeadData = useCallback(() => {
 		if (info?.clientData?.length && info?.existingLeadSource && open) {
@@ -98,15 +110,46 @@ const CreateFileLead = ({ open, onClose, workflow }) => {
 		}
 	}, [info?.clientData, info?.existingLeadSource, open]);
 
-	const getClientListData = useCallback(() => {
-		const payload = {
-			filters: {
-				page: 1,
-				limit: 100,
-			},
-		};
-		getClientList(payload);
-	}, []);
+	const getClientListData = useCallback(
+		(searchQuery = '', page = 1) => {
+			const payload = {
+				filters: {
+					page,
+					limit: 100,
+				},
+			};
+			if (searchQuery) {
+				payload.filters.name = searchQuery;
+			}
+
+			if (page === 1) {
+				setInfo((prev) => ({
+					...prev,
+					clientData: null,
+					currentPage: 1,
+					isLoading: false,
+					isSearching: !!searchQuery,
+				}));
+			}
+
+			getClientList(payload);
+		},
+		[getClientList],
+	);
+
+	const debouncedSearch = useCallback(
+		debounce((searchQuery) => {
+			getClientListData(searchQuery, 1);
+		}, 500),
+		[getClientListData],
+	);
+
+	const getMoreClientData = useCallback(() => {
+		if (info.isLoading || !info.hasNextPage) return;
+
+		const nextPage = info.currentPage + 1;
+		getClientListData(info.searchQuery, nextPage);
+	}, [info.isLoading, info.hasNextPage, info.currentPage, info.searchQuery, getClientListData]);
 
 	const closeModalFunc = () => {
 		setInfo((prev) => ({
@@ -165,6 +208,22 @@ const CreateFileLead = ({ open, onClose, workflow }) => {
 			handleSelectedLead(value);
 		},
 		[handleSelectedLead],
+	);
+
+	const handleDropdownChange = useCallback(
+		(data) => {
+			if (data.searchQuery !== undefined) {
+				const searchQuery = data.searchQuery;
+				setInfo((prev) => ({
+					...prev,
+					searchQuery,
+				}));
+				debouncedSearch(searchQuery);
+			} else {
+				onChangeClientLists(data);
+			}
+		},
+		[debouncedSearch, onChangeClientLists],
 	);
 
 	const onChangeSelectedSource = useCallback(async (data) => {
@@ -244,6 +303,16 @@ const CreateFileLead = ({ open, onClose, workflow }) => {
 			}
 		}
 	}, [workflow, info?.leadDetails, info?.createButtonActive, info?.isLoading, navigate]);
+
+	const createDocumentFunc = async () => {
+		const payload = {
+			smartFileInput: {
+				title: info?.documentTitle,
+				templateId: workflow?._id,
+			},
+		};
+		await createSmartfile(payload);
+	};
 
 	return (
 		<ReactModal
@@ -403,6 +472,17 @@ const CreateFileLead = ({ open, onClose, workflow }) => {
 					<>
 						<div className="leadSourceContainer">
 							<span className="leadSorcelabel">Search from Leads</span>
+							{/* <input
+								type="text"
+								placeholder="search from leads"
+								value={info?.searchValue}
+								onChange={(e) => {
+									const value = e?.target?.value;
+									setInfo((prev) => ({ ...prev, searchValue: value }));
+									debouncedGetClientList(value);
+								}}
+								className="leadSorcelabel"
+							/> */}
 							<HeadersDropDownComp
 								showIcon={false}
 								options={info?.clientData || []}
@@ -424,7 +504,7 @@ const CreateFileLead = ({ open, onClose, workflow }) => {
 									maxHeight: '150px',
 									minHeight: '150px',
 								}}
-								onChangeFunc={(e) => onChangeClientLists(e)}
+								onChangeFunc={handleDropdownChange}
 								dropDownTextStyling={{
 									color: 'var(--nav-bar-button-text, #FFF)',
 									fontFamily: 'var(--primary-font-family)',
@@ -436,31 +516,50 @@ const CreateFileLead = ({ open, onClose, workflow }) => {
 								showSelectedValueTick={true}
 								uniqueIdentifierForTickIcon={'_id'}
 								selectedValueObj={info?.selectedLead}
+								fetchMoreData={getMoreClientData}
+								hasNextPage={info?.hasNextPage}
 							/>
 						</div>
-						<div className="leadSourceContainer">
-							<span className="leadSorcelabel">Selected Workflow</span>
-							<div
-								style={{
-									height: '48px',
-									padding: '12px 14px',
-									color: '#e4e5e6',
-									width: 'inherit',
-									flex: 1,
-									alignSelf: 'stretch',
-									borderRadius: '0.625rem',
-									border: '1px solid rgba(36, 36, 36, 0.64)',
-									backgroundColor: '#151515',
-									display: 'flex',
-									alignItems: 'center',
-									fontSize: '12px',
-									fontFamily: 'var(--primary-font-family)',
-									fontWeight: '500',
-								}}
-							>
-								{workflow?.title || 'Untitled Workflow'}
+						{!workflow?.version ? (
+							<div className="leadSourceContainer">
+								<span className="leadSorcelabel">Selected Workflow</span>
+								<div
+									style={{
+										height: '48px',
+										padding: '12px 14px',
+										color: '#e4e5e6',
+										width: 'inherit',
+										flex: 1,
+										alignSelf: 'stretch',
+										borderRadius: '0.625rem',
+										border: '1px solid rgba(36, 36, 36, 0.64)',
+										backgroundColor: '#151515',
+										display: 'flex',
+										alignItems: 'center',
+										fontSize: '12px',
+										fontFamily: 'var(--primary-font-family)',
+										fontWeight: '500',
+									}}
+								>
+									{workflow?.title || 'Untitled Workflow'}
+								</div>
 							</div>
-						</div>
+						) : (
+							<div className="leadSourceContainer">
+								<input
+									type="text"
+									placeholder="Title of Document"
+									className="createLeadInputContainer"
+									value={info?.documentTitle}
+									onChange={(e) =>
+										setInfo((prev) => ({
+											...prev,
+											documentTitle: e.target.value,
+										}))
+									}
+								/>
+							</div>
+						)}
 					</>
 				)}
 
@@ -468,7 +567,7 @@ const CreateFileLead = ({ open, onClose, workflow }) => {
 					<div className="continueContainer">
 						<div
 							className={`createButton ${info?.createButtonActive ? 'active' : ''}`}
-							onClick={createLeadFunc}
+							onClick={createDocumentFunc}
 						>
 							{info?.isLoading ? <p>Loading...</p> : <p>Add Lead</p>}
 						</div>

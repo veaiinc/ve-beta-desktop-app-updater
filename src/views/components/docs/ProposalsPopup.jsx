@@ -9,6 +9,7 @@ import '../../../assets/scss/docs/proposalsPopup.scss';
 import { fetchOriginSelection } from '../../../helpers';
 import Context from '../../../context/context';
 import moment from 'moment';
+import { useNavigate } from 'react-router-dom';
 import CreateFileLead from '../myTemplate/CreateFileLead';
 const origin = fetchOriginSelection();
 
@@ -33,6 +34,7 @@ const customStyles = {
 };
 
 const ProposalPopup = ({ open, closeModal, clientDetails = null, commonState }) => {
+	const navigate = useNavigate();
 	const {
 		templates: {
 			getMyWorkflowsForProposalPopup,
@@ -77,7 +79,6 @@ const ProposalPopup = ({ open, closeModal, clientDetails = null, commonState }) 
 			if (open && !myWorkflowsForProposalPopup?.length) getMyWorkflowsForProposalPopup(1);
 		}
 	}, [info?.selectedOption]);
-
 	useEffect(() => {
 		if (myWorkflowsForProposalPopup && open) {
 			myWorkflowsDataParser(myWorkflowsForProposalPopup);
@@ -92,7 +93,11 @@ const ProposalPopup = ({ open, closeModal, clientDetails = null, commonState }) 
 
 	useEffect(() => {
 		if (smartfile?._id && info?.activeTemplateData?._id) {
-			window.location.href = `${origin}/workflow/${smartfile?._id}?workflow=true&templateId=${info?.activeTemplateData?._id}`;
+			if (info?.activeTemplateData?.version) {
+				window.location.href = `${origin}/workflow/${smartfile?._id}?workflow=true&templateId=${info?.activeTemplateData?._id}`;
+			} else {
+				navigate(`/smart-file/${info?.activeTemplateData?._id}/${smartfile?._id}`);
+			}
 		}
 	}, [smartfile]);
 
@@ -371,7 +376,7 @@ const ProposalPopup = ({ open, closeModal, clientDetails = null, commonState }) 
 								className="docsTemplateCard"
 								onClick={() =>
 									template?.version
-										? handleTemplateClick(template)
+										? versionClick(template)
 										: versionClick(template)
 								}
 							>

@@ -30,6 +30,8 @@ const QuickActions = ({ styles, customActions = [], clientDetails = null }) => {
 		dropdownOptions: customActions?.length > 0 ? customActions : dropdownOptions,
 		commonState: null,
 		isAutomationLoading: false,
+		openDocumentPopup: false,
+		openedModalType: null,
 	});
 
 	const {
@@ -58,7 +60,11 @@ const QuickActions = ({ styles, customActions = [], clientDetails = null }) => {
 		if (type === 'meeting') {
 			navigate('/calendar');
 		} else if (type === 'document') {
-			setInfo({ ...info, openProposalPopup: true, commonState: 'All' });
+			setInfo({
+				...info,
+				openProposalPopup: true,
+				commonState: '',
+			});
 		} else if (type === 'client') {
 			setInfo({ ...info, openClientPopup: true });
 		} else if (type === 'task') {
