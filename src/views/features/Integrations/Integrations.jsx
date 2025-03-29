@@ -4,9 +4,11 @@ import '../../../assets/scss/integrations/integrations.scss';
 import Search from '../../../assets/svg/seach-magnifier.svg';
 import slack from '../../../assets/svg/Settings/slack.svg';
 import google from '../../../assets/svg/Settings/google.svg';
+import googleDrive from '../../../assets/svg/Settings/google-drive.svg';
+import googleCalendar from '../../../assets/svg/Settings/google-calendar-logo.png';
+import dropbox from '../../../assets/svg/Settings/drop-box-logo.png';
 import meta from '../../../assets/svg/Settings/meta.svg';
 import notion from '../../../assets/svg/Settings/notion.svg';
-import googleDrive from '../../../assets/svg/Settings/google-drive.svg';
 import paypal from '../../../assets/svg/Settings/paypal.svg';
 import square from '../../../assets/svg/Settings/square.svg';
 import stripe from '../../../assets/svg/Settings/stripe.svg';
@@ -65,7 +67,6 @@ const AvailableIntegrationCard = ({
 			<button
 				className="integration-button connect"
 				onClick={() => onConnect({ icon, title, description, connectType })}
-				disabled={connectLoader}
 			>
 				Connect
 				{connectLoader?.loader && connectLoader?.title === title && <Spinner />}
@@ -115,10 +116,10 @@ const Integrations = () => {
 		{
 			id: 1,
 			icon: google,
-			title: 'Google',
-			connectType: 'google',
+			title: 'Gmail',
+			connectType: 'gmail',
 			description:
-				'Easily connect with Google to sync your calendar, manage files, and streamline communication.',
+				'Easily connect with Gmail to sync your emails and streamline communication.',
 			isConnected: false,
 		},
 		{
@@ -146,6 +147,31 @@ const Integrations = () => {
 			connectType: 'slack',
 			description:
 				'Stay connected and streamline communication by integrating with Slack. Receive updates, share insights, and collaborate seamlessly.',
+			isConnected: false,
+		},
+		{
+			id: 5,
+			icon: googleDrive,
+			title: 'Google Drive',
+			connectType: 'google-drive',
+			description:
+				'Easily connect with Google Drive to sync your files and streamline communication.',
+			isConnected: false,
+		},
+		{
+			id: 6,
+			icon: googleCalendar,
+			title: 'Google Calendar',
+			connectType: 'google-calendar',
+			description: 'Easily connect with Google Calendar to sync your calendar.',
+			isConnected: false,
+		},
+		{
+			id: 7,
+			icon: dropbox,
+			title: 'Dropbox',
+			connectType: 'dropbox',
+			description: 'Easily connect with Dropbox to sync your files.',
 			isConnected: false,
 		},
 	];
@@ -193,7 +219,15 @@ const Integrations = () => {
 		},
 	];
 	const [info, setInfo] = useState({
-		connectedThirdParties: { google: false, zoho: false, notion: false, slack: false },
+		connectedThirdParties: {
+			google: false,
+			zoho: false,
+			notion: false,
+			slack: false,
+			googleDrive: false,
+			dropbox: false,
+			googleCalendar: false,
+		},
 		loader: false,
 	});
 	const {
@@ -233,6 +267,9 @@ const Integrations = () => {
 						notion: data.notion || [],
 						slack: data.slack || [],
 						zoho: data.zoho || [],
+						googleDrive: data.googleDrive || [],
+						dropbox: data.dropbox || [],
+						googleCalendar: data.googleCalendar || [],
 					},
 				}));
 			}
@@ -278,6 +315,25 @@ const Integrations = () => {
 					accounts: info.connectedThirdParties.slack,
 				});
 			}
+			if (info.connectedThirdParties.googleDrive?.length > 0) {
+				platforms.push({
+					icon: googleDrive,
+					title: 'Google Drive',
+				});
+			}
+			if (info.connectedThirdParties.dropbox?.length > 0) {
+				platforms.push({
+					icon: dropbox,
+					title: 'Dropbox',
+				});
+			}
+			if (info.connectedThirdParties.googleCalendar?.length > 0) {
+				platforms.push({
+					icon: googleCalendar,
+					title: 'Google Calendar',
+				});
+			}
+
 			setConnectedPlatforms(platforms);
 		}
 	}, [info.connectedThirdParties]);
