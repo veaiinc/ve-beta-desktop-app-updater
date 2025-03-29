@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { message, Tooltip } from 'antd';
-import React, { useContext, useState, useCallback, useEffect } from 'react';
+import React, { useContext, useState, useCallback, useEffect, memo } from 'react';
 // import '../../../assets/scss/home_page/homepage.scss';
 import '../../../assets/scss/globalComponents/quickActions.scss';
 import Search from '../../../assets/svg/seach-magnifier.svg';
@@ -379,4 +379,4 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 	);
 };
 
-export default QuickActions;
+export default memo(QuickActions);
