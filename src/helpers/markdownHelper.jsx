@@ -416,3 +416,82 @@ export const TypingEffect = memo(
 		);
 	},
 );
+
+export const UserMessageRenderer = ({ messageData, lastVisibleUserMessageIndex }) => {
+	const [info, setinfo] = useState({
+		isCopiedToClipboard: false,
+		editUserQuery: false,
+		userQuery: messageData?.message,
+	});
+
+	const handleCopyTextClick = useCallback(
+		(text) => {
+			const textToBeCopied = text?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')?.replace(/\\n/g, '\n');
+			navigator?.clipboard?.writeText(textToBeCopied).then(() => {
+				setinfo((prev) => ({ ...prev, isCopiedToClipboard: true }));
+				setTimeout(() => {
+					setinfo((prev) => ({ ...prev, isCopiedToClipboard: false }));
+				}, 1000);
+			});
+		},
+		[info],
+	);
+
+	const handleEditUserQueryToggle = useCallback(() => {
+		setinfo((prev) => ({
+			...prev,
+			editUserQuery: !prev.editUserQuery,
+			userQuery: messageData?.message || '',
+		}));
+	}, [info, messageData]);
+
+	return (
+		<div className="user-message-renderer-container">
+			{!info?.editUserQuery ? (
+				<div
+					style={{
+						transition: 'opacity 0.3s ease-in-out',
+						opacity: lastVisibleUserMessageIndex ? 1 : 0.6,
+					}}
+					className="fade-in user-message-renderer-container"
+				>
+					<Markdown>{messageData?.message || ''}</Markdown>
+				</div>
+			) : (
+				<div className="user-edit-query-input-box-container">
+					<textarea value={info?.userQuery} />
+					<div className="user-editQuery-actionBtnContainer">
+						<div className="cancelBtn" onClick={handleEditUserQueryToggle}>
+							Cancel
+						</div>
+						<div className="sendBtn">Send</div>
+					</div>
+				</div>
+			)}
+
+			{!info?.editUserQuery ? (
+				<div className="hover-actions-container">
+					<div className="icon-container">
+						<Tooltip placement="bottom" arrow={false} trigger={'hover'} title={'Edit'}>
+							<PencilSparkleIcon onClick={handleEditUserQueryToggle} />
+						</Tooltip>
+					</div>
+
+					<div className="icon-container">
+						<Tooltip placement="bottom" arrow={false} trigger={'hover'} title={'Copy'}>
+							{info?.isCopiedToClipboard ? (
+								<TickSvg />
+							) : (
+								<CopyIcon
+									onClick={() => handleCopyTextClick(messageData?.message)}
+								/>
+							)}
+						</Tooltip>
+					</div>
+				</div>
+			) : (
+				''
+			)}
+		</div>
+	);
+};

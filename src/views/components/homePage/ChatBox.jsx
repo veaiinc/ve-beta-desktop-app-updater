@@ -132,16 +132,6 @@ const ChatBox = ({
 		aiSetup: { updateAiSetupState, voiceIntegrationData },
 	} = useContext(Context);
 
-	// const {
-	// 	isConnected,
-	// 	isMuted,
-	// 	audioLevel,
-	// 	connectToRoom,
-	// 	disconnect,
-	// 	toggleMute,
-	// 	toggleKrispNoiseFilter,
-	// } = useVoiceIntegration();
-
 	const { handleConnect, shouldConnect } = useUpdatedVoiceIntegration();
 
 	const navigate = useNavigate();
@@ -789,21 +779,6 @@ const ChatBox = ({
 
 		[info, handleConnect],
 	);
-
-	// const handleToggleMute = useCallback((event) => {
-	// 	// toggleMute();
-	// 	event.stopPropagation();
-	// 	setInfo((prev) => ({ ...prev, isVoiceMuted: !prev?.isVoiceMuted }));
-	// }, []);
-
-	// const handleDisConnect = useCallback(
-	// 	(event) => {
-	// 		handleDisconnect();
-	// 		setInfo((prev) => ({ ...prev, voiceIntegration: false, isVoiceMuted: false }));
-	// 		event.stopPropagation();
-	// 	},
-	// 	[info],
-	// );
 
 	const handleSendBtnClick = (e) => {
 		if (info?.chatQuery?.trim()?.length > 0) {
