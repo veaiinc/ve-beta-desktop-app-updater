@@ -278,11 +278,12 @@
 						position: absolute;
 						top: 10%;
 						left: 40%;
-						transform: translateX(-50%);
+						transform: translateX(-36%);
 						z-index: 10;
 						background-color: var(--card);
 						opacity: 0.5;
 						border-radius: 8px;
+						width: 70%;
 						.eachOption {
 							width: 100%;
 							display: flex;
