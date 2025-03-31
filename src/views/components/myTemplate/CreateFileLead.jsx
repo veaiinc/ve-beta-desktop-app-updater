@@ -100,8 +100,7 @@ const CreateFileLead = ({ open, onClose, workflow }) => {
 				? workflow?.title || ''
 				: `Copy of ${workflow?.title || ''}`,
 		}));
-	}, [workflow, open]);
-	console.log(info?.documentTitle, 'testing');
+	}, [workflow, open, info?.existingLeadSource]);
 	useEffect(() => {
 		setInfo((prev) => ({
 			...prev,
@@ -411,6 +410,8 @@ const CreateFileLead = ({ open, onClose, workflow }) => {
 									...prev.leadDetails,
 									name: '',
 									emailId: '',
+									selectedLead: null,
+									documentTitle: workflow?.title || '',
 								},
 							}));
 						}}
@@ -477,29 +478,22 @@ const CreateFileLead = ({ open, onClose, workflow }) => {
 								selectedValueObj={{ value: info?.leadDetails?.source }}
 							/>
 						</div>
-						{!workflow?.version ? (
-							<div className="leadSourceContainer">
-								<span className="leadSorcelabel">Selected Workflow</span>
-								<div style={{ ...selectedWorkflowStyles }}>
-									{workflow?.title || 'Untitled Workflow'}
-								</div>
-							</div>
-						) : (
-							<div className="leadSourceContainer">
-								<input
-									type="text"
-									placeholder="Title of Document"
-									className="createLeadInputContainer"
-									value={info?.documentTitle}
-									onChange={(e) =>
-										setInfo((prev) => ({
-											...prev,
-											documentTitle: e.target.value,
-										}))
-									}
-								/>
-							</div>
-						)}
+
+						<div className="leadSourceContainer">
+							<span className="leadSorcelabel">Title of Document</span>
+							<input
+								type="text"
+								placeholder="Title of Document"
+								className="createLeadInputContainer"
+								value={info?.documentTitle}
+								onChange={(e) =>
+									setInfo((prev) => ({
+										...prev,
+										documentTitle: e.target.value,
+									}))
+								}
+							/>
+						</div>
 					</div>
 				) : (
 					<>
@@ -525,29 +519,22 @@ const CreateFileLead = ({ open, onClose, workflow }) => {
 								hasNextPage={info?.hasNextPage}
 							/>
 						</div>
-						{!workflow?.version ? (
-							<div className="leadSourceContainer">
-								<span className="leadSorcelabel">Selected Workflow</span>
-								<div style={{ ...selectedWorkflowStyles }}>
-									{workflow?.title || 'Untitled Workflow'}
-								</div>
-							</div>
-						) : (
-							<div className="leadSourceContainer">
-								<input
-									type="text"
-									placeholder="Title of Document"
-									className="createLeadInputContainer"
-									value={info?.documentTitle}
-									onChange={(e) =>
-										setInfo((prev) => ({
-											...prev,
-											documentTitle: e.target.value,
-										}))
-									}
-								/>
-							</div>
-						)}
+
+						<div className="leadSourceContainer">
+							<span className="leadSorcelabel">Title of Document</span>
+							<input
+								type="text"
+								placeholder="Title of Document"
+								className="createLeadInputContainer"
+								value={info?.documentTitle}
+								onChange={(e) =>
+									setInfo((prev) => ({
+										...prev,
+										documentTitle: e.target.value,
+									}))
+								}
+							/>
+						</div>
 					</>
 				)}
 

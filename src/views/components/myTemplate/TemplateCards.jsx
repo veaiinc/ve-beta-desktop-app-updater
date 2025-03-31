@@ -2,14 +2,15 @@ import React, { memo, useEffect, useState, useContext, useCallback } from 'react
 import { useNavigate } from 'react-router-dom';
 import Skeleton from 'react-loading-skeleton';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import { fetchOriginSelection } from '../../../helpers';
+import { fetchOriginSelection, getCurrentWorkspaceId } from '../../../helpers';
 import SideBarPreview from './SideBarPreview';
 import CreateFileLead from './CreateFileLead';
 import { ReactComponent as OpenedEye } from '../../../assets/svg/my_templates/openedEye.svg';
 import { ReactComponent as ThreeDots } from '../../../assets/svg/my_templates/verticalThreeDots.svg';
 import DeleteWorkflowModal from '../../components/modalsV2/workflowBuilderModals/DeleteWorkflowModal';
 import moment from 'moment';
-import { Tooltip, message } from 'antd';
+import CopiedModal from '../modalsV2/workflowsModals/CopiedModal';
+import { Tooltip, message, Spin } from 'antd';
 import Context from '../../../context/context';
 let origin = fetchOriginSelection();
 
@@ -18,6 +19,7 @@ const TemplateCards = ({ data, loading, hasNextPage, fetchMoreMyWorkflows }) => 
 	const {
 		templates: { deleteWorkflowTemplates, duplicateGlobalWorkflowTemplate, updateStateValues },
 		activityInfo: { createSmartfile, smartfile },
+		profileInfo: { userWorkSpaceList, getTenantSettings, tennantSettingsData },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		workflowTemplates: data,
@@ -52,6 +54,31 @@ const TemplateCards = ({ data, loading, hasNextPage, fetchMoreMyWorkflows }) => 
 			window.location.href = `${origin}/workflow/${smartfile?._id}?workflow=true&templateId=${info?.templateData?._id}`;
 		}
 	}, [smartfile]);
+
+	useEffect(() => {
+		if (userWorkSpaceList) {
+			const currentWorkspaceId = getCurrentWorkspaceId(userWorkSpaceList);
+			performExtraCheck(currentWorkspaceId);
+		}
+	}, [userWorkSpaceList, info?.pendingCopyAction]);
+
+	useEffect(() => {
+		if (!tennantSettingsData) {
+			getTenantSettings();
+		}
+	}, [tennantSettingsData]);
+
+	const performExtraCheck = useCallback(
+		async (currentWorkspaceId) => {
+			setInfo((prev) => ({ ...prev, currentWorkspaceId }));
+			if (info?.pendingCopyAction) {
+				let link = `https://${currentWorkspaceId}.ve.ai/${info?.pendingCopyAction}`;
+				await navigator.clipboard.writeText(link);
+				setInfo((prev) => ({ ...prev, pendingCopyAction: null, copyLink: link }));
+			}
+		},
+		[info?.pendingCopyAction],
+	);
 
 	const handleTemplateClick = (template) => {
 		setInfo((prev) => ({ ...prev, showPreview: true, previewTemplateData: template }));
@@ -121,6 +148,52 @@ const TemplateCards = ({ data, loading, hasNextPage, fetchMoreMyWorkflows }) => 
 		}
 	}, [info?.deleteTemplateData, info?.deleteWorkflowLoader]);
 
+	const openCopyLinkModal = useCallback(
+		async (data) => {
+			try {
+				setInfo((prev) => ({ ...prev, copyModal: true }));
+				if (!tennantSettingsData) {
+					await getTenantSettings();
+				}
+
+				let link;
+				if (tennantSettingsData?.customDomain?.length) {
+					link = `https://${tennantSettingsData?.customDomain}/${data?.slug}`;
+					setInfo((prev) => ({ ...prev, copyLink: link }));
+					await navigator.clipboard.writeText(link);
+					return;
+				} else {
+					if (!info?.currentWorkspaceId) {
+						setInfo((prev) => ({ ...prev, pendingCopyAction: data?.slug }));
+						return;
+					}
+					link = `https://${info?.currentWorkspaceId}.ve.ai/${data?.slug}`;
+					setInfo((prev) => ({ ...prev, copyLink: link }));
+					await navigator.clipboard.writeText(link);
+					return;
+				}
+			} catch (err) {
+				console.log('Failed to copy text');
+			}
+		},
+		[info?.currentWorkspaceId, tennantSettingsData],
+	);
+
+	const closeCopyLinkModal = useCallback(() => {
+		setInfo((prev) => ({
+			...prev,
+			copyModal: false,
+			copyLink: null,
+		}));
+	}, []);
+
+	const createDocumentHandler = (e) => {
+		setInfo((prev) => ({
+			...prev,
+			showFileLeadModal: true,
+			previewTemplateData: info?.hoverTemplateData,
+		}));
+	};
 	return (
 		<>
 			<div className="myTemplatesInfiniteContainer">
@@ -178,6 +251,28 @@ const TemplateCards = ({ data, loading, hasNextPage, fetchMoreMyWorkflows }) => 
 								}
 							>
 								<div className="docsTemplateImageContainer">
+									{info?.hoverIndex === index && (
+										<div className="docsTemplateHoveredOptions">
+											<div
+												className="eachOption"
+												onClick={(e) => {
+													e.stopPropagation();
+													createDocumentHandler();
+												}}
+											>
+												Create a new Document
+											</div>
+											<div
+												className="eachOption"
+												onClick={(e) => {
+													e.stopPropagation();
+													window.location.href = `${origin}/${info?.hoverTemplateData?._id} `;
+												}}
+											>
+												Edit Workflow
+											</div>
+										</div>
+									)}
 									<iframe
 										src={`${origin}/preview/short/${template?._id}?module=${template?.moduleTemplates?.[0]?._id}&isPubic=${template?.moduleTemplates?.[0]?.isPublic}&restrictClick=true`}
 										title="Builder Preview"
@@ -224,6 +319,17 @@ const TemplateCards = ({ data, loading, hasNextPage, fetchMoreMyWorkflows }) => 
 														<div
 															className="docsFooterContentActionsTooltipItem"
 															onClick={(e) => {
+																e.stopPropagation();
+																openCopyLinkModal(
+																	info?.hoverTemplateData,
+																);
+															}}
+														>
+															Share
+														</div>
+														<div
+															className="docsFooterContentActionsTooltipItem"
+															onClick={(e) => {
 																duplicateWorkflowFunc(
 																	info?.hoverTemplateData,
 																);
@@ -257,7 +363,7 @@ const TemplateCards = ({ data, loading, hasNextPage, fetchMoreMyWorkflows }) => 
 												trigger="hover"
 												color="transparent"
 											>
-												<ThreeDots />
+												<ThreeDots onClick={(e) => e.stopPropagation()} />
 											</Tooltip>
 										</div>
 									)}
@@ -285,6 +391,22 @@ const TemplateCards = ({ data, loading, hasNextPage, fetchMoreMyWorkflows }) => 
 				closeModal={() => setInfo((prev) => ({ ...prev, deleteWorkflowModal: false }))}
 				deleteWorkflowFunc={deleteWorkflowFunc}
 				deleteLoader={info?.deleteWorkflowLoader}
+			/>
+			<CopiedModal
+				open={info?.copyModal}
+				closeModal={closeCopyLinkModal}
+				slug={info?.hoverTemplateData?.slug}
+				modules={info?.hoverTemplateData?.moduleTemplates?.filter((ele) => ele?.isPublic)}
+				copyLink={
+					info?.currentWorkspaceId || info?.copyLink ? (
+						info?.copyLink
+					) : (
+						<span style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+							Generating Link ...
+							<Spin />
+						</span>
+					)
+				}
 			/>
 		</>
 	);
