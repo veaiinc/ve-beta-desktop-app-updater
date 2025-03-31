@@ -1,29 +1,27 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState, useRef } from 'react';
 import '../../../assets/scss/chat/voice.scss';
-import { ReactComponent as PauseSvg } from '../../../assets/svg/ai_agents/pause.svg';
+// import { ReactComponent as PauseSvg } from '../../../assets/svg/ai_agents/pause.svg';
 import { ReactComponent as CloseSvg } from '../../../assets/svg/calendar/close.svg';
-import { ReactComponent as VoiceSvg } from '../../../assets/svg/ai_agents/voice.svg';
-import { ReactComponent as VoiceLightSvg } from '../../../assets/svg/ai_agents/voice-light.svg';
-import { ReactComponent as VoiceMuteSvg } from '../../../assets/svg/ai_agents/voice-mute.svg';
+// import { ReactComponent as VoiceSvg } from '../../../assets/svg/ai_agents/voice.svg';
+// import { ReactComponent as VoiceLightSvg } from '../../../assets/svg/ai_agents/voice-light.svg';
+// import { ReactComponent as VoiceMuteSvg } from '../../../assets/svg/ai_agents/voice-mute.svg';
 import { ReactComponent as UserSoundSvg } from '../../../assets/svg/chat/UserSound.svg';
 import { ConnectionState, LocalParticipant, Track } from 'livekit-client';
-import useUpdatedVoiceIntegration from '../../hooks/useUpdatedVoiceIntegration';
-import { message } from 'antd';
 import {
 	TrackToggle,
-	BarVisualizer,
 	VideoTrack,
 	useConnectionState,
-	useDataChannel,
 	useLocalParticipant,
 	useRoomInfo,
 	useTracks,
 	useVoiceAssistant,
 	useRoomContext,
-	useTrackToggle,
 	useTrackTranscription,
 } from '@livekit/components-react';
 import { useKrispNoiseFilter } from '@livekit/components-react/krisp';
+// import webgazer from 'webgazer';
+import { throttle } from 'lodash';
+// window.webgazer = webgazer;
 const Voice = ({ handleDisconnect, deviceInfo }) => {
 	const { name = '' } = useRoomInfo();
 	const [transcripts, setTranscripts] = useState(new Map());
@@ -35,7 +33,7 @@ const Voice = ({ handleDisconnect, deviceInfo }) => {
 	const roomState = useConnectionState();
 	const tracks = useTracks();
 	const room = useRoomContext();
-
+	const micBtnRef = useRef(null);
 	const localTracks = tracks.filter(({ participant }) => participant instanceof LocalParticipant);
 	const localVideoTrack = localTracks.find(({ source }) => source === Track.Source.Camera);
 	const localMicTrack = localTracks.find(({ source }) => source === Track.Source.Microphone);
@@ -49,10 +47,18 @@ const Voice = ({ handleDisconnect, deviceInfo }) => {
 
 	useEffect(() => {
 		if (roomState === ConnectionState.Connected) {
-			localParticipant.setMicrophoneEnabled(true);
-			if (deviceInfo?.hasCamera) {
-				localParticipant.setCameraEnabled(true);
-			}
+			localParticipant.setMicrophoneEnabled(true, {
+				sampleRate: 48000, // Best for speech clarity
+				sampleSize: 16, // Standard bit depth
+				noiseSuppression: true,
+				autoGainControl: true,
+				echoCancellation: true,
+				voiceIsolation: true,
+			});
+			// if (deviceInfo?.hasCamera) {
+			// 	localParticipant.setCameraEnabled(true);
+			// }
+			// handleWebgazer();
 		}
 	}, [localParticipant, roomState, deviceInfo]);
 
@@ -102,6 +108,97 @@ const Voice = ({ handleDisconnect, deviceInfo }) => {
 		localMessages.segments,
 		voiceAssistant.audioTrack?.participant,
 	]);
+
+	// const handleWebgazer = useCallback(() => {
+	// 	if (webgazer) {
+	// 		const throttledGazeListener = throttle(async (data) => {
+	// 			const isEnabled = micBtnRef.current.dataset.lkEnabled;
+
+	// 			if (data && data.x !== null && data.y !== null) {
+	// 				// Get face prediction asynchronously
+
+	// 				const facePrediction = await webgazer.getCurrentPrediction();
+	// 				if (facePrediction && facePrediction.eyeFeatures) {
+	// 					const leftEye = facePrediction.eyeFeatures.left;
+	// 					const rightEye = facePrediction.eyeFeatures.right;
+	// 					// Ensure both eyes are detected and have a reasonable width
+	// 					const bothEyesDetected =
+	// 						leftEye && rightEye && leftEye.width > 10 && rightEye.width > 10;
+	// 					if (!bothEyesDetected) {
+	// 						//'User is NOT looking at the screen (one or both eyes not detected)',
+
+	// 						if (isEnabled === 'true') {
+	// 							micBtnRef?.current?.click();
+	// 							micBtnRef.current.dataset.lkEnabled = 'false';
+	// 							return;
+	// 						}
+	// 					}
+	// 					const { x, y } = facePrediction;
+	// 					// Check if the gaze is within screen bounds
+	// 					if (x < 0 || y < 0 || x > window.innerWidth || y > window.innerHeight) {
+	// 						// User looking at the screen but out of bounds
+
+	// 						if (isEnabled === 'false') {
+	// 							micBtnRef?.current?.click();
+	// 							micBtnRef.current.dataset.lkEnabled = 'true';
+	// 							return;
+	// 						}
+	// 					} else {
+	// 						//'User is looking at the screen
+
+	// 						if (isEnabled === 'false') {
+	// 							micBtnRef?.current?.click();
+	// 							micBtnRef.current.dataset.lkEnabled = 'true';
+	// 							return;
+	// 						}
+	// 					}
+	// 				} else {
+	// 					//'User is NOT looking at the screen facePrediction'
+
+	// 					if (isEnabled === 'true') {
+	// 						micBtnRef?.current?.click();
+	// 						micBtnRef.current.dataset.lkEnabled = 'false';
+	// 						return;
+	// 					}
+	// 				}
+	// 			} else {
+	// 				//'User is NOT looking at the screen'
+
+	// 				if (isEnabled === 'true') {
+	// 					micBtnRef?.current?.click();
+	// 					micBtnRef.current.dataset.lkEnabled = 'false';
+	// 					return;
+	// 				}
+	// 			}
+	// 		}, 1000);
+	// 		webgazer.setGazeListener(throttledGazeListener).begin();
+	// 		// Hide UI elements
+	// 		webgazer.showVideo(false);
+	// 		webgazer.showFaceOverlay(false);
+	// 		webgazer.showFaceFeedbackBox(false);
+	// 		webgazer.showPredictionPoints(false);
+	// 		// Debugging: Ensure WebGazer is tracking properly
+	// 		setTimeout(() => {
+	// 			webgazer.getCurrentPrediction().then((prediction) => {
+	// 				if (!prediction) {
+	// 					console.warn('WebGazer is not detecting gaze properly.');
+	// 				}
+	// 			});
+	// 		}, 3000);
+	// 	}
+	// }, [webgazer, micBtnRef]);
+
+	const customDisconnect = useCallback(() => {
+		// webgazer.stopVideo();
+		// webgazer.clearGazeListener();
+		// webgazer.end();
+
+		handleDisconnect();
+	}, [
+		handleDisconnect,
+		//  webgazer
+	]);
+
 	const getStatusText = () => {
 		if (localParticipant?.isSpeaking) {
 			return 'Listening to you...';
@@ -132,11 +229,6 @@ const Voice = ({ handleDisconnect, deviceInfo }) => {
 	const getStateClass = () => {
 		if (localParticipant?.isSpeaking) return 'user-speaking';
 		return voiceAssistant.state || '';
-	};
-	console.log(transScriptMessages);
-	const getMicIcon = () => {
-		const isEnabled = localMicTrack?.publication?.isEnabled;
-		return isEnabled ? <VoiceSvg className="mic-icon" /> : <></>;
 	};
 
 	const getLatestMessage = () => {
@@ -175,21 +267,27 @@ const Voice = ({ handleDisconnect, deviceInfo }) => {
 				</div>
 			)}
 
-			{localVideoTrack && (
+			{/* {localVideoTrack && (
 				<VideoTrack
 					trackRef={localVideoTrack}
 					className={`absolute top-1/2 -translate-y-1/2 object-position-center w-full h-full`}
 				/>
-			)}
+			)} */}
 
 			<div className="controls">
 				<TrackToggle
-					className="px-2 py-1 bg-gray-900 text-gray-300 border border-gray-800 rounded-sm hover:bg-gray-800 chat-mic-icon-container icon-container"
+					className="px-2 py-1 bg-gray-900 text-gray-300 border border-gray-800 rounded-sm hover:bg-gray-800 chat-mic-icon-container icon-container custom-mic-button-toggle"
 					source={Track.Source.Microphone}
 					style={{ border: 'none' }}
+					ref={micBtnRef}
 				/>
+				{/* <TrackToggle
+					className="px-2 py-1 bg-gray-900 text-gray-300 border border-gray-800 rounded-sm hover:bg-gray-800 chat-mic-icon-container icon-container"
+					source={Track.Source.Camera}
+					style={{ border: 'none' }}
+				/> */}
 
-				<button className="cancel-button" onClick={handleDisconnect}>
+				<button className="cancel-button" onClick={customDisconnect}>
 					<CloseSvg className="cancel-icon" />
 				</button>
 			</div>

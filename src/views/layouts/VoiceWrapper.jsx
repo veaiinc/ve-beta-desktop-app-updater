@@ -13,7 +13,7 @@ const VoiceWrapper = () => {
 	} = useContext(Context);
 
 	const location = useLocation();
-	const isHomePage = location.pathname === '/' || location.pathname === '/home';
+	const isHomePage = location.pathname === '/demo' || location.pathname === '/demo';
 	const [info, setInfo] = useState({
 		deviceInfo: {},
 	});
