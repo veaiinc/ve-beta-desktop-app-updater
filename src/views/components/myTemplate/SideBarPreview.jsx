@@ -151,8 +151,8 @@ const SideBarPreview = ({ open, onClose, activeTemplate, openFileLeadModal }) =>
 						>
 							Edit
 						</div>
-						<ShareSvg onClick={() => openCopyLinkModal(activeTemplate)} />
-						<DotsSvg />
+						{/* <ShareSvg onClick={() => openCopyLinkModal(activeTemplate)} />
+						<DotsSvg /> */}
 					</div>
 				</div>
 
