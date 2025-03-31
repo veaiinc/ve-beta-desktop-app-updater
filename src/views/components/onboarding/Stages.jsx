@@ -5,7 +5,7 @@ import Context from '../../../context/context';
 import ProgressBar from './ProgressBar';
 import Stage1 from './Stage1';
 import Stage2 from './Stage2';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { message } from 'antd';
 
 let usernameTimeoutId, companyLogoFile;
@@ -17,6 +17,9 @@ const Stages = () => {
 	if (pathname === '/create-workspace') {
 		localStorage.setItem('stage', 2);
 	}
+	const [searchParams] = useSearchParams();
+	const invitedWorkspaceId = searchParams.get('invitedWorkspaceId');
+	const invitedUserEmail = searchParams.get('inviteeEmail');
 	const stageFromLocalStorage = localStorage.getItem('stage') ?? 1;
 	const usertoken = localStorage.getItem('usertoken') ?? false;
 
@@ -66,6 +69,17 @@ const Stages = () => {
 			message?.error('Session expired! Please login again');
 			setTimeout(() => {
 				window.location.href = '/verify-user';
+			}, 1500);
+		}
+		if (
+			localStorage?.getItem('isOnboard') === 'true' &&
+			pathname !== '/create-workspace' &&
+			!invitedWorkspaceId &&
+			!invitedUserEmail
+		) {
+			message?.error('You are already onboarded');
+			setTimeout(() => {
+				navigate('/home');
 			}, 1500);
 		}
 		handleGetUserDetails();
