@@ -18,6 +18,7 @@ const Stages = () => {
 		localStorage.setItem('stage', 2);
 	}
 	const stageFromLocalStorage = localStorage.getItem('stage') ?? 1;
+	const usertoken = localStorage.getItem('usertoken') ?? false;
 
 	const {
 		authInfo: {
@@ -61,6 +62,12 @@ const Stages = () => {
 	const profilePictureCntxt = userDetailsData?.googleMeta?.picture ?? null;
 
 	useEffect(() => {
+		if (!usertoken) {
+			message?.error('Session expired! Please login again');
+			setTimeout(() => {
+				window.location.href = '/verify-user';
+			}, 1500);
+		}
 		handleGetUserDetails();
 		getUserLogo();
 		const countryCode = getCountryCode(info?.phoneNumber);
