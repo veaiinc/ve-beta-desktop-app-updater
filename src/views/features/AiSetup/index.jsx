@@ -32,7 +32,7 @@ const AiSetup = () => {
 		deleteSelectedData: null,
 		editSelectedData: null,
 		activeTab: 'user',
-		isOwner: false,
+		isAdmin: false,
 	});
 
 	useEffect(() => {
@@ -70,9 +70,9 @@ const AiSetup = () => {
 			return;
 		}
 		if (tenantUserAccessControls?.role === 'admin') {
-			updateState({ activeTab: 'workspace', isOwner: true });
+			updateState({ activeTab: 'user', isAdmin: true });
 		} else {
-			updateState({ activeTab: 'user', isOwner: false });
+			updateState({ activeTab: 'user', isAdmin: false });
 		}
 	}, [tenantUserAccessControls]);
 
@@ -205,30 +205,30 @@ const AiSetup = () => {
 		<>
 			<div className="AiSetupContainer">
 				<div className="AiSetupWrapper">
-					<div className="ai-setup-tabs">
-						{info?.isOwner && (
-							<button
-								className={`ai-setup-tab-button ${
-									info?.activeTab === 'workspace' ? 'active' : ''
-								}`}
-								onClick={() => updateState({ activeTab: 'workspace' })}
-							>
-								Workspace Goals
-							</button>
-						)}
-						<button
-							className={`ai-setup-tab-button ${
-								info?.activeTab === 'user' ? 'active' : ''
-							}`}
-							onClick={() => updateState({ activeTab: 'user' })}
-						>
-							My Goals
-						</button>
-					</div>
 					<div className="ai-setup-sections">
 						<h1 className="ai-setup-title">
 							Tell me about your business, and I'll help you achieve your goals!
 						</h1>
+						<div className="ai-setup-tabs">
+							<button
+								className={`ai-setup-tab-button ${
+									info?.activeTab === 'user' ? 'active' : ''
+								}`}
+								onClick={() => updateState({ activeTab: 'user' })}
+							>
+								My Goals
+							</button>
+							{info?.isAdmin && (
+								<button
+									className={`ai-setup-tab-button ${
+										info?.activeTab === 'workspace' ? 'active' : ''
+									}`}
+									onClick={() => updateState({ activeTab: 'workspace' })}
+								>
+									Workspace Goals
+								</button>
+							)}
+						</div>
 						<SectionBlock
 							openAddNewGoalModal={handleOpenAddNewGoalModal}
 							type="goal"
