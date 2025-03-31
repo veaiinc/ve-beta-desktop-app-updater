@@ -253,16 +253,16 @@ const TemplateCards = ({ data, loading, hasNextPage, fetchMoreMyWorkflows }) => 
 								<div className="docsTemplateImageContainer">
 									{info?.hoverIndex === index && (
 										<div className="docsTemplateHoveredOptions">
-											<div
+											<button
 												className="eachOption"
 												onClick={(e) => {
 													e.stopPropagation();
 													createDocumentHandler();
 												}}
 											>
-												Create a new Document
-											</div>
-											<div
+												Create Document
+											</button>
+											<button
 												className="eachOption"
 												onClick={(e) => {
 													e.stopPropagation();
@@ -270,7 +270,7 @@ const TemplateCards = ({ data, loading, hasNextPage, fetchMoreMyWorkflows }) => 
 												}}
 											>
 												Edit Workflow
-											</div>
+											</button>
 										</div>
 									)}
 									<iframe
