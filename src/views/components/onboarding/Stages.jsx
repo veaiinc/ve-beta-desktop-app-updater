@@ -22,6 +22,7 @@ const Stages = () => {
 	const invitedUserEmail = searchParams.get('inviteeEmail');
 	const stageFromLocalStorage = localStorage.getItem('stage') ?? 1;
 	const usertoken = localStorage.getItem('usertoken') ?? false;
+	const isUserOnboard = localStorage?.getItem('isOnboard') === 'true' ?? false;
 
 	const {
 		authInfo: {
@@ -72,7 +73,7 @@ const Stages = () => {
 			}, 1500);
 		}
 		if (
-			localStorage?.getItem('isOnboard') === 'true' &&
+			isUserOnboard &&
 			pathname !== '/create-workspace' &&
 			!invitedWorkspaceId &&
 			!invitedUserEmail
