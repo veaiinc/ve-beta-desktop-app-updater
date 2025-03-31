@@ -1,0 +1,210 @@
+.person-multi-select-container {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background-color: var(--card-over-card);
+
+	.person-multi-select-selected {
+		font-size: 12px;
+		font-weight: 500;
+		color: var(--primary-font);
+
+		.person-multi-select-selected-list {
+			display: flex;
+			align-items: center;
+			flex-wrap: wrap;
+			gap: 6px;
+			&:has(.person-multi-select-selected-item-stacked) {
+				padding-left: 10px;
+			}
+
+			.person-multi-select-selected-item {
+				display: flex;
+				align-items: center;
+				gap: 4px;
+
+				.person-multi-select-selected-item-avatar {
+					width: 20px;
+					height: 20px;
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					border-radius: 50%;
+					background-color: var(--card);
+					border: 1px solid var(--stroke);
+					font-size: 11px;
+					color: var(--secondary-font);
+					text-transform: uppercase;
+				}
+
+				.person-multi-select-selected-item-name {
+					display: flex;
+					flex-direction: column;
+					flex-direction: column;
+
+					.person-multi-select-selected-item-name-text {
+						font-size: 12px;
+						font-weight: 500;
+						color: var(--primary-font);
+					}
+
+					.person-multi-select-selected-item-email {
+						font-size: 12px;
+						font-weight: 500;
+						color: var(--secondary-font);
+					}
+				}
+			}
+
+			.person-multi-select-selected-item-stacked {
+				position: relative;
+				margin-left: -10px;
+
+				&:first-child {
+					margin-left: 0;
+				}
+
+				.person-multi-select-selected-item-avatar {
+					transition: transform 0.2s ease;
+
+					// &:hover {
+					// 	transform: translateY(-2px);
+					// }
+				}
+
+				.person-multi-select-selected-item-name {
+					display: none;
+				}
+			}
+		}
+	}
+}
+
+.person-drop-down-container {
+	width: 220px;
+	background-color: var(--card);
+	padding: 10px;
+	border-radius: 14px;
+	gap: 10px;
+
+	.person-drop-down-header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding: 6px 10px;
+		border-bottom: 1px solid var(--stroke);
+	}
+
+	.person-drop-down-title {
+		font-size: 12px;
+		font-weight: 500;
+		color: var(--primary-font);
+	}
+
+	.person-drop-down-body {
+		flex-grow: 1;
+		overflow-y: auto !important;
+		max-height: 300px;
+
+		.loading {
+			text-align: center;
+			padding: 10px;
+			font-size: 12px;
+			color: var(--secondary-font);
+		}
+
+		.person-drop-down-body-list {
+			display: flex;
+			flex-direction: column;
+			gap: 4px;
+			.person-multi-select-selected-item {
+				display: flex;
+				align-items: center;
+				gap: 6px;
+				cursor: pointer;
+				padding: 4px 8px;
+				border-radius: 8px;
+
+				.person-multi-select-selected-item-avatar {
+					width: 20px;
+					height: 20px;
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					border-radius: 50%;
+					background-color: var(--card);
+					border: 1px solid var(--stroke);
+					font-size: 11px;
+					color: var(--secondary-font);
+					flex-shrink: 0;
+					text-transform: uppercase;
+				}
+
+				.person-multi-select-selected-item-name {
+					display: flex;
+					flex-direction: column;
+					flex-direction: column;
+					overflow: hidden;
+					flex-grow: 1;
+
+					.person-multi-select-selected-item-name-text {
+						font-size: 12px;
+						font-weight: 500;
+						color: var(--primary-font);
+						white-space: nowrap;
+						overflow: hidden;
+						text-overflow: ellipsis;
+					}
+
+					.person-multi-select-selected-item-email {
+						font-size: 12px;
+						font-weight: 500;
+						color: var(--secondary-font);
+						white-space: nowrap;
+						overflow: hidden;
+						text-overflow: ellipsis;
+					}
+				}
+
+				&:hover {
+					background-color: var(--card);
+				}
+
+				&.selected {
+					background-color: var(--card);
+
+					.person-multi-select-selected-item-name-text {
+						color: var(--primary);
+					}
+
+					.person-multi-select-selected-item-avatar {
+						background-color: var(--primary);
+						color: var(--white);
+						border-color: var(--primary);
+					}
+				}
+			}
+		}
+	}
+}
+
+.tooltip-overlay-container {
+	width: fit-content;
+	padding: 0;
+	.tooltip-inner {
+		display: inline-flex;
+		padding: 6px 10px;
+		justify-content: center;
+		align-items: center;
+		gap: 2px;
+		border-radius: 10px;
+		background: var(--card-over-card);
+		color: var(--primary-font);
+		font-family: var(--primary-font-family);
+		font-size: 13px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: 13px; /* 100% */
+		letter-spacing: -0.26px;
+	}
+}

@@ -26,13 +26,13 @@ import Email from '../../components/tasks/listView/Email';
 import Url from '../../components/tasks/listView/Url';
 import Phone from '../../components/tasks/listView/Phone';
 import CheckBox from '../../components/tasks/listView/CheckBox';
-import WorkFlow from '../../components/tasks/listView/WorkFlow';
 import TaskId from '../../components/tasks/listView/TaskId';
 import ParentTaskComponent from '../../components/tasks/listView/ParentTaskComponent';
 import ChildTaskProgress from '../../components/tasks/listView/ChildTaskProgress';
 import LinkText from '../../components/tasks/listView/LinkText';
 import ChildTaskComponent from '../../components/tasks/listView/ChildTaskComponent';
 import QuickActions from '../../components/globalComponents/QuickActions';
+import PersonMultiSelect from '../../components/tasks/listView/PersonMultiSelect';
 
 const defaultPreference = {
 	taskSlNo: { show: false, order: 1 },
@@ -42,7 +42,7 @@ const defaultPreference = {
 	description: { show: false, order: 5 },
 	status: { show: true, order: 6 },
 	priority: { show: true, order: 7 },
-	workflow: { show: true, order: 8 },
+	clients: { show: true, order: 8 },
 	assignedTo: { show: true, order: 9 },
 	dueDate: { show: true, order: 10 },
 	assignedBy: { show: true, order: 11 },
@@ -75,10 +75,10 @@ const rowTypes = {
 	phone: Phone,
 	url: Url,
 	checkbox: CheckBox,
-	workflow: WorkFlow,
 	parentTask: ParentTaskComponent,
 	childTasks: ChildTaskProgress,
 	linkText: LinkText,
+	personMultiSelect: PersonMultiSelect,
 };
 
 const availableViews = ['table', 'board', 'list', 'gallery'];
@@ -106,7 +106,6 @@ const Tasks = () => {
 			taskPreference,
 			getListTaskWithGroup,
 		},
-		templates: { getWorkflowsList, workflowslist },
 		companyInfo: { getTeamMembers, tenantsUserList },
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 	} = useContext(Context);
@@ -125,7 +124,7 @@ const Tasks = () => {
 		selectedRow: null,
 		selectedSubTask: null,
 		taskMetadata: null,
-		workflows: [],
+		clients: [],
 		tenantUsers: [],
 		page: 1,
 		hasMore: false,
@@ -178,12 +177,6 @@ const Tasks = () => {
 						{ label: 'High', _id: 'high', color: '3' },
 					],
 				},
-			},
-			workflow: {
-				type: 'workflow',
-				name: 'Project',
-				Icon: WorkflowSvg,
-				props: { options: info?.workflows },
 			},
 			parentTask: {
 				type: 'parentTask',
@@ -255,8 +248,14 @@ const Tasks = () => {
 				Icon: textSvg,
 				props: { prefix: info?.taskMetadata?.prefix },
 			},
+			clients: {
+				type: 'personMultiSelect',
+				name: 'Clients',
+				Icon: PersonSvg,
+				props: {},
+			},
 		}),
-		[info?.workflows, info?.tenantUsers, info?.taskMetadata],
+		[info?.tenantUsers, info?.taskMetadata],
 	);
 
 	useEffect(() => {
@@ -309,26 +308,6 @@ const Tasks = () => {
 			}));
 		}
 	}, [taskPreference]);
-
-	useEffect(() => {
-		if (!workflowslist) {
-			getWorkflowsList({
-				filters: {
-					limit: 20,
-					page: 1,
-				},
-			});
-		} else {
-			setInfo((prevInfo) => ({
-				...prevInfo,
-				workflows: workflowslist?.data?.map(({ title, _id, templateId }) => ({
-					label: title,
-					_id,
-					templateId,
-				})),
-			}));
-		}
-	}, [workflowslist]);
 
 	useEffect(() => {
 		if (listTasks) {
@@ -492,12 +471,7 @@ const Tasks = () => {
 	const mapPropertyType = useCallback(() => {
 		let properties = [];
 		for (let key in responseMetadata) {
-			if (
-				key === '__typename' ||
-				key === '_id' ||
-				key === 'workflowTemplateId' ||
-				key === 'completedAt'
-			) {
+			if (key === '__typename' || key === '_id' || key === 'completedAt') {
 				continue;
 			}
 
@@ -528,20 +502,14 @@ const Tasks = () => {
 	const debouncedUpdateTask = useCallback(
 		async (rowId, propName, value, originalValue, isUpdatingSubTask, onSuccess) => {
 			try {
+				if (propName === 'clients') {
+					value = value?.map((client) => client?._id);
+				}
 				const response = await updateListItem({
 					taskId: rowId,
-					updateInput:
-						propName === 'workflow'
-							? {
-									workflowId: value,
-									workflowTemplateId: info?.workflows?.find(
-										(workflow) => workflow?._id === value,
-									)?.templateId,
-							  }
-							: {
-									[propName]:
-										propName === 'assignedTo' ? { tenantUsers: value } : value,
-							  },
+					updateInput: {
+						[propName]: propName === 'assignedTo' ? { tenantUsers: value } : value,
+					},
 				});
 
 				if (response?.[0] === false) {
@@ -642,7 +610,7 @@ const Tasks = () => {
 				});
 			}
 		},
-		[updateListItem, info?.workflows, info?.selectedSubTask, info?.sidebarIsOpen],
+		[updateListItem, info?.selectedSubTask, info?.sidebarIsOpen],
 	);
 
 	const handleDebounceUpdate = useCallback(
@@ -672,10 +640,6 @@ const Tasks = () => {
 			}
 			let originalValue;
 			let updatedValue = value;
-			if (propName === 'workflow') {
-				const workflow = info?.workflows?.find((workflow) => workflow._id === value);
-				updatedValue = workflow;
-			}
 
 			if (info?.selectedSubTask || isUpdatingSubTask) {
 				if (info?.selectedSubTask) {
@@ -747,13 +711,6 @@ const Tasks = () => {
 						const { user_id, userName } = jwtDecode(token);
 
 						const newTask = { ...task };
-						const newWorkflow = info?.workflows?.find(
-							(workflow) => workflow._id === payload?.workflowId,
-						);
-						newTask.workflow = newWorkflow
-							? { _id: newWorkflow._id, title: newWorkflow.label }
-							: null;
-						newTask.workflowId = null;
 						newTask.createdBy = { _id: user_id, name: userName };
 						newTask.updatedBy = { _id: user_id, name: userName };
 						if (info?.isCreatingSubtask) {
@@ -781,7 +738,7 @@ const Tasks = () => {
 				}
 			}
 		},
-		[info?.workflows, info?.isCreatingSubtask, info?.selectedRow?._id],
+		[info?.isCreatingSubtask, info?.selectedRow?._id],
 	);
 
 	const deleteTask = useCallback(
@@ -961,7 +918,6 @@ const Tasks = () => {
 				isOpen={info?.isCreateModalOpen}
 				closeModal={handleCloseCreateModal}
 				addNewTask={addNewTask}
-				workflows={info?.workflows}
 				tenantUsers={info?.tenantUsers}
 				clients={info?.clients}
 				isSubTask={info?.isCreatingSubtask}

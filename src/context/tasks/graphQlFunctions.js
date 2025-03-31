@@ -25,10 +25,6 @@ export const getListItemsQuery = gql`
 				status
 				dueDate
 				priority
-				workflow {
-					_id
-					title
-				}
 				assignedBy {
 					_id
 					name
@@ -44,6 +40,11 @@ export const getListItemsQuery = gql`
 				updatedBy {
 					_id
 					name
+				}
+				clients {
+					_id
+					name
+					email
 				}
 			}
 		}
@@ -77,10 +78,6 @@ export const getListItemsByTenantUserQuery = gql`
 				status
 				dueDate
 				priority
-				workflow {
-					_id
-					title
-				}
 				assignedBy {
 					_id
 					name
@@ -119,7 +116,6 @@ export const addListItemMutation = gql`
 			description
 			status
 			priority
-			workflowId
 			assignedTo {
 				_id
 				name
@@ -143,7 +139,6 @@ export const updateListItemMutation = gql`
 	mutation UpdateTask($taskId: ID!, $updateInput: UpdateInput!) {
 		updateTask(taskId: $taskId, updateInput: $updateInput) {
 			_id
-			workflowId
 			dueDate
 		}
 	}
@@ -180,10 +175,6 @@ export const getTaskQuery = gql`
 			dueDate
 			status
 			priority
-			workflow {
-				_id
-				title
-			}
 			client {
 				_id
 				name
@@ -245,10 +236,6 @@ export const getSubTasksQuery = gql`
 			updatedBy {
 				_id
 				name
-			}
-			workflow {
-				_id
-				title
 			}
 		}
 	}
@@ -416,14 +403,6 @@ export const listTaskWithGroupQuery = gql`
 					description
 					status
 					priority
-					workflowTemplate {
-						_id
-						title
-					}
-					workflow {
-						_id
-						title
-					}
 					assignedTo {
 						_id
 						name

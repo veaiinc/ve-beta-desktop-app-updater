@@ -13,9 +13,9 @@ import Select from '../../tasks/listView/Select';
 import Status from '../../tasks/listView/Status';
 import { message } from 'antd';
 import Spinner from '../../loaders/Spinner';
-import WorkFlow from '../../tasks/listView/WorkFlow';
 import Person from '../../tasks/listView/Person';
 import DateView from '../../tasks/listView/DateView';
+import PersonMultiSelect from '../../tasks/listView/PersonMultiSelect';
 
 const initialState = {
 	assignedTo: [],
@@ -24,7 +24,6 @@ const initialState = {
 	priority: 'low',
 	status: '',
 	title: '',
-	workflowId: '',
 	isLoading: false,
 	showSubTaskCreate: false,
 	subTaskTitle: '',
@@ -33,9 +32,9 @@ const initialState = {
 	subTaskDueDate: null,
 	subTaskPriority: 'low',
 	subTaskStatus: '',
-	subTaskWorkflowId: '',
 	childTasks: [],
 	isSubTaskEditing: false,
+	clients: [],
 };
 
 const CreateTaskPopup = ({
@@ -65,49 +64,41 @@ const CreateTaskPopup = ({
 		setInfo((prevInfo) => ({ ...prevInfo, [key]: value }));
 	}, []);
 
-	const preparePayload = useCallback(
-		(info) => {
-			const {
-				assignedTo,
-				description,
-				dueDate,
-				priority,
-				status,
-				title,
-				workflowId,
-				childTasks = [],
-			} = info;
-			if (!title.trim()) {
-				return;
-			}
-			return Object.entries({
-				assignedTo:
-					assignedTo.length > 0
-						? {
-								tenantUsers: assignedTo,
-						  }
-						: '',
-				description,
-				dueDate,
-				priority,
-				status,
-				title,
-				workflowId,
-				childTasks: childTasks?.length > 0 ? childTasks : null,
-				workflowTemplateId: workflowId
-					? responseMetadata?.['workflow']?.props?.options?.find(
-							(workflow) => workflow._id === workflowId,
-					  )?.templateId
-					: null,
-			})
-				.filter(([key, value]) => value != null && value !== '')
-				.reduce((acc, [key, value]) => {
-					acc[key] = value;
-					return acc;
-				}, {});
-		},
-		[responseMetadata],
-	);
+	const preparePayload = useCallback((info) => {
+		const {
+			assignedTo,
+			description,
+			dueDate,
+			priority,
+			status,
+			title,
+			childTasks = [],
+			clients = [],
+		} = info;
+		if (!title.trim()) {
+			return;
+		}
+		return Object.entries({
+			assignedTo:
+				assignedTo.length > 0
+					? {
+							tenantUsers: assignedTo,
+					  }
+					: '',
+			description,
+			dueDate,
+			priority,
+			status,
+			title,
+			clients: clients?.map((client) => client?._id),
+			childTasks: childTasks?.length > 0 ? childTasks : null,
+		})
+			.filter(([key, value]) => value != null && value !== '')
+			.reduce((acc, [key, value]) => {
+				acc[key] = value;
+				return acc;
+			}, {});
+	}, []);
 
 	const handleAddTask = useCallback(async () => {
 		try {
@@ -130,7 +121,7 @@ const CreateTaskPopup = ({
 			dueDate: info?.subTaskDueDate,
 			priority: info?.subTaskPriority,
 			status: info?.subTaskStatus,
-			workflowId: info?.subTaskWorkflowId,
+			clients: info?.subTaskClients,
 		});
 
 		setInfo((prevInfo) => {
@@ -157,7 +148,6 @@ const CreateTaskPopup = ({
 				subTaskDueDate: null,
 				subTaskPriority: 'low',
 				subTaskStatus: responseMetadata?.status?.props?.options?.[0]?._id,
-				subTaskWorkflowId: '',
 			};
 		});
 	}, [
@@ -168,8 +158,8 @@ const CreateTaskPopup = ({
 		info?.subTaskDueDate,
 		info?.subTaskPriority,
 		info?.subTaskStatus,
-		info?.subTaskWorkflowId,
 		info?.isSubTaskEditing,
+		info?.subTaskClients,
 		responseMetadata,
 	]);
 
@@ -192,7 +182,6 @@ const CreateTaskPopup = ({
 			subTaskDueDate: prevInfo?.childTasks[index]?.dueDate,
 			subTaskPriority: prevInfo?.childTasks[index]?.priority,
 			subTaskStatus: prevInfo?.childTasks[index]?.status,
-			subTaskWorkflowId: prevInfo?.childTasks[index]?.workflowId,
 		}));
 	}, []);
 
@@ -254,11 +243,11 @@ const CreateTaskPopup = ({
 						{...responseMetadata?.['priority']?.props}
 						colors={colors}
 					/>
-					<WorkFlow
-						val={info?.workflowId}
-						onOptionClick={(value) => updateModalInfo('workflowId', value)}
-						title={'Workflow'}
-						{...responseMetadata?.['workflow']?.props}
+					<PersonMultiSelect
+						value={info?.clients || []}
+						onOptionClick={(value) => updateModalInfo('clients', value)}
+						showTitle={false}
+						title={'Clients'}
 					/>
 					<div className="dateView-wrapper">
 						<DateView
@@ -333,19 +322,12 @@ const CreateTaskPopup = ({
 								{...responseMetadata?.['priority']?.props}
 								colors={colors}
 							/>
-							{!isSubTask ? (
-								<WorkFlow
-									val={info?.subTaskWorkflowId}
-									onOptionClick={(value) =>
-										updateModalInfo('subTaskWorkflowId', value)
-									}
-									title={'Workflow'}
-									{...responseMetadata?.['workflow']?.props}
-								/>
-							) : (
-								''
-							)}
-
+							<PersonMultiSelect
+								value={info?.subTaskClients || []}
+								onOptionClick={(value) => updateModalInfo('subTaskClients', value)}
+								showTitle={false}
+								title={'Clients'}
+							/>
 							<div className="dateView-wrapper">
 								<DateView
 									value={info?.subTaskDueDate}
@@ -385,7 +367,6 @@ const CreateTaskPopup = ({
 											subTaskDueDate: null,
 											subTaskPriority: 'low',
 											subTaskStatus: 'todo',
-											subTaskWorkflowId: '',
 										}));
 									}}
 								>
