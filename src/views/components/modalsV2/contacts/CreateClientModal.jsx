@@ -11,7 +11,7 @@ import 'react-phone-number-input/style.css';
 import { message } from 'antd';
 
 const validator = require('validator');
-const CreateClientModal = ({ modalIsOpen, closeModal, source }) => {
+const CreateClientModal = ({ modalIsOpen, closeModal, source, leadOrClient = false }) => {
 	let {
 		contacts: { createClient, updateStateValues },
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
@@ -171,7 +171,11 @@ const CreateClientModal = ({ modalIsOpen, closeModal, source }) => {
 			{
 				<div className="CreateClientModal" style={{ minHeight: '400px' }}>
 					<div className="modalHeading">
-						<p className="client-modal-title">What Client is this file for?</p>
+						<p className="client-modal-title">
+							{leadOrClient
+								? 'What Lead/Contact is this file for? '
+								: 'What Client is this file for?'}
+						</p>
 						<div className="closeContainer" onClick={closeModalFunc}>
 							<Close />
 						</div>

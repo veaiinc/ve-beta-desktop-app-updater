@@ -4,6 +4,7 @@ import React, { useContext, useState, useCallback, useEffect, memo } from 'react
 // import '../../../assets/scss/home_page/homepage.scss';
 import '../../../assets/scss/globalComponents/quickActions.scss';
 import Search from '../../../assets/svg/seach-magnifier.svg';
+import LoaderModal from '../modalsV2/automationBuilder/AutomationLoaderModal';
 import { useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
 import ProposalsPopup from '../../../views/components/docs/ProposalsPopup';
@@ -13,15 +14,15 @@ import AutomationLoaderModal from '../modalsV2/automationBuilder/AutomationLoade
 import CreateTaskPopup from '../modalsV2/tasks/CreateTaskPopup';
 
 const moduleOptions = [
-	// {
-	// 	id: 0,
-	// 	title: 'Contact/Lead',
-	// 	value: 'contacts',
-	// 	controlValue: 'contact',
-	// 	action: ({ setInfo }) => {
-	// 		setInfo((prev) => ({ ...prev, commonState: 'contact' }));
-	// 	},
-	// },
+	{
+		id: 0,
+		title: 'Contact/Lead',
+		value: 'contacts',
+		controlValue: 'contact',
+		action: ({ setInfo }) => {
+			setInfo((prev) => ({ ...prev, openClientPopup: true }));
+		},
+	},
 	{
 		id: 1,
 		title: 'Task',
@@ -169,6 +170,29 @@ const moduleOptions = [
 			setInfo((prev) => ({ ...prev, openLiteGalleryPopup: true }));
 		},
 	},
+	{
+		id: 14,
+		title: 'Note',
+		value: 'notes',
+		action: async ({ setInfo, navigate, createNotesList }) => {
+			try {
+				setInfo((prev) => ({ ...prev, creatingNoteLoader: true }));
+				const payload = {
+					input: {
+						title: 'New Note',
+					},
+				};
+				const response = await createNotesList(payload);
+				if (response?.[1]?._id) {
+					navigate(`/note/${response[1]._id}`);
+				}
+			} catch (error) {
+				message.error('Failed to create note');
+			} finally {
+				setInfo((prev) => ({ ...prev, creatingNoteLoader: false }));
+			}
+		},
+	},
 ];
 
 const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDetails = null }) => {
@@ -177,6 +201,7 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 		profileInfo: { tenantUserAccessControls },
 		automationBuilder: { createAutomation },
 		aiSetup: { createNewAiAssistant },
+		notes: { createNotesList },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -193,6 +218,7 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 		search: '',
 		createTaskPopup: false,
 		conversationalAgentLoading: false,
+		creatingNoteLoader: false,
 	});
 
 	const navigate = useNavigate();
@@ -301,6 +327,7 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 												navigate,
 												createNewAiAssistant,
 												createAutomation,
+												createNotesList,
 											})
 										}
 									>
@@ -323,6 +350,7 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 												navigate,
 												createNewAiAssistant,
 												createAutomation,
+												createNotesList,
 											})
 										}
 									>
@@ -351,6 +379,7 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 			<CreateClientModal
 				modalIsOpen={info?.openClientPopup}
 				closeModal={() => setInfo({ ...info, openClientPopup: false })}
+				leadOrClient={true}
 			/>
 			<CreateGallery
 				open={info?.openGalleryPopup}
@@ -366,6 +395,7 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 				isOpen={info?.createTaskPopup}
 				closeModal={() => setInfo({ ...info, createTaskPopup: false })}
 			/>
+			<LoaderModal loading={info?.creatingNoteLoader} message="Creating note..." />
 		</div>
 	);
 };
