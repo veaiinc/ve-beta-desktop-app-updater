@@ -376,7 +376,11 @@ const ProposalPopup = ({ open, closeModal, clientDetails = null, commonState }) 
 							<div
 								key={index}
 								className="docsTemplateCard"
-								onClick={() => versionClick(template)}
+								onClick={() => {
+									info?.selectedOption === 'form-submission'
+										? handleTemplateClick(template)
+										: versionClick(template);
+								}}
 							>
 								<div className="docsTemplateImageContainer">
 									<iframe
