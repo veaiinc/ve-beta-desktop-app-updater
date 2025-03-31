@@ -1,11 +1,11 @@
-import { memo, useState } from 'react';
+import { memo } from 'react';
 import '../../../assets/scss/onboarding/stages.scss';
 import Spinner from '../loaders/Spinner';
 // import { ReactComponent as DownArrow } from '../../../assets/svg/onboarding/down-arrow.svg';
 // import WorkspaceTypeOptions from './WorkspaceTypeOptions';
 import { ReactComponent as UploadIcon } from '../../../assets/svg/onboarding/upload-icon.svg';
 
-const Stage2 = ({
+const WorkspaceDetailsForm = ({
 	companyName,
 	workspaceHandle,
 	companyLogo,
@@ -104,4 +104,4 @@ const Stage2 = ({
 	);
 };
 
-export default memo(Stage2);
+export default memo(WorkspaceDetailsForm);

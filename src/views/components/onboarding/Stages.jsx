@@ -3,8 +3,8 @@ import '../../../assets/scss/onboarding/stages.scss';
 import { formatUsername, getCountryCode } from '../../../helpers';
 import Context from '../../../context/context';
 import ProgressBar from './ProgressBar';
-import Stage1 from './Stage1';
-import Stage2 from './Stage2';
+import UserDetailsForm from './UserDetailsForm';
+import WorkspaceDetailsForm from './WorkspaceDetailsForm';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { message } from 'antd';
 
@@ -39,7 +39,7 @@ const Stages = () => {
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
-		stage: stageFromLocalStorage,
+		stage: stageFromLocalStorage, // Stage 1: UserDetailsForm, Stage 2: WorkspaceDetailsForm
 		username: '',
 		phoneNumber: '',
 		profilePicture: null,
@@ -433,7 +433,7 @@ const Stages = () => {
 
 	const stageMapper = {
 		1: (
-			<Stage1
+			<UserDetailsForm
 				username={info?.username}
 				phoneNumber={info?.phoneNumber}
 				isPhoneNumberVerified={info?.isPhoneNumberVerified}
@@ -454,7 +454,7 @@ const Stages = () => {
 			/>
 		),
 		2: (
-			<Stage2
+			<WorkspaceDetailsForm
 				companyName={info?.companyName}
 				workspaceHandle={info?.workspaceHandle}
 				companyLogo={info?.companyLogo}

@@ -27,7 +27,7 @@ const themePreferences = [
 	},
 ];
 
-const Stage1 = ({
+const UserDetailsForm = ({
 	username,
 	phoneNumber,
 	isPhoneNumberVerified,
@@ -152,4 +152,4 @@ const Stage1 = ({
 	</div>
 );
 
-export default memo(Stage1);
+export default memo(UserDetailsForm);
