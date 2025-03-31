@@ -229,3 +229,15 @@ export const getCountryCode = () => {
 	const countryCode = parsedDetails?.countryCode ?? 'US';
 	return countryCode?.toLowerCase();
 };
+
+export const checkDevices = async () => {
+	try {
+		const devices = await navigator.mediaDevices.enumerateDevices();
+		const hasMic = devices.some((device) => device.kind === 'audioinput');
+		const hasCamera = devices.some((device) => device.kind === 'videoinput');
+
+		return { hasMic, hasCamera };
+	} catch (error) {
+		console.error('Error checking devices:', error);
+	}
+};
