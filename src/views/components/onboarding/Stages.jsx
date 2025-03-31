@@ -14,15 +14,16 @@ const Stages = () => {
 	const navigate = useNavigate();
 	const location = useLocation();
 	const pathname = location?.pathname;
+	const [searchParams] = useSearchParams();
+	const invitedWorkspaceId = searchParams.get('invitedWorkspaceId') ?? false;
+	const invitedUserEmail = searchParams.get('inviteeEmail') ?? false;
+	const invitedUserOnboarding = invitedWorkspaceId && invitedUserEmail;
+	const stageFromLocalStorage = Number(localStorage.getItem('stage') ?? 1);
+	const isUserOnboard = localStorage?.getItem('isOnboard') === 'true' ?? false;
+
 	if (pathname === '/create-workspace') {
 		localStorage.setItem('stage', 2);
 	}
-	const [searchParams] = useSearchParams();
-	const invitedWorkspaceId = searchParams.get('invitedWorkspaceId');
-	const invitedUserEmail = searchParams.get('inviteeEmail');
-	const stageFromLocalStorage = localStorage.getItem('stage') ?? 1;
-	const usertoken = localStorage.getItem('usertoken') ?? false;
-	const isUserOnboard = localStorage?.getItem('isOnboard') === 'true' ?? false;
 
 	const {
 		authInfo: {
@@ -38,7 +39,7 @@ const Stages = () => {
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
-		stage: Number(stageFromLocalStorage),
+		stage: stageFromLocalStorage,
 		username: '',
 		phoneNumber: '',
 		profilePicture: null,
@@ -66,12 +67,6 @@ const Stages = () => {
 	const profilePictureCntxt = userDetailsData?.googleMeta?.picture ?? null;
 
 	useEffect(() => {
-		if (!usertoken) {
-			message?.error('Session expired! Please login again');
-			setTimeout(() => {
-				window.location.href = '/verify-user';
-			}, 1500);
-		}
 		if (
 			isUserOnboard &&
 			pathname !== '/create-workspace' &&
@@ -80,6 +75,7 @@ const Stages = () => {
 		) {
 			message?.error('You are already onboarded');
 			setTimeout(() => {
+				localStorage.removeItem('stage');
 				navigate('/home');
 			}, 1500);
 		}
@@ -402,6 +398,7 @@ const Stages = () => {
 				if (isCompanyLogoUploaded) {
 					message?.success('Workspace created successfully');
 					setTimeout(() => {
+						localStorage.removeItem('stage');
 						navigate('/home');
 					}, 1000);
 				} else {
@@ -412,6 +409,7 @@ const Stages = () => {
 			} else {
 				message?.success('Workspace created successfully');
 				setTimeout(() => {
+					localStorage.removeItem('stage');
 					navigate('/home');
 				}, 1000);
 			}
@@ -421,6 +419,11 @@ const Stages = () => {
 	}, [info?.companyName, info?.workspaceType]);
 
 	const handleNextStage = useCallback(() => {
+		if (invitedUserOnboarding) {
+			localStorage.removeItem('stage');
+			navigate('/home');
+			return;
+		}
 		if (info?.stage === 2) {
 			handleCreateWorkspace();
 			return;
@@ -467,7 +470,11 @@ const Stages = () => {
 
 	return (
 		<>
-			<ProgressBar stage={info?.stage} pathname={pathname} />
+			<ProgressBar
+				stage={info?.stage}
+				pathname={pathname}
+				invitedUserOnboarding={invitedUserOnboarding}
+			/>
 			<div className="stageContainer">
 				<h1 className="email">{emailCntxt}</h1>
 				{stageMapper?.[info?.stage]}

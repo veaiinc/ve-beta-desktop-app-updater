@@ -1,8 +1,8 @@
 import { memo } from 'react';
 import '../../../assets/scss/onboarding/index.scss';
 
-const ProgressBar = ({ stage, pathname }) => {
-	const progressStepLength = pathname === '/create-workspace' ? 1 : 2;
+const ProgressBar = ({ stage, pathname, invitedUserOnboarding }) => {
+	const progressStepLength = pathname === '/create-workspace' || invitedUserOnboarding ? 1 : 2;
 	const progressSteps = Array.from(
 		{ length: progressStepLength },
 		(_, index) => index + (pathname === '/create-workspace' ? 2 : 1),
