@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { message, Tooltip } from 'antd';
-import React, { useContext, useState, useCallback } from 'react';
+import React, { useContext, useState, useCallback, memo } from 'react';
 // import '../../../assets/scss/home_page/homepage.scss';
 import '../../../assets/scss/globalComponents/quickActions.scss';
 import { useNavigate } from 'react-router-dom';
@@ -144,4 +144,4 @@ const QuickActions = ({ styles, customActions = [], clientDetails = null }) => {
 	);
 };
 
-export default QuickActions;
+export default memo(QuickActions);
