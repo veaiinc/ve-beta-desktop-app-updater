@@ -5,23 +5,63 @@ import { animateFadeIn } from '../../features/onboarding/Onboarding';
 const dropdownOptions = [
 	{
 		id: 1,
-		label: 'Sales & Business development',
+		label: 'Make Up Artist',
+		value: 'makeUpArtist',
 	},
 	{
 		id: 2,
-		label: 'Technology & Engineering',
+		label: 'Consultant',
+		value: 'consultant',
 	},
 	{
 		id: 3,
-		label: 'Marketing',
+		label: 'Salon and Spa',
+		value: 'salonAndSpa',
 	},
 	{
 		id: 4,
-		label: 'Product development',
+		label: 'Fashion Designer',
+		value: 'fashionDesigner',
 	},
 	{
 		id: 5,
-		label: 'Customer Service',
+		label: 'Event Management',
+		value: 'eventManagement',
+	},
+	{
+		id: 6,
+		label: 'Interior Designer',
+		value: 'interiorDesigner',
+	},
+	{
+		id: 7,
+		label: 'Business Coach',
+		value: 'businessCoach',
+	},
+	{
+		id: 8,
+		label: 'Restaurateur',
+		value: 'restaurateur',
+	},
+	{
+		id: 9,
+		label: 'Information Technology',
+		value: 'informationTechnology',
+	},
+	{
+		id: 10,
+		label: 'Health Care',
+		value: 'healthCare',
+	},
+	{
+		id: 11,
+		label: 'Photographer',
+		value: 'photographer',
+	},
+	{
+		id: 12,
+		label: 'Agency',
+		value: 'agency',
 	},
 ];
 
