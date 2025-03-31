@@ -14,13 +14,13 @@ const validator = require('validator');
 const selectedWorkflowStyles = {
 	height: '48px',
 	padding: '12px 14px',
-	color: '#e4e5e6',
+	color: 'var(--primary-font)',
 	width: 'inherit',
 	flex: 1,
 	alignSelf: 'stretch',
 	borderRadius: '0.625rem',
-	border: '1px solid rgba(36, 36, 36, 0.64)',
-	backgroundColor: '#151515',
+	border: '1px solid var(--stroke)',
+	backgroundColor: 'var(--card)',
 	display: 'flex',
 	alignItems: 'center',
 	fontSize: '12px',
@@ -32,17 +32,17 @@ const headerDropdownStyles = {
 	padding: '12px 24px',
 	height: '48px',
 	padding: '12px 14px',
-	color: '#e4e5e6',
+	color: 'var(--primary-font)',
 	width: 'inherit',
 	flex: 1,
 	alignSelf: 'stretch',
 	borderRadius: '0.625rem',
-	border: '1px solid rgba(36, 36, 36, 0.64)',
-	backgroundColor: '#151515',
+	border: '1px solid var(--stroke)',
+	backgroundColor: 'var(--card)',
 };
 
 const dropdownTextStylings = {
-	color: 'var(--nav-bar-button-text, #FFF)',
+	color: 'var(--primary-font)',
 	fontFamily: 'var(--primary-font-family)',
 	fontSize: '12px',
 	fontStyle: 'normal',
@@ -374,7 +374,7 @@ const CreateFileLead = ({ open, onClose, workflow }) => {
 		>
 			<div className="modifiedCreateLeadModal" style={{ minHeight: '400px' }}>
 				<div className="modalHeading">
-					<p className="title">What lead is this file for?</p>
+					<p className="title">Create a new document</p>
 					<div className="closeContainer" onClick={closeModalFunc}>
 						<Close />
 					</div>
@@ -393,7 +393,7 @@ const CreateFileLead = ({ open, onClose, workflow }) => {
 						}}
 					>
 						{info?.existingLeadSource ? <Checked /> : <Unchecked />}
-						<span className="radioBtnLabel">Existing Lead</span>
+						<span className="radioBtnLabel">Existing Contact</span>
 					</div>
 					<div
 						className="radioBtnWrapper"
@@ -416,15 +416,15 @@ const CreateFileLead = ({ open, onClose, workflow }) => {
 						}}
 					>
 						{!info?.existingLeadSource ? <Checked /> : <Unchecked />}
-						<span className="radioBtnLabel">New Lead</span>
+						<span className="radioBtnLabel">New Contact</span>
 					</div>
 				</div>
 				{!info?.existingLeadSource ? (
 					<div className="inputBoxHolder">
 						<InputForModules
-							label={'Lead Name'}
+							label={'Contact Name'}
 							type={'text'}
-							placeholder={'Enter lead name'}
+							placeholder={'Enter Contact name'}
 							name={'name'}
 							value={info?.leadDetails?.name}
 							onChange={handleInputChange}
@@ -504,11 +504,11 @@ const CreateFileLead = ({ open, onClose, workflow }) => {
 				) : (
 					<>
 						<div className="leadSourceContainer">
-							<span className="leadSorcelabel">Search from Leads</span>
+							<span className="leadSorcelabel">Search from Contacts</span>
 							<HeadersDropDownComp
 								showIcon={false}
 								options={info?.clientData || []}
-								selectedValue={info?.leadDetails?.name || 'Select Lead'}
+								selectedValue={info?.leadDetails?.name || 'Select Contact'}
 								containerStyle={{ ...headerDropdownStyles }}
 								dropDownStyle={{
 									right: 0,
