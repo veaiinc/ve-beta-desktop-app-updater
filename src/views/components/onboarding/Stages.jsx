@@ -13,17 +13,16 @@ let usernameTimeoutId, companyLogoFile;
 const Stages = () => {
 	const navigate = useNavigate();
 	const location = useLocation();
-	const pathname = location?.pathname;
 	const [searchParams] = useSearchParams();
 	const invitedWorkspaceId = searchParams.get('invitedWorkspaceId') ?? false;
 	const invitedUserEmail = searchParams.get('inviteeEmail') ?? false;
 	const invitedUserOnboarding = invitedWorkspaceId && invitedUserEmail;
-	const stageFromLocalStorage = Number(localStorage.getItem('stage') ?? 1);
-	const isUserOnboard = localStorage?.getItem('isOnboard') === 'true' ?? false;
-
+	const pathname = location?.pathname;
 	if (pathname === '/create-workspace') {
 		localStorage.setItem('stage', 2);
 	}
+	const stageFromLocalStorage = Number(localStorage.getItem('stage') ?? 1);
+	const isUserOnboard = localStorage?.getItem('isOnboard') === 'true' ?? false;
 
 	const {
 		authInfo: {
