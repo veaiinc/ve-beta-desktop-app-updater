@@ -220,8 +220,8 @@ const Stages = () => {
 	);
 
 	const handleSetWorkspaceType = useCallback(
-		(e) => {
-			const workspaceType = e?.target?.value ?? '';
+		(e, workspaceTypeOption) => {
+			const workspaceType = e?.target?.value ?? workspaceTypeOption?.label ?? '';
 			setInfo((prev) => ({ ...prev, workspaceType }));
 		},
 		[info?.workspaceType],
@@ -415,7 +415,7 @@ const Stages = () => {
 		} else {
 			message?.error(response?.[1]?.message);
 		}
-	}, [info?.companyName, info?.workspaceType]);
+	}, [info?.companyName, info?.workspaceType, info?.workspaceHandle]);
 
 	const handleNextStage = useCallback(() => {
 		if (invitedUserOnboarding) {
@@ -479,7 +479,7 @@ const Stages = () => {
 				{stageMapper?.[info?.stage]}
 			</div>
 			<div className="btnsContainer">
-				{info?.stage > 1 && (
+				{info?.stage > 1 && pathname !== '/create-workspace' && (
 					<button onClick={handlePrevStage} className="backBtn">
 						Back
 					</button>

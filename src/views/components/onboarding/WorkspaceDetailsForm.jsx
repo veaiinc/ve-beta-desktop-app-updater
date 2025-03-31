@@ -1,8 +1,8 @@
-import { memo } from 'react';
+import { memo, useState } from 'react';
 import '../../../assets/scss/onboarding/stages.scss';
 import Spinner from '../loaders/Spinner';
-// import { ReactComponent as DownArrow } from '../../../assets/svg/onboarding/down-arrow.svg';
-// import WorkspaceTypeOptions from './WorkspaceTypeOptions';
+import { ReactComponent as DownArrow } from '../../../assets/svg/onboarding/down-arrow.svg';
+import WorkspaceTypeOptions from './WorkspaceTypeOptions';
 import { ReactComponent as UploadIcon } from '../../../assets/svg/onboarding/upload-icon.svg';
 
 const WorkspaceDetailsForm = ({
@@ -16,21 +16,21 @@ const WorkspaceDetailsForm = ({
 	workspaceType,
 	handleSetWorkspaceType,
 }) => {
-	// const [info, setInfo] = useState({
-	// 	showDropdown: false,
-	// });
+	const [info, setInfo] = useState({
+		showDropdown: false,
+	});
 
-	// const toggleDropdown = () => {
-	// 	setInfo((prev) => ({
-	// 		...prev,
-	// 		showDropdown: !prev?.showDropdown,
-	// 	}));
-	// };
+	const toggleDropdown = () => {
+		setInfo((prev) => ({
+			...prev,
+			showDropdown: !prev?.showDropdown,
+		}));
+	};
 
 	return (
 		<div className="stage2">
 			<header className="header">
-				<h1 className="title">Create a shared workspace</h1>
+				<h1 className="title">Create a new workspace</h1>
 				<h2 className="subtitle">A home for your team</h2>
 			</header>
 			<main className="stage2Content">
@@ -84,20 +84,28 @@ const WorkspaceDetailsForm = ({
 				</div>
 				<div className="workspaceTypeContainer">
 					<p className="question">What is your company type?</p>
-					<input
-						type="text"
-						placeholder="Company Type"
-						className="workspaceTypeInput"
-						value={workspaceType}
-						onChange={handleSetWorkspaceType}
-					/>
-					{/* <div className="dropdown">
-						<div className="labelContainer" onClick={toggleDropdown}>
-							<span className="dropdownText">Please Select</span>
-							<DownArrow />
+					<div className="workspaceTypeInputContainer">
+						<input
+							type="text"
+							placeholder="Company Type"
+							className="workspaceTypeInput"
+							value={workspaceType}
+							onChange={handleSetWorkspaceType}
+							onClick={toggleDropdown}
+						/>
+						<div className="workspaceTypeDropdown">
+							<div className="labelContainer">
+								<DownArrow />
+							</div>
+							{info?.showDropdown && (
+								<WorkspaceTypeOptions
+									handleSetWorkspaceType={handleSetWorkspaceType}
+									toggleDropdown={toggleDropdown}
+									searchTerm={workspaceType}
+								/>
+							)}
 						</div>
-						{info?.showDropdown && <WorkspaceTypeOptions />}
-					</div> */}
+					</div>
 				</div>
 			</main>
 		</div>

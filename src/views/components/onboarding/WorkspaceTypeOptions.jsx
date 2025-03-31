@@ -1,4 +1,4 @@
-import { memo, useEffect } from 'react';
+import { memo, useEffect, useState } from 'react';
 import '../../../assets/scss/onboarding/WorkspaceTypeOptions.scss';
 import { animateFadeIn } from '../../features/onboarding/Onboarding';
 
@@ -65,20 +65,37 @@ const dropdownOptions = [
 	},
 ];
 
-const WorkspaceTypeOptions = () => {
+const WorkspaceTypeOptions = ({ handleSetWorkspaceType, toggleDropdown, searchTerm }) => {
 	useEffect(() => {
 		const selector = '.workspaceTypeOptions';
 		animateFadeIn(selector);
 	}, []);
 
+	const filteredOptions =
+		dropdownOptions?.filter((option) =>
+			option?.label?.toLowerCase()?.includes((searchTerm ?? '').toLowerCase()),
+		) || [];
+
+	const handleSelectWorkspaceType = (e, option) => {
+		e?.stopPropagation();
+		handleSetWorkspaceType(null, option);
+		toggleDropdown();
+	};
+
 	return (
-		<div className="workspaceTypeOptions">
-			{dropdownOptions?.map((option) => (
-				<div key={option?.id} className="option">
-					<h1 className="optionLabel">{option?.label}</h1>
-				</div>
-			))}
-		</div>
+		filteredOptions?.length > 0 && (
+			<div className="workspaceTypeOptions">
+				{filteredOptions?.map((option) => (
+					<div
+						key={option?.id}
+						className="option"
+						onClick={(e) => handleSelectWorkspaceType(e, option)}
+					>
+						<h1 className="optionLabel">{option?.label}</h1>
+					</div>
+				))}
+			</div>
+		)
 	);
 };
 
