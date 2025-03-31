@@ -33,6 +33,20 @@ const customStyles = {
 	overlay: { zIndex: 998 },
 };
 
+const infiniteScrollStyles = {
+	display: 'flex',
+	flexDirection: 'row',
+	flexWrap: 'wrap',
+	flexFlow: 'wrap',
+	alignItems: 'flex-end',
+	alignContent: 'flex-start',
+	// gap: '8px',
+	rowGap: '50px',
+	columnGap: '10px',
+	width: '100%',
+	overflowX: 'hidden',
+};
+
 const ProposalPopup = ({ open, closeModal, clientDetails = null, commonState }) => {
 	const navigate = useNavigate();
 	const {
@@ -354,19 +368,7 @@ const ProposalPopup = ({ open, closeModal, clientDetails = null, commonState }) 
 						loader={[{}, {}, {}]?.map((ele, index) => (
 							<Skeleton key={index} height={258} width={232} />
 						))}
-						style={{
-							display: 'flex',
-							flexDirection: 'row',
-							flexWrap: 'wrap',
-							flexFlow: 'wrap',
-							alignItems: 'flex-end',
-							alignContent: 'flex-start',
-							// gap: '8px',
-							rowGap: '50px',
-							columnGap: '10px',
-							width: '100%',
-							overflowX: 'hidden',
-						}}
+						style={{ ...infiniteScrollStyles }}
 						className="tetsing"
 						height="calc(100vh - 340px)"
 					>
@@ -374,11 +376,6 @@ const ProposalPopup = ({ open, closeModal, clientDetails = null, commonState }) 
 							<div
 								key={index}
 								className="docsTemplateCard"
-								// onClick={() =>
-								// 	template?.version
-								// 		? versionClick(template)
-								// 		: versionClick(template)
-								// }
 								onClick={() => versionClick(template)}
 							>
 								<div className="docsTemplateImageContainer">
