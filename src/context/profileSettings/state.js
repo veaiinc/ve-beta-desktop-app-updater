@@ -15,7 +15,7 @@ export const intialState = {
 	defaultNotificationSettings: null,
 	tenantUserAccessControls: null,
 	accessControlOpenModal: false,
-	userLogo: null,
+	userDetailsFromTenantAPI: null,
 };
 export const ProfileState = () => {
 	const [state, dispatch] = useReducer(Reducer, intialState);
@@ -249,7 +249,7 @@ export const ProfileState = () => {
 		}
 	};
 
-	const getUserLogo = async () => {
+	const getUserDetailsFromTenantAPI = async () => {
 		try {
 			let usertoken = localStorage.getItem('usertoken');
 			const response = await service.fetchGet(
@@ -259,12 +259,12 @@ export const ProfileState = () => {
 			);
 			if (response?.[0]) {
 				dispatch({
-					type: Actions.GET_USER_LOGO,
-					payload: response?.[1]?.dp_s3_500w_key,
+					type: Actions.GET_USER_DETAILS_FROM_TENANT_API,
+					payload: response?.[1],
 				});
 			}
 		} catch (error) {
-			console.log('error==>getUserLogo', error);
+			console.log('error==>getUserDetailsFromTenantAPI', error);
 		}
 	};
 
@@ -485,7 +485,7 @@ export const ProfileState = () => {
 		chooseDefaultWorkspace,
 		changelogo,
 		updateBusniessName,
-		getUserLogo,
+		getUserDetailsFromTenantAPI,
 		updateUserLogo,
 		resetProfileSettingsState,
 		updateWorkSpaceId,

@@ -21,6 +21,7 @@ const Stages = () => {
 	if (pathname === '/create-workspace') {
 		localStorage.setItem('stage', 2);
 	}
+	const usertoken = localStorage.getItem('usertoken');
 	const stageFromLocalStorage = Number(localStorage.getItem('stage') ?? 1);
 	const isUserOnboard = localStorage?.getItem('isOnboard') === 'true' ?? false;
 
@@ -32,7 +33,7 @@ const Stages = () => {
 			verifyMobileOtpCode,
 			createWorkspace,
 		},
-		profileInfo: { userDetailsData, getUserDetails, updateUserLogo, userLogo, getUserLogo },
+		profileInfo: { userDetailsFromTenantAPI, getUserDetailsFromTenantAPI, updateUserLogo },
 		companyInfo: { uploadTenantLogo },
 		themeInfo: { theme, updateTheme },
 	} = useContext(Context);
@@ -57,15 +58,23 @@ const Stages = () => {
 		verifyPhoneNumberLoading: false,
 	});
 
-	const emailCntxt = userDetailsData?.email;
-	const isPhoneNumberVerifiedCntxt = userDetailsData?.isPhoneVerified;
-	const phoneNumberExistsInDBCntxt = userDetailsData?.phoneNumber?.length > 0;
-	const firstNameCntxt = userDetailsData?.firstName;
-	const lastNameCntxt = userDetailsData?.lastName;
-	const phoneNumberCntxt = userDetailsData?.phoneNumber;
-	const profilePictureCntxt = userDetailsData?.googleMeta?.picture ?? null;
+	const emailCntxt = userDetailsFromTenantAPI?.email;
+	const isPhoneNumberVerifiedCntxt = userDetailsFromTenantAPI?.isPhoneVerified;
+	const phoneNumberExistsInDBCntxt = userDetailsFromTenantAPI?.phoneNumber?.length > 0;
+	const firstNameCntxt = userDetailsFromTenantAPI?.firstName;
+	const lastNameCntxt = userDetailsFromTenantAPI?.lastName;
+	const phoneNumberCntxt = userDetailsFromTenantAPI?.phoneNumber;
+	const profilePictureCntxt = userDetailsFromTenantAPI?.googleMeta?.picture ?? null;
+	const userLogo = userDetailsFromTenantAPI?.dp_s3_500w_key ?? null;
 
 	useEffect(() => {
+		if (!usertoken) {
+			message?.error('Session expired! Please login again');
+			localStorage.removeItem('stage');
+			setTimeout(() => {
+				window.location.href = '/verify-user';
+			}, 1500);
+		}
 		if (
 			isUserOnboard &&
 			pathname !== '/create-workspace' &&
@@ -87,7 +96,6 @@ const Stages = () => {
 			}, 1500);
 		}
 		handleGetUserDetails();
-		getUserLogo();
 		const countryCode = getCountryCode(info?.phoneNumber);
 		setInfo((prev) => ({
 			...prev,
@@ -186,7 +194,7 @@ const Stages = () => {
 	}, [theme]);
 
 	const handleGetUserDetails = useCallback(async () => {
-		const response = await getUserDetails();
+		const response = await getUserDetailsFromTenantAPI();
 		const success = response?.[0] === true;
 		if (!success) {
 			const statusCode = response?.[1]?.statusCode;
@@ -198,7 +206,7 @@ const Stages = () => {
 				}, 1500);
 			}
 		}
-	}, [getUserDetails]);
+	}, []);
 
 	const handleCheckWorkspaceHandleAvailability = useCallback(
 		async (workspaceHandle) => {
