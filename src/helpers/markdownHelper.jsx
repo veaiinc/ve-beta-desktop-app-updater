@@ -418,6 +418,10 @@ export const TypingEffect = memo(
 );
 
 export const UserMessageRenderer = ({ messageData, lastVisibleUserMessageIndex }) => {
+	const {
+		templates: { updateStateValues },
+	} = useContext(Context);
+
 	const [info, setinfo] = useState({
 		isCopiedToClipboard: false,
 		editUserQuery: false,
@@ -445,6 +449,30 @@ export const UserMessageRenderer = ({ messageData, lastVisibleUserMessageIndex }
 		}));
 	}, [info, messageData]);
 
+	const handleSendUserEditedQuery = useCallback(
+		(e, click = null) => {
+			if (e?.key === 'Enter' || click) {
+				if (e?.shiftKey) {
+					return;
+				}
+				updateStateValues({ userEditedQuery: info?.userQuery });
+				setinfo((prev) => ({
+					...prev,
+					editUserQuery: !prev.editUserQuery,
+					userQuery: messageData?.message || '',
+				}));
+			}
+		},
+		[info, messageData],
+	);
+
+	const handleUserQueryChange = useCallback(
+		(e) => {
+			setinfo((prev) => ({ ...prev, userQuery: e.target.value }));
+		},
+		[info],
+	);
+
 	return (
 		<div className="user-message-renderer-container">
 			{!info?.editUserQuery ? (
@@ -459,12 +487,21 @@ export const UserMessageRenderer = ({ messageData, lastVisibleUserMessageIndex }
 				</div>
 			) : (
 				<div className="user-edit-query-input-box-container">
-					<textarea value={info?.userQuery} />
+					<textarea
+						value={info?.userQuery}
+						onChange={handleUserQueryChange}
+						onKeyDown={handleSendUserEditedQuery}
+					/>
 					<div className="user-editQuery-actionBtnContainer">
 						<div className="cancelBtn" onClick={handleEditUserQueryToggle}>
 							Cancel
 						</div>
-						<div className="sendBtn">Send</div>
+						<div
+							className="sendBtn"
+							onClick={() => handleSendUserEditedQuery(null, 'click')}
+						>
+							Send
+						</div>
 					</div>
 				</div>
 			)}

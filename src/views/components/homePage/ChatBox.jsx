@@ -122,6 +122,7 @@ const ChatBox = ({
 			activePayloadForChat,
 			followUpQuery,
 			chatInfo,
+			userEditedQuery,
 		},
 		calendarInfo: { updateCalendarState },
 		tasks: { updateTaskState },
@@ -172,6 +173,14 @@ const ChatBox = ({
 			updateStateValues({ activePromptForChat: null });
 		}
 	}, [activePromptForChat]);
+
+	//useEffect to handle send user edited query
+	useEffect(() => {
+		if (userEditedQuery) {
+			handleSendMessageFunc(null, true, userEditedQuery);
+			updateStateValues({ userEditedQuery: null });
+		}
+	}, [userEditedQuery]);
 
 	useEffect(() => {
 		if (activePayloadForChat) {
