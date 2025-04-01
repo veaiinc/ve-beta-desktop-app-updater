@@ -110,6 +110,7 @@ export const intialState = {
 		workspaceSearch: true,
 	},
 	globalLoadingMesssage: null,
+	userEditedQuery: null,
 };
 
 export const TemplatesState = (props) => {
