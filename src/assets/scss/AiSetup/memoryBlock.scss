@@ -32,10 +32,17 @@
 			border-bottom: 1px solid var(--stroke);
 		}
 
-		.deleteButton {
-			background: none;
-			border: none;
-			cursor: pointer;
+		.memoryBlockItemActions {
+			display: flex;
+			gap: 14px;
+			align-items: center;
+			flex-shrink: 0;
+
+			.deleteButton {
+				background: none;
+				border: none;
+				cursor: pointer;
+			}
 		}
 	}
 }
