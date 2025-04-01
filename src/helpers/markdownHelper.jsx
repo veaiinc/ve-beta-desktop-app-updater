@@ -483,7 +483,8 @@ export const UserMessageRenderer = ({ messageData, lastVisibleUserMessageIndex }
 					}}
 					className="fade-in user-message-renderer-container"
 				>
-					<Markdown>{messageData?.message || ''}</Markdown>
+					{messageData?.message || ''}
+					{/* <Markdown>{messageData?.message || ''}</Markdown> */}
 				</div>
 			) : (
 				<div className="user-edit-query-input-box-container">
