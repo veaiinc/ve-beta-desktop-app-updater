@@ -39,7 +39,7 @@ const customContainerStyle = {
 const contentStyling = {
 	color: 'var(--primary-font)',
 	fontFamily: 'var(--primary-font-family)',
-	fontSize: '14px',
+	fontSize: '12px',
 	fontStyle: 'normal',
 	fontWeight: '500',
 	lineHeight: 'normal',
@@ -82,7 +82,6 @@ const UserDetailsForm = ({
 						autoFocus
 					/>
 					<Tooltip
-						open={true}
 						title={
 							<ToolTipContainer
 								customContainerStyle={customContainerStyle}
