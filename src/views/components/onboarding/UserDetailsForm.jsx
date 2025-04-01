@@ -29,14 +29,14 @@ const themePreferences = [
 	},
 ];
 
-const customContainerStyle = {
+export const customContainerStyle = {
 	display: 'flex',
 	alignItems: 'center',
 	justifyContent: 'center',
 	backgroundColor: 'var(--card)',
 };
 
-const contentStyling = {
+export const contentStyling = {
 	color: 'var(--primary-font)',
 	fontFamily: 'var(--primary-font-family)',
 	fontSize: '12px',
@@ -87,7 +87,7 @@ const UserDetailsForm = ({
 								customContainerStyle={customContainerStyle}
 								contentStyling={contentStyling}
 								title={''}
-								content={'Upload a profile picture'}
+								content={'Upload your profile picture'}
 								removeClassName={true}
 							/>
 						}

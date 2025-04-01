@@ -4,6 +4,9 @@ import Spinner from '../loaders/Spinner';
 import { ReactComponent as DownArrow } from '../../../assets/svg/onboarding/down-arrow.svg';
 import WorkspaceTypeOptions from './WorkspaceTypeOptions';
 import { ReactComponent as UploadIcon } from '../../../assets/svg/onboarding/upload-icon.svg';
+import { Tooltip } from 'antd';
+import ToolTipContainer from '../popover/ToolTipContainer';
+import { customContainerStyle, contentStyling } from './UserDetailsForm';
 
 const WorkspaceDetailsForm = ({
 	companyName,
@@ -45,26 +48,40 @@ const WorkspaceDetailsForm = ({
 							onChange={handleSetCompanyName}
 							autoFocus
 						/>
-						<div className="companyLogoInputContainer">
-							<label htmlFor="companyLogoInput">
-								<input
-									id="companyLogoInput"
-									type="file"
-									accept="image/*"
-									onChange={handleSetCompanyLogo}
-									className="companyLogoInput"
+						<Tooltip
+							title={
+								<ToolTipContainer
+									customContainerStyle={customContainerStyle}
+									contentStyling={contentStyling}
+									title={''}
+									content={'Upload your company logo'}
+									removeClassName={true}
 								/>
-								{companyLogo ? (
-									<img
-										className="companyLogo"
-										src={companyLogo}
-										alt="Company Logo"
+							}
+							arrow={true}
+							color={'var(--card)'}
+						>
+							<div className="companyLogoInputContainer">
+								<label htmlFor="companyLogoInput">
+									<input
+										id="companyLogoInput"
+										type="file"
+										accept="image/*"
+										onChange={handleSetCompanyLogo}
+										className="companyLogoInput"
 									/>
-								) : (
-									<UploadIcon />
-								)}
-							</label>
-						</div>
+									{companyLogo ? (
+										<img
+											className="companyLogo"
+											src={companyLogo}
+											alt="Company Logo"
+										/>
+									) : (
+										<UploadIcon />
+									)}
+								</label>
+							</div>
+						</Tooltip>
 					</div>
 
 					<div className="domainInfoContainer">
@@ -92,6 +109,7 @@ const WorkspaceDetailsForm = ({
 							value={workspaceType}
 							onChange={handleSetWorkspaceType}
 							onClick={toggleDropdown}
+							onBlur={toggleDropdown}
 						/>
 						<div className="workspaceTypeDropdown">
 							<div className="labelContainer">
