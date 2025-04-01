@@ -7,6 +7,7 @@ import UserDetailsForm from './UserDetailsForm';
 import WorkspaceDetailsForm from './WorkspaceDetailsForm';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { message } from 'antd';
+import Skeleton from 'react-loading-skeleton';
 
 let usernameTimeoutId, companyLogoFile;
 
@@ -57,6 +58,7 @@ const Stages = () => {
 		resendOtpLoading: false,
 		isPhoneNumberVerified: false,
 		verifyPhoneNumberLoading: false,
+		userDetailsLoading: true,
 	});
 
 	const emailCntxt = userDetailsFromTenantAPI?.email;
@@ -195,6 +197,8 @@ const Stages = () => {
 	}, [theme]);
 
 	const handleGetUserDetails = useCallback(async () => {
+		if (info?.stage !== 1) return;
+		setInfo((prev) => ({ ...prev, userDetailsLoading: true }));
 		const response = await getUserDetailsFromTenantAPI();
 		const success = response?.[0] === true;
 		if (!success) {
@@ -207,6 +211,7 @@ const Stages = () => {
 				}, 1500);
 			}
 		}
+		setInfo((prev) => ({ ...prev, userDetailsLoading: false }));
 	}, []);
 
 	const handleCheckWorkspaceHandleAvailability = useCallback(
@@ -457,6 +462,7 @@ const Stages = () => {
 	const stageMapper = {
 		1: (
 			<UserDetailsForm
+				userDetailsLoading={info?.userDetailsLoading}
 				username={info?.username}
 				phoneNumber={info?.phoneNumber}
 				isPhoneNumberVerified={info?.isPhoneNumberVerified}
@@ -500,7 +506,11 @@ const Stages = () => {
 				invitedUserOnboarding={invitedUserOnboarding}
 			/>
 			<div className="stageContainer">
-				<h1 className="email">{emailCntxt}</h1>
+				{info?.userDetailsLoading ? (
+					<Skeleton width="300px" height="17px" />
+				) : (
+					<h1 className="email">{emailCntxt}</h1>
+				)}
 				{stageMapper?.[info?.stage]}
 			</div>
 			<div className="btnsContainer">
