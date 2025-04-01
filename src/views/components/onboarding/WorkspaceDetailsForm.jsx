@@ -1,4 +1,4 @@
-import { memo, useEffect, useState } from 'react';
+import { memo } from 'react';
 import '../../../assets/scss/onboarding/stages.scss';
 import Spinner from '../loaders/Spinner';
 import { ReactComponent as DownArrow } from '../../../assets/svg/onboarding/down-arrow.svg';
@@ -19,17 +19,6 @@ const WorkspaceDetailsForm = ({
 	workspaceType,
 	handleSetWorkspaceType,
 }) => {
-	const [workspaceTypeContainerWidth, setWorkspaceTypeContainerWidth] = useState(0);
-
-	useEffect(() => {
-		const selector = '.workspaceTypeContainer';
-		const workspaceTypeContainer = document.querySelector(selector);
-		if (workspaceTypeContainer) {
-			const width = workspaceTypeContainer?.offsetWidth;
-			setWorkspaceTypeContainerWidth(width);
-		}
-	}, []);
-
 	return (
 		<div className="stage2">
 			<header className="header">
@@ -105,7 +94,6 @@ const WorkspaceDetailsForm = ({
 						trigger={'click'}
 						title={
 							<WorkspaceTypeOptions
-								width={workspaceTypeContainerWidth}
 								handleSetWorkspaceType={handleSetWorkspaceType}
 								searchTerm={workspaceType}
 							/>
@@ -120,21 +108,11 @@ const WorkspaceDetailsForm = ({
 								className="workspaceTypeInput"
 								value={workspaceType}
 								onChange={handleSetWorkspaceType}
-								// onClick={toggleDropdown}
-								// onBlur={toggleDropdown}
 							/>
 							<div className="workspaceTypeDropdown">
 								<div className="labelContainer">
 									<DownArrow />
 								</div>
-
-								{/* {info?.showDropdown && (
-									<WorkspaceTypeOptions
-										handleSetWorkspaceType={handleSetWorkspaceType}
-										toggleDropdown={toggleDropdown}
-										searchTerm={workspaceType}
-									/>
-								)} */}
 							</div>
 						</div>
 					</Tooltip>

@@ -1,10 +1,11 @@
 .workspaceTypeOptions {
 	position: absolute;
+	top: -4px;
+	transform: translateX(-50%);
+	width: max-content;
 	height: fit-content;
 	max-height: 178px;
 	overflow: auto;
-	top: -4px;
-	left: -170px;
 	display: flex;
 	padding: 12px;
 	flex-direction: column;

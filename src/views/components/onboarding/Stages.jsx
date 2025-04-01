@@ -163,9 +163,22 @@ const Stages = () => {
 		setInfo((prev) => ({
 			...prev,
 			continueBtnDisabled:
-				info?.stage === 1 && (!info?.username || !info?.isPhoneNumberVerified),
+				(info?.stage === 1 && (!info?.username || !info?.isPhoneNumberVerified)) ||
+				(info?.stage === 2 &&
+					(!info?.companyName ||
+						!info?.workspaceHandle ||
+						!info?.isWorkspaceHandleAvailable ||
+						!info?.workspaceType)),
 		}));
-	}, [info?.username, info?.isPhoneNumberVerified, info?.stage]);
+	}, [
+		info?.username,
+		info?.isPhoneNumberVerified,
+		info?.stage,
+		info?.companyName,
+		info?.workspaceHandle,
+		info?.isWorkspaceHandleAvailable,
+		info?.workspaceType,
+	]);
 
 	useEffect(() => {
 		if (info?.companyName?.length > 1) {
@@ -180,6 +193,7 @@ const Stages = () => {
 				...prev,
 				checkingWorkspaceHandle: false,
 				isWorkspaceHandleAvailable: null,
+				workspaceHandle: '',
 			}));
 		}
 	}, [info?.companyName]);
@@ -197,7 +211,6 @@ const Stages = () => {
 	}, [theme]);
 
 	const handleGetUserDetails = useCallback(async () => {
-		if (info?.stage !== 1) return;
 		setInfo((prev) => ({ ...prev, userDetailsLoading: true }));
 		const response = await getUserDetailsFromTenantAPI();
 		const success = response?.[0] === true;

@@ -31,6 +31,7 @@
 		gap: 120px;
 		opacity: 0;
 		transition: opacity 0.5s ease-in; // useEffect to animate fade in on opacity: 1;
+		z-index: 1;
 
 		& > * {
 			height: 100%;

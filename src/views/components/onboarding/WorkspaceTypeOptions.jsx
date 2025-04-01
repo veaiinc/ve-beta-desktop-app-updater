@@ -1,4 +1,4 @@
-import { memo, useEffect, useState } from 'react';
+import { memo } from 'react';
 import '../../../assets/scss/onboarding/WorkspaceTypeOptions.scss';
 
 const dropdownOptions = [
@@ -64,7 +64,7 @@ const dropdownOptions = [
 	},
 ];
 
-const WorkspaceTypeOptions = ({ width, handleSetWorkspaceType, searchTerm }) => {
+const WorkspaceTypeOptions = ({ handleSetWorkspaceType, searchTerm }) => {
 	const filteredOptions =
 		dropdownOptions?.filter((option) =>
 			option?.label?.toLowerCase()?.includes((searchTerm ?? '').toLowerCase()),
@@ -73,7 +73,7 @@ const WorkspaceTypeOptions = ({ width, handleSetWorkspaceType, searchTerm }) => 
 	return (
 		<div
 			className="workspaceTypeOptions"
-			style={{ width, display: filteredOptions?.length > 0 ? 'block' : 'none' }}
+			style={{ display: filteredOptions?.length > 0 ? 'block' : 'none' }}
 		>
 			{filteredOptions?.length > 0 &&
 				filteredOptions?.map((option) => (
