@@ -59,6 +59,7 @@ const Stages = () => {
 		isPhoneNumberVerified: false,
 		verifyPhoneNumberLoading: false,
 		userDetailsLoading: true,
+		verifyOtpLoader: false,
 	});
 
 	const emailCntxt = userDetailsFromTenantAPI?.email;
@@ -330,7 +331,7 @@ const Stages = () => {
 
 	const handleSetOTP = useCallback(
 		(e) => {
-			let otp = e?.target?.value ?? '';
+			let otp = e?.target?.value?.replace(/[^0-9]/g, '') ?? '';
 			if (otp?.length > 6) otp = otp?.slice(0, 6);
 			setInfo((prev) => ({ ...prev, otp }));
 		},
@@ -342,6 +343,7 @@ const Stages = () => {
 	}, [info?.otpSent, info?.otp]);
 
 	const handleVerifyMobileOtpCode = useCallback(async () => {
+		setInfo((prev) => ({ ...prev, verifyOtpLoader: true }));
 		const { phoneNumber, otp: verificationCode } = info;
 		const response = await verifyMobileOtpCode(phoneNumber, verificationCode);
 		if (response?.[0] === true) {
@@ -356,6 +358,7 @@ const Stages = () => {
 			const errorMessage = response?.[1]?.message;
 			message?.error(errorMessage);
 		}
+		setInfo((prev) => ({ ...prev, verifyOtpLoader: false }));
 	}, [info?.phoneNumber, info?.otp]);
 
 	const handleResendOtp = useCallback(async () => {
@@ -494,6 +497,7 @@ const Stages = () => {
 				handleResendOtp={handleResendOtp}
 				resendOtpLoading={info?.resendOtpLoading}
 				verifyPhoneNumberLoading={info?.verifyPhoneNumberLoading}
+				verifyOtpLoader={info?.verifyOtpLoader}
 			/>
 		),
 		2: (
@@ -520,7 +524,14 @@ const Stages = () => {
 			/>
 			<div className="stageContainer">
 				{info?.userDetailsLoading ? (
-					<Skeleton width="300px" height="17px" />
+					<Skeleton
+						width="300px"
+						height="17px"
+						style={{
+							'--highlight-color': 'gray',
+							'--base-color': 'transparent',
+						}}
+					/>
 				) : (
 					<h1 className="email">{emailCntxt}</h1>
 				)}

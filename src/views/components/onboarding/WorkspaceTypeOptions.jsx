@@ -64,7 +64,7 @@ const dropdownOptions = [
 	},
 ];
 
-const WorkspaceTypeOptions = ({ handleSetWorkspaceType, searchTerm }) => {
+const WorkspaceTypeOptions = ({ width, handleSetWorkspaceType, searchTerm }) => {
 	const filteredOptions =
 		dropdownOptions?.filter((option) =>
 			option?.label?.toLowerCase()?.includes((searchTerm ?? '').toLowerCase()),
@@ -73,7 +73,7 @@ const WorkspaceTypeOptions = ({ handleSetWorkspaceType, searchTerm }) => {
 	return (
 		<div
 			className="workspaceTypeOptions"
-			style={{ display: filteredOptions?.length > 0 ? 'block' : 'none' }}
+			style={{ display: filteredOptions?.length > 0 ? 'block' : 'none', width }}
 		>
 			{filteredOptions?.length > 0 &&
 				filteredOptions?.map((option) => (

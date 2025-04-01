@@ -8,6 +8,7 @@ import { ReactComponent as UploadIcon } from '../../../assets/svg/onboarding/upl
 import { Tooltip } from 'antd';
 import ToolTipContainer from '../popover/ToolTipContainer';
 import Skeleton from 'react-loading-skeleton';
+import Spinner from '../loaders/Spinner';
 
 const themePreferences = [
 	{
@@ -66,6 +67,7 @@ const UserDetailsForm = ({
 	handleResendOtp,
 	resendOtpLoading,
 	verifyPhoneNumberLoading,
+	verifyOtpLoader,
 }) => {
 	return (
 		<div className="stage1">
@@ -77,7 +79,14 @@ const UserDetailsForm = ({
 				<div className="nameInputContainer">
 					<p className="question">What is your name?</p>
 					{userDetailsLoading ? (
-						<Skeleton width="100%" height="41px" />
+						<Skeleton
+							width="100%"
+							height="41px"
+							style={{
+								'--highlight-color': 'gray',
+								'--base-color': 'transparent',
+							}}
+						/>
 					) : (
 						<div className="nameInputAndProfilePictureContainer">
 							<input
@@ -135,6 +144,11 @@ const UserDetailsForm = ({
 							onChange={handleSetOTP}
 							type="text"
 						/>
+						{verifyOtpLoader && (
+							<div className="spinnerContainer">
+								<Spinner width={'16px'} height={'16px'} />
+							</div>
+						)}
 						<button
 							onClick={handleResendOtp}
 							className="resendOtpBtn"
@@ -154,7 +168,14 @@ const UserDetailsForm = ({
 					<div className="phoneInputContainer">
 						<p className="question">Enter your phone number</p>
 						{userDetailsLoading ? (
-							<Skeleton width="100%" height="41px" />
+							<Skeleton
+								width="100%"
+								height="41px"
+								style={{
+									'--highlight-color': 'gray',
+									'--base-color': 'transparent',
+								}}
+							/>
 						) : (
 							<PhoneInput
 								containerClass="phoneContainerClass"
@@ -162,7 +183,7 @@ const UserDetailsForm = ({
 								placeholder="Enter phone number"
 								value={phoneNumber}
 								onChange={handleSetPhoneNumber}
-								country={countryCode}
+								country={countryCode ?? 'in'}
 								countryCallingCodeEditable={true}
 								autoComplete="tel"
 								disabled={isPhoneNumberVerified}
@@ -190,7 +211,14 @@ const UserDetailsForm = ({
 				<div className="themeInputContainer">
 					<p className="question">Select your theme preference</p>
 					{userDetailsLoading ? (
-						<Skeleton width="100%" height="41px" />
+						<Skeleton
+							width="100%"
+							height="41px"
+							style={{
+								'--highlight-color': 'gray',
+								'--base-color': 'transparent',
+							}}
+						/>
 					) : (
 						<div className="themeOptionsContainer">
 							{themePreferences?.map((theme) => (
