@@ -177,10 +177,15 @@ const ChatBox = ({
 	//useEffect to handle send user edited query
 	useEffect(() => {
 		if (userEditedQuery) {
+			if (info?.chatLoading) {
+				updateStateValues({ userEditedQuery: null });
+				message.error('Please wait, AI is already generating a response');
+				return;
+			}
 			handleSendMessageFunc(null, true, userEditedQuery);
 			updateStateValues({ userEditedQuery: null });
 		}
-	}, [userEditedQuery]);
+	}, [userEditedQuery, info?.chatLoading]);
 
 	useEffect(() => {
 		if (activePayloadForChat) {
