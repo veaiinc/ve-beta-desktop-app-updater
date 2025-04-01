@@ -1,4 +1,4 @@
-import { memo, useEffect, useState } from 'react';
+import { memo, useEffect } from 'react';
 import '../../../assets/scss/onboarding/index.scss';
 import Stages from '../../components/onboarding/Stages';
 

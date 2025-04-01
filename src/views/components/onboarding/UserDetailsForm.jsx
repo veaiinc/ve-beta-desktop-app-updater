@@ -77,7 +77,7 @@ const UserDetailsForm = ({
 				<div className="nameInputContainer">
 					<p className="question">What is your name?</p>
 					{userDetailsLoading ? (
-						<Skeleton width="363px" height="41px" />
+						<Skeleton width="100%" height="41px" />
 					) : (
 						<div className="nameInputAndProfilePictureContainer">
 							<input
@@ -154,7 +154,7 @@ const UserDetailsForm = ({
 					<div className="phoneInputContainer">
 						<p className="question">Enter your phone number</p>
 						{userDetailsLoading ? (
-							<Skeleton width="363px" height="41px" />
+							<Skeleton width="100%" height="41px" />
 						) : (
 							<PhoneInput
 								containerClass="phoneContainerClass"
@@ -190,7 +190,7 @@ const UserDetailsForm = ({
 				<div className="themeInputContainer">
 					<p className="question">Select your theme preference</p>
 					{userDetailsLoading ? (
-						<Skeleton width="363px" height="41px" />
+						<Skeleton width="100%" height="41px" />
 					) : (
 						<div className="themeOptionsContainer">
 							{themePreferences?.map((theme) => (
