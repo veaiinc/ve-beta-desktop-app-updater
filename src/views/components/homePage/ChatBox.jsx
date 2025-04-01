@@ -22,7 +22,7 @@ import ObjectID from 'bson-objectid';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ReactComponent as Filter } from '../../../assets/svg/my_templates/filter.svg';
 import { ReactComponent as PaperClip } from '../../../assets/svg/ai_agents/paper-clip.svg';
-import { getBase64 } from '../../../helpers';
+import { checkDevices, getBase64 } from '../../../helpers';
 import WorkflowSlugSelector from '../../components/calendar/WorkflowSlugSelector';
 import useVoiceIntegration from '../../hooks/useVoiceIntegration';
 import SearchDropdown from '../chat/SearchDropdown';
@@ -33,6 +33,8 @@ import Voice from '../chat/Voice';
 import { message, Image, Spin, Tooltip } from 'antd';
 import LLMTooltip from '../chat/LLMTooltip';
 import AIMessageLoader from '../chat/AIMessageLoader';
+import useUpdatedVoiceIntegration from '../../hooks/useUpdatedVoiceIntegration';
+import { LiveKitRoom, RoomAudioRenderer, StartAudio } from '@livekit/components-react';
 
 const moduleHelper = {
 	tasks: 'tasks',
@@ -127,17 +129,20 @@ const ChatBox = ({
 		calendarInfo: { updateCalendarState },
 		tasks: { updateTaskState },
 		documentPreview: { noteContent, setNoteContent },
+		aiSetup: { updateAiSetupState, voiceIntegrationData },
 	} = useContext(Context);
 
-	const {
-		isConnected,
-		isMuted,
-		audioLevel,
-		connectToRoom,
-		disconnect,
-		toggleMute,
-		toggleKrispNoiseFilter,
-	} = useVoiceIntegration();
+	// const {
+	// 	isConnected,
+	// 	isMuted,
+	// 	audioLevel,
+	// 	connectToRoom,
+	// 	disconnect,
+	// 	toggleMute,
+	// 	toggleKrispNoiseFilter,
+	// } = useVoiceIntegration();
+
+	const { handleConnect, shouldConnect } = useUpdatedVoiceIntegration();
 
 	const navigate = useNavigate();
 	const location = useLocation();
@@ -252,6 +257,13 @@ const ChatBox = ({
 			setInfo((prev) => ({ ...prev, chatLoading: false }));
 		}
 	}, [latestStreamMesage]);
+
+	useEffect(() => {
+		setInfo((prev) => ({
+			...prev,
+			voiceIntegration: voiceIntegrationData?.shouldConnect || false,
+		}));
+	}, [voiceIntegrationData]);
 
 	const handlePreview = async (file) => {
 		if (!file.url && !file.preview) {
@@ -758,36 +770,40 @@ const ChatBox = ({
 	);
 
 	const handleMicIconClick = useCallback(
-		(event) => {
+		async (event) => {
+			const { hasMic, hasCamera } = await checkDevices();
+
+			if (!hasMic) {
+				message.error('Mic is not available');
+				return;
+			}
+
 			if (!info?.voiceIntegration) {
-				connectToRoom();
+				handleConnect();
 				setInfo((prev) => ({ ...prev, voiceIntegration: true }));
 			} else {
-				toggleMute();
+				// toggleMute();
 			}
 			event.stopPropagation();
 		},
 
-		[info, connectToRoom],
+		[info, handleConnect],
 	);
 
-	const handleToggleMute = useCallback(
-		(event) => {
-			toggleMute();
-			event.stopPropagation();
-			setInfo((prev) => ({ ...prev, isVoiceMuted: !prev?.isVoiceMuted }));
-		},
-		[toggleMute],
-	);
+	// const handleToggleMute = useCallback((event) => {
+	// 	// toggleMute();
+	// 	event.stopPropagation();
+	// 	setInfo((prev) => ({ ...prev, isVoiceMuted: !prev?.isVoiceMuted }));
+	// }, []);
 
-	const handleDisConnect = useCallback(
-		(event) => {
-			disconnect();
-			setInfo((prev) => ({ ...prev, voiceIntegration: false, isVoiceMuted: false }));
-			event.stopPropagation();
-		},
-		[info],
-	);
+	// const handleDisConnect = useCallback(
+	// 	(event) => {
+	// 		handleDisconnect();
+	// 		setInfo((prev) => ({ ...prev, voiceIntegration: false, isVoiceMuted: false }));
+	// 		event.stopPropagation();
+	// 	},
+	// 	[info],
+	// );
 
 	const handleSendBtnClick = (e) => {
 		if (info?.chatQuery?.trim()?.length > 0) {
@@ -855,13 +871,6 @@ const ChatBox = ({
 	return (
 		<div className="chatParentWrapper">
 			<div className={`chatWrapper`}>
-				<div className={`voiceContainer ${info?.voiceIntegration ? 'active' : 'inactive'}`}>
-					<Voice
-						handleDisConnect={handleDisConnect}
-						handleToggleMute={handleToggleMute}
-						isVoiceMuted={info?.isVoiceMuted}
-					/>
-				</div>
 				<div
 					className={`chat-box-container ${
 						info?.voiceIntegration ? 'inactive' : 'active'

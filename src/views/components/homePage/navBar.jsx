@@ -3,6 +3,7 @@ import '../../../assets/scss/home_page/homepage.scss';
 import { ReactComponent as SearchIcon } from '../../../assets/svg/workflow/search.svg';
 import Context from '../../../context/context';
 import SearchSvg from '../../../assets/svg/activity/SearchSvg';
+import Voice from '../chat/Voice';
 
 const NavBar = ({
 	options,
@@ -36,6 +37,8 @@ const NavBar = ({
 					</div>
 				))}
 			</div>
+			{/* <Voice /> */}
+
 			{(showSearchBar || overrideShowSearchBar) && (
 				<div className="home-page-welcome-container-right">
 					<SearchSvg />

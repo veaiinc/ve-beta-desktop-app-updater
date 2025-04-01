@@ -1089,7 +1089,6 @@
 		flex-shrink: 0;
 		align-self: stretch;
 		border-top: 0.8px solid var(--stroke);
-		background: var(--navbar);
 		position: sticky;
 		bottom: 0;
 		z-index: 2;
@@ -1103,6 +1102,9 @@
 			width: 18px;
 			height: 18px;
 			transform: rotate(45deg);
+		}
+		&:hover {
+			background-color: var(--card-over-card-hover);
 		}
 	}
 }
