@@ -266,7 +266,7 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 
 			return { suggestedOptions, moduleOptions };
 		},
-		[info?.options],
+		[info?.options, tenantUserAccessControls],
 	);
 
 	useEffect(() => {
