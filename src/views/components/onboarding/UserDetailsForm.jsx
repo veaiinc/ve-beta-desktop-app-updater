@@ -5,6 +5,8 @@ import { ReactComponent as DarkIcon } from '../../../assets/svg/onboarding/dark.
 import { ReactComponent as LightIcon } from '../../../assets/svg/onboarding/light.svg';
 import { ReactComponent as GreenTick } from '../../../assets/svg/onboarding/green-tick.svg';
 import { ReactComponent as UploadIcon } from '../../../assets/svg/onboarding/upload-icon.svg';
+import { Tooltip } from 'antd';
+import ToolTipContainer from '../popover/ToolTipContainer';
 
 const themePreferences = [
 	{
@@ -26,6 +28,22 @@ const themePreferences = [
 		value: 'light',
 	},
 ];
+
+const customContainerStyle = {
+	display: 'flex',
+	alignItems: 'center',
+	justifyContent: 'center',
+	backgroundColor: 'var(--card)',
+};
+
+const contentStyling = {
+	color: 'var(--primary-font)',
+	fontFamily: 'var(--primary-font-family)',
+	fontSize: '14px',
+	fontStyle: 'normal',
+	fontWeight: '500',
+	lineHeight: 'normal',
+};
 
 const UserDetailsForm = ({
 	username,
@@ -63,26 +81,41 @@ const UserDetailsForm = ({
 						placeholder="Full Name"
 						autoFocus
 					/>
-					<div className="profilePictureContainer">
-						<label htmlFor="profilePictureInput">
-							<input
-								id="profilePictureInput"
-								type="file"
-								accept="image/*"
-								onChange={handleSetProfilePicture}
-								className="profilePictureInput"
+					<Tooltip
+						open={true}
+						title={
+							<ToolTipContainer
+								customContainerStyle={customContainerStyle}
+								contentStyling={contentStyling}
+								title={''}
+								content={'Upload a profile picture'}
+								removeClassName={true}
 							/>
-							{profilePicture ? (
-								<img
-									src={profilePicture}
-									alt={username}
-									className="profilePicture"
+						}
+						arrow={true}
+						color={'var(--card)'}
+					>
+						<div className="profilePictureContainer">
+							<label htmlFor="profilePictureInput">
+								<input
+									id="profilePictureInput"
+									type="file"
+									accept="image/*"
+									onChange={handleSetProfilePicture}
+									className="profilePictureInput"
 								/>
-							) : (
-								<UploadIcon />
-							)}
-						</label>
-					</div>
+								{profilePicture ? (
+									<img
+										src={profilePicture}
+										alt={username}
+										className="profilePicture"
+									/>
+								) : (
+									<UploadIcon />
+								)}
+							</label>
+						</div>
+					</Tooltip>
 				</div>
 			</div>
 			{otpSent ? (
