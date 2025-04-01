@@ -24,17 +24,14 @@ import { ReactComponent as Filter } from '../../../assets/svg/my_templates/filte
 import { ReactComponent as PaperClip } from '../../../assets/svg/ai_agents/paper-clip.svg';
 import { checkDevices, getBase64 } from '../../../helpers';
 import WorkflowSlugSelector from '../../components/calendar/WorkflowSlugSelector';
-import useVoiceIntegration from '../../hooks/useVoiceIntegration';
 import SearchDropdown from '../chat/SearchDropdown';
 import UploadFileTooltip from '../chat/UploadFileTooltip';
 import DateRangeDropdown from '../chat/DateRangeDropdown';
 import moment from 'moment';
-import Voice from '../chat/Voice';
 import { message, Image, Spin, Tooltip } from 'antd';
 import LLMTooltip from '../chat/LLMTooltip';
 import AIMessageLoader from '../chat/AIMessageLoader';
 import useUpdatedVoiceIntegration from '../../hooks/useUpdatedVoiceIntegration';
-import { LiveKitRoom, RoomAudioRenderer, StartAudio } from '@livekit/components-react';
 
 const moduleHelper = {
 	tasks: 'tasks',
