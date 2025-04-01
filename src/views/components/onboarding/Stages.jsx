@@ -54,6 +54,7 @@ const Stages = () => {
 		continueBtnDisabled: true,
 		otp: '',
 		otpSent: false,
+		resendOtpLoading: false,
 		isPhoneNumberVerified: false,
 		verifyPhoneNumberLoading: false,
 	});
@@ -283,7 +284,11 @@ const Stages = () => {
 	const handleVerifyPhoneNumber = useCallback(async () => {
 		setInfo((prev) => ({ ...prev, verifyPhoneNumberLoading: true }));
 		const { username, phoneNumber } = info;
-		if (!isPhoneNumberVerifiedCntxt && phoneNumberExistsInDBCntxt) {
+		if (
+			!isPhoneNumberVerifiedCntxt &&
+			phoneNumberExistsInDBCntxt &&
+			phoneNumberCntxt === phoneNumber
+		) {
 			const response = await requestResendOTPToMobile();
 			const success = response?.[0] === true;
 			if (success) {
@@ -336,6 +341,7 @@ const Stages = () => {
 	}, [info?.phoneNumber, info?.otp]);
 
 	const handleResendOtp = useCallback(async () => {
+		setInfo((prev) => ({ ...prev, resendOtpLoading: true }));
 		const response = await requestResendOTPToMobile();
 		const success = response?.[0] === true;
 		if (success) {
@@ -344,6 +350,7 @@ const Stages = () => {
 			const errorMessage = response?.[1]?.message;
 			message?.error(errorMessage);
 		}
+		setInfo((prev) => ({ ...prev, resendOtpLoading: false }));
 	}, [info?.phoneNumber]);
 
 	const handleSetThemePreference = useCallback(
@@ -466,6 +473,7 @@ const Stages = () => {
 				otpSent={info?.otpSent}
 				handleSetOTPSentToFalse={handleSetOTPSentToFalse}
 				handleResendOtp={handleResendOtp}
+				resendOtpLoading={info?.resendOtpLoading}
 				verifyPhoneNumberLoading={info?.verifyPhoneNumberLoading}
 			/>
 		),

@@ -62,6 +62,7 @@ const UserDetailsForm = ({
 	otpSent,
 	handleSetOTPSentToFalse,
 	handleResendOtp,
+	resendOtpLoading,
 	verifyPhoneNumberLoading,
 }) => (
 	<div className="stage1">
@@ -127,8 +128,16 @@ const UserDetailsForm = ({
 						onChange={handleSetOTP}
 						type="text"
 					/>
-					<button onClick={handleResendOtp} className="resendOtpBtn">
-						Resend OTP
+					<button
+						onClick={handleResendOtp}
+						className="resendOtpBtn"
+						style={{
+							opacity: resendOtpLoading ? 0.5 : 1,
+							cursor: resendOtpLoading ? 'not-allowed' : 'pointer',
+						}}
+						disabled={resendOtpLoading}
+					>
+						{resendOtpLoading ? 'Resending...' : 'Resend OTP'}
 					</button>
 					<button onClick={handleSetOTPSentToFalse} className="changePhoneNumberBtn">
 						Change Phone Number
@@ -156,6 +165,10 @@ const UserDetailsForm = ({
 						<button
 							onClick={handleVerifyPhoneNumber}
 							className="verifyPhoneNumberBtn"
+							style={{
+								opacity: verifyPhoneNumberLoading ? 0.5 : 1,
+								cursor: verifyPhoneNumberLoading ? 'not-allowed' : 'pointer',
+							}}
 							disabled={verifyPhoneNumberLoading}
 						>
 							{verifyPhoneNumberLoading ? 'Verifying...' : 'Verify Phone Number'}
