@@ -1,4 +1,4 @@
-import { memo, useState } from 'react';
+import { memo, useEffect, useState } from 'react';
 import '../../../assets/scss/onboarding/stages.scss';
 import Spinner from '../loaders/Spinner';
 import { ReactComponent as DownArrow } from '../../../assets/svg/onboarding/down-arrow.svg';
@@ -19,16 +19,16 @@ const WorkspaceDetailsForm = ({
 	workspaceType,
 	handleSetWorkspaceType,
 }) => {
-	const [info, setInfo] = useState({
-		showDropdown: false,
-	});
+	const [workspaceTypeContainerWidth, setWorkspaceTypeContainerWidth] = useState(0);
 
-	const toggleDropdown = () => {
-		setInfo((prev) => ({
-			...prev,
-			showDropdown: !prev?.showDropdown,
-		}));
-	};
+	useEffect(() => {
+		const selector = '.workspaceTypeContainer';
+		const workspaceTypeContainer = document.querySelector(selector);
+		if (workspaceTypeContainer) {
+			const width = workspaceTypeContainer?.offsetWidth;
+			setWorkspaceTypeContainerWidth(width);
+		}
+	}, []);
 
 	return (
 		<div className="stage2">
@@ -101,29 +101,43 @@ const WorkspaceDetailsForm = ({
 				</div>
 				<div className="workspaceTypeContainer">
 					<p className="question">What is your company type?</p>
-					<div className="workspaceTypeInputContainer">
-						<input
-							type="text"
-							placeholder="Company Type"
-							className="workspaceTypeInput"
-							value={workspaceType}
-							onChange={handleSetWorkspaceType}
-							onClick={toggleDropdown}
-							onBlur={toggleDropdown}
-						/>
-						<div className="workspaceTypeDropdown">
-							<div className="labelContainer">
-								<DownArrow />
+					<Tooltip
+						trigger={'click'}
+						title={
+							<WorkspaceTypeOptions
+								width={workspaceTypeContainerWidth}
+								handleSetWorkspaceType={handleSetWorkspaceType}
+								searchTerm={workspaceType}
+							/>
+						}
+						placement="bottom"
+						color={'transparent'}
+					>
+						<div className="workspaceTypeInputContainer">
+							<input
+								type="text"
+								placeholder="Company Type"
+								className="workspaceTypeInput"
+								value={workspaceType}
+								onChange={handleSetWorkspaceType}
+								// onClick={toggleDropdown}
+								// onBlur={toggleDropdown}
+							/>
+							<div className="workspaceTypeDropdown">
+								<div className="labelContainer">
+									<DownArrow />
+								</div>
+
+								{/* {info?.showDropdown && (
+									<WorkspaceTypeOptions
+										handleSetWorkspaceType={handleSetWorkspaceType}
+										toggleDropdown={toggleDropdown}
+										searchTerm={workspaceType}
+									/>
+								)} */}
 							</div>
-							{info?.showDropdown && (
-								<WorkspaceTypeOptions
-									handleSetWorkspaceType={handleSetWorkspaceType}
-									toggleDropdown={toggleDropdown}
-									searchTerm={workspaceType}
-								/>
-							)}
 						</div>
-					</div>
+					</Tooltip>
 				</div>
 			</main>
 		</div>

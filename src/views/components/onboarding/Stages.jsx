@@ -78,6 +78,14 @@ const Stages = () => {
 				navigate('/home');
 			}, 1500);
 		}
+		if (!isUserOnboard && pathname === '/create-workspace') {
+			message?.error('You are not onboarded! Redirecting to onboarding page');
+			setTimeout(() => {
+				setInfo((prev) => ({ ...prev, stage: 1 }));
+				localStorage.setItem('stage', 1);
+				navigate('/onboarding');
+			}, 1500);
+		}
 		handleGetUserDetails();
 		getUserLogo();
 		const countryCode = getCountryCode(info?.phoneNumber);
@@ -184,9 +192,10 @@ const Stages = () => {
 			const statusCode = response?.[1]?.statusCode;
 			if (statusCode === 401) {
 				message?.error('Session expired! Please login again');
+				localStorage.removeItem('stage');
 				setTimeout(() => {
 					window.location.href = '/verify-user';
-				}, 5000);
+				}, 1500);
 			}
 		}
 	}, [getUserDetails]);
