@@ -3,7 +3,7 @@ import '../../../assets/scss/chat/chat.scss';
 import { ReactComponent as ExpandChatIcon } from '../../../assets/svg/ai_agents/expand-chat-icon.svg';
 import Context from '../../../context/context';
 import Markdown from 'react-markdown';
-import { TypingEffect } from '../../../helpers/markdownHelper';
+import { TypingEffect, UserMessageRenderer } from '../../../helpers/markdownHelper';
 import CitationsModal from '../../components/modalsV2/chat/CitationsModal';
 import NoteComponentModal from '../../components/notes/NoteComponentModal';
 import ChatBox from '../../components/homePage/ChatBox';
@@ -522,20 +522,27 @@ const RecentChat = ({
 															/>
 														</div>
 													) : (
-														<div
-															style={{
-																transition:
-																	'opacity 0.3s ease-in-out',
-																opacity:
-																	index ===
-																	info?.lastVisibleUserMessageIndex
-																		? 1
-																		: 0.6,
-															}}
-															className="fade-in"
-														>
-															<Markdown>{chat?.message}</Markdown>
-														</div>
+														<UserMessageRenderer
+															messageData={chat}
+															lastVisibleUserMessageIndex={
+																index ===
+																info?.lastVisibleUserMessageIndex
+															}
+														/>
+														// <div
+														// 	style={{
+														// 		transition:
+														// 			'opacity 0.3s ease-in-out',
+														// 		opacity:
+														// 			index ===
+														// 			info?.lastVisibleUserMessageIndex
+														// 				? 1
+														// 				: 0.6,
+														// 	}}
+														// 	className="fade-in"
+														// >
+														// 	<Markdown>{chat?.message}</Markdown>
+														// </div>
 													)}
 												</div>
 											</div>

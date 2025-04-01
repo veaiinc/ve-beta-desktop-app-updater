@@ -17,3 +17,111 @@
 		}
 	}
 }
+
+.user-message-renderer-container {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	position: relative;
+	width: fit-content;
+	align-self: flex-end;
+
+	.user-message-renderer-container {
+		padding: 12px 16px;
+		border-radius: 24px;
+		background: var(--card);
+	}
+
+	.user-edit-query-input-box-container {
+		display: flex;
+		max-height: 400px;
+		width: 700px;
+		padding: 16px;
+		flex-direction: column;
+		gap: 12px;
+		align-self: center;
+		border-radius: 16px;
+		background-color: var(--card);
+
+		textarea {
+			width: 100%;
+			min-height: 24px;
+			max-height: 320px;
+			border: none;
+			outline: none;
+			background: transparent;
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 400;
+			line-height: normal;
+			resize: none;
+		}
+
+		.user-editQuery-actionBtnContainer {
+			display: flex;
+			justify-content: flex-end;
+			gap: 12px;
+
+			.cancelBtn {
+				background-color: #212121;
+				border-color: #ffffff26;
+				border-width: 1px;
+				color: #ececec;
+
+				align-items: center;
+				border-color: transparent;
+				border-radius: 9999px;
+				border-width: 1px;
+				display: inline-flex;
+				flex-shrink: 0;
+				font-size: 0.875rem;
+				font-weight: 500;
+				justify-content: center;
+				line-height: 1.25rem;
+				min-height: 38px;
+				padding: 0.5rem 0.875rem;
+				pointer-events: auto;
+				cursor: pointer;
+			}
+			.sendBtn {
+				border-width: 1px;
+				color: #111;
+				background-color: #cfff48;
+				align-items: center;
+				border-color: transparent;
+				border-radius: 9999px;
+				border-width: 1px;
+				display: inline-flex;
+				flex-shrink: 0;
+				font-size: 0.875rem;
+				font-weight: 500;
+				justify-content: center;
+				line-height: 1.25rem;
+				min-height: 38px;
+				padding: 0.5rem 0.875rem;
+				pointer-events: auto;
+				cursor: pointer;
+			}
+		}
+	}
+
+	.hover-actions-container {
+		display: flex;
+		gap: 18px;
+		flex-direction: row;
+		align-items: center;
+		justify-content: flex-end;
+		visibility: hidden;
+
+		.icon-container {
+			cursor: pointer;
+		}
+	}
+}
+.user-message-renderer-container:hover {
+	.hover-actions-container {
+		visibility: visible;
+	}
+}

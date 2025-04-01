@@ -24,17 +24,14 @@ import { ReactComponent as Filter } from '../../../assets/svg/my_templates/filte
 import { ReactComponent as PaperClip } from '../../../assets/svg/ai_agents/paper-clip.svg';
 import { checkDevices, getBase64 } from '../../../helpers';
 import WorkflowSlugSelector from '../../components/calendar/WorkflowSlugSelector';
-import useVoiceIntegration from '../../hooks/useVoiceIntegration';
 import SearchDropdown from '../chat/SearchDropdown';
 import UploadFileTooltip from '../chat/UploadFileTooltip';
 import DateRangeDropdown from '../chat/DateRangeDropdown';
 import moment from 'moment';
-import Voice from '../chat/Voice';
 import { message, Image, Spin, Tooltip } from 'antd';
 import LLMTooltip from '../chat/LLMTooltip';
 import AIMessageLoader from '../chat/AIMessageLoader';
 import useUpdatedVoiceIntegration from '../../hooks/useUpdatedVoiceIntegration';
-import { LiveKitRoom, RoomAudioRenderer, StartAudio } from '@livekit/components-react';
 
 const moduleHelper = {
 	tasks: 'tasks',
@@ -125,22 +122,13 @@ const ChatBox = ({
 			activePayloadForChat,
 			followUpQuery,
 			chatInfo,
+			userEditedQuery,
 		},
 		calendarInfo: { updateCalendarState },
 		tasks: { updateTaskState },
 		documentPreview: { noteContent, setNoteContent },
 		aiSetup: { updateAiSetupState, voiceIntegrationData },
 	} = useContext(Context);
-
-	// const {
-	// 	isConnected,
-	// 	isMuted,
-	// 	audioLevel,
-	// 	connectToRoom,
-	// 	disconnect,
-	// 	toggleMute,
-	// 	toggleKrispNoiseFilter,
-	// } = useVoiceIntegration();
 
 	const { handleConnect, shouldConnect } = useUpdatedVoiceIntegration();
 
@@ -185,6 +173,19 @@ const ChatBox = ({
 			updateStateValues({ activePromptForChat: null });
 		}
 	}, [activePromptForChat]);
+
+	//useEffect to handle send user edited query
+	useEffect(() => {
+		if (userEditedQuery) {
+			if (info?.chatLoading) {
+				updateStateValues({ userEditedQuery: null });
+				message.error('Please wait, AI is already generating a response');
+				return;
+			}
+			handleSendMessageFunc(null, true, userEditedQuery);
+			updateStateValues({ userEditedQuery: null });
+		}
+	}, [userEditedQuery, info?.chatLoading]);
 
 	useEffect(() => {
 		if (activePayloadForChat) {
@@ -789,21 +790,6 @@ const ChatBox = ({
 
 		[info, handleConnect],
 	);
-
-	// const handleToggleMute = useCallback((event) => {
-	// 	// toggleMute();
-	// 	event.stopPropagation();
-	// 	setInfo((prev) => ({ ...prev, isVoiceMuted: !prev?.isVoiceMuted }));
-	// }, []);
-
-	// const handleDisConnect = useCallback(
-	// 	(event) => {
-	// 		handleDisconnect();
-	// 		setInfo((prev) => ({ ...prev, voiceIntegration: false, isVoiceMuted: false }));
-	// 		event.stopPropagation();
-	// 	},
-	// 	[info],
-	// );
 
 	const handleSendBtnClick = (e) => {
 		if (info?.chatQuery?.trim()?.length > 0) {
