@@ -129,7 +129,7 @@ const UserDetailsForm = ({
 					<div className="otpInputContainer">
 						<p className="question">Enter the OTP that was sent to {phoneNumber}</p>
 						<input
-							className="otpInput"
+							className={`otpInput ${otpSent && 'animate'}`}
 							value={otp}
 							placeholder="000000"
 							onChange={handleSetOTP}
