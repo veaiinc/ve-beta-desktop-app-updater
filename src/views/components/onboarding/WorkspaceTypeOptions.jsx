@@ -49,7 +49,7 @@ const dropdownOptions = [
 	},
 	{
 		id: 10,
-		label: 'Health Care',
+		label: 'Healthcare',
 		value: 'healthCare',
 	},
 	{
