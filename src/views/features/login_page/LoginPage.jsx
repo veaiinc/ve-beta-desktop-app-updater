@@ -9,29 +9,6 @@ import { useNavigate } from 'react-router-dom';
 import { ReactComponent as DarkModeGradient } from '../../../assets/svg/onboarding/dark-mode-gradient.svg';
 import { ReactComponent as LightModeGradient } from '../../../assets/svg/onboarding/light-mode-gradient.svg';
 
-const footerLinks = [
-	{
-		id: 1,
-		label: 'Privacy Policy',
-		link: '/privacy-policy',
-	},
-	{
-		id: 2,
-		label: 'Terms & Conditions',
-		link: '/terms-of-service',
-	},
-	{
-		id: 3,
-		label: 'Cookie Policy',
-		link: '/cookie-policy',
-	},
-	{
-		id: 4,
-		label: 'Help',
-		link: '/help',
-	},
-];
-
 const LoginPage = () => {
 	const navigate = useNavigate();
 	const [info, setInfo] = useState({
@@ -96,6 +73,38 @@ const LoginPage = () => {
 		),
 	};
 
+	const footerLinks = [
+		{
+			id: 1,
+			label: 'Privacy Policy',
+			handleClick: () => navigate('/privacy-policy'),
+		},
+		{
+			id: 2,
+			label: 'Terms & Conditions',
+			handleClick: () => navigate('/terms-of-service'),
+		},
+		{
+			id: 3,
+			label: 'Cookie Policy',
+			handleClick: () => navigate('/cookie-policy'),
+		},
+		{
+			id: 4,
+			label: 'Help',
+			handleClick: () => {
+				let iframe = document.getElementById('ve-ai-chat-iframe');
+				if (iframe) {
+					const requiredStyle = iframe.style.display === 'block' ? 'none' : 'block';
+					iframe.style.display = requiredStyle;
+				} else {
+					console.log('Iframe not found');
+				}
+				return;
+			},
+		},
+	];
+
 	return (
 		<div className="login-page-container">
 			<div className="gradient-container">
@@ -131,7 +140,7 @@ const LoginPage = () => {
 			</div>
 			<footer className="login-footer-container">
 				{footerLinks?.map((link) => (
-					<a className="footer-link" key={link?.id} href={link?.link}>
+					<a className="footer-link" key={link?.id} onClick={link?.handleClick}>
 						{link?.label}
 					</a>
 				))}

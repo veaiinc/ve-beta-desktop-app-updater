@@ -67,7 +67,7 @@ const OpenedSideBarHoverStateIcons = ({
 		if (name === 'Help') {
 			let iframe = document.getElementById('ve-ai-chat-iframe');
 			if (iframe) {
-				let requiredStyle = iframe.style.display === 'block' ? 'none' : 'block';
+				const requiredStyle = iframe.style.display === 'block' ? 'none' : 'block';
 				iframe.style.display = requiredStyle;
 			} else {
 				console.log('Iframe not found');

@@ -243,7 +243,7 @@ const Email = ({ email, setEmail, setActiveStage, setEmailVerified }) => {
 						onKeyDown={handleContinueWithEmail}
 						autoFocus={true}
 						type="email"
-						placeholder="work@gmail.com"
+						placeholder="example@acme.com"
 					/>
 					<button
 						disabled={!info.isEmailValid || info.isLoading}

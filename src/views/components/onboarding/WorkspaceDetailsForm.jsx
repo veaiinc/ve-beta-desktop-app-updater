@@ -20,6 +20,8 @@ const WorkspaceDetailsForm = ({
 	handleSetWorkspaceType,
 }) => {
 	const [workspaceTypeContainerWidth, setWorkspaceTypeContainerWidth] = useState(0);
+	const [workspaceTypeContainerOpen, setWorkspaceTypeContainerOpen] = useState(false);
+
 	useEffect(() => {
 		const selector = '.workspaceTypeContainer';
 		const workspaceTypeContainer = document.querySelector(selector);
@@ -100,12 +102,15 @@ const WorkspaceDetailsForm = ({
 				<div className="workspaceTypeContainer">
 					<p className="question">What is your company type?</p>
 					<Tooltip
+						open={workspaceTypeContainerOpen}
+						onOpenChange={() => setWorkspaceTypeContainerOpen(true)}
 						trigger={'click'}
 						title={
 							<WorkspaceTypeOptions
 								width={workspaceTypeContainerWidth}
 								handleSetWorkspaceType={handleSetWorkspaceType}
 								searchTerm={workspaceType}
+								setWorkspaceTypeContainerOpen={setWorkspaceTypeContainerOpen}
 							/>
 						}
 						placement="bottom"
@@ -114,7 +119,7 @@ const WorkspaceDetailsForm = ({
 						<div className="workspaceTypeInputContainer">
 							<input
 								type="text"
-								placeholder="Company Type"
+								placeholder="Type to search"
 								className="workspaceTypeInput"
 								value={workspaceType}
 								onChange={handleSetWorkspaceType}

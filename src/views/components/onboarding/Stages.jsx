@@ -52,6 +52,7 @@ const Stages = () => {
 		checkingWorkspaceHandle: false,
 		isWorkspaceHandleAvailable: null,
 		continueBtnDisabled: true,
+		continueBtnLoading: false,
 		otp: '',
 		otpSent: false,
 		resendOtpLoading: false,
@@ -109,6 +110,7 @@ const Stages = () => {
 	}, [info?.stage]);
 
 	useEffect(() => {
+		if (pathname === '/create-workspace') return;
 		if (firstNameCntxt || lastNameCntxt) {
 			const formattedUsername = formatUsername(
 				(firstNameCntxt ?? '') + ' ' + (lastNameCntxt ?? ''),
@@ -121,6 +123,7 @@ const Stages = () => {
 	}, [firstNameCntxt, lastNameCntxt]);
 
 	useEffect(() => {
+		if (pathname === '/create-workspace') return;
 		if (usernameTimeoutId) clearTimeout(usernameTimeoutId);
 		usernameTimeoutId = setTimeout(() => {
 			const username = info?.username;
@@ -459,18 +462,20 @@ const Stages = () => {
 		}
 	}, [info?.companyName, info?.workspaceType, info?.workspaceHandle]);
 
-	const handleNextStage = useCallback(() => {
+	const handleNextStage = useCallback(async () => {
 		if (invitedUserOnboarding) {
 			localStorage.removeItem('stage');
 			navigate('/home');
 			return;
 		}
 		if (info?.stage === 2) {
-			handleCreateWorkspace();
+			setInfo((prev) => ({ ...prev, continueBtnLoading: true }));
+			await handleCreateWorkspace();
+			setInfo((prev) => ({ ...prev, continueBtnLoading: false }));
 			return;
 		}
 		setInfo((prev) => ({ ...prev, stage: prev?.stage + 1 }));
-	}, [info?.stage, info?.companyName, info?.workspaceType]);
+	}, [info?.stage, info?.companyName, info?.workspaceType, info?.continueBtnLoading]);
 
 	const stageMapper = {
 		1: (
@@ -549,7 +554,7 @@ const Stages = () => {
 					className="continueBtn"
 					onClick={handleNextStage}
 				>
-					Continue
+					{info?.continueBtnLoading ? 'Creating workspace...' : 'Continue'}
 				</button>
 			</div>
 		</>
