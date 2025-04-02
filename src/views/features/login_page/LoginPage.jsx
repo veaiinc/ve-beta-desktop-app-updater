@@ -2,18 +2,35 @@ import React, { memo, useState, useEffect } from 'react';
 import '../../../assets/scss/login_page/index.scss';
 import Email from '../../components/login_page/Email';
 import VerificationCode from '../../components/login_page/VerificationCode';
-import { ReactComponent as VeAiLogo } from '../../../assets/svg/login_page/ve-ai-logo.svg';
-import { ReactComponent as CircleLightPurple } from '../../../assets/svg/login_page/circle-light-purple.svg';
-import { ReactComponent as RectangleLemonYellow } from '../../../assets/svg/login_page/rectangle-lemon-yellow.svg';
-import { ReactComponent as RectangleLightPurple } from '../../../assets/svg/login_page/rectangle-light-purple.svg';
-import { ReactComponent as GlassMorphGrey1 } from '../../../assets/svg/login_page/glass-morph-grey-1.svg';
-import { ReactComponent as GlassMorphGrey2 } from '../../../assets/svg/login_page/glass-morph-grey-2.svg';
-import { ReactComponent as ShapeLemonYellow } from '../../../assets/svg/login_page/shape-lemon-yellow.svg';
-import { ReactComponent as PlusBlack } from '../../../assets/svg/login_page/plus-black.svg';
-import { ReactComponent as VeAiLogoLemonYellow } from '../../../assets/svg/login_page/ve-ai-logo-lemon-yellow.svg';
+import { ReactComponent as VeAiLogo } from '../../../assets/svg/ve.svg';
 import CookiesImg from '../../../assets/images/login_page/cookies.png';
 import Cookies from 'js-cookie';
 import { useNavigate } from 'react-router-dom';
+import { ReactComponent as DarkModeGradient } from '../../../assets/svg/onboarding/dark-mode-gradient.svg';
+import { ReactComponent as LightModeGradient } from '../../../assets/svg/onboarding/light-mode-gradient.svg';
+
+const footerLinks = [
+	{
+		id: 1,
+		label: 'Privacy Policy',
+		link: '/privacy-policy',
+	},
+	{
+		id: 2,
+		label: 'Terms & Conditions',
+		link: '/terms-of-service',
+	},
+	{
+		id: 3,
+		label: 'Cookie Policy',
+		link: '/cookie-policy',
+	},
+	{
+		id: 4,
+		label: 'Help',
+		link: '/help',
+	},
+];
 
 const LoginPage = () => {
 	const navigate = useNavigate();
@@ -23,7 +40,19 @@ const LoginPage = () => {
 		emailVerified: false,
 		accountExists: false,
 		cookiesAccepted: false,
+		isDarkMode: false,
 	});
+
+	useEffect(() => {
+		const theme = localStorage.getItem('theme');
+		setInfo((prev) => ({
+			...prev,
+			isDarkMode:
+				theme === 'systemDefault'
+					? window.matchMedia('(prefers-color-scheme: dark)').matches
+					: theme === 'dark',
+		}));
+	}, []);
 
 	useEffect(() => {
 		const cookiesAccepted = Cookies?.get('cookiesAccepted');
@@ -69,6 +98,9 @@ const LoginPage = () => {
 
 	return (
 		<div className="login-page-container">
+			<div className="gradient-container">
+				{info?.isDarkMode ? <DarkModeGradient /> : <LightModeGradient />}
+			</div>
 			{!info?.cookiesAccepted && (
 				<div className="cookies-notice">
 					<div className="cookie-container">
@@ -94,56 +126,16 @@ const LoginPage = () => {
 					<div className="logo-container">
 						<VeAiLogo />
 					</div>
-					{stages[info?.activeStage]}
+					{stages?.[info?.activeStage]}
 				</div>
 			</div>
-			<div className="right-container">
-				<div className="right-container-content">
-					<div className="svg-grid">
-						<div className="grid-item">
-							<span className="shape">
-								<CircleLightPurple />
-							</span>
-						</div>
-						<div className="grid-item">
-							<span className="shape">
-								<GlassMorphGrey1 />
-							</span>
-						</div>
-						<div className="grid-item">
-							<div className="grid-item-content">
-								<PlusBlack />
-								<h1>Create your proposal</h1>
-							</div>
-							<span className="shape">
-								<RectangleLemonYellow />
-							</span>
-						</div>
-						<div className="grid-item">
-							<div className="grid-item-content-center">
-								<VeAiLogoLemonYellow />
-							</div>
-							<span className="shape">
-								<RectangleLightPurple />
-							</span>
-						</div>
-						<div className="grid-item">
-							<span className="shape">
-								<GlassMorphGrey2 />
-							</span>
-						</div>
-						<div className="grid-item">
-							<div className="grid-item-content">
-								<PlusBlack />
-								<h1>Own your business</h1>
-							</div>
-							<span className="shape">
-								<ShapeLemonYellow />
-							</span>
-						</div>
-					</div>
-				</div>
-			</div>
+			<footer className="login-footer-container">
+				{footerLinks?.map((link) => (
+					<a className="footer-link" key={link?.id} href={link?.link}>
+						{link?.label}
+					</a>
+				))}
+			</footer>
 		</div>
 	);
 };

@@ -50,6 +50,13 @@ const Email = ({ email, setEmail, setActiveStage, setEmailVerified }) => {
 			...prev,
 			isEmailValid: isValid,
 		}));
+
+		return () => {
+			setInfo((prev) => ({
+				...prev,
+				googleLoading: false,
+			}));
+		};
 	}, []);
 
 	useEffect(() => {
@@ -196,17 +203,16 @@ const Email = ({ email, setEmail, setActiveStage, setEmailVerified }) => {
 	return (
 		<>
 			<div className="login-page-content">
+				{info?.referrerUserDetails?.isValidReferralCode && (
+					<h1 className="referral-message">
+						<span className="referrer-name">{`${info?.referrerUserDetails?.referrerName}`}</span>{' '}
+						invited you to join
+					</h1>
+				)}
+				<h1 className="login-page-title">The Workspace AI</h1>
 				<h2 className="login-page-subtitle">
-					{info?.referrerUserDetails?.isValidReferralCode ? (
-						<>
-							<span className="referrer-name">{`${info?.referrerUserDetails?.referrerName}`}</span>{' '}
-							invited you to the home of
-						</>
-					) : (
-						'Welcome to the home of'
-					)}
+					Intelligence Connected to all your data and tools.
 				</h2>
-				<h1 className="login-page-title">AI workers who mind your business.</h1>
 			</div>
 			<div className="login-button-container">
 				<button
@@ -245,8 +251,8 @@ const Email = ({ email, setEmail, setActiveStage, setEmailVerified }) => {
 							cursor:
 								!info.isEmailValid || info.isLoading ? 'not-allowed' : 'pointer',
 							background: !info.isEmailValid
-								? 'var(--card-over-card)'
-								: 'var(--primary-font)',
+								? 'var(--card-hover)'
+								: 'var(--primary-button)',
 						}}
 						onClick={() => handleContinueWithEmail(null, 'click')}
 					>
