@@ -332,7 +332,10 @@ const OpenedSideBarItemsComponent = ({
 				{ name: 'Plan Billing', route: '/settings/plan-billing' },
 				{ name: 'AI Setup', route: '/settings/ai-setup' },
 		  ]
-		: [{ name: 'My Profile', route: '/settings/my-profile' }];
+		: [
+				{ name: 'My Profile', route: '/settings/my-profile' },
+				{ name: 'AI Setup', route: '/settings/ai-setup' },
+		  ];
 
 	useEffect(() => {
 		if (leftSidebarState && leftSidebarState === 'close') {

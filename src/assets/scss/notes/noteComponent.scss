@@ -5,7 +5,12 @@
 	--bn-colors-tooltip-background: var(--card);
 	--bn-colors-menu-text: var(--primary-font);
 	--bn-colors-menu-background: var(--card);
-	/* Add any other variables you wish to override */
+	--bn-shadow-medium: none;
+	--bn-colors-hovered-background: var(--card-hover);
+	--bn-colors-selected-background: var(--card-over-card-hover);
+	--bn-colors-selected-text: var(--primary-font);
+	--bn-colors-disabled-background: var(--card);
+	// --bn-colors-disabled-text: var(--secondary-font);
 }
 
 .notes-container {
@@ -149,6 +154,9 @@
 					font-weight: 400;
 					line-height: normal;
 					margin-right: 5px;
+					display: flex;
+					align-items: center;
+					justify-content: center;
 				}
 
 				input[type='checkbox'] {
@@ -194,6 +202,12 @@
 
 				.bn-block-outer:not([data-prev-depth-changed]):before {
 					border-left: 3px solid #e8e8e8;
+				}
+				.bn-inline-content {
+					width: 100%;
+				}
+				.bn-block-content[data-content-type='checkListItem'] > div {
+					width: 100%;
 				}
 			}
 		}
