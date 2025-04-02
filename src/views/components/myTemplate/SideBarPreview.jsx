@@ -125,7 +125,7 @@ const SideBarPreview = ({ open, onClose, activeTemplate, openFileLeadModal }) =>
 		<Drawer
 			open={open}
 			onClose={onClose}
-			style={{ padding: '10px', backgroundColor: 'transparent' }}
+			style={{ backgroundColor: 'transparent' }}
 			headerStyle={{ display: 'none' }}
 			bodyStyle={{ padding: '0px' }}
 			width={480}
