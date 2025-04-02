@@ -313,7 +313,7 @@ const Stages = () => {
 				message?.success(`An OTP has been sent to ${phoneNumber}`);
 				setInfo((prev) => ({ ...prev, otpSent: true }));
 			} else {
-				message?.error(response?.[1]?.message);
+				message?.error(response?.[1]?.message?.toUpperCase());
 			}
 		} else {
 			const response = await updateUserDetails(username, phoneNumber);
@@ -322,7 +322,7 @@ const Stages = () => {
 				message?.success(`An OTP has been sent to ${phoneNumber}`);
 				setInfo((prev) => ({ ...prev, otpSent: true }));
 			} else {
-				message?.error(response?.[1]?.message);
+				message?.error(response?.[1]?.message?.toUpperCase());
 			}
 		}
 		setInfo((prev) => ({ ...prev, verifyPhoneNumberLoading: false }));
