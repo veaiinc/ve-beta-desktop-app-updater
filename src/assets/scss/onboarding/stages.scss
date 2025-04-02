@@ -188,12 +188,21 @@
 					animation: zoomIn 0.5s ease-in-out;
 				}
 
+				.spinnerContainer {
+					position: absolute;
+					right: -13px;
+					top: 56%;
+					z-index: 1;
+					width: 41px;
+					height: 41px;
+				}
+
 				.verifyPhoneNumberBtn,
 				.changePhoneNumberBtn,
 				.resendOtpBtn {
 					position: absolute;
 					right: 0;
-					bottom: -18px;
+					bottom: -22px;
 					width: fit-content;
 					height: 12px;
 					color: var(--primary-font, #f2f2f3);
