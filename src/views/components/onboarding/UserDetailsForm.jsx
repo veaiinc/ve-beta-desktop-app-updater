@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, useCallback } from 'react';
 import '../../../assets/scss/onboarding/stages.scss';
 import PhoneInput from 'react-phone-input-2';
 import { ReactComponent as DarkIcon } from '../../../assets/svg/onboarding/dark.svg';
@@ -47,6 +47,11 @@ export const contentStyling = {
 	lineHeight: 'normal',
 };
 
+let { countryCode } = JSON.parse(localStorage?.getItem('locationDetails')) ?? {
+	countryCode: 'us',
+};
+countryCode = countryCode?.toLowerCase();
+
 const UserDetailsForm = ({
 	userDetailsLoading,
 	username,
@@ -54,7 +59,6 @@ const UserDetailsForm = ({
 	isPhoneNumberVerified,
 	profilePicture,
 	handleSetProfilePicture,
-	countryCode,
 	themePreference,
 	handleSetUsername,
 	handleSetPhoneNumber,
@@ -69,6 +73,15 @@ const UserDetailsForm = ({
 	verifyPhoneNumberLoading,
 	verifyOtpLoader,
 }) => {
+	const handleVerifyPhoneNumberOnEnter = useCallback(
+		(e) => {
+			if (e?.key === 'Enter') {
+				handleVerifyPhoneNumber();
+			}
+		},
+		[handleVerifyPhoneNumber],
+	);
+
 	return (
 		<div className="stage1">
 			<header className="header">
@@ -181,9 +194,9 @@ const UserDetailsForm = ({
 								containerClass="phoneContainerClass"
 								inputClass="phoneInputClass"
 								placeholder="Enter phone number"
-								value={phoneNumber}
 								onChange={handleSetPhoneNumber}
-								country={countryCode ?? 'in'}
+								onKeyDown={handleVerifyPhoneNumberOnEnter}
+								country={countryCode}
 								countryCallingCodeEditable={true}
 								autoComplete="tel"
 								disabled={isPhoneNumberVerified}

@@ -1,6 +1,6 @@
 import { memo, useCallback, useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/onboarding/stages.scss';
-import { formatUsername, getCountryCode } from '../../../helpers';
+import { formatUsername } from '../../../helpers';
 import Context from '../../../context/context';
 import ProgressBar from './ProgressBar';
 import UserDetailsForm from './UserDetailsForm';
@@ -44,7 +44,6 @@ const Stages = () => {
 		username: '',
 		phoneNumber: '',
 		profilePicture: null,
-		countryCode: '',
 		themePreference: 'systemDefault',
 		companyName: '',
 		workspaceHandle: '',
@@ -100,11 +99,6 @@ const Stages = () => {
 			}, 1500);
 		}
 		handleGetUserDetails();
-		const countryCode = getCountryCode(info?.phoneNumber);
-		setInfo((prev) => ({
-			...prev,
-			countryCode,
-		}));
 		return () => {
 			localStorage.removeItem('stage');
 		};
@@ -301,6 +295,7 @@ const Stages = () => {
 	}, []);
 
 	const handleVerifyPhoneNumber = useCallback(async () => {
+		if (info?.isPhoneNumberVerified) return;
 		setInfo((prev) => ({ ...prev, verifyPhoneNumberLoading: true }));
 		const { username, phoneNumber } = info;
 		if (
@@ -323,7 +318,7 @@ const Stages = () => {
 				message?.success(`An OTP has been sent to ${phoneNumber}`);
 				setInfo((prev) => ({ ...prev, otpSent: true }));
 			} else {
-				message?.error(response?.[1]?.message?.toUpperCase());
+				message?.error(response?.[1]?.message);
 			}
 		}
 		setInfo((prev) => ({ ...prev, verifyPhoneNumberLoading: false }));
@@ -343,6 +338,7 @@ const Stages = () => {
 	}, [info?.otpSent, info?.otp]);
 
 	const handleVerifyMobileOtpCode = useCallback(async () => {
+		if (info?.verifyOtpLoader) return;
 		setInfo((prev) => ({ ...prev, verifyOtpLoader: true }));
 		const { phoneNumber, otp: verificationCode } = info;
 		const response = await verifyMobileOtpCode(phoneNumber, verificationCode);
@@ -362,6 +358,7 @@ const Stages = () => {
 	}, [info?.phoneNumber, info?.otp]);
 
 	const handleResendOtp = useCallback(async () => {
+		if (info?.resendOtpLoading) return;
 		setInfo((prev) => ({ ...prev, resendOtpLoading: true }));
 		const response = await requestResendOTPToMobile();
 		const success = response?.[0] === true;

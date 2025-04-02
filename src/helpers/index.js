@@ -222,14 +222,6 @@ export const formatUsername = (username) => {
 	}
 };
 
-export const getCountryCode = () => {
-	const locationDetails = localStorage.getItem('locationDetails');
-	if (!locationDetails) return 'US';
-	const parsedDetails = JSON.parse(locationDetails);
-	const countryCode = parsedDetails?.countryCode ?? 'US';
-	return countryCode?.toLowerCase();
-};
-
 export const checkDevices = async () => {
 	try {
 		const devices = await navigator.mediaDevices.enumerateDevices();
