@@ -1,7 +1,7 @@
 import React, { useState, memo, useContext, useEffect, useCallback } from 'react';
 import '../../../../assets/scss/gallery/modals/createAlbum.scss';
 import ReactModal from '../index';
-import { DatePicker } from 'antd';
+import { DatePicker, message } from 'antd';
 import Context from '../../../../context/context';
 import { useLocation } from 'react-router-dom';
 import { ReactComponent as CrossWhite } from '../../../../assets/svg/workspaceSettings/cross.svg';
@@ -15,8 +15,8 @@ const CreateAlbum = ({ open, closeModal, galleryId }) => {
 	} = useContext(Context);
 	const location = useLocation();
 	const [info, setInfo] = useState({
-		albumName: 'Untitled',
-		slug: 'untitled',
+		albumName: 'Untitled Album',
+		slug: 'untitledalbum',
 		eventDate: new Date().toISOString().split('T')[0],
 		albumNameError: false,
 		eventDateError: false,
@@ -52,7 +52,7 @@ const CreateAlbum = ({ open, closeModal, galleryId }) => {
 		}
 	};
 
-	const handleCreateAlbum = () => {
+	const handleCreateAlbum = async () => {
 		if (
 			validateExpiryData &&
 			validateExpiryData?.restrictGalleries &&
@@ -79,8 +79,14 @@ const CreateAlbum = ({ open, closeModal, galleryId }) => {
 			eventDateEpoch: new Date(info.eventDate).getTime() / 1000,
 		};
 		setInfo((prev) => ({ ...prev, isSubmitting: true }));
-		createNewAlbum(payload, galleryId);
-		closeModelFunction();
+		const response = await createNewAlbum(payload, galleryId);
+		if (response?.[0] === 200) {
+			closeModelFunction();
+			message.success('Gallery Created Successfully');
+		} else {
+			message.error(response?.[1]?.message);
+		}
+
 		setInfo((prev) => ({ ...prev, isSubmitting: false }));
 	};
 
@@ -162,6 +168,7 @@ const CreateAlbum = ({ open, closeModal, galleryId }) => {
 								handleAlbumNameChange(dateString, 'date')
 							}
 							inputReadOnly
+							allowClear={false}
 						/>
 						{info?.eventDateError && <p className="error">Album Date is Required</p>}
 					</div>
