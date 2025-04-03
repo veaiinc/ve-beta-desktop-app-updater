@@ -509,6 +509,39 @@
 				}
 			}
 		}
+		.tableWrapper {
+			height: 400px;
+			overflow: auto;
+			.table-header {
+				position: sticky;
+				top: 0;
+				z-index: 2;
+				background: var(--card);
+
+				table {
+					width: 100%;
+					border-collapse: separate;
+					border-spacing: 0;
+
+					th {
+						padding: 16px;
+						text-align: left;
+						border-bottom: 1px solid var(--stroke, #e5e5e5);
+						color: var(--secondary-font);
+
+						&:first-child {
+							width: 55%;
+						}
+						&:nth-child(2) {
+							width: 24%;
+						}
+						&:last-child {
+							width: 14%;
+						}
+					}
+				}
+			}
+		}
 		.noPreRegistration {
 			display: flex;
 			width: 100%;

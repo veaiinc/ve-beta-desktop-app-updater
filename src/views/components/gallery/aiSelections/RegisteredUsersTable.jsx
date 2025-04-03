@@ -3,7 +3,8 @@ import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import '../../../../assets/scss/gallery/table.scss';
 
-const Table = ({ tableData, thead, loading, scrollLoading }) => {
+const Table = ({ tableData, thead, loading, scrollLoading, tableHeader }) => {
+	console.log(tableData, 'testing');
 	const formatDate = (timestamp) => {
 		if (!timestamp) return '';
 
@@ -32,15 +33,17 @@ const Table = ({ tableData, thead, loading, scrollLoading }) => {
 		));
 
 	return (
-		<div className="tableContainer">
+		<div className="tableContainer" style={{ height: '300px', overflow: 'auto' }}>
 			<table>
-				<thead>
-					<tr>
-						<th className="text-left">Name or Email</th>
-						<th>{thead}</th>
-						<th>Date</th>
-					</tr>
-				</thead>
+				{!tableHeader && (
+					<thead>
+						<tr>
+							<th className="text-left">Name or Email</th>
+							<th>{thead}</th>
+							<th>Date</th>
+						</tr>
+					</thead>
+				)}
 				<tbody>
 					{loading && !tableData?.data?.length ? (
 						<LoadingSkeleton />

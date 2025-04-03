@@ -227,21 +227,30 @@ const AiFaceRegistration = ({ link, handlePreRegistration, preRegistration }) =>
 					</div>
 				</div>
 			)} */}
-			{preRegistration ? (
+			{preRegisteredUsers ? (
 				<>
-					{info?.preRegisterLength > 0 ? (
+					{preRegisteredUsers?.data?.length > 0 ? (
 						<div
 							className="tableWrapper"
 							style={{
 								flex: 1,
 								overflowY: 'auto',
-								maxHeight: '100%',
-								height: '100%',
 							}}
 							id="table-scroll-container"
 						>
+							<div className="table-header">
+								<table>
+									<thead>
+										<tr>
+											<th>Name or Email</th>
+											<th>Register Stage</th>
+											<th>Date</th>
+										</tr>
+									</thead>
+								</table>
+							</div>
 							<InfiniteScroll
-								dataLength={info?.preRegisterLength || 0}
+								dataLength={preRegisteredUsers?.data?.length || 0}
 								next={fetchMoreData}
 								hasMore={preRegisteredUsers?.metadata?.hasNextPage || false}
 								loader={null}
@@ -253,6 +262,7 @@ const AiFaceRegistration = ({ link, handlePreRegistration, preRegistration }) =>
 									thead={'Register Stage'}
 									loading={info.initialLoading}
 									scrollLoading={info.scrollLoading}
+									tableHeader={true}
 								/>
 							</InfiniteScroll>
 						</div>
