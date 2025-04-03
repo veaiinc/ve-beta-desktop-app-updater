@@ -363,9 +363,7 @@ const CreateFileLead = ({ open, onClose, workflow }) => {
 			smartFileInput: {
 				title: info?.documentTitle,
 				templateId: workflow?._id,
-				clientDetails: {
-					_id: info?.selectedLead?._id,
-				},
+				clientId: info?.selectedLead?._id,
 			},
 		};
 		await createSmartfile(payload);
