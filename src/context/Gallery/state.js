@@ -135,10 +135,11 @@ export const Galleries = () => {
 				usertoken,
 				'galleries',
 			);
-			if (response?.[0]) {
+			if (response?.[0] === 200) {
 				getAlbums(galleryId);
 				getAlbumImagesCount(galleryId);
 			}
+			return response;
 		} catch (error) {
 			console.log('error==>createNewAlbum', error);
 		}
@@ -306,6 +307,7 @@ export const Galleries = () => {
 					payload: response?.[1],
 				});
 			}
+			return response;
 		} catch (error) {
 			console.log('error==>geteditPreferences', error);
 		}
