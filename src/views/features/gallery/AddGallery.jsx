@@ -186,12 +186,11 @@ const AddGallery = () => {
 
 	const fetchMoreGalleries = () => {
 		const nextPage = info.page + 1;
-		info.search === '' ? fetchGalleries(nextPage) : fetchGalleries(nextPage, info.search);
-
 		setInfo((prev) => ({
 			...prev,
 			page: nextPage,
 		}));
+		info.search === '' ? fetchGalleries(nextPage) : fetchGalleries(nextPage, info.search);
 	};
 
 	const handleDebounceSearch = useCallback(
