@@ -256,61 +256,58 @@ const FormSummary = () => {
 	const visibleItems = expanded ? candidates : candidates.slice(0, 5);
 
 	return (
-		<div className="formSummaryParentContainer">
-			<div className="formSummaryContainer">
-				{/* Header Section */}
-				<div className="header">
-					<div className="headerWrapper">
+		<div className="formSummaryWrapper">
+			<div className="formSummaryParentContainer">
+				<div className="formSummaryContainer">
+					{/* Header Section */}
+					<div className="header">
 						<span className="title">What are your Core Skills in Figma?</span>
-						<span className="summary">
+						<div className="summary">
 							<span>Responses: {responses}</span>
+							<span>|</span>
 							<span>Skipped: {skipped}</span>
-						</span>
-					</div>
-				</div>
-
-				{/* Core Skills Section with Circular Graph */}
-				<div className="core-skills-section">
-					<div className="graph-container">
-						<div className="circle-graph-wrapper">
-							<div className="circle-graph">
-								<div className="circle-graph-inner">
-									<span className="circle-graph-label">Total Responses</span>
-									<span className="circle-graph-value">{totalResponses}</span>
-								</div>
-							</div>
 						</div>
 					</div>
-					<div className="skills-list">
-						{coreSkills.map((skill, index) => (
-							<div key={index} className="skill-item">
-								<span className="skill-name">{skill.name}</span>
-								<span className="skill-count">{skill.count}</span>
+
+					{/* Core Skills Section with Circular Graph */}
+					<div className="core-skills-section">
+						<div className="circle-graph">
+							<div className="circle-graph-inner">
+								<span className="circle-graph-label">Total Responses</span>
+								<span className="circle-graph-value">{totalResponses}</span>
 							</div>
-						))}
+						</div>
+						<div className="skills-list">
+							{coreSkills.map((skill, index) => (
+								<div key={index} className="skill-item">
+									<span className="skill-name">{skill.name}</span>
+									<span className="skill-count">{skill.count}</span>
+								</div>
+							))}
+						</div>
 					</div>
 				</div>
-			</div>
 
-			{/* Candidates Section */}
-			<div className="formSummaryContainer">
-				<div className="header">
-					<div className="headerWrapper">
+				{/* Candidates Section */}
+				<div className="formSummaryContainer">
+					<div className="header">
 						<span className="title">Candidates</span>
-						<span className="summary">
+						<div className="summary">
 							<span>Total: {totalCandidates}</span>
+							<span>|</span>
 							<span>Submitted: {submittedCandidates}</span>
+							<span>|</span>
 							<span>Not Submitted: {notSubmittedCandidates}</span>
-						</span>
+						</div>
 					</div>
-				</div>
 
-				<FormResponseList
-					expanded={expanded}
-					handleExpand={handleExpand}
-					items={candidates}
-					visibleItems={visibleItems}
-				/>
+					<FormResponseList
+						expanded={expanded}
+						handleExpand={handleExpand}
+						items={candidates}
+						visibleItems={visibleItems}
+					/>
+				</div>
 			</div>
 		</div>
 	);

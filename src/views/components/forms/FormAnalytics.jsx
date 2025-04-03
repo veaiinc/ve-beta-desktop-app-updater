@@ -29,20 +29,20 @@ const { Option } = Select;
 const mockSummaryData = {
 	formResponseSummary: {
 		submissionTypes: [
-			{ type: 'Submissions', count: 48 },
-			{ type: 'Partial', count: 48 },
+			{ type: 'Submissions', count: 0 },
+			{ type: 'Partial', count: 0 },
 		],
 		devices: [
-			{ device: 'Desktop', count: 48 },
-			{ device: 'Tablet', count: 48 },
-			{ device: 'Mobile', count: 48 },
+			{ device: 'Desktop', count: 0 },
+			{ device: 'Tablet', count: 0 },
+			{ device: 'Mobile', count: 0 },
 		],
 		countries: [
-			{ country: 'India', count: 48 },
-			{ country: 'United States', count: 48 },
-			{ country: 'Thailand', count: 48 },
-			{ country: 'Indonesia', count: 48 },
-			{ country: 'Vietnam', count: 48 },
+			{ country: 'India', count: 0 },
+			{ country: 'United States', count: 0 },
+			{ country: 'Thailand', count: 0 },
+			{ country: 'Indonesia', count: 0 },
+			{ country: 'Vietnam', count: 0 },
 		],
 	},
 };
@@ -62,6 +62,8 @@ const mockAnalyticsData = {
 const FormAnalytics = ({ formId }) => {
 	const [dateRange, setDateRange] = useState([moment().subtract(30, 'days'), moment()]);
 	const [selectedPeriod, setSelectedPeriod] = useState('Last 30 Days');
+	const [summaryError, setSummaryError] = useState(null);
+	const [analyticsError, setAnalyticsError] = useState(null);
 
 	const startDate = dateRange[0].format('YYYY-MM-DD');
 	const endDate = dateRange[1].format('YYYY-MM-DD');
@@ -70,8 +72,6 @@ const FormAnalytics = ({ formId }) => {
 	const analyticsData = mockAnalyticsData;
 	const summaryLoading = false;
 	const analyticsLoading = false;
-	const summaryError = null;
-	const analyticsError = null;
 
 	const chartData = useMemo(() => {
 		if (!analyticsData?.formResponseAnalytics) return { labels: [], datasets: [] };
@@ -173,8 +173,28 @@ const FormAnalytics = ({ formId }) => {
 	}, []);
 
 	if (summaryError || analyticsError) {
-		console.error('GraphQL Error:', summaryError || analyticsError);
-		return <div>Error loading analytics data. Please try again later.</div>;
+		return (
+			<div className="form-analytics">
+				<div className="error-container p-4 bg-red-900/20 rounded-lg">
+					<h3 className="text-red-500 font-semibold mb-2">Error Loading Analytics</h3>
+					{summaryError && (
+						<p className="text-red-400 mb-2">Summary Error: {summaryError.message}</p>
+					)}
+					{analyticsError && (
+						<p className="text-red-400">Analytics Error: {analyticsError.message}</p>
+					)}
+					<button
+						onClick={() => {
+							setSummaryError(null);
+							setAnalyticsError(null);
+						}}
+						className="mt-4 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
+					>
+						Try Again
+					</button>
+				</div>
+			</div>
+		);
 	}
 
 	return (
@@ -189,7 +209,7 @@ const FormAnalytics = ({ formId }) => {
 								onChange={handlePeriodChange}
 								suffixIcon={
 									<RiArrowDropDownLine
-										style={{ color: '#fff', height: '35px', width: '25px' }}
+										style={{ color: '#ffff', height: '35px', width: '25px' }}
 									/>
 								}
 							>
@@ -199,11 +219,11 @@ const FormAnalytics = ({ formId }) => {
 								<Option value="Custom">Custom</Option>
 							</Select>
 							<RangePicker
+								suffixIcon={<CalendarOutlined style={{ color: '#fff' }} />}
 								value={dateRange}
 								onChange={handleDateRangeChange}
 								format="MMM D"
 								allowClear={false}
-								suffixIcon={<CalendarOutlined style={{ color: '#fff' }} />} // Calendar icon
 							/>
 						</div>
 					</div>

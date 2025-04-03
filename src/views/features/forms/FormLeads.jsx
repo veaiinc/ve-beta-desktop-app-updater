@@ -31,11 +31,11 @@ const FormLeads = () => {
 	const [info, setInfo] = useState({
 		searchExpand: false,
 		searchValue: '',
-		totalViews: 120,
-		totalStarts: 50,
-		totalSubmissions: 70,
-		submissionRate: 58,
-		avgSubmissionTime: 34,
+		totalViews: 0,
+		totalStarts: 0,
+		totalSubmissions: 0,
+		submissionRate: 0,
+		avgSubmissionTime: 0,
 		completedEntries: 0,
 		partialEntries: 0,
 		activeTab: 'individualEntries',
@@ -149,7 +149,7 @@ const FormLeads = () => {
 			</div>
 
 			<div className="formEnquiryContainer">
-				<div className="formSummaryContainer">
+				<div className="formContainer">
 					<div className="imgContainer">
 						<iframe
 							src={`${origin}/preview/short/${formData?._id}?singleTemplatePreview=true&restrictClick=true`}
@@ -204,17 +204,18 @@ const FormLeads = () => {
 							</Tooltip>
 						</div>
 						<div className="dataEnrichmentToggle">
-							<span>Data Enrichment</span>
+							<span>✨Data Enrichment</span>
 							<Switch
 								checked={info.dataEnrichment}
 								onChange={handleDataEnrichmentToggle}
+								style={{ backgroundColor: '#202123' }}
 							/>
 						</div>
 						<div className="formMetricsContainer">
 							{metricsData.map((metric, index) => (
 								<div className="metricsCard" key={index}>
-									<p className="value">{metric.value}</p>
 									<p className="title">{metric.title}</p>
+									<p className="value">{metric.value}</p>
 								</div>
 							))}
 						</div>

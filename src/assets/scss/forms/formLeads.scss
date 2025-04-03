@@ -48,7 +48,7 @@
 			}
 		}
 
-		.formSummaryContainer {
+		.formContainer {
 			border-radius: 20px;
 			display: flex;
 			align-items: flex-start;
@@ -207,14 +207,19 @@
 					.metricsCard {
 						border-radius: 10px; /* Slightly reduced border radius */
 						background: var(--card);
-						display: flex;
-						width: 100px; /* Further reduced width to fit all cards */
-						padding: 8px; /* Reduced padding */
+						min-width: 100px;
+						display: flex; /* Further reduced width to fit all cards */ /* Reduced padding */
+						width: auto; /* Further reduced width to fit all cards */ /* Reduced padding */
 						flex-direction: column;
 						justify-content: center;
 						align-items: flex-start;
 						gap: 2px; /* Reduced gap */
 						flex-shrink: 0; /* Prevent cards from shrinking */
+
+						height: 66px;
+						padding: 12px;
+						align-items: flex-start;
+						gap: 4px;
 
 						.value {
 							color: var(--primary-font);
