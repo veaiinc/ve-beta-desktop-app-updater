@@ -339,7 +339,11 @@ const CreateFileLead = ({ open, onClose, workflow }) => {
 				setInfo((prev) => ({ ...prev, isLoading: false }));
 				updateStateValues({ salePageRefresh: true });
 				closeModalFunc();
-				navigate(`/smart-file/${workflow?._id}/${response?.[1]}`);
+				if (response?.[0]?.version) {
+					window.location.href = `${origin}/workflow/${response?.[1]}?workflow=true&templateId=${workflow?._id}`;
+				} else {
+					navigate(`/smart-file/${workflow?._id}/${response?.[1]}`);
+				}
 			} else {
 				setInfo((prev) => ({
 					...prev,
@@ -359,6 +363,9 @@ const CreateFileLead = ({ open, onClose, workflow }) => {
 			smartFileInput: {
 				title: info?.documentTitle,
 				templateId: workflow?._id,
+				clientDetails: {
+					_id: info?.selectedLead?._id,
+				},
 			},
 		};
 		await createSmartfile(payload);
@@ -542,7 +549,7 @@ const CreateFileLead = ({ open, onClose, workflow }) => {
 					<div className="continueContainer">
 						<div
 							className={`createButton ${info?.createButtonActive ? 'active' : ''}`}
-							onClick={createDocumentFunc}
+							onClick={info?.existingLeadSource ? createDocumentFunc : createLeadFunc}
 						>
 							{info?.isLoading ? <p>Loading...</p> : <p>Add Lead</p>}
 						</div>
