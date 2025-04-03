@@ -194,6 +194,7 @@ const UserDetailsForm = ({
 								containerClass="phoneContainerClass"
 								inputClass="phoneInputClass"
 								placeholder="Enter phone number"
+								value={phoneNumber}
 								onChange={handleSetPhoneNumber}
 								onKeyDown={handleVerifyPhoneNumberOnEnter}
 								country={countryCode}
