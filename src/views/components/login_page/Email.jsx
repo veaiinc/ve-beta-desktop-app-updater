@@ -6,15 +6,16 @@ import { ReactComponent as UpArrowGrey } from '../../../assets/svg/login_page/up
 import { ReactComponent as UpArrowBlackHover } from '../../../assets/svg/login_page/up-arrow-black-hover.svg';
 import Context from '../../../context/context';
 import { getLocationsDetails } from '../../../helpers';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { message } from 'antd';
 import gsap from 'gsap';
 import Spinner from '../loaders/Spinner';
 
 const Email = ({ email, setEmail, setActiveStage, setEmailVerified }) => {
+	const navigate = useNavigate();
 	const arrowRef = useRef(null);
 
-	let {
+	const {
 		authInfo: {
 			checkAccountExistsUsingEmail,
 			createAccountUsingEmail,
@@ -282,6 +283,22 @@ const Email = ({ email, setEmail, setActiveStage, setEmailVerified }) => {
 						)}
 					</button>
 				</div>
+				<p className="disclaimer">
+					By continuing, you accept our
+					<br />
+					<b onClick={() => navigate('/terms-of-service')} className="link">
+						Terms of Service
+					</b>
+					,{' '}
+					<b onClick={() => navigate('/privacy-policy')} className="link">
+						Privacy Policy
+					</b>{' '}
+					and{' '}
+					<b onClick={() => navigate('/cookie-policy')} className="link">
+						Cookie Policy
+					</b>
+					.
+				</p>
 			</div>
 		</>
 	);

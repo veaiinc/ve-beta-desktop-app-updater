@@ -247,6 +247,21 @@
 						}
 					}
 				}
+
+				.disclaimer {
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 500;
+					text-align: center;
+					line-height: 16px;
+					margin-top: 12px;
+
+					.link {
+						cursor: pointer;
+					}
+				}
 			}
 
 			.verification-code-container {
