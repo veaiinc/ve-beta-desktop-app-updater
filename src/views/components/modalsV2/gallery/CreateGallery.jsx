@@ -216,6 +216,7 @@ const CreateGallery = ({
 							value={dayjs(galleryData.shotDuring)}
 							onChange={(date, dateString) => handleInputChange(dateString, 'date')}
 							inputReadOnly
+							allowClear={false}
 						/>
 						{galleryData?.eventDateError && (
 							<p className="error">Gallery Date is Required</p>
