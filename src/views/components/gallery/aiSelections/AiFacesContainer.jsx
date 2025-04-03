@@ -32,12 +32,13 @@ const AiFacesContainer = ({
 		selectedFace: selectedFace || null,
 		addNewPeople: false,
 		isHoveredIndex: null,
+		hasScrolledToImage: false,
 	});
 	const scrollRef = useRef(null);
 	const debounceTimerRef = useRef(null);
 
 	useEffect(() => {
-		if (selectedImage && aiFaceImages?.images?.length > 0) {
+		if (selectedImage && aiFaceImages?.images?.length > 0 && !info?.hasScrolledToImage) {
 			setTimeout(() => {
 				const selectedImageElement = document.querySelector(
 					`[data-image-id="${selectedImage}"]`,
@@ -48,6 +49,10 @@ const AiFacesContainer = ({
 						block: 'center',
 					});
 				}
+				setInfo((prev) => ({
+					...prev,
+					hasScrolledToImage: true,
+				}));
 			}, 1000);
 		}
 	}, [selectedImage, aiFaceImages?.images]);
