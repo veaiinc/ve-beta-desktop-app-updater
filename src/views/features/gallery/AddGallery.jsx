@@ -174,6 +174,7 @@ const AddGallery = () => {
 		setInfo({
 			...info,
 			createNewGalleryModal: true,
+			page: 1,
 		});
 	};
 
