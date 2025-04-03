@@ -36,7 +36,7 @@ const Stages = () => {
 		},
 		profileInfo: { userDetailsFromTenantAPI, getUserDetailsFromTenantAPI, updateUserLogo },
 		companyInfo: { uploadTenantLogo },
-		themeInfo: { theme, updateTheme },
+		themeInfo: { updateTheme },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -44,7 +44,7 @@ const Stages = () => {
 		username: '',
 		phoneNumber: '',
 		profilePicture: null,
-		themePreference: 'systemDefault',
+		themePreference: localStorage.getItem('theme') ?? 'systemDefault',
 		companyName: '',
 		workspaceHandle: '',
 		workspaceType: '',
@@ -201,12 +201,6 @@ const Stages = () => {
 			handleVerifyMobileOtpCode();
 		}
 	}, [info?.otp]);
-
-	useEffect(() => {
-		if (theme) {
-			setInfo((prev) => ({ ...prev, themePreference: theme }));
-		}
-	}, [theme]);
 
 	const handleGetUserDetails = useCallback(async () => {
 		setInfo((prev) => ({ ...prev, userDetailsLoading: true }));
@@ -382,6 +376,7 @@ const Stages = () => {
 			const success = response?.[0] === true;
 			if (success) {
 				message?.success('Theme preference updated successfully');
+				localStorage.setItem('theme', themePreference);
 			} else {
 				message?.error(response?.[1]?.message);
 			}
