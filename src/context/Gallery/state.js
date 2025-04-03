@@ -306,6 +306,7 @@ export const Galleries = () => {
 					payload: response?.[1],
 				});
 			}
+			return response;
 		} catch (error) {
 			console.log('error==>geteditPreferences', error);
 		}

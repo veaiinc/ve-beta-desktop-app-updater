@@ -6,6 +6,8 @@ import Context from '../../../../context/context';
 import { useLocation } from 'react-router-dom';
 import { ReactComponent as CrossWhite } from '../../../../assets/svg/workspaceSettings/cross.svg';
 import slugify from 'slugify';
+import dayjs from 'dayjs';
+
 const CreateAlbum = ({ open, closeModal, galleryId }) => {
 	const {
 		galleryInfo: { createNewAlbum, checkAlbumSlugIsAvalible },
@@ -13,9 +15,9 @@ const CreateAlbum = ({ open, closeModal, galleryId }) => {
 	} = useContext(Context);
 	const location = useLocation();
 	const [info, setInfo] = useState({
-		albumName: '',
-		slug: '',
-		eventDate: '',
+		albumName: 'Untitled',
+		slug: 'untitled',
+		eventDate: new Date().toISOString().split('T')[0],
 		albumNameError: false,
 		eventDateError: false,
 		albumSlugError: false,
@@ -36,7 +38,7 @@ const CreateAlbum = ({ open, closeModal, galleryId }) => {
 			});
 			setInfo((prevInfo) => ({
 				...prevInfo,
-				albumName,
+				albumName: albumName || 'Untitled',
 				slug: slugConverted,
 				albumNameError: !albumName,
 			}));
@@ -108,9 +110,9 @@ const CreateAlbum = ({ open, closeModal, galleryId }) => {
 
 	const closeModelFunction = () => {
 		setInfo({
-			albumName: '',
-			slug: '',
-			eventDate: '',
+			albumName: 'Untitled',
+			slug: 'untitled',
+			eventDate: new Date().toISOString().split('T')[0],
 			albumNameError: false,
 			eventDateError: false,
 			albumSlugError: false,
@@ -154,7 +156,8 @@ const CreateAlbum = ({ open, closeModal, galleryId }) => {
 						<DatePicker
 							className="datePicker"
 							format="YYYY-MM-DD"
-							selected={info.eventDate}
+							defaultValue={dayjs()} // Set default value to current date
+							value={dayjs(info.eventDate)}
 							onChange={(date, dateString) =>
 								handleAlbumNameChange(dateString, 'date')
 							}
