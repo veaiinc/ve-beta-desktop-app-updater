@@ -10,11 +10,11 @@
 
 		&.active {
 			transform: translate(-50%, -400px);
-			opacity: 1;
+			display: block;
 		}
 
 		&.inactive {
-			opacity: 0;
+			display: none;
 		}
 	}
 
@@ -24,12 +24,12 @@
 
 		&.active {
 			transform: translateY(0);
-			opacity: 1;
+			display: block;
 		}
 
 		&.inactive {
 			transform: translateY(200px);
-			opacity: 0;
+			display: none;
 		}
 	}
 }
