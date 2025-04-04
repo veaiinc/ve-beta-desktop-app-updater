@@ -38,7 +38,7 @@ const CreateAlbum = ({ open, closeModal, galleryId }) => {
 			});
 			setInfo((prevInfo) => ({
 				...prevInfo,
-				albumName: albumName || 'Untitled',
+				albumName: albumName,
 				slug: slugConverted,
 				albumNameError: !albumName,
 			}));
