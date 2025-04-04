@@ -68,7 +68,7 @@ const CreateGallery = ({
 			});
 			setGalleryData({
 				...galleryData,
-				title: e.target.value || 'Untitled',
+				title: e.target.value,
 				slug: slugConverted,
 				galleryNameError: !e.target.value,
 			});
