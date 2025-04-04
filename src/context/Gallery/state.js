@@ -1199,13 +1199,16 @@ export const Galleries = () => {
 				usertoken,
 				'galleries',
 			);
-			const payload = state.clientSelectionImages
-				? {
-						...state.clientSelectionImages,
-						...response?.[1],
-						docs: [...state.clientSelectionImages.docs, ...(response?.[1]?.docs || [])],
-				  }
-				: response?.[1];
+			const payload =
+				page === 1
+					? response?.[1] // First page: use response as is
+					: {
+							...response?.[1],
+							docs: [
+								...(state.clientSelectionImages?.docs || []),
+								...(response?.[1]?.docs || []),
+							],
+					  };
 			if (response[0]) {
 				dispatch({
 					type: Actions.GET_CLIENT_SELECTION_IMAGES,
