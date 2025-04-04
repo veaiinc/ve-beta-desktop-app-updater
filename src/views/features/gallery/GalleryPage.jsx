@@ -1251,6 +1251,11 @@ const GalleryPage = () => {
 				...prevInfo.imagesList,
 				docs: [],
 			},
+			clientSelectionImages: {
+				docs: [],
+				hasNextPage: false,
+				page: 1,
+			},
 		}));
 	};
 
@@ -4803,6 +4808,7 @@ const GalleryPage = () => {
 										}
 										scrollableTarget="galleryScrollTarget"
 									>
+										{console.log(info?.clientSelectionImages?.docs, 'info')}
 										<ResponsiveMasonry
 											columnsCountBreakPoints={{
 												350: 1,
