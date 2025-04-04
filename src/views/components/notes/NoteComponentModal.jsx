@@ -1,5 +1,6 @@
 import { Tooltip } from 'antd';
 import React, { useEffect, useRef, useCallback, useState, useMemo } from 'react';
+import { useParams } from 'react-router-dom';
 import '../../../assets/scss/notes/noteComponentModal.scss';
 import NoteComponent from './NoteComponent';
 import { TypingEffect } from '../../../helpers/markdownHelper';
@@ -10,6 +11,7 @@ import { ReactComponent as NextSvg } from '../../../assets/svg/notes/next.svg';
 import { ReactComponent as CopySvg } from '../../../assets/svg/notes/copy.svg';
 import { ReactComponent as ShareSvg } from '../../../assets/svg/notes/share.svg';
 import { ReactComponent as RightDoubleArrowSvg } from '../../../assets/svg/notes/right-double-arrow.svg';
+import { StarSvg } from '../../../assets/svg/notes/Star';
 import ChatBox from '../homePage/ChatBox';
 import { useContext } from 'react';
 import Context from '../../../context/context';
@@ -17,6 +19,8 @@ import { ReactComponent as FullScreenSvg } from '../../../assets/svg/notes/fullS
 import { ReactComponent as LinkLightSvg } from '../../../assets/svg/notes/loop-light.svg';
 import { ReactComponent as LinkDarkSvg } from '../../../assets/svg/notes/loop-dark.svg';
 import ReactModal from '../../components/modalsV2/index';
+import ShareComponent from './ShareComponent';
+import MoreOptions from './MoreOptions';
 
 const NoteComponentModal = ({
 	modalIsOpen,
@@ -33,6 +37,8 @@ const NoteComponentModal = ({
 	const {
 		templates: { globalChatMessages },
 		documentPreview: { noteContent },
+		notes: { addToFavorite, removeFromFavorite, deletePage, duplicatePage },
+		companyInfo: { getTeamMembers, tenantsUserList },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		noteComponentFullScreen: false,
@@ -40,6 +46,13 @@ const NoteComponentModal = ({
 		noteIconsInfo: {
 			copy: false,
 		},
+		noteId: null,
+		isFavorite: false,
+		notesConfigs: {
+			smallText: false,
+			fullWidth: false,
+		},
+		moreOptionsOpen: false,
 	});
 
 	const customModalStyles = {
@@ -63,7 +76,7 @@ const NoteComponentModal = ({
 			right: 0,
 			bottom: 0,
 			backgroundColor: 'rgba(0, 0, 0, 0.5)',
-			zIndex: 99999999999,
+			zIndex: 1001,
 			transition: 'opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
 		},
 	};
@@ -161,6 +174,40 @@ const NoteComponentModal = ({
 		}, 400);
 	};
 
+	const handleFavorite = useCallback(
+		(value) => {
+			setInfo((prev) => ({ ...prev, isFavorite: value }));
+			const payload = { pageId: info?.noteId };
+			if (value) {
+				addToFavorite(payload);
+			} else {
+				removeFromFavorite(payload);
+			}
+		},
+		[info?.noteId, addToFavorite, removeFromFavorite],
+	);
+
+	const handleMoreOptionsChange = useCallback((key, value) => {
+		setInfo((prev) => ({
+			...prev,
+			notesConfigs: { ...prev?.notesConfigs, [key]: value },
+		}));
+	}, []);
+
+	const handleDeletePage = useCallback(async () => {
+		const [success] = await deletePage({ pageId: info?.noteId });
+		if (success) {
+			handleClose();
+		}
+	}, [info?.noteId, deletePage]);
+
+	const handleDuplicatePage = useCallback(async () => {
+		const [success] = await duplicatePage({ pageId: info?.noteId });
+		if (success) {
+			// Handle success case if needed
+		}
+	}, [info?.noteId, duplicatePage]);
+
 	return (
 		<ReactModal
 			isOpen={modalIsOpen}
@@ -253,15 +300,22 @@ const NoteComponentModal = ({
 								<div className="title"></div>
 							</div>
 							<div className="right">
-								{noteIcons.map(({ icon, onIconClick, tooltipContent }, index) => {
-									return (
-										<Tooltip title={tooltipContent} key={index}>
-											<div className="icon-container" onClick={onIconClick}>
-												{icon}
-											</div>
-										</Tooltip>
-									);
-								})}
+								<div className="notes-nav-menu">
+									<ShareComponent pageId={info?.noteId} />
+									<StarSvg
+										fill={info?.isFavorite}
+										width={18}
+										height={18}
+										onClick={() => handleFavorite(!info?.isFavorite)}
+										className="cursor-pointer"
+									/>
+									<MoreOptions
+										notesConfigs={info?.notesConfigs}
+										onChange={handleMoreOptionsChange}
+										onDelete={handleDeletePage}
+										onDuplicate={handleDuplicatePage}
+									/>
+								</div>
 							</div>
 						</div>
 						<div className="note-component-container">
@@ -277,6 +331,10 @@ const NoteComponentModal = ({
 								loopOn={info?.chatToNoteLoopOn}
 								noteIconsInfo={info?.noteIconsInfo}
 								onCopyNoteContent={handleCopyNoteContent}
+								noteId={info?.noteId}
+								setNoteId={(newNoteId) =>
+									setInfo((prev) => ({ ...prev, noteId: newNoteId }))
+								}
 							/>
 						</div>
 					</div>

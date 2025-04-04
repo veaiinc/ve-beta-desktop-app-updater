@@ -16,6 +16,8 @@ const NoteComponent = ({
 	innerContainerStyle = {},
 	editable = true,
 	loopOn,
+	noteId,
+	setNoteId,
 }) => {
 	const {
 		documentPreview: { noteContent },
@@ -25,11 +27,12 @@ const NoteComponent = ({
 
 	const [info, setInfo] = useState({
 		timeouts: {},
-		noteId: null,
 	});
 
 	useEffect(() => {
+		// if (!noteId) {
 		handleNewNotes();
+		// }
 	}, []);
 
 	useEffect(() => {
@@ -47,10 +50,10 @@ const NoteComponent = ({
 		setInfo((prev) => ({ ...prev, creatingNoteLoader: true }));
 		const response = await createNotesList(payload);
 		if (response?.[1]?._id) {
-			const noteId = response[1]?._id;
-			setInfo((prev) => ({ ...prev, noteId }));
+			const newNoteId = response[1]?._id;
+			setNoteId(newNoteId);
 			if (editor?.document?.length) {
-				handleContentChange(editor.document, noteId);
+				handleContentChange(editor.document, newNoteId);
 			}
 		}
 	};
@@ -113,21 +116,21 @@ const NoteComponent = ({
 	);
 
 	const handleContentChange = useCallback(
-		(data, noteId) => {
+		(data, currentNoteId) => {
 			handleDebounce('content', () => {
 				const payload = {
-					pageId: noteId,
+					pageId: currentNoteId || noteId,
 					blocks: data || [],
 				};
 				saveNotesdata(payload);
 			});
 		},
-		[info?.noteId, handleDebounce],
+		[noteId, handleDebounce],
 	);
 
 	const onChange = async () => {
-		if (info?.noteId && editor?.document?.length) {
-			handleContentChange(editor.document, info?.noteId);
+		if (noteId && editor?.document?.length) {
+			handleContentChange(editor.document, noteId);
 		}
 	};
 

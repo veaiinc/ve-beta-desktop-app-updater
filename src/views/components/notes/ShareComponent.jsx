@@ -34,6 +34,7 @@ const GeneralAccessOptions = [
 ];
 
 const ShareComponent = ({ pageId }) => {
+	console.log('ShareComponent', pageId);
 	const {
 		companyInfo: { getTeamMembers, tenantsUserList },
 		notes: {
