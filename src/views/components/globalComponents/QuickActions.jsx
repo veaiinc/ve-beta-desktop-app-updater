@@ -309,7 +309,7 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 				rootClassName="customQuickActionsToolTip"
 				title={
 					<div className="quick-actions-dropdown-options-container">
-						<div className="top-search-container">
+						{/* <div className="top-search-container">
 							<img src={Search} alt="searchh" />
 							<input
 								type="text"
@@ -317,7 +317,7 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 								value={info?.search}
 								onChange={handleSearch}
 							/>
-						</div>
+						</div> */}
 						{info?.fileterOptions?.suggestedOptions?.length > 0 && (
 							<div className="modules-container">
 								<div className="modules-container-header">Suggested</div>
