@@ -35,12 +35,12 @@ const Sidebar = ({ activeWorkspaceId }) => {
 		return JSON.parse(localStorage.getItem('isOpen')) ?? true;
 	});
 
-	const themePreference = userDetailsData?.theme || 'dark'; // TODO: change this to systemDefault after light theme is good
-	if (themePreference) {
-		localStorage.setItem('theme', themePreference);
-		Cookies.set('theme', themePreference);
-		document.documentElement.setAttribute('theme', themePreference);
-	}
+	// const themePreference = userDetailsData?.theme || 'dark'; // TODO: change this to systemDefault after light theme is good
+	// if (themePreference) {
+	// 	localStorage.setItem('theme', themePreference);
+	// 	Cookies.set('theme', themePreference);
+	// 	document.documentElement.setAttribute('theme', themePreference);
+	// }
 
 	// conditional margin top for home page
 	const isHome = location?.pathname?.includes('home') || location?.pathname?.includes('notes');
