@@ -30,9 +30,7 @@ const NoteComponent = ({
 	});
 
 	useEffect(() => {
-		// if (!noteId) {
 		handleNewNotes();
-		// }
 	}, []);
 
 	useEffect(() => {
@@ -130,7 +128,7 @@ const NoteComponent = ({
 
 	const onChange = async () => {
 		if (noteId && editor?.document?.length) {
-			handleContentChange(editor.document, noteId);
+			handleContentChange(editor?.document, noteId);
 		}
 	};
 

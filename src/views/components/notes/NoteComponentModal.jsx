@@ -81,6 +81,12 @@ const NoteComponentModal = ({
 		},
 	};
 
+	const outerContainerStyle = {
+		width: '100%',
+		height: '100%',
+		overflow: 'scroll',
+	};
+
 	useEffect(() => {
 		if (modalIsOpen) {
 			smoothScrollToBottom();
@@ -320,11 +326,7 @@ const NoteComponentModal = ({
 						</div>
 						<div className="note-component-container">
 							<NoteComponent
-								outerContainerStyle={{
-									width: '100%',
-									height: '100%',
-									overflow: 'scroll',
-								}}
+								outerContainerStyle={outerContainerStyle}
 								initialContent={
 									info?.chatToNoteLoopOn ? globalChatMessages : noteContent
 								}
