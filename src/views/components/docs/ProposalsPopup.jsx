@@ -15,7 +15,6 @@ const origin = fetchOriginSelection();
 
 const initialState = {
 	search: '',
-	selectedOption: 'All',
 	loading: true,
 	workflowTemplates: [],
 	activeTemplateData: null,
@@ -47,7 +46,7 @@ const infiniteScrollStyles = {
 	overflowX: 'hidden',
 };
 
-const ProposalPopup = ({ open, closeModal, clientDetails = null, commonState = 'All' }) => {
+const ProposalPopup = ({ open, closeModal, clientDetails = null, commonState }) => {
 	const navigate = useNavigate();
 	const {
 		templates: {
@@ -79,25 +78,22 @@ const ProposalPopup = ({ open, closeModal, clientDetails = null, commonState = '
 		: [{ id: 1, title: 'Form', value: 'form-submission' }];
 
 	const [info, setInfo] = useState({
+		selectedOption: commonState,
 		...initialState,
 	});
 
 	useEffect(() => {
-		if (open) {
-			setInfo((prev) => ({ ...prev, selectedOption: commonState }));
-			// Only make the API call after setting the selectedOption
-			const option = commonState !== 'All' ? commonState : '';
-			getMyWorkflowsTemplatesData(1, info?.search, false, option);
-		}
-	}, [commonState, open]);
+		setInfo((prev) => ({ ...prev, selectedOption: commonState }));
+	}, [commonState]);
 
 	useEffect(() => {
-		if (open && info.selectedOption) {
-			const option = info.selectedOption !== 'All' ? info.selectedOption : '';
-			getMyWorkflowsTemplatesData(1, info?.search, false, option);
+		if (!open) return;
+		if (info?.selectedOption !== 'All') {
+			getMyWorkflowsTemplatesData(1, info?.search, false, info?.selectedOption);
+		} else {
+			getMyWorkflowsTemplatesData(1, null, false, 'All');
 		}
-	}, [info.selectedOption]);
-
+	}, [open, info?.selectedOption]);
 	useEffect(() => {
 		if (myWorkflowsForProposalPopup && open) {
 			myWorkflowsDataParser(myWorkflowsForProposalPopup);
@@ -142,7 +138,7 @@ const ProposalPopup = ({ open, closeModal, clientDetails = null, commonState = '
 			}));
 		}, 800);
 		setInfo((prev) => ({ ...prev, timeout }));
-	}, []);
+	}, [info]);
 
 	const handleTemplateClick = async (template) => {
 		if (info?.loading) return;

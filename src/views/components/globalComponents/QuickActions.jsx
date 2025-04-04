@@ -218,7 +218,7 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 		options: { suggestedOptions, moduleOptions },
 		fileterOptions: { suggestedOptions, moduleOptions },
 		isAutomationLoading: false,
-		commonState: null,
+		commonState: 'All',
 		search: '',
 		createTaskPopup: false,
 		conversationalAgentLoading: false,
@@ -279,14 +279,6 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 		const options = filtereOptions();
 		setInfo((prev) => ({ ...prev, fileterOptions: options }));
 	}, [filtereOptions]);
-
-	useEffect(() => {
-		setInfo((prev) => ({
-			...prev,
-			options: { suggestedOptions, moduleOptions },
-			fileterOptions: { suggestedOptions, moduleOptions },
-		}));
-	}, [suggestedOptions]);
 
 	const handleDebounceSearch = useCallback(
 		(search = null) => {

@@ -913,6 +913,7 @@ const Docs = () => {
 				<ProposalPopup
 					open={info?.proposalPopup}
 					closeModal={() => setInfo((prev) => ({ ...prev, proposalPopup: false }))}
+					commonState={'All'}
 				/>
 			</div>
 		</div>
