@@ -799,6 +799,18 @@ const Tasks = () => {
 		updateTaskInfo({ isCreatingSubtask: false, isCreateModalOpen: true });
 	};
 
+	const suggestedOptions = [
+		{
+			id: 0,
+			title: 'Create new Task',
+			value: 'task',
+			controlValue: 'task',
+			action: () => {
+				handleAddButtonOnClick();
+			},
+		},
+	];
+
 	const handleCloseCreateModal = useCallback(() => {
 		if (info?.isCreatingSubtask) {
 			updateTaskInfo({ sidebarIsOpen: true });
@@ -894,7 +906,7 @@ const Tasks = () => {
 					<span className="lineTwo">You Created</span>
 				</div>
 				<div className="quick-actions-btn">
-					<QuickActions />
+					<QuickActions suggestedOptions={suggestedOptions} />
 				</div>
 			</div>
 			<Task

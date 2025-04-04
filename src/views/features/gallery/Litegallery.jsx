@@ -50,6 +50,7 @@ const NoGallerySkeleton = () => {
 		</div>
 	);
 };
+
 const filterOptions = [
 	{ name: 'Gallery name', value: 'title' },
 	{ name: 'Gallery name (reverse)', value: '-title' },

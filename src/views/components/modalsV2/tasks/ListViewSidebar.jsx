@@ -35,7 +35,7 @@ const ListViewSidebar = ({
 	headerText,
 	breadCrumbs,
 	handleBreadCrumbsClick,
-	showQuickActions = false,
+	showQuickActions = true,
 }) => {
 	const [info, setInfo] = useState({
 		subTasks: [],
@@ -51,6 +51,18 @@ const ListViewSidebar = ({
 	const titleDebounceRef = useRef(null);
 	const descriptionDebounceRef = useRef(null);
 	const navigate = useNavigate();
+	const suggestedOptions = [
+		{
+			id: 0,
+			title: `Create meeting on ${localTitle}`,
+			value: 'meeting',
+			controlValue: 'calendar',
+			action: ({ navigate }) => {
+				navigate('/calendar');
+			},
+		},
+	];
+
 	useEffect(() => {
 		if (selectedRow?.title !== localTitle) {
 			const titlePropName = Object.keys(responseMetadata).find(
@@ -281,10 +293,10 @@ const ListViewSidebar = ({
 							</div>
 
 							<div className="sidebar-header-right-container">
-								{showQuickActions && (
+								{showQuickActions && isSidebarExpanded && (
 									<QuickActions
-										customActions={optionsForQuickActions}
-										clientDetails={selectedRow}
+										suggestedOptions={suggestedOptions}
+										// clientDetails={selectedRow}
 									/>
 								)}
 								<button

@@ -168,6 +168,7 @@ const CreateGallery = ({
 			let response = await createNewGallery(payload);
 
 			if (response?.[0] === true) {
+				navigate(`/galleries/${response[1]?._id}`);
 				closeModalFunc();
 				navigate(`/galleries/${response?.[1]?._id}`);
 				fetchGalleries(1, null, true);
