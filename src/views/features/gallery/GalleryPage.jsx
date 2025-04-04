@@ -4808,7 +4808,6 @@ const GalleryPage = () => {
 										}
 										scrollableTarget="galleryScrollTarget"
 									>
-										{console.log(info?.clientSelectionImages?.docs, 'info')}
 										<ResponsiveMasonry
 											columnsCountBreakPoints={{
 												350: 1,
