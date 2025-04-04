@@ -39,6 +39,7 @@ import {
 	getFormResponsesListQuery,
 	createBlankWorkflowQuery,
 	createBlankTemplateQuery,
+	getFormResponseQuery,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -737,7 +738,7 @@ export const TemplatesState = (props) => {
 				'workflows_Api',
 			);
 			if (response?.[0]) {
-				return [true, response?.[1]?.data?.createWorkflowFromTemplate?._id];
+				return [true, response?.[1]?.data?.createWorkflowFromTemplate];
 			} else {
 				return [false, response?.[1]?.message || 'Something went Worng'];
 			}
@@ -2073,6 +2074,28 @@ export const TemplatesState = (props) => {
 		}
 	};
 
+	const getFormResponse = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				getFormResponseQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+			if (response?.[0]) {
+				return response?.[1]?.data?.formResponse;
+			} else {
+				console.log('error ==> getFormResponse', response);
+				return null;
+			}
+		} catch (error) {
+			console.log('error ==> getFormResponse', error);
+		}
+	};
+
 	return {
 		...state,
 		getMyWorkflows,
@@ -2151,5 +2174,6 @@ export const TemplatesState = (props) => {
 		createBlankWorkflow,
 		createBlankTemplate,
 		getConnectedThirdParties,
+		getFormResponse,
 	};
 };

@@ -10,6 +10,7 @@ import { ReactComponent as MailLetter } from '../../../assets/svg/docs/mail-lett
 import { ReactComponent as StatusCircle } from '../../../assets/svg/docs/status-circle.svg';
 import { ReactComponent as CrossPurple } from '../../../assets/svg/docs/cross-purple.svg';
 import { ReactComponent as Sync } from '../../../assets/svg/docs/sync.svg';
+
 import { FetchMoreLoaderComp, fetchOriginSelection } from '../../../helpers';
 import Context from '../../../context/context';
 import InfiniteScroll from 'react-infinite-scroll-component';
@@ -198,6 +199,7 @@ export const Filters = [
 		},
 	},
 ];
+
 const Docs = () => {
 	const navigate = useNavigate();
 	let {
@@ -259,6 +261,54 @@ const Docs = () => {
 	});
 
 	const activeFileRef = useRef(null);
+
+	const suggestedOptions = [
+		{
+			id: 0,
+			title: 'Create new Document',
+			value: 'form-submission',
+			controlValue: 'form',
+			action: ({ setInfo, info }) => {
+				setInfo({ ...info, openProposalPopup: true, commonState: 'form-submission' });
+			},
+		},
+		{
+			id: 1,
+			title: 'Create new Form',
+			value: 'form-submission',
+			controlValue: 'form',
+			action: ({ setInfo, info }) => {
+				setInfo({ ...info, openProposalPopup: true, commonState: 'form-submission' });
+			},
+		},
+		{
+			id: 2,
+			title: 'Create new Proposal',
+			value: 'proposal',
+			controlValue: 'workflow',
+			action: ({ setInfo, info }) => {
+				setInfo({ ...info, openProposalPopup: true, commonState: 'proposal' });
+			},
+		},
+		{
+			id: 3,
+			title: 'Create new Invoice',
+			value: 'invoice',
+			controlValue: 'workflow',
+			action: ({ setInfo, info }) => {
+				setInfo({ ...info, openProposalPopup: true, commonState: 'invoice' });
+			},
+		},
+		{
+			id: 4,
+			title: 'Create new Contact',
+			value: 'contract',
+			controlValue: 'workflow',
+			action: ({ setInfo, info }) => {
+				setInfo({ ...info, openProposalPopup: true, commonState: 'contract' });
+			},
+		},
+	];
 
 	useEffect(() => {
 		getDocsFilesListFunc(1);
@@ -592,7 +642,7 @@ const Docs = () => {
 					</div>
 				</div>
 				<div className="quickActionsBtn">
-					<QuickActions />
+					<QuickActions suggestedOptions={suggestedOptions} />
 				</div>
 			</div>
 

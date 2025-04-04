@@ -154,12 +154,9 @@ const Person = ({
 					width: '220px',
 				}}
 				notFoundContent="No options available"
-				onDropdownVisibleChange={(open) => {
-					// Remove console.log
-				}}
+				onDropdownVisibleChange={(open) => {}}
 				{...(multiSelect ? { tagRender: renderPerson } : { labelRender: renderPerson })}
 				dropdownRender={(menu) => {
-					// Remove console.log
 					return (
 						<div className="person-dropdown-menu">
 							<div className="person-dropdown-menu-header">

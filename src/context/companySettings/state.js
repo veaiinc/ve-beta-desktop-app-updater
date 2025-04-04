@@ -182,7 +182,12 @@ export const CompanySettingsState = () => {
 					},
 				};
 
-				const resp = axios.put(response[1].signedUrl, file, options);
+				const resp = await axios.put(response[1].signedUrl, file, options);
+				if (resp?.status === 200) {
+					return [true];
+				} else {
+					return [false, resp?.data];
+				}
 			}
 		} catch (error) {
 			console.log('error => uploadTenantLogo ', error);

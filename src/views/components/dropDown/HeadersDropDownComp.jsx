@@ -4,6 +4,8 @@ import { ReactComponent as DownArrow } from '../../../assets/svg/chat/downArrow.
 import { ReactComponent as Tick } from '../../../assets/svg/tick.svg';
 import useLogout from '../../hooks/useLogout';
 import { getBuisnessName } from '../../../helpers/index';
+import InfiniteScroll from 'react-infinite-scroll-component';
+import { FetchMoreLoaderComp } from '../../../helpers/index';
 
 const iconComponent = (
 	<div
@@ -22,6 +24,16 @@ const iconComponent = (
 		}}
 	></div>
 );
+
+const logoutStyles = {
+	color: 'var(--secondary-button)',
+	fontFamily: 'var(--primary-font-family)',
+	fontSize: '14px',
+	fontStyle: 'normal',
+	fontWeight: '400',
+	lineHeight: '16px',
+	letterSpacing: '-0.3px',
+};
 const HeadersDropDownComp = ({
 	containerStyle,
 	dropDownStyle,
@@ -40,20 +52,25 @@ const HeadersDropDownComp = ({
 	showSelectedValueTick = false,
 	uniqueIdentifierForTickIcon = '',
 	selectedValueObj = {},
+	fetchMoreData,
+	hasNextPage,
 }) => {
 	const logoutFunc = useLogout();
 	const [isOpen, setIsOpen] = useState(false);
 	const toggleDropdown = () => setIsOpen((prev) => !prev);
+	const [searchValue, setSearchValue] = useState('');
 
 	const handleOptionClick = (option) => {
 		if (onChangeFunc) {
 			onChangeFunc(option);
 		}
 
+		setSearchValue(option?.label);
 		setIsOpen(false);
 	};
 	const handleClose = () => {
 		setIsOpen(false);
+		setSearchValue('');
 	};
 	const handleLogout = useCallback(async () => {
 		logoutFunc();
@@ -63,6 +80,13 @@ const HeadersDropDownComp = ({
 		setIsOpen(true);
 	}, []);
 
+	const handleInputChange = (e) => {
+		const value = e?.target?.value;
+		setSearchValue(value);
+		if (onChangeFunc) {
+			onChangeFunc({ searchQuery: value });
+		}
+	};
 	return (
 		<div className="dropdown" style={outerContainerStyle || {}}>
 			<div
@@ -85,7 +109,7 @@ const HeadersDropDownComp = ({
 				) : (
 					''
 				)}
-				<span
+				{/* <span
 					className="selectedPage"
 					style={{
 						color: containerStyle?.color || 'var(--primary-button)',
@@ -93,7 +117,15 @@ const HeadersDropDownComp = ({
 					}}
 				>
 					{selectedValue}
-				</span>
+				</span> */}
+				<input
+					type="text"
+					value={searchValue}
+					onChange={handleInputChange}
+					className="selectedPage"
+					placeholder="Type here to search"
+				/>
+
 				{showArrow ? <DownArrow /> : ''}
 			</div>
 			{isOpen ? (
@@ -105,61 +137,67 @@ const HeadersDropDownComp = ({
 					)}
 					<div
 						className="dropdown-menu"
+						id="dropdown-menu"
 						style={dropDownStyle || {}}
 						onMouseOver={onMouseHoverFunc ? handleOpen : null}
 						onMouseLeave={onMouseHoverFunc ? handleClose : null}
 					>
-						{options.map((option, index) => (
-							<div
-								key={index}
-								className="dropdown-item"
-								onClick={() => handleOptionClick(option)}
-								style={{ ...dropDownTextStyling }}
-							>
-								{option?.label}
-								{showSelectedValueTick ? (
-									option?.[uniqueIdentifierForTickIcon] ===
-									selectedValueObj?.[uniqueIdentifierForTickIcon] ? (
-										<Tick />
+						<InfiniteScroll
+							dataLength={options?.length || 0}
+							hasMore={hasNextPage}
+							next={fetchMoreData}
+							loader={<FetchMoreLoaderComp />}
+							style={{ height: '150px' }}
+							scrollableTarget="dropdown-menu"
+						>
+							{options.map((option, index) => (
+								<div
+									key={index}
+									className="dropdown-item"
+									onClick={() => handleOptionClick(option)}
+									style={{ ...dropDownTextStyling }}
+								>
+									{option?.label}
+									{showSelectedValueTick ? (
+										option?.[uniqueIdentifierForTickIcon] ===
+										selectedValueObj?.[uniqueIdentifierForTickIcon] ? (
+											<Tick />
+										) : (
+											''
+										)
 									) : (
 										''
-									)
-								) : (
-									''
-								)}
-							</div>
-						))}
-						{logoutOptions ? (
-							<>
-								<div style={{ flex: 1, padding: '0px 20px', margin: '8px 0px' }}>
+									)}
+								</div>
+							))}
+							{logoutOptions ? (
+								<>
 									<div
-										style={{
-											flex: 1,
-											height: '1px',
-											backgroundColor: 'var(--primary-button)',
-										}}
-									></div>
-								</div>
+										style={{ flex: 1, padding: '0px 20px', margin: '8px 0px' }}
+									>
+										<div
+											style={{
+												flex: 1,
+												height: '1px',
+												backgroundColor: 'var(--primary-button)',
+											}}
+										></div>
+									</div>
 
-								<div
-									className="dropdown-item"
-									onClick={handleLogout}
-									style={{
-										color: 'var(--secondary-button)',
-										fontFamily: 'var(--primary-font-family)',
-										fontSize: '14px',
-										fontStyle: 'normal',
-										fontWeight: '400',
-										lineHeight: '16px',
-										letterSpacing: '-0.3px',
-									}}
-								>
-									Logout
-								</div>
-							</>
-						) : (
-							''
-						)}
+									<div
+										className="dropdown-item"
+										onClick={handleLogout}
+										style={{
+											...logoutStyles,
+										}}
+									>
+										Logout
+									</div>
+								</>
+							) : (
+								''
+							)}
+						</InfiniteScroll>
 					</div>
 				</>
 			) : (

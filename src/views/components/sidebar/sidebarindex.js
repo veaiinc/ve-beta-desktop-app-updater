@@ -54,7 +54,7 @@ export const veAiModulesItemsList = [
 		subModules: [
 			{ id: 0, icon: '', name: 'Documents', route: '/docs' },
 			{ id: 1, icon: '', name: 'My Templates', route: '/my-templates' },
-			{ id: 2, icon: '', name: 'Forms', route: '/forms' },
+			{ id: 2, icon: '', name: 'Forms', route: '/form' },
 		],
 	},
 	{ id: 3, name: 'Tasks', moduleRoute: '/tasks', route: '/tasks', icon: '' },

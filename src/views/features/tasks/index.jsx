@@ -33,6 +33,7 @@ import LinkText from '../../components/tasks/listView/LinkText';
 import ChildTaskComponent from '../../components/tasks/listView/ChildTaskComponent';
 import QuickActions from '../../components/globalComponents/QuickActions';
 import PersonMultiSelect from '../../components/tasks/listView/PersonMultiSelect';
+import { useSearchParams } from 'react-router-dom';
 
 const defaultPreference = {
 	taskSlNo: { show: false, order: 1 },
@@ -142,6 +143,8 @@ const Tasks = () => {
 	});
 
 	const timeoutRef = useRef(null);
+	const [searchParams, setSearchParams] = useSearchParams();
+	const query = searchParams.get('itemId');
 
 	const responseMetadata = useMemo(
 		() => ({
@@ -384,6 +387,21 @@ const Tasks = () => {
 		}
 	}, [refetchTasks]);
 
+	useEffect(() => {
+		if (query && info?.listItems?.length) {
+			const taskId = query;
+			let requiredTask = null;
+			for (let i = 0; i < info?.listItems?.length; i++) {
+				if (info?.listItems?.[i]?._id === taskId) {
+					requiredTask = info?.listItems?.[i];
+					break;
+				}
+			}
+			if (requiredTask) {
+				handleRowClick(requiredTask, true);
+			}
+		}
+	}, [query, info?.listItems]);
 	const fetchListItems = useCallback(
 		(page = 1) => {
 			if (info?.group) {
@@ -781,6 +799,18 @@ const Tasks = () => {
 		updateTaskInfo({ isCreatingSubtask: false, isCreateModalOpen: true });
 	};
 
+	const suggestedOptions = [
+		{
+			id: 0,
+			title: 'Create new Task',
+			value: 'task',
+			controlValue: 'task',
+			action: () => {
+				handleAddButtonOnClick();
+			},
+		},
+	];
+
 	const handleCloseCreateModal = useCallback(() => {
 		if (info?.isCreatingSubtask) {
 			updateTaskInfo({ sidebarIsOpen: true });
@@ -789,7 +819,7 @@ const Tasks = () => {
 	}, [info?.isCreatingSubtask]);
 
 	const handleRowClick = useCallback(
-		(row) => {
+		(row, expandRightModal = false) => {
 			// Find the complete row data from listItems to ensure we have all properties
 			// const selectedTask = info?.listItems?.find((item) => item._id === row?._id) || row;
 
@@ -804,6 +834,7 @@ const Tasks = () => {
 					breadCrumbs: [],
 					// Reset any previously selected subtask
 					selectedSubTask: null,
+					isSidebarExpanded: expandRightModal,
 				});
 			}
 		},
@@ -875,7 +906,7 @@ const Tasks = () => {
 					<span className="lineTwo">You Created</span>
 				</div>
 				<div className="quick-actions-btn">
-					<QuickActions />
+					<QuickActions suggestedOptions={suggestedOptions} />
 				</div>
 			</div>
 			<Task
