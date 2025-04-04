@@ -92,6 +92,13 @@ const ProposalPopup = ({ open, closeModal, clientDetails = null, commonState = '
 	}, [commonState, open]);
 
 	useEffect(() => {
+		if (open && info.selectedOption) {
+			const option = info.selectedOption !== 'All' ? info.selectedOption : '';
+			getMyWorkflowsTemplatesData(1, info?.search, false, option);
+		}
+	}, [info.selectedOption]);
+
+	useEffect(() => {
 		if (myWorkflowsForProposalPopup && open) {
 			myWorkflowsDataParser(myWorkflowsForProposalPopup);
 		}
