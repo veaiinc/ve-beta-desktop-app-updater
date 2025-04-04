@@ -47,7 +47,7 @@ const infiniteScrollStyles = {
 	overflowX: 'hidden',
 };
 
-const ProposalPopup = ({ open, closeModal, clientDetails = null, commonState }) => {
+const ProposalPopup = ({ open, closeModal, clientDetails = null, commonState = 'All' }) => {
 	const navigate = useNavigate();
 	const {
 		templates: {
@@ -69,7 +69,7 @@ const ProposalPopup = ({ open, closeModal, clientDetails = null, commonState }) 
 
 	const filterOptions = hasAccessToWorkflows
 		? [
-				{ id: 1, title: 'All', value: '' },
+				{ id: 1, title: 'All', value: 'All' },
 				{ id: 2, title: 'Form', value: 'form-submission' },
 				{ id: 3, title: 'Proposal', value: 'proposal' },
 				{ id: 4, title: 'Presentation', value: 'presentation' },
@@ -83,16 +83,14 @@ const ProposalPopup = ({ open, closeModal, clientDetails = null, commonState }) 
 	});
 
 	useEffect(() => {
-		setInfo((prev) => ({ ...prev, selectedOption: commonState }));
-	}, [commonState]);
-
-	useEffect(() => {
-		if (info?.selectedOption !== 'All' && open) {
-			getMyWorkflowsTemplatesData(1, info?.search, false, info?.selectedOption);
-		} else {
-			if (open && !myWorkflowsForProposalPopup?.length) getMyWorkflowsForProposalPopup(1);
+		if (open) {
+			setInfo((prev) => ({ ...prev, selectedOption: commonState }));
+			// Only make the API call after setting the selectedOption
+			const option = commonState !== 'All' ? commonState : '';
+			getMyWorkflowsTemplatesData(1, info?.search, false, option);
 		}
-	}, [info?.selectedOption]);
+	}, [commonState, open]);
+
 	useEffect(() => {
 		if (myWorkflowsForProposalPopup && open) {
 			myWorkflowsDataParser(myWorkflowsForProposalPopup);
@@ -137,7 +135,7 @@ const ProposalPopup = ({ open, closeModal, clientDetails = null, commonState }) 
 			}));
 		}, 800);
 		setInfo((prev) => ({ ...prev, timeout }));
-	}, [info]);
+	}, []);
 
 	const handleTemplateClick = async (template) => {
 		if (info?.loading) return;

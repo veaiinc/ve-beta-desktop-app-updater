@@ -280,6 +280,14 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 		setInfo((prev) => ({ ...prev, fileterOptions: options }));
 	}, [filtereOptions]);
 
+	useEffect(() => {
+		setInfo((prev) => ({
+			...prev,
+			options: { suggestedOptions, moduleOptions },
+			fileterOptions: { suggestedOptions, moduleOptions },
+		}));
+	}, [suggestedOptions]);
+
 	const handleDebounceSearch = useCallback(
 		(search = null) => {
 			if (timeout) {

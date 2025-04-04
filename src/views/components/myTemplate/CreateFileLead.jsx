@@ -104,7 +104,7 @@ const CreateFileLead = ({ open, onClose, workflow }) => {
 	useEffect(() => {
 		setInfo((prev) => ({
 			...prev,
-			documentTitle: workflow?.title || '',
+			documentTitle: `Copy of ${workflow?.title || ''}`,
 		}));
 	}, [workflow]);
 	useEffect(() => {
@@ -225,6 +225,11 @@ const CreateFileLead = ({ open, onClose, workflow }) => {
 				...prev.leadDetails,
 				[name]: value,
 			},
+			...(name === 'name' && {
+				documentTitle: value
+					? `${workflow?.title || ''} for ${value}`
+					: `Copy of ${workflow?.title || ''}`,
+			}),
 			error: {
 				...prev.error,
 				[`is${name}Error`]: false,
