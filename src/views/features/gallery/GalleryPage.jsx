@@ -163,7 +163,7 @@ const GalleryPage = () => {
 		activeGallery: location?.state?.galleryData,
 		isLightGallery: location?.state?.isLightGallery || false,
 		activeAlbumId: tenantAlbums?.albums?.[0]?._id,
-		callToAction: tenantPreferences?.ctaPreferences,
+		callToAction: tenantPreferences?.ctaPreferences?.isEnabled,
 		timeout: null,
 		galleryDueDate: location?.state?.galleryData?.dueDateEpoch,
 		galleryCreatedAt: location?.state?.galleryData?.shotDuring,
@@ -510,6 +510,18 @@ const GalleryPage = () => {
 		if (!tenantPreferences || tenantPreferences?._id !== galleryId) {
 			getEditPreferences(galleryId);
 		}
+		if (tenantPreferences) {
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				canClientDownloadOriginals: tenantPreferences?.canClientDownloadOriginals,
+				canClientDownloadOptimized: tenantPreferences?.canClientDownloadOptimized,
+				canGuestDownloadOptimized: tenantPreferences?.canGuestDownloadOptimized,
+				canGuestDownloadOriginals: tenantPreferences?.canGuestDownloadOriginals,
+				callToAction: tenantPreferences?.ctaPreferences?.isEnabled,
+				ctaLink: tenantPreferences?.ctaPreferences?.ctaLink,
+				clientSubscription: tenantPreferences?.allowClientsToSubscribe || false,
+			}));
+		}
 
 		// Only set the active album if it's not already set
 		if (tenantAlbums && !info?.activeAlbumId) {
@@ -525,7 +537,7 @@ const GalleryPage = () => {
 			}));
 		}
 		// ... rest of the effect
-	}, [tenantPreferences, tenantAlbums]);
+	}, [tenantPreferences]);
 
 	useEffect(() => {
 		if (updateActiveAlbum !== null && updateActiveAlbum !== info?.activeAlbum) {
@@ -1239,6 +1251,11 @@ const GalleryPage = () => {
 				...prevInfo.imagesList,
 				docs: [],
 			},
+			clientSelectionImages: {
+				docs: [],
+				hasNextPage: false,
+				page: 1,
+			},
 		}));
 	};
 
@@ -1259,20 +1276,17 @@ const GalleryPage = () => {
 	};
 
 	const handleCallToAction = useCallback(() => {
-		setInfo((prevInfo) => ({
-			...prevInfo,
-			callToAction: {
-				...info?.callToAction,
-				isEnabled: !info?.callToAction?.isEnabled,
-			},
-		}));
 		const payload = {
 			ctaPreferences: {
-				isEnabled: !info.callToAction?.isEnabled,
+				isEnabled: !info.callToAction,
 			},
 		};
 		editPreferences(galleryId, payload);
-	}, [getEditPreferences, info.callToAction?.isEnabled]);
+		setInfo((prevInfo) => ({
+			...prevInfo,
+			callToAction: !info?.callToAction,
+		}));
+	}, [getEditPreferences, info.callToAction]);
 
 	const handleClientSubscription = useCallback(
 		(value) => {
@@ -2802,7 +2816,6 @@ const GalleryPage = () => {
 
 		// Set processing flag
 		handleDeleteAlbum.isProcessing = true;
-
 		try {
 			message.open({
 				type: 'loading',
@@ -3343,20 +3356,33 @@ const GalleryPage = () => {
 									onClick={handleOnlineToggle}
 									style={{ cursor: 'pointer' }}
 								>
-									{info.isOnline ? (
-										<>
-											<OpenEye />
-											<p className="onlineText">Online</p>
-										</>
-									) : (
-										<>
-											<CrossedOpenEye />
-											<p className="onlineText">Offline</p>
-										</>
-									)}
+									<div className="onlineIndicatorContainer">
+										<div
+											className="onlineStatus"
+											style={{
+												backgroundColor: info.isOnline
+													? 'var(--success)'
+													: 'var(--error)',
+											}}
+										></div>
+										<p className="onlineText">
+											{info.isOnline ? 'Online' : 'Offline'}
+										</p>
+									</div>
+									<Switch
+										checked={info.isOnline}
+										onChange={handleOnlineToggle}
+										size="small"
+										style={{
+											backgroundColor: info.isOnline
+												? 'var(--success)'
+												: 'var(--error)',
+										}}
+									/>
 								</div>
-								<div className="icon" onClick={openShareModal}>
+								<div className="onlineContainer" onClick={openShareModal}>
 									<ShareIcon className="shareIcon" />
+									<p>Share</p>
 								</div>
 								<div
 									className="icon"
@@ -3386,7 +3412,7 @@ const GalleryPage = () => {
 													<hr
 														key={`divider-${index}`}
 														style={{
-															border: '1px solid #424548',
+															border: '1px solid var(--stroke)',
 															opacity: '0.2',
 															width: '100%',
 														}}
@@ -4700,7 +4726,7 @@ const GalleryPage = () => {
 															<AlbumCoverIcon />
 															Album Cover
 														</li>
-														<div
+														{/* <div
 															onClick={() => {
 																setInfo((prev) => ({
 																	...prev,
@@ -4723,7 +4749,7 @@ const GalleryPage = () => {
 															>
 																Delete Album
 															</span>
-														</div>
+														</div> */}
 													</div>
 												)}
 											</div>
