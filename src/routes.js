@@ -52,6 +52,7 @@ import DocsFullView from './views/components/docs/DocsFullView';
 import FormFullView from './views/components/forms/FormFullView';
 import TaskFullView from './views/features/tasks/TaskFullView';
 import ExpandedClientView from './views/features/contacts/ExpandedClientView';
+import DemoPage from './views/features/demo_page_for_notifications/DemoPage';
 
 const routes = [
 	{
@@ -501,6 +502,14 @@ const routes = [
 		component: (
 			<AuthWrapper title="Contact Details">
 				<ExpandedClientView />
+			</AuthWrapper>
+		),
+	},
+	{
+		path: '/demo-toast-component',
+		component: (
+			<AuthWrapper title="Custom toast component">
+				<DemoPage />
 			</AuthWrapper>
 		),
 	},
