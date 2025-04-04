@@ -10,6 +10,44 @@ import PhoneInput from 'react-phone-number-input';
 import 'react-phone-number-input/style.css';
 import { message } from 'antd';
 
+const containerStyles = {
+	padding: '12px 24px',
+	color: 'var(--primary-font)',
+	flex: 1,
+	alignSelf: 'stretch',
+	borderRadius: '14px',
+	height: '44px',
+	width: '448px',
+	border: '1px solid var(--stroke)',
+	fontFamily: 'var(--primary-font-family)',
+	fontSize: '12px',
+	fontStyle: 'normal',
+	fontWeight: '500',
+	lineHeight: 'normal',
+};
+
+const dropdownStyles = {
+	display: 'flex',
+	padding: '8px',
+	flexDirection: 'column',
+	justifyContent: 'center',
+	alignItems: 'center',
+	gap: '10px',
+	alignSelf: 'stretch',
+	borderRadius: '14px',
+	border: '1px solid var(--stroke)',
+	background: 'var(--card)',
+};
+
+const dropDownTextStyling = {
+	color: 'var(--primary-font)',
+	fontFamily: 'var(--primary-font-family)',
+	fontSize: '12px',
+	fontStyle: 'normal',
+	fontWeight: '500',
+	lineHeight: 'normal',
+};
+
 const validator = require('validator');
 const CreateClientModal = ({ modalIsOpen, closeModal, source, leadOrClient = false }) => {
 	let {
@@ -239,42 +277,10 @@ const CreateClientModal = ({ modalIsOpen, closeModal, source, leadOrClient = fal
 									{ label: 'None', value: 'null' },
 								]}
 								selectedValue={leadDetails['source'] || 'Select Source'}
-								containerStyle={{
-									padding: '12px 24px',
-									color: 'var(--primary-font)',
-									flex: 1,
-									alignSelf: 'stretch',
-									borderRadius: '14px',
-									height: '44px',
-									width: '448px',
-									border: '1px solid var(--stroke)',
-									fontFamily: 'var(--primary-font-family)',
-									fontSize: '12px',
-									fontStyle: 'normal',
-									fontWeight: '500',
-									lineHeight: 'normal',
-								}}
-								dropDownStyle={{
-									display: 'flex',
-									padding: '8px',
-									flexDirection: 'column',
-									justifyContent: 'center',
-									alignItems: 'center',
-									gap: '10px',
-									alignSelf: 'stretch',
-									borderRadius: '14px',
-									border: '1px solid var(--stroke)',
-									background: 'var(--card)',
-								}}
+								containerStyle={{ ...containerStyles }}
+								dropDownStyle={{ ...dropdownStyles }}
 								onChangeFunc={(e) => onChangeSelectedSource(e)}
-								dropDownTextStyling={{
-									color: 'var(--primary-font)',
-									fontFamily: 'var(--primary-font-family)',
-									fontSize: '12px',
-									fontStyle: 'normal',
-									fontWeight: '500',
-									lineHeight: 'normal',
-								}}
+								dropDownTextStyling={{ ...dropDownTextStyling }}
 								showSelectedValueTick={true}
 								uniqueIdentifierForTickIcon={'value'}
 								selectedValueObj={{ value: leadDetails?.['source'] }}

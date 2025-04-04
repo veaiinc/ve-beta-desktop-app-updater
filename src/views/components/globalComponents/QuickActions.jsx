@@ -65,7 +65,11 @@ const moduleOptions = [
 		value: 'form-submission',
 		controlValue: 'form',
 		action: ({ setInfo }) => {
-			setInfo((prev) => ({ ...prev, openProposalPopup: true, commonState: 'form' }));
+			setInfo((prev) => ({
+				...prev,
+				openProposalPopup: true,
+				commonState: 'form-submission',
+			}));
 		},
 	},
 	{

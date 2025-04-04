@@ -365,48 +365,56 @@ const ProposalPopup = ({ open, closeModal, clientDetails = null, commonState }) 
 						className="tetsing"
 						height="calc(100vh - 340px)"
 					>
-						{info?.workflowTemplates?.map((template, index) => (
-							<div
-								key={index}
-								className="docsTemplateCard"
-								onClick={() =>
-									template?.version
-										? handleTemplateClick(template)
-										: versionClick(template)
-								}
-							>
-								<div className="docsTemplateImageContainer">
-									<iframe
-										src={`${origin}/preview/short/${template?._id}?module=${template?.moduleTemplates?.[0]?._id}&isPubic=${template?.moduleTemplates?.[0]?.isPublic}&restrictClick=true`}
-										title="Builder Preview"
-										width="100%"
-										height="100%"
-										onClick={(e) => e.stopPropagation()}
-										onMouseDown={(e) => e.stopPropagation()}
-										onMouseUp={(e) => e.stopPropagation()}
-										style={{
-											// zoom: 0.3,
-											backgroundColor: '#fff',
-											pointerEvents: 'none',
-										}}
-									/>
-								</div>
-								<div className="docsFooterContent">
-									<span
-										className="docsFooterContentTitle"
-										title={template?.title || 'Template Card'}
-									>
-										{template?.title || 'Template Card'}
-									</span>
-									<span className="docsFooterContentSubTitle">
-										Created On:{' '}
-										{template?.createdAt
-											? moment.unix(template?.createdAt).format('DD MMM YYYY')
-											: ''}
-									</span>
-								</div>
+						{info?.workflowTemplates?.length === 0 ? (
+							<div className="proposalPopupBodyLoadingContainer">
+								<p>No data found</p>
 							</div>
-						))}
+						) : (
+							info?.workflowTemplates?.map((template, index) => (
+								<div
+									key={index}
+									className="docsTemplateCard"
+									onClick={() =>
+										template?.version
+											? handleTemplateClick(template)
+											: versionClick(template)
+									}
+								>
+									<div className="docsTemplateImageContainer">
+										<iframe
+											src={`${origin}/preview/short/${template?._id}?module=${template?.moduleTemplates?.[0]?._id}&isPubic=${template?.moduleTemplates?.[0]?.isPublic}&restrictClick=true`}
+											title="Builder Preview"
+											width="100%"
+											height="100%"
+											onClick={(e) => e.stopPropagation()}
+											onMouseDown={(e) => e.stopPropagation()}
+											onMouseUp={(e) => e.stopPropagation()}
+											style={{
+												// zoom: 0.3,
+												backgroundColor: '#fff',
+												pointerEvents: 'none',
+											}}
+										/>
+									</div>
+									<div className="docsFooterContent">
+										<span
+											className="docsFooterContentTitle"
+											title={template?.title || 'Template Card'}
+										>
+											{template?.title || 'Template Card'}
+										</span>
+										<span className="docsFooterContentSubTitle">
+											Created On:{' '}
+											{template?.createdAt
+												? moment
+														.unix(template?.createdAt)
+														.format('DD MMM YYYY')
+												: ''}
+										</span>
+									</div>
+								</div>
+							))
+						)}
 					</InfiniteScroll>
 				)}
 			</div>
