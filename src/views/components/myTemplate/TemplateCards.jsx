@@ -316,7 +316,7 @@ const TemplateCards = ({ data, loading, hasNextPage, fetchMoreMyWorkflows }) => 
 											<Tooltip
 												title={
 													<div className="docsFooterContentActionsTooltip">
-														<div
+														{/* <div
 															className="docsFooterContentActionsTooltipItem"
 															onClick={(e) => {
 																e.stopPropagation();
@@ -326,7 +326,7 @@ const TemplateCards = ({ data, loading, hasNextPage, fetchMoreMyWorkflows }) => 
 															}}
 														>
 															Share
-														</div>
+														</div> */}
 														<div
 															className="docsFooterContentActionsTooltipItem"
 															onClick={(e) => {
