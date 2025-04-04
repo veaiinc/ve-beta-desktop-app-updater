@@ -9,6 +9,7 @@ import '../../../assets/scss/docs/proposalsPopup.scss';
 import { fetchOriginSelection } from '../../../helpers';
 import Context from '../../../context/context';
 import moment from 'moment';
+import { useNavigate } from 'react-router-dom';
 import CreateFileLead from '../myTemplate/CreateFileLead';
 const origin = fetchOriginSelection();
 
@@ -32,7 +33,22 @@ const customStyles = {
 	overlay: { zIndex: 998 },
 };
 
+const infiniteScrollStyles = {
+	display: 'flex',
+	flexDirection: 'row',
+	flexWrap: 'wrap',
+	flexFlow: 'wrap',
+	alignItems: 'flex-end',
+	alignContent: 'flex-start',
+	// gap: '8px',
+	rowGap: '50px',
+	columnGap: '10px',
+	width: '100%',
+	overflowX: 'hidden',
+};
+
 const ProposalPopup = ({ open, closeModal, clientDetails = null, commonState }) => {
+	const navigate = useNavigate();
 	const {
 		templates: {
 			getMyWorkflowsForProposalPopup,
@@ -77,7 +93,6 @@ const ProposalPopup = ({ open, closeModal, clientDetails = null, commonState }) 
 			if (open && !myWorkflowsForProposalPopup?.length) getMyWorkflowsForProposalPopup(1);
 		}
 	}, [info?.selectedOption]);
-
 	useEffect(() => {
 		if (myWorkflowsForProposalPopup && open) {
 			myWorkflowsDataParser(myWorkflowsForProposalPopup);
@@ -92,7 +107,11 @@ const ProposalPopup = ({ open, closeModal, clientDetails = null, commonState }) 
 
 	useEffect(() => {
 		if (smartfile?._id && info?.activeTemplateData?._id) {
-			window.location.href = `${origin}/workflow/${smartfile?._id}?workflow=true&templateId=${info?.activeTemplateData?._id}`;
+			if (info?.activeTemplateData?.version) {
+				window.location.href = `${origin}/workflow/${smartfile?._id}?workflow=true&templateId=${info?.activeTemplateData?._id}`;
+			} else {
+				navigate(`/smart-file/${info?.activeTemplateData?._id}/${smartfile?._id}`);
+			}
 		}
 	}, [smartfile]);
 
@@ -349,19 +368,7 @@ const ProposalPopup = ({ open, closeModal, clientDetails = null, commonState }) 
 						loader={[{}, {}, {}]?.map((ele, index) => (
 							<Skeleton key={index} height={258} width={232} />
 						))}
-						style={{
-							display: 'flex',
-							flexDirection: 'row',
-							flexWrap: 'wrap',
-							flexFlow: 'wrap',
-							alignItems: 'flex-end',
-							alignContent: 'flex-start',
-							// gap: '8px',
-							rowGap: '50px',
-							columnGap: '10px',
-							width: '100%',
-							overflowX: 'hidden',
-						}}
+						style={{ ...infiniteScrollStyles }}
 						className="tetsing"
 						height="calc(100vh - 340px)"
 					>
@@ -369,11 +376,11 @@ const ProposalPopup = ({ open, closeModal, clientDetails = null, commonState }) 
 							<div
 								key={index}
 								className="docsTemplateCard"
-								onClick={() =>
-									template?.version
+								onClick={() => {
+									info?.selectedOption === 'form-submission'
 										? handleTemplateClick(template)
-										: versionClick(template)
-								}
+										: versionClick(template);
+								}}
 							>
 								<div className="docsTemplateImageContainer">
 									<iframe
@@ -411,7 +418,7 @@ const ProposalPopup = ({ open, closeModal, clientDetails = null, commonState }) 
 				)}
 			</div>
 			<CreateFileLead
-				open={info?.versionPopup}
+				open={info?.versionPopup && info?.selectedOption !== 'form-submission'}
 				onClose={() => setInfo((prev) => ({ ...prev, versionPopup: false }))}
 				workflow={info?.activeTemplateData}
 			/>

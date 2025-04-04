@@ -174,14 +174,7 @@ const SideBarPreview = ({ open, onClose, activeTemplate, openFileLeadModal }) =>
 					))}
 				</div>
 				<div className="buttonContainer">
-					<div
-						className="button"
-						onClick={
-							info?.activeTemplateData?.version
-								? handleTemplateClick
-								: openFileLeadModal
-						}
-					>
+					<div className="button" onClick={openFileLeadModal}>
 						{info?.loading ? (
 							<Spinner height={'10px'} width={'10px'} color={'black'} />
 						) : (

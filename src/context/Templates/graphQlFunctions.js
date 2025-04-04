@@ -273,6 +273,7 @@ export const createLeadfromTemplatesQuery = gql`
 		createWorkflowFromTemplate(workflowInput: $workflowInput) {
 			_id
 			status
+			version
 			clientDetails {
 				_id
 				name
