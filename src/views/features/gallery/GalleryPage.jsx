@@ -4042,6 +4042,7 @@ const GalleryPage = () => {
 															!prevInfo.showAlbumSettings,
 													}))
 												}
+												className="albumSettingsIcon"
 											>
 												{/* <ThreeDotsIcon
 												className="threeDotsIcon"
