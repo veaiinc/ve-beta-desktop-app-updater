@@ -1,4 +1,4 @@
-import React, { memo, useState, useEffect, useContext } from 'react';
+import { memo, useState, useEffect, useContext } from 'react';
 import { Tooltip, message } from 'antd';
 import '../../../assets/scss/notes/shareComponent.scss';
 import { ReactComponent as Copy } from '../../../assets/svg/ai_assistant/url.svg';
@@ -6,7 +6,6 @@ import { ReactComponent as ChevronRightThinSvg } from '../../../assets/svg/tasks
 import { ReactComponent as Check } from '../../../assets/svg/tasks/checkmark.svg';
 import Context from '../../../context/context';
 import { ReactComponent as CrossSvg } from '../../../assets/svg/gallery/cross.svg';
-import Spinner from '../loaders/Spinner';
 import Skeleton from 'react-loading-skeleton';
 
 const accessOptions = [
@@ -20,13 +19,6 @@ const accessOptions = [
 		value: 'edit',
 		description: 'Edit, suggest and comment',
 	},
-	{
-		label: 'Can view',
-		value: 'view',
-	},
-];
-
-const GeneralAccessOptions = [
 	{
 		label: 'Can view',
 		value: 'view',
