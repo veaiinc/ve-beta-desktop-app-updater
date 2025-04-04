@@ -12,6 +12,7 @@ import BottomToolbar from '../components/ai_agents/BottomToolbar';
 import useAccessControls from '../hooks/useAcessControls';
 import RenewBanner from '../components/globalComponents/RenewBanner';
 import Context from '../../context/context';
+import { CustomToast } from '../components/globalComponents/CustomToast';
 const AuthWrapper = ({
 	title,
 	children,
@@ -65,6 +66,8 @@ const AuthWrapper = ({
 				</SkeletonTheme>
 			</div>
 			{showBottomToolbar ? <BottomToolbar outerContainerStyle={{ bottom: '10px' }} /> : ''}
+
+			<CustomToast />
 		</div>
 	);
 };

@@ -1,31 +1,16 @@
 import React, { useEffect, useRef, useState } from 'react';
-import success from '../../../assets/svg/custom_notification/tickmark.svg';
-import error from '../../../assets/svg/custom_notification/exclamatory.svg';
-import warning from '../../../assets/svg/custom_notification/warning.svg';
+import { ReactComponent as Success } from '../../../assets/svg/custom_notification/tickmark.svg';
+import { ReactComponent as Error } from '../../../assets/svg/custom_notification/exclamatory.svg';
+import { ReactComponent as Warning } from '../../../assets/svg/custom_notification/warning.svg';
 import '../../../assets/scss/toast/toast.scss';
-
-const MESSAGE_TYPES = {
-	SUCCESS: 'success',
-	WARNING: 'warning',
-	ERROR: 'error',
-	LOADING: 'loading',
-};
-
-const CheckIcon = () => <img src={success} alt="Success" />;
-const WarningIcon = () => <img src={warning} alt="Warning" />;
-const ErrorIcon = () => <img src={error} alt="Error" />;
-const LoadingIcon = () => (
-	<svg viewBox="0 0 24 24" className="loading-spinner">
-		<circle cx="12" cy="12" r="10" stroke="#f2f2f3" strokeWidth="3" fill="none" />
-	</svg>
-);
+import { SpinnerIcon } from '@livekit/components-react';
 
 // Duration constants
-const EXIT_ANIMATION_DURATION = 500;
+const exitDuration = 500;
 
 let triggerToast; // External trigger for the toast
 
-const CustomToast = ({ duration = 3000 }) => {
+const CustomToast = () => {
 	const [toastData, setToastData] = useState(null);
 	const [visible, setVisible] = useState(false);
 	const [isExiting, setIsExiting] = useState(false);
@@ -45,14 +30,14 @@ const CustomToast = ({ duration = 3000 }) => {
 				setIsExiting(false);
 				setVisible(true);
 
-				if (type !== MESSAGE_TYPES.LOADING && duration > 0) {
+				if (type !== 'loading' && duration > 0) {
 					setTimeout(() => {
 						setIsExiting(true);
 						setTimeout(() => {
 							setVisible(false);
 							setToastData(null);
 							lastToastRef.current = null;
-						}, EXIT_ANIMATION_DURATION);
+						}, exitDuration);
 					}, duration);
 				}
 			};
@@ -67,7 +52,7 @@ const CustomToast = ({ duration = 3000 }) => {
 
 					// Delay to retrigger animation for the new toast
 					setTimeout(showNewToast, 50);
-				}, EXIT_ANIMATION_DURATION);
+				}, exitDuration);
 			} else {
 				showNewToast();
 			}
@@ -80,23 +65,21 @@ const CustomToast = ({ duration = 3000 }) => {
 			setVisible(false);
 			setToastData(null);
 			lastToastRef.current = null;
-		}, EXIT_ANIMATION_DURATION);
+		}, exitDuration);
 	};
 
 	return (
 		<div className="toast-container">
 			{visible && toastData && (
-				<div
-					className={`toast toast--${toastData.type} ${
-						isExiting ? 'slide-out' : 'slide-in'
-					}`}
-				>
+				<div className={`toast ${isExiting ? 'slide-out' : 'slide-in'}`}>
 					<div className="left-part">
 						<div className="toast__icon">
-							{toastData.type === MESSAGE_TYPES.SUCCESS && <CheckIcon />}
-							{toastData.type === MESSAGE_TYPES.WARNING && <WarningIcon />}
-							{toastData.type === MESSAGE_TYPES.ERROR && <ErrorIcon />}
-							{toastData.type === MESSAGE_TYPES.LOADING && <LoadingIcon />}
+							{toastData.type === 'success' && <Success />}
+							{toastData.type === 'warning' && <Warning />}
+							{toastData.type === 'error' && <Error />}
+							{toastData.type === 'loading' && (
+								<SpinnerIcon className="loading-spinner" />
+							)}
 						</div>
 						<div className="toast__content">
 							<p className="toast__message">{toastData.content}</p>
@@ -122,16 +105,16 @@ const message = {
 		}
 	},
 	success(content, duration = 3000) {
-		this.show({ type: MESSAGE_TYPES.SUCCESS, content, duration });
+		this.show({ type: 'success', content, duration });
 	},
 	warning(content, duration = 3000) {
-		this.show({ type: MESSAGE_TYPES.WARNING, content, duration });
+		this.show({ type: 'warning', content, duration });
 	},
 	error(content, duration = 3000) {
-		this.show({ type: MESSAGE_TYPES.ERROR, content, duration });
+		this.show({ type: 'error', content, duration });
 	},
 	loading(content) {
-		this.show({ type: MESSAGE_TYPES.LOADING, content, duration: 0 });
+		this.show({ type: 'loading', content, duration: 0 });
 	},
 };
 

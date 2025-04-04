@@ -48,7 +48,6 @@ function App() {
 			<ExpiredSubscriptionModal />
 			<ExpiredTokenModal />
 			<AccessDeniedPopup />
-			<CustomToast duration={3000} />
 			<VoiceWrapper />
 		</>
 	);
