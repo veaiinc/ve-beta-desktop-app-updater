@@ -2811,7 +2811,6 @@ const GalleryPage = () => {
 
 		// Set processing flag
 		handleDeleteAlbum.isProcessing = true;
-
 		try {
 			message.open({
 				type: 'loading',
@@ -4717,7 +4716,7 @@ const GalleryPage = () => {
 															<AlbumCoverIcon />
 															Album Cover
 														</li>
-														<div
+														{/* <div
 															onClick={() => {
 																setInfo((prev) => ({
 																	...prev,
@@ -4740,7 +4739,7 @@ const GalleryPage = () => {
 															>
 																Delete Album
 															</span>
-														</div>
+														</div> */}
 													</div>
 												)}
 											</div>
