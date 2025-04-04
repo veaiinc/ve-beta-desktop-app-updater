@@ -48,6 +48,10 @@ import AutomationBuilderLayout from './views/layouts/automationBuilderLayout';
 import Automations from './views/features/automations/Automations';
 import Integrations from './views/features/Integrations/Integrations';
 import BrandSetup from './views/features/settings/BrandSetup';
+import DocsFullView from './views/components/docs/DocsFullView';
+import FormFullView from './views/components/forms/FormFullView';
+import TaskFullView from './views/features/tasks/TaskFullView';
+import ExpandedClientView from './views/features/contacts/ExpandedClientView';
 
 const routes = [
 	{
@@ -285,6 +289,15 @@ const routes = [
 		exact: true,
 	},
 	{
+		path: '/task/:taskId',
+		component: (
+			<AuthWrapper title={'Tasks'}>
+				<TaskFullView />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
 		path: '/integrations',
 		component: (
 			<AuthWrapper title={'Integrations'}>
@@ -328,8 +341,6 @@ const routes = [
 		),
 		exact: true,
 	},
-
-	//ai agents
 	{
 		path: '/ai-agents/home/:agent-name',
 		component: (
@@ -395,6 +406,15 @@ const routes = [
 		exact: true,
 	},
 	{
+		path: '/doc/:id',
+		component: (
+			<AuthWrapper title={'Docs'}>
+				<DocsFullView />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
 		path: '/my-templates',
 		component: (
 			<AuthWrapper title={'My Templates'}>
@@ -413,7 +433,7 @@ const routes = [
 		exact: true,
 	},
 	{
-		path: '/forms',
+		path: '/form',
 		component: (
 			<AuthWrapper title={'Forms'}>
 				<Forms />
@@ -422,10 +442,19 @@ const routes = [
 		exact: true,
 	},
 	{
-		path: '/forms/:id',
+		path: '/form/:id',
 		component: (
 			<AuthWrapper title={'Form Leads'}>
 				<FormLeads />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/form-response/:id',
+		component: (
+			<AuthWrapper title={'Form Response'}>
+				<FormFullView />
 			</AuthWrapper>
 		),
 		exact: true,
@@ -464,6 +493,14 @@ const routes = [
 		component: (
 			<AuthWrapper title={'Automations'}>
 				<Automations />
+			</AuthWrapper>
+		),
+	},
+	{
+		path: '/contact/:contactId',
+		component: (
+			<AuthWrapper title="Contact Details">
+				<ExpandedClientView />
 			</AuthWrapper>
 		),
 	},

@@ -26,7 +26,7 @@ import { useNavigate } from 'react-router-dom';
 import DuplicateSvg from '../../../assets/svg/tasks/DuplicateSvg.jsx';
 
 const initialState = {
-	activeTab: 'preview', // reqActions, preview, activity
+	activeTab: 'preview',
 	openMoreOptions: false,
 	sideBarExpanded: false,
 	isAlChatEnabled: false,
@@ -394,6 +394,12 @@ const Sidebar = ({ open, onClose, activeFileData, refetchDocsFilesList, openDele
 		}
 	}, [info?.activeFileData]);
 
+	const handleExpandView = useCallback(() => {
+		if (activeFileData?._id) {
+			navigate(`/doc/${activeFileData._id}`);
+		}
+	}, [activeFileData, navigate]);
+
 	return (
 		<>
 			<Drawer
@@ -429,14 +435,7 @@ const Sidebar = ({ open, onClose, activeFileData, refetchDocsFilesList, openDele
 						<div className="headerContainer">
 							<div className="headerLeftLabel">
 								<CloseSvg onClick={modifyClose} />
-								<ExpandSvg
-									onClick={() =>
-										setInfo((prev) => ({
-											...prev,
-											sideBarExpanded: !prev?.sideBarExpanded,
-										}))
-									}
-								/>
+								<ExpandSvg onClick={handleExpandView} />
 							</div>
 							<div className="headerRightLabel">
 								{/* <div>Draft</div> */}

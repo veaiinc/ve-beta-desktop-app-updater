@@ -81,7 +81,7 @@ const Forms = () => {
 	}, [info?.hasNextPage, info?.currentPage]);
 
 	const handleFormClick = useCallback((formData) => {
-		navigate(`/forms/${formData?._id}`, { state: { formData } });
+		navigate(`/form/${formData?._id}`, { state: { formData } });
 	}, []);
 
 	return (
@@ -287,7 +287,9 @@ const Forms = () => {
 									<div
 										className="docsRow"
 										key={index}
-										onClick={() => handleFormClick(ele)}
+										onClick={() => {
+											handleFormClick(ele);
+										}}
 									>
 										<div className="docsFilesRowTitle">{ele?.title}</div>
 										<div className="docsKeyWordsContainer">
