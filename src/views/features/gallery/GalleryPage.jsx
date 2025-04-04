@@ -3356,8 +3356,8 @@ const GalleryPage = () => {
 											className="onlineStatus"
 											style={{
 												backgroundColor: info.isOnline
-													? 'var(--primary-button)'
-													: 'red',
+													? 'var(--success)'
+													: 'var(--error)',
 											}}
 										></div>
 										<p className="onlineText">
@@ -3368,6 +3368,11 @@ const GalleryPage = () => {
 										checked={info.isOnline}
 										onChange={handleOnlineToggle}
 										size="small"
+										style={{
+											backgroundColor: info.isOnline
+												? 'var(--success)'
+												: 'var(--error)',
+										}}
 									/>
 								</div>
 								<div className="onlineContainer" onClick={openShareModal}>
@@ -3402,7 +3407,7 @@ const GalleryPage = () => {
 													<hr
 														key={`divider-${index}`}
 														style={{
-															border: '1px solid #424548',
+															border: '1px solid var(--stroke)',
 															opacity: '0.2',
 															width: '100%',
 														}}

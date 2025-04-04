@@ -22,8 +22,8 @@ const CreateGallery = ({
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 	} = useContext(Context);
 	const [galleryData, setGalleryData] = useState({
-		title: 'Untitled',
-		slug: 'untitled',
+		title: 'Untitled Gallery',
+		slug: 'untitledgallery',
 		shotDuring: new Date().toISOString().split('T')[0],
 		workspaceID: '',
 		userID: '',
