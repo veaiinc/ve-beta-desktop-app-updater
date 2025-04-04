@@ -124,6 +124,34 @@
 					}
 				}
 
+				.phoneInputNumber {
+					width: 100%;
+					border-radius: 12px;
+					padding: 12px 16px;
+					background: var(--card);
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
+					font-size: 14px;
+					font-style: normal;
+					border: none;
+					outline: none;
+
+					.PhoneInputInput {
+						background-color: inherit;
+						border: none;
+						outline: none;
+						color: var(--primary-font);
+
+						&::placeholder {
+							color: var(--secondary-font, #7a7e85);
+							font-family: var(--primary-font-family);
+							font-size: 14px;
+							font-style: normal;
+							font-weight: 500;
+						}
+					}
+				}
+
 				.phoneContainerClass {
 					width: 100%;
 					display: flex;

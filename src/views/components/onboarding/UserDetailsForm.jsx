@@ -1,6 +1,6 @@
 import { memo, useCallback } from 'react';
 import '../../../assets/scss/onboarding/stages.scss';
-import PhoneInput from 'react-phone-input-2';
+import PhoneInput from 'react-phone-number-input';
 import { ReactComponent as DarkIcon } from '../../../assets/svg/onboarding/dark.svg';
 import { ReactComponent as LightIcon } from '../../../assets/svg/onboarding/light.svg';
 import { ReactComponent as GreenTick } from '../../../assets/svg/onboarding/green-tick.svg';
@@ -149,7 +149,7 @@ const UserDetailsForm = ({
 				</div>
 				{otpSent ? (
 					<div className="otpInputContainer">
-						<p className="question">Enter the OTP that was sent to +{phoneNumber}</p>
+						<p className="question">Enter the OTP that was sent to {phoneNumber}</p>
 						<input
 							className={`otpInput ${otpSent && 'animate'}`}
 							value={otp}
@@ -191,14 +191,23 @@ const UserDetailsForm = ({
 							/>
 						) : (
 							<PhoneInput
-								containerClass="phoneContainerClass"
-								inputClass="phoneInputClass"
 								placeholder="Enter phone number"
 								value={phoneNumber}
 								onChange={handleSetPhoneNumber}
-								onKeyDown={handleVerifyPhoneNumberOnEnter}
-								country={countryCode}
+								defaultCountry={(() => {
+									try {
+										const locationDetails = JSON.parse(
+											localStorage.getItem('locationDetails'),
+										);
+										return locationDetails?.countryCode || 'US';
+									} catch {
+										return 'US';
+									}
+								})()}
+								className="phoneInputNumber"
 								countryCallingCodeEditable={true}
+								onKeyDown={handleVerifyPhoneNumberOnEnter}
+								autoFocus={true}
 								autoComplete="tel"
 								disabled={isPhoneNumberVerified}
 							/>
