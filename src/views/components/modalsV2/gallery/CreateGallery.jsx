@@ -7,7 +7,7 @@ import jwt_decode from 'jwt-decode';
 import { DatePicker } from 'antd';
 import slugify from 'slugify';
 import { useNavigate } from 'react-router-dom';
-
+import dayjs from 'dayjs';
 const CreateGallery = ({
 	open,
 	closeModal,
@@ -22,9 +22,9 @@ const CreateGallery = ({
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 	} = useContext(Context);
 	const [galleryData, setGalleryData] = useState({
-		title: '',
-		slug: '',
-		shotDuring: '',
+		title: 'Untitled Gallery',
+		slug: 'untitledgallery',
+		shotDuring: new Date().toISOString().split('T')[0],
 		workspaceID: '',
 		userID: '',
 		galleryNameError: false,
@@ -68,7 +68,7 @@ const CreateGallery = ({
 			});
 			setGalleryData({
 				...galleryData,
-				title: e.target.value,
+				title: e.target.value || 'Untitled',
 				slug: slugConverted,
 				galleryNameError: !e.target.value,
 			});
@@ -108,8 +108,9 @@ const CreateGallery = ({
 
 	const closeModalFunc = () => {
 		setGalleryData({
-			title: '',
-			shotDuring: '',
+			title: 'Untitled',
+			slug: 'untitled',
+			shotDuring: new Date().toISOString().split('T')[0],
 			workspaceID: '',
 			userID: '',
 			galleryNameError: false,
@@ -169,6 +170,7 @@ const CreateGallery = ({
 			if (response?.[0] === true) {
 				navigate(`/galleries/${response[1]?._id}`);
 				closeModalFunc();
+				navigate(`/galleries/${response?.[1]?._id}`);
 				fetchGalleries(1, null, true);
 				message.success('Gallery created successfully');
 			} else {
@@ -192,9 +194,7 @@ const CreateGallery = ({
 				</div>
 				<div className="inputContainer">
 					<div className="gallery-name">
-						<p className="subHeading">
-							Gallery Name <span>*</span>
-						</p>
+						<p className="subHeading">Gallery Name</p>
 						<input
 							name="title"
 							value={galleryData.title}
@@ -209,15 +209,15 @@ const CreateGallery = ({
 						)}
 					</div>
 					<div className="gallery-date">
-						<p className="subHeading">
-							Gallery date <span>*</span>
-						</p>
+						<p className="subHeading">Gallery date</p>
 						<DatePicker
 							className="datePicker"
 							format="YYYY-MM-DD"
-							selected={galleryData.shotDuring}
+							defaultValue={dayjs()} // Set default value to current date
+							value={dayjs(galleryData.shotDuring)}
 							onChange={(date, dateString) => handleInputChange(dateString, 'date')}
 							inputReadOnly
+							allowClear={false}
 						/>
 						{galleryData?.eventDateError && (
 							<p className="error">Gallery Date is Required</p>
