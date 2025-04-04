@@ -3,7 +3,16 @@ import ToggleBlock from './ToggleBlock';
 import '../../../assets/scss/AiSetup/sectionBlock.scss';
 import MemoryBlock from './MemoryBlock';
 import Skeleton from 'react-loading-skeleton';
-const SectionBlock = ({ title, openAddNewGoalModal, onResetClick, data = [], type, loading }) => {
+const SectionBlock = ({
+	title,
+	openAddNewGoalModal,
+	onResetClick,
+	onDeleteClick,
+	data = [],
+	type,
+	loading,
+	onEditClick,
+}) => {
 	return (
 		<div className="SectionBlockContainer">
 			<div className="sectionBlockHeader">
@@ -33,14 +42,20 @@ const SectionBlock = ({ title, openAddNewGoalModal, onResetClick, data = [], typ
 				))
 			) : data?.length > 0 ? (
 				type === 'memory' ? (
-					<MemoryBlock data={data} />
+					<MemoryBlock
+						data={data}
+						onDeleteClick={onDeleteClick}
+						onEditClick={onEditClick}
+					/>
 				) : (
 					<div className="sectionBlockContent">
 						{data?.map((item) => (
 							<ToggleBlock
 								key={item._id}
-								heading={item?.heading}
-								description={item?.description}
+								data={item}
+								type={type}
+								onDeleteClick={onDeleteClick}
+								onEditClick={onEditClick}
 							/>
 						))}
 					</div>
