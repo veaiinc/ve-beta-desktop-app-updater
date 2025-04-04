@@ -1,4 +1,4 @@
-import { memo, useState } from 'react';
+import { memo, useState, useEffect } from 'react';
 import ReactModal from '../..';
 import '../../../../../assets/scss/settings/aiSetup/addNewGoalModal.scss';
 import { ReactComponent as CrossMark } from '../../../../../assets/svg/Settings/CrossMark.svg';
@@ -24,11 +24,28 @@ const AddNewGoalModal = ({
 	type,
 	onSubmit,
 	submitLoading,
+	editSelectedData,
 }) => {
 	const [info, setInfo] = useState({
 		goalTitle: '',
 		goalDescription: '',
 	});
+
+	useEffect(() => {
+		setInfo({
+			goalTitle: editSelectedData?.heading || '',
+			goalDescription: editSelectedData?.description || '',
+		});
+	}, [editSelectedData]);
+
+	useEffect(() => {
+		return () => {
+			setInfo({
+				goalTitle: '',
+				goalDescription: '',
+			});
+		};
+	}, []);
 
 	const handleSetGoalTitle = (e) => {
 		const goalTitle = e?.target?.value;

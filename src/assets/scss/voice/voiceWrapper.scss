@@ -1,0 +1,35 @@
+.voiceContainer {
+	position: fixed;
+	transition: all 0.8s cubic-bezier(0.34, 1, 0.64, 1);
+	z-index: 1;
+
+	&.home-page {
+		left: 5%;
+		bottom: 330px;
+		// transform: translateX(-50%);
+
+		&.active {
+			transform: translate(-50%, -400px);
+			opacity: 1;
+		}
+
+		&.inactive {
+			opacity: 0;
+		}
+	}
+
+	&.other-page {
+		left: 42%;
+		bottom: 0;
+
+		&.active {
+			transform: translateY(0);
+			opacity: 1;
+		}
+
+		&.inactive {
+			transform: translateY(200px);
+			opacity: 0;
+		}
+	}
+}

@@ -6,6 +6,7 @@ import ExpiredTokenModal from './views/components/modalsV2/subscription/ExpiredT
 import Cookies from 'js-cookie';
 import Context from './context/context';
 import AccessDeniedPopup from './views/components/accessPopups/accessDeniedPopup';
+import VoiceWrapper from './views/layouts/VoiceWrapper';
 function App() {
 	const {
 		themeInfo: { theme },
@@ -29,7 +30,7 @@ function App() {
 		// document.getElementsByTagName('html')[0].classList.add('theme-dark');
 		// const theme = localStorage.getItem('theme') || Cookies.get('theme') || 'dark';
 		document.documentElement.setAttribute('theme', themeAttribute);
-	}, []);
+	}, [theme]);
 
 	return (
 		<>
@@ -46,6 +47,7 @@ function App() {
 			<ExpiredSubscriptionModal />
 			<ExpiredTokenModal />
 			<AccessDeniedPopup />
+			<VoiceWrapper />
 		</>
 	);
 }

@@ -51,8 +51,8 @@
 			height: 46px;
 			padding: 0 14px;
 			border-radius: 50px;
-			background: #2b2e31;
-			color: var(--primary-font);
+			background-color: var(--primary-button);
+			color: var(--primary-button-font);
 			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
@@ -64,8 +64,8 @@
 			transition: all 0.2s ease-in-out;
 
 			&:hover {
-				background: var(--primary-font);
-				color: var(--background-color);
+				background-color: var(--primary-button);
+				color: var(--primary-button-font);
 				transition: all 0.2s ease-in-out;
 			}
 		}
