@@ -10,10 +10,11 @@
 		}
 
 		.ant-drawer-body {
-			background-color: var(--card);
+			background-color: var(--navbar);
+			border-right: 1px solid var(--stroke);
 			color: var(--primary-font);
 			padding: 0px;
-			
+
 			.notifications-drawer-container {
 				border-left: 1px solid var(--stroke);
 				color: var(--primary-font);

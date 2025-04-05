@@ -9,7 +9,10 @@ import HeadersDropDownComp from '../dropDown/HeadersDropDownComp';
 import '../../../assets/scss/sales/createLeadModal.scss';
 import { useNavigate } from 'react-router-dom';
 import debounce from 'lodash/debounce';
+import { fetchOriginSelection } from '../../../helpers';
 const validator = require('validator');
+
+let origin = fetchOriginSelection();
 
 const selectedWorkflowStyles = {
 	height: '48px',
@@ -104,7 +107,7 @@ const CreateFileLead = ({ open, onClose, workflow }) => {
 	useEffect(() => {
 		setInfo((prev) => ({
 			...prev,
-			documentTitle: workflow?.title || '',
+			documentTitle: `Copy of ${workflow?.title || ''}`,
 		}));
 	}, [workflow]);
 	useEffect(() => {
@@ -225,6 +228,11 @@ const CreateFileLead = ({ open, onClose, workflow }) => {
 				...prev.leadDetails,
 				[name]: value,
 			},
+			...(name === 'name' && {
+				documentTitle: value
+					? `${workflow?.title || ''} for ${value}`
+					: `Copy of ${workflow?.title || ''}`,
+			}),
 			error: {
 				...prev.error,
 				[`is${name}Error`]: false,
@@ -340,9 +348,9 @@ const CreateFileLead = ({ open, onClose, workflow }) => {
 				updateStateValues({ salePageRefresh: true });
 				closeModalFunc();
 				if (response?.[1]?.version) {
-					window.location.href = `${origin}/workflow/${response?.[1]}?workflow=true&templateId=${workflow?._id}`;
+					window.location.href = `${origin}/workflow/${response?.[1]?._id}?workflow=true&templateId=${workflow?._id}`;
 				} else {
-					navigate(`/smart-file/${workflow?._id}/${response?.[1]}`);
+					navigate(`/smart-file/${workflow?._id}/${response?.[1]?._id}`);
 				}
 			} else {
 				setInfo((prev) => ({

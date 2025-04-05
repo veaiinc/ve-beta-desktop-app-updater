@@ -10,8 +10,8 @@
 		flex-direction: column;
 		align-items: flex-start;
 		gap: 20px;
-		border-radius: 16px;
-		background-color: var(--popup);
+		background-color: var(--navbar);
+		border-left: 1px solid var(--stroke);
 		overflow-y: hidden;
 
 		.headerContainer {
@@ -67,7 +67,7 @@
 			align-items: flex-start;
 			gap: 20px;
 			border-radius: 16px;
-			background-color: var(--popup);
+			background-color: var(--navbar);
 			overflow-y: hidden;
 
 			.listviewContainer {

@@ -29,7 +29,7 @@
 
 .quick-actions-dropdown-options-container {
 	display: flex;
-	width: 300px;
+	// width: 300px;
 	max-height: 520px;
 	padding: 12px;
 	flex-direction: column;
@@ -81,89 +81,29 @@
 	}
 }
 
-.modules-container {
+.suggested-modules-container {
 	display: flex;
 	background-color: var(--card-over-card);
 	flex-direction: column;
 	width: 100%;
 	border-radius: 16px;
 	padding: 14px;
-	overflow: scroll;
-	min-height: 94px;
-	.modules-container-header {
+	// min-height: 94px;
+	.suggested-modules-container-header {
 		color: var(--secondary-font);
 		font-size: 13px;
+		position: sticky;
+		top: 0;
 	}
-}
-
-.customQuickActionsToolTip {
-	.ant-tooltip-content {
-		right: 10px;
-	}
-}
-
-.top-search-container {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	padding: 10px 24px;
-	gap: 10px;
-	border-radius: 50px;
-	border: 0.5px solid var(--stroke);
-	background-color: var(--card);
-	width: 100%;
-
-	input {
-		background: none;
-		border: none;
-		color: var(--secondary-font);
-		font-size: 14px;
-		font-weight: 400;
-		line-height: 16px;
-		width: 100%;
-	}
-}
-
-.modules-container {
-	display: flex;
-	background-color: var(--card);
-	flex-direction: column;
-	width: 100%;
-	border-radius: 16px;
-	padding: 14px;
-	overflow: scroll;
-	min-height: 94px;
-	.modules-container-header {
-		color: var(--secondary-font);
-		font-size: 13px;
-	}
-}
-
-.customQuickActionsToolTip {
-	.ant-tooltip-content {
-		right: 100px;
-	}
-}
-
-.top-search-container {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	padding: 10px 24px;
-	gap: 10px;
-	border-radius: 50px;
-	border: 0.5px solid var(--stroke);
-	background-color: var(--card);
-	width: 100%;
-
-	input {
-		background: none;
-		border: none;
-		color: var(--secondary-font);
-		font-size: 14px;
-		font-weight: 400;
-		line-height: 16px;
-		width: 100%;
+	.suggested-modules-container-options {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		overflow: scroll;
+		height: fit-content;
+		.dropdown-option {
+			width: 100%;
+		}
 	}
 }
 
@@ -175,15 +115,19 @@
 	border-radius: 16px;
 	padding: 14px;
 	overflow: scroll;
-	min-height: 94px;
+	// min-height: 94px;
 	.modules-container-header {
 		color: var(--secondary-font);
 		font-size: 13px;
+		position: sticky;
+		top: 0;
+		background-color: var(--card-over-card);
 	}
-}
-
-.customQuickActionsToolTip {
-	.ant-tooltip-content {
-		right: 100px;
+	.modules-container-options {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		overflow: scroll;
+		height: fit-content;
 	}
 }

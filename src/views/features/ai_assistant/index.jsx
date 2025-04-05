@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
 import Spinner from '../../components/loaders/Spinner';
 import InfiniteScroll from 'react-infinite-scroll-component';
+import QuickActions from '../../components/globalComponents/QuickActions';
 
 const AiAssistants = () => {
 	const navigate = useNavigate();
@@ -95,8 +96,9 @@ const AiAssistants = () => {
 					<span className="lineOne">Create</span>
 					<span className="lineTwo">AI Assistants</span>
 				</div>
+				<QuickActions />
 
-				<div className="headActionContainer" onClick={CreateNewAiAssistant}>
+				{/* <div className="headActionContainer" onClick={CreateNewAiAssistant}>
 					{info?.creatingNewAiAssistantLoading ? (
 						<span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
 							Building AI Assistant <Spinner width="18px" height="18px" />
@@ -104,7 +106,7 @@ const AiAssistants = () => {
 					) : (
 						<span>Create an AI Assistant</span>
 					)}
-				</div>
+				</div> */}
 			</div>
 
 			{/* <div className="promtsContainer">
