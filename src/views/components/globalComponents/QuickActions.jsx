@@ -177,7 +177,7 @@ const moduleOptions = [
 	{
 		id: 14,
 		title: 'Note',
-		value: 'notes',
+		value: 'note',
 		action: async ({ setInfo, navigate, createNotesList }) => {
 			try {
 				setInfo((prev) => ({ ...prev, creatingNoteLoader: true }));
@@ -216,9 +216,9 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 		openLiteGalleryPopup: false,
 		// openTaskPopup: false,
 		options: { suggestedOptions, moduleOptions },
-		fileterOptions: { suggestedOptions, moduleOptions },
+		filteredOptions: { suggestedOptions, moduleOptions },
 		isAutomationLoading: false,
-		commonState: null,
+		commonState: 'All',
 		search: '',
 		createTaskPopup: false,
 		conversationalAgentLoading: false,
@@ -277,7 +277,7 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 
 	useEffect(() => {
 		const options = filtereOptions();
-		setInfo((prev) => ({ ...prev, fileterOptions: options }));
+		setInfo((prev) => ({ ...prev, filteredOptions: options }));
 	}, [filtereOptions]);
 
 	const handleDebounceSearch = useCallback(
@@ -286,7 +286,7 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 				clearTimeout(timeout);
 			}
 			const options = filtereOptions(search);
-			setInfo((prev) => ({ ...prev, fileterOptions: options }));
+			setInfo((prev) => ({ ...prev, filteredOptions: options }));
 		},
 		[filtereOptions],
 	);
@@ -320,50 +320,54 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 								onChange={handleSearch}
 							/>
 						</div> */}
-						{info?.fileterOptions?.suggestedOptions?.length > 0 && (
-							<div className="modules-container">
-								<div className="modules-container-header">Suggested</div>
-								{info?.fileterOptions?.suggestedOptions?.map((option) => (
-									<div
-										key={option?.id}
-										className="dropdown-option"
-										onClick={() =>
-											option?.action({
-												setInfo,
-												navigate,
-												createNewAiAssistant,
-												createAutomation,
-												createNotesList,
-											})
-										}
-									>
-										{option?.icon && <img src={option?.icon} alt="icon" />}
-										{option?.title}
-									</div>
-								))}
+						{info?.filteredOptions?.suggestedOptions?.length > 0 && (
+							<div className="suggested-modules-container">
+								<div className="suggested-modules-container-header">Suggested</div>
+								<div className="suggested-modules-container-options">
+									{info?.filteredOptions?.suggestedOptions?.map((option) => (
+										<div
+											key={option?.id}
+											className="dropdown-option"
+											onClick={() =>
+												option?.action({
+													setInfo,
+													navigate,
+													createNewAiAssistant,
+													createAutomation,
+													createNotesList,
+												})
+											}
+										>
+											{option?.icon && <img src={option?.icon} alt="icon" />}
+											{option?.title}
+										</div>
+									))}
+								</div>
 							</div>
 						)}
-						{info?.fileterOptions?.moduleOptions?.length > 0 && (
+						{info?.filteredOptions?.moduleOptions?.length > 0 && (
 							<div className="modules-container">
 								<div className="modules-container-header">Module Actions</div>
-								{info?.fileterOptions?.moduleOptions?.map((option) => (
-									<div
-										key={option?.id}
-										className="dropdown-option"
-										onClick={() =>
-											option?.action({
-												setInfo,
-												navigate,
-												createNewAiAssistant,
-												createAutomation,
-												createNotesList,
-											})
-										}
-									>
-										{option?.icon && <img src={option?.icon} alt="icon" />}
-										{option?.title}
-									</div>
-								))}
+								<div className="modules-container-options">
+									{info?.filteredOptions?.moduleOptions?.map((option) => (
+										<div
+											key={option?.id}
+											className="dropdown-option"
+											onClick={() =>
+												option?.action({
+													setInfo,
+													navigate,
+													createNewAiAssistant,
+													createAutomation,
+													createNotesList,
+												})
+											}
+										>
+											{option?.icon && <img src={option?.icon} alt="icon" />}
+											{option?.title}
+										</div>
+									))}
+								</div>
 							</div>
 						)}
 					</div>

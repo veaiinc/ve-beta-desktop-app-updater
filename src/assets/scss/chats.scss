@@ -11,9 +11,9 @@
 		}
 
 		.ant-drawer-body {
-			background-color: var(--card);
+			background-color: var(--navbar);
 			padding: 0px;
-			border-left: 0.5px solid var(--stroke);
+			border-right: 0.5px solid var(--stroke);
 
 			.chats-drawer-container {
 				width: 250px;

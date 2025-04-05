@@ -80,9 +80,9 @@ const CreateAlbum = ({ open, closeModal, galleryId }) => {
 		};
 		setInfo((prev) => ({ ...prev, isSubmitting: true }));
 		const response = await createNewAlbum(payload, galleryId);
-		if (response?.[0] === 200) {
+		if (response?.[0] === true) {
 			closeModelFunction();
-			message.success('Gallery Created Successfully');
+			message.success('Album Created Successfully');
 		} else {
 			message.error(response?.[1]?.message);
 		}

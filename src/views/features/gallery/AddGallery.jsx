@@ -296,9 +296,9 @@ const AddGallery = () => {
 						arrow={false}
 					/>
 				</div>
-				<div className="create-btn" onClick={handleCreateNewGallery}>
+				{/* <div className="create-btn" onClick={handleCreateNewGallery}>
 					Create +
-				</div>
+				</div> */}
 			</div>
 			<div className="add-gallery-container">
 				<div className="add-gallery-header">
