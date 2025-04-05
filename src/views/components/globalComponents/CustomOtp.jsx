@@ -1,6 +1,6 @@
 import { useRef, useEffect, memo } from 'react';
 
-function CustomOtp({ otp, setOtp, onComplete, error }) {
+const CustomOtp = ({ otp, setOtp, onComplete, error }) => {
 	const otpInputRefs = useRef([]);
 
 	useEffect(() => {
@@ -31,7 +31,6 @@ function CustomOtp({ otp, setOtp, onComplete, error }) {
 
 	const handleKeyDown = (e, index) => {
 		if (e.key === 'Backspace') {
-			e.preventDefault();
 			const newOtp = [...otp];
 
 			if (otp[index] === '') {
@@ -94,6 +93,6 @@ function CustomOtp({ otp, setOtp, onComplete, error }) {
 			</div>
 		</div>
 	);
-}
+};
 
 export default memo(CustomOtp);
