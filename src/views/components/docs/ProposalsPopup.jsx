@@ -15,7 +15,6 @@ const origin = fetchOriginSelection();
 
 const initialState = {
 	search: '',
-	selectedOption: 'All',
 	loading: true,
 	workflowTemplates: [],
 	activeTemplateData: null,
@@ -69,7 +68,7 @@ const ProposalPopup = ({ open, closeModal, clientDetails = null, commonState }) 
 
 	const filterOptions = hasAccessToWorkflows
 		? [
-				{ id: 1, title: 'All', value: '' },
+				{ id: 1, title: 'All', value: 'All' },
 				{ id: 2, title: 'Form', value: 'form-submission' },
 				{ id: 3, title: 'Proposal', value: 'proposal' },
 				{ id: 4, title: 'Presentation', value: 'presentation' },
@@ -79,6 +78,7 @@ const ProposalPopup = ({ open, closeModal, clientDetails = null, commonState }) 
 		: [{ id: 1, title: 'Form', value: 'form-submission' }];
 
 	const [info, setInfo] = useState({
+		selectedOption: commonState,
 		...initialState,
 	});
 
@@ -87,12 +87,13 @@ const ProposalPopup = ({ open, closeModal, clientDetails = null, commonState }) 
 	}, [commonState]);
 
 	useEffect(() => {
-		if (info?.selectedOption !== 'All' && open) {
+		if (!open) return;
+		if (info?.selectedOption !== 'All') {
 			getMyWorkflowsTemplatesData(1, info?.search, false, info?.selectedOption);
 		} else {
-			if (open && !myWorkflowsForProposalPopup?.length) getMyWorkflowsForProposalPopup(1);
+			getMyWorkflowsTemplatesData(1, null, false, 'All');
 		}
-	}, [info?.selectedOption]);
+	}, [open, info?.selectedOption]);
 	useEffect(() => {
 		if (myWorkflowsForProposalPopup && open) {
 			myWorkflowsDataParser(myWorkflowsForProposalPopup);

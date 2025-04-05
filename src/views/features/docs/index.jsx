@@ -266,10 +266,10 @@ const Docs = () => {
 		{
 			id: 0,
 			title: 'Create new Document',
-			value: 'form-submission',
-			controlValue: 'form',
+			value: '',
+			controlValue: 'workflow',
 			action: ({ setInfo, info }) => {
-				setInfo({ ...info, openProposalPopup: true, commonState: 'form-submission' });
+				setInfo({ ...info, openProposalPopup: true, commonState: '' });
 			},
 		},
 		{
@@ -306,6 +306,15 @@ const Docs = () => {
 			controlValue: 'workflow',
 			action: ({ setInfo, info }) => {
 				setInfo({ ...info, openProposalPopup: true, commonState: 'contract' });
+			},
+		},
+		{
+			id: 5,
+			title: 'Create new Presentation',
+			value: 'presentation',
+			controlValue: 'workflow',
+			action: ({ setInfo, info }) => {
+				setInfo({ ...info, openProposalPopup: true, commonState: 'presentation' });
 			},
 		},
 	];
@@ -913,6 +922,7 @@ const Docs = () => {
 				<ProposalPopup
 					open={info?.proposalPopup}
 					closeModal={() => setInfo((prev) => ({ ...prev, proposalPopup: false }))}
+					commonState={'All'}
 				/>
 			</div>
 		</div>
