@@ -1,15 +1,13 @@
-import React, { memo, useState, useEffect, useRef, useContext, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { memo, useState, useEffect, useRef, useContext, useCallback } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import '../../../assets/scss/login_page/index.scss';
 import { ReactComponent as LeftArrowBackBtn } from '../../../assets/svg/login_page/left-arrow-back-btn.svg';
-import { ReactComponent as OutlookLogo } from '../../../assets/svg/login_page/outlook.svg';
-import { ReactComponent as GmailLogo } from '../../../assets/svg/login_page/gmail.svg';
-import { message } from 'antd';
+import { Input, message } from 'antd';
 import { getLocationsDetails } from '../../../helpers';
 import Context from '../../../context/context';
 import Spinner from '../loaders/Spinner';
-import { useLocation } from 'react-router-dom';
-import { Input } from 'antd';
+import CustomOtp from '../globalComponents/CustomOtp';
+import '../../../assets/scss/otp_input/otp_input.scss';
 
 const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveStage }) => {
 	const navigate = useNavigate();
@@ -35,6 +33,7 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 		resendTimerInterval: null,
 		locationDetails: null,
 	});
+	const [otpArray, setOtpArray] = useState(Array(6).fill(''));
 	const otpContainerRef = useRef(null);
 
 	useEffect(() => {
@@ -130,7 +129,7 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 						return { ...prev, resendTimer: prev.resendTimer - 1 };
 					} else {
 						clearInterval(interval);
-						setInfo((prev) => ({ ...prev, canResend: true, isLoading: false }));
+						return { ...prev, canResend: true, isLoading: false };
 					}
 				});
 			}, 1000);
@@ -161,27 +160,14 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 			<p className="verification-code-subtitle">
 				A 6-digit verification code has been sent to {email}.
 			</p>
-			<div className="verification-code-input-container">
-				<div className="otp-input-container" ref={otpContainerRef}>
-					<Input.OTP
-						id="otpContainer"
-						value={info?.otp}
-						onChange={(otp) => {
-							const lastChar = otp.slice(-1);
-							if (otp === '' || /^[0-9]$/.test(lastChar)) {
-								setInfo((prev) => ({ ...prev, otp: otp }));
-							}
-						}}
-						autoFocus
-						length={6}
-						inputType="number"
-						inputMode="numeric"
-						pattern="[0-9]*"
-					/>
-
-					{info?.isLoading && <Spinner />}
-				</div>
-				<p className="otp-error-message">{info?.otpError}</p>
+			<div className="verification-code-input-container" ref={otpContainerRef}>
+				<CustomOtp
+					otp={otpArray}
+					setOtp={setOtpArray}
+					onComplete={(otpStr) => setInfo((prev) => ({ ...prev, otp: otpStr }))}
+					error={info?.otpError}
+				/>
+				{info?.isLoading && <Spinner />}
 			</div>
 			<p
 				className={`resend-code-text ${!info?.canResend ? 'disabled' : ''}`}

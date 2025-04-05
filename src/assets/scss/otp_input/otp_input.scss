@@ -1,0 +1,57 @@
+.verification-code-input-container {
+	margin-top: 144px;
+	width: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	position: relative;
+	flex-direction: column;
+
+	.error-message {
+		position: absolute;
+		top: -24px;
+		color: #d1243f;
+		font-family: var(--secondary-font-family);
+		font-size: 12px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
+		transform: translateX(25%);
+	}
+
+	.otp-input-container {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		flex-direction: column;
+		gap: 8px;
+		margin-bottom: 15px;
+
+		#otpContainer {
+			display: inline-flex;
+			align-items: center;
+			flex-wrap: nowrap;
+			column-gap: 8px;
+
+			.otp-input {
+				outline: none;
+				border-radius: 12px;
+				border: 1px solid var(--stroke);
+				background: var(--card);
+				width: 50px;
+				height: 50px;
+				color: #f2f2f3;
+				text-align: center;
+
+				// Corrected padding
+				padding: 14px 0;
+				font-size: 14px;
+
+				&:focus {
+					border-color: #1677ff1b;
+					box-shadow: 0 0 0 2px rgba(5, 147, 255, 0.052);
+				}
+			}
+		}
+	}
+}
