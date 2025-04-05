@@ -104,7 +104,7 @@ const Integrations = () => {
 			title: integration?.title,
 			loader: true,
 		});
-		await handleConnectThirdParty(integration?.connectType);
+		await handleConnectThirdParty(integration?.connectType, activeTab);
 		setConnectLoader({
 			title: integration?.title,
 			loader: false,
@@ -263,20 +263,18 @@ const Integrations = () => {
 		}
 	}, [connectUrl]);
 
-	const handleConnectThirdParty = async (connectType) => {
+	const handleConnectThirdParty = async (connectType, integrationType) => {
 		setInfo((prev) => ({
 			...prev,
 			loader: true,
 		}));
-		await connectThirdParty(connectType);
+		await connectThirdParty(connectType, integrationType);
 	};
 	useEffect(() => {
 		const fetchConnectedPlatforms = async () => {
-			const response = await getConnectedThirdParties();
-			console.log('response==>fetchConnectedPlatforms', response);
+			const response = await getConnectedThirdParties(activeTab);
 			if (response?.[0] === true && response?.[1]) {
 				const data = response[1];
-				console.log('data==>fetchConnectedPlatforms', data);
 				setInfo((prev) => ({
 					...prev,
 					connectedThirdParties: {
@@ -294,7 +292,7 @@ const Integrations = () => {
 			}
 		};
 		fetchConnectedPlatforms();
-	}, []);
+	}, [activeTab]);
 
 	useEffect(() => {
 		if (info?.connectedThirdParties) {
@@ -390,13 +388,13 @@ const Integrations = () => {
 			<div className="integrations-container">
 				<div className="title-container">
 					<h1 className="integrations-title">Integrations</h1>
-					{/* <div className="search-container">
+					<div className="search-container">
 						<img src={Search} alt="search" className="search-image" />
 						<input type="text" placeholder="Search" className="search-input" />
-					</div> */}
+					</div>
 				</div>
 
-				{/* <div className="tabs-wrapper">
+				<div className="tabs-wrapper">
 					<button
 						className={`tab-button ${activeTab === 'private' ? 'active' : ''}`}
 						onClick={() => setActiveTab('private')}
@@ -409,7 +407,7 @@ const Integrations = () => {
 					>
 						Shared
 					</button>
-				</div> */}
+				</div>
 
 				{activeTab === 'private' ? (
 					<>

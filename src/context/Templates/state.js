@@ -1339,17 +1339,15 @@ export const TemplatesState = (props) => {
 		}
 	};
 
-	const connectThirdParty = async (connectType) => {
+	const connectThirdParty = async (connectType, integrationType) => {
 		try {
 			let usertoken = localStorage.getItem('usertoken');
 			let workspaceId = localStorage.getItem('workspaceId');
 			const path = `/${connectType}/${workspaceId}/auth`;
+			const params = integrationType ? { access: integrationType } : {};
+			const type = 'third_party_integrations_api';
 
-			const response = await Service?.fetchGet(
-				path,
-				usertoken,
-				'third_party_integrations_api',
-			);
+			const response = await Service?.fetchGet(path, usertoken, type, params);
 
 			if (response?.[0] === true) {
 				dispatch({
@@ -1373,13 +1371,14 @@ export const TemplatesState = (props) => {
 		}
 	};
 
-	const getConnectedThirdParties = async () => {
+	const getConnectedThirdParties = async (integrationType) => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
 			const path = `/connect-account/${workspaceId}`;
 			const usertoken = localStorage.getItem('usertoken');
 			const type = 'third_party_integrations_api';
-			const response = await Service?.fetchGet(path, usertoken, type);
+			const params = integrationType ? { access: integrationType } : {};
+			const response = await Service?.fetchGet(path, usertoken, type, params);
 			return response;
 			// if (response?.[0] === true) {
 			// 	dispatch({
