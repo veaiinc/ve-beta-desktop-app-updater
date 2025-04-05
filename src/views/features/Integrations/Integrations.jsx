@@ -15,9 +15,10 @@ import stripe from '../../../assets/svg/Settings/stripe.svg';
 import zoho from '../../../assets/svg/Settings/zoho-logo.svg';
 import IntegrationConnectModel from '../../components/modalsV2/integrations/IntegrationConnectModel';
 import Context from '../../../context/context';
-import { message, Modal } from 'antd';
+import { Modal } from 'antd';
 import ConnectedIntegrationModel from '../../components/modalsV2/integrations/ConnectedIntegrationModel';
 import Spinner from '../../components/loaders/Spinner';
+import { message } from '../../components/globalComponents/CustomToast';
 
 const ConnectedIntegrationCard = ({ icon, title, description, accounts, onViewAccounts }) => {
 	return (

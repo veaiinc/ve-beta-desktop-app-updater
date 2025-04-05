@@ -4,7 +4,7 @@ import { ReactComponent as DividerLineVerticalWhite } from '../../../../assets/s
 import '../../../../assets/scss/settings/aiSetupPage.scss';
 import Skeleton from 'react-loading-skeleton';
 import Spinner from '../../loaders/Spinner';
-import { message } from 'antd';
+import { message } from '../../globalComponents/CustomToast';
 
 const personas = [
 	{

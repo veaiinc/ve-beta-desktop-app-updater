@@ -7,7 +7,7 @@ import { ReactComponent as SaveLogo } from '../../../assets/svg/gallery/save.svg
 import { ReactComponent as GalleryLogo } from '../../../assets/svg/gallery/gallery.svg';
 import Context from '../../../context/context';
 import { ReactComponent as DownArrow } from '../../../assets/svg/workflow/downArrow.svg';
-import { message } from 'antd';
+import { message } from '../../components/globalComponents/CustomToast';
 import moment from 'moment';
 import randomize from 'randomatic';
 import axios from 'axios';
@@ -275,7 +275,6 @@ const AlbumSettings = () => {
 			) {
 				clearInterval(clearinterval);
 				getImageDetail(imageId);
-				message.destroy();
 			}
 		}, 2000);
 	};
@@ -294,11 +293,7 @@ const AlbumSettings = () => {
 			return;
 		}
 
-		message.open({
-			type: 'loading',
-			content: 'Uploading album cover image..',
-			duration: 0,
-		});
+		message.loading('Uploading album cover image..');
 
 		if (info?.imageURL) {
 			setInfo((prev) => ({
@@ -326,7 +321,6 @@ const AlbumSettings = () => {
 				...prev,
 				uploadImageId: isHavingDuplicateImage?._id,
 			}));
-			message.destroy();
 			return;
 		}
 
@@ -358,11 +352,9 @@ const AlbumSettings = () => {
 					getImageDetails(signedURLUpload?.[1]?._id, batchId);
 				}
 			} else {
-				message.destroy();
 				message.error('Something went wrong, please try again later');
 			}
 		} else {
-			message.destroy();
 			message.error('Something went wrong, please try again later');
 		}
 	};
@@ -435,7 +427,6 @@ const AlbumSettings = () => {
 		if (response?.[0] === true) {
 			window.open(`https://downloads.ve.ai/${response?.[1]?.downloadId}`, '_blank');
 		} else {
-			message.destroy();
 			message.error('Something went wrong, please try again later');
 		}
 	};

@@ -19,7 +19,7 @@ import DropDown from '../../components/dropDown/tasks/DropDown';
 import FilterPopUp from '../../components/globalComponents/FilterPopUp';
 import DeleteLeadModal from '../../components/modalsV2/workflowsModals/DeleteLeadModal.jsx';
 import ProposalPopup from '../../components/docs/ProposalsPopup.jsx';
-import { message } from 'antd';
+import { message } from '../../components/globalComponents/CustomToast.jsx';
 import Skeleton from 'react-loading-skeleton';
 import { Tooltip } from 'antd';
 import QuickActions from '../../components/globalComponents/QuickActions.jsx';

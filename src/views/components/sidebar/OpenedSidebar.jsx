@@ -11,9 +11,9 @@ import { ReactComponent as CrossSvg } from '../../../assets/svg/sidebar/CrossSvg
 import { ReactComponent as RightArrowSvg } from '../../../assets/svg/sidebar/RightArrow.svg';
 import WorkspaceListComponent from './Workspace';
 import useLogout from '../../hooks/useLogout';
-import { message, Tooltip } from 'antd';
-
+import { Tooltip } from 'antd';
 import Context from '../../../context/context';
+import { message } from '../globalComponents/CustomToast';
 
 const MODULE_NAME_MAP = {
 	'conversational agent': 'conversationalAgent',

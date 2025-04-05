@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { memo, useEffect, useRef, useState } from 'react';
 import { ReactComponent as Success } from '../../../assets/svg/custom_notification/tickmark.svg';
 import { ReactComponent as Error } from '../../../assets/svg/custom_notification/exclamatory.svg';
 import { ReactComponent as Warning } from '../../../assets/svg/custom_notification/warning.svg';
@@ -30,27 +30,34 @@ const CustomToast = () => {
 				setIsExiting(false);
 				setVisible(true);
 
+				// ⬇️ Only auto-close if NOT a loading toast
 				if (type !== 'loading' && duration > 0) {
 					setTimeout(() => {
-						setIsExiting(true);
-						setTimeout(() => {
-							setVisible(false);
-							setToastData(null);
-							lastToastRef.current = null;
-						}, exitDuration);
+						// Check again before closing (in case another toast took over)
+						if (
+							lastToastRef.current &&
+							JSON.stringify(lastToastRef.current) === JSON.stringify(newToast)
+						) {
+							setIsExiting(true);
+							setTimeout(() => {
+								setVisible(false);
+								setToastData(null);
+								lastToastRef.current = null;
+							}, exitDuration);
+						}
 					}, duration);
 				}
 			};
 
 			if (visible) {
-				// Start exiting current toast
+				// ⬇️ If a toast is already showing (even loading), exit it before showing new one
 				setIsExiting(true);
 				setTimeout(() => {
 					setVisible(false);
 					setToastData(null);
 					lastToastRef.current = null;
 
-					// Delay to retrigger animation for the new toast
+					// ⬇️ Trigger new toast after exit animation
 					setTimeout(showNewToast, 50);
 				}, exitDuration);
 			} else {
@@ -96,26 +103,63 @@ const CustomToast = () => {
 };
 
 // Toast controller
+
+function isMessageEmpty(message) {
+	return message === undefined || message === null || message === '';
+}
+
 const message = {
 	show({ type, content, duration = 3000 }) {
 		if (triggerToast) {
+			if (isMessageEmpty(content)) {
+				triggerToast({ type: 'error', content: 'Message is empty', duration });
+				return;
+			}
+
 			triggerToast({ type, content, duration });
 		} else {
 			console.warn('CustomToast component is not mounted yet.');
 		}
 	},
 	success(content, duration = 3000) {
+		if (isMessageEmpty(content)) {
+			triggerToast({ type: 'error', content: 'Message is empty', duration });
+			return;
+		}
+
 		this.show({ type: 'success', content, duration });
 	},
 	warning(content, duration = 3000) {
+		if (isMessageEmpty(content)) {
+			triggerToast({ type: 'error', content: 'Message is empty', duration });
+			return;
+		}
+
 		this.show({ type: 'warning', content, duration });
 	},
 	error(content, duration = 3000) {
+		if (isMessageEmpty(content)) {
+			triggerToast({ type: 'error', content: 'Message is empty', duration });
+			return;
+		}
+
 		this.show({ type: 'error', content, duration });
 	},
 	loading(content) {
-		this.show({ type: 'loading', content, duration: 0 });
+		if (isMessageEmpty(content)) {
+			triggerToast({ type: 'error', content: 'Message is empty', duration: 0 });
+			return;
+		}
+
+		this.show({ type: 'loading', content, duration: 0 }); // Infinite
+	},
+	destroy() {
+		if (triggerToast) {
+			// Use empty data to trigger exit animation and cleanup
+			triggerToast({ type: '', content: '', duration: 0 });
+		}
 	},
 };
 
-export { CustomToast, message };
+export default memo(CustomToast);
+export { message };

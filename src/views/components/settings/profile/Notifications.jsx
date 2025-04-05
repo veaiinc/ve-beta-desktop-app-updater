@@ -2,8 +2,9 @@ import React, { memo, useState, useEffect, useContext } from 'react';
 import { ReactComponent as EmailIcon } from '../../../../assets/svg/notification/email.svg';
 import { ReactComponent as WhatsappIcon } from '../../../../assets/svg/notification/whatsApp.svg';
 import { ReactComponent as SlackIcon } from '../../../../assets/svg/notification/slack.svg';
-import { message, Switch } from 'antd';
+import { Switch } from 'antd';
 import Context from '../../../../context/context';
+import { message } from '../../globalComponents/CustomToast';
 
 const appTypes = [
 	{

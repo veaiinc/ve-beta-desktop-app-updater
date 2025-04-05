@@ -1,6 +1,6 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import Context from '../../../../context/context';
-import { message } from 'antd';
+import { message } from '../../globalComponents/CustomToast';
 import HeaderComponent from './HeaderComponent';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { FetchMoreLoaderComp } from '../../../../helpers';

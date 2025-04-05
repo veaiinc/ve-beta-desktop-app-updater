@@ -6,7 +6,7 @@ import SocialMediaLinksComponent from '../../components/settings/brandsetup/Soci
 import BrandColorComponent from '../../components/settings/brandsetup/BrandColor';
 import ClientPortalComponent from '../../components/settings/brandsetup/ClientPortal';
 import BrandFontsComponent from '../../components/settings/brandsetup/BrandFonts';
-import { message } from 'antd';
+import { message } from '../../components/globalComponents/CustomToast';
 
 const BrandingSetup = () => {
 	// Contexts
@@ -21,8 +21,6 @@ const BrandingSetup = () => {
 			updateClientPortalPreference,
 		},
 	} = useContext(Context);
-
-	const [messageApi, contextHolder] = message.useMessage();
 
 	// useStates
 	const [brandState, setbrandState] = useState({
@@ -102,13 +100,6 @@ const BrandingSetup = () => {
 		}
 	}, [tenantPreferenceData]);
 
-	const messageFunction = (type, message) => {
-		messageApi.open({
-			type,
-			content: message,
-		});
-	};
-
 	// Functions
 	const handleSelectedColor = async (selectedColor) => {
 		const isAlreadyExist = brandState.brandingThemes.find(
@@ -126,13 +117,13 @@ const BrandingSetup = () => {
 
 		const response = await updatePrefernces(json);
 		if (response[0]) {
-			messageFunction('success', 'Brand color is uploaded successfully');
+			message.success('Brand color is uploaded successfully');
 			setbrandState((prev) => ({
 				...prev,
 				brandingThemes: json?.brandingThemes,
 			}));
 		} else {
-			messageFunction('error', 'Brand color is removed successfully');
+			message.error('Brand color is removed successfully');
 		}
 	};
 
@@ -152,9 +143,9 @@ const BrandingSetup = () => {
 
 		const response = await updatePrefernces(json);
 		if (response[0]) {
-			messageFunction('success', 'successfully brand color is removed');
+			message.success('successfully brand color is removed');
 		} else {
-			messageFunction('error', 'Failed to remove brand color');
+			message.error('Failed to remove brand color');
 		}
 	};
 
@@ -184,18 +175,16 @@ const BrandingSetup = () => {
 		};
 		const response = await updateClientPortalPreference(json);
 		if (response[0]) {
-			messageFunction('success', 'successfully client portal theme is updated');
+			message.success('successfully client portal theme is updated');
 			setbrandState((prev) => ({ ...prev, isThemeChange: false }));
 		} else {
-			messageFunction('error', 'Failed to apply the theme');
+			message.error('Failed to apply the theme');
 		}
 		setbrandState((prev) => ({ ...prev, themeButtonLoading: false }));
 	};
 
 	return (
 		<>
-			{contextHolder}
-
 			<div className="brandsetupContainer">
 				{/* Social Links */}
 				<div className="settingsBoxContainer socialLinkContainer">
