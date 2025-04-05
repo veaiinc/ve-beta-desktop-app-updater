@@ -409,35 +409,40 @@ const Integrations = () => {
 					</button>
 				</div>
 
-				{activeTab === 'private' ? (
-					<>
-						<section className="connected-integrations">
-							<h2>Connected Integrations</h2>
-							<div className="connected-integrations-list">
-								{connectedPlatforms.map((integration) => (
-									<ConnectedIntegrationCard
-										key={integration?.id}
-										{...integration}
-										onViewAccounts={handleSelectedCardModel}
-									/>
-								))}
-							</div>
-						</section>
+				{/* {activeTab === 'private' ? (
+					<> */}
+				{connectedPlatforms.length !== 0 ? (
+					<section className="connected-integrations">
+						<h2>Connected Integrations</h2>
 
-						<section className="available-integrations">
-							<h2>Available Integrations</h2>
-							<div className="integrations-grid">
-								{availableIntegrations?.map((integration) => (
-									<AvailableIntegrationCard
-										key={integration?.id}
-										{...integration}
-										onConnect={handleConnect}
-										connectLoader={connectLoader}
-									/>
-								))}
-							</div>
-						</section>
-						{/* 
+						<div className="connected-integrations-list">
+							{connectedPlatforms.map((integration) => (
+								<ConnectedIntegrationCard
+									key={integration?.id}
+									{...integration}
+									onViewAccounts={handleSelectedCardModel}
+								/>
+							))}
+						</div>
+					</section>
+				) : (
+					''
+				)}
+
+				<section className="available-integrations">
+					<h2>Available Integrations</h2>
+					<div className="integrations-grid">
+						{availableIntegrations?.map((integration) => (
+							<AvailableIntegrationCard
+								key={integration?.id}
+								{...integration}
+								onConnect={handleConnect}
+								connectLoader={connectLoader}
+							/>
+						))}
+					</div>
+				</section>
+				{/* 
 						<section className="request-integrations">
 							<h2>Which integrations you would like to connect?</h2>
 							<div className="request-integrations-grid">
@@ -446,13 +451,13 @@ const Integrations = () => {
 								))}
 							</div>
 						</section> */}
-					</>
+				{/* </>
 				) : (
 					<div className="shared-integrations">
 						<h2>Shared Integrations</h2>
 						<p>No shared integrations available</p>
 					</div>
-				)}
+				)} */}
 			</div>
 
 			<ConnectedIntegrationModel
