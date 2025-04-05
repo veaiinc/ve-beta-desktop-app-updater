@@ -97,7 +97,14 @@ const Integrations = () => {
 	const [connectedAccountsModel, setConnectedAccountsModel] = useState(false);
 	const [activeTab, setActiveTab] = useState('private');
 	const [connectLoader, setConnectLoader] = useState(false);
+	const {
+		profileInfo: { tenantUserAccessControls },
+	} = useContext(Context);
+	let isAdmin = false;
 
+	if (tenantUserAccessControls?.role === 'admin') {
+		isAdmin = true;
+	}
 	const handleConnect = async (integration) => {
 		setSelectedIntegration(integration);
 		setConnectLoader({
@@ -401,12 +408,14 @@ const Integrations = () => {
 					>
 						Private
 					</button>
-					<button
-						className={`tab-button ${activeTab === 'shared' ? 'active' : ''}`}
-						onClick={() => setActiveTab('shared')}
-					>
-						Shared
-					</button>
+					{isAdmin && (
+						<button
+							className={`tab-button ${activeTab === 'shared' ? 'active' : ''}`}
+							onClick={() => setActiveTab('shared')}
+						>
+							Shared
+						</button>
+					)}
 				</div>
 
 				{/* {activeTab === 'private' ? (
