@@ -9,6 +9,7 @@ import ToolTipContainer from '../../components/popover/ToolTipContainer';
 import { ReactComponent as QuestionMark } from '../../../assets/svg/Settings/question_circle.svg';
 import PublicInformation from './PublicInformation';
 import BrandSetup from './BrandSetup';
+import CustomDomain from '../../components/settings/workspace/CustomDomain';
 
 const temporaryPlaceholderText = `
 The voice embodies values of:
@@ -69,6 +70,8 @@ const SettingsWorkspace = () => {
 				<div className="settingsBoxContainer workspaceHandleComponent">
 					<WorkspaceHandleComponent overviewState={overviewState} />
 				</div>
+				<div className="orContainer"></div>
+				<CustomDomain />
 				{/* <div className="brandVoiceContainer">
 				<h1 className="title">Brand Voice</h1>
 				<Tooltip
