@@ -334,6 +334,7 @@ const OpenedSideBarItemsComponent = ({
 		  ]
 		: [
 				{ name: 'My Profile', route: '/settings/my-profile' },
+				{ name: 'Integration', route: '/settings/integrations' },
 				{ name: 'AI Setup', route: '/settings/ai-setup' },
 		  ];
 
