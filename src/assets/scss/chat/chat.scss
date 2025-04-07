@@ -67,9 +67,24 @@
 				overflow-y: scroll;
 				position: relative;
 				.scroll-button {
-					position: absolute;
-					bottom: 0;
+					position: fixed;
+					bottom: 200px;
 					left: 50%;
+					transform: translateX(350%);
+					width: 40px;
+					height: 40px;
+					border-radius: 50%;
+					background-color: var(--card-over-card, #202123);
+					border: 1px solid var(--stroke, #333334);
+					color: var(--primary-font, #f2f2f3);
+					cursor: pointer;
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					font-size: 20px;
+					transition: all 0.3s ease;
+					z-index: 1000;
+					box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 				}
 				.chatContent {
 					display: flex;

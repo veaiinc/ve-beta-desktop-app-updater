@@ -642,15 +642,15 @@ const RecentChat = ({
 											</div>
 										),
 									)}
+									{info.showScrollButton && (
+										<button
+											className="scroll-button"
+											onClick={smoothScrollToBottom}
+										>
+											↓
+										</button>
+									)}
 								</div>
-								{info.showScrollButton && (
-									<button
-										className="scroll-button"
-										onClick={smoothScrollToBottom}
-									>
-										↓
-									</button>
-								)}
 							</InfiniteScroll>
 						</div>
 						<div className="chatBoxWrapper">
