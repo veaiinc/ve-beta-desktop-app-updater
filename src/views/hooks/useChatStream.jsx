@@ -1,4 +1,9 @@
-import React, { useCallback, useRef, useEffect } from 'react';
+import { useCallback, useRef, useEffect } from 'react';
+
+const agentTypeMap = {
+	search_agent: 'search_agent_streaming',
+	knowledge_agent: 'knowledge_agent_chat_streaming',
+};
 
 const useChatStream = () => {
 	const socketRef = useRef(null);
@@ -97,14 +102,7 @@ const useChatStream = () => {
 			messageHandlerRef.current = onMessageFunc;
 			isPublicChatRef.current = isPublicChat;
 
-			let agent = '';
-			if (agentType === 'search_agent') {
-				agent = 'search_agent_streaming';
-			} else if (agentType === 'knowledge_agent') {
-				agent = 'knowledge_agent_chat_streaming';
-			} else {
-				agent = 'multi_agent_chat_streaming';
-			}
+			const agent = agentTypeMap[agentType] || 'multi_agent_chat_streaming';
 			agentTypeRef.current = agent;
 
 			const usertoken = localStorage.getItem('usertoken');

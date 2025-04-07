@@ -7,10 +7,12 @@ import { ReactComponent as SunSvg } from '../../../assets/svg/sun.svg';
 import Context from '../../../context/context';
 import { useNavigate } from 'react-router-dom';
 const PublicChat = () => {
+	const navigate = useNavigate();
+
 	const {
 		themeInfo: { theme, updateTheme },
 	} = useContext(Context);
-	const navigate = useNavigate();
+
 	const handleLoginBtnClick = () => {
 		navigate('/verify-user');
 	};
