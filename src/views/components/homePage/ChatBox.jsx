@@ -141,7 +141,7 @@ const ChatBox = ({
 	const [info, setInfo] = useState({
 		bigToolbarIsOpen: false,
 		chatQuery: '',
-		position: { x: window.innerWidth / 2 - 900, y: 0 },
+		position: { x: window?.innerWidth / 2 - 900, y: 0 },
 		addQuickAction: false,
 		chatSessionId: null,
 		uploadedImages: uploadedImages,
@@ -425,8 +425,6 @@ const ChatBox = ({
 		}));
 	};
 
-	console.log(recentFilesRef?.current, uploadedImagesRef?.current, 'recentFilesRef');
-
 	const handleSendMessageFunc = useCallback(
 		async (e, click = null, query = null) => {
 			if (e?.key === 'Enter' || click) {
@@ -489,29 +487,6 @@ const ChatBox = ({
 							handlePreview,
 						};
 					}
-					if (activeWorkflowSlugForSmartFile) {
-						payload.workflow_slug = activeWorkflowSlugForSmartFile;
-					}
-
-					if (
-						!chatInfo?.webSearch &&
-						!chatInfo?.workspaceSearch &&
-						!uploadedImagesRef?.current?.length &&
-						!recentFilesRef?.current?.length
-					) {
-						payload.selected_model = chatInfo?.selectedLLMModel;
-					}
-
-					setInfo((prev) => ({
-						...prev,
-						uploadedImages: [],
-						chatQuery: '',
-						// recentFiles: [],// not clearing the recent files , because they want like sana
-						chatFilters: initialChatFilters,
-					}));
-
-					clearTextArea();
-
 					if (recentFilesRef?.current?.length > 0) {
 						if (payload?.files && payload.files?.length > 0) {
 							payload.files = [
@@ -528,6 +503,41 @@ const ChatBox = ({
 							}));
 						}
 					}
+					if (activeWorkflowSlugForSmartFile) {
+						payload.workflow_slug = activeWorkflowSlugForSmartFile;
+					}
+
+					if (
+						!chatInfo?.webSearch &&
+						!chatInfo?.workspaceSearch &&
+						!uploadedImagesRef?.current?.length &&
+						!recentFilesRef?.current?.length
+					) {
+						payload.selected_model = chatInfo?.selectedLLMModel;
+					}
+
+					//this payload props are for public chat
+					if (isPublicChat) {
+						const user_id = localStorage?.getItem('user_id');
+						const location_details = JSON?.parse(
+							localStorage?.getItem('locationDetails'),
+						);
+						const ip_address = localStorage?.getItem('ipAddress');
+
+						payload.user_id = user_id ?? null;
+						payload.location_details = location_details || {};
+						payload.ip_address = ip_address ?? null;
+					}
+
+					setInfo((prev) => ({
+						...prev,
+						uploadedImages: [],
+						chatQuery: '',
+						// recentFiles: [],// not clearing the recent files , because they want like sana
+						chatFilters: initialChatFilters,
+					}));
+
+					clearTextArea();
 
 					if (customChatActions) {
 						return onSend({

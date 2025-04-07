@@ -9,7 +9,7 @@ import NoteComponentModal from '../../components/notes/NoteComponentModal';
 import ChatBox from '../../components/homePage/ChatBox';
 import { useParams, useSearchParams } from 'react-router-dom';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import { FetchMoreLoaderComp } from '../../../helpers';
+import { FetchMoreLoaderComp, getLocationsDetails } from '../../../helpers';
 import { debounce } from 'lodash';
 import useChatStream from '../../hooks/useChatStream';
 import ObjectID from 'bson-objectid';
@@ -109,6 +109,11 @@ const RecentChat = ({
 	}, []);
 
 	useEffect(() => {
+		if (!isPublicChat) return;
+		makePublicChatRequest();
+	}, []);
+
+	useEffect(() => {
 		window.addEventListener('resize', handleResize);
 		if (leftSidebarState === 'open') {
 			updateStateValues({ leftSidebarState: 'close' });
@@ -118,26 +123,6 @@ const RecentChat = ({
 
 		const agentType = searchParams?.get('agentType');
 		const assistantId = searchParams?.get('assistantId');
-		const userMessage = searchParams?.get('message');
-		const web_search = searchParams?.get('web_search');
-		const deep_research = searchParams?.get('deep_research');
-		// const deep
-		if (userMessage) {
-			const data = {
-				currentQuery: userMessage,
-				localPayload: {},
-				payload: {
-					date: [],
-					web_search: web_search || true,
-					deep_research: deep_research || false,
-					knowledge_base_search: false,
-					modules: [],
-					query: userMessage,
-					timezone: 'Asia/Calcutta',
-				},
-			};
-			updateStateValues({ activePayloadForChat: data });
-		}
 
 		if (agentType && assistantId) {
 			updateStateValues({ chatInfo: { ...chatInfo, agentType, assistantId } });
@@ -435,6 +420,40 @@ const RecentChat = ({
 			};
 		}
 	}, [handleScroll]);
+
+	const makePublicChatRequest = async () => {
+		const userMessage = searchParams?.get('message');
+		const web_search = searchParams?.get('web_search');
+		const deep_research = searchParams?.get('deep_research');
+
+		let location_details = localStorage?.getItem('locationDetails');
+
+		if (!location_details) {
+			location_details = await getLocationsDetails();
+			location_details = JSON?.parse(location_details);
+		}
+		const ip_address = localStorage?.getItem('ipAddress') || null;
+
+		if (userMessage) {
+			const data = {
+				currentQuery: userMessage,
+				localPayload: {},
+				payload: {
+					date: [],
+					web_search: web_search || true,
+					deep_research: deep_research || false,
+					knowledge_base_search: false,
+					modules: [],
+					query: userMessage,
+					timezone: 'Asia/Calcutta',
+					user_id: null,
+					location_details,
+					ip_address,
+				},
+			};
+			updateStateValues({ activePayloadForChat: data });
+		}
+	};
 
 	const handleResize = (time = 300) => {
 		if (throttleTimer) return;
