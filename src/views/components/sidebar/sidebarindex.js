@@ -2,28 +2,11 @@
 
 import CalendarSvg from '../../../assets/svg/sidebar/CalendarSvg.jsx';
 import { ReactComponent as NotificationSvg } from '../../../assets/svg/sidebar/notification.svg';
-
-// import LayoutSvg from '../../../assets/svg/sidebar/LayoutSvg.jsx';
-// import AtSignSvg from '../../../assets/svg/sidebar/AtSignSvg.jsx';
-// import AttachMoneySvg from '../../../assets/svg/sidebar/AttachMoneySvg.jsx';
-// import FinanceSvg from '../../../assets/svg/sidebar/FinanceSvg.jsx';
-// import MailOutlineSvg from '../../../assets/svg/sidebar/MailOutlineSvg.jsx';
-// import InsertLinkSvg from '../../../assets/svg/sidebar/InsertLinkSvg.jsx';
-// import BookSvg from '../../../assets/svg/sidebar/BookSvg.jsx';
-// import FlowArrowSvg from '../../../assets/svg/sidebar/FlowArrowSvg.jsx';
-// import PlusSvg from '../../../assets/svg/sidebar/PlusSvg.jsx';
-// import AppartmentHomeSvg from '../../../assets/svg/sidebar/AppartmentHomeSvg.jsx';
-// import { ReactComponent as CrownSvg } from '../../../assets/svg/sidebar/Crown.svg';
-// import SquareFour from '../../../assets/svg/sidebar/SquareFour.jsx';
 import GiftSvg from '../../../assets/svg/sidebar/GiftSvg.jsx';
 import SettingsSvg from '../../../assets/svg/sidebar/SettingsSvg.jsx';
-import { ReactComponent as GallerySvg } from '../../../assets/svg/sidebar/Gallery.svg';
-import TaskSvg from '../../../assets/svg/sidebar/TaskSvg.jsx';
-import { ReactComponent as AIAssistantSvg } from '../../../assets/svg/sidebar/AiAssistant.svg';
-import { ReactComponent as PlaybookSvg } from '../../../assets/svg/sidebar/Playbook.svg';
-import SchedulerSvg from '../../../assets/svg/sidebar/SchedulerSvg.jsx';
-import TranscriptSvg from '../../../assets/svg/sidebar/TranscriptSvg.jsx';
-import AddCalenderSvg from '../../../assets/svg/sidebar/AddCalenderSvg';
+import { ReactComponent as FilesSvg } from '../../../assets/svg/sidebar/filesIcon.svg';
+import { ReactComponent as SearchSvg } from '../../../assets/svg/sidebar/searchIcon.svg';
+import { ReactComponent as AgentsSvg } from '../../../assets/svg/sidebar/agentsIcon.svg';
 import HomeSvg from '../../../assets/svg/sidebar/HomeSvg.jsx';
 import { ReactComponent as OrchestratorSvg } from '../../../assets/svg/sidebar/Orchestrator.svg';
 import TemplatesSvg from '../../../assets/svg/sidebar/TemplatesSvg.jsx';
@@ -103,6 +86,13 @@ export const veAiModulesItemsList = [
 			},
 		],
 	},
+];
+
+export const veAiNewModules = [
+	{ id: 0, name: 'Home', route: '/home', icon: HomeSvg },
+	{ id: 1, name: 'Files', route: '', icon: FilesSvg },
+	{ id: 2, name: 'Search', route: '', icon: SearchSvg },
+	{ id: 3, name: 'Agents', route: '', icon: AgentsSvg },
 ];
 
 //

@@ -1,6 +1,6 @@
 import React, { useState, memo, useCallback, useEffect, useContext } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { veAiModulesItemsList, veAiModules } from './sidebarindex';
+import { veAiModulesItemsList, veAiModules, veAiNewModules } from './sidebarindex';
 import { ReactComponent as ArrowUpRightSvg } from '../../../assets/svg/sidebar/arrowupright.svg';
 import { ReactComponent as DownArrowSmallSvg } from '../../../assets/svg/sidebar/downarrowsmall.svg';
 import { ReactComponent as NotificationSvg } from '../../../assets/svg/sidebar/notification.svg';
@@ -27,7 +27,7 @@ const MODULE_NAME_MAP = {
 	contacts: 'contact',
 };
 
-const OpenedSideBarHoverStateIcons = ({
+const OpenedSidebarModules = ({
 	name,
 	Icon,
 	route,
@@ -46,6 +46,7 @@ const OpenedSideBarHoverStateIcons = ({
 	setShowChatsDrawer,
 	setShowNotesDrawer,
 	setHideClosedSidebarIcon,
+	selectedOption,
 }) => {
 	let {
 		aiSetup: { isVoiceIntegrationActive },
@@ -141,15 +142,24 @@ const OpenedSideBarHoverStateIcons = ({
 				<div
 					style={{
 						display: 'flex',
-						justifyContent: 'space-between',
+						justifyContent: 'flex-start',
+						gap: '14px',
 						alignItems: 'center',
 						width: '100%',
 					}}
 				>
-					<p>{name}</p>
 					{Icon && (
-						<Icon fill={isExactPathMatch() ? '#FFF' : isHover ? '#FFF' : '#FFF'} />
+						<Icon
+							fill={
+								isExactPathMatch()
+									? 'var(--primary-button)'
+									: isHover
+									? 'var(--primary-font)'
+									: 'var(--primary-font)'
+							}
+						/>
 					)}
+					<p>{name}</p>
 				</div>
 				{isDropdownVisible && subModules?.length > 0 && (
 					<div>
@@ -288,7 +298,7 @@ const AiModulesList = ({ image, name, route, navigateTo }) => {
 	);
 };
 
-const OpenedSideBarItemsComponent = ({
+const OpenedSidebar = ({
 	sidebarStates,
 	setsidebarStates,
 	info,
@@ -483,9 +493,9 @@ const OpenedSideBarItemsComponent = ({
 
 	const filteredModules =
 		tenantUserAccessControls?.role === 'admin'
-			? veAiModulesItemsList
+			? veAiNewModules
 			: filterModules(
-					veAiModulesItemsList,
+					veAiNewModules,
 					tenantUserAccessControls?.accessControls,
 					allPossibleApps,
 			  );
@@ -614,10 +624,9 @@ const OpenedSideBarItemsComponent = ({
 															margin: '16px 0px',
 														}}
 													/>
-
 													{filteredModules?.map((singleItem) => (
 														<div key={singleItem.id}>
-															<OpenedSideBarHoverStateIcons
+															<OpenedSidebarModules
 																name={singleItem.name}
 																Icon={singleItem.icon}
 																initialColor={
@@ -680,7 +689,7 @@ const OpenedSideBarItemsComponent = ({
 
 													{filterModules2?.map((singleItem, index) => (
 														<div key={index}>
-															<OpenedSideBarHoverStateIcons
+															<OpenedSidebarModules
 																name={singleItem.name}
 																Icon={singleItem.icon}
 																initialColor={
@@ -847,4 +856,4 @@ const OpenedSideBarItemsComponent = ({
 	);
 };
 
-export default memo(OpenedSideBarItemsComponent);
+export default memo(OpenedSidebar);
