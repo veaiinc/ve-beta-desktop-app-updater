@@ -1,4 +1,4 @@
-import React from 'react';
+import { memo } from 'react';
 const MicroscopeSvg = ({ selected }) => {
 	const strokeColor = selected ? 'black' : 'var(--primary-font)';
 	return (
@@ -47,4 +47,4 @@ const MicroscopeSvg = ({ selected }) => {
 		</svg>
 	);
 };
-export default MicroscopeSvg;
+export default memo(MicroscopeSvg);

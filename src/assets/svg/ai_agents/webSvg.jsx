@@ -1,4 +1,4 @@
-import React from 'react';
+import { memo } from 'react';
 const WebSvg = ({ selected }) => {
 	const strokeColor = selected ? 'black' : 'var(--primary-font)';
 	return (
@@ -47,4 +47,4 @@ const WebSvg = ({ selected }) => {
 		</svg>
 	);
 };
-export default WebSvg;
+export default memo(WebSvg);

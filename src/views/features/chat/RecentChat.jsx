@@ -1,8 +1,7 @@
-import React, { memo, useCallback, useState, useRef, useEffect, useContext, useMemo } from 'react';
+import React, { memo, useCallback, useState, useRef, useEffect, useContext } from 'react';
 import '../../../assets/scss/chat/chat.scss';
 import { ReactComponent as ExpandChatIcon } from '../../../assets/svg/ai_agents/expand-chat-icon.svg';
 import Context from '../../../context/context';
-import Markdown from 'react-markdown';
 import { TypingEffect, UserMessageRenderer } from '../../../helpers/markdownHelper';
 import CitationsModal from '../../components/modalsV2/chat/CitationsModal';
 import NoteComponentModal from '../../components/notes/NoteComponentModal';
@@ -18,6 +17,7 @@ import { ReactComponent as LinkIcon } from '../../../assets/svg/ai_agents/link.s
 import { ReactComponent as Logo } from '../../../assets/svg/loader/loaderLogo.svg';
 
 let throttleTimer = null;
+
 const RecentChat = ({
 	outerContainerStyle = {},
 	chatList = [],
@@ -43,19 +43,6 @@ const RecentChat = ({
 			leftSidebarState,
 		},
 	} = useContext(Context);
-
-	const { socketRef, createWebSocketConnection, sendMessage } = useChatStream();
-	const chatContentRef = useRef(null);
-	const loadingMessageRef = useRef(globalLoadingMesssage);
-	const chatMessagesRef = useRef(globalChatMessages || []);
-	const { sessionId } = useParams();
-	const [searchParams, setSearchParams] = useSearchParams();
-	const aiMessagesRef = useRef([]);
-	const previousAiMessagesRef = useRef([]);
-	const aiCitationsByIdRef = useRef({});
-	const tabsRefs = useRef({});
-	const previousTabsRefs = useRef({});
-	const isFirstTimeConnectingToPublicChatRef = useRef(true);
 
 	const [info, setInfo] = useState({
 		expanded: false,
@@ -87,26 +74,18 @@ const RecentChat = ({
 		stickyTabs: {},
 	});
 
-	const getFaviconUrl = useCallback((url) => {
-		try {
-			const domain = new URL(url).hostname;
-			return `https://www.google.com/s2/favicons?sz=64&domain=${domain}`;
-		} catch (error) {
-			return null;
-		}
-	}, []);
-
-	const getWebsiteName = useCallback((url) => {
-		try {
-			const domain = new URL(url).hostname;
-			// Remove common TLDs and www
-			let name = domain.replace(/^www\./i, '').split('.')[0];
-			// Capitalize first letter
-			return name.charAt(0).toUpperCase() + name.slice(1);
-		} catch (error) {
-			return url;
-		}
-	}, []);
+	const { socketRef, createWebSocketConnection, sendMessage } = useChatStream();
+	const chatContentRef = useRef(null);
+	const loadingMessageRef = useRef(globalLoadingMesssage);
+	const chatMessagesRef = useRef(globalChatMessages || []);
+	const { sessionId } = useParams();
+	const [searchParams, setSearchParams] = useSearchParams();
+	const aiMessagesRef = useRef([]);
+	const previousAiMessagesRef = useRef([]);
+	const aiCitationsByIdRef = useRef({});
+	const tabsRefs = useRef({});
+	const previousTabsRefs = useRef({});
+	const isFirstTimeConnectingToPublicChatRef = useRef(true);
 
 	useEffect(() => {
 		if (!isPublicChat) return;
@@ -421,6 +400,27 @@ const RecentChat = ({
 		}
 	}, [handleScroll]);
 
+	const getFaviconUrl = useCallback((url) => {
+		try {
+			const domain = new URL(url).hostname;
+			return `https://www.google.com/s2/favicons?sz=64&domain=${domain}`;
+		} catch (error) {
+			return null;
+		}
+	}, []);
+
+	const getWebsiteName = useCallback((url) => {
+		try {
+			const domain = new URL(url).hostname;
+			// Remove common TLDs and www
+			let name = domain.replace(/^www\./i, '').split('.')[0];
+			// Capitalize first letter
+			return name.charAt(0).toUpperCase() + name.slice(1);
+		} catch (error) {
+			return url;
+		}
+	}, []);
+
 	const makePublicChatRequest = async () => {
 		const userMessage = searchParams?.get('message');
 		const web_search = searchParams?.get('web_search');
@@ -430,29 +430,28 @@ const RecentChat = ({
 
 		if (!location_details) {
 			location_details = await getLocationsDetails();
-			location_details = JSON?.parse(location_details);
 		}
+		location_details = JSON?.parse(location_details);
+
 		const ip_address = localStorage?.getItem('ipAddress') || null;
 
-		if (userMessage) {
-			const data = {
-				currentQuery: userMessage,
-				localPayload: {},
-				payload: {
-					date: [],
-					web_search: web_search || true,
-					deep_research: deep_research || false,
-					knowledge_base_search: false,
-					modules: [],
-					query: userMessage,
-					timezone: 'Asia/Calcutta',
-					user_id: null,
-					location_details,
-					ip_address,
-				},
-			};
-			updateStateValues({ activePayloadForChat: data });
-		}
+		const data = {
+			currentQuery: userMessage,
+			localPayload: {},
+			payload: {
+				date: [],
+				web_search: web_search || true,
+				deep_research: deep_research || false,
+				knowledge_base_search: false,
+				modules: [],
+				query: userMessage,
+				timezone: location_details?.timezone || 'Asia/Calcutta',
+				user_id: null,
+				location_details,
+				ip_address,
+			},
+		};
+		updateStateValues({ activePayloadForChat: data });
 	};
 
 	const handleResize = (time = 300) => {
@@ -643,8 +642,6 @@ const RecentChat = ({
 		setInfo((prev) => ({ ...prev, latestStreamMesage: null }));
 	}, []);
 
-	const memoizedChatMessages = useMemo(() => globalChatMessages, [globalChatMessages]);
-
 	return (
 		<>
 			<div className="chat-container">
@@ -697,7 +694,7 @@ const RecentChat = ({
 								className="smooth-scroll"
 							>
 								<div className="chatContent" style={{ flex: 1 }}>
-									{(memoizedChatMessages || [])?.map((chat, index) =>
+									{(globalChatMessages || [])?.map((chat, index) =>
 										chat?.content ? (
 											chat?.content
 										) : (

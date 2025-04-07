@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useState, useRef, useEffect, useContext } from 'react';
+import { memo, useCallback, useState, useRef, useEffect, useContext } from 'react';
 import '../../../assets/scss/home_page/chatbox.scss';
 import { ReactComponent as Close } from '../../../assets/svg/close.svg';
 import { ReactComponent as ArrowUp } from '../../../assets/svg/ai_agents/arrow-up-dark.svg';
