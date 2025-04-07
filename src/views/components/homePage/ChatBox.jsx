@@ -106,6 +106,7 @@ const ChatBox = ({
 	latestStreamMesage,
 	lastQuery,
 	toggleLatestStreamMessage,
+	isPublicChat = false,
 }) => {
 	const {
 		templates: {
@@ -138,8 +139,6 @@ const ChatBox = ({
 	const location = useLocation();
 
 	const [info, setInfo] = useState({
-		expanded: false,
-		inputExpanded: false,
 		bigToolbarIsOpen: false,
 		chatQuery: '',
 		position: { x: window.innerWidth / 2 - 900, y: 0 },
@@ -378,7 +377,9 @@ const ChatBox = ({
 	};
 
 	const handleRemoveFileFromRecentFileClick = (file) => {
-		const updatedRecentFiles = recentFilesRef?.current?.filter((ele) => ele?._id !== file?._id);
+		const updatedRecentFiles = recentFilesRef?.current?.filter(
+			(ele) => ele?._id !== file?._id || ele?.uniqueId !== file?.uniqueId,
+		);
 		recentFilesRef.current = updatedRecentFiles;
 		setInfo((prev) => ({
 			...prev,
@@ -758,8 +759,6 @@ const ChatBox = ({
 
 			setInfo((prev) => ({
 				...prev,
-				expanded: true,
-				inputExpanded: true,
 				uploadedImages,
 				recentFiles,
 			}));
@@ -836,9 +835,19 @@ const ChatBox = ({
 			textArea.style.height = 'auto';
 			textArea.style.height = textArea.scrollHeight + 'px';
 		}
+		const query = e.target.value;
+		if (query?.trim()?.length > 0) {
+			const lastChar = query?.trim()?.slice(-1);
+			if (lastChar === '@' && !info?.isUploadFileOpen) {
+				setInfo((prev) => ({
+					...prev,
+					isUploadFileOpen: true,
+				}));
+			}
+		}
 		setInfo((prev) => ({
 			...prev,
-			chatQuery: e.target.value,
+			chatQuery: query,
 		}));
 	};
 
