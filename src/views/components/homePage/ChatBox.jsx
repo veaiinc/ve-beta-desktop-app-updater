@@ -425,6 +425,8 @@ const ChatBox = ({
 		}));
 	};
 
+	console.log(recentFilesRef?.current, uploadedImagesRef?.current, 'recentFilesRef');
+
 	const handleSendMessageFunc = useCallback(
 		async (e, click = null, query = null) => {
 			if (e?.key === 'Enter' || click) {
@@ -477,9 +479,10 @@ const ChatBox = ({
 					}
 					let localPayload = {};
 					if (uploadedImagesRef?.current?.length) {
-						payload.files = uploadedImagesRef?.current?.map(
-							(ele) => ele?.name || 'Untitled Image',
-						);
+						payload.files = uploadedImagesRef?.current?.map((ele) => ({
+							id: ele?.fileId || null,
+							name: ele?.name || 'Untitled Image',
+						}));
 
 						localPayload = {
 							files: uploadedImagesRef?.current || [],
@@ -513,14 +516,16 @@ const ChatBox = ({
 						if (payload?.files && payload.files?.length > 0) {
 							payload.files = [
 								...payload.files,
-								...recentFilesRef?.current?.map(
-									(ele) => ele?.originalFileName || ele?.title,
-								),
+								...recentFilesRef?.current?.map((ele) => ({
+									id: ele?._id || ele?.fileId || null,
+									name: ele?.originalFileName || ele?.title || 'Untitled File',
+								})),
 							];
 						} else {
-							payload.files = recentFilesRef?.current?.map(
-								(ele) => ele?.originalFileName || ele?.title,
-							);
+							payload.files = recentFilesRef?.current?.map((ele) => ({
+								id: ele?._id || ele?.fileId || null,
+								name: ele?.originalFileName || ele?.title || 'Untitled File',
+							}));
 						}
 					}
 
