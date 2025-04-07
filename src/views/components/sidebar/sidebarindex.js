@@ -103,6 +103,13 @@ export const veAiModulesItemsList = [
 			},
 		],
 	},
+	{
+		id: 9,
+		name: 'Knowledge Agent',
+		moduleRoute: '/knowledge-agent',
+		route: '/knowledge-agent',
+		icon: '',
+	},
 ];
 
 //
