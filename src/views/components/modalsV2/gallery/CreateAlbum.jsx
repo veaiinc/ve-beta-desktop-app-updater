@@ -8,7 +8,7 @@ import { ReactComponent as CrossWhite } from '../../../../assets/svg/workspaceSe
 import slugify from 'slugify';
 import dayjs from 'dayjs';
 
-const CreateAlbum = ({ open, closeModal, galleryId }) => {
+const CreateAlbum = ({ open, closeModal, galleryId, handleNewAlbumCreated }) => {
 	const {
 		galleryInfo: { createNewAlbum, checkAlbumSlugIsAvalible },
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
@@ -83,6 +83,7 @@ const CreateAlbum = ({ open, closeModal, galleryId }) => {
 		if (response?.[0] === true) {
 			closeModelFunction();
 			message.success('Album Created Successfully');
+			handleNewAlbumCreated(response?.[1]);
 		} else {
 			message.error(response?.[1]?.message);
 		}
