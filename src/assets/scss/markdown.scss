@@ -1,15 +1,16 @@
 /* Minimal CSS for the classes used */
-.list-decimal {
-	// list-style-type: decimal;
-	list-style-type: disc;
-}
+// .list-decimal {
+// 	// list-style-type: decimal;
+// 	list-style-type: disc;
+// }
 
 .list-outside {
 	list-style-position: outside;
-}
-
-.ml-4 {
-	// margin-left: 1rem; /* 16px */
+	padding-left: 2ch;
+	.list-item {
+		margin-bottom: 13px;
+		list-style-type: disc;
+	}
 }
 .ml-8 {
 	margin-left: 1rem; /* 32px */
@@ -18,10 +19,6 @@
 .py-1 {
 	padding-top: 0.25rem; /* 4px */
 	padding-bottom: 0.25rem; /* 4px */
-}
-
-.font-semibold {
-	font-weight: 600;
 }
 
 .markdown-pre {
@@ -48,12 +45,13 @@
 }
 
 .text-3xl {
-	font-size: 1.875em; /* 30px */
-	line-height: 2rem; /* 36px */
+	font-size: 28px; /* 30px */
+	line-height: 36px; /* 36px */
+	font-weight: normal;
 }
 
 .text-2xl {
-	font-size: 1.5em; /* 24px */
+	font-size: 24px; /* 24px */
 	line-height: 1.75rem; /* 32px */
 }
 
@@ -99,6 +97,7 @@
 
 .text-white {
 	color: var(--primary-font);
+	font-weight: 600;
 }
 // .common-markdown-font {
 // 	font-size: 16px;
@@ -205,10 +204,15 @@
 		line-height: 25px;
 		color: var(--primary-font);
 		letter-spacing: -0.02em;
-		font-weight: 400;
+		font-weight: 600;
 	}
+	.font-semibold {
+		font-weight: 600;
+	}
+
 	span {
 		letter-spacing: -0.02em;
+		font-weight: 400;
 	}
 }
 

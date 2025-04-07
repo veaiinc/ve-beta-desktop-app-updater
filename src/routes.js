@@ -52,6 +52,7 @@ import DocsFullView from './views/components/docs/DocsFullView';
 import FormFullView from './views/components/forms/FormFullView';
 import TaskFullView from './views/features/tasks/TaskFullView';
 import ExpandedClientView from './views/features/contacts/ExpandedClientView';
+import PublicChat from './views/features/public_chat/PublicChat';
 
 const routes = [
 	{
@@ -472,6 +473,10 @@ const routes = [
 				<RecentChat />
 			</AuthWrapper>
 		),
+	},
+	{
+		path: '/c/:sessionId',
+		component: <PublicChat />,
 	},
 	{
 		path: '/note/:noteId',

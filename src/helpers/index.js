@@ -56,8 +56,17 @@ export const getLocationsDetails = async () => {
 	const response = await axios.get(
 		'https://ipapi.co/json/?key=B17oRoM25399fyZGLiTtq5qbfNE2XaleKkzTmKdnPzGJfgo1UY',
 	);
-	const { country_code, region_code, region, country_name, city, timezone, postal, currency } =
-		response?.data;
+	const {
+		country_code,
+		region_code,
+		region,
+		country_name,
+		city,
+		timezone,
+		postal,
+		currency,
+		ip,
+	} = response?.data;
 	const locationDetails = {
 		countryCode: country_code,
 		countryRegionCode: region_code,
@@ -86,6 +95,7 @@ export const getLocationsDetails = async () => {
 	locationDetails.region = apiRegion;
 	localStorage.setItem('region', apiRegion);
 	localStorage.setItem('locationDetails', JSON.stringify(locationDetails));
+	localStorage.setItem('ipAddress', ip);
 	return locationDetails;
 };
 
