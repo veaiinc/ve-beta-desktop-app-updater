@@ -912,6 +912,7 @@ const RecentChat = ({
 						</div>
 						<div className="chatBoxWrapper">
 							<ChatBox
+								isPublicChat={isPublicChat}
 								handleSendWebsocketMessage={handleSendWebsocketMessage}
 								latestStreamMesage={info?.latestStreamMesage}
 								lastQuery={info?.lastQuery}

@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useState, useRef, useEffect, useContext } from 'react';
+import { memo, useCallback, useState, useRef, useEffect, useContext } from 'react';
 import '../../../assets/scss/home_page/chatbox.scss';
 import { ReactComponent as Close } from '../../../assets/svg/close.svg';
 import { ReactComponent as ArrowUp } from '../../../assets/svg/ai_agents/arrow-up-dark.svg';
@@ -106,6 +106,7 @@ const ChatBox = ({
 	latestStreamMesage,
 	lastQuery,
 	toggleLatestStreamMessage,
+	isPublicChat = false,
 }) => {
 	const {
 		templates: {
@@ -138,8 +139,6 @@ const ChatBox = ({
 	const location = useLocation();
 
 	const [info, setInfo] = useState({
-		expanded: false,
-		inputExpanded: false,
 		bigToolbarIsOpen: false,
 		chatQuery: '',
 		position: { x: window.innerWidth / 2 - 900, y: 0 },
@@ -378,7 +377,9 @@ const ChatBox = ({
 	};
 
 	const handleRemoveFileFromRecentFileClick = (file) => {
-		const updatedRecentFiles = recentFilesRef?.current?.filter((ele) => ele?._id !== file?._id);
+		const updatedRecentFiles = recentFilesRef?.current?.filter(
+			(ele) => ele?._id !== file?._id || ele?.uniqueId !== file?.uniqueId,
+		);
 		recentFilesRef.current = updatedRecentFiles;
 		setInfo((prev) => ({
 			...prev,
@@ -423,6 +424,8 @@ const ChatBox = ({
 			},
 		}));
 	};
+
+	console.log(recentFilesRef?.current, uploadedImagesRef?.current, 'recentFilesRef');
 
 	const handleSendMessageFunc = useCallback(
 		async (e, click = null, query = null) => {
@@ -476,9 +479,10 @@ const ChatBox = ({
 					}
 					let localPayload = {};
 					if (uploadedImagesRef?.current?.length) {
-						payload.files = uploadedImagesRef?.current?.map(
-							(ele) => ele?.name || 'Untitled Image',
-						);
+						payload.files = uploadedImagesRef?.current?.map((ele) => ({
+							id: ele?.fileId || null,
+							name: ele?.name || 'Untitled Image',
+						}));
 
 						localPayload = {
 							files: uploadedImagesRef?.current || [],
@@ -512,14 +516,16 @@ const ChatBox = ({
 						if (payload?.files && payload.files?.length > 0) {
 							payload.files = [
 								...payload.files,
-								...recentFilesRef?.current?.map(
-									(ele) => ele?.originalFileName || ele?.title,
-								),
+								...recentFilesRef?.current?.map((ele) => ({
+									id: ele?._id || ele?.fileId || null,
+									name: ele?.originalFileName || ele?.title || 'Untitled File',
+								})),
 							];
 						} else {
-							payload.files = recentFilesRef?.current?.map(
-								(ele) => ele?.originalFileName || ele?.title,
-							);
+							payload.files = recentFilesRef?.current?.map((ele) => ({
+								id: ele?._id || ele?.fileId || null,
+								name: ele?.originalFileName || ele?.title || 'Untitled File',
+							}));
 						}
 					}
 
@@ -758,8 +764,6 @@ const ChatBox = ({
 
 			setInfo((prev) => ({
 				...prev,
-				expanded: true,
-				inputExpanded: true,
 				uploadedImages,
 				recentFiles,
 			}));
@@ -836,9 +840,19 @@ const ChatBox = ({
 			textArea.style.height = 'auto';
 			textArea.style.height = textArea.scrollHeight + 'px';
 		}
+		const query = e.target.value;
+		if (query?.trim()?.length > 0) {
+			const lastChar = query?.trim()?.slice(-1);
+			if (lastChar === '@' && !info?.isUploadFileOpen) {
+				setInfo((prev) => ({
+					...prev,
+					isUploadFileOpen: true,
+				}));
+			}
+		}
 		setInfo((prev) => ({
 			...prev,
-			chatQuery: e.target.value,
+			chatQuery: query,
 		}));
 	};
 
