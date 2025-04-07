@@ -109,6 +109,8 @@ export const intialState = {
 		selectedLLMModel: null,
 		webSearch: false,
 		workspaceSearch: true,
+		agentType: null,
+		assistantId: null,
 	},
 	globalLoadingMesssage: null,
 	userEditedQuery: null,

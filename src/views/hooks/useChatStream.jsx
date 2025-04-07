@@ -5,7 +5,8 @@ const useChatStream = () => {
 	const inactivityTimeoutRef = useRef(null);
 	const currentSessionIdRef = useRef(null);
 	const messageHandlerRef = useRef(null);
-
+	const isPublicChatRef = useRef(false);
+	const agentTypeRef = useRef(null);
 	const MAX_RETRY_ATTEMPTS = 3;
 	const RETRY_DELAY = 1000; // 1 second
 
@@ -53,6 +54,8 @@ const useChatStream = () => {
 						createWebSocketConnection(
 							currentSessionIdRef.current,
 							messageHandlerRef.current,
+							agentTypeRef.current,
+							isPublicChatRef.current,
 						);
 						attempts++;
 						setTimeout(attemptSend, RETRY_DELAY);
@@ -86,15 +89,31 @@ const useChatStream = () => {
 	);
 
 	const createWebSocketConnection = useCallback(
-		(sessionId, onMessageFunc, onSendMessageFunc) => {
+		(sessionId, onMessageFunc, agentType, isPublicChat = false) => {
+			if (!sessionId && !isPublicChat) {
+				return;
+			}
 			currentSessionIdRef.current = sessionId;
 			messageHandlerRef.current = onMessageFunc;
+			isPublicChatRef.current = isPublicChat;
+
+			let agent = '';
+			if (agentType === 'search_agent') {
+				agent = 'search_agent_streaming';
+			} else if (agentType === 'knowledge_agent') {
+				agent = 'knowledge_agent_chat_streaming';
+			} else {
+				agent = 'multi_agent_chat_streaming';
+			}
+			agentTypeRef.current = agent;
+
 			const usertoken = localStorage.getItem('usertoken');
 			const workspaceId = localStorage.getItem('workspaceId');
 			const region = localStorage.getItem('region') || 'ap-south-1';
+
 			const baseUrl = `${
 				region === 'ap-south-1' ? 'wss://ai.ap-south-1.ve.ai' : 'wss://ai.us-east-1.ve.ai'
-			}/${workspaceId}/${sessionId}/multi_agent_chat_streaming?token=${usertoken}`;
+			}/${workspaceId}/${sessionId}/${agent}?token=${usertoken}`;
 
 			if (socketRef.current) {
 				socketRef.current.close();
