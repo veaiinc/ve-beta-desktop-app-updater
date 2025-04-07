@@ -1,13 +1,9 @@
-import React, { memo, useCallback, useState, useRef, useEffect, useContext, useMemo } from 'react';
+import { memo, useCallback, useState, useRef, useEffect, useContext } from 'react';
 import '../../../assets/scss/home_page/chatbox.scss';
 import { ReactComponent as Close } from '../../../assets/svg/close.svg';
 import { ReactComponent as ArrowUp } from '../../../assets/svg/ai_agents/arrow-up-dark.svg';
 import { ReactComponent as ChevronSvg } from '../../../assets/svg/tasks/chevronRightThin.svg';
-import { ReactComponent as MicroscopeLightSvg } from '../../../assets/svg/ai_agents/microscope-light.svg';
-import { ReactComponent as MicroscopeDarkSvg } from '../../../assets/svg/ai_agents/microscope-dark.svg';
-import { ReactComponent as WebDarkSvg } from '../../../assets/svg/ai_agents/web-dark.svg';
 import { ReactComponent as CloseSvg } from '../../../assets/svg/calendar/close.svg';
-import { ReactComponent as BuildingDarkSvg } from '../../../assets/svg/ai_agents/building-dark.svg';
 import { ReactComponent as TextSvg } from '../../../assets/svg/ai_agents/text.svg';
 import { ReactComponent as DocxSvg } from '../../../assets/svg/ai_agents/docx.svg';
 import { ReactComponent as JsonSvg } from '../../../assets/svg/ai_agents/json.svg';
@@ -15,13 +11,13 @@ import { ReactComponent as PdfSvg } from '../../../assets/svg/ai_agents/pdf.svg'
 import { ReactComponent as JpgSvg } from '../../../assets/svg/ai_agents/jpg.svg';
 import { ReactComponent as PngSvg } from '../../../assets/svg/ai_agents/png.svg';
 import { ReactComponent as MdSvg } from '../../../assets/svg/ai_agents/md.svg';
+import { ReactComponent as PlusSvg } from '../../../assets/svg/ai_assistant/plus.svg';
+import { ReactComponent as ExcelSvg } from '../../../assets/svg/ai_agents/excel.svg';
 import { ReactComponent as AudioSvg } from '../../../assets/svg/ai_agents/audio.svg';
 import { ReactComponent as LLMSvg } from '../../../assets/svg/ai_agents/llm.svg';
 import Context from '../../../context/context';
 import ObjectID from 'bson-objectid';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { ReactComponent as Filter } from '../../../assets/svg/my_templates/filter.svg';
-import { ReactComponent as PaperClip } from '../../../assets/svg/ai_agents/paper-clip.svg';
 import { checkDevices, getBase64 } from '../../../helpers';
 import WorkflowSlugSelector from '../../components/calendar/WorkflowSlugSelector';
 import SearchDropdown from '../chat/SearchDropdown';
@@ -31,6 +27,9 @@ import moment from 'moment';
 import { message, Image, Spin, Tooltip } from 'antd';
 import LLMTooltip from '../chat/LLMTooltip';
 import AIMessageLoader from '../chat/AIMessageLoader';
+import WebSvg from '../../../assets/svg/ai_agents/webSvg';
+import BuildingSvg from '../../../assets/svg/ai_agents/building';
+import MicroscopeSvg from '../../../assets/svg/ai_agents/microScopeSvg';
 import useUpdatedVoiceIntegration from '../../hooks/useUpdatedVoiceIntegration';
 
 const moduleHelper = {
@@ -72,6 +71,8 @@ const fileTypeIcons = {
 	json: <JsonSvg />,
 	md: <MdSvg />,
 	jpeg: <JpgSvg />,
+	xlsx: <ExcelSvg />,
+	xls: <ExcelSvg />,
 	'image/png': <PngSvg />,
 	'image/jpeg': <JpgSvg />,
 	'image/jpg': <JpgSvg />,
@@ -105,6 +106,7 @@ const ChatBox = ({
 	latestStreamMesage,
 	lastQuery,
 	toggleLatestStreamMessage,
+	isPublicChat = false,
 }) => {
 	const {
 		templates: {
@@ -123,6 +125,7 @@ const ChatBox = ({
 			followUpQuery,
 			chatInfo,
 			userEditedQuery,
+			galleryFile,
 		},
 		calendarInfo: { updateCalendarState },
 		tasks: { updateTaskState },
@@ -136,11 +139,9 @@ const ChatBox = ({
 	const location = useLocation();
 
 	const [info, setInfo] = useState({
-		expanded: false,
-		inputExpanded: false,
 		bigToolbarIsOpen: false,
 		chatQuery: '',
-		position: { x: window.innerWidth / 2 - 900, y: 0 },
+		position: { x: window?.innerWidth / 2 - 900, y: 0 },
 		addQuickAction: false,
 		chatSessionId: null,
 		uploadedImages: uploadedImages,
@@ -173,6 +174,26 @@ const ChatBox = ({
 			updateStateValues({ activePromptForChat: null });
 		}
 	}, [activePromptForChat]);
+
+	useEffect(() => {
+		if (galleryFile) {
+			recentFilesRef.current = [...recentFilesRef?.current, galleryFile];
+			updateStateValues({ galleryFile: null });
+		}
+	}, [galleryFile]);
+
+	useEffect(() => {
+		if (
+			!chatInfo?.agentType ||
+			(location?.pathname?.split('/')?.[1] !== 'chat' &&
+				location?.pathname?.split('/')?.[1] !== 'knowledge-agent' &&
+				chatInfo?.agentType === 'knowledge_agent')
+		) {
+			updateStateValues({
+				chatInfo: { ...chatInfo, agentType: 'multi_agent', assistantId: null },
+			});
+		}
+	}, []);
 
 	//useEffect to handle send user edited query
 	useEffect(() => {
@@ -356,7 +377,9 @@ const ChatBox = ({
 	};
 
 	const handleRemoveFileFromRecentFileClick = (file) => {
-		const updatedRecentFiles = recentFilesRef?.current?.filter((ele) => ele?._id !== file?._id);
+		const updatedRecentFiles = recentFilesRef?.current?.filter(
+			(ele) => ele?._id !== file?._id || ele?.uniqueId !== file?.uniqueId,
+		);
 		recentFilesRef.current = updatedRecentFiles;
 		setInfo((prev) => ({
 			...prev,
@@ -445,19 +468,40 @@ const ChatBox = ({
 						deep_research: chatInfo?.deepResearch,
 					};
 
+					if (chatInfo?.agentType === 'knowledge_agent') {
+						payload.assistant_id = chatInfo?.assistantId;
+					}
+
 					if (moduleHelper?.[location?.pathname?.split('/')?.[1]]) {
 						payload.screen = moduleHelper[location?.pathname?.split('/')?.[1]];
 					}
 					let localPayload = {};
 					if (uploadedImagesRef?.current?.length) {
-						payload.files = uploadedImagesRef?.current?.map(
-							(ele) => ele?.name || 'Untitled Image',
-						);
+						payload.files = uploadedImagesRef?.current?.map((ele) => ({
+							id: ele?.fileId || null,
+							name: ele?.name || 'Untitled Image',
+						}));
 
 						localPayload = {
 							files: uploadedImagesRef?.current || [],
 							handlePreview,
 						};
+					}
+					if (recentFilesRef?.current?.length > 0) {
+						if (payload?.files && payload.files?.length > 0) {
+							payload.files = [
+								...payload.files,
+								...recentFilesRef?.current?.map((ele) => ({
+									id: ele?._id || ele?.fileId || null,
+									name: ele?.originalFileName || ele?.title || 'Untitled File',
+								})),
+							];
+						} else {
+							payload.files = recentFilesRef?.current?.map((ele) => ({
+								id: ele?._id || ele?.fileId || null,
+								name: ele?.originalFileName || ele?.title || 'Untitled File',
+							}));
+						}
 					}
 					if (activeWorkflowSlugForSmartFile) {
 						payload.workflow_slug = activeWorkflowSlugForSmartFile;
@@ -472,6 +516,19 @@ const ChatBox = ({
 						payload.selected_model = chatInfo?.selectedLLMModel;
 					}
 
+					//this payload props are for public chat
+					if (isPublicChat) {
+						const user_id = localStorage?.getItem('user_id');
+						const location_details = JSON?.parse(
+							localStorage?.getItem('locationDetails'),
+						);
+						const ip_address = localStorage?.getItem('ipAddress');
+
+						payload.user_id = user_id ?? null;
+						payload.location_details = location_details || {};
+						payload.ip_address = ip_address ?? null;
+					}
+
 					setInfo((prev) => ({
 						...prev,
 						uploadedImages: [],
@@ -481,19 +538,6 @@ const ChatBox = ({
 					}));
 
 					clearTextArea();
-
-					if (recentFilesRef?.current?.length > 0) {
-						if (payload?.files && payload.files?.length > 0) {
-							payload.files = [
-								...payload.files,
-								...recentFilesRef?.current?.map((ele) => ele?.originalFileName),
-							];
-						} else {
-							payload.files = recentFilesRef?.current?.map(
-								(ele) => ele?.originalFileName,
-							);
-						}
-					}
 
 					if (customChatActions) {
 						return onSend({
@@ -705,19 +749,24 @@ const ChatBox = ({
 
 	const handleFileAttachmentChange = useCallback(
 		async ({ file }) => {
+			if (file?.size >= 5242880) {
+				message?.error('File size must be less than 5MB');
+				return;
+			}
+
 			let uploadedImages = [...(uploadedImagesRef?.current || [])];
 			let recentFiles = [...(recentFilesRef?.current || [])];
 			file.preview = await getBase64(file);
 			file.loading = true;
 			file.uniqueId = Date?.now() + '_' + Math?.floor(Math?.random() * 1000000);
 
-			if (file.type.includes('image')) {
+			if (file?.type?.includes('image')) {
 				uploadedImages?.push(file);
 				uploadedImagesRef.current = uploadedImages;
 			} else {
 				file.originalFileName = file.name;
 				file.sourceType = file.type;
-				recentFiles?.push(file);
+				recentFiles?.unshift(file);
 				recentFilesRef.current = recentFiles;
 			}
 
@@ -725,8 +774,6 @@ const ChatBox = ({
 
 			setInfo((prev) => ({
 				...prev,
-				expanded: true,
-				inputExpanded: true,
 				uploadedImages,
 				recentFiles,
 			}));
@@ -803,9 +850,19 @@ const ChatBox = ({
 			textArea.style.height = 'auto';
 			textArea.style.height = textArea.scrollHeight + 'px';
 		}
+		const query = e.target.value;
+		if (query?.trim()?.length > 0) {
+			const lastChar = query?.trim()?.slice(-1);
+			if (lastChar === '@' && !info?.isUploadFileOpen) {
+				setInfo((prev) => ({
+					...prev,
+					isUploadFileOpen: true,
+				}));
+			}
+		}
 		setInfo((prev) => ({
 			...prev,
-			chatQuery: e.target.value,
+			chatQuery: query,
 		}));
 	};
 
@@ -850,6 +907,18 @@ const ChatBox = ({
 			chatInfo: {
 				...chatInfo,
 				workspaceSearch: !chatInfo?.workspaceSearch,
+			},
+		});
+	};
+
+	const handleAgentClick = (agentType) => {
+		if (chatInfo?.agentType === agentType || info?.chatLoading) {
+			return;
+		}
+		updateStateValues({
+			chatInfo: {
+				...chatInfo,
+				agentType,
 			},
 		});
 	};
@@ -955,85 +1024,6 @@ const ChatBox = ({
 										) : (
 											<div className="buttons-container">
 												<div className="chat-icons-container">
-													<Tooltip
-														title={`${
-															chatInfo?.webSearch
-																? 'Disable'
-																: 'Enable'
-														} Web Search`}
-													>
-														<div
-															className="icon-container"
-															onClick={handleWebSearchClick}
-															style={{
-																background: `${
-																	chatInfo?.webSearch
-																		? 'var(--accent-color)'
-																		: 'var(--card-over-card)'
-																}`,
-															}}
-														>
-															<div className="icon">
-																<WebDarkSvg />
-															</div>
-														</div>
-													</Tooltip>
-													<Tooltip
-														title={`${
-															chatInfo?.workspaceSearch
-																? 'Disable'
-																: 'Enable'
-														} workspace Search`}
-													>
-														<div
-															className="icon-container"
-															onClick={handleWorkspaceSearchClick}
-															style={{
-																background: `${
-																	chatInfo?.workspaceSearch
-																		? 'var(--accent-color)'
-																		: 'var(--card)'
-																}`,
-															}}
-														>
-															<div className="icon">
-																<BuildingDarkSvg />
-															</div>
-														</div>
-													</Tooltip>
-
-													<Tooltip
-														title={`${
-															chatInfo?.deepResearch
-																? 'Disable Deep Research'
-																: 'Enable Deep Research'
-														} `}
-													>
-														<div
-															className="icon-container"
-															onClick={handleDeepResearchClick}
-															style={{
-																background: `${
-																	chatInfo?.deepResearch
-																		? 'var(--accent-color)'
-																		: 'var(--card)'
-																}`,
-																opacity: `${
-																	recentFilesRef.current?.length >
-																		0 ||
-																	uploadedImagesRef.current
-																		?.length > 0
-																		? '0.5'
-																		: '1'
-																}`,
-															}}
-														>
-															<div className="icon">
-																<MicroscopeDarkSvg />
-															</div>
-														</div>
-													</Tooltip>
-
 													<UploadFileTooltip
 														fileTypeIcons={fileTypeIcons}
 														handleChange={handleFileAttachmentChange}
@@ -1052,7 +1042,7 @@ const ChatBox = ({
 													>
 														<Tooltip title={`Upload File`}>
 															<div
-																className="icon-container"
+																className="chat-box-icon-container"
 																style={{
 																	opacity: `${
 																		chatInfo?.deepResearch
@@ -1062,15 +1052,95 @@ const ChatBox = ({
 																}}
 															>
 																<div className="icon">
-																	<PaperClip
-																		width={15}
-																		height={15}
-																		fill={'none'}
+																	<PlusSvg
+																		width={17}
+																		height={17}
 																	/>
 																</div>
 															</div>
 														</Tooltip>
 													</UploadFileTooltip>
+													<Tooltip
+														title={`${
+															chatInfo?.webSearch
+																? 'Disable'
+																: 'Enable'
+														} Web Search`}
+													>
+														<div
+															className={`chat-box-icon-container ${
+																chatInfo?.webSearch ? 'active' : ''
+															}`}
+															onClick={handleWebSearchClick}
+														>
+															<div className="icon">
+																<WebSvg
+																	selected={chatInfo?.webSearch}
+																/>
+															</div>
+														</div>
+													</Tooltip>
+													<Tooltip
+														title={`${
+															chatInfo?.workspaceSearch
+																? 'Disable'
+																: 'Enable'
+														} workspace Search`}
+													>
+														<div
+															className={`chat-box-icon-container ${
+																chatInfo?.workspaceSearch
+																	? 'active'
+																	: ''
+															}`}
+															onClick={handleWorkspaceSearchClick}
+														>
+															<div className="icon">
+																<BuildingSvg
+																	selected={
+																		chatInfo?.workspaceSearch
+																	}
+																/>
+															</div>
+														</div>
+													</Tooltip>
+
+													{chatInfo?.agentType !== 'search_agent' && (
+														<Tooltip
+															title={`${
+																chatInfo?.deepResearch
+																	? 'Disable Deep Research'
+																	: 'Enable Deep Research'
+															} `}
+														>
+															<div
+																className={`chat-box-icon-container ${
+																	chatInfo?.deepResearch
+																		? 'active'
+																		: ''
+																}`}
+																onClick={handleDeepResearchClick}
+																style={{
+																	opacity: `${
+																		recentFilesRef.current
+																			?.length > 0 ||
+																		uploadedImagesRef.current
+																			?.length > 0
+																			? '0.5'
+																			: '1'
+																	}`,
+																}}
+															>
+																<div className="icon">
+																	<MicroscopeSvg
+																		selected={
+																			chatInfo?.deepResearch
+																		}
+																	/>
+																</div>
+															</div>
+														</Tooltip>
+													)}
 
 													{/* <Tooltip title={'Add Filters'}>
 														<div
@@ -1121,7 +1191,7 @@ const ChatBox = ({
 														>
 															<Tooltip title="Select LLM Model">
 																<div
-																	className="icon-container"
+																	className="chat-box-icon-container"
 																	style={{
 																		opacity: `${
 																			chatInfo?.deepResearch ||
@@ -1144,29 +1214,63 @@ const ChatBox = ({
 														</LLMTooltip>
 													)}
 												</div>
-												{info?.chatQuery?.trim()?.length > 0 ? (
-													<div
-														className="click-btn"
-														onClick={(e) => handleSendBtnClick(e)}
-														style={{
-															backgroundColor:
-																'var(--primary-button)',
-														}}
-													>
-														<ArrowUp />
-													</div>
-												) : (
-													<div
-														className="click-btn"
-														onClick={(e) => handleMicIconClick(e)}
-														style={{
-															backgroundColor:
-																'var(--primary-button)',
-														}}
-													>
-														<AudioSvg />
-													</div>
-												)}
+
+												<div className="right-container">
+													{chatInfo?.agentType !== 'knowledge_agent' && (
+														<div className="agent-container">
+															<div
+																className={`agent ${
+																	chatInfo?.agentType ===
+																	'multi_agent'
+																		? 'active'
+																		: ''
+																}`}
+																onClick={() =>
+																	handleAgentClick('multi_agent')
+																}
+															>
+																Generalist
+															</div>
+															<div
+																className={`agent ${
+																	chatInfo?.agentType ===
+																	'search_agent'
+																		? 'active'
+																		: ''
+																}`}
+																onClick={() =>
+																	handleAgentClick('search_agent')
+																}
+															>
+																Thinker
+															</div>
+														</div>
+													)}
+
+													{info?.chatQuery?.trim()?.length > 0 ? (
+														<div
+															className="click-btn"
+															onClick={(e) => handleSendBtnClick(e)}
+															style={{
+																backgroundColor:
+																	'var(--primary-button)',
+															}}
+														>
+															<ArrowUp />
+														</div>
+													) : (
+														<div
+															className="click-btn"
+															onClick={(e) => handleMicIconClick(e)}
+															style={{
+																backgroundColor:
+																	'var(--primary-button)',
+															}}
+														>
+															<AudioSvg />
+														</div>
+													)}
+												</div>
 											</div>
 										)}
 									</div>
@@ -1233,11 +1337,10 @@ const ChatBox = ({
 								<div className="file-type-icon">
 									{fileTypeIcons?.[file?.sourceType]}
 								</div>
-								<div
-									className="file-name"
-									style={{ display: 'flex', alignItems: 'center', gap: '10px' }}
-								>
-									{file?.originalFileName}
+								<div className="recent-file-name">
+									<div className="file-title">
+										{file?.originalFileName || file?.title || ''}
+									</div>
 
 									{file?.loading && <Spin />}
 								</div>

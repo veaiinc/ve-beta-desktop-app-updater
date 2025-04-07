@@ -110,7 +110,7 @@ const OpenedSidebarModules = ({
 		}
 		if (name === 'Chats') {
 			setShowChatsDrawer((prev) => !prev);
-			setHideClosedSidebarIcon(true);
+			// setHideClosedSidebarIcon(true);
 		} else {
 			setShowChatsDrawer(false);
 		}
