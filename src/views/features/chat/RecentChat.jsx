@@ -423,6 +423,7 @@ const RecentChat = ({
 
 	const makePublicChatRequest = async () => {
 		const userMessage = searchParams?.get('message');
+		if (!userMessage) return;
 		const web_search = searchParams?.get('web_search');
 		const deep_research = searchParams?.get('deep_research');
 
