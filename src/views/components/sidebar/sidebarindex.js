@@ -11,7 +11,6 @@ import HomeSvg from '../../../assets/svg/sidebar/HomeSvg.jsx';
 import { ReactComponent as OrchestratorSvg } from '../../../assets/svg/sidebar/Orchestrator.svg';
 import TemplatesSvg from '../../../assets/svg/sidebar/TemplatesSvg.jsx';
 import { ReactComponent as HelpSvg } from '../../../assets/svg/sidebar/help.svg';
-// import { subDays } from 'react-datepicker/dist/date_utils.js';
 
 export const veAiModulesItemsList = [
 	{
@@ -90,39 +89,20 @@ export const veAiModulesItemsList = [
 
 export const veAiNewModules = [
 	{ id: 0, name: 'Home', route: '/home', icon: HomeSvg },
-	{ id: 1, name: 'Files', route: '', icon: FilesSvg },
-	{ id: 2, name: 'Search', route: '', icon: SearchSvg },
-	{ id: 3, name: 'Agents', route: '', icon: AgentsSvg },
+	{ id: 1, name: 'Files', route: '/files', icon: FilesSvg },
+	{ id: 2, name: 'Search', route: '/search', icon: SearchSvg },
+	{ id: 3, name: 'Agents', route: '/agents', icon: AgentsSvg },
 ];
 
 //
 
 export const veAiModules = [
-	{ icon: OrchestratorSvg, name: 'Chats', route: null },
-	{ icon: NotificationSvg, name: 'Notifications', route: null },
+	// { icon: OrchestratorSvg, name: 'Chats', route: null },
 	// { icon: NotificationSvg, name: 'Trash', route: '/trash' },
-	{ id: 1, icon: GiftSvg, name: 'Share and Earn', route: '/share-and-earn' },
-	{ id: 2, icon: TemplatesSvg, name: 'Templates', route: '/playbook' },
-	{
-		id: 3,
-		icon: SettingsSvg,
-		name: 'Settings',
-		route: '/settings/my-profile',
-		// subModules: [
-		// 	{ icon: '', name: 'MyProfile', route: '/settings/my-profile' },
-		// 	{ icon: '', name: 'Workspace', route: '/settings/workspace' },
-		// 	{ icon: '', name: 'Public Information', route: '/settings/public-information' },
-		// 	{
-		// 		icon: '',
-		// 		name: 'Brand Setup',
-		// 		route: '/settings/brand-setup',
-		// 	},
-		// 	{ icon: '', name: 'Team Settings', route: '/settings/team-settings' },
-		// 	{ icon: '', name: 'Integration', route: '/settings/integrations' },
-		// 	{ icon: '', name: 'Plan Billing', route: '/settings/plan-billing' },
-		// ],
-	},
-	{ icon: HelpSvg, name: 'Help' },
+	{ id: 1, icon: TemplatesSvg, name: 'Templates', route: '/playbook' },
+	{ id: 2, icon: NotificationSvg, name: 'Notifications', route: null },
+	{ id: 3, icon: GiftSvg, name: 'Share and Earn', route: '/share-and-earn' },
+	{ id: 4, icon: HelpSvg, name: 'Help' },
 ];
 
 // export const bottomOptionsList = [

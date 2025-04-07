@@ -3,17 +3,25 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { veAiModulesItemsList, veAiModules, veAiNewModules } from './sidebarindex';
 import { ReactComponent as ArrowUpRightSvg } from '../../../assets/svg/sidebar/arrowupright.svg';
 import { ReactComponent as DownArrowSmallSvg } from '../../../assets/svg/sidebar/downarrowsmall.svg';
-import { ReactComponent as NotificationSvg } from '../../../assets/svg/sidebar/notification.svg';
-import { ReactComponent as RefreshSvg } from '../../../assets/svg/sidebar/Refresh.svg';
 import { ReactComponent as SidebarClosingSvg } from '../../../assets/svg/sidebar/SidebarClosing.svg';
 import { ReactComponent as LogoutRedSvg } from '../../../assets/svg/sidebar/logout_red.svg';
 import { ReactComponent as CrossSvg } from '../../../assets/svg/sidebar/CrossSvg.svg';
-import { ReactComponent as RightArrowSvg } from '../../../assets/svg/sidebar/RightArrow.svg';
+import { ReactComponent as SingleRightArrowSvg } from '../../../assets/svg/sidebar/singleRightArrow.svg';
+import { ReactComponent as SwitchWorkspaceSvg } from '../../../assets/svg/sidebar/switchWorkspace.svg';
+import { ReactComponent as LeftArrowSvg } from '../../../assets/svg/sidebar/leftarrowwhite.svg';
 import WorkspaceListComponent from './Workspace';
 import useLogout from '../../hooks/useLogout';
 import { message, Tooltip } from 'antd';
-
+import ChatHistory from './chatHistory/ChatHistory';
+import { ReactComponent as ProfileIcon } from '../../../assets/svg/sidebar/profileIcon.svg';
+import { ReactComponent as WorkspaceIcon } from '../../../assets/svg/sidebar/workspaceIcon.svg';
+import { ReactComponent as TeamIcon } from '../../../assets/svg/sidebar/teamMembersIcon.svg';
+import { ReactComponent as IntegartionIcon } from '../../../assets/svg/sidebar/integrationsIcon.svg';
+import { ReactComponent as PlanBillingIcon } from '../../../assets/svg/sidebar/planBilling.svg';
+import { ReactComponent as AgentsSvg } from '../../../assets/svg/sidebar/agentsIcon.svg';
+import Cropper from 'react-easy-crop';
 import Context from '../../../context/context';
+import { getInitials } from '../../../helpers/index';
 
 const MODULE_NAME_MAP = {
 	'conversational agent': 'conversationalAgent',
@@ -50,6 +58,7 @@ const OpenedSidebarModules = ({
 }) => {
 	let {
 		aiSetup: { isVoiceIntegrationActive },
+		profileInfo: { userDetailsData },
 	} = useContext(Context);
 
 	const location = useLocation();
@@ -313,7 +322,7 @@ const OpenedSidebar = ({
 }) => {
 	const {
 		templates: { leftSidebarState, updateStateValues },
-		profileInfo: { tenantUserAccessControls },
+		profileInfo: { tenantUserAccessControls, userDetailsData },
 	} = useContext(Context);
 	const navigate = useNavigate();
 	const logoutFunc = useLogout();
@@ -335,17 +344,17 @@ const OpenedSidebar = ({
 	// Add this constant for Settings options
 	const SETTINGS_OPTIONS = isAdmin
 		? [
-				{ name: 'My Profile', route: '/settings/my-profile' },
-				{ name: 'Workspace', route: '/settings/workspace' },
-				{ name: 'Team Settings', route: '/settings/team-settings' },
-				{ name: 'Integration', route: '/settings/integrations' },
-				{ name: 'Plan Billing', route: '/settings/plan-billing' },
-				{ name: 'AI Setup', route: '/settings/ai-setup' },
+				{ name: 'My Profile', route: '/settings/my-profile', icon: ProfileIcon },
+				{ name: 'MindSpace', route: '/settings/workspace', icon: WorkspaceIcon },
+				{ name: 'Team Settings', route: '/settings/team-settings', icon: TeamIcon },
+				{ name: 'Integration', route: '/settings/integrations', icon: IntegartionIcon },
+				{ name: 'Plan Billing', route: '/settings/plan-billing', icon: PlanBillingIcon },
+				{ name: 'AI Setup', route: '/settings/ai-setup', icon: AgentsSvg },
 		  ]
 		: [
-				{ name: 'My Profile', route: '/settings/my-profile' },
-				{ name: 'Integration', route: '/settings/integrations' },
-				{ name: 'AI Setup', route: '/settings/ai-setup' },
+				{ name: 'My Profile', route: '/settings/my-profile', icon: ProfileIcon },
+				{ name: 'Integration', route: '/settings/integrations', icon: IntegartionIcon },
+				{ name: 'AI Setup', route: '/settings/ai-setup', icon: AgentsSvg },
 		  ];
 
 	useEffect(() => {
@@ -493,9 +502,9 @@ const OpenedSidebar = ({
 
 	const filteredModules =
 		tenantUserAccessControls?.role === 'admin'
-			? veAiNewModules
+			? veAiModulesItemsList
 			: filterModules(
-					veAiNewModules,
+					veAiModulesItemsList,
 					tenantUserAccessControls?.accessControls,
 					allPossibleApps,
 			  );
@@ -504,6 +513,15 @@ const OpenedSidebar = ({
 		tenantUserAccessControls?.role === 'admin'
 			? veAiModules
 			: filterModules(veAiModules, tenantUserAccessControls?.accessControls, allPossibleApps);
+
+	const isExactPathMatch = useCallback(
+		(route) => {
+			const currentPath = location.pathname.replace(/\/$/, '');
+			const routePath = route?.replace(/\/$/, '');
+			return currentPath === routePath;
+		},
+		[location.pathname],
+	);
 
 	return (
 		<>
@@ -590,6 +608,7 @@ const OpenedSidebar = ({
 												gap: '4px',
 												display: 'flex',
 												flexDirection: 'column',
+												width: '211px',
 											}}
 										>
 											{sidebarStates?.workSpaceOpen && (
@@ -687,7 +706,7 @@ const OpenedSidebar = ({
 														}}
 													/>
 
-													{filterModules2?.map((singleItem, index) => (
+													{/* {filterModules2?.map((singleItem, index) => (
 														<div key={index}>
 															<OpenedSidebarModules
 																name={singleItem.name}
@@ -747,7 +766,65 @@ const OpenedSidebar = ({
 																}
 															/>
 														</div>
-													))}
+													))} */}
+													<ChatHistory />
+													<div
+														className="settingsOptionsContainer"
+														onClick={() => {
+															setShowSettingsSidebar(true);
+														}}
+													>
+														<div className="settingsOptionsUserInfo">
+															<div>
+																{userDetailsData?.logoURL ? (
+																	<div className="crop-container">
+																		<Cropper
+																			image={
+																				userDetailsData?.logoURL
+																			} // Image URL to crop
+																			crop={
+																				userDetailsData
+																					?.cropSettings
+																					?.crop
+																			}
+																			zoom={
+																				userDetailsData
+																					?.cropSettings
+																					?.zoom
+																			}
+																			showGrid={false}
+																			onCropChange={(e) => ''}
+																			onCropComplete={(e) =>
+																				''
+																			}
+																			onZoomChange={(e) => ''}
+																		/>
+																	</div>
+																) : (
+																	<div
+																		className="noImageText"
+																		style={{
+																			background:
+																				userDetailsData
+																					?.cropSettings
+																					?.profileDpColor ||
+																				'',
+																			fontSize: '12px',
+																		}}
+																	>
+																		{getInitials(
+																			userDetailsData?.firstName,
+																			userDetailsData?.lastName,
+																		)}
+																	</div>
+																)}
+															</div>
+															<div className="settingsOptionsUserName">
+																{userDetailsData?.firstName}
+															</div>
+														</div>
+														<SingleRightArrowSvg />
+													</div>
 												</>
 											)}
 										</div>
@@ -793,13 +870,36 @@ const OpenedSidebar = ({
 				{showSettingsSidebar && (
 					<div className="settings-sidebar">
 						{/* Settings Header */}
+						{sidebarStates?.workSpaceOpen && (
+							<div
+								style={{
+									position: 'absolute',
+									top: '60px', // Adjust this value based on your header height
+									left: '0',
+									width: '230px',
+									marginLeft: '10px',
+									border: 'none',
+									zIndex: '1000',
+									borderRadius: '16px',
+									animation: 'slideDown 0.3s ease-out',
+									transformOrigin: 'top',
+								}}
+							>
+								<WorkspaceListComponent
+									setsidebarStates={setsidebarStates}
+									sidebarStates={sidebarStates}
+									info={info}
+									userWorkSpaceList={userWorkSpaceList}
+								/>
+							</div>
+						)}
 						<div className="settings-header">
 							<div className="settings-header-left">
-								<RightArrowSvg
+								<LeftArrowSvg
 									onClick={() => setShowSettingsSidebar(false)}
 									className="back-arrow"
 								/>
-								<h6>Settings</h6>
+								{/* <h6>Settings</h6> */}
 							</div>
 							<Tooltip
 								title="Close Sidebar"
@@ -822,7 +922,27 @@ const OpenedSidebar = ({
 								/>
 							</Tooltip>
 						</div>
+						<div className="settings-footer" onClick={openWorkspacesFunction}>
+							<SwitchWorkspaceSvg fill="var(--primary-font)" />
+							<p>Switch workspace</p>
+						</div>
+						<div
+							className="settings-footer"
+							onClick={() => {
+								navigate('/create-workspace');
+							}}
+						>
+							{' '}
+							<ArrowUpRightSvg />
+							<p>Create workspace</p>
+						</div>
 
+						<hr
+							style={{
+								border: '0.7px solid var(--stroke)',
+								margin: '16px 0px',
+							}}
+						/>
 						{/* Settings Options */}
 						<div className="settings-options">
 							{SETTINGS_OPTIONS.map((option, index) => (
@@ -836,18 +956,91 @@ const OpenedSidebar = ({
 										setSelectedSettingsOption(option.name);
 									}}
 								>
+									<option.icon
+										fill={
+											isExactPathMatch(option.route)
+												? 'var(--primary-button)'
+												: 'var(--primary-font)'
+										}
+									/>
 									<p>{option.name}</p>
 								</div>
 							))}
 						</div>
-						<div
-							className="settings-footer"
-							onClick={() => {
-								navigate('/create-workspace');
+						<hr
+							style={{
+								border: '0.7px solid var(--stroke)',
+								margin: '16px 0px',
 							}}
-						>
-							<p>Create workspace</p>
-							<ArrowUpRightSvg />
+						/>
+						<div className="settings-options-container">
+							{filterModules2?.map((singleItem, index) => (
+								<div key={index}>
+									<OpenedSidebarModules
+										name={singleItem.name}
+										Icon={singleItem.icon}
+										initialColor={singleItem.initialColor}
+										route={singleItem.route}
+										navigateTo={(route) =>
+											handleNavigateFunction(route, singleItem)
+										}
+										isSelected={selectedOption === singleItem.name}
+										isActive={location.pathname === singleItem.route}
+										subModules={singleItem.subModules}
+										isDropdownVisible={activeDropdown === singleItem.name}
+										onDropdownToggle={() =>
+											handleDropdownToggle(singleItem.name)
+										}
+										setActiveDropdown={setActiveDropdown}
+										activeSubModule={activeSubModule}
+										setActiveSubModule={setActiveSubModule}
+										handleSubModuleClick={handleSubModuleClick}
+										setShowChatsDrawer={setShowChatsDrawer}
+										setShowNotificationsDrawer={setShowNotificationsDrawer}
+										setShowNotesDrawer={setShowNotesDrawer}
+										handleSidebarCollapse={handleSidebarCollapse}
+										setHideClosedSidebarIcon={setHideClosedSidebarIcon}
+									/>
+								</div>
+							))}
+						</div>
+						<div className="settingsOptionsContainer">
+							<div className="settingsOptionsUserInfo">
+								<div>
+									{userDetailsData?.logoURL ? (
+										<div className="crop-container">
+											<Cropper
+												image={userDetailsData?.logoURL} // Image URL to crop
+												crop={userDetailsData?.cropSettings?.crop}
+												zoom={userDetailsData?.cropSettings?.zoom}
+												showGrid={false}
+												onCropChange={(e) => ''}
+												onCropComplete={(e) => ''}
+												onZoomChange={(e) => ''}
+											/>
+										</div>
+									) : (
+										<div
+											className="noImageText"
+											style={{
+												background:
+													userDetailsData?.cropSettings?.profileDpColor ||
+													'',
+												fontSize: '12px',
+											}}
+										>
+											{getInitials(
+												userDetailsData?.firstName,
+												userDetailsData?.lastName,
+											)}
+										</div>
+									)}
+								</div>
+								<div className="settingsOptionsUserName">
+									{userDetailsData?.firstName}
+								</div>
+							</div>
+							<LogoutRedSvg onClick={handleLogout} />
 						</div>
 					</div>
 				)}
