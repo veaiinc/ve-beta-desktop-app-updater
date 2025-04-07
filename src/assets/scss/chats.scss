@@ -97,7 +97,6 @@
 				&.active-chat {
 					border-radius: 8px;
 					background: var(--card-over-card-hover, #2e2f33);
-					background: var(--card-over-card-hover, color(display-p3 0.1807 0.1854 0.1993));
 					padding: 10px;
 				}
 
@@ -118,7 +117,7 @@
 						white-space: nowrap;
 						overflow: hidden;
 						color: var(--primary-font, #f2f2f3);
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 14px;
 						font-style: normal;
 						font-weight: 500;
@@ -134,7 +133,7 @@
 						white-space: nowrap;
 						overflow: hidden;
 						color: var(--secondary-font, #7a7e85);
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 12px;
 						font-style: normal;
 						font-weight: 400;
