@@ -112,6 +112,7 @@ export const intialState = {
 		agentType: null,
 		assistantId: null,
 	},
+	galleryFile: null,
 	globalLoadingMesssage: null,
 	userEditedQuery: null,
 };

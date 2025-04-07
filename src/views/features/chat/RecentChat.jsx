@@ -190,49 +190,6 @@ const RecentChat = ({
 		}
 	}, [sessionId]);
 
-	// useEffect(() => {
-	// 	const agentType = searchParams?.get('agentType');
-	// 	const assistantId = searchParams?.get('assistantId');
-	// 	if (!chatInfo?.agentType) return;
-
-	// 	if (agentType && agentType === 'knowledge_agent') {
-	// 		if (agentType === chatInfo?.agentType && assistantId === chatInfo?.assistantId) {
-	// 			return;
-	// 		}
-	// 		if (chatInfo?.agentType !== 'knowledge_agent') {
-	// 			setSearchParams({ agentType: chatInfo?.agentType });
-	// 		}
-	// 		if (assistantId !== chatInfo?.assistantId) {
-	// 			setSearchParams({
-	// 				agentType: 'knowledge_agent',
-	// 				assistantId: chatInfo?.assistantId,
-	// 			});
-	// 		}
-	// 	} else if (agentType && agentType !== 'knowledge_agent') {
-	// 		if (agentType === chatInfo?.agentType) {
-	// 			return;
-	// 		}
-
-	// 		if (chatInfo?.agentType === 'knowledge_agent') {
-	// 			setSearchParams({
-	// 				agentType: 'knowledge_agent',
-	// 				assistantId: chatInfo?.assistantId,
-	// 			});
-	// 		} else {
-	// 			setSearchParams({ agentType: chatInfo?.agentType });
-	// 		}
-	// 	} else {
-	// 		if (chatInfo?.agentType === 'knowledge_agent') {
-	// 			setSearchParams({
-	// 				agentType: 'knowledge_agent',
-	// 				assistantId: chatInfo?.assistantId,
-	// 			});
-	// 		} else {
-	// 			setSearchParams({ agentType: chatInfo?.agentType });
-	// 		}
-	// 	}
-	// }, [chatInfo?.agentType, chatInfo?.assistantId, sessionId]);
-
 	useEffect(() => {
 		if (!chatInfo?.agentType) return;
 
@@ -250,18 +207,18 @@ const RecentChat = ({
 
 			// If both params are already correct, no update needed
 			if (
-				agentType === desiredParams.agentType &&
-				assistantId === desiredParams.assistantId
+				agentType === desiredParams?.agentType &&
+				assistantId === desiredParams?.assistantId
 			) {
 				return;
 			}
 		} else {
 			desiredParams = {
-				agentType: chatInfo.agentType,
+				agentType: chatInfo?.agentType,
 			};
 
 			// If agentType matches and is not 'knowledge_agent', no update needed
-			if (agentType === desiredParams.agentType) {
+			if (agentType === desiredParams?.agentType) {
 				return;
 			}
 		}
@@ -620,7 +577,6 @@ const RecentChat = ({
 		(event) => {
 			let { data = '' } = event || {};
 			data = JSON.parse(data);
-			console.log(data, 'data');
 
 			if (data?.hasOwnProperty('intermediate_response')) {
 				if (data?.intermediate_response_done === true) {
