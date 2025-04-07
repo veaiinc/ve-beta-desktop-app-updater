@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useEffect, useState, useRef } from 'react';
+import { memo, useCallback, useContext, useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../../../assets/scss/knowledgeAgent/index.scss';
 import Context from '../../../context/context';
@@ -15,6 +15,17 @@ import fastImage from '../../../assets/svg/agents/default.svg';
 import hoverImage from '../../../assets/svg/agents/agent2.svg';
 import searchIcon from '../../../assets/svg/agents/search.svg';
 import greenCardIcon from '../../../assets/svg/agents/Back.svg';
+
+const defaultCards = [
+	{
+		title: "Let's launch new",
+		subtitle: 'Knowledge Agent',
+		type: 'new',
+		isDefault: true,
+		content: null, // No content for the green card
+	},
+];
+const AGENTS_PER_PAGE = 20; // Assuming 20 is the limit per page
 
 // Card Components
 const Card = ({ className, ...props }) => <div className={`${className || ''}`} {...props} />;
@@ -49,18 +60,6 @@ const CardsContainer = () => {
 		activeAiAssistant: null,
 		loading: true,
 	});
-
-	const defaultCards = [
-		{
-			title: "Let's launch new",
-			subtitle: 'Knowledge Agent',
-			type: 'new',
-			isDefault: true,
-			content: null, // No content for the green card
-		},
-	];
-
-	const AGENTS_PER_PAGE = 20; // Assuming 20 is the limit per page
 
 	const getMoreAiAssistants = useCallback(() => {
 		if (info?.hasNextPage) {
