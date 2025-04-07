@@ -285,8 +285,9 @@
 				display: flex;
 				flex-direction: column;
 				align-items: center;
+				gap: 16px;
 				// height: 90vh !important;
-				overflow-y: scroll;
+				// overflow-y: scroll;
 				overflow-x: hidden !important;
 				-ms-overflow-style: none;
 				scrollbar-width: none;
@@ -978,7 +979,6 @@
 	}
 
 	.settings-options {
-		padding: 16px;
 		display: flex;
 		flex-direction: column;
 		gap: 4px;

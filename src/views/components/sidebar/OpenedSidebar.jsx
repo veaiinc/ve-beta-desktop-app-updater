@@ -242,83 +242,6 @@ const OpenedSidebarModules = ({
 	);
 };
 
-const OpenedSideBarHoverStateIcons2 = ({
-	name,
-	Icon,
-	route,
-	initialColor = null,
-	isActive,
-	navigateTo,
-}) => {
-	const [isHover, setisHover] = useState(false);
-
-	const onMoutseEnter = () => {
-		if (isActive) return;
-		setisHover(true);
-	};
-	const onMoutseLeave = () => {
-		if (isActive) return;
-		setisHover(false);
-	};
-
-	const redirectToFunction = () => {
-		if (!route) return;
-		navigateTo(route);
-	};
-
-	return (
-		<div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginBottom: '4px' }}>
-			<div
-				className={`singleModuleItem ${isActive ? 'activeListModule' : ''} ${
-					isHover ? 'hover' : ''
-				}`}
-				onMouseEnter={onMoutseEnter}
-				onMouseLeave={onMoutseLeave}
-				onClick={redirectToFunction}
-				style={{
-					backgroundColor: isActive ? '#2E2F33' : '',
-				}}
-			>
-				<p>{name}</p>
-				{isActive ? (
-					<Icon fill={'#FFF'} />
-				) : (
-					<Icon fill={isHover ? '#FFF' : initialColor} />
-				)}
-			</div>
-		</div>
-	);
-};
-
-const AiModulesList = ({ image, name, route, navigateTo }) => {
-	const redirectToFunction = () => {
-		if (!route) return;
-		navigateTo(route);
-	};
-	return (
-		<div style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}>
-			<img
-				src={image}
-				alt={name}
-				style={{ width: '24px', height: '24px', borderRadius: '50%' }}
-			/>
-			<p
-				onClick={redirectToFunction}
-				style={{
-					color: '#E8E8E8',
-					fontFamily: 'Inter',
-					fontSize: '14px',
-					fontStyle: 'normal',
-					fontWeight: '500',
-					lineHeight: 'normal',
-				}}
-			>
-				{name}
-			</p>
-		</div>
-	);
-};
-
 const OpenedSidebar = ({
 	sidebarStates,
 	setsidebarStates,
@@ -357,7 +280,7 @@ const OpenedSidebar = ({
 	const SETTINGS_OPTIONS = isAdmin
 		? [
 				{ name: 'My Profile', route: '/settings/my-profile', icon: ProfileIcon },
-				{ name: 'MindSpace', route: '/settings/workspace', icon: WorkspaceIcon },
+				{ name: 'Workspace', route: '/settings/workspace', icon: WorkspaceIcon },
 				{ name: 'Team Settings', route: '/settings/team-settings', icon: TeamIcon },
 				{ name: 'Integration', route: '/settings/integrations', icon: IntegartionIcon },
 				{ name: 'Plan Billing', route: '/settings/plan-billing', icon: PlanBillingIcon },
@@ -394,11 +317,14 @@ const OpenedSidebar = ({
 	}, [logoutFunc]);
 
 	const openWorkspacesFunction = () => {
-		setsidebarStates((prevState) => ({
-			...prevState,
-			workSpaceOpen: !prevState?.workSpaceOpen,
-			navStyle: prevState?.workSpaceOpen ? 'close' : 'workspace',
-		}));
+		setsidebarStates((prevState) => {
+			const newState = {
+				...prevState,
+				workSpaceOpen: !prevState?.workSpaceOpen,
+				navStyle: prevState?.workSpaceOpen ? 'close' : 'workspace',
+			};
+			return newState;
+		});
 	};
 
 	const handleNavigateFunction = useCallback(
@@ -590,7 +516,6 @@ const OpenedSidebar = ({
 													style={{ height: '16px', width: '16px' }}
 												/>
 											</div>
-											{/* <NotificationSvg /> */}
 											<Tooltip
 												title="Close Sidebar"
 												placement="right"
@@ -621,6 +546,7 @@ const OpenedSidebar = ({
 												display: 'flex',
 												flexDirection: 'column',
 												width: '211px',
+												overflowY: 'scroll',
 											}}
 										>
 											{sidebarStates?.workSpaceOpen && (
@@ -1039,7 +965,7 @@ const OpenedSidebar = ({
 									{userDetailsData?.firstName}
 								</div>
 							</div>
-							<LogoutRedSvg onClick={handleLogout} />
+							<LogoutRedSvg onClick={handleLogout} style={{ cursor: 'pointer' }} />
 						</div>
 					</div>
 				)}

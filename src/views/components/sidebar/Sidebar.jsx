@@ -186,21 +186,11 @@ const Sidebar = ({ activeWorkspaceId }) => {
 						</Tooltip>
 					)}
 				</nav>
-
-				<CreateLeadModal
-					modalIsOpen={info?.createLeadModal}
-					closeModal={closeCreateLeadModal}
-				/>
 				<Notifications
 					showNotificationsDrawer={showNotificationsDrawer}
 					setShowNotificationsDrawer={setShowNotificationsDrawer}
 				/>
 				<Notes showNotesDrawer={showNotesDrawer} setShowNotesDrawer={setShowNotesDrawer} />
-				<ChatHistory
-					showChatsDrawer={showChatsDrawer}
-					setShowChatsDrawer={setShowChatsDrawer}
-					setHideClosedSidebarIcon={setHideClosedSidebarIcon}
-				/>
 			</div>
 
 			{isOpen && <div className="sidebar__overlay"></div>}
