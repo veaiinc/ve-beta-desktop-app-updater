@@ -64,7 +64,13 @@ const ChatHistory = ({ showChatsDrawer, setShowChatsDrawer, setHideClosedSidebar
 	const handleChatNavigation = useCallback(
 		(chat) => {
 			if (currentSessionId === chat?._id) return;
-			updateStateValues({ chatInfo: { ...chatInfo, agentType: chat?.agentType } });
+			updateStateValues({
+				chatInfo: {
+					...chatInfo,
+					agentType: chat?.agentType,
+					assistantId: chat?.assistantId,
+				},
+			});
 			navigate(`/chat/${chat?._id}`);
 		},
 		[currentSessionId, chatInfo],
