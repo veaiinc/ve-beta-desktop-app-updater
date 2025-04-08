@@ -109,7 +109,10 @@ export const intialState = {
 		selectedLLMModel: null,
 		webSearch: false,
 		workspaceSearch: true,
+		agentType: null,
+		assistantId: null,
 	},
+	galleryFile: null,
 	globalLoadingMesssage: null,
 	userEditedQuery: null,
 };
@@ -1339,17 +1342,15 @@ export const TemplatesState = (props) => {
 		}
 	};
 
-	const connectThirdParty = async (connectType) => {
+	const connectThirdParty = async (connectType, integrationType) => {
 		try {
 			let usertoken = localStorage.getItem('usertoken');
 			let workspaceId = localStorage.getItem('workspaceId');
 			const path = `/${connectType}/${workspaceId}/auth`;
+			const params = integrationType ? { access: integrationType } : {};
+			const type = 'third_party_integrations_api';
 
-			const response = await Service?.fetchGet(
-				path,
-				usertoken,
-				'third_party_integrations_api',
-			);
+			const response = await Service?.fetchGet(path, usertoken, type, params);
 
 			if (response?.[0] === true) {
 				dispatch({
@@ -1373,13 +1374,14 @@ export const TemplatesState = (props) => {
 		}
 	};
 
-	const getConnectedThirdParties = async () => {
+	const getConnectedThirdParties = async (integrationType) => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
 			const path = `/connect-account/${workspaceId}`;
 			const usertoken = localStorage.getItem('usertoken');
 			const type = 'third_party_integrations_api';
-			const response = await Service?.fetchGet(path, usertoken, type);
+			const params = integrationType ? { access: integrationType } : {};
+			const response = await Service?.fetchGet(path, usertoken, type, params);
 			return response;
 			// if (response?.[0] === true) {
 			// 	dispatch({
@@ -1661,55 +1663,57 @@ export const TemplatesState = (props) => {
 
 		if (localPayload.showCustomChatOptions) {
 			updatedGlobalChatMessages = [...(localPayload.showCustomChatOptions || [])];
-		} else if (payload.files) {
-			let str = '  ';
-			for (let i = 0; i < localPayload?.files?.length; i++) {
-				str += localPayload?.files?.[i]?.name || '' + ' ,';
-			}
+		}
+		//  else if (payload.files) {
+		// 	let str = '  ';
+		// 	for (let i = 0; i < localPayload?.files?.length; i++) {
+		// 		str += localPayload?.files?.[i]?.name || '' + ' ,';
+		// 	}
 
-			updatedGlobalChatMessages = [
-				{
-					type: 'user',
-					content: (
-						<div
-							className="uploadedImagesContainer"
-							style={{
-								display: 'flex',
-								flexDirection: 'column',
-								gap: '2px',
-								alignItems: 'flex-end',
-							}}
-						>
-							{localPayload?.files?.map((ele, index) => (
-								<img
-									src={ele.preview}
-									alt="filetochat"
-									width={'75px'}
-									onClick={() => localPayload?.handlePreview(ele)}
-									style={{ cursor: 'pointer' }}
-								/>
-							))}
+		// 	updatedGlobalChatMessages = [
+		// 		{
+		// 			type: 'user',
+		// 			content: (
+		// 				<div
+		// 					className="uploadedImagesContainer"
+		// 					style={{
+		// 						display: 'flex',
+		// 						flexDirection: 'column',
+		// 						gap: '2px',
+		// 						alignItems: 'flex-end',
+		// 					}}
+		// 				>
+		// 					{localPayload?.files?.map((ele, index) => (
+		// 						<img
+		// 							src={ele.preview}
+		// 							alt="filetochat"
+		// 							width={'75px'}
+		// 							onClick={() => localPayload?.handlePreview(ele)}
+		// 							style={{ cursor: 'pointer' }}
+		// 						/>
+		// 					))}
 
-							<div className="message-content-user" style={{ marginTop: '8px' }}>
-								<span>{queryMessage}</span>
-							</div>
-						</div>
-					),
-				},
-				{
-					type: 'AI',
-					message: 'loading....',
-					content: (
-						<div className="aiMessageWrapper">
-							<AIMessageLoader />
-						</div>
-					),
-					contentType: 'loading',
-				},
-			];
+		// 					<div className="message-content-user" style={{ marginTop: '8px' }}>
+		// 						<span>{queryMessage}</span>
+		// 					</div>
+		// 				</div>
+		// 			),
+		// 		},
+		// 		{
+		// 			type: 'AI',
+		// 			message: 'loading....',
+		// 			content: (
+		// 				<div className="aiMessageWrapper">
+		// 					<AIMessageLoader />
+		// 				</div>
+		// 			),
+		// 			contentType: 'loading',
+		// 		},
+		// 	];
 
-			payload.query += str;
-		} else {
+		// 	payload.query += str;
+		// }
+		else {
 			updatedGlobalChatMessages = [
 				{ type: 'user', message: queryMessage || '', typingEffect: false },
 				{

@@ -1094,7 +1094,6 @@ const GalleryPage = () => {
 		try {
 			// Wait for albums to be fetched
 			await getAlbums(galleryId);
-
 			// Update state after albums are fetched
 			setInfo((prev) => ({
 				...prev,

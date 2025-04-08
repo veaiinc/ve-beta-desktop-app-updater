@@ -10,7 +10,6 @@ import Context from '../../../context/context';
 import ProposalsPopup from '../../../views/components/docs/ProposalsPopup';
 import CreateClientModal from '../../../views/components/modalsV2/contacts/CreateClientModal';
 import CreateGallery from '../../../views/components/modalsV2/gallery/CreateGallery';
-import AutomationLoaderModal from '../modalsV2/automationBuilder/AutomationLoaderModal';
 import CreateTaskPopup from '../modalsV2/tasks/CreateTaskPopup';
 
 const moduleOptions = [
@@ -116,7 +115,11 @@ const moduleOptions = [
 		action: async ({ setInfo, navigate, createAutomation, info }) => {
 			if (info?.isAutomationLoading) return;
 			try {
-				setInfo((prev) => ({ ...prev, isAutomationLoading: true }));
+				setInfo((prev) => ({
+					...prev,
+					showLoader: true,
+					loaderMessage: 'Creating automation...',
+				}));
 				const response = await createAutomation({
 					name: 'Untitled Automation',
 					version: 1,
@@ -131,7 +134,11 @@ const moduleOptions = [
 			} catch (error) {
 				message.error('Failed to create automation');
 			} finally {
-				setInfo((prev) => ({ ...prev, isAutomationLoading: false }));
+				setInfo((prev) => ({
+					...prev,
+					showLoader: false,
+					loaderMessage: '',
+				}));
 			}
 		},
 	},
@@ -142,7 +149,11 @@ const moduleOptions = [
 		controlValue: 'conversationalAgent',
 		action: async ({ setInfo, createNewAiAssistant, navigate }) => {
 			try {
-				setInfo((prev) => ({ ...prev, conversationalAgentLoading: true }));
+				setInfo((prev) => ({
+					...prev,
+					showLoader: true,
+					loaderMessage: 'Creating AI Assistant...',
+				}));
 				const aiAssistantId = await createNewAiAssistant({
 					name: 'Untitled Assistant',
 				});
@@ -152,7 +163,11 @@ const moduleOptions = [
 			} catch (error) {
 				message.error('Failed to create AI Assistant');
 			} finally {
-				setInfo((prev) => ({ ...prev, conversationalAgentLoading: false }));
+				setInfo((prev) => ({
+					...prev,
+					showLoader: false,
+					loaderMessage: '',
+				}));
 			}
 		},
 	},
@@ -180,7 +195,11 @@ const moduleOptions = [
 		value: 'note',
 		action: async ({ setInfo, navigate, createNotesList }) => {
 			try {
-				setInfo((prev) => ({ ...prev, creatingNoteLoader: true }));
+				setInfo((prev) => ({
+					...prev,
+					showLoader: true,
+					loaderMessage: 'Creating note...',
+				}));
 				const payload = {
 					input: {
 						title: 'New Note',
@@ -193,7 +212,41 @@ const moduleOptions = [
 			} catch (error) {
 				message.error('Failed to create note');
 			} finally {
-				setInfo((prev) => ({ ...prev, creatingNoteLoader: false }));
+				setInfo((prev) => ({
+					...prev,
+					showLoader: false,
+					loaderMessage: '',
+				}));
+			}
+		},
+	},
+	{
+		id: 15,
+		title: 'Knowledge Agent',
+		value: 'knowledge-agent',
+		controlValue: 'knowledgeAgent',
+		action: async ({ setInfo, navigate, createNewKnowledgeAgent }) => {
+			try {
+				setInfo((prev) => ({
+					...prev,
+					showLoader: true,
+					loaderMessage: 'Creating knowledge agent...',
+				}));
+				const [, data] = await createNewKnowledgeAgent('Untitled Assistant');
+				const aiAssistantId = data?.insertedId;
+				if (aiAssistantId) {
+					navigate(`/knowledge-agent/${aiAssistantId}/edit`);
+				}
+			} catch (error) {
+				console.log(error);
+
+				message.error('Failed to create knowledge agent');
+			} finally {
+				setInfo((prev) => ({
+					...prev,
+					showLoader: false,
+					loaderMessage: '',
+				}));
 			}
 		},
 	},
@@ -206,6 +259,7 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 		automationBuilder: { createAutomation },
 		aiSetup: { createNewAiAssistant },
 		notes: { createNotesList },
+		knowledgeAgent: { createNewKnowledgeAgent },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -225,6 +279,8 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 		creatingNoteLoader: false,
 		openDocumentPopup: false,
 		openedModalType: null,
+		loaderMessage: '',
+		showLoader: false,
 	});
 
 	const navigate = useNavigate();
@@ -279,6 +335,20 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 		const options = filtereOptions();
 		setInfo((prev) => ({ ...prev, filteredOptions: options }));
 	}, [filtereOptions]);
+
+	useEffect(() => {
+		if (!info.dropdown) {
+			// Reset search and filtered options when dropdown closes
+			setInfo((prev) => ({
+				...prev,
+				search: '',
+				fileterOptions: {
+					suggestedOptions: accessibleOptions(suggestedOptions),
+					moduleOptions: accessibleOptions(moduleOptions),
+				},
+			}));
+		}
+	}, [info.dropdown, accessibleOptions]);
 
 	const handleDebounceSearch = useCallback(
 		(search = null) => {
@@ -335,6 +405,7 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 													createNewAiAssistant,
 													createAutomation,
 													createNotesList,
+													createNewKnowledgeAgent,
 												})
 											}
 										>
@@ -360,6 +431,7 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 													createNewAiAssistant,
 													createAutomation,
 													createNotesList,
+													createNewKnowledgeAgent,
 												})
 											}
 										>
@@ -400,12 +472,11 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 				closeModal={() => setInfo({ ...info, openLiteGalleryPopup: false })}
 				isLightGallery={true}
 			/>
-			<AutomationLoaderModal loading={info?.isAutomationLoading} />
 			<CreateTaskPopup
 				isOpen={info?.createTaskPopup}
 				closeModal={() => setInfo({ ...info, createTaskPopup: false })}
 			/>
-			<LoaderModal loading={info?.creatingNoteLoader} message="Creating note..." />
+			<LoaderModal loading={info?.showLoader} message={info?.loaderMessage} />
 		</div>
 	);
 };

@@ -3,7 +3,6 @@
 	flex-direction: column;
 	gap: 16px;
 	position: relative;
-	// padding-bottom: 10px;
 
 	.hover-actions-container {
 		display: flex;
@@ -18,18 +17,35 @@
 	}
 }
 
-.user-message-renderer-container {
+.user-message-renderer-wrapper {
 	display: flex;
-	flex-direction: column;
-	gap: 16px;
+	justify-content: space-between;
 	position: relative;
-	width: fit-content;
-	align-self: flex-end;
+	width: 100%;
+	align-items: flex-start;
+	gap: 5px;
+	margin-bottom: 1.5rem;
 
 	.user-message-renderer-container {
-		padding: 12px 16px;
-		border-radius: 24px;
-		background: var(--card);
+		position: relative;
+		line-height: 1.5;
+		font-weight: 500 !important;
+		overflow: hidden;
+		transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
+		font-size: 1.5rem;
+		span {
+			line-height: 1.5;
+			font-weight: 500 !important;
+		}
+	}
+	.expand-btn {
+		width: fit-content;
+		.btn-text {
+			color: var(--primary-button, #f2f2f3);
+			cursor: pointer;
+			font-size: 0.75rem;
+			line-height: 1rem;
+		}
 	}
 
 	.user-edit-query-input-box-container {
@@ -120,7 +136,7 @@
 		}
 	}
 }
-.user-message-renderer-container:hover {
+.user-message-renderer-wrapper:hover {
 	.hover-actions-container {
 		visibility: visible;
 	}
