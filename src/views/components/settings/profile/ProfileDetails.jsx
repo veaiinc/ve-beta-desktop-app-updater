@@ -146,7 +146,7 @@ const ProfileDetailsComponent = ({
 							)}
 						</div>
 						<div>
-							<div className="iconAlignclass emailInputClass">
+							<div className="iconAlignclass">
 								<EmailSvg />
 
 								<input
