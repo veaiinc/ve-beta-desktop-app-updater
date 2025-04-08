@@ -53,6 +53,7 @@ const InitialHomePage = () => {
 		selectedCard: null,
 
 		selectedOption: 'proactiveSuggestions',
+		options: optionsList,
 	});
 
 	let {
@@ -65,36 +66,36 @@ const InitialHomePage = () => {
 		`${userDetailsData?.firstName}` ??
 		'User';
 
-	useEffect(() => {
-		if (info?.selectedOption && info?.selectedOption !== 'all') {
-			getPromptsData({ category: info?.selectedOption });
-		} else {
-			getPromptsData();
-		}
-	}, [info?.selectedOption]);
+	// useEffect(() => {
+	// 	if (info?.selectedOption && info?.selectedOption !== 'all') {
+	// 		getPromptsData({ category: info?.selectedOption });
+	// 	} else {
+	// 		getPromptsData();
+	// 	}
+	// }, [info?.selectedOption]);
 
-	const handleNavBarSelection = (item) => {
-		setInfo({ ...info, selectedNavBarOption: item });
-		if (item?.type === 'dashboard') {
-			setInfo((prev) => ({
-				...prev,
-				dashboardSelected: true,
-				selectedOption: null,
-				isStart: false,
-			}));
-			return;
-		}
-	};
+	// const handleNavBarSelection = (item) => {
+	// 	setInfo({ ...info, selectedNavBarOption: item });
+	// 	if (item?.type === 'dashboard') {
+	// 		setInfo((prev) => ({
+	// 			...prev,
+	// 			dashboardSelected: true,
+	// 			selectedOption: null,
+	// 			isStart: false,
+	// 		}));
+	// 		return;
+	// 	}
+	// };
 
-	const setGoBackToInitialHomePage = (boolValue) => {
-		setInfo((prev) => ({
-			...prev,
-			goBackToInitialHomePage: boolValue,
-			selectedOption: null,
-			dashboardSelected: false,
-			selectedNavBarOption: navBarOptions[0],
-		}));
-	};
+	// const setGoBackToInitialHomePage = (boolValue) => {
+	// 	setInfo((prev) => ({
+	// 		...prev,
+	// 		goBackToInitialHomePage: boolValue,
+	// 		selectedOption: null,
+	// 		dashboardSelected: false,
+	// 		selectedNavBarOption: navBarOptions[0],
+	// 	}));
+	// };
 
 	const handleCustomOnSendFunction = useCallback(
 		(data) => {
@@ -115,10 +116,26 @@ const InitialHomePage = () => {
 		}));
 	};
 
+	const handleUpdateOptions = (value) => {
+		const updatedOptions = info?.options?.filter((option) => option?.value !== value);
+		setInfo((prev) => ({
+			...prev,
+			options: updatedOptions,
+		}));
+		if (info?.selectedOption === value) {
+			setInfo((prev) => ({
+				...prev,
+				selectedOption: updatedOptions[0]?.value,
+			}));
+		}
+	};
+
 	const componentMapper = useMemo(
 		() => ({
-			proactiveSuggestions: <ProactiveSuggestions />,
-			prompts: <ChatPrompts />,
+			proactiveSuggestions: (
+				<ProactiveSuggestions handleUpdateOptions={handleUpdateOptions} />
+			),
+			prompts: <ChatPrompts handleUpdateOptions={handleUpdateOptions} />,
 		}),
 		[info?.selectedOption],
 	);
@@ -216,13 +233,18 @@ const InitialHomePage = () => {
 		// 	/>
 		// </>
 		<div className="initial-home-page-container">
-			<div className="home-page-container-header">
+			<div
+				className="home-page-container-header"
+				style={{
+					marginTop: info?.options?.length > 0 ? '85px' : '0px',
+				}}
+			>
 				<div className="header-title">Proactive AI</div>
 				<div className="chat-box-container">
 					<ChatBox onSend={handleCustomOnSendFunction} customChatActions={true} />
 				</div>
 				<div className="options-container">
-					{optionsList?.map((option) => {
+					{info?.options?.map((option) => {
 						return (
 							<div
 								className={`option ${
@@ -236,9 +258,11 @@ const InitialHomePage = () => {
 					})}
 				</div>
 			</div>
-			<div className="home-page-container-content">
-				{componentMapper[info?.selectedOption]}
-			</div>
+			{info?.options?.length > 0 && (
+				<div className="home-page-container-content">
+					{componentMapper[info?.selectedOption]}
+				</div>
+			)}
 		</div>
 	);
 };
