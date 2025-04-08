@@ -880,6 +880,7 @@ html {
 		@include theme-aware(color, primaryColor);
 	}
 	.PhoneInput {
+		color: var(--primary-font);
 		.PhoneInputCountry {
 			padding-top: 8px;
 			width: 48px;

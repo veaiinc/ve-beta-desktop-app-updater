@@ -184,7 +184,7 @@ export const AiSetupState = () => {
 		}
 	};
 
-	const getAiChatSessions = async (page = 1, limit = 10, reset = false) => {
+	const getAiChatSessions = async (page = 1, limit = 10, reset = false, title = '') => {
 		try {
 			const token = localStorage.getItem('usertoken');
 			const workspaceId = localStorage.getItem('workspaceId');
@@ -192,6 +192,7 @@ export const AiSetupState = () => {
 			const params = {
 				page,
 				limit,
+				title,
 			};
 			const url = '/' + workspaceId + '/list-multiagent-sessions';
 			const response = await service?.fetchGet(url, token, type, params);

@@ -47,7 +47,7 @@ const initialState = {
 };
 
 const AddKnowledgeModal = ({ isOpen, toggleModal, assistantId }) => {
-	let {
+	const {
 		aiSetup: {
 			activeAiAssistantDetails,
 			knowledgeBaseFiles,
