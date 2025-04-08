@@ -181,7 +181,6 @@ export const KnowledgeAgentState = () => {
 				instructionId;
 			const token = localStorage.getItem('usertoken');
 			const type = 'ai_assistant_api';
-			console.log('path==>deleteInstructionFromKnowledgeAgent', path);
 			const response = await service?.fetchDelete(path, token, null, type);
 			const success = response?.[0] === true;
 			if (success) {
@@ -302,8 +301,8 @@ export const KnowledgeAgentState = () => {
 	};
 
 	const uploadURLsToKnowledgeBase = async (aiAssistantId, urls, agent = 'knowledgeAgent') => {
-		let workspaceId = localStorage.getItem('workspaceId');
-		let usertoken = localStorage.getItem('usertoken');
+		const workspaceId = localStorage.getItem('workspaceId');
+		const usertoken = localStorage.getItem('usertoken');
 		const url = '/' + workspaceId + '/knowledge-bases';
 		const urlUploadPromises = urls.map((link) => {
 			return new Promise(async (resolve, reject) => {
@@ -350,8 +349,8 @@ export const KnowledgeAgentState = () => {
 	};
 
 	const uploadPDFsToKnowledgeBase = async (aiAssistantId, files, agent = 'knowledgeAgent') => {
-		let workspaceId = localStorage.getItem('workspaceId');
-		let usertoken = localStorage.getItem('usertoken');
+		const workspaceId = localStorage.getItem('workspaceId');
+		const usertoken = localStorage.getItem('usertoken');
 		const url = '/' + workspaceId + '/knowledge-bases/upload-file';
 		const batchId = ObjectID()?.toString();
 

@@ -44,7 +44,7 @@
 				.preview-heading {
 					color: var(--primary-font, #f2f2f3);
 					text-align: center;
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 500;
