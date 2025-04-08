@@ -79,7 +79,7 @@ const AiFacesContainer = ({ galleryId, galleryCredentials, handleBackClick }) =>
 											info?.activeFace === face?._id
 												? '1px solid #B89CF9'
 												: '1px solid transparent',
-										borderRadius: '50%',
+										borderRadius: '50%`',
 									}}
 								>
 									<div className="aiPeople-person-image">
