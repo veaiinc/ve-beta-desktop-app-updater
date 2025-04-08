@@ -55,6 +55,10 @@ import ExpandedClientView from './views/features/contacts/ExpandedClientView';
 import ElasticSearch from './views/features/elastic_search';
 import PublicChat from './views/features/public_chat/PublicChat';
 
+import KnowledgeAgents from './views/features/knowledge_agent';
+import KnowledgeAgentDetails from './views/features/knowledge_agent/AgentDetails';
+import EditKnowledgeAgent from './views/features/knowledge_agent/EditAgent';
+
 const routes = [
 	{
 		path: '/',
@@ -403,6 +407,45 @@ const routes = [
 		component: (
 			<AuthWrapper title={'Docs'}>
 				<Docs />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/knowledge-agent',
+		component: (
+			<AuthWrapper
+				title={'Knowledge Agent'}
+				innerContainerStyle={{ paddingBottom: '0px' }}
+				showBottomToolbar={false}
+			>
+				<KnowledgeAgents />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/knowledge-agent/:agentId',
+		component: (
+			<AuthWrapper
+				title={'Knowledge Agent'}
+				showBottomToolbar={false}
+				innerContainerStyle={{ paddingBottom: '0px' }}
+			>
+				<KnowledgeAgentDetails />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/knowledge-agent/:agentId/edit',
+		component: (
+			<AuthWrapper
+				title={'Knowledge Agent'}
+				showBottomToolbar={false}
+				outerContainerStyle={{ paddingRight: '0px' }}
+			>
+				<EditKnowledgeAgent />
 			</AuthWrapper>
 		),
 		exact: true,

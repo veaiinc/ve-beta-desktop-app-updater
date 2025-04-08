@@ -17,6 +17,7 @@ import { DocumentPreviewState } from './DocumentPreview/state';
 import { AutomationBuilderState } from './automationBuilder/state';
 import { NotesState } from './notes/state';
 import { ElasticSearchState } from './elastic_search/state';
+import { KnowledgeAgentState } from './knowledgeAgent/state';
 
 const useCombineState = () => {
 	// Call all hooks at the top level
@@ -36,6 +37,7 @@ const useCombineState = () => {
 	const documentPreview = DocumentPreviewState();
 	const automationBuilder = AutomationBuilderState();
 	const notes = NotesState();
+	const knowledgeAgent = KnowledgeAgentState();
 	const elasticSearch = ElasticSearchState();
 	// Only memoize the final combined object
 	return useMemo(
@@ -57,6 +59,7 @@ const useCombineState = () => {
 			documentPreview,
 			automationBuilder,
 			notes,
+			knowledgeAgent,
 			elasticSearch,
 		}),
 		[
@@ -77,6 +80,7 @@ const useCombineState = () => {
 			documentPreview,
 			automationBuilder,
 			notes,
+			knowledgeAgent,
 			elasticSearch,
 		],
 	);

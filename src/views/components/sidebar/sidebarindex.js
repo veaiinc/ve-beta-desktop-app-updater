@@ -36,6 +36,13 @@ export const veAiModulesItemsList = [
 	},
 	{
 		id: 1,
+		name: 'Agents',
+		moduleRoute: '/knowledge-agent',
+		route: '/knowledge-agent',
+		icon: '',
+	},
+	{
+		id: 3,
 		name: 'Search',
 		moduleRoute: '/search',
 		route: '/search',
