@@ -21,14 +21,14 @@ export const photographerModules = [
 		name: 'Home',
 		moduleRoute: '/home',
 		route: '/home',
-		icon: '',
+		icon: HomeSvg,
 	},
 	{
 		id: 1,
 		name: 'Agents',
 		moduleRoute: '/knowledge-agent',
 		route: '/knowledge-agent',
-		icon: '',
+		icon: AgentsSvg,
 	},
 	{
 		id: 3,
@@ -42,7 +42,7 @@ export const photographerModules = [
 		name: 'Conversational Agent',
 		moduleRoute: '/ai-assistant',
 		route: '/ai-assistant',
-		icon: '',
+		icon: AgentsSvg,
 	},
 	{
 		id: 3,
