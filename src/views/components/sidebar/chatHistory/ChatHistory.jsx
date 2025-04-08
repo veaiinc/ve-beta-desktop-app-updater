@@ -28,6 +28,7 @@ const ChatHistory = ({ showChatsDrawer, setShowChatsDrawer, setHideClosedSidebar
 	const { sessionId } = useParams();
 	const {
 		aiSetup: { getAiChatSessions, aiChatSessions },
+		templates: { chatInfo, updateStateValues, currentSessionId },
 	} = useContext(Context);
 
 	useEffect(() => {
@@ -60,9 +61,20 @@ const ChatHistory = ({ showChatsDrawer, setShowChatsDrawer, setHideClosedSidebar
 		}
 	};
 
-	const handleChatNavigation = useCallback((chat) => {
-		navigate(`/chat/${chat?._id}`);
-	}, []);
+	const handleChatNavigation = useCallback(
+		(chat) => {
+			if (currentSessionId === chat?._id) return;
+			updateStateValues({
+				chatInfo: {
+					...chatInfo,
+					agentType: chat?.agentType,
+					assistantId: chat?.assistantId,
+				},
+			});
+			navigate(`/chat/${chat?._id}`);
+		},
+		[currentSessionId, chatInfo],
+	);
 
 	const getChatDateGroup = useCallback((timestamp) => {
 		const chatDate = moment.unix(timestamp);
