@@ -8,24 +8,24 @@ import Spinner from '../../components/loaders/Spinner';
 import { message } from 'antd';
 import ElasticSearchResults from '../../components/elastic_search/ElasticSearchResults';
 
-const filters = [
-	{
-		id: 1,
-		label: 'Integration',
-	},
-	{
-		id: 2,
-		label: 'Module',
-	},
-	{
-		id: 3,
-		label: 'Assistance',
-	},
-	{
-		id: 4,
-		label: 'Date',
-	},
-];
+// const filters = [
+// 	{
+// 		id: 1,
+// 		label: 'Integration',
+// 	},
+// 	{
+// 		id: 2,
+// 		label: 'Module',
+// 	},
+// 	{
+// 		id: 3,
+// 		label: 'Assistance',
+// 	},
+// 	{
+// 		id: 4,
+// 		label: 'Date',
+// 	},
+// ];
 
 const cssstyle = {
 	position: 'absolute',
@@ -92,7 +92,7 @@ const ElasticSearch = () => {
 					<Spinner width={'16px'} height={'16px'} cssstyle={cssstyle} />
 				)}
 			</div>
-			<div className="filtersContainer">
+			{/* <div className="filtersContainer">
 				<div className="filters">
 					{filters.map((filter) => (
 						<button className="filter" key={filter.id}>
@@ -107,14 +107,14 @@ const ElasticSearch = () => {
 						<p className="filterLabel">Reset Filters</p>
 					</button>
 				</div>
-			</div>
+			</div> */}
 			<div
 				className={`elasticSearchResultsContainer ${noResults ? 'noResultsContainer' : ''}`}
 			>
 				{noResults ? (
 					<p className="noResults">No results found</p>
 				) : (
-					<ElasticSearchResults />
+					info?.showElasticSearchResults && <ElasticSearchResults />
 				)}
 			</div>
 		</div>
