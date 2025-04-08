@@ -115,6 +115,7 @@ export const intialState = {
 	galleryFile: null,
 	globalLoadingMesssage: null,
 	userEditedQuery: null,
+	aiSuggestedPendingActions: null,
 };
 
 export const TemplatesState = (props) => {
@@ -2098,6 +2099,29 @@ export const TemplatesState = (props) => {
 		}
 	};
 
+	const getAISuggestedPendingActions = async (payload) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const response = await Service.fetchGet(
+				`/${workspaceId}/knowledge-bases/pending-actions`,
+				usertoken,
+				'tenant',
+				payload,
+			);
+			if (response?.[0]) {
+				dispatch({
+					type: Actions?.GET_AI_SUGGESTED_PENDING_ACTIONS_SUCCESS,
+					payload: response?.[1],
+				});
+			} else {
+				console.log('response==>getAISuggestedPendingActions', response);
+			}
+		} catch (error) {
+			console.log('error==>getAISuggestedPendingActions', error);
+		}
+	};
+
 	return {
 		...state,
 		getMyWorkflows,
@@ -2177,5 +2201,6 @@ export const TemplatesState = (props) => {
 		createBlankTemplate,
 		getConnectedThirdParties,
 		getFormResponse,
+		getAISuggestedPendingActions,
 	};
 };
