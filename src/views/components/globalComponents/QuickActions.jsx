@@ -336,6 +336,20 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 		setInfo((prev) => ({ ...prev, filteredOptions: options }));
 	}, [filtereOptions]);
 
+	useEffect(() => {
+		if (!info.dropdown) {
+			// Reset search and filtered options when dropdown closes
+			setInfo((prev) => ({
+				...prev,
+				search: '',
+				fileterOptions: {
+					suggestedOptions: accessibleOptions(suggestedOptions),
+					moduleOptions: accessibleOptions(moduleOptions),
+				},
+			}));
+		}
+	}, [info.dropdown, accessibleOptions]);
+
 	const handleDebounceSearch = useCallback(
 		(search = null) => {
 			if (timeout) {

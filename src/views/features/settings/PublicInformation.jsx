@@ -350,92 +350,75 @@ const PublicInformation = () => {
 					)}
 				</div>
 				<div className="detailsBody">
-					<div className="inputDiv">
-						<InputForModules
-							label={'Business Name'}
-							type={'text'}
-							placeholder={'Enter your Business Name'}
-							name={'businessName'}
-							onChange={handleChange}
-							value={overviewState?.businessName}
-							isError={false}
-							errorMessage={''}
-							key={'businessname'}
-						/>
-					</div>
-
-					<div className="inputDiv">
-						<InputForModules
-							label={'Company Email'}
-							type={'email'}
-							placeholder={overviewState?.email || ''}
-							name={'email'}
-							value={overviewState?.email}
-							onChange={handleChange}
-							isError={error?.erroremail?.error || false}
-							errorMessage={error?.erroremail?.message || ''}
-							key={'businessemail'}
-						/>
-					</div>
-
-					<div className="inputDiv">
-						<InputForModules
-							label={'Website'}
-							type={'text'}
-							value={overviewState?.website || ''}
-							onChange={handleChange}
-							placeholder={'https://www.studio.com'}
-							name={'website'}
-							isError={error?.errorwebsite?.error || false}
-							errorMessage={error?.errorwebsite?.message || ''}
-							key={'businesswebsite'}
-						/>
-					</div>
-
-					<div className="inputDiv">
-						<InputForModules
-							label="Company Type"
-							type={'dropdown'}
-							options={businessTypesOptions}
-							placeholder="Choose your Company Type"
-							name={'businessName'}
-							value={overviewState?.businessType || ''}
-							onChange={handleChange}
-							isError={false}
-							disabled={true}
-							errorMessage={''}
-							key={'businessType'}
-						/>
-					</div>
-
-					<div className="inputDiv">
-						<InputForModules
-							label={'Phone Number'}
-							type={'phoneNumber'}
-							onChange={handleChange}
-							value={overviewState.phoneNumber || ''}
-							placeholder={'Enter your Phone Number'}
-							name={'phoneNumber'}
-							isError={error?.errorphoneNumber?.error || false}
-							errorMessage={error?.errorphoneNumber?.message || ''}
-							defaultCountry={'IN'}
-							key={'businessphone'}
-						/>
-					</div>
-
-					<div className="inputDiv">
-						<InputForModules
-							label={'Address'}
-							type={'text'}
-							onChange={handleChange}
-							value={overviewState.address || ''}
-							placeholder={'Enter your Company Address'}
-							name={'address'}
-							isError={false}
-							errorMessage={''}
-							key={'businessaddress'}
-						/>
-					</div>
+					{[
+						{
+							label: 'Business Name',
+							type: 'text',
+							placeholder: 'Enter your Business Name',
+							name: 'businessName',
+							value: overviewState?.businessName,
+							isError: false,
+							errorMessage: '',
+							key: 'businessname',
+						},
+						{
+							label: 'Company Email',
+							type: 'email',
+							placeholder: overviewState?.email || '',
+							name: 'email',
+							value: overviewState?.email,
+							isError: error?.erroremail?.error || false,
+							errorMessage: error?.erroremail?.message || '',
+							key: 'businessemail',
+						},
+						{
+							label: 'Website',
+							type: 'text',
+							placeholder: 'https://www.studio.com',
+							name: 'website',
+							value: overviewState?.website || '',
+							isError: error?.errorwebsite?.error || false,
+							errorMessage: error?.errorwebsite?.message || '',
+							key: 'businesswebsite',
+						},
+						{
+							label: 'Company Type',
+							type: 'text',
+							options: businessTypesOptions,
+							placeholder: 'Choose your Company Type',
+							name: 'businessName',
+							value: overviewState?.businessType || '',
+							isError: false,
+							disabled: true,
+							errorMessage: '',
+							key: 'businessType',
+						},
+						{
+							label: 'Phone Number',
+							type: 'phoneNumber',
+							placeholder: 'Enter your Phone Number',
+							name: 'phoneNumber',
+							value: overviewState.phoneNumber || '',
+							isError: error?.errorphoneNumber?.error || false,
+							errorMessage: error?.errorphoneNumber?.message || '',
+							defaultCountry: 'IN',
+							key: 'businessphone',
+						},
+						{
+							label: 'Address',
+							type: 'text',
+							placeholder: 'Enter your Company Address',
+							name: 'address',
+							value: overviewState.address || '',
+							isError: false,
+							errorMessage: '',
+							key: 'businessaddress',
+						},
+					].map((inputProps) => (
+						<div className="inputDiv" key={inputProps.key}>
+							<InputForModules {...inputProps} onChange={handleChange} />
+						</div>
+					))}
 				</div>
 			</div>
 		</div>

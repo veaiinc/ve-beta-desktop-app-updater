@@ -10,7 +10,7 @@ import moment from 'moment';
 import { useNavigate, useParams } from 'react-router-dom';
 import ChatTitleTooltip from './ChatTitleTooltip';
 
-const infiniteScrollHeight = 'calc(100vh - 72px)';
+const infiniteScrollHeight = '63vh';
 const infiniteScrollStyle = {
 	display: 'flex',
 	flexDirection: 'column',
@@ -32,10 +32,10 @@ const ChatHistory = ({ showChatsDrawer, setShowChatsDrawer, setHideClosedSidebar
 	} = useContext(Context);
 
 	useEffect(() => {
-		if (showChatsDrawer) {
+		if (!aiChatSessions) {
 			getAiChatSessions(page, limit, append);
 		}
-	}, [showChatsDrawer]);
+	}, []);
 
 	const chats = aiChatSessions?.data;
 	const emptyChatsState = aiChatSessions?.data?.length === 0;
@@ -70,74 +70,105 @@ const ChatHistory = ({ showChatsDrawer, setShowChatsDrawer, setHideClosedSidebar
 		[currentSessionId, chatInfo],
 	);
 
+	const getChatDateGroup = useCallback((timestamp) => {
+		const chatDate = moment.unix(timestamp);
+		const today = moment().startOf('day');
+		const yesterday = moment().subtract(1, 'days').startOf('day');
+		const weekAgo = moment().subtract(7, 'days').startOf('day');
+		const monthAgo = moment().subtract(1, 'month').startOf('day');
+
+		if (chatDate.isSame(today, 'day')) {
+			return 'Today';
+		} else if (chatDate.isSame(yesterday, 'day')) {
+			return 'Yesterday';
+		} else if (chatDate.isAfter(weekAgo)) {
+			return 'Previous 7 Days';
+		} else if (chatDate.isAfter(monthAgo)) {
+			return 'Last Month';
+		}
+		return 'Older';
+	}, []);
+
 	return (
-		<Drawer
-			title={null}
-			open={showChatsDrawer}
-			onClose={handleCloseDrawer}
-			placement="left"
-			width={250}
-			rootClassName="sidebar-chats-drawer"
-			closeIcon={null}
-			zIndex={1009}
-		>
-			<div className="chats-drawer-container">
-				<div className="header">
-					<h1 className="title">AI Chat History</h1>
-					<div onClick={handleCloseDrawer} className="cta-container">
-						<Back />
+		// <Drawer
+		// 	title={null}
+		// 	open={showChatsDrawer}
+		// 	onClose={handleCloseDrawer}
+		// 	placement="left"
+		// 	width={250}
+		// 	rootClassName="sidebar-chats-drawer"
+		// 	closeIcon={null}
+		// 	zIndex={1009}
+		// >
+		<div className="chats-drawer-container">
+			{/* <div className="header">
+				<h1 className="title">AI Chat History</h1>
+				<div onClick={handleCloseDrawer} className="cta-container">
+					<Back />
+				</div>
+			</div> */}
+			<div className="chats-container">
+				{loadingState ? (
+					<div className="skeleton-loader-container">
+						{skeletonLoaders?.map((skeletonId) => (
+							<Skeleton
+								key={skeletonId}
+								width="211px"
+								height="46px"
+								borderRadius="12px"
+							/>
+						))}
 					</div>
-				</div>
-				<div className="chats-container">
-					{loadingState ? (
-						<div className="skeleton-loader-container">
-							{skeletonLoaders?.map((skeletonId) => (
-								<Skeleton
-									key={skeletonId}
-									width="230px"
-									height="46px"
-									borderRadius="12px"
-								/>
-							))}
-						</div>
-					) : emptyChatsState ? (
-						<div className="empty-state">
-							<p className="message">No AI chats yet!</p>
-						</div>
-					) : (
-						<InfiniteScroll
-							dataLength={chats?.length || 0}
-							next={fetchMoreChats}
-							hasMore={hasNextPage || false}
-							loader={<FetchMoreLoaderComp wrapperStyle={{ width: '100%' }} />}
-							style={infiniteScrollStyle}
-							height={infiniteScrollHeight}
-						>
-							{chats?.map((chat) => (
-								<div
-									key={chat?.id}
-									className={`chat-container ${
-										sessionId === chat?._id ? 'active-chat' : ''
-									}`}
-									onClick={() => handleChatNavigation(chat)}
-								>
-									<div className="chat-title-and-query">
-										{/* // Todo: uncomment after styling tooltip properly, no need to render tooltip in safari. Perform conditional rendering based on browser */}
-										{/* <ChatTitleTooltip content={chat?.title}> */}
-										<p className="chat-title">{chat?.title}</p>
-										{/* </ChatTitleTooltip> */}
-										<p className="chat-query">{chat?.query}</p>
+				) : emptyChatsState ? (
+					<div className="empty-state">
+						<p className="message">No AI chats yet!</p>
+					</div>
+				) : (
+					<InfiniteScroll
+						dataLength={chats?.length || 0}
+						next={fetchMoreChats}
+						hasMore={hasNextPage || false}
+						loader={<FetchMoreLoaderComp wrapperStyle={{ width: '100%' }} />}
+						style={infiniteScrollStyle}
+						height={infiniteScrollHeight}
+					>
+						{chats?.map((chat, index) => {
+							const dateGroup = getChatDateGroup(chat.createdAt);
+							const showGroupHeader =
+								index === 0 ||
+								dateGroup !== getChatDateGroup(chats[index - 1].createdAt);
+
+							return (
+								<div key={chat?.id} className="chat-container-wrapper ">
+									{showGroupHeader && (
+										<div className="chat-group-header">{dateGroup}</div>
+									)}
+									<div
+										className={`chat-containers ${
+											sessionId === chat?._id ? 'active-chat' : ''
+										}`}
+										onClick={() => handleChatNavigation(chat)}
+									>
+										<div className="chat-title-and-query">
+											<p
+												className={`chat-title ${
+													index === chats.length - 1
+														? 'last-chat-title'
+														: ''
+												}`}
+											>
+												{chat?.title}
+											</p>
+										</div>
 									</div>
-									<p className="chat-timestamp">
-										{formatTimestamp(chat?.createdAt)}
-									</p>
 								</div>
-							))}
-						</InfiniteScroll>
-					)}
-				</div>
+							);
+						})}
+					</InfiniteScroll>
+				)}
 			</div>
-		</Drawer>
+		</div>
+		// </Drawer>
 	);
 };
 
