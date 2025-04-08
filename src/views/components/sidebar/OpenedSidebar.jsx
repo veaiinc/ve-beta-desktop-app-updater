@@ -3,13 +3,12 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import {
 	veAiModulesItemsList,
 	veAiModules,
-	veAiNewModules,
+	photographerModules,
 	SETTINGS_OPTIONS,
 } from './sidebarindex';
 import { ReactComponent as ArrowUpRightSvg } from '../../../assets/svg/sidebar/arrowupright.svg';
 import { ReactComponent as DownArrowSmallSvg } from '../../../assets/svg/sidebar/downarrowsmall.svg';
 import { ReactComponent as SidebarClosingSvg } from '../../../assets/svg/sidebar/SidebarClosing.svg';
-import { ReactComponent as LogoutRedSvg } from '../../../assets/svg/sidebar/logout_red.svg';
 import { ReactComponent as CrossSvg } from '../../../assets/svg/sidebar/CrossSvg.svg';
 import { ReactComponent as SingleRightArrowSvg } from '../../../assets/svg/sidebar/singleRightArrow.svg';
 import { ReactComponent as SwitchWorkspaceSvg } from '../../../assets/svg/sidebar/switchWorkspace.svg';
@@ -17,6 +16,8 @@ import WorkspaceListComponent from './Workspace';
 import useLogout from '../../hooks/useLogout';
 import { message, Tooltip } from 'antd';
 import ChatHistory from './chatHistory/ChatHistory';
+
+import { ReactComponent as LogoutRedSvg } from '../../../assets/svg/sidebar/logout_red.svg';
 import Cropper from 'react-easy-crop';
 import Context from '../../../context/context';
 import { getInitials } from '../../../helpers/index';
@@ -73,11 +74,11 @@ const OpenedSidebarModules = ({
 	const location = useLocation();
 	const [isHover, setisHover] = useState(false);
 
-	const onMoutseEnter = () => {
+	const onMouseEnter = () => {
 		if (isActive) return;
 		setisHover(true);
 	};
-	const onMoutseLeave = () => {
+	const onMouseLeave = () => {
 		if (isActive) return;
 		setisHover(false);
 	};
@@ -139,8 +140,8 @@ const OpenedSidebarModules = ({
 				className={`singleModuleItem ${isExactPathMatch() ? 'activeListModule' : ''} ${
 					isDropdownVisible ? 'calendar-active' : ''
 				}`}
-				onMouseEnter={onMoutseEnter}
-				onMouseLeave={onMoutseLeave}
+				onMouseEnter={onMouseEnter}
+				onMouseLeave={onMouseLeave}
 				onClick={() => {
 					if (isVoiceIntegrationActive) {
 						return message.error(
@@ -255,7 +256,12 @@ const OpenedSidebar = ({
 }) => {
 	const {
 		templates: { leftSidebarState, updateStateValues },
-		profileInfo: { tenantUserAccessControls, userDetailsData },
+		profileInfo: {
+			tenantUserAccessControls,
+			userDetailsData,
+			tennantSettingsData,
+			getTenantSettings,
+		},
 	} = useContext(Context);
 	const navigate = useNavigate();
 	const logoutFunc = useLogout();
@@ -275,6 +281,12 @@ const OpenedSidebar = ({
 
 	// Add this constant for Settings options
 	const settingsOptions = isAdmin ? SETTINGS_OPTIONS.admin : SETTINGS_OPTIONS.user;
+
+	useEffect(() => {
+		if (!tennantSettingsData) {
+			getTenantSettings();
+		}
+	}, [tennantSettingsData]);
 
 	useEffect(() => {
 		if (leftSidebarState && leftSidebarState === 'close') {
@@ -415,11 +427,18 @@ const OpenedSidebar = ({
 	};
 	const allPossibleApps = Object.values(MODULE_NAME_MAP);
 
+	const tenantModules =
+		tennantSettingsData?.businessType === 'photography' ||
+		tennantSettingsData?.businessType === 'photographer' ||
+		tennantSettingsData?.businessType === 'agency'
+			? photographerModules
+			: veAiModulesItemsList;
+
 	const filteredModules =
 		tenantUserAccessControls?.role === 'admin'
-			? veAiModulesItemsList
+			? tenantModules
 			: filterModules(
-					veAiModulesItemsList,
+					tenantModules,
 					tenantUserAccessControls?.accessControls,
 					allPossibleApps,
 			  );
