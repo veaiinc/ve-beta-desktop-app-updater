@@ -539,8 +539,6 @@ const RecentChat = ({
 		}
 	}, []);
 
-	console.log(globalChatMessages, 'globalChatMessages');
-
 	const handleNoteComponentModalClose = () => {
 		setInfo((prev) => ({
 			...prev,
