@@ -2,33 +2,15 @@
 
 import CalendarSvg from '../../../assets/svg/sidebar/CalendarSvg.jsx';
 import { ReactComponent as NotificationSvg } from '../../../assets/svg/sidebar/notification.svg';
-
-// import LayoutSvg from '../../../assets/svg/sidebar/LayoutSvg.jsx';
-// import AtSignSvg from '../../../assets/svg/sidebar/AtSignSvg.jsx';
-// import AttachMoneySvg from '../../../assets/svg/sidebar/AttachMoneySvg.jsx';
-// import FinanceSvg from '../../../assets/svg/sidebar/FinanceSvg.jsx';
-// import MailOutlineSvg from '../../../assets/svg/sidebar/MailOutlineSvg.jsx';
-// import InsertLinkSvg from '../../../assets/svg/sidebar/InsertLinkSvg.jsx';
-// import BookSvg from '../../../assets/svg/sidebar/BookSvg.jsx';
-// import FlowArrowSvg from '../../../assets/svg/sidebar/FlowArrowSvg.jsx';
-// import PlusSvg from '../../../assets/svg/sidebar/PlusSvg.jsx';
-// import AppartmentHomeSvg from '../../../assets/svg/sidebar/AppartmentHomeSvg.jsx';
-// import { ReactComponent as CrownSvg } from '../../../assets/svg/sidebar/Crown.svg';
-// import SquareFour from '../../../assets/svg/sidebar/SquareFour.jsx';
 import GiftSvg from '../../../assets/svg/sidebar/GiftSvg.jsx';
 import SettingsSvg from '../../../assets/svg/sidebar/SettingsSvg.jsx';
-import { ReactComponent as GallerySvg } from '../../../assets/svg/sidebar/Gallery.svg';
-import TaskSvg from '../../../assets/svg/sidebar/TaskSvg.jsx';
-import { ReactComponent as AIAssistantSvg } from '../../../assets/svg/sidebar/AiAssistant.svg';
-import { ReactComponent as PlaybookSvg } from '../../../assets/svg/sidebar/Playbook.svg';
-import SchedulerSvg from '../../../assets/svg/sidebar/SchedulerSvg.jsx';
-import TranscriptSvg from '../../../assets/svg/sidebar/TranscriptSvg.jsx';
-import AddCalenderSvg from '../../../assets/svg/sidebar/AddCalenderSvg';
+import { ReactComponent as FilesSvg } from '../../../assets/svg/sidebar/filesIcon.svg';
+import { ReactComponent as SearchSvg } from '../../../assets/svg/sidebar/searchIcon.svg';
+import { ReactComponent as AgentsSvg } from '../../../assets/svg/sidebar/agentsIcon.svg';
 import HomeSvg from '../../../assets/svg/sidebar/HomeSvg.jsx';
 import { ReactComponent as OrchestratorSvg } from '../../../assets/svg/sidebar/Orchestrator.svg';
 import TemplatesSvg from '../../../assets/svg/sidebar/TemplatesSvg.jsx';
 import { ReactComponent as HelpSvg } from '../../../assets/svg/sidebar/help.svg';
-// import { subDays } from 'react-datepicker/dist/date_utils.js';
 
 export const veAiModulesItemsList = [
 	{
@@ -105,50 +87,23 @@ export const veAiModulesItemsList = [
 	},
 ];
 
+export const veAiNewModules = [
+	{ id: 0, name: 'Home', route: '/home', icon: HomeSvg },
+	{ id: 1, name: 'Files', route: '/files', icon: FilesSvg },
+	{ id: 2, name: 'Search', route: '/search', icon: SearchSvg },
+	{ id: 3, name: 'Agents', route: '/agents', icon: AgentsSvg },
+];
+
 //
 
 export const veAiModules = [
-	{ icon: OrchestratorSvg, name: 'Chats', route: null },
-	{ icon: NotificationSvg, name: 'Notifications', route: null },
+	// { icon: OrchestratorSvg, name: 'Chats', route: null },
 	// { icon: NotificationSvg, name: 'Trash', route: '/trash' },
-	{ id: 1, icon: GiftSvg, name: 'Share and Earn', route: '/share-and-earn' },
-	{ id: 2, icon: TemplatesSvg, name: 'Templates', route: '/playbook' },
-	{
-		id: 3,
-		icon: SettingsSvg,
-		name: 'Settings',
-		route: '/settings/my-profile',
-		// subModules: [
-		// 	{ icon: '', name: 'MyProfile', route: '/settings/my-profile' },
-		// 	{ icon: '', name: 'Workspace', route: '/settings/workspace' },
-		// 	{ icon: '', name: 'Public Information', route: '/settings/public-information' },
-		// 	{
-		// 		icon: '',
-		// 		name: 'Brand Setup',
-		// 		route: '/settings/brand-setup',
-		// 	},
-		// 	{ icon: '', name: 'Team Settings', route: '/settings/team-settings' },
-		// 	{ icon: '', name: 'Integration', route: '/settings/integrations' },
-		// 	{ icon: '', name: 'Plan Billing', route: '/settings/plan-billing' },
-		// ],
-	},
-	{ icon: HelpSvg, name: 'Help' },
+	{ id: 1, icon: TemplatesSvg, name: 'Templates', route: '/playbook' },
+	{ id: 2, icon: NotificationSvg, name: 'Notifications', route: null },
+	{ id: 3, icon: GiftSvg, name: 'Share and Earn', route: '/share-and-earn' },
+	{ id: 4, icon: HelpSvg, name: 'Help' },
 ];
-
-// export const bottomOptionsList = [
-// {
-// 	name: 'Share and Earn',
-// 	moduleRoute: '',
-// 	route: '/share-and-earn',
-// 	icon: GiftSvg,
-// },
-// {
-// 	name: 'Settings',
-// 	moduleRoute: '/settings',
-// 	route: '/settings/my-profile',
-// 	icon: SettingsSvg,
-// },
-// ];
 
 export const styles = {
 	open: {
@@ -166,51 +121,3 @@ export const styles = {
 		height: 'fit-content',
 	},
 };
-
-// export const newBtnActions = [
-// 	{ label: 'Lead', action: 'functionCall', funcName: 'openLeadPopup', redirect: null },
-// 	{ label: 'Workflow', action: 'redirect', funcName: null, redirect: '/playbook' },
-// ];
-
-// export const closedSidebarIcons = [
-// 	{ icon: CalendarSvg, route: '', name: 'Calendar' },
-// 	{ icon: AddCalenderSvg, route: '', name: 'Scheduler' },
-// 	{ icon: TranscriptSvg, route: '', name: 'Transcript' },
-// 	{
-// 		icon: SettingsSvg,
-// 		route: '/settings/my-profile',
-// 		fill: 'white',
-// 		name: 'Settings',
-// 	},
-// ];
-
-// export const AiOptions = [
-// 	{
-// 		icon: '',
-// 		name: 'Da Vinci',
-// 		route: '/ai-agents/home/da-vinci',
-// 		image: DaVinci,
-// 		subModules: [
-// 			{
-// 				icon: TaskSvg,
-// 				route: '/ai-agents/home/da-vinici',
-// 				name: 'Home',
-// 				description: 'Da Vinci',
-// 			},
-// 			{
-// 				icon: DaVinciJobsSvg,
-// 				route: '/ai-agents/jobs/:agent-name',
-// 				name: 'Jobs',
-// 				description: 'Da Vinci',
-// 			},
-// 			{
-// 				icon: DaVinciSetupSvg,
-// 				route: '/ai-agents/setup/da-vinici',
-// 				name: 'Setup',
-// 				description: 'Da Vinci',
-// 			},
-// 		],
-// 	},
-// 	{ icon: '', name: 'Jarvis', route: '/jarvis', image: Jarvis },
-// 	{ icon: '', name: 'Ari', route: '/ari', image: Ari },
-// ];
