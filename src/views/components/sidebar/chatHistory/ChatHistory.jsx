@@ -1,6 +1,6 @@
 import { Drawer } from 'antd';
 import Skeleton from 'react-loading-skeleton';
-import React, { useContext, useEffect, memo, useCallback } from 'react';
+import React, { useContext, useEffect, memo, useCallback, useState } from 'react';
 import '../../../../assets/scss/chats.scss';
 import { ReactComponent as Back } from '../../../../assets/svg/sidebar/notifications/back.svg';
 import Context from '../../../../context/context';
@@ -8,15 +8,16 @@ import { FetchMoreLoaderComp } from '../../../../helpers';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import moment from 'moment';
 import { useNavigate, useParams } from 'react-router-dom';
-import ChatTitleTooltip from './ChatTitleTooltip';
-
-const infiniteScrollHeight = '63vh';
+import { ReactComponent as Search } from '../../../../assets/svg/sidebar/notifications/search.svg';
+import debounce from 'lodash/debounce';
+const infiniteScrollHeight = '100vh';
 const infiniteScrollStyle = {
 	display: 'flex',
 	flexDirection: 'column',
 	alignItems: 'flex-start',
 	flex: '1 0 0',
 	alignSelf: 'stretch',
+	gap: '4px',
 };
 const skeletonLoaders = Array.from({ length: 30 }, (_, index) => index + 1);
 const page = 1;
@@ -30,11 +31,31 @@ const ChatHistory = ({ showChatsDrawer, setShowChatsDrawer, setHideClosedSidebar
 		aiSetup: { getAiChatSessions, aiChatSessions },
 	} = useContext(Context);
 
+	const [searchQuery, setSearchQuery] = useState('');
+
+	const debouncedSearch = useCallback(
+		debounce((query) => {
+			console.log(query, 'query');
+			getAiChatSessions(page, limit, append, query);
+		}, 500),
+		[],
+	);
+
 	useEffect(() => {
-		if (!aiChatSessions) {
-			getAiChatSessions(page, limit, append);
-		}
-	}, []);
+		// Cancel any pending debounced searches when searchQuery changes
+		const timeoutId = setTimeout(() => {
+			if (!searchQuery) {
+				getAiChatSessions(page, limit, append);
+			} else {
+				debouncedSearch(searchQuery);
+			}
+		}, 0);
+
+		return () => {
+			clearTimeout(timeoutId);
+			debouncedSearch.cancel(); // Cancel pending debounced calls
+		};
+	}, [searchQuery, debouncedSearch]);
 
 	const chats = aiChatSessions?.data;
 	const emptyChatsState = aiChatSessions?.data?.length === 0;
@@ -94,7 +115,14 @@ const ChatHistory = ({ showChatsDrawer, setShowChatsDrawer, setHideClosedSidebar
 		// 	closeIcon={null}
 		// 	zIndex={1009}
 		// >
-		<div className="chats-drawer-container">
+		<div
+			className="chats-drawer-container"
+			// id="chatsScroll"
+			// style={{
+			// 	height: '100vh',
+			// 	overflowY: 'auto',
+			// }}
+		>
 			{/* <div className="header">
 				<h1 className="title">AI Chat History</h1>
 				<div onClick={handleCloseDrawer} className="cta-container">
@@ -102,6 +130,16 @@ const ChatHistory = ({ showChatsDrawer, setShowChatsDrawer, setHideClosedSidebar
 				</div>
 			</div> */}
 			<div className="chats-container">
+				<div className="searchContainer">
+					<Search />
+					<input
+						type="text"
+						placeholder="Ai Chat History"
+						className="search-input"
+						value={searchQuery}
+						onChange={(e) => setSearchQuery(e.target.value)}
+					/>
+				</div>
 				{loadingState ? (
 					<div className="skeleton-loader-container">
 						{skeletonLoaders?.map((skeletonId) => (
@@ -124,7 +162,8 @@ const ChatHistory = ({ showChatsDrawer, setShowChatsDrawer, setHideClosedSidebar
 						hasMore={hasNextPage || false}
 						loader={<FetchMoreLoaderComp wrapperStyle={{ width: '100%' }} />}
 						style={infiniteScrollStyle}
-						height={infiniteScrollHeight}
+						scrollableTarget="chatsScroll"
+						// height={infiniteScrollHeight}
 					>
 						{chats?.map((chat, index) => {
 							const dateGroup = getChatDateGroup(chat.createdAt);

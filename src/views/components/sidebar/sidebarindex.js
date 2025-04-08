@@ -1,16 +1,16 @@
-// import { ReactComponent as VELogo } from '../../../assets/svg/ve.svg';
-
-import CalendarSvg from '../../../assets/svg/sidebar/CalendarSvg.jsx';
 import { ReactComponent as NotificationSvg } from '../../../assets/svg/sidebar/notification.svg';
 import GiftSvg from '../../../assets/svg/sidebar/GiftSvg.jsx';
-import SettingsSvg from '../../../assets/svg/sidebar/SettingsSvg.jsx';
 import { ReactComponent as FilesSvg } from '../../../assets/svg/sidebar/filesIcon.svg';
 import { ReactComponent as SearchSvg } from '../../../assets/svg/sidebar/searchIcon.svg';
 import { ReactComponent as AgentsSvg } from '../../../assets/svg/sidebar/agentsIcon.svg';
 import HomeSvg from '../../../assets/svg/sidebar/HomeSvg.jsx';
-import { ReactComponent as OrchestratorSvg } from '../../../assets/svg/sidebar/Orchestrator.svg';
 import TemplatesSvg from '../../../assets/svg/sidebar/TemplatesSvg.jsx';
 import { ReactComponent as HelpSvg } from '../../../assets/svg/sidebar/help.svg';
+import { ReactComponent as ProfileIcon } from '../../../assets/svg/sidebar/profileIcon.svg';
+import { ReactComponent as WorkspaceIcon } from '../../../assets/svg/sidebar/workspaceIcon.svg';
+import { ReactComponent as TeamIcon } from '../../../assets/svg/sidebar/teamMembersIcon.svg';
+import { ReactComponent as IntegartionIcon } from '../../../assets/svg/sidebar/integrationsIcon.svg';
+import { ReactComponent as PlanBillingIcon } from '../../../assets/svg/sidebar/planBilling.svg';
 
 export const veAiModulesItemsList = [
 	{
@@ -137,6 +137,21 @@ export const styles = {
 	},
 };
 
+export const SETTINGS_OPTIONS = {
+	admin: [
+		{ name: 'My Profile', route: '/settings/my-profile', icon: ProfileIcon },
+		{ name: 'MindSpace', route: '/settings/workspace', icon: WorkspaceIcon },
+		{ name: 'Team Settings', route: '/settings/team-settings', icon: TeamIcon },
+		{ name: 'Integration', route: '/settings/integrations', icon: IntegartionIcon },
+		{ name: 'Plan Billing', route: '/settings/plan-billing', icon: PlanBillingIcon },
+		{ name: 'AI Setup', route: '/settings/ai-setup', icon: AgentsSvg },
+	],
+	user: [
+		{ name: 'My Profile', route: '/settings/my-profile', icon: ProfileIcon },
+		{ name: 'Integration', route: '/settings/integrations', icon: IntegartionIcon },
+		{ name: 'AI Setup', route: '/settings/ai-setup', icon: AgentsSvg },
+	],
+};
 // export const newBtnActions = [
 // 	{ label: 'Lead', action: 'functionCall', funcName: 'openLeadPopup', redirect: null },
 // 	{ label: 'Workflow', action: 'redirect', funcName: null, redirect: '/playbook' },

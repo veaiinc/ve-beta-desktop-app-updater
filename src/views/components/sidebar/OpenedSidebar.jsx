@@ -1,6 +1,11 @@
-import React, { useState, memo, useCallback, useEffect, useContext } from 'react';
+import React, { useState, useCallback, useEffect, useContext, memo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { veAiModulesItemsList, veAiModules, veAiNewModules } from './sidebarindex';
+import {
+	veAiModulesItemsList,
+	veAiModules,
+	veAiNewModules,
+	SETTINGS_OPTIONS,
+} from './sidebarindex';
 import { ReactComponent as ArrowUpRightSvg } from '../../../assets/svg/sidebar/arrowupright.svg';
 import { ReactComponent as DownArrowSmallSvg } from '../../../assets/svg/sidebar/downarrowsmall.svg';
 import { ReactComponent as SidebarClosingSvg } from '../../../assets/svg/sidebar/SidebarClosing.svg';
@@ -8,17 +13,10 @@ import { ReactComponent as LogoutRedSvg } from '../../../assets/svg/sidebar/logo
 import { ReactComponent as CrossSvg } from '../../../assets/svg/sidebar/CrossSvg.svg';
 import { ReactComponent as SingleRightArrowSvg } from '../../../assets/svg/sidebar/singleRightArrow.svg';
 import { ReactComponent as SwitchWorkspaceSvg } from '../../../assets/svg/sidebar/switchWorkspace.svg';
-import { ReactComponent as LeftArrowSvg } from '../../../assets/svg/sidebar/leftarrowwhite.svg';
 import WorkspaceListComponent from './Workspace';
 import useLogout from '../../hooks/useLogout';
 import { message, Tooltip } from 'antd';
 import ChatHistory from './chatHistory/ChatHistory';
-import { ReactComponent as ProfileIcon } from '../../../assets/svg/sidebar/profileIcon.svg';
-import { ReactComponent as WorkspaceIcon } from '../../../assets/svg/sidebar/workspaceIcon.svg';
-import { ReactComponent as TeamIcon } from '../../../assets/svg/sidebar/teamMembersIcon.svg';
-import { ReactComponent as IntegartionIcon } from '../../../assets/svg/sidebar/integrationsIcon.svg';
-import { ReactComponent as PlanBillingIcon } from '../../../assets/svg/sidebar/planBilling.svg';
-import { ReactComponent as AgentsSvg } from '../../../assets/svg/sidebar/agentsIcon.svg';
 import Cropper from 'react-easy-crop';
 import Context from '../../../context/context';
 import { getInitials } from '../../../helpers/index';
@@ -58,7 +56,6 @@ const OpenedSidebarModules = ({
 }) => {
 	let {
 		aiSetup: { isVoiceIntegrationActive },
-		profileInfo: { userDetailsData },
 	} = useContext(Context);
 
 	const location = useLocation();
@@ -230,83 +227,6 @@ const OpenedSidebarModules = ({
 	);
 };
 
-const OpenedSideBarHoverStateIcons2 = ({
-	name,
-	Icon,
-	route,
-	initialColor = null,
-	isActive,
-	navigateTo,
-}) => {
-	const [isHover, setisHover] = useState(false);
-
-	const onMoutseEnter = () => {
-		if (isActive) return;
-		setisHover(true);
-	};
-	const onMoutseLeave = () => {
-		if (isActive) return;
-		setisHover(false);
-	};
-
-	const redirectToFunction = () => {
-		if (!route) return;
-		navigateTo(route);
-	};
-
-	return (
-		<div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginBottom: '4px' }}>
-			<div
-				className={`singleModuleItem ${isActive ? 'activeListModule' : ''} ${
-					isHover ? 'hover' : ''
-				}`}
-				onMouseEnter={onMoutseEnter}
-				onMouseLeave={onMoutseLeave}
-				onClick={redirectToFunction}
-				style={{
-					backgroundColor: isActive ? '#2E2F33' : '',
-				}}
-			>
-				<p>{name}</p>
-				{isActive ? (
-					<Icon fill={'#FFF'} />
-				) : (
-					<Icon fill={isHover ? '#FFF' : initialColor} />
-				)}
-			</div>
-		</div>
-	);
-};
-
-const AiModulesList = ({ image, name, route, navigateTo }) => {
-	const redirectToFunction = () => {
-		if (!route) return;
-		navigateTo(route);
-	};
-	return (
-		<div style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}>
-			<img
-				src={image}
-				alt={name}
-				style={{ width: '24px', height: '24px', borderRadius: '50%' }}
-			/>
-			<p
-				onClick={redirectToFunction}
-				style={{
-					color: '#E8E8E8',
-					fontFamily: 'Inter',
-					fontSize: '14px',
-					fontStyle: 'normal',
-					fontWeight: '500',
-					lineHeight: 'normal',
-				}}
-			>
-				{name}
-			</p>
-		</div>
-	);
-};
-
 const OpenedSidebar = ({
 	sidebarStates,
 	setsidebarStates,
@@ -319,6 +239,7 @@ const OpenedSidebar = ({
 	setShowChatsDrawer,
 	setShowNotesDrawer,
 	setHideClosedSidebarIcon,
+	renewBanner,
 }) => {
 	const {
 		templates: { leftSidebarState, updateStateValues },
@@ -327,7 +248,6 @@ const OpenedSidebar = ({
 	const navigate = useNavigate();
 	const logoutFunc = useLogout();
 	const [selectedOption, setSelectedOption] = useState(null);
-	const [aiChatsDropdownVisible, setAiChatsDropdownVisible] = useState(false);
 	const [selectedChat, setSelectedChat] = useState(null);
 	const [activeChat, setActiveChat] = useState(false);
 	const [isMobile, setIsMobile] = useState(window.innerWidth < 500);
@@ -342,20 +262,7 @@ const OpenedSidebar = ({
 	const isAdmin = tenantUserAccessControls?.role === 'admin';
 
 	// Add this constant for Settings options
-	const SETTINGS_OPTIONS = isAdmin
-		? [
-				{ name: 'My Profile', route: '/settings/my-profile', icon: ProfileIcon },
-				{ name: 'MindSpace', route: '/settings/workspace', icon: WorkspaceIcon },
-				{ name: 'Team Settings', route: '/settings/team-settings', icon: TeamIcon },
-				{ name: 'Integration', route: '/settings/integrations', icon: IntegartionIcon },
-				{ name: 'Plan Billing', route: '/settings/plan-billing', icon: PlanBillingIcon },
-				{ name: 'AI Setup', route: '/settings/ai-setup', icon: AgentsSvg },
-		  ]
-		: [
-				{ name: 'My Profile', route: '/settings/my-profile', icon: ProfileIcon },
-				{ name: 'Integration', route: '/settings/integrations', icon: IntegartionIcon },
-				{ name: 'AI Setup', route: '/settings/ai-setup', icon: AgentsSvg },
-		  ];
+	const settingsOptions = isAdmin ? SETTINGS_OPTIONS.admin : SETTINGS_OPTIONS.user;
 
 	useEffect(() => {
 		if (leftSidebarState && leftSidebarState === 'close') {
@@ -414,11 +321,6 @@ const OpenedSidebar = ({
 		setsidebarStates({ ...sidebarStates, navStyle: 'close' });
 		setIsOpen(false);
 		// setShowChatsDrawer(false);
-	};
-
-	const handleChatSelect = (chatName) => {
-		setSelectedChat(chatName);
-		setActiveChat(chatName);
 	};
 
 	const handleCloseChatPanel = () => {
@@ -496,8 +398,6 @@ const OpenedSidebar = ({
 			})
 			.filter(Boolean); // Remove any null values (modules without access or submodules)
 	};
-
-	// Extract all possible app names (values from MODULE_NAME_MAP)
 	const allPossibleApps = Object.values(MODULE_NAME_MAP);
 
 	const filteredModules =
@@ -533,10 +433,11 @@ const OpenedSidebar = ({
 								<div
 									className="openSideBarComponent"
 									style={{
-										height: '100lvh',
+										height: renewBanner ? 'calc(100dvh - 41px)' : '100dvh',
 										display: 'flex',
 										flexDirection: 'column',
 										justifyContent: 'space-between',
+										overflowY: 'auto',
 									}}
 								>
 									<div className="topOptionsList">
@@ -554,7 +455,7 @@ const OpenedSidebar = ({
 												onClick={openWorkspacesFunction}
 												style={{ cursor: 'pointer' }}
 											>
-												{info?.activeBusniessName?.logo_s3_500w_key ? (
+												{info?.activeBusniessName?.logo_s3_500w_key && (
 													<div className="workspaceLogoContainer">
 														<img
 															className="workspaceLogo"
@@ -568,8 +469,6 @@ const OpenedSidebar = ({
 															}
 														/>
 													</div>
-												) : (
-													<div className="workspaceLogoContainer"></div>
 												)}
 												<h6 className="workspaceName">
 													{info?.activeBusniessName?.businessName}
@@ -578,7 +477,6 @@ const OpenedSidebar = ({
 													style={{ height: '16px', width: '16px' }}
 												/>
 											</div>
-											{/* <NotificationSvg /> */}
 											<Tooltip
 												title="Close Sidebar"
 												placement="right"
@@ -609,7 +507,9 @@ const OpenedSidebar = ({
 												display: 'flex',
 												flexDirection: 'column',
 												width: '211px',
+												overflowY: 'auto',
 											}}
+											id="chatsScroll"
 										>
 											{sidebarStates?.workSpaceOpen && (
 												<div
@@ -706,67 +606,6 @@ const OpenedSidebar = ({
 														}}
 													/>
 
-													{/* {filterModules2?.map((singleItem, index) => (
-														<div key={index}>
-															<OpenedSidebarModules
-																name={singleItem.name}
-																Icon={singleItem.icon}
-																initialColor={
-																	singleItem.initialColor
-																}
-																route={singleItem.route}
-																navigateTo={(route) =>
-																	handleNavigateFunction(
-																		route,
-																		singleItem,
-																	)
-																}
-																isSelected={
-																	selectedOption ===
-																	singleItem.name
-																}
-																isActive={
-																	location.pathname ===
-																	singleItem.route
-																}
-																subModules={singleItem.subModules}
-																isDropdownVisible={
-																	activeDropdown ===
-																	singleItem.name
-																}
-																onDropdownToggle={() =>
-																	handleDropdownToggle(
-																		singleItem.name,
-																	)
-																}
-																setActiveDropdown={
-																	setActiveDropdown
-																}
-																activeSubModule={activeSubModule}
-																setActiveSubModule={
-																	setActiveSubModule
-																}
-																handleSubModuleClick={
-																	handleSubModuleClick
-																}
-																setShowChatsDrawer={
-																	setShowChatsDrawer
-																}
-																setShowNotificationsDrawer={
-																	setShowNotificationsDrawer
-																}
-																setShowNotesDrawer={
-																	setShowNotesDrawer
-																}
-																handleSidebarCollapse={
-																	handleSidebarCollapse
-																}
-																setHideClosedSidebarIcon={
-																	setHideClosedSidebarIcon
-																}
-															/>
-														</div>
-													))} */}
 													<ChatHistory />
 													<div
 														className="settingsOptionsContainer"
@@ -823,7 +662,7 @@ const OpenedSidebar = ({
 																{userDetailsData?.firstName}
 															</div>
 														</div>
-														<SingleRightArrowSvg />
+														<SingleRightArrowSvg fill="var(--primary-font)" />
 													</div>
 												</>
 											)}
@@ -865,7 +704,6 @@ const OpenedSidebar = ({
 						)}
 					</div>
 				)}
-
 				{/* Settings Sidebar Overlay */}
 				{showSettingsSidebar && (
 					<div className="settings-sidebar">
@@ -874,7 +712,7 @@ const OpenedSidebar = ({
 							<div
 								style={{
 									position: 'absolute',
-									top: '60px', // Adjust this value based on your header height
+									top: '60px',
 									left: '0',
 									width: '230px',
 									marginLeft: '10px',
@@ -895,9 +733,10 @@ const OpenedSidebar = ({
 						)}
 						<div className="settings-header">
 							<div className="settings-header-left">
-								<LeftArrowSvg
+								<SingleRightArrowSvg
 									onClick={() => setShowSettingsSidebar(false)}
 									className="back-arrow"
+									fill="var(--primary-font)"
 								/>
 								{/* <h6>Settings</h6> */}
 							</div>
@@ -936,7 +775,6 @@ const OpenedSidebar = ({
 							<ArrowUpRightSvg />
 							<p>Create workspace</p>
 						</div>
-
 						<hr
 							style={{
 								border: '0.7px solid var(--stroke)',
@@ -945,7 +783,8 @@ const OpenedSidebar = ({
 						/>
 						{/* Settings Options */}
 						<div className="settings-options">
-							{SETTINGS_OPTIONS.map((option, index) => (
+							<div className="settings-options-title">Settings</div>
+							{settingsOptions.map((option, index) => (
 								<div
 									key={index}
 									className={`settings-option-item ${
@@ -974,6 +813,7 @@ const OpenedSidebar = ({
 							}}
 						/>
 						<div className="settings-options-container">
+							<div className="settings-options-title">Essentials</div>
 							{filterModules2?.map((singleItem, index) => (
 								<div key={index}>
 									<OpenedSidebarModules

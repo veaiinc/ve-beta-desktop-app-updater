@@ -163,6 +163,7 @@ const Sidebar = ({ activeWorkspaceId }) => {
 							setShowNotificationsDrawer={setShowNotificationsDrawer}
 							setShowNotesDrawer={setShowNotesDrawer}
 							setHideClosedSidebarIcon={setHideClosedSidebarIcon}
+							renewBanner={renewBanner}
 						/>
 					) : (
 						<Tooltip
@@ -196,11 +197,6 @@ const Sidebar = ({ activeWorkspaceId }) => {
 					setShowNotificationsDrawer={setShowNotificationsDrawer}
 				/>
 				<Notes showNotesDrawer={showNotesDrawer} setShowNotesDrawer={setShowNotesDrawer} />
-				<ChatHistory
-					showChatsDrawer={showChatsDrawer}
-					setShowChatsDrawer={setShowChatsDrawer}
-					setHideClosedSidebarIcon={setHideClosedSidebarIcon}
-				/>
 			</div>
 
 			{isOpen && <div className="sidebar__overlay"></div>}
