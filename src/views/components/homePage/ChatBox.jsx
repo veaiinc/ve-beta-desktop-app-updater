@@ -536,6 +536,7 @@ const ChatBox = ({
 						// recentFiles: [],// not clearing the recent files , because they want like sana
 						chatFilters: initialChatFilters,
 					}));
+					uploadedImagesRef.current = [];
 
 					clearTextArea();
 
