@@ -26,6 +26,8 @@ const RecentChat = ({
 	handleAiUploadImage,
 	customChatActions = false,
 	isPublicChat = false,
+	isPreview = false,
+	sId = null,
 }) => {
 	const {
 		templates: {
@@ -78,7 +80,7 @@ const RecentChat = ({
 	const chatContentRef = useRef(null);
 	const loadingMessageRef = useRef(globalLoadingMesssage);
 	const chatMessagesRef = useRef(globalChatMessages || []);
-	const { sessionId } = useParams();
+	let { sessionId } = useParams();
 	const [searchParams, setSearchParams] = useSearchParams();
 	const aiMessagesRef = useRef([]);
 	const previousAiMessagesRef = useRef([]);
@@ -87,6 +89,7 @@ const RecentChat = ({
 	const previousTabsRefs = useRef({});
 	const isFirstTimeConnectingToPublicChatRef = useRef(true);
 
+	sessionId = isPreview ? sId : sessionId;
 	useEffect(() => {
 		if (!isPublicChat) return;
 		makePublicChatRequest();
@@ -648,7 +651,7 @@ const RecentChat = ({
 			<div className="chat-container">
 				<div className="chatBarContainer" style={{ width: '100%' }}>
 					{/* header */}
-					{!isPublicChat && (
+					{!isPublicChat && !isPreview && (
 						<div className="containerHeader">
 							<h1 className="containerHeaderTitle"></h1>
 							<div className="iconContainer">
@@ -671,6 +674,7 @@ const RecentChat = ({
 						className="chatBodyContainer"
 						style={{
 							width: `${info?.citationsModalIsOpen ? 'calc(100% - 400px)' : '100%'}`,
+							paddingLeft: `${chatHistoryDrawerIsOpen ? '250px' : '0px'}`,
 						}}
 					>
 						<div
@@ -936,6 +940,7 @@ const RecentChat = ({
 								latestStreamMesage={info?.latestStreamMesage}
 								lastQuery={info?.lastQuery}
 								toggleLatestStreamMessage={toggleLatestStreamMessage}
+								hideDeepResearch={searchParams?.get('agentType') === 'search_agent'}
 							/>
 						</div>
 					</div>
