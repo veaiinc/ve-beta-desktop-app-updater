@@ -18,7 +18,7 @@
 	}
 }
 .chats-drawer-container {
-	width: 226px;
+	width: 210px;
 
 	.header {
 		padding: 24px;
@@ -43,9 +43,33 @@
 	.chats-container {
 		display: flex;
 		flex-direction: column;
+		height: calc(100% - 70px);
 		// height: calc(100vh - 70px);
-		height: 63vh;
-		width: 226px;
+		// height: 63vh;
+		width: 210px;
+		gap: 10px;
+		.searchContainer {
+			display: flex;
+			width: 210px;
+			padding: 10px;
+			align-items: center;
+			gap: 10px;
+			border-radius: 8px;
+			background: var(--card, #171819);
+			.search-input {
+				overflow: hidden;
+				color: var(--secondary-font, #93989f);
+				text-overflow: ellipsis;
+				font-family: Inter;
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+				background: transparent;
+				border: none;
+				outline: none;
+			}
+		}
 
 		.skeleton-loader-container {
 			display: flex;
@@ -93,7 +117,7 @@
 				gap: 10px;
 				align-self: stretch;
 				cursor: pointer;
-
+				width: 211px;
 				&.active-chat {
 					border-radius: 8px;
 					background: var(--card-over-card-hover, #2e2f33);

@@ -99,10 +99,10 @@
 	color: var(--primary-font);
 	font-weight: 600;
 }
-// .common-markdown-font {
-// 	font-size: 16px;
-// 	// line-height: 1.55;
-// }
+
+.common-markdown-font {
+	color: var(--primary-font, #f2f2f3);
+}
 
 .markdown-table {
 	border-collapse: separate;
@@ -212,7 +212,8 @@
 
 	span {
 		letter-spacing: -0.02em;
-		font-weight: 400;
+		font-weight: 300;
+		color: var(--primary-font, #f2f2f3);
 	}
 }
 
