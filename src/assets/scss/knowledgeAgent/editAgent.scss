@@ -61,9 +61,16 @@
 
 					.chatContent {
 						// padding-bottom: 100px;
+						.loader-tabs-wrapper {
+							background-color: var(--navbar) !important;
+						}
 
 						.scroll-button {
 							transform: translateX(-50%);
+						}
+
+						.tabs-wrapper {
+							background-color: var(--navbar) !important;
 						}
 					}
 					.chatBoxWrapper {

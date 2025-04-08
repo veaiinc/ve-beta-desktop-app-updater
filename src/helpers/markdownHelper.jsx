@@ -10,6 +10,7 @@ import { ReactComponent as TickSvg } from '../assets/svg/tick.svg';
 import { ReactComponent as CopyIcon } from '../assets/svg/ai_agents/copy.svg';
 import Context from '../context/context';
 import { Tooltip } from 'antd';
+
 import { CitationsTooltip } from '../views/components/modalsV2/chat/CitationsTooltip';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
@@ -61,19 +62,23 @@ const rehypeCITPlugin = () => {
 
 // Move components outside to prevent recreation on every render
 const baseComponents = {
-	pre: ({ children }) => <pre className="markdown-pre mb-4 fade-in">{children}</pre>,
-	hr: ({ children }) => <hr className="mb-2 fade-in" />,
+	pre: ({ children }) => <pre className="markdown-pre mb-4 ">{children}</pre>,
+	hr: ({ children }) => <hr className="mb-2 " />,
 	ol: ({ children, ...props }) => (
-		<ol className=" list-outside ml-8 mb-4 fade-in" {...props}>
+		<ol className=" list-outside mb-4 " {...props}>
 			{children}
 		</ol>
 	),
 	li: ({ children, ...props }) => {
-		return <li {...props}>{children}</li>;
+		return (
+			<li className="list-item" {...props}>
+				{children}
+			</li>
+		);
 	},
 	ul: ({ children, ...props }) => {
 		return (
-			<ul className="list-decimal list-outside ml-8 mb-4 fade-in	" {...props}>
+			<ul className=" list-outside mb-4 " {...props}>
 				{children}
 			</ul>
 		);
@@ -88,7 +93,7 @@ const baseComponents = {
 	a: ({ children, ...props }) => {
 		return (
 			<a
-				className="text-blue-500 hover:underline common-markdown-font fade-in"
+				className="text-blue-500 hover:underline common-markdown-font "
 				target="_blank"
 				rel="noreferrer"
 				{...props}
@@ -99,56 +104,56 @@ const baseComponents = {
 	},
 	h1: ({ children, ...props }) => {
 		return (
-			<h1 className="text-3xl font-semibold mt-6 mb-4 fade-in" {...props}>
+			<h1 className="text-3xl font-semibold mt-6 mb-4 " {...props}>
 				{children}
 			</h1>
 		);
 	},
 	h2: ({ children, ...props }) => {
 		return (
-			<h2 className="text-2xl font-semibold mt-6 mb-4 fade-in" {...props}>
+			<h2 className="text-2xl font-semibold mt-6 mb-4 " {...props}>
 				{children}
 			</h2>
 		);
 	},
 	h3: ({ children, ...props }) => {
 		return (
-			<h3 className="text-xl font-semibold mt-6 mb-2 fade-in" {...props}>
+			<h3 className="text-xl font-semibold mt-6 mb-2 " {...props}>
 				{children}
 			</h3>
 		);
 	},
 	h4: ({ children, ...props }) => {
 		return (
-			<h4 className="text-lg font-semibold mt-6 mb-2 fade-in" {...props}>
+			<h4 className="text-lg font-semibold mt-6 mb-2 " {...props}>
 				{children}
 			</h4>
 		);
 	},
 	h5: ({ children, ...props }) => {
 		return (
-			<h5 className="text-base font-semibold mt-6 mb-2 fade-in" {...props}>
+			<h5 className="text-base font-semibold mt-6 mb-2 " {...props}>
 				{children}
 			</h5>
 		);
 	},
 	h6: ({ children, ...props }) => {
 		return (
-			<h6 className="text-sm font-semibold mt-6 mb-2 fade-in" {...props}>
+			<h6 className="text-sm font-semibold mt-6 mb-2 " {...props}>
 				{children}
 			</h6>
 		);
 	},
 	p: ({ children, ...props }) => {
 		return (
-			<p className="text-white  mb-2 mt-2 common-markdown-font fade-in" {...props}>
+			<p className="text-white  mb-2 mt-2 common-markdown-font " {...props}>
 				{children}
 			</p>
 		);
 	},
 	img: ({ children, ...props }) => {
 		return (
-			<div className="markdown-image-wrapper fade-in">
+			<div className="markdown-image-wrapper ">
 				<img
 					className="w-full h-auto"
 					{...props}
@@ -160,29 +165,29 @@ const baseComponents = {
 		);
 	},
 	table: ({ children, ...props }) => (
-		<div className="table-container my-4 overflow-x-auto fade-in">
+		<div className="table-container my-4 overflow-x-auto ">
 			<table className="markdown-table w-full" {...props}>
 				{children}
 			</table>
 		</div>
 	),
 	thead: ({ children, ...props }) => (
-		<thead className="bg-gray-800 fade-in" {...props}>
+		<thead className="bg-gray-800 " {...props}>
 			{children}
 		</thead>
 	),
 	th: ({ children, ...props }) => (
-		<th className="px-4 py-2 text-left border border-gray-700 fade-in" {...props}>
+		<th className="px-4 py-2 text-left border border-gray-700 " {...props}>
 			{children}
 		</th>
 	),
 	td: ({ children, ...props }) => (
-		<td className="px-4 py-2 border border-gray-700 fade-in" {...props}>
+		<td className="px-4 py-2 border border-gray-700 " {...props}>
 			{children}
 		</td>
 	),
 	tr: ({ children, ...props }) => (
-		<tr className="border-b border-gray-700 hover:bg-gray-800 fade-in" {...props}>
+		<tr className="border-b border-gray-700 hover:bg-gray-800" {...props}>
 			{children}
 		</tr>
 	),
@@ -243,12 +248,12 @@ export const TypingEffect = memo(
 	({
 		text,
 		customePencilClickFunc = null,
-		smoothScrollToBottom,
 		messageId = null,
 		handleRatingClick = null,
 		rating = null,
 		citations = [],
 		messageData,
+		isNewMessage = false,
 	}) => {
 		const {
 			documentPreview: { setNoteContent },
@@ -256,7 +261,7 @@ export const TypingEffect = memo(
 		const [isCopiedToClipboard, setIsCopiedToClipboard] = useState(false);
 		const [renderTrigger, setRenderTrigger] = useState(0);
 
-		const chunkSize = 200; // Size of each chunk (200 characters)
+		const chunkSize = 200; // Size of each chunk (200 characters)\
 		const textRef = useRef(text); // Store the latest text in a ref
 
 		const chunkRef = useRef(''); // Ref for storing chunk
@@ -335,7 +340,12 @@ export const TypingEffect = memo(
 				</Markdown>
 
 				{messageData?.messageId && (
-					<div className="hover-actions-container">
+					<div
+						className={`hover-actions-container`}
+						style={{
+							visibility: isNewMessage ? 'visible' : '',
+						}}
+					>
 						<div className="icon-container">
 							<Tooltip
 								placement="bottom"
@@ -364,7 +374,7 @@ export const TypingEffect = memo(
 							</Tooltip>
 						</div>
 
-						<div className="icon-container">
+						{/* <div className="icon-container">
 							<Tooltip
 								placement="bottom"
 								arrow={false}
@@ -373,7 +383,7 @@ export const TypingEffect = memo(
 							>
 								<HeadPhoneSvg />
 							</Tooltip>
-						</div>
+						</div> */}
 
 						<div className="icon-container">
 							<Tooltip
@@ -412,21 +422,52 @@ export const TypingEffect = memo(
 			prevProps.messageId === nextProps.messageId &&
 			prevProps.rating === nextProps.rating &&
 			JSON.stringify(prevProps.citations) === JSON.stringify(nextProps.citations) &&
-			prevProps.messageData?.messageId === nextProps.messageData?.messageId
+			prevProps.messageData?.messageId === nextProps.messageData?.messageId &&
+			prevProps.isNewMessage === nextProps.isNewMessage
 		);
 	},
 );
 
-export const UserMessageRenderer = ({ messageData, lastVisibleUserMessageIndex }) => {
+export const UserMessageRenderer = memo(({ messageData, activeUserMessageIndex }) => {
 	const {
 		templates: { updateStateValues },
 	} = useContext(Context);
+	const textRef = useRef(null);
 
 	const [info, setinfo] = useState({
 		isCopiedToClipboard: false,
 		editUserQuery: false,
 		userQuery: messageData?.message,
+		isExpanded: false,
+		isOverflowing: false,
 	});
+
+	useEffect(() => {
+		adjustFontSize();
+	}, [messageData?.message]);
+
+	const checkOverflow = (element) => {
+		return element?.scrollHeight > element?.clientHeight;
+	};
+
+	const adjustFontSize = () => {
+		if (textRef?.current) {
+			// Set initial font size
+			textRef.current.style.fontSize = '1.5rem';
+			textRef.current.style.lineHeight = '1.75rem';
+
+			// Check again for overflow
+			if (checkOverflow(textRef?.current)) {
+				// If still overflowing, revert to 0.875rem
+				textRef.current.style.fontSize = '0.875rem';
+				textRef.current.style.lineHeight = '1.25rem';
+
+				if (checkOverflow(textRef?.current)) {
+					setinfo((prev) => ({ ...prev, isOverflowing: true }));
+				}
+			}
+		}
+	};
 
 	const handleCopyTextClick = useCallback(
 		(text) => {
@@ -473,18 +514,38 @@ export const UserMessageRenderer = ({ messageData, lastVisibleUserMessageIndex }
 		[info],
 	);
 
+	const toggleExpand = useCallback(() => {
+		setinfo((prev) => ({ ...prev, isExpanded: !prev.isExpanded }));
+	}, []);
+
 	return (
-		<div className="user-message-renderer-container">
+		<div className="user-message-renderer-wrapper">
 			{!info?.editUserQuery ? (
-				<div
-					style={{
-						transition: 'opacity 0.3s ease-in-out',
-						opacity: lastVisibleUserMessageIndex ? 1 : 0.6,
-					}}
-					className="fade-in user-message-renderer-container"
-				>
-					{messageData?.message || ''}
-					{/* <Markdown>{messageData?.message || ''}</Markdown> */}
+				<div>
+					<div
+						style={{
+							opacity: activeUserMessageIndex ? 1 : 0.6,
+							maxHeight: info?.isExpanded
+								? `${textRef.current?.scrollHeight}px`
+								: '147px',
+						}}
+						className="user-message-renderer-container"
+						ref={textRef}
+					>
+						{(messageData?.message || '').split('\n').map((line, index) => (
+							<span key={index}>
+								{line}
+								{index < messageData?.message.split('\n').length - 1 && <br />}
+							</span>
+						))}
+					</div>
+					{info?.isOverflowing && (
+						<div className="expand-btn">
+							<div className="btn-text" onClick={toggleExpand}>
+								{info?.isExpanded ? 'Show less' : 'Show more'}
+							</div>
+						</div>
+					)}
 				</div>
 			) : (
 				<div className="user-edit-query-input-box-container">
@@ -532,4 +593,4 @@ export const UserMessageRenderer = ({ messageData, lastVisibleUserMessageIndex }
 			)}
 		</div>
 	);
-};
+});

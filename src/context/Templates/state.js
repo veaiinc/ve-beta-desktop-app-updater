@@ -109,7 +109,10 @@ export const intialState = {
 		selectedLLMModel: null,
 		webSearch: false,
 		workspaceSearch: true,
+		agentType: null,
+		assistantId: null,
 	},
+	galleryFile: null,
 	globalLoadingMesssage: null,
 	userEditedQuery: null,
 };
@@ -1660,55 +1663,57 @@ export const TemplatesState = (props) => {
 
 		if (localPayload.showCustomChatOptions) {
 			updatedGlobalChatMessages = [...(localPayload.showCustomChatOptions || [])];
-		} else if (payload.files) {
-			let str = '  ';
-			for (let i = 0; i < localPayload?.files?.length; i++) {
-				str += localPayload?.files?.[i]?.name || '' + ' ,';
-			}
+		}
+		//  else if (payload.files) {
+		// 	let str = '  ';
+		// 	for (let i = 0; i < localPayload?.files?.length; i++) {
+		// 		str += localPayload?.files?.[i]?.name || '' + ' ,';
+		// 	}
 
-			updatedGlobalChatMessages = [
-				{
-					type: 'user',
-					content: (
-						<div
-							className="uploadedImagesContainer"
-							style={{
-								display: 'flex',
-								flexDirection: 'column',
-								gap: '2px',
-								alignItems: 'flex-end',
-							}}
-						>
-							{localPayload?.files?.map((ele, index) => (
-								<img
-									src={ele.preview}
-									alt="filetochat"
-									width={'75px'}
-									onClick={() => localPayload?.handlePreview(ele)}
-									style={{ cursor: 'pointer' }}
-								/>
-							))}
+		// 	updatedGlobalChatMessages = [
+		// 		{
+		// 			type: 'user',
+		// 			content: (
+		// 				<div
+		// 					className="uploadedImagesContainer"
+		// 					style={{
+		// 						display: 'flex',
+		// 						flexDirection: 'column',
+		// 						gap: '2px',
+		// 						alignItems: 'flex-end',
+		// 					}}
+		// 				>
+		// 					{localPayload?.files?.map((ele, index) => (
+		// 						<img
+		// 							src={ele.preview}
+		// 							alt="filetochat"
+		// 							width={'75px'}
+		// 							onClick={() => localPayload?.handlePreview(ele)}
+		// 							style={{ cursor: 'pointer' }}
+		// 						/>
+		// 					))}
 
-							<div className="message-content-user" style={{ marginTop: '8px' }}>
-								<span>{queryMessage}</span>
-							</div>
-						</div>
-					),
-				},
-				{
-					type: 'AI',
-					message: 'loading....',
-					content: (
-						<div className="aiMessageWrapper">
-							<AIMessageLoader />
-						</div>
-					),
-					contentType: 'loading',
-				},
-			];
+		// 					<div className="message-content-user" style={{ marginTop: '8px' }}>
+		// 						<span>{queryMessage}</span>
+		// 					</div>
+		// 				</div>
+		// 			),
+		// 		},
+		// 		{
+		// 			type: 'AI',
+		// 			message: 'loading....',
+		// 			content: (
+		// 				<div className="aiMessageWrapper">
+		// 					<AIMessageLoader />
+		// 				</div>
+		// 			),
+		// 			contentType: 'loading',
+		// 		},
+		// 	];
 
-			payload.query += str;
-		} else {
+		// 	payload.query += str;
+		// }
+		else {
 			updatedGlobalChatMessages = [
 				{ type: 'user', message: queryMessage || '', typingEffect: false },
 				{
