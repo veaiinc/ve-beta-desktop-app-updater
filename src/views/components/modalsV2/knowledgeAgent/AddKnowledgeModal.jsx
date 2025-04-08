@@ -1,17 +1,17 @@
 import { memo, useState, useContext, useEffect, useCallback } from 'react';
-import '../../../../../assets/scss/settings/aiSetup.scss';
-import { ReactComponent as CrossGrey } from '../../../../../assets/svg/Settings/cross-grey.svg';
-import { ReactComponent as LinkGrey } from '../../../../../assets/svg/Settings/link-grey-color.svg';
-import { ReactComponent as UploadIcon } from '../../../../../assets/svg/Settings/CloudUpload.svg';
-import { ReactComponent as TIcon } from '../../../../../assets/svg/ai_assistant/tIcon.svg';
-import { ReactComponent as URLIcon } from '../../../../../assets/svg/ai_assistant/url.svg';
-import { ReactComponent as FolderIcon } from '../../../../../assets/svg/ai_assistant/folder.svg';
-import Modal from '../../';
+import '../../../../assets/scss/settings/aiSetup.scss';
+import { ReactComponent as CrossGrey } from '../../../../assets/svg/Settings/cross-grey.svg';
+import { ReactComponent as LinkGrey } from '../../../../assets/svg/Settings/link-grey-color.svg';
+import { ReactComponent as UploadIcon } from '../../../../assets/svg/Settings/CloudUpload.svg';
+import { ReactComponent as TIcon } from '../../../../assets/svg/ai_assistant/tIcon.svg';
+import { ReactComponent as URLIcon } from '../../../../assets/svg/ai_assistant/url.svg';
+import { ReactComponent as FolderIcon } from '../../../../assets/svg/ai_assistant/folder.svg';
+import Modal from '../';
 import { message } from 'antd';
-import Context from '../../../../../context/context';
+import Context from '../../../../context/context';
 import { useParams } from 'react-router-dom';
-import { isURL } from '../../../../../helpers';
-import Spinner from '../../../loaders/Spinner';
+import { isURL } from '../../../../helpers';
+import Spinner from '../../loaders/Spinner';
 
 const knowledgeFileTypes = [
 	{
@@ -41,21 +41,17 @@ const initialState = {
 		fileContent: '',
 	},
 	isUploading: false,
-	currentPage: 1,
 	isUrlValid: false,
 	aiCrawlLinks: null,
 };
 
 const AddKnowledgeModal = ({ isOpen, toggleModal, assistantId }) => {
-	const {
-		aiSetup: {
-			activeAiAssistantDetails,
-			knowledgeBaseFiles,
-			getKnowledgeBaseFiles,
+	let {
+		aiSetup: { crawlAiAssistant },
+		knowledgeAgent: {
 			uploadURLsToKnowledgeBase,
+			getKnowledgeBaseInfo,
 			uploadPDFsToKnowledgeBase,
-			crawlAiAssistant,
-			aiCrawlLinks,
 		},
 	} = useContext(Context);
 	const [info, setInfo] = useState({
@@ -63,13 +59,6 @@ const AddKnowledgeModal = ({ isOpen, toggleModal, assistantId }) => {
 	});
 
 	const { aiAssistantId } = useParams();
-
-	useEffect(() => {
-		setInfo((prev) => ({
-			...prev,
-			currentPage: knowledgeBaseFiles?.currentPage,
-		}));
-	}, [knowledgeBaseFiles]);
 
 	const fetchSubLinks = useCallback(async (payload) => {
 		const subLinks = await crawlAiAssistant(payload);
@@ -135,7 +124,7 @@ const AddKnowledgeModal = ({ isOpen, toggleModal, assistantId }) => {
 			if (statusSummary?.[0]) {
 				message.success('URLs uploaded successfully!', 1);
 				modifyClose();
-				getKnowledgeBaseFiles(activeAiAssistantDetails?._id, 1, 20, true);
+				getKnowledgeBaseInfo(assistantId, 1, 20);
 			}
 		} else if (info?.activeFileType === 'pdf') {
 			if (info?.pdfFilesInfo?.length === 0) {
@@ -155,7 +144,7 @@ const AddKnowledgeModal = ({ isOpen, toggleModal, assistantId }) => {
 			if (statusSummary?.[0]) {
 				message.success('PDF Files uploaded successfully!', 1);
 				toggleModal();
-				getKnowledgeBaseFiles(activeAiAssistantDetails?._id, 1, 20, true);
+				getKnowledgeBaseInfo(assistantId, 1, 20);
 			}
 		} else if (info?.activeFileType === 'customText') {
 			if (info?.customTextInfo?.filename === '') {
@@ -183,7 +172,7 @@ const AddKnowledgeModal = ({ isOpen, toggleModal, assistantId }) => {
 			if (statusSummary?.[0]) {
 				message.success('Text File uploaded successfully!', 1);
 				toggleModal();
-				getKnowledgeBaseFiles(activeAiAssistantDetails?._id, 1, 20, true);
+				getKnowledgeBaseInfo(assistantId, 1, 20);
 			}
 		}
 		setInfo((prev) => ({ ...prev, isUploading: false }));
@@ -331,6 +320,7 @@ const AddKnowledgeModal = ({ isOpen, toggleModal, assistantId }) => {
 										id="pdfInput"
 										accept=".pdf"
 										multiple
+										className="pdf-input-box"
 									/>
 									<UploadIcon />
 									Click to upload .pdf files only <br />
@@ -355,22 +345,62 @@ const AddKnowledgeModal = ({ isOpen, toggleModal, assistantId }) => {
 					</div>
 					<div className="knowledgeFileListContainer">
 						{info?.activeFileType === 'url' ? (
-							<div className="urlListContainer">
-								{info?.urlsInfo.map((url, index) => (
-									<div className="urlItem" key={index}>
-										<div className="linkIconContainer">
-											<LinkGrey />
+							<>
+								<div className="urlListContainer">
+									{info?.urlsInfo.map((url, index) => (
+										<div className="urlItem" key={index}>
+											<div className="linkIconContainer">
+												<LinkGrey />
+											</div>
+											<span className="url">{url.url}</span>
+											<div
+												className="removeIconContainer"
+												onClick={() => handleRemoveURL(index)}
+											>
+												<CrossGrey />
+											</div>
 										</div>
-										<span className="url">{url.url}</span>
-										<div
-											className="removeIconContainer"
-											onClick={() => handleRemoveURL(index)}
-										>
-											<CrossGrey />
+									))}
+								</div>
+								{info?.aiCrawlLinks?.length > 0 && (
+									<div className="crawlLinksContainer">
+										<div className="subLinksHeader">
+											<span>Sub Links</span>
+											<span
+												className="addAllSubLinksBtn"
+												onClick={handleAddAllCrawlLinks}
+											>
+												Add All
+											</span>
 										</div>
+										{info?.aiCrawlLinks?.map((link, index) => (
+											<div className="urlItem" key={index}>
+												<div className="linkIconContainer">
+													<LinkGrey />
+												</div>
+												<span className="url">{link}</span>
+												<div
+													className="removeIconContainer addSubUrlBtn"
+													onClick={() => handleAddCrawlLink(link)}
+												>
+													+
+												</div>
+											</div>
+										))}
 									</div>
-								))}
-							</div>
+								)}
+								{info?.aiCrawlLinks === null && (
+									<p
+										style={{
+											textAlign: 'center',
+											color: '#7f7f82',
+											width: '100%',
+										}}
+									>
+										Add url to fetch sub links from the urls
+									</p>
+								)}
+							</>
 						) : info?.activeFileType === 'pdf' ? (
 							<div className="pdfListContainer">
 								{info?.pdfFilesInfo?.map((pdf, index) => (
@@ -390,38 +420,6 @@ const AddKnowledgeModal = ({ isOpen, toggleModal, assistantId }) => {
 							</div>
 						) : null}
 					</div>
-					{info?.aiCrawlLinks?.length > 0 && (
-						<div className="crawlLinksContainer">
-							<div className="subLinksHeader">
-								<span>Sub Links</span>
-								<span
-									className="addAllSubLinksBtn"
-									onClick={handleAddAllCrawlLinks}
-								>
-									Add All
-								</span>
-							</div>
-							{info?.aiCrawlLinks?.map((link, index) => (
-								<div className="urlItem" key={index}>
-									<div className="linkIconContainer">
-										<LinkGrey />
-									</div>
-									<span className="url">{link}</span>
-									<div
-										className="removeIconContainer addSubUrlBtn"
-										onClick={() => handleAddCrawlLink(link)}
-									>
-										+
-									</div>
-								</div>
-							))}
-						</div>
-					)}
-					{info?.aiCrawlLinks === null && (
-						<p style={{ textAlign: 'center', color: '#7f7f82', width: '100%' }}>
-							Add url to fetch sub links from the urls
-						</p>
-					)}
 					<div className="updateBtnContainer">
 						<button className="cancelBtn" onClick={toggleModal}>
 							Cancel
