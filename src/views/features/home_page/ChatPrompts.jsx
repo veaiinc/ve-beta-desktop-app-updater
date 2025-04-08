@@ -28,7 +28,7 @@ const promptsList = [
 	},
 ];
 let timeoutId;
-const ChatPrompts = () => {
+const ChatPrompts = ({ handleUpdateOptions }) => {
 	const {
 		aiSetup: { getPromptsData, promptsData },
 	} = useContext(Context);
@@ -59,12 +59,16 @@ const ChatPrompts = () => {
 
 	useEffect(() => {
 		if (promptsData) {
-			setInfo((prev) => ({
-				...prev,
-				promptsData: [...prev?.promptsData, ...promptsData?.data],
-				hasNextPage: promptsData?.hasNextPage,
-				page: promptsData?.currentPage,
-			}));
+			if (promptsData?.data?.length > 0) {
+				setInfo((prev) => ({
+					...prev,
+					promptsData: [...prev?.promptsData, ...promptsData?.data],
+					hasNextPage: promptsData?.hasNextPage,
+					page: promptsData?.currentPage,
+				}));
+			} else {
+				handleUpdateOptions('prompts');
+			}
 		}
 	}, [promptsData]);
 

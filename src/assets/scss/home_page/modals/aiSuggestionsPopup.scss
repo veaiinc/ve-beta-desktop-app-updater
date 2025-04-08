@@ -143,7 +143,7 @@
 		background: var(--card-over-card, #202123);
 
 		.prompt-title {
-			color: var(--primary-font, #f2f2f3);
+			color: var(--primary-button, #f2f2f3);
 			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
@@ -151,7 +151,7 @@
 			line-height: normal;
 		}
 		.prompt-text {
-			height: 200px;
+			height: 150px;
 			color: var(--primary-font, #f2f2f3);
 			font-family: var(--primary-font-family);
 			font-size: 14px;

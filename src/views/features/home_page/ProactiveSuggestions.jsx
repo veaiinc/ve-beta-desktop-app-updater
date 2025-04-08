@@ -6,7 +6,7 @@ const payload = {
 	page: 1,
 	limit: 20,
 };
-const ProactiveSuggestions = () => {
+const ProactiveSuggestions = ({ handleUpdateOptions }) => {
 	const {
 		templates: { getAISuggestedPendingActions, aiSuggestedPendingActions },
 	} = useContext(Context);
@@ -19,10 +19,7 @@ const ProactiveSuggestions = () => {
 	});
 	useEffect(() => {
 		if (aiSuggestedPendingActions) {
-			setInfo((prev) => ({
-				...prev,
-				totalCardsData: aiSuggestedPendingActions?.pendingActions,
-			}));
+			updateCardsData();
 		} else {
 			getAISuggestedPendingActions(payload);
 		}
@@ -30,13 +27,23 @@ const ProactiveSuggestions = () => {
 
 	useEffect(() => {
 		if (aiSuggestedPendingActions) {
-			setInfo((prev) => ({
-				...prev,
-				totalCardsData: aiSuggestedPendingActions?.pendingActions,
-			}));
+			updateCardsData();
 		}
 	}, [aiSuggestedPendingActions]);
 
+	const updateCardsData = () => {
+		const cards = aiSuggestedPendingActions?.pendingActions?.filter(
+			(card) => card?.researchTopics?.length > 0,
+		);
+		if (cards?.length > 0) {
+			setInfo((prev) => ({
+				...prev,
+				totalCardsData: cards,
+			}));
+		} else {
+			handleUpdateOptions('proactiveSuggestions');
+		}
+	};
 	const handleCardClick = (card) => {
 		setInfo((prev) => ({
 			...prev,
@@ -49,25 +56,21 @@ const ProactiveSuggestions = () => {
 		<>
 			<div className="proactive-suggestions-container">
 				<div className="cards-container">
-					{info?.totalCardsData
-						?.filter((card) => card?.researchTopics?.length > 0)
-						.map((card) => {
-							return (
-								<div className="card" onClick={() => handleCardClick(card)}>
-									<div className="header">
-										<div className="title">
-											{card?.researchTopics?.[0]?.title}
-										</div>
-										<div className="description">
-											{card?.researchTopics?.[0]?.description}
-										</div>
-									</div>
-									<div className="footer">
-										<div className="module-type">{card?.moduleType}</div>
+					{info?.totalCardsData?.map((card) => {
+						return (
+							<div className="card" onClick={() => handleCardClick(card)}>
+								<div className="header">
+									<div className="title">{card?.researchTopics?.[0]?.title}</div>
+									<div className="description">
+										{card?.researchTopics?.[0]?.description}
 									</div>
 								</div>
-							);
-						})}
+								<div className="footer">
+									<div className="module-type">{card?.moduleType}</div>
+								</div>
+							</div>
+						);
+					})}
 				</div>
 			</div>
 			<AISuggestionsPopup

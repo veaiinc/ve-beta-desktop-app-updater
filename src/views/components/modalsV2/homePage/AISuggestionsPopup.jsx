@@ -65,9 +65,24 @@ const AISuggestionsPopup = ({ open, closeModal, data }) => {
 						<div className="module-type-text">{data?.moduleType || ''}</div>
 					</div>
 				</div>
+				{data?.researchTopics?.length > 0 && (
+					<div className="prompt-container">
+						<div className="prompt-title">Prompt</div>
+						<textarea
+							className="prompt-text"
+							onChange={(e) => {
+								setInfo({
+									...info,
+									dynamicPrompt: e?.target?.value,
+								});
+							}}
+							value={info?.dynamicPrompt}
+						></textarea>
+					</div>
+				)}
 				{data?.informationRequests?.length > 0 && (
 					<div className="questions-container">
-						<div className="title">Need your Answers for better AI Response</div>
+						<div className="title">Clarify</div>
 						{data?.informationRequests?.map((questionData, index) => (
 							<div className="question-container">
 								<div className="question">{questionData?.question || ''}</div>
@@ -90,21 +105,7 @@ const AISuggestionsPopup = ({ open, closeModal, data }) => {
 						))}
 					</div>
 				)}
-				{data?.researchTopics?.length > 0 && (
-					<div className="prompt-container">
-						<div className="prompt-title">Prompt</div>
-						<textarea
-							className="prompt-text"
-							onChange={(e) => {
-								setInfo({
-									...info,
-									dynamicPrompt: e?.target?.value,
-								});
-							}}
-							value={info?.dynamicPrompt}
-						></textarea>
-					</div>
-				)}
+
 				<button className="run-btn" onClick={handleRunBtnClick}>
 					Run
 				</button>
