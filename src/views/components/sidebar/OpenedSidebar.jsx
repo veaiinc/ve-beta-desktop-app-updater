@@ -20,6 +20,18 @@ import ChatHistory from './chatHistory/ChatHistory';
 import Cropper from 'react-easy-crop';
 import Context from '../../../context/context';
 import { getInitials } from '../../../helpers/index';
+const workspaceStyles = {
+	position: 'absolute',
+	top: '60px', // Adjust this value based on your header height
+	left: '0',
+	width: '230px',
+	marginLeft: '10px',
+	border: 'none',
+	zIndex: '1000',
+	borderRadius: '16px',
+	animation: 'slideDown 0.3s ease-out',
+	transformOrigin: 'top',
+};
 
 const MODULE_NAME_MAP = {
 	'conversational agent': 'conversationalAgent',
@@ -95,7 +107,7 @@ const OpenedSidebarModules = ({
 		}
 		if (name === 'Chats') {
 			setShowChatsDrawer((prev) => !prev);
-			setHideClosedSidebarIcon(true);
+			// setHideClosedSidebarIcon(true);
 		} else {
 			setShowChatsDrawer(false);
 		}
@@ -289,11 +301,14 @@ const OpenedSidebar = ({
 	}, [logoutFunc]);
 
 	const openWorkspacesFunction = () => {
-		setsidebarStates((prevState) => ({
-			...prevState,
-			workSpaceOpen: !prevState?.workSpaceOpen,
-			navStyle: prevState?.workSpaceOpen ? 'close' : 'workspace',
-		}));
+		setsidebarStates((prevState) => {
+			const newState = {
+				...prevState,
+				workSpaceOpen: !prevState?.workSpaceOpen,
+				navStyle: prevState?.workSpaceOpen ? 'close' : 'workspace',
+			};
+			return newState;
+		});
 	};
 
 	const handleNavigateFunction = useCallback(
@@ -709,20 +724,7 @@ const OpenedSidebar = ({
 					<div className="settings-sidebar">
 						{/* Settings Header */}
 						{sidebarStates?.workSpaceOpen && (
-							<div
-								style={{
-									position: 'absolute',
-									top: '60px',
-									left: '0',
-									width: '230px',
-									marginLeft: '10px',
-									border: 'none',
-									zIndex: '1000',
-									borderRadius: '16px',
-									animation: 'slideDown 0.3s ease-out',
-									transformOrigin: 'top',
-								}}
-							>
+							<div style={workspaceStyles}>
 								<WorkspaceListComponent
 									setsidebarStates={setsidebarStates}
 									sidebarStates={sidebarStates}
@@ -880,7 +882,7 @@ const OpenedSidebar = ({
 									{userDetailsData?.firstName}
 								</div>
 							</div>
-							<LogoutRedSvg onClick={handleLogout} />
+							<LogoutRedSvg onClick={handleLogout} style={{ cursor: 'pointer' }} />
 						</div>
 					</div>
 				)}

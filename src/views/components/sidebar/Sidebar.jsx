@@ -187,11 +187,6 @@ const Sidebar = ({ activeWorkspaceId }) => {
 						</Tooltip>
 					)}
 				</nav>
-
-				<CreateLeadModal
-					modalIsOpen={info?.createLeadModal}
-					closeModal={closeCreateLeadModal}
-				/>
 				<Notifications
 					showNotificationsDrawer={showNotificationsDrawer}
 					setShowNotificationsDrawer={setShowNotificationsDrawer}
