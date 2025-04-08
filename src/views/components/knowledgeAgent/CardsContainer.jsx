@@ -163,12 +163,6 @@ const CardsContainer = () => {
 
 	return (
 		<div className="cards-wrapper">
-			{/* <header className="page-header">
-				<h1>
-					<span className="header-subtitle">Browse your Knowledge Agents</span>
-					<span className="header-title">Curiosity is Superpower.</span>
-				</h1>
-			</header> */}
 			<div className="card-scrollable-wrapper">
 				<div className="agents-scroll-area" ref={containerRef}>
 					<div className="agents-container">
