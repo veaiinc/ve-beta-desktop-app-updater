@@ -971,7 +971,7 @@ const GalleryPage = () => {
 		const newOnlineState = !info?.isOnline;
 
 		// Show loading message
-		message.loading('Updating gallery status...');
+		// message.loading('Updating gallery status...');
 
 		try {
 			const galleryPayload = {
@@ -1333,7 +1333,7 @@ const GalleryPage = () => {
 			handleGalleryChange.isProcessing = true;
 
 			try {
-				message.loading('Renaming gallery...');
+				// message.loading('Renaming gallery...');
 
 				const payload = {
 					title: value,
@@ -1479,7 +1479,7 @@ const GalleryPage = () => {
 			albumChanges.isProcessing = true;
 
 			try {
-				message.loading('Renaming album...');
+				// message.loading('Renaming album...');
 
 				const payload = {
 					title: value,
@@ -1578,7 +1578,7 @@ const GalleryPage = () => {
 				isDownloading: true,
 			}));
 
-			message.loading('Downloading album...');
+			// message.loading('Downloading album...');
 
 			const payload = {
 				imageType: info?.originalDownload ? 'original' : 'optimized',
@@ -1626,7 +1626,7 @@ const GalleryPage = () => {
 	const handleLightRoomCopy = async () => {
 		try {
 			// Show loading message
-			message.loading('Fetching image list...');
+			// message.loading('Fetching image list...');
 
 			let response;
 			if (info.activeTab === 'Client Selections' && info.clientSelectionID) {
@@ -1978,7 +1978,7 @@ const GalleryPage = () => {
 	//Delete Handler For Gallery
 
 	const handleDeleteGallery = async () => {
-		message.loading('Your gallery is being removed. Please wait...');
+		// message.loading('Your gallery is being removed. Please wait...');
 
 		const response = await deleteGallery(galleryId);
 
@@ -2119,9 +2119,9 @@ const GalleryPage = () => {
 		getImageDetail(null, true, false);
 		setsearchkeys({ uploadImageId: 'image-uploading' });
 
-		message.loading(
-			`Uploading ${info.coverType === 'gallery' ? 'Gallery' : 'Album'} cover image..`,
-		);
+		// message.loading(
+		// 	`Uploading ${info.coverType === 'gallery' ? 'Gallery' : 'Album'} cover image..`,
+		// );
 
 		if (info?.imageURL) {
 			setInfo((prev) => ({
@@ -2192,7 +2192,7 @@ const GalleryPage = () => {
 		try {
 			handleSetCoverPosition.isProcessing = true;
 
-			message.loading('Updating cover position...');
+			// message.loading('Updating cover position...');
 
 			// Determine the current image based on different scenarios
 			let currentImage;
@@ -2763,7 +2763,7 @@ const GalleryPage = () => {
 		// Set processing flag
 		handleDeleteAlbum.isProcessing = true;
 		try {
-			message.loading('Your album is being removed. Please wait...');
+			// message.loading('Your album is being removed. Please wait...');
 
 			const response = await deleteAlbum(galleryId, info?.activeAlbumId);
 
@@ -2899,7 +2899,7 @@ const GalleryPage = () => {
 		updateImageOrder(remainingImages);
 	};
 	const handleSaveImage = async () => {
-		message.loading('Rearranging images...');
+		// message.loading('Rearranging images...');
 		// setInfo((prev) => ({
 		// 	...prev,
 		// 	imagesList: [],
@@ -2956,7 +2956,7 @@ const GalleryPage = () => {
 
 		try {
 			// Start with loading message
-			message.loading('Preparing download...');
+			// message.loading('Preparing download...');
 
 			// Single image download handling
 			if (info?.selectedImages?.length === 1) {

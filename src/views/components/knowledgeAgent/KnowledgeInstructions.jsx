@@ -7,7 +7,7 @@ import { useParams } from 'react-router-dom';
 import Skeleton from 'react-loading-skeleton';
 import moment from 'moment';
 import ToggleSwitch from '../input/slider';
-import { message } from 'antd';
+import { message } from '../globalComponents/CustomToast';
 
 const KnowledgeInstructions = ({ instructions }) => {
 	const {

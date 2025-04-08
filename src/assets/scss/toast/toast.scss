@@ -1,59 +1,69 @@
 .toast-container {
 	position: fixed;
 	top: 20px;
-	right: 50%;
-	transform: translateX(50%);
-	z-index: 1000;
+	left: 50%;
+	transform: translateX(-50%);
+	z-index: 9999;
 	display: flex;
-	flex-direction: column;
-	gap: 10px;
-	overflow-y: hidden;
-
-	// Class to control entry animation
-	.toast.slide-in {
-		animation: slideDown 0.3s ease-out forwards;
-	}
-
-	// Class to control exit animation
-	.toast.slide-out {
-		animation: slideUp 0.3s ease-in forwards;
-	}
+	flex-direction: column-reverse; // This makes latest appear at top
+	align-items: center;
+	gap: 12px; // Space between toasts
 
 	.toast {
 		min-width: 225px;
 		border: 1px solid rgba(42, 42, 42, 0.64);
-		background: var(--Popup, #202123);
+		background: var(--popup, #202123);
 		box-shadow: 0px 4px 7px 0px rgba(0, 0, 0, 0.25);
 		gap: 12px;
 		display: inline-flex;
 		align-items: center;
 		padding: 12px 16px;
 		border-radius: 16px;
-		animation: slideDown 0.3s ease-out forwards;
 		overflow: hidden;
-		color: #f2f2f3;
+		color: var(--primary-font, #f2f2f3);
 		border: 1px solid rgba(42, 42, 42, 0.64);
-		justify-content: space-between;
+
+		// Animation properties
+		transition: transform 300ms ease-in-out, opacity 300ms ease-in-out;
+		transform: translateY(-40px);
+		opacity: 0;
+
+		// Visible state
+		&.slide-in {
+			transform: translateY(0);
+			opacity: 1;
+		}
+
+		// Exiting state
+		&.slide-out {
+			transform: translateY(-40px);
+			opacity: 0;
+		}
 
 		.left-part {
 			display: flex;
 			align-items: center;
 			gap: 8px;
-			justify-content: space-between;
+			flex: 1;
 
 			.toast__icon {
-				margin-right: 12px;
 				display: flex;
 				align-items: center;
 				justify-content: center;
+				margin-right: 8px;
 
 				.loading-spinner {
-					animation: spin 1s linear infinite;
-				}
-
-				svg {
 					width: 20px;
 					height: 20px;
+					animation: spin 1s linear infinite;
+				}
+			}
+
+			.toast__content {
+				.toast__message {
+					font-size: 16px;
+					color: var(--primary-font, #f2f2f3);
+					margin: 0;
 				}
 			}
 		}
@@ -64,54 +74,26 @@
 			margin: 0 12px;
 		}
 
-		&__message {
-			flex: 1;
-		}
-
-		&__close-btn {
+		.toast__close-btn {
 			display: flex;
 			justify-content: center;
 			align-items: center;
 			padding: 8px;
 			border-radius: 8px;
-			background: #333334;
-			color: #f2f2f3;
+			background: var(--popup);
+			color: var(--primary-font, #f2f2f3);
 			cursor: pointer;
 			transition: background 0.3s;
 			border: none;
 			outline: none;
 
 			&:hover {
-				background: #222;
+				background: var(--stroke, #333334);
 			}
 		}
 	}
 }
 
-// Slide animations
-@keyframes slideDown {
-	0% {
-		transform: translateY(-20px);
-		opacity: 0;
-	}
-	100% {
-		transform: translateY(0);
-		opacity: 1;
-	}
-}
-
-@keyframes slideUp {
-	0% {
-		transform: translateY(0);
-		opacity: 1;
-	}
-	100% {
-		transform: translateY(-20px);
-		opacity: 0;
-	}
-}
-
-// Optional: loading spinner animation
 @keyframes spin {
 	0% {
 		transform: rotate(0deg);

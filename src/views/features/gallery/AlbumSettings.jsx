@@ -293,7 +293,7 @@ const AlbumSettings = () => {
 			return;
 		}
 
-		message.loading('Uploading album cover image..');
+		// message.loading('Uploading album cover image..');
 
 		if (info?.imageURL) {
 			setInfo((prev) => ({
@@ -414,7 +414,7 @@ const AlbumSettings = () => {
 		) {
 			return updateSubscriptionState({ expiredSubscriptionModal: true });
 		}
-		message.loading('Downloading album...');
+		// message.loading('Downloading album...');
 		const payload = {
 			imageType: info?.originalDownload ? 'original' : 'optimized',
 		};
