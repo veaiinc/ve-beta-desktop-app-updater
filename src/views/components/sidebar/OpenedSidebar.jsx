@@ -1,6 +1,12 @@
 import React, { useState, memo, useCallback, useEffect, useContext } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { veAiModulesItemsList, veAiModules, photographerModules } from './sidebarindex';
+import {
+	veAiModulesItemsList,
+	veAiModules,
+	photographerModules,
+	settingsAdminModules,
+	settingsUserModules,
+} from './sidebarindex';
 import { ReactComponent as ArrowUpRightSvg } from '../../../assets/svg/sidebar/arrowupright.svg';
 import { ReactComponent as DownArrowSmallSvg } from '../../../assets/svg/sidebar/downarrowsmall.svg';
 import { ReactComponent as SidebarClosingSvg } from '../../../assets/svg/sidebar/SidebarClosing.svg';
@@ -12,12 +18,7 @@ import WorkspaceListComponent from './Workspace';
 import useLogout from '../../hooks/useLogout';
 import { message, Tooltip } from 'antd';
 import ChatHistory from './chatHistory/ChatHistory';
-import { ReactComponent as ProfileIcon } from '../../../assets/svg/sidebar/profileIcon.svg';
-import { ReactComponent as WorkspaceIcon } from '../../../assets/svg/sidebar/workspaceIcon.svg';
-import { ReactComponent as TeamIcon } from '../../../assets/svg/sidebar/teamMembersIcon.svg';
-import { ReactComponent as IntegartionIcon } from '../../../assets/svg/sidebar/integrationsIcon.svg';
-import { ReactComponent as PlanBillingIcon } from '../../../assets/svg/sidebar/planBilling.svg';
-import { ReactComponent as AgentsSvg } from '../../../assets/svg/sidebar/agentsIcon.svg';
+
 import { ReactComponent as LogoutRedSvg } from '../../../assets/svg/sidebar/logout_red.svg';
 import Cropper from 'react-easy-crop';
 import Context from '../../../context/context';
@@ -282,20 +283,7 @@ const OpenedSidebar = ({
 	const isAdmin = tenantUserAccessControls?.role === 'admin';
 
 	// Add this constant for Settings options
-	const SETTINGS_OPTIONS = isAdmin
-		? [
-				{ name: 'My Profile', route: '/settings/my-profile', icon: ProfileIcon },
-				{ name: 'Workspace', route: '/settings/workspace', icon: WorkspaceIcon },
-				{ name: 'Team Settings', route: '/settings/team-settings', icon: TeamIcon },
-				{ name: 'Integration', route: '/settings/integrations', icon: IntegartionIcon },
-				{ name: 'Plan Billing', route: '/settings/plan-billing', icon: PlanBillingIcon },
-				{ name: 'AI Setup', route: '/settings/ai-setup', icon: AgentsSvg },
-		  ]
-		: [
-				{ name: 'My Profile', route: '/settings/my-profile', icon: ProfileIcon },
-				{ name: 'Integration', route: '/settings/integrations', icon: IntegartionIcon },
-				{ name: 'AI Setup', route: '/settings/ai-setup', icon: AgentsSvg },
-		  ];
+	const SETTINGS_OPTIONS = isAdmin ? settingsAdminModules : settingsUserModules;
 
 	useEffect(() => {
 		if (!tennantSettingsData) {

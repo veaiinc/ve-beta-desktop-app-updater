@@ -1,27 +1,19 @@
 import { ReactComponent as NotificationSvg } from '../../../assets/svg/sidebar/notification.svg';
-import { ReactComponent as SearchIcon } from '../../../assets/svg/sidebar/elastic_search/search-icon.svg';
-
-// import LayoutSvg from '../../../assets/svg/sidebar/LayoutSvg.jsx';
-// import AtSignSvg from '../../../assets/svg/sidebar/AtSignSvg.jsx';
-// import AttachMoneySvg from '../../../assets/svg/sidebar/AttachMoneySvg.jsx';
-// import FinanceSvg from '../../../assets/svg/sidebar/FinanceSvg.jsx';
-// import MailOutlineSvg from '../../../assets/svg/sidebar/MailOutlineSvg.jsx';
-// import InsertLinkSvg from '../../../assets/svg/sidebar/InsertLinkSvg.jsx';
-// import BookSvg from '../../../assets/svg/sidebar/BookSvg.jsx';
-// import FlowArrowSvg from '../../../assets/svg/sidebar/FlowArrowSvg.jsx';
-// import PlusSvg from '../../../assets/svg/sidebar/PlusSvg.jsx';
-// import AppartmentHomeSvg from '../../../assets/svg/sidebar/AppartmentHomeSvg.jsx';
-// import { ReactComponent as CrownSvg } from '../../../assets/svg/sidebar/Crown.svg';
-// import SquareFour from '../../../assets/svg/sidebar/SquareFour.jsx';
+import { ReactComponent as SearchIcon } from '../../../assets/svg/sidebar/searchIcon.svg';
 import GiftSvg from '../../../assets/svg/sidebar/GiftSvg.jsx';
 import SettingsSvg from '../../../assets/svg/sidebar/SettingsSvg.jsx';
 import { ReactComponent as FilesSvg } from '../../../assets/svg/sidebar/filesIcon.svg';
-import { ReactComponent as SearchSvg } from '../../../assets/svg/sidebar/searchIcon.svg';
 import { ReactComponent as AgentsSvg } from '../../../assets/svg/sidebar/agentsIcon.svg';
 import HomeSvg from '../../../assets/svg/sidebar/HomeSvg.jsx';
 import { ReactComponent as OrchestratorSvg } from '../../../assets/svg/sidebar/Orchestrator.svg';
 import TemplatesSvg from '../../../assets/svg/sidebar/TemplatesSvg.jsx';
 import { ReactComponent as HelpSvg } from '../../../assets/svg/sidebar/help.svg';
+
+import { ReactComponent as ProfileIcon } from '../../../assets/svg/sidebar/profileIcon.svg';
+import { ReactComponent as WorkspaceIcon } from '../../../assets/svg/sidebar/workspaceIcon.svg';
+import { ReactComponent as TeamIcon } from '../../../assets/svg/sidebar/teamMembersIcon.svg';
+import { ReactComponent as IntegrationIcon } from '../../../assets/svg/sidebar/integrationsIcon.svg';
+import { ReactComponent as PlanBillingIcon } from '../../../assets/svg/sidebar/planBilling.svg';
 
 export const photographerModules = [
 	{
@@ -114,9 +106,9 @@ export const photographerModules = [
 
 export const veAiModulesItemsList = [
 	{ id: 0, name: 'Home', route: '/home', icon: HomeSvg },
-	{ id: 1, name: 'Files', route: '/files', icon: FilesSvg },
-	{ id: 2, name: 'Search', route: '/search', icon: SearchSvg },
-	{ id: 3, name: 'Agents', route: '/agents', icon: AgentsSvg },
+	// { id: 1, name: 'Files', route: '/files', icon: FilesSvg },
+	{ id: 2, name: 'Search', route: '/search', icon: SearchIcon },
+	{ id: 3, name: 'Agents', route: '/knowledge-agent', icon: AgentsSvg },
 ];
 
 export const veAiModules = [
@@ -126,6 +118,21 @@ export const veAiModules = [
 	{ id: 2, icon: NotificationSvg, name: 'Notifications', route: null },
 	{ id: 3, icon: GiftSvg, name: 'Share and Earn', route: '/share-and-earn' },
 	{ id: 4, icon: HelpSvg, name: 'Help' },
+];
+
+export const settingsAdminModules = [
+	{ name: 'My Profile', route: '/settings/my-profile', icon: ProfileIcon },
+	{ name: 'Workspace', route: '/settings/workspace', icon: WorkspaceIcon },
+	{ name: 'Team Settings', route: '/settings/team-settings', icon: TeamIcon },
+	{ name: 'Integration', route: '/settings/integrations', icon: IntegrationIcon },
+	{ name: 'Plan Billing', route: '/settings/plan-billing', icon: PlanBillingIcon },
+	{ name: 'AI Setup', route: '/settings/ai-setup', icon: AgentsSvg },
+];
+
+export const settingsUserModules = [
+	{ name: 'My Profile', route: '/settings/my-profile', icon: ProfileIcon },
+	{ name: 'Integration', route: '/settings/integrations', icon: IntegrationIcon },
+	{ name: 'AI Setup', route: '/settings/ai-setup', icon: AgentsSvg },
 ];
 
 export const styles = {
