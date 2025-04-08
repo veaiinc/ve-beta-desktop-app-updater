@@ -18,7 +18,7 @@ const mapper = {
 	'public-information': <PublicInformation />,
 	// 'brand-setup': <BrandingSetup />,
 	integrations: <Integrations />,
-	'team-settings': <TeamSettings />,
+	'team-members': <TeamSettings />,
 	'plan-billing': <PlanBilling />,
 	'ai-setup': <AiSetup />,
 };
