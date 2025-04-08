@@ -2,6 +2,20 @@
 
 import CalendarSvg from '../../../assets/svg/sidebar/CalendarSvg.jsx';
 import { ReactComponent as NotificationSvg } from '../../../assets/svg/sidebar/notification.svg';
+import { ReactComponent as SearchIcon } from '../../../assets/svg/sidebar/elastic_search/search-icon.svg';
+
+// import LayoutSvg from '../../../assets/svg/sidebar/LayoutSvg.jsx';
+// import AtSignSvg from '../../../assets/svg/sidebar/AtSignSvg.jsx';
+// import AttachMoneySvg from '../../../assets/svg/sidebar/AttachMoneySvg.jsx';
+// import FinanceSvg from '../../../assets/svg/sidebar/FinanceSvg.jsx';
+// import MailOutlineSvg from '../../../assets/svg/sidebar/MailOutlineSvg.jsx';
+// import InsertLinkSvg from '../../../assets/svg/sidebar/InsertLinkSvg.jsx';
+// import BookSvg from '../../../assets/svg/sidebar/BookSvg.jsx';
+// import FlowArrowSvg from '../../../assets/svg/sidebar/FlowArrowSvg.jsx';
+// import PlusSvg from '../../../assets/svg/sidebar/PlusSvg.jsx';
+// import AppartmentHomeSvg from '../../../assets/svg/sidebar/AppartmentHomeSvg.jsx';
+// import { ReactComponent as CrownSvg } from '../../../assets/svg/sidebar/Crown.svg';
+// import SquareFour from '../../../assets/svg/sidebar/SquareFour.jsx';
 import GiftSvg from '../../../assets/svg/sidebar/GiftSvg.jsx';
 import SettingsSvg from '../../../assets/svg/sidebar/SettingsSvg.jsx';
 import { ReactComponent as FilesSvg } from '../../../assets/svg/sidebar/filesIcon.svg';
@@ -29,13 +43,20 @@ export const veAiModulesItemsList = [
 	},
 	{
 		id: 3,
+		name: 'Search',
+		moduleRoute: '/search',
+		route: '/search',
+		icon: SearchIcon,
+	},
+	{
+		id: 2,
 		name: 'Conversational Agent',
 		moduleRoute: '/ai-assistant',
 		route: '/ai-assistant',
 		icon: '',
 	},
 	{
-		id: 4,
+		id: 3,
 		name: 'Design Builder',
 		moduleRoute: '/',
 		route: null,
@@ -46,31 +67,31 @@ export const veAiModulesItemsList = [
 			{ id: 2, icon: '', name: 'Forms', route: '/form' },
 		],
 	},
-	{ id: 5, name: 'Tasks', moduleRoute: '/tasks', route: '/tasks', icon: '' },
-	{ id: 6, name: 'Contacts', moduleRoute: '/contacts', route: '/contacts', icon: '' },
+	{ id: 4, name: 'Tasks', moduleRoute: '/tasks', route: '/tasks', icon: '' },
+	{ id: 5, name: 'Contacts', moduleRoute: '/contacts', route: '/contacts', icon: '' },
 	{
-		id: 7,
+		id: 6,
 		name: 'Calendar',
 		moduleRoute: '/calendar',
 		route: '/calendar',
 		icon: '',
 	},
 	{
-		id: 8,
+		id: 7,
 		name: 'Automations',
 		moduleRoute: '/automations',
 		route: '/automations',
 		icon: '',
 	},
 	{
-		id: 9,
+		id: 8,
 		name: 'Notes',
 		moduleRoute: '/notes',
 		route: null,
 		icon: '',
 	},
 	{
-		id: 10,
+		id: 9,
 		name: 'Storage',
 		moduleRoute: '',
 		route: '',

@@ -16,6 +16,7 @@ import { ContactsState } from './contacts/state';
 import { DocumentPreviewState } from './DocumentPreview/state';
 import { AutomationBuilderState } from './automationBuilder/state';
 import { NotesState } from './notes/state';
+import { ElasticSearchState } from './elastic_search/state';
 import { KnowledgeAgentState } from './knowledgeAgent/state';
 
 const useCombineState = () => {
@@ -37,6 +38,7 @@ const useCombineState = () => {
 	const automationBuilder = AutomationBuilderState();
 	const notes = NotesState();
 	const knowledgeAgent = KnowledgeAgentState();
+	const elasticSearch = ElasticSearchState();
 	// Only memoize the final combined object
 	return useMemo(
 		() => ({
@@ -58,6 +60,7 @@ const useCombineState = () => {
 			automationBuilder,
 			notes,
 			knowledgeAgent,
+			elasticSearch,
 		}),
 		[
 			chatInfo,
@@ -78,6 +81,7 @@ const useCombineState = () => {
 			automationBuilder,
 			notes,
 			knowledgeAgent,
+			elasticSearch,
 		],
 	);
 };
