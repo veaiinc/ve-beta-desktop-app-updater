@@ -1982,13 +1982,13 @@ const GalleryPage = () => {
 
 		const response = await deleteGallery(galleryId);
 
-		if (response[0] === true) {
+		if (response?.[0] === true) {
 			message.success('Gallery deleted successfully');
 
 			navigate('/galleries');
 			await getGalleries({}, true);
 		} else {
-			message.error(response[1].message);
+			message.error(response?.[1].message);
 		}
 	};
 	const handleManageCollaborator = (data) => {
