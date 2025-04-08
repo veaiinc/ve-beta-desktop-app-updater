@@ -11,7 +11,7 @@ import Spinner from '../../loaders/Spinner';
 import Skeleton from 'react-loading-skeleton';
 import CustomTextArea from '../../globalComponents/CusomTextArea';
 import QuickActions from '../../globalComponents/QuickActions';
-
+import { useSearchParams, useNavigate } from 'react-router-dom';
 const optionsForQuickActions = [
 	{ id: 4, title: 'Document', value: 'document' },
 	{ id: 6, title: 'Proposal', value: 'proposal' },
@@ -35,7 +35,7 @@ const ListViewSidebar = ({
 	headerText,
 	breadCrumbs,
 	handleBreadCrumbsClick,
-	showQuickActions = false,
+	showQuickActions = true,
 }) => {
 	const [info, setInfo] = useState({
 		subTasks: [],
@@ -50,6 +50,18 @@ const ListViewSidebar = ({
 	const [localDescription, setLocalDescription] = useState('');
 	const titleDebounceRef = useRef(null);
 	const descriptionDebounceRef = useRef(null);
+	const navigate = useNavigate();
+	const suggestedOptions = [
+		{
+			id: 0,
+			title: `Create meeting on ${localTitle}`,
+			value: 'meeting',
+			controlValue: 'calendar',
+			action: ({ navigate }) => {
+				navigate('/calendar');
+			},
+		},
+	];
 
 	useEffect(() => {
 		if (selectedRow?.title !== localTitle) {
@@ -221,6 +233,15 @@ const ListViewSidebar = ({
 		));
 	}, []);
 
+	const handleExpandClick = () => {
+		if (selectedRow?._id) {
+			const isTask = !!selectedRow?.taskSlNo;
+			const path = isTask ? `/task/${selectedRow._id}` : `/contact/${selectedRow._id}`;
+			navigate(path);
+			closeSidebar();
+		}
+	};
+
 	return (
 		<Drawer
 			onClose={closeSidebar}
@@ -253,7 +274,7 @@ const ListViewSidebar = ({
 								</div>
 								<div
 									className="sidebar-header-expand-button"
-									onClick={toggleSidebarExpand}
+									onClick={handleExpandClick}
 								>
 									{isSidebarExpanded ? (
 										<ExpandSvg
@@ -272,10 +293,10 @@ const ListViewSidebar = ({
 							</div>
 
 							<div className="sidebar-header-right-container">
-								{showQuickActions && (
+								{showQuickActions && isSidebarExpanded && (
 									<QuickActions
-										customActions={optionsForQuickActions}
-										clientDetails={selectedRow}
+										suggestedOptions={suggestedOptions}
+										// clientDetails={selectedRow}
 									/>
 								)}
 								<button

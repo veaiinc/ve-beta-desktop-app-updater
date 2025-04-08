@@ -17,6 +17,24 @@ export const getClientsQuery = gql`
 	}
 `;
 
+export const getClientQuery = gql`
+	query GetClient($getClientId: ID!) {
+		getClient(id: $getClientId) {
+			_id
+			name
+			email
+			phoneNumber
+			tenantId
+			workflows
+			templateDetails
+			createdBy
+			updatedBy
+			createdAt
+			updatedAt
+		}
+	}
+`;
+
 export const createClientMutation = gql`
 	mutation CreateClient($clientInput: ClientInput!) {
 		createClient(clientInput: $clientInput) {

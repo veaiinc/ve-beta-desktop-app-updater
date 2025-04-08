@@ -51,7 +51,6 @@ const LeaveWorkspaceModal = ({ isOpen, toggleModal }) => {
 			}
 		}
 		setInfo((prev) => ({ ...prev, deleteLoader: false }));
-		console.log('userWorkSpaceList', userWorkSpaceList);
 	}, [userWorkSpaceList]);
 
 	return (

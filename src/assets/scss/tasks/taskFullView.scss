@@ -1,0 +1,227 @@
+.taskFullView {
+	display: flex;
+	justify-content: center;
+	width: 100%;
+	height: 100vh;
+	background: var(--background-color);
+	padding: 24px;
+
+	.taskFullViewContent {
+		width: 100%;
+		max-width: 800px;
+		display: flex;
+		flex-direction: column;
+		gap: 20px;
+
+		.headerContainer {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			width: 100%;
+
+			.headerLeft {
+				display: flex;
+				align-items: center;
+				gap: 16px;
+
+				svg {
+					cursor: pointer;
+					width: 16px;
+					height: 16px;
+					opacity: 0.7;
+					transition: opacity 0.3s ease;
+
+					&:hover {
+						opacity: 1;
+					}
+				}
+
+				.taskTitle {
+					color: var(--primary-font);
+					font-size: 20px;
+					font-weight: 500;
+				}
+			}
+		}
+
+		.taskContainer {
+			border-radius: 12px;
+			padding: 24px;
+			display: flex;
+			flex-direction: column;
+			gap: 20px;
+
+			.titleSection {
+				display: flex;
+				flex-direction: column;
+				gap: 8px;
+
+				.taskId {
+					color: var(--secondary-font);
+					font-size: 14px;
+				}
+
+				h1 {
+					color: var(--primary-font);
+					font-size: 24px;
+					font-weight: 500;
+				}
+			}
+
+			.propertiesSection {
+				display: flex;
+				flex-direction: column;
+				gap: 16px;
+				padding: 20px 0;
+				border-top: 1px solid var(--stroke);
+				border-bottom: 1px solid var(--stroke);
+
+				.propertyItem {
+					display: grid;
+					grid-template-columns: 200px 1fr;
+					align-items: center;
+					gap: 16px;
+
+					.propertyLabel {
+						display: flex;
+						align-items: center;
+						gap: 8px;
+						color: var(--secondary-font);
+						font-size: 14px;
+
+						svg {
+							width: 16px;
+							height: 16px;
+						}
+					}
+
+					.propertyValue {
+						color: var(--primary-font);
+						font-size: 14px;
+						font-weight: 500;
+
+						&.status-badge {
+							background: var(--card-hover);
+							padding: 4px 8px;
+							border-radius: 4px;
+							width: fit-content;
+						}
+
+						&.priority-high {
+							color: var(--error);
+						}
+						&.priority-medium {
+							color: var(--warning);
+						}
+						&.priority-low {
+							color: var(--success);
+						}
+					}
+				}
+			}
+
+			.descriptionSection {
+				h3 {
+					color: var(--secondary-font);
+					font-size: 14px;
+					margin-bottom: 8px;
+				}
+
+				p {
+					color: var(--primary-font);
+					font-size: 14px;
+					line-height: 1.5;
+				}
+
+				textarea {
+					width: 100%;
+					min-height: 100px;
+					background: transparent;
+					border: none;
+					color: var(--primary-font);
+					font-size: 14px;
+					resize: none;
+					outline: none;
+
+					&::placeholder {
+						color: var(--secondary-font);
+					}
+				}
+			}
+
+			.childTasksSection {
+				border-top: 1px solid var(--stroke);
+				padding-top: 20px;
+
+				h3 {
+					color: var(--secondary-font);
+					font-size: 14px;
+					margin-bottom: 16px;
+				}
+
+				.childTasksHeader {
+					display: flex;
+					align-items: center;
+					justify-content: space-between;
+					margin-bottom: 16px;
+
+					.taskCount {
+						color: var(--secondary-font);
+						font-size: 14px;
+					}
+				}
+
+				.childTasksList {
+					display: flex;
+					flex-direction: column;
+					gap: 12px;
+
+					.childTaskItem {
+						display: flex;
+						justify-content: space-between;
+						align-items: center;
+						padding: 12px;
+						background: var(--card-hover);
+						border-radius: 8px;
+
+						.childTaskTitle {
+							color: var(--primary-font);
+							font-size: 14px;
+							font-weight: 500;
+						}
+
+						.childTaskStatus {
+							color: var(--secondary-font);
+							font-size: 12px;
+							padding: 4px 8px;
+							background: var(--card);
+							border-radius: 4px;
+						}
+
+						.childTaskMeta {
+							display: flex;
+							gap: 8px;
+							align-items: center;
+
+							span {
+								padding: 4px 8px;
+								border-radius: 4px;
+								background: var(--card);
+								font-size: 12px;
+							}
+						}
+					}
+				}
+			}
+		}
+
+		.loading {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			height: 100vh;
+			color: var(--primary-font);
+			font-size: 18px;
+		}
+	}
+}

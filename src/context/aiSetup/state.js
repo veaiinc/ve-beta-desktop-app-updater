@@ -51,8 +51,10 @@ export const initialState = {
 	moreUpdatedKnowledgeBaseFiles: null,
 	filesUploadedInAiChat: null,
 	isVoiceIntegrationActive: null,
-
 	aiSetupData: null,
+	aiSetupDataUser: null,
+	voiceIntegrationData: null, //{token,serverUrl,shouldConnect	}
+	triggerVoiceDisconnect: null,
 };
 
 export const AiSetupState = () => {
@@ -969,16 +971,19 @@ export const AiSetupState = () => {
 		});
 	};
 
-	const getAiSetup = async () => {
+	const getAiSetup = async (isWorkspace = true) => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
 			const usertoken = localStorage.getItem('usertoken');
-			const url = '/' + workspaceId + '/ai-tenant-configurations/ai-setup';
+			const path = isWorkspace
+				? '/ai-tenant-configurations'
+				: '/ai-tenant-user-configurations';
+			const url = '/' + workspaceId + path + '/ai-setup';
 
 			const response = await service?.fetchGet(url, usertoken, 'ai_assistant_api');
-			if (response?.[0]) {
+			if (response?.[0] === true) {
 				dispatch({
-					type: Actions?.SET_AI_SETUP,
+					type: isWorkspace ? Actions?.SET_AI_SETUP : Actions?.SET_AI_SETUP_DATA_USER,
 					payload: response?.[1],
 				});
 			}
@@ -987,18 +992,24 @@ export const AiSetupState = () => {
 		}
 	};
 
-	const updateAiSetupData = async (body) => {
+	const updateAiSetupData = async (body, isWorkspace = true) => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
-			const path = '/' + workspaceId + '/ai-tenant-configurations/ai-setup';
+			const path = isWorkspace
+				? '/ai-tenant-configurations'
+				: '/ai-tenant-user-configurations';
+			const url = '/' + workspaceId + path + '/ai-setup';
 			const token = localStorage.getItem('usertoken');
 			const type = 'ai_assistant_api';
-			const response = await service?.fetchPut(path, body, token, type);
-			const success = response?.[0];
-			if (success) {
+			const response = await service?.fetchPut(url, body, token, type);
+
+			if (response?.[0] === true) {
+				// Calculate updated state here instead of in reducer
+				const payload = response?.[1];
+
 				dispatch({
-					type: Actions?.SET_AI_SETUP,
-					payload: response?.[1],
+					type: isWorkspace ? Actions?.SET_AI_SETUP : Actions?.SET_AI_SETUP_DATA_USER,
+					payload,
 				});
 				return [true];
 			} else {
@@ -1010,22 +1021,106 @@ export const AiSetupState = () => {
 		}
 	};
 
-	const resetAiSetupData = async (dataType) => {
+	const resetAiSetupData = async (dataType, isWorkspace = true) => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
-			const path =
-				'/' + workspaceId + '/ai-tenant-configurations/ai-setup/' + dataType + '/reset';
+			const path = isWorkspace
+				? '/ai-tenant-configurations'
+				: '/ai-tenant-user-configurations';
+			const url = '/' + workspaceId + path + '/ai-setup/' + dataType + '/reset';
 			const token = localStorage.getItem('usertoken');
 			const type = 'ai_assistant_api';
-			const response = await service?.fetchPut(path, {}, token, type);
-			if (response?.[0]) {
-				dispatch({ type: Actions?.RESET_AI_SETUP, payload: dataType });
+			const response = await service?.fetchPut(url, {}, token, type);
+
+			if (response?.[0] === true) {
+				// Calculate updated state here
+				const currentState = isWorkspace ? state.aiSetupData : state.aiSetupDataUser;
+				const payload = {
+					...currentState,
+					[dataType]: [],
+				};
+
+				dispatch({
+					type: isWorkspace ? Actions?.SET_AI_SETUP : Actions?.SET_AI_SETUP_DATA_USER,
+					payload,
+				});
 				return [true];
 			} else {
 				return [false, response?.[1]];
 			}
 		} catch (error) {
 			console.log('error==>resetAiSetupData', error);
+			return [false, error];
+		}
+	};
+
+	const deleteAiSetupData = async (dataType, id, isWorkspace = true) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const path = isWorkspace
+				? '/ai-tenant-configurations'
+				: '/ai-tenant-user-configurations';
+			const url = '/' + workspaceId + path + '/ai-setup/' + dataType + '/' + id;
+			const token = localStorage.getItem('usertoken');
+			const type = 'ai_assistant_api';
+			const response = await service?.fetchDelete(url, token, null, type);
+
+			if (response?.[0] === true) {
+				// Calculate updated state here
+				const currentState = isWorkspace ? state.aiSetupData : state.aiSetupDataUser;
+				const payload = {
+					...currentState,
+					[dataType]: currentState?.[dataType]?.filter((item) => item?._id !== id),
+				};
+
+				dispatch({
+					type: isWorkspace ? Actions?.SET_AI_SETUP : Actions?.SET_AI_SETUP_DATA_USER,
+					payload,
+				});
+				return [true];
+			} else {
+				return [false, response?.[1]];
+			}
+		} catch (error) {
+			console.log('error==>deleteAiSetupData', error);
+			return [false, error];
+		}
+	};
+
+	const editAiSetupData = async (dataType, _id, data, isWorkspace = true) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const path = isWorkspace
+				? '/ai-tenant-configurations'
+				: '/ai-tenant-user-configurations';
+			const url = '/' + workspaceId + path + '/ai-setup/' + dataType + '/' + _id;
+			const token = localStorage.getItem('usertoken');
+			const type = 'ai_assistant_api';
+			const body = {
+				...data,
+			};
+			const response = await service?.fetchPut(url, body, token, type);
+
+			if (response?.[0] === true) {
+				// Calculate updated state here
+				const currentState = isWorkspace ? state.aiSetupData : state.aiSetupDataUser;
+				const payload = {
+					...currentState,
+					[dataType]: currentState?.[dataType]?.map((item) =>
+						item?._id === _id ? { ...data, _id } : item,
+					),
+				};
+
+				dispatch({
+					type: isWorkspace ? Actions?.SET_AI_SETUP : Actions?.SET_AI_SETUP_DATA_USER,
+					payload,
+				});
+				return [true];
+			} else {
+				return [false, response?.[1]];
+			}
+		} catch (error) {
+			console.log('error==>editAiSetupData', error);
 			return [false, error];
 		}
 	};
@@ -1078,5 +1173,7 @@ export const AiSetupState = () => {
 		getAiSetup,
 		updateAiSetupData,
 		resetAiSetupData,
+		deleteAiSetupData,
+		editAiSetupData,
 	};
 };

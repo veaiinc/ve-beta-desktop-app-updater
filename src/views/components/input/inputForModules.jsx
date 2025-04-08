@@ -71,7 +71,7 @@ const InputForModules = ({
 					<PhoneInput
 						defaultCountry={defaultCountry}
 						placeholder={placeholder}
-						value={value}
+						value={value ?? ''}
 						onChange={(e) => onChange({ target: { name: name, value: e } })}
 						disabled={disabled}
 					/>

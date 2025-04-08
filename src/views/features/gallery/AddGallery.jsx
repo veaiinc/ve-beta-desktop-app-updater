@@ -174,6 +174,7 @@ const AddGallery = () => {
 		setInfo({
 			...info,
 			createNewGalleryModal: true,
+			page: 1,
 		});
 	};
 
@@ -186,12 +187,11 @@ const AddGallery = () => {
 
 	const fetchMoreGalleries = () => {
 		const nextPage = info.page + 1;
-		info.search === '' ? fetchGalleries(nextPage) : fetchGalleries(nextPage, info.search);
-
 		setInfo((prev) => ({
 			...prev,
 			page: nextPage,
 		}));
+		info.search === '' ? fetchGalleries(nextPage) : fetchGalleries(nextPage, info.search);
 	};
 
 	const handleDebounceSearch = useCallback(
@@ -296,9 +296,9 @@ const AddGallery = () => {
 						arrow={false}
 					/>
 				</div>
-				<div className="create-btn" onClick={handleCreateNewGallery}>
+				{/* <div className="create-btn" onClick={handleCreateNewGallery}>
 					Create +
-				</div>
+				</div> */}
 			</div>
 			<div className="add-gallery-container">
 				<div className="add-gallery-header">

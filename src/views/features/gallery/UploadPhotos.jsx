@@ -61,12 +61,15 @@ const UploadPhotos = () => {
 		isRefreshPopupOpen: false,
 		isAiEnabled: false,
 		isUploadComplete: false,
+		// lightGallery: false,
 	});
 	const recentImageInitiatedRef = useRef(info.recentImageInitiated);
 	const params = new URLSearchParams(window.location.search);
-	const lightGallery = params.get('light-gallery');
+	// const lightGallery = params.get('light-gallery');
+	const lightGallery = !tenantAlbums?.storeOriginals ? 'true' : 'false';
 
 	const aiFacesLogic =
+		lightGallery === 'true' &&
 		info?.isAiEnabled &&
 		(validateExpiryData?.liteImageLimitWithAiFace === 0 ||
 			validateExpiryData?.liteImageLimitWithAiFace <= validateExpiryData?.liteImageUsed);

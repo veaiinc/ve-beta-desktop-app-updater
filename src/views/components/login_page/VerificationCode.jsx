@@ -151,28 +151,16 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 
 	return (
 		<div className="verification-code-container">
-			<div className="back-btn-container">
-				<span onClick={() => setActiveStage('email')}>
+			<div className="back-btn-container" onClick={() => setActiveStage('email')}>
+				<span>
 					<LeftArrowBackBtn />
 				</span>
 				<span>Back</span>
 			</div>
-			<h1 className="verification-code-title">
-				<b>We sent you a code</b>
-			</h1>
+			<h1 className="verification-code-title">We sent you a code</h1>
 			<p className="verification-code-subtitle">
-				A 6-digit verification code has been sent to {email}. <br />
-				<br />
-				<br />
-				Please enter it to continue.
+				A 6-digit verification code has been sent to {email}.
 			</p>
-			<div className="open-email-container">
-				<p>Open in</p>
-				<div className="email-logo-container">
-					<GmailLogo />
-					<OutlookLogo />
-				</div>
-			</div>
 			<div className="verification-code-input-container">
 				<div className="otp-input-container" ref={otpContainerRef}>
 					<Input.OTP

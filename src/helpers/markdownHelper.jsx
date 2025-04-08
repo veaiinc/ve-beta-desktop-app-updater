@@ -10,6 +10,7 @@ import { ReactComponent as TickSvg } from '../assets/svg/tick.svg';
 import { ReactComponent as CopyIcon } from '../assets/svg/ai_agents/copy.svg';
 import Context from '../context/context';
 import { Tooltip } from 'antd';
+
 import { CitationsTooltip } from '../views/components/modalsV2/chat/CitationsTooltip';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
@@ -18,56 +19,6 @@ import rehypeRaw from 'rehype-raw';
 import 'katex/dist/katex.min.css';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { dracula } from 'react-syntax-highlighter/dist/esm/styles/prism';
-
-let newText = `# The Impact and Evolution of Artificial Intelligence  
-
-## Introduction  
-Artificial Intelligence (AI) is one of the most transformative technological advancements of our time. It enables machines to perform tasks that typically require human intelligence, such as learning, reasoning, problem-solving, and decision-making. AI has already revolutionized various industries, from healthcare and finance to manufacturing and entertainment. This essay explores the evolution of AI, its key applications, ethical considerations, and future prospects.  
-
-## The Evolution of AI  
-The concept of AI dates back to the mid-20th century when mathematicians and scientists like Alan Turing proposed the idea of machines simulating human intelligence. By the 1950s and 1960s, researchers developed the first AI programs capable of solving mathematical problems and playing chess. AI development continued in cycles, experiencing periods of rapid growth (AI booms) and stagnation (AI winters).  
-
-In recent years, AI has witnessed an unprecedented surge, thanks to advancements in machine learning, deep learning, and neural networks. The availability of massive datasets, improved computational power, and breakthroughs in natural language processing (NLP) have propelled AI research to new heights. Models like OpenAI’s GPT-4, Google’s Gemini, and Mixtral’s AI systems are now capable of generating human-like text, translating languages, and assisting in complex problems.  
-
-## Key Applications of AI  
-AI is integrated into numerous sectors, improving efficiency, accuracy, and decision-making. Some of the most impactful applications include:  
-
-### **Healthcare**  
-AI models are being used for early disease detection, medical diagnosis, robot-assisted surgeries, and personalized treatment plans. AI-driven medical imaging and predictive analytics have significantly improved patient outcomes.  
-
-### **Finance**  
-AI helps detect fraudulent transactions, automate trading strategies, and enhance customer service through AI-powered chatbots and financial advisors. Predictive analytics enables better risk assessment and investment decisions.  
-
-### **Education**  
-AI-powered ed-tech platforms offer personalized learning experiences, automated grading, and virtual tutors, making education more accessible and engaging for students worldwide.  
-
-### **Manufacturing and Robotics**  
-AI-enabled robots improve precision in industrial processes, automate repetitive tasks, and increase productivity in industries such as automobile manufacturing and supply chain optimization.  
-
-### **Entertainment and Media**  
-AI creates personalized content recommendations on streaming platforms, develops AI-generated works of art and music, and plays a role in deepfake technology.  
-
-## Ethical Considerations and Challenges  
-Despite its benefits, AI also raises ethical and social concerns. Some challenges include:  
-
-- **Bias and Discrimination**: AI models trained on biased data can lead to unfair outcomes, particularly in hiring processes, criminal justice, and facial recognition.  
-- **Privacy and Security Risks**: AI-driven surveillance and data collection pose threats to personal privacy.  
-- **Job Displacement**: The automation of repetitive and cognitive tasks may lead to job losses in various industries, affecting employment rates and economic stability.  
-- **Autonomous Weapons and Misinformation**: AI's potential misuse in military applications and the spread of deepfakes raise concerns about security and misinformation.  
-
-Governments and organizations are working on AI regulations and ethical guidelines to ensure responsible AI development and deployment.  
-
-## Future Prospects of AI  
-The future of AI holds exciting possibilities:  
-
-- **Explainable AI (XAI)**: Researchers are working on transparent AI models that can explain decision-making processes to increase trust and accountability.  
-- **Artificial General Intelligence (AGI)**: While current AI systems specialize in narrow tasks, AGI aims to create machines that can think and reason like humans across multiple domains.  
-- **AI in Space Exploration**: AI-driven robots assist in space missions, helping space agencies gather critical data and conduct research on distant planets.  
-- **AI and Quantum Computing**: The fusion of AI and quantum computing can accelerate problem-solving capabilities and lead to breakthroughs in science and medicine.  
-
-## Conclusion  
-AI is a powerful and evolving technology with the potential to reshape society. Its applications span multiple industries, enhancing efficiency and productivity while presenting ethical challenges that must be addressed. As AI research progresses, it is crucial to develop secure, fair, and responsible AI systems to benefit humanity. The future of AI depends on how we balance its advantages with ethical considerations, ensuring a world where technology serves as a force for good.
-`;
 
 const rehypeCITPlugin = () => {
 	return (tree) => {
@@ -111,26 +62,30 @@ const rehypeCITPlugin = () => {
 
 // Move components outside to prevent recreation on every render
 const baseComponents = {
-	pre: ({ children }) => <pre className="markdown-pre mb-4 fade-in">{children}</pre>,
-	hr: ({ children }) => <hr className="mb-2 fade-in" />,
+	pre: ({ children }) => <pre className="markdown-pre mb-4 ">{children}</pre>,
+	hr: ({ children }) => <hr className="mb-2 " />,
 	ol: ({ children, ...props }) => (
-		<ol className=" list-outside ml-8 mb-4 fade-in" {...props}>
+		<ol className=" list-outside mb-4 " {...props}>
 			{children}
 		</ol>
 	),
 	li: ({ children, ...props }) => {
-		return <li {...props}>{children}</li>;
+		return (
+			<li className="list-item" {...props}>
+				{children}
+			</li>
+		);
 	},
 	ul: ({ children, ...props }) => {
 		return (
-			<ul className="list-decimal list-outside ml-8 mb-4 fade-in	" {...props}>
+			<ul className=" list-outside mb-4 " {...props}>
 				{children}
 			</ul>
 		);
 	},
 	strong: ({ children, ...props }) => {
 		return (
-			<span className="font-semibold text-white common-markdown-font fade-in" {...props}>
+			<span className="font-semibold text-white common-markdown-font " {...props}>
 				{children}
 			</span>
 		);
@@ -138,7 +93,7 @@ const baseComponents = {
 	a: ({ children, ...props }) => {
 		return (
 			<a
-				className="text-blue-500 hover:underline common-markdown-font fade-in"
+				className="text-blue-500 hover:underline common-markdown-font "
 				target="_blank"
 				rel="noreferrer"
 				{...props}
@@ -149,56 +104,56 @@ const baseComponents = {
 	},
 	h1: ({ children, ...props }) => {
 		return (
-			<h1 className="text-3xl font-semibold mt-6 mb-4 fade-in" {...props}>
+			<h1 className="text-3xl font-semibold mt-6 mb-4 " {...props}>
 				{children}
 			</h1>
 		);
 	},
 	h2: ({ children, ...props }) => {
 		return (
-			<h2 className="text-2xl font-semibold mt-6 mb-4 fade-in" {...props}>
+			<h2 className="text-2xl font-semibold mt-6 mb-4 " {...props}>
 				{children}
 			</h2>
 		);
 	},
 	h3: ({ children, ...props }) => {
 		return (
-			<h3 className="text-xl font-semibold mt-6 mb-2 fade-in" {...props}>
+			<h3 className="text-xl font-semibold mt-6 mb-2 " {...props}>
 				{children}
 			</h3>
 		);
 	},
 	h4: ({ children, ...props }) => {
 		return (
-			<h4 className="text-lg font-semibold mt-6 mb-2 fade-in" {...props}>
+			<h4 className="text-lg font-semibold mt-6 mb-2 " {...props}>
 				{children}
 			</h4>
 		);
 	},
 	h5: ({ children, ...props }) => {
 		return (
-			<h5 className="text-base font-semibold mt-6 mb-2 fade-in" {...props}>
+			<h5 className="text-base font-semibold mt-6 mb-2 " {...props}>
 				{children}
 			</h5>
 		);
 	},
 	h6: ({ children, ...props }) => {
 		return (
-			<h6 className="text-sm font-semibold mt-6 mb-2 fade-in" {...props}>
+			<h6 className="text-sm font-semibold mt-6 mb-2 " {...props}>
 				{children}
 			</h6>
 		);
 	},
 	p: ({ children, ...props }) => {
 		return (
-			<p className="text-white  mb-2 mt-2 common-markdown-font fade-in" {...props}>
+			<p className="text-white  mb-2 mt-2 common-markdown-font " {...props}>
 				{children}
 			</p>
 		);
 	},
 	img: ({ children, ...props }) => {
 		return (
-			<div className="markdown-image-wrapper fade-in">
+			<div className="markdown-image-wrapper ">
 				<img
 					className="w-full h-auto"
 					{...props}
@@ -210,29 +165,29 @@ const baseComponents = {
 		);
 	},
 	table: ({ children, ...props }) => (
-		<div className="table-container my-4 overflow-x-auto fade-in">
+		<div className="table-container my-4 overflow-x-auto ">
 			<table className="markdown-table w-full" {...props}>
 				{children}
 			</table>
 		</div>
 	),
 	thead: ({ children, ...props }) => (
-		<thead className="bg-gray-800 fade-in" {...props}>
+		<thead className="bg-gray-800 " {...props}>
 			{children}
 		</thead>
 	),
 	th: ({ children, ...props }) => (
-		<th className="px-4 py-2 text-left border border-gray-700 fade-in" {...props}>
+		<th className="px-4 py-2 text-left border border-gray-700 " {...props}>
 			{children}
 		</th>
 	),
 	td: ({ children, ...props }) => (
-		<td className="px-4 py-2 border border-gray-700 fade-in" {...props}>
+		<td className="px-4 py-2 border border-gray-700 " {...props}>
 			{children}
 		</td>
 	),
 	tr: ({ children, ...props }) => (
-		<tr className="border-b border-gray-700 hover:bg-gray-800 fade-in" {...props}>
+		<tr className="border-b border-gray-700 hover:bg-gray-800" {...props}>
 			{children}
 		</tr>
 	),
@@ -293,12 +248,12 @@ export const TypingEffect = memo(
 	({
 		text,
 		customePencilClickFunc = null,
-		smoothScrollToBottom,
 		messageId = null,
 		handleRatingClick = null,
 		rating = null,
 		citations = [],
 		messageData,
+		isNewMessage = false,
 	}) => {
 		const {
 			documentPreview: { setNoteContent },
@@ -306,50 +261,50 @@ export const TypingEffect = memo(
 		const [isCopiedToClipboard, setIsCopiedToClipboard] = useState(false);
 		const [renderTrigger, setRenderTrigger] = useState(0);
 
-		const chunkSize = 200; // Size of each chunk (200 characters)
+		const chunkSize = 200; // Size of each chunk (200 characters)\
 		const textRef = useRef(text); // Store the latest text in a ref
 
 		const chunkRef = useRef(''); // Ref for storing chunk
 		const currentIndexRef = useRef(0); // Ref for storing currentIndex
 		const timeIntervalRef = useRef(null);
-		useEffect(() => {
-			textRef.current = messageData;
-		}, [messageData]);
+		// useEffect(() => {
+		// 	textRef.current = messageData;
+		// }, [messageData]);
 
-		useEffect(() => {
-			if (messageData?.messageId) {
-				// setChunk(text);
-				chunkRef.current = text;
-				return;
-			}
-			setTimeout(() => {
-				const interval = setInterval(() => {
-					handleChunkRendering();
-				}, 500);
-				timeIntervalRef.current = interval;
-			}, 50);
-		}, []);
+		// useEffect(() => {
+		// 	if (messageData?.messageId) {
+		// 		// setChunk(text);
+		// 		chunkRef.current = text;
+		// 		return;
+		// 	}
+		// 	setTimeout(() => {
+		// 		const interval = setInterval(() => {
+		// 			handleChunkRendering();
+		// 		}, 500);
+		// 		timeIntervalRef.current = interval;
+		// 	}, 50);
+		// }, []);
 
-		const handleChunkRendering = () => {
-			const currentText = textRef.current?.message;
+		// const handleChunkRendering = () => {
+		// 	const currentText = textRef.current?.message;
 
-			if (currentIndexRef.current >= currentText?.length && textRef.current?.messageId) {
-				clearInterval(timeIntervalRef.current);
-				return (timeIntervalRef.current = null);
-			}
+		// 	if (currentIndexRef.current >= currentText?.length && textRef.current?.messageId) {
+		// 		clearInterval(timeIntervalRef.current);
+		// 		return (timeIntervalRef.current = null);
+		// 	}
 
-			// Slice the current chunk from the text
-			let startIndex = currentIndexRef.current;
-			let endIndex =
-				currentIndexRef.current + chunkSize < currentText?.length
-					? currentIndexRef.current + chunkSize
-					: currentText?.length;
-			let subChunk = currentText?.slice(startIndex, endIndex);
+		// 	// Slice the current chunk from the text
+		// 	let startIndex = currentIndexRef.current;
+		// 	let endIndex =
+		// 		currentIndexRef.current + chunkSize < currentText?.length
+		// 			? currentIndexRef.current + chunkSize
+		// 			: currentText?.length;
+		// 	let subChunk = currentText?.slice(startIndex, endIndex);
 
-			chunkRef.current += subChunk;
-			currentIndexRef.current = endIndex;
-			setRenderTrigger((prev) => prev + 1);
-		};
+		// 	chunkRef.current += subChunk;
+		// 	currentIndexRef.current = endIndex;
+		// 	setRenderTrigger((prev) => prev + 1);
+		// };
 
 		const handleCopyTextClick = useCallback((text) => {
 			const textToBeCopied = text?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')?.replace(/\\n/g, '\n');
@@ -380,12 +335,17 @@ export const TypingEffect = memo(
 			<div className="typing-effect-container">
 				<Markdown citations={citations}>
 					{/* {newText?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')?.replace(/\\n/g, '\n')} */}
-					{chunkRef?.current?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')?.replace(/\\n/g, '\n')}
-					{/* {text?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')?.replace(/\\n/g, '\n')} */}
+					{/* {chunkRef?.current?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')?.replace(/\\n/g, '\n')} */}
+					{text?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')?.replace(/\\n/g, '\n')}
 				</Markdown>
 
 				{messageData?.messageId && (
-					<div className="hover-actions-container">
+					<div
+						className={`hover-actions-container`}
+						style={{
+							visibility: isNewMessage ? 'visible' : '',
+						}}
+					>
 						<div className="icon-container">
 							<Tooltip
 								placement="bottom"
@@ -414,7 +374,7 @@ export const TypingEffect = memo(
 							</Tooltip>
 						</div>
 
-						<div className="icon-container">
+						{/* <div className="icon-container">
 							<Tooltip
 								placement="bottom"
 								arrow={false}
@@ -423,7 +383,7 @@ export const TypingEffect = memo(
 							>
 								<HeadPhoneSvg />
 							</Tooltip>
-						</div>
+						</div> */}
 
 						<div className="icon-container">
 							<Tooltip
@@ -462,7 +422,175 @@ export const TypingEffect = memo(
 			prevProps.messageId === nextProps.messageId &&
 			prevProps.rating === nextProps.rating &&
 			JSON.stringify(prevProps.citations) === JSON.stringify(nextProps.citations) &&
-			prevProps.messageData?.messageId === nextProps.messageData?.messageId
+			prevProps.messageData?.messageId === nextProps.messageData?.messageId &&
+			prevProps.isNewMessage === nextProps.isNewMessage
 		);
 	},
 );
+
+export const UserMessageRenderer = memo(({ messageData, activeUserMessageIndex }) => {
+	const {
+		templates: { updateStateValues },
+	} = useContext(Context);
+	const textRef = useRef(null);
+
+	const [info, setinfo] = useState({
+		isCopiedToClipboard: false,
+		editUserQuery: false,
+		userQuery: messageData?.message,
+		isExpanded: false,
+		isOverflowing: false,
+	});
+
+	useEffect(() => {
+		adjustFontSize();
+	}, [messageData?.message]);
+
+	const checkOverflow = (element) => {
+		return element?.scrollHeight > element?.clientHeight;
+	};
+
+	const adjustFontSize = () => {
+		if (textRef?.current) {
+			// Set initial font size
+			textRef.current.style.fontSize = '1.5rem';
+			textRef.current.style.lineHeight = '1.75rem';
+
+			// Check again for overflow
+			if (checkOverflow(textRef?.current)) {
+				// If still overflowing, revert to 0.875rem
+				textRef.current.style.fontSize = '0.875rem';
+				textRef.current.style.lineHeight = '1.25rem';
+
+				if (checkOverflow(textRef?.current)) {
+					setinfo((prev) => ({ ...prev, isOverflowing: true }));
+				}
+			}
+		}
+	};
+
+	const handleCopyTextClick = useCallback(
+		(text) => {
+			const textToBeCopied = text?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')?.replace(/\\n/g, '\n');
+			navigator?.clipboard?.writeText(textToBeCopied).then(() => {
+				setinfo((prev) => ({ ...prev, isCopiedToClipboard: true }));
+				setTimeout(() => {
+					setinfo((prev) => ({ ...prev, isCopiedToClipboard: false }));
+				}, 1000);
+			});
+		},
+		[info],
+	);
+
+	const handleEditUserQueryToggle = useCallback(() => {
+		setinfo((prev) => ({
+			...prev,
+			editUserQuery: !prev.editUserQuery,
+			userQuery: messageData?.message || '',
+		}));
+	}, [info, messageData]);
+
+	const handleSendUserEditedQuery = useCallback(
+		(e, click = null) => {
+			if (e?.key === 'Enter' || click) {
+				if (e?.shiftKey) {
+					return;
+				}
+				updateStateValues({ userEditedQuery: info?.userQuery });
+				setinfo((prev) => ({
+					...prev,
+					editUserQuery: !prev.editUserQuery,
+					userQuery: messageData?.message || '',
+				}));
+			}
+		},
+		[info, messageData],
+	);
+
+	const handleUserQueryChange = useCallback(
+		(e) => {
+			setinfo((prev) => ({ ...prev, userQuery: e.target.value }));
+		},
+		[info],
+	);
+
+	const toggleExpand = useCallback(() => {
+		setinfo((prev) => ({ ...prev, isExpanded: !prev.isExpanded }));
+	}, []);
+
+	return (
+		<div className="user-message-renderer-wrapper">
+			{!info?.editUserQuery ? (
+				<div>
+					<div
+						style={{
+							opacity: activeUserMessageIndex ? 1 : 0.6,
+							maxHeight: info?.isExpanded
+								? `${textRef.current?.scrollHeight}px`
+								: '147px',
+						}}
+						className="user-message-renderer-container"
+						ref={textRef}
+					>
+						{(messageData?.message || '').split('\n').map((line, index) => (
+							<span key={index}>
+								{line}
+								{index < messageData?.message.split('\n').length - 1 && <br />}
+							</span>
+						))}
+					</div>
+					{info?.isOverflowing && (
+						<div className="expand-btn">
+							<div className="btn-text" onClick={toggleExpand}>
+								{info?.isExpanded ? 'Show less' : 'Show more'}
+							</div>
+						</div>
+					)}
+				</div>
+			) : (
+				<div className="user-edit-query-input-box-container">
+					<textarea
+						value={info?.userQuery}
+						onChange={handleUserQueryChange}
+						onKeyDown={handleSendUserEditedQuery}
+					/>
+					<div className="user-editQuery-actionBtnContainer">
+						<div className="cancelBtn" onClick={handleEditUserQueryToggle}>
+							Cancel
+						</div>
+						<div
+							className="sendBtn"
+							onClick={() => handleSendUserEditedQuery(null, 'click')}
+						>
+							Send
+						</div>
+					</div>
+				</div>
+			)}
+
+			{!info?.editUserQuery ? (
+				<div className="hover-actions-container">
+					<div className="icon-container">
+						<Tooltip placement="bottom" arrow={false} trigger={'hover'} title={'Edit'}>
+							<PencilSparkleIcon onClick={handleEditUserQueryToggle} />
+						</Tooltip>
+					</div>
+
+					<div className="icon-container">
+						<Tooltip placement="bottom" arrow={false} trigger={'hover'} title={'Copy'}>
+							{info?.isCopiedToClipboard ? (
+								<TickSvg />
+							) : (
+								<CopyIcon
+									onClick={() => handleCopyTextClick(messageData?.message)}
+								/>
+							)}
+						</Tooltip>
+					</div>
+				</div>
+			) : (
+				''
+			)}
+		</div>
+	);
+});

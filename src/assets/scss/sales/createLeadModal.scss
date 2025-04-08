@@ -69,6 +69,22 @@
 			line-height: 16px; /* 145.455% */
 			padding-left: 14px;
 		}
+		.createLeadInputContainer {
+			display: flex;
+			height: 46px;
+			padding: 13px 14px;
+			align-items: center;
+			align-self: stretch;
+			border-radius: 14px;
+			border: 1px solid var(--stroke);
+			background: transparent;
+			color: var(--secondary-font);
+			font-family: Inter;
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+		}
 	}
 
 	.inputBoxHolder {

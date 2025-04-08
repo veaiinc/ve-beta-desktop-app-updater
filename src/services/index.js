@@ -33,6 +33,8 @@ const {
 	multi_agent_chat_US,
 	automation_builder_api,
 	automation_builder_api_US,
+	elastic_search_api,
+	elastic_search_api_US,
 } = config || {};
 
 const apiEndpoints = {
@@ -51,6 +53,7 @@ const apiEndpoints = {
 	workflow: workflows_Api,
 	multi_agent_chat,
 	automation_builder_api,
+	elastic_search_api,
 };
 const apiEndpointsUS = {
 	tenant_users_api: tenant_users_api_US,
@@ -68,6 +71,7 @@ const apiEndpointsUS = {
 	workflow: workflows_Api_US,
 	multi_agent_chat: multi_agent_chat_US,
 	automation_builder_api: automation_builder_api_US,
+	elastic_search_api: elastic_search_api_US,
 };
 
 const handleHeaders = (token, body, type) => {
@@ -79,7 +83,8 @@ const handleHeaders = (token, body, type) => {
 			type === 'ai_setup' ||
 			type === 'ai_predictions' ||
 			type === 'calendar_chat' ||
-			type === 'slack_api'
+			type === 'slack_api' ||
+			type === 'elastic_search_api'
 		) {
 			headers['Authorization'] = `Bearer ${token}`;
 		}

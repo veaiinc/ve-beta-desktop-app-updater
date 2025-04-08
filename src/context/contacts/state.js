@@ -4,6 +4,7 @@ import restService from '../../services';
 
 import {
 	getClientsQuery,
+	getClientQuery,
 	createClientMutation,
 	deleteClientMutation,
 	updateClientMutation,
@@ -19,6 +20,7 @@ export const intialState = {
 	clientList: null,
 	clientMetadata: null,
 	contactPreference: null,
+	clientListForTask: null,
 };
 
 export const ContactsState = () => {
@@ -255,6 +257,73 @@ export const ContactsState = () => {
 		}
 	};
 
+	const getClientsForTask = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				getClientsQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+
+			if (response?.[0]) {
+				const responseData = response?.[1]?.data?.clients;
+
+				const newClients =
+					payload?.page === 1
+						? responseData
+						: {
+								...responseData,
+								data: [
+									...(state?.clientListForTask?.data?.data || []),
+									...responseData?.data,
+								],
+								hasNextPage: responseData?.hasNextPage,
+								currentPage: responseData?.currentPage,
+						  };
+
+				dispatch({
+					type: Actions.SET_CLIENT_LIST_FOR_TASK,
+					payload: { data: newClients },
+				});
+			} else {
+				dispatch({
+					type: Actions.SET_CLIENT_LIST_FOR_TASK,
+					payload: { error: 'Failed to get clients, try again' },
+				});
+			}
+		} catch (error) {
+			console.log('API failed ==> getClients', error);
+			dispatch({
+				type: Actions.SET_CLIENT_LIST_FOR_TASK,
+				payload: { error: 'Failed to get clients, try again' },
+			});
+		}
+	};
+
+	const getClient = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				getClientQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+			if (response?.[0]) {
+				return response?.[1]?.data?.getClient;
+			} else {
+				console.log('API failed ==> getClient', response);
+			}
+		} catch (error) {
+			console.log('API failed ==> getClient', error);
+		}
+	};
 	const resetContactsState = () => {
 		dispatch({ type: Actions.RESET_STATE });
 	};
@@ -272,5 +341,7 @@ export const ContactsState = () => {
 		deleteContactView,
 		getContactPreferences,
 		updateContactPreferences,
+		getClient,
+		getClientsForTask,
 	};
 };
