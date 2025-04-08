@@ -108,7 +108,7 @@ const ChatPrompts = () => {
 	return (
 		<div className="chat-prompts-wrapper">
 			<div className="chat-prompts-container">
-				<div className="header">
+				{/* <div className="header">
 					<div className="title-container">
 						<div className="title">
 							One Prompt,
@@ -126,7 +126,7 @@ const ChatPrompts = () => {
 							onChange={handleSearchQueryChange}
 						/>
 					</div>
-				</div>
+				</div> */}
 
 				<div className="prompts-container">
 					<div className="prompts-side-bar">
@@ -134,7 +134,7 @@ const ChatPrompts = () => {
 							<button className="create-prompt-button">Create Prompt</button>
 						</div> */}
 
-						<div className="prompts-list-container">
+						{/* <div className="prompts-list-container">
 							{promptsList?.map((prompt) => (
 								<div
 									className={`prompt-item ${
@@ -148,17 +148,15 @@ const ChatPrompts = () => {
 									{prompt?.label}
 								</div>
 							))}
-						</div>
+						</div> */}
 					</div>
 					<div className="suggested-prompts">
-						<div className="title">Active Suggestions</div>
-
 						<InfiniteScroll
 							dataLength={info?.promptsData?.length || 0}
 							next={fetchMoreAiSuggestedPrompts}
 							hasMore={info?.hasNextPage || false}
 							loader={<FetchMoreLoaderComp wrapperStyle={{ width: '100%' }} />}
-							height={`calc(100vh - 350px)`}
+							height={`calc(100vh - 435px)`}
 							className="infinite-scroll-container"
 						>
 							<div className="suggested-prompts-container">
