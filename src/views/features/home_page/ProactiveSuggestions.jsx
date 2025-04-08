@@ -7,6 +7,8 @@ import { ReactComponent as ChevronRightThinSvg } from '../../../assets/svg/tasks
 const payload = {
 	page: 1,
 	limit: 20,
+	sortBy: 'createdAt',
+	sortOrder: '-1',
 };
 const ProactiveSuggestions = ({ handleUpdateOptions }) => {
 	const {
@@ -49,12 +51,15 @@ const ProactiveSuggestions = ({ handleUpdateOptions }) => {
 	};
 
 	const updateWindow = (index) => {
-		const length = info?.totalCardsData?.length;
+		const length = info?.totalCardsData?.length || 0;
 		const window = [];
-		for (let i = 0; i < 5; i++) {
+		const windowSize = Math.min(5, length); // adjust size to available cards
+
+		for (let i = 0; i < windowSize; i++) {
 			const current = (index + i) % length;
 			window.push({ ...info?.totalCardsData[current], realIndex: current });
 		}
+
 		setInfo((prev) => ({
 			...prev,
 			cards: window,
@@ -90,11 +95,15 @@ const ProactiveSuggestions = ({ handleUpdateOptions }) => {
 			<div className="cards-container">
 				{info?.cards?.map((card, index) => {
 					const classList = ['card'];
-					if (index === 2) classList.push('selected');
-					if (index === 1) classList.push('left-1');
-					if (index === 0) classList.push('left-2');
-					if (index === 3) classList.push('right-1');
-					if (index === 4) classList.push('right-2');
+					const cardCount = info?.cards?.length;
+					const middleIndex = Math.floor(cardCount / 2);
+					const offset = index - middleIndex;
+
+					if (offset === 0) classList.push('selected');
+					else if (offset === -1) classList.push('left-1');
+					else if (offset === -2) classList.push('left-2');
+					else if (offset === 1) classList.push('right-1');
+					else if (offset === 2) classList.push('right-2');
 					return (
 						<div
 							key={card?.realIndex}
