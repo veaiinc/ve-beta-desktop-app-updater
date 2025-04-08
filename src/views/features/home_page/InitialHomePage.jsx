@@ -58,13 +58,20 @@ const InitialHomePage = () => {
 
 	let {
 		profileInfo: { userDetailsData },
-		aiSetup: { getPromptsData },
+		aiSetup: { getPromptsData, promptsData },
 	} = useContext(Context);
 
 	const username =
 		jwtDecode(localStorage.getItem('usertoken'))?.userName?.split(' ')[0] ??
 		`${userDetailsData?.firstName}` ??
 		'User';
+	useEffect(() => {
+		if (promptsData?.data?.length === 0) {
+			handleUpdateOptions('prompts');
+		} else {
+			getPromptsData({ category: 'all' });
+		}
+	}, [promptsData]);
 
 	// useEffect(() => {
 	// 	if (info?.selectedOption && info?.selectedOption !== 'all') {
