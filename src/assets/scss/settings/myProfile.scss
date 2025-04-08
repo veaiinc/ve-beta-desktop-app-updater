@@ -177,7 +177,7 @@
 							}
 						}
 						input {
-							color: #e4e5e6;
+							color: var(--primary-font);
 							font-family: Inter;
 							font-size: 16px;
 							font-style: normal;
@@ -187,6 +187,10 @@
 							border: none;
 							outline: none;
 							width: 100%;
+						}
+
+						.profileEmailInput {
+							pointer-events: none;
 						}
 
 						&:hover {
@@ -202,6 +206,7 @@
 
 						.PhoneInput {
 							width: 100%;
+							color: var(--primary-font);
 						}
 					}
 				}
@@ -389,7 +394,7 @@
 		.accessSettingsContainer {
 			padding: 32px;
 			border-radius: 40px;
-			background: rgba(29, 29, 35, 0.24);
+			// background: rgba(29, 29, 35, 0.24);
 
 			.accessContainer {
 				display: flex;
@@ -397,7 +402,7 @@
 				gap: 48px;
 
 				h1 {
-					color: #e4e5e6;
+					color: var(--primary-font);
 					font-size: 16px;
 					font-weight: 500;
 					line-height: 24px;
@@ -408,7 +413,7 @@
 					flex-direction: column;
 					align-items: flex-start;
 					h4 {
-						color: #e4e5e6;
+						color: var(--primary-font);
 						font-size: 16px;
 						font-weight: 500;
 						line-height: 24px;
@@ -416,7 +421,7 @@
 					}
 
 					p {
-						color: rgba(228, 229, 230, 0.48);
+						color: var(--secondary-font);
 						font-size: 13px;
 						font-weight: 400;
 						line-height: 21px;
@@ -483,7 +488,7 @@
 
 				.leaveComponent {
 					h4 {
-						color: #e4e5e6;
+						color: var(--primary-font);
 						font-size: 16px;
 						font-weight: 500;
 						line-height: 24px;
@@ -491,7 +496,7 @@
 					}
 
 					p {
-						color: rgba(228, 229, 230, 0.48);
+						color: var(--secondary-font);
 						font-size: 13px;
 						font-weight: 400;
 						line-height: 21px;
@@ -555,7 +560,7 @@
 		justify-content: space-between;
 		align-items: center;
 		h1 {
-			color: #e4e5e6;
+			color: var(--primary-font);
 			font-family: Inter;
 			font-size: 18px;
 			font-style: normal;
@@ -799,7 +804,6 @@
 	flex-direction: column;
 	justify-content: flex-end;
 	align-items: flex-start;
-	gap: 48px;
 	.notifications-container-header {
 		background-color: none;
 		display: flex;
@@ -1006,6 +1010,6 @@
 
 	.accessSettingsContainer {
 		border: 1px solid rgba(204, 87, 86, 0.16);
-		background: rgba(204, 87, 86, 0.04);
+		background: var(--card-over-card-hover);
 	}
 }

@@ -1079,15 +1079,24 @@ const GalleryPage = () => {
 		});
 	};
 
-	const handleNewAlbumCreated = (newAlbum) => {
-		setInfo((prev) => ({
-			...prev,
-			activeTab: 'Albums',
-			albumSlug: newAlbum?.slug,
-			albumName: newAlbum?.title,
-			activeAlbumId: newAlbum?._id,
-			activeAlbum: newAlbum,
-		}));
+	const handleNewAlbumCreated = async (newAlbum) => {
+		try {
+			// Wait for albums to be fetched
+			await getAlbums(galleryId);
+			// Update state after albums are fetched
+			setInfo((prev) => ({
+				...prev,
+				activeTab: 'Albums',
+				albumSlug: newAlbum?.albumSlug,
+				albumName: newAlbum?.title,
+				activeAlbumId: newAlbum?.album_id,
+				activeAlbum: newAlbum,
+			}));
+			await getAlbumImagesCount(galleryId);
+		} catch (error) {
+			console.error('Error updating albums:', error);
+			message.error('Failed to update albums list');
+		}
 	};
 
 	const handleClickAlbum = (album, name) => {
@@ -2762,6 +2771,13 @@ const GalleryPage = () => {
 				message.success('Album deleted successfully');
 				await getAlbums(galleryId);
 				navigate(`/galleries/${galleryId}`);
+				setInfo((prev) => ({
+					...prev,
+					activeAlbumId: tenantAlbums?.[0]?._id,
+					activeAlbum: tenantAlbums?.[0],
+					albumSlug: tenantAlbums?.[0]?.slug,
+					albumName: tenantAlbums?.[0]?.title,
+				}));
 			} else {
 				message.error(response[1].message);
 			}

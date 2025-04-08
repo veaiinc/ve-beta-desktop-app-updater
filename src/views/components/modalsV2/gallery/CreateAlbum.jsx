@@ -9,7 +9,7 @@ import slugify from 'slugify';
 import dayjs from 'dayjs';
 import { message } from '../../globalComponents/CustomToast';
 
-const CreateAlbum = ({ open, closeModal, galleryId }) => {
+const CreateAlbum = ({ open, closeModal, galleryId, handleNewAlbumCreated }) => {
 	const {
 		galleryInfo: { createNewAlbum, checkAlbumSlugIsAvalible },
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
@@ -84,6 +84,7 @@ const CreateAlbum = ({ open, closeModal, galleryId }) => {
 		if (response?.[0] === true) {
 			closeModelFunction();
 			message.success('Album Created Successfully');
+			handleNewAlbumCreated(response?.[1]);
 		} else {
 			console.log(response);
 			message.error(response?.[1]?.message);
