@@ -426,7 +426,11 @@ const routes = [
 	{
 		path: '/knowledge-agent/:agentId',
 		component: (
-			<AuthWrapper title={'Knowledge Agent'} innerContainerStyle={{ paddingBottom: '0px' }}>
+			<AuthWrapper
+				title={'Knowledge Agent'}
+				showBottomToolbar={false}
+				innerContainerStyle={{ paddingBottom: '0px' }}
+			>
 				<KnowledgeAgentDetails />
 			</AuthWrapper>
 		),

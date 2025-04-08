@@ -4,15 +4,7 @@ import '../../../assets/scss/knowledgeAgent/index.scss';
 import Context from '../../../context/context';
 import Spinner from '../../components/loaders/Spinner';
 import { message } from 'antd';
-import defaultImage from '../../../assets/svg/agents/agent1.svg';
-import { ReactComponent as AgentSvg1 } from '../../../assets/svg/agents/agent1.svg';
-import { ReactComponent as FastSvg } from '../../../assets/svg/agents/default.svg';
-import { ReactComponent as AgentSvg2 } from '../../../assets/svg/agents/agent2.svg';
-import { ReactComponent as searchIconn } from '../../../assets/svg/agents/search.svg';
-import { ReactComponent as GreenCardIcon } from '../../../assets/svg/agents/Back.svg';
 
-import fastImage from '../../../assets/svg/agents/default.svg';
-import hoverImage from '../../../assets/svg/agents/agent2.svg';
 import searchIcon from '../../../assets/svg/agents/search.svg';
 import greenCardIcon from '../../../assets/svg/agents/Back.svg';
 
@@ -154,12 +146,10 @@ const CardsContainer = () => {
 				content: [
 					{
 						default: {
-							image: defaultImage,
 							text: 'Placeholder Text', // Placeholder for API
 							description: 'Placeholder description.', // Placeholder for API
 						},
 						hover: {
-							image: hoverImage,
 							text: 'Hover Text', // Placeholder for API
 							description: ' Hover description.', // Placeholder for API
 						},
@@ -173,12 +163,12 @@ const CardsContainer = () => {
 
 	return (
 		<div className="cards-wrapper">
-			<header className="page-header">
+			{/* <header className="page-header">
 				<h1>
 					<span className="header-subtitle">Browse your Knowledge Agents</span>
 					<span className="header-title">Curiosity is Superpower.</span>
 				</h1>
-			</header>
+			</header> */}
 			<div className="card-scrollable-wrapper">
 				<div className="agents-scroll-area" ref={containerRef}>
 					<div className="agents-container">

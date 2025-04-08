@@ -18,15 +18,14 @@
 		align-items: center;
 		gap: 6px;
 		border-radius: 59px;
-		background: #e8e8e8;
-		background: color(display-p3 0.9098 0.9098 0.9098);
+		background: var(--primary-font);
 		position: fixed;
 		top: 60px;
 		right: 15px;
 		z-index: 11;
 
 		&:hover {
-			background: darken(#c9f24d, 10%);
+			background: var(--primary-button), 10%;
 		}
 
 		&:disabled {
@@ -148,7 +147,7 @@
 		flex-direction: column;
 		gap: 10px;
 		box-sizing: border-box;
-		font-family: 'Inter', Helvetica, sans-serif;
+		font-family: var(--primary-font-family);
 		font-size: 20px;
 		font-weight: 500;
 		align-items: flex-start;
@@ -203,8 +202,7 @@
 
 			.header-subtitle {
 				color: var(--secondary-font, #787e87);
-				color: var(--secondary-font, color(display-p3 0.4784 0.4941 0.5216));
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 24px;
 				font-style: normal;
 				font-weight: 400;
@@ -212,9 +210,8 @@
 			}
 
 			.header-title {
-				color: #bef404;
-				color: color(display-p3 0.7898 0.9515 0.3047);
-				font-family: Inter;
+				color: var(--primary-button);
+				font-family: var(--primary-font-family);
 				font-size: 24px;
 				font-style: normal;
 				font-weight: 400;
@@ -230,25 +227,25 @@
 			padding: 8px 12px;
 			border-radius: 20px;
 			background: #2a2c2e;
-			border: 1px solid #7a7e85;
+			border: 1px solid var(--stroke);
 
 			.search-icon {
 				width: 16px;
 				height: 16px;
-				color: #7a7e85;
+				color: var(--primary-font);
 			}
 
 			.search-input {
 				background: transparent;
 				border: none;
-				color: #f2f2f3;
-				font-family: 'Inter', Helvetica, sans-serif;
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
 				font-size: 14px;
 				width: 160px;
 				outline: none;
 
 				&::placeholder {
-					color: #7a7e85;
+					color: var(--secondary-font);
 				}
 			}
 		}
@@ -274,11 +271,11 @@
 			}
 
 			&::-webkit-scrollbar-track {
-				background: #171819;
+				background: var(--stroke);
 			}
 
 			&::-webkit-scrollbar-thumb {
-				background: #2a2c2e;
+				background: var(--stroke);
 				border-radius: 4px;
 			}
 
@@ -293,7 +290,7 @@
 				.agent-card {
 					width: 220px;
 					height: 280px;
-					background: #171819;
+					background: var(--card);
 					border-radius: 16px;
 					cursor: pointer;
 					flex-shrink: 0;
@@ -316,14 +313,14 @@
 					// }
 
 					&.new-card {
-						background: #bef404;
-						color: #171819;
+						background: var(--primary-button);
+						color: var(--primary-button-font);
 						.agent-info {
 							.agent-title {
-								color: #171819 !important;
+								color: var(--primary-button-font) !important;
 							}
 							.agent-subtitle {
-								color: #171819;
+								color: var(--primary-button-font);
 								font-weight: bold;
 							}
 						}
@@ -359,16 +356,16 @@
 							padding: 0 16px;
 
 							.agent-title {
-								font-family: 'Inter', Helvetica, sans-serif;
+								font-family: var(--primary-font-family);
 								font-size: 20px;
-								color: #f2f2f3;
+								color: var(--primary-font);
 								font-weight: 500;
 							}
 
 							.agent-subtitle {
-								font-family: 'Inter', Helvetica, sans-serif;
+								font-family: var(--primary-font-family);
 								font-size: 14px;
-								color: #7a7e85;
+								color: var(--secondary-font);
 								font-weight: 400;
 							}
 						}
@@ -506,16 +503,16 @@
 							}
 
 							.inspired-text {
-								font-family: 'Inter', Helvetica, sans-serif;
-								font-size: xx-small;
-								color: #f2f2f3;
+								font-family: var(--primary-font-family);
+								font-size: 12px;
+								color: var(--primary-button);
 								font-weight: 500;
 							}
 
 							.inspired-subtitle {
-								font-family: 'Inter', Helvetica, sans-serif;
-								font-size: xx-small;
-								color: #7a7e85;
+								font-family: var(--primary-font-family);
+								font-size: 11px;
+								color: var(--secondary-font);
 								text-align: center;
 								line-height: 1.2;
 								max-width: 90%;
@@ -539,7 +536,7 @@
 							.green-card-icon {
 								width: 24px;
 								height: 24px;
-								color: #f2f2f3;
+								color: var(--primary-font);
 							}
 
 							.ask-me-button {
@@ -548,10 +545,10 @@
 								gap: 8px;
 								padding: 8px 12px;
 								border-radius: 20px;
-								background: #2a2c2e;
-								color: #f2f2f3;
-								font-family: 'Inter', Helvetica, sans-serif;
-								font-size: x-small;
+								background: var(--card-over-card);
+								color: var(--primary-font);
+								font-family: var(--primary-font-family);
+								font-size: 12px;
 								font-weight: 500;
 								border: none;
 								cursor: pointer;
@@ -559,7 +556,7 @@
 								.search-icon {
 									width: 16px;
 									height: 16px;
-									color: #7a7e85;
+									color: var(--secondary-font);
 								}
 							}
 
@@ -569,21 +566,21 @@
 								gap: 8px;
 								padding: 8px 12px;
 								border-radius: 20px;
-								background: #2a2c2e;
-								border: 1px solid #7a7e85;
+								background: var(--card-over-card);
+								border: 1px solid var(--stroke);
 
 								input {
 									background: transparent;
 									border: none;
-									color: #f2f2f3;
-									font-family: 'Inter', Helvetica, sans-serif;
+									color: var(--primary-font);
+									font-family: var(--primary-font-family);
 									font-size: 14px;
 									width: 120px;
 									outline: none;
 
 									&::placeholder {
-										font-size: xx-small;
-										color: #7a7e85;
+										font-size: 12px;
+										color: var(--secondary-font);
 									}
 								}
 
@@ -596,15 +593,15 @@
 					}
 
 					&.loading-card {
-						background: #171819;
+						background: var(--card);
 						pointer-events: none;
 
 						.skeleton {
 							background: linear-gradient(
 								90deg,
-								#171819 25%,
-								#1f2123 50%,
-								#171819 75%
+								var(--card) 25%,
+								var(--card) 50%,
+								var(--card) 75%
 							);
 							background-size: 200% 100%;
 							animation: shimmer 1.5s infinite;
@@ -637,8 +634,8 @@
 				}
 
 				.no-results {
-					color: #7a7e85;
-					font-family: 'Inter', Helvetica, sans-serif;
+					color: var(--secondary-font);
+					font-family: var(--primary-font-family);
 					font-size: 16px;
 					text-align: center;
 					width: 100%;
