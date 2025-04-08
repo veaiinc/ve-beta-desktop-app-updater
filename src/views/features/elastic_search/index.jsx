@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react';
+import { memo, useContext, useRef, useState } from 'react';
 import '../../../assets/scss/elastic_search/index.scss';
 import { ReactComponent as SearchIcon } from '../../../assets/svg/elastic_search/search-icon.svg';
 import { ReactComponent as DownArrowIcon } from '../../../assets/svg/elastic_search/down-arrow-icon.svg';
@@ -6,6 +6,7 @@ import { ReactComponent as CrossIcon } from '../../../assets/svg/elastic_search/
 import Context from '../../../context/context';
 import Spinner from '../../components/loaders/Spinner';
 import { message } from 'antd';
+import ElasticSearchResults from '../../components/elastic_search/ElasticSearchResults';
 
 const filters = [
 	{
@@ -32,25 +33,36 @@ const cssstyle = {
 	right: 16,
 };
 
-let searchTimeoutId;
-
 const ElasticSearch = () => {
+	const elasticSearchTimeoutRef = useRef(null);
+
 	const {
 		elasticSearch: { elasticSearchResults, performElasticSearch },
 	} = useContext(Context);
+
 	const [info, setInfo] = useState({
-		searchLoading: false,
+		elasticSearchLoading: false,
+		showElasticSearchResults: false,
 	});
 
-	const noResults = elasticSearchResults?.length === 0;
+	const noResults = elasticSearchResults?.length === 0 && info?.showElasticSearchResults;
 
 	const handleSearch = async (e) => {
-		clearTimeout(searchTimeoutId);
-		searchTimeoutId = setTimeout(async () => {
+		clearTimeout(elasticSearchTimeoutRef.current);
+		const searchInput = e.target.value;
+		const emptySearchInput = searchInput === '';
+		if (emptySearchInput) {
 			setInfo({
-				searchLoading: true,
+				elasticSearchLoading: false,
+				showElasticSearchResults: false,
 			});
-			const searchInput = e.target.value;
+			return;
+		}
+		elasticSearchTimeoutRef.current = setTimeout(async () => {
+			setInfo({
+				elasticSearchLoading: true,
+				showElasticSearchResults: false,
+			});
 			const response = await performElasticSearch(searchInput);
 			const apiSuccess = response[0];
 			if (!apiSuccess) {
@@ -58,9 +70,10 @@ const ElasticSearch = () => {
 				message.error(errMsg);
 			}
 			setInfo({
-				searchLoading: false,
+				elasticSearchLoading: false,
+				showElasticSearchResults: true,
 			});
-		}, 1000);
+		}, 500);
 	};
 
 	return (
@@ -75,7 +88,7 @@ const ElasticSearch = () => {
 					autoFocus
 					onChange={handleSearch}
 				/>
-				{info?.searchLoading && (
+				{info?.elasticSearchLoading && (
 					<Spinner width={'16px'} height={'16px'} cssstyle={cssstyle} />
 				)}
 			</div>
@@ -95,9 +108,17 @@ const ElasticSearch = () => {
 					</button>
 				</div>
 			</div>
-			<div className="recentSearchResults"></div>
+			<div
+				className={`elasticSearchResultsContainer ${noResults ? 'noResultsContainer' : ''}`}
+			>
+				{noResults ? (
+					<p className="noResults">No results found</p>
+				) : (
+					<ElasticSearchResults />
+				)}
+			</div>
 		</div>
 	);
 };
 
-export default ElasticSearch;
+export default memo(ElasticSearch);
