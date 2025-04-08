@@ -146,16 +146,17 @@ const ProfileDetailsComponent = ({
 							)}
 						</div>
 						<div>
-							<div className="iconAlignclass">
+							<div className="iconAlignclass emailInputClass">
 								<EmailSvg />
 
 								<input
 									type="text"
-									placeholder={'Enter the Name'}
+									// placeholder={'Enter the Name'}
 									value={userDetails?.email}
 									disabled={true}
 									readOnly={true}
 									required
+									className="profileEmailInput"
 								/>
 
 								<GreenTickSvg />
