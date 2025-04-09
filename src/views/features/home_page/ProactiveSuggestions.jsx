@@ -10,7 +10,7 @@ const payload = {
 	sortBy: 'createdAt',
 	sortOrder: '-1',
 };
-const ProactiveSuggestions = ({ handleUpdateOptions }) => {
+const ProactiveSuggestions = () => {
 	const {
 		templates: { getAISuggestedPendingActions, aiSuggestedPendingActions },
 	} = useContext(Context);
@@ -45,8 +45,6 @@ const ProactiveSuggestions = ({ handleUpdateOptions }) => {
 				...prev,
 				totalCardsData: cards,
 			}));
-		} else {
-			handleUpdateOptions('proactiveSuggestions');
 		}
 	};
 

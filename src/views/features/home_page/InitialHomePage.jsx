@@ -28,11 +28,13 @@ const optionsList = [
 		id: 1,
 		label: 'Proactive suggestions',
 		value: 'proactiveSuggestions',
+		showOption: false,
 	},
 	{
 		id: 2,
 		label: 'Prompts library',
 		value: 'prompts',
+		showOption: false,
 	},
 ];
 
@@ -52,26 +54,62 @@ const InitialHomePage = () => {
 		showPromptPopup: false,
 		selectedCard: null,
 
-		selectedOption: 'proactiveSuggestions',
+		selectedOption: '',
 		options: optionsList,
+		promptsCategory: 'all',
+		optionsHandledOnce: Object?.values(optionsList)?.reduce((acc, option) => {
+			acc[option.value] = false;
+			return acc;
+		}, {}),
 	});
 
 	let {
 		profileInfo: { userDetailsData },
 		aiSetup: { getPromptsData, promptsData },
+		templates: { aiSuggestedPendingActions, getAISuggestedPendingActions },
 	} = useContext(Context);
 
 	const username =
 		jwtDecode(localStorage.getItem('usertoken'))?.userName?.split(' ')[0] ??
 		`${userDetailsData?.firstName}` ??
 		'User';
+
 	useEffect(() => {
-		if (promptsData?.data?.length === 0) {
-			handleUpdateOptions('prompts');
+		if (promptsData) {
+			if (promptsData?.data?.length > 0 && !info?.optionsHandledOnce?.prompts) {
+				handleUpdateOptions('prompts');
+				setInfo((prev) => ({
+					...prev,
+					optionsHandledOnce: {
+						...prev.optionsHandledOnce,
+						prompts: true,
+					},
+				}));
+			}
 		} else {
-			getPromptsData({ category: 'all' });
+			getPromptsData({ category: 'all', limit: 30 });
 		}
-	}, [promptsData?.data?.length]);
+	}, [promptsData]);
+
+	useEffect(() => {
+		if (aiSuggestedPendingActions) {
+			const cards = aiSuggestedPendingActions?.pendingActions?.filter(
+				(card) => card?.researchTopics?.length > 0,
+			);
+			if (cards?.length > 0 && !info?.optionsHandledOnce?.proactiveSuggestions) {
+				handleUpdateOptions('proactiveSuggestions');
+				setInfo((prev) => ({
+					...prev,
+					optionsHandledOnce: {
+						...prev.optionsHandledOnce,
+						proactiveSuggestions: true,
+					},
+				}));
+			}
+		} else {
+			getAISuggestedPendingActions();
+		}
+	}, [aiSuggestedPendingActions]);
 
 	// useEffect(() => {
 	// 	if (info?.selectedOption && info?.selectedOption !== 'all') {
@@ -124,27 +162,44 @@ const InitialHomePage = () => {
 	};
 
 	const handleUpdateOptions = (value) => {
-		const updatedOptions = info?.options?.filter((option) => option?.value !== value);
+		let updatedOptions = info?.options;
+		updatedOptions = updatedOptions?.map((option) => {
+			if (option?.value === value) {
+				option.showOption = true;
+			}
+			return option;
+		});
+
 		setInfo((prev) => ({
 			...prev,
 			options: updatedOptions,
+			selectedOption: updatedOptions[0]?.value,
 		}));
-		if (info?.selectedOption === value) {
-			setInfo((prev) => ({
-				...prev,
-				selectedOption: updatedOptions[0]?.value,
-			}));
-		}
+	};
+
+	const updatePromptsCategory = (value) => {
+		setInfo((prev) => ({
+			...prev,
+			promptsCategory: value,
+		}));
 	};
 
 	const componentMapper = useMemo(
 		() => ({
-			proactiveSuggestions: (
-				<ProactiveSuggestions handleUpdateOptions={handleUpdateOptions} />
+			proactiveSuggestions: <ProactiveSuggestions />,
+			prompts: (
+				<ChatPrompts
+					promptsCategory={info?.promptsCategory}
+					updatePromptsCategory={updatePromptsCategory}
+				/>
 			),
-			prompts: <ChatPrompts handleUpdateOptions={handleUpdateOptions} />,
 		}),
-		[info?.selectedOption],
+		[info?.promptsCategory],
+	);
+
+	const options = useMemo(
+		() => info?.options?.filter((option) => option?.showOption),
+		[info?.options],
 	);
 
 	return (
@@ -243,7 +298,7 @@ const InitialHomePage = () => {
 			<div
 				className="home-page-container-header"
 				style={{
-					marginTop: info?.options?.length > 0 ? '85px' : '0px',
+					marginTop: options?.length > 0 ? '85px' : '0px',
 				}}
 			>
 				<div className="header-title">Proactive AI</div>
@@ -251,7 +306,7 @@ const InitialHomePage = () => {
 					<ChatBox onSend={handleCustomOnSendFunction} customChatActions={true} />
 				</div>
 				<div className="options-container">
-					{info?.options?.map((option) => {
+					{options?.map((option) => {
 						return (
 							<div
 								className={`option ${
@@ -265,7 +320,7 @@ const InitialHomePage = () => {
 					})}
 				</div>
 			</div>
-			{info?.options?.length > 0 && (
+			{options?.length > 0 && (
 				<div className="home-page-container-content">
 					{componentMapper[info?.selectedOption]}
 				</div>
