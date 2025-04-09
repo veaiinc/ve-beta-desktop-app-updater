@@ -1,40 +1,33 @@
+import { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import '../../../assets/scss/storage/index.scss';
 import '../../../assets/scss/storage/storage.scss';
-import QuickActions from '../../components/globalComponents/QuickActions';
-import { ReactComponent as Search } from '../../../assets/svg/storage/search.svg';
 import { ReactComponent as Plus } from '../../../assets/svg/storage/Plus.svg';
-import { ReactComponent as Upload } from '../../../assets/svg/storage/Upload.svg';
-import { ReactComponent as ExpandIcon } from '../../../assets/svg/storage/expand.svg';
-import { ReactComponent as FolderIcon } from '../../../assets/svg/storage/Folder.svg';
 import { ReactComponent as Folder } from '../../../assets/svg/storage/uploadModal/Folder.svg';
-import { ReactComponent as ArrowRight } from '../../../assets/svg/storage/arrowRight.svg';
-import { ReactComponent as ArrowDown } from '../../../assets/svg/storage/arrowDown.svg';
 import { ReactComponent as File } from '../../../assets/svg/storage/file.svg';
-import { ReactComponent as Calendar } from '../../../assets/svg/storage/calendar.svg';
 import { ReactComponent as Document } from '../../../assets/svg/storage/docSvg.svg';
 import { ReactComponent as Mp3 } from '../../../assets/svg/storage/mp3Svg.svg';
 import { ReactComponent as Mp4 } from '../../../assets/svg/storage/mp4Svg.svg';
 import { ReactComponent as Pdf } from '../../../assets/svg/storage/pdfSvg.svg';
 import { ReactComponent as Psd } from '../../../assets/svg/storage/psdSvg.svg';
 import { ReactComponent as Zip } from '../../../assets/svg/storage/zipSvg.svg';
-import { ReactComponent as NoteIcon } from '../../../assets/svg/sidebar/notes/note.svg';
-import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import Context from '../../../context/context';
 import { useNavigate } from 'react-router-dom';
 import CreateGallery from '../../components/modalsV2/gallery/CreateGallery';
-import { message, Skeleton, Tooltip } from 'antd';
+import { message } from 'antd';
 import Spinner from '../../components/loaders/Spinner';
 import ProposalsPopup from '../../components/docs/ProposalsPopup';
 import ObjectID from 'bson-objectid';
 import gsap from 'gsap';
+import QuickActions from '../../components/globalComponents/QuickActions';
+
 const initialState = {
 	workflowTemplates: [],
 };
-const Storage = () => {
+const Files = () => {
+	const cardItems = useRef(null);
 	const {
 		galleryInfo: { getGalleries, tenantGalleries, getMostUsedEntities },
-		subscriptionInfo: { validateExpiryData, updateSubscriptionState, updateStateValues },
-		elasticSearchInfo: { elasticSearchResults, getElasticSearchResults },
+		elasticSearch: { elasticSearchResults, getElasticSearchResults },
 		templates: {
 			getTemplatesListForForms,
 			formsTemplatesList,
@@ -42,14 +35,12 @@ const Storage = () => {
 			myWorkflows,
 			docsFilesList,
 			getMyWorkflows,
-			getTemplatesList,
-			templatesList,
 			updateStateValues: updateTemplateStateValues,
 			getTemplatesListForCreateLead,
 		},
-		profileInfo: { tenantUserAccessControls },
-		notes: { getNotesList, notes, moreNotes },
+		notes: { getNotesList, notes },
 	} = useContext(Context);
+
 	const [info, setInfo] = useState({
 		createNewGalleryModal: false,
 		galleries: [],
@@ -66,7 +57,7 @@ const Storage = () => {
 		initialDataFetched: false,
 		commonState: 'All',
 	});
-	const cardItems = useRef(null);
+
 	useEffect(() => {
 		if (cardItems.current || info.createNewGalleryModal) {
 			cardItems.current = document.getElementsByClassName('card-item-style');
@@ -74,7 +65,7 @@ const Storage = () => {
 				item.style.zIndex = '0';
 			});
 		}
-	}, [info.createNewGalleryModal]);
+	}, [info?.createNewGalleryModal]);
 
 	const navigate = useNavigate();
 	const handleInitialAnimationComplete = () => {
@@ -184,55 +175,6 @@ const Storage = () => {
 		});
 	};
 
-	const handleDebounceSearch = useCallback(
-		(page = 1, search = null, reset = false) => {
-			clearInterval(info?.timeout);
-			const timeout = setTimeout(() => {
-				fetchGalleries(page, search, reset);
-			}, 800);
-			setInfo((prev) => ({ ...prev, timeout }));
-		},
-		[info?.timeout],
-	);
-
-	const handleSearch = (e) => {
-		const searchInput = e?.target?.value;
-		setInfo((prev) => ({
-			...prev,
-			search: searchInput,
-			isElasticSearchLoading: searchInput ? true : false,
-		}));
-
-		if (info.timeout) {
-			clearTimeout(info.timeout);
-		}
-
-		const timeout = setTimeout(async () => {
-			if (!searchInput) {
-				if (typeof getElasticSearchResults === 'function') {
-					getElasticSearchResults('');
-				}
-				await fetchGalleries(1, null, true);
-				setInfo((prev) => ({ ...prev, isElasticSearchLoading: false }));
-				return;
-			}
-
-			const response = await getElasticSearchResults(searchInput);
-			const apiSuccess = response?.[0];
-			if (!apiSuccess) {
-				const errMsg = response?.[1];
-				message?.error(errMsg);
-			}
-
-			setInfo((prev) => ({
-				...prev,
-				isElasticSearchLoading: false,
-			}));
-		}, 800);
-
-		setInfo((prev) => ({ ...prev, timeout }));
-	};
-
 	const handleMouseEnter = () => {
 		setInfo((prev) => ({ ...prev, cardHover: true }));
 	};
@@ -247,6 +189,7 @@ const Storage = () => {
 
 	const fetchInitialData = async () => {
 		try {
+			console.log('reached here');
 			setIsLoading(true);
 			const payload = {
 				filters: {
@@ -260,6 +203,7 @@ const Storage = () => {
 			};
 
 			const response = await getMostUsedEntities(payload);
+			console.log('Sheshant', response);
 			if (response?.[0] && response?.[1]?.data?.mostUsedEntities) {
 				setMostUsedEntities(response[1].data.mostUsedEntities);
 			}
@@ -1126,7 +1070,7 @@ const Storage = () => {
 	return (
 		<>
 			<div className="storage-main-container">
-				{/* <div className="storage-header-container">
+				<div className="storage-header-container">
 					<span className="beta-text">
 						<div className="beta-text-bold">Search | Create | Share</div>
 						<div className="beta-text">File Flow Inspired by Your Mind</div>
@@ -1134,7 +1078,7 @@ const Storage = () => {
 					<div className="storage-header-items">
 						<QuickActions />
 					</div>
-				</div> */}
+				</div>
 				<div className="card-container-wrapper">
 					<div className="card-sub-container">
 						<div className="card-sub-container-left">
@@ -1204,27 +1148,6 @@ const Storage = () => {
 							</div>
 						</div>
 					</div>
-					<div className="storage-main-container-bottom-spacer">
-						<div className="searchbar-container-wrapper">
-							<div className="searchbar-container">
-								<Search className="search-icon" height={50} width={50} />
-								<input
-									type="text"
-									placeholder="Search"
-									value={info?.search}
-									onChange={handleSearch}
-								/>
-								{info?.isElasticSearchLoading && (
-									<div className="searchbar-container-spinner">
-										<Spinner width={'16px'} height={'16px'} />
-									</div>
-								)}
-								<button className="search-btn">
-									<ArrowRight />
-								</button>
-							</div>
-						</div>
-					</div>
 				</div>
 			</div>
 			<CreateGallery
@@ -1250,4 +1173,4 @@ const Storage = () => {
 	);
 };
 
-export default Storage;
+export default memo(Files);
