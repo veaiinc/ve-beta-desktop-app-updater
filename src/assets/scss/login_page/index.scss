@@ -8,6 +8,16 @@
 	position: relative;
 	z-index: 1;
 
+	.header {
+		position: absolute;
+		top: 0;
+		left: 0;
+		padding: 32px 40px 20px 40px;
+		.logo {
+			cursor: pointer;
+		}
+	}
+
 	.gradient-container {
 		position: absolute;
 		top: 0;
