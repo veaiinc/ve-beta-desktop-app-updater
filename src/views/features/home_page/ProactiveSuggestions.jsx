@@ -8,6 +8,8 @@ import Skeleton from 'react-loading-skeleton';
 const payload = {
 	page: 1,
 	limit: 20,
+	sortBy: 'createdAt',
+	sortOrder: '-1',
 };
 const positionClassMap = {
 	0: 'selected',

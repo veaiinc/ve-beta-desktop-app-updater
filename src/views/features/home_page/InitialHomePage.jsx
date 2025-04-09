@@ -71,7 +71,7 @@ const InitialHomePage = () => {
 		} else {
 			getPromptsData({ category: 'all' });
 		}
-	}, [promptsData]);
+	}, [promptsData?.data?.length]);
 
 	// useEffect(() => {
 	// 	if (info?.selectedOption && info?.selectedOption !== 'all') {
