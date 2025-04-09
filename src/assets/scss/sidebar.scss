@@ -229,11 +229,17 @@
 					align-self: stretch;
 					border-top: 1px solid var(--stroke, #333334);
 					background: var(--navbar, #202123);
+					cursor: pointer;
+					&:hover {
+						background: var(--card-over-card-hover);
+					}
 					.settingsOptionsUserInfo {
 						display: flex;
-						justify-content: center;
+						justify-content: flex-start;
 						align-items: center;
 						gap: 8px;
+						cursor: pointer;
+
 						.settingsOptionsUserName {
 							color: var(--primary-font, #f2f2f3);
 							font-family: var(--primary-font-family);
@@ -587,7 +593,7 @@
 				border-radius: 12px;
 				background: var(--card-over-card-hover);
 				border: none;
-				color: var(--secondary-font);
+				color: var(--primary-font);
 				font-size: 14px;
 				font-weight: 500;
 				line-height: normal;
@@ -985,6 +991,7 @@
 		gap: 4px;
 		padding: 0 20px;
 		margin-top: 0;
+		padding: 0px 20px;
 		.settings-options-title {
 			color: var(--primary-font, #f2f2f3);
 			font-family: Inter;
@@ -1178,9 +1185,13 @@
 	cursor: pointer;
 	.settingsOptionsUserInfo {
 		display: flex;
-		justify-content: center;
+		justify-content: flex-start;
 		align-items: center;
 		gap: 8px;
+		width: 70%;
+		&:hover {
+			background: var(--card-over-card-hover);
+		}
 		.settingsOptionsUserName {
 			color: var(--primary-font, #f2f2f3);
 			font-family: var(--primary-font-family);
@@ -1202,6 +1213,18 @@
 			font-weight: bold;
 			font-family: var(--primary-font-family);
 			padding: 0px;
+		}
+	}
+	.logoutIcon {
+		cursor: pointer;
+		width: 24px;
+		height: 24px;
+		border-radius: 100px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		&:hover {
+			background: var(--card-over-card-hover);
 		}
 	}
 }
