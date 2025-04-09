@@ -109,9 +109,17 @@ const useChatStream = () => {
 			const workspaceId = localStorage.getItem('workspaceId');
 			const region = localStorage.getItem('region') || 'ap-south-1';
 
-			const baseUrl = `${
+			let baseUrl = `${
 				region === 'ap-south-1' ? 'wss://ai.ap-south-1.ve.ai' : 'wss://ai.us-east-1.ve.ai'
 			}/${workspaceId}/${sessionId}/${agent}?token=${usertoken}`;
+
+			if (isPublicChat) {
+				baseUrl = `${
+					region === 'ap-south-1'
+						? 'wss://guestsearch.ap-south-1.ve.ai'
+						: 'wss://guestsearch.us-east-1.ve.ai'
+				}/${sessionId}/guest_chat`;
+			}
 
 			if (socketRef.current) {
 				socketRef.current.close();

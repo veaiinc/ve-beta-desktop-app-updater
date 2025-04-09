@@ -88,6 +88,7 @@
 			transform: translateX(-50%);
 			transition: all 0.3s ease;
 			display: none;
+			border: 1px solid var(--stroke);
 		}
 
 		.selected {
@@ -95,7 +96,7 @@
 			z-index: 3;
 			display: flex;
 			background-color: var(--card-hover);
-
+			border: none;
 			&::before {
 				content: '';
 				position: absolute;
@@ -166,6 +167,23 @@
 			display: flex;
 			transform: translateX(-50%) rotate(4deg);
 			opacity: 0.5;
+		}
+	}
+
+	.card.skeleton {
+		overflow: hidden;
+		padding: 0;
+		background-color: transparent;
+		border: none;
+
+		.skeleton-container {
+			padding: 0;
+			border-radius: 16px;
+			overflow: hidden;
+		}
+
+		&.selected {
+			padding: 4px;
 		}
 	}
 	.action-container {
