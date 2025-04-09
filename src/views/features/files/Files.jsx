@@ -635,7 +635,7 @@ const Files = () => {
 			onMouseEnter={handleMouseEnter}
 			onMouseLeave={handleMouseLeave}
 		>
-			<div className="card-item">
+			{/* <div className="card-item">
 				<div className="card-item-style card-item-style-btn">
 					<button
 						className="card-btn"
@@ -645,8 +645,8 @@ const Files = () => {
 						Create Form
 					</button>
 				</div>
-			</div>
-			{formsTemplatesList?.data?.slice(0, 11).map((form, index) => (
+			</div> */}
+			{formsTemplatesList?.data?.slice(0, 12).map((form, index) => (
 				<div
 					className="card-item"
 					key={index}
@@ -697,7 +697,7 @@ const Files = () => {
 				onMouseEnter={handleMouseEnter}
 				onMouseLeave={handleMouseLeave}
 			>
-				{docsFilesList?.data?.slice(0, 11).map((doc, index) => (
+				{docsFilesList?.data?.slice(0, 12).map((doc, index) => (
 					<div
 						className="card-item"
 						key={index}
@@ -725,15 +725,15 @@ const Files = () => {
 			onMouseEnter={handleMouseEnter}
 			onMouseLeave={handleMouseLeave}
 		>
-			<div className="card-item">
+			{/* <div className="card-item">
 				<div className="card-item-style card-item-style-btn">
 					<button className="card-btn" onClick={() => navigate('/note/new')}>
 						<Plus />
 						Create Note
 					</button>
 				</div>
-			</div>
-			{notes?.data?.slice(0, 11).map((note, index) => (
+			</div> */}
+			{notes?.data?.slice(0, 12).map((note, index) => (
 				<div
 					className="card-item"
 					key={index}
@@ -835,7 +835,7 @@ const Files = () => {
 				onMouseEnter={handleMouseEnter}
 				onMouseLeave={handleMouseLeave}
 			>
-				<div className="card-item">
+				{/* <div className="card-item">
 					<div className="card-item-style card-item-style-btn">
 						<button
 							className="card-btn"
@@ -847,8 +847,8 @@ const Files = () => {
 							Create Template
 						</button>
 					</div>
-				</div>
-				{myWorkflows?.data?.slice(0, 11).map((template, index) => (
+				</div> */}
+				{myWorkflows?.data?.slice(0, 12).map((template, index) => (
 					<div
 						className="card-item"
 						key={index}
@@ -884,15 +884,15 @@ const Files = () => {
 				onMouseEnter={handleMouseEnter}
 				onMouseLeave={handleMouseLeave}
 			>
-				<div className="card-item">
+				{/* <div className="card-item">
 					<div className="card-item-style card-item-style-btn">
 						<button className="card-btn" onClick={handleCreateNewGallery}>
 							<Plus />
 							Create Folder
 						</button>
 					</div>
-				</div>
-				{tenantGalleries?.galleries?.slice(0, 11).map((item, index) => (
+				</div> */}
+				{tenantGalleries?.galleries?.slice(0, 12).map((item, index) => (
 					<div
 						className="card-item gallery-item"
 						key={index}
