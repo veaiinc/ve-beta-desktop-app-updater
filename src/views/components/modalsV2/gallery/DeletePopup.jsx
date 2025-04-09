@@ -3,8 +3,16 @@ import ReactModal from '../index';
 import '../../../../assets/scss/gallery/modals/deletePopup.scss';
 import { ReactComponent as CrossSvg } from '../../../../assets/svg/gallery/cross.svg';
 import { ReactComponent as WarningSvg } from '../../../../assets/svg/gallery/warning.svg';
-
-const DeletePopup = ({ open, closeModal, title, paragraph, handleDelete }) => {
+const DeletePopup = ({
+	open,
+	closeModal,
+	title,
+	paragraph,
+	handleDelete,
+	isTagDelete,
+	deleteType,
+	handleDeleteTypeChange,
+}) => {
 	const customStyles = {
 		content: { zIndex: 99999 },
 		overlay: { zIndex: 99998 },
@@ -29,15 +37,37 @@ const DeletePopup = ({ open, closeModal, title, paragraph, handleDelete }) => {
 						You cannot undo this. All your {paragraph} and information will be lost .
 					</div>
 				</div>
-				<div style={{ alignSelf: 'flex-end' }}>
-					<button
-						className="deletePopupDeleteButton"
-						onClick={handleDelete}
-						style={{ cursor: 'pointer' }}
-					>
-						Delete
-					</button>
-				</div>
+				{isTagDelete ? (
+					<div className="deletePopupButtonContainer">
+						{isTagDelete && (
+							<div className="deletePopupSelectContainer">
+								<select value={deleteType} onChange={handleDeleteTypeChange}>
+									<option value="delete_images">Delete Tag and Images </option>
+									<option value="remove_images">Delete Tag</option>
+								</select>
+							</div>
+						)}
+						<div style={{ alignSelf: 'flex-end' }}>
+							<button
+								className="deletePopupDeleteButton"
+								onClick={handleDelete}
+								style={{ cursor: 'pointer' }}
+							>
+								Delete
+							</button>
+						</div>
+					</div>
+				) : (
+					<div style={{ alignSelf: 'flex-end' }}>
+						<button
+							className="deletePopupDeleteButton"
+							onClick={handleDelete}
+							style={{ cursor: 'pointer' }}
+						>
+							Delete
+						</button>
+					</div>
+				)}
 			</div>
 		</ReactModal>
 	);

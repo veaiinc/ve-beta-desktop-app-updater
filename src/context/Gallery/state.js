@@ -140,6 +140,7 @@ export const Galleries = () => {
 			if (response?.[0] === 200) {
 				getAlbums(galleryId);
 				getAlbumImagesCount(galleryId);
+				return response;
 			}
 			return response;
 		} catch (error) {
@@ -729,6 +730,7 @@ export const Galleries = () => {
 					type: Actions.GET_IMAGES_LIST,
 					payload: reset ? response?.[1] : payload,
 				});
+				return [true, response?.[1]];
 			}
 		} catch (error) {
 			console.log('error==>getGalleryImages', error);
@@ -1029,13 +1031,22 @@ export const Galleries = () => {
 				null,
 				'galleries',
 			);
-			if (response[0] === true) {
-				let updateGallery = [...state.tenantGalleries?.galleries];
-				updateGallery = updateGallery.filter((item) => galleryId !== item._id);
-				dispatch({
-					type: Actions.GET_TENANT_GALLERIES,
-					payload: { ...state.tenantGalleries, galleries: updateGallery },
-				});
+			if (response && response[0] === true) {
+				// Check if tenantGalleries and galleries exist before spreading
+				if (state?.tenantGalleries?.galleries) {
+					const updateGallery = state.tenantGalleries.galleries.filter(
+						(item) => galleryId !== item?._id,
+					);
+
+					dispatch({
+						type: Actions.GET_TENANT_GALLERIES,
+						payload: {
+							...state.tenantGalleries,
+							galleries: updateGallery,
+						},
+					});
+				}
+				return response;
 			}
 			return response;
 		} catch (error) {
@@ -1386,7 +1397,7 @@ export const Galleries = () => {
 		}
 	};
 	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/default-sort
-	const setDefaultSort = async (payload) => {
+	const setDefaultSort = async (payload, storeOriginals = true) => {
 		try {
 			dispatch({
 				type: Actions.GET_TENANT_GALLERIES,
@@ -1403,7 +1414,7 @@ export const Galleries = () => {
 				'galleries',
 			);
 			if (response[0] === true) {
-				getGalleries({ page: 1, limit: 15 }, true);
+				getGalleries({ page: 1, limit: 15, storeOriginals }, true);
 			}
 		} catch (error) {
 			console.log('error==>setDefaultSort', error);
@@ -1814,6 +1825,44 @@ export const Galleries = () => {
 		});
 	};
 
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/tags/{{ _.tag_id }}
+	const editTag = async (galleryId, tagId, payload) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const response = await service.fetchPut(
+				`/${workspaceId}/galleries/${galleryId}/tags/${tagId}`,
+				payload,
+				usertoken,
+				'galleries',
+			);
+			return response;
+		} catch (error) {
+			console.log('error==>editTag', error);
+		}
+	};
+
+	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/albums/{{ _.albumSlug }}/tags/{{ _.tag_id }}
+
+	const deleteTag = async (galleryId, tagId, albumSlug, selectedDropDownValue) => {
+		try {
+			let usertoken = localStorage.getItem('usertoken');
+			let workspaceId = localStorage.getItem('workspaceId');
+			const payload = {
+				removeType: selectedDropDownValue,
+			};
+			const response = await service.fetchDelete(
+				`/${workspaceId}/galleries/${galleryId}/albums/${albumSlug}/tags/${tagId}`,
+				usertoken,
+				payload,
+				'galleries',
+			);
+			return response;
+		} catch (error) {
+			console.log('error==>deleteTag', error);
+		}
+	};
+
 	const getMostUsedEntities = async (payload) => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
@@ -1920,6 +1969,8 @@ export const Galleries = () => {
 		getClientSelectionLightRoomCopy,
 		deleteWaterMark,
 		downloadImagesForClientSelection,
+		editTag,
+		deleteTag,
 		getMostUsedEntities,
 	};
 };
