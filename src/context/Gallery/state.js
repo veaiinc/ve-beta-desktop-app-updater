@@ -4,6 +4,8 @@ import { Actions } from './action';
 import * as API from './actionTypes';
 import jwt_decode from 'jwt-decode';
 import service from '../../services/index';
+import Service from '../../services/graphQlServices';
+import { getMostUsedEntitiesQuery } from './graphQlFunctions';
 import axios from 'axios';
 
 export const intialState = {
@@ -1812,6 +1814,25 @@ export const Galleries = () => {
 		});
 	};
 
+	const getMostUsedEntities = async (payload) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const response = await Service.query(
+				getMostUsedEntitiesQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+			if (response?.[0]) {
+				return response;
+			}
+		} catch (error) {
+			console.log('error==>getMostUsedEntities', error);
+		}
+	};
+
 	return {
 		...state,
 		getGalleries,
@@ -1899,5 +1920,6 @@ export const Galleries = () => {
 		getClientSelectionLightRoomCopy,
 		deleteWaterMark,
 		downloadImagesForClientSelection,
+		getMostUsedEntities,
 	};
 };

@@ -1,0 +1,12 @@
+.progress-container {
+	width: 100%;
+	background: var(--stroke-hover, #404548);
+	overflow: hidden;
+	position: relative;
+}
+
+.progress-bar {
+	height: 100%;
+	background: #f2f2f3;
+	transition: width 0.5s ease-in-out;
+}
