@@ -38,10 +38,11 @@ const ProactiveSuggestions = ({ handleUpdateOptions }) => {
 		const cards = aiSuggestedPendingActions?.pendingActions?.filter(
 			(card) => card?.researchTopics?.length > 0,
 		);
+		const totalCardsData = cards?.slice(0, 5);
 		if (cards?.length > 0) {
 			setInfo((prev) => ({
 				...prev,
-				totalCardsData: cards,
+				totalCardsData,
 			}));
 		} else {
 			handleUpdateOptions('proactiveSuggestions');
@@ -50,14 +51,23 @@ const ProactiveSuggestions = ({ handleUpdateOptions }) => {
 
 	const updateWindow = (index) => {
 		const length = info?.totalCardsData?.length;
-		const window = [];
-		for (let i = 0; i < 5; i++) {
-			const current = (index + i) % length;
-			window.push({ ...info?.totalCardsData[current], realIndex: current });
-		}
+		const cards = info?.totalCardsData?.map((card, i) => {
+			// Calculate relative position to current index
+			let relativeIndex = (i - index + length) % length;
+
+			// Normalize for left wraparound
+			if (relativeIndex > 2) relativeIndex -= length;
+
+			return {
+				...card,
+				realIndex: i,
+				position: relativeIndex, // -2 (left-2) to +2 (right-2)
+			};
+		});
+
 		setInfo((prev) => ({
 			...prev,
-			cards: window,
+			cards,
 		}));
 	};
 
@@ -88,13 +98,28 @@ const ProactiveSuggestions = ({ handleUpdateOptions }) => {
 	return (
 		<div className="proactive-suggestions-container">
 			<div className="cards-container">
-				{info?.cards?.map((card, index) => {
+				{info?.cards?.map((card) => {
 					const classList = ['card'];
-					if (index === 2) classList.push('selected');
-					if (index === 1) classList.push('left-1');
-					if (index === 0) classList.push('left-2');
-					if (index === 3) classList.push('right-1');
-					if (index === 4) classList.push('right-2');
+					switch (card.position) {
+						case 0:
+							classList.push('selected');
+							break;
+						case -1:
+							classList.push('left-1');
+							break;
+						case -2:
+							classList.push('left-2');
+							break;
+						case 1:
+							classList.push('right-1');
+							break;
+						case 2:
+							classList.push('right-2');
+							break;
+						default:
+							return null; // hide any cards beyond this window
+					}
+
 					return (
 						<div
 							key={card?.realIndex}
