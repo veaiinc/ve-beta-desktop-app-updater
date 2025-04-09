@@ -24,61 +24,38 @@ const Status = ({
 
 	useEffect(() => {
 		setInfo((prevInfo) => {
-			// Find the selected option from all groups
 			const allOptions = [
 				...(options.todo || []),
 				...(options.inProgress || []),
 				...(options.completed || []),
 			];
 
-			// First try to find the selected option by value
 			const selectedOption = allOptions.find((item) => item?._id === value);
-
 			if (selectedOption) {
-				return {
-					...prevInfo,
-					selected: selectedOption,
-				};
+				return { ...prevInfo, selected: selectedOption };
 			}
 
-			// If value exists but no matching status found, use default status
 			if (value) {
 				const defaultStatus = allOptions.find((item) => item?.isDefault);
-				if (defaultStatus) {
-					// Notify parent about falling back to default
-					onOptionClick?.(defaultStatus._id);
-					return {
-						...prevInfo,
-						selected: defaultStatus,
-					};
+				if (defaultStatus && defaultStatus._id !== prevInfo.selected?._id) {
+					onOptionClick?.(defaultStatus._id); // ✅ Safe to update since it's different
+					return { ...prevInfo, selected: defaultStatus };
 				}
 			}
 
-			// If setDefault is true and no value is selected
 			if (setDefault && !value) {
-				// First try to find the default status
 				const defaultStatus = allOptions.find((item) => item?.isDefault);
-
-				// If found default status, use it
-				if (defaultStatus) {
+				if (defaultStatus && defaultStatus._id !== prevInfo.selected?._id) {
 					onOptionClick?.(defaultStatus._id);
-					return {
-						...prevInfo,
-						selected: defaultStatus,
-					};
+					return { ...prevInfo, selected: defaultStatus };
 				}
 
-				// Fallback to first todo item if no default status found
-				if (options.todo?.length > 0) {
+				if (options.todo?.length > 0 && options.todo[0]._id !== prevInfo.selected?._id) {
 					onOptionClick?.(options.todo[0]._id);
-					return {
-						...prevInfo,
-						selected: options.todo[0],
-					};
+					return { ...prevInfo, selected: options.todo[0] };
 				}
 			}
 
-			// Keep previous selection if nothing else matches
 			return prevInfo;
 		});
 	}, [value, options, setDefault, onOptionClick]);

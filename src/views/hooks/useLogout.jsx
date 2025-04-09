@@ -39,22 +39,26 @@ const useLogout = () => {
 
 		window.location.replace('/');
 
-		//add here all reset context state func
-		resetChatState();
-		resetCompanySettings();
-		resetProfileSettingsState();
-		resetTemplateState();
-		resetGallleryState();
-		resetSubscriptionState();
-		resetCalendarState();
-		resetActivityState();
-		resetAiSetupState();
-		resetTasksState();
+		/* since framer website is added in / route the following ciode is not needed */
 
-		navigate('/');
-		resetContactsState();
-		resetDocumentPreviewState();
-		resetAutomationBuilderState();
+		//add here all reset context state func
+		// resetChatState();
+		// resetCompanySettings();
+		// resetProfileSettingsState();
+		// resetTemplateState();
+		// resetGallleryState();
+		// resetSubscriptionState();
+		// resetCalendarState();
+		// resetActivityState();
+		// resetAiSetupState();
+		// resetTasksState();
+		// resetContactsState();
+		// resetDocumentPreviewState();
+		// resetAutomationBuilderState();
+		// resetElasticSearchState();
+		// resetKnowledgeAgentState();
+
+		// navigate('/');
 	}, []);
 
 	return resetApplications;

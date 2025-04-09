@@ -395,12 +395,14 @@ export const TasksState = () => {
 				'workflows_Api',
 			);
 			if (response?.[0]) {
-				return response?.[1]?.data;
+				return response?.[1]?.data?.getTask;
 			} else {
 				console.log('API failed ==> getTask', response);
+				return null;
 			}
 		} catch (error) {
 			console.log('API failed ==> getTask', error);
+			return null;
 		}
 	};
 

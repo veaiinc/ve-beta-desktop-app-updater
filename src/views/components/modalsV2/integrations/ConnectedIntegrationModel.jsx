@@ -56,12 +56,12 @@ const ConnectedIntegrationModel = ({ isOpen, closeModal, connectedIntegration })
 					</div>
 
 					<div className="modal-content">
-						<div className="section-header">
+						{/* <div className="section-header">
 							<h3>Connect {connectedIntegration?.title} Workspaces</h3>
 							<div className="add-workspace-btn">
 								<span>+</span> Connect Account
 							</div>
-						</div>
+						</div> */}
 
 						<div className="accounts-list">
 							{connectedIntegration?.accounts?.map((account, index) => (

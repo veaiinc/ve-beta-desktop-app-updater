@@ -1,118 +1,447 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { message, Tooltip } from 'antd';
-import React, { useContext, useState, useCallback } from 'react';
+import React, { useContext, useState, useCallback, useEffect, memo } from 'react';
 // import '../../../assets/scss/home_page/homepage.scss';
 import '../../../assets/scss/globalComponents/quickActions.scss';
+import Search from '../../../assets/svg/seach-magnifier.svg';
+import LoaderModal from '../modalsV2/automationBuilder/AutomationLoaderModal';
 import { useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
-import ProposalsPopup from '../../components/docs/ProposalsPopup';
-import CreateClientModal from '../../components/modalsV2/contacts/CreateClientModal';
-import CreateTaskPopup from '../../components/modalsV2/tasks/CreateTaskPopup';
-import AutomationLoaderModal from '../../components/modalsV2/automationBuilder/AutomationLoaderModal';
+import ProposalsPopup from '../../../views/components/docs/ProposalsPopup';
+import CreateClientModal from '../../../views/components/modalsV2/contacts/CreateClientModal';
+import CreateGallery from '../../../views/components/modalsV2/gallery/CreateGallery';
+import CreateTaskPopup from '../modalsV2/tasks/CreateTaskPopup';
 
-const dropdownOptions = [
-	{ id: 0, title: 'Lead', value: 'client', controlValue: 'contact' },
-	{ id: 2, title: 'Meeting', value: 'meeting', controlValue: 'calendar' },
-	{ id: 3, title: 'Task', value: 'task', controlValue: 'task' },
-	{ id: 4, title: 'Document', value: 'document', controlValue: 'workflow' },
-	{ id: 5, title: 'Form', value: 'form-submission', controlValue: 'form' },
-	{ id: 6, title: 'Proposal', value: 'proposal', controlValue: 'workflow' },
-	{ id: 7, title: 'Invoice', value: 'invoice', controlValue: 'workflow' },
-	{ id: 9, title: 'Automation', value: 'automation' },
-	// { id: 8, title: 'Contacts', value: 'contact', controlValue: 'contact' },
+const moduleOptions = [
+	{
+		id: 0,
+		title: 'Contact/Lead',
+		value: 'contacts',
+		controlValue: 'contact',
+		action: ({ setInfo }) => {
+			setInfo((prev) => ({ ...prev, openClientPopup: true }));
+		},
+	},
+	{
+		id: 1,
+		title: 'Task',
+		value: 'task',
+		controlValue: 'task',
+		action: ({ setInfo }) => {
+			setInfo((prev) => ({ ...prev, createTaskPopup: true }));
+		},
+	},
+	{
+		id: 2,
+		title: 'Event',
+		value: 'event',
+		controlValue: 'calendar',
+		action: ({ navigate }) => {
+			navigate('/calendar');
+		},
+	},
+	// {
+	// 	id: 3,
+	// 	title: 'Session',
+	// 	value: 'session',
+	// 	controlValue: 'calendar',
+	// 	action: ({ navigate }) => {
+	// 		navigate('/calendar');
+	// 	},
+	// },
+	{
+		id: 4,
+		title: 'Documents',
+		value: '',
+		controlValue: 'all',
+		action: ({ setInfo }) => {
+			setInfo((prev) => ({ ...prev, openProposalPopup: true, commonState: '' }));
+		},
+	},
+	{
+		id: 5,
+		title: 'Form',
+		value: 'form-submission',
+		controlValue: 'form',
+		action: ({ setInfo }) => {
+			setInfo((prev) => ({
+				...prev,
+				openProposalPopup: true,
+				commonState: 'form-submission',
+			}));
+		},
+	},
+	{
+		id: 6,
+		title: 'Proposal',
+		value: 'proposal',
+		controlValue: 'workflow',
+		action: ({ setInfo }) => {
+			setInfo((prev) => ({ ...prev, openProposalPopup: true, commonState: 'proposal' }));
+		},
+	},
+	{
+		id: 7,
+		title: 'Invoice',
+		value: 'invoice',
+		controlValue: 'workflow',
+		action: ({ setInfo }) => {
+			setInfo((prev) => ({ ...prev, openProposalPopup: true, commonState: 'invoice' }));
+		},
+	},
+	{
+		id: 8,
+		title: 'Contracts',
+		value: 'contract',
+		controlValue: 'workflow',
+		action: ({ setInfo }) => {
+			setInfo((prev) => ({ ...prev, openProposalPopup: true, commonState: 'contract' }));
+		},
+	},
+	{
+		id: 9,
+		title: 'Presentation',
+		value: 'presentation',
+		controlValue: 'workflow',
+		action: ({ setInfo }) => {
+			setInfo((prev) => ({ ...prev, openProposalPopup: true, commonState: 'presentation' }));
+		},
+	},
+	{
+		id: 10,
+		title: 'Automation',
+		value: 'automation',
+		controlValue: 'automation',
+		action: async ({ setInfo, navigate, createAutomation, info }) => {
+			if (info?.isAutomationLoading) return;
+			try {
+				setInfo((prev) => ({
+					...prev,
+					showLoader: true,
+					loaderMessage: 'Creating automation...',
+				}));
+				const response = await createAutomation({
+					name: 'Untitled Automation',
+					version: 1,
+					steps: [],
+					status: 'draft',
+				});
+				if (response?.[0]) {
+					navigate(`/automation-builder/${response?.[1]?._id}`);
+				} else {
+					message.error('Failed to create automation');
+				}
+			} catch (error) {
+				message.error('Failed to create automation');
+			} finally {
+				setInfo((prev) => ({
+					...prev,
+					showLoader: false,
+					loaderMessage: '',
+				}));
+			}
+		},
+	},
+	{
+		id: 11,
+		title: 'Conversational Agent',
+		value: 'ai-assistant',
+		controlValue: 'conversationalAgent',
+		action: async ({ setInfo, createNewAiAssistant, navigate }) => {
+			try {
+				setInfo((prev) => ({
+					...prev,
+					showLoader: true,
+					loaderMessage: 'Creating AI Assistant...',
+				}));
+				const aiAssistantId = await createNewAiAssistant({
+					name: 'Untitled Assistant',
+				});
+				if (aiAssistantId) {
+					navigate(`/ai-assistant/${aiAssistantId}/edit`);
+				}
+			} catch (error) {
+				message.error('Failed to create AI Assistant');
+			} finally {
+				setInfo((prev) => ({
+					...prev,
+					showLoader: false,
+					loaderMessage: '',
+				}));
+			}
+		},
+	},
+	{
+		id: 12,
+		title: 'Classic Gallery',
+		value: 'galleries',
+		controlValue: 'classicGallery',
+		action: ({ setInfo }) => {
+			setInfo((prev) => ({ ...prev, openGalleryPopup: true }));
+		},
+	},
+	{
+		id: 13,
+		title: 'Lite Gallery',
+		value: 'lite-gallery',
+		controlValue: 'liteGallery',
+		action: ({ setInfo }) => {
+			setInfo((prev) => ({ ...prev, openLiteGalleryPopup: true }));
+		},
+	},
+	{
+		id: 14,
+		title: 'Note',
+		value: 'note',
+		action: async ({ setInfo, navigate, createNotesList }) => {
+			try {
+				setInfo((prev) => ({
+					...prev,
+					showLoader: true,
+					loaderMessage: 'Creating note...',
+				}));
+				const payload = {
+					input: {
+						title: 'New Note',
+					},
+				};
+				const response = await createNotesList(payload);
+				if (response?.[1]?._id) {
+					navigate(`/note/${response[1]._id}`);
+				}
+			} catch (error) {
+				message.error('Failed to create note');
+			} finally {
+				setInfo((prev) => ({
+					...prev,
+					showLoader: false,
+					loaderMessage: '',
+				}));
+			}
+		},
+	},
+	{
+		id: 15,
+		title: 'Knowledge Agent',
+		value: 'knowledge-agent',
+		controlValue: 'knowledgeAgent',
+		action: async ({ setInfo, navigate, createNewKnowledgeAgent }) => {
+			try {
+				setInfo((prev) => ({
+					...prev,
+					showLoader: true,
+					loaderMessage: 'Creating knowledge agent...',
+				}));
+				const [, data] = await createNewKnowledgeAgent('Untitled Assistant');
+				const aiAssistantId = data?.insertedId;
+				if (aiAssistantId) {
+					navigate(`/knowledge-agent/${aiAssistantId}/edit`);
+				}
+			} catch (error) {
+				console.log(error);
+
+				message.error('Failed to create knowledge agent');
+			} finally {
+				setInfo((prev) => ({
+					...prev,
+					showLoader: false,
+					loaderMessage: '',
+				}));
+			}
+		},
+	},
 ];
-const QuickActions = ({ styles, customActions = [], clientDetails = null }) => {
+
+const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDetails = null }) => {
+	const {
+		templates: { toggleCreateLeadModal },
+		profileInfo: { tenantUserAccessControls },
+		automationBuilder: { createAutomation },
+		aiSetup: { createNewAiAssistant },
+		notes: { createNotesList },
+		knowledgeAgent: { createNewKnowledgeAgent },
+	} = useContext(Context);
+
 	const [info, setInfo] = useState({
 		dropdown: false,
 		openProposalPopup: false,
 		openClientPopup: false,
+		openGalleryPopup: false,
+		openLiteGalleryPopup: false,
 		// openTaskPopup: false,
-		dropdownOptions: customActions?.length > 0 ? customActions : dropdownOptions,
-		commonState: null,
+		options: { suggestedOptions, moduleOptions },
+		filteredOptions: { suggestedOptions, moduleOptions },
 		isAutomationLoading: false,
+		commonState: 'All',
+		search: '',
+		createTaskPopup: false,
+		conversationalAgentLoading: false,
+		creatingNoteLoader: false,
+		openDocumentPopup: false,
+		openedModalType: null,
+		loaderMessage: '',
+		showLoader: false,
 	});
 
-	const {
-		profileInfo: { tenantUserAccessControls },
-		automationBuilder: { createAutomation },
-	} = useContext(Context);
 	const navigate = useNavigate();
 
-	const filteredDropdownOptions =
-		tenantUserAccessControls?.role === 'admin'
-			? dropdownOptions
-			: dropdownOptions.filter((option) => {
-					if (!option?.controlValue) {
-						return true;
-					}
-					const matchedApp = tenantUserAccessControls?.accessControls?.find(
-						(item) => item?.app?.toLowerCase() === option?.controlValue?.toLowerCase(),
-					);
-					if (!matchedApp) {
-						return false;
-					}
-					return matchedApp?.isEnabled;
-			  });
+	const accessibleOptions = useCallback(
+		(options) => {
+			return tenantUserAccessControls?.role === 'admin'
+				? options
+				: options?.filter((option) => {
+						if (!option?.controlValue) {
+							return true;
+						}
+						const matchedApp = tenantUserAccessControls?.accessControls?.find(
+							(item) =>
+								item?.app?.toLowerCase() === option?.controlValue?.toLowerCase(),
+						);
+						if (!matchedApp) {
+							return false;
+						}
+						return matchedApp?.isEnabled;
+				  });
+		},
+		[tenantUserAccessControls],
+	);
 
-	const handleDropdownOptionClick = useCallback((type) => {
-		if (type === 'meeting') {
-			navigate('/calendar');
-		} else if (type === 'document') {
-			setInfo({ ...info, openProposalPopup: true, commonState: 'All' });
-		} else if (type === 'client') {
-			setInfo({ ...info, openClientPopup: true });
-		} else if (type === 'task') {
-			navigate('/tasks');
-		} else if (type === 'proposal') {
-			setInfo({ ...info, openProposalPopup: true, commonState: 'proposal' });
-		} else if (type === 'form-submission') {
-			setInfo({ ...info, openProposalPopup: true, commonState: 'form-submission' });
-		} else if (type === 'invoice') {
-			setInfo({ ...info, openProposalPopup: true, commonState: 'invoice' });
-		} else if (type === 'contract') {
-			setInfo({ ...info, openProposalPopup: true, commonState: 'contract' });
-		} else if (type === 'automation') {
-			handleCreateAutomation();
+	const filtereOptions = useCallback(
+		(searchKey = '') => {
+			if (!info?.options) return { suggestedOptions: [], moduleOptions: [] };
+
+			const searchTerm = searchKey.toLowerCase();
+			let suggestedOptions = searchKey
+				? info?.options?.suggestedOptions?.filter((option) =>
+						option?.title?.toLowerCase().includes(searchTerm),
+				  )
+				: info?.options?.suggestedOptions;
+
+			let moduleOptions = searchKey
+				? info?.options?.moduleOptions?.filter((option) =>
+						option?.title?.toLowerCase().includes(searchTerm),
+				  )
+				: info?.options?.moduleOptions;
+
+			moduleOptions = accessibleOptions(moduleOptions);
+			suggestedOptions = accessibleOptions(suggestedOptions);
+
+			return { suggestedOptions, moduleOptions };
+		},
+		[info?.options, tenantUserAccessControls],
+	);
+
+	useEffect(() => {
+		const options = filtereOptions();
+		setInfo((prev) => ({ ...prev, filteredOptions: options }));
+	}, [filtereOptions]);
+
+	useEffect(() => {
+		if (!info.dropdown) {
+			// Reset search and filtered options when dropdown closes
+			setInfo((prev) => ({
+				...prev,
+				search: '',
+				fileterOptions: {
+					suggestedOptions: accessibleOptions(suggestedOptions),
+					moduleOptions: accessibleOptions(moduleOptions),
+				},
+			}));
 		}
-	}, []);
+	}, [info.dropdown, accessibleOptions]);
 
-	const handleCreateAutomation = useCallback(async () => {
-		if (info?.isAutomationLoading) return;
-		setInfo({ ...info, isAutomationLoading: true });
-		const response = await createAutomation({
-			name: 'Untitled Automation',
-			version: 1,
-			steps: [],
-			status: 'draft',
-		});
-		if (response?.[0]) {
-			setInfo({ ...info, isAutomationLoading: false });
-			navigate(`/automation-builder/${response?.[1]?._id}`);
+	const handleDebounceSearch = useCallback(
+		(search = null) => {
+			if (timeout) {
+				clearTimeout(timeout);
+			}
+			const options = filtereOptions(search);
+			setInfo((prev) => ({ ...prev, filteredOptions: options }));
+		},
+		[filtereOptions],
+	);
+
+	const handleSearch = (e) => {
+		setInfo((prev) => ({ ...prev, search: e?.target?.value }));
+		if (e?.target?.value === '' || e?.target?.value === null) {
+			handleDebounceSearch('');
 		} else {
-			message.error('Failed to create automation');
+			handleDebounceSearch(e.target.value);
 		}
-		setInfo({ ...info, isAutomationLoading: false });
-	}, [createAutomation, info]);
-
+	};
 	return (
 		<div className="quick-actions-dropdown-container" style={{ ...styles }}>
 			<Tooltip
-				placement="bottom"
+				placement="bottomRight"
+				align="right"
 				open={info?.dropdown}
 				trigger={'hover'}
 				onOpenChange={(open) => setInfo({ ...info, dropdown: open })}
 				color="transparent"
+				rootClassName="customQuickActionsToolTip"
 				title={
 					<div className="quick-actions-dropdown-options-container">
-						{filteredDropdownOptions?.map((option) => (
-							<div
-								key={option?.id}
-								className="dropdown-option"
-								onClick={() => handleDropdownOptionClick(option?.value)}
-							>
-								{option?.title}
+						{/* <div className="top-search-container">
+							<img src={Search} alt="searchh" />
+							<input
+								type="text"
+								placeholder="Search Anything"
+								value={info?.search}
+								onChange={handleSearch}
+							/>
+						</div> */}
+						{info?.filteredOptions?.suggestedOptions?.length > 0 && (
+							<div className="suggested-modules-container">
+								<div className="suggested-modules-container-header">Suggested</div>
+								<div className="suggested-modules-container-options">
+									{info?.filteredOptions?.suggestedOptions?.map((option) => (
+										<div
+											key={option?.id}
+											className="dropdown-option"
+											onClick={() =>
+												option?.action({
+													setInfo,
+													navigate,
+													createNewAiAssistant,
+													createAutomation,
+													createNotesList,
+													createNewKnowledgeAgent,
+												})
+											}
+										>
+											{option?.icon && <img src={option?.icon} alt="icon" />}
+											{option?.title}
+										</div>
+									))}
+								</div>
 							</div>
-						))}
+						)}
+						{info?.filteredOptions?.moduleOptions?.length > 0 && (
+							<div className="modules-container">
+								<div className="modules-container-header">Module Actions</div>
+								<div className="modules-container-options">
+									{info?.filteredOptions?.moduleOptions?.map((option) => (
+										<div
+											key={option?.id}
+											className="dropdown-option"
+											onClick={() =>
+												option?.action({
+													setInfo,
+													navigate,
+													createNewAiAssistant,
+													createAutomation,
+													createNotesList,
+													createNewKnowledgeAgent,
+												})
+											}
+										>
+											{option?.icon && <img src={option?.icon} alt="icon" />}
+											{option?.title}
+										</div>
+									))}
+								</div>
+							</div>
+						)}
 					</div>
 				}
 			>
@@ -132,10 +461,24 @@ const QuickActions = ({ styles, customActions = [], clientDetails = null }) => {
 			<CreateClientModal
 				modalIsOpen={info?.openClientPopup}
 				closeModal={() => setInfo({ ...info, openClientPopup: false })}
+				leadOrClient={true}
 			/>
-			<AutomationLoaderModal loading={info?.isAutomationLoading} />
+			<CreateGallery
+				open={info?.openGalleryPopup}
+				closeModal={() => setInfo({ ...info, openGalleryPopup: false })}
+			/>
+			<CreateGallery
+				open={info?.openLiteGalleryPopup}
+				closeModal={() => setInfo({ ...info, openLiteGalleryPopup: false })}
+				isLightGallery={true}
+			/>
+			<CreateTaskPopup
+				isOpen={info?.createTaskPopup}
+				closeModal={() => setInfo({ ...info, createTaskPopup: false })}
+			/>
+			<LoaderModal loading={info?.showLoader} message={info?.loaderMessage} />
 		</div>
 	);
 };
 
-export default QuickActions;
+export default memo(QuickActions);

@@ -50,6 +50,7 @@ const NoGallerySkeleton = () => {
 		</div>
 	);
 };
+
 const filterOptions = [
 	{ name: 'Gallery name', value: 'title' },
 	{ name: 'Gallery name (reverse)', value: '-title' },
@@ -304,9 +305,9 @@ const LiteGallery = () => {
 						arrow={false}
 					/>
 				</div>
-				<div className="create-btn" onClick={handleCreateNewGallery}>
+				{/* <div className="create-btn" onClick={handleCreateNewGallery}>
 					Create +
-				</div>
+				</div> */}
 			</div>
 			<div className="add-gallery-container">
 				<div className="add-gallery-header">

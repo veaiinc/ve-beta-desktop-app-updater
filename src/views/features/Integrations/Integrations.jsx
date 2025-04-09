@@ -4,9 +4,11 @@ import '../../../assets/scss/integrations/integrations.scss';
 import Search from '../../../assets/svg/seach-magnifier.svg';
 import slack from '../../../assets/svg/Settings/slack.svg';
 import google from '../../../assets/svg/Settings/google.svg';
+import googleDrive from '../../../assets/svg/Settings/google-drive.svg';
+import googleCalendar from '../../../assets/svg/Settings/google-calendar-logo.png';
+import dropbox from '../../../assets/svg/Settings/drop-box-logo.png';
 import meta from '../../../assets/svg/Settings/meta.svg';
 import notion from '../../../assets/svg/Settings/notion.svg';
-import googleDrive from '../../../assets/svg/Settings/google-drive.svg';
 import paypal from '../../../assets/svg/Settings/paypal.svg';
 import square from '../../../assets/svg/Settings/square.svg';
 import stripe from '../../../assets/svg/Settings/stripe.svg';
@@ -65,7 +67,6 @@ const AvailableIntegrationCard = ({
 			<button
 				className="integration-button connect"
 				onClick={() => onConnect({ icon, title, description, connectType })}
-				disabled={connectLoader}
 			>
 				Connect
 				{connectLoader?.loader && connectLoader?.title === title && <Spinner />}
@@ -96,14 +97,21 @@ const Integrations = () => {
 	const [connectedAccountsModel, setConnectedAccountsModel] = useState(false);
 	const [activeTab, setActiveTab] = useState('private');
 	const [connectLoader, setConnectLoader] = useState(false);
+	const {
+		profileInfo: { tenantUserAccessControls },
+	} = useContext(Context);
+	let isAdmin = false;
 
+	if (tenantUserAccessControls?.role === 'admin') {
+		isAdmin = true;
+	}
 	const handleConnect = async (integration) => {
 		setSelectedIntegration(integration);
 		setConnectLoader({
 			title: integration?.title,
 			loader: true,
 		});
-		await handleConnectThirdParty(integration?.connectType);
+		await handleConnectThirdParty(integration?.connectType, activeTab);
 		setConnectLoader({
 			title: integration?.title,
 			loader: false,
@@ -115,10 +123,10 @@ const Integrations = () => {
 		{
 			id: 1,
 			icon: google,
-			title: 'Google',
-			connectType: 'google',
+			title: 'Gmail',
+			connectType: 'gmail',
 			description:
-				'Easily connect with Google to sync your calendar, manage files, and streamline communication.',
+				'Easily connect with Gmail to sync your emails and streamline communication.',
 			isConnected: false,
 		},
 		{
@@ -132,15 +140,6 @@ const Integrations = () => {
 		},
 		{
 			id: 3,
-			icon: zoho,
-			title: 'Zoho',
-			connectType: 'zoho',
-			description:
-				'Easily connect to Google Drive to store, share, and access your files directly.',
-			isConnected: false,
-		},
-		{
-			id: 4,
 			icon: slack,
 			title: 'Slack',
 			connectType: 'slack',
@@ -148,6 +147,55 @@ const Integrations = () => {
 				'Stay connected and streamline communication by integrating with Slack. Receive updates, share insights, and collaborate seamlessly.',
 			isConnected: false,
 		},
+		{
+			id: 4,
+			icon: googleDrive,
+			title: 'Google Drive',
+			connectType: 'google-drive',
+			description:
+				'Easily connect with Google Drive to sync your files and streamline communication.',
+			isConnected: false,
+		},
+		{
+			id: 5,
+			icon: googleCalendar,
+			title: 'Google Calendar',
+			connectType: 'google-calendar',
+			description: 'Easily connect with Google Calendar to sync your calendar.',
+			isConnected: false,
+		},
+		// {
+		// 	id: 6,
+		// 	icon: zoho,
+		// 	title: 'Zoho',
+		// 	connectType: 'zoho',
+		// 	description: 'Easily connect to Zoho to access your CRM and sales data.',
+		// 	isConnected: false,
+		// },
+		// {
+		// 	id: 7,
+		// 	icon: dropbox,
+		// 	title: 'Salesforce	',
+		// 	connectType: 'salesforce',
+		// 	description: 'Easily connect with Salesforce to sync your CRM and sales data.',
+		// 	isConnected: false,
+		// },
+		// {
+		// 	id: 8,
+		// 	icon: dropbox,
+		// 	title: 'Hubspot',
+		// 	connectType: 'hubspot',
+		// 	description: 'Easily connect with Hubspot to sync your CRM and sales data.',
+		// 	isConnected: false,
+		// },
+		// {
+		// 	id: 9,
+		// 	icon: dropbox,
+		// 	title: 'Dropbox',
+		// 	connectType: 'dropbox',
+		// 	description: 'Easily connect with Dropbox to sync your files.',
+		// 	isConnected: false,
+		// },
 	];
 
 	const requestIntegrations = [
@@ -193,7 +241,17 @@ const Integrations = () => {
 		},
 	];
 	const [info, setInfo] = useState({
-		connectedThirdParties: { google: false, zoho: false, notion: false, slack: false },
+		connectedThirdParties: {
+			google: false,
+			zoho: false,
+			notion: false,
+			slack: false,
+			googleDrive: false,
+			dropbox: false,
+			googleCalendar: false,
+			hubspot: false,
+			salesforce: false,
+		},
 		loader: false,
 	});
 	const {
@@ -212,20 +270,18 @@ const Integrations = () => {
 		}
 	}, [connectUrl]);
 
-	const handleConnectThirdParty = async (connectType) => {
+	const handleConnectThirdParty = async (connectType, integrationType) => {
 		setInfo((prev) => ({
 			...prev,
 			loader: true,
 		}));
-		await connectThirdParty(connectType);
+		await connectThirdParty(connectType, integrationType);
 	};
 	useEffect(() => {
 		const fetchConnectedPlatforms = async () => {
-			const response = await getConnectedThirdParties();
-			console.log('response==>fetchConnectedPlatforms', response);
+			const response = await getConnectedThirdParties(activeTab);
 			if (response?.[0] === true && response?.[1]) {
 				const data = response[1];
-				console.log('data==>fetchConnectedPlatforms', data);
 				setInfo((prev) => ({
 					...prev,
 					connectedThirdParties: {
@@ -233,12 +289,17 @@ const Integrations = () => {
 						notion: data.notion || [],
 						slack: data.slack || [],
 						zoho: data.zoho || [],
+						googleDrive: data.googleDrive || [],
+						dropbox: data.dropbox || [],
+						googleCalendar: data.googleCalendar || [],
+						hubspot: data.hubspot || [],
+						salesforce: data.salesforce || [],
 					},
 				}));
 			}
 		};
 		fetchConnectedPlatforms();
-	}, []);
+	}, [activeTab]);
 
 	useEffect(() => {
 		if (info?.connectedThirdParties) {
@@ -247,13 +308,11 @@ const Integrations = () => {
 			if (info.connectedThirdParties.google?.length > 0) {
 				platforms.push({
 					icon: google,
-					title: 'Google',
-					description:
-						'Connected Google accounts for calendar, files, and communication.',
+					title: 'Gmail',
+					description: 'Connected Gmail accounts for emails and communication.',
 					accounts: info.connectedThirdParties.google,
 				});
 			}
-
 			if (info.connectedThirdParties.notion?.length > 0) {
 				platforms.push({
 					icon: notion,
@@ -262,22 +321,63 @@ const Integrations = () => {
 					accounts: info.connectedThirdParties.notion,
 				});
 			}
-			if (info.connectedThirdParties.zoho?.length > 0) {
-				platforms.push({
-					icon: zoho,
-					title: 'Zoho',
-					description: 'Connected Zoho workspaces for task and project management.',
-					accounts: info.connectedThirdParties.zoho,
-				});
-			}
 			if (info.connectedThirdParties.slack?.length > 0) {
 				platforms.push({
 					icon: slack,
 					title: 'Slack',
-					description: 'Connected Slack workspaces for task and project management.',
+					description: 'Connected Slack workspaces for communication.',
 					accounts: info.connectedThirdParties.slack,
 				});
 			}
+			if (info.connectedThirdParties.googleDrive?.length > 0) {
+				platforms.push({
+					icon: googleDrive,
+					title: 'Google Drive',
+					description: 'Connected Google Drive accounts for files and storage.',
+					accounts: info.connectedThirdParties.googleDrive,
+				});
+			}
+			if (info.connectedThirdParties.googleCalendar?.length > 0) {
+				platforms.push({
+					icon: googleCalendar,
+					title: 'Google Calendar',
+					description: 'Connected Google Calendar accounts for scheduling and reminders.',
+					accounts: info.connectedThirdParties.googleCalendar,
+				});
+			}
+			// if (info.connectedThirdParties.zoho?.length > 0) {
+			// 	platforms.push({
+			// 		icon: zoho,
+			// 		title: 'Zoho',
+			// 		description: 'Connected Zoho workspaces for task and project management.',
+			// 		accounts: info.connectedThirdParties.zoho,
+			// 	});
+			// }
+			// if (info.connectedThirdParties.hubspot?.length > 0) {
+			// 	platforms.push({
+			// 		icon: hubspot,
+			// 		title: 'Hubspot',
+			// 		description: 'Connected Hubspot workspaces for task and project management.',
+			// 		accounts: info.connectedThirdParties.hubspot,
+			// 	});
+			// }
+			// if (info.connectedThirdParties.salesforce?.length > 0) {
+			// 	platforms.push({
+			// 		icon: salesforce,
+			// 		title: 'Salesforce',
+			// 		description: 'Connected Salesforce workspaces for task and project management.',
+			// 		accounts: info.connectedThirdParties.salesforce,
+			// 	});
+			// }
+			// if (info.connectedThirdParties.dropbox?.length > 0) {
+			// 	platforms.push({
+			// 		icon: dropbox,
+			// 		title: 'Dropbox',
+			// 		description: 'Connected Dropbox workspaces for files and storage.',
+			// 		accounts: info.connectedThirdParties.dropbox,
+			// 	});
+			// }
+
 			setConnectedPlatforms(platforms);
 		}
 	}, [info.connectedThirdParties]);
@@ -295,56 +395,63 @@ const Integrations = () => {
 			<div className="integrations-container">
 				<div className="title-container">
 					<h1 className="integrations-title">Integrations</h1>
-					{/* <div className="search-container">
+					<div className="search-container">
 						<img src={Search} alt="search" className="search-image" />
 						<input type="text" placeholder="Search" className="search-input" />
-					</div> */}
+					</div>
 				</div>
 
-				{/* <div className="tabs-wrapper">
+				<div className="tabs-wrapper">
 					<button
 						className={`tab-button ${activeTab === 'private' ? 'active' : ''}`}
 						onClick={() => setActiveTab('private')}
 					>
 						Private
 					</button>
-					<button
-						className={`tab-button ${activeTab === 'shared' ? 'active' : ''}`}
-						onClick={() => setActiveTab('shared')}
-					>
-						Shared
-					</button>
-				</div> */}
+					{isAdmin && (
+						<button
+							className={`tab-button ${activeTab === 'shared' ? 'active' : ''}`}
+							onClick={() => setActiveTab('shared')}
+						>
+							Shared
+						</button>
+					)}
+				</div>
 
-				{activeTab === 'private' ? (
-					<>
-						<section className="connected-integrations">
-							<h2>Connected Integrations</h2>
-							<div className="connected-integrations-list">
-								{connectedPlatforms.map((integration) => (
-									<ConnectedIntegrationCard
-										key={integration?.id}
-										{...integration}
-										onViewAccounts={handleSelectedCardModel}
-									/>
-								))}
-							</div>
-						</section>
+				{/* {activeTab === 'private' ? (
+					<> */}
+				{connectedPlatforms.length !== 0 ? (
+					<section className="connected-integrations">
+						<h2>Connected Integrations</h2>
 
-						<section className="available-integrations">
-							<h2>Available Integrations</h2>
-							<div className="integrations-grid">
-								{availableIntegrations?.map((integration) => (
-									<AvailableIntegrationCard
-										key={integration?.id}
-										{...integration}
-										onConnect={handleConnect}
-										connectLoader={connectLoader}
-									/>
-								))}
-							</div>
-						</section>
-						{/* 
+						<div className="connected-integrations-list">
+							{connectedPlatforms.map((integration) => (
+								<ConnectedIntegrationCard
+									key={integration?.id}
+									{...integration}
+									onViewAccounts={handleSelectedCardModel}
+								/>
+							))}
+						</div>
+					</section>
+				) : (
+					''
+				)}
+
+				<section className="available-integrations">
+					<h2>Available Integrations</h2>
+					<div className="integrations-grid">
+						{availableIntegrations?.map((integration) => (
+							<AvailableIntegrationCard
+								key={integration?.id}
+								{...integration}
+								onConnect={handleConnect}
+								connectLoader={connectLoader}
+							/>
+						))}
+					</div>
+				</section>
+				{/* 
 						<section className="request-integrations">
 							<h2>Which integrations you would like to connect?</h2>
 							<div className="request-integrations-grid">
@@ -353,13 +460,13 @@ const Integrations = () => {
 								))}
 							</div>
 						</section> */}
-					</>
+				{/* </>
 				) : (
 					<div className="shared-integrations">
 						<h2>Shared Integrations</h2>
 						<p>No shared integrations available</p>
 					</div>
-				)}
+				)} */}
 			</div>
 
 			<ConnectedIntegrationModel

@@ -125,7 +125,7 @@ const SideBarPreview = ({ open, onClose, activeTemplate, openFileLeadModal }) =>
 		<Drawer
 			open={open}
 			onClose={onClose}
-			style={{ padding: '10px', backgroundColor: 'transparent' }}
+			style={{ backgroundColor: 'transparent' }}
 			headerStyle={{ display: 'none' }}
 			bodyStyle={{ padding: '0px' }}
 			width={480}
@@ -136,13 +136,13 @@ const SideBarPreview = ({ open, onClose, activeTemplate, openFileLeadModal }) =>
 						<CloseSvg onClick={onClose} />
 					</div>
 					<div className="headerRightLabel">
-						<DocsStatusButton
+						{/* <DocsStatusButton
 							content={statusTextmapper?.[info?.activeTemplateData?.status]?.text}
 							style={statusTextmapper?.[info?.activeTemplateData?.status]?.style}
 							dotStyle={
 								statusTextmapper?.[info?.activeTemplateData?.status]?.dotStyle
 							}
-						/>
+						/> */}
 						<div
 							className="editLabel"
 							onClick={() =>
@@ -151,8 +151,8 @@ const SideBarPreview = ({ open, onClose, activeTemplate, openFileLeadModal }) =>
 						>
 							Edit
 						</div>
-						<ShareSvg onClick={() => openCopyLinkModal(activeTemplate)} />
-						<DotsSvg />
+						{/* <ShareSvg onClick={() => openCopyLinkModal(activeTemplate)} /> */}
+						{/* <DotsSvg /> */}
 					</div>
 				</div>
 
@@ -174,14 +174,7 @@ const SideBarPreview = ({ open, onClose, activeTemplate, openFileLeadModal }) =>
 					))}
 				</div>
 				<div className="buttonContainer">
-					<div
-						className="button"
-						onClick={
-							info?.activeTemplateData?.version
-								? handleTemplateClick
-								: openFileLeadModal
-						}
-					>
+					<div className="button" onClick={openFileLeadModal}>
 						{info?.loading ? (
 							<Spinner height={'10px'} width={'10px'} color={'black'} />
 						) : (

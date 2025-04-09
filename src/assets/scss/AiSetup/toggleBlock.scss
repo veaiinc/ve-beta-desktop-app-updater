@@ -26,6 +26,7 @@
 			font-weight: 500;
 			line-height: normal;
 			flex-grow: 1;
+			transition: all 0.3s ease-in-out;
 		}
 
 		.toggleBlockHeaderTitleOpen {
@@ -36,6 +37,7 @@
 			font-weight: 500;
 			line-height: normal;
 			flex-grow: 1;
+			transition: all 0.3s ease-in-out;
 		}
 
 		.actionButtonsHidden {

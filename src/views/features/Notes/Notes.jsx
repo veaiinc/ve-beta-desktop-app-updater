@@ -32,7 +32,14 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 			duplicatePage,
 		},
 	} = useContext(Context);
-	const editor = useCreateBlockNote();
+	const editor = useCreateBlockNote({
+		tables: {
+			splitCells: true,
+			cellBackgroundColor: true,
+			cellTextColor: true,
+			headers: true,
+		},
+	});
 	const [info, setInfo] = useState({
 		timeouts: {}, // Single timeouts object to store all timeouts
 		title: '',

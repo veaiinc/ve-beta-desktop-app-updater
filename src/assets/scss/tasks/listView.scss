@@ -10,14 +10,14 @@
 		min-width: 100%;
 		width: fit-content;
 		padding: 8px 0;
-		border-bottom: 1px solid #171819;
+		border-bottom: 1px solid var(--stroke);
 	}
 
 	.noDataMessage {
 		padding: 30px 20px;
 		width: 100%;
 		font-size: 14px;
-		color: #e7e7e7;
+		color: var(--secondary-font);
 		display: flex;
 		justify-content: center;
 		align-items: center;
@@ -27,7 +27,7 @@
 		padding: 30px 20px;
 		width: 100%;
 		font-size: 14px;
-		color: #e7e7e7;
+		color: var(--secondary-font);
 		display: flex;
 		justify-content: center;
 		align-items: center;
@@ -37,7 +37,7 @@
 .avatar {
 	height: 20px;
 	width: 20px;
-	background-color: var(--card);
+	background-color: var(--card-over-card);
 	overflow: hidden;
 	border-radius: 100px;
 }
@@ -53,8 +53,8 @@
 		align-items: center;
 		gap: 2px;
 		border-radius: 10px;
-		background: #e8e8e8;
-		color: #131314;
+		background: var(--stroke);
+		color: var(--primary-font);
 		font-family: var(--primary-font-family);
 		font-size: 13px;
 		font-style: normal;
@@ -88,7 +88,7 @@
 		padding: 20px;
 
 		.errorMessage {
-			color: #ff9b9b;
+			color: var(--error);
 			font-size: 14px;
 		}
 	}
@@ -100,7 +100,7 @@
 		padding: 20px;
 
 		.noDataMessage {
-			color: #808080;
+			color: var(--secondary-font);
 			font-size: 14px;
 		}
 	}
@@ -115,7 +115,7 @@
 		}
 
 		&::-webkit-scrollbar-thumb {
-			background-color: rgba(0, 0, 0, 0.2);
+			background-color: var(--stroke);
 			border-radius: 3px;
 		}
 	}

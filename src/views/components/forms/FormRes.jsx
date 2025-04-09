@@ -5,11 +5,14 @@ import { FetchMoreLoaderComp, isURL } from '../../../helpers';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import moment from 'moment';
 import FormModal from './FormModal';
+import { ReactComponent as ExpandSvg } from '../../../assets/svg/docs/expand.svg';
+import { useNavigate } from 'react-router-dom';
 
 const FormRes = ({ formId, updateTotalSubmissions }) => {
 	const {
 		templates: { getFormResponsesList, formResponsesList, moreFormResponsesList },
 	} = useContext(Context);
+	const navigate = useNavigate();
 
 	const [info, setInfo] = useState({
 		resizing: null,
@@ -22,6 +25,7 @@ const FormRes = ({ formId, updateTotalSubmissions }) => {
 		selectedRow: null,
 	});
 
+	console.log(info.formResponses);
 	useEffect(() => {
 		if (info?.resizing) {
 			document.addEventListener('mousemove', handleMouseMove);
@@ -194,6 +198,10 @@ const FormRes = ({ formId, updateTotalSubmissions }) => {
 		setInfo((prev) => ({ ...prev, modalIsOpen: true, selectedRow: row }));
 	};
 
+	const handleExpandView = (row) => {
+		navigate(`/form/response/${row._id}`);
+	};
+
 	return (
 		<div className="formResParentContainer">
 			<div className="tableWrapper">
@@ -236,13 +244,13 @@ const FormRes = ({ formId, updateTotalSubmissions }) => {
 									key={rowIndex}
 									className="tableRow"
 									style={{ cursor: 'pointer' }}
+									onClick={() => handleOpenModal(row)}
 								>
 									{info?.columns?.map((column) => (
 										<div
 											key={column?.id}
 											className="tableCell"
 											style={{ width: column?.width }}
-											onClick={() => handleOpenModal(row)}
 										>
 											{column?.id === 'status' ? (
 												<span

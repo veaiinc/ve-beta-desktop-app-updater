@@ -1,0 +1,50 @@
+import { memo } from 'react';
+const MicroscopeSvg = ({ selected }) => {
+	const strokeColor = selected ? 'black' : 'var(--primary-font)';
+	return (
+		<svg
+			xmlns="http://www.w3.org/2000/svg"
+			width="15"
+			height="16"
+			viewBox="0 0 15 16"
+			fill="none"
+		>
+			<path
+				d="M9.39355 7.23131L12.9311 4.86258C13.2873 4.62508 13.3811 4.13758 13.1436 3.78758L12.0061 2.09381C11.7686 1.73756 11.2811 1.64382 10.9311 1.88132L7.39355 4.25007L9.39355 7.23131Z"
+				stroke={strokeColor}
+				strokeWidth="0.9375"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+			<path
+				d="M7.60861 4.54964L4.62256 6.54956L6.2225 8.9384L9.20855 6.93848L7.60861 4.54964Z"
+				stroke={strokeColor}
+				strokeWidth="0.9375"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+			<path
+				d="M3.64408 10.4374L6.11283 8.78745L4.71283 6.69995L2.24408 8.34994C1.95658 8.54369 1.88158 8.9312 2.07533 9.2187L2.78158 10.2687C2.96908 10.5499 3.35658 10.6249 3.64408 10.4374Z"
+				stroke={strokeColor}
+				strokeWidth="0.9375"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+			<path
+				d="M7.53086 8.125L4.72461 14.25"
+				stroke={strokeColor}
+				strokeWidth="0.9375"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+			<path
+				d="M7.5 8.125L10.275 14.25"
+				stroke={strokeColor}
+				strokeWidth="0.9375"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+		</svg>
+	);
+};
+export default memo(MicroscopeSvg);

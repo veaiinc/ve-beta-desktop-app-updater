@@ -4,7 +4,6 @@
 	justify-content: center;
 	flex-grow: 1;
 	height: 100%;
-
 	.AiSetupWrapper {
 		display: flex;
 		width: 600px;
@@ -12,11 +11,43 @@
 		align-items: flex-start;
 		gap: 40px;
 		height: 100%;
+		position: relative;
 
 		.ai-setup-tabs {
 			display: flex;
+			justify-content: flex-start;
 			align-items: center;
-			gap: 10px;
+			gap: 4px;
+			width: 100%;
+			background-color: var(--background-color);
+			position: sticky;
+			top: 0;
+			z-index: 100;
+			padding: 8px 0;
+
+			.ai-setup-tab-button {
+				display: flex;
+				padding: 12px 16px;
+				justify-content: center;
+				align-items: center;
+				gap: 16px;
+				border-radius: 100px;
+				border: 1px solid var(--stroke);
+				background-color: var(--background-color);
+				color: var(--primary-font);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+				cursor: pointer;
+				transition: all 0.3s ease;
+
+				&.active {
+					background-color: var(--primary-font);
+					color: var(--background-color);
+					border: 1px solid var(--primary-font);
+				}
+			}
 		}
 
 		.ai-setup-sections {
@@ -25,6 +56,7 @@
 			align-items: flex-start;
 			gap: 40px;
 			flex-grow: 1;
+			overflow-y: auto;
 
 			.ai-setup-title {
 				color: var(--primary-font, #f2f2f3);

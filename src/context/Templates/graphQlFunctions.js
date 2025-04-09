@@ -273,6 +273,7 @@ export const createLeadfromTemplatesQuery = gql`
 		createWorkflowFromTemplate(workflowInput: $workflowInput) {
 			_id
 			status
+			version
 			clientDetails {
 				_id
 				name
@@ -502,5 +503,11 @@ export const createBlankTemplateQuery = gql`
 		createBlankTemplate(templateInput: $templateInput) {
 			_id
 		}
+	}
+`;
+
+export const getFormResponseQuery = gql`
+	query Query($formId: ID!) {
+		formResponse(formId: $formId)
 	}
 `;

@@ -151,11 +151,12 @@ const ProfileDetailsComponent = ({
 
 								<input
 									type="text"
-									placeholder={'Enter the Name'}
+									// placeholder={'Enter the Name'}
 									value={userDetails?.email}
 									disabled={true}
 									readOnly={true}
 									required
+									className="profileEmailInput"
 								/>
 
 								<GreenTickSvg />
