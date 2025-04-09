@@ -61,10 +61,11 @@ const AiFaceRegistration = ({ link }) => {
 	const notifyUser = async () => {
 		try {
 			const response = await getImagesReadyNotify(galleryId);
-			if (response?.[0]) {
-				message.success('Users notified successfully');
+			const responseMessage = response?.[1]?.message;
+			if (response?.[0] === 200) {
+				message.success(responseMessage);
 			} else {
-				message.error('Failed to notify users');
+				message.error(responseMessage);
 			}
 		} catch (error) {
 			message.error('Failed to notify users');

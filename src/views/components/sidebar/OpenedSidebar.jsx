@@ -646,7 +646,7 @@ const OpenedSidebar = ({
 													<div
 														className="settingsOptionsContainer"
 														onClick={() => {
-															setShowSettingsSidebar(true);
+															setShowSettingsSidebar((prev) => !prev);
 														}}
 													>
 														<div className="settingsOptionsUserInfo">
