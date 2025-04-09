@@ -1,15 +1,15 @@
 import { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
-import '../../../assets/scss/storage/index.scss';
-import '../../../assets/scss/storage/storage.scss';
-import { ReactComponent as Plus } from '../../../assets/svg/storage/Plus.svg';
-import { ReactComponent as Folder } from '../../../assets/svg/storage/Folder.svg';
-import { ReactComponent as File } from '../../../assets/svg/storage/file.svg';
-import { ReactComponent as Document } from '../../../assets/svg/storage/docSvg.svg';
-import { ReactComponent as Mp3 } from '../../../assets/svg/storage/mp3Svg.svg';
-import { ReactComponent as Mp4 } from '../../../assets/svg/storage/mp4Svg.svg';
-import { ReactComponent as Pdf } from '../../../assets/svg/storage/pdfSvg.svg';
-import { ReactComponent as Psd } from '../../../assets/svg/storage/psdSvg.svg';
-import { ReactComponent as Zip } from '../../../assets/svg/storage/zipSvg.svg';
+import '../../../assets/scss/files/index.scss';
+import '../../../assets/scss/files/files.scss';
+import { ReactComponent as Plus } from '../../../assets/svg/files/Plus.svg';
+import { ReactComponent as Folder } from '../../../assets/svg/files/Folder.svg';
+import { ReactComponent as File } from '../../../assets/svg/files/file.svg';
+import { ReactComponent as Document } from '../../../assets/svg/files/docSvg.svg';
+import { ReactComponent as Mp3 } from '../../../assets/svg/files/mp3Svg.svg';
+import { ReactComponent as Mp4 } from '../../../assets/svg/files/mp4Svg.svg';
+import { ReactComponent as Pdf } from '../../../assets/svg/files/pdfSvg.svg';
+import { ReactComponent as Psd } from '../../../assets/svg/files/psdSvg.svg';
+import { ReactComponent as Zip } from '../../../assets/svg/files/zipSvg.svg';
 import Context from '../../../context/context';
 import { useNavigate } from 'react-router-dom';
 import CreateGallery from '../../components/modalsV2/gallery/CreateGallery';
@@ -27,7 +27,7 @@ const Files = () => {
 	const cardItems = useRef(null);
 	const {
 		galleryInfo: { getGalleries, tenantGalleries, getMostUsedEntities },
-		elasticSearch: { elasticSearchResults, getElasticSearchResults },
+		elasticSearch: { elasticSearchResults },
 		templates: {
 			getTemplatesListForForms,
 			formsTemplatesList,
@@ -50,7 +50,6 @@ const Files = () => {
 		limit: 15,
 		timeout: null,
 		cardHover: false,
-		initialAnimationComplete: false,
 		isElasticSearchLoading: false,
 		selectedView: 'Documents',
 		openProposalPopup: false,
@@ -68,9 +67,7 @@ const Files = () => {
 	}, [info?.createNewGalleryModal]);
 
 	const navigate = useNavigate();
-	const handleInitialAnimationComplete = () => {
-		setInfo((prev) => ({ ...prev, initialAnimationComplete: true }));
-	};
+
 	const fetchGalleries = async (page, title = null, reset = false, customOptions = null) => {
 		try {
 			const options = customOptions || {
@@ -700,23 +697,6 @@ const Files = () => {
 				onMouseEnter={handleMouseEnter}
 				onMouseLeave={handleMouseLeave}
 			>
-				<div className="card-item">
-					<div className="card-item-style card-item-style-btn">
-						<button
-							className="card-btn"
-							onClick={() =>
-								setInfo((prev) => ({
-									...prev,
-									openProposalPopup: true,
-									commonState: 'All',
-								}))
-							}
-						>
-							<Plus />
-							Create Document
-						</button>
-					</div>
-				</div>
 				{docsFilesList?.data?.slice(0, 11).map((doc, index) => (
 					<div
 						className="card-item"

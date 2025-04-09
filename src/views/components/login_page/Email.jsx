@@ -242,7 +242,7 @@ const Email = ({ email, setEmail, setActiveStage, setEmailVerified }) => {
 						value={email}
 						onChange={handleSetEmail}
 						onKeyDown={handleContinueWithEmail}
-						autoFocus={true}
+						autoFocus
 						type="email"
 						placeholder="example@acme.com"
 					/>

@@ -1,13 +1,13 @@
 import { memo, useContext } from 'react';
 import Context from '../../../context/context';
 import '../../../assets/scss/elastic_search/index.scss';
-import { ReactComponent as Pdf } from '../../../assets/svg/storage/pdfSvg.svg';
-import { ReactComponent as Mp3 } from '../../../assets/svg/storage/mp3Svg.svg';
-import { ReactComponent as Mp4 } from '../../../assets/svg/storage/mp4Svg.svg';
-import { ReactComponent as Document } from '../../../assets/svg/storage/docSvg.svg';
-import { ReactComponent as Psd } from '../../../assets/svg/storage/psdSvg.svg';
-import { ReactComponent as Zip } from '../../../assets/svg/storage/zipSvg.svg';
-import { ReactComponent as File } from '../../../assets/svg/storage/file.svg';
+import { ReactComponent as Pdf } from '../../../assets/svg/files/pdfSvg.svg';
+import { ReactComponent as Mp3 } from '../../../assets/svg/files/mp3Svg.svg';
+import { ReactComponent as Mp4 } from '../../../assets/svg/files/mp4Svg.svg';
+import { ReactComponent as Document } from '../../../assets/svg/files/docSvg.svg';
+import { ReactComponent as Psd } from '../../../assets/svg/files/psdSvg.svg';
+import { ReactComponent as Zip } from '../../../assets/svg/files/zipSvg.svg';
+import { ReactComponent as File } from '../../../assets/svg/files/file.svg';
 import { useNavigate } from 'react-router-dom';
 import ObjectID from 'bson-objectid';
 
