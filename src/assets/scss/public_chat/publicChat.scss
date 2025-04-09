@@ -7,6 +7,9 @@
 		justify-content: space-between;
 		align-items: center;
 		background: var(--background-color, #0c0c0d);
+		.left-container {
+			cursor: pointer;
+		}
 		.right-container {
 			display: flex;
 			justify-content: center;

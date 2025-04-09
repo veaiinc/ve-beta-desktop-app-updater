@@ -108,6 +108,11 @@
 	.landing-page-container {
 		.page-body {
 			margin-bottom: 140px;
+			.title-one,
+			.title-two {
+				font-size: 45px !important;
+			}
+
 			.chatbox-container {
 				position: absolute;
 				bottom: 16px;
