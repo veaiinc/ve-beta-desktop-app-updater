@@ -50,8 +50,8 @@
 				align-items: center;
 				gap: 10px;
 				border-radius: 100px;
-				background: var(--popup, #202123);
-				border: 1px solid var(--popup, #202123);
+				background: var(--card, #202123);
+				border: 1px solid var(--stroke, #202123);
 
 				cursor: pointer;
 				box-sizing: border-box;
@@ -64,7 +64,7 @@
 					line-height: 21px; /* 150% */
 				}
 				&.active {
-					border: 1px solid var(--primary-font, #f2f2f3);
+					border: 1px solid var(--primary-button, #f2f2f3);
 				}
 			}
 		}
