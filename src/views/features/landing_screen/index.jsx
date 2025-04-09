@@ -23,7 +23,7 @@ import { ReactComponent as CarouselDisplayPic1 } from '../../../assets/svg/landi
 import { ReactComponent as RightArrowWhite } from '../../../assets/svg/landingScreen/right-arrow-white.svg';
 import { ReactComponent as RightArrowGrey } from '../../../assets/svg/landingScreen/right-arrow-grey.svg';
 import Context from '../../../context/context';
-import { message } from 'antd';
+import { message } from '../../components/globalComponents/CustomToast';
 import { debounce } from 'lodash';
 import Spinner from '../../components/loaders/Spinner';
 

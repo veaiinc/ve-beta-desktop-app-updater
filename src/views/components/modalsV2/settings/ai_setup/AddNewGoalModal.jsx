@@ -2,7 +2,7 @@ import { memo, useState, useEffect } from 'react';
 import ReactModal from '../..';
 import '../../../../../assets/scss/settings/aiSetup/addNewGoalModal.scss';
 import { ReactComponent as CrossMark } from '../../../../../assets/svg/Settings/CrossMark.svg';
-import { message } from 'antd';
+import { message } from '../../../globalComponents/CustomToast';
 import Spinner from '../../../loaders/Spinner';
 import InputComponent from '../../../ai_assistant/InputComponent';
 import TextareaComponent from '../../../ai_assistant/TextareaComponent';

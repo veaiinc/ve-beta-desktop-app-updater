@@ -1,5 +1,5 @@
 import service from '../../services/graphQlServices';
-import { message } from 'antd';
+import { message } from '../../views/components/globalComponents/CustomToast';
 import {} from './graphqlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';

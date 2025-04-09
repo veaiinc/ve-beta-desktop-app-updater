@@ -26,7 +26,7 @@ import { ReactComponent as LockIcon } from '../../../assets/svg/gallery/lockIcon
 import { ReactComponent as ArrowsOut } from '../../../assets/svg/gallery/arrowsOut.svg';
 import Masonry, { ResponsiveMasonry } from 'react-responsive-masonry';
 import { ReactComponent as UpArrow } from '../../../assets/svg/workflow/downArrow.svg';
-import { message, Result, theme, Tooltip } from 'antd';
+import { Result, theme, Tooltip } from 'antd';
 import ShareModal from '../../../views/components/modalsV2/gallery/ShareModal';
 import CreateAlbum from '../../components/modalsV2/gallery/CreateAlbum';
 import CollaboratorPopup from '../../components/modalsV2/gallery/CollaboratorPopup';
@@ -59,6 +59,7 @@ import { Switch } from 'antd';
 import ShowLightRoomCopy from '../../components/modalsV2/gallery/ShowLightRoomCopy';
 import { getCurrentWorkspaceId } from '../../../helpers';
 import GridImage from '../../../assets/images/workflow_builder/dotgrid.png';
+import { message } from '../../components/globalComponents/CustomToast';
 // import EarnAndShareOverlay from './galleryPage/EditAndShareOverlay';
 
 const workspaceId = localStorage.getItem('workspaceId');
@@ -970,10 +971,7 @@ const GalleryPage = () => {
 		const newOnlineState = !info?.isOnline;
 
 		// Show loading message
-		message.loading({
-			content: 'Updating gallery status...',
-			key: 'galleryUpdate',
-		});
+		const id = message.loading('Updating gallery status...');
 
 		try {
 			const galleryPayload = {
@@ -995,13 +993,11 @@ const GalleryPage = () => {
 
 			const response = await postGallery(galleryPayload, galleryId);
 
+			message.destroy(id);
+
 			if (response?.[0]) {
 				await getAlbums(galleryId);
-
-				message.success({
-					content: `Gallery is now ${newOnlineState ? 'online' : 'offline'}`,
-					key: 'galleryUpdate',
-				});
+				message.success(`Gallery is now ${newOnlineState ? 'online' : 'offline'}`);
 			} else {
 				setInfo((prev) => ({
 					...prev,
@@ -1016,10 +1012,7 @@ const GalleryPage = () => {
 					},
 				}));
 
-				message.error({
-					content: response?.[1]?.message || 'Failed to update gallery status',
-					key: 'galleryUpdate',
-				});
+				message.error(response?.[1]?.message || 'Failed to update gallery status');
 			}
 		} catch (error) {
 			// Revert state on error
@@ -1037,10 +1030,7 @@ const GalleryPage = () => {
 			}));
 
 			console.error('Error updating gallery status:', error);
-			message.error({
-				content: 'Failed to update gallery status',
-				key: 'galleryUpdate',
-			});
+			message.error('Failed to update gallery status');
 		}
 	}, [info.isOnline, galleryId, tenantAlbums?.albums]);
 
@@ -1344,10 +1334,7 @@ const GalleryPage = () => {
 			handleGalleryChange.isProcessing = true;
 
 			try {
-				message.loading({
-					content: 'Renaming gallery...',
-					key: 'renameGallery',
-				});
+				const id = message.loading('Renaming gallery...');
 
 				const payload = {
 					title: value,
@@ -1358,31 +1345,26 @@ const GalleryPage = () => {
 
 				if (response?.[0]) {
 					// Update UI state directly without additional API call
-					setInfo((prev) => ({
-						...prev,
-						activeGallery: {
-							...prev.activeGallery,
-							title: value,
-						},
-						showMainPopup: false,
-					}));
+					setInfo((prev) => {
+						message.destroy(id);
 
-					message.success({
-						content: 'Gallery renamed successfully',
-						key: 'renameGallery',
+						return {
+							...prev,
+							activeGallery: {
+								...prev.activeGallery,
+								title: value,
+							},
+							showMainPopup: false,
+						};
 					});
+
+					message.success('Gallery renamed successfully');
 				} else {
-					message.error({
-						content: response?.[1]?.message || 'Failed to rename gallery',
-						key: 'renameGallery',
-					});
+					message.error(response?.[1]?.message || 'Failed to rename gallery');
 				}
 			} catch (error) {
 				console.error('Error renaming gallery:', error);
-				message.error({
-					content: 'An unexpected error occurred',
-					key: 'renameGallery',
-				});
+				message.error('An unexpected error occurred');
 			} finally {
 				handleGalleryChange.isProcessing = false;
 			}
@@ -1502,10 +1484,7 @@ const GalleryPage = () => {
 			albumChanges.isProcessing = true;
 
 			try {
-				message.loading({
-					content: 'Renaming album...',
-					key: 'renameAlbum',
-				});
+				const id = message.loading('Renaming album...');
 
 				const payload = {
 					title: value,
@@ -1520,6 +1499,8 @@ const GalleryPage = () => {
 				// Make the API call
 				const response = await editAlbumName(payload, galleryId, info.activeAlbumId);
 
+				message.destroy(id);
+
 				if (response?.[0]) {
 					// Update UI state
 					setInfo((prev) => ({
@@ -1532,26 +1513,17 @@ const GalleryPage = () => {
 					}));
 
 					// Show success message
-					message.success({
-						content: 'Album renamed successfully',
-						key: 'renameAlbum',
-					});
+					message.success('Album renamed successfully');
 
 					// Refresh album data
 					await Promise.all([getAlbumImagesCount(galleryId), getAlbums(galleryId)]);
 				} else {
 					// Show error message
-					message.error({
-						content: response?.[1]?.message || 'Failed to rename album',
-						key: 'renameAlbum',
-					});
+					message.error(response?.[1]?.message || 'Failed to rename album');
 				}
 			} catch (error) {
 				console.error('Error renaming album:', error);
-				message.error({
-					content: 'An unexpected error occurred',
-					key: 'renameAlbum',
-				});
+				message.error('An unexpected error occurred');
 			} finally {
 				albumChanges.isProcessing = false;
 			}
@@ -1613,7 +1585,7 @@ const GalleryPage = () => {
 				isDownloading: true,
 			}));
 
-			message.loading('Downloading album...');
+			const id = message.loading('Downloading album...');
 
 			const payload = {
 				imageType: info?.originalDownload ? 'original' : 'optimized',
@@ -1626,13 +1598,14 @@ const GalleryPage = () => {
 				info?.activeTagId || info?.albumTagId,
 			);
 
+			message.destroy(id);
+
 			if (response?.[0] === true && response?.[1]?.downloadId) {
 				const region = localStorage.getItem('region');
 				const regionPath = region === 'ap-south-1' ? 'in' : 'us';
 				const downloadUrl = `https://downloads.ve.ai/${regionPath}/${response?.[1]?.downloadId}`;
 				window.open(downloadUrl, '_blank');
 
-				message.destroy();
 				message.success('Download started');
 
 				setInfo((prev) => ({
@@ -1641,7 +1614,6 @@ const GalleryPage = () => {
 					isDownloading: false,
 				}));
 			} else {
-				message.destroy();
 				message.error('Failed to generate download link');
 				setInfo((prev) => ({
 					...prev,
@@ -1650,7 +1622,7 @@ const GalleryPage = () => {
 			}
 		} catch (error) {
 			console.error('Download error:', error);
-			message.destroy();
+
 			message.error('Something went wrong, please try again later');
 			setInfo((prev) => ({
 				...prev,
@@ -1663,25 +1635,22 @@ const GalleryPage = () => {
 	const handleLightRoomCopy = async () => {
 		try {
 			// Show loading message
-			message.loading({
-				content: 'Fetching image list...',
-				key: 'lightroomCopy',
-			});
+			const id = message.loading('Fetching image list...');
 
 			let response;
 			if (info.activeTab === 'Client Selections' && info.clientSelectionID) {
 				// Check if we have client selection images
 				if (!info.clientSelectionImages?.docs?.length) {
-					message.destroy('lightroomCopy');
-					message.info('No images found in this client selection');
+					message.warning('No images found in this client selection');
 					return;
 				}
 
 				const response = await getClientSelectionLightRoomCopy(info.clientSelectionID);
 
+				message.destroy(id);
+
 				if (!response?.[1]?.length) {
-					message.destroy('lightroomCopy');
-					message.info('No valid images found in this client selection');
+					message.warning('No valid images found in this client selection');
 					return;
 				}
 
@@ -1692,14 +1661,12 @@ const GalleryPage = () => {
 					showOptionsContainer: false,
 				}));
 
-				message.destroy('lightroomCopy');
 				message.success('Image list fetched successfully');
 				return;
 			}
 
 			// Handle regular album case
 			if (!info.activeAlbumId) {
-				message.destroy('lightroomCopy');
 				message.error('No active album selected');
 				return;
 			}
@@ -1714,15 +1681,14 @@ const GalleryPage = () => {
 					showLightRoomCopy: true,
 					showOptionsContainer: false,
 				}));
-				message.destroy('lightroomCopy');
+
 				message.success('Image list fetched successfully');
 			} else {
-				message.destroy('lightroomCopy');
 				message.error('Failed to fetch lightroom copy list');
 			}
 		} catch (error) {
 			console.error('Error fetching lightroom copy list:', error);
-			message.destroy('lightroomCopy');
+
 			message.error('Failed to fetch lightroom copy list');
 		}
 	};
@@ -2023,23 +1989,19 @@ const GalleryPage = () => {
 	//Delete Handler For Gallery
 
 	const handleDeleteGallery = async () => {
-		message.open({
-			type: 'loading',
-			content: 'Your gallery is being removed. Please wait...',
-			duration: 0,
-		});
+		const id = message.loading('Your gallery is being removed. Please wait...');
 
 		const response = await deleteGallery(galleryId);
 
-		if (response[0] === true) {
-			message.destroy();
+		message.destroy(id);
+
+		if (response?.[0] === true) {
 			message.success('Gallery deleted successfully');
 
 			navigate('/galleries');
 			await getGalleries({}, true);
 		} else {
-			message.destroy();
-			message.error(response[1].message);
+			message.error(response?.[1].message);
 		}
 	};
 	const handleManageCollaborator = (data) => {
@@ -2157,7 +2119,6 @@ const GalleryPage = () => {
 			) {
 				clearInterval(clearinterval);
 				getImageDetail(imageId);
-				message.destroy();
 			}
 		}, 2000);
 	};
@@ -2171,26 +2132,26 @@ const GalleryPage = () => {
 		getImageDetail(null, true, false);
 		setsearchkeys({ uploadImageId: 'image-uploading' });
 
-		message.open({
-			type: 'loading',
-			content: `Uploading ${
-				info.coverType === 'gallery' ? 'Gallery' : 'Album'
-			} cover image..`,
-			duration: 0,
-		});
+		const id = message.loading(
+			`Uploading ${info.coverType === 'gallery' ? 'Gallery' : 'Album'} cover image..`,
+		);
+
 		if (info?.imageURL) {
-			setInfo((prev) => ({
-				...prev,
-				crop: {
-					x: 0,
-					y: 0,
-				},
-				zoom: 1,
-				uploadImageId: null,
-				imageURL: info?.imageURL,
-				coverImageDetails: null,
-				coverType: prev.coverType,
-			}));
+			setInfo((prev) => {
+				message.destroy(id);
+				return {
+					...prev,
+					crop: {
+						x: 0,
+						y: 0,
+					},
+					zoom: 1,
+					uploadImageId: null,
+					imageURL: info?.imageURL,
+					coverImageDetails: null,
+					coverType: prev.coverType,
+				};
+			});
 		}
 		const batchId = randomize('Aa0', 10);
 
@@ -2205,7 +2166,7 @@ const GalleryPage = () => {
 				...prev,
 				uploadImageId: isHavingDuplicateImage?._id,
 			}));
-			message.destroy();
+
 			return;
 		}
 
@@ -2237,7 +2198,6 @@ const GalleryPage = () => {
 				getImageDetails(signedURLUpload?.[1]?._id, batchId);
 			}
 		} else {
-			message.destroy();
 			message.error('Something went wrong, please try again later');
 		}
 	};
@@ -2248,10 +2208,7 @@ const GalleryPage = () => {
 		try {
 			handleSetCoverPosition.isProcessing = true;
 
-			message.loading({
-				content: 'Updating cover position...',
-				key: 'coverUpdate',
-			});
+			const id = message.loading('Updating cover position...');
 
 			// Determine the current image based on different scenarios
 			let currentImage;
@@ -2287,6 +2244,8 @@ const GalleryPage = () => {
 				info.coverType === 'gallery'
 					? await updateGalleryCoverImage(payload, galleryId)
 					: await updateAlbumCoverImage(payload, galleryId, info.activeAlbumId);
+
+			message.destroy(id);
 
 			if (response?.[0]) {
 				// Create updated cover image object
@@ -2335,21 +2294,17 @@ const GalleryPage = () => {
 					].filter(Boolean),
 				);
 
-				message.success({
-					content: `${
+				message.success(
+					`${
 						info.coverType === 'gallery' ? 'Gallery' : 'Album'
 					} cover updated successfully`,
-					key: 'coverUpdate',
-				});
+				);
 			} else {
 				throw new Error('Failed to update cover position');
 			}
 		} catch (error) {
 			console.error('Error updating cover position:', error);
-			message.error({
-				content: error.message || 'Failed to update cover position',
-				key: 'coverUpdate',
-			});
+			message.error(error.message || 'Failed to update cover position');
 		} finally {
 			setTimeout(() => {
 				handleSetCoverPosition.isProcessing = false;
@@ -2826,17 +2781,13 @@ const GalleryPage = () => {
 		// Set processing flag
 		handleDeleteAlbum.isProcessing = true;
 		try {
-			message.open({
-				type: 'loading',
-				content: 'Your album is being removed. Please wait...',
-				duration: 0,
-				key: 'deleteAlbum',
-			});
+			const id = message.loading('Your album is being removed. Please wait...');
 
 			const response = await deleteAlbum(galleryId, info?.activeAlbumId);
 
+			message.destroy(id);
+
 			if (response[0] === true) {
-				message.destroy('deleteAlbum');
 				message.success('Album deleted successfully');
 				await getAlbums(galleryId);
 				navigate(`/galleries/${galleryId}`);
@@ -2848,12 +2799,11 @@ const GalleryPage = () => {
 					albumName: tenantAlbums?.[0]?.title,
 				}));
 			} else {
-				message.destroy('deleteAlbum');
 				message.error(response[1].message);
 			}
 		} catch (error) {
 			console.error('Error deleting album:', error);
-			message.destroy('deleteAlbum');
+
 			message.error('Failed to delete album');
 		} finally {
 			handleDeleteAlbum.isProcessing = false;
@@ -2969,7 +2919,7 @@ const GalleryPage = () => {
 		updateImageOrder(remainingImages);
 	};
 	const handleSaveImage = async () => {
-		message.loading('Rearranging images...');
+		const id = message.loading('Rearranging images...');
 		// setInfo((prev) => ({
 		// 	...prev,
 		// 	imagesList: [],
@@ -2984,8 +2934,9 @@ const GalleryPage = () => {
 				info.activeAlbumId,
 				info.albumTagId,
 			);
+
+			message.destroy(id);
 			if (response?.[0] === true) {
-				message.destroy();
 				message.success('Images rearranged successfully');
 				setInfo((prev) => ({
 					...prev,
@@ -2993,7 +2944,6 @@ const GalleryPage = () => {
 					isRearranging: false,
 				}));
 			} else {
-				message.destroy();
 				message.error('Something went wrong, please try again later');
 			}
 		}
@@ -3028,11 +2978,7 @@ const GalleryPage = () => {
 
 		try {
 			// Start with loading message
-			message.loading({
-				content: 'Preparing download...',
-				key: 'downloadMessage',
-				duration: 0,
-			});
+			const id = message.loading('Preparing download...');
 
 			// Single image download handling
 			if (info?.selectedImages?.length === 1) {
@@ -3042,11 +2988,10 @@ const GalleryPage = () => {
 				const isLightGallery = info?.isLightGallery;
 				const response = await getDownloadLinkForImage(selectedImageId, isLightGallery);
 
+				message.destroy(id);
+
 				if (response?.[0] === true) {
-					message.success({
-						content: 'Download completed',
-						key: 'downloadMessage',
-					});
+					message.success('Download completed');
 				} else {
 					throw new Error('Failed to get download link');
 				}
@@ -3074,10 +3019,7 @@ const GalleryPage = () => {
 					info?.clientSelectionID,
 				);
 				if (response?.[0] === true) {
-					message.success({
-						content: 'Download started',
-						key: 'downloadMessage',
-					});
+					message.success('Download started');
 					window.open(response[1], '_blank');
 				} else {
 					throw new Error('Failed to prepare download');
@@ -3094,10 +3036,7 @@ const GalleryPage = () => {
 				const response = await getDownloadForMultipleImages(payload, galleryId);
 
 				if (response?.[0] === true) {
-					message.success({
-						content: 'Download completed',
-						key: 'downloadMessage',
-					});
+					message.success('Download completed');
 				} else {
 					throw new Error('Failed to get download links');
 				}
@@ -3117,10 +3056,7 @@ const GalleryPage = () => {
 					link.click();
 					document.body.removeChild(link);
 
-					message.success({
-						content: 'Download started',
-						key: 'downloadMessage',
-					});
+					message.success('Download started');
 				} else {
 					throw new Error('Failed to prepare download');
 				}
@@ -3133,10 +3069,7 @@ const GalleryPage = () => {
 			}));
 		} catch (error) {
 			console.error('Download error:', error);
-			message.error({
-				content: error.message || 'An error occurred during download',
-				key: 'downloadMessage',
-			});
+			message.error(error.message || 'An error occurred during download');
 		}
 	};
 

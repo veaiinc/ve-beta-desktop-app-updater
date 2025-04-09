@@ -2,7 +2,7 @@ import React, { memo, useState, useMemo, useCallback, useRef, useEffect } from '
 import '../../../assets/scss/ai_assistant/aiShare.scss';
 import { ReactComponent as ExternalLink } from '../../../assets/svg/ai_assistant/externalLink.svg';
 import { ReactComponent as Link } from '../../../assets/svg/smartFiles/formResponse/link.svg';
-import { message } from 'antd';
+import { message } from '../globalComponents/CustomToast';
 
 const AiShare = ({ assistant }) => {
 	const [copyStatus, setCopyStatus] = useState({ shareLink: false, embedScript: false });

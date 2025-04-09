@@ -6,7 +6,7 @@ import ProgressBar from './ProgressBar';
 import UserDetailsForm from './UserDetailsForm';
 import WorkspaceDetailsForm from './WorkspaceDetailsForm';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
-import { message } from 'antd';
+import { message } from '../globalComponents/CustomToast';
 import Skeleton from 'react-loading-skeleton';
 
 let usernameTimeoutId, companyLogoFile;

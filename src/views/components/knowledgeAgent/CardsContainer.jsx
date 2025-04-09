@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import '../../../assets/scss/knowledgeAgent/index.scss';
 import Context from '../../../context/context';
 import Spinner from '../../components/loaders/Spinner';
-import { message } from 'antd';
+import { message } from '../globalComponents/CustomToast';
 
 import searchIcon from '../../../assets/svg/agents/search.svg';
 import greenCardIcon from '../../../assets/svg/agents/Back.svg';

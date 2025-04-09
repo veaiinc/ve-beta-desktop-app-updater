@@ -4,8 +4,9 @@ import '../../../../assets/scss/automation_builder/updatedDeleteWorkflowStep.scs
 import Spinner from '../../loaders/Spinner';
 import { ReactComponent as Close } from '../../../../assets/svg/close.svg';
 import Context from '../../../../context/context';
-import { message, Spin, Tooltip } from 'antd';
+import { Spin, Tooltip } from 'antd';
 import { checkConditionNodeChild } from '../../../features/automation_builder/automationContentsHelper';
+import { message } from '../../globalComponents/CustomToast';
 const customStyles = {
 	content: { zIndex: 99999 },
 	overlay: { zIndex: 99998 },

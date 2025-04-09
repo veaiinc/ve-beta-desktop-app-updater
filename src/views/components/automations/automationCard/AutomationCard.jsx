@@ -4,7 +4,7 @@ import { ReactComponent as ThreeDotsVerticalIcon } from '../../../../assets/svg/
 import Context from '../../../../context/context';
 import AutomationMenu from './AutomationMenu';
 import AutomationSteps from './AutomationSteps';
-import { message } from 'antd';
+import { message } from '../../globalComponents/CustomToast';
 import Spinner from '../../loaders/Spinner';
 
 const options = [

@@ -1,4 +1,3 @@
-import { message } from 'antd';
 import { intialState } from './state';
 const actionHandlers = {
 	GET_NOTES_SUCCESS: (state, action) => ({ ...state, notes: action?.payload }),
