@@ -11,7 +11,7 @@ const AddLables = ({ info, setinfo, searchParams }) => {
 	} = useContext(Context);
 	const navigate = useNavigate();
 	const [inputTag, setinputTag] = useState('');
-
+	const [searchValue, setSearchValue] = useState('');
 	const [messageApi, contextHolder] = message.useMessage();
 
 	useEffect(() => {
@@ -43,6 +43,12 @@ const AddLables = ({ info, setinfo, searchParams }) => {
 		}
 	}, [tagsList, galleryId, albumId]);
 
+	const handleAdd = (e) => {
+		e.preventDefault();
+		e.stopPropagation();
+		setSearchValue('');
+		addNewTagHandler();
+	};
 	const addNewTagHandler = async () => {
 		if (!inputTag.trim().length) {
 			messageApi.error('Tag cannot be empty');
@@ -132,34 +138,60 @@ const AddLables = ({ info, setinfo, searchParams }) => {
 					}}
 					className="headerLabels"
 				>
-					<Select
-						showSearch
-						value={inputTag}
-						placeholder="Add Label"
-						style={{ width: '100%', color: '#fff' }}
-						suffixIcon={null}
-						notFoundContent={null}
-						onSelect={onSelectTagFunc}
-						autoFocus
-						onSearch={(value) => {
-							if (value === 'all') {
-								setinputTag('All');
-							} else {
-								setinputTag(value);
-							}
+					<div
+						style={{
+							display: 'flex',
+							alignItems: 'center',
+							width: '100%',
+							gap: '10px',
 						}}
-						optionFilterProp="label"
-						onKeyDown={(e) => e.key === 'Enter' && addNewTagHandler()}
-						options={(tagsList?.list || [])
-							?.filter(
-								(tag) =>
-									!info.selectedGalleryTags.some(
-										(selectedTag) => selectedTag?._id === tag?._id,
-									),
-							)
-							.map((d) => ({ value: d?._id, label: d?.displayName }))}
-					/>
-
+					>
+						<Select
+							showSearch
+							value={inputTag}
+							searchValue={searchValue}
+							placeholder="Add Label"
+							style={{ width: '100%', color: '#fff' }}
+							suffixIcon={null}
+							notFoundContent={null}
+							onSelect={onSelectTagFunc}
+							autoFocus
+							onBlur={() => {
+								setinputTag(searchValue);
+							}}
+							onSearch={(value) => {
+								if (value === 'all') {
+									setinputTag('All');
+									setSearchValue('All');
+								} else {
+									setSearchValue(value);
+									setinputTag(value);
+								}
+							}}
+							optionFilterProp="label"
+							onKeyDown={(e) => e.key === 'Enter' && addNewTagHandler()}
+							options={(tagsList?.list || [])
+								?.filter(
+									(tag) =>
+										!info.selectedGalleryTags.some(
+											(selectedTag) => selectedTag._id === tag._id,
+										),
+								)
+								.map((d) => ({ value: d._id, label: d.displayName }))}
+						/>
+						{searchValue && (
+							<button
+								onMouseDown={(e) => {
+									e.preventDefault();
+								}}
+								onClick={handleAdd}
+								className="addLabelButton"
+							>
+								{' '}
+								Add
+							</button>
+						)}
+					</div>
 					<p
 						style={{
 							fontSize: '10px',

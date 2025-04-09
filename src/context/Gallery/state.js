@@ -135,11 +135,12 @@ export const Galleries = () => {
 				usertoken,
 				'galleries',
 			);
-			if (response?.[0]) {
+			if (response?.[0] === 200) {
 				getAlbums(galleryId);
 				getAlbumImagesCount(galleryId);
 				return response;
 			}
+			return response;
 		} catch (error) {
 			console.log('error==>createNewAlbum', error);
 		}
@@ -307,6 +308,7 @@ export const Galleries = () => {
 					payload: response?.[1],
 				});
 			}
+			return response;
 		} catch (error) {
 			console.log('error==>geteditPreferences', error);
 		}
@@ -1208,13 +1210,16 @@ export const Galleries = () => {
 				usertoken,
 				'galleries',
 			);
-			const payload = state.clientSelectionImages
-				? {
-						...state.clientSelectionImages,
-						...response?.[1],
-						docs: [...state.clientSelectionImages.docs, ...(response?.[1]?.docs || [])],
-				  }
-				: response?.[1];
+			const payload =
+				page === 1
+					? response?.[1] // First page: use response as is
+					: {
+							...response?.[1],
+							docs: [
+								...(state.clientSelectionImages?.docs || []),
+								...(response?.[1]?.docs || []),
+							],
+					  };
 			if (response[0]) {
 				dispatch({
 					type: Actions.GET_CLIENT_SELECTION_IMAGES,

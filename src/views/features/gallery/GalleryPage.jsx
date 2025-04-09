@@ -216,7 +216,7 @@ const GalleryPage = () => {
 		activeGallery: location?.state?.galleryData,
 		isLightGallery: searchkeys.get('lite-gallery') || false,
 		activeAlbumId: tenantAlbums?.albums?.[0]?._id,
-		callToAction: tenantPreferences?.ctaPreferences,
+		callToAction: tenantPreferences?.ctaPreferences?.isEnabled,
 		timeout: null,
 		galleryDueDate: location?.state?.galleryData?.dueDateEpoch,
 		galleryCreatedAt: location?.state?.galleryData?.shotDuring,
@@ -621,6 +621,18 @@ const GalleryPage = () => {
 		if (!tenantPreferences || tenantPreferences?._id !== galleryId) {
 			getEditPreferences(galleryId);
 		}
+		if (tenantPreferences) {
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				canClientDownloadOriginals: tenantPreferences?.canClientDownloadOriginals,
+				canClientDownloadOptimized: tenantPreferences?.canClientDownloadOptimized,
+				canGuestDownloadOptimized: tenantPreferences?.canGuestDownloadOptimized,
+				canGuestDownloadOriginals: tenantPreferences?.canGuestDownloadOriginals,
+				callToAction: tenantPreferences?.ctaPreferences?.isEnabled,
+				ctaLink: tenantPreferences?.ctaPreferences?.ctaLink,
+				clientSubscription: tenantPreferences?.allowClientsToSubscribe || false,
+			}));
+		}
 
 		// Only set the active album if it's not already set
 		if (tenantAlbums && !info?.activeAlbumId) {
@@ -636,7 +648,7 @@ const GalleryPage = () => {
 			}));
 		}
 		// ... rest of the effect
-	}, [tenantPreferences, tenantAlbums]);
+	}, [tenantPreferences]);
 
 	useEffect(() => {
 		if (updateActiveAlbum !== null && updateActiveAlbum !== info?.activeAlbum) {
@@ -1438,20 +1450,24 @@ const GalleryPage = () => {
 		}));
 	};
 
-	const handleNewAlbumCreated = (newAlbum) => {
-		// Update state with new album info
-		setInfo((prev) => ({
-			...prev,
-			activeTab: 'Albums',
-			albumSlug: newAlbum?.slug,
-			albumName: newAlbum?.title,
-			activeAlbumId: newAlbum?._id,
-			activeAlbum: newAlbum,
-			// Reset any AI People related state
-			selectedFace: null,
-			selectedFaceId: null,
-		}));
-
+	const handleNewAlbumCreated = async (newAlbum) => {
+		try {
+			// Wait for albums to be fetched
+			await getAlbums(galleryId);
+			// Update state after albums are fetched
+			setInfo((prev) => ({
+				...prev,
+				activeTab: 'Albums',
+				albumSlug: newAlbum?.albumSlug,
+				albumName: newAlbum?.title,
+				activeAlbumId: newAlbum?.album_id,
+				activeAlbum: newAlbum,
+			}));
+			await getAlbumImagesCount(galleryId);
+		} catch (error) {
+			console.error('Error updating albums:', error);
+			message.error('Failed to update albums list');
+		}
 		const searchParams = new URLSearchParams(location.search);
 		searchParams.set('albumId', newAlbum?._id);
 		searchParams.set('activeTab', 'Albums');
@@ -1615,6 +1631,11 @@ const GalleryPage = () => {
 				...prevInfo.imagesList,
 				docs: [],
 			},
+			clientSelectionImages: {
+				docs: [],
+				hasNextPage: false,
+				page: 1,
+			},
 		}));
 	};
 
@@ -1635,20 +1656,17 @@ const GalleryPage = () => {
 	};
 
 	const handleCallToAction = useCallback(() => {
-		setInfo((prevInfo) => ({
-			...prevInfo,
-			callToAction: {
-				...info?.callToAction,
-				isEnabled: !info?.callToAction?.isEnabled,
-			},
-		}));
 		const payload = {
 			ctaPreferences: {
-				isEnabled: !info.callToAction?.isEnabled,
+				isEnabled: !info.callToAction,
 			},
 		};
 		editPreferences(galleryId, payload);
-	}, [getEditPreferences, info.callToAction?.isEnabled]);
+		setInfo((prevInfo) => ({
+			...prevInfo,
+			callToAction: !info?.callToAction,
+		}));
+	}, [getEditPreferences, info.callToAction]);
 
 	const handleClientSubscription = useCallback(
 		(value) => {
@@ -2987,7 +3005,6 @@ const GalleryPage = () => {
 
 		// Set processing flag
 		handleDeleteAlbum.isProcessing = true;
-
 		try {
 			message.open({
 				type: 'loading',
@@ -3002,18 +3019,14 @@ const GalleryPage = () => {
 				message.destroy('deleteAlbum');
 				showMessage('success', 'Album deleted successfully');
 				await getAlbums(galleryId);
-
-				const newAlbumId = tenantAlbums?.albums?.[0]?._id;
+				navigate(`/galleries/${galleryId}`);
 				setInfo((prev) => ({
 					...prev,
-					activeAlbumId: newAlbumId,
+					activeAlbumId: tenantAlbums?.[0]?._id,
+					activeAlbum: tenantAlbums?.[0],
+					albumSlug: tenantAlbums?.[0]?.slug,
+					albumName: tenantAlbums?.[0]?.title,
 				}));
-				navigate(`/galleries/${galleryId}?albumId=${newAlbumId}`);
-				// const searchParams = new URLSearchParams(location.search);
-				// searchParams.set('albumId', newAlbumId);
-				// searchParams.set('activeTab', 'Albums');
-				// const newUrl = `${location.pathname}?${searchParams.toString()}`;
-				// window.history.replaceState(null, '', newUrl);
 			} else {
 				message.destroy('deleteAlbum');
 				showMessage('error', response[1].message, handleDeleteAlbum);
@@ -3563,165 +3576,40 @@ const GalleryPage = () => {
 						<div className="albumsContianer">
 							<div className="galleryContentContainer">
 								<div className="content">
-									<div className="galleryHeaderColumn">
-										<div
-											className="imageContaienr"
-											style={{
-												background:
-													albumImagesCount?.coverImage?.givenFileName &&
-													galleryCredentials
-														? `linear-gradient(180deg, rgba(0, 0, 0, 0.00) 0%, #000 100%), url(${galleryUrl}) lightgray 50% / cover no-repeat`
-														: '#000000',
-												backgroundSize: 'cover',
-												backgroundPosition: 'center',
-												backgroundRepeat: 'no-repeat',
-											}}
-											onMouseEnter={() =>
-												setInfo((prev) => ({
-													...prev,
-													showCoverButton: true,
-												}))
-											}
-											onMouseLeave={() =>
-												setInfo((prev) => ({
-													...prev,
-													showCoverButton: false,
-												}))
-											}
-										></div>
-										<div className="galleryTitle">
-											{info.editingTitle ? (
-												<input
-													type="text"
-													value={info.editingTitleValue}
-													onChange={(e) =>
-														setInfo((prev) => ({
-															...prev,
-															editingTitleValue: e.target.value,
-														}))
-													}
-													onKeyDown={async (e) => {
-														if (e.key === 'Enter') {
-															const response = await updateGallery(
-																info.editingTitleValue,
-															);
-															if (response?.[0]) {
-																setInfo((prev) => ({
-																	...prev,
-																	editingTitle: false,
-																	activeGallery: {
-																		...prev.activeGallery,
-																		title: info.editingTitleValue,
-																	},
-																}));
-															}
-														} else if (e.key === 'Escape') {
-															setInfo((prev) => ({
-																...prev,
-																editingTitle: false,
-															}));
-														}
-													}}
-													onBlur={() => {
-														setInfo((prev) => ({
-															...prev,
-															editingTitle: false,
-														}));
-													}}
-													autoFocus
-													className="gallery-title-input"
-												/>
-											) : (
-												<p
-													onClick={() =>
-														setInfo((prev) => ({
-															...prev,
-															editingTitle: true,
-															editingTitleValue:
-																prev.activeGallery?.title ||
-																'Untitled Gallery',
-														}))
-													}
-													style={{ cursor: 'pointer' }}
-												>
-													{info?.activeGallery?.title ||
-														'Untitled Gallery'}
-												</p>
-											)}
-										</div>
-									</div>
 									{data?.map((item, index) => (
 										<>
-											{item?.name !== 'breaker' &&
-											item?.name === 'Client Selections' &&
-											item?.number === 0
-												? null
-												: item?.name !== 'breaker' && (
-														<div
-															key={index}
-															className={`galleryContent ${
-																info?.activeTab === item?.name
-																	? 'active'
-																	: ''
-															}`}
-															style={{
-																// maxWidth: '130px',
-																// minWidth: '100px',
-																// background:
-																// 	item.name === 'Ai People'
-																// 		? info?.activeTab ===
-																// 		  'Ai People'
-																// 			? `linear-gradient(to right, white ${
-																// 					info?.animationProgress *
-																// 					100
-																// 			  }%, #202123 ${
-																// 					info?.animationProgress *
-																// 					100
-																// 			  }%)`
-																// 			: '#202123'
-																// 		: info?.activeTab ===
-																// 		  item?.name
-																// 		? '#f2f2f3'
-																// 		: '#202123',
-
-																backgroundRepeat: 'no-repeat',
-																cursor: 'pointer',
-															}}
-															onClick={() =>
-																handleClickContent(
-																	item?.name,
-																	item?.number,
-																)
-															}
-														>
-															<p
-																className={`galleryName ${
-																	info?.activeTab === item?.name
-																		? 'active'
-																		: ''
-																}`}
-															>
-																{item?.name}
-															</p>
-															<p
-																className={`count ${
-																	info?.activeTab === item?.name
-																		? 'active'
-																		: ''
-																}`}
-															>
-																{item?.name === 'Ai People'
-																	? info?.activeTab ===
-																			'Ai People' &&
-																	  info?.animationProgress *
-																			100 <
-																			100
-																		? item?.number
-																		: item?.number
-																	: item?.number}
-															</p>
-														</div>
-												  )}
+											{item?.name !== 'breaker' && (
+												<div
+													key={index}
+													className={`galleryContent ${
+														info?.activeTab === item?.name
+															? 'active'
+															: ''
+													}`}
+													onClick={() =>
+														handleClickContent(item?.name, item?.number)
+													}
+												>
+													<p
+														className={`galleryName ${
+															info?.activeTab === item?.name
+																? 'active'
+																: ''
+														}`}
+													>
+														{item?.name}
+													</p>
+													<p
+														className={`count ${
+															info?.activeTab === item?.name
+																? 'active'
+																: ''
+														}`}
+													>
+														{item?.number}
+													</p>
+												</div>
+											)}
 											{item?.name === 'breaker' && (
 												<div className="breaker"></div>
 											)}
@@ -3729,26 +3617,51 @@ const GalleryPage = () => {
 									))}
 								</div>
 								<div className="shareContainer">
-									<Tooltip
-										open={info?.showOptions}
-										onOpenChange={(open) =>
-											setInfo((prev) => ({
-												...prev,
-												showOptions: open,
-											}))
-										}
-										placement="bottomRight"
-										trigger="click"
-										color="transparent"
-										arrow={false}
-										title={
+									<div
+										className="onlineContainer"
+										onClick={handleOnlineToggle}
+										style={{ cursor: 'pointer' }}
+									>
+										{info.isOnline ? (
+											<>
+												<OpenEye />
+												<p className="onlineText">Online</p>
+											</>
+										) : (
+											<>
+												<CrossedOpenEye />
+												<p className="onlineText">Offline</p>
+											</>
+										)}
+									</div>
+									<div className="icon" onClick={openShareModal}>
+										<ShareIcon className="shareIcon" />
+									</div>
+									<div
+										className="icon"
+										ref={iconRef}
+										onClick={(e) => {
+											e.stopPropagation();
+											e.preventDefault();
+											setInfo((prevInfo) => ({
+												...prevInfo,
+												showOptions: !prevInfo.showOptions,
+											}));
+										}}
+									>
+										<ThreeDotsIcon className="threeDotsIcon" />
+										{info.showOptions && (
 											<div
 												className="optionsContainer"
 												ref={optionsRef}
 												onClick={(e) => e.stopPropagation()}
 											>
-												{galleryOptions?.map((option, index) =>
-													option?.divider ? (
+												{/* <li>
+												<GalleryPreview />
+												<span>Preview Gallery</span>
+											</li> */}
+												{galleryOptions.map((option, index) =>
+													option.divider ? (
 														<hr
 															key={`divider-${index}`}
 															style={{
@@ -3759,74 +3672,18 @@ const GalleryPage = () => {
 														/>
 													) : (
 														<li
-															key={option?.label}
-															onClick={option?.onClick}
-															className={option?.className}
+															key={option.label}
+															onClick={option.onClick}
+															className={option.className}
 														>
-															{option?.icon}
-															<span>{option?.label}</span>
+															{option.icon}
+															<span>{option.label}</span>
 														</li>
 													),
 												)}
 											</div>
-										}
-									>
-										<div
-											className="settingsIcon"
-											// ref={iconRef}
-											// onClick={(e) => {
-											// 	e.stopPropagation();
-											// 	e.preventDefault();
-											// 	setInfo((prevInfo) => ({
-											// 		...prevInfo,
-											// 		showOptions: true,
-											// 	}));
-											// }}
-										>
-											<SettingsIcon />
-											<div className="threeDotsIcon">Settings</div>
-										</div>
-									</Tooltip>
-									<div
-										className="onlineContainer"
-										onClick={handleOnlineToggle}
-										style={{ cursor: 'pointer' }}
-									>
-										<div className="onlineIndicatorContainer">
-											<div
-												className="onlineStatus"
-												style={{
-													backgroundColor: info.isOnline
-														? 'var(--primary-button)'
-														: 'red',
-												}}
-											></div>
-											<p className="onlineText">
-												{info.isOnline ? 'Online' : 'Offline'}
-											</p>
-										</div>
-										<Switch
-											checked={info.isOnline}
-											onChange={handleOnlineToggle}
-											size="small"
-										/>
+										)}
 									</div>
-									<div className="icon" onClick={openShareModal}>
-										<ShareIcon className="shareIcon" />
-										<div className="shareText">Share</div>
-									</div>
-									{/* <Tooltip
-										trigger="click"
-										placement="bottomRight"
-										arrow={false}
-										color="transparent"
-										title={<SharePopup />}
-									>
-										<div className="icon">
-											<ShareIcon className="shareIcon" />
-											<div className="shareText">Share</div>
-										</div>
-									</Tooltip> */}
 								</div>
 							</div>
 							{info.activeTab !== 'Insights' && info.activeTab !== 'Ai People' && (
@@ -3837,6 +3694,8 @@ const GalleryPage = () => {
 										alignItems: 'center',
 										justifyContent: 'space-between',
 										gap: '20px',
+
+										// height: '160px',
 									}}
 									id="droppableAlblumId"
 								>
@@ -3848,11 +3707,11 @@ const GalleryPage = () => {
 											{(provided) => (
 												<div
 													className="albums"
+													style={{
+														height: '160px',
+													}}
 													{...provided.droppableProps}
 													ref={provided.innerRef}
-													style={{
-														height: '100%',
-													}}
 												>
 													{(info.activeTab === 'Albums' ||
 														info.activeTab !== 'Client Selections') && (
@@ -4424,47 +4283,129 @@ const GalleryPage = () => {
 													)}
 												</div>
 
-												<Tooltip
-													placement="bottom"
-													trigger="hover"
-													color="transparent"
-													title={
-														<div className="optionsContainer">
-															{sortingOptions?.map((option) => {
-																return (
-																	<li
-																		onClick={() =>
-																			handleFilter(
-																				option?.value,
-																			)
-																		}
-																		className={
-																			info?.sortType ===
-																			option?.value
-																				? 'active'
-																				: ''
-																		}
-																	>
-																		<span>{option?.label}</span>
-																	</li>
-																);
-															})}
-														</div>
-													}
-												>
-													<div className="iconsContainer">
-														<FilterIcon
-															style={{
-																color: 'var(--secondary-font)',
-															}}
-														/>
+												<div style={{ position: 'relative' }}>
+													<div
+														onClick={() =>
+															setInfo((prevInfo) => ({
+																...prevInfo,
+																showFilter: !prevInfo.showFilter,
+															}))
+														}
+														ref={filtersRef}
+														className="iconsContainer"
+													>
+														<FilterIcon />
 													</div>
-												</Tooltip>
+													{info.showFilter && (
+														<div
+															ref={filtersOptionsRef}
+															className="filterContianer"
+														>
+															<li
+																onClick={() =>
+																	handleFilter('displayName')
+																}
+																className={
+																	info?.sortType === 'displayName'
+																		? 'active'
+																		: ''
+																}
+															>
+																File name
+															</li>
+															<li
+																onClick={() =>
+																	handleFilter('-displayName')
+																}
+																className={
+																	info?.sortType ===
+																	'-displayName'
+																		? 'active'
+																		: ''
+																}
+															>
+																File name (reverse)
+															</li>
+															<li
+																onClick={() =>
+																	handleFilter('originalDateTime')
+																}
+																className={
+																	info?.sortType ===
+																	'originalDateTime'
+																		? 'active'
+																		: ''
+																}
+															>
+																Date Captured
+															</li>
+															<li
+																onClick={() =>
+																	handleFilter(
+																		'-originalDateTime',
+																	)
+																}
+																className={
+																	info?.sortType ===
+																	'-originalDateTime'
+																		? 'active'
+																		: ''
+																}
+															>
+																Date captured (reverse)
+															</li>
+															<li
+																onClick={() =>
+																	handleFilter('createdAt')
+																}
+																className={
+																	info?.sortType === 'createdAt'
+																		? 'active'
+																		: ''
+																}
+															>
+																upload time
+															</li>
+															<li
+																onClick={() =>
+																	handleFilter('-createdAt')
+																}
+																className={
+																	info?.sortType === '-createdAt'
+																		? 'active'
+																		: ''
+																}
+															>
+																upload time (reverse)
+															</li>
+															<li
+																onClick={() =>
+																	handleFilter('custom')
+																}
+																className={
+																	info?.sortType === 'custom'
+																		? 'active'
+																		: ''
+																}
+															>
+																Random
+															</li>
+														</div>
+													)}
+												</div>
 												<div
-													className="rearrangeManually"
+													style={{
+														cursor: 'pointer',
+														color: 'var(--primary-font)',
+														fontFamily: 'var(--primary-font-family)',
+														fontSize: '14px',
+														fontWeight: '400',
+														lineHeight: '16px',
+														textTransform: 'capitalize',
+													}}
 													onClick={handleRearrange}
 												>
-													Rearrange
+													Rearrange Manually
 												</div>
 												<div
 													style={{ position: 'relative' }}
@@ -5211,7 +5152,7 @@ const GalleryPage = () => {
 															<AlbumCoverIcon />
 															Album Cover
 														</li>
-														<div
+														{/* <div
 															onClick={() => {
 																setInfo((prev) => ({
 																	...prev,
@@ -5234,7 +5175,7 @@ const GalleryPage = () => {
 															>
 																Delete Album
 															</span>
-														</div>
+														</div> */}
 													</div>
 												)}
 											</div>

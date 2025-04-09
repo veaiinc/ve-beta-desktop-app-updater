@@ -6,8 +6,8 @@
 	gap: 32px;
 	width: 621px;
 	border-radius: 32px;
-	background: var(--background-color);
-	box-shadow: 0px 53px 53px 0px rgba(0, 0, 0, 0.09), 0px 13px 29px 0px rgba(0, 0, 0, 0.1);
+	background: var(--popup);
+	// box-shadow: 0px 53px 53px 0px rgba(0, 0, 0, 0.09), 0px 13px 29px 0px rgba(0, 0, 0, 0.1);
 	input {
 		color: var(--primary-font);
 	}
@@ -41,7 +41,7 @@
 		background-color: transparent;
 		color: var(--primary-font);
 		padding: 11px 14px;
-		border: 1px solid rgba(36, 36, 36, 0.64);
+		border: 1px solid var(--border);
 		input {
 			height: 18px;
 			border: none !important;
@@ -80,7 +80,7 @@
 				background: transparent;
 				align-self: stretch;
 				border-radius: 10px;
-				border: 1px solid rgba(36, 36, 36, 0.64);
+				border: 1px solid var(--border);
 			}
 		}
 		.gallery-date {
@@ -96,7 +96,7 @@
 				background: transparent;
 				align-self: stretch;
 				border-radius: 10px;
-				border: 1px solid rgba(36, 36, 36, 0.64);
+				border: 1px solid var(--border);
 			}
 		}
 		.choose-workflow {
@@ -114,7 +114,7 @@
 				background: transparent;
 				align-self: stretch;
 				border-radius: 10px;
-				border: 1px solid rgba(36, 36, 36, 0.64);
+				border: 1px solid var(--border);
 				input {
 					background-color: transparent;
 					border: none;
@@ -131,11 +131,11 @@
 		gap: 4px;
 		align-self: stretch;
 		border-radius: 100px;
-		background: #6055ec;
+		background: var(--primary-button);
 		cursor: pointer;
 		border: none;
 		p {
-			color: #fafafa;
+			color: var(--primary-button-font);
 			font-size: 13px;
 			font-weight: 500;
 			line-height: 16px;

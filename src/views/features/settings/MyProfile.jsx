@@ -48,8 +48,6 @@ const MyProfile = () => {
 		authInfo: { updateUserDetails },
 	} = useContext(Context);
 
-	console.log('theme', theme);
-
 	const [showForm, setShowForm] = useState(false);
 	const [isEditMode, setIsEditMode] = useState({ isValueChanged: false, timeout: null });
 	const [errors, setErrors] = useState({});

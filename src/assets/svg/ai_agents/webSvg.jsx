@@ -1,0 +1,50 @@
+import { memo } from 'react';
+const WebSvg = ({ selected }) => {
+	const strokeColor = selected ? 'black' : 'var(--primary-font)';
+	return (
+		<svg
+			xmlns="http://www.w3.org/2000/svg"
+			width="15"
+			height="16"
+			viewBox="0 0 15 16"
+			fill="none"
+		>
+			<path
+				d="M7.5 14.25C10.9518 14.25 13.75 11.4518 13.75 8C13.75 4.54822 10.9518 1.75 7.5 1.75C4.04822 1.75 1.25 4.54822 1.25 8C1.25 11.4518 4.04822 14.25 7.5 14.25Z"
+				stroke={strokeColor}
+				strokeWidth="0.9375"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+			<path
+				d="M5 2.375H5.625C4.40625 6.025 4.40625 9.975 5.625 13.625H5"
+				stroke={strokeColor}
+				strokeWidth="0.9375"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+			<path
+				d="M9.375 2.375C10.5938 6.025 10.5938 9.975 9.375 13.625"
+				stroke={strokeColor}
+				strokeWidth="0.9375"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+			<path
+				d="M1.875 10.5V9.875C5.525 11.0938 9.475 11.0938 13.125 9.875V10.5"
+				stroke={strokeColor}
+				strokeWidth="0.9375"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+			<path
+				d="M1.875 6.125C5.525 4.90625 9.475 4.90625 13.125 6.125"
+				stroke={strokeColor}
+				strokeWidth="0.9375"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+		</svg>
+	);
+};
+export default memo(WebSvg);

@@ -1,60 +1,49 @@
 // Global css variables
-:root {
-	// fallback colors if theme attribute is not set in the html tag
-	--background-color: rgba(12, 12, 13, 1);
+:root,
+[theme='dark'] {
+	//font families
+	--primary-font-family: 'Inter';
+	--secondary-font-family: 'Manrope';
+
+	//common colors;
 	--accent-color: rgba(179, 157, 250, 1);
-	--card: rgba(23, 24, 25, 1);
-	--card-hover: rgb(46, 47, 51);
-	--popup: rgba(32, 33, 35, 1);
-	--navbar: rgba(32, 33, 35, 1);
-	--card-over-card: rgba(32, 33, 35, 1);
-	--card-over-card-hover: rgba(39, 40, 43, 1);
-	--stroke: rgba(51, 51, 52, 1);
-	--stroke-hover: rgba(66, 69, 72, 1);
-	--stroke-active: rgba(32, 33, 35, 1);
-	--primary-font: rgba(242, 242, 243, 1);
-	--secondary-font: rgba(122, 126, 133, 1);
 	--success: rgba(0, 156, 46, 1);
 	--error: rgba(209, 36, 63, 1);
 	--pending: rgba(250, 157, 39, 1);
 	--info: rgba(80, 137, 249, 1);
+
+	//main colors
+	--background-color: rgba(12, 12, 13, 1);
+
+	//font colors
+	--primary-font: rgba(242, 242, 243, 1);
+	--secondary-font: rgba(122, 126, 133, 1);
+
+	//card colors
+	--card: rgba(23, 24, 25, 1);
+	--card-hover: rgba(32, 33, 35, 1);
+	--card-over-card: rgba(32, 33, 35, 1);
+	--card-over-card-hover: rgba(39, 40, 43, 1);
+	--popup: rgba(32, 33, 35, 1);
+
+	//stroke colors
+	--stroke: rgba(51, 51, 52, 1);
+	--stroke-hover: rgba(66, 69, 72, 1);
+	--stroke-active: rgba(32, 33, 35, 1);
+
+	//navbar colors
+	--navbar: rgba(32, 33, 35, 1);
 	--right-bar: rgba(23, 24, 25, 1);
-	--primary-font-family: 'Inter';
-	--secondary-font-family: 'Manrope';
+
+	//ai color code
 	--ai-color-code: linear-gradient(
 		94deg,
 		rgba(195, 157, 248, 0) -2.07%,
 		#c39df8 -2.06%,
 		#ec7c9d 95.85%
 	);
-	--primary-button: rgba(207, 255, 72, 1);
-	--primary-button-hover: var(--card-hover);
-	--primary-button-active: var(--card-hover);
-	--primary-button-font: rgba(12, 12, 13, 1);
 
-	--spinner-color-light: #000; // Example for light theme
-	--spinner-color-dark: #fff; // Example for dark theme
-	--setting-color-light: #fff;
-	--setting-color-dark: #000;
-	// Add other color variables as needed
-}
-
-// dark theme global css variables
-[theme='dark'] {
-	--background-color: rgba(12, 12, 13, 1);
-	--card: rgba(23, 24, 25, 1);
-	--card-hover: rgba(32, 33, 35, 1);
-	--popup: rgba(32, 33, 35, 1);
-	--navbar: rgba(32, 33, 35, 1);
-	--card-over-card: rgba(32, 33, 35, 1);
-	--card-over-card-hover: rgba(39, 40, 43, 1);
-	--stroke: rgba(51, 51, 52, 1);
-	--stroke-hover: rgba(66, 69, 72, 1);
-	--stroke-active: rgba(32, 33, 35, 1);
-	--primary-font: rgba(242, 242, 243, 1);
-	--secondary-font: rgba(122, 126, 133, 1);
-	--right-bar: rgba(23, 24, 25, 1);
-
+	//button colors
 	--primary-button: rgba(207, 255, 72, 1);
 	--primary-button-hover: var(--card-hover);
 	--primary-button-active: var(--card-hover);
@@ -63,28 +52,46 @@
 	--secondary-button: var(--secondary-font);
 	--secondary-button-hover: rgba(228, 228, 231, 1);
 	--secondary-button-active: rgba(228, 228, 231, 1);
+
+	//spinner colors
+	--spinner-color-light: #000;
+	--spinner-color-dark: #fff;
+
+	//setting colors
+	--setting-color-light: #fff;
+	--setting-color-dark: #000;
 	--spinner-color: var(--spinner-color-dark);
 	--setting-color: var(--setting-color-light);
 }
 
 // light theme global css variables
 [theme='light'] {
-	--background-color: rgba(242, 242, 243, 1);
-	--card: rgba(250, 250, 250, 1);
-	--card-hover: rgb(240, 240, 244);
-	--popup: rgba(242, 242, 243, 1);
-	--navbar: rgba(250, 250, 250, 1);
+	//main colors
+	--background-color: rgb(255, 255, 255);
+
+	//font colors
+	--primary-font: rgba(12, 12, 13, 1);
+	--secondary-font: rgb(33, 38, 47);
+
+	//card colors
+	--card: rgb(249, 249, 249);
+	--card-hover: rgb(246, 246, 246);
 	--card-over-card: rgba(242, 242, 243, 1);
 	--card-over-card-hover: rgba(228, 228, 231, 1);
-	--stroke: rgb(166, 167, 171);
+	--popup: rgb(255, 255, 255);
+
+	//stroke colors
+	--stroke: rgba(0, 0, 0, 0.1);
 	--stroke-hover: rgba(123, 125, 132, 1);
 	--stroke-active: rgba(242, 242, 243, 1);
 	--stroke-disabled: rgba(242, 242, 243, 1);
-	--primary-font: rgba(12, 12, 13, 1);
-	--secondary-font: rgb(33, 38, 47);
+
+	//navbar colors
+	--navbar: rgb(255, 255, 255);
 	--right-bar: rgba(250, 250, 250, 1);
 
-	--primary-button: var(--accent-color);
+	//button colors
+	--primary-button: rgba(165, 217, 255, 1);
 	--primary-button-hover: rgba(242, 242, 243, 1);
 	--primary-button-active: rgba(242, 242, 243, 1);
 	--primary-button-font: rgba(12, 12, 13, 1);
@@ -93,7 +100,7 @@
 	--secondary-button-hover: rgba(228, 228, 231, 1);
 	--secondary-button-active: rgba(228, 228, 231, 1);
 
+	//spinner colors
 	--spinner-color: var(--spinner-color-light);
 	--setting-color: var(--setting-color-dark);
-	--primary-button: rgba(165, 217, 255, 1);
 }

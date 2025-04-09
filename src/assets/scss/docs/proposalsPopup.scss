@@ -50,6 +50,7 @@
 					font-style: normal;
 					font-weight: 500;
 					line-height: normal;
+					width: 100%;
 				}
 			}
 			.proposal-popup-search-div-button {
@@ -113,6 +114,22 @@
 					font-weight: 500;
 					line-height: 22px; /* 183.333% */
 				}
+			}
+		}
+	}
+	.infinite-scroll-component__outerdiv {
+		width: 100%;
+		.proposalPopupBodyLoadingContainer {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			align-self: stretch;
+			flex: 1;
+			p {
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
+				font-size: 16px;
+				font-weight: 500;
 			}
 		}
 	}

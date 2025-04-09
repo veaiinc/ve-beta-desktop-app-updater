@@ -355,7 +355,9 @@
 		align-items: center;
 		gap: 16px;
 		border-radius: 50px;
-		background: var(--primary-button-font);
+		background: var(--primary-button);
+		color: var(--primary-button-font);
+		border: none;
 	}
 }
 

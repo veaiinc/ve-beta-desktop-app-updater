@@ -24,6 +24,10 @@ const actionHandlers = {
 		...state,
 		userWorkSpaceList: action?.payload,
 	}),
+	GET_USER_DETAILS_FROM_TENANT_API: (state, action) => ({
+		...state,
+		userDetailsFromTenantAPI: action?.payload,
+	}),
 	UPDATE_LOGO: (state, action) => {
 		const updatedTennantSettingsData = {
 			...(state?.tennantSettingsData || {}),

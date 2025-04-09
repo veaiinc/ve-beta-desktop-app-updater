@@ -6,15 +6,16 @@ import { ReactComponent as UpArrowGrey } from '../../../assets/svg/login_page/up
 import { ReactComponent as UpArrowBlackHover } from '../../../assets/svg/login_page/up-arrow-black-hover.svg';
 import Context from '../../../context/context';
 import { getLocationsDetails } from '../../../helpers';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { message } from 'antd';
 import gsap from 'gsap';
 import Spinner from '../loaders/Spinner';
 
 const Email = ({ email, setEmail, setActiveStage, setEmailVerified }) => {
+	const navigate = useNavigate();
 	const arrowRef = useRef(null);
 
-	let {
+	const {
 		authInfo: {
 			checkAccountExistsUsingEmail,
 			createAccountUsingEmail,
@@ -50,6 +51,13 @@ const Email = ({ email, setEmail, setActiveStage, setEmailVerified }) => {
 			...prev,
 			isEmailValid: isValid,
 		}));
+
+		return () => {
+			setInfo((prev) => ({
+				...prev,
+				googleLoading: false,
+			}));
+		};
 	}, []);
 
 	useEffect(() => {
@@ -196,17 +204,16 @@ const Email = ({ email, setEmail, setActiveStage, setEmailVerified }) => {
 	return (
 		<>
 			<div className="login-page-content">
+				{info?.referrerUserDetails?.isValidReferralCode && (
+					<h1 className="referral-message">
+						<span className="referrer-name">{`${info?.referrerUserDetails?.referrerName}`}</span>{' '}
+						invited you to join
+					</h1>
+				)}
+				<h1 className="login-page-title">The Workspace AI</h1>
 				<h2 className="login-page-subtitle">
-					{info?.referrerUserDetails?.isValidReferralCode ? (
-						<>
-							<span className="referrer-name">{`${info?.referrerUserDetails?.referrerName}`}</span>{' '}
-							invited you to the home of
-						</>
-					) : (
-						'Welcome to the home of'
-					)}
+					Intelligence Connected to all your data and tools.
 				</h2>
-				<h1 className="login-page-title">AI workers who mind your business.</h1>
 			</div>
 			<div className="login-button-container">
 				<button
@@ -237,7 +244,7 @@ const Email = ({ email, setEmail, setActiveStage, setEmailVerified }) => {
 						onKeyDown={handleContinueWithEmail}
 						autoFocus={true}
 						type="email"
-						placeholder="work@gmail.com"
+						placeholder="example@acme.com"
 					/>
 					<button
 						disabled={!info.isEmailValid || info.isLoading}
@@ -245,8 +252,8 @@ const Email = ({ email, setEmail, setActiveStage, setEmailVerified }) => {
 							cursor:
 								!info.isEmailValid || info.isLoading ? 'not-allowed' : 'pointer',
 							background: !info.isEmailValid
-								? 'var(--card-over-card)'
-								: 'var(--primary-font)',
+								? 'var(--card-hover)'
+								: 'var(--primary-button)',
 						}}
 						onClick={() => handleContinueWithEmail(null, 'click')}
 					>
@@ -276,6 +283,22 @@ const Email = ({ email, setEmail, setActiveStage, setEmailVerified }) => {
 						)}
 					</button>
 				</div>
+				<p className="disclaimer">
+					By continuing, you accept our
+					<br />
+					<b onClick={() => navigate('/terms-of-service')} className="link">
+						Terms of Service
+					</b>
+					,{' '}
+					<b onClick={() => navigate('/privacy-policy')} className="link">
+						Privacy Policy
+					</b>{' '}
+					and{' '}
+					<b onClick={() => navigate('/cookie-policy')} className="link">
+						Cookie Policy
+					</b>
+					.
+				</p>
 			</div>
 		</>
 	);

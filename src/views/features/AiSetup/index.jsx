@@ -7,7 +7,16 @@ import { message } from 'antd';
 import ConfirmationModal from '../../components/modalsV2/settings/ai_setup/ConfirmationModal';
 const AiSetup = () => {
 	const {
-		aiSetup: { getAiSetup, aiSetupData, updateAiSetupData, resetAiSetupData },
+		aiSetup: {
+			getAiSetup,
+			aiSetupData,
+			aiSetupDataUser,
+			updateAiSetupData,
+			resetAiSetupData,
+			deleteAiSetupData,
+			editAiSetupData,
+		},
+		profileInfo: { tenantUserAccessControls },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -19,15 +28,53 @@ const AiSetup = () => {
 		openConfirmationModal: false,
 		resetLoading: false,
 		resetSelectedType: null,
+		confirmType: null,
+		deleteSelectedData: null,
+		editSelectedData: null,
+		activeTab: 'user',
+		isAdmin: false,
 	});
 
 	useEffect(() => {
-		if (!aiSetupData) {
-			getAiSetup();
+		if (info?.activeTab === 'workspace') {
+			if (aiSetupData) {
+				updateState({ aiSetup: { ...aiSetupData }, loading: false });
+			}
 		} else {
-			updateState({ aiSetup: aiSetupData, loading: false });
+			if (aiSetupDataUser) {
+				updateState({ aiSetup: { ...aiSetupDataUser }, loading: false });
+			}
 		}
-	}, [aiSetupData]);
+	}, [aiSetupData, aiSetupDataUser]);
+
+	useEffect(() => {
+		if (info?.activeTab === 'workspace') {
+			if (!aiSetupData) {
+				updateState({ loading: true });
+				getAiSetup(true);
+			} else {
+				updateState({ aiSetup: { ...aiSetupData }, loading: false });
+			}
+		} else {
+			if (!aiSetupDataUser) {
+				updateState({ loading: true });
+				getAiSetup(false);
+			} else {
+				updateState({ aiSetup: { ...aiSetupDataUser }, loading: false });
+			}
+		}
+	}, [info?.activeTab]);
+
+	useEffect(() => {
+		if (!tenantUserAccessControls) {
+			return;
+		}
+		if (tenantUserAccessControls?.role === 'admin') {
+			updateState({ activeTab: 'user', isAdmin: true });
+		} else {
+			updateState({ activeTab: 'user', isAdmin: false });
+		}
+	}, [tenantUserAccessControls]);
 
 	const updateState = (data) => {
 		setInfo((prev) => ({ ...prev, ...data }));
@@ -38,71 +85,179 @@ const AiSetup = () => {
 	}, []);
 
 	const handleCloseAddNewGoalModal = useCallback(() => {
-		updateState({ openAddNewGoalModal: false });
+		updateState({ openAddNewGoalModal: false, editSelectedData: null });
 	}, []);
 
 	const handleResetBtnClick = useCallback((type) => {
-		updateState({ openConfirmationModal: true, resetSelectedType: type });
+		updateState({
+			openConfirmationModal: true,
+			resetSelectedType: type,
+			confirmType: 'reset',
+		});
 	}, []);
 
-	const handleSubmit = useCallback(async (data) => {
-		updateState({ submitLoading: true });
-		const response = await updateAiSetupData(data);
-		if (response?.[0]) {
-			message?.success('Updated successfully');
-			updateState({ submitLoading: false, openAddNewGoalModal: false });
-			return true;
-		} else {
-			message?.error('Failed to update');
-			updateState({ submitLoading: false });
-			return false;
-		}
-	}, []);
+	const handleSubmit = useCallback(
+		async (data) => {
+			updateState({ submitLoading: true });
+			const isWorkspace = info?.activeTab === 'workspace';
+			const response = await updateAiSetupData(data, isWorkspace);
+			if (response?.[0]) {
+				message?.success('Updated successfully');
+				updateState({ submitLoading: false, openAddNewGoalModal: false });
+				return true;
+			} else {
+				message?.error('Failed to update');
+				updateState({ submitLoading: false });
+				return false;
+			}
+		},
+		[info?.activeTab],
+	);
+
+	const handleEditSubmit = useCallback(
+		async (data) => {
+			updateState({ submitLoading: true });
+			const isWorkspace = info?.activeTab === 'workspace';
+			const response = await editAiSetupData(
+				info?.editSelectedData?.type,
+				info?.editSelectedData?.id,
+				{
+					...(data?.type !== 'memory' && { heading: data?.heading }),
+					description: data?.description,
+				},
+				isWorkspace,
+			);
+			if (response?.[0]) {
+				message?.success('Updated successfully');
+				updateState({ submitLoading: false, openAddNewGoalModal: false });
+				return true;
+			} else {
+				message?.error('Failed to update');
+				updateState({ submitLoading: false });
+				return false;
+			}
+		},
+		[info?.editSelectedData, info?.activeTab],
+	);
 
 	const handleResetAiSetup = useCallback(async () => {
 		updateState({ resetLoading: true });
-		const response = await resetAiSetupData(info?.resetSelectedType);
+		const isWorkspace = info?.activeTab === 'workspace';
+		const response = await resetAiSetupData(info?.resetSelectedType, isWorkspace);
 		if (response?.[0]) {
 			message?.success('Reset successfully');
-			updateState({ resetLoading: false, openConfirmationModal: false });
+			updateState({
+				resetLoading: false,
+				openConfirmationModal: false,
+				confirmType: null,
+				resetSelectedType: null,
+			});
 		} else {
 			message?.error('Failed to reset');
 			updateState({ resetLoading: false });
 		}
-	}, [info?.resetSelectedType]);
+	}, [info?.resetSelectedType, info?.activeTab]);
+
+	const handleDeleteAiSetupData = useCallback(async () => {
+		updateState({ resetLoading: true });
+		const isWorkspace = info?.activeTab === 'workspace';
+		const response = await deleteAiSetupData(
+			info?.deleteSelectedData?.type,
+			info?.deleteSelectedData?.id,
+			isWorkspace,
+		);
+		if (response?.[0]) {
+			message?.success('Deleted successfully');
+			updateState({
+				resetLoading: false,
+				openConfirmationModal: false,
+				confirmType: null,
+				deleteSelectedData: null,
+			});
+		} else {
+			message?.error('Failed to delete');
+			updateState({ resetLoading: false });
+		}
+	}, [info?.deleteSelectedData, info?.activeTab]);
+
+	const handleDeleteButtonClick = useCallback((type, id) => {
+		updateState({
+			openConfirmationModal: true,
+			deleteSelectedData: { type, id },
+			confirmType: 'delete',
+		});
+	}, []);
+
+	const handleEditButtonClick = useCallback((type, id, heading, description) => {
+		updateState({
+			openAddNewGoalModal: true,
+			modalType: type,
+			editSelectedData: {
+				type,
+				id,
+				...(type !== 'memory' && { heading }),
+				description,
+			},
+		});
+	}, []);
 
 	return (
 		<>
 			<div className="AiSetupContainer">
 				<div className="AiSetupWrapper">
-					{/* <div className="ai-setup-tabs">Tabs goes here</div> */}
 					<div className="ai-setup-sections">
 						<h1 className="ai-setup-title">
 							Tell me about your business, and I'll help you achieve your goals!
 						</h1>
+						<div className="ai-setup-tabs">
+							<button
+								className={`ai-setup-tab-button ${
+									info?.activeTab === 'user' ? 'active' : ''
+								}`}
+								onClick={() => updateState({ activeTab: 'user' })}
+							>
+								My Goals
+							</button>
+							{info?.isAdmin && (
+								<button
+									className={`ai-setup-tab-button ${
+										info?.activeTab === 'workspace' ? 'active' : ''
+									}`}
+									onClick={() => updateState({ activeTab: 'workspace' })}
+								>
+									Workspace Goals
+								</button>
+							)}
+						</div>
 						<SectionBlock
 							openAddNewGoalModal={handleOpenAddNewGoalModal}
 							type="goal"
 							title="Goals"
-							data={aiSetupData?.goal}
+							data={info?.aiSetup?.goal}
 							loading={info?.loading}
 							onResetClick={handleResetBtnClick}
+							onDeleteClick={handleDeleteButtonClick}
+							onEditClick={handleEditButtonClick}
 						/>
 						<SectionBlock
 							openAddNewGoalModal={handleOpenAddNewGoalModal}
 							type="focus"
 							title="Things I need to know"
-							data={aiSetupData?.focus}
+							data={info?.aiSetup?.focus}
 							loading={info?.loading}
 							onResetClick={handleResetBtnClick}
+							onDeleteClick={handleDeleteButtonClick}
+							onEditClick={handleEditButtonClick}
 						/>
 						<SectionBlock
 							openAddNewGoalModal={handleOpenAddNewGoalModal}
 							title="Memory"
 							type="memory"
-							data={aiSetupData?.memory}
+							data={info?.aiSetup?.memory}
 							loading={info?.loading}
 							onResetClick={handleResetBtnClick}
+							onDeleteClick={handleDeleteButtonClick}
+							onEditClick={handleEditButtonClick}
 						/>
 					</div>
 				</div>
@@ -111,15 +266,22 @@ const AiSetup = () => {
 				openAddNewGoalModal={info?.openAddNewGoalModal}
 				closeAddNewGoalModal={handleCloseAddNewGoalModal}
 				type={info?.modalType}
-				onSubmit={handleSubmit}
+				onSubmit={info?.editSelectedData ? handleEditSubmit : handleSubmit}
 				submitLoading={info?.submitLoading}
+				editSelectedData={info?.editSelectedData}
 			/>
 			<ConfirmationModal
 				open={info?.openConfirmationModal}
 				close={() => updateState({ openConfirmationModal: false })}
-				onConfirm={handleResetAiSetup}
-				title="Reset AI Setup"
-				description="Are you sure you want to reset the AI Setup? This action cannot be undone."
+				onConfirm={
+					info?.confirmType === 'reset' ? handleResetAiSetup : handleDeleteAiSetupData
+				}
+				title={info?.confirmType === 'reset' ? 'Reset AI Setup' : 'Delete AI Setup Data'}
+				description={
+					info?.confirmType === 'reset'
+						? 'Are you sure you want to reset the AI Setup? This action cannot be undone.'
+						: 'Are you sure you want to delete the AI Setup Data? This action cannot be undone.'
+				}
 				resetLoading={info?.resetLoading}
 			/>
 		</>
