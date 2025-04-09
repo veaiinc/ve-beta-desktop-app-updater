@@ -343,11 +343,11 @@
 			cursor: pointer;
 
 			&:hover {
-				border-color: var(--Primary-Font, #f2f2f3);
+				border-color: var(--primary-font, #f2f2f3);
 
 				.request-button {
-					color: var(--Primary-Font, #f2f2f3);
-					border-color: var(--Primary-Font, #f2f2f3);
+					color: var(--primary-font, #f2f2f3);
+					border-color: var(--primary-font, #f2f2f3);
 				}
 			}
 
@@ -437,7 +437,7 @@
 
 		&.active {
 			background: var(--card-over-card);
-			color: var(--Primary-Font, #f2f2f3);
+			color: var(--primary-font, #f2f2f3);
 			border: 1px solid var(--stroke, #f2f2f3);
 		}
 
