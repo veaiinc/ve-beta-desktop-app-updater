@@ -3,6 +3,7 @@ import '../../../assets/scss/home_page/proactiveSuggestions.scss';
 import Context from '../../../context/context';
 import AISuggestionsPopup from '../../components/modalsV2/homePage/AISuggestionsPopup';
 import { ReactComponent as ChevronRightThinSvg } from '../../../assets/svg/tasks/chevronRightThin.svg';
+import Skeleton from 'react-loading-skeleton';
 
 const payload = {
 	page: 1,
@@ -26,6 +27,7 @@ const ProactiveSuggestions = ({ handleUpdateOptions }) => {
 		activeCardContent: null,
 		openPopup: false,
 		currentIndex: 0,
+		loading: true,
 	});
 	useEffect(() => {
 		if (aiSuggestedPendingActions) {
@@ -48,7 +50,8 @@ const ProactiveSuggestions = ({ handleUpdateOptions }) => {
 		if (cards?.length > 0) {
 			setInfo((prev) => ({
 				...prev,
-				totalCardsData: cards?.slice(0, 3),
+				totalCardsData: cards,
+				loading: false,
 			}));
 		} else {
 			handleUpdateOptions('proactiveSuggestions');
@@ -103,27 +106,54 @@ const ProactiveSuggestions = ({ handleUpdateOptions }) => {
 	return (
 		<div className="proactive-suggestions-container">
 			<div className="cards-container">
-				{info?.cards?.map((card) => {
-					if (card.position === null) return null;
-					const classList = ['card', positionClassMap[card.position]];
-					return (
-						<div
-							key={card?._id}
-							className={classList.join(' ')}
-							onClick={() => handleCardClick(card)}
-						>
-							<div className="header">
-								<div className="card-title">{card?.researchTopics?.[0]?.title}</div>
-								<div className="card-description">
-									{card?.researchTopics?.[0]?.description}
+				{info?.loading
+					? [
+							{ position: 0 },
+							{ position: 1 },
+							{ position: 2 },
+							{ position: -1 },
+							{ position: -2 },
+					  ]?.map((item) => {
+							const classList = ['card', 'skeleton', positionClassMap[item.position]];
+							return (
+								<div key={item?._id} className={classList.join(' ')}>
+									<div
+										className="skeleton-container"
+										style={{
+											width: '100%',
+											height: '100%',
+											// backgroundColor: 'red',
+											borderRadius: '10px',
+										}}
+									>
+										<Skeleton height={'100%'} width={'100%'} />
+									</div>
 								</div>
-							</div>
-							<div className="footer">
-								<div className="module-type">{card?.moduleType}</div>
-							</div>
-						</div>
-					);
-				})}
+							);
+					  })
+					: info?.cards?.map((card) => {
+							if (card.position === null) return null;
+							const classList = ['card', positionClassMap[card.position]];
+							return (
+								<div
+									key={card?._id}
+									className={classList.join(' ')}
+									onClick={() => handleCardClick(card)}
+								>
+									<div className="header">
+										<div className="card-title">
+											{card?.researchTopics?.[0]?.title}
+										</div>
+										<div className="card-description">
+											{card?.researchTopics?.[0]?.description}
+										</div>
+									</div>
+									<div className="footer">
+										<div className="module-type">{card?.moduleType}</div>
+									</div>
+								</div>
+							);
+					  })}
 			</div>
 			<div className="action-container">
 				<div className="action-left"></div>
