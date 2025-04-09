@@ -3,12 +3,20 @@ import '../../../assets/scss/home_page/proactiveSuggestions.scss';
 import Context from '../../../context/context';
 import AISuggestionsPopup from '../../components/modalsV2/homePage/AISuggestionsPopup';
 import { ReactComponent as ChevronRightThinSvg } from '../../../assets/svg/tasks/chevronRightThin.svg';
+import Skeleton from 'react-loading-skeleton';
 
 const payload = {
 	page: 1,
 	limit: 20,
 	sortBy: 'createdAt',
 	sortOrder: '-1',
+};
+const positionClassMap = {
+	0: 'selected',
+	1: 'right-1',
+	2: 'right-2',
+	'-1': 'left-1',
+	'-2': 'left-2',
 };
 const ProactiveSuggestions = () => {
 	const {
@@ -21,6 +29,7 @@ const ProactiveSuggestions = () => {
 		activeCardContent: null,
 		openPopup: false,
 		currentIndex: 0,
+		loading: true,
 	});
 	useEffect(() => {
 		if (aiSuggestedPendingActions) {
@@ -44,23 +53,29 @@ const ProactiveSuggestions = () => {
 			setInfo((prev) => ({
 				...prev,
 				totalCardsData: cards,
+				loading: false,
 			}));
 		}
 	};
 
 	const updateWindow = (index) => {
-		const length = info?.totalCardsData?.length || 0;
-		const window = [];
-		const windowSize = Math.min(5, length); // adjust size to available cards
+		const length = info?.totalCardsData?.length;
 
-		for (let i = 0; i < windowSize; i++) {
-			const current = (index + i) % length;
-			window.push({ ...info?.totalCardsData[current], realIndex: current });
-		}
+		const cards = info?.totalCardsData?.map((card, i) => {
+			let diff = i - index;
+
+			if (diff > length / 2) diff -= length;
+			if (diff < -length / 2) diff += length;
+
+			return {
+				...card,
+				position: Math.abs(diff) <= 2 ? diff : null,
+			};
+		});
 
 		setInfo((prev) => ({
 			...prev,
-			cards: window,
+			cards,
 		}));
 	};
 
@@ -91,35 +106,53 @@ const ProactiveSuggestions = () => {
 	return (
 		<div className="proactive-suggestions-container">
 			<div className="cards-container">
-				{info?.cards?.map((card, index) => {
-					const classList = ['card'];
-					const cardCount = info?.cards?.length;
-					const middleIndex = Math.floor(cardCount / 2);
-					const offset = index - middleIndex;
-
-					if (offset === 0) classList.push('selected');
-					else if (offset === -1) classList.push('left-1');
-					else if (offset === -2) classList.push('left-2');
-					else if (offset === 1) classList.push('right-1');
-					else if (offset === 2) classList.push('right-2');
-					return (
-						<div
-							key={card?.realIndex}
-							className={classList.join(' ')}
-							onClick={() => handleCardClick(card)}
-						>
-							<div className="header">
-								<div className="card-title">{card?.researchTopics?.[0]?.title}</div>
-								<div className="card-description">
-									{card?.researchTopics?.[0]?.description}
+				{info?.loading
+					? [
+							{ position: 0 },
+							{ position: 1 },
+							{ position: 2 },
+							{ position: -1 },
+							{ position: -2 },
+					  ]?.map((item, index) => {
+							const classList = ['card', 'skeleton', positionClassMap[item.position]];
+							return (
+								<div key={index} className={classList.join(' ')}>
+									<div
+										className="skeleton-container"
+										style={{
+											width: '100%',
+											height: '100%',
+											borderRadius: '10px',
+										}}
+									>
+										<Skeleton height={'100%'} width={'100%'} />
+									</div>
 								</div>
-							</div>
-							<div className="footer">
-								<div className="module-type">{card?.moduleType}</div>
-							</div>
-						</div>
-					);
-				})}
+							);
+					  })
+					: info?.cards?.map((card) => {
+							if (card.position === null) return null;
+							const classList = ['card', positionClassMap[card.position]];
+							return (
+								<div
+									key={card?._id}
+									className={classList.join(' ')}
+									onClick={() => handleCardClick(card)}
+								>
+									<div className="header">
+										<div className="card-title">
+											{card?.researchTopics?.[0]?.title}
+										</div>
+										<div className="card-description">
+											{card?.researchTopics?.[0]?.description}
+										</div>
+									</div>
+									<div className="footer">
+										<div className="module-type">{card?.moduleType}</div>
+									</div>
+								</div>
+							);
+					  })}
 			</div>
 			<div className="action-container">
 				<div className="action-left"></div>

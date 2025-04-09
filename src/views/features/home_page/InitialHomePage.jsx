@@ -116,10 +116,12 @@ const InitialHomePage = () => {
 			return option;
 		});
 
+		const selectedOption = updatedOptions?.find((option) => option?.showOption)?.value ?? '';
+
 		setInfo((prev) => ({
 			...prev,
 			options: updatedOptions,
-			selectedOption: updatedOptions[0]?.value,
+			selectedOption,
 		}));
 	};
 
