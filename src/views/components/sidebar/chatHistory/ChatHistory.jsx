@@ -1,5 +1,5 @@
 import Skeleton from 'react-loading-skeleton';
-import React, { useContext, useEffect, memo, useCallback, useState } from 'react';
+import React, { useContext, useEffect, memo, useCallback, useState, useRef } from 'react';
 import '../../../../assets/scss/chats.scss';
 import Context from '../../../../context/context';
 import { FetchMoreLoaderComp } from '../../../../helpers';
@@ -29,12 +29,12 @@ const ChatHistory = () => {
 		aiSetup: { getAiChatSessions, aiChatSessions },
 		templates: { chatInfo, updateStateValues, currentSessionId },
 	} = useContext(Context);
-
+	const previousSearchQuery = useRef('');
 	const [searchQuery, setSearchQuery] = useState('');
 
 	const debouncedSearch = useCallback(
 		debounce((query) => {
-			console.log(query, 'query');
+			previousSearchQuery.current = query;
 			getAiChatSessions(page, limit, append, query);
 		}, 500),
 		[],
@@ -101,7 +101,7 @@ const ChatHistory = () => {
 	return (
 		<div className="chats-drawer-container">
 			<div className="chats-container">
-				{chats?.length > 10 && (
+				{(chats?.length > 10 || previousSearchQuery.current) && (
 					<div className="searchContainer">
 						<Search />
 						<input
