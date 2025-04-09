@@ -1,18 +1,18 @@
-// import { ReactComponent as VELogo } from '../../../assets/svg/ve.svg';
-
-import CalendarSvg from '../../../assets/svg/sidebar/CalendarSvg.jsx';
 import { ReactComponent as NotificationSvg } from '../../../assets/svg/sidebar/notification.svg';
+import { ReactComponent as SearchIcon } from '../../../assets/svg/sidebar/searchIcon.svg';
 import GiftSvg from '../../../assets/svg/sidebar/GiftSvg.jsx';
-import SettingsSvg from '../../../assets/svg/sidebar/SettingsSvg.jsx';
 import { ReactComponent as FilesSvg } from '../../../assets/svg/sidebar/filesIcon.svg';
-import { ReactComponent as SearchSvg } from '../../../assets/svg/sidebar/searchIcon.svg';
 import { ReactComponent as AgentsSvg } from '../../../assets/svg/sidebar/agentsIcon.svg';
 import HomeSvg from '../../../assets/svg/sidebar/HomeSvg.jsx';
-import { ReactComponent as OrchestratorSvg } from '../../../assets/svg/sidebar/Orchestrator.svg';
 import TemplatesSvg from '../../../assets/svg/sidebar/TemplatesSvg.jsx';
 import { ReactComponent as HelpSvg } from '../../../assets/svg/sidebar/help.svg';
+import { ReactComponent as ProfileIcon } from '../../../assets/svg/sidebar/profileIcon.svg';
+import { ReactComponent as WorkspaceIcon } from '../../../assets/svg/sidebar/workspaceIcon.svg';
+import { ReactComponent as TeamIcon } from '../../../assets/svg/sidebar/teamMembersIcon.svg';
+import { ReactComponent as IntegrationsIcon } from '../../../assets/svg/sidebar/integrationsIcon.svg';
+import { ReactComponent as PlanBillingIcon } from '../../../assets/svg/sidebar/planBilling.svg';
 
-export const veAiModulesItemsList = [
+export const photographerModules = [
 	{
 		id: 0,
 		name: 'Home',
@@ -29,13 +29,20 @@ export const veAiModulesItemsList = [
 	},
 	{
 		id: 3,
+		name: 'Search',
+		moduleRoute: '/search',
+		route: '/search',
+		icon: '',
+	},
+	{
+		id: 2,
 		name: 'Conversational Agent',
 		moduleRoute: '/ai-assistant',
 		route: '/ai-assistant',
 		icon: '',
 	},
 	{
-		id: 4,
+		id: 3,
 		name: 'Design Builder',
 		moduleRoute: '/',
 		route: null,
@@ -46,31 +53,31 @@ export const veAiModulesItemsList = [
 			{ id: 2, icon: '', name: 'Forms', route: '/form' },
 		],
 	},
-	{ id: 5, name: 'Tasks', moduleRoute: '/tasks', route: '/tasks', icon: '' },
-	{ id: 6, name: 'Contacts', moduleRoute: '/contacts', route: '/contacts', icon: '' },
+	{ id: 4, name: 'Tasks', moduleRoute: '/tasks', route: '/tasks', icon: '' },
+	{ id: 5, name: 'Contacts', moduleRoute: '/contacts', route: '/contacts', icon: '' },
 	{
-		id: 7,
+		id: 6,
 		name: 'Calendar',
 		moduleRoute: '/calendar',
 		route: '/calendar',
 		icon: '',
 	},
 	{
-		id: 8,
+		id: 7,
 		name: 'Automations',
 		moduleRoute: '/automations',
 		route: '/automations',
 		icon: '',
 	},
 	{
-		id: 9,
+		id: 8,
 		name: 'Notes',
 		moduleRoute: '/notes',
 		route: null,
 		icon: '',
 	},
 	{
-		id: 10,
+		id: 9,
 		name: 'Storage',
 		moduleRoute: '',
 		route: '',
@@ -94,14 +101,12 @@ export const veAiModulesItemsList = [
 	},
 ];
 
-export const veAiNewModules = [
+export const veAiModulesItemsList = [
 	{ id: 0, name: 'Home', route: '/home', icon: HomeSvg },
-	{ id: 1, name: 'Files', route: '/files', icon: FilesSvg },
-	{ id: 2, name: 'Search', route: '/search', icon: SearchSvg },
-	{ id: 3, name: 'Agents', route: '/agents', icon: AgentsSvg },
+	// { id: 1, name: 'Files', route: '/files', icon: FilesSvg },
+	{ id: 2, name: 'Search', route: '/search', icon: SearchIcon },
+	{ id: 3, name: 'Agents', route: '/knowledge-agent', icon: AgentsSvg },
 ];
-
-//
 
 export const veAiModules = [
 	// { icon: OrchestratorSvg, name: 'Chats', route: null },
@@ -127,4 +132,20 @@ export const styles = {
 		minHeight: '20vh',
 		height: 'fit-content',
 	},
+};
+
+export const SETTINGS_OPTIONS = {
+	admin: [
+		{ name: 'My Profile', route: '/settings/my-profile', icon: ProfileIcon },
+		{ name: 'Workspace', route: '/settings/workspace', icon: WorkspaceIcon },
+		{ name: 'Team Members', route: '/settings/team-members', icon: TeamIcon },
+		{ name: 'Integrations', route: '/settings/integrations', icon: IntegrationsIcon },
+		{ name: 'Plan Billing', route: '/settings/plan-billing', icon: PlanBillingIcon },
+		{ name: 'AI Setup', route: '/settings/ai-setup', icon: AgentsSvg },
+	],
+	user: [
+		{ name: 'My Profile', route: '/settings/my-profile', icon: ProfileIcon },
+		{ name: 'Integration', route: '/settings/integrations', icon: IntegrationsIcon },
+		{ name: 'AI Setup', route: '/settings/ai-setup', icon: AgentsSvg },
+	],
 };

@@ -163,6 +163,7 @@ const Sidebar = ({ activeWorkspaceId }) => {
 							setShowNotificationsDrawer={setShowNotificationsDrawer}
 							setShowNotesDrawer={setShowNotesDrawer}
 							setHideClosedSidebarIcon={setHideClosedSidebarIcon}
+							renewBanner={renewBanner}
 						/>
 					) : (
 						<Tooltip

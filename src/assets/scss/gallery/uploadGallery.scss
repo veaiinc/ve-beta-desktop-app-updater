@@ -1,5 +1,5 @@
 .upload-gallery-container {
-	color: var(--white);
+	color: var(--primary-font);
 
 	.progress {
 		.ant-progress-inner {
@@ -439,9 +439,9 @@
 					}
 
 					&.activeButton {
-						background: #6055ec;
+						background: var(--primary-button);
 						cursor: pointer;
-						color: #fff;
+						color: var(--primary-button-font);
 					}
 
 					&.inactiveButton {
@@ -521,7 +521,7 @@
 
 						.text_value {
 							p {
-								color: var(--secondary-font);
+								color: var(--primary-font);
 								font-family: var(--primary-font-family);
 								font-size: 13px;
 								font-style: normal;

@@ -1,0 +1,182 @@
+.popup-container {
+	display: flex;
+	width: 604px;
+	max-height: 80dvh;
+	padding: 24px;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 16px;
+	overflow-y: auto;
+
+	border-radius: 24px;
+	background: var(--card, #171819);
+	box-shadow: 0px 4px 30px 0px rgba(0, 0, 0, 0.04);
+
+	.title-container {
+		display: -webkit-box;
+		-webkit-line-clamp: 1;
+		line-clamp: 1;
+		-webkit-box-orient: vertical;
+		overflow: hidden;
+		color: var(--primary-font, #f2f2f3);
+		font-family: var(--primary-font-family);
+		font-size: 18px;
+		font-style: normal;
+		font-weight: 400;
+		line-height: normal;
+	}
+
+	.description-container {
+		display: -webkit-box;
+		-webkit-line-clamp: 3;
+		line-clamp: 3;
+		-webkit-box-orient: vertical;
+		overflow: hidden;
+
+		color: var(--primary-font, #f2f2f3);
+		font-family: var(--primary-font-family);
+		font-size: 14px;
+		font-style: normal;
+		font-weight: 400;
+		line-height: 22px; /* 157.143% */
+	}
+
+	.source-container {
+		display: flex;
+		padding: 14px;
+		align-items: flex-start;
+		gap: 12px;
+		align-self: stretch;
+		border-radius: 10px;
+		background: var(--card-over-card, #202123);
+
+		.module-type-container {
+			display: flex;
+			flex-direction: column;
+			gap: 2px;
+
+			.text-container {
+				color: var(--secondary-font, #93989f);
+				font-family: var(--primary-font-family);
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+
+			.module-type-text {
+				color: var(--primary-font, #f2f2f3);
+				font-family: var(--primary-font-family);
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+				text-transform: capitalize;
+			}
+		}
+	}
+
+	.questions-container {
+		display: flex;
+		padding: 14px;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 16px;
+		align-self: stretch;
+		max-height: 200px;
+		overflow-y: auto;
+
+		border-radius: 10px;
+		background: var(--card-over-card, #202123);
+
+		.title {
+			color: var(--primary-button, #b2ff00);
+			font-family: var(--primary-font-family);
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+		}
+		.question-container {
+			border-bottom: 1px solid var(--stroke, #333334);
+			width: 100%;
+			.question {
+				color: var(--primary-font, #f2f2f3);
+				font-family: var(--primary-font-family);
+				font-size: 13px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+			.answer-input {
+				display: flex;
+				padding: 6px 0px 12px 0px;
+				align-items: center;
+				gap: 8px;
+				align-self: stretch;
+				border: none;
+				background: var(--card-over-card, #202123);
+
+				color: var(--primary-font, #f2f2f3);
+				font-family: var(--primary-font-family);
+				font-size: 13px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+				width: 100%;
+			}
+			.answer-input::placeholder {
+				color: var(--secondary-font, #93989f);
+			}
+		}
+	}
+
+	.prompt-container {
+		display: flex;
+		padding: 14px;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 8px;
+		align-self: stretch;
+
+		border-radius: 10px;
+		background: var(--card-over-card, #202123);
+
+		.prompt-title {
+			color: var(--primary-button, #f2f2f3);
+			font-family: var(--primary-font-family);
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 600;
+			line-height: normal;
+		}
+		.prompt-text {
+			height: 150px;
+			color: var(--primary-font, #f2f2f3);
+			font-family: var(--primary-font-family);
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 400;
+			line-height: 22px; /* 157.143% */
+			resize: none;
+			width: 100%;
+			background: var(--card-over-card, #202123);
+			border: none;
+		}
+	}
+
+	.run-btn {
+		display: flex;
+		height: 36px;
+		padding: 6px 14px;
+		justify-content: center;
+		align-items: center;
+		gap: 10px;
+		align-self: stretch;
+		border-radius: 100px;
+		background: var(--primary-button, #b2ff00);
+		color: var(--primary-button-font, #171819);
+		cursor: pointer;
+		border: none;
+	}
+}

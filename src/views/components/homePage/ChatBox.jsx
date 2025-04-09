@@ -463,8 +463,8 @@ const ChatBox = ({
 						timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
 						knowledge_base_search: chatInfo?.workspaceSearch,
 						web_search: chatInfo?.webSearch,
-						modules: Object?.keys(info?.chatFilters?.modules),
-						date: date,
+						...(!isPublicChat && { modules: Object?.keys(info?.chatFilters?.modules) }),
+						...(!isPublicChat && { date: date }),
 						deep_research: chatInfo?.deepResearch,
 					};
 
