@@ -210,9 +210,9 @@ const Email = ({ email, setEmail, setActiveStage, setEmailVerified }) => {
 						invited you to join
 					</h1>
 				)}
-				<h1 className="login-page-title">The Workspace AI</h1>
+				<h1 className="login-page-title">Proactive AI</h1>
 				<h2 className="login-page-subtitle">
-					Intelligence Connected to all your data and tools.
+					AI that deeply cares about your Goals & strives to be helpful
 				</h2>
 			</div>
 			<div className="login-button-container">

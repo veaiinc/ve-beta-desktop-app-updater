@@ -8,6 +8,16 @@
 	position: relative;
 	z-index: 1;
 
+	.header {
+		position: absolute;
+		top: 0;
+		left: 0;
+		padding: 32px 16px 20px 16px;
+		.logo {
+			cursor: pointer;
+		}
+	}
+
 	.gradient-container {
 		position: absolute;
 		top: 0;
@@ -456,6 +466,9 @@
 
 @media screen and (max-width: 566px) {
 	.login-page-container {
+		.left-container {
+			width: 100%;
+		}
 		.login-footer-container {
 			.footer-link {
 				padding: 8px !important;
