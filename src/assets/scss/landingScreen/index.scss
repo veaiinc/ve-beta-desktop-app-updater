@@ -7,7 +7,7 @@
 
 	.page-header {
 		display: flex;
-		padding: 20px 40px;
+		padding: 20px 16px;
 		justify-content: space-between;
 		align-items: center;
 		background: var(--background-color, #0c0c0d);
@@ -54,6 +54,8 @@
 		flex-grow: 1;
 		flex-shrink: 0;
 		background: var(--background-color, #0c0c0d);
+		padding: 0 16px;
+		margin-bottom: 85px;
 
 		.title-container {
 			display: flex;
@@ -61,14 +63,26 @@
 			align-items: center;
 			gap: 12px;
 			.title-text {
-				color: var(--primary-font, #f2f2f3);
-				text-align: center;
-				font-family: var(--primary-font-family);
-				font-size: 40px;
-				font-style: normal;
-				font-weight: 500;
-				line-height: normal;
-				letter-spacing: -3px;
+				.title-one {
+					color: var(--primary-font, #f2f2f3);
+					text-align: center;
+					font-family: var(--primary-font-family);
+					font-size: 53px;
+					font-style: normal;
+					font-weight: 600;
+					line-height: 60px;
+					letter-spacing: -1.59px;
+				}
+				.title-two {
+					color: var(--primary-font, #f2f2f3);
+					font-family: var(--primary-font-family);
+					font-size: 53px;
+					font-style: italic;
+					font-weight: 400;
+					line-height: 60px;
+					letter-spacing: -1.59px;
+					text-transform: lowercase;
+				}
 			}
 			.subtext {
 				color: var(--secondary-font, #7a7e85);
@@ -81,10 +95,26 @@
 			}
 		}
 
-		.chat-box-container {
-			width: 700px;
+		.chatbox-container {
+			width: 100%;
+			max-width: 700px;
 			height: 110px;
 			position: relative;
+		}
+	}
+}
+
+@media screen and (max-width: 500px) {
+	.landing-page-container {
+		.page-body {
+			margin-bottom: 140px;
+			.chatbox-container {
+				position: absolute;
+				bottom: 16px;
+				left: 0;
+				margin: 0 16px;
+				width: calc(100% - 32px);
+			}
 		}
 	}
 }

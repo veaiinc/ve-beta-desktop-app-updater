@@ -162,7 +162,10 @@ const InitialHomePage = () => {
 				}}
 			>
 				<div className="title-container">
-					<div className="title-text">Proactive AI</div>
+					<div className="title-text">
+						<span className="title-one">AI.</span>{' '}
+						<span className="title-two">truly yours</span>
+					</div>
 					<div className="sub-text">
 						AI that deeply cares about your Goals & strives to be helpful
 					</div>
