@@ -226,7 +226,7 @@
 			}
 
 			&:hover {
-				background: var(--card-over-card-over-card-hover);
+				background: var(--card-over-card-hover);
 			}
 			&.disabled {
 				cursor: not-allowed;
@@ -246,7 +246,7 @@
 			justify-content: space-between;
 			align-items: center;
 			align-self: stretch;
-			color: var(--Primary-Font, #f2f2f3);
+			color: var(--primary-font, #f2f2f3);
 			text-align: center;
 			font-family: var(--primary-font-family, Inter);
 			font-size: 12px;
@@ -261,7 +261,7 @@
 			width: 100%;
 
 			&:hover {
-				background: var(--card-over-card-over-card-hover);
+				background: var(--card-over-card-hover);
 			}
 		}
 	}
