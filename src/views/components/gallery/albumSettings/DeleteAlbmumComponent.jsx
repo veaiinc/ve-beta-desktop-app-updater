@@ -19,8 +19,10 @@ const DeleteAlbmumComponent = ({ albumName, galleryId, albumId }) => {
 
 	const handleDeleteFunction = async () => {
 		setdeleteInfo({ ...deleteInfo, isLoading: true });
-		// message.loading('Your album is being removed. Please wait...');
+		const id = message.loading('Your album is being removed. Please wait...');
+
 		const response = await deleteAlbum(galleryId, albumId);
+		message.destroy(id);
 
 		if (response[0] === true) {
 			message.success('Album deleted successfully');

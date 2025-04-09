@@ -293,20 +293,24 @@ const AlbumSettings = () => {
 			return;
 		}
 
-		// message.loading('Uploading album cover image..');
+		const id = message.loading('Uploading album cover image..');
 
 		if (info?.imageURL) {
-			setInfo((prev) => ({
-				...prev,
-				crop: {
-					x: 0,
-					y: 0,
-				},
-				zoom: 1,
-				uploadImageId: null,
-				imageURL: '',
-				coverImageDetails: null,
-			}));
+			setInfo((prev) => {
+				message.destroy(id);
+
+				return {
+					...prev,
+					crop: {
+						x: 0,
+						y: 0,
+					},
+					zoom: 1,
+					uploadImageId: null,
+					imageURL: '',
+					coverImageDetails: null,
+				};
+			});
 		}
 		const batchId = randomize('Aa0', 10);
 
@@ -414,16 +418,22 @@ const AlbumSettings = () => {
 		) {
 			return updateSubscriptionState({ expiredSubscriptionModal: true });
 		}
-		// message.loading('Downloading album...');
+
+		const id = message.loading('Downloading album...');
+
 		const payload = {
 			imageType: info?.originalDownload ? 'original' : 'optimized',
 		};
+
 		const response = await getDownloadLinkForTag(
 			payload,
 			galleryId,
 			info?.activeAlbumId,
 			info?.activeTagId,
 		);
+
+		message.destroy(id);
+
 		if (response?.[0] === true) {
 			window.open(`https://downloads.ve.ai/${response?.[1]?.downloadId}`, '_blank');
 		} else {

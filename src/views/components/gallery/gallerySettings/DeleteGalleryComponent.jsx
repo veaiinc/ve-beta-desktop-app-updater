@@ -19,8 +19,10 @@ const DeleteGalleryComponent = ({ galleryName, galleryId }) => {
 
 	const handleDeleteFunction = async () => {
 		setdeleteInfo({ ...deleteInfo, isLoading: true });
-		// message.loading('Your gallery is being removed. Please wait...');
+		const id = message.loading('Your gallery is being removed. Please wait...');
 		const response = await deleteGallery(galleryId);
+
+		message.destroy(id);
 
 		if (response[0] === true) {
 			message.success('Gallery deleted successfully');

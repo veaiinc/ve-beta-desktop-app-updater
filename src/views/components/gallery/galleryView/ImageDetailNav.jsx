@@ -86,8 +86,11 @@ const ImageDetailNav = ({
 			handleRotateImage(currentRotation);
 		},
 		Download: async () => {
-			// message.loading('Downloading image...');
+			const id = message.loading('Downloading image...');
+
 			const response = await getDownloadLinkForImage(info?.imageDetailId);
+
+			message.destroy(id);
 
 			if (response?.[0] === true) {
 				message.success('Download completed');

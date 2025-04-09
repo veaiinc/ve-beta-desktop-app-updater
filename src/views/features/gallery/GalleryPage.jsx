@@ -971,7 +971,7 @@ const GalleryPage = () => {
 		const newOnlineState = !info?.isOnline;
 
 		// Show loading message
-		// message.loading('Updating gallery status...');
+		const id = message.loading('Updating gallery status...');
 
 		try {
 			const galleryPayload = {
@@ -993,9 +993,10 @@ const GalleryPage = () => {
 
 			const response = await postGallery(galleryPayload, galleryId);
 
+			message.destroy(id);
+
 			if (response?.[0]) {
 				await getAlbums(galleryId);
-
 				message.success(`Gallery is now ${newOnlineState ? 'online' : 'offline'}`);
 			} else {
 				setInfo((prev) => ({
@@ -1333,7 +1334,7 @@ const GalleryPage = () => {
 			handleGalleryChange.isProcessing = true;
 
 			try {
-				// message.loading('Renaming gallery...');
+				const id = message.loading('Renaming gallery...');
 
 				const payload = {
 					title: value,
@@ -1344,14 +1345,18 @@ const GalleryPage = () => {
 
 				if (response?.[0]) {
 					// Update UI state directly without additional API call
-					setInfo((prev) => ({
-						...prev,
-						activeGallery: {
-							...prev.activeGallery,
-							title: value,
-						},
-						showMainPopup: false,
-					}));
+					setInfo((prev) => {
+						message.destroy(id);
+
+						return {
+							...prev,
+							activeGallery: {
+								...prev.activeGallery,
+								title: value,
+							},
+							showMainPopup: false,
+						};
+					});
 
 					message.success('Gallery renamed successfully');
 				} else {
@@ -1479,7 +1484,7 @@ const GalleryPage = () => {
 			albumChanges.isProcessing = true;
 
 			try {
-				// message.loading('Renaming album...');
+				const id = message.loading('Renaming album...');
 
 				const payload = {
 					title: value,
@@ -1493,6 +1498,8 @@ const GalleryPage = () => {
 
 				// Make the API call
 				const response = await editAlbumName(payload, galleryId, info.activeAlbumId);
+
+				message.destroy(id);
 
 				if (response?.[0]) {
 					// Update UI state
@@ -1578,7 +1585,7 @@ const GalleryPage = () => {
 				isDownloading: true,
 			}));
 
-			// message.loading('Downloading album...');
+			const id = message.loading('Downloading album...');
 
 			const payload = {
 				imageType: info?.originalDownload ? 'original' : 'optimized',
@@ -1590,6 +1597,8 @@ const GalleryPage = () => {
 				info?.activeAlbumId,
 				info?.activeTagId || info?.albumTagId,
 			);
+
+			message.destroy(id);
 
 			if (response?.[0] === true && response?.[1]?.downloadId) {
 				const region = localStorage.getItem('region');
@@ -1626,7 +1635,7 @@ const GalleryPage = () => {
 	const handleLightRoomCopy = async () => {
 		try {
 			// Show loading message
-			// message.loading('Fetching image list...');
+			const id = message.loading('Fetching image list...');
 
 			let response;
 			if (info.activeTab === 'Client Selections' && info.clientSelectionID) {
@@ -1637,6 +1646,8 @@ const GalleryPage = () => {
 				}
 
 				const response = await getClientSelectionLightRoomCopy(info.clientSelectionID);
+
+				message.destroy(id);
 
 				if (!response?.[1]?.length) {
 					message.warning('No valid images found in this client selection');
@@ -1978,9 +1989,11 @@ const GalleryPage = () => {
 	//Delete Handler For Gallery
 
 	const handleDeleteGallery = async () => {
-		// message.loading('Your gallery is being removed. Please wait...');
+		const id = message.loading('Your gallery is being removed. Please wait...');
 
 		const response = await deleteGallery(galleryId);
+
+		message.destroy(id);
 
 		if (response?.[0] === true) {
 			message.success('Gallery deleted successfully');
@@ -2119,23 +2132,26 @@ const GalleryPage = () => {
 		getImageDetail(null, true, false);
 		setsearchkeys({ uploadImageId: 'image-uploading' });
 
-		// message.loading(
-		// 	`Uploading ${info.coverType === 'gallery' ? 'Gallery' : 'Album'} cover image..`,
-		// );
+		const id = message.loading(
+			`Uploading ${info.coverType === 'gallery' ? 'Gallery' : 'Album'} cover image..`,
+		);
 
 		if (info?.imageURL) {
-			setInfo((prev) => ({
-				...prev,
-				crop: {
-					x: 0,
-					y: 0,
-				},
-				zoom: 1,
-				uploadImageId: null,
-				imageURL: info?.imageURL,
-				coverImageDetails: null,
-				coverType: prev.coverType,
-			}));
+			setInfo((prev) => {
+				message.destroy(id);
+				return {
+					...prev,
+					crop: {
+						x: 0,
+						y: 0,
+					},
+					zoom: 1,
+					uploadImageId: null,
+					imageURL: info?.imageURL,
+					coverImageDetails: null,
+					coverType: prev.coverType,
+				};
+			});
 		}
 		const batchId = randomize('Aa0', 10);
 
@@ -2192,7 +2208,7 @@ const GalleryPage = () => {
 		try {
 			handleSetCoverPosition.isProcessing = true;
 
-			// message.loading('Updating cover position...');
+			const id = message.loading('Updating cover position...');
 
 			// Determine the current image based on different scenarios
 			let currentImage;
@@ -2228,6 +2244,8 @@ const GalleryPage = () => {
 				info.coverType === 'gallery'
 					? await updateGalleryCoverImage(payload, galleryId)
 					: await updateAlbumCoverImage(payload, galleryId, info.activeAlbumId);
+
+			message.destroy(id);
 
 			if (response?.[0]) {
 				// Create updated cover image object
@@ -2763,9 +2781,11 @@ const GalleryPage = () => {
 		// Set processing flag
 		handleDeleteAlbum.isProcessing = true;
 		try {
-			// message.loading('Your album is being removed. Please wait...');
+			const id = message.loading('Your album is being removed. Please wait...');
 
 			const response = await deleteAlbum(galleryId, info?.activeAlbumId);
+
+			message.destroy(id);
 
 			if (response[0] === true) {
 				message.success('Album deleted successfully');
@@ -2899,7 +2919,7 @@ const GalleryPage = () => {
 		updateImageOrder(remainingImages);
 	};
 	const handleSaveImage = async () => {
-		// message.loading('Rearranging images...');
+		const id = message.loading('Rearranging images...');
 		// setInfo((prev) => ({
 		// 	...prev,
 		// 	imagesList: [],
@@ -2914,6 +2934,8 @@ const GalleryPage = () => {
 				info.activeAlbumId,
 				info.albumTagId,
 			);
+
+			message.destroy(id);
 			if (response?.[0] === true) {
 				message.success('Images rearranged successfully');
 				setInfo((prev) => ({
@@ -2956,7 +2978,7 @@ const GalleryPage = () => {
 
 		try {
 			// Start with loading message
-			// message.loading('Preparing download...');
+			const id = message.loading('Preparing download...');
 
 			// Single image download handling
 			if (info?.selectedImages?.length === 1) {
@@ -2965,6 +2987,8 @@ const GalleryPage = () => {
 				// Get single image download link
 				const isLightGallery = info?.isLightGallery;
 				const response = await getDownloadLinkForImage(selectedImageId, isLightGallery);
+
+				message.destroy(id);
 
 				if (response?.[0] === true) {
 					message.success('Download completed');

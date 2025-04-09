@@ -37,9 +37,40 @@ const CustomToast = () => {
 			// Schedule the exit animation
 			timeoutRefs.current[id] = setTimeout(() => {
 				startExitAnimation(id, contentHash);
-			}, duration);
+			}, duration * 1000); // Ensure duration is in milliseconds
 
 			return id;
+		};
+
+		// Add destroy function to triggerToastFn
+		triggerToastFn.destroy = (id = null) => {
+			if (id === null) {
+				// Destroy all toasts
+				setToasts((prevToasts) => {
+					prevToasts.forEach((toast) => {
+						if (timeoutRefs.current[toast.id]) {
+							clearTimeout(timeoutRefs.current[toast.id]);
+						}
+						activeToasts.delete(toast.contentHash);
+					});
+					return [];
+				});
+				toastRefs.current = {};
+				timeoutRefs.current = {};
+			} else {
+				// Destroy specific toast by ID
+				setToasts((prevToasts) => {
+					const toastToDestroy = prevToasts.find((t) => t.id === id);
+					if (toastToDestroy) {
+						if (timeoutRefs.current[id]) {
+							clearTimeout(timeoutRefs.current[id]);
+						}
+						activeToasts.delete(toastToDestroy.contentHash);
+						return prevToasts.filter((toast) => toast.id !== id);
+					}
+					return prevToasts;
+				});
+			}
 		};
 
 		return () => {
@@ -127,22 +158,34 @@ const message = {
 			content = 'Message is empty';
 		}
 		if (triggerToastFn) {
-			triggerToastFn({ type, content, duration: duration * 1000 }); // passing the duration in seconds
+			return triggerToastFn({ type, content, duration });
+		}
+		console.warn('CustomToast component not mounted yet.');
+		return null;
+	},
+
+	success(content, duration) {
+		return this.show({ type: 'success', content, duration });
+	},
+
+	warning(content, duration) {
+		return this.show({ type: 'warning', content, duration });
+	},
+
+	error(content, duration) {
+		return this.show({ type: 'error', content, duration });
+	},
+
+	loading(content, duration = defaultDuration) {
+		return this.show({ type: 'loading', content, duration });
+	},
+
+	destroy(id = null) {
+		if (triggerToastFn && triggerToastFn.destroy) {
+			triggerToastFn.destroy(id);
 		} else {
 			console.warn('CustomToast component not mounted yet.');
 		}
-	},
-	success(content, duration) {
-		this.show({ type: 'success', content, duration });
-	},
-	warning(content, duration) {
-		this.show({ type: 'warning', content, duration });
-	},
-	error(content, duration) {
-		this.show({ type: 'error', content, duration });
-	},
-	loading(content, duration = defaultDuration) {
-		this.show({ type: 'loading', content, duration });
 	},
 };
 
