@@ -367,6 +367,8 @@ const CreateFileLead = ({ open, onClose, workflow }) => {
 	}, [workflow, info?.leadDetails, info?.createButtonActive, info?.isLoading, navigate]);
 
 	const createDocumentFunc = async () => {
+		if (info?.isLoading) return;
+		setInfo((prev) => ({ ...prev, isLoading: true }));
 		const payload = {
 			smartFileInput: {
 				title: info?.documentTitle,
@@ -375,6 +377,7 @@ const CreateFileLead = ({ open, onClose, workflow }) => {
 			},
 		};
 		await createSmartfile(payload);
+		setInfo((prev) => ({ ...prev, isLoading: false }));
 	};
 
 	return (
