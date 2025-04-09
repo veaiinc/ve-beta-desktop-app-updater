@@ -121,7 +121,7 @@
 					justify-content: space-between;
 					gap: 14px;
 					align-items: center;
-					padding: 10px 0px;
+					padding: 10px;
 					position: relative;
 					transition: margin 0.2s ease;
 					p {
@@ -350,7 +350,7 @@
 					justify-content: space-between;
 					gap: 14px;
 					align-items: center;
-					padding: 10px 0px;
+					padding: 10px;
 					p {
 						color: var(--primary-font);
 						text-align: right;
@@ -1006,7 +1006,7 @@
 			flex-direction: row;
 			align-items: center;
 			gap: 12px;
-			padding: 10px 0px;
+			padding: 10px;
 			cursor: pointer;
 			border-radius: 8px;
 			transition: background-color 0.2s ease;
@@ -1051,7 +1051,7 @@
 			justify-content: space-between;
 			gap: 14px;
 			align-items: center;
-			padding: 10px 0px;
+			padding: 10px;
 			position: relative;
 			transition: margin 0.2s ease;
 			p {
@@ -1140,7 +1140,7 @@
 	.settings-footer {
 		display: flex;
 		width: 210px;
-		padding: 10px 0px;
+		padding: 10px;
 		margin: 0 auto;
 		justify-content: flex-start;
 		align-items: center;
