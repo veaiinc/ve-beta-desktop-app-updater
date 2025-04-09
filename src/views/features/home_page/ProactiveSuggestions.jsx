@@ -8,6 +8,13 @@ const payload = {
 	page: 1,
 	limit: 20,
 };
+const positionClassMap = {
+	0: 'selected',
+	1: 'right-1',
+	2: 'right-2',
+	'-1': 'left-1',
+	'-2': 'left-2',
+};
 const ProactiveSuggestions = ({ handleUpdateOptions }) => {
 	const {
 		templates: { getAISuggestedPendingActions, aiSuggestedPendingActions },
@@ -38,11 +45,10 @@ const ProactiveSuggestions = ({ handleUpdateOptions }) => {
 		const cards = aiSuggestedPendingActions?.pendingActions?.filter(
 			(card) => card?.researchTopics?.length > 0,
 		);
-		const totalCardsData = cards?.slice(0, 5);
 		if (cards?.length > 0) {
 			setInfo((prev) => ({
 				...prev,
-				totalCardsData,
+				totalCardsData: cards?.slice(0, 3),
 			}));
 		} else {
 			handleUpdateOptions('proactiveSuggestions');
@@ -51,17 +57,16 @@ const ProactiveSuggestions = ({ handleUpdateOptions }) => {
 
 	const updateWindow = (index) => {
 		const length = info?.totalCardsData?.length;
-		const cards = info?.totalCardsData?.map((card, i) => {
-			// Calculate relative position to current index
-			let relativeIndex = (i - index + length) % length;
 
-			// Normalize for left wraparound
-			if (relativeIndex > 2) relativeIndex -= length;
+		const cards = info?.totalCardsData?.map((card, i) => {
+			let diff = i - index;
+
+			if (diff > length / 2) diff -= length;
+			if (diff < -length / 2) diff += length;
 
 			return {
 				...card,
-				realIndex: i,
-				position: relativeIndex, // -2 (left-2) to +2 (right-2)
+				position: Math.abs(diff) <= 2 ? diff : null,
 			};
 		});
 
@@ -99,30 +104,11 @@ const ProactiveSuggestions = ({ handleUpdateOptions }) => {
 		<div className="proactive-suggestions-container">
 			<div className="cards-container">
 				{info?.cards?.map((card) => {
-					const classList = ['card'];
-					switch (card.position) {
-						case 0:
-							classList.push('selected');
-							break;
-						case -1:
-							classList.push('left-1');
-							break;
-						case -2:
-							classList.push('left-2');
-							break;
-						case 1:
-							classList.push('right-1');
-							break;
-						case 2:
-							classList.push('right-2');
-							break;
-						default:
-							return null; // hide any cards beyond this window
-					}
-
+					if (card.position === null) return null;
+					const classList = ['card', positionClassMap[card.position]];
 					return (
 						<div
-							key={card?.realIndex}
+							key={card?._id}
 							className={classList.join(' ')}
 							onClick={() => handleCardClick(card)}
 						>
