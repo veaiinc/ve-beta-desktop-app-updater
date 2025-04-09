@@ -197,6 +197,10 @@ const actionHandlers = {
 		...state,
 		llmModels: action?.payload,
 	}),
+	GET_AI_SUGGESTED_PENDING_ACTIONS_SUCCESS: (state, action) => ({
+		...state,
+		aiSuggestedPendingActions: action?.payload,
+	}),
 	// SET_CONNECTED_THIRDPARTIES: (state, action) => ({
 	// 	...state,
 	// 	connectThirdParties: action?.payload,

@@ -924,7 +924,7 @@ export const AiSetupState = () => {
 				'ai_assistant_api',
 				queryParams,
 			);
-			if (response?.[0]) {
+			if (response?.[0] === true) {
 				dispatch({
 					type: Actions?.GET_PROMPTS_DATA,
 					payload: response?.[1],
