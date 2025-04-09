@@ -21,10 +21,19 @@ export const initialSchedulerState = {
 	sessionDetail: null,
 };
 
+export const initialGoogleCalendarState = {
+	googleCalendarList: null,
+	googleCalendarEvents: null,
+	googleCalendarEvent: null,
+	googleCalendarWatch: null,
+	googleCalendarStop: null,
+};
+
 export const Calendar = () => {
 	const [state, dispatch] = useReducer(Reducer, {
 		...initialState,
 		...initialSchedulerState,
+		...initialGoogleCalendarState,
 	});
 
 	// Calendar AI Apis =================>
@@ -408,6 +417,95 @@ export const Calendar = () => {
 		dispatch({ type: Actions.RESET_SCHEDULER_STATE });
 	};
 
+	// Google Calendar Apis =============>
+	const getGoogleCalendarList = async () => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const url = `/${workspaceId}${API.CALENDAR.getGoogleCalendarList}?isWorkspaceCalendar=true`;
+			const response = await service.fetchGet(url, usertoken, 'calendar_api');
+
+			if (response?.[0] === true) {
+				dispatch({
+					type: Actions.GET_GOOGLE_CALENDAR_LIST,
+					payload: response?.[1],
+				});
+				return response?.[1];
+			} else {
+				console.log('API failed ==> getGoogleCalendarList', response);
+			}
+		} catch (error) {
+			console.log('error==>getGoogleCalendarList', error);
+		}
+	};
+
+	const watchGoogleCalendar = async (calendarId) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const url = `/${workspaceId}${API.CALENDAR.watchGoogleCalendar}/${calendarId}`;
+			const response = await service.fetchGet(url, usertoken, 'calendar_api');
+
+			if (response?.[0] === true) {
+				dispatch({
+					type: Actions.WATCH_GOOGLE_CALENDAR,
+					payload: response?.[1]?.data,
+				});
+				return response?.[1];
+			} else {
+				console.log('API failed ==> watchGoogleCalendar', response);
+			}
+		} catch (error) {
+			console.log('error==>watchGoogleCalendar', error);
+		}
+	};
+
+	const stopGoogleCalendar = async (calendarId) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const url = `/${workspaceId}${API.CALENDAR.stopGoogleCalendar}/${calendarId}`;
+			const response = await service.fetchGet(url, usertoken, 'calendar_api');
+
+			if (response?.[0] === true) {
+				dispatch({
+					type: Actions.STOP_GOOGLE_CALENDAR,
+					payload: response?.[1]?.data,
+				});
+				return response?.[1];
+			} else {
+				console.log('API failed ==> stopGoogleCalendar', response);
+			}
+		} catch (error) {
+			console.log('error==>stopGoogleCalendar', error);
+		}
+	};
+
+	const getGoogleCalendarEvents = async (calendarId) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const url = `/${workspaceId}${API.CALENDAR.getGoogleCalendarEvents}/${calendarId}`;
+			const response = await service.fetchGet(url, usertoken, 'calendar_api');
+
+			if (response?.[0] === true) {
+				dispatch({
+					type: Actions.GET_GOOGLE_CALENDAR_EVENTS,
+					payload: response?.[1]?.data,
+				});
+				return response?.[1];
+			} else {
+				console.log('API failed ==> getGoogleCalendarEvents', response);
+			}
+		} catch (error) {
+			console.log('error==>getGoogleCalendarEvents', error);
+		}
+	};
+
+	const resetGoogleCalendarState = () => {
+		dispatch({ type: Actions.RESET_GOOGLE_CALENDAR_STATE });
+	};
+
 	// Calendar State Reset ================================>
 	const resetCalendarState = () => {
 		dispatch({ type: Actions.RESET_CALENDAR_STATE });
@@ -447,5 +545,11 @@ export const Calendar = () => {
 		getSchedulerSessionDetail,
 		updateSchedulerSession,
 		resetSchedulerState,
+
+		getGoogleCalendarList,
+		watchGoogleCalendar,
+		stopGoogleCalendar,
+		getGoogleCalendarEvents,
+		resetGoogleCalendarState,
 	};
 };

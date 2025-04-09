@@ -34,7 +34,7 @@ const Calendar = () => {
 			refetchCalendarState,
 		},
 		companyInfo: { getTeamMembers },
-		templates: { leftSidebarState, updateStateValues },
+		templates: { leftSidebarState, updateStateValues, getConnectedThirdParties },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -45,6 +45,7 @@ const Calendar = () => {
 		...initialState,
 	});
 
+	// Close left sidebar when component unmounts
 	useEffect(() => {
 		updateStateValues({ leftSidebarState: 'close' });
 		return () => {

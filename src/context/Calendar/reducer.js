@@ -1,4 +1,4 @@
-import { initialState, initialSchedulerState } from './state';
+import { initialState, initialSchedulerState, initialGoogleCalendarState } from './state';
 
 const actionHandlers = {
 	GET_CALENDAR_CHAT: (state, action) => ({
@@ -56,8 +56,6 @@ const actionHandlers = {
 		calendarEventDetails: action?.payload,
 	}),
 
-	RESET_CALENDAR_STATE: () => ({ ...initialState }),
-
 	RESET_CALENDAR_AI_CHAT: (state) => ({
 		...state,
 		calendarChat: null,
@@ -88,7 +86,32 @@ const actionHandlers = {
 		sessionDetail: action?.payload,
 	}),
 
+	// Google Calendar Apis =============>
+	GET_GOOGLE_CALENDAR_LIST: (state, action) => ({
+		...state,
+		googleCalendarList: action?.payload,
+	}),
+
+	WATCH_GOOGLE_CALENDAR: (state, action) => ({
+		...state,
+		googleCalendarWatch: action?.payload,
+	}),
+
+	STOP_GOOGLE_CALENDAR: (state, action) => ({
+		...state,
+		googleCalendarStop: action?.payload,
+	}),
+
+	GET_GOOGLE_CALENDAR_EVENTS: (state, action) => ({
+		...state,
+		googleCalendarEvents: action?.payload,
+	}),
+
+	RESET_CALENDAR_STATE: () => ({ ...initialState }),
+
 	RESET_SCHEDULER_STATE: () => ({ ...initialSchedulerState }),
+
+	RESET_GOOGLE_CALENDAR_STATE: () => ({ ...initialGoogleCalendarState }),
 };
 
 const Reducer = (state, action) => {

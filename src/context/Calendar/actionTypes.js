@@ -21,4 +21,11 @@ export const CALENDAR = {
 	getSchedulerSessionDetail: '/get-session',
 	updateSchedulerSession: '/update',
 	resetSchedulerState: 'RESET_SCHEDULER_STATE',
+
+	// Google Calendar Apis ================================>
+	getGoogleCalendarList: '/googlecalendar/calendar-list',
+	getGoogleCalendarEvents: '/googlecalendar/getEvents',
+	createGoogleCalendarEvent: '/googlecalendar/create-event',
+	watchGoogleCalendar: '/googlecalendar/watch',
+	stopGoogleCalendar: '/googlecalendar/stop',
 };

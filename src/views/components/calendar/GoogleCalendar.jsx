@@ -1,10 +1,15 @@
-import React, { memo, useState } from 'react';
+import React, { memo, useState, useCallback, useEffect, useContext } from 'react';
 import '../../../assets/scss/calendar/googleCalendar.scss';
+import Context from '../../../context/context';
 import { ReactComponent as DownSvg } from '../../../assets/svg/calendar/down.svg';
 import { ReactComponent as Setting } from '../../../assets/svg/ai_agents/settings.svg';
 import ConnectCalendarModal from '../modalsV2/calendar/ConnectCalendarModal';
 
 const GoogleCalendar = () => {
+	const {
+		templates: { getConnectedThirdParties },
+	} = useContext(Context);
+
 	const [info, setInfo] = useState({
 		expanded: false,
 	});
@@ -19,7 +24,7 @@ const GoogleCalendar = () => {
 		<>
 			<div className={`google-bar ${info?.expanded ? 'expanded' : ''}`}>
 				<div className="header">
-					<div className="google-logo">Google</div>
+					<div className="google-logo">Google Calendar</div>
 					<div className="controls">
 						<Setting className="settings-icon" />
 						<span
@@ -64,7 +69,7 @@ const GoogleCalendar = () => {
 				</div>
 			</div>
 
-			<ConnectCalendarModal />
+			{/* <ConnectCalendarModal /> */}
 		</>
 	);
 };
