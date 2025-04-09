@@ -466,6 +466,9 @@
 
 @media screen and (max-width: 566px) {
 	.login-page-container {
+		.left-container {
+			width: 100%;
+		}
 		.login-footer-container {
 			.footer-link {
 				padding: 8px !important;
