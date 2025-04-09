@@ -11,6 +11,13 @@ const exitDuration = 500;
 let triggerToastFn = null;
 let activeToasts = new Set(); // Track active toast IDs to prevent duplicates
 
+const toastIcon = {
+	success: <Success />,
+	warning: <Warning />,
+	error: <Error />,
+	loading: <SpinnerIcon className="loading-spinner" />,
+};
+
 const CustomToast = () => {
 	const toastRefs = useRef({});
 	const timeoutRefs = useRef({});
@@ -122,14 +129,7 @@ const CustomToast = () => {
 					className={`toast ${toast.type} ${toast.isVisible ? 'slide-in' : 'slide-out'}`}
 				>
 					<div className="left-part">
-						<div className="toast__icon">
-							{toast.type === 'success' && <Success />}
-							{toast.type === 'warning' && <Warning />}
-							{toast.type === 'error' && <Error />}
-							{toast.type === 'loading' && (
-								<SpinnerIcon className="loading-spinner" />
-							)}
-						</div>
+						<div className="toast__icon">{toastIcon[toast?.type]}</div>
 						<div className="toast__content">
 							<p className="toast__message">{toast.content}</p>
 						</div>
@@ -151,7 +151,7 @@ function isMessageEmpty(message) {
 	return !message || message.trim() === '';
 }
 
-const message = {
+export const message = {
 	show({ type, content, duration = defaultDuration }) {
 		if (isMessageEmpty(content)) {
 			type = 'error';
@@ -190,4 +190,3 @@ const message = {
 };
 
 export default memo(CustomToast);
-export { message };
