@@ -2,7 +2,7 @@ import { memo, useCallback, useContext, useEffect, useRef, useState } from 'reac
 import '../../../assets/scss/storage/index.scss';
 import '../../../assets/scss/storage/storage.scss';
 import { ReactComponent as Plus } from '../../../assets/svg/storage/Plus.svg';
-import { ReactComponent as Folder } from '../../../assets/svg/storage/uploadModal/Folder.svg';
+import { ReactComponent as Folder } from '../../../assets/svg/storage/Folder.svg';
 import { ReactComponent as File } from '../../../assets/svg/storage/file.svg';
 import { ReactComponent as Document } from '../../../assets/svg/storage/docSvg.svg';
 import { ReactComponent as Mp3 } from '../../../assets/svg/storage/mp3Svg.svg';
