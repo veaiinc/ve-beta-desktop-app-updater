@@ -159,6 +159,10 @@ const RecentChat = ({
 
 	useEffect(() => {
 		if (!chatInfo?.agentType) return;
+		if (isPublicChat) {
+			setSearchParams({});
+			return;
+		}
 
 		const agentType = searchParams?.get('agentType');
 		const assistantId = searchParams?.get('assistantId');
@@ -204,10 +208,6 @@ const RecentChat = ({
 			createWebSocketConnection(sessionId, onMessageFunc, agentType, isPublicChat);
 			isFirstTimeConnectingToPublicChatRef.current = false;
 		}
-
-		return () => {
-			socketRef?.current?.close();
-		};
 	}, [searchParams]);
 
 	useEffect(() => {
@@ -443,11 +443,9 @@ const RecentChat = ({
 			currentQuery: userMessage,
 			localPayload: {},
 			payload: {
-				date: [],
 				web_search: web_search || true,
 				deep_research: deep_research || false,
 				knowledge_base_search: false,
-				modules: [],
 				query: userMessage,
 				timezone: location_details?.timezone || 'Asia/Calcutta',
 				user_id: null,
