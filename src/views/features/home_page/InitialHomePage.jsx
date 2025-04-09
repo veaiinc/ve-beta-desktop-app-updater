@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import ObjectID from 'bson-objectid';
 import ProactiveSuggestions from './ProactiveSuggestions';
 import ChatPrompts from './ChatPrompts';
+import QuickActions from '../../components/globalComponents/QuickActions';
 // const initialHomePageOptions = [
 // 	{ id: 1, title: 'All Prompts', type: 'all' },
 // 	{ id: 2, title: 'Sales', type: 'sales' },
@@ -295,6 +296,9 @@ const InitialHomePage = () => {
 		// 	/>
 		// </>
 		<div className="initial-home-page-container">
+			<div className="quick-actions-container">
+				<QuickActions />
+			</div>
 			<div
 				className="home-page-container-header"
 				style={{

@@ -5,6 +5,13 @@
 	align-items: center;
 	justify-content: center;
 	height: calc(100vh - 32px);
+	position: relative;
+
+	.quick-actions-container {
+		position: absolute;
+		top: 0px;
+		right: 0px;
+	}
 
 	.home-page-container-header {
 		display: flex;
