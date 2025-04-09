@@ -3529,53 +3529,44 @@ const GalleryPage = () => {
 							height: 'fit-content',
 						}}
 					>
-						<div className="galleryPic">
-							{/* <div className="galleryOptionsContainer">
-							<Tooltip
-								trigger="click"
-								arrow={false}
-								color="transparent"
-								onOpenChange={(isOpen) => {
-									if (!isOpen) {
-										setInfo((prev) => ({
-											...prev,
-											searchValue: '',
-										}));
-									}
-								}}
-								overlayClassName="filterTooltipPopUpContainer"
-								placement="bottomRight"
-								title={
-									<EarnAndShareOverlay
-										galleryUrl={galleryUrl}
-										galleryDetails={info?.activeGallery}
-										galleryLink={info?.galleryLink}
-									/>
-								}
-							>
-								<div className="galleryOption" style={{ cursor: 'pointer' }}>
-									Edit & Share
-								</div>
-							</Tooltip>
-
-							<div
-								className="galleryOption"
-								onClick={handleOnlineToggle}
-								style={{ cursor: 'pointer' }}
-							>
-								<div
-									className="liveIndicator"
-									style={{
-										backgroundColor: info?.isOnline ? '#009F0D' : ' red',
-									}}
-								></div>
-								{info?.isOnline ? 'Publish' : 'Unpublish'}
-							</div>
-						</div> */}
-						</div>
 						<div className="albumsContianer">
 							<div className="galleryContentContainer">
 								<div className="content">
+									<div className="galleryPic">
+										<div className="galleryHeaderColumn">
+											<div
+												className="imageContaienr"
+												style={{
+													background:
+														albumImagesCount?.coverImage
+															?.givenFileName && galleryCredentials
+															? `linear-gradient(180deg, rgba(0, 0, 0, 0.00) 0%, #000 100%), url(${galleryUrl}) lightgray 50% / cover no-repeat`
+															: '#000000',
+													backgroundSize: 'cover',
+													backgroundPosition: 'center',
+													backgroundRepeat: 'no-repeat',
+												}}
+												onMouseEnter={() =>
+													setInfo((prev) => ({
+														...prev,
+														showCoverButton: true,
+													}))
+												}
+												onMouseLeave={() =>
+													setInfo((prev) => ({
+														...prev,
+														showCoverButton: false,
+													}))
+												}
+											></div>
+											<div className="galleryTitle">
+												<p>
+													{info?.activeGallery?.title ||
+														'Untitled Gallery'}
+												</p>
+											</div>
+										</div>
+									</div>
 									{data?.map((item, index) => (
 										<>
 											{item?.name !== 'breaker' && (
@@ -3622,20 +3613,33 @@ const GalleryPage = () => {
 										onClick={handleOnlineToggle}
 										style={{ cursor: 'pointer' }}
 									>
-										{info.isOnline ? (
-											<>
-												<OpenEye />
-												<p className="onlineText">Online</p>
-											</>
-										) : (
-											<>
-												<CrossedOpenEye />
-												<p className="onlineText">Offline</p>
-											</>
-										)}
+										<div className="onlineIndicatorContainer">
+											<div
+												className="onlineStatus"
+												style={{
+													backgroundColor: info.isOnline
+														? 'var(--success)'
+														: 'var(--error)',
+												}}
+											></div>
+											<p className="onlineText">
+												{info.isOnline ? 'Online' : 'Offline'}
+											</p>
+										</div>
+										<Switch
+											checked={info.isOnline}
+											onChange={handleOnlineToggle}
+											size="small"
+											style={{
+												backgroundColor: info.isOnline
+													? 'var(--success)'
+													: 'var(--error)',
+											}}
+										/>
 									</div>
-									<div className="icon" onClick={openShareModal}>
+									<div className="onlineContainer" onClick={openShareModal}>
 										<ShareIcon className="shareIcon" />
+										<p>Share</p>
 									</div>
 									<div
 										className="icon"
@@ -3652,7 +3656,7 @@ const GalleryPage = () => {
 										<ThreeDotsIcon className="threeDotsIcon" />
 										{info.showOptions && (
 											<div
-												className="optionsContainer"
+												className="optionsContainers"
 												ref={optionsRef}
 												onClick={(e) => e.stopPropagation()}
 											>
@@ -3665,7 +3669,7 @@ const GalleryPage = () => {
 														<hr
 															key={`divider-${index}`}
 															style={{
-																border: '1px solid #424548',
+																border: '1px solid var(--stroke)',
 																opacity: '0.2',
 																width: '100%',
 															}}
@@ -4294,7 +4298,7 @@ const GalleryPage = () => {
 														ref={filtersRef}
 														className="iconsContainer"
 													>
-														<FilterIcon />
+														<FilterIcon fill="var(--primary-font)" />
 													</div>
 													{info.showFilter && (
 														<div
@@ -4394,18 +4398,10 @@ const GalleryPage = () => {
 													)}
 												</div>
 												<div
-													style={{
-														cursor: 'pointer',
-														color: 'var(--primary-font)',
-														fontFamily: 'var(--primary-font-family)',
-														fontSize: '14px',
-														fontWeight: '400',
-														lineHeight: '16px',
-														textTransform: 'capitalize',
-													}}
 													onClick={handleRearrange}
+													className="rearrangeManually"
 												>
-													Rearrange Manually
+													Rearrange
 												</div>
 												<div
 													style={{ position: 'relative' }}
