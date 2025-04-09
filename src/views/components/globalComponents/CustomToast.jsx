@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
-import success from '../../../assets/svg/custom_notification/tickmark.svg';
-import error from '../../../assets/svg/custom_notification/exclamatory.svg';
-import warning from '../../../assets/svg/custom_notification/warning.svg';
+import success from '../../../assets/svg/custom_toast/tickmark.svg';
+import error from '../../../assets/svg/custom_toast/exclamatory.svg';
+import warning from '../../../assets/svg/custom_toast/warning.svg';
 import '../../../assets/scss/toast/toast.scss';
 
 const MESSAGE_TYPES = {
