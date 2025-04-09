@@ -18,7 +18,7 @@ const positionClassMap = {
 	'-1': 'left-1',
 	'-2': 'left-2',
 };
-const ProactiveSuggestions = ({ handleUpdateOptions }) => {
+const ProactiveSuggestions = () => {
 	const {
 		templates: { getAISuggestedPendingActions, aiSuggestedPendingActions },
 	} = useContext(Context);
@@ -55,8 +55,6 @@ const ProactiveSuggestions = ({ handleUpdateOptions }) => {
 				totalCardsData: cards,
 				loading: false,
 			}));
-		} else {
-			handleUpdateOptions('proactiveSuggestions');
 		}
 	};
 

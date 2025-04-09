@@ -28,7 +28,7 @@ const promptsList = [
 	},
 ];
 let timeoutId;
-const ChatPrompts = ({ handleUpdateOptions }) => {
+const ChatPrompts = ({ promptsCategory, updatePromptsCategory }) => {
 	const {
 		aiSetup: { getPromptsData, promptsData },
 	} = useContext(Context);
@@ -37,7 +37,6 @@ const ChatPrompts = ({ handleUpdateOptions }) => {
 		promptsData: [],
 		hasNextPage: false,
 		page: 1,
-		selectedPromptCategory: 'all',
 		searchQuery: '',
 		selectedCard: null,
 		promptPopupOpen: false,
@@ -48,6 +47,15 @@ const ChatPrompts = ({ handleUpdateOptions }) => {
 	}, []);
 
 	useEffect(() => {
+		if (promptsData) {
+			if (
+				promptsData?.currentPage === 1 &&
+				promptsCategory === 'all' &&
+				info?.searchQuery === ''
+			) {
+				return;
+			}
+		}
 		fetchAiSuggestedPrompts(1, info?.searchQuery);
 		setInfo((prev) => ({
 			...prev,
@@ -55,7 +63,7 @@ const ChatPrompts = ({ handleUpdateOptions }) => {
 			page: 1,
 			hasNextPage: false,
 		}));
-	}, [info?.selectedPromptCategory]);
+	}, [promptsCategory]);
 
 	useEffect(() => {
 		if (promptsData) {
@@ -66,8 +74,6 @@ const ChatPrompts = ({ handleUpdateOptions }) => {
 					hasNextPage: promptsData?.hasNextPage,
 					page: promptsData?.currentPage,
 				}));
-			} else {
-				handleUpdateOptions('prompts');
 			}
 		}
 	}, [promptsData]);
@@ -76,7 +82,7 @@ const ChatPrompts = ({ handleUpdateOptions }) => {
 		const payload = {
 			page: page,
 			limit: 30,
-			category: info?.selectedPromptCategory,
+			category: promptsCategory,
 			...(searchQuery && { search: searchQuery }),
 		};
 		getPromptsData(payload);
@@ -91,7 +97,7 @@ const ChatPrompts = ({ handleUpdateOptions }) => {
 	};
 
 	const handlePromptCategoryClick = (value) => {
-		setInfo((prev) => ({ ...prev, selectedPromptCategory: value }));
+		updatePromptsCategory(value);
 	};
 
 	const handleSearchQueryChange = (e) => {
