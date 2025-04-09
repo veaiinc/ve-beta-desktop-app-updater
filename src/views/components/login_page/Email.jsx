@@ -210,7 +210,10 @@ const Email = ({ email, setEmail, setActiveStage, setEmailVerified }) => {
 						invited you to join
 					</h1>
 				)}
-				<h1 className="login-page-title">Proactive AI</h1>
+				<h1 className="login-page-title">
+					<span className="title-one">AI.&nbsp; </span>
+					<span className="title-two">truly yours</span>
+				</h1>
 				<h2 className="login-page-subtitle">
 					AI that deeply cares about your Goals & strives to be helpful
 				</h2>

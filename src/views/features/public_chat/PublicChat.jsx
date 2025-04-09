@@ -18,11 +18,15 @@ const PublicChat = () => {
 		navigate('/verify-user');
 	};
 
+	const handleLogoClick = () => {
+		navigate('/');
+	};
+
 	const newThemeValue = theme === 'dark' ? 'light' : 'dark';
 	return (
 		<div className="public-chat-container">
 			<div className="chat-header">
-				<div className="left-container">
+				<div className="left-container" onClick={handleLogoClick}>
 					<VeLogo />
 				</div>
 				<div className="right-container">
