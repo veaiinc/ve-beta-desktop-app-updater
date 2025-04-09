@@ -645,8 +645,8 @@
 	gap: 16px;
 	border-radius: 24px;
 	border: 1px solid #2b2b2b;
-	background: var(--card-over-card, #202123);
-	box-shadow: 0px 4px 30px 0px rgba(17, 17, 17, 0.6);
+	background: var(--card);
+	// box-shadow: 0px 4px 30px 0px rgba(17, 17, 17, 0.6);
 	z-index: 1000;
 
 	h1 {

@@ -16,7 +16,7 @@ import ExitWithoutPublishingModal from '../../components/modalsV2/workflowBuilde
 import { ReactComponent as VE } from '../../../assets/svg/smallVe.svg';
 import UpdatedPageLoader from '../../components/loaders/UpdatedPageLoader';
 import DeleteWorkflowModal from '../../components/modalsV2/workflowBuilderModals/DeleteWorkflowModal';
-import { message } from 'antd';
+import { message } from '../../components/globalComponents/CustomToast';
 import { fetchOriginSelection } from '../../../helpers';
 const options = [
 	{ label: 'Rename Workflow' },

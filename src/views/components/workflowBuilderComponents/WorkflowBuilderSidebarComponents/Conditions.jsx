@@ -11,8 +11,9 @@ import {
 	MoveStepsOptions,
 	selectedValueStyling,
 } from '../../../features/workflow_builder/workflowContantsHelpers';
-import { message, Spin } from 'antd';
+import { Spin } from 'antd';
 import Context from '../../../../context/context';
+import { message } from '../../globalComponents/CustomToast';
 
 const conditionsList = {
 	ifElse: { title: 'If / Else', id: 'ifElse' },

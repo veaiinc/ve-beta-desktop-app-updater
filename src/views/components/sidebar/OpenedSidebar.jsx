@@ -14,13 +14,15 @@ import { ReactComponent as SingleRightArrowSvg } from '../../../assets/svg/sideb
 import { ReactComponent as SwitchWorkspaceSvg } from '../../../assets/svg/sidebar/switchWorkspace.svg';
 import WorkspaceListComponent from './Workspace';
 import useLogout from '../../hooks/useLogout';
-import { message, Tooltip } from 'antd';
+import { Tooltip } from 'antd';
 import ChatHistory from './chatHistory/ChatHistory';
 
 import { ReactComponent as LogoutRedSvg } from '../../../assets/svg/sidebar/logout_red.svg';
 import Cropper from 'react-easy-crop';
 import Context from '../../../context/context';
 import { getInitials } from '../../../helpers/index';
+import { message } from '../globalComponents/CustomToast';
+
 const workspaceStyles = {
 	position: 'absolute',
 	top: '60px', // Adjust this value based on your header height
@@ -507,9 +509,11 @@ const OpenedSidebar = ({
 												<h6 className="workspaceName">
 													{info?.activeBusniessName?.businessName}
 												</h6>
-												<DownArrowSmallSvg
-													style={{ height: '16px', width: '16px' }}
-												/>
+												{userWorkSpaceList?.length > 1 && (
+													<DownArrowSmallSvg
+														style={{ height: '16px', width: '16px' }}
+													/>
+												)}
 											</div>
 											<Tooltip
 												title="Close Sidebar"
@@ -545,30 +549,31 @@ const OpenedSidebar = ({
 											}}
 											id="chatsScroll"
 										>
-											{sidebarStates?.workSpaceOpen && (
-												<div
-													style={{
-														position: 'absolute',
-														top: '20px',
-														left: '0',
-														width: '230px',
-														marginLeft: '10px',
-														border: 'none',
-														zIndex: '1000',
-														// background: 'var(--primary-font)',
-														borderRadius: '16px',
-														animation: 'slideDown 0.3s ease-out',
-														transformOrigin: 'top',
-													}}
-												>
-													<WorkspaceListComponent
-														setsidebarStates={setsidebarStates}
-														sidebarStates={sidebarStates}
-														info={info}
-														userWorkSpaceList={userWorkSpaceList}
-													/>
-												</div>
-											)}
+											{sidebarStates?.workSpaceOpen &&
+												userWorkSpaceList?.length > 1 && (
+													<div
+														style={{
+															position: 'absolute',
+															top: '20px',
+															left: '0',
+															width: '230px',
+															marginLeft: '10px',
+															border: 'none',
+															zIndex: '1000',
+															// background: 'var(--primary-font)',
+															borderRadius: '16px',
+															animation: 'slideDown 0.3s ease-out',
+															transformOrigin: 'top',
+														}}
+													>
+														<WorkspaceListComponent
+															setsidebarStates={setsidebarStates}
+															sidebarStates={sidebarStates}
+															info={info}
+															userWorkSpaceList={userWorkSpaceList}
+														/>
+													</div>
+												)}
 											{!isThisEarlyAccessPage && (
 												<>
 													<hr
@@ -866,7 +871,12 @@ const OpenedSidebar = ({
 							))}
 						</div>
 						<div className="settingsOptionsContainer">
-							<div className="settingsOptionsUserInfo">
+							<div
+								className="settingsOptionsUserInfo"
+								onClick={() => {
+									setShowSettingsSidebar(false);
+								}}
+							>
 								<div>
 									{userDetailsData?.logoURL ? (
 										<div className="crop-container">
@@ -901,7 +911,12 @@ const OpenedSidebar = ({
 									{userDetailsData?.firstName}
 								</div>
 							</div>
-							<LogoutRedSvg onClick={handleLogout} style={{ cursor: 'pointer' }} />
+							<div className="logoutIcon">
+								<LogoutRedSvg
+									onClick={handleLogout}
+									style={{ cursor: 'pointer' }}
+								/>
+							</div>
 						</div>
 					</div>
 				)}

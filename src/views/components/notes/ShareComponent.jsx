@@ -1,5 +1,5 @@
 import { memo, useState, useEffect, useContext } from 'react';
-import { Tooltip, message } from 'antd';
+import { Tooltip } from 'antd';
 import '../../../assets/scss/notes/shareComponent.scss';
 import { ReactComponent as Copy } from '../../../assets/svg/ai_assistant/url.svg';
 import { ReactComponent as ChevronRightThinSvg } from '../../../assets/svg/tasks/chevronRightThin.svg';
@@ -7,6 +7,7 @@ import { ReactComponent as Check } from '../../../assets/svg/tasks/checkmark.svg
 import Context from '../../../context/context';
 import { ReactComponent as CrossSvg } from '../../../assets/svg/gallery/cross.svg';
 import Skeleton from 'react-loading-skeleton';
+import { message } from '../globalComponents/CustomToast';
 
 const accessOptions = [
 	{

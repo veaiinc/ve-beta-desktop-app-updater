@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { message } from 'antd';
+import { message } from '../../globalComponents/CustomToast';
 import ActionDetailsBlock from './ActionDetailsBlock';
 import HeaderComponent from './HeaderComponent';
 import '../../../../assets/scss/automation_builder/automationBuilderSidebarComponents/templateTriggers.scss';

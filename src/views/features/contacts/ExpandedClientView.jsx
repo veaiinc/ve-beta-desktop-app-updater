@@ -1,5 +1,6 @@
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { message, Spin } from 'antd';
+import { message } from '../../components/globalComponents/CustomToast';
+import { Spin } from 'antd';
 import { useNavigate, useParams } from 'react-router-dom';
 import Context from '../../../context/context';
 import ListTabs from '../../components/tasks/listView/ListTabs';
