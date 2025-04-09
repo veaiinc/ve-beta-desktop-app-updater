@@ -7,7 +7,7 @@ import { ReactComponent as UpArrowBlackHover } from '../../../assets/svg/login_p
 import Context from '../../../context/context';
 import { getLocationsDetails } from '../../../helpers';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { message } from 'antd';
+import { message } from '../globalComponents/CustomToast';
 import gsap from 'gsap';
 import Spinner from '../loaders/Spinner';
 
@@ -173,7 +173,7 @@ const Email = ({ email, setEmail, setActiveStage, setEmailVerified }) => {
 					if (response?.[1]?.accountExists) {
 						if (response?.[1]?.emailVerified) {
 							if (referralCode && info?.referrerUserDetails?.isValidReferralCode) {
-								message?.info(
+								message.warning(
 									'An account with this email already exists. Referral cannot be applied.',
 								);
 							}

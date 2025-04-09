@@ -2,7 +2,7 @@ import React, { memo, useContext, useCallback, useState, useRef, useEffect } fro
 import { LiveKitRoom, RoomAudioRenderer, StartAudio } from '@livekit/components-react';
 import Voice from '../components/chat/Voice';
 import Context from '../../context/context';
-import { message } from 'antd';
+import { message } from '../components/globalComponents/CustomToast';
 import { useLocation } from 'react-router-dom';
 import '../../assets/scss/voice/voiceWrapper.scss';
 import { checkDevices } from '../../helpers';

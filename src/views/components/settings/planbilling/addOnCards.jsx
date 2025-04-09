@@ -4,8 +4,9 @@ import { Skeleton } from 'antd';
 import { ReactComponent as MinusIcon } from '../../../../assets/svg/Settings/minusIcon.svg';
 import { ReactComponent as PlusIcon } from '../../../../assets/svg/Settings/plusIcon.svg';
 import Spinner from '../../../components/loaders/Spinner';
-import { message, Spin } from 'antd';
+import { Spin } from 'antd';
 import ReactModal from '../../modalsV2';
+import { message } from '../../globalComponents/CustomToast';
 
 const customStyles = {
 	content: { zIndex: 1003 },

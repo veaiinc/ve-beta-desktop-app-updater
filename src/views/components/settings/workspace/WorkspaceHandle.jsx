@@ -2,7 +2,7 @@ import React, { useState, useContext, useCallback, useEffect, memo } from 'react
 import { ReactComponent as ActivePoint } from '../../../../assets/svg/Settings/GreenpinActive.svg';
 import UpdateWorkspacePopup from './UpdateWorkspacePopup';
 import Context from '../../../../context/context';
-import { message } from 'antd';
+import { message } from '../../globalComponents/CustomToast';
 
 const IsActiveComponent = () => {
 	return (
@@ -19,8 +19,6 @@ const WorkspaceHandleComponent = ({ overviewState }) => {
 		profileInfo: { updateWorkSpaceId, tennantSettingsData, getTenantSettings },
 		companyInfo: { checkWorkspaceId },
 	} = useContext(Context);
-
-	const [messageApi, contextHolder] = message.useMessage();
 
 	// useStates
 	const [domainUpdate, setdomainUpdate] = useState({
@@ -118,16 +116,10 @@ const WorkspaceHandleComponent = ({ overviewState }) => {
 		const response = await updateWorkSpaceId(json);
 
 		if (response[0] === true) {
-			messageApi.open({
-				type: 'success',
-				content: 'Successfully updated the workspace handle',
-			});
+			message.success('Successfully updated the workspace handle');
 			getTenantSettings();
 		} else {
-			messageApi.open({
-				type: 'error',
-				content: response[1]?.message || 'something went wrong',
-			});
+			message.error(response[1]?.message || 'something went wrong');
 		}
 		setdomainUpdate((prev) => ({
 			...prev,
@@ -142,8 +134,6 @@ const WorkspaceHandleComponent = ({ overviewState }) => {
 
 	return (
 		<>
-			{contextHolder}
-
 			<div className="workSpaceHandleContainer">
 				<div>
 					<h1>Your Workspace Handle</h1>

@@ -10,7 +10,7 @@ import {
 	dropDownTextStyling,
 	selectedValueStyling,
 } from '../../../features/automation_builder/automationContentsHelper';
-import { message } from 'antd';
+import { message } from '../../globalComponents/CustomToast';
 
 const GoogleTriggers = ({
 	onClose,

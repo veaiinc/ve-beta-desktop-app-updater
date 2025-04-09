@@ -8,7 +8,7 @@ import { ReactComponent as RightArrrow } from '../../../../assets/svg/worflow_bu
 
 import { useCallback } from 'react';
 import Context from '../../../../context/context';
-import { message } from 'antd';
+import { message } from '../../globalComponents/CustomToast';
 import CreateFile from './CreateFile';
 import CreateTask from './CreateTask';
 import HeaderComponent from './HeaderComponent';

@@ -8,7 +8,7 @@ import { ReactComponent as PersonSvg } from '../../../assets/svg/tasks/person.sv
 import { ReactComponent as CalendarSvg } from '../../../assets/svg/tasks/calendar.svg';
 import { ReactComponent as textSvg } from '../../../assets/svg/tasks/letterA.svg';
 import Context from '../../../context/context';
-import { message } from 'antd';
+import { message } from '../../components/globalComponents/CustomToast';
 import jwtDecode from 'jwt-decode';
 import moment from 'moment';
 import CreateTaskPopup from '../../components/modalsV2/tasks/CreateTaskPopup';
