@@ -165,12 +165,6 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 									alignSelf: 'center',
 								}}
 							/>
-							<div className="singleWorkspace" onClick={handleCreateWorkspace}>
-								<h6>Add Workspace</h6>
-								<div className="workSpaceCircle">
-									<PlusSvg />
-								</div>
-							</div>
 							<div className="singleWorkspace logoutOption" onClick={handleLogout}>
 								<h6 style={{ color: 'var(--error)' }}>Logout</h6>
 								<div className="workSpaceCircle">
