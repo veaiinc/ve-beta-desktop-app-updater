@@ -115,16 +115,15 @@ const ProactiveSuggestions = ({ handleUpdateOptions }) => {
 							{ position: 2 },
 							{ position: -1 },
 							{ position: -2 },
-					  ]?.map((item) => {
+					  ]?.map((item, index) => {
 							const classList = ['card', 'skeleton', positionClassMap[item.position]];
 							return (
-								<div key={item?._id} className={classList.join(' ')}>
+								<div key={index} className={classList.join(' ')}>
 									<div
 										className="skeleton-container"
 										style={{
 											width: '100%',
 											height: '100%',
-											// backgroundColor: 'red',
 											borderRadius: '10px',
 										}}
 									>
