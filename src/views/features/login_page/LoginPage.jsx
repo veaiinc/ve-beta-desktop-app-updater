@@ -142,9 +142,9 @@ const LoginPage = () => {
 			)}
 			<div className="left-container">
 				<div className="stages-container">
-					<div className="logo-container">
+					{/* <div className="logo-container">
 						<VeAiLogo />
-					</div>
+					</div> */}
 					{stages?.[info?.activeStage]}
 				</div>
 			</div>

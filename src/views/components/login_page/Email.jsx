@@ -245,7 +245,7 @@ const Email = ({ email, setEmail, setActiveStage, setEmailVerified }) => {
 						value={email}
 						onChange={handleSetEmail}
 						onKeyDown={handleContinueWithEmail}
-						autoFocus={true}
+						autoFocus
 						type="email"
 						placeholder="example@acme.com"
 					/>
@@ -279,7 +279,7 @@ const Email = ({ email, setEmail, setActiveStage, setEmailVerified }) => {
 							<span ref={arrowRef}>
 								<UpArrowGrey
 									style={{
-										stroke: 'var(--card-over-color)',
+										stroke: 'var(--card-over-card)',
 									}}
 								/>
 							</span>
