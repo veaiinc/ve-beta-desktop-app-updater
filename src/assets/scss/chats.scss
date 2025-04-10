@@ -120,6 +120,7 @@
 				align-self: stretch;
 				cursor: pointer;
 				width: 210px;
+				transition: background 0.2s ease;
 				&.active-chat {
 					border-radius: 8px;
 					background: var(--card-over-card-hover, #2e2f33);
