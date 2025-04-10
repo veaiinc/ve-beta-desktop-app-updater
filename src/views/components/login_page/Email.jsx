@@ -210,9 +210,12 @@ const Email = ({ email, setEmail, setActiveStage, setEmailVerified }) => {
 						invited you to join
 					</h1>
 				)}
-				<h1 className="login-page-title">The Workspace AI</h1>
+				<h1 className="login-page-title">
+					<span className="title-one">AI.&nbsp; </span>
+					<span className="title-two">truly yours</span>
+				</h1>
 				<h2 className="login-page-subtitle">
-					Intelligence Connected to all your data and tools.
+					AI that deeply cares about your Goals & strives to be helpful
 				</h2>
 			</div>
 			<div className="login-button-container">
@@ -242,7 +245,7 @@ const Email = ({ email, setEmail, setActiveStage, setEmailVerified }) => {
 						value={email}
 						onChange={handleSetEmail}
 						onKeyDown={handleContinueWithEmail}
-						autoFocus={true}
+						autoFocus
 						type="email"
 						placeholder="example@acme.com"
 					/>
@@ -276,7 +279,7 @@ const Email = ({ email, setEmail, setActiveStage, setEmailVerified }) => {
 							<span ref={arrowRef}>
 								<UpArrowGrey
 									style={{
-										stroke: 'var(--card-over-color)',
+										stroke: 'var(--card-over-card)',
 									}}
 								/>
 							</span>
