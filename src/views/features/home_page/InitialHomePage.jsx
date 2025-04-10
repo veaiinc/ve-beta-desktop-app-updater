@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import ProactiveSuggestions from './ProactiveSuggestions';
 import ChatPrompts from './ChatPrompts';
 import QuickActions from '../../components/globalComponents/QuickActions';
+import ContactsWidget from '../../components/globalComponents/ContactsWidget';
 
 const optionsList = [
 	{
@@ -136,10 +137,11 @@ const InitialHomePage = () => {
 		() => ({
 			proactiveSuggestions: <ProactiveSuggestions />,
 			prompts: (
-				<ChatPrompts
-					promptsCategory={info?.promptsCategory}
-					updatePromptsCategory={updatePromptsCategory}
-				/>
+				// <ChatPrompts
+				// 	promptsCategory={info?.promptsCategory}
+				// 	updatePromptsCategory={updatePromptsCategory}
+				// />
+				<ContactsWidget width={'408px'} height={'412px'} />
 			),
 		}),
 		[info?.promptsCategory],
