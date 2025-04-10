@@ -56,12 +56,14 @@
 			gap: 10px;
 			border-radius: 8px;
 			background: var(--card, #171819);
+			position: sticky;
+			top: 0px;
 			.search-input {
 				overflow: hidden;
 				color: var(--primary-font);
 				text-overflow: ellipsis;
 				font-family: Inter;
-				font-size: 14px;
+				font-size: 12px;
 				font-style: normal;
 				font-weight: 500;
 				line-height: normal;
@@ -91,7 +93,7 @@
 			.message {
 				color: var(--primary-font);
 				font-family: var(--primary-font-family);
-				font-size: 14px;
+				font-size: 12px;
 				font-style: normal;
 				font-weight: 500;
 				line-height: normal;
@@ -117,7 +119,7 @@
 				gap: 10px;
 				align-self: stretch;
 				cursor: pointer;
-				width: 211px;
+				width: 210px;
 				&.active-chat {
 					border-radius: 8px;
 					background: var(--card-over-card-hover, #2e2f33);
@@ -136,7 +138,8 @@
 					gap: 4px;
 
 					.chat-title {
-						width: 210px;
+						width: 100%;
+						max-width: 190px;
 						text-overflow: ellipsis;
 						white-space: nowrap;
 						overflow: hidden;
