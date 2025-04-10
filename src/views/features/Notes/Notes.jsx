@@ -14,7 +14,7 @@ import moment from 'moment';
 import CustomTextArea from '../../components/globalComponents/CustomTextArea';
 import MoreOptions from '../../components/notes/MoreOptions';
 import { StarSvg } from '../../../assets/svg/notes/Star';
-import { message } from 'antd';
+import { message } from '../../components/globalComponents/CustomToast';
 const preprocessMarkdown = (markdown) => {
 	return markdown?.replace(/\\n/g, '\n'); // Add a non-breaking space for empty lines
 };
@@ -50,6 +50,9 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 		},
 		isFavorite: false,
 		loading: false,
+		isPublished: false,
+		slug: '',
+		expiresAt: null,
 	});
 
 	const { noteId } = useParams();
@@ -68,11 +71,22 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 				title = '',
 				updatedAt = '',
 				isFavorite = false,
+				isPublished = false,
+				slug = noteId,
+				expiresAt = null,
 			} = notesPageData || {};
 			if (blocks) {
 				loadNotesContent(blocks);
 			}
-			setInfo((prev) => ({ ...prev, title, updatedAt, isFavorite }));
+			setInfo((prev) => ({
+				...prev,
+				title,
+				updatedAt,
+				isFavorite,
+				isPublished,
+				slug,
+				expiresAt,
+			}));
 		}
 	}, [notesPageData]);
 
@@ -203,13 +217,42 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 		setInfo((prev) => ({ ...prev, loading: false }));
 	}, [info?.loading, info?.notesConfigs, navigate, noteId, setInfo]);
 
+	const handlePublishPage = useCallback(
+		async ({ isPublished, slug, expiresAt }) => {
+			const [success, data] = await updatePage({
+				pageId: noteId,
+				input: {
+					isPublished,
+					...(slug && { slug }),
+					...(expiresAt && { expiresAt }),
+				},
+			});
+			if (success) {
+				message.success('Page published successfully');
+				setInfo((prev) => ({
+					...prev,
+					isPublished,
+					slug,
+					...(expiresAt && { expiresAt }),
+				}));
+			}
+		},
+		[noteId, setInfo],
+	);
+
 	return (
 		<div className="notes-container" style={outerContainerStyle || {}}>
 			<div className="notes-nav-menu">
 				<span className="notes-nav-menu-item-last-edited">
 					{info?.updatedAt ? `Edited ${moment.unix(info?.updatedAt).fromNow()}` : ''}
 				</span>
-				<ShareComponent pageId={noteId} />
+				<ShareComponent
+					pageId={noteId}
+					isPublished={info?.isPublished}
+					slug={info?.slug}
+					expiresAt={info?.expiresAt}
+					onPublish={handlePublishPage}
+				/>
 				<StarSvg
 					fill={info?.isFavorite}
 					width={18}

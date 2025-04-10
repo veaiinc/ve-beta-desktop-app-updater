@@ -60,6 +60,9 @@ export const getPageQuery = gql`
 			updatedAt
 			createdBy
 			isFavorite
+			isPublished
+			slug
+			expiresAt
 		}
 	}
 `;
