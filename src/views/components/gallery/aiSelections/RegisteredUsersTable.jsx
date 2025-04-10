@@ -33,7 +33,7 @@ const Table = ({ tableData, thead, loading, scrollLoading, tableHeader }) => {
 		));
 
 	return (
-		<div className="tableContainer" style={{ height: '300px', overflow: 'auto' }}>
+		<div className="tableContainer" style={{ overflow: 'auto' }}>
 			<table>
 				{!tableHeader && (
 					<thead>

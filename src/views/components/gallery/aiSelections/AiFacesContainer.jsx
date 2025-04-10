@@ -19,6 +19,7 @@ const AiFacesContainer = ({
 	activeAlbumId,
 	activeTagId,
 	selectedImage,
+	handleSelectedFace,
 }) => {
 	const navigate = useNavigate();
 	const location = useLocation();

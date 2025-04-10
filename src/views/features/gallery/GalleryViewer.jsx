@@ -303,7 +303,16 @@ const GalleryViewer = () => {
 				},
 			});
 		} else {
-			navigate(-1);
+			// Modified to include state when using navigate(-1)
+			navigate(`/galleries/${galleryId}`, {
+				state: {
+					returnFromViewer: true,
+					activeAlbumId: albumId,
+					activeTagId: searchkeys.get('tagId'),
+					activeTab: 'Albums',
+					selectedImage: currentImageId,
+				},
+			});
 		}
 	};
 

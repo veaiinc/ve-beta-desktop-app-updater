@@ -478,7 +478,6 @@ const GalleryPage = () => {
 			updateStateValues({ leftSidebarState: null });
 		};
 	}, []);
-
 	useEffect(() => {
 		const animate = (timestamp) => {
 			if (!startTime) startTime = timestamp;
@@ -956,24 +955,35 @@ const GalleryPage = () => {
 					activeAlbum: activeAlbum,
 					albumSlug: activeAlbum.slug,
 					albumTagId: returnedTagId || prev.albumTagId,
+					selectedImage: selectedImage || prev.selectedImage,
 				}));
 			}
 		}
 
 		// Retry scrolling until the element is available
 		const scrollToImage = () => {
-			const imageElement = document.getElementById(`image-${selectedImage}`);
+			const imageElement = document.querySelector(`[data-image-id="${selectedImage}"]`);
 			if (imageElement) {
-				imageElement.scrollIntoView({
-					behavior: 'smooth',
-					block: 'center',
-				});
-			} else {
-				setTimeout(scrollToImage, 100); // Retry after 100ms
+				setTimeout(() => {
+					imageElement.scrollIntoView({
+						behavior: 'smooth',
+						block: 'center',
+					});
+					// Optionally highlight the image temporarily
+					imageElement.classList.add('highlight');
+					setTimeout(() => imageElement.classList.remove('highlight'), 2000);
+				}, 100);
+			} else if (
+				document.images.length < document.querySelectorAll('.imageContainer').length
+			) {
+				// If images are still loading, retry
+				setTimeout(scrollToImage, 100);
 			}
 		};
 
-		scrollToImage();
+		if (selectedImage) {
+			scrollToImage();
+		}
 		navigate(galleryLocation, { replace: true });
 	}, [location?.state?.returnFromViewer, tenantAlbums?.albums]);
 
@@ -4720,6 +4730,9 @@ const GalleryPage = () => {
 																		<div
 																			key={index}
 																			id={`image-${image?._id}`}
+																			data-image-id={
+																				image?._id
+																			}
 																			className={`imageContainer ${
 																				info.selectedImages.includes(
 																					image?._id,

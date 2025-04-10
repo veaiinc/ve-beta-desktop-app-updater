@@ -31,11 +31,22 @@ const AiSelection = ({
 		selectedImage: selectedImage || location.state?.selectedImage,
 	});
 
+	// useEffect(() => {
+	// 	if (selectedFace || selectedFaceId) {
+	// 		setInfo((prev) => ({
+	// 			...prev,
+	// 			search: 'Ai Faces',
+	// 			selectedFace: selectedFace || prev.selectedFace,
+	// 			selectedFaceId: selectedFaceId || prev.selectedFaceId,
+	// 		}));
+	// 	}
+	// }, [selectedFace, selectedFaceId]);
 	const handleOptionClick = (value) => {
 		setInfo((prev) => ({
 			...prev,
 			search: value,
 			selectedFace: null,
+			selectedFaceId: null,
 		}));
 	};
 	const handleSearch = (value) => {
@@ -49,6 +60,7 @@ const AiSelection = ({
 			...prev,
 			selectedFace: face,
 			search: 'Ai Faces',
+			selectedFaceId: face?._id,
 		}));
 	};
 	const handlePreRegistration = (value) => {
@@ -57,6 +69,7 @@ const AiSelection = ({
 			preRegistration: value,
 		}));
 	};
+	console.log(selectedFaceId, 'testing');
 	return (
 		<div className="aiSelection-container">
 			<div className="aiOptions-navbar">
@@ -97,7 +110,7 @@ const AiSelection = ({
 					selectedImage={info?.selectedImage}
 				/>
 			)}
-			{!info?.selectedFace && (
+			{!info?.selectedFace && !info?.selectedFaceId && (
 				<AiFaceRegistration
 					link={link}
 					handlePreRegistration={(value) => handlePreRegistration(value)}
