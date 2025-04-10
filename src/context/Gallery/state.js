@@ -1825,6 +1825,25 @@ export const Galleries = () => {
 		});
 	};
 
+	const getMostUsedEntities = async (payload) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const response = await Service.query(
+				getMostUsedEntitiesQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+			if (response?.[0]) {
+				return response;
+			}
+		} catch (error) {
+			console.log('error==>getMostUsedEntities', error);
+		}
+	};
+
 	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/tags/{{ _.tag_id }}
 	const editTag = async (galleryId, tagId, payload) => {
 		try {
@@ -1860,25 +1879,6 @@ export const Galleries = () => {
 			return response;
 		} catch (error) {
 			console.log('error==>deleteTag', error);
-		}
-	};
-
-	const getMostUsedEntities = async (payload) => {
-		try {
-			const workspaceId = localStorage.getItem('workspaceId');
-			const usertoken = localStorage.getItem('usertoken');
-			const response = await Service.query(
-				getMostUsedEntitiesQuery,
-				payload,
-				workspaceId,
-				usertoken,
-				'workflows_Api',
-			);
-			if (response?.[0]) {
-				return response;
-			}
-		} catch (error) {
-			console.log('error==>getMostUsedEntities', error);
 		}
 	};
 
