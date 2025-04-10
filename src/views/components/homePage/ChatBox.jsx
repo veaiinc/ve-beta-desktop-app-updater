@@ -296,6 +296,18 @@ const ChatBox = ({
 	};
 
 	const handleWebSearchClick = () => {
+		if (isPublicChat) {
+			if (chatInfo?.deepResearch) {
+				updateStateValues({
+					chatInfo: {
+						...chatInfo,
+						deepResearch: false,
+						webSearch: !chatInfo?.webSearch,
+					},
+				});
+				return;
+			}
+		}
 		updateStateValues({
 			chatInfo: {
 				...chatInfo,
@@ -307,6 +319,19 @@ const ChatBox = ({
 	const handleDeepResearchClick = () => {
 		if (recentFilesRef.current?.length > 0 || uploadedImagesRef.current?.length > 0) {
 			return;
+		}
+
+		if (isPublicChat) {
+			if (chatInfo?.webSearch) {
+				updateStateValues({
+					chatInfo: {
+						...chatInfo,
+						webSearch: false,
+						deepResearch: !chatInfo?.deepResearch,
+					},
+				});
+				return;
+			}
 		}
 
 		if (!chatInfo?.deepResearch) {
@@ -461,8 +486,8 @@ const ChatBox = ({
 					const payload = {
 						query,
 						timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-						knowledge_base_search: chatInfo?.workspaceSearch,
 						web_search: chatInfo?.webSearch,
+						...(!isPublicChat && { knowledge_base_search: chatInfo?.workspaceSearch }),
 						...(!isPublicChat && { modules: Object?.keys(info?.chatFilters?.modules) }),
 						...(!isPublicChat && { date: date }),
 						deep_research: chatInfo?.deepResearch,
@@ -1025,42 +1050,51 @@ const ChatBox = ({
 										) : (
 											<div className="buttons-container">
 												<div className="chat-icons-container">
-													<UploadFileTooltip
-														fileTypeIcons={fileTypeIcons}
-														handleChange={handleFileAttachmentChange}
-														isUploadFileOpen={info?.isUploadFileOpen}
-														setIsUploadFileOpen={(value) => {
-															if (chatInfo?.deepResearch) return;
-															setInfo((prev) => ({
-																...prev,
-																isUploadFileOpen: value,
-															}));
-														}}
-														handleRecentFileClick={
-															handleRecentFileClick
-														}
-														recentFiles={recentFilesRef.current || []}
-													>
-														<Tooltip title={`Upload File`}>
-															<div
-																className="chat-box-icon-container"
-																style={{
-																	opacity: `${
-																		chatInfo?.deepResearch
-																			? '0.5'
-																			: '1'
-																	}`,
-																}}
-															>
-																<div className="icon">
-																	<PlusSvg
-																		width={17}
-																		height={17}
-																	/>
+													{!isPublicChat && (
+														<UploadFileTooltip
+															fileTypeIcons={fileTypeIcons}
+															handleChange={
+																handleFileAttachmentChange
+															}
+															isUploadFileOpen={
+																info?.isUploadFileOpen
+															}
+															setIsUploadFileOpen={(value) => {
+																if (chatInfo?.deepResearch) return;
+																setInfo((prev) => ({
+																	...prev,
+																	isUploadFileOpen: value,
+																}));
+															}}
+															handleRecentFileClick={
+																handleRecentFileClick
+															}
+															recentFiles={
+																recentFilesRef.current || []
+															}
+														>
+															<Tooltip title={`Upload File`}>
+																<div
+																	className="chat-box-icon-container"
+																	style={{
+																		opacity: `${
+																			chatInfo?.deepResearch
+																				? '0.5'
+																				: '1'
+																		}`,
+																	}}
+																>
+																	<div className="icon">
+																		<PlusSvg
+																			width={17}
+																			height={17}
+																		/>
+																	</div>
 																</div>
-															</div>
-														</Tooltip>
-													</UploadFileTooltip>
+															</Tooltip>
+														</UploadFileTooltip>
+													)}
+
 													<Tooltip
 														title={`${
 															chatInfo?.webSearch
@@ -1081,30 +1115,32 @@ const ChatBox = ({
 															</div>
 														</div>
 													</Tooltip>
-													<Tooltip
-														title={`${
-															chatInfo?.workspaceSearch
-																? 'Disable'
-																: 'Enable'
-														} workspace Search`}
-													>
-														<div
-															className={`chat-box-icon-container ${
+													{!isPublicChat && (
+														<Tooltip
+															title={`${
 																chatInfo?.workspaceSearch
-																	? 'active'
-																	: ''
-															}`}
-															onClick={handleWorkspaceSearchClick}
+																	? 'Disable'
+																	: 'Enable'
+															} workspace Search`}
 														>
-															<div className="icon">
-																<BuildingSvg
-																	selected={
-																		chatInfo?.workspaceSearch
-																	}
-																/>
+															<div
+																className={`chat-box-icon-container ${
+																	chatInfo?.workspaceSearch
+																		? 'active'
+																		: ''
+																}`}
+																onClick={handleWorkspaceSearchClick}
+															>
+																<div className="icon">
+																	<BuildingSvg
+																		selected={
+																			chatInfo?.workspaceSearch
+																		}
+																	/>
+																</div>
 															</div>
-														</div>
-													</Tooltip>
+														</Tooltip>
+													)}
 
 													{chatInfo?.agentType !== 'search_agent' && (
 														<Tooltip
@@ -1217,38 +1253,44 @@ const ChatBox = ({
 												</div>
 
 												<div className="right-container">
-													{chatInfo?.agentType !== 'knowledge_agent' && (
-														<div className="agent-container">
-															<div
-																className={`agent ${
-																	chatInfo?.agentType ===
-																	'multi_agent'
-																		? 'active'
-																		: ''
-																}`}
-																onClick={() =>
-																	handleAgentClick('multi_agent')
-																}
-															>
-																Generalist
+													{chatInfo?.agentType !== 'knowledge_agent' &&
+														!isPublicChat && (
+															<div className="agent-container">
+																<div
+																	className={`agent ${
+																		chatInfo?.agentType ===
+																		'multi_agent'
+																			? 'active'
+																			: ''
+																	}`}
+																	onClick={() =>
+																		handleAgentClick(
+																			'multi_agent',
+																		)
+																	}
+																>
+																	Generalist
+																</div>
+																<div
+																	className={`agent ${
+																		chatInfo?.agentType ===
+																		'search_agent'
+																			? 'active'
+																			: ''
+																	}`}
+																	onClick={() =>
+																		handleAgentClick(
+																			'search_agent',
+																		)
+																	}
+																>
+																	Thinker
+																</div>
 															</div>
-															<div
-																className={`agent ${
-																	chatInfo?.agentType ===
-																	'search_agent'
-																		? 'active'
-																		: ''
-																}`}
-																onClick={() =>
-																	handleAgentClick('search_agent')
-																}
-															>
-																Thinker
-															</div>
-														</div>
-													)}
+														)}
 
-													{info?.chatQuery?.trim()?.length > 0 ? (
+													{info?.chatQuery?.trim()?.length > 0 ||
+													isPublicChat ? (
 														<div
 															className="click-btn"
 															onClick={(e) => handleSendBtnClick(e)}

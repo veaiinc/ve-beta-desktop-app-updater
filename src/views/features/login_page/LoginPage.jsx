@@ -8,6 +8,7 @@ import Cookies from 'js-cookie';
 import { useNavigate } from 'react-router-dom';
 import { ReactComponent as DarkModeGradient } from '../../../assets/svg/onboarding/dark-mode-gradient.svg';
 import { ReactComponent as LightModeGradient } from '../../../assets/svg/onboarding/light-mode-gradient.svg';
+import { ReactComponent as VeLogo } from '../../../assets/svg/veLogo.svg';
 
 const LoginPage = () => {
 	const navigate = useNavigate();
@@ -52,6 +53,10 @@ const LoginPage = () => {
 
 	const setEmailVerified = (emailVerified) => {
 		setInfo((prev) => ({ ...prev, emailVerified }));
+	};
+
+	const handleLogoClick = () => {
+		navigate('/');
 	};
 
 	const stages = {
@@ -107,6 +112,11 @@ const LoginPage = () => {
 
 	return (
 		<div className="login-page-container">
+			<div className="header">
+				<div className="logo" onClick={handleLogoClick}>
+					<VeLogo />
+				</div>
+			</div>
 			<div className="gradient-container">
 				{info?.isDarkMode ? <DarkModeGradient /> : <LightModeGradient />}
 			</div>
@@ -132,9 +142,9 @@ const LoginPage = () => {
 			)}
 			<div className="left-container">
 				<div className="stages-container">
-					<div className="logo-container">
+					{/* <div className="logo-container">
 						<VeAiLogo />
-					</div>
+					</div> */}
 					{stages?.[info?.activeStage]}
 				</div>
 			</div>

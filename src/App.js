@@ -7,6 +7,7 @@ import Cookies from 'js-cookie';
 import Context from './context/context';
 import AccessDeniedPopup from './views/components/accessPopups/accessDeniedPopup';
 import VoiceWrapper from './views/layouts/VoiceWrapper';
+import { CustomToast } from './views/components/globalComponents/CustomToast';
 function App() {
 	const {
 		themeInfo: { theme },
@@ -47,6 +48,7 @@ function App() {
 			<ExpiredSubscriptionModal />
 			<ExpiredTokenModal />
 			<AccessDeniedPopup />
+			<CustomToast duration={3000} />
 			<VoiceWrapper />
 		</>
 	);

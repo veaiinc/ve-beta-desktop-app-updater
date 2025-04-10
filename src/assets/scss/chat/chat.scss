@@ -1,5 +1,6 @@
 .chat-container {
 	height: calc(100vh - 64px);
+	padding: 0 16px;
 
 	.chatBarContainer {
 		width: 400px;
@@ -41,6 +42,28 @@
 			flex-direction: column;
 			align-items: center;
 			transition: width 300ms ease-in-out;
+			position: relative;
+
+			.scroll-button {
+				position: absolute;
+				bottom: 200px;
+				left: 50%;
+				transform: translateX(-50%) rotate(135deg);
+				width: 40px;
+				height: 40px;
+				border-radius: 50%;
+				background-color: var(--card-over-card, #202123);
+				border: 1px solid var(--stroke, #333334);
+				color: var(--primary-font, #f2f2f3);
+				cursor: pointer;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				font-size: 20px;
+				transition: all 0.3s ease;
+				z-index: 1000;
+				box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+			}
 
 			.chatBoxWrapper {
 				position: relative;
@@ -63,26 +86,7 @@
 				width: 100%;
 				overflow-y: scroll;
 				position: relative;
-				.scroll-button {
-					position: fixed;
-					bottom: 200px;
-					left: 50%;
-					transform: translateX(350%);
-					width: 40px;
-					height: 40px;
-					border-radius: 50%;
-					background-color: var(--card-over-card, #202123);
-					border: 1px solid var(--stroke, #333334);
-					color: var(--primary-font, #f2f2f3);
-					cursor: pointer;
-					display: flex;
-					align-items: center;
-					justify-content: center;
-					font-size: 20px;
-					transition: all 0.3s ease;
-					z-index: 1000;
-					box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-				}
+
 				.chatContent {
 					display: flex;
 					flex-direction: column;
@@ -95,7 +99,7 @@
 					.aiMessageWrapper {
 						.text-container {
 							color: var(--secondary-font, #787e87);
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 15px;
 							font-weight: 400;
 							line-height: 24px;
@@ -104,7 +108,7 @@
 							}
 
 							.highlight-char {
-								color: #f2f2f3;
+								color: var(--primary-font, #f2f2f3);
 							}
 						}
 					}
@@ -141,7 +145,7 @@
 									padding-bottom: 8px;
 									position: sticky;
 									top: -2px;
-									transition: all 0.3s ease;
+									// transition: all 0.3s ease;
 									background-color: var(--background-color);
 									margin-top: -65px;
 
@@ -171,7 +175,7 @@
 
 									.tab-btn {
 										padding: 8px;
-										font-family: Inter;
+										font-family: var(--primary-font-family);
 										font-size: 14px;
 										font-style: normal;
 										font-weight: 500;
@@ -218,13 +222,13 @@
 												width: 100%;
 												left: 0;
 												height: 2px;
-												background-color: var(--Primary-Font, #f2f2f3);
+												background-color: var(--primary-font, #f2f2f3);
 												border-radius: 2px;
 											}
 										}
 
 										&:hover {
-											color: var(--Primary-Font, #f2f2f3);
+											color: var(--primary-font, #f2f2f3);
 										}
 
 										.citation-badge {
