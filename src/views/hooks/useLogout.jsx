@@ -18,6 +18,8 @@ const useLogout = () => {
 		contacts: { resetContactsState },
 		documentPreview: { resetDocumentPreviewState },
 		automationBuilder: { resetAutomationBuilderState },
+		knowledgeAgent: { resetKnowledgeAgentState },
+		elasticSearch: { resetElasticSearchState },
 	} = useContext(Context);
 
 	const resetApplications = useCallback(async () => {
@@ -37,7 +39,9 @@ const useLogout = () => {
 			Cookies.set('theme', cookieTheme, { expires: 365 }); // Set expiration to persist
 		}
 
-		window.location.replace('/');
+		// window.location.replace('/');
+
+		/* since framer website is added in / route the following ciode is not needed */
 
 		//add here all reset context state func
 		resetChatState();
@@ -50,11 +54,13 @@ const useLogout = () => {
 		resetActivityState();
 		resetAiSetupState();
 		resetTasksState();
-
-		navigate('/');
 		resetContactsState();
 		resetDocumentPreviewState();
 		resetAutomationBuilderState();
+		resetElasticSearchState();
+		resetKnowledgeAgentState();
+
+		navigate('/');
 	}, []);
 
 	return resetApplications;

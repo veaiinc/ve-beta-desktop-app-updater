@@ -1,0 +1,513 @@
+.stageContainer {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+
+	.email {
+		color: var(--primary-font, #f2f2f3);
+		font-family: var(--primary-font-family);
+		font-size: 14px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
+	}
+
+	.stage1,
+	.stage2 {
+		display: flex;
+		flex-direction: column;
+		gap: 50px;
+
+		.header {
+			display: flex;
+			flex-direction: column;
+			gap: 6px;
+
+			.title {
+				color: var(--primary-font, #f2f2f3);
+				font-family: var(--primary-font-family);
+				font-size: 24px;
+				font-style: normal;
+				font-weight: 600;
+				line-height: normal;
+			}
+
+			.subtitle {
+				color: var(--secondary-font, #7a7e85);
+				font-family: var(--primary-font-family);
+				font-size: 16px;
+				font-style: normal;
+				font-weight: 400;
+				line-height: normal;
+			}
+		}
+
+		.stage1Content {
+			display: flex;
+			flex-direction: column;
+			gap: 16px;
+
+			.nameInputContainer,
+			.phoneInputContainer,
+			.otpInputContainer,
+			.themeInputContainer {
+				width: 100%;
+				display: flex;
+				flex-direction: column;
+				gap: 8px;
+				position: relative;
+
+				.question {
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+				}
+
+				.nameInputAndProfilePictureContainer {
+					display: flex;
+					gap: 8px;
+					align-items: center;
+					background-color: var(--card);
+					border-radius: 12px;
+
+					.nameInput {
+						width: calc(100% - 49px);
+						border-radius: 12px;
+						background: var(--card);
+						color: var(--primary-font);
+						font-family: Inter;
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+						padding: 12px 16px;
+						outline: none;
+						border: none;
+					}
+
+					.profilePictureContainer {
+						width: 41px;
+						height: 41px;
+						border-radius: 50%;
+						display: flex;
+						justify-content: center;
+						align-items: center;
+						cursor: pointer;
+
+						& > * {
+							cursor: pointer;
+						}
+
+						.profilePictureInput {
+							display: none;
+							cursor: pointer;
+
+							.profilePicture {
+								width: 41px;
+								height: 41px;
+								object-fit: cover;
+								border-radius: 50%;
+								padding: 6px;
+							}
+						}
+
+						.profilePicture {
+							width: 41px;
+							height: 41px;
+							object-fit: cover;
+							border-radius: 50%;
+							padding: 6px;
+						}
+					}
+				}
+
+				.phoneInputNumber {
+					width: 100%;
+					border-radius: 12px;
+					padding: 12px 16px;
+					background: var(--card);
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
+					font-size: 14px;
+					font-style: normal;
+					border: none;
+					outline: none;
+
+					.PhoneInputInput {
+						background-color: inherit;
+						border: none;
+						outline: none;
+						color: var(--primary-font);
+
+						&::placeholder {
+							color: var(--secondary-font, #7a7e85);
+							font-family: var(--primary-font-family);
+							font-size: 14px;
+							font-style: normal;
+							font-weight: 500;
+						}
+					}
+				}
+
+				.phoneContainerClass {
+					width: 100%;
+					display: flex;
+					justify-content: flex-start;
+					align-items: center;
+					gap: 4px;
+					border-radius: 12px;
+					background: var(--card);
+					height: 41px;
+					padding-left: 10px;
+
+					& > * {
+						background-color: inherit;
+						border: none;
+						outline: none;
+					}
+
+					.phoneInputClass {
+						color: var(--primary-font);
+						background-color: inherit;
+
+						&::placeholder {
+							color: var(--secondary-font, #7a7e85);
+							font-family: var(--primary-font-family);
+							font-size: 14px;
+							font-style: normal;
+							font-weight: 500;
+							line-height: normal;
+						}
+					}
+				}
+
+				.otpInput {
+					width: 100%;
+					border-radius: 12px;
+					border: 1px solid var(--stroke-hover, #424548);
+					background: var(--card, #171819);
+					display: flex;
+					padding: 14px 18px;
+					align-items: center;
+					align-self: stretch;
+					color: var(--primary-font, #f2f2f3);
+					font-family: var(--primary-font-family);
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+					letter-spacing: 14px;
+
+					&::placeholder {
+						color: var(--secondary-font, #7a7e85);
+						font-family: var(--primary-font-family);
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+						letter-spacing: 14px;
+					}
+				}
+
+				.animate {
+					animation: zoomIn 0.5s ease-in-out;
+				}
+
+				.spinnerContainer {
+					position: absolute;
+					right: -13px;
+					top: 56%;
+					z-index: 1;
+					width: 41px;
+					height: 41px;
+				}
+
+				.verifyPhoneNumberBtn,
+				.changePhoneNumberBtn,
+				.resendOtpBtn {
+					position: absolute;
+					right: 0;
+					bottom: -22px;
+					width: fit-content;
+					height: 12px;
+					color: var(--primary-font, #f2f2f3);
+					font-family: var(--primary-font-family);
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+					border: none;
+					outline: none;
+					background: transparent;
+					cursor: pointer;
+					padding: 8px;
+					display: flex;
+					justify-content: center;
+					align-items: center;
+				}
+
+				.changePhoneNumberBtn {
+					right: 80px;
+				}
+
+				.phoneNumberVerifiedContainer {
+					position: absolute;
+					right: 8px;
+					bottom: 8px;
+				}
+
+				.themeOptionsContainer {
+					width: 100%;
+					display: flex;
+					gap: 8px;
+
+					:nth-child(1) {
+						width: 60%;
+						display: flex;
+						justify-content: center;
+						align-items: center;
+					}
+
+					.themeOption {
+						border-radius: 12px;
+						background: var(--card, #171819);
+						border: 1px solid transparent;
+						height: 41px;
+						padding: 12px 16px;
+						display: flex;
+						align-items: center;
+						gap: 8px;
+						cursor: pointer;
+
+						.themeOptionLabel {
+							color: var(--primary-font);
+							font-family: var(--primary-font-family);
+							font-size: 14px;
+							font-style: normal;
+							font-weight: 500;
+							line-height: normal;
+						}
+
+						&.active {
+							border: 1px solid var(--primary-font, #f2f2f3);
+						}
+					}
+				}
+			}
+
+			.themeInputContainer {
+				margin-top: 12px;
+			}
+		}
+
+		.stage2Content {
+			display: flex;
+			flex-direction: column;
+			gap: 16px;
+
+			.companyNameContainer {
+				display: flex;
+				flex-direction: column;
+				gap: 8px;
+
+				.question {
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+				}
+
+				.companyNameAndLogoInputs {
+					display: flex;
+					justify-content: space-between;
+					gap: 8px;
+					background-color: var(--card);
+					border-radius: 12px;
+
+					.companyNameInput {
+						width: calc(100% - 49px);
+						border-radius: 12px;
+						background: var(--card);
+						color: var(--primary-font);
+						font-family: var(--primary-font-family);
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+						padding: 12px 16px;
+						outline: none;
+						border-radius: 12px;
+						border: none;
+					}
+
+					.companyLogoInputContainer {
+						width: 41px;
+						height: 41px;
+						border-radius: 50%;
+						display: flex;
+						justify-content: center;
+						align-items: center;
+						cursor: pointer;
+
+						& > * {
+							cursor: pointer;
+							width: 41px;
+							height: 41px;
+							display: flex;
+							justify-content: center;
+							align-items: center;
+						}
+
+						.companyLogoInput {
+							display: none;
+						}
+
+						.companyLogoContainer {
+							width: 100%;
+							height: 100%;
+						}
+
+						.companyLogo {
+							width: 100%;
+							height: 100%;
+							object-fit: cover;
+							border-radius: 50%;
+							padding: 6px;
+						}
+					}
+				}
+
+				.domainInfoContainer {
+					display: flex;
+					gap: 4px;
+					color: var(--secondary-font, #7a7e85);
+					font-family: var(--primary-font-family);
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+					min-height: 17px;
+
+					.domainName {
+						color: var(--primary-font);
+					}
+
+					.available {
+						color: var(--secondary-font);
+					}
+
+					.unavailable {
+						color: var(--error);
+					}
+				}
+			}
+
+			.workspaceTypeContainer {
+				display: flex;
+				flex-direction: column;
+				gap: 8px;
+				position: relative;
+
+				.question {
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
+					font-size: 14px;
+					font-style: normal;
+				}
+
+				.workspaceTypeInputContainer {
+					display: flex;
+					justify-content: space-between;
+					background-color: var(--card);
+					border-radius: 12px;
+
+					.workspaceTypeInput {
+						width: 100%;
+						border-radius: 12px;
+						background: var(--card);
+						color: var(--primary-font);
+						font-family: var(--primary-font-family);
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+						padding: 12px 16px;
+						border: none;
+						outline: none;
+					}
+
+					.workspaceTypeDropdown {
+						width: 41px;
+						height: 41px;
+						display: flex;
+						justify-content: center;
+						align-items: center;
+						cursor: pointer;
+
+						.labelContainer {
+							display: flex;
+							justify-content: center;
+							align-items: center;
+							cursor: pointer;
+							width: 41px;
+							height: 41px;
+							-webkit-user-select: none;
+							user-select: none;
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+.btnsContainer {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 8px;
+
+	.backBtn,
+	.continueBtn {
+		border-radius: 12px;
+		background: var(--primary-button);
+		font-family: var(--primary-font-family);
+		font-size: 14px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
+		padding: 12px 16px;
+		border: none;
+		outline: none;
+		cursor: pointer;
+		border-radius: 24px;
+		width: 100%;
+		height: 41px;
+	}
+
+	.backBtn {
+		color: var(--primary-font);
+		background: transparent;
+		border: 1px solid var(--stroke, #2c2d2e);
+	}
+
+	.continueBtn {
+		background: var(--primary-button);
+		border-radius: 24px;
+		color: var(--primary-button-font);
+	}
+}
+
+@keyframes zoomIn {
+	from {
+		height: 0;
+	}
+	to {
+		height: 41px;
+	}
+}

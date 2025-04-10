@@ -36,6 +36,12 @@ const actionHandlers = {
 			views: state.clientMetadata?.views?.filter((view) => view?._id !== action?.payload),
 		},
 	}),
+
+	SET_CLIENT_LIST_FOR_TASK: (state, action) => ({
+		...state,
+		clientListForTask: action?.payload,
+	}),
+
 	RESET_STATE: () => intialState,
 };
 

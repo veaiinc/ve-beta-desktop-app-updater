@@ -32,7 +32,14 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 			duplicatePage,
 		},
 	} = useContext(Context);
-	const editor = useCreateBlockNote();
+	const editor = useCreateBlockNote({
+		tables: {
+			splitCells: true,
+			cellBackgroundColor: true,
+			cellTextColor: true,
+			headers: true,
+		},
+	});
 	const [info, setInfo] = useState({
 		timeouts: {}, // Single timeouts object to store all timeouts
 		title: '',
@@ -130,6 +137,12 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 		});
 	};
 
+	const handleKeyDown = (e) => {
+		if (e.key === 'Enter') {
+			e.preventDefault(); // optional: stops newline if it's a textarea
+		}
+	};
+
 	const handleFavorite = useCallback(
 		(value) => {
 			setInfo((prev) => ({ ...prev, isFavorite: value }));
@@ -221,6 +234,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 						value={info?.title}
 						onChange={handleTitleChange}
 						autoResize={true}
+						onKeyDown={handleKeyDown}
 					/>
 					<BlockNoteView
 						editor={editor}

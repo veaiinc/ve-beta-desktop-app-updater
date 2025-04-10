@@ -1,0 +1,151 @@
+.formFullView {
+	position: fixed;
+	top: 0;
+	left: 240px; /* Adjust based on your sidebar width */
+	right: 0;
+	bottom: 0;
+	background: var(--card);
+	z-index: 1000;
+	overflow-y: auto;
+	display: flex;
+	justify-content: center;
+
+	.loading {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		height: 100vh;
+		color: var(--primary-font);
+		font-size: 18px;
+	}
+
+	.formFullViewContent {
+		width: 100%;
+		max-width: 800px;
+		display: flex;
+		flex-direction: column;
+		gap: 20px;
+		padding: 24px;
+
+		.headerContainer {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			width: 100%;
+
+			.headerLeft {
+				display: flex;
+				align-items: center;
+				gap: 16px;
+
+				svg {
+					cursor: pointer;
+					width: 16px;
+					height: 16px;
+					opacity: 0.7;
+					transition: opacity 0.3s ease;
+					transform: rotate(180deg);
+
+					&:hover {
+						opacity: 1;
+					}
+				}
+
+				.formTitle {
+					color: var(--primary-font);
+					font-size: 20px;
+					font-weight: 500;
+				}
+			}
+
+			.headerRight {
+				.statusBadge {
+					display: inline-block;
+					padding: 6px 12px;
+					border-radius: 20px;
+					font-size: 14px;
+
+					&.complete {
+						background-color: var(--card-hover);
+						color: var(--success);
+					}
+
+					&.incomplete {
+						background-color: var(--card-hover);
+						color: var(--warning);
+					}
+				}
+			}
+		}
+
+		.responseContainer {
+			.responseItem {
+				margin-bottom: 24px;
+
+				.questionSection {
+					display: flex;
+					align-items: center;
+					gap: 8px;
+					margin-bottom: 12px;
+
+					svg {
+						width: 16px;
+						height: 16px;
+						color: var(--secondary-font);
+					}
+
+					.questionText {
+						color: var(--primary-font);
+						font-size: 14px;
+					}
+				}
+
+				.answerSection {
+					margin-left: 24px;
+					color: var(--primary-font);
+					font-size: 16px;
+					font-weight: 500;
+
+					.timeAnswer {
+						display: flex;
+						align-items: center;
+						gap: 8px;
+
+						.time {
+							background: var(--card-hover);
+							padding: 8px 12px;
+							border-radius: 6px;
+						}
+					}
+
+					.fileAnswer {
+						.fileItem {
+							display: flex;
+							align-items: center;
+							gap: 8px;
+							padding: 8px;
+							background: var(--card-hover);
+							border-radius: 6px;
+							margin-bottom: 8px;
+						}
+					}
+
+					.linkAnswer {
+						color: var(--primary-font);
+						text-decoration: underline;
+					}
+
+					.defaultAnswer {
+						color: var(--primary-font);
+					}
+				}
+
+				.divider {
+					height: 1px;
+					background: var(--stroke);
+					margin-top: 16px;
+				}
+			}
+		}
+	}
+}

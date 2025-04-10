@@ -28,21 +28,23 @@
 
 .quick-actions-dropdown-options-container {
 	display: flex;
-	width: 150px;
+	// width: 300px;
+	max-height: 520px;
 	padding: 12px;
 	flex-direction: column;
 	align-items: flex-start;
-	gap: 2px;
-	border-radius: 12px;
+	gap: 12px;
+	border-radius: 24px;
 	background: var(--card);
 	.dropdown-option {
 		display: flex;
+		column-gap: 10px;
 		padding: 6px 8px;
-		justify-content: space-between;
+		justify-content: flex-start;
 		align-items: center;
 		align-self: stretch;
 		border-radius: 8px;
-		color: var(--primary-font,rgba(242, 242, 243, 1) );
+		color: var(--primary-font);
 		font-family: var(--primary-font-family);
 		font-size: 14px;
 		font-style: normal;
@@ -51,7 +53,80 @@
 		flex: 1 0 0;
 		cursor: pointer;
 		&:hover {
-			background: var(--card-hover);
+			background: var(--card-over-card-hover);
 		}
+	}
+}
+
+.top-search-container {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 10px 24px;
+	gap: 10px;
+	border-radius: 50px;
+	border: 0.5px solid var(--stroke);
+	background-color: var(--card);
+	width: 100%;
+
+	input {
+		background: none;
+		border: none;
+		color: var(--secondary-font);
+		font-size: 14px;
+		font-weight: 400;
+		line-height: 16px;
+		width: 100%;
+	}
+}
+
+.suggested-modules-container {
+	display: flex;
+	background-color: var(--card-over-card);
+	flex-direction: column;
+	width: 100%;
+	border-radius: 16px;
+	padding: 14px;
+	// min-height: 94px;
+	.suggested-modules-container-header {
+		color: var(--secondary-font);
+		font-size: 13px;
+		position: sticky;
+		top: 0;
+	}
+	.suggested-modules-container-options {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		overflow: scroll;
+		height: fit-content;
+		.dropdown-option {
+			width: 100%;
+		}
+	}
+}
+
+.modules-container {
+	display: flex;
+	background-color: var(--card-over-card);
+	flex-direction: column;
+	width: 100%;
+	border-radius: 16px;
+	padding: 14px;
+	overflow: scroll;
+	// min-height: 94px;
+	.modules-container-header {
+		color: var(--secondary-font);
+		font-size: 13px;
+		position: sticky;
+		top: 0;
+		background-color: var(--card-over-card);
+	}
+	.modules-container-options {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		overflow: scroll;
+		height: fit-content;
 	}
 }

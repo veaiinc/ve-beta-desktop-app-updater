@@ -145,21 +145,18 @@ const Person = ({
 						(!info?.value && !value) || (Array.isArray(value) && value.length === 0)
 							? '100px'
 							: 'fit-content',
-					color: disabled ? '#8c8c8c' : '#e5e5e5',
+					color: disabled ? 'var(--secondary-font)' : 'var(--primary-font)',
 				}}
 				className={`person-select ${disabled ? 'disabled' : ''}`}
 				popupClassName="person-select-dropdown"
 				dropdownStyle={{
-					backgroundColor: '#1f1f1f',
+					backgroundColor: 'var(--card-over-card)',
 					width: '220px',
 				}}
 				notFoundContent="No options available"
-				onDropdownVisibleChange={(open) => {
-					// Remove console.log
-				}}
+				onDropdownVisibleChange={(open) => {}}
 				{...(multiSelect ? { tagRender: renderPerson } : { labelRender: renderPerson })}
 				dropdownRender={(menu) => {
-					// Remove console.log
 					return (
 						<div className="person-dropdown-menu">
 							<div className="person-dropdown-menu-header">

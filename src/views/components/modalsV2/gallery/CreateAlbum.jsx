@@ -1,21 +1,23 @@
 import React, { useState, memo, useContext, useEffect, useCallback } from 'react';
 import '../../../../assets/scss/gallery/modals/createAlbum.scss';
 import ReactModal from '../index';
-import { DatePicker } from 'antd';
+import { DatePicker, message } from 'antd';
 import Context from '../../../../context/context';
 import { useLocation } from 'react-router-dom';
 import { ReactComponent as CrossWhite } from '../../../../assets/svg/workspaceSettings/cross.svg';
 import slugify from 'slugify';
-const CreateAlbum = ({ open, closeModal, galleryId }) => {
+import dayjs from 'dayjs';
+
+const CreateAlbum = ({ open, closeModal, galleryId, handleNewAlbumCreated }) => {
 	const {
 		galleryInfo: { createNewAlbum, checkAlbumSlugIsAvalible },
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 	} = useContext(Context);
 	const location = useLocation();
 	const [info, setInfo] = useState({
-		albumName: '',
-		slug: '',
-		eventDate: '',
+		albumName: 'Untitled Album',
+		slug: 'untitledalbum',
+		eventDate: new Date().toISOString().split('T')[0],
 		albumNameError: false,
 		eventDateError: false,
 		albumSlugError: false,
@@ -36,7 +38,7 @@ const CreateAlbum = ({ open, closeModal, galleryId }) => {
 			});
 			setInfo((prevInfo) => ({
 				...prevInfo,
-				albumName,
+				albumName: albumName,
 				slug: slugConverted,
 				albumNameError: !albumName,
 			}));
@@ -50,7 +52,7 @@ const CreateAlbum = ({ open, closeModal, galleryId }) => {
 		}
 	};
 
-	const handleCreateAlbum = () => {
+	const handleCreateAlbum = async () => {
 		if (
 			validateExpiryData &&
 			validateExpiryData?.restrictGalleries &&
@@ -77,8 +79,15 @@ const CreateAlbum = ({ open, closeModal, galleryId }) => {
 			eventDateEpoch: new Date(info.eventDate).getTime() / 1000,
 		};
 		setInfo((prev) => ({ ...prev, isSubmitting: true }));
-		createNewAlbum(payload, galleryId);
-		closeModelFunction();
+		const response = await createNewAlbum(payload, galleryId);
+		if (response?.[0] === true) {
+			closeModelFunction();
+			message.success('Album Created Successfully');
+			handleNewAlbumCreated(response?.[1]);
+		} else {
+			message.error(response?.[1]?.message);
+		}
+
 		setInfo((prev) => ({ ...prev, isSubmitting: false }));
 	};
 
@@ -108,9 +117,9 @@ const CreateAlbum = ({ open, closeModal, galleryId }) => {
 
 	const closeModelFunction = () => {
 		setInfo({
-			albumName: '',
-			slug: '',
-			eventDate: '',
+			albumName: 'Untitled',
+			slug: 'untitled',
+			eventDate: new Date().toISOString().split('T')[0],
 			albumNameError: false,
 			eventDateError: false,
 			albumSlugError: false,
@@ -154,11 +163,13 @@ const CreateAlbum = ({ open, closeModal, galleryId }) => {
 						<DatePicker
 							className="datePicker"
 							format="YYYY-MM-DD"
-							selected={info.eventDate}
+							defaultValue={dayjs()} // Set default value to current date
+							value={dayjs(info.eventDate)}
 							onChange={(date, dateString) =>
 								handleAlbumNameChange(dateString, 'date')
 							}
 							inputReadOnly
+							allowClear={false}
 						/>
 						{info?.eventDateError && <p className="error">Album Date is Required</p>}
 					</div>

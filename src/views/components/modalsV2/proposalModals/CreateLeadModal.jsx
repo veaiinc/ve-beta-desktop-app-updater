@@ -46,9 +46,11 @@ const CreateLead = ({ workflow, modalIsOpen, closeModal }) => {
 	const [selectedLead, setSelectedLead] = useState({});
 
 	useEffect(() => {
-		getTemplatesListForCreateLead();
-		getClientListData();
-	}, []);
+		if (modalIsOpen) {
+			getTemplatesListForCreateLead();
+			getClientListData();
+		}
+	}, [modalIsOpen]);
 
 	useEffect(() => {
 		const isValidEmail = leadDetails['emailId'] && validator?.isEmail(leadDetails['emailId']);

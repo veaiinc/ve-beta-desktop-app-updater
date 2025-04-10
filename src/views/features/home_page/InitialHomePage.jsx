@@ -1,24 +1,26 @@
-import React, { memo, useContext, useState, useEffect, useCallback } from 'react';
+import React, { memo, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import '../../../assets/scss/home_page/initialHomepage.scss';
 import jwtDecode from 'jwt-decode';
 import Context from '../../../context/context';
-import PromptPopup from '../../components/homePage/PromptPopup';
-import HomePage from './HomePage';
 import ChatBox from '../../components/homePage/ChatBox';
 import { useNavigate } from 'react-router-dom';
-import ObjectID from 'bson-objectid';
-// const initialHomePageOptions = [
-// 	{ id: 1, title: 'All Prompts', type: 'all' },
-// 	{ id: 2, title: 'Sales', type: 'sales' },
-// 	{ id: 3, title: 'Marketing', type: 'marketing' },
-// 	{ id: 4, title: 'Operations', type: 'operations' },
-// ];
+import ProactiveSuggestions from './ProactiveSuggestions';
+import ChatPrompts from './ChatPrompts';
+import QuickActions from '../../components/globalComponents/QuickActions';
 
-const navBarOptions = [
-	{ id: 1, title: 'Start', type: 'start' },
-	{ id: 2, title: 'Dashboard', type: 'dashboard' },
-	// { id: 3, title: 'Agent47', type: 'agent47' },
-	// { id: 4, title: 'ManagerAI', type: 'managerAI' },
+const optionsList = [
+	{
+		id: 1,
+		label: 'Proactive suggestions',
+		value: 'proactiveSuggestions',
+		showOption: false,
+	},
+	{
+		id: 2,
+		label: 'Prompts library',
+		value: 'prompts',
+		showOption: false,
+	},
 ];
 
 const InitialHomePage = () => {
@@ -29,18 +31,19 @@ const InitialHomePage = () => {
 	const navigate = useNavigate();
 
 	const [info, setInfo] = useState({
-		isStart: false,
-		selectedOption: null,
-		selectedNavBarOption: navBarOptions[0],
-		dashboardSelected: false,
-		goBackToInitialHomePage: false,
-		showPromptPopup: false,
-		selectedCard: null,
+		selectedOption: '',
+		options: optionsList,
+		promptsCategory: 'all',
+		optionsHandledOnce: Object?.values(optionsList)?.reduce((acc, option) => {
+			acc[option.value] = false;
+			return acc;
+		}, {}),
 	});
 
 	let {
 		profileInfo: { userDetailsData },
 		aiSetup: { getPromptsData, promptsData },
+		templates: { aiSuggestedPendingActions, getAISuggestedPendingActions },
 	} = useContext(Context);
 
 	const username =
@@ -49,35 +52,41 @@ const InitialHomePage = () => {
 		'User';
 
 	useEffect(() => {
-		if (info?.selectedOption && info?.selectedOption !== 'all') {
-			getPromptsData({ category: info?.selectedOption });
+		if (promptsData) {
+			if (promptsData?.data?.length > 0 && !info?.optionsHandledOnce?.prompts) {
+				handleUpdateOptions('prompts');
+				setInfo((prev) => ({
+					...prev,
+					optionsHandledOnce: {
+						...prev.optionsHandledOnce,
+						prompts: true,
+					},
+				}));
+			}
 		} else {
-			getPromptsData();
+			getPromptsData({ category: 'all', limit: 30 });
 		}
-	}, [info?.selectedOption]);
+	}, [promptsData]);
 
-	const handleNavBarSelection = (item) => {
-		setInfo({ ...info, selectedNavBarOption: item });
-		if (item?.type === 'dashboard') {
-			setInfo((prev) => ({
-				...prev,
-				dashboardSelected: true,
-				selectedOption: null,
-				isStart: false,
-			}));
-			return;
+	useEffect(() => {
+		if (aiSuggestedPendingActions) {
+			const cards = aiSuggestedPendingActions?.pendingActions?.filter(
+				(card) => card?.researchTopics?.length > 0,
+			);
+			if (cards?.length > 0 && !info?.optionsHandledOnce?.proactiveSuggestions) {
+				handleUpdateOptions('proactiveSuggestions');
+				setInfo((prev) => ({
+					...prev,
+					optionsHandledOnce: {
+						...prev.optionsHandledOnce,
+						proactiveSuggestions: true,
+					},
+				}));
+			}
+		} else {
+			getAISuggestedPendingActions();
 		}
-	};
-
-	const setGoBackToInitialHomePage = (boolValue) => {
-		setInfo((prev) => ({
-			...prev,
-			goBackToInitialHomePage: boolValue,
-			selectedOption: null,
-			dashboardSelected: false,
-			selectedNavBarOption: navBarOptions[0],
-		}));
-	};
+	}, [aiSuggestedPendingActions]);
 
 	const handleCustomOnSendFunction = useCallback(
 		(data) => {
@@ -87,116 +96,105 @@ const InitialHomePage = () => {
 		},
 		[currentSessionId],
 	);
-	return (
-		<>
-			{info?.selectedOption !== null || info?.dashboardSelected ? (
-				<HomePage
-					getSelectedOption={info?.selectedOption}
-					start={info?.isStart}
-					setGoBackToInitialHomePage={setGoBackToInitialHomePage}
-					promptsData={promptsData}
+
+	const handleOptionSelection = (option) => {
+		if (info?.selectedOption === option?.value) {
+			return;
+		}
+		setInfo((prev) => ({
+			...prev,
+			selectedOption: option?.value,
+		}));
+	};
+
+	const handleUpdateOptions = (value) => {
+		let updatedOptions = info?.options;
+		updatedOptions = updatedOptions?.map((option) => {
+			if (option?.value === value) {
+				option.showOption = true;
+			}
+			return option;
+		});
+
+		const selectedOption = updatedOptions?.find((option) => option?.showOption)?.value ?? '';
+
+		setInfo((prev) => ({
+			...prev,
+			options: updatedOptions,
+			selectedOption,
+		}));
+	};
+
+	const updatePromptsCategory = (value) => {
+		setInfo((prev) => ({
+			...prev,
+			promptsCategory: value,
+		}));
+	};
+
+	const componentMapper = useMemo(
+		() => ({
+			proactiveSuggestions: <ProactiveSuggestions />,
+			prompts: (
+				<ChatPrompts
+					promptsCategory={info?.promptsCategory}
+					updatePromptsCategory={updatePromptsCategory}
 				/>
-			) : (
-				<div className="initialHomePageContainer">
-					<div className="initialHomeContainerFixedContent">
-						<div className="initialHomeContainerFixedContent-item-container">
-							{navBarOptions?.map((item, index) => {
-								return (
-									<>
-										<div
-											className={`initialHomeContainerFixedContent-item ${
-												info?.selectedNavBarOption?.id === item?.id
-													? 'active'
-													: ''
-											}`}
-											onClick={() => handleNavBarSelection(item)}
-										>
-											{item?.title}
-										</div>
-										{index !== navBarOptions.length - 1 && (
-											<div className="initialHomeContainerFixedContent-divider"></div>
-										)}
-									</>
-								);
-							})}
-						</div>
+			),
+		}),
+		[info?.promptsCategory],
+	);
+
+	const options = useMemo(
+		() => info?.options?.filter((option) => option?.showOption),
+		[info?.options],
+	);
+
+	return (
+		<div className="initial-home-page-container">
+			<div className="quick-actions-container">
+				<QuickActions />
+			</div>
+			<div
+				className="home-page-container-header"
+				style={{
+					marginTop: options?.length > 0 ? '85px' : '0px',
+				}}
+			>
+				<div className="title-container">
+					<div className="title-text">
+						<span className="title-one">AI.</span>{' '}
+						<span className="title-two">truly yours</span>
 					</div>
-					<div className="initialHomePageContainer-content">
-						<div className="initialHomePageContainer-content-left">
-							<div className="initialHomePageContainer-header">
-								Hey <span>{username}</span> <br />
-								I'm here to help
-							</div>
-							<div className="initialHomePageContainer-content-left-description">
-								Ask me anything about your business or let me handle a task for you.
-							</div>
-						</div>
-						{/* <div className="initialHomePageContainerOptions">
-							{initialHomePageOptions?.map((item) => {
-								return (
-									<div
-										className="initialHomePageContainerOptions-item"
-										onClick={() =>
-											setInfo({
-												...info,
-												selectedOption: item?.type,
-												isStart: true,
-											})
-										}
-									>
-										{item?.title}
-									</div>
-								);
-							})}
-						</div> */}
-					</div>
-					<div className="initialHomePageContainer-chatBox">
-						<div className="chatBoxWrapper">
-							<ChatBox onSend={handleCustomOnSendFunction} customChatActions={true} />
-						</div>
-					</div>
-					<div className="initialHomePageContainer-prompts">
-						<div className="initialHomePageContainerCards">
-							{promptsData?.data?.map((item) => {
-								return (
-									<div
-										className="initialHomepageEachCard"
-										onClick={() => {
-											setInfo({
-												...info,
-												showPromptPopup: true,
-												selectedCard: item,
-											});
-										}}
-									>
-										<div className="initialHomepageEachCard-type">
-											<div className="initialHomepageEachCard-type-title">
-												Workflows for
-											</div>
-											<div className="initialHomepageEachCard-type-type">
-												{item?.category}
-											</div>
-										</div>
-										<div className="initialHomepageEachCard-title">
-											{item?.title}
-										</div>
-									</div>
-								);
-							})}
-						</div>
-						<div className="initialHomePageContainerFooter">
-							Above are the Prompts you need to ask me as per your business{' '}
-							<span>goals</span> check all prompts for more.
-						</div>
+					<div className="sub-text">
+						AI that deeply cares about your Goals & strives to be helpful
 					</div>
 				</div>
+
+				<div className="chat-box-container">
+					<ChatBox onSend={handleCustomOnSendFunction} customChatActions={true} />
+				</div>
+				<div className="options-container">
+					{options?.map((option) => {
+						return (
+							<div
+								className={`option ${
+									info?.selectedOption === option?.value ? 'active' : ''
+								}`}
+								onClick={() => handleOptionSelection(option)}
+							>
+								<div className="option-label">{option?.label}</div>
+							</div>
+						);
+					})}
+				</div>
+			</div>
+			{options?.length > 0 && (
+				<div className="home-page-container-content">
+					{componentMapper[info?.selectedOption]}
+				</div>
 			)}
-			<PromptPopup
-				open={info?.showPromptPopup}
-				closeModal={() => setInfo({ ...info, showPromptPopup: false })}
-				selectedCard={info?.selectedCard}
-			/>
-		</>
+		</div>
 	);
 };
 

@@ -178,6 +178,7 @@ const SessionMetric = ({
 									justifyContent: 'center',
 									alignItems: 'center',
 									backgroundColor: 'var(--card)',
+									color: 'var(--primary-font)',
 									height: '55px',
 									borderRadius: '8px',
 									fontWeight: 'bold',

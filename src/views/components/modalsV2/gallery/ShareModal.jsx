@@ -70,6 +70,9 @@ const ShareModal = ({
 		currentWorkspaceId: null,
 		galleryLink: null,
 		galleryGuestAccessDetails: null,
+		callToAction: tenantPreferences?.ctaPreferences?.isEnabled,
+		ctaLink: tenantPreferences?.ctaPreferences?.ctaLink,
+		clientSubscription: tenantPreferences?.allowClientsToSubscribe || false,
 	});
 	useEffect(() => {
 		if (!galleryShareDetails) {
@@ -114,7 +117,6 @@ const ShareModal = ({
 			}));
 		}
 	}, [galleryGuestAccessDetails]);
-
 	useEffect(() => {
 		if (!tenantPreferences) {
 			getEditPreferences(galleryId);
@@ -140,6 +142,7 @@ const ShareModal = ({
 			}));
 		}
 	}, [tenantPreferences]);
+
 	useEffect(() => {
 		handleDownloadOptions();
 	}, [
@@ -700,17 +703,16 @@ const ShareModal = ({
 				<div className="callToAction">
 					<p className="subHeading">Call to Action (CTA)</p>
 					<div className="callToActionToggle">
-						<ToggleSlider
-							value={data?.callToAction?.isEnabled}
-							onChange={handleCallToAction}
-						/>
+						<ToggleSlider value={data?.callToAction} onChange={handleCallToAction} />
 						<p className="subTitle">Enable to display CTA for the gallery.</p>
 					</div>
-					<input
-						placeholder="https://Instagtagram/sam/9tbevccxggvcxg"
-						value={data?.callToAction?.link}
-						onChange={handleLinkChange}
-					/>
+					{data?.callToAction && (
+						<input
+							placeholder="your CTA link eg: https://yourwebsite.com"
+							value={data?.callToAction?.link}
+							onChange={handleLinkChange}
+						/>
+					)}
 				</div>
 				<div className="clientSubscription">
 					<p className="subHeading">Client Subscription</p>

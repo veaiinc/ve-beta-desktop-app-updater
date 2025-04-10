@@ -28,7 +28,6 @@ const DeleteAgentModal = ({ open, closeModal, deleteChatBot, deleteConversations
 		}
 	}, []);
 	const modyfyClose = useCallback(() => {
-		console.log('modyfyClose called');
 		setInfo((prev) => ({ ...prev, loader: false }));
 		closeModal();
 	}, [closeModal]);

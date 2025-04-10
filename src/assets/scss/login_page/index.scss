@@ -6,11 +6,37 @@
 	align-items: center;
 	background: var(--background-color);
 	position: relative;
+	z-index: 1;
+
+	.header {
+		position: absolute;
+		top: 0;
+		left: 0;
+		padding: 32px 16px 20px 16px;
+		.logo {
+			cursor: pointer;
+		}
+	}
+
+	.gradient-container {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		z-index: -1;
+		transform: translateY(-50%);
+
+		svg {
+			width: 100%;
+			height: 100%;
+		}
+	}
 
 	.cookies-notice {
-		min-width: 581.34px;
+		min-width: 342px;
 		min-height: 80px;
-		max-height: 80px;
+		max-height: 90px;
 		position: absolute;
 		bottom: 22px;
 		left: 50%;
@@ -80,12 +106,12 @@
 			justify-content: center;
 			align-items: center;
 			gap: 60px;
-			max-width: 346px;
+			max-width: 458px;
 
 			.logo-container {
 				width: 100%;
 				display: flex;
-				justify-content: flex-start;
+				justify-content: center;
 				align-items: center;
 				margin-bottom: 40px;
 			}
@@ -97,83 +123,65 @@
 				justify-content: center;
 				gap: 12px;
 
-				.login-page-subtitle {
-					color: var(--secondary-font);
-					text-align: center;
-					font-family: var(--secondary-font-family);
-					font-size: 20px;
-					font-style: normal;
-					font-weight: 500;
-					line-height: 30px;
-					text-align: left;
+				.login-page-title {
 					width: 100%;
-
-					.referrer-name {
-						background: var(
-							--Color-Code-AI,
-							linear-gradient(94deg, #ca9bfe -2.06%, #fd749d 95.85%)
-						);
-						background-clip: text;
-						-webkit-background-clip: text;
-						-webkit-text-fill-color: transparent;
-						font-family: var(--secondary-font-family);
-						font-size: 20px;
+					display: flex;
+					justify-content: center;
+					.title-one {
+						color: var(--primary-font, #f2f2f3);
+						text-align: center;
+						font-family: Inter;
+						font-size: 53px;
 						font-style: normal;
-						font-weight: 500;
-						line-height: 30px;
+						font-weight: 600;
+						line-height: 60px; /* 113.208% */
+						letter-spacing: -1.59px;
+					}
+					.title-two {
+						color: var(--primary-font, #f2f2f3);
+						font-family: Inter;
+						font-size: 53px;
+						font-style: italic;
+						font-weight: 400;
+						line-height: 60px;
+						letter-spacing: -1.59px;
+						text-transform: lowercase;
 					}
 				}
 
-				.login-page-title {
-					color: var(--primary-font);
-					text-align: center;
-					font-family: var(--secondary-font-family);
-					font-size: 32px;
-					font-style: normal;
-					font-weight: 600;
-					line-height: 36px;
-					text-align: left;
+				.login-page-subtitle {
 					width: 100%;
-				}
-			}
-
-			.login-page-title {
-				width: 100%;
-				color: var(--primary-font);
-				font-family: var(--secondary-font-family);
-				font-size: 32px;
-				font-style: normal;
-				font-weight: 500;
-				line-height: normal;
-
-				span {
-					color: var(--secondary-font);
-					font-size: 32px;
+					text-align: center;
+					color: var(--primary-font, #f2f2f3);
+					text-align: center;
+					font-family: Inter;
+					font-size: 20px;
 					font-style: normal;
-					font-weight: 500;
+					font-weight: 300;
 					line-height: normal;
 				}
 			}
 
 			.login-button-container {
+				width: 100%;
 				.google-login-button {
-					margin-top: 80px;
-					display: flex;
 					width: 100%;
-					height: 45px;
-					padding: 14px 24px;
+					display: flex;
+					padding: 14px 18px;
 					justify-content: center;
 					align-items: center;
-					gap: 16px;
-					border-radius: 60px;
-					border: none;
+					gap: 10px;
+					align-self: stretch;
+					border-radius: 12px;
 					background: var(--card);
-					color: var(--primary-font);
-					font-family: var(--secondary-font-family);
-					font-size: 12px;
+					color: var(--primary-font, #f2f2f3);
+					text-align: center;
+					font-family: Inter;
+					font-size: 14px;
 					font-style: normal;
 					font-weight: 500;
 					line-height: normal;
+					border: none;
 					cursor: pointer;
 					transition: all 0.3s ease;
 
@@ -209,36 +217,55 @@
 
 				.email-input-container {
 					display: flex;
-					justify-content: space-between;
 					align-items: center;
-					width: 100%;
-					height: 45px;
-					gap: 12px;
-					border-radius: 60px;
-					background: var(--card);
+					gap: 10px;
+					flex: 1 0 0;
+					border-radius: 12px;
 
 					input {
-						padding: 14px 24px;
-						width: 75%;
-						border: none;
-						background-color: transparent;
+						padding: 14px 18px;
+						width: 85%;
 						color: var(--primary-font);
+						border-radius: 12px;
+						border: 1px solid transparent;
+						background: var(--card, #181a1b);
+
+						&:focus,
+						&:hover {
+							border: 1px solid var(--stroke);
+						}
 					}
+
 					button {
-						border-radius: 60px;
-						background: var(--card-over-card);
-						height: 45px;
-						padding: 14px 24px;
-						border: none;
-						cursor: pointer;
-						transition: all 0.3s ease;
 						display: flex;
-						align-items: center;
+						width: 60px;
+						height: 45px;
+						padding: 14px 16px;
 						justify-content: center;
+						align-items: center;
+						gap: 10px;
+						border-radius: 12px;
+						border: none;
 
 						&:hover {
 							background: var(--primary-font);
 						}
+					}
+				}
+
+				.disclaimer {
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 500;
+					text-align: center;
+					line-height: 16px;
+					margin-top: 12px;
+
+					.link {
+						cursor: pointer;
+						text-decoration: underline;
 					}
 				}
 			}
@@ -254,6 +281,7 @@
 					justify-content: flex-start;
 					gap: 12px;
 					transition: all 0.3s ease;
+					cursor: pointer;
 
 					span {
 						color: var(--secondary-font);
@@ -271,57 +299,31 @@
 				}
 
 				.verification-code-title {
-					margin-top: 24px;
-					color: var(--primary-font);
-					font-family: var(--secondary-font-family);
-					font-size: 32px;
+					width: 100%;
+					text-align: center;
+					color: var(--primary-font, #f2f2f3);
+					font-family: Inter;
+					font-size: 40px;
 					font-style: normal;
-					font-weight: 600;
+					font-weight: 400;
 					line-height: normal;
+					letter-spacing: -1.6px;
 				}
 
 				.verification-code-subtitle {
-					margin-top: 24px;
-					color: var(--secondary-font);
-					font-family: var(--secondary-font-family);
-					font-size: 14px;
+					width: 100%;
+					text-align: center;
+					color: var(--primary-font, #f2f2f3);
+					text-align: center;
+					font-family: Inter;
+					font-size: 20px;
 					font-style: normal;
-					font-weight: 500;
-					line-height: 22px;
-				}
-
-				.open-email-container {
-					display: flex;
-					flex-direction: column;
-					align-items: flex-start;
-					justify-content: center;
-					margin-top: 32px;
-					gap: 12px;
-
-					p {
-						color: var(--secondary-font);
-						font-family: var(--secondary-font-family);
-						font-size: 14px;
-						font-style: normal;
-						font-weight: 500;
-						line-height: normal;
-					}
-
-					.email-logo-container {
-						display: flex;
-						align-items: center;
-						justify-content: center;
-						gap: 12px;
-						margin-bottom: 32px;
-
-						svg {
-							cursor: pointer;
-						}
-					}
+					font-weight: 300;
+					line-height: normal;
 				}
 
 				.verification-code-input-container {
-					margin-top: 24px;
+					margin-top: 144px;
 					width: 100%;
 					display: flex;
 					justify-content: center;
@@ -358,8 +360,10 @@
 								background-color: var(--card);
 								border: none;
 								outline: none;
-								border-radius: 50%;
-								padding: 20px;
+								border-radius: 12px;
+								border: 1px solid var(--stroke);
+								background: var(--card);
+								padding: 14px 19px;
 								width: 50px;
 								height: 50px;
 								color: var(--primary-font);
@@ -416,7 +420,7 @@
 					line-height: normal;
 					cursor: pointer;
 					text-align: center;
-					margin-top: 20px;
+					margin-top: 56px;
 					width: 100%;
 
 					&.disabled {
@@ -428,110 +432,54 @@
 		}
 	}
 
-	.right-container {
-		width: 55%;
-		height: 100%;
-		background: url('../../svg/login_page/bg-image-right-side-container.svg');
-		background-size: cover;
-		background-position: center;
-		background-repeat: no-repeat;
+	.login-footer-container {
+		width: 100%;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		position: absolute;
+		bottom: 24px;
+		left: 0;
 
-		.right-container-content {
-			height: 100%;
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			padding: 40px;
+		.footer-link {
+			color: var(--secondary-font, #7a7e85);
+			font-family: Inter;
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+			padding: 8px 12px;
+			cursor: pointer;
+			transition: all 0.3s ease;
 
-			.svg-grid {
-				display: grid;
-				grid-template-columns: repeat(2, 1fr);
-				grid-template-rows: repeat(3, 1fr);
-				gap: 24px;
-				width: 424px;
+			&:hover {
+				color: var(--primary-font);
 				transition: all 0.3s ease;
-
-				.grid-item {
-					display: flex;
-					align-items: center;
-					justify-content: center;
-					position: relative;
-					.grid-item-content {
-						position: absolute;
-						width: 100%;
-						height: 100%;
-						top: 0;
-						left: 0;
-						display: flex;
-						flex-direction: column;
-						justify-content: space-between;
-						align-items: flex-start;
-						padding: 28px;
-
-						svg {
-							width: 24px;
-							height: 24px;
-						}
-
-						h1 {
-							font-size: 20px;
-						}
-					}
-
-					.grid-item-content-center {
-						position: absolute;
-						width: 100%;
-						height: 100%;
-						top: 0;
-						left: 0;
-						display: flex;
-						justify-content: center;
-						align-items: center;
-
-						svg {
-							width: 57px;
-						}
-					}
-
-					.shape {
-						width: 200px;
-						height: 200px;
-					}
-				}
 			}
 		}
 	}
 }
 
-@media screen and (max-height: 760px) {
-	.login-page-container {
-		.left-container,
-		.right-container {
-			zoom: 0.8;
-		}
-	}
-}
-
-@media screen and (max-width: 960px) {
+@media screen and (max-width: 566px) {
 	.login-page-container {
 		.left-container {
 			width: 100%;
+			.logo-container {
+				display: none !important;
+			}
+			.login-page-title {
+				.title-one {
+					font-size: 35px !important;
+				}
+				.title-two {
+					font-size: 35px !important;
+				}
+			}
 		}
-		.right-container {
-			display: none;
-		}
-	}
-}
-
-@media screen and (max-width: 581.34px) {
-	.login-page-container {
-		.cookies-notice {
-			min-width: 90% !important;
-			min-height: 146px !important;
-			flex-direction: column;
-		}
-		.accept-button {
-			width: 100%;
+		.login-footer-container {
+			.footer-link {
+				padding: 8px !important;
+			}
 		}
 	}
 }

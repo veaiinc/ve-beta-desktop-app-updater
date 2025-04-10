@@ -9,12 +9,12 @@ import '../../../assets/scss/docs/proposalsPopup.scss';
 import { fetchOriginSelection } from '../../../helpers';
 import Context from '../../../context/context';
 import moment from 'moment';
+import { useNavigate } from 'react-router-dom';
 import CreateFileLead from '../myTemplate/CreateFileLead';
 const origin = fetchOriginSelection();
 
 const initialState = {
 	search: '',
-	selectedOption: 'All',
 	loading: true,
 	workflowTemplates: [],
 	activeTemplateData: null,
@@ -32,7 +32,22 @@ const customStyles = {
 	overlay: { zIndex: 998 },
 };
 
+const infiniteScrollStyles = {
+	display: 'flex',
+	flexDirection: 'row',
+	flexWrap: 'wrap',
+	flexFlow: 'wrap',
+	alignItems: 'flex-end',
+	alignContent: 'flex-start',
+	// gap: '8px',
+	rowGap: '50px',
+	columnGap: '10px',
+	width: '100%',
+	overflowX: 'hidden',
+};
+
 const ProposalPopup = ({ open, closeModal, clientDetails = null, commonState }) => {
+	const navigate = useNavigate();
 	const {
 		templates: {
 			getMyWorkflowsForProposalPopup,
@@ -53,7 +68,7 @@ const ProposalPopup = ({ open, closeModal, clientDetails = null, commonState }) 
 
 	const filterOptions = hasAccessToWorkflows
 		? [
-				{ id: 1, title: 'All', value: '' },
+				{ id: 1, title: 'All', value: 'All' },
 				{ id: 2, title: 'Form', value: 'form-submission' },
 				{ id: 3, title: 'Proposal', value: 'proposal' },
 				{ id: 4, title: 'Presentation', value: 'presentation' },
@@ -63,6 +78,7 @@ const ProposalPopup = ({ open, closeModal, clientDetails = null, commonState }) 
 		: [{ id: 1, title: 'Form', value: 'form-submission' }];
 
 	const [info, setInfo] = useState({
+		selectedOption: commonState,
 		...initialState,
 	});
 
@@ -71,13 +87,13 @@ const ProposalPopup = ({ open, closeModal, clientDetails = null, commonState }) 
 	}, [commonState]);
 
 	useEffect(() => {
-		if (info?.selectedOption !== 'All' && open) {
+		if (!open) return;
+		if (info?.selectedOption !== 'All') {
 			getMyWorkflowsTemplatesData(1, info?.search, false, info?.selectedOption);
 		} else {
-			if (open && !myWorkflowsForProposalPopup?.length) getMyWorkflowsForProposalPopup(1);
+			getMyWorkflowsTemplatesData(1, null, false, 'All');
 		}
-	}, [info?.selectedOption]);
-
+	}, [open, info?.selectedOption]);
 	useEffect(() => {
 		if (myWorkflowsForProposalPopup && open) {
 			myWorkflowsDataParser(myWorkflowsForProposalPopup);
@@ -92,7 +108,11 @@ const ProposalPopup = ({ open, closeModal, clientDetails = null, commonState }) 
 
 	useEffect(() => {
 		if (smartfile?._id && info?.activeTemplateData?._id) {
-			window.location.href = `${origin}/workflow/${smartfile?._id}?workflow=true&templateId=${info?.activeTemplateData?._id}`;
+			if (info?.activeTemplateData?.version) {
+				window.location.href = `${origin}/workflow/${smartfile?._id}?workflow=true&templateId=${info?.activeTemplateData?._id}`;
+			} else {
+				navigate(`/smart-file/${info?.activeTemplateData?._id}/${smartfile?._id}`);
+			}
 		}
 	}, [smartfile]);
 
@@ -349,69 +369,65 @@ const ProposalPopup = ({ open, closeModal, clientDetails = null, commonState }) 
 						loader={[{}, {}, {}]?.map((ele, index) => (
 							<Skeleton key={index} height={258} width={232} />
 						))}
-						style={{
-							display: 'flex',
-							flexDirection: 'row',
-							flexWrap: 'wrap',
-							flexFlow: 'wrap',
-							alignItems: 'flex-end',
-							alignContent: 'flex-start',
-							// gap: '8px',
-							rowGap: '50px',
-							columnGap: '10px',
-							width: '100%',
-							overflowX: 'hidden',
-						}}
+						style={{ ...infiniteScrollStyles }}
 						className="tetsing"
 						height="calc(100vh - 340px)"
 					>
-						{info?.workflowTemplates?.map((template, index) => (
-							<div
-								key={index}
-								className="docsTemplateCard"
-								onClick={() =>
-									template?.version
-										? handleTemplateClick(template)
-										: versionClick(template)
-								}
-							>
-								<div className="docsTemplateImageContainer">
-									<iframe
-										src={`${origin}/preview/short/${template?._id}?module=${template?.moduleTemplates?.[0]?._id}&isPubic=${template?.moduleTemplates?.[0]?.isPublic}&restrictClick=true`}
-										title="Builder Preview"
-										width="100%"
-										height="100%"
-										onClick={(e) => e.stopPropagation()}
-										onMouseDown={(e) => e.stopPropagation()}
-										onMouseUp={(e) => e.stopPropagation()}
-										style={{
-											// zoom: 0.3,
-											backgroundColor: '#fff',
-											pointerEvents: 'none',
-										}}
-									/>
-								</div>
-								<div className="docsFooterContent">
-									<span
-										className="docsFooterContentTitle"
-										title={template?.title || 'Template Card'}
-									>
-										{template?.title || 'Template Card'}
-									</span>
-									<span className="docsFooterContentSubTitle">
-										Created On:{' '}
-										{template?.createdAt
-											? moment.unix(template?.createdAt).format('DD MMM YYYY')
-											: ''}
-									</span>
-								</div>
+						{info?.workflowTemplates?.length === 0 ? (
+							<div className="proposalPopupBodyLoadingContainer">
+								<p>No data found</p>
 							</div>
-						))}
+						) : (
+							info?.workflowTemplates?.map((template, index) => (
+								<div
+									key={index}
+									className="docsTemplateCard"
+									onClick={() => {
+										info?.selectedOption === 'form-submission'
+											? handleTemplateClick(template)
+											: versionClick(template);
+									}}
+								>
+									<div className="docsTemplateImageContainer">
+										<iframe
+											src={`${origin}/preview/short/${template?._id}?module=${template?.moduleTemplates?.[0]?._id}&isPubic=${template?.moduleTemplates?.[0]?.isPublic}&restrictClick=true`}
+											title="Builder Preview"
+											width="100%"
+											height="100%"
+											onClick={(e) => e.stopPropagation()}
+											onMouseDown={(e) => e.stopPropagation()}
+											onMouseUp={(e) => e.stopPropagation()}
+											style={{
+												// zoom: 0.3,
+												backgroundColor: '#fff',
+												pointerEvents: 'none',
+											}}
+										/>
+									</div>
+									<div className="docsFooterContent">
+										<span
+											className="docsFooterContentTitle"
+											title={template?.title || 'Template Card'}
+										>
+											{template?.title || 'Template Card'}
+										</span>
+										<span className="docsFooterContentSubTitle">
+											Created On:{' '}
+											{template?.createdAt
+												? moment
+														.unix(template?.createdAt)
+														.format('DD MMM YYYY')
+												: ''}
+										</span>
+									</div>
+								</div>
+							))
+						)}
 					</InfiniteScroll>
 				)}
 			</div>
 			<CreateFileLead
-				open={info?.versionPopup}
+				open={info?.versionPopup && info?.selectedOption !== 'form-submission'}
 				onClose={() => setInfo((prev) => ({ ...prev, versionPopup: false }))}
 				workflow={info?.activeTemplateData}
 			/>

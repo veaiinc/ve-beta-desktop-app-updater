@@ -21,6 +21,8 @@ import FilterSvg from '../../../assets/svg/my_templates/FilterSvg';
 import ThreeDotsSvg from '../../../assets/svg/my_templates/ThreeDotsSvg';
 import ProposalsPopup from '../../components/docs/ProposalsPopup';
 
+// let origin = fetchOriginSelection();
+
 const Forms = () => {
 	const navigate = useNavigate();
 
@@ -37,6 +39,18 @@ const Forms = () => {
 		searchExpand: false,
 		openProposalPopup: false,
 	});
+
+	const suggestedOptions = [
+		{
+			id: 0,
+			title: `Create new Form`,
+			value: 'form-submission',
+			controlValue: 'form',
+			action: ({ setInfo, info }) => {
+				setInfo({ ...info, openProposalPopup: true, commonState: 'form-submission' });
+			},
+		},
+	];
 
 	useEffect(() => {
 		fetchInitialForms();
@@ -81,7 +95,7 @@ const Forms = () => {
 	}, [info?.hasNextPage, info?.currentPage]);
 
 	const handleFormClick = useCallback((formData) => {
-		navigate(`/forms/${formData?._id}`, { state: { formData } });
+		navigate(`/form/${formData?._id}`, { state: { formData } });
 	}, []);
 
 	return (
@@ -93,7 +107,7 @@ const Forms = () => {
 						<span className="lineTwo">You Created</span>
 					</div>
 					<div className="quickActionsBtn">
-						<QuickActions />
+						<QuickActions suggestedOptions={suggestedOptions} />
 					</div>
 				</div>
 				<div className="formsParentHeaderContainer">
@@ -287,7 +301,9 @@ const Forms = () => {
 									<div
 										className="docsRow"
 										key={index}
-										onClick={() => handleFormClick(ele)}
+										onClick={() => {
+											handleFormClick(ele);
+										}}
 									>
 										<div className="docsFilesRowTitle">{ele?.title}</div>
 										<div className="docsKeyWordsContainer">

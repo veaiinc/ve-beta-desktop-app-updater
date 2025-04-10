@@ -48,6 +48,16 @@ import AutomationBuilderLayout from './views/layouts/automationBuilderLayout';
 import Automations from './views/features/automations/Automations';
 import Integrations from './views/features/Integrations/Integrations';
 import BrandSetup from './views/features/settings/BrandSetup';
+import DocsFullView from './views/components/docs/DocsFullView';
+import FormFullView from './views/components/forms/FormFullView';
+import TaskFullView from './views/features/tasks/TaskFullView';
+import ExpandedClientView from './views/features/contacts/ExpandedClientView';
+import ElasticSearch from './views/features/elastic_search';
+import PublicChat from './views/features/public_chat/PublicChat';
+import Files from './views/features/files/Files';
+import KnowledgeAgents from './views/features/knowledge_agent';
+import KnowledgeAgentDetails from './views/features/knowledge_agent/AgentDetails';
+import EditKnowledgeAgent from './views/features/knowledge_agent/EditAgent';
 
 const routes = [
 	{
@@ -285,6 +295,15 @@ const routes = [
 		exact: true,
 	},
 	{
+		path: '/task/:taskId',
+		component: (
+			<AuthWrapper title={'Tasks'}>
+				<TaskFullView />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
 		path: '/integrations',
 		component: (
 			<AuthWrapper title={'Integrations'}>
@@ -328,8 +347,6 @@ const routes = [
 		),
 		exact: true,
 	},
-
-	//ai agents
 	{
 		path: '/ai-agents/home/:agent-name',
 		component: (
@@ -395,6 +412,54 @@ const routes = [
 		exact: true,
 	},
 	{
+		path: '/knowledge-agent',
+		component: (
+			<AuthWrapper
+				title={'Knowledge Agent'}
+				innerContainerStyle={{ paddingBottom: '0px' }}
+				showBottomToolbar={false}
+			>
+				<KnowledgeAgents />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/knowledge-agent/:agentId',
+		component: (
+			<AuthWrapper
+				title={'Knowledge Agent'}
+				showBottomToolbar={false}
+				innerContainerStyle={{ paddingBottom: '0px' }}
+			>
+				<KnowledgeAgentDetails />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/knowledge-agent/:agentId/edit',
+		component: (
+			<AuthWrapper
+				title={'Knowledge Agent'}
+				showBottomToolbar={false}
+				outerContainerStyle={{ paddingRight: '0px' }}
+			>
+				<EditKnowledgeAgent />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/doc/:id',
+		component: (
+			<AuthWrapper title={'Docs'}>
+				<DocsFullView />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
 		path: '/my-templates',
 		component: (
 			<AuthWrapper title={'My Templates'}>
@@ -413,7 +478,7 @@ const routes = [
 		exact: true,
 	},
 	{
-		path: '/forms',
+		path: '/form',
 		component: (
 			<AuthWrapper title={'Forms'}>
 				<Forms />
@@ -422,10 +487,19 @@ const routes = [
 		exact: true,
 	},
 	{
-		path: '/forms/:id',
+		path: '/form/:id',
 		component: (
 			<AuthWrapper title={'Form Leads'}>
 				<FormLeads />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/form-response/:id',
+		component: (
+			<AuthWrapper title={'Form Response'}>
+				<FormFullView />
 			</AuthWrapper>
 		),
 		exact: true,
@@ -443,6 +517,10 @@ const routes = [
 				<RecentChat />
 			</AuthWrapper>
 		),
+	},
+	{
+		path: '/c/:sessionId',
+		component: <PublicChat />,
 	},
 	{
 		path: '/note/:noteId',
@@ -464,6 +542,30 @@ const routes = [
 		component: (
 			<AuthWrapper title={'Automations'}>
 				<Automations />
+			</AuthWrapper>
+		),
+	},
+	{
+		path: '/contact/:contactId',
+		component: (
+			<AuthWrapper title="Contact Details">
+				<ExpandedClientView />
+			</AuthWrapper>
+		),
+	},
+	{
+		path: '/search',
+		component: (
+			<AuthWrapper title="Search">
+				<ElasticSearch />
+			</AuthWrapper>
+		),
+	},
+	{
+		path: '/files',
+		component: (
+			<AuthWrapper title="Files">
+				<Files />
 			</AuthWrapper>
 		),
 	},

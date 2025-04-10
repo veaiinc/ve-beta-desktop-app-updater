@@ -4,6 +4,8 @@ import { Actions } from './action';
 import * as API from './actionTypes';
 import jwt_decode from 'jwt-decode';
 import service from '../../services/index';
+import Service from '../../services/graphQlServices';
+import { getMostUsedEntitiesQuery } from './graphQlFunctions';
 import axios from 'axios';
 
 export const intialState = {
@@ -136,10 +138,11 @@ export const Galleries = () => {
 				usertoken,
 				'galleries',
 			);
-			if (response?.[0]) {
+			if (response?.[0] === 200) {
 				getAlbums(galleryId);
 				getAlbumImagesCount(galleryId);
 			}
+			return response;
 		} catch (error) {
 			console.log('error==>createNewAlbum', error);
 		}
@@ -307,6 +310,7 @@ export const Galleries = () => {
 					payload: response?.[1],
 				});
 			}
+			return response;
 		} catch (error) {
 			console.log('error==>geteditPreferences', error);
 		}
@@ -1198,13 +1202,16 @@ export const Galleries = () => {
 				usertoken,
 				'galleries',
 			);
-			const payload = state.clientSelectionImages
-				? {
-						...state.clientSelectionImages,
-						...response?.[1],
-						docs: [...state.clientSelectionImages.docs, ...(response?.[1]?.docs || [])],
-				  }
-				: response?.[1];
+			const payload =
+				page === 1
+					? response?.[1] // First page: use response as is
+					: {
+							...response?.[1],
+							docs: [
+								...(state.clientSelectionImages?.docs || []),
+								...(response?.[1]?.docs || []),
+							],
+					  };
 			if (response[0]) {
 				dispatch({
 					type: Actions.GET_CLIENT_SELECTION_IMAGES,
@@ -1845,6 +1852,25 @@ export const Galleries = () => {
 			console.log('error==>getGuesAccessDetails', error);
 		}
 	};
+	const getMostUsedEntities = async (payload) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const response = await Service.query(
+				getMostUsedEntitiesQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+			if (response?.[0]) {
+				return response;
+			}
+		} catch (error) {
+			console.log('error==>getMostUsedEntities', error);
+		}
+	};
+
 	return {
 		...state,
 		getGalleries,
@@ -1934,5 +1960,6 @@ export const Galleries = () => {
 		downloadImagesForClientSelection,
 		updateGuestAccess,
 		getGuestAccessDetails,
+		getMostUsedEntities,
 	};
 };
