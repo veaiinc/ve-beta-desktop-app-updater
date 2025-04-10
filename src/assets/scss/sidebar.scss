@@ -54,24 +54,6 @@
 			padding: 0px;
 		}
 
-		.sidebarWorkspace {
-			height: 100vh;
-			display: flex;
-			flex-direction: column;
-			justify-content: flex-end;
-			align-items: center;
-			width: 218px;
-			margin-bottom: 27px;
-			.singleModuleItem {
-				.logoutItem {
-					margin-top: 4px;
-					&:hover {
-						background-color: var(--card);
-						border-radius: 100px;
-					}
-				}
-			}
-		}
 		.openSideBarComponent {
 			display: flex;
 			flex-direction: column;
@@ -894,40 +876,6 @@
 	to {
 		opacity: 1;
 		transform: scaleY(1);
-	}
-}
-
-.closedDropDownMenu {
-	display: flex;
-	flex-direction: column;
-	width: inherit;
-	border-radius: 16px;
-	background: var(--card);
-	align-items: flex-start;
-	// padding: 8px;
-	overflow: hidden;
-	gap: 4px;
-	> div {
-		color: var(--primary-font);
-		text-overflow: ellipsis;
-		font-family: var(--primary-font-family);
-		font-size: 14px;
-		font-style: normal;
-		font-weight: 500;
-		padding: 20px;
-		align-self: stretch;
-		cursor: pointer;
-		transition: all 0.3s;
-		&:hover {
-			background: var(--card-over-card-hover);
-		}
-	}
-}
-
-.sideBartoolTipContainer {
-	.ant-tooltip-content {
-		left: 20px;
-		background-color: transparent;
 	}
 }
 
