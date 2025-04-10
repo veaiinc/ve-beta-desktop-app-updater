@@ -11,6 +11,8 @@ import { message } from 'antd';
 import gsap from 'gsap';
 import Spinner from '../loaders/Spinner';
 
+const isHostnameVeDotAi = window.location.hostname === 've.ai';
+
 const Email = ({ email, setEmail, setActiveStage, setEmailVerified }) => {
 	const navigate = useNavigate();
 	const arrowRef = useRef(null);
@@ -219,27 +221,31 @@ const Email = ({ email, setEmail, setActiveStage, setEmailVerified }) => {
 				</h2>
 			</div>
 			<div className="login-button-container">
-				<button
-					disabled={info?.googleLoading}
-					className="google-login-button"
-					onClick={handleContinueWithGoogle}
-				>
-					<GoogleLogo />
-					<p>Continue with Google</p>
-					{info?.googleLoading && (
-						<Spinner
-							width="20px"
-							height="20px"
-							color="var(--background-color)"
-							borderTopColor="transparent"
-						/>
-					)}
-				</button>
-				<div className="or-divider">
-					<div className="line"></div>
-					<span>Or</span>
-					<div className="line"></div>
-				</div>
+				{isHostnameVeDotAi && (
+					<>
+						<button
+							disabled={info?.googleLoading}
+							className="google-login-button"
+							onClick={handleContinueWithGoogle}
+						>
+							<GoogleLogo />
+							<p>Continue with Google</p>
+							{info?.googleLoading && (
+								<Spinner
+									width="20px"
+									height="20px"
+									color="var(--background-color)"
+									borderTopColor="transparent"
+								/>
+							)}
+						</button>
+						<div className="or-divider">
+							<div className="line"></div>
+							<span>Or</span>
+							<div className="line"></div>
+						</div>
+					</>
+				)}
 				<div className="email-input-container">
 					<input
 						value={email}
