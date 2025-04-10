@@ -49,10 +49,6 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 		},
 		isFavorite: false,
 		loading: false,
-		isPublished: false,
-		slug: '',
-		expiresAt: null,
-		publishLoading: false,
 	});
 
 	const { noteId } = useParams();
@@ -71,9 +67,6 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 				title = '',
 				updatedAt = '',
 				isFavorite = false,
-				isPublished = false,
-				slug = noteId,
-				expiresAt = null,
 			} = notesPageData || {};
 			if (blocks) {
 				loadNotesContent(blocks);
@@ -83,9 +76,6 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 				title,
 				updatedAt,
 				isFavorite,
-				isPublished,
-				slug: slug || noteId,
-				expiresAt,
 			}));
 		}
 	}, [notesPageData]);
@@ -217,42 +207,13 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 		setInfo((prev) => ({ ...prev, loading: false }));
 	}, [info?.loading, info?.notesConfigs, navigate, noteId, setInfo]);
 
-	const handlePublishPage = useCallback(
-		async ({ isPublished, slug, expiresAt }) => {
-			const [success, data] = await updatePage({
-				pageId: noteId,
-				input: {
-					isPublished,
-					...(slug && { slug }),
-					...(expiresAt && { expiresAt }),
-				},
-			});
-			if (success) {
-				message.success('Page published successfully');
-				setInfo((prev) => ({
-					...prev,
-					isPublished,
-					slug,
-					...(expiresAt && { expiresAt }),
-				}));
-			}
-		},
-		[noteId, setInfo],
-	);
-
 	return (
 		<div className="notes-container" style={outerContainerStyle || {}}>
 			<div className="notes-nav-menu">
 				<span className="notes-nav-menu-item-last-edited">
 					{info?.updatedAt ? `Edited ${moment.unix(info?.updatedAt).fromNow()}` : ''}
 				</span>
-				<ShareComponent
-					pageId={noteId}
-					isPublished={info?.isPublished}
-					slug={info?.slug}
-					expiresAt={info?.expiresAt}
-					onPublish={handlePublishPage}
-				/>
+				<ShareComponent pageId={noteId} />
 				<StarSvg
 					fill={info?.isFavorite}
 					width={18}
