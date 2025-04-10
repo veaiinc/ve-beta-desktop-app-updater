@@ -30,6 +30,12 @@
 	box-shadow: 0px 2px 44px 0px var(--card);
 	border: 1px solid var(--stroke);
 
+	button {
+		&:disabled {
+			cursor: not-allowed !important;
+		}
+	}
+
 	&-header {
 		display: flex;
 		justify-content: space-between;
@@ -45,6 +51,7 @@
 			display: flex;
 			align-items: center;
 			gap: 4px;
+			color: var(--primary-font);
 
 			&-btn {
 				border: none;
@@ -56,33 +63,16 @@
 				font-weight: 500;
 				line-height: normal;
 				cursor: pointer;
+
 				&.active {
 					color: var(--primary-font);
-					opacity: 1;
 				}
 			}
-		}
-
-		&-copy-btn {
-			display: flex;
-			align-items: center;
-			gap: 7px;
-			border-radius: 5px;
-			border: none;
-			color: var(--primary-font);
-			font-family: var(--primary-font-family);
-			font-size: 12px;
-			font-style: normal;
-			font-weight: 500;
-			line-height: normal;
-			padding: 4px 10px;
-			cursor: pointer;
-			background-color: transparent;
-
-			svg {
-				width: 14px;
-				height: 14px;
-				opacity: 1;
+			.divider {
+				display: flex;
+				width: 1px;
+				height: 13px;
+				background-color: var(--stroke);
 			}
 		}
 	}
@@ -92,7 +82,7 @@
 		display: flex;
 		flex-direction: column;
 		align-items: flex-start;
-		gap: 16px;
+		gap: 4px;
 		align-self: stretch;
 
 		.url-input-wrapper {
@@ -130,6 +120,7 @@
 				line-height: normal;
 				width: 100%;
 				border: none;
+				padding-left: 0;
 
 				&::placeholder {
 					color: var(--secondary-font);
@@ -148,6 +139,15 @@
 				gap: 7px;
 				cursor: pointer;
 			}
+		}
+
+		.publish-screen-footer-error {
+			color: var(--error);
+			font-family: var(--primary-font-family);
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 400;
+			line-height: normal;
 		}
 
 		.publish-screen {
@@ -186,6 +186,7 @@
 			}
 		}
 		.publish-screen-footer {
+			margin-top: 16px;
 			display: flex;
 			flex-direction: column;
 			align-items: flex-start;

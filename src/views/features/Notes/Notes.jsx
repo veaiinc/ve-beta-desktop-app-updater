@@ -4,7 +4,6 @@ import { BlockNoteView } from '@blocknote/mantine';
 import '@blocknote/mantine/style.css';
 import { useCreateBlockNote } from '@blocknote/react';
 import '../../../assets/scss/notes/noteComponent.scss';
-import { createBlockSpec, locales } from '@blocknote/core';
 import NoteToolbar from '../../components/notes/NoteToolbar';
 import ShareComponent from '../../components/notes/ShareComponent';
 import { useEffect, memo, useContext, useCallback, useState } from 'react';
@@ -53,6 +52,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 		isPublished: false,
 		slug: '',
 		expiresAt: null,
+		publishLoading: false,
 	});
 
 	const { noteId } = useParams();
@@ -84,7 +84,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 				updatedAt,
 				isFavorite,
 				isPublished,
-				slug,
+				slug: slug || noteId,
 				expiresAt,
 			}));
 		}

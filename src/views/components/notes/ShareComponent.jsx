@@ -1,5 +1,6 @@
-import { memo, useState, useEffect, useContext } from 'react';
-import { Tooltip, message } from 'antd';
+import { memo, useState, useEffect, useContext, useRef, useCallback } from 'react';
+import { Tooltip } from 'antd';
+import { message } from '../../components/globalComponents/CustomToast';
 import '../../../assets/scss/notes/shareComponent.scss';
 import { ReactComponent as Copy } from '../../../assets/svg/ai_assistant/url.svg';
 import { ReactComponent as ChevronRightThinSvg } from '../../../assets/svg/tasks/chevronRightThin.svg';
@@ -7,6 +8,7 @@ import { ReactComponent as Check } from '../../../assets/svg/tasks/checkmark.svg
 import Context from '../../../context/context';
 import { ReactComponent as CrossSvg } from '../../../assets/svg/gallery/cross.svg';
 import Skeleton from 'react-loading-skeleton';
+import slugify from 'slugify';
 
 const accessOptions = [
 	{
@@ -25,7 +27,9 @@ const accessOptions = [
 	},
 ];
 
-const ShareComponent = ({ pageId, isPublished, slug, expiresAt, onPublish }) => {
+let workspace = '';
+
+const ShareComponent = ({ pageId }) => {
 	const {
 		companyInfo: { getTeamMembers, tenantsUserList },
 		notes: {
@@ -35,6 +39,9 @@ const ShareComponent = ({ pageId, isPublished, slug, expiresAt, onPublish }) => 
 			updateNotesState,
 			changeNotesAccess,
 			removeNotesAccess,
+			getNotesPageData,
+			notesPageData,
+			updatePage,
 		},
 	} = useContext(Context);
 	const [info, setInfo] = useState({
@@ -51,7 +58,28 @@ const ShareComponent = ({ pageId, isPublished, slug, expiresAt, onPublish }) => 
 		isPublished: false,
 		slug: '',
 		expiresAt: null,
+		publishLoading: false,
+		slugError: '',
 	});
+
+	const debounceRef = useRef(null);
+
+	useEffect(() => {
+		getNotesPageData({ pageId });
+	}, [pageId]);
+
+	useEffect(() => {
+		if (notesPageData && pageId) {
+			const { isPublished = false, slug = pageId, expiresAt = null } = notesPageData || {};
+
+			setInfo((prev) => ({
+				...prev,
+				isPublished,
+				slug: slug || pageId,
+				expiresAt,
+			}));
+		}
+	}, [notesPageData, pageId]);
 
 	useEffect(() => {
 		if (notesAccess) {
@@ -73,27 +101,8 @@ const ShareComponent = ({ pageId, isPublished, slug, expiresAt, onPublish }) => 
 	}, [pageId]);
 
 	useEffect(() => {
-		setInfo((prevInfo) => ({
-			...prevInfo,
-			isPublished,
-		}));
-	}, [isPublished]);
-
-	useEffect(() => {
-		setInfo((prevInfo) => ({
-			...prevInfo,
-			slug: slug || pageId,
-		}));
-	}, [slug]);
-
-	useEffect(() => {
-		if (expiresAt) {
-			setInfo((prevInfo) => ({
-				...prevInfo,
-				expiresAt,
-			}));
-		}
-	}, [expiresAt]);
+		workspace = localStorage.getItem('workspaceId');
+	}, []);
 
 	useEffect(() => {
 		if (!tenantsUserList) {
@@ -184,6 +193,7 @@ const ShareComponent = ({ pageId, isPublished, slug, expiresAt, onPublish }) => 
 				accessType: 'full',
 				btnLoading: false,
 				search: '',
+				inputFocused: false,
 			});
 			message.success(response?.[1]?.message);
 		} else {
@@ -229,8 +239,65 @@ const ShareComponent = ({ pageId, isPublished, slug, expiresAt, onPublish }) => 
 		}
 	};
 
+	const handlePublishPage = useCallback(
+		async ({ isPublished, slug, expiresAt }) => {
+			handleInfoChange({ publishLoading: true });
+			const [success, data] = await updatePage({
+				pageId: pageId,
+				input: {
+					isPublished,
+					...(slug && { slug }),
+					...(expiresAt && { expiresAt }),
+				},
+			});
+			if (success) {
+				handleInfoChange({
+					isPublished,
+					slug,
+					slugError: '',
+					...(expiresAt && { expiresAt }),
+				});
+			} else {
+				if (data?.message?.includes('Slug already exists')) {
+					handleInfoChange({
+						slugError: 'Slug already exists',
+					});
+				} else {
+					message.error(data?.message);
+				}
+			}
+			handleInfoChange({ publishLoading: false });
+		},
+		[pageId],
+	);
+
+	const handleSlugChange = (e) => {
+		const newSlug = e?.target?.value;
+		let prevSlug = info?.slug;
+		const slug = slugify(newSlug, {
+			lower: true,
+			strict: true,
+			trim: true,
+		});
+		handleInfoChange({ slug });
+
+		if (debounceRef.current) {
+			clearTimeout(debounceRef.current);
+		}
+
+		if (!slug || slug === prevSlug) return;
+
+		debounceRef.current = setTimeout(() => {
+			handlePublishPage({ isPublished: true, slug });
+		}, 500);
+	};
+
 	const handleCopyLink = () => {
-		navigator.clipboard.writeText(window.location.href);
+		if (!info?.slug?.trim()) {
+			message.error('Please enter a slug');
+			return;
+		}
+		navigator.clipboard.writeText(`${workspace}.ve.ai/page/${info?.slug}`);
 		message.success('Link copied to clipboard');
 	};
 
@@ -268,7 +335,7 @@ const ShareComponent = ({ pageId, isPublished, slug, expiresAt, onPublish }) => 
 									>
 										Share
 									</button>{' '}
-									|
+									<span className="divider" />
 									<button
 										className={
 											'notes-nav-menu-item-share-dropdown-header-title-btn' +
@@ -284,31 +351,42 @@ const ShareComponent = ({ pageId, isPublished, slug, expiresAt, onPublish }) => 
 									</button>
 								</div>
 							)}
-							<button
+							{/* <button
 								className="notes-nav-menu-item-share-dropdown-header-copy-btn"
 								onClick={handleCopyLink}
 							>
 								<Copy />
 								Copy link
-							</button>
+							</button> */}
 						</div>
 						{info?.isPublishOpen ? (
 							<div className="notes-nav-menu-item-share-dropdown-body">
 								{info?.isPublished ? (
 									<>
 										<div className="url-input-wrapper">
-											<div className="url-prefix">sabith.ve.ai /</div>
+											<div className="url-prefix">
+												{workspace}.ve.ai/page/
+											</div>
 											<input
 												type="text"
 												name=""
 												id=""
 												className="url-input"
 												value={info?.slug}
+												onChange={handleSlugChange}
 											/>
-											<button className="url-input-copy-btn">
+											<button
+												className="url-input-copy-btn"
+												onClick={handleCopyLink}
+											>
 												<Copy />
 											</button>
 										</div>
+										{info?.slugError && (
+											<div className="publish-screen-footer-error">
+												{info?.slugError}
+											</div>
+										)}
 										<div className="publish-screen-footer">
 											{/* <div className="publish-screen-footer-item">
 												<span>Expires on</span>
@@ -317,13 +395,25 @@ const ShareComponent = ({ pageId, isPublished, slug, expiresAt, onPublish }) => 
 											<div className="footer-btn-wrapper">
 												<button
 													className="footer-btn"
+													disabled={info?.publishLoading}
 													onClick={() =>
-														onPublish({ isPublished: false })
+														handlePublishPage({ isPublished: false })
 													}
 												>
 													Unpublish
 												</button>
-												<button className="footer-btn">View site</button>
+												<button
+													className="footer-btn"
+													disabled={!info?.slug?.trim()}
+													onClick={() =>
+														window.open(
+															`${workspace}.ve.ai/page/${info?.slug}`,
+															'_blank',
+														)
+													}
+												>
+													View site
+												</button>
 											</div>
 										</div>
 									</>
@@ -332,11 +422,16 @@ const ShareComponent = ({ pageId, isPublished, slug, expiresAt, onPublish }) => 
 										<h2 className="publish-screen-title">Publish to web</h2>
 										<button
 											className="publish-screen-btn"
+											disabled={!info?.slug?.trim()}
 											onClick={() =>
-												onPublish({ isPublished: true, slug, expiresAt })
+												handlePublishPage({
+													isPublished: true,
+													slug: info?.slug,
+													expiresAt: info?.expiresAt,
+												})
 											}
 										>
-											Publish
+											{info?.publishLoading ? 'Publishing...' : 'Publish'}
 										</button>
 									</div>
 								)}
@@ -513,7 +608,7 @@ const ShareComponent = ({ pageId, isPublished, slug, expiresAt, onPublish }) => 
 				arrow={false}
 				onOpenChange={(open) => {
 					if (!open) {
-						handleInfoChange({ isOpen: false });
+						handleInfoChange({ isOpen: false, isPublishOpen: false });
 					}
 				}}
 				overlayStyle={{
