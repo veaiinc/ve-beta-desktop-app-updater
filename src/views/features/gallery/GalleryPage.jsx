@@ -3752,6 +3752,7 @@ const GalleryPage = () => {
 																const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
 																src = `${galleryCredentials?.baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${album?.coverImage?.givenFileName}?${params}`;
 															}
+
 															const isActive =
 																info?.albumSlug === album?.slug;
 															return (
@@ -3807,6 +3808,23 @@ const GalleryPage = () => {
 																						height: '100%',
 																						objectFit:
 																							'cover',
+																						objectPosition: `${
+																							album
+																								?.coverImage
+																								?.xPosition ??
+																							50
+																						}% ${
+																							album
+																								?.coverImage
+																								?.yPosition ??
+																							50
+																						}%`,
+																						transform: `scale(${
+																							album
+																								?.coverImage
+																								?.zoom ||
+																							1
+																						})`,
 																					}}
 																				/>
 																			)}
