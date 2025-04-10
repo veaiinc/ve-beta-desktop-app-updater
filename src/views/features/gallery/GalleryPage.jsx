@@ -3089,7 +3089,7 @@ const GalleryPage = () => {
 			if (info?.selectedImages?.length <= 10) {
 				const payload = {
 					image_ids: info?.selectedImages,
-					imageType: 'original',
+					imageType: info?.isLightGallery ? 'optimized' : 'original',
 				};
 				const response = await getDownloadForMultipleImages(payload, galleryId);
 
