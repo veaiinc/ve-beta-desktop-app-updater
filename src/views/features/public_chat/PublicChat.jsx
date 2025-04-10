@@ -6,6 +6,7 @@ import { ReactComponent as MoonSvg } from '../../../assets/svg/moon.svg';
 import { ReactComponent as SunSvg } from '../../../assets/svg/sun.svg';
 import Context from '../../../context/context';
 import { useNavigate } from 'react-router-dom';
+const routeType = 'public';
 const PublicChat = () => {
 	const navigate = useNavigate();
 
@@ -16,16 +17,22 @@ const PublicChat = () => {
 	const handleLoginBtnClick = () => {
 		navigate('/verify-user');
 	};
+
+	const handleLogoClick = () => {
+		navigate('/');
+	};
+
+	const newThemeValue = theme === 'dark' ? 'light' : 'dark';
 	return (
 		<div className="public-chat-container">
 			<div className="chat-header">
-				<div className="left-container">
+				<div className="left-container" onClick={handleLogoClick}>
 					<VeLogo />
 				</div>
 				<div className="right-container">
 					<button
 						className="theme-btn"
-						onClick={() => updateTheme(theme === 'dark' ? 'light' : 'dark')}
+						onClick={() => updateTheme(newThemeValue, routeType)}
 					>
 						{theme === 'dark' ? <MoonSvg /> : <SunSvg />}
 					</button>

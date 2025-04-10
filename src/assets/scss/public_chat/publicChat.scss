@@ -3,10 +3,13 @@
 	height: 100%;
 	.chat-header {
 		display: flex;
-		padding: 20px 40px;
+		padding: 20px 16px;
 		justify-content: space-between;
 		align-items: center;
 		background: var(--background-color, #0c0c0d);
+		.left-container {
+			cursor: pointer;
+		}
 		.right-container {
 			display: flex;
 			justify-content: center;
@@ -32,7 +35,7 @@
 				align-items: center;
 				gap: 10px;
 				border-radius: 100px;
-				background: var(--brand-lime, #cfff48);
+				background: var(--primary-button, #cfff48);
 				cursor: pointer;
 				border: none;
 			}

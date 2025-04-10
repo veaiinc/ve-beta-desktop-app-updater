@@ -54,7 +54,7 @@ import TaskFullView from './views/features/tasks/TaskFullView';
 import ExpandedClientView from './views/features/contacts/ExpandedClientView';
 import ElasticSearch from './views/features/elastic_search';
 import PublicChat from './views/features/public_chat/PublicChat';
-
+import Files from './views/features/files/Files';
 import KnowledgeAgents from './views/features/knowledge_agent';
 import KnowledgeAgentDetails from './views/features/knowledge_agent/AgentDetails';
 import EditKnowledgeAgent from './views/features/knowledge_agent/EditAgent';
@@ -558,6 +558,14 @@ const routes = [
 		component: (
 			<AuthWrapper title="Search">
 				<ElasticSearch />
+			</AuthWrapper>
+		),
+	},
+	{
+		path: '/files',
+		component: (
+			<AuthWrapper title="Files">
+				<Files />
 			</AuthWrapper>
 		),
 	},

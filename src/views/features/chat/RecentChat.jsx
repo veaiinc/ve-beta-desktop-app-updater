@@ -90,10 +90,6 @@ const RecentChat = ({
 	const isFirstTimeConnectingToPublicChatRef = useRef(true);
 
 	sessionId = isPreview ? sId : sessionId;
-	useEffect(() => {
-		if (!isPublicChat) return;
-		makePublicChatRequest();
-	}, []);
 
 	useEffect(() => {
 		window.addEventListener('resize', handleResize);
@@ -128,7 +124,7 @@ const RecentChat = ({
 	}, []);
 
 	useEffect(() => {
-		if (sessionId) {
+		if (sessionId && !isPublicChat) {
 			if (info?.renderingTwice) {
 				//clearing context state when rendering different session
 				updateStateValues({
@@ -159,6 +155,9 @@ const RecentChat = ({
 
 	useEffect(() => {
 		if (!chatInfo?.agentType) return;
+		if (isPublicChat) {
+			return;
+		}
 
 		const agentType = searchParams?.get('agentType');
 		const assistantId = searchParams?.get('assistantId');
@@ -204,10 +203,6 @@ const RecentChat = ({
 			createWebSocketConnection(sessionId, onMessageFunc, agentType, isPublicChat);
 			isFirstTimeConnectingToPublicChatRef.current = false;
 		}
-
-		return () => {
-			socketRef?.current?.close();
-		};
 	}, [searchParams]);
 
 	useEffect(() => {
@@ -423,40 +418,6 @@ const RecentChat = ({
 			return url;
 		}
 	}, []);
-
-	const makePublicChatRequest = async () => {
-		const userMessage = searchParams?.get('message');
-		if (!userMessage) return;
-		const web_search = searchParams?.get('web_search');
-		const deep_research = searchParams?.get('deep_research');
-
-		let location_details = localStorage?.getItem('locationDetails');
-
-		if (!location_details) {
-			location_details = await getLocationsDetails();
-		}
-		location_details = JSON?.parse(location_details);
-
-		const ip_address = localStorage?.getItem('ipAddress') || null;
-
-		const data = {
-			currentQuery: userMessage,
-			localPayload: {},
-			payload: {
-				date: [],
-				web_search: web_search || true,
-				deep_research: deep_research || false,
-				knowledge_base_search: false,
-				modules: [],
-				query: userMessage,
-				timezone: location_details?.timezone || 'Asia/Calcutta',
-				user_id: null,
-				location_details,
-				ip_address,
-			},
-		};
-		updateStateValues({ activePayloadForChat: data });
-	};
 
 	const handleResize = (time = 300) => {
 		if (throttleTimer) return;
@@ -922,17 +883,14 @@ const RecentChat = ({
 											</div>
 										),
 									)}
-									{info.showScrollButton && (
-										<button
-											className="scroll-button"
-											onClick={smoothScrollToBottom}
-										>
-											<ArrowUpRightSvg className="arrow-up" />
-										</button>
-									)}
 								</div>
 							</InfiniteScroll>
 						</div>
+						{info.showScrollButton && (
+							<button className="scroll-button" onClick={smoothScrollToBottom}>
+								<ArrowUpRightSvg className="arrow-up" />
+							</button>
+						)}
 						<div className="chatBoxWrapper">
 							<ChatBox
 								isPublicChat={isPublicChat}

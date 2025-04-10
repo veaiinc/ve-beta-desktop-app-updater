@@ -5,6 +5,13 @@
 	align-items: center;
 	justify-content: center;
 	height: calc(100vh - 32px);
+	position: relative;
+
+	.quick-actions-container {
+		position: absolute;
+		top: 0px;
+		right: 0px;
+	}
 
 	.home-page-container-header {
 		display: flex;
@@ -16,16 +23,47 @@
 		flex-shrink: 0;
 		background: var(--background-color, #0c0c0d);
 
-		.header-title {
-			color: var(--primary-font, #f2f2f3);
-			text-align: center;
-			font-family: Inter;
-			font-size: 40px;
-			font-style: normal;
-			font-weight: 500;
-			line-height: normal;
-			letter-spacing: -3px;
+		.title-container {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			flex-direction: column;
+			gap: 12px;
+
+			.title-text {
+				.title-one {
+					color: var(--primary-font, #f2f2f3);
+					text-align: center;
+					font-family: var(--primary-font-family);
+					font-size: 53px;
+					font-style: normal;
+					font-weight: 600;
+					line-height: 60px;
+					letter-spacing: -1.59px;
+				}
+				.title-two {
+					color: var(--primary-font, #f2f2f3);
+					font-family: var(--primary-font-family);
+					font-size: 53px;
+					font-style: italic;
+					font-weight: 400;
+					line-height: 60px;
+					letter-spacing: -1.59px;
+					text-transform: lowercase;
+				}
+			}
+
+			.sub-text {
+				color: var(--secondary-font, #7a7e85);
+				text-align: center;
+				font-family: var(--primary-font-family);
+				font-size: 22px;
+				font-style: normal;
+				font-weight: 300;
+				line-height: normal;
+			}
 		}
+
 		.chat-box-container {
 			width: 700px;
 			height: 110px;
@@ -43,8 +81,8 @@
 				align-items: center;
 				gap: 10px;
 				border-radius: 100px;
-				background: var(--popup, #202123);
-				border: 1px solid var(--popup, #202123);
+				background: var(--card, #202123);
+				border: 1px solid var(--stroke, #202123);
 
 				cursor: pointer;
 				box-sizing: border-box;
@@ -57,7 +95,7 @@
 					line-height: 21px; /* 150% */
 				}
 				&.active {
-					border: 1px solid var(--primary-font, #f2f2f3);
+					border: 1px solid var(--primary-button, #f2f2f3);
 				}
 			}
 		}
