@@ -171,7 +171,7 @@ const InitialHomePage = () => {
 					</div>
 				</div>
 
-				<div className="chat-box-container">
+				<div className="chatbox-container">
 					<ChatBox onSend={handleCustomOnSendFunction} customChatActions={true} />
 				</div>
 				<div className="options-container">

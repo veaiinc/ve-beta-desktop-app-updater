@@ -18,7 +18,7 @@ import { ReactComponent as LLMSvg } from '../../../assets/svg/ai_agents/llm.svg'
 import Context from '../../../context/context';
 import ObjectID from 'bson-objectid';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { checkDevices, getBase64 } from '../../../helpers';
+import { checkDevices, getBase64, getLocationsDetails } from '../../../helpers';
 import WorkflowSlugSelector from '../../components/calendar/WorkflowSlugSelector';
 import SearchDropdown from '../chat/SearchDropdown';
 import UploadFileTooltip from '../chat/UploadFileTooltip';
@@ -544,10 +544,14 @@ const ChatBox = ({
 					//this payload props are for public chat
 					if (isPublicChat) {
 						const user_id = localStorage?.getItem('user_id');
-						const location_details = JSON?.parse(
+						let location_details = JSON?.parse(
 							localStorage?.getItem('locationDetails'),
 						);
 						const ip_address = localStorage?.getItem('ipAddress');
+
+						if (!location_details) {
+							location_details = await getLocationsDetails();
+						}
 
 						payload.user_id = user_id ?? null;
 						payload.location_details = location_details || {};
