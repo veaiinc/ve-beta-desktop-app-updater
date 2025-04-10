@@ -24,13 +24,14 @@ import SearchDropdown from '../chat/SearchDropdown';
 import UploadFileTooltip from '../chat/UploadFileTooltip';
 import DateRangeDropdown from '../chat/DateRangeDropdown';
 import moment from 'moment';
-import { message, Image, Spin, Tooltip } from 'antd';
+import { Image, Spin, Tooltip } from 'antd';
 import LLMTooltip from '../chat/LLMTooltip';
 import AIMessageLoader from '../chat/AIMessageLoader';
 import WebSvg from '../../../assets/svg/ai_agents/webSvg';
 import BuildingSvg from '../../../assets/svg/ai_agents/building';
 import MicroscopeSvg from '../../../assets/svg/ai_agents/microScopeSvg';
 import useUpdatedVoiceIntegration from '../../hooks/useUpdatedVoiceIntegration';
+import { message } from '../globalComponents/CustomToast';
 
 const moduleHelper = {
 	tasks: 'tasks',

@@ -2,8 +2,9 @@ import React, { useState, useContext, useEffect, memo } from 'react';
 import { ReactComponent as CancelTag } from '../../../../assets/svg/gallery/cancel_tag.svg';
 import Context from '../../../../context/context';
 import { useParams, useNavigate } from 'react-router-dom';
-import { message, Select } from 'antd';
+import { Select } from 'antd';
 import slugify from 'slugify';
+import { message } from '../../globalComponents/CustomToast';
 const AddLables = ({ info, setinfo, searchParams }) => {
 	const { galleryId, albumId } = useParams();
 	const {
@@ -12,7 +13,6 @@ const AddLables = ({ info, setinfo, searchParams }) => {
 	const navigate = useNavigate();
 	const [inputTag, setinputTag] = useState('');
 	const [searchValue, setSearchValue] = useState('');
-	const [messageApi, contextHolder] = message.useMessage();
 
 	useEffect(() => {
 		if (tagsList?.galleryId !== galleryId) {
@@ -51,16 +51,16 @@ const AddLables = ({ info, setinfo, searchParams }) => {
 	};
 	const addNewTagHandler = async () => {
 		if (!inputTag.trim().length) {
-			messageApi.error('Tag cannot be empty');
+			message.error('Tag cannot be empty');
 			setinputTag('');
 			return;
 		}
 
 		const slug = slugify(inputTag, { lower: true, strict: true });
 
-		if (tagsList?.list.find((tag) => tag?.displayName === inputTag || tag?.slug === slug)) {
-			if (info?.selectedGalleryTags?.find((tag) => tag?.displayName === inputTag)) {
-				messageApi.warning('Tag already exists');
+		if (tagsList?.list.find((tag) => tag.displayName === inputTag || tag.slug === slug)) {
+			if (info?.selectedGalleryTags?.find((tag) => tag.displayName === inputTag)) {
+				message.warning('Tag already exists');
 				return;
 			} else {
 				return;
@@ -105,7 +105,6 @@ const AddLables = ({ info, setinfo, searchParams }) => {
 
 	return (
 		<div className="add-labels-container">
-			{contextHolder}
 			<div className="headerLabels">
 				<h1>Add Labels</h1>
 				<p>Categories your photos under different labels</p>

@@ -9,10 +9,11 @@ import Context from '../../../context/context';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import Skeleton from 'react-loading-skeleton';
 import { ReactComponent as FilterIcon } from '../../../assets/svg/chat/filter.svg';
-import { Result, message, Tooltip } from 'antd';
+import { Result, Tooltip } from 'antd';
 import { getCurrentWorkspaceId } from '../../../helpers';
 import QuickActions from '../../components/globalComponents/QuickActions';
 import SearchSvg from '../../../assets/svg/activity/SearchSvg';
+import { message } from '../../components/globalComponents/CustomToast';
 
 const noImage =
 	'https://png.pngtree.com/png-clipart/20230917/original/pngtree-no-image-available-icon-flatvector-illustration-thumbnail-graphic-illustration-vector-png-image_12323920.png';

@@ -31,7 +31,7 @@ import { ReactComponent as ToastError } from '../../../assets/svg/gallery/toastE
 import { ReactComponent as SettingsIcon } from '../../../assets/svg/gallery/settingIcon.svg';
 import Masonry, { ResponsiveMasonry } from 'react-responsive-masonry';
 import { ReactComponent as UpArrow } from '../../../assets/svg/workflow/downArrow.svg';
-import { Checkbox, message, Result, theme, Tooltip } from 'antd';
+import { Checkbox, Result, theme, Tooltip } from 'antd';
 import ShareModal from '../../../views/components/modalsV2/gallery/ShareModal';
 import CreateAlbum from '../../components/modalsV2/gallery/CreateAlbum';
 import CollaboratorPopup from '../../components/modalsV2/gallery/CollaboratorPopup';
@@ -60,11 +60,12 @@ import GalleryStyles from '../../components/modalsV2/gallery/GalleryStyles';
 import DownloadAlbum from '../../components/modalsV2/gallery/DownloadAlbum';
 import DeleteAlbumImagesPopup from '../../components/modalsV2/gallery/DeleteAlbumImagesPopup';
 import ToggleSlider from '../../components/input/slider';
-import { Switch } from 'antd';
+import { Switch, message } from 'antd';
 import ShowLightRoomCopy from '../../components/modalsV2/gallery/ShowLightRoomCopy';
 import { getCurrentWorkspaceId } from '../../../helpers';
 import GridImage from '../../../assets/images/workflow_builder/dotgrid.png';
 import SharePopup from '../../components/modalsV2/gallery/SharePopup';
+// import { message } from '../../components/globalComponents/CustomToast';
 // import EarnAndShareOverlay from './galleryPage/EditAndShareOverlay';
 
 const workspaceId = localStorage.getItem('workspaceId');
@@ -1279,10 +1280,7 @@ const GalleryPage = () => {
 		const newOnlineState = !info?.isOnline;
 
 		// Show loading message
-		// message.loading({
-		// 	content: 'Updating gallery status...',
-		// 	key: 'galleryUpdate',
-		// });
+		const id = message.loading('Updating gallery status...');
 
 		try {
 			const galleryPayload = {
@@ -1303,6 +1301,8 @@ const GalleryPage = () => {
 			}));
 
 			const response = await postGallery(galleryPayload, galleryId);
+
+			message.destroy(id);
 
 			if (response?.[0]) {
 				await getAlbums(galleryId);
@@ -1478,14 +1478,6 @@ const GalleryPage = () => {
 			console.error('Error updating albums:', error);
 			message.error('Failed to update albums list');
 		}
-		const searchParams = new URLSearchParams(location.search);
-		searchParams.set('albumId', newAlbum?._id);
-		searchParams.set('activeTab', 'Albums');
-
-		navigate(`${location.pathname}?${searchParams.toString()}`, {
-			replace: true, // Use replace to avoid adding to history stack
-			state: { from: 'newAlbum' }, // Add state to track source of navigation
-		});
 	};
 
 	const handleClickAlbum = (album, name) => {
@@ -1725,10 +1717,7 @@ const GalleryPage = () => {
 			handleGalleryChange.isProcessing = true;
 
 			try {
-				message.loading({
-					content: 'Renaming gallery...',
-					key: 'renameGallery',
-				});
+				const id = message.loading('Renaming gallery...');
 
 				const payload = {
 					title: value,
@@ -1739,14 +1728,18 @@ const GalleryPage = () => {
 
 				if (response?.[0]) {
 					// Update UI state directly without additional API call
-					setInfo((prev) => ({
-						...prev,
-						activeGallery: {
-							...prev.activeGallery,
-							title: value,
-						},
-						showMainPopup: false,
-					}));
+					setInfo((prev) => {
+						message.destroy(id);
+
+						return {
+							...prev,
+							activeGallery: {
+								...prev.activeGallery,
+								title: value,
+							},
+							showMainPopup: false,
+						};
+					});
 
 					showMessage('success', 'Gallery renamed successfully');
 				} else {
@@ -1872,10 +1865,7 @@ const GalleryPage = () => {
 			albumChanges.isProcessing = true;
 
 			try {
-				message.loading({
-					content: 'Renaming album...',
-					key: 'renameAlbum',
-				});
+				const id = message.loading('Renaming album...');
 
 				const payload = {
 					title: value,
@@ -1889,6 +1879,8 @@ const GalleryPage = () => {
 
 				// Make the API call
 				const response = await editAlbumName(payload, galleryId, info.activeAlbumId);
+
+				message.destroy(id);
 
 				if (response?.[0]) {
 					// Update UI state
@@ -1977,6 +1969,7 @@ const GalleryPage = () => {
 			}));
 
 			showMessage('loading', 'Downloading album...');
+			const id = message.loading('Downloading album...');
 
 			const payload = {
 				imageType: info?.originalDownload ? 'original' : 'optimized',
@@ -1988,6 +1981,8 @@ const GalleryPage = () => {
 				info?.activeAlbumId,
 				info?.activeTagId || info?.albumTagId,
 			);
+
+			message.destroy(id);
 
 			if (response?.[0] === true && response?.[1]?.downloadId) {
 				const region = localStorage.getItem('region');
@@ -2029,25 +2024,22 @@ const GalleryPage = () => {
 	const handleLightRoomCopy = async () => {
 		try {
 			// Show loading message
-			message.loading({
-				content: 'Fetching image list...',
-				key: 'lightroomCopy',
-			});
+			const id = message.loading('Fetching image list...');
 
 			let response;
 			if (info.activeTab === 'Client Selections' && info.clientSelectionID) {
 				// Check if we have client selection images
 				if (!info.clientSelectionImages?.docs?.length) {
-					message.destroy('lightroomCopy');
-					message.info('No images found in this client selection');
+					message.warning('No images found in this client selection');
 					return;
 				}
 
 				const response = await getClientSelectionLightRoomCopy(info.clientSelectionID);
 
+				message.destroy(id);
+
 				if (!response?.[1]?.length) {
-					message.destroy('lightroomCopy');
-					message.info('No valid images found in this client selection');
+					message.warning('No valid images found in this client selection');
 					return;
 				}
 
@@ -2189,11 +2181,7 @@ const GalleryPage = () => {
 	//Delete Handler For Gallery
 
 	const handleDeleteGallery = async () => {
-		message.open({
-			type: 'loading',
-			content: 'Your gallery is being removed. Please wait...',
-			duration: 0,
-		});
+		const id = message.loading('Your gallery is being removed. Please wait...');
 
 		const response = await deleteGallery(galleryId);
 		if (response[0] === true) {
@@ -2326,7 +2314,6 @@ const GalleryPage = () => {
 			) {
 				clearInterval(clearinterval);
 				getImageDetail(imageId);
-				message.destroy();
 			}
 		}, 2000);
 	};
@@ -2340,26 +2327,26 @@ const GalleryPage = () => {
 		getImageDetail(null, true, false);
 		setsearchkeys({ uploadImageId: 'image-uploading' });
 
-		message.open({
-			type: 'loading',
-			content: `Uploading ${
-				info.coverType === 'gallery' ? 'Gallery' : 'Album'
-			} cover image..`,
-			duration: 0,
-		});
+		const id = message.loading(
+			`Uploading ${info.coverType === 'gallery' ? 'Gallery' : 'Album'} cover image..`,
+		);
+
 		if (info?.imageURL) {
-			setInfo((prev) => ({
-				...prev,
-				crop: {
-					x: 0,
-					y: 0,
-				},
-				zoom: 1,
-				uploadImageId: null,
-				imageURL: info?.imageURL,
-				coverImageDetails: null,
-				coverType: prev.coverType,
-			}));
+			setInfo((prev) => {
+				message.destroy(id);
+				return {
+					...prev,
+					crop: {
+						x: 0,
+						y: 0,
+					},
+					zoom: 1,
+					uploadImageId: null,
+					imageURL: info?.imageURL,
+					coverImageDetails: null,
+					coverType: prev.coverType,
+				};
+			});
 		}
 		const batchId = randomize('Aa0', 10);
 
@@ -2374,7 +2361,7 @@ const GalleryPage = () => {
 				...prev,
 				uploadImageId: isHavingDuplicateImage?._id,
 			}));
-			message.destroy();
+
 			return;
 		}
 
@@ -2419,10 +2406,7 @@ const GalleryPage = () => {
 		try {
 			handleSetCoverPosition.isProcessing = true;
 
-			message.loading({
-				content: 'Updating cover position...',
-				key: 'coverUpdate',
-			});
+			const id = message.loading('Updating cover position...');
 
 			// Determine the current image based on different scenarios
 			let currentImage;
@@ -2458,6 +2442,8 @@ const GalleryPage = () => {
 				info.coverType === 'gallery'
 					? await updateGalleryCoverImage(payload, galleryId)
 					: await updateAlbumCoverImage(payload, galleryId, info.activeAlbumId);
+
+			message.destroy(id);
 
 			if (response?.[0]) {
 				// Create updated cover image object
@@ -3016,14 +3002,11 @@ const GalleryPage = () => {
 		// Set processing flag
 		handleDeleteAlbum.isProcessing = true;
 		try {
-			message.open({
-				type: 'loading',
-				content: 'Your album is being removed. Please wait...',
-				duration: 0,
-				key: 'deleteAlbum',
-			});
+			const id = message.loading('Your album is being removed. Please wait...');
 
 			const response = await deleteAlbum(galleryId, info?.activeAlbumId);
+
+			message.destroy(id);
 
 			if (response[0] === true) {
 				message.destroy('deleteAlbum');
@@ -3182,6 +3165,7 @@ const GalleryPage = () => {
 		updateImageOrder(remainingImages);
 	};
 	const handleSaveImage = async () => {
+		const id = message.loading('Rearranging images...');
 		// setInfo((prev) => ({
 		// 	...prev,
 		// 	imagesList: [],
@@ -3196,6 +3180,8 @@ const GalleryPage = () => {
 				info.activeAlbumId,
 				info.albumTagId,
 			);
+
+			message.destroy(id);
 			if (response?.[0] === true) {
 				message.loading('Rearranging images...');
 				message.destroy();
@@ -3250,11 +3236,7 @@ const GalleryPage = () => {
 
 		try {
 			// Start with loading message
-			message.loading({
-				content: 'Preparing download...',
-				key: 'downloadMessage',
-				duration: 0,
-			});
+			const id = message.loading('Preparing download...');
 
 			// Single image download handling
 			if (info?.selectedImages?.length === 1) {
@@ -3263,6 +3245,8 @@ const GalleryPage = () => {
 				// Get single image download link
 				const isLightGallery = info?.isLightGallery;
 				const response = await getDownloadLinkForImage(selectedImageId, isLightGallery);
+
+				message.destroy(id);
 
 				if (response?.[0] === true) {
 					showMessage('success', 'Download completed');

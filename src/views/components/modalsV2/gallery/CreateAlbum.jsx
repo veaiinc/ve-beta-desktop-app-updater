@@ -1,12 +1,13 @@
 import React, { useState, memo, useContext, useEffect, useCallback } from 'react';
 import '../../../../assets/scss/gallery/modals/createAlbum.scss';
 import ReactModal from '../index';
-import { DatePicker, message } from 'antd';
+import { DatePicker } from 'antd';
 import Context from '../../../../context/context';
 import { useLocation } from 'react-router-dom';
 import { ReactComponent as CrossWhite } from '../../../../assets/svg/workspaceSettings/cross.svg';
 import slugify from 'slugify';
 import dayjs from 'dayjs';
+import { message } from '../../globalComponents/CustomToast';
 
 const CreateAlbum = ({ open, closeModal, galleryId, handleNewAlbumCreated }) => {
 	const {
@@ -80,16 +81,14 @@ const CreateAlbum = ({ open, closeModal, galleryId, handleNewAlbumCreated }) => 
 		};
 		setInfo((prev) => ({ ...prev, isSubmitting: true }));
 		const response = await createNewAlbum(payload, galleryId);
-		if (response?.[0]) {
-			const newAlbum = {
-				_id: response?.[1]?.album_id,
-				slug: response?.[1]?.albumSlug,
-			};
-			if (handleNewAlbumCreated) {
-				handleNewAlbumCreated(newAlbum);
-			}
+		if (response?.[0] === true) {
+			closeModelFunction();
+			message.success('Album Created Successfully');
+			handleNewAlbumCreated(response?.[1]);
+		} else {
+			message.error(response?.[1]?.message);
 		}
-		closeModelFunction();
+
 		setInfo((prev) => ({ ...prev, isSubmitting: false }));
 	};
 

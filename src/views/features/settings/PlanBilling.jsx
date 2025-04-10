@@ -4,9 +4,10 @@ import '../../../assets/scss/settings/notifications.scss';
 import Context from '../../../context/context';
 import { useNavigate } from 'react-router-dom';
 import Skeleton from 'react-loading-skeleton';
-import { message, Spin } from 'antd';
+import { Spin } from 'antd';
 import AddOnPlans from '../../components/settings/planbilling/addOnCards';
 import AICreditsUsage from './AICreditsUsage';
+import { message } from '../../components/globalComponents/CustomToast';
 // const features = [
 // 	'Form Management Assistant',
 // 	'Proposal Builder',

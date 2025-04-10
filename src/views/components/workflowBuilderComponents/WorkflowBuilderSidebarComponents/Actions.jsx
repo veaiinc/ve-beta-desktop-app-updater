@@ -4,7 +4,7 @@ import { ReactComponent as DoubleArrow } from '../../../../assets/svg/worflow_bu
 import { ReactComponent as Search } from '../../../../assets/svg/worflow_builder/buildercard/search.svg';
 import { useCallback } from 'react';
 import Context from '../../../../context/context';
-import { message, Spin } from 'antd';
+import { Spin } from 'antd';
 import HeadersDropDownComp from '../../dropDown/HeadersDropDownComp';
 import {
 	containerStyle,
@@ -14,6 +14,7 @@ import {
 	selectedValueStyling,
 	statusOptions,
 } from '../../../features/workflow_builder/workflowContantsHelpers';
+import { message } from '../../globalComponents/CustomToast';
 
 const actionsList = {
 	tasks: { title: 'Create Tasks' },
