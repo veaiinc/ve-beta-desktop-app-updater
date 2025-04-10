@@ -81,9 +81,15 @@ export const AuthState = () => {
 	};
 
 	const createAccountUsingEmail = async (email, locationDetails, referralCode = false) => {
-		const path = '/visitor-signup';
-		const userId = localStorage?.getItem('user_id') ?? null;
-		const body = referralCode ? { email, referralCode, userId } : { email, userId };
+		const userId = localStorage?.getItem('user_id');
+		const path = userId ? '/visitor-signup' : '/signup';
+
+		let body = referralCode
+			? { email, referralCode, locationDetails }
+			: { email, locationDetails };
+		if (userId) {
+			body = referralCode ? { email, referralCode, userId } : { email, userId };
+		}
 
 		try {
 			const response = await service?.fetchPost(path, body, null, 'auth');
@@ -354,7 +360,7 @@ export const AuthState = () => {
 		const encodedReferralCode = referralCode ? encodeURIComponent(referralCode) : false;
 		const userId = localStorage?.getItem('user_id') ?? null;
 		const path = '/google/url';
-		const params = referralCode
+		let params = referralCode
 			? new URLSearchParams({
 					locationDetails: encodedLocationDetails,
 					referralCode: encodedReferralCode,
@@ -362,9 +368,9 @@ export const AuthState = () => {
 					userId,
 			  })?.toString()
 			: new URLSearchParams({
+					locationDetails: encodedLocationDetails,
 					isVisitor: true,
 					userId,
-					locationDetails: encodedLocationDetails,
 			  })?.toString();
 		window.location.href = `${authBaseUrl}${path}?${params}`;
 	};
