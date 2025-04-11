@@ -54,14 +54,15 @@ const ContactsWidget = ({ width, height }) => {
 		listItems: [],
 		page: 1,
 		hasMore: false,
-		loadingSkeleton: true,
+		loadingSkeleton: false,
 		error: null,
 		sort: [],
 		filters: [],
 		searchValue: '',
 	});
 	const fetchClientList = useCallback(
-		(page = 1) => {
+		async (page = 1) => {
+			setInfo((prev) => ({ ...prev, loadingSkeleton: true }));
 			const payload = {
 				clientFilterInput: {
 					limit: 20,
@@ -81,7 +82,8 @@ const ContactsWidget = ({ width, height }) => {
 					}),
 				},
 			};
-			getClients(payload);
+			const response = await getClients(payload);
+			setInfo((prev) => ({ ...prev, loadingSkeleton: false }));
 		},
 		[getClients, info?.searchValue, info?.filters, info?.sort],
 	);
@@ -101,9 +103,10 @@ const ContactsWidget = ({ width, height }) => {
 	}, [refetchClientList, clientList]);
 
 	useEffect(() => {
-		fetchClientList();
+		if (!clientList) {
+			fetchClientList();
+		}
 	}, [info?.searchValue, info?.filters, info?.sort]);
-	console.log(info?.listItems);
 
 	return (
 		<div className="contactsWidgetContainer" style={{ width: width, height: height }}>
@@ -130,16 +133,28 @@ const ContactsWidget = ({ width, height }) => {
 						))}
 					</div>
 				</div> */}
-					{info.listItems.map((item, index) => (
-						<div key={index} className="contactsEachOptions">
-							<div className="contactDetails">
-								<div className="contactDetailsTitle">{item?.name}</div>
-								<div className="contactDetailsSubtitle">{item?.email}</div>
+					{info?.loadingSkeleton ? (
+						<div className="contactsWidgetBodySkeleton">loading...</div>
+					) : (
+						info.listItems.map((item, index) => (
+							<div key={index} className="contactsEachOptions">
+								<div className="contactDetails">
+									<div className="contactDetailsTitle">{item?.name}</div>
+									<div className="contactDetailsSubtitle">{item?.email}</div>
+								</div>
+								{/* <div className="contactDetailsCount">0</div> */}
 							</div>
-							{/* <div className="contactDetailsCount">0</div> */}
-						</div>
-					))}
+						))
+					)}
 				</div>
+				<hr
+					style={{
+						width: '100%',
+						background: 'var(--stroke)',
+						border: 'none',
+						height: '1px',
+					}}
+				/>
 				<div className="contactsWidgetFooter">
 					<div className="contactsWidgetFooterTitle">View Contacts</div>
 					<PlusIcon />

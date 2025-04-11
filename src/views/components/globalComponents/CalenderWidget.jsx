@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import '../../../assets/scss/globalComponents/calenderWidget.scss';
 import { ReactComponent as PlusIcon } from '../../../assets/svg/calendar/plus.svg';
 import { ReactComponent as AutomationIcon } from '../../../assets/svg/contacts/automation.svg';
 import { ReactComponent as DeepSearchIcon } from '../../../assets/svg/contacts/deepsearch.svg';
 import { ReactComponent as TaskSuggestionIcon } from '../../../assets/svg/contacts/tasksuggestion.svg';
+import Context from '../../../context/context';
+
 const autoSuggestOptions = [
 	{
 		id: 1,
@@ -42,18 +44,33 @@ const meetOptions = [
 	{ id: 4, startTime: '12:30 PM', endTime: '1:00 PM', title: 'Photography Concept Planning' },
 ];
 const CalenderWidget = ({ width, height }) => {
+	const {
+		calendarInfo: { getCalendarEventsList, calendarEventsList },
+	} = useContext(Context);
+	const [info, setInfo] = useState({
+		currentCalendarDate: new Date(),
+		currentDate: new Date().getDate(),
+		currentDay: new Date().toLocaleDateString('en-US', { weekday: 'long' }),
+	});
+	useEffect(() => {
+		getCalendarEventsList(info?.currentCalendarDate);
+	}, [info?.currentCalendarDate]);
+
+	console.log(calendarEventsList, 'testing');
 	return (
 		<div className="calender-main-container" style={{ width: width }}>
 			<div className="calenderWidgetContainer">
 				<div className="calenderWidgetMain">
 					<div className="calenderWidgetDateContainer">
 						<div className="calenderWidgetDateContainerDayContainer">
-							<div className="calenderWidgetDateContainerDay">Monday</div>
-							<div className="calenderWidgetDateContainerDate">22</div>
+							<div className="calenderWidgetDateContainerDay">{info?.currentDay}</div>
+							<div className="calenderWidgetDateContainerDate">
+								{info?.currentDate}
+							</div>
 						</div>
 					</div>
 					<div className="calenderWidgetMainContent">
-						<div className="calenderWidgetMainContentTitleContainer">
+						{/* <div className="calenderWidgetMainContentTitleContainer">
 							<div className="calenderWidgetMain">
 								<div className="calenderWidgetMainContentMeetTitle">
 									Design Team- Standup Call
@@ -62,25 +79,29 @@ const CalenderWidget = ({ width, height }) => {
 									10:00 AM - 10:30 AM
 								</div>
 							</div>
-						</div>
-						<div className="calenderWidgetMainContentDate">
-							{meetOptions.map((meet) => (
-								<div className="calenderWidgetMainContentDateMeet">
-									<div className="calenderWidgetMainContentDateMeetTime">
-										<span className="calenderWidgetMainContentTime">
-											{meet.startTime}
-										</span>
-										<span className="calenderWidgetMainLine"></span>
-									</div>
-									<div className="meetingDetails">
-										<div className="meetingDetailsTitle">{meet.title}</div>
-										<div className="meetingDetailsTime">
-											{meet.startTime} - {meet.endTime}
+						</div> */}
+						{calendarEventsList?.length > 0 ? (
+							<div className="calenderWidgetMainContentDate">
+								{calendarEventsList?.map((meet) => (
+									<div className="calenderWidgetMainContentDateMeet">
+										<div className="calenderWidgetMainContentDateMeetTime">
+											<span className="calenderWidgetMainContentTime">
+												{meet?.startTime}
+											</span>
+											<span className="calenderWidgetMainLine"></span>
+										</div>
+										<div className="meetingDetails">
+											<div className="meetingDetailsTitle">{meet?.title}</div>
+											<div className="meetingDetailsTime">
+												{meet?.startTime} - {meet?.endTime}
+											</div>
 										</div>
 									</div>
-								</div>
-							))}
-						</div>
+								))}
+							</div>
+						) : (
+							<div className="calenderWidgetMainContentDate">No events found</div>
+						)}
 					</div>
 				</div>
 				<hr
