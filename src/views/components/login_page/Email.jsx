@@ -7,11 +7,9 @@ import { ReactComponent as UpArrowBlackHover } from '../../../assets/svg/login_p
 import Context from '../../../context/context';
 import { getLocationsDetails } from '../../../helpers';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { message } from 'antd';
+import { message } from '../globalComponents/CustomToast';
 import gsap from 'gsap';
 import Spinner from '../loaders/Spinner';
-
-const isHostnameVeDotAi = window.location.hostname === 've.ai';
 
 const Email = ({ email, setEmail, setActiveStage, setEmailVerified }) => {
 	const navigate = useNavigate();
@@ -27,6 +25,7 @@ const Email = ({ email, setEmail, setActiveStage, setEmailVerified }) => {
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
+		isHostnameVeDotAi: false,
 		isEmailValid: false,
 		isLoading: false,
 		googleLoading: false,
@@ -44,6 +43,10 @@ const Email = ({ email, setEmail, setActiveStage, setEmailVerified }) => {
 		: false;
 
 	useEffect(() => {
+		const isHostnameVeDotAi =
+			typeof window !== 'undefined' && window.location.hostname.endsWith('ve.ai');
+		setInfo((prev) => ({ ...prev, isHostnameVeDotAi }));
+
 		if (referralCode) {
 			handleGetAndSetReferrerUserName();
 		}
@@ -221,7 +224,7 @@ const Email = ({ email, setEmail, setActiveStage, setEmailVerified }) => {
 				</h2>
 			</div>
 			<div className="login-button-container">
-				{isHostnameVeDotAi && (
+				{info?.isHostnameVeDotAi && (
 					<>
 						<button
 							disabled={info?.googleLoading}
