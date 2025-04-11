@@ -14,6 +14,7 @@ import CustomTextArea from '../../components/globalComponents/CustomTextArea';
 import MoreOptions from '../../components/notes/MoreOptions';
 import { StarSvg } from '../../../assets/svg/notes/Star';
 import { message } from '../../components/globalComponents/CustomToast';
+import { Helmet } from 'react-helmet';
 const preprocessMarkdown = (markdown) => {
 	return markdown?.replace(/\\n/g, '\n'); // Add a non-breaking space for empty lines
 };
@@ -209,6 +210,12 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 
 	return (
 		<div className="notes-container" style={outerContainerStyle || {}}>
+			{info?.title && (
+				<Helmet>
+					<meta charSet="utf-8" />
+					<title>VE - {info?.title}</title>
+				</Helmet>
+			)}
 			<div className="notes-nav-menu">
 				<span className="notes-nav-menu-item-last-edited">
 					{info?.updatedAt ? `Edited ${moment.unix(info?.updatedAt).fromNow()}` : ''}
