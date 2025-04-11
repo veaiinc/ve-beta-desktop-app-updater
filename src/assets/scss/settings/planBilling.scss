@@ -27,13 +27,6 @@
 		// 4px 4px 10px 0px rgba(104, 93, 247, 0.02) inset;
 		backdrop-filter: blur(8px);
 
-		.backgroundDesingDiv {
-			position: absolute;
-			right: 0px;
-			top: -30px;
-			filter: blur(2px);
-		}
-
 		.subscriptionDiv {
 			display: flex;
 			align-items: center;
@@ -169,115 +162,6 @@
 		width: 100%;
 		background: var(--stroke, #313336);
 		height: 1px;
-	}
-	.billingHinstoryComponent {
-		.historyHeader {
-			.details {
-				h1 {
-					color: var(--primary-font);
-					font-family: var(--primary-font-family);
-					font-size: 16px;
-					font-style: normal;
-					font-weight: 500;
-					line-height: 24px; /* 150% */
-				}
-			}
-		}
-
-		.billingList {
-			width: 100%;
-
-			.billingTable {
-				width: 100%;
-				display: flex;
-				flex-direction: column;
-				align-items: flex-start;
-				gap: 16px;
-				align-self: stretch;
-
-				.tableHeading,
-				.tableRow {
-					display: flex;
-					width: inherit;
-					gap: 28px;
-					justify-content: space-between;
-					div {
-						width: 100%;
-						color: var(--primary-font);
-						font-family: var(--primary-font-family);
-						font-size: 13px;
-						font-style: normal;
-						font-weight: 400;
-						line-height: 18px; /* 138.462% */
-					}
-				}
-
-				// .tableRow {
-				// }
-			}
-		}
-
-		table {
-			width: 100%;
-			border-collapse: collapse;
-		}
-
-		thead tr {
-			th {
-				padding-bottom: 16px;
-				color: var(--primary-font);
-				font-family: var(--primary-font-family);
-				font-size: 13px;
-				font-style: normal;
-				font-weight: 400;
-				line-height: 18px; /* 138.462% */
-				text-align: start;
-			}
-		}
-
-		tbody tr {
-			height: 40px;
-			border-top: 1px solid var(--stroke);
-			td {
-				padding: 16px 0;
-				font-family: var(--primary-font-family);
-				font-size: 13px;
-				font-style: normal;
-				font-weight: 400;
-				line-height: 18px;
-				color: var(--secondary-font); /* Gray text color for tbody */
-				text-align: start;
-			}
-
-			.subscription {
-				.viewDetails {
-					cursor: pointer;
-					color: var(--primary-font);
-					font-family: var(--primary-font-family);
-					font-size: 13px;
-					font-style: normal;
-					font-weight: 400;
-					line-height: 20px; /* 153.846% */
-				}
-			}
-
-			.status {
-				display: flex;
-				align-items: center;
-				gap: 4px;
-
-				.point {
-					width: 5px;
-					height: 5px;
-					border-radius: 50%;
-				}
-			}
-
-			.amount {
-				font-weight: 500;
-				color: var(--primary-font);
-			}
-		}
 	}
 
 	.subscriptionWrapperContainer {
@@ -428,20 +312,6 @@
 					}
 				}
 
-				.currentAddOnsContainer {
-					width: 100%;
-					border-bottom: 1px solid var(--stroke);
-
-					.currentAddOns {
-						color: var(--primary-font);
-						font-family: var(--primary-font-family);
-						font-size: 14px;
-						font-style: normal;
-						font-weight: 500;
-						line-height: 20px;
-					}
-				}
-
 				.addOnContianer {
 					display: flex;
 					flex-direction: column;
@@ -496,43 +366,6 @@
 									font-style: normal;
 									font-weight: 500;
 									line-height: normal;
-								}
-							}
-
-							.addOnUsageDetails {
-								display: flex;
-								flex-direction: column;
-								align-items: flex-start;
-								gap: 8px;
-								align-self: stretch;
-
-								.subscriptionUsageDeatails {
-									display: flex;
-									justify-content: center;
-									align-items: center;
-									gap: 8px;
-
-									.subscriptionUsageData {
-										color: var(--secondary-font);
-										font-family: var(--primary-font-family);
-										font-size: 11px;
-										font-style: normal;
-										font-weight: 400;
-										line-height: normal;
-									}
-								}
-								.subscriptionPlanProgressBar {
-									width: 100%;
-									background-color: var(--card-over-card-hover);
-									height: 3px;
-									border-radius: 24px;
-
-									.subscriptionPlanProgressIndicator {
-										width: 50%;
-										background-color: var(--primary-font);
-										height: 3px;
-										border-radius: 24px;
-									}
 								}
 							}
 						}
@@ -719,22 +552,6 @@
 							font-weight: 400;
 							line-height: normal;
 						}
-					}
-					.addNowButtonForUpdatePlans {
-						display: flex;
-						padding: 12px 16px;
-						justify-content: center;
-						align-items: center;
-						gap: 16px;
-						border-radius: 100px;
-						border: 1px solid var(--stroke);
-						cursor: pointer;
-						color: var(--primary-font);
-						font-family: var(--primary-font-family);
-						font-size: 14px;
-						font-style: normal;
-						font-weight: 500;
-						line-height: normal;
 					}
 				}
 			}
