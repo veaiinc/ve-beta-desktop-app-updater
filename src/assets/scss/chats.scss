@@ -154,30 +154,6 @@
 						text-overflow: ellipsis;
 						white-space: nowrap;
 					}
-
-					.chat-query {
-						width: 180px;
-						text-overflow: ellipsis;
-						white-space: nowrap;
-						overflow: hidden;
-						color: var(--secondary-font, #7a7e85);
-						font-family: var(--primary-font-family);
-						font-size: 12px;
-						font-style: normal;
-						font-weight: 400;
-						line-height: normal;
-					}
-				}
-
-				.chat-timestamp {
-					text-align: right;
-					width: 15%;
-					color: var(--secondary-font);
-					font-family: var(--primary-font-family);
-					font-size: 12px;
-					font-style: normal;
-					font-weight: 400;
-					line-height: normal;
 				}
 			}
 		}
