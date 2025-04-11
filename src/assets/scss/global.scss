@@ -201,37 +201,6 @@ label.labelInput {
 	letter-spacing: -0.3px;
 }
 
-.lrTemplateListItem {
-	@include theme-aware(color, primaryColor, null, !important);
-	svg {
-		path {
-			@include theme-aware(stroke, primaryColor);
-		}
-	}
-	&:hover {
-		@include theme-aware(background-color, templateCreateListAHover, null, !important);
-	}
-}
-.lrTemplateListItemHeading {
-	@include theme-aware(color, primaryColor, null, !important);
-}
-b.new-tag {
-	margin-left: 10px;
-	padding: 3px 12px;
-	font-family: var(--primary-font-family);
-	font-style: normal;
-	font-weight: 600;
-	font-size: 11px;
-	line-height: 16px;
-	/* identical to box height, or 145% */
-
-	letter-spacing: -0.1px;
-
-	color: #ffffff;
-	text-transform: uppercase;
-	background: #dd095e;
-	border-radius: 30px;
-}
 .nobg-link {
 	&:hover {
 		background: none !important;
@@ -379,16 +348,6 @@ $time: 3000ms;
 	border: none;
 	border-radius: 8px;
 	@include theme-aware(border, proposalPopUpInputBorderColor, 1px solid);
-	.select__control {
-		border-bottom: none !important;
-		background: none !important;
-		.select__value-container {
-			padding-left: 3px;
-			.select__single-value {
-				@include theme-aware(color, primaryColor);
-			}
-		}
-	}
 }
 
 .floating-input:read-only,
@@ -488,9 +447,6 @@ select[attr=''] ~ .labelInput {
 	.label {
 		color: #f8532b !important;
 	}
-	.select__control {
-		border-bottom: 1px solid #f8532b !important;
-	}
 }
 
 .modal_foooter {
@@ -553,12 +509,6 @@ select[attr=''] ~ .labelInput {
 			margin-left: 5px;
 			transform: rotate(180deg);
 		}
-	}
-	.send_invite_button {
-		color: #f5f5f5 !important;
-		background: #3f8ae2;
-		border-radius: 4px;
-		text-transform: capitalize;
 	}
 }
 
@@ -672,17 +622,6 @@ input[type='number']::-webkit-inner-spin-button {
 
 input[type='number'] {
 	-moz-appearance: textfield;
-}
-
-.g-or {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	gap: 8px;
-	.sign-up-with-google-or {
-		font-size: 14px;
-		color: #ccc;
-	}
 }
 
 .jodit-react-container {

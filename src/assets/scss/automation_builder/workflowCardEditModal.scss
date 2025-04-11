@@ -169,21 +169,6 @@
 					border-bottom-left-radius: 0px;
 					border-bottom-right-radius: 0px;
 				}
-				.subjectInputDiv {
-					display: flex;
-					padding: 11px 14px;
-					align-items: center;
-					gap: 10px;
-					align-self: stretch;
-					border-radius: 10px;
-					border: 1px solid var(--stroke);
-					color: var(--secondary-font);
-					font-family: var(--primary-font-family);
-					font-size: 14px;
-					font-style: normal;
-					font-weight: 400;
-					line-height: 26px; /* 185.714% */
-				}
 			}
 
 			.emailScheduleTimingContainer {
@@ -286,7 +271,7 @@
 				line-height: 26px; /* 185.714% */
 			}
 		}
-		
+
 		.workflowEditorFooter {
 			display: flex;
 			flex-direction: column;

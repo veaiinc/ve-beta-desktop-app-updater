@@ -178,15 +178,6 @@
 				align-self: stretch;
 				flex: 1;
 
-				.taskInputHeading {
-					color: var(--primary-font);
-					font-family: var(--primary-font-family);
-					font-size: 14px;
-					font-style: normal;
-					font-weight: 500;
-					line-height: normal;
-				}
-
 				.addTaskTitleContainer {
 					display: flex;
 					flex-direction: column;
