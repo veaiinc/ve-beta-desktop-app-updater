@@ -7,6 +7,7 @@ import Context from '../../../context/context';
 import { ReactComponent as AutomationIcon } from '../../../assets/svg/contacts/automation.svg';
 import { ReactComponent as DeepSearchIcon } from '../../../assets/svg/contacts/deepsearch.svg';
 import { ReactComponent as TaskSuggestionIcon } from '../../../assets/svg/contacts/tasksuggestion.svg';
+import Skeleton from 'react-loading-skeleton';
 // const aiSuggestOptions = [
 // 	{ id: 1, title: 'Cristofer Septimus', subtitle: 'Schedule a meeting' },
 // 	{ id: 2, title: 'Cristofer Septimus', subtitle: 'Schedule a meeting' },
@@ -44,6 +45,8 @@ const iconMap = {
 	deepsearch: <DeepSearchIcon />,
 	tasksuggestion: <TaskSuggestionIcon />,
 };
+
+const skeletonLoaders = Array.from({ length: 6 }, (_, index) => index + 1);
 
 const ContactsWidget = ({ width, height }) => {
 	const {
@@ -133,19 +136,26 @@ const ContactsWidget = ({ width, height }) => {
 						))}
 					</div>
 				</div> */}
-					{info?.loadingSkeleton ? (
-						<div className="contactsWidgetBodySkeleton">loading...</div>
-					) : (
-						info.listItems.map((item, index) => (
-							<div key={index} className="contactsEachOptions">
-								<div className="contactDetails">
-									<div className="contactDetailsTitle">{item?.name}</div>
-									<div className="contactDetailsSubtitle">{item?.email}</div>
+					{info?.loadingSkeleton
+						? skeletonLoaders?.map((item) => (
+								<Skeleton
+									width="300px"
+									height="36px"
+									style={{
+										'--highlight-color': 'gray',
+										'--base-color': 'transparent',
+									}}
+								/>
+						  ))
+						: info.listItems.map((item, index) => (
+								<div key={index} className="contactsEachOptions">
+									<div className="contactDetails">
+										<div className="contactDetailsTitle">{item?.name}</div>
+										<div className="contactDetailsSubtitle">{item?.email}</div>
+									</div>
+									{/* <div className="contactDetailsCount">0</div> */}
 								</div>
-								{/* <div className="contactDetailsCount">0</div> */}
-							</div>
-						))
-					)}
+						  ))}
 				</div>
 				<hr
 					style={{
