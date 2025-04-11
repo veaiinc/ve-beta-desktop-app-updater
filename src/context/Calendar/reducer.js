@@ -87,6 +87,11 @@ const actionHandlers = {
 	}),
 
 	// Google Calendar Apis =============>
+	GET_CONNECTED_GOOGLE_CALENDAR: (state, action) => ({
+		...state,
+		connectedGoogleCalendars: action?.payload,
+	}),
+
 	GET_GOOGLE_CALENDAR_LIST: (state, action) => ({
 		...state,
 		googleCalendarList: action?.payload,
@@ -102,7 +107,12 @@ const actionHandlers = {
 		googleCalendarStop: action?.payload,
 	}),
 
-	GET_GOOGLE_CALENDAR_EVENTS: (state, action) => ({
+	GET_GOOGLE_CALENDAR_EVENTS_LIST: (state, action) => ({
+		...state,
+		googleCalendarEventList: action?.payload,
+	}),
+
+	FETCH_CALENDAR_EVENTS_FROM_GOOGLE: (state, action) => ({
 		...state,
 		googleCalendarEvents: action?.payload,
 	}),

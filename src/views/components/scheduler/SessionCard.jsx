@@ -1,11 +1,11 @@
-import React, { memo } from 'react';
+import { memo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import ToggleSwitch from '../../components/input/slider';
 import { ReactComponent as EditIcon } from '../../../assets/svg/workflow/edit.svg';
-import { ReactComponent as DuplicateIcon } from '../../../assets/svg/worflow_builder/buildercard/duplicate.svg';
+import { ReactComponent as DuplicateIcon } from '../../../assets/svg/tasks/duplicate.svg';
 import { ReactComponent as LinkIcon } from '../../../assets/svg/activity/link.svg';
-import { ReactComponent as EyeIcon } from '../../../assets/svg/worflow_builder/buildercard/eye.svg';
+import { ReactComponent as EyeIcon } from '../../../assets/svg/my_templates/openedEye.svg';
 import { Tooltip } from 'antd';
-import { useNavigate } from 'react-router-dom';
 
 const SessionCards = ({ item }) => {
 	const navigate = useNavigate();

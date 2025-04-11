@@ -23,8 +23,10 @@ export const CALENDAR = {
 	resetSchedulerState: 'RESET_SCHEDULER_STATE',
 
 	// Google Calendar Apis ================================>
+	getConnectedGoogleCalendar: '/googlecalendar/connected-calendars',
 	getGoogleCalendarList: '/googlecalendar/calendar-list',
-	getGoogleCalendarEvents: '/googlecalendar/getEvents',
+	fetchCalendarEventsFromGoogle: '/googlecalendar/getEvents',
+	getGoogleCalendarEventsList: '/googlecalendar/events-list',
 	createGoogleCalendarEvent: '/googlecalendar/create-event',
 	watchGoogleCalendar: '/googlecalendar/watch',
 	stopGoogleCalendar: '/googlecalendar/stop',

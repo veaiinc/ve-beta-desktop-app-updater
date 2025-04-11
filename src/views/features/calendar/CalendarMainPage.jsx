@@ -1,4 +1,4 @@
-import React, { memo, useState, useCallback, useEffect, useContext } from 'react';
+import { memo, useState, useCallback, useEffect, useContext } from 'react';
 import '../../../assets/scss/calendar/calendar.scss';
 import CalendarSidebar from './CalendarSidebar';
 import CalendarView from './CalendarView';
@@ -34,7 +34,12 @@ const Calendar = () => {
 			refetchCalendarState,
 		},
 		companyInfo: { getTeamMembers },
-		templates: { leftSidebarState, updateStateValues, getConnectedThirdParties },
+		templates: {
+			leftSidebarState,
+			updateStateValues,
+			getConnectedThirdParties,
+			googleCalendarWatch,
+		},
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({

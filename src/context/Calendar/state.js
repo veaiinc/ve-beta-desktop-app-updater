@@ -27,6 +27,8 @@ export const initialGoogleCalendarState = {
 	googleCalendarEvent: null,
 	googleCalendarWatch: null,
 	googleCalendarStop: null,
+	googleCalendarEventList: null,
+	connectedGoogleCalendars: null,
 };
 
 export const Calendar = () => {
@@ -418,11 +420,37 @@ export const Calendar = () => {
 	};
 
 	// Google Calendar Apis =============>
-	const getGoogleCalendarList = async () => {
+
+	const getConnectedGoogleCalendars = async (isWorkspaceCalendar = true) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
-			const url = `/${workspaceId}${API.CALENDAR.getGoogleCalendarList}?isWorkspaceCalendar=true`;
+			const url = `/${workspaceId}${API.CALENDAR.getConnectedGoogleCalendar}${
+				isWorkspaceCalendar ? '?isWorkspaceCalendar=true' : ''
+			}`;
+			const response = await service.fetchGet(url, usertoken, 'calendar_api');
+
+			if (response?.[0] === true) {
+				dispatch({
+					type: Actions.GET_CONNECTED_GOOGLE_CALENDAR,
+					payload: response?.[1],
+				});
+				return response?.[1];
+			} else {
+				console.log('API failed ==> getConnectedGoogleCalendar', response);
+			}
+		} catch (error) {
+			console.log('error==>getConnectedGoogleCalendar', error);
+		}
+	};
+
+	const getGoogleCalendarList = async (isWorkspaceCalendar = true) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const url = `/${workspaceId}${API.CALENDAR.getGoogleCalendarList}${
+				isWorkspaceCalendar ? '?isWorkspaceCalendar=true' : ''
+			}`;
 			const response = await service.fetchGet(url, usertoken, 'calendar_api');
 
 			if (response?.[0] === true) {
@@ -439,11 +467,13 @@ export const Calendar = () => {
 		}
 	};
 
-	const watchGoogleCalendar = async (calendarId) => {
+	const watchGoogleCalendar = async (calendarId, isWorkspaceCalendar = true) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
-			const url = `/${workspaceId}${API.CALENDAR.watchGoogleCalendar}/${calendarId}`;
+			const url = `/${workspaceId}${API.CALENDAR.watchGoogleCalendar}/${calendarId}${
+				isWorkspaceCalendar ? '?isWorkspaceCalendar=true' : ''
+			}`;
 			const response = await service.fetchGet(url, usertoken, 'calendar_api');
 
 			if (response?.[0] === true) {
@@ -460,11 +490,13 @@ export const Calendar = () => {
 		}
 	};
 
-	const stopGoogleCalendar = async (calendarId) => {
+	const stopGoogleCalendar = async (calendarId, isWorkspaceCalendar = true) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
-			const url = `/${workspaceId}${API.CALENDAR.stopGoogleCalendar}/${calendarId}`;
+			const url = `/${workspaceId}${API.CALENDAR.stopGoogleCalendar}/${calendarId}${
+				isWorkspaceCalendar ? '?isWorkspaceCalendar=true' : ''
+			}`;
 			const response = await service.fetchGet(url, usertoken, 'calendar_api');
 
 			if (response?.[0] === true) {
@@ -481,24 +513,57 @@ export const Calendar = () => {
 		}
 	};
 
-	const getGoogleCalendarEvents = async (calendarId) => {
+	const fetchCalendarEventsFromGoogle = async (calendarId, isWorkspaceCalendar = true) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
-			const url = `/${workspaceId}${API.CALENDAR.getGoogleCalendarEvents}/${calendarId}`;
+			const url = `/${workspaceId}${
+				API.CALENDAR.fetchCalendarEventsFromGoogle
+			}/${calendarId}${isWorkspaceCalendar ? '?isWorkspaceCalendar=true' : ''}`;
 			const response = await service.fetchGet(url, usertoken, 'calendar_api');
 
 			if (response?.[0] === true) {
 				dispatch({
-					type: Actions.GET_GOOGLE_CALENDAR_EVENTS,
+					type: Actions.FETCH_CALENDAR_EVENTS_FROM_GOOGLE,
 					payload: response?.[1]?.data,
 				});
 				return response?.[1];
 			} else {
-				console.log('API failed ==> getGoogleCalendarEvents', response);
+				console.log('API failed ==> fetchCalendarEventsFromGoogle', response);
 			}
 		} catch (error) {
-			console.log('error==>getGoogleCalendarEvents', error);
+			console.log('error==>fetchCalendarEventsFromGoogle', error);
+		}
+	};
+
+	const getGoogleCalendarEventsList = async (isWorkspaceCalendar = true) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const url = `/${workspaceId}${API.CALENDAR.getGoogleCalendarEventsList}${
+				isWorkspaceCalendar ? '?isWorkspaceCalendar=true' : ''
+			}`;
+			const response = await service.fetchGet(url, usertoken, 'calendar_api');
+
+			if (response?.[0] === true) {
+				dispatch({
+					type: Actions.GET_GOOGLE_CALENDAR_EVENTS_LIST,
+					// payload: response?.[1]?.data,
+					payload: 'Data Recived',
+				});
+				return response?.[1];
+			} else {
+				dispatch({
+					type: Actions.GET_GOOGLE_CALENDAR_EVENTS_LIST,
+					// payload: {
+					// 	error: 'Something went wrong while fetching events. Please try again.',
+					// },
+					payload: 'Data Recived',
+				});
+				console.log('API failed ==> getGoogleCalendarEventsList', response);
+			}
+		} catch (error) {
+			console.log('error==>getGoogleCalendarEventsList', error);
 		}
 	};
 
@@ -546,10 +611,12 @@ export const Calendar = () => {
 		updateSchedulerSession,
 		resetSchedulerState,
 
+		getConnectedGoogleCalendars,
 		getGoogleCalendarList,
 		watchGoogleCalendar,
 		stopGoogleCalendar,
-		getGoogleCalendarEvents,
+		getGoogleCalendarEventsList,
+		fetchCalendarEventsFromGoogle,
 		resetGoogleCalendarState,
 	};
 };
