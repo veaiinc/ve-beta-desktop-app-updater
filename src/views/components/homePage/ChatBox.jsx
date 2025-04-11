@@ -146,8 +146,6 @@ const ChatBox = ({
 		aiSetup: { updateAiSetupState, voiceIntegrationData },
 	} = useContext(Context);
 
-	console.log(chatInfo);
-
 	const { handleConnect, shouldConnect } = useUpdatedVoiceIntegration();
 
 	const navigate = useNavigate();
