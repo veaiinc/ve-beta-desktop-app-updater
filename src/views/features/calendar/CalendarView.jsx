@@ -10,8 +10,7 @@ import MonthEventWrapper from '../../components/calendar/MonthEventWrapper';
 import Context from '../../../context/context';
 import moment from 'moment';
 import EventDetailsModal from '../../components/modalsV2/calendar/EventDetailsModal';
-// import CustomEventContainer from '../../components/calendar/CustomEventContainer';
-// import UpdatedPageLoader from '../../components/loaders/UpdatedPageLoader';
+import { message } from 'antd';
 
 const initialState = {
 	eventsList: [],
@@ -42,6 +41,8 @@ const CalendarView = ({
 			calendarEvent,
 			resetCalendarState,
 			sendEventToAi,
+
+			googleCalendarEvents,
 		},
 		// profileInfo: { userWorkSpaceList, userDetailsData },
 		companyInfo: { tenantsUserList, getTeamMembers },
@@ -49,7 +50,37 @@ const CalendarView = ({
 
 	const [info, setInfo] = useState({
 		...initialState,
+		googleEvents: [],
 	});
+
+	useEffect(() => {
+		if (googleCalendarEvents) {
+			if (googleCalendarEvents?.error?.length) {
+				message.error('Failed to fetch Google Calendar events');
+				return setInfo((prevInfo) => ({
+					...prevInfo,
+					googleEventListError: googleCalendarEvents?.error,
+					isLoading: false,
+				}));
+			}
+
+			// Map the googleCalendarEvents to the desired eventsList format
+			const mappedGoogleEvents = googleCalendarEvents?.map((event) => ({
+				id: event?._id,
+				start: moment(event?.startDateTime).local().toDate(),
+				end: moment(event?.endDateTime).local().toDate(),
+				title: event?.title,
+				description: event?.description,
+				...(event || {}),
+			}));
+
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				googleEvents: mappedGoogleEvents,
+				isLoading: false,
+			}));
+		}
+	}, [googleCalendarEvents]);
 
 	useEffect(() => {
 		if (!tenantsUserList || tenantsUserList.length === 0) {
@@ -78,6 +109,7 @@ const CalendarView = ({
 	useEffect(() => {
 		if (calendarEventsList) {
 			if (calendarEventsList?.error?.length) {
+				message.error('Failed to fetch Ve calendar events');
 				return setInfo((prevInfo) => ({
 					...prevInfo,
 					eventListError: calendarEventsList?.error,
@@ -106,23 +138,25 @@ const CalendarView = ({
 	useEffect(() => {
 		// Filter events based on categoryFilter
 		const defaultCategory = categoryList?.find(
-			(cat) =>
-				cat?.name?.toLowerCase() === 'default' || cat?.type?.toLowerCase() === 'default',
+			(cat) => cat?.name?.toLowerCase() === 'all' || cat?.type?.toLowerCase() === 'all',
 		)?._id;
+
+		// Combine both event sources
+		const combinedEvents = [...(info?.eventsList || []), ...(info?.googleEvents || [])];
 
 		// If default category is selected, show all events
 		if (categoryFilter?.includes(defaultCategory)) {
-			setInfo((prev) => ({ ...prev, categoryBasedEventsList: info?.eventsList }));
+			setInfo((prev) => ({ ...prev, categoryBasedEventsList: combinedEvents }));
 			return;
 		}
 
 		// Otherwise filter events based on selected categories
-		const filteredEvents = info?.eventsList?.filter((event) => {
+		const filteredEvents = combinedEvents?.filter((event) => {
 			const eventCategory = event?.calendarCategory;
 			return categoryFilter?.includes(eventCategory?._id);
 		});
 		setInfo((prev) => ({ ...prev, categoryBasedEventsList: filteredEvents }));
-	}, [categoryFilter, info?.eventsList, categoryList]);
+	}, [categoryFilter, info?.eventsList, info?.googleEvents, categoryList]);
 
 	const handleSendEventToAi = useCallback(async () => {
 		if (calendarEvent?._id) {
@@ -210,7 +244,6 @@ const CalendarView = ({
 			<div className="calendarViewParentContainer">
 				<div className="scheduler">
 					<CalendarWrapper
-						// events={info?.eventsList || []}
 						events={info?.categoryBasedEventsList || []}
 						defaultView={'month'}
 						views={['month', 'week', 'day']}

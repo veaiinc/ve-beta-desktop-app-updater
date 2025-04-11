@@ -6,7 +6,7 @@ import SchedulerMainPage from './SchedulerMainPage';
 
 const modules = [
 	{ name: 'Calendar', key: 'calendar' },
-	{ name: 'Scheduler', key: 'scheduler' },
+	// { name: 'Scheduler', key: 'scheduler' },
 ];
 
 const CalendarModule = () => {

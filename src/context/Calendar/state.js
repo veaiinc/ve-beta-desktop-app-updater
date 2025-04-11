@@ -13,6 +13,7 @@ export const initialState = {
 	calendarCategories: null,
 	deletedEvent: null,
 	refetchCalendarState: false,
+	calendarCategoriesList: null,
 };
 
 export const initialSchedulerState = {
@@ -23,12 +24,13 @@ export const initialSchedulerState = {
 
 export const initialGoogleCalendarState = {
 	googleCalendarList: null,
-	googleCalendarEvents: null,
+	calendarEventsFromGoogle: null,
 	googleCalendarEvent: null,
 	googleCalendarWatch: null,
 	googleCalendarStop: null,
 	googleCalendarEventList: null,
 	connectedGoogleCalendars: null,
+	googleCalendarEvents: null,
 };
 
 export const Calendar = () => {
@@ -82,7 +84,7 @@ export const Calendar = () => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
-			const url = `/${workspaceId}${API.CALENDAR.createCalendarCategory}`;
+			const url = `/${workspaceId}${API.CALENDAR.getcalendarCategories}`;
 			const response = await service.fetchPost(url, body, usertoken, 'calendar_api');
 
 			if (response?.[0] === true) {
@@ -92,7 +94,7 @@ export const Calendar = () => {
 				});
 			} else {
 				dispatch({
-					type: Actions.CREATE_CALENDAR_CATEGORY,
+					type: Actions.GET_CALENDAR_CATEGORIES,
 					payload: {
 						error: 'Something went wrong while creating category. Please try again.',
 					},
@@ -113,7 +115,7 @@ export const Calendar = () => {
 			if (response?.[0] === true) {
 				dispatch({
 					type: Actions.UPDATE_CALENDAR_CATEGORY,
-					payload: response?.[1]?.data,
+					payload: response?.[1]?.calendarCategories,
 				});
 			} else {
 				dispatch({
@@ -132,7 +134,7 @@ export const Calendar = () => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
-			const url = `/${workspaceId}${API.CALENDAR.calendarCategories}`;
+			const url = `/${workspaceId}${API.CALENDAR.getcalendarCategories}`;
 			const response = await service.fetchGet(url, usertoken, 'calendar_api');
 
 			if (response?.[0] === true) {
@@ -197,6 +199,33 @@ export const Calendar = () => {
 					type: Actions.GET_CALENDAR_EVENTS_LIST,
 					payload: {
 						error: 'Something went wrong while fetching events. Please try again.',
+					},
+				});
+			}
+		} catch (error) {
+			console.log('error==>getCalendarEventsList', error);
+		}
+	};
+
+	//Custom calendar Api Call for Events of Google Calendar
+	const getGoogleCalendarEvents = async () => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const url = `/${workspaceId}${API.CALENDAR.getGoogleCalendarEventsList}`;
+
+			const response = await service.fetchGet(url, usertoken, 'calendar_api');
+
+			if (response?.[0] === true) {
+				dispatch({
+					type: Actions.GET_GOOGLE_CALENDAR_EVENTS_LIST,
+					payload: response?.[1]?.data,
+				});
+			} else {
+				dispatch({
+					type: Actions.GET_GOOGLE_CALENDAR_EVENTS_LIST,
+					payload: {
+						error: 'Something went wrong while fetching google calendar events. Please try again.',
 					},
 				});
 			}
@@ -536,6 +565,7 @@ export const Calendar = () => {
 		}
 	};
 
+	//Google APi Call for Events List
 	const getGoogleCalendarEventsList = async (isWorkspaceCalendar = true) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
@@ -548,17 +578,15 @@ export const Calendar = () => {
 			if (response?.[0] === true) {
 				dispatch({
 					type: Actions.GET_GOOGLE_CALENDAR_EVENTS_LIST,
-					// payload: response?.[1]?.data,
-					payload: 'Data Recived',
+					payload: response?.[1],
 				});
 				return response?.[1];
 			} else {
 				dispatch({
 					type: Actions.GET_GOOGLE_CALENDAR_EVENTS_LIST,
-					// payload: {
-					// 	error: 'Something went wrong while fetching events. Please try again.',
-					// },
-					payload: 'Data Recived',
+					payload: {
+						error: 'Something went wrong while fetching events. Please try again.',
+					},
 				});
 				console.log('API failed ==> getGoogleCalendarEventsList', response);
 			}
@@ -604,6 +632,7 @@ export const Calendar = () => {
 		getCalendarEventDetails,
 		getCalendarAllEvents,
 		updateCalendarState,
+		getGoogleCalendarEvents,
 
 		getSchedulerList,
 		createSchedulerSession,

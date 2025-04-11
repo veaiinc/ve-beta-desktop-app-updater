@@ -26,19 +26,14 @@ const actionHandlers = {
 		deletedEvent: action?.payload,
 	}),
 
-	CREATE_CALENDAR_CATEGORY: (state, action) => ({
-		...state,
-		calendarCategories: action?.payload,
-	}),
-
 	UPDATE_CALENDAR_CATEGORY: (state, action) => ({
 		...state,
-		calendarCategories: action?.payload,
+		calendarCategoriesList: action?.payload,
 	}),
 
 	GET_CALENDAR_CATEGORIES: (state, action) => ({
 		...state,
-		calendarCategories: action?.payload,
+		calendarCategoriesList: action?.payload,
 	}),
 
 	DELETE_CALENDAR_CATEGORY: (state, action) => ({
@@ -109,12 +104,12 @@ const actionHandlers = {
 
 	GET_GOOGLE_CALENDAR_EVENTS_LIST: (state, action) => ({
 		...state,
-		googleCalendarEventList: action?.payload,
+		googleCalendarEvents: action?.payload,
 	}),
 
 	FETCH_CALENDAR_EVENTS_FROM_GOOGLE: (state, action) => ({
 		...state,
-		googleCalendarEvents: action?.payload,
+		calendarEventsFromGoogle: action?.payload,
 	}),
 
 	RESET_CALENDAR_STATE: () => ({ ...initialState }),

@@ -19,8 +19,8 @@ const GoogleCalendar = () => {
 			watchGoogleCalendar,
 			googleCalendarWatch,
 
-			getGoogleCalendarEventsList,
-			googleCalendarEventList,
+			getGoogleCalendarEvents,
+			googleCalendarEvents,
 		},
 	} = useContext(Context);
 
@@ -81,7 +81,7 @@ const GoogleCalendar = () => {
 					eventsLoading: true,
 				}));
 				try {
-					await getGoogleCalendarEventsList();
+					await getGoogleCalendarEvents();
 				} finally {
 					setInfo((prev) => ({ ...prev, eventsLoading: false }));
 				}
@@ -94,10 +94,10 @@ const GoogleCalendar = () => {
 	}, [connectedGoogleCalendars]);
 
 	useEffect(() => {
-		if (googleCalendarEventList) {
-			console.log('Calendar Events:', googleCalendarEventList);
+		if (googleCalendarEvents) {
+			console.log('Calendar Events:', googleCalendarEvents);
 		}
-	}, [googleCalendarEventList]);
+	}, [googleCalendarEvents]);
 
 	const handleCalendarSelect = async (calendar) => {
 		setInfo((prev) => ({
@@ -116,7 +116,7 @@ const GoogleCalendar = () => {
 				eventsLoading: true,
 			}));
 
-			await getGoogleCalendarEventsList();
+			await getGoogleCalendarEvents();
 		} finally {
 			setInfo((prev) => ({
 				...prev,

@@ -25,8 +25,8 @@ const initialState = {
 const Calendar = () => {
 	const {
 		calendarInfo: {
-			calendarCategories,
-			createCalendarCategory,
+			calendarCategoriesList,
+			getCalendarCategories,
 			getCalendarChat,
 			resetCalendarAiChat,
 			getCalendarEventsList,
@@ -62,12 +62,7 @@ const Calendar = () => {
 		const sessionId = ObjectId().toString();
 		setInfo((prevInfo) => ({ ...prevInfo, chatSessionId: sessionId }));
 
-		const calendarCategoryPayload = {
-			calendarCategory: 'default',
-			categoryColor: '#b977ff',
-			categoryType: 'default',
-		};
-		createCalendarCategory(calendarCategoryPayload);
+		getCalendarCategories();
 		getTeamMembers();
 
 		return () => {
@@ -80,15 +75,15 @@ const Calendar = () => {
 	}, []);
 
 	useEffect(() => {
-		if (calendarCategories) {
+		if (calendarCategoriesList) {
 			updateCategoryList();
 		}
-	}, [calendarCategories]);
+	}, [calendarCategoriesList]);
 
 	useEffect(() => {
 		if (info?.categoryList?.length > 0 && info?.selectedCategory === null) {
 			const defaultCategory = info?.categoryList?.find(
-				(category) => category?.name === 'default',
+				(category) => category?.name === 'all',
 			);
 			setInfo((prevInfo) => ({
 				...prevInfo,
@@ -116,13 +111,13 @@ const Calendar = () => {
 	}, []);
 
 	const updateCategoryList = useCallback(() => {
-		if (calendarCategories) {
+		if (calendarCategoriesList) {
 			setInfo((prevInfo) => ({
 				...prevInfo,
-				categoryList: [...calendarCategories],
+				categoryList: [...calendarCategoriesList],
 			}));
 		}
-	}, [calendarCategories]);
+	}, [calendarCategoriesList]);
 
 	// Get Week Days array for <WeekDayHeader /> component
 	const getCurrentWeek = useCallback(() => {

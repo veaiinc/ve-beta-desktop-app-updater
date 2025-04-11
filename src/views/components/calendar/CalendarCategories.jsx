@@ -1,8 +1,5 @@
 import React, { memo, useCallback, useState, useRef, useEffect } from 'react';
 import '../../../assets/scss/calendar/calendarCategories.scss';
-// import { ReactComponent as PlusSvg } from '../../../assets/svg/calendar/plus.svg';
-// import { ReactComponent as DownSvg } from '../../../assets/svg/calendar/down.svg';
-// import { ReactComponent as UpSvg } from '../../../assets/svg/calendar/up.svg';
 import { ReactComponent as PencilSvg } from '../../../assets/svg/calendar/pencil.svg';
 import UpdateCategoryModal from '../modalsV2/calendar/UpdateCategoryModal';
 import PlusSvg from '../../../assets/svg/my_templates/PlusSvg';
@@ -73,8 +70,7 @@ const CalendarCategories = ({
 	// Handler for checkbox changes
 	const handleCheckboxChange = (categoryId) => {
 		const defaultCategory = categoryList?.find(
-			(cat) =>
-				cat?.name?.toLowerCase() === 'default' || cat?.type?.toLowerCase() === 'default',
+			(cat) => cat?.name?.toLowerCase() === 'all' || cat?.type?.toLowerCase() === 'all',
 		)?._id;
 
 		// If selecting Default category
@@ -147,12 +143,15 @@ const CalendarCategories = ({
 									>
 										{category?.name}
 									</label>
-									<button
-										className="editButton"
-										onClick={() => handleEditCategory(category)}
-									>
-										<PencilSvg />
-									</button>
+									{category?.name?.toLowerCase() !== 'all' &&
+										category?.type?.toLowerCase() !== 'all' && (
+											<button
+												className="editButton"
+												onClick={() => handleEditCategory(category)}
+											>
+												<PencilSvg />
+											</button>
+										)}
 								</div>
 								<div className="statusWrapper">
 									<span

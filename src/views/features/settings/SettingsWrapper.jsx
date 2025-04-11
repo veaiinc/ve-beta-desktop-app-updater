@@ -11,7 +11,7 @@ import OldIntegrationsPage from './OdIntegrationsPage';
 import TeamSettings from './TeamSettings';
 import PlanBilling from './PlanBilling';
 import AiSetup from '../aiSetup/AiSetup';
-import Integrations from '../integrations/Integrations';
+import Integrations from '../Integrations/Integrations';
 const mapper = {
 	'my-profile': <MyProfile />,
 	workspace: <SettingsWorkspace />,
