@@ -200,10 +200,10 @@ const actionHandlers = {
 		...state,
 		aiSuggestedPendingActions: action?.payload,
 	}),
-	// SET_CONNECTED_THIRDPARTIES: (state, action) => ({
-	// 	...state,
-	// 	connectThirdParties: action?.payload,
-	// }),
+	SET_CONNECTED_THIRDPARTIES: (state, action) => ({
+		...state,
+		connectThirdParties: action?.payload,
+	}),
 	RESET_STATE: () => intialState,
 };
 

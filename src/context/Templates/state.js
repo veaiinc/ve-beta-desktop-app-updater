@@ -1391,15 +1391,16 @@ export const TemplatesState = (props) => {
 			const type = 'third_party_integrations_api';
 			const params = integrationType ? { access: integrationType } : {};
 			const response = await Service?.fetchGet(path, usertoken, type, params);
-			return response;
-			// if (response?.[0] === true) {
-			// 	dispatch({
-			// 		type: Actions?.SET_CONNECTED_THIRDPARTIES,
-			// 		payload: response?.[1],
-			// 	});
-			// } else {
-			// 	console.log('api failed==>getConnectedThirdParties', response);
-			// }
+
+			if (response?.[0] === true) {
+				dispatch({
+					type: Actions?.SET_CONNECTED_THIRDPARTIES,
+					payload: response?.[1],
+				});
+				return response;
+			} else {
+				console.log('api failed==>getConnectedThirdParties', response);
+			}
 		} catch (error) {
 			console.log('error==>getConnectedThirdParties', error);
 		}
