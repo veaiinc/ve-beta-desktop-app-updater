@@ -347,19 +347,7 @@
 							& > * {
 								cursor: pointer;
 							}
-							.web-search-container {
-								display: flex;
-								height: 32px;
-								padding: 6px 14px;
-								justify-content: center;
-								align-items: center;
-								gap: 6px;
-								border-radius: 24px;
-								background: var(--card);
-								.text {
-									color: var(--primary-font);
-								}
-							}
+							
 
 							.go-deep {
 								display: flex;
