@@ -14,7 +14,7 @@ import {
 	options,
 	returnDurationOption,
 	calculateTimeStamp,
-} from '../../../features/workflow_builder/workflowContantsHelpers';
+} from '../../../features/workflowBuilder/workflowContantsHelpers';
 import { Drawer } from 'antd';
 import EditAndViewEmailTemplateModal from './EditAndViewEmailTemplateModal';
 

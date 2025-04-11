@@ -5,7 +5,6 @@ import { ReactComponent as MoonSvg } from '../../../assets/svg/moon.svg';
 import { ReactComponent as SunSvg } from '../../../assets/svg/sun.svg';
 import { useNavigate } from 'react-router-dom';
 import ChatBox from '../../components/homePage/ChatBox';
-import { getLocationsDetails } from '../../../helpers';
 import Context from '../../../context/context';
 
 const routeType = 'public';
@@ -19,9 +18,13 @@ const LandingPage = () => {
 	const navigate = useNavigate();
 
 	useEffect(() => {
-		const locationDetails = localStorage?.getItem('locatonDetails');
-		if (!locationDetails) {
-			getLocationsDetails();
+		const usertoken = localStorage.getItem('usertoken');
+		const region = localStorage.getItem('region');
+		const workspaceId = localStorage.getItem('workspaceId');
+		const isOnboard = JSON.parse(localStorage.getItem('isOnboard'));
+		if (usertoken && region && workspaceId) {
+			if (isOnboard === false) return navigate('/early-access');
+			if (isOnboard) return navigate('/home');
 		}
 	}, []);
 

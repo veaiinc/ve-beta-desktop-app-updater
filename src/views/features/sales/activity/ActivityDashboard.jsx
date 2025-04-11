@@ -1,12 +1,12 @@
 import React, { memo, useCallback, useState, useContext, useEffect } from 'react';
 import '../../../../assets/scss/sales/activity/activityComponents.scss';
-import ActivityOverview from '../../../components/activity/ActivityOverview';
+import ActivityOverview from '../../../components/activity/ActivityOverview.jsx';
 // import TimeLine from '../../../components/activity/TimeLine';
-import ViewersList from '../../../components/activity/ViewersList';
-import ActivityMetrics from '../../../components/activity/ActivityMetrics';
+import ViewersList from '../../../components/activity/ViewersList.jsx';
+import ActivityMetrics from '../../../components/activity/ActivityMetrics.jsx';
 import SessionActivityModal from '../../../components/activity/ActivitySessionModal.jsx';
 // import EmailModal from '../../../components/activity/EmailModal.jsx';
-import Context from '../../../../context/context';
+import Context from '../../../../context/context.js';
 import { useParams } from 'react-router-dom';
 import moment from 'moment';
 
