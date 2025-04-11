@@ -577,6 +577,9 @@ const RecentChat = ({
 			}
 
 			if (data?.stream_end) {
+				if (data?.user_id) {
+					localStorage?.setItem('user_id', data?.user_id);
+				}
 				handleStreamIncomingMessage(data);
 				updateStateValues({ globalLoadingMesssage: null });
 				setInfo((prev) => ({ ...prev, latestStreamMesage: data }));
