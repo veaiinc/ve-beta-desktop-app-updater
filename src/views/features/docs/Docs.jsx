@@ -11,12 +11,12 @@ import { ReactComponent as StatusCircle } from '../../../assets/svg/docs/status-
 import { ReactComponent as CrossPurple } from '../../../assets/svg/docs/cross-purple.svg';
 import { ReactComponent as Sync } from '../../../assets/svg/docs/sync.svg';
 
-import { FetchMoreLoaderComp, fetchOriginSelection } from '../../../helpers';
-import Context from '../../../context/context';
+import { FetchMoreLoaderComp, fetchOriginSelection } from '../../../helpers/index.js';
+import Context from '../../../context/context.js';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import Sidebar from '../../components/docs/Sidebar';
-import DropDown from '../../components/dropDown/tasks/DropDown';
-import FilterPopUp from '../../components/globalComponents/FilterPopUp';
+import Sidebar from '../../components/docs/Sidebar.jsx';
+import DropDown from '../../components/dropDown/tasks/DropDown.jsx';
+import FilterPopUp from '../../components/globalComponents/FilterPopUp.jsx';
 import DeleteLeadModal from '../../components/modalsV2/workflowsModals/DeleteLeadModal.jsx';
 import ProposalPopup from '../../components/docs/ProposalsPopup.jsx';
 import { message } from '../../components/globalComponents/CustomToast.jsx';
@@ -26,7 +26,7 @@ import QuickActions from '../../components/globalComponents/QuickActions.jsx';
 import SearchSvg from '../../../assets/svg/activity/SearchSvg.jsx';
 import FilterSvg from '../../../assets/svg/my_templates/FilterSvg.jsx';
 import ThreeDotsSvg from '../../../assets/svg/my_templates/ThreeDotsSvg.jsx';
-import Spinner from '../../components/loaders/Spinner';
+import Spinner from '../../components/loaders/Spinner.jsx';
 const origin = fetchOriginSelection();
 
 const payload = {

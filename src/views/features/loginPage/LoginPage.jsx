@@ -2,7 +2,6 @@ import React, { memo, useState, useEffect } from 'react';
 import '../../../assets/scss/login_page/index.scss';
 import Email from '../../components/login_page/Email';
 import VerificationCode from '../../components/login_page/VerificationCode';
-import { ReactComponent as VeAiLogo } from '../../../assets/svg/ve.svg';
 import CookiesImg from '../../../assets/images/login_page/cookies.png';
 import Cookies from 'js-cookie';
 import { useNavigate } from 'react-router-dom';
