@@ -46,7 +46,7 @@ import RecentChat from './views/features/chat/RecentChat';
 import AutomationBuilder from './views/features/automationBuilder/AutomationBuilder';
 import AutomationBuilderLayout from './views/layouts/automationBuilderLayout';
 import Automations from './views/features/automations/Automations';
-import Integrations from './views/features/integrations/Integrations';
+import Integrations from './views/features/Integrations/Integrations';
 import BrandSetup from './views/features/settings/BrandSetup';
 import DocsFullView from './views/components/docs/DocsFullView';
 import FormFullView from './views/components/forms/FormFullView';
