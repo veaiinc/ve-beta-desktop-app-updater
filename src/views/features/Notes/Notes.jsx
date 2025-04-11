@@ -4,7 +4,6 @@ import { BlockNoteView } from '@blocknote/mantine';
 import '@blocknote/mantine/style.css';
 import { useCreateBlockNote } from '@blocknote/react';
 import '../../../assets/scss/notes/noteComponent.scss';
-import { createBlockSpec, locales } from '@blocknote/core';
 import NoteToolbar from '../../components/notes/NoteToolbar';
 import ShareComponent from '../../components/notes/ShareComponent';
 import { useEffect, memo, useContext, useCallback, useState } from 'react';
@@ -72,7 +71,12 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 			if (blocks) {
 				loadNotesContent(blocks);
 			}
-			setInfo((prev) => ({ ...prev, title, updatedAt, isFavorite }));
+			setInfo((prev) => ({
+				...prev,
+				title,
+				updatedAt,
+				isFavorite,
+			}));
 		}
 	}, [notesPageData]);
 
@@ -135,6 +139,12 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 			});
 			setInfo((prev) => ({ ...prev, updatedAt: moment().unix() }));
 		});
+	};
+
+	const handleKeyDown = (e) => {
+		if (e.key === 'Enter') {
+			e.preventDefault(); // optional: stops newline if it's a textarea
+		}
 	};
 
 	const handleFavorite = useCallback(
@@ -228,6 +238,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 						value={info?.title}
 						onChange={handleTitleChange}
 						autoResize={true}
+						onKeyDown={handleKeyDown}
 					/>
 					<BlockNoteView
 						editor={editor}

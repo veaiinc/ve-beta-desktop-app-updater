@@ -2,12 +2,12 @@ import React, { memo, useState, useEffect } from 'react';
 import '../../../assets/scss/login_page/index.scss';
 import Email from '../../components/login_page/Email';
 import VerificationCode from '../../components/login_page/VerificationCode';
-import { ReactComponent as VeAiLogo } from '../../../assets/svg/ve.svg';
 import CookiesImg from '../../../assets/images/login_page/cookies.png';
 import Cookies from 'js-cookie';
 import { useNavigate } from 'react-router-dom';
 import { ReactComponent as DarkModeGradient } from '../../../assets/svg/onboarding/dark-mode-gradient.svg';
 import { ReactComponent as LightModeGradient } from '../../../assets/svg/onboarding/light-mode-gradient.svg';
+import { ReactComponent as VeLogo } from '../../../assets/svg/veLogo.svg';
 
 const LoginPage = () => {
 	const navigate = useNavigate();
@@ -52,6 +52,10 @@ const LoginPage = () => {
 
 	const setEmailVerified = (emailVerified) => {
 		setInfo((prev) => ({ ...prev, emailVerified }));
+	};
+
+	const handleLogoClick = () => {
+		navigate('/');
 	};
 
 	const stages = {
@@ -107,6 +111,11 @@ const LoginPage = () => {
 
 	return (
 		<div className="login-page-container">
+			<div className="header">
+				<div className="logo" onClick={handleLogoClick}>
+					<VeLogo />
+				</div>
+			</div>
 			<div className="gradient-container">
 				{info?.isDarkMode ? <DarkModeGradient /> : <LightModeGradient />}
 			</div>
@@ -132,9 +141,9 @@ const LoginPage = () => {
 			)}
 			<div className="left-container">
 				<div className="stages-container">
-					<div className="logo-container">
+					{/* <div className="logo-container">
 						<VeAiLogo />
-					</div>
+					</div> */}
 					{stages?.[info?.activeStage]}
 				</div>
 			</div>

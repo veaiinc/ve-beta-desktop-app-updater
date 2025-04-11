@@ -23,20 +23,55 @@
 		flex-shrink: 0;
 		background: var(--background-color, #0c0c0d);
 
-		.header-title {
-			color: var(--primary-font, #f2f2f3);
-			text-align: center;
-			font-family: Inter;
-			font-size: 40px;
-			font-style: normal;
-			font-weight: 500;
-			line-height: normal;
-			letter-spacing: -3px;
+		.title-container {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			flex-direction: column;
+			gap: 12px;
+
+			.title-text {
+				.title-one {
+					color: var(--primary-font, #f2f2f3);
+					text-align: center;
+					font-family: var(--primary-font-family);
+					font-size: 53px;
+					font-style: normal;
+					font-weight: 600;
+					line-height: 60px;
+					letter-spacing: -1.59px;
+				}
+				.title-two {
+					color: var(--primary-font, #f2f2f3);
+					font-family: var(--primary-font-family);
+					font-size: 53px;
+					font-style: italic;
+					font-weight: 400;
+					line-height: 60px;
+					letter-spacing: -1.59px;
+					text-transform: lowercase;
+				}
+			}
+
+			.sub-text {
+				color: var(--secondary-font, #7a7e85);
+				text-align: center;
+				font-family: var(--primary-font-family);
+				font-size: 22px;
+				font-style: normal;
+				font-weight: 300;
+				line-height: normal;
+			}
 		}
-		.chat-box-container {
+
+		.chatbox-container {
 			width: 700px;
 			height: 110px;
 			position: relative;
+
+			.textArea {
+				max-height: 120px !important;
+			}
 		}
 
 		.options-container {
@@ -73,6 +108,7 @@
 	.home-page-container-content {
 		width: 100%;
 		height: calc(100vh - 430px);
+		padding-top: 30px;
 	}
 }
 
