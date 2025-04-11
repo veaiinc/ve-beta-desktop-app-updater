@@ -362,7 +362,7 @@
 					text-overflow: ellipsis; /* Adds the ellipsis effect */
 				}
 				.timing {
-					color:  var(--secondary-font);
+					color: var(--secondary-font);
 					font-family: var(--primary-font-family);
 					font-size: 11px;
 					font-style: normal;
@@ -379,24 +379,5 @@
 				color: var(--secondary-font);
 			}
 		}
-	}
-}
-.pageList {
-	display: flex;
-	width: 320px;
-	padding: 12px 16px;
-	align-items: center;
-	gap: 13px;
-	border-radius: 12px;
-	background: var(--background-color);
-
-	.imageContainer {
-		width: 32px;
-		height: 32px;
-		border-radius: 32px;
-		background-image: url('https://s3-alpha-sig.figma.com/img/4238/f09b/014d0324fec8ef01c81b8b79303c6e40?Expires=1718582400&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=bqANFeXiqfX1hbtYYgJJV798Zh4oaitdQQNKoB~2nvIaTKNeFfR19hJgI2E5cQ8uENmM-x~tKobQxnZArv8T0LCMHz~yFVXHPqcDQ9IVhVRpTszCy4Dwhh2zw6uP0PF0~M7TELrFt2WO3R554mV42ZvGQLwNtvPBghIYFXn9mO41WATUPgp04nt5UtNtUpWVo64ucqtdHv3occux9JcxrtBm-P4rMu2POmWbe1vFcv~N2Cmrib5cmSHIsDqKu6gchDsD8lAC7klurQQK2TQpG-AOs1Ip91IH1-diNI-roJyt3wKrtDF83EfvsWBTPqt9-SwaaV1VnKb6NL-vQh8rUQ__');
-		background-size: cover;
-		background-position: center;
-		align-self: flex-end;
 	}
 }

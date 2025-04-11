@@ -12,7 +12,8 @@ import Context from '../../../context/context';
 import ReusableButtonSettings from '../../components/settings/ReusableButtonSettings';
 import { ve_conversations_api } from '../../../services/config.live';
 import axios from 'axios';
-import { message, Spin } from 'antd';
+import { Spin } from 'antd';
+import { message } from '../../components/globalComponents/CustomToast';
 
 const availableIntegrations = [
 	{

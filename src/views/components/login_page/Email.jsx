@@ -178,7 +178,7 @@ const Email = ({ email, setEmail, setActiveStage, setEmailVerified }) => {
 					if (response?.[1]?.accountExists) {
 						if (response?.[1]?.emailVerified) {
 							if (referralCode && info?.referrerUserDetails?.isValidReferralCode) {
-								message?.info(
+								message.warning(
 									'An account with this email already exists. Referral cannot be applied.',
 								);
 							}

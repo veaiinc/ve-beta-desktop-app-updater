@@ -2,7 +2,7 @@ import { memo, useState, useCallback, useContext } from 'react';
 import '../../../assets/scss/forms/formResponseMenuItems.scss';
 import { useNavigate } from 'react-router-dom';
 import Spinner from '../../components/loaders/Spinner';
-import { message, Modal, Input } from 'antd';
+import { message } from '../../components/globalComponents/CustomToast';
 import DeleteWorkflowModal from '../../components/modalsV2/workflowBuilderModals/DeleteWorkflowModal';
 import Context from '../../../context/context';
 import { fetchOriginSelection } from '../../../helpers';

@@ -1,5 +1,5 @@
 import service from '../../services/graphQlServices';
-import { message } from 'antd';
+import { message } from '../../views/components/globalComponents/CustomToast';
 import {
 	getTemmplatesQuery,
 	duplicateTemplateQuery,
@@ -107,10 +107,14 @@ export const intialState = {
 	chatInfo: {
 		deepResearch: false,
 		selectedLLMModel: null,
-		webSearch: true,
-		workspaceSearch: false,
+		webSearch: false,
+		workspaceSearch: true,
 		agentType: null,
 		assistantId: null,
+		reason: {
+			workspaceSearch: false,
+			webSearch: false,
+		},
 	},
 	galleryFile: null,
 	globalLoadingMesssage: null,

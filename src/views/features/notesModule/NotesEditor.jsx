@@ -4,7 +4,6 @@ import { BlockNoteView } from '@blocknote/mantine';
 import '@blocknote/mantine/style.css';
 import { useCreateBlockNote } from '@blocknote/react';
 import '../../../assets/scss/notes/noteComponent.scss';
-import { createBlockSpec, locales } from '@blocknote/core';
 import NoteToolbar from '../../components/notes/NoteToolbar';
 import ShareComponent from '../../components/notes/ShareComponent';
 import { useEffect, memo, useContext, useCallback, useState } from 'react';
@@ -14,7 +13,8 @@ import moment from 'moment';
 import CustomTextArea from '../../components/globalComponents/CustomTextArea';
 import MoreOptions from '../../components/notes/MoreOptions';
 import { StarSvg } from '../../../assets/svg/notes/Star';
-import { message } from 'antd';
+import { message } from '../../components/globalComponents/CustomToast';
+import { Helmet } from 'react-helmet';
 const preprocessMarkdown = (markdown) => {
 	return markdown?.replace(/\\n/g, '\n'); // Add a non-breaking space for empty lines
 };
@@ -72,7 +72,12 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 			if (blocks) {
 				loadNotesContent(blocks);
 			}
-			setInfo((prev) => ({ ...prev, title, updatedAt, isFavorite }));
+			setInfo((prev) => ({
+				...prev,
+				title,
+				updatedAt,
+				isFavorite,
+			}));
 		}
 	}, [notesPageData]);
 
@@ -205,6 +210,12 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 
 	return (
 		<div className="notes-container" style={outerContainerStyle || {}}>
+			{info?.title && (
+				<Helmet>
+					<meta charSet="utf-8" />
+					<title>VE - {info?.title}</title>
+				</Helmet>
+			)}
 			<div className="notes-nav-menu">
 				<span className="notes-nav-menu-item-last-edited">
 					{info?.updatedAt ? `Edited ${moment.unix(info?.updatedAt).fromNow()}` : ''}

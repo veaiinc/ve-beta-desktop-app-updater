@@ -12,7 +12,7 @@ import Context from '../../../../context/context';
 import EditAndViewEmailTemplateModal from '../../modalsV2/workflowBuilderModals/EditAndViewEmailTemplateModal';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { FetchMoreLoaderComp } from '../../../../helpers';
-import { message, Spin } from 'antd';
+import { Spin } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import HeadersDropDownComp from '../../dropDown/HeadersDropDownComp';
 import {
@@ -21,6 +21,7 @@ import {
 	dropDownTextStyling,
 	selectedValueStyling,
 } from '../../../features/workflowBuilder/workflowContantsHelpers';
+import { message } from '../../globalComponents/CustomToast';
 
 const notificationList = {
 	Google: { title: 'Google', notification: ['Send Email'], icon: <Google />, id: 'email' },
