@@ -4,7 +4,6 @@ import { BlockNoteView } from '@blocknote/mantine';
 import '@blocknote/mantine/style.css';
 import { useCreateBlockNote } from '@blocknote/react';
 import '../../../assets/scss/notes/noteComponent.scss';
-import { createBlockSpec, locales } from '@blocknote/core';
 import NoteToolbar from '../../components/notes/NoteToolbar';
 import ShareComponent from '../../components/notes/ShareComponent';
 import { useEffect, memo, useContext, useCallback, useState } from 'react';
@@ -72,7 +71,12 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 			if (blocks) {
 				loadNotesContent(blocks);
 			}
-			setInfo((prev) => ({ ...prev, title, updatedAt, isFavorite }));
+			setInfo((prev) => ({
+				...prev,
+				title,
+				updatedAt,
+				isFavorite,
+			}));
 		}
 	}, [notesPageData]);
 

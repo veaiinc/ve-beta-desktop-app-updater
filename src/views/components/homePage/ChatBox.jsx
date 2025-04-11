@@ -18,7 +18,7 @@ import { ReactComponent as LLMSvg } from '../../../assets/svg/ai_agents/llm.svg'
 import Context from '../../../context/context';
 import ObjectID from 'bson-objectid';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { checkDevices, getBase64 } from '../../../helpers';
+import { checkDevices, getBase64, getLocationsDetails } from '../../../helpers';
 import WorkflowSlugSelector from '../../components/calendar/WorkflowSlugSelector';
 import SearchDropdown from '../chat/SearchDropdown';
 import UploadFileTooltip from '../chat/UploadFileTooltip';
@@ -297,6 +297,18 @@ const ChatBox = ({
 	};
 
 	const handleWebSearchClick = () => {
+		if (isPublicChat) {
+			if (chatInfo?.deepResearch) {
+				updateStateValues({
+					chatInfo: {
+						...chatInfo,
+						deepResearch: false,
+						webSearch: !chatInfo?.webSearch,
+					},
+				});
+				return;
+			}
+		}
 		updateStateValues({
 			chatInfo: {
 				...chatInfo,
@@ -308,6 +320,19 @@ const ChatBox = ({
 	const handleDeepResearchClick = () => {
 		if (recentFilesRef.current?.length > 0 || uploadedImagesRef.current?.length > 0) {
 			return;
+		}
+
+		if (isPublicChat) {
+			if (chatInfo?.webSearch) {
+				updateStateValues({
+					chatInfo: {
+						...chatInfo,
+						webSearch: false,
+						deepResearch: !chatInfo?.deepResearch,
+					},
+				});
+				return;
+			}
 		}
 
 		if (!chatInfo?.deepResearch) {
@@ -462,8 +487,8 @@ const ChatBox = ({
 					const payload = {
 						query,
 						timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-						knowledge_base_search: chatInfo?.workspaceSearch,
 						web_search: chatInfo?.webSearch,
+						...(!isPublicChat && { knowledge_base_search: chatInfo?.workspaceSearch }),
 						...(!isPublicChat && { modules: Object?.keys(info?.chatFilters?.modules) }),
 						...(!isPublicChat && { date: date }),
 						deep_research: chatInfo?.deepResearch,
@@ -520,10 +545,14 @@ const ChatBox = ({
 					//this payload props are for public chat
 					if (isPublicChat) {
 						const user_id = localStorage?.getItem('user_id');
-						const location_details = JSON?.parse(
+						let location_details = JSON?.parse(
 							localStorage?.getItem('locationDetails'),
 						);
 						const ip_address = localStorage?.getItem('ipAddress');
+
+						if (!location_details) {
+							location_details = await getLocationsDetails();
+						}
 
 						payload.user_id = user_id ?? null;
 						payload.location_details = location_details || {};
@@ -633,10 +662,44 @@ const ChatBox = ({
 				uploadBatchId,
 			};
 			const response = await handleGlobalUploadImage(file, payload);
-			let uploadedImages = [...(uploadedImagesRef?.current || [])];
-			let recentFiles = [...(recentFilesRef?.current || [])];
-			let requiredFileIndex = -1;
+			let uploadedImages, recentFiles, requiredFileIndex;
 			let isImage = file?.type?.includes('image');
+
+			if (!response?.[0]) {
+				requiredFileIndex = -1;
+				if (isImage) {
+					requiredFileIndex = uploadedImages?.findIndex(
+						(ele) => ele?.uniqueId === file?.uniqueId,
+					);
+				} else {
+					requiredFileIndex = recentFiles?.findIndex(
+						(ele) => ele?.uniqueId === file?.uniqueId,
+					);
+				}
+
+				if (requiredFileIndex === -1) {
+					return;
+				}
+
+				uploadedImages = [...(uploadedImagesRef?.current || [])];
+				recentFiles = [...(recentFilesRef?.current || [])];
+
+				if (isImage) {
+					uploadedImages.splice(requiredFileIndex, 1);
+					uploadedImagesRef.current = uploadedImages;
+				} else {
+					recentFiles.splice(requiredFileIndex, 1);
+					recentFilesRef.current = recentFiles;
+				}
+
+				setInfo((prev) => ({ ...prev, uploadedImages, recentFiles }));
+				return message.error(response?.[1] || 'failed to upload image');
+			}
+
+			const { _id } = response?.[1] || {};
+			file.fileId = _id;
+
+			requiredFileIndex = -1;
 			if (isImage) {
 				requiredFileIndex = uploadedImages?.findIndex(
 					(ele) => ele?.uniqueId === file?.uniqueId,
@@ -651,20 +714,9 @@ const ChatBox = ({
 				return;
 			}
 
-			if (!response?.[0]) {
-				if (isImage) {
-					uploadedImages.splice(requiredFileIndex, 1);
-					uploadedImagesRef.current = uploadedImages;
-				} else {
-					recentFiles.splice(requiredFileIndex, 1);
-					recentFilesRef.current = recentFiles;
-				}
+			uploadedImages = [...(uploadedImagesRef?.current || [])];
+			recentFiles = [...(recentFilesRef?.current || [])];
 
-				setInfo((prev) => ({ ...prev, uploadedImages, recentFiles }));
-				return message.error(response?.[1] || 'failed to upload image');
-			}
-			const { _id } = response?.[1] || {};
-			file.fileId = _id;
 			if (isImage) {
 				uploadedImages.splice(requiredFileIndex, 1, file);
 				uploadedImagesRef.current = uploadedImages;
@@ -681,29 +733,14 @@ const ChatBox = ({
 
 	const checkIndividualImageUploadedStatusFunc = useCallback(
 		async (fileData, uploadBatchId) => {
-			let uploadedImages = [...(uploadedImagesRef?.current || [])];
-			let recentFiles = [...(recentFilesRef?.current || [])];
-			let requiredFileIndex = -1;
 			let isImage = fileData?.type?.includes('image');
-
-			if (isImage) {
-				requiredFileIndex = uploadedImages?.findIndex(
-					(ele) => ele?.uniqueId === fileData?.uniqueId,
-				);
-			} else {
-				requiredFileIndex = recentFiles?.findIndex(
-					(ele) => ele?.uniqueId === fileData?.uniqueId,
-				);
-			}
-
-			if (requiredFileIndex === -1) {
-				return;
-			}
+			let uploadedImages, recentFiles, requiredFileIndex;
 
 			let uploadedCount = 0,
 				maxAttempts = 90,
 				errorCount = 0,
 				successCount = 0;
+
 			while (!(uploadedCount && successCount) && maxAttempts) {
 				const response = await checkIndividualImageUploadedStatus(uploadBatchId);
 				if (response?.[0]) {
@@ -721,7 +758,27 @@ const ChatBox = ({
 				await new Promise((resolve) => setTimeout(resolve, 2000));
 				maxAttempts--;
 			}
+
 			if (errorCount || maxAttempts === 0) {
+				requiredFileIndex = -1;
+
+				if (isImage) {
+					requiredFileIndex = uploadedImagesRef?.current?.findIndex(
+						(ele) => ele?.uniqueId === fileData?.uniqueId,
+					);
+				} else {
+					requiredFileIndex = recentFilesRef?.current?.findIndex(
+						(ele) => ele?.uniqueId === fileData?.uniqueId,
+					);
+				}
+
+				if (requiredFileIndex === -1) {
+					return;
+				}
+
+				uploadedImages = [...(uploadedImagesRef?.current || [])];
+				recentFiles = [...(recentFilesRef?.current || [])];
+
 				if (isImage) {
 					uploadedImages.splice(requiredFileIndex, 1);
 					uploadedImagesRef.current = uploadedImages;
@@ -733,7 +790,27 @@ const ChatBox = ({
 				setInfo((prev) => ({ ...prev, uploadedImages, recentFiles }));
 				return message.error('Something went wrong while processing the image');
 			}
+
 			if (uploadedCount && uploadedCount > 0) {
+				requiredFileIndex = -1;
+
+				if (isImage) {
+					requiredFileIndex = uploadedImagesRef?.current?.findIndex(
+						(ele) => ele?.uniqueId === fileData?.uniqueId,
+					);
+				} else {
+					requiredFileIndex = recentFilesRef?.current?.findIndex(
+						(ele) => ele?.uniqueId === fileData?.uniqueId,
+					);
+				}
+
+				if (requiredFileIndex === -1) {
+					return;
+				}
+
+				uploadedImages = [...(uploadedImagesRef?.current || [])];
+				recentFiles = [...(recentFilesRef?.current || [])];
+
 				fileData.loading = false;
 				if (isImage) {
 					uploadedImages.splice(requiredFileIndex, 1, fileData);
@@ -1026,42 +1103,51 @@ const ChatBox = ({
 										) : (
 											<div className="buttons-container">
 												<div className="chat-icons-container">
-													<UploadFileTooltip
-														fileTypeIcons={fileTypeIcons}
-														handleChange={handleFileAttachmentChange}
-														isUploadFileOpen={info?.isUploadFileOpen}
-														setIsUploadFileOpen={(value) => {
-															if (chatInfo?.deepResearch) return;
-															setInfo((prev) => ({
-																...prev,
-																isUploadFileOpen: value,
-															}));
-														}}
-														handleRecentFileClick={
-															handleRecentFileClick
-														}
-														recentFiles={recentFilesRef.current || []}
-													>
-														<Tooltip title={`Upload File`}>
-															<div
-																className="chat-box-icon-container"
-																style={{
-																	opacity: `${
-																		chatInfo?.deepResearch
-																			? '0.5'
-																			: '1'
-																	}`,
-																}}
-															>
-																<div className="icon">
-																	<PlusSvg
-																		width={17}
-																		height={17}
-																	/>
+													{!isPublicChat && (
+														<UploadFileTooltip
+															fileTypeIcons={fileTypeIcons}
+															handleChange={
+																handleFileAttachmentChange
+															}
+															isUploadFileOpen={
+																info?.isUploadFileOpen
+															}
+															setIsUploadFileOpen={(value) => {
+																if (chatInfo?.deepResearch) return;
+																setInfo((prev) => ({
+																	...prev,
+																	isUploadFileOpen: value,
+																}));
+															}}
+															handleRecentFileClick={
+																handleRecentFileClick
+															}
+															recentFiles={
+																recentFilesRef.current || []
+															}
+														>
+															<Tooltip title={`Upload File`}>
+																<div
+																	className="chat-box-icon-container"
+																	style={{
+																		opacity: `${
+																			chatInfo?.deepResearch
+																				? '0.5'
+																				: '1'
+																		}`,
+																	}}
+																>
+																	<div className="icon">
+																		<PlusSvg
+																			width={17}
+																			height={17}
+																		/>
+																	</div>
 																</div>
-															</div>
-														</Tooltip>
-													</UploadFileTooltip>
+															</Tooltip>
+														</UploadFileTooltip>
+													)}
+
 													<Tooltip
 														title={`${
 															chatInfo?.webSearch
@@ -1082,30 +1168,32 @@ const ChatBox = ({
 															</div>
 														</div>
 													</Tooltip>
-													<Tooltip
-														title={`${
-															chatInfo?.workspaceSearch
-																? 'Disable'
-																: 'Enable'
-														} workspace Search`}
-													>
-														<div
-															className={`chat-box-icon-container ${
+													{!isPublicChat && (
+														<Tooltip
+															title={`${
 																chatInfo?.workspaceSearch
-																	? 'active'
-																	: ''
-															}`}
-															onClick={handleWorkspaceSearchClick}
+																	? 'Disable'
+																	: 'Enable'
+															} workspace Search`}
 														>
-															<div className="icon">
-																<BuildingSvg
-																	selected={
-																		chatInfo?.workspaceSearch
-																	}
-																/>
+															<div
+																className={`chat-box-icon-container ${
+																	chatInfo?.workspaceSearch
+																		? 'active'
+																		: ''
+																}`}
+																onClick={handleWorkspaceSearchClick}
+															>
+																<div className="icon">
+																	<BuildingSvg
+																		selected={
+																			chatInfo?.workspaceSearch
+																		}
+																	/>
+																</div>
 															</div>
-														</div>
-													</Tooltip>
+														</Tooltip>
+													)}
 
 													{chatInfo?.agentType !== 'search_agent' && (
 														<Tooltip
@@ -1218,38 +1306,44 @@ const ChatBox = ({
 												</div>
 
 												<div className="right-container">
-													{chatInfo?.agentType !== 'knowledge_agent' && (
-														<div className="agent-container">
-															<div
-																className={`agent ${
-																	chatInfo?.agentType ===
-																	'multi_agent'
-																		? 'active'
-																		: ''
-																}`}
-																onClick={() =>
-																	handleAgentClick('multi_agent')
-																}
-															>
-																Generalist
+													{chatInfo?.agentType !== 'knowledge_agent' &&
+														!isPublicChat && (
+															<div className="agent-container">
+																<div
+																	className={`agent ${
+																		chatInfo?.agentType ===
+																		'multi_agent'
+																			? 'active'
+																			: ''
+																	}`}
+																	onClick={() =>
+																		handleAgentClick(
+																			'multi_agent',
+																		)
+																	}
+																>
+																	Generalist
+																</div>
+																<div
+																	className={`agent ${
+																		chatInfo?.agentType ===
+																		'search_agent'
+																			? 'active'
+																			: ''
+																	}`}
+																	onClick={() =>
+																		handleAgentClick(
+																			'search_agent',
+																		)
+																	}
+																>
+																	Thinker
+																</div>
 															</div>
-															<div
-																className={`agent ${
-																	chatInfo?.agentType ===
-																	'search_agent'
-																		? 'active'
-																		: ''
-																}`}
-																onClick={() =>
-																	handleAgentClick('search_agent')
-																}
-															>
-																Thinker
-															</div>
-														</div>
-													)}
+														)}
 
-													{info?.chatQuery?.trim()?.length > 0 ? (
+													{info?.chatQuery?.trim()?.length > 0 ||
+													isPublicChat ? (
 														<div
 															className="click-btn"
 															onClick={(e) => handleSendBtnClick(e)}

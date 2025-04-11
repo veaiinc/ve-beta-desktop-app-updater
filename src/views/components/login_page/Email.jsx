@@ -25,6 +25,7 @@ const Email = ({ email, setEmail, setActiveStage, setEmailVerified }) => {
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
+		isHostnameVeDotAi: false,
 		isEmailValid: false,
 		isLoading: false,
 		googleLoading: false,
@@ -42,6 +43,10 @@ const Email = ({ email, setEmail, setActiveStage, setEmailVerified }) => {
 		: false;
 
 	useEffect(() => {
+		const isHostnameVeDotAi =
+			typeof window !== 'undefined' && window.location.hostname.endsWith('ve.ai');
+		setInfo((prev) => ({ ...prev, isHostnameVeDotAi }));
+
 		if (referralCode) {
 			handleGetAndSetReferrerUserName();
 		}
@@ -210,39 +215,46 @@ const Email = ({ email, setEmail, setActiveStage, setEmailVerified }) => {
 						invited you to join
 					</h1>
 				)}
-				<h1 className="login-page-title">The Workspace AI</h1>
+				<h1 className="login-page-title">
+					<span className="title-one">AI.&nbsp; </span>
+					<span className="title-two">truly yours</span>
+				</h1>
 				<h2 className="login-page-subtitle">
-					Intelligence Connected to all your data and tools.
+					AI that deeply cares about your Goals & strives to be helpful
 				</h2>
 			</div>
 			<div className="login-button-container">
-				<button
-					disabled={info?.googleLoading}
-					className="google-login-button"
-					onClick={handleContinueWithGoogle}
-				>
-					<GoogleLogo />
-					<p>Continue with Google</p>
-					{info?.googleLoading && (
-						<Spinner
-							width="20px"
-							height="20px"
-							color="var(--background-color)"
-							borderTopColor="transparent"
-						/>
-					)}
-				</button>
-				<div className="or-divider">
-					<div className="line"></div>
-					<span>Or</span>
-					<div className="line"></div>
-				</div>
+				{info?.isHostnameVeDotAi && (
+					<>
+						<button
+							disabled={info?.googleLoading}
+							className="google-login-button"
+							onClick={handleContinueWithGoogle}
+						>
+							<GoogleLogo />
+							<p>Continue with Google</p>
+							{info?.googleLoading && (
+								<Spinner
+									width="20px"
+									height="20px"
+									color="var(--background-color)"
+									borderTopColor="transparent"
+								/>
+							)}
+						</button>
+						<div className="or-divider">
+							<div className="line"></div>
+							<span>Or</span>
+							<div className="line"></div>
+						</div>
+					</>
+				)}
 				<div className="email-input-container">
 					<input
 						value={email}
 						onChange={handleSetEmail}
 						onKeyDown={handleContinueWithEmail}
-						autoFocus={true}
+						autoFocus
 						type="email"
 						placeholder="example@acme.com"
 					/>
@@ -276,7 +288,7 @@ const Email = ({ email, setEmail, setActiveStage, setEmailVerified }) => {
 							<span ref={arrowRef}>
 								<UpArrowGrey
 									style={{
-										stroke: 'var(--card-over-color)',
+										stroke: 'var(--card-over-card)',
 									}}
 								/>
 							</span>
