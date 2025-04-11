@@ -7,7 +7,10 @@ import { useNavigate } from 'react-router-dom';
 import ProactiveSuggestions from './ProactiveSuggestions';
 import ChatPrompts from './ChatPrompts';
 import QuickActions from '../../components/globalComponents/QuickActions';
-
+import ContactsWidget from '../../components/globalComponents/ContactsWidget';
+import AutomationWidget from '../../components/globalComponents/AutomationWidget';
+import TaskWidget from '../../components/globalComponents/TaskWidget';
+import CalenderWidget from '../../components/globalComponents/CalenderWidget';
 const optionsList = [
 	{
 		id: 1,
@@ -15,11 +18,35 @@ const optionsList = [
 		value: 'proactiveSuggestions',
 		showOption: false,
 	},
+	// {
+	// 	id: 2,
+	// 	label: 'Prompts library',
+	// 	value: 'prompts',
+	// 	showOption: false,
+	// },
 	{
-		id: 2,
-		label: 'Prompts library',
-		value: 'prompts',
-		showOption: false,
+		id: 3,
+		label: 'Calendar',
+		value: 'calendar',
+		showOption: true,
+	},
+	{
+		id: 4,
+		label: 'Task',
+		value: 'task',
+		showOption: true,
+	},
+	{
+		id: 5,
+		label: 'Contact',
+		value: 'contact',
+		showOption: true,
+	},
+	{
+		id: 6,
+		label: 'Automation',
+		value: 'automation',
+		showOption: true,
 	},
 ];
 
@@ -135,12 +162,16 @@ const InitialHomePage = () => {
 	const componentMapper = useMemo(
 		() => ({
 			proactiveSuggestions: <ProactiveSuggestions />,
-			prompts: (
-				<ChatPrompts
-					promptsCategory={info?.promptsCategory}
-					updatePromptsCategory={updatePromptsCategory}
-				/>
-			),
+			task: <TaskWidget width={'903px'} />,
+			contact: <ContactsWidget width={'903px'} />,
+			calendar: <CalenderWidget width={'903px'} />,
+			// prompts: (
+			// 	<ChatPrompts
+			// 		promptsCategory={info?.promptsCategory}
+			// 		updatePromptsCategory={updatePromptsCategory}
+			// 	/>
+			// ),
+			automation: <AutomationWidget width={'903px'} />,
 		}),
 		[info?.promptsCategory],
 	);

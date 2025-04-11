@@ -68,6 +68,7 @@ export const TasksState = () => {
 					payload: { error: 'Failed to fetch tasks, try again' },
 				});
 			}
+			return response;
 		} catch (error) {
 			console.log('API failed ==> getListItems', error);
 		}
