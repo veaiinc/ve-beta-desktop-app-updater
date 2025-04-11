@@ -6,10 +6,12 @@ import { ReactComponent as PlusIcon } from '../../../assets/svg/calendar/plus.sv
 import { ReactComponent as AutomationIcon } from '../../../assets/svg/contacts/automation.svg';
 import { ReactComponent as DeepSearchIcon } from '../../../assets/svg/contacts/deepsearch.svg';
 import { ReactComponent as TaskSuggestionIcon } from '../../../assets/svg/contacts/tasksuggestion.svg';
+import { PromptData } from '../homePage/PromptData.js';
 import Context from '../../../context/context';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import Skeleton from 'react-loading-skeleton';
 import { useNavigate } from 'react-router-dom';
+import PromptPopup from '../homePage/PromptPopup.jsx';
 const autoSuggestOptions = [
 	{
 		id: 1,
@@ -39,7 +41,7 @@ const autoSuggestOptions = [
 const iconMap = {
 	automation: <AutomationIcon />,
 	deepsearch: <DeepSearchIcon />,
-	tasksuggestion: <TaskSuggestionIcon />,
+	task: <TaskSuggestionIcon />,
 };
 
 const skeletonLoaders = Array.from({ length: 6 }, (_, index) => index + 1);
@@ -53,6 +55,8 @@ const TaskWidget = ({ width, height }) => {
 		limit: 20,
 		page: 1,
 		loading: false,
+		promptPopupOpen: false,
+		selectedCard: null,
 	});
 	useEffect(() => {
 		if (!listTasks) {
@@ -82,6 +86,10 @@ const TaskWidget = ({ width, height }) => {
 		if (hasNextPage) {
 			getTasksList(info?.page);
 		}
+	};
+
+	const handlePromptPopup = (item) => {
+		setInfo((prev) => ({ ...prev, promptPopupOpen: true, selectedCard: item }));
 	};
 
 	return (
@@ -161,18 +169,25 @@ const TaskWidget = ({ width, height }) => {
 				</div>
 			</div>
 			<div className="taskWidgetSection2">
-				{autoSuggestOptions.map((item) => (
-					<div className="taskWidgetSection2Item">
+				{PromptData.filter((item) => item.type === 'task').map((item) => (
+					<div className="taskWidgetSection2Item" onClick={() => handlePromptPopup(item)}>
 						<div className="taskWidgetSection2ItemContainer">
 							{iconMap[item.type]}
 							<div className="taskWidgetSection2ItemTitle">
 								{item.type.charAt(0).toUpperCase() + item.type.slice(1)}
 							</div>
 						</div>
-						<div className="taskWidgetSection2ItemSubtitle">{item.suggestion}</div>
+						<div className="taskWidgetSection2ItemSubtitle">{item.title}</div>
 					</div>
 				))}
 			</div>
+			<PromptPopup
+				open={info?.promptPopupOpen}
+				closeModal={() =>
+					setInfo((prev) => ({ ...prev, promptPopupOpen: false, selectedCard: null }))
+				}
+				selectedCard={info?.selectedCard}
+			/>
 		</div>
 	);
 };

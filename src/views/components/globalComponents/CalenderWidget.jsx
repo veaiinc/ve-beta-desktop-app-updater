@@ -4,9 +4,11 @@ import { ReactComponent as PlusIcon } from '../../../assets/svg/calendar/plus.sv
 import { ReactComponent as AutomationIcon } from '../../../assets/svg/contacts/automation.svg';
 import { ReactComponent as DeepSearchIcon } from '../../../assets/svg/contacts/deepsearch.svg';
 import { ReactComponent as TaskSuggestionIcon } from '../../../assets/svg/contacts/tasksuggestion.svg';
+import { ReactComponent as CalendarIcon } from '../../../assets/svg/contacts/calendar.svg';
 import { useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
-
+import PromptPopup from '../homePage/PromptPopup.jsx';
+import { PromptData } from '../homePage/PromptData.js';
 const autoSuggestOptions = [
 	{
 		id: 1,
@@ -37,6 +39,7 @@ const iconMap = {
 	automation: <AutomationIcon />,
 	deepsearch: <DeepSearchIcon />,
 	tasksuggestion: <TaskSuggestionIcon />,
+	calendar: <CalendarIcon />,
 };
 
 const CalenderWidget = ({ width, height }) => {
@@ -48,12 +51,15 @@ const CalenderWidget = ({ width, height }) => {
 		currentCalendarDate: new Date(),
 		currentDate: new Date().getDate(),
 		currentDay: new Date().toLocaleDateString('en-US', { weekday: 'long' }),
+		promptPopupOpen: false,
+		selectedCard: null,
 	});
 	useEffect(() => {
 		getCalendarEventsList(info?.currentCalendarDate);
 	}, [info?.currentCalendarDate]);
-
-	console.log(calendarEventsList, 'testing');
+	const handlePromptPopup = (item) => {
+		setInfo((prev) => ({ ...prev, promptPopupOpen: true, selectedCard: item }));
+	};
 	return (
 		<div className="calender-main-container" style={{ width: width }}>
 			<div className="calenderWidgetContainer">
@@ -111,18 +117,28 @@ const CalenderWidget = ({ width, height }) => {
 				</div>
 			</div>
 			<div className="calenderWidgetSection2">
-				{autoSuggestOptions.map((item) => (
-					<div className="calenderWidgetSection2Item">
+				{PromptData.filter((item) => item.type === 'calendar').map((item) => (
+					<div
+						className="calenderWidgetSection2Item"
+						onClick={() => handlePromptPopup(item)}
+					>
 						<div className="calenderWidgetSection2ItemContainer">
 							{iconMap[item.type]}
 							<div className="calenderWidgetSection2ItemTitle">
 								{item.type.charAt(0).toUpperCase() + item.type.slice(1)}
 							</div>
 						</div>
-						<div className="calenderWidgetSection2ItemSubtitle">{item.suggestion}</div>
+						<div className="calenderWidgetSection2ItemSubtitle">{item.title}</div>
 					</div>
 				))}
 			</div>
+			<PromptPopup
+				open={info?.promptPopupOpen}
+				closeModal={() =>
+					setInfo((prev) => ({ ...prev, promptPopupOpen: false, selectedCard: null }))
+				}
+				selectedCard={info?.selectedCard}
+			/>
 		</div>
 	);
 };

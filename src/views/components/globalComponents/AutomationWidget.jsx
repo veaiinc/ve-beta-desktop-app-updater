@@ -10,33 +10,8 @@ import Context from '../../../context/context';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { useNavigate } from 'react-router-dom';
 import Skeleton from 'react-loading-skeleton';
-
-const autoSuggestOptions = [
-	{
-		id: 1,
-		title: 'Brandon Rhiel Madsen',
-		suggestion: 'New Message Received',
-		type: 'automation',
-	},
-	{
-		id: 2,
-		title: 'Brandon Rhiel Madsen',
-		suggestion: 'New Message Received',
-		type: 'deepsearch',
-	},
-	{
-		id: 3,
-		title: 'Brandon Rhiel Madsen',
-		suggestion: 'New Message Received',
-		type: 'tasksuggestion',
-	},
-	{
-		id: 4,
-		title: 'Brandon Rhiel Madsen',
-		suggestion: 'New Message Received',
-		type: 'automation',
-	},
-];
+import { PromptData } from '../homePage/PromptData.js';
+import PromptPopup from '../homePage/PromptPopup.jsx';
 const iconMap = {
 	automation: <AutomationIcon />,
 	deepsearch: <DeepSearchIcon />,
@@ -67,6 +42,8 @@ const AutomationWidget = ({ width, height }) => {
 
 	const [info, setInfo] = useState({
 		isLoading: false,
+		promptPopupOpen: false,
+		selectedCard: null,
 	});
 	const automations = automationsList?.data;
 	const automationsLoading = automationsList ? false : true;
@@ -98,6 +75,10 @@ const AutomationWidget = ({ width, height }) => {
 			...prev,
 			isLoading: false,
 		}));
+	};
+
+	const handlePromptPopup = (item) => {
+		setInfo((prev) => ({ ...prev, promptPopupOpen: true, selectedCard: item }));
 	};
 
 	return (
@@ -156,8 +137,11 @@ const AutomationWidget = ({ width, height }) => {
 				</div>
 			</div>
 			<div className="automationWidgetSection2">
-				{autoSuggestOptions.map((item) => (
-					<div className="automationWidgetSection2Item">
+				{PromptData.filter((item) => item.type === 'automation').map((item) => (
+					<div
+						className="automationWidgetSection2Item"
+						onClick={() => handlePromptPopup(item)}
+					>
 						<div className="automationWidgetSection2ItemContainer">
 							{iconMap[item.type]}
 							<div className="automationWidgetSection2ItemTitle">
@@ -168,11 +152,18 @@ const AutomationWidget = ({ width, height }) => {
 							className="automationWidgetSection2ItemSubtitle
 "
 						>
-							{item.suggestion}
+							{item.title}
 						</div>
 					</div>
 				))}
 			</div>
+			<PromptPopup
+				open={info?.promptPopupOpen}
+				closeModal={() =>
+					setInfo((prev) => ({ ...prev, promptPopupOpen: false, selectedCard: null }))
+				}
+				selectedCard={info?.selectedCard}
+			/>
 		</div>
 	);
 };

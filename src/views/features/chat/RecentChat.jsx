@@ -290,71 +290,71 @@ const RecentChat = ({
 		});
 		// smoothScrollToBottom();
 
-		if (aiMessagesRef?.current?.length === 0) return;
+		// if (aiMessagesRef?.current?.length === 0) return;
 
-		previousAiMessagesRef.current = [...aiMessagesRef.current];
+		// previousAiMessagesRef.current = [...aiMessagesRef.current];
 
-		const visibleMessagesSet = new Set();
-		const observer = new IntersectionObserver(
-			(entries) => {
-				entries.forEach((entry) => {
-					if (entry.isIntersecting) {
-						visibleMessagesSet.add(entry.target);
-					} else {
-						visibleMessagesSet.delete(entry.target);
-					}
-				});
-				const visibleMessages = Array.from(visibleMessagesSet).sort(
-					(a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top,
-				);
+		// const visibleMessagesSet = new Set();
+		// const observer = new IntersectionObserver(
+		// 	(entries) => {
+		// 		entries.forEach((entry) => {
+		// 			if (entry.isIntersecting) {
+		// 				visibleMessagesSet.add(entry.target);
+		// 			} else {
+		// 				visibleMessagesSet.delete(entry.target);
+		// 			}
+		// 		});
+		// 		const visibleMessages = Array.from(visibleMessagesSet).sort(
+		// 			(a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top,
+		// 		);
 
-				// Change to get the first visible message instead of the last
-				if (visibleMessages.length > 0) {
-					const firstVisibleMessage = visibleMessages[0]; // Get the first visible message
+		// 		// Change to get the first visible message instead of the last
+		// 		if (visibleMessages.length > 0) {
+		// 			const firstVisibleMessage = visibleMessages[0]; // Get the first visible message
 
-					let activeAIMessageIndex = firstVisibleMessage.dataset.index;
-					let activeUserMessageIndex = null;
+		// 			let activeAIMessageIndex = firstVisibleMessage.dataset.index;
+		// 			let activeUserMessageIndex = null;
 
-					if (activeAIMessageIndex > 0) {
-						activeUserMessageIndex = activeAIMessageIndex - 1;
-						while (activeUserMessageIndex) {
-							if (
-								chatMessagesRef.current[
-									activeUserMessageIndex
-								]?.type?.toLowerCase() === 'user'
-							) {
-								break;
-							}
-							activeUserMessageIndex--;
-						}
+		// 			if (activeAIMessageIndex > 0) {
+		// 				activeUserMessageIndex = activeAIMessageIndex - 1;
+		// 				while (activeUserMessageIndex) {
+		// 					if (
+		// 						chatMessagesRef.current[
+		// 							activeUserMessageIndex
+		// 						]?.type?.toLowerCase() === 'user'
+		// 					) {
+		// 						break;
+		// 					}
+		// 					activeUserMessageIndex--;
+		// 				}
 
-						if (
-							chatMessagesRef.current[activeUserMessageIndex]?.type?.toLowerCase() !==
-							'user'
-						) {
-							activeUserMessageIndex = null;
-						}
-					}
-					setInfo((prev) => ({
-						...prev,
-						activeAIMessageIndex: parseInt(activeAIMessageIndex),
-						activeAIMessageId: firstVisibleMessage.dataset.messageId,
-						activeUserMessageIndex,
-					}));
-				}
-			},
-			{
-				root: chatContentRef.current,
-				threshold: 0.01,
-			},
-		);
-		aiMessagesRef.current.forEach((msg) => observer.observe(msg));
+		// 				if (
+		// 					chatMessagesRef.current[activeUserMessageIndex]?.type?.toLowerCase() !==
+		// 					'user'
+		// 				) {
+		// 					activeUserMessageIndex = null;
+		// 				}
+		// 			}
+		// 			setInfo((prev) => ({
+		// 				...prev,
+		// 				activeAIMessageIndex: parseInt(activeAIMessageIndex),
+		// 				activeAIMessageId: firstVisibleMessage.dataset.messageId,
+		// 				activeUserMessageIndex,
+		// 			}));
+		// 		}
+		// 	},
+		// 	{
+		// 		root: chatContentRef.current,
+		// 		threshold: 0.01,
+		// 	},
+		// );
+		// aiMessagesRef.current.forEach((msg) => observer.observe(msg));
 
 		// smoothScrollToBottom();
-		return () => {
-			previousAiMessagesRef.current.forEach((msg) => observer.unobserve(msg));
-			visibleMessagesSet.clear();
-		};
+		// return () => {
+		// 	previousAiMessagesRef.current.forEach((msg) => observer.unobserve(msg));
+		// 	visibleMessagesSet.clear();
+		// };
 	}, [globalChatMessages, chatContentRef]);
 
 	useEffect(() => {
@@ -509,8 +509,6 @@ const RecentChat = ({
 		},
 		[info, chatContentRef],
 	);
-
-	console.log(globalChatMessages, 'globalChatMessages');
 
 	const handleRatingClick = useCallback(async (type, messageId) => {
 		try {
@@ -918,10 +916,10 @@ const RecentChat = ({
 													) : (
 														<UserMessageRenderer
 															messageData={chat}
-															activeUserMessageIndex={
-																index ===
-																info?.activeUserMessageIndex
-															}
+															// activeUserMessageIndex={
+															// 	index ===
+															// 	info?.activeUserMessageIndex
+															// }
 														/>
 													)}
 												</div>

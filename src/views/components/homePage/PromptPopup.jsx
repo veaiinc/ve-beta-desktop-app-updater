@@ -5,19 +5,6 @@ import '../../../assets/scss/home_page/promptPopup.scss';
 import Context from '../../../context/context';
 import { useNavigate } from 'react-router-dom';
 import ObjectID from 'bson-objectid';
-const files = [
-	'My Templates',
-	'Wedding Proposals',
-	'Ismail Wedding',
-	'Proposal planner.dox',
-	'Resume.pdf',
-];
-
-const clientOptions = [
-	{ id: 0, title: 'Ankit', value: 'Ankit' },
-	{ id: 1, title: 'Ismail', value: 'Ismail' },
-	{ id: 2, title: 'Avinash', value: 'Avinash' },
-];
 
 const PromptPopup = ({ open, closeModal, selectedCard }) => {
 	const {

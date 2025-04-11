@@ -26,7 +26,7 @@ import CookiePolicy from './views/features/signin/CookiePolicy';
 import WorkflowBuilder from './views/features/workflowBuilder/WorkflowBuilder';
 import Tasks from './views/features/tasks/Tasks';
 import ShareAndEarn from './views/features/shareAndEarn/ShareAndEarn';
-import Notes from './views/features/Notes/Notes';
+import Notes from './views/features/notesModule/Notes';
 import Contacts from './views/features/contacts/Contacts';
 import Ai_agent from './views/features/aiAgent/AiAgent';
 import AgentsJobs from './views/features/aiAgent/AgentsJobs';
@@ -46,7 +46,6 @@ import RecentChat from './views/features/chat/RecentChat';
 import AutomationBuilder from './views/features/automationBuilder/AutomationBuilder';
 import AutomationBuilderLayout from './views/layouts/automationBuilderLayout';
 import Automations from './views/features/automations/Automations';
-import Integrations from './views/features/Integrations/Integrations';
 import BrandSetup from './views/features/settings/BrandSetup';
 import DocsFullView from './views/components/docs/DocsFullView';
 import FormFullView from './views/components/forms/FormFullView';
@@ -58,6 +57,7 @@ import Files from './views/features/files/Files';
 import KnowledgeAgents from './views/features/knowledgeAgent/KnowledgeAgents';
 import KnowledgeAgentDetails from './views/features/knowledgeAgent/AgentDetails';
 import EditKnowledgeAgent from './views/features/knowledgeAgent/EditAgent';
+import Integrations from './views/features/integrationsList/Integrations';
 
 const routes = [
 	{

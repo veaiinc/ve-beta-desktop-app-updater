@@ -7,44 +7,21 @@ import Context from '../../../context/context';
 import { ReactComponent as AutomationIcon } from '../../../assets/svg/contacts/automation.svg';
 import { ReactComponent as DeepSearchIcon } from '../../../assets/svg/contacts/deepsearch.svg';
 import { ReactComponent as TaskSuggestionIcon } from '../../../assets/svg/contacts/tasksuggestion.svg';
+import { ReactComponent as ContactsIcon } from '../../../assets/svg/contacts/contact.svg';
+import { PromptData } from '../homePage/PromptData.js';
 import Skeleton from 'react-loading-skeleton';
 import { useNavigate } from 'react-router-dom';
+import PromptPopup from '../homePage/PromptPopup.jsx';
 // const aiSuggestOptions = [
 // 	{ id: 1, title: 'Cristofer Septimus', subtitle: 'Schedule a meeting' },
 // 	{ id: 2, title: 'Cristofer Septimus', subtitle: 'Schedule a meeting' },
 // 	{ id: 3, title: 'Cristofer Septimus', subtitle: 'Schedule a meeting' },
 // ];
-
-const autoSuggestOptions = [
-	{
-		id: 1,
-		title: 'Brandon Rhiel Madsen',
-		suggestion: 'New Message Received',
-		type: 'automation',
-	},
-	{
-		id: 2,
-		title: 'Brandon Rhiel Madsen',
-		suggestion: 'New Message Received',
-		type: 'deepsearch',
-	},
-	{
-		id: 3,
-		title: 'Brandon Rhiel Madsen',
-		suggestion: 'New Message Received',
-		type: 'tasksuggestion',
-	},
-	{
-		id: 4,
-		title: 'Brandon Rhiel Madsen',
-		suggestion: 'New Message Received',
-		type: 'automation',
-	},
-];
 const iconMap = {
 	automation: <AutomationIcon />,
 	deepsearch: <DeepSearchIcon />,
 	tasksuggestion: <TaskSuggestionIcon />,
+	contacts: <ContactsIcon />,
 };
 
 const skeletonLoaders = Array.from({ length: 6 }, (_, index) => index + 1);
@@ -64,6 +41,8 @@ const ContactsWidget = ({ width, height }) => {
 		sort: [],
 		filters: [],
 		searchValue: '',
+		promptPopupOpen: false,
+		selectedCard: null,
 	});
 	const fetchClientList = useCallback(
 		async (page = 1) => {
@@ -112,6 +91,10 @@ const ContactsWidget = ({ width, height }) => {
 			fetchClientList();
 		}
 	}, [info?.searchValue, info?.filters, info?.sort]);
+
+	const handlePromptPopup = (item) => {
+		setInfo((prev) => ({ ...prev, promptPopupOpen: true, selectedCard: item }));
+	};
 
 	return (
 		<div className="contactsWidgetContainer" style={{ width: width, height: height }}>
@@ -179,8 +162,11 @@ const ContactsWidget = ({ width, height }) => {
 				</div>
 			</div>
 			<div className="contactsWidgetSection2">
-				{autoSuggestOptions.map((item) => (
-					<div className="contactsWidgetSection2Item">
+				{PromptData.filter((item) => item.type === 'contacts').map((item) => (
+					<div
+						className="contactsWidgetSection2Item"
+						onClick={() => handlePromptPopup(item)}
+					>
 						<div className="contactsWidgetSection2ItemContainer">
 							{iconMap[item.type]}
 							<div className="contactsWidgetSection2ItemTitle">
@@ -191,11 +177,18 @@ const ContactsWidget = ({ width, height }) => {
 							className="contactsWidgetSection2ItemSubtitle
 "
 						>
-							{item.suggestion}
+							{item.title}
 						</div>
 					</div>
 				))}
 			</div>
+			<PromptPopup
+				open={info?.promptPopupOpen}
+				closeModal={() =>
+					setInfo((prev) => ({ ...prev, promptPopupOpen: false, selectedCard: null }))
+				}
+				selectedCard={info?.selectedCard}
+			/>
 		</div>
 	);
 };
