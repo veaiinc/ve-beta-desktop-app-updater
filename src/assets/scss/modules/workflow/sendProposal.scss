@@ -579,32 +579,6 @@
 			background: var(--card);
 			border-bottom-left-radius: 40px;
 			border-bottom-right-radius: 40px;
-			.footerLabel {
-				display: flex;
-				flex: 1;
-				flex-direction: column;
-				align-items: flex-start;
-				gap: 4px;
-
-				.mainfooterTitle {
-					color: var(--primary-font);
-					font-family: var(--primary-font-family);
-					font-size: 14px;
-					font-style: normal;
-					font-weight: 500;
-					line-height: 26px; /* 185.714% */
-				}
-				.mainFooterSubTitle {
-					color: var(--secondary-font);
-					font-family: var(--primary-font-family);
-					font-size: 12px;
-					font-style: normal;
-					font-weight: 500;
-					line-height: 20px; /* 166.667% */
-					letter-spacing: 0.24px;
-					text-transform: capitalize;
-				}
-			}
 			.linkCopyBtn {
 				width: auto;
 				display: flex;

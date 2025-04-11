@@ -177,17 +177,6 @@
 						// 	border-radius: var(--Radius-lg, 24px);
 						// }
 					}
-
-					.dropdownItem {
-						padding: 10px;
-						color: var(--primary-font);
-						cursor: pointer;
-						transition: background 0.2s ease;
-						&:hover {
-							background: var(--card-hover);
-							border-radius: var(--Radius-lg, 24px);
-						}
-					}
 				}
 
 				.activeListModule {
@@ -500,11 +489,6 @@
 							width: 218px;
 							cursor: pointer;
 						}
-					}
-					.logoutItem:hover,
-					.workspace-active .logoutItem:hover {
-						background-color: var(--card-over-card-hover);
-						border-radius: 100px;
 					}
 				}
 			}
@@ -1070,17 +1054,6 @@
 				// 	background: #2e2f33;
 				// 	border-radius: var(--Radius-lg, 24px);
 				// }
-			}
-
-			.dropdownItem {
-				padding: 10px;
-				color: var(--primary-font);
-				cursor: pointer;
-
-				&:hover {
-					background: var(--card-hover);
-					border-radius: var(--Radius-lg, 24px);
-				}
 			}
 		}
 	}

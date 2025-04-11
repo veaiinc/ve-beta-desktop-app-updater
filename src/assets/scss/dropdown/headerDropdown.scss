@@ -47,12 +47,6 @@
 			border: none;
 		}
 	}
-	.dropdown-arrow {
-		transition: transform 0.3s ease;
-	}
-	.dropdown-arrow.open {
-		transform: rotate(180deg);
-	}
 	.dropdown-overlay {
 		position: fixed;
 		top: 0;

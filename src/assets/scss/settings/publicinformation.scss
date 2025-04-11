@@ -26,19 +26,6 @@
 			justify-content: center;
 			gap: 16px;
 
-			.flex-gap {
-				display: flex;
-				justify-content: center;
-				align-items: center;
-				gap: 16px;
-				width: 100%;
-
-				.inputContainer,
-				.inputDiv {
-					width: 100%;
-				}
-			}
-
 			.inputDiv {
 				display: flex;
 				flex-direction: column;
