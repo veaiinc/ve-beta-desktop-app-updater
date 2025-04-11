@@ -1,112 +1,114 @@
 // Global css variables
 :root,
 [theme='dark'] {
-	//font families
+	// font families
 	--primary-font-family: 'Inter';
 	--secondary-font-family: 'Manrope';
 
-	//common colors;
-	--accent-color: #b39dfa;
-	--success: #00fc2e;
-	--error: #c71b3a;
-	--pending: #ffa32f;
-	--info: #5089f9;
+	// common colors
+	--accent-color: #b39dfa; // rgb(179, 157, 250)
+	--success: #00fc2e; // rgb(0, 252, 46)
+	--error: #c71b3a; // rgb(199, 27, 58)
+	--pending: #ffa32f; // rgb(255, 163, 47)
+	--info: #5089f9; // rgb(80, 137, 249)
 
-	//main colors
-	--background-color: #0c0c0d;
+	// main colors
+	--background-color: #0c0c0d; // rgb(12, 12, 13)
 
-	//font colors
-	--primary-font: #f2f2f3;
-	--secondary-font: #7a7e85;
+	// font colors
+	--primary-font: #f2f2f3; // rgb(242, 242, 243)
+	--secondary-font: #7a7e85; // rgb(122, 126, 133)
 
-	//card colors
-	--card: #1e2021;
-	--card-hover: #262829;
-	--card-over-card: #262829;
-	--card-over-card-hover: #2e2f32;
-	--popup: #202123;
+	// card colors
+	--card: #1e2021; // rgb(30, 32, 33)
+	--card-hover: #262829; // rgb(38, 40, 41)
+	--card-over-card: #262829; // rgb(38, 40, 41)
+	--card-over-card-hover: #2e2f32; // rgb(46, 47, 50)
+	--popup: #202123; // rgb(32, 33, 35)
 
-	//stroke colors
-	--stroke: #2c2e31;
-	--stroke-hover: #424548;
-	--stroke-active: #202123;
+	// stroke colors
+	--stroke: #2c2e31; // rgb(44, 46, 49)
+	--stroke-hover: #424548; // rgb(66, 69, 72)
+	--stroke-active: #202123; // rgb(32, 33, 35)
 
-	//navbar colors
-	--navbar: #202123;
-	--right-bar: #171819;
+	// navbar colors
+	--navbar: #202123; // rgb(32, 33, 35)
+	--right-bar: #171819; // rgb(23, 24, 25)
 
-	//ai color code
+	// ai color code (gradient: colors inside are hex)
 	--ai-color-code: linear-gradient(
 		94deg,
 		rgba(195, 157, 248, 0) -2.07%,
+		// rgb(195, 157, 248)
 		#c39df8 -2.06%,
-		#ec7c9d 95.85%
+		// rgb(195, 157, 248)
+		#ec7c9d 95.85% // rgb(236, 124, 157)
 	);
 
-	//button colors
-	--primary-button: #cfff48;
-	--primary-button-hover: var(--card-hover);
-	--primary-button-active: var(--card-hover);
-	--primary-button-font: #0c0c0d;
+	// button colors
+	--primary-button: #cfff48; // rgb(207, 255, 72)
+	--primary-button-hover: var(--card-hover); // rgb(38, 40, 41)
+	--primary-button-active: var(--card-hover); // rgb(38, 40, 41)
+	--primary-button-font: #0c0c0d; // rgb(12, 12, 13)
 
-	--secondary-button: var(--secondary-font);
-	--secondary-button-hover: #ffffe7;
-	--secondary-button-active: #ffffe7;
+	--secondary-button: var(--secondary-font); // rgb(122, 126, 133)
+	--secondary-button-hover: #ffffe7; // rgb(255, 255, 231)
+	--secondary-button-active: #ffffe7; // rgb(255, 255, 231)
 
-	//spinner colors
-	--spinner-color-light: #000;
-	--spinner-color-dark: #fff;
+	// spinner colors
+	--spinner-color-light: #000; // rgb(0, 0, 0)
+	--spinner-color-dark: #fff; // rgb(255, 255, 255)
 
-	//setting colors
-	--setting-color-light: #fff;
-	--setting-color-dark: #000;
-	--spinner-color: var(--spinner-color-dark);
-	--setting-color: var(--setting-color-light);
+	// setting colors
+	--setting-color-light: #fff; // rgb(255, 255, 255)
+	--setting-color-dark: #000; // rgb(0, 0, 0)
+	--spinner-color: var(--spinner-color-dark); // rgb(255, 255, 255)
+	--setting-color: var(--setting-color-light); // rgb(255, 255, 255)
 
-	--product-lime-blu: #cfff48;
-	--default-state-buttons: #2e2f33;
+	--product-lime-blu: #cfff48; // rgb(207, 255, 72)
+	--default-state-buttons: #2e2f33; // rgb(46, 47, 51)
 }
 
 // light theme global css variables
 [theme='light'] {
-	//main colors
-	--background-color: #fff;
+	// main colors
+	--background-color: #fff; // rgb(255, 255, 255)
 
-	//font colors
-	--primary-font: #0c0c0d;
-	--secondary-font: #21262f;
+	// font colors
+	--primary-font: #0c0c0d; // rgb(12, 12, 13)
+	--secondary-font: #21262f; // rgb(33, 38, 47)
 
-	//card colors
-	--card: #f9f9f9;
-	--card-hover: #f1f2f2;
-	--card-over-card: #f1f2f2;
-	--card-over-card-hover: #fff;
-	--popup: #f2f2f3;
+	// card colors
+	--card: #f9f9f9; // rgb(249, 249, 249)
+	--card-hover: #f1f2f2; // rgb(241, 242, 242)
+	--card-over-card: #f1f2f2; // rgb(241, 242, 242)
+	--card-over-card-hover: #fff; // rgb(255, 255, 255)
+	--popup: #f2f2f3; // rgb(242, 242, 243)
 
-	//stroke colors
-	--stroke: #dddde0;
-	--stroke-hover: #7b7d84;
-	--stroke-active: #f2f2f3;
-	--stroke-disabled: #f2f2f3;
+	// stroke colors
+	--stroke: #dddde0; // rgb(221, 221, 224)
+	--stroke-hover: #7b7d84; // rgb(123, 125, 132)
+	--stroke-active: #f2f2f3; // rgb(242, 242, 243)
+	--stroke-disabled: #f2f2f3; // rgb(242, 242, 243)
 
-	//navbar colors
-	--navbar: #ffffff;
-	--right-bar: #f1f2f2;
+	// navbar colors
+	--navbar: #ffffff; // rgb(255, 255, 255)
+	--right-bar: #f1f2f2; // rgb(241, 242, 242)
 
-	//button colors
-	--primary-button: #a5d9ff;
-	--primary-button-hover: #f2f2f3;
-	--primary-button-active: #f2f2f3;
-	--primary-button-font: #0c0c0d;
+	// button colors
+	--primary-button: #a5d9ff; // rgb(165, 217, 255)
+	--primary-button-hover: #f2f2f3; // rgb(242, 242, 243)
+	--primary-button-active: #f2f2f3; // rgb(242, 242, 243)
+	--primary-button-font: #0c0c0d; // rgb(12, 12, 13)
 
-	--secondary-button: #f2f2f3;
-	--secondary-button-hover: #e4e4e7;
-	--secondary-button-active: #e4e4e7;
+	--secondary-button: #f2f2f3; // rgb(242, 242, 243)
+	--secondary-button-hover: #e4e4e7; // rgb(228, 228, 231)
+	--secondary-button-active: #e4e4e7; // rgb(228, 228, 231)
 
-	//spinner colors
-	--spinner-color: var(--spinner-color-light);
-	--setting-color: var(--setting-color-dark);
+	// spinner colors
+	--spinner-color: var(--spinner-color-light); // rgb(0, 0, 0)
+	--setting-color: var(--setting-color-dark); // rgb(0, 0, 0)
 
-	--product-lime-blu: #a5d9ff;
-	--default-state-buttons: #dfdfdf;
+	--product-lime-blu: #a5d9ff; // rgb(165, 217, 255)
+	--default-state-buttons: #dfdfdf; // rgb(223, 223, 223)
 }
