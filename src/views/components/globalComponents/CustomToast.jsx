@@ -24,35 +24,28 @@ const CustomToast = () => {
 	const [toasts, setToasts] = useState([]);
 
 	useEffect(() => {
-		triggerToastFn = ({ type, content, duration = defaultDuration }) => {
-			// Create a unique content-based ID to prevent duplicates
+		triggerToastFn = ({ type, content, duration = defaultDuration, customStyle = {} }) => {
 			const contentHash = hashCode(content + type);
 			const id = `${contentHash}-${Date.now()}`;
 
-			// Check if this toast is already active
-			if (activeToasts.has(contentHash)) {
-				return id; // Skip if already showing
-			}
+			if (activeToasts.has(contentHash)) return id;
 
 			activeToasts.add(contentHash);
 
 			setToasts((prevToasts) => [
 				...prevToasts,
-				{ id, type, content, duration, isVisible: true, contentHash },
+				{ id, type, content, duration, isVisible: true, contentHash, customStyle },
 			]);
 
-			// Schedule the exit animation
 			timeoutRefs.current[id] = setTimeout(() => {
 				startExitAnimation(id, contentHash);
-			}, duration * 1000); // Ensure duration is in milliseconds
+			}, duration * 1000);
 
 			return id;
 		};
 
-		// Add destroy function to triggerToastFn
 		triggerToastFn.destroy = (id = null) => {
 			if (id === null) {
-				// Destroy all toasts
 				setToasts((prevToasts) => {
 					prevToasts.forEach((toast) => {
 						if (timeoutRefs.current[toast.id]) {
@@ -65,7 +58,6 @@ const CustomToast = () => {
 				toastRefs.current = {};
 				timeoutRefs.current = {};
 			} else {
-				// Destroy specific toast by ID
 				setToasts((prevToasts) => {
 					const toastToDestroy = prevToasts.find((t) => t.id === id);
 					if (toastToDestroy) {
@@ -81,7 +73,6 @@ const CustomToast = () => {
 		};
 
 		return () => {
-			// Clear all timeouts on unmount
 			Object.values(timeoutRefs.current).forEach(clearTimeout);
 			triggerToastFn = null;
 			activeToasts.clear();
@@ -93,7 +84,6 @@ const CustomToast = () => {
 			prevToasts.map((toast) => (toast.id === id ? { ...toast, isVisible: false } : toast)),
 		);
 
-		// Remove the toast from DOM after exit animation completes
 		timeoutRefs.current[id] = setTimeout(() => {
 			setToasts((prevToasts) => prevToasts.filter((toast) => toast.id !== id));
 			delete timeoutRefs.current[id];
@@ -109,40 +99,47 @@ const CustomToast = () => {
 		startExitAnimation(id, contentHash);
 	};
 
-	// Simple hash function for content identification
 	function hashCode(str) {
 		let hash = 0;
 		for (let i = 0; i < str.length; i++) {
 			const char = str.charCodeAt(i);
 			hash = (hash << 5) - hash + char;
-			hash |= 0; // Convert to 32bit integer
+			hash |= 0;
 		}
 		return hash;
 	}
 
 	return (
 		<div className="toast-container">
-			{toasts.map((toast) => (
-				<div
-					key={toast.id}
-					ref={(el) => (toastRefs.current[toast.id] = el)}
-					className={`toast ${toast.type} ${toast.isVisible ? 'slide-in' : 'slide-out'}`}
-				>
-					<div className="left-part">
-						<div className="toast__icon">{toastIcon[toast?.type]}</div>
-						<div className="toast__content">
-							<p className="toast__message">{toast.content}</p>
-						</div>
-					</div>
-					<div className="vertical-line" />
-					<button
-						className="toast__close-btn"
-						onClick={() => handleClose(toast.id, toast.contentHash)}
+			{toasts.map((toast) => {
+				const { customStyle = {} } = toast;
+				const { style = {} } = customStyle;
+
+				return (
+					<div
+						key={toast.id}
+						ref={(el) => (toastRefs.current[toast.id] = el)}
+						className={`toast ${toast.type} ${
+							toast.isVisible ? 'slide-in' : 'slide-out'
+						}`}
+						style={style}
 					>
-						Close
-					</button>
-				</div>
-			))}
+						<div className="left-part">
+							<div className="toast__icon">{toastIcon[toast?.type]}</div>
+							<div className="toast__content">
+								<p className="toast__message">{toast.content}</p>
+							</div>
+						</div>
+						<div className="vertical-line" />
+						<button
+							className="toast__close-btn"
+							onClick={() => handleClose(toast.id, toast.contentHash)}
+						>
+							Close
+						</button>
+					</div>
+				);
+			})}
 		</div>
 	);
 };
@@ -151,33 +148,33 @@ function isMessageEmpty(message) {
 	return !message || message.trim() === '';
 }
 
-export const message = {
-	show({ type, content, duration = defaultDuration }) {
+const message = {
+	show({ type, content, duration = defaultDuration, customStyle = {} }) {
 		if (isMessageEmpty(content)) {
 			type = 'error';
 			content = 'Message is empty';
 		}
 		if (triggerToastFn) {
-			return triggerToastFn({ type, content, duration });
+			return triggerToastFn({ type, content, duration, customStyle });
 		}
 		console.warn('CustomToast component not mounted yet.');
 		return null;
 	},
 
-	success(content, duration) {
-		return this.show({ type: 'success', content, duration });
+	success(content, duration, customStyle) {
+		return this.show({ type: 'success', content, duration, customStyle });
 	},
 
-	warning(content, duration) {
-		return this.show({ type: 'warning', content, duration });
+	warning(content, duration, customStyle) {
+		return this.show({ type: 'warning', content, duration, customStyle });
 	},
 
-	error(content, duration) {
-		return this.show({ type: 'error', content, duration });
+	error(content, duration, customStyle) {
+		return this.show({ type: 'error', content, duration, customStyle });
 	},
 
-	loading(content, duration = defaultDuration) {
-		return this.show({ type: 'loading', content, duration });
+	loading(content, duration = defaultDuration, customStyle) {
+		return this.show({ type: 'loading', content, duration, customStyle });
 	},
 
 	destroy(id = null) {
@@ -189,4 +186,5 @@ export const message = {
 	},
 };
 
+export { message };
 export default memo(CustomToast);

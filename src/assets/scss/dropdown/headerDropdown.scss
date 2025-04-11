@@ -47,12 +47,6 @@
 			border: none;
 		}
 	}
-	.dropdown-arrow {
-		transition: transform 0.3s ease;
-	}
-	.dropdown-arrow.open {
-		transform: rotate(180deg);
-	}
 	.dropdown-overlay {
 		position: fixed;
 		top: 0;
@@ -105,14 +99,6 @@
 	}
 
 	.newHeaderBtn:hover {
-		background-color: var(--card-hover) !important;
-
-		.selectedPage {
-			color: var(--primary-button) !important;
-		}
-	}
-
-	.newHeaderBtn-open {
 		background-color: var(--card-hover) !important;
 
 		.selectedPage {
