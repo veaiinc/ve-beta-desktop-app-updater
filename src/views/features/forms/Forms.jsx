@@ -4,7 +4,7 @@ import { FetchMoreLoaderComp, fetchOriginSelection } from '../../../helpers';
 import { useNavigate } from 'react-router-dom';
 import { Tooltip } from 'antd';
 import FilterPopUp from '../../components/globalComponents/FilterPopUp';
-import { FilterIcons, Filters, DocsStatusButton, statusTextmapper } from '../../features/docs';
+import { FilterIcons, Filters, DocsStatusButton, statusTextmapper } from '../docs/Docs';
 import { ReactComponent as CrossPurple } from '../../../assets/svg/docs/cross.svg';
 import { ReactComponent as Search } from '../../../assets/svg/docs/search.svg';
 import { ReactComponent as Filter } from '../../../assets/svg/docs/filter.svg';

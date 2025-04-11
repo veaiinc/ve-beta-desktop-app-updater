@@ -129,11 +129,15 @@ const actionHandlers = {
 		...state,
 		clientSelectionLightRoomCopy: action.payload,
 	}),
-	RESET_STATE: () => ({ ...intialState }),
 	GET_PRE_REGISTERED_USERS: (state, action) => ({
 		...state,
 		preRegisteredUsers: action.payload,
 	}),
+	GET_GALLERY_GUEST_ACCESS_DETAILS: (state, action) => ({
+		...state,
+		galleryGuestAccessDetails: action.payload,
+	}),
+	RESET_STATE: () => ({ ...intialState }),
 };
 
 const Reducer = (state, action) => {

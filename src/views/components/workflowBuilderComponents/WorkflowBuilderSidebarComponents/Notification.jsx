@@ -20,7 +20,7 @@ import {
 	dropDownStyle,
 	dropDownTextStyling,
 	selectedValueStyling,
-} from '../../../features/workflow_builder/workflowContantsHelpers';
+} from '../../../features/workflowBuilder/workflowContantsHelpers';
 
 const notificationList = {
 	Google: { title: 'Google', notification: ['Send Email'], icon: <Google />, id: 'email' },

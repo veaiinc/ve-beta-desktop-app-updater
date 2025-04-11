@@ -136,7 +136,7 @@ export const styles = {
 
 export const SETTINGS_OPTIONS = {
 	admin: [
-		{ name: 'My Profile', route: '/settings/my-profile', icon: ProfileIcon },
+		{ name: 'My Profile', route: '/settings/my-profile', icon: FilesSvg },
 		{ name: 'Workspace', route: '/settings/workspace', icon: WorkspaceIcon },
 		{ name: 'Team Members', route: '/settings/team-members', icon: TeamIcon },
 		{ name: 'Integrations', route: '/settings/integrations', icon: IntegrationsIcon },

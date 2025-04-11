@@ -1,4 +1,4 @@
-import { memo, useContext, useEffect, useState } from 'react';
+import { memo, useCallback, useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/home_page/proactiveSuggestions.scss';
 import Context from '../../../context/context';
 import AISuggestionsPopup from '../../components/modalsV2/homePage/AISuggestionsPopup';
@@ -103,6 +103,10 @@ const ProactiveSuggestions = () => {
 		}));
 	};
 
+	const handleCloseModal = useCallback(() => {
+		setInfo((prev) => ({ ...prev, openPopup: false, activeCardContent: null }));
+	}, []);
+
 	return (
 		<div className="proactive-suggestions-container">
 			<div className="cards-container">
@@ -167,7 +171,7 @@ const ProactiveSuggestions = () => {
 			</div>
 			<AISuggestionsPopup
 				open={info?.openPopup}
-				closeModal={() => setInfo((prev) => ({ ...prev, openPopup: false }))}
+				closeModal={handleCloseModal}
 				data={info?.activeCardContent}
 			/>
 		</div>

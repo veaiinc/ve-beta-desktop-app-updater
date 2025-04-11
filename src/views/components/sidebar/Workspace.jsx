@@ -156,7 +156,7 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 							</div>
 						))}
 
-						<div className="workspaceListFooter">
+						{/* <div className="workspaceListFooter">
 							<hr
 								style={{
 									border: '0.1px solid var(--stroke)',
@@ -171,7 +171,7 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 									<LogoutRedSvg />
 								</div>
 							</div>
-						</div>
+						</div> */}
 					</div>
 				) : (
 					''
