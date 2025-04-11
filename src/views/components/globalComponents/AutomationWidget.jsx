@@ -40,11 +40,6 @@ const iconMap = {
 	deepsearch: <DeepSearchIcon />,
 	tasksuggestion: <TaskSuggestionIcon />,
 };
-const automationOptions = [
-	{ id: 1, title: 'Cristofer Septimus', status: 'active' },
-	{ id: 2, title: 'Cristofer Septimus', status: 'inactive' },
-	{ id: 3, title: 'Cristofer Septimus', status: 'error' },
-];
 const statusColors = {
 	published: '#B2FF00',
 	unpublished: '#93989F',
@@ -58,6 +53,9 @@ const AutomationWidget = ({ width, height }) => {
 		automationBuilder: { automationsList, getAutomationsList },
 	} = useContext(Context);
 
+	const [info, setInfo] = useState({
+		isLoading: false,
+	});
 	const automations = automationsList?.data;
 	const automationsLoading = automationsList ? false : true;
 	const automationsLength = automations?.length ?? 0;
@@ -78,7 +76,6 @@ const AutomationWidget = ({ width, height }) => {
 		}
 	};
 
-	console.log(automationsList, 'testing');
 	return (
 		<div className="automation" style={{ width: width }}>
 			<div className="automationWidgetContainer">
