@@ -9,6 +9,7 @@ import { ReactComponent as TaskSuggestionIcon } from '../../../assets/svg/contac
 import Context from '../../../context/context';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import Skeleton from 'react-loading-skeleton';
+import { useNavigate } from 'react-router-dom';
 const autoSuggestOptions = [
 	{
 		id: 1,
@@ -40,35 +41,10 @@ const iconMap = {
 	deepsearch: <DeepSearchIcon />,
 	tasksuggestion: <TaskSuggestionIcon />,
 };
-const taskOptions = [
-	{
-		id: 1,
-		title: 'UI/UX Design review',
-		name: 'Avinash',
-		status: 'On Going',
-	},
-	{
-		id: 2,
-		title: 'Product review call',
-		name: 'Lindsey Aminoff',
-		status: 'On Going',
-	},
-	{
-		id: 3,
-		title: 'Client Meeting: Branding & Visual Identity',
-		name: 'Hanna Dokidis',
-		status: 'On Going',
-	},
-	{
-		id: 4,
-		title: 'Design Team- Standup Call',
-		name: 'Jaylon Aminoff',
-		status: 'Overdue',
-	},
-];
 
 const skeletonLoaders = Array.from({ length: 6 }, (_, index) => index + 1);
 const TaskWidget = ({ width, height }) => {
+	const navigate = useNavigate();
 	const {
 		tasks: { listTasks, getListItems, hasNextPage },
 	} = useContext(Context);
@@ -173,7 +149,13 @@ const TaskWidget = ({ width, height }) => {
 						)}
 					</div>
 				</div>
-				<div className="taskWidgetFooter">
+				<div
+					className="taskWidgetFooter"
+					onClick={() => {
+						navigate('/tasks');
+					}}
+					style={{ cursor: 'pointer' }}
+				>
 					<div className="taskWidgetFooterTitle">View Task</div>
 					<PlusIcon />
 				</div>

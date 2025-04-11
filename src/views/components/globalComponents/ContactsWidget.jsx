@@ -8,6 +8,7 @@ import { ReactComponent as AutomationIcon } from '../../../assets/svg/contacts/a
 import { ReactComponent as DeepSearchIcon } from '../../../assets/svg/contacts/deepsearch.svg';
 import { ReactComponent as TaskSuggestionIcon } from '../../../assets/svg/contacts/tasksuggestion.svg';
 import Skeleton from 'react-loading-skeleton';
+import { useNavigate } from 'react-router-dom';
 // const aiSuggestOptions = [
 // 	{ id: 1, title: 'Cristofer Septimus', subtitle: 'Schedule a meeting' },
 // 	{ id: 2, title: 'Cristofer Septimus', subtitle: 'Schedule a meeting' },
@@ -49,6 +50,7 @@ const iconMap = {
 const skeletonLoaders = Array.from({ length: 6 }, (_, index) => index + 1);
 
 const ContactsWidget = ({ width, height }) => {
+	const navigate = useNavigate();
 	const {
 		contacts: { clientList, getClients, refetchClientList },
 	} = useContext(Context);
@@ -165,7 +167,13 @@ const ContactsWidget = ({ width, height }) => {
 						height: '1px',
 					}}
 				/>
-				<div className="contactsWidgetFooter">
+				<div
+					className="contactsWidgetFooter"
+					onClick={() => {
+						navigate('/contacts');
+					}}
+					style={{ cursor: 'pointer' }}
+				>
 					<div className="contactsWidgetFooterTitle">View Contacts</div>
 					<PlusIcon />
 				</div>

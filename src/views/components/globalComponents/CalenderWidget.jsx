@@ -4,6 +4,7 @@ import { ReactComponent as PlusIcon } from '../../../assets/svg/calendar/plus.sv
 import { ReactComponent as AutomationIcon } from '../../../assets/svg/contacts/automation.svg';
 import { ReactComponent as DeepSearchIcon } from '../../../assets/svg/contacts/deepsearch.svg';
 import { ReactComponent as TaskSuggestionIcon } from '../../../assets/svg/contacts/tasksuggestion.svg';
+import { useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
 
 const autoSuggestOptions = [
@@ -37,16 +38,12 @@ const iconMap = {
 	deepsearch: <DeepSearchIcon />,
 	tasksuggestion: <TaskSuggestionIcon />,
 };
-const meetOptions = [
-	{ id: 1, startTime: '10:00 AM', endTime: '10:30 AM', title: 'Design Team- Standup Call' },
-	{ id: 2, startTime: '11:30 AM', endTime: '11:50 AM', title: 'UI/UX Design review' },
-	{ id: 3, startTime: '11:45 AM', endTime: '12:00 PM', title: 'Product review call' },
-	{ id: 4, startTime: '12:30 PM', endTime: '1:00 PM', title: 'Photography Concept Planning' },
-];
+
 const CalenderWidget = ({ width, height }) => {
 	const {
 		calendarInfo: { getCalendarEventsList, calendarEventsList },
 	} = useContext(Context);
+	const navigate = useNavigate();
 	const [info, setInfo] = useState({
 		currentCalendarDate: new Date(),
 		currentDate: new Date().getDate(),
@@ -70,16 +67,6 @@ const CalenderWidget = ({ width, height }) => {
 						</div>
 					</div>
 					<div className="calenderWidgetMainContent">
-						{/* <div className="calenderWidgetMainContentTitleContainer">
-							<div className="calenderWidgetMain">
-								<div className="calenderWidgetMainContentMeetTitle">
-									Design Team- Standup Call
-								</div>
-								<div className="calenderWidgetMainContentMeetTime">
-									10:00 AM - 10:30 AM
-								</div>
-							</div>
-						</div> */}
 						{calendarEventsList?.length > 0 ? (
 							<div className="calenderWidgetMainContentDate">
 								{calendarEventsList?.map((meet) => (
@@ -112,7 +99,13 @@ const CalenderWidget = ({ width, height }) => {
 						height: '1px',
 					}}
 				/>
-				<div className="calenderWidgetFooter">
+				<div
+					className="calenderWidgetFooter"
+					onClick={() => {
+						navigate('/calendar');
+					}}
+					style={{ cursor: 'pointer' }}
+				>
 					<div className="calenderWidgetFooterTitle">View Calendar</div>
 					<PlusIcon />
 				</div>

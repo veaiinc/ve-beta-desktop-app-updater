@@ -8,6 +8,8 @@ import { ReactComponent as DeepSearchIcon } from '../../../assets/svg/contacts/d
 import { ReactComponent as TaskSuggestionIcon } from '../../../assets/svg/contacts/tasksuggestion.svg';
 import Context from '../../../context/context';
 import InfiniteScroll from 'react-infinite-scroll-component';
+import { useNavigate } from 'react-router-dom';
+import Skeleton from 'react-loading-skeleton';
 
 const autoSuggestOptions = [
 	{
@@ -48,7 +50,17 @@ const statusColors = {
 const limit = 10;
 const append = true;
 
+const infiniteScrollStyle = {
+	display: 'flex',
+	alignItems: 'flex-start',
+	flexDirection: 'column',
+	gap: '12px',
+	width: '100%',
+};
+
+const skeletonLoaders = Array.from({ length: 5 }, (_, index) => index + 1);
 const AutomationWidget = ({ width, height }) => {
+	const navigate = useNavigate();
 	const {
 		automationBuilder: { automationsList, getAutomationsList },
 	} = useContext(Context);
@@ -65,7 +77,7 @@ const AutomationWidget = ({ width, height }) => {
 
 	useEffect(() => {
 		if (!automationsList) {
-			getAutomationsList();
+			fetchAutomation();
 		}
 	}, []);
 
@@ -76,38 +88,70 @@ const AutomationWidget = ({ width, height }) => {
 		}
 	};
 
+	const fetchAutomation = async () => {
+		setInfo((prev) => ({
+			...prev,
+			isLoading: true,
+		}));
+		await getAutomationsList();
+		setInfo((prev) => ({
+			...prev,
+			isLoading: false,
+		}));
+	};
+
 	return (
 		<div className="automation" style={{ width: width }}>
 			<div className="automationWidgetContainer">
 				<div className="automationWidgetBody">
 					<div className="automationWidgetBodyHeader" id="automationWidgetBodyHeader">
-						<InfiniteScroll
-							dataLength={automationsLength}
-							next={fetchNextAutomations}
-							hasMore={automationsHasNextPage}
-							loader={<div>Loading...</div>}
-							scrollableTarget="automationWidgetBodyHeader"
-						>
-							{automationsList?.data?.map((automation) => (
-								<div className="automationWidgetBodyItem">
-									<div className="automationWidgetOptionDetails">
-										<div className="automationWidgetOptionDetailsTitle">
-											{automation.name}
-										</div>
-										<div
-											className="automationWidgetOptionDetailsSubtitle"
-											style={{ color: statusColors[automation.status] }}
-										>
-											{automation.status}
+						{info?.isLoading ? (
+							skeletonLoaders?.map((item) => (
+								<Skeleton
+									width="280px"
+									height="36px"
+									style={{
+										'--highlight-color': 'gray',
+										'--base-color': 'transparent',
+									}}
+								/>
+							))
+						) : (
+							<InfiniteScroll
+								dataLength={automationsLength}
+								next={fetchNextAutomations}
+								hasMore={automationsHasNextPage}
+								loader={<div>Loading...</div>}
+								scrollableTarget="automationWidgetBodyHeader"
+								style={infiniteScrollStyle}
+							>
+								{automationsList?.data?.map((automation) => (
+									<div className="automationWidgetBodyItem">
+										<div className="automationWidgetOptionDetails">
+											<div className="automationWidgetOptionDetailsTitle">
+												{automation.name}
+											</div>
+											<div
+												className="automationWidgetOptionDetailsSubtitle"
+												style={{ color: statusColors[automation.status] }}
+											>
+												{automation.status}
+											</div>
 										</div>
 									</div>
-								</div>
-							))}
-						</InfiniteScroll>
+								))}
+							</InfiniteScroll>
+						)}
 					</div>
 				</div>
-				<div className="automationWidgetFooter">
-					<div className="automationWidgetFooterTitle">View Contacts</div>
+				<div
+					className="automationWidgetFooter"
+					onClick={() => {
+						navigate('/automations');
+					}}
+					style={{ cursor: 'pointer' }}
+				>
+					<div className="automationWidgetFooterTitle">View Automations</div>
 					<PlusIcon />
 				</div>
 			</div>
