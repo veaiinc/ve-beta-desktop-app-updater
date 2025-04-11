@@ -162,7 +162,7 @@ const InitialHomePage = () => {
 	const componentMapper = useMemo(
 		() => ({
 			proactiveSuggestions: <ProactiveSuggestions />,
-			task: <TaskWidget />,
+			task: <TaskWidget width={'903px'} />,
 			contact: <ContactsWidget width={'903px'} />,
 			calendar: <CalenderWidget width={'903px'} />,
 			// prompts: (
