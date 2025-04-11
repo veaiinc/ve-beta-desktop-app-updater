@@ -5,7 +5,7 @@ import Spinner from '../../loaders/Spinner';
 import { ReactComponent as Close } from '../../../../assets/svg/close.svg';
 import Context from '../../../../context/context';
 import { Spin, Tooltip } from 'antd';
-import { checkConditionNodeChild } from '../../../features/automation_builder/automationContentsHelper';
+import { checkConditionNodeChild } from '../../../features/automationBuilder/automationContentsHelper';
 import { message } from '../../globalComponents/CustomToast';
 const customStyles = {
 	content: { zIndex: 99999 },

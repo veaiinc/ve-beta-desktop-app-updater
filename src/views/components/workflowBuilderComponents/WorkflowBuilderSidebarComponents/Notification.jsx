@@ -20,7 +20,7 @@ import {
 	dropDownStyle,
 	dropDownTextStyling,
 	selectedValueStyling,
-} from '../../../features/workflow_builder/workflowContantsHelpers';
+} from '../../../features/workflowBuilder/workflowContantsHelpers';
 import { message } from '../../globalComponents/CustomToast';
 
 const notificationList = {

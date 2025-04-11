@@ -1,0 +1,118 @@
+.storage-page-container {
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
+	background-color: var(--background-color, #0c0c0d);
+}
+.card-container-wrapper {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
+	height: 100%;
+	flex-grow: 1;
+	.card-sub-container {
+		display: grid;
+		grid-template-columns: minmax(200px, 0.3fr) minmax(500px, 1fr) minmax(200px, 0.3fr);
+		width: 100%;
+		height: 100%;
+		.card-sub-container-center {
+			display: flex;
+			gap: 24px;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+			width: 100%;
+			height: 100%;
+		}
+	}
+	.storage-main-container-bottom-spacer {
+		display: flex;
+		flex-direction: column;
+		gap: 20px;
+	}
+}
+.card-container {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 15px;
+	max-width: 585px;
+	justify-items: center;
+	position: relative;
+}
+.card-container-hover {
+	display: flex;
+	flex-wrap: wrap;
+	max-width: 600px;
+	justify-items: center;
+	gap: 20px;
+	row-gap: 35px;
+}
+
+.card-item {
+	text-align: center;
+	position: relative;
+	.card-item-style {
+		position: relative;
+		background-color: var(--card, #171819);
+		background-size: 'fit';
+		background-position: center;
+		background-repeat: no-repeat;
+		border-radius: 20px;
+		padding: 16px;
+		height: 135px;
+		width: 135px;
+		z-index: 1;
+	}
+	.card-item-style-btn {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+		gap: 10px;
+		background-color: var(--card, #171819);
+		.card-btn {
+			display: flex;
+			min-width: 104px;
+			min-height: 31px;
+			justify-content: space-around;
+			align-items: center;
+			gap: 4px;
+			border-radius: 8px;
+			font-size: 10px;
+			padding: 4px 8px;
+			color: var(--primary-font, #f2f2f3);
+			background-color: var(--card-over-card, #202123);
+			outline: none;
+			border: none;
+			cursor: pointer;
+
+			// &:hover {
+			// 	background-color: transparent;
+			// 	border: 1px solid #e8e8e8;
+			// 	color: #e8e8e8;
+			// }
+
+			// &:disabled {
+			// 	background-color: #2c2e30;
+			// 	color: #939393;
+			// 	cursor: not-allowed;
+
+			// 	&:hover {
+			// 		background: rgba(44, 46, 48, 0.7);
+			// 		border: 1px solid transparent;
+			// 	}
+			// }
+		}
+	}
+}
+
+@keyframes card-container-wrapper {
+	from {
+		top: 35%;
+	}
+	to {
+		top: 0%;
+	}
+}

@@ -3,7 +3,7 @@ import '../../../assets/scss/my_templates/sidePreview.scss';
 import { ReactComponent as CloseSvg } from '../../../assets/svg/tasks/doubleRightArrow.svg';
 import { ReactComponent as ShareSvg } from '../../../assets/svg/docs/share.svg';
 import { ReactComponent as DotsSvg } from '../../../assets/svg/docs/vertidot.svg';
-import { DocsStatusButton, statusTextmapper } from '../../features/docs';
+import { DocsStatusButton, statusTextmapper } from '../../features/docs/Docs';
 import Context from '../../../context/context';
 import { Drawer } from 'antd';
 import { fetchOriginSelection, getCurrentWorkspaceId } from '../../../helpers';
