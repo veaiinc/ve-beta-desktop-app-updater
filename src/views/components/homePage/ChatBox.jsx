@@ -1062,7 +1062,7 @@ const ChatBox = ({
 								<div className={`chatInputParentContainer`}>
 									<textarea
 										type="text"
-										placeholder="Hey! Need help? Ask me anything."
+										placeholder="Ask me anything or type @ to add sources."
 										value={info?.chatQuery}
 										onChange={handleTextAreaChange}
 										autoFocus={true}
@@ -1368,18 +1368,20 @@ const ChatBox = ({
 																				>
 																					Reason
 																				</div>
-																				<ArrowDownSvg
-																					fill={
-																						chatInfo
-																							?.reason
-																							?.webSearch ||
-																						chatInfo
-																							?.reason
-																							?.workspaceSearch
-																							? 'var(--primary-button)'
-																							: 'var(--secondary-font)'
-																					}
-																				/>
+																				<div className="icon-arrow">
+																					<ArrowDownSvg
+																						fill={
+																							chatInfo
+																								?.reason
+																								?.webSearch ||
+																							chatInfo
+																								?.reason
+																								?.workspaceSearch
+																								? 'var(--primary-button)'
+																								: 'var(--secondary-font)'
+																						}
+																					/>
+																				</div>
 																			</>
 																		)}
 																	</div>

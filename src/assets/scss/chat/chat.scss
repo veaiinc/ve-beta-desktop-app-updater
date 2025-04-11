@@ -493,3 +493,10 @@
 		opacity: 1; /* End fully opaque */
 	}
 }
+
+@media screen and (max-width: 500px) {
+	.chat-container {
+		height: calc(100vh - 40px);
+		padding-left: 0;
+	}
+}

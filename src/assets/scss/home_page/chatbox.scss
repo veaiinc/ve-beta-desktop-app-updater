@@ -828,3 +828,12 @@
 .upload-file-tooltip-container {
 	max-width: unset;
 }
+
+@media screen and (max-width: 700px) {
+	.icon {
+		.icon-text,
+		.icon-arrow {
+			display: none;
+		}
+	}
+}
