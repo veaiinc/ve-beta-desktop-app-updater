@@ -1,106 +1,114 @@
 // Global css variables
 :root,
 [theme='dark'] {
-	//font families
+	// font families
 	--primary-font-family: 'Inter';
 	--secondary-font-family: 'Manrope';
 
-	//common colors;
-	--accent-color: rgba(179, 157, 250, 1);
-	--success: rgba(0, 156, 46, 1);
-	--error: rgba(209, 36, 63, 1);
-	--pending: rgba(250, 157, 39, 1);
-	--info: rgba(80, 137, 249, 1);
+	// common colors
+	--accent-color: #b39dfa; // rgb(179, 157, 250)
+	--success: #00fc2e; // rgb(0, 252, 46)
+	--error: #c71b3a; // rgb(199, 27, 58)
+	--pending: #ffa32f; // rgb(255, 163, 47)
+	--info: #5089f9; // rgb(80, 137, 249)
 
-	//main colors
-	--background-color: rgba(12, 12, 13, 1);
+	// main colors
+	--background-color: #0c0c0d; // rgb(12, 12, 13)
 
-	//font colors
-	--primary-font: rgba(242, 242, 243, 1);
-	--secondary-font: rgba(122, 126, 133, 1);
+	// font colors
+	--primary-font: #f2f2f3; // rgb(242, 242, 243)
+	--secondary-font: #7a7e85; // rgb(122, 126, 133)
 
-	//card colors
-	--card: rgba(23, 24, 25, 1);
-	--card-hover: rgba(32, 33, 35, 1);
-	--card-over-card: rgba(32, 33, 35, 1);
-	--card-over-card-hover: rgba(39, 40, 43, 1);
-	--popup: rgba(32, 33, 35, 1);
+	// card colors
+	--card: #1e2021; // rgb(30, 32, 33)
+	--card-hover: #262829; // rgb(38, 40, 41)
+	--card-over-card: #262829; // rgb(38, 40, 41)
+	--card-over-card-hover: #2e2f32; // rgb(46, 47, 50)
+	--popup: #202123; // rgb(32, 33, 35)
 
-	//stroke colors
-	--stroke: rgba(51, 51, 52, 1);
-	--stroke-hover: rgba(66, 69, 72, 1);
-	--stroke-active: rgba(32, 33, 35, 1);
+	// stroke colors
+	--stroke: #2c2e31; // rgb(44, 46, 49)
+	--stroke-hover: #424548; // rgb(66, 69, 72)
+	--stroke-active: #202123; // rgb(32, 33, 35)
 
-	//navbar colors
-	--navbar: rgba(32, 33, 35, 1);
-	--right-bar: rgba(23, 24, 25, 1);
+	// navbar colors
+	--navbar: #202123; // rgb(32, 33, 35)
+	--right-bar: #171819; // rgb(23, 24, 25)
 
-	//ai color code
+	// ai color code (gradient: colors inside are hex)
 	--ai-color-code: linear-gradient(
 		94deg,
 		rgba(195, 157, 248, 0) -2.07%,
+		// rgb(195, 157, 248)
 		#c39df8 -2.06%,
-		#ec7c9d 95.85%
+		// rgb(195, 157, 248)
+		#ec7c9d 95.85% // rgb(236, 124, 157)
 	);
 
-	//button colors
-	--primary-button: rgba(207, 255, 72, 1);
-	--primary-button-hover: var(--card-hover);
-	--primary-button-active: var(--card-hover);
-	--primary-button-font: rgba(12, 12, 13, 1);
+	// button colors
+	--primary-button: #cfff48; // rgb(207, 255, 72)
+	--primary-button-hover: var(--card-hover); // rgb(38, 40, 41)
+	--primary-button-active: var(--card-hover); // rgb(38, 40, 41)
+	--primary-button-font: #0c0c0d; // rgb(12, 12, 13)
 
-	--secondary-button: var(--secondary-font);
-	--secondary-button-hover: rgba(228, 228, 231, 1);
-	--secondary-button-active: rgba(228, 228, 231, 1);
+	--secondary-button: var(--secondary-font); // rgb(122, 126, 133)
+	--secondary-button-hover: #ffffe7; // rgb(255, 255, 231)
+	--secondary-button-active: #ffffe7; // rgb(255, 255, 231)
 
-	//spinner colors
-	--spinner-color-light: #000;
-	--spinner-color-dark: #fff;
+	// spinner colors
+	--spinner-color-light: #000; // rgb(0, 0, 0)
+	--spinner-color-dark: #fff; // rgb(255, 255, 255)
 
-	//setting colors
-	--setting-color-light: #fff;
-	--setting-color-dark: #000;
-	--spinner-color: var(--spinner-color-dark);
-	--setting-color: var(--setting-color-light);
+	// setting colors
+	--setting-color-light: #fff; // rgb(255, 255, 255)
+	--setting-color-dark: #000; // rgb(0, 0, 0)
+	--spinner-color: var(--spinner-color-dark); // rgb(255, 255, 255)
+	--setting-color: var(--setting-color-light); // rgb(255, 255, 255)
+
+	--product-lime-blu: #cfff48; // rgb(207, 255, 72)
+	--default-state-buttons: #2e2f33; // rgb(46, 47, 51)
 }
 
 // light theme global css variables
 [theme='light'] {
-	//main colors
-	--background-color: rgb(255, 255, 255);
+	// main colors
+	--background-color: #fff; // rgb(255, 255, 255)
 
-	//font colors
-	--primary-font: rgba(12, 12, 13, 1);
-	--secondary-font: rgb(33, 38, 47);
+	// font colors
+	--primary-font: #0c0c0d; // rgb(12, 12, 13)
+	--secondary-font: #7f858f; // rgb(127, 133, 143)
 
-	//card colors
-	--card: rgb(249, 249, 249);
-	--card-hover: rgb(246, 246, 246);
-	--card-over-card: rgba(242, 242, 243, 1);
-	--card-over-card-hover: rgba(228, 228, 231, 1);
-	--popup: rgb(255, 255, 255);
+	// card colors
+	--card: #f9f9f9; // rgb(249, 249, 249)
+	--card-hover: #f1f2f2; // rgb(241, 242, 242)
+	--card-over-card: #f1f2f2; // rgb(241, 242, 242)
+	--card-over-card-hover: #e8e8ea; // rgb(232, 232, 234)
+	--popup: #fff; // rgb(255, 255, 255)
 
-	//stroke colors
-	--stroke: rgba(0, 0, 0, 0.1);
-	--stroke-hover: rgba(123, 125, 132, 1);
-	--stroke-active: rgba(242, 242, 243, 1);
-	--stroke-disabled: rgba(242, 242, 243, 1);
+	// stroke colors
+	--stroke: #dddde0; // rgb(221, 221, 224)
+	--stroke-hover: #7b7d84; // rgb(123, 125, 132)
+	--stroke-active: #f2f2f3; // rgb(242, 242, 243)
+	--stroke-disabled: #f2f2f3; // rgb(242, 242, 243)
 
-	//navbar colors
-	--navbar: rgb(255, 255, 255);
-	--right-bar: rgba(250, 250, 250, 1);
+	// navbar colors
+	--navbar: #ffffff; // rgb(255, 255, 255)
+	--right-bar: #f1f2f2; // rgb(241, 242, 242)
 
-	//button colors
-	--primary-button: rgba(165, 217, 255, 1);
-	--primary-button-hover: rgba(242, 242, 243, 1);
-	--primary-button-active: rgba(242, 242, 243, 1);
-	--primary-button-font: rgba(12, 12, 13, 1);
+	// button colors
+	--primary-button: #a5d9ff; // rgb(165, 217, 255)
+	--primary-button-hover: #f2f2f3; // rgb(242, 242, 243)
+	--primary-button-active: #f2f2f3; // rgb(242, 242, 243)
+	--primary-button-font: #0c0c0d; // rgb(12, 12, 13)
 
-	--secondary-button: rgba(242, 242, 243, 1);
-	--secondary-button-hover: rgba(228, 228, 231, 1);
-	--secondary-button-active: rgba(228, 228, 231, 1);
+	--secondary-button: #f2f2f3; // rgb(242, 242, 243)
+	--secondary-button-hover: #e4e4e7; // rgb(228, 228, 231)
+	--secondary-button-active: #e4e4e7; // rgb(228, 228, 231)
 
-	//spinner colors
-	--spinner-color: var(--spinner-color-light);
-	--setting-color: var(--setting-color-dark);
+	// spinner colors
+	--spinner-color: var(--spinner-color-light); // rgb(0, 0, 0)
+	--setting-color: var(--setting-color-dark); // rgb(0, 0, 0)
+
+	--product-lime-blu: #a5d9ff; // rgb(165, 217, 255)
+	--default-state-buttons: #dfdfdf; // rgb(223, 223, 223)
 }
