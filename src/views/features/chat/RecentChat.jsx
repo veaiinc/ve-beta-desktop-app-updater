@@ -615,7 +615,7 @@ const RecentChat = ({
 			<div className="chat-container">
 				<div className="chatBarContainer" style={{ width: '100%' }}>
 					{/* header */}
-					{!isPublicChat && !isPreview && (
+					{/* {!isPublicChat && !isPreview && (
 						<div className="containerHeader">
 							<h1 className="containerHeaderTitle"></h1>
 							<div className="iconContainer">
@@ -631,7 +631,7 @@ const RecentChat = ({
 								)}
 							</div>
 						</div>
-					)}
+					)} */}
 
 					{/* chat body */}
 					<div

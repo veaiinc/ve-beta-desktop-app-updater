@@ -107,10 +107,14 @@ export const intialState = {
 	chatInfo: {
 		deepResearch: false,
 		selectedLLMModel: null,
-		webSearch: true,
-		workspaceSearch: false,
+		webSearch: false,
+		workspaceSearch: true,
 		agentType: null,
 		assistantId: null,
+		reason: {
+			workspaceSearch: false,
+			webSearch: false,
+		},
 	},
 	galleryFile: null,
 	globalLoadingMesssage: null,
