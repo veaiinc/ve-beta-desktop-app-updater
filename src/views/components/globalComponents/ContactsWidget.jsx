@@ -7,6 +7,8 @@ import Context from '../../../context/context';
 import { ReactComponent as AutomationIcon } from '../../../assets/svg/contacts/automation.svg';
 import { ReactComponent as DeepSearchIcon } from '../../../assets/svg/contacts/deepsearch.svg';
 import { ReactComponent as TaskSuggestionIcon } from '../../../assets/svg/contacts/tasksuggestion.svg';
+import Skeleton from 'react-loading-skeleton';
+import { useNavigate } from 'react-router-dom';
 // const aiSuggestOptions = [
 // 	{ id: 1, title: 'Cristofer Septimus', subtitle: 'Schedule a meeting' },
 // 	{ id: 2, title: 'Cristofer Septimus', subtitle: 'Schedule a meeting' },
@@ -45,7 +47,10 @@ const iconMap = {
 	tasksuggestion: <TaskSuggestionIcon />,
 };
 
+const skeletonLoaders = Array.from({ length: 6 }, (_, index) => index + 1);
+
 const ContactsWidget = ({ width, height }) => {
+	const navigate = useNavigate();
 	const {
 		contacts: { clientList, getClients, refetchClientList },
 	} = useContext(Context);
@@ -54,14 +59,15 @@ const ContactsWidget = ({ width, height }) => {
 		listItems: [],
 		page: 1,
 		hasMore: false,
-		loadingSkeleton: true,
+		loadingSkeleton: false,
 		error: null,
 		sort: [],
 		filters: [],
 		searchValue: '',
 	});
 	const fetchClientList = useCallback(
-		(page = 1) => {
+		async (page = 1) => {
+			setInfo((prev) => ({ ...prev, loadingSkeleton: true }));
 			const payload = {
 				clientFilterInput: {
 					limit: 20,
@@ -81,7 +87,8 @@ const ContactsWidget = ({ width, height }) => {
 					}),
 				},
 			};
-			getClients(payload);
+			const response = await getClients(payload);
+			setInfo((prev) => ({ ...prev, loadingSkeleton: false }));
 		},
 		[getClients, info?.searchValue, info?.filters, info?.sort],
 	);
@@ -101,9 +108,10 @@ const ContactsWidget = ({ width, height }) => {
 	}, [refetchClientList, clientList]);
 
 	useEffect(() => {
-		fetchClientList();
+		if (!clientList) {
+			fetchClientList();
+		}
 	}, [info?.searchValue, info?.filters, info?.sort]);
-	console.log(info?.listItems);
 
 	return (
 		<div className="contactsWidgetContainer" style={{ width: width, height: height }}>
@@ -130,17 +138,42 @@ const ContactsWidget = ({ width, height }) => {
 						))}
 					</div>
 				</div> */}
-					{info.listItems.map((item, index) => (
-						<div key={index} className="contactsEachOptions">
-							<div className="contactDetails">
-								<div className="contactDetailsTitle">{item?.name}</div>
-								<div className="contactDetailsSubtitle">{item?.email}</div>
-							</div>
-							{/* <div className="contactDetailsCount">0</div> */}
-						</div>
-					))}
+					{info?.loadingSkeleton
+						? skeletonLoaders?.map((item) => (
+								<Skeleton
+									width="300px"
+									height="36px"
+									style={{
+										'--highlight-color': 'gray',
+										'--base-color': 'transparent',
+									}}
+								/>
+						  ))
+						: info.listItems.map((item, index) => (
+								<div key={index} className="contactsEachOptions">
+									<div className="contactDetails">
+										<div className="contactDetailsTitle">{item?.name}</div>
+										<div className="contactDetailsSubtitle">{item?.email}</div>
+									</div>
+									{/* <div className="contactDetailsCount">0</div> */}
+								</div>
+						  ))}
 				</div>
-				<div className="contactsWidgetFooter">
+				<hr
+					style={{
+						width: '100%',
+						background: 'var(--stroke)',
+						border: 'none',
+						height: '1px',
+					}}
+				/>
+				<div
+					className="contactsWidgetFooter"
+					onClick={() => {
+						navigate('/contacts');
+					}}
+					style={{ cursor: 'pointer' }}
+				>
 					<div className="contactsWidgetFooterTitle">View Contacts</div>
 					<PlusIcon />
 				</div>

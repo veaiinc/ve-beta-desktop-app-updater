@@ -141,25 +141,6 @@
 				cursor: pointer;
 			}
 
-			.brandVoiceDescription {
-				display: flex;
-				padding: 10px;
-				justify-content: center;
-				align-items: center;
-				gap: 10px;
-				border-radius: 12px;
-
-				.description {
-					color: var(--primary-font);
-					font-family: var(--primary-font-family);
-					font-size: 12px;
-					font-style: normal;
-					font-weight: 500;
-					line-height: normal;
-					width: 352px;
-				}
-			}
-
 			.brandVoiceContent {
 				display: flex;
 				height: 204px;
@@ -227,17 +208,6 @@
 				.currency-select-wrapper {
 					position: relative;
 					min-width: 150px;
-
-					.currency-select-span {
-						position: absolute;
-						left: 14px;
-						top: 50%;
-						transform: translateY(-50%);
-						width: 20px;
-						height: 20px;
-						color: var(--primary-font);
-						pointer-events: none;
-					}
 
 					.currency-select {
 						width: 100%;

@@ -18,7 +18,7 @@ import { ReactComponent as LLMSvg } from '../../../assets/svg/ai_agents/llm.svg'
 import Context from '../../../context/context';
 import ObjectID from 'bson-objectid';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { checkDevices, getBase64 } from '../../../helpers';
+import { checkDevices, getBase64, getLocationsDetails } from '../../../helpers';
 import WorkflowSlugSelector from '../../components/calendar/WorkflowSlugSelector';
 import SearchDropdown from '../chat/SearchDropdown';
 import UploadFileTooltip from '../chat/UploadFileTooltip';
@@ -126,6 +126,7 @@ const ChatBox = ({
 			chatInfo,
 			userEditedQuery,
 			galleryFile,
+			chatPayload,
 		},
 		calendarInfo: { updateCalendarState },
 		tasks: { updateTaskState },
@@ -532,6 +533,13 @@ const ChatBox = ({
 						payload.workflow_slug = activeWorkflowSlugForSmartFile;
 					}
 
+					if (chatPayload?.workflowTemplateId) {
+						payload.workflow_template_id = chatPayload?.workflowTemplateId;
+					}
+					if (chatPayload?.moduleTemplateId) {
+						payload.module_template_id = chatPayload?.moduleTemplateId;
+					}
+
 					if (
 						!chatInfo?.webSearch &&
 						!chatInfo?.workspaceSearch &&
@@ -544,10 +552,14 @@ const ChatBox = ({
 					//this payload props are for public chat
 					if (isPublicChat) {
 						const user_id = localStorage?.getItem('user_id');
-						const location_details = JSON?.parse(
+						let location_details = JSON?.parse(
 							localStorage?.getItem('locationDetails'),
 						);
 						const ip_address = localStorage?.getItem('ipAddress');
+
+						if (!location_details) {
+							location_details = await getLocationsDetails();
+						}
 
 						payload.user_id = user_id ?? null;
 						payload.location_details = location_details || {};
@@ -657,10 +669,44 @@ const ChatBox = ({
 				uploadBatchId,
 			};
 			const response = await handleGlobalUploadImage(file, payload);
-			let uploadedImages = [...(uploadedImagesRef?.current || [])];
-			let recentFiles = [...(recentFilesRef?.current || [])];
-			let requiredFileIndex = -1;
+			let uploadedImages, recentFiles, requiredFileIndex;
 			let isImage = file?.type?.includes('image');
+
+			if (!response?.[0]) {
+				requiredFileIndex = -1;
+				if (isImage) {
+					requiredFileIndex = uploadedImages?.findIndex(
+						(ele) => ele?.uniqueId === file?.uniqueId,
+					);
+				} else {
+					requiredFileIndex = recentFiles?.findIndex(
+						(ele) => ele?.uniqueId === file?.uniqueId,
+					);
+				}
+
+				if (requiredFileIndex === -1) {
+					return;
+				}
+
+				uploadedImages = [...(uploadedImagesRef?.current || [])];
+				recentFiles = [...(recentFilesRef?.current || [])];
+
+				if (isImage) {
+					uploadedImages.splice(requiredFileIndex, 1);
+					uploadedImagesRef.current = uploadedImages;
+				} else {
+					recentFiles.splice(requiredFileIndex, 1);
+					recentFilesRef.current = recentFiles;
+				}
+
+				setInfo((prev) => ({ ...prev, uploadedImages, recentFiles }));
+				return message.error(response?.[1] || 'failed to upload image');
+			}
+
+			const { _id } = response?.[1] || {};
+			file.fileId = _id;
+
+			requiredFileIndex = -1;
 			if (isImage) {
 				requiredFileIndex = uploadedImages?.findIndex(
 					(ele) => ele?.uniqueId === file?.uniqueId,
@@ -675,20 +721,9 @@ const ChatBox = ({
 				return;
 			}
 
-			if (!response?.[0]) {
-				if (isImage) {
-					uploadedImages.splice(requiredFileIndex, 1);
-					uploadedImagesRef.current = uploadedImages;
-				} else {
-					recentFiles.splice(requiredFileIndex, 1);
-					recentFilesRef.current = recentFiles;
-				}
+			uploadedImages = [...(uploadedImagesRef?.current || [])];
+			recentFiles = [...(recentFilesRef?.current || [])];
 
-				setInfo((prev) => ({ ...prev, uploadedImages, recentFiles }));
-				return message.error(response?.[1] || 'failed to upload image');
-			}
-			const { _id } = response?.[1] || {};
-			file.fileId = _id;
 			if (isImage) {
 				uploadedImages.splice(requiredFileIndex, 1, file);
 				uploadedImagesRef.current = uploadedImages;
@@ -705,29 +740,14 @@ const ChatBox = ({
 
 	const checkIndividualImageUploadedStatusFunc = useCallback(
 		async (fileData, uploadBatchId) => {
-			let uploadedImages = [...(uploadedImagesRef?.current || [])];
-			let recentFiles = [...(recentFilesRef?.current || [])];
-			let requiredFileIndex = -1;
 			let isImage = fileData?.type?.includes('image');
-
-			if (isImage) {
-				requiredFileIndex = uploadedImages?.findIndex(
-					(ele) => ele?.uniqueId === fileData?.uniqueId,
-				);
-			} else {
-				requiredFileIndex = recentFiles?.findIndex(
-					(ele) => ele?.uniqueId === fileData?.uniqueId,
-				);
-			}
-
-			if (requiredFileIndex === -1) {
-				return;
-			}
+			let uploadedImages, recentFiles, requiredFileIndex;
 
 			let uploadedCount = 0,
 				maxAttempts = 90,
 				errorCount = 0,
 				successCount = 0;
+
 			while (!(uploadedCount && successCount) && maxAttempts) {
 				const response = await checkIndividualImageUploadedStatus(uploadBatchId);
 				if (response?.[0]) {
@@ -745,7 +765,27 @@ const ChatBox = ({
 				await new Promise((resolve) => setTimeout(resolve, 2000));
 				maxAttempts--;
 			}
+
 			if (errorCount || maxAttempts === 0) {
+				requiredFileIndex = -1;
+
+				if (isImage) {
+					requiredFileIndex = uploadedImagesRef?.current?.findIndex(
+						(ele) => ele?.uniqueId === fileData?.uniqueId,
+					);
+				} else {
+					requiredFileIndex = recentFilesRef?.current?.findIndex(
+						(ele) => ele?.uniqueId === fileData?.uniqueId,
+					);
+				}
+
+				if (requiredFileIndex === -1) {
+					return;
+				}
+
+				uploadedImages = [...(uploadedImagesRef?.current || [])];
+				recentFiles = [...(recentFilesRef?.current || [])];
+
 				if (isImage) {
 					uploadedImages.splice(requiredFileIndex, 1);
 					uploadedImagesRef.current = uploadedImages;
@@ -757,7 +797,27 @@ const ChatBox = ({
 				setInfo((prev) => ({ ...prev, uploadedImages, recentFiles }));
 				return message.error('Something went wrong while processing the image');
 			}
+
 			if (uploadedCount && uploadedCount > 0) {
+				requiredFileIndex = -1;
+
+				if (isImage) {
+					requiredFileIndex = uploadedImagesRef?.current?.findIndex(
+						(ele) => ele?.uniqueId === fileData?.uniqueId,
+					);
+				} else {
+					requiredFileIndex = recentFilesRef?.current?.findIndex(
+						(ele) => ele?.uniqueId === fileData?.uniqueId,
+					);
+				}
+
+				if (requiredFileIndex === -1) {
+					return;
+				}
+
+				uploadedImages = [...(uploadedImagesRef?.current || [])];
+				recentFiles = [...(recentFilesRef?.current || [])];
+
 				fileData.loading = false;
 				if (isImage) {
 					uploadedImages.splice(requiredFileIndex, 1, fileData);

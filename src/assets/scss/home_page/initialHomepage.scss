@@ -64,10 +64,14 @@
 			}
 		}
 
-		.chat-box-container {
+		.chatbox-container {
 			width: 700px;
 			height: 110px;
 			position: relative;
+
+			.textArea {
+				max-height: 120px !important;
+			}
 		}
 
 		.options-container {
@@ -103,6 +107,7 @@
 	.home-page-container-content {
 		width: 100%;
 		height: calc(100vh - 430px);
+		padding-top: 30px;
 	}
 }
 

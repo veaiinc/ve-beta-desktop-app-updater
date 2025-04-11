@@ -112,6 +112,10 @@ export const intialState = {
 		agentType: null,
 		assistantId: null,
 	},
+	chatPayload: {
+		workflowTemplateId: null,
+		moduleTemplateId: null,
+	},
 	galleryFile: null,
 	globalLoadingMesssage: null,
 	userEditedQuery: null,
