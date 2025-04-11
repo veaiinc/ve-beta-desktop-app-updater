@@ -749,7 +749,10 @@ const OpenedSidebar = ({
 				)}
 				{/* Settings Sidebar Overlay */}
 				{showSettingsSidebar && (
-					<div className="settings-sidebar">
+					<div
+						className="settings-sidebar"
+						style={{ height: renewBanner ? 'calc(100dvh - 41px)' : '100dvh' }}
+					>
 						{/* Settings Header */}
 						{sidebarStates?.workSpaceOpen && (
 							<div style={workspaceStyles}>

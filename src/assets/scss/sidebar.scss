@@ -788,6 +788,9 @@
 						width: 100vw !important;
 						padding: 32px 32px 32px 20px;
 					}
+					.allmodulesList {
+						width: 90% !important;
+					}
 				}
 				.singleModuleItem {
 					width: 100vw !important;
@@ -849,6 +852,26 @@
 					}
 				}
 			}
+		}
+		.workspaceListComponent {
+			width: 93vw !important;
+			.workspaceList {
+				.singleWorkspace {
+					width: 90% !important;
+				}
+			}
+		}
+		.settings-sidebar {
+			width: 100vw !important;
+			.settings-header {
+				width: 90% !important;
+			}
+			.settings-footer {
+				width: 90% !important;
+			}
+		}
+		.settingsOptionsContainer {
+			width: 90% !important;
 		}
 	}
 }
