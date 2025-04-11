@@ -10,7 +10,7 @@ import {
 	dropDownTextStyling,
 	MoveStepsOptions,
 	selectedValueStyling,
-} from '../../../features/workflow_builder/workflowContantsHelpers';
+} from '../../../features/workflowBuilder/workflowContantsHelpers';
 import { message, Spin } from 'antd';
 import Context from '../../../../context/context';
 
