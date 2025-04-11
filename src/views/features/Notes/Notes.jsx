@@ -187,7 +187,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 		const [success] = await deletePage({ pageId: noteId });
 		if (success) {
 			message.success('Page deleted successfully');
-			navigate('/');
+			navigate(-1);
 		} else {
 			message.error('Failed to delete page');
 		}
