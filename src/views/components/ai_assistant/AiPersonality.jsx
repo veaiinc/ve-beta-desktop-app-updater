@@ -7,7 +7,8 @@ import { ReactComponent as UploadIcon } from '../../../assets/svg/ai_assistant/u
 import { ReactComponent as PencilWithLine } from '../../../assets/svg/tasks/pencilWithLine.svg';
 import { ReactComponent as Plus } from '../../../assets/svg/ai_assistant/plus.svg';
 import CustomInput from '../globalComponents/CustomInput';
-import { message, Tooltip } from 'antd';
+import { Tooltip } from 'antd';
+import { message } from '../globalComponents/CustomToast';
 import CustomTextArea from '../globalComponents/CustomTextArea';
 import Context from '../../../context/context';
 

@@ -7,7 +7,7 @@ import { ReactComponent as SaveLogo } from '../../../assets/svg/gallery/save.svg
 import { ReactComponent as GalleryLogo } from '../../../assets/svg/gallery/gallery.svg';
 import Context from '../../../context/context';
 import { ReactComponent as DownArrow } from '../../../assets/svg/workflow/downArrow.svg';
-import { message } from 'antd';
+import { message } from '../../components/globalComponents/CustomToast';
 import moment from 'moment';
 import randomize from 'randomatic';
 import axios from 'axios';
@@ -275,7 +275,6 @@ const AlbumSettings = () => {
 			) {
 				clearInterval(clearinterval);
 				getImageDetail(imageId);
-				message.destroy();
 			}
 		}, 2000);
 	};
@@ -294,24 +293,24 @@ const AlbumSettings = () => {
 			return;
 		}
 
-		message.open({
-			type: 'loading',
-			content: 'Uploading album cover image..',
-			duration: 0,
-		});
+		const id = message.loading('Uploading album cover image..');
 
 		if (info?.imageURL) {
-			setInfo((prev) => ({
-				...prev,
-				crop: {
-					x: 0,
-					y: 0,
-				},
-				zoom: 1,
-				uploadImageId: null,
-				imageURL: '',
-				coverImageDetails: null,
-			}));
+			setInfo((prev) => {
+				message.destroy(id);
+
+				return {
+					...prev,
+					crop: {
+						x: 0,
+						y: 0,
+					},
+					zoom: 1,
+					uploadImageId: null,
+					imageURL: '',
+					coverImageDetails: null,
+				};
+			});
 		}
 		const batchId = randomize('Aa0', 10);
 
@@ -326,7 +325,6 @@ const AlbumSettings = () => {
 				...prev,
 				uploadImageId: isHavingDuplicateImage?._id,
 			}));
-			message.destroy();
 			return;
 		}
 
@@ -358,11 +356,9 @@ const AlbumSettings = () => {
 					getImageDetails(signedURLUpload?.[1]?._id, batchId);
 				}
 			} else {
-				message.destroy();
 				message.error('Something went wrong, please try again later');
 			}
 		} else {
-			message.destroy();
 			message.error('Something went wrong, please try again later');
 		}
 	};
@@ -422,20 +418,25 @@ const AlbumSettings = () => {
 		) {
 			return updateSubscriptionState({ expiredSubscriptionModal: true });
 		}
-		message.loading('Downloading album...');
+
+		const id = message.loading('Downloading album...');
+
 		const payload = {
 			imageType: info?.originalDownload ? 'original' : 'optimized',
 		};
+
 		const response = await getDownloadLinkForTag(
 			payload,
 			galleryId,
 			info?.activeAlbumId,
 			info?.activeTagId,
 		);
+
+		message.destroy(id);
+
 		if (response?.[0] === true) {
 			window.open(`https://downloads.ve.ai/${response?.[1]?.downloadId}`, '_blank');
 		} else {
-			message.destroy();
 			message.error('Something went wrong, please try again later');
 		}
 	};

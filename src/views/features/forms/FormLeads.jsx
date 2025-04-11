@@ -12,7 +12,7 @@ import { ReactComponent as Vector } from '../../../assets/svg/vector.svg';
 import { useNavigate, useLocation } from 'react-router-dom';
 import FormRes from '../../components/forms/FormRes';
 import FormModal from '../../components/forms/FormModal';
-import { message } from 'antd';
+import { message } from '../../components/globalComponents/CustomToast';
 import { fetchOriginSelection } from '../../../helpers';
 import QuickActions from '../../components/globalComponents/QuickActions';
 import { ReactComponent as ThreeDots } from '../../../assets/svg/workflow/threeDots.svg';

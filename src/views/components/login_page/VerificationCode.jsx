@@ -4,7 +4,7 @@ import '../../../assets/scss/login_page/index.scss';
 import { ReactComponent as LeftArrowBackBtn } from '../../../assets/svg/login_page/left-arrow-back-btn.svg';
 import { ReactComponent as OutlookLogo } from '../../../assets/svg/login_page/outlook.svg';
 import { ReactComponent as GmailLogo } from '../../../assets/svg/login_page/gmail.svg';
-import { message } from 'antd';
+import { message } from '../globalComponents/CustomToast';
 import { getLocationsDetails } from '../../../helpers';
 import Context from '../../../context/context';
 import Spinner from '../loaders/Spinner';
