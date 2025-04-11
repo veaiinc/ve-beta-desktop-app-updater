@@ -1,8 +1,9 @@
 import React, { useState, useRef, useContext, memo } from 'react';
-import { Switch, message } from 'antd';
+import { Switch } from 'antd';
 import { ReactComponent as DownArrowSvg } from '../../../../assets/svg/sidebar/downarrowsmall.svg';
 import Context from '../../../../context/context';
 import { ReactComponent as DeleteIcon } from '../../../../assets/svg/gallery/delete-red.svg';
+import { message } from '../../globalComponents/CustomToast';
 
 const watermarkPositions = [
 	{ position: 'northwest', top: 10, left: 10, bottom: 'auto', right: 10 },
@@ -149,23 +150,10 @@ const WaterMarkComponent = ({ info, setinfo, waterMarks }) => {
 						style={{
 							width: '100%',
 							display: 'flex',
-							justifyContent: 'space-between',
+							justifyContent: 'flex-end',
 							marginTop: '12px',
 						}}
 					>
-						<button
-							className="upload-watermark-button"
-							onClick={() => fileInputRef.current.click()}
-						>
-							Upload Watermark
-						</button>
-						<input
-							ref={fileInputRef}
-							type="file"
-							hidden
-							onChange={uploadWaterMarkChangeHandler}
-						/>
-
 						{waterMarks && waterMarks.length > 0 && (
 							<div className="dropdown_div_container">
 								<a
@@ -212,6 +200,18 @@ const WaterMarkComponent = ({ info, setinfo, waterMarks }) => {
 													</div>
 												</a>
 											))}
+											<button
+												className="upload-watermark-button"
+												onClick={() => fileInputRef.current.click()}
+											>
+												Upload Watermark
+											</button>
+											<input
+												ref={fileInputRef}
+												type="file"
+												hidden
+												onChange={uploadWaterMarkChangeHandler}
+											/>
 										</div>
 									) : (
 										''

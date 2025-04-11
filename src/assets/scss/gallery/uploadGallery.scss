@@ -50,7 +50,7 @@
 			align-items: flex-start;
 			align-self: stretch;
 			border-radius: 14px;
-			background: var(--background-color);
+			background: var(--card);
 
 			.headerLabels {
 				display: flex;
@@ -216,11 +216,11 @@
 				width: 100%;
 				height: 100%;
 				border-radius: 24px;
-				border: 1px dashed rgba(151, 151, 151, 0.2);
+				border: 1px dashed var(--stroke);
 				color: var(--primary-font);
 				cursor: pointer;
 				position: relative;
-				background: var(--background-color);
+				background: var(--card);
 			}
 
 			.icon_name_div {
@@ -281,6 +281,15 @@
 					line-height: normal;
 				}
 			}
+			.ant-switch {
+				background-color: var(--stroke);
+			}
+			.ant-switch-checked {
+				background-color: var(--primary-button);
+			}
+			.ant-switch.ant-switch-checked .ant-switch-handle::before {
+				background-color: var(--primary-font);
+			}
 		}
 
 		.watermark_div {
@@ -294,7 +303,7 @@
 			gap: 10px;
 			flex-shrink: 0;
 			border-radius: 14px;
-			background: var(--background-color);
+			background: var(--card);
 			height: fit-content;
 			border: 2px;
 
@@ -321,10 +330,19 @@
 						line-height: normal;
 					}
 				}
+				.ant-switch {
+					background-color: var(--stroke);
+				}
+				.ant-switch-checked {
+					background-color: var(--primary-button);
+				}
+				.ant-switch.ant-switch-checked .ant-switch-handle::before {
+					background-color: var(--primary-font);
+				}
 			}
 
 			.watermark_container {
-				width: 100%;
+				width: 85%;
 				height: 100%;
 				position: relative;
 
@@ -548,11 +566,11 @@
 	align-items: center;
 	gap: 10px;
 	border-radius: 33px;
-	background: #6055ec;
+	background: var(--primary-button);
 	outline: none;
 	border: none;
 	overflow: hidden;
-	color: #fff;
+	color: var(--primary-button-font);
 	text-overflow: ellipsis;
 	font-family: var(--primary-font-family);
 	font-size: 13px;
@@ -627,8 +645,8 @@
 	gap: 16px;
 	border-radius: 24px;
 	border: 1px solid #2b2b2b;
-	background: #151515;
-	box-shadow: 0px 4px 30px 0px rgba(17, 17, 17, 0.6);
+	background: var(--card);
+	// box-shadow: 0px 4px 30px 0px rgba(17, 17, 17, 0.6);
 	z-index: 1000;
 
 	h1 {

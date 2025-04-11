@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, memo } from 'react';
 import { ReactComponent as Download } from '../../../../assets/svg/gallery/download.svg';
 import { ReactComponent as Image } from '../../../../assets/svg/gallery/gallery2.svg';
 import { ReactComponent as Rotate } from '../../../../assets/svg/gallery/rotate.svg';
@@ -11,7 +11,7 @@ import { ReactComponent as CrossWhite } from '../../../../assets/svg/Settings/Cr
 import { useNavigate } from 'react-router-dom';
 import slugify from 'slugify';
 import Peopleitem from './PeopleCard';
-import { message } from 'antd';
+import { message } from '../../globalComponents/CustomToast';
 
 const ImageDetailNav = ({
 	info,
@@ -42,10 +42,10 @@ const ImageDetailNav = ({
 			icon: <Rotate />,
 			label: 'Rotate',
 		},
-		{
-			icon: <Share className="shareIcon" />,
-			label: 'Share',
-		},
+		// {
+		// 	icon: <Share className="shareIcon" />,
+		// 	label: 'Share',
+		// },
 		{
 			icon: <Download />,
 			label: 'Download',
@@ -86,14 +86,15 @@ const ImageDetailNav = ({
 			handleRotateImage(currentRotation);
 		},
 		Download: async () => {
-			message.loading('Downloading image...', 0);
+			const id = message.loading('Downloading image...');
+
 			const response = await getDownloadLinkForImage(info?.imageDetailId);
 
+			message.destroy(id);
+
 			if (response?.[0] === true) {
-				message.destroy();
 				message.success('Download completed');
 			} else {
-				message.destroy();
 				message.error('Failed to get download link');
 			}
 		},
@@ -132,8 +133,29 @@ const ImageDetailNav = ({
 		}
 	};
 
-	const handlePeopleClick = () => {
-		navigate(-2, { state: { activePeopleState: 'AI' } });
+	const handlePeopleClick = (face) => {
+		const formattedFace = {
+			_id: face.face_id || face._id,
+			name: face.name || 'Unknown',
+			displayImage: face.displayImage || {
+				optimizedImageS3Key: face.optimizedImageS3Key || face.s3_optimized?.key,
+			},
+			tenant_id: face.tenant_id,
+			imageDetails: face.imageDetails || {
+				activeVersion: {
+					originalWidth: face.originalWidth || 0,
+					originalHeight: face.originalHeight || 0,
+				},
+			},
+		};
+		navigate(`/galleries/${galleryId}`, {
+			state: {
+				activePeopleState: 'AI',
+				activeTab: 'Ai People',
+				selectedFace: formattedFace,
+				returnFromViewer: true,
+			},
+		});
 	};
 
 	return (
@@ -155,64 +177,74 @@ const ImageDetailNav = ({
 			</div>
 
 			<div className="gallerySelectionContainer">
-				<div className="clientSelection stagger_step_animation2">
-					<p>Client Selection</p>
-					<div className="clientSelectionImages">
-						{imageDetail?.galleryCollections?.map((singleAlbum) => {
-							let src = null;
-							if (singleAlbum?.coverImage?._id) {
-								const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
-								src = `${galleryCredentials?.baseURL}/${imageDetail?.tenant_id}/${galleryId}/optimized/${singleAlbum?.coverImage?.givenFileName}?${params}`;
-							}
-							return (
-								<div className="clientAlbum" key={singleAlbum?._id}>
-									<img src={src} />
-									<p>{singleAlbum?.title}</p>
-								</div>
-							);
-						})}
-					</div>
-				</div>
-
-				<div className="peopleSelection">
-					<div className="peopleHeader ">
-						<div className="personIcon">
-							<People />
+				{imageDetail?.galleryCollections > 0 && (
+					<div className="clientSelection stagger_step_animation2">
+						<p>Client Selection</p>
+						<div className="clientSelectionImages">
+							{imageDetail?.galleryCollections?.map((singleAlbum) => {
+								let src = null;
+								if (singleAlbum?.coverImage?._id) {
+									const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
+									src = `${galleryCredentials?.baseURL}/${imageDetail?.tenant_id}/${galleryId}/optimized/${singleAlbum?.coverImage?.givenFileName}?${params}`;
+								}
+								return (
+									<div className="clientAlbum" key={singleAlbum?._id}>
+										<img src={src} />
+										<p>{singleAlbum?.title}</p>
+									</div>
+								);
+							})}
 						</div>
-						<p>People</p>
 					</div>
-					<div className="peopleSelectionImages ">
-						{imageDetail?.activeVersion?.faces?.map((face) => {
-							const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
-							const src = `${galleryCredentials?.baseURL}/${imageDetail?.activeVersion?.s3_optimized?.key}?${params}`;
+				)}
+				{imageDetail?.activeVersion?.faces && (
+					<div className="peopleSelection">
+						<div className="peopleHeader ">
+							<div className="personIcon">
+								<People />
+							</div>
+							<p>People</p>
+						</div>
+						<div className="peopleSelectionImages ">
+							{imageDetail?.activeVersion?.faces?.map((face) => {
+								const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
+								const src = `${galleryCredentials?.baseURL}/${imageDetail?.activeVersion?.s3_optimized?.key}?${params}`;
 
-							return (
-								// <div
-								// 	className="rounded"
-								// 	key={face?._id}
-								// 	style={{
-								// 		backgroundImage: `url(${src})`,
-								// 		backgroundSize: 'cover',
-								// 		backgroundRepeat: 'no-repeat',
-								// 	}}
-								// ></div>
-								<div onClick={handlePeopleClick} style={{ cursor: 'pointer' }}>
-									<Peopleitem
-										url={src}
-										people={face}
-										thumbwidth={48}
-										thumbHeight={48}
-										key={face?._id}
-										originalWidth={imageDetail?.activeVersion?.originalWidth}
-										originalHeight={imageDetail?.activeVersion?.originalHeight}
-									/>
-								</div>
-							);
-						})}
-						{/* <div className="rounded"></div>  */}
-						{/* <div className="rounded"></div> */}
+								return (
+									// <div
+									// 	className="rounded"
+									// 	key={face?._id}
+									// 	style={{
+									// 		backgroundImage: `url(${src})`,
+									// 		backgroundSize: 'cover',
+									// 		backgroundRepeat: 'no-repeat',
+									// 	}}
+									// ></div>
+									<div
+										onClick={() => handlePeopleClick(face)}
+										style={{ cursor: 'pointer' }}
+									>
+										<Peopleitem
+											url={src}
+											people={face}
+											thumbwidth={48}
+											thumbHeight={48}
+											key={face?._id}
+											originalWidth={
+												imageDetail?.activeVersion?.originalWidth
+											}
+											originalHeight={
+												imageDetail?.activeVersion?.originalHeight
+											}
+										/>
+									</div>
+								);
+							})}
+							{/* <div className="rounded"></div>  */}
+							{/* <div className="rounded"></div> */}
+						</div>
 					</div>
-				</div>
+				)}
 
 				<div
 					className="labelsSelection stagger_step_animation4"
@@ -306,4 +338,4 @@ const ImageDetailNav = ({
 	);
 };
 
-export default ImageDetailNav;
+export default memo(ImageDetailNav);

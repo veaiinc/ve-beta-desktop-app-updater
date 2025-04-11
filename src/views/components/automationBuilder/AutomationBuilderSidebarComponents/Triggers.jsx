@@ -7,7 +7,7 @@ import { ReactComponent as Slack } from '../../../../assets/svg/worflow_builder/
 import { ReactComponent as RightArrow } from '../../../../assets/svg/worflow_builder/buildercard/rightArrow.svg';
 import { useCallback } from 'react';
 import Context from '../../../../context/context';
-import { message } from 'antd';
+import { message } from '../../globalComponents/CustomToast';
 import InAppTriggers from './InAppTriggers';
 import HeaderComponent from './HeaderComponent';
 import GoogleTriggers from './GoogleTriggers';

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import ReactModal from '../../modalsV2';
 import randomize from 'randomatic';
 import { useParams, Link } from 'react-router-dom';
@@ -38,7 +38,10 @@ const UploadCompletedPopup = ({ info, setinfo, getImageDuplicatesList }) => {
 				<h1>Upload Completed</h1>
 
 				<div className="options_div">
-					<Link to={`/galleries/${galleryId}`} className="back-to-gallery-button">
+					<Link
+						to={`/galleries/${galleryId}?albumId=${albumId}`}
+						className="back-to-gallery-button"
+					>
 						Back to Gallery
 					</Link>
 					<button className="re-upload-button" onClick={reUploadFunction}>
@@ -50,4 +53,4 @@ const UploadCompletedPopup = ({ info, setinfo, getImageDuplicatesList }) => {
 	);
 };
 
-export default UploadCompletedPopup;
+export default memo(UploadCompletedPopup);

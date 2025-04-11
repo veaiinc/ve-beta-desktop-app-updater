@@ -1,10 +1,11 @@
 import React, { memo, useCallback, useEffect, useState } from 'react';
 import ActionDetailsBlock from './ActionDetailsBlock';
-import { message, Spin } from 'antd';
+import { Spin } from 'antd';
 import moment from 'moment';
 import VariableComponent from './VariableComponent';
 import HeaderComponent from './HeaderComponent';
 import '../../../../assets/scss/automation_builder/automationBuilderSidebarComponents/inAppActions.scss';
+import { message } from '../../globalComponents/CustomToast';
 
 const CreateTask = ({
 	onBack,

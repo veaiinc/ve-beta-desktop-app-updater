@@ -1,9 +1,10 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext, useEffect, memo } from 'react';
 import { ReactComponent as CancelTag } from '../../../../assets/svg/gallery/cancel_tag.svg';
 import Context from '../../../../context/context';
 import { useParams, useNavigate } from 'react-router-dom';
-import { message, Select } from 'antd';
+import { Select } from 'antd';
 import slugify from 'slugify';
+import { message } from '../../globalComponents/CustomToast';
 const AddLables = ({ info, setinfo, searchParams }) => {
 	const { galleryId, albumId } = useParams();
 	const {
@@ -12,7 +13,6 @@ const AddLables = ({ info, setinfo, searchParams }) => {
 	const navigate = useNavigate();
 	const [inputTag, setinputTag] = useState('');
 	const [searchValue, setSearchValue] = useState('');
-	const [messageApi, contextHolder] = message.useMessage();
 
 	useEffect(() => {
 		if (tagsList?.galleryId !== galleryId) {
@@ -24,11 +24,17 @@ const AddLables = ({ info, setinfo, searchParams }) => {
 			});
 		} else if (info?.selectedGalleryTags?.length === 0) {
 			// setinfo((prev) => ({ ...prev, selectedGalleryTags: tagsList?.list || [] }));
-			let selectedGalleryTags = tagsList?.list?.filter((tag) => tag.displayName === 'All');
-			if (searchParams.get('tag')) {
-				selectedGalleryTags.push(
-					tagsList?.list?.find((tag) => tag?.displayName === searchParams.get('tag')),
-				);
+			let selectedGalleryTags =
+				tagsList?.list?.filter((tag) => tag.displayName === 'All') || [];
+			const rawSearchTag = searchParams.get('tag');
+			const searchTag = rawSearchTag?.split('?')[0];
+			if (searchTag) {
+				const foundTag = tagsList?.list?.find((tag) => tag?.displayName === searchTag);
+				if (foundTag) {
+					selectedGalleryTags.push(foundTag);
+				} else {
+					message.warning(`Tag not found: ${searchTag}`);
+				}
 			}
 			setinfo((prev) => ({
 				...prev,
@@ -45,7 +51,7 @@ const AddLables = ({ info, setinfo, searchParams }) => {
 	};
 	const addNewTagHandler = async () => {
 		if (!inputTag.trim().length) {
-			messageApi.error('Tag cannot be empty');
+			message.error('Tag cannot be empty');
 			setinputTag('');
 			return;
 		}
@@ -54,7 +60,7 @@ const AddLables = ({ info, setinfo, searchParams }) => {
 
 		if (tagsList?.list.find((tag) => tag.displayName === inputTag || tag.slug === slug)) {
 			if (info?.selectedGalleryTags?.find((tag) => tag.displayName === inputTag)) {
-				messageApi.warning('Tag already exists');
+				message.warning('Tag already exists');
 				return;
 			} else {
 				return;
@@ -93,13 +99,12 @@ const AddLables = ({ info, setinfo, searchParams }) => {
 	const removeTagsFromSelectionList = (id) => {
 		setinfo((prev) => ({
 			...prev,
-			selectedGalleryTags: prev.selectedGalleryTags.filter((tag) => tag._id !== id),
+			selectedGalleryTags: prev?.selectedGalleryTags?.filter((tag) => tag?._id !== id),
 		}));
 	};
 
 	return (
 		<div className="add-labels-container">
-			{contextHolder}
 			<div className="headerLabels">
 				<h1>Add Labels</h1>
 				<p>Categories your photos under different labels</p>
@@ -202,4 +207,4 @@ const AddLables = ({ info, setinfo, searchParams }) => {
 	);
 };
 
-export default AddLables;
+export default memo(AddLables);

@@ -5,7 +5,7 @@ import { ReactComponent as Pdf } from '../../../assets/svg/ai_assistant/pdf.svg'
 import AssignAiAssistantModal from '../modalsV2/settings/ai_setup/AssignAiAssistantModal';
 import Context from '../../../context/context';
 import { useParams } from 'react-router-dom';
-import { message } from 'antd';
+import { message } from '../../components/globalComponents/CustomToast';
 import Skeleton from 'react-loading-skeleton';
 
 const AiLinkFile = () => {

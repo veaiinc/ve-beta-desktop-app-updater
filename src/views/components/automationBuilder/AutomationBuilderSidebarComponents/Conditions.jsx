@@ -11,7 +11,7 @@ import {
 	MoveStepsOptions,
 	selectedValueStyling,
 } from '../../../features/workflowBuilder/workflowContantsHelpers';
-import { message } from 'antd';
+import { message } from '../../globalComponents/CustomToast';
 import Context from '../../../../context/context';
 import HeaderComponent from './HeaderComponent';
 import IfElse from './IfElse';
