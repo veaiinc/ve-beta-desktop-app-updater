@@ -5,7 +5,7 @@ import Spinner from '../../loaders/Spinner';
 import { ReactComponent as Close } from '../../../../assets/svg/close.svg';
 import Context from '../../../../context/context';
 import { message, Spin, Tooltip } from 'antd';
-import { checkConditionNodeChild } from '../../../features/automation_builder/automationContentsHelper';
+import { checkConditionNodeChild } from '../../../features/automationBuilder/automationContentsHelper';
 const customStyles = {
 	content: { zIndex: 99999 },
 	overlay: { zIndex: 99998 },
