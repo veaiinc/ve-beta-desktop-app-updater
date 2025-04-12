@@ -65,9 +65,7 @@ const LandingPage = () => {
 						<span className="title-one">AI.</span>{' '}
 						<span className="title-two">truly yours</span>
 					</div>
-					<div className="subtext">
-						AI that deeply cares about your Goals & strives to be helpful
-					</div>
+					<div className="subtext">Answers before you Ask!</div>
 				</div>
 				<div className="chatbox-container">
 					<ChatBox
