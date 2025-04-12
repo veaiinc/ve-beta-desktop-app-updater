@@ -10,7 +10,7 @@ import ToggleSwitch from '../../components/input/slider';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { FetchMoreLoaderComp } from '../../../helpers';
 import Skeleton from 'react-loading-skeleton';
-import { message } from 'antd';
+import { message } from '../../components/globalComponents/CustomToast';
 import { useParams } from 'react-router-dom';
 import Spinner from '../loaders/Spinner';
 

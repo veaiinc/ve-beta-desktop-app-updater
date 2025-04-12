@@ -4,6 +4,7 @@ import Context from '../../../context/context';
 import AISuggestionsPopup from '../../components/modalsV2/homePage/AISuggestionsPopup';
 import { ReactComponent as ChevronRightThinSvg } from '../../../assets/svg/tasks/chevronRightThin.svg';
 import Skeleton from 'react-loading-skeleton';
+import AISuggestionsModal from '../../components/modalsV2/homePage/AISuggestionsModal';
 
 const payload = {
 	page: 1,
@@ -27,7 +28,7 @@ const ProactiveSuggestions = () => {
 		totalCardsData: [],
 		cards: [],
 		activeCardContent: null,
-		openPopup: false,
+		openModal: false,
 		currentIndex: 0,
 		loading: true,
 	});
@@ -80,32 +81,35 @@ const ProactiveSuggestions = () => {
 	};
 
 	const handleLeft = () => {
+		const index =
+			(info?.currentIndex - 1 + info?.totalCardsData?.length) % info?.totalCardsData?.length;
 		setInfo((prev) => ({
 			...prev,
-			currentIndex:
-				(prev?.currentIndex - 1 + info?.totalCardsData?.length) %
-				info?.totalCardsData?.length,
+			currentIndex: index,
+			activeCardContent: info?.totalCardsData[index],
 		}));
 	};
 
 	const handleRight = () => {
+		const index = (info?.currentIndex + 1) % info?.totalCardsData?.length;
 		setInfo((prev) => ({
 			...prev,
-			currentIndex: (prev?.currentIndex + 1) % info?.totalCardsData?.length,
+			currentIndex: index,
+			activeCardContent: info?.totalCardsData[index],
 		}));
 	};
 
-	const handleCardClick = (card) => {
+	const handleCardClick = (card, index) => {
 		setInfo((prev) => ({
 			...prev,
 			activeCardContent: card,
-			openPopup: true,
+			openModal: true,
+			currentIndex: index,
 		}));
 	};
 
-	const handleCloseModal = useCallback(() => {
-		setInfo((prev) => ({ ...prev, openPopup: false, activeCardContent: null }));
-	}, []);
+	const handleCloseModal = () =>
+		setInfo((prev) => ({ ...prev, openModal: false, activeCardContent: null }));
 
 	return (
 		<div className="proactive-suggestions-container">
@@ -134,14 +138,14 @@ const ProactiveSuggestions = () => {
 								</div>
 							);
 					  })
-					: info?.cards?.map((card) => {
+					: info?.cards?.map((card, index) => {
 							if (card.position === null) return null;
 							const classList = ['card', positionClassMap[card.position]];
 							return (
 								<div
 									key={card?._id}
 									className={classList.join(' ')}
-									onClick={() => handleCardClick(card)}
+									onClick={() => handleCardClick(card, index)}
 								>
 									<div className="header">
 										<div className="card-title">
@@ -169,10 +173,12 @@ const ProactiveSuggestions = () => {
 					</button>
 				</div>
 			</div>
-			<AISuggestionsPopup
-				open={info?.openPopup}
-				closeModal={handleCloseModal}
+			<AISuggestionsModal
+				open={info?.openModal}
+				onClose={handleCloseModal}
 				data={info?.activeCardContent}
+				onNextCardClick={handleRight}
+				onPrevCardClick={handleLeft}
 			/>
 		</div>
 	);

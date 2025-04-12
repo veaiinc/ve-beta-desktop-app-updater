@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { message, Tooltip } from 'antd';
+import { Tooltip } from 'antd';
 import React, { useContext, useState, useCallback, useEffect, memo } from 'react';
 // import '../../../assets/scss/home_page/homepage.scss';
 import '../../../assets/scss/globalComponents/quickActions.scss';
@@ -11,6 +11,7 @@ import ProposalsPopup from '../../../views/components/docs/ProposalsPopup';
 import CreateClientModal from '../../../views/components/modalsV2/contacts/CreateClientModal';
 import CreateGallery from '../../../views/components/modalsV2/gallery/CreateGallery';
 import CreateTaskPopup from '../modalsV2/tasks/CreateTaskPopup';
+import { message } from '../globalComponents/CustomToast';
 
 const moduleOptions = [
 	{

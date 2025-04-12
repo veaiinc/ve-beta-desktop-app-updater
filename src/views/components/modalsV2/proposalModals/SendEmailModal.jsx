@@ -4,9 +4,11 @@ import ReactModal from '../index';
 import '../../../../assets/scss/modules/workflow/sendEmail.scss';
 import { ReactComponent as Close } from '../../../../assets/svg/close.svg';
 import Context from '../../../../context/context';
-import { message, Spin } from 'antd';
+import { Spin } from 'antd';
 import JoditEditor from 'jodit-react';
 import validator from 'validator';
+import { message } from '../../globalComponents/CustomToast';
+
 const initialState = {
 	subject: '',
 	emailBody: '',

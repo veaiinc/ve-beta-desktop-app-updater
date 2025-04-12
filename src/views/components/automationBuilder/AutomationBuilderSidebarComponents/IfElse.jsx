@@ -1,8 +1,9 @@
 import React, { memo, useCallback, useEffect, useState } from 'react';
 import '../../../../assets/scss/automation_builder/automationBuilderSidebarComponents/ifElse.scss';
 import ActionDetailsBlock from './ActionDetailsBlock';
-import { message, Tooltip } from 'antd';
+import { Tooltip } from 'antd';
 import VariableComponent from './VariableComponent';
+import { message } from '../../globalComponents/CustomToast';
 
 const conditionsList = [
 	{
