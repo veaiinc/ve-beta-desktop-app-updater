@@ -13,14 +13,14 @@ import { ReactComponent as Zip } from '../../../assets/svg/files/zipSvg.svg';
 import Context from '../../../context/context';
 import { useNavigate } from 'react-router-dom';
 import CreateGallery from '../../components/modalsV2/gallery/CreateGallery';
-import { message } from 'antd';
+import { message } from '../../components/globalComponents/CustomToast';
 import Spinner from '../../components/loaders/Spinner';
 import ProposalsPopup from '../../components/docs/ProposalsPopup';
 import ObjectID from 'bson-objectid';
 import gsap from 'gsap';
 import QuickActions from '../../components/globalComponents/QuickActions';
 import moment from 'moment';
-import { DocsStatusButton } from '../docs';
+import { DocsStatusButton } from '../docs/Docs';
 const initialState = {
 	workflowTemplates: [],
 };
