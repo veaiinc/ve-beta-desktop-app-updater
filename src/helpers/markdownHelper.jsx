@@ -19,6 +19,7 @@ import rehypeRaw from 'rehype-raw';
 import 'katex/dist/katex.min.css';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { dracula } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import FormModel from '../views/components/chat/FormModel';
 
 const rehypeCITPlugin = () => {
 	return (tree) => {
@@ -333,6 +334,12 @@ export const TypingEffect = memo(
 
 		return (
 			<div className="typing-effect-container">
+				{messageData?.workflow_template_id && (
+					<FormModel
+						workflowTemplateId={messageData?.workflow_template_id}
+						moduleTemplateId={messageData?.module_template_id}
+					/>
+				)}
 				<Markdown citations={citations}>
 					{/* {newText?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')?.replace(/\\n/g, '\n')} */}
 					{/* {chunkRef?.current?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')?.replace(/\\n/g, '\n')} */}
@@ -524,7 +531,7 @@ export const UserMessageRenderer = memo(({ messageData, activeUserMessageIndex }
 				<div>
 					<div
 						style={{
-							opacity: activeUserMessageIndex ? 1 : 0.6,
+							// opacity: activeUserMessageIndex ? 1 : 0.6,
 							maxHeight: info?.isExpanded
 								? `${textRef.current?.scrollHeight}px`
 								: '147px',

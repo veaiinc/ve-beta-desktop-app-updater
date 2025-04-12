@@ -1,0 +1,126 @@
+.form-modal-wrapper {
+	position: relative;
+	width: 690px;
+	height: 350px;
+
+	&.form-modal-wrapper-expanded {
+		position: fixed;
+		inset: 0;
+		z-index: 1050;
+		width: 100vw;
+		height: 100vh;
+	}
+	.form-model-container {
+		width: 100%;
+		height: 100%;
+		position: absolute;
+		inset: 0;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		background-color: var(--card, #171819);
+		flex-direction: column;
+		border-radius: 12px;
+		overflow: hidden;
+		transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+		// transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+		// 	width 0.5s cubic-bezier(0.4, 0, 0.2, 1), height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+		// transform-origin: center center;
+
+		&.expanded {
+			// top: var(--top);
+			// left: var(--left);
+			// transform: translate(-50%, -50%);
+			// width: 100vw;
+			// height: 100vh;
+			z-index: 1051;
+			border-radius: 0;
+			animation: expand 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+			display: flex;
+			flex-direction: column;
+		}
+
+		.form-content {
+			display: flex;
+			flex: 1;
+			width: 100%;
+			height: calc(100vh - 58px); // Adjust height based on header
+		}
+
+		.section-30 {
+			flex: 0 0 30%;
+		}
+
+		.section-70 {
+			flex: 0 0 70%;
+			background-color: #ffffff; // Example background color
+		}
+
+		.section-not-expanded {
+			flex: 0 0 100%;
+			// Add any additional styles needed
+		}
+	}
+
+	.form-model-header {
+		display: flex;
+		padding: 16px;
+		justify-content: space-between;
+		align-items: center;
+		gap: 16px;
+		align-self: stretch;
+		width: 100%;
+		background: var(--card, #171819);
+		z-index: 2;
+		.form-model-header-title {
+			color: var(--primary-font, #f2f2f3);
+			font-family: Inter;
+			font-size: 18px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 26px; /* 144.444% */
+		}
+		.expand-icon {
+			cursor: pointer;
+			transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+			&.expanded {
+				transform: rotate(180deg);
+			}
+
+			&:hover {
+				opacity: 0.8;
+			}
+		}
+	}
+
+	.form-iframe {
+		width: 100%;
+		height: calc(100% - 58px);
+		background: white;
+		border-bottom-right-radius: 12px;
+		border-bottom-left-radius: 12px;
+		box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+		transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+
+		.expanded & {
+			width: 100%;
+			height: calc(100vh - 58px);
+			border-radius: 0;
+		}
+	}
+}
+
+@keyframes expand {
+	from {
+		top: var(--top);
+		left: var(--left);
+		width: 690px;
+		height: 350px;
+	}
+	to {
+		inset: 0 !important;
+		width: 100vw !important;
+		height: 100vh !important;
+	}
+}

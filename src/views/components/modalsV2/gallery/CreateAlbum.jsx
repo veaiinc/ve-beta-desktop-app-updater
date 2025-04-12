@@ -86,7 +86,6 @@ const CreateAlbum = ({ open, closeModal, galleryId, handleNewAlbumCreated }) => 
 			message.success('Album Created Successfully');
 			handleNewAlbumCreated(response?.[1]);
 		} else {
-			console.log(response);
 			message.error(response?.[1]?.message);
 		}
 
