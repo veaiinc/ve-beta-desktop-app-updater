@@ -253,7 +253,9 @@ const Notifications = () => {
 									<div className="notificationContainerOptions-item-container">
 										<div className="notificationContainerOptions-item">
 											{/* replace "workflow" with "document" */}
-											{module.replace(/workflow/g, 'document ')}
+											{module?.includes('calendarevent')
+												? module?.replace('calendarevent', 'calendar event')
+												: module?.replace(/workflow/g, 'document ')}
 										</div>
 										<div className="notificationContainerOptions-item-container">
 											{appTypes
@@ -288,7 +290,12 @@ const Notifications = () => {
 											<div className="notificationContainerOptions-item-container">
 												<div className="notificationContainerOptionsTitle">
 													{/* replace "workflow" with "document" */}
-													{action?.replace(/workflow/g, 'document')}
+													{action?.includes('calendarevent')
+														? action?.replace(
+																'calendarevent',
+																'calendar event',
+														  )
+														: action?.replace(/workflow/g, 'document ')}
 												</div>
 												<div className="notificationContainerOptions-item-checkbox">
 													{appTypes

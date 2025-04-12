@@ -48,10 +48,19 @@ import AutomationBuilderLayout from './views/layouts/automationBuilderLayout';
 import Automations from './views/features/automations/Automations';
 import Integrations from './views/features/Integrations/Integrations';
 import BrandSetup from './views/features/settings/BrandSetup';
-import FormSummary from './views/components/forms/FormSummary';
-// import FormRes from './views/components/forms/FormResCard';
-import FormAnalytics from './views/components/forms/FormAnalytics';
+import DocsFullView from './views/components/docs/DocsFullView';
+import FormFullView from './views/components/forms/FormFullView';
+import TaskFullView from './views/features/tasks/TaskFullView';
+import ExpandedClientView from './views/features/contacts/ExpandedClientView';
+import ElasticSearch from './views/features/elastic_search';
+import PublicChat from './views/features/public_chat/PublicChat';
+import Files from './views/features/files/Files';
+import KnowledgeAgents from './views/features/knowledge_agent';
+import KnowledgeAgentDetails from './views/features/knowledge_agent/AgentDetails';
+import EditKnowledgeAgent from './views/features/knowledge_agent/EditAgent';
 import FormResCard from './views/components/forms/FormResCard';
+import FormAnalytics from './views/components/forms/FormAnalytics';
+import FormSummary from './views/components/forms/FormSummary';
 
 const routes = [
 	{
