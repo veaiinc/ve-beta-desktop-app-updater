@@ -164,7 +164,7 @@ const InitialHomePage = () => {
 		() => ({
 			proactiveSuggestions: <ProactiveSuggestions />,
 			calendar: <GlobalWidget option="calendar" />,
-			task: <GlobalWidget option="tasks" />,
+			task: <GlobalWidget option="task" />,
 			contact: <GlobalWidget option="contacts" />,
 			automation: <GlobalWidget option="automation" />,
 		}),
