@@ -508,9 +508,9 @@ export const Calendar = () => {
 			if (response?.[0] === true) {
 				dispatch({
 					type: Actions.WATCH_GOOGLE_CALENDAR,
-					payload: response?.[1]?.data,
+					payload: response?.[1]?.response,
 				});
-				return response?.[1];
+				return response?.[1].response;
 			} else {
 				console.log('API failed ==> watchGoogleCalendar', response);
 			}

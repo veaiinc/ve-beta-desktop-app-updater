@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import '../../../assets/scss/calendar/calendarModule.scss';
 import CalendarMainPage from './CalendarMainPage';
 import SchedulerMainPage from './SchedulerMainPage';
+import QuickActions from '../../components/globalComponents/QuickActions';
 
 const modules = [
 	{ name: 'Calendar', key: 'calendar' },
@@ -70,7 +71,7 @@ const CalendarModule = () => {
 						</React.Fragment>
 					))}
 				</div>
-				<div className="moduleNewBtn"> + New</div>
+				<QuickActions />
 			</div>
 			{CompMapper[info?.activeModule]}
 		</>

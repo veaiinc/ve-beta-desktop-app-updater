@@ -75,12 +75,11 @@
 		}
 
 		.calendar-list-header {
-			color: var(--primary-font);
+			// color: var(--primary-font);
+			color: var(--primary-button);
 			font-size: 14px;
 			font-weight: 500;
-			margin-bottom: 12px;
-			opacity: 0.7;
-			padding: 4px 0;
+			padding: 4px 0px 4px 12px;
 		}
 
 		.connected-calendar {

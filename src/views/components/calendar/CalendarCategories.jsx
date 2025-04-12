@@ -38,9 +38,11 @@ const CalendarCategories = ({
 		}
 	}, [info?.expanded]);
 
+	// Auto expand when there are items to display
 	useEffect(() => {
-		if (window.innerHeight >= 950) {
-			handleCategoryExpand();
+		const hasItems = categoryList?.length > 0;
+		if (hasItems && !info.expanded) {
+			setInfo((prev) => ({ ...prev, expanded: true }));
 		}
 	}, [categoryList]);
 

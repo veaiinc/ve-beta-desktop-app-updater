@@ -2,9 +2,8 @@ import { memo, useState, useCallback, useEffect, useContext } from 'react';
 import '../../../assets/scss/calendar/googleCalendar.scss';
 import Context from '../../../context/context';
 import { ReactComponent as DownSvg } from '../../../assets/svg/calendar/down.svg';
-import { ReactComponent as Setting } from '../../../assets/svg/ai_agents/settings.svg';
-import ConnectCalendarModal from '../modalsV2/calendar/ConnectCalendarModal';
 import Spinner from '../loaders/Spinner';
+import { message } from 'antd';
 
 const GoogleCalendar = () => {
 	const {
@@ -24,16 +23,6 @@ const GoogleCalendar = () => {
 		},
 	} = useContext(Context);
 
-	//Do not remove this comment
-
-	// 	Condition A = if connectedGoogleCalendars is empty array, that means Watch is not implemented for any google calendar.
-	// 1. Call List of Google Calendars API ==> show the list of available google calendars.
-	// 2. once a calendar is selected ==> call the Watch API with the selected calendar id.
-	// 3. once Watch API is called successfully, call the Get Google Calendar Events API to get the google calendar events.
-
-	// Condition B = if connectedGoogleCalendars is array with values, that means Watch is implemented for at least one google calendar.
-	// 1. Call Get Google Calendar Events API to get the google calendar events directly.
-
 	const [info, setInfo] = useState({
 		expanded: false,
 		loading: false,
@@ -41,6 +30,7 @@ const GoogleCalendar = () => {
 		watchLoading: false,
 		eventsLoading: false,
 		alreadyConnectedGoogleCalendars: [],
+		watchRequested: false,
 	});
 
 	// Auto expand when there are items to display
@@ -52,14 +42,54 @@ const GoogleCalendar = () => {
 		}
 	}, [info.alreadyConnectedGoogleCalendars, googleCalendarList]);
 
+	// New useEffect to handle watch response
 	useEffect(() => {
-		console.log('getConnectedThirdParties fetching==>');
+		const handleWatchResponse = async () => {
+			// Only proceed if we've requested a watch and have a response
+			if (info.watchRequested && info.selectedCalendar) {
+				if (googleCalendarWatch?.id) {
+					// Watch was successful, proceed to fetch events
+					setInfo((prev) => ({
+						...prev,
+						watchLoading: false,
+						eventsLoading: true,
+					}));
+
+					try {
+						await getGoogleCalendarEvents();
+					} catch (error) {
+						console.error('Error fetching calendar events:', error);
+						message.error('Failed to fetch calendar events. Please try again.');
+					} finally {
+						setInfo((prev) => ({
+							...prev,
+							eventsLoading: false,
+							watchRequested: false, // Reset the watch requested flag
+						}));
+					}
+				} else if (googleCalendarWatch === null && !info.watchLoading) {
+					// Watch operation failed but didn't throw an error
+					console.error('Failed to watch Google Calendar');
+					message.error('Failed to watch Google Calendar. Please try again.');
+					setInfo((prev) => ({
+						...prev,
+						watchLoading: false,
+						watchRequested: false, // Reset the watch requested flag
+					}));
+				}
+				// If watchLoading is still true, we're waiting for the API response
+			}
+		};
+
+		handleWatchResponse();
+	}, [googleCalendarWatch, info.watchRequested, info.selectedCalendar]);
+
+	useEffect(() => {
 		getConnectedThirdParties();
 	}, []);
 
 	useEffect(() => {
 		if (connectThirdParties?.googleCalendar?.[0]) {
-			console.log('Connected Calendars fetching==>');
 			getConnectedGoogleCalendars();
 		}
 	}, [connectThirdParties]);
@@ -93,35 +123,25 @@ const GoogleCalendar = () => {
 		}
 	}, [connectedGoogleCalendars]);
 
-	useEffect(() => {
-		if (googleCalendarEvents) {
-			console.log('Calendar Events:', googleCalendarEvents);
-		}
-	}, [googleCalendarEvents]);
-
 	const handleCalendarSelect = async (calendar) => {
 		setInfo((prev) => ({
 			...prev,
 			selectedCalendar: calendar.id,
 			watchLoading: true,
+			watchRequested: true,
 		}));
 
 		try {
+			// Call watchGoogleCalendar and let the useEffect handle the response
 			await watchGoogleCalendar(calendar.id);
-
-			// After successful watch, fetch events
+		} catch (error) {
+			// Handle API call errors
+			console.error('Error in calendar selection process:', error);
+			message.error('Failed to watch the selected Google Calendar. Please try again.');
 			setInfo((prev) => ({
 				...prev,
 				watchLoading: false,
-				eventsLoading: true,
-			}));
-
-			await getGoogleCalendarEvents();
-		} finally {
-			setInfo((prev) => ({
-				...prev,
-				watchLoading: false,
-				eventsLoading: false,
+				watchRequested: false,
 			}));
 		}
 	};
@@ -139,7 +159,6 @@ const GoogleCalendar = () => {
 				<div className="header">
 					<div className="google-logo">Google Calendar</div>
 					<div className="controls">
-						<Setting className="settings-icon" />
 						<span className="expand-icon" onClick={toggleExpand}>
 							<DownSvg />
 						</span>
