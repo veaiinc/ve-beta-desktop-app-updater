@@ -202,8 +202,6 @@ const InitialHomePage = () => {
 		}
 	}
 
-	console.log('rerender');
-
 	return (
 		<div className="initial-home-page-container">
 			<div className="quick-actions-container">
