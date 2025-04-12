@@ -7,7 +7,6 @@
 	border-radius: 24px;
 	// margin: 0 auto;
 	.calenderWidgetContainer {
-		width: 408px;
 		display: flex;
 		padding: 16px;
 		flex-direction: column;
@@ -22,6 +21,7 @@
 			gap: 14px;
 			flex: 1 0 0;
 			align-self: stretch;
+			width: 312px;
 			.calenderWidgetDateContainer {
 				display: flex;
 				flex-direction: column;
