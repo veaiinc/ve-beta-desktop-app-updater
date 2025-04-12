@@ -46,6 +46,8 @@ const InitialHomePage = () => {
 		minimized: false,
 	});
 
+	const headerMinimizedRef = useRef(false);
+
 	let {
 		profileInfo: { userDetailsData },
 		aiSetup: { getPromptsData, promptsData },
@@ -73,6 +75,18 @@ const InitialHomePage = () => {
 			getPromptsData({ category: 'all', limit: 30 });
 		}
 	}, [promptsData]);
+
+	useEffect(() => {
+		if (info?.selectedOption) {
+			if (info?.minimized) {
+				setInfo((prev) => ({
+					...prev,
+					minimized: false,
+				}));
+				headerMinimizedRef.current = false;
+			}
+		}
+	}, [info?.selectedOption]);
 
 	useEffect(() => {
 		if (aiSuggestedPendingActions) {
@@ -140,23 +154,25 @@ const InitialHomePage = () => {
 		}));
 	};
 
-	// const handleMinimizeHeader = () => {
-	// 	if (info?.minimized === false) {
-	// 		setInfo((prev) => ({
-	// 			...prev,
-	// 			minimized: true,
-	// 		}));
-	// 	}
-	// };
+	const handleMinimizeHeader = () => {
+		if (headerMinimizedRef.current === false) {
+			setInfo((prev) => ({
+				...prev,
+				minimized: true,
+			}));
+			headerMinimizedRef.current = true;
+		}
+	};
 
-	// const handleExpandHeader = () => {
-	// 	if (info?.minimized) {
-	// 		setInfo((prev) => ({
-	// 			...prev,
-	// 			minimized: false,
-	// 		}));
-	// 	}
-	// };
+	const handleExpandHeader = () => {
+		if (headerMinimizedRef.current) {
+			setInfo((prev) => ({
+				...prev,
+				minimized: false,
+			}));
+			headerMinimizedRef.current = false;
+		}
+	};
 
 	const componentMapper = {
 		proactiveSuggestions: <ProactiveSuggestions />,
@@ -165,8 +181,8 @@ const InitialHomePage = () => {
 				promptsCategory={info?.promptsCategory}
 				updatePromptsCategory={updatePromptsCategory}
 				isHeaderMinimized={info?.minimized}
-				// onMinimizeHeader={handleMinimizeHeader}
-				// onExpandHeader={handleExpandHeader}
+				onMinimizeHeader={handleMinimizeHeader}
+				onExpandHeader={handleExpandHeader}
 			/>
 		),
 	};
@@ -185,6 +201,8 @@ const InitialHomePage = () => {
 			}
 		}
 	}
+
+	console.log('rerender');
 
 	return (
 		<div className="initial-home-page-container">
@@ -217,7 +235,14 @@ const InitialHomePage = () => {
 						<br /> Ask Reason. Give it your goals - let it make you superhuman
 					</div>
 				</div>
-				<div className={`chatbox-wrapper`}>
+				<div
+					className={`chatbox-wrapper`}
+					style={{
+						borderBottom: info?.minimized ? '1px solid var(--stroke)' : '',
+						borderRight: info?.minimized ? '1px solid var(--stroke)' : '',
+						borderLeft: info?.minimized ? '1px solid var(--stroke)' : '',
+					}}
+				>
 					<div className={`chatbox-container`}>
 						<ChatBox
 							onSend={handleCustomOnSendFunction}
