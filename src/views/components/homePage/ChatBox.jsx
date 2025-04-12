@@ -138,7 +138,6 @@ const ChatBox = ({
 			currentSessionId,
 			handleStreamSendMessage,
 			activePayloadForChat,
-			followUpQuery,
 			chatInfo,
 			userEditedQuery,
 			galleryFile,
@@ -174,7 +173,6 @@ const ChatBox = ({
 		isModulesDropdownOpen: false,
 		recentFiles: [],
 		isVoiceMuted: false,
-		followUpQuery: null,
 		isLLMModelOpen: false,
 		searchTypeOpen: false,
 	});
@@ -255,16 +253,6 @@ const ChatBox = ({
 			});
 		}
 	}, [recentFilesRef?.current, uploadedImagesRef?.current]);
-
-	useEffect(() => {
-		if (followUpQuery) {
-			setInfo((prev) => ({
-				...prev,
-				followUpQuery,
-			}));
-			updateStateValues({ followUpQuery: null });
-		}
-	}, [followUpQuery]);
 
 	useEffect(() => {
 		if (latestStreamMesage && lastQuery) {
@@ -973,19 +961,6 @@ const ChatBox = ({
 		}
 	};
 
-	const handleFollowUpQueryClick = () => {
-		if (info?.chatLoading) {
-			return;
-		}
-		if (info?.followUpQuery?.trim()?.length > 0) {
-			updateStateValues({ activePromptForChat: info?.followUpQuery, followUpQuery: null });
-			setInfo((prev) => ({
-				...prev,
-				followUpQuery: null,
-			}));
-		}
-	};
-
 	const handleLLMModelOptionClick = (model) => {
 		updateStateValues({
 			chatInfo: {
@@ -1669,19 +1644,6 @@ const ChatBox = ({
 								</div>
 							</div>
 						))}
-					</div>
-				)}
-
-				{info?.followUpQuery && (
-					<div className="follow-up-query-container">
-						<div className="follow-up-query">
-							<div
-								className="follow-up-query-text"
-								onClick={handleFollowUpQueryClick}
-							>
-								{info?.followUpQuery}
-							</div>
-						</div>
 					</div>
 				)}
 			</div>
