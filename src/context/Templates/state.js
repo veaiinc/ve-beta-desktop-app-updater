@@ -88,7 +88,6 @@ export const intialState = {
 	globalChatMessages: [], // { type: 'AI', message: 'Hello, how can I help you today?' }
 	currentSessionId: null,
 	citations: null,
-	followUpQuery: null,
 	docsFilesList: null,
 	moreDocsFilesList: null,
 	smartFileRefetch: false,
@@ -107,10 +106,14 @@ export const intialState = {
 	chatInfo: {
 		deepResearch: false,
 		selectedLLMModel: null,
-		webSearch: true,
-		workspaceSearch: false,
+		webSearch: false,
+		workspaceSearch: true,
 		agentType: null,
 		assistantId: null,
+		reason: {
+			workspaceSearch: false,
+			webSearch: false,
+		},
 	},
 	galleryFile: null,
 	globalLoadingMesssage: null,
@@ -1750,17 +1753,6 @@ export const TemplatesState = (props) => {
 		// 		payload: null,
 		// 	});
 		// }
-		if (followUpQuery?.length) {
-			dispatch({
-				type: Actions?.CHAT_FOLLOW_UP_QUERY,
-				payload: followUpQuery,
-			});
-		} else {
-			dispatch({
-				type: Actions?.CHAT_FOLLOW_UP_QUERY,
-				payload: null,
-			});
-		}
 	};
 
 	const handleStreamMessageChunk = (payload, chunkId) => {

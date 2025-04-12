@@ -67,6 +67,7 @@ const UploadFileTooltip = ({
 				arrow={false}
 				trigger={'click'}
 				color={'transparent'}
+				rootClassName="upload-file-tooltip-container"
 				title={
 					<div className="upload-file-container">
 						<div className="input-container">
