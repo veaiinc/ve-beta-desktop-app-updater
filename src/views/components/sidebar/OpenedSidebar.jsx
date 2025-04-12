@@ -650,56 +650,62 @@ const OpenedSidebar = ({
 															setShowSettingsSidebar((prev) => !prev);
 														}}
 													>
-														<div className="settingsOptionsUserInfo">
-															<div>
-																{userDetailsData?.logoURL ? (
-																	<div className="crop-container">
-																		<Cropper
-																			image={
-																				userDetailsData?.logoURL
-																			} // Image URL to crop
-																			crop={
-																				userDetailsData
-																					?.cropSettings
-																					?.crop
-																			}
-																			zoom={
-																				userDetailsData
-																					?.cropSettings
-																					?.zoom
-																			}
-																			showGrid={false}
-																			onCropChange={(e) => ''}
-																			onCropComplete={(e) =>
-																				''
-																			}
-																			onZoomChange={(e) => ''}
-																		/>
-																	</div>
-																) : (
-																	<div
-																		className="noImageText"
-																		style={{
-																			background:
-																				userDetailsData
-																					?.cropSettings
-																					?.profileDpColor ||
-																				'',
-																			fontSize: '12px',
-																		}}
-																	>
-																		{getInitials(
-																			userDetailsData?.firstName,
-																			userDetailsData?.lastName,
-																		)}
-																	</div>
-																)}
+														<div className="settingsHoverState">
+															<div className="settingsOptionsUserInfo">
+																<div>
+																	{userDetailsData?.logoURL ? (
+																		<div className="crop-container">
+																			<Cropper
+																				image={
+																					userDetailsData?.logoURL
+																				} // Image URL to crop
+																				crop={
+																					userDetailsData
+																						?.cropSettings
+																						?.crop
+																				}
+																				zoom={
+																					userDetailsData
+																						?.cropSettings
+																						?.zoom
+																				}
+																				showGrid={false}
+																				onCropChange={(e) =>
+																					''
+																				}
+																				onCropComplete={(
+																					e,
+																				) => ''}
+																				onZoomChange={(e) =>
+																					''
+																				}
+																			/>
+																		</div>
+																	) : (
+																		<div
+																			className="noImageText"
+																			style={{
+																				background:
+																					userDetailsData
+																						?.cropSettings
+																						?.profileDpColor ||
+																					'',
+																				fontSize: '12px',
+																			}}
+																		>
+																			{getInitials(
+																				userDetailsData?.firstName,
+																				userDetailsData?.lastName,
+																			)}
+																		</div>
+																	)}
+																</div>
+																<div className="settingsOptionsUserName">
+																	{userDetailsData?.firstName}
+																</div>
 															</div>
-															<div className="settingsOptionsUserName">
-																{userDetailsData?.firstName}
-															</div>
+															<SingleRightArrowSvg fill="var(--primary-font)" />
 														</div>
-														<SingleRightArrowSvg fill="var(--primary-font)" />
 													</div>
 												</>
 											)}

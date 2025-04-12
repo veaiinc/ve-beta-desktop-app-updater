@@ -17,7 +17,7 @@ import DocsActivity from './DocsActivity';
 import Preview from './Preview';
 import { Drawer, Spin } from 'antd';
 import { Tooltip } from 'antd';
-import { DocsStatusButton, statusTextmapper } from '../../features/docs';
+import { DocsStatusButton, statusTextmapper } from '../../features/docs/Docs.jsx';
 import Context from '../../../context/context.js';
 import SendProposalModal from '../modalsV2/proposalModals/SendProposalModal.jsx';
 import CopiedModal from '../modalsV2/workflowsModals/CopiedModal.jsx';

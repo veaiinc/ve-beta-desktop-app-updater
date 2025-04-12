@@ -13,7 +13,7 @@ import {
 	PriorityOptions,
 	selectedValueStyling,
 	statusOptions,
-} from '../../../features/workflow_builder/workflowContantsHelpers';
+} from '../../../features/workflowBuilder/workflowContantsHelpers';
 
 const actionsList = {
 	tasks: { title: 'Create Tasks' },

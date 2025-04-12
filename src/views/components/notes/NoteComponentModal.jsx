@@ -273,7 +273,7 @@ const NoteComponentModal = ({
 						</div>
 						<div className="chat-box-wrapper">
 							<ChatBox
-								showChatLabels={false}
+								showIconText={false}
 								handleSendWebsocketMessage={handleSendWebsocketMessage}
 								latestStreamMesage={latestStreamMesage}
 								lastQuery={lastQuery}
