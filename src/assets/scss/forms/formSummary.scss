@@ -23,7 +23,7 @@
 }
 
 .formSummaryContainer {
-	background-color: #171819;
+	background-color: var(--card);
 	border-radius: 24px;
 	padding: 30px;
 	max-width: 740px;
@@ -47,12 +47,12 @@
 	}
 
 	&::-webkit-scrollbar-track {
-		background: #171819;
+		background-color: var(--card);
 		border-radius: 4px;
 	}
 
 	&::-webkit-scrollbar-thumb {
-		background-color: #3a3a3a;
+		background-color: var(--card);
 		border-radius: 4px;
 		border: 2px solid #171819;
 	}
@@ -66,7 +66,7 @@
 	width: 100%;
 
 	.title {
-		color: #e4e5e6;
+		color: var(--primary-font);
 		font-family: Inter;
 		font-size: 16px;
 		font-style: normal;
@@ -127,7 +127,7 @@
 
 			.circle-graph-label {
 				display: block;
-				color: #979797;
+				color: var(--secondary-font);
 				text-transform: uppercase;
 				font-family: Inter;
 				font-size: 12px;
@@ -139,7 +139,7 @@
 			.circle-graph-value {
 				display: block;
 				font-weight: 600;
-				color: #f2f2f3;
+				color: var(--primary-font);
 				font-family: Inter;
 				font-size: 18px;
 				font-style: normal;
@@ -163,7 +163,7 @@
 			width: fit-content;
 
 			.skill-name {
-				color: #787e87;
+				color: var(--secondary-font);
 				font-family: Inter;
 				font-size: 12px;
 				font-style: normal;
@@ -209,7 +209,7 @@
 				display: flex;
 				justify-content: space-between;
 				align-items: center;
-				background-color: #202123;
+				background-color: var(--card-over-card);
 				padding: 10px;
 				border-radius: 5px;
 				width: 100%;
@@ -220,7 +220,7 @@
 					align-items: flex-start;
 
 					.collapsible-list__item-name {
-						color: #f2f2f3;
+						color: var(--primary-font);
 						font-family: Inter;
 						font-size: 14px;
 						font-style: normal;
@@ -256,7 +256,7 @@
 		margin-top: 10px;
 		position: sticky;
 		bottom: 0;
-		background-color: #171819;
+		background-color: var(--card);
 		padding: 20px 0;
 		z-index: 1;
 		margin-left: -30px;

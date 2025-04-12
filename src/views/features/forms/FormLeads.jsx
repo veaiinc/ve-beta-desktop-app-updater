@@ -9,7 +9,7 @@ import { ReactComponent as UpDownArrow } from '../../../assets/svg/my_templates/
 import { ReactComponent as Edit } from '../../../assets/svg/ai_agents/edit.svg';
 import { ReactComponent as Vector } from '../../../assets/svg/vector.svg';
 import { useNavigate, useLocation } from 'react-router-dom';
-import FormRes from '../../components/forms/FormRes';
+import FormResCard from '../../components/forms/FormResCard';
 import FormModal from '../../components/forms/FormModal';
 import { message } from 'antd';
 import { fetchOriginSelection } from '../../../helpers';
@@ -19,6 +19,9 @@ import { Switch, Tooltip } from 'antd';
 import FormResponsesMenuItem from './FormResponsesMenuItem';
 import FormSummary from '../../../views/components/forms/FormSummary';
 import FormAnalytics from '../../../views/components/forms/FormAnalytics';
+import FormDescription from '../../components/forms/FormDescription';
+import { ReactComponent as AiStar } from '../../../assets/svg/calendar/aiStar.svg';
+import moment from 'moment';
 
 const FormLeads = () => {
 	const origin = fetchOriginSelection();
@@ -27,6 +30,12 @@ const FormLeads = () => {
 	const formData = location?.state?.formData;
 	const activeWorkspaceId = localStorage.getItem('workspaceId');
 	const copyCode = `${activeWorkspaceId}.ve.ai/${formData?.slug}`;
+	const [expandedCard, setExpandedCard] = useState(null);
+	const [selectedResponse, setSelectedResponse] = useState(null);
+	const handleCardClick = (response, index) => {
+		setExpandedCard(expandedCard === index ? null : index);
+		setSelectedResponse(expandedCard === index ? null : response);
+	};
 
 	const [info, setInfo] = useState({
 		searchExpand: false,
@@ -41,6 +50,7 @@ const FormLeads = () => {
 		activeTab: 'individualEntries',
 		tooltipVisible: false,
 		dataEnrichment: false,
+		latestUpdateTime: null,
 	});
 	const [formTitle, setFormTitle] = useState(formData?.title);
 
@@ -76,9 +86,13 @@ const FormLeads = () => {
 		],
 	);
 
-	const updateTotalSubmissions = useCallback((length) => {
+	const updateTotalSubmissions = useCallback((length, latestResponse) => {
 		const totalSubmissions = length || 0;
-		setInfo((prev) => ({ ...prev, totalSubmissions }));
+		setInfo((prev) => ({
+			...prev,
+			totalSubmissions,
+			latestUpdateTime: latestResponse?.createdAt || prev.latestUpdateTime,
+		}));
 	}, []);
 
 	const tabs = useMemo(
@@ -86,9 +100,10 @@ const FormLeads = () => {
 			individualEntries: {
 				label: 'Responses',
 				Component: (
-					<FormRes
+					<FormResCard
 						formId={formData?._id}
 						updateTotalSubmissions={updateTotalSubmissions}
+						handleCardClick={handleCardClick}
 					/>
 				),
 			},
@@ -139,112 +154,151 @@ const FormLeads = () => {
 		message.info(`Data Enrichment ${checked ? 'enabled' : 'disabled'}`);
 	}, []);
 
+	const getTimeAgo = (response) => {
+		if (!response?.createdAt) return '';
+		return moment.unix(response.createdAt).fromNow();
+	};
+
 	return (
 		<div className="formLeadsParentContainer">
-			<div className="headerContainer">
-				<span className="backBtn" onClick={() => navigate(-1)}>
-					<BackArrowSvg />
-					<span>Back</span>
-				</span>
-			</div>
-
-			<div className="formEnquiryContainer">
-				<div className="formContainer">
-					<div className="imgContainer">
-						<iframe
-							src={`${origin}/preview/short/${formData?._id}?singleTemplatePreview=true&restrictClick=true`}
-							title="Builder Preview"
-							className="iframe-preview"
-						/>
-						<div className="editDesignContainer">
-							<button onClick={handleEditDesign}>
-								<Edit />
-								<span>Edit Design</span>
-							</button>
-						</div>
-					</div>
-					<div className="detailsContainer">
+			<div className="formWrapper">
+				<div className="formEnquiryContainer">
+					<div className="formContainer">
 						<div className="headerContainer">
-							<div className="header-left">
-								<h1 className="headerTitle">{formTitle}</h1>
-								<div
-									className={`liveBadge ${
-										formData?.status === 'published'
-											? 'live-badge--complete'
-											: 'live-badge--incomplete'
-									}`}
-								>
-									<span
-										className={`status-indicator status-indicator--${
-											formData?.status === 'published' ? 'published' : 'draft'
-										}`}
-									/>
-									<span>
-										{formData?.status === 'published' ? 'Live' : 'Draft'}
-									</span>
+							<div className="backBtnContainer">
+								<span className="backBtn" onClick={() => navigate(-1)}>
+									<BackArrowSvg />
+									<span>Back</span>
+								</span>
+							</div>
+							{/* <QuickActions /> */}
+						</div>
+						<div className="detailsContainer">
+							<div className="headerContainer">
+								<div className="header-left">
+									<h1 className="headerTitle">{formTitle}</h1>
+									<div className="liveoption">
+										<div
+											className={`liveBadge ${
+												formData?.status === 'published'
+													? 'live-badge--complete'
+													: 'live-badge--incomplete'
+											}`}
+										>
+											<span
+												className={`status-indicator status-indicator--${
+													formData?.status === 'published'
+														? 'published'
+														: 'draft'
+												}`}
+											/>
+											<span className="liveBadgeText">
+												{formData?.status === 'published'
+													? 'Live'
+													: 'Draft'}
+											</span>
+										</div>
+										<Tooltip
+											trigger={'click'}
+											open={info.tooltipVisible}
+											onOpenChange={handleThreeDotsClick}
+											placement={'bottomRight'}
+											arrow={false}
+											color="transparent"
+											title={
+												<FormResponsesMenuItem
+													formId={formData?._id}
+													copyLink={copyCode}
+													onDelete={handleDeleteForm}
+													onRename={handleRenameForm}
+												/>
+											}
+										>
+											<ThreeDots className="three-dots-icon" />
+										</Tooltip>
+									</div>
 								</div>
 							</div>
-							<Tooltip
-								trigger={'click'}
-								open={info.tooltipVisible}
-								onOpenChange={handleThreeDotsClick}
-								placement={'bottomRight'}
-								arrow={false}
-								color="transparent"
-								title={
-									<FormResponsesMenuItem
-										formId={formData?._id}
-										copyLink={copyCode}
-										onDelete={handleDeleteForm}
-										onRename={handleRenameForm}
+							<div className="dataEnrichmentToggle">
+								<h1 className="time">
+									{getTimeAgo({ createdAt: info.latestUpdateTime })}
+								</h1>
+								<span className="dataEnrichmentText">
+									<Vector />
+									Data Enrichment
+								</span>
+								<Switch
+									checked={info.dataEnrichment}
+									onChange={handleDataEnrichmentToggle}
+									style={{
+										backgroundColor: '#202123',
+									}}
+								/>
+							</div>
+						</div>
+						<div className="formDetailsContainer">
+							<div className="headerContainer">
+								<div className="formViewTabsContainer">
+									{Object.keys(tabs).map((tab) => (
+										<div key={tab} className="tabContainer">
+											<div
+												className={`formViewTab ${
+													info.activeTab === tab ? 'active' : ''
+												}`}
+												onClick={() =>
+													setInfo((prev) => ({ ...prev, activeTab: tab }))
+												}
+											>
+												{tabs[tab].label}
+											</div>
+											<div
+												className={`divider ${
+													info.activeTab === tab ? 'active' : ''
+												}`}
+											/>
+										</div>
+									))}
+								</div>
+							</div>
+							<div className="tabContent">{tabs[info.activeTab].Component}</div>
+						</div>
+					</div>
+					{/* <QuickActions /> */}
+				</div>
+				<FormDescription
+					response={selectedResponse}
+					onClose={() => {
+						setSelectedResponse(null);
+						setExpandedCard(null);
+					}}
+					className="formDescription"
+				/>
+				{/* <div className="formDetailsContainer">
+					<div className="headerContainer">
+						<div className="formViewTabsContainer">
+							{Object.keys(tabs).map((tab) => (
+								<div key={tab} className="tabContainer">
+									<div
+										className={`formViewTab ${
+											info.activeTab === tab ? 'active' : ''
+										}`}
+										onClick={() =>
+											setInfo((prev) => ({ ...prev, activeTab: tab }))
+										}
+									>
+										{tabs[tab].label}
+									</div>
+									<div
+										className={`divider ${
+											info.activeTab === tab ? 'active' : ''
+										}`}
 									/>
-								}
-							>
-								<ThreeDots className="three-dots-icon" />
-							</Tooltip>
-						</div>
-						<div className="dataEnrichmentToggle">
-							<span>✨Data Enrichment</span>
-							<Switch
-								checked={info.dataEnrichment}
-								onChange={handleDataEnrichmentToggle}
-								style={{ backgroundColor: '#202123' }}
-							/>
-						</div>
-						<div className="formMetricsContainer">
-							{metricsData.map((metric, index) => (
-								<div className="metricsCard" key={index}>
-									<p className="title">{metric.title}</p>
-									<p className="value">{metric.value}</p>
 								</div>
 							))}
 						</div>
 					</div>
-				</div>
-				<QuickActions />
-			</div>
-
-			<div className="formDetailsContainer">
-				<div className="headerContainer">
-					<div className="formViewTabsContainer">
-						{Object.keys(tabs).map((tab) => (
-							<div key={tab} className="tabContainer">
-								<div
-									className={`formViewTab ${
-										info.activeTab === tab ? 'active' : ''
-									}`}
-									onClick={() => setInfo((prev) => ({ ...prev, activeTab: tab }))}
-								>
-									{tabs[tab].label}
-								</div>
-								<div
-									className={`divider ${info.activeTab === tab ? 'active' : ''}`}
-								/>
-							</div>
-						))}
-					</div>
-				</div>
-				<div className="tabContent">{tabs[info.activeTab].Component}</div>
+					<div className="tabContent">{tabs[info.activeTab].Component}</div>
+				</div> */}
 			</div>
 		</div>
 	);

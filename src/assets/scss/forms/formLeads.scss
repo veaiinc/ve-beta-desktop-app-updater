@@ -4,15 +4,23 @@
 	height: calc(100vh - 110px);
 	display: flex;
 	flex-direction: column;
-	gap: 16px;
+	gap: 24px;
 	padding-right: 9px;
 	padding-bottom: 5px;
-	overflow-y: scroll;
+	overflow: hidden;
 
+	.formWrapper {
+		display: flex;
+		gap: 35px;
+		width: 100%;
+		height: 100%;
+		justify-content: space-between;
+		overflow: hidden;
+	}
 	.headerContainer {
 		display: flex;
 		align-items: center;
-
+		justify-content: space-between;
 		.backBtn {
 			display: flex;
 			align-items: center;
@@ -21,39 +29,52 @@
 			font-size: 14px;
 		}
 	}
-
+	.formDescription {
+		width: 40%;
+		padding: 20px;
+		margin: 20px;
+		background: var(--card);
+		border-radius: 24px;
+		height: calc(100% - 40px);
+	}
+	.backBtnContainer {
+		padding: 5px;
+	}
 	.formEnquiryContainer {
 		display: flex;
-		flex-direction: row;
-		justify-content: space-between;
-		align-self: stretch;
+		gap: 25px;
+		width: 55%;
 
 		.headerContainer {
 			display: flex;
 			align-items: center;
 			gap: 6px;
-			align-self: stretch;
 
 			.headerTitle {
 				display: flex;
-				align-items: center;
-				gap: 10px;
-				border-radius: 100px;
+				overflow: hidden;
 				color: var(--primary-font);
-				font-family: var(--primary-font-family);
-				font-size: 16px;
+				color: var(--primary-font);
+				text-overflow: ellipsis;
+				font-family: Inter;
+				font-size: 20px;
 				font-style: normal;
 				font-weight: 500;
-				line-height: normal;
+				line-height: 26px;
+				display: -webkit-box;
+				-webkit-box-orient: vertical;
+				-webkit-line-clamp: 1;
 			}
 		}
 
 		.formContainer {
-			border-radius: 20px;
 			display: flex;
-			align-items: flex-start;
-			gap: 12px;
-			align-self: stretch;
+			gap: 24px;
+			width: 100%;
+			// background: var(--card);
+			border-radius: 24px;
+			// padding: 30px;
+			flex-direction: column;
 
 			.imgContainer {
 				width: 180px;
@@ -106,48 +127,55 @@
 					}
 				}
 			}
-
 			.detailsContainer {
 				display: flex;
 				flex-direction: column;
 				align-items: flex-start;
 				justify-content: space-between;
 				gap: 12px;
-				flex: 1 0 0;
-				align-self: stretch;
+				padding: 5px;
 
+				width: 100%;
 				.headerContainer {
 					display: flex;
-					align-items: center;
+
 					gap: 8px;
-					border-radius: 100px;
+
 					color: var(--primary-font);
 					font-family: Inter;
 					font-style: normal;
 					font-weight: 500;
 					line-height: normal;
+					width: 100%;
 
 					.header-left {
 						display: flex;
-						align-items: center;
-						gap: 10px;
-						border-radius: 100px;
+						justify-content: space-between;
 						color: var(--primary-font);
+						flex: 1;
 
 						.liveBadge {
 							display: flex;
+							height: 24px;
+							padding: 4px 10px;
+							justify-content: center;
 							align-items: center;
-							gap: 3px;
-							font-size: 11px;
+							gap: 6px;
 							border-radius: 100px;
-							color: var(--primary-font);
-							padding: 3px 6px;
 
-							&.live-badge--complete {
-								background-color: #375841;
-								color: var(--primary-font);
+							.liveBadgeText {
+								color: var(--background-color);
 							}
 
+							&.live-badge--complete {
+								background: #c2ff00;
+								color: var(--primary-font);
+							}
+							.liveBadge,
+							.live-badge--complete {
+								flex-direction: row;
+								margin-left: 100px;
+							}
 							&.live-badge--incomplete {
 								background-color: #373737;
 								color: var(--primary-font);
@@ -155,24 +183,35 @@
 						}
 					}
 				}
-
-				.headerTitle {
+				.dataEnrichmentText {
 					display: flex;
 					align-items: center;
-					gap: 10px;
-					border-radius: 100px;
-					color: var(--primary-font);
+					gap: 5px;
 					font-family: Inter;
-					font-size: 16px;
+					font-size: 14px;
 					font-style: normal;
 					font-weight: 500;
-					line-height: normal;
+					line-height: 16px;
+
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
+				}
+				.headerTitle {
+					overflow: hidden;
+					color: var(--primary-font, #f2f2f3);
+					color: var(--primary-font, color(display-p3 0.949 0.949 0.9529));
+					text-overflow: ellipsis;
+					font-family: Inter;
+					font-size: 20px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: 26px; /* 130% */
 				}
 
 				.dataEnrichmentToggle {
 					display: flex;
 					align-items: center;
-					gap: 8px;
+					gap: 16px;
 					color: var(--primary-font);
 					font-family: var(--primary-font-family);
 					font-size: 12px;
@@ -193,6 +232,13 @@
 
 					.ant-switch-checked {
 						background-color: #1890ff;
+					}
+
+					.liveBadgeText {
+						font-size: 11px;
+						font-style: normal;
+						font-weight: 500;
+						color: rgba(0, 0, 0, 0.8);
 					}
 				}
 
@@ -279,20 +325,24 @@
 			}
 		}
 	}
-
+	.liveoption {
+		display: flex;
+		align-items: center;
+		gap: 16px;
+	}
 	.formDetailsContainer {
 		display: flex;
 		flex-direction: column;
 		align-items: flex-start;
 		gap: 24px;
-		padding-top: 20px;
+
 		align-self: stretch;
 
 		.headerContainer {
 			display: flex;
-			width: 100%;
 			justify-content: space-between;
 			align-items: center;
+			// background-color: red;
 
 			.formViewTabsContainer {
 				display: inline-flex;
@@ -324,6 +374,7 @@
 
 					.active {
 						opacity: 1;
+						color: var(--);
 					}
 
 					.divider {
@@ -444,13 +495,11 @@
 	}
 }
 
-.header-left {
-	display: flex;
-	align-items: center;
-	gap: 10px;
-	border-radius: 100px;
-	color: var(--primary-font);
-}
+// .header-left {
+// 	display: flex;
+// 	align-items: center;
+// 	color: var(--primary-font);
+// }
 
 .status-indicator {
 	width: 8px;

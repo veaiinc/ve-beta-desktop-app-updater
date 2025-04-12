@@ -49,8 +49,9 @@ import Automations from './views/features/automations/Automations';
 import Integrations from './views/features/Integrations/Integrations';
 import BrandSetup from './views/features/settings/BrandSetup';
 import FormSummary from './views/components/forms/FormSummary';
-import FormRes from './views/components/forms/FormRes';
+// import FormRes from './views/components/forms/FormResCard';
 import FormAnalytics from './views/components/forms/FormAnalytics';
+import FormResCard from './views/components/forms/FormResCard';
 
 const routes = [
 	{
@@ -501,7 +502,7 @@ const routes = [
 		path: '/forms/:id/responses',
 		component: (
 			<AuthWrapper title={'Form Responses'}>
-				<FormRes view="responses" />
+				<FormResCard view="responses" />
 			</AuthWrapper>
 		),
 		exact: true,
