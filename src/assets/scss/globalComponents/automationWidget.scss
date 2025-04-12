@@ -39,6 +39,9 @@
 				background: var(--card, #171819);
 				overflow: auto;
 				height: 280px;
+				.infinite-scroll-component__outerdiv{
+					height: 250px;
+				}
 				.automationWidgetBodyItem {
 					display: flex;
 					padding: 10px 12px;
@@ -48,7 +51,6 @@
 					align-self: stretch;
 					border-radius: 12px;
 					background: var(--card-over-card, #202123);
-
 					.automationWidgetOptionDetailsTitle {
 						color: var(--primary-font, #f2f2f3);
 						font-family: Inter;

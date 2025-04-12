@@ -11,6 +11,7 @@ import ContactsWidget from '../../components/globalComponents/ContactsWidget';
 import AutomationWidget from '../../components/globalComponents/AutomationWidget';
 import TaskWidget from '../../components/globalComponents/TaskWidget';
 import CalenderWidget from '../../components/globalComponents/CalenderWidget';
+import GlobalWidget from '../../components/globalComponents/InitialHomePageWidget';
 const optionsList = [
 	{
 		id: 1,
@@ -162,24 +163,24 @@ const InitialHomePage = () => {
 	const componentMapper = useMemo(
 		() => ({
 			proactiveSuggestions: <ProactiveSuggestions />,
-			task: <TaskWidget width={'903px'} />,
-			contact: <ContactsWidget width={'903px'} />,
-			calendar: <CalenderWidget width={'903px'} />,
-			// prompts: (
-			// 	<ChatPrompts
-			// 		promptsCategory={info?.promptsCategory}
-			// 		updatePromptsCategory={updatePromptsCategory}
-			// 	/>
-			// ),
-			automation: <AutomationWidget width={'903px'} />,
+			calendar: <GlobalWidget option="calendar" />,
+			task: <GlobalWidget option="tasks" />,
+			contact: <GlobalWidget option="contacts" />,
+			automation: <GlobalWidget option="automation" />,
 		}),
 		[info?.promptsCategory],
 	);
 
-	const options = useMemo(
-		() => info?.options?.filter((option) => option?.showOption),
-		[info?.options],
-	);
+	const options = useMemo(() => {
+		const filteredOptions = info?.options?.filter((option) => option?.showOption);
+		if (filteredOptions?.length > 0 && !info?.selectedOption) {
+			setInfo((prev) => ({
+				...prev,
+				selectedOption: filteredOptions[0]?.value,
+			}));
+		}
+		return filteredOptions;
+	}, [info?.options, info?.selectedOption]);
 
 	return (
 		<div className="initial-home-page-container">
