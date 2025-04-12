@@ -42,42 +42,83 @@ const GoogleCalendar = () => {
 		}
 	}, [info.alreadyConnectedGoogleCalendars, googleCalendarList]);
 
+	useEffect(() => {
+		const fetchCalendarList = async () => {
+			if (connectedGoogleCalendars?.length === 0) {
+				setInfo((prev) => ({ ...prev, loading: true }));
+				try {
+					await getGoogleCalendarList();
+				} finally {
+					setInfo((prev) => ({ ...prev, loading: false }));
+				}
+			} else if (!googleCalendarEvents?.length) {
+				// Only fetch events if we don't have them already
+				setInfo((prev) => ({
+					...prev,
+					alreadyConnectedGoogleCalendars: connectedGoogleCalendars,
+					eventsLoading: true,
+				}));
+				try {
+					await getGoogleCalendarEvents();
+				} finally {
+					setInfo((prev) => ({ ...prev, eventsLoading: false }));
+				}
+			} else {
+				// If we already have events, just update the connected calendars
+				setInfo((prev) => ({
+					...prev,
+					alreadyConnectedGoogleCalendars: connectedGoogleCalendars,
+				}));
+			}
+		};
+
+		if (connectedGoogleCalendars !== undefined) {
+			fetchCalendarList();
+		}
+	}, [connectedGoogleCalendars]);
+
 	// New useEffect to handle watch response
 	useEffect(() => {
 		const handleWatchResponse = async () => {
 			// Only proceed if we've requested a watch and have a response
 			if (info.watchRequested && info.selectedCalendar) {
 				if (googleCalendarWatch?.id) {
-					// Watch was successful, proceed to fetch events
+					// Watch was successful, proceed to fetch events only if we don't have them
 					setInfo((prev) => ({
 						...prev,
 						watchLoading: false,
-						eventsLoading: true,
+						eventsLoading: !googleCalendarEvents?.length,
 					}));
 
-					try {
-						await getGoogleCalendarEvents();
-					} catch (error) {
-						console.error('Error fetching calendar events:', error);
-						message.error('Failed to fetch calendar events. Please try again.');
-					} finally {
+					if (!googleCalendarEvents?.length) {
+						try {
+							await getGoogleCalendarEvents();
+						} catch (error) {
+							console.error('Error fetching calendar events:', error);
+							message.error('Failed to fetch calendar events. Please try again.');
+						} finally {
+							setInfo((prev) => ({
+								...prev,
+								eventsLoading: false,
+								watchRequested: false,
+							}));
+						}
+					} else {
 						setInfo((prev) => ({
 							...prev,
 							eventsLoading: false,
-							watchRequested: false, // Reset the watch requested flag
+							watchRequested: false,
 						}));
 					}
 				} else if (googleCalendarWatch === null && !info.watchLoading) {
-					// Watch operation failed but didn't throw an error
 					console.error('Failed to watch Google Calendar');
 					message.error('Failed to watch Google Calendar. Please try again.');
 					setInfo((prev) => ({
 						...prev,
 						watchLoading: false,
-						watchRequested: false, // Reset the watch requested flag
+						watchRequested: false,
 					}));
 				}
-				// If watchLoading is still true, we're waiting for the API response
 			}
 		};
 
@@ -93,35 +134,6 @@ const GoogleCalendar = () => {
 			getConnectedGoogleCalendars();
 		}
 	}, [connectThirdParties]);
-
-	useEffect(() => {
-		const fetchCalendarList = async () => {
-			if (connectedGoogleCalendars?.length === 0) {
-				setInfo((prev) => ({ ...prev, loading: true }));
-				try {
-					await getGoogleCalendarList();
-				} finally {
-					setInfo((prev) => ({ ...prev, loading: false }));
-				}
-			} else {
-				// If calendars are already connected, set the alreadyConnectedGoogleCalendars to the connectedGoogleCalendars and fetch events directly
-				setInfo((prev) => ({
-					...prev,
-					alreadyConnectedGoogleCalendars: connectedGoogleCalendars,
-					eventsLoading: true,
-				}));
-				try {
-					await getGoogleCalendarEvents();
-				} finally {
-					setInfo((prev) => ({ ...prev, eventsLoading: false }));
-				}
-			}
-		};
-
-		if (connectedGoogleCalendars !== undefined) {
-			fetchCalendarList();
-		}
-	}, [connectedGoogleCalendars]);
 
 	const handleCalendarSelect = async (calendar) => {
 		setInfo((prev) => ({
