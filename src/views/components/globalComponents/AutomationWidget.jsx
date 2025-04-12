@@ -82,7 +82,7 @@ const AutomationWidget = ({ width, height }) => {
 									}}
 								/>
 							))
-						) : (
+						) : automationsLength > 0 ? (
 							<InfiniteScroll
 								dataLength={automationsLength}
 								next={fetchNextAutomations}
@@ -99,7 +99,9 @@ const AutomationWidget = ({ width, height }) => {
 											</div>
 											<div
 												className="automationWidgetOptionDetailsSubtitle"
-												style={{ color: statusColors[automation.status] }}
+												style={{
+													color: statusColors[automation.status],
+												}}
 											>
 												{automation.status}
 											</div>
@@ -107,6 +109,8 @@ const AutomationWidget = ({ width, height }) => {
 									</div>
 								))}
 							</InfiniteScroll>
+						) : (
+							<div className="noAutomations">No automations Found</div>
 						)}
 					</div>
 				</div>

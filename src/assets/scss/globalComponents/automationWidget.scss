@@ -39,7 +39,7 @@
 				background: var(--card, #171819);
 				overflow: auto;
 				height: 280px;
-				.infinite-scroll-component__outerdiv{
+				.infinite-scroll-component__outerdiv {
 					height: 250px;
 				}
 				.automationWidgetBodyItem {
@@ -71,6 +71,13 @@
 				}
 				.infinite-scroll-component__outerdiv {
 					width: 100%;
+				}
+				.noAutomations {
+					display: flex;
+					flex-direction: column;
+					justify-content: center;
+					align-content: center;
+					color: var(--primary-font);
 				}
 			}
 		}
