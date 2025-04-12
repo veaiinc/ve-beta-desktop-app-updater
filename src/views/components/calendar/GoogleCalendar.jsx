@@ -155,73 +155,81 @@ const GoogleCalendar = () => {
 
 	return (
 		<>
-			<div className={`google-bar ${info?.expanded ? 'expanded' : ''}`}>
-				<div className="header">
-					<div className="google-logo">Google Calendar</div>
-					<div className="controls">
-						<span className="expand-icon" onClick={toggleExpand}>
-							<DownSvg />
-						</span>
+			{connectThirdParties != null && connectThirdParties?.googleCalendar?.length > 0 ? (
+				<div className={`google-bar ${info?.expanded ? 'expanded' : ''}`}>
+					<div className="header">
+						<div className="google-logo">Google Calendar</div>
+						<div className="controls">
+							<span className="expand-icon" onClick={toggleExpand}>
+								<DownSvg />
+							</span>
+						</div>
+					</div>
+					<div className="content">
+						{info.loading ? (
+							<div className="loading-container">
+								<Spinner width="24px" height="24px" />
+								<span>Loading calendars...</span>
+							</div>
+						) : info.watchLoading ? (
+							<div className="loading-container">
+								<Spinner width="24px" height="24px" />
+								<span>Connecting Google Calendar...</span>
+							</div>
+						) : info.eventsLoading ? (
+							<div className="loading-container">
+								<Spinner width="24px" height="24px" />
+								<span>Fetching calendar events...</span>
+							</div>
+						) : info.alreadyConnectedGoogleCalendars?.length > 0 ? (
+							info.alreadyConnectedGoogleCalendars?.map((calendarId) => (
+								<div key={calendarId} className="connected-calendar">
+									<div className="green-dot"></div>
+									<span className="calendar-name">{calendarId}</span>
+								</div>
+							))
+						) : googleCalendarList && !info.selectedCalendar ? (
+							<>
+								<div className="calendar-list-header">
+									Select Calendar to Connect
+								</div>
+								{googleCalendarList?.map((calendar) => (
+									<div
+										key={calendar.id}
+										className="item"
+										onClick={() => handleCalendarSelect(calendar)}
+									>
+										<div className="item-left">
+											<div
+												className="circle"
+												style={{
+													backgroundColor: calendar.backgroundColor,
+													borderColor: calendar.backgroundColor,
+												}}
+											/>
+											<span className="calendar-name">
+												{calendar.summary}
+											</span>
+										</div>
+									</div>
+								))}
+							</>
+						) : (
+							info.selectedCalendar && (
+								<div className="selected-calendar">
+									{
+										googleCalendarList?.find(
+											(cal) => cal.id === info.selectedCalendar,
+										)?.summary
+									}
+								</div>
+							)
+						)}
 					</div>
 				</div>
-				<div className="content">
-					{info.loading ? (
-						<div className="loading-container">
-							<Spinner width="24px" height="24px" />
-							<span>Loading calendars...</span>
-						</div>
-					) : info.watchLoading ? (
-						<div className="loading-container">
-							<Spinner width="24px" height="24px" />
-							<span>Connecting Google Calendar...</span>
-						</div>
-					) : info.eventsLoading ? (
-						<div className="loading-container">
-							<Spinner width="24px" height="24px" />
-							<span>Fetching calendar events...</span>
-						</div>
-					) : info.alreadyConnectedGoogleCalendars?.length > 0 ? (
-						info.alreadyConnectedGoogleCalendars?.map((calendarId) => (
-							<div key={calendarId} className="connected-calendar">
-								<div className="green-dot"></div>
-								<span className="calendar-name">{calendarId}</span>
-							</div>
-						))
-					) : googleCalendarList && !info.selectedCalendar ? (
-						<>
-							<div className="calendar-list-header">Select Calendar to Connect</div>
-							{googleCalendarList?.map((calendar) => (
-								<div
-									key={calendar.id}
-									className="item"
-									onClick={() => handleCalendarSelect(calendar)}
-								>
-									<div className="item-left">
-										<div
-											className="circle"
-											style={{
-												backgroundColor: calendar.backgroundColor,
-												borderColor: calendar.backgroundColor,
-											}}
-										/>
-										<span className="calendar-name">{calendar.summary}</span>
-									</div>
-								</div>
-							))}
-						</>
-					) : (
-						info.selectedCalendar && (
-							<div className="selected-calendar">
-								{
-									googleCalendarList?.find(
-										(cal) => cal.id === info.selectedCalendar,
-									)?.summary
-								}
-							</div>
-						)
-					)}
-				</div>
-			</div>
+			) : (
+				''
+			)}
 		</>
 	);
 };

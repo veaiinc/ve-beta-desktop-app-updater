@@ -14,6 +14,7 @@
 	// background: var(--background-color);
 	transition: all 0.2s ease-out;
 	overflow: hidden;
+	user-select: none;
 
 	.header {
 		display: flex;
@@ -94,7 +95,7 @@
 				width: 8px;
 				height: 8px;
 				border-radius: 50%;
-				background: #4caf50;
+				background: #475dff;
 				flex-shrink: 0;
 			}
 

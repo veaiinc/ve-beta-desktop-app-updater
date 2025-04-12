@@ -3,8 +3,7 @@ import '../../../assets/scss/calendar/calendarCategories.scss';
 import { ReactComponent as PencilSvg } from '../../../assets/svg/calendar/pencil.svg';
 import UpdateCategoryModal from '../modalsV2/calendar/UpdateCategoryModal';
 import PlusSvg from '../../../assets/svg/my_templates/PlusSvg';
-import ArrowUpSvg from '../../../assets/svg/calendar/ArrowUpSvg';
-import DownSvg from '../../../assets/svg/activity/DownSvg';
+import { ReactComponent as DownSvg } from '../../../assets/svg/calendar/down.svg';
 
 const CalendarCategories = ({
 	categoryList,
@@ -104,7 +103,7 @@ const CalendarCategories = ({
 
 	return (
 		<div
-			className={`categoriesParentContainer `}
+			className={`categoriesParentContainer ${info?.expanded ? 'expanded' : ''}`}
 			style={{
 				height: info?.height,
 			}}
@@ -119,7 +118,7 @@ const CalendarCategories = ({
 				</div>
 
 				<div className="expandIcon" onClick={handleCategoryExpand}>
-					{info?.expanded ? <ArrowUpSvg /> : <DownSvg />}
+					<DownSvg />
 				</div>
 			</div>
 
