@@ -63,7 +63,6 @@ const Calendar = () => {
 		setInfo((prevInfo) => ({ ...prevInfo, chatSessionId: sessionId }));
 
 		getCalendarCategories();
-		getTeamMembers();
 
 		return () => {
 			setInfo((prevInfo) => ({

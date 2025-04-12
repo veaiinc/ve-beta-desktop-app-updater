@@ -126,11 +126,13 @@ const GoogleCalendar = () => {
 	}, [googleCalendarWatch, info.watchRequested, info.selectedCalendar]);
 
 	useEffect(() => {
-		getConnectedThirdParties();
+		if (!connectThirdParties) {
+			getConnectedThirdParties();
+		}
 	}, []);
 
 	useEffect(() => {
-		if (connectThirdParties?.googleCalendar?.[0]) {
+		if (connectThirdParties?.googleCalendar?.[0] && !connectedGoogleCalendars?.length) {
 			getConnectedGoogleCalendars();
 		}
 	}, [connectThirdParties]);
