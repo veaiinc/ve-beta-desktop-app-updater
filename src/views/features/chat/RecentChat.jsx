@@ -463,8 +463,8 @@ const RecentChat = ({
 
 				if (firstTimeApiCall) {
 					chatPayload = {
-						workflowTemplateId,
-						moduleTemplateId,
+						workflowTemplateId: workflowTemplateId || null,
+						moduleTemplateId: moduleTemplateId || null,
 					};
 				}
 
@@ -481,8 +481,8 @@ const RecentChat = ({
 						typingEffect: false,
 						rating: null,
 						citations,
-						workflow_template_id: workflowTemplateId,
-						module_template_id: moduleTemplateId,
+						workflow_template_id: workflowTemplateId || null,
+						module_template_id: moduleTemplateId || null,
 					},
 				]?.concat(messages);
 			}
@@ -490,7 +490,8 @@ const RecentChat = ({
 			if (fetcMore) {
 				updateStateValues({
 					globalChatMessages: messages?.concat(globalChatMessages),
-					chatPayload,
+					...(chatPayload?.moduleTemplateId &&
+						chatPayload?.workflowTemplateId && { chatPayload }),
 				});
 				// if (chatContentRef?.current) {
 				// 	chatContentRef.current.scrollBy({
@@ -499,7 +500,11 @@ const RecentChat = ({
 				// 	});
 				// }
 			} else {
-				updateStateValues({ globalChatMessages: messages, chatPayload });
+				updateStateValues({
+					globalChatMessages: messages,
+					...(chatPayload?.moduleTemplateId &&
+						chatPayload?.workflowTemplateId && { chatPayload }),
+				});
 				// setTimeout(() => {
 				// 	// smoothScrollToBottom();
 				// }, 1000);

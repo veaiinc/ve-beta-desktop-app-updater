@@ -255,9 +255,11 @@ export const TypingEffect = memo(
 		citations = [],
 		messageData,
 		isNewMessage = false,
+		showCanvas = true,
 	}) => {
 		const {
 			documentPreview: { setNoteContent },
+			templates: { updateStateValues, documentPreviewIds },
 		} = useContext(Context);
 		const [isCopiedToClipboard, setIsCopiedToClipboard] = useState(false);
 		const [renderTrigger, setRenderTrigger] = useState(0);
@@ -307,6 +309,20 @@ export const TypingEffect = memo(
 		// 	setRenderTrigger((prev) => prev + 1);
 		// };
 
+		const handleUpdateId = (workflowTemplateId, moduleTemplateId) => {
+			console.log(
+				workflowTemplateId,
+				moduleTemplateId,
+				'workflowTemplateId, moduleTemplateId',
+			);
+			updateStateValues({
+				documentPreviewIds: {
+					workflowTemplateId,
+					moduleTemplateId,
+				},
+			});
+		};
+
 		const handleCopyTextClick = useCallback((text) => {
 			const textToBeCopied = text?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')?.replace(/\\n/g, '\n');
 			navigator?.clipboard?.writeText(textToBeCopied).then(() => {
@@ -334,16 +350,31 @@ export const TypingEffect = memo(
 
 		return (
 			<div className="typing-effect-container">
-				{messageData?.workflow_template_id && (
-					<FormModel
-						workflowTemplateId={messageData?.workflow_template_id}
-						moduleTemplateId={messageData?.module_template_id}
-					/>
-				)}
+				{messageData?.workflow_template_id &&
+					(showCanvas ? (
+						<FormModel
+							workflowTemplateId={messageData?.workflow_template_id}
+							moduleTemplateId={messageData?.module_template_id}
+							ByDefaultExpanded={true}
+						/>
+					) : (
+						<div
+							className="view-document-container"
+							onClick={() =>
+								handleUpdateId(
+									messageData?.workflow_template_id,
+									messageData?.module_template_id,
+								)
+							}
+						>
+							<p>View Document</p>
+						</div>
+					))}
+				{}
 				<Markdown citations={citations}>
+					{text?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')?.replace(/\\n/g, '\n')}
 					{/* {newText?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')?.replace(/\\n/g, '\n')} */}
 					{/* {chunkRef?.current?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')?.replace(/\\n/g, '\n')} */}
-					{text?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')?.replace(/\\n/g, '\n')}
 				</Markdown>
 
 				{messageData?.messageId && (

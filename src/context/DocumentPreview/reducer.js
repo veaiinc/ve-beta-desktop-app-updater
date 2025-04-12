@@ -6,6 +6,10 @@ const actionHandlers = {
 		noteContent: action.payload,
 	}),
 
+	SET_DOCUMENT_PREVIEW_IDS: (state, action) => ({
+		...state,
+		documentPreviewIds: action.payload,
+	}),
 	RESET_STATE: () => initialState,
 };
 

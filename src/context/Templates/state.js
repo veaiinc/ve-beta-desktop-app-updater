@@ -120,6 +120,10 @@ export const intialState = {
 	globalLoadingMesssage: null,
 	userEditedQuery: null,
 	aiSuggestedPendingActions: null,
+	documentPreviewIds: {
+		workflowTemplateId: null,
+		moduleTemplateId: null,
+	},
 };
 
 export const TemplatesState = (props) => {
