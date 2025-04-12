@@ -122,6 +122,31 @@
 					font-style: normal;
 					font-weight: 500;
 					line-height: normal;
+					.headerLeftContainer {
+						display: flex;
+						align-items: center;
+						gap: 14px;
+						border-radius: 100px;
+						color: var(--primary-font);
+						.liveBadge {
+							display: flex;
+							align-items: center;
+							gap: 4px;
+							font-size: 12px;
+							border-radius: 100px;
+							color: var(--primary-font);
+							padding: 4px 8px;
+							&.complete {
+								background-color: #375841;
+								color: var(--primary-font);
+							}
+
+							&.incomplete {
+								background-color: #373737;
+								color: var(--primary-font);
+							}
+						}
+					}
 				}
 
 				.headerTitle {

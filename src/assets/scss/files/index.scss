@@ -1,3 +1,9 @@
+.storage-page-container {
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
+	background-color: var(--background-color, #0c0c0d);
+}
 .card-container-wrapper {
 	display: flex;
 	flex-direction: column;
@@ -20,6 +26,11 @@
 			width: 100%;
 			height: 100%;
 		}
+	}
+	.storage-main-container-bottom-spacer {
+		display: flex;
+		flex-direction: column;
+		gap: 20px;
 	}
 }
 .card-container {
