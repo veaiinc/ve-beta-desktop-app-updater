@@ -19,10 +19,103 @@ import ProposalsPopup from '../../components/docs/ProposalsPopup';
 import ObjectID from 'bson-objectid';
 import gsap from 'gsap';
 import QuickActions from '../../components/globalComponents/QuickActions';
-
+import moment from 'moment';
+import { DocsStatusButton } from '../docs';
 const initialState = {
 	workflowTemplates: [],
 };
+
+export const statusTextmapper = {
+	filesViewed: {
+		id: 'filesViewed',
+		text: 'Files Viewed',
+		dotStyle: {
+			backgroundColor: '#2A71CD',
+		},
+		style: {
+			backgroundColor: '#29456C',
+		},
+		label: 'Files Viewed',
+	},
+	enquiry: {
+		id: 'enquiry',
+		text: 'Enquiry',
+		dotStyle: {
+			backgroundColor: '#2A71CD',
+		},
+		style: {
+			backgroundColor: '#29456C',
+		},
+		label: 'Enquiry',
+	},
+	filesSent: {
+		id: 'filesSent',
+		text: 'Sent',
+		dotStyle: {
+			backgroundColor: '#2A71CD',
+		},
+		style: {
+			backgroundColor: '#29456C',
+		},
+		label: 'Sent',
+	},
+	confirmed: {
+		id: 'confirmed',
+		text: 'Confirmed',
+		dotStyle: {
+			backgroundColor: '#00A051',
+		},
+		style: {
+			backgroundColor: '#2C593F',
+		},
+		label: 'Confirmed',
+	},
+	expired: {
+		id: 'expired',
+		text: 'Expired',
+		dotStyle: {
+			backgroundColor: '#E27B1C',
+		},
+		style: {
+			backgroundColor: 'rgba(125, 79, 39, 1)',
+		},
+		label: 'Expired',
+	},
+	accepted: {
+		id: 'accepted',
+		text: 'Accepted',
+		dotStyle: {
+			backgroundColor: '#00A051',
+		},
+		style: {
+			backgroundColor: '#2C593F',
+		},
+		label: 'Accepted',
+	},
+	proposalAccepted: {
+		id: 'proposalAccepted',
+		text: 'Accepted',
+		dotStyle: {
+			backgroundColor: '#00A051',
+		},
+		style: {
+			backgroundColor: '#2C593F',
+		},
+		label: 'Proposal Accepted',
+	},
+	published: {
+		id: 'published',
+		text: 'Published',
+		dotStyle: {
+			backgroundColor: '#2A71CD',
+		},
+		style: {
+			backgroundColor: '#29456C',
+		},
+		label: 'Published',
+	},
+};
+
 const Files = () => {
 	const cardItems = useRef(null);
 	const {
@@ -38,7 +131,7 @@ const Files = () => {
 			updateStateValues: updateTemplateStateValues,
 			getTemplatesListForCreateLead,
 		},
-		notes: { getNotesList, notes },
+		notes: { getNotesList, notes, createNotesList },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -172,13 +265,27 @@ const Files = () => {
 		});
 	};
 
-	const handleMouseEnter = () => {
-		setInfo((prev) => ({ ...prev, cardHover: true }));
+	const handleNewNotes = async () => {
+		const payload = {
+			input: {
+				title: 'New Note',
+			},
+		};
+		setInfo((prev) => ({ ...prev, creatingNoteLoader: true }));
+		const response = await createNotesList(payload);
+		if (response?.[1]?._id) {
+			const newNoteId = response[1]?._id;
+			navigate(`/note/${newNoteId}`);
+		}
 	};
 
-	const handleMouseLeave = () => {
-		setInfo((prev) => ({ ...prev, cardHover: false }));
-	};
+	// const handleMouseEnter = () => {
+	// 	setInfo((prev) => ({ ...prev, cardHover: true }));
+	// };
+
+	// const handleMouseLeave = () => {
+	// 	setInfo((prev) => ({ ...prev, cardHover: false }));
+	// };
 
 	const [mostUsedEntities, setMostUsedEntities] = useState(null);
 	const [isLoading, setIsLoading] = useState(false);
@@ -186,7 +293,6 @@ const Files = () => {
 
 	const fetchInitialData = async () => {
 		try {
-			console.log('reached here');
 			setIsLoading(true);
 			const payload = {
 				filters: {
@@ -200,7 +306,6 @@ const Files = () => {
 			};
 
 			const response = await getMostUsedEntities(payload);
-			console.log('Sheshant', response);
 			if (response?.[0] && response?.[1]?.data?.mostUsedEntities) {
 				setMostUsedEntities(response[1].data.mostUsedEntities);
 			}
@@ -632,10 +737,10 @@ const Files = () => {
 	const renderFormsGrid = () => (
 		<div
 			className={`${info?.cardHover ? 'card-container-hover' : 'card-container'}`}
-			onMouseEnter={handleMouseEnter}
-			onMouseLeave={handleMouseLeave}
+			// onMouseEnter={handleMouseEnter}
+			// onMouseLeave={handleMouseLeave}
 		>
-			{/* <div className="card-item">
+			<div className="card-item">
 				<div className="card-item-style card-item-style-btn">
 					<button
 						className="card-btn"
@@ -645,22 +750,26 @@ const Files = () => {
 						Create Form
 					</button>
 				</div>
-			</div> */}
+			</div>
 			{formsTemplatesList?.data?.slice(0, 12).map((form, index) => (
 				<div
 					className="card-item"
 					key={index}
 					onClick={() => handleNavigateForm(form?._id)}
 				>
-					<div className="card-item-style content-wrapper">
-						<span
-							className={`status-badge ${
-								form?.status === 'published' ? 'live' : 'draft'
-							}`}
-						>
-							{form?.status === 'published' ? 'Live' : 'Draft'}
-						</span>
-						<span className="item-title">{form?.title.slice(0, 20)}</span>
+					<div className="card-item-style content-wrapper docs">
+						<DocsStatusButton
+							content={statusTextmapper?.[form?.status]?.text}
+							style={statusTextmapper?.[form?.status]?.style}
+							dotStyle={statusTextmapper?.[form?.status]?.dotStyle}
+						/>
+						<div className="docs-title-wrapper docs-title-wrapper-form">
+							<div className=""></div>
+							<span className="docs-item-title">{form?.title.slice(0, 20)}</span>
+							<span className="docs-item-sub-title">
+								{moment.unix(form?.createdAt).fromNow()}
+							</span>
+						</div>
 					</div>
 				</div>
 			))}
@@ -694,8 +803,8 @@ const Files = () => {
 		return (
 			<div
 				className={`${info?.cardHover ? 'card-container-hover' : 'card-container'}`}
-				onMouseEnter={handleMouseEnter}
-				onMouseLeave={handleMouseLeave}
+				// onMouseEnter={handleMouseEnter}
+				// onMouseLeave={handleMouseLeave}
 			>
 				{docsFilesList?.data?.slice(0, 12).map((doc, index) => (
 					<div
@@ -703,15 +812,19 @@ const Files = () => {
 						key={index}
 						onClick={() => navigate(`/doc/${doc?._id}`)}
 					>
-						<div className="card-item-style content-wrapper">
-							<span
-								className={`status-badge ${
-									doc?.status === 'published' ? 'live' : 'draft'
-								}`}
-							>
-								{getStatusBadge(doc?.status)}
-							</span>
-							<span className="item-title">{doc?.title.slice(0, 20)}</span>
+						<div className="card-item-style content-wrapper docs">
+							<div className="docs-preview"></div>
+							<DocsStatusButton
+								content={statusTextmapper?.[doc?.status]?.text}
+								style={statusTextmapper?.[doc?.status]?.style}
+								dotStyle={statusTextmapper?.[doc?.status]?.dotStyle}
+							/>
+							<div className="docs-title-wrapper">
+								<span className="docs-item-title">{doc?.title}</span>
+								<span className="docs-item-sub-title">
+									{moment.unix(doc?.createdAt).fromNow()}
+								</span>
+							</div>
 						</div>
 					</div>
 				))}
@@ -722,17 +835,17 @@ const Files = () => {
 	const renderNotesGrid = () => (
 		<div
 			className={`${info?.cardHover ? 'card-container-hover' : 'card-container'}`}
-			onMouseEnter={handleMouseEnter}
-			onMouseLeave={handleMouseLeave}
+			// onMouseEnter={handleMouseEnter}
+			// onMouseLeave={handleMouseLeave}
 		>
-			{/* <div className="card-item">
+			<div className="card-item">
 				<div className="card-item-style card-item-style-btn">
-					<button className="card-btn" onClick={() => navigate('/note/new')}>
+					<button className="card-btn" onClick={handleNewNotes}>
 						<Plus />
 						Create Note
 					</button>
 				</div>
-			</div> */}
+			</div>
 			{notes?.data?.slice(0, 12).map((note, index) => (
 				<div
 					className="card-item"
@@ -740,13 +853,13 @@ const Files = () => {
 					onClick={() => navigate(`/note/${note?._id}`)}
 				>
 					<div className="card-item-style content-wrapper">
-						<span
+						{/* <span
 							className={`status-badge ${
 								note?.status === 'published' ? 'live' : 'draft'
 							}`}
 						>
 							{note?.status === 'published' ? 'Live' : 'Draft'}
-						</span>
+						</span> */}
 						<span className="item-title">
 							{note?.title?.slice(0, 20) || 'Untitled Note'}
 						</span>
@@ -790,8 +903,8 @@ const Files = () => {
 		return (
 			<div
 				className={`${info?.cardHover ? 'card-container-hover' : 'card-container'}`}
-				onMouseEnter={handleMouseEnter}
-				onMouseLeave={handleMouseLeave}
+				// onMouseEnter={handleMouseEnter}
+				// onMouseLeave={handleMouseLeave}
 			>
 				{mostUsedEntities?.data?.slice(0, 12).map((item, index) => (
 					<div
@@ -832,10 +945,10 @@ const Files = () => {
 		return (
 			<div
 				className={`${info?.cardHover ? 'card-container-hover' : 'card-container'}`}
-				onMouseEnter={handleMouseEnter}
-				onMouseLeave={handleMouseLeave}
+				// onMouseEnter={handleMouseEnter}
+				// onMouseLeave={handleMouseLeave}
 			>
-				{/* <div className="card-item">
+				<div className="card-item">
 					<div className="card-item-style card-item-style-btn">
 						<button
 							className="card-btn"
@@ -847,7 +960,7 @@ const Files = () => {
 							Create Template
 						</button>
 					</div>
-				</div> */}
+				</div>
 				{myWorkflows?.data?.slice(0, 12).map((template, index) => (
 					<div
 						className="card-item"
@@ -875,26 +988,29 @@ const Files = () => {
 
 	const renderGalleryGrid = () => {
 		if (!tenantGalleries?.galleries) {
-			return <Spinner />;
+			return (
+				<div className="spinner-container">
+					<Spinner />
+				</div>
+			);
 		}
-
 		return (
 			<div
 				className={`${info?.cardHover ? 'card-container-hover' : 'card-container'}`}
-				onMouseEnter={handleMouseEnter}
-				onMouseLeave={handleMouseLeave}
+				// onMouseEnter={handleMouseEnter}
+				// onMouseLeave={handleMouseLeave}
 			>
-				{/* <div className="card-item">
+				<div className="card-item">
 					<div className="card-item-style card-item-style-btn">
 						<button className="card-btn" onClick={handleCreateNewGallery}>
 							<Plus />
 							Create Folder
 						</button>
 					</div>
-				</div> */}
+				</div>
 				{tenantGalleries?.galleries?.slice(0, 12).map((item, index) => (
 					<div
-						className="card-item gallery-item"
+						className="card-item"
 						key={index}
 						onClick={() => handleNavigateGallery(item)}
 					>
@@ -916,8 +1032,18 @@ const Files = () => {
 									<Folder />
 								</div>
 							)}
+							{/* <span
+								className={`live-badge ${
+									item?.status === 'active' ? 'badge-active' : 'badge-draft'
+								}`}
+							>
+								<span className="live-badge-dot"></span>
+								<span className="live-badge-text">
+									{item?.status === 'published' ? 'Live' : 'Draft'}
+								</span>
+							</span> */}
 						</div>
-						<span className="gallery-item-title">{item?.title?.slice(0, 20)}</span>
+						<span className="gallery-item-title">{item?.title}</span>
 					</div>
 				))}
 			</div>
@@ -1062,35 +1188,41 @@ const Files = () => {
 				<div className="card-container-wrapper">
 					<div className="card-sub-container">
 						<div className="card-sub-container-left">
-							<div className="left-sidebar-header"></div>
+							<div className="left-sidebar-header">hihihih</div>
 						</div>
 						<div className="card-sub-container-center">
-							{info.search ? (
-								<SearchResults />
-							) : (
-								<>
-									{info.selectedView === 'Forms'
-										? renderFormsGrid()
-										: info.selectedView === 'Documents'
-										? renderDocsGrid()
-										: info.selectedView === 'Notes'
-										? renderNotesGrid()
-										: info.selectedView === 'All'
-										? renderMostUsedEntitiesGrid()
-										: info.selectedView === 'Templates'
-										? renderTemplatesGrid()
-										: renderGalleryGrid()}
-								</>
-							)}
+							{/* <div className="center-container-header">
+								<div className="center-container-dropdown"></div>
+								<div className="center-container-sort-by">A-Z</div>
+							</div> */}
+							<div className="center-container-content">
+								{info.search ? (
+									<SearchResults />
+								) : (
+									<>
+										{info.selectedView === 'Forms'
+											? renderFormsGrid()
+											: info.selectedView === 'Documents'
+											? renderDocsGrid()
+											: info.selectedView === 'Notes'
+											? renderNotesGrid()
+											: info.selectedView === 'All'
+											? renderMostUsedEntitiesGrid()
+											: info.selectedView === 'Templates'
+											? renderTemplatesGrid()
+											: renderGalleryGrid()}
+									</>
+								)}
+							</div>
 						</div>
 						<div className="card-sub-container-right">
 							<div className="right-sidebar-options">
 								{[
-									'All',
+									// 'All',
 									'Documents',
 									'Notes',
 									'Forms',
-									'Templates',
+									// 'Templates',
 									'Classic Gallery',
 									'Lite Gallery',
 								].map((option) => (
@@ -1130,12 +1262,13 @@ const Files = () => {
 					</div>
 				</div>
 			</div>
+
 			<CreateGallery
 				open={info.createNewGalleryModal}
 				closeModal={handleCloseModal}
 				fetchGalleries={fetchGalleries}
 				message={message}
-				isLightGallery={false}
+				isLightGallery={info.selectedView === 'Lite Gallery'}
 			/>
 			<ProposalsPopup
 				open={info?.openProposalPopup}
