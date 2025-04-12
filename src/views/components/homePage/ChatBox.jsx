@@ -121,6 +121,9 @@ const ChatBox = ({
 	toggleLatestStreamMessage,
 	isPublicChat = false,
 	showIconText = true,
+	autoFocus = true,
+	uploadFileTooltipPlacement = 'top',
+	searchTypeTooltipPlacement = 'top',
 }) => {
 	const {
 		templates: {
@@ -1058,16 +1061,35 @@ const ChatBox = ({
 						<div className="chatBodyContainer">
 							<div className="chatInputContainer">
 								<div className={`chatInputParentContainer`}>
-									<textarea
-										type="text"
-										placeholder="Ask me anything or type @ to add sources."
-										value={info?.chatQuery}
-										onChange={handleTextAreaChange}
-										autoFocus={true}
-										onKeyDown={handleSendMessageFunc}
-										className="textArea"
-										ref={textAreaRef}
-									/>
+									<div className="chat-input-container">
+										{(chatInfo?.reason?.webSearch ||
+											chatInfo?.reason?.workspaceSearch) && (
+											<div className="active-search-types">
+												{chatInfo?.reason?.webSearch && (
+													<div className={`search-type`}>
+														<WebSvg selected={true} />
+													</div>
+												)}
+												{chatInfo?.reason?.workspaceSearch && (
+													<div
+														className={`search-type knowledge-search-type `}
+													>
+														<BookSvg selected={true} />
+													</div>
+												)}
+											</div>
+										)}
+										<textarea
+											type="text"
+											placeholder="Ask me anything or type @ to add sources."
+											value={info?.chatQuery}
+											onChange={handleTextAreaChange}
+											autoFocus={autoFocus}
+											onKeyDown={handleSendMessageFunc}
+											className="textArea"
+											ref={textAreaRef}
+										/>
+									</div>
 									<div className="options-container">
 										{info?.showFilters ? (
 											<div className="filters-parent-container">
@@ -1168,6 +1190,9 @@ const ChatBox = ({
 															}
 															recentFiles={
 																recentFilesRef.current || []
+															}
+															tooltipPlacement={
+																uploadFileTooltipPlacement
 															}
 														>
 															<Tooltip
@@ -1312,6 +1337,9 @@ const ChatBox = ({
 																}));
 															}}
 															searchTypeOptions={searchTypeOptions}
+															tooltipPlacement={
+																searchTypeTooltipPlacement
+															}
 														>
 															<Tooltip
 																title={

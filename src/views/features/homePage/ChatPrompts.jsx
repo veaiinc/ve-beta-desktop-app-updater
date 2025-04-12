@@ -1,4 +1,4 @@
-import React, { memo, useContext, useEffect, useState } from 'react';
+import React, { memo, useContext, useEffect, useRef, useState } from 'react';
 import '../../../assets/scss/home_page/chatPrompts.scss';
 import Context from '../../../context/context';
 import PromptPopup from '../../components/homePage/PromptPopup';
@@ -28,7 +28,13 @@ const promptsList = [
 	},
 ];
 let timeoutId;
-const ChatPrompts = ({ promptsCategory, updatePromptsCategory }) => {
+const ChatPrompts = ({
+	promptsCategory,
+	updatePromptsCategory,
+	isHeaderMinimized,
+	onMinimizeHeader = null,
+	onExpandHeader = null,
+}) => {
 	const {
 		aiSetup: { getPromptsData, promptsData },
 	} = useContext(Context);
@@ -42,9 +48,19 @@ const ChatPrompts = ({ promptsCategory, updatePromptsCategory }) => {
 		promptPopupOpen: false,
 	});
 
+	const infiniteScrollRef = useRef(null);
+
 	useEffect(() => {
 		return () => clearTimeout(timeoutId);
 	}, []);
+
+	// useEffect(() => {
+	// 	const element = document?.querySelector('.infinite-scroll-container');
+	// 	if (element) {
+	// 		infiniteScrollRef.current = element;
+	// 		element?.addEventListener('scroll', handleScroll);
+	// 	}
+	// }, []);s
 
 	useEffect(() => {
 		if (promptsData) {
@@ -77,6 +93,19 @@ const ChatPrompts = ({ promptsCategory, updatePromptsCategory }) => {
 			}
 		}
 	}, [promptsData]);
+
+	// const handleScroll = () => {
+	// 	if (infiniteScrollRef?.current?.scrollTop === 0) {
+	// 		// if (isHeaderMinimized) {
+	// 		onExpandHeader?.();
+	// 		// }
+	// 	} else {
+	// 		// if (!isHeaderMinimized) {
+	// 		onMinimizeHeader();
+
+	// 		// }
+	// 	}
+	// };
 
 	const fetchAiSuggestedPrompts = async (page = 1, searchQuery = '') => {
 		const payload = {
@@ -166,7 +195,9 @@ const ChatPrompts = ({ promptsCategory, updatePromptsCategory }) => {
 							next={fetchMoreAiSuggestedPrompts}
 							hasMore={info?.hasNextPage || false}
 							loader={<FetchMoreLoaderComp wrapperStyle={{ width: '100%' }} />}
-							height={`calc(100vh - 435px)`}
+							height={
+								isHeaderMinimized ? 'calc(100vh - 310px)' : `calc(100vh - 435px)`
+							}
 							className="infinite-scroll-container"
 						>
 							<div className="suggested-prompts-container">
