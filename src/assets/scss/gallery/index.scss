@@ -144,6 +144,21 @@
 						height: 100%;
 						object-fit: cover;
 					}
+					.publishIndicator {
+						display: flex;
+						gap: 4px;
+						position: absolute;
+						top: 10px;
+						left: 10px;
+						align-items: center;
+						p {
+							color: var(--secondary-font);
+							font-size: 10px;
+							font-weight: 500;
+							line-height: 14px;
+							text-transform: uppercase;
+						}
+					}
 				}
 				.galleryTitle {
 					display: flex;
