@@ -58,6 +58,9 @@ import Files from './views/features/files/Files';
 import KnowledgeAgents from './views/features/knowledgeAgent/KnowledgeAgents';
 import KnowledgeAgentDetails from './views/features/knowledgeAgent/AgentDetails';
 import EditKnowledgeAgent from './views/features/knowledgeAgent/EditAgent';
+import FormResCard from './views/components/forms/FormResCard';
+import FormAnalytics from './views/components/forms/FormAnalytics';
+import FormSummary from './views/components/forms/FormSummary';
 
 import SchedulerMainPage from './views/features/calendar/SchedulerMainPage';
 import EditScheduler from './views/features/calendar/EditScheduler';
@@ -517,10 +520,28 @@ const routes = [
 		exact: true,
 	},
 	{
-		path: '/form-response/:id',
+		path: '/forms/:id/analytics',
 		component: (
-			<AuthWrapper title={'Form Response'}>
-				<FormFullView />
+			<AuthWrapper title={'Form Analytics'}>
+				<FormAnalytics view="analytics" />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/forms/:id/responses',
+		component: (
+			<AuthWrapper title={'Form Responses'}>
+				<FormResCard view="responses" />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/forms/:id/summary',
+		component: (
+			<AuthWrapper title={'Form Summary'}>
+				<FormSummary view="summary" />
 			</AuthWrapper>
 		),
 		exact: true,

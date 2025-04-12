@@ -1,6 +1,5 @@
 .formLeadsParentContainer {
-	color: var(--primary-font); // TODO: remove this
-
+	color: var(--primary-font);
 	width: 100%;
 	height: calc(100vh - 110px);
 	display: flex;
@@ -8,58 +7,81 @@
 	gap: 24px;
 	padding-right: 9px;
 	padding-bottom: 5px;
-	overflow-y: scroll;
+	overflow: hidden;
 
+	.formWrapper {
+		display: flex;
+		gap: 35px;
+		width: 100%;
+		height: 100%;
+		justify-content: space-between;
+		overflow: hidden;
+	}
 	.headerContainer {
 		display: flex;
 		align-items: center;
-
+		justify-content: space-between;
 		.backBtn {
 			display: flex;
 			align-items: center;
-			gap: 8px;
+			gap: 6px;
 			cursor: pointer;
+			font-size: 14px;
 		}
 	}
-
+	.formDescription {
+		width: 40%;
+		padding: 20px;
+		margin: 20px;
+		background: var(--card);
+		border-radius: 24px;
+		height: calc(100% - 40px);
+	}
+	.backBtnContainer {
+		padding: 5px;
+	}
 	.formEnquiryContainer {
 		display: flex;
-		flex-direction: row;
-		justify-content: space-between;
-		align-self: stretch;
+		gap: 25px;
+		width: 55%;
 
 		.headerContainer {
 			display: flex;
 			align-items: center;
-			gap: 8px;
-			align-self: stretch;
+			gap: 6px;
 
 			.headerTitle {
 				display: flex;
-				align-items: center;
-				gap: 14px;
-				border-radius: 100px;
+				overflow: hidden;
 				color: var(--primary-font);
-				font-family: var(--primary-font-family);
-				font-size: 18px;
+				color: var(--primary-font);
+				text-overflow: ellipsis;
+				font-family: Inter;
+				font-size: 20px;
 				font-style: normal;
 				font-weight: 500;
-				line-height: normal;
+				line-height: 26px;
+				display: -webkit-box;
+				-webkit-box-orient: vertical;
+				-webkit-line-clamp: 1;
 			}
 		}
 
-		.formSummaryContainer {
-			border-radius: 26px;
+		.formContainer {
 			display: flex;
-			align-items: flex-start;
-			gap: 16px;
-			align-self: stretch;
+			gap: 24px;
+			width: 100%;
+			// background: var(--card);
+			border-radius: 24px;
+			// padding: 30px;
+			flex-direction: column;
 
 			.imgContainer {
-				width: 200px;
-				height: 150px;
-				border-radius: 12px;
+				width: 180px;
+				height: 135px;
+				border-radius: 10px;
 				position: relative;
+
 				.editDesignContainer {
 					display: none;
 					position: absolute;
@@ -76,24 +98,26 @@
 						align-items: center;
 						padding: 0;
 						margin: 0;
-						width: 110px;
+						width: 100px;
 						font: inherit;
 						color: inherit;
-						font-size: 12px;
+						font-size: 11px;
 						font-weight: 500;
 						line-height: 1.2;
 						letter-spacing: 0.05em;
 						color: var(--primary-font);
-						padding: 4px 8px;
+						padding: 3px 6px;
 						border-radius: 4px;
 						justify-content: space-between;
+
 						span {
-							font-size: 12px;
+							font-size: 11px;
 							font-style: normal;
 							font-weight: 500;
 						}
 					}
 				}
+
 				&:hover {
 					iframe {
 						opacity: 0.5;
@@ -103,66 +127,150 @@
 					}
 				}
 			}
-
 			.detailsContainer {
 				display: flex;
 				flex-direction: column;
 				align-items: flex-start;
 				justify-content: space-between;
-				gap: 16px;
-				flex: 1 0 0;
-				align-self: stretch;
+				gap: 12px;
+				padding: 5px;
+
+				width: 100%;
 				.headerContainer {
 					display: flex;
-					align-items: center;
-					gap: 10px;
-					border-radius: 100px;
+
+					gap: 8px;
+
 					color: var(--primary-font);
 					font-family: Inter;
 					font-style: normal;
 					font-weight: 500;
 					line-height: normal;
-				}
+					width: 100%;
 
+					.header-left {
+						display: flex;
+						justify-content: space-between;
+						color: var(--primary-font);
+						flex: 1;
+
+						.liveBadge {
+							display: flex;
+							height: 24px;
+							padding: 4px 10px;
+							justify-content: center;
+							align-items: center;
+							gap: 6px;
+							border-radius: 100px;
+
+							.liveBadgeText {
+								color: var(--background-color);
+							}
+
+							&.live-badge--complete {
+								background: #c2ff00;
+								color: var(--primary-font);
+							}
+							.liveBadge,
+							.live-badge--complete {
+								flex-direction: row;
+								margin-left: 100px;
+							}
+							&.live-badge--incomplete {
+								background-color: #373737;
+								color: var(--primary-font);
+							}
+						}
+					}
+				}
+				.dataEnrichmentText {
+					display: flex;
+					align-items: center;
+					gap: 5px;
+					font-family: Inter;
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: 16px;
+
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
+				}
 				.headerTitle {
+					overflow: hidden;
+					color: var(--primary-font, #f2f2f3);
+					color: var(--primary-font, color(display-p3 0.949 0.949 0.9529));
+					text-overflow: ellipsis;
+					font-family: Inter;
+					font-size: 20px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: 26px; /* 130% */
+				}
+
+				.dataEnrichmentToggle {
 					display: flex;
 					align-items: center;
-					gap: 14px;
-					border-radius: 100px;
+					gap: 16px;
 					color: var(--primary-font);
-					font-family: Inter;
-					font-size: 18px;
+					font-family: var(--primary-font-family);
+					font-size: 12px;
 					font-style: normal;
 					font-weight: 500;
 					line-height: normal;
+
+					.ant-switch {
+						height: 16px;
+						min-width: 32px;
+						line-height: 16px;
+
+						.ant-switch-handle {
+							width: 12px;
+							height: 12px;
+						}
+					}
+
+					.ant-switch-checked {
+						background-color: #1890ff;
+					}
+
+					.liveBadgeText {
+						font-size: 11px;
+						font-style: normal;
+						font-weight: 500;
+						color: rgba(0, 0, 0, 0.8);
+					}
 				}
 
-				.switchContainer {
-					display: flex;
-					align-items: center;
-					gap: 14px;
-				}
 				.formMetricsContainer {
 					display: flex;
 					align-items: flex-start;
-					gap: 12px;
+					gap: 6px; /* Further reduced gap to fit all cards */
 					align-self: stretch;
+					flex-wrap: nowrap; /* Prevent wrapping to ensure single line */
+					overflow-x: auto; /* Add horizontal scroll if needed */
 
 					.metricsCard {
-						border-radius: 16px;
+						border-radius: 10px; /* Slightly reduced border radius */
 						background: var(--card);
-						display: flex;
-						width: 166px;
-						padding: 16px;
+						min-width: 100px;
+						display: flex; /* Further reduced width to fit all cards */ /* Reduced padding */
+						width: auto; /* Further reduced width to fit all cards */ /* Reduced padding */
 						flex-direction: column;
 						justify-content: center;
+						align-items: flex-start;
+						gap: 2px; /* Reduced gap */
+						flex-shrink: 0; /* Prevent cards from shrinking */
+
+						height: 66px;
+						padding: 12px;
 						align-items: flex-start;
 						gap: 4px;
 
 						.value {
 							color: var(--primary-font);
 							font-family: var(--primary-font-family);
-							font-size: 20px;
+							font-size: 14px; /* Further reduced font size */
 							font-style: normal;
 							font-weight: 500;
 							line-height: normal;
@@ -171,10 +279,11 @@
 						.title {
 							color: var(--secondary-font);
 							font-family: var(--primary-font-family);
-							font-size: 12px;
+							font-size: 9px; /* Further reduced font size */
 							font-style: normal;
 							font-weight: 500;
 							line-height: normal;
+							white-space: nowrap; /* Prevent text wrapping */
 						}
 					}
 				}
@@ -182,33 +291,33 @@
 				.formCTAContainer {
 					display: flex;
 					align-items: center;
-					gap: 12px;
+					gap: 8px;
 					align-self: stretch;
 
 					.divider {
 						width: 1px;
-						height: 15px;
+						height: 12px;
 						background: var(--stroke);
 					}
 
 					.ctaBtn {
 						display: flex;
-						height: 34px;
-						padding: 8px 16px;
+						height: 30px;
+						padding: 6px 12px;
 						justify-content: center;
 						align-items: center;
-						gap: 10px;
+						gap: 8px;
 						color: var(--secondary-font);
 						font-family: var(--primary-font-family);
-						font-size: 13px;
+						font-size: 12px;
 						font-style: normal;
 						font-weight: 500;
 						line-height: normal;
 						cursor: pointer;
 
 						svg {
-							width: 16px;
-							height: 16px;
+							width: 14px;
+							height: 14px;
 							opacity: 0.5;
 						}
 					}
@@ -216,25 +325,29 @@
 			}
 		}
 	}
-
+	.liveoption {
+		display: flex;
+		align-items: center;
+		gap: 16px;
+	}
 	.formDetailsContainer {
 		display: flex;
 		flex-direction: column;
 		align-items: flex-start;
-		gap: 32px;
-		padding-top: 24px;
+		gap: 24px;
+
 		align-self: stretch;
 
 		.headerContainer {
 			display: flex;
-			width: 100%;
 			justify-content: space-between;
 			align-items: center;
+			// background-color: red;
 
 			.formViewTabsContainer {
 				display: inline-flex;
 				align-items: center;
-				gap: 5px;
+				gap: 4px;
 				align-self: stretch;
 
 				.tabContainer {
@@ -246,12 +359,13 @@
 					.formViewTab {
 						cursor: pointer;
 						display: flex;
-						padding: 12px 16px;
+						padding: 10px 14px;
 						flex-direction: column;
 						align-items: flex-start;
-						gap: 10px;
+						gap: 8px;
 						opacity: 0.7;
 						transition: opacity 0.3s ease;
+						font-size: 14px;
 
 						&:hover {
 							opacity: 0.8;
@@ -260,10 +374,11 @@
 
 					.active {
 						opacity: 1;
+						color: var(--);
 					}
 
 					.divider {
-						width: 25px;
+						width: 20px;
 						height: 1px;
 						background: var(--secondary-font);
 						opacity: 0;
@@ -280,7 +395,7 @@
 				display: flex;
 				align-items: center;
 				justify-content: space-between;
-				gap: 16px;
+				gap: 12px;
 
 				svg {
 					cursor: pointer;
@@ -288,19 +403,18 @@
 
 				.searchContainer {
 					position: relative;
-					// background-color: red;
-					min-width: 16px;
+					min-width: 14px;
 					display: inline-block;
-					height: 16px;
+					height: 14px;
 					transition: all 0.3s ease;
 
 					.searchBtn {
 						display: flex;
-						width: 16px;
+						width: 14px;
 						transform: rotate(-0.037deg);
 						padding: 0px;
 						align-items: center;
-						gap: 10px;
+						gap: 8px;
 						flex-shrink: 0;
 						border-radius: 100px;
 						background: transparent;
@@ -315,6 +429,7 @@
 							display: none;
 							transition: all 0.3s ease;
 							overflow: hidden;
+
 							.searchInputTag {
 								flex: 1;
 								background-color: transparent;
@@ -322,7 +437,7 @@
 								transition: all 0.3s ease;
 								border: none;
 								font-family: var(--primary-font-family);
-								font-size: 13px;
+								font-size: 12px;
 								font-style: normal;
 								font-weight: 400;
 								line-height: normal;
@@ -330,7 +445,7 @@
 								&::placeholder {
 									color: var(--secondary-font);
 									font-family: var(--primary-font-family);
-									font-size: 13px;
+									font-size: 12px;
 									font-style: normal;
 									font-weight: 400;
 									line-height: normal;
@@ -341,51 +456,56 @@
 
 					.searchExpand {
 						display: flex;
-						width: 140px;
+						width: 120px;
 						opacity: 1;
 						z-index: 99;
 
 						.inputAndCloseContainer {
-							width: 120px;
+							width: 100px;
 							display: flex;
 							align-items: center;
+
 							input {
-								width: 100px;
+								width: 80px;
 							}
 						}
 					}
 				}
 			}
 		}
+
+		.tabContent {
+			width: 100%;
+			align-self: stretch;
+		}
 	}
 
 	.live-badge {
 		&--complete {
-			padding: 4px;
+			padding: 3px;
 			border-radius: 20%;
 			background-color: var(--success, #375841);
 		}
 
 		&--incomplete {
-			padding: 4px;
+			padding: 3px;
 			border-radius: 20%;
 			background-color: var(--pending, #373737);
 		}
 	}
 }
 
-.header-left {
-	display: flex;
-	align-items: center;
-	gap: 14px;
-	border-radius: 100px;
-	color: var(--primary-font);
-}
+// .header-left {
+// 	display: flex;
+// 	align-items: center;
+// 	color: var(--primary-font);
+// }
 
 .status-indicator {
-	width: 10px;
-	height: 6px;
+	width: 8px;
+	height: 5px;
 	border-radius: 50%;
+
 	&--published {
 		background-color: #34d399;
 	}
@@ -396,13 +516,13 @@
 }
 
 .three-dots-icon {
-	width: 17px;
-	height: 17px;
+	width: 15px;
+	height: 15px;
 	cursor: pointer;
 }
 
 .iframe-preview {
-	border-radius: 24px;
+	border-radius: 20px;
 	border: none;
 	width: 100%;
 	height: 100%;
@@ -411,7 +531,7 @@
 .delete-menu-item {
 	display: flex;
 	align-items: center;
-	gap: 4px;
+	gap: 3px;
 	color: var(--error);
 }
 
