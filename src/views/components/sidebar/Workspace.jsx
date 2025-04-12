@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useState } from 'react';
+import React, { memo, useCallback, useContext, useState, useEffect } from 'react';
 import { ReactComponent as ArrowLeftSvg } from '../../../assets/svg/sidebar/leftarrowwhite.svg';
 import SearchSvg from '../../../assets/svg/sidebar/SearchSvg';
 import { ReactComponent as LogoutRedSvg } from '../../../assets/svg/sidebar/logout_red.svg';
@@ -13,7 +13,19 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 	const navigate = useNavigate();
 	const logoutFunc = useLogout();
 	const [searchWorkspace, setSearchWorkspace] = useState('');
+	const [focusedIndex, setFocusedIndex] = useState(0);
 
+	useEffect(() => {
+		if (userWorkSpaceList && info?.activeBusniessName?.activeWorkspaceId) {
+			const activeIndex = userWorkSpaceList.findIndex(
+				(workspace) =>
+					workspace.activeWorkspaceId === info.activeBusniessName.activeWorkspaceId,
+			);
+			if (activeIndex !== -1) {
+				setFocusedIndex(activeIndex);
+			}
+		}
+	}, [userWorkSpaceList, info?.activeBusniessName?.activeWorkspaceId]);
 	const {
 		subscriptionInfo: { renewBanner },
 	} = useContext(Context);
@@ -25,6 +37,26 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 	const filteredWorkspaces = userWorkSpaceList?.filter((workspace) =>
 		workspace?.businessName?.toLowerCase().includes(searchWorkspace.toLowerCase()),
 	);
+
+	useEffect(() => {
+		const handleKeyDown = (e) => {
+			if (!filteredWorkspaces || filteredWorkspaces.length === 0) return;
+
+			if (e.key === 'ArrowDown') {
+				e.preventDefault();
+				setFocusedIndex((prev) => (prev < filteredWorkspaces.length - 1 ? prev + 1 : 0));
+			} else if (e.key === 'ArrowUp') {
+				e.preventDefault();
+				setFocusedIndex((prev) => (prev > 0 ? prev - 1 : filteredWorkspaces.length - 1));
+			} else if (e.key === 'Enter') {
+				handleSwitchWorkSpaceLogic(filteredWorkspaces[focusedIndex]);
+			}
+		};
+
+		window.addEventListener('keydown', handleKeyDown);
+		return () => window.removeEventListener('keydown', handleKeyDown);
+	}, [filteredWorkspaces, focusedIndex]);
+
 	const handleSwitchWorkSpaceLogic = useCallback(
 		(data) => {
 			const { activeWorkspaceId, isOnboard } = data;
@@ -125,9 +157,9 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 								className={`singleWorkspace ${
 									singleWorkspace?.activeWorkspaceId ===
 									info?.activeBusniessName?.activeWorkspaceId
-										? 'activeWorkspace'
+										? 'activeWorkspace '
 										: ''
-								}`}
+								}${index === focusedIndex ? 'focused' : ''}`}
 								onClick={() => {
 									handleSwitchWorkSpaceLogic(singleWorkspace);
 								}}
@@ -156,7 +188,7 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 							</div>
 						))}
 
-						<div className="workspaceListFooter">
+						{/* <div className="workspaceListFooter">
 							<hr
 								style={{
 									border: '0.1px solid var(--stroke)',
@@ -171,7 +203,7 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 									<LogoutRedSvg />
 								</div>
 							</div>
-						</div>
+						</div> */}
 					</div>
 				) : (
 					''

@@ -14,13 +14,15 @@ import { ReactComponent as SingleRightArrowSvg } from '../../../assets/svg/sideb
 import { ReactComponent as SwitchWorkspaceSvg } from '../../../assets/svg/sidebar/switchWorkspace.svg';
 import WorkspaceListComponent from './Workspace';
 import useLogout from '../../hooks/useLogout';
-import { message, Tooltip } from 'antd';
+import { Tooltip } from 'antd';
 import ChatHistory from './chatHistory/ChatHistory';
 
 import { ReactComponent as LogoutRedSvg } from '../../../assets/svg/sidebar/logout_red.svg';
 import Cropper from 'react-easy-crop';
 import Context from '../../../context/context';
 import { getInitials } from '../../../helpers/index';
+import { message } from '../globalComponents/CustomToast';
+
 const workspaceStyles = {
 	position: 'absolute',
 	top: '60px', // Adjust this value based on your header height
@@ -457,6 +459,13 @@ const OpenedSidebar = ({
 		[location.pathname],
 	);
 
+	useEffect(() => {
+		if (showSettingsSidebar && settingsOptions?.length > 0) {
+			const firstItem = settingsOptions[0];
+			setSelectedSettingsOption(firstItem.name);
+			navigate(firstItem.route);
+		}
+	}, [showSettingsSidebar, settingsOptions]);
 	return (
 		<>
 			<div style={{ display: 'flex', position: 'relative' }}>
@@ -569,17 +578,18 @@ const OpenedSidebar = ({
 															sidebarStates={sidebarStates}
 															info={info}
 															userWorkSpaceList={userWorkSpaceList}
+															sidebarSettings="close"
 														/>
 													</div>
 												)}
 											{!isThisEarlyAccessPage && (
 												<>
-													<hr
+													{/* <hr
 														style={{
 															border: '0.7px solid var(--stroke)',
 															margin: '16px 0px',
 														}}
-													/>
+													/> */}
 													{filteredModules?.map((singleItem) => (
 														<div key={singleItem.id}>
 															<OpenedSidebarModules
@@ -650,56 +660,62 @@ const OpenedSidebar = ({
 															setShowSettingsSidebar((prev) => !prev);
 														}}
 													>
-														<div className="settingsOptionsUserInfo">
-															<div>
-																{userDetailsData?.logoURL ? (
-																	<div className="crop-container">
-																		<Cropper
-																			image={
-																				userDetailsData?.logoURL
-																			} // Image URL to crop
-																			crop={
-																				userDetailsData
-																					?.cropSettings
-																					?.crop
-																			}
-																			zoom={
-																				userDetailsData
-																					?.cropSettings
-																					?.zoom
-																			}
-																			showGrid={false}
-																			onCropChange={(e) => ''}
-																			onCropComplete={(e) =>
-																				''
-																			}
-																			onZoomChange={(e) => ''}
-																		/>
-																	</div>
-																) : (
-																	<div
-																		className="noImageText"
-																		style={{
-																			background:
-																				userDetailsData
-																					?.cropSettings
-																					?.profileDpColor ||
-																				'',
-																			fontSize: '12px',
-																		}}
-																	>
-																		{getInitials(
-																			userDetailsData?.firstName,
-																			userDetailsData?.lastName,
-																		)}
-																	</div>
-																)}
+														<div className="settingsHoverState">
+															<div className="settingsOptionsUserInfo">
+																<div>
+																	{userDetailsData?.logoURL ? (
+																		<div className="crop-container">
+																			<Cropper
+																				image={
+																					userDetailsData?.logoURL
+																				} // Image URL to crop
+																				crop={
+																					userDetailsData
+																						?.cropSettings
+																						?.crop
+																				}
+																				zoom={
+																					userDetailsData
+																						?.cropSettings
+																						?.zoom
+																				}
+																				showGrid={false}
+																				onCropChange={(e) =>
+																					''
+																				}
+																				onCropComplete={(
+																					e,
+																				) => ''}
+																				onZoomChange={(e) =>
+																					''
+																				}
+																			/>
+																		</div>
+																	) : (
+																		<div
+																			className="noImageText"
+																			style={{
+																				background:
+																					userDetailsData
+																						?.cropSettings
+																						?.profileDpColor ||
+																					'',
+																				fontSize: '12px',
+																			}}
+																		>
+																			{getInitials(
+																				userDetailsData?.firstName,
+																				userDetailsData?.lastName,
+																			)}
+																		</div>
+																	)}
+																</div>
+																<div className="settingsOptionsUserName">
+																	{userDetailsData?.firstName}
+																</div>
 															</div>
-															<div className="settingsOptionsUserName">
-																{userDetailsData?.firstName}
-															</div>
+															<SingleRightArrowSvg fill="var(--primary-font)" />
 														</div>
-														<SingleRightArrowSvg fill="var(--primary-font)" />
 													</div>
 												</>
 											)}
@@ -743,7 +759,10 @@ const OpenedSidebar = ({
 				)}
 				{/* Settings Sidebar Overlay */}
 				{showSettingsSidebar && (
-					<div className="settings-sidebar">
+					<div
+						className="settings-sidebar"
+						style={{ height: renewBanner ? 'calc(100dvh - 41px)' : '100dvh' }}
+					>
 						{/* Settings Header */}
 						{sidebarStates?.workSpaceOpen && (
 							<div style={workspaceStyles}>
@@ -752,6 +771,7 @@ const OpenedSidebar = ({
 									sidebarStates={sidebarStates}
 									info={info}
 									userWorkSpaceList={userWorkSpaceList}
+									settingsSideBar="open"
 								/>
 							</div>
 						)}
