@@ -1,22 +1,11 @@
 import React, { useContext, useState, useEffect } from 'react';
 import '../../../assets/scss/globalComponents/automationWidget.scss';
-import { ReactComponent as AiSuggest } from '../../../assets/svg/aiIcon.svg';
-import { ReactComponent as ArrowRightIcon } from '../../../assets/svg/arrowRightIcon.svg';
 import { ReactComponent as PlusIcon } from '../../../assets/svg/calendar/plus.svg';
-import { ReactComponent as AutomationIcon } from '../../../assets/svg/contacts/automation.svg';
-import { ReactComponent as DeepSearchIcon } from '../../../assets/svg/contacts/deepsearch.svg';
-import { ReactComponent as TaskSuggestionIcon } from '../../../assets/svg/contacts/tasksuggestion.svg';
 import Context from '../../../context/context';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { useNavigate } from 'react-router-dom';
 import Skeleton from 'react-loading-skeleton';
-import { PromptData } from '../homePage/PromptData.js';
-import PromptPopup from '../homePage/PromptPopup.jsx';
-const iconMap = {
-	automation: <AutomationIcon />,
-	deepsearch: <DeepSearchIcon />,
-	tasksuggestion: <TaskSuggestionIcon />,
-};
+
 const statusColors = {
 	published: '#B2FF00',
 	unpublished: '#93989F',
@@ -75,10 +64,6 @@ const AutomationWidget = ({ width, height }) => {
 			...prev,
 			isLoading: false,
 		}));
-	};
-
-	const handlePromptPopup = (item) => {
-		setInfo((prev) => ({ ...prev, promptPopupOpen: true, selectedCard: item }));
 	};
 
 	return (

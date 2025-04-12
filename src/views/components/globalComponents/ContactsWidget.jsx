@@ -1,24 +1,9 @@
-import React, { useContext, useEffect, useRef, useCallback, useState } from 'react';
+import React, { useContext, useEffect, useCallback, useState } from 'react';
 import '../../../assets/scss/globalComponents/contactsWidget.scss';
-import { ReactComponent as AiSuggest } from '../../../assets/svg/aiIcon.svg';
-import { ReactComponent as ArrowRightIcon } from '../../../assets/svg/arrowRightIcon.svg';
 import { ReactComponent as PlusIcon } from '../../../assets/svg/calendar/plus.svg';
 import Context from '../../../context/context';
-import { ReactComponent as AutomationIcon } from '../../../assets/svg/contacts/automation.svg';
-import { ReactComponent as DeepSearchIcon } from '../../../assets/svg/contacts/deepsearch.svg';
-import { ReactComponent as TaskSuggestionIcon } from '../../../assets/svg/contacts/tasksuggestion.svg';
-import { ReactComponent as ContactsIcon } from '../../../assets/svg/contacts/contact.svg';
-import { PromptData } from '../homePage/PromptData.js';
 import Skeleton from 'react-loading-skeleton';
 import { useNavigate } from 'react-router-dom';
-import PromptPopup from '../homePage/PromptPopup.jsx';
-
-const iconMap = {
-	automation: <AutomationIcon />,
-	deepsearch: <DeepSearchIcon />,
-	tasksuggestion: <TaskSuggestionIcon />,
-	contacts: <ContactsIcon />,
-};
 
 const skeletonLoaders = Array.from({ length: 6 }, (_, index) => index + 1);
 
@@ -87,10 +72,6 @@ const ContactsWidget = ({ width, height }) => {
 			fetchClientList();
 		}
 	}, [info?.searchValue, info?.filters, info?.sort]);
-
-	const handlePromptPopup = (item) => {
-		setInfo((prev) => ({ ...prev, promptPopupOpen: true, selectedCard: item }));
-	};
 
 	return (
 		<div className="contactsWidgetContainer" style={{ width: width, height: height }}>

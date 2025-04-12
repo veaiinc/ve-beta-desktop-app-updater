@@ -3,21 +3,10 @@ import '../../../assets/scss/globalComponents/taskWidget.scss';
 import { ReactComponent as DownArrowIcon } from '../../../assets/svg/chat/downArrow.svg';
 import { ReactComponent as FiltersIcon } from '../../../assets/svg/tasks/filterLines.svg';
 import { ReactComponent as PlusIcon } from '../../../assets/svg/calendar/plus.svg';
-import { ReactComponent as AutomationIcon } from '../../../assets/svg/contacts/automation.svg';
-import { ReactComponent as DeepSearchIcon } from '../../../assets/svg/contacts/deepsearch.svg';
-import { ReactComponent as TaskSuggestionIcon } from '../../../assets/svg/contacts/tasksuggestion.svg';
-import { PromptData } from '../homePage/PromptData.js';
 import Context from '../../../context/context';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import Skeleton from 'react-loading-skeleton';
 import { useNavigate } from 'react-router-dom';
-import PromptPopup from '../homePage/PromptPopup.jsx';
-
-const iconMap = {
-	automation: <AutomationIcon />,
-	deepsearch: <DeepSearchIcon />,
-	task: <TaskSuggestionIcon />,
-};
 
 const skeletonLoaders = Array.from({ length: 6 }, (_, index) => index + 1);
 const TaskWidget = ({ width, height }) => {
@@ -61,10 +50,6 @@ const TaskWidget = ({ width, height }) => {
 		if (hasNextPage) {
 			getTasksList(info?.page);
 		}
-	};
-
-	const handlePromptPopup = (item) => {
-		setInfo((prev) => ({ ...prev, promptPopupOpen: true, selectedCard: item }));
 	};
 
 	return (

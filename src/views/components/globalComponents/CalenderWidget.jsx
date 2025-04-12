@@ -1,16 +1,10 @@
 import React, { useState, useContext, useEffect } from 'react';
 import '../../../assets/scss/globalComponents/calenderWidget.scss';
 import { ReactComponent as PlusIcon } from '../../../assets/svg/calendar/plus.svg';
-import { ReactComponent as AutomationIcon } from '../../../assets/svg/contacts/automation.svg';
-import { ReactComponent as DeepSearchIcon } from '../../../assets/svg/contacts/deepsearch.svg';
-import { ReactComponent as TaskSuggestionIcon } from '../../../assets/svg/contacts/tasksuggestion.svg';
-import { ReactComponent as CalendarIcon } from '../../../assets/svg/contacts/calendar.svg';
 import { useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
-import PromptPopup from '../homePage/PromptPopup.jsx';
-import { PromptData } from '../homePage/PromptData.js';
 
-const CalenderWidget = ({ width, height }) => {
+const CalenderWidget = ({ width }) => {
 	const {
 		calendarInfo: { getCalendarEventsList, calendarEventsList },
 	} = useContext(Context);
@@ -25,9 +19,6 @@ const CalenderWidget = ({ width, height }) => {
 	useEffect(() => {
 		getCalendarEventsList(info?.currentCalendarDate);
 	}, [info?.currentCalendarDate]);
-	const handlePromptPopup = (item) => {
-		setInfo((prev) => ({ ...prev, promptPopupOpen: true, selectedCard: item }));
-	};
 	return (
 		<div className="calender-main-container" style={{ width: width, height: '412px' }}>
 			<div className="calenderWidgetContainer">
@@ -84,29 +75,6 @@ const CalenderWidget = ({ width, height }) => {
 					<PlusIcon />
 				</div>
 			</div>
-			{/* <div className="calenderWidgetSection2">
-				{PromptData.filter((item) => item.type === 'calendar').map((item) => (
-					<div
-						className="calenderWidgetSection2Item"
-						onClick={() => handlePromptPopup(item)}
-					>
-						<div className="calenderWidgetSection2ItemContainer">
-							{iconMap[item.type]}
-							<div className="calenderWidgetSection2ItemTitle">
-								{item.type.charAt(0).toUpperCase() + item.type.slice(1)}
-							</div>
-						</div>
-						<div className="calenderWidgetSection2ItemSubtitle">{item.title}</div>
-					</div>
-				))}
-			</div>
-			<PromptPopup
-				open={info?.promptPopupOpen}
-				closeModal={() =>
-					setInfo((prev) => ({ ...prev, promptPopupOpen: false, selectedCard: null }))
-				}
-				selectedCard={info?.selectedCard}
-			/> */}
 		</div>
 	);
 };
