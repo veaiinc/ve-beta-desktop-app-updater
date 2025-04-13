@@ -122,6 +122,9 @@ const ChatBox = ({
 	toggleLatestStreamMessage,
 	isPublicChat = false,
 	showIconText = true,
+	autoFocus = true,
+	uploadFileTooltipPlacement = 'top',
+	searchTypeTooltipPlacement = 'top',
 }) => {
 	const {
 		templates: {
@@ -136,7 +139,6 @@ const ChatBox = ({
 			currentSessionId,
 			handleStreamSendMessage,
 			activePayloadForChat,
-			followUpQuery,
 			chatInfo,
 			userEditedQuery,
 			galleryFile,
@@ -173,7 +175,6 @@ const ChatBox = ({
 		isModulesDropdownOpen: false,
 		recentFiles: [],
 		isVoiceMuted: false,
-		followUpQuery: null,
 		isLLMModelOpen: false,
 		searchTypeOpen: false,
 	});
@@ -254,16 +255,6 @@ const ChatBox = ({
 			});
 		}
 	}, [recentFilesRef?.current, uploadedImagesRef?.current]);
-
-	useEffect(() => {
-		if (followUpQuery) {
-			setInfo((prev) => ({
-				...prev,
-				followUpQuery,
-			}));
-			updateStateValues({ followUpQuery: null });
-		}
-	}, [followUpQuery]);
 
 	useEffect(() => {
 		if (latestStreamMesage && lastQuery) {
@@ -979,19 +970,6 @@ const ChatBox = ({
 		}
 	};
 
-	const handleFollowUpQueryClick = () => {
-		if (info?.chatLoading) {
-			return;
-		}
-		if (info?.followUpQuery?.trim()?.length > 0) {
-			updateStateValues({ activePromptForChat: info?.followUpQuery, followUpQuery: null });
-			setInfo((prev) => ({
-				...prev,
-				followUpQuery: null,
-			}));
-		}
-	};
-
 	const handleLLMModelOptionClick = (model) => {
 		updateStateValues({
 			chatInfo: {
@@ -1067,16 +1045,35 @@ const ChatBox = ({
 						<div className="chatBodyContainer">
 							<div className="chatInputContainer">
 								<div className={`chatInputParentContainer`}>
-									<textarea
-										type="text"
-										placeholder="Ask me anything or type @ to add sources."
-										value={info?.chatQuery}
-										onChange={handleTextAreaChange}
-										autoFocus={true}
-										onKeyDown={handleSendMessageFunc}
-										className="textArea"
-										ref={textAreaRef}
-									/>
+									<div className="chat-input-container">
+										{(chatInfo?.reason?.webSearch ||
+											chatInfo?.reason?.workspaceSearch) && (
+											<div className="active-search-types">
+												{chatInfo?.reason?.webSearch && (
+													<div className={`search-type`}>
+														<WebSvg selected={true} />
+													</div>
+												)}
+												{chatInfo?.reason?.workspaceSearch && (
+													<div
+														className={`search-type knowledge-search-type `}
+													>
+														<BookSvg selected={true} />
+													</div>
+												)}
+											</div>
+										)}
+										<textarea
+											type="text"
+											placeholder="Ask me anything or type @ to add sources."
+											value={info?.chatQuery}
+											onChange={handleTextAreaChange}
+											autoFocus={autoFocus}
+											onKeyDown={handleSendMessageFunc}
+											className="textArea"
+											ref={textAreaRef}
+										/>
+									</div>
 									<div className="options-container">
 										{info?.showFilters ? (
 											<div className="filters-parent-container">
@@ -1177,6 +1174,9 @@ const ChatBox = ({
 															}
 															recentFiles={
 																recentFilesRef.current || []
+															}
+															tooltipPlacement={
+																uploadFileTooltipPlacement
 															}
 														>
 															<Tooltip
@@ -1321,6 +1321,9 @@ const ChatBox = ({
 																}));
 															}}
 															searchTypeOptions={searchTypeOptions}
+															tooltipPlacement={
+																searchTypeTooltipPlacement
+															}
 														>
 															<Tooltip
 																title={
@@ -1650,19 +1653,6 @@ const ChatBox = ({
 								</div>
 							</div>
 						))}
-					</div>
-				)}
-
-				{info?.followUpQuery && (
-					<div className="follow-up-query-container">
-						<div className="follow-up-query">
-							<div
-								className="follow-up-query-text"
-								onClick={handleFollowUpQueryClick}
-							>
-								{info?.followUpQuery}
-							</div>
-						</div>
 					</div>
 				)}
 			</div>

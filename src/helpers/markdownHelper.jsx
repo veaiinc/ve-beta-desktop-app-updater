@@ -258,6 +258,7 @@ export const TypingEffect = memo(
 	}) => {
 		const {
 			documentPreview: { setNoteContent },
+			templates: { updateStateValues },
 		} = useContext(Context);
 		const [isCopiedToClipboard, setIsCopiedToClipboard] = useState(false);
 		const [renderTrigger, setRenderTrigger] = useState(0);
@@ -332,6 +333,10 @@ export const TypingEffect = memo(
 			handleRatingClick && handleRatingClick('thumbsDown', messageId);
 		}, [handleRatingClick, messageId]);
 
+		const handlePromptClick = (prompt) => {
+			updateStateValues({ activePromptForChat: prompt });
+		};
+
 		return (
 			<div className="typing-effect-container">
 				{messageData?.workflow_template_id && (
@@ -345,6 +350,22 @@ export const TypingEffect = memo(
 					{/* {chunkRef?.current?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')?.replace(/\\n/g, '\n')} */}
 					{text?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')?.replace(/\\n/g, '\n')}
 				</Markdown>
+
+				{(messageData?.['follow_up_query'] || [])?.length > 0 && (
+					<div className="suggested-prompts">
+						<div className="title-text">Suggested Prompts</div>
+						{(messageData?.['follow_up_query'] || [])?.map((query) => {
+							return (
+								<div
+									className="prompt-container"
+									onClick={() => handlePromptClick(query)}
+								>
+									<div className="prompt">{query}</div>
+								</div>
+							);
+						})}
+					</div>
+				)}
 
 				{messageData?.messageId && (
 					<div

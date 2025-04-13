@@ -7,14 +7,19 @@
 		display: flex;
 		width: 500px;
 		height: 100%;
-		padding: 24px 20px 20px 20px;
+		padding: 0 20px 20px 20px;
 		flex-direction: column;
 		align-items: center;
-		flex-shrink: 0;
-
+		overflow-y: auto;
 		background: var(--navbar, #202123);
+
 		.header {
 			width: 100%;
+			position: sticky;
+			top: 0;
+			padding-top: 24px;
+			background: var(--navbar, #202123);
+
 			.header-content {
 				.left-container {
 					display: flex;

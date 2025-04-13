@@ -457,6 +457,7 @@ const RecentChat = ({
 					response,
 					_id: messageId,
 					citations,
+					followUpQuery,
 					workflowTemplateId,
 					moduleTemplateId,
 				} = data?.[i] || {};
@@ -481,6 +482,7 @@ const RecentChat = ({
 						typingEffect: false,
 						rating: null,
 						citations,
+						follow_up_query: followUpQuery || [],
 						workflow_template_id: workflowTemplateId,
 						module_template_id: moduleTemplateId,
 					},

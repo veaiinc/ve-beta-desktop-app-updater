@@ -15,6 +15,7 @@
 	background: var(--card);
 	cursor: default;
 	overflow: hidden; //to hide svg element overflow
+	user-select: none;
 
 	.meetingCard {
 		display: flex;
@@ -78,7 +79,7 @@
 			font-style: normal;
 			font-weight: 600;
 			line-height: normal;
-			color: var(--primary-font,rgba(242, 242, 243, 1));
+			color: var(--primary-font, rgba(242, 242, 243, 1));
 
 			.meetingTitle {
 				white-space: nowrap;

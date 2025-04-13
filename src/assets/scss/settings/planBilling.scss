@@ -864,7 +864,8 @@
 		display: flex;
 		align-items: center;
 		gap: 16px;
-		align-self: stretch;
+		margin-top: 24px;
+		// align-self: stretch;
 		.tab-button {
 			display: flex;
 			padding: 12px 16px;

@@ -219,9 +219,7 @@ const Email = ({ email, setEmail, setActiveStage, setEmailVerified }) => {
 					<span className="title-one">AI.&nbsp; </span>
 					<span className="title-two">truly yours</span>
 				</h1>
-				<h2 className="login-page-subtitle">
-					AI that deeply cares about your Goals & strives to be helpful
-				</h2>
+				<h2 className="login-page-subtitle">Answers before you Ask!</h2>
 			</div>
 			<div className="login-button-container">
 				{info?.isHostnameVeDotAi && (
