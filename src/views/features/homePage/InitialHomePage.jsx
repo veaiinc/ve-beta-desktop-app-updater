@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import ProactiveSuggestions from './ProactiveSuggestions';
 import ChatPrompts from './ChatPrompts';
 import QuickActions from '../../components/globalComponents/QuickActions';
+import { first, set } from 'lodash';
 import ContactsWidget from '../../components/globalComponents/ContactsWidget';
 import AutomationWidget from '../../components/globalComponents/AutomationWidget';
 import TaskWidget from '../../components/globalComponents/TaskWidget';
@@ -212,6 +213,10 @@ const InitialHomePage = () => {
 				onExpandHeader={handleExpandHeader}
 			/>
 		),
+		calendar: <GlobalWidget option={'calendar'} />,
+		task: <GlobalWidget option={'task'} />,
+		automation: <GlobalWidget option={'automation'} />,
+		contact: <GlobalWidget option={'contacts'} />,
 	};
 
 	const options = useMemo(
@@ -228,6 +233,16 @@ const InitialHomePage = () => {
 			}
 		}
 	}
+
+	useEffect(() => {
+		if (options?.length > 0 && !info?.selectedOption) {
+			// Set the first visible option as the selected option
+			setInfo((prev) => ({
+				...prev,
+				selectedOption: options[0]?.value,
+			}));
+		}
+	}, [options]);
 
 	return (
 		<div className="initial-home-page-container">
@@ -255,7 +270,10 @@ const InitialHomePage = () => {
 						<span className="title-one">AI.</span>{' '}
 						<span className="title-two">truly yours</span>
 					</div>
-					<div className="sub-text">Answers before you Ask!</div>
+					<div className="sub-text">
+						A dedicated, continuously thinking AI - for each of us.
+						<br /> Ask Reason. Give it your goals - let it make you superhuman
+					</div>
 				</div>
 				<div
 					className={`chatbox-wrapper`}
