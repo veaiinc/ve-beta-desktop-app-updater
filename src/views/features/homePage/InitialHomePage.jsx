@@ -1,4 +1,4 @@
-import React, { memo, useContext, useState, useEffect, useCallback, useMemo } from 'react';
+import React, { memo, useContext, useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import '../../../assets/scss/home_page/initialHomepage.scss';
 import jwtDecode from 'jwt-decode';
 import Context from '../../../context/context';
@@ -51,12 +51,16 @@ const optionsList = [
 	},
 ];
 
+let animationClass = '';
+
 const InitialHomePage = () => {
 	const {
 		templates: { updateStateValues, currentSessionId },
 	} = useContext(Context);
 
 	const navigate = useNavigate();
+	const firstTimeMountRef = useRef(true);
+	const headerRef = useRef(null);
 
 	const [info, setInfo] = useState({
 		selectedOption: '',
@@ -66,7 +70,10 @@ const InitialHomePage = () => {
 			acc[option.value] = false;
 			return acc;
 		}, {}),
+		minimized: false,
 	});
+
+	const headerMinimizedRef = useRef(false);
 
 	let {
 		profileInfo: { userDetailsData },
@@ -95,6 +102,18 @@ const InitialHomePage = () => {
 			getPromptsData({ category: 'all', limit: 30 });
 		}
 	}, [promptsData]);
+
+	useEffect(() => {
+		if (info?.selectedOption) {
+			if (info?.minimized) {
+				setInfo((prev) => ({
+					...prev,
+					minimized: false,
+				}));
+				headerMinimizedRef.current = false;
+			}
+		}
+	}, [info?.selectedOption]);
 
 	useEffect(() => {
 		if (aiSuggestedPendingActions) {
@@ -129,6 +148,8 @@ const InitialHomePage = () => {
 		if (info?.selectedOption === option?.value) {
 			return;
 		}
+		if (firstTimeMountRef.current) firstTimeMountRef.current = false;
+
 		setInfo((prev) => ({
 			...prev,
 			selectedOption: option?.value,
@@ -160,16 +181,38 @@ const InitialHomePage = () => {
 		}));
 	};
 
-	const componentMapper = useMemo(
-		() => ({
-			proactiveSuggestions: <ProactiveSuggestions />,
-			calendar: <GlobalWidget option="calendar" />,
-			task: <GlobalWidget option="task" />,
-			contact: <GlobalWidget option="contacts" />,
-			automation: <GlobalWidget option="automation" />,
-		}),
-		[info?.promptsCategory],
-	);
+	const handleMinimizeHeader = () => {
+		if (headerMinimizedRef.current === false) {
+			setInfo((prev) => ({
+				...prev,
+				minimized: true,
+			}));
+			headerMinimizedRef.current = true;
+		}
+	};
+
+	const handleExpandHeader = () => {
+		if (headerMinimizedRef.current) {
+			setInfo((prev) => ({
+				...prev,
+				minimized: false,
+			}));
+			headerMinimizedRef.current = false;
+		}
+	};
+
+	const componentMapper = {
+		proactiveSuggestions: <ProactiveSuggestions />,
+		prompts: (
+			<ChatPrompts
+				promptsCategory={info?.promptsCategory}
+				updatePromptsCategory={updatePromptsCategory}
+				isHeaderMinimized={info?.minimized}
+				onMinimizeHeader={handleMinimizeHeader}
+				onExpandHeader={handleExpandHeader}
+			/>
+		),
+	};
 
 	const options = useMemo(() => {
 		const filteredOptions = info?.options?.filter((option) => option?.showOption);
@@ -182,30 +225,63 @@ const InitialHomePage = () => {
 		return filteredOptions;
 	}, [info?.options, info?.selectedOption]);
 
+	if (options?.length > 0) {
+		if (info?.minimized) {
+			animationClass = 'minimized-animation';
+		} else if (!firstTimeMountRef.current) {
+			if (headerRef?.current?.classList?.contains('minimized-animation')) {
+				animationClass = 'expanded-animation';
+			}
+		}
+	}
+
 	return (
 		<div className="initial-home-page-container">
 			<div className="quick-actions-container">
 				<QuickActions />
 			</div>
 			<div
-				className="home-page-container-header"
-				style={{
-					marginTop: options?.length > 0 ? '85px' : '0px',
-				}}
+				className={`home-page-container-header ${animationClass}`}
+				ref={headerRef}
+				// onClick={() => {
+				// 	if (firstTimeMountRef.current) firstTimeMountRef.current = false;
+				// 	setInfo((prev) => ({
+				// 		...prev,
+				// 		minimized: !prev.minimized,
+				// 	}));
+				// }}
 			>
-				<div className="title-container">
+				<div
+					className={`title-container `}
+					// style={{
+					// 	marginTop: options?.length > 0 ? '85px' : '0px',
+					// }}
+				>
 					<div className="title-text">
 						<span className="title-one">AI.</span>{' '}
 						<span className="title-two">truly yours</span>
 					</div>
-					<div className="sub-text">
-						AI that deeply cares about your Goals & strives to be helpful
+					<div className="sub-text">Answers before you Ask!</div>
+				</div>
+				<div
+					className={`chatbox-wrapper`}
+					style={{
+						borderBottom: info?.minimized ? '1px solid var(--stroke)' : '',
+						borderRight: info?.minimized ? '1px solid var(--stroke)' : '',
+						borderLeft: info?.minimized ? '1px solid var(--stroke)' : '',
+					}}
+				>
+					<div className={`chatbox-container`}>
+						<ChatBox
+							onSend={handleCustomOnSendFunction}
+							customChatActions={true}
+							autoFocus={false}
+							uploadFileTooltipPlacement="bottom"
+							searchTypeTooltipPlacement="bottom"
+						/>
 					</div>
 				</div>
 
-				<div className="chatbox-container">
-					<ChatBox onSend={handleCustomOnSendFunction} customChatActions={true} />
-				</div>
 				<div className="options-container">
 					{options?.map((option) => {
 						return (
@@ -222,7 +298,12 @@ const InitialHomePage = () => {
 				</div>
 			</div>
 			{options?.length > 0 && (
-				<div className="home-page-container-content">
+				<div
+					className="home-page-container-content"
+					style={{
+						height: info?.minimized ? 'calc(100vh - 310px)' : 'calc(100vh - 470px)',
+					}}
+				>
 					{componentMapper[info?.selectedOption]}
 				</div>
 			)}

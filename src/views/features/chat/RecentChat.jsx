@@ -438,7 +438,13 @@ const RecentChat = ({
 			const { data, hasNextPage, currentPage } = inComingData;
 			let messages = [];
 			for (let i = 0; i < data?.length; i++) {
-				const { originalQuery = '', response, _id: messageId, citations } = data?.[i] || {};
+				const {
+					originalQuery = '',
+					response,
+					_id: messageId,
+					citations,
+					followUpQuery,
+				} = data?.[i] || {};
 
 				messages = [
 					{
@@ -453,6 +459,7 @@ const RecentChat = ({
 						typingEffect: false,
 						rating: null,
 						citations,
+						follow_up_query: followUpQuery || [],
 					},
 				]?.concat(messages);
 			}
@@ -615,7 +622,7 @@ const RecentChat = ({
 			<div className="chat-container">
 				<div className="chatBarContainer" style={{ width: '100%' }}>
 					{/* header */}
-					{!isPublicChat && !isPreview && (
+					{/* {!isPublicChat && !isPreview && (
 						<div className="containerHeader">
 							<h1 className="containerHeaderTitle"></h1>
 							<div className="iconContainer">
@@ -631,7 +638,7 @@ const RecentChat = ({
 								)}
 							</div>
 						</div>
-					)}
+					)} */}
 
 					{/* chat body */}
 					<div
