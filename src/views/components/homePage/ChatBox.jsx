@@ -142,6 +142,7 @@ const ChatBox = ({
 			chatInfo,
 			userEditedQuery,
 			galleryFile,
+			chatPayload,
 		},
 		calendarInfo: { updateCalendarState },
 		tasks: { updateTaskState },
@@ -541,6 +542,13 @@ const ChatBox = ({
 					}
 					if (activeWorkflowSlugForSmartFile) {
 						payload.workflow_slug = activeWorkflowSlugForSmartFile;
+					}
+
+					if (chatPayload?.workflowTemplateId) {
+						payload.workflow_template_id = chatPayload?.workflowTemplateId;
+					}
+					if (chatPayload?.moduleTemplateId) {
+						payload.module_template_id = chatPayload?.moduleTemplateId;
 					}
 
 					// if (

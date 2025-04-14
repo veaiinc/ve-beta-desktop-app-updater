@@ -49,6 +49,22 @@
 				}
 			}
 
+			.draftBtn {
+				display: flex;
+				padding: 5px 7px;
+				align-items: center;
+				gap: 4px;
+				border-radius: 4px;
+				background: rgba(176, 176, 176, 0.16);
+				color: #e4e5e6;
+				font-family: var(--primary-font-family);
+				font-size: 10px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: 14px; /* 140% */
+				letter-spacing: 0.2px;
+				text-transform: uppercase;
+			}
 		}
 		.discardSaveBtnGrp {
 			display: flex;
