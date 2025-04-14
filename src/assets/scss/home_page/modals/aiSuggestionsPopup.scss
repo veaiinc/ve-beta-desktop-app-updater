@@ -27,18 +27,26 @@
 	}
 
 	.description-container {
-		display: -webkit-box;
-		-webkit-line-clamp: 3;
-		line-clamp: 3;
-		-webkit-box-orient: vertical;
-		overflow: hidden;
-
-		color: var(--primary-font, #f2f2f3);
-		font-family: var(--primary-font-family);
-		font-size: 14px;
-		font-style: normal;
-		font-weight: 400;
-		line-height: 22px; /* 157.143% */
+		.description-text {
+			overflow: hidden;
+			color: var(--primary-font, #f2f2f3);
+			font-family: var(--primary-font-family);
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 400;
+			line-height: 22px;
+			transition: max-height 200ms ease-in-out;
+		}
+		.btn-container {
+			.btn-text {
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 400;
+				line-height: 22px;
+				color: var(--primary-button);
+				cursor: pointer;
+			}
+		}
 	}
 
 	.source-container {

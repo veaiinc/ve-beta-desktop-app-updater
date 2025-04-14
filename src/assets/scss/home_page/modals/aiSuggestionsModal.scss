@@ -1,0 +1,211 @@
+.ai-suggestions-drawer {
+	.ant-drawer-content-wrapper {
+		width: fit-content !important;
+	}
+
+	.ai-suggestions-container {
+		display: flex;
+		width: 500px;
+		height: 100%;
+		padding: 0 20px 20px 20px;
+		flex-direction: column;
+		align-items: center;
+		overflow-y: auto;
+		background: var(--navbar, #202123);
+
+		.header {
+			width: 100%;
+			position: sticky;
+			top: 0;
+			padding-top: 24px;
+			background: var(--navbar, #202123);
+
+			.header-content {
+				.left-container {
+					display: flex;
+					align-items: center;
+					gap: 18px;
+					.prev-btn {
+						cursor: pointer;
+						transform: rotate(180deg);
+						height: fit-content;
+						height: 22px;
+						display: flex;
+						align-items: center;
+						justify-content: center;
+						svg {
+							width: 20px;
+							height: 20px;
+						}
+					}
+					.next-btn {
+						cursor: pointer;
+						height: 22px;
+						display: flex;
+						align-items: center;
+						justify-content: center;
+						svg {
+							width: 20px;
+							height: 20px;
+						}
+					}
+				}
+			}
+
+			.horizontal-line {
+				width: 100%;
+				height: 1px;
+				background: var(--stroke, #333334);
+				margin: 20px 0;
+			}
+		}
+	}
+
+	.body {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 16px;
+		flex: 1 0 0;
+		align-self: stretch;
+		.body-header {
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: flex-start;
+			gap: 8px;
+			align-self: stretch;
+			.info {
+				display: flex;
+				flex-direction: row;
+				align-items: flex-start;
+				gap: 12px;
+				span {
+					width: 1.5px;
+					height: 18px;
+					background: var(--stroke-hover, #404548);
+				}
+				.confidence {
+					display: flex;
+					gap: 6px;
+					color: var(--primary-font, #f2f2f3);
+					font-family: var(--primary-font-family);
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+					.value {
+						color: var(--primary-button, #b2ff00);
+						font-family: var(--primary-font-family);
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+					}
+				}
+
+				.priority {
+					display: flex;
+					gap: 6px;
+					align-items: center;
+
+					color: var(--primary-font, #f2f2f3);
+					font-family: Inter;
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+					.indicator {
+						width: 8px;
+						height: 8px;
+						border-radius: 50%;
+					}
+				}
+			}
+
+			.title-text {
+				color: var(--primary-font, #f2f2f3);
+				font-family: var(--primary-font-family);
+				font-size: 18px;
+				font-style: normal;
+				font-weight: 600;
+				line-height: normal;
+			}
+			.description {
+				color: var(--primary-font, #f2f2f3);
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 400;
+				line-height: 22px;
+			}
+		}
+
+		.chain-of-thought-container {
+			display: flex;
+			width: 100%;
+			padding: 16px;
+			flex-direction: column;
+			gap: 14px;
+
+			border-radius: 16px;
+			background: var(--card, #171819);
+
+			.cot-text {
+				color: var(--primary-font, #f2f2f3);
+				font-family: Inter;
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 600;
+				line-height: normal;
+			}
+			.desc {
+				color: var(--secondary-font, #93989f);
+				font-family: Inter;
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 400;
+				line-height: normal;
+			}
+		}
+	}
+	.footer {
+		display: flex;
+		justify-content: space-between;
+		align-items: flex-start;
+		align-self: stretch;
+		background: var(--navbar, #202123);
+		.ignore-btn {
+			display: flex;
+			height: 40px;
+			padding: 6px 18px;
+			justify-content: center;
+			align-items: center;
+			gap: 4px;
+
+			border-radius: 100px;
+			border: 1px solid var(--stroke, #333334);
+			background-color: transparent;
+
+			color: var(--primary-font, #f2f2f3);
+			font-family: Inter;
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+			cursor: pointer;
+		}
+		.report-btn {
+			display: flex;
+			height: 40px;
+			padding: 6px 18px;
+			justify-content: center;
+			align-items: center;
+			gap: 4px;
+
+			border-radius: 100px;
+			background: var(--primary-button);
+			cursor: pointer;
+		}
+	}
+}
