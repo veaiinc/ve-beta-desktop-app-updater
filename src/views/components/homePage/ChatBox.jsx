@@ -14,12 +14,11 @@ import { ReactComponent as MdSvg } from '../../../assets/svg/ai_agents/md.svg';
 import { ReactComponent as PlusSvg } from '../../../assets/svg/ai_assistant/plus.svg';
 import { ReactComponent as ExcelSvg } from '../../../assets/svg/ai_agents/excel.svg';
 import { ReactComponent as AudioSvg } from '../../../assets/svg/ai_agents/audio.svg';
-import { ReactComponent as LLMSvg } from '../../../assets/svg/ai_agents/llm.svg';
 import { ReactComponent as AtomSvg } from '../../../assets/svg/ai_agents/atom.svg';
 import { ReactComponent as ArrowDownSvg } from '../../../assets/svg/ai_agents/arrow-down.svg';
 import Context from '../../../context/context';
 import ObjectID from 'bson-objectid';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { checkDevices, getBase64, getLocationsDetails } from '../../../helpers';
 import WorkflowSlugSelector from '../../components/calendar/WorkflowSlugSelector';
 import SearchDropdown from '../chat/SearchDropdown';
@@ -27,12 +26,10 @@ import UploadFileTooltip from '../chat/UploadFileTooltip';
 import DateRangeDropdown from '../chat/DateRangeDropdown';
 import moment from 'moment';
 import { Image, Spin, Tooltip } from 'antd';
-import LLMTooltip from '../chat/LLMTooltip';
 import AIMessageLoader from '../chat/AIMessageLoader';
 import WebSvg from '../../../assets/svg/ai_agents/webSvg';
 import BookSvg from '../../../assets/svg/ai_agents/bookSvg';
 import BuildingSvg from '../../../assets/svg/ai_agents/building';
-import MicroscopeSvg from '../../../assets/svg/ai_agents/microScopeSvg';
 import useUpdatedVoiceIntegration from '../../hooks/useUpdatedVoiceIntegration';
 import { message } from '../globalComponents/CustomToast';
 import SearchTypeTooltip from '../chat/SearchTypeTooltip';
@@ -123,8 +120,7 @@ const ChatBox = ({
 	isPublicChat = false,
 	showIconText = true,
 	autoFocus = true,
-	uploadFileTooltipPlacement = 'top',
-	searchTypeTooltipPlacement = 'top',
+	isParentHeaderMinimized = false,
 }) => {
 	const {
 		templates: {
@@ -145,13 +141,11 @@ const ChatBox = ({
 		},
 		calendarInfo: { updateCalendarState },
 		tasks: { updateTaskState },
-		documentPreview: { noteContent, setNoteContent },
-		aiSetup: { updateAiSetupState, voiceIntegrationData },
+		aiSetup: { voiceIntegrationData },
 	} = useContext(Context);
 
-	const { handleConnect, shouldConnect } = useUpdatedVoiceIntegration();
+	const { handleConnect } = useUpdatedVoiceIntegration();
 
-	const navigate = useNavigate();
 	const location = useLocation();
 
 	const [info, setInfo] = useState({
@@ -210,6 +204,12 @@ const ChatBox = ({
 			});
 		}
 	}, []);
+
+	useEffect(() => {
+		if (isParentHeaderMinimized) {
+			textAreaRef?.current?.blur();
+		}
+	}, [isParentHeaderMinimized]);
 
 	//useEffect to handle send user edited query
 	useEffect(() => {
@@ -1167,9 +1167,6 @@ const ChatBox = ({
 															recentFiles={
 																recentFilesRef.current || []
 															}
-															tooltipPlacement={
-																uploadFileTooltipPlacement
-															}
 														>
 															<Tooltip
 																title={
@@ -1313,9 +1310,6 @@ const ChatBox = ({
 																}));
 															}}
 															searchTypeOptions={searchTypeOptions}
-															tooltipPlacement={
-																searchTypeTooltipPlacement
-															}
 														>
 															<Tooltip
 																title={

@@ -60,6 +60,7 @@
 				font-style: normal;
 				font-weight: 300;
 				line-height: normal;
+				overflow: hidden;
 			}
 		}
 		.chatbox-wrapper {
@@ -114,11 +115,19 @@
 	}
 
 	.home-page-container-header.minimized-animation .title-container {
-		animation: margin-minimize 0.5s linear forwards;
+		animation: height-minimize 0.5s linear forwards;
 	}
 
 	.home-page-container-header.expanded-animation .title-container {
-		animation: margin-expand 0.5s linear forwards;
+		animation: height-expand 0.5s linear forwards;
+	}
+
+	.home-page-container-header.minimized-animation .sub-text {
+		animation: text-minimize 0.5s linear forwards;
+	}
+
+	.home-page-container-header.expanded-animation .sub-text {
+		animation: text-expand 0.5s linear forwards;
 	}
 
 	.home-page-container-header.minimized-animation .chatbox-wrapper {
@@ -143,10 +152,11 @@
 	.home-page-container-content {
 		width: 100%;
 		padding-top: 30px;
+		overflow: hidden;
 	}
 }
 
-@keyframes margin-minimize {
+@keyframes height-minimize {
 	from {
 		height: 210px;
 	}
@@ -155,7 +165,7 @@
 	}
 }
 
-@keyframes margin-expand {
+@keyframes height-expand {
 	from {
 		height: 126px;
 	}
@@ -191,10 +201,24 @@
 	}
 }
 
-// @media screen and (max-width: 1500px) {
-// 	.home-page-container-header {
-// 		.title-container {
-// 			margin-top: 0px !important;
-// 		}
-// 	}
-// }
+@keyframes text-minimize {
+	0% {
+		height: 56px;
+		margin-top: 0;
+	}
+	100% {
+		height: 0;
+		margin-top: -12px;
+	}
+}
+
+@keyframes text-expand {
+	0% {
+		height: 0;
+		margin-top: -12px;
+	}
+	100% {
+		height: 56px;
+		margin-top: 0;
+	}
+}
