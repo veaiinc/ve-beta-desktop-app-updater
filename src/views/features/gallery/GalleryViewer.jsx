@@ -200,14 +200,12 @@ const GalleryViewer = ({
 	const fetchMoreImages = () => {
 		const nextPage = info.page + 1;
 		if (aiface) {
-			getAiFaceImages(activeGalleryId, searchkeys.get('faceId'), nextPage, info?.limit).then(
-				() => {
-					setInfo((prev) => ({
-						...prev,
-						page: nextPage,
-					}));
-				},
-			);
+			getAiFaceImages(activeGalleryId, selectedFace, nextPage, info?.limit).then(() => {
+				setInfo((prev) => ({
+					...prev,
+					page: nextPage,
+				}));
+			});
 		} else {
 			getGalleryImages(
 				activeGalleryId,

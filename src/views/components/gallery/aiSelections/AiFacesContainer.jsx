@@ -328,6 +328,7 @@ const AiFacesContainer = ({
 				selectedImage={info?.selectedImage}
 				aiFace={true}
 				selectedFace={info?.activeFace}
+				activeGalleryId={galleryId}
 			/>
 		</div>
 	);
