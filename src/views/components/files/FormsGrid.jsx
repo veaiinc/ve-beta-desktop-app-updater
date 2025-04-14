@@ -3,6 +3,7 @@ import '../../../assets/scss/files/files.scss';
 import { ReactComponent as Plus } from '../../../assets/svg/files/Plus.svg';
 import moment from 'moment';
 import { DocsStatusButton } from '../../features/docs/Docs';
+import { memo } from 'react';
 const FormsGrid = ({ formsTemplatesList, statusTextmapper, setInfo, handleNavigateForm }) => {
 	return (
 		<div className={`card-container`}>
@@ -43,4 +44,4 @@ const FormsGrid = ({ formsTemplatesList, statusTextmapper, setInfo, handleNaviga
 	);
 };
 
-export default FormsGrid;
+export default memo(FormsGrid);

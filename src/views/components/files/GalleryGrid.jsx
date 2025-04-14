@@ -63,4 +63,4 @@ const GalleryGrid = ({ tenantGalleries, handleCreateNewGallery, handleNavigateGa
 	);
 };
 
-export default GalleryGrid;
+export default memo(GalleryGrid);
