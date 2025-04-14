@@ -545,7 +545,7 @@ export const UserMessageRenderer = memo(({ messageData, activeUserMessageIndex }
 				<div>
 					<div
 						style={{
-							opacity: activeUserMessageIndex ? 1 : 0.6,
+							// opacity: activeUserMessageIndex ? 1 : 0.6,
 							maxHeight: info?.isExpanded
 								? `${textRef.current?.scrollHeight}px`
 								: '147px',
