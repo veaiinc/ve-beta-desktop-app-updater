@@ -88,7 +88,6 @@ export const intialState = {
 	globalChatMessages: [], // { type: 'AI', message: 'Hello, how can I help you today?' }
 	currentSessionId: null,
 	citations: null,
-	followUpQuery: null,
 	docsFilesList: null,
 	moreDocsFilesList: null,
 	smartFileRefetch: false,
@@ -107,10 +106,14 @@ export const intialState = {
 	chatInfo: {
 		deepResearch: false,
 		selectedLLMModel: null,
-		webSearch: true,
-		workspaceSearch: false,
+		webSearch: false,
+		workspaceSearch: true,
 		agentType: null,
 		assistantId: null,
+		reason: {
+			workspaceSearch: false,
+			webSearch: false,
+		},
 	},
 	galleryFile: null,
 	globalLoadingMesssage: null,
@@ -1383,15 +1386,16 @@ export const TemplatesState = (props) => {
 			const type = 'third_party_integrations_api';
 			const params = integrationType ? { access: integrationType } : {};
 			const response = await Service?.fetchGet(path, usertoken, type, params);
-			return response;
-			// if (response?.[0] === true) {
-			// 	dispatch({
-			// 		type: Actions?.SET_CONNECTED_THIRDPARTIES,
-			// 		payload: response?.[1],
-			// 	});
-			// } else {
-			// 	console.log('api failed==>getConnectedThirdParties', response);
-			// }
+
+			if (response?.[0] === true) {
+				dispatch({
+					type: Actions?.SET_CONNECTED_THIRDPARTIES,
+					payload: response?.[1],
+				});
+				return response;
+			} else {
+				console.log('api failed==>getConnectedThirdParties', response);
+			}
 		} catch (error) {
 			console.log('error==>getConnectedThirdParties', error);
 		}
@@ -1750,17 +1754,6 @@ export const TemplatesState = (props) => {
 		// 		payload: null,
 		// 	});
 		// }
-		if (followUpQuery?.length) {
-			dispatch({
-				type: Actions?.CHAT_FOLLOW_UP_QUERY,
-				payload: followUpQuery,
-			});
-		} else {
-			dispatch({
-				type: Actions?.CHAT_FOLLOW_UP_QUERY,
-				payload: null,
-			});
-		}
 	};
 
 	const handleStreamMessageChunk = (payload, chunkId) => {

@@ -1,19 +1,19 @@
 import AuthWrapper from './views/layouts/authWrapper';
-import LoginPage from './views/features/login_page/LoginPage';
+import LoginPage from './views/features/loginPage/LoginPage';
 import Onboarding from './views/features/onboarding/Onboarding';
-import Calendar from './views/features/calendar/index';
+import CalendarModule from './views/features/calendar/Calendar';
 // import ChatScreen from './views/features/meta_Integ/index';
-import OauthVerify from './views/features/signin/oauth';
+import OauthVerify from './views/features/signin/oauth/OauthVerify';
 import Sales from './views/features/sales/Sales';
 import GlobalWorkflows from './views/features/sales/GlobalWorkflows';
 import SmartFile from './views/features/sales/smartFiles/SmartFile';
 import WorkflowBuilderLayout from './views/layouts/workflowBuilderLayout';
 import SmartFileLayout from './views/layouts/smartFileLayout';
-import EarlyAccess from './views/features/early_access';
+import EarlyAccess from './views/features/earlyAccess/EarlyAccess';
 import SettingsWrapper from './views/features/settings/SettingsWrapper';
-import AiSetupPage from './views/features/settings/ai_settings/AiSetupPage';
+import AiSetupPage from './views/features/settings/aiSettings/AiSetupPage';
 import PrivacyPolicy from './views/features/signin/PrivacyPolicy';
-import Landing_screen from './views/features/landing_screen';
+import Landing_screen from './views/features/landingScreen/LandingPage';
 import AddGallery from './views/features/gallery/AddGallery';
 import GalleryPage from './views/features/gallery/GalleryPage';
 import GalleryViewer from './views/features/gallery/GalleryViewer';
@@ -23,42 +23,47 @@ import GalleryViewLayout from './views/layouts/galleryViewLayout';
 import { Navigate } from 'react-router-dom';
 import TermsOfService from './views/features/signin/TermsOfService';
 import CookiePolicy from './views/features/signin/CookiePolicy';
-import WorkflowBuilder from './views/features/workflow_builder';
-import Tasks from './views/features/tasks';
-import ShareAndEarn from './views/features/ShareAndEarn';
-import Notes from './views/features/Notes';
-import Contacts from './views/features/contacts';
-import Ai_agent from './views/features/ai_agent';
-import AgentsJobs from './views/features/ai_agent/AgentsJobs';
-import AgentsSetup from './views/features/ai_agent/AgentsSetup';
-import Docs from './views/features/docs';
+import WorkflowBuilder from './views/features/workflowBuilder/WorkflowBuilder';
+import Tasks from './views/features/tasks/Tasks';
+import ShareAndEarn from './views/features/shareAndEarn/ShareAndEarn';
+import Notes from './views/features/notesModule/Notes';
+import Contacts from './views/features/contacts/Contacts';
+import Ai_agent from './views/features/aiAgent/AiAgent';
+import AgentsJobs from './views/features/aiAgent/AgentsJobs';
+import AgentsSetup from './views/features/aiAgent/AgentsSetup';
+import Docs from './views/features/docs/Docs';
 import LiteGallery from './views/features/gallery/Litegallery';
-import MyTemplates from './views/features/my_templates/MyTemplates';
-import Workflow_builder_updated from './views/features/workflow_builder_updated';
-import Forms from './views/features/forms';
+import MyTemplates from './views/features/myTemplates/MyTemplates';
+import Workflow_builder_updated from './views/features/workflowBuilderUpdated/WorkflowBuilderUpdated';
+import Forms from './views/features/forms/Forms';
 import FormLeads from './views/features/forms/FormLeads';
-import HomePage from './views/features/home_page/HomePage';
-import AiAssistants from './views/features/ai_assistant/index';
-import EditAgent from './views/features/ai_assistant/EditAgent';
-import AgentDetails from './views/features/ai_assistant/AgentDetails';
-import InitialHomePage from './views/features/home_page/InitialHomePage';
+import HomePage from './views/features/homePage/HomePage';
+import AiAssistants from './views/features/aiAssistant/AiAssistants';
+import EditAgent from './views/features/aiAssistant/EditAgent';
+import AgentDetails from './views/features/aiAssistant/AgentDetails';
+import InitialHomePage from './views/features/homePage/InitialHomePage';
 import RecentChat from './views/features/chat/RecentChat';
-import AutomationBuilder from './views/features/automation_builder';
+import AutomationBuilder from './views/features/automationBuilder/AutomationBuilder';
 import AutomationBuilderLayout from './views/layouts/automationBuilderLayout';
 import Automations from './views/features/automations/Automations';
-import Integrations from './views/features/Integrations/Integrations';
+import Integrations from './views/features/integrationsList/Integrations';
 import BrandSetup from './views/features/settings/BrandSetup';
 import DocsFullView from './views/components/docs/DocsFullView';
 import FormFullView from './views/components/forms/FormFullView';
 import TaskFullView from './views/features/tasks/TaskFullView';
 import ExpandedClientView from './views/features/contacts/ExpandedClientView';
-import ElasticSearch from './views/features/elastic_search';
-import PublicChat from './views/features/public_chat/PublicChat';
+import ElasticSearch from './views/features/elasticSearch/ElasticSearch';
+import PublicChat from './views/features/publicChat/PublicChat';
 import Files from './views/features/files/Files';
-import KnowledgeAgents from './views/features/knowledge_agent';
-import KnowledgeAgentDetails from './views/features/knowledge_agent/AgentDetails';
-import EditKnowledgeAgent from './views/features/knowledge_agent/EditAgent';
+import KnowledgeAgents from './views/features/knowledgeAgent/KnowledgeAgents';
+import KnowledgeAgentDetails from './views/features/knowledgeAgent/AgentDetails';
+import EditKnowledgeAgent from './views/features/knowledgeAgent/EditAgent';
+import FormResCard from './views/components/forms/FormResCard';
+import FormAnalytics from './views/components/forms/FormAnalytics';
+import FormSummary from './views/components/forms/FormSummary';
 
+import SchedulerMainPage from './views/features/calendar/SchedulerMainPage';
+import EditScheduler from './views/features/calendar/EditScheduler';
 const routes = [
 	{
 		path: '/',
@@ -320,7 +325,26 @@ const routes = [
 		path: '/calendar',
 		component: (
 			<AuthWrapper title={'Calendar'} maxWidth={'95%'}>
-				<Calendar />
+				<CalendarModule />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/scheduler',
+		component: (
+			<AuthWrapper title={'Scheduler'} maxWidth={'95%'}>
+				<SchedulerMainPage />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/scheduling/edit/:sessionId',
+		component: (
+			<AuthWrapper title={'Scheduling'} maxWidth={'95%'}>
+				{/* <SchedulerMainPage /> */}
+				<EditScheduler />
 			</AuthWrapper>
 		),
 		exact: true,
@@ -496,10 +520,28 @@ const routes = [
 		exact: true,
 	},
 	{
-		path: '/form-response/:id',
+		path: '/forms/:id/analytics',
 		component: (
-			<AuthWrapper title={'Form Response'}>
-				<FormFullView />
+			<AuthWrapper title={'Form Analytics'}>
+				<FormAnalytics view="analytics" />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/forms/:id/responses',
+		component: (
+			<AuthWrapper title={'Form Responses'}>
+				<FormResCard view="responses" />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/forms/:id/summary',
+		component: (
+			<AuthWrapper title={'Form Summary'}>
+				<FormSummary view="summary" />
 			</AuthWrapper>
 		),
 		exact: true,

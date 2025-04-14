@@ -40,6 +40,9 @@ const ShareModal = ({
 			getGalleryShareDetails,
 			galleryShareDetails,
 			changeMasterAccessPin,
+			updateGuestAccess,
+			getGuestAccessDetails,
+			galleryGuestAccessDetails,
 		},
 		profileInfo: { userWorkSpaceList, getTenantSettings, tennantSettingsData },
 	} = useContext(Context);
@@ -67,6 +70,7 @@ const ShareModal = ({
 		canGuestDownloadOriginals: tenantPreferences?.canGuestDownloadOriginals || false,
 		currentWorkspaceId: null,
 		galleryLink: null,
+		galleryGuestAccessDetails: null,
 		callToAction: tenantPreferences?.ctaPreferences?.isEnabled,
 		ctaLink: tenantPreferences?.ctaPreferences?.ctaLink,
 		clientSubscription: tenantPreferences?.allowClientsToSubscribe || false,
@@ -104,6 +108,16 @@ const ShareModal = ({
 			}));
 		}
 	}, [galleryGuestAccess]);
+
+	useEffect(() => {
+		if (!galleryGuestAccessDetails) {
+			getGuestAccessDetails(galleryId);
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				galleryGuestAccessDetails: galleryGuestAccessDetails,
+			}));
+		}
+	}, [galleryGuestAccessDetails]);
 	useEffect(() => {
 		if (!tenantPreferences) {
 			getEditPreferences(galleryId);
@@ -244,18 +258,22 @@ const ShareModal = ({
 		editPreferences(galleryId, payload);
 	};
 
-	const handleGalleryGuestAccess = () => {
-		setInfo((prevInfo) => ({
-			...prevInfo,
-			galleryGuestAccess: {
-				...prevInfo?.galleryGuestAccess,
-				isEnabled: !prevInfo?.galleryGuestAccess?.isEnabled,
-			},
-		}));
-		const payload = {
-			isEnabled: !info?.galleryGuestAccess?.isEnabled,
+	const handleGuestAccessUpdate = async (name) => {
+		const payloadKeyMap = {
+			canGuestDownloadOriginals: 'canDownloadOriginals',
+			canGuestDownloadOptimized: 'canDownloadOptimized',
+			isEnabled: 'isEnabled',
 		};
-		editGalleryGuestAccess(payload, galleryId);
+
+		if (payloadKeyMap[name]) {
+			const payload = {
+				[payloadKeyMap[name]]: !galleryGuestAccessDetails?.[payloadKeyMap[name]],
+				accessPin: galleryGuestAccessDetails?.pin,
+			};
+			await updateGuestAccess(payload, galleryId);
+		}
+
+		await getGuestAccessDetails(galleryId);
 	};
 
 	const handleShareViaEmail = useCallback(async () => {
@@ -381,7 +399,7 @@ const ShareModal = ({
 
 		editVisitorFormAccess(payload, galleryId);
 	};
-
+	console.log(info?.galleryGuestAccess, 'testing');
 	return (
 		<Drawer
 			open={open}
@@ -470,13 +488,13 @@ const ShareModal = ({
 						<div className="pinContainerItem">
 							<div className="optionsToggleContainer">
 								<ToggleSlider
-									value={info?.galleryGuestAccess?.isEnabled}
-									onChange={handleGalleryGuestAccess}
+									value={galleryGuestAccessDetails?.isEnabled}
+									onChange={() => handleGuestAccessUpdate('isEnabled')}
 								/>
 								<p>Guest PIN</p>
 							</div>
 							<p>If enabled gallery will be protected by PIN for guests</p>
-							{info?.galleryGuestAccess?.isEnabled && (
+							{galleryGuestAccessDetails?.isEnabled && (
 								<div className="editPinContainer">
 									<input
 										placeholder="Enter 3-digit PIN"
@@ -578,12 +596,12 @@ const ShareModal = ({
 											onClick={() => handleOpenDownloadOptions('Guest')}
 										>
 											<p>
-												{info?.canGuestDownloadOriginals &&
-												info?.canGuestDownloadOptimized
+												{galleryGuestAccessDetails?.canClientDownloadOriginals &&
+												galleryGuestAccessDetails?.canDownloadOptimized
 													? 'Guest Download Originals , Guest Download Optimized'
-													: info?.canGuestDownloadOriginals
+													: galleryGuestAccessDetails?.canDownloadOriginals
 													? 'Guest Download Originals'
-													: info?.canGuestDownloadOptimized
+													: galleryGuestAccessDetails?.canDownloadOptimized
 													? 'Guest Download Optimized'
 													: ''}
 											</p>
@@ -614,9 +632,11 @@ const ShareModal = ({
 													<p>Can Download Originals Images</p>
 													<input
 														type="checkbox"
-														checked={info?.canGuestDownloadOriginals}
+														checked={
+															galleryGuestAccessDetails?.canDownloadOriginals
+														}
 														onChange={() =>
-															handleGalleryProtection(
+															handleGuestAccessUpdate(
 																'canGuestDownloadOriginals',
 															)
 														}
@@ -627,9 +647,11 @@ const ShareModal = ({
 												<p>Can Download Optimised Images</p>
 												<input
 													type="checkbox"
-													checked={info?.canGuestDownloadOptimized}
+													checked={
+														galleryGuestAccessDetails?.canDownloadOptimized
+													}
 													onChange={() =>
-														handleGalleryProtection(
+														handleGuestAccessUpdate(
 															'canGuestDownloadOptimized',
 														)
 													}

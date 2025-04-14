@@ -117,22 +117,6 @@
 			}
 		}
 	}
-	.infinite-scroll-component__outerdiv {
-		width: 100%;
-		.proposalPopupBodyLoadingContainer {
-			display: flex;
-			justify-content: center;
-			align-items: center;
-			align-self: stretch;
-			flex: 1;
-			p {
-				color: var(--primary-font);
-				font-family: var(--primary-font-family);
-				font-size: 16px;
-				font-weight: 500;
-			}
-		}
-	}
 	.myTemplatesInfiniteContainer {
 		display: flex;
 		flex-direction: row;
@@ -164,39 +148,6 @@
 				flex-direction: column;
 				position: relative;
 				pointer-events: none;
-				.docsTemplateHoverContentContainer {
-					position: absolute;
-					top: 0;
-					left: 0;
-					width: 100%;
-					height: 100%;
-					opacity: 0;
-					transition: opacity 0.3s ease-in-out;
-					.docsHoverArrowContainer {
-						display: flex;
-						align-self: stretch;
-						justify-content: center;
-						margin-top: 8px;
-						transform: rotate(180deg);
-					}
-					.docsHoverOptionsContainer {
-						display: flex;
-						flex-direction: column;
-						gap: 10px;
-						padding: 7px 24px;
-						.docsHoverOptionsStyling {
-							color: var(--primary-font);
-							font-family: var(--primary-font-family);
-							font-size: 12px;
-							font-style: normal;
-							font-weight: 500;
-							line-height: normal;
-							letter-spacing: 0.24px;
-							text-transform: capitalize;
-							cursor: pointer;
-						}
-					}
-				}
 				img {
 					width: 100%;
 					height: 100%;
@@ -208,16 +159,6 @@
 					transition: height 0.3s ease-in-out;
 					position: absolute;
 					bottom: 0;
-				}
-				&:hover {
-					.docsTemplateHoverContentContainer {
-						opacity: 1;
-						display: flex;
-						flex-direction: column;
-					}
-					// img {
-					// 	height: 20%;
-					// }
 				}
 			}
 			.docsFooterContent {
@@ -278,39 +219,6 @@
 			flex-direction: column;
 			position: relative;
 			pointer-events: none;
-			.docsTemplateHoverContentContainer {
-				position: absolute;
-				top: 0;
-				left: 0;
-				width: 100%;
-				height: 100%;
-				opacity: 0;
-				transition: opacity 0.3s ease-in-out;
-				.docsHoverArrowContainer {
-					display: flex;
-					align-self: stretch;
-					justify-content: center;
-					margin-top: 8px;
-					transform: rotate(180deg);
-				}
-				.docsHoverOptionsContainer {
-					display: flex;
-					flex-direction: column;
-					gap: 10px;
-					padding: 7px 24px;
-					.docsHoverOptionsStyling {
-						color: var(--primary-font);
-						font-family: var(--primary-font-family);
-						font-size: 12px;
-						font-style: normal;
-						font-weight: 500;
-						line-height: normal;
-						letter-spacing: 0.24px;
-						text-transform: capitalize;
-						cursor: pointer;
-					}
-				}
-			}
 			img {
 				width: 100%;
 				height: 100%;
@@ -325,11 +233,6 @@
 			}
 			&:hover {
 				background: var(--card-hover);
-				.docsTemplateHoverContentContainer {
-					opacity: 1;
-					display: flex;
-					flex-direction: column;
-				}
 				// img {
 				// 	height: 20%;
 				// }

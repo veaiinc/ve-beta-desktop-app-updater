@@ -9,7 +9,7 @@ import {
 	dropDownStyle,
 	dropDownTextStyling,
 	selectedValueStyling,
-} from '../../../features/automation_builder/automationContentsHelper';
+} from '../../../features/automationBuilder/automationContentsHelper';
 import { message } from '../../globalComponents/CustomToast';
 
 const GoogleTriggers = ({

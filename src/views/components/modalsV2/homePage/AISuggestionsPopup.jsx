@@ -1,4 +1,4 @@
-import { memo, useContext, useEffect, useState } from 'react';
+import { memo, useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import ReactModal from '../index';
 import '../../../../assets/scss/home_page/modals/aiSuggestionsPopup.scss';
 import Context from '../../../../context/context';
@@ -10,15 +10,37 @@ const AISuggestionsPopup = ({ open, closeModal, data }) => {
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		questionsAnswers: {},
-		dynamicPrompt: data?.researchTopics?.[0]?.prompt || '',
+		dynamicPrompt: '',
+		isOverflowing: false,
+		isExpanded: false,
 	});
 	const navigate = useNavigate();
+	const textRef = useRef(null);
 
 	useEffect(() => {
-		setInfo((prev) => ({
-			...prev,
-			dynamicPrompt: data?.researchTopics?.[0]?.prompt || '',
-		}));
+		if (data) {
+			setInfo((prev) => ({
+				...prev,
+				dynamicPrompt: data?.researchTopics?.[0]?.prompt || '',
+			}));
+
+			setTimeout(() => {
+				if (data?.researchTopics?.[0]?.description && textRef.current) {
+					const element = textRef.current;
+					if (element?.scrollHeight > element?.clientHeight) {
+						setInfo((prev) => ({
+							...prev,
+							isOverflowing: true,
+						}));
+					} else {
+						setInfo((prev) => ({
+							...prev,
+							isOverflowing: false,
+						}));
+					}
+				}
+			}, 0);
+		}
 	}, [data]);
 
 	const handleRunBtnClick = () => {
@@ -52,6 +74,13 @@ const AISuggestionsPopup = ({ open, closeModal, data }) => {
 		navigate(`/chat/${currentSessionId}`);
 	};
 
+	const handleShowBtnClick = () => {
+		setInfo((prev) => ({
+			...prev,
+			isExpanded: !prev?.isExpanded,
+		}));
+	};
+
 	return (
 		<ReactModal
 			isOpen={open}
@@ -62,8 +91,26 @@ const AISuggestionsPopup = ({ open, closeModal, data }) => {
 			<div className="popup-container">
 				<div className="title-container">{data?.researchTopics?.[0]?.title || ''}</div>
 				<div className="description-container">
-					{data?.researchTopics?.[0]?.description || ''}
+					<div
+						className="description-text"
+						ref={textRef}
+						style={{
+							maxHeight: info?.isExpanded
+								? `${textRef.current?.scrollHeight}px`
+								: '66px',
+						}}
+					>
+						{data?.researchTopics?.[0]?.description || ''}
+					</div>
+					{info?.isOverflowing && (
+						<div className="btn-container">
+							<div className="btn-text" onClick={handleShowBtnClick}>
+								{info?.isExpanded ? 'Show less' : 'Show more'}
+							</div>
+						</div>
+					)}
 				</div>
+
 				<div className="source-container">
 					<div className="module-type-container">
 						<div className="text-container">Triggered Source</div>

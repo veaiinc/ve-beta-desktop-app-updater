@@ -1,6 +1,5 @@
 import React, { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import '../../../../assets/scss/automation_builder/automationBuilderSidebarComponents/conditions.scss';
-import { ReactComponent as DoubleArrow } from '../../../../assets/svg/worflow_builder/buildercard/doubleArrow.svg';
 import { ReactComponent as Search } from '../../../../assets/svg/worflow_builder/buildercard/search.svg';
 import HeadersDropDownComp from '../../dropDown/HeadersDropDownComp';
 import {
@@ -10,7 +9,7 @@ import {
 	dropDownTextStyling,
 	MoveStepsOptions,
 	selectedValueStyling,
-} from '../../../features/workflow_builder/workflowContantsHelpers';
+} from '../../../features/workflowBuilder/workflowContantsHelpers';
 import { message } from '../../globalComponents/CustomToast';
 import Context from '../../../../context/context';
 import HeaderComponent from './HeaderComponent';

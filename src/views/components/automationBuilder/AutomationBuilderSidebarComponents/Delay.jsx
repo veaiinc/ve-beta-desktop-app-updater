@@ -8,7 +8,7 @@ import {
 	dropDownStyle,
 	dropDownTextStyling,
 	selectedValueStyling,
-} from '../../../features/automation_builder/automationContentsHelper';
+} from '../../../features/automationBuilder/automationContentsHelper';
 import '../../../../assets/scss/automation_builder/automationBuilderSidebarComponents/inAppActions.scss';
 import { message } from '../../globalComponents/CustomToast';
 

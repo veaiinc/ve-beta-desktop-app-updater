@@ -371,26 +371,6 @@
 	}
 }
 
-.actions-dropdown-selected {
-	width: 114px;
-	border-radius: 14px;
-	border: 1px solid var(--stroke);
-
-	display: flex;
-	height: 44px;
-	padding: 12px;
-	justify-content: space-between;
-	align-items: center;
-	flex-shrink: 0;
-	align-self: stretch;
-	color: var(--secondary-font);
-	font-family: var(--primary-font-family);
-	font-size: 12px;
-	font-style: normal;
-	font-weight: 500;
-	line-height: normal;
-}
-
 // Endpoint Tab
 .endpointTabContainer {
 	display: flex;

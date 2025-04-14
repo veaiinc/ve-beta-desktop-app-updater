@@ -46,96 +46,6 @@
 			gap: 18px;
 		}
 	}
-	.tooltip-container-wrapper {
-		display: flex;
-		flex-direction: row;
-		align-items: center;
-		justify-content: space-around;
-		width: 100%;
-		z-index: 2;
-		.tooltip-container {
-			display: flex;
-			flex-direction: row;
-			align-items: center;
-			justify-content: flex-start;
-			gap: 15px;
-			width: 570px;
-			.tooltip-container-item {
-				display: flex;
-				flex-direction: row;
-				align-items: center;
-				justify-content: flex-start;
-				.tooltip-container-item-button {
-					display: flex;
-					height: 40px;
-					padding: 0px 12px;
-					flex-direction: row;
-					justify-content: space-between;
-					align-items: center;
-					gap: 8px;
-					border-radius: 12px;
-					outline: none;
-					border: none;
-					cursor: pointer;
-				}
-				.suggestion-dropdown-button {
-					background-color: var(--primary-button);
-					color: var(--primary-button-font);
-				}
-				.filter-dropdown-button {
-					background: var(--card, #171819);
-					color: var(--primary-font);
-				}
-			}
-		}
-	}
-	.searchbar-container-wrapper {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: space-around;
-		width: 100%;
-		.searchbar-container {
-			display: flex;
-			align-items: center;
-			padding-right: 4px;
-			padding-left: 6px;
-			gap: 10px;
-			border-radius: 100px;
-			width: 100%;
-			z-index: 111111;
-			width: 570px;
-			border: 1px solid var(--stroke);
-			background-color: var(--background-color);
-
-			input {
-				background: none;
-				border: none;
-				color: var(--primary-font);
-				font-size: 12px;
-				font-weight: 400;
-				line-height: 16px;
-				width: 100%;
-			}
-			.searchbar-container-spinner {
-				width: 18px;
-				height: 18px;
-			}
-			.search-btn {
-				display: flex;
-				transform: rotate(0.037deg);
-				padding: 6px 12px;
-				align-items: center;
-				gap: 10px;
-				border: none;
-				outline: none;
-				border-radius: 51px;
-				background: var(--primary-button);
-				// background: var(--card-over-card-hover, #27282b);
-				// background: var(--card-over-card-hover, color(display-p3 0.1529 0.1569 0.1686));
-			}
-		}
-	}
 
 	@media (max-width: 768px) {
 		gap: 16px;
@@ -145,14 +55,6 @@
 			margin-bottom: 16px;
 			padding: 0 16px;
 		}
-	}
-
-	.storage-loading {
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		height: 100%;
-		width: 100%;
 	}
 }
 
@@ -472,133 +374,6 @@
 	}
 }
 
-.bottom-chat-bar {
-	position: fixed;
-	bottom: 24px;
-	left: 50%;
-	transform: translateX(-50%);
-	width: calc(100% - 48px);
-	max-width: 800px;
-	z-index: 100;
-
-	.chat-input-container {
-		display: flex;
-		align-items: center;
-		gap: 12px;
-		background: var(--card, #171819);
-		padding: 12px 16px;
-		border-radius: 100px;
-
-		.action-buttons {
-			display: flex;
-			gap: 8px;
-
-			button {
-				display: flex;
-				align-items: center;
-				justify-content: center;
-				width: 36px;
-				height: 36px;
-				border-radius: 50%;
-				background: rgba(255, 255, 255, 0.1);
-				border: none;
-				cursor: pointer;
-				color: var(--primary-font);
-
-				&:hover {
-					background: rgba(255, 255, 255, 0.15);
-				}
-			}
-		}
-
-		input {
-			flex: 1;
-			background: transparent;
-			border: none;
-			color: var(--primary-font);
-			font-size: 14px;
-			padding: 8px 0;
-
-			&::placeholder {
-				color: var(--primary-font);
-			}
-
-			&:focus {
-				outline: none;
-			}
-		}
-
-		.send-button {
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			padding: 8px 16px;
-			background: var(--primary-button);
-			border-radius: 100px;
-			border: none;
-			cursor: pointer;
-			color: var(--primary-button-font);
-			font-weight: 500;
-
-			&:hover {
-				background: var(--primary-button);
-			}
-		}
-	}
-}
-
-@media (max-width: 1024px) {
-	.bottom-chat-bar {
-		width: calc(100% - 32px);
-		bottom: 16px;
-
-		.chat-input-container {
-			padding: 10px 12px;
-
-			.action-buttons button {
-				width: 32px;
-				height: 32px;
-			}
-
-			input {
-				font-size: 13px;
-			}
-		}
-	}
-}
-
-@media (max-width: 768px) {
-	.bottom-chat-bar {
-		width: calc(100% - 24px);
-		bottom: 12px;
-
-		.chat-input-container {
-			padding: 8px 10px;
-
-			.action-buttons button {
-				width: 28px;
-				height: 28px;
-			}
-
-			input {
-				font-size: 12px;
-			}
-
-			.send-button {
-				padding: 6px 12px;
-				font-size: 13px;
-			}
-		}
-	}
-}
-
-.storage-main-container-bottom-spacer {
-	position: sticky;
-	bottom: 0;
-	z-index: 20;
-	padding-top: 20px;
-}
-
 .quick-actions-dropdown-options-container {
 	.dropdown-option {
 		// ... existing styles ...
@@ -658,7 +433,6 @@
 				&.active {
 					color: var(--primary-font);
 				}
-
 			}
 			.sidebar-option-spinner {
 				margin-left: 8px;

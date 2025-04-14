@@ -28,6 +28,13 @@
 	border-radius: 14px;
 	background: var(--card, #202123);
 	box-shadow: 0px 2px 44px 0px var(--card);
+	border: 1px solid var(--stroke);
+
+	button {
+		&:disabled {
+			cursor: not-allowed !important;
+		}
+	}
 
 	&-header {
 		display: flex;
@@ -40,38 +47,32 @@
 		border-bottom: 1px solid var(--stroke);
 
 		&-title {
-			color: var(--primary-font);
-			font-family: var(--primary-font-family);
-			font-size: 16px;
-			font-style: normal;
-			font-weight: 500;
 			line-height: normal;
 			display: flex;
 			align-items: center;
 			gap: 4px;
-			cursor: pointer;
-		}
-
-		&-copy-btn {
-			display: flex;
-			align-items: center;
-			gap: 7px;
-			border-radius: 5px;
-			border: none;
 			color: var(--primary-font);
-			font-family: var(--primary-font-family);
-			font-size: 12px;
-			font-style: normal;
-			font-weight: 500;
-			line-height: normal;
-			padding: 4px 10px;
-			cursor: pointer;
-			background-color: transparent;
 
-			svg {
-				width: 14px;
-				height: 14px;
-				opacity: 1;
+			&-btn {
+				border: none;
+				background-color: transparent;
+				color: var(--secondary-font);
+				font-family: var(--primary-font-family);
+				font-size: 15px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+				cursor: pointer;
+
+				&.active {
+					color: var(--primary-font);
+				}
+			}
+			.divider {
+				display: flex;
+				width: 1px;
+				height: 13px;
+				background-color: var(--stroke);
 			}
 		}
 	}
@@ -81,8 +82,205 @@
 		display: flex;
 		flex-direction: column;
 		align-items: flex-start;
-		gap: 16px;
+		gap: 4px;
 		align-self: stretch;
+
+		.url-input-wrapper {
+			display: flex;
+			align-items: center;
+			align-self: stretch;
+			border-radius: 8px;
+			border: 1px solid var(--stroke);
+			background-color: transparent;
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
+			font-size: 12px;
+			font-style: normal;
+			padding: 0 6px;
+
+			.url-prefix {
+				color: var(--secondary-font);
+				font-family: var(--primary-font-family);
+				font-size: 12px;
+				font-style: normal;
+			}
+			.url-input {
+				display: flex;
+				height: 31px;
+				transform: rotate(-0.037deg);
+				padding: 6px;
+				align-items: center;
+				gap: 10px;
+				flex: 1 0 0;
+				background-color: transparent;
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 400;
+				line-height: normal;
+				width: 100%;
+				border: none;
+				padding-left: 0;
+
+				&::placeholder {
+					color: var(--secondary-font);
+					font-family: var(--primary-font-family);
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 400;
+					line-height: normal;
+				}
+			}
+			.url-input-copy-btn {
+				background-color: transparent;
+				border: none;
+				display: flex;
+				align-items: center;
+				gap: 7px;
+				cursor: pointer;
+			}
+		}
+
+		.publish-screen-footer-error {
+			color: var(--error);
+			font-family: var(--primary-font-family);
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 400;
+			line-height: normal;
+		}
+
+		.publish-screen {
+			display: flex;
+			flex-direction: column;
+			gap: 16px;
+			width: 100%;
+			justify-content: center;
+
+			.publish-screen-title {
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
+				font-size: 16px;
+				font-style: normal;
+				font-weight: 500;
+				text-align: center;
+			}
+
+			.publish-screen-btn {
+				display: flex;
+				height: 31px;
+				padding: 8px 10px;
+				justify-content: center;
+				align-items: center;
+				border-radius: 8px;
+				background-color: var(--card-over-card);
+				border: none;
+				color: var(--primary-font, #0c0c0d);
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				cursor: pointer;
+				&:hover {
+					background-color: var(--card-over-card-hover);
+				}
+			}
+		}
+		.publish-screen-footer {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 16px;
+			align-self: stretch;
+			width: 100%;
+
+			.publish-screen-footer-item {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				gap: 16px;
+				width: 100%;
+				margin-top: 8px;
+
+				.publish-screen-footer-item-label {
+					color: var(--secondary-font);
+					font-family: var(--primary-font-family);
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 500;
+				}
+
+				.publish-screen-footer-item-input-wrapper {
+					display: flex;
+					align-items: center;
+
+					.publish-screen-footer-item-input {
+						background-color: transparent;
+						border: none;
+						color: var(--secondary-font);
+						font-family: var(--primary-font-family);
+						font-size: 12px;
+						font-style: normal;
+						font-weight: 500;
+						-moz-appearance: textfield;
+						padding-right: 0;
+						width: 80px;
+						&::-webkit-calendar-picker-indicator {
+							display: none;
+							-webkit-appearance: none;
+						}
+
+						&.not-set {
+							visibility: hidden;
+						}
+					}
+
+					.publish-screen-footer-item-input-btn {
+						background-color: transparent;
+						border: none;
+						cursor: pointer;
+						display: flex;
+						align-items: center;
+						justify-content: center;
+					}
+
+					.publish-screen-footer-item-input-label {
+						color: var(--secondary-font);
+						font-family: var(--primary-font-family);
+						font-size: 12px;
+						font-style: normal;
+						font-weight: 500;
+						padding-right: 4px;
+					}
+				}
+			}
+
+			.footer-btn-wrapper {
+				display: flex;
+				align-items: center;
+				justify-content: flex-end;
+				gap: 16px;
+				width: 100%;
+				.footer-btn {
+					display: flex;
+					height: 31px;
+					padding: 8px 10px;
+					justify-content: center;
+					align-items: center;
+					border-radius: 8px;
+					background-color: var(--card-over-card);
+					border: none;
+					color: var(--primary-font, #0c0c0d);
+					font-family: var(--primary-font-family);
+					font-size: 14px;
+					cursor: pointer;
+
+					&:hover {
+						background-color: var(--card-over-card-hover);
+					}
+				}
+			}
+		}
 
 		&-search-container {
 			display: flex;
@@ -197,7 +395,7 @@
 				border-radius: 8px;
 				background-color: var(--card-over-card);
 				border: none;
-				color: var(--primary-button-font, #0c0c0d);
+				color: var(--primary-font, #0c0c0d);
 				font-family: var(--primary-font-family);
 				font-size: 14px;
 				font-style: normal;
