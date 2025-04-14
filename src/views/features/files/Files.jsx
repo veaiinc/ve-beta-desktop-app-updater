@@ -906,8 +906,8 @@ const Files = () => {
 			<div className="storage-main-container">
 				<div className="storage-header-container">
 					<span className="beta-text">
-						<div className="beta-text-bold">Search | Create | Share</div>
-						<div className="beta-text">File Flow Inspired by Your Mind</div>
+						{/* <div className="beta-text-bold">Search | Create | Share</div>
+						<div className="beta-text">File Flow Inspired by Your Mind</div> */}
 					</span>
 					<div className="storage-header-items">
 						<QuickActions />
