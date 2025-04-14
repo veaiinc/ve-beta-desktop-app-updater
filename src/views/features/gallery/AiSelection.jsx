@@ -69,7 +69,6 @@ const AiSelection = ({
 			preRegistration: value,
 		}));
 	};
-	console.log(selectedFaceId, 'testing');
 	return (
 		<div className="aiSelection-container">
 			<div className="aiOptions-navbar">

@@ -65,6 +65,7 @@ import ShowLightRoomCopy from '../../components/modalsV2/gallery/ShowLightRoomCo
 import { getCurrentWorkspaceId } from '../../../helpers';
 import GridImage from '../../../assets/images/workflow_builder/dotgrid.png';
 import SharePopup from '../../components/modalsV2/gallery/SharePopup';
+import GalleryViewer from './GalleryViewer';
 // import { message } from '../../components/globalComponents/CustomToast';
 // import EarnAndShareOverlay from './galleryPage/EditAndShareOverlay';
 
@@ -325,6 +326,8 @@ const GalleryPage = () => {
 		editingTitleValue: '',
 		selectedFaceId: null,
 		selectedImage: null,
+		isGalleryViewer: false,
+		currentExpandImage: null,
 	});
 	const optionsRef = useRef(null);
 	const iconRef = useRef(null);
@@ -1572,16 +1575,16 @@ const GalleryPage = () => {
 	};
 	const handleExpandClick = (selectedImageId = null, type) => {
 		if (type === 'single' || info?.selectedImages?.length === 1) {
-			navigate(
-				`/galleries/${galleryId}/${info?.activeAlbumId}/gallery-viewer?tagId=${
-					info?.albumTagId
-				}&image=${selectedImageId || info?.selectedImages?.[0]}`,
-			);
+			setInfo((prev) => ({
+				...prev,
+				currentExpandImage: selectedImageId,
+				isGalleryViewer: true,
+			}));
 		} else {
-			navigate(
-				`/galleries/${galleryId}/${info?.activeAlbumId}/gallery-viewer?tagId=${info?.albumTagId}`,
-				{ state: { selectedImages: info?.selectedImages } },
-			);
+			setInfo((prev) => ({
+				...prev,
+				isGalleryViewer: true,
+			}));
 		}
 	};
 
@@ -3442,6 +3445,12 @@ const GalleryPage = () => {
 	};
 	const galleryUrl = `${galleryCredentials?.baseURL}/${tenantAlbums?.tenant_id}/${galleryId}/optimized/${albumImagesCount?.coverImage?.givenFileName}?Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
 
+	const handleCloseGalleryViewer = () => {
+		setInfo((prev) => ({
+			...prev,
+			isGalleryViewer: false,
+		}));
+	};
 	return (
 		<>
 			<div className="galleryContainer">
@@ -5881,6 +5890,17 @@ const GalleryPage = () => {
 					'You cannot undo this action.All your photos in this album lined to this label will be lost'
 				}
 				handleDeleteImages={handleAlbumDelete}
+			/>
+			<GalleryViewer
+				open={info?.isGalleryViewer}
+				closeModal={() => handleCloseGalleryViewer()}
+				selectedImage={info?.currentExpandImage}
+				currentSelectedImages={
+					info?.selectedImages?.length > 0 ? info?.selectedImages : null
+				}
+				aiFace={false}
+				activeGalleryId={galleryId}
+				activeAlbumId={info?.activeAlbumId}
 			/>
 		</>
 	);

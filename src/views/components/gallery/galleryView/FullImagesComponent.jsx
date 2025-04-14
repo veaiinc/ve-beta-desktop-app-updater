@@ -33,6 +33,7 @@ const FullImagesComponent = ({
 							?.map((image, index) => {
 								const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
 								const src = `${galleryCredentials?.baseURL}/${image?.activeVersion?.s3_optimized?.key}?${params}`;
+
 								return (
 									<div
 										key={index}

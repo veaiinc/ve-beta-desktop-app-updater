@@ -4,7 +4,6 @@ import 'react-loading-skeleton/dist/skeleton.css';
 import '../../../../assets/scss/gallery/table.scss';
 
 const Table = ({ tableData, thead, loading, scrollLoading, tableHeader }) => {
-	console.log(tableData, 'testing');
 	const formatDate = (timestamp) => {
 		if (!timestamp) return '';
 

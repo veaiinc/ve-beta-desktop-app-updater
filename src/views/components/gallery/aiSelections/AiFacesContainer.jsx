@@ -9,6 +9,7 @@ import Masonry, { ResponsiveMasonry } from 'react-responsive-masonry';
 import { ReactComponent as ArrowsOut } from '../../../../assets/svg/gallery/arrowsOut.svg';
 import { Tooltip } from 'antd';
 import { ReactComponent as CrossSvg } from '../../../../assets/svg/gallery/cross.svg';
+import GalleryViewer from '../../../features/gallery/GalleryViewer';
 // import { ReactComponent as AddNewSvg } from '../../../../assets/svg/addNew.svg';
 const AiFacesContainer = ({
 	galleryId,
@@ -34,6 +35,8 @@ const AiFacesContainer = ({
 		addNewPeople: false,
 		isHoveredIndex: null,
 		hasScrolledToImage: false,
+		isGalleryViewer: false,
+		selectedImage: null,
 	});
 	const scrollRef = useRef(null);
 	const debounceTimerRef = useRef(null);
@@ -135,13 +138,17 @@ const AiFacesContainer = ({
 		aiFaceImagesReset();
 	};
 	const handleExpandClick = (image) => {
-		const galleryViewerRoute = `/galleries/${image?.gallery_id}/${image?.album_id}/gallery-viewer?faceId=${info?.activeFace}&image=${image?._id}&aiface=true`;
-		navigate(galleryViewerRoute, {
-			state: {
-				selectedFace: info?.selectedFace,
-				fromAiFaces: true,
-			},
-		});
+		setInfo((prev) => ({
+			...prev,
+			isGalleryViewer: true,
+			selectedImage: image?._id,
+		}));
+	};
+	const handleCloseGalleryViewer = () => {
+		setInfo((prev) => ({
+			...prev,
+			isGalleryViewer: false,
+		}));
 	};
 	const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
 	const src = `${galleryCredentials?.baseURL}/${info?.selectedFace?.displayImage?.optimizedImageS3Key}?${params}`;
@@ -315,6 +322,13 @@ const AiFacesContainer = ({
 					</InfiniteScroll>
 				</div>
 			</div>
+			<GalleryViewer
+				open={info?.isGalleryViewer}
+				closeModal={() => handleCloseGalleryViewer()}
+				selectedImage={info?.selectedImage}
+				aiFace={true}
+				selectedFace={info?.activeFace}
+			/>
 		</div>
 	);
 };

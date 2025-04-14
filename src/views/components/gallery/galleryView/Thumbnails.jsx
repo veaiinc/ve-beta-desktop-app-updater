@@ -49,6 +49,7 @@ const Thumbnails = ({
 												info?.activeImageIndex !== index
 													? '1.3px solid gray'
 													: '',
+											objectFit: 'cover',
 										}}
 									>
 										<img

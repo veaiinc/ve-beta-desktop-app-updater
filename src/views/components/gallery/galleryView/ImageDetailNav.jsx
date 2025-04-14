@@ -27,6 +27,7 @@ const ImageDetailNav = ({
 	addTagToImage,
 	removeTagFromImage,
 	getDownloadLinkForImage,
+	closeModal,
 }) => {
 	const navigate = useNavigate();
 	const [navInfo, setnavInfo] = useState({
@@ -156,6 +157,7 @@ const ImageDetailNav = ({
 				returnFromViewer: true,
 			},
 		});
+		closeModal();
 	};
 
 	return (
