@@ -3768,6 +3768,32 @@ const GalleryPage = () => {
 																				background: src
 																					? `url(${src})`
 																					: `linear-gradient(180deg, rgba(0, 0, 0, 0.00) 0%, #000 100%), #C4C4C4`,
+																				backgroundPosition: `${Math.max(
+																					0,
+																					(album
+																						?.coverImage
+																						?.xPosition ??
+																						0) * 100,
+																				)}% ${Math.max(
+																					0,
+																					(album
+																						?.coverImage
+																						?.yPosition ??
+																						0) * 100,
+																				)}%`,
+																				backgroundSize: `${Math.max(
+																					0,
+																					(album
+																						?.coverImage
+																						?.width ??
+																						1) * 100,
+																				)}% ${Math.max(
+																					0,
+																					(album
+																						?.coverImage
+																						?.height ??
+																						1) * 100,
+																				)}%`,
 																				...provided
 																					.draggableProps
 																					.style,
@@ -3793,34 +3819,6 @@ const GalleryPage = () => {
 																				}))
 																			}
 																		>
-																			{src && (
-																				<img
-																					src={src}
-																					style={{
-																						width: '100%',
-																						height: '100%',
-																						objectFit:
-																							'cover',
-																						objectPosition: `${
-																							album
-																								?.coverImage
-																								?.xPosition ??
-																							50
-																						}% ${
-																							album
-																								?.coverImage
-																								?.yPosition ??
-																							50
-																						}%`,
-																						transform: `scale(${
-																							album
-																								?.coverImage
-																								?.zoom ||
-																							1
-																						})`,
-																					}}
-																				/>
-																			)}
 																			{!isActive && (
 																				<div
 																					style={{
