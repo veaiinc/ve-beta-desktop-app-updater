@@ -168,6 +168,70 @@
 				line-height: normal;
 			}
 		}
+		.report-container {
+			display: flex;
+			width: 100%;
+			padding: 16px;
+			flex-direction: column;
+			gap: 14px;
+
+			border-radius: 16px;
+			background: var(--card, #171819);
+
+			.report-header {
+				color: var(--primary-font, #f2f2f3);
+				font-family: Inter;
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 600;
+				line-height: normal;
+			}
+			.report-description {
+				color: var(--secondary-font, #93989f);
+				font-family: Inter;
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 400;
+				line-height: normal;
+				padding: 12px 16px;
+			}
+		}
+		.suggested-actions,
+		.suggested-prompts,
+		.solutions {
+			display: flex;
+			width: 100%;
+			flex-direction: column;
+			gap: 4px;
+		}
+		.suggested-actions .title-text,
+		.suggested-prompts .title-text,
+		.solutions .title-text {
+			color: var(--primary-font, #f2f2f3);
+			font-family: Inter, sans-serif;
+			font-size: 14px;
+			font-weight: 600;
+		}
+		.suggested-actions .suggested-prompts .solutions {
+			display: flex;
+			flex-direction: column;
+		}
+		.suggested-actions .action-item,
+		.suggested-prompts .prompt-item,
+		.solutions .solution-item {
+			color: var(--secondary-font, #93989f);
+			font-family: Inter, sans-serif;
+			font-size: 12px;
+			font-weight: 400;
+			padding: 8px;
+			border-radius: 8px;
+		}
+		.suggested-actions .action-item:hover,
+		.suggested-prompts .prompt-item:hover,
+		.solutions .solution-item:hover {
+			background-color: var(--card-over-card-hover, #202123);
+			cursor: pointer;
+		}
 	}
 	.footer {
 		display: flex;

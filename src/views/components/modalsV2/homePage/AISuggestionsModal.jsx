@@ -1,13 +1,43 @@
-import React, { memo } from 'react';
+import React, { memo, useCallback } from 'react';
 import '../../../../assets/scss/home_page/modals/aiSuggestionsModal.scss';
 import { ReactComponent as ChevronRightThinSvg } from '../../../../assets/svg/tasks/chevronRightThin.svg';
-
+import ReactMarkdown from 'react-markdown';
+import { useNavigate } from 'react-router-dom';
+import ObjectID from 'bson-objectid';
 import { Drawer } from 'antd';
+import Context from '../../../../context/context';
+import { useContext } from 'react';
 
 const AISuggestionsModal = ({ open, onClose, data, onNextCardClick, onPrevCardClick }) => {
-	if (!data) return;
-	const { title, description, confidence_score, must_notify } = data?.researchTopics?.[0];
-	const { cot } = data;
+	const navigate = useNavigate();
+	const {
+		templates: { updateStateValues },
+	} = useContext(Context);
+
+	const handleClickRun = useCallback(
+		(prompt) => {
+			if (typeof updateStateValues === 'function') {
+				updateStateValues({ activePromptForChat: prompt });
+			}
+			onClose();
+			navigate(`/chat/${ObjectID().toString()}`);
+		},
+		[onClose, navigate, updateStateValues],
+	);
+
+	if (!data) return null;
+	const {
+		title,
+		description,
+		confidence_score,
+		priority,
+		chain_of_thought,
+		research_report,
+		suggested_actions,
+		solutions,
+		suggested_prompts,
+	} = data;
+
 	return (
 		<Drawer
 			open={open}
@@ -50,12 +80,14 @@ const AISuggestionsModal = ({ open, onClose, data, onNextCardClick, onPrevCardCl
 										className="indicator"
 										style={{
 											background:
-												must_notify === 'No'
-													? 'var(--primary-button)'
-													: 'red',
+												priority === 'High'
+													? 'red'
+													: priority === 'Medium'
+													? 'orange'
+													: 'green',
 										}}
 									></div>
-									{`${must_notify === 'No' ? 'Medium' : 'High'} Priority`}
+									{`${priority} Priority`}
 								</div>
 							</div>
 							<div className="title-text">{title || ''}</div>
@@ -64,7 +96,67 @@ const AISuggestionsModal = ({ open, onClose, data, onNextCardClick, onPrevCardCl
 					</div>
 					<div className="chain-of-thought-container">
 						<div className="cot-text">Chain of thought</div>
-						<div className="desc">{cot || ''}</div>
+						<div className="desc">
+							{Array.isArray(chain_of_thought)
+								? chain_of_thought.map((item, index) => <p key={index}>{item}</p>)
+								: chain_of_thought || ''}
+						</div>
+					</div>
+					<div className="report-container">
+						<div className="report-header">
+							<div className="report-title">Report</div>
+							<div className="report-description">
+								<ReactMarkdown>{research_report || ''}</ReactMarkdown>
+							</div>
+						</div>
+					</div>
+					<div className="suggested-actions">
+						<div className="title-text">Suggested Actions</div>
+						<div className="suggested-actions">
+							{Array.isArray(suggested_actions)
+								? suggested_actions.map((item, index) => (
+										<div
+											className="action-item"
+											key={index}
+											onClick={() => handleClickRun(item)}
+										>
+											{item}
+										</div>
+								  ))
+								: suggested_actions || ''}
+						</div>
+					</div>
+					<div className="solutions">
+						<div className="title-text">Suggested Solutions</div>
+						<div className="solutions">
+							{Array.isArray(solutions)
+								? solutions.map((item, index) => (
+										<div
+											className="solution-item"
+											key={index}
+											onClick={() => handleClickRun(item)}
+										>
+											{item}
+										</div>
+								  ))
+								: solutions || ''}
+						</div>
+					</div>
+					<div className="suggested-prompts">
+						<div className="title-text">Suggested Prompts</div>
+						<div className="suggested-prompts">
+							{Array.isArray(suggested_prompts)
+								? suggested_prompts.map((item, index) => (
+										<div
+											className="prompt-item"
+											key={index}
+											onClick={() => handleClickRun(item)}
+										>
+											{item}
+										</div>
+								  ))
+								: suggested_prompts || ''}
+						</div>
 					</div>
 				</div>
 
