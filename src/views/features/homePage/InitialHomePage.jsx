@@ -207,7 +207,12 @@ const InitialHomePage = () => {
 				<QuickActions />
 			</div>
 			<div className={`home-page-container-header ${animationClass}`} ref={headerRef}>
-				<div className={`title-container `}>
+				<div
+					className={`title-container `}
+					style={{
+						...(options?.length === 0 && { height: '126px' }),
+					}}
+				>
 					<div className="title-text">
 						<span className="title-one">AI.</span>{' '}
 						<span className="title-two">truly yours</span>
