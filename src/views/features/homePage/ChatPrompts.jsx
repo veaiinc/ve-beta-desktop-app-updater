@@ -189,7 +189,7 @@ const ChatPrompts = ({
 							next={fetchMoreAiSuggestedPrompts}
 							hasMore={info?.hasNextPage || false}
 							loader={<FetchMoreLoaderComp wrapperStyle={{ width: '100%' }} />}
-							height="calc(100vh - 310px)"
+							height="calc(100vh - 240px)"
 							className="infinite-scroll-container"
 						>
 							<div className="suggested-prompts-container">
