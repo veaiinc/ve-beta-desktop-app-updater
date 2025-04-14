@@ -1,8 +1,43 @@
+.calendarHeaderContainer {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: flex-start;
+	gap: 5px;
+	margin-bottom: 20px;
+	align-self: stretch;
+	user-select: none;
+
+	.calendarHeaderTitle {
+		color: var(--secondary-font, color(display-p3 0.4784 0.4941 0.5216));
+		font-family: Inter;
+		font-size: 40px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
+
+		span {
+			color: var(--primary-font, #f2f2f3);
+			color: var(--primary-font, color(display-p3 0.949 0.949 0.9529));
+		}
+	}
+
+	.calendarHeaderSubTitle {
+		color: #7c7c84;
+		color: color(display-p3 0.4863 0.4863 0.5137);
+		font-family: Inter;
+		font-size: 12px;
+		font-style: normal;
+		font-weight: 400;
+		line-height: normal;
+	}
+}
+
 .calendarParentContainer {
 	display: flex;
 	align-items: flex-start;
 	gap: 10px;
-	height: calc(95vh - 60px);
+	height: calc(100vh - 210px);
 
 	//To override the default AuthWrapper Children Component
 	margin: auto;
@@ -13,7 +48,7 @@
 	display: flex;
 	width: 330px;
 	height: 100%;
-	padding: 15px 0;
+	padding: 10px 0;
 	padding-right: 10px;
 	flex-direction: column;
 	align-items: flex-start;

@@ -1,8 +1,10 @@
 import AuthWrapper from './views/layouts/authWrapper';
 import LoginPage from './views/features/loginPage/LoginPage';
 import Onboarding from './views/features/onboarding/Onboarding';
-import Calendar from './views/features/calendar/Calendar';
-// import ChatScreen from './views/features/meta_Integ/index';
+// import Calendar from './views/features/calendar/Calendar';
+import CalendarModule from './views/features/calendar/Calendar';
+import SchedulerMainPage from './views/features/calendar/SchedulerMainPage';
+import EditScheduler from './views/features/calendar/EditScheduler';
 import OauthVerify from './views/features/signin/oauth/OauthVerify';
 import Sales from './views/features/sales/Sales';
 import GlobalWorkflows from './views/features/sales/GlobalWorkflows';
@@ -320,7 +322,25 @@ const routes = [
 		path: '/calendar',
 		component: (
 			<AuthWrapper title={'Calendar'} maxWidth={'95%'}>
-				<Calendar />
+				<CalendarModule />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/scheduler',
+		component: (
+			<AuthWrapper title={'Scheduler'} maxWidth={'95%'}>
+				<SchedulerMainPage />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/scheduling/edit/:sessionId',
+		component: (
+			<AuthWrapper title={'Scheduling'} maxWidth={'95%'}>
+				<EditScheduler />
 			</AuthWrapper>
 		),
 		exact: true,
