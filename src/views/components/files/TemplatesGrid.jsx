@@ -2,6 +2,7 @@ import '../../../assets/scss/files/index.scss';
 import '../../../assets/scss/files/files.scss';
 import { ReactComponent as Plus } from '../../../assets/svg/files/Plus.svg';
 import Spinner from '../../components/loaders/Spinner';
+import { memo } from 'react';
 const TemplatesGrid = ({ myWorkflows, isLoading, setInfo }) => {
 	if (isLoading) {
 		return <Spinner />;
@@ -57,4 +58,4 @@ const TemplatesGrid = ({ myWorkflows, isLoading, setInfo }) => {
 	);
 };
 
-export default TemplatesGrid;
+export default memo(TemplatesGrid);

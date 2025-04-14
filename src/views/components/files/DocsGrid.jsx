@@ -3,6 +3,7 @@ import '../../../assets/scss/files/files.scss';
 import moment from 'moment';
 import { DocsStatusButton } from '../../features/docs/Docs';
 import { useNavigate } from 'react-router-dom';
+import { memo } from 'react';
 const DocsGrid = ({ docsFilesList, statusTextmapper }) => {
 	const navigate = useNavigate();
 	const getStatusBadge = (status) => {
@@ -52,4 +53,4 @@ const DocsGrid = ({ docsFilesList, statusTextmapper }) => {
 	);
 };
 
-export default DocsGrid;
+export default memo(DocsGrid);

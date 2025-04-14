@@ -2,6 +2,7 @@ import '../../../assets/scss/files/index.scss';
 import '../../../assets/scss/files/files.scss';
 import { ReactComponent as Plus } from '../../../assets/svg/files/Plus.svg';
 import { useNavigate } from 'react-router-dom';
+import { memo } from 'react';
 const NotesGrid = ({ notes, handleNewNotes }) => {
 	const navigate = useNavigate();
 	return (
@@ -38,4 +39,4 @@ const NotesGrid = ({ notes, handleNewNotes }) => {
 	);
 };
 
-export default NotesGrid;
+export default memo(NotesGrid);

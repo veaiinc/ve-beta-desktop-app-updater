@@ -298,6 +298,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 							formattingToolbar={false}
 							onChange={onChange}
 							style={innerContainerStyle || {}}
+							theme={'dark'}
 						>
 							<NoteToolbar />
 						</BlockNoteView>

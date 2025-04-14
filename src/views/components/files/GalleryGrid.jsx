@@ -3,6 +3,7 @@ import '../../../assets/scss/files/files.scss';
 import { ReactComponent as Plus } from '../../../assets/svg/files/Plus.svg';
 import Spinner from '../../components/loaders/Spinner';
 import { ReactComponent as Folder } from '../../../assets/svg/files/Folder.svg';
+import { memo } from 'react';
 
 import { useNavigate } from 'react-router-dom';
 const GalleryGrid = ({ tenantGalleries, handleCreateNewGallery, handleNavigateGallery }) => {
