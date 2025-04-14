@@ -935,23 +935,25 @@ const ChatBox = ({
 
 	const handleTextAreaChange = (e) => {
 		const textArea = textAreaRef?.current;
+		const query = e.target.value;
+		const lastChar = query?.trim()?.slice(-1);
+
 		if (textArea) {
 			textArea.style.height = 'auto';
 			textArea.style.height = textArea.scrollHeight + 'px';
 		}
-		const query = e.target.value;
-		if (query?.trim()?.length > 0) {
-			const lastChar = query?.trim()?.slice(-1);
-			if (lastChar === '@' && !info?.isUploadFileOpen) {
-				setInfo((prev) => ({
-					...prev,
-					isUploadFileOpen: true,
-				}));
-			}
+
+		let isUploadFileOpen = false;
+		if (lastChar === '@') {
+			isUploadFileOpen = true;
+		} else {
+			isUploadFileOpen = false;
 		}
+
 		setInfo((prev) => ({
 			...prev,
 			chatQuery: query,
+			isUploadFileOpen,
 		}));
 	};
 
