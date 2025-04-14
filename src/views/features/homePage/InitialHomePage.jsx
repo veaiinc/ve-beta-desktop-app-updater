@@ -214,16 +214,10 @@ const InitialHomePage = () => {
 		),
 	};
 
-	const options = useMemo(() => {
-		const filteredOptions = info?.options?.filter((option) => option?.showOption);
-		if (filteredOptions?.length > 0 && !info?.selectedOption) {
-			setInfo((prev) => ({
-				...prev,
-				selectedOption: filteredOptions[0]?.value,
-			}));
-		}
-		return filteredOptions;
-	}, [info?.options, info?.selectedOption]);
+	const options = useMemo(
+		() => info?.options?.filter((option) => option?.showOption),
+		[info?.options],
+	);
 
 	if (options?.length > 0) {
 		if (info?.minimized) {
