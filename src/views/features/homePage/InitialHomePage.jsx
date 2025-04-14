@@ -217,10 +217,7 @@ const InitialHomePage = () => {
 						<span className="title-one">AI.</span>{' '}
 						<span className="title-two">truly yours</span>
 					</div>
-					<div className="sub-text">
-						A dedicated, continuously thinking AI - for each of us.
-						<br /> Ask Reason. Give it your goals - let it make you superhuman
-					</div>
+					<div className="sub-text">Answers before you Ask!</div>
 				</div>
 				<div
 					className={`chatbox-wrapper`}
