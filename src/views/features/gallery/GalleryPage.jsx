@@ -3583,6 +3583,7 @@ const GalleryPage = () => {
 													onClick={() =>
 														handleClickContent(item?.name, item?.number)
 													}
+													style={{ cursor: 'pointer' }}
 												>
 													<p
 														className={`galleryName ${
