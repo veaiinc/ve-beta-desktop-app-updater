@@ -11,7 +11,7 @@ import ToggleSwitch from '../../../../views/components/input/slider';
 
 import '../../../../assets/scss/dropdown/tasks/groupDropDown.scss';
 import DropDown from './DropDown';
-import { message } from 'antd';
+import { message } from '../../globalComponents/CustomToast';
 
 const availableGroups = ['status', 'priority'];
 

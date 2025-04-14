@@ -1,0 +1,321 @@
+.schedulerMainPageParentContainer {
+	.schedulerMainPageContainer {
+		display: flex;
+		flex-direction: column;
+		gap: 16px;
+		align-self: stretch;
+
+		.sessionGridParentContainer {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 16px;
+		}
+	}
+}
+
+.sessionGridContainer {
+	cursor: pointer;
+	display: flex;
+	max-width: 367px;
+	min-width: 365px;
+	height: 133px;
+	padding: 16px;
+	justify-content: flex-start;
+	align-items: flex-start;
+	gap: 16px;
+	flex: 1 0 0;
+	color: white;
+	background: var(--card, #171819);
+	border-radius: 24px;
+	transition: all 0.3s ease;
+	position: relative;
+	overflow: hidden;
+
+	&:hover {
+		transform: translateY(-2px);
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+
+		.sessionActions {
+			transform: translateY(0);
+			opacity: 1;
+		}
+	}
+
+	.sessionActions {
+		position: absolute;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		display: flex;
+		justify-content: flex-end;
+		gap: 20px;
+		padding: 10px 15px;
+		background: linear-gradient(180deg, rgba(23, 24, 25, 0) 0%, #171819 100%);
+		transform: translateY(100%);
+		opacity: 0;
+		transition: all 0.3s ease;
+
+		svg {
+			cursor: pointer;
+			opacity: 0.6;
+			transition: all 0.3s ease;
+
+			&:hover {
+				opacity: 1;
+			}
+		}
+	}
+
+	&.addNewSession {
+		justify-content: center;
+		align-items: center;
+		border-radius: 24px;
+		border: 1px solid var(--stroke, #333334);
+		background: transparent;
+		font-size: 18px;
+		font-weight: 500;
+		color: #ffffff80;
+		&:hover {
+			background: rgba(32, 32, 35, 0.4);
+			color: white;
+		}
+	}
+
+	.sessionGridItem {
+		display: flex;
+		gap: 16px;
+		width: 100%;
+
+		.sessionImage {
+			width: 100px;
+			height: 100px;
+			border-radius: 16px;
+			overflow: hidden;
+
+			&.letterAvatar {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				background: linear-gradient(135deg, #2c3e50 0%, #7a8891 100%);
+
+				span {
+					font-size: 40px;
+					font-weight: 600;
+					color: white;
+					user-select: none;
+				}
+			}
+
+			img {
+				width: 100%;
+				height: 100%;
+				object-fit: cover;
+			}
+		}
+
+		.sessionContent {
+			flex: 1;
+			display: flex;
+			flex-direction: column;
+			gap: 8px;
+			user-select: none;
+
+			.sessionHeader {
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+				gap: 5px;
+
+				span {
+					margin: 0;
+					max-width: 200px;
+					overflow: hidden;
+					text-overflow: ellipsis;
+					white-space: nowrap;
+
+					overflow: hidden;
+					color: #e4e5e6;
+					color: color(display-p3 0.8941 0.898 0.902);
+					text-overflow: ellipsis;
+					font-family: Inter;
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+				}
+			}
+
+			.sessionInfo {
+				display: flex;
+				gap: 5px;
+				font-size: 14px;
+				color: #ffffff80;
+
+				.duration,
+				.price,
+				.priceSeparator {
+					display: flex;
+					align-items: center;
+				}
+
+				.price {
+					font-weight: 600;
+				}
+
+				.priceSeparator {
+					font-size: 10px;
+					color: #ffffff80;
+				}
+			}
+
+			.location {
+				font-size: 14px;
+				color: #ffffff80;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				white-space: nowrap;
+				max-width: 200px;
+			}
+		}
+	}
+}
+
+.ScheduledAvailabilityContainer {
+	display: flex;
+	width: 100%;
+	flex-direction: column;
+	gap: 16px;
+	flex-shrink: 0;
+	color: white;
+
+	.headerContainer {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		align-self: stretch;
+
+		.headerLeftContainer {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 4px;
+			user-select: none;
+
+			.headerTitle {
+				color: var(--primary-font, #f2f2f3);
+				color: var(--primary-font, color(display-p3 0.949 0.949 0.9529));
+				font-family: Inter;
+				font-size: 16px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+			.headerSubTitle {
+				color: #7c7c84;
+				color: color(display-p3 0.4863 0.4863 0.5137);
+				font-family: Inter;
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 400;
+				line-height: normal;
+			}
+		}
+
+		.headerRightContainer {
+			padding: 10px;
+			display: flex;
+			align-items: center;
+			gap: 12px;
+			user-select: none;
+
+			svg {
+				cursor: pointer;
+				opacity: 0.6;
+				transition: all 0.3s ease;
+
+				&:hover {
+					opacity: 1;
+				}
+			}
+		}
+	}
+}
+
+.sessionCardSkeleton {
+	background: var(--card, #171819);
+	cursor: default;
+
+	&:hover {
+		transform: none;
+		box-shadow: none;
+	}
+
+	.sessionGridItem {
+		.sessionImage {
+			background: rgb(255 255 255 / 25%);
+			animation: pulse 1.5s infinite;
+			border-radius: 16px;
+		}
+
+		.sessionContent {
+			.sessionHeader {
+				span {
+					display: block;
+					height: 16px;
+					width: 180px;
+					background: rgb(255 255 255 / 25%);
+					border-radius: 4px;
+					animation: pulse 1.5s infinite;
+				}
+			}
+
+			.sessionInfo {
+				display: flex;
+				align-items: center;
+				gap: 8px;
+				margin-top: 8px;
+
+				.duration {
+					height: 14px;
+					width: 60px;
+					background: rgb(255 255 255 / 25%);
+					border-radius: 4px;
+					animation: pulse 1.5s infinite;
+				}
+
+				.priceSeparator {
+					color: rgba(255, 255, 255, 0.1);
+				}
+
+				.price {
+					height: 14px;
+					width: 40px;
+					background: rgb(255 255 255 / 25%);
+					border-radius: 4px;
+					animation: pulse 1.5s infinite;
+				}
+			}
+
+			.location {
+				height: 14px;
+				width: 120px;
+				background: rgb(255 255 255 / 25%);
+				border-radius: 4px;
+				animation: pulse 1.5s infinite;
+				margin-top: 8px;
+			}
+		}
+	}
+}
+
+@keyframes pulse {
+	0% {
+		opacity: 0.1;
+	}
+	50% {
+		opacity: 0.2;
+	}
+	100% {
+		opacity: 0.1;
+	}
+}

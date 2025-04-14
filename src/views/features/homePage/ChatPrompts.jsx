@@ -31,7 +31,6 @@ let timeoutId;
 const ChatPrompts = ({
 	promptsCategory,
 	updatePromptsCategory,
-	isHeaderMinimized,
 	onMinimizeHeader = null,
 	onExpandHeader = null,
 }) => {
@@ -190,9 +189,7 @@ const ChatPrompts = ({
 							next={fetchMoreAiSuggestedPrompts}
 							hasMore={info?.hasNextPage || false}
 							loader={<FetchMoreLoaderComp wrapperStyle={{ width: '100%' }} />}
-							height={
-								isHeaderMinimized ? 'calc(100vh - 310px)' : `calc(100vh - 435px)`
-							}
+							height="calc(100vh - 240px)"
 							className="infinite-scroll-container"
 						>
 							<div className="suggested-prompts-container">

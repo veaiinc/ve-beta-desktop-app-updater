@@ -343,22 +343,22 @@ export const TypingEffect = memo(
 					{/* {chunkRef?.current?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')?.replace(/\\n/g, '\n')} */}
 					{text?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')?.replace(/\\n/g, '\n')}
 				</Markdown>
-
-				{(messageData?.['follow_up_query'] || [])?.length > 0 && (
-					<div className="suggested-prompts">
-						<div className="title-text">Suggested Prompts</div>
-						{(messageData?.['follow_up_query'] || [])?.map((query) => {
-							return (
-								<div
-									className="prompt-container"
-									onClick={() => handlePromptClick(query)}
-								>
-									<div className="prompt">{query}</div>
-								</div>
-							);
-						})}
-					</div>
-				)}
+				{typeof messageData?.['follow_up_query'] !== 'string' &&
+					(messageData?.['follow_up_query'] || [])?.length > 0 && (
+						<div className="suggested-prompts">
+							<div className="title-text">Suggested Prompts</div>
+							{(messageData?.['follow_up_query'] || [])?.map((query) => {
+								return (
+									<div
+										className="prompt-container"
+										onClick={() => handlePromptClick(query)}
+									>
+										<div className="prompt">{query}</div>
+									</div>
+								);
+							})}
+						</div>
+					)}
 
 				{messageData?.messageId && (
 					<div
@@ -545,7 +545,7 @@ export const UserMessageRenderer = memo(({ messageData, activeUserMessageIndex }
 				<div>
 					<div
 						style={{
-							opacity: activeUserMessageIndex ? 1 : 0.6,
+							// opacity: activeUserMessageIndex ? 1 : 0.6,
 							maxHeight: info?.isExpanded
 								? `${textRef.current?.scrollHeight}px`
 								: '147px',

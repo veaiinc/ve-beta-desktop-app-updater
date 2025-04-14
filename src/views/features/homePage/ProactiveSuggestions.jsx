@@ -162,17 +162,20 @@ const ProactiveSuggestions = () => {
 							);
 					  })}
 			</div>
-			<div className="action-container">
-				<div className="action-left"></div>
-				<div className="action-right">
-					<button className="card-change-btn" onClick={handleLeft}>
-						<ChevronRightThinSvg className="left-chevron" />
-					</button>
-					<button className="card-change-btn" onClick={handleRight}>
-						<ChevronRightThinSvg />
-					</button>
+			{info?.cards?.length > 5 && (
+				<div className="action-container">
+					<div className="action-left"></div>
+					<div className="action-right">
+						<button className="card-change-btn" onClick={handleLeft}>
+							<ChevronRightThinSvg className="left-chevron" />
+						</button>
+						<button className="card-change-btn" onClick={handleRight}>
+							<ChevronRightThinSvg />
+						</button>
+					</div>
 				</div>
-			</div>
+			)}
+
 			<AISuggestionsModal
 				open={info?.openModal}
 				onClose={handleCloseModal}

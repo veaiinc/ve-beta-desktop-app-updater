@@ -7,8 +7,9 @@ import { ReactComponent as UpArrow } from '../../../../assets/svg/workflow/downA
 import ToggleSlider from '../../input/slider';
 import Context from '../../../../context/context';
 import { getCurrentWorkspaceId, getInitials } from '../../../../helpers/index';
-import { message, Drawer, Select } from 'antd';
+import { Drawer, Select } from 'antd';
 import _ from 'lodash';
+import { message } from '../../globalComponents/CustomToast';
 
 const workspaceId = localStorage.getItem('workspaceId');
 

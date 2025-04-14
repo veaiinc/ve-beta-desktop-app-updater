@@ -5,7 +5,7 @@ import { ReactComponent as DownArrowIcon } from '../../../assets/svg/elastic_sea
 import { ReactComponent as CrossIcon } from '../../../assets/svg/elastic_search/cross-icon.svg';
 import Context from '../../../context/context';
 import Spinner from '../../components/loaders/Spinner';
-import { message } from 'antd';
+import { message } from '../../components/globalComponents/CustomToast';
 import ElasticSearchResults from '../../components/elastic_search/ElasticSearchResults';
 
 // const filters = [

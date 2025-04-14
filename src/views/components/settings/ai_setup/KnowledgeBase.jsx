@@ -11,7 +11,7 @@ import { ReactComponent as CrossGrey } from '../../../../assets/svg/Settings/cro
 import Skeleton from 'react-loading-skeleton';
 import AssignAiAssistantModal from '../../../components/modalsV2/settings/ai_setup/AssignAiAssistantModal';
 import Workflows from './Workflows';
-import { message } from 'antd';
+import { message } from '../../globalComponents/CustomToast';
 
 const columnNames = ['Source', 'Status'];
 const statuses = {

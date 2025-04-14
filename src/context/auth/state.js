@@ -82,15 +82,14 @@ export const AuthState = () => {
 
 	const createAccountUsingEmail = async (email, locationDetails, referralCode = false) => {
 		const userId = localStorage?.getItem('user_id');
-		// const path = userId ? '/visitor-signup' : '/signup';
-		const path = '/signup';
+		const path = userId ? '/visitor-signup' : '/signup';
 
 		let body = referralCode
 			? { email, referralCode, locationDetails }
 			: { email, locationDetails };
-		// if (userId) {
-		// 	body = referralCode ? { email, referralCode, userId } : { email, userId };
-		// }
+		if (userId) {
+			body = { email, userId };
+		}
 
 		try {
 			const response = await service?.fetchPost(path, body, null, 'auth');
