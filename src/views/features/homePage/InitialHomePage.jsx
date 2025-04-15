@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import ProactiveSuggestions from './ProactiveSuggestions';
 import ChatPrompts from './ChatPrompts';
 import QuickActions from '../../components/globalComponents/QuickActions';
+import AISuggestionsReportUserComponent from '../../components/chat/chatComponents/AISuggestionsReportUserComponent';
 
 const optionsList = [
 	{
@@ -206,6 +207,13 @@ const InitialHomePage = () => {
 			<div className="quick-actions-container">
 				<QuickActions />
 			</div>
+			<AISuggestionsReportUserComponent
+				data={
+					aiSuggestedPendingActions?.pendingActions?.filter(
+						(card) => card?.title?.length > 0,
+					)?.[0]
+				}
+			/>
 			<div
 				className={`home-page-container-header ${animationClass}`}
 				ref={headerRef}

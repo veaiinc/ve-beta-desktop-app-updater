@@ -19,6 +19,7 @@ import rehypeRaw from 'rehype-raw';
 import 'katex/dist/katex.min.css';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { dracula } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import AISuggestionsReportUserComponent from '../views/components/chat/chatComponents/AISuggestionsReportUserComponent';
 
 const rehypeCITPlugin = () => {
 	return (tree) => {
@@ -343,6 +344,7 @@ export const TypingEffect = memo(
 					{/* {chunkRef?.current?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')?.replace(/\\n/g, '\n')} */}
 					{text?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')?.replace(/\\n/g, '\n')}
 				</Markdown>
+
 				{typeof messageData?.['follow_up_query'] !== 'string' &&
 					(messageData?.['follow_up_query'] || [])?.length > 0 && (
 						<div className="suggested-prompts">
@@ -548,28 +550,36 @@ export const UserMessageRenderer = memo(({ messageData, activeUserMessageIndex }
 		<div className="user-message-renderer-wrapper">
 			{!info?.editUserQuery ? (
 				<div>
-					<div
-						style={{
-							// opacity: activeUserMessageIndex ? 1 : 0.6,
-							maxHeight: info?.isExpanded
-								? `${textRef.current?.scrollHeight}px`
-								: '147px',
-						}}
-						className="user-message-renderer-container"
-						ref={textRef}
-					>
-						{(messageData?.message || '').split('\n').map((line, index) => (
-							<span key={index}>
-								{line}
-								{index < messageData?.message.split('\n').length - 1 && <br />}
-							</span>
-						))}
-					</div>
-					{info?.isOverflowing && (
-						<div className="expand-btn">
-							<div className="btn-text" onClick={toggleExpand}>
-								{info?.isExpanded ? 'Show less' : 'Show more'}
+					{messageData?.moduleType === 'ai_suggestion_report' ? (
+						<AISuggestionsReportUserComponent data={messageData?.data} />
+					) : (
+						<div>
+							<div
+								style={{
+									// opacity: activeUserMessageIndex ? 1 : 0.6,
+									maxHeight: info?.isExpanded
+										? `${textRef.current?.scrollHeight}px`
+										: '147px',
+								}}
+								className="user-message-renderer-container"
+								ref={textRef}
+							>
+								{(messageData?.message || '').split('\n').map((line, index) => (
+									<span key={index}>
+										{line}
+										{index < messageData?.message.split('\n').length - 1 && (
+											<br />
+										)}
+									</span>
+								))}
 							</div>
+							{info?.isOverflowing && (
+								<div className="expand-btn">
+									<div className="btn-text" onClick={toggleExpand}>
+										{info?.isExpanded ? 'Show less' : 'Show more'}
+									</div>
+								</div>
+							)}
 						</div>
 					)}
 				</div>

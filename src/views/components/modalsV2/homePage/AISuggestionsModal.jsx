@@ -27,6 +27,18 @@ const AISuggestionsModal = ({ open, onClose, data, onNextCardClick, onPrevCardCl
 		navigate(`/chat/${ObjectID()?.toString()}`);
 	}, []);
 
+	const handleViewReportClick = useCallback((data) => {
+		const messages = [
+			{
+				type: 'user',
+				moduleType: 'ai_suggestion_report',
+				data,
+			},
+		];
+		updateStateValues({ globalChatMessages: messages });
+		navigate(`/chat/${ObjectID()?.toString()}`);
+	}, []);
+
 	if (!data) return null;
 	const {
 		title,
@@ -211,7 +223,9 @@ const AISuggestionsModal = ({ open, onClose, data, onNextCardClick, onPrevCardCl
 						<button className="ignore-btn" onClick={onClose}>
 							Ignore
 						</button>
-						{/* <button className="report-btn">View report</button> */}
+						<button className="report-btn" onClick={() => handleViewReportClick(data)}>
+							View report
+						</button>
 					</div>
 				</div>
 			</div>
