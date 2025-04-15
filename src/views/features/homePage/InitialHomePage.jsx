@@ -18,12 +18,12 @@ const optionsList = [
 		value: 'proactiveSuggestions',
 		showOption: false,
 	},
-	// {
-	// 	id: 2,
-	// 	label: 'Prompts library',
-	// 	value: 'prompts',
-	// 	showOption: false,
-	// },
+	{
+		id: 2,
+		label: 'Prompts library',
+		value: 'prompts',
+		showOption: false,
+	},
 	{
 		id: 3,
 		label: 'Calendar',
@@ -284,7 +284,7 @@ const InitialHomePage = () => {
 				<div
 					className="home-page-container-content"
 					style={{
-						height: info?.minimized ? 'calc(100vh - 240px)' : 'calc(100vh - 360px)',
+						height: info?.minimized ? 'calc(100vh - 240px)' : 'calc(100vh - 314px)',
 					}}
 				>
 					{componentMapper[info?.selectedOption]}
