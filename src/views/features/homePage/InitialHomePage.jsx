@@ -42,12 +42,14 @@ const optionsList = [
 		id: 5,
 		label: 'Contact',
 		value: 'contact',
+		controlValue: 'contact',
 		showOption: true,
 	},
 	{
 		id: 6,
 		label: 'Automation',
 		value: 'automation',
+		controlValue: 'automation',
 		showOption: true,
 	},
 ];
@@ -57,6 +59,7 @@ let animationClass = '';
 const InitialHomePage = () => {
 	const {
 		templates: { updateStateValues, currentSessionId },
+		profileInfo: { tenantUserAccessControls },
 	} = useContext(Context);
 
 	const navigate = useNavigate();
@@ -84,6 +87,38 @@ const InitialHomePage = () => {
 		jwtDecode(localStorage.getItem('usertoken'))?.userName?.split(' ')[0] ??
 		`${userDetailsData?.firstName}` ??
 		'User';
+
+	const renderOptions = () => {
+		if (!tenantUserAccessControls) return null;
+
+		// Create lookup object
+		const accessControlMap = Object.fromEntries(
+			tenantUserAccessControls?.accessControls?.map((item) => [item.app, item]),
+		);
+
+		return options?.map((option) => {
+			const controlKey = option?.controlValue;
+			const accessControl = controlKey ? accessControlMap[controlKey] : null;
+
+			const isEnabled = controlKey ? accessControl?.isEnabled : true;
+
+			if (isEnabled || !controlKey) {
+				return (
+					<div
+						key={option.id}
+						className={`option ${
+							info?.selectedOption === option?.value ? 'active' : ''
+						}`}
+						onClick={() => handleOptionSelection(option)}
+					>
+						<div className="option-label">{option?.label}</div>
+					</div>
+				);
+			}
+
+			return null;
+		});
+	};
 
 	useEffect(() => {
 		if (promptsData) {
@@ -284,20 +319,7 @@ const InitialHomePage = () => {
 					</div>
 				</div>
 
-				<div className="options-container">
-					{options?.map((option) => {
-						return (
-							<div
-								className={`option ${
-									info?.selectedOption === option?.value ? 'active' : ''
-								}`}
-								onClick={() => handleOptionSelection(option)}
-							>
-								<div className="option-label">{option?.label}</div>
-							</div>
-						);
-					})}
-				</div>
+				<div className="options-container">{renderOptions()}</div>
 			</div>
 			{options?.length > 0 && (
 				<div
