@@ -55,6 +55,16 @@
 	gap: 6px;
 	cursor: pointer;
 
+	// transition: transform 0.3s ease, z-index 0.3s ease;
+	// z-index: 1;
+	// transform-origin: center center;
+
+	// &:hover {
+	// 	transform: scale(1.05);
+	// 	z-index: 2;
+	// 	background-color: red;
+	// }
+
 	.card-item-style {
 		position: relative;
 		background-color: var(--card, #171819);

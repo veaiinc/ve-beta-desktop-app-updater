@@ -375,20 +375,6 @@ const Files = () => {
 		}
 	};
 
-	const fetchDocs = async () => {
-		try {
-			const payload = {
-				filters: {
-					limit: 12,
-					page: 1,
-				},
-			};
-			await getDocsFilesList(payload, false);
-		} catch (error) {
-			console.error('Error fetching docs:', error);
-		}
-	};
-
 	// const fetchNotes = async () => {
 	// 	try {
 	// 		const payload = {
@@ -429,7 +415,7 @@ const Files = () => {
 			} else if (option === 'Forms') {
 				await fetchForms();
 			} else if (option === 'Documents') {
-				await fetchDocs();
+				// await fetchDocs();
 			} else if (option === 'Templates') {
 				await fetchTemplates();
 			} else if (option === 'Classic Gallery' || option === 'Lite Gallery') {
@@ -457,7 +443,7 @@ const Files = () => {
 				if (info.selectedView === 'Forms') {
 					await fetchForms();
 				} else if (info.selectedView === 'Documents') {
-					await fetchDocs();
+					// await fetchDocs();
 				} else if (info.selectedView === 'Templates') {
 					await fetchTemplates();
 				} else if (
@@ -752,126 +738,126 @@ const Files = () => {
 		{ view: 'Documents', app: 'workflow' },
 	];
 
-	useEffect(() => {
-		// Add a small delay only for gallery views to ensure data is loaded
-		const delay =
-			info.selectedView === 'Classic Gallery' || info.selectedView === 'Lite Gallery'
-				? 100
-				: 0;
+	// useEffect(() => {
+	// 	// Add a small delay only for gallery views to ensure data is loaded
+	// 	const delay =
+	// 		info.selectedView === 'Classic Gallery' || info.selectedView === 'Lite Gallery'
+	// 			? 100
+	// 			: 0;
 
-		setTimeout(() => {
-			const cards = document.querySelectorAll('.card-item');
-			if (!cards || cards.length === 0) return;
+	// 	setTimeout(() => {
+	// 		const cards = document.querySelectorAll('.card-item');
+	// 		if (!cards || cards.length === 0) return;
 
-			const ctx = gsap.context(() => {
-				// Reset initial positions with varying y values
-				cards.forEach((card) => {
-					const yOffset = 50 + Math.random() * 100;
-					gsap.set(card, {
-						y: yOffset,
-						opacity: 0,
-					});
-				});
+	// 		const ctx = gsap.context(() => {
+	// 			// Reset initial positions with varying y values
+	// 			cards.forEach((card) => {
+	// 				const yOffset = 50 + Math.random() * 100;
+	// 				gsap.set(card, {
+	// 					y: yOffset,
+	// 					opacity: 0,
+	// 				});
+	// 			});
 
-				// Group cards into columns for staggered animation
-				const columnGroups = {
-					oddColumns: Array.from(cards).filter(
-						(_, index) => index % 4 === 0 || index % 4 === 2,
-					),
-					evenColumns: Array.from(cards).filter(
-						(_, index) => index % 4 === 1 || index % 4 === 3,
-					),
-				};
+	// 			// Group cards into columns for staggered animation
+	// 			const columnGroups = {
+	// 				oddColumns: Array.from(cards).filter(
+	// 					(_, index) => index % 4 === 0 || index % 4 === 2,
+	// 				),
+	// 				evenColumns: Array.from(cards).filter(
+	// 					(_, index) => index % 4 === 1 || index % 4 === 3,
+	// 				),
+	// 			};
 
-				// Animate odd columns (1 and 3)
-				gsap.to(columnGroups.oddColumns, {
-					y: 0,
-					opacity: 1,
-					duration: 0.4,
-					stagger: {
-						each: 0.05,
-						ease: 'power1.out',
-					},
-					modifiers: {
-						y: (y, target) => {
-							const initialY = Math.abs(
-								parseFloat(target.style.transform?.split('translateY(')[1]) || 0,
-							);
-							const duration = gsap.utils.mapRange(50, 150, 0.4, 0.2)(initialY);
-							if (target._gsap) target._gsap.duration = duration;
-							return y;
-						},
-					},
-				});
+	// 			// Animate odd columns (1 and 3)
+	// 			gsap.to(columnGroups.oddColumns, {
+	// 				y: 0,
+	// 				opacity: 1,
+	// 				duration: 0.4,
+	// 				stagger: {
+	// 					each: 0.05,
+	// 					ease: 'power1.out',
+	// 				},
+	// 				modifiers: {
+	// 					y: (y, target) => {
+	// 						const initialY = Math.abs(
+	// 							parseFloat(target.style.transform?.split('translateY(')[1]) || 0,
+	// 						);
+	// 						const duration = gsap.utils.mapRange(50, 150, 0.4, 0.2)(initialY);
+	// 						if (target._gsap) target._gsap.duration = duration;
+	// 						return y;
+	// 					},
+	// 				},
+	// 			});
 
-				// Animate even columns (2 and 4)
-				gsap.to(columnGroups.evenColumns, {
-					y: 0,
-					opacity: 1,
-					duration: 0.4,
-					delay: 0.1,
-					stagger: {
-						each: 0.05,
-						ease: 'power1.out',
-					},
-					modifiers: {
-						y: (y, target) => {
-							const initialY = Math.abs(
-								parseFloat(target.style.transform?.split('translateY(')[1]) || 0,
-							);
-							const duration = gsap.utils.mapRange(50, 150, 0.4, 0.2)(initialY);
-							if (target._gsap) target._gsap.duration = duration;
-							return y;
-						},
-					},
-				});
-			});
+	// 			// Animate even columns (2 and 4)
+	// 			gsap.to(columnGroups.evenColumns, {
+	// 				y: 0,
+	// 				opacity: 1,
+	// 				duration: 0.4,
+	// 				delay: 0.1,
+	// 				stagger: {
+	// 					each: 0.05,
+	// 					ease: 'power1.out',
+	// 				},
+	// 				modifiers: {
+	// 					y: (y, target) => {
+	// 						const initialY = Math.abs(
+	// 							parseFloat(target.style.transform?.split('translateY(')[1]) || 0,
+	// 						);
+	// 						const duration = gsap.utils.mapRange(50, 150, 0.4, 0.2)(initialY);
+	// 						if (target._gsap) target._gsap.duration = duration;
+	// 						return y;
+	// 					},
+	// 				},
+	// 			});
+	// 		});
 
-			return () => ctx.revert();
-		}, delay);
-	}, [info.selectedView, tenantGalleries?.galleries]);
+	// 		return () => ctx.revert();
+	// 	}, delay);
+	// }, [info.selectedView, tenantGalleries?.galleries]);
 
-	useEffect(() => {
-		const container = document.querySelector('.card-container, .card-container-hover');
-		if (!container) return;
+	// useEffect(() => {
+	// 	const container = document.querySelector('.card-container, .card-container-hover');
+	// 	if (!container) return;
 
-		const ctx = gsap.context(() => {
-			const cards = container.querySelectorAll('.card-item');
-			if (!cards || cards.length === 0) return;
+	// 	const ctx = gsap.context(() => {
+	// 		const cards = container.querySelectorAll('.card-item');
+	// 		if (!cards || cards.length === 0) return;
 
-			const enterAnimation = (card) => {
-				gsap.to(card, {
-					scale: 1.05,
-					duration: 0.3,
-					ease: 'power2.out',
-					zIndex: 2,
-				});
-			};
+	// 		const enterAnimation = (card) => {
+	// 			gsap.to(card, {
+	// 				scale: 1.05,
+	// 				duration: 0.3,
+	// 				ease: 'power2.out',
+	// 				zIndex: 2,
+	// 			});
+	// 		};
 
-			const leaveAnimation = (card) => {
-				gsap.to(card, {
-					scale: 1,
-					duration: 0.3,
-					ease: 'power2.out',
-					zIndex: 1,
-				});
-			};
+	// 		const leaveAnimation = (card) => {
+	// 			gsap.to(card, {
+	// 				scale: 1,
+	// 				duration: 0.3,
+	// 				ease: 'power2.out',
+	// 				zIndex: 1,
+	// 			});
+	// 		};
 
-			cards.forEach((card) => {
-				card.addEventListener('mouseenter', () => enterAnimation(card));
-				card.addEventListener('mouseleave', () => leaveAnimation(card));
-			});
-		}, container);
+	// 		cards.forEach((card) => {
+	// 			card.addEventListener('mouseenter', () => enterAnimation(card));
+	// 			card.addEventListener('mouseleave', () => leaveAnimation(card));
+	// 		});
+	// 	}, container);
 
-		return () => ctx.revert();
-	}, [info.selectedView]);
+	// 	return () => ctx.revert();
+	// }, [info.selectedView]);
 
 	const tabsMapper = {
 		Documents: (
 			<DocsGrid
 				docsFilesList={docsFilesList}
 				statusTextmapper={statusTextmapper}
-				setInfo={setInfo}
+				handleCreateDoc={() => setInfo((prev) => ({ ...prev, openProposalPopup: true }))}
 			/>
 		),
 		Notes: <NotesGrid notes={notes} handleNewNotes={handleNewNotes} />,

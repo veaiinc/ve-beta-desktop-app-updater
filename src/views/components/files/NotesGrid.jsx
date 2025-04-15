@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { memo, useContext, useEffect, useState } from 'react';
 import Context from '../../../context/context';
 import InfiniteScroll from '../globalComponents/InfiniteScroll';
+import gsap from 'gsap';
 const NotesGrid = ({ handleNewNotes }) => {
 	const navigate = useNavigate();
 
@@ -30,12 +31,98 @@ const NotesGrid = ({ handleNewNotes }) => {
 			handleStateUpdate({ notes: newNotes, currentPage, hasNextPage });
 		}
 	}, [notes]);
+	useEffect(() => {
+		const delay =
+			info.selectedView === 'Classic Gallery' || info.selectedView === 'Lite Gallery'
+				? 100
+				: 0;
+
+		const timeout = setTimeout(() => {
+			const cards = document.querySelectorAll(
+				'.card-container .card-item:not(.card-item-style-btn)',
+			);
+			if (!cards || cards.length === 0) return;
+
+			const newCards = Array.from(cards).filter((card) => !card.dataset.animated);
+			if (newCards.length === 0) return;
+
+			const ctx = gsap.context(() => {
+				newCards.forEach((card) => {
+					const yOffset = 50 + Math.random() * 100;
+					gsap.set(card, {
+						y: yOffset,
+						opacity: 0,
+					});
+				});
+
+				const columnGroups = {
+					oddColumns: newCards.filter((_, index) => index % 4 === 0 || index % 4 === 2),
+					evenColumns: newCards.filter((_, index) => index % 4 === 1 || index % 4 === 3),
+				};
+
+				gsap.to(columnGroups.oddColumns, {
+					y: 0,
+					opacity: 1,
+					duration: 0.4,
+					stagger: {
+						each: 0.05,
+						ease: 'power1.out',
+					},
+					modifiers: {
+						y: (y, target) => {
+							const initialY = Math.abs(
+								parseFloat(target.style.transform?.split('translateY(')[1]) || 0,
+							);
+							const duration = gsap.utils.mapRange(50, 150, 0.4, 0.2)(initialY);
+							if (target._gsap) target._gsap.duration = duration;
+							return y;
+						},
+					},
+					onComplete: () => {
+						columnGroups.oddColumns.forEach((card) => {
+							card.dataset.animated = 'true';
+						});
+					},
+				});
+
+				gsap.to(columnGroups.evenColumns, {
+					y: 0,
+					opacity: 1,
+					duration: 0.4,
+					delay: 0.1,
+					stagger: {
+						each: 0.05,
+						ease: 'power1.out',
+					},
+					modifiers: {
+						y: (y, target) => {
+							const initialY = Math.abs(
+								parseFloat(target.style.transform?.split('translateY(')[1]) || 0,
+							);
+							const duration = gsap.utils.mapRange(50, 150, 0.4, 0.2)(initialY);
+							if (target._gsap) target._gsap.duration = duration;
+							return y;
+						},
+					},
+					onComplete: () => {
+						columnGroups.evenColumns.forEach((card) => {
+							card.dataset.animated = 'true';
+						});
+					},
+				});
+			}, cards[0]);
+
+			return () => ctx.revert();
+		}, delay);
+
+		return () => clearTimeout(timeout);
+	}, [info.notes.length, info.selectedView]);
 
 	const handleStateUpdate = (data) => {
 		setInfo((prevInfo) => ({ ...prevInfo, ...data }));
 	};
 
-	const fetchNotes = async ({ page = 1, limit = 20 }) => {
+	const fetchNotes = async ({ page = 1, limit = 10 }) => {
 		try {
 			const payload = {
 				input: {
