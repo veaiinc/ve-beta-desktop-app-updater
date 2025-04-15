@@ -11,6 +11,8 @@ import ContactsWidget from '../../components/globalComponents/ContactsWidget';
 import AutomationWidget from '../../components/globalComponents/AutomationWidget';
 import TaskWidget from '../../components/globalComponents/TaskWidget';
 import CalenderWidget from '../../components/globalComponents/CalenderWidget';
+import AISuggestionsReportUserComponent from '../../components/chat/chatComponents/AISuggestionsReportUserComponent';
+
 const optionsList = [
 	{
 		id: 1,
