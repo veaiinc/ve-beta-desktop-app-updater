@@ -11,7 +11,7 @@ import { ReactComponent as CrossWhite } from '../../../../assets/svg/Settings/Cr
 import { useNavigate } from 'react-router-dom';
 import slugify from 'slugify';
 import Peopleitem from './PeopleCard';
-import { message } from 'antd';
+import { message } from '../../globalComponents/CustomToast';
 
 const ImageDetailNav = ({
 	info,
@@ -86,14 +86,15 @@ const ImageDetailNav = ({
 			handleRotateImage(currentRotation);
 		},
 		Download: async () => {
-			message.loading('Downloading image...', 0);
+			const id = message.loading('Downloading image...');
+
 			const response = await getDownloadLinkForImage(info?.imageDetailId);
 
+			message.destroy(id);
+
 			if (response?.[0] === true) {
-				message.destroy();
 				message.success('Download completed');
 			} else {
-				message.destroy();
 				message.error('Failed to get download link');
 			}
 		},

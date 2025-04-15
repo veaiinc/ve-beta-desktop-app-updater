@@ -5,7 +5,7 @@ import { ReactComponent as textSvg } from '../../../assets/svg/tasks/letterA.svg
 import Context from '../../../context/context';
 import '../../../assets/scss/contacts/contacts.scss';
 import CreateClientModal from '../../components/modalsV2/contacts/CreateClientModal';
-import { message } from 'antd';
+import { message } from '../../components/globalComponents/CustomToast';
 import Sidebar from '../../components/docs/Sidebar';
 import ListTabs from '../../components/tasks/listView/ListTabs';
 import TabListFile from '../../components/tasks/listView/TabListFile';

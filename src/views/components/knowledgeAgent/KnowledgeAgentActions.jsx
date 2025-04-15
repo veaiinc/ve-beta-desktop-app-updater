@@ -2,7 +2,7 @@ import React, { memo, useCallback, useContext, useEffect, useState } from 'react
 import '../../../assets/scss/ai_assistant/aiInstructions.scss';
 import ToggleSwitch from '../input/slider';
 import ActionsModal from '../modalsV2/ai_assistant/ActionsModal';
-import { message } from 'antd';
+import { message } from '../globalComponents/CustomToast';
 import { useParams } from 'react-router-dom';
 import Context from '../../../context/context';
 import Skeleton from 'react-loading-skeleton';

@@ -1,6 +1,6 @@
 import { memo } from 'react';
 const MicroscopeSvg = ({ selected }) => {
-	const strokeColor = selected ? 'black' : 'var(--primary-font)';
+	const strokeColor = selected ? 'black' : 'var(--secdary-font)';
 	return (
 		<svg
 			xmlns="http://www.w3.org/2000/svg"

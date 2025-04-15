@@ -22,8 +22,9 @@ import '../../../../assets/scss/workflowBuilder/workflowCardEditModal.scss';
 import WorkflowBuilderLoader from '../../workflowBuilderComponents/WorkflowBuilderLoader';
 import ToggleSlider from '../../input/slider';
 import { ReactComponent as Pen } from '../../../../assets/svg/worflow_builder/editPen.svg';
-import { Button, message, Spin } from 'antd';
+import { Button, Spin } from 'antd';
 import { useNavigate } from 'react-router-dom';
+import { message } from '../../globalComponents/CustomToast';
 
 const RenderNotificationUi = ({
 	closeModal,

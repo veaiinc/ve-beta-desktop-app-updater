@@ -7,7 +7,7 @@ import { ReactComponent as TIcon } from '../../../../../assets/svg/ai_assistant/
 import { ReactComponent as URLIcon } from '../../../../../assets/svg/ai_assistant/url.svg';
 import { ReactComponent as FolderIcon } from '../../../../../assets/svg/ai_assistant/folder.svg';
 import Modal from '../../';
-import { message } from 'antd';
+import { message } from '../../../globalComponents/CustomToast';
 import Context from '../../../../../context/context';
 import { useParams } from 'react-router-dom';
 import { isURL } from '../../../../../helpers';

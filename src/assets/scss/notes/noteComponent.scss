@@ -281,3 +281,11 @@
 .cursor-pointer {
 	cursor: pointer;
 }
+
+.notes-line-loader {
+	padding-top: 10px;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	width: 100%;
+}

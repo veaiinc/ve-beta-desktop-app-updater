@@ -3,7 +3,7 @@ import '../../../assets/scss/AiSetup/aiSetup.scss';
 import SectionBlock from '../../components/AiS/SectionBlock';
 import Context from '../../../context/context';
 import AddNewGoalModal from '../../components/modalsV2/settings/ai_setup/AddNewGoalModal';
-import { message } from 'antd';
+import { message } from '../../components/globalComponents/CustomToast';
 import ConfirmationModal from '../../components/modalsV2/settings/ai_setup/ConfirmationModal';
 const AiSetup = () => {
 	const {

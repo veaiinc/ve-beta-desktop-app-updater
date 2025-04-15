@@ -10,7 +10,7 @@ import { ReactComponent as WorkflowSvg } from '../../../../assets/svg/tasks/work
 import { ReactComponent as PersonSvg } from '../../../../assets/svg/tasks/person.svg';
 import { ReactComponent as CalendarSvg } from '../../../../assets/svg/tasks/calendar.svg';
 import { ReactComponent as TickSvg } from '../../../../assets/svg/home_page/Tick.svg';
-import { message, Tooltip } from 'antd';
+import { Tooltip } from 'antd';
 import Skeleton from 'react-loading-skeleton';
 import jwtDecode from 'jwt-decode';
 import moment from 'moment';
@@ -38,6 +38,8 @@ import { FetchMoreLoaderComp } from '../../../../helpers';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import ChildTaskComponent from '../../tasks/listView/ChildTaskComponent';
 import CreateTaskPopup from '../../modalsV2/tasks/CreateTaskPopup';
+
+import { message } from '../../globalComponents/CustomToast';
 
 const colors = {
 	1: { backgroundColor: '#62344B', color: '#A35A7E' },

@@ -4,6 +4,7 @@ import Context from '../../../context/context';
 import AISuggestionsPopup from '../../components/modalsV2/homePage/AISuggestionsPopup';
 import { ReactComponent as ChevronRightThinSvg } from '../../../assets/svg/tasks/chevronRightThin.svg';
 import Skeleton from 'react-loading-skeleton';
+import AISuggestionsModal from '../../components/modalsV2/homePage/AISuggestionsModal';
 
 const payload = {
 	page: 1,
@@ -27,7 +28,7 @@ const ProactiveSuggestions = () => {
 		totalCardsData: [],
 		cards: [],
 		activeCardContent: null,
-		openPopup: false,
+		openModal: false,
 		currentIndex: 0,
 		loading: true,
 	});
@@ -47,7 +48,7 @@ const ProactiveSuggestions = () => {
 
 	const updateCardsData = () => {
 		const cards = aiSuggestedPendingActions?.pendingActions?.filter(
-			(card) => card?.researchTopics?.length > 0,
+			(card) => card?.title?.length > 0,
 		);
 		if (cards?.length > 0) {
 			setInfo((prev) => ({
@@ -80,32 +81,35 @@ const ProactiveSuggestions = () => {
 	};
 
 	const handleLeft = () => {
+		const index =
+			(info?.currentIndex - 1 + info?.totalCardsData?.length) % info?.totalCardsData?.length;
 		setInfo((prev) => ({
 			...prev,
-			currentIndex:
-				(prev?.currentIndex - 1 + info?.totalCardsData?.length) %
-				info?.totalCardsData?.length,
+			currentIndex: index,
+			activeCardContent: info?.totalCardsData[index],
 		}));
 	};
 
 	const handleRight = () => {
+		const index = (info?.currentIndex + 1) % info?.totalCardsData?.length;
 		setInfo((prev) => ({
 			...prev,
-			currentIndex: (prev?.currentIndex + 1) % info?.totalCardsData?.length,
+			currentIndex: index,
+			activeCardContent: info?.totalCardsData[index],
 		}));
 	};
 
-	const handleCardClick = (card) => {
+	const handleCardClick = (card, index) => {
 		setInfo((prev) => ({
 			...prev,
 			activeCardContent: card,
-			openPopup: true,
+			openModal: true,
+			currentIndex: index,
 		}));
 	};
 
-	const handleCloseModal = useCallback(() => {
-		setInfo((prev) => ({ ...prev, openPopup: false, activeCardContent: null }));
-	}, []);
+	const handleCloseModal = () =>
+		setInfo((prev) => ({ ...prev, openModal: false, activeCardContent: null }));
 
 	return (
 		<div className="proactive-suggestions-container">
@@ -134,22 +138,18 @@ const ProactiveSuggestions = () => {
 								</div>
 							);
 					  })
-					: info?.cards?.map((card) => {
+					: info?.cards?.map((card, index) => {
 							if (card.position === null) return null;
 							const classList = ['card', positionClassMap[card.position]];
 							return (
 								<div
 									key={card?._id}
 									className={classList.join(' ')}
-									onClick={() => handleCardClick(card)}
+									onClick={() => handleCardClick(card, index)}
 								>
 									<div className="header">
-										<div className="card-title">
-											{card?.researchTopics?.[0]?.title}
-										</div>
-										<div className="card-description">
-											{card?.researchTopics?.[0]?.description}
-										</div>
+										<div className="card-title">{card?.title}</div>
+										<div className="card-description">{card?.description}</div>
 									</div>
 									<div className="footer">
 										<div className="module-type">{card?.moduleType}</div>
@@ -158,21 +158,26 @@ const ProactiveSuggestions = () => {
 							);
 					  })}
 			</div>
-			<div className="action-container">
-				<div className="action-left"></div>
-				<div className="action-right">
-					<button className="card-change-btn" onClick={handleLeft}>
-						<ChevronRightThinSvg className="left-chevron" />
-					</button>
-					<button className="card-change-btn" onClick={handleRight}>
-						<ChevronRightThinSvg />
-					</button>
+			{info?.cards?.length > 5 && (
+				<div className="action-container">
+					<div className="action-left"></div>
+					<div className="action-right">
+						<button className="card-change-btn" onClick={handleLeft}>
+							<ChevronRightThinSvg className="left-chevron" />
+						</button>
+						<button className="card-change-btn" onClick={handleRight}>
+							<ChevronRightThinSvg />
+						</button>
+					</div>
 				</div>
-			</div>
-			<AISuggestionsPopup
-				open={info?.openPopup}
-				closeModal={handleCloseModal}
+			)}
+
+			<AISuggestionsModal
+				open={info?.openModal}
+				onClose={handleCloseModal}
 				data={info?.activeCardContent}
+				onNextCardClick={handleRight}
+				onPrevCardClick={handleLeft}
 			/>
 		</div>
 	);

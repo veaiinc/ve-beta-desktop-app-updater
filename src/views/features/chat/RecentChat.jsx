@@ -83,9 +83,9 @@ const RecentChat = ({
 	const chatMessagesRef = useRef(globalChatMessages || []);
 	let { sessionId } = useParams();
 	const [searchParams, setSearchParams] = useSearchParams();
-	const aiMessagesRef = useRef([]);
-	const previousAiMessagesRef = useRef([]);
-	const aiCitationsByIdRef = useRef({});
+	// const aiMessagesRef = useRef([]);
+	// const previousAiMessagesRef = useRef([]);
+	// const aiCitationsByIdRef = useRef({});
 	const tabsRefs = useRef({});
 	const previousTabsRefs = useRef({});
 	const isFirstTimeConnectingToPublicChatRef = useRef(true);
@@ -148,7 +148,7 @@ const RecentChat = ({
 					...prev,
 					scrollExecuted: false,
 				}));
-				aiMessagesRef.current = [];
+				// aiMessagesRef.current = [];
 			}
 
 			getRecentChatMessages(sessionId);
@@ -281,90 +281,88 @@ const RecentChat = ({
 
 	useEffect(() => {
 		chatMessagesRef.current = [...(globalChatMessages || [])];
-		chatMessagesRef.current?.forEach((message) => {
-			if (message?.type?.toLowerCase() === 'ai') {
-				const messageId = message?.messageId;
-				if (message?.citations && !aiCitationsByIdRef.current[messageId]) {
-					aiCitationsByIdRef.current[messageId] = message?.citations;
-				}
-			}
-		});
-		// smoothScrollToBottom();
+		// chatMessagesRef.current?.forEach((message) => {
+		// 	if (message?.type?.toLowerCase() === 'ai') {
+		// 		const messageId = message?.messageId;
+		// 		if (message?.citations && !aiCitationsByIdRef.current[messageId]) {
+		// 			aiCitationsByIdRef.current[messageId] = message?.citations;
+		// 		}
+		// 	}
+		// });
 
-		if (aiMessagesRef?.current?.length === 0) return;
+		// if (aiMessagesRef?.current?.length === 0) return;
 
-		previousAiMessagesRef.current = [...aiMessagesRef.current];
+		// previousAiMessagesRef.current = [...aiMessagesRef.current];
 
-		const visibleMessagesSet = new Set();
-		const observer = new IntersectionObserver(
-			(entries) => {
-				entries.forEach((entry) => {
-					if (entry.isIntersecting) {
-						visibleMessagesSet.add(entry.target);
-					} else {
-						visibleMessagesSet.delete(entry.target);
-					}
-				});
-				const visibleMessages = Array.from(visibleMessagesSet).sort(
-					(a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top,
-				);
+		// const visibleMessagesSet = new Set();
+		// const observer = new IntersectionObserver(
+		// 	(entries) => {
+		// 		entries.forEach((entry) => {
+		// 			if (entry.isIntersecting) {
+		// 				visibleMessagesSet.add(entry.target);
+		// 			} else {
+		// 				visibleMessagesSet.delete(entry.target);
+		// 			}
+		// 		});
+		// 		const visibleMessages = Array.from(visibleMessagesSet).sort(
+		// 			(a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top,
+		// 		);
 
-				// Change to get the first visible message instead of the last
-				if (visibleMessages.length > 0) {
-					const firstVisibleMessage = visibleMessages[0]; // Get the first visible message
+		// 		// Change to get the first visible message instead of the last
+		// 		if (visibleMessages.length > 0) {
+		// 			const firstVisibleMessage = visibleMessages[0]; // Get the first visible message
 
-					let activeAIMessageIndex = firstVisibleMessage.dataset.index;
-					let activeUserMessageIndex = null;
+		// 			let activeAIMessageIndex = firstVisibleMessage.dataset.index;
+		// 			let activeUserMessageIndex = null;
 
-					if (activeAIMessageIndex > 0) {
-						activeUserMessageIndex = activeAIMessageIndex - 1;
-						while (activeUserMessageIndex) {
-							if (
-								chatMessagesRef.current[
-									activeUserMessageIndex
-								]?.type?.toLowerCase() === 'user'
-							) {
-								break;
-							}
-							activeUserMessageIndex--;
-						}
+		// 			if (activeAIMessageIndex > 0) {
+		// 				activeUserMessageIndex = activeAIMessageIndex - 1;
+		// 				while (activeUserMessageIndex) {
+		// 					if (
+		// 						chatMessagesRef.current[
+		// 							activeUserMessageIndex
+		// 						]?.type?.toLowerCase() === 'user'
+		// 					) {
+		// 						break;
+		// 					}
+		// 					activeUserMessageIndex--;
+		// 				}
 
-						if (
-							chatMessagesRef.current[activeUserMessageIndex]?.type?.toLowerCase() !==
-							'user'
-						) {
-							activeUserMessageIndex = null;
-						}
-					}
-					setInfo((prev) => ({
-						...prev,
-						activeAIMessageIndex: parseInt(activeAIMessageIndex),
-						activeAIMessageId: firstVisibleMessage.dataset.messageId,
-						activeUserMessageIndex,
-					}));
-				}
-			},
-			{
-				root: chatContentRef.current,
-				threshold: 0.01,
-			},
-		);
-		aiMessagesRef.current.forEach((msg) => observer.observe(msg));
+		// 				if (
+		// 					chatMessagesRef.current[activeUserMessageIndex]?.type?.toLowerCase() !==
+		// 					'user'
+		// 				) {
+		// 					activeUserMessageIndex = null;
+		// 				}
+		// 			}
+		// 			setInfo((prev) => ({
+		// 				...prev,
+		// 				activeAIMessageIndex: parseInt(activeAIMessageIndex),
+		// 				activeAIMessageId: firstVisibleMessage.dataset.messageId,
+		// 				activeUserMessageIndex,
+		// 			}));
+		// 		}
+		// 	},
+		// 	{
+		// 		root: chatContentRef.current,
+		// 		threshold: 0.01,
+		// 	},
+		// );
+		// aiMessagesRef.current.forEach((msg) => observer.observe(msg));
 
-		// smoothScrollToBottom();
-		return () => {
-			previousAiMessagesRef.current.forEach((msg) => observer.unobserve(msg));
-			visibleMessagesSet.clear();
-		};
+		// return () => {
+		// 	previousAiMessagesRef.current.forEach((msg) => observer.unobserve(msg));
+		// 	visibleMessagesSet.clear();
+		// };
 	}, [globalChatMessages, chatContentRef]);
 
-	useEffect(() => {
-		if (info?.activeAIMessageId) {
-			updateStateValues({
-				citations: aiCitationsByIdRef.current[info?.activeAIMessageId],
-			});
-		}
-	}, [info?.activeAIMessageId]);
+	// useEffect(() => {
+	// 	if (info?.activeAIMessageId) {
+	// 		updateStateValues({
+	// 			citations: aiCitationsByIdRef.current[info?.activeAIMessageId],
+	// 		});
+	// 	}
+	// }, [info?.activeAIMessageId]);
 
 	useEffect(() => {
 		if (recentChatStorage) {
@@ -662,13 +660,12 @@ const RecentChat = ({
 		setInfo((prev) => ({ ...prev, showViewDocument: value }));
 	}, []);
 
-	console.log(info?.showViewDocument, 'info?.showViewDocument');
 	return (
 		<>
 			<div className="chat-container">
 				<div className="chatBarContainer" style={{ width: '100%' }}>
 					{/* header */}
-					{!isPublicChat && !isPreview && (
+					{/* {!isPublicChat && !isPreview && (
 						<div className="containerHeader">
 							<h1 className="containerHeaderTitle"></h1>
 							<div className="iconContainer">
@@ -684,7 +681,7 @@ const RecentChat = ({
 								)}
 							</div>
 						</div>
-					)}
+					)} */}
 
 					{/* chat body */}
 					<div
@@ -735,18 +732,18 @@ const RecentChat = ({
 															// 			? 1
 															// 			: 0.6,
 															// }}
-															ref={(el) => {
-																if (
-																	el &&
-																	!aiMessagesRef.current.includes(
-																		el,
-																	)
-																) {
-																	aiMessagesRef?.current?.push(
-																		el,
-																	);
-																}
-															}}
+															// ref={(el) => {
+															// 	if (
+															// 		el &&
+															// 		!aiMessagesRef.current.includes(
+															// 			el,
+															// 		)
+															// 	) {
+															// 		aiMessagesRef?.current?.push(
+															// 			el,
+															// 		);
+															// 	}
+															// }}
 															data-message-id={chat?.messageId}
 															data-index={index}
 														>
@@ -950,10 +947,10 @@ const RecentChat = ({
 													) : (
 														<UserMessageRenderer
 															messageData={chat}
-															activeUserMessageIndex={
-																index ===
-																info?.activeUserMessageIndex
-															}
+															// activeUserMessageIndex={
+															// 	index ===
+															// 	info?.activeUserMessageIndex
+															// }
 														/>
 													)}
 												</div>

@@ -3,7 +3,7 @@ import '../../../../assets/scss/automation_builder/automationBuilderSidebarCompo
 import ActionDetailsBlock from './ActionDetailsBlock';
 import HeaderComponent from './HeaderComponent';
 import Context from '../../../../context/context';
-import { message } from 'antd';
+import { message } from '../../globalComponents/CustomToast';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { FetchMoreLoaderComp } from '../../../../helpers';
 import Spinner from '../../loaders/Spinner';

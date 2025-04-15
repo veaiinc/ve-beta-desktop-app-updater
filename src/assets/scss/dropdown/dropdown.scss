@@ -1,9 +1,7 @@
-dropdown-comp {
+.dropdown-comp {
 	position: relative;
 	display: inline-block;
 	cursor: pointer;
-	.dropDownOverlay {
-	}
 	.dropdown-header {
 		display: flex;
 		width: 344px;
@@ -23,12 +21,6 @@ dropdown-comp {
 			font-weight: 500;
 			line-height: 16px; /* 106.667% */
 		}
-	}
-	.dropdown-arrow {
-		transition: transform 0.3s ease;
-	}
-	.dropdown-arrow.open {
-		transform: rotate(180deg);
 	}
 	.dropdown-overlay {
 		position: fixed;

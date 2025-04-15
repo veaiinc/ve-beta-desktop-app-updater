@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState, useCallback } from 'react';
 import '../../../../assets/scss/gallery/insights.scss';
-import { message } from 'antd';
+import { message } from '../../globalComponents/CustomToast';
 import Table from './Table';
 import { ReactComponent as DownloadIcon } from '../../../../assets/svg/gallery/download2.svg';
 import { ReactComponent as SearchIcon } from '../../../../assets/svg/workflow/search.svg';

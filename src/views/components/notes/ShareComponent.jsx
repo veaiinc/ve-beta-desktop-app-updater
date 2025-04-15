@@ -5,10 +5,12 @@ import '../../../assets/scss/notes/shareComponent.scss';
 import { ReactComponent as Copy } from '../../../assets/svg/ai_assistant/url.svg';
 import { ReactComponent as ChevronRightThinSvg } from '../../../assets/svg/tasks/chevronRightThin.svg';
 import { ReactComponent as Check } from '../../../assets/svg/tasks/checkmark.svg';
+import { ReactComponent as CalendarSvg } from '../../../assets/svg/tasks/calendar.svg';
 import Context from '../../../context/context';
 import { ReactComponent as CrossSvg } from '../../../assets/svg/gallery/cross.svg';
 import Skeleton from 'react-loading-skeleton';
 import slugify from 'slugify';
+import moment from 'moment';
 
 const accessOptions = [
 	{
@@ -28,6 +30,10 @@ const accessOptions = [
 ];
 
 let workspace = '';
+
+const today = new Date();
+today.setDate(today.getDate() + 1);
+const minDate = today.toISOString().split('T')[0];
 
 const ShareComponent = ({ pageId }) => {
 	const {
@@ -60,10 +66,11 @@ const ShareComponent = ({ pageId }) => {
 		expiresAt: null,
 		publishLoading: false,
 		slugError: '',
+		prevSlug: '',
 	});
 
 	const debounceRef = useRef(null);
-
+	const dateInputRef = useRef(null);
 	useEffect(() => {
 		getNotesPageData({ pageId });
 	}, [pageId]);
@@ -77,6 +84,7 @@ const ShareComponent = ({ pageId }) => {
 				isPublished,
 				slug: slug || pageId,
 				expiresAt,
+				prevSlug: slug || pageId,
 			}));
 		}
 	}, [notesPageData, pageId]);
@@ -256,6 +264,7 @@ const ShareComponent = ({ pageId }) => {
 					slug,
 					slugError: '',
 					...(expiresAt && { expiresAt }),
+					prevSlug: slug,
 				});
 			} else {
 				if (data?.message?.includes('Slug already exists')) {
@@ -273,19 +282,22 @@ const ShareComponent = ({ pageId }) => {
 
 	const handleSlugChange = (e) => {
 		const newSlug = e?.target?.value;
-		let prevSlug = info?.slug;
-		const slug = slugify(newSlug, {
+		let slug = slugify(newSlug, {
 			lower: true,
 			strict: true,
 			trim: true,
 		});
+		if (newSlug.trim().endsWith('-')) {
+			slug += '-';
+		}
+
 		handleInfoChange({ slug });
 
 		if (debounceRef.current) {
 			clearTimeout(debounceRef.current);
 		}
 
-		if (!slug || slug === prevSlug) return;
+		if (!slug || slug?.endsWith('-') || slug === info?.prevSlug) return;
 
 		debounceRef.current = setTimeout(() => {
 			handlePublishPage({ isPublished: true, slug });
@@ -297,8 +309,27 @@ const ShareComponent = ({ pageId }) => {
 			message.error('Please enter a slug');
 			return;
 		}
-		navigator.clipboard.writeText(`${workspace}.ve.ai/page/${info?.slug}`);
+		navigator.clipboard.writeText(`https://${workspace}.ve.ai/page/${info?.prevSlug}`);
 		message.success('Link copied to clipboard');
+	};
+
+	const openDatePicker = () => {
+		if (document.activeElement === dateInputRef.current) {
+			dateInputRef.current.blur(); // Try to close it
+		} else {
+			if (dateInputRef.current?.showPicker) {
+				dateInputRef.current.showPicker();
+			} else {
+				dateInputRef.current.focus(); // fallback for unsupported browsers
+			}
+		}
+	};
+
+	const handleDateChange = (e) => {
+		const date = e?.target?.value;
+		const unixDate = date ? moment(date).unix() : null;
+		handleInfoChange({ expiresAt: unixDate });
+		handlePublishPage({ isPublished: true, expiresAt: unixDate });
 	};
 
 	return (
@@ -363,7 +394,7 @@ const ShareComponent = ({ pageId }) => {
 							<div className="notes-nav-menu-item-share-dropdown-body">
 								{info?.isPublished ? (
 									<>
-										<div className="url-input-wrapper">
+										<div className={'url-input-wrapper'}>
 											<div className="url-prefix">
 												{workspace}.ve.ai/page/
 											</div>
@@ -375,12 +406,16 @@ const ShareComponent = ({ pageId }) => {
 												value={info?.slug}
 												onChange={handleSlugChange}
 											/>
-											<button
-												className="url-input-copy-btn"
-												onClick={handleCopyLink}
-											>
-												<Copy />
-											</button>
+											{info?.slug &&
+												!info?.slugError &&
+												!info?.slug?.endsWith('-') && (
+													<button
+														className="url-input-copy-btn"
+														onClick={handleCopyLink}
+													>
+														<Copy />
+													</button>
+												)}
 										</div>
 										{info?.slugError && (
 											<div className="publish-screen-footer-error">
@@ -388,10 +423,45 @@ const ShareComponent = ({ pageId }) => {
 											</div>
 										)}
 										<div className="publish-screen-footer">
-											{/* <div className="publish-screen-footer-item">
-												<span>Expires on</span>
-												<span>{expiresAt}</span>
-											</div> */}
+											<div className="publish-screen-footer-item">
+												<span className="publish-screen-footer-item-label">
+													Link expires
+												</span>
+												<div className="publish-screen-footer-item-input-wrapper">
+													<input
+														type="date"
+														name=""
+														id=""
+														min={minDate}
+														className={
+															'publish-screen-footer-item-input' +
+															(!info?.expiresAt ? ' not-set' : '')
+														}
+														ref={dateInputRef}
+														onChange={handleDateChange}
+														value={
+															info?.expiresAt
+																? moment
+																		.unix(info?.expiresAt)
+																		.format('YYYY-MM-DD')
+																: ''
+														}
+													/>
+
+													{!info?.expiresAt && (
+														<span className="publish-screen-footer-item-input-label">
+															Never
+														</span>
+													)}
+
+													<button
+														className="publish-screen-footer-item-input-btn"
+														onClick={openDatePicker}
+													>
+														<CalendarSvg />
+													</button>
+												</div>
+											</div>
 											<div className="footer-btn-wrapper">
 												<button
 													className="footer-btn"
@@ -404,10 +474,13 @@ const ShareComponent = ({ pageId }) => {
 												</button>
 												<button
 													className="footer-btn"
-													disabled={!info?.slug?.trim()}
+													disabled={
+														!info?.slug?.trim() ||
+														info?.slug?.endsWith('-')
+													}
 													onClick={() =>
 														window.open(
-															`${workspace}.ve.ai/page/${info?.slug}`,
+															`https://${workspace}.ve.ai/page/${info?.prevSlug}`,
 															'_blank',
 														)
 													}

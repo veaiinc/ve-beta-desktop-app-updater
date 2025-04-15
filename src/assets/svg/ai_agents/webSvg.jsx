@@ -1,6 +1,13 @@
 import { memo } from 'react';
-const WebSvg = ({ selected }) => {
-	const strokeColor = selected ? 'black' : 'var(--primary-font)';
+const WebSvg = ({ selected = false, active }) => {
+	let strokeColor = selected ? 'black' : 'var(--secondary-font)';
+
+	if (active) {
+		strokeColor = 'var(--primary-button)';
+	} else if (active == false) {
+		strokeColor = 'var(--primary-font)';
+	}
+
 	return (
 		<svg
 			xmlns="http://www.w3.org/2000/svg"

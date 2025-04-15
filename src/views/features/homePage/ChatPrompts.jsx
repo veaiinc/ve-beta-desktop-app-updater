@@ -1,4 +1,4 @@
-import React, { memo, useContext, useEffect, useState } from 'react';
+import React, { memo, useContext, useEffect, useRef, useState } from 'react';
 import '../../../assets/scss/home_page/chatPrompts.scss';
 import Context from '../../../context/context';
 import PromptPopup from '../../components/homePage/PromptPopup';
@@ -28,7 +28,12 @@ const promptsList = [
 	},
 ];
 let timeoutId;
-const ChatPrompts = ({ promptsCategory, updatePromptsCategory }) => {
+const ChatPrompts = ({
+	promptsCategory,
+	updatePromptsCategory,
+	onMinimizeHeader = null,
+	onExpandHeader = null,
+}) => {
 	const {
 		aiSetup: { getPromptsData, promptsData },
 	} = useContext(Context);
@@ -42,8 +47,18 @@ const ChatPrompts = ({ promptsCategory, updatePromptsCategory }) => {
 		promptPopupOpen: false,
 	});
 
+	const infiniteScrollRef = useRef(null);
+
 	useEffect(() => {
 		return () => clearTimeout(timeoutId);
+	}, []);
+
+	useEffect(() => {
+		const element = document?.querySelector('.infinite-scroll-container');
+		if (element) {
+			infiniteScrollRef.current = element;
+			element?.addEventListener('scroll', handleScroll);
+		}
 	}, []);
 
 	useEffect(() => {
@@ -77,6 +92,14 @@ const ChatPrompts = ({ promptsCategory, updatePromptsCategory }) => {
 			}
 		}
 	}, [promptsData]);
+
+	const handleScroll = () => {
+		if (infiniteScrollRef?.current?.scrollTop === 0) {
+			onExpandHeader?.();
+		} else {
+			onMinimizeHeader?.();
+		}
+	};
 
 	const fetchAiSuggestedPrompts = async (page = 1, searchQuery = '') => {
 		const payload = {
@@ -166,7 +189,7 @@ const ChatPrompts = ({ promptsCategory, updatePromptsCategory }) => {
 							next={fetchMoreAiSuggestedPrompts}
 							hasMore={info?.hasNextPage || false}
 							loader={<FetchMoreLoaderComp wrapperStyle={{ width: '100%' }} />}
-							height={`calc(100vh - 435px)`}
+							height="calc(100vh - 240px)"
 							className="infinite-scroll-container"
 						>
 							<div className="suggested-prompts-container">

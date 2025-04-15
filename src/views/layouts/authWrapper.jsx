@@ -64,7 +64,7 @@ const AuthWrapper = ({
 					</div>
 				</SkeletonTheme>
 			</div>
-			{showBottomToolbar ? <BottomToolbar outerContainerStyle={{ bottom: '10px' }} /> : ''}
+			{/* {showBottomToolbar ? <BottomToolbar outerContainerStyle={{ bottom: '10px' }} /> : ''} */}
 		</div>
 	);
 };

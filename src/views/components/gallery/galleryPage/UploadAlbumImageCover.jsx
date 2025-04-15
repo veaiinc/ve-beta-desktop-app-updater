@@ -103,7 +103,6 @@ const UploadGalleryImageCover = ({
 					className="bt"
 					onClick={() => {
 						if (!info?.activeAlbumId) {
-							message.destroy();
 							message.error('Please create an album first');
 							return;
 						}

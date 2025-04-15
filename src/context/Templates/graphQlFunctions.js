@@ -248,6 +248,7 @@ export const getWorkflowListQuery = gql`
 				requiredAction
 				templateId
 				version
+				createdAt
 			}
 		}
 	}
@@ -263,6 +264,7 @@ export const getTemplatesListForCreateLeadQuery = gql`
 				title
 				status
 				slug
+				createdAt
 			}
 		}
 	}
