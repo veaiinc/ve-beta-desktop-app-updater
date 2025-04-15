@@ -1,4 +1,3 @@
-import { message } from 'antd';
 import { intialState } from './state';
 const actionHandlers = {
 	GET_WORKFLOW_DETAILS_SUCCESS: (state, action) => ({
@@ -201,10 +200,10 @@ const actionHandlers = {
 		...state,
 		aiSuggestedPendingActions: action?.payload,
 	}),
-	// SET_CONNECTED_THIRDPARTIES: (state, action) => ({
-	// 	...state,
-	// 	connectThirdParties: action?.payload,
-	// }),
+	SET_CONNECTED_THIRDPARTIES: (state, action) => ({
+		...state,
+		connectThirdParties: action?.payload,
+	}),
 	RESET_STATE: () => intialState,
 };
 

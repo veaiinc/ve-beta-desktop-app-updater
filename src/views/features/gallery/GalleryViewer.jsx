@@ -6,7 +6,7 @@ import Thumbnails from '../../components/gallery/galleryView/Thumbnails';
 import FullImagesComponent from '../../components/gallery/galleryView/FullImagesComponent';
 import ImageDetailNav from '../../components/gallery/galleryView/ImageDetailNav';
 import DeletePopup from '../../components/modalsV2/gallery/DeletePopup';
-import { message } from 'antd';
+import { message } from '../../components/globalComponents/CustomToast';
 import { ReactComponent as CrossWhite } from '../../../assets/svg/workspaceSettings/cross.svg';
 import Skeleton from 'react-loading-skeleton';
 import gsap from 'gsap';

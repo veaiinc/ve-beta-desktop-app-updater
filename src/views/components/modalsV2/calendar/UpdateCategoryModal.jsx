@@ -6,7 +6,12 @@ import Spinner from '../../loaders/Spinner';
 
 const UpdateCategoryModal = ({ show, handleClose, isCategoryEditable, selectedCategory }) => {
 	const {
-		calendarInfo: { calendarCategories, createCalendarCategory, updateCalendarCategory },
+		calendarInfo: {
+			calendarCategoriesList,
+			createCalendarCategory,
+			updateCalendarCategory,
+			getCalendarCategories,
+		},
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
@@ -97,7 +102,7 @@ const UpdateCategoryModal = ({ show, handleClose, isCategoryEditable, selectedCa
 			};
 
 			// Check for duplicate category names
-			const isDuplicate = calendarCategories?.some(
+			const isDuplicate = calendarCategoriesList?.some(
 				(category) =>
 					category?.name?.toLowerCase() === info?.name?.trim()?.toLowerCase() &&
 					(!isCategoryEditable || category?._id !== selectedCategory?._id),
@@ -122,7 +127,8 @@ const UpdateCategoryModal = ({ show, handleClose, isCategoryEditable, selectedCa
 		} catch (error) {
 			setInfo((prev) => ({
 				...prev,
-				error: calendarCategories?.error || 'Failed to save category. Please try again.',
+				error:
+					calendarCategoriesList?.error || 'Failed to save category. Please try again.',
 			}));
 		}
 	}, [
@@ -130,7 +136,7 @@ const UpdateCategoryModal = ({ show, handleClose, isCategoryEditable, selectedCa
 		info?.color,
 		isCategoryEditable,
 		selectedCategory,
-		calendarCategories,
+		calendarCategoriesList,
 		validateForm,
 	]);
 

@@ -10,7 +10,7 @@ import AiPlayGround from '../../components/ai_assistant/AiPlayGround';
 import AiChatLogs from '../../components/ai_assistant/AiChatLogs';
 import EditSvg from '../../../assets/svg/ai_assistant/EditSvg';
 import ChatBox from '../../components/homePage/ChatBox';
-import { message } from 'antd';
+import { message } from '../../components/globalComponents/CustomToast';
 import jwtDecode from 'jwt-decode';
 
 const KnowledgeAgentDetails = () => {

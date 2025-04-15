@@ -24,7 +24,8 @@
 			width: 100%;
 			display: flex;
 			position: relative;
-			align-items: center;
+			// align-items: center;
+			align-items: baseline;
 			gap: 2px;
 
 			.eventDetails {

@@ -78,13 +78,6 @@
 			}
 		}
 	}
-
-	.load-more {
-		display: flex;
-		justify-content: center;
-		padding: 10px 0;
-		width: 100%;
-	}
 }
 
 @keyframes shimmer {
@@ -522,23 +515,6 @@
 								// 	}
 								// }
 							}
-
-							.inspired-text {
-								font-family: var(--primary-font-family);
-								font-size: 12px;
-								color: var(--primary-button);
-								font-weight: 500;
-							}
-
-							.inspired-subtitle {
-								font-family: var(--primary-font-family);
-								font-size: 11px;
-								color: var(--secondary-font);
-								text-align: center;
-								line-height: 1.2;
-								max-width: 90%;
-								margin: 0 auto;
-							}
 						}
 
 						&:hover {
@@ -578,31 +554,6 @@
 									width: 16px;
 									height: 16px;
 									color: var(--secondary-font);
-								}
-							}
-
-							.search-expanded {
-								display: flex;
-								align-items: center;
-								gap: 8px;
-								padding: 8px 12px;
-								border-radius: 20px;
-								background: var(--card-over-card);
-								border: 1px solid var(--stroke);
-
-								input {
-									background: transparent;
-									border: none;
-									color: var(--primary-font);
-									font-family: var(--primary-font-family);
-									font-size: 14px;
-									width: 120px;
-									outline: none;
-
-									&::placeholder {
-										font-size: 12px;
-										color: var(--secondary-font);
-									}
 								}
 							}
 						}
@@ -655,15 +606,6 @@
 					font-size: 16px;
 					text-align: center;
 					width: 100%;
-				}
-
-				.load-more {
-					display: flex;
-					align-items: center;
-					justify-content: center;
-					width: 50px;
-					height: 280px;
-					flex-shrink: 0;
 				}
 			}
 		}

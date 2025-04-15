@@ -9,7 +9,7 @@ import { ReactComponent as OpenEye } from '../../../../assets/svg/gallery/open-e
 import '../../../../assets/scss/dropdown/tasks/statusEditDropDown.scss';
 import PropertyEditDropDown from './PropertyEditDropDown';
 import Context from '../../../../context/context';
-import { message } from 'antd';
+import { message } from '../../globalComponents/CustomToast';
 
 const StatusEditDropDown = ({ handleEditPropertyChange, handleClose, colors }) => {
 	const {

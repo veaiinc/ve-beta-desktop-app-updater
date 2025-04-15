@@ -4,7 +4,7 @@ import { ReactComponent as ChevronRightThinSvg } from '../../../assets/svg/tasks
 import { ReactComponent as Check } from '../../../assets/svg/tasks/checkmark.svg';
 import Context from '../../../context/context';
 import { ReactComponent as PersonSvg } from '../../../assets/svg/tasks/person.svg';
-import { message } from 'antd';
+import { message } from '../globalComponents/CustomToast';
 import jwtDecode from 'jwt-decode';
 
 import { Tooltip } from 'antd';

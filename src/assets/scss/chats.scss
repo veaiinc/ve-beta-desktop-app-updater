@@ -1,22 +1,3 @@
-.sidebar-chats-drawer {
-	.ant-drawer-mask {
-		display: none;
-	}
-
-	.ant-drawer-content-wrapper {
-		.ant-drawer-header {
-			.ant-drawer-header-close-only {
-				display: none;
-			}
-		}
-
-		.ant-drawer-body {
-			background-color: var(--navbar);
-			padding: 0px;
-			border-right: 0.5px solid var(--stroke);
-		}
-	}
-}
 .chats-drawer-container {
 	width: 210px;
 

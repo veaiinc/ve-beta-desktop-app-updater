@@ -1,7 +1,7 @@
 import AuthWrapper from './views/layouts/authWrapper';
 import LoginPage from './views/features/loginPage/LoginPage';
 import Onboarding from './views/features/onboarding/Onboarding';
-import Calendar from './views/features/calendar/Calendar';
+import CalendarModule from './views/features/calendar/Calendar';
 // import ChatScreen from './views/features/meta_Integ/index';
 import OauthVerify from './views/features/signin/oauth/OauthVerify';
 import Sales from './views/features/sales/Sales';
@@ -58,7 +58,12 @@ import Files from './views/features/files/Files';
 import KnowledgeAgents from './views/features/knowledgeAgent/KnowledgeAgents';
 import KnowledgeAgentDetails from './views/features/knowledgeAgent/AgentDetails';
 import EditKnowledgeAgent from './views/features/knowledgeAgent/EditAgent';
+import FormResCard from './views/components/forms/FormResCard';
+import FormAnalytics from './views/components/forms/FormAnalytics';
+import FormSummary from './views/components/forms/FormSummary';
 
+import SchedulerMainPage from './views/features/calendar/SchedulerMainPage';
+import EditScheduler from './views/features/calendar/EditScheduler';
 const routes = [
 	{
 		path: '/',
@@ -320,7 +325,26 @@ const routes = [
 		path: '/calendar',
 		component: (
 			<AuthWrapper title={'Calendar'} maxWidth={'95%'}>
-				<Calendar />
+				<CalendarModule />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/scheduler',
+		component: (
+			<AuthWrapper title={'Scheduler'} maxWidth={'95%'}>
+				<SchedulerMainPage />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/scheduling/edit/:sessionId',
+		component: (
+			<AuthWrapper title={'Scheduling'} maxWidth={'95%'}>
+				{/* <SchedulerMainPage /> */}
+				<EditScheduler />
 			</AuthWrapper>
 		),
 		exact: true,
@@ -496,10 +520,28 @@ const routes = [
 		exact: true,
 	},
 	{
-		path: '/form-response/:id',
+		path: '/forms/:id/analytics',
 		component: (
-			<AuthWrapper title={'Form Response'}>
-				<FormFullView />
+			<AuthWrapper title={'Form Analytics'}>
+				<FormAnalytics view="analytics" />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/forms/:id/responses',
+		component: (
+			<AuthWrapper title={'Form Responses'}>
+				<FormResCard view="responses" />
+			</AuthWrapper>
+		),
+		exact: true,
+	},
+	{
+		path: '/forms/:id/summary',
+		component: (
+			<AuthWrapper title={'Form Summary'}>
+				<FormSummary view="summary" />
 			</AuthWrapper>
 		),
 		exact: true,

@@ -8,7 +8,7 @@ import Context from '../../../../context/context';
 import { ReactComponent as Robot } from '../../../../assets/svg/Settings/robot.svg';
 import { ReactComponent as LinkGrey } from '../../../../assets/svg/Settings/link-grey-color.svg';
 import { ReactComponent as Tick } from '../../../../assets/svg/sales/smartFile/tick.svg';
-import { message } from 'antd';
+import { message } from '../../globalComponents/CustomToast';
 import Spinner from '../../loaders/Spinner';
 const AssignAssistantModal = ({ modalIsOpen, closeModal, selectedAssistant }) => {
 	const navigate = useNavigate();
