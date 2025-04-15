@@ -13,6 +13,8 @@ import AutomationWidget from '../../components/globalComponents/AutomationWidget
 import TaskWidget from '../../components/globalComponents/TaskWidget';
 import CalenderWidget from '../../components/globalComponents/CalenderWidget';
 import GlobalWidget from '../../components/globalComponents/GlobalWidget';
+import AISuggestionsReportUserComponent from '../../components/chat/chatComponents/AISuggestionsReportUserComponent';
+
 const optionsList = [
 	{
 		id: 1,
@@ -20,12 +22,12 @@ const optionsList = [
 		value: 'proactiveSuggestions',
 		showOption: false,
 	},
-	// {
-	// 	id: 2,
-	// 	label: 'Prompts library',
-	// 	value: 'prompts',
-	// 	showOption: false,
-	// },
+	{
+		id: 2,
+		label: 'Prompts library',
+		value: 'prompts',
+		showOption: false,
+	},
 	{
 		id: 3,
 		label: 'Calendar',
@@ -293,13 +295,10 @@ const InitialHomePage = () => {
 			>
 				<div className={`title-container `}>
 					<div className="title-text">
-						<span className="title-one">AI.</span>{' '}
-						<span className="title-two">truly yours</span>
+						<span className="title-one">Answers before you Ask!</span>
+						{/* <span className="title-two">truly yours</span> */}
 					</div>
-					<div className="sub-text">
-						A dedicated, continuously thinking AI - for each of us.
-						<br /> Ask Reason. Give it your goals - let it make you superhuman
-					</div>
+					{/* <div className="sub-text">Answers before you Ask!</div> */}
 				</div>
 				<div
 					className={`chatbox-wrapper`}
@@ -325,7 +324,7 @@ const InitialHomePage = () => {
 				<div
 					className="home-page-container-content"
 					style={{
-						height: info?.minimized ? 'calc(100vh - 240px)' : 'calc(100vh - 360px)',
+						height: info?.minimized ? 'calc(100vh - 240px)' : 'calc(100vh - 314px)',
 					}}
 				>
 					{componentMapper[info?.selectedOption]}

@@ -115,10 +115,18 @@ export const intialState = {
 			webSearch: false,
 		},
 	},
+	chatPayload: {
+		workflowTemplateId: null,
+		moduleTemplateId: null,
+	},
 	galleryFile: null,
 	globalLoadingMesssage: null,
 	userEditedQuery: null,
 	aiSuggestedPendingActions: null,
+	documentPreviewIds: {
+		workflowTemplateId: null,
+		moduleTemplateId: null,
+	},
 };
 
 export const TemplatesState = (props) => {
