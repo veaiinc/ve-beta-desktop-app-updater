@@ -15,9 +15,21 @@ import MoreOptions from '../../components/notes/MoreOptions';
 import { StarSvg } from '../../../assets/svg/notes/Star';
 import { message } from '../../components/globalComponents/CustomToast';
 import { Helmet } from 'react-helmet';
+import Skeleton from 'react-loading-skeleton';
 const preprocessMarkdown = (markdown) => {
 	return markdown?.replace(/\\n/g, '\n'); // Add a non-breaking space for empty lines
 };
+
+const getRandomWidth = () => {
+	const min = 70;
+	const max = 100;
+	return `${Math.floor(Math.random() * (max - min + 1) + min)}%`;
+};
+
+const skeletonLines = [...Array(10)]?.map(() => ({
+	width: getRandomWidth(),
+	height: 14,
+}));
 
 const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 	const {
@@ -30,6 +42,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 			removeFromFavorite,
 			deletePage,
 			duplicatePage,
+			updateNotesState,
 		},
 	} = useContext(Context);
 	const editor = useCreateBlockNote({
@@ -49,7 +62,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 			fullWidth: false,
 		},
 		isFavorite: false,
-		loading: false,
+		loading: true,
 	});
 
 	const { noteId } = useParams();
@@ -59,6 +72,12 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 		if (noteId) {
 			getNotesPageDataFunc();
 		}
+
+		return () => {
+			updateNotesState({
+				notesPageData: null,
+			});
+		};
 	}, [noteId]);
 
 	useEffect(() => {
@@ -96,8 +115,11 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 	}, [noteId]);
 
 	const loadNotesContent = useCallback(
-		async (data) => {
-			editor.replaceBlocks(editor.document, data);
+		(data) => {
+			if (data?.length) {
+				editor.replaceBlocks(editor.document, data);
+			}
+			setInfo((prev) => ({ ...prev, loading: false }));
 		},
 		[editor],
 	);
@@ -236,26 +258,51 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 				/>
 			</div>
 			<div className="notes-editor-container">
-				<div
-					className="notes-editor-wrapper"
-					style={{ maxWidth: info?.notesConfigs?.fullWidth ? '100%' : '898px' }}
-				>
-					<CustomTextArea
-						className="notes-title"
-						value={info?.title}
-						onChange={handleTitleChange}
-						autoResize={true}
-						onKeyDown={handleKeyDown}
-					/>
-					<BlockNoteView
-						editor={editor}
-						formattingToolbar={false}
-						onChange={onChange}
-						style={innerContainerStyle || {}}
+				{info?.loading ? (
+					<div className="notes-editor-wrapper">
+						<div className="notes-title">
+							<Skeleton
+								width="90%"
+								height={40}
+								highlightColor="var(--primary-font)"
+								baseColor="var(--secondary-font)"
+							/>
+						</div>
+
+						<div className="notes-line-loader">
+							{skeletonLines.map((line, i) => (
+								<Skeleton
+									key={i}
+									height={line.height}
+									width={line.width}
+									highlightColor="var(--primary-font)"
+									baseColor="var(--secondary-font)"
+								/>
+							))}
+						</div>
+					</div>
+				) : (
+					<div
+						className="notes-editor-wrapper"
+						style={{ maxWidth: info?.notesConfigs?.fullWidth ? '100%' : '898px' }}
 					>
-						<NoteToolbar />
-					</BlockNoteView>
-				</div>
+						<CustomTextArea
+							className="notes-title"
+							value={info?.title}
+							onChange={handleTitleChange}
+							autoResize={true}
+							onKeyDown={handleKeyDown}
+						/>
+						<BlockNoteView
+							editor={editor}
+							formattingToolbar={false}
+							onChange={onChange}
+							style={innerContainerStyle || {}}
+						>
+							<NoteToolbar />
+						</BlockNoteView>
+					</div>
+				)}
 			</div>
 		</div>
 	);

@@ -3,35 +3,32 @@
 	flex-direction: column;
 	align-items: center;
 	gap: 24px;
+	padding: 20px;
+	height: auto; /* Ensure it fills the Drawer */
+	background: var(--card); /* Consistent background */
+	overflow-y: auto; /* Allow scrolling if content overflows */
+
 	.formModalHeader {
 		width: 100%;
 		display: flex;
 		justify-content: flex-start;
 		align-items: flex-start;
 
-		.headerActions {
-			display: flex;
-			align-items: center;
-			gap: 16px;
-
-			svg {
-				cursor: pointer;
-				width: 16px;
-				height: 16px;
-				opacity: 0.7;
-				transition: opacity 0.3s ease;
-
-				&:hover {
-					opacity: 1;
-				}
+		svg {
+			transition: transform 0.2s ease, fill 0.2s ease;
+			&:hover {
+				transform: scale(1.1);
+				fill: var(--primary-font-hover, var(--primary-font)); /* Optional hover color */
 			}
 		}
 	}
+
 	.completedStatus {
 		display: flex;
 		justify-content: flex-start;
 		align-items: center;
-		padding: 24px;
+		padding: 24px 0;
+
 		.completedStatusText {
 			display: flex;
 			width: 120px;
@@ -41,15 +38,20 @@
 			align-items: center;
 			gap: 10px;
 			border-radius: 6px;
-			background: var(--success);
+			background: var(--success); /* Dynamic in JS, fallback here */
 			color: var(--primary-font);
 			font-family: var(--primary-font-family);
 			font-size: 14px;
-			font-style: normal;
 			font-weight: 500;
 			line-height: normal;
+			transition: background 0.3s ease;
+
+			&[data-completed='false'] {
+				background: var(--card-hover); /* Style for not completed */
+			}
 		}
 	}
+
 	.formResponsesParentContainer {
 		width: 100%;
 		display: flex;
@@ -61,11 +63,15 @@
 		background: var(--popup);
 		margin-bottom: 32px;
 		overflow-x: hidden;
+		padding: 20px;
+		border-radius: 8px; /* Soften edges */
+
 		.divider {
 			width: 100%;
 			height: 1px;
 			background: var(--stroke);
 			margin: 10px 0;
+			opacity: 0.5; /* Subtle separation */
 		}
 
 		.formResponseContainer {
@@ -74,156 +80,83 @@
 			align-items: flex-start;
 			align-self: stretch;
 			gap: 8px;
-		}
 
-		.questionContainer {
-			display: flex;
-			align-items: center;
-			justify-content: flex-start;
-			gap: 8px;
-
-			.question {
-				color: var(--primary-font);
-				font-family: var(--primary-font-family);
-				font-size: 14px;
-				font-style: normal;
-				font-weight: 400;
-				line-height: normal;
-			}
-		}
-
-		.answer {
-			margin-top: 4px;
-			color: var(--primary-font);
-			font-family: var(--primary-font-family);
-			font-size: 18px;
-			font-style: normal;
-			font-weight: 500;
-			line-height: normal;
-		}
-
-		.fileUpload {
-			width: 200px;
-			border-radius: 8px;
-			cursor: pointer;
-		}
-
-		.timeContainer {
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			gap: 10px;
-			color: var(--primary-font);
-			.time {
-				color: var(--primary-font);
-				font-family: var(--primary-font-family);
-				font-size: 16px;
-				font-style: normal;
-				font-weight: 500;
-				line-height: normal;
-				border-radius: 4px;
-				background: var(--card-hover);
-				backdrop-filter: blur(20px);
-				padding: 12px 16px;
-			}
-
-			.time-division {
-				color: var(--primary-font);
-				font-family: var(--primary-font-family);
-				font-size: 14px;
-				font-style: normal;
-				font-weight: 500;
-				line-height: normal;
-				border-radius: 4px;
-				border: 1px solid var(--stroke);
-				backdrop-filter: blur(20px);
-				padding: 12px 16px;
-			}
-		}
-
-		.link {
-			color: var(--primary-font);
-			font-family: var(--primary-font-family);
-			font-size: 18px;
-			font-style: normal;
-			font-weight: 500;
-			line-height: normal;
-
-			a {
-				color: var(--primary-font);
-				text-decoration: none;
-			}
-		}
-
-		.dropdown {
-			display: flex;
-			flex-direction: column;
-			gap: 4px;
-		}
-
-		.eventsContainer {
-			width: 100%;
-
-			.eventsTableHeader {
-				width: 512px;
+			.questionContainer {
 				display: flex;
-				padding: 8px 16px;
+				align-items: center;
+				justify-content: flex-start;
+				gap: 8px;
 
-				.eventsTableHeaderRow {
-					width: 100%;
-					display: flex;
-					justify-content: space-between;
-					color: var(--secondary-font);
+				svg {
+					width: 20px;
+					height: 20px;
+					fill: var(--primary-font);
+					flex-shrink: 0; /* Prevent icon shrinking */
+				}
+
+				.question {
+					color: var(--primary-font);
 					font-family: var(--primary-font-family);
-					font-size: 12px;
-					font-style: normal;
-					font-weight: 500;
-					text-transform: uppercase;
-
-					.eventsTableHeaderLabel {
-						width: 128px;
-						text-align: left;
-						padding: 0 4px;
-					}
+					font-size: 14px;
+					font-weight: 400;
+					line-height: normal;
+					margin: 0; /* Remove default margins */
 				}
 			}
 
-			.eventCard {
-				width: 512px;
-
-				tr {
-					width: 512px;
-					height: 48px;
-					border-radius: 8px;
-					background: var(--card-hover);
-					backdrop-filter: blur(20px);
-					padding: 16px;
-					display: flex;
-					justify-content: space-evenly;
-					margin-bottom: 12px;
-
-					td {
-						overflow: hidden;
-						color: var(--primary-font);
-						text-overflow: ellipsis;
-						white-space: nowrap;
-						font-family: var(--primary-font-family);
-						font-size: 14px;
-						font-style: normal;
-						font-weight: 500;
-						line-height: normal;
-						width: 128px;
-					}
-				}
-			}
-		}
-
-		.rating-from-form-response {
-			.ant-rate-star-zero {
-				.anticon-star {
-					color: var(--card-hover);
-				}
+			.answer {
+				margin-top: 4px;
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
+				font-size: 18px;
+				font-weight: 500;
+				line-height: normal;
+				word-break: break-word; /* Handle long text gracefully */
 			}
 		}
 	}
+
+	/* Resize Handle Styling */
+	.resize-handle {
+		position: absolute;
+		left: 0;
+		top: 0;
+		width: 8px;
+		height: 100%;
+		cursor: ew-resize;
+		background: var(--stroke);
+		transition: background 0.2s ease;
+
+		&:hover {
+			background: var(--primary-font);
+		}
+	}
+}
+
+/* Ensure Drawer itself has no extra padding */
+:where(.ant-drawer-content) {
+	padding: 0;
+	background: var(--card);
+	border-radius: 8px;
+	overflow: hidden;
+}
+
+/* Scrollbar Styling for a polished look */
+.formResponsesParentContainer::-webkit-scrollbar {
+	width: 6px;
+	height: auto;
+}
+
+.formResponsesParentContainer::-webkit-scrollbar-track {
+	background: var(--card);
+	border-radius: 8px;
+}
+
+.formResponsesParentContainer::-webkit-scrollbar-thumb {
+	background: var(--stroke);
+	border-radius: 8px;
+}
+
+.formResponsesParentContainer::-webkit-scrollbar-thumb:hover {
+	background: var(--primary-font);
 }

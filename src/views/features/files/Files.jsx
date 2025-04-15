@@ -20,7 +20,13 @@ import ObjectID from 'bson-objectid';
 import gsap from 'gsap';
 import QuickActions from '../../components/globalComponents/QuickActions';
 import moment from 'moment';
-import { DocsStatusButton } from '../docs/Docs';
+import DocsGrid from '../../components/files/DocsGrid';
+import NotesGrid from '../../components/files/NotesGrid';
+import FormsGrid from '../../components/files/FormsGrid';
+import GalleryGrid from '../../components/files/GalleryGrid';
+import MostUsedEntries from '../../components/files/MostUsedEntries';
+import TemplatesGrid from '../../components/files/TemplatesGrid';
+import { useSearchParams } from 'react-router-dom';
 const initialState = {
 	workflowTemplates: [],
 };
@@ -117,7 +123,8 @@ export const statusTextmapper = {
 };
 
 const Files = () => {
-	const cardItems = useRef(null);
+	const [searchParams, setSearchParams] = useSearchParams();
+	const activeTab = searchParams.get('activeTab') || 'Documents';
 	const {
 		galleryInfo: { getGalleries, tenantGalleries, getMostUsedEntities },
 		elasticSearch: { elasticSearchResults },
@@ -149,6 +156,13 @@ const Files = () => {
 		initialDataFetched: false,
 		commonState: 'All',
 	});
+	const cardItems = useRef(null);
+
+	useEffect(() => {
+		if (activeTab) {
+			setInfo((prev) => ({ ...prev, selectedView: activeTab }));
+		}
+	}, [activeTab]);
 
 	useEffect(() => {
 		if (cardItems.current || info.createNewGalleryModal) {
@@ -433,8 +447,8 @@ const Files = () => {
 			setInfo({
 				...info,
 				bottomNavigationDropdown: false,
-				selectedView: option,
 			});
+			setSearchParams({ activeTab: option });
 		} finally {
 			setLoadingView(null);
 		}
@@ -734,322 +748,6 @@ const Files = () => {
 		);
 	};
 
-	const renderFormsGrid = () => (
-		<div
-			className={`${info?.cardHover ? 'card-container-hover' : 'card-container'}`}
-			// onMouseEnter={handleMouseEnter}
-			// onMouseLeave={handleMouseLeave}
-		>
-			<div className="card-item">
-				<div className="card-item-style card-item-style-btn">
-					<button
-						className="card-btn"
-						onClick={() => setInfo((prev) => ({ ...prev, openProposalPopup: true }))}
-					>
-						<Plus />
-						Create Form
-					</button>
-				</div>
-			</div>
-			{formsTemplatesList?.data?.slice(0, 12).map((form, index) => (
-				<div
-					className="card-item"
-					key={index}
-					onClick={() => handleNavigateForm(form?._id)}
-				>
-					<div className="card-item-style content-wrapper docs">
-						<DocsStatusButton
-							content={statusTextmapper?.[form?.status]?.text}
-							style={statusTextmapper?.[form?.status]?.style}
-							dotStyle={statusTextmapper?.[form?.status]?.dotStyle}
-						/>
-						<div className="docs-title-wrapper docs-title-wrapper-form">
-							<div className=""></div>
-							<span className="docs-item-title">{form?.title.slice(0, 20)}</span>
-							<span className="docs-item-sub-title">
-								{moment.unix(form?.createdAt).fromNow()}
-							</span>
-						</div>
-					</div>
-				</div>
-			))}
-		</div>
-	);
-
-	const renderDocsGrid = () => {
-		const getStatusBadge = (status) => {
-			switch (status?.toLowerCase()) {
-				case 'enquiry':
-					return 'Draft';
-				case 'filesent':
-					return 'Sent';
-				case 'filesviewed':
-					return 'Client Viewed';
-				case 'proposalaccepted':
-					return 'Client Accepted';
-				case 'contractsigned':
-					return 'Client Signed';
-				case 'confirmed':
-					return 'Confirmed';
-				case 'draft':
-					return 'Draft';
-				case 'published':
-					return 'Live';
-				default:
-					return status || 'Draft';
-			}
-		};
-
-		return (
-			<div
-				className={`${info?.cardHover ? 'card-container-hover' : 'card-container'}`}
-				// onMouseEnter={handleMouseEnter}
-				// onMouseLeave={handleMouseLeave}
-			>
-				{docsFilesList?.data?.slice(0, 12).map((doc, index) => (
-					<div
-						className="card-item"
-						key={index}
-						onClick={() => navigate(`/doc/${doc?._id}`)}
-					>
-						<div className="card-item-style content-wrapper docs">
-							<div className="docs-preview"></div>
-							<DocsStatusButton
-								content={statusTextmapper?.[doc?.status]?.text}
-								style={statusTextmapper?.[doc?.status]?.style}
-								dotStyle={statusTextmapper?.[doc?.status]?.dotStyle}
-							/>
-							<div className="docs-title-wrapper">
-								<span className="docs-item-title">{doc?.title}</span>
-								<span className="docs-item-sub-title">
-									{moment.unix(doc?.createdAt).fromNow()}
-								</span>
-							</div>
-						</div>
-					</div>
-				))}
-			</div>
-		);
-	};
-
-	const renderNotesGrid = () => (
-		<div
-			className={`${info?.cardHover ? 'card-container-hover' : 'card-container'}`}
-			// onMouseEnter={handleMouseEnter}
-			// onMouseLeave={handleMouseLeave}
-		>
-			<div className="card-item">
-				<div className="card-item-style card-item-style-btn">
-					<button className="card-btn" onClick={handleNewNotes}>
-						<Plus />
-						Create Note
-					</button>
-				</div>
-			</div>
-			{notes?.data?.slice(0, 12).map((note, index) => (
-				<div
-					className="card-item"
-					key={index}
-					onClick={() => navigate(`/note/${note?._id}`)}
-				>
-					<div className="card-item-style content-wrapper">
-						{/* <span
-							className={`status-badge ${
-								note?.status === 'published' ? 'live' : 'draft'
-							}`}
-						>
-							{note?.status === 'published' ? 'Live' : 'Draft'}
-						</span> */}
-						<span className="item-title">
-							{note?.title?.slice(0, 20) || 'Untitled Note'}
-						</span>
-					</div>
-				</div>
-			))}
-		</div>
-	);
-
-	const renderMostUsedEntitiesGrid = () => {
-		if (isLoading) {
-			return <Spinner />;
-		}
-
-		const getEntityBadge = (item) => {
-			switch (item.entity?.toLowerCase()) {
-				case 'workflow':
-					return 'Document';
-				case 'page':
-					return 'Note';
-				case 'form':
-					return 'Form';
-				default:
-					return item.entityType || 'Template';
-			}
-		};
-
-		const getEntityNavigationPath = (item) => {
-			switch (item.entity?.toLowerCase()) {
-				case 'workflow':
-					return `/doc/${item._id}`;
-				case 'page':
-					return `/note/${item._id}`;
-				case 'form':
-					return `/form/${item._id}`;
-				default:
-					return `/doc/${item._id}`;
-			}
-		};
-
-		return (
-			<div
-				className={`${info?.cardHover ? 'card-container-hover' : 'card-container'}`}
-				// onMouseEnter={handleMouseEnter}
-				// onMouseLeave={handleMouseLeave}
-			>
-				{mostUsedEntities?.data?.slice(0, 12).map((item, index) => (
-					<div
-						className="card-item"
-						key={index}
-						onClick={() => navigate(getEntityNavigationPath(item))}
-					>
-						<div className="card-item-style content-wrapper">
-							<span className={`status-badge`}>{getEntityBadge(item)}</span>
-							<span className="item-title">
-								{item.title?.slice(0, 20)}
-								{item.title?.length > 20 ? '...' : ''}
-							</span>
-						</div>
-					</div>
-				))}
-			</div>
-		);
-	};
-
-	const renderTemplatesGrid = () => {
-		if (isLoading) {
-			return <Spinner />;
-		}
-
-		const getStatusBadge = (template) => {
-			if (!template?.workflowStats) return 'Draft';
-
-			if (template.workflowStats.contractSigned) return 'Client Signed';
-			if (template.workflowStats.filesViewed) return 'Client Viewed';
-			if (template.workflowStats.filesSent) return 'Sent';
-			if (template.workflowStats.confirmed) return 'Confirmed';
-			if (template.workflowStats.enquiry) return 'Draft';
-
-			return template?.status === 'published' ? 'Live' : 'Draft';
-		};
-
-		return (
-			<div
-				className={`${info?.cardHover ? 'card-container-hover' : 'card-container'}`}
-				// onMouseEnter={handleMouseEnter}
-				// onMouseLeave={handleMouseLeave}
-			>
-				<div className="card-item">
-					<div className="card-item-style card-item-style-btn">
-						<button
-							className="card-btn"
-							onClick={() =>
-								setInfo((prev) => ({ ...prev, openProposalPopup: true }))
-							}
-						>
-							<Plus />
-							Create Template
-						</button>
-					</div>
-				</div>
-				{myWorkflows?.data?.slice(0, 12).map((template, index) => (
-					<div
-						className="card-item"
-						key={index}
-						// onClick={() => navigate(`/template/${template?._id}`)}
-					>
-						<div className="card-item-style content-wrapper">
-							<span
-								className={`status-badge ${
-									template?.status === 'published' ? 'live' : 'draft'
-								}`}
-							>
-								{getStatusBadge(template)}
-							</span>
-							<span className="item-title">
-								{template?.title?.slice(0, 20)}
-								{template?.title?.length > 20 ? '...' : ''}
-							</span>
-						</div>
-					</div>
-				))}
-			</div>
-		);
-	};
-
-	const renderGalleryGrid = () => {
-		if (!tenantGalleries?.galleries) {
-			return (
-				<div className="spinner-container">
-					<Spinner />
-				</div>
-			);
-		}
-		return (
-			<div
-				className={`${info?.cardHover ? 'card-container-hover' : 'card-container'}`}
-				// onMouseEnter={handleMouseEnter}
-				// onMouseLeave={handleMouseLeave}
-			>
-				<div className="card-item">
-					<div className="card-item-style card-item-style-btn">
-						<button className="card-btn" onClick={handleCreateNewGallery}>
-							<Plus />
-							Create Folder
-						</button>
-					</div>
-				</div>
-				{tenantGalleries?.galleries?.slice(0, 12).map((item, index) => (
-					<div
-						className="card-item"
-						key={index}
-						onClick={() => handleNavigateGallery(item)}
-					>
-						<div
-							className="card-item-style content-wrapper"
-							style={{
-								backgroundImage: item?.coverImage?.thumbnailUrl
-									? `url(${item.coverImage.thumbnailUrl})`
-									: 'none',
-								display: 'flex',
-								justifyContent: 'center',
-								alignItems: 'center',
-								minHeight: '120px',
-								marginBottom: '8px',
-							}}
-						>
-							{!item?.coverImage?.thumbnailUrl && (
-								<div className="folder-icon-wrapper">
-									<Folder />
-								</div>
-							)}
-							{/* <span
-								className={`live-badge ${
-									item?.status === 'active' ? 'badge-active' : 'badge-draft'
-								}`}
-							>
-								<span className="live-badge-dot"></span>
-								<span className="live-badge-text">
-									{item?.status === 'published' ? 'Live' : 'Draft'}
-								</span>
-							</span> */}
-						</div>
-						<span className="gallery-item-title">{item?.title}</span>
-					</div>
-				))}
-			</div>
-		);
-	};
-
 	const viewsConfig = [
 		{ view: 'All', app: 'all' },
 		{ view: 'Classic Gallery', app: 'classicGallery' },
@@ -1173,13 +871,43 @@ const Files = () => {
 		return () => ctx.revert();
 	}, [info.selectedView]);
 
+	const tabsMapper = {
+		Documents: <DocsGrid docsFilesList={docsFilesList} statusTextmapper={statusTextmapper} />,
+		Notes: <NotesGrid notes={notes} handleNewNotes={handleNewNotes} />,
+		Forms: (
+			<FormsGrid
+				formsTemplatesList={formsTemplatesList}
+				statusTextmapper={statusTextmapper}
+				setInfo={setInfo}
+				handleNavigateForm={handleNavigateForm}
+			/>
+		),
+		'Classic Gallery': (
+			<GalleryGrid
+				tenantGalleries={tenantGalleries}
+				handleCreateNewGallery={handleCreateNewGallery}
+				handleNavigateGallery={handleNavigateGallery}
+			/>
+		),
+		'Lite Gallery': (
+			<GalleryGrid
+				tenantGalleries={tenantGalleries}
+				handleCreateNewGallery={handleCreateNewGallery}
+				handleNavigateGallery={handleNavigateGallery}
+			/>
+		),
+		MostUsedEntries: <MostUsedEntries mostUsedEntities={mostUsedEntities} />,
+		Templates: (
+			<TemplatesGrid myWorkflows={myWorkflows} isLoading={isLoading} setInfo={setInfo} />
+		),
+	};
 	return (
 		<>
 			<div className="storage-main-container">
 				<div className="storage-header-container">
 					<span className="beta-text">
-						<div className="beta-text-bold">Search | Create | Share</div>
-						<div className="beta-text">File Flow Inspired by Your Mind</div>
+						{/* <div className="beta-text-bold">Search | Create | Share</div>
+						<div className="beta-text">File Flow Inspired by Your Mind</div> */}
 					</span>
 					<div className="storage-header-items">
 						<QuickActions />
@@ -1188,7 +916,7 @@ const Files = () => {
 				<div className="card-container-wrapper">
 					<div className="card-sub-container">
 						<div className="card-sub-container-left">
-							<div className="left-sidebar-header">hihihih</div>
+							<div className="left-sidebar-header"></div>
 						</div>
 						<div className="card-sub-container-center">
 							{/* <div className="center-container-header">
@@ -1196,23 +924,7 @@ const Files = () => {
 								<div className="center-container-sort-by">A-Z</div>
 							</div> */}
 							<div className="center-container-content">
-								{info.search ? (
-									<SearchResults />
-								) : (
-									<>
-										{info.selectedView === 'Forms'
-											? renderFormsGrid()
-											: info.selectedView === 'Documents'
-											? renderDocsGrid()
-											: info.selectedView === 'Notes'
-											? renderNotesGrid()
-											: info.selectedView === 'All'
-											? renderMostUsedEntitiesGrid()
-											: info.selectedView === 'Templates'
-											? renderTemplatesGrid()
-											: renderGalleryGrid()}
-									</>
-								)}
+								{info.search ? <SearchResults /> : tabsMapper[info.selectedView]}
 							</div>
 						</div>
 						<div className="card-sub-container-right">
@@ -1276,11 +988,11 @@ const Files = () => {
 					setInfo((prev) => ({
 						...prev,
 						openProposalPopup: false,
-						commonState: 'All',
+						commonState: info?.selectedView === 'Forms' ? 'form-submission' : 'All',
 					}))
 				}
 				clientDetails={formsTemplatesList}
-				commonState={info?.commonState}
+				commonState={info?.selectedView === 'Forms' ? 'form-submission' : 'All'}
 			/>
 		</>
 	);

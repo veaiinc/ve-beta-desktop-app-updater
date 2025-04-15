@@ -260,6 +260,7 @@ const NoteComponentModal = ({
 															rating={chat?.rating}
 															messageData={chat}
 															citations={chat?.citations}
+															isNoteCanvas={true}
 														/>
 													</div>
 												) : (

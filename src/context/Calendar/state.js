@@ -13,6 +13,7 @@ export const initialState = {
 	calendarCategories: null,
 	deletedEvent: null,
 	refetchCalendarState: false,
+	allCalendarEvents: null,
 	calendarCategoriesList: null,
 };
 
@@ -363,6 +364,30 @@ export const Calendar = () => {
 		}
 	};
 
+	const getAllCalendarEvents = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const url = `/${workspaceId}/calendar/combined-events`;
+			const response = await service.fetchPost(url, payload, usertoken, 'calendar_api');
+			if (response?.[0] === true) {
+				dispatch({
+					type: Actions.GET_CALENDAR_ALL_EVENTS,
+					payload: response?.[1],
+				});
+			} else {
+				dispatch({
+					type: Actions.GET_CALENDAR_ALL_EVENTS,
+					payload: {
+						error: 'Something went wrong while fetching events. Please try again.',
+					},
+				});
+			}
+		} catch (error) {
+			console.log('error ==> fetchingCalendarEvents', error);
+		}
+	};
+
 	//Scheduler Apis ==============>
 	const getSchedulerList = async () => {
 		try {
@@ -508,9 +533,9 @@ export const Calendar = () => {
 			if (response?.[0] === true) {
 				dispatch({
 					type: Actions.WATCH_GOOGLE_CALENDAR,
-					payload: response?.[1]?.data,
+					payload: response?.[1]?.response,
 				});
-				return response?.[1];
+				return response?.[1].response;
 			} else {
 				console.log('API failed ==> watchGoogleCalendar', response);
 			}
@@ -632,6 +657,7 @@ export const Calendar = () => {
 		getCalendarEventDetails,
 		getCalendarAllEvents,
 		updateCalendarState,
+		getAllCalendarEvents,
 		getGoogleCalendarEvents,
 
 		getSchedulerList,
