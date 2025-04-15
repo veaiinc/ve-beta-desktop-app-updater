@@ -1,7 +1,6 @@
 .eventDetailsDrawerParentCOntainer {
 	height: 100%;
 	display: flex;
-	padding: 10px;
 	justify-content: center;
 	align-items: center;
 
@@ -13,7 +12,6 @@
 		align-items: flex-start;
 		gap: 20px;
 		align-self: stretch;
-		border-radius: 16px;
 		border: 1px solid var(--stroke);
 		background: var(--navbar);
 		overflow-y: auto;

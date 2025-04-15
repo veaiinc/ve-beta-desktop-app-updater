@@ -103,6 +103,21 @@ export const getTasksCountQuery = gql`
 	query ListTasksByTenantUser($filters: ListTaskInput) {
 		listTasksByTenantUser(filters: $filters) {
 			totalDocs
+			data {
+				updatedBy {
+					_id
+					name
+				}
+				_id
+				assignedAt
+				title
+				dueDate
+				createdAt
+				createdBy {
+					_id
+					name
+				}
+			}
 		}
 	}
 `;

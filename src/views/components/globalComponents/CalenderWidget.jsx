@@ -1,9 +1,11 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext, useEffect, useCallback } from 'react';
 import '../../../assets/scss/globalComponents/calenderWidget.scss';
 import { ReactComponent as PlusIcon } from '../../../assets/svg/calendar/plus.svg';
 import { useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
 import InfiniteScroll from 'react-infinite-scroll-component';
+import EventDetailsModal from '../modalsV2/calendar/EventDetailsModal';
+import ObjectId from 'bson-objectid';
 
 const CalenderWidget = ({ width }) => {
 	const {
@@ -12,6 +14,9 @@ const CalenderWidget = ({ width }) => {
 			calendarEventsList,
 			getAllCalendarEvents,
 			allCalendarEvents,
+			calendarCategoriesList,
+			getCalendarCategories,
+			resetCalendarAiChat,
 		},
 	} = useContext(Context);
 	const navigate = useNavigate();
@@ -22,11 +27,28 @@ const CalenderWidget = ({ width }) => {
 		promptPopupOpen: false,
 		selectedCard: null,
 		page: 1,
+		selectedEvent: null,
+		isModalOpen: false,
+		eventsList: [],
 	});
 
 	const eventsLength = allCalendarEvents?.data?.length;
 	const eventsNextPage = allCalendarEvents?.hasNextPage;
 	const eventsCurrentPage = allCalendarEvents?.currentPage || 1;
+
+	useEffect(() => {
+		const sessionId = ObjectId().toString();
+		setInfo((prevInfo) => ({ ...prevInfo, chatSessionId: sessionId }));
+
+		getCalendarCategories();
+
+		return () => {
+			setInfo((prevInfo) => ({
+				...prevInfo,
+			}));
+			resetCalendarAiChat();
+		};
+	}, []);
 
 	useEffect(() => {
 		const payload = {
@@ -41,6 +63,10 @@ const CalenderWidget = ({ width }) => {
 		}
 	}, [info?.currentCalendarDate]);
 
+	useEffect(() => {
+		if (calendarCategoriesList) {
+		}
+	});
 	const fetchMoreCalendarEvents = () => {
 		const payload = {
 			options: {
@@ -52,7 +78,41 @@ const CalenderWidget = ({ width }) => {
 			getAllCalendarEvents(payload);
 		}
 	};
-	console.log(allCalendarEvents?.data, 'testing');
+
+	const handleCalendarClick = (meet) => {
+		setInfo((prev) => ({
+			...prev,
+			selectedEvent: meet,
+			isModalOpen: true,
+		}));
+	};
+
+	const handleModalClose = () => {
+		setInfo((prev) => ({
+			...prev,
+			isModalOpen: false,
+		}));
+	};
+
+	const updateCalenderEventsList = useCallback(
+		(eventId, updateBody = {}) => {
+			const updatedEventsList = [...(info?.eventsList || [])];
+			for (let i = 0; i < updatedEventsList?.length; i++) {
+				if (updatedEventsList?.[i]?.id === eventId) {
+					updatedEventsList[i] = { ...updatedEventsList[i], ...updateBody };
+				}
+			}
+			setInfo((prev) => ({ ...prev, eventsList: updatedEventsList }));
+		},
+		[info?.eventsList],
+	);
+	const filterDeletedEvent = useCallback(
+		(eventId) => {
+			const filteredEventsList = info?.eventsList?.filter((event) => event?.id !== eventId);
+			setInfo((prev) => ({ ...prev, eventsList: filteredEventsList }));
+		},
+		[info?.eventsList],
+	);
 	return (
 		<div className="calender-main-container" style={{ width: width, height: '412px' }}>
 			<div className="calenderWidgetContainer">
@@ -77,7 +137,11 @@ const CalenderWidget = ({ width }) => {
 							>
 								<div className="calenderWidgetMainContentDate">
 									{allCalendarEvents?.data?.map((meet) => (
-										<div className="calenderWidgetMainContentDateMeet">
+										<div
+											className="calenderWidgetMainContentDateMeet"
+											onClick={() => handleCalendarClick(meet)}
+											style={{ cursor: 'pointer' }}
+										>
 											<div className="calenderWidgetMainContentDateMeetTime">
 												<span className="calenderWidgetMainContentTime">
 													{new Date(
@@ -141,6 +205,13 @@ const CalenderWidget = ({ width }) => {
 					<PlusIcon />
 				</div>
 			</div>
+			<EventDetailsModal
+				isEventSelected={info?.isModalOpen}
+				selectedEvent={info?.selectedEvent}
+				categoryList={calendarCategoriesList}
+				onClose={handleModalClose}
+				updateCalenderEventsList={updateCalenderEventsList}
+			/>
 		</div>
 	);
 };
