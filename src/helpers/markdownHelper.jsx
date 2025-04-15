@@ -8,6 +8,7 @@ import { ReactComponent as ThumpsDownSvg } from '../assets/svg/ai_agents/thumps-
 import { ReactComponent as HeadPhoneSvg } from '../assets/svg/ai_agents/head-phone.svg';
 import { ReactComponent as TickSvg } from '../assets/svg/tick.svg';
 import { ReactComponent as CopyIcon } from '../assets/svg/ai_agents/copy.svg';
+import { ReactComponent as ViewDocumentIcon } from '../assets/svg/chat/viewDocument.svg';
 import Context from '../context/context';
 import { Tooltip } from 'antd';
 import { ReactComponent as ArrowRightSvg } from '../assets/svg/home_page/arrow-right.svg';
@@ -19,6 +20,7 @@ import rehypeRaw from 'rehype-raw';
 import 'katex/dist/katex.min.css';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { dracula } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import FormModel from '../views/components/chat/FormModel';
 import AISuggestionsReportUserComponent from '../views/components/chat/chatComponents/AISuggestionsReportUserComponent';
 import AISuggestionsReportAiComponent from '../views/components/chat/chatComponents/AiSuggestionsReportAiComponent';
 const rehypeCITPlugin = () => {
@@ -254,7 +256,16 @@ export const TypingEffect = memo(
 		rating = null,
 		citations = [],
 		messageData,
+		isLastMessage = false,
 		isNewMessage = false,
+		showCanvas = true,
+		handleSendWebsocketMessage = null,
+		latestStreamMesage = null,
+		lastQuery = null,
+		toggleLatestStreamMessage = null,
+		handleViewDocument = null,
+		showViewDocument = false,
+		isNoteCanvas = false,
 	}) => {
 		const {
 			documentPreview: { setNoteContent },
@@ -308,6 +319,20 @@ export const TypingEffect = memo(
 		// 	setRenderTrigger((prev) => prev + 1);
 		// };
 
+		const handleUpdateId = (workflowTemplateId, moduleTemplateId) => {
+			console.log(
+				workflowTemplateId,
+				moduleTemplateId,
+				'workflowTemplateId, moduleTemplateId',
+			);
+			updateStateValues({
+				documentPreviewIds: {
+					workflowTemplateId,
+					moduleTemplateId,
+				},
+			});
+		};
+
 		const handleCopyTextClick = useCallback((text) => {
 			const textToBeCopied = text?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')?.replace(/\\n/g, '\n');
 			navigator?.clipboard?.writeText(textToBeCopied).then(() => {
@@ -339,13 +364,43 @@ export const TypingEffect = memo(
 
 		return (
 			<div className="typing-effect-container">
+				{messageData?.workflow_template_id &&
+					(showCanvas && !isNoteCanvas ? (
+						<FormModel
+							workflowTemplateId={messageData?.workflow_template_id}
+							moduleTemplateId={messageData?.module_template_id}
+							ByDefaultExpanded={true}
+							handleSendWebsocketMessage={handleSendWebsocketMessage}
+							latestStreamMesage={latestStreamMesage}
+							lastQuery={lastQuery}
+							toggleLatestStreamMessage={toggleLatestStreamMessage}
+							messageId={messageData?.messageId}
+							handleViewDocument={handleViewDocument}
+							showViewDocument={showViewDocument}
+							isLastMessage={isLastMessage}
+							messageData={messageData}
+						/>
+					) : (
+						<div
+							className="view-document-container"
+							onClick={() =>
+								handleUpdateId(
+									messageData?.workflow_template_id,
+									messageData?.module_template_id,
+								)
+							}
+						>
+							<ViewDocumentIcon />
+							<p>View Document</p>
+						</div>
+					))}
 				{messageData?.moduleType === 'ai_suggestion_report' ? (
 					<AISuggestionsReportAiComponent data={messageData?.data} />
 				) : (
 					<Markdown citations={citations}>
+						{text?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')?.replace(/\\n/g, '\n')}
 						{/* {newText?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')?.replace(/\\n/g, '\n')} */}
 						{/* {chunkRef?.current?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')?.replace(/\\n/g, '\n')} */}
-						{text?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')?.replace(/\\n/g, '\n')}
 					</Markdown>
 				)}
 
@@ -455,7 +510,9 @@ export const TypingEffect = memo(
 			prevProps.rating === nextProps.rating &&
 			JSON.stringify(prevProps.citations) === JSON.stringify(nextProps.citations) &&
 			prevProps.messageData?.messageId === nextProps.messageData?.messageId &&
-			prevProps.isNewMessage === nextProps.isNewMessage
+			prevProps.isNewMessage === nextProps.isNewMessage &&
+			prevProps.lastQuery === nextProps.lastQuery &&
+			prevProps.latestStreamMesage === nextProps.latestStreamMesage
 		);
 	},
 );

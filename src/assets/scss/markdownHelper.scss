@@ -3,7 +3,21 @@
 	flex-direction: column;
 	gap: 16px;
 	position: relative;
-
+	.view-document-container {
+		display: flex;
+		gap: 12px;
+		flex-direction: row;
+		align-items: center;
+		cursor: pointer;
+		border: 1px solid var(--stroke);
+		width: fit-content;
+		padding: 10px;
+		border-radius: 10px;
+		svg {
+			width: 24px;
+			height: 24px;
+		}
+	}
 	.hover-actions-container {
 		display: flex;
 		gap: 18px;
