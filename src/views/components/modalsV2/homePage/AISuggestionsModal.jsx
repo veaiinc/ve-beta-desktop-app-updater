@@ -1,7 +1,8 @@
-import React, { memo, useCallback } from 'react';
+import React, { memo, useCallback, useState } from 'react';
 import '../../../../assets/scss/home_page/modals/aiSuggestionsModal.scss';
 import { ReactComponent as ChevronRightThinSvg } from '../../../../assets/svg/tasks/chevronRightThin.svg';
-import ReactMarkdown from 'react-markdown';
+import { ReactComponent as ArrowRightSvg } from '../../../../assets/svg/home_page/arrow-right.svg';
+import { Markdown } from '../../../../helpers/markdownHelper';
 import { useNavigate } from 'react-router-dom';
 import ObjectID from 'bson-objectid';
 import { Drawer } from 'antd';
@@ -14,16 +15,17 @@ const AISuggestionsModal = ({ open, onClose, data, onNextCardClick, onPrevCardCl
 		templates: { updateStateValues },
 	} = useContext(Context);
 
-	const handleClickRun = useCallback(
-		(prompt) => {
-			if (typeof updateStateValues === 'function') {
-				updateStateValues({ activePromptForChat: prompt });
-			}
-			onClose();
-			navigate(`/chat/${ObjectID().toString()}`);
-		},
-		[onClose, navigate, updateStateValues],
-	);
+	const [info, setInfo] = useState({
+		isExpanded: false,
+	});
+
+	const handleClickRun = useCallback((prompt) => {
+		if (typeof updateStateValues === 'function') {
+			updateStateValues({ activePromptForChat: prompt });
+		}
+		onClose();
+		navigate(`/chat/${ObjectID()?.toString()}`);
+	}, []);
 
 	if (!data) return null;
 	const {
@@ -49,7 +51,7 @@ const AISuggestionsModal = ({ open, onClose, data, onNextCardClick, onPrevCardCl
 			rootClassName="ai-suggestions-drawer"
 		>
 			<div className="ai-suggestions-container">
-				<div className="header">
+				<div className="drawer-header">
 					<div className="header-content">
 						<div className="left-container">
 							<div className="prev-btn" onClick={onPrevCardClick}>
@@ -95,18 +97,48 @@ const AISuggestionsModal = ({ open, onClose, data, onNextCardClick, onPrevCardCl
 						</div>
 					</div>
 					<div className="chain-of-thought-container">
-						<div className="cot-text">Chain of thought</div>
-						<div className="desc">
-							{Array.isArray(chain_of_thought)
-								? chain_of_thought.map((item, index) => <p key={index}>{item}</p>)
-								: chain_of_thought || ''}
+						<div
+							className="cot-header"
+							onClick={() =>
+								setInfo((prev) => ({ ...prev, isExpanded: !prev.isExpanded }))
+							}
+						>
+							<div className="cot-text">Chain of thought</div>
+							<div
+								className="cot-expand-btn"
+								style={{
+									transform: info?.isExpanded
+										? 'rotate(-90deg)'
+										: 'rotate(90deg)',
+								}}
+							>
+								<ChevronRightThinSvg />
+							</div>
 						</div>
+						{info?.isExpanded && (
+							<div className="chain-of-thought-content">
+								{Array?.isArray(chain_of_thought)
+									? chain_of_thought?.map((cot, index) => {
+											return (
+												<div className="content-container" key={index}>
+													<div className="logo-container"></div>
+													<div className="text-container">{cot}</div>
+												</div>
+											);
+									  })
+									: ''}
+							</div>
+						)}
 					</div>
 					<div className="report-container">
 						<div className="report-header">
 							<div className="report-title">Report</div>
 							<div className="report-description">
-								<ReactMarkdown>{research_report || ''}</ReactMarkdown>
+								<Markdown>
+									{(research_report || '')
+										?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')
+										?.replace(/\\n/g, '\n')}
+								</Markdown>
 							</div>
 						</div>
 					</div>
@@ -120,7 +152,10 @@ const AISuggestionsModal = ({ open, onClose, data, onNextCardClick, onPrevCardCl
 											key={index}
 											onClick={() => handleClickRun(item)}
 										>
-											{item}
+											<div className="logo">
+												<ArrowRightSvg />
+											</div>
+											<div className="item-text">{item}</div>
 										</div>
 								  ))
 								: suggested_actions || ''}
@@ -136,7 +171,10 @@ const AISuggestionsModal = ({ open, onClose, data, onNextCardClick, onPrevCardCl
 											key={index}
 											onClick={() => handleClickRun(item)}
 										>
-											{item}
+											<div className="logo">
+												<ArrowRightSvg />
+											</div>
+											<div className="item-text">{item}</div>
 										</div>
 								  ))
 								: solutions || ''}
@@ -152,7 +190,10 @@ const AISuggestionsModal = ({ open, onClose, data, onNextCardClick, onPrevCardCl
 											key={index}
 											onClick={() => handleClickRun(item)}
 										>
-											{item}
+											<div className="logo">
+												<ArrowRightSvg />
+											</div>
+											<div className="item-text">{item}</div>
 										</div>
 								  ))
 								: suggested_prompts || ''}
@@ -160,10 +201,15 @@ const AISuggestionsModal = ({ open, onClose, data, onNextCardClick, onPrevCardCl
 					</div>
 				</div>
 
-				{/* <div className="footer">
-					<button className="ignore-btn">Ignore</button>
-					<button className="report-btn">View report</button>
-				</div> */}
+				<div className="footer">
+					<div className="horizontal-line"></div>
+					<div className="btns-container">
+						<button className="ignore-btn" onClick={onClose}>
+							Ignore
+						</button>
+						<button className="report-btn">View report</button>
+					</div>
+				</div>
 			</div>
 		</Drawer>
 	);
