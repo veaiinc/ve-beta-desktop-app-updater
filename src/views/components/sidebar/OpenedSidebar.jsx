@@ -69,11 +69,12 @@ const OpenedSidebarModules = ({
 	setHideClosedSidebarIcon,
 	selectedOption,
 }) => {
-	let {
+	const location = useLocation();
+
+	const {
 		aiSetup: { isVoiceIntegrationActive },
 	} = useContext(Context);
 
-	const location = useLocation();
 	const [isHover, setisHover] = useState(false);
 
 	const onMouseEnter = () => {
