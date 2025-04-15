@@ -96,13 +96,14 @@ const AISuggestionsModal = ({ open, onClose, data, onNextCardClick, onPrevCardCl
 							<div className="description">{description || ''}</div>
 						</div>
 					</div>
-					<div className="chain-of-thought-container">
-						<div
-							className="cot-header"
-							onClick={() =>
-								setInfo((prev) => ({ ...prev, isExpanded: !prev.isExpanded }))
-							}
-						>
+
+					<div
+						className="chain-of-thought-container"
+						onClick={() =>
+							setInfo((prev) => ({ ...prev, isExpanded: !prev.isExpanded }))
+						}
+					>
+						<div className="cot-header">
 							<div className="cot-text">Chain of thought</div>
 							<div
 								className="cot-expand-btn"
@@ -116,7 +117,10 @@ const AISuggestionsModal = ({ open, onClose, data, onNextCardClick, onPrevCardCl
 							</div>
 						</div>
 						{info?.isExpanded && (
-							<div className="chain-of-thought-content">
+							<div
+								className="chain-of-thought-content"
+								onClick={(e) => e?.stopPropagation()}
+							>
 								{Array?.isArray(chain_of_thought)
 									? chain_of_thought?.map((cot, index) => {
 											return (
