@@ -32,7 +32,7 @@ const AutomationWidget = ({ width, height }) => {
 	const [info, setInfo] = useState({
 		isLoading: false,
 		promptPopupOpen: false,
-		selectedCard: null,
+		selectedAutomation: null,
 	});
 	const automations = automationsList?.data;
 	const automationsLoading = automationsList ? false : true;
@@ -65,6 +65,9 @@ const AutomationWidget = ({ width, height }) => {
 			isLoading: false,
 		}));
 	};
+	const handleAutomationClick = (automation) => {
+		navigate(`/automation-builder/${automation?._id}`);
+	};
 
 	return (
 		<div className="automation" style={{ width: width }}>
@@ -92,7 +95,10 @@ const AutomationWidget = ({ width, height }) => {
 								style={infiniteScrollStyle}
 							>
 								{automationsList?.data?.map((automation) => (
-									<div className="automationWidgetBodyItem">
+									<div
+										className="automationWidgetBodyItem"
+										onClick={() => handleAutomationClick(automation)}
+									>
 										<div className="automationWidgetOptionDetails">
 											<div className="automationWidgetOptionDetailsTitle">
 												{automation.name}

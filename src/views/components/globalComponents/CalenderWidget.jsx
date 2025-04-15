@@ -26,7 +26,7 @@ const CalenderWidget = ({ width }) => {
 
 	const eventsLength = allCalendarEvents?.data?.length;
 	const eventsNextPage = allCalendarEvents?.hasNextPage;
-	const eventsCurrentPage = allCalendarEvents?.currentPage;
+	const eventsCurrentPage = allCalendarEvents?.currentPage || 1;
 
 	useEffect(() => {
 		const payload = {
@@ -52,7 +52,7 @@ const CalenderWidget = ({ width }) => {
 			getAllCalendarEvents(payload);
 		}
 	};
-
+	console.log(allCalendarEvents?.data, 'testing');
 	return (
 		<div className="calender-main-container" style={{ width: width, height: '412px' }}>
 			<div className="calenderWidgetContainer">
@@ -79,7 +79,13 @@ const CalenderWidget = ({ width }) => {
 										<div className="calenderWidgetMainContentDateMeet">
 											<div className="calenderWidgetMainContentDateMeetTime">
 												<span className="calenderWidgetMainContentTime">
-													{meet?.startTime}
+													{new Date(
+														meet?.startDateTime,
+													).toLocaleTimeString([], {
+														hour: '2-digit',
+														minute: '2-digit',
+														hour12: true,
+													})}
 												</span>
 												<span className="calenderWidgetMainLine"></span>
 											</div>
@@ -88,7 +94,22 @@ const CalenderWidget = ({ width }) => {
 													{meet?.title}
 												</div>
 												<div className="meetingDetailsTime">
-													{meet?.startTime} - {meet?.endTime}
+													{new Date(
+														meet?.startDateTime,
+													).toLocaleTimeString([], {
+														hour: '2-digit',
+														minute: '2-digit',
+														hour12: true,
+													})}{' '}
+													-
+													{new Date(meet?.endDateTime).toLocaleTimeString(
+														[],
+														{
+															hour: '2-digit',
+															minute: '2-digit',
+															hour12: true,
+														},
+													)}
 												</div>
 											</div>
 										</div>
