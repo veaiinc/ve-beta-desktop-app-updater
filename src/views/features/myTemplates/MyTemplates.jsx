@@ -18,7 +18,7 @@ import ThreeDotsSvg from '../../../assets/svg/my_templates/ThreeDotsSvg';
 import FilterSvg from '../../../assets/svg/my_templates/FilterSvg';
 import { ReactComponent as Cross } from '../../../assets/svg/docs/cross.svg';
 import Spinner from '../../components/loaders/Spinner';
-import { message } from 'antd';
+import { message } from '../../components/globalComponents/CustomToast';
 
 let origin = fetchOriginSelection();
 const SubTitle = () => {

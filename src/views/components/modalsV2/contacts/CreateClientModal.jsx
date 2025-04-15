@@ -8,7 +8,7 @@ import ActionButton from '../../ai_assistant/ActionButton';
 import InputComponent from '../../ai_assistant/InputComponent';
 import PhoneInput from 'react-phone-number-input';
 import 'react-phone-number-input/style.css';
-import { message } from 'antd';
+import { message } from '../../globalComponents/CustomToast';
 
 const containerStyles = {
 	padding: '12px 24px',

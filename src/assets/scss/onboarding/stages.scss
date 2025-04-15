@@ -152,38 +152,6 @@
 					}
 				}
 
-				.phoneContainerClass {
-					width: 100%;
-					display: flex;
-					justify-content: flex-start;
-					align-items: center;
-					gap: 4px;
-					border-radius: 12px;
-					background: var(--card);
-					height: 41px;
-					padding-left: 10px;
-
-					& > * {
-						background-color: inherit;
-						border: none;
-						outline: none;
-					}
-
-					.phoneInputClass {
-						color: var(--primary-font);
-						background-color: inherit;
-
-						&::placeholder {
-							color: var(--secondary-font, #7a7e85);
-							font-family: var(--primary-font-family);
-							font-size: 14px;
-							font-style: normal;
-							font-weight: 500;
-							line-height: normal;
-						}
-					}
-				}
-
 				.otpInput {
 					width: 100%;
 					border-radius: 12px;

@@ -1,7 +1,7 @@
 import React, { memo, useState, useEffect, useCallback } from 'react';
 import HeaderComponent from './HeaderComponent';
 import ActionDetailsBlock from './ActionDetailsBlock';
-import { message, Spin } from 'antd';
+import { Spin } from 'antd';
 import HeadersDropDownComp from '../../dropDown/HeadersDropDownComp';
 import {
 	containerStyle,
@@ -10,6 +10,7 @@ import {
 	selectedValueStyling,
 } from '../../../features/automationBuilder/automationContentsHelper';
 import '../../../../assets/scss/automation_builder/automationBuilderSidebarComponents/inAppActions.scss';
+import { message } from '../../globalComponents/CustomToast';
 
 const delayInOptions = [
 	{

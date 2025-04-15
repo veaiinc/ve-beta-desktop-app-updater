@@ -9,11 +9,10 @@ const SearchTypeTooltip = ({
 	isOpen,
 	searchType,
 	onSearchTypeChange,
-	tooltipPlacement = 'top',
 }) => {
 	return (
 		<Tooltip
-			placement={tooltipPlacement}
+			placement={'bottom'}
 			open={isOpen}
 			onOpenChange={onOpenChange}
 			color="transparent"

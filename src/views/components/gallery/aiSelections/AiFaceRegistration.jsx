@@ -6,9 +6,10 @@ import Context from '../../../../context/context';
 import Table from './RegisteredUsersTable';
 import QRCode from 'react-qr-code';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import { message, Progress, Tooltip } from 'antd';
+import { Progress, Tooltip } from 'antd';
 import NotifyPopup from './NotifyPopup';
 import { useParams } from 'react-router-dom';
+import { message } from '../../globalComponents/CustomToast';
 
 const AiFaceRegistration = ({ link }) => {
 	const qrRef = useRef(null);
