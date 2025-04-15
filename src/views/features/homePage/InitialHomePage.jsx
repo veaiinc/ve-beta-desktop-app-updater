@@ -242,10 +242,10 @@ const InitialHomePage = () => {
 			>
 				<div className={`title-container `}>
 					<div className="title-text">
-						<span className="title-one">AI.</span>{' '}
-						<span className="title-two">truly yours</span>
+						<span className="title-one">Answers before you Ask!</span>
+						{/* <span className="title-two">truly yours</span> */}
 					</div>
-					<div className="sub-text">Answers before you Ask!</div>
+					{/* <div className="sub-text">Answers before you Ask!</div> */}
 				</div>
 				<div
 					className={`chatbox-wrapper`}
