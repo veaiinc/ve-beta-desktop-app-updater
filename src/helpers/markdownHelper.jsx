@@ -264,6 +264,7 @@ export const TypingEffect = memo(
 		toggleLatestStreamMessage = null,
 		handleViewDocument = null,
 		showViewDocument = false,
+		isNoteCanvas = false,
 	}) => {
 		const {
 			documentPreview: { setNoteContent },
@@ -363,7 +364,7 @@ export const TypingEffect = memo(
 		return (
 			<div className="typing-effect-container">
 				{messageData?.workflow_template_id &&
-					(showCanvas ? (
+					(showCanvas && !isNoteCanvas ? (
 						<FormModel
 							workflowTemplateId={messageData?.workflow_template_id}
 							moduleTemplateId={messageData?.module_template_id}
