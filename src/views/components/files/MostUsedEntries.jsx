@@ -2,6 +2,7 @@ import '../../../assets/scss/files/index.scss';
 import '../../../assets/scss/files/files.scss';
 import Spinner from '../../components/loaders/Spinner';
 import { useNavigate } from 'react-router-dom';
+import { memo } from 'react';
 const MostUsedEntries = ({ mostUsedEntities, isLoading }) => {
 	const navigate = useNavigate();
 	if (isLoading) {
@@ -55,4 +56,4 @@ const MostUsedEntries = ({ mostUsedEntities, isLoading }) => {
 	);
 };
 
-export default MostUsedEntries;
+export default memo(MostUsedEntries);
