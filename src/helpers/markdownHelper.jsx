@@ -10,7 +10,7 @@ import { ReactComponent as TickSvg } from '../assets/svg/tick.svg';
 import { ReactComponent as CopyIcon } from '../assets/svg/ai_agents/copy.svg';
 import Context from '../context/context';
 import { Tooltip } from 'antd';
-
+import { ReactComponent as ArrowRightSvg } from '../assets/svg/home_page/arrow-right.svg';
 import { CitationsTooltip } from '../views/components/modalsV2/chat/CitationsTooltip';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
@@ -350,22 +350,27 @@ export const TypingEffect = memo(
 					{/* {chunkRef?.current?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')?.replace(/\\n/g, '\n')} */}
 					{text?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')?.replace(/\\n/g, '\n')}
 				</Markdown>
-
-				{(messageData?.['follow_up_query'] || [])?.length > 0 && (
-					<div className="suggested-prompts">
-						<div className="title-text">Suggested Prompts</div>
-						{(messageData?.['follow_up_query'] || [])?.map((query) => {
-							return (
-								<div
-									className="prompt-container"
-									onClick={() => handlePromptClick(query)}
-								>
-									<div className="prompt">{query}</div>
-								</div>
-							);
-						})}
-					</div>
-				)}
+				{typeof messageData?.['follow_up_query'] !== 'string' &&
+					(messageData?.['follow_up_query'] || [])?.length > 0 && (
+						<div className="suggested-prompts">
+							<div className="title-text">Suggested Prompts</div>
+							<div className="prompts-container">
+								{(messageData?.['follow_up_query'] || [])?.map((query) => {
+									return (
+										<div
+											className="prompt-container"
+											onClick={() => handlePromptClick(query)}
+										>
+											<div className="logo-container">
+												<ArrowRightSvg />
+											</div>
+											<div className="prompt">{query}</div>
+										</div>
+									);
+								})}
+							</div>
+						</div>
+					)}
 
 				{messageData?.messageId && (
 					<div

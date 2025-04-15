@@ -48,12 +48,18 @@ const ProactiveSuggestions = () => {
 
 	const updateCardsData = () => {
 		const cards = aiSuggestedPendingActions?.pendingActions?.filter(
-			(card) => card?.researchTopics?.length > 0,
+			(card) => card?.title?.length > 0,
 		);
 		if (cards?.length > 0) {
 			setInfo((prev) => ({
 				...prev,
 				totalCardsData: cards,
+				loading: false,
+			}));
+		} else {
+			setInfo((prev) => ({
+				...prev,
+				totalCardsData: [],
 				loading: false,
 			}));
 		}
@@ -148,12 +154,8 @@ const ProactiveSuggestions = () => {
 									onClick={() => handleCardClick(card, index)}
 								>
 									<div className="header">
-										<div className="card-title">
-											{card?.researchTopics?.[0]?.title}
-										</div>
-										<div className="card-description">
-											{card?.researchTopics?.[0]?.description}
-										</div>
+										<div className="card-title">{card?.title}</div>
+										<div className="card-description">{card?.description}</div>
 									</div>
 									<div className="footer">
 										<div className="module-type">{card?.moduleType}</div>
@@ -162,17 +164,20 @@ const ProactiveSuggestions = () => {
 							);
 					  })}
 			</div>
-			<div className="action-container">
-				<div className="action-left"></div>
-				<div className="action-right">
-					<button className="card-change-btn" onClick={handleLeft}>
-						<ChevronRightThinSvg className="left-chevron" />
-					</button>
-					<button className="card-change-btn" onClick={handleRight}>
-						<ChevronRightThinSvg />
-					</button>
+			{info?.cards?.length > 5 && (
+				<div className="action-container">
+					<div className="action-left"></div>
+					<div className="action-right">
+						<button className="card-change-btn" onClick={handleLeft}>
+							<ChevronRightThinSvg className="left-chevron" />
+						</button>
+						<button className="card-change-btn" onClick={handleRight}>
+							<ChevronRightThinSvg />
+						</button>
+					</div>
 				</div>
-			</div>
+			)}
+
 			<AISuggestionsModal
 				open={info?.openModal}
 				onClose={handleCloseModal}

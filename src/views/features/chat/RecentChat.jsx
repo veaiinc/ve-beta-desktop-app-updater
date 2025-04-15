@@ -82,9 +82,9 @@ const RecentChat = ({
 	const chatMessagesRef = useRef(globalChatMessages || []);
 	let { sessionId } = useParams();
 	const [searchParams, setSearchParams] = useSearchParams();
-	const aiMessagesRef = useRef([]);
-	const previousAiMessagesRef = useRef([]);
-	const aiCitationsByIdRef = useRef({});
+	// const aiMessagesRef = useRef([]);
+	// const previousAiMessagesRef = useRef([]);
+	// const aiCitationsByIdRef = useRef({});
 	const tabsRefs = useRef({});
 	const previousTabsRefs = useRef({});
 	const isFirstTimeConnectingToPublicChatRef = useRef(true);
@@ -147,7 +147,7 @@ const RecentChat = ({
 					...prev,
 					scrollExecuted: false,
 				}));
-				aiMessagesRef.current = [];
+				// aiMessagesRef.current = [];
 			}
 
 			getRecentChatMessages(sessionId);
@@ -280,15 +280,14 @@ const RecentChat = ({
 
 	useEffect(() => {
 		chatMessagesRef.current = [...(globalChatMessages || [])];
-		chatMessagesRef.current?.forEach((message) => {
-			if (message?.type?.toLowerCase() === 'ai') {
-				const messageId = message?.messageId;
-				if (message?.citations && !aiCitationsByIdRef.current[messageId]) {
-					aiCitationsByIdRef.current[messageId] = message?.citations;
-				}
-			}
-		});
-		// smoothScrollToBottom();
+		// chatMessagesRef.current?.forEach((message) => {
+		// 	if (message?.type?.toLowerCase() === 'ai') {
+		// 		const messageId = message?.messageId;
+		// 		if (message?.citations && !aiCitationsByIdRef.current[messageId]) {
+		// 			aiCitationsByIdRef.current[messageId] = message?.citations;
+		// 		}
+		// 	}
+		// });
 
 		// if (aiMessagesRef?.current?.length === 0) return;
 
@@ -357,13 +356,13 @@ const RecentChat = ({
 		// };
 	}, [globalChatMessages, chatContentRef]);
 
-	useEffect(() => {
-		if (info?.activeAIMessageId) {
-			updateStateValues({
-				citations: aiCitationsByIdRef.current[info?.activeAIMessageId],
-			});
-		}
-	}, [info?.activeAIMessageId]);
+	// useEffect(() => {
+	// 	if (info?.activeAIMessageId) {
+	// 		updateStateValues({
+	// 			citations: aiCitationsByIdRef.current[info?.activeAIMessageId],
+	// 		});
+	// 	}
+	// }, [info?.activeAIMessageId]);
 
 	useEffect(() => {
 		if (recentChatStorage) {
@@ -724,18 +723,18 @@ const RecentChat = ({
 															// 			? 1
 															// 			: 0.6,
 															// }}
-															ref={(el) => {
-																if (
-																	el &&
-																	!aiMessagesRef.current.includes(
-																		el,
-																	)
-																) {
-																	aiMessagesRef?.current?.push(
-																		el,
-																	);
-																}
-															}}
+															// ref={(el) => {
+															// 	if (
+															// 		el &&
+															// 		!aiMessagesRef.current.includes(
+															// 			el,
+															// 		)
+															// 	) {
+															// 		aiMessagesRef?.current?.push(
+															// 			el,
+															// 		);
+															// 	}
+															// }}
 															data-message-id={chat?.messageId}
 															data-index={index}
 														>
