@@ -4752,10 +4752,21 @@ const GalleryPage = () => {
 																			}`}
 																			onClick={(e) => {
 																				e.stopPropagation();
-																				handleExpandClick(
-																					image?._id,
-																					'single',
-																				);
+																				if (
+																					info
+																						.selectedImages
+																						.length > 0
+																				) {
+																					handleImageSelect(
+																						index,
+																						image,
+																					); // Use handleImageSelect if selectedImages > 0
+																				} else {
+																					handleExpandClick(
+																						image?._id,
+																						'single',
+																					); // Use handleExpandClick otherwise
+																				}
 																			}}
 																		>
 																			<img
@@ -4772,43 +4783,48 @@ const GalleryPage = () => {
 																				<div className="imageOverlay"></div>
 																			)}
 
-																			<div
-																				style={{
-																					zIndex: 3,
-																				}}
-																				onClick={(e) => {
-																					e.stopPropagation();
-																					handleImageSelect(
-																						index,
-																						image,
-																					);
-																				}}
-																			>
-																				<Tooltip
-																					title="Click to Select"
-																					placement="top"
+																			{info?.selectedImages
+																				?.length === 0 && (
+																				<div
+																					style={{
+																						zIndex: 3,
+																					}}
+																					onClick={(
+																						e,
+																					) => {
+																						e.stopPropagation();
+																						handleImageSelect(
+																							index,
+																							image,
+																						);
+																					}}
 																				>
-																					{/* <ArrowsOut className="rotating-circle" /> */}
-																					<Checkbox
-																						className={`rotating-circle ${
-																							info.selectedImages.includes(
+																					<Tooltip
+																						title="Click to Select"
+																						placement="top"
+																					>
+																						{/* <ArrowsOut className="rotating-circle" /> */}
+																						<Checkbox
+																							className={`rotating-circle ${
+																								info.selectedImages.includes(
+																									image?._id,
+																								)
+																									? 'checked'
+																									: ''
+																							}`}
+																							checked={info.selectedImages.includes(
 																								image?._id,
-																							)
-																								? 'checked'
-																								: ''
-																						}`}
-																						checked={info.selectedImages.includes(
-																							image?._id,
-																						)}
-																						style={{
-																							borderRadius:
-																								'50%', // Ensures round shape
-																							width: '24px', // Set width
-																							height: '24px', // Set height (must be equal to width)
-																						}}
-																					></Checkbox>
-																				</Tooltip>
-																			</div>
+																							)}
+																							style={{
+																								borderRadius:
+																									'50%', // Ensures round shape
+																								width: '24px', // Set width
+																								height: '24px', // Set height (must be equal to width)
+																							}}
+																						></Checkbox>
+																					</Tooltip>
+																				</div>
+																			)}
 																		</div>
 																	);
 																},
