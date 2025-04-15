@@ -117,7 +117,7 @@ const InitialHomePage = () => {
 	useEffect(() => {
 		if (aiSuggestedPendingActions) {
 			const cards = aiSuggestedPendingActions?.pendingActions?.filter(
-				(card) => card?.researchTopics?.length > 0,
+				(card) => card?.title?.length > 0,
 			);
 			if (cards?.length > 0 && !info?.optionsHandledOnce?.proactiveSuggestions) {
 				handleUpdateOptions('proactiveSuggestions');
