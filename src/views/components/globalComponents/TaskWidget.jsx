@@ -317,7 +317,7 @@ const TaskWidget = ({ width, height }) => {
 					}}
 					style={{ cursor: 'pointer' }}
 				>
-					<div className="taskWidgetFooterTitle">View Task</div>
+					<div className="taskWidgetFooterTitle">View Tasks</div>
 					<PlusIcon
 						onClick={(e) => {
 							e.stopPropagation();
