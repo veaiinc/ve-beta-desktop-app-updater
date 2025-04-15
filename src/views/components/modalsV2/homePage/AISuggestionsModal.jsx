@@ -207,7 +207,7 @@ const AISuggestionsModal = ({ open, onClose, data, onNextCardClick, onPrevCardCl
 						<button className="ignore-btn" onClick={onClose}>
 							Ignore
 						</button>
-						<button className="report-btn">View report</button>
+						{/* <button className="report-btn">View report</button> */}
 					</div>
 				</div>
 			</div>
