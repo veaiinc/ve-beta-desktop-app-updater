@@ -1,51 +1,10 @@
-import React, { useContext, useEffect, useRef, useCallback, useState } from 'react';
+import React, { useContext, useEffect, useCallback, useState } from 'react';
 import '../../../assets/scss/globalComponents/contactsWidget.scss';
-import { ReactComponent as AiSuggest } from '../../../assets/svg/aiIcon.svg';
-import { ReactComponent as ArrowRightIcon } from '../../../assets/svg/arrowRightIcon.svg';
 import { ReactComponent as PlusIcon } from '../../../assets/svg/calendar/plus.svg';
 import Context from '../../../context/context';
-import { ReactComponent as AutomationIcon } from '../../../assets/svg/contacts/automation.svg';
-import { ReactComponent as DeepSearchIcon } from '../../../assets/svg/contacts/deepsearch.svg';
-import { ReactComponent as TaskSuggestionIcon } from '../../../assets/svg/contacts/tasksuggestion.svg';
 import Skeleton from 'react-loading-skeleton';
 import { useNavigate } from 'react-router-dom';
-// const aiSuggestOptions = [
-// 	{ id: 1, title: 'Cristofer Septimus', subtitle: 'Schedule a meeting' },
-// 	{ id: 2, title: 'Cristofer Septimus', subtitle: 'Schedule a meeting' },
-// 	{ id: 3, title: 'Cristofer Septimus', subtitle: 'Schedule a meeting' },
-// ];
-
-const autoSuggestOptions = [
-	{
-		id: 1,
-		title: 'Brandon Rhiel Madsen',
-		suggestion: 'New Message Received',
-		type: 'automation',
-	},
-	{
-		id: 2,
-		title: 'Brandon Rhiel Madsen',
-		suggestion: 'New Message Received',
-		type: 'deepsearch',
-	},
-	{
-		id: 3,
-		title: 'Brandon Rhiel Madsen',
-		suggestion: 'New Message Received',
-		type: 'tasksuggestion',
-	},
-	{
-		id: 4,
-		title: 'Brandon Rhiel Madsen',
-		suggestion: 'New Message Received',
-		type: 'automation',
-	},
-];
-const iconMap = {
-	automation: <AutomationIcon />,
-	deepsearch: <DeepSearchIcon />,
-	tasksuggestion: <TaskSuggestionIcon />,
-};
+import CreateClientModal from '../modalsV2/contacts/CreateClientModal';
 
 const skeletonLoaders = Array.from({ length: 6 }, (_, index) => index + 1);
 
@@ -64,6 +23,9 @@ const ContactsWidget = ({ width, height }) => {
 		sort: [],
 		filters: [],
 		searchValue: '',
+		promptPopupOpen: false,
+		selectedCard: null,
+		createLeadPopup: false,
 	});
 	const fetchClientList = useCallback(
 		async (page = 1) => {
@@ -175,27 +137,22 @@ const ContactsWidget = ({ width, height }) => {
 					style={{ cursor: 'pointer' }}
 				>
 					<div className="contactsWidgetFooterTitle">View Contacts</div>
-					<PlusIcon />
+					<PlusIcon
+						onClick={(e) => {
+							e.stopPropagation();
+							setInfo((prev) => ({
+								...prev,
+								createLeadPopup: true,
+							}));
+						}}
+					/>
 				</div>
 			</div>
-			<div className="contactsWidgetSection2">
-				{autoSuggestOptions.map((item) => (
-					<div className="contactsWidgetSection2Item">
-						<div className="contactsWidgetSection2ItemContainer">
-							{iconMap[item.type]}
-							<div className="contactsWidgetSection2ItemTitle">
-								{item.type.charAt(0).toUpperCase() + item.type.slice(1)}
-							</div>
-						</div>
-						<div
-							className="contactsWidgetSection2ItemSubtitle
-"
-						>
-							{item.suggestion}
-						</div>
-					</div>
-				))}
-			</div>
+			<CreateClientModal
+				modalIsOpen={info?.createLeadPopup}
+				closeModal={() => setInfo({ ...info, createLeadPopup: false })}
+				leadOrClient={true}
+			/>
 		</div>
 	);
 };
