@@ -16,6 +16,7 @@ import { ReactComponent as Clock } from '../../../assets/svg/smartFiles/formResp
 import { ReactComponent as Signature } from '../../../assets/svg/smartFiles/formResponse/signature.svg';
 import { ReactComponent as Star } from '../../../assets/svg/smartFiles/formResponse/star.svg';
 import { ReactComponent as TimeDivider } from '../../../assets/svg/smartFiles/formResponse/time-divider.svg';
+import FormAnalytics from './FormAnalytics';
 import {
 	FilePdfOutlined,
 	FileTextOutlined,
@@ -73,6 +74,8 @@ const removeQuotes = (text) => {
 	}
 	return text?.replace(/^["']|["']$/g, '');
 };
+
+export { removeQuotes };
 
 const DropdownAnswer = ({ answer }) => {
 	if (!answer) {
@@ -249,7 +252,20 @@ const FileUploadAnswer = ({ answer }) => {
 	);
 };
 
-const FormDescription = ({ response, onClose }) => {
+const FormDescription = ({ response, onClose, formId, activeTab }) => {
+	if (activeTab === 'analytics') {
+		return (
+			// <div className="formDescription">
+			// 	<FormAnalytics formId={formId} />
+			// </div>
+			<div className="formDescription">
+				<div className="emptyState">
+					<p>Form Analytics Updating Soon</p>
+				</div>
+			</div>
+		);
+	}
+
 	const getName = (response) => {
 		if (!response?.response) return 'No Name';
 		const nameField = response.response.find((item) =>
@@ -280,6 +296,8 @@ const FormDescription = ({ response, onClose }) => {
 	const getBasicInfo = (response) => {
 		if (!response?.response) return [];
 		const basicInfoFields = [
+			'first name',
+			'last name',
 			'name',
 			'email',
 			'phone',
@@ -305,7 +323,14 @@ const FormDescription = ({ response, onClose }) => {
 
 	const formatLabel = (question) => {
 		const lowerQuestion = question.toLowerCase();
-		if (lowerQuestion.includes('name')) return 'Name';
+		if (lowerQuestion.includes('first name')) return 'First Name';
+		if (lowerQuestion.includes('last name')) return 'Last Name';
+		if (
+			lowerQuestion.includes('name') &&
+			!lowerQuestion.includes('first') &&
+			!lowerQuestion.includes('last')
+		)
+			return 'Name';
 		if (lowerQuestion.includes('email')) return 'Email';
 		if (
 			lowerQuestion.includes('phone') ||

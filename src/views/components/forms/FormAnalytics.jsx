@@ -202,29 +202,57 @@ const FormAnalytics = ({ formId }) => {
 			<div className="analytics-content">
 				<div className="submissions-section">
 					<div className="submissions-header">
-						<h3>Submissions</h3>
-						<div className="date-filter">
-							<Select
-								value={selectedPeriod}
-								onChange={handlePeriodChange}
-								suffixIcon={
-									<RiArrowDropDownLine
-										style={{ color: '#ffff', height: '35px', width: '25px' }}
-									/>
-								}
-							>
-								<Option value="Last 7 Days">Last 7 Days</Option>
-								<Option value="Last 30 Days">Last 30 Days</Option>
-								<Option value="Last 90 Days">Last 90 Days</Option>
-								<Option value="Custom">Custom</Option>
-							</Select>
-							<RangePicker
-								suffixIcon={<CalendarOutlined style={{ color: '#fff' }} />}
-								value={dateRange}
-								onChange={handleDateRangeChange}
-								format="MMM D"
-								allowClear={false}
-							/>
+						<div className="submissions-head">
+							<h3>Overall Submissions</h3>
+							<div className="date-filter">
+								<Select
+									value={selectedPeriod}
+									onChange={handlePeriodChange}
+									suffixIcon={
+										<RiArrowDropDownLine
+											style={{
+												color: '#ffff',
+												height: '35px',
+												width: '25px',
+											}}
+										/>
+									}
+								>
+									<Option value="Last 7 Days">Last 7 Days</Option>
+									<Option value="Last 30 Days">Last 30 Days</Option>
+									<Option value="Last 90 Days">Last 90 Days</Option>
+									<Option value="Custom">Custom</Option>
+								</Select>
+								<RangePicker
+									suffixIcon={<CalendarOutlined style={{ color: '#fff' }} />}
+									value={dateRange}
+									onChange={handleDateRangeChange}
+									format="MMM D"
+									allowClear={false}
+								/>
+							</div>
+						</div>
+						<div className="analytics-content-box">
+							<div className="analytics-content-box-item">
+								<span className="analytics-content-box-item-label">Views</span>
+								<span className="analytics-content-box-item-value">100</span>
+							</div>
+							<div className="analytics-content-box-item">
+								<span className="analytics-content-box-item-label">
+									Submissions
+								</span>
+								<span className="analytics-content-box-item-value">100</span>
+							</div>
+							<div className="analytics-content-box-item">
+								<span className="analytics-content-box-item-label">
+									Conversion Rate
+								</span>
+								<span className="analytics-content-box-item-value">100%</span>
+							</div>
+							<div className="analytics-content-box-item">
+								<span className="analytics-content-box-item-label">Skip Rate</span>
+								<span className="analytics-content-box-item-value">100%</span>
+							</div>
 						</div>
 					</div>
 					<div className="submissions-graph">

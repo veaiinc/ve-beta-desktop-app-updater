@@ -3,7 +3,7 @@
 	width: 100%;
 	height: 100%;
 	overflow: hidden;
-	gap: 16px;
+	gap: 8px;
 }
 
 .formResponsesContainer {
@@ -126,10 +126,11 @@
 .options {
 	color: var(--primary-font);
 	font-family: Inter;
-	font-size: 14px;
+	font-size: 12px;
 	font-style: normal;
 	font-weight: 500;
 	line-height: normal;
+	padding-top: 2px;
 }
 
 .actionsRow {

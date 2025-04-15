@@ -49,6 +49,14 @@ const actionHandlers = {
 		...state,
 		formResponseData: action?.payload,
 	}),
+	// GET_FORM_RESPONSE_SUMMARY_SUCCESS: (state, action) => ({
+	// 	...state,
+	// 	formResponseSummary: action?.payload,
+	// }),
+	GET_FORM_RESPONSE_ANALYTICS_SUCCESS: (state, action) => ({
+		...state,
+		formResponseAnalytics: action?.payload,
+	}),
 	GET_SPECIFIC_TEMPLATE_INFO_SUCCESS: (state, action) => ({
 		...state,
 		specificTemplatesInfo: action?.payload,
