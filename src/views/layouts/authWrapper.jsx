@@ -33,7 +33,8 @@ const AuthWrapper = ({
 	useEffect(() => {
 		checkAuth();
 	}, []);
-
+	console.log(workspaceId);
+	const worspaceId = ['swaroop', 'veai', 'bhee'];
 	return (
 		<div className="authParentContainer" style={{ ...(authParentContainerStyle || {}) }}>
 			<Helmet>
@@ -41,7 +42,7 @@ const AuthWrapper = ({
 				<title>{title} | VE</title>
 			</Helmet>
 			{renewBanner && <RenewBanner />}
-			<DynamicWidget />
+			{worspaceId.includes(workspaceId) && <DynamicWidget />}
 			<div
 				style={{
 					display: 'flex',

@@ -10,25 +10,183 @@ const DynamicWidget = () => {
 	const prompts = [
 		{
 			icon: <FileMagnifyingGlassIcon className="dynamic-widget-prompt-icon" />,
-			title: 'Searching knowledge base...',
+			title: 'Scanning your workspace...',
 		},
 		{
 			icon: <BinocularsIcon className="dynamic-widget-prompt-icon" />,
-			title: 'Identifying the core question...',
+			title: 'Looking for patterns...',
 		},
 		{
 			icon: <TreeStructureIcon className="dynamic-widget-prompt-icon" />,
-			title: 'Retrieving relevant knowledge...',
-		},
-		{
-			icon: <FileMagnifyingGlassIcon className="dynamic-widget-prompt-icon" />,
-			title: 'Searching knowledge base...',
+			title: 'Mapping your recent activity...',
 		},
 		{
 			icon: (
 				<SpinnerGapIcon className="dynamic-widget-prompt-icon dynamic-widget-prompt-icon-spin" />
 			),
-			title: 'Retrieving relevant knowledge...',
+			title: 'Thinking deeply...',
+		},
+		{
+			icon: <FileMagnifyingGlassIcon className="dynamic-widget-prompt-icon" />,
+			title: 'Analyzing project timelines...',
+		},
+		{
+			icon: <BinocularsIcon className="dynamic-widget-prompt-icon" />,
+			title: 'Identifying core priorities...',
+		},
+		{
+			icon: <TreeStructureIcon className="dynamic-widget-prompt-icon" />,
+			title: 'Linking related documents...',
+		},
+		{
+			icon: (
+				<SpinnerGapIcon className="dynamic-widget-prompt-icon dynamic-widget-prompt-icon-spin" />
+			),
+			title: 'Fetching recent edits...',
+		},
+		{
+			icon: <FileMagnifyingGlassIcon className="dynamic-widget-prompt-icon" />,
+			title: 'Reviewing team notes...',
+		},
+		{
+			icon: <BinocularsIcon className="dynamic-widget-prompt-icon" />,
+			title: 'Surfacing key takeaways...',
+		},
+		{
+			icon: <TreeStructureIcon className="dynamic-widget-prompt-icon" />,
+			title: 'Connecting knowledge points...',
+		},
+		{
+			icon: (
+				<SpinnerGapIcon className="dynamic-widget-prompt-icon dynamic-widget-prompt-icon-spin" />
+			),
+			title: 'Generating insight threads...',
+		},
+		{
+			icon: <FileMagnifyingGlassIcon className="dynamic-widget-prompt-icon" />,
+			title: 'Exploring recent discussions...',
+		},
+		{
+			icon: <BinocularsIcon className="dynamic-widget-prompt-icon" />,
+			title: 'Spotting decision moments...',
+		},
+		{
+			icon: <TreeStructureIcon className="dynamic-widget-prompt-icon" />,
+			title: 'Tracing task dependencies...',
+		},
+		{
+			icon: (
+				<SpinnerGapIcon className="dynamic-widget-prompt-icon dynamic-widget-prompt-icon-spin" />
+			),
+			title: 'Synthesizing project goals...',
+		},
+		{
+			icon: <FileMagnifyingGlassIcon className="dynamic-widget-prompt-icon" />,
+			title: 'Looking at collaboration trails...',
+		},
+		{
+			icon: <BinocularsIcon className="dynamic-widget-prompt-icon" />,
+			title: 'Detecting momentum shifts...',
+		},
+		{
+			icon: <TreeStructureIcon className="dynamic-widget-prompt-icon" />,
+			title: 'Reviewing latest updates...',
+		},
+		{
+			icon: (
+				<SpinnerGapIcon className="dynamic-widget-prompt-icon dynamic-widget-prompt-icon-spin" />
+			),
+			title: 'Building a knowledge path...',
+		},
+		{
+			icon: <FileMagnifyingGlassIcon className="dynamic-widget-prompt-icon" />,
+			title: 'Inspecting shared links...',
+		},
+		{
+			icon: <BinocularsIcon className="dynamic-widget-prompt-icon" />,
+			title: 'Analyzing workspace behavior...',
+		},
+		{
+			icon: <TreeStructureIcon className="dynamic-widget-prompt-icon" />,
+			title: 'Finding intersections in content...',
+		},
+		{
+			icon: (
+				<SpinnerGapIcon className="dynamic-widget-prompt-icon dynamic-widget-prompt-icon-spin" />
+			),
+			title: 'Creating mental model...',
+		},
+		{
+			icon: <FileMagnifyingGlassIcon className="dynamic-widget-prompt-icon" />,
+			title: 'Digesting notes and docs...',
+		},
+		{
+			icon: <BinocularsIcon className="dynamic-widget-prompt-icon" />,
+			title: 'Spotting alignment gaps...',
+		},
+		{
+			icon: <TreeStructureIcon className="dynamic-widget-prompt-icon" />,
+			title: 'Extracting high-signal data...',
+		},
+		{
+			icon: (
+				<SpinnerGapIcon className="dynamic-widget-prompt-icon dynamic-widget-prompt-icon-spin" />
+			),
+			title: 'Compiling next actions...',
+		},
+		{
+			icon: <FileMagnifyingGlassIcon className="dynamic-widget-prompt-icon" />,
+			title: 'Summarizing research trails...',
+		},
+		{
+			icon: <BinocularsIcon className="dynamic-widget-prompt-icon" />,
+			title: 'Zeroing in on key challenges...',
+		},
+		{
+			icon: <TreeStructureIcon className="dynamic-widget-prompt-icon" />,
+			title: 'Translating ideas into structure...',
+		},
+		{
+			icon: (
+				<SpinnerGapIcon className="dynamic-widget-prompt-icon dynamic-widget-prompt-icon-spin" />
+			),
+			title: 'Creating thought snapshot...',
+		},
+		{
+			icon: <FileMagnifyingGlassIcon className="dynamic-widget-prompt-icon" />,
+			title: 'Aligning with workspace goals...',
+		},
+		{
+			icon: <BinocularsIcon className="dynamic-widget-prompt-icon" />,
+			title: 'Simulating next moves...',
+		},
+		{
+			icon: <TreeStructureIcon className="dynamic-widget-prompt-icon" />,
+			title: 'Linking context across files...',
+		},
+		{
+			icon: (
+				<SpinnerGapIcon className="dynamic-widget-prompt-icon dynamic-widget-prompt-icon-spin" />
+			),
+			title: 'Filtering noise, finding signal...',
+		},
+		{
+			icon: <FileMagnifyingGlassIcon className="dynamic-widget-prompt-icon" />,
+			title: 'Extracting problem threads...',
+		},
+		{
+			icon: <BinocularsIcon className="dynamic-widget-prompt-icon" />,
+			title: 'Locating priority areas...',
+		},
+		{
+			icon: <TreeStructureIcon className="dynamic-widget-prompt-icon" />,
+			title: 'Organizing knowledge clusters...',
+		},
+		{
+			icon: (
+				<SpinnerGapIcon className="dynamic-widget-prompt-icon dynamic-widget-prompt-icon-spin" />
+			),
+			title: 'Almost there...',
 		},
 	];
 
