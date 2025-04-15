@@ -33,7 +33,6 @@ const AuthWrapper = ({
 	useEffect(() => {
 		checkAuth();
 	}, []);
-	console.log(workspaceId);
 	const worspaceId = ['swaroop', 'veai', 'bhee'];
 	return (
 		<div className="authParentContainer" style={{ ...(authParentContainerStyle || {}) }}>

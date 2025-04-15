@@ -79,20 +79,14 @@ const AvailableIntegrationCard = ({
 	);
 };
 
-const IntegrationRequestCard = ({ iconSlug, title }) => {
-	const handleRequestThisIntegration = (appName) => {
+const IntegrationRequestCard = ({ iconSlug, title, tenantId }) => {
+	const handleRequestThisIntegration = async (appName) => {
 		const path =
 			'/veai/67fe3e600c94e176a4caa277/67fe3e600c94e176a4caa278/67fe3e6bfb3b5c663744bc78';
 		const token = localStorage.getItem('usertoken');
 		const workspaceId = localStorage.getItem('workspaceId');
 		const userId = jwtDecode(token)?.user_id;
 		const username = jwtDecode(token)?.userName;
-		const tenantId = jwtDecode(token)?.tenantId;
-		console.log('tenantId', tenantId);
-		console.log('userId', userId);
-		console.log('username', username);
-		console.log('workspaceId', workspaceId);
-		console.log('appName', appName);
 
 		const body = {
 			responseInput: {
@@ -181,7 +175,12 @@ const IntegrationRequestCard = ({ iconSlug, title }) => {
 			},
 		};
 		const type = 'workflow';
-		// const response = Service?.fetchPost(path, body, token, type);
+		const response = await Service?.fetchPost(path, body, token, type);
+		if (response?.[0] === true) {
+			message.success(`Request sent successfully to integrate ${appName}`);
+		} else {
+			message.error('Request failed');
+		}
 	};
 
 	return (
@@ -208,9 +207,11 @@ const Integrations = () => {
 	const [activeTab, setActiveTab] = useState('private');
 	const [connectLoader, setConnectLoader] = useState(false);
 	const {
-		profileInfo: { tenantUserAccessControls },
+		profileInfo: { tenantUserAccessControls, tennantSettingsData },
 	} = useContext(Context);
 	let isAdmin = false;
+
+	const tenantId = tennantSettingsData?._id;
 
 	if (tenantUserAccessControls?.role === 'admin') {
 		isAdmin = true;
@@ -636,7 +637,11 @@ const Integrations = () => {
 					<h2>Which integrations you would like to connect?</h2>
 					<div className="request-integrations-grid">
 						{requestIntegrations?.map((integration, index) => (
-							<IntegrationRequestCard key={index} {...integration} />
+							<IntegrationRequestCard
+								key={index}
+								{...integration}
+								tenantId={tenantId}
+							/>
 						))}
 					</div>
 				</section>
