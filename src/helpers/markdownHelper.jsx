@@ -20,7 +20,7 @@ import 'katex/dist/katex.min.css';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { dracula } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import AISuggestionsReportUserComponent from '../views/components/chat/chatComponents/AISuggestionsReportUserComponent';
-
+import AISuggestionsReportAiComponent from '../views/components/chat/chatComponents/AiSuggestionsReportAiComponent';
 const rehypeCITPlugin = () => {
 	return (tree) => {
 		const visit = (node) => {
@@ -339,11 +339,15 @@ export const TypingEffect = memo(
 
 		return (
 			<div className="typing-effect-container">
-				<Markdown citations={citations}>
-					{/* {newText?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')?.replace(/\\n/g, '\n')} */}
-					{/* {chunkRef?.current?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')?.replace(/\\n/g, '\n')} */}
-					{text?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')?.replace(/\\n/g, '\n')}
-				</Markdown>
+				{messageData?.moduleType === 'ai_suggestion_report' ? (
+					<AISuggestionsReportAiComponent data={messageData?.data} />
+				) : (
+					<Markdown citations={citations}>
+						{/* {newText?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')?.replace(/\\n/g, '\n')} */}
+						{/* {chunkRef?.current?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')?.replace(/\\n/g, '\n')} */}
+						{text?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')?.replace(/\\n/g, '\n')}
+					</Markdown>
+				)}
 
 				{typeof messageData?.['follow_up_query'] !== 'string' &&
 					(messageData?.['follow_up_query'] || [])?.length > 0 && (

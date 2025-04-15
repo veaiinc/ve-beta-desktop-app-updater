@@ -33,6 +33,15 @@ const AISuggestionsModal = ({ open, onClose, data, onNextCardClick, onPrevCardCl
 				type: 'user',
 				moduleType: 'ai_suggestion_report',
 				data,
+				message: data?.title,
+			},
+			{
+				type: 'AI',
+				moduleType: 'ai_suggestion_report',
+				data: {
+					research_report: data?.research_report,
+				},
+				follow_up_query: data?.suggested_prompts,
 			},
 		];
 		updateStateValues({ globalChatMessages: messages });

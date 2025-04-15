@@ -207,13 +207,6 @@ const InitialHomePage = () => {
 			<div className="quick-actions-container">
 				<QuickActions />
 			</div>
-			<AISuggestionsReportUserComponent
-				data={
-					aiSuggestedPendingActions?.pendingActions?.filter(
-						(card) => card?.title?.length > 0,
-					)?.[0]
-				}
-			/>
 			<div
 				className={`home-page-container-header ${animationClass}`}
 				ref={headerRef}

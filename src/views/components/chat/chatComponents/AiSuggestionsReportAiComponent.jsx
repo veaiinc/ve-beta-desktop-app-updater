@@ -1,5 +1,6 @@
 import { memo } from 'react';
 import '../../../../assets/scss/chat/chatComponents/aiSuggestionsReportAiComponent.scss';
+import { Markdown } from '../../../../helpers/markdownHelper';
 
 const AiSuggestionsReportAiComponent = ({ data }) => {
 	if (!data) return null;

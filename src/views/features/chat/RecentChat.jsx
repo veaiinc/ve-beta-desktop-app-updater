@@ -91,8 +91,6 @@ const RecentChat = ({
 
 	sessionId = isPreview ? sId : sessionId;
 
-	console.log('globalChatMessages', globalChatMessages);
-
 	useEffect(() => {
 		window.addEventListener('resize', handleResize);
 		if (leftSidebarState === 'open') {
