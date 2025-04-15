@@ -17,9 +17,9 @@ const GalleryGrid = ({ tenantGalleries, handleCreateNewGallery, handleNavigateGa
 	}
 	return (
 		<div className={`card-container`}>
-			<div className="card-item">
+			<div className="card-item" onClick={handleCreateNewGallery}>
 				<div className="card-item-style card-item-style-btn">
-					<button className="card-btn" onClick={handleCreateNewGallery}>
+					<button className="card-btn">
 						<Plus />
 						Create Gallery
 					</button>

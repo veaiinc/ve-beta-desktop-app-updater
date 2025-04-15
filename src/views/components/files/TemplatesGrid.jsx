@@ -22,12 +22,12 @@ const TemplatesGrid = ({ myWorkflows, isLoading, setInfo }) => {
 
 	return (
 		<div className={`card-container`}>
-			<div className="card-item">
+			<div
+				className="card-item"
+				onClick={() => setInfo((prev) => ({ ...prev, openProposalPopup: true }))}
+			>
 				<div className="card-item-style card-item-style-btn">
-					<button
-						className="card-btn"
-						onClick={() => setInfo((prev) => ({ ...prev, openProposalPopup: true }))}
-					>
+					<button className="card-btn">
 						<Plus />
 						Create Template
 					</button>

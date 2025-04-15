@@ -469,6 +469,10 @@
 		line-height: 1.2;
 		word-break: break-word;
 		text-align: left;
+		width: 100%;
+		white-space: no-wrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
 	}
 }
 
@@ -584,6 +588,14 @@
 	will-change: transform, opacity;
 	backface-visibility: hidden;
 	transform-style: preserve-3d;
+	overflow: hidden;
+	display: flex;
+	flex-direction: column;
+
+	.center-container-content {
+		flex-grow: 1;
+		overflow-y: auto;
+	}
 }
 
 .card-container {

@@ -2,9 +2,10 @@ import '../../../assets/scss/files/index.scss';
 import '../../../assets/scss/files/files.scss';
 import moment from 'moment';
 import { DocsStatusButton } from '../../features/docs/Docs';
+import { ReactComponent as Plus } from '../../../assets/svg/files/Plus.svg';
 import { useNavigate } from 'react-router-dom';
 import { memo } from 'react';
-const DocsGrid = ({ docsFilesList, statusTextmapper }) => {
+const DocsGrid = ({ docsFilesList, statusTextmapper, setInfo }) => {
 	const navigate = useNavigate();
 	const getStatusBadge = (status) => {
 		switch (status?.toLowerCase()) {
@@ -31,6 +32,17 @@ const DocsGrid = ({ docsFilesList, statusTextmapper }) => {
 
 	return (
 		<div className={`card-container`}>
+			<div
+				className="card-item"
+				onClick={() => setInfo((prev) => ({ ...prev, openProposalPopup: true }))}
+			>
+				<div className="card-item-style card-item-style-btn">
+					<button className="card-btn">
+						<Plus />
+						Create Note
+					</button>
+				</div>
+			</div>
 			{docsFilesList?.data?.slice(0, 12).map((doc, index) => (
 				<div className="card-item" key={index} onClick={() => navigate(`/doc/${doc?._id}`)}>
 					<div className="card-item-style content-wrapper docs">

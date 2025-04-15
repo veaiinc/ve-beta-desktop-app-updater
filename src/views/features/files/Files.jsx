@@ -331,42 +331,41 @@ const Files = () => {
 		}
 	};
 
-	useEffect(() => {
-		// Initial load of data
-		const initializeData = async () => {
-			try {
-				setIsLoading(true);
-				await Promise.all([
-					fetchInitialData(),
-					fetchForms(),
-					fetchDocs(),
-					fetchNotes(),
-					getMyWorkflowTemplatesData(1),
-				]);
-			} catch (error) {
-				console.error('Error initializing data:', error);
-			} finally {
-				setIsLoading(false);
-				setInfo((prev) => ({ ...prev, initialDataFetched: true }));
-			}
-		};
-		initializeData();
+	// useEffect(() => {
+	// 	// Initial load of data
+	// 	const initializeData = async () => {
+	// 		try {
+	// 			setIsLoading(true);
+	// 			await Promise.all([
+	// 				fetchInitialData(),
+	// 				fetchForms(),
+	// 				fetchDocs(),
+	// 				getMyWorkflowTemplatesData(1),
+	// 			]);
+	// 		} catch (error) {
+	// 			console.error('Error initializing data:', error);
+	// 		} finally {
+	// 			setIsLoading(false);
+	// 			setInfo((prev) => ({ ...prev, initialDataFetched: true }));
+	// 		}
+	// 	};
+	// 	initializeData();
 
-		const contentContainer = document.querySelector('.storage-main-container');
-		if (contentContainer) {
-			gsap.fromTo(
-				contentContainer,
-				{ x: '100%', opacity: 0 },
-				{
-					x: '0%',
-					opacity: 1,
-					duration: 0.1,
-					ease: 'power2.out',
-					clearProps: 'all',
-				},
-			);
-		}
-	}, []);
+	// 	const contentContainer = document.querySelector('.storage-main-container');
+	// 	if (contentContainer) {
+	// 		gsap.fromTo(
+	// 			contentContainer,
+	// 			{ x: '100%', opacity: 0 },
+	// 			{
+	// 				x: '0%',
+	// 				opacity: 1,
+	// 				duration: 0.1,
+	// 				ease: 'power2.out',
+	// 				clearProps: 'all',
+	// 			},
+	// 		);
+	// 	}
+	// }, []);
 
 	const fetchForms = async () => {
 		try {
@@ -390,20 +389,20 @@ const Files = () => {
 		}
 	};
 
-	const fetchNotes = async () => {
-		try {
-			const payload = {
-				input: {
-					limit: 12,
-					page: 1,
-					pageType: 'all',
-				},
-			};
-			await getNotesList(payload, false);
-		} catch (error) {
-			console.error('Error fetching notes:', error);
-		}
-	};
+	// const fetchNotes = async () => {
+	// 	try {
+	// 		const payload = {
+	// 			input: {
+	// 				limit: 12,
+	// 				page: 1,
+	// 				pageType: 'all',
+	// 			},
+	// 		};
+	// 		await getNotesList(payload, false);
+	// 	} catch (error) {
+	// 		console.error('Error fetching notes:', error);
+	// 	}
+	// };
 
 	const fetchTemplates = async () => {
 		try {
@@ -431,8 +430,6 @@ const Files = () => {
 				await fetchForms();
 			} else if (option === 'Documents') {
 				await fetchDocs();
-			} else if (option === 'Notes') {
-				await fetchNotes();
 			} else if (option === 'Templates') {
 				await fetchTemplates();
 			} else if (option === 'Classic Gallery' || option === 'Lite Gallery') {
@@ -461,8 +458,6 @@ const Files = () => {
 					await fetchForms();
 				} else if (info.selectedView === 'Documents') {
 					await fetchDocs();
-				} else if (info.selectedView === 'Notes') {
-					await fetchNotes();
 				} else if (info.selectedView === 'Templates') {
 					await fetchTemplates();
 				} else if (
@@ -872,7 +867,13 @@ const Files = () => {
 	}, [info.selectedView]);
 
 	const tabsMapper = {
-		Documents: <DocsGrid docsFilesList={docsFilesList} statusTextmapper={statusTextmapper} />,
+		Documents: (
+			<DocsGrid
+				docsFilesList={docsFilesList}
+				statusTextmapper={statusTextmapper}
+				setInfo={setInfo}
+			/>
+		),
 		Notes: <NotesGrid notes={notes} handleNewNotes={handleNewNotes} />,
 		Forms: (
 			<FormsGrid
@@ -936,7 +937,7 @@ const Files = () => {
 									'Forms',
 									// 'Templates',
 									'Classic Gallery',
-									'Lite Gallery',
+									// 'Lite Gallery',
 								].map((option) => (
 									<div className="sidebar-option-wrapper" key={option}>
 										<div
