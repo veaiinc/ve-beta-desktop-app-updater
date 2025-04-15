@@ -145,8 +145,8 @@ const AISuggestionsModal = ({ open, onClose, data, onNextCardClick, onPrevCardCl
 					<div className="suggested-actions">
 						<div className="title-text">Suggested Actions</div>
 						<div className="suggested-actions">
-							{Array.isArray(suggested_actions)
-								? suggested_actions.map((item, index) => (
+							{Array?.isArray(suggested_actions)
+								? suggested_actions?.map((item, index) => (
 										<div
 											className="action-item"
 											key={index}
@@ -164,8 +164,8 @@ const AISuggestionsModal = ({ open, onClose, data, onNextCardClick, onPrevCardCl
 					<div className="solutions">
 						<div className="title-text">Suggested Solutions</div>
 						<div className="solutions">
-							{Array.isArray(solutions)
-								? solutions.map((item, index) => (
+							{Array?.isArray(solutions)
+								? solutions?.map((item, index) => (
 										<div
 											className="solution-item"
 											key={index}
@@ -183,8 +183,8 @@ const AISuggestionsModal = ({ open, onClose, data, onNextCardClick, onPrevCardCl
 					<div className="suggested-prompts">
 						<div className="title-text">Suggested Prompts</div>
 						<div className="suggested-prompts">
-							{Array.isArray(suggested_prompts)
-								? suggested_prompts.map((item, index) => (
+							{Array?.isArray(suggested_prompts)
+								? suggested_prompts?.map((item, index) => (
 										<div
 											className="prompt-item"
 											key={index}
