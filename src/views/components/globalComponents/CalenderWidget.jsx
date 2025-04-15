@@ -73,6 +73,7 @@ const CalenderWidget = ({ width }) => {
 								hasMore={eventsNextPage}
 								loader={<div>Loading...</div>}
 								scrollableTarget="calenderWidgetMainContent"
+								style={{ height: '34vh' }}
 							>
 								<div className="calenderWidgetMainContentDate">
 									{allCalendarEvents?.data?.map((meet) => (
