@@ -8,6 +8,7 @@ import { ReactComponent as ThumpsDownSvg } from '../assets/svg/ai_agents/thumps-
 import { ReactComponent as HeadPhoneSvg } from '../assets/svg/ai_agents/head-phone.svg';
 import { ReactComponent as TickSvg } from '../assets/svg/tick.svg';
 import { ReactComponent as CopyIcon } from '../assets/svg/ai_agents/copy.svg';
+import { ReactComponent as ViewDocumentIcon } from '../assets/svg/chat/viewDocument.svg';
 import Context from '../context/context';
 import { Tooltip } from 'antd';
 
@@ -254,8 +255,15 @@ export const TypingEffect = memo(
 		rating = null,
 		citations = [],
 		messageData,
+		isLastMessage = false,
 		isNewMessage = false,
 		showCanvas = true,
+		handleSendWebsocketMessage = null,
+		latestStreamMesage = null,
+		lastQuery = null,
+		toggleLatestStreamMessage = null,
+		handleViewDocument = null,
+		showViewDocument = false,
 	}) => {
 		const {
 			documentPreview: { setNoteContent },
@@ -356,6 +364,15 @@ export const TypingEffect = memo(
 							workflowTemplateId={messageData?.workflow_template_id}
 							moduleTemplateId={messageData?.module_template_id}
 							ByDefaultExpanded={true}
+							handleSendWebsocketMessage={handleSendWebsocketMessage}
+							latestStreamMesage={latestStreamMesage}
+							lastQuery={lastQuery}
+							toggleLatestStreamMessage={toggleLatestStreamMessage}
+							messageId={messageData?.messageId}
+							handleViewDocument={handleViewDocument}
+							showViewDocument={showViewDocument}
+							isLastMessage={isLastMessage}
+							messageData={messageData}
 						/>
 					) : (
 						<div
@@ -367,6 +384,7 @@ export const TypingEffect = memo(
 								)
 							}
 						>
+							<ViewDocumentIcon />
 							<p>View Document</p>
 						</div>
 					))}
@@ -461,7 +479,9 @@ export const TypingEffect = memo(
 			prevProps.rating === nextProps.rating &&
 			JSON.stringify(prevProps.citations) === JSON.stringify(nextProps.citations) &&
 			prevProps.messageData?.messageId === nextProps.messageData?.messageId &&
-			prevProps.isNewMessage === nextProps.isNewMessage
+			prevProps.isNewMessage === nextProps.isNewMessage &&
+			prevProps.lastQuery === nextProps.lastQuery &&
+			prevProps.latestStreamMesage === nextProps.latestStreamMesage
 		);
 	},
 );

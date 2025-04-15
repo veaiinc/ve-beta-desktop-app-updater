@@ -11,18 +11,43 @@ import { ReactComponent as LinkLightSvg } from '../../../assets/svg/notes/loop-l
 import { ReactComponent as LinkDarkSvg } from '../../../assets/svg/notes/loop-dark.svg';
 import useChatStream from '../../hooks/useChatStream';
 import { useParams, useSearchParams } from 'react-router-dom';
-const FormModel = ({ workflowTemplateId, moduleTemplateId, ByDefaultExpanded = false }) => {
+const FormModel = ({
+	workflowTemplateId,
+	moduleTemplateId,
+	ByDefaultExpanded = false,
+	handleSendWebsocketMessage,
+	latestStreamMesage,
+	lastQuery,
+	toggleLatestStreamMessage,
+	handleViewDocument,
+	showViewDocument,
+	messageData,
+	isLastMessage = false,
+}) => {
 	const {
 		templates: { globalChatMessages },
 	} = useContext(Context);
 
-	console.log(globalChatMessages, 'globalChatMessages');
 	const [isExpanded, setIsExpanded] = useState(false);
 	const formRef = useRef(null);
 	const origin = fetchOriginSelection();
 
+	useEffect(() => {
+		if (showViewDocument) return;
+		setTimeout(() => {
+			let isExpanded = messageData?.stream_end && isLastMessage ? true : false;
+			setIsExpanded(isExpanded);
+			if (handleViewDocument) {
+				handleViewDocument(isExpanded);
+			}
+		}, 1000);
+	}, [showViewDocument, messageData?.stream_end, isLastMessage]);
+
 	const handleExpand = () => {
 		setIsExpanded(!isExpanded);
+		if (handleViewDocument) {
+			handleViewDocument(!isExpanded);
+		}
 	};
 
 	return (
@@ -32,8 +57,8 @@ const FormModel = ({ workflowTemplateId, moduleTemplateId, ByDefaultExpanded = f
 				ref={formRef}
 				style={{
 					...(isExpanded && {
-						'--top': `${formRef.current.getBoundingClientRect().top}px`,
-						'--left': `${formRef.current.getBoundingClientRect().left}px`,
+						'--top': `${formRef.current?.getBoundingClientRect()?.top}px`,
+						'--left': `${formRef.current?.getBoundingClientRect()?.left}px`,
 					}),
 					willChange: 'transform, width, height',
 					transform: 'translate3d(0, 0, 0)',
@@ -69,7 +94,12 @@ const FormModel = ({ workflowTemplateId, moduleTemplateId, ByDefaultExpanded = f
 					) : (
 						<>
 							<div className="section-30">
-								<Section1 />
+								<Section1
+									handleSendWebsocketMessage={handleSendWebsocketMessage}
+									latestStreamMesage={latestStreamMesage}
+									lastQuery={lastQuery}
+									toggleLatestStreamMessage={toggleLatestStreamMessage}
+								/>
 							</div>
 							<div className="section-70">
 								<Section2 workflowTemplateId={workflowTemplateId} />
@@ -82,7 +112,12 @@ const FormModel = ({ workflowTemplateId, moduleTemplateId, ByDefaultExpanded = f
 	);
 };
 
-const Section1 = () => {
+const Section1 = ({
+	handleSendWebsocketMessage,
+	latestStreamMesage,
+	lastQuery,
+	toggleLatestStreamMessage,
+}) => {
 	const {
 		templates: {
 			globalChatMessages,
@@ -123,23 +158,7 @@ const Section1 = () => {
 		},
 		[chatContentRef?.current, info?.initialRendering],
 	);
-	const handleSendWebsocketMessage = useCallback(
-		async (data, lastQuery) => {
-			try {
-				await sendMessage(data);
-				smoothScrollToBottom();
-				setInfo((prev) => ({ ...prev, lastQuery: lastQuery }));
-			} catch (error) {
-				console.error('Failed to send message:', error);
-				// Handle error appropriately (show notification, etc.)
-			}
-		},
-		[sendMessage, setInfo],
-	);
 
-	const toggleLatestStreamMessage = useCallback(() => {
-		setInfo((prev) => ({ ...prev, latestStreamMesage: null }));
-	}, []);
 	const handleRatingClick = useCallback(async (type, messageId) => {
 		try {
 			if (messageId) {
@@ -212,8 +231,8 @@ const Section1 = () => {
 				<ChatBox
 					showChatLabels={false}
 					handleSendWebsocketMessage={handleSendWebsocketMessage}
-					latestStreamMesage={info?.latestStreamMesage}
-					lastQuery={info?.lastQuery}
+					latestStreamMesage={latestStreamMesage}
+					lastQuery={lastQuery}
 					toggleLatestStreamMessage={toggleLatestStreamMessage}
 				/>
 			</div>

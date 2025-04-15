@@ -74,6 +74,7 @@ const RecentChat = ({
 		showScrollButton: false,
 		activeTabs: {},
 		stickyTabs: {},
+		showViewDocument: false,
 	});
 
 	const { socketRef, createWebSocketConnection, sendMessage } = useChatStream();
@@ -656,7 +657,12 @@ const RecentChat = ({
 	const toggleLatestStreamMessage = useCallback(() => {
 		setInfo((prev) => ({ ...prev, latestStreamMesage: null }));
 	}, []);
+	const handleViewDocument = useCallback((value) => {
+		console.log(value, 'value');
+		setInfo((prev) => ({ ...prev, showViewDocument: value }));
+	}, []);
 
+	console.log(info?.showViewDocument, 'info?.showViewDocument');
 	return (
 		<>
 			<div className="chat-container">
@@ -848,6 +854,27 @@ const RecentChat = ({
 																	citations={chat?.citations}
 																	messageData={chat}
 																	isNewMessage={
+																		index ===
+																		globalChatMessages?.length -
+																			1
+																	}
+																	handleSendWebsocketMessage={
+																		handleSendWebsocketMessage
+																	}
+																	latestStreamMesage={
+																		info?.latestStreamMesage
+																	}
+																	lastQuery={info?.lastQuery}
+																	toggleLatestStreamMessage={
+																		toggleLatestStreamMessage
+																	}
+																	handleViewDocument={
+																		handleViewDocument
+																	}
+																	showViewDocument={
+																		info?.showViewDocument
+																	}
+																	isLastMessage={
 																		index ===
 																		globalChatMessages?.length -
 																			1
