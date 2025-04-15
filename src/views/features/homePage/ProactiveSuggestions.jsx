@@ -56,6 +56,12 @@ const ProactiveSuggestions = () => {
 				totalCardsData: cards,
 				loading: false,
 			}));
+		} else {
+			setInfo((prev) => ({
+				...prev,
+				totalCardsData: [],
+				loading: false,
+			}));
 		}
 	};
 
