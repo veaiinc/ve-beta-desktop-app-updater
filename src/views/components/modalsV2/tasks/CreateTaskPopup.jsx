@@ -11,7 +11,7 @@ import { ReactComponent as DustbinIcon } from '../../../../assets/svg/tasks/dust
 import { ReactComponent as PlusSvg } from '../../../../assets/svg/tasks/plus.svg';
 import Select from '../../tasks/listView/Select';
 import Status from '../../tasks/listView/Status';
-import { message } from 'antd';
+import { message } from '../../globalComponents/CustomToast';
 import Spinner from '../../loaders/Spinner';
 import Person from '../../tasks/listView/Person';
 import DateView from '../../tasks/listView/DateView';

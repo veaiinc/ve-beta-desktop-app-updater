@@ -64,24 +64,6 @@
 		}
 	}
 
-	.react-flow {
-		height: calc(100% - 80px) !important;
-	}
-
-	.react-flow__edge {
-		&[data-type='smoothstep'] {
-			.react-flow__edge-path {
-				stroke: var(--stroke);
-				stroke-width: 2;
-			}
-		}
-
-		&.animated path {
-			stroke-dasharray: 5;
-			animation: dashdraw 0.5s linear infinite;
-		}
-	}
-
 	@keyframes dashdraw {
 		from {
 			stroke-dashoffset: 10;

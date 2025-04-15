@@ -3,7 +3,7 @@ import '../../../assets/scss/calendar/googleCalendar.scss';
 import Context from '../../../context/context';
 import { ReactComponent as DownSvg } from '../../../assets/svg/calendar/down.svg';
 import Spinner from '../loaders/Spinner';
-import { message } from 'antd';
+import { message } from '../../components/globalComponents/CustomToast';
 
 const GoogleCalendar = () => {
 	const {
