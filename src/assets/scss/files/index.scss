@@ -311,3 +311,17 @@
 	gap: auto;
 	border-radius: 20px;
 }
+
+@media screen and (max-width: 1177px) {
+	/* Your styles here */
+	.card-sub-container {
+		grid-template-columns: minmax(0, 0fr) minmax(500px, 1fr) minmax(200px, 0.3fr) !important;
+	}
+}
+
+@media screen and (max-width: 768) {
+	/* Your styles here */
+	.card-sub-container {
+		grid-template-columns: minmax(0, 0fr) minmax(200px, 1fr) minmax(200px, 0.3fr) !important;
+	}
+}

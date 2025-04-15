@@ -3,44 +3,184 @@ import '../../../assets/scss/files/files.scss';
 import { ReactComponent as Plus } from '../../../assets/svg/files/Plus.svg';
 import moment from 'moment';
 import { DocsStatusButton } from '../../features/docs/Docs';
-import { memo } from 'react';
-const FormsGrid = ({ formsTemplatesList, statusTextmapper, setInfo, handleNavigateForm }) => {
-	return (
-		<div className={`card-container`}>
-			<div
-				className="card-item"
-				onClick={() => setInfo((prev) => ({ ...prev, openProposalPopup: true }))}
-			>
-				<div className="card-item-style card-item-style-btn">
-					<button className="card-btn">
-						<Plus />
-						Create Form
-					</button>
-				</div>
-			</div>
-			{formsTemplatesList?.data?.slice(0, 12).map((form, index) => (
-				<div
-					className="card-item"
-					key={index}
-					onClick={() => handleNavigateForm(form?._id)}
-				>
-					<div className="card-item-style content-wrapper docs">
-						<DocsStatusButton
-							content={statusTextmapper?.[form?.status]?.text}
-							style={statusTextmapper?.[form?.status]?.style}
-							dotStyle={statusTextmapper?.[form?.status]?.dotStyle}
-						/>
-						<div className="docs-title-wrapper docs-title-wrapper-form">
-							<div className=""></div>
-							<span className="docs-item-title">{form?.title.slice(0, 20)}</span>
-							<span className="docs-item-sub-title">
-								{moment.unix(form?.createdAt).fromNow()}
-							</span>
-						</div>
+import { memo, useContext, useEffect, useState } from 'react';
+import InfiniteScroll from '../globalComponents/InfiniteScroll';
+import Context from '../../../context/context';
+import gsap from 'gsap';
+import Spinner from '../loaders/Spinner';
+const FormsGrid = ({ statusTextmapper, handleCreateForm, handleNavigateForm }) => {
+	const {
+		templates: { getTemplatesListForForms, formsTemplatesList },
+	} = useContext(Context);
+
+	const [info, setInfo] = useState({
+		forms: [],
+		hasNextPage: false,
+		currentPage: 1,
+		loading: true,
+	});
+
+	useEffect(() => {
+		const delay =
+			info.selectedView === 'Classic Gallery' || info.selectedView === 'Lite Gallery'
+				? 100
+				: 0;
+
+		const timeout = setTimeout(() => {
+			const cards = document.querySelectorAll(
+				'.card-container .card-item:not(.card-item-style-btn)',
+			);
+			if (!cards || cards.length === 0) return;
+
+			const newCards = Array.from(cards).filter((card) => !card.dataset.animated);
+			if (newCards.length === 0) return;
+
+			const ctx = gsap.context(() => {
+				newCards.forEach((card) => {
+					const yOffset = 50 + Math.random() * 100;
+					gsap.set(card, {
+						y: yOffset,
+						opacity: 0,
+					});
+				});
+
+				const columnGroups = {
+					oddColumns: newCards.filter((_, index) => index % 4 === 0 || index % 4 === 2),
+					evenColumns: newCards.filter((_, index) => index % 4 === 1 || index % 4 === 3),
+				};
+
+				gsap.to(columnGroups.oddColumns, {
+					y: 0,
+					opacity: 1,
+					duration: 0.4,
+					stagger: {
+						each: 0.05,
+						ease: 'power1.out',
+					},
+					modifiers: {
+						y: (y, target) => {
+							const initialY = Math.abs(
+								parseFloat(target.style.transform?.split('translateY(')[1]) || 0,
+							);
+							const duration = gsap.utils.mapRange(50, 150, 0.4, 0.2)(initialY);
+							if (target._gsap) target._gsap.duration = duration;
+							return y;
+						},
+					},
+					onComplete: () => {
+						columnGroups.oddColumns.forEach((card) => {
+							card.dataset.animated = 'true';
+						});
+					},
+				});
+
+				gsap.to(columnGroups.evenColumns, {
+					y: 0,
+					opacity: 1,
+					duration: 0.4,
+					delay: 0.1,
+					stagger: {
+						each: 0.05,
+						ease: 'power1.out',
+					},
+					modifiers: {
+						y: (y, target) => {
+							const initialY = Math.abs(
+								parseFloat(target.style.transform?.split('translateY(')[1]) || 0,
+							);
+							const duration = gsap.utils.mapRange(50, 150, 0.4, 0.2)(initialY);
+							if (target._gsap) target._gsap.duration = duration;
+							return y;
+						},
+					},
+					onComplete: () => {
+						columnGroups.evenColumns.forEach((card) => {
+							card.dataset.animated = 'true';
+						});
+					},
+				});
+			}, cards[0]);
+
+			return () => ctx.revert();
+		}, delay);
+
+		return () => clearTimeout(timeout);
+	}, [info?.forms?.length]);
+
+	useEffect(() => {
+		fetchForms({ page: 1 });
+	}, []);
+
+	useEffect(() => {
+		if (formsTemplatesList) {
+			const { currentPage = 1, hasNextPage = false, data = [] } = formsTemplatesList || {};
+			const newForms = currentPage === 1 ? [...data] : [...info?.forms, ...(data || [])];
+
+			handleStateUpdate({ forms: newForms, currentPage, hasNextPage, loading: false });
+		}
+	}, [formsTemplatesList]);
+
+	const fetchForms = async ({ page = 1, limit = 20 }) => {
+		try {
+			await getTemplatesListForForms(page, limit);
+		} catch (error) {
+			console.error('Error fetching forms:', error);
+		}
+	};
+
+	const fetchMore = () => {
+		if (!info?.hasNextPage) return;
+		fetchForms({ page: info?.currentPage + 1 });
+	};
+
+	const handleStateUpdate = (data) => {
+		setInfo((prevInfo) => ({ ...prevInfo, ...data }));
+	};
+
+	return info?.loading ? (
+		<div className="spinner-container">
+			<Spinner />
+		</div>
+	) : (
+		<InfiniteScroll
+			dataLength={info?.forms?.length}
+			next={fetchMore}
+			hasMore={info?.hasNextPage}
+			height={'100%'}
+		>
+			<div className={`card-container`}>
+				<div className="card-item" onClick={handleCreateForm}>
+					<div className="card-item-style card-item-style-btn">
+						<button className="card-btn">
+							<Plus />
+							Create Form
+						</button>
 					</div>
 				</div>
-			))}
-		</div>
+				{info?.forms?.map((form, index) => (
+					<div
+						className="card-item"
+						key={index}
+						onClick={() => handleNavigateForm(form?._id)}
+					>
+						<div className="card-item-style content-wrapper docs">
+							<DocsStatusButton
+								content={statusTextmapper?.[form?.status]?.text}
+								style={statusTextmapper?.[form?.status]?.style}
+								dotStyle={statusTextmapper?.[form?.status]?.dotStyle}
+							/>
+							<div className="docs-title-wrapper docs-title-wrapper-form">
+								<div className=""></div>
+								<span className="docs-item-title">{form?.title.slice(0, 20)}</span>
+								<span className="docs-item-sub-title">
+									{moment.unix(form?.createdAt).fromNow()}
+								</span>
+							</div>
+						</div>
+					</div>
+				))}
+			</div>
+		</InfiniteScroll>
 	);
 };
 

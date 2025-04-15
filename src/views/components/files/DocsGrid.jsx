@@ -7,6 +7,8 @@ import { useNavigate } from 'react-router-dom';
 import { memo, useContext, useEffect, useState } from 'react';
 import InfiniteScroll from '../globalComponents/InfiniteScroll';
 import Context from '../../../context/context';
+import gsap from 'gsap';
+import Spinner from '../loaders/Spinner';
 const DocsGrid = ({ statusTextmapper, handleCreateDoc }) => {
 	const navigate = useNavigate();
 
@@ -18,13 +20,101 @@ const DocsGrid = ({ statusTextmapper, handleCreateDoc }) => {
 		docs: [],
 		hasNextPage: false,
 		currentPage: 1,
+		loading: true,
 	});
 
 	useEffect(() => {
+		const delay =
+			info.selectedView === 'Classic Gallery' || info.selectedView === 'Lite Gallery'
+				? 100
+				: 0;
+
+		const timeout = setTimeout(() => {
+			const cards = document.querySelectorAll(
+				'.card-container .card-item:not(.card-item-style-btn)',
+			);
+			if (!cards || cards.length === 0) return;
+
+			const newCards = Array.from(cards).filter((card) => !card.dataset.animated);
+			if (newCards.length === 0) return;
+
+			const ctx = gsap.context(() => {
+				newCards.forEach((card) => {
+					const yOffset = 50 + Math.random() * 100;
+					gsap.set(card, {
+						y: yOffset,
+						opacity: 0,
+					});
+				});
+
+				const columnGroups = {
+					oddColumns: newCards.filter((_, index) => index % 4 === 0 || index % 4 === 2),
+					evenColumns: newCards.filter((_, index) => index % 4 === 1 || index % 4 === 3),
+				};
+
+				gsap.to(columnGroups.oddColumns, {
+					y: 0,
+					opacity: 1,
+					duration: 0.4,
+					stagger: {
+						each: 0.05,
+						ease: 'power1.out',
+					},
+					modifiers: {
+						y: (y, target) => {
+							const initialY = Math.abs(
+								parseFloat(target.style.transform?.split('translateY(')[1]) || 0,
+							);
+							const duration = gsap.utils.mapRange(50, 150, 0.4, 0.2)(initialY);
+							if (target._gsap) target._gsap.duration = duration;
+							return y;
+						},
+					},
+					onComplete: () => {
+						columnGroups.oddColumns.forEach((card) => {
+							card.dataset.animated = 'true';
+						});
+					},
+				});
+
+				gsap.to(columnGroups.evenColumns, {
+					y: 0,
+					opacity: 1,
+					duration: 0.4,
+					delay: 0.1,
+					stagger: {
+						each: 0.05,
+						ease: 'power1.out',
+					},
+					modifiers: {
+						y: (y, target) => {
+							const initialY = Math.abs(
+								parseFloat(target.style.transform?.split('translateY(')[1]) || 0,
+							);
+							const duration = gsap.utils.mapRange(50, 150, 0.4, 0.2)(initialY);
+							if (target._gsap) target._gsap.duration = duration;
+							return y;
+						},
+					},
+					onComplete: () => {
+						columnGroups.evenColumns.forEach((card) => {
+							card.dataset.animated = 'true';
+						});
+					},
+				});
+			}, cards[0]);
+
+			return () => ctx.revert();
+		}, delay);
+
+		return () => clearTimeout(timeout);
+	}, [info?.docs?.length]);
+
+	useEffect(() => {
 		if (docsFilesList) {
-			const { currentPage = 1, hasNextPage = false, data = [] } = docsFilesList;
+			const { currentPage = 1, hasNextPage = false, data = [] } = docsFilesList || {};
 			const newDocs = currentPage === 1 ? [...data] : [...info?.docs, ...(data || [])];
-			handleStateUpdate({ docs: newDocs, currentPage, hasNextPage });
+			handleStateUpdate({ docs: newDocs, currentPage, hasNextPage, loading: false });
 		}
 	}, [docsFilesList]);
 
@@ -36,7 +126,7 @@ const DocsGrid = ({ statusTextmapper, handleCreateDoc }) => {
 		setInfo((prevInfo) => ({ ...prevInfo, ...data }));
 	};
 
-	const fetchDocs = async ({ page = 1, limit = 10 }) => {
+	const fetchDocs = async ({ page = 1, limit = 20 }) => {
 		try {
 			const payload = {
 				filters: {
@@ -55,7 +145,11 @@ const DocsGrid = ({ statusTextmapper, handleCreateDoc }) => {
 		fetchDocs({ page: info?.currentPage + 1 });
 	};
 
-	return (
+	return info?.loading ? (
+		<div className="spinner-container">
+			<Spinner />
+		</div>
+	) : (
 		<InfiniteScroll
 			dataLength={info?.docs?.length}
 			next={fetchMore}

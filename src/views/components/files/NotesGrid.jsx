@@ -26,7 +26,7 @@ const NotesGrid = ({ handleNewNotes }) => {
 
 	useEffect(() => {
 		if (notes) {
-			const { currentPage = 1, hasNextPage = false, data = [] } = notes;
+			const { currentPage = 1, hasNextPage = false, data = [] } = notes || {};
 			const newNotes = currentPage === 1 ? [...data] : [...info?.notes, ...(data || [])];
 			handleStateUpdate({ notes: newNotes, currentPage, hasNextPage });
 		}
@@ -116,7 +116,7 @@ const NotesGrid = ({ handleNewNotes }) => {
 		}, delay);
 
 		return () => clearTimeout(timeout);
-	}, [info.notes.length, info.selectedView]);
+	}, [info?.notes?.length]);
 
 	const handleStateUpdate = (data) => {
 		setInfo((prevInfo) => ({ ...prevInfo, ...data }));
