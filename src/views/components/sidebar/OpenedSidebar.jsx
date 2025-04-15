@@ -42,10 +42,13 @@ const MODULE_NAME_MAP = {
 	'lite gallery': 'liteGallery',
 	documents: 'workflow',
 	'my templates': 'template',
-	tasks: 'task',
-	calendar: 'calendar',
+	// tasks: 'task',
+	// calendar: 'calendar',
 	forms: 'form',
 	contacts: 'contact',
+	automation: 'automation',
+	// notes: 'notes',
+	agents: 'knowledgeAgent',
 };
 
 const OpenedSidebarModules = ({
