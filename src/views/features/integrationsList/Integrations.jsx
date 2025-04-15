@@ -20,6 +20,8 @@ import Context from '../../../context/context';
 import ConnectedIntegrationModel from '../../components/modalsV2/integrations/ConnectedIntegrationModel';
 import Spinner from '../../components/loaders/Spinner';
 import { message } from '../../components/globalComponents/CustomToast';
+import Service from '../../../services/index';
+import jwtDecode from 'jwt-decode';
 
 const ConnectedIntegrationCard = ({ icon, title, description, accounts, onViewAccounts }) => {
 	return (
@@ -78,6 +80,110 @@ const AvailableIntegrationCard = ({
 };
 
 const IntegrationRequestCard = ({ iconSlug, title }) => {
+	const handleRequestThisIntegration = (appName) => {
+		const path =
+			'/veai/67fe3e600c94e176a4caa277/67fe3e600c94e176a4caa278/67fe3e6bfb3b5c663744bc78';
+		const token = localStorage.getItem('usertoken');
+		const workspaceId = localStorage.getItem('workspaceId');
+		const userId = jwtDecode(token)?.user_id;
+		const username = jwtDecode(token)?.userName;
+		const tenantId = jwtDecode(token)?.tenantId;
+		console.log('tenantId', tenantId);
+		console.log('userId', userId);
+		console.log('username', username);
+		console.log('workspaceId', workspaceId);
+		console.log('appName', appName);
+
+		const body = {
+			responseInput: {
+				response: [
+					{
+						_id: '67fe400ef1d11a35f34ba39f',
+						type: 'shortanswer',
+						question: 'Tenant User Id',
+						required: false,
+						order: 4,
+						isEditing: false,
+						placeholder: 'Enter your tenant user id',
+						answer: userId,
+						validation: {
+							pattern: {},
+							operators: [],
+						},
+						conditions: [],
+						actions: [],
+					},
+					{
+						_id: '67fe412cef81b3629e2f70c7',
+						type: 'shortanswer',
+						question: 'Tenant _id',
+						required: false,
+						order: 5,
+						isEditing: false,
+						placeholder: 'Enter your tenant _id',
+						answer: tenantId,
+						validation: {
+							pattern: {},
+							operators: [],
+						},
+						conditions: [],
+						actions: [],
+					},
+					{
+						_id: '67fe4119f1d11a35f34ba3a1',
+						type: 'shortanswer',
+						question: 'Tenant Name',
+						required: false,
+						order: 4,
+						isEditing: false,
+						placeholder: 'Enter your tenant name',
+						answer: workspaceId,
+						validation: {
+							pattern: {},
+							operators: [],
+						},
+						conditions: [],
+						actions: [],
+					},
+					{
+						_id: '67fe40305843ba03df9eff98',
+						type: 'shortanswer',
+						question: 'Tenant User Name',
+						required: false,
+						order: 5,
+						isEditing: false,
+						placeholder: 'Enter your tenant user name',
+						answer: username,
+						validation: {
+							pattern: {},
+							operators: [],
+						},
+						conditions: [],
+						actions: [],
+					},
+					{
+						_id: '67fe40bd48dba03b45963bcf',
+						type: 'shortanswer',
+						question: 'Application',
+						required: false,
+						order: 5,
+						isEditing: false,
+						placeholder: 'Enter your application',
+						answer: appName,
+						validation: {
+							pattern: {},
+							operators: [],
+						},
+						conditions: [],
+						actions: [],
+					},
+				],
+			},
+		};
+		const type = 'workflow';
+		// const response = Service?.fetchPost(path, body, token, type);
+	};
+
 	return (
 		<div className="integration-request-card">
 			<div className="card-content">
@@ -86,7 +192,9 @@ const IntegrationRequestCard = ({ iconSlug, title }) => {
 				</div>
 				<h3>{title}</h3>
 			</div>
-			<span className="request-button">Request</span>
+			<span onClick={() => handleRequestThisIntegration(title)} className="request-button">
+				Request
+			</span>
 		</div>
 	);
 };
