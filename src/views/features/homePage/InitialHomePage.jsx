@@ -7,6 +7,13 @@ import { useNavigate } from 'react-router-dom';
 import ProactiveSuggestions from './ProactiveSuggestions';
 import ChatPrompts from './ChatPrompts';
 import QuickActions from '../../components/globalComponents/QuickActions';
+import { first, set } from 'lodash';
+import ContactsWidget from '../../components/globalComponents/ContactsWidget';
+import AutomationWidget from '../../components/globalComponents/AutomationWidget';
+import TaskWidget from '../../components/globalComponents/TaskWidget';
+import CalenderWidget from '../../components/globalComponents/CalenderWidget';
+import GlobalWidget from '../../components/globalComponents/GlobalWidget';
+import AISuggestionsReportUserComponent from '../../components/chat/chatComponents/AISuggestionsReportUserComponent';
 
 const optionsList = [
 	{
@@ -21,6 +28,32 @@ const optionsList = [
 		value: 'prompts',
 		showOption: false,
 	},
+	{
+		id: 3,
+		label: 'Calendar',
+		value: 'calendar',
+		showOption: true,
+	},
+	{
+		id: 4,
+		label: 'Task',
+		value: 'task',
+		showOption: true,
+	},
+	{
+		id: 5,
+		label: 'Contact',
+		value: 'contact',
+		controlValue: 'contact',
+		showOption: true,
+	},
+	{
+		id: 6,
+		label: 'Automation',
+		value: 'automation',
+		controlValue: 'automation',
+		showOption: true,
+	},
 ];
 
 let animationClass = '';
@@ -28,6 +61,7 @@ let animationClass = '';
 const InitialHomePage = () => {
 	const {
 		templates: { updateStateValues, currentSessionId },
+		profileInfo: { tenantUserAccessControls },
 	} = useContext(Context);
 
 	const navigate = useNavigate();
@@ -55,6 +89,38 @@ const InitialHomePage = () => {
 		jwtDecode(localStorage.getItem('usertoken'))?.userName?.split(' ')[0] ??
 		`${userDetailsData?.firstName}` ??
 		'User';
+
+	const renderOptions = () => {
+		if (!tenantUserAccessControls) return null;
+
+		// Create lookup object
+		const accessControlMap = Object.fromEntries(
+			tenantUserAccessControls?.accessControls?.map((item) => [item.app, item]),
+		);
+
+		return options?.map((option) => {
+			const controlKey = option?.controlValue;
+			const accessControl = controlKey ? accessControlMap[controlKey] : null;
+
+			const isEnabled = controlKey ? accessControl?.isEnabled : true;
+
+			if (isEnabled || !controlKey) {
+				return (
+					<div
+						key={option.id}
+						className={`option ${
+							info?.selectedOption === option?.value ? 'active' : ''
+						}`}
+						onClick={() => handleOptionSelection(option)}
+					>
+						<div className="option-label">{option?.label}</div>
+					</div>
+				);
+			}
+
+			return null;
+		});
+	};
 
 	useEffect(() => {
 		if (promptsData) {
@@ -88,7 +154,7 @@ const InitialHomePage = () => {
 	useEffect(() => {
 		if (aiSuggestedPendingActions) {
 			const cards = aiSuggestedPendingActions?.pendingActions?.filter(
-				(card) => card?.researchTopics?.length > 0,
+				(card) => card?.title?.length > 0,
 			);
 			if (cards?.length > 0 && !info?.optionsHandledOnce?.proactiveSuggestions) {
 				handleUpdateOptions('proactiveSuggestions');
@@ -181,6 +247,10 @@ const InitialHomePage = () => {
 				onExpandHeader={handleExpandHeader}
 			/>
 		),
+		calendar: <GlobalWidget option={'calendar'} />,
+		task: <GlobalWidget option={'task'} />,
+		automation: <GlobalWidget option={'automation'} />,
+		contact: <GlobalWidget option={'contacts'} />,
 	};
 
 	const options = useMemo(
@@ -195,6 +265,16 @@ const InitialHomePage = () => {
 			animationClass = 'expanded-animation';
 		}
 	}
+
+	useEffect(() => {
+		if (options?.length > 0 && !info?.selectedOption) {
+			// Set the first visible option as the selected option
+			setInfo((prev) => ({
+				...prev,
+				selectedOption: options[0]?.value,
+			}));
+		}
+	}, [options]);
 
 	return (
 		<div
@@ -215,10 +295,10 @@ const InitialHomePage = () => {
 			>
 				<div className={`title-container `}>
 					<div className="title-text">
-						<span className="title-one">AI.</span>{' '}
-						<span className="title-two">truly yours</span>
+						<span className="title-one">Answers before you Ask!</span>
+						{/* <span className="title-two">truly yours</span> */}
 					</div>
-					<div className="sub-text">Answers before you Ask!</div>
+					{/* <div className="sub-text">Answers before you Ask!</div> */}
 				</div>
 				<div
 					className={`chatbox-wrapper`}
@@ -238,26 +318,13 @@ const InitialHomePage = () => {
 					</div>
 				</div>
 
-				<div className="options-container">
-					{options?.map((option) => {
-						return (
-							<div
-								className={`option ${
-									info?.selectedOption === option?.value ? 'active' : ''
-								}`}
-								onClick={() => handleOptionSelection(option)}
-							>
-								<div className="option-label">{option?.label}</div>
-							</div>
-						);
-					})}
-				</div>
+				<div className="options-container">{renderOptions()}</div>
 			</div>
 			{options?.length > 0 && (
 				<div
 					className="home-page-container-content"
 					style={{
-						height: info?.minimized ? 'calc(100vh - 240px)' : 'calc(100vh - 360px)',
+						height: info?.minimized ? 'calc(100vh - 240px)' : 'calc(100vh - 314px)',
 					}}
 				>
 					{componentMapper[info?.selectedOption]}

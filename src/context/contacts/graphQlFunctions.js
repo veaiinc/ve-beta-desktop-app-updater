@@ -10,6 +10,7 @@ export const getClientsQuery = gql`
 				phoneNumber
 				updatedAt
 				createdAt
+				workflows
 			}
 			hasNextPage
 			currentPage

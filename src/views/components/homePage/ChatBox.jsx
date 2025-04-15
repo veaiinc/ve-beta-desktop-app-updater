@@ -138,6 +138,7 @@ const ChatBox = ({
 			chatInfo,
 			userEditedQuery,
 			galleryFile,
+			chatPayload,
 		},
 		calendarInfo: { updateCalendarState },
 		tasks: { updateTaskState },
@@ -541,6 +542,13 @@ const ChatBox = ({
 					}
 					if (activeWorkflowSlugForSmartFile) {
 						payload.workflow_slug = activeWorkflowSlugForSmartFile;
+					}
+
+					if (chatPayload?.workflowTemplateId) {
+						payload.workflow_template_id = chatPayload?.workflowTemplateId;
+					}
+					if (chatPayload?.moduleTemplateId) {
+						payload.module_template_id = chatPayload?.moduleTemplateId;
 					}
 
 					// if (
@@ -1247,54 +1255,56 @@ const ChatBox = ({
 															</div>
 														</div>
 													</Tooltip>
-													<Tooltip
-														title={
-															<div className="chatbox-icon-tooltip-container">
-																{chatInfo?.workspaceSearch
-																	? 'Explore internal data'
-																	: 'Explore internal data'}
-															</div>
-														}
-														color="transparent"
-														arrow={false}
-														rootClassName="chatbox-tooltip"
-													>
-														<div
-															className={`chat-box-icon-container ${
-																chatInfo?.workspaceSearch
-																	? 'active'
-																	: ''
-															}`}
-															onClick={handleWorkspaceSearchClick}
-															style={{
-																opacity: `${
-																	chatInfo?.deepResearch
-																		? '0.5'
-																		: '1'
-																}`,
-															}}
+													{!isPublicChat && (
+														<Tooltip
+															title={
+																<div className="chatbox-icon-tooltip-container">
+																	{chatInfo?.workspaceSearch
+																		? 'Explore internal data'
+																		: 'Explore internal data'}
+																</div>
+															}
+															color="transparent"
+															arrow={false}
+															rootClassName="chatbox-tooltip"
 														>
-															<div className="icon">
-																<BuildingSvg
-																	selected={
-																		chatInfo?.workspaceSearch
-																	}
-																/>
-																{showIconText && (
-																	<div
-																		className="icon-text"
-																		style={{
-																			color: chatInfo?.workspaceSearch
-																				? 'var(--primary-button-font)'
-																				: 'var(--primary-font)',
-																		}}
-																	>
-																		Internal Knowledge
-																	</div>
-																)}
+															<div
+																className={`chat-box-icon-container ${
+																	chatInfo?.workspaceSearch
+																		? 'active'
+																		: ''
+																}`}
+																onClick={handleWorkspaceSearchClick}
+																style={{
+																	opacity: `${
+																		chatInfo?.deepResearch
+																			? '0.5'
+																			: '1'
+																	}`,
+																}}
+															>
+																<div className="icon">
+																	<BuildingSvg
+																		selected={
+																			chatInfo?.workspaceSearch
+																		}
+																	/>
+																	{showIconText && (
+																		<div
+																			className="icon-text"
+																			style={{
+																				color: chatInfo?.workspaceSearch
+																					? 'var(--primary-button-font)'
+																					: 'var(--primary-font)',
+																			}}
+																		>
+																			Internal Knowledge
+																		</div>
+																	)}
+																</div>
 															</div>
-														</div>
-													</Tooltip>
+														</Tooltip>
+													)}
 
 													{!isPublicChat && (
 														<SearchTypeTooltip
