@@ -34,7 +34,7 @@
 					color: var(--primary-font, #f2f2f3);
 					text-align: center;
 					font-family: var(--primary-font-family);
-					font-size: 53px;
+					font-size: 35px;
 					font-style: normal;
 					font-weight: 600;
 					line-height: 60px;
@@ -86,7 +86,6 @@
 		.options-container {
 			display: flex;
 			gap: 6px;
-			width: 700px;
 			.option {
 				display: flex;
 				height: 37px;

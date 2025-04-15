@@ -74,6 +74,7 @@ const RecentChat = ({
 		showScrollButton: false,
 		activeTabs: {},
 		stickyTabs: {},
+		showViewDocument: false,
 	});
 
 	const { socketRef, createWebSocketConnection, sendMessage } = useChatStream();
@@ -119,6 +120,10 @@ const RecentChat = ({
 				currentSessionId: ObjectID()?.toString(),
 				citations: null,
 				citationChunks: {},
+				chatPayload: {
+					workflowTemplateId: null,
+					moduleTemplateId: null,
+				},
 			});
 		};
 	}, []);
@@ -133,6 +138,10 @@ const RecentChat = ({
 					globalChatMessages: [],
 					citations: null,
 					citationChunks: {},
+					chatPayload: {
+						workflowTemplateId: null,
+						moduleTemplateId: null,
+					},
 				});
 				tabsRefs.current = {};
 				setInfo((prev) => ({
@@ -357,13 +366,15 @@ const RecentChat = ({
 
 	useEffect(() => {
 		if (recentChatStorage) {
-			recentChatHandler(recentChatStorage, true);
+			const firstTimeApiCall = true;
+			recentChatHandler(recentChatStorage, true, firstTimeApiCall);
 		}
 	}, [recentChatStorage]);
 
 	useEffect(() => {
 		if (moreRecentChatStorage) {
-			recentChatHandler(moreRecentChatStorage, true);
+			const firstTimeApiCall = false;
+			recentChatHandler(moreRecentChatStorage, firstTimeApiCall);
 		}
 	}, [moreRecentChatStorage]);
 
@@ -432,17 +443,29 @@ const RecentChat = ({
 	};
 
 	const recentChatHandler = useCallback(
-		(inComingData, fetcMore = false) => {
+		(inComingData, fetcMore = false, firstTimeApiCall = false) => {
 			const { data, hasNextPage, currentPage } = inComingData;
 			let messages = [];
+			let chatPayload = {
+				workflowTemplateId: null,
+				moduleTemplateId: null,
+			};
 			for (let i = 0; i < data?.length; i++) {
 				const {
 					originalQuery = '',
 					response,
 					_id: messageId,
 					citations,
-					followUpQuery,
+					workflowTemplateId,
+					moduleTemplateId,
 				} = data?.[i] || {};
+
+				if (firstTimeApiCall) {
+					chatPayload = {
+						workflowTemplateId: workflowTemplateId || null,
+						moduleTemplateId: moduleTemplateId || null,
+					};
+				}
 
 				messages = [
 					{
@@ -457,13 +480,18 @@ const RecentChat = ({
 						typingEffect: false,
 						rating: null,
 						citations,
-						follow_up_query: followUpQuery || [],
+						workflow_template_id: workflowTemplateId || null,
+						module_template_id: moduleTemplateId || null,
 					},
 				]?.concat(messages);
 			}
 
 			if (fetcMore) {
-				updateStateValues({ globalChatMessages: messages?.concat(globalChatMessages) });
+				updateStateValues({
+					globalChatMessages: messages?.concat(globalChatMessages),
+					...(chatPayload?.moduleTemplateId &&
+						chatPayload?.workflowTemplateId && { chatPayload }),
+				});
 				// if (chatContentRef?.current) {
 				// 	chatContentRef.current.scrollBy({
 				// 		top: 300, // Reduced from 500 for smoother feel
@@ -471,7 +499,11 @@ const RecentChat = ({
 				// 	});
 				// }
 			} else {
-				updateStateValues({ globalChatMessages: messages });
+				updateStateValues({
+					globalChatMessages: messages,
+					...(chatPayload?.moduleTemplateId &&
+						chatPayload?.workflowTemplateId && { chatPayload }),
+				});
 				// setTimeout(() => {
 				// 	// smoothScrollToBottom();
 				// }, 1000);
@@ -481,6 +513,8 @@ const RecentChat = ({
 		},
 		[info, chatContentRef],
 	);
+
+	console.log(globalChatMessages, 'globalChatMessages');
 
 	const handleRatingClick = useCallback(async (type, messageId) => {
 		try {
@@ -580,13 +614,20 @@ const RecentChat = ({
 			if (data?.type === 'variableRequirement') {
 				loadingMessageRef.current = null;
 			}
-
+			let chatPayload = null;
 			if (data?.stream_end) {
-				if (data?.user_id) {
-					localStorage?.setItem('user_id', data?.user_id);
+				const { workflow_template_id, module_template_id } = data;
+				if (workflow_template_id || module_template_id) {
+					chatPayload = {
+						workflowTemplateId: workflow_template_id,
+						moduleTemplateId: module_template_id,
+					};
 				}
 				handleStreamIncomingMessage(data);
-				updateStateValues({ globalLoadingMesssage: null });
+				updateStateValues({
+					globalLoadingMesssage: null,
+					...(chatPayload && { chatPayload }),
+				});
 				setInfo((prev) => ({ ...prev, latestStreamMesage: data }));
 			}
 			const { message_chunk_id } = data;
@@ -613,6 +654,10 @@ const RecentChat = ({
 
 	const toggleLatestStreamMessage = useCallback(() => {
 		setInfo((prev) => ({ ...prev, latestStreamMesage: null }));
+	}, []);
+	const handleViewDocument = useCallback((value) => {
+		console.log(value, 'value');
+		setInfo((prev) => ({ ...prev, showViewDocument: value }));
 	}, []);
 
 	return (
@@ -806,6 +851,27 @@ const RecentChat = ({
 																	citations={chat?.citations}
 																	messageData={chat}
 																	isNewMessage={
+																		index ===
+																		globalChatMessages?.length -
+																			1
+																	}
+																	handleSendWebsocketMessage={
+																		handleSendWebsocketMessage
+																	}
+																	latestStreamMesage={
+																		info?.latestStreamMesage
+																	}
+																	lastQuery={info?.lastQuery}
+																	toggleLatestStreamMessage={
+																		toggleLatestStreamMessage
+																	}
+																	handleViewDocument={
+																		handleViewDocument
+																	}
+																	showViewDocument={
+																		info?.showViewDocument
+																	}
+																	isLastMessage={
 																		index ===
 																		globalChatMessages?.length -
 																			1
