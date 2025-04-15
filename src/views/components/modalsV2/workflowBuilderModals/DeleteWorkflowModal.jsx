@@ -5,11 +5,12 @@ import { ReactComponent as Warning } from '../../../../assets/svg/worflow_builde
 import Spinner from '../../loaders/Spinner';
 
 const DeleteWorkflowModal = ({
-	modalIsOpen,
-	closeModal,
-	deleteWorkflowFunc,
-	deleteLoader,
+	modalIsOpen = false,
+	closeModal = () => {},
+	deleteWorkflowFunc = () => {},
+	deleteLoader = false,
 	title = 'Delete Workflow',
+	description = 'Doing this cannot be undone and all the leads in this workflow would be lost.',
 }) => {
 	const customStyles = {
 		content: { zIndex: 99999 },
@@ -22,10 +23,7 @@ const DeleteWorkflowModal = ({
 
 				<div className="deleteContent">
 					<span className="deleteStepHeading">{title}</span>
-					<span className="deleteStepSubText">
-						Doing this cannot be undone and all the leads in this workflow would be
-						lost.
-					</span>
+					<span className="deleteStepSubText">{description}</span>
 				</div>
 
 				<div className="deleteStepBtnContainer">
