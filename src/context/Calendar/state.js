@@ -13,6 +13,7 @@ export const initialState = {
 	calendarCategories: null,
 	deletedEvent: null,
 	refetchCalendarState: false,
+	allCalendarEvents: null,
 };
 
 export const Calendar = () => {
@@ -314,6 +315,30 @@ export const Calendar = () => {
 		}
 	};
 
+	const getAllCalendarEvents = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const url = `/${workspaceId}/calendar/combined-events`;
+			const response = await service.fetchPost(url, payload, usertoken, 'calendar_api');
+			if (response?.[0] === true) {
+				dispatch({
+					type: Actions.GET_CALENDAR_ALL_EVENTS,
+					payload: response?.[1],
+				});
+			} else {
+				dispatch({
+					type: Actions.GET_CALENDAR_ALL_EVENTS,
+					payload: {
+						error: 'Something went wrong while fetching events. Please try again.',
+					},
+				});
+			}
+		} catch (error) {
+			console.log('error ==> fetchingCalendarEvents', error);
+		}
+	};
+
 	// Calendar State Reset ================================>
 	const resetCalendarState = () => {
 		dispatch({ type: Actions.RESET_CALENDAR_STATE });
@@ -347,5 +372,6 @@ export const Calendar = () => {
 		getCalendarEventDetails,
 		getCalendarAllEvents,
 		updateCalendarState,
+		getAllCalendarEvents,
 	};
 };

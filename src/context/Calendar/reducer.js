@@ -55,6 +55,10 @@ const actionHandlers = {
 		...state,
 		calendarEventDetails: action?.payload,
 	}),
+	GET_CALENDAR_ALL_EVENTS: (state, action) => ({
+		...state,
+		allCalendarEvents: action?.payload,
+	}),
 
 	RESET_CALENDAR_STATE: () => ({ ...initialState }),
 

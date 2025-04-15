@@ -3,10 +3,16 @@ import '../../../assets/scss/globalComponents/calenderWidget.scss';
 import { ReactComponent as PlusIcon } from '../../../assets/svg/calendar/plus.svg';
 import { useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
+import InfiniteScroll from 'react-infinite-scroll-component';
 
 const CalenderWidget = ({ width }) => {
 	const {
-		calendarInfo: { getCalendarEventsList, calendarEventsList },
+		calendarInfo: {
+			getCalendarEventsList,
+			calendarEventsList,
+			getAllCalendarEvents,
+			allCalendarEvents,
+		},
 	} = useContext(Context);
 	const navigate = useNavigate();
 	const [info, setInfo] = useState({
@@ -15,10 +21,38 @@ const CalenderWidget = ({ width }) => {
 		currentDay: new Date().toLocaleDateString('en-US', { weekday: 'long' }),
 		promptPopupOpen: false,
 		selectedCard: null,
+		page: 1,
 	});
+
+	const eventsLength = allCalendarEvents?.data?.length;
+	const eventsNextPage = allCalendarEvents?.hasNextPage;
+	const eventsCurrentPage = allCalendarEvents?.currentPage;
+
 	useEffect(() => {
-		getCalendarEventsList(info?.currentCalendarDate);
+		const payload = {
+			options: {
+				page: info?.page,
+				limit: 20,
+				startDate: info?.currentCalendarDate.toISOString(),
+			},
+		};
+		if (info?.currentCalendarDate) {
+			getAllCalendarEvents(payload);
+		}
 	}, [info?.currentCalendarDate]);
+
+	const fetchMoreCalendarEvents = () => {
+		const payload = {
+			options: {
+				page: eventsCurrentPage + 1,
+				limit: 20,
+			},
+		};
+		if (eventsCurrentPage !== undefined) {
+			getAllCalendarEvents(payload);
+		}
+	};
+
 	return (
 		<div className="calender-main-container" style={{ width: width, height: '412px' }}>
 			<div className="calenderWidgetContainer">
@@ -31,26 +65,36 @@ const CalenderWidget = ({ width }) => {
 							</div>
 						</div>
 					</div>
-					<div className="calenderWidgetMainContent">
-						{calendarEventsList?.length > 0 ? (
-							<div className="calenderWidgetMainContentDate">
-								{calendarEventsList?.map((meet) => (
-									<div className="calenderWidgetMainContentDateMeet">
-										<div className="calenderWidgetMainContentDateMeetTime">
-											<span className="calenderWidgetMainContentTime">
-												{meet?.startTime}
-											</span>
-											<span className="calenderWidgetMainLine"></span>
-										</div>
-										<div className="meetingDetails">
-											<div className="meetingDetailsTitle">{meet?.title}</div>
-											<div className="meetingDetailsTime">
-												{meet?.startTime} - {meet?.endTime}
+					<div className="calenderWidgetMainContent" id="calenderWidgetMainContent">
+						{allCalendarEvents?.data?.length > 0 ? (
+							<InfiniteScroll
+								dataLength={eventsLength}
+								next={fetchMoreCalendarEvents}
+								hasMore={eventsNextPage}
+								loader={<div>Loading...</div>}
+								scrollableTarget="calenderWidgetMainContent"
+							>
+								<div className="calenderWidgetMainContentDate">
+									{allCalendarEvents?.data?.map((meet) => (
+										<div className="calenderWidgetMainContentDateMeet">
+											<div className="calenderWidgetMainContentDateMeetTime">
+												<span className="calenderWidgetMainContentTime">
+													{meet?.startTime}
+												</span>
+												<span className="calenderWidgetMainLine"></span>
+											</div>
+											<div className="meetingDetails">
+												<div className="meetingDetailsTitle">
+													{meet?.title}
+												</div>
+												<div className="meetingDetailsTime">
+													{meet?.startTime} - {meet?.endTime}
+												</div>
 											</div>
 										</div>
-									</div>
-								))}
-							</div>
+									))}
+								</div>
+							</InfiniteScroll>
 						) : (
 							<div className="calenderWidgetMainContentDate">No events found</div>
 						)}
