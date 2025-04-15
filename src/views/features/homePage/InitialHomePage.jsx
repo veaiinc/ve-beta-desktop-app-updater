@@ -7,6 +7,11 @@ import { useNavigate } from 'react-router-dom';
 import ProactiveSuggestions from './ProactiveSuggestions';
 import ChatPrompts from './ChatPrompts';
 import QuickActions from '../../components/globalComponents/QuickActions';
+import ContactsWidget from '../../components/globalComponents/ContactsWidget';
+import AutomationWidget from '../../components/globalComponents/AutomationWidget';
+import TaskWidget from '../../components/globalComponents/TaskWidget';
+import CalenderWidget from '../../components/globalComponents/CalenderWidget';
+import AISuggestionsReportUserComponent from '../../components/chat/chatComponents/AISuggestionsReportUserComponent';
 
 const optionsList = [
 	{
@@ -20,6 +25,30 @@ const optionsList = [
 		label: 'Prompts library',
 		value: 'prompts',
 		showOption: false,
+	},
+	{
+		id: 3,
+		label: 'Calendar',
+		value: 'calendar',
+		showOption: true,
+	},
+	{
+		id: 4,
+		label: 'Task',
+		value: 'task',
+		showOption: true,
+	},
+	{
+		id: 5,
+		label: 'Contact',
+		value: 'contact',
+		showOption: true,
+	},
+	{
+		id: 6,
+		label: 'Automation',
+		value: 'automation',
+		showOption: true,
 	},
 ];
 
@@ -215,10 +244,10 @@ const InitialHomePage = () => {
 			>
 				<div className={`title-container `}>
 					<div className="title-text">
-						<span className="title-one">AI.</span>{' '}
-						<span className="title-two">truly yours</span>
+						<span className="title-one">Answers before you Ask!</span>
+						{/* <span className="title-two">truly yours</span> */}
 					</div>
-					<div className="sub-text">Answers before you Ask!</div>
+					{/* <div className="sub-text">Answers before you Ask!</div> */}
 				</div>
 				<div
 					className={`chatbox-wrapper`}
@@ -257,7 +286,7 @@ const InitialHomePage = () => {
 				<div
 					className="home-page-container-content"
 					style={{
-						height: info?.minimized ? 'calc(100vh - 240px)' : 'calc(100vh - 360px)',
+						height: info?.minimized ? 'calc(100vh - 240px)' : 'calc(100vh - 314px)',
 					}}
 				>
 					{componentMapper[info?.selectedOption]}
