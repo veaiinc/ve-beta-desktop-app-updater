@@ -5,6 +5,8 @@ import Context from '../../../context/context';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { useNavigate } from 'react-router-dom';
 import Skeleton from 'react-loading-skeleton';
+import { message } from '../globalComponents/CustomToast';
+import AutomationLoaderModal from '../modalsV2/automationBuilder/AutomationLoaderModal';
 
 const statusColors = {
 	published: '#B2FF00',
@@ -26,13 +28,14 @@ const skeletonLoaders = Array.from({ length: 5 }, (_, index) => index + 1);
 const AutomationWidget = ({ width, height }) => {
 	const navigate = useNavigate();
 	const {
-		automationBuilder: { automationsList, getAutomationsList },
+		automationBuilder: { automationsList, getAutomationsList, createAutomation },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
 		isLoading: false,
 		promptPopupOpen: false,
 		selectedAutomation: null,
+		loading: false,
 	});
 	const automations = automationsList?.data;
 	const automationsLoading = automationsList ? false : true;
@@ -69,6 +72,34 @@ const AutomationWidget = ({ width, height }) => {
 		navigate(`/automation-builder/${automation?._id}`);
 	};
 
+	const handleCreateAutomation = async () => {
+		if (info?.loading) return; // Prevent multiple clicks
+		try {
+			setInfo((prev) => ({
+				...prev,
+				loading: true,
+				promptPopupOpen: false, // Adjust as needed
+			}));
+			const response = await createAutomation({
+				name: 'Untitled Automation',
+				version: 1,
+				steps: [],
+				status: 'draft',
+			});
+			if (response?.[0]) {
+				navigate(`/automation-builder/${response?.[1]?._id}`);
+			} else {
+				message.error('Failed to create automation');
+			}
+		} catch (error) {
+			message.error('Failed to create automation');
+		} finally {
+			setInfo((prev) => ({
+				...prev,
+				loading: false,
+			}));
+		}
+	};
 	return (
 		<div className="automation" style={{ width: width }}>
 			<div className="automationWidgetContainer">
@@ -128,9 +159,15 @@ const AutomationWidget = ({ width, height }) => {
 					style={{ cursor: 'pointer' }}
 				>
 					<div className="automationWidgetFooterTitle">View Automations</div>
-					<PlusIcon />
+					<PlusIcon
+						onClick={(e) => {
+							e.stopPropagation();
+							handleCreateAutomation();
+						}}
+					/>
 				</div>
 			</div>
+			<AutomationLoaderModal loading={info?.showLoader} message={info?.loaderMessage} />
 		</div>
 	);
 };

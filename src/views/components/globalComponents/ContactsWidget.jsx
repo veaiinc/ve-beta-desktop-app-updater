@@ -4,6 +4,7 @@ import { ReactComponent as PlusIcon } from '../../../assets/svg/calendar/plus.sv
 import Context from '../../../context/context';
 import Skeleton from 'react-loading-skeleton';
 import { useNavigate } from 'react-router-dom';
+import CreateClientModal from '../modalsV2/contacts/CreateClientModal';
 
 const skeletonLoaders = Array.from({ length: 6 }, (_, index) => index + 1);
 
@@ -24,6 +25,7 @@ const ContactsWidget = ({ width, height }) => {
 		searchValue: '',
 		promptPopupOpen: false,
 		selectedCard: null,
+		createLeadPopup: false,
 	});
 	const fetchClientList = useCallback(
 		async (page = 1) => {
@@ -135,9 +137,22 @@ const ContactsWidget = ({ width, height }) => {
 					style={{ cursor: 'pointer' }}
 				>
 					<div className="contactsWidgetFooterTitle">View Contacts</div>
-					<PlusIcon />
+					<PlusIcon
+						onClick={(e) => {
+							e.stopPropagation();
+							setInfo((prev) => ({
+								...prev,
+								createLeadPopup: true,
+							}));
+						}}
+					/>
 				</div>
 			</div>
+			<CreateClientModal
+				modalIsOpen={info?.createLeadPopup}
+				closeModal={() => setInfo({ ...info, createLeadPopup: false })}
+				leadOrClient={true}
+			/>
 		</div>
 	);
 };
