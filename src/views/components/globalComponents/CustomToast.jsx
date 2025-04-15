@@ -1,138 +1,190 @@
-import React, { useEffect, useRef, useState } from 'react';
-import success from '../../../assets/svg/custom_toast/tickmark.svg';
-import error from '../../../assets/svg/custom_toast/exclamatory.svg';
-import warning from '../../../assets/svg/custom_toast/warning.svg';
+import React, { memo, useEffect, useRef, useState } from 'react';
+import { ReactComponent as Success } from '../../../assets/svg/custom_toast/tickmark.svg';
+import { ReactComponent as Error } from '../../../assets/svg/custom_toast/exclamatory.svg';
+import { ReactComponent as Warning } from '../../../assets/svg/custom_toast/warning.svg';
+import { SpinnerIcon } from '@livekit/components-react';
 import '../../../assets/scss/toast/toast.scss';
 
-const MESSAGE_TYPES = {
-	SUCCESS: 'success',
-	WARNING: 'warning',
-	ERROR: 'error',
-	LOADING: 'loading',
+const defaultDuration = 3; // 3 seconds
+const exitDuration = 500;
+
+let triggerToastFn = null;
+let activeToasts = new Set(); // Track active toast IDs to prevent duplicates
+
+const toastIcon = {
+	success: <Success />,
+	warning: <Warning />,
+	error: <Error />,
+	loading: <SpinnerIcon className="loading-spinner" />,
 };
 
-const CheckIcon = () => <img src={success} alt="Success" />;
-const WarningIcon = () => <img src={warning} alt="Warning" />;
-const ErrorIcon = () => <img src={error} alt="Error" />;
-const LoadingIcon = () => (
-	<svg viewBox="0 0 24 24" className="loading-spinner">
-		<circle cx="12" cy="12" r="10" stroke="#f2f2f3" strokeWidth="3" fill="none" />
-	</svg>
-);
-
-// Duration constants
-const EXIT_ANIMATION_DURATION = 500;
-
-let triggerToast; // External trigger for the toast
-
-const CustomToast = ({ duration = 3000 }) => {
-	const [toastData, setToastData] = useState(null);
-	const [visible, setVisible] = useState(false);
-	const [isExiting, setIsExiting] = useState(false);
-	const lastToastRef = useRef(null);
+const CustomToast = () => {
+	const toastRefs = useRef({});
+	const timeoutRefs = useRef({});
+	const [toasts, setToasts] = useState([]);
 
 	useEffect(() => {
-		triggerToast = ({ type, content, duration }) => {
-			const newToast = { type, content };
+		triggerToastFn = ({ type, content, duration = defaultDuration, customStyle = {} }) => {
+			const contentHash = hashCode(content + type);
+			const id = `${contentHash}-${Date.now()}`;
 
-			const isSameToast =
-				visible && JSON.stringify(lastToastRef.current) === JSON.stringify(newToast);
-			if (isSameToast) return;
+			if (activeToasts.has(contentHash)) return id;
 
-			const showNewToast = () => {
-				lastToastRef.current = newToast;
-				setToastData(newToast);
-				setIsExiting(false);
-				setVisible(true);
+			activeToasts.add(contentHash);
 
-				if (type !== MESSAGE_TYPES.LOADING && duration > 0) {
-					setTimeout(() => {
-						setIsExiting(true);
-						setTimeout(() => {
-							setVisible(false);
-							setToastData(null);
-							lastToastRef.current = null;
-						}, EXIT_ANIMATION_DURATION);
-					}, duration);
-				}
-			};
+			setToasts((prevToasts) => [
+				...prevToasts,
+				{ id, type, content, duration, isVisible: true, contentHash, customStyle },
+			]);
 
-			if (visible) {
-				// Start exiting current toast
-				setIsExiting(true);
-				setTimeout(() => {
-					setVisible(false);
-					setToastData(null);
-					lastToastRef.current = null;
+			timeoutRefs.current[id] = setTimeout(() => {
+				startExitAnimation(id, contentHash);
+			}, duration * 1000);
 
-					// Delay to retrigger animation for the new toast
-					setTimeout(showNewToast, 50);
-				}, EXIT_ANIMATION_DURATION);
+			return id;
+		};
+
+		triggerToastFn.destroy = (id = null) => {
+			if (id === null) {
+				setToasts((prevToasts) => {
+					prevToasts.forEach((toast) => {
+						if (timeoutRefs.current[toast.id]) {
+							clearTimeout(timeoutRefs.current[toast.id]);
+						}
+						activeToasts.delete(toast.contentHash);
+					});
+					return [];
+				});
+				toastRefs.current = {};
+				timeoutRefs.current = {};
 			} else {
-				showNewToast();
+				setToasts((prevToasts) => {
+					const toastToDestroy = prevToasts.find((t) => t.id === id);
+					if (toastToDestroy) {
+						if (timeoutRefs.current[id]) {
+							clearTimeout(timeoutRefs.current[id]);
+						}
+						activeToasts.delete(toastToDestroy.contentHash);
+						return prevToasts.filter((toast) => toast.id !== id);
+					}
+					return prevToasts;
+				});
 			}
 		};
-	}, [visible]);
 
-	const handleClose = () => {
-		setIsExiting(true);
-		setTimeout(() => {
-			setVisible(false);
-			setToastData(null);
-			lastToastRef.current = null;
-		}, EXIT_ANIMATION_DURATION);
+		return () => {
+			Object.values(timeoutRefs.current).forEach(clearTimeout);
+			triggerToastFn = null;
+			activeToasts.clear();
+		};
+	}, []);
+
+	const startExitAnimation = (id, contentHash) => {
+		setToasts((prevToasts) =>
+			prevToasts.map((toast) => (toast.id === id ? { ...toast, isVisible: false } : toast)),
+		);
+
+		timeoutRefs.current[id] = setTimeout(() => {
+			setToasts((prevToasts) => prevToasts.filter((toast) => toast.id !== id));
+			delete timeoutRefs.current[id];
+			delete toastRefs.current[id];
+			activeToasts.delete(contentHash);
+		}, exitDuration);
 	};
+
+	const handleClose = (id, contentHash) => {
+		if (timeoutRefs.current[id]) {
+			clearTimeout(timeoutRefs.current[id]);
+		}
+		startExitAnimation(id, contentHash);
+	};
+
+	function hashCode(str) {
+		let hash = 0;
+		for (let i = 0; i < str.length; i++) {
+			const char = str.charCodeAt(i);
+			hash = (hash << 5) - hash + char;
+			hash |= 0;
+		}
+		return hash;
+	}
 
 	return (
 		<div className="toast-container">
-			{visible && toastData && (
-				<div
-					className={`toast toast--${toastData.type} ${
-						isExiting ? 'slide-out' : 'slide-in'
-					}`}
-				>
-					<div className="left-part">
-						<div className="toast__icon">
-							{toastData.type === MESSAGE_TYPES.SUCCESS && <CheckIcon />}
-							{toastData.type === MESSAGE_TYPES.WARNING && <WarningIcon />}
-							{toastData.type === MESSAGE_TYPES.ERROR && <ErrorIcon />}
-							{toastData.type === MESSAGE_TYPES.LOADING && <LoadingIcon />}
+			{toasts.map((toast) => {
+				const { customStyle = {} } = toast;
+				const { style = {} } = customStyle;
+
+				return (
+					<div
+						key={toast.id}
+						ref={(el) => (toastRefs.current[toast.id] = el)}
+						className={`toast ${toast.type} ${
+							toast.isVisible ? 'slide-in' : 'slide-out'
+						}`}
+						style={style}
+					>
+						<div className="left-part">
+							<div className="toast__icon">{toastIcon[toast?.type]}</div>
+							<div className="toast__content">
+								<p className="toast__message">{toast.content}</p>
+							</div>
 						</div>
-						<div className="toast__content">
-							<p className="toast__message">{toastData.content}</p>
-						</div>
+						<div className="vertical-line" />
+						<button
+							className="toast__close-btn"
+							onClick={() => handleClose(toast.id, toast.contentHash)}
+						>
+							Close
+						</button>
 					</div>
-					<div className="vertical-line" />
-					<button className="toast__close-btn" onClick={handleClose}>
-						Close
-					</button>
-				</div>
-			)}
+				);
+			})}
 		</div>
 	);
 };
 
-// Toast controller
+function isMessageEmpty(message) {
+	return !message || message.trim() === '';
+}
+
 const message = {
-	show({ type, content, duration = 3000 }) {
-		if (triggerToast) {
-			triggerToast({ type, content, duration });
-		} else {
-			console.warn('CustomToast component is not mounted yet.');
+	show({ type, content, duration = defaultDuration, customStyle = {} }) {
+		if (isMessageEmpty(content)) {
+			type = 'error';
+			content = 'Message is empty';
 		}
+		if (triggerToastFn) {
+			return triggerToastFn({ type, content, duration, customStyle });
+		}
+		console.warn('CustomToast component not mounted yet.');
+		return null;
 	},
-	success(content, duration = 3000) {
-		this.show({ type: MESSAGE_TYPES.SUCCESS, content, duration });
+
+	success(content, duration, customStyle) {
+		return this.show({ type: 'success', content, duration, customStyle });
 	},
-	warning(content, duration = 3000) {
-		this.show({ type: MESSAGE_TYPES.WARNING, content, duration });
+
+	warning(content, duration, customStyle) {
+		return this.show({ type: 'warning', content, duration, customStyle });
 	},
-	error(content, duration = 3000) {
-		this.show({ type: MESSAGE_TYPES.ERROR, content, duration });
+
+	error(content, duration, customStyle) {
+		return this.show({ type: 'error', content, duration, customStyle });
 	},
-	loading(content) {
-		this.show({ type: MESSAGE_TYPES.LOADING, content, duration: 0 });
+
+	loading(content, duration = defaultDuration, customStyle) {
+		return this.show({ type: 'loading', content, duration, customStyle });
+	},
+
+	destroy(id = null) {
+		if (triggerToastFn && triggerToastFn.destroy) {
+			triggerToastFn.destroy(id);
+		} else {
+			console.warn('CustomToast component not mounted yet.');
+		}
 	},
 };
 
-export { CustomToast, message };
+export { message };
+export default memo(CustomToast);

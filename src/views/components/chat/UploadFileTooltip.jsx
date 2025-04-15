@@ -61,7 +61,7 @@ const UploadFileTooltip = ({
 	return (
 		<div className="upload-file-wrapper">
 			<Tooltip
-				placement="top"
+				placement="bottom"
 				open={isUploadFileOpen}
 				onOpenChange={setIsUploadFileOpen}
 				arrow={false}

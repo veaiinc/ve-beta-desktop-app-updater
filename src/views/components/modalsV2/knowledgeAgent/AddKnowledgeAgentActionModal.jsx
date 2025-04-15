@@ -10,7 +10,7 @@ import { ReactComponent as DownSvg } from '../../../../assets/svg/activity/down.
 import { Tooltip } from 'antd';
 import { ReactComponent as TrashSvg } from '../../../../assets/svg/tasks/dustBin.svg';
 import { ReactComponent as PlusSvg } from '../../../../assets/svg/tasks/plus.svg';
-import { message } from 'antd';
+import { message } from '../../globalComponents/CustomToast';
 import { isURL } from '../../../../helpers';
 import Context from '../../../../context/context';
 

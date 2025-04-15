@@ -60,8 +60,8 @@ const InitialHomePage = () => {
 	} = useContext(Context);
 
 	const navigate = useNavigate();
-	const firstTimeMountRef = useRef(true);
 	const headerRef = useRef(null);
+	const headerMinimizedRef = useRef(false);
 
 	const [info, setInfo] = useState({
 		selectedOption: '',
@@ -73,8 +73,6 @@ const InitialHomePage = () => {
 		}, {}),
 		minimized: false,
 	});
-
-	const headerMinimizedRef = useRef(false);
 
 	let {
 		profileInfo: { userDetailsData },
@@ -149,7 +147,6 @@ const InitialHomePage = () => {
 		if (info?.selectedOption === option?.value) {
 			return;
 		}
-		if (firstTimeMountRef.current) firstTimeMountRef.current = false;
 
 		setInfo((prev) => ({
 			...prev,
@@ -227,10 +224,8 @@ const InitialHomePage = () => {
 	if (options?.length > 0) {
 		if (info?.minimized) {
 			animationClass = 'minimized-animation';
-		} else if (!firstTimeMountRef.current) {
-			if (headerRef?.current?.classList?.contains('minimized-animation')) {
-				animationClass = 'expanded-animation';
-			}
+		} else if (headerRef?.current?.classList?.contains('minimized-animation')) {
+			animationClass = 'expanded-animation';
 		}
 	}
 
@@ -245,27 +240,23 @@ const InitialHomePage = () => {
 	}, [options]);
 
 	return (
-		<div className="initial-home-page-container">
+		<div
+			className="initial-home-page-container"
+			style={{
+				...(options?.length === 0 && { justifyContent: 'center' }),
+			}}
+		>
 			<div className="quick-actions-container">
 				<QuickActions />
 			</div>
 			<div
 				className={`home-page-container-header ${animationClass}`}
 				ref={headerRef}
-				// onClick={() => {
-				// 	if (firstTimeMountRef.current) firstTimeMountRef.current = false;
-				// 	setInfo((prev) => ({
-				// 		...prev,
-				// 		minimized: !prev.minimized,
-				// 	}));
-				// }}
+				style={{
+					...(options?.length === 0 && { marginTop: 0 }),
+				}}
 			>
-				<div
-					className={`title-container `}
-					// style={{
-					// 	marginTop: options?.length > 0 ? '85px' : '0px',
-					// }}
-				>
+				<div className={`title-container `}>
 					<div className="title-text">
 						<span className="title-one">AI.</span>{' '}
 						<span className="title-two">truly yours</span>
@@ -288,8 +279,7 @@ const InitialHomePage = () => {
 							onSend={handleCustomOnSendFunction}
 							customChatActions={true}
 							autoFocus={false}
-							uploadFileTooltipPlacement="bottom"
-							searchTypeTooltipPlacement="bottom"
+							isParentHeaderMinimized={info?.minimized}
 						/>
 					</div>
 				</div>
@@ -313,7 +303,7 @@ const InitialHomePage = () => {
 				<div
 					className="home-page-container-content"
 					style={{
-						height: info?.minimized ? 'calc(100vh - 310px)' : 'calc(100vh - 470px)',
+						height: info?.minimized ? 'calc(100vh - 240px)' : 'calc(100vh - 360px)',
 					}}
 				>
 					{componentMapper[info?.selectedOption]}

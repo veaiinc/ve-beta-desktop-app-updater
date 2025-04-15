@@ -14,13 +14,15 @@ import { ReactComponent as SingleRightArrowSvg } from '../../../assets/svg/sideb
 import { ReactComponent as SwitchWorkspaceSvg } from '../../../assets/svg/sidebar/switchWorkspace.svg';
 import WorkspaceListComponent from './Workspace';
 import useLogout from '../../hooks/useLogout';
-import { message, Tooltip } from 'antd';
+import { Tooltip } from 'antd';
 import ChatHistory from './chatHistory/ChatHistory';
 
 import { ReactComponent as LogoutRedSvg } from '../../../assets/svg/sidebar/logout_red.svg';
 import Cropper from 'react-easy-crop';
 import Context from '../../../context/context';
 import { getInitials } from '../../../helpers/index';
+import { message } from '../globalComponents/CustomToast';
+
 const workspaceStyles = {
 	position: 'absolute',
 	top: '60px', // Adjust this value based on your header height
@@ -749,7 +751,10 @@ const OpenedSidebar = ({
 				)}
 				{/* Settings Sidebar Overlay */}
 				{showSettingsSidebar && (
-					<div className="settings-sidebar">
+					<div
+						className="settings-sidebar"
+						style={{ height: renewBanner ? 'calc(100dvh - 41px)' : '100dvh' }}
+					>
 						{/* Settings Header */}
 						{sidebarStates?.workSpaceOpen && (
 							<div style={workspaceStyles}>

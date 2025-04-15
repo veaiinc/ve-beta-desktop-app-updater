@@ -224,16 +224,6 @@
 					}
 				}
 
-				.icon-date,
-				.icon-parentTask,
-				.icon-workflow,
-				.icon-status,
-				.icon-childTasks {
-					path {
-						stroke: var(--primary-font) !important;
-					}
-				}
-
 				&-label {
 					color: var(--primary-font);
 					font-family: var(--primary-font-family);

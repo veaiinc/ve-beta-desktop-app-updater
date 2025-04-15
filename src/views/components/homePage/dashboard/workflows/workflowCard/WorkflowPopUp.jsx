@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { fetchOriginSelection } from '../../../../../../helpers';
 import '../../../../../../assets/scss/home_page/workflows/workflowPromptPopup.scss';
 import { memo } from 'react';
-import { message, Tooltip } from 'antd';
+import { Tooltip } from 'antd';
 import Context from '../../../../../../context/context';
 
 const origin = fetchOriginSelection();
