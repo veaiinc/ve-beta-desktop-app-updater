@@ -52,6 +52,7 @@
 					font-style: normal;
 					font-weight: 500;
 					line-height: normal;
+					user-select: none;
 				}
 
 				.card-description {
@@ -66,7 +67,8 @@
 					font-size: 16px;
 					font-style: normal;
 					font-weight: 500;
-					line-height: 20px; /* 125% */
+					line-height: 20px;
+					user-select: none;
 				}
 			}
 
@@ -80,6 +82,7 @@
 					font-weight: 500;
 					line-height: normal;
 					text-transform: capitalize;
+					user-select: none;
 				}
 			}
 		}
