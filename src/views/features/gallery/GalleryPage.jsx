@@ -69,7 +69,7 @@ import GalleryViewer from './GalleryViewer';
 // import { message } from '../../components/globalComponents/CustomToast';
 // import EarnAndShareOverlay from './galleryPage/EditAndShareOverlay';
 
-const workspaceId = localStorage.getItem('workspaceId');
+// const workspaceId = localStorage.getItem('workspaceId');
 
 const dummyImagesArray = Array.from({ length: 10 }, () => ({ isPlaceholderImg: true }));
 
@@ -328,6 +328,7 @@ const GalleryPage = () => {
 		selectedImage: null,
 		isGalleryViewer: false,
 		currentExpandImage: null,
+		currentWorkspaceId: null,
 	});
 	const optionsRef = useRef(null);
 	const iconRef = useRef(null);
@@ -482,6 +483,13 @@ const GalleryPage = () => {
 			updateStateValues({ leftSidebarState: null });
 		};
 	}, []);
+
+	useEffect(() => {
+		if (userWorkSpaceList) {
+			const currentWorkspaceId = getCurrentWorkspaceId(userWorkSpaceList);
+			setInfo((prev) => ({ ...prev, currentWorkspaceId }));
+		}
+	}, [userWorkSpaceList]);
 	useEffect(() => {
 		const animate = (timestamp) => {
 			if (!startTime) startTime = timestamp;
@@ -2283,7 +2291,7 @@ const GalleryPage = () => {
 	};
 
 	const handleCopyGalleryLink = async () => {
-		const galleryLink = `https://${workspaceId}.ve.ai/gallery/${info?.activeGallery?.slug}`;
+		const galleryLink = `https://${info?.currentWorkspaceId}.ve.ai/gallery/${info?.activeGallery?.slug}`;
 
 		try {
 			// Try the modern clipboard API first
@@ -5651,7 +5659,7 @@ const GalleryPage = () => {
 					<AiSelection
 						galleryId={galleryId}
 						galleryCredentials={galleryCredentials}
-						link={`https://${workspaceId}.ve.ai/gallery/${info?.activeGallery?.slug}/pre-register`}
+						link={`https://${info?.currentWorkspaceId}.ve.ai/gallery/${info?.activeGallery?.slug}/pre-register`}
 						activeAlbumId={info?.activeAlbumId}
 						activeTagId={info?.activeTagId}
 						selectedFace={info?.selectedFace}

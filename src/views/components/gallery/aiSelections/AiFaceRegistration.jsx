@@ -87,25 +87,18 @@ const AiFaceRegistration = ({ link, handlePreRegistration, preRegistration }) =>
 	};
 
 	const downloadQR = () => {
-		const canvas = document.createElement('canvas');
-		const svg = qrRef.current.querySelector('svg');
-		const svgData = new XMLSerializer().serializeToString(svg);
-		const img = new Image();
+		const canvas = qrRef.current?.querySelector('canvas');
 
-		img.onload = () => {
-			canvas.width = img.width;
-			canvas.height = img.height;
-			const ctx = canvas.getContext('2d');
-			ctx.drawImage(img, 0, 0);
+		if (!canvas) {
+			message.error('QR code not found.');
+			return;
+		}
 
-			const pngFile = canvas.toDataURL('image/png');
-			const downloadLink = document.createElement('a');
-			downloadLink.download = 'qr-code.png';
-			downloadLink.href = pngFile;
-			downloadLink.click();
-		};
-
-		img.src = 'data:image/svg+xml;base64,' + btoa(svgData);
+		const pngFile = canvas.toDataURL('image/png');
+		const downloadLink = document.createElement('a');
+		downloadLink.download = 'qr-code.png';
+		downloadLink.href = pngFile;
+		downloadLink.click();
 	};
 	const copyLink = async () => {
 		try {
@@ -165,7 +158,7 @@ const AiFaceRegistration = ({ link, handlePreRegistration, preRegistration }) =>
 				}}
 			>
 				<div className="aiScannerContainer-inner">
-					<div className="aiScannerContainer-inner-left">
+					<div className="aiScannerContainer-inner-left" style={{ cursor: 'pointer' }}>
 						<div className="scanner" ref={qrRef}>
 							<QRCodeCanvas
 								value={link}
