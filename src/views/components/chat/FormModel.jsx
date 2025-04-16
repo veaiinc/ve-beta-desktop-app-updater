@@ -182,7 +182,7 @@ const Section1 = ({
 	}, []);
 	return (
 		<div className="form-model-chat-bar-container">
-			<div className="chat-to-note-link-container">
+			{/* <div className="chat-to-note-link-container">
 				<div className="title">Link all chat to note</div>
 				<div
 					className={`link-icon-container ${info?.chatToNoteLoopOn ? 'active' : ''}`}
@@ -190,7 +190,7 @@ const Section1 = ({
 				>
 					{info?.chatToNoteLoopOn ? <LinkDarkSvg /> : <LinkLightSvg />}
 				</div>
-			</div>
+			</div> */}
 			{/* chat body */}
 			<div className={`chatBodyParentContainer`} ref={chatContentRef}>
 				<div className="chatContent">
@@ -260,7 +260,7 @@ const Section2 = ({ workflowTemplateId: workflowTemplateIdFromProps }) => {
 		<div className="section-content">
 			{showIframe && (
 				<iframe
-					src={`${origin}/${workflowTemplateIdFromProps}`}
+					src={`https://builder.ve.co/${workflowTemplateIdFromProps}`}
 					title="Builder Preview"
 					onClick={(e) => e.stopPropagation()}
 					onMouseDown={(e) => e.stopPropagation()}
