@@ -261,7 +261,7 @@ const Section2 = ({ workflowTemplateId: workflowTemplateIdFromProps }) => {
 		<div className="section-content">
 			{showIframe && (
 				<iframe
-					src={`http://localhost:3000/${workflowTemplateIdFromProps}`}
+					src={`${origin}/${workflowTemplateIdFromProps}`}
 					title="Builder Preview"
 					onClick={(e) => e.stopPropagation()}
 					onMouseDown={(e) => e.stopPropagation()}
