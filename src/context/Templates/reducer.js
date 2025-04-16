@@ -202,7 +202,7 @@ const actionHandlers = {
 				cot,
 			};
 		} else {
-			messages.push({
+			messages?.push({
 				...payload,
 				type: 'AI',
 				contentType: 'message',

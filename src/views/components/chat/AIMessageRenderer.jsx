@@ -143,7 +143,7 @@ const AIMessageRenderer = ({
 					isLastMessage={index === globalChatMessages?.length - 1}
 				/>
 			) : info?.activeTab === 'cot' ? (
-				<ChainOfThought cot={messageData?.cot} />
+				<ChainOfThought cot={messageData?.cot} stream_end={messageData?.stream_end} />
 			) : (
 				<div className="source-content">
 					{messageData?.citations && messageData?.citations.length > 0
