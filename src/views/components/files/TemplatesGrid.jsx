@@ -6,7 +6,7 @@ import { memo, useContext, useEffect, useState, useCallback } from 'react';
 import Context from '../../../context/context';
 import InfiniteScroll from '../globalComponents/InfiniteScroll';
 import gsap from 'gsap';
-const TemplatesGrid = ({ isLoading, handleCreateTemplate }) => {
+const TemplatesGrid = ({ handleCreateTemplate, handleTotalChange }) => {
 	const {
 		templates: { myWorkflows, getMyWorkflows },
 	} = useContext(Context);
@@ -154,7 +154,7 @@ const TemplatesGrid = ({ isLoading, handleCreateTemplate }) => {
 
 	const myWorkflowsDataParser = useCallback(
 		(dataToBeUsed, fetchMore = false) => {
-			let { data, currentPage, hasNextPage } = dataToBeUsed;
+			let { data, currentPage, hasNextPage, totalDocs } = dataToBeUsed;
 			let workflowTemplates = [];
 
 			for (let i = 0; i < data?.length; i++) {
@@ -178,6 +178,7 @@ const TemplatesGrid = ({ isLoading, handleCreateTemplate }) => {
 				hasNextPage,
 				loading: false,
 			}));
+			handleTotalChange(totalDocs);
 		},
 		[info?.workflowTemplates],
 	);

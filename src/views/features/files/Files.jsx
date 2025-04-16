@@ -182,6 +182,7 @@ const Files = () => {
 		initialDataFetched: false,
 		commonState: 'All',
 		options: [{ label: 'Notes', value: 'notes' }],
+		totalCount: null,
 	});
 	const cardItems = useRef(null);
 
@@ -277,6 +278,10 @@ const Files = () => {
 
 	const handleNavigateForm = (formId) => {
 		navigate(`/form/${formId}`);
+	};
+
+	const handleTotalChange = (data) => {
+		setInfo((prevInfo) => ({ ...prevInfo, totalCount: data }));
 	};
 
 	const SearchResults = () => {
@@ -539,14 +544,21 @@ const Files = () => {
 			<DocsGrid
 				statusTextmapper={statusTextmapper}
 				handleCreateDoc={() => setInfo((prev) => ({ ...prev, openProposalPopup: true }))}
+				handleTotalChange={(value) => handleTotalChange({ workflow: value })}
 			/>
 		),
-		Notes: <NotesGrid handleNewNotes={handleNewNotes} />,
+		Notes: (
+			<NotesGrid
+				handleNewNotes={handleNewNotes}
+				handleTotalChange={(value) => handleTotalChange({ notes: value })}
+			/>
+		),
 		Forms: (
 			<FormsGrid
 				statusTextmapper={statusTextmapper}
 				handleNavigateForm={handleNavigateForm}
 				handleCreateForm={() => setInfo((prev) => ({ ...prev, openProposalPopup: true }))}
+				handleTotalChange={(value) => handleTotalChange({ form: value })}
 			/>
 		),
 		'Classic Gallery': (
@@ -554,6 +566,7 @@ const Files = () => {
 				handleCreateNewGallery={handleCreateNewGallery}
 				handleNavigateGallery={handleNavigateGallery}
 				selectedOption={info?.selectedView}
+				handleTotalChange={(value) => handleTotalChange({ classicGallery: value })}
 			/>
 		),
 		'Lite Gallery': (
@@ -562,6 +575,7 @@ const Files = () => {
 				handleCreateNewGallery={handleCreateNewGallery}
 				handleNavigateGallery={handleNavigateGallery}
 				selectedOption={info?.selectedView}
+				handleTotalChange={(value) => handleTotalChange({ liteGallery: value })}
 			/>
 		),
 		MostUsedEntries: <MostUsedEntries mostUsedEntities={mostUsedEntities} />,
@@ -570,6 +584,7 @@ const Files = () => {
 				handleCreateTemplate={() =>
 					setInfo((prev) => ({ ...prev, openProposalPopup: true }))
 				}
+				handleTotalChange={(value) => handleTotalChange({ template: value })}
 			/>
 		),
 	};
@@ -614,12 +629,17 @@ const Files = () => {
 													display: 'flex',
 													alignItems: 'center',
 													justifyContent: 'space-between',
-													width: '100%',
 												}}
 											>
 												{option?.label}
 											</div>
+											{info?.totalCount?.[option?.value] ? (
+												<div className="count-wrapper">
+													{info?.totalCount?.[option?.value]}
+												</div>
+											) : null}
 										</div>
+
 										{loadingView === option?.label && (
 											<div className="sidebar-option-spinner">
 												<Spinner

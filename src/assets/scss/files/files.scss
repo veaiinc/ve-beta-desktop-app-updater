@@ -431,6 +431,10 @@
 				line-height: 21px; /* 150% */
 				border-radius: 15px;
 				cursor: pointer;
+				display: flex;
+				width: 100%;
+				gap: 10px;
+				justify-content: flex-start;
 				&:hover {
 					color: var(--primary-font);
 					background: var(--card-hover);
@@ -438,6 +442,28 @@
 
 				&.active {
 					color: var(--primary-font);
+					border-radius: 100px;
+					background: var(--card, #171819);
+					background: var(--card, color(display-p3 0.0902 0.0941 0.098));
+				}
+
+				.count-wrapper {
+					display: flex;
+					padding: 3.637px;
+					justify-content: center;
+					align-items: center;
+					gap: 9.093px;
+					border-radius: 3.637px;
+					background: var(--primary-font, #f2f2f3);
+					background: var(--primary-font, color(display-p3 0.949 0.949 0.9529));
+					color: var(--background-color, #0c0c0d);
+					color: var(--background-color, color(display-p3 0.0471 0.0485 0.051));
+					font-family: Inter;
+					font-size: 10.912px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+					min-width: 20px;
 				}
 			}
 			.sidebar-option-spinner {

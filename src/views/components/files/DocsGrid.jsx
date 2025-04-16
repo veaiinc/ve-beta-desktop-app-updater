@@ -9,7 +9,7 @@ import InfiniteScroll from '../globalComponents/InfiniteScroll';
 import Context from '../../../context/context';
 import gsap from 'gsap';
 import Spinner from '../loaders/Spinner';
-const DocsGrid = ({ statusTextmapper, handleCreateDoc }) => {
+const DocsGrid = ({ statusTextmapper, handleCreateDoc, handleTotalChange }) => {
 	const navigate = useNavigate();
 
 	const {
@@ -112,9 +112,15 @@ const DocsGrid = ({ statusTextmapper, handleCreateDoc }) => {
 
 	useEffect(() => {
 		if (docsFilesList) {
-			const { currentPage = 1, hasNextPage = false, data = [] } = docsFilesList || {};
+			const {
+				currentPage = 1,
+				hasNextPage = false,
+				data = [],
+				totalDocs = 0,
+			} = docsFilesList || {};
 			const newDocs = currentPage === 1 ? [...data] : [...info?.docs, ...(data || [])];
 			handleStateUpdate({ docs: newDocs, currentPage, hasNextPage, loading: false });
+			handleTotalChange(totalDocs);
 		}
 	}, [docsFilesList]);
 

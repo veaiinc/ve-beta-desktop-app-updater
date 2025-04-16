@@ -8,7 +8,12 @@ import InfiniteScroll from '../globalComponents/InfiniteScroll';
 import Context from '../../../context/context';
 import gsap from 'gsap';
 import Spinner from '../loaders/Spinner';
-const FormsGrid = ({ statusTextmapper, handleCreateForm, handleNavigateForm }) => {
+const FormsGrid = ({
+	statusTextmapper,
+	handleCreateForm,
+	handleNavigateForm,
+	handleTotalChange,
+}) => {
 	const {
 		templates: { getTemplatesListForForms, formsTemplatesList },
 	} = useContext(Context);
@@ -113,10 +118,16 @@ const FormsGrid = ({ statusTextmapper, handleCreateForm, handleNavigateForm }) =
 
 	useEffect(() => {
 		if (formsTemplatesList) {
-			const { currentPage = 1, hasNextPage = false, data = [] } = formsTemplatesList || {};
+			const {
+				currentPage = 1,
+				hasNextPage = false,
+				data = [],
+				totalDocs = 0,
+			} = formsTemplatesList || {};
 			const newForms = currentPage === 1 ? [...data] : [...info?.forms, ...(data || [])];
 
 			handleStateUpdate({ forms: newForms, currentPage, hasNextPage, loading: false });
+			handleTotalChange(totalDocs);
 		}
 	}, [formsTemplatesList]);
 

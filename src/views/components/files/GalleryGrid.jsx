@@ -9,7 +9,12 @@ import { useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
 import InfiniteScroll from '../globalComponents/InfiniteScroll';
 import gsap from 'gsap';
-const GalleryGrid = ({ handleCreateNewGallery, handleNavigateGallery, selectedOption }) => {
+const GalleryGrid = ({
+	handleCreateNewGallery,
+	handleNavigateGallery,
+	selectedOption,
+	handleTotalChange,
+}) => {
 	const navigate = useNavigate();
 
 	const {
@@ -35,7 +40,12 @@ const GalleryGrid = ({ handleCreateNewGallery, handleNavigateGallery, selectedOp
 
 	useEffect(() => {
 		if (tenantGalleries) {
-			const { currentPage = 1, hasNextPage = false, galleries = [] } = tenantGalleries || {};
+			const {
+				currentPage = 1,
+				hasNextPage = false,
+				galleries = [],
+				totalDocs = 0,
+			} = tenantGalleries || {};
 			const newGalleries =
 				currentPage === 1 ? [...galleries] : [...info?.galleries, ...(galleries || [])];
 
@@ -45,6 +55,7 @@ const GalleryGrid = ({ handleCreateNewGallery, handleNavigateGallery, selectedOp
 				hasNextPage,
 				loading: false,
 			});
+			handleTotalChange(totalDocs);
 		}
 	}, [tenantGalleries]);
 	useEffect(() => {

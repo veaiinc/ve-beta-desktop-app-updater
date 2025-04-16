@@ -6,7 +6,7 @@ import { memo, useContext, useEffect, useState } from 'react';
 import Context from '../../../context/context';
 import InfiniteScroll from '../globalComponents/InfiniteScroll';
 import gsap from 'gsap';
-const NotesGrid = ({ handleNewNotes }) => {
+const NotesGrid = ({ handleNewNotes, handleTotalChange }) => {
 	const navigate = useNavigate();
 
 	const {
@@ -26,9 +26,10 @@ const NotesGrid = ({ handleNewNotes }) => {
 
 	useEffect(() => {
 		if (notes) {
-			const { currentPage = 1, hasNextPage = false, data = [] } = notes || {};
+			const { currentPage = 1, hasNextPage = false, data = [], totalDocs = 0 } = notes || {};
 			const newNotes = currentPage === 1 ? [...data] : [...info?.notes, ...(data || [])];
 			handleStateUpdate({ notes: newNotes, currentPage, hasNextPage });
+			handleTotalChange(totalDocs);
 		}
 	}, [notes]);
 	useEffect(() => {
