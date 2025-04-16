@@ -174,8 +174,8 @@ const AiFaceRegistration = ({ link, handlePreRegistration, preRegistration }) =>
 						<div className="scanner" ref={qrRef}>
 							<QRCodeCanvas
 								value={link}
-								fgColor="#7A7E85"
-								bgColor="#171819"
+								fgColor="#000000"
+								bgColor="#FFFFFF"
 								size={120}
 							/>
 						</div>
