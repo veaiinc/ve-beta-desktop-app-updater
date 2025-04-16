@@ -405,6 +405,7 @@ export const TypingEffect = memo(
 				)}
 
 				{typeof messageData?.['follow_up_query'] !== 'string' &&
+					messageData?.stream_end &&
 					(messageData?.['follow_up_query'] || [])?.length > 0 && (
 						<div className="suggested-prompts">
 							<div className="title-text">Suggested Prompts</div>
