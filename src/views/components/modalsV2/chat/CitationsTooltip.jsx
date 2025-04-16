@@ -93,11 +93,9 @@ export const CitationsTooltip = memo(({ citationId, citations, placement = 'topL
 					</div>
 
 					<div className="info">
-						<div className="image">
-							{citationInfo?.type === 's3_key'
-								? fileTypeIcons[citationInfo?.fileType]
-								: null}
-						</div>
+						{citationInfo?.type === 's3_key' ? (
+							<div className="image">{fileTypeIcons[citationInfo?.fileType]}</div>
+						) : null}
 						<div className="citation-link">{citationInfo?.name}</div>
 					</div>
 				</a>

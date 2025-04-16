@@ -12,6 +12,7 @@ import BottomToolbar from '../components/ai_agents/BottomToolbar';
 import useAccessControls from '../hooks/useAcessControls';
 import RenewBanner from '../components/globalComponents/RenewBanner';
 import Context from '../../context/context';
+import DynamicWidget from '../features/DynamicWidget/dynamicWidget';
 const AuthWrapper = ({
 	title,
 	children,
@@ -32,7 +33,7 @@ const AuthWrapper = ({
 	useEffect(() => {
 		checkAuth();
 	}, []);
-
+	const worspaceId = ['swaroop', 'veai', 'bhee'];
 	return (
 		<div className="authParentContainer" style={{ ...(authParentContainerStyle || {}) }}>
 			<Helmet>
@@ -40,6 +41,7 @@ const AuthWrapper = ({
 				<title>{title} | VE</title>
 			</Helmet>
 			{renewBanner && <RenewBanner />}
+			{worspaceId.includes(workspaceId) && <DynamicWidget />}
 			<div
 				style={{
 					display: 'flex',

@@ -8,9 +8,10 @@ import { ReactComponent as ThumpsDownSvg } from '../assets/svg/ai_agents/thumps-
 import { ReactComponent as HeadPhoneSvg } from '../assets/svg/ai_agents/head-phone.svg';
 import { ReactComponent as TickSvg } from '../assets/svg/tick.svg';
 import { ReactComponent as CopyIcon } from '../assets/svg/ai_agents/copy.svg';
+import { ReactComponent as ViewDocumentIcon } from '../assets/svg/chat/viewDocument.svg';
 import Context from '../context/context';
 import { Tooltip } from 'antd';
-
+import { ReactComponent as ArrowRightSvg } from '../assets/svg/home_page/arrow-right.svg';
 import { CitationsTooltip } from '../views/components/modalsV2/chat/CitationsTooltip';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
@@ -19,7 +20,9 @@ import rehypeRaw from 'rehype-raw';
 import 'katex/dist/katex.min.css';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { dracula } from 'react-syntax-highlighter/dist/esm/styles/prism';
-
+import FormModel from '../views/components/chat/FormModel';
+import AISuggestionsReportUserComponent from '../views/components/chat/chatComponents/AISuggestionsReportUserComponent';
+import AISuggestionsReportAiComponent from '../views/components/chat/chatComponents/AiSuggestionsReportAiComponent';
 const rehypeCITPlugin = () => {
 	return (tree) => {
 		const visit = (node) => {
@@ -253,7 +256,16 @@ export const TypingEffect = memo(
 		rating = null,
 		citations = [],
 		messageData,
+		isLastMessage = false,
 		isNewMessage = false,
+		showCanvas = true,
+		handleSendWebsocketMessage = null,
+		latestStreamMesage = null,
+		lastQuery = null,
+		toggleLatestStreamMessage = null,
+		handleViewDocument = null,
+		showViewDocument = false,
+		isNoteCanvas = false,
 	}) => {
 		const {
 			documentPreview: { setNoteContent },
@@ -307,6 +319,20 @@ export const TypingEffect = memo(
 		// 	setRenderTrigger((prev) => prev + 1);
 		// };
 
+		const handleUpdateId = (workflowTemplateId, moduleTemplateId) => {
+			console.log(
+				workflowTemplateId,
+				moduleTemplateId,
+				'workflowTemplateId, moduleTemplateId',
+			);
+			updateStateValues({
+				documentPreviewIds: {
+					workflowTemplateId,
+					moduleTemplateId,
+				},
+			});
+		};
+
 		const handleCopyTextClick = useCallback((text) => {
 			const textToBeCopied = text?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')?.replace(/\\n/g, '\n');
 			navigator?.clipboard?.writeText(textToBeCopied).then(() => {
@@ -338,25 +364,66 @@ export const TypingEffect = memo(
 
 		return (
 			<div className="typing-effect-container">
-				<Markdown citations={citations}>
-					{/* {newText?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')?.replace(/\\n/g, '\n')} */}
-					{/* {chunkRef?.current?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')?.replace(/\\n/g, '\n')} */}
-					{text?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')?.replace(/\\n/g, '\n')}
-				</Markdown>
+				{messageData?.workflow_template_id &&
+					(showCanvas && !isNoteCanvas ? (
+						<FormModel
+							workflowTemplateId={messageData?.workflow_template_id}
+							moduleTemplateId={messageData?.module_template_id}
+							ByDefaultExpanded={true}
+							handleSendWebsocketMessage={handleSendWebsocketMessage}
+							latestStreamMesage={latestStreamMesage}
+							lastQuery={lastQuery}
+							toggleLatestStreamMessage={toggleLatestStreamMessage}
+							messageId={messageData?.messageId}
+							handleViewDocument={handleViewDocument}
+							showViewDocument={showViewDocument}
+							isLastMessage={isLastMessage}
+							messageData={messageData}
+						/>
+					) : (
+						<div
+							className="view-document-container"
+							onClick={() =>
+								handleUpdateId(
+									messageData?.workflow_template_id,
+									messageData?.module_template_id,
+								)
+							}
+						>
+							<ViewDocumentIcon />
+							<p>View Document</p>
+						</div>
+					))}
+				{messageData?.moduleType === 'ai_suggestion_report' ? (
+					<AISuggestionsReportAiComponent data={messageData?.data} />
+				) : (
+					<Markdown citations={citations}>
+						{text?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')?.replace(/\\n/g, '\n')}
+						{/* {newText?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')?.replace(/\\n/g, '\n')} */}
+						{/* {chunkRef?.current?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')?.replace(/\\n/g, '\n')} */}
+					</Markdown>
+				)}
+
 				{typeof messageData?.['follow_up_query'] !== 'string' &&
+					messageData?.stream_end &&
 					(messageData?.['follow_up_query'] || [])?.length > 0 && (
 						<div className="suggested-prompts">
 							<div className="title-text">Suggested Prompts</div>
-							{(messageData?.['follow_up_query'] || [])?.map((query) => {
-								return (
-									<div
-										className="prompt-container"
-										onClick={() => handlePromptClick(query)}
-									>
-										<div className="prompt">{query}</div>
-									</div>
-								);
-							})}
+							<div className="prompts-container">
+								{(messageData?.['follow_up_query'] || [])?.map((query) => {
+									return (
+										<div
+											className="prompt-container"
+											onClick={() => handlePromptClick(query)}
+										>
+											<div className="logo-container">
+												<ArrowRightSvg />
+											</div>
+											<div className="prompt">{query}</div>
+										</div>
+									);
+								})}
+							</div>
 						</div>
 					)}
 
@@ -444,7 +511,9 @@ export const TypingEffect = memo(
 			prevProps.rating === nextProps.rating &&
 			JSON.stringify(prevProps.citations) === JSON.stringify(nextProps.citations) &&
 			prevProps.messageData?.messageId === nextProps.messageData?.messageId &&
-			prevProps.isNewMessage === nextProps.isNewMessage
+			prevProps.isNewMessage === nextProps.isNewMessage &&
+			prevProps.lastQuery === nextProps.lastQuery &&
+			prevProps.latestStreamMesage === nextProps.latestStreamMesage
 		);
 	},
 );
@@ -543,28 +612,36 @@ export const UserMessageRenderer = memo(({ messageData, activeUserMessageIndex }
 		<div className="user-message-renderer-wrapper">
 			{!info?.editUserQuery ? (
 				<div>
-					<div
-						style={{
-							// opacity: activeUserMessageIndex ? 1 : 0.6,
-							maxHeight: info?.isExpanded
-								? `${textRef.current?.scrollHeight}px`
-								: '147px',
-						}}
-						className="user-message-renderer-container"
-						ref={textRef}
-					>
-						{(messageData?.message || '').split('\n').map((line, index) => (
-							<span key={index}>
-								{line}
-								{index < messageData?.message.split('\n').length - 1 && <br />}
-							</span>
-						))}
-					</div>
-					{info?.isOverflowing && (
-						<div className="expand-btn">
-							<div className="btn-text" onClick={toggleExpand}>
-								{info?.isExpanded ? 'Show less' : 'Show more'}
+					{messageData?.moduleType === 'ai_suggestion_report' ? (
+						<AISuggestionsReportUserComponent data={messageData?.data} />
+					) : (
+						<div>
+							<div
+								style={{
+									// opacity: activeUserMessageIndex ? 1 : 0.6,
+									maxHeight: info?.isExpanded
+										? `${textRef.current?.scrollHeight}px`
+										: '147px',
+								}}
+								className="user-message-renderer-container"
+								ref={textRef}
+							>
+								{(messageData?.message || '').split('\n').map((line, index) => (
+									<span key={index}>
+										{line}
+										{index < messageData?.message.split('\n').length - 1 && (
+											<br />
+										)}
+									</span>
+								))}
 							</div>
+							{info?.isOverflowing && (
+								<div className="expand-btn">
+									<div className="btn-text" onClick={toggleExpand}>
+										{info?.isExpanded ? 'Show less' : 'Show more'}
+									</div>
+								</div>
+							)}
 						</div>
 					)}
 				</div>

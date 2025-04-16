@@ -27,9 +27,37 @@ import GalleryGrid from '../../components/files/GalleryGrid';
 import MostUsedEntries from '../../components/files/MostUsedEntries';
 import TemplatesGrid from '../../components/files/TemplatesGrid';
 import { useSearchParams } from 'react-router-dom';
+import useAccessControls from '../../hooks/useAcessControls';
 const initialState = {
 	workflowTemplates: [],
 };
+
+const options = [
+	// 'All',
+	{
+		label: 'Documents',
+		value: 'workflow',
+	},
+	// {
+	// 	label:"Notes",value:"workflow"
+	// },
+	{
+		label: 'Forms',
+		value: 'form',
+	},
+	{
+		label: 'Templates',
+		value: 'template',
+	},
+	{
+		label: 'Classic Gallery',
+		value: 'classicGallery',
+	},
+	{
+		label: 'Lite Gallery',
+		value: 'liteGallery',
+	},
+];
 
 export const statusTextmapper = {
 	filesViewed: {
@@ -124,21 +152,19 @@ export const statusTextmapper = {
 
 const Files = () => {
 	const [searchParams, setSearchParams] = useSearchParams();
-	const activeTab = searchParams.get('activeTab') || 'Documents';
+	const activeTab = searchParams.get('activeTab') || 'Notes';
 	const {
 		galleryInfo: { getGalleries, tenantGalleries, getMostUsedEntities },
 		elasticSearch: { elasticSearchResults },
 		templates: {
-			getTemplatesListForForms,
 			formsTemplatesList,
-			getDocsFilesList,
 			myWorkflows,
 			docsFilesList,
 			getMyWorkflows,
 			updateStateValues: updateTemplateStateValues,
-			getTemplatesListForCreateLead,
 		},
 		notes: { getNotesList, notes, createNotesList },
+		profileInfo: { tenantUserAccessControls },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -155,6 +181,7 @@ const Files = () => {
 		openProposalPopup: false,
 		initialDataFetched: false,
 		commonState: 'All',
+		options: [{ label: 'Notes', value: 'notes' }],
 	});
 	const cardItems = useRef(null);
 
@@ -175,91 +202,26 @@ const Files = () => {
 
 	const navigate = useNavigate();
 
-	const fetchGalleries = async (page, title = null, reset = false, customOptions = null) => {
-		try {
-			const options = customOptions || {
-				page,
-				limit: 12,
-				storeOriginals: true,
-			};
+	useEffect(() => {
+		if (tenantUserAccessControls) {
+			const isAdmin = tenantUserAccessControls?.role === 'admin';
+			let filteredOptions = options;
 
-			if (title) {
-				options.title = title;
-				options.limit = options.limit + 1;
+			if (!isAdmin && tenantUserAccessControls?.accessControls) {
+				const enabledApps = new Set(
+					tenantUserAccessControls?.accessControls
+						.filter((permission) => permission.isEnabled)
+						.map((permission) => permission.app),
+				);
+				filteredOptions = options.filter((option) => enabledApps.has(option.value));
 			}
 
-			getGalleries(options, reset);
-		} catch (err) {
-			setInfo((prevState) => ({
-				...prevState,
-				error: err.message || 'Failed to fetch galleries',
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				options: [{ label: 'Notes', value: 'notes' }, ...filteredOptions],
 			}));
 		}
-	};
-
-	useEffect(() => {
-		getMyWorkflowTemplatesData(1);
-		return () => {
-			setInfo((prev) => ({
-				...prev,
-				...initialState,
-			}));
-		};
-	}, []);
-
-	useEffect(() => {
-		if (myWorkflows) {
-			myWorkflowsDataParser(myWorkflows);
-		}
-	}, [myWorkflows]);
-	const myWorkflowsDataParser = useCallback(
-		(dataToBeUsed, fetchMore = false) => {
-			let { data, currentPage, hasNextPage } = dataToBeUsed;
-			let workflowTemplates = [];
-
-			for (let i = 0; i < data?.length; i++) {
-				if (
-					data?.[i]?.tenantId &&
-					data?.[i]?.tenantId !== null &&
-					data?.[i]?.status === 'published'
-				) {
-					workflowTemplates?.push(data?.[i]);
-				}
-			}
-
-			if (fetchMore) {
-				workflowTemplates = [...(info?.workflowTemplates || [])]?.concat(workflowTemplates);
-			}
-			setInfo((prev) => ({
-				...prev,
-				loading: false,
-				workflowTemplates,
-				currentPage,
-				hasNextPage,
-			}));
-		},
-		[info?.workflowTemplates],
-	);
-
-	const getMyWorkflowTemplatesData = useCallback(
-		(page, fetchMore = false) => {
-			const payload = {
-				filters: {
-					limit: 16,
-					page: page,
-					type: 'workspace',
-					status: 'published',
-					sortBy: 'createdAt',
-					sortType: -1,
-				},
-			};
-			if (info?.searchChanged) {
-				payload.filters.title = info?.searchValue || '';
-			}
-			getMyWorkflows(payload, fetchMore);
-		},
-		[info],
-	);
+	}, [tenantUserAccessControls]);
 
 	const handleNavigateGallery = (gallery) => {
 		navigate(`/galleries/${gallery?._id}`, { state: { galleryData: gallery } });
@@ -293,125 +255,8 @@ const Files = () => {
 		}
 	};
 
-	// const handleMouseEnter = () => {
-	// 	setInfo((prev) => ({ ...prev, cardHover: true }));
-	// };
-
-	// const handleMouseLeave = () => {
-	// 	setInfo((prev) => ({ ...prev, cardHover: false }));
-	// };
-
 	const [mostUsedEntities, setMostUsedEntities] = useState(null);
-	const [isLoading, setIsLoading] = useState(false);
 	const [loadingView, setLoadingView] = useState(null);
-
-	const fetchInitialData = async () => {
-		try {
-			setIsLoading(true);
-			const payload = {
-				filters: {
-					limit: 12,
-					page: 1,
-					sortBy: 'updatedBy',
-					sortType: -1,
-					startDate: null,
-					entityType: ['workflows', 'pages'],
-				},
-			};
-
-			const response = await getMostUsedEntities(payload);
-			if (response?.[0] && response?.[1]?.data?.mostUsedEntities) {
-				setMostUsedEntities(response[1].data.mostUsedEntities);
-			}
-		} catch (error) {
-			console.error('Error in fetchInitialData:', error);
-			message.error('Failed to fetch templates');
-		} finally {
-			setIsLoading(false);
-		}
-	};
-
-	useEffect(() => {
-		// Initial load of data
-		const initializeData = async () => {
-			try {
-				setIsLoading(true);
-				await Promise.all([
-					fetchInitialData(),
-					fetchForms(),
-					fetchDocs(),
-					fetchNotes(),
-					getMyWorkflowTemplatesData(1),
-				]);
-			} catch (error) {
-				console.error('Error initializing data:', error);
-			} finally {
-				setIsLoading(false);
-				setInfo((prev) => ({ ...prev, initialDataFetched: true }));
-			}
-		};
-		initializeData();
-
-		const contentContainer = document.querySelector('.storage-main-container');
-		if (contentContainer) {
-			gsap.fromTo(
-				contentContainer,
-				{ x: '100%', opacity: 0 },
-				{
-					x: '0%',
-					opacity: 1,
-					duration: 0.1,
-					ease: 'power2.out',
-					clearProps: 'all',
-				},
-			);
-		}
-	}, []);
-
-	const fetchForms = async () => {
-		try {
-			await getTemplatesListForForms(1, 12);
-		} catch (error) {
-			console.error('Error fetching forms:', error);
-		}
-	};
-
-	const fetchDocs = async () => {
-		try {
-			const payload = {
-				filters: {
-					limit: 12,
-					page: 1,
-				},
-			};
-			await getDocsFilesList(payload, false);
-		} catch (error) {
-			console.error('Error fetching docs:', error);
-		}
-	};
-
-	const fetchNotes = async () => {
-		try {
-			const payload = {
-				input: {
-					limit: 12,
-					page: 1,
-					pageType: 'all',
-				},
-			};
-			await getNotesList(payload, false);
-		} catch (error) {
-			console.error('Error fetching notes:', error);
-		}
-	};
-
-	const fetchTemplates = async () => {
-		try {
-			await getTemplatesListForCreateLead();
-		} catch (error) {
-			console.error('Error fetching templates:', error);
-		}
-	};
 
 	const handleDropdownOptionClick = async (option) => {
 		if (option === info.selectedView) {
@@ -425,25 +270,6 @@ const Files = () => {
 		setLoadingView(option);
 
 		try {
-			if (option === 'All') {
-				await fetchInitialData();
-			} else if (option === 'Forms') {
-				await fetchForms();
-			} else if (option === 'Documents') {
-				await fetchDocs();
-			} else if (option === 'Notes') {
-				await fetchNotes();
-			} else if (option === 'Templates') {
-				await fetchTemplates();
-			} else if (option === 'Classic Gallery' || option === 'Lite Gallery') {
-				const options = {
-					page: 1,
-					limit: info.limit,
-					storeOriginals: option === 'Classic Gallery',
-				};
-				await fetchGalleries(1, null, true, options);
-			}
-
 			setInfo({
 				...info,
 				bottomNavigationDropdown: false,
@@ -453,41 +279,6 @@ const Files = () => {
 			setLoadingView(null);
 		}
 	};
-
-	useEffect(() => {
-		const initializeData = async () => {
-			try {
-				if (info.selectedView === 'Forms') {
-					await fetchForms();
-				} else if (info.selectedView === 'Documents') {
-					await fetchDocs();
-				} else if (info.selectedView === 'Notes') {
-					await fetchNotes();
-				} else if (info.selectedView === 'Templates') {
-					await fetchTemplates();
-				} else if (
-					info.selectedView === 'Classic Gallery' ||
-					info.selectedView === 'Lite Gallery'
-				) {
-					const options = {
-						page: 1,
-						limit: info.limit,
-						storeOriginals: info.selectedView === 'Classic Gallery',
-					};
-					await fetchGalleries(1, null, true, options);
-				} else {
-					await fetchGalleries(1, null, true);
-				}
-			} catch (error) {
-				console.error('Error initializing data:', error);
-			}
-		};
-
-		if (!info.initialDataFetched) {
-			initializeData();
-			setInfo((prev) => ({ ...prev, initialDataFetched: true }));
-		}
-	}, []);
 
 	const handleNavigateForm = (formId) => {
 		navigate(`/form/${formId}`);
@@ -748,145 +539,26 @@ const Files = () => {
 		);
 	};
 
-	const viewsConfig = [
-		{ view: 'All', app: 'all' },
-		{ view: 'Classic Gallery', app: 'classicGallery' },
-		{ view: 'Lite Gallery', app: 'liteGallery' },
-		{ view: 'Notes', app: 'note' },
-		{ view: 'Forms', app: 'form' },
-		{ view: 'Documents', app: 'workflow' },
-	];
-
-	useEffect(() => {
-		// Add a small delay only for gallery views to ensure data is loaded
-		const delay =
-			info.selectedView === 'Classic Gallery' || info.selectedView === 'Lite Gallery'
-				? 100
-				: 0;
-
-		setTimeout(() => {
-			const cards = document.querySelectorAll('.card-item');
-			if (!cards || cards.length === 0) return;
-
-			const ctx = gsap.context(() => {
-				// Reset initial positions with varying y values
-				cards.forEach((card) => {
-					const yOffset = 50 + Math.random() * 100;
-					gsap.set(card, {
-						y: yOffset,
-						opacity: 0,
-					});
-				});
-
-				// Group cards into columns for staggered animation
-				const columnGroups = {
-					oddColumns: Array.from(cards).filter(
-						(_, index) => index % 4 === 0 || index % 4 === 2,
-					),
-					evenColumns: Array.from(cards).filter(
-						(_, index) => index % 4 === 1 || index % 4 === 3,
-					),
-				};
-
-				// Animate odd columns (1 and 3)
-				gsap.to(columnGroups.oddColumns, {
-					y: 0,
-					opacity: 1,
-					duration: 0.4,
-					stagger: {
-						each: 0.05,
-						ease: 'power1.out',
-					},
-					modifiers: {
-						y: (y, target) => {
-							const initialY = Math.abs(
-								parseFloat(target.style.transform?.split('translateY(')[1]) || 0,
-							);
-							const duration = gsap.utils.mapRange(50, 150, 0.4, 0.2)(initialY);
-							if (target._gsap) target._gsap.duration = duration;
-							return y;
-						},
-					},
-				});
-
-				// Animate even columns (2 and 4)
-				gsap.to(columnGroups.evenColumns, {
-					y: 0,
-					opacity: 1,
-					duration: 0.4,
-					delay: 0.1,
-					stagger: {
-						each: 0.05,
-						ease: 'power1.out',
-					},
-					modifiers: {
-						y: (y, target) => {
-							const initialY = Math.abs(
-								parseFloat(target.style.transform?.split('translateY(')[1]) || 0,
-							);
-							const duration = gsap.utils.mapRange(50, 150, 0.4, 0.2)(initialY);
-							if (target._gsap) target._gsap.duration = duration;
-							return y;
-						},
-					},
-				});
-			});
-
-			return () => ctx.revert();
-		}, delay);
-	}, [info.selectedView, tenantGalleries?.galleries]);
-
-	useEffect(() => {
-		const container = document.querySelector('.card-container, .card-container-hover');
-		if (!container) return;
-
-		const ctx = gsap.context(() => {
-			const cards = container.querySelectorAll('.card-item');
-			if (!cards || cards.length === 0) return;
-
-			const enterAnimation = (card) => {
-				gsap.to(card, {
-					scale: 1.05,
-					duration: 0.3,
-					ease: 'power2.out',
-					zIndex: 2,
-				});
-			};
-
-			const leaveAnimation = (card) => {
-				gsap.to(card, {
-					scale: 1,
-					duration: 0.3,
-					ease: 'power2.out',
-					zIndex: 1,
-				});
-			};
-
-			cards.forEach((card) => {
-				card.addEventListener('mouseenter', () => enterAnimation(card));
-				card.addEventListener('mouseleave', () => leaveAnimation(card));
-			});
-		}, container);
-
-		return () => ctx.revert();
-	}, [info.selectedView]);
-
 	const tabsMapper = {
-		Documents: <DocsGrid docsFilesList={docsFilesList} statusTextmapper={statusTextmapper} />,
-		Notes: <NotesGrid notes={notes} handleNewNotes={handleNewNotes} />,
+		Documents: (
+			<DocsGrid
+				statusTextmapper={statusTextmapper}
+				handleCreateDoc={() => setInfo((prev) => ({ ...prev, openProposalPopup: true }))}
+			/>
+		),
+		Notes: <NotesGrid handleNewNotes={handleNewNotes} />,
 		Forms: (
 			<FormsGrid
-				formsTemplatesList={formsTemplatesList}
 				statusTextmapper={statusTextmapper}
-				setInfo={setInfo}
 				handleNavigateForm={handleNavigateForm}
+				handleCreateForm={() => setInfo((prev) => ({ ...prev, openProposalPopup: true }))}
 			/>
 		),
 		'Classic Gallery': (
 			<GalleryGrid
-				tenantGalleries={tenantGalleries}
 				handleCreateNewGallery={handleCreateNewGallery}
 				handleNavigateGallery={handleNavigateGallery}
+				selectedOption={info?.selectedView}
 			/>
 		),
 		'Lite Gallery': (
@@ -894,11 +566,16 @@ const Files = () => {
 				tenantGalleries={tenantGalleries}
 				handleCreateNewGallery={handleCreateNewGallery}
 				handleNavigateGallery={handleNavigateGallery}
+				selectedOption={info?.selectedView}
 			/>
 		),
 		MostUsedEntries: <MostUsedEntries mostUsedEntities={mostUsedEntities} />,
 		Templates: (
-			<TemplatesGrid myWorkflows={myWorkflows} isLoading={isLoading} setInfo={setInfo} />
+			<TemplatesGrid
+				handleCreateTemplate={() =>
+					setInfo((prev) => ({ ...prev, openProposalPopup: true }))
+				}
+			/>
 		),
 	};
 	return (
@@ -929,21 +606,13 @@ const Files = () => {
 						</div>
 						<div className="card-sub-container-right">
 							<div className="right-sidebar-options">
-								{[
-									// 'All',
-									'Documents',
-									'Notes',
-									'Forms',
-									// 'Templates',
-									'Classic Gallery',
-									'Lite Gallery',
-								].map((option) => (
-									<div className="sidebar-option-wrapper" key={option}>
+								{info?.options.map((option) => (
+									<div className="sidebar-option-wrapper" key={option?.value}>
 										<div
 											className={`sidebar-option ${
-												info.selectedView === option ? 'active' : ''
+												info.selectedView === option?.label ? 'active' : ''
 											}`}
-											onClick={() => handleDropdownOptionClick(option)}
+											onClick={() => handleDropdownOptionClick(option?.label)}
 										>
 											<div
 												style={{
@@ -953,10 +622,10 @@ const Files = () => {
 													width: '100%',
 												}}
 											>
-												{option}
+												{option?.label}
 											</div>
 										</div>
-										{loadingView === option && (
+										{loadingView === option?.label && (
 											<div className="sidebar-option-spinner">
 												<Spinner
 													cssstyle={{
@@ -978,7 +647,6 @@ const Files = () => {
 			<CreateGallery
 				open={info.createNewGalleryModal}
 				closeModal={handleCloseModal}
-				fetchGalleries={fetchGalleries}
 				message={message}
 				isLightGallery={info.selectedView === 'Lite Gallery'}
 			/>
