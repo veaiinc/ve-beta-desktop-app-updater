@@ -9,16 +9,19 @@ import googleCalendar from '../../../assets/svg/Settings/google-calendar-logo.pn
 import dropbox from '../../../assets/svg/Settings/drop-box-logo.png';
 import meta from '../../../assets/svg/Settings/meta.svg';
 import notion from '../../../assets/svg/Settings/notion.svg';
-import paypal from '../../../assets/svg/Settings/paypal.svg';
-import square from '../../../assets/svg/Settings/square.svg';
-import stripe from '../../../assets/svg/Settings/stripe.svg';
-import zoho from '../../../assets/svg/Settings/zoho-logo.svg';
+import PayPal from '../../../assets/svg/Settings/paypal.svg';
+import Square from '../../../assets/svg/Settings/square.svg';
+import Stripe from '../../../assets/svg/Settings/stripe.svg';
+import Zoho from '../../../assets/svg/Settings/zoho-logo.svg';
+import microsoft365 from '../../../assets/svg/Settings/microsoft-365.svg';
 import IntegrationConnectModel from '../../components/modalsV2/integrations/IntegrationConnectModel';
 import Context from '../../../context/context';
-import { Modal } from 'antd';
+// import { Modal } from 'antd';
 import ConnectedIntegrationModel from '../../components/modalsV2/integrations/ConnectedIntegrationModel';
 import Spinner from '../../components/loaders/Spinner';
 import { message } from '../../components/globalComponents/CustomToast';
+import Service from '../../../services/index';
+import jwtDecode from 'jwt-decode';
 
 const ConnectedIntegrationCard = ({ icon, title, description, accounts, onViewAccounts }) => {
 	return (
@@ -76,16 +79,125 @@ const AvailableIntegrationCard = ({
 	);
 };
 
-const IntegrationRequestCard = ({ icon, title }) => {
+const IntegrationRequestCard = ({ iconSlug, title, tenantId }) => {
+	const handleRequestThisIntegration = async (appName) => {
+		const path =
+			'/veai/67fe3e600c94e176a4caa277/67fe3e600c94e176a4caa278/67fe3e6bfb3b5c663744bc78';
+		const token = localStorage.getItem('usertoken');
+		const workspaceId = localStorage.getItem('workspaceId');
+		const userId = jwtDecode(token)?.user_id;
+		const username = jwtDecode(token)?.userName;
+
+		const body = {
+			responseInput: {
+				response: [
+					{
+						_id: '67fe400ef1d11a35f34ba39f',
+						type: 'shortanswer',
+						question: 'Tenant User Id',
+						required: false,
+						order: 4,
+						isEditing: false,
+						placeholder: 'Enter your tenant user id',
+						answer: userId,
+						validation: {
+							pattern: {},
+							operators: [],
+						},
+						conditions: [],
+						actions: [],
+					},
+					{
+						_id: '67fe412cef81b3629e2f70c7',
+						type: 'shortanswer',
+						question: 'Tenant _id',
+						required: false,
+						order: 5,
+						isEditing: false,
+						placeholder: 'Enter your tenant _id',
+						answer: tenantId,
+						validation: {
+							pattern: {},
+							operators: [],
+						},
+						conditions: [],
+						actions: [],
+					},
+					{
+						_id: '67fe4119f1d11a35f34ba3a1',
+						type: 'shortanswer',
+						question: 'Tenant Name',
+						required: false,
+						order: 4,
+						isEditing: false,
+						placeholder: 'Enter your tenant name',
+						answer: workspaceId,
+						validation: {
+							pattern: {},
+							operators: [],
+						},
+						conditions: [],
+						actions: [],
+					},
+					{
+						_id: '67fe40305843ba03df9eff98',
+						type: 'shortanswer',
+						question: 'Tenant User Name',
+						required: false,
+						order: 5,
+						isEditing: false,
+						placeholder: 'Enter your tenant user name',
+						answer: username,
+						validation: {
+							pattern: {},
+							operators: [],
+						},
+						conditions: [],
+						actions: [],
+					},
+					{
+						_id: '67fe40bd48dba03b45963bcf',
+						type: 'shortanswer',
+						question: 'Application',
+						required: false,
+						order: 5,
+						isEditing: false,
+						placeholder: 'Enter your application',
+						answer: appName,
+						validation: {
+							pattern: {},
+							operators: [],
+						},
+						conditions: [],
+						actions: [],
+					},
+				],
+			},
+		};
+		const type = 'workflow';
+		const response = await Service?.fetchPost(path, body, token, type);
+		if (response?.[0] === true) {
+			message.success(`Request sent successfully to integrate ${appName}`);
+		} else {
+			message.error('Request failed');
+		}
+	};
+
 	return (
 		<div className="integration-request-card">
 			<div className="card-content">
-				<div className="integration-icon">
-					<img src={icon} alt={title} className="integraton-image" />
-				</div>
+				{iconSlug ? (
+					<div className="integration-icon">
+						<img src={`https://cdn.simpleicons.org/${iconSlug}`} alt={title} />
+					</div>
+				) : (
+					''
+				)}
 				<h3>{title}</h3>
 			</div>
-			<span className="request-button">Request</span>
+			<span onClick={() => handleRequestThisIntegration(title)} className="request-button">
+				Request
+			</span>
 		</div>
 	);
 };
@@ -99,9 +211,11 @@ const Integrations = () => {
 	const [activeTab, setActiveTab] = useState('private');
 	const [connectLoader, setConnectLoader] = useState(false);
 	const {
-		profileInfo: { tenantUserAccessControls },
+		profileInfo: { tenantUserAccessControls, tennantSettingsData },
 	} = useContext(Context);
 	let isAdmin = false;
+
+	const tenantId = tennantSettingsData?._id;
 
 	if (tenantUserAccessControls?.role === 'admin') {
 		isAdmin = true;
@@ -200,47 +314,109 @@ const Integrations = () => {
 	];
 
 	const requestIntegrations = [
-		{
-			id: 1,
-			icon: paypal,
-			title: 'PayPal',
-		},
+		{ id: 1, iconSlug: 'paypal', title: 'PayPal' },
 		{
 			id: 2,
-			icon: square,
-			title: 'Square',
+			title: 'Microsoft 365',
 		},
-		{
-			id: 3,
-			icon: stripe,
-			title: 'Stripe',
-		},
-		{
-			id: 4,
-			icon: stripe,
-			title: 'Stripe',
-		},
-		{
-			id: 5,
-			icon: stripe,
-			title: 'Stripe',
-		},
-		{
-			id: 6,
-			icon: stripe,
-			title: 'Stripe',
-		},
-		{
-			id: 7,
-			icon: stripe,
-			title: 'Stripe',
-		},
-		{
-			id: 8,
-			icon: stripe,
-			title: 'Stripe',
-		},
+		{ id: 5, iconSlug: 'zoom', title: 'Zoom' },
+		{ id: 6, iconSlug: 'confluence', title: 'Confluence (Atlassian)' },
+		{ id: 8, iconSlug: 'salesforce', title: 'Salesforce' },
+		{ id: 9, iconSlug: 'github', title: 'GitHub' },
+		{ id: 10, iconSlug: 'jira', title: 'Jira (Atlassian)' },
+		{ id: 11, iconSlug: 'workday', title: 'Workday' },
+		{ id: 12, iconSlug: 'box', title: 'Box' },
+		{ id: 13, iconSlug: 'dropbox', title: 'Dropbox' },
+		{ id: 14, iconSlug: 'okta', title: 'Okta (SSO/user directory)' },
+		{ id: 15, title: 'ServiceNow' },
+		{ id: 16, iconSlug: 'zendesk', title: 'Zendesk' },
+		{ id: 17, iconSlug: 'asana', title: 'Asana' },
+		{ id: 18, iconSlug: 'trello', title: 'Trello' },
+		{ id: 19, iconSlug: 'figma', title: 'Figma' },
+		{ id: 20, title: 'Tableau' },
+		{ id: 21, title: 'Power BI' },
+		{ id: 22, iconSlug: 'gitlab', title: 'GitLab' },
+		{ id: 23, iconSlug: 'hubspot', title: 'HubSpot' },
+		{ id: 24, iconSlug: 'intercom', title: 'Intercom' },
+		{ id: 25, title: 'BambooHR' },
+		{ id: 26, iconSlug: 'greenhouse', title: 'Greenhouse' },
+		{ id: 27, title: 'Lattice' },
+		{ id: 28, iconSlug: 'airtable', title: 'Airtable' },
+		{ id: 29, title: 'Monday.com' },
+		{ id: 30, title: 'Smartsheet' },
+		{ id: 31, title: 'Azure DevOps' },
+		{ id: 32, title: 'Freshdesk' },
+		{ id: 33, iconSlug: 'egnyte', title: 'Egnyte' },
+		{ id: 34, iconSlug: 'miro', title: 'Miro' },
+		{ id: 35, title: 'DocuSign' },
+		{ id: 36, iconSlug: 'adp', title: 'ADP' },
+		{ id: 37, title: 'ZoomInfo' },
+		{ id: 38, title: 'Gong' },
+		{ id: 39, title: 'Domo' },
+		{ id: 40, iconSlug: 'looker', title: 'Looker' },
+		{ id: 41, title: 'Splunk' },
+		{ id: 42, iconSlug: 'pagerduty', title: 'PagerDuty' },
+		{ id: 43, title: 'Outreach.io' },
+		{ id: 44, title: 'Salesloft' },
+		{ id: 45, iconSlug: 'loom', title: 'Loom' },
+		{ id: 46, iconSlug: 'calendly', title: 'Calendly' },
+		{ id: 47, iconSlug: 'linear', title: 'Linear' },
+		{ id: 48, iconSlug: 'bitbucket', title: 'Bitbucket' },
+		{ id: 49, iconSlug: 'clickup', title: 'ClickUp' },
+		{ id: 50, title: 'Wrike' },
+		{ id: 51, iconSlug: 'basecamp', title: 'Basecamp' },
+		{ id: 52, title: 'Zoho CRM' },
+		{ id: 53, title: 'Pipedrive' },
+		{ id: 54, title: 'Freshsales' },
+		{ id: 55, title: 'Help Scout' },
+		{ id: 56, title: 'Kayako' },
+		{ id: 57, title: 'Front App' },
+		{ id: 58, title: 'Kustomer' },
+		{ id: 59, title: 'Guru' },
+		{ id: 60, title: 'Slite' },
+		{ id: 61, title: 'Nuclino' },
+		{ id: 62, title: 'Marketo' },
+		{ id: 63, iconSlug: 'mailchimp', title: 'Mailchimp' },
+		{ id: 64, title: 'Braze' },
+		{ id: 65, title: 'Iterable' },
+		{ id: 66, title: 'Adobe Creative Cloud' },
+		{ id: 67, iconSlug: 'canva', title: 'Canva' },
+		{ id: 68, iconSlug: 'sketch', title: 'Sketch' },
+		{ id: 69, iconSlug: 'invision', title: 'InVision' },
+		{ id: 70, title: 'Mode Analytics' },
+		{ id: 71, title: 'Sisense' },
+		{ id: 72, title: 'OneLogin' },
+		{ id: 73, title: 'Duo Security' },
+		{ id: 74, title: 'Jamf' },
+		{ id: 75, title: 'QuickBooks Online' },
+		{ id: 76, iconSlug: 'xero', title: 'Xero' },
+		{ id: 77, title: 'Bill.com' },
+		{ id: 78, iconSlug: 'expensify', title: 'Expensify' },
+		{ id: 79, title: 'Ironclad' },
+		{ id: 80, title: 'Lucidchart' },
+		{ id: 81, title: 'Chili Piper' },
+		{ id: 82, title: 'Chorus.ai' },
+		{ id: 83, title: 'Clearbit' },
+		{ id: 84, title: 'Twist' },
+		{ id: 85, iconSlug: 'mattermost', title: 'Mattermost' },
+		{ id: 86, title: 'Flock' },
+		{ id: 87, title: 'Redbooth' },
+		{ id: 88, title: 'ProofHub' },
+		{ id: 89, title: 'Citrix ShareFile' },
+		{ id: 90, title: 'Docker Hub' },
+		{ id: 91, iconSlug: 'jenkins', title: 'Jenkins' },
+		{ id: 92, iconSlug: 'circleci', title: 'CircleCI' },
+		{ id: 93, iconSlug: 'terraform', title: 'Terraform' },
+		{ id: 94, title: 'Lever' },
+		{ id: 95, title: 'Paylocity' },
+		{ id: 96, iconSlug: 'gusto', title: 'Gusto' },
+		{ id: 97, title: 'Rippling' },
+		{ id: 98, title: 'Namely' },
+		{ id: 99, title: 'Document360' },
+		{ id: 100, title: 'Helpjuice' },
+		{ id: 101, title: 'ActiveCampaign' },
 	];
+
 	const [info, setInfo] = useState({
 		connectedThirdParties: {
 			google: false,
@@ -452,15 +628,19 @@ const Integrations = () => {
 						))}
 					</div>
 				</section>
-				{/* 
-						<section className="request-integrations">
-							<h2>Which integrations you would like to connect?</h2>
-							<div className="request-integrations-grid">
-								{requestIntegrations?.map((integration, index) => (
-									<IntegrationRequestCard key={index} {...integration} />
-								))}
-							</div>
-						</section> */}
+
+				<section className="request-integrations">
+					<h2>Which integrations you would like to connect?</h2>
+					<div className="request-integrations-grid">
+						{requestIntegrations?.map((integration, index) => (
+							<IntegrationRequestCard
+								key={index}
+								{...integration}
+								tenantId={tenantId}
+							/>
+						))}
+					</div>
+				</section>
 				{/* </>
 				) : (
 					<div className="shared-integrations">

@@ -7,11 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import ProactiveSuggestions from './ProactiveSuggestions';
 import ChatPrompts from './ChatPrompts';
 import QuickActions from '../../components/globalComponents/QuickActions';
-import ContactsWidget from '../../components/globalComponents/ContactsWidget';
-import AutomationWidget from '../../components/globalComponents/AutomationWidget';
-import TaskWidget from '../../components/globalComponents/TaskWidget';
-import CalenderWidget from '../../components/globalComponents/CalenderWidget';
-import AISuggestionsReportUserComponent from '../../components/chat/chatComponents/AISuggestionsReportUserComponent';
+import GlobalWidget from '../../components/globalComponents/GlobalWidget';
 
 const optionsList = [
 	{
@@ -42,12 +38,14 @@ const optionsList = [
 		id: 5,
 		label: 'Contact',
 		value: 'contact',
+		controlValue: 'contact',
 		showOption: true,
 	},
 	{
 		id: 6,
 		label: 'Automation',
 		value: 'automation',
+		controlValue: 'automation',
 		showOption: true,
 	},
 ];
@@ -57,6 +55,7 @@ let animationClass = '';
 const InitialHomePage = () => {
 	const {
 		templates: { updateStateValues, currentSessionId },
+		profileInfo: { tenantUserAccessControls },
 	} = useContext(Context);
 
 	const navigate = useNavigate();
@@ -75,15 +74,27 @@ const InitialHomePage = () => {
 	});
 
 	let {
-		profileInfo: { userDetailsData },
 		aiSetup: { getPromptsData, promptsData },
 		templates: { aiSuggestedPendingActions, getAISuggestedPendingActions },
 	} = useContext(Context);
 
-	const username =
-		jwtDecode(localStorage.getItem('usertoken'))?.userName?.split(' ')[0] ??
-		`${userDetailsData?.firstName}` ??
-		'User';
+	const handleUpdateOptions = (value) => {
+		let updatedOptions = info?.options;
+		updatedOptions = updatedOptions?.map((option) => {
+			if (option?.value === value) {
+				option.showOption = true;
+			}
+			return option;
+		});
+
+		const selectedOption = updatedOptions?.find((option) => option?.showOption)?.value ?? '';
+
+		setInfo((prev) => ({
+			...prev,
+			options: updatedOptions,
+			selectedOption,
+		}));
+	};
 
 	useEffect(() => {
 		if (promptsData) {
@@ -100,7 +111,7 @@ const InitialHomePage = () => {
 		} else {
 			getPromptsData({ category: 'all', limit: 30 });
 		}
-	}, [promptsData]);
+	}, [promptsData, handleUpdateOptions, info?.optionsHandledOnce?.prompts, getPromptsData]);
 
 	useEffect(() => {
 		if (info?.selectedOption) {
@@ -112,7 +123,7 @@ const InitialHomePage = () => {
 				headerMinimizedRef.current = false;
 			}
 		}
-	}, [info?.selectedOption]);
+	}, [info?.selectedOption, info?.minimized]);
 
 	useEffect(() => {
 		if (aiSuggestedPendingActions) {
@@ -132,7 +143,12 @@ const InitialHomePage = () => {
 		} else {
 			getAISuggestedPendingActions();
 		}
-	}, [aiSuggestedPendingActions]);
+	}, [
+		aiSuggestedPendingActions,
+		handleUpdateOptions,
+		info?.optionsHandledOnce?.proactiveSuggestions,
+		getAISuggestedPendingActions,
+	]);
 
 	const handleCustomOnSendFunction = useCallback(
 		(data) => {
@@ -140,7 +156,7 @@ const InitialHomePage = () => {
 
 			navigate(`/chat/${currentSessionId}`);
 		},
-		[currentSessionId],
+		[currentSessionId, navigate, updateStateValues],
 	);
 
 	const handleOptionSelection = (option) => {
@@ -151,24 +167,6 @@ const InitialHomePage = () => {
 		setInfo((prev) => ({
 			...prev,
 			selectedOption: option?.value,
-		}));
-	};
-
-	const handleUpdateOptions = (value) => {
-		let updatedOptions = info?.options;
-		updatedOptions = updatedOptions?.map((option) => {
-			if (option?.value === value) {
-				option.showOption = true;
-			}
-			return option;
-		});
-
-		const selectedOption = updatedOptions?.find((option) => option?.showOption)?.value ?? '';
-
-		setInfo((prev) => ({
-			...prev,
-			options: updatedOptions,
-			selectedOption,
 		}));
 	};
 
@@ -210,6 +208,10 @@ const InitialHomePage = () => {
 				onExpandHeader={handleExpandHeader}
 			/>
 		),
+		calendar: <GlobalWidget option={'calendar'} />,
+		task: <GlobalWidget option={'task'} />,
+		automation: <GlobalWidget option={'automation'} />,
+		contact: <GlobalWidget option={'contacts'} />,
 	};
 
 	const options = useMemo(
@@ -224,6 +226,48 @@ const InitialHomePage = () => {
 			animationClass = 'expanded-animation';
 		}
 	}
+
+	useEffect(() => {
+		if (options?.length > 0 && !info?.selectedOption) {
+			// Set the first visible option as the selected option
+			setInfo((prev) => ({
+				...prev,
+				selectedOption: options[0]?.value,
+			}));
+		}
+	}, [options, info?.selectedOption]);
+
+	const renderOptions = () => {
+		if (!tenantUserAccessControls) return null;
+
+		const isAdmin = tenantUserAccessControls?.role === 'admin';
+		// Create a lookup object for access controls
+		const accessControlMap = Object.fromEntries(
+			tenantUserAccessControls?.accessControls?.map((item) => [item.app, item]),
+		);
+
+		return info.options.map((option) => {
+			// For options without a control key (proactive and prompts), only render if showOption is true
+			if (!option.showOption && !option.controlValue) return null;
+
+			// For options with a control key (Contacts and Automations), show for admin or if access is enabled
+			if (option.controlValue) {
+				const accessControl = accessControlMap[option.controlValue];
+				const isEnabled = accessControl?.isEnabled;
+				if (!isAdmin && !isEnabled) return null;
+			}
+
+			return (
+				<div
+					key={option.id}
+					className={`option ${info?.selectedOption === option.value ? 'active' : ''}`}
+					onClick={() => handleOptionSelection(option)}
+				>
+					<div className="option-label">{option.label}</div>
+				</div>
+			);
+		});
+	};
 
 	return (
 		<div
@@ -267,20 +311,7 @@ const InitialHomePage = () => {
 					</div>
 				</div>
 
-				<div className="options-container">
-					{options?.map((option) => {
-						return (
-							<div
-								className={`option ${
-									info?.selectedOption === option?.value ? 'active' : ''
-								}`}
-								onClick={() => handleOptionSelection(option)}
-							>
-								<div className="option-label">{option?.label}</div>
-							</div>
-						);
-					})}
-				</div>
+				<div className="options-container">{renderOptions()}</div>
 			</div>
 			{options?.length > 0 && (
 				<div
