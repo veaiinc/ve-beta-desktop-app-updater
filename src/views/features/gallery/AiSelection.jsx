@@ -25,22 +25,22 @@ const AiSelection = ({
 		search: selectedFace || selectedFaceId ? 'Ai Faces' : 'AI People',
 		showShearch: false,
 		searchValue: '',
-		selectedFace: selectedFace ? selectedFace : null,
-		selectedFaceId: selectedFaceId ? selectedFaceId : null,
+		selectedFace: selectedFace || null,
+		selectedFaceId: selectedFace?._id || null,
 		preRegistration: true,
 		selectedImage: selectedImage || location.state?.selectedImage,
 	});
 
-	// useEffect(() => {
-	// 	if (selectedFace || selectedFaceId) {
-	// 		setInfo((prev) => ({
-	// 			...prev,
-	// 			search: 'Ai Faces',
-	// 			selectedFace: selectedFace || prev.selectedFace,
-	// 			selectedFaceId: selectedFaceId || prev.selectedFaceId,
-	// 		}));
-	// 	}
-	// }, [selectedFace, selectedFaceId]);
+	useEffect(() => {
+		if (selectedFace || selectedFaceId) {
+			setInfo((prev) => ({
+				...prev,
+				search: 'Ai Faces',
+				selectedFace: selectedFace || prev.selectedFace,
+				selectedFaceId: selectedFace?._id || prev.selectedFaceId,
+			}));
+		}
+	}, [selectedFace, selectedFaceId]);
 	const handleOptionClick = (value) => {
 		setInfo((prev) => ({
 			...prev,
