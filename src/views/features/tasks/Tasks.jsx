@@ -53,7 +53,7 @@ const defaultPreference = {
 	updatedAt: { show: false, order: 15 },
 };
 
-const colors = {
+export const colors = {
 	1: { backgroundColor: '#62344B', color: '#A35A7E' },
 	2: { backgroundColor: '#373737', color: '#707070' },
 	3: { backgroundColor: '#5B3D2F', color: '#8F614B' },
@@ -63,7 +63,7 @@ const colors = {
 	7: { backgroundColor: '#453061', color: '#6F4C99' },
 };
 
-const rowTypes = {
+export const rowTypes = {
 	text: Text,
 	select: Select,
 	person: Person,

@@ -1,28 +1,10 @@
-import React, { useContext, useEffect, useRef, useCallback, useState } from 'react';
+import React, { useContext, useEffect, useCallback, useState } from 'react';
 import '../../../assets/scss/globalComponents/contactsWidget.scss';
-import { ReactComponent as AiSuggest } from '../../../assets/svg/aiIcon.svg';
-import { ReactComponent as ArrowRightIcon } from '../../../assets/svg/arrowRightIcon.svg';
 import { ReactComponent as PlusIcon } from '../../../assets/svg/calendar/plus.svg';
 import Context from '../../../context/context';
-import { ReactComponent as AutomationIcon } from '../../../assets/svg/contacts/automation.svg';
-import { ReactComponent as DeepSearchIcon } from '../../../assets/svg/contacts/deepsearch.svg';
-import { ReactComponent as TaskSuggestionIcon } from '../../../assets/svg/contacts/tasksuggestion.svg';
-import { ReactComponent as ContactsIcon } from '../../../assets/svg/contacts/contact.svg';
-import { PromptData } from '../homePage/PromptData.js';
 import Skeleton from 'react-loading-skeleton';
 import { useNavigate } from 'react-router-dom';
-import PromptPopup from '../homePage/PromptPopup.jsx';
-// const aiSuggestOptions = [
-// 	{ id: 1, title: 'Cristofer Septimus', subtitle: 'Schedule a meeting' },
-// 	{ id: 2, title: 'Cristofer Septimus', subtitle: 'Schedule a meeting' },
-// 	{ id: 3, title: 'Cristofer Septimus', subtitle: 'Schedule a meeting' },
-// ];
-const iconMap = {
-	automation: <AutomationIcon />,
-	deepsearch: <DeepSearchIcon />,
-	tasksuggestion: <TaskSuggestionIcon />,
-	contacts: <ContactsIcon />,
-};
+import CreateClientModal from '../modalsV2/contacts/CreateClientModal';
 
 const skeletonLoaders = Array.from({ length: 6 }, (_, index) => index + 1);
 
@@ -43,6 +25,7 @@ const ContactsWidget = ({ width, height }) => {
 		searchValue: '',
 		promptPopupOpen: false,
 		selectedCard: null,
+		createLeadPopup: false,
 	});
 	const fetchClientList = useCallback(
 		async (page = 1) => {
@@ -158,36 +141,21 @@ const ContactsWidget = ({ width, height }) => {
 					style={{ cursor: 'pointer' }}
 				>
 					<div className="contactsWidgetFooterTitle">View Contacts</div>
-					<PlusIcon />
+					<PlusIcon
+						onClick={(e) => {
+							e.stopPropagation();
+							setInfo((prev) => ({
+								...prev,
+								createLeadPopup: true,
+							}));
+						}}
+					/>
 				</div>
 			</div>
-			<div className="contactsWidgetSection2">
-				{PromptData.filter((item) => item.type === 'contacts').map((item) => (
-					<div
-						className="contactsWidgetSection2Item"
-						onClick={() => handlePromptPopup(item)}
-					>
-						<div className="contactsWidgetSection2ItemContainer">
-							{iconMap[item.type]}
-							<div className="contactsWidgetSection2ItemTitle">
-								{item.type.charAt(0).toUpperCase() + item.type.slice(1)}
-							</div>
-						</div>
-						<div
-							className="contactsWidgetSection2ItemSubtitle
-"
-						>
-							{item.title}
-						</div>
-					</div>
-				))}
-			</div>
-			<PromptPopup
-				open={info?.promptPopupOpen}
-				closeModal={() =>
-					setInfo((prev) => ({ ...prev, promptPopupOpen: false, selectedCard: null }))
-				}
-				selectedCard={info?.selectedCard}
+			<CreateClientModal
+				modalIsOpen={info?.createLeadPopup}
+				closeModal={() => setInfo({ ...info, createLeadPopup: false })}
+				leadOrClient={true}
 			/>
 		</div>
 	);

@@ -15,6 +15,7 @@ import ObjectID from 'bson-objectid';
 import { ReactComponent as ArrowUpRightSvg } from '../../../assets/svg/sidebar/arrowupright.svg';
 import { ReactComponent as LinkIcon } from '../../../assets/svg/ai_agents/link.svg';
 import { ReactComponent as Logo } from '../../../assets/svg/loader/loaderLogo.svg';
+import ChainOfThought from '../../components/chat/chatComponents/ChainOfThought';
 
 let throttleTimer = null;
 
@@ -74,6 +75,7 @@ const RecentChat = ({
 		showScrollButton: false,
 		activeTabs: {},
 		stickyTabs: {},
+		showViewDocument: false,
 	});
 
 	const { socketRef, createWebSocketConnection, sendMessage } = useChatStream();
@@ -234,7 +236,11 @@ const RecentChat = ({
 			const defaultTabs = {};
 			globalChatMessages.forEach((message, index) => {
 				if (message?.type?.toLowerCase() === 'ai') {
-					defaultTabs[index] = 'response';
+					if (message?.message?.length > 0 || message?.cot?.length === 0) {
+						defaultTabs[index] = 'response';
+					} else {
+						defaultTabs[index] = 'cot';
+					}
 				}
 			});
 			setInfo((prev) => ({
@@ -456,15 +462,15 @@ const RecentChat = ({
 					response,
 					_id: messageId,
 					citations,
-					followUpQuery,
 					workflowTemplateId,
 					moduleTemplateId,
+					followUpQuery,
 				} = data?.[i] || {};
 
 				if (firstTimeApiCall) {
 					chatPayload = {
-						workflowTemplateId,
-						moduleTemplateId,
+						workflowTemplateId: workflowTemplateId || null,
+						moduleTemplateId: moduleTemplateId || null,
 					};
 				}
 
@@ -472,18 +478,18 @@ const RecentChat = ({
 					{
 						message: originalQuery,
 						type: 'user',
-						typingEffect: false,
 					},
 					{
 						message: response,
 						type: 'AI',
 						messageId,
-						typingEffect: false,
 						rating: null,
 						citations,
 						follow_up_query: followUpQuery || [],
-						workflow_template_id: workflowTemplateId,
-						module_template_id: moduleTemplateId,
+						workflow_template_id: workflowTemplateId || null,
+						module_template_id: moduleTemplateId || null,
+						isOldMessage: true,
+						stream_end: true,
 					},
 				]?.concat(messages);
 			}
@@ -491,7 +497,8 @@ const RecentChat = ({
 			if (fetcMore) {
 				updateStateValues({
 					globalChatMessages: messages?.concat(globalChatMessages),
-					chatPayload,
+					...(chatPayload?.moduleTemplateId &&
+						chatPayload?.workflowTemplateId && { chatPayload }),
 				});
 				// if (chatContentRef?.current) {
 				// 	chatContentRef.current.scrollBy({
@@ -500,7 +507,11 @@ const RecentChat = ({
 				// 	});
 				// }
 			} else {
-				updateStateValues({ globalChatMessages: messages, chatPayload });
+				updateStateValues({
+					globalChatMessages: messages,
+					...(chatPayload?.moduleTemplateId &&
+						chatPayload?.workflowTemplateId && { chatPayload }),
+				});
 				// setTimeout(() => {
 				// 	// smoothScrollToBottom();
 				// }, 1000);
@@ -650,6 +661,9 @@ const RecentChat = ({
 	const toggleLatestStreamMessage = useCallback(() => {
 		setInfo((prev) => ({ ...prev, latestStreamMesage: null }));
 	}, []);
+	const handleViewDocument = useCallback((value) => {
+		setInfo((prev) => ({ ...prev, showViewDocument: value }));
+	}, []);
 
 	return (
 		<>
@@ -787,10 +801,38 @@ const RecentChat = ({
 																			width={'24px'}
 																			height={'24px'}
 																		/>
-																		Answer
+																		{chat?.processing ||
+																			'Answer'}
 																	</div>
+																	{chat?.cot?.length > 0 && (
+																		<div
+																			className={`tab-btn ${
+																				info?.activeTabs[
+																					index
+																				] === 'cot'
+																					? 'active'
+																					: ''
+																			}`}
+																			onClick={() =>
+																				setInfo((prev) => ({
+																					...prev,
+																					activeTabs: {
+																						...prev.activeTabs,
+																						[index]:
+																							'cot',
+																					},
+																				}))
+																			}
+																		>
+																			Chain of Thought
+																			<span className="citation-badge">
+																				{chat?.cot
+																					?.length || 0}
+																			</span>
+																		</div>
+																	)}
 																	{chat?.citations &&
-																		chat?.citations.length >
+																		chat?.citations?.length >
 																			0 && (
 																			<div
 																				className={`tab-btn ${
@@ -846,7 +888,31 @@ const RecentChat = ({
 																		globalChatMessages?.length -
 																			1
 																	}
+																	handleSendWebsocketMessage={
+																		handleSendWebsocketMessage
+																	}
+																	latestStreamMesage={
+																		info?.latestStreamMesage
+																	}
+																	lastQuery={info?.lastQuery}
+																	toggleLatestStreamMessage={
+																		toggleLatestStreamMessage
+																	}
+																	handleViewDocument={
+																		handleViewDocument
+																	}
+																	showViewDocument={
+																		info?.showViewDocument
+																	}
+																	isLastMessage={
+																		index ===
+																		globalChatMessages?.length -
+																			1
+																	}
 																/>
+															) : info?.activeTabs[index] ===
+															  'cot' ? (
+																<ChainOfThought cot={chat?.cot} />
 															) : (
 																<div className="source-content">
 																	{chat?.citations &&

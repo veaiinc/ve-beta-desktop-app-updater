@@ -1,54 +1,35 @@
-import React, { memo, useContext, useEffect, useState } from 'react';
+import React, { memo, useContext, useEffect, useState, useMemo } from 'react';
 import '../../../assets/scss/globalComponents/taskWidget.scss';
 import { ReactComponent as DownArrowIcon } from '../../../assets/svg/chat/downArrow.svg';
 import { ReactComponent as FiltersIcon } from '../../../assets/svg/tasks/filterLines.svg';
 import { ReactComponent as PlusIcon } from '../../../assets/svg/calendar/plus.svg';
-import { ReactComponent as AutomationIcon } from '../../../assets/svg/contacts/automation.svg';
-import { ReactComponent as DeepSearchIcon } from '../../../assets/svg/contacts/deepsearch.svg';
-import { ReactComponent as TaskSuggestionIcon } from '../../../assets/svg/contacts/tasksuggestion.svg';
-import { PromptData } from '../homePage/PromptData.js';
 import Context from '../../../context/context';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import Skeleton from 'react-loading-skeleton';
 import { useNavigate } from 'react-router-dom';
-import PromptPopup from '../homePage/PromptPopup.jsx';
-const autoSuggestOptions = [
-	{
-		id: 1,
-		title: 'Brandon Rhiel Madsen',
-		suggestion: 'New Message Received',
-		type: 'automation',
-	},
-	{
-		id: 2,
-		title: 'Brandon Rhiel Madsen',
-		suggestion: 'New Message Received',
-		type: 'deepsearch',
-	},
-	{
-		id: 3,
-		title: 'Brandon Rhiel Madsen',
-		suggestion: 'New Message Received',
-		type: 'tasksuggestion',
-	},
-	{
-		id: 4,
-		title: 'Brandon Rhiel Madsen',
-		suggestion: 'New Message Received',
-		type: 'automation',
-	},
-];
-const iconMap = {
-	automation: <AutomationIcon />,
-	deepsearch: <DeepSearchIcon />,
-	task: <TaskSuggestionIcon />,
-};
+import ListViewSidebar from '../modalsV2/tasks/ListViewSidebar';
+import { colors, rowTypes } from '../../features/tasks/Tasks';
+import { ReactComponent as ClockSvg } from '../../../assets/svg/activity/clock.svg';
+import { ReactComponent as PieSvg } from '../../../assets/svg/tasks/pieHollow.svg';
+import { ReactComponent as PrioritySvg } from '../../../assets/svg/tasks/roundChevronRight.svg';
+import { ReactComponent as WorkflowSvg } from '../../../assets/svg/tasks/workflow.svg';
+import { ReactComponent as PersonSvg } from '../../../assets/svg/tasks/person.svg';
+import { ReactComponent as CalendarSvg } from '../../../assets/svg/tasks/calendar.svg';
+import { ReactComponent as textSvg } from '../../../assets/svg/tasks/letterA.svg';
+import CreateTaskPopup from '../modalsV2/tasks/CreateTaskPopup';
 
 const skeletonLoaders = Array.from({ length: 6 }, (_, index) => index + 1);
+
+const options = [
+	{ id: 1, title: 'Pending Tasks', value: 'pending' },
+	{ id: 2, title: 'Today', value: 'today' },
+	{ id: 3, title: 'Overdue', value: 'overdue' },
+];
 const TaskWidget = ({ width, height }) => {
 	const navigate = useNavigate();
 	const {
-		tasks: { listTasks, getListItems, hasNextPage },
+		tasks: { listTasks, getListItems, hasNextPage, taskMetadata, getTaskMetadata },
+		companyInfo: { getTeamMembers, tenantsUserList },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -57,12 +38,159 @@ const TaskWidget = ({ width, height }) => {
 		loading: false,
 		promptPopupOpen: false,
 		selectedCard: null,
+		isModalOpen: false,
+		selectedTask: null,
+		tenantUsers: [],
+		taskMetadata: null,
+		createTaskPopup: false,
 	});
 	useEffect(() => {
 		if (!listTasks) {
 			getTasksList(info?.page);
 		}
 	}, []);
+
+	const responseMetadata = useMemo(
+		() => ({
+			title: {
+				type: 'text',
+				name: 'Title',
+				Icon: textSvg,
+				props: {},
+				doSplit: true,
+				isTitle: true,
+			},
+			description: { type: 'text', name: 'Description', Icon: textSvg, props: {} },
+			status: {
+				type: 'status',
+				name: 'Status',
+				Icon: PieSvg,
+				props: {
+					options: {
+						todo: info?.taskMetadata?.todoGroupLabels,
+						inProgress: info?.taskMetadata?.inProgressGroupLabels,
+						completed: info?.taskMetadata?.completedGroupLabels,
+					},
+				},
+			},
+			priority: {
+				type: 'select',
+				name: 'Priority',
+				Icon: PrioritySvg,
+				props: {
+					options: [
+						{ label: 'Low', _id: 'low', color: '1' },
+						{ label: 'Medium', _id: 'medium', color: '2' },
+						{ label: 'High', _id: 'high', color: '3' },
+					],
+				},
+			},
+			parentTask: {
+				type: 'parentTask',
+				name: 'Parent Task',
+				Icon: WorkflowSvg,
+				props: { options: info?.parentTasks },
+			},
+			childTasks: {
+				type: 'childTasks',
+				name: 'Sub Tasks',
+				Icon: WorkflowSvg,
+				props: {},
+			},
+			assignedTo: {
+				type: 'person',
+				name: 'Assigned To',
+				Icon: PersonSvg,
+				props: {
+					options: info?.tenantUsers || [],
+					multiSelect: true,
+					parseValue: true,
+				},
+			},
+			dueDate: { type: 'date', name: 'Due Date', Icon: ClockSvg, props: {} },
+			assignedBy: {
+				type: 'person',
+				name: 'Assigned By',
+				Icon: PersonSvg,
+				props: {
+					options: info?.tenantUsers || [],
+					disabled: true,
+					parseValue: true,
+				},
+			},
+			assignedAt: {
+				type: 'date',
+				name: 'Assigned At',
+				Icon: ClockSvg,
+				props: { timestamp: true },
+			},
+			completedAt: { type: 'date', name: 'Completed At', Icon: CalendarSvg, props: {} },
+			createdAt: {
+				type: 'date',
+				name: 'Created At',
+				Icon: CalendarSvg,
+				props: { timestamp: true },
+			},
+			updatedAt: {
+				type: 'date',
+				name: 'Updated At',
+				Icon: CalendarSvg,
+				props: { timestamp: true },
+			},
+			createdBy: {
+				type: 'person',
+				name: 'Created By',
+				Icon: PersonSvg,
+				props: { options: info?.tenantUsers, disabled: true, parseValue: true },
+			},
+			updatedBy: {
+				type: 'person',
+				name: 'Updated By',
+				Icon: PersonSvg,
+				props: { options: info?.tenantUsers, disabled: true, parseValue: true },
+			},
+			taskSlNo: {
+				type: 'id',
+				name: 'Id',
+				Icon: textSvg,
+				props: { prefix: info?.taskMetadata?.prefix },
+			},
+			clients: {
+				type: 'personMultiSelect',
+				name: 'Clients',
+				Icon: PersonSvg,
+				props: {},
+			},
+		}),
+		[info?.tenantUsers, info?.taskMetadata],
+	);
+
+	useEffect(() => {
+		if (!tenantsUserList) {
+			getTeamMembers();
+		} else {
+			const formattedUsers = tenantsUserList?.map(({ firstName, lastName, _id }) => ({
+				label: `${firstName} ${lastName}`,
+				value: _id,
+			}));
+
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				tenantUsers: formattedUsers,
+			}));
+		}
+	}, [tenantsUserList]);
+
+	useEffect(() => {
+		if (!taskMetadata) {
+			getTaskMetadata();
+		} else {
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				taskMetadata: taskMetadata,
+			}));
+		}
+	}, [taskMetadata]);
 
 	const getTasksList = async (page) => {
 		setInfo((prev) => ({ ...prev, loading: true }));
@@ -92,6 +220,32 @@ const TaskWidget = ({ width, height }) => {
 		setInfo((prev) => ({ ...prev, promptPopupOpen: true, selectedCard: item }));
 	};
 
+	const handleTaskClick = (tasks) => {
+		setInfo((prev) => ({
+			...prev,
+			selectedTask: tasks,
+			isModalOpen: true,
+		}));
+	};
+
+	const handleModalClose = () => {
+		setInfo((prev) => ({
+			...prev,
+			isModalOpen: false,
+		}));
+	};
+	const handleCreateTaskPopup = () => {
+		setInfo((prev) => ({
+			...prev,
+			createTaskPopup: true,
+		}));
+	};
+	const handleCloseTaskPopup = () => {
+		setInfo((prev) => ({
+			...prev,
+			createTaskPopup: false,
+		}));
+	};
 	return (
 		<div className="task-main-container" style={{ width: width }}>
 			<div className="taskWidgetContainer">
@@ -101,13 +255,13 @@ const TaskWidget = ({ width, height }) => {
 							<span className="taskWidgetDay">{listTasks?.data?.length}</span>
 							<span className="taskWidgetRemainder">Reminder</span>
 						</div>
-						<div className="taskWidgetBodyHeaderRight">
+						{/* <div className="taskWidgetBodyHeaderRight">
 							<div className="taskWidgetDaysFilter">
 								<span>Today</span>
 								<DownArrowIcon />
 							</div>
 							<FiltersIcon />
-						</div>
+						</div> */}
 					</div>
 					<div className="taskWidgetBodyContainer" id="taskWidgetBodyContainer">
 						{info?.loading ? (
@@ -140,8 +294,11 @@ const TaskWidget = ({ width, height }) => {
 												<hr className="taskWidgetHr" />
 											</div>
 										)}
-										<div className="taskWidgetOption">
-											<div className="taskWidgetSelectOption"></div>
+										<div
+											className="taskWidgetOption"
+											onClick={() => handleTaskClick(eachOption)}
+										>
+											{/* <div className="taskWidgetSelectOption"></div> */}
 											<div className="taskWidgetOptionDetails">
 												<div className="taskWidgetOptionTitle">
 													{eachOption?.title}
@@ -164,29 +321,56 @@ const TaskWidget = ({ width, height }) => {
 					}}
 					style={{ cursor: 'pointer' }}
 				>
-					<div className="taskWidgetFooterTitle">View Task</div>
-					<PlusIcon />
+					<div className="taskWidgetFooterTitle">View Tasks</div>
+					<PlusIcon
+						onClick={(e) => {
+							e.stopPropagation();
+							handleCreateTaskPopup();
+						}}
+					/>
 				</div>
 			</div>
-			<div className="taskWidgetSection2">
-				{PromptData.filter((item) => item.type === 'task').map((item) => (
-					<div className="taskWidgetSection2Item" onClick={() => handlePromptPopup(item)}>
-						<div className="taskWidgetSection2ItemContainer">
-							{iconMap[item.type]}
-							<div className="taskWidgetSection2ItemTitle">
-								{item.type.charAt(0).toUpperCase() + item.type.slice(1)}
-							</div>
-						</div>
-						<div className="taskWidgetSection2ItemSubtitle">{item.title}</div>
-					</div>
-				))}
-			</div>
-			<PromptPopup
-				open={info?.promptPopupOpen}
-				closeModal={() =>
-					setInfo((prev) => ({ ...prev, promptPopupOpen: false, selectedCard: null }))
+			<ListViewSidebar
+				selectedRow={info?.selectedTask}
+				sidebarIsOpen={info?.isModalOpen}
+				closeSidebar={handleModalClose}
+				handleUpdate={() => {}}
+				deleteTask={() => {}}
+				rowTypes={rowTypes}
+				responseMetadata={responseMetadata}
+				properties={info?.properties}
+				colors={colors}
+				toggleSidebarExpand={
+					() => {}
+					// updateTaskInfo({ isSidebarExpanded: !info?.isSidebarExpanded })
 				}
-				selectedCard={info?.selectedCard}
+				isSidebarExpanded={info?.isSidebarExpanded}
+				headerText={
+					`${info?.taskMetadata?.prefix ? info?.taskMetadata?.prefix + '-' : ''}` +
+					(info?.selectedRow?.taskSlNo || '')
+				}
+				breadCrumbs={info?.breadCrumbs}
+				handleBreadCrumbsClick={() => {}}
+				// sidebarChildren={
+				// 	info?.selectedRow ? (
+				// 		<ChildTaskComponent
+				// 			parentTaskId={info?.selectedTask?._id}
+				// 			childTasks={info?.selectedTask?.childTasks}
+				// 			completedStatus={info?.taskMetadata?.completedGroupLabels}
+				// 			rowTypes={rowTypes}
+				// 			responseMetadata={responseMetadata}
+				// 			colors={colors}
+				// 			properties={info?.properties}
+				// 			onAddButtonClick={handleCreateSubTaskClick}
+				// 			handleUpdate={(...args) => updatePropertyValue(...args, true)}
+				// 			handleRowClick={handleSubTaskClick}
+				// 		/>
+				// 	) : null
+				// }
+			/>
+			<CreateTaskPopup
+				isOpen={info?.createTaskPopup}
+				closeModal={() => handleCloseTaskPopup()}
 			/>
 		</div>
 	);

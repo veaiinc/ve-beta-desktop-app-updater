@@ -8,8 +8,8 @@
 	transition: all 0.3s ease-in-out;
 
 	border-radius: 24px;
-	background: var(--Popup, #202123);
-	box-shadow: 0px 2px 44px 0px rgba(0, 0, 0, 0.25);
+	background: var(--card);
+	box-shadow: 0px 2px 44px 0px var(--card);
 
 	.sessionHeader {
 		width: 100%;
@@ -18,10 +18,9 @@
 		align-items: center;
 
 		overflow: hidden;
-		color: #e4e5e6;
-		color: color(display-p3 0.8941 0.898 0.902);
+		color: var(--primary-font);
 		text-overflow: ellipsis;
-		font-family: Inter;
+		font-family: var(--primary-font-family);
 		font-size: 16px;
 		font-style: normal;
 		font-weight: 500;
@@ -42,10 +41,9 @@
 	}
 
 	.addSessionDesc {
-		color: #e4e5e6;
-		color: color(display-p3 0.8941 0.898 0.902);
+		color: var(--primary-font);
 		text-align: right;
-		font-family: Inter;
+		font-family: var(--primary-font-family);
 		font-size: 12px;
 		font-style: normal;
 		font-weight: 500;
@@ -98,9 +96,8 @@
 			user-select: none;
 
 			span {
-				color: var(--secondary-font, #787e87);
-				color: var(--secondary-font, color(display-p3 0.4784 0.4941 0.5216));
-				font-family: Inter;
+				color: var(--secondary-font);
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 500;
@@ -117,10 +114,10 @@
 				align-items: center;
 				align-self: stretch;
 				border-radius: 8px;
-				border: 1px solid #333334;
-				background: #202123;
-				color: #797e86;
-				font-family: Inter;
+				border: 1px solid var(--stroke);
+				background: var(--card);
+				color: var(--secondary-font);
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 500;
@@ -151,25 +148,25 @@
 			justify-content: center;
 			align-items: center;
 			gap: 8px;
-			color: #111;
-			font-family: Inter;
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 500;
 
-			background: #d4d5d6;
+			background: var(--card);
 			border-radius: 50px;
 			border: 1px solid rgba(124, 124, 132, 0.25);
 
 			&:hover {
-				background: #e4e5e6;
+				background: var(--card-hover);
 			}
 
 			.loading {
 				display: flex;
 				align-items: center;
 				gap: 8px;
-				color: #ffffff;
+				color: var(--primary-font);
 			}
 		}
 	}
@@ -184,9 +181,9 @@
 	align-items: center;
 	gap: 6px;
 	border-radius: 8px;
-	background: #292b2e;
+	background: var(--card);
 	min-width: 177px;
-	box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
+	box-shadow: 0px 4px 12px var(--card);
 
 	&-item {
 		display: flex;
@@ -196,9 +193,9 @@
 		align-items: center;
 		gap: 10px;
 		border-radius: 4px;
-		background: #292b2e;
-		color: #f2f2f3;
-		font-family: Inter;
+		background: var(--card);
+		color: var(--primary-font);
+		font-family: var(--primary-font-family);
 		font-size: 12px;
 		font-style: normal;
 		font-weight: 400;
@@ -206,7 +203,7 @@
 		cursor: pointer;
 
 		&:hover {
-			background: #383c3f;
+			background: var(--card-hover);
 		}
 	}
 }
@@ -214,13 +211,13 @@
 .inputHeight {
 	height: 40px !important;
 	border-radius: 8px !important;
-	border: 1px solid #333334 !important;
+	border: 1px solid var(--stroke) !important;
 
 	&.error {
-		border-color: #f22226 !important;
+		border-color: var(--error) !important;
 
 		&:focus {
-			box-shadow: 0 0 0 2px rgba(255, 77, 79, 0.2);
+			box-shadow: 0 0 0 2px var(--error);
 		}
 	}
 }
@@ -228,14 +225,14 @@
 .typeOfSession-lable {
 	.ant-picker-input > input {
 		cursor: pointer;
-		color: #797e86;
-		font-family: Inter;
+		color: var(--secondary-font);
+		font-family: var(--primary-font-family);
 		font-size: 12px;
 		font-style: normal;
 		font-weight: 500;
 
 		&::placeholder {
-			color: #797e86;
+			color: var(--secondary-font);
 		}
 	}
 }

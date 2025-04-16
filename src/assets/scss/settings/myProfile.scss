@@ -392,8 +392,8 @@
 
 		// this are the stylings for the access controllers
 		.accessSettingsContainer {
-			padding: 32px;
-			border-radius: 40px;
+			padding: 12px 18px;
+			border-radius: 12px;
 			// background: rgba(29, 29, 35, 0.24);
 
 			.accessContainer {
@@ -932,7 +932,6 @@
 	display: flex;
 	flex-direction: column;
 	gap: 24px;
-	margin-top: 24px;
 
 	.danger-zone-header {
 		display: flex;
@@ -946,12 +945,12 @@
 			content: '';
 			width: 238px;
 			height: 1px;
-			background: var(--stroke, #313336);
+			background: var(--error, #313336);
 		}
 
 		.danger-zone-title {
-			color: var(--secondary-font, #787e87);
-			font-family: Inter;
+			color: var(--error, #787e87);
+			font-family: var(--primary-font-family);
 			font-size: 10px;
 			font-style: normal;
 			font-weight: 500;
@@ -960,7 +959,7 @@
 	}
 
 	.accessSettingsContainer {
-		border: 1px solid rgba(204, 87, 86, 0.16);
-		background: var(--card-over-card-hover);
+		border: 1px solid var(--stroke);
+		// background: var(--card-over-card-hover);
 	}
 }

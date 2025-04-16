@@ -42,10 +42,13 @@ const MODULE_NAME_MAP = {
 	'lite gallery': 'liteGallery',
 	documents: 'workflow',
 	'my templates': 'template',
-	tasks: 'task',
-	calendar: 'calendar',
+	// tasks: 'task',
+	// calendar: 'calendar',
 	forms: 'form',
 	contacts: 'contact',
+	automation: 'automation',
+	// notes: 'notes',
+	agents: 'knowledgeAgent',
 };
 
 const OpenedSidebarModules = ({
@@ -69,11 +72,12 @@ const OpenedSidebarModules = ({
 	setHideClosedSidebarIcon,
 	selectedOption,
 }) => {
-	let {
+	const location = useLocation();
+
+	const {
 		aiSetup: { isVoiceIntegrationActive },
 	} = useContext(Context);
 
-	const location = useLocation();
 	const [isHover, setisHover] = useState(false);
 
 	const onMouseEnter = () => {

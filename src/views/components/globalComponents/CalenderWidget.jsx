@@ -1,50 +1,23 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext, useEffect, useCallback } from 'react';
 import '../../../assets/scss/globalComponents/calenderWidget.scss';
 import { ReactComponent as PlusIcon } from '../../../assets/svg/calendar/plus.svg';
-import { ReactComponent as AutomationIcon } from '../../../assets/svg/contacts/automation.svg';
-import { ReactComponent as DeepSearchIcon } from '../../../assets/svg/contacts/deepsearch.svg';
-import { ReactComponent as TaskSuggestionIcon } from '../../../assets/svg/contacts/tasksuggestion.svg';
-import { ReactComponent as CalendarIcon } from '../../../assets/svg/contacts/calendar.svg';
 import { useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
-import PromptPopup from '../homePage/PromptPopup.jsx';
-import { PromptData } from '../homePage/PromptData.js';
-const autoSuggestOptions = [
-	{
-		id: 1,
-		title: 'Brandon Rhiel Madsen',
-		suggestion: 'New Message Received',
-		type: 'automation',
-	},
-	{
-		id: 2,
-		title: 'Brandon Rhiel Madsen',
-		suggestion: 'New Message Received',
-		type: 'deepsearch',
-	},
-	{
-		id: 3,
-		title: 'Brandon Rhiel Madsen',
-		suggestion: 'New Message Received',
-		type: 'tasksuggestion',
-	},
-	{
-		id: 4,
-		title: 'Brandon Rhiel Madsen',
-		suggestion: 'New Message Received',
-		type: 'automation',
-	},
-];
-const iconMap = {
-	automation: <AutomationIcon />,
-	deepsearch: <DeepSearchIcon />,
-	tasksuggestion: <TaskSuggestionIcon />,
-	calendar: <CalendarIcon />,
-};
+import InfiniteScroll from 'react-infinite-scroll-component';
+import EventDetailsModal from '../modalsV2/calendar/EventDetailsModal';
+import ObjectId from 'bson-objectid';
 
-const CalenderWidget = ({ width, height }) => {
+const CalenderWidget = ({ width }) => {
 	const {
-		calendarInfo: { getCalendarEventsList, calendarEventsList },
+		calendarInfo: {
+			getCalendarEventsList,
+			calendarEventsList,
+			getAllCalendarEvents,
+			allCalendarEvents,
+			calendarCategoriesList,
+			getCalendarCategories,
+			resetCalendarAiChat,
+		},
 	} = useContext(Context);
 	const navigate = useNavigate();
 	const [info, setInfo] = useState({
@@ -53,15 +26,95 @@ const CalenderWidget = ({ width, height }) => {
 		currentDay: new Date().toLocaleDateString('en-US', { weekday: 'long' }),
 		promptPopupOpen: false,
 		selectedCard: null,
+		page: 1,
+		selectedEvent: null,
+		isModalOpen: false,
+		eventsList: [],
 	});
+
+	const eventsLength = allCalendarEvents?.data?.length;
+	const eventsNextPage = allCalendarEvents?.hasNextPage;
+	const eventsCurrentPage = allCalendarEvents?.currentPage || 1;
+
 	useEffect(() => {
-		getCalendarEventsList(info?.currentCalendarDate);
+		const sessionId = ObjectId().toString();
+		setInfo((prevInfo) => ({ ...prevInfo, chatSessionId: sessionId }));
+
+		getCalendarCategories();
+
+		return () => {
+			setInfo((prevInfo) => ({
+				...prevInfo,
+			}));
+			resetCalendarAiChat();
+		};
+	}, []);
+
+	useEffect(() => {
+		const payload = {
+			options: {
+				page: info?.page,
+				limit: 20,
+				startDate: info?.currentCalendarDate.toISOString(),
+			},
+		};
+		if (info?.currentCalendarDate) {
+			getAllCalendarEvents(payload);
+		}
 	}, [info?.currentCalendarDate]);
-	const handlePromptPopup = (item) => {
-		setInfo((prev) => ({ ...prev, promptPopupOpen: true, selectedCard: item }));
+
+	useEffect(() => {
+		if (calendarCategoriesList) {
+		}
+	});
+	const fetchMoreCalendarEvents = () => {
+		const payload = {
+			options: {
+				page: eventsCurrentPage + 1,
+				limit: 20,
+			},
+		};
+		if (eventsCurrentPage !== undefined) {
+			getAllCalendarEvents(payload);
+		}
 	};
+
+	const handleCalendarClick = (meet) => {
+		setInfo((prev) => ({
+			...prev,
+			selectedEvent: meet,
+			isModalOpen: true,
+		}));
+	};
+
+	const handleModalClose = () => {
+		setInfo((prev) => ({
+			...prev,
+			isModalOpen: false,
+		}));
+	};
+
+	const updateCalenderEventsList = useCallback(
+		(eventId, updateBody = {}) => {
+			const updatedEventsList = [...(info?.eventsList || [])];
+			for (let i = 0; i < updatedEventsList?.length; i++) {
+				if (updatedEventsList?.[i]?.id === eventId) {
+					updatedEventsList[i] = { ...updatedEventsList[i], ...updateBody };
+				}
+			}
+			setInfo((prev) => ({ ...prev, eventsList: updatedEventsList }));
+		},
+		[info?.eventsList],
+	);
+	const filterDeletedEvent = useCallback(
+		(eventId) => {
+			const filteredEventsList = info?.eventsList?.filter((event) => event?.id !== eventId);
+			setInfo((prev) => ({ ...prev, eventsList: filteredEventsList }));
+		},
+		[info?.eventsList],
+	);
 	return (
-		<div className="calender-main-container" style={{ width: width }}>
+		<div className="calender-main-container" style={{ width: width, height: '412px' }}>
 			<div className="calenderWidgetContainer">
 				<div className="calenderWidgetMain">
 					<div className="calenderWidgetDateContainer">
@@ -72,26 +125,62 @@ const CalenderWidget = ({ width, height }) => {
 							</div>
 						</div>
 					</div>
-					<div className="calenderWidgetMainContent">
-						{calendarEventsList?.length > 0 ? (
-							<div className="calenderWidgetMainContentDate">
-								{calendarEventsList?.map((meet) => (
-									<div className="calenderWidgetMainContentDateMeet">
-										<div className="calenderWidgetMainContentDateMeetTime">
-											<span className="calenderWidgetMainContentTime">
-												{meet?.startTime}
-											</span>
-											<span className="calenderWidgetMainLine"></span>
-										</div>
-										<div className="meetingDetails">
-											<div className="meetingDetailsTitle">{meet?.title}</div>
-											<div className="meetingDetailsTime">
-												{meet?.startTime} - {meet?.endTime}
+					<div className="calenderWidgetMainContent" id="calenderWidgetMainContent">
+						{allCalendarEvents?.data?.length > 0 ? (
+							<InfiniteScroll
+								dataLength={eventsLength}
+								next={fetchMoreCalendarEvents}
+								hasMore={eventsNextPage}
+								loader={<div>Loading...</div>}
+								scrollableTarget="calenderWidgetMainContent"
+								style={{ height: '34vh' }}
+							>
+								<div className="calenderWidgetMainContentDate">
+									{allCalendarEvents?.data?.map((meet) => (
+										<div
+											className="calenderWidgetMainContentDateMeet"
+											onClick={() => handleCalendarClick(meet)}
+											style={{ cursor: 'pointer' }}
+										>
+											<div className="calenderWidgetMainContentDateMeetTime">
+												<span className="calenderWidgetMainContentTime">
+													{new Date(
+														meet?.startDateTime,
+													).toLocaleTimeString([], {
+														hour: '2-digit',
+														minute: '2-digit',
+														hour12: true,
+													})}
+												</span>
+												<span className="calenderWidgetMainLine"></span>
+											</div>
+											<div className="meetingDetails">
+												<div className="meetingDetailsTitle">
+													{meet?.title}
+												</div>
+												<div className="meetingDetailsTime">
+													{new Date(
+														meet?.startDateTime,
+													).toLocaleTimeString([], {
+														hour: '2-digit',
+														minute: '2-digit',
+														hour12: true,
+													})}{' '}
+													-
+													{new Date(meet?.endDateTime).toLocaleTimeString(
+														[],
+														{
+															hour: '2-digit',
+															minute: '2-digit',
+															hour12: true,
+														},
+													)}
+												</div>
 											</div>
 										</div>
-									</div>
-								))}
-							</div>
+									))}
+								</div>
+							</InfiniteScroll>
 						) : (
 							<div className="calenderWidgetMainContentDate">No events found</div>
 						)}
@@ -116,28 +205,12 @@ const CalenderWidget = ({ width, height }) => {
 					<PlusIcon />
 				</div>
 			</div>
-			<div className="calenderWidgetSection2">
-				{PromptData.filter((item) => item.type === 'calendar').map((item) => (
-					<div
-						className="calenderWidgetSection2Item"
-						onClick={() => handlePromptPopup(item)}
-					>
-						<div className="calenderWidgetSection2ItemContainer">
-							{iconMap[item.type]}
-							<div className="calenderWidgetSection2ItemTitle">
-								{item.type.charAt(0).toUpperCase() + item.type.slice(1)}
-							</div>
-						</div>
-						<div className="calenderWidgetSection2ItemSubtitle">{item.title}</div>
-					</div>
-				))}
-			</div>
-			<PromptPopup
-				open={info?.promptPopupOpen}
-				closeModal={() =>
-					setInfo((prev) => ({ ...prev, promptPopupOpen: false, selectedCard: null }))
-				}
-				selectedCard={info?.selectedCard}
+			<EventDetailsModal
+				isEventSelected={info?.isModalOpen}
+				selectedEvent={info?.selectedEvent}
+				categoryList={calendarCategoriesList}
+				onClose={handleModalClose}
+				updateCalenderEventsList={updateCalenderEventsList}
 			/>
 		</div>
 	);
