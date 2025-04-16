@@ -1193,6 +1193,7 @@ const GalleryPage = () => {
 								? { ...album, isPublished: !currentAlbum?.isPublished }
 								: album,
 					),
+					activeTab: prev?.activeTab,
 					showGalleryOptions: false,
 					showOptionsContainer: true,
 				}));
@@ -1622,6 +1623,12 @@ const GalleryPage = () => {
 
 	const handleClickContent = (name) => {
 		// Clear search params and image details
+		const params = new URLSearchParams(location.search);
+		params.set('activeTab', name);
+
+		// This assumes you're using react-router-dom v6+
+		navigate(`${location.pathname}?${params.toString()}`, { replace: true });
+
 		const searchKey = searchkeys.get('uploadImageId');
 		if (searchKey) {
 			setsearchkeys({});
