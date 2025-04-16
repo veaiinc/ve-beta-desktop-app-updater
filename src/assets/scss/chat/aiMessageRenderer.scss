@@ -1,4 +1,9 @@
 .ai-message-renderer {
+	&:hover {
+		.hover-actions-container {
+			visibility: visible;
+		}
+	}
 	.tabs-wrapper {
 		margin-bottom: 16px;
 		display: flex;
