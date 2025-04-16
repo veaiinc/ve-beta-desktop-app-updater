@@ -170,7 +170,7 @@ const AiFaceRegistration = ({ link, handlePreRegistration, preRegistration }) =>
 				}}
 			>
 				<div className="aiScannerContainer-inner">
-					<div className="aiScannerContainer-inner-left" style={{ cursor: 'pointer' }}>
+					<div className="aiScannerContainer-inner-left">
 						<div className="scanner" ref={qrRef}>
 							<QRCodeCanvas
 								value={link}
@@ -179,7 +179,11 @@ const AiFaceRegistration = ({ link, handlePreRegistration, preRegistration }) =>
 								size={120}
 							/>
 						</div>
-						<div className="downloadQR" onClick={() => downloadQR()}>
+						<div
+							className="downloadQR"
+							onClick={() => downloadQR()}
+							style={{ cursor: 'pointer' }}
+						>
 							<DownloadIcon className="downloadIcon" />
 							<p>Download QR</p>
 						</div>
@@ -196,7 +200,11 @@ const AiFaceRegistration = ({ link, handlePreRegistration, preRegistration }) =>
 								<div className="shareLink">
 									<p>{link ? link : ''}</p>
 								</div>
-								<div className="copyIcon" onClick={() => copyLink()}>
+								<div
+									className="copyIcon"
+									onClick={() => copyLink()}
+									style={{ cursor: 'pointer' }}
+								>
 									<CopyIcon />
 								</div>
 							</div>
