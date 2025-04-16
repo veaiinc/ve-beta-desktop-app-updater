@@ -463,6 +463,13 @@ const OpenedSidebar = ({
 		[location.pathname],
 	);
 
+	useEffect(() => {
+		if (showSettingsSidebar && settingsOptions?.length > 0) {
+			const firstItem = settingsOptions[0];
+			setSelectedSettingsOption(firstItem.name);
+			navigate(firstItem.route);
+		}
+	}, [showSettingsSidebar, settingsOptions]);
 	return (
 		<>
 			<div style={{ display: 'flex', position: 'relative' }}>
@@ -575,17 +582,18 @@ const OpenedSidebar = ({
 															sidebarStates={sidebarStates}
 															info={info}
 															userWorkSpaceList={userWorkSpaceList}
+															sidebarSettings="close"
 														/>
 													</div>
 												)}
 											{!isThisEarlyAccessPage && (
 												<>
-													<hr
+													{/* <hr
 														style={{
 															border: '0.7px solid var(--stroke)',
 															margin: '16px 0px',
 														}}
-													/>
+													/> */}
 													{filteredModules?.map((singleItem) => (
 														<div key={singleItem.id}>
 															<OpenedSidebarModules
@@ -767,6 +775,7 @@ const OpenedSidebar = ({
 									sidebarStates={sidebarStates}
 									info={info}
 									userWorkSpaceList={userWorkSpaceList}
+									settingsSideBar="open"
 								/>
 							</div>
 						)}

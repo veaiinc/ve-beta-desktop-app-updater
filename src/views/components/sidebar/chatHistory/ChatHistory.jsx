@@ -15,7 +15,7 @@ const infiniteScrollStyle = {
 	flex: '1 0 0',
 	alignSelf: 'stretch',
 	gap: '4px',
-	marginBottom: '60px',
+	height: '38vh',
 };
 const skeletonLoaders = Array.from({ length: 30 }, (_, index) => index + 1);
 const page = 1;
