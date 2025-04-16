@@ -82,9 +82,7 @@ const AiFacesContainer = ({
 	}, [aiFace, selectedFace, selectedFaceId]);
 
 	useEffect(() => {
-		if (!aiFace) {
-			getAiFaceImages(galleryId, info?.activeFace, info?.imagePage, 35, true);
-		}
+		getAiFaceImages(galleryId, info?.activeFace, info?.imagePage, 35, true);
 	}, [info?.activeFace]);
 
 	useEffect(() => {

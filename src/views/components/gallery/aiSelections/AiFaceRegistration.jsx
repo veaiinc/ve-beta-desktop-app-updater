@@ -53,7 +53,7 @@ const AiFaceRegistration = ({ link, handlePreRegistration, preRegistration }) =>
 			// Update preRegisterLength when preRegisteredUsers updates
 			setinfo((prev) => ({
 				...prev,
-				preRegisterLength: preRegisteredUsers?.data?.length || 0,
+				preRegisterLength: preRegisteredUsers?.metadata?.totalDocs || 0,
 			}));
 		}
 	}, [preRegisteredUsers, galleryId, page]);

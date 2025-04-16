@@ -84,7 +84,7 @@ const AiSelection = ({
 					))}
 				</div> */}
 			</div>
-			{info?.search === 'AI People' && info?.preRegistration && (
+			{info?.search === 'AI People' && (
 				<AiPeopleContainer
 					galleryId={galleryId}
 					galleryCredentials={galleryCredentials}
