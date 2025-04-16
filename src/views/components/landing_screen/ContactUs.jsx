@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import '../../../assets/scss/landingScreen/contactus/contactus.scss';
-import { sendContactFormData } from './helper';
+import Context from '../../../context/context';
 
 const ContactUs = ({ type }) => {
 	const [formData, setFormData] = useState({
@@ -17,6 +17,10 @@ const ContactUs = ({ type }) => {
 	});
 
 	const [errors, setErrors] = useState({});
+
+	const {
+		templates: { sendContactFormData },
+	} = useContext(Context);
 
 	const handleChange = (e) => {
 		const { name, value, type, checked } = e.target;
