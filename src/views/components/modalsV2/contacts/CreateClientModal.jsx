@@ -8,7 +8,7 @@ import ActionButton from '../../ai_assistant/ActionButton';
 import InputComponent from '../../ai_assistant/InputComponent';
 import PhoneInput from 'react-phone-number-input';
 import 'react-phone-number-input/style.css';
-import { message } from 'antd';
+import { message } from '../../globalComponents/CustomToast';
 
 const containerStyles = {
 	padding: '12px 24px',
@@ -209,11 +209,7 @@ const CreateClientModal = ({ modalIsOpen, closeModal, source, leadOrClient = fal
 			{
 				<div className="CreateClientModal" style={{ minHeight: '400px' }}>
 					<div className="modalHeading">
-						<p className="client-modal-title">
-							{leadOrClient
-								? 'What Lead/Contact is this file for? '
-								: 'What Client is this file for?'}
-						</p>
+						<p className="client-modal-title">Create New Contact</p>
 						<div className="closeContainer" onClick={closeModalFunc}>
 							<Close />
 						</div>
@@ -221,9 +217,9 @@ const CreateClientModal = ({ modalIsOpen, closeModal, source, leadOrClient = fal
 					<div className="inputBoxHolder">
 						<div className="inputWrapper">
 							<InputComponent
-								label={'Client Name'}
+								label={'Contact Name'}
 								type={'text'}
-								placeholder={'Enter client name'}
+								placeholder={'Enter contact name'}
 								name={'name'}
 								value={leadDetails['name']}
 								onChange={handleInputChange}
@@ -296,7 +292,7 @@ const CreateClientModal = ({ modalIsOpen, closeModal, source, leadOrClient = fal
 									width: '100%',
 								}}
 							>
-								{isLoading ? <p>Loading...</p> : <p>Add Client</p>}
+								{isLoading ? <p>Loading...</p> : <p>Create Contact</p>}
 							</ActionButton>
 						</div>
 					</div>

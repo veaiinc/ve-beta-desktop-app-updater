@@ -1,7 +1,6 @@
 import React, { memo, useCallback, useState } from 'react';
 import ActionDetailsBlock from './ActionDetailsBlock';
-import { message, Spin } from 'antd';
-import moment from 'moment';
+import { Spin } from 'antd';
 import VariableComponent from './VariableComponent';
 import HeaderComponent from './HeaderComponent';
 import '../../../../assets/scss/automation_builder/automationBuilderSidebarComponents/inAppActions.scss';

@@ -1,4 +1,3 @@
-import { message } from 'antd';
 import { intialState } from './state';
 const actionHandlers = {
 	GET_WORKFLOW_DETAILS_SUCCESS: (state, action) => ({
@@ -176,11 +175,29 @@ const actionHandlers = {
 			}
 		}
 		if (requiredIndex !== -1) {
+			let cot = [...(messages?.[requiredIndex]?.cot || [])];
+			if (payload?.sub_queries) {
+				cot = [];
+				payload?.sub_queries?.forEach((subQuery) => {
+					cot.push({
+						sub_query: subQuery,
+					});
+				});
+			}
+			if (payload?.sub_query) {
+				cot = cot?.map((item) => {
+					if (item?.sub_query === payload?.sub_query) {
+						item.searching = payload?.searching;
+					}
+					return item;
+				});
+			}
 			messages[requiredIndex] = {
 				...messages[requiredIndex],
 				...payload,
 				message: (messages?.[requiredIndex]?.message || '') + (payload?.answer || ''),
 				messageId: payload?.message_id,
+				cot,
 			};
 		} else {
 			messages.push({
@@ -188,6 +205,7 @@ const actionHandlers = {
 				type: 'AI',
 				contentType: 'message',
 				message: payload?.answer || '',
+				cot: [],
 			});
 		}
 
@@ -201,10 +219,10 @@ const actionHandlers = {
 		...state,
 		aiSuggestedPendingActions: action?.payload,
 	}),
-	// SET_CONNECTED_THIRDPARTIES: (state, action) => ({
-	// 	...state,
-	// 	connectThirdParties: action?.payload,
-	// }),
+	SET_CONNECTED_THIRDPARTIES: (state, action) => ({
+		...state,
+		connectThirdParties: action?.payload,
+	}),
 	RESET_STATE: () => intialState,
 };
 

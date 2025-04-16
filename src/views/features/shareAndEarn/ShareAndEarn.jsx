@@ -3,10 +3,11 @@ import '../../../assets/scss/shareAndEarn/shareAndEarn.scss';
 import { ReactComponent as Copy } from '../../../assets/svg/shareAndEarn/copy.svg';
 import UpdatedPageLoader from '../../components/loaders/UpdatedPageLoader';
 import devices from '../../../assets/images/shareAndEarn/devices.png';
-import { message } from 'antd';
+import { message } from '../../components/globalComponents/CustomToast';
 import { useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
 import { SHARE_AND_EARN_KIT_URL, REFERRAL_BASE_URL } from '../../../helpers/ConstantUrls';
+
 const ShareAndEarn = () => {
 	const [isLoading, setIsLoading] = useState(true);
 	const navigate = useNavigate();

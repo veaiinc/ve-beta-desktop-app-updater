@@ -20,8 +20,9 @@ import {
 
 import { useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
-import { message, Tag, Input } from 'antd';
+import { Tag, Input } from 'antd';
 import jwtDecode from 'jwt-decode';
+import { message } from '../../components/globalComponents/CustomToast';
 
 const navItems = [
 	{ name: 'Privacy', route: '/privacy-policy' },

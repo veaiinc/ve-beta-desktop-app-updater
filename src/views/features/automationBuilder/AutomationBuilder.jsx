@@ -23,12 +23,14 @@ import {
 import CustomEdges from '../../components/automationBuilder/CustomEdges';
 import UpdatedPageLoader from '../../components/loaders/UpdatedPageLoader';
 import BuilderToolbar from '../../components/automationBuilder/BuilderToolbar';
-import { message, Spin } from 'antd';
+import { Spin } from 'antd';
 import Configuration from '../../components/automationBuilder/AutomationBuilderSidebarComponents/Configuration';
 import TabHeader from '../../components/ai_assistant/TabHeader';
 import CustomControls from '../../components/automationBuilder/CustomControls';
 import { ReactComponent as ChevronRight } from '../../../assets/svg/tasks/chevronRightThin.svg';
 import UpdatedDeleteWorkflowStep from '../../components/modalsV2/automationBuilder/UpdatedDeleteStepsModal';
+import { message } from '../../components/globalComponents/CustomToast';
+
 // Define node types
 const nodeTypes = {
 	trigger: TriggerNode,

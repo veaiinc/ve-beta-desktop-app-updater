@@ -8,7 +8,7 @@ import { ReactComponent as PersonSvg } from '../../../assets/svg/tasks/person.sv
 import { ReactComponent as CalendarSvg } from '../../../assets/svg/tasks/calendar.svg';
 import { ReactComponent as textSvg } from '../../../assets/svg/tasks/letterA.svg';
 import Context from '../../../context/context';
-import { message } from 'antd';
+import { message } from '../../components/globalComponents/CustomToast';
 import jwtDecode from 'jwt-decode';
 import moment from 'moment';
 import CreateTaskPopup from '../../components/modalsV2/tasks/CreateTaskPopup';
@@ -53,7 +53,7 @@ const defaultPreference = {
 	updatedAt: { show: false, order: 15 },
 };
 
-const colors = {
+export const colors = {
 	1: { backgroundColor: '#62344B', color: '#A35A7E' },
 	2: { backgroundColor: '#373737', color: '#707070' },
 	3: { backgroundColor: '#5B3D2F', color: '#8F614B' },
@@ -63,7 +63,7 @@ const colors = {
 	7: { backgroundColor: '#453061', color: '#6F4C99' },
 };
 
-const rowTypes = {
+export const rowTypes = {
 	text: Text,
 	select: Select,
 	person: Person,

@@ -4,7 +4,8 @@ import Context from '../../../../context/context';
 import '../../../../assets/scss/settings/teamMembers.scss';
 import ReusableButtonSettings from '../ReusableButtonSettings';
 import ReactModal from '../../modalsV2';
-import { Checkbox, message } from 'antd';
+import { Checkbox } from 'antd';
+import { message } from '../../globalComponents/CustomToast';
 
 const InviteMembersWorkspaceComponent = ({
 	handleChnage,

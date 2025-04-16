@@ -1,7 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { ReactComponent as DeleteLogo } from '../../../../assets/svg/gallery/delete.svg';
 import { ReactComponent as CloseSvg } from '../../../../assets/svg/close.svg';
-import { message } from 'antd';
+import { message } from '../../globalComponents/CustomToast';
 import { useNavigate } from 'react-router-dom';
 import Context from '../../../../context/context';
 
@@ -19,20 +19,16 @@ const DeleteAlbmumComponent = ({ albumName, galleryId, albumId }) => {
 
 	const handleDeleteFunction = async () => {
 		setdeleteInfo({ ...deleteInfo, isLoading: true });
-		message.open({
-			type: 'loading',
-			content: 'Your album is being removed. Please wait...',
-			duration: 0,
-		});
+		const id = message.loading('Your album is being removed. Please wait...');
+
 		const response = await deleteAlbum(galleryId, albumId);
+		message.destroy(id);
 
 		if (response[0] === true) {
-			message.destroy();
 			message.success('Album deleted successfully');
 			getAlbums(galleryId);
 			navigate(`/galleries/${galleryId}`);
 		} else {
-			message.destroy();
 			message.error(response[1].message);
 		}
 		setdeleteInfo({ ...deleteInfo, isLoading: false });

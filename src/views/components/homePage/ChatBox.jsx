@@ -14,26 +14,24 @@ import { ReactComponent as MdSvg } from '../../../assets/svg/ai_agents/md.svg';
 import { ReactComponent as PlusSvg } from '../../../assets/svg/ai_assistant/plus.svg';
 import { ReactComponent as ExcelSvg } from '../../../assets/svg/ai_agents/excel.svg';
 import { ReactComponent as AudioSvg } from '../../../assets/svg/ai_agents/audio.svg';
-import { ReactComponent as LLMSvg } from '../../../assets/svg/ai_agents/llm.svg';
 import { ReactComponent as AtomSvg } from '../../../assets/svg/ai_agents/atom.svg';
 import { ReactComponent as ArrowDownSvg } from '../../../assets/svg/ai_agents/arrow-down.svg';
 import Context from '../../../context/context';
 import ObjectID from 'bson-objectid';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { checkDevices, getBase64, getLocationsDetails } from '../../../helpers';
 import WorkflowSlugSelector from '../../components/calendar/WorkflowSlugSelector';
 import SearchDropdown from '../chat/SearchDropdown';
 import UploadFileTooltip from '../chat/UploadFileTooltip';
 import DateRangeDropdown from '../chat/DateRangeDropdown';
 import moment from 'moment';
-import { message, Image, Spin, Tooltip } from 'antd';
-import LLMTooltip from '../chat/LLMTooltip';
+import { Image, Spin, Tooltip } from 'antd';
 import AIMessageLoader from '../chat/AIMessageLoader';
 import WebSvg from '../../../assets/svg/ai_agents/webSvg';
 import BookSvg from '../../../assets/svg/ai_agents/bookSvg';
 import BuildingSvg from '../../../assets/svg/ai_agents/building';
-import MicroscopeSvg from '../../../assets/svg/ai_agents/microScopeSvg';
 import useUpdatedVoiceIntegration from '../../hooks/useUpdatedVoiceIntegration';
+import { message } from '../globalComponents/CustomToast';
 import SearchTypeTooltip from '../chat/SearchTypeTooltip';
 
 const moduleHelper = {
@@ -122,8 +120,7 @@ const ChatBox = ({
 	isPublicChat = false,
 	showIconText = true,
 	autoFocus = true,
-	uploadFileTooltipPlacement = 'top',
-	searchTypeTooltipPlacement = 'top',
+	isParentHeaderMinimized = false,
 }) => {
 	const {
 		templates: {
@@ -141,16 +138,15 @@ const ChatBox = ({
 			chatInfo,
 			userEditedQuery,
 			galleryFile,
+			chatPayload,
 		},
 		calendarInfo: { updateCalendarState },
 		tasks: { updateTaskState },
-		documentPreview: { noteContent, setNoteContent },
-		aiSetup: { updateAiSetupState, voiceIntegrationData },
+		aiSetup: { voiceIntegrationData },
 	} = useContext(Context);
 
-	const { handleConnect, shouldConnect } = useUpdatedVoiceIntegration();
+	const { handleConnect } = useUpdatedVoiceIntegration();
 
-	const navigate = useNavigate();
 	const location = useLocation();
 
 	const [info, setInfo] = useState({
@@ -209,6 +205,12 @@ const ChatBox = ({
 			});
 		}
 	}, []);
+
+	useEffect(() => {
+		if (isParentHeaderMinimized) {
+			textAreaRef?.current?.blur();
+		}
+	}, [isParentHeaderMinimized]);
 
 	//useEffect to handle send user edited query
 	useEffect(() => {
@@ -540,6 +542,13 @@ const ChatBox = ({
 					}
 					if (activeWorkflowSlugForSmartFile) {
 						payload.workflow_slug = activeWorkflowSlugForSmartFile;
+					}
+
+					if (chatPayload?.workflowTemplateId) {
+						payload.workflow_template_id = chatPayload?.workflowTemplateId;
+					}
+					if (chatPayload?.moduleTemplateId) {
+						payload.module_template_id = chatPayload?.moduleTemplateId;
 					}
 
 					// if (
@@ -934,23 +943,25 @@ const ChatBox = ({
 
 	const handleTextAreaChange = (e) => {
 		const textArea = textAreaRef?.current;
+		const query = e.target.value;
+		const lastChar = query?.trim()?.slice(-1);
+
 		if (textArea) {
 			textArea.style.height = 'auto';
 			textArea.style.height = textArea.scrollHeight + 'px';
 		}
-		const query = e.target.value;
-		if (query?.trim()?.length > 0) {
-			const lastChar = query?.trim()?.slice(-1);
-			if (lastChar === '@' && !info?.isUploadFileOpen) {
-				setInfo((prev) => ({
-					...prev,
-					isUploadFileOpen: true,
-				}));
-			}
+
+		let isUploadFileOpen = false;
+		if (lastChar === '@') {
+			isUploadFileOpen = true;
+		} else {
+			isUploadFileOpen = false;
 		}
+
 		setInfo((prev) => ({
 			...prev,
 			chatQuery: query,
+			isUploadFileOpen,
 		}));
 	};
 
@@ -1166,9 +1177,6 @@ const ChatBox = ({
 															recentFiles={
 																recentFilesRef.current || []
 															}
-															tooltipPlacement={
-																uploadFileTooltipPlacement
-															}
 														>
 															<Tooltip
 																title={
@@ -1312,9 +1320,6 @@ const ChatBox = ({
 																}));
 															}}
 															searchTypeOptions={searchTypeOptions}
-															tooltipPlacement={
-																searchTypeTooltipPlacement
-															}
 														>
 															<Tooltip
 																title={

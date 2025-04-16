@@ -4,7 +4,7 @@ import '../../../../../assets/scss/settings/aiSetup.scss';
 import { ReactComponent as CrossGrey } from '../../../../../assets/svg/Settings/cross-grey.svg';
 import Workflows from '../../../settings/ai_setup/Workflows';
 import Context from '../../../../../context/context';
-import { message } from 'antd';
+import { message } from '../../../globalComponents/CustomToast';
 
 const AssignAiAssistantModal = ({
 	assignedWorkflows,
