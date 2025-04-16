@@ -28,15 +28,15 @@
 		align-items: center;
 		gap: 24px;
 		border-radius: 16px;
-		background: #202123;
+		background: var(--card);
 
 		.tooltip-content {
 			width: 280px;
 			height: 270px;
 			overflow-y: auto;
 			flex-shrink: 0;
-			color: #f2f2f3;
-			font-family: Inter;
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
 			font-size: 12px;
 			font-style: normal;
 			font-weight: 500;
@@ -51,7 +51,7 @@
 			gap: 10px;
 			align-self: stretch;
 			border-radius: 10px;
-			background: #26282a;
+			background: var(--card-over-card);
 
 			.image {
 				display: flex;
@@ -60,15 +60,15 @@
 				padding: 4px;
 				justify-content: center;
 				align-items: center;
-				color: #f2f2f3;
+				color: var(--primary-font);
 				border-radius: 4px;
-				background: #202123;
+				background: var(--card);
 			}
 
 			.citation-link {
 				width: 100%;
-				color: #f2f2f3;
-				font-family: Inter;
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 500;
