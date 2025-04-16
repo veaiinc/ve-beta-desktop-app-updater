@@ -271,7 +271,7 @@ const TemplateCards = ({ data, loading, hasNextPage, fetchMoreMyWorkflows }) => 
 													window.location.href = `${origin}/${info?.hoverTemplateData?._id} `;
 												}}
 											>
-												Edit Workflow
+												Edit Template
 											</button>
 										</div>
 									)}
@@ -350,6 +350,9 @@ const TemplateCards = ({ data, loading, hasNextPage, fetchMoreMyWorkflows }) => 
 																setInfo((prev) => ({
 																	...prev,
 																	deleteWorkflowModal: true,
+																	title: 'Delete Template',
+																	description:
+																		'Deleting this template will remove it from your templates list.',
 																	deleteTemplateData:
 																		prev.hoverTemplateData,
 																}));

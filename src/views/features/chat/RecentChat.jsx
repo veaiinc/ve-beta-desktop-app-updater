@@ -15,6 +15,7 @@ import ObjectID from 'bson-objectid';
 import { ReactComponent as ArrowUpRightSvg } from '../../../assets/svg/sidebar/arrowupright.svg';
 import { ReactComponent as LinkIcon } from '../../../assets/svg/ai_agents/link.svg';
 import { ReactComponent as Logo } from '../../../assets/svg/loader/loaderLogo.svg';
+import ChainOfThought from '../../components/chat/chatComponents/ChainOfThought';
 
 let throttleTimer = null;
 
@@ -235,7 +236,11 @@ const RecentChat = ({
 			const defaultTabs = {};
 			globalChatMessages.forEach((message, index) => {
 				if (message?.type?.toLowerCase() === 'ai') {
-					defaultTabs[index] = 'response';
+					if (message?.message?.length > 0 || message?.cot?.length === 0) {
+						defaultTabs[index] = 'response';
+					} else {
+						defaultTabs[index] = 'cot';
+					}
 				}
 			});
 			setInfo((prev) => ({
@@ -458,6 +463,7 @@ const RecentChat = ({
 					citations,
 					workflowTemplateId,
 					moduleTemplateId,
+					followUpQuery,
 				} = data?.[i] || {};
 
 				if (firstTimeApiCall) {
@@ -471,17 +477,18 @@ const RecentChat = ({
 					{
 						message: originalQuery,
 						type: 'user',
-						typingEffect: false,
 					},
 					{
 						message: response,
 						type: 'AI',
 						messageId,
-						typingEffect: false,
 						rating: null,
 						citations,
+						follow_up_query: followUpQuery || [],
 						workflow_template_id: workflowTemplateId || null,
 						module_template_id: moduleTemplateId || null,
+						isOldMessage: true,
+						stream_end: true,
 					},
 				]?.concat(messages);
 			}
@@ -513,8 +520,6 @@ const RecentChat = ({
 		},
 		[info, chatContentRef],
 	);
-
-	console.log(globalChatMessages, 'globalChatMessages');
 
 	const handleRatingClick = useCallback(async (type, messageId) => {
 		try {
@@ -656,7 +661,6 @@ const RecentChat = ({
 		setInfo((prev) => ({ ...prev, latestStreamMesage: null }));
 	}, []);
 	const handleViewDocument = useCallback((value) => {
-		console.log(value, 'value');
 		setInfo((prev) => ({ ...prev, showViewDocument: value }));
 	}, []);
 
@@ -796,10 +800,38 @@ const RecentChat = ({
 																			width={'24px'}
 																			height={'24px'}
 																		/>
-																		Answer
+																		{chat?.processing ||
+																			'Answer'}
 																	</div>
+																	{chat?.cot?.length > 0 && (
+																		<div
+																			className={`tab-btn ${
+																				info?.activeTabs[
+																					index
+																				] === 'cot'
+																					? 'active'
+																					: ''
+																			}`}
+																			onClick={() =>
+																				setInfo((prev) => ({
+																					...prev,
+																					activeTabs: {
+																						...prev.activeTabs,
+																						[index]:
+																							'cot',
+																					},
+																				}))
+																			}
+																		>
+																			Chain of Thought
+																			<span className="citation-badge">
+																				{chat?.cot
+																					?.length || 0}
+																			</span>
+																		</div>
+																	)}
 																	{chat?.citations &&
-																		chat?.citations.length >
+																		chat?.citations?.length >
 																			0 && (
 																			<div
 																				className={`tab-btn ${
@@ -877,6 +909,9 @@ const RecentChat = ({
 																			1
 																	}
 																/>
+															) : info?.activeTabs[index] ===
+															  'cot' ? (
+																<ChainOfThought cot={chat?.cot} />
 															) : (
 																<div className="source-content">
 																	{chat?.citations &&

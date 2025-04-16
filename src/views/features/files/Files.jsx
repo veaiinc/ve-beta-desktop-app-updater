@@ -203,14 +203,19 @@ const Files = () => {
 	const navigate = useNavigate();
 
 	useEffect(() => {
-		if (tenantUserAccessControls && tenantUserAccessControls?.accessControls) {
-			const enabledApps = new Set(
-				tenantUserAccessControls?.accessControls
-					.filter((permission) => permission.isEnabled)
-					.map((permission) => permission.app),
-			);
-			// Step 2: Filter the options array
-			const filteredOptions = options.filter((option) => enabledApps.has(option.value));
+		if (tenantUserAccessControls) {
+			const isAdmin = tenantUserAccessControls?.role === 'admin';
+			let filteredOptions = options;
+
+			if (!isAdmin && tenantUserAccessControls?.accessControls) {
+				const enabledApps = new Set(
+					tenantUserAccessControls?.accessControls
+						.filter((permission) => permission.isEnabled)
+						.map((permission) => permission.app),
+				);
+				filteredOptions = options.filter((option) => enabledApps.has(option.value));
+			}
+
 			setInfo((prevInfo) => ({
 				...prevInfo,
 				options: [{ label: 'Notes', value: 'notes' }, ...filteredOptions],

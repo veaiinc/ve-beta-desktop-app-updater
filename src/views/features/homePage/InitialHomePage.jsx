@@ -7,13 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import ProactiveSuggestions from './ProactiveSuggestions';
 import ChatPrompts from './ChatPrompts';
 import QuickActions from '../../components/globalComponents/QuickActions';
-import { first, set } from 'lodash';
-import ContactsWidget from '../../components/globalComponents/ContactsWidget';
-import AutomationWidget from '../../components/globalComponents/AutomationWidget';
-import TaskWidget from '../../components/globalComponents/TaskWidget';
-import CalenderWidget from '../../components/globalComponents/CalenderWidget';
 import GlobalWidget from '../../components/globalComponents/GlobalWidget';
-import AISuggestionsReportUserComponent from '../../components/chat/chatComponents/AISuggestionsReportUserComponent';
 
 const optionsList = [
 	{
@@ -80,46 +74,26 @@ const InitialHomePage = () => {
 	});
 
 	let {
-		profileInfo: { userDetailsData },
 		aiSetup: { getPromptsData, promptsData },
 		templates: { aiSuggestedPendingActions, getAISuggestedPendingActions },
 	} = useContext(Context);
 
-	const username =
-		jwtDecode(localStorage.getItem('usertoken'))?.userName?.split(' ')[0] ??
-		`${userDetailsData?.firstName}` ??
-		'User';
-
-	const renderOptions = () => {
-		if (!tenantUserAccessControls) return null;
-
-		// Create lookup object
-		const accessControlMap = Object.fromEntries(
-			tenantUserAccessControls?.accessControls?.map((item) => [item.app, item]),
-		);
-
-		return options?.map((option) => {
-			const controlKey = option?.controlValue;
-			const accessControl = controlKey ? accessControlMap[controlKey] : null;
-
-			const isEnabled = controlKey ? accessControl?.isEnabled : true;
-
-			if (isEnabled || !controlKey) {
-				return (
-					<div
-						key={option.id}
-						className={`option ${
-							info?.selectedOption === option?.value ? 'active' : ''
-						}`}
-						onClick={() => handleOptionSelection(option)}
-					>
-						<div className="option-label">{option?.label}</div>
-					</div>
-				);
+	const handleUpdateOptions = (value) => {
+		let updatedOptions = info?.options;
+		updatedOptions = updatedOptions?.map((option) => {
+			if (option?.value === value) {
+				option.showOption = true;
 			}
-
-			return null;
+			return option;
 		});
+
+		const selectedOption = updatedOptions?.find((option) => option?.showOption)?.value ?? '';
+
+		setInfo((prev) => ({
+			...prev,
+			options: updatedOptions,
+			selectedOption,
+		}));
 	};
 
 	useEffect(() => {
@@ -137,7 +111,7 @@ const InitialHomePage = () => {
 		} else {
 			getPromptsData({ category: 'all', limit: 30 });
 		}
-	}, [promptsData]);
+	}, [promptsData, handleUpdateOptions, info?.optionsHandledOnce?.prompts, getPromptsData]);
 
 	useEffect(() => {
 		if (info?.selectedOption) {
@@ -149,7 +123,7 @@ const InitialHomePage = () => {
 				headerMinimizedRef.current = false;
 			}
 		}
-	}, [info?.selectedOption]);
+	}, [info?.selectedOption, info?.minimized]);
 
 	useEffect(() => {
 		if (aiSuggestedPendingActions) {
@@ -169,7 +143,12 @@ const InitialHomePage = () => {
 		} else {
 			getAISuggestedPendingActions();
 		}
-	}, [aiSuggestedPendingActions]);
+	}, [
+		aiSuggestedPendingActions,
+		handleUpdateOptions,
+		info?.optionsHandledOnce?.proactiveSuggestions,
+		getAISuggestedPendingActions,
+	]);
 
 	const handleCustomOnSendFunction = useCallback(
 		(data) => {
@@ -177,7 +156,7 @@ const InitialHomePage = () => {
 
 			navigate(`/chat/${currentSessionId}`);
 		},
-		[currentSessionId],
+		[currentSessionId, navigate, updateStateValues],
 	);
 
 	const handleOptionSelection = (option) => {
@@ -188,24 +167,6 @@ const InitialHomePage = () => {
 		setInfo((prev) => ({
 			...prev,
 			selectedOption: option?.value,
-		}));
-	};
-
-	const handleUpdateOptions = (value) => {
-		let updatedOptions = info?.options;
-		updatedOptions = updatedOptions?.map((option) => {
-			if (option?.value === value) {
-				option.showOption = true;
-			}
-			return option;
-		});
-
-		const selectedOption = updatedOptions?.find((option) => option?.showOption)?.value ?? '';
-
-		setInfo((prev) => ({
-			...prev,
-			options: updatedOptions,
-			selectedOption,
 		}));
 	};
 
@@ -274,7 +235,39 @@ const InitialHomePage = () => {
 				selectedOption: options[0]?.value,
 			}));
 		}
-	}, [options]);
+	}, [options, info?.selectedOption]);
+
+	const renderOptions = () => {
+		if (!tenantUserAccessControls) return null;
+
+		const isAdmin = tenantUserAccessControls?.role === 'admin';
+		// Create a lookup object for access controls
+		const accessControlMap = Object.fromEntries(
+			tenantUserAccessControls?.accessControls?.map((item) => [item.app, item]),
+		);
+
+		return info.options.map((option) => {
+			// For options without a control key (proactive and prompts), only render if showOption is true
+			if (!option.showOption && !option.controlValue) return null;
+
+			// For options with a control key (Contacts and Automations), show for admin or if access is enabled
+			if (option.controlValue) {
+				const accessControl = accessControlMap[option.controlValue];
+				const isEnabled = accessControl?.isEnabled;
+				if (!isAdmin && !isEnabled) return null;
+			}
+
+			return (
+				<div
+					key={option.id}
+					className={`option ${info?.selectedOption === option.value ? 'active' : ''}`}
+					onClick={() => handleOptionSelection(option)}
+				>
+					<div className="option-label">{option.label}</div>
+				</div>
+			);
+		});
+	};
 
 	return (
 		<div
