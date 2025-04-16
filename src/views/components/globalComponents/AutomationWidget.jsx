@@ -10,8 +10,8 @@ import AutomationLoaderModal from '../modalsV2/automationBuilder/AutomationLoade
 
 const statusColors = {
 	published: 'var(--success)',
-	unpublished: 'var(--warning)',
-	draft: 'var(--warning)',
+	unpublished: 'orange',
+	draft: 'orange',
 };
 const limit = 10;
 const append = true;
