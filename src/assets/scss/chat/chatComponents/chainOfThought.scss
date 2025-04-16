@@ -35,7 +35,7 @@
 				}
 				.sub-query {
 					color: var(--primary-font, #f2f2f3);
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 15px;
 					font-style: normal;
 					font-weight: 400;
@@ -44,7 +44,7 @@
 				.searching-source-container {
 					.text-container {
 						color: var(--secondary-font, #95989d);
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 12px;
 						font-style: normal;
 						font-weight: 400;
@@ -69,7 +69,7 @@
 					}
 					.search-item {
 						color: var(--primary-font, #f2f2f3);
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 12px;
 						font-style: normal;
 						font-weight: 400;
