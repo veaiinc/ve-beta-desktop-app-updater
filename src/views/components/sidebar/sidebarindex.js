@@ -27,13 +27,13 @@ export const photographerModules = [
 		route: '/knowledge-agent',
 		icon: '',
 	},
-	{
-		id: 3,
-		name: 'Search',
-		moduleRoute: '/search',
-		route: '/search',
-		icon: '',
-	},
+	// {
+	// 	id: 3,
+	// 	name: 'Search',
+	// 	moduleRoute: '/search',
+	// 	route: '/search',
+	// 	icon: '',
+	// },
 	{
 		id: 2,
 		name: 'Conversational Agent',
