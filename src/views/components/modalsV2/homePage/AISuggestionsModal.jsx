@@ -49,6 +49,7 @@ const AISuggestionsModal = ({ open, onClose, data, onNextCardClick, onPrevCardCl
 				processing: 'Report',
 				cot,
 				follow_up_query: data?.suggested_prompts,
+				stream_end: true,
 			},
 		];
 		updateStateValues({ globalChatMessages: messages });
