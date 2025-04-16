@@ -51,8 +51,6 @@ const optionsList = [
 	},
 ];
 
-let animationClass = '';
-
 const InitialHomePage = () => {
 	const {
 		templates: { updateStateValues, currentSessionId },
@@ -124,7 +122,7 @@ const InitialHomePage = () => {
 				headerMinimizedRef.current = false;
 			}
 		}
-	}, [info?.selectedOption, info?.minimized]);
+	}, [info?.selectedOption]);
 
 	useEffect(() => {
 		if (aiSuggestedPendingActions) {
@@ -151,13 +149,59 @@ const InitialHomePage = () => {
 		getAISuggestedPendingActions,
 	]);
 
+	const options = useMemo(
+		() => info?.options?.filter((option) => option?.showOption),
+		[info?.options],
+	);
+
+	useEffect(() => {
+		if (options?.length > 0 && !info?.selectedOption) {
+			// Set the first visible option as the selected option
+			setInfo((prev) => ({
+				...prev,
+				selectedOption: options[0]?.value,
+			}));
+		}
+	}, [options, info?.selectedOption]);
+
+	const renderOptions = () => {
+		if (!tenantUserAccessControls) return null;
+
+		const isAdmin = tenantUserAccessControls?.role === 'admin';
+		// Create a lookup object for access controls
+		const accessControlMap = Object?.fromEntries(
+			tenantUserAccessControls?.accessControls?.map((item) => [item?.app, item]),
+		);
+
+		return info?.options?.map((option) => {
+			// For options without a control key (proactive and prompts), only render if showOption is true
+			if (!option?.showOption && !option?.controlValue) return null;
+
+			// For options with a control key (Contacts and Automations), show for admin or if access is enabled
+			if (option?.controlValue) {
+				const accessControl = accessControlMap[option?.controlValue];
+				const isEnabled = accessControl?.isEnabled;
+				if (!isAdmin && !isEnabled) return null;
+			}
+
+			return (
+				<div
+					key={option?.id}
+					className={`option ${info?.selectedOption === option?.value ? 'active' : ''}`}
+					onClick={() => handleOptionSelection(option)}
+				>
+					<div className="option-label">{option?.label}</div>
+				</div>
+			);
+		});
+	};
+
 	const handleCustomOnSendFunction = useCallback(
 		(data) => {
 			updateStateValues({ activePayloadForChat: data });
-
 			navigate(`/chat/${currentSessionId}`);
 		},
-		[currentSessionId, navigate, updateStateValues],
+		[currentSessionId],
 	);
 
 	const handleOptionSelection = (option) => {
@@ -215,60 +259,22 @@ const InitialHomePage = () => {
 		contact: <GlobalWidget option={'contacts'} />,
 	};
 
-	const options = useMemo(
-		() => info?.options?.filter((option) => option?.showOption),
-		[info?.options],
-	);
+	// if (options?.length > 0) {
+	// 	if (info?.minimized) {
+	// 		animationClass = 'minimized-animation';
+	// 	} else if (headerRef?.current?.classList?.contains('minimized-animation')) {
+	// 		animationClass = 'expanded-animation';
+	// 	}
+	// }
 
-	if (options?.length > 0) {
-		if (info?.minimized) {
-			animationClass = 'minimized-animation';
-		} else if (headerRef?.current?.classList?.contains('minimized-animation')) {
-			animationClass = 'expanded-animation';
-		}
-	}
-
-	useEffect(() => {
-		if (options?.length > 0 && !info?.selectedOption) {
-			// Set the first visible option as the selected option
-			setInfo((prev) => ({
-				...prev,
-				selectedOption: options[0]?.value,
-			}));
-		}
-	}, [options, info?.selectedOption]);
-
-	const renderOptions = () => {
-		if (!tenantUserAccessControls) return null;
-
-		const isAdmin = tenantUserAccessControls?.role === 'admin';
-		// Create a lookup object for access controls
-		const accessControlMap = Object.fromEntries(
-			tenantUserAccessControls?.accessControls?.map((item) => [item.app, item]),
-		);
-
-		return info.options.map((option) => {
-			// For options without a control key (proactive and prompts), only render if showOption is true
-			if (!option.showOption && !option.controlValue) return null;
-
-			// For options with a control key (Contacts and Automations), show for admin or if access is enabled
-			if (option.controlValue) {
-				const accessControl = accessControlMap[option.controlValue];
-				const isEnabled = accessControl?.isEnabled;
-				if (!isAdmin && !isEnabled) return null;
-			}
-
-			return (
-				<div
-					key={option.id}
-					className={`option ${info?.selectedOption === option.value ? 'active' : ''}`}
-					onClick={() => handleOptionSelection(option)}
-				>
-					<div className="option-label">{option.label}</div>
-				</div>
-			);
-		});
-	};
+	const animationClass =
+		options?.length > 0
+			? info?.minimized
+				? 'minimized-animation'
+				: headerRef?.current?.classList?.contains('minimized-animation')
+				? 'expanded-animation'
+				: ''
+			: '';
 
 	return (
 		<div

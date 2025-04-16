@@ -29,7 +29,6 @@ import { Image, Spin, Tooltip } from 'antd';
 import AIMessageLoader from '../chat/AIMessageLoader';
 import WebSvg from '../../../assets/svg/ai_agents/webSvg';
 import BookSvg from '../../../assets/svg/ai_agents/bookSvg';
-import BuildingSvg from '../../../assets/svg/ai_agents/building';
 import useUpdatedVoiceIntegration from '../../hooks/useUpdatedVoiceIntegration';
 import { message } from '../globalComponents/CustomToast';
 import SearchTypeTooltip from '../chat/SearchTypeTooltip';
@@ -69,7 +68,7 @@ const searchTypeOptions = {
 	},
 	workspaceSearch: {
 		icon: BookSvg,
-		title: 'Internal Knowledge',
+		title: 'Internal Search',
 		subTitle: 'Effortless access to insights',
 	},
 };
@@ -1284,7 +1283,7 @@ const ChatBox = ({
 																}}
 															>
 																<div className="icon">
-																	<BuildingSvg
+																	<BookSvg
 																		selected={
 																			chatInfo?.workspaceSearch
 																		}
@@ -1298,7 +1297,7 @@ const ChatBox = ({
 																					: 'var(--primary-font)',
 																			}}
 																		>
-																			Internal Knowledge
+																			Internal Search
 																		</div>
 																	)}
 																</div>

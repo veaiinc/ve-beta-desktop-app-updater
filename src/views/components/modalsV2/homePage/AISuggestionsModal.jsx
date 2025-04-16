@@ -28,6 +28,11 @@ const AISuggestionsModal = ({ open, onClose, data, onNextCardClick, onPrevCardCl
 	}, []);
 
 	const handleViewReportClick = useCallback((data) => {
+		const cot = (data?.chain_of_thought || [])?.map((item) => {
+			return {
+				sub_query: item,
+			};
+		});
 		const messages = [
 			{
 				type: 'user',
@@ -42,7 +47,7 @@ const AISuggestionsModal = ({ open, onClose, data, onNextCardClick, onPrevCardCl
 					research_report: data?.research_report,
 				},
 				processing: 'Report',
-				cot: [],
+				cot,
 				follow_up_query: data?.suggested_prompts,
 			},
 		];
@@ -169,25 +174,6 @@ const AISuggestionsModal = ({ open, onClose, data, onNextCardClick, onPrevCardCl
 							</div>
 						</div>
 					</div>
-					<div className="suggested-actions">
-						<div className="title-text">Suggested Actions</div>
-						<div className="suggested-actions">
-							{Array?.isArray(suggested_actions)
-								? suggested_actions?.map((item, index) => (
-										<div
-											className="action-item"
-											key={index}
-											onClick={() => handleClickRun(item)}
-										>
-											<div className="logo">
-												<ArrowRightSvg />
-											</div>
-											<div className="item-text">{item}</div>
-										</div>
-								  ))
-								: suggested_actions || ''}
-						</div>
-					</div>
 					<div className="solutions">
 						<div className="title-text">Suggested Solutions</div>
 						<div className="solutions">
@@ -205,6 +191,25 @@ const AISuggestionsModal = ({ open, onClose, data, onNextCardClick, onPrevCardCl
 										</div>
 								  ))
 								: solutions || ''}
+						</div>
+					</div>
+					<div className="suggested-actions">
+						<div className="title-text">Suggested Actions</div>
+						<div className="suggested-actions">
+							{Array?.isArray(suggested_actions)
+								? suggested_actions?.map((item, index) => (
+										<div
+											className="action-item"
+											key={index}
+											onClick={() => handleClickRun(item)}
+										>
+											<div className="logo">
+												<ArrowRightSvg />
+											</div>
+											<div className="item-text">{item}</div>
+										</div>
+								  ))
+								: suggested_actions || ''}
 						</div>
 					</div>
 					<div className="suggested-prompts">

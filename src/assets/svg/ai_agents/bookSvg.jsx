@@ -1,11 +1,12 @@
 import { memo } from 'react';
-const BookSvg = ({ active = false, selected = false }) => {
+const BookSvg = ({ active = false, selected = null }) => {
 	let fillColor = active ? 'var(--primary-button)' : 'var(--primary-font)';
 
 	if (selected) {
 		fillColor = 'var(--primary-button-font)';
+	} else if (selected === false) {
+		fillColor = 'var(--secondary-font)';
 	}
-
 	return (
 		<svg
 			xmlns="http://www.w3.org/2000/svg"
