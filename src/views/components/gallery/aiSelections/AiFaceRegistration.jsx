@@ -87,14 +87,26 @@ const AiFaceRegistration = ({ link, handlePreRegistration, preRegistration }) =>
 	};
 
 	const downloadQR = () => {
-		const canvas = qrRef.current?.querySelector('canvas');
+		const originalCanvas = qrRef.current?.querySelector('canvas');
 
-		if (!canvas) {
+		if (!originalCanvas) {
 			message.error('QR code not found.');
 			return;
 		}
 
-		const pngFile = canvas.toDataURL('image/png');
+		// Create a new canvas with desired dimensions
+		const newCanvas = document.createElement('canvas');
+		const size = 1000;
+		newCanvas.width = size;
+		newCanvas.height = size;
+
+		const ctx = newCanvas.getContext('2d');
+
+		// Draw original canvas scaled into new canvas
+		ctx.drawImage(originalCanvas, 0, 0, size, size);
+
+		// Export the scaled canvas
+		const pngFile = newCanvas.toDataURL('image/png');
 		const downloadLink = document.createElement('a');
 		downloadLink.download = 'qr-code.png';
 		downloadLink.href = pngFile;
