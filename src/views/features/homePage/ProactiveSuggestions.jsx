@@ -154,15 +154,9 @@ const ProactiveSuggestions = () => {
 									onClick={() => handleCardClick(card, index)}
 								>
 									<div className="header">
-										<div className="card-title">
-											{index % 3 === 0
-												? 'Slack'
-												: index % 4 === 0
-												? 'Notion'
-												: card?.title}
-										</div>
+										<div className="card-title">{card?.description}</div>
 
-										<div className="card-description">{card?.description}</div>
+										<div className="card-description">{card?.title}</div>
 									</div>
 									<div className="footer">
 										<div className="module-type">{card?.moduleType}</div>
