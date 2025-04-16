@@ -49,7 +49,6 @@ const FormModel = ({
 			handleViewDocument(!isExpanded);
 		}
 	};
-
 	return (
 		<div className={`form-modal-wrapper ${isExpanded ? 'form-modal-wrapper-expanded' : ''}`}>
 			<div
@@ -247,7 +246,7 @@ const Section2 = ({ workflowTemplateId: workflowTemplateIdFromProps }) => {
 	const { workflowTemplateId, moduleTemplateId } = documentPreviewIds;
 	const [showIframe, setShowIframe] = useState(false);
 	workflowTemplateIdFromProps = workflowTemplateId || workflowTemplateIdFromProps;
-
+	const origin = fetchOriginSelection();
 	useEffect(() => {
 		// Delay iframe loading to wait for expansion animation
 		const timer = setTimeout(() => {
