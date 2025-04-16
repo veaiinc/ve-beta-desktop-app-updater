@@ -830,7 +830,7 @@
 	.icon {
 		.icon-text,
 		.icon-arrow {
-			display: none;
+			display: none !important;
 		}
 	}
 }

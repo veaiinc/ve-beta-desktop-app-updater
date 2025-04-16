@@ -129,12 +129,13 @@ const Section1 = ({
 		lastQuery: '',
 		latestStreamMesage: null,
 	});
-	const { socketRef, createWebSocketConnection, sendMessage } = useChatStream();
 	const chatContentRef = useRef(null);
-	const loadingMessageRef = useRef(globalLoadingMesssage);
 	const chatMessagesRef = useRef(globalChatMessages || []);
-	let { sessionId } = useParams();
-	const [searchParams, setSearchParams] = useSearchParams();
+
+	useEffect(() => {
+		smoothScrollToBottom();
+	}, [globalChatMessages]);
+
 	const smoothScrollToBottom = useCallback(
 		(type) => {
 			const scrollElement = chatContentRef?.current;
@@ -228,7 +229,7 @@ const Section1 = ({
 			</div>
 			<div className="chat-box-wrapper">
 				<ChatBox
-					showChatLabels={false}
+					showIconText={false}
 					handleSendWebsocketMessage={handleSendWebsocketMessage}
 					latestStreamMesage={latestStreamMesage}
 					lastQuery={lastQuery}
