@@ -7,6 +7,9 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import EventDetailsModal from '../modalsV2/calendar/EventDetailsModal';
 import ObjectId from 'bson-objectid';
 
+const infiniteScrollStyle = {
+	height: '34vh',
+};
 const CalenderWidget = ({ width }) => {
 	const {
 		calendarInfo: {
@@ -32,23 +35,9 @@ const CalenderWidget = ({ width }) => {
 		eventsList: [],
 	});
 
-	const eventsLength = allCalendarEvents?.data?.length;
+	const eventsLength = allCalendarEvents?.data?.length ?? 0;
 	const eventsNextPage = allCalendarEvents?.hasNextPage;
 	const eventsCurrentPage = allCalendarEvents?.currentPage || 1;
-
-	useEffect(() => {
-		const sessionId = ObjectId().toString();
-		setInfo((prevInfo) => ({ ...prevInfo, chatSessionId: sessionId }));
-
-		getCalendarCategories();
-
-		return () => {
-			setInfo((prevInfo) => ({
-				...prevInfo,
-			}));
-			resetCalendarAiChat();
-		};
-	}, []);
 
 	useEffect(() => {
 		const payload = {
@@ -63,11 +52,8 @@ const CalenderWidget = ({ width }) => {
 		}
 	}, [info?.currentCalendarDate]);
 
-	useEffect(() => {
-		if (calendarCategoriesList) {
-		}
-	});
 	const fetchMoreCalendarEvents = () => {
+		console.log('fetchMoreCalendarEventsTriggered');
 		const payload = {
 			options: {
 				page: eventsCurrentPage + 1,
@@ -113,6 +99,8 @@ const CalenderWidget = ({ width }) => {
 		},
 		[info?.eventsList],
 	);
+
+	console.log(allCalendarEvents, 'testing');
 	return (
 		<div className="calender-main-container" style={{ width: width, height: '412px' }}>
 			<div className="calenderWidgetContainer">
@@ -133,7 +121,7 @@ const CalenderWidget = ({ width }) => {
 								hasMore={eventsNextPage}
 								loader={<div>Loading...</div>}
 								scrollableTarget="calenderWidgetMainContent"
-								style={{ height: '34vh' }}
+								// style={infiniteScrollStyle}
 							>
 								<div className="calenderWidgetMainContentDate">
 									{allCalendarEvents?.data?.map((meet) => (
