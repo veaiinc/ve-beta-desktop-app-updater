@@ -3177,16 +3177,19 @@ const GalleryPage = () => {
 	};
 	const handleSaveImage = async () => {
 		const id = message.loading('Rearranging images...');
-		// setInfo((prev) => ({
-		// 	...prev,
-		// 	imagesList: [],
-		// }));
-		const sortedPayload = [...info.totalPayload].sort(
+
+		// Remove duplicates by keeping the last occurrence of each image ID
+		const seen = new Map();
+		for (let item of info.totalPayload) {
+			seen.set(item.imageId, item); // If the same imageId comes again, it overwrites the previous one
+		}
+		const uniqueSortedPayload = Array.from(seen.values()).sort(
 			(a, b) => a.customSortIndex - b.customSortIndex,
 		);
-		if (sortedPayload.length > 0) {
+
+		if (uniqueSortedPayload.length > 0) {
 			const response = await changeImageOrder(
-				sortedPayload,
+				uniqueSortedPayload,
 				galleryId,
 				info.activeAlbumId,
 				info.albumTagId,
