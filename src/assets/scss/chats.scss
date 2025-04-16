@@ -43,7 +43,7 @@
 	.chats-container {
 		display: flex;
 		flex-direction: column;
-		height: calc(100% - 70px);
+		height: 43vh;
 		// height: calc(100vh - 70px);
 		// height: 63vh;
 		width: 210px;
@@ -55,7 +55,7 @@
 			align-items: center;
 			gap: 10px;
 			border-radius: 8px;
-			background: var(--card, #171819);
+			background: var(--card-over-card-hover, #171819);
 			position: sticky;
 			top: 0px;
 			.search-input {
@@ -111,6 +111,7 @@
 				font-style: normal;
 				font-weight: 600;
 				line-height: normal;
+				margin-bottom: 12px;
 			}
 			.chat-containers {
 				display: flex;
@@ -146,7 +147,7 @@
 						overflow: hidden;
 						color: var(--primary-font, #f2f2f3);
 						font-family: var(--primary-font-family);
-						font-size: 12px;
+						font-size: 14px;
 						font-style: normal;
 						font-weight: 500;
 						line-height: normal;
@@ -159,6 +160,33 @@
 		}
 		.active-chat {
 			background-color: var(--card-over-card-hover);
+		}
+	}
+}
+
+@media screen and (max-width: 500px) {
+	.chats-drawer-container {
+		width: 100%;
+		.chats-container {
+			width: 100%;
+			.searchContainer {
+				width: 100%;
+				.search-input {
+					width: 100%;
+				}
+			}
+			.chat-container-wrapper {
+				width: 100%;
+				.chat-containers {
+					width: 100%;
+					.chat-title-and-query {
+						width: 100%;
+						.chat-title {
+							max-width: 320px;
+						}
+					}
+				}
+			}
 		}
 	}
 }

@@ -206,7 +206,7 @@
 				// }
 				.settingsOptionsContainer {
 					display: flex;
-					padding: 24px 16px;
+					padding: 12px 8px;
 					justify-content: space-between;
 					align-items: center;
 					align-self: stretch;
@@ -290,7 +290,7 @@
 					align-items: center;
 					width: 211px;
 					margin-left: 0px;
-					padding: 10px 0px;
+					// padding: 10px 0px;
 
 					.workspaceDetailsDiv {
 						width: 180px;
@@ -665,7 +665,7 @@
 						line-height: normal;
 					}
 					&:hover {
-						border-radius: var(--Radius-lg, 12px);
+						border-radius: 12px;
 						background: var(--card-over-card-hover);
 						cursor: pointer;
 						p {
@@ -686,7 +686,6 @@
 
 				.activeWorkspace {
 					position: relative;
-					background-color: var(--card-over-card-hover); /* Or your preferred color */
 					border-radius: 12px;
 					.workSpaceCircle {
 						// background: #6055ec;
@@ -704,6 +703,10 @@
 						position: absolute;
 						right: 0;
 					}
+				}
+				.focused {
+					background-color: var(--card-over-card-hover);
+					border-radius: 12px;
 				}
 				.workspaceListFooter {
 					position: sticky;
@@ -1162,6 +1165,8 @@
 		align-self: stretch;
 		width: 100%;
 		transition: background 0.2s ease;
+		padding: 10px;
+		border-radius: 8px;
 		&:hover {
 			background: var(--card-over-card-hover);
 		}
