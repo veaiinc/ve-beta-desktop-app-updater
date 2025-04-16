@@ -748,7 +748,7 @@ const GalleryPage = () => {
 				true,
 			);
 			if (response?.[0] === true) {
-				checkAndSetDefaultCovers(response?.[1]?.docs?.[0]);
+				// checkAndSetDefaultCovers(response?.[1]?.docs?.[0]);
 			}
 			setInfo((prev) => ({
 				...prev,
@@ -1052,92 +1052,92 @@ const GalleryPage = () => {
 		}
 	}, [info.activeAlbumId, info.activeTab, location.pathname]);
 
-	const checkAndSetDefaultCovers = async (firstImage) => {
-		try {
-			const firstImageId = firstImage?._id;
-			let updatesNeeded = false;
+	// const checkAndSetDefaultCovers = async (firstImage) => {
+	// 	try {
+	// 		const firstImageId = firstImage?._id;
+	// 		let updatesNeeded = false;
 
-			// Check if gallery needs a cover
-			if (!info?.activeGallery?.coverImage?.givenFileName && firstImage) {
-				const payload = {
-					image_id: firstImageId,
-					xPosition: 0,
-					yPosition: 0,
-					givenFileName: firstImage?.activeVersion?.givenFileName,
-					width: 100,
-					height: 100,
-					zoom: 1,
-				};
+	// 		// Check if gallery needs a cover
+	// 		if (!info?.activeGallery?.coverImage?.givenFileName && firstImage) {
+	// 			const payload = {
+	// 				image_id: firstImageId,
+	// 				xPosition: 0,
+	// 				yPosition: 0,
+	// 				givenFileName: firstImage?.activeVersion?.givenFileName,
+	// 				width: 100,
+	// 				height: 100,
+	// 				zoom: 1,
+	// 			};
 
-				const galleryCoverResponse = await updateGalleryCoverImage(payload, galleryId);
+	// 			const galleryCoverResponse = await updateGalleryCoverImage(payload, galleryId);
 
-				if (galleryCoverResponse?.[0] === true) {
-					updatesNeeded = true;
-					showMessage('success', 'Gallery cover has been automatically set');
-				} else {
-					showMessage(
-						'error',
-						'Failed to set gallery cover image',
-						checkAndSetDefaultCovers(firstImage),
-					);
-				}
-			}
+	// 			if (galleryCoverResponse?.[0] === true) {
+	// 				updatesNeeded = true;
+	// 				showMessage('success', 'Gallery cover has been automatically set');
+	// 			} else {
+	// 				showMessage(
+	// 					'error',
+	// 					'Failed to set gallery cover image',
+	// 					checkAndSetDefaultCovers(firstImage),
+	// 				);
+	// 			}
+	// 		}
 
-			// Check if album needs a cover
-			if (
-				info?.activeAlbum?._id &&
-				!info?.activeAlbum?.coverImage?.givenFileName &&
-				firstImage
-			) {
-				const payload = {
-					image_id: firstImage._id,
-					xPosition: 0,
-					yPosition: 0,
-					givenFileName: firstImage.activeVersion.givenFileName,
-					width: 100,
-					height: 100,
-					zoom: 1,
-				};
+	// 		// Check if album needs a cover
+	// 		if (
+	// 			info?.activeAlbum?._id &&
+	// 			!info?.activeAlbum?.coverImage?.givenFileName &&
+	// 			firstImage
+	// 		) {
+	// 			const payload = {
+	// 				image_id: firstImage._id,
+	// 				xPosition: 0,
+	// 				yPosition: 0,
+	// 				givenFileName: firstImage.activeVersion.givenFileName,
+	// 				width: 100,
+	// 				height: 100,
+	// 				zoom: 1,
+	// 			};
 
-				const albumCoverResponse = await updateAlbumCoverImage(
-					payload,
-					galleryId,
-					info.activeAlbum._id,
-				);
+	// 			const albumCoverResponse = await updateAlbumCoverImage(
+	// 				payload,
+	// 				galleryId,
+	// 				info.activeAlbum._id,
+	// 			);
 
-				if (albumCoverResponse?.[0] === true) {
-					updatesNeeded = true;
-					showMessage('success', 'Album cover has been automatically set');
-				} else {
-					showMessage('error', 'Failed to set album cover image');
-				}
-			}
+	// 			if (albumCoverResponse?.[0] === true) {
+	// 				updatesNeeded = true;
+	// 				showMessage('success', 'Album cover has been automatically set');
+	// 			} else {
+	// 				showMessage('error', 'Failed to set album cover image');
+	// 			}
+	// 		}
 
-			// If we made updates, refresh the data
-			if (updatesNeeded) {
-				await getAlbums(galleryId);
-				await getAlbumImagesCount(galleryId);
-			}
+	// 		// If we made updates, refresh the data
+	// 		if (updatesNeeded) {
+	// 			await getAlbums(galleryId);
+	// 			await getAlbumImagesCount(galleryId);
+	// 		}
 
-			setInfo((prev) => ({
-				...prev,
-				loadingImagesList: undefined,
-			}));
-		} catch (error) {
-			console.error('Error setting default covers:', error);
-			showMessage('error', 'Failed to set cover images');
-		}
-	};
+	// 		setInfo((prev) => ({
+	// 			...prev,
+	// 			loadingImagesList: undefined,
+	// 		}));
+	// 	} catch (error) {
+	// 		console.error('Error setting default covers:', error);
+	// 		showMessage('error', 'Failed to set cover images');
+	// 	}
+	// };
 
-	useEffect(() => {
-		if (
-			imagesList?.docs?.length > 0 &&
-			(!info?.activeGallery?.coverImage?.givenFileName ||
-				(info?.activeAlbum?._id && !info?.activeAlbum?.coverImage?.givenFileName))
-		) {
-			checkAndSetDefaultCovers();
-		}
-	}, [info?.imagesList?.docs]);
+	// useEffect(() => {
+	// 	if (
+	// 		imagesList?.docs?.length > 0 &&
+	// 		(!info?.activeGallery?.coverImage?.givenFileName ||
+	// 			(info?.activeAlbum?._id && !info?.activeAlbum?.coverImage?.givenFileName))
+	// 	) {
+	// 		checkAndSetDefaultCovers();
+	// 	}
+	// }, [info?.imagesList?.docs]);
 	const fetchMoreImages = () => {
 		const nextPage = info.page + 1;
 		getGalleryImages(
