@@ -5924,6 +5924,7 @@ const GalleryPage = () => {
 				aiFace={false}
 				activeGalleryId={galleryId}
 				activeAlbumId={info?.activeAlbumId}
+				tagId={info?.activeTagId}
 			/>
 		</>
 	);

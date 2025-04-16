@@ -1,4 +1,4 @@
-import { memo, useContext, useEffect, useState } from 'react';
+import { memo, useContext, useEffect, useState, useRef } from 'react';
 import '../../../assets/scss/gallery/galleryViewer.scss';
 import { useSearchParams, useParams, useNavigate, useLocation } from 'react-router-dom';
 import Context from '../../../context/context';
@@ -63,12 +63,15 @@ const GalleryViewer = ({
 	activeGalleryId = null,
 	activeAlbumId = null,
 	selectedFace = null,
+	tagId = null,
 }) => {
 	const [searchkeys, setsearchkeys] = useSearchParams();
 	const selectedImages = currentSelectedImages;
 	const aiface = aiFace;
 	const faceId = selectedFace;
 	const activeImageId = selectedImage;
+
+	const hasRunFakeLoading = useRef(true);
 
 	const customStyles = {
 		content: { zIndex: 99999, height: '100vh', width: '100vw' },
@@ -112,7 +115,7 @@ const GalleryViewer = ({
 			getGalleryImages(
 				activeGalleryId,
 				activeAlbumId,
-				searchkeys.get('tagId'),
+				tagId,
 				info?.page,
 				info?.limit,
 				'',
@@ -124,18 +127,16 @@ const GalleryViewer = ({
 			getAiFaceImages(activeGalleryId, faceId, info?.page, info?.limit, true);
 		}
 
-		if ((imagesList || (aiFaceImages && aiFaceImages.images?.length > 0)) && activeImageId) {
+		if (
+			(imagesList || (aiFaceImages && aiFaceImages.images?.length > 0)) &&
+			activeImageId &&
+			hasRunFakeLoading.current
+		) {
+			hasRunFakeLoading.current = false;
 			setInfo((prev) => ({
 				...prev,
-				activeImage: activeImageId,
 				fakeLoading: true,
 			}));
-			setTimeout(() => {
-				const image = document.getElementById(activeImageId || '');
-				if (image) {
-					image.scrollIntoView({ behavior: 'instant', block: 'center' });
-				}
-			}, 1000);
 
 			setTimeout(() => {
 				setInfo((prev) => ({
@@ -143,6 +144,19 @@ const GalleryViewer = ({
 					fakeLoading: false,
 				}));
 			}, 1500);
+		}
+
+		if ((imagesList || (aiFaceImages && aiFaceImages.images?.length > 0)) && activeImageId) {
+			setInfo((prev) => ({
+				...prev,
+				activeImage: activeImageId,
+			}));
+			setTimeout(() => {
+				const image = document.getElementById(activeImageId || '');
+				if (image) {
+					image.scrollIntoView({ behavior: 'instant', block: 'center' });
+				}
+			}, 1000);
 		}
 
 		if (!galleryCredentials) {
@@ -207,18 +221,14 @@ const GalleryViewer = ({
 				}));
 			});
 		} else {
-			getGalleryImages(
-				activeGalleryId,
-				activeAlbumId,
-				searchkeys.get('tagId'),
-				nextPage,
-				info?.limit,
-			).then(() => {
-				setInfo((prev) => ({
-					...prev,
-					page: nextPage,
-				}));
-			});
+			getGalleryImages(activeGalleryId, activeAlbumId, tagId, nextPage, info?.limit).then(
+				() => {
+					setInfo((prev) => ({
+						...prev,
+						page: nextPage,
+					}));
+				},
+			);
 		}
 	};
 
