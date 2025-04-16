@@ -24,6 +24,8 @@ import {
 	FilePptOutlined,
 	FileOutlined,
 } from '@ant-design/icons';
+import Skeleton from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
 
 const iconsForQuestions = {
 	shortText: <BiDash />,
@@ -252,7 +254,53 @@ const FileUploadAnswer = ({ answer }) => {
 	);
 };
 
-const FormDescription = ({ response, onClose, formId, activeTab }) => {
+const FormDescriptionSkeleton = () => {
+	return (
+		<div className="formDescription">
+			<div className="descriptionContent">
+				<div className="descriptionSection">
+					<h3 className="sectionTitle">
+						<Skeleton width={150} height={24} />
+					</h3>
+					{[1, 2, 3, 4].map((index) => (
+						<div key={index} className="infoRow">
+							<span className="infoLabel">
+								<Skeleton width={100} height={20} />
+							</span>
+							<span className="infoValue">
+								<Skeleton width={200} height={20} />
+							</span>
+						</div>
+					))}
+				</div>
+				<div className="descriptionSection">
+					<h3 className="sectionTitle">
+						<Skeleton width={150} height={24} />
+					</h3>
+					<div className="formResponsesParentContainer">
+						{[1, 2, 3].map((index) => (
+							<div key={index} className="formResponseContainer">
+								<div className="questionContainer">
+									<Skeleton width={24} height={24} circle />
+									<p className="question">
+										<Skeleton width={200} height={20} />
+									</p>
+								</div>
+								<div className="answer">
+									<Skeleton width="100%" height={40} />
+								</div>
+							</div>
+						))}
+					</div>
+				</div>
+			</div>
+		</div>
+	);
+};
+
+const FormDescription = ({ response, onClose, formId, activeTab, loading }) => {
+	if (loading) return <FormDescriptionSkeleton />;
+
 	if (activeTab === 'analytics') {
 		return (
 			// <div className="formDescription">

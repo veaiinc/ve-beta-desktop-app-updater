@@ -286,7 +286,8 @@ const Files = () => {
 	};
 
 	const handleNavigateForm = (formId) => {
-		navigate(`/form/${formId}`);
+		const formData = formsTemplatesList?.data?.find((form) => form._id === formId);
+		navigate(`/form/${formId}`, { state: { formData } });
 	};
 
 	const handleTotalChange = (data) => {

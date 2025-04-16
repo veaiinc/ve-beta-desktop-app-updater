@@ -168,3 +168,40 @@
 	font-weight: 500;
 	line-height: 16px;
 }
+
+// Skeleton Loading Styles
+.resWrapper.skeleton {
+	background: #fff;
+	border-radius: 8px;
+	padding: 16px;
+	margin-bottom: 16px;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	animation: pulse 1.5s infinite;
+
+	.skeleton-name {
+		width: 200px;
+		height: 24px;
+		background: #f0f0f0;
+		border-radius: 4px;
+		margin-bottom: 8px;
+	}
+
+	.skeleton-time {
+		width: 100px;
+		height: 16px;
+		background: #f0f0f0;
+		border-radius: 4px;
+	}
+}
+
+@keyframes pulse {
+	0% {
+		opacity: 0.6;
+	}
+	50% {
+		opacity: 0.8;
+	}
+	100% {
+		opacity: 0.6;
+	}
+}

@@ -19,6 +19,7 @@ const FormResCard = ({
 	handleCardClick,
 	sortOrder,
 	searchValue,
+	selectedResponse,
 }) => {
 	const x = useParams();
 	const formId = inputFormId || x.id;
@@ -44,6 +45,16 @@ const FormResCard = ({
 			updateTotalSubmissions(responses.length, latestResponse);
 		}
 	}, [responses]);
+
+	useEffect(() => {
+		if (selectedResponse) {
+			const index = responses.findIndex((response) => response._id === selectedResponse._id);
+			if (index !== -1) {
+				setExpandedCard(index);
+				handleCardClick(responses[index], index);
+			}
+		}
+	}, [selectedResponse, responses, handleCardClick]);
 
 	console.log(x);
 
@@ -298,9 +309,9 @@ const FormResCard = ({
 		document.body.removeChild(link);
 	};
 
-	if (loading && responses.length === 0) return <div>Loading...</div>;
 	if (error) return <div>Error: {error}</div>;
-	if (!responses.length) return <div>No data available</div>;
+	if (loading) return <div className="loading-state">Loading...</div>;
+	if (!responses.length) return <div className="loading-state">Loading...</div>;
 
 	return (
 		<div className="formResLayout">
@@ -340,7 +351,7 @@ const FormResCard = ({
 
 								{isExpanded && (
 									<div className="incard">
-										<h3 className="options">Ai Actions</h3>
+										<h3 className="options">Actions</h3>
 										<div className="actionsRow">
 											<div
 												className="resoption"

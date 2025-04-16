@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useState, useContext } from 'react';
 import '../../../assets/scss/forms/formLeads.scss';
 import { ReactComponent as BackArrowSvg } from '../../../assets/svg/workflow/backarrow.svg';
 import { ReactComponent as CurlyBracesSvg } from '../../../assets/svg/docs/curly-bracess.svg';
@@ -27,21 +27,44 @@ import { ReactComponent as Delete } from '../../../assets/svg/delete.svg';
 import { ReactComponent as Download } from '../../../assets/svg/download.svg';
 import FilterPopUp from '../../components/globalComponents/FilterPopUp';
 import DropDown from '../../components/dropDown/tasks/DropDown';
+import Context from '../../../context/context';
 
 const FormLeads = () => {
 	const origin = fetchOriginSelection();
 	const navigate = useNavigate();
 	const location = useLocation();
-	const formData = location?.state?.formData;
+	const { id } = useParams();
+	const {
+		templates: { getFormResponse },
+	} = useContext(Context);
+	const [formData, setFormData] = useState(location?.state?.formData);
 	const activeWorkspaceId = localStorage.getItem('workspaceId');
 	const copyCode = `${activeWorkspaceId}.ve.ai/${formData?.slug}`;
 	const [expandedCard, setExpandedCard] = useState(null);
 	const [selectedResponse, setSelectedResponse] = useState(null);
 	const [sortOrder, setSortOrder] = useState('date-desc');
-	const handleCardClick = (response, index) => {
-		setExpandedCard(expandedCard === index ? null : index);
-		setSelectedResponse(expandedCard === index ? null : response);
-	};
+	const handleCardClick = useCallback((response, index) => {
+		setSelectedResponse(response);
+		setExpandedCard(index);
+	}, []);
+
+	useEffect(() => {
+		const fetchFormData = async () => {
+			if (!formData && id) {
+				try {
+					const response = await getFormResponse({ formId: id });
+					if (response && response._id) {
+						setFormData(response);
+					}
+				} catch (error) {
+					console.error('Error fetching form data:', error);
+					message.error('Failed to fetch form data');
+				}
+			}
+		};
+
+		fetchFormData();
+	}, [id, formData, getFormResponse]);
 
 	const [info, setInfo] = useState({
 		searchExpand: false,
@@ -63,6 +86,12 @@ const FormLeads = () => {
 		formData: { responses: [], total: 0, submitted: 0 },
 		questions: [],
 	});
+
+	useEffect(() => {
+		if (formData?.title) {
+			setFormTitle(formData.title);
+		}
+	}, [formData]);
 
 	const metricsData = useMemo(
 		() => [
@@ -148,10 +177,10 @@ const FormLeads = () => {
 			},
 			analytics: {
 				label: 'Summary',
-				Component: <FormSummary formId={formData?._id} />,
+				Component: <FormSummary formId={formData?._id} onUserClick={handleCardClick} />,
 			},
 		}),
-		[formData?._id, updateTotalSubmissions, sortOrder, info?.searchValue],
+		[formData?._id, updateTotalSubmissions, sortOrder, info?.searchValue, handleCardClick],
 	);
 
 	const handleEditDesign = useCallback(() => {

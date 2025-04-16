@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import '../../../assets/scss/forms/formSummary.scss';
 import { ReactComponent as Copy } from '../../../assets/svg/copy.svg';
 import service from '../../../services/graphQlServices';
 import { getFormResponseAnalyticsQuery } from '../../../context/Templates/graphQlFunctions';
 import moment from 'moment';
 import { Column, Pie, Bar, Line } from '@ant-design/plots';
+import { Tooltip } from 'antd';
 import {
 	FilePdfOutlined,
 	FileTextOutlined,
@@ -54,7 +55,15 @@ const FileUploadAnswer = ({ answer }) => {
 											href={previewUrl}
 											target="_blank"
 											rel="noopener noreferrer"
-											className="form-summary-fileName"
+											className="form-summary-fileName linkedin-link"
+											aria-label={`Open ${name} in new tab`}
+											tabIndex="0"
+											role="link"
+											onKeyPress={(e) => {
+												if (e.key === 'Enter') {
+													window.open(previewUrl, '_blank');
+												}
+											}}
 										>
 											{name}
 										</a>
@@ -65,7 +74,7 @@ const FileUploadAnswer = ({ answer }) => {
 					})}
 				</div>
 			)}
-			<div className="form-summary-divider"></div>
+			{/* <div className="form-summary-divider"></div> */}
 		</>
 	);
 };
@@ -79,10 +88,19 @@ const FormResponseList = ({
 	handleCopy,
 	copyStatus,
 	type,
+	onUserClick,
 }) => {
 	const formatDate = (timestamp) => {
 		if (!timestamp) return '';
 		return moment.unix(timestamp).format('MMMM D, YYYY [at] h:mm:ss A');
+	};
+
+	const getName = (response) => {
+		if (!response?.response) return 'No Name';
+		const nameField = response.response.find((item) =>
+			item?.question?.toLowerCase().includes('name'),
+		);
+		return nameField?.answer || 'No Name';
 	};
 
 	const getQuestionAnswer = (response, questionText) => {
@@ -90,15 +108,35 @@ const FormResponseList = ({
 			r?.question?.toLowerCase().includes(questionText.toLowerCase()),
 		);
 
-		if (!field) return 'No Answer';
+		if (!field) return null;
 
 		// Handle file upload responses
 		if (field.type === 'fileupload') {
-			if (!field.answer || field.answer.length === 0) return 'No File Uploaded';
+			if (!field.answer || field.answer.length === 0) return null;
 			return <FileUploadAnswer answer={field.answer} />;
 		}
 
-		return field.answer || 'No Answer';
+		// Handle link responses
+		if (field.type === 'link' && field.answer) {
+			return (
+				<a
+					href={field.answer}
+					target="_blank"
+					rel="noopener noreferrer"
+					className="linkedin-link"
+					style={{
+						color: '#0A66C2',
+						textDecoration: 'none',
+						fontWeight: 500,
+					}}
+				>
+					{field.answer}
+				</a>
+			);
+		}
+
+		if (!field.answer) return null;
+		return field.answer;
 	};
 
 	const getChartData = () => {
@@ -259,18 +297,31 @@ const FormResponseList = ({
 					<div className="graph-container">{chart}</div>
 				) : (
 					<div className="collapsible-list__items">
-						{visibleItems?.map((item, index) => (
-							<div key={index} className="collapsible-list__item">
-								<div className="candidate-info">
-									<div className="candidate-name">
-										{getQuestionAnswer(item, question.toLowerCase())}
+						{visibleItems?.map((item, index) => {
+							const answer = getQuestionAnswer(item, question.toLowerCase());
+							if (!answer) return null;
+							return (
+								<Tooltip key={index} title={getName(item)} placement="top">
+									<div className="collapsible-list__item">
+										<div className="candidate-info">
+											<div
+												className="candidate-name"
+												onClick={(e) => {
+													e.stopPropagation();
+													onUserClick?.(item);
+												}}
+												style={{ cursor: 'pointer' }}
+											>
+												{answer}
+											</div>
+										</div>
+										<div className="candidate-timestamp">
+											{formatDate(item?.createdAt)}
+										</div>
 									</div>
-								</div>
-								<div className="candidate-timestamp">
-									{formatDate(item?.createdAt)}
-								</div>
-							</div>
-						))}
+								</Tooltip>
+							);
+						})}
 					</div>
 				)}
 			</div>
@@ -286,19 +337,24 @@ const FormResponseList = ({
 	);
 };
 
-const FormSummary = ({ formId: inputFormId, onDataUpdate }) => {
+const FormSummary = ({ formId: inputFormId, onDataUpdate, onUserClick }) => {
 	const x = useParams();
+	const location = useLocation();
 	const formId = inputFormId || x.id;
 	const [expanded, setExpanded] = useState(false);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState(null);
 	const [copyStatus, setCopyStatus] = useState({});
+	const [selectedResponse, setSelectedResponse] = useState(null);
+	const [expandedCard, setExpandedCard] = useState(null);
 	const [formData, setFormData] = useState({
 		responses: [],
 		total: 0,
 		submitted: 0,
+		title: location.state?.formData?.title || '',
 	});
 	const [questions, setQuestions] = useState([]);
+	const navigate = useNavigate();
 
 	useEffect(() => {
 		if (formId) {
@@ -350,11 +406,13 @@ const FormSummary = ({ formId: inputFormId, onDataUpdate }) => {
 					setQuestions(uniqueQuestions);
 				}
 
-				setFormData({
+				setFormData((prev) => ({
+					...prev,
 					responses: data,
 					total: totalDocs,
 					submitted: totalDocs,
-				});
+					title: prev.title || data[0]?.title || '',
+				}));
 			} else {
 				setError('Failed to fetch form responses');
 			}
@@ -400,10 +458,37 @@ const FormSummary = ({ formId: inputFormId, onDataUpdate }) => {
 
 	const visibleItems = expanded ? formData.responses : formData.responses.slice(0, 5);
 
+	const getQuestionResponseCount = (questionText) => {
+		return formData.responses.filter((response) => {
+			const field = response?.response?.find((r) =>
+				r?.question?.toLowerCase().includes(questionText.toLowerCase()),
+			);
+
+			if (!field) return false;
+
+			if (field.type === 'fileupload') {
+				return field.answer && field.answer.length > 0;
+			}
+
+			return field.answer;
+		}).length;
+	};
+
+	const handleUserClick = (response) => {
+		if (onUserClick) {
+			onUserClick(response);
+		}
+	};
+
+	const handleCardClick = useCallback((response, index) => {
+		setSelectedResponse(response);
+		setExpandedCard(index);
+	}, []);
+
 	if (!formId) return <div>No form ID provided</div>;
-	if (loading) return <div>Loading...</div>;
 	if (error) return <div>Error: {error}</div>;
-	if (!formData.responses.length) return <div>No data available</div>;
+	if (loading) return <div className="loading-state">Loading...</div>;
+	if (!formData.responses.length) return <div className="loading-state">Loading...</div>;
 
 	return (
 		<div className="formSummaryWrapper">
@@ -413,7 +498,10 @@ const FormSummary = ({ formId: inputFormId, onDataUpdate }) => {
 						<div key={index} className="section">
 							<div className="header">
 								<div className="header-top">
-									<span className="title">{item.question}</span>
+									<span className="title">
+										<span className="question-number">Q{index + 1}:</span>{' '}
+										{item.question}
+									</span>
 									<div
 										className="copy-button"
 										onClick={() => handleCopy(item.question.toLowerCase())}
@@ -427,7 +515,7 @@ const FormSummary = ({ formId: inputFormId, onDataUpdate }) => {
 									</div>
 								</div>
 								<div className="total-responses">
-									Total Responses: {formData.responses.length}
+									Total Responses: {getQuestionResponseCount(item.question)}
 								</div>
 							</div>
 
@@ -440,6 +528,7 @@ const FormSummary = ({ formId: inputFormId, onDataUpdate }) => {
 								handleCopy={handleCopy}
 								copyStatus={copyStatus}
 								type={item.type}
+								onUserClick={handleUserClick}
 							/>
 						</div>
 					))}
