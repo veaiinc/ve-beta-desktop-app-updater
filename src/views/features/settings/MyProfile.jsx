@@ -18,12 +18,12 @@ const themePreferenceOptions = [
 		value: 'systemDefault',
 	},
 	{
-		id: 0,
+		id: 1,
 		title: 'Dark Mode',
 		value: 'dark',
 	},
 	{
-		id: 1,
+		id: 2,
 		title: 'Light Mode',
 		value: 'light',
 	},
