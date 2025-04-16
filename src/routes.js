@@ -1,8 +1,8 @@
 import AuthWrapper from './views/layouts/authWrapper';
 import LoginPage from './views/features/loginPage/LoginPage';
 import Onboarding from './views/features/onboarding/Onboarding';
+// import Calendar from './views/features/calendar/Calendar';
 import CalendarModule from './views/features/calendar/Calendar';
-// import ChatScreen from './views/features/meta_Integ/index';
 import OauthVerify from './views/features/signin/oauth/OauthVerify';
 import Sales from './views/features/sales/Sales';
 import GlobalWorkflows from './views/features/sales/GlobalWorkflows';
@@ -343,7 +343,6 @@ const routes = [
 		path: '/scheduling/edit/:sessionId',
 		component: (
 			<AuthWrapper title={'Scheduling'} maxWidth={'95%'}>
-				{/* <SchedulerMainPage /> */}
 				<EditScheduler />
 			</AuthWrapper>
 		),
