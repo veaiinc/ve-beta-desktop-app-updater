@@ -3146,13 +3146,28 @@ const GalleryPage = () => {
 		// Create payload with new sort indices
 
 		const payload = selectedImageObjects?.map((image, index) => ({
-			image_id: image?._id,
+			image_id: image?._id, // ✅ Use consistent key
 			customSortIndex: beforeIndex + (index + 1) * stepSize,
 		}));
-		setInfo((prev) => ({
-			...prev,
-			totalPayload: [...prev.totalPayload, ...payload],
-		}));
+
+		setInfo((prev) => {
+			const seen = new Map();
+
+			// First add existing entries
+			prev.totalPayload.forEach((item) => {
+				seen.set(item.image_id, item);
+			});
+
+			// Then overwrite with latest drag changes
+			payload.forEach((item) => {
+				seen.set(item.image_id, item);
+			});
+
+			return {
+				...prev,
+				totalPayload: Array.from(seen.values()), // ✅ Deduplicated
+			};
+		});
 		const updatedImages = selectedImageObjects?.map((image, index) => ({
 			...image,
 			galleryTags: image?.galleryTags?.map((tag) =>
@@ -3177,11 +3192,10 @@ const GalleryPage = () => {
 	};
 	const handleSaveImage = async () => {
 		const id = message.loading('Rearranging images...');
-
 		// Remove duplicates by keeping the last occurrence of each image ID
 		const seen = new Map();
 		for (let item of info.totalPayload) {
-			seen.set(item.imageId, item); // If the same imageId comes again, it overwrites the previous one
+			seen.set(item.image_id, item); // If the same imageId comes again, it overwrites the previous one
 		}
 		const uniqueSortedPayload = Array.from(seen.values()).sort(
 			(a, b) => a.customSortIndex - b.customSortIndex,
