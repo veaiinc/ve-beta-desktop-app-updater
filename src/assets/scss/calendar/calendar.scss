@@ -9,7 +9,7 @@
 	user-select: none;
 
 	.calendarHeaderTitle {
-		color: var(--secondary-font, color(display-p3 0.4784 0.4941 0.5216));
+		color: var(--secondary-font);
 		font-family: Inter;
 		font-size: 40px;
 		font-style: normal;
@@ -17,14 +17,12 @@
 		line-height: normal;
 
 		span {
-			color: var(--primary-font, #f2f2f3);
-			color: var(--primary-font, color(display-p3 0.949 0.949 0.9529));
+			color: var(--primary-font);
 		}
 	}
 
 	.calendarHeaderSubTitle {
-		color: #7c7c84;
-		color: color(display-p3 0.4863 0.4863 0.5137);
+		color: var(--secondary-font);
 		font-family: Inter;
 		font-size: 12px;
 		font-style: normal;

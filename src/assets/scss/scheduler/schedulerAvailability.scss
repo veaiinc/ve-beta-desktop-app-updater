@@ -60,11 +60,11 @@
 					left: 0;
 					right: 0;
 					bottom: 0;
-					background: rgba(23, 24, 25, 0.9);
+					background: var(--card);
 					display: flex;
 					align-items: center;
 					justify-content: center;
-					color: var(--primary-font, #f2f2f3);
+					color: var(--primary-font);
 					font-family: Inter;
 					font-size: 12px;
 					font-weight: 500;
@@ -75,7 +75,7 @@
 
 				&:hover {
 					transform: translateY(-1px);
-					box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+					box-shadow: 0 2px 4px var(--stroke);
 
 					.slotOverlay {
 						opacity: 1;
@@ -159,7 +159,7 @@
 				}
 
 				&:hover {
-					border: 1px solid #787e87;
+					border: 1px solid var(--stroke);
 
 					.emptySlotContent {
 						opacity: 1;
@@ -168,7 +168,7 @@
 			}
 
 			.unavailable {
-				color: var(--text-subtle, #6b7280);
+				color: var(--secondary-font);
 				font-size: 12px;
 				text-align: center;
 				padding: 8px;
@@ -176,9 +176,9 @@
 				display: flex;
 				align-items: center;
 				justify-content: center;
-				background: white;
+				background: var(--card);
 				border-radius: 6px;
-				border: 1px dashed var(--stroke-subtle, #e5e7eb);
+				border: 1px dashed var(--stroke);
 			}
 		}
 	}

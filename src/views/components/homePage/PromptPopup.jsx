@@ -77,7 +77,7 @@ const PromptPopup = ({ open, closeModal, selectedCard }) => {
 						<div className="promptPopupContainerHeaderLeftTitle">
 							{selectedCard?.title}
 						</div>
-						<div className="promptPopupContainerHeaderLeftSubtitle">20 Credits</div>
+						{/* <div className="promptPopupContainerHeaderLeftSubtitle">20 Credits</div> */}
 					</div>
 					<div className="promptPopupContainerHeaderRight" onClick={closeModal}>
 						<CrossSvg />

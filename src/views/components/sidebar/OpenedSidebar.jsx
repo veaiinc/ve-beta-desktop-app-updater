@@ -42,10 +42,13 @@ const MODULE_NAME_MAP = {
 	'lite gallery': 'liteGallery',
 	documents: 'workflow',
 	'my templates': 'template',
-	tasks: 'task',
-	calendar: 'calendar',
+	// tasks: 'task',
+	// calendar: 'calendar',
 	forms: 'form',
 	contacts: 'contact',
+	automation: 'automation',
+	// notes: 'notes',
+	agents: 'knowledgeAgent',
 };
 
 const OpenedSidebarModules = ({
@@ -69,11 +72,12 @@ const OpenedSidebarModules = ({
 	setHideClosedSidebarIcon,
 	selectedOption,
 }) => {
-	let {
+	const location = useLocation();
+
+	const {
 		aiSetup: { isVoiceIntegrationActive },
 	} = useContext(Context);
 
-	const location = useLocation();
 	const [isHover, setisHover] = useState(false);
 
 	const onMouseEnter = () => {
@@ -459,6 +463,13 @@ const OpenedSidebar = ({
 		[location.pathname],
 	);
 
+	useEffect(() => {
+		if (showSettingsSidebar && settingsOptions?.length > 0) {
+			const firstItem = settingsOptions[0];
+			setSelectedSettingsOption(firstItem.name);
+			navigate(firstItem.route);
+		}
+	}, [showSettingsSidebar, settingsOptions]);
 	return (
 		<>
 			<div style={{ display: 'flex', position: 'relative' }}>
@@ -571,17 +582,18 @@ const OpenedSidebar = ({
 															sidebarStates={sidebarStates}
 															info={info}
 															userWorkSpaceList={userWorkSpaceList}
+															sidebarSettings="close"
 														/>
 													</div>
 												)}
 											{!isThisEarlyAccessPage && (
 												<>
-													<hr
+													{/* <hr
 														style={{
 															border: '0.7px solid var(--stroke)',
 															margin: '16px 0px',
 														}}
-													/>
+													/> */}
 													{filteredModules?.map((singleItem) => (
 														<div key={singleItem.id}>
 															<OpenedSidebarModules
@@ -763,6 +775,7 @@ const OpenedSidebar = ({
 									sidebarStates={sidebarStates}
 									info={info}
 									userWorkSpaceList={userWorkSpaceList}
+									settingsSideBar="open"
 								/>
 							</div>
 						)}
