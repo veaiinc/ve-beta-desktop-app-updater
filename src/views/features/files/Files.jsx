@@ -188,9 +188,13 @@ const Files = () => {
 
 	useEffect(() => {
 		if (activeTab) {
-			setInfo((prev) => ({ ...prev, selectedView: activeTab }));
+			const exists = info?.options?.some((item) => item?.label === activeTab);
+			setInfo((prev) => ({
+				...prev,
+				selectedView: exists ? activeTab : info?.options[0]?.label,
+			}));
 		}
-	}, [activeTab]);
+	}, [activeTab, info?.options]);
 
 	useEffect(() => {
 		if (cardItems.current || info.createNewGalleryModal) {
@@ -610,15 +614,7 @@ const Files = () => {
 						<div className="card-sub-container-left">
 							<div className="left-sidebar-header"></div>
 						</div>
-						<div className="card-sub-container-center">
-							{/* <div className="center-container-header">
-								<div className="center-container-dropdown"></div>
-								<div className="center-container-sort-by">A-Z</div>
-							</div> */}
-							<div className="center-container-content">
-								{info.search ? <SearchResults /> : tabsMapper[info.selectedView]}
-							</div>
-						</div>
+						{info.search ? <SearchResults /> : tabsMapper[info.selectedView]}
 						<div className="card-sub-container-right">
 							<div className="right-sidebar-options">
 								{info?.options.map((option) => (

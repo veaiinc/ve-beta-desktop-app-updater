@@ -4,11 +4,27 @@ import { ReactComponent as Plus } from '../../../assets/svg/files/Plus.svg';
 import Spinner from '../../components/loaders/Spinner';
 import { ReactComponent as Folder } from '../../../assets/svg/files/Folder.svg';
 import { memo, useContext, useEffect, useState } from 'react';
-
 import { useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
 import InfiniteScroll from '../globalComponents/InfiniteScroll';
+import FilterDropdown from '../dropDown/file/FilterDropdown';
 import gsap from 'gsap';
+
+const filterOptions = [
+	{ label: 'All', value: 'all' },
+	{ label: 'Private', value: 'private' },
+	{ label: 'Shared', value: 'shared' },
+	{ label: 'Favorite', value: 'favorite' },
+];
+
+const sortOptions = [
+	{ label: 'Recently Created', value: 'createdAt', sortType: -1 },
+	{ label: 'Recently Updated', value: 'updatedAt', sortType: -1 },
+	{ label: 'A-Z', value: 'title', sortType: 1 },
+	{ label: 'Albums Count', value: 'albumsCount', sortType: -1 },
+	{ label: 'Images Count', value: 'imagesCount', sortType: -1 },
+];
+
 const GalleryGrid = ({
 	handleCreateNewGallery,
 	handleNavigateGallery,
@@ -26,17 +42,19 @@ const GalleryGrid = ({
 		hasNextPage: false,
 		currentPage: 1,
 		loading: true,
+		selectedSort: { label: 'Recently Created', value: 'createdAt', sortType: -1 },
 	});
 
 	useEffect(() => {
 		handleStateUpdate({ loading: true, currentPage: 1, hasNextPage: false });
+
 		const options = {
 			page: 1,
 			limit: 20,
 			storeOriginals: selectedOption === 'Classic Gallery',
 		};
-		fetchGalleries(1, null, true, options);
-	}, [selectedOption]);
+		fetchGalleries(options);
+	}, [selectedOption, info?.selectedSort]);
 
 	useEffect(() => {
 		if (tenantGalleries) {
@@ -145,13 +163,16 @@ const GalleryGrid = ({
 		return () => clearTimeout(timeout);
 	}, [info?.galleries?.length]);
 
-	const fetchGalleries = async ({ page = 1, limit = 20, storeOriginals }) => {
+	const fetchGalleries = async ({ page = 1, limit = 20, storeOriginals, sort }) => {
 		try {
+			const { value, sortType } = info?.selectedSort;
+
 			getGalleries(
 				{
 					page,
 					limit,
 					storeOriginals: storeOriginals || selectedOption === 'Classic Gallery',
+					sort: `${sortType === -1 ? `-` : ''}${value}`,
 				},
 				true,
 			);
@@ -177,51 +198,78 @@ const GalleryGrid = ({
 		setInfo((prevInfo) => ({ ...prevInfo, ...data }));
 	};
 
-	return info?.loading ? (
-		<div className="spinner-container">
-			<Spinner />
-		</div>
-	) : (
-		<InfiniteScroll
-			dataLength={info?.docs?.length}
-			next={fetchMore}
-			hasMore={info?.hasNextPage}
-			height={'100%'}
-		>
-			<div className={`card-container`}>
-				<div className="card-item" onClick={handleCreateNewGallery}>
-					<div className="card-item-style card-item-style-btn">
-						<button className="card-btn">
-							<Plus />
-							Create Gallery
-						</button>
+	const handleSortClick = (value) => {
+		let sortType = value?.sortType;
+		if (value?.value === info?.selectedSort?.value) {
+			sortType = info?.selectedSort?.sortType * -1;
+		}
+		handleStateUpdate({ selectedSort: { ...value, sortType } });
+	};
+
+	return (
+		<div className="card-sub-container-center">
+			<div className="center-container-header">
+				{/* <FilterDropdown
+					options={filterOptions}
+					selected={info?.selectedFilter}
+					onOptionClick={(value) => handleStateUpdate({ selectedFilter: value })}
+					width="120px"
+				/> */}
+				<FilterDropdown
+					options={sortOptions}
+					selected={info?.selectedSort}
+					onOptionClick={handleSortClick}
+					showSelectedEndArrow
+					hideOnOptionClick={false}
+					width="180px"
+				/>
+			</div>
+			<div className="center-container-content">
+				{info?.loading ? (
+					<div className="spinner-container">
+						<Spinner />
 					</div>
-				</div>
-				{info?.galleries.map((item, index) => (
-					<div
-						className="card-item"
-						key={index}
-						onClick={() => handleNavigateGallery(item)}
+				) : (
+					<InfiniteScroll
+						dataLength={info?.docs?.length}
+						next={fetchMore}
+						hasMore={info?.hasNextPage}
+						height={'100%'}
 					>
-						<div
-							className="card-item-style content-wrapper"
-							style={{
-								backgroundImage: item?.coverImage?.thumbnailUrl
-									? `url(${item.coverImage.thumbnailUrl})`
-									: 'none',
-								display: 'flex',
-								justifyContent: 'center',
-								alignItems: 'center',
-								minHeight: '120px',
-								marginBottom: '8px',
-							}}
-						>
-							{!item?.coverImage?.thumbnailUrl && (
-								<div className="folder-icon-wrapper">
-									<Folder />
+						<div className={`card-container`}>
+							<div className="card-item" onClick={handleCreateNewGallery}>
+								<div className="card-item-style card-item-style-btn">
+									<button className="card-btn">
+										<Plus />
+										Create Gallery
+									</button>
 								</div>
-							)}
-							{/* <span
+							</div>
+							{info?.galleries.map((item, index) => (
+								<div
+									className="card-item"
+									key={index}
+									onClick={() => handleNavigateGallery(item)}
+								>
+									<div
+										className="card-item-style content-wrapper"
+										style={{
+											backgroundImage: item?.coverImage?.thumbnailUrl
+												? `url(${item.coverImage.thumbnailUrl})`
+												: 'none',
+											display: 'flex',
+											justifyContent: 'center',
+											alignItems: 'center',
+											minHeight: '120px',
+											marginBottom: '8px',
+										}}
+									>
+										{!item?.coverImage?.thumbnailUrl && (
+											<div className="folder-icon-wrapper">
+												<Folder />
+											</div>
+										)}
+										{/* <span
 								className={`live-badge ${
 									item?.status === 'active' ? 'badge-active' : 'badge-draft'
 								}`}
@@ -231,12 +279,15 @@ const GalleryGrid = ({
 									{item?.status === 'published' ? 'Live' : 'Draft'}
 								</span>
 							</span> */}
+									</div>
+									<span className="gallery-item-title">{item?.title}</span>
+								</div>
+							))}
 						</div>
-						<span className="gallery-item-title">{item?.title}</span>
-					</div>
-				))}
+					</InfiniteScroll>
+				)}
 			</div>
-		</InfiniteScroll>
+		</div>
 	);
 };
 

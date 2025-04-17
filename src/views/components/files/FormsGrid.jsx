@@ -8,6 +8,14 @@ import InfiniteScroll from '../globalComponents/InfiniteScroll';
 import Context from '../../../context/context';
 import gsap from 'gsap';
 import Spinner from '../loaders/Spinner';
+import FilterDropdown from '../dropDown/file/FilterDropdown';
+
+const sortOptions = [
+	{ label: 'Recently Added', value: 'createdAt', sortType: -1 },
+	{ label: 'Recently Updated', value: 'updatedAt', sortType: -1 },
+	{ label: 'A-Z', value: 'title', sortType: 1 },
+];
+
 const FormsGrid = ({
 	statusTextmapper,
 	handleCreateForm,
@@ -23,6 +31,7 @@ const FormsGrid = ({
 		hasNextPage: false,
 		currentPage: 1,
 		loading: true,
+		selectedSort: { label: 'Recently Added', value: 'createdAt', sortType: -1 },
 	});
 
 	useEffect(() => {
@@ -114,7 +123,7 @@ const FormsGrid = ({
 
 	useEffect(() => {
 		fetchForms({ page: 1 });
-	}, []);
+	}, [info?.selectedSort?.value, info?.selectedSort?.sortType]);
 
 	useEffect(() => {
 		if (formsTemplatesList) {
@@ -133,7 +142,8 @@ const FormsGrid = ({
 
 	const fetchForms = async ({ page = 1, limit = 20 }) => {
 		try {
-			await getTemplatesListForForms(page, limit);
+			const { value: sortBy, sortType } = info?.selectedSort;
+			await getTemplatesListForForms(page, limit, false, { sortBy, sortType });
 		} catch (error) {
 			console.error('Error fetching forms:', error);
 		}
@@ -148,50 +158,76 @@ const FormsGrid = ({
 		setInfo((prevInfo) => ({ ...prevInfo, ...data }));
 	};
 
-	return info?.loading ? (
-		<div className="spinner-container">
-			<Spinner />
-		</div>
-	) : (
-		<InfiniteScroll
-			dataLength={info?.forms?.length}
-			next={fetchMore}
-			hasMore={info?.hasNextPage}
-			height={'100%'}
-		>
-			<div className={`card-container`}>
-				<div className="card-item" onClick={handleCreateForm}>
-					<div className="card-item-style card-item-style-btn">
-						<button className="card-btn">
-							<Plus />
-							Create Form
-						</button>
-					</div>
-				</div>
-				{info?.forms?.map((form, index) => (
-					<div
-						className="card-item"
-						key={index}
-						onClick={() => handleNavigateForm(form?._id)}
-					>
-						<div className="card-item-style content-wrapper docs">
-							<DocsStatusButton
-								content={statusTextmapper?.[form?.status]?.text}
-								style={statusTextmapper?.[form?.status]?.style}
-								dotStyle={statusTextmapper?.[form?.status]?.dotStyle}
-							/>
-							<div className="docs-title-wrapper docs-title-wrapper-form">
-								<div className=""></div>
-								<span className="docs-item-title">{form?.title.slice(0, 20)}</span>
-								<span className="docs-item-sub-title">
-									{moment.unix(form?.createdAt).fromNow()}
-								</span>
-							</div>
-						</div>
-					</div>
-				))}
+	const handleSortClick = (value) => {
+		let sortType = value?.sortType;
+		if (value?.value === info?.selectedSort?.value) {
+			sortType = info?.selectedSort?.sortType * -1;
+		}
+		handleStateUpdate({ selectedSort: { ...value, sortType } });
+	};
+
+	return (
+		<div className="card-sub-container-center">
+			<div className="center-container-header">
+				<FilterDropdown
+					options={sortOptions}
+					selected={info?.selectedSort}
+					onOptionClick={handleSortClick}
+					showSelectedEndArrow
+					width="180px"
+					hideOnOptionClick={false}
+				/>
 			</div>
-		</InfiniteScroll>
+			<div className="center-container-content">
+				{info?.loading ? (
+					<div className="spinner-container">
+						<Spinner />
+					</div>
+				) : (
+					<InfiniteScroll
+						dataLength={info?.forms?.length}
+						next={fetchMore}
+						hasMore={info?.hasNextPage}
+						height={'100%'}
+					>
+						<div className={`card-container`}>
+							<div className="card-item" onClick={handleCreateForm}>
+								<div className="card-item-style card-item-style-btn">
+									<button className="card-btn">
+										<Plus />
+										Create Form
+									</button>
+								</div>
+							</div>
+							{info?.forms?.map((form, index) => (
+								<div
+									className="card-item"
+									key={index}
+									onClick={() => handleNavigateForm(form?._id)}
+								>
+									<div className="card-item-style content-wrapper docs">
+										<DocsStatusButton
+											content={statusTextmapper?.[form?.status]?.text}
+											style={statusTextmapper?.[form?.status]?.style}
+											dotStyle={statusTextmapper?.[form?.status]?.dotStyle}
+										/>
+										<div className="docs-title-wrapper docs-title-wrapper-form">
+											<div className=""></div>
+											<span className="docs-item-title">
+												{form?.title.slice(0, 20)}
+											</span>
+											<span className="docs-item-sub-title">
+												{moment.unix(form?.createdAt).fromNow()}
+											</span>
+										</div>
+									</div>
+								</div>
+							))}
+						</div>
+					</InfiniteScroll>
+				)}
+			</div>
+		</div>
 	);
 };
 

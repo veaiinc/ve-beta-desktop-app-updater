@@ -406,7 +406,6 @@
 }
 
 .card-sub-container-right {
-	padding: 16px;
 	background: var(--background-color, #0c0c0d);
 
 	.right-sidebar-options {
@@ -429,10 +428,10 @@
 				font-style: normal;
 				font-weight: 500;
 				line-height: 21px; /* 150% */
-				border-radius: 15px;
+				border-radius: 100px;
 				cursor: pointer;
 				display: flex;
-				width: 100%;
+				transition: all 0.3s ease-in;
 				gap: 10px;
 				justify-content: flex-start;
 				&:hover {
@@ -442,7 +441,6 @@
 
 				&.active {
 					color: var(--primary-font);
-					border-radius: 100px;
 					background: var(--card, #171819);
 					background: var(--card, color(display-p3 0.0902 0.0941 0.098));
 				}
