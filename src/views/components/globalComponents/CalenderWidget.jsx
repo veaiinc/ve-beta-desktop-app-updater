@@ -40,15 +40,31 @@ const CalenderWidget = ({ width }) => {
 	const eventsCurrentPage = allCalendarEvents?.currentPage || 1;
 
 	useEffect(() => {
+		const sessionId = ObjectId().toString();
+		setInfo((prevInfo) => ({ ...prevInfo, chatSessionId: sessionId }));
+
+		if (!calendarCategoriesList) {
+			getCalendarCategories();
+		}
+
+		return () => {
+			setInfo((prevInfo) => ({
+				...prevInfo,
+			}));
+			resetCalendarAiChat();
+		};
+	}, []);
+
+	useEffect(() => {
 		const payload = {
 			options: {
-				startDate: info?.currentCalendarDate.toISOString(),
+				startDate: info?.currentCalendarDate?.toISOString(),
 			},
 		};
-		if (info?.currentCalendarDate) {
+		if (allCalendarEvents?.currentPage !== info?.page) {
 			getAllCalendarEvents(info?.page, 20, payload);
 		}
-	}, [info?.currentCalendarDate]);
+	}, []);
 
 	const fetchMoreCalendarEvents = () => {
 		const nextPage = eventsCurrentPage + 1;
@@ -110,15 +126,19 @@ const CalenderWidget = ({ width }) => {
 							</div>
 						</div>
 					</div>
-					<div className="calenderWidgetMainContent" id="calenderWidgetMainContent">
+					<div
+						className="calenderWidgetMainContent"
+						style={{
+							height: '100%',
+						}}
+					>
 						{allCalendarEvents?.data?.length > 0 ? (
 							<InfiniteScroll
-								dataLength={eventsLength}
+								dataLength={allCalendarEvents?.data?.length}
 								next={fetchMoreCalendarEvents}
-								hasMore={eventsNextPage}
+								hasMore={allCalendarEvents?.hasNextPage}
 								loader={<div>Loading...</div>}
-								scrollableTarget="calenderWidgetMainContent"
-								// style={infiniteScrollStyle}
+								height={350}
 							>
 								<div className="calenderWidgetMainContentDate">
 									{allCalendarEvents?.data?.map((meet) => (
