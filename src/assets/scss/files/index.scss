@@ -1,3 +1,9 @@
+.storage-page-container {
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
+	background-color: var(--background-color, #0c0c0d);
+}
 .card-container-wrapper {
 	display: flex;
 	flex-direction: column;
@@ -20,11 +26,19 @@
 			.center-container-header {
 				height: 41px;
 				flex-shrink: 0;
+				display: flex;
+				gap: 12px;
+				padding: 0 10px;
 			}
 			.center-container-content {
 				flex-grow: 1;
 			}
 		}
+	}
+	.storage-main-container-bottom-spacer {
+		display: flex;
+		flex-direction: column;
+		gap: 20px;
 	}
 }
 .card-container {

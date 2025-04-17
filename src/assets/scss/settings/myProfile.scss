@@ -34,6 +34,12 @@
 					border: 1px solid rgba(151, 151, 151, 0.36);
 					position: relative;
 					overflow: hidden;
+					.crop-container {
+						.reactEasyCrop_CropArea {
+							border: none !important; /* Removes the crop area border */
+							display: none !important;
+						}
+					}
 					img {
 						width: 100%;
 						height: 100%;
@@ -386,8 +392,8 @@
 
 		// this are the stylings for the access controllers
 		.accessSettingsContainer {
-			padding: 32px;
-			border-radius: 40px;
+			padding: 12px 18px;
+			border-radius: 12px;
 			// background: rgba(29, 29, 35, 0.24);
 
 			.accessContainer {
@@ -445,6 +451,18 @@
 						font-size: 13px;
 						font-weight: 400;
 						line-height: 21px;
+					}
+
+					.notificationWorkspace {
+						display: flex;
+						gap: 18px;
+						align-items: center;
+						border-bottom: 0.8px solid rgba(40, 39, 40, 0.48);
+
+						.workspaceContainer {
+							width: 100%;
+							margin: 24px 0px;
+						}
 					}
 
 					.button {
@@ -514,6 +532,13 @@
 		border: 1px solid rgba(151, 151, 151, 0.36);
 		position: relative;
 		margin: auto;
+
+		.crop-container {
+			.reactEasyCrop_CropArea {
+				border: none !important; /* Removes the crop area border */
+				display: none !important;
+			}
+		}
 
 		img {
 			width: 100%;
@@ -907,7 +932,6 @@
 	display: flex;
 	flex-direction: column;
 	gap: 24px;
-	margin-top: 24px;
 
 	.danger-zone-header {
 		display: flex;
@@ -921,12 +945,12 @@
 			content: '';
 			width: 238px;
 			height: 1px;
-			background: var(--stroke, #313336);
+			background: var(--error, #313336);
 		}
 
 		.danger-zone-title {
-			color: var(--secondary-font, #787e87);
-			font-family: Inter;
+			color: var(--error, #787e87);
+			font-family: var(--primary-font-family);
 			font-size: 10px;
 			font-style: normal;
 			font-weight: 500;
@@ -935,7 +959,16 @@
 	}
 
 	.accessSettingsContainer {
-		border: 1px solid rgba(204, 87, 86, 0.16);
-		background: var(--card-over-card-hover);
+		border: 1px solid var(--stroke);
 	}
+}
+
+.ant-switch {
+	background-color: var(--stroke);
+}
+.ant-switch-checked {
+	background-color: var(--primary-button);
+}
+.ant-switch.ant-switch-checked .ant-switch-handle::before {
+	background-color: var(--primary-font);
 }

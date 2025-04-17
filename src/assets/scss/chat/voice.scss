@@ -1,3 +1,48 @@
+.voiceIntegrationContainer {
+	margin-bottom: 16px;
+	.voiceIntegrationText {
+		color: var(--primary-font);
+		text-align: center;
+		font-family: var(--primary-font-family);
+		font-size: 14px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
+	}
+
+	.voiceIntegrationIconsContainer {
+		display: flex;
+		align-items: flex-end;
+		z-index: 99999999;
+		.icon-container {
+			cursor: pointer;
+			display: flex;
+			width: 60px;
+			height: 60px;
+			padding: 6.4px;
+			justify-content: center;
+			align-items: center;
+			gap: 9.6px;
+			border-radius: 100px;
+			background: var(--card);
+			svg {
+				path {
+					stroke: var(--primary-font);
+				}
+			}
+		}
+		.speaking-icon-container {
+			flex-shrink: 0;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			.voice-container {
+				margin: 0 20px;
+			}
+		}
+	}
+}
+
 // Voice input container styles
 .voice-input-container {
 	width: 250px;
@@ -114,6 +159,29 @@
 				}
 			}
 		}
+	}
+}
+
+@keyframes voice-integration-animate-in {
+	from {
+		transform: translateY(100px);
+		opacity: 0;
+	}
+	to {
+		transform: translateY(0);
+		opacity: 1;
+	}
+}
+
+@keyframes pulse {
+	0% {
+		opacity: 1;
+	}
+	50% {
+		opacity: 0.5;
+	}
+	100% {
+		opacity: 1;
 	}
 }
 

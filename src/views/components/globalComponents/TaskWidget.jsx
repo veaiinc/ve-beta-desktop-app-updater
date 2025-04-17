@@ -216,6 +216,10 @@ const TaskWidget = ({ width, height }) => {
 		}
 	};
 
+	const handlePromptPopup = (item) => {
+		setInfo((prev) => ({ ...prev, promptPopupOpen: true, selectedCard: item }));
+	};
+
 	const handleTaskClick = (tasks) => {
 		setInfo((prev) => ({
 			...prev,
@@ -317,7 +321,7 @@ const TaskWidget = ({ width, height }) => {
 					}}
 					style={{ cursor: 'pointer' }}
 				>
-					<div className="taskWidgetFooterTitle">View Task</div>
+					<div className="taskWidgetFooterTitle">View Tasks</div>
 					<PlusIcon
 						onClick={(e) => {
 							e.stopPropagation();

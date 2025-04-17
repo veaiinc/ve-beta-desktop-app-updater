@@ -6,9 +6,28 @@ import { memo, useContext, useEffect, useState, useCallback } from 'react';
 import Context from '../../../context/context';
 import InfiniteScroll from '../globalComponents/InfiniteScroll';
 import gsap from 'gsap';
-const TemplatesGrid = ({ isLoading, handleCreateTemplate }) => {
+import FilterDropdown from '../dropDown/file/FilterDropdown';
+import { fetchOriginSelection } from '../../../helpers';
+import { message } from '../globalComponents/CustomToast';
+
+const filterOptions = [
+	{ label: 'All', value: '' },
+	{ label: 'Form', value: 'form-submission' },
+	{ label: 'Proposal', value: 'proposal' },
+	{ label: 'Presentation', value: 'presentation' },
+	{ label: 'Invoice', value: 'invoice' },
+	{ label: 'Contract', value: 'contract' },
+];
+
+const sortOptions = [
+	{ label: 'Recently Created', value: 'createdAt', sortType: -1 },
+	{ label: 'Recently Updated', value: 'updatedAt', sortType: -1 },
+	{ label: 'A-Z', value: 'title', sortType: 1 },
+];
+let origin = fetchOriginSelection();
+const TemplatesGrid = ({ handleCreateTemplate, handleTotalChange }) => {
 	const {
-		templates: { myWorkflows, getMyWorkflows },
+		templates: { myWorkflows, getMyWorkflows, createBlankTemplate },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -16,11 +35,14 @@ const TemplatesGrid = ({ isLoading, handleCreateTemplate }) => {
 		currentPage: 1,
 		hasNextPage: false,
 		loading: true,
+		selectedFilter: { label: 'All', value: '' },
+		selectedSort: { label: 'Recently Added', value: 'createdAt', sortType: -1 },
+		blankTemplateLoading: false,
 	});
 
 	useEffect(() => {
 		getMyWorkflowTemplatesData(1);
-	}, []);
+	}, [info?.selectedFilter?.value, info?.selectedSort?.value, info?.selectedSort?.sortType]);
 
 	useEffect(() => {
 		if (myWorkflows) {
@@ -129,14 +151,15 @@ const TemplatesGrid = ({ isLoading, handleCreateTemplate }) => {
 
 	const getMyWorkflowTemplatesData = useCallback(
 		(page, fetchMore = false) => {
+			const { value: sortBy, sortType } = info?.selectedSort;
 			const payload = {
 				filters: {
 					limit: 20,
 					page: page,
 					type: 'workspace',
-					status: 'published',
-					sortBy: 'createdAt',
-					sortType: -1,
+					sortBy,
+					sortType,
+					action: info?.selectedFilter?.value,
 				},
 			};
 			if (info?.searchChanged) {
@@ -144,7 +167,7 @@ const TemplatesGrid = ({ isLoading, handleCreateTemplate }) => {
 			}
 			getMyWorkflows(payload, fetchMore);
 		},
-		[info],
+		[info, info?.selectedFilter?.value],
 	);
 
 	const fetchMore = () => {
@@ -154,7 +177,7 @@ const TemplatesGrid = ({ isLoading, handleCreateTemplate }) => {
 
 	const myWorkflowsDataParser = useCallback(
 		(dataToBeUsed, fetchMore = false) => {
-			let { data, currentPage, hasNextPage } = dataToBeUsed;
+			let { data, currentPage, hasNextPage, totalDocs } = dataToBeUsed;
 			let workflowTemplates = [];
 
 			for (let i = 0; i < data?.length; i++) {
@@ -178,53 +201,109 @@ const TemplatesGrid = ({ isLoading, handleCreateTemplate }) => {
 				hasNextPage,
 				loading: false,
 			}));
+			handleTotalChange(totalDocs);
 		},
 		[info?.workflowTemplates],
 	);
+	const handleStateUpdate = (data) => {
+		setInfo((prevInfo) => ({ ...prevInfo, ...data }));
+	};
 
-	return info?.loading ? (
-		<div className="spinner-container">
-			<Spinner />
-		</div>
-	) : (
-		<InfiniteScroll
-			dataLength={info?.workflowTemplates?.length}
-			next={fetchMore}
-			hasMore={info?.hasNextPage}
-			height={'100%'}
-		>
-			<div className={`card-container`}>
-				<div className="card-item" onClick={handleCreateTemplate}>
-					<div className="card-item-style card-item-style-btn">
-						<button className="card-btn">
-							<Plus />
-							Create Template
-						</button>
-					</div>
-				</div>
-				{info?.workflowTemplates?.map((template, index) => (
-					<div
-						className="card-item"
-						key={index}
-						// onClick={() => navigate(`/template/${template?._id}`)}
-					>
-						<div className="card-item-style content-wrapper">
-							<span
-								className={`status-badge ${
-									template?.status === 'published' ? 'live' : 'draft'
-								}`}
-							>
-								{getStatusBadge(template)}
-							</span>
-							<span className="item-title">
-								{template?.title?.slice(0, 20)}
-								{template?.title?.length > 20 ? '...' : ''}
-							</span>
-						</div>
-					</div>
-				))}
+	const handleSortClick = (value) => {
+		let sortType = value?.sortType;
+		if (value?.value === info?.selectedSort?.value) {
+			sortType = info?.selectedSort?.sortType * -1;
+		}
+		handleStateUpdate({ selectedSort: { ...value, sortType } });
+	};
+
+	const handleCardClick = (templateId) => {
+		window.location.href = `${origin}/${templateId}`;
+	};
+
+	const handleCreateBlankTemplate = async () => {
+		if (info?.blankTemplateLoading) return;
+		setInfo((prev) => ({ ...prev, blankTemplateLoading: true }));
+		const response = await createBlankTemplate({
+			templateInput: {
+				title: 'Untitled Template',
+			},
+		});
+
+		if (response?.[0]) {
+			window.location.href = `${origin}/${response?.[1]?.data?.createBlankTemplate?._id}`;
+			setInfo((prev) => ({ ...prev, blankTemplateLoading: false }));
+		} else {
+			setInfo((prev) => ({ ...prev, blankTemplateLoading: false }));
+			message.error('Failed to create blank template');
+		}
+	};
+
+	return (
+		<div className="card-sub-container-center">
+			<div className="center-container-header">
+				<FilterDropdown
+					options={filterOptions}
+					selected={info?.selectedFilter}
+					onOptionClick={(value) => handleStateUpdate({ selectedFilter: value })}
+					width="130px"
+				/>
+				<FilterDropdown
+					options={sortOptions}
+					selected={info?.selectedSort}
+					onOptionClick={handleSortClick}
+					showSelectedEndArrow
+					width="180px"
+					hideOnOptionClick={false}
+				/>
 			</div>
-		</InfiniteScroll>
+			<div className="center-container-content">
+				{info?.loading ? (
+					<div className="spinner-container">
+						<Spinner />
+					</div>
+				) : (
+					<InfiniteScroll
+						dataLength={info?.workflowTemplates?.length}
+						next={fetchMore}
+						hasMore={info?.hasNextPage}
+						height={'100%'}
+					>
+						<div className={`card-container`}>
+							<div className="card-item" onClick={handleCreateBlankTemplate}>
+								<div className="card-item-style card-item-style-btn">
+									<button className="card-btn">
+										<Plus />
+										Create Template
+									</button>
+								</div>
+							</div>
+							{info?.workflowTemplates?.map((template, index) => (
+								<div
+									className="card-item"
+									key={index}
+									onClick={() => handleCardClick(template?._id)}
+								>
+									<div className="card-item-style content-wrapper">
+										<span
+											className={`status-badge ${
+												template?.status === 'published' ? 'live' : 'draft'
+											}`}
+										>
+											{getStatusBadge(template)}
+										</span>
+										<span className="item-title">
+											{template?.title?.slice(0, 20)}
+											{template?.title?.length > 20 ? '...' : ''}
+										</span>
+									</div>
+								</div>
+							))}
+						</div>
+					</InfiniteScroll>
+				)}
+			</div>
+		</div>
 	);
 };
 

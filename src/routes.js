@@ -28,9 +28,9 @@ import Tasks from './views/features/tasks/Tasks';
 import ShareAndEarn from './views/features/shareAndEarn/ShareAndEarn';
 import Notes from './views/features/notesModule/Notes';
 import Contacts from './views/features/contacts/Contacts';
-import Ai_agent from './views/features/aiAgent/AiAgent';
-import AgentsJobs from './views/features/aiAgent/AgentsJobs';
-import AgentsSetup from './views/features/aiAgent/AgentsSetup';
+// import Ai_agent from './views/features/aiAgent/AiAgent';
+// import AgentsJobs from './views/features/aiAgent/AgentsJobs';
+// import AgentsSetup from './views/features/aiAgent/AgentsSetup';
 import Docs from './views/features/docs/Docs';
 import LiteGallery from './views/features/gallery/Litegallery';
 import MyTemplates from './views/features/myTemplates/MyTemplates';
@@ -46,7 +46,6 @@ import RecentChat from './views/features/chat/RecentChat';
 import AutomationBuilder from './views/features/automationBuilder/AutomationBuilder';
 import AutomationBuilderLayout from './views/layouts/automationBuilderLayout';
 import Automations from './views/features/automations/Automations';
-import Integrations from './views/features/integrationsList/Integrations';
 import BrandSetup from './views/features/settings/BrandSetup';
 import DocsFullView from './views/components/docs/DocsFullView';
 import FormFullView from './views/components/forms/FormFullView';
@@ -61,6 +60,7 @@ import EditKnowledgeAgent from './views/features/knowledgeAgent/EditAgent';
 import FormResCard from './views/components/forms/FormResCard';
 import FormAnalytics from './views/components/forms/FormAnalytics';
 import FormSummary from './views/components/forms/FormSummary';
+import Integrations from './views/features/integrationsList/Integrations';
 
 import SchedulerMainPage from './views/features/calendar/SchedulerMainPage';
 import EditScheduler from './views/features/calendar/EditScheduler';
@@ -144,15 +144,15 @@ const routes = [
 		),
 		exact: true,
 	},
-	{
-		path: '/sales',
-		component: (
-			<AuthWrapper title={'Sales'}>
-				<Sales />
-			</AuthWrapper>
-		),
-		exact: true,
-	},
+	// {
+	// 	path: '/sales',
+	// 	component: (
+	// 		<AuthWrapper title={'Sales'}>
+	// 			<Sales />
+	// 		</AuthWrapper>
+	// 	),
+	// 	exact: true,
+	// },
 
 	{
 		path: '/playbook',
@@ -370,33 +370,33 @@ const routes = [
 		),
 		exact: true,
 	},
-	{
-		path: '/ai-agents/home/:agent-name',
-		component: (
-			<AuthWrapper title={'AI Agents'}>
-				<Ai_agent />
-			</AuthWrapper>
-		),
-		exact: true,
-	},
-	{
-		path: '/ai-agents/jobs/:agent-name',
-		component: (
-			<AuthWrapper title={'AI Agents'}>
-				<AgentsJobs />
-			</AuthWrapper>
-		),
-		exact: true,
-	},
-	{
-		path: '/ai-agents/setup/:agent-name',
-		component: (
-			<AuthWrapper title={'AI Agents'}>
-				<AgentsSetup />
-			</AuthWrapper>
-		),
-		exact: true,
-	},
+	// {
+	// 	path: '/ai-agents/home/:agent-name',
+	// 	component: (
+	// 		<AuthWrapper title={'AI Agents'}>
+	// 			<Ai_agent />
+	// 		</AuthWrapper>
+	// 	),
+	// 	exact: true,
+	// },
+	// {
+	// 	path: '/ai-agents/jobs/:agent-name',
+	// 	component: (
+	// 		<AuthWrapper title={'AI Agents'}>
+	// 			<AgentsJobs />
+	// 		</AuthWrapper>
+	// 	),
+	// 	exact: true,
+	// },
+	// {
+	// 	path: '/ai-agents/setup/:agent-name',
+	// 	component: (
+	// 		<AuthWrapper title={'AI Agents'}>
+	// 			<AgentsSetup />
+	// 		</AuthWrapper>
+	// 	),
+	// 	exact: true,
+	// },
 	{
 		path: '/ai-assistant',
 		component: (

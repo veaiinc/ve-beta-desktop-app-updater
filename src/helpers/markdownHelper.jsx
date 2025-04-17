@@ -320,11 +320,6 @@ export const TypingEffect = memo(
 		// };
 
 		const handleUpdateId = (workflowTemplateId, moduleTemplateId) => {
-			console.log(
-				workflowTemplateId,
-				moduleTemplateId,
-				'workflowTemplateId, moduleTemplateId',
-			);
 			updateStateValues({
 				documentPreviewIds: {
 					workflowTemplateId,
@@ -404,7 +399,86 @@ export const TypingEffect = memo(
 					</Markdown>
 				)}
 
+				{messageData?.messageId && (
+					<div
+						className={`hover-actions-container`}
+						style={{
+							visibility: isNewMessage ? 'visible' : '',
+						}}
+					>
+						<div className="left-container">
+							<div className="icon-container">
+								<Tooltip
+									placement="bottom"
+									arrow={false}
+									trigger={'hover'}
+									title={'Like'}
+								>
+									<ThumpsUpSvg
+										fill={rating === 'thumbsUp' ? '#f2f2f3' : 'none'}
+										onClick={handleThumbsUp}
+									/>
+								</Tooltip>
+							</div>
+
+							<div className="icon-container">
+								<Tooltip
+									placement="bottom"
+									arrow={false}
+									trigger={'hover'}
+									title={'Dislike'}
+								>
+									<ThumpsDownSvg
+										fill={rating === 'thumbsDown' ? '#f2f2f3' : 'none'}
+										onClick={handleThumbsDown}
+									/>
+								</Tooltip>
+							</div>
+						</div>
+
+						{/* <div className="icon-container">
+							<Tooltip
+								placement="bottom"
+								arrow={false}
+								trigger={'hover'}
+								title={'Audio'}
+							>
+								<HeadPhoneSvg />
+							</Tooltip>
+						</div> */}
+
+						<div className="right-container">
+							<div className="icon-container">
+								<Tooltip
+									placement="bottom"
+									arrow={false}
+									trigger={'hover'}
+									title={'Edit'}
+								>
+									<PencilSparkleIcon onClick={handlePencilClick} />
+								</Tooltip>
+							</div>
+
+							<div className="icon-container">
+								<Tooltip
+									placement="bottom"
+									arrow={false}
+									trigger={'hover'}
+									title={isCopiedToClipboard ? 'Copied' : 'Copy'}
+								>
+									{isCopiedToClipboard ? (
+										<TickSvg />
+									) : (
+										<CopyIcon onClick={() => handleCopyTextClick(text)} />
+									)}
+								</Tooltip>
+							</div>
+						</div>
+					</div>
+				)}
+
 				{typeof messageData?.['follow_up_query'] !== 'string' &&
+					messageData?.stream_end &&
 					(messageData?.['follow_up_query'] || [])?.length > 0 && (
 						<div className="suggested-prompts">
 							<div className="title-text">Suggested Prompts</div>
@@ -425,80 +499,6 @@ export const TypingEffect = memo(
 							</div>
 						</div>
 					)}
-
-				{messageData?.messageId && (
-					<div
-						className={`hover-actions-container`}
-						style={{
-							visibility: isNewMessage ? 'visible' : '',
-						}}
-					>
-						<div className="icon-container">
-							<Tooltip
-								placement="bottom"
-								arrow={false}
-								trigger={'hover'}
-								title={'Like'}
-							>
-								<ThumpsUpSvg
-									fill={rating === 'thumbsUp' ? '#f2f2f3' : 'none'}
-									onClick={handleThumbsUp}
-								/>
-							</Tooltip>
-						</div>
-
-						<div className="icon-container">
-							<Tooltip
-								placement="bottom"
-								arrow={false}
-								trigger={'hover'}
-								title={'Dislike'}
-							>
-								<ThumpsDownSvg
-									fill={rating === 'thumbsDown' ? '#f2f2f3' : 'none'}
-									onClick={handleThumbsDown}
-								/>
-							</Tooltip>
-						</div>
-
-						{/* <div className="icon-container">
-							<Tooltip
-								placement="bottom"
-								arrow={false}
-								trigger={'hover'}
-								title={'Audio'}
-							>
-								<HeadPhoneSvg />
-							</Tooltip>
-						</div> */}
-
-						<div className="icon-container">
-							<Tooltip
-								placement="bottom"
-								arrow={false}
-								trigger={'hover'}
-								title={'Edit'}
-							>
-								<PencilSparkleIcon onClick={handlePencilClick} />
-							</Tooltip>
-						</div>
-
-						<div className="icon-container">
-							<Tooltip
-								placement="bottom"
-								arrow={false}
-								trigger={'hover'}
-								title={isCopiedToClipboard ? 'Copied' : 'Copy'}
-							>
-								{isCopiedToClipboard ? (
-									<TickSvg />
-								) : (
-									<CopyIcon onClick={() => handleCopyTextClick(text)} />
-								)}
-							</Tooltip>
-						</div>
-					</div>
-				)}
 			</div>
 		);
 	},

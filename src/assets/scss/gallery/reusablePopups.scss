@@ -129,6 +129,40 @@
 			line-height: 21px; /* 161.538% */
 		}
 	}
+	.deletePopupButtonContainer {
+		display: flex;
+		flex-direction: row;
+		justify-content: space-between;
+		width: 100%;
+		align-items: center;
+		.deletePopupSelectContainer {
+			select {
+				width: 100%;
+				height: 46px;
+				padding: 8px 12px;
+				border-radius: 14px;
+				border: 1px solid var(--stroke);
+				background: transparent;
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 400;
+				line-height: 21px;
+			}
+		}
+		.deletePopupDeleteButton {
+			display: flex;
+			width: 133px;
+			height: 39px;
+			padding: 12px 24px;
+			justify-content: center;
+			align-items: center;
+			gap: 16px;
+			border-radius: 50px;
+			border: none;
+		}
+	}
 	.deletePopupDeleteButton {
 		display: flex;
 		width: 133px;
@@ -138,8 +172,7 @@
 		align-items: center;
 		gap: 16px;
 		border-radius: 50px;
-		background: var(--primary-button);
-		color: var(--primary-button-font);
+		border: none;
 	}
 }
 
@@ -215,7 +248,13 @@
 		align-items: center;
 		gap: 16px;
 		border-radius: 50px;
-		background: var(--primary-button-font);
+		background: var(--card, #171819);
+		border: none;
+		cursor: pointer;
+		&:hover {
+			background: var(--card-over-card, #202123);
+			box-shadow: 0px 0px 30px 0px rgba(122, 122, 122, 0.1);
+		}
 	}
 }
 

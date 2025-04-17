@@ -12,18 +12,18 @@ import { message } from '../../components/globalComponents/CustomToast';
 import Cookies from 'js-cookie';
 
 const themePreferenceOptions = [
-	// {
-	// 	id: 0,
-	// 	title: 'System',
-	// 	value: 'systemDefault',
-	// },
 	{
 		id: 0,
+		title: 'System',
+		value: 'systemDefault',
+	},
+	{
+		id: 1,
 		title: 'Dark Mode',
 		value: 'dark',
 	},
 	{
-		id: 1,
+		id: 2,
 		title: 'Light Mode',
 		value: 'light',
 	},
