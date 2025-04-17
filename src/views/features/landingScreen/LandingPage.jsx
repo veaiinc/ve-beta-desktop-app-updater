@@ -12,7 +12,7 @@ import Context from '../../../context/context';
 // import { ReactComponent as SidebarClosing } from '../../../assets/svg/sidebar/SidebarClosing.svg';
 import ContactUs from '../../components/landing_screen/ContactUs';
 import SidebarIcon from '../../../assets/svg/SidebarIcon';
-
+import TabNavigation from '../../components/landing_screen/TabNavigation';
 const routeType = 'public';
 
 const LandingPage = () => {
@@ -60,6 +60,79 @@ const LandingPage = () => {
 	};
 
 	const newThemeValue = theme === 'dark' ? 'light' : 'dark';
+
+	// Simple tab-to-component mapping
+	const tabComponents = {
+		0: (
+			<>
+				<div className="page-body">
+					<div className="title-container">
+						<div className="title-text">
+							<span className="title-one">AI.</span>{' '}
+							<span className="title-two">truly yours</span>
+						</div>
+						<div className="subtext">
+							A dedicated, continuously thinking Ai —for each of us.
+							<br /> Ask - Reason.Give it your goals—let it make you superhuman.
+						</div>
+					</div>
+					<div className="chatbox-container">
+						<ChatBox
+							onSend={handleCustomOnSendFunction}
+							customChatActions={true}
+							isPublicChat={true}
+						/>
+					</div>
+					<div className="buttons-container">
+						<button
+							onClick={() =>
+								updateStateValues({
+									activePromptForChat: 'What is knowledge search',
+								})
+							}
+						>
+							<FileSearch /> Knowledge search
+						</button>
+						<button
+							onClick={() =>
+								updateStateValues({
+									activePromptForChat: 'What is deep reason',
+								})
+							}
+						>
+							<HeadCircuit /> Deep Reason
+						</button>
+						<button
+							onClick={() =>
+								updateStateValues({
+									activePromptForChat: 'What is your goals',
+								})
+							}
+						>
+							<Chats />
+							Tell me goals you have
+						</button>
+					</div>
+				</div>
+				<div className="page-footer">
+					<span>
+						By messaging Ve.ai, you agree to our{' '}
+						<a href="#" className="terms">
+							Terms
+						</a>{' '}
+						and have read our{' '}
+						<a href="#" className="privacy-policy">
+							Privacy Policy.
+						</a>
+					</span>
+				</div>
+			</>
+		),
+		1: <div>Mission content goes here</div>, // Add your mission content
+		2: <ContactUs type="Investor" />,
+		3: <ContactUs type="Enterprise" />,
+	};
+
 	return (
 		<main className="landing-page-container">
 			{/* Add a mobile-tabs-wrapper div that serves as overlay when sidebar is open */}
@@ -90,7 +163,7 @@ const LandingPage = () => {
 						Login
 					</button>
 				</div>
-				<TabsNavigation
+				<TabNavigation
 					tab={tab}
 					setTab={setTab}
 					isVisible={isSidebarOpen}
@@ -98,99 +171,12 @@ const LandingPage = () => {
 				/>
 			</div>
 
-			<>
-				{tab === 0 && (
-					<>
-						<div className="page-body">
-							<div className="title-container">
-								<div className="title-text">
-									<span className="title-one">AI.</span>{' '}
-									<span className="title-two">truly yours</span>
-								</div>
-								<div className="subtext">
-									A dedicated, continuously thinking Ai —for each of us.
-									<br /> Ask - Reason.Give it your goals—let it make you
-									superhuman.
-								</div>
-							</div>
-							<div className="chatbox-container">
-								<ChatBox
-									onSend={handleCustomOnSendFunction}
-									customChatActions={true}
-									isPublicChat={true}
-								/>
-							</div>
-							<div className="buttons-container">
-								<button
-									onClick={() =>
-										updateStateValues({
-											activePromptForChat: 'What is knowledge search',
-										})
-									}
-								>
-									<FileSearch /> Knowledge search
-								</button>
-								<button
-									onClick={() =>
-										updateStateValues({
-											activePromptForChat: 'What is deep reason',
-										})
-									}
-								>
-									<HeadCircuit /> Deep Reason
-								</button>
-								<button
-									onClick={() =>
-										updateStateValues({
-											activePromptForChat: 'What is your goals',
-										})
-									}
-								>
-									<Chats />
-									Tell me goals you have
-								</button>
-							</div>
-						</div>
-						<div className="page-footer">
-							<span>
-								By messaging Ve.ai, you agree to our{' '}
-								<a href="#" className="terms">
-									Terms
-								</a>{' '}
-								and have read our{' '}
-								<a href="#" className="privacy-policy">
-									Privacy Policy.
-								</a>
-							</span>
-						</div>
-					</>
-				)}
-			</>
-			{tab === 2 && <ContactUs type="Investor" />}
-			{tab === 3 && <ContactUs type="Enterprise" />}
+			{/* Simple tab content rendering */}
+			{tabComponents[tab]}
 		</main>
 	);
 };
 
+// Keep TabsNavigation component unchanged
+
 export default memo(LandingPage);
-
-const tabs = ['Home', 'Mission', 'For Investors', 'For Enterprise'];
-
-const TabsNavigation = ({ tab, setTab, isVisible, handleCloseSidebar }) => {
-	return (
-		<ul className={`tabNavigation ${isVisible ? 'slide-in' : 'slide-out'}`}>
-			{tabs.map((t, i) => (
-				<li
-					className={i === tab ? 'active' : ''}
-					onClick={() => {
-						setTab(i);
-						handleCloseSidebar();
-					}}
-					key={i}
-				>
-					{t}
-				</li>
-			))}
-		</ul>
-	);
-};

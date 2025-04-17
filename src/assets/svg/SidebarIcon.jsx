@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import './SidebarIcon.scss';
-export default function SidebarIcon() {
+import { memo, useState } from 'react';
+import '../scss/sidebarIcon.scss';
+const SidebarIcon = () => {
 	const [active, setActive] = useState(false);
 	return (
 		<svg
@@ -35,4 +35,6 @@ export default function SidebarIcon() {
 			</defs>
 		</svg>
 	);
-}
+};
+
+export default memo(SidebarIcon);

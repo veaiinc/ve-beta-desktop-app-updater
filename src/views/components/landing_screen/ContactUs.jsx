@@ -1,6 +1,7 @@
-import React, { useContext, useState } from 'react';
+import React, { memo, useContext, useState } from 'react';
 import '../../../assets/scss/landingScreen/contactus/contactus.scss';
 import Context from '../../../context/context';
+import CustomDropdown from './CustomDropdown';
 
 const ContactUs = ({ type }) => {
 	const [formData, setFormData] = useState({
@@ -30,6 +31,30 @@ const ContactUs = ({ type }) => {
 		});
 	};
 
+	const handleDropdownChange = (name, value) => {
+		setFormData({
+			...formData,
+			[name]: value,
+		});
+	};
+
+	const platformOptions = [
+		{ value: '', label: 'Please select' },
+		{ value: '1-10', label: '1-10' },
+		{ value: '11-50', label: '11-50' },
+		{ value: '51+', label: '51+' },
+	];
+
+	const headquartersOptions = [
+		{ value: '', label: 'Please select' },
+		{ value: 'Dubai', label: 'Dubai' },
+		{ value: 'India', label: 'India' },
+		{ value: 'Uganda', label: 'Uganda' },
+		{ value: 'South Africa', label: 'South Africa' },
+		{ value: 'Brazil', label: 'Brazil' },
+		{ value: 'Japan', label: 'Japan' },
+	];
+
 	const validateEmail = (email) => {
 		return /\S+@\S+\.\S+/.test(email);
 	};
@@ -52,8 +77,8 @@ const ContactUs = ({ type }) => {
 			<div className="title-section">
 				<h1>Contact us</h1>
 				<p>
-					We’d love to hear from you! need a consultation, or just want to say hello,
-					we’re here to help. Reach out to us via call, email, or social media, and our
+					We'd love to hear from you! need a consultation, or just want to say hello,
+					we're here to help. Reach out to us via call, email, or social media, and our
 					team will get back to you as soon as possible.
 				</p>
 			</div>
@@ -120,30 +145,21 @@ const ContactUs = ({ type }) => {
 				<div className="grid">
 					<label>
 						Platform users
-						<select
-							name="platformUsers"
+						<CustomDropdown
+							options={platformOptions}
 							value={formData.platformUsers}
-							onChange={handleChange}
-						>
-							<option value="">Please select</option>
-							<option value="1-10">1-10</option>
-							<option value="11-50">11-50</option>
-							<option value="51+">51+</option>
-						</select>
+							onChange={(value) => handleDropdownChange('platformUsers', value)}
+							placeholder="Please select"
+						/>
 					</label>
-
 					<label>
 						Company headquarters
-						<select
-							name="headquarters"
+						<CustomDropdown
+							options={headquartersOptions}
 							value={formData.headquarters}
-							onChange={handleChange}
-						>
-							<option value="">Please select</option>
-							<option value="USA">USA</option>
-							<option value="Europe">Europe</option>
-							<option value="Asia">Asia</option>
-						</select>
+							onChange={(value) => handleDropdownChange('headquarters', value)}
+							placeholder="Please select"
+						/>
 					</label>
 				</div>
 
@@ -182,4 +198,4 @@ const ContactUs = ({ type }) => {
 	);
 };
 
-export default ContactUs;
+export default memo(ContactUs);
