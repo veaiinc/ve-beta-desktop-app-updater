@@ -128,8 +128,6 @@ const EditKnowledgeAgent = () => {
 		setInfo((prev) => ({ ...prev, deleteAgentModal: true }));
 	}, []);
 
-	// console.log('hi');
-
 	const tabs = {
 		personality: {
 			value: 'personality',

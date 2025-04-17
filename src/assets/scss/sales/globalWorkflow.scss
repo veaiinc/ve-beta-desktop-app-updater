@@ -191,6 +191,32 @@
 				}
 			}
 		}
+
+		.globalWorkflowSidebar {
+			display: flex;
+			min-width: 180px;
+			width: auto;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 16px;
+			color: var(--primary-font);
+			.sidebarLabel {
+				overflow: hidden;
+				color: var(--secondary-font);
+				text-overflow: ellipsis;
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: 22px; /* 157.143% */
+				letter-spacing: -0.28px;
+				cursor: pointer;
+				transition: all 0.5s;
+			}
+			.sidebarLabel:hover {
+				color: var(--card-hover);
+			}
+		}
 	}
 }
 @media screen and (min-width: 1500px) and (max-width: 2500px) {

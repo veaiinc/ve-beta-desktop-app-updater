@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import ProactiveSuggestions from './ProactiveSuggestions';
 import ChatPrompts from './ChatPrompts';
 import QuickActions from '../../components/globalComponents/QuickActions';
+import { first, set } from 'lodash';
 import GlobalWidget from '../../components/globalComponents/GlobalWidget';
 
 const optionsList = [

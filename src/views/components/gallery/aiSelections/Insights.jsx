@@ -234,144 +234,167 @@ const Insights = () => {
 					</div>
 				))}
 			</div>
-			<div className="insightsHeader">
-				<div className="heading">
-					<p>Client gallery views</p>
-					<p className="subHeading">People who open with gallery link</p>
-				</div>
-				<div className="insightsHeader-icons">
-					<div className={`search-container ${searchQuery ? 'expanded' : ''}`}>
-						<SearchIcon />
-						<input
-							type="text"
-							className="search-bar"
-							placeholder="Search"
-							value={searchQuery}
-							onChange={(e) => debouncedSearch(e.target.value)}
-						/>
-						{searchQuery && (
-							<CloseIcon
-								onClick={() => debouncedSearch('')}
-								style={{ cursor: 'pointer' }}
-							/>
-						)}
-					</div>
-					<p onClick={() => downloadCSV(visitorData)}>
-						<DownloadIcon />
-					</p>
-					<p className="filter-container" onClick={() => setShowFilter(!showFilter)}>
-						<FilterIcon />
-
-						{showFilter && (
-							<div className="filter-dropdown">
-								<div className="filter-option">Filter by</div>
-								<hr
-									style={{
-										width: '100%',
-										border: '1px solid rgba(255, 255, 255, 0.1)',
-									}}
-								/>
-								{filterOptions.map((option, index) => (
-									<div
-										key={index}
-										className="filter-option"
-										onClick={() => {
-											setSelectedFilter(option);
-											setShowFilter(false);
-										}}
-									>
-										{option}
-									</div>
-								))}
-								<hr
-									style={{
-										width: '100%',
-										border: '1px solid rgba(255, 255, 255, 0.1)',
-									}}
-								/>
-								<div
-									className="filter-option"
-									onClick={() => setShowDatePicker(!showDatePicker)}
-								>
-									Custom Date
-								</div>
-							</div>
-						)}
-					</p>
-					<MainPopup
-						open={showDatePicker}
-						onClose={() => setShowDatePicker(false)}
-						heading="Custom Date"
-						inputType="date"
-						placeholder="Select Date"
-						value={date}
-						onChange={(e) => setDate(e.target.value)}
-						onSubmit={() => {
-							setSelectedFilter('Custom Date');
-							setShowDatePicker(false);
-						}}
-					/>
-				</div>
-			</div>
-			<div
-				style={{
-					display: 'flex',
-					flexDirection: 'row',
-					justifyContent: 'space-between',
-					alignItems: 'center',
-					marginRight: '10px',
-				}}
-			>
-				<div className="insightsDetails">
-					{details.map((ele, index) => (
-						<div key={index} className="insightsDetails-item">
-							<p className="itemName">{ele.name}</p>
-							<p className="count">{ele.number}</p>
+			{visitorData?.docs?.length > 0 && (
+				<>
+					<div className="insightsHeader">
+						<div className="heading">
+							<p>Client gallery views</p>
+							<p className="subHeading">People who open with gallery link</p>
 						</div>
-					))}
-				</div>
-				<div className="filtersDiv">
-					{selectedFilter !== 'All Time' && (
-						<div
-							className="selected-filter"
-							style={{
-								display: 'flex',
-								flexDirection: 'row',
-								width: '215px',
-								justifyContent: 'space-between',
-								alignItems: 'center',
-							}}
-						>
-							<div style={{ color: '#fff', display: 'flex', alignItems: 'center' }}>
-								Filtered By
-							</div>
+						<div className="insightsHeader-icons">
 							<div
+								className={`searchContainer ${showSearchBar ? 'expanded' : ''}`}
+								onClick={() => setShowSearchBar(true)}
 								style={{
-									display: 'flex',
-									alignItems: 'center',
-									border: '1px solid rgba(255, 255, 255, 0.1)',
-									borderRadius: '16px',
-									padding: '10px',
+									width: showSearchBar ? '200px' : '',
 								}}
 							>
-								<span style={{ color: '#fff' }}>{selectedFilter}</span>
-								<CloseIcon
-									onClick={() => setSelectedFilter('All Time')}
-									style={{
-										cursor: 'pointer',
-										width: '12px',
-										height: '12px',
-										marginLeft: '8px',
-									}}
-								/>
+								<SearchIcon style={{ color: 'var(--secondary-font)' }} />
+								{showSearchBar && (
+									<input
+										key={showSearchBar ? 'search-visible' : 'search-hidden'}
+										type="text"
+										placeholder="Search"
+										value={searchQuery}
+										onChange={(e) => debouncedSearch(e.target.value)}
+										autoFocus
+										onClick={(e) => e.stopPropagation()}
+										onBlur={() =>
+											setTimeout(() => {
+												setShowSearchBar(false);
+											}, 200)
+										}
+									/>
+								)}
 							</div>
+
+							<p onClick={() => downloadCSV(visitorData)}>
+								<DownloadIcon />
+							</p>
+							<p
+								className="filter-container"
+								onClick={() => setShowFilter(!showFilter)}
+							>
+								<FilterIcon />
+
+								{showFilter && (
+									<div className="filter-dropdown">
+										<div className="filter-option">Filter by</div>
+										<hr
+											style={{
+												width: '100%',
+												border: '1px solid rgba(255, 255, 255, 0.1)',
+											}}
+										/>
+										{filterOptions.map((option, index) => (
+											<div
+												key={index}
+												className="filter-option"
+												onClick={() => {
+													setSelectedFilter(option);
+													setShowFilter(false);
+												}}
+											>
+												{option}
+											</div>
+										))}
+										<hr
+											style={{
+												width: '100%',
+												border: '1px solid rgba(255, 255, 255, 0.1)',
+											}}
+										/>
+										<div
+											className="filter-option"
+											onClick={() => setShowDatePicker(!showDatePicker)}
+										>
+											Custom Date
+										</div>
+									</div>
+								)}
+							</p>
+							<MainPopup
+								open={showDatePicker}
+								onClose={() => setShowDatePicker(false)}
+								heading="Custom Date"
+								inputType="date"
+								placeholder="Select Date"
+								value={date}
+								onChange={(e) => setDate(e.target.value)}
+								onSubmit={() => {
+									setSelectedFilter('Custom Date');
+									setShowDatePicker(false);
+								}}
+							/>
 						</div>
-					)}
-				</div>
-			</div>
-			<div ref={ref}>
-				<Table tableData={visitorData} thead={'Category'} />
-			</div>
+					</div>
+					<div
+						style={{
+							display: 'flex',
+							flexDirection: 'row',
+							justifyContent: 'space-between',
+							alignItems: 'center',
+							marginRight: '10px',
+						}}
+					>
+						<div className="insightsDetails">
+							{details.map((ele, index) => (
+								<div key={index} className="insightsDetails-item">
+									<p className="itemName">{ele.name}</p>
+									<p className="count">{ele.number}</p>
+								</div>
+							))}
+						</div>
+						<div className="filtersDiv">
+							{selectedFilter !== 'All Time' && (
+								<div
+									className="selected-filter"
+									style={{
+										display: 'flex',
+										flexDirection: 'row',
+										width: '215px',
+										justifyContent: 'space-between',
+										alignItems: 'center',
+									}}
+								>
+									<div
+										style={{
+											color: '#fff',
+											display: 'flex',
+											alignItems: 'center',
+										}}
+									>
+										Filtered By
+									</div>
+									<div
+										style={{
+											display: 'flex',
+											alignItems: 'center',
+											border: '1px solid rgba(255, 255, 255, 0.1)',
+											borderRadius: '16px',
+											padding: '10px',
+										}}
+									>
+										<span style={{ color: '#fff' }}>{selectedFilter}</span>
+										<CloseIcon
+											onClick={() => setSelectedFilter('All Time')}
+											style={{
+												cursor: 'pointer',
+												width: '12px',
+												height: '12px',
+												marginLeft: '8px',
+											}}
+										/>
+									</div>
+								</div>
+							)}
+						</div>
+					</div>
+					<div ref={ref}>
+						<Table tableData={visitorData} thead={'Category'} />
+					</div>
+				</>
+			)}
 		</div>
 	);
 };

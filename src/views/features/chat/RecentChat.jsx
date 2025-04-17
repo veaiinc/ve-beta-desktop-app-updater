@@ -330,6 +330,7 @@ const RecentChat = ({
 		// );
 		// aiMessagesRef.current.forEach((msg) => observer.observe(msg));
 
+		// smoothScrollToBottom();
 		// return () => {
 		// 	previousAiMessagesRef.current.forEach((msg) => observer.unobserve(msg));
 		// 	visibleMessagesSet.clear();

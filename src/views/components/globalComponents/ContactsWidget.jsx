@@ -75,6 +75,10 @@ const ContactsWidget = ({ width, height }) => {
 		}
 	}, [info?.searchValue, info?.filters, info?.sort]);
 
+	const handlePromptPopup = (item) => {
+		setInfo((prev) => ({ ...prev, promptPopupOpen: true, selectedCard: item }));
+	};
+
 	return (
 		<div className="contactsWidgetContainer" style={{ width: width, height: height }}>
 			<div className="contactsWidgetSection1">
