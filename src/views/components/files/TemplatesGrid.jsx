@@ -177,7 +177,7 @@ const TemplatesGrid = ({ handleCreateTemplate, handleTotalChange }) => {
 
 	const myWorkflowsDataParser = useCallback(
 		(dataToBeUsed, fetchMore = false) => {
-			let { data, currentPage, hasNextPage, totalDocs } = dataToBeUsed;
+			const { data, currentPage, hasNextPage, totalDocs } = dataToBeUsed;
 			let workflowTemplates = [];
 
 			for (let i = 0; i < data?.length; i++) {
@@ -292,10 +292,7 @@ const TemplatesGrid = ({ handleCreateTemplate, handleTotalChange }) => {
 										>
 											{getStatusBadge(template)}
 										</span>
-										<span className="item-title">
-											{template?.title?.slice(0, 20)}
-											{template?.title?.length > 20 ? '...' : ''}
-										</span>
+										<span className="item-title">{template?.title || ''}</span>
 									</div>
 								</div>
 							))}

@@ -8,7 +8,6 @@ import InfiniteScroll from '../globalComponents/InfiniteScroll';
 import gsap from 'gsap';
 import FilterDropdown from '../dropDown/file/FilterDropdown';
 import Spinner from '../loaders/Spinner';
-import { sortBy } from 'lodash';
 
 const filterOptions = [
 	{ label: 'All', value: 'all' },

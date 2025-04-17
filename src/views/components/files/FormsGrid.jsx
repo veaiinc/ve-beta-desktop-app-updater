@@ -140,10 +140,10 @@ const FormsGrid = ({
 		}
 	}, [formsTemplatesList]);
 
-	const fetchForms = async ({ page = 1, limit = 20 }) => {
+	const fetchForms = ({ page = 1, limit = 20 }) => {
 		try {
 			const { value: sortBy, sortType } = info?.selectedSort;
-			await getTemplatesListForForms(page, limit, false, { sortBy, sortType });
+			getTemplatesListForForms(page, limit, false, { sortBy, sortType });
 		} catch (error) {
 			console.error('Error fetching forms:', error);
 		}
