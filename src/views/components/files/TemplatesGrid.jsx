@@ -9,6 +9,7 @@ import gsap from 'gsap';
 import FilterDropdown from '../dropDown/file/FilterDropdown';
 import { fetchOriginSelection } from '../../../helpers';
 import { message } from '../globalComponents/CustomToast';
+import moment from 'moment';
 
 const filterOptions = [
 	{ label: 'All', value: '' },
@@ -25,7 +26,7 @@ const sortOptions = [
 	{ label: 'A-Z', value: 'title', sortType: 1 },
 ];
 let origin = fetchOriginSelection();
-const TemplatesGrid = ({ handleCreateTemplate, handleTotalChange }) => {
+const TemplatesGrid = ({ handleTotalChange }) => {
 	const {
 		templates: { myWorkflows, getMyWorkflows, createBlankTemplate },
 	} = useContext(Context);
@@ -36,7 +37,7 @@ const TemplatesGrid = ({ handleCreateTemplate, handleTotalChange }) => {
 		hasNextPage: false,
 		loading: true,
 		selectedFilter: { label: 'All', value: '' },
-		selectedSort: { label: 'Recently Added', value: 'createdAt', sortType: -1 },
+		selectedSort: { label: 'Recently Created', value: 'createdAt', sortType: -1 },
 		blankTemplateLoading: false,
 	});
 
@@ -284,15 +285,18 @@ const TemplatesGrid = ({ handleCreateTemplate, handleTotalChange }) => {
 									key={index}
 									onClick={() => handleCardClick(template?._id)}
 								>
-									<div className="card-item-style content-wrapper">
-										<span
+									<div className="card-item-style content-wrapper note-card-content">
+										{/* <span
 											className={`status-badge ${
 												template?.status === 'published' ? 'live' : 'draft'
 											}`}
 										>
 											{getStatusBadge(template)}
-										</span>
+										</span> */}
 										<span className="item-title">{template?.title || ''}</span>
+										<span className="notes-sub-heading">
+											{moment.unix(template?.createdAt).fromNow()}
+										</span>
 									</div>
 								</div>
 							))}

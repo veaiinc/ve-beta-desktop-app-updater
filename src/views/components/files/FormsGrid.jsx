@@ -31,7 +31,7 @@ const FormsGrid = ({
 		hasNextPage: false,
 		currentPage: 1,
 		loading: true,
-		selectedSort: { label: 'Recently Added', value: 'createdAt', sortType: -1 },
+		selectedSort: { label: 'Recently Created', value: 'createdAt', sortType: -1 },
 	});
 
 	useEffect(() => {

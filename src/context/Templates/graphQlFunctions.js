@@ -42,6 +42,7 @@ export const getTemmplatesQuery = gql`
 				slug
 				actionRequired
 				createdAt
+				updatedAt
 			}
 		}
 	}

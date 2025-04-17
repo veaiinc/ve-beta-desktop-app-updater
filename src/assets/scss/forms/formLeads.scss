@@ -538,3 +538,28 @@
 .delete-text {
 	color: var(--error);
 }
+
+.DocsStatusButtonOuterContainer {
+	display: flex;
+	padding: 4px 6px;
+	justify-content: center;
+	align-items: center;
+	gap: 4px;
+	border-radius: 35px;
+
+	.DocsStatusCircle {
+		width: 6px;
+		height: 6px;
+		border-radius: 100%;
+		background: var(--card-hover);
+	}
+	.DocsButtontext {
+		color: #f2f2f3; /* this is a badge text color  don't use variable here */
+		text-align: center;
+		font-family: var(--primary-font-family);
+		font-size: 12px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
+	}
+}

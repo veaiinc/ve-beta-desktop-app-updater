@@ -114,17 +114,28 @@ export const statusTextmapper = {
 		},
 		label: 'Proposal Accepted',
 	},
-	// published: {
-	// 	id: 'published',
-	// 	text: 'Published',
-	// 	dotStyle: {
-	// 		backgroundColor: '#2A71CD',
-	// 	},
-	// 	style: {
-	// 		backgroundColor: '#29456C',
-	// 	},
-	// 	label: 'Published',
-	// },
+	published: {
+		id: 'published',
+		text: 'Live',
+		dotStyle: {
+			backgroundColor: '#2A71CD',
+		},
+		style: {
+			backgroundColor: '#29456C',
+		},
+		label: 'Live',
+	},
+	draft: {
+		id: 'draft',
+		text: 'Draft',
+		dotStyle: {
+			backgroundColor: '#E27B1C',
+		},
+		style: {
+			backgroundColor: 'rgba(125, 79, 39, 1)',
+		},
+		label: 'Draft',
+	},
 };
 
 const statusList = Object.values(statusTextmapper)?.map((status) => ({

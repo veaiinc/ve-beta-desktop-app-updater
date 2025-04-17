@@ -8,6 +8,7 @@ import InfiniteScroll from '../globalComponents/InfiniteScroll';
 import gsap from 'gsap';
 import FilterDropdown from '../dropDown/file/FilterDropdown';
 import Spinner from '../loaders/Spinner';
+import moment from 'moment';
 
 const filterOptions = [
 	{ label: 'All', value: 'all' },
@@ -35,7 +36,7 @@ const NotesGrid = ({ handleNewNotes, handleTotalChange }) => {
 		currentPage: 1,
 		hasNextPage: false,
 		selectedFilter: { label: 'All', value: 'all' },
-		selectedSort: { label: 'Recently Added', value: 'createdAt', sortType: -1 },
+		selectedSort: { label: 'Recently Created', value: 'createdAt', sortType: -1 },
 	});
 
 	useEffect(() => {
@@ -218,16 +219,12 @@ const NotesGrid = ({ handleNewNotes, handleTotalChange }) => {
 									key={index}
 									onClick={() => navigate(`/note/${note?._id}`)}
 								>
-									<div className="card-item-style content-wrapper">
-										{/* <span
-								className={`status-badge ${
-									note?.status === 'published' ? 'live' : 'draft'
-								}`}
-							>
-								{note?.status === 'published' ? 'Live' : 'Draft'}
-							</span> */}
+									<div className="card-item-style content-wrapper note-card-content">
 										<span className="item-title">
 											{note?.title || 'Untitled Note'}
+										</span>
+										<span className="notes-sub-heading">
+											{moment.unix(note?.createdAt).fromNow()}
 										</span>
 									</div>
 								</div>

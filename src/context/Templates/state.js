@@ -676,10 +676,11 @@ export const TemplatesState = (props) => {
 		page = 1,
 		limit = 10,
 		fetchMore = false,
-		{ sortBy = 'createdAt', sortType = -1 },
+		options = { sortBy: 'createdAt', sortType: -1 },
 	) => {
 		let workspaceId = localStorage.getItem('workspaceId');
 		let usertoken = localStorage.getItem('usertoken');
+		const { sortBy, sortType } = options;
 
 		const payload = {
 			filters: {
