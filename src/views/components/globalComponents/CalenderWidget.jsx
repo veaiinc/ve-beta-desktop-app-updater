@@ -6,6 +6,7 @@ import Context from '../../../context/context';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import EventDetailsModal from '../modalsV2/calendar/EventDetailsModal';
 import ObjectId from 'bson-objectid';
+import { FetchMoreLoaderComp } from '../../../helpers';
 
 const infiniteScrollStyle = {
 	height: '34vh',
@@ -183,18 +184,13 @@ const CalenderWidget = ({ width }) => {
 								dataLength={allCalendarEvents?.data?.length}
 								next={fetchMoreCalendarEvents}
 								hasMore={allCalendarEvents?.hasNextPage}
-								loader={
-									<div style={{ color: 'var(--primary-font)' }}>Loading...</div>
-								}
+								loader={<FetchMoreLoaderComp />}
 								height={350}
 							>
 								<div className="calenderWidgetMainContentDate">
 									{groupedEventsArray?.map((meet, index) => (
 										<>
-											<div
-												key={meet?.date}
-												className="calendarWidgetDayGroup"
-											>
+											<div key={index} className="calendarWidgetDayGroup">
 												<div className="calendarWidgetStickyDate">
 													<div className="calenderWidgetDateContainer">
 														<div className="calenderWidgetDateContainerDayContainer">
