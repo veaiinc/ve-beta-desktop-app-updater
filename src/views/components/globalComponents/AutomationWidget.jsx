@@ -9,9 +9,9 @@ import { message } from '../globalComponents/CustomToast';
 import AutomationLoaderModal from '../modalsV2/automationBuilder/AutomationLoaderModal';
 
 const statusColors = {
-	published: '#B2FF00',
-	unpublished: '#93989F',
-	draft: '#FF5960',
+	published: 'var(--success)',
+	unpublished: 'orange',
+	draft: 'orange',
 };
 const limit = 10;
 const append = true;

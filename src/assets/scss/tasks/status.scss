@@ -55,6 +55,32 @@
 				}
 			}
 		}
+
+		.status-dropdown-footer-wrapper {
+			display: flex;
+			height: 31px;
+			padding: 12px;
+			justify-content: flex-start;
+			align-items: center;
+			align-self: stretch;
+			gap: 8px;
+			cursor: pointer;
+			user-select: none;
+			border-radius: 8px;
+
+			.status-dropdown-footer-text {
+				color: var(--primary-font);
+				text-align: center;
+				font-family: var(--primary-font-family);
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+			&:hover {
+				background-color: var(--popup);
+			}
+		}
 	}
 }
 

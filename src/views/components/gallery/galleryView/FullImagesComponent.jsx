@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import Skeleton from 'react-loading-skeleton';
 
@@ -10,11 +10,14 @@ const FullImagesComponent = ({
 	info,
 	setInfo,
 	selectedImages,
+	isAiFace,
 }) => {
 	return (
 		<div className="activeImageWrapper" id="activeImageWrapper-target">
 			<InfiniteScroll
-				dataLength={imagesList?.docs?.length || 0}
+				dataLength={
+					isAiFace ? imagesList?.images?.length || 0 : imagesList?.docs?.length || 0
+				}
 				next={selectedImages ? () => {} : fetchMoreImages}
 				hasMore={selectedImages ? false : imagesList?.hasNextPage || false}
 				loader={<h4 style={{ color: 'white', textAlign: 'center' }}>Loading...</h4>}
@@ -23,13 +26,14 @@ const FullImagesComponent = ({
 				onScroll={() => setInfo((prev) => ({ ...prev, imageDetailId: null }))}
 			>
 				{galleryCredentials && imagesList
-					? imagesList?.docs
+					? (isAiFace ? imagesList?.images : imagesList?.docs)
 							?.filter(
 								(image) => selectedImages?.includes(image?._id) || !selectedImages,
 							)
 							?.map((image, index) => {
 								const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
 								const src = `${galleryCredentials?.baseURL}/${image?.activeVersion?.s3_optimized?.key}?${params}`;
+
 								return (
 									<div
 										key={index}
@@ -64,4 +68,4 @@ const FullImagesComponent = ({
 	);
 };
 
-export default FullImagesComponent;
+export default memo(FullImagesComponent);

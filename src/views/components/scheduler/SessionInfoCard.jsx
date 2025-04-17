@@ -23,22 +23,22 @@ const SessionInfoCard = ({ sessionData }) => {
 
 	return (
 		<div className="sessionInfoContainer">
-			<div className="SchedulerImgContainer">
+			{/* <div className="SchedulerImgContainer">
 				<img
 					src={
 						'https://images.pexels.com/photos/8471810/pexels-photo-8471810.jpeg?auto=compress&cs=tinysrgb&w=1200'
 					}
 					alt="Scheduler"
 				/>
-			</div>
+			</div> */}
 			<div className="sessionInfoDetails">
 				<div className="sessionTitle">
 					<span>{sessionData?.sessionName || 'session Name'}</span>
-					<Dot />
+					{/* <Dot /> */}
 				</div>
 
 				<div className="sessionInfoSetting">
-					<div className="settingRow">
+					{/* <div className="settingRow">
 						<div className="labelWithIcon">
 							<Tooltip
 								title="Ai-powered company insights from multiple sources"
@@ -59,7 +59,7 @@ const SessionInfoCard = ({ sessionData }) => {
 							}
 							checked={info?.isDataEnrichment}
 						/>
-					</div>
+					</div> */}
 					<div className="settingRow">
 						<span className="label">Session Category</span>
 						<div className="detailsSection">
@@ -101,14 +101,14 @@ const SessionInfoCard = ({ sessionData }) => {
 			</div>
 
 			<div className="shareBtnContainer">
-				<button
+				{/* <button
 					className="shareBtn"
 					onClick={() => {
 						console.log('clicked share');
 					}}
 				>
 					Share
-				</button>
+				</button> */}
 			</div>
 		</div>
 	);
