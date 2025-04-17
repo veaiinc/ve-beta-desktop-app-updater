@@ -183,7 +183,9 @@ const CalenderWidget = ({ width }) => {
 								dataLength={allCalendarEvents?.data?.length}
 								next={fetchMoreCalendarEvents}
 								hasMore={allCalendarEvents?.hasNextPage}
-								loader={<div>Loading...</div>}
+								loader={
+									<div style={{ color: 'var(--primary-font)' }}>Loading...</div>
+								}
 								height={350}
 							>
 								<div className="calenderWidgetMainContentDate">
