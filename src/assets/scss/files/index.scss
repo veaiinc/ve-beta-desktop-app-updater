@@ -26,6 +26,9 @@
 			.center-container-header {
 				height: 41px;
 				flex-shrink: 0;
+				display: flex;
+				gap: 12px;
+				padding: 0 10px;
 			}
 			.center-container-content {
 				flex-grow: 1;

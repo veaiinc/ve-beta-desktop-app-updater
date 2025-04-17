@@ -9,7 +9,24 @@ import InfiniteScroll from '../globalComponents/InfiniteScroll';
 import Context from '../../../context/context';
 import gsap from 'gsap';
 import Spinner from '../loaders/Spinner';
-const DocsGrid = ({ statusTextmapper, handleCreateDoc }) => {
+import FilterDropdown from '../dropDown/file/FilterDropdown';
+
+const filterOptions = [
+	{ label: 'All', value: '' },
+	{ label: 'Form', value: 'form-submission' },
+	{ label: 'Proposal', value: 'proposal' },
+	{ label: 'Presentation', value: 'presentation' },
+	{ label: 'Invoice', value: 'invoice' },
+	{ label: 'Contract', value: 'contract' },
+];
+
+const sortOptions = [
+	{ label: 'Recently Added', value: 'createdAt', sortType: -1 },
+	{ label: 'Recently Updated', value: 'updatedAt', sortType: -1 },
+	{ label: 'A-Z', value: 'title', sortType: 1 },
+];
+
+const DocsGrid = ({ statusTextmapper, handleCreateDoc, handleTotalChange }) => {
 	const navigate = useNavigate();
 
 	const {
@@ -21,6 +38,8 @@ const DocsGrid = ({ statusTextmapper, handleCreateDoc }) => {
 		hasNextPage: false,
 		currentPage: 1,
 		loading: true,
+		selectedFilter: { label: 'All', value: '' },
+		selectedSort: { label: 'Recently Added', value: 'createdAt', sortType: -1 },
 	});
 
 	useEffect(() => {
@@ -112,15 +131,21 @@ const DocsGrid = ({ statusTextmapper, handleCreateDoc }) => {
 
 	useEffect(() => {
 		if (docsFilesList) {
-			const { currentPage = 1, hasNextPage = false, data = [] } = docsFilesList || {};
+			const {
+				currentPage = 1,
+				hasNextPage = false,
+				data = [],
+				totalDocs = 0,
+			} = docsFilesList || {};
 			const newDocs = currentPage === 1 ? [...data] : [...info?.docs, ...(data || [])];
 			handleStateUpdate({ docs: newDocs, currentPage, hasNextPage, loading: false });
+			handleTotalChange(totalDocs);
 		}
 	}, [docsFilesList]);
 
 	useEffect(() => {
 		fetchDocs({ page: 1 });
-	}, []);
+	}, [info?.selectedSort?.value, info?.selectedSort?.sortType]);
 
 	const handleStateUpdate = (data) => {
 		setInfo((prevInfo) => ({ ...prevInfo, ...data }));
@@ -128,10 +153,14 @@ const DocsGrid = ({ statusTextmapper, handleCreateDoc }) => {
 
 	const fetchDocs = async ({ page = 1, limit = 20 }) => {
 		try {
+			const { value: sortBy, sortType } = info?.selectedSort;
 			const payload = {
 				filters: {
 					limit,
 					page,
+					sortBy,
+					sortType,
+					// action: info?.selectedFilter?.value,
 				},
 			};
 			await getDocsFilesList(payload, false);
@@ -145,50 +174,80 @@ const DocsGrid = ({ statusTextmapper, handleCreateDoc }) => {
 		fetchDocs({ page: info?.currentPage + 1 });
 	};
 
-	return info?.loading ? (
-		<div className="spinner-container">
-			<Spinner />
-		</div>
-	) : (
-		<InfiniteScroll
-			dataLength={info?.docs?.length}
-			next={fetchMore}
-			hasMore={info?.hasNextPage}
-			height={'100%'}
-		>
-			<div className={`card-container`}>
-				<div className="card-item" onClick={handleCreateDoc}>
-					<div className="card-item-style card-item-style-btn">
-						<button className="card-btn">
-							<Plus />
-							Create Document
-						</button>
-					</div>
-				</div>
-				{info?.docs?.map((doc, index) => (
-					<div
-						className="card-item"
-						key={index}
-						onClick={() => navigate(`/doc/${doc?._id}`)}
-					>
-						<div className="card-item-style content-wrapper docs">
-							<div className="docs-preview"></div>
-							<DocsStatusButton
-								content={statusTextmapper?.[doc?.status]?.text}
-								style={statusTextmapper?.[doc?.status]?.style}
-								dotStyle={statusTextmapper?.[doc?.status]?.dotStyle}
-							/>
-							<div className="docs-title-wrapper">
-								<span className="docs-item-title">{doc?.title}</span>
-								<span className="docs-item-sub-title">
-									{moment.unix(doc?.createdAt).fromNow()}
-								</span>
-							</div>
-						</div>
-					</div>
-				))}
+	const handleSortClick = (value) => {
+		let sortType = value?.sortType;
+		if (value?.value === info?.selectedSort?.value) {
+			sortType = info?.selectedSort?.sortType * -1;
+		}
+		handleStateUpdate({ selectedSort: { ...value, sortType } });
+	};
+
+	return (
+		<div className="card-sub-container-center">
+			<div className="center-container-header">
+				{/* <FilterDropdown
+					options={filterOptions}
+					selected={info?.selectedFilter}
+					onOptionClick={(value) => handleStateUpdate({ selectedFilter: value })}
+					width="130px"
+				/> */}
+				<FilterDropdown
+					options={sortOptions}
+					selected={info?.selectedSort}
+					onOptionClick={handleSortClick}
+					showSelectedEndArrow
+					width="180px"
+					hideOnOptionClick={false}
+				/>
 			</div>
-		</InfiniteScroll>
+			<div className="center-container-content">
+				{info?.loading ? (
+					<div className="spinner-container">
+						<Spinner />
+					</div>
+				) : (
+					<InfiniteScroll
+						dataLength={info?.docs?.length}
+						next={fetchMore}
+						hasMore={info?.hasNextPage}
+						height={'100%'}
+					>
+						<div className={`card-container`}>
+							<div className="card-item" onClick={handleCreateDoc}>
+								<div className="card-item-style card-item-style-btn">
+									<button className="card-btn">
+										<Plus />
+										Create Document
+									</button>
+								</div>
+							</div>
+							{info?.docs?.map((doc, index) => (
+								<div
+									className="card-item"
+									key={index}
+									onClick={() => navigate(`/doc/${doc?._id}`)}
+								>
+									<div className="card-item-style content-wrapper docs">
+										<div className="docs-preview"></div>
+										<DocsStatusButton
+											content={statusTextmapper?.[doc?.status]?.text}
+											style={statusTextmapper?.[doc?.status]?.style}
+											dotStyle={statusTextmapper?.[doc?.status]?.dotStyle}
+										/>
+										<div className="docs-title-wrapper">
+											<span className="docs-item-title">{doc?.title}</span>
+											<span className="docs-item-sub-title">
+												{moment.unix(doc?.createdAt).fromNow()}
+											</span>
+										</div>
+									</div>
+								</div>
+							))}
+						</div>
+					</InfiniteScroll>
+				)}
+			</div>
+		</div>
 	);
 };
 
