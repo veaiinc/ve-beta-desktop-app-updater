@@ -193,7 +193,7 @@ export const Calendar = () => {
 			if (response?.[0] === true) {
 				dispatch({
 					type: Actions.GET_CALENDAR_ALL_EVENTS,
-					payload: response?.[1]?.data,
+					payload: response?.[1],
 				});
 			} else {
 				dispatch({
@@ -364,20 +364,21 @@ export const Calendar = () => {
 		}
 	};
 
-	const getAllCalendarEvents = async (payload) => {
+	const getAllCalendarEvents = async (page, limit, payload) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
-			const url = `/${workspaceId}/calendar/combined-events`;
+			const url = `/${workspaceId}/calendar/combined-events?page=${page}&limit=${limit}`;
 			const response = await service.fetchPost(url, payload, usertoken, 'calendar_api');
+			console.log(response, 'response');
 			if (response?.[0] === true) {
 				dispatch({
-					type: Actions.GET_CALENDAR_ALL_EVENTS,
+					type: Actions.GET_ALL_CALENDAR_EVENTS,
 					payload: response?.[1],
 				});
 			} else {
 				dispatch({
-					type: Actions.GET_CALENDAR_ALL_EVENTS,
+					type: Actions.GET_ALL_CALENDAR_EVENTS,
 					payload: {
 						error: 'Something went wrong while fetching events. Please try again.',
 					},

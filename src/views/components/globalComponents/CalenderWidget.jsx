@@ -42,28 +42,27 @@ const CalenderWidget = ({ width }) => {
 	useEffect(() => {
 		const payload = {
 			options: {
-				page: info?.page,
-				limit: 20,
 				startDate: info?.currentCalendarDate.toISOString(),
 			},
 		};
 		if (info?.currentCalendarDate) {
-			getAllCalendarEvents(payload);
+			getAllCalendarEvents(info?.page, 20, payload);
 		}
 	}, [info?.currentCalendarDate]);
 
 	const fetchMoreCalendarEvents = () => {
-		console.log('fetchMoreCalendarEventsTriggered');
+		const nextPage = eventsCurrentPage + 1;
 		const payload = {
 			options: {
-				page: eventsCurrentPage + 1,
 				limit: 20,
 			},
 		};
 		if (eventsCurrentPage !== undefined) {
-			getAllCalendarEvents(payload);
+			getAllCalendarEvents(nextPage, 20, payload);
 		}
 	};
+
+	console.log(allCalendarEvents, 'allCalendarEvents');
 
 	const handleCalendarClick = (meet) => {
 		setInfo((prev) => ({
