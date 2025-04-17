@@ -5,7 +5,6 @@ import { ReactComponent as Copy } from '../../../assets/svg/copy.svg';
 import service from '../../../services/graphQlServices';
 import { getFormResponseAnalyticsQuery } from '../../../context/Templates/graphQlFunctions';
 import moment from 'moment';
-import { Column, Pie, Bar, Line } from '@ant-design/plots';
 import { Tooltip } from 'antd';
 import {
 	FilePdfOutlined,
@@ -139,151 +138,6 @@ const FormResponseList = ({
 		return field.answer;
 	};
 
-	const getChartData = () => {
-		if (!['multipleChoice', 'singleChoice', 'rating', 'number'].includes(type)) return null;
-
-		const answers = visibleItems
-			.map((item) => {
-				const field = item?.response?.find((r) =>
-					r?.question?.toLowerCase().includes(question.toLowerCase()),
-				);
-
-				if (!field?.answer) return null;
-
-				// Parse answers based on type
-				switch (type) {
-					case 'multipleChoice':
-					case 'singleChoice':
-						return JSON.parse(field.answer);
-					case 'rating':
-						return [field.answer];
-					case 'number':
-						return [parseFloat(field.answer)];
-					default:
-						return null;
-				}
-			})
-			.flat()
-			.filter(Boolean);
-
-		if (answers.length === 0) return null;
-
-		// Process data based on question type
-		switch (type) {
-			case 'multipleChoice':
-			case 'singleChoice':
-				const answerCount = answers.reduce((acc, curr) => {
-					acc[curr] = (acc[curr] || 0) + 1;
-					return acc;
-				}, {});
-
-				return Object.entries(answerCount).map(([value, count]) => ({
-					type: value,
-					value: count,
-				}));
-
-			case 'rating':
-				const ratingCount = answers.reduce((acc, curr) => {
-					acc[curr] = (acc[curr] || 0) + 1;
-					return acc;
-				}, {});
-
-				return Object.entries(ratingCount).map(([value, count]) => ({
-					rating: value,
-					count: count,
-				}));
-
-			case 'number':
-				// Create bins for numerical data
-				const min = Math.min(...answers);
-				const max = Math.max(...answers);
-				const range = max - min;
-				const binSize = Math.ceil(range / 5); // 5 bins
-
-				const bins = {};
-				answers.forEach((value) => {
-					const bin = Math.floor((value - min) / binSize) * binSize + min;
-					bins[bin] = (bins[bin] || 0) + 1;
-				});
-
-				return Object.entries(bins).map(([bin, count]) => ({
-					range: `${bin}-${parseFloat(bin) + binSize}`,
-					count: count,
-				}));
-
-			default:
-				return null;
-		}
-	};
-
-	const renderChart = () => {
-		const data = getChartData();
-		if (!data) return null;
-
-		const commonConfig = {
-			height: 300,
-			interactions: [{ type: 'element-active' }],
-			theme: 'light',
-		};
-
-		switch (type) {
-			case 'multipleChoice':
-			case 'singleChoice':
-				return (
-					<Pie
-						{...commonConfig}
-						data={data}
-						angleField="value"
-						colorField="type"
-						radius={0.8}
-						label={{
-							type: 'outer',
-							content: '{name} {percentage}',
-						}}
-					/>
-				);
-
-			case 'rating':
-				return (
-					<Column
-						{...commonConfig}
-						data={data}
-						xField="rating"
-						yField="count"
-						label={{
-							position: 'middle',
-							style: {
-								fill: '#FFFFFF',
-								opacity: 0.6,
-							},
-						}}
-					/>
-				);
-
-			case 'number':
-				return (
-					<Bar
-						{...commonConfig}
-						data={data}
-						xField="range"
-						yField="count"
-						label={{
-							position: 'middle',
-							style: {
-								fill: '#FFFFFF',
-								opacity: 0.6,
-							},
-						}}
-					/>
-				);
-
-			default:
-				return null;
-		}
-	};
-
-	const chart = renderChart();
-
 	return (
 		<div className="collapsible-list">
 			<div
@@ -293,40 +147,36 @@ const FormResponseList = ({
 						: 'collapsible-list__content--collapsed'
 				}`}
 			>
-				{chart ? (
-					<div className="graph-container">{chart}</div>
-				) : (
-					<div className="collapsible-list__items">
-						{visibleItems?.map((item, index) => {
-							const answer = getQuestionAnswer(item, question.toLowerCase());
-							if (!answer) return null;
-							return (
-								<Tooltip key={index} title={getName(item)} placement="top">
-									<div className="collapsible-list__item">
-										<div className="candidate-info">
-											<div
-												className="candidate-name"
-												onClick={(e) => {
-													e.stopPropagation();
-													onUserClick?.(item);
-												}}
-												style={{ cursor: 'pointer' }}
-											>
-												{answer}
-											</div>
-										</div>
-										<div className="candidate-timestamp">
-											{formatDate(item?.createdAt)}
+				<div className="collapsible-list__items">
+					{visibleItems?.map((item, index) => {
+						const answer = getQuestionAnswer(item, question.toLowerCase());
+						if (!answer) return null;
+						return (
+							<Tooltip key={index} title={getName(item)} placement="top">
+								<div className="collapsible-list__item">
+									<div className="candidate-info">
+										<div
+											className="candidate-name"
+											onClick={(e) => {
+												e.stopPropagation();
+												onUserClick?.(item);
+											}}
+											style={{ cursor: 'pointer' }}
+										>
+											{answer}
 										</div>
 									</div>
-								</Tooltip>
-							);
-						})}
-					</div>
-				)}
+									<div className="candidate-timestamp">
+										{formatDate(item?.createdAt)}
+									</div>
+								</div>
+							</Tooltip>
+						);
+					})}
+				</div>
 			</div>
 
-			{items?.length > 5 && !chart && (
+			{items?.length > 5 && (
 				<div className="collapsible-list__footer">
 					<span onClick={handleExpand}>
 						{expanded ? 'See less' : `See all (${items?.length})`}
