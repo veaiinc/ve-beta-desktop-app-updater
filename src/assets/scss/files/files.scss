@@ -22,7 +22,7 @@
 			justify-content: space-between;
 			align-items: center;
 			color: var(--secondary-font, #787e87);
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 20px;
 			font-style: italic;
 			font-weight: 300;
@@ -32,7 +32,7 @@
 		.beta-text {
 			width: 273px;
 			color: var(--primary-font, #f2f2f3);
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 24px;
 			font-style: normal;
 			font-weight: 500;
@@ -359,7 +359,7 @@
 					.hover-card-title {
 						color: var(--primary-font, #f2f2f3);
 						text-overflow: ellipsis;
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						overflow: auto;
 						font-size: 12px;
 						font-style: normal;
@@ -371,7 +371,7 @@
 				.hover-card-content {
 					color: var(--primary-font, #f2f2f3);
 					text-overflow: ellipsis;
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 400;
@@ -394,7 +394,7 @@
 						color: var(--primary-font);
 						text-overflow: ellipsis;
 						overflow-y: scroll;
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 12px;
 						font-style: normal;
 						font-weight: 400;
@@ -511,7 +511,6 @@
 }
 
 .card-sub-container-right {
-	padding: 16px;
 	background: var(--background-color, #0c0c0d);
 
 	.right-sidebar-options {
@@ -529,13 +528,17 @@
 			.sidebar-option {
 				padding: 8px 12px;
 				color: var(--secondary-font, #787e87);
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 500;
 				line-height: 21px; /* 150% */
-				border-radius: 15px;
+				border-radius: 100px;
 				cursor: pointer;
+				display: flex;
+				transition: all 0.3s ease-in;
+				gap: 10px;
+				justify-content: flex-start;
 				&:hover {
 					color: var(--primary-font);
 					background: var(--card-hover);
@@ -543,6 +546,24 @@
 
 				&.active {
 					color: var(--primary-font);
+					background: var(--card, #171819);
+				}
+
+				.count-wrapper {
+					display: flex;
+					padding: 3.637px;
+					justify-content: center;
+					align-items: center;
+					gap: 9.093px;
+					border-radius: 3.637px;
+					background: var(--primary-font, #f2f2f3);
+					color: var(--background-color, #0c0c0d);
+					font-family: var(--primary-font-family);
+					font-size: 10.912px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+					min-width: 20px;
 				}
 			}
 			.sidebar-option-spinner {
@@ -567,7 +588,7 @@
 			justify-content: space-between;
 			align-items: center;
 			color: var(--secondary-font, #787e87);
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 20px;
 			font-style: italic;
 			font-weight: 300;
@@ -577,7 +598,7 @@
 		.beta-text {
 			width: 273px;
 			color: var(--primary-font, #f2f2f3);
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 24px;
 			font-style: normal;
 			font-weight: 500;

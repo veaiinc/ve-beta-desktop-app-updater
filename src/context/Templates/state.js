@@ -672,7 +672,12 @@ export const TemplatesState = (props) => {
 			console.log('api failed ==>getTemplatesListForDocs', response);
 		}
 	};
-	const getTemplatesListForForms = async (page = 1, limit = 10, fetchMore = false) => {
+	const getTemplatesListForForms = async (
+		page = 1,
+		limit = 10,
+		fetchMore = false,
+		{ sortBy = 'createdAt', sortType = -1 },
+	) => {
 		let workspaceId = localStorage.getItem('workspaceId');
 		let usertoken = localStorage.getItem('usertoken');
 
@@ -682,8 +687,8 @@ export const TemplatesState = (props) => {
 				page,
 				type: 'workspace',
 				status: 'published',
-				sortBy: 'createdAt',
-				sortType: -1,
+				sortBy,
+				sortType,
 				action: 'form-submission',
 			},
 		};
