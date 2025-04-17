@@ -10,9 +10,9 @@
 	gap: 10px;
 	flex-shrink: 0;
 	align-self: stretch;
-	border-radius: 24px;
+	border-radius: 12px;
 	border: 1px solid var(--stroke);
-	background: var(--card);
+	background: var(--popup);
 	cursor: default;
 	overflow: hidden; //to hide svg element overflow
 	user-select: none;

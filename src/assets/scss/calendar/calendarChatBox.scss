@@ -1,0 +1,55 @@
+.calendar-chatbox-wrapper {
+	width: 100%;
+	max-width: 300px;
+	margin: 0 auto;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+
+	.chatParentWrapper {
+		width: 100%;
+		max-width: 300px;
+		display: flex;
+		justify-content: center;
+	}
+
+	.chatWrapper {
+		width: 100%;
+		display: flex;
+		justify-content: center;
+	}
+
+	.chat-box-container {
+		width: 100%;
+		display: flex;
+		justify-content: center;
+	}
+
+	.chatcontainer {
+		width: 100%;
+		display: flex;
+		justify-content: center;
+	}
+
+	.chatInputContainer {
+		width: 100%;
+		display: flex;
+		justify-content: center;
+	}
+
+	.chatInputParentContainer {
+		width: 100%;
+		display: flex;
+		justify-content: center;
+	}
+
+	.chat-input-container {
+		width: 100%;
+		display: flex;
+		justify-content: center;
+	}
+
+	.textArea {
+		width: 100%;
+	}
+}

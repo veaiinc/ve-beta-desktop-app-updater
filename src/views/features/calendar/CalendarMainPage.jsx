@@ -139,14 +139,6 @@ const Calendar = () => {
 
 	return (
 		<>
-			<div className="calendarHeaderContainer">
-				<div className="calendarHeaderTitle">
-					<span>Manage</span> Your Events
-				</div>
-				<div className="calendarHeaderSubTitle">
-					Effortlessly manage your time with AI scheduling.
-				</div>
-			</div>
 			<div className="calendarParentContainer">
 				<CalendarSidebar
 					currentCalendarDate={info?.currentCalendarDate}

@@ -1,8 +1,8 @@
 import React, { memo, useState, useEffect, useMemo, useCallback, useContext } from 'react';
 import '../../../assets/scss/calendar/meetingDetails.scss';
-// import { ReactComponent as MeetClock } from '../../../assets/svg/calendar/meetClock.svg';
-// import Meetwomen from '../../../assets/svg/calendar/meetwomen.png';
-// import { ReactComponent as Ellipse } from '../../../assets/svg/calendar/ellipseCircle.svg';
+import { ReactComponent as MeetClock } from '../../../assets/svg/calendar/meetClock.svg';
+import Meetwomen from '../../../assets/svg/calendar/meetwomen.png';
+import { ReactComponent as Ellipse } from '../../../assets/svg/calendar/ellipseCircle.svg';
 import Context from '../../../context/context';
 import moment from 'moment';
 import MeetingSvg from '../../../assets/svg/calendar/meetClockSvg';
@@ -65,7 +65,8 @@ const MeetingDetails = ({ selectedDate }) => {
 	);
 
 	return !upcomingEvent ? (
-		<div className="meetingCardParentContainer">
+		<div className="">
+			{/* meetingCardParentContainer */}
 			<div className="meetingCard">
 				<div className="timeDurationWrapper">
 					<div style={{ fontSize: '15px', width: '170px', color: 'grey' }}>
@@ -73,19 +74,26 @@ const MeetingDetails = ({ selectedDate }) => {
 					</div>
 					<div className="durationBadge">
 						<MeetingSvg />
-						<span style={{ fontSize: '10px', fontWeight: '600' }}>00:00</span>
+						<span
+							style={{
+								fontSize: '10px',
+								fontWeight: '600',
+								color: 'var(--primary-font)',
+							}}
+						>
+							00:00
+						</span>
 						<span className="indicatorDot"></span>
 					</div>
 				</div>
-				<div className="meetingDetailsWrapper">
+				{/* <div className="meetingDetailsWrapper">
 					<div>Latest Meeting will be shown here</div>
-				</div>
+				</div> */}
 			</div>
-
 			{/* <div class="personImage">
 				<img src={Meetwomen} alt="Person working at laptop" />
-			</div>
-			<Ellipse className="ellipse" /> */}
+			</div> */}
+			{/* <Ellipse className="ellipse" /> */}
 		</div>
 	) : (
 		<div className="meetingCardParentContainer">
@@ -109,10 +117,10 @@ const MeetingDetails = ({ selectedDate }) => {
 				</div>
 			</div>
 
-			{/* <div class="personImage">
+			<div class="personImage">
 				<img src={Meetwomen} alt="Person working at laptop" />
 			</div>
-			<Ellipse className="ellipse" /> */}
+			<Ellipse className="ellipse" />
 		</div>
 	);
 };

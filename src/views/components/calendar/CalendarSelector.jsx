@@ -95,14 +95,14 @@ const CalendarSelector = ({
 	const currentYear = useMemo(() => moment(currentCalendarDate).year(), [currentCalendarDate]);
 
 	return (
-		<div className="calendarContainer">
+		<div className="calendarWrapper">
 			<div className="calendarHeader">
 				<div className="dateSelectorContainer">
 					{/* Month Selector */}
 					<div className="monthSelector" onClick={toggleMonthDropDown}>
 						<span>{monthName}</span>
 						<span className="captionDropDown">
-							<DownSvg />
+							<DownSvg className="downSvg" />
 						</span>
 						{info?.activeDropdown === 'months' && (
 							<div
@@ -156,7 +156,7 @@ const CalendarSelector = ({
 											setInfo((prev) => ({
 												...prev,
 												activeDropdown: 'years',
-											})); // Close the dropdown after selection
+											}));
 										}}
 									>
 										{year}
@@ -178,54 +178,56 @@ const CalendarSelector = ({
 				</div>
 			</div>
 
-			{/* Day Names */}
-			<div className="calendarDayNameGrid">
-				{['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su']?.map((day, index) => (
-					<div key={index} className="calendarDayName">
-						{day}
-					</div>
-				))}
-			</div>
-
-			{/* Date Grid */}
-			<div className="dateContainer">
-				{chunkArray(daysInMonth)?.map((week, weekIndex) => {
-					const isSelectedWeek = week?.some((date) =>
-						moment(date)?.isSame(selectedDate, 'day'),
-					);
-
-					return (
-						<div
-							key={weekIndex}
-							className={`dateRow ${isSelectedWeek ? 'highlightedRow' : ''}`}
-						>
-							{week?.map((date, dateIndex) => {
-								const isSelected = moment(date)?.isSame(selectedDate, 'day');
-								const isCurrent = moment(date)?.isSame(moment(), 'day');
-								const isCurrentMonth = moment(date)?.isSame(
-									currentCalendarDate,
-									'month',
-								);
-
-								return (
-									<div
-										key={dateIndex}
-										className={`calendarDay ${
-											isCurrentMonth ? 'currentMonth' : 'otherMonth'
-										} ${isSelected ? 'selectedDay' : ''} ${
-											isCurrent ? 'currentDay' : ''
-										}`}
-										onClick={() =>
-											updateCalendarInfo('selectedDate', date?.toDate())
-										}
-									>
-										{date?.date()}
-									</div>
-								);
-							})}
+			<div className="calendarContainer">
+				{/* Day Names */}
+				{/* <div className="calendarDayNameGrid">
+					{['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su']?.map((day, index) => (
+						<div key={index} className="calendarDayName">
+							{day}
 						</div>
-					);
-				})}
+					))}
+				</div> */}
+
+				{/* Date Grid */}
+				<div className="dateContainer">
+					{chunkArray(daysInMonth)?.map((week, weekIndex) => {
+						const isSelectedWeek = week?.some((date) =>
+							moment(date)?.isSame(selectedDate, 'day'),
+						);
+
+						return (
+							<div
+								key={weekIndex}
+								className={`dateRow ${isSelectedWeek ? 'highlightedRow' : ''}`}
+							>
+								{week?.map((date, dateIndex) => {
+									const isSelected = moment(date)?.isSame(selectedDate, 'day');
+									const isCurrent = moment(date)?.isSame(moment(), 'day');
+									const isCurrentMonth = moment(date)?.isSame(
+										currentCalendarDate,
+										'month',
+									);
+
+									return (
+										<div
+											key={dateIndex}
+											className={`calendarDay ${
+												isCurrentMonth ? 'currentMonth' : 'otherMonth'
+											} ${isSelected ? 'selectedDay' : ''} ${
+												isCurrent ? 'currentDay' : ''
+											}`}
+											onClick={() =>
+												updateCalendarInfo('selectedDate', date?.toDate())
+											}
+										>
+											{date?.date()}
+										</div>
+									);
+								})}
+							</div>
+						);
+					})}
+				</div>
 			</div>
 		</div>
 	);

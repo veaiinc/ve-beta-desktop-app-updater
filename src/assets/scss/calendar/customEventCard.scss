@@ -75,7 +75,7 @@
 					align-items: center;
 					border-radius: 100px;
 
-					background-color: aqua;
+					background-color: #6055ec;
 					cursor: pointer;
 
 					&:hover {
@@ -114,7 +114,9 @@
 .rbc-events-container {
 	overflow-x: hidden;
 }
-
+.rbc-event.rbc-event-allday {
+	background: var(--card-over-card);
+}
 .customEventWrapper {
 	// border: 2px solid red;
 	height: fit-content;
@@ -124,12 +126,25 @@
 	font-style: normal;
 	font-weight: 500;
 	line-height: normal;
+	background: var(--card-over-card);
 	// letter-spacing: -0.24px;
-
+	.allDay {
+		color: var(--primary-font);
+		font-family: var(--primary-font-family);
+		font-size: 12px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
+		justify-content: center;
+		align-items: center;
+		display: flex;
+		width: 100%;
+		height: 100%;
+		padding-top: 8px;
+	}
 	// Target .rbc-event inside .customEventWrapper
 	.rbc-event {
 		border: none;
-		background: var(--card-over-card-hover);
 		padding: 8px 10px;
 		border: 1px solid var(--stroke);
 		min-width: 100%;

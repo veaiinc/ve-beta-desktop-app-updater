@@ -2,7 +2,6 @@
 	display: flex;
 	width: 100%;
 	max-height: 200px;
-	padding: 18px 24px;
 	padding-bottom: 0px;
 	flex-direction: column;
 	align-items: flex-start;
@@ -17,6 +16,8 @@
 		align-items: flex-start;
 		align-self: stretch;
 		flex: 1 0 0;
+		align-items: center;
+		justify-content: center;
 
 		.calendarControls {
 			display: flex;
@@ -44,12 +45,10 @@
 				padding: 5px;
 				align-items: flex-start;
 				gap: 10px;
-				border-radius: 8px;
-				background: var(--card);
 
 				.viewToggle {
 					display: flex;
-					width: 213px;
+					gap: 8px;
 					align-items: center;
 					text-transform: capitalize;
 
@@ -59,7 +58,8 @@
 						justify-content: center;
 						align-items: center;
 						gap: 10px;
-						flex: 1 0 0;
+						border-radius: 8px;
+						border: 1px solid var(--stroke);
 						cursor: pointer;
 
 						color: rgba(var(--primary-font), 0.48);
@@ -71,14 +71,16 @@
 					}
 
 					.active {
-						border-radius: 4px;
-						background: var(--card-over-card-hover);
+						border: 1px solid var(--primary-font);
+						border-radius: 8px;
 						color: var(--primary-font);
 						cursor: default;
 					}
 				}
 			}
-
+			.dayName {
+				color: var(--primary-font);
+			}
 			.calendarHeaderRight {
 				display: flex;
 				align-items: center;
@@ -176,6 +178,7 @@
 		.weekHeaderWrapper {
 			display: flex;
 			align-items: center;
+			justify-content: space-between;
 			gap: 4px;
 			flex: 1 0 0;
 			align-self: stretch;
@@ -192,7 +195,7 @@
 				user-select: none;
 
 				border-radius: 4px;
-				background: var(--card-over-card-hover);
+				// background: var(--card-over-card-hover);
 				display: flex;
 				height: 44px;
 				flex-direction: column;
@@ -200,17 +203,16 @@
 				align-items: center;
 				gap: 10px;
 				flex: 1 0 0;
+				border: 1px solid var(--stroke);
 
 				&:hover {
-					color: var(--primary-font);
+					border: 1px solid var(--primary-font);
 					border-radius: 8px;
 				}
 
 				span {
 					display: flex;
 					// width: 43px;
-					width: auto;
-					max-width: 170px;
 					flex-direction: column;
 					justify-content: center;
 					align-items: center;
@@ -238,7 +240,7 @@
 				gap: 8px;
 				flex: 1 0 0;
 				border-radius: 4px;
-				background: var(--card-over-card-hover);
+				border: 1px solid var(--stroke);
 
 				.weekDayWrapper {
 					display: flex;
@@ -267,11 +269,31 @@
 					}
 				}
 			}
-			.active {
-				background: var(--primary-font);
+			.divider {
+				color: var(--card);
+				align-items: center;
+				justify-content: center;
+				align-self: stretch;
+			}
+			.dayName {
+				color: var(--primary-font);
+			}
+			.date {
+				color: var(--secondary-font);
+			}
+			.inactive {
+				border: 1px solid var(--stroke);
 				span,
 				span:nth-child(2) {
-					color: var(--card);
+					color: var(--secondary-font);
+				}
+			}
+			.active {
+				border: 1px solid var(--primary-font);
+				span,
+				span:nth-child(2) {
+					color: var(--primary-font);
+					font-weight: 500;
 				}
 			}
 		}
