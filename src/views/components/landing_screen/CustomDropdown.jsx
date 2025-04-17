@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import '../../../assets/scss/landingScreen/contactus/customDropdown.scss';
+import { ReactComponent as ArrowDown } from '../../../assets/svg/CaretDown.svg';
 
 const CustomDropdown = ({ options, value, onChange, placeholder = 'Please select' }) => {
 	const [isOpen, setIsOpen] = useState(false);
@@ -38,7 +39,9 @@ const CustomDropdown = ({ options, value, onChange, placeholder = 'Please select
 				<span className={`custom-dropdown__toggle-value ${!value ? 'placeholder' : ''}`}>
 					{options.find((opt) => opt.value === value)?.label || placeholder}
 				</span>
-				<span className="custom-dropdown__toggle-arrow">{isOpen ? '▲' : '▼'}</span>
+				<span className="custom-dropdown__toggle-arrow">
+					<ArrowDown />
+				</span>
 			</div>
 
 			<div className={`custom-dropdown__menu ${isOpen ? 'open' : ''}`}>

@@ -1,7 +1,7 @@
 import { memo } from 'react';
 
-const TabNavigation = ({ tab, setTab, isVisible, handleCloseSidebar }) => {
-	const tabs = ['Home', 'Mission', 'For Investors', 'For Enterprise'];
+const TabNavigation = ({ tab, setTab, isVisible }) => {
+	const tabs = ['Home', 'For Investors', 'For Enterprise'];
 
 	return (
 		<ul className={`tabNavigation ${isVisible ? 'slide-in' : 'slide-out'}`}>
@@ -10,7 +10,6 @@ const TabNavigation = ({ tab, setTab, isVisible, handleCloseSidebar }) => {
 					className={index === tab ? 'active' : ''}
 					onClick={() => {
 						setTab(index);
-						handleCloseSidebar();
 					}}
 					key={index}
 				>

@@ -128,9 +128,9 @@ const LandingPage = () => {
 				</div>
 			</>
 		),
-		1: <div>Mission content goes here</div>, // Add your mission content
-		2: <ContactUs type="Investor" />,
-		3: <ContactUs type="Enterprise" />,
+
+		1: <ContactUs type="Investor" />,
+		2: <ContactUs type="Enterprise" />,
 	};
 
 	return (
