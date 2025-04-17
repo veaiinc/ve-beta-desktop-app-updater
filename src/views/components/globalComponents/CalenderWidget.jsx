@@ -62,8 +62,6 @@ const CalenderWidget = ({ width }) => {
 		}
 	};
 
-	console.log(allCalendarEvents, 'allCalendarEvents');
-
 	const handleCalendarClick = (meet) => {
 		setInfo((prev) => ({
 			...prev,

@@ -370,7 +370,6 @@ export const Calendar = () => {
 			let usertoken = localStorage.getItem('usertoken');
 			const url = `/${workspaceId}/calendar/combined-events?page=${page}&limit=${limit}`;
 			const response = await service.fetchPost(url, payload, usertoken, 'calendar_api');
-			console.log(response, 'response');
 			if (response?.[0] === true) {
 				dispatch({
 					type: Actions.GET_ALL_CALENDAR_EVENTS,
