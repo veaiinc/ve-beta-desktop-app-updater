@@ -341,7 +341,7 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 			setInfo((prev) => ({
 				...prev,
 				search: '',
-				fileterOptions: {
+				filteredOptions: {
 					suggestedOptions: accessibleOptions(suggestedOptions),
 					moduleOptions: accessibleOptions(moduleOptions),
 				},
