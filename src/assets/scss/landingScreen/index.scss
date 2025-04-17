@@ -7,7 +7,7 @@
 		inset: 0;
 		z-index: 998; // just below the tabNavigation z-index
 		backdrop-filter: blur(6px);
-		background-color: rgba(0, 0, 0, 0.4);
+		background-color: var(--background-color);
 		transition: opacity 0.3s ease;
 		opacity: 0;
 		pointer-events: none;
@@ -38,7 +38,7 @@
 		left: 0;
 		height: 100vh; // Take full viewport height
 		background-color: var(--background-color);
-		box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+		box-shadow: 0 4px 10px var(--stroke);
 		transition: transform 0.4s ease, opacity 0.4s ease, visibility 0s ease 0.4s;
 		opacity: 0;
 		transform: translateX(-100%);
@@ -182,7 +182,12 @@
 		}
 
 		.right-container {
-			display: none;
+			.theme-btn {
+				display: none;
+			}
+			.login-btn {
+				margin-left: 8px;
+			}
 		}
 	}
 }
@@ -311,6 +316,7 @@
 				text-decoration-thickness: auto;
 				text-underline-offset: auto;
 				text-underline-position: from-font;
+				cursor: pointer;
 			}
 		}
 	}
@@ -322,7 +328,7 @@
 			padding-top: 80px; // Add padding to account for fixed header
 			.title-one,
 			.title-two {
-				font-size: 34px !important;
+				font-size: 30px !important;
 			}
 		}
 	}

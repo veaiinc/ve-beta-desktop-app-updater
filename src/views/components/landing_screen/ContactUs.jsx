@@ -2,8 +2,10 @@ import React, { memo, useContext, useState } from 'react';
 import '../../../assets/scss/landingScreen/contactus/contactus.scss';
 import Context from '../../../context/context';
 import CustomDropdown from './CustomDropdown';
+import { useNavigate } from 'react-router-dom';
 
 const ContactUs = ({ type }) => {
+	const navigate = useNavigate();
 	const [formData, setFormData] = useState({
 		email: '',
 		firstName: '',
@@ -42,13 +44,24 @@ const ContactUs = ({ type }) => {
 		{ value: '', label: 'Please select' },
 		{ value: '1-10', label: '1-10' },
 		{ value: '11-50', label: '11-50' },
-		{ value: '51+', label: '51+' },
+		{ value: '51-200', label: '51-200' },
+		{ value: '201-500', label: '201-500' },
+		{ value: '501-1000', label: '501-1000' },
+		{ value: '1001-2000', label: '1001-2000' },
+		{ value: '2001-5000', label: '2001-5000' },
+		{ value: '5001-10000', label: '5001-10000' },
+		{ value: '10000+', label: '10000+' },
 	];
 
 	const headquartersOptions = [
 		{ value: '', label: 'Please select' },
-		{ value: 'Dubai', label: 'Dubai' },
+		{ value: 'United States', label: 'United States' },
 		{ value: 'India', label: 'India' },
+		{ value: 'Dubai', label: 'Dubai' },
+
+		{ value: 'United Kingdom', label: 'United Kingdom' },
+		{ value: 'Australia', label: 'Australia' },
+		{ value: 'Canada', label: 'Canada' },
 		{ value: 'Uganda', label: 'Uganda' },
 		{ value: 'South Africa', label: 'South Africa' },
 		{ value: 'Brazil', label: 'Brazil' },
@@ -144,7 +157,7 @@ const ContactUs = ({ type }) => {
 
 				<div className="grid">
 					<label>
-						Platform users
+						Employees
 						<CustomDropdown
 							options={platformOptions}
 							value={formData.platformUsers}
@@ -182,13 +195,19 @@ const ContactUs = ({ type }) => {
 					/>
 					<p>
 						I agree to VE sending me marketing communications, as described in the{' '}
-						<a href="#">
+						<span
+							className="privacy-policy-link"
+							onClick={() => navigate('/privacy-policy')}
+						>
 							<span>Privacy </span>
-						</a>
+						</span>
 						and{' '}
-						<a href="#">
+						<span
+							className="cookie-policy-link"
+							onClick={() => navigate('/cookie-policy')}
+						>
 							<span>Cookie policy</span>
-						</a>
+						</span>
 					</p>
 				</div>
 

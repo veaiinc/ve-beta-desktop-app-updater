@@ -68,12 +68,7 @@ const LandingPage = () => {
 				<div className="page-body">
 					<div className="title-container">
 						<div className="title-text">
-							<span className="title-one">AI.</span>{' '}
-							<span className="title-two">truly yours</span>
-						</div>
-						<div className="subtext">
-							A dedicated, continuously thinking Ai —for each of us.
-							<br /> Ask - Reason.Give it your goals—let it make you superhuman.
+							<span className="title-one">Answers before you ask!</span>
 						</div>
 					</div>
 					<div className="chatbox-container">
@@ -117,20 +112,23 @@ const LandingPage = () => {
 				<div className="page-footer">
 					<span>
 						By messaging Ve.ai, you agree to our{' '}
-						<a href="#" className="terms">
+						<span className="terms" onClick={() => navigate('/terms-of-service')}>
 							Terms
-						</a>{' '}
+						</span>{' '}
 						and have read our{' '}
-						<a href="#" className="privacy-policy">
+						<span
+							className="privacy-policy"
+							onClick={() => navigate('/privacy-policy')}
+						>
 							Privacy Policy.
-						</a>
+						</span>
 					</span>
 				</div>
 			</>
 		),
 
-		1: <ContactUs type="Investor" />,
-		2: <ContactUs type="Enterprise" />,
+		// 1: <ContactUs type="Investor" />,
+		1: <ContactUs type="Enterprise" />,
 	};
 
 	return (
@@ -152,9 +150,9 @@ const LandingPage = () => {
 						<SidebarIcon isActive={isSidebarOpen} />
 					</button>
 				</div>
-				<div className={`right-container ${isSidebarOpen ? 'hidden-on-mobile' : ''}`}>
+				<div className="right-container">
 					<button
-						className="theme-btn"
+						className={`theme-btn ${isSidebarOpen ? 'hidden-on-mobile' : ''}`}
 						onClick={() => updateTheme(newThemeValue, routeType)}
 					>
 						{theme === 'dark' ? <MoonSvg /> : <SunSvg />}
