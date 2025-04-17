@@ -192,6 +192,16 @@
 	}
 }
 
+.error-msg {
+	display: flex;
+	height: 40px;
+	color: red;
+	font-family: var(--primary-font-family);
+	font-size: 14px;
+	font-style: normal;
+	font-weight: 400;
+	margin-top: 5px;
+}
 @keyframes ShapDiv-animate {
 	0% {
 		transform: rotate(0);

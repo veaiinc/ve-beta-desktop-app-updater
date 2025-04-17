@@ -2,20 +2,18 @@ import React, { memo, useCallback, useState, useRef, useEffect, useContext } fro
 import '../../../assets/scss/chat/chat.scss';
 import { ReactComponent as ExpandChatIcon } from '../../../assets/svg/ai_agents/expand-chat-icon.svg';
 import Context from '../../../context/context';
-import { TypingEffect, UserMessageRenderer } from '../../../helpers/markdownHelper';
+import { UserMessageRenderer } from '../../../helpers/markdownHelper';
 import CitationsModal from '../../components/modalsV2/chat/CitationsModal';
 import NoteComponentModal from '../../components/notes/NoteComponentModal';
 import ChatBox from '../../components/homePage/ChatBox';
 import { useParams, useSearchParams } from 'react-router-dom';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import { FetchMoreLoaderComp, getLocationsDetails } from '../../../helpers';
+import { FetchMoreLoaderComp } from '../../../helpers';
 import { debounce } from 'lodash';
 import useChatStream from '../../hooks/useChatStream';
 import ObjectID from 'bson-objectid';
 import { ReactComponent as ArrowUpRightSvg } from '../../../assets/svg/sidebar/arrowupright.svg';
-import { ReactComponent as LinkIcon } from '../../../assets/svg/ai_agents/link.svg';
-import { ReactComponent as Logo } from '../../../assets/svg/loader/loaderLogo.svg';
-import ChainOfThought from '../../components/chat/chatComponents/ChainOfThought';
+import AIMessageRenderer from '../../components/chat/AIMessageRenderer';
 
 let throttleTimer = null;
 
@@ -52,7 +50,7 @@ const RecentChat = ({
 		inputExpanded: false,
 		bigToolbarIsOpen: false,
 		chatQuery: '',
-		position: { x: window.innerWidth / 2 - 900, y: 0 },
+		position: { x: window?.innerWidth / 2 - 900, y: 0 },
 		addQuickAction: false,
 		chatSessionId: null,
 		uploadedImages: [],
@@ -73,12 +71,10 @@ const RecentChat = ({
 		scrollExecuted: false,
 		previousAgentType: null,
 		showScrollButton: false,
-		activeTabs: {},
-		stickyTabs: {},
 		showViewDocument: false,
 	});
 
-	const { socketRef, createWebSocketConnection, sendMessage } = useChatStream();
+	const { createWebSocketConnection, sendMessage } = useChatStream();
 	const chatContentRef = useRef(null);
 	const loadingMessageRef = useRef(globalLoadingMesssage);
 	const chatMessagesRef = useRef(globalChatMessages || []);
@@ -95,9 +91,6 @@ const RecentChat = ({
 
 	useEffect(() => {
 		window.addEventListener('resize', handleResize);
-		if (leftSidebarState === 'open') {
-			updateStateValues({ leftSidebarState: 'close' });
-		}
 
 		handleResize(0);
 
@@ -231,24 +224,6 @@ const RecentChat = ({
 	}, [globalChatMessages, chatContentRef, info?.scrollExecuted]);
 
 	useEffect(() => {
-		// Set default active tab as 'response' for all AI messages
-		if (globalChatMessages?.length > 0) {
-			const defaultTabs = {};
-			globalChatMessages.forEach((message, index) => {
-				if (message?.type?.toLowerCase() === 'ai') {
-					if (message?.message?.length > 0 || message?.cot?.length === 0) {
-						defaultTabs[index] = 'response';
-					} else {
-						defaultTabs[index] = 'cot';
-					}
-				}
-			});
-			setInfo((prev) => ({
-				...prev,
-				activeTabs: defaultTabs,
-			}));
-		}
-
 		if (!chatContentRef?.current || !tabsRefs?.current) return;
 		previousTabsRefs.current = tabsRefs.current;
 		const observer = new IntersectionObserver(
@@ -355,6 +330,7 @@ const RecentChat = ({
 		// );
 		// aiMessagesRef.current.forEach((msg) => observer.observe(msg));
 
+		// smoothScrollToBottom();
 		// return () => {
 		// 	previousAiMessagesRef.current.forEach((msg) => observer.unobserve(msg));
 		// 	visibleMessagesSet.clear();
@@ -411,27 +387,6 @@ const RecentChat = ({
 			};
 		}
 	}, [handleScroll]);
-
-	const getFaviconUrl = useCallback((url) => {
-		try {
-			const domain = new URL(url).hostname;
-			return `https://www.google.com/s2/favicons?sz=64&domain=${domain}`;
-		} catch (error) {
-			return null;
-		}
-	}, []);
-
-	const getWebsiteName = useCallback((url) => {
-		try {
-			const domain = new URL(url).hostname;
-			// Remove common TLDs and www
-			let name = domain.replace(/^www\./i, '').split('.')[0];
-			// Capitalize first letter
-			return name.charAt(0).toUpperCase() + name.slice(1);
-		} catch (error) {
-			return url;
-		}
-	}, []);
 
 	const handleResize = (time = 300) => {
 		if (throttleTimer) return;
@@ -751,233 +706,26 @@ const RecentChat = ({
 															data-message-id={chat?.messageId}
 															data-index={index}
 														>
-															<div
-																className={`tabs-wrapper `}
-																ref={(el) => {
-																	if (el) {
-																		tabsRefs.current[
-																			chat?.messageId
-																		] = el;
-																	}
-																}}
-															>
-																<div className="user-message-wrapper">
-																	{globalChatMessages[
-																		index - 1
-																	]?.type?.toLowerCase() ===
-																		'user' && (
-																		<div className="user-message-content">
-																			{
-																				globalChatMessages[
-																					index - 1
-																				]?.message
-																			}
-																		</div>
-																	)}
-																</div>
-
-																<div className="tab-buttons">
-																	<div
-																		className={`tab-btn ${
-																			info?.activeTabs[
-																				index
-																			] === 'response'
-																				? 'active'
-																				: ''
-																		}`}
-																		onClick={() =>
-																			setInfo((prev) => ({
-																				...prev,
-																				activeTabs: {
-																					...prev.activeTabs,
-																					[index]:
-																						'response',
-																				},
-																			}))
-																		}
-																	>
-																		<Logo
-																			width={'24px'}
-																			height={'24px'}
-																		/>
-																		{chat?.processing ||
-																			'Answer'}
-																	</div>
-																	{chat?.cot?.length > 0 && (
-																		<div
-																			className={`tab-btn ${
-																				info?.activeTabs[
-																					index
-																				] === 'cot'
-																					? 'active'
-																					: ''
-																			}`}
-																			onClick={() =>
-																				setInfo((prev) => ({
-																					...prev,
-																					activeTabs: {
-																						...prev.activeTabs,
-																						[index]:
-																							'cot',
-																					},
-																				}))
-																			}
-																		>
-																			Chain of Thought
-																			<span className="citation-badge">
-																				{chat?.cot
-																					?.length || 0}
-																			</span>
-																		</div>
-																	)}
-																	{chat?.citations &&
-																		chat?.citations?.length >
-																			0 && (
-																			<div
-																				className={`tab-btn ${
-																					info
-																						?.activeTabs[
-																						index
-																					] === 'source'
-																						? 'active'
-																						: ''
-																				}`}
-																				onClick={() =>
-																					setInfo(
-																						(prev) => ({
-																							...prev,
-																							activeTabs:
-																								{
-																									...prev.activeTabs,
-																									[index]:
-																										'source',
-																								},
-																						}),
-																					)
-																				}
-																			>
-																				Sources
-																				<span className="citation-badge">
-																					{
-																						chat
-																							?.citations
-																							.length
-																					}
-																				</span>
-																			</div>
-																		)}
-																</div>
-															</div>
-															{info?.activeTabs[index] ==
-															'response' ? (
-																<TypingEffect
-																	text={chat?.message}
-																	messageId={chat?.messageId}
-																	customePencilClickFunc={
-																		handleNoteComponentModalOpen
-																	}
-																	handleRatingClick={
-																		handleRatingClick
-																	}
-																	rating={chat?.rating}
-																	citations={chat?.citations}
-																	messageData={chat}
-																	isNewMessage={
-																		index ===
-																		globalChatMessages?.length -
-																			1
-																	}
-																	handleSendWebsocketMessage={
-																		handleSendWebsocketMessage
-																	}
-																	latestStreamMesage={
-																		info?.latestStreamMesage
-																	}
-																	lastQuery={info?.lastQuery}
-																	toggleLatestStreamMessage={
-																		toggleLatestStreamMessage
-																	}
-																	handleViewDocument={
-																		handleViewDocument
-																	}
-																	showViewDocument={
-																		info?.showViewDocument
-																	}
-																	isLastMessage={
-																		index ===
-																		globalChatMessages?.length -
-																			1
-																	}
-																/>
-															) : info?.activeTabs[index] ===
-															  'cot' ? (
-																<ChainOfThought cot={chat?.cot} />
-															) : (
-																<div className="source-content">
-																	{chat?.citations &&
-																	chat?.citations.length > 0
-																		? chat?.citations.map(
-																				(citation, idx) => (
-																					<div
-																						key={
-																							citation.id ||
-																							idx
-																						}
-																						className="citation-item"
-																						onClick={() =>
-																							window.open(
-																								citation.name,
-																								'_blank',
-																							)
-																						}
-																					>
-																						<div className="citation-header">
-																							<div className="citation-icon">
-																								{getFaviconUrl(
-																									citation.name,
-																								) ? (
-																									<img
-																										src={getFaviconUrl(
-																											citation.name,
-																										)}
-																										alt="favicon"
-																										className="favicon-image"
-																									/>
-																								) : (
-																									<div className="company-icon">
-																										{getWebsiteName(
-																											citation.name,
-																										).charAt(
-																											0,
-																										)}
-																									</div>
-																								)}
-																							</div>
-																							<div className="citation-details">
-																								<div className="website-name">
-																									{getWebsiteName(
-																										citation.name,
-																									)}
-																								</div>
-																								<div className="citation-url">
-																									<LinkIcon className="link-icon" />
-																									{
-																										citation.name
-																									}
-																								</div>
-																								<div className="citation-title">
-																									{
-																										citation.snippet
-																									}
-																								</div>
-																							</div>
-																						</div>
-																					</div>
-																				),
-																		  )
-																		: null}
-																</div>
-															)}
+															<AIMessageRenderer
+																messageData={chat}
+																handleNoteComponentModalOpen={
+																	handleNoteComponentModalOpen
+																}
+																handleRatingClick={
+																	handleRatingClick
+																}
+																tabsRefs={tabsRefs}
+																index={index}
+																handleSendWebsocketMessage={
+																	handleSendWebsocketMessage
+																}
+																toggleLatestStreamMessage={
+																	toggleLatestStreamMessage
+																}
+																handleViewDocument={
+																	handleViewDocument
+																}
+															/>
 														</div>
 													) : (
 														<UserMessageRenderer
@@ -995,7 +743,7 @@ const RecentChat = ({
 								</div>
 							</InfiniteScroll>
 						</div>
-						{info.showScrollButton && (
+						{info?.showScrollButton && (
 							<button className="scroll-button" onClick={smoothScrollToBottom}>
 								<ArrowUpRightSvg className="arrow-up" />
 							</button>

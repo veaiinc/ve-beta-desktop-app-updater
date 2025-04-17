@@ -176,13 +176,15 @@ const actionHandlers = {
 		}
 		if (requiredIndex !== -1) {
 			let cot = [...(messages?.[requiredIndex]?.cot || [])];
-			if (payload?.sub_queries) {
+			if (payload?.sub_queries || payload?.refined_sub_queries) {
 				cot = [];
-				payload?.sub_queries?.forEach((subQuery) => {
-					cot.push({
-						sub_query: subQuery,
-					});
-				});
+				(payload?.sub_queries || payload?.refined_sub_queries || [])?.forEach(
+					(subQuery) => {
+						cot.push({
+							sub_query: subQuery,
+						});
+					},
+				);
 			}
 			if (payload?.sub_query) {
 				cot = cot?.map((item) => {
@@ -200,7 +202,7 @@ const actionHandlers = {
 				cot,
 			};
 		} else {
-			messages.push({
+			messages?.push({
 				...payload,
 				type: 'AI',
 				contentType: 'message',

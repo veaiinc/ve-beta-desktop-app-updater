@@ -46,7 +46,6 @@ import RecentChat from './views/features/chat/RecentChat';
 import AutomationBuilder from './views/features/automationBuilder/AutomationBuilder';
 import AutomationBuilderLayout from './views/layouts/automationBuilderLayout';
 import Automations from './views/features/automations/Automations';
-import Integrations from './views/features/integrationsList/Integrations';
 import BrandSetup from './views/features/settings/BrandSetup';
 import DocsFullView from './views/components/docs/DocsFullView';
 import FormFullView from './views/components/forms/FormFullView';
@@ -61,6 +60,7 @@ import EditKnowledgeAgent from './views/features/knowledgeAgent/EditAgent';
 import FormResCard from './views/components/forms/FormResCard';
 import FormAnalytics from './views/components/forms/FormAnalytics';
 import FormSummary from './views/components/forms/FormSummary';
+import Integrations from './views/features/integrationsList/Integrations';
 
 import SchedulerMainPage from './views/features/calendar/SchedulerMainPage';
 import EditScheduler from './views/features/calendar/EditScheduler';

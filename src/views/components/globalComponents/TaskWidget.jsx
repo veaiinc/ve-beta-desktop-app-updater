@@ -216,6 +216,10 @@ const TaskWidget = ({ width, height }) => {
 		}
 	};
 
+	const handlePromptPopup = (item) => {
+		setInfo((prev) => ({ ...prev, promptPopupOpen: true, selectedCard: item }));
+	};
+
 	const handleTaskClick = (tasks) => {
 		setInfo((prev) => ({
 			...prev,

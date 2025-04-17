@@ -20,10 +20,17 @@
 	}
 	.hover-actions-container {
 		display: flex;
-		gap: 18px;
 		flex-direction: row;
 		align-items: center;
+		justify-content: space-between;
 		visibility: hidden;
+		.left-container,
+		.right-container {
+			display: flex;
+			gap: 18px;
+			flex-direction: row;
+			align-items: center;
+		}
 
 		.icon-container {
 			cursor: pointer;

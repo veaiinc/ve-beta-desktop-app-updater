@@ -1,7 +1,18 @@
-import { memo } from 'react';
+import { memo, useMemo } from 'react';
 import '../../../../assets/scss/chat/chatComponents/chainOfThought.scss';
 
-const ChainOfThought = ({ cot }) => {
+const ChainOfThought = ({ cot, stream_end = false }) => {
+	const animationIndex = useMemo(() => {
+		let index = -1;
+		for (let i = cot?.length - 1; i >= 0; i--) {
+			if (cot[i]?.searching?.length > 0) {
+				index = i;
+				break;
+			}
+		}
+		return index;
+	}, [cot]);
+
 	return (
 		<div className="cot-wrapper">
 			<div className="cot-container">
@@ -12,7 +23,14 @@ const ChainOfThought = ({ cot }) => {
 							<div className="sub-query">{item?.sub_query}</div>
 							{item?.searching?.length > 0 && (
 								<div className="searching-source-container">
-									Searching Source :
+									<div
+										className={`text-container ${
+											!stream_end && index === animationIndex ? 'animate' : ''
+										}`}
+									>
+										Searching Source :
+									</div>
+
 									{item?.searching?.map((search, idx) => (
 										<div key={idx} className="search-item">
 											{search}

@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext, useEffect, memo } from 'react';
 import { ReactComponent as CancelTag } from '../../../../assets/svg/gallery/cancel_tag.svg';
 import Context from '../../../../context/context';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -24,11 +24,17 @@ const AddLables = ({ info, setinfo, searchParams }) => {
 			});
 		} else if (info?.selectedGalleryTags?.length === 0) {
 			// setinfo((prev) => ({ ...prev, selectedGalleryTags: tagsList?.list || [] }));
-			let selectedGalleryTags = tagsList?.list?.filter((tag) => tag.displayName === 'All');
-			if (searchParams.get('tag')) {
-				selectedGalleryTags.push(
-					tagsList?.list?.find((tag) => tag?.displayName === searchParams.get('tag')),
-				);
+			let selectedGalleryTags =
+				tagsList?.list?.filter((tag) => tag.displayName === 'All') || [];
+			const rawSearchTag = searchParams.get('tag');
+			const searchTag = rawSearchTag?.split('?')[0];
+			if (searchTag) {
+				const foundTag = tagsList?.list?.find((tag) => tag?.displayName === searchTag);
+				if (foundTag) {
+					selectedGalleryTags.push(foundTag);
+				} else {
+					message.warning(`Tag not found: ${searchTag}`);
+				}
 			}
 			setinfo((prev) => ({
 				...prev,
@@ -93,7 +99,7 @@ const AddLables = ({ info, setinfo, searchParams }) => {
 	const removeTagsFromSelectionList = (id) => {
 		setinfo((prev) => ({
 			...prev,
-			selectedGalleryTags: prev.selectedGalleryTags.filter((tag) => tag._id !== id),
+			selectedGalleryTags: prev?.selectedGalleryTags?.filter((tag) => tag?._id !== id),
 		}));
 	};
 
@@ -201,4 +207,4 @@ const AddLables = ({ info, setinfo, searchParams }) => {
 	);
 };
 
-export default AddLables;
+export default memo(AddLables);
