@@ -37,7 +37,7 @@
 					width: 68px;
 					.calenderWidgetDateContainerDay {
 						color: var(--primary-button, #b2ff00);
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 12px;
 						font-style: normal;
 						font-weight: 500;
@@ -45,7 +45,7 @@
 					}
 					.calenderWidgetDateContainerDate {
 						color: var(--primary-font, #f2f2f3);
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 40px;
 						font-style: normal;
 						font-weight: 300;
@@ -86,7 +86,7 @@
 								align-self: stretch;
 								.calenderWidgetMainContentMeetTitle {
 									color: var(--primary-font, #f2f2f3);
-									font-family: Inter;
+									font-family: var(--primary-font-family);
 									font-size: 13px;
 									font-style: normal;
 									font-weight: 600;
@@ -94,7 +94,7 @@
 								}
 								.calenderWidgetMainContentMeetTime {
 									color: var(--primary-button, #b2ff00);
-									font-family: Inter;
+									font-family: var(--primary-font-family);
 									font-size: 12px;
 									font-style: italic;
 									font-weight: 400;
@@ -127,7 +127,7 @@
 							align-self: stretch;
 							.calenderWidgetMainContentTime {
 								color: var(--primary-font, #f2f2f3);
-								font-family: Inter;
+								font-family: var(--primary-font-family);
 								font-size: 12px;
 								font-style: normal;
 								font-weight: 600;
@@ -149,7 +149,7 @@
 							flex: 1 0 0;
 							.meetingDetailsTitle {
 								color: var(--primary-font, #f2f2f3);
-								font-family: Inter;
+								font-family: var(--primary-font-family);
 								font-size: 13px;
 								font-style: normal;
 								font-weight: 600;
@@ -157,7 +157,7 @@
 							}
 							.meetingDetailsTime {
 								color: var(--secondary-font, #787e87);
-								font-family: Inter;
+								font-family: var(--primary-font-family);
 								font-size: 12px;
 								font-style: italic;
 								font-weight: 400;
@@ -175,7 +175,7 @@
 					flex: 1 0 0;
 					align-self: stretch;
 					color: var(--primary-font, #f2f2f3);
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 500;
@@ -190,7 +190,7 @@
 			align-self: stretch;
 			.calenderWidgetFooterTitle {
 				color: var(--primary-font, #f2f2f3);
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 500;
@@ -221,7 +221,7 @@
 				align-self: stretch;
 				.calenderWidgetSection2ItemTitle {
 					color: var(--secondary-font, #93989f);
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 500;
@@ -230,7 +230,7 @@
 			}
 			.calenderWidgetSection2ItemSubtitle {
 				color: var(--primary-font, #f2f2f3);
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 16px;
 				font-style: normal;
 				font-weight: 500;
