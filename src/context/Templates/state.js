@@ -107,7 +107,7 @@ export const intialState = {
 		deepResearch: false,
 		selectedLLMModel: null,
 		webSearch: false,
-		workspaceSearch: false,
+		workspaceSearch: true,
 		agentType: null,
 		assistantId: null,
 		reason: {

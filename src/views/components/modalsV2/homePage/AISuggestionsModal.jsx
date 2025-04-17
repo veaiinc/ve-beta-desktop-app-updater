@@ -129,7 +129,7 @@ const AISuggestionsModal = ({ open, onClose, data, onNextCardClick, onPrevCardCl
 					<div
 						className="chain-of-thought-container"
 						onClick={() =>
-							setInfo((prev) => ({ ...prev, isExpanded: !prev.isExpanded }))
+							setInfo((prev) => ({ ...prev, isExpanded: !prev?.isExpanded }))
 						}
 					>
 						<div className="cot-header">
