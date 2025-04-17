@@ -4,6 +4,7 @@ export const getTemmplatesQuery = gql`
 		templates(filters: $filters) {
 			currentPage
 			hasNextPage
+			totalDocs
 			data {
 				_id
 				moduleTemplates {
@@ -41,6 +42,7 @@ export const getTemmplatesQuery = gql`
 				slug
 				actionRequired
 				createdAt
+				updatedAt
 			}
 		}
 	}
@@ -232,6 +234,7 @@ export const getWorkflowListQuery = gql`
 		workflows(filters: $filters) {
 			currentPage
 			hasNextPage
+			totalDocs
 			data {
 				_id
 				title
@@ -259,6 +262,7 @@ export const getTemplatesListForCreateLeadQuery = gql`
 		templates(filters: $filters) {
 			currentPage
 			hasNextPage
+			totalDocs
 			data {
 				_id
 				title

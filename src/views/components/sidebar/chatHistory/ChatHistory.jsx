@@ -3,7 +3,7 @@ import React, { useContext, useEffect, memo, useCallback, useState, useRef } fro
 import '../../../../assets/scss/chats.scss';
 import Context from '../../../../context/context';
 import { FetchMoreLoaderComp } from '../../../../helpers';
-import InfiniteScroll from 'react-infinite-scroll-component';
+import InfiniteScroll from '../../../components/globalComponents/InfiniteScroll';
 import moment from 'moment';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ReactComponent as Search } from '../../../../assets/svg/sidebar/notifications/search.svg';
@@ -12,10 +12,9 @@ const infiniteScrollStyle = {
 	display: 'flex',
 	flexDirection: 'column',
 	alignItems: 'flex-start',
-	flex: '1 0 0',
 	alignSelf: 'stretch',
 	gap: '4px',
-	height: '38vh',
+	// height: '38vh',
 };
 const skeletonLoaders = Array.from({ length: 30 }, (_, index) => index + 1);
 const page = 1;
@@ -135,7 +134,8 @@ const ChatHistory = () => {
 						hasMore={hasNextPage || false}
 						loader={<FetchMoreLoaderComp wrapperStyle={{ width: '100%' }} />}
 						style={infiniteScrollStyle}
-						scrollableTarget="chatsScroll"
+						// scrollableTarget="chatsScroll"
+						height={'100%'}
 					>
 						{chats?.map((chat, index) => {
 							const dateGroup = getChatDateGroup(chat.createdAt);

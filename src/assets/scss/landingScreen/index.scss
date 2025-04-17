@@ -1,61 +1,216 @@
+.mobile-tabs-wrapper {
+	display: none; // hidden by default on larger screens
+
+	@media screen and (max-width: 500px) {
+		display: block;
+		position: fixed;
+		inset: 0;
+		z-index: 998; // just below the tabNavigation z-index
+		backdrop-filter: blur(6px);
+		background-color: rgba(0, 0, 0, 0.4);
+		transition: opacity 0.3s ease;
+		opacity: 0;
+		pointer-events: none;
+
+		&.open {
+			opacity: 1;
+			pointer-events: auto;
+		}
+	}
+}
+
+.page-header {
+	display: flex;
+	padding: 20px 40px;
+	justify-content: space-between;
+	align-items: center;
+	background: var(--background-color, #0c0c0d);
+	position: relative;
+
+	.tabNavigation {
+		display: flex;
+		width: 250px; // Increased width for better appearance
+		flex-direction: column;
+		align-items: flex-start; // Changed from center to flex-start
+		gap: 4px;
+		position: fixed; // Changed from absolute to fixed
+		top: 0; // Start from the top of the viewport
+		left: 0;
+		height: 100vh; // Take full viewport height
+		background-color: var(--background-color);
+		box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+		transition: transform 0.4s ease, opacity 0.4s ease, visibility 0s ease 0.4s;
+		opacity: 0;
+		transform: translateX(-100%);
+		pointer-events: none;
+		visibility: hidden;
+		padding-top: 104px; // Add padding at the top to position options at the same place
+		padding-left: 27px; // Keep the horizontal position the same
+		z-index: 999; // Ensure it's above other content
+
+		&.slide-in {
+			opacity: 1;
+			transform: translateX(0);
+			pointer-events: auto;
+			visibility: visible;
+			transition: transform 0.4s ease, opacity 0.4s ease, visibility 0s ease 0s;
+		}
+
+		&.slide-out {
+			opacity: 0;
+			transform: translateX(-100%);
+			pointer-events: none;
+			visibility: hidden;
+			transition: transform 0.4s ease, opacity 0.4s ease, visibility 0s ease 0.4s;
+		}
+
+		li {
+			color: var(--primary-font, #f2f2f3);
+			display: flex;
+			padding: 12px;
+			align-items: center;
+			gap: 10px;
+			width: calc(100% - 40px); // Adjust width to account for padding
+			cursor: pointer;
+			border-radius: 8px;
+			transition: background-color 0.2s ease;
+
+			&:hover {
+				background-color: var(--card-over-card-hover);
+			}
+		}
+
+		li.active {
+			background-color: var(--card-over-card-hover);
+		}
+	}
+
+	.left-container {
+		display: flex;
+		gap: 32px;
+		align-items: center;
+		z-index: 1000;
+
+		.sidebar-button {
+			background: transparent;
+			outline: none;
+			border: none;
+			cursor: pointer;
+
+			// Fixed position to maintain consistency
+			position: relative;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+		}
+	}
+
+	.right-container {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		gap: 10px;
+
+		&.hidden-on-mobile {
+			@media screen and (max-width: 500px) {
+				display: none; // Hide theme and login buttons on mobile when sidebar is open
+			}
+		}
+
+		.theme-btn {
+			display: flex;
+			width: 45px;
+			height: 45px;
+			padding: 12px;
+			justify-content: center;
+			align-items: center;
+			gap: 10px;
+			border-radius: 100px;
+			background: var(--card, #181a1b);
+			cursor: pointer;
+			border: none;
+		}
+
+		.login-btn {
+			display: flex;
+			padding: 14px 24px;
+			justify-content: center;
+			align-items: center;
+			gap: 10px;
+			border-radius: 100px;
+			background: var(--primary-button, #cfff48);
+			cursor: pointer;
+			border: none;
+		}
+	}
+
+	@media screen and (max-width: 500px) {
+		padding: 20px;
+		position: relative;
+		// Set a fixed height to prevent layout shifts
+		height: 80px;
+
+		.left-container {
+			gap: 16px;
+			flex: 1; // Allow left-container to take available space
+			justify-content: space-between; // Push sidebar-button to the right when needed
+			position: relative; // Added for positioning context
+
+			.sidebar-button {
+				order: 2; // Move sidebar-button to the end (right side)
+				// Apply fixed position relative to the container
+				position: absolute;
+				right: 0;
+				top: 50%;
+				transform: translateY(-50%);
+			}
+
+			// Ensure VeLogo stays on the left
+			svg:first-child {
+				order: 1;
+			}
+		}
+
+		// Ensure z-index remains high for sidebar button when open
+		.sidebar-button {
+			z-index: 1000;
+		}
+
+		.tabNavigation {
+			width: 80%;
+			padding-top: 80px; // Adjust top padding for mobile screens
+		}
+
+		.right-container {
+			display: none;
+		}
+	}
+}
+
+// Fix to prevent body content from shifting
 .landing-page-container {
-	height: 100dvh;
+	height: 100vh; // Use vh instead of dvh for better compatibility
 	width: 100%;
 	background-color: var(--background-color, #202124);
 	display: flex;
 	flex-direction: column;
-
-	.page-header {
-		display: flex;
-		padding: 20px 16px;
-		justify-content: space-between;
-		align-items: center;
-		background: var(--background-color, #0c0c0d);
-		.right-container {
-			display: flex;
-			justify-content: center;
-			align-items: center;
-			gap: 10px;
-			.theme-btn {
-				display: flex;
-				width: 45px;
-				height: 45px;
-				padding: 12px;
-				justify-content: center;
-				align-items: center;
-				gap: 10px;
-				border-radius: 100px;
-				background: var(--card, #181a1b);
-				cursor: pointer;
-				border: none;
-			}
-			.login-btn {
-				display: flex;
-				padding: 14px 24px;
-				justify-content: center;
-				align-items: center;
-				gap: 10px;
-				border-radius: 100px;
-				background: var(--primary-button, #cfff48);
-				cursor: pointer;
-				border: none;
-			}
-		}
-	}
+	overflow-x: hidden; // Prevent horizontal scroll
+	position: fixed; // Keep it fixed to prevent content shifting
+	top: 0;
+	left: 0;
 
 	.page-body {
 		display: flex;
 		width: 100%;
-		height: 302px;
 		flex-direction: column;
 		align-items: center;
 		justify-content: center;
-		gap: 32px;
+		gap: 30px;
 		flex-grow: 1;
 		flex-shrink: 0;
 		background: var(--background-color, #0c0c0d);
 		padding: 0 16px;
-		margin-bottom: 85px;
+		overflow-y: auto; // Allow vertical scrolling if needed
 
 		.title-container {
 			display: flex;
@@ -101,24 +256,73 @@
 			height: 110px;
 			position: relative;
 		}
+
+		.buttons-container {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			align-content: center;
+			gap: 8px;
+			align-self: stretch;
+			flex-wrap: wrap;
+
+			button {
+				display: flex;
+				padding: 8px 14px;
+				justify-content: center;
+				align-items: center;
+				gap: 6px;
+				border-radius: 100px;
+				border: 1px solid var(--stroke, #2c2d2e);
+				color: var(--secondary-font, #7a7e85);
+				text-align: center;
+				font-family: Inter;
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+				background-color: transparent;
+				cursor: pointer;
+			}
+		}
+	}
+
+	.page-footer {
+		text-align: center;
+		margin-bottom: 14px;
+		span {
+			color: var(--secondary-font, #7a7e85);
+			text-align: center;
+			font-family: Inter;
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 16px;
+			.terms,
+			.privacy-policy {
+				color: var(--primary-font, #f2f2f3);
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: 16px;
+				text-decoration-line: underline;
+				text-decoration-style: solid;
+				text-decoration-skip-ink: auto;
+				text-decoration-thickness: auto;
+				text-underline-offset: auto;
+				text-underline-position: from-font;
+			}
+		}
 	}
 }
 
 @media screen and (max-width: 500px) {
 	.landing-page-container {
 		.page-body {
-			margin-bottom: 140px;
+			padding-top: 80px; // Add padding to account for fixed header
 			.title-one,
 			.title-two {
 				font-size: 34px !important;
-			}
-
-			.chatbox-container {
-				position: absolute;
-				bottom: 16px;
-				left: 0;
-				margin: 0 16px;
-				width: calc(100% - 32px);
 			}
 		}
 	}
