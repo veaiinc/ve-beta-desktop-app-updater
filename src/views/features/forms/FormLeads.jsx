@@ -22,6 +22,7 @@ import FormAnalytics from '../../../views/components/forms/FormAnalytics';
 import FormDescription from '../../components/forms/FormDescription';
 import { ReactComponent as AiStar } from '../../../assets/svg/calendar/aiStar.svg';
 import moment from 'moment';
+import { DocsStatusButton, statusTextmapper } from '../docs/Docs';
 
 const FormLeads = () => {
 	const origin = fetchOriginSelection();
@@ -178,26 +179,13 @@ const FormLeads = () => {
 								<div className="header-left">
 									<h1 className="headerTitle">{formTitle}</h1>
 									<div className="liveoption">
-										<div
-											className={`liveBadge ${
-												formData?.status === 'published'
-													? 'live-badge--complete'
-													: 'live-badge--incomplete'
-											}`}
-										>
-											<span
-												className={`status-indicator status-indicator--${
-													formData?.status === 'published'
-														? 'published'
-														: 'draft'
-												}`}
-											/>
-											<span className="liveBadgeText">
-												{formData?.status === 'published'
-													? 'Live'
-													: 'Draft'}
-											</span>
-										</div>
+										<DocsStatusButton
+											content={statusTextmapper?.[formData?.status]?.text}
+											style={statusTextmapper?.[formData?.status]?.style}
+											dotStyle={
+												statusTextmapper?.[formData?.status]?.dotStyle
+											}
+										/>
 										<Tooltip
 											trigger={'click'}
 											open={info.tooltipVisible}
