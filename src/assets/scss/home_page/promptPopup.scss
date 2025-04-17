@@ -60,6 +60,29 @@
 			font-style: normal;
 			font-weight: 500;
 			line-height: 24px;
+			.promptPopupContainerBodyTextTooltip {
+				display: inline-flex;
+				flex-direction: row;
+				align-items: center;
+				gap: 4px;
+				padding: 4px 10px;
+				border-radius: 37px;
+				border: 1px solid var(--stroke);
+				background: var(--popup);
+			}
+		}
+		.promptPopupContainerEmailPromptContainer {
+			display: flex;
+			align-items: center;
+			gap: 4px;
+			.promptPopupContainerEmailPrompt {
+				color: var(--secondary-font, #797e86);
+				font-family: var(--primary-font-family, 'Inter');
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
 		}
 	}
 	.promptPopupContainerSelectedFilesDiv {

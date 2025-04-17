@@ -80,25 +80,38 @@
 				}
 			}
 			// Add these styles for the search container
-			.search-container {
-				width: 200px;
+			.searchContainer {
 				display: flex;
-				flex-direction: row;
-				justify-content: space-between;
+				gap: 10px;
+				padding: 12px 8px;
 				align-items: center;
-				border: 1px solid var(--stroke);
-				border-radius: 100px;
-				
-				.search-bar {
-					width: 80%;
-					border: none;
-					outline: none;
+				transition: width 0.3s ease;
+				overflow: hidden;
+				cursor: pointer;
+				input {
+					display: none;
 					background: transparent;
-					padding: 12px;
-					color: var(--secondary-font);
-					font-size: 14px;
-					font-weight: 400;
-					line-height: 16px;
+					border: none;
+					color: white;
+				}
+				svg {
+					path {
+						fill: var(--secondary-font);
+					}
+				}
+				&:hover {
+					background: var(--card, #171819);
+					box-shadow: 0px 0px 30px 0px rgba(122, 122, 122, 0.1);
+					border-radius: 100px;
+				}
+				&.expanded {
+					width: 200px;
+					border-radius: 100px;
+					border: 1px solid var(--stroke);
+					background: var(--card);
+					input {
+						display: block;
+					}
 				}
 			}
 			.filter-container {
