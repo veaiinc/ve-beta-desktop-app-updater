@@ -1,7 +1,18 @@
 .markdown-custom-content {
 	color: var(--primary-font);
-	font-size: 15px;
+	font-size: var(--font-size, 16px); /* Default to 16px if --font-size is not defined */
 	font-family: var(--primary-font-family);
+	--font-size: 16px;
+
+	span {
+		/* No changes needed */
+		font-family: var(--secondary-font-family);
+		font-size: calc(var(--font-size) * 0.9375); /* 0.9375em based on --font-size */
+		line-height: calc(var(--font-size) * 1.5);
+		letter-spacing: calc(var(--font-size) * 0.0125);
+		font-weight: 500;
+		color: var(--chat-secondary-font);
+	}
 
 	.markdown-image-wrapper {
 		display: flex;
@@ -16,143 +27,154 @@
 		}
 	}
 
-	.h1 {
-		font-size: 1.375em;
-		line-height: 2em;
-		letter-spacing: 0.0125em;
-		font-weight: 500;
-		margin-top: 1.5rem;
-		margin-bottom: 1rem;
-		color: var(--primary-font);
-	}
-
+	.h1,
 	.h2 {
-		font-size: 1.125em;
-		line-height: 1.75em;
-		letter-spacing: 0.0125em;
-		font-weight: 500;
-		margin-top: 1.5rem;
-		margin-bottom: 1rem;
 		color: var(--primary-font);
+		font-size: calc(var(--font-size) * 1.75); /* 1.75em based on --font-size */
+		line-height: calc(var(--font-size) * 2.375);
+		letter-spacing: calc(var(--font-size) * 0.0125);
+		font-weight: 600;
+		margin-bottom: calc(var(--font-size) * 1.25); /* 20px based on --font-size */
+		font-family: var(--secondary-font-family);
+		margin-top: calc(var(--font-size) * 1.25); /* 20px based on --font-size */
 	}
 
 	.h3 {
-		font-size: 1.25em;
-		line-height: 1.5em;
-		letter-spacing: 0.0125em;
-		font-weight: 500;
-		margin-top: 1.5rem;
-		margin-bottom: 1rem;
 		color: var(--primary-font);
+		font-size: calc(var(--font-size) * 1.5); /* 1.5em based on --font-size */
+		line-height: calc(var(--font-size) * 2.25);
+		letter-spacing: calc(var(--font-size) * 0.0125);
+		font-weight: 500;
+		margin-bottom: calc(var(--font-size) * 1.25); /* 20px based on --font-size */
+		font-family: var(--secondary-font-family);
+		margin-top: calc(var(--font-size) * 1.25); /* 20px based on --font-size */
 	}
+
 	.h4 {
-		font-size: 1.125em;
-		line-height: 1.75em;
-		letter-spacing: 0.0125em;
-		font-weight: 500;
-		margin-top: 1.5rem;
-		margin-bottom: 1rem;
 		color: var(--primary-font);
+		font-size: calc(var(--font-size) * 1.375); /* 1.375em based on --font-size */
+		line-height: calc(var(--font-size) * 2);
+		letter-spacing: calc(var(--font-size) * 0.0125);
+		font-weight: 500;
+		margin-bottom: calc(var(--font-size) * 1.25); /* 20px based on --font-size */
+		font-family: var(--secondary-font-family);
+		margin-top: calc(var(--font-size) * 1.25); /* 20px based on --font-size */
 	}
 
 	.h5 {
-		font-size: 1.125em;
-		line-height: 1.75em;
-		letter-spacing: 0.0125em;
-		font-weight: 500;
-		margin-top: 1.5rem;
-		margin-bottom: 1rem;
 		color: var(--primary-font);
+		font-size: calc(var(--font-size) * 1.125); /* 1.125em based on --font-size */
+		line-height: calc(var(--font-size) * 1.75);
+		letter-spacing: calc(var(--font-size) * 0.0125);
+		font-weight: 500;
+		margin-bottom: calc(var(--font-size) * 0.75); /* 12px based on --font-size */
+		font-family: var(--secondary-font-family);
+		margin-top: calc(var(--font-size) * 0.75); /* 12px based on --font-size */
 	}
 
 	.h6 {
-		font-size: 1.125em;
-		line-height: 1.75em;
-		letter-spacing: 0.0125em;
-		font-weight: 500;
-		margin-top: 1.5rem;
-		margin-bottom: 1rem;
 		color: var(--primary-font);
+		font-size: calc(var(--font-size) * 0.9375); /* 0.9375em based on --font-size */
+		line-height: calc(var(--font-size) * 1.5);
+		letter-spacing: calc(var(--font-size) * 0.0125);
+		font-weight: 500;
+		margin-bottom: calc(var(--font-size) * 0.75); /* 12px based on --font-size */
+		font-family: var(--secondary-font-family);
+		margin-top: calc(var(--font-size) * 0.75); /* 12px based on --font-size */
 	}
 
 	.p {
-		font-size: 0.9375em;
-		line-height: 1.5em;
-		letter-spacing: 0.0125em;
-		font-weight: 500;
 		color: var(--primary-font);
+		font-size: calc(var(--font-size) * 0.9375); /* 0.9375em based on --font-size */
+		line-height: calc(var(--font-size) * 1.5);
+		letter-spacing: calc(var(--font-size) * 0.0125);
+		font-weight: 500;
+		margin-bottom: calc(var(--font-size) * 0.75); /* 12px based on --font-size */
+		font-family: var(--secondary-font-family);
 	}
 
 	.pre {
-		padding: 1em;
+		padding: calc(var(--font-size) * 0.0625); /* 1px based on --font-size */
 		overflow: auto;
-		font-size: 0.85em;
+		font-size: calc(var(--font-size) * 0.85); /* 0.85em based on --font-size */
 		line-height: 1.45;
 		background-color: var(--card);
-		border-radius: 0.375em;
-		margin-bottom: 1em;
+		border-radius: calc(var(--font-size) * 0.0234375); /* 0.375em based on --font-size */
+		font-family: var(--secondary-font-family);
 	}
 
 	.hr {
-		margin-bottom: 0.5em;
+		height: calc(var(--font-size) * 0.0625); /* 1px based on --font-size */
+		background-color: rgba(44, 46, 49, 1);
 	}
 
 	.ol,
 	.ul {
 		list-style-position: outside;
-		padding-left: 2ch;
-		margin-bottom: 1em;
+		padding-left: calc(var(--font-size) * 1.25); /* 2ch based on --font-size */
+		margin-bottom: calc(var(--font-size) * 0.0625); /* 1em based on --font-size */
+		font-size: calc(var(--font-size) * 0.9375); /* 0.9375em based on --font-size */
+		line-height: calc(var(--font-size) * 1.5);
+		letter-spacing: calc(var(--font-size) * 0.0125);
+		font-weight: 500;
+		font-family: var(--secondary-font-family);
 	}
 
 	.li {
-		margin-bottom: 0.8125em;
 		list-style-type: disc;
-
-		color: #c2c2c9;
-		font-family: Manrope;
-		font-size: 0.9375em;
-		font-style: normal;
+		color: var(--chat-secondary-font);
+		font-family: var(--secondary-font-family);
+		font-size: calc(var(--font-size) * 0.9375); /* 0.9375em based on --font-size */
+		line-height: calc(var(--font-size) * 1.5);
+		letter-spacing: calc(var(--font-size) * 0.0125);
 		font-weight: 500;
-		line-height: 1.6;
-		letter-spacing: 0.0133em;
+		margin-bottom: calc(var(--font-size) * 0.75); /* 12px based on --font-size */
 	}
 
 	.span {
 		color: var(--primary-font);
-		letter-spacing: -0.02em;
+		letter-spacing: calc(var(--font-size) * -0.02);
 		font-weight: 300;
+		font-family: var(--secondary-font-family);
 	}
 
 	.strong {
-		font-weight: 600;
 		color: var(--primary-font);
+		font-size: calc(var(--font-size) * 0.9375); /* 0.9375em based on --font-size */
+		line-height: calc(var(--font-size) * 1.5);
+		letter-spacing: calc(var(--font-size) * 0.0125);
+		font-weight: 800;
+		font-family: var(--secondary-font-family);
 	}
 
 	.a {
-		font-weight: 600;
 		color: var(--primary-font);
+		font-size: calc(var(--font-size) * 0.9375); /* 0.9375em based on --font-size */
+		line-height: calc(var(--font-size) * 1.5);
+		letter-spacing: calc(var(--font-size) * 0.0125);
+		font-weight: 400;
+		font-family: var(--secondary-font-family);
 	}
 
 	.table-container {
 		max-width: 100%;
 		overflow-x: auto;
-		margin: 1rem 0;
-		border-radius: 16px;
+		border-radius: calc(var(--font-size) * 1); /* 16px based on --font-size */
 		background-color: var(--card);
 		border: 1px solid transparent;
 
 		&::-webkit-scrollbar {
-			height: 6px;
+			height: calc(var(--font-size) * 0.375); /* 6px based on --font-size */
 		}
 
 		&::-webkit-scrollbar-track {
 			background: var(--card);
-			border-radius: 3px;
+			border-radius: calc(var(--font-size) * 0.1875); /* 3px based on --font-size */
 		}
 
 		&::-webkit-scrollbar-thumb {
 			background: var(--card);
-			border-radius: 3px;
+			border-radius: calc(var(--font-size) * 0.1875); /* 3px based on --font-size */
 
 			&:hover {
 				background: var(--card-hover);
@@ -163,15 +185,14 @@
 			border-collapse: separate;
 			border-spacing: 0;
 			width: 100%;
-			margin: 1rem 0;
-			padding: 0px 16px;
-			width: 100%;
+			padding: 0px calc(var(--font-size) * 1); /* 16px based on --font-size */
 
 			th {
 				color: var(--primary-font);
-				font-weight: 500;
 				text-align: left;
 				border-bottom: 1px solid var(--stroke);
+				font-weight: 600;
+				font-family: var(--secondary-font-family);
 			}
 
 			tr {
@@ -182,10 +203,15 @@
 
 			th,
 			td {
-				padding: 0.5rem 1rem;
+				padding: calc(var(--font-size) * 0.3125) calc(var(--font-size) * 0.625); /* 5px and 10px based on --font-size */
 				border: none;
 				border-top: 1px solid var(--stroke);
 				color: var(--primary-font);
+				font-size: calc(var(--font-size) * 0.875); /* 0.875em based on --font-size */
+				line-height: calc(var(--font-size) * 1.25);
+				letter-spacing: calc(var(--font-size) * 0.0125);
+				font-weight: 500;
+				font-family: var(--secondary-font-family);
 			}
 
 			th {

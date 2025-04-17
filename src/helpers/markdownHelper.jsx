@@ -218,7 +218,11 @@ const NonMemoizedMarkdown = ({ children, citations }) => {
 			components={components}
 			className="markdown-custom-content"
 		>
-			{children}
+			{children
+				?.replace(/(?<!\\)\$/g, '\\$')
+				?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')
+				?.replace(/\\\((.*?)\\\)/g, '$$$1$$')
+				?.replace(/\\n/g, '\n')}
 		</ReactMarkdown>
 	);
 };
@@ -379,7 +383,7 @@ export const TypingEffect = memo(
 					<AISuggestionsReportAiComponent data={messageData?.data} />
 				) : (
 					<Markdown citations={citations}>
-						{text?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')?.replace(/\\n/g, '\n')}
+						{text}
 						{/* {newText?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')?.replace(/\\n/g, '\n')} */}
 						{/* {chunkRef?.current?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')?.replace(/\\n/g, '\n')} */}
 					</Markdown>

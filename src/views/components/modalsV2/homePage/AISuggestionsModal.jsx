@@ -167,11 +167,7 @@ const AISuggestionsModal = ({ open, onClose, data, onNextCardClick, onPrevCardCl
 						<div className="report-header">
 							<div className="report-title">Report</div>
 							<div className="report-description">
-								<Markdown>
-									{(research_report || '')
-										?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')
-										?.replace(/\\n/g, '\n')}
-								</Markdown>
+								<Markdown>{research_report || ''}</Markdown>
 							</div>
 						</div>
 					</div>

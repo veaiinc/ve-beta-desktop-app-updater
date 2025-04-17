@@ -7,11 +7,7 @@ const AiSuggestionsReportAiComponent = ({ data }) => {
 	const { research_report } = data;
 	return (
 		<div className="ai-suggestions-report-ai-component">
-			<Markdown>
-				{(research_report || '')
-					?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')
-					?.replace(/\\n/g, '\n')}
-			</Markdown>
+			<Markdown>{research_report || ''}</Markdown>
 		</div>
 	);
 };
