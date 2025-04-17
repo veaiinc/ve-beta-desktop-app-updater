@@ -33,6 +33,16 @@ import useUpdatedVoiceIntegration from '../../hooks/useUpdatedVoiceIntegration';
 import { message } from '../globalComponents/CustomToast';
 import SearchTypeTooltip from '../chat/SearchTypeTooltip';
 
+const chatboxPlaceholders = [
+	'Start typing or use @ to mention a source.',
+	'Summarize all emails from today',
+	'Schedule a meeting for next week',
+	'Draft and send a follow-up email',
+	'Deep research “latest industry trends” with sources',
+	'Generate a professional-looking form in seconds',
+	'Search across Gmail, Drive, and Notion for “invoice”',
+];
+
 const moduleHelper = {
 	tasks: 'tasks',
 	'smart-file': 'form_filling',
@@ -121,6 +131,14 @@ const ChatBox = ({
 	autoFocus = true,
 	isParentHeaderMinimized = false,
 }) => {
+	const textAreaRef = useRef(null);
+	const placeholderRef = useRef(null);
+	const placeholderTimeoutId = useRef(null);
+	const placeholderIntervalId = useRef(null);
+	const location = useLocation();
+
+	const { handleConnect } = useUpdatedVoiceIntegration();
+
 	const {
 		templates: {
 			globalChatMessages,
@@ -144,10 +162,6 @@ const ChatBox = ({
 		aiSetup: { voiceIntegrationData },
 	} = useContext(Context);
 
-	const { handleConnect } = useUpdatedVoiceIntegration();
-
-	const location = useLocation();
-
 	const [info, setInfo] = useState({
 		bigToolbarIsOpen: false,
 		chatQuery: '',
@@ -170,13 +184,48 @@ const ChatBox = ({
 		isVoiceMuted: false,
 		isLLMModelOpen: false,
 		searchTypeOpen: false,
+		activePlaceholderIndex: 0,
+		animatePlaceholder: false,
 	});
 
 	const [previewOpen, setPreviewOpen] = useState(false);
 	const [previewImage, setPreviewImage] = useState('');
-	const textAreaRef = useRef(null);
 	const uploadedImagesRef = useRef(info?.uploadedImages || []);
 	const recentFilesRef = useRef(info?.recentFiles || []);
+
+	const showPlaceholder = info?.chatQuery?.length === 0;
+
+	useEffect(() => {
+		if (
+			!chatInfo?.agentType ||
+			(location?.pathname?.split('/')?.[1] !== 'chat' &&
+				location?.pathname?.split('/')?.[1] !== 'knowledge-agent' &&
+				chatInfo?.agentType === 'knowledge_agent')
+		) {
+			updateStateValues({
+				chatInfo: { ...chatInfo, agentType: 'multi_agent', assistantId: null },
+			});
+		}
+	}, []);
+
+	useEffect(() => {
+		if (showPlaceholder) {
+			placeholderIntervalId.current = setInterval(() => {
+				setInfo((prev) => {
+					const nextIndex =
+						prev?.activePlaceholderIndex === chatboxPlaceholders?.length - 1
+							? 0
+							: prev?.activePlaceholderIndex + 1;
+					return {
+						...prev,
+						activePlaceholderIndex: nextIndex,
+					};
+				});
+			}, 3000);
+		} else {
+			clearTimeout(placeholderIntervalId.current);
+		}
+	}, [showPlaceholder]);
 
 	useEffect(() => {
 		if (activePromptForChat) {
@@ -191,19 +240,6 @@ const ChatBox = ({
 			updateStateValues({ galleryFile: null });
 		}
 	}, [galleryFile]);
-
-	useEffect(() => {
-		if (
-			!chatInfo?.agentType ||
-			(location?.pathname?.split('/')?.[1] !== 'chat' &&
-				location?.pathname?.split('/')?.[1] !== 'knowledge-agent' &&
-				chatInfo?.agentType === 'knowledge_agent')
-		) {
-			updateStateValues({
-				chatInfo: { ...chatInfo, agentType: 'multi_agent', assistantId: null },
-			});
-		}
-	}, []);
 
 	useEffect(() => {
 		if (isParentHeaderMinimized) {
@@ -1064,16 +1100,46 @@ const ChatBox = ({
 												)}
 											</div>
 										)}
-										<textarea
-											type="text"
-											placeholder="Ask me anything or type @ to add sources."
-											value={info?.chatQuery}
-											onChange={handleTextAreaChange}
-											autoFocus={autoFocus}
-											onKeyDown={handleSendMessageFunc}
-											className="textArea"
-											ref={textAreaRef}
-										/>
+										<div className="placeholderContainer">
+											<textarea
+												type="text"
+												value={info?.chatQuery}
+												onChange={handleTextAreaChange}
+												autoFocus={autoFocus}
+												onKeyDown={handleSendMessageFunc}
+												className="textArea"
+												ref={textAreaRef}
+											/>
+											{showPlaceholder && (
+												<div className="placeholderWindow">
+													<div
+														className="placeholderList"
+														style={{
+															transform: `translateY(-${
+																info?.activePlaceholderIndex * 20 +
+																info?.activePlaceholderIndex
+															}px)`,
+															transition:
+																info?.activePlaceholderIndex === 0
+																	? 'transform 0s ease-in-out'
+																	: 'transform 0.3s ease-in-out',
+														}}
+													>
+														{chatboxPlaceholders?.map(
+															(placeholder, idx) => (
+																<p
+																	key={idx}
+																	ref={placeholderRef}
+																	className="placeholder"
+																>
+																	{placeholder}
+																</p>
+															),
+														)}
+													</div>
+												</div>
+											)}
+										</div>
 									</div>
 									<div className="options-container">
 										{info?.showFilters ? (
