@@ -556,7 +556,7 @@ const OpenedSidebar = ({
 												display: 'flex',
 												flexDirection: 'column',
 												width: '211px',
-												overflowY: 'auto',
+												// overflowY: 'auto',
 											}}
 											id="chatsScroll"
 										>
