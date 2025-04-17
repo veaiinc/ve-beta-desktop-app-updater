@@ -72,7 +72,7 @@ const InitialHomePage = () => {
 		minimized: false,
 	});
 
-	let {
+	const {
 		aiSetup: { getPromptsData, promptsData },
 		templates: { aiSuggestedPendingActions, getAISuggestedPendingActions },
 	} = useContext(Context);
@@ -243,7 +243,7 @@ const InitialHomePage = () => {
 	};
 
 	const componentMapper = {
-		proactiveSuggestions: <ProactiveSuggestions />,
+		proactiveSuggestions: <ProactiveSuggestions selectedOption={info?.selectedOption} />,
 		prompts: (
 			<ChatPrompts
 				promptsCategory={info?.promptsCategory}

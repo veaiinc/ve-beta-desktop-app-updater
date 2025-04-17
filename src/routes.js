@@ -551,7 +551,7 @@ const routes = [
 			<AuthWrapper
 				title={'Chat'}
 				showBottomToolbar={false}
-				outerContainerStyle={{ paddingRight: '0px' }}
+				outerContainerStyle={{ paddingRight: '0px', backgroundColor: '' }}
 				authParentContainerStyle={{ backgroundColor: 'var(--background-color)' }}
 				maxWidth="100%"
 			>

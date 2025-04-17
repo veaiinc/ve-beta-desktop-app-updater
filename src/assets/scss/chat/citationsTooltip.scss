@@ -1,20 +1,21 @@
 .citation-tooltip-header {
-	padding: 5px 10px;
-	flex-direction: column;
-	color: var(--primary-font);
-	font-family: var(--primary-font-family);
-	font-size: 12px;
-	font-style: normal;
-	font-weight: 500;
-	line-height: normal;
-	border-radius: 100px;
-	background: var(--card);
-	transition: all 0.2s ease-in-out;
-	cursor: pointer;
+	padding: 5px 12px !important;
+	flex-direction: column !important;
+	color: var(--secondary-font) !important;
+	font-family: var(--primary-font-family) !important;
+	font-size: 10px !important;
+	font-style: normal !important;
+	font-weight: 500 !important;
+	line-height: normal !important;
+	border-radius: 100px !important;
+	background: var(--card) !important;
+	transition: all 0.2s ease-in-out !important;
+	cursor: pointer !important;
 	&:hover {
-		background: var(--card);
-		color: var(--card);
+		background: var(--card) !important;
+		color: var(--card) !important;
 	}
+	margin-left: 6px !important;
 }
 
 .citation-tooltip-wrapper {
