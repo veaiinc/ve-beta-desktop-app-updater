@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect, useCallback } from 'react';
+import React, { useState, useContext, useEffect, useCallback, useRef } from 'react';
 import '../../../assets/scss/globalComponents/calenderWidget.scss';
 import { ReactComponent as PlusIcon } from '../../../assets/svg/calendar/plus.svg';
 import { useNavigate } from 'react-router-dom';
@@ -38,6 +38,53 @@ const CalenderWidget = ({ width }) => {
 	const eventsLength = allCalendarEvents?.data?.length ?? 0;
 	const eventsNextPage = allCalendarEvents?.hasNextPage;
 	const eventsCurrentPage = allCalendarEvents?.currentPage || 1;
+
+	const eventRefs = useRef([]);
+
+	useEffect(() => {
+		const observer = new IntersectionObserver(
+			(entries) => {
+				const visibleEntry = entries.find((entry) => entry.isIntersecting);
+				if (visibleEntry) {
+					const dateStr = visibleEntry.target.getAttribute('data-date');
+					const date = new Date(dateStr);
+					setInfo((prev) => ({
+						...prev,
+						currentDate: date.getDate(),
+						currentDay: date.toLocaleDateString('en-US', { weekday: 'long' }),
+					}));
+				}
+			},
+			{
+				root: document.querySelector('.calenderWidgetMainContent'),
+				rootMargin: '0px 0px -80% 0px', // Trigger early
+				threshold: 0.1,
+			},
+		);
+
+		eventRefs.current.forEach((ref) => {
+			if (ref) observer.observe(ref);
+		});
+
+		return () => {
+			eventRefs.current.forEach((ref) => {
+				if (ref) observer.unobserve(ref);
+			});
+		};
+	}, [allCalendarEvents?.data]);
+
+	const groupEventsByDateArray = (events = []) => {
+		const grouped = events.reduce((acc, event) => {
+			const date = new Date(event.startDateTime).toISOString().split('T')[0];
+			acc[date] = acc[date] || [];
+			acc[date].push(event);
+			return acc;
+		}, {});
+
+		return Object.entries(grouped).map(([date, data]) => ({ date, data }));
+	};
+
+	const groupedEventsArray = groupEventsByDateArray(allCalendarEvents?.data);
 
 	useEffect(() => {
 		const sessionId = ObjectId().toString();
@@ -113,19 +160,18 @@ const CalenderWidget = ({ width }) => {
 		[info?.eventsList],
 	);
 
-	console.log(allCalendarEvents, 'testing');
 	return (
 		<div className="calender-main-container" style={{ width: width, height: '412px' }}>
 			<div className="calenderWidgetContainer">
 				<div className="calenderWidgetMain">
-					<div className="calenderWidgetDateContainer">
+					{/* <div className="calenderWidgetDateContainer">
 						<div className="calenderWidgetDateContainerDayContainer">
 							<div className="calenderWidgetDateContainerDay">{info?.currentDay}</div>
 							<div className="calenderWidgetDateContainerDate">
 								{info?.currentDate}
 							</div>
 						</div>
-					</div>
+					</div> */}
 					<div
 						className="calenderWidgetMainContent"
 						style={{
@@ -141,48 +187,94 @@ const CalenderWidget = ({ width }) => {
 								height={350}
 							>
 								<div className="calenderWidgetMainContentDate">
-									{allCalendarEvents?.data?.map((meet) => (
-										<div
-											className="calenderWidgetMainContentDateMeet"
-											onClick={() => handleCalendarClick(meet)}
-											style={{ cursor: 'pointer' }}
-										>
-											<div className="calenderWidgetMainContentDateMeetTime">
-												<span className="calenderWidgetMainContentTime">
-													{new Date(
-														meet?.startDateTime,
-													).toLocaleTimeString([], {
-														hour: '2-digit',
-														minute: '2-digit',
-														hour12: true,
-													})}
-												</span>
-												<span className="calenderWidgetMainLine"></span>
-											</div>
-											<div className="meetingDetails">
-												<div className="meetingDetailsTitle">
-													{meet?.title}
+									{groupedEventsArray?.map((meet, index) => (
+										<>
+											<div
+												key={meet?.date}
+												className="calendarWidgetDayGroup"
+											>
+												<div className="calendarWidgetStickyDate">
+													<div className="calenderWidgetDateContainer">
+														<div className="calenderWidgetDateContainerDayContainer">
+															<div className="calenderWidgetDateContainerDay">
+																{new Date(
+																	meet?.date,
+																).toLocaleDateString(undefined, {
+																	weekday: 'long',
+																})}
+															</div>
+															<div className="calenderWidgetDateContainerDate">
+																{new Date(
+																	meet?.date,
+																).toLocaleDateString(undefined, {
+																	day: '2-digit',
+																	// month: '2-digit',
+																})}
+															</div>
+														</div>
+													</div>
 												</div>
-												<div className="meetingDetailsTime">
-													{new Date(
-														meet?.startDateTime,
-													).toLocaleTimeString([], {
-														hour: '2-digit',
-														minute: '2-digit',
-														hour12: true,
-													})}{' '}
-													-
-													{new Date(meet?.endDateTime).toLocaleTimeString(
-														[],
-														{
-															hour: '2-digit',
-															minute: '2-digit',
-															hour12: true,
-														},
-													)}
+												<div
+													className="calendarWidgetDayGroupContent"
+													style={{
+														display: 'flex',
+														flexDirection: 'column',
+														width: '100%',
+														gap: '12px',
+													}}
+												>
+													{meet?.data.map((eachMeet) => (
+														<div
+															key={eachMeet.id}
+															ref={(el) =>
+																(eventRefs.current[index] = el)
+															}
+															data-date={eachMeet?.startDateTime}
+															className="calenderWidgetMainContentDateMeet"
+															onClick={() =>
+																handleCalendarClick(eachMeet)
+															}
+															style={{ cursor: 'pointer' }}
+														>
+															<div className="calenderWidgetMainContentDateMeetTime">
+																<span className="calenderWidgetMainContentTime">
+																	{new Date(
+																		eachMeet?.startDateTime,
+																	).toLocaleTimeString([], {
+																		hour: '2-digit',
+																		minute: '2-digit',
+																		hour12: true,
+																	})}
+																</span>
+																<span className="calenderWidgetMainLine"></span>
+															</div>
+															<div className="meetingDetails">
+																<div className="meetingDetailsTitle">
+																	{eachMeet?.title}
+																</div>
+																<div className="meetingDetailsTime">
+																	{new Date(
+																		eachMeet?.startDateTime,
+																	).toLocaleTimeString([], {
+																		hour: '2-digit',
+																		minute: '2-digit',
+																		hour12: true,
+																	})}{' '}
+																	-
+																	{new Date(
+																		eachMeet?.endDateTime,
+																	).toLocaleTimeString([], {
+																		hour: '2-digit',
+																		minute: '2-digit',
+																		hour12: true,
+																	})}
+																</div>
+															</div>
+														</div>
+													))}
 												</div>
 											</div>
-										</div>
+										</>
 									))}
 								</div>
 							</InfiniteScroll>

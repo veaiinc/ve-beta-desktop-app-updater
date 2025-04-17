@@ -34,6 +34,7 @@
 					flex-direction: column;
 					align-items: center;
 					align-self: stretch;
+					width: 68px;
 					.calenderWidgetDateContainerDay {
 						color: var(--primary-button, #b2ff00);
 						font-family: Inter;
@@ -63,40 +64,42 @@
 				align-self: stretch;
 				height: 350px;
 				overflow: auto;
+
 				.infinite-scroll-component__outerdiv {
 					width: 100%;
-
-					.calenderWidgetMainContentTitleContainer {
-						display: flex;
-						padding: 10px 12px;
-						flex-direction: column;
-						align-items: flex-start;
-						gap: 12px;
-						align-self: stretch;
-						border-radius: 12px;
-						background: var(--card-over-card, #202123);
-						.calenderWidgetMain {
+					.calenderWidgetMainContentDate {
+						.calenderWidgetMainContentTitleContainer {
 							display: flex;
-							padding: 6px;
+							padding: 10px 12px;
 							flex-direction: column;
 							align-items: flex-start;
-							gap: 4px;
+							gap: 12px;
 							align-self: stretch;
-							.calenderWidgetMainContentMeetTitle {
-								color: var(--primary-font, #f2f2f3);
-								font-family: Inter;
-								font-size: 13px;
-								font-style: normal;
-								font-weight: 600;
-								line-height: normal;
-							}
-							.calenderWidgetMainContentMeetTime {
-								color: var(--primary-button, #b2ff00);
-								font-family: Inter;
-								font-size: 12px;
-								font-style: italic;
-								font-weight: 400;
-								line-height: normal;
+							border-radius: 12px;
+							background: var(--card-over-card, #202123);
+							.calenderWidgetMain {
+								display: flex;
+								padding: 6px;
+								flex-direction: column;
+								align-items: flex-start;
+								gap: 4px;
+								align-self: stretch;
+								.calenderWidgetMainContentMeetTitle {
+									color: var(--primary-font, #f2f2f3);
+									font-family: Inter;
+									font-size: 13px;
+									font-style: normal;
+									font-weight: 600;
+									line-height: normal;
+								}
+								.calenderWidgetMainContentMeetTime {
+									color: var(--primary-button, #b2ff00);
+									font-family: Inter;
+									font-size: 12px;
+									font-style: italic;
+									font-weight: 400;
+									line-height: normal;
+								}
 							}
 						}
 					}
@@ -129,7 +132,7 @@
 								font-style: normal;
 								font-weight: 600;
 								line-height: normal;
-								width: 37%;
+								width: 50%;
 							}
 							.calenderWidgetMainLine {
 								width: 100%;
@@ -235,4 +238,17 @@
 			}
 		}
 	}
+}
+.calendarWidgetDayGroup {
+	display: flex;
+	flex-direction: row;
+	align-items: flex-start;
+	gap: 12px;
+	align-self: stretch;
+}
+.calendarWidgetStickyDate {
+	position: sticky;
+	top: 0;
+	left: 0;
+	z-index: 100;
 }
