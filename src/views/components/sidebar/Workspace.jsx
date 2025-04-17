@@ -96,7 +96,7 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 					domain: host,
 				});
 			}
-			window.location.reload();
+			window.location.href = '/home';
 		},
 		[userWorkSpaceList],
 	);

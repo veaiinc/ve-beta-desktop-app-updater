@@ -50,9 +50,12 @@ const actionHandlers = {
 		...state,
 		calendarEventDetails: action?.payload,
 	}),
-	GET_CALENDAR_ALL_EVENTS: (state, action) => ({
+	GET_ALL_CALENDAR_EVENTS: (state, action) => ({
 		...state,
-		allCalendarEvents: action?.payload,
+		allCalendarEvents: {
+			...action?.payload,
+			data: [...(state?.allCalendarEvents?.data || []), ...(action?.payload?.data || [])],
+		},
 	}),
 
 	RESET_CALENDAR_AI_CHAT: (state) => ({
