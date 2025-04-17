@@ -747,6 +747,185 @@ export const TemplatesState = (props) => {
 		}
 	};
 
+	const sendContactFormData = async (formData) => {
+		const {
+			email,
+			firstName,
+			lastName,
+			companyName,
+			jobTitle,
+			platformUsers,
+			headquarters,
+			message: inputMessage,
+			marketingConsent,
+			type,
+		} = formData;
+
+		try {
+			const body = {
+				responseInput: {
+					response: [
+						{
+							_id: '67fcfbbcbfcf70d43e4f3585',
+							type: 'email',
+							question: 'Work Email',
+							required: true,
+							order: 1,
+							isEditing: false,
+							placeholder: 'Work Email',
+							answer: email,
+							validation: {
+								pattern: {},
+								operators: [],
+							},
+							conditions: [],
+							actions: [],
+						},
+						{
+							_id: '67fcfbbcbfcf70d43e4f3586',
+							type: 'shortanswer',
+							question: 'First Name',
+							required: true,
+							order: 2,
+							isEditing: false,
+							placeholder: 'First Name',
+							answer: firstName,
+							validation: {
+								pattern: {},
+								operators: [],
+							},
+							conditions: [],
+							actions: [],
+						},
+						{
+							_id: '67fcfbbcbfcf70d43e4f3587',
+							type: 'shortanswer',
+							question: 'Last Name',
+							required: true,
+							order: 3,
+							isEditing: false,
+							placeholder: 'Last Name',
+							answer: lastName,
+							validation: {
+								pattern: {},
+								operators: [],
+							},
+							conditions: [],
+							actions: [],
+						},
+						{
+							_id: '67fcfbbcbfcf70d43e4f3588',
+							type: 'shortanswer',
+							question: 'Company Name',
+							required: true,
+							order: 4,
+							isEditing: false,
+							placeholder: 'Company Name',
+							answer: companyName,
+							validation: {
+								pattern: {},
+								operators: [],
+							},
+							conditions: [],
+							actions: [],
+						},
+						{
+							_id: '67fcfbbcbfcf70d43e4f3589',
+							type: 'shortanswer',
+							question: 'Job Title',
+							required: true,
+							order: 5,
+							isEditing: false,
+							placeholder: 'Job Title',
+							answer: jobTitle,
+							validation: {
+								pattern: {},
+								operators: [],
+							},
+							conditions: [],
+							actions: [],
+						},
+						{
+							_id: '67fcfbbcbfcf70d43e4f358a',
+							type: 'shortanswer',
+							question: 'Platform Users',
+							required: false,
+							order: 6,
+							isEditing: false,
+							placeholder: 'Platform Users',
+							answer: platformUsers,
+							validation: {
+								pattern: {},
+								operators: [],
+							},
+							conditions: [],
+							actions: [],
+						},
+						{
+							_id: '67fcfbbcbfcf70d43e4f358b',
+							type: 'shortanswer',
+							question: 'Company Headquarters',
+							required: false,
+							order: 7,
+							isEditing: false,
+							placeholder: 'Company Headquarters',
+							answer: headquarters,
+							validation: {
+								pattern: {},
+								operators: [],
+							},
+							conditions: [],
+							actions: [],
+						},
+						{
+							_id: '67fcfbbcbfcf70d43e4f358c',
+							type: 'longanswer',
+							question: 'Tell us more about how you want to use VE.AI',
+							required: false,
+							order: 8,
+							isEditing: false,
+							placeholder: 'Tell us more about how you want to use VE.AI',
+							answer: inputMessage,
+							validation: {
+								pattern: {},
+								operators: [],
+							},
+							conditions: [],
+							actions: [],
+						},
+						{
+							_id: '67fcfbe9bfcf70d43e4f3592',
+							type: 'dropdown',
+							question: 'Type',
+							required: true,
+							order: 1,
+							isEditing: false,
+							placeholder: 'Type',
+							answer: type,
+							validation: {
+								pattern: {},
+								operators: [],
+							},
+							conditions: [],
+							actions: [],
+						},
+					],
+				},
+			};
+
+			const token = null;
+
+			const url =
+				'/veai/67fcfbbcbfcf70d43e4f358d/67fcfbbcbfcf70d43e4f358e/67fcfbbcbfcf70d43e4f3584';
+
+			const response = await Service.fetchPost(url, body, token, 'workflow');
+
+			message?.success(response[1]?.message);
+		} catch (error) {
+			console.log(error);
+		}
+	};
+
 	const createLeadfromTemplates = async (payload) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
@@ -2211,5 +2390,6 @@ export const TemplatesState = (props) => {
 		getConnectedThirdParties,
 		getFormResponse,
 		getAISuggestedPendingActions,
+		sendContactFormData,
 	};
 };
