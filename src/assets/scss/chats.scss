@@ -19,7 +19,8 @@
 }
 .chats-drawer-container {
 	width: 210px;
-
+	flex-grow: 1;
+	overflow-y: auto;
 	.header {
 		padding: 24px;
 		display: flex;
@@ -43,7 +44,8 @@
 	.chats-container {
 		display: flex;
 		flex-direction: column;
-		height: 43vh;
+		// height: 43vh;
+		height: 100%;
 		// height: calc(100vh - 70px);
 		// height: 63vh;
 		width: 210px;
