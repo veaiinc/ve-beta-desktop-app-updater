@@ -56,8 +56,6 @@ const FormResCard = ({
 		}
 	}, [selectedResponse, responses, handleCardClick]);
 
-	console.log(x);
-
 	const fetchInitialResponses = async () => {
 		try {
 			setLoading(true);
@@ -189,12 +187,8 @@ const FormResCard = ({
 		const phone = getPhone(response);
 
 		if (actionName === 'Call' && phone) {
-			console.log(`Calling ${phone}`);
-			// Here you can implement the actual call functionality
 			window.location.href = `tel:${phone}`;
 		} else if (actionName === 'Mail' && email) {
-			console.log(`Emailing ${email}`);
-			// Here you can implement the actual email functionality
 			window.location.href = `mailto:${email}`;
 		} else {
 			console.log(`No ${actionName.toLowerCase()} data available for ${getName(response)}`);

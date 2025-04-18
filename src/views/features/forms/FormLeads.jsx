@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useMemo, useState, useContext } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useState, useContext, useRef } from 'react';
 import '../../../assets/scss/forms/formLeads.scss';
 import { ReactComponent as BackArrowSvg } from '../../../assets/svg/workflow/backarrow.svg';
 import { ReactComponent as CurlyBracesSvg } from '../../../assets/svg/docs/curly-bracess.svg';
@@ -15,7 +15,7 @@ import { message } from '../../components/globalComponents/CustomToast';
 import { fetchOriginSelection } from '../../../helpers';
 import QuickActions from '../../components/globalComponents/QuickActions';
 import { ReactComponent as ThreeDots } from '../../../assets/svg/workflow/threeDots.svg';
-import { Switch, Tooltip } from 'antd';
+import { Switch, Tooltip, Input } from 'antd';
 import FormResponsesMenuItem from './FormResponsesMenuItem';
 import FormSummary from '../../../views/components/forms/FormSummary';
 import FormAnalytics from '../../../views/components/forms/FormAnalytics';
@@ -28,6 +28,7 @@ import { ReactComponent as Download } from '../../../assets/svg/download.svg';
 import FilterPopUp from '../../components/globalComponents/FilterPopUp';
 import DropDown from '../../components/dropDown/tasks/DropDown';
 import Context from '../../../context/context';
+import PropTypes from 'prop-types';
 
 const FormLeads = () => {
 	const origin = fetchOriginSelection();
@@ -35,11 +36,32 @@ const FormLeads = () => {
 	const location = useLocation();
 	const { id } = useParams();
 	const {
-		templates: { getFormResponse },
+		templates: {
+			getFormResponse,
+			deleteWorkflowTemplates,
+			duplicateGlobalWorkflowTemplate,
+			updateWorkflowTemplate,
+		},
+		profileInfo: { tennantSettingsData },
 	} = useContext(Context);
-	const [formData, setFormData] = useState(location?.state?.formData);
+	const [formData, setFormData] = useState(() => {
+		const initialData = location?.state?.formData;
+		if (!initialData || !initialData._id) {
+			message.error('Form not found');
+			navigate(-1);
+			return null;
+		}
+		return initialData;
+	});
 	const activeWorkspaceId = localStorage.getItem('workspaceId');
-	const copyCode = `${activeWorkspaceId}.ve.ai/${formData?.slug}`;
+	const copyLinkUrl = useMemo(() => {
+		if (!activeWorkspaceId || !formData?.slug) return '';
+		if (tennantSettingsData?.customDomain?.length) {
+			return `https://${tennantSettingsData?.customDomain}/${formData?.slug}`;
+		} else {
+			return `https://${activeWorkspaceId}.ve.ai/${formData?.slug}`;
+		}
+	}, [activeWorkspaceId, formData?.slug, tennantSettingsData?.customDomain]);
 	const [expandedCard, setExpandedCard] = useState(null);
 	const [selectedResponse, setSelectedResponse] = useState(null);
 	const [sortOrder, setSortOrder] = useState('date-desc');
@@ -47,24 +69,6 @@ const FormLeads = () => {
 		setSelectedResponse(response);
 		setExpandedCard(index);
 	}, []);
-
-	useEffect(() => {
-		const fetchFormData = async () => {
-			if (!formData && id) {
-				try {
-					const response = await getFormResponse({ formId: id });
-					if (response && response._id) {
-						setFormData(response);
-					}
-				} catch (error) {
-					console.error('Error fetching form data:', error);
-					message.error('Failed to fetch form data');
-				}
-			}
-		};
-
-		fetchFormData();
-	}, [id, formData, getFormResponse]);
 
 	const [info, setInfo] = useState({
 		searchExpand: false,
@@ -80,12 +84,17 @@ const FormLeads = () => {
 		tooltipVisible: false,
 		dataEnrichment: false,
 		latestUpdateTime: null,
+		isEditingTitle: false,
+		editTitleValue: '',
 	});
+
 	const [formTitle, setFormTitle] = useState(formData?.title);
 	const [summaryData, setSummaryData] = useState({
 		formData: { responses: [], total: 0, submitted: 0 },
 		questions: [],
 	});
+
+	const debounceTimeoutRef = useRef(null);
 
 	useEffect(() => {
 		if (formData?.title) {
@@ -184,8 +193,7 @@ const FormLeads = () => {
 	);
 
 	const handleEditDesign = useCallback(() => {
-		const editUrl = `${origin}/${formData?._id}`;
-		window.open(editUrl, '_blank');
+		window.location.href = `${origin}/${formData?._id}`;
 	}, [origin, formData?._id]);
 
 	const handleThreeDotsClick = useCallback(() => {
@@ -195,23 +203,23 @@ const FormLeads = () => {
 	const handleDeleteForm = useCallback(
 		async (formId) => {
 			try {
-				message.success('Form deleted successfully');
-				navigate(-1);
+				const payload = {
+					deleteTemplateId: formId,
+				};
+				const response = await deleteWorkflowTemplates(payload);
+				if (response?.[0]) {
+					message.success('Form deleted successfully');
+					navigate(-1);
+				} else {
+					message.error('Failed to delete form. Please try again.');
+				}
 			} catch (error) {
-				message.error('Failed to delete form');
+				console.error('Error deleting form:', error);
+				message.error('Failed to delete form. Please try again.');
 			}
 		},
-		[navigate],
+		[navigate, deleteWorkflowTemplates],
 	);
-
-	const handleRenameForm = useCallback(async (newTitle) => {
-		try {
-			setFormTitle(newTitle);
-			message.success('Form renamed successfully');
-		} catch (error) {
-			message.error('Failed to rename form');
-		}
-	}, []);
 
 	const handleDataEnrichmentToggle = useCallback((checked) => {
 		setInfo((prev) => ({ ...prev, dataEnrichment: checked }));
@@ -223,12 +231,110 @@ const FormLeads = () => {
 		return moment.unix(response.createdAt).fromNow();
 	};
 
+	const handleDuplicateForm = useCallback(async () => {
+		try {
+			if (!formData?._id) {
+				throw new Error('Form ID is missing');
+			}
+			const payload = {
+				templateId: formData._id,
+				title: `Copy of ${formData.title}`,
+			};
+			const response = await duplicateGlobalWorkflowTemplate(payload);
+			if (response?.[0]) {
+				message.success('Form duplicated successfully');
+				window.location.href = `${origin}/${response?.[1]?._id}`;
+			} else {
+				message.error('Failed to duplicate form. Please try again.');
+			}
+		} catch (error) {
+			console.error('Error duplicating form:', error);
+			message.error('Failed to duplicate form. Please try again.');
+		}
+	}, [formData?._id, formData?.title, duplicateGlobalWorkflowTemplate]);
+
+	const handleTitleClick = useCallback(() => {
+		setInfo((prev) => ({
+			...prev,
+			isEditingTitle: true,
+			editTitleValue: formTitle,
+		}));
+	}, [formTitle]);
+
+	const debouncedUpdateTitle = useCallback(
+		(newTitle) => {
+			if (debounceTimeoutRef.current) {
+				clearTimeout(debounceTimeoutRef.current);
+			}
+
+			debounceTimeoutRef.current = setTimeout(async () => {
+				try {
+					const payload = {
+						templateId: formData._id,
+						updateObj: {
+							title: newTitle,
+						},
+					};
+					const response = await updateWorkflowTemplate(payload);
+					if (response?.[0]) {
+						// Create a new formData object with updated title
+						const updatedFormData = { ...formData, title: newTitle };
+						// Update both states
+						setFormData(updatedFormData);
+						setFormTitle(newTitle);
+						message.success('Form renamed successfully');
+						console.log('updatedFormData', updatedFormData);
+						console.log('formData', formData);
+					} else {
+						message.error('Failed to rename form. Please try again.');
+					}
+				} catch (error) {
+					console.error('Error renaming form:', error);
+					message.error('Failed to rename form. Please try again.');
+				}
+			}, 1000); // 1 second debounce
+		},
+		[formData, updateWorkflowTemplate],
+	);
+
+	const handleTitleChange = useCallback(
+		(e) => {
+			const newTitle = e.target.value;
+			setInfo((prev) => ({ ...prev, editTitleValue: newTitle }));
+			debouncedUpdateTitle(newTitle);
+		},
+		[debouncedUpdateTitle],
+	);
+
+	const handleTitleBlur = useCallback(() => {
+		if (!info.editTitleValue.trim()) {
+			message.error('Form title cannot be empty');
+			return;
+		}
+		setInfo((prev) => ({ ...prev, isEditingTitle: false }));
+	}, [info.editTitleValue]);
+
+	const handleTitleKeyDown = useCallback((e) => {
+		if (e.key === 'Escape') {
+			setInfo((prev) => ({ ...prev, isEditingTitle: false }));
+		}
+	}, []);
+
+	// Cleanup debounce timeout on unmount
+	useEffect(() => {
+		return () => {
+			if (debounceTimeoutRef.current) {
+				clearTimeout(debounceTimeoutRef.current);
+			}
+		};
+	}, []);
+
 	const handleFormResponsesMenu = useCallback(
 		(action) => {
 			switch (action) {
 				case 'copyLink':
 					navigator.clipboard
-						.writeText(copyCode)
+						.writeText(copyLinkUrl)
 						.then(() => {
 							message.success('Form link copied successfully');
 						})
@@ -237,21 +343,19 @@ const FormLeads = () => {
 						});
 					break;
 				case 'deleteForm':
-					setInfo((prev) => ({
-						...prev,
-						deleteWorkflowModal: true,
-						deleteTemplateData: { _id: formData?._id },
-					}));
+					handleDeleteForm(formData?._id);
 					break;
 				case 'duplicateForm':
-					// Implement duplicate form functionality
-					message.info('Duplicate form functionality coming soon');
+					handleDuplicateForm();
+					break;
+				case 'renameForm':
+					setInfo((prev) => ({ ...prev, isEditingTitle: true }));
 					break;
 				default:
 					break;
 			}
 		},
-		[copyCode, formData?._id],
+		[copyLinkUrl, formData?._id, handleDeleteForm, handleDuplicateForm],
 	);
 
 	const handleSummaryDataUpdate = useCallback((data) => {
@@ -408,15 +512,41 @@ const FormLeads = () => {
 		}
 	}, [info, formTitle, summaryData]);
 
+	useEffect(() => {
+		let isMounted = true;
+		const fetchFormData = async () => {
+			if (!formData && id) {
+				try {
+					const response = await getFormResponse({ formId: id });
+					if (isMounted && response && response._id) {
+						setFormData(response);
+					}
+				} catch (error) {
+					console.error('Error fetching form data:', error);
+					message.error('Failed to fetch form data');
+				}
+			}
+		};
+
+		fetchFormData();
+		return () => {
+			isMounted = false;
+		};
+	}, [id, getFormResponse]);
+
 	return (
-		<div className="formLeadsParentContainer">
+		<div className="formLeadsParentContainer" role="main">
 			<div className="formWrapper">
 				<div className="formEnquiryContainer">
 					<div className="formContainer">
 						<div className="headerContainer">
 							<div className="backBtnContainer">
-								<span className="backBtn" onClick={() => navigate(-1)}>
-									<BackArrowSvg />
+								<span
+									className="backBtn"
+									onClick={() => navigate(-1)}
+									aria-label="Go back to previous page"
+								>
+									<BackArrowSvg aria-hidden="true" />
 									<span>Back</span>
 								</span>
 							</div>
@@ -424,7 +554,20 @@ const FormLeads = () => {
 						<div className="detailsContainer">
 							<div className="headerContainer">
 								<div className="header-left">
-									<h1 className="headerTitle">{formTitle}</h1>
+									{info.isEditingTitle ? (
+										<Input
+											className="title-input"
+											value={info.editTitleValue}
+											onChange={handleTitleChange}
+											onBlur={handleTitleBlur}
+											onKeyDown={handleTitleKeyDown}
+											autoFocus
+										/>
+									) : (
+										<h1 className="headerTitle" onClick={handleTitleClick}>
+											{formTitle}
+										</h1>
+									)}
 									<div className="liveoption">
 										<DocsStatusButton
 											content={statusTextmapper?.[formData?.status]?.text}
@@ -433,24 +576,6 @@ const FormLeads = () => {
 												statusTextmapper?.[formData?.status]?.dotStyle
 											}
 										/>
-										{/* <Tooltip
-											trigger={'click'}
-											open={info.tooltipVisible}
-											onOpenChange={handleThreeDotsClick}
-											placement={'bottomRight'}
-											arrow={false}
-											color="transparent"
-											title={
-												<FormResponsesMenuItem
-													formId={formData?._id}
-													copyLink={copyCode}
-													onDelete={handleDeleteForm}
-													onRename={handleRenameForm}
-												/>
-											}
-										>
-											<ThreeDots className="three-dots-icon" />
-										</Tooltip> */}
 									</div>
 								</div>
 							</div>
@@ -641,6 +766,42 @@ const FormLeads = () => {
 			</div>
 		</div>
 	);
+};
+
+FormLeads.propTypes = {
+	location: PropTypes.shape({
+		state: PropTypes.shape({
+			formData: PropTypes.shape({
+				_id: PropTypes.string,
+				title: PropTypes.string,
+				slug: PropTypes.string,
+				status: PropTypes.string,
+			}),
+		}),
+	}),
+	templates: PropTypes.shape({
+		getFormResponse: PropTypes.func.isRequired,
+		deleteWorkflowTemplates: PropTypes.func.isRequired,
+		duplicateGlobalWorkflowTemplate: PropTypes.func.isRequired,
+		updateWorkflowTemplate: PropTypes.func.isRequired,
+	}).isRequired,
+	profileInfo: PropTypes.shape({
+		tennantSettingsData: PropTypes.object,
+	}).isRequired,
+};
+
+// Add type definitions for the context
+const FormContext = PropTypes.shape({
+	templates: PropTypes.shape({
+		getFormResponse: PropTypes.func.isRequired,
+		deleteWorkflowTemplates: PropTypes.func.isRequired,
+		duplicateGlobalWorkflowTemplate: PropTypes.func.isRequired,
+		updateWorkflowTemplate: PropTypes.func.isRequired,
+	}).isRequired,
+});
+
+FormLeads.contextTypes = {
+	templates: FormContext,
 };
 
 export default memo(FormLeads);

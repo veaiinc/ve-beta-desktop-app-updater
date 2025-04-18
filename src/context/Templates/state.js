@@ -42,6 +42,7 @@ import {
 	getFormResponseQuery,
 	getFormResponseSummaryQuery,
 	getFormResponseAnalyticsQuery,
+	updateWorkflowTemplateQuery,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -2353,6 +2354,26 @@ export const TemplatesState = (props) => {
 		}
 	};
 
+	const updateWorkflowTemplate = async (payload) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				updateWorkflowTemplateQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+			if (response?.[0]) {
+				return response;
+			} else {
+				return response;
+			}
+		} catch (error) {
+			console.log('error==>updateWorkflowTemplate', error);
+		}
+	};
 	return {
 		...state,
 		getMyWorkflows,
@@ -2434,5 +2455,6 @@ export const TemplatesState = (props) => {
 		getFormResponse,
 		getAISuggestedPendingActions,
 		sendContactFormData,
+		updateWorkflowTemplate,
 	};
 };

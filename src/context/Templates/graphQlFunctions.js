@@ -529,3 +529,12 @@ export const getFormResponseAnalyticsQuery = gql`
 		formResponseAnalytics(filter: $filter)
 	}
 `;
+
+export const updateWorkflowTemplateQuery = gql`
+	mutation UpdateWorkflowTemplate($templateId: ID!, $updateObj: TemplateUpdateObj!) {
+		updateWorkflowTemplate(templateId: $templateId, updateObj: $updateObj) {
+			_id
+			title
+		}
+	}
+`;

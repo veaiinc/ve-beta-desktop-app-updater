@@ -203,7 +203,7 @@ const FormsGrid = ({
 								<div
 									className="card-item"
 									key={index}
-									onClick={() => handleNavigateForm(form?._id)}
+									onClick={() => handleNavigateForm(form)}
 								>
 									<div className="card-item-style content-wrapper docs">
 										<DocsStatusButton
