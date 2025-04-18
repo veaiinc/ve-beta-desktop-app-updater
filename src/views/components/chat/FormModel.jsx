@@ -261,7 +261,7 @@ const Section2 = ({ workflowTemplateId: workflowTemplateIdFromProps }) => {
 		<div className="section-content">
 			{showIframe && (
 				<iframe
-					src={`https://builder.ve.co/${workflowTemplateIdFromProps}`}
+					src={`${origin}/${workflowTemplateIdFromProps}`} //dont change to fixed url only use origin
 					title="Builder Preview"
 					onClick={(e) => e.stopPropagation()}
 					onMouseDown={(e) => e.stopPropagation()}
