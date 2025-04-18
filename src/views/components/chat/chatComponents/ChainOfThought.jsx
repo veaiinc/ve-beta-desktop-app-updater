@@ -28,7 +28,7 @@ const ChainOfThought = ({ cot, stream_end = false }) => {
 											!stream_end && index === animationIndex ? 'animate' : ''
 										}`}
 									>
-										Searching Source :
+										Searching :
 									</div>
 
 									{item?.searching?.map((search, idx) => (

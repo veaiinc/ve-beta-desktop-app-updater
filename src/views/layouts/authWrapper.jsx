@@ -20,6 +20,7 @@ const AuthWrapper = ({
 	showBottomToolbar = true,
 	outerContainerStyle = {},
 	authParentContainerStyle = {},
+	showDynamicWidget = true,
 }) => {
 	const {
 		subscriptionInfo: { renewBanner },
@@ -41,7 +42,7 @@ const AuthWrapper = ({
 				<title>{title} | VE</title>
 			</Helmet>
 			{renewBanner && <RenewBanner />}
-			{worspaceId.includes(workspaceId) && <DynamicWidget />}
+			{worspaceId.includes(workspaceId) && showDynamicWidget && <DynamicWidget />}
 			<div
 				style={{
 					display: 'flex',
