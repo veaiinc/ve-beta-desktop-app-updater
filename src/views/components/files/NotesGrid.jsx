@@ -6,7 +6,24 @@ import { memo, useContext, useEffect, useState } from 'react';
 import Context from '../../../context/context';
 import InfiniteScroll from '../globalComponents/InfiniteScroll';
 import gsap from 'gsap';
-const NotesGrid = ({ handleNewNotes }) => {
+import FilterDropdown from '../dropDown/file/FilterDropdown';
+import Spinner from '../loaders/Spinner';
+import moment from 'moment';
+
+const filterOptions = [
+	{ label: 'All', value: 'all' },
+	{ label: 'Private', value: 'private' },
+	{ label: 'Shared', value: 'shared' },
+	{ label: 'Favorite', value: 'favorite' },
+];
+
+const sortOptions = [
+	{ label: 'Recently Created', value: 'createdAt', sortType: -1 },
+	{ label: 'Recently Updated', value: 'updatedAt', sortType: -1 },
+	{ label: 'A-Z', value: 'title', sortType: 1 },
+];
+
+const NotesGrid = ({ handleNewNotes, handleTotalChange }) => {
 	const navigate = useNavigate();
 
 	const {
@@ -18,19 +35,23 @@ const NotesGrid = ({ handleNewNotes }) => {
 		loading: true,
 		currentPage: 1,
 		hasNextPage: false,
+		selectedFilter: { label: 'All', value: 'all' },
+		selectedSort: { label: 'Recently Created', value: 'createdAt', sortType: -1 },
 	});
 
 	useEffect(() => {
 		fetchNotes({ page: 1 });
-	}, []);
+	}, [info?.selectedFilter?.value, info?.selectedSort]);
 
 	useEffect(() => {
 		if (notes) {
-			const { currentPage = 1, hasNextPage = false, data = [] } = notes || {};
+			const { currentPage = 1, hasNextPage = false, data = [], totalDocs = 0 } = notes || {};
 			const newNotes = currentPage === 1 ? [...data] : [...info?.notes, ...(data || [])];
-			handleStateUpdate({ notes: newNotes, currentPage, hasNextPage });
+			handleStateUpdate({ notes: newNotes, currentPage, hasNextPage, loading: false });
+			handleTotalChange(totalDocs);
 		}
 	}, [notes]);
+
 	useEffect(() => {
 		const delay =
 			info.selectedView === 'Classic Gallery' || info.selectedView === 'Lite Gallery'
@@ -124,11 +145,14 @@ const NotesGrid = ({ handleNewNotes }) => {
 
 	const fetchNotes = async ({ page = 1, limit = 10 }) => {
 		try {
+			const { value: sortBy, sortType: sortOrder } = info?.selectedSort;
 			const payload = {
 				input: {
 					limit,
 					page,
-					pageType: 'all',
+					pageType: info?.selectedFilter?.value,
+					sortBy,
+					sortOrder,
 				},
 			};
 			await getNotesList(payload, false);
@@ -142,42 +166,74 @@ const NotesGrid = ({ handleNewNotes }) => {
 		fetchNotes({ page: info?.currentPage + 1 });
 	};
 
+	const handleSortClick = (value) => {
+		let sortType = value?.sortType;
+		if (value?.value === info?.selectedSort?.value) {
+			sortType = info?.selectedSort?.sortType * -1;
+		}
+		handleStateUpdate({ selectedSort: { ...value, sortType } });
+	};
+
 	return (
-		<InfiniteScroll
-			dataLength={info?.notes?.length}
-			next={fetchMoreNotes}
-			hasMore={info?.hasNextPage}
-			height={'100%'}
-		>
-			<div className="card-container">
-				<div className="card-item" onClick={handleNewNotes}>
-					<div className="card-item-style card-item-style-btn">
-						<button className="card-btn">
-							<Plus />
-							Create Note
-						</button>
-					</div>
-				</div>
-				{info?.notes?.map((note, index) => (
-					<div
-						className="card-item"
-						key={index}
-						onClick={() => navigate(`/note/${note?._id}`)}
-					>
-						<div className="card-item-style content-wrapper">
-							{/* <span
-								className={`status-badge ${
-									note?.status === 'published' ? 'live' : 'draft'
-								}`}
-							>
-								{note?.status === 'published' ? 'Live' : 'Draft'}
-							</span> */}
-							<span className="item-title">{note?.title || 'Untitled Note'}</span>
-						</div>
-					</div>
-				))}
+		<div className="card-sub-container-center">
+			<div className="center-container-header">
+				<FilterDropdown
+					options={filterOptions}
+					selected={info?.selectedFilter}
+					onOptionClick={(value) => handleStateUpdate({ selectedFilter: value })}
+					width="120px"
+				/>
+				<FilterDropdown
+					options={sortOptions}
+					selected={info?.selectedSort}
+					onOptionClick={handleSortClick}
+					showSelectedEndArrow
+					width="180px"
+					hideOnOptionClick={false}
+				/>
 			</div>
-		</InfiniteScroll>
+			<div className="center-container-content">
+				{info?.loading ? (
+					<div className="spinner-container">
+						<Spinner />
+					</div>
+				) : (
+					<InfiniteScroll
+						dataLength={info?.notes?.length}
+						next={fetchMoreNotes}
+						hasMore={info?.hasNextPage}
+						height={'100%'}
+					>
+						<div className="card-container">
+							<div className="card-item" onClick={handleNewNotes}>
+								<div className="card-item-style card-item-style-btn">
+									<button className="card-btn">
+										<Plus />
+										Create Note
+									</button>
+								</div>
+							</div>
+							{info?.notes?.map((note, index) => (
+								<div
+									className="card-item"
+									key={index}
+									onClick={() => navigate(`/note/${note?._id}`)}
+								>
+									<div className="card-item-style content-wrapper note-card-content">
+										<span className="item-title">
+											{note?.title || 'Untitled Note'}
+										</span>
+										<span className="notes-sub-heading">
+											{moment.unix(note?.createdAt).fromNow()}
+										</span>
+									</div>
+								</div>
+							))}
+						</div>
+					</InfiniteScroll>
+				)}
+			</div>
+		</div>
 	);
 };
 

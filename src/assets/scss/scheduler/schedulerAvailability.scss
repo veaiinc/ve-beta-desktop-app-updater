@@ -19,8 +19,7 @@
 			align-self: stretch;
 
 			.dayName {
-				color: var(--primary-font, #f2f2f3);
-				color: var(--primary-font, color(display-p3 0.949 0.949 0.9529));
+				color: var(--primary-font);
 				font-family: Inter;
 				font-size: 12px;
 				font-style: normal;

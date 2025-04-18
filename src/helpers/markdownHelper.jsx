@@ -65,91 +65,93 @@ const rehypeCITPlugin = () => {
 
 // Move components outside to prevent recreation on every render
 const baseComponents = {
-	pre: ({ children }) => <pre className="markdown-pre mb-4 ">{children}</pre>,
-	hr: ({ children }) => <hr className="mb-2 " />,
+	pre: ({ children }) => <pre className="pre">{children}</pre>,
+	hr: () => <hr className="hr" />,
 	ol: ({ children, ...props }) => (
-		<ol className=" list-outside mb-4 " {...props}>
+		<ol className="ol" {...props}>
 			{children}
 		</ol>
 	),
 	li: ({ children, ...props }) => {
 		return (
-			<li className="list-item" {...props}>
+			<li className="li" {...props}>
 				{children}
 			</li>
 		);
 	},
 	ul: ({ children, ...props }) => {
 		return (
-			<ul className=" list-outside mb-4 " {...props}>
+			<ul className="ul" {...props}>
 				{children}
 			</ul>
 		);
 	},
-	strong: ({ children, ...props }) => {
+	span: ({ children, ...props }) => {
 		return (
-			<span className="font-semibold text-white common-markdown-font " {...props}>
+			<span className="span" {...props}>
 				{children}
 			</span>
 		);
 	},
+	strong: ({ children, ...props }) => {
+		return (
+			<strong className="strong" {...props}>
+				{children}
+			</strong>
+		);
+	},
 	a: ({ children, ...props }) => {
 		return (
-			<a
-				className="text-blue-500 hover:underline common-markdown-font "
-				target="_blank"
-				rel="noreferrer"
-				{...props}
-			>
+			<a className="a" target="_blank" rel="noreferrer" {...props}>
 				{children}
 			</a>
 		);
 	},
 	h1: ({ children, ...props }) => {
 		return (
-			<h1 className="text-3xl font-semibold mt-6 mb-4 " {...props}>
+			<h1 className="h1" {...props}>
 				{children}
 			</h1>
 		);
 	},
 	h2: ({ children, ...props }) => {
 		return (
-			<h2 className="text-2xl font-semibold mt-6 mb-4 " {...props}>
+			<h2 className="h2" {...props}>
 				{children}
 			</h2>
 		);
 	},
 	h3: ({ children, ...props }) => {
 		return (
-			<h3 className="text-xl font-semibold mt-6 mb-2 " {...props}>
+			<h3 className="h3" {...props}>
 				{children}
 			</h3>
 		);
 	},
 	h4: ({ children, ...props }) => {
 		return (
-			<h4 className="text-lg font-semibold mt-6 mb-2 " {...props}>
+			<h4 className="h4" {...props}>
 				{children}
 			</h4>
 		);
 	},
 	h5: ({ children, ...props }) => {
 		return (
-			<h5 className="text-base font-semibold mt-6 mb-2 " {...props}>
+			<h5 className="h5" {...props}>
 				{children}
 			</h5>
 		);
 	},
 	h6: ({ children, ...props }) => {
 		return (
-			<h6 className="text-sm font-semibold mt-6 mb-2 " {...props}>
+			<h6 className="h6" {...props}>
 				{children}
 			</h6>
 		);
 	},
 	p: ({ children, ...props }) => {
 		return (
-			<p className="text-white  mb-2 mt-2 common-markdown-font " {...props}>
+			<p className="p" {...props}>
 				{children}
 			</p>
 		);
@@ -158,7 +160,7 @@ const baseComponents = {
 		return (
 			<div className="markdown-image-wrapper ">
 				<img
-					className="w-full h-auto"
+					className="img"
 					{...props}
 					src={props?.src}
 					alt="img"
@@ -168,37 +170,21 @@ const baseComponents = {
 		);
 	},
 	table: ({ children, ...props }) => (
-		<div className="table-container my-4 overflow-x-auto ">
-			<table className="markdown-table w-full" {...props}>
+		<div className="table-container">
+			<table className="table" {...props}>
 				{children}
 			</table>
 		</div>
 	),
-	thead: ({ children, ...props }) => (
-		<thead className="bg-gray-800 " {...props}>
-			{children}
-		</thead>
-	),
-	th: ({ children, ...props }) => (
-		<th className="px-4 py-2 text-left border border-gray-700 " {...props}>
-			{children}
-		</th>
-	),
-	td: ({ children, ...props }) => (
-		<td className="px-4 py-2 border border-gray-700 " {...props}>
-			{children}
-		</td>
-	),
-	tr: ({ children, ...props }) => (
-		<tr className="border-b border-gray-700 hover:bg-gray-800" {...props}>
-			{children}
-		</tr>
-	),
+	thead: ({ children, ...props }) => <thead {...props}>{children}</thead>,
+	th: ({ children, ...props }) => <th {...props}>{children}</th>,
+	td: ({ children, ...props }) => <td {...props}>{children}</td>,
+	tr: ({ children, ...props }) => <tr {...props}>{children}</tr>,
 	code({ node, inline, className, children, ...props }) {
-		const match = /language-(\w+)/.exec(className || '');
+		const match = /language-(\w+)/?.exec(className || '');
 		return !inline && match ? (
 			<SyntaxHighlighter style={dracula} language={match[1]} PreTag="div">
-				{String(children).replace(/\n$/, '')}
+				{String(children)?.replace(/\n$/, '')}
 			</SyntaxHighlighter>
 		) : (
 			<code {...props}>{children}</code>
@@ -232,7 +218,11 @@ const NonMemoizedMarkdown = ({ children, citations }) => {
 			components={components}
 			className="markdown-custom-content"
 		>
-			{children}
+			{children
+				?.replace(/(?<!\\)\$/g, '\\$')
+				?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')
+				?.replace(/\\\((.*?)\\\)/g, '$$$1$$')
+				?.replace(/\\n/g, '\n')}
 		</ReactMarkdown>
 	);
 };
@@ -320,11 +310,6 @@ export const TypingEffect = memo(
 		// };
 
 		const handleUpdateId = (workflowTemplateId, moduleTemplateId) => {
-			console.log(
-				workflowTemplateId,
-				moduleTemplateId,
-				'workflowTemplateId, moduleTemplateId',
-			);
 			updateStateValues({
 				documentPreviewIds: {
 					workflowTemplateId,
@@ -398,10 +383,88 @@ export const TypingEffect = memo(
 					<AISuggestionsReportAiComponent data={messageData?.data} />
 				) : (
 					<Markdown citations={citations}>
-						{text?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')?.replace(/\\n/g, '\n')}
+						{text}
 						{/* {newText?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')?.replace(/\\n/g, '\n')} */}
 						{/* {chunkRef?.current?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')?.replace(/\\n/g, '\n')} */}
 					</Markdown>
+				)}
+
+				{messageData?.messageId && (
+					<div
+						className={`hover-actions-container`}
+						style={{
+							visibility: isNewMessage ? 'visible' : '',
+						}}
+					>
+						<div className="left-container">
+							<div className="icon-container">
+								<Tooltip
+									placement="bottom"
+									arrow={false}
+									trigger={'hover'}
+									title={'Like'}
+								>
+									<ThumpsUpSvg
+										fill={rating === 'thumbsUp' ? '#f2f2f3' : 'none'}
+										onClick={handleThumbsUp}
+									/>
+								</Tooltip>
+							</div>
+
+							<div className="icon-container">
+								<Tooltip
+									placement="bottom"
+									arrow={false}
+									trigger={'hover'}
+									title={'Dislike'}
+								>
+									<ThumpsDownSvg
+										fill={rating === 'thumbsDown' ? '#f2f2f3' : 'none'}
+										onClick={handleThumbsDown}
+									/>
+								</Tooltip>
+							</div>
+						</div>
+
+						{/* <div className="icon-container">
+							<Tooltip
+								placement="bottom"
+								arrow={false}
+								trigger={'hover'}
+								title={'Audio'}
+							>
+								<HeadPhoneSvg />
+							</Tooltip>
+						</div> */}
+
+						<div className="right-container">
+							<div className="icon-container">
+								<Tooltip
+									placement="bottom"
+									arrow={false}
+									trigger={'hover'}
+									title={'Edit'}
+								>
+									<PencilSparkleIcon onClick={handlePencilClick} />
+								</Tooltip>
+							</div>
+
+							<div className="icon-container">
+								<Tooltip
+									placement="bottom"
+									arrow={false}
+									trigger={'hover'}
+									title={isCopiedToClipboard ? 'Copied' : 'Copy'}
+								>
+									{isCopiedToClipboard ? (
+										<TickSvg />
+									) : (
+										<CopyIcon onClick={() => handleCopyTextClick(text)} />
+									)}
+								</Tooltip>
+							</div>
+						</div>
+					</div>
 				)}
 
 				{typeof messageData?.['follow_up_query'] !== 'string' &&
@@ -426,80 +489,6 @@ export const TypingEffect = memo(
 							</div>
 						</div>
 					)}
-
-				{messageData?.messageId && (
-					<div
-						className={`hover-actions-container`}
-						style={{
-							visibility: isNewMessage ? 'visible' : '',
-						}}
-					>
-						<div className="icon-container">
-							<Tooltip
-								placement="bottom"
-								arrow={false}
-								trigger={'hover'}
-								title={'Like'}
-							>
-								<ThumpsUpSvg
-									fill={rating === 'thumbsUp' ? '#f2f2f3' : 'none'}
-									onClick={handleThumbsUp}
-								/>
-							</Tooltip>
-						</div>
-
-						<div className="icon-container">
-							<Tooltip
-								placement="bottom"
-								arrow={false}
-								trigger={'hover'}
-								title={'Dislike'}
-							>
-								<ThumpsDownSvg
-									fill={rating === 'thumbsDown' ? '#f2f2f3' : 'none'}
-									onClick={handleThumbsDown}
-								/>
-							</Tooltip>
-						</div>
-
-						{/* <div className="icon-container">
-							<Tooltip
-								placement="bottom"
-								arrow={false}
-								trigger={'hover'}
-								title={'Audio'}
-							>
-								<HeadPhoneSvg />
-							</Tooltip>
-						</div> */}
-
-						<div className="icon-container">
-							<Tooltip
-								placement="bottom"
-								arrow={false}
-								trigger={'hover'}
-								title={'Edit'}
-							>
-								<PencilSparkleIcon onClick={handlePencilClick} />
-							</Tooltip>
-						</div>
-
-						<div className="icon-container">
-							<Tooltip
-								placement="bottom"
-								arrow={false}
-								trigger={'hover'}
-								title={isCopiedToClipboard ? 'Copied' : 'Copy'}
-							>
-								{isCopiedToClipboard ? (
-									<TickSvg />
-								) : (
-									<CopyIcon onClick={() => handleCopyTextClick(text)} />
-								)}
-							</Tooltip>
-						</div>
-					</div>
-				)}
 			</div>
 		);
 	},

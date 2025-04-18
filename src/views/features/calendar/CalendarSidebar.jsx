@@ -7,6 +7,9 @@ import CalendarAiChat from '../../components/calendar/CalendarAiChat';
 import CreateEvent from '../../components/calendar/CreateEvent';
 // import AskAI from '../../components/calendar/AskAI';
 import GoogleCalendar from '../../components/calendar/GoogleCalendar';
+import CalendarChatBox from '../../components/calendar/CalendarChatBox';
+import moment from 'moment';
+import ConnectIntegrationWidget from '../../components/globalComponents/ConnectIntegrationWidget.jsx';
 
 const CalendarSidebar = ({
 	currentCalendarDate,
@@ -31,6 +34,9 @@ const CalendarSidebar = ({
 		}));
 	}, []);
 
+	const currentDate = moment();
+	const formattedDate = currentDate.format('ddd, MMM D');
+
 	return (
 		<>
 			{info?.askAi ? (
@@ -44,6 +50,7 @@ const CalendarSidebar = ({
 				/>
 			) : (
 				<div className="calendarSidebarContainer">
+					<div className="dateDisplay">{formattedDate}</div>
 					<CalendarSelector
 						currentCalendarDate={currentCalendarDate}
 						selectedMonth={selectedMonth}
@@ -59,7 +66,7 @@ const CalendarSidebar = ({
 						updateCalendarInfo={updateCalendarInfo}
 					/>
 					<GoogleCalendar />
-					<MeetingDetails selectedDate={selectedDate} />
+					{/* <MeetingDetails selectedDate={selectedDate} /> */}
 				</div>
 			)}
 		</>

@@ -28,6 +28,11 @@ const AISuggestionsModal = ({ open, onClose, data, onNextCardClick, onPrevCardCl
 	}, []);
 
 	const handleViewReportClick = useCallback((data) => {
+		const cot = (data?.chain_of_thought || [])?.map((item) => {
+			return {
+				sub_query: item,
+			};
+		});
 		const messages = [
 			{
 				type: 'user',
@@ -42,8 +47,9 @@ const AISuggestionsModal = ({ open, onClose, data, onNextCardClick, onPrevCardCl
 					research_report: data?.research_report,
 				},
 				processing: 'Report',
-				cot: [],
+				cot,
 				follow_up_query: data?.suggested_prompts,
+				stream_end: true,
 			},
 		];
 		updateStateValues({ globalChatMessages: messages });
@@ -123,7 +129,7 @@ const AISuggestionsModal = ({ open, onClose, data, onNextCardClick, onPrevCardCl
 					<div
 						className="chain-of-thought-container"
 						onClick={() =>
-							setInfo((prev) => ({ ...prev, isExpanded: !prev.isExpanded }))
+							setInfo((prev) => ({ ...prev, isExpanded: !prev?.isExpanded }))
 						}
 					>
 						<div className="cot-header">
@@ -161,31 +167,8 @@ const AISuggestionsModal = ({ open, onClose, data, onNextCardClick, onPrevCardCl
 						<div className="report-header">
 							<div className="report-title">Report</div>
 							<div className="report-description">
-								<Markdown>
-									{(research_report || '')
-										?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')
-										?.replace(/\\n/g, '\n')}
-								</Markdown>
+								<Markdown>{research_report || ''}</Markdown>
 							</div>
-						</div>
-					</div>
-					<div className="suggested-actions">
-						<div className="title-text">Suggested Actions</div>
-						<div className="suggested-actions">
-							{Array?.isArray(suggested_actions)
-								? suggested_actions?.map((item, index) => (
-										<div
-											className="action-item"
-											key={index}
-											onClick={() => handleClickRun(item)}
-										>
-											<div className="logo">
-												<ArrowRightSvg />
-											</div>
-											<div className="item-text">{item}</div>
-										</div>
-								  ))
-								: suggested_actions || ''}
 						</div>
 					</div>
 					<div className="solutions">
@@ -205,6 +188,25 @@ const AISuggestionsModal = ({ open, onClose, data, onNextCardClick, onPrevCardCl
 										</div>
 								  ))
 								: solutions || ''}
+						</div>
+					</div>
+					<div className="suggested-actions">
+						<div className="title-text">Suggested Actions</div>
+						<div className="suggested-actions">
+							{Array?.isArray(suggested_actions)
+								? suggested_actions?.map((item, index) => (
+										<div
+											className="action-item"
+											key={index}
+											onClick={() => handleClickRun(item)}
+										>
+											<div className="logo">
+												<ArrowRightSvg />
+											</div>
+											<div className="item-text">{item}</div>
+										</div>
+								  ))
+								: suggested_actions || ''}
 						</div>
 					</div>
 					<div className="suggested-prompts">

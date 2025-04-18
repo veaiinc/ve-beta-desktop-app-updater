@@ -146,6 +146,7 @@ const LiteGallery = () => {
 				page,
 				limit: info.limit,
 				storeOriginals: false,
+				// isLightGallery: true,
 			};
 			if (title) {
 				options.title = title;
@@ -164,8 +165,9 @@ const LiteGallery = () => {
 
 	const handleNavigateGallery = (gallery) => {
 		getGalleryCredentials(gallery?._id);
-		navigate(`/galleries/${gallery?._id}`, {
+		navigate(`/galleries/${gallery?._id}?lite-gallery=true`, {
 			state: { galleryData: gallery, isLightGallery: true },
+			search: '?light-gallery=true',
 		});
 	};
 
@@ -249,7 +251,7 @@ const LiteGallery = () => {
 		const payload = {
 			sort: value,
 		};
-		setDefaultSort(payload);
+		setDefaultSort(payload, false);
 	};
 
 	return (

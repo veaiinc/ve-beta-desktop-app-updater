@@ -5,25 +5,25 @@ const WeekHeader = () => {
 	return (
 		<div className="weekHeaderWrapper">
 			<div className="dayHeader">
-				<span>Monday</span>
+				<span className="dayName">Mon</span>
 			</div>
 			<div className="dayHeader">
-				<span>Tuesday</span>
+				<span className="dayName">Tue</span>
 			</div>
 			<div className="dayHeader">
-				<span>Wednesday</span>
+				<span className="dayName">Wed</span>
 			</div>
 			<div className="dayHeader">
-				<span>Thursday</span>
+				<span className="dayName">Thu</span>
 			</div>
 			<div className="dayHeader">
-				<span>Friday</span>
+				<span className="dayName">Fri</span>
 			</div>
 			<div className="dayHeader">
-				<span>Saturday</span>
+				<span className="dayName">Sat</span>
 			</div>
 			<div className="dayHeader">
-				<span>Sunday</span>
+				<span className="dayName">Sun</span>
 			</div>
 		</div>
 	);

@@ -1,3 +1,9 @@
+.storage-page-container {
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
+	background-color: var(--background-color, #0c0c0d);
+}
 .card-container-wrapper {
 	display: flex;
 	flex-direction: column;
@@ -20,11 +26,19 @@
 			.center-container-header {
 				height: 41px;
 				flex-shrink: 0;
+				display: flex;
+				gap: 12px;
+				padding: 0 10px;
 			}
 			.center-container-content {
 				flex-grow: 1;
 			}
 		}
+	}
+	.storage-main-container-bottom-spacer {
+		display: flex;
+		flex-direction: column;
+		gap: 20px;
 	}
 }
 .card-container {
@@ -169,6 +183,34 @@
 				}
 			}
 		}
+
+		.DocsStatusButtonOuterContainer {
+			display: flex;
+			padding: 4px 6px;
+			justify-content: center;
+			align-items: center;
+			gap: 4px;
+			border-radius: 35px;
+			position: absolute;
+			top: 10px;
+			left: 10px;
+
+			.DocsStatusCircle {
+				width: 6px;
+				height: 6px;
+				border-radius: 100%;
+				background: var(--card-hover);
+			}
+			.DocsButtontext {
+				color: #f2f2f3; /* this is a badge text color  don't use variable here */
+				text-align: center;
+				font-family: var(--primary-font-family);
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+		}
 	}
 	.card-item-text {
 		display: inline-block;
@@ -265,34 +307,6 @@
 	}
 	to {
 		top: 0%;
-	}
-}
-
-.DocsStatusButtonOuterContainer {
-	display: flex;
-	padding: 4px 6px;
-	justify-content: center;
-	align-items: center;
-	gap: 4px;
-	border-radius: 35px;
-	position: absolute;
-	top: 10px;
-	left: 10px;
-
-	.DocsStatusCircle {
-		width: 6px;
-		height: 6px;
-		border-radius: 100%;
-		background: var(--card-hover);
-	}
-	.DocsButtontext {
-		color: var(--primary-font);
-		text-align: center;
-		font-family: var(--primary-font-family);
-		font-size: 12px;
-		font-style: normal;
-		font-weight: 500;
-		line-height: normal;
 	}
 }
 

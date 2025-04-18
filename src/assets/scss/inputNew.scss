@@ -125,6 +125,11 @@
 .sl-input-container.px8-gap {
 	gap: 8px;
 }
+.sl-input-container.eror-left-align {
+	.sl-error-input-text {
+		text-align: left;
+	}
+}
 .sl-input-container.without-border {
 	.sl-input {
 		border: none;

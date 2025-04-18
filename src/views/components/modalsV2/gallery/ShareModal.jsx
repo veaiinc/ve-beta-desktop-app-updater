@@ -399,7 +399,6 @@ const ShareModal = ({
 
 		editVisitorFormAccess(payload, galleryId);
 	};
-	console.log(info?.galleryGuestAccess, 'testing');
 	return (
 		<Drawer
 			open={open}

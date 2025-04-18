@@ -112,13 +112,14 @@ const CalendarCategories = ({
 			<div className="categoriesHeadWrapper">
 				<div className="headerContainer">
 					<span className="headLabel">Categories</span>
-					<span className="headicon" onClick={handleAddCategoryClick}>
-						<PlusSvg />
-					</span>
 				</div>
-
-				<div className="expandIcon" onClick={handleCategoryExpand}>
-					<DownSvg />
+				<div className="headerButtonsContainer">
+					<div className="addCategoryButton" onClick={handleAddCategoryClick}>
+						<PlusSvg />
+					</div>
+					<div className="expandIcon" onClick={handleCategoryExpand}>
+						<DownSvg />
+					</div>
 				</div>
 			</div>
 
@@ -129,6 +130,25 @@ const CalendarCategories = ({
 						return (
 							<div className="categoryTypeContainer" key={category?._id}>
 								<div className="typeWrapper">
+									<span
+										className="statusIndicator"
+										style={{ backgroundColor: category?.color }}
+									></span>
+									<label
+										htmlFor={`${category?.name}-checkbox`}
+										className="typeLabel"
+									>
+										{category?.name}
+										{category?.name?.toLowerCase() !== 'all' &&
+											category?.type?.toLowerCase() !== 'all' && (
+												<button
+													className="editButton"
+													onClick={() => handleEditCategory(category)}
+												>
+													<PencilSvg />
+												</button>
+											)}
+									</label>
 									<input
 										type="checkbox"
 										className="checkBox"
@@ -138,27 +158,6 @@ const CalendarCategories = ({
 										aria-checked={isChecked}
 										aria-label={`${category?.name} category`}
 									/>
-									<label
-										htmlFor={`${category?.name}-checkbox`}
-										className="typeLabel"
-									>
-										{category?.name}
-									</label>
-									{category?.name?.toLowerCase() !== 'all' &&
-										category?.type?.toLowerCase() !== 'all' && (
-											<button
-												className="editButton"
-												onClick={() => handleEditCategory(category)}
-											>
-												<PencilSvg />
-											</button>
-										)}
-								</div>
-								<div className="statusWrapper">
-									<span
-										className="statusIndicator"
-										style={{ borderColor: category?.color }}
-									></span>
 								</div>
 							</div>
 						);

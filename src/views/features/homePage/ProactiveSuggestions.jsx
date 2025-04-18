@@ -1,4 +1,4 @@
-import { memo, useCallback, useContext, useEffect, useState } from 'react';
+import { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import '../../../assets/scss/home_page/proactiveSuggestions.scss';
 import Context from '../../../context/context';
 import AISuggestionsPopup from '../../components/modalsV2/homePage/AISuggestionsPopup';
@@ -19,7 +19,7 @@ const positionClassMap = {
 	'-1': 'left-1',
 	'-2': 'left-2',
 };
-const ProactiveSuggestions = () => {
+const ProactiveSuggestions = ({ selectedOption }) => {
 	const {
 		templates: { getAISuggestedPendingActions, aiSuggestedPendingActions },
 	} = useContext(Context);
@@ -32,6 +32,15 @@ const ProactiveSuggestions = () => {
 		currentIndex: 0,
 		loading: true,
 	});
+
+	const selectedOptionRef = useRef(selectedOption);
+	const currentIndexRef = useRef(0);
+	const totalCardsDataRef = useRef([]);
+
+	useEffect(() => {
+		selectedOptionRef.current = selectedOption;
+	}, [selectedOption]);
+
 	useEffect(() => {
 		if (aiSuggestedPendingActions) {
 			updateCardsData();
@@ -39,6 +48,15 @@ const ProactiveSuggestions = () => {
 			getAISuggestedPendingActions(payload);
 		}
 	}, [aiSuggestedPendingActions]);
+
+	useEffect(() => {
+		window?.addEventListener('keydown', handleKeyDown);
+
+		// Clean up on unmount
+		return () => {
+			window?.removeEventListener('keydown', handleKeyDown);
+		};
+	}, []);
 
 	useEffect(() => {
 		if (info?.totalCardsData?.length > 0) {
@@ -51,17 +69,27 @@ const ProactiveSuggestions = () => {
 			(card) => card?.title?.length > 0,
 		);
 		if (cards?.length > 0) {
+			totalCardsDataRef.current = cards;
 			setInfo((prev) => ({
 				...prev,
 				totalCardsData: cards,
 				loading: false,
 			}));
 		} else {
+			totalCardsDataRef.current = [];
 			setInfo((prev) => ({
 				...prev,
 				totalCardsData: [],
 				loading: false,
 			}));
+		}
+	};
+
+	const handleKeyDown = (e) => {
+		if (e?.key === 'ArrowLeft') {
+			handleLeft();
+		} else if (e?.key === 'ArrowRight') {
+			handleRight();
 		}
 	};
 
@@ -88,21 +116,24 @@ const ProactiveSuggestions = () => {
 
 	const handleLeft = () => {
 		const index =
-			(info?.currentIndex - 1 + info?.totalCardsData?.length) % info?.totalCardsData?.length;
+			(currentIndexRef.current - 1 + totalCardsDataRef.current?.length) %
+			totalCardsDataRef.current?.length;
 		setInfo((prev) => ({
 			...prev,
 			currentIndex: index,
-			activeCardContent: info?.totalCardsData[index],
+			activeCardContent: totalCardsDataRef.current[index],
 		}));
+		currentIndexRef.current = index;
 	};
 
 	const handleRight = () => {
-		const index = (info?.currentIndex + 1) % info?.totalCardsData?.length;
+		const index = (currentIndexRef.current + 1) % totalCardsDataRef.current?.length;
 		setInfo((prev) => ({
 			...prev,
 			currentIndex: index,
-			activeCardContent: info?.totalCardsData[index],
+			activeCardContent: totalCardsDataRef.current[index],
 		}));
+		currentIndexRef.current = index;
 	};
 
 	const handleCardClick = (card, index) => {
@@ -112,6 +143,7 @@ const ProactiveSuggestions = () => {
 			openModal: true,
 			currentIndex: index,
 		}));
+		currentIndexRef.current = index;
 	};
 
 	const handleCloseModal = () =>
