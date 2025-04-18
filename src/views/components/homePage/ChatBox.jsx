@@ -120,7 +120,6 @@ const ChatBox = ({
 	aiChatLoading,
 	handleAiUploadImage,
 	customChatActions = false,
-	showChatLabels = true,
 	uploadedImages = [],
 	handleSendWebsocketMessage,
 	latestStreamMesage,
