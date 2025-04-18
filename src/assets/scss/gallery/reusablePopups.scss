@@ -306,8 +306,8 @@
 				font-weight: 400;
 				line-height: normal;
 				width: 100%;
-				overflow: hidden;
-				text-overflow: ellipsis;
+				overflow: auto;
+				scrollbar-width: none !important;
 				white-space: nowrap;
 			}
 		}
@@ -431,7 +431,10 @@
 		align-items: center;
 		gap: 16px;
 		border-radius: 50px;
-		background: var(--primary-button-font);
+		background: var(--primary-button);
+		font: var(--primary-button-font);
+		border: none;
+		cursor: pointer;
 	}
 }
 

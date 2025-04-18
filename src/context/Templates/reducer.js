@@ -216,6 +216,7 @@ const actionHandlers = {
 				contentType: 'message',
 				message: payload?.answer || '',
 				cot: [],
+				messageId: payload?.message_id,
 			});
 		}
 
