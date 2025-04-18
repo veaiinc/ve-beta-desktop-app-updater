@@ -1,6 +1,7 @@
 import React from 'react';
 import { Flex, Rate } from 'antd';
 import '../../../assets/scss/forms/FormDescription.scss';
+import { ReactComponent as CrossSvg } from '../../../assets/svg/doubleBack.svg';
 import { ReactComponent as BiDash } from '../../../assets/svg/smartFiles/formResponse/bi-dash.svg';
 import { ReactComponent as Email } from '../../../assets/svg/smartFiles/formResponse/email.svg';
 import { ReactComponent as Phone } from '../../../assets/svg/smartFiles/formResponse/phone.svg';
@@ -108,7 +109,25 @@ const EventsAnswer = ({ answer }) => {
 	if (!answer) {
 		return '';
 	}
-	return answer ? (
+
+	let events;
+	try {
+		// If answer is already an object, use it directly
+		if (typeof answer === 'object') {
+			events = answer;
+		} else {
+			// If it's a string, try to parse it as JSON
+			events = JSON.parse(answer);
+		}
+	} catch (e) {
+		console.error('Error parsing events:', e);
+		return '';
+	}
+
+	// Ensure we have an array of events
+	const eventsArray = Array.isArray(events) ? events : [events];
+
+	return eventsArray.length > 0 ? (
 		<>
 			<table className="eventsContainer">
 				<thead className="eventsTableHeader">
@@ -120,16 +139,16 @@ const EventsAnswer = ({ answer }) => {
 						))}
 					</tr>
 				</thead>
-				{JSON?.parse(answer)?.map((event, index) => (
-					<tbody key={index} className="eventCard">
-						<tr>
-							<td className="eventName">{event?.name}</td>
-							<td className="eventDate">{event?.date}</td>
-							<td className="eventLocation">{event?.location}</td>
-							<td className="eventGuests">{event?.noOfGuests}</td>
+				<tbody>
+					{eventsArray.map((event, index) => (
+						<tr key={index} className="eventCard">
+							<td className="eventName">{String(event?.name || '')}</td>
+							<td className="eventDate">{String(event?.date || '')}</td>
+							<td className="eventLocation">{String(event?.location || '')}</td>
+							<td className="eventGuests">{String(event?.noOfGuests || '')}</td>
 						</tr>
-					</tbody>
-				))}
+					))}
+				</tbody>
 			</table>
 			<div className="divider"></div>
 		</>
@@ -314,6 +333,16 @@ const FormDescription = ({ response, onClose, formId, activeTab, loading }) => {
 		);
 	}
 
+	if (!response || !response.response || response.response.length === 0) {
+		return (
+			<div className="formDescription">
+				<div className="emptyState">
+					<p>No form responses available</p>
+				</div>
+			</div>
+		);
+	}
+
 	const getName = (response) => {
 		if (!response?.response) return 'No Name';
 		const nameField = response.response.find((item) =>
@@ -396,19 +425,45 @@ const FormDescription = ({ response, onClose, formId, activeTab, loading }) => {
 	};
 
 	const formAnswer = (type, answer) => {
+		if (!answer && answer !== 0) {
+			return (
+				<>
+					<p className="answer">No answer provided</p>
+					<div className="divider"></div>
+				</>
+			);
+		}
+
+		// Handle object inputs by converting them to strings if needed
+		let processedAnswer = answer;
+		if (typeof answer === 'object') {
+			if (type === 'events') {
+				// For events, we want to keep the object structure
+				processedAnswer = answer;
+			} else {
+				// For other types, convert to string
+				processedAnswer = JSON.stringify(answer);
+			}
+		}
+
 		const answerComponentMapper = {
-			dropdown: <DropdownAnswer answer={answer} />,
-			events: <EventsAnswer answer={answer} />,
-			rating: <RatingAnswer answer={answer} />,
-			time: <TimeAnswer answer={answer} />,
-			singleChoice: <SingleChoiceAnswer answer={answer} />,
-			link: <LinkAnswer answer={answer} />,
-			fileupload: <FileUploadAnswer answer={answer} />,
+			dropdown: <DropdownAnswer answer={processedAnswer} />,
+			events: <EventsAnswer answer={processedAnswer} />,
+			rating: <RatingAnswer answer={processedAnswer} />,
+			time: <TimeAnswer answer={processedAnswer} />,
+			singleChoice: <SingleChoiceAnswer answer={processedAnswer} />,
+			link: <LinkAnswer answer={processedAnswer} />,
+			fileupload: <FileUploadAnswer answer={processedAnswer} />,
 		};
+
 		return (
 			answerComponentMapper[type] ?? (
 				<>
-					<p className="answer">{removeQuotes(answer) ?? 'No answer'}</p>
+					<p className="answer">
+						{typeof processedAnswer === 'string'
+							? removeQuotes(processedAnswer)
+							: 'No answer provided'}
+					</p>
 					<div className="divider"></div>
 				</>
 			)

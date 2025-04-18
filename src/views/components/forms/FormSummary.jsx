@@ -22,7 +22,7 @@ const FileUploadAnswer = ({ answer }) => {
 				<div className="form-summary-fileUploadContainer">
 					{files?.map((file) => {
 						const { name, previewUrl, lastModified, type } = file;
-						const fileExtension = name?.split('.').pop()?.toLowerCase();
+						const fileExtension = name?.split('.')?.pop()?.toLowerCase() || '';
 						const isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(
 							fileExtension,
 						);
@@ -96,46 +96,10 @@ const FormResponseList = ({
 
 	const getName = (response) => {
 		if (!response?.response) return 'No Name';
-		const nameField = response.response.find((item) =>
-			item?.question?.toLowerCase().includes('name'),
-		);
+		const nameField = response.response.find((item) => {
+			return item?.question?.toLowerCase()?.includes('name');
+		});
 		return nameField?.answer || 'No Name';
-	};
-
-	const getQuestionAnswer = (response, questionText) => {
-		const field = response?.response?.find((r) =>
-			r?.question?.toLowerCase().includes(questionText.toLowerCase()),
-		);
-
-		if (!field) return null;
-
-		// Handle file upload responses
-		if (field.type === 'fileupload') {
-			if (!field.answer || field.answer.length === 0) return null;
-			return <FileUploadAnswer answer={field.answer} />;
-		}
-
-		// Handle link responses
-		if (field.type === 'link' && field.answer) {
-			return (
-				<a
-					href={field.answer}
-					target="_blank"
-					rel="noopener noreferrer"
-					className="linkedin-link"
-					style={{
-						color: '#0A66C2',
-						textDecoration: 'none',
-						fontWeight: 500,
-					}}
-				>
-					{field.answer}
-				</a>
-			);
-		}
-
-		if (!field.answer) return null;
-		return field.answer;
 	};
 
 	return (
@@ -149,8 +113,36 @@ const FormResponseList = ({
 			>
 				<div className="collapsible-list__items">
 					{visibleItems?.map((item, index) => {
-						const answer = getQuestionAnswer(item, question.toLowerCase());
-						if (!answer) return null;
+						const field = item?.response?.find((r) => {
+							return r?.question
+								?.toLowerCase()
+								?.includes(question?.toLowerCase() || '');
+						});
+
+						if (!field?.answer) return null;
+
+						let answer = field.answer;
+						if (field.type === 'fileupload') {
+							if (!field.answer || field.answer.length === 0) return null;
+							answer = <FileUploadAnswer answer={field.answer} />;
+						} else if (field.type === 'link' && field.answer) {
+							answer = (
+								<a
+									href={field.answer}
+									target="_blank"
+									rel="noopener noreferrer"
+									className="linkedin-link"
+									style={{
+										color: '#0A66C2',
+										textDecoration: 'none',
+										fontWeight: 500,
+									}}
+								>
+									{field.answer}
+								</a>
+							);
+						}
+
 						return (
 							<Tooltip key={index} title={getName(item)} placement="top">
 								<div className="collapsible-list__item">
@@ -240,8 +232,9 @@ const FormSummary = ({ formId: inputFormId, onDataUpdate, onUserClick }) => {
 				const { data, totalDocs } = response[1].data.formResponseAnalytics;
 
 				// Extract unique questions from the first response
-				if (data.length > 0) {
+				if (data?.length > 0 && data[0]?.response) {
 					const uniqueQuestions = data[0].response
+						.filter((item) => item?.question) // Filter out any items without questions
 						.map((item) => ({
 							question: item.question,
 							type: item.type,
@@ -250,25 +243,47 @@ const FormSummary = ({ formId: inputFormId, onDataUpdate, onUserClick }) => {
 							(item, index, self) =>
 								index ===
 								self.findIndex(
-									(q) => q.question.toLowerCase() === item.question.toLowerCase(),
+									(q) =>
+										q?.question?.toLowerCase() ===
+										item?.question?.toLowerCase(),
 								),
-						);
+						)
+						.sort((a, b) => {
+							// Prioritize name and email questions
+							const aLower = a.question.toLowerCase();
+							const bLower = b.question.toLowerCase();
+
+							// Check for name-related questions
+							const aIsName = aLower.includes('name') || aLower.includes('full name');
+							const bIsName = bLower.includes('name') || bLower.includes('full name');
+
+							// Check for email-related questions
+							const aIsEmail = aLower.includes('email');
+							const bIsEmail = bLower.includes('email');
+
+							// Sort order: name first, then email, then everything else
+							if (aIsName && !bIsName) return -1;
+							if (!aIsName && bIsName) return 1;
+							if (aIsEmail && !bIsEmail) return -1;
+							if (!aIsEmail && bIsEmail) return 1;
+							return 0;
+						});
+
 					setQuestions(uniqueQuestions);
 				}
 
 				setFormData((prev) => ({
 					...prev,
-					responses: data,
-					total: totalDocs,
-					submitted: totalDocs,
-					title: prev.title || data[0]?.title || '',
+					responses: data || [],
+					total: totalDocs || 0,
+					submitted: totalDocs || 0,
+					title: prev.title || data?.[0]?.title || '',
 				}));
 			} else {
 				setError('Failed to fetch form responses');
 			}
 		} catch (err) {
 			setError(err.message || 'An error occurred');
-			console.error('Error fetching form responses:', err);
 		} finally {
 			setLoading(false);
 		}
@@ -310,9 +325,9 @@ const FormSummary = ({ formId: inputFormId, onDataUpdate, onUserClick }) => {
 
 	const getQuestionResponseCount = (questionText) => {
 		return formData.responses.filter((response) => {
-			const field = response?.response?.find((r) =>
-				r?.question?.toLowerCase().includes(questionText.toLowerCase()),
-			);
+			const field = response?.response?.find((r) => {
+				return r?.question?.toLowerCase()?.includes(questionText?.toLowerCase() || '');
+			});
 
 			if (!field) return false;
 
@@ -344,44 +359,48 @@ const FormSummary = ({ formId: inputFormId, onDataUpdate, onUserClick }) => {
 		<div className="formSummaryWrapper">
 			<div className="formSummaryParentContainer">
 				<div className="formSummaryContainer">
-					{questions.map((item, index) => (
-						<div key={index} className="section">
-							<div className="header">
-								<div className="header-top">
-									<span className="title">
-										<span className="question-number">Q{index + 1}:</span>{' '}
-										{item.question}
-									</span>
-									<div
-										className="copy-button"
-										onClick={() => handleCopy(item.question.toLowerCase())}
-									>
-										<Copy className="copy-icon" />
-										<span className="copy-text">
-											{copyStatus[item.question.toLowerCase()]
-												? 'Copied!'
-												: 'Copy'}
+					{questions.map((item, index) => {
+						return (
+							<div key={index} className="section">
+								<div className="header">
+									<div className="header-top">
+										<span className="title">
+											<span className="question-number">Q{index + 1}:</span>{' '}
+											{item.question}
 										</span>
+										<div
+											className="copy-button"
+											onClick={() =>
+												handleCopy(item?.question?.toLowerCase() || '')
+											}
+										>
+											<Copy className="copy-icon" />
+											<span className="copy-text">
+												{copyStatus[item?.question?.toLowerCase() || '']
+													? 'Copied!'
+													: 'Copy'}
+											</span>
+										</div>
+									</div>
+									<div className="total-responses">
+										Total Responses: {getQuestionResponseCount(item.question)}
 									</div>
 								</div>
-								<div className="total-responses">
-									Total Responses: {getQuestionResponseCount(item.question)}
-								</div>
-							</div>
 
-							<FormResponseList
-								expanded={expanded}
-								handleExpand={handleExpand}
-								items={formData.responses}
-								visibleItems={visibleItems}
-								question={item.question}
-								handleCopy={handleCopy}
-								copyStatus={copyStatus}
-								type={item.type}
-								onUserClick={handleUserClick}
-							/>
-						</div>
-					))}
+								<FormResponseList
+									expanded={expanded}
+									handleExpand={handleExpand}
+									items={formData.responses}
+									visibleItems={visibleItems}
+									question={item.question}
+									handleCopy={handleCopy}
+									copyStatus={copyStatus}
+									type={item.type}
+									onUserClick={handleUserClick}
+								/>
+							</div>
+						);
+					})}
 				</div>
 			</div>
 		</div>
