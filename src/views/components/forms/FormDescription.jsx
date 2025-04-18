@@ -140,14 +140,32 @@ const EventsAnswer = ({ answer }) => {
 					</tr>
 				</thead>
 				<tbody>
-					{eventsArray.map((event, index) => (
-						<tr key={index} className="eventCard">
-							<td className="eventName">{String(event?.name || '')}</td>
-							<td className="eventDate">{String(event?.date || '')}</td>
-							<td className="eventLocation">{String(event?.location || '')}</td>
-							<td className="eventGuests">{String(event?.noOfGuests || '')}</td>
-						</tr>
-					))}
+					{eventsArray.map((event, index) => {
+						// Handle both string and object event formats
+						const eventName =
+							typeof event === 'string'
+								? event
+								: event?.name || event?.eventName || '';
+						const eventDate =
+							typeof event === 'string' ? '' : event?.date || event?.eventDate || '';
+						const eventLocation =
+							typeof event === 'string'
+								? ''
+								: event?.location || event?.eventLocation || '';
+						const eventGuests =
+							typeof event === 'string'
+								? ''
+								: event?.noOfGuests || event?.guests || '';
+
+						return (
+							<tr key={index} className="eventCard">
+								<td className="eventName">{eventName}</td>
+								<td className="eventDate">{eventDate}</td>
+								<td className="eventLocation">{eventLocation}</td>
+								<td className="eventGuests">{eventGuests}</td>
+							</tr>
+						);
+					})}
 				</tbody>
 			</table>
 			<div className="divider"></div>
@@ -218,14 +236,32 @@ const LinkAnswer = ({ answer }) => {
 };
 
 const FileUploadAnswer = ({ answer }) => {
-	const files = answer;
+	// Ensure answer is an array and parse if it's a string
+	let files;
+	try {
+		if (typeof answer === 'string') {
+			files = JSON.parse(answer);
+		} else {
+			files = Array.isArray(answer) ? answer : [answer].filter(Boolean);
+		}
+	} catch (e) {
+		console.error('Error parsing files:', e);
+		files = [];
+	}
+
 	return (
 		<>
 			{files?.length > 0 && (
 				<div className="fileUploadContainer">
-					{files?.map((file) => {
-						const { name, previewUrl, lastModified, type } = file;
-						const fileExtension = name?.split('.').pop()?.toLowerCase();
+					{files?.map((file, index) => {
+						// Handle both string and object file formats
+						const fileName =
+							typeof file === 'string' ? file : file?.name || file?.fileName || '';
+						const fileUrl =
+							typeof file === 'string'
+								? file
+								: file?.url || file?.previewUrl || file?.fileUrl || '';
+						const fileExtension = fileName?.split('.').pop()?.toLowerCase();
 						const isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(
 							fileExtension,
 						);
@@ -235,11 +271,11 @@ const FileUploadAnswer = ({ answer }) => {
 						const isPresentation = ['ppt', 'pptx'].includes(fileExtension);
 
 						return (
-							<div key={lastModified} className="fileItem">
+							<div key={index} className="fileItem">
 								{isImage ? (
 									<div className="imagePreview">
-										<img src={previewUrl} alt={name} />
-										<span className="fileName">{name}</span>
+										<img src={fileUrl} alt={fileName} />
+										<span className="fileName">{fileName}</span>
 									</div>
 								) : (
 									<div className="filePreview">
@@ -254,12 +290,12 @@ const FileUploadAnswer = ({ answer }) => {
 												!isPresentation && <FileOutlined />}
 										</div>
 										<a
-											href={previewUrl}
+											href={fileUrl}
 											target="_blank"
 											rel="noopener noreferrer"
 											className="fileName"
 										>
-											{name}
+											{fileName}
 										</a>
 									</div>
 								)}
