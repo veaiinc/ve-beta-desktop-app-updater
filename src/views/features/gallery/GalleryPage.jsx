@@ -193,6 +193,7 @@ const GalleryPage = () => {
 			downloadImagesForClientSelection,
 			editTag,
 			deleteTag,
+			lightroomCopyList,
 		},
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 		profileInfo: { userWorkSpaceList, getTenantSettings, tennantSettingsData },
@@ -2081,9 +2082,16 @@ const GalleryPage = () => {
 			}
 
 			// Get lightroom copy list for regular albums
-			await getLightroomCopyList(galleryId, info.activeAlbumId);
+			response = await getLightroomCopyList(galleryId, info.activeAlbumId);
 
-			if (clientSelectionLightRoomCopy) {
+			if (response) {
+				setInfo((prev) => ({
+					...prev,
+					lightroomCopyList: response?.[1],
+					showLightRoomCopy: true,
+					showOptionsContainer: false,
+				}));
+			} else if (clientSelectionLightRoomCopy) {
 				setInfo((prev) => ({
 					...prev,
 					lightroomCopyList: clientSelectionLightRoomCopy,
