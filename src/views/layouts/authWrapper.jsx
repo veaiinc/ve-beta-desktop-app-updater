@@ -13,6 +13,7 @@ import useAccessControls from '../hooks/useAcessControls';
 import RenewBanner from '../components/globalComponents/RenewBanner';
 import Context from '../../context/context';
 import DynamicWidget from '../features/DynamicWidget/dynamicWidget';
+import { useLocation } from 'react-router-dom';
 const AuthWrapper = ({
 	title,
 	children,
@@ -25,7 +26,7 @@ const AuthWrapper = ({
 		subscriptionInfo: { renewBanner },
 	} = useContext(Context);
 	const [workspaceId, setActiveWorkspaceId] = useActiveWorkspace();
-
+	const location = useLocation();
 	const checkAuth = useAuth();
 	const data = useSubscription();
 	const tokenData = useTokenExpiry();
@@ -41,7 +42,9 @@ const AuthWrapper = ({
 				<title>{title} | VE</title>
 			</Helmet>
 			{renewBanner && <RenewBanner />}
-			{worspaceId.includes(workspaceId) && <DynamicWidget />}
+			{worspaceId.includes(workspaceId) && !location.pathname.includes('/chat') && (
+				<DynamicWidget />
+			)}
 			<div
 				style={{
 					display: 'flex',

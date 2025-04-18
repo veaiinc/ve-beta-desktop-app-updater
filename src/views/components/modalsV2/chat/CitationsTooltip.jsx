@@ -27,6 +27,14 @@ export const CitationsTooltip = memo(({ citationId, citations, placement = 'topL
 	const [citationInfo, setCitationInfo] = useState({});
 	const number = citationId?.slice(1);
 
+	const getFaviconUrl = useCallback((url) => {
+		try {
+			const domain = new URL(url).hostname;
+			return `https://www.google.com/s2/favicons?sz=64&domain=${domain}`;
+		} catch (error) {
+			return null;
+		}
+	}, []);
 	useEffect(() => {
 		if (citations?.length > 0) {
 			const citation = citations?.find((citation) => citation?.id === citationId);
@@ -96,7 +104,16 @@ export const CitationsTooltip = memo(({ citationId, citations, placement = 'topL
 						{citationInfo?.type === 's3_key' ? (
 							<div className="image">{fileTypeIcons[citationInfo?.fileType]}</div>
 						) : null}
-						<div className="citation-link">{citationInfo?.name}</div>
+						<div className="citation-link-container">
+							<img
+								className="citation-link-favicon"
+								src={getFaviconUrl(citationInfo?.link)}
+							/>
+							<div className="citation-link-text">
+								<div className="citation-link">{citationInfo?.link}</div>
+								{/* <span>Page</span> */}
+							</div>
+						</div>
 					</div>
 				</a>
 			}

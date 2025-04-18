@@ -1,10 +1,10 @@
 import { memo, useContext, useCallback, useState, useEffect } from 'react';
 import '../../../assets/scss/chat/aiMessageRenderer.scss';
 import { ReactComponent as Logo } from '../../../assets/svg/loader/loaderLogo.svg';
-import { TypingEffect } from '../../../helpers/markdownHelper';
 import Context from '../../../context/context';
 import ChainOfThought from '../../components/chat/chatComponents/ChainOfThought';
 import { ReactComponent as LinkIcon } from '../../../assets/svg/ai_agents/link.svg';
+import AIMessage from './AIMessage';
 const AIMessageRenderer = ({
 	messageData,
 	handleNoteComponentModalOpen,
@@ -125,7 +125,7 @@ const AIMessageRenderer = ({
 				</div>
 			</div>
 			{info?.activeTab == 'response' ? (
-				<TypingEffect
+				<AIMessage
 					text={messageData?.message}
 					messageId={messageData?.messageId}
 					customePencilClickFunc={handleNoteComponentModalOpen}
