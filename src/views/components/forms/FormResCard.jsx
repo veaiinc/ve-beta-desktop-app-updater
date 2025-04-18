@@ -311,7 +311,7 @@ const FormResCard = ({
 
 	if (error) return <div>Error: {error}</div>;
 	if (loading) return <div className="loading-state">Loading...</div>;
-	if (!responses.length) return <div className="loading-state">Loading...</div>;
+	if (!responses.length) return <div className="no-responses">No responses yet</div>;
 
 	return (
 		<div className="formResLayout">
