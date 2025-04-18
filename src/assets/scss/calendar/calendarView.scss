@@ -57,8 +57,7 @@
 
 	.rbc-timeslot-group {
 		border: none;
-
-		background-color: var(--card-over-card);
+		background-color: var(--card);
 	}
 
 	.rbc-time-gutter {
@@ -337,7 +336,6 @@
 
 		.customEventWrapper {
 			.rbc-event {
-				border: none;
 				border: none;
 				padding: 2px;
 				min-width: 100%;
