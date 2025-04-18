@@ -12,8 +12,8 @@
 	transition: all 0.2s ease-in-out !important;
 	cursor: pointer !important;
 	&:hover {
-		background: var(--card) !important;
-		color: var(--card) !important;
+		background: var(--card-hover) !important;
+		color: var(--primary-font) !important;
 	}
 	margin-left: 6px !important;
 }

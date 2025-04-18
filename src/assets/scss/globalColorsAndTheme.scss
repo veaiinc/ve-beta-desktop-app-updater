@@ -33,11 +33,11 @@
 
 	//ai color code
 	--ai-color-code: linear-gradient(
-        94deg,
-        rgba(195, 157, 248, 0) -2.07%,
-        rgb(195, 157, 248) -2.06%,
-        rgb(236, 124, 157) 95.85%
-    );
+		94deg,
+		rgba(195, 157, 248, 0) -2.07%,
+		#c39df8 -2.06%,
+		#ec7c9d 95.85%
+	);
 
 	//button colors
 	--primary-button: #cfff48; // rgb(207, 255, 72)
@@ -57,6 +57,8 @@
 	--setting-color: var(--setting-color-light); // rgb(255, 255, 255)
 	--product-lime-blu: #cfff48; // rgb(207, 255, 72)
 	--default-state-buttons: #2e2f33; // rgb(46, 47, 51)
+
+	--chat-secondary-font: #ccccd3; // rgb(195, 195, 201)
 }
 
 // light theme global css variables
@@ -94,5 +96,6 @@
 	--setting-color: var(--setting-color-dark); // rgb(0, 0, 0)
 	--product-lime-blu: #a5d9ff; // rgb(165, 217, 255)
 	--default-state-buttons: #dfdfdf; // rgb(223, 223, 223)
-}
 
+	--chat-secondary-font: #4f6064; // rgb(79, 96, 100)
+}

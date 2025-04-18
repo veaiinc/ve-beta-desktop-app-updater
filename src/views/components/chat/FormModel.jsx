@@ -4,7 +4,7 @@ import { ReactComponent as ExpandIcon } from '../../../assets/svg/docs/expand.sv
 import { fetchOriginSelection } from '../../../helpers';
 import FromModelChatBox from './FromModelChatBox';
 import Context from '../../../context/context';
-import ChatBox from '../homePage/ChatBox';
+import ChatBox from './ChatBox';
 import { TypingEffect } from '../../../helpers/markdownHelper';
 import Markdown from 'react-markdown';
 import { ReactComponent as LinkLightSvg } from '../../../assets/svg/notes/loop-light.svg';

@@ -12,7 +12,7 @@ import { ReactComponent as CopySvg } from '../../../assets/svg/notes/copy.svg';
 import { ReactComponent as ShareSvg } from '../../../assets/svg/notes/share.svg';
 import { ReactComponent as RightDoubleArrowSvg } from '../../../assets/svg/notes/right-double-arrow.svg';
 import { StarSvg } from '../../../assets/svg/notes/Star';
-import ChatBox from '../homePage/ChatBox';
+import ChatBox from '../chat/ChatBox';
 import { useContext } from 'react';
 import Context from '../../../context/context';
 import { ReactComponent as FullScreenSvg } from '../../../assets/svg/notes/fullScreen.svg';
