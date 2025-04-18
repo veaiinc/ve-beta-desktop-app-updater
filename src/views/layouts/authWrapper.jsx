@@ -66,7 +66,11 @@ const AuthWrapper = ({
 			</Helmet>
 			{renewBanner && <RenewBanner />}
 			{worspaceId.includes(workspaceId) && <DynamicWidget />}
-			{openSearchModal && createPortal(<CommandKSearch />, document.body)}
+			{openSearchModal &&
+				createPortal(
+					<CommandKSearch handleCloseSearchModal={handleCloseSearchModal} />,
+					document.body,
+				)}
 			<div
 				style={{
 					display: 'flex',
