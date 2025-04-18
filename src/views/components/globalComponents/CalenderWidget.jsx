@@ -107,6 +107,8 @@ const CalenderWidget = ({ width }) => {
 		const payload = {
 			options: {
 				startDate: info?.currentCalendarDate?.toISOString(),
+				sortType: 'startDateTime',
+				sortOrder: 'asc',
 			},
 		};
 		if (allCalendarEvents?.currentPage !== info?.page) {
@@ -117,9 +119,7 @@ const CalenderWidget = ({ width }) => {
 	const fetchMoreCalendarEvents = () => {
 		const nextPage = eventsCurrentPage + 1;
 		const payload = {
-			options: {
-				limit: 20,
-			},
+			options: {},
 		};
 		if (eventsCurrentPage !== undefined) {
 			getAllCalendarEvents(nextPage, 20, payload);
