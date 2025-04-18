@@ -1,4 +1,4 @@
-import React, { useState, memo, useEffect, useCallback, useContext } from 'react';
+import React, { useState, memo, useEffect, useCallback, useContext, useRef } from 'react';
 import ReactModal from '../modalsV2';
 import { ReactComponent as CrossSvg } from '../../../assets/svg/gallery/cross.svg';
 import '../../../assets/scss/home_page/promptPopup.scss';
@@ -6,23 +6,83 @@ import Context from '../../../context/context';
 import { useNavigate } from 'react-router-dom';
 import ObjectID from 'bson-objectid';
 
+const customStyles = {
+	content: { zIndex: 99999 },
+	overlay: { zIndex: 99998 },
+};
+
+const spanStyles = {
+	display: 'inline-flex',
+	padding: '2px 8px 3px',
+	border: '1px solid var(--stroke)',
+	background: 'var(--card)',
+	borderRadius: '16px',
+	margin: '2px',
+	lineHeight: '1.4',
+};
+
 const PromptPopup = ({ open, closeModal, selectedCard }) => {
 	const {
 		templates: { updateStateValues },
 	} = useContext(Context);
 
-	const [searchText, setSearchText] = useState('');
+	// const [searchText, setSearchText] = useState('');
 	const [selectedOptions, setSelectedOptions] = useState({});
 	const [isOpen, setIsOpen] = useState(false);
 	const [clientSearch, setClientSearch] = useState('');
-	const [dynamicPrompt, setDynamicPrompt] = useState(selectedCard?.prompt || '');
+	const [dynamicValues, setDynamicValues] = useState({});
+	const editableRef = useRef(null);
+	const [parsedPrompt, setParsedPrompt] = useState([]);
+
 	const navigate = useNavigate();
 
-	const selectedCardVariables = selectedCard?.variables;
-
 	useEffect(() => {
-		setDynamicPrompt(selectedCard?.prompt || '');
+		if (!selectedCard?.prompt) return;
+
+		const matches = [...selectedCard.prompt.matchAll(/\[([^\]]+)\]/g)];
+
+		let lastIndex = 0;
+		const parts = [];
+
+		matches.forEach((match) => {
+			const index = match.index;
+			if (lastIndex < index) {
+				parts.push({ type: 'text', value: selectedCard.prompt.slice(lastIndex, index) });
+			}
+			parts.push({ type: 'variable', value: match[1] });
+			lastIndex = index + match[0].length;
+		});
+
+		if (lastIndex < selectedCard.prompt.length) {
+			parts.push({ type: 'text', value: selectedCard.prompt.slice(lastIndex) });
+		}
+
+		setParsedPrompt(parts);
+
+		// Initialize variable values
+		const initialValues = {};
+		matches.forEach((m) => (initialValues[m[1]] = ''));
+		setDynamicValues(initialValues);
 	}, [selectedCard]);
+
+	const handleVariableChange = (key, value) => {
+		setDynamicValues((prev) => ({
+			...prev,
+			[key]: value,
+		}));
+	};
+
+	const handlePromptInput = () => {
+		if (!editableRef.current) return;
+
+		const children = editableRef.current.querySelectorAll('[data-key]');
+		const updatedValues = {};
+		children.forEach((el) => {
+			const key = el.getAttribute('data-key');
+			updatedValues[key] = el.textContent;
+		});
+		setDynamicValues(updatedValues);
+	};
 
 	const handleSelectedFile = (file) => {
 		setSelectedOptions((prev) => {
@@ -64,13 +124,34 @@ const PromptPopup = ({ open, closeModal, selectedCard }) => {
 	};
 
 	const handleClickRun = useCallback(() => {
-		updateStateValues({ activePromptForChat: dynamicPrompt });
+		// Create the final dynamic prompt by joining the text and replacing variables
+		let finalPrompt = parsedPrompt
+			.map((part) => {
+				if (part.type === 'text') {
+					return part.value; // If it's regular text, keep it as it is
+				} else if (part.type === 'variable') {
+					// Replace the variable with its value from dynamicValues
+					return dynamicValues[part.value] || `[${part.value}]`; // Use the value if available, otherwise keep the placeholder
+				}
+				return '';
+			})
+			.join(''); // Join all parts into a single string
+
+		// Update activePromptForChat with the final string
+		updateStateValues({ activePromptForChat: finalPrompt });
+
+		// Close the modal and navigate to the chat page
 		closeModal();
 		navigate(`/chat/${ObjectID().toString()}`);
-	}, [dynamicPrompt]);
+	}, [parsedPrompt, dynamicValues, updateStateValues, closeModal, navigate]);
 
 	return (
-		<ReactModal isOpen={open} closeModal={closeModal} modalType={'center'}>
+		<ReactModal
+			isOpen={open}
+			closeModal={closeModal}
+			modalType={'center'}
+			customStyles={customStyles}
+		>
 			<div className="promptPopupContainer">
 				<div className="promptPopupContainerHeader">
 					<div className="promptPopupContainerHeaderLeft">
@@ -83,15 +164,43 @@ const PromptPopup = ({ open, closeModal, selectedCard }) => {
 						<CrossSvg />
 					</div>
 				</div>
-
+				<div className="promptPopupContainerEditableFields">Editable Fields</div>
 				<div className="promptPopupContainerBody">
-					<textarea
-						value={dynamicPrompt}
-						onChange={(e) => setDynamicPrompt(e?.target?.value)}
+					<div
 						className="promptPopupContainerBodyText"
-						rows={2}
-						style={{ resize: 'none' }}
-					/>
+						style={{ whiteSpace: 'pre-wrap' }}
+					>
+						{parsedPrompt.map((part, index) => {
+							if (part.type === 'text') {
+								// If it's regular text (including brackets), show it as static
+								return <span key={index}>{part.value}</span>;
+							} else if (part.type === 'variable') {
+								// If it's a variable, show the brackets but make the inner content editable
+								return (
+									<span key={index} style={spanStyles}>
+										<span
+											contentEditable
+											suppressContentEditableWarning
+											style={{
+												borderBottom: '1px dashed var(--stroke)',
+												padding: '0 4px',
+												color: 'var(--primary-font)',
+												outline: 'none',
+											}}
+											onBlur={(e) => {
+												const newValue = e.target.innerText;
+												handleVariableChange(part.value, newValue); // Ensure this updates the dynamicValues
+											}}
+											dangerouslySetInnerHTML={{
+												__html: dynamicValues[part.value] || part.value, // Ensure it uses the dynamic state
+											}}
+										/>
+									</span>
+								);
+							}
+							return null;
+						})}
+					</div>
 				</div>
 
 				{selectedOptions?.[selectedCard?.id]?.length && (

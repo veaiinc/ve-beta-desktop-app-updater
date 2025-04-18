@@ -11,12 +11,26 @@
 	--error: #c71b3a; // rgb(199, 27, 58)
 	--pending: #ffa32f; // rgb(255, 163, 47)
 	--info: #5089f9; // rgb(80, 137, 249)
+	//common colors;
+	--accent-color: #b39dfa; // rgb(179, 157, 250)
+	--success: #00fc2e; // rgb(0, 252, 46)
+	--error: #c71b3a; // rgb(199, 27, 58)
+	--pending: #ffa32f; // rgb(255, 163, 47)
+	--info: #5089f9; // rgb(80, 137, 249)
 	// main colors
+	--background-color: #0c0c0d; // rgb(12, 12, 13)
 	--background-color: #0c0c0d; // rgb(12, 12, 13)
 	// font colors
 	--primary-font: #f2f2f3; // rgb(242, 242, 243)
 	--secondary-font: #7a7e85; // rgb(122, 126, 133)
+	--primary-font: #f2f2f3; // rgb(242, 242, 243)
+	--secondary-font: #7a7e85; // rgb(122, 126, 133)
 	// card colors
+	--card: #1e2021; // rgb(30, 32, 33)
+	--card-hover: #262829; // rgb(38, 40, 41)
+	--card-over-card: #262829; // rgb(38, 40, 41)
+	--card-over-card-hover: #2e2f32; // rgb(46, 47, 50)
+	--popup: #202123; // rgb(32, 33, 35)
 	--card: #1e2021; // rgb(30, 32, 33)
 	--card-hover: #262829; // rgb(38, 40, 41)
 	--card-over-card: #262829; // rgb(38, 40, 41)
@@ -26,17 +40,24 @@
 	--stroke: #2c2e31; // rgb(44, 46, 49)
 	--stroke-hover: #424548; // rgb(66, 69, 72)
 	--stroke-active: #202123; // rgb(32, 33, 35)
+	--stroke: #2c2e31; // rgb(44, 46, 49)
+	--stroke-hover: #424548; // rgb(66, 69, 72)
+	--stroke-active: #202123; // rgb(32, 33, 35)
 	// navbar colors
+	--navbar: #202123; // rgb(32, 33, 35)
+	--right-bar: #171819; // rgb(23, 24, 25)
+	// ai color code (gradient: colors inside are hex)
 	--navbar: #202123; // rgb(32, 33, 35)
 	--right-bar: #171819; // rgb(23, 24, 25)
 	// ai color code (gradient: colors inside are hex)
 
 	//ai color code
+	//ai color code
 	--ai-color-code: linear-gradient(
 		94deg,
 		rgba(195, 157, 248, 0) -2.07%,
-		#c39df8 -2.06%,
-		#ec7c9d 95.85%
+		rgb(195, 157, 248) -2.06%,
+		rgb(236, 124, 157) 95.85%
 	);
 
 	//button colors
@@ -48,6 +69,8 @@
 	--secondary-button-hover: #ffffe7; // rgb(255, 255, 231)
 	--secondary-button-active: #ffffe7; // rgb(255, 255, 231)
 	// spinner colors
+	--spinner-color-light: #000; // rgb(0, 0, 0)
+	--spinner-color-dark: #fff; // rgb(255, 255, 255)
 	--spinner-color-light: #000; // rgb(0, 0, 0)
 	--spinner-color-dark: #fff; // rgb(255, 255, 255)
 	// setting colors
@@ -66,10 +89,18 @@
 	//main colors
 	// main colors
 	--background-color: #fff; // rgb(255, 255, 255)
+	--background-color: #fff; // rgb(255, 255, 255)
 	// font colors
 	--primary-font: #0c0c0d; // rgb(12, 12, 13)
 	--secondary-font: #7f858f; // rgb(127, 133, 143)
+	--primary-font: #0c0c0d; // rgb(12, 12, 13)
+	--secondary-font: #7f858f; // rgb(127, 133, 143)
 	// card colors
+	--card: #f9f9f9; // rgb(249, 249, 249)
+	--card-hover: #f1f2f2; // rgb(241, 242, 242)
+	--card-over-card: #f1f2f2; // rgb(241, 242, 242)
+	--card-over-card-hover: #e8e8ea; // rgb(232, 232, 234)
+	--popup: #fff; // rgb(255, 255, 255)
 	--card: #f9f9f9; // rgb(249, 249, 249)
 	--card-hover: #f1f2f2; // rgb(241, 242, 242)
 	--card-over-card: #f1f2f2; // rgb(241, 242, 242)
@@ -80,10 +111,23 @@
 	--stroke-hover: #7b7d84; // rgb(123, 125, 132)
 	--stroke-active: #f2f2f3; // rgb(242, 242, 243)
 	--stroke-disabled: #f2f2f3; // rgb(242, 242, 243)
+	--stroke: #dddde0; // rgb(221, 221, 224)
+	--stroke-hover: #7b7d84; // rgb(123, 125, 132)
+	--stroke-active: #f2f2f3; // rgb(242, 242, 243)
+	--stroke-disabled: #f2f2f3; // rgb(242, 242, 243)
 	// navbar colors
 	--navbar: #ffffff; // rgb(255, 255, 255)
 	--right-bar: #f1f2f2; // rgb(241, 242, 242)
+	--navbar: #ffffff; // rgb(255, 255, 255)
+	--right-bar: #f1f2f2; // rgb(241, 242, 242)
 	// button colors
+	--primary-button: #a5d9ff; // rgb(165, 217, 255)
+	--primary-button-hover: #f2f2f3; // rgb(242, 242, 243)
+	--primary-button-active: #f2f2f3; // rgb(242, 242, 243)
+	--primary-button-font: #0c0c0d; // rgb(12, 12, 13)
+	--secondary-button: #f2f2f3; // rgb(242, 242, 243)
+	--secondary-button-hover: #e4e4e7; // rgb(228, 228, 231)
+	--secondary-button-active: #e4e4e7; // rgb(228, 228, 231)
 	--primary-button: #a5d9ff; // rgb(165, 217, 255)
 	--primary-button-hover: #f2f2f3; // rgb(242, 242, 243)
 	--primary-button-active: #f2f2f3; // rgb(242, 242, 243)
