@@ -306,6 +306,7 @@ const CalenderWidget = ({ width }) => {
 				categoryList={calendarCategoriesList}
 				onClose={handleModalClose}
 				updateCalenderEventsList={updateCalenderEventsList}
+				filterDeletedEvent={filterDeletedEvent}
 			/>
 		</div>
 	);
