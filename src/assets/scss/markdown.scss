@@ -103,9 +103,8 @@
 		font-family: var(--secondary-font-family);
 	}
 
-	.hr {
-		height: calc(var(--font-size) * 0.0625); /* 1px based on --font-size */
-		background-color: rgba(44, 46, 49, 1);
+	hr {
+		margin: calc(var(--font-size) * 0.5) 0;
 	}
 
 	.ol,
@@ -140,10 +139,10 @@
 
 	.strong {
 		color: var(--primary-font);
-		font-size: calc(var(--font-size) * 0.9375); /* 0.9375em based on --font-size */
+		font-size: calc(var(--font-size) * 0.875);
 		line-height: calc(var(--font-size) * 1.5);
 		letter-spacing: calc(var(--font-size) * 0.0125);
-		font-weight: 800;
+		font-weight: 900;
 		font-family: var(--secondary-font-family);
 	}
 
