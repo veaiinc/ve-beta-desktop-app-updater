@@ -4140,6 +4140,7 @@ const GalleryPage = () => {
 																							...prev.galleryTagHover,
 																							[index]: false,
 																						},
+																					showTagOptions: false,
 																				}));
 																			}}
 																		>
@@ -4160,13 +4161,13 @@ const GalleryPage = () => {
 																					alt="sixDots"
 																				/>
 																			</div>
-																			<p
-																				className={
-																					info?.albumContains ===
-																					contain.displayName
-																						? 'active'
-																						: ''
-																				}
+																			<div
+																				style={{
+																					display: 'flex',
+																					alignItems:
+																						'center',
+																					gap: '8px',
+																				}}
 																				onClick={() =>
 																					handleClickAlbum(
 																						contain,
@@ -4174,28 +4175,31 @@ const GalleryPage = () => {
 																					)
 																				}
 																			>
-																				{
-																					contain.displayName
-																				}
-																			</p>
-																			<p
-																				className={
-																					info?.albumContains ===
-																					contain?.displayName
-																						? 'count-active'
-																						: 'count'
-																				}
-																				onClick={() =>
-																					handleClickAlbum(
-																						contain,
-																						'containName',
-																					)
-																				}
-																			>
-																				{
-																					contain.imagesCount
-																				}
-																			</p>
+																				<p
+																					className={
+																						info?.albumContains ===
+																						contain.displayName
+																							? 'active'
+																							: ''
+																					}
+																				>
+																					{
+																						contain.displayName
+																					}
+																				</p>
+																				<p
+																					className={
+																						info?.albumContains ===
+																						contain?.displayName
+																							? 'count-active'
+																							: 'count'
+																					}
+																				>
+																					{
+																						contain.imagesCount
+																					}
+																				</p>
+																			</div>
 																			{info?.galleryTagHover[
 																				index
 																			] &&
