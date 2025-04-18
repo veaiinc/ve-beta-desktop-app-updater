@@ -17,13 +17,13 @@
 
 	// font colors
 	--primary-font: rgb(242, 242, 243); // #f2f2f3
-	--secondary-font: rgb(122, 126, 133); // #7a7e85
+	--secondary-font: rgba(122, 126, 133, 1);
 
 	// card colors
 	--card: rgb(30, 32, 33); // #1e2021
-	--card-hover: rgb(38, 40, 41); // #262829
+	--card-hover: rgba(37, 39, 40, 1);
 	--card-over-card: rgb(38, 40, 41); // #262829
-	--card-over-card-hover: rgb(46, 47, 50); // #2e2f32
+	--card-over-card-hover: rgba(46, 47, 50, 1);
 	--popup: rgb(32, 33, 35); // #202123
 
 	// stroke colors
@@ -75,14 +75,14 @@
 
 	// font colors
 	--primary-font: rgb(12, 12, 13); // #0c0c0d
-	--secondary-font: rgb(127, 133, 143); // #7f858f
+	--secondary-font: rgba(127, 133, 143, 1);
 
 	// card colors
 	--card: rgb(249, 249, 249); // #f9f9f9
 	--card-hover: rgb(241, 242, 242); // #f1f2f2
 	--card-over-card: rgb(241, 242, 242); // #f1f2f2
-	--card-over-card-hover: rgb(232, 232, 234); // #e8e8ea
-	--popup: rgb(255, 255, 255); // #fff
+	--card-over-card-hover: rgba(218, 218, 221, 1);
+	--popup: rgba(255, 255, 255, 1);
 
 	// stroke colors
 	--stroke: rgb(221, 221, 224); // #dddde0
