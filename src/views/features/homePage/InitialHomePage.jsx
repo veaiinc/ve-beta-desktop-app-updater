@@ -110,7 +110,7 @@ const InitialHomePage = () => {
 		} else {
 			getPromptsData({ category: 'all', limit: 30 });
 		}
-	}, [promptsData, handleUpdateOptions, info?.optionsHandledOnce?.prompts, getPromptsData]);
+	}, [promptsData]);
 
 	useEffect(() => {
 		if (info?.selectedOption) {
@@ -142,12 +142,7 @@ const InitialHomePage = () => {
 		} else {
 			getAISuggestedPendingActions();
 		}
-	}, [
-		aiSuggestedPendingActions,
-		handleUpdateOptions,
-		info?.optionsHandledOnce?.proactiveSuggestions,
-		getAISuggestedPendingActions,
-	]);
+	}, [aiSuggestedPendingActions]);
 
 	const options = useMemo(
 		() => info?.options?.filter((option) => option?.showOption),
