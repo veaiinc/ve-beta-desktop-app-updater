@@ -11,6 +11,16 @@ const customStyles = {
 	overlay: { zIndex: 99998 },
 };
 
+const spanStyles = {
+	display: 'inline-flex',
+	padding: '2px 8px 3px',
+	border: '1px solid var(--stroke)',
+	background: 'var(--card)',
+	borderRadius: '16px',
+	margin: '2px',
+	lineHeight: '1.4',
+};
+
 const PromptPopup = ({ open, closeModal, selectedCard }) => {
 	const {
 		templates: { updateStateValues },
@@ -154,7 +164,7 @@ const PromptPopup = ({ open, closeModal, selectedCard }) => {
 						<CrossSvg />
 					</div>
 				</div>
-
+				<div className="promptPopupContainerEditableFields">Editable Fields</div>
 				<div className="promptPopupContainerBody">
 					<div
 						className="promptPopupContainerBodyText"
@@ -167,8 +177,7 @@ const PromptPopup = ({ open, closeModal, selectedCard }) => {
 							} else if (part.type === 'variable') {
 								// If it's a variable, show the brackets but make the inner content editable
 								return (
-									<span key={index} style={{ display: 'inline-flex' }}>
-										<span style={{ marginRight: '4px' }}>[</span>
+									<span key={index} style={spanStyles}>
 										<span
 											contentEditable
 											suppressContentEditableWarning
@@ -186,7 +195,6 @@ const PromptPopup = ({ open, closeModal, selectedCard }) => {
 												__html: dynamicValues[part.value] || part.value, // Ensure it uses the dynamic state
 											}}
 										/>
-										<span style={{ marginLeft: '4px' }}>]</span>
 									</span>
 								);
 							}
