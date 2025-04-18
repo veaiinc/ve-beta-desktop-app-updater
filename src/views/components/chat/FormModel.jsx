@@ -129,12 +129,13 @@ const Section1 = ({
 		lastQuery: '',
 		latestStreamMesage: null,
 	});
-	const { socketRef, createWebSocketConnection, sendMessage } = useChatStream();
 	const chatContentRef = useRef(null);
-	const loadingMessageRef = useRef(globalLoadingMesssage);
 	const chatMessagesRef = useRef(globalChatMessages || []);
-	let { sessionId } = useParams();
-	const [searchParams, setSearchParams] = useSearchParams();
+
+	useEffect(() => {
+		smoothScrollToBottom();
+	}, [globalChatMessages]);
+
 	const smoothScrollToBottom = useCallback(
 		(type) => {
 			const scrollElement = chatContentRef?.current;
@@ -182,7 +183,7 @@ const Section1 = ({
 	}, []);
 	return (
 		<div className="form-model-chat-bar-container">
-			<div className="chat-to-note-link-container">
+			{/* <div className="chat-to-note-link-container">
 				<div className="title">Link all chat to note</div>
 				<div
 					className={`link-icon-container ${info?.chatToNoteLoopOn ? 'active' : ''}`}
@@ -190,7 +191,7 @@ const Section1 = ({
 				>
 					{info?.chatToNoteLoopOn ? <LinkDarkSvg /> : <LinkLightSvg />}
 				</div>
-			</div>
+			</div> */}
 			{/* chat body */}
 			<div className={`chatBodyParentContainer`} ref={chatContentRef}>
 				<div className="chatContent">
@@ -228,7 +229,7 @@ const Section1 = ({
 			</div>
 			<div className="chat-box-wrapper">
 				<ChatBox
-					showChatLabels={false}
+					showIconText={false}
 					handleSendWebsocketMessage={handleSendWebsocketMessage}
 					latestStreamMesage={latestStreamMesage}
 					lastQuery={lastQuery}
@@ -260,7 +261,7 @@ const Section2 = ({ workflowTemplateId: workflowTemplateIdFromProps }) => {
 		<div className="section-content">
 			{showIframe && (
 				<iframe
-					src={`${origin}/${workflowTemplateIdFromProps}`}
+					src={`https://builder.ve.co/${workflowTemplateIdFromProps}`}
 					title="Builder Preview"
 					onClick={(e) => e.stopPropagation()}
 					onMouseDown={(e) => e.stopPropagation()}
