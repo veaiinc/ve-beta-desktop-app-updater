@@ -73,6 +73,7 @@ const RecentChat = ({
 		showScrollButton: false,
 		showViewDocument: false,
 	});
+	console.log(globalChatMessages, 'globalChatMessages');
 
 	const { createWebSocketConnection, sendMessage } = useChatStream();
 	const chatContentRef = useRef(null);

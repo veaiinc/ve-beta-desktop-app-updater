@@ -15,6 +15,7 @@ const iconMap = {
 	calendar: <CalendarIcon />,
 	contacts: <ContactsIcon />,
 };
+
 const PromptsWidget = ({ option = '' }) => {
 	const [info, setInfo] = useState({
 		selectedCard: null,
