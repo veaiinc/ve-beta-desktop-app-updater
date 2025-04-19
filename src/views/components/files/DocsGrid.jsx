@@ -10,6 +10,7 @@ import Context from '../../../context/context';
 import gsap from 'gsap';
 import Spinner from '../loaders/Spinner';
 import FilterDropdown from '../dropDown/file/FilterDropdown';
+import EmptyState from './EmptyState';
 
 const filterOptions = [
 	{ label: 'All', value: '' },
@@ -205,7 +206,7 @@ const DocsGrid = ({ statusTextmapper, handleCreateDoc, handleTotalChange }) => {
 					<div className="spinner-container">
 						<Spinner />
 					</div>
-				) : (
+				) : info?.docs?.length > 0 ? (
 					<InfiniteScroll
 						dataLength={info?.docs?.length}
 						next={fetchMore}
@@ -245,6 +246,18 @@ const DocsGrid = ({ statusTextmapper, handleCreateDoc, handleTotalChange }) => {
 							))}
 						</div>
 					</InfiniteScroll>
+				) : (
+					<div className="spinner-container">
+						<EmptyState
+							title={'No documents here'}
+							subtitle={
+								'Start by adding documents, images, or media to keep everything in one place.'
+							}
+							buttonOnClick={handleCreateDoc}
+							buttonText={'Upload Files'}
+							showUpload={true}
+						/>
+					</div>
 				)}
 			</div>
 		</div>

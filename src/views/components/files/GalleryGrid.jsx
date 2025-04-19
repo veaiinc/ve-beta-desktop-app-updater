@@ -9,6 +9,7 @@ import Context from '../../../context/context';
 import InfiniteScroll from '../globalComponents/InfiniteScroll';
 import FilterDropdown from '../dropDown/file/FilterDropdown';
 import gsap from 'gsap';
+import EmptyState from './EmptyState';
 
 const filterOptions = [
 	{ label: 'All', value: 'all' },
@@ -163,7 +164,7 @@ const GalleryGrid = ({
 		return () => clearTimeout(timeout);
 	}, [info?.galleries?.length]);
 
-	const fetchGalleries = async ({ page = 1, limit = 20, storeOriginals, sort }) => {
+	const fetchGalleries = async ({ page = 1, limit = 20, storeOriginals }) => {
 		try {
 			const { value, sortType } = info?.selectedSort;
 
@@ -229,9 +230,9 @@ const GalleryGrid = ({
 					<div className="spinner-container">
 						<Spinner />
 					</div>
-				) : (
+				) : info?.galleries?.length > 0 ? (
 					<InfiniteScroll
-						dataLength={info?.docs?.length}
+						dataLength={info?.galleries?.length}
 						next={fetchMore}
 						hasMore={info?.hasNextPage}
 						height={'100%'}
@@ -285,6 +286,18 @@ const GalleryGrid = ({
 							))}
 						</div>
 					</InfiniteScroll>
+				) : (
+					<div className="spinner-container">
+						<EmptyState
+							title={'Your gallery is empty'}
+							subtitle={
+								'Start by adding images, or videos to keep everything in one place.'
+							}
+							buttonOnClick={handleCreateNewGallery}
+							buttonText={'Upload Gallery'}
+							showUpload={true}
+						/>
+					</div>
 				)}
 			</div>
 		</div>

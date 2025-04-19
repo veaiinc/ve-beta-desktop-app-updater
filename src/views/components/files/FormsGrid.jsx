@@ -9,6 +9,7 @@ import Context from '../../../context/context';
 import gsap from 'gsap';
 import Spinner from '../loaders/Spinner';
 import FilterDropdown from '../dropDown/file/FilterDropdown';
+import EmptyState from './EmptyState';
 
 const sortOptions = [
 	{ label: 'Recently Added', value: 'createdAt', sortType: -1 },
@@ -183,7 +184,7 @@ const FormsGrid = ({
 					<div className="spinner-container">
 						<Spinner />
 					</div>
-				) : (
+				) : info?.forms?.length > 0 ? (
 					<InfiniteScroll
 						dataLength={info?.forms?.length}
 						next={fetchMore}
@@ -203,7 +204,7 @@ const FormsGrid = ({
 								<div
 									className="card-item"
 									key={index}
-									onClick={() => handleNavigateForm(form?._id)}
+									onClick={() => handleNavigateForm(form)}
 								>
 									<div className="card-item-style content-wrapper docs">
 										<DocsStatusButton
@@ -225,6 +226,15 @@ const FormsGrid = ({
 							))}
 						</div>
 					</InfiniteScroll>
+				) : (
+					<div className="spinner-container">
+						<EmptyState
+							title={'No Forms here'}
+							subtitle={'Try creating some forms'}
+							buttonOnClick={handleCreateForm}
+							buttonText={'Create form'}
+						/>
+					</div>
 				)}
 			</div>
 		</div>

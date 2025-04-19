@@ -47,7 +47,9 @@ const AISuggestionsModal = ({ open, onClose, data, onNextCardClick, onPrevCardCl
 					research_report: data?.research_report,
 				},
 				processing: 'Report',
-				cot,
+				deepSearch: {
+					cot,
+				},
 				follow_up_query: data?.suggested_prompts,
 				stream_end: true,
 			},
