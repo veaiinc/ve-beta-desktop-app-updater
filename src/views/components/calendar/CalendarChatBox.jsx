@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
-import ChatBox from '../homePage/ChatBox';
 import '../../../assets/scss/calendar/calendarChatBox.scss';
+import ChatBox from '../chat/ChatBox';
 
 const CalendarChatBox = (props) => {
 	return (

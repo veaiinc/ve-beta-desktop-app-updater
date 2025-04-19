@@ -46,7 +46,7 @@
 		}
 
 		.section-30 {
-			flex: 0 0 30%;
+			flex: 0 0 20%;
 			background-color: var(--card, #171819);
 			border-right: 1px solid rgba(242, 242, 243, 0.1);
 			overflow-y: auto;
@@ -125,7 +125,7 @@
 					padding: 24px;
 					overflow-y: scroll;
 					width: 100%;
-					height: calc(100% - 204px);
+					height: calc(100% - 129px);
 					transition: 300ms ease-in-out;
 					background-color: var(--card);
 
@@ -222,7 +222,7 @@
 		}
 
 		.section-70 {
-			flex: 0 0 70%;
+			flex: 0 0 80%;
 			background-color: #ffffff;
 			overflow-y: auto;
 

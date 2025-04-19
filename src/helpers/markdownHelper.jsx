@@ -66,7 +66,7 @@ const rehypeCITPlugin = () => {
 // Move components outside to prevent recreation on every render
 const baseComponents = {
 	pre: ({ children }) => <pre className="pre">{children}</pre>,
-	hr: () => <hr className="hr" />,
+	hr: () => <hr />,
 	ol: ({ children, ...props }) => (
 		<ol className="ol" {...props}>
 			{children}
