@@ -687,7 +687,7 @@ export const TemplatesState = (props) => {
 				limit,
 				page,
 				type: 'workspace',
-				status: 'published',
+				// status: 'published',
 				sortBy,
 				sortType,
 				action: 'form-submission',
