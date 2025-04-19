@@ -81,6 +81,25 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 	}, [noteId]);
 
 	useEffect(() => {
+		const handleKeyDown = (e) => {
+			const isMac = navigator.platform.toUpperCase().includes('MAC');
+			const isSaveShortcut =
+				(isMac && e.metaKey && e.key === 's') || (!isMac && e.ctrlKey && e.key === 's');
+
+			if (isSaveShortcut) {
+				e.preventDefault();
+				e.stopPropagation();
+			}
+		};
+
+		window.addEventListener('keydown', handleKeyDown, true); // true = capture phase
+
+		return () => {
+			window.removeEventListener('keydown', handleKeyDown, true);
+		};
+	}, []);
+
+	useEffect(() => {
 		if (notesPageData) {
 			const {
 				blocks = [],
