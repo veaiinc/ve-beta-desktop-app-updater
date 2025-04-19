@@ -183,39 +183,157 @@ const actionHandlers = {
 			}
 		}
 		if (requiredIndex !== -1) {
-			let cot = [...(messages?.[requiredIndex]?.cot || [])];
-			if (payload?.sub_queries || payload?.refined_sub_queries) {
-				cot = [];
-				(payload?.sub_queries || payload?.refined_sub_queries || [])?.forEach(
-					(subQuery) => {
-						cot.push({
-							sub_query: subQuery,
-						});
-					},
-				);
-			}
-			if (payload?.sub_query) {
-				cot = cot?.map((item) => {
-					if (item?.sub_query === payload?.sub_query) {
-						item.searching = payload?.searching;
-					}
-					return item;
+			const message = messages?.[requiredIndex];
+			const { processing } = message;
+			if (processing === 'Deep Search') {
+				let deepSearch = message?.deepSearch || {};
+				let cot = [...(deepSearch?.cot || [])];
+
+				if (payload?.sub_queries || payload?.refined_sub_queries) {
+					cot = [];
+					(payload?.sub_queries || payload?.refined_sub_queries || [])?.forEach(
+						(subQuery) => {
+							cot.push({
+								sub_query: subQuery,
+							});
+						},
+					);
+				}
+
+				if (payload?.sub_query) {
+					cot = cot?.map((item) => {
+						if (item?.sub_query === payload?.sub_query) {
+							item.searching = payload?.searching;
+						}
+						return item;
+					});
+				}
+
+				deepSearch = {
+					...deepSearch,
+					cot,
+				};
+
+				messages[requiredIndex] = {
+					...message,
+					...payload,
+					message: (message?.message || '') + (payload?.answer || ''),
+					messageId: payload?.message_id,
+					deepSearch,
+				};
+			} else if (payload?.responded) {
+				let deepResearch = { ...(message?.deepResearch || {}) };
+				let cot = [...(deepResearch?.cot || [])];
+				cot?.push({
+					step: payload?.responded,
 				});
+
+				deepResearch = {
+					...deepResearch,
+					cot,
+				};
+				messages[requiredIndex] = {
+					...message,
+					deepResearch,
+					processing: 'Deep Research',
+				};
+			} else if (processing === 'Deep Research') {
+				let deepResearch = { ...(message?.deepResearch || {}) };
+				let cot = [...(deepResearch?.cot || [])];
+				let sections = [...(deepResearch?.sections || [])];
+
+				if (payload?.responded) {
+					cot?.push({
+						step: payload?.responded,
+					});
+				}
+				if (payload?.intermediate_step) {
+					let last_step = { ...(cot?.[cot?.length - 1] || {}) };
+					last_step = {
+						...(last_step || {}),
+						...(payload?.intermediate_step || {}),
+					};
+					cot[cot?.length - 1] = last_step;
+				}
+
+				if (payload?.step) {
+					cot?.push({
+						step: payload?.step,
+						citations: payload?.citations || [],
+					});
+				}
+
+				if (payload?.sub_queries) {
+					const sub_queries = (payload?.sub_queries || [])?.map((subQuery) => ({
+						sub_query: subQuery,
+					}));
+					sections?.push({
+						section: payload?.section,
+						sub_queries,
+					});
+				}
+
+				if (payload?.reading) {
+					const sub_query = payload?.reading?.sub_query;
+					const section = sections?.find(
+						(item) =>
+							item?.sub_queries?.filter(
+								(subQuery) => subQuery?.sub_query === sub_query,
+							)?.length > 0,
+					);
+
+					if (section) {
+						const sub_queries = section?.sub_queries?.map((item) => {
+							if (item?.sub_query === sub_query) {
+								return {
+									...item,
+									...payload,
+								};
+							}
+							return item;
+						});
+						section.sub_queries = sub_queries;
+					}
+
+					sections = sections?.map((item) => {
+						if (item?.section === section?.section) {
+							return section;
+						}
+						return item;
+					});
+				}
+
+				deepResearch = {
+					...deepResearch,
+					cot,
+					sections,
+				};
+
+				messages[requiredIndex] = {
+					...message,
+					...payload,
+					message:
+						(message?.message || '') +
+						(typeof payload?.answer === 'object'
+							? payload?.answer?.final_report || ''
+							: payload?.answer || ''),
+					deepResearch,
+					messageId: payload?.message_id,
+				};
+			} else {
+				messages[requiredIndex] = {
+					...message,
+					...payload,
+					message: (message?.message || '') + (payload?.answer || ''),
+					messageId: payload?.message_id,
+				};
 			}
-			messages[requiredIndex] = {
-				...messages[requiredIndex],
-				...payload,
-				message: (messages?.[requiredIndex]?.message || '') + (payload?.answer || ''),
-				messageId: payload?.message_id,
-				cot,
-			};
 		} else {
 			messages?.push({
 				...payload,
 				type: 'AI',
 				contentType: 'message',
 				message: payload?.answer || '',
-				cot: [],
 				messageId: payload?.message_id,
 			});
 		}

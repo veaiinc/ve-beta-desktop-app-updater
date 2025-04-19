@@ -2001,12 +2001,22 @@ export const TemplatesState = (props) => {
 		}
 	};
 
-	const updateAiChatMessageRating = async (payload, messageId) => {
+	const updateAiChatMessageRating = async (payload, messageId, isPublicChat = false) => {
 		let workspaceId = localStorage.getItem('workspaceId');
 		let usertoken = localStorage.getItem('usertoken');
-		const url = '/' + workspaceId + '/ai-chat/' + messageId + '/ai-chat-message-feedback';
+
+		let url = '/' + workspaceId + '/ai-chat/' + messageId + '/ai-chat-message-feedback';
+		if (isPublicChat) {
+			url = '/ai-chat/' + messageId + '/rate-ai-chat-guestchat';
+		}
 		try {
-			const response = await Service?.fetchPut(url, payload, usertoken, 'ai_assistant_api');
+			const response = await Service?.fetchPut(
+				url,
+				payload,
+				usertoken,
+				'ai_assistant_api',
+				isPublicChat,
+			);
 			if (response?.[0]) {
 				return [true];
 			}
@@ -2219,18 +2229,35 @@ export const TemplatesState = (props) => {
 		}
 	};
 
-	const getRecentChatMessages = async (sessionId, page = 1, fetchMore = false, limit = 1000) => {
+	const getRecentChatMessages = async (
+		sessionId,
+		page = 1,
+		fetchMore = false,
+		limit = 1000,
+		isPublicChat = false,
+	) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const selectedvariable = fetchMore ? 'moreRecentChatStorage' : 'recentChatStorage';
-			const response = await Service.fetchGet(
-				`/${workspaceId}/list-multiagent-conversations/${encodeURIComponent(
-					sessionId,
-				)}?page=${page}&limit=${limit}&sortBy=createdAt&sortType=-1`,
-				usertoken,
-				'tenant',
-			);
+			let response;
+			if (isPublicChat) {
+				response = await Service.fetchGet(
+					`/ai-chat/${encodeURIComponent(
+						sessionId,
+					)}/list-ai-chat-guestchat?page=${page}&limit=${limit}&sortBy=createdAt&sortOrder=-1`,
+					null,
+					'ai_assistant_api',
+				);
+			} else {
+				response = await Service.fetchGet(
+					`/${workspaceId}/list-multiagent-conversations/${encodeURIComponent(
+						sessionId,
+					)}?page=${page}&limit=${limit}&sortBy=createdAt&sortType=-1`,
+					usertoken,
+					'tenant',
+				);
+			}
 
 			if (response?.[0]) {
 				dispatch({

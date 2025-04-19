@@ -3,8 +3,11 @@ import '../../../assets/scss/chat/aiMessageRenderer.scss';
 import { ReactComponent as Logo } from '../../../assets/svg/loader/loaderLogo.svg';
 import { TypingEffect } from '../../../helpers/markdownHelper';
 import Context from '../../../context/context';
-import ChainOfThought from '../../components/chat/chatComponents/ChainOfThought';
 import { ReactComponent as LinkIcon } from '../../../assets/svg/ai_agents/link.svg';
+import DeepSearchChainOfThought from './chatComponents/DeepSearchChainOfThought';
+import DeepResearchChainOfThought from './chatComponents/DeepResearchChainOfThought';
+import { Markdown } from '../../../helpers/markdownHelper';
+
 const AIMessageRenderer = ({
 	messageData,
 	handleNoteComponentModalOpen,
@@ -14,6 +17,7 @@ const AIMessageRenderer = ({
 	handleSendWebsocketMessage,
 	toggleLatestStreamMessage,
 	handleViewDocument,
+	isPublicChat = false,
 }) => {
 	const {
 		templates: { globalChatMessages },
@@ -24,7 +28,7 @@ const AIMessageRenderer = ({
 
 	useEffect(() => {
 		if (index === globalChatMessages?.length - 1) {
-			if (messageData?.message?.length > 0 || messageData?.cot?.length === 0) {
+			if (messageData?.message?.length > 0 || messageData?.deepSearch?.cot?.length === 0) {
 				if (info?.activeTab !== 'response') {
 					setInfo((prev) => ({
 						...prev,
@@ -94,7 +98,22 @@ const AIMessageRenderer = ({
 						<Logo width={'24px'} height={'24px'} />
 						{messageData?.processing || 'Answer'}
 					</div>
-					{messageData?.cot?.length > 0 && (
+					{messageData?.initial_answer?.length > 0 && (
+						<div
+							className={`tab-btn ${
+								info?.activeTab === 'initial_answer' ? 'active' : ''
+							}`}
+							onClick={() =>
+								setInfo((prev) => ({
+									...prev,
+									activeTab: 'initial_answer',
+								}))
+							}
+						>
+							Initial Answer
+						</div>
+					)}
+					{(messageData?.deepSearch?.cot?.length > 0 || messageData?.deepResearch) && (
 						<div
 							className={`tab-btn ${info?.activeTab === 'cot' ? 'active' : ''}`}
 							onClick={() =>
@@ -105,7 +124,11 @@ const AIMessageRenderer = ({
 							}
 						>
 							Chain of Thought
-							<span className="citation-badge">{messageData?.cot?.length || 0}</span>
+							<span className="citation-badge">
+								{messageData?.deepSearch?.cot?.length ||
+									messageData?.deepResearch?.cot?.length ||
+									0}
+							</span>
 						</div>
 					)}
 					{messageData?.citations && messageData?.citations?.length > 0 && (
@@ -141,9 +164,21 @@ const AIMessageRenderer = ({
 					handleViewDocument={handleViewDocument}
 					showViewDocument={info?.showViewDocument}
 					isLastMessage={index === globalChatMessages?.length - 1}
+					isPublicChat={isPublicChat}
 				/>
 			) : info?.activeTab === 'cot' ? (
-				<ChainOfThought cot={messageData?.cot} stream_end={messageData?.stream_end} />
+				messageData?.deepResearch ? (
+					<DeepResearchChainOfThought data={messageData?.deepResearch} />
+				) : (
+					<DeepSearchChainOfThought
+						cot={messageData?.deepSearch?.cot}
+						stream_end={messageData?.stream_end}
+					/>
+				)
+			) : info?.activeTab === 'initial_answer' ? (
+				<div className="initial_answer">
+					<Markdown>{messageData?.initial_answer || ''}</Markdown>
+				</div>
 			) : (
 				<div className="source-content">
 					{messageData?.citations && messageData?.citations.length > 0
