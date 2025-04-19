@@ -1,5 +1,5 @@
 import { memo, useCallback, useState, useRef, useEffect, useContext } from 'react';
-import '../../../assets/scss/home_page/chatbox.scss';
+import '../../../assets/scss/chat/chatbox.scss';
 import { ReactComponent as Close } from '../../../assets/svg/close.svg';
 import { ReactComponent as ArrowUp } from '../../../assets/svg/ai_agents/arrow-up-dark.svg';
 import { ReactComponent as ChevronSvg } from '../../../assets/svg/tasks/chevronRightThin.svg';
@@ -20,28 +20,19 @@ import Context from '../../../context/context';
 import ObjectID from 'bson-objectid';
 import { useLocation } from 'react-router-dom';
 import { checkDevices, getBase64, getLocationsDetails } from '../../../helpers';
-import WorkflowSlugSelector from '../../components/calendar/WorkflowSlugSelector';
-import SearchDropdown from '../chat/SearchDropdown';
-import UploadFileTooltip from '../chat/UploadFileTooltip';
-import DateRangeDropdown from '../chat/DateRangeDropdown';
+import WorkflowSlugSelector from '../calendar/WorkflowSlugSelector';
+import SearchDropdown from './SearchDropdown';
+import UploadFileTooltip from './UploadFileTooltip';
+import DateRangeDropdown from './DateRangeDropdown';
 import moment from 'moment';
 import { Image, Spin, Tooltip } from 'antd';
-import AIMessageLoader from '../chat/AIMessageLoader';
+import AIMessageLoader from './AIMessageLoader';
 import WebSvg from '../../../assets/svg/ai_agents/webSvg';
 import BookSvg from '../../../assets/svg/ai_agents/bookSvg';
 import useUpdatedVoiceIntegration from '../../hooks/useUpdatedVoiceIntegration';
 import { message } from '../globalComponents/CustomToast';
-import SearchTypeTooltip from '../chat/SearchTypeTooltip';
-
-const chatboxPlaceholders = [
-	'Start typing or use @ to mention a source.',
-	'Summarize all emails from today',
-	'Schedule a meeting for next week',
-	'Draft and send a follow-up email',
-	'Deep research “latest industry trends” with sources',
-	'Generate a professional-looking form in seconds',
-	'Search across Gmail, Drive, and Notion for “invoice”',
-];
+import SearchTypeTooltip from './SearchTypeTooltip';
+import ChatBoxPlaceholder from './ChatBoxPlaceholder';
 
 const moduleHelper = {
 	tasks: 'tasks',
@@ -105,6 +96,16 @@ const fileTypeIcons = {
 	'text/plain': <TextSvg />,
 };
 
+const chatboxPlaceholders = [
+	'Start typing or use @ to mention a source.',
+	'Summarize all emails from today',
+	'Schedule a meeting for next week',
+	'Draft and send a follow-up email',
+	'Deep research “latest industry trends” with sources',
+	'Generate a professional-looking form in seconds',
+	'Search across Gmail, Drive, and Notion for “invoice”',
+];
+
 /*
 Note:
 We are using useRef at some places along with useState,
@@ -120,7 +121,6 @@ const ChatBox = ({
 	aiChatLoading,
 	handleAiUploadImage,
 	customChatActions = false,
-	showChatLabels = true,
 	uploadedImages = [],
 	handleSendWebsocketMessage,
 	latestStreamMesage,
@@ -130,11 +130,9 @@ const ChatBox = ({
 	showIconText = true,
 	autoFocus = true,
 	isParentHeaderMinimized = false,
+	animatePlaceholder = false,
 }) => {
 	const textAreaRef = useRef(null);
-	const placeholderRef = useRef(null);
-	const placeholderTimeoutId = useRef(null);
-	const placeholderIntervalId = useRef(null);
 	const location = useLocation();
 
 	const { handleConnect } = useUpdatedVoiceIntegration();
@@ -185,15 +183,14 @@ const ChatBox = ({
 		isLLMModelOpen: false,
 		searchTypeOpen: false,
 		activePlaceholderIndex: 0,
-		animatePlaceholder: false,
 	});
 
 	const [previewOpen, setPreviewOpen] = useState(false);
 	const [previewImage, setPreviewImage] = useState('');
 	const uploadedImagesRef = useRef(info?.uploadedImages || []);
 	const recentFilesRef = useRef(info?.recentFiles || []);
-
 	const showPlaceholder = info?.chatQuery?.length === 0;
+	const placeholderIntervalId = useRef(null);
 
 	useEffect(() => {
 		if (
@@ -209,7 +206,14 @@ const ChatBox = ({
 	}, []);
 
 	useEffect(() => {
-		if (showPlaceholder) {
+		if (activePromptForChat) {
+			handleSendMessageFunc(null, true, activePromptForChat);
+			updateStateValues({ activePromptForChat: null });
+		}
+	}, [activePromptForChat]);
+
+	useEffect(() => {
+		if (showPlaceholder && animatePlaceholder) {
 			placeholderIntervalId.current = setInterval(() => {
 				setInfo((prev) => {
 					const nextIndex =
@@ -222,17 +226,11 @@ const ChatBox = ({
 					};
 				});
 			}, 3000);
-		} else {
-			clearTimeout(placeholderIntervalId.current);
 		}
+		return () => {
+			clearInterval(placeholderIntervalId.current);
+		};
 	}, [showPlaceholder]);
-
-	useEffect(() => {
-		if (activePromptForChat) {
-			handleSendMessageFunc(null, true, activePromptForChat);
-			updateStateValues({ activePromptForChat: null });
-		}
-	}, [activePromptForChat]);
 
 	useEffect(() => {
 		if (galleryFile) {
@@ -1109,35 +1107,19 @@ const ChatBox = ({
 												onKeyDown={handleSendMessageFunc}
 												className="textArea"
 												ref={textAreaRef}
+												placeholder={
+													!animatePlaceholder
+														? 'Start typing or use @ to mention a source.'
+														: ''
+												}
 											/>
-											{showPlaceholder && (
-												<div className="placeholderWindow">
-													<div
-														className="placeholderList"
-														style={{
-															transform: `translateY(-${
-																info?.activePlaceholderIndex * 20 +
-																info?.activePlaceholderIndex
-															}px)`,
-															transition:
-																info?.activePlaceholderIndex === 0
-																	? 'transform 0s ease-in-out'
-																	: 'transform 0.3s ease-in-out',
-														}}
-													>
-														{chatboxPlaceholders?.map(
-															(placeholder, idx) => (
-																<p
-																	key={idx}
-																	ref={placeholderRef}
-																	className="placeholder"
-																>
-																	{placeholder}
-																</p>
-															),
-														)}
-													</div>
-												</div>
+											{showPlaceholder && animatePlaceholder && (
+												<ChatBoxPlaceholder
+													activePlaceholderIndex={
+														info?.activePlaceholderIndex
+													}
+													chatboxPlaceholders={chatboxPlaceholders}
+												/>
 											)}
 										</div>
 									</div>

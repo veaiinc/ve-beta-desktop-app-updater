@@ -49,6 +49,7 @@ const AISuggestionsModal = ({ open, onClose, data, onNextCardClick, onPrevCardCl
 				processing: 'Report',
 				cot,
 				follow_up_query: data?.suggested_prompts,
+				stream_end: true,
 			},
 		];
 		updateStateValues({ globalChatMessages: messages });
@@ -128,7 +129,7 @@ const AISuggestionsModal = ({ open, onClose, data, onNextCardClick, onPrevCardCl
 					<div
 						className="chain-of-thought-container"
 						onClick={() =>
-							setInfo((prev) => ({ ...prev, isExpanded: !prev.isExpanded }))
+							setInfo((prev) => ({ ...prev, isExpanded: !prev?.isExpanded }))
 						}
 					>
 						<div className="cot-header">
@@ -166,11 +167,7 @@ const AISuggestionsModal = ({ open, onClose, data, onNextCardClick, onPrevCardCl
 						<div className="report-header">
 							<div className="report-title">Report</div>
 							<div className="report-description">
-								<Markdown>
-									{(research_report || '')
-										?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')
-										?.replace(/\\n/g, '\n')}
-								</Markdown>
+								<Markdown>{research_report || ''}</Markdown>
 							</div>
 						</div>
 					</div>

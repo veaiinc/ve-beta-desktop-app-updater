@@ -2,13 +2,13 @@ import React, { memo, useContext, useState, useEffect, useCallback, useMemo, use
 import '../../../assets/scss/home_page/initialHomepage.scss';
 import jwtDecode from 'jwt-decode';
 import Context from '../../../context/context';
-import ChatBox from '../../components/homePage/ChatBox';
 import { useNavigate } from 'react-router-dom';
 import ProactiveSuggestions from './ProactiveSuggestions';
 import ChatPrompts from './ChatPrompts';
 import QuickActions from '../../components/globalComponents/QuickActions';
 import { first, set } from 'lodash';
 import GlobalWidget from '../../components/globalComponents/GlobalWidget';
+import ChatBox from '../../components/chat/ChatBox';
 
 const optionsList = [
 	{
@@ -58,7 +58,7 @@ const InitialHomePage = () => {
 	} = useContext(Context);
 
 	const navigate = useNavigate();
-	const headerRef = useRef(null);
+	const containerRef = useRef(null);
 	const headerMinimizedRef = useRef(false);
 
 	const [info, setInfo] = useState({
@@ -72,7 +72,7 @@ const InitialHomePage = () => {
 		minimized: false,
 	});
 
-	let {
+	const {
 		aiSetup: { getPromptsData, promptsData },
 		templates: { aiSuggestedPendingActions, getAISuggestedPendingActions },
 	} = useContext(Context);
@@ -110,7 +110,7 @@ const InitialHomePage = () => {
 		} else {
 			getPromptsData({ category: 'all', limit: 30 });
 		}
-	}, [promptsData, handleUpdateOptions, info?.optionsHandledOnce?.prompts, getPromptsData]);
+	}, [promptsData]);
 
 	useEffect(() => {
 		if (info?.selectedOption) {
@@ -142,12 +142,7 @@ const InitialHomePage = () => {
 		} else {
 			getAISuggestedPendingActions();
 		}
-	}, [
-		aiSuggestedPendingActions,
-		handleUpdateOptions,
-		info?.optionsHandledOnce?.proactiveSuggestions,
-		getAISuggestedPendingActions,
-	]);
+	}, [aiSuggestedPendingActions]);
 
 	const options = useMemo(
 		() => info?.options?.filter((option) => option?.showOption),
@@ -243,7 +238,7 @@ const InitialHomePage = () => {
 	};
 
 	const componentMapper = {
-		proactiveSuggestions: <ProactiveSuggestions />,
+		proactiveSuggestions: <ProactiveSuggestions selectedOption={info?.selectedOption} />,
 		prompts: (
 			<ChatPrompts
 				promptsCategory={info?.promptsCategory}
@@ -271,14 +266,15 @@ const InitialHomePage = () => {
 		options?.length > 0
 			? info?.minimized
 				? 'minimized-animation'
-				: headerRef?.current?.classList?.contains('minimized-animation')
+				: containerRef?.current?.classList?.contains('minimized-animation')
 				? 'expanded-animation'
 				: ''
 			: '';
 
 	return (
 		<div
-			className="initial-home-page-container"
+			className={`initial-home-page-container ${animationClass}`}
+			ref={containerRef}
 			style={{
 				...(options?.length === 0 && { justifyContent: 'center' }),
 			}}
@@ -287,8 +283,7 @@ const InitialHomePage = () => {
 				<QuickActions />
 			</div>
 			<div
-				className={`home-page-container-header ${animationClass}`}
-				ref={headerRef}
+				className={`home-page-container-header `}
 				style={{
 					...(options?.length === 0 && { marginTop: 0 }),
 				}}
@@ -314,6 +309,7 @@ const InitialHomePage = () => {
 							customChatActions={true}
 							autoFocus={false}
 							isParentHeaderMinimized={info?.minimized}
+							animatePlaceholder={true}
 						/>
 					</div>
 				</div>

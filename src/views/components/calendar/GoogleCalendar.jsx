@@ -4,7 +4,7 @@ import Context from '../../../context/context';
 import { ReactComponent as DownSvg } from '../../../assets/svg/calendar/down.svg';
 import Spinner from '../loaders/Spinner';
 import { message } from '../../components/globalComponents/CustomToast';
-
+import ConnectIntegrationWidget from '../globalComponents/ConnectIntegrationWidget';
 const GoogleCalendar = () => {
 	const {
 		templates: { getConnectedThirdParties, connectThirdParties },
@@ -241,7 +241,7 @@ const GoogleCalendar = () => {
 					</div>
 				</div>
 			) : (
-				''
+				<ConnectIntegrationWidget integrationType="google-calendar" buttonText="Connect" />
 			)}
 		</>
 	);

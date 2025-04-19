@@ -53,29 +53,7 @@ const CalendarModule = () => {
 		[info?.activeModule, navigate, setSearchParams],
 	);
 
-	return (
-		<>
-			<div className="calendarModuleHeaderContainer">
-				<div className="moduleSwitcherContainer">
-					{modules?.map(({ name, key }, index) => (
-						<React.Fragment key={key}>
-							<button
-								className={`moduleSwitcherBtn ${
-									info?.activeModule === key ? 'active' : ''
-								}`}
-								onClick={() => handleModuleChange(key)}
-							>
-								{name}
-							</button>
-							{index < modules?.length - 1 && <span>|</span>}
-						</React.Fragment>
-					))}
-				</div>
-				<QuickActions />
-			</div>
-			{CompMapper[info?.activeModule]}
-		</>
-	);
+	return <>{CompMapper[info?.activeModule]}</>;
 };
 
 export default memo(CalendarModule);

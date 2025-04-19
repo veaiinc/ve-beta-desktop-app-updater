@@ -1,0 +1,21 @@
+.calendarSidebarContainer {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	padding: 16px;
+	height: 100%;
+	background: var(--primary-background);
+	border-right: 1px solid var(--border-color);
+
+	.dateDisplay {
+		display: flex;
+		justify-content: flex-end;
+		align-items: center;
+		padding: 8px 16px;
+		color: var(--primary-font);
+		font-family: var(--primary-font-family);
+		font-size: 16px;
+		font-weight: 500;
+		text-transform: capitalize;
+	}
+}

@@ -193,6 +193,7 @@ const GalleryPage = () => {
 			downloadImagesForClientSelection,
 			editTag,
 			deleteTag,
+			lightroomCopyList,
 		},
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 		profileInfo: { userWorkSpaceList, getTenantSettings, tennantSettingsData },
@@ -2081,9 +2082,16 @@ const GalleryPage = () => {
 			}
 
 			// Get lightroom copy list for regular albums
-			await getLightroomCopyList(galleryId, info.activeAlbumId);
+			response = await getLightroomCopyList(galleryId, info.activeAlbumId);
 
-			if (clientSelectionLightRoomCopy) {
+			if (response) {
+				setInfo((prev) => ({
+					...prev,
+					lightroomCopyList: response?.[1],
+					showLightRoomCopy: true,
+					showOptionsContainer: false,
+				}));
+			} else if (clientSelectionLightRoomCopy) {
 				setInfo((prev) => ({
 					...prev,
 					lightroomCopyList: clientSelectionLightRoomCopy,
@@ -4140,6 +4148,7 @@ const GalleryPage = () => {
 																							...prev.galleryTagHover,
 																							[index]: false,
 																						},
+																					showTagOptions: false,
 																				}));
 																			}}
 																		>
@@ -4160,13 +4169,13 @@ const GalleryPage = () => {
 																					alt="sixDots"
 																				/>
 																			</div>
-																			<p
-																				className={
-																					info?.albumContains ===
-																					contain.displayName
-																						? 'active'
-																						: ''
-																				}
+																			<div
+																				style={{
+																					display: 'flex',
+																					alignItems:
+																						'center',
+																					gap: '8px',
+																				}}
 																				onClick={() =>
 																					handleClickAlbum(
 																						contain,
@@ -4174,28 +4183,31 @@ const GalleryPage = () => {
 																					)
 																				}
 																			>
-																				{
-																					contain.displayName
-																				}
-																			</p>
-																			<p
-																				className={
-																					info?.albumContains ===
-																					contain?.displayName
-																						? 'count-active'
-																						: 'count'
-																				}
-																				onClick={() =>
-																					handleClickAlbum(
-																						contain,
-																						'containName',
-																					)
-																				}
-																			>
-																				{
-																					contain.imagesCount
-																				}
-																			</p>
+																				<p
+																					className={
+																						info?.albumContains ===
+																						contain.displayName
+																							? 'active'
+																							: ''
+																					}
+																				>
+																					{
+																						contain.displayName
+																					}
+																				</p>
+																				<p
+																					className={
+																						info?.albumContains ===
+																						contain?.displayName
+																							? 'count-active'
+																							: 'count'
+																					}
+																				>
+																					{
+																						contain.imagesCount
+																					}
+																				</p>
+																			</div>
 																			{info?.galleryTagHover[
 																				index
 																			] &&
