@@ -5,6 +5,8 @@ import { TypingEffect } from '../../../helpers/markdownHelper';
 import Context from '../../../context/context';
 import { ReactComponent as LinkIcon } from '../../../assets/svg/ai_agents/link.svg';
 import DeepSearchChainOfThought from './chatComponents/DeepSearchChainOfThought';
+import DeepResearchChainOfThought from './chatComponents/DeepResearchChainOfThought';
+
 const AIMessageRenderer = ({
 	messageData,
 	handleNoteComponentModalOpen,
@@ -24,7 +26,7 @@ const AIMessageRenderer = ({
 
 	useEffect(() => {
 		if (index === globalChatMessages?.length - 1) {
-			if (messageData?.message?.length > 0 || messageData?.cot?.length === 0) {
+			if (messageData?.message?.length > 0 || messageData?.deepSearch?.cot?.length === 0) {
 				if (info?.activeTab !== 'response') {
 					setInfo((prev) => ({
 						...prev,
@@ -105,11 +107,11 @@ const AIMessageRenderer = ({
 							}
 						>
 							Chain of Thought
-							{messageData?.deepSearch && (
-								<span className="citation-badge">
-									{messageData?.deepSearch?.cot?.length || 0}
-								</span>
-							)}
+							<span className="citation-badge">
+								{messageData?.deepSearch?.cot?.length ||
+									messageData?.deepResearch?.cot?.length ||
+									0}
+							</span>
 						</div>
 					)}
 					{messageData?.citations && messageData?.citations?.length > 0 && (
@@ -147,10 +149,14 @@ const AIMessageRenderer = ({
 					isLastMessage={index === globalChatMessages?.length - 1}
 				/>
 			) : info?.activeTab === 'cot' ? (
-				<DeepSearchChainOfThought
-					cot={messageData?.deepSearch?.cot}
-					stream_end={messageData?.stream_end}
-				/>
+				messageData?.deepResearch ? (
+					<DeepResearchChainOfThought data={messageData?.deepResearch} />
+				) : (
+					<DeepSearchChainOfThought
+						cot={messageData?.deepSearch?.cot}
+						stream_end={messageData?.stream_end}
+					/>
+				)
 			) : (
 				<div className="source-content">
 					{messageData?.citations && messageData?.citations.length > 0

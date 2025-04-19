@@ -213,6 +213,22 @@ const actionHandlers = {
 					messageId: payload?.message_id,
 					deepSearch,
 				};
+			} else if (payload?.responded) {
+				let deepResearch = { ...(message?.deepResearch || {}) };
+				let cot = [...(deepResearch?.cot || [])];
+				cot?.push({
+					step: payload?.responded,
+				});
+
+				deepResearch = {
+					...deepResearch,
+					cot,
+				};
+				messages[requiredIndex] = {
+					...message,
+					deepResearch,
+					processing: 'Deep Research',
+				};
 			} else if (processing === 'Deep Research') {
 				let deepResearch = { ...(message?.deepResearch || {}) };
 				let cot = [...(deepResearch?.cot || [])];
@@ -288,23 +304,13 @@ const actionHandlers = {
 				messages[requiredIndex] = {
 					...message,
 					...payload,
+					message:
+						(message?.message || '') +
+						(typeof payload?.answer === 'object'
+							? payload?.answer?.final_report || ''
+							: payload?.answer || ''),
 					deepResearch,
-				};
-			} else if (payload?.responded) {
-				let deepResearch = { ...(message?.deepResearch || {}) };
-				let cot = [...(deepResearch?.cot || [])];
-				cot?.push({
-					step: payload?.responded,
-				});
-
-				deepResearch = {
-					...deepResearch,
-					cot,
-				};
-				messages[requiredIndex] = {
-					...message,
-					deepResearch,
-					processing: 'Deep Research',
+					messageId: payload?.message_id,
 				};
 			} else {
 				messages[requiredIndex] = {

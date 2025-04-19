@@ -89,8 +89,6 @@ const RecentChat = ({
 
 	sessionId = isPreview ? sId : sessionId;
 
-	console.log(globalChatMessages, 'globalChatMessages');
-
 	useEffect(() => {
 		window.addEventListener('resize', handleResize);
 
@@ -431,7 +429,13 @@ const RecentChat = ({
 					};
 				}
 
-				const cot = chainOfThought?.length > 0 ? chainOfThought?.[0]?.['sub_queries'] : [];
+				const index = chainOfThought?.findIndex(
+					(item) => item?.need_refinement === true || item?.need_refinement === false,
+				);
+				let cot = [];
+				if (index !== -1) {
+					cot = chainOfThought?.slice(0, index - 1);
+				}
 
 				messages = [
 					{
@@ -449,9 +453,11 @@ const RecentChat = ({
 						module_template_id: moduleTemplateId || null,
 						isOldMessage: true,
 						stream_end: true,
-						deepSearch: {
-							cot,
-						},
+						...(cot?.length > 0 && {
+							deepSearch: {
+								cot,
+							},
+						}),
 					},
 				]?.concat(messages);
 			}

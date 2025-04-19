@@ -18,7 +18,9 @@ const ChainOfThought = ({ cot, stream_end = false }) => {
 			<div className="cot-container">
 				{cot?.map((item, index) => (
 					<div className="cot" key={index}>
-						<div className="logo-container"></div>
+						<div className="logo-container">
+							<div className="indicator" />
+						</div>
 						<div className="content">
 							<div className="sub-query">{item?.sub_query}</div>
 							{item?.searching?.length > 0 && (

@@ -159,9 +159,10 @@
 	.table-container {
 		max-width: 100%;
 		overflow-x: auto;
-		border-radius: calc(var(--font-size) * 1); /* 16px */
+		border-radius: calc(var(--font-size) * 1);
 		background-color: var(--card);
 		border: 1px solid transparent;
+		margin: calc(var(--font-size) * 0.625) 0;
 
 		&::-webkit-scrollbar {
 			height: calc(var(--font-size) * 0.375); /* 6px */
