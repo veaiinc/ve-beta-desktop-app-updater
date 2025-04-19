@@ -256,6 +256,7 @@ export const TypingEffect = memo(
 		handleViewDocument = null,
 		showViewDocument = false,
 		isNoteCanvas = false,
+		isPublicChat = false,
 	}) => {
 		const {
 			documentPreview: { setNoteContent },
@@ -438,16 +439,18 @@ export const TypingEffect = memo(
 						</div> */}
 
 						<div className="right-container">
-							<div className="icon-container">
-								<Tooltip
-									placement="bottom"
-									arrow={false}
-									trigger={'hover'}
-									title={'Edit'}
-								>
-									<PencilSparkleIcon onClick={handlePencilClick} />
-								</Tooltip>
-							</div>
+							{!isPublicChat && (
+								<div className="icon-container">
+									<Tooltip
+										placement="bottom"
+										arrow={false}
+										trigger={'hover'}
+										title={'Edit'}
+									>
+										<PencilSparkleIcon onClick={handlePencilClick} />
+									</Tooltip>
+								</div>
+							)}
 
 							<div className="icon-container">
 								<Tooltip

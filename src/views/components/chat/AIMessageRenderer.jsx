@@ -16,6 +16,7 @@ const AIMessageRenderer = ({
 	handleSendWebsocketMessage,
 	toggleLatestStreamMessage,
 	handleViewDocument,
+	isPublicChat = false,
 }) => {
 	const {
 		templates: { globalChatMessages },
@@ -147,6 +148,7 @@ const AIMessageRenderer = ({
 					handleViewDocument={handleViewDocument}
 					showViewDocument={info?.showViewDocument}
 					isLastMessage={index === globalChatMessages?.length - 1}
+					isPublicChat={isPublicChat}
 				/>
 			) : info?.activeTab === 'cot' ? (
 				messageData?.deepResearch ? (

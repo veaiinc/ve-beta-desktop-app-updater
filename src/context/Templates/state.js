@@ -1957,12 +1957,22 @@ export const TemplatesState = (props) => {
 		}
 	};
 
-	const updateAiChatMessageRating = async (payload, messageId) => {
+	const updateAiChatMessageRating = async (payload, messageId, isPublicChat = false) => {
 		let workspaceId = localStorage.getItem('workspaceId');
 		let usertoken = localStorage.getItem('usertoken');
-		const url = '/' + workspaceId + '/ai-chat/' + messageId + '/ai-chat-message-feedback';
+
+		let url = '/' + workspaceId + '/ai-chat/' + messageId + '/ai-chat-message-feedback';
+		if (isPublicChat) {
+			url = '/ai-chat/' + messageId + '/rate-ai-chat-guestchat';
+		}
 		try {
-			const response = await Service?.fetchPut(url, payload, usertoken, 'ai_assistant_api');
+			const response = await Service?.fetchPut(
+				url,
+				payload,
+				usertoken,
+				'ai_assistant_api',
+				isPublicChat,
+			);
 			if (response?.[0]) {
 				return [true];
 			}

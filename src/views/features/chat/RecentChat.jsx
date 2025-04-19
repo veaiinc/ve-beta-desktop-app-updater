@@ -497,7 +497,7 @@ const RecentChat = ({
 					(chat) => chat?.messageId === messageId,
 				);
 				if (message?.rating === null || message?.rating !== type) {
-					await updateAiChatMessageRating({ rating: type }, messageId);
+					await updateAiChatMessageRating({ rating: type }, messageId, isPublicChat);
 					let messages = [...(chatMessagesRef.current || [])];
 					messages = messages?.map((chat) => {
 						if (chat?.messageId === messageId) {
@@ -741,6 +741,7 @@ const RecentChat = ({
 																handleViewDocument={
 																	handleViewDocument
 																}
+																isPublicChat={isPublicChat}
 															/>
 														</div>
 													) : (
