@@ -40,6 +40,9 @@ import {
 	createBlankWorkflowQuery,
 	createBlankTemplateQuery,
 	getFormResponseQuery,
+	getFormResponseSummaryQuery,
+	getFormResponseAnalyticsQuery,
+	updateWorkflowTemplateQuery,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -925,7 +928,48 @@ export const TemplatesState = (props) => {
 			console.log(error);
 		}
 	};
+	// const getFormResponseSummary = async (formId) => {
+	// 	try {
+	// 		let workspaceId = localStorage.getItem('workspaceId');
+	// 		let usertoken = localStorage.getItem('usertoken');
+	// 		const response = await service.query(
+	// 			getFormResponseSummaryQuery,
+	// 			{ workflowTemplateId: formId },
+	// 			workspaceId,
+	// 			usertoken,
+	// 			'workflows_Api',
+	// 		);
+	// 	} catch (error) {
+	// 		console.log('api failed ==>getFormResponseSummary', error);
+	// 	}
+	// };
+	const getFormResponseAnalytics = async (formId) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				getFormResponseAnalyticsQuery,
+				{ filter: { workflowTemplateId: formId } },
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
 
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.GET_FORM_RESPONSE_ANALYTICS_SUCCESS,
+					payload: response?.[1]?.data?.formResponseAnalytics,
+				});
+				return [true, response?.[1]?.data?.formResponseAnalytics];
+			} else {
+				console.log('api failed ==>getFormResponseAnalytics', response);
+				return [false];
+			}
+		} catch (error) {
+			console.log('api failed ==>getFormResponseAnalytics', error);
+			return [false];
+		}
+	};
 	const createLeadfromTemplates = async (payload) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
@@ -2310,6 +2354,26 @@ export const TemplatesState = (props) => {
 		}
 	};
 
+	const updateWorkflowTemplate = async (payload) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				updateWorkflowTemplateQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+			if (response?.[0]) {
+				return response;
+			} else {
+				return response;
+			}
+		} catch (error) {
+			console.log('error==>updateWorkflowTemplate', error);
+		}
+	};
 	return {
 		...state,
 		getMyWorkflows,
@@ -2391,5 +2455,6 @@ export const TemplatesState = (props) => {
 		getFormResponse,
 		getAISuggestedPendingActions,
 		sendContactFormData,
+		updateWorkflowTemplate,
 	};
 };

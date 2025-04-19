@@ -1,7 +1,136 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import '../../../assets/scss/forms/formSummary.scss';
+import { ReactComponent as Copy } from '../../../assets/svg/copy.svg';
+import service from '../../../services/graphQlServices';
+import { getFormResponseAnalyticsQuery } from '../../../context/Templates/graphQlFunctions';
+import moment from 'moment';
+import { Tooltip, Rate, Flex } from 'antd';
+import {
+	FilePdfOutlined,
+	FileTextOutlined,
+	FileExcelOutlined,
+	FilePptOutlined,
+	FileOutlined,
+} from '@ant-design/icons';
 
-const FormResponseList = ({ expanded, handleExpand, items, visibleItems }) => {
+const FileUploadAnswer = ({ answer }) => {
+	const files = answer;
+	return (
+		<>
+			{files?.length > 0 && (
+				<div className="form-summary-fileUploadContainer">
+					{files?.map((file) => {
+						const { name, previewUrl, lastModified, type } = file;
+						const fileExtension = name?.split('.')?.pop()?.toLowerCase() || '';
+						const isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(
+							fileExtension,
+						);
+						const isPDF = fileExtension === 'pdf';
+						const isDocument = ['doc', 'docx', 'txt', 'rtf'].includes(fileExtension);
+						const isSpreadsheet = ['xls', 'xlsx', 'csv'].includes(fileExtension);
+						const isPresentation = ['ppt', 'pptx'].includes(fileExtension);
+
+						return (
+							<div key={lastModified} className="form-summary-fileItem">
+								{isImage ? (
+									<div className="form-summary-imagePreview">
+										<img src={previewUrl} alt={name} />
+										<span className="form-summary-fileName">{name}</span>
+									</div>
+								) : (
+									<div className="form-summary-filePreview">
+										<div className="form-summary-fileIcon">
+											{isPDF && <FilePdfOutlined />}
+											{isDocument && <FileTextOutlined />}
+											{isSpreadsheet && <FileExcelOutlined />}
+											{isPresentation && <FilePptOutlined />}
+											{!isPDF &&
+												!isDocument &&
+												!isSpreadsheet &&
+												!isPresentation && <FileOutlined />}
+										</div>
+										<a
+											href={previewUrl}
+											target="_blank"
+											rel="noopener noreferrer"
+											className="form-summary-fileName linkedin-link"
+											aria-label={`Open ${name} in new tab`}
+											tabIndex="0"
+											role="link"
+											onKeyPress={(e) => {
+												if (e.key === 'Enter') {
+													window.open(previewUrl, '_blank');
+												}
+											}}
+										>
+											{name}
+										</a>
+									</div>
+								)}
+							</div>
+						);
+					})}
+				</div>
+			)}
+			{/* <div className="form-summary-divider"></div> */}
+		</>
+	);
+};
+
+const RatingAnswer = ({ answer }) => {
+	if (!answer) return null;
+	return (
+		<Flex gap="middle" vertical>
+			<span className="rating-text">{answer}/5</span>
+		</Flex>
+	);
+};
+
+const FormResponseList = ({
+	expanded,
+	handleExpand,
+	items,
+	visibleItems,
+	question,
+	handleCopy,
+	copyStatus,
+	type,
+	onUserClick,
+}) => {
+	const formatDate = (timestamp) => {
+		if (!timestamp) return '';
+		return moment.unix(timestamp).format('MMMM D, YYYY [at] h:mm:ss A');
+	};
+
+	const getName = (response) => {
+		if (!response?.response) return 'No Name';
+		const nameField = response.response.find((item) => {
+			return item?.question?.toLowerCase()?.includes('name');
+		});
+		return nameField?.answer || 'No Name';
+	};
+
+	// Filter responses that have answers for this question
+	const responsesWithAnswers =
+		items?.filter((item) => {
+			const field = item?.response?.find((r) => {
+				return r?.question?.toLowerCase()?.includes(question?.toLowerCase() || '');
+			});
+
+			if (!field?.answer) return false;
+
+			// For file uploads, check if there are actual files
+			if (field.type === 'fileupload') {
+				return field.answer && field.answer.length > 0;
+			}
+
+			return true;
+		}) || [];
+
+	const actualResponsesCount = responsesWithAnswers.length;
+	const visibleResponses = expanded ? responsesWithAnswers : responsesWithAnswers.slice(0, 5);
+
 	return (
 		<div className="collapsible-list">
 			<div
@@ -12,24 +141,65 @@ const FormResponseList = ({ expanded, handleExpand, items, visibleItems }) => {
 				}`}
 			>
 				<div className="collapsible-list__items">
-					{visibleItems?.map((item, index) => (
-						<div key={index} className="collapsible-list__item">
-							<div className="candidate-info">
-								<span className="collapsible-list__item-name">{item?.name}</span>
-								<span className="collapsible-list__item-email">{item?.email}</span>
-							</div>
-							<span className="collapsible-list__item-timestamp">
-								{item?.timestamp}
-							</span>
-						</div>
-					))}
+					{visibleResponses?.map((item, index) => {
+						const field = item?.response?.find((r) => {
+							return r?.question
+								?.toLowerCase()
+								?.includes(question?.toLowerCase() || '');
+						});
+
+						let answer = field.answer;
+						if (field.type === 'fileupload') {
+							answer = <FileUploadAnswer answer={field.answer} />;
+						} else if (field.type === 'link' && field.answer) {
+							answer = (
+								<a
+									href={field.answer}
+									target="_blank"
+									rel="noopener noreferrer"
+									className="linkedin-link"
+									style={{
+										color: '#0A66C2',
+										textDecoration: 'none',
+										fontWeight: 500,
+									}}
+								>
+									{field.answer}
+								</a>
+							);
+						} else if (field.type === 'rating') {
+							answer = <RatingAnswer answer={field.answer} />;
+						}
+
+						return (
+							<Tooltip key={index} title={getName(item)} placement="top">
+								<div className="collapsible-list__item">
+									<div className="candidate-info">
+										<div
+											className="candidate-name"
+											onClick={(e) => {
+												e.stopPropagation();
+												onUserClick?.(item);
+											}}
+											style={{ cursor: 'pointer' }}
+										>
+											{answer}
+										</div>
+									</div>
+									<div className="candidate-timestamp">
+										{formatDate(item?.createdAt)}
+									</div>
+								</div>
+							</Tooltip>
+						);
+					})}
 				</div>
 			</div>
 
-			{items?.length > 5 && (
+			{actualResponsesCount > 5 && (
 				<div className="collapsible-list__footer">
 					<span onClick={handleExpand}>
-						{expanded ? 'See less' : `See all (${items?.length})`}
+						{expanded ? 'See less' : `See all (${actualResponsesCount})`}
 					</span>
 				</div>
 			)}
@@ -37,276 +207,228 @@ const FormResponseList = ({ expanded, handleExpand, items, visibleItems }) => {
 	);
 };
 
-const FormSummary = () => {
+const FormSummary = ({ formId: inputFormId, onDataUpdate, onUserClick }) => {
+	const x = useParams();
+	const location = useLocation();
+	const formId = inputFormId || x.id;
 	const [expanded, setExpanded] = useState(false);
+	const [loading, setLoading] = useState(true);
+	const [error, setError] = useState(null);
+	const [copyStatus, setCopyStatus] = useState({});
+	const [selectedResponse, setSelectedResponse] = useState(null);
+	const [expandedCard, setExpandedCard] = useState(null);
+	const [formData, setFormData] = useState({
+		responses: [],
+		total: 0,
+		submitted: 0,
+		title: location.state?.formData?.title || '',
+	});
+	const [questions, setQuestions] = useState([]);
+	const navigate = useNavigate();
 
-	// Static data (mimicking the GraphQL response)
-	const formSummary = {
-		totalResponses: 120,
-		responses: 34,
-		skipped: 16,
-		coreSkills: [
-			{ name: 'UX Research', count: 25 },
-			{ name: 'Wireframe', count: 9 },
-			{ name: 'Prototype', count: 11 },
-			{ name: 'Product Design', count: 5 },
-		],
-		candidates: [
-			{
-				name: 'Edward Anderson',
-				email: 'edward@gmail.com',
-				timestamp: '5 Oct, 2024 · 09:31 AM',
-				submitted: true,
-			},
-			{
-				name: 'Charles Clark',
-				email: 'charles@gmail.com',
-				timestamp: '5 Oct, 2024 · 09:31 AM',
-				submitted: true,
-			},
-			{
-				name: 'Kevin Jones',
-				email: 'priyanka.yadav@gmail.com',
-				timestamp: '5 Oct, 2024 · 09:31 AM',
-				submitted: true,
-			},
-			{
-				name: 'Jacob Clark',
-				email: 'munificent.decorator.95@gmail.com',
-				timestamp: '5 Oct, 2024 · 09:31 AM',
-				submitted: true,
-			},
-			{
-				name: 'Andrew Roberts',
-				email: 'billious.shop.99@gmail.com',
-				timestamp: '5 Oct, 2024 · 09:31 AM',
-				submitted: true,
-			},
-			{
-				name: 'Ankit G',
-				email: 'ankit@gmail.com',
-				timestamp: '5 Oct, 2024 · 09:31 AM',
-				submitted: true,
-			},
-			{
-				name: 'Tony Chopper',
-				email: 'tony@gmail.com',
-				timestamp: '5 Oct, 2024 · 09:31 AM',
-				submitted: true,
-			},
-			{
-				name: 'Roronoa Zoro',
-				email: 'zoro@gmail.com',
-				timestamp: '5 Oct, 2024 · 09:31 AM',
-				submitted: true,
-			},
-			{
-				name: 'Robin',
-				email: 'robin@gmail.com',
-				timestamp: '5 Oct, 2024 · 09:31 AM',
-				submitted: true,
-			},
-			{
-				name: 'Kaido',
-				email: 'kaido@gmail.com',
-				timestamp: '5 Oct, 2024 · 09:31 AM',
-				submitted: true,
-			},
-			{
-				name: 'Shanks',
-				email: 'shanks@gmail.com',
-				timestamp: '5 Oct, 2024 · 09:31 AM',
-				submitted: true,
-			},
-			{
-				name: 'Brook',
-				email: 'brook@gmail.com',
-				timestamp: '5 Oct, 2024 · 09:31 AM',
-				submitted: true,
-			},
-			{
-				name: 'Luffy',
-				email: 'luffy@gmail.com',
-				timestamp: '5 Oct, 2024 · 09:31 AM',
-				submitted: true,
-			},
-			{
-				name: 'Nami',
-				email: 'nami@gmail.com',
-				timestamp: '5 Oct, 2024 · 09:31 AM',
-				submitted: true,
-			},
-			{
-				name: 'Usopp',
-				email: 'usopp@gmail.com',
-				timestamp: '5 Oct, 2024 · 09:31 AM',
-				submitted: true,
-			},
-			{
-				name: 'Sanji',
-				email: 'sanji@gmail.com',
-				timestamp: '5 Oct, 2024 · 09:31 AM',
-				submitted: true,
-			},
-			{
-				name: 'Franky',
-				email: 'franky@gmail.com',
-				timestamp: '5 Oct, 2024 · 09:31 AM',
-				submitted: true,
-			},
-			{
-				name: 'Jinbe',
-				email: 'jinbe@gmail.com',
-				timestamp: '5 Oct, 2024 · 09:31 AM',
-				submitted: true,
-			},
-			{
-				name: 'Yamato',
-				email: 'yamato@gmail.com',
-				timestamp: '5 Oct, 2024 · 09:31 AM',
-				submitted: true,
-			},
-			{
-				name: 'Law',
-				email: 'law@gmail.com',
-				timestamp: '5 Oct, 2024 · 09:31 AM',
-				submitted: true,
-			},
-			{
-				name: 'Kid',
-				email: 'kid@gmail.com',
-				timestamp: '5 Oct, 2024 · 09:31 AM',
-				submitted: true,
-			},
-			{
-				name: 'Ace',
-				email: 'ace@gmail.com',
-				timestamp: '5 Oct, 2024 · 09:31 AM',
-				submitted: true,
-			},
-			{
-				name: 'Sabo',
-				email: 'sabo@gmail.com',
-				timestamp: '5 Oct, 2024 · 09:31 AM',
-				submitted: true,
-			},
-			{
-				name: 'Marco',
-				email: 'marco@gmail.com',
-				timestamp: '5 Oct, 2024 · 09:31 AM',
-				submitted: true,
-			},
-			{
-				name: 'Whitebeard',
-				email: 'whitebeard@gmail.com',
-				timestamp: '5 Oct, 2024 · 09:31 AM',
-				submitted: true,
-			},
-			{
-				name: 'Garp',
-				email: 'garp@gmail.com',
-				timestamp: '5 Oct, 2024 · 09:31 AM',
-				submitted: true,
-			},
-			{
-				name: 'Dragon',
-				email: 'dragon@gmail.com',
-				timestamp: '5 Oct, 2024 · 09:31 AM',
-				submitted: true,
-			},
-			{
-				name: 'Rayleigh',
-				email: 'rayleigh@gmail.com',
-				timestamp: '5 Oct, 2024 · 09:31 AM',
-				submitted: true,
-			},
-			{
-				name: 'Mihawk',
-				email: 'mihawk@gmail.com',
-				timestamp: '5 Oct, 2024 · 09:31 AM',
-				submitted: true,
-			},
-			{
-				name: 'Doflamingo',
-				email: 'doflamingo@gmail.com',
-				timestamp: '5 Oct, 2024 · 09:31 AM',
-				submitted: true,
-			},
-		],
-		totalCandidates: 120,
-		submittedCandidates: 50,
-		notSubmittedCandidates: 70,
+	useEffect(() => {
+		if (formId) {
+			fetchFormAnalytics();
+		}
+	}, [formId]);
+
+	useEffect(() => {
+		if (onDataUpdate) {
+			onDataUpdate({ formData, questions });
+		}
+	}, [formData, questions, onDataUpdate]);
+
+	const fetchFormAnalytics = async () => {
+		try {
+			setLoading(true);
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+
+			const response = await service.query(
+				getFormResponseAnalyticsQuery,
+				{
+					filter: {
+						workflowTemplateId: formId,
+					},
+				},
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+
+			if (response?.[1]?.data?.formResponseAnalytics) {
+				const { data, totalDocs } = response[1].data.formResponseAnalytics;
+
+				// Extract unique questions from the first response
+				if (data?.length > 0 && data[0]?.response) {
+					const uniqueQuestions = data[0].response
+						.filter((item) => item?.question) // Filter out any items without questions
+						.map((item) => ({
+							question: item.question,
+							type: item.type,
+						}))
+						.filter(
+							(item, index, self) =>
+								index ===
+								self.findIndex(
+									(q) =>
+										q?.question?.toLowerCase() ===
+										item?.question?.toLowerCase(),
+								),
+						)
+						.sort((a, b) => {
+							// Prioritize name and email questions
+							const aLower = a.question.toLowerCase();
+							const bLower = b.question.toLowerCase();
+
+							// Check for name-related questions
+							const aIsName = aLower.includes('name') || aLower.includes('full name');
+							const bIsName = bLower.includes('name') || bLower.includes('full name');
+
+							// Check for email-related questions
+							const aIsEmail = aLower.includes('email');
+							const bIsEmail = bLower.includes('email');
+
+							// Sort order: name first, then email, then everything else
+							if (aIsName && !bIsName) return -1;
+							if (!aIsName && bIsName) return 1;
+							if (aIsEmail && !bIsEmail) return -1;
+							if (!aIsEmail && bIsEmail) return 1;
+							return 0;
+						});
+
+					setQuestions(uniqueQuestions);
+				}
+
+				setFormData((prev) => ({
+					...prev,
+					responses: data || [],
+					total: totalDocs || 0,
+					submitted: totalDocs || 0,
+					title: prev.title || data?.[0]?.title || '',
+				}));
+			} else {
+				setError('Failed to fetch form responses');
+			}
+		} catch (err) {
+			setError(err.message || 'An error occurred');
+		} finally {
+			setLoading(false);
+		}
 	};
-
-	const {
-		totalResponses,
-		responses,
-		skipped,
-		coreSkills,
-		candidates,
-		totalCandidates,
-		submittedCandidates,
-		notSubmittedCandidates,
-	} = formSummary;
 
 	const handleExpand = () => {
 		setExpanded(!expanded);
 	};
 
-	const visibleItems = expanded ? candidates : candidates.slice(0, 5);
+	const handleCopy = (question) => {
+		const content = formData.responses
+			.map((response) => {
+				const field = response?.response?.find((r) =>
+					r?.question?.toLowerCase().includes(question.toLowerCase()),
+				);
+
+				if (!field) return '';
+
+				// Handle file upload responses
+				if (field.type === 'fileupload') {
+					if (!field.answer || field.answer.length === 0) return 'No File Uploaded';
+					return 'File Uploaded';
+				}
+
+				return field.answer || '';
+			})
+			.filter(Boolean)
+			.join('\n');
+
+		navigator.clipboard.writeText(content).then(() => {
+			setCopyStatus((prev) => ({ ...prev, [question]: true }));
+			setTimeout(() => {
+				setCopyStatus((prev) => ({ ...prev, [question]: false }));
+			}, 2000);
+		});
+	};
+
+	const visibleItems = expanded ? formData.responses : formData.responses.slice(0, 5);
+
+	const getQuestionResponseCount = (questionText) => {
+		return formData.responses.filter((response) => {
+			const field = response?.response?.find((r) => {
+				return r?.question?.toLowerCase()?.includes(questionText?.toLowerCase() || '');
+			});
+
+			if (!field) return false;
+
+			if (field.type === 'fileupload') {
+				return field.answer && field.answer.length > 0;
+			}
+
+			return field.answer;
+		}).length;
+	};
+
+	const handleUserClick = (response) => {
+		if (onUserClick) {
+			onUserClick(response);
+		}
+	};
+
+	const handleCardClick = useCallback((response, index) => {
+		setSelectedResponse(response);
+		setExpandedCard(index);
+	}, []);
+
+	if (!formId) return <div>No form ID provided</div>;
+	if (error) return <div>Error: {error}</div>;
+	if (loading) return <div className="loading-state">Loading...</div>;
+	if (!formData.responses.length) return <div className="loading-state">Loading...</div>;
 
 	return (
 		<div className="formSummaryWrapper">
 			<div className="formSummaryParentContainer">
 				<div className="formSummaryContainer">
-					{/* Header Section */}
-					<div className="header">
-						<span className="title">What are your Core Skills in Figma?</span>
-						<div className="summary">
-							<span>Responses: {responses}</span>
-							<span>|</span>
-							<span>Skipped: {skipped}</span>
-						</div>
-					</div>
-
-					{/* Core Skills Section with Circular Graph */}
-					<div className="core-skills-section">
-						<div className="circle-graph">
-							<div className="circle-graph-inner">
-								<span className="circle-graph-label">Total Responses</span>
-								<span className="circle-graph-value">{totalResponses}</span>
-							</div>
-						</div>
-						<div className="skills-list">
-							{coreSkills.map((skill, index) => (
-								<div key={index} className="skill-item">
-									<span className="skill-name">{skill.name}</span>
-									<span className="skill-count">{skill.count}</span>
+					{questions.map((item, index) => {
+						return (
+							<div key={index} className="section">
+								<div className="header">
+									<div className="header-top">
+										<span className="title">
+											<span className="question-number">Q{index + 1}:</span>{' '}
+											{item.question}
+										</span>
+										<div
+											className="copy-button"
+											onClick={() =>
+												handleCopy(item?.question?.toLowerCase() || '')
+											}
+										>
+											<Copy className="copy-icon" />
+											<span className="copy-text">
+												{copyStatus[item?.question?.toLowerCase() || '']
+													? 'Copied!'
+													: 'Copy'}
+											</span>
+										</div>
+									</div>
+									<div className="total-responses">
+										Total Responses: {getQuestionResponseCount(item.question)}
+									</div>
 								</div>
-							))}
-						</div>
-					</div>
-				</div>
 
-				{/* Candidates Section */}
-				<div className="formSummaryContainer">
-					<div className="header">
-						<span className="title">Candidates</span>
-						<div className="summary">
-							<span>Total: {totalCandidates}</span>
-							<span>|</span>
-							<span>Submitted: {submittedCandidates}</span>
-							<span>|</span>
-							<span>Not Submitted: {notSubmittedCandidates}</span>
-						</div>
-					</div>
-
-					<FormResponseList
-						expanded={expanded}
-						handleExpand={handleExpand}
-						items={candidates}
-						visibleItems={visibleItems}
-					/>
+								<FormResponseList
+									expanded={expanded}
+									handleExpand={handleExpand}
+									items={formData.responses}
+									visibleItems={visibleItems}
+									question={item.question}
+									handleCopy={handleCopy}
+									copyStatus={copyStatus}
+									type={item.type}
+									onUserClick={handleUserClick}
+								/>
+							</div>
+						);
+					})}
 				</div>
 			</div>
 		</div>

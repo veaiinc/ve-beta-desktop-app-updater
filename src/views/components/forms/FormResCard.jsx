@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import { ReactComponent as Download } from '../../../assets/svg/smartFiles/formResponse/download.svg';
+import React, { useState, useEffect, memo } from 'react';
 import { ReactComponent as Call } from '../../../assets/svg/smartFiles/formResponse/call.svg';
 import { ReactComponent as Message } from '../../../assets/svg/smartFiles/formResponse/message.svg';
 import { ReactComponent as Calender } from '../../../assets/svg/smartFiles/formResponse/calendar.svg';
@@ -11,8 +10,19 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import { FetchMoreLoaderComp } from '../../../helpers';
 import QuickActions from '../globalComponents/QuickActions';
 import { Tooltip } from 'antd';
+import { removeQuotes } from './FormDescription';
+import { useParams } from 'react-router-dom';
 
-const FormResCard = ({ formId, updateTotalSubmissions, handleCardClick }) => {
+const FormResCard = ({
+	formId: inputFormId,
+	updateTotalSubmissions,
+	handleCardClick,
+	sortOrder,
+	searchValue,
+	selectedResponse,
+}) => {
+	const x = useParams();
+	const formId = inputFormId || x.id;
 	const [responses, setResponses] = useState([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState(null);
@@ -35,6 +45,16 @@ const FormResCard = ({ formId, updateTotalSubmissions, handleCardClick }) => {
 			updateTotalSubmissions(responses.length, latestResponse);
 		}
 	}, [responses]);
+
+	useEffect(() => {
+		if (selectedResponse) {
+			const index = responses.findIndex((response) => response._id === selectedResponse._id);
+			if (index !== -1) {
+				setExpandedCard(index);
+				handleCardClick(responses[index], index);
+			}
+		}
+	}, [selectedResponse, responses, handleCardClick]);
 
 	const fetchInitialResponses = async () => {
 		try {
@@ -110,7 +130,14 @@ const FormResCard = ({ formId, updateTotalSubmissions, handleCardClick }) => {
 		const nameField = response.response.find((item) =>
 			item?.question?.toLowerCase().includes('name'),
 		);
-		return nameField?.answer || 'No Name';
+		if (nameField?.answer) return nameField.answer;
+
+		const emailField = response.response.find((item) =>
+			item?.question?.toLowerCase().includes('email'),
+		);
+		if (emailField?.answer) return emailField.answer;
+
+		return 'No Name';
 	};
 
 	const getEmail = (response) => {
@@ -167,21 +194,125 @@ const FormResCard = ({ formId, updateTotalSubmissions, handleCardClick }) => {
 		const phone = getPhone(response);
 
 		if (actionName === 'Call' && phone) {
-			console.log(`Calling ${phone}`);
-			// Here you can implement the actual call functionality
 			window.location.href = `tel:${phone}`;
 		} else if (actionName === 'Mail' && email) {
-			console.log(`Emailing ${email}`);
-			// Here you can implement the actual email functionality
 			window.location.href = `mailto:${email}`;
 		} else {
 			console.log(`No ${actionName.toLowerCase()} data available for ${getName(response)}`);
 		}
 	};
 
-	if (loading && responses.length === 0) return <div>Loading...</div>;
+	const sortResponses = (responses) => {
+		if (!responses || !Array.isArray(responses)) return [];
+
+		// Filter responses based on search
+		const filteredResponses = searchValue
+			? responses.filter((response) => {
+					if (!response) return false;
+					const name = getName(response)?.toLowerCase() || '';
+					const email = getEmail(response)?.toLowerCase() || '';
+					const searchTerm = searchValue?.toLowerCase() || '';
+					return name.includes(searchTerm) || email.includes(searchTerm);
+			  })
+			: responses;
+
+		// Create a copy of the array to sort
+		const sortedResponses = [...filteredResponses];
+
+		// Sort based on the selected order
+		sortedResponses.sort((a, b) => {
+			// Handle null/undefined cases
+			if (!a && !b) return 0;
+			if (!a) return 1;
+			if (!b) return -1;
+
+			// Handle date sorting
+			if (sortOrder === 'date-desc' || sortOrder === 'date-asc') {
+				const dateA = a.createdAt || 0;
+				const dateB = b.createdAt || 0;
+				return sortOrder === 'date-desc' ? dateB - dateA : dateA - dateB;
+			}
+
+			// Handle alphabetical sorting
+			if (sortOrder === 'alpha-asc' || sortOrder === 'alpha-desc') {
+				const nameA = getName(a)?.toLowerCase() || '';
+				const nameB = getName(b)?.toLowerCase() || '';
+
+				// Handle empty names
+				if (!nameA && !nameB) return 0;
+				if (!nameA) return 1;
+				if (!nameB) return -1;
+
+				return sortOrder === 'alpha-asc'
+					? nameA.localeCompare(nameB)
+					: nameB.localeCompare(nameA);
+			}
+
+			// Default to date descending
+			return (b.createdAt || 0) - (a.createdAt || 0);
+		});
+
+		return sortedResponses;
+	};
+
+	const exportToCSV = () => {
+		if (!responses.length) return;
+
+		// Get all unique question fields from responses
+		const allQuestions = new Set();
+		responses.forEach((response) => {
+			response.response?.forEach((item) => {
+				if (item.question) allQuestions.add(item.question);
+			});
+		});
+
+		// Create CSV header
+		const headers = ['Name', 'Email', 'Phone', 'Submitted At', ...Array.from(allQuestions)];
+		const csvRows = [headers];
+
+		// Process each response
+		responses.forEach((response) => {
+			const row = [];
+
+			// Add basic info
+			row.push(getName(response));
+			row.push(getEmail(response));
+			row.push(getPhone(response));
+			row.push(getTimeAgo(response));
+
+			// Add answers for each question
+			Array.from(allQuestions).forEach((question) => {
+				const answer =
+					response.response?.find((item) => item.question === question)?.answer || '';
+				row.push(removeQuotes(answer));
+			});
+
+			csvRows.push(row);
+		});
+
+		// Convert to CSV string
+		const csvContent = csvRows
+			.map((row) => row.map((cell) => `"${cell}"`).join(','))
+			.join('\n');
+
+		// Create and trigger download
+		const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+		const link = document.createElement('a');
+		const url = URL.createObjectURL(blob);
+		link.setAttribute('href', url);
+		link.setAttribute(
+			'download',
+			`form_responses_${new Date().toISOString().split('T')[0]}.csv`,
+		);
+		link.style.visibility = 'hidden';
+		document.body.appendChild(link);
+		link.click();
+		document.body.removeChild(link);
+	};
+
 	if (error) return <div>Error: {error}</div>;
-	if (!responses.length) return <div>No data available</div>;
+	if (loading) return <div className="loading-state">Loading...</div>;
+	if (!responses.length) return <div className="no-responses">No responses yet</div>;
 
 	return (
 		<div className="formResLayout">
@@ -199,7 +330,7 @@ const FormResCard = ({ formId, updateTotalSubmissions, handleCardClick }) => {
 					}}
 					height="calc(100vh - 100px)"
 				>
-					{responses.map((response, index) => {
+					{sortResponses(responses).map((response, index) => {
 						const resumeInfo = getResumeInfo(response);
 						const isExpanded = expandedCard === index;
 
@@ -217,29 +348,11 @@ const FormResCard = ({ formId, updateTotalSubmissions, handleCardClick }) => {
 										<h1 className="name">{getName(response)}</h1>
 										<h1 className="time">{getTimeAgo(response)}</h1>
 									</div>
-									{/* <div className="download">
-										<span className="downloadicon">
-											<Download />
-										</span>
-										{resumeInfo.url ? (
-											<a
-												href={resumeInfo.url}
-												target="_blank"
-												rel="noopener noreferrer"
-												className="resumey"
-												onClick={(e) => e.stopPropagation()}
-											>
-												{resumeInfo.name}
-											</a>
-										) : (
-											<h2 className="resumey">{resumeInfo.name}</h2>
-										)}
-									</div> */}
 								</div>
 
 								{isExpanded && (
 									<div className="incard">
-										<h3 className="options">Ai Actions</h3>
+										<h3 className="options">Actions</h3>
 										<div className="actionsRow">
 											<div
 												className="resoption"
@@ -284,18 +397,9 @@ const FormResCard = ({ formId, updateTotalSubmissions, handleCardClick }) => {
 						);
 					})}
 				</InfiniteScroll>
-				<div
-					className="formEnquiryContainer"
-					style={{
-						display: 'flex',
-						justifyContent: 'flex-end',
-						padding: '16px',
-						width: '100%',
-					}}
-				></div>
 			</div>
 		</div>
 	);
 };
 
-export default FormResCard;
+export default memo(FormResCard);
