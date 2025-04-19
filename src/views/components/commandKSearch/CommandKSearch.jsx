@@ -164,7 +164,9 @@ const CommandKSearch = ({ handleCloseSearchModal }) => {
 						/>
 					</div>
 					<div className="reset-filter" onClick={resetFilters}>
-						<p>Reset</p>
+						<p>
+							Reset filter <span>&times;</span>
+						</p>
 					</div>
 				</div>
 				<div className={`search-output-container ${noResults ? 'noResultsContainer' : ''}`}>
