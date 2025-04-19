@@ -480,6 +480,9 @@
 					overflow: hidden;
 					text-overflow: ellipsis;
 					white-space: nowrap;
+					display: flex;
+					flex-direction: column;
+					gap: 12px;
 
 					.search-output-header {
 						color: var(--primary-font);

@@ -136,7 +136,7 @@ const CommandKSearch = ({ handleCloseSearchModal }) => {
 						</button>
 					</div>
 				</div>
-				<div className="filters-container">
+				{/* <div className="filters-container">
 					<div className="dropdown-filters">
 						<CustomDropdown
 							options={filterOptions.source}
@@ -168,7 +168,7 @@ const CommandKSearch = ({ handleCloseSearchModal }) => {
 							Reset filter <span>&times;</span>
 						</p>
 					</div>
-				</div>
+				</div> */}
 				<div className={`search-output-container ${noResults ? 'noResultsContainer' : ''}`}>
 					{noResults ? (
 						<p className="noResults">No results found</p>

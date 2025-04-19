@@ -226,6 +226,7 @@ const ElasticSearchResults = ({ handleCloseSearchModal }) => {
 		updateTemplateStateValues({ galleryFile: searchItem });
 		const chatId = ObjectID()?.toString();
 		navigate(`/chat/${chatId}`);
+		handleCloseSearchModal();
 	};
 
 	console.log(elasticSearchResults);
@@ -238,7 +239,6 @@ const ElasticSearchResults = ({ handleCloseSearchModal }) => {
 						key={searchItem._id || index}
 						className="search-result-item"
 						style={{ width: '100%' }}
-						onClick={() => handleOpenClick(searchItem)}
 					>
 						<div className="search-output">
 							<div className="search-result-item-left">
@@ -258,7 +258,7 @@ const ElasticSearchResults = ({ handleCloseSearchModal }) => {
 							{/* <div className="hover-card-wrapper">
 								<HoverCard searchItem={searchItem} />
 							</div> */}
-							{/* <div className="search-result-item-right">
+							<div className="search-result-item-right">
 								<div className="action-buttons">
 									<button
 										className="action-btn ask-btn"
@@ -275,7 +275,7 @@ const ElasticSearchResults = ({ handleCloseSearchModal }) => {
 										</button>
 									)}
 								</div>
-							</div> */}
+							</div>
 						</div>
 					</div>
 				))}
