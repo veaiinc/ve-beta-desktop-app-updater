@@ -2,7 +2,7 @@
 
 import { memo, useContext } from 'react';
 import Context from '../../../context/context';
-import '../../../assets/scss/elastic_search/index.scss';
+import '../../../assets/scss/commandKSearch/commandKSearch.scss';
 import { ReactComponent as Pdf } from '../../../assets/svg/files/pdfSvg.svg';
 import { ReactComponent as Mp3 } from '../../../assets/svg/files/mp3Svg.svg';
 import { ReactComponent as Mp4 } from '../../../assets/svg/files/mp4Svg.svg';
@@ -160,30 +160,30 @@ const ElasticSearchResults = () => {
 		return { __html: content || '' };
 	};
 
-	// Hover card component
-	const HoverCard = ({ searchItem }) => {
-		const { icon, color } = getFileTypeInfo(searchItem);
+	// // Hover card component
+	// const HoverCard = ({ searchItem }) => {
+	// 	const { icon, color } = getFileTypeInfo(searchItem);
 
-		return (
-			<div className="hover-card">
-				<div className="hover-card-header">
-					<div className="hover-card-icon" style={{ color }}>
-						{icon}
-					</div>
-					<div className="hover-card-title">{searchItem.title || 'Singularity'}</div>
-				</div>
-				<div className="hover-card-content">
-					<div
-						className="hover-card-description"
-						dangerouslySetInnerHTML={renderHTMLContent(
-							searchItem.text ||
-								'Connect to Notion to manage <mark>tasks</mark>, organize projects, and centralize your work.',
-						)}
-					/>
-				</div>
-			</div>
-		);
-	};
+	// 	return (
+	// 		<div className="hover-card">
+	// 			<div className="hover-card-header">
+	// 				<div className="hover-card-icon" style={{ color }}>
+	// 					{icon}
+	// 				</div>
+	// 				<div className="hover-card-title">{searchItem.title || 'Singularity'}</div>
+	// 			</div>
+	// 			<div className="hover-card-content">
+	// 				<div
+	// 					className="hover-card-description"
+	// 					dangerouslySetInnerHTML={renderHTMLContent(
+	// 						searchItem.text ||
+	// 							'Connect to Notion to manage <mark>tasks</mark>, organize projects, and centralize your work.',
+	// 					)}
+	// 				/>
+	// 			</div>
+	// 		</div>
+	// 	);
+	// };
 
 	const handleOpenClick = (gallery) => {
 		if (gallery.sourceType === 'workflow') {
@@ -220,24 +220,36 @@ const ElasticSearchResults = () => {
 		navigate(`/chat/${chatId}`);
 	};
 
+	console.log(elasticSearchResults);
+
 	return (
-		<div className="search-results-list">
+		<div className="search-results-list" style={{ width: '100%' }}>
 			{elasticSearchResults?.length > 0 &&
 				elasticSearchResults?.map((searchItem, index) => (
-					<div key={searchItem._id || index} className="search-result-item">
-						<div className="search-result-item-content">
+					<div
+						key={searchItem._id || index}
+						className="search-result-item"
+						style={{ width: '100%' }}
+					>
+						<div className="search-output">
 							<div className="search-result-item-left">
-								<div style={{ color: getFileTypeInfo(searchItem).color }}>
+								<div
+									style={{ color: getFileTypeInfo(searchItem).color }}
+									className="image"
+								>
 									{getFileTypeInfo(searchItem).icon}
 								</div>
-								<div className="search-result-item-info">
-									<h4>{searchItem.title || 'Singularity'}</h4>
-								</div>
 							</div>
-							<div className="hover-card-wrapper">
+							<div className="content">
+								<h4 className="search-output-header">
+									{searchItem.title || 'Singularity'}
+								</h4>
+								<p className="description">{searchItem.text}</p>
+							</div>
+							{/* <div className="hover-card-wrapper">
 								<HoverCard searchItem={searchItem} />
-							</div>
-							<div className="search-result-item-right">
+							</div> */}
+							{/* <div className="search-result-item-right">
 								<div className="action-buttons">
 									<button
 										className="action-btn ask-btn"
@@ -254,7 +266,7 @@ const ElasticSearchResults = () => {
 										</button>
 									)}
 								</div>
-							</div>
+							</div> */}
 						</div>
 					</div>
 				))}

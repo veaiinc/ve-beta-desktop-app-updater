@@ -20,6 +20,8 @@ const CommandKSearch = ({ handleCloseSearchModal }) => {
 		showElasticSearchResults: false,
 	});
 
+	const [isLoading, setIsLoading] = useState(false);
+
 	const noResults = elasticSearchResults?.length === 0 && info?.showElasticSearchResults;
 
 	const handleSearch = async (e) => {
@@ -33,6 +35,7 @@ const CommandKSearch = ({ handleCloseSearchModal }) => {
 			});
 			return;
 		}
+		setIsLoading(true);
 		elasticSearchTimeoutRef.current = setTimeout(async () => {
 			setInfo({
 				elasticSearchLoading: true,
@@ -48,6 +51,7 @@ const CommandKSearch = ({ handleCloseSearchModal }) => {
 				elasticSearchLoading: false,
 				showElasticSearchResults: true,
 			});
+			setIsLoading(false);
 		}, 500);
 	};
 
@@ -67,8 +71,13 @@ const CommandKSearch = ({ handleCloseSearchModal }) => {
 							type="text"
 							placeholder="Search any file or documents"
 							onChange={handleSearch}
+							autoFocus
 						/>
-						{info?.elasticSearchLoading && <Spinner width={'16px'} height={'16px'} />}
+						{isLoading && (
+							<div className="spinner-wrapper">
+								<Spinner width={'16px'} height={'16px'} />
+							</div>
+						)}
 						<button>
 							<ArrowUp className="arrow-up" />
 						</button>
