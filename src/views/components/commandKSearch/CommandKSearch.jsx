@@ -7,6 +7,7 @@ import Context from '../../../context/context';
 import { message } from '../globalComponents/CustomToast';
 import Spinner from '../loaders/Spinner';
 import ElasticSearchResults from './ElasticSearchResults';
+import CustomDropdown from './CustomDropdownForCommandK';
 
 const CommandKSearch = ({ handleCloseSearchModal }) => {
 	const elasticSearchTimeoutRef = useRef(null);
@@ -21,6 +22,35 @@ const CommandKSearch = ({ handleCloseSearchModal }) => {
 	});
 
 	const [isLoading, setIsLoading] = useState(false);
+
+	const [selectedFilters, setSelectedFilters] = useState({
+		source: null,
+		collection: null,
+		assistance: null,
+		date: null,
+	});
+
+	const filterOptions = {
+		source: [
+			{ label: 'All Sources', value: 'all' },
+			{ label: 'PDFs', value: 'pdf' },
+			{ label: 'Images', value: 'image' },
+		],
+		collection: [
+			{ label: 'All Collections', value: 'all' },
+			{ label: 'Work', value: 'work' },
+			{ label: 'Personal', value: 'personal' },
+		],
+		assistance: [
+			{ label: 'All Assistance', value: 'all' },
+			{ label: 'Templates', value: 'templates' },
+		],
+		date: [
+			{ label: 'All Time', value: 'all' },
+			{ label: 'This Week', value: 'week' },
+			{ label: 'This Month', value: 'month' },
+		],
+	};
 
 	const noResults = elasticSearchResults?.length === 0 && info?.showElasticSearchResults;
 
@@ -55,6 +85,25 @@ const CommandKSearch = ({ handleCloseSearchModal }) => {
 		}, 500);
 	};
 
+	const handleFilterChange = (filterType, selectedOption) => {
+		setSelectedFilters((prev) => ({
+			...prev,
+			[filterType]: selectedOption,
+		}));
+
+		console.log(`${filterType} filter changed to:`, selectedOption);
+	};
+
+	const resetFilters = () => {
+		setSelectedFilters({
+			source: null,
+			collection: null,
+			assistance: null,
+			date: null,
+		});
+		console.log('Filters reset');
+	};
+
 	return (
 		<div className="command-k-search-container">
 			<div className="command-k-search">
@@ -75,68 +124,56 @@ const CommandKSearch = ({ handleCloseSearchModal }) => {
 						/>
 						{isLoading && (
 							<div className="spinner-wrapper">
-								<Spinner width={'16px'} height={'16px'} />
+								<Spinner
+									width={'16px'}
+									height={'16px'}
+									color={'var(--primary-font)'}
+								/>
 							</div>
 						)}
 						<button>
 							<ArrowUp className="arrow-up" />
 						</button>
 					</div>
-					<div className="dropdown-container">
-						<div className="dropdown-filters">
-							<p>source</p>
-							<p>collection</p>
-							<p>assistance</p>
-							<p>date</p>
-						</div>
-						<div className="reset-filter">
-							<p>reset filter</p>
-						</div>
+				</div>
+				<div className="filters-container">
+					<div className="dropdown-filters">
+						<CustomDropdown
+							options={filterOptions.source}
+							value={selectedFilters.source?.value}
+							onChange={(value) => handleFilterChange('source', value)}
+							placeholder="Source"
+						/>
+						<CustomDropdown
+							options={filterOptions.collection}
+							value={selectedFilters.collection?.value}
+							onChange={(value) => handleFilterChange('collection', value)}
+							placeholder="Collection"
+						/>
+						<CustomDropdown
+							options={filterOptions.assistance}
+							value={selectedFilters.assistance?.value}
+							onChange={(value) => handleFilterChange('assistance', value)}
+							placeholder="Assistance"
+						/>
+						<CustomDropdown
+							options={filterOptions.date}
+							value={selectedFilters.date?.value}
+							onChange={(value) => handleFilterChange('date', value)}
+							placeholder="Date"
+						/>
+					</div>
+					<div className="reset-filter" onClick={resetFilters}>
+						<p>Reset</p>
 					</div>
 				</div>
-				{/* <div className="search-output-container">
-					<div className="search-output">
-						<div className="image"></div>
-						<div className="content">
-							<h2 className="search-output-header">Demo - Sana AI Daily Standup</h2>
-							<p className="description">
-								Lauren Crichton: Stuff to tackle and a busy day ahead of us. Lauren
-								Crichton: As you know, the Salesforce agent is the top prior. Jon,
-								can you share where we're at with that? Lauren Crichton: Yes. Jon
-								Lexa: Agent is coming along well. Jon...
-							</p>
-						</div>
-					</div>
-					<div className="search-output">
-						<div className="image"></div>
-						<div className="content">
-							<h2 className="search-output-header">Demo - Sana AI Daily Standup</h2>
-							<p className="description">
-								Lauren Crichton: Stuff to tackle and a busy day ahead of us. Lauren
-								Crichton: As you know, the Salesforce agent is the top prior. Jon,
-								can you share where we're at with that? Lauren Crichton: Yes. Jon
-								Lexa: Agent is coming along well. Jon...
-							</p>
-						</div>
-					</div>
-					<div className="search-output">
-						<div className="image"></div>
-						<div className="content">
-							<h2 className="search-output-header">Demo - Sana AI Daily Standup</h2>
-							<p className="description">
-								Lauren Crichton: Stuff to tackle and a busy day ahead of us. Lauren
-								Crichton: As you know, the Salesforce agent is the top prior. Jon,
-								can you share where we're at with that? Lauren Crichton: Yes. Jon
-								Lexa: Agent is coming along well. Jon...
-							</p>
-						</div>
-					</div>
-				</div> */}
 				<div className={`search-output-container ${noResults ? 'noResultsContainer' : ''}`}>
 					{noResults ? (
 						<p className="noResults">No results found</p>
 					) : (
-						info?.showElasticSearchResults && <ElasticSearchResults />
+						info?.showElasticSearchResults && (
+							<ElasticSearchResults handleCloseSearchModal={handleCloseSearchModal} />
+						)
 					)}
 				</div>
 			</div>

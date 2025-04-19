@@ -13,7 +13,7 @@ import { ReactComponent as File } from '../../../assets/svg/files/file.svg';
 import { useNavigate } from 'react-router-dom';
 import ObjectID from 'bson-objectid';
 
-const ElasticSearchResults = () => {
+const ElasticSearchResults = ({ handleCloseSearchModal }) => {
 	const navigate = useNavigate();
 	const {
 		templates: { updateStateValues: updateTemplateStateValues },
@@ -195,11 +195,19 @@ const ElasticSearchResults = () => {
 			if (gallery.url) {
 				window.open(gallery.url, '_blank');
 			}
+			if (gallery.title) {
+				const urlRegex =
+					/^(https?:\/\/)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&//=]*)$/;
+				if (urlRegex.test(gallery.title)) {
+					window.open(gallery.title, '_blank');
+				}
+			}
 		} else {
 			if (gallery.url) {
 				window.open(gallery.url, '_blank');
 			}
 		}
+		handleCloseSearchModal();
 	};
 
 	const shouldShowOpenButton = (gallery) => {
@@ -230,6 +238,7 @@ const ElasticSearchResults = () => {
 						key={searchItem._id || index}
 						className="search-result-item"
 						style={{ width: '100%' }}
+						onClick={() => handleOpenClick(searchItem)}
 					>
 						<div className="search-output">
 							<div className="search-result-item-left">
