@@ -100,8 +100,8 @@ const InviteMembersWorkspaceComponent = ({
 	};
 
 	const customStyles = {
-		content: { zIndex: 99999 },
-		overlay: { zIndex: 99998 },
+		content: { zIndex: 999 },
+		overlay: { zIndex: 998 },
 	};
 	return (
 		<ReactModal isOpen={isOpen} closeModal={closeModal} customStyles={customStyles}>

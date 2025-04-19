@@ -11,6 +11,7 @@ import { ReactComponent as LinkLightSvg } from '../../../assets/svg/notes/loop-l
 import { ReactComponent as LinkDarkSvg } from '../../../assets/svg/notes/loop-dark.svg';
 import useChatStream from '../../hooks/useChatStream';
 import { useParams, useSearchParams } from 'react-router-dom';
+import AIMessage from './AIMessage';
 const FormModel = ({
 	workflowTemplateId,
 	moduleTemplateId,
@@ -35,7 +36,10 @@ const FormModel = ({
 	useEffect(() => {
 		if (showViewDocument) return;
 		setTimeout(() => {
-			let isExpanded = messageData?.stream_end && isLastMessage ? true : false;
+			let isExpanded =
+				messageData?.stream_end && isLastMessage && !messageData?.isOldMessage
+					? true
+					: false;
 			setIsExpanded(isExpanded);
 			if (handleViewDocument) {
 				handleViewDocument(isExpanded);
@@ -206,7 +210,7 @@ const Section1 = ({
 								<div className="message-content">
 									{chat?.type?.toLowerCase() === 'ai' ? (
 										<div className="content">
-											<TypingEffect
+											<AIMessage
 												text={chat?.message}
 												smoothScrollToBottom={smoothScrollToBottom}
 												handleRatingClick={handleRatingClick}

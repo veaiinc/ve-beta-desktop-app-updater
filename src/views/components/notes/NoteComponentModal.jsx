@@ -21,6 +21,7 @@ import { ReactComponent as LinkDarkSvg } from '../../../assets/svg/notes/loop-da
 import ReactModal from '../../components/modalsV2/index';
 import ShareComponent from './ShareComponent';
 import MoreOptions from './MoreOptions';
+import AIMessage from '../chat/AIMessage';
 
 const NoteComponentModal = ({
 	modalIsOpen,
@@ -249,7 +250,7 @@ const NoteComponentModal = ({
 											<div className="message-content">
 												{chat?.type?.toLowerCase() === 'ai' ? (
 													<div className="content">
-														<TypingEffect
+														<AIMessage
 															text={chat?.message}
 															smoothScrollToBottom={
 																smoothScrollToBottom
