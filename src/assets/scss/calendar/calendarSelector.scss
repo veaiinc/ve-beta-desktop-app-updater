@@ -60,12 +60,15 @@
 				flex-direction: column;
 				text-align: start;
 				left: 0;
+				top: 100%;
+				margin-top: 2px;
 				background-color: var(--card);
 				border: 2px solid var(--stroke);
 				border-radius: 15px;
 				padding: 5px 3px;
 				max-height: 260px;
 				overflow-y: auto;
+				z-index: 1000;
 
 				.monthName,
 				.yearList {

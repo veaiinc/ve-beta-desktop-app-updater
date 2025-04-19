@@ -7,10 +7,9 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import EventDetailsModal from '../modalsV2/calendar/EventDetailsModal';
 import ObjectId from 'bson-objectid';
 import { FetchMoreLoaderComp } from '../../../helpers';
+import Skeleton from 'react-loading-skeleton';
 
-const infiniteScrollStyle = {
-	height: '34vh',
-};
+const skeletonLoaders = Array.from({ length: 6 }, (_, index) => index + 1);
 const CalenderWidget = ({ width }) => {
 	const {
 		calendarInfo: {
@@ -34,6 +33,7 @@ const CalenderWidget = ({ width }) => {
 		selectedEvent: null,
 		isModalOpen: false,
 		eventsList: [],
+		isLoading: false,
 	});
 
 	const eventsLength = allCalendarEvents?.data?.length ?? 0;
@@ -104,22 +104,15 @@ const CalenderWidget = ({ width }) => {
 	}, []);
 
 	useEffect(() => {
-		const payload = {
-			options: {
-				startDate: info?.currentCalendarDate?.toISOString(),
-			},
-		};
 		if (allCalendarEvents?.currentPage !== info?.page) {
-			getAllCalendarEvents(info?.page, 20, payload);
+			fetchCalendarEvents();
 		}
 	}, []);
 
 	const fetchMoreCalendarEvents = () => {
 		const nextPage = eventsCurrentPage + 1;
 		const payload = {
-			options: {
-				limit: 20,
-			},
+			options: {},
 		};
 		if (eventsCurrentPage !== undefined) {
 			getAllCalendarEvents(nextPage, 20, payload);
@@ -161,6 +154,18 @@ const CalenderWidget = ({ width }) => {
 		[info?.eventsList],
 	);
 
+	const fetchCalendarEvents = async () => {
+		setInfo((prev) => ({ ...prev, isLoading: true }));
+		const payload = {
+			options: {
+				startDate: info?.currentCalendarDate?.toISOString().split('T')[0],
+				sortType: 'startDateTime',
+				sortOrder: 'asc',
+			},
+		};
+		await getAllCalendarEvents(info?.page, 20, payload);
+		setInfo((prev) => ({ ...prev, isLoading: false }));
+	};
 	return (
 		<div className="calender-main-container" style={{ width: width, height: '412px' }}>
 			<div className="calenderWidgetContainer">
@@ -179,7 +184,18 @@ const CalenderWidget = ({ width }) => {
 							height: '100%',
 						}}
 					>
-						{allCalendarEvents?.data?.length > 0 ? (
+						{info?.isLoading ? (
+							skeletonLoaders?.map((item) => (
+								<Skeleton
+									width="300px"
+									height="36px"
+									style={{
+										'--highlight-color': 'gray',
+										'--base-color': 'transparent',
+									}}
+								/>
+							))
+						) : allCalendarEvents?.data?.length > 0 ? (
 							<InfiniteScroll
 								dataLength={allCalendarEvents?.data?.length}
 								next={fetchMoreCalendarEvents}
@@ -306,6 +322,7 @@ const CalenderWidget = ({ width }) => {
 				categoryList={calendarCategoriesList}
 				onClose={handleModalClose}
 				updateCalenderEventsList={updateCalenderEventsList}
+				filterDeletedEvent={filterDeletedEvent}
 			/>
 		</div>
 	);

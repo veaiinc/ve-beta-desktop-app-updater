@@ -1,5 +1,5 @@
 import React, { useContext, useState, useCallback, useRef } from 'react';
-import ChatBox from '../homePage/ChatBox';
+import ChatBox from './ChatBox';
 import Context from '../../../context/context';
 import { TypingEffect } from '../../../helpers/markdownHelper';
 import '../../../assets/scss/chat/formModelChat.scss';

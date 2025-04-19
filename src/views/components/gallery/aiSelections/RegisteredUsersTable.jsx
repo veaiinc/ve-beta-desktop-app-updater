@@ -58,7 +58,13 @@ const Table = ({ tableData, thead, loading, scrollLoading, tableHeader }) => {
 						<>
 							{tableData?.data?.map((row, index) => (
 								<tr key={`row-${index}`}>
-									<td className="text-left">
+									<td
+										style={{
+											display: 'flex',
+											alignItems: 'center',
+											gap: '10px',
+										}}
+									>
 										<div
 											style={{
 												display: 'flex',
@@ -77,12 +83,14 @@ const Table = ({ tableData, thead, loading, scrollLoading, tableHeader }) => {
 											<p>{row?.email || 'Anonymous'}</p>
 										</div>
 									</td>
-									<td>
+									<td style={{ textAlign: 'center', width: '20%' }}>
 										{row.registrationStage === 'registered'
 											? 'Registered'
 											: 'In Progress'}
 									</td>
-									<td>{formatDate(row.createdAt)}</td>
+									<td style={{ textAlign: 'center', width: '22%' }}>
+										{formatDate(row.createdAt)}
+									</td>
 								</tr>
 							))}
 							{scrollLoading && <LoadingSkeleton />}

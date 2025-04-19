@@ -7,12 +7,12 @@ import { ReactComponent as FileSearch } from '../../../assets/svg/filesearch.svg
 import { ReactComponent as HeadCircuit } from '../../../assets/svg/headcircuit.svg';
 import { ReactComponent as Chats } from '../../../assets/svg/chats.svg';
 import { useNavigate } from 'react-router-dom';
-import ChatBox from '../../components/homePage/ChatBox';
 import Context from '../../../context/context';
 // import { ReactComponent as SidebarClosing } from '../../../assets/svg/sidebar/SidebarClosing.svg';
 import ContactUs from '../../components/landing_screen/ContactUs';
 import SidebarIcon from '../../../assets/svg/SidebarIcon';
 import TabNavigation from '../../components/landing_screen/TabNavigation';
+import ChatBox from '../../components/chat/ChatBox';
 const routeType = 'public';
 
 const LandingPage = () => {

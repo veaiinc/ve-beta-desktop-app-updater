@@ -4,7 +4,7 @@ import { ReactComponent as ExpandIcon } from '../../../assets/svg/docs/expand.sv
 import { fetchOriginSelection } from '../../../helpers';
 import FromModelChatBox from './FromModelChatBox';
 import Context from '../../../context/context';
-import ChatBox from '../homePage/ChatBox';
+import ChatBox from './ChatBox';
 import { TypingEffect } from '../../../helpers/markdownHelper';
 import Markdown from 'react-markdown';
 import { ReactComponent as LinkLightSvg } from '../../../assets/svg/notes/loop-light.svg';
@@ -265,7 +265,7 @@ const Section2 = ({ workflowTemplateId: workflowTemplateIdFromProps }) => {
 		<div className="section-content">
 			{showIframe && (
 				<iframe
-					src={`http://localhost:3000/${workflowTemplateIdFromProps}`}
+					src={`${origin}/${workflowTemplateIdFromProps}`} //dont change to fixed url only use origin
 					title="Builder Preview"
 					onClick={(e) => e.stopPropagation()}
 					onMouseDown={(e) => e.stopPropagation()}

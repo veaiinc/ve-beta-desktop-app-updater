@@ -41,6 +41,15 @@
 			cursor: pointer;
 		}
 	}
+	.promptPopupContainerEditableFields {
+		margin-top: -20px;
+		display: flex;
+		font-size: 14px;
+		color: var(--primary-font);
+		border: 1px solid var(--stroke);
+		padding: 2px 8px 3px;
+		border-radius: 16px;
+	}
 	.promptPopupContainerBody {
 		display: flex;
 		flex-direction: column;

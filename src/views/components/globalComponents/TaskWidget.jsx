@@ -1,4 +1,4 @@
-import React, { memo, useContext, useEffect, useState, useMemo } from 'react';
+import React, { memo, useContext, useEffect, useState, useMemo, useCallback } from 'react';
 import '../../../assets/scss/globalComponents/taskWidget.scss';
 import { ReactComponent as DownArrowIcon } from '../../../assets/svg/chat/downArrow.svg';
 import { ReactComponent as FiltersIcon } from '../../../assets/svg/tasks/filterLines.svg';
@@ -17,6 +17,9 @@ import { ReactComponent as PersonSvg } from '../../../assets/svg/tasks/person.sv
 import { ReactComponent as CalendarSvg } from '../../../assets/svg/tasks/calendar.svg';
 import { ReactComponent as textSvg } from '../../../assets/svg/tasks/letterA.svg';
 import CreateTaskPopup from '../modalsV2/tasks/CreateTaskPopup';
+import { message } from '../../components/globalComponents/CustomToast';
+import jwtDecode from 'jwt-decode';
+import moment from 'moment';
 
 const skeletonLoaders = Array.from({ length: 6 }, (_, index) => index + 1);
 
@@ -28,8 +31,25 @@ const options = [
 const TaskWidget = ({ width, height }) => {
 	const navigate = useNavigate();
 	const {
-		tasks: { listTasks, getListItems, hasNextPage, taskMetadata, getTaskMetadata },
+		tasks: {
+			listTasks,
+			getListItems,
+			hasNextPage,
+			taskMetadata,
+			getTaskMetadata,
+			updateSubTask,
+			addSubTask,
+			removeSubTask,
+			addListItem,
+			updateTaskState,
+			updateListItem,
+			deleteListItem,
+			refetchTasks,
+			getListTaskWithGroup,
+			updateTaskPreferences,
+		},
 		companyInfo: { getTeamMembers, tenantsUserList },
+		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -43,12 +63,41 @@ const TaskWidget = ({ width, height }) => {
 		tenantUsers: [],
 		taskMetadata: null,
 		createTaskPopup: false,
+		selectedSubTask: null,
+		updated: false,
+		listItems: [],
 	});
 	useEffect(() => {
 		if (!listTasks) {
 			getTasksList(info?.page);
 		}
 	}, []);
+
+	useEffect(() => {
+		if (listTasks) {
+			if (listTasks?.data) {
+				setInfo((prevInfo) => ({
+					...prevInfo,
+					listItems:
+						info?.page === 1
+							? listTasks?.data
+							: [...prevInfo?.listItems, ...listTasks?.data],
+					hasMore: listTasks?.hasNextPage && listTasks?.data?.length > 0,
+					loadingSkeleton: false,
+					infinityLoading: false,
+				}));
+			}
+		}
+		if (listTasks?.error) {
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				loadingSkeleton: false,
+				infinityLoading: false,
+				error: listTasks?.error,
+				hasMore: false,
+			}));
+		}
+	}, [listTasks]);
 
 	const responseMetadata = useMemo(
 		() => ({
@@ -166,6 +215,13 @@ const TaskWidget = ({ width, height }) => {
 	);
 
 	useEffect(() => {
+		if (refetchTasks) {
+			fetchListItems();
+			updateTaskState({ refetchTasks: false });
+		}
+	}, [refetchTasks]);
+
+	useEffect(() => {
 		if (!tenantsUserList) {
 			getTeamMembers();
 		} else {
@@ -191,6 +247,26 @@ const TaskWidget = ({ width, height }) => {
 			}));
 		}
 	}, [taskMetadata]);
+
+	const mapFiltersPayload = useCallback((filters) => {
+		return filters.map((filter) => ({
+			key: filter.key,
+			value:
+				typeof filter.value === 'object'
+					? filter?.value?._id || filter?.value?.value
+					: filter?.value,
+		}));
+	}, []);
+
+	const updateTaskInfo = useCallback((updateData) => {
+		if (updateData?.taskPreferences) {
+			updateTaskPreferences({
+				preferenceType: updateData?.taskPreferences?.preferenceType,
+				data: updateData?.taskPreferences?.preferences,
+			});
+		}
+		setInfo((previnfo) => ({ ...previnfo, ...updateData }));
+	}, []);
 
 	const getTasksList = async (page) => {
 		setInfo((prev) => ({ ...prev, loading: true }));
@@ -246,13 +322,336 @@ const TaskWidget = ({ width, height }) => {
 			createTaskPopup: false,
 		}));
 	};
+
+	const fetchListItems = useCallback(
+		(page = 1) => {
+			if (info?.group) {
+				getListTaskWithGroup({
+					taskFilterInput: {
+						limit: 20,
+						page: page,
+						sort:
+							info?.sort.length > 0
+								? info?.sort?.map((item) => ({
+										sortBy: item?.sortBy,
+										sortType: item?.sortType,
+								  }))
+								: [{ sortBy: 'createdAt', sortType: 1 }],
+						filters: mapFiltersPayload(info?.filters),
+						search: info?.searchValue,
+						group: info?.group,
+					},
+				});
+			} else {
+				getListItems({
+					taskFilterInput: {
+						limit: 20,
+						page: page,
+						sort:
+							info?.sort.length > 0
+								? info?.sort?.map((item) => ({
+										sortBy: item?.sortBy,
+										sortType: item?.sortType,
+								  }))
+								: [{ sortBy: 'createdAt', sortType: 1 }],
+						filters: mapFiltersPayload(info?.filters),
+						search: info?.searchValue,
+					},
+				});
+			}
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				page: page,
+			}));
+		},
+		[info?.sort, info?.filters, info?.searchValue, info?.group],
+	);
+
+	const debouncedUpdateTask = useCallback(
+		async (rowId, propName, value, originalValue, isUpdatingSubTask, onSuccess) => {
+			try {
+				if (propName === 'clients') {
+					value = value?.map((client) => client?._id);
+				}
+				const response = await updateListItem({
+					taskId: rowId,
+					updateInput: {
+						[propName]: propName === 'assignedTo' ? { tenantUsers: value } : value,
+					},
+				});
+
+				if (response?.[0] === false) {
+					throw new Error('Failed to update, Try again later');
+				} else {
+					// Update state only after successful API call
+					if (onSuccess) onSuccess();
+
+					// Handle assignedTo special case
+					if (propName === 'assignedTo') {
+						const token = localStorage.getItem('usertoken');
+						const { user_id, userName } = jwtDecode(token);
+						if (isUpdatingSubTask) {
+							setInfo((prevInfo) => ({
+								...prevInfo,
+								selectedSubTask: prevInfo?.selectedSubTask
+									? {
+											...info?.selectedSubTask,
+											assignedBy: { _id: user_id, name: userName },
+											assignedAt: moment().unix(),
+									  }
+									: null,
+							}));
+							updateSubTask({
+								_id: rowId,
+								assignedBy: { _id: user_id, name: userName },
+								assignedAt: moment().unix(),
+							});
+						} else {
+							setInfo((prevInfo) => {
+								const newListItems = prevInfo.listItems.map((row) => {
+									if (row._id === rowId) {
+										return {
+											...row,
+											assignedBy: { _id: user_id, name: userName },
+											assignedAt: moment().unix(),
+										};
+									}
+									return row;
+								});
+
+								return {
+									...prevInfo,
+									listItems: newListItems,
+								};
+							});
+						}
+					}
+					if (!isUpdatingSubTask) {
+						if (propName === 'assignedTo' || propName === 'dueDate') {
+							updateTaskState({
+								refetchTasksForDue: true,
+								listTasksForToday: null,
+								listTasksForOverdue: null,
+								listTasksDueTillToday: null,
+							});
+						}
+					}
+					// Update updatedBy for any successful update
+					const token = localStorage.getItem('usertoken');
+					const { user_id, userName } = jwtDecode(token);
+
+					setInfo((prevInfo) => {
+						const newListItems = prevInfo.listItems.map((row) => {
+							if (row._id === rowId) {
+								return {
+									...row,
+									updatedBy: { _id: user_id, name: userName },
+								};
+							}
+							return row;
+						});
+
+						return {
+							...prevInfo,
+							listItems: newListItems,
+						};
+					});
+				}
+				if (!info?.sidebarIsOpen) {
+					fetchListItems();
+				}
+			} catch (error) {
+				message.error(error?.message || 'Something went wrong! Please try again.');
+
+				setInfo((prevInfo) => {
+					const rolledBackListItems = prevInfo.listItems.map((row) => {
+						if (row._id === rowId) {
+							return { ...row, [propName]: originalValue };
+						}
+						return row;
+					});
+
+					return {
+						...prevInfo,
+						listItems: rolledBackListItems,
+					};
+				});
+			}
+		},
+		[updateListItem, info?.selectedSubTask, info?.sidebarIsOpen],
+	);
+
+	const handleDebounceUpdate = useCallback(
+		(rowId, propName, value, originalValue, isSubTask, onSuccess) => {
+			clearInterval(info?.timeout);
+			const timeout = setTimeout(() => {
+				debouncedUpdateTask(rowId, propName, value, originalValue, isSubTask, onSuccess);
+				setInfo((prev) => ({
+					...prev,
+					loading: true,
+					timeout: null,
+				}));
+			}, 800);
+			setInfo((prev) => ({ ...prev, timeout }));
+		},
+		[debouncedUpdateTask, info?.timeout],
+	);
+
+	const updatePropertyValue = useCallback(
+		(rowId, propName, value, isUpdatingSubTask, onSuccess) => {
+			if (
+				validateExpiryData &&
+				validateExpiryData?.restrictTasks &&
+				validateExpiryData?.isExpired
+			) {
+				return updateSubscriptionState({ expiredSubscriptionModal: true });
+			}
+			let originalValue;
+			let updatedValue = value;
+
+			if (info?.selectedSubTask || isUpdatingSubTask) {
+				if (info?.selectedSubTask) {
+					setInfo((prevInfo) => ({
+						...prevInfo,
+						updated: true,
+						selectedSubTask: { ...info?.selectedSubTask, [propName]: updatedValue },
+					}));
+				}
+				setInfo((prevInfo) => ({
+					...prevInfo,
+					updated: true,
+				}));
+				updateSubTask({ _id: rowId, [propName]: updatedValue });
+			} else {
+				setInfo((prevInfo) => {
+					const updatedListItems = prevInfo.listItems.map((row) => {
+						if (row._id === rowId) {
+							originalValue = row[propName];
+							return { ...row, [propName]: updatedValue };
+						}
+						return row;
+					});
+
+					return {
+						...prevInfo,
+						updated: true,
+						listItems: updatedListItems,
+					};
+				});
+			}
+
+			handleDebounceUpdate(
+				rowId,
+				propName,
+				value,
+				originalValue,
+				isUpdatingSubTask || info?.selectedSubTask !== null,
+				onSuccess,
+			);
+		},
+		[
+			validateExpiryData?.isExpired,
+			updateSubscriptionState,
+			debouncedUpdateTask,
+			info?.selectedSubTask,
+		],
+	);
+
+	const addNewTask = useCallback(
+		async (payload) => {
+			if (
+				validateExpiryData &&
+				validateExpiryData?.restrictTasks &&
+				validateExpiryData?.isExpired
+			) {
+				return updateSubscriptionState({ expiredSubscriptionModal: true });
+			} else {
+				if (info?.isCreatingSubtask) {
+					payload.parentTaskId = info?.selectedRow?._id;
+				}
+				const response = await addListItem({ input: payload });
+
+				if (response) {
+					const task = response?.createTask;
+
+					if (task) {
+						const token = localStorage.getItem('usertoken');
+						const { user_id, userName } = jwtDecode(token);
+
+						const newTask = { ...task };
+						newTask.createdBy = { _id: user_id, name: userName };
+						newTask.updatedBy = { _id: user_id, name: userName };
+						if (info?.isCreatingSubtask) {
+							newTask.parentTask = {
+								title: info?.selectedRow?.title,
+								_id: info?.selectedRow?._id,
+							};
+							addSubTask(newTask);
+						}
+						message.success('Task added successfully');
+						if (!info?.isCreatingSubtask) {
+							if (payload?.assignedTo || payload?.dueDate) {
+								updateTaskState({
+									refetchTasksForDue: true,
+									listTasksForToday: null,
+									listTasksForOverdue: null,
+									listTasksDueTillToday: null,
+								});
+							}
+						}
+						fetchListItems();
+					}
+				} else {
+					throw new Error('Failed to add new task');
+				}
+			}
+		},
+		[info?.isCreatingSubtask, info?.selectedRow?._id],
+	);
+
+	const deleteTask = useCallback(
+		async (payload) => {
+			if (
+				validateExpiryData &&
+				validateExpiryData?.restrictTasks &&
+				validateExpiryData?.isExpired
+			) {
+				return updateSubscriptionState({ expiredSubscriptionModal: true });
+			} else {
+				const response = await deleteListItem(payload);
+				if (response) {
+					if (info?.selectedSubTask?._id === payload?.taskId) {
+						updateTaskInfo({ selectedSubTask: null });
+						removeSubTask(payload?.taskId);
+					} else {
+						updateTaskState({
+							refetchTasksForDue: true,
+							listTasksForToday: null,
+							listTasksForOverdue: null,
+							listTasksDueTillToday: null,
+						});
+						setInfo((prevInfo) => ({
+							...prevInfo,
+							listItems: prevInfo?.listItems?.filter(
+								(row) => row._id !== payload?.taskId,
+							),
+							isModalOpen: false,
+							selectedTask: null,
+						}));
+					}
+				}
+			}
+		},
+		[info?.selectedSubTask?._id, removeSubTask],
+	);
+
 	return (
 		<div className="task-main-container" style={{ width: width }}>
 			<div className="taskWidgetContainer">
 				<div className="taskWidgetBody">
 					<div className="taskWidgetBodyHeader">
 						<div className="taskWidgetBodyHeaderLeft">
-							<span className="taskWidgetDay">{listTasks?.data?.length}</span>
+							<span className="taskWidgetDay">{info?.listItems?.length}</span>
 							<span className="taskWidgetRemainder">Reminder</span>
 						</div>
 						{/* <div className="taskWidgetBodyHeaderRight">
@@ -277,14 +676,14 @@ const TaskWidget = ({ width, height }) => {
 							))
 						) : (
 							<InfiniteScroll
-								dataLength={listTasks?.data?.length || 0}
+								dataLength={info?.listItems?.length || 0}
 								hasMore={info?.hasNextPage}
 								next={fetchMoreData}
 								loader={<div>Loading...</div>}
 								scrollableTarget="taskWidgetBodyContainer"
 								scrollThreshold="90%"
 							>
-								{listTasks?.data?.map((eachOption) => (
+								{info?.listItems?.map((eachOption) => (
 									<>
 										{eachOption?.status === 'Overdue' && (
 											<div className="taskWidgetStatusContainer">
@@ -334,15 +733,14 @@ const TaskWidget = ({ width, height }) => {
 				selectedRow={info?.selectedTask}
 				sidebarIsOpen={info?.isModalOpen}
 				closeSidebar={handleModalClose}
-				handleUpdate={() => {}}
-				deleteTask={() => {}}
+				handleUpdate={updatePropertyValue}
+				deleteTask={deleteTask}
 				rowTypes={rowTypes}
 				responseMetadata={responseMetadata}
 				properties={info?.properties}
 				colors={colors}
-				toggleSidebarExpand={
-					() => {}
-					// updateTaskInfo({ isSidebarExpanded: !info?.isSidebarExpanded })
+				toggleSidebarExpand={() =>
+					updateTaskInfo({ isSidebarExpanded: !info?.isSidebarExpanded })
 				}
 				isSidebarExpanded={info?.isSidebarExpanded}
 				headerText={

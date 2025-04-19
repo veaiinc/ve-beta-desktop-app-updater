@@ -126,7 +126,6 @@
 	font-style: normal;
 	font-weight: 500;
 	line-height: normal;
-	background: var(--card-over-card);
 	// letter-spacing: -0.24px;
 	.allDay {
 		color: var(--primary-font);
@@ -148,6 +147,7 @@
 		padding: 8px 10px;
 		border: 1px solid var(--stroke);
 		min-width: 100%;
+		background: none;
 		// border-radius: 8px;
 
 		// Target .rbc-event-label inside .rbc-event

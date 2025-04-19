@@ -5,7 +5,7 @@ import Context from '../../../context/context';
 import { UserMessageRenderer } from '../../../helpers/markdownHelper';
 import CitationsModal from '../../components/modalsV2/chat/CitationsModal';
 import NoteComponentModal from '../../components/notes/NoteComponentModal';
-import ChatBox from '../../components/homePage/ChatBox';
+import ChatBox from '../../components/chat/ChatBox';
 import { useParams, useSearchParams } from 'react-router-dom';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { FetchMoreLoaderComp } from '../../../helpers';
@@ -73,6 +73,7 @@ const RecentChat = ({
 		showScrollButton: false,
 		showViewDocument: false,
 	});
+	console.log(globalChatMessages, 'globalChatMessages');
 
 	const { createWebSocketConnection, sendMessage } = useChatStream();
 	const chatContentRef = useRef(null);
@@ -419,6 +420,7 @@ const RecentChat = ({
 					workflowTemplateId,
 					moduleTemplateId,
 					followUpQuery,
+					chainOfThought,
 				} = data?.[i] || {};
 
 				if (firstTimeApiCall) {
@@ -427,6 +429,8 @@ const RecentChat = ({
 						moduleTemplateId: moduleTemplateId || null,
 					};
 				}
+
+				const cot = chainOfThought?.length > 0 ? chainOfThought?.[0]?.['sub_queries'] : [];
 
 				messages = [
 					{
@@ -444,6 +448,7 @@ const RecentChat = ({
 						module_template_id: moduleTemplateId || null,
 						isOldMessage: true,
 						stream_end: true,
+						cot,
 					},
 				]?.concat(messages);
 			}
