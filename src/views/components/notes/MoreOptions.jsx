@@ -92,7 +92,7 @@ const MoreOptions = ({ notesConfigs, onChange, onDelete, onDuplicate }) => {
 						<hr style={{ width: '100%', opacity: 0.1 }} />
 						<div className="deleteItem cursor-pointer" onClick={onDelete}>
 							<DeleteSvg />
-							<span>Delete</span>
+							<span>Move to trash</span>
 						</div>
 					</div>
 				}
