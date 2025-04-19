@@ -94,7 +94,7 @@ const AIMessageRenderer = ({
 						<Logo width={'24px'} height={'24px'} />
 						{messageData?.processing || 'Answer'}
 					</div>
-					{messageData?.cot?.length > 0 && (
+					{(messageData?.deepSearch?.cot?.length > 0 || messageData?.deepResearch) && (
 						<div
 							className={`tab-btn ${info?.activeTab === 'cot' ? 'active' : ''}`}
 							onClick={() =>
@@ -105,7 +105,11 @@ const AIMessageRenderer = ({
 							}
 						>
 							Chain of Thought
-							<span className="citation-badge">{messageData?.cot?.length || 0}</span>
+							{messageData?.deepSearch && (
+								<span className="citation-badge">
+									{messageData?.deepSearch?.cot?.length || 0}
+								</span>
+							)}
 						</div>
 					)}
 					{messageData?.citations && messageData?.citations?.length > 0 && (
@@ -143,7 +147,10 @@ const AIMessageRenderer = ({
 					isLastMessage={index === globalChatMessages?.length - 1}
 				/>
 			) : info?.activeTab === 'cot' ? (
-				<ChainOfThought cot={messageData?.cot} stream_end={messageData?.stream_end} />
+				<ChainOfThought
+					cot={messageData?.deep_search?.cot}
+					stream_end={messageData?.stream_end}
+				/>
 			) : (
 				<div className="source-content">
 					{messageData?.citations && messageData?.citations.length > 0

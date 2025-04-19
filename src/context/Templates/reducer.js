@@ -175,32 +175,52 @@ const actionHandlers = {
 			}
 		}
 		if (requiredIndex !== -1) {
-			let cot = [...(messages?.[requiredIndex]?.cot || [])];
-			if (payload?.sub_queries || payload?.refined_sub_queries) {
-				cot = [];
-				(payload?.sub_queries || payload?.refined_sub_queries || [])?.forEach(
-					(subQuery) => {
-						cot.push({
-							sub_query: subQuery,
-						});
-					},
-				);
+			const message = messages?.[requiredIndex];
+			const { processing } = message;
+			if (processing === 'Deep Search') {
+				let deepSearch = message?.deepSearch || {};
+				let cot = [...(deepSearch?.cot || [])];
+
+				if (payload?.sub_queries || payload?.refined_sub_queries) {
+					cot = [];
+					(payload?.sub_queries || payload?.refined_sub_queries || [])?.forEach(
+						(subQuery) => {
+							cot.push({
+								sub_query: subQuery,
+							});
+						},
+					);
+				}
+
+				if (payload?.sub_query) {
+					cot = cot?.map((item) => {
+						if (item?.sub_query === payload?.sub_query) {
+							item.searching = payload?.searching;
+						}
+						return item;
+					});
+				}
+
+				deepSearch = {
+					...deepSearch,
+					cot,
+				};
+
+				messages[requiredIndex] = {
+					...message,
+					...payload,
+					message: (message?.message || '') + (payload?.answer || ''),
+					messageId: payload?.message_id,
+					deepSearch,
+				};
+			} else {
+				messages[requiredIndex] = {
+					...message,
+					...payload,
+					message: (message?.message || '') + (payload?.answer || ''),
+					messageId: payload?.message_id,
+				};
 			}
-			if (payload?.sub_query) {
-				cot = cot?.map((item) => {
-					if (item?.sub_query === payload?.sub_query) {
-						item.searching = payload?.searching;
-					}
-					return item;
-				});
-			}
-			messages[requiredIndex] = {
-				...messages[requiredIndex],
-				...payload,
-				message: (messages?.[requiredIndex]?.message || '') + (payload?.answer || ''),
-				messageId: payload?.message_id,
-				cot,
-			};
 		} else {
 			messages?.push({
 				...payload,

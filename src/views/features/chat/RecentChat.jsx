@@ -447,7 +447,9 @@ const RecentChat = ({
 						module_template_id: moduleTemplateId || null,
 						isOldMessage: true,
 						stream_end: true,
-						cot,
+						deepSearch: {
+							cot,
+						},
 					},
 				]?.concat(messages);
 			}

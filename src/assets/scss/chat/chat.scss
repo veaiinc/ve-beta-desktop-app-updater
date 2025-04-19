@@ -90,12 +90,11 @@
 				.chatContent {
 					display: flex;
 					flex-direction: column;
-
 					gap: 24px;
 					width: 100%;
 					max-width: 750px;
 					margin: 0 auto;
-					padding-bottom: calc(100vh - 400px);
+					padding-bottom: calc(100vh - 350px);
 					margin-top: 20px;
 					.aiMessageWrapper {
 						.text-container {
