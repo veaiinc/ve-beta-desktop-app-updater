@@ -2185,18 +2185,35 @@ export const TemplatesState = (props) => {
 		}
 	};
 
-	const getRecentChatMessages = async (sessionId, page = 1, fetchMore = false, limit = 1000) => {
+	const getRecentChatMessages = async (
+		sessionId,
+		page = 1,
+		fetchMore = false,
+		limit = 1000,
+		isPublicChat = false,
+	) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const selectedvariable = fetchMore ? 'moreRecentChatStorage' : 'recentChatStorage';
-			const response = await Service.fetchGet(
-				`/${workspaceId}/list-multiagent-conversations/${encodeURIComponent(
-					sessionId,
-				)}?page=${page}&limit=${limit}&sortBy=createdAt&sortType=-1`,
-				usertoken,
-				'tenant',
-			);
+			let response;
+			if (isPublicChat) {
+				response = await Service.fetchGet(
+					`/ai-chat/${encodeURIComponent(
+						sessionId,
+					)}/list-ai-chat-guestchat?page=${page}&limit=${limit}&sortBy=createdAt`,
+					null,
+					'ai_assistant_api',
+				);
+			} else {
+				response = await Service.fetchGet(
+					`/${workspaceId}/list-multiagent-conversations/${encodeURIComponent(
+						sessionId,
+					)}?page=${page}&limit=${limit}&sortBy=createdAt&sortType=-1`,
+					usertoken,
+					'tenant',
+				);
+			}
 
 			if (response?.[0]) {
 				dispatch({

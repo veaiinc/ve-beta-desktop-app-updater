@@ -123,7 +123,7 @@ const RecentChat = ({
 	}, []);
 
 	useEffect(() => {
-		if (sessionId && !isPublicChat) {
+		if (sessionId) {
 			if (info?.renderingTwice) {
 				//clearing context state when rendering different session
 				updateStateValues({
@@ -145,7 +145,7 @@ const RecentChat = ({
 				// aiMessagesRef.current = [];
 			}
 
-			getRecentChatMessages(sessionId);
+			getRecentChatMessages(sessionId, 1, false, 1000, isPublicChat);
 			setInfo((prev) => ({
 				...prev,
 				chatLoading: true,
@@ -561,10 +561,10 @@ const RecentChat = ({
 			if (!info?.hasNextPage || info.chatLoading) {
 				return;
 			}
-			getRecentChatMessages(sessionId, info?.currentPage + 1, true);
+			getRecentChatMessages(sessionId, info?.currentPage + 1, true, isPublicChat);
 			setInfo((prev) => ({ ...prev, chatLoading: true }));
 		}, 1000),
-		[info, sessionId],
+		[info, sessionId, isPublicChat],
 	);
 
 	// stream chat
