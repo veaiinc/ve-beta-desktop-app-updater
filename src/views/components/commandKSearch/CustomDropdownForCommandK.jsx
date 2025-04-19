@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, memo } from 'react';
 import '../../../assets/scss/commandKSearch/customDropdownStyles.scss';
 import { ReactComponent as ArrowDown } from '../../../assets/svg/CaretDown.svg';
 
@@ -56,4 +56,4 @@ const CustomDropdown = ({ options, value, onChange, placeholder = 'Please select
 	);
 };
 
-export default CustomDropdown;
+export default memo(CustomDropdown);

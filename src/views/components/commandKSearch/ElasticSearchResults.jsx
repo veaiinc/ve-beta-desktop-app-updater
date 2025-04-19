@@ -20,6 +20,9 @@ const ElasticSearchResults = ({ handleCloseSearchModal }) => {
 		elasticSearch: { elasticSearchResults },
 	} = useContext(Context);
 
+	// Rename the prop variable inside the component for better readability
+	const closeModal = handleCloseSearchModal;
+
 	const getFileTypeInfo = (searchItem) => {
 		// First check explicit fileType if present
 		if (searchItem.fileType) {
@@ -207,7 +210,7 @@ const ElasticSearchResults = ({ handleCloseSearchModal }) => {
 				window.open(gallery.url, '_blank');
 			}
 		}
-		handleCloseSearchModal();
+		closeModal();
 	};
 
 	const shouldShowOpenButton = (gallery) => {
@@ -226,10 +229,8 @@ const ElasticSearchResults = ({ handleCloseSearchModal }) => {
 		updateTemplateStateValues({ galleryFile: searchItem });
 		const chatId = ObjectID()?.toString();
 		navigate(`/chat/${chatId}`);
-		handleCloseSearchModal();
+		closeModal();
 	};
-
-	console.log(elasticSearchResults);
 
 	return (
 		<div className="search-results-list" style={{ width: '100%' }}>

@@ -14,7 +14,7 @@ import RenewBanner from '../components/globalComponents/RenewBanner';
 import Context from '../../context/context';
 import DynamicWidget from '../features/DynamicWidget/dynamicWidget';
 import CommandKSearch from '../components/commandKSearch/CommandKSearch';
-import { createPortal } from 'react-dom';
+
 const AuthWrapper = ({
 	title,
 	children,
@@ -37,27 +37,6 @@ const AuthWrapper = ({
 		checkAuth();
 	}, []);
 	const worspaceId = ['swaroop', 'veai', 'bhee'];
-	const [openSearchModal, setOpenSearchModal] = useState(false);
-
-	const handleCloseSearchModal = () => {
-		setOpenSearchModal(false);
-	};
-
-	const handleKeyDown = (e) => {
-		if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
-			setOpenSearchModal((prev) => !prev);
-		}
-		if (e.key === 'Escape') {
-			handleCloseSearchModal();
-		}
-	};
-
-	useEffect(() => {
-		window.addEventListener('keydown', handleKeyDown);
-		return () => {
-			window.removeEventListener('keydown', handleKeyDown);
-		};
-	}, []);
 
 	return (
 		<div className="authParentContainer" style={{ ...(authParentContainerStyle || {}) }}>
@@ -67,11 +46,6 @@ const AuthWrapper = ({
 			</Helmet>
 			{renewBanner && <RenewBanner />}
 			{worspaceId.includes(workspaceId) && showDynamicWidget && <DynamicWidget />}
-			{openSearchModal &&
-				createPortal(
-					<CommandKSearch handleCloseSearchModal={handleCloseSearchModal} />,
-					document.body,
-				)}
 			<div
 				style={{
 					display: 'flex',
@@ -97,6 +71,7 @@ const AuthWrapper = ({
 				</SkeletonTheme>
 			</div>
 			{/* {showBottomToolbar ? <BottomToolbar outerContainerStyle={{ bottom: '10px' }} /> : ''} */}
+			<CommandKSearch />
 		</div>
 	);
 };

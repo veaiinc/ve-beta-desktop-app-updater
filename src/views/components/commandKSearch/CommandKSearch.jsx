@@ -2,15 +2,51 @@ import '../../../assets/scss/commandKSearch/commandKSearch.scss';
 import { ReactComponent as CrossSvg } from '../../../assets/svg/docs/cross.svg';
 import { ReactComponent as SearchSvg } from '../../../assets/svg/elastic_search/search-icon.svg';
 import { ReactComponent as ArrowUp } from '../../../assets/svg/ai_agents/arrow-up-dark.svg';
-import { memo, useContext, useRef, useState } from 'react';
+import { memo, useContext, useEffect, useRef, useState } from 'react';
 import Context from '../../../context/context';
 import { message } from '../globalComponents/CustomToast';
 import Spinner from '../loaders/Spinner';
 import ElasticSearchResults from './ElasticSearchResults';
 import CustomDropdown from './CustomDropdownForCommandK';
+import { createPortal } from 'react-dom';
 
-const CommandKSearch = ({ handleCloseSearchModal }) => {
+const CommandKSearch = () => {
+	const [isOpen, setIsOpen] = useState(false);
 	const elasticSearchTimeoutRef = useRef(null);
+	const modalRef = useRef(null);
+
+	const handleKeyDown = (e) => {
+		if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
+			e.preventDefault(); // Prevent default browser behavior
+			setIsOpen((prev) => !prev);
+		}
+		if (e.key === 'Escape') {
+			setIsOpen(false);
+		}
+	};
+
+	// Handle clicks outside the modal to close it
+	const handleOutsideClick = (e) => {
+		if (modalRef.current && !modalRef.current.contains(e.target)) {
+			setIsOpen(false);
+		}
+	};
+
+	useEffect(() => {
+		document.addEventListener('keydown', handleKeyDown);
+		if (isOpen) {
+			document.addEventListener('mousedown', handleOutsideClick);
+		}
+
+		return () => {
+			document.removeEventListener('keydown', handleKeyDown);
+			document.removeEventListener('mousedown', handleOutsideClick);
+		};
+	}, [isOpen]); // Dependencies include isOpen to update handlers
+
+	const handleCloseModal = () => {
+		setIsOpen(false);
+	};
 
 	const {
 		elasticSearch: { elasticSearchResults, performElasticSearch },
@@ -90,8 +126,6 @@ const CommandKSearch = ({ handleCloseSearchModal }) => {
 			...prev,
 			[filterType]: selectedOption,
 		}));
-
-		console.log(`${filterType} filter changed to:`, selectedOption);
 	};
 
 	const resetFilters = () => {
@@ -101,15 +135,15 @@ const CommandKSearch = ({ handleCloseSearchModal }) => {
 			assistance: null,
 			date: null,
 		});
-		console.log('Filters reset');
 	};
 
-	return (
-		<div className="command-k-search-container">
-			<div className="command-k-search">
+	// Render the modal using createPortal
+	return createPortal(
+		<div className={`command-k-search-container ${isOpen ? 'open' : ''}`}>
+			<div className="command-k-search" ref={modalRef}>
 				<div className="search-header">
-					<h2>Search </h2>
-					<button onClick={handleCloseSearchModal}>
+					<h2>Search</h2>
+					<button onClick={handleCloseModal}>
 						<CrossSvg />
 					</button>
 				</div>
@@ -120,7 +154,7 @@ const CommandKSearch = ({ handleCloseSearchModal }) => {
 							type="text"
 							placeholder="Search any file or documents"
 							onChange={handleSearch}
-							autoFocus
+							autoFocus={isOpen}
 						/>
 						{isLoading && (
 							<div className="spinner-wrapper">
@@ -136,50 +170,18 @@ const CommandKSearch = ({ handleCloseSearchModal }) => {
 						</button>
 					</div>
 				</div>
-				{/* <div className="filters-container">
-					<div className="dropdown-filters">
-						<CustomDropdown
-							options={filterOptions.source}
-							value={selectedFilters.source?.value}
-							onChange={(value) => handleFilterChange('source', value)}
-							placeholder="Source"
-						/>
-						<CustomDropdown
-							options={filterOptions.collection}
-							value={selectedFilters.collection?.value}
-							onChange={(value) => handleFilterChange('collection', value)}
-							placeholder="Collection"
-						/>
-						<CustomDropdown
-							options={filterOptions.assistance}
-							value={selectedFilters.assistance?.value}
-							onChange={(value) => handleFilterChange('assistance', value)}
-							placeholder="Assistance"
-						/>
-						<CustomDropdown
-							options={filterOptions.date}
-							value={selectedFilters.date?.value}
-							onChange={(value) => handleFilterChange('date', value)}
-							placeholder="Date"
-						/>
-					</div>
-					<div className="reset-filter" onClick={resetFilters}>
-						<p>
-							Reset filter <span>&times;</span>
-						</p>
-					</div>
-				</div> */}
 				<div className={`search-output-container ${noResults ? 'noResultsContainer' : ''}`}>
 					{noResults ? (
 						<p className="noResults">No results found</p>
 					) : (
 						info?.showElasticSearchResults && (
-							<ElasticSearchResults handleCloseSearchModal={handleCloseSearchModal} />
+							<ElasticSearchResults handleCloseSearchModal={handleCloseModal} />
 						)
 					)}
 				</div>
 			</div>
-		</div>
+		</div>,
+		document.body,
 	);
 };
 
