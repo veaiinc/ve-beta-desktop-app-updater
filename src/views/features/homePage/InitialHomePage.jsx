@@ -58,7 +58,7 @@ const InitialHomePage = () => {
 	} = useContext(Context);
 
 	const navigate = useNavigate();
-	const headerRef = useRef(null);
+	const containerRef = useRef(null);
 	const headerMinimizedRef = useRef(false);
 
 	const [info, setInfo] = useState({
@@ -110,7 +110,7 @@ const InitialHomePage = () => {
 		} else {
 			getPromptsData({ category: 'all', limit: 30 });
 		}
-	}, [promptsData, handleUpdateOptions, info?.optionsHandledOnce?.prompts, getPromptsData]);
+	}, [promptsData]);
 
 	useEffect(() => {
 		if (info?.selectedOption) {
@@ -142,12 +142,7 @@ const InitialHomePage = () => {
 		} else {
 			getAISuggestedPendingActions();
 		}
-	}, [
-		aiSuggestedPendingActions,
-		handleUpdateOptions,
-		info?.optionsHandledOnce?.proactiveSuggestions,
-		getAISuggestedPendingActions,
-	]);
+	}, [aiSuggestedPendingActions]);
 
 	const options = useMemo(
 		() => info?.options?.filter((option) => option?.showOption),
@@ -271,14 +266,15 @@ const InitialHomePage = () => {
 		options?.length > 0
 			? info?.minimized
 				? 'minimized-animation'
-				: headerRef?.current?.classList?.contains('minimized-animation')
+				: containerRef?.current?.classList?.contains('minimized-animation')
 				? 'expanded-animation'
 				: ''
 			: '';
 
 	return (
 		<div
-			className="initial-home-page-container"
+			className={`initial-home-page-container ${animationClass}`}
+			ref={containerRef}
 			style={{
 				...(options?.length === 0 && { justifyContent: 'center' }),
 			}}
@@ -287,8 +283,7 @@ const InitialHomePage = () => {
 				<QuickActions />
 			</div>
 			<div
-				className={`home-page-container-header ${animationClass}`}
-				ref={headerRef}
+				className={`home-page-container-header `}
 				style={{
 					...(options?.length === 0 && { marginTop: 0 }),
 				}}
