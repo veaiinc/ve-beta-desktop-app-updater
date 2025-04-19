@@ -73,7 +73,6 @@ const RecentChat = ({
 		showScrollButton: false,
 		showViewDocument: false,
 	});
-	console.log(globalChatMessages, 'globalChatMessages');
 
 	const { createWebSocketConnection, sendMessage } = useChatStream();
 	const chatContentRef = useRef(null);
@@ -89,6 +88,8 @@ const RecentChat = ({
 	const isFirstTimeConnectingToPublicChatRef = useRef(true);
 
 	sessionId = isPreview ? sId : sessionId;
+
+	console.log(globalChatMessages, 'globalChatMessages');
 
 	useEffect(() => {
 		window.addEventListener('resize', handleResize);
@@ -561,7 +562,6 @@ const RecentChat = ({
 	);
 
 	// stream chat
-
 	const onMessageFunc = useCallback(
 		(event) => {
 			let { data = '' } = event || {};
@@ -580,6 +580,9 @@ const RecentChat = ({
 			}
 			if (data?.type === 'variableRequirement') {
 				loadingMessageRef.current = null;
+			}
+			if (data?.user_id) {
+				localStorage?.setItem('user_id', data?.user_id);
 			}
 			let chatPayload = null;
 			if (data?.stream_end) {

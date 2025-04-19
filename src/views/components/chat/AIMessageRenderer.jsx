@@ -3,8 +3,8 @@ import '../../../assets/scss/chat/aiMessageRenderer.scss';
 import { ReactComponent as Logo } from '../../../assets/svg/loader/loaderLogo.svg';
 import { TypingEffect } from '../../../helpers/markdownHelper';
 import Context from '../../../context/context';
-import ChainOfThought from '../../components/chat/chatComponents/ChainOfThought';
 import { ReactComponent as LinkIcon } from '../../../assets/svg/ai_agents/link.svg';
+import DeepSearchChainOfThought from './chatComponents/DeepSearchChainOfThought';
 const AIMessageRenderer = ({
 	messageData,
 	handleNoteComponentModalOpen,
@@ -147,8 +147,8 @@ const AIMessageRenderer = ({
 					isLastMessage={index === globalChatMessages?.length - 1}
 				/>
 			) : info?.activeTab === 'cot' ? (
-				<ChainOfThought
-					cot={messageData?.deep_search?.cot}
+				<DeepSearchChainOfThought
+					cot={messageData?.deepSearch?.cot}
 					stream_end={messageData?.stream_end}
 				/>
 			) : (

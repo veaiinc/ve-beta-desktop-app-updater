@@ -1,5 +1,5 @@
 import { memo, useMemo } from 'react';
-import '../../../../assets/scss/chat/chatComponents/chainOfThought.scss';
+import '../../../../assets/scss/chat/chatComponents/deepSearchChainOfThought.scss';
 
 const ChainOfThought = ({ cot, stream_end = false }) => {
 	const animationIndex = useMemo(() => {

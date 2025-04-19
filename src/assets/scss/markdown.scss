@@ -185,7 +185,7 @@
 			border-collapse: separate;
 			border-spacing: 0;
 			width: 100%;
-			padding: 0 calc(var(--font-size) * 1); /* 16px */
+			padding: calc(var(--font-size) * 1);
 
 			th {
 				color: var(--primary-font);
