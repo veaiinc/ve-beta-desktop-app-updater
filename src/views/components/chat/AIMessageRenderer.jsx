@@ -5,6 +5,7 @@ import { ReactComponent as Logo2 } from '../../../assets/svg/windmill2.svg';
 import Context from '../../../context/context';
 import ChainOfThought from '../../components/chat/chatComponents/ChainOfThought';
 import { ReactComponent as LinkIcon } from '../../../assets/svg/ai_agents/link.svg';
+import { ReactComponent as ArrowRightIcon } from '../../../assets/svg/ai_agents/ArrowLineUpRight.svg';
 import AIMessage from './AIMessage';
 const AIMessageRenderer = ({
 	messageData,
@@ -183,6 +184,7 @@ const AIMessageRenderer = ({
 											<div className="citation-title">{citation.snippet}</div>
 										</div>
 									</div>
+									<ArrowRightIcon className="arrow-icon" />
 								</div>
 						  ))
 						: null}
