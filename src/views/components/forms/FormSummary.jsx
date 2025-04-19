@@ -5,7 +5,7 @@ import { ReactComponent as Copy } from '../../../assets/svg/copy.svg';
 import service from '../../../services/graphQlServices';
 import { getFormResponseAnalyticsQuery } from '../../../context/Templates/graphQlFunctions';
 import moment from 'moment';
-import { Tooltip } from 'antd';
+import { Tooltip, Rate, Flex } from 'antd';
 import {
 	FilePdfOutlined,
 	FileTextOutlined,
@@ -78,6 +78,15 @@ const FileUploadAnswer = ({ answer }) => {
 	);
 };
 
+const RatingAnswer = ({ answer }) => {
+	if (!answer) return null;
+	return (
+		<Flex gap="middle" vertical>
+			<span className="rating-text">{answer}/5</span>
+		</Flex>
+	);
+};
+
 const FormResponseList = ({
 	expanded,
 	handleExpand,
@@ -102,6 +111,26 @@ const FormResponseList = ({
 		return nameField?.answer || 'No Name';
 	};
 
+	// Filter responses that have answers for this question
+	const responsesWithAnswers =
+		items?.filter((item) => {
+			const field = item?.response?.find((r) => {
+				return r?.question?.toLowerCase()?.includes(question?.toLowerCase() || '');
+			});
+
+			if (!field?.answer) return false;
+
+			// For file uploads, check if there are actual files
+			if (field.type === 'fileupload') {
+				return field.answer && field.answer.length > 0;
+			}
+
+			return true;
+		}) || [];
+
+	const actualResponsesCount = responsesWithAnswers.length;
+	const visibleResponses = expanded ? responsesWithAnswers : responsesWithAnswers.slice(0, 5);
+
 	return (
 		<div className="collapsible-list">
 			<div
@@ -112,18 +141,15 @@ const FormResponseList = ({
 				}`}
 			>
 				<div className="collapsible-list__items">
-					{visibleItems?.map((item, index) => {
+					{visibleResponses?.map((item, index) => {
 						const field = item?.response?.find((r) => {
 							return r?.question
 								?.toLowerCase()
 								?.includes(question?.toLowerCase() || '');
 						});
 
-						if (!field?.answer) return null;
-
 						let answer = field.answer;
 						if (field.type === 'fileupload') {
-							if (!field.answer || field.answer.length === 0) return null;
 							answer = <FileUploadAnswer answer={field.answer} />;
 						} else if (field.type === 'link' && field.answer) {
 							answer = (
@@ -141,6 +167,8 @@ const FormResponseList = ({
 									{field.answer}
 								</a>
 							);
+						} else if (field.type === 'rating') {
+							answer = <RatingAnswer answer={field.answer} />;
 						}
 
 						return (
@@ -168,10 +196,10 @@ const FormResponseList = ({
 				</div>
 			</div>
 
-			{items?.length > 5 && (
+			{actualResponsesCount > 5 && (
 				<div className="collapsible-list__footer">
 					<span onClick={handleExpand}>
-						{expanded ? 'See less' : `See all (${items?.length})`}
+						{expanded ? 'See less' : `See all (${actualResponsesCount})`}
 					</span>
 				</div>
 			)}

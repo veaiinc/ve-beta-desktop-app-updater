@@ -130,7 +130,14 @@ const FormResCard = ({
 		const nameField = response.response.find((item) =>
 			item?.question?.toLowerCase().includes('name'),
 		);
-		return nameField?.answer || 'No Name';
+		if (nameField?.answer) return nameField.answer;
+
+		const emailField = response.response.find((item) =>
+			item?.question?.toLowerCase().includes('email'),
+		);
+		if (emailField?.answer) return emailField.answer;
+
+		return 'No Name';
 	};
 
 	const getEmail = (response) => {

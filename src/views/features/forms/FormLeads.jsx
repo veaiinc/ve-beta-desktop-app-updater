@@ -253,14 +253,7 @@ const FormLeads = () => {
 		}
 	}, [formData?._id, formData?.title, duplicateGlobalWorkflowTemplate]);
 
-	const handleTitleClick = useCallback(() => {
-		setInfo((prev) => ({
-			...prev,
-			isEditingTitle: true,
-			editTitleValue: formTitle,
-		}));
-	}, [formTitle]);
-
+	// Define debouncedUpdateTitle first
 	const debouncedUpdateTitle = useCallback(
 		(newTitle) => {
 			if (debounceTimeoutRef.current) {
@@ -279,17 +272,18 @@ const FormLeads = () => {
 					if (response?.[0]) {
 						// Create a new formData object with updated title
 						const updatedFormData = { ...formData, title: newTitle };
-						// Update both states
+						// Update formData state
 						setFormData(updatedFormData);
-						setFormTitle(newTitle);
 						message.success('Form renamed successfully');
-						console.log('updatedFormData', updatedFormData);
-						console.log('formData', formData);
 					} else {
+						// Revert the title if the API call fails
+						setFormTitle(formData.title);
 						message.error('Failed to rename form. Please try again.');
 					}
 				} catch (error) {
 					console.error('Error renaming form:', error);
+					// Revert the title if there's an error
+					setFormTitle(formData.title);
 					message.error('Failed to rename form. Please try again.');
 				}
 			}, 1000); // 1 second debounce
@@ -301,6 +295,7 @@ const FormLeads = () => {
 		(e) => {
 			const newTitle = e.target.value;
 			setInfo((prev) => ({ ...prev, editTitleValue: newTitle }));
+			setFormTitle(newTitle);
 			debouncedUpdateTitle(newTitle);
 		},
 		[debouncedUpdateTitle],
@@ -319,6 +314,14 @@ const FormLeads = () => {
 			setInfo((prev) => ({ ...prev, isEditingTitle: false }));
 		}
 	}, []);
+
+	const handleTitleClick = useCallback(() => {
+		setInfo((prev) => ({
+			...prev,
+			isEditingTitle: true,
+			editTitleValue: formTitle,
+		}));
+	}, [formTitle]);
 
 	// Cleanup debounce timeout on unmount
 	useEffect(() => {
@@ -365,7 +368,7 @@ const FormLeads = () => {
 	const handleDownload = useCallback(() => {
 		if (info.activeTab === 'responses') {
 			const { formData, questions } = summaryData;
-			const responses = formData.responses || [];
+			const responses = formData?.responses || [];
 
 			if (!responses.length) {
 				message.warning('No responses to download');
@@ -377,7 +380,7 @@ const FormLeads = () => {
 				'Submission ID',
 				'Submission Date',
 				'Submission Time',
-				...questions.map((q) => q.question),
+				...questions.map((q) => q?.question || 'Untitled Question'),
 			];
 			const csvRows = [headers];
 
@@ -393,9 +396,12 @@ const FormLeads = () => {
 
 				// Add answers for each question
 				questions.forEach((question) => {
-					const answerItem = response.response?.find(
-						(item) => item.question.toLowerCase() === question.question.toLowerCase(),
-					);
+					const answerItem = response?.response?.find((item) => {
+						if (!item || !question) return false;
+						const itemQuestion = item.question?.toLowerCase() || '';
+						const questionText = question.question?.toLowerCase() || '';
+						return itemQuestion === questionText;
+					});
 					let answer = '';
 
 					if (answerItem) {
@@ -489,8 +495,8 @@ const FormLeads = () => {
 			questions.forEach((question, index) => {
 				summaryData.push([
 					`Question ${index + 1}`,
-					question.question || 'N/A',
-					`Type: ${question.type || 'N/A'}`,
+					question?.question || 'N/A',
+					`Type: ${question?.type || 'N/A'}`,
 				]);
 			});
 

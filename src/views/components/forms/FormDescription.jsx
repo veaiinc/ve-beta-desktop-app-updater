@@ -182,7 +182,11 @@ const RatingAnswer = ({ answer }) => {
 	return (
 		<>
 			<Flex gap="middle" vertical>
-				<Rate className="rating-from-form-response" disabled defaultValue={answer} />
+				<Rate
+					className="rating-from-form-response"
+					disabled
+					defaultValue={parseInt(answer)}
+				/>
 			</Flex>
 			<div className="divider"></div>
 		</>
@@ -305,6 +309,21 @@ const FileUploadAnswer = ({ answer }) => {
 				</div>
 			)}
 			<div className="divider"></div>
+		</>
+	);
+};
+
+const SignatureAnswer = ({ answer }) => {
+	if (!answer) {
+		return '';
+	}
+	return (
+		<>
+			<p className="answer">
+				<span className="selectedOption">
+					{JSON.parse(answer || '[]')[0] || 'No answer'}
+				</span>
+			</p>
 		</>
 	);
 };
@@ -490,6 +509,7 @@ const FormDescription = ({ response, onClose, formId, activeTab, loading }) => {
 			singleChoice: <SingleChoiceAnswer answer={processedAnswer} />,
 			link: <LinkAnswer answer={processedAnswer} />,
 			fileupload: <FileUploadAnswer answer={processedAnswer} />,
+			signature: <SignatureAnswer answer={processedAnswer} />,
 		};
 
 		return (
