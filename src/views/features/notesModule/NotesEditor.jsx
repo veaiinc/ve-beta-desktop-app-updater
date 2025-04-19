@@ -278,13 +278,16 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 			</div>
 			<div className="notes-editor-container">
 				{info?.loading ? (
-					<div className="notes-editor-wrapper">
+					<div
+						className="notes-editor-wrapper"
+						style={{ maxWidth: info?.notesConfigs?.fullWidth ? '100%' : '898px' }}
+					>
 						<div className="notes-title">
 							<Skeleton
 								width="90%"
 								height={40}
-								highlightColor="var(--primary-font)"
-								baseColor="var(--secondary-font)"
+								highlightColor="var(--card-hover)"
+								baseColor="var(--card)"
 							/>
 						</div>
 
@@ -294,8 +297,8 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 									key={i}
 									height={line.height}
 									width={line.width}
-									highlightColor="var(--primary-font)"
-									baseColor="var(--secondary-font)"
+									highlightColor="var(--card-hover)"
+									baseColor="var(--card)"
 								/>
 							))}
 						</div>
