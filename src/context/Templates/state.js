@@ -2201,7 +2201,7 @@ export const TemplatesState = (props) => {
 				response = await Service.fetchGet(
 					`/ai-chat/${encodeURIComponent(
 						sessionId,
-					)}/list-ai-chat-guestchat?page=${page}&limit=${limit}&sortBy=createdAt`,
+					)}/list-ai-chat-guestchat?page=${page}&limit=${limit}&sortBy=createdAt&sortOrder=-1`,
 					null,
 					'ai_assistant_api',
 				);

@@ -6,6 +6,7 @@ import Context from '../../../context/context';
 import { ReactComponent as LinkIcon } from '../../../assets/svg/ai_agents/link.svg';
 import DeepSearchChainOfThought from './chatComponents/DeepSearchChainOfThought';
 import DeepResearchChainOfThought from './chatComponents/DeepResearchChainOfThought';
+import { Markdown } from '../../../helpers/markdownHelper';
 
 const AIMessageRenderer = ({
 	messageData,
@@ -97,6 +98,21 @@ const AIMessageRenderer = ({
 						<Logo width={'24px'} height={'24px'} />
 						{messageData?.processing || 'Answer'}
 					</div>
+					{messageData?.initial_answer?.length > 0 && (
+						<div
+							className={`tab-btn ${
+								info?.activeTab === 'initial_answer' ? 'active' : ''
+							}`}
+							onClick={() =>
+								setInfo((prev) => ({
+									...prev,
+									activeTab: 'initial_answer',
+								}))
+							}
+						>
+							Initial Answer
+						</div>
+					)}
 					{(messageData?.deepSearch?.cot?.length > 0 || messageData?.deepResearch) && (
 						<div
 							className={`tab-btn ${info?.activeTab === 'cot' ? 'active' : ''}`}
@@ -159,6 +175,10 @@ const AIMessageRenderer = ({
 						stream_end={messageData?.stream_end}
 					/>
 				)
+			) : info?.activeTab === 'initial_answer' ? (
+				<div className="initial_answer">
+					<Markdown>{messageData?.initial_answer || ''}</Markdown>
+				</div>
 			) : (
 				<div className="source-content">
 					{messageData?.citations && messageData?.citations.length > 0
