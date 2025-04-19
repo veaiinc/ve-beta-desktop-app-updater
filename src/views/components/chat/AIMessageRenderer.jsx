@@ -1,6 +1,7 @@
 import { memo, useContext, useCallback, useState, useEffect } from 'react';
 import '../../../assets/scss/chat/aiMessageRenderer.scss';
-import { ReactComponent as Logo } from '../../../assets/svg/loader/loaderLogo.svg';
+import { ReactComponent as Logo } from '../../../assets/svg/windmill.svg';
+import { ReactComponent as Logo2 } from '../../../assets/svg/windmill2.svg';
 import Context from '../../../context/context';
 import ChainOfThought from '../../components/chat/chatComponents/ChainOfThought';
 import { ReactComponent as LinkIcon } from '../../../assets/svg/ai_agents/link.svg';
@@ -91,7 +92,11 @@ const AIMessageRenderer = ({
 							}))
 						}
 					>
-						<Logo width={'24px'} height={'24px'} />
+						{messageData?.stream_end ? (
+							<Logo2 className="" width={'24px'} height={'24px'} />
+						) : (
+							<Logo className="" width={'24px'} height={'24px'} />
+						)}
 						{messageData?.processing || 'Answer'}
 					</div>
 					{messageData?.cot?.length > 0 && (

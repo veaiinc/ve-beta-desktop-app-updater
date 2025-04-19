@@ -24,7 +24,7 @@ const WorkflowBuilderLayout = ({ title, children, hideQuickNav = false }) => {
 		<div className="workflowBuilderParentContainer">
 			<Helmet>
 				<meta charSet="utf-8" />
-				<title>{title} | VE</title>
+				<title>{title}</title>
 			</Helmet>
 			{renewBanner && <RenewBanner />}
 			<SkeletonTheme baseColor={'var(--card)'} highlightColor={'var(--card-hover)'}>

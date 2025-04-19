@@ -26,7 +26,7 @@ const SmartFileLayout = ({ title, children, hideQuickNav = false, showBottomTool
 		<div className="smartFileLayoutParentContainer">
 			<Helmet>
 				<meta charSet="utf-8" />
-				<title>{title} | VE</title>
+				<title>{title}</title>
 			</Helmet>
 			<div className="smartFileHeader">
 				<VE />
