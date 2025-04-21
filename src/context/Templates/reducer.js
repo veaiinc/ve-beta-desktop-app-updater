@@ -188,6 +188,7 @@ const actionHandlers = {
 			if (processing === 'Deep Search') {
 				let deepSearch = message?.deepSearch || {};
 				let cot = [...(deepSearch?.cot || [])];
+				// let cot_refined = [...(deepSearch?.cot_refined || [])];
 
 				if (payload?.sub_queries || payload?.refined_sub_queries) {
 					cot = [];
@@ -207,7 +208,17 @@ const actionHandlers = {
 						}
 						return item;
 					});
+					// cot?.push(payload);
 				}
+
+				// if (payload?.reading) {
+				// 	cot = cot?.map((item) => {
+				// 		if (item?.sub_query === payload?.reading?.sub_query) {
+				// 			item = { ...item, ...payload };
+				// 		}
+				// 		return item;
+				// 	});
+				// }
 
 				deepSearch = {
 					...deepSearch,
