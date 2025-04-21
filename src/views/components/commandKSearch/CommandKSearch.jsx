@@ -1,29 +1,19 @@
 import '../../../assets/scss/commandKSearch/commandKSearch.scss';
 import { ReactComponent as CrossSvg } from '../../../assets/svg/docs/cross.svg';
 import { ReactComponent as SearchSvg } from '../../../assets/svg/elastic_search/search-icon.svg';
-import { ReactComponent as ArrowUp } from '../../../assets/svg/ai_agents/arrow-up-dark.svg';
 import { memo, useContext, useEffect, useRef, useState } from 'react';
 import Context from '../../../context/context';
 import { message } from '../globalComponents/CustomToast';
 import Spinner from '../loaders/Spinner';
 import ElasticSearchResults from './ElasticSearchResults';
-import CustomDropdown from './CustomDropdownForCommandK';
+// import CustomDropdown from './CustomDropdownForCommandK';
 import { createPortal } from 'react-dom';
 
 const CommandKSearch = () => {
 	const [isOpen, setIsOpen] = useState(false);
 	const elasticSearchTimeoutRef = useRef(null);
 	const modalRef = useRef(null);
-
-	const handleKeyDown = (e) => {
-		if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
-			e.preventDefault(); // Prevent default browser behavior
-			setIsOpen((prev) => !prev);
-		}
-		if (e.key === 'Escape') {
-			setIsOpen(false);
-		}
-	};
+	const inputRef = useRef(null);
 
 	// Handle clicks outside the modal to close it
 	const handleOutsideClick = (e) => {
@@ -33,16 +23,48 @@ const CommandKSearch = () => {
 	};
 
 	useEffect(() => {
+		const handleKeyDown = (e) => {
+			if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
+				e.preventDefault();
+				setIsOpen((prev) => !prev);
+			}
+			if (e.key === 'Escape') {
+				setIsOpen(false);
+			}
+		};
+
 		document.addEventListener('keydown', handleKeyDown);
+
 		if (isOpen) {
+			// ✅ Clear local search info
+			setInfo({
+				elasticSearchLoading: false,
+				showElasticSearchResults: false,
+			});
+
+			// ✅ Clear input and focus after modal mounts
+			const timer = setTimeout(() => {
+				if (inputRef.current) {
+					inputRef.current.value = ''; // if uncontrolled
+					inputRef.current.focus();
+				}
+			}, 50);
+
 			document.addEventListener('mousedown', handleOutsideClick);
+
+			return () => {
+				clearTimeout(timer);
+				document.removeEventListener('mousedown', handleOutsideClick);
+				document.removeEventListener('keydown', handleKeyDown);
+			};
 		}
 
 		return () => {
 			document.removeEventListener('keydown', handleKeyDown);
-			document.removeEventListener('mousedown', handleOutsideClick);
 		};
-	}, [isOpen]); // Dependencies include isOpen to update handlers
+	}, [isOpen]);
+
+	// Dependencies include isOpen to update handlers
 
 	const handleCloseModal = () => {
 		setIsOpen(false);
@@ -154,7 +176,7 @@ const CommandKSearch = () => {
 							type="text"
 							placeholder="Search any file or documents"
 							onChange={handleSearch}
-							autoFocus={isOpen}
+							ref={inputRef}
 						/>
 						{isLoading && (
 							<div className="spinner-wrapper">
@@ -165,9 +187,6 @@ const CommandKSearch = () => {
 								/>
 							</div>
 						)}
-						<button>
-							<ArrowUp className="arrow-up" />
-						</button>
 					</div>
 				</div>
 				<div className={`search-output-container ${noResults ? 'noResultsContainer' : ''}`}>
