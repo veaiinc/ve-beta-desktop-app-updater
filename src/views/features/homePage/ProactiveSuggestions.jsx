@@ -9,6 +9,10 @@ import { ReactComponent as CloseIcon } from '../../../assets/svg/close.svg';
 import Skeleton from 'react-loading-skeleton';
 import AISuggestionsModal from '../../components/modalsV2/homePage/AISuggestionsModal';
 import { Tooltip } from 'antd';
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+
+dayjs.extend(relativeTime);
 
 const payload = {
 	page: 1,
@@ -291,7 +295,10 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 													backgroundColor: PriorityLevel[card?.priority],
 												}}
 											></span>
-											<p>{card?.priority}</p>
+											<p style={{ textTransform: 'capitalize' }}>
+												{card?.priority} |{' '}
+												{dayjs(card.updatedAt * 1000).fromNow()}
+											</p>
 										</div>
 									</div>
 								</div>
