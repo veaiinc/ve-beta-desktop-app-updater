@@ -257,25 +257,34 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 					<title>VE - {info?.title}</title>
 				</Helmet>
 			)}
+
 			<div className="notes-nav-menu">
-				<span className="notes-nav-menu-item-last-edited">
-					{info?.updatedAt ? `Edited ${moment.unix(info?.updatedAt).fromNow()}` : ''}
-				</span>
-				<ShareComponent pageId={noteId} />
-				<StarSvg
-					fill={info?.isFavorite}
-					width={18}
-					height={18}
-					onClick={() => handleFavorite(!info?.isFavorite)}
-					className="cursor-pointer"
-				/>
-				<MoreOptions
-					notesConfigs={info?.notesConfigs}
-					onChange={handleMoreOptionsChange}
-					onDelete={handleDeletePage}
-					onDuplicate={handleDuplicatePage}
-				/>
+				<div className="notes-nav-title">{info?.title}</div>
+
+				<div className="notes-nav-right">
+					<button
+						className="notes-nav-button"
+						onClick={() => handleFavorite(!info?.isFavorite)}
+					>
+						<StarSvg
+							fill={info?.isFavorite}
+							width={18}
+							height={18}
+							className="cursor-pointer"
+						/>
+					</button>
+
+					<MoreOptions
+						notesConfigs={info?.notesConfigs}
+						onChange={handleMoreOptionsChange}
+						onDelete={handleDeletePage}
+						onDuplicate={handleDuplicatePage}
+					/>
+
+					<ShareComponent pageId={noteId} />
+				</div>
 			</div>
+
 			<div className="notes-editor-container">
 				{info?.loading ? (
 					<div

@@ -5,6 +5,7 @@ import '../../../assets/scss/notes/shareComponent.scss';
 import { ReactComponent as Copy } from '../../../assets/svg/ai_assistant/url.svg';
 import { ReactComponent as ChevronRightThinSvg } from '../../../assets/svg/tasks/chevronRightThin.svg';
 import { ReactComponent as Check } from '../../../assets/svg/tasks/checkmark.svg';
+import { ReactComponent as NoteShareSvg } from '../../../assets/svg/notes/noteShare.svg';
 import { ReactComponent as CalendarSvg } from '../../../assets/svg/tasks/calendar.svg';
 import Context from '../../../context/context';
 import { ReactComponent as CrossSvg } from '../../../assets/svg/gallery/cross.svg';
@@ -688,7 +689,9 @@ const ShareComponent = ({ pageId }) => {
 					minWidth: '381px',
 				}}
 			>
-				<button onClick={() => handleInfoChange({ isOpen: !info.isOpen })}>Share</button>
+				<button onClick={() => handleInfoChange({ isOpen: !info.isOpen })}>
+					<NoteShareSvg />
+				</button>
 			</Tooltip>
 		</div>
 	);
