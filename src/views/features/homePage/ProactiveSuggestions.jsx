@@ -52,6 +52,11 @@ const filterGroups = [
 	},
 ];
 
+const PriorityLevel = {
+	High: 'red',
+	Medium: 'yellow',
+	Low: 'green',
+};
 const ProactiveSuggestions = ({ selectedOption }) => {
 	const {
 		templates: { getAISuggestedPendingActions, aiSuggestedPendingActions },
@@ -280,6 +285,14 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 									</div>
 									<div className="footer">
 										<div className="module-type">{card?.moduleType}</div>
+										<div className="module-priority">
+											<span
+												style={{
+													backgroundColor: PriorityLevel[card?.priority],
+												}}
+											></span>
+											<p>{card?.priority}</p>
+										</div>
 									</div>
 								</div>
 							);
