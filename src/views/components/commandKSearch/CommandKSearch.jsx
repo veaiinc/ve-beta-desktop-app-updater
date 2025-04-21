@@ -15,12 +15,47 @@ const CommandKSearch = () => {
 	const modalRef = useRef(null);
 	const inputRef = useRef(null);
 
-	// Handle clicks outside the modal to close it
-	const handleOutsideClick = (e) => {
-		if (modalRef.current && !modalRef.current.contains(e.target)) {
-			setIsOpen(false);
-		}
-	};
+	const {
+		elasticSearch: { elasticSearchResults, performElasticSearch },
+	} = useContext(Context);
+
+	const [info, setInfo] = useState({
+		elasticSearchLoading: false,
+		showElasticSearchResults: false,
+	});
+
+	const [isLoading, setIsLoading] = useState(false);
+
+	// const [selectedFilters, setSelectedFilters] = useState({
+	// 	source: null,
+	// 	collection: null,
+	// 	assistance: null,
+	// 	date: null,
+	// });
+
+	// const filterOptions = {
+	// 	source: [
+	// 		{ label: 'All Sources', value: 'all' },
+	// 		{ label: 'PDFs', value: 'pdf' },
+	// 		{ label: 'Images', value: 'image' },
+	// 	],
+	// 	collection: [
+	// 		{ label: 'All Collections', value: 'all' },
+	// 		{ label: 'Work', value: 'work' },
+	// 		{ label: 'Personal', value: 'personal' },
+	// 	],
+	// 	assistance: [
+	// 		{ label: 'All Assistance', value: 'all' },
+	// 		{ label: 'Templates', value: 'templates' },
+	// 	],
+	// 	date: [
+	// 		{ label: 'All Time', value: 'all' },
+	// 		{ label: 'This Week', value: 'week' },
+	// 		{ label: 'This Month', value: 'month' },
+	// 	],
+	// };
+
+	const noResults = elasticSearchResults?.length === 0 && info?.showElasticSearchResults;
 
 	useEffect(() => {
 		const handleKeyDown = (e) => {
@@ -64,53 +99,9 @@ const CommandKSearch = () => {
 		};
 	}, [isOpen]);
 
-	// Dependencies include isOpen to update handlers
-
 	const handleCloseModal = () => {
 		setIsOpen(false);
 	};
-
-	const {
-		elasticSearch: { elasticSearchResults, performElasticSearch },
-	} = useContext(Context);
-
-	const [info, setInfo] = useState({
-		elasticSearchLoading: false,
-		showElasticSearchResults: false,
-	});
-
-	const [isLoading, setIsLoading] = useState(false);
-
-	const [selectedFilters, setSelectedFilters] = useState({
-		source: null,
-		collection: null,
-		assistance: null,
-		date: null,
-	});
-
-	const filterOptions = {
-		source: [
-			{ label: 'All Sources', value: 'all' },
-			{ label: 'PDFs', value: 'pdf' },
-			{ label: 'Images', value: 'image' },
-		],
-		collection: [
-			{ label: 'All Collections', value: 'all' },
-			{ label: 'Work', value: 'work' },
-			{ label: 'Personal', value: 'personal' },
-		],
-		assistance: [
-			{ label: 'All Assistance', value: 'all' },
-			{ label: 'Templates', value: 'templates' },
-		],
-		date: [
-			{ label: 'All Time', value: 'all' },
-			{ label: 'This Week', value: 'week' },
-			{ label: 'This Month', value: 'month' },
-		],
-	};
-
-	const noResults = elasticSearchResults?.length === 0 && info?.showElasticSearchResults;
 
 	const handleSearch = async (e) => {
 		clearTimeout(elasticSearchTimeoutRef.current);
@@ -143,20 +134,28 @@ const CommandKSearch = () => {
 		}, 500);
 	};
 
-	const handleFilterChange = (filterType, selectedOption) => {
-		setSelectedFilters((prev) => ({
-			...prev,
-			[filterType]: selectedOption,
-		}));
-	};
+	// const handleFilterChange = (filterType, selectedOption) => {
+	// 	setSelectedFilters((prev) => ({
+	// 		...prev,
+	// 		[filterType]: selectedOption,
+	// 	}));
+	// };
 
-	const resetFilters = () => {
-		setSelectedFilters({
-			source: null,
-			collection: null,
-			assistance: null,
-			date: null,
-		});
+	// const resetFilters = () => {
+	// 	setSelectedFilters({
+	// 		source: null,
+	// 		collection: null,
+	// 		assistance: null,
+	// 		date: null,
+	// 	});
+	// };
+
+	// Handle clicks outside the modal to close it
+
+	const handleOutsideClick = (e) => {
+		if (modalRef.current && !modalRef.current.contains(e.target)) {
+			setIsOpen(false);
+		}
 	};
 
 	// Render the modal using createPortal
