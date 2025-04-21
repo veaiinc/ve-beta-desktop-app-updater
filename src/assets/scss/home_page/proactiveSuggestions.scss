@@ -97,13 +97,19 @@
 						width: 6px;
 						border-radius: 50%;
 					}
-					p {
-						color: var(--primary-font, #f2f2f3);
-						font-family: Inter;
-						font-size: 12px;
-						font-style: normal;
-						font-weight: 500;
-						line-height: normal;
+					.module-priority-text {
+						display: flex;
+						flex-direction: row;
+						gap: 8px;
+						div {
+							color: var(--primary-font, #f2f2f3);
+							font-family: Inter;
+							font-size: 12px;
+							font-style: normal;
+							font-weight: 500;
+							line-height: normal;
+							text-transform: capitalize;
+						}
 					}
 				}
 			}

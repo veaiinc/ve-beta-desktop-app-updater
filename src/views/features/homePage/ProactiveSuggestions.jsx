@@ -18,7 +18,7 @@ const payload = {
 	page: 1,
 	limit: 20,
 	sortBy: 'createdAt',
-	sortOrder: '-1',
+	// sortOrder: '-1',
 };
 const positionClassMap = {
 	0: 'selected',
@@ -31,29 +31,29 @@ const filterGroups = [
 	{
 		title: 'Priority Level',
 		options: [
-			{ id: 1, title: 'Urgent Priority' },
-			{ id: 2, title: 'High Priority' },
-			{ id: 3, title: 'Medium Priority' },
-			{ id: 4, title: 'Low Priority' },
+			// { id: 1, title: 'Urgent Priority', value: 'High' },
+			{ id: 2, title: 'High Priority', value: 'High' },
+			{ id: 3, title: 'Medium Priority', value: 'Medium' },
+			{ id: 4, title: 'Low Priority', value: 'Low' },
 		],
 	},
 	{
 		title: 'Read Status',
 		options: [
-			{ id: 5, title: 'Read' },
-			{ id: 6, title: 'Unread' },
-			{ id: 7, title: 'Flagges' },
-			{ id: 8, title: 'All' },
+			{ id: 5, title: 'Read', value: 'read' },
+			{ id: 6, title: 'Unread', value: 'unread' },
+			// { id: 7, title: 'Flagges', value: 'Flagges' },
+			{ id: 8, title: 'All', value: 'All' },
 		],
 	},
-	{
-		title: 'Confidence level',
-		options: [
-			{ id: 9, title: 'High 90-100%' },
-			{ id: 10, title: 'Medium 70-89%' },
-			{ id: 11, title: 'Below 70%' },
-		],
-	},
+	// {
+	// 	title: 'Confidence level',
+	// 	options: [
+	// 		{ id: 9, title: 'High 90-100%' },
+	// 		{ id: 10, title: 'Medium 70-89%' },
+	// 		{ id: 11, title: 'Below 70%' },
+	// 	],
+	// },
 ];
 
 const PriorityLevel = {
@@ -108,13 +108,26 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 		}
 	}, [info?.totalCardsData, info.currentIndex]);
 
+	useEffect(() => {
+		if (info?.selectedFilters?.length > 0) {
+			if (info?.selectedFilters?.map((each) => each?.group)?.includes('Priority Level')) {
+				const newUpdatedPayload = {
+					...payload,
+					priority: info?.selectedFilters?.map((each) => each?.value),
+				};
+				getAISuggestedPendingActions(newUpdatedPayload);
+			}
+		}
+	}, [info?.selectedFilters]);
+
+	console.log(aiSuggestedPendingActions, 'aiSuggestedPendingActions');
 	const updateCardsData = () => {
 		const cards = aiSuggestedPendingActions?.pendingActions?.filter(
 			(card) => card?.title?.length > 0,
 		);
 
 		if (cards?.length > 0) {
-			const updatedCards = [...totalCardsDataRef.current, ...cards];
+			const updatedCards = [...cards];
 			totalCardsDataRef.current = updatedCards;
 
 			setInfo((prev) => ({
@@ -126,6 +139,8 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 			setInfo((prev) => ({
 				...prev,
 				loading: false,
+				totalCardsData: [],
+				cards: [],
 			}));
 		}
 	};
@@ -219,33 +234,31 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 		setInfo((prev) => ({ ...prev, openModal: false, activeCardContent: null }));
 
 	const handleFilterClick = (item) => {
-		const isSelected = info?.selectedFilters?.some(
-			(option) =>
-				option?.id === item?.id &&
-				option?.title === item?.title &&
-				option?.group === item?.group,
-		);
+		setInfo((prev) => {
+			const filtered = prev.selectedFilters.filter((option) => option.group !== item.group);
 
-		if (isSelected) {
-			setInfo((prev) => ({
+			const isSelected = prev.selectedFilters.some(
+				(option) =>
+					option.id === item.id &&
+					option.title === item.title &&
+					option.group === item.group,
+			);
+
+			if (isSelected) {
+				return {
+					...prev,
+					selectedFilters: filtered,
+				};
+			}
+
+			return {
 				...prev,
-				selectedFilters: prev.selectedFilters.filter(
-					(option) =>
-						!(
-							option?.id === item?.id &&
-							option?.title === item?.title &&
-							option?.group === item?.group
-						),
-				),
-			}));
-		} else {
-			setInfo((prev) => ({
-				...prev,
-				selectedFilters: [...prev.selectedFilters, item],
-			}));
-		}
+				selectedFilters: [...filtered, item],
+			};
+		});
 	};
 
+	console.log(info?.selectedFilters, 'testing ');
 	return (
 		<div className="proactive-suggestions-container">
 			<div className="cards-container">
@@ -295,108 +308,115 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 													backgroundColor: PriorityLevel[card?.priority],
 												}}
 											></span>
-											<p style={{ textTransform: 'capitalize' }}>
-												{card?.priority} |{' '}
-												{dayjs(card.updatedAt * 1000).fromNow()}
-											</p>
+											<div className="module-priority-text">
+												<div>{card?.priority} </div>
+												<div>|</div>
+												<div>{dayjs(card.updatedAt * 1000).fromNow()}</div>
+											</div>
 										</div>
 									</div>
 								</div>
 							);
 					  })}
 			</div>
-			{info?.cards?.length > 5 && (
-				<div className="action-container">
-					<div style={{ display: 'flex', flexDirection: 'row', gap: '10px' }}>
-						<Tooltip
-							open={info?.openFilter}
-							onOpenChange={() => setInfo((prev) => ({ ...prev, openFilter: false }))}
-							placement="top"
-							title={
-								<div className="filter-container">
-									<div className="filter-items">
-										{filterGroups.map((group, idx) => (
-											<div key={group.title} style={{ width: '100%' }}>
-												<div className="filter-item">
-													<div className="filter-item-title">
-														{group.title}
-													</div>
-													<div className="filter-item-options">
-														{group.options.map((item) => {
-															const isSelected =
-																info?.selectedFilters?.some(
-																	(option) =>
-																		option?.title ===
-																		item.title,
-																);
-															return (
-																<div
-																	key={item.id}
-																	className="eachOption"
-																	onClick={() =>
-																		handleFilterClick(item)
-																	}
-																	style={{
-																		display: 'flex',
-																		justifyContent:
-																			'space-between',
-																		alignItems: 'center',
-																	}}
-																>
-																	<span>{item.title}</span>
-																	{isSelected && (
-																		<TickIcon
-																			style={{
-																				marginLeft: '8px',
-																			}}
-																		/>
-																	)}
-																</div>
-															);
-														})}
-													</div>
+			<div className="action-container">
+				{/* <div style={{ display: 'flex', flexDirection: 'row', gap: '10px' }}>
+					<Tooltip
+						open={info?.openFilter}
+						onOpenChange={() => setInfo((prev) => ({ ...prev, openFilter: false }))}
+						placement="top"
+						title={
+							<div className="filter-container">
+								<div className="filter-items">
+									{filterGroups.map((group, idx) => (
+										<div key={group.title} style={{ width: '100%' }}>
+											<div className="filter-item">
+												<div className="filter-item-title">
+													{group.title}
 												</div>
-												{idx < filterGroups.length - 1 && (
-													<hr
-														style={{
-															width: '100%',
-															height: '1px',
-															backgroundColor: 'var(--stroke)',
-															border: 'none',
-														}}
-													/>
-												)}
+												<div className="filter-item-options">
+													{group.options.map((item) => {
+														const itemWithGroup = {
+															...item,
+															group: group.title,
+														};
+
+														const isSelected =
+															info?.selectedFilters?.some(
+																(option) =>
+																	option?.title ===
+																		itemWithGroup.title &&
+																	option?.group ===
+																		itemWithGroup.group,
+															);
+														return (
+															<div
+																key={item.id}
+																className="eachOption"
+																onClick={() =>
+																	handleFilterClick(itemWithGroup)
+																}
+																style={{
+																	display: 'flex',
+																	justifyContent: 'space-between',
+																	alignItems: 'center',
+																}}
+															>
+																<span>{item.title}</span>
+																{isSelected && (
+																	<TickIcon
+																		style={{
+																			marginLeft: '8px',
+																		}}
+																	/>
+																)}
+															</div>
+														);
+													})}
+												</div>
 											</div>
-										))}
-									</div>
+											{idx < filterGroups.length - 1 && (
+												<hr
+													style={{
+														width: '100%',
+														height: '1px',
+														backgroundColor: 'var(--stroke)',
+														border: 'none',
+													}}
+												/>
+											)}
+										</div>
+									))}
 								</div>
-							}
-							color={'transparent'}
-							style={{ cursor: 'pointer', userSelect: 'none' }}
+							</div>
+						}
+						color={'transparent'}
+						style={{ cursor: 'pointer', userSelect: 'none' }}
+					>
+						<div
+							className="action-left"
+							onClick={() => setInfo((prev) => ({ ...prev, openFilter: true }))}
 						>
-							<div
-								className="action-left"
-								onClick={() => setInfo((prev) => ({ ...prev, openFilter: true }))}
-							>
-								<button className="filter-btn" style={{ cursor: 'pointer' }}>
-									Filters <FilterIcon />
-								</button>
-							</div>
-						</Tooltip>
-						{info?.selectedFilters?.length > 0 && (
-							<div className="selected-filter">
-								{info?.selectedFilters?.map((item) => (
-									<div key={item?.id} className="selected-filter-item">
-										<span>{item?.title}</span>
-										<CloseIcon
-											style={{ cursor: 'pointer' }}
-											onClick={() => handleFilterClick(item)}
-										/>
-									</div>
-								))}
-							</div>
-						)}
-					</div>
+							<button className="filter-btn" style={{ cursor: 'pointer' }}>
+								Filters <FilterIcon />
+							</button>
+						</div>
+					</Tooltip>
+					{info?.selectedFilters?.length > 0 && (
+						<div className="selected-filter">
+							{info?.selectedFilters?.map((item) => (
+								<div key={item?.id} className="selected-filter-item">
+									<span>{item?.title}</span>
+									<CloseIcon
+										style={{ cursor: 'pointer' }}
+										onClick={() => handleFilterClick(item)}
+									/>
+								</div>
+							))}
+						</div>
+					)}
+				</div> */}
+				{info?.cards?.length > 5 && (
 					<div className="action-right">
 						<button className="card-change-btn" onClick={handleLeft}>
 							<ChevronRightThinSvg className="left-chevron" />
@@ -405,8 +425,8 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 							<ChevronRightThinSvg />
 						</button>
 					</div>
-				</div>
-			)}
+				)}
+			</div>
 
 			<AISuggestionsModal
 				open={info?.openModal}
