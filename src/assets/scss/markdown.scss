@@ -1,17 +1,16 @@
 .markdown-custom-content {
 	color: var(--primary-font);
-	font-size: var(--font-size, 16px); /* Default to 16px if --font-size is not defined */
+	font-size: var(--font-size, 16px);
 	font-family: var(--primary-font-family);
 	--font-size: 16px;
 
 	span {
-		/* No changes needed */
 		font-family: var(--secondary-font-family);
-		font-size: calc(var(--font-size) * 0.9375); /* 0.9375em based on --font-size */
-		line-height: calc(var(--font-size) * 1.5);
+		font-size: calc(var(--font-size) * 0.9375);
 		letter-spacing: calc(var(--font-size) * 0.0125);
 		font-weight: 500;
 		color: var(--chat-secondary-font);
+		line-height: calc(var(--font-size) * 1.5625); /* 25px */
 	}
 
 	.markdown-image-wrapper {
@@ -30,90 +29,90 @@
 	.h1,
 	.h2 {
 		color: var(--primary-font);
-		font-size: calc(var(--font-size) * 1.75); /* 1.75em based on --font-size */
+		font-size: calc(var(--font-size) * 1.75);
 		line-height: calc(var(--font-size) * 2.375);
 		letter-spacing: calc(var(--font-size) * 0.0125);
 		font-weight: 600;
-		margin-bottom: calc(var(--font-size) * 1.25); /* 20px based on --font-size */
 		font-family: var(--secondary-font-family);
-		margin-top: calc(var(--font-size) * 1.25); /* 20px based on --font-size */
+		margin-top: calc(var(--font-size) * 1.5); /* 24px */
+		margin-bottom: calc(var(--font-size) * 0.5); /* 8px */
 	}
 
 	.h3 {
 		color: var(--primary-font);
-		font-size: calc(var(--font-size) * 1.5); /* 1.5em based on --font-size */
+		font-size: calc(var(--font-size) * 1.5);
 		line-height: calc(var(--font-size) * 2.25);
 		letter-spacing: calc(var(--font-size) * 0.0125);
 		font-weight: 500;
-		margin-bottom: calc(var(--font-size) * 1.25); /* 20px based on --font-size */
 		font-family: var(--secondary-font-family);
-		margin-top: calc(var(--font-size) * 1.25); /* 20px based on --font-size */
+		margin-bottom: calc(var(--font-size) * 0.5); /* 8px */
+		margin-top: calc(var(--font-size) * 1.5); /* 24px */
 	}
 
 	.h4 {
 		color: var(--primary-font);
-		font-size: calc(var(--font-size) * 1.375); /* 1.375em based on --font-size */
+		font-size: calc(var(--font-size) * 1.375);
 		line-height: calc(var(--font-size) * 2);
 		letter-spacing: calc(var(--font-size) * 0.0125);
 		font-weight: 500;
-		margin-bottom: calc(var(--font-size) * 1.25); /* 20px based on --font-size */
 		font-family: var(--secondary-font-family);
-		margin-top: calc(var(--font-size) * 1.25); /* 20px based on --font-size */
+		margin-bottom: calc(var(--font-size) * 0.5); /* 8px */
+		margin-top: calc(var(--font-size) * 1.5); /* 24px */
 	}
 
 	.h5 {
 		color: var(--primary-font);
-		font-size: calc(var(--font-size) * 1.125); /* 1.125em based on --font-size */
+		font-size: calc(var(--font-size) * 1.125);
 		line-height: calc(var(--font-size) * 1.75);
 		letter-spacing: calc(var(--font-size) * 0.0125);
 		font-weight: 500;
-		margin-bottom: calc(var(--font-size) * 0.75); /* 12px based on --font-size */
 		font-family: var(--secondary-font-family);
-		margin-top: calc(var(--font-size) * 0.75); /* 12px based on --font-size */
+		margin-bottom: calc(var(--font-size) * 0.5); /* 8px */
+		margin-top: calc(var(--font-size) * 1.5); /* 24px */
 	}
 
 	.h6 {
 		color: var(--primary-font);
-		font-size: calc(var(--font-size) * 0.9375); /* 0.9375em based on --font-size */
+		font-size: calc(var(--font-size) * 0.9375);
 		line-height: calc(var(--font-size) * 1.5);
 		letter-spacing: calc(var(--font-size) * 0.0125);
 		font-weight: 500;
-		margin-bottom: calc(var(--font-size) * 0.75); /* 12px based on --font-size */
 		font-family: var(--secondary-font-family);
-		margin-top: calc(var(--font-size) * 0.75); /* 12px based on --font-size */
+		margin-bottom: calc(var(--font-size) * 0.5); /* 8px */
+		margin-top: calc(var(--font-size) * 1.5); /* 24px */
 	}
 
 	.p {
-		color: var(--primary-font);
-		font-size: calc(var(--font-size) * 0.9375); /* 0.9375em based on --font-size */
+		color: var(--chat-secondary-font);
+		font-size: calc(var(--font-size) * 0.9375);
 		line-height: calc(var(--font-size) * 1.5);
 		letter-spacing: calc(var(--font-size) * 0.0125);
 		font-weight: 500;
-		margin-bottom: calc(var(--font-size) * 0.75); /* 12px based on --font-size */
+
+		margin-bottom: calc(var(--font-size) * 0.75); /* 12px */
 		font-family: var(--secondary-font-family);
 	}
 
 	.pre {
-		padding: calc(var(--font-size) * 0.0625); /* 1px based on --font-size */
+		padding: calc(var(--font-size) * 0.0625); /* 1px */
 		overflow: auto;
-		font-size: calc(var(--font-size) * 0.85); /* 0.85em based on --font-size */
+		font-size: calc(var(--font-size) * 0.85);
 		line-height: 1.45;
 		background-color: var(--card);
-		border-radius: calc(var(--font-size) * 0.0234375); /* 0.375em based on --font-size */
+		border-radius: calc(var(--font-size) * 0.375); /* 6px */
 		font-family: var(--secondary-font-family);
 	}
 
-	.hr {
-		height: calc(var(--font-size) * 0.0625); /* 1px based on --font-size */
-		background-color: rgba(44, 46, 49, 1);
+	hr {
+		margin: calc(var(--font-size) * 0.5) 0;
 	}
 
 	.ol,
 	.ul {
 		list-style-position: outside;
-		padding-left: calc(var(--font-size) * 1.25); /* 2ch based on --font-size */
-		margin-bottom: calc(var(--font-size) * 0.0625); /* 1em based on --font-size */
-		font-size: calc(var(--font-size) * 0.9375); /* 0.9375em based on --font-size */
+		padding-left: calc(var(--font-size) * 1.25);
+		margin-bottom: calc(var(--font-size) * 0.0625); /* 1px likely a typo? */
+		font-size: calc(var(--font-size) * 0.9375);
 		line-height: calc(var(--font-size) * 1.5);
 		letter-spacing: calc(var(--font-size) * 0.0125);
 		font-weight: 500;
@@ -124,57 +123,59 @@
 		list-style-type: disc;
 		color: var(--chat-secondary-font);
 		font-family: var(--secondary-font-family);
-		font-size: calc(var(--font-size) * 0.9375); /* 0.9375em based on --font-size */
+		font-size: calc(var(--font-size) * 0.9375);
 		line-height: calc(var(--font-size) * 1.5);
 		letter-spacing: calc(var(--font-size) * 0.0125);
 		font-weight: 500;
-		margin-bottom: calc(var(--font-size) * 0.75); /* 12px based on --font-size */
+		line-height: calc(var(--font-size) * 1.5625); /* 25px */
+		margin-bottom: calc(var(--font-size) * 0.5); /* 8px */
 	}
 
 	.span {
-		color: var(--primary-font);
+		color: var(--chat-secondary-font);
 		letter-spacing: calc(var(--font-size) * -0.02);
-		font-weight: 300;
+		font-weight: 500;
 		font-family: var(--secondary-font-family);
 	}
 
 	.strong {
 		color: var(--primary-font);
-		font-size: calc(var(--font-size) * 0.9375); /* 0.9375em based on --font-size */
+		font-size: calc(var(--font-size) * 0.875);
 		line-height: calc(var(--font-size) * 1.5);
 		letter-spacing: calc(var(--font-size) * 0.0125);
-		font-weight: 800;
+		font-weight: 900;
 		font-family: var(--secondary-font-family);
 	}
 
 	.a {
 		color: var(--primary-font);
-		font-size: calc(var(--font-size) * 0.9375); /* 0.9375em based on --font-size */
+		font-size: calc(var(--font-size) * 0.9375);
 		line-height: calc(var(--font-size) * 1.5);
 		letter-spacing: calc(var(--font-size) * 0.0125);
-		font-weight: 400;
+		font-weight: 500;
 		font-family: var(--secondary-font-family);
 	}
 
 	.table-container {
 		max-width: 100%;
 		overflow-x: auto;
-		border-radius: calc(var(--font-size) * 1); /* 16px based on --font-size */
+		border-radius: calc(var(--font-size) * 1);
 		background-color: var(--card);
 		border: 1px solid transparent;
+		margin: calc(var(--font-size) * 0.625) 0;
 
 		&::-webkit-scrollbar {
-			height: calc(var(--font-size) * 0.375); /* 6px based on --font-size */
+			height: calc(var(--font-size) * 0.375); /* 6px */
 		}
 
 		&::-webkit-scrollbar-track {
 			background: var(--card);
-			border-radius: calc(var(--font-size) * 0.1875); /* 3px based on --font-size */
+			border-radius: calc(var(--font-size) * 0.1875); /* 3px */
 		}
 
 		&::-webkit-scrollbar-thumb {
 			background: var(--card);
-			border-radius: calc(var(--font-size) * 0.1875); /* 3px based on --font-size */
+			border-radius: calc(var(--font-size) * 0.1875); /* 3px */
 
 			&:hover {
 				background: var(--card-hover);
@@ -185,7 +186,7 @@
 			border-collapse: separate;
 			border-spacing: 0;
 			width: 100%;
-			padding: 0px calc(var(--font-size) * 1); /* 16px based on --font-size */
+			padding: calc(var(--font-size) * 1);
 
 			th {
 				color: var(--primary-font);
@@ -203,11 +204,11 @@
 
 			th,
 			td {
-				padding: calc(var(--font-size) * 0.3125) calc(var(--font-size) * 0.625); /* 5px and 10px based on --font-size */
+				padding: calc(var(--font-size) * 0.3125) calc(var(--font-size) * 0.625); /* 5px 10px */
 				border: none;
 				border-top: 1px solid var(--stroke);
 				color: var(--primary-font);
-				font-size: calc(var(--font-size) * 0.875); /* 0.875em based on --font-size */
+				font-size: calc(var(--font-size) * 0.875);
 				line-height: calc(var(--font-size) * 1.25);
 				letter-spacing: calc(var(--font-size) * 0.0125);
 				font-weight: 500;

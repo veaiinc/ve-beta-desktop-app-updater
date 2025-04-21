@@ -1,6 +1,7 @@
 import React from 'react';
 import { Flex, Rate } from 'antd';
 import '../../../assets/scss/forms/FormDescription.scss';
+import { ReactComponent as CrossSvg } from '../../../assets/svg/doubleBack.svg';
 import { ReactComponent as BiDash } from '../../../assets/svg/smartFiles/formResponse/bi-dash.svg';
 import { ReactComponent as Email } from '../../../assets/svg/smartFiles/formResponse/email.svg';
 import { ReactComponent as Phone } from '../../../assets/svg/smartFiles/formResponse/phone.svg';
@@ -16,6 +17,7 @@ import { ReactComponent as Clock } from '../../../assets/svg/smartFiles/formResp
 import { ReactComponent as Signature } from '../../../assets/svg/smartFiles/formResponse/signature.svg';
 import { ReactComponent as Star } from '../../../assets/svg/smartFiles/formResponse/star.svg';
 import { ReactComponent as TimeDivider } from '../../../assets/svg/smartFiles/formResponse/time-divider.svg';
+import FormAnalytics from './FormAnalytics';
 import {
 	FilePdfOutlined,
 	FileTextOutlined,
@@ -23,6 +25,8 @@ import {
 	FilePptOutlined,
 	FileOutlined,
 } from '@ant-design/icons';
+import Skeleton from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
 
 const iconsForQuestions = {
 	shortText: <BiDash />,
@@ -74,6 +78,8 @@ const removeQuotes = (text) => {
 	return text?.replace(/^["']|["']$/g, '');
 };
 
+export { removeQuotes };
+
 const DropdownAnswer = ({ answer }) => {
 	if (!answer) {
 		return '';
@@ -103,7 +109,25 @@ const EventsAnswer = ({ answer }) => {
 	if (!answer) {
 		return '';
 	}
-	return answer ? (
+
+	let events;
+	try {
+		// If answer is already an object, use it directly
+		if (typeof answer === 'object') {
+			events = answer;
+		} else {
+			// If it's a string, try to parse it as JSON
+			events = JSON.parse(answer);
+		}
+	} catch (e) {
+		console.error('Error parsing events:', e);
+		return '';
+	}
+
+	// Ensure we have an array of events
+	const eventsArray = Array.isArray(events) ? events : [events];
+
+	return eventsArray.length > 0 ? (
 		<>
 			<table className="eventsContainer">
 				<thead className="eventsTableHeader">
@@ -115,16 +139,34 @@ const EventsAnswer = ({ answer }) => {
 						))}
 					</tr>
 				</thead>
-				{JSON?.parse(answer)?.map((event, index) => (
-					<tbody key={index} className="eventCard">
-						<tr>
-							<td className="eventName">{event?.name}</td>
-							<td className="eventDate">{event?.date}</td>
-							<td className="eventLocation">{event?.location}</td>
-							<td className="eventGuests">{event?.noOfGuests}</td>
-						</tr>
-					</tbody>
-				))}
+				<tbody>
+					{eventsArray.map((event, index) => {
+						// Handle both string and object event formats
+						const eventName =
+							typeof event === 'string'
+								? event
+								: event?.name || event?.eventName || '';
+						const eventDate =
+							typeof event === 'string' ? '' : event?.date || event?.eventDate || '';
+						const eventLocation =
+							typeof event === 'string'
+								? ''
+								: event?.location || event?.eventLocation || '';
+						const eventGuests =
+							typeof event === 'string'
+								? ''
+								: event?.noOfGuests || event?.guests || '';
+
+						return (
+							<tr key={index} className="eventCard">
+								<td className="eventName">{eventName}</td>
+								<td className="eventDate">{eventDate}</td>
+								<td className="eventLocation">{eventLocation}</td>
+								<td className="eventGuests">{eventGuests}</td>
+							</tr>
+						);
+					})}
+				</tbody>
 			</table>
 			<div className="divider"></div>
 		</>
@@ -140,7 +182,11 @@ const RatingAnswer = ({ answer }) => {
 	return (
 		<>
 			<Flex gap="middle" vertical>
-				<Rate className="rating-from-form-response" disabled defaultValue={answer} />
+				<Rate
+					className="rating-from-form-response"
+					disabled
+					defaultValue={parseInt(answer)}
+				/>
 			</Flex>
 			<div className="divider"></div>
 		</>
@@ -194,14 +240,32 @@ const LinkAnswer = ({ answer }) => {
 };
 
 const FileUploadAnswer = ({ answer }) => {
-	const files = answer;
+	// Ensure answer is an array and parse if it's a string
+	let files;
+	try {
+		if (typeof answer === 'string') {
+			files = JSON.parse(answer);
+		} else {
+			files = Array.isArray(answer) ? answer : [answer].filter(Boolean);
+		}
+	} catch (e) {
+		console.error('Error parsing files:', e);
+		files = [];
+	}
+
 	return (
 		<>
 			{files?.length > 0 && (
 				<div className="fileUploadContainer">
-					{files?.map((file) => {
-						const { name, previewUrl, lastModified, type } = file;
-						const fileExtension = name?.split('.').pop()?.toLowerCase();
+					{files?.map((file, index) => {
+						// Handle both string and object file formats
+						const fileName =
+							typeof file === 'string' ? file : file?.name || file?.fileName || '';
+						const fileUrl =
+							typeof file === 'string'
+								? file
+								: file?.url || file?.previewUrl || file?.fileUrl || '';
+						const fileExtension = fileName?.split('.').pop()?.toLowerCase();
 						const isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(
 							fileExtension,
 						);
@@ -211,11 +275,11 @@ const FileUploadAnswer = ({ answer }) => {
 						const isPresentation = ['ppt', 'pptx'].includes(fileExtension);
 
 						return (
-							<div key={lastModified} className="fileItem">
+							<div key={index} className="fileItem">
 								{isImage ? (
 									<div className="imagePreview">
-										<img src={previewUrl} alt={name} />
-										<span className="fileName">{name}</span>
+										<img src={fileUrl} alt={fileName} />
+										<span className="fileName">{fileName}</span>
 									</div>
 								) : (
 									<div className="filePreview">
@@ -230,12 +294,12 @@ const FileUploadAnswer = ({ answer }) => {
 												!isPresentation && <FileOutlined />}
 										</div>
 										<a
-											href={previewUrl}
+											href={fileUrl}
 											target="_blank"
 											rel="noopener noreferrer"
 											className="fileName"
 										>
-											{name}
+											{fileName}
 										</a>
 									</div>
 								)}
@@ -249,7 +313,91 @@ const FileUploadAnswer = ({ answer }) => {
 	);
 };
 
-const FormDescription = ({ response, onClose }) => {
+const SignatureAnswer = ({ answer }) => {
+	if (!answer) {
+		return '';
+	}
+	return (
+		<>
+			<p className="answer">
+				<span className="selectedOption">
+					{JSON.parse(answer || '[]')[0] || 'No answer'}
+				</span>
+			</p>
+		</>
+	);
+};
+
+const FormDescriptionSkeleton = () => {
+	return (
+		<div className="formDescription">
+			<div className="descriptionContent">
+				<div className="descriptionSection">
+					<h3 className="sectionTitle">
+						<Skeleton width={150} height={24} />
+					</h3>
+					{[1, 2, 3, 4].map((index) => (
+						<div key={index} className="infoRow">
+							<span className="infoLabel">
+								<Skeleton width={100} height={20} />
+							</span>
+							<span className="infoValue">
+								<Skeleton width={200} height={20} />
+							</span>
+						</div>
+					))}
+				</div>
+				<div className="descriptionSection">
+					<h3 className="sectionTitle">
+						<Skeleton width={150} height={24} />
+					</h3>
+					<div className="formResponsesParentContainer">
+						{[1, 2, 3].map((index) => (
+							<div key={index} className="formResponseContainer">
+								<div className="questionContainer">
+									<Skeleton width={24} height={24} circle />
+									<p className="question">
+										<Skeleton width={200} height={20} />
+									</p>
+								</div>
+								<div className="answer">
+									<Skeleton width="100%" height={40} />
+								</div>
+							</div>
+						))}
+					</div>
+				</div>
+			</div>
+		</div>
+	);
+};
+
+const FormDescription = ({ response, onClose, formId, activeTab, loading }) => {
+	if (loading) return <FormDescriptionSkeleton />;
+
+	if (activeTab === 'analytics') {
+		return (
+			// <div className="formDescription">
+			// 	<FormAnalytics formId={formId} />
+			// </div>
+			<div className="formDescription">
+				<div className="emptyState">
+					<p>Form Analytics Updating Soon</p>
+				</div>
+			</div>
+		);
+	}
+
+	if (!response || !response.response || response.response.length === 0) {
+		return (
+			<div className="formDescription">
+				<div className="emptyState">
+					<p>No form responses available</p>
+				</div>
+			</div>
+		);
+	}
+
 	const getName = (response) => {
 		if (!response?.response) return 'No Name';
 		const nameField = response.response.find((item) =>
@@ -280,6 +428,8 @@ const FormDescription = ({ response, onClose }) => {
 	const getBasicInfo = (response) => {
 		if (!response?.response) return [];
 		const basicInfoFields = [
+			'first name',
+			'last name',
 			'name',
 			'email',
 			'phone',
@@ -305,7 +455,14 @@ const FormDescription = ({ response, onClose }) => {
 
 	const formatLabel = (question) => {
 		const lowerQuestion = question.toLowerCase();
-		if (lowerQuestion.includes('name')) return 'Name';
+		if (lowerQuestion.includes('first name')) return 'First Name';
+		if (lowerQuestion.includes('last name')) return 'Last Name';
+		if (
+			lowerQuestion.includes('name') &&
+			!lowerQuestion.includes('first') &&
+			!lowerQuestion.includes('last')
+		)
+			return 'Name';
 		if (lowerQuestion.includes('email')) return 'Email';
 		if (
 			lowerQuestion.includes('phone') ||
@@ -323,19 +480,46 @@ const FormDescription = ({ response, onClose }) => {
 	};
 
 	const formAnswer = (type, answer) => {
+		if (!answer && answer !== 0) {
+			return (
+				<>
+					<p className="answer">No answer provided</p>
+					<div className="divider"></div>
+				</>
+			);
+		}
+
+		// Handle object inputs by converting them to strings if needed
+		let processedAnswer = answer;
+		if (typeof answer === 'object') {
+			if (type === 'events') {
+				// For events, we want to keep the object structure
+				processedAnswer = answer;
+			} else {
+				// For other types, convert to string
+				processedAnswer = JSON.stringify(answer);
+			}
+		}
+
 		const answerComponentMapper = {
-			dropdown: <DropdownAnswer answer={answer} />,
-			events: <EventsAnswer answer={answer} />,
-			rating: <RatingAnswer answer={answer} />,
-			time: <TimeAnswer answer={answer} />,
-			singleChoice: <SingleChoiceAnswer answer={answer} />,
-			link: <LinkAnswer answer={answer} />,
-			fileupload: <FileUploadAnswer answer={answer} />,
+			dropdown: <DropdownAnswer answer={processedAnswer} />,
+			events: <EventsAnswer answer={processedAnswer} />,
+			rating: <RatingAnswer answer={processedAnswer} />,
+			time: <TimeAnswer answer={processedAnswer} />,
+			singleChoice: <SingleChoiceAnswer answer={processedAnswer} />,
+			link: <LinkAnswer answer={processedAnswer} />,
+			fileupload: <FileUploadAnswer answer={processedAnswer} />,
+			signature: <SignatureAnswer answer={processedAnswer} />,
 		};
+
 		return (
 			answerComponentMapper[type] ?? (
 				<>
-					<p className="answer">{removeQuotes(answer) ?? 'No answer'}</p>
+					<p className="answer">
+						{typeof processedAnswer === 'string'
+							? removeQuotes(processedAnswer)
+							: 'No answer provided'}
+					</p>
 					<div className="divider"></div>
 				</>
 			)

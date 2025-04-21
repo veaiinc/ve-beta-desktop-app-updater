@@ -13,6 +13,7 @@ import useAccessControls from '../hooks/useAcessControls';
 import RenewBanner from '../components/globalComponents/RenewBanner';
 import Context from '../../context/context';
 import DynamicWidget from '../features/DynamicWidget/dynamicWidget';
+import { useLocation } from 'react-router-dom';
 const AuthWrapper = ({
 	title,
 	children,
@@ -20,12 +21,13 @@ const AuthWrapper = ({
 	showBottomToolbar = true,
 	outerContainerStyle = {},
 	authParentContainerStyle = {},
+	showDynamicWidget = true,
 }) => {
 	const {
 		subscriptionInfo: { renewBanner },
 	} = useContext(Context);
 	const [workspaceId, setActiveWorkspaceId] = useActiveWorkspace();
-
+	const location = useLocation();
 	const checkAuth = useAuth();
 	const data = useSubscription();
 	const tokenData = useTokenExpiry();
@@ -38,15 +40,17 @@ const AuthWrapper = ({
 		<div className="authParentContainer" style={{ ...(authParentContainerStyle || {}) }}>
 			<Helmet>
 				<meta charSet="utf-8" />
-				<title>{title} | VE</title>
+				<title>{title}</title>
 			</Helmet>
 			{renewBanner && <RenewBanner />}
-			{worspaceId.includes(workspaceId) && <DynamicWidget />}
+			{worspaceId.includes(workspaceId) && !location.pathname.includes('/chat') && (
+				<DynamicWidget />
+			)}
 			<div
 				style={{
 					display: 'flex',
 					height: renewBanner ? 'calc(100dvh - 41px)' : '100dvh',
-					padding: '32px 32px 0 32px',
+					padding: '32px 32px 0',
 					...outerContainerStyle,
 				}}
 			>

@@ -1,5 +1,5 @@
 import { memo, useMemo } from 'react';
-import '../../../../assets/scss/chat/chatComponents/chainOfThought.scss';
+import '../../../../assets/scss/chat/chatComponents/deepSearchChainOfThought.scss';
 
 const ChainOfThought = ({ cot, stream_end = false }) => {
 	const animationIndex = useMemo(() => {
@@ -18,7 +18,9 @@ const ChainOfThought = ({ cot, stream_end = false }) => {
 			<div className="cot-container">
 				{cot?.map((item, index) => (
 					<div className="cot" key={index}>
-						<div className="logo-container"></div>
+						<div className="logo-container">
+							<div className="indicator" />
+						</div>
 						<div className="content">
 							<div className="sub-query">{item?.sub_query}</div>
 							{item?.searching?.length > 0 && (
@@ -28,7 +30,7 @@ const ChainOfThought = ({ cot, stream_end = false }) => {
 											!stream_end && index === animationIndex ? 'animate' : ''
 										}`}
 									>
-										Searching Source :
+										Searching :
 									</div>
 
 									{item?.searching?.map((search, idx) => (

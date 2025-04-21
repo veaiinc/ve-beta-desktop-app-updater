@@ -285,8 +285,8 @@ const Files = () => {
 		}
 	};
 
-	const handleNavigateForm = (formId) => {
-		navigate(`/form/${formId}`);
+	const handleNavigateForm = (form) => {
+		navigate(`/form/${form?._id}`, { state: { formData: form } });
 	};
 
 	const handleTotalChange = (data) => {

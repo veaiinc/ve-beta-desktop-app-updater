@@ -919,10 +919,11 @@
 	display: flex;
 	flex-direction: column;
 	animation: slideIn 0.3s ease-out;
-	overflow: hidden;
+	overflow: auto;
 	scrollbar-width: none; // For Firefox
 	-ms-overflow-style: none; // For Internet Explorer and Edge
 	user-select: none;
+	border-right: 1px solid var(--stroke);
 	&::-webkit-scrollbar {
 		display: none; // For Chrome, Safari, and newer versions of Edge
 	}
@@ -936,7 +937,7 @@
 		background: var(--navbar);
 		position: sticky;
 		top: 0;
-		z-index: 2;
+		z-index: 20;
 
 		.settings-header-left {
 			display: flex;
@@ -1013,6 +1014,7 @@
 		align-items: flex-start;
 		padding: 0px 20px;
 		gap: 10px;
+		margin-bottom: 5rem;
 		.settings-options-title {
 			color: var(--primary-font, #f2f2f3);
 			font-family: Inter;
@@ -1153,9 +1155,9 @@
 	align-self: stretch;
 	border-top: 1px solid var(--stroke, #333334);
 	background: var(--navbar, #202123);
-	position: absolute;
+	position: fixed;
 	bottom: 0;
-	left: 3%;
+	// left: 3%;
 	z-index: 2;
 	width: 226px;
 	cursor: pointer;

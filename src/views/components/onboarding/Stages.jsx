@@ -250,7 +250,12 @@ const Stages = () => {
 	const handleSetWorkspaceType = useCallback(
 		(e, workspaceTypeOption) => {
 			const workspaceType = e?.target?.value ?? workspaceTypeOption?.label ?? '';
-			setInfo((prev) => ({ ...prev, workspaceType }));
+			const formattedWorkspaceType = workspaceType
+				.replace(/[^a-zA-Z0-9 ]/g, '')
+				.split(' ')
+				.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+				.join(' ');
+			setInfo((prev) => ({ ...prev, workspaceType: formattedWorkspaceType }));
 		},
 		[info?.workspaceType],
 	);

@@ -128,11 +128,14 @@
 
 		.citation-item {
 			padding: 12px;
-			background: var(--card);
-			border-radius: 8px;
+			// background: var(--card);
+			// border-radius: 8px;
 			margin-bottom: 8px;
+			border-bottom: 1px solid var(--stroke);
 			transition: all 0.2s ease;
 			cursor: pointer;
+			display: flex;
+			justify-content: space-between;
 
 			&:hover {
 				background: var(--card-hover, #2a2b2d);
@@ -161,11 +164,9 @@
 					}
 
 					.favicon-image {
-						width: 32px;
-						height: 32px;
-						border-radius: 6px;
-						object-fit: cover;
-						background: var(--card-over-card, #202123);
+						width: 36px;
+						height: 36px;
+						border-radius: 8px;
 					}
 				}
 
@@ -174,24 +175,23 @@
 					min-width: 0;
 
 					.website-name {
-						color: var(--primary-font);
-						font-size: 14px;
+						color: #F2F2F3;
+						font-family: "Helvetica Neue";
+						font-size: 15px;
+						font-style: normal;
 						font-weight: 500;
-						line-height: 20px;
-						margin-bottom: 4px;
+						line-height: 24px; /* 160% */
+						letter-spacing: 0.2px;
 					}
 
 					.citation-url {
-						display: flex;
-						align-items: center;
-						gap: 6px;
-						color: var(--secondary-font, #787e87);
-						font-size: 13px;
-						line-height: 18px;
-						margin-bottom: 6px;
-						white-space: nowrap;
-						overflow: hidden;
-						text-overflow: ellipsis;
+						color: var(--secondary-font, #95989D);
+						font-family: "Helvetica Neue";
+						font-size: 12px;
+						font-style: normal;
+						font-weight: 400;
+						line-height: 16px; /* 133.333% */
+						letter-spacing: 0.2px;
 
 						.link-icon {
 							width: 12px;

@@ -5,7 +5,7 @@ import Context from '../../../context/context';
 import { UserMessageRenderer } from '../../../helpers/markdownHelper';
 import CitationsModal from '../../components/modalsV2/chat/CitationsModal';
 import NoteComponentModal from '../../components/notes/NoteComponentModal';
-import ChatBox from '../../components/homePage/ChatBox';
+import ChatBox from '../../components/chat/ChatBox';
 import { useParams, useSearchParams } from 'react-router-dom';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { FetchMoreLoaderComp } from '../../../helpers';
@@ -73,7 +73,6 @@ const RecentChat = ({
 		showScrollButton: false,
 		showViewDocument: false,
 	});
-	console.log(globalChatMessages, 'globalChatMessages');
 
 	const { createWebSocketConnection, sendMessage } = useChatStream();
 	const chatContentRef = useRef(null);
@@ -124,7 +123,7 @@ const RecentChat = ({
 	}, []);
 
 	useEffect(() => {
-		if (sessionId && !isPublicChat) {
+		if (sessionId) {
 			if (info?.renderingTwice) {
 				//clearing context state when rendering different session
 				updateStateValues({
@@ -146,7 +145,7 @@ const RecentChat = ({
 				// aiMessagesRef.current = [];
 			}
 
-			getRecentChatMessages(sessionId);
+			getRecentChatMessages(sessionId, 1, false, 1000, isPublicChat);
 			setInfo((prev) => ({
 				...prev,
 				chatLoading: true,
@@ -420,6 +419,7 @@ const RecentChat = ({
 					workflowTemplateId,
 					moduleTemplateId,
 					followUpQuery,
+					chainOfThought,
 				} = data?.[i] || {};
 
 				if (firstTimeApiCall) {
@@ -427,6 +427,14 @@ const RecentChat = ({
 						workflowTemplateId: workflowTemplateId || null,
 						moduleTemplateId: moduleTemplateId || null,
 					};
+				}
+
+				const index = chainOfThought?.findIndex(
+					(item) => item?.need_refinement === true || item?.need_refinement === false,
+				);
+				let cot = [];
+				if (index !== -1) {
+					cot = chainOfThought?.slice(0, index - 1);
 				}
 
 				messages = [
@@ -445,6 +453,11 @@ const RecentChat = ({
 						module_template_id: moduleTemplateId || null,
 						isOldMessage: true,
 						stream_end: true,
+						...(cot?.length > 0 && {
+							deepSearch: {
+								cot,
+							},
+						}),
 					},
 				]?.concat(messages);
 			}
@@ -484,7 +497,7 @@ const RecentChat = ({
 					(chat) => chat?.messageId === messageId,
 				);
 				if (message?.rating === null || message?.rating !== type) {
-					await updateAiChatMessageRating({ rating: type }, messageId);
+					await updateAiChatMessageRating({ rating: type }, messageId, isPublicChat);
 					let messages = [...(chatMessagesRef.current || [])];
 					messages = messages?.map((chat) => {
 						if (chat?.messageId === messageId) {
@@ -548,14 +561,13 @@ const RecentChat = ({
 			if (!info?.hasNextPage || info.chatLoading) {
 				return;
 			}
-			getRecentChatMessages(sessionId, info?.currentPage + 1, true);
+			getRecentChatMessages(sessionId, info?.currentPage + 1, true, isPublicChat);
 			setInfo((prev) => ({ ...prev, chatLoading: true }));
 		}, 1000),
-		[info, sessionId],
+		[info, sessionId, isPublicChat],
 	);
 
 	// stream chat
-
 	const onMessageFunc = useCallback(
 		(event) => {
 			let { data = '' } = event || {};
@@ -574,6 +586,9 @@ const RecentChat = ({
 			}
 			if (data?.type === 'variableRequirement') {
 				loadingMessageRef.current = null;
+			}
+			if (data?.user_id) {
+				localStorage?.setItem('user_id', data?.user_id);
 			}
 			let chatPayload = null;
 			if (data?.stream_end) {
@@ -726,6 +741,7 @@ const RecentChat = ({
 																handleViewDocument={
 																	handleViewDocument
 																}
+																isPublicChat={isPublicChat}
 															/>
 														</div>
 													) : (
