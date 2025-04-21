@@ -7,10 +7,11 @@ import { message } from '../globalComponents/CustomToast';
 import Spinner from '../loaders/Spinner';
 import ElasticSearchResults from './ElasticSearchResults';
 // import CustomDropdown from './CustomDropdownForCommandK';
-import { createPortal } from 'react-dom';
 
 const CommandKSearch = () => {
 	const [isOpen, setIsOpen] = useState(false);
+	const [isLoading, setIsLoading] = useState(false);
+
 	const elasticSearchTimeoutRef = useRef(null);
 	const modalRef = useRef(null);
 	const inputRef = useRef(null);
@@ -23,8 +24,6 @@ const CommandKSearch = () => {
 		elasticSearchLoading: false,
 		showElasticSearchResults: false,
 	});
-
-	const [isLoading, setIsLoading] = useState(false);
 
 	// const [selectedFilters, setSelectedFilters] = useState({
 	// 	source: null,
@@ -159,7 +158,7 @@ const CommandKSearch = () => {
 	};
 
 	// Render the modal using createPortal
-	return createPortal(
+	return (
 		<div className={`command-k-search-container ${isOpen ? 'open' : ''}`}>
 			<div className="command-k-search" ref={modalRef}>
 				<div className="search-header">
@@ -198,8 +197,7 @@ const CommandKSearch = () => {
 					)}
 				</div>
 			</div>
-		</div>,
-		document.body,
+		</div>
 	);
 };
 
