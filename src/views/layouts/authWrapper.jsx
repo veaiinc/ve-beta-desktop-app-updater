@@ -1,4 +1,4 @@
-import React, { useEffect, memo, useContext } from 'react';
+import React, { useEffect, memo, useContext, useRef, useState } from 'react';
 import '../../assets/scss/authWrapper.scss';
 import { Helmet } from 'react-helmet';
 import useActiveWorkspace from '../hooks/useActiveWorkspace';
@@ -14,6 +14,8 @@ import RenewBanner from '../components/globalComponents/RenewBanner';
 import Context from '../../context/context';
 import DynamicWidget from '../features/DynamicWidget/dynamicWidget';
 import { useLocation } from 'react-router-dom';
+import CommandKSearch from '../components/commandKSearch/CommandKSearch';
+
 const AuthWrapper = ({
 	title,
 	children,
@@ -37,6 +39,7 @@ const AuthWrapper = ({
 		checkAuth();
 	}, []);
 	const worspaceId = ['swaroop', 'veai', 'bhee'];
+
 	return (
 		<div className="authParentContainer" style={{ ...(authParentContainerStyle || {}) }}>
 			<Helmet>
@@ -74,6 +77,7 @@ const AuthWrapper = ({
 				</SkeletonTheme>
 			</div>
 			{/* {showBottomToolbar ? <BottomToolbar outerContainerStyle={{ bottom: '10px' }} /> : ''} */}
+			<CommandKSearch />
 		</div>
 	);
 };
