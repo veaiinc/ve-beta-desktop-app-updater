@@ -9,8 +9,20 @@ import ElasticSearchResults from './ElasticSearchResults';
 // import CustomDropdown from './CustomDropdownForCommandK';
 
 const CommandKSearch = () => {
-	const [isOpen, setIsOpen] = useState(false);
-	const [isLoading, setIsLoading] = useState(false);
+	const [info, setInfo] = useState({
+		isOpen: false,
+		isLoading: false,
+		elasticSearchLoading: false,
+		showElasticSearchResults: false,
+	});
+
+	// Optional filter states if needed
+	// selectedFilters: {
+	// 	source: null,
+	// 	collection: null,
+	// 	assistance: null,
+	// 	date: null,
+	// },
 
 	const elasticSearchTimeoutRef = useRef(null);
 	const modalRef = useRef(null);
@@ -20,61 +32,28 @@ const CommandKSearch = () => {
 		elasticSearch: { elasticSearchResults, performElasticSearch },
 	} = useContext(Context);
 
-	const [info, setInfo] = useState({
-		elasticSearchLoading: false,
-		showElasticSearchResults: false,
-	});
-
-	// const [selectedFilters, setSelectedFilters] = useState({
-	// 	source: null,
-	// 	collection: null,
-	// 	assistance: null,
-	// 	date: null,
-	// });
-
-	// const filterOptions = {
-	// 	source: [
-	// 		{ label: 'All Sources', value: 'all' },
-	// 		{ label: 'PDFs', value: 'pdf' },
-	// 		{ label: 'Images', value: 'image' },
-	// 	],
-	// 	collection: [
-	// 		{ label: 'All Collections', value: 'all' },
-	// 		{ label: 'Work', value: 'work' },
-	// 		{ label: 'Personal', value: 'personal' },
-	// 	],
-	// 	assistance: [
-	// 		{ label: 'All Assistance', value: 'all' },
-	// 		{ label: 'Templates', value: 'templates' },
-	// 	],
-	// 	date: [
-	// 		{ label: 'All Time', value: 'all' },
-	// 		{ label: 'This Week', value: 'week' },
-	// 		{ label: 'This Month', value: 'month' },
-	// 	],
-	// };
-
-	const noResults = elasticSearchResults?.length === 0 && info?.showElasticSearchResults;
+	const noResults = elasticSearchResults?.length === 0 && info.showElasticSearchResults;
 
 	useEffect(() => {
 		const handleKeyDown = (e) => {
 			if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
 				e.preventDefault();
-				setIsOpen((prev) => !prev);
+				setInfo((prev) => ({ ...prev, isOpen: !prev.isOpen }));
 			}
 			if (e.key === 'Escape') {
-				setIsOpen(false);
+				setInfo((prev) => ({ ...prev, isOpen: false }));
 			}
 		};
 
 		document.addEventListener('keydown', handleKeyDown);
 
-		if (isOpen) {
+		if (info.isOpen) {
 			// ✅ Clear local search info
-			setInfo({
+			setInfo((prev) => ({
+				...prev,
 				elasticSearchLoading: false,
 				showElasticSearchResults: false,
-			});
+			}));
 
 			// ✅ Clear input and focus after modal mounts
 			const timer = setTimeout(() => {
@@ -96,70 +75,85 @@ const CommandKSearch = () => {
 		return () => {
 			document.removeEventListener('keydown', handleKeyDown);
 		};
-	}, [isOpen]);
+	}, [info.isOpen]);
 
 	const handleCloseModal = () => {
-		setIsOpen(false);
+		setInfo((prev) => ({ ...prev, isOpen: false }));
 	};
 
 	const handleSearch = async (e) => {
 		clearTimeout(elasticSearchTimeoutRef.current);
 		const searchInput = e.target.value;
 		const emptySearchInput = searchInput === '';
+
 		if (emptySearchInput) {
-			setInfo({
+			setInfo((prev) => ({
+				...prev,
 				elasticSearchLoading: false,
 				showElasticSearchResults: false,
-			});
+			}));
 			return;
 		}
-		setIsLoading(true);
+
+		setInfo((prev) => ({ ...prev, isLoading: true }));
+
 		elasticSearchTimeoutRef.current = setTimeout(async () => {
-			setInfo({
+			setInfo((prev) => ({
+				...prev,
 				elasticSearchLoading: true,
 				showElasticSearchResults: false,
-			});
+			}));
+
 			const response = await performElasticSearch(searchInput);
 			const apiSuccess = response[0];
+
 			if (!apiSuccess) {
 				const errMsg = response[1];
 				message.error(errMsg);
 			}
-			setInfo({
+
+			setInfo((prev) => ({
+				...prev,
 				elasticSearchLoading: false,
 				showElasticSearchResults: true,
-			});
-			setIsLoading(false);
+				isLoading: false,
+			}));
 		}, 500);
 	};
 
+	// If filter functionality is needed
 	// const handleFilterChange = (filterType, selectedOption) => {
-	// 	setSelectedFilters((prev) => ({
+	// 	setInfo(prev => ({
 	// 		...prev,
-	// 		[filterType]: selectedOption,
+	// 		selectedFilters: {
+	// 			...prev.selectedFilters,
+	// 			[filterType]: selectedOption,
+	// 		}
 	// 	}));
 	// };
 
 	// const resetFilters = () => {
-	// 	setSelectedFilters({
-	// 		source: null,
-	// 		collection: null,
-	// 		assistance: null,
-	// 		date: null,
-	// 	});
+	// 	setInfo(prev => ({
+	// 		...prev,
+	// 		selectedFilters: {
+	// 			source: null,
+	// 			collection: null,
+	// 			assistance: null,
+	// 			date: null,
+	// 		}
+	// 	}));
 	// };
 
 	// Handle clicks outside the modal to close it
-
 	const handleOutsideClick = (e) => {
 		if (modalRef.current && !modalRef.current.contains(e.target)) {
-			setIsOpen(false);
+			setInfo((prev) => ({ ...prev, isOpen: false }));
 		}
 	};
 
-	// Render the modal using createPortal
+	// Render the modal
 	return (
-		<div className={`command-k-search-container ${isOpen ? 'open' : ''}`}>
+		<div className={`command-k-search-container ${info.isOpen ? 'open' : ''}`}>
 			<div className="command-k-search" ref={modalRef}>
 				<div className="search-header">
 					<h2>Search</h2>
@@ -176,7 +170,7 @@ const CommandKSearch = () => {
 							onChange={handleSearch}
 							ref={inputRef}
 						/>
-						{isLoading && (
+						{info.isLoading && (
 							<div className="spinner-wrapper">
 								<Spinner
 									width={'16px'}
@@ -191,7 +185,7 @@ const CommandKSearch = () => {
 					{noResults ? (
 						<p className="noResults">No results found</p>
 					) : (
-						info?.showElasticSearchResults && (
+						info.showElasticSearchResults && (
 							<ElasticSearchResults handleCloseSearchModal={handleCloseModal} />
 						)
 					)}
