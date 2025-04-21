@@ -1,10 +1,14 @@
-.ElasticSearchContainer {
-	width: 100%;
-	height: 100%;
-	padding: 0 32px;
+.elasticSearchContainer {
+	width: 50vw;
+	height: 500px;
 	display: flex;
 	flex-direction: column;
 	gap: 20px;
+	background-color: var(--background-color);
+	border: 1px solid var(--stroke);
+	border-radius: 24px;
+	padding: 32px;
+	overflow-y: hidden;
 
 	.title {
 		color: var(--primary-font);
@@ -96,6 +100,8 @@
 	.elasticSearchResultsContainer {
 		width: 100%;
 		height: calc(100vh - 222px);
+		overflow-y: auto;
+		overflow-x: hidden;
 
 		.search-results-list {
 			display: flex;
@@ -233,7 +239,7 @@
 					background: var(--background-color);
 					border: 1px solid rgba(255, 255, 255, 0.1);
 					border-radius: 8px;
-					box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+					// box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 					overflow: auto;
 
 					.hover-card-header {
