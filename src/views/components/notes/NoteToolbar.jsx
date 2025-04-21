@@ -13,6 +13,7 @@ import {
 	TextAlignButton,
 	UnnestBlockButton,
 } from '@blocknote/react';
+import { AskAiButton } from './AskAiButton';
 // import { TextColorPicker } from './TextColorPicker';
 
 export default function NoteToolbar() {
@@ -20,6 +21,7 @@ export default function NoteToolbar() {
 		<FormattingToolbarController
 			formattingToolbar={() => (
 				<FormattingToolbar>
+					<AskAiButton key={'askAiButton'} />
 					<BlockTypeSelect key={'blockTypeSelect'} />
 
 					<FileCaptionButton key={'fileCaptionButton'} />
