@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import '../../../assets/scss/chat/chatLoader.scss';
-import { ReactComponent as Logo } from '../../../assets/svg/loader/loaderLogo.svg';
+import { ReactComponent as Logo } from '../../../assets/svg/windmill2.svg';
 import { ReactComponent as Stick } from '../../../assets/svg/loader/stick.svg';
 const ChatLoader = () => {
 	return (

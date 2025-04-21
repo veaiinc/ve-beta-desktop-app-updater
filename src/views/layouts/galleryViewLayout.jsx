@@ -25,7 +25,7 @@ const GalleryViewLayout = ({ title, children }) => {
 		<div className="galleryViewLayoutParentContainer">
 			<Helmet>
 				<meta charSet="utf-8" />
-				<title>{title} | VE</title>
+				<title>{title}</title>
 			</Helmet>
 			<div className="galleryViewHeader">
 				<VE />

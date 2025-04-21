@@ -10,6 +10,7 @@ import FilterDropdown from '../dropDown/file/FilterDropdown';
 import { fetchOriginSelection } from '../../../helpers';
 import { message } from '../globalComponents/CustomToast';
 import moment from 'moment';
+import EmptyState from './EmptyState';
 
 const filterOptions = [
 	{ label: 'All', value: '' },
@@ -263,7 +264,7 @@ const TemplatesGrid = ({ handleTotalChange }) => {
 					<div className="spinner-container">
 						<Spinner />
 					</div>
-				) : (
+				) : info?.workflowTemplates?.length > 0 ? (
 					<InfiniteScroll
 						dataLength={info?.workflowTemplates?.length}
 						next={fetchMore}
@@ -302,6 +303,15 @@ const TemplatesGrid = ({ handleTotalChange }) => {
 							))}
 						</div>
 					</InfiniteScroll>
+				) : (
+					<div className="spinner-container">
+						<EmptyState
+							title={'No templates here'}
+							subtitle={'Try creating some templates'}
+							buttonOnClick={handleCreateBlankTemplate}
+							buttonText={'Create template'}
+						/>
+					</div>
 				)}
 			</div>
 		</div>

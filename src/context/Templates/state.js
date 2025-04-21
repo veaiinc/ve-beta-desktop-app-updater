@@ -40,6 +40,9 @@ import {
 	createBlankWorkflowQuery,
 	createBlankTemplateQuery,
 	getFormResponseQuery,
+	getFormResponseSummaryQuery,
+	getFormResponseAnalyticsQuery,
+	updateWorkflowTemplateQuery,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -687,7 +690,7 @@ export const TemplatesState = (props) => {
 				limit,
 				page,
 				type: 'workspace',
-				status: 'published',
+				// status: 'published',
 				sortBy,
 				sortType,
 				action: 'form-submission',
@@ -925,7 +928,48 @@ export const TemplatesState = (props) => {
 			console.log(error);
 		}
 	};
+	// const getFormResponseSummary = async (formId) => {
+	// 	try {
+	// 		let workspaceId = localStorage.getItem('workspaceId');
+	// 		let usertoken = localStorage.getItem('usertoken');
+	// 		const response = await service.query(
+	// 			getFormResponseSummaryQuery,
+	// 			{ workflowTemplateId: formId },
+	// 			workspaceId,
+	// 			usertoken,
+	// 			'workflows_Api',
+	// 		);
+	// 	} catch (error) {
+	// 		console.log('api failed ==>getFormResponseSummary', error);
+	// 	}
+	// };
+	const getFormResponseAnalytics = async (formId) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				getFormResponseAnalyticsQuery,
+				{ filter: { workflowTemplateId: formId } },
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
 
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.GET_FORM_RESPONSE_ANALYTICS_SUCCESS,
+					payload: response?.[1]?.data?.formResponseAnalytics,
+				});
+				return [true, response?.[1]?.data?.formResponseAnalytics];
+			} else {
+				console.log('api failed ==>getFormResponseAnalytics', response);
+				return [false];
+			}
+		} catch (error) {
+			console.log('api failed ==>getFormResponseAnalytics', error);
+			return [false];
+		}
+	};
 	const createLeadfromTemplates = async (payload) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
@@ -1957,12 +2001,22 @@ export const TemplatesState = (props) => {
 		}
 	};
 
-	const updateAiChatMessageRating = async (payload, messageId) => {
+	const updateAiChatMessageRating = async (payload, messageId, isPublicChat = false) => {
 		let workspaceId = localStorage.getItem('workspaceId');
 		let usertoken = localStorage.getItem('usertoken');
-		const url = '/' + workspaceId + '/ai-chat/' + messageId + '/ai-chat-message-feedback';
+
+		let url = '/' + workspaceId + '/ai-chat/' + messageId + '/ai-chat-message-feedback';
+		if (isPublicChat) {
+			url = '/ai-chat/' + messageId + '/rate-ai-chat-guestchat';
+		}
 		try {
-			const response = await Service?.fetchPut(url, payload, usertoken, 'ai_assistant_api');
+			const response = await Service?.fetchPut(
+				url,
+				payload,
+				usertoken,
+				'ai_assistant_api',
+				isPublicChat,
+			);
 			if (response?.[0]) {
 				return [true];
 			}
@@ -2175,18 +2229,35 @@ export const TemplatesState = (props) => {
 		}
 	};
 
-	const getRecentChatMessages = async (sessionId, page = 1, fetchMore = false, limit = 1000) => {
+	const getRecentChatMessages = async (
+		sessionId,
+		page = 1,
+		fetchMore = false,
+		limit = 1000,
+		isPublicChat = false,
+	) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const selectedvariable = fetchMore ? 'moreRecentChatStorage' : 'recentChatStorage';
-			const response = await Service.fetchGet(
-				`/${workspaceId}/list-multiagent-conversations/${encodeURIComponent(
-					sessionId,
-				)}?page=${page}&limit=${limit}&sortBy=createdAt&sortType=-1`,
-				usertoken,
-				'tenant',
-			);
+			let response;
+			if (isPublicChat) {
+				response = await Service.fetchGet(
+					`/ai-chat/${encodeURIComponent(
+						sessionId,
+					)}/list-ai-chat-guestchat?page=${page}&limit=${limit}&sortBy=createdAt&sortOrder=-1`,
+					null,
+					'ai_assistant_api',
+				);
+			} else {
+				response = await Service.fetchGet(
+					`/${workspaceId}/list-multiagent-conversations/${encodeURIComponent(
+						sessionId,
+					)}?page=${page}&limit=${limit}&sortBy=createdAt&sortType=-1`,
+					usertoken,
+					'tenant',
+				);
+			}
 
 			if (response?.[0]) {
 				dispatch({
@@ -2310,6 +2381,26 @@ export const TemplatesState = (props) => {
 		}
 	};
 
+	const updateWorkflowTemplate = async (payload) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				updateWorkflowTemplateQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+			if (response?.[0]) {
+				return response;
+			} else {
+				return response;
+			}
+		} catch (error) {
+			console.log('error==>updateWorkflowTemplate', error);
+		}
+	};
 	return {
 		...state,
 		getMyWorkflows,
@@ -2391,5 +2482,6 @@ export const TemplatesState = (props) => {
 		getFormResponse,
 		getAISuggestedPendingActions,
 		sendContactFormData,
+		updateWorkflowTemplate,
 	};
 };
