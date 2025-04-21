@@ -4,6 +4,7 @@
 	/* font families */
 	--primary-font-family: 'Inter';
 	--secondary-font-family: 'Manrope';
+	--chat-primary-font-family: 'HelveticaNeue';
 
 	/* common colors */
 	--accent-color: rgb(179, 157, 250); /* #b39dfa */
@@ -38,9 +39,9 @@
 	/* ai color code (gradient: colors inside are rgb with hex comments) */
 	--ai-color-code: linear-gradient(
 		94deg,
-		rgba(195, 157, 248, 0) -2.07%, /* #c39df8 */
-		rgb(195, 157, 248) -2.06%, /* #c39df8 */
-		rgb(236, 124, 157) 95.85% /* #ec7c9d */
+		rgba(195, 157, 248, 0) -2.07%,
+		/* #c39df8 */ rgb(195, 157, 248) -2.06%,
+		/* #c39df8 */ rgb(236, 124, 157) 95.85% /* #ec7c9d */
 	);
 
 	/* button colors */

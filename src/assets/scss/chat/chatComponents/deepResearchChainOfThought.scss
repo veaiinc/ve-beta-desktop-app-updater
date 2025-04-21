@@ -62,10 +62,10 @@
 				}
 				.step {
 					color: var(--primary-font, #f2f2f3);
-					font-family: var(--primary-font-family);
+					font-family: var(--chat-primary-font-family);
 					font-size: 15px;
 					font-style: normal;
-					font-weight: 400;
+					font-weight: 500;
 					line-height: 24px;
 
 					.tool-container {
@@ -73,10 +73,10 @@
 						flex-direction: column;
 						.tool-name {
 							color: var(--secondary-font, #95989d);
-							font-family: var(--primary-font-family);
+							font-family: var(--chat-primary-font-family);
 							font-size: 12px;
 							font-style: normal;
-							font-weight: 400;
+							font-weight: 500;
 							line-height: 18px;
 						}
 						.queries-container {
@@ -99,17 +99,17 @@
 
 					.text-container {
 						color: var(--secondary-font, #95989d);
-						font-family: var(--primary-font-family);
+						font-family: var(--chat-primary-font-family);
 						font-size: 12px;
 						font-style: normal;
-						font-weight: 400;
+						font-weight: 500;
 						line-height: 18px;
 						width: fit-content;
 					}
 
 					.reading-item {
 						font-size: 12px;
-						font-weight: 400;
+						font-weight: 500;
 						color: #000;
 					}
 				}

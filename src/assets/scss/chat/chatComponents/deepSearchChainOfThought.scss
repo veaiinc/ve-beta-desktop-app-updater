@@ -50,19 +50,19 @@
 				}
 				.sub-query {
 					color: var(--primary-font, #f2f2f3);
-					font-family: var(--primary-font-family);
+					font-family: var(--chat-primary-font-family);
 					font-size: 15px;
 					font-style: normal;
-					font-weight: 400;
+					font-weight: 500;
 					line-height: 24px;
 				}
 				.searching-source-container {
 					.text-container {
 						color: var(--secondary-font, #95989d);
-						font-family: var(--primary-font-family);
+						font-family: var(--chat-primary-font-family);
 						font-size: 12px;
 						font-style: normal;
-						font-weight: 400;
+						font-weight: 500;
 						line-height: 18px;
 						width: fit-content;
 					}
@@ -84,10 +84,10 @@
 					}
 					.search-item {
 						color: var(--primary-font, #f2f2f3);
-						font-family: var(--primary-font-family);
+						font-family: var(--chat-primary-font-family);
 						font-size: 12px;
 						font-style: normal;
-						font-weight: 400;
+						font-weight: 500;
 						line-height: 18px;
 					}
 				}
