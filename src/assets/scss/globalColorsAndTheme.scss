@@ -1,113 +1,114 @@
-// Global css variables
+/* Global css variables */
 :root,
 [theme='dark'] {
-	//font families
+	/* font families */
 	--primary-font-family: 'Inter';
 	--secondary-font-family: 'Manrope';
 
-	// common colors
-	--accent-color: rgb(179, 157, 250); // #b39dfa
-	--success: rgb(0, 252, 46); // #00fc2e
-	--error: rgb(199, 27, 58); // #c71b3a
-	--pending: rgb(255, 163, 47); // #ffa32f
-	--info: rgb(80, 137, 249); // #5089f9
+	/* common colors */
+	--accent-color: rgb(179, 157, 250); /* #b39dfa */
+	--success: rgb(0, 252, 46); /* #00fc2e */
+	--error: rgb(199, 27, 58); /* #c71b3a */
+	--pending: rgb(255, 163, 47); /* #ffa32f */
+	--info: rgb(80, 137, 249); /* #5089f9 */
 
-	// main colors
-	--background-color: rgb(12, 12, 13); // #0c0c0d
+	/* main colors */
+	--background-color: rgb(12, 12, 13); /* #0c0c0d */
 
-	// font colors
-	--primary-font: rgb(242, 242, 243); // #f2f2f3
-	--secondary-font: rgba(122, 126, 133, 1);
+	/* font colors */
+	--primary-font: rgb(242, 242, 243); /* #f2f2f3 */
+	--secondary-font: rgb(122, 126, 133); /* #7a7e85 */
 
-	// card colors
-	--card: rgb(30, 32, 33); // #1e2021
-	--card-hover: rgba(37, 39, 40, 1);
-	--card-over-card: rgb(38, 40, 41); // #262829
-	--card-over-card-hover: rgba(46, 47, 50, 1);
-	--popup: rgb(32, 33, 35); // #202123
+	/* card colors */
+	--card: rgb(30, 32, 33); /* #1e2021 */
+	--card-hover: rgb(38, 40, 41); /* #262829 */
+	--card-over-card: rgb(38, 40, 41); /* #262829 */
+	--card-over-card-hover: rgb(46, 47, 50); /* #2e2f32 */
+	--popup: rgb(32, 33, 35); /* #202123 */
 
-	// stroke colors
-	--stroke: rgb(44, 46, 49); // #2c2e31
-	--stroke-hover: rgb(66, 69, 72); // #424548
-	--stroke-active: rgb(32, 33, 35); // #202123
+	/* stroke colors */
+	--stroke: rgb(44, 46, 49); /* #2c2e31 */
+	--stroke-hover: rgb(66, 69, 72); /* #424548 */
+	--stroke-active: rgb(32, 33, 35); /* #202123 */
 
-	// navbar colors
-	--navbar: rgb(32, 33, 35); // #202123
-	--right-bar: rgb(23, 24, 25); // #171819
+	/* navbar colors */
+	--navbar: rgb(32, 33, 35); /* #202123 */
+	--right-bar: rgb(23, 24, 25); /* #171819 */
 
-	// ai color code (gradient: colors inside are rgb with hex comments)
+	/* ai color code (gradient: colors inside are rgb with hex comments) */
 	--ai-color-code: linear-gradient(
 		94deg,
-		rgba(195, 157, 248, 0) -2.07%,
-		rgb(195, 157, 248) -2.06%,
-		rgb(236, 124, 157) 95.85%
+		rgba(195, 157, 248, 0) -2.07%, /* #c39df8 */
+		rgb(195, 157, 248) -2.06%, /* #c39df8 */
+		rgb(236, 124, 157) 95.85% /* #ec7c9d */
 	);
 
-	// button colors
-	--primary-button: rgb(207, 255, 72); // #cfff48
-	--primary-button-hover: rgb(38, 40, 41); // #262829
-	--primary-button-active: rgb(38, 40, 41); // #262829
-	--primary-button-font: rgb(12, 12, 13); // #0c0c0d
+	/* button colors */
+	--primary-button: rgb(207, 255, 72); /* #cfff48 */
+	--primary-button-hover: rgb(38, 40, 41); /* #262829 */
+	--primary-button-active: rgb(38, 40, 41); /* #262829 */
+	--primary-button-font: rgb(12, 12, 13); /* #0c0c0d */
 
-	--secondary-button: rgb(122, 126, 133); // #7a7e85
-	--secondary-button-hover: rgb(255, 255, 231); // #ffffe7
-	--secondary-button-active: rgb(255, 255, 231); // #ffffe7
+	--secondary-button: rgb(122, 126, 133); /* #7a7e85 */
+	--secondary-button-hover: rgb(255, 255, 231); /* #ffffe7 */
+	--secondary-button-active: rgb(255, 255, 231); /* #ffffe7 */
 
-	// spinner colors
-	--spinner-color-light: rgb(0, 0, 0); // #000
-	--spinner-color-dark: rgb(255, 255, 255); // #fff
+	/* spinner colors */
+	--spinner-color-light: rgb(0, 0, 0); /* #000 */
+	--spinner-color-dark: rgb(255, 255, 255); /* #fff */
 
-	// setting colors
-	--setting-color-light: rgb(255, 255, 255); // #fff
-	--setting-color-dark: rgb(0, 0, 0); // #000
-	--spinner-color: rgb(255, 255, 255); // #fff
-	--setting-color: rgb(255, 255, 255); // #fff
+	/* setting colors */
+	--setting-color-light: rgb(255, 255, 255); /* #fff */
+	--setting-color-dark: rgb(0, 0, 0); /* #000 */
+	--spinner-color: rgb(255, 255, 255); /* #fff */
+	--setting-color: rgb(255, 255, 255); /* #fff */
 
-	--default-state-buttons: rgb(46, 47, 51); // #2e2f33
-	--chat-secondary-font: #ccccd3; // rgb(195, 195, 201)
+	--product-lime-blu: rgb(207, 255, 72); /* #cfff48 */
+	--default-state-buttons: rgb(46, 47, 51); /* #2e2f33 */
+	--chat-secondary-font: #c3c3c9; /* rgb(195, 195, 201) */
 }
 
-// light theme global css variables
+/* light theme global css variables */
 [theme='light'] {
-	//main colors
-	// main colors
-	--background-color: rgb(255, 255, 255); // #ffffff
+	/* main colors */
+	--background-color: rgb(255, 255, 255); /* #ffffff */
 
-	// font colors
-	--primary-font: rgb(12, 12, 13); // #0c0c0d
-	--secondary-font: rgba(127, 133, 143, 1);
+	/* font colors */
+	--primary-font: rgb(12, 12, 13); /* #0c0c0d */
+	--secondary-font: rgb(127, 133, 143); /* #7f858f */
 
-	// card colors
-	--card: rgb(249, 249, 249); // #f9f9f9
-	--card-hover: rgb(241, 242, 242); // #f1f2f2
-	--card-over-card: rgb(241, 242, 242); // #f1f2f2
-	--card-over-card-hover: rgba(218, 218, 221, 1);
-	--popup: rgba(255, 255, 255, 1);
+	/* card colors */
+	--card: rgb(249, 249, 249); /* #f9f9f9 */
+	--card-hover: rgb(241, 242, 242); /* #f1f2f2 */
+	--card-over-card: rgb(241, 242, 242); /* #f1f2f2 */
+	--card-over-card-hover: rgb(232, 232, 234); /* #e8e8ea */
+	--popup: rgb(255, 255, 255); /* #fff */
 
-	// stroke colors
-	--stroke: rgb(221, 221, 224); // #dddde0
-	--stroke-hover: rgb(123, 125, 132); // #7b7d84
-	--stroke-active: rgb(242, 242, 243); // #f2f2f3
-	--stroke-disabled: rgb(242, 242, 243); // #f2f2f3
+	/* stroke colors */
+	--stroke: rgb(221, 221, 224); /* #dddde0 */
+	--stroke-hover: rgb(123, 125, 132); /* #7b7d84 */
+	--stroke-active: rgb(242, 242, 243); /* #f2f2f3 */
+	--stroke-disabled: rgb(242, 242, 243); /* #f2f2f3 */
 
-	// navbar colors
-	--navbar: rgb(255, 255, 255); // #ffffff
-	--right-bar: rgb(241, 242, 242); // #f1f2f2
+	/* navbar colors */
+	--navbar: rgb(255, 255, 255); /* #ffffff */
+	--right-bar: rgb(241, 242, 242); /* #f1f2f2 */
 
-	// button colors
-	--primary-button: rgb(165, 217, 255); // #a5d9ff
-	--primary-button-hover: rgb(242, 242, 243); // #f2f2f3
-	--primary-button-active: rgb(242, 242, 243); // #f2f2f3
-	--primary-button-font: rgb(12, 12, 13); // #0c0c0d
+	/* button colors */
+	--primary-button: rgb(165, 217, 255); /* #a5d9ff */
+	--primary-button-hover: rgb(242, 242, 243); /* #f2f2f3 */
+	--primary-button-active: rgb(242, 242, 243); /* #f2f2f3 */
+	--primary-button-font: rgb(12, 12, 13); /* #0c0c0d */
 
-	--secondary-button: rgb(242, 242, 243); // #f2f2f3
-	--secondary-button-hover: rgb(228, 228, 231); // #e4e4e7
-	--secondary-button-active: rgb(228, 228, 231); // #e4e4e7
+	--secondary-button: rgb(242, 242, 243); /* #f2f2f3 */
+	--secondary-button-hover: rgb(228, 228, 231); /* #e4e4e7 */
+	--secondary-button-active: rgb(228, 228, 231); /* #e4e4e7 */
 
-	// spinner colors
-	--spinner-color: rgb(0, 0, 0); // #000
-	--setting-color: rgb(0, 0, 0); // #000
+	/* spinner colors */
+	--spinner-color: rgb(0, 0, 0); /* #000 */
+	--setting-color: rgb(0, 0, 0); /* #000 */
 
-	--default-state-buttons: rgb(223, 223, 223); // #dfdfdf
-	--chat-secondary-font: rgb(12, 12, 13); // #0c0c0d
+	--product-lime-blu: rgb(165, 217, 255); /* #a5d9ff */
+	--default-state-buttons: rgb(223, 223, 223); /* #dfdfdf */
+	--chat-secondary-font: var(--primary-font);
 }

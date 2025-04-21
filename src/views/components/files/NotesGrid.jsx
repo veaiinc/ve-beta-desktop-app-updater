@@ -9,6 +9,7 @@ import gsap from 'gsap';
 import FilterDropdown from '../dropDown/file/FilterDropdown';
 import Spinner from '../loaders/Spinner';
 import moment from 'moment';
+import EmptyState from './EmptyState';
 
 const filterOptions = [
 	{ label: 'All', value: 'all' },
@@ -197,7 +198,7 @@ const NotesGrid = ({ handleNewNotes, handleTotalChange }) => {
 					<div className="spinner-container">
 						<Spinner />
 					</div>
-				) : (
+				) : info?.notes?.length > 0 ? (
 					<InfiniteScroll
 						dataLength={info?.notes?.length}
 						next={fetchMoreNotes}
@@ -231,6 +232,15 @@ const NotesGrid = ({ handleNewNotes, handleTotalChange }) => {
 							))}
 						</div>
 					</InfiniteScroll>
+				) : (
+					<div className="spinner-container">
+						<EmptyState
+							title={'No notes here'}
+							subtitle={'Try creating some notes'}
+							buttonOnClick={handleNewNotes}
+							buttonText={'Create note'}
+						/>
+					</div>
 				)}
 			</div>
 		</div>

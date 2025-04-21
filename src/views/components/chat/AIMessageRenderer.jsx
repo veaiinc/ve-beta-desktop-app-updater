@@ -1,13 +1,15 @@
 import { memo, useContext, useCallback, useState, useEffect } from 'react';
 import '../../../assets/scss/chat/aiMessageRenderer.scss';
-import { ReactComponent as Logo } from '../../../assets/svg/loader/loaderLogo.svg';
-import { TypingEffect } from '../../../helpers/markdownHelper';
+import { ReactComponent as Logo } from '../../../assets/svg/windmill.svg';
+import { ReactComponent as Logo2 } from '../../../assets/svg/windmill2.svg';
 import Context from '../../../context/context';
 import { ReactComponent as LinkIcon } from '../../../assets/svg/ai_agents/link.svg';
 import DeepSearchChainOfThought from './chatComponents/DeepSearchChainOfThought';
 import DeepResearchChainOfThought from './chatComponents/DeepResearchChainOfThought';
 import { Markdown } from '../../../helpers/markdownHelper';
 
+import { ReactComponent as ArrowRightIcon } from '../../../assets/svg/ai_agents/ArrowLineUpRight.svg';
+import AIMessage from './AIMessage';
 const AIMessageRenderer = ({
 	messageData,
 	handleNoteComponentModalOpen,
@@ -95,7 +97,11 @@ const AIMessageRenderer = ({
 							}))
 						}
 					>
-						<Logo width={'24px'} height={'24px'} />
+						{messageData?.stream_end ? (
+							<Logo2 className="" width={'24px'} height={'24px'} />
+						) : (
+							<Logo className="" width={'24px'} height={'24px'} />
+						)}
 						{messageData?.processing || 'Answer'}
 					</div>
 					{messageData?.initial_answer?.length > 0 && (
@@ -148,7 +154,7 @@ const AIMessageRenderer = ({
 				</div>
 			</div>
 			{info?.activeTab == 'response' ? (
-				<TypingEffect
+				<AIMessage
 					text={messageData?.message}
 					messageId={messageData?.messageId}
 					customePencilClickFunc={handleNoteComponentModalOpen}
@@ -213,6 +219,7 @@ const AIMessageRenderer = ({
 											<div className="citation-title">{citation.snippet}</div>
 										</div>
 									</div>
+									<ArrowRightIcon className="arrow-icon" />
 								</div>
 						  ))
 						: null}

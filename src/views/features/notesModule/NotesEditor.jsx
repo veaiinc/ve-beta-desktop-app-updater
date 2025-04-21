@@ -81,6 +81,25 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 	}, [noteId]);
 
 	useEffect(() => {
+		const handleKeyDown = (e) => {
+			const isMac = navigator.platform.toUpperCase().includes('MAC');
+			const isSaveShortcut =
+				(isMac && e.metaKey && e.key === 's') || (!isMac && e.ctrlKey && e.key === 's');
+
+			if (isSaveShortcut) {
+				e.preventDefault();
+				e.stopPropagation();
+			}
+		};
+
+		window.addEventListener('keydown', handleKeyDown, true); // true = capture phase
+
+		return () => {
+			window.removeEventListener('keydown', handleKeyDown, true);
+		};
+	}, []);
+
+	useEffect(() => {
 		if (notesPageData) {
 			const {
 				blocks = [],
@@ -259,13 +278,16 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 			</div>
 			<div className="notes-editor-container">
 				{info?.loading ? (
-					<div className="notes-editor-wrapper">
+					<div
+						className="notes-editor-wrapper"
+						style={{ maxWidth: info?.notesConfigs?.fullWidth ? '100%' : '898px' }}
+					>
 						<div className="notes-title">
 							<Skeleton
 								width="90%"
 								height={40}
-								highlightColor="var(--primary-font)"
-								baseColor="var(--secondary-font)"
+								highlightColor="var(--card-hover)"
+								baseColor="var(--card)"
 							/>
 						</div>
 
@@ -275,8 +297,8 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 									key={i}
 									height={line.height}
 									width={line.width}
-									highlightColor="var(--primary-font)"
-									baseColor="var(--secondary-font)"
+									highlightColor="var(--card-hover)"
+									baseColor="var(--card)"
 								/>
 							))}
 						</div>
