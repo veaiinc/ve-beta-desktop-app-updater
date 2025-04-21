@@ -564,17 +564,8 @@ const OpenedSidebar = ({
 												userWorkSpaceList?.length > 1 && (
 													<div
 														style={{
-															position: 'absolute',
+															...workspaceStyles,
 															top: '20px',
-															left: '0',
-															width: '230px',
-															marginLeft: '10px',
-															border: 'none',
-															zIndex: '1000',
-															// background: 'var(--primary-font)',
-															borderRadius: '16px',
-															animation: 'slideDown 0.3s ease-out',
-															transformOrigin: 'top',
 														}}
 													>
 														<WorkspaceListComponent
