@@ -8,34 +8,75 @@ import { Tooltip, DatePicker } from 'antd';
 import moment from 'moment';
 import ToggleSwitch from '../../../components/input/slider';
 
-const UpdateSessionSlot = ({ open, closeModal, schedulerList, selectedSlotData }) => {
+const UpdateSessionSlot = ({
+	open,
+	closeModal,
+	schedulerList,
+	selectedSlotData,
+	updateCalendarInfo,
+}) => {
 	const [info, setInfo] = useState({
 		repeat: false,
-		slots: [{ from: moment(), to: moment().add(1, 'hours') }],
+		slots: [{ from: moment().startOf('day'), to: moment().startOf('day').add(1, 'hours') }],
 		selectedSession: null,
+		sessionTypeOpen: false,
+		sessionWindow: {
+			startDate: moment().format('YYYY-MM-DD'),
+			endDate: moment().add(1, 'week').format('YYYY-MM-DD'),
+		},
 	});
 
 	useEffect(() => {
-		if (schedulerList?.length > 0 && selectedSlotData) {
-			const session = schedulerList?.find(
-				(s) => s.sessionName === selectedSlotData.selectedSlot.sessionName,
-			);
+		if (selectedSlotData) {
+			// If editing an existing session
+			const session = schedulerList?.find((s) => s._id === selectedSlotData._id);
 			if (session) {
+				// Get the first availability slot's time ranges
+				const firstAvailabilitySlot = session.availabilitySlots?.[0];
+				const timeRanges = firstAvailabilitySlot?.timeRanges || [];
+
+				const slots = timeRanges.map((range) => ({
+					from: moment(range.startTime, 'HH:mm').isValid()
+						? moment(range.startTime, 'HH:mm')
+						: moment().startOf('day'),
+					to: moment(range.endTime, 'HH:mm').isValid()
+						? moment(range.endTime, 'HH:mm')
+						: moment().startOf('day').add(1, 'hours'),
+				}));
+
 				setInfo((prev) => ({
 					...prev,
 					selectedSession: session,
-					slots: [
-						{
-							from: moment(selectedSlotData.selectedSlot.startTime, 'HH:mm'),
-							to: moment(selectedSlotData.selectedSlot.endTime, 'HH:mm'),
-						},
-					],
+					slots:
+						slots.length > 0
+							? slots
+							: [
+									{
+										from: moment().startOf('day'),
+										to: moment().startOf('day').add(1, 'hours'),
+									},
+							  ],
+					sessionWindow: {
+						startDate:
+							session.sessionWindow?.startDate || moment().format('YYYY-MM-DD'),
+						endDate:
+							session.sessionWindow?.endDate ||
+							moment().add(1, 'week').format('YYYY-MM-DD'),
+					},
 				}));
 			}
 		} else if (schedulerList?.length > 0) {
+			// If creating a new session
 			setInfo((prev) => ({
 				...prev,
 				selectedSession: schedulerList[0],
+				slots: [
+					{ from: moment().startOf('day'), to: moment().startOf('day').add(1, 'hours') },
+				],
+				sessionWindow: {
+					startDate: moment().format('YYYY-MM-DD'),
+					endDate: moment().add(1, 'week').format('YYYY-MM-DD'),
+				},
 			}));
 		}
 	}, [schedulerList, selectedSlotData]);
@@ -43,7 +84,13 @@ const UpdateSessionSlot = ({ open, closeModal, schedulerList, selectedSlotData }
 	const addSlot = () => {
 		setInfo((prev) => ({
 			...prev,
-			slots: [...prev.slots, { from: moment(), to: moment().add(1, 'hours') }],
+			slots: [
+				...prev.slots,
+				{
+					from: moment().startOf('day'),
+					to: moment().startOf('day').add(1, 'hours'),
+				},
+			],
 		}));
 	};
 
@@ -59,14 +106,69 @@ const UpdateSessionSlot = ({ open, closeModal, schedulerList, selectedSlotData }
 		setInfo((prev) => ({
 			...prev,
 			repeat: false,
-			slots: [{ from: moment(), to: moment().add(1, 'hours') }],
+			slots: [{ from: moment().startOf('day'), to: moment().startOf('day').add(1, 'hours') }],
 			selectedSession: schedulerList[0] || null,
+			sessionTypeOpen: false,
+			sessionWindow: {
+				startDate: moment().format('YYYY-MM-DD'),
+				endDate: moment().add(1, 'week').format('YYYY-MM-DD'),
+			},
 		}));
 	};
 
 	const handleSave = useCallback(() => {
+		if (!info.selectedSession) return;
+
+		// Format the slots data to match SchedulerAvailability structure
+		const formattedSlots = [
+			{
+				dayOfWeek: 'monday', // Default to monday, can be made dynamic if needed
+				timeRanges: info.slots.map((slot) => ({
+					startTime: slot.from.format('HH:mm'),
+					endTime: slot.to.format('HH:mm'),
+				})),
+			},
+		];
+
+		// Create the updated session object with all required properties
+		const updatedSession = {
+			...info.selectedSession,
+			availabilitySlots: formattedSlots,
+			sessionWindow: info.sessionWindow,
+			repeat: info.repeat,
+			sessionName: info.selectedSession.sessionName,
+			sessionColor: info.selectedSession.sessionColor || '#6366F1',
+			sessionTimezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+		};
+
+		// Update the session in the parent component
+		if (updateCalendarInfo) {
+			updateCalendarInfo('updateSession', updatedSession);
+		}
+
 		ModifyCloseModal();
-	}, []);
+	}, [info.selectedSession, info.slots, info.repeat, info.sessionWindow, updateCalendarInfo]);
+
+	const handleTimeChange = (value, index, type) => {
+		if (!value || !value.isValid()) return;
+
+		setInfo((prev) => ({
+			...prev,
+			slots: prev.slots.map((slot, i) => {
+				if (i === index) {
+					const newTime = moment().startOf('day').set({
+						hour: value.hour(),
+						minute: value.minute(),
+					});
+					return {
+						...slot,
+						[type]: newTime,
+					};
+				}
+				return slot;
+			}),
+		}));
+	};
 
 	return (
 		<ReactModal
@@ -80,7 +182,6 @@ const UpdateSessionSlot = ({ open, closeModal, schedulerList, selectedSlotData }
 		>
 			<div className="updateSessionSlotContainer">
 				<div className="sessionHeader">
-					{/* <span>{sessionName || 'Session Name'}</span> */}
 					<Tooltip
 						open={info?.sessionTypeOpen}
 						onOpenChange={(visible) =>
@@ -119,11 +220,6 @@ const UpdateSessionSlot = ({ open, closeModal, schedulerList, selectedSlotData }
 							<Down className={`${info?.sessionTypeOpen ? 'open' : ''}`} />
 						</div>
 					</Tooltip>
-					<span className="sessionDate">
-						{selectedSlotData
-							? `${selectedSlotData.selectedDay}, ${selectedSlotData.selectedDate}`
-							: 'Select a date'}
-					</span>
 				</div>
 
 				{info?.slots?.map((slot, index) => (
@@ -134,14 +230,7 @@ const UpdateSessionSlot = ({ open, closeModal, schedulerList, selectedSlotData }
 							picker="time"
 							className="timePicker"
 							value={slot.from}
-							onChange={(value) =>
-								setInfo((prev) => ({
-									...prev,
-									slots: prev?.slots?.map((s, i) =>
-										i === index ? { ...s, from: value } : s,
-									),
-								}))
-							}
+							onChange={(value) => handleTimeChange(value, index, 'from')}
 							suffixIcon={<Clock />}
 						/>
 						<span>to</span>
@@ -151,14 +240,7 @@ const UpdateSessionSlot = ({ open, closeModal, schedulerList, selectedSlotData }
 							picker="time"
 							className="timePicker"
 							value={slot.to}
-							onChange={(value) =>
-								setInfo((prev) => ({
-									...prev,
-									slots: prev?.slots?.map((s, i) =>
-										i === index ? { ...s, to: value } : s,
-									),
-								}))
-							}
+							onChange={(value) => handleTimeChange(value, index, 'to')}
 							suffixIcon={<Clock />}
 						/>
 						<Delete onClick={() => removeSlot(index)} />
@@ -172,7 +254,7 @@ const UpdateSessionSlot = ({ open, closeModal, schedulerList, selectedSlotData }
 				<div className="disableAvailability">Disable Availability</div>
 
 				<div className="repeatToggle">
-					<span>Repeat Every {selectedSlotData?.selectedDay || 'day'}</span>
+					<span>Repeat Every day</span>
 					<ToggleSwitch
 						onChange={(value) => setInfo((prev) => ({ ...prev, repeat: value }))}
 						value={info.repeat}

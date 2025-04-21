@@ -4,7 +4,6 @@
 	overflow-y: auto;
 	width: 100%;
 	height: 100%;
-
 	color: var(--primary-font);
 	font-family: var(--primary-font-family);
 	font-size: 12px;
@@ -23,6 +22,8 @@
 	.rbc-time-view,
 	.rbc-month-view {
 		border: none;
+		height: 100%;
+		overflow: hidden;
 	}
 
 	.rbc-time-header-cell {
@@ -52,6 +53,8 @@
 	}
 
 	.rbc-time-content {
+		height: 100%;
+		overflow: hidden;
 		border: none;
 	}
 
@@ -119,6 +122,10 @@
 	}
 
 	.rbc-month-view {
+		height: 100%;
+		overflow: hidden;
+		display: flex;
+		flex-direction: column;
 		gap: 5px;
 		.rbc-month-header {
 			border: none;
@@ -126,6 +133,9 @@
 		}
 		.rbc-month-row {
 			border: none;
+			flex: 1;
+			height: 100%;
+			overflow: hidden;
 			&:first-child {
 				.rbc-row-bg {
 					display: flex;
@@ -232,6 +242,8 @@
 				flex: 1 0 0;
 				align-self: stretch;
 				gap: 5px;
+				height: 100%;
+				overflow: hidden;
 
 				.rbc-day-bg {
 					display: flex;
@@ -259,6 +271,8 @@
 			}
 			.rbc-row-content {
 				z-index: 0;
+				height: 100%;
+				overflow: hidden;
 				.rbc-row {
 					.rbc-date-cell {
 						.rbc-button-link {
@@ -340,14 +354,49 @@
 				padding: 2px;
 				min-width: 100%;
 				background: none;
-				background: var(--card);
 			}
 		}
 	}
 
 	.rbc-time-view {
+		height: 100%;
+		overflow: visible;
+		display: flex;
+		flex-direction: column;
+		padding: 0;
+		margin: 0;
+
+		.rbc-time-content {
+			height: 100%;
+			overflow: visible;
+			padding: 0;
+			margin: 0;
+		}
+
+		.rbc-time-gutter {
+			height: 100%;
+			overflow: visible;
+			padding: 0;
+			margin: 0;
+		}
+
+		.rbc-day-slot {
+			height: 100%;
+			overflow: visible;
+			padding: 0;
+			margin: 0;
+		}
+
 		.rbc-row {
 			min-height: 2px;
+			padding: 0;
+			margin: 0;
+		}
+
+		.rbc-timeslot-group {
+			min-height: 60px;
+			padding: 0;
+			margin: 0;
 		}
 	}
 }

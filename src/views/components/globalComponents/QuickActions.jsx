@@ -12,7 +12,7 @@ import CreateClientModal from '../../../views/components/modalsV2/contacts/Creat
 import CreateGallery from '../../../views/components/modalsV2/gallery/CreateGallery';
 import CreateTaskPopup from '../modalsV2/tasks/CreateTaskPopup';
 import { message } from '../globalComponents/CustomToast';
-
+import EventsPopup from '../calendar/EventsPopUp';
 const moduleOptions = [
 	{
 		id: 0,
@@ -35,8 +35,8 @@ const moduleOptions = [
 		id: 2,
 		title: 'Event',
 		value: 'event',
-		action: ({ navigate }) => {
-			navigate('/calendar');
+		action: ({ setInfo }) => {
+			setInfo((prev) => ({ ...prev, openEventsPopup: true }));
 		},
 	},
 	// {
@@ -267,6 +267,7 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 		openClientPopup: false,
 		openGalleryPopup: false,
 		openLiteGalleryPopup: false,
+		openEventsPopup: false,
 		// openTaskPopup: false,
 		options: { suggestedOptions, moduleOptions },
 		filteredOptions: { suggestedOptions, moduleOptions },
@@ -474,6 +475,10 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 			<CreateTaskPopup
 				isOpen={info?.createTaskPopup}
 				closeModal={() => setInfo({ ...info, createTaskPopup: false })}
+			/>
+			<EventsPopup
+				open={info?.openEventsPopup}
+				closeModal={() => setInfo({ ...info, openEventsPopup: false })}
 			/>
 			<LoaderModal loading={info?.showLoader} message={info?.loaderMessage} />
 		</div>

@@ -20,6 +20,9 @@ const initialState = {
 	aiChatLoading: false,
 	workflowSlug: null,
 	chatQuery: '',
+	schedulerList: [],
+	selectedSession: null,
+	sessionFilter: [],
 };
 
 const Calendar = () => {
@@ -32,6 +35,8 @@ const Calendar = () => {
 			getCalendarEventsList,
 			updateCalendarState,
 			refetchCalendarState,
+			getSchedulerList,
+			schedulerList,
 		},
 		companyInfo: { getTeamMembers },
 		templates: {
@@ -63,6 +68,7 @@ const Calendar = () => {
 		setInfo((prevInfo) => ({ ...prevInfo, chatSessionId: sessionId }));
 
 		getCalendarCategories();
+		getSchedulerList();
 
 		return () => {
 			setInfo((prevInfo) => ({
@@ -78,6 +84,15 @@ const Calendar = () => {
 			updateCategoryList();
 		}
 	}, [calendarCategoriesList]);
+
+	useEffect(() => {
+		if (schedulerList) {
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				schedulerList: [...schedulerList],
+			}));
+		}
+	}, [schedulerList]);
 
 	useEffect(() => {
 		if (info?.categoryList?.length > 0 && info?.selectedCategory === null) {
@@ -152,6 +167,9 @@ const Calendar = () => {
 					updateCalendarInfo={updateCalendarInfo}
 					selectedWorkflowId={info?.selectedWorkflowId}
 					selectedSlot={info?.selectedSlot}
+					schedulerList={info?.schedulerList}
+					selectedSession={info?.selectedSession}
+					sessionFilter={info?.sessionFilter}
 				/>
 				<CalendarView
 					currentCalendarDate={info?.currentCalendarDate}

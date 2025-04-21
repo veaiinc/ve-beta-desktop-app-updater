@@ -22,14 +22,21 @@ const CalendarCategories = ({
 
 	useEffect(() => {
 		if (info?.expanded) {
-			// Calculate the height of the expanded content
-			const fullHeight = expandRef.current.scrollHeight;
+			// Calculate height for header + 5 items
+			const headerHeight = 40; // Height of the header
+			const itemHeight = 40; // Height of each category item
+			const gapHeight = 12; // Gap between items
+			const containerPadding = 32; // 16px top + 16px bottom
+			const scrollbarWidth = 4; // Width of the scrollbar
+
+			const calculatedHeight =
+				headerHeight + 2 * itemHeight + 3 * gapHeight + containerPadding + scrollbarWidth;
+
 			setInfo((prevInfo) => ({
 				...prevInfo,
-				height: `${fullHeight + 16}px`,
+				height: `${calculatedHeight}px`,
 			}));
 		} else {
-			// Set height back to the collapsed size
 			setInfo((prevInfo) => ({
 				...prevInfo,
 				height: `62px`,

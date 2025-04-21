@@ -182,6 +182,7 @@
 				cursor: pointer;
 				&.selectedDay {
 					color: var(--primary-button-font);
+					border: 3px solid var(--primary-button);
 				}
 
 				&:hover {

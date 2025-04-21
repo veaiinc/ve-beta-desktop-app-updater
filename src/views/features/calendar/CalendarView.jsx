@@ -240,7 +240,6 @@ const CalendarView = ({
 
 	return (
 		<>
-			{/* UpdatedPageLoader has been removed to Eliminate the loader from the calendar view */}
 			<div className="calendarViewParentContainer">
 				<div className="scheduler">
 					<CalendarWrapper
@@ -256,7 +255,6 @@ const CalendarView = ({
 						popup
 						components={components}
 						allDayMaxRows={1}
-						// showAllEvents={true}
 					/>
 				</div>
 				<EventDetailsModal

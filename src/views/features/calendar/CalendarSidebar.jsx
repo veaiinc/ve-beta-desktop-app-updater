@@ -10,6 +10,7 @@ import GoogleCalendar from '../../components/calendar/GoogleCalendar';
 import CalendarChatBox from '../../components/calendar/CalendarChatBox';
 import moment from 'moment';
 import ConnectIntegrationWidget from '../../components/globalComponents/ConnectIntegrationWidget.jsx';
+import SessionCard from '../../components/calendar/SessionCard.jsx';
 
 const CalendarSidebar = ({
 	currentCalendarDate,
@@ -22,6 +23,9 @@ const CalendarSidebar = ({
 	categoryFilter,
 	selectedSlot,
 	updateCalendarInfo,
+	schedulerList,
+	selectedSession,
+	sessionFilter,
 }) => {
 	const [info, setInfo] = useState({
 		askAi: false,
@@ -66,6 +70,13 @@ const CalendarSidebar = ({
 						updateCalendarInfo={updateCalendarInfo}
 					/>
 					<GoogleCalendar />
+					<SessionCard
+						schedulerList={schedulerList}
+						selectedSession={selectedSession}
+						sessionFilter={sessionFilter}
+						updateCalendarInfo={updateCalendarInfo}
+					/>
+
 					{/* <MeetingDetails selectedDate={selectedDate} /> */}
 				</div>
 			)}
