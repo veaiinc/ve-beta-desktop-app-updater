@@ -9,13 +9,6 @@ import ElasticSearchResults from './ElasticSearchResults';
 // import CustomDropdown from './CustomDropdownForCommandK';
 
 const CommandKSearch = () => {
-	const [info, setInfo] = useState({
-		isOpen: false,
-		isLoading: false,
-		elasticSearchLoading: false,
-		showElasticSearchResults: false,
-	});
-
 	// Optional filter states if needed
 	// selectedFilters: {
 	// 	source: null,
@@ -31,6 +24,13 @@ const CommandKSearch = () => {
 	const {
 		elasticSearch: { elasticSearchResults, performElasticSearch },
 	} = useContext(Context);
+
+	const [info, setInfo] = useState({
+		isOpen: false,
+		isLoading: false,
+		elasticSearchLoading: false,
+		showElasticSearchResults: false,
+	});
 
 	const noResults = elasticSearchResults?.length === 0 && info.showElasticSearchResults;
 
