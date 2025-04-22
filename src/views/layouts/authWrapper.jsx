@@ -23,6 +23,7 @@ const AuthWrapper = ({
 	showBottomToolbar = true,
 	outerContainerStyle = {},
 	authParentContainerStyle = {},
+	sidebarContainerStyles = {},
 	showDynamicWidget = true,
 }) => {
 	const {
@@ -58,10 +59,12 @@ const AuthWrapper = ({
 				}}
 			>
 				<SkeletonTheme baseColor={'var(--card)'} highlightColor={'var(--card-hover)'}>
-					<Sidebar
-						setActiveWorkspaceId={setActiveWorkspaceId}
-						activeWorkspaceId={workspaceId}
-					/>
+					<div style={{ ...sidebarContainerStyles }}>
+						<Sidebar
+							setActiveWorkspaceId={setActiveWorkspaceId}
+							activeWorkspaceId={workspaceId}
+						/>
+					</div>
 
 					<div
 						style={{ flex: 1, overflowY: 'auto', maxHeight: '100%', height: '100%' }}
