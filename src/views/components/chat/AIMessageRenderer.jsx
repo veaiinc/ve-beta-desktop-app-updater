@@ -119,7 +119,8 @@ const AIMessageRenderer = ({
 							Initial Answer
 						</div>
 					)}
-					{(messageData?.deepSearch?.cot?.length > 0 || messageData?.deepResearch) && (
+					{(messageData?.deepSearch?.cot?.length > 0 ||
+						messageData?.deepResearch?.cot?.length > 0) && (
 						<div
 							className={`tab-btn ${info?.activeTab === 'cot' ? 'active' : ''}`}
 							onClick={() =>

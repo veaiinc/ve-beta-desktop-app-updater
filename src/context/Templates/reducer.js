@@ -253,26 +253,11 @@ const actionHandlers = {
 					messageId: payload?.message_id,
 					deepSearch,
 				};
-			} else if (payload?.responded) {
-				let deepResearch = { ...(message?.deepResearch || {}) };
-				let cot = [...(deepResearch?.cot || [])];
-				cot?.push({
-					step: payload?.responded,
-				});
-
-				deepResearch = {
-					...deepResearch,
-					cot,
-				};
-				messages[requiredIndex] = {
-					...message,
-					deepResearch,
-					processing: 'Deep Research',
-				};
 			} else if (processing === 'Deep Research') {
 				let deepResearch = { ...(message?.deepResearch || {}) };
 				let cot = [...(deepResearch?.cot || [])];
 				let sections = [...(deepResearch?.sections || [])];
+				let sections_refined = [...(deepResearch?.sections_refined || [])];
 
 				if (payload?.responded) {
 					cot?.push({
@@ -302,36 +287,75 @@ const actionHandlers = {
 					sections?.push({
 						section: payload?.section,
 						sub_queries,
+						section_id: payload?.section_id,
 					});
 				}
 
-				if (payload?.reading) {
-					const sub_query = payload?.reading?.sub_query;
-					const section = sections?.find(
-						(item) =>
-							item?.sub_queries?.filter(
-								(subQuery) => subQuery?.sub_query === sub_query,
-							)?.length > 0,
-					);
-
-					if (section) {
-						const sub_queries = section?.sub_queries?.map((item) => {
-							if (item?.sub_query === sub_query) {
-								return {
-									...item,
-									...payload,
-								};
-							}
-							return item;
-						});
-						section.sub_queries = sub_queries;
-					}
-
-					sections = sections?.map((item) => {
-						if (item?.section === section?.section) {
-							return section;
+				if (payload?.reading && payload?.reading?.sub_query && payload?.section_id) {
+					sections = sections?.map((section) => {
+						if (section?.section_id === payload?.section_id) {
+							let sub_queries = section?.sub_queries?.map((subQuery) => {
+								if (subQuery?.sub_query === payload?.reading?.sub_query) {
+									const readings = [...(subQuery?.readings || [])];
+									readings?.push({ reading: payload?.reading });
+									return {
+										...subQuery,
+										readings,
+									};
+								}
+								return subQuery;
+							});
+							return {
+								...section,
+								sub_queries,
+							};
 						}
-						return item;
+						return section;
+					});
+				}
+
+				if (payload?.refined_sub_queries) {
+					const refined_sub_queries = (payload?.refined_sub_queries || [])?.map(
+						(subQuery) => ({
+							refined_sub_query: subQuery,
+						}),
+					);
+					sections_refined?.push({
+						section: payload?.section,
+						refined_sub_queries: refined_sub_queries,
+						section_id: payload?.section_id,
+					});
+				}
+
+				if (
+					payload?.reading &&
+					payload?.reading?.refined_sub_query &&
+					payload?.section_id
+				) {
+					sections_refined = sections_refined?.map((section) => {
+						if (section?.section_id === payload?.section_id) {
+							let refined_sub_queries = section?.refined_sub_queries?.map(
+								(subQuery) => {
+									if (
+										subQuery?.refined_sub_query ===
+										payload?.reading?.refined_sub_query
+									) {
+										const readings = [...(subQuery?.readings || [])];
+										readings?.push({ reading: payload?.reading });
+										return {
+											...subQuery,
+											readings,
+										};
+									}
+									return subQuery;
+								},
+							);
+							return {
+								...section,
+								refined_sub_queries,
+							};
+						}
+						return section;
 					});
 				}
 
@@ -339,6 +363,7 @@ const actionHandlers = {
 					...deepResearch,
 					cot,
 					sections,
+					sections_refined,
 				};
 
 				messages[requiredIndex] = {
