@@ -275,12 +275,12 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 		}
 	};
 
-	const resetAiResponse = () => {
+	const resetAiResponse = useCallback(() => {
 		setInfo((prevInfo) => ({ ...prevInfo, aiResonse: '' }));
 		aiResponseRef.current = '';
-	};
+	}, []);
 
-	const customSendMessage = (query) => {
+	const customSendMessage = useCallback((query) => {
 		sendMessage({
 			date: [],
 			deep_research: false,
@@ -290,7 +290,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 			timezone: 'Asia/Calcutta',
 			web_search: true,
 		});
-	};
+	}, []);
 
 	return (
 		<div className="notes-container" style={outerContainerStyle || {}}>

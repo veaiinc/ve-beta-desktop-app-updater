@@ -1,10 +1,6 @@
-import {
-	useBlockNoteEditor,
-	useComponentsContext,
-	useEditorContentOrSelectionChange,
-} from '@blocknote/react';
+import { useBlockNoteEditor, useComponentsContext } from '@blocknote/react';
 import '@blocknote/mantine/style.css';
-import { memo, useEffect, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { Tooltip } from 'antd';
 import '../../../assets/scss/notes/askAiButton.scss';
 import { ReactComponent as ArrowSvg } from '../../../assets/svg/file/arrow.svg';
@@ -33,43 +29,6 @@ const dropDownOptions = [
 		value: 'lengthen the given text',
 	},
 ];
-
-// function extractTextFromBlocks(blocks) {
-// 	let result = [];
-
-// 	for (const block of blocks) {
-// 		if (block.type === 'paragraph' || block.type === 'heading') {
-// 			// Normal block with inline content
-// 			const text = block.content.map((item) => item.text).join('');
-// 			result.push(text);
-// 		} else if (block.type === 'table' && block.content?.rows) {
-// 			// Table block: iterate through each row/cell
-// 			for (const row of block.content.rows) {
-// 				for (const cell of row.cells) {
-// 					const cellText = cell.map((item) => item.text).join('');
-// 					result.push(cellText);
-// 				}
-// 			}
-// 		} else if (block.type === 'listItem') {
-// 			// List block
-// 			const listText = block.content.map((item) => item.text).join('');
-// 			result.push(listText);
-// 		} else {
-// 			// Any other block type with potential content
-// 			if (Array.isArray(block.content)) {
-// 				const text = block.content.map((item) => item.text).join('');
-// 				result.push(text);
-// 			}
-// 		}
-
-// 		// Recursively handle children (e.g., nested blocks)
-// 		if (block.children && block.children.length > 0) {
-// 			result.push(...extractTextFromBlocks(block.children));
-// 		}
-// 	}
-
-// 	return result;
-// }
 
 export const AskAiButton = memo(({ sendMessage, aiResonse, resetAiResponse }) => {
 	const editor = useBlockNoteEditor();
@@ -102,11 +61,14 @@ export const AskAiButton = memo(({ sendMessage, aiResonse, resetAiResponse }) =>
 		setInfo((prevInfo) => ({ ...prevInfo, isOpen: value }));
 	};
 
-	const handleAiQuery = (query) => {
-		const aiQuery = `"${selectedTextRef?.current}" ${query}`;
-		setInfo((prevInfo) => ({ ...prevInfo, isLoading: true }));
-		sendMessage(aiQuery);
-	};
+	const handleAiQuery = useCallback(
+		(query) => {
+			const aiQuery = `"${selectedTextRef?.current}" ${query}`;
+			setInfo((prevInfo) => ({ ...prevInfo, isLoading: true }));
+			sendMessage(aiQuery);
+		},
+		[selectedTextRef?.current],
+	);
 
 	const replaceBlock = async (response) => {
 		const markdownText = response.replace(/\\n/g, '\n');
