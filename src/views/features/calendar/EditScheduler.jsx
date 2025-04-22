@@ -1,7 +1,7 @@
 import React, { memo, useState, useCallback, useContext, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import '../../../assets/scss/scheduler/editScheduler.scss';
-import { ReactComponent as Back } from '../../../assets/svg/gallery/backArrow.svg';
+import { ReactComponent as Back } from '../../../assets/svg/gallery/back-gray.svg';
 import { ReactComponent as DateSvg } from '../../../assets/svg/calendar/date.svg';
 import { ReactComponent as DownArrow } from '../../../assets/svg/activity/down.svg';
 import { ReactComponent as Down } from '../../../assets/svg/calendar/down.svg';
@@ -12,6 +12,7 @@ import InputComponent from '../../components/ai_assistant/InputComponent';
 import { ReactComponent as Clock } from '../../../assets/svg/workflow/clock.svg';
 import { ReactComponent as Duplicate } from '../../../assets/svg/tasks/duplicate.svg';
 import Context from '../../../context/context';
+import Checkbox from 'antd/es/checkbox/Checkbox';
 
 const durationOptions = ['30 Minutes', '45 Minutes', '60 Minutes', '90 Minutes', '120 Minutes'];
 const sessionTypeOptions = ['In Person', 'Phone Call', 'Video Call'];
@@ -37,12 +38,13 @@ const sessionTypeInputConfig = {
 	},
 };
 
-const EditScheduler = () => {
+const EditScheduler = ({ onBack, sessionId: propSessionId }) => {
 	const {
 		calendarInfo: { getSchedulerSessionDetail, updateSchedulerSession, sessionDetail },
 	} = useContext(Context);
 
-	const { sessionId } = useParams();
+	const { sessionId: paramSessionId } = useParams();
+	const sessionId = propSessionId || paramSessionId;
 	const navigate = useNavigate();
 	const updateTimeoutRef = useRef(null);
 	const availabilityUpdateTimeoutRef = useRef(null);
@@ -606,6 +608,7 @@ const EditScheduler = () => {
 				value={info[config?.value]}
 				onChange={(e) => handleDebouncedSessionTypeInput(config?.value, e.target.value)}
 				placeholder={config?.placeholder}
+				backgroundColor={config?.backgroundColor}
 				className="inputHeight"
 			/>
 		);
@@ -933,13 +936,22 @@ const EditScheduler = () => {
 	return (
 		<div className="editSchedulerParentContainer">
 			<div className="editSchedulerHeader">
-				<Back onClick={() => navigate(-1)} className="backArrow" />
+				<Back
+					onClick={() => {
+						if (onBack) {
+							onBack();
+						} else {
+							navigate(-1);
+						}
+					}}
+					className="backArrow"
+				/>
+
 				<SessionInfoCard sessionData={info?.sessionDetail} />
 			</div>
 
 			<div className="updateSessionDetails">
 				<div className="sessionDurationContainer">
-					<span>Session Duration Range</span>
 					<div className="sessionDetailsRow">
 						<div className="sessionInputWrapper">
 							<span>From</span>
@@ -978,7 +990,7 @@ const EditScheduler = () => {
 								}}
 							/>
 						</div>
-						<div className="sessionInputWrapper">
+						{/* <div className="sessionInputWrapper">
 							<span>Duration</span>
 							<Tooltip
 								placement="bottom"
@@ -1015,11 +1027,15 @@ const EditScheduler = () => {
 									<DownArrow className={info.isDurationOpen ? 'open' : ''} />
 								</div>
 							</Tooltip>
-						</div>
+						</div> */}
 					</div>
 
 					<div className="updateSessionDesc">
-						<div
+						<div className="sessionDurationWrapper">
+							<Checkbox className="checkbox" />
+							<div className="alldaytext">All Day</div>
+						</div>
+						{/* <div
 							className={`addSessionDesc ${info?.addDescription ? 'hidden' : ''}`}
 							onClick={() =>
 								setInfo((prev) => ({
@@ -1029,9 +1045,9 @@ const EditScheduler = () => {
 							}
 						>
 							Add Instruction
-						</div>
+						</div> */}
 
-						<div
+						{/* <div
 							className={`sessionDescriptionWrapper ${
 								info?.addDescription ? 'visible' : ''
 							}`}
@@ -1041,8 +1057,9 @@ const EditScheduler = () => {
 								value={info?.sessionDescription}
 								onChange={(e) => handleSessionDescriptionChange(e.target.value)}
 								placeholder={'Session description'}
+								backgroundColor={'var(--background)'}
 							/>
-						</div>
+						</div> */}
 					</div>
 
 					<div className="sessionOptionContainer">
@@ -1087,7 +1104,128 @@ const EditScheduler = () => {
 						</div>
 					</div>
 				</div>
-
+				<div className="sessionBookingLimitContainer">
+					<span className="booking-title">Booking Limits</span>
+					<div className="booking-options">
+						<div className="booking-option">
+							<input
+								type="checkbox"
+								id="additional-attendees"
+								checked={info.maxParticipants > 1}
+								onChange={(e) =>
+									handleSessionMetadataChange(
+										'maxParticipants',
+										e.target.checked ? 5 : 1,
+									)
+								}
+							/>
+							<label htmlFor="additional-attendees">
+								Allow guests to add additional attendees
+							</label>
+						</div>
+						<div className="booking-option">
+							<input
+								type="checkbox"
+								id="next-booking"
+								checked={info.minBookingNotice > 0}
+								onChange={(e) =>
+									handleAvailabilityRulesChange(
+										'minBookingNotice',
+										e.target.checked ? 15 : 0,
+									)
+								}
+							/>
+							<label htmlFor="next-booking">
+								Don't let guests book in the next {info.minBookingNotice} minutes
+							</label>
+						</div>
+						<div className="booking-option">
+							<input
+								type="checkbox"
+								id="allow-reschedule"
+								checked={info.allowRescheduling}
+								onChange={(e) =>
+									handleBookingRulesChange('allowRescheduling', e.target.checked)
+								}
+							/>
+							<label htmlFor="allow-reschedule">Allow guests to reschedule</label>
+						</div>
+						<div className="booking-option">
+							<input
+								type="checkbox"
+								id="allow-cancel"
+								checked={info.allowCanceling}
+								onChange={(e) =>
+									handleBookingRulesChange('allowCanceling', e.target.checked)
+								}
+							/>
+							<label htmlFor="allow-cancel">
+								Allow guests to cancel (up to {info.minCancelNotice} minutes before)
+							</label>
+						</div>
+						<div className="booking-limit-option">
+							<div className="limit-input">
+								<input
+									type="checkbox"
+									id="booking-limit"
+									checked={info.maxBookingsPerSession > 0}
+									onChange={(e) =>
+										handleAvailabilityRulesChange(
+											'maxBookingsPerSession',
+											e.target.checked ? 1 : 0,
+										)
+									}
+								/>
+								<label htmlFor="booking-limit">Only allow</label>
+								<input
+									type="number"
+									value={info.maxBookingsPerSession}
+									onChange={(e) =>
+										handleAvailabilityRulesChange(
+											'maxBookingsPerSession',
+											parseInt(e.target.value) || 0,
+										)
+									}
+									className="number-input"
+									min="1"
+									disabled={!info.maxBookingsPerSession}
+								/>
+								<span>bookings per</span>
+							</div>
+							<Tooltip
+								placement="bottom"
+								trigger="click"
+								overlayClassName="booking-period-dropdown"
+								title={
+									<div className="period-options">
+										{['Day', 'Week', 'Month'].map((period) => (
+											<div
+												key={period}
+												className="period-item"
+												onClick={() =>
+													handleAvailabilityRulesChange(
+														'bookingPeriod',
+														period.toLowerCase(),
+													)
+												}
+											>
+												{period}
+											</div>
+										))}
+									</div>
+								}
+								arrow={false}
+								color={'transparent'}
+								overlayStyle={{ minWidth: 'fit-content', padding: '0' }}
+							>
+								<div className="period-selector">
+									{info.bookingPeriod || 'Day'}
+									<Down />
+								</div>
+							</Tooltip>
+						</div>
+					</div>
+				</div>
 				<div className="SessionAvailabilityContainer">
 					<span className="availability-title">Session Availability</span>
 					<div className="availability-content">
@@ -1249,129 +1387,6 @@ const EditScheduler = () => {
 									</div>
 								))}
 							</div>
-						</div>
-					</div>
-				</div>
-
-				<div className="sessionBookingLimitContainer">
-					<span className="booking-title">Booking Limits</span>
-					<div className="booking-options">
-						<div className="booking-option">
-							<input
-								type="checkbox"
-								id="additional-attendees"
-								checked={info.maxParticipants > 1}
-								onChange={(e) =>
-									handleSessionMetadataChange(
-										'maxParticipants',
-										e.target.checked ? 5 : 1,
-									)
-								}
-							/>
-							<label htmlFor="additional-attendees">
-								Allow guests to add additional attendees
-							</label>
-						</div>
-						<div className="booking-option">
-							<input
-								type="checkbox"
-								id="next-booking"
-								checked={info.minBookingNotice > 0}
-								onChange={(e) =>
-									handleAvailabilityRulesChange(
-										'minBookingNotice',
-										e.target.checked ? 15 : 0,
-									)
-								}
-							/>
-							<label htmlFor="next-booking">
-								Don't let guests book in the next {info.minBookingNotice} minutes
-							</label>
-						</div>
-						<div className="booking-option">
-							<input
-								type="checkbox"
-								id="allow-reschedule"
-								checked={info.allowRescheduling}
-								onChange={(e) =>
-									handleBookingRulesChange('allowRescheduling', e.target.checked)
-								}
-							/>
-							<label htmlFor="allow-reschedule">Allow guests to reschedule</label>
-						</div>
-						<div className="booking-option">
-							<input
-								type="checkbox"
-								id="allow-cancel"
-								checked={info.allowCanceling}
-								onChange={(e) =>
-									handleBookingRulesChange('allowCanceling', e.target.checked)
-								}
-							/>
-							<label htmlFor="allow-cancel">
-								Allow guests to cancel (up to {info.minCancelNotice} minutes before)
-							</label>
-						</div>
-						<div className="booking-limit-option">
-							<div className="limit-input">
-								<input
-									type="checkbox"
-									id="booking-limit"
-									checked={info.maxBookingsPerSession > 0}
-									onChange={(e) =>
-										handleAvailabilityRulesChange(
-											'maxBookingsPerSession',
-											e.target.checked ? 1 : 0,
-										)
-									}
-								/>
-								<label htmlFor="booking-limit">Only allow</label>
-								<input
-									type="number"
-									value={info.maxBookingsPerSession}
-									onChange={(e) =>
-										handleAvailabilityRulesChange(
-											'maxBookingsPerSession',
-											parseInt(e.target.value) || 0,
-										)
-									}
-									className="number-input"
-									min="1"
-									disabled={!info.maxBookingsPerSession}
-								/>
-								<span>bookings per</span>
-							</div>
-							<Tooltip
-								placement="bottom"
-								trigger="click"
-								overlayClassName="booking-period-dropdown"
-								title={
-									<div className="period-options">
-										{['Day', 'Week', 'Month'].map((period) => (
-											<div
-												key={period}
-												className="period-item"
-												onClick={() =>
-													handleAvailabilityRulesChange(
-														'bookingPeriod',
-														period.toLowerCase(),
-													)
-												}
-											>
-												{period}
-											</div>
-										))}
-									</div>
-								}
-								arrow={false}
-								color={'transparent'}
-								overlayStyle={{ minWidth: 'fit-content', padding: '0' }}
-							>
-								<div className="period-selector">
-									{info.bookingPeriod || 'Day'}
-									<Down />
-								</div>
-							</Tooltip>
 						</div>
 					</div>
 				</div>

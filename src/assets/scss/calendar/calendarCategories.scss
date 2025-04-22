@@ -1,10 +1,9 @@
 .categoriesParentContainer {
 	display: flex;
 	width: 100%;
-	padding: 16px 16px;
+	padding: 12px 16px;
 	flex-direction: column;
 	align-items: flex-start;
-	gap: 20px;
 	flex-shrink: 0;
 	align-self: stretch;
 	border-radius: 14px;
@@ -16,7 +15,6 @@
 
 	.categoriesHeadWrapper {
 		display: flex;
-		padding: 4px 0px;
 		justify-content: space-between;
 		align-items: center;
 		align-self: stretch;
