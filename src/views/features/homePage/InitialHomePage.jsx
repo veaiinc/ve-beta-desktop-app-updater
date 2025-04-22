@@ -320,7 +320,7 @@ const InitialHomePage = () => {
 				<div
 					className="home-page-container-content"
 					style={{
-						height: info?.minimized ? 'calc(100vh - 240px)' : 'calc(100vh - 314px)',
+						height: 'calc(100vh - 295px)',
 					}}
 				>
 					{componentMapper[info?.selectedOption]}

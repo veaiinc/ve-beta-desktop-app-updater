@@ -64,7 +64,7 @@
 			}
 		}
 		.chatbox-wrapper {
-			height: 120px;
+			height: 122px;
 			width: 700px;
 			margin-top: -20px;
 			border-radius: 16px;
@@ -157,25 +157,25 @@
 
 @keyframes height-minimize {
 	from {
-		height: calc(100vh - 314px);
+		height: calc(100vh - 295px);
 	}
 	to {
-		height: calc(100vh - 240px);
+		height: calc(100vh - 220px);
 	}
 }
 
 @keyframes height-expand {
 	from {
-		height: calc(100vh - 240px);
+		height: calc(100vh - 220px);
 	}
 	to {
-		height: calc(100vh - 314px);
+		height: calc(100vh - 295px);
 	}
 }
 
 @keyframes chatbox-minimize {
 	from {
-		height: 120px;
+		height: 122px;
 	}
 	to {
 		height: 47px;
@@ -187,7 +187,7 @@
 		height: 47px;
 	}
 	to {
-		height: 120px;
+		height: 122px;
 	}
 }
 
