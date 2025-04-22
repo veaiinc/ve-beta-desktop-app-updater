@@ -255,7 +255,7 @@
 			border-radius: 12px;
 			border: 1px solid var(--stroke);
 			.textInput {
-				color: var(--secondary-font);
+				color: var(--primary-font);
 				font-family: var(--primary-font-family);
 				font-size: 14px;
 				font-style: normal;
@@ -264,6 +264,9 @@
 				flex: 1 0 0;
 				background-color: transparent !important;
 				border: none;
+				&::placeholder {
+					color: var(--secondary-font);
+				}
 			}
 			.dropdownContainer {
 				// background-color: none;
@@ -271,6 +274,7 @@
 					background: none;
 					border: none;
 					color: var(--primary-font);
+					cursor: pointer;
 				}
 			}
 		}
