@@ -502,6 +502,7 @@
 						gap: 12px;
 						border-radius: 100px;
 						background: var(--card-over-card, #202123);
+						cursor: pointer;
 						&:hover {
 							background: var(--card-over-card-hover, #171819);
 						}

@@ -146,14 +146,20 @@ const Person = ({
 							? '100px'
 							: 'fit-content',
 					color: disabled ? 'var(--secondary-font)' : 'var(--primary-font)',
+					zIndex: 50003,
 				}}
 				className={`person-select ${disabled ? 'disabled' : ''}`}
 				popupClassName="person-select-dropdown"
 				dropdownStyle={{
 					backgroundColor: 'var(--card-over-card)',
 					width: '220px',
+					color: 'var(--primary-font)',
+					zIndex: 50003,
 				}}
 				notFoundContent="No options available"
+				notFoundContentStyle={{
+					color: 'var(--primary-font)',
+				}}
 				onDropdownVisibleChange={(open) => {}}
 				{...(multiSelect ? { tagRender: renderPerson } : { labelRender: renderPerson })}
 				dropdownRender={(menu) => {
