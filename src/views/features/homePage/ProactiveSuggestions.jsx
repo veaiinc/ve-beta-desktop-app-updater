@@ -331,7 +331,9 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 						);
 					})
 				) : info?.cards?.length === 0 ? (
-					<div className="no-data">No data available</div>
+					<div className="no-data" style={{ color: 'var(--primary-font)' }}>
+						No data available
+					</div>
 				) : (
 					info.cards.map((card, index) => {
 						if (card.position === null) return null;
@@ -429,6 +431,7 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 														height: '1px',
 														backgroundColor: 'var(--stroke)',
 														border: 'none',
+														marginTop: '10px',
 													}}
 												/>
 											)}

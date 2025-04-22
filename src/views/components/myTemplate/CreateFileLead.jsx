@@ -560,7 +560,7 @@ const CreateFileLead = ({ open, onClose, workflow }) => {
 							className={`createButton ${info?.createButtonActive ? 'active' : ''}`}
 							onClick={info?.existingLeadSource ? createDocumentFunc : createLeadFunc}
 						>
-							{info?.isLoading ? <p>Loading...</p> : <p>Add Lead</p>}
+							{info?.isLoading ? <p>Loading...</p> : <p>Create</p>}
 						</div>
 						<p className="cancelText" onClick={closeModalFunc}>
 							Cancel
