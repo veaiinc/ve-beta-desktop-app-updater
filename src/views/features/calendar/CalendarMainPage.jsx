@@ -2,10 +2,11 @@ import { memo, useState, useCallback, useEffect, useContext } from 'react';
 import '../../../assets/scss/calendar/calendar.scss';
 import CalendarSidebar from './CalendarSidebar';
 import CalendarView from './CalendarView';
+import EditScheduler from './EditScheduler';
 import Context from '../../../context/context';
 import ObjectId from 'bson-objectid';
 import moment from 'moment';
-
+import CreateSessionModal from '../../components/modalsV2/calendar/CreateSessionModal';
 const initialState = {
 	selectedWeek: [],
 	isCreateEventOpen: false,
@@ -23,6 +24,7 @@ const initialState = {
 	schedulerList: [],
 	selectedSession: null,
 	sessionFilter: [],
+	showEditScheduler: false,
 };
 
 const Calendar = () => {
@@ -124,6 +126,16 @@ const Calendar = () => {
 		setInfo((prevInfo) => ({ ...prevInfo, [key]: value }));
 	}, []);
 
+	const handleBackToCalendar = useCallback(() => {
+		setInfo((prevInfo) => ({
+			...prevInfo,
+			showEditScheduler: false,
+			selectedSession: null,
+			isEventSelected: false,
+			selectedSlot: null,
+		}));
+	}, []);
+
 	const updateCategoryList = useCallback(() => {
 		if (calendarCategoriesList) {
 			setInfo((prevInfo) => ({
@@ -171,21 +183,28 @@ const Calendar = () => {
 					selectedSession={info?.selectedSession}
 					sessionFilter={info?.sessionFilter}
 				/>
-				<CalendarView
-					currentCalendarDate={info?.currentCalendarDate}
-					selectedWeek={info?.selectedWeek}
-					selectedDate={info?.selectedDate}
-					selectedMonth={info?.selectedMonth}
-					selectedYear={info?.selectedYear}
-					isEventSelected={info?.isEventSelected}
-					categoryList={info?.categoryList}
-					selectedCategory={info?.selectedCategory}
-					categoryFilter={info?.categoryFilter}
-					getCurrentWeek={getCurrentWeek}
-					updateCalendarInfo={updateCalendarInfo}
-					selectedWorkflowId={info?.selectedWorkflowId}
-					selectedSlot={info?.selectedSlot}
-				/>
+				{info?.showEditScheduler ? (
+					<EditScheduler
+						onBack={handleBackToCalendar}
+						sessionId={info?.selectedSession?._id}
+					/>
+				) : (
+					<CalendarView
+						currentCalendarDate={info?.currentCalendarDate}
+						selectedWeek={info?.selectedWeek}
+						selectedDate={info?.selectedDate}
+						selectedMonth={info?.selectedMonth}
+						selectedYear={info?.selectedYear}
+						isEventSelected={info?.isEventSelected}
+						categoryList={info?.categoryList}
+						selectedCategory={info?.selectedCategory}
+						categoryFilter={info?.categoryFilter}
+						getCurrentWeek={getCurrentWeek}
+						updateCalendarInfo={updateCalendarInfo}
+						selectedWorkflowId={info?.selectedWorkflowId}
+						selectedSlot={info?.selectedSlot}
+					/>
+				)}
 			</div>
 		</>
 	);

@@ -1,10 +1,13 @@
-import { memo, useCallback, useState, useRef, useEffect } from 'react';
-import '../../../assets/scss/calendar/calendarCategories.scss';
+import React, { memo, useCallback, useState, useRef, useEffect } from 'react';
+import '../../../assets/scss/calendar/SessionCard.scss';
 import { ReactComponent as PencilSvg } from '../../../assets/svg/calendar/pencil.svg';
 import PlusSvg from '../../../assets/svg/my_templates/PlusSvg';
 import { ReactComponent as DownSvg } from '../../../assets/svg/calendar/down.svg';
 import UpdateSessionSlot from '../../../views/components/modalsV2/calendar/UpdateSessionSlot';
 import CreateSessionModal from '../../../views/components/modalsV2/calendar/CreateSessionModal';
+import dayjs from 'dayjs';
+
+const expandedHeight = '192px'; // Pre-calculated: 40 + (2 * 40) + (3 * 12) + 32 + 4
 
 const SessionCard = ({
 	schedulerList = [],
@@ -14,10 +17,13 @@ const SessionCard = ({
 }) => {
 	const [info, setInfo] = useState({
 		expanded: false,
+		height: '62px',
 		isSessionModalOpen: false,
 		isCreateModalOpen: false,
 		isSessionEditable: false,
 		selectedCalendarSession: selectedSession || null,
+		scheduleFrom: dayjs(),
+		scheduleTo: dayjs().add(1, 'weeks'),
 	});
 	const expandRef = useRef(null);
 
@@ -27,6 +33,13 @@ const SessionCard = ({
 			setInfo((prev) => ({ ...prev, expanded: true }));
 		}
 	}, [schedulerList]);
+
+	useEffect(() => {
+		setInfo((prevInfo) => ({
+			...prevInfo,
+			height: info?.expanded ? expandedHeight : '62px',
+		}));
+	}, [info?.expanded]);
 
 	const handleSessionExpand = useCallback(() => {
 		setInfo((prevInfo) => ({
@@ -49,11 +62,11 @@ const SessionCard = ({
 
 			setInfo((prevInfo) => ({
 				...prevInfo,
-				isSessionModalOpen: true,
 				isSessionEditable: true,
 				selectedCalendarSession: session,
 			}));
 			updateCalendarInfo('selectedSession', session);
+			updateCalendarInfo('showEditScheduler', true);
 		},
 		[updateCalendarInfo],
 	);
@@ -61,13 +74,13 @@ const SessionCard = ({
 	const handleCheckboxChange = (sessionId) => {
 		if (!sessionId) return;
 
-		const defaultSession = Array.isArray(schedulerList)
-			? schedulerList.find((session) => session?.sessionName?.toLowerCase() === 'all')?._id
-			: null;
+		const defaultSession = schedulerList?.find(
+			(session) => session?.sessionName?.toLowerCase() === 'all',
+		)?._id;
 
-		if (!defaultSession) return;
-
+		// If selecting Default session
 		if (sessionId === defaultSession) {
+			// If Default is already selected, keep it selected, otherwise select only Default
 			const updatedFilter = sessionFilter?.includes(defaultSession)
 				? [defaultSession]
 				: [defaultSession];
@@ -75,31 +88,45 @@ const SessionCard = ({
 			return;
 		}
 
+		// If selecting a non-Default session
 		let updatedFilter;
 		if (sessionFilter?.includes(sessionId)) {
+			// Unselect the session if it's already selected
 			updatedFilter = sessionFilter?.filter((id) => id !== sessionId);
+			// If this would result in an empty filter, select the default session
 			if (updatedFilter.length === 0) {
 				updatedFilter = [defaultSession];
 			}
 		} else {
+			// Add the session and remove Default if it was selected
 			updatedFilter = [...sessionFilter?.filter((id) => id !== defaultSession), sessionId];
 		}
 
 		updateCalendarInfo('sessionFilter', updatedFilter);
 	};
 
+	const handleSessionCreated = useCallback(
+		(session) => {
+			handleEditSession(session);
+		},
+		[handleEditSession],
+	);
+
 	return (
 		<>
 			<div
-				className={`categoriesParentContainer ${info?.expanded ? 'expanded' : ''}`}
+				className={`sessionCardContainer ${info?.expanded ? 'expanded' : ''}`}
+				style={{
+					height: info?.height,
+				}}
 				ref={expandRef}
 			>
-				<div className="categoriesHeadWrapper">
+				<div className="sessionHeader">
 					<div className="headerContainer">
 						<span className="headLabel">Sessions</span>
 					</div>
 					<div className="headerButtonsContainer">
-						<div className="addCategoryButton" onClick={handleAddSessionClick}>
+						<div className="addSessionButton" onClick={handleAddSessionClick}>
 							<PlusSvg />
 						</div>
 						<div className="expandIcon" onClick={handleSessionExpand}>
@@ -109,7 +136,7 @@ const SessionCard = ({
 				</div>
 
 				{info?.expanded && Array.isArray(schedulerList) && (
-					<div className="categoriesContainer">
+					<div className="sessionsContainer">
 						{schedulerList.map((session) => {
 							if (!session || typeof session !== 'object') return null;
 
@@ -117,8 +144,8 @@ const SessionCard = ({
 								Array.isArray(sessionFilter) &&
 								sessionFilter.includes(session?._id);
 							return (
-								<div className="categoryTypeContainer" key={session?._id}>
-									<div className="typeWrapper">
+								<div className="sessionItem" key={session?._id}>
+									<div className="sessionWrapper">
 										<span
 											className="statusIndicator"
 											style={{
@@ -127,7 +154,7 @@ const SessionCard = ({
 										></span>
 										<label
 											htmlFor={`${session?.sessionName}-checkbox`}
-											className="typeLabel"
+											className="sessionLabel"
 										>
 											{session?.sessionName || 'Unnamed Session'}
 											{session?.sessionName?.toLowerCase() !== 'all' && (
@@ -160,6 +187,7 @@ const SessionCard = ({
 			<CreateSessionModal
 				open={info?.isCreateModalOpen}
 				closeModal={() => setInfo((prev) => ({ ...prev, isCreateModalOpen: false }))}
+				onSessionCreated={handleSessionCreated}
 			/>
 			<UpdateSessionSlot
 				open={info?.isSessionModalOpen}

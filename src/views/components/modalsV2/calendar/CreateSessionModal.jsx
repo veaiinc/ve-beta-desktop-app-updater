@@ -7,7 +7,6 @@ import { ReactComponent as DateSvg } from '../../../../assets/svg/calendar/date.
 import InputComponent from '../../ai_assistant/InputComponent';
 import { Tooltip, DatePicker } from 'antd';
 import dayjs from 'dayjs';
-import { useNavigate } from 'react-router-dom';
 import Context from '../../../../context/context';
 import Spinner from '../../loaders/Spinner';
 
@@ -18,19 +17,19 @@ const sessionTypeInputConfig = {
 		value: 'location',
 		tag: 'Location',
 		type: 'text',
-		placeholder: 'Enter location',
+		placeholder: '',
 	},
 	'Phone Call': {
 		value: 'phoneNumber',
 		tag: 'Phone Number',
 		type: 'number',
-		placeholder: 'Enter phone number',
+		placeholder: '',
 	},
 	'Video Call': {
 		value: 'meetingLink',
 		tag: 'Platform Link',
 		type: 'url',
-		placeholder: 'Enter video call link',
+		placeholder: '',
 	},
 };
 
@@ -44,20 +43,19 @@ const initialInfo = {
 	location: null,
 	phoneNumber: null,
 	meetingLink: null,
-	scheduleFrom: dayjs(),
-	scheduleTo: dayjs().add(1, 'weeks'),
+	scheduleFrom: null,
+	scheduleTo: null,
 	errors: {
 		sessionName: false,
 		sessionTypeInput: false,
 	},
 };
 
-const CreateSessionModal = ({ open, closeModal }) => {
+const CreateSessionModal = ({ open, closeModal, onSessionCreated }) => {
 	const {
 		calendarInfo: { createdSession, createSchedulerSession },
 	} = useContext(Context);
 
-	const navigate = useNavigate();
 	const [info, setInfo] = useState({
 		...initialInfo,
 	});
@@ -66,7 +64,7 @@ const CreateSessionModal = ({ open, closeModal }) => {
 		if (createdSession) {
 			console.log('createdSession==>', createdSession);
 			ModifyCloseModal();
-			navigate(`/scheduling/edit/${createdSession._id}`);
+			onSessionCreated?.(createdSession);
 		}
 	}, [createdSession]);
 
@@ -164,26 +162,28 @@ const CreateSessionModal = ({ open, closeModal }) => {
 					<span>Create a Session</span>
 					<Close onClick={ModifyCloseModal} />
 				</div>
-
-				<InputComponent
-					className={`inputHeight ${info.errors.sessionName ? 'error' : ''}`}
-					value={info?.sessionName}
-					onChange={(e) =>
-						setInfo((prev) => ({
-							...prev,
-							sessionName: e.target.value,
-							errors: { ...prev.errors, sessionName: false },
-						}))
-					}
-					placeholder={'Session name'}
-				/>
-				<div
-					className={`addSessionDesc ${info?.addDiscription ? 'hidden' : ''}`}
-					onClick={() =>
-						setInfo((prev) => ({ ...prev, addDiscription: !prev.addDiscription }))
-					}
-				>
-					Add Instruction
+				<div className="sessionNameContainer">
+					<div className="sessionNameLabel">Session Name</div>
+					<InputComponent
+						className={`inputHeight ${info.errors.sessionName ? 'error' : ''}`}
+						value={info?.sessionName}
+						onChange={(e) =>
+							setInfo((prev) => ({
+								...prev,
+								sessionName: e.target.value,
+								errors: { ...prev.errors, sessionName: false },
+							}))
+						}
+						placeholder={''}
+					/>
+					<div
+						className={`addSessionDesc ${info?.addDiscription ? 'hidden' : ''}`}
+						onClick={() =>
+							setInfo((prev) => ({ ...prev, addDiscription: !prev.addDiscription }))
+						}
+					>
+						Add Instruction
+					</div>
 				</div>
 
 				<div
