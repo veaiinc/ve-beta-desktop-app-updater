@@ -13,7 +13,7 @@ import {
 	TextAlignButton,
 	UnnestBlockButton,
 } from '@blocknote/react';
-import { AskAiButton } from './AskAiButton';
+import AskAiButton from './AskAiButton';
 import { memo } from 'react';
 
 const NoteToolbar = memo(({ sendMessage, aiResonse, resetAiResponse }) => {

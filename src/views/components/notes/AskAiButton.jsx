@@ -30,7 +30,7 @@ const dropDownOptions = [
 	},
 ];
 
-export const AskAiButton = memo(({ sendMessage, aiResonse, resetAiResponse }) => {
+const AskAiButton = memo(({ sendMessage, aiResonse, resetAiResponse }) => {
 	const editor = useBlockNoteEditor();
 	const [info, setInfo] = useState({
 		isOpen: false,
@@ -164,3 +164,5 @@ const AskAiDropdown = memo(({ handleAiQuery, isLoading }) => {
 		</div>
 	);
 });
+
+export default AskAiButton;
