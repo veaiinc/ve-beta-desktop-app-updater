@@ -636,8 +636,6 @@ const RecentChat = ({
 		setInfo((prev) => ({ ...prev, showViewDocument: value }));
 	}, []);
 
-	console.log('globalChatMessages', globalChatMessages);
-
 	return (
 		<>
 			<div className="chat-container">
