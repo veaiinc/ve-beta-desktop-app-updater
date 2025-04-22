@@ -1,7 +1,6 @@
-import { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { memo, useContext, useEffect, useRef, useState, useMemo } from 'react';
 import '../../../assets/scss/home_page/proactiveSuggestions.scss';
 import Context from '../../../context/context';
-import AISuggestionsPopup from '../../components/modalsV2/homePage/AISuggestionsPopup';
 import { ReactComponent as ChevronRightThinSvg } from '../../../assets/svg/tasks/chevronRightThin.svg';
 import { ReactComponent as FilterIcon } from '../../../assets/svg/tasks/newFiltersIcon.svg';
 import { ReactComponent as TickIcon } from '../../../assets/svg/tick.svg';
@@ -77,6 +76,20 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 		selectedFilters: [],
 	});
 
+	const selectedPriority =
+		info?.selectedFilters?.filter((f) => f?.group === 'Priority Level').map((f) => f?.value) ||
+		[];
+
+	const selectedReadStatus =
+		info?.selectedFilters
+			?.filter((f) => f?.group === 'Read Status' && f?.title !== 'All')
+			.map((f) => f?.value) || [];
+
+	const selectedConfidenceScore =
+		info?.selectedFilters
+			?.filter((f) => f?.group === 'Confidence level')
+			.map((f) => f?.value) || [];
+
 	const selectedOptionRef = useRef(selectedOption);
 	const currentIndexRef = useRef(0);
 	const totalCardsDataRef = useRef([]);
@@ -108,26 +121,16 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 		}
 	}, [info?.totalCardsData, info.currentIndex]);
 
+	const newUpdatedPayload = useMemo(() => {
+		return {
+			...payload,
+			...(selectedPriority.length && { priority: selectedPriority }),
+			...(selectedReadStatus.length && { read: selectedReadStatus }),
+			...(selectedConfidenceScore.length && { confidenceScore: selectedConfidenceScore }),
+		};
+	}, [payload, selectedPriority, selectedReadStatus, selectedConfidenceScore]);
 	useEffect(() => {
 		if (!info?.selectedFilters) return;
-
-		const selectedPriority = info.selectedFilters
-			.filter((f) => f?.group === 'Priority Level')
-			.map((f) => f?.value);
-		const selectedReadStatus = info.selectedFilters
-			.filter((f) => f?.group === 'Read Status' && f?.title !== 'All') // exclude "All"
-			.map((f) => f?.value);
-		const selectedConfidenceScore = info.selectedFilters
-			.filter((f) => f?.group === 'Confidence level')
-			.map((f) => f?.value);
-		const newUpdatedPayload = {
-			...payload,
-			...(selectedPriority.length > 0 ? { priority: selectedPriority } : {}),
-			...(selectedReadStatus.length > 0 ? { read: selectedReadStatus } : {}),
-			...(selectedConfidenceScore.length > 0
-				? { confidenceScore: selectedConfidenceScore }
-				: {}),
-		};
 
 		getAISuggestedPendingActions(newUpdatedPayload);
 	}, [info?.selectedFilters]);
@@ -353,6 +356,8 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 										></span>
 										<div className="module-priority-text">
 											<div>{card?.priority}</div>
+											{/* <div>|</div>
+											<div>{dayjs(card?.updatedAt * 1000).fromNow()}</div> */}
 										</div>
 									</div>
 								</div>
