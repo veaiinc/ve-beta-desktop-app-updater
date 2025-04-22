@@ -101,7 +101,7 @@ const DropDown = ({
 			arrow={false}
 			trigger={'click'}
 			color={'transparent'}
-			overlayStyle={{ minWidth: 'fit-content', padding: '0' }}
+			overlayStyle={{ minWidth: 'fit-content', padding: '0', zIndex: 50003 }}
 		>
 			<div
 				className=""
