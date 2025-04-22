@@ -13,13 +13,20 @@ import {
 	TextAlignButton,
 	UnnestBlockButton,
 } from '@blocknote/react';
-// import { TextColorPicker } from './TextColorPicker';
+import AskAiButton from './AskAiButton';
+import { memo } from 'react';
 
-export default function NoteToolbar() {
+const NoteToolbar = memo(({ sendMessage, aiResonse, resetAiResponse }) => {
 	return (
 		<FormattingToolbarController
 			formattingToolbar={() => (
 				<FormattingToolbar>
+					<AskAiButton
+						key={'askAiButton'}
+						sendMessage={sendMessage}
+						aiResonse={aiResonse}
+						resetAiResponse={resetAiResponse}
+					/>
 					<BlockTypeSelect key={'blockTypeSelect'} />
 
 					<FileCaptionButton key={'fileCaptionButton'} />
@@ -49,4 +56,6 @@ export default function NoteToolbar() {
 			)}
 		/>
 	);
-}
+});
+
+export default NoteToolbar;

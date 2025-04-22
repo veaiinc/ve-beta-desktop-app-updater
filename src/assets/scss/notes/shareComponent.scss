@@ -1,20 +1,16 @@
 .notes-nav-menu-item-share {
 	button {
 		display: flex;
-		height: 32px;
-		padding: 8px 14px;
+		justify-content: center;
 		align-items: center;
-		gap: 6px;
-		border-radius: 8px;
-		background: var(--card);
+		background-color: transparent;
 		color: var(--primary-font);
 		font-family: var(--primary-font-family);
-		font-size: 14px;
-		font-style: normal;
+		height: fit-content;
+		width: fit-content;
 		font-weight: 500;
-		line-height: normal;
-		border: none;
 		cursor: pointer;
+		border: none;
 	}
 }
 
