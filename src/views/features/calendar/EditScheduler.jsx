@@ -148,29 +148,40 @@ const EditScheduler = ({ onBack, sessionId: propSessionId }) => {
 				};
 			}
 
-			// Map session type
+			// Map session type and its related fields
 			let sessionType = 'In Person';
 			let location = '';
 			let phoneNumber = '';
 			let videoLink = '';
 
 			if (sessionDetail.sessionTypeInfo) {
-				switch (sessionDetail.sessionTypeInfo.sessionType.toLowerCase()) {
-					case 'virtual':
-						sessionType = 'Video Call';
-						videoLink = sessionDetail.sessionTypeInfo.meetingLink || '';
-						break;
-					case 'phone':
-						sessionType = 'Phone Call';
-						phoneNumber = sessionDetail.sessionTypeInfo.phone || '';
-						break;
-					case 'inperson':
-						sessionType = 'In Person';
-						location = sessionDetail.sessionTypeInfo.location || '';
-						break;
-					default:
-						sessionType = 'In Person';
-						location = sessionDetail.sessionTypeInfo.location || '';
+				// Set all fields from sessionTypeInfo
+				location = sessionDetail.sessionTypeInfo.location || '';
+				phoneNumber = sessionDetail.sessionTypeInfo.phone || '';
+				videoLink = sessionDetail.sessionTypeInfo.meetingLink || '';
+
+				// Determine session type based on available data
+				if (phoneNumber) {
+					sessionType = 'Phone Call';
+				} else if (videoLink) {
+					sessionType = 'Video Call';
+				} else if (location) {
+					sessionType = 'In Person';
+				} else {
+					// Fallback to API sessionType if no data is available
+					switch (sessionDetail.sessionTypeInfo.sessionType.toLowerCase()) {
+						case 'virtual':
+							sessionType = 'Video Call';
+							break;
+						case 'phone':
+							sessionType = 'Phone Call';
+							break;
+						case 'inperson':
+							sessionType = 'In Person';
+							break;
+						default:
+							sessionType = 'In Person';
+					}
 				}
 			}
 

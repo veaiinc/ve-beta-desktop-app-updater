@@ -106,6 +106,10 @@
 	.rbc-today {
 		background-color: var(--background);
 	}
+	.rbc-today .rbc-button-link {
+		color: var(--primary-font);
+		font-weight: 600;
+	}
 
 	.rbc-time-view .rbc-time-gutter {
 		text-align: center;
@@ -334,7 +338,6 @@
 					.rbc-current {
 						.rbc-button-link {
 							border-radius: 4px;
-
 							display: flex;
 							padding: 4px;
 							justify-content: center;

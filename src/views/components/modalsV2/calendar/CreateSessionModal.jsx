@@ -48,6 +48,9 @@ const initialInfo = {
 	errors: {
 		sessionName: false,
 		sessionTypeInput: false,
+		phoneNumber: false,
+		meetingLink: false,
+		dateRange: false,
 	},
 };
 
@@ -69,6 +72,15 @@ const CreateSessionModal = ({ open, closeModal, onSessionCreated }) => {
 	}, [createdSession]);
 
 	const handleCreateSession = useCallback(() => {
+		// Validate date range
+		if (info.scheduleFrom && info.scheduleTo && info.scheduleTo <= info.scheduleFrom) {
+			setInfo((prev) => ({
+				...prev,
+				errors: { ...prev.errors, dateRange: true },
+			}));
+			return;
+		}
+
 		// Validate required fields
 		const errors = {
 			sessionName: !info?.sessionName,
@@ -86,7 +98,7 @@ const CreateSessionModal = ({ open, closeModal, onSessionCreated }) => {
 		setInfo((prev) => ({
 			...prev,
 			creatingSessionLoading: true,
-			errors: { sessionName: false, sessionTypeInput: false },
+			errors: { ...prev.errors, dateRange: false },
 		}));
 
 		const sessionPayload = {
@@ -130,19 +142,65 @@ const CreateSessionModal = ({ open, closeModal, onSessionCreated }) => {
 
 	const renderSessionTypeInput = () => {
 		const config = sessionTypeInputConfig[info.sessionType];
+
+		const validateInput = (value) => {
+			if (config.value === 'phoneNumber') {
+				// Validate 10-digit phone number
+				const isValidPhone = /^\d{10}$/.test(value);
+				setInfo((prev) => ({
+					...prev,
+					errors: { ...prev.errors, phoneNumber: !isValidPhone },
+				}));
+				return isValidPhone;
+			} else if (config.value === 'meetingLink') {
+				// Validate URL format
+				try {
+					new URL(value);
+					setInfo((prev) => ({
+						...prev,
+						errors: { ...prev.errors, meetingLink: false },
+					}));
+					return true;
+				} catch {
+					setInfo((prev) => ({
+						...prev,
+						errors: { ...prev.errors, meetingLink: true },
+					}));
+					return false;
+				}
+			}
+			return true;
+		};
+
+		const handleChange = (e) => {
+			const value = e.target.value;
+			if (config.value === 'phoneNumber') {
+				// Only allow numbers and limit to 10 digits
+				const numericValue = value.replace(/\D/g, '').slice(0, 10);
+				setInfo((prev) => ({
+					...prev,
+					[config.value]: numericValue,
+					errors: { ...prev.errors, sessionTypeInput: false },
+				}));
+			} else {
+				setInfo((prev) => ({
+					...prev,
+					[config.value]: value,
+					errors: { ...prev.errors, sessionTypeInput: false },
+				}));
+			}
+			validateInput(value);
+		};
+
 		return (
 			<InputComponent
 				type={config.type}
 				value={info[config.value]}
-				onChange={(e) =>
-					setInfo((prev) => ({
-						...prev,
-						[config.value]: e.target.value,
-						errors: { ...prev.errors, sessionTypeInput: false },
-					}))
-				}
+				onChange={handleChange}
 				placeholder={config.placeholder}
-				className={`inputHeight ${info.errors.sessionTypeInput ? 'error' : ''}`}
+				className={`inputHeight ${
+					info.errors.sessionTypeInput || info.errors[config.value] ? 'error' : ''
+				}`}
 			/>
 		);
 	};
@@ -256,6 +314,7 @@ const CreateSessionModal = ({ open, closeModal, onSessionCreated }) => {
 								setInfo((prev) => ({
 									...prev,
 									scheduleFrom: value,
+									errors: { ...prev.errors, dateRange: false },
 								}));
 							}}
 							className="typeOfSession-lable"
@@ -276,6 +335,7 @@ const CreateSessionModal = ({ open, closeModal, onSessionCreated }) => {
 								setInfo((prev) => ({
 									...prev,
 									scheduleTo: value,
+									errors: { ...prev.errors, dateRange: false },
 								}));
 							}}
 							className="typeOfSession-lable"
@@ -289,6 +349,15 @@ const CreateSessionModal = ({ open, closeModal, onSessionCreated }) => {
 						/>
 					</div>
 				</div>
+
+				{info.errors.dateRange && (
+					<div
+						className="error-message"
+						style={{ color: 'red', marginTop: '5px', textAlign: 'center' }}
+					>
+						End date must be greater than start date
+					</div>
+				)}
 
 				<div className="scheduleBtnContainer">
 					<button
