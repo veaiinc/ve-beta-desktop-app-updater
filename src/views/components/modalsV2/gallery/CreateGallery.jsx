@@ -173,8 +173,6 @@ const CreateGallery = ({
 					const searchParams = isLightGallery ? '?lite-gallery=true' : '';
 					const state = {
 						galleryData: response?.[1],
-						isLightGallery: isLightGallery,
-						forceLight: isLightGallery,
 					};
 
 					navigate(`/galleries/${galleryId}${searchParams}`, { state });
