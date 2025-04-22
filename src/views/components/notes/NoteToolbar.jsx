@@ -16,12 +16,17 @@ import {
 import { AskAiButton } from './AskAiButton';
 // import { TextColorPicker } from './TextColorPicker';
 
-export default function NoteToolbar() {
+export default function NoteToolbar({ sendMessage, aiResonse, resetAiResponse }) {
 	return (
 		<FormattingToolbarController
 			formattingToolbar={() => (
 				<FormattingToolbar>
-					<AskAiButton key={'askAiButton'} />
+					<AskAiButton
+						key={'askAiButton'}
+						sendMessage={sendMessage}
+						aiResonse={aiResonse}
+						resetAiResponse={resetAiResponse}
+					/>
 					<BlockTypeSelect key={'blockTypeSelect'} />
 
 					<FileCaptionButton key={'fileCaptionButton'} />
