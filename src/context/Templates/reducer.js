@@ -188,41 +188,62 @@ const actionHandlers = {
 			if (processing === 'Deep Search') {
 				let deepSearch = message?.deepSearch || {};
 				let cot = [...(deepSearch?.cot || [])];
-				// let cot_refined = [...(deepSearch?.cot_refined || [])];
+				let cot_refined = [...(deepSearch?.cot_refined || [])];
+				let initial_answer = deepSearch?.initial_answer || {};
+				let final_answer = deepSearch?.final_answer || {};
 
-				if (payload?.sub_queries || payload?.refined_sub_queries) {
-					cot = [];
-					(payload?.sub_queries || payload?.refined_sub_queries || [])?.forEach(
-						(subQuery) => {
-							cot.push({
-								sub_query: subQuery,
-							});
-						},
+				if (payload?.sub_query_id && payload?.reading) {
+					let index = cot?.findIndex(
+						(item) => item?.sub_query_id === payload?.sub_query_id,
 					);
+					if (index !== -1) {
+						cot[index] = {
+							...cot[index],
+							...payload,
+						};
+					} else {
+						cot?.push({
+							...payload,
+						});
+					}
 				}
 
-				if (payload?.sub_query) {
-					cot = cot?.map((item) => {
-						if (item?.sub_query === payload?.sub_query) {
-							item.searching = payload?.searching;
-						}
-						return item;
-					});
-					// cot?.push(payload);
+				if (payload?.refined_sub_query_id && payload?.reading) {
+					let index = cot_refined?.findIndex(
+						(item) => item?.refined_sub_query_id === payload?.refined_sub_query_id,
+					);
+					if (index !== -1) {
+						cot_refined[index] = {
+							...cot_refined[index],
+							...payload,
+						};
+					} else {
+						cot_refined?.push({
+							...payload,
+						});
+					}
 				}
 
-				// if (payload?.reading) {
-				// 	cot = cot?.map((item) => {
-				// 		if (item?.sub_query === payload?.reading?.sub_query) {
-				// 			item = { ...item, ...payload };
-				// 		}
-				// 		return item;
-				// 	});
-				// }
+				if (payload?.initial_answer) {
+					initial_answer = {
+						...initial_answer,
+						...payload,
+					};
+				}
+
+				if (payload?.final_answer) {
+					final_answer = {
+						...final_answer,
+						...payload,
+					};
+				}
 
 				deepSearch = {
 					...deepSearch,
 					cot,
+					cot_refined,
+					initial_answer,
+					final_answer,
 				};
 
 				messages[requiredIndex] = {

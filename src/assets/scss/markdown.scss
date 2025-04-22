@@ -109,13 +109,13 @@
 	.ol,
 	.ul {
 		list-style-position: outside;
-		padding-left: 2ch;
 		margin-bottom: calc(var(--font-size) * 0.0625); /* 1px likely a typo? */
 		font-size: calc(var(--font-size) * 0.9375);
 		line-height: calc(var(--font-size) * 1.5);
 		letter-spacing: calc(var(--font-size) * 0.0125);
 		font-weight: 500;
 		font-family: var(--chat-primary-font-family);
+		padding-left: 36px;
 	}
 
 	.li {
@@ -124,9 +124,9 @@
 		font-family: var(--chat-primary-font-family);
 		letter-spacing: calc(var(--font-size) * 0.0125);
 		font-weight: 500;
-		margin-bottom: calc(var(--font-size) * 0.75);
 		line-height: calc(var(--font-size) * 1.5);
 		font-size: calc(var(--font-size) * 0.9375);
+		margin-bottom: 10px;
 	}
 	.li::marker {
 		font-size: calc(var(--font-size) * 1.25);
