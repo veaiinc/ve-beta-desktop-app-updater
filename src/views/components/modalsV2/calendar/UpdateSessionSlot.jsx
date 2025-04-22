@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useState } from 'react';
+import { memo, useCallback, useEffect, useState } from 'react';
 import '../../../../assets/scss/calendar/modal/udateSessionSlot.scss';
 import ReactModal from '../index';
 import { ReactComponent as Delete } from '../../../../assets/svg/ai_assistant/delete.svg';
@@ -7,6 +7,11 @@ import { ReactComponent as Clock } from '../../../../assets/svg/workflow/clock.s
 import { Tooltip, DatePicker } from 'antd';
 import moment from 'moment';
 import ToggleSwitch from '../../../components/input/slider';
+
+const customStyles = {
+	content: { zIndex: 1003, borderRadius: '24px' },
+	overlay: { zIndex: 1002 },
+};
 
 const UpdateSessionSlot = ({
 	open,
@@ -175,10 +180,7 @@ const UpdateSessionSlot = ({
 			isOpen={open}
 			closeModal={ModifyCloseModal}
 			modalType={'center'}
-			customStyles={{
-				content: { zIndex: 1003, borderRadius: '24px' },
-				overlay: { zIndex: 1002 },
-			}}
+			customStyles={customStyles}
 		>
 			<div className="updateSessionSlotContainer">
 				<div className="sessionHeader">

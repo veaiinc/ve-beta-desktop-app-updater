@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useState, useContext, useEffect } from 'react';
+import { memo, useCallback, useState, useContext, useEffect } from 'react';
 import '../../../assets/scss/calendar/eventsPopup.scss';
 import { ReactComponent as CloseSvg } from '../../../assets/svg/calendar/close.svg';
 import { ReactComponent as DownSvg } from '../../../assets/svg/calendar/down.svg';

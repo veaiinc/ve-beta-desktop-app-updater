@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useState, useRef, useEffect } from 'react';
+import { memo, useCallback, useState, useRef, useEffect } from 'react';
 import '../../../assets/scss/calendar/calendarCategories.scss';
 import { ReactComponent as PencilSvg } from '../../../assets/svg/calendar/pencil.svg';
 import PlusSvg from '../../../assets/svg/my_templates/PlusSvg';

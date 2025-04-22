@@ -1,9 +1,11 @@
-import React, { memo, useCallback, useState, useRef, useEffect } from 'react';
+import { memo, useCallback, useState, useRef, useEffect } from 'react';
 import '../../../assets/scss/calendar/calendarCategories.scss';
 import { ReactComponent as PencilSvg } from '../../../assets/svg/calendar/pencil.svg';
 import UpdateCategoryModal from '../modalsV2/calendar/UpdateCategoryModal';
 import PlusSvg from '../../../assets/svg/my_templates/PlusSvg';
 import { ReactComponent as DownSvg } from '../../../assets/svg/calendar/down.svg';
+
+const expandedHeight = '192px'; // Pre-calculated: 40 + (2 * 40) + (3 * 12) + 32 + 4
 
 const CalendarCategories = ({
 	categoryList,
@@ -21,27 +23,10 @@ const CalendarCategories = ({
 	const expandRef = useRef(null);
 
 	useEffect(() => {
-		if (info?.expanded) {
-			// Calculate height for header + 5 items
-			const headerHeight = 40; // Height of the header
-			const itemHeight = 40; // Height of each category item
-			const gapHeight = 12; // Gap between items
-			const containerPadding = 32; // 16px top + 16px bottom
-			const scrollbarWidth = 4; // Width of the scrollbar
-
-			const calculatedHeight =
-				headerHeight + 2 * itemHeight + 3 * gapHeight + containerPadding + scrollbarWidth;
-
-			setInfo((prevInfo) => ({
-				...prevInfo,
-				height: `${calculatedHeight}px`,
-			}));
-		} else {
-			setInfo((prevInfo) => ({
-				...prevInfo,
-				height: `62px`,
-			}));
-		}
+		setInfo((prevInfo) => ({
+			...prevInfo,
+			height: info?.expanded ? expandedHeight : '62px',
+		}));
 	}, [info?.expanded]);
 
 	// Auto expand when there are items to display
