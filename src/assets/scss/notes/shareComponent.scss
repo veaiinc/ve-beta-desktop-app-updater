@@ -1,13 +1,14 @@
 .notes-nav-menu-item-share {
 	button {
 		display: flex;
-		height: 40px;
-		padding: 0 14px;
 		justify-content: center;
 		align-items: center;
-		gap: 10px;
-		border-radius: 100px;
-		background-color: var(--primary-button);
+		background-color: transparent;
+		color: var(--primary-font);
+		font-family: var(--primary-font-family);
+		height: fit-content;
+		width: fit-content;
+		font-weight: 500;
 		cursor: pointer;
 		border: none;
 	}

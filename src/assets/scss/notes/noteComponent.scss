@@ -19,20 +19,19 @@
 	align-items: center;
 	justify-content: flex-start;
 	width: 100%;
-	height: calc(100vh - 32px);
-	gap: 24px;
+	// height: calc(100vh - 32px);
+	height: 100vh;
 	background-color: var(--background-color);
-	padding-top: -32px !important;
+	// padding-top: -32px !important;
 
 	.notes-nav-menu {
 		width: 100%;
 		display: flex;
-		height: 64px;
-		padding: 16px 32px;
+		height: 41px;
+		padding: 12px;
 		justify-content: space-between;
 		align-items: center;
 		flex-shrink: 0;
-		border-bottom: 1px solid var(--stroke, #2c2d2e);
 
 		.notes-nav-title {
 			overflow: hidden;
@@ -51,18 +50,18 @@
 		.notes-nav-right {
 			display: flex;
 			align-items: center;
-			gap: 6px;
+			gap: 10px;
 			flex-shrink: 0;
 
 			.notes-nav-button {
 				display: flex;
-				height: 40px;
-				padding: 0 14px;
 				justify-content: center;
 				align-items: center;
 				gap: 10px;
 				border-radius: 100px;
-				border: 1px solid var(--stroke, #2c2d2e);
+				border: none;
+				height: fit-content;
+				width: fit-content;
 				background-color: transparent;
 				cursor: pointer;
 			}

@@ -690,7 +690,8 @@ const ShareComponent = ({ pageId }) => {
 				}}
 			>
 				<button onClick={() => handleInfoChange({ isOpen: !info.isOpen })}>
-					<NoteShareSvg />
+					{/* <NoteShareSvg /> */}
+					Share
 				</button>
 			</Tooltip>
 		</div>

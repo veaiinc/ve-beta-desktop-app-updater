@@ -11,6 +11,7 @@ import { ReactComponent as ArrowSvg } from '../../../assets/svg/file/arrow.svg';
 import { ReactComponent as LensSvg } from '../../../assets/svg/notes/lens.svg';
 import { ReactComponent as VeSvg } from '../../../assets/svg/ve.svg';
 import useChatStream from '../../hooks/useChatStream';
+import Spinner from '../loaders/Spinner';
 
 const buttonStyle = {
 	display: 'flex',
@@ -74,6 +75,7 @@ export const AskAiButton = memo(({ sendMessage, aiResonse, resetAiResponse }) =>
 	const editor = useBlockNoteEditor();
 	const [info, setInfo] = useState({
 		isOpen: false,
+		isLoading: false,
 	});
 
 	const Components = useComponentsContext();
@@ -86,6 +88,7 @@ export const AskAiButton = memo(({ sendMessage, aiResonse, resetAiResponse }) =>
 
 	useEffect(() => {
 		if (aiResonse) {
+			setInfo((prevInfo) => ({ ...prevInfo, isLoading: false }));
 			replaceBlock(aiResonse);
 		}
 	}, [aiResonse]);
@@ -100,25 +103,15 @@ export const AskAiButton = memo(({ sendMessage, aiResonse, resetAiResponse }) =>
 	};
 
 	const handleAiQuery = (query) => {
-		sendMessage({
-			date: [],
-			deep_research: false,
-			knowledge_base_search: false,
-			modules: [],
-			query: `"${selectedTextRef?.current}" ${query}`,
-			timezone: 'Asia/Calcutta',
-			web_search: true,
-		});
+		const aiQuery = `"${selectedTextRef?.current}" ${query}`;
+		setInfo((prevInfo) => ({ ...prevInfo, isLoading: true }));
+		sendMessage(aiQuery);
 	};
 
 	const replaceBlock = async (response) => {
 		const markdownText = response.replace(/\\n/g, '\n');
 		const blocksFromMarkdown = await editor.tryParseMarkdownToBlocks(markdownText);
-		console.log('blockmd', blocksFromMarkdown);
-
 		const blockIdentifiers = selectionRef?.current?.blocks?.map((item) => item?.id);
-		console.log(blockIdentifiers);
-
 		editor.replaceBlocks(blockIdentifiers, blocksFromMarkdown);
 		resetAiResponse();
 	};
@@ -130,7 +123,7 @@ export const AskAiButton = memo(({ sendMessage, aiResonse, resetAiResponse }) =>
 		>
 			<Tooltip
 				open={info?.isOpen}
-				title={<AskAiDropdown handleAiQuery={handleAiQuery} />}
+				title={<AskAiDropdown handleAiQuery={handleAiQuery} isLoading={info?.isLoading} />}
 				placement="bottomLeft"
 				trigger="click"
 				color="transparent"
@@ -143,11 +136,16 @@ export const AskAiButton = memo(({ sendMessage, aiResonse, resetAiResponse }) =>
 	);
 });
 
-const AskAiDropdown = memo(({ handleAiQuery }) => {
+const AskAiDropdown = memo(({ handleAiQuery, isLoading }) => {
 	const [info, setInfo] = useState({ input: '' });
 
 	const handleInfoChange = (data) => {
 		setInfo((prevInfo) => ({ ...prevInfo, ...data }));
+	};
+
+	const handleOptionClick = (option) => {
+		handleInfoChange({ input: option?.label });
+		handleAiQuery(option?.value);
 	};
 
 	return (
@@ -163,30 +161,44 @@ const AskAiDropdown = memo(({ handleAiQuery }) => {
 		>
 			<div className="ask-anything-input-wrapper">
 				<LensSvg />
+
 				<input
 					type="text"
 					placeholder="Ask Anything!"
 					value={info?.input}
 					onChange={(e) => handleInfoChange({ input: e?.target?.value })}
+					readOnly={isLoading}
+					onKeyDown={(e) => {
+						if (e.key === 'Enter') {
+							handleAiQuery(info?.input);
+						}
+					}}
 				/>
-				<button className="ask-ai-input-button" onClick={() => handleAiQuery(info?.input)}>
-					<ArrowSvg />
+
+				<button
+					className="ask-ai-input-button"
+					onClick={() => handleAiQuery(info?.input)}
+					disabled={isLoading}
+				>
+					{isLoading ? <Spinner width={'20px'} height={'20px'} /> : <ArrowSvg />}
 				</button>
 			</div>
-			<div className="suggested-actions-dropdown">
-				<div className="suggested-heading">Suggested</div>
-				<div className="suggested-body-wrapper">
-					{dropDownOptions?.map((item, index) => (
-						<div
-							className="suggested-list-item"
-							onClick={() => handleAiQuery(item?.value)}
-							key={index}
-						>
-							{item?.label}
-						</div>
-					))}
+			{!isLoading ? (
+				<div className="suggested-actions-dropdown">
+					<div className="suggested-heading">Suggested</div>
+					<div className="suggested-body-wrapper">
+						{dropDownOptions?.map((item, index) => (
+							<div
+								className="suggested-list-item"
+								onClick={() => handleOptionClick(item)}
+								key={index}
+							>
+								{item?.label}
+							</div>
+						))}
+					</div>
 				</div>
-			</div>
+			) : null}
 		</div>
 	);
 });

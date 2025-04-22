@@ -267,16 +267,29 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 			aiResponseRef.current = aiResponseRef.current + dataObject?.answer;
 
 			if (dataObject?.stream_end) {
-				setInfo((prevInfo) => ({ ...prevInfo, aiResonse: aiResponseRef.current }));
+				setInfo((prevInfo) => ({
+					...prevInfo,
+					aiResonse: aiResponseRef.current,
+				}));
 			}
 		}
-		// aiResponseRef
-		// console.log(dataObject);
 	};
 
 	const resetAiResponse = () => {
 		setInfo((prevInfo) => ({ ...prevInfo, aiResonse: '' }));
 		aiResponseRef.current = '';
+	};
+
+	const customSendMessage = (query) => {
+		sendMessage({
+			date: [],
+			deep_research: false,
+			knowledge_base_search: false,
+			modules: [],
+			query,
+			timezone: 'Asia/Calcutta',
+			web_search: true,
+		});
 	};
 
 	return (
@@ -304,14 +317,14 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 						/>
 					</button>
 
+					<ShareComponent pageId={noteId} />
+
 					<MoreOptions
 						notesConfigs={info?.notesConfigs}
 						onChange={handleMoreOptionsChange}
 						onDelete={handleDeletePage}
 						onDuplicate={handleDuplicatePage}
 					/>
-
-					<ShareComponent pageId={noteId} />
 				</div>
 			</div>
 
@@ -362,7 +375,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 							theme={'dark'}
 						>
 							<NoteToolbar
-								sendMessage={sendMessage}
+								sendMessage={customSendMessage}
 								aiResonse={info?.aiResonse}
 								resetAiResponse={resetAiResponse}
 							/>
