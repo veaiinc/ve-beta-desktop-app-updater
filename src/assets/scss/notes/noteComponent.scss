@@ -233,6 +233,9 @@
 				}
 				.bn-inline-content {
 					width: 100%;
+					a {
+						color: var(--secondary-font);
+					}
 				}
 				.bn-block-content[data-content-type='checkListItem'] > div {
 					width: 100%;
