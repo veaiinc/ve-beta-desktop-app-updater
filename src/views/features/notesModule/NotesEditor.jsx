@@ -6,7 +6,7 @@ import { useCreateBlockNote } from '@blocknote/react';
 import '../../../assets/scss/notes/noteComponent.scss';
 import NoteToolbar from '../../components/notes/NoteToolbar';
 import ShareComponent from '../../components/notes/ShareComponent';
-import { useEffect, memo, useContext, useCallback, useState } from 'react';
+import { useEffect, memo, useContext, useCallback, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
 import moment from 'moment';
@@ -16,6 +16,8 @@ import { StarSvg } from '../../../assets/svg/notes/Star';
 import { message } from '../../components/globalComponents/CustomToast';
 import { Helmet } from 'react-helmet';
 import Skeleton from 'react-loading-skeleton';
+import useChatStream from '../../hooks/useChatStream';
+import ObjectID from 'bson-objectid';
 const preprocessMarkdown = (markdown) => {
 	return markdown?.replace(/\\n/g, '\n'); // Add a non-breaking space for empty lines
 };
@@ -45,6 +47,9 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 			updateNotesState,
 		},
 	} = useContext(Context);
+
+	const { createWebSocketConnection, sendMessage } = useChatStream();
+
 	const editor = useCreateBlockNote({
 		tables: {
 			splitCells: true,
@@ -63,14 +68,19 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 		},
 		isFavorite: false,
 		loading: true,
+		aiResonse: '',
 	});
 
 	const { noteId } = useParams();
 	const navigate = useNavigate();
 
+	const aiResponseRef = useRef('');
+
 	useEffect(() => {
 		if (noteId) {
+			const sessionId = ObjectID()?.toString();
 			getNotesPageDataFunc();
+			createWebSocketConnection(sessionId, handleAiResponse);
 		}
 
 		return () => {
@@ -249,6 +259,39 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 		setInfo((prev) => ({ ...prev, loading: false }));
 	}, [info?.loading, info?.notesConfigs, navigate, noteId, setInfo]);
 
+	const handleAiResponse = (event) => {
+		let { data = '' } = event || {};
+		const dataObject = JSON.parse(data);
+
+		if (dataObject.hasOwnProperty('answer')) {
+			aiResponseRef.current = aiResponseRef.current + dataObject?.answer;
+
+			if (dataObject?.stream_end) {
+				setInfo((prevInfo) => ({
+					...prevInfo,
+					aiResonse: aiResponseRef.current,
+				}));
+			}
+		}
+	};
+
+	const resetAiResponse = useCallback(() => {
+		setInfo((prevInfo) => ({ ...prevInfo, aiResonse: '' }));
+		aiResponseRef.current = '';
+	}, []);
+
+	const customSendMessage = useCallback((query) => {
+		sendMessage({
+			date: [],
+			deep_research: false,
+			knowledge_base_search: false,
+			modules: [],
+			query,
+			timezone: 'Asia/Calcutta',
+			web_search: true,
+		});
+	}, []);
+
 	return (
 		<div className="notes-container" style={outerContainerStyle || {}}>
 			{info?.title && (
@@ -257,25 +300,34 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 					<title>VE - {info?.title}</title>
 				</Helmet>
 			)}
+
 			<div className="notes-nav-menu">
-				<span className="notes-nav-menu-item-last-edited">
-					{info?.updatedAt ? `Edited ${moment.unix(info?.updatedAt).fromNow()}` : ''}
-				</span>
-				<ShareComponent pageId={noteId} />
-				<StarSvg
-					fill={info?.isFavorite}
-					width={18}
-					height={18}
-					onClick={() => handleFavorite(!info?.isFavorite)}
-					className="cursor-pointer"
-				/>
-				<MoreOptions
-					notesConfigs={info?.notesConfigs}
-					onChange={handleMoreOptionsChange}
-					onDelete={handleDeletePage}
-					onDuplicate={handleDuplicatePage}
-				/>
+				<div className="notes-nav-title">{info?.title}</div>
+
+				<div className="notes-nav-right">
+					<button
+						className="notes-nav-button"
+						onClick={() => handleFavorite(!info?.isFavorite)}
+					>
+						<StarSvg
+							fill={info?.isFavorite}
+							width={18}
+							height={18}
+							className="cursor-pointer"
+						/>
+					</button>
+
+					<ShareComponent pageId={noteId} />
+
+					<MoreOptions
+						notesConfigs={info?.notesConfigs}
+						onChange={handleMoreOptionsChange}
+						onDelete={handleDeletePage}
+						onDuplicate={handleDuplicatePage}
+					/>
+				</div>
 			</div>
+
 			<div className="notes-editor-container">
 				{info?.loading ? (
 					<div
@@ -322,7 +374,11 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 							style={innerContainerStyle || {}}
 							theme={'dark'}
 						>
-							<NoteToolbar />
+							<NoteToolbar
+								sendMessage={customSendMessage}
+								aiResonse={info?.aiResonse}
+								resetAiResponse={resetAiResponse}
+							/>
 						</BlockNoteView>
 					</div>
 				)}
