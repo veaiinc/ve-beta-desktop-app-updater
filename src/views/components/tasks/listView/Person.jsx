@@ -152,8 +152,12 @@ const Person = ({
 				dropdownStyle={{
 					backgroundColor: 'var(--card-over-card)',
 					width: '220px',
+					color: 'var(--primary-font)',
 				}}
 				notFoundContent="No options available"
+				notFoundContentStyle={{
+					color: 'var(--primary-font)',
+				}}
 				onDropdownVisibleChange={(open) => {}}
 				{...(multiSelect ? { tagRender: renderPerson } : { labelRender: renderPerson })}
 				dropdownRender={(menu) => {

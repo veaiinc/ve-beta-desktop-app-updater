@@ -11,7 +11,7 @@ const skeletonLoaders = Array.from({ length: 6 }, (_, index) => index + 1);
 const ContactsWidget = ({ width, height }) => {
 	const navigate = useNavigate();
 	const {
-		contacts: { clientList, getClients, refetchClientList },
+		contacts: { clientList, getClients, refetchClientList, updateStateValues },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		contacts: null,
@@ -50,6 +50,9 @@ const ContactsWidget = ({ width, height }) => {
 				},
 			};
 			const response = await getClients(payload);
+
+			updateStateValues({ refetchClientList: false });
+
 			setInfo((prev) => ({ ...prev, loadingSkeleton: false }));
 		},
 		[getClients, info?.searchValue, info?.filters, info?.sort],

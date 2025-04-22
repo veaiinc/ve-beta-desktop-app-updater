@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { Tooltip } from 'antd';
-import React, { useContext, useState, useCallback, useEffect, memo } from 'react';
+import { useContext, useState, useCallback, useEffect, memo, useMemo } from 'react';
 // import '../../../assets/scss/home_page/homepage.scss';
 import '../../../assets/scss/globalComponents/quickActions.scss';
 import Search from '../../../assets/svg/seach-magnifier.svg';
@@ -12,7 +12,15 @@ import CreateClientModal from '../../../views/components/modalsV2/contacts/Creat
 import CreateGallery from '../../../views/components/modalsV2/gallery/CreateGallery';
 import CreateTaskPopup from '../modalsV2/tasks/CreateTaskPopup';
 import { message } from '../globalComponents/CustomToast';
-
+import { ReactComponent as ClockSvg } from '../../../assets/svg/activity/clock.svg';
+import { ReactComponent as PieSvg } from '../../../assets/svg/tasks/pieHollow.svg';
+import { ReactComponent as PrioritySvg } from '../../../assets/svg/tasks/roundChevronRight.svg';
+import { ReactComponent as WorkflowSvg } from '../../../assets/svg/tasks/workflow.svg';
+import { ReactComponent as PersonSvg } from '../../../assets/svg/tasks/person.svg';
+import { ReactComponent as CalendarSvg } from '../../../assets/svg/tasks/calendar.svg';
+import { ReactComponent as textSvg } from '../../../assets/svg/tasks/letterA.svg';
+import { colors } from '../../features/tasks/Tasks';
+import jwtDecode from 'jwt-decode';
 const moduleOptions = [
 	{
 		id: 0,
@@ -251,6 +259,24 @@ const moduleOptions = [
 	},
 ];
 
+const defaultPreference = {
+	taskSlNo: { show: false, order: 1 },
+	title: { show: true, order: 2 },
+	parentTask: { show: false, order: 3 },
+	childTasks: { show: false, order: 4 },
+	description: { show: false, order: 5 },
+	status: { show: true, order: 6 },
+	priority: { show: true, order: 7 },
+	clients: { show: true, order: 8 },
+	assignedTo: { show: true, order: 9 },
+	dueDate: { show: true, order: 10 },
+	assignedBy: { show: true, order: 11 },
+	assignedAt: { show: false, order: 12 },
+	completedAt: { show: false, order: 13 },
+	createdAt: { show: false, order: 14 },
+	updatedAt: { show: false, order: 15 },
+};
+
 const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDetails = null }) => {
 	const {
 		templates: { toggleCreateLeadModal },
@@ -259,6 +285,18 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 		aiSetup: { createNewAiAssistant },
 		notes: { createNotesList },
 		knowledgeAgent: { createNewKnowledgeAgent },
+		tasks: {
+			getTaskMetadata,
+			taskMetadata,
+			getTaskPreferences,
+			updateTaskPreferences,
+			taskPreference,
+			addListItem,
+			addSubTask,
+			updateTaskState,
+		},
+		companyInfo: { getTeamMembers, tenantsUserList },
+		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -280,9 +318,161 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 		openedModalType: null,
 		loaderMessage: '',
 		showLoader: false,
+		taskMetadata: null,
+		tenantUsers: [],
+		taskPreferences: {
+			preferenceType: 'taskPreference',
+			preferences: defaultPreference,
+		},
+		group: null,
+		page: 1,
 	});
 
-	const navigate = useNavigate();
+	const responseMetadata = useMemo(
+		() => ({
+			title: {
+				type: 'text',
+				name: 'Title',
+				Icon: textSvg,
+				props: {},
+				doSplit: true,
+				isTitle: true,
+			},
+			description: { type: 'text', name: 'Description', Icon: textSvg, props: {} },
+			status: {
+				type: 'status',
+				name: 'Status',
+				Icon: PieSvg,
+				props: {
+					options: {
+						todo: info?.taskMetadata?.todoGroupLabels,
+						inProgress: info?.taskMetadata?.inProgressGroupLabels,
+						completed: info?.taskMetadata?.completedGroupLabels,
+					},
+				},
+			},
+			priority: {
+				type: 'select',
+				name: 'Priority',
+				Icon: PrioritySvg,
+				props: {
+					options: [
+						{ label: 'Low', _id: 'low', color: '1' },
+						{ label: 'Medium', _id: 'medium', color: '2' },
+						{ label: 'High', _id: 'high', color: '3' },
+					],
+				},
+			},
+			parentTask: {
+				type: 'parentTask',
+				name: 'Parent Task',
+				Icon: WorkflowSvg,
+				props: { options: info?.parentTasks },
+			},
+			childTasks: {
+				type: 'childTasks',
+				name: 'Sub Tasks',
+				Icon: WorkflowSvg,
+				props: {},
+			},
+			assignedTo: {
+				type: 'person',
+				name: 'Assigned To',
+				Icon: PersonSvg,
+				props: {
+					options: info?.tenantUsers || [],
+					multiSelect: true,
+					parseValue: true,
+				},
+			},
+			dueDate: { type: 'date', name: 'Due Date', Icon: ClockSvg, props: {} },
+			assignedBy: {
+				type: 'person',
+				name: 'Assigned By',
+				Icon: PersonSvg,
+				props: {
+					options: info?.tenantUsers || [],
+					disabled: true,
+					parseValue: true,
+				},
+			},
+			assignedAt: {
+				type: 'date',
+				name: 'Assigned At',
+				Icon: ClockSvg,
+				props: { timestamp: true },
+			},
+			completedAt: { type: 'date', name: 'Completed At', Icon: CalendarSvg, props: {} },
+			createdAt: {
+				type: 'date',
+				name: 'Created At',
+				Icon: CalendarSvg,
+				props: { timestamp: true },
+			},
+			updatedAt: {
+				type: 'date',
+				name: 'Updated At',
+				Icon: CalendarSvg,
+				props: { timestamp: true },
+			},
+			createdBy: {
+				type: 'person',
+				name: 'Created By',
+				Icon: PersonSvg,
+				props: { options: info?.tenantUsers, disabled: true, parseValue: true },
+			},
+			updatedBy: {
+				type: 'person',
+				name: 'Updated By',
+				Icon: PersonSvg,
+				props: { options: info?.tenantUsers, disabled: true, parseValue: true },
+			},
+			taskSlNo: {
+				type: 'id',
+				name: 'Id',
+				Icon: textSvg,
+				props: { prefix: info?.taskMetadata?.prefix },
+			},
+			clients: {
+				type: 'personMultiSelect',
+				name: 'Clients',
+				Icon: PersonSvg,
+				props: {},
+			},
+		}),
+		[info?.tenantUsers, info?.taskMetadata],
+	);
+
+	const mapPropertyType = useCallback(() => {
+		let properties = [];
+		for (let key in responseMetadata) {
+			if (key === '__typename' || key === '_id' || key === 'completedAt') {
+				continue;
+			}
+
+			const {
+				type = null,
+				name = null,
+				Icon = null,
+				isTitle = false,
+			} = responseMetadata[key] || {};
+			const { show, order } = info?.taskPreferences?.preferences?.[key] || {
+				show: false,
+				order: 0,
+			};
+
+			properties.push({
+				value: key,
+				type,
+				label: name,
+				Icon,
+				show,
+				order,
+				isTitle,
+			});
+		}
+		return properties;
+	}, [info?.taskPreferences?.preferences]);
 
 	const accessibleOptions = useCallback(
 		(options) => {
@@ -330,10 +520,52 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 		[info?.options, tenantUserAccessControls],
 	);
 
+	const navigate = useNavigate();
+
 	useEffect(() => {
 		const options = filtereOptions();
 		setInfo((prev) => ({ ...prev, filteredOptions: options }));
 	}, [filtereOptions]);
+
+	useEffect(() => {
+		const fetchTaskMetadata = async () => {
+			await getTaskMetadata(); // Fetch task metadata
+		};
+		if (!taskMetadata) {
+			fetchTaskMetadata();
+		}
+	}, []); // Run when getTaskMetadata changes
+
+	useEffect(() => {
+		if (taskMetadata) {
+			setInfo((prev) => ({ ...prev, taskMetadata })); // Update info.taskMetadata when taskMetadata changes
+		}
+	}, [taskMetadata]); // Run when taskMetadata changes
+
+	useEffect(() => {
+		if (info?.taskPreferences?.preferences) {
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				properties: mapPropertyType(),
+			}));
+		}
+	}, [info?.taskPreferences?.preferences]);
+
+	useEffect(() => {
+		if (!tenantsUserList) {
+			getTeamMembers();
+		} else {
+			const formattedUsers = tenantsUserList?.map(({ firstName, lastName, _id }) => ({
+				label: `${firstName} ${lastName}`,
+				value: _id,
+			}));
+
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				tenantUsers: formattedUsers,
+			}));
+		}
+	}, [tenantsUserList]);
 
 	useEffect(() => {
 		if (!info.dropdown) {
@@ -348,6 +580,88 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 			}));
 		}
 	}, [info.dropdown, accessibleOptions]);
+
+	useEffect(() => {
+		if (taskPreference === null) {
+			getTaskPreferences({ preferences: 'taskPreference' });
+		} else if (taskPreference?.data === false) {
+			updateTaskPreferences({ preferenceType: 'taskPreference', data: defaultPreference });
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				taskPreferences: {
+					preferenceType: 'taskPreference',
+					preferences: defaultPreference,
+				},
+			}));
+		} else if (taskPreference?.error) {
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				taskPreferences: {
+					preferenceType: 'taskPreference',
+					preferences: defaultPreference,
+				},
+			}));
+		} else {
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				taskPreferences: {
+					preferenceType: 'taskPreference',
+					preferences: taskPreference?.data,
+				},
+			}));
+		}
+	}, [taskPreference]);
+
+	const addNewTask = useCallback(
+		async (payload) => {
+			if (
+				validateExpiryData &&
+				validateExpiryData?.restrictTasks &&
+				validateExpiryData?.isExpired
+			) {
+				return updateSubscriptionState({ expiredSubscriptionModal: true });
+			} else {
+				if (info?.isCreatingSubtask) {
+					payload.parentTaskId = info?.selectedRow?._id;
+				}
+				const response = await addListItem({ input: payload });
+
+				if (response) {
+					const task = response?.createTask;
+
+					if (task) {
+						const token = localStorage.getItem('usertoken');
+						const { user_id, userName } = jwtDecode(token);
+
+						const newTask = { ...task };
+						newTask.createdBy = { _id: user_id, name: userName };
+						newTask.updatedBy = { _id: user_id, name: userName };
+						if (info?.isCreatingSubtask) {
+							newTask.parentTask = {
+								title: info?.selectedRow?.title,
+								_id: info?.selectedRow?._id,
+							};
+							addSubTask(newTask);
+						}
+						message.success('Task added successfully');
+						if (!info?.isCreatingSubtask) {
+							if (payload?.assignedTo || payload?.dueDate) {
+								updateTaskState({
+									refetchTasksForDue: true,
+									listTasksForToday: null,
+									listTasksForOverdue: null,
+									listTasksDueTillToday: null,
+								});
+							}
+						}
+					}
+				} else {
+					throw new Error('Failed to add new task');
+				}
+			}
+		},
+		[info?.isCreatingSubtask, info?.selectedRow?._id],
+	);
 
 	const handleDebounceSearch = useCallback(
 		(search = null) => {
@@ -474,6 +788,10 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 			<CreateTaskPopup
 				isOpen={info?.createTaskPopup}
 				closeModal={() => setInfo({ ...info, createTaskPopup: false })}
+				responseMetadata={responseMetadata}
+				colors={colors}
+				tenantUsers={info?.tenantUsers}
+				addNewTask={addNewTask}
 			/>
 			<LoaderModal loading={info?.showLoader} message={info?.loaderMessage} />
 		</div>

@@ -33,6 +33,10 @@
 			padding-bottom: 4px !important;
 			margin: 0;
 
+			&-empty {
+				color: var(--primary-font);
+			}
+
 			&:hover {
 				background-color: transparent !important	;
 			}
