@@ -40,10 +40,10 @@ const filterGroups = [
 	{
 		title: 'Read Status',
 		options: [
-			{ id: 5, title: 'Read', value: 'read' },
-			{ id: 6, title: 'Unread', value: 'unread' },
+			{ id: 5, title: 'Read', value: true },
+			{ id: 6, title: 'Unread', value: false },
 			// { id: 7, title: 'Flagges', value: 'Flagges' },
-			{ id: 8, title: 'All', value: 'All' },
+			{ id: 8, title: 'All' },
 		],
 	},
 	// {
@@ -109,25 +109,37 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 	}, [info?.totalCardsData, info.currentIndex]);
 
 	useEffect(() => {
-		if (info?.selectedFilters?.length > 0) {
-			if (info?.selectedFilters?.map((each) => each?.group)?.includes('Priority Level')) {
-				const newUpdatedPayload = {
-					...payload,
-					priority: info?.selectedFilters?.map((each) => each?.value),
-				};
-				getAISuggestedPendingActions(newUpdatedPayload);
-			}
-		}
+		if (!info?.selectedFilters) return;
+
+		const selectedPriority = info.selectedFilters
+			.filter((f) => f?.group === 'Priority Level')
+			.map((f) => f?.value);
+
+		const selectedReadStatus = info.selectedFilters
+			.filter((f) => f?.group === 'Read Status' && f?.title !== 'All') // exclude "All"
+			.map((f) => f?.value);
+
+		const newUpdatedPayload = {
+			...payload,
+			...(selectedPriority.length > 0 ? { priority: selectedPriority } : {}),
+			...(selectedReadStatus.length > 0 ? { read: selectedReadStatus } : {}),
+		};
+
+		getAISuggestedPendingActions(newUpdatedPayload);
 	}, [info?.selectedFilters]);
 
-	console.log(aiSuggestedPendingActions, 'aiSuggestedPendingActions');
 	const updateCardsData = () => {
 		const cards = aiSuggestedPendingActions?.pendingActions?.filter(
 			(card) => card?.title?.length > 0,
 		);
 
+		const isPagination = aiSuggestedPendingActions?.metaInfo?.currentPage > 1;
+
 		if (cards?.length > 0) {
-			const updatedCards = [...cards];
+			const updatedCards = isPagination
+				? [...totalCardsDataRef.current, ...cards]
+				: [...cards];
+
 			totalCardsDataRef.current = updatedCards;
 
 			setInfo((prev) => ({
@@ -191,14 +203,32 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 
 		if (isLastCard) {
 			if (aiSuggestedPendingActions?.metaInfo?.hasNextPage) {
-				// Fetch next page
-				const nextPage = aiSuggestedPendingActions?.metaInfo?.currentPage + 1;
-				const newPayload = { ...payload, page: nextPage };
-				await getAISuggestedPendingActions(newPayload); // This should internally update the context
-				// Let useEffect handle UI updates after new data is fetched
+				const nextPage = aiSuggestedPendingActions.metaInfo.currentPage + 1;
+
+				// Extract selected filters
+				const selectedPriority = info.selectedFilters
+					?.filter((f) => f.group === 'Priority Level')
+					.map((f) => f.value || f.title);
+
+				const selectedReadStatus = info.selectedFilters
+					?.filter((f) => f.group === 'Read Status')
+					.map((f) => f.value || f.title);
+
+				const filterPayload = {
+					page: nextPage,
+					...(selectedPriority?.length > 0 && { priority: selectedPriority }),
+					...(selectedReadStatus?.length > 0 && { read: selectedReadStatus }),
+				};
+
+				// Merge with base payload
+				const newPayload = {
+					...payload,
+					...filterPayload,
+				};
+
+				await getAISuggestedPendingActions(newPayload);
 				return;
 			} else {
-				// No next page, loop back
 				const index = 0;
 				setInfo((prev) => ({
 					...prev,
@@ -210,7 +240,7 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 			}
 		}
 
-		// Normal forward
+		// Normal forward movement
 		const index = currentIndexRef.current + 1;
 		setInfo((prev) => ({
 			...prev,
@@ -258,7 +288,6 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 		});
 	};
 
-	console.log(info?.selectedFilters, 'testing ');
 	return (
 		<div className="proactive-suggestions-container">
 			<div className="cards-container">
@@ -320,7 +349,7 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 					  })}
 			</div>
 			<div className="action-container">
-				{/* <div style={{ display: 'flex', flexDirection: 'row', gap: '10px' }}>
+				<div style={{ display: 'flex', flexDirection: 'row', gap: '10px' }}>
 					<Tooltip
 						open={info?.openFilter}
 						onOpenChange={() => setInfo((prev) => ({ ...prev, openFilter: false }))}
@@ -415,7 +444,7 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 							))}
 						</div>
 					)}
-				</div> */}
+				</div>
 				{info?.cards?.length > 5 && (
 					<div className="action-right">
 						<button className="card-change-btn" onClick={handleLeft}>
