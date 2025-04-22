@@ -27,6 +27,7 @@ const RecentChat = ({
 	isPublicChat = false,
 	isPreview = false,
 	sId = null,
+	showIconText = true,
 }) => {
 	const {
 		templates: {
@@ -41,7 +42,6 @@ const RecentChat = ({
 			globalLoadingMesssage,
 			chatInfo,
 			chatHistoryDrawerIsOpen,
-			leftSidebarState,
 		},
 	} = useContext(Context);
 
@@ -155,6 +155,7 @@ const RecentChat = ({
 			updateStateValues({ currentSessionId: sessionId });
 		}
 	}, [sessionId]);
+	console.log(chatInfo?.agentType, 'chatInfo?.agentType');
 
 	useEffect(() => {
 		if (!chatInfo?.agentType) return;
@@ -198,6 +199,7 @@ const RecentChat = ({
 
 	useEffect(() => {
 		const agentType = searchParams?.get('agentType');
+		console.log(sessionId, agentType, 'sessionId, agentType');
 		if (sessionId && agentType && !isPublicChat) {
 			createWebSocketConnection(sessionId, onMessageFunc, agentType, isPublicChat);
 		}
@@ -767,6 +769,7 @@ const RecentChat = ({
 						)}
 						<div className="chatBoxWrapper">
 							<ChatBox
+								showIconText={showIconText}
 								isPublicChat={isPublicChat}
 								handleSendWebsocketMessage={handleSendWebsocketMessage}
 								latestStreamMesage={info?.latestStreamMesage}

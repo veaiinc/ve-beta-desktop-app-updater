@@ -7,6 +7,7 @@ import Context from '../../../context/context';
 import ObjectId from 'bson-objectid';
 import moment from 'moment';
 import CreateSessionModal from '../../components/modalsV2/calendar/CreateSessionModal';
+import ChatLeftBarComponent from '../../components/ChatLeftBarComponent';
 const initialState = {
 	selectedWeek: [],
 	isCreateEventOpen: false,
@@ -167,22 +168,25 @@ const Calendar = () => {
 	return (
 		<>
 			<div className="calendarParentContainer">
-				<CalendarSidebar
-					currentCalendarDate={info?.currentCalendarDate}
-					selectedMonth={info?.selectedMonth}
-					selectedYear={info?.selectedYear}
-					selectedDate={info?.selectedDate}
-					isCreateEventOpen={info?.isCreateEventOpen}
-					categoryList={info?.categoryList}
-					selectedCategory={info?.selectedCategory}
-					categoryFilter={info?.categoryFilter}
-					updateCalendarInfo={updateCalendarInfo}
-					selectedWorkflowId={info?.selectedWorkflowId}
-					selectedSlot={info?.selectedSlot}
-					schedulerList={info?.schedulerList}
-					selectedSession={info?.selectedSession}
-					sessionFilter={info?.sessionFilter}
-				/>
+				<ChatLeftBarComponent>
+					<CalendarSidebar
+						currentCalendarDate={info?.currentCalendarDate}
+						selectedMonth={info?.selectedMonth}
+						selectedYear={info?.selectedYear}
+						selectedDate={info?.selectedDate}
+						isCreateEventOpen={info?.isCreateEventOpen}
+						categoryList={info?.categoryList}
+						selectedCategory={info?.selectedCategory}
+						categoryFilter={info?.categoryFilter}
+						updateCalendarInfo={updateCalendarInfo}
+						selectedWorkflowId={info?.selectedWorkflowId}
+						selectedSlot={info?.selectedSlot}
+						schedulerList={info?.schedulerList}
+						selectedSession={info?.selectedSession}
+						sessionFilter={info?.sessionFilter}
+					/>
+				</ChatLeftBarComponent>
+
 				{info?.showEditScheduler ? (
 					<EditScheduler
 						onBack={handleBackToCalendar}
