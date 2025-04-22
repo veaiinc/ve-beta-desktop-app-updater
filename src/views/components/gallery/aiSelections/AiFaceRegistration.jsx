@@ -76,7 +76,7 @@ const AiFaceRegistration = ({ link, handlePreRegistration, preRegistration }) =>
 		try {
 			const response = await getImagesReadyNotify(galleryId);
 			const responseMessage = response?.[1]?.message;
-			if (response?.[0] === 200) {
+			if (response?.[0] === true) {
 				message.success(responseMessage);
 			} else {
 				message.error(responseMessage);
@@ -155,12 +155,28 @@ const AiFaceRegistration = ({ link, handlePreRegistration, preRegistration }) =>
 						Share this QR code or link with guests to register their face.
 					</div>
 				</div>
-				<div
+				{/* <div
 					className="aiFaceHeaderButtonContainer"
 					onClick={() => handlePreRegistration(!preRegistration)}
 				>
 					<div className="aiFaceHeaderButton">Enable Preregistration</div>
 					<Switch size="small" checked={preRegistration} />
+				</div> */}
+				<div className="aiProcessingButtonContainer">
+					{preRegisteredUsers?.data?.length > 0 && (
+						<button
+							className="notify-all-button"
+							onClick={() => openNotifyPopup('immediate')}
+						>
+							Notify Immediately{' '}
+						</button>
+					)}
+					{/* <button
+								className="notify-all-button"
+								onClick={() => openNotifyPopup('all')}
+							>
+								Notify all at once{' '}
+							</button> */}
 				</div>
 			</div>
 			<div

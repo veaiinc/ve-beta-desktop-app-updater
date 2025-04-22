@@ -277,7 +277,9 @@ const OpenedSidebar = ({
 	const [isMobile, setIsMobile] = useState(window.innerWidth < 500);
 	const [activeDropdown, setActiveDropdown] = useState(null);
 	const [activeSubModule, setActiveSubModule] = useState(null);
-	const [showSettingsSidebar, setShowSettingsSidebar] = useState(false);
+	const [showSettingsSidebar, setShowSettingsSidebar] = useState(() => {
+		return JSON.parse(localStorage.getItem('showSettingsSidebar')) || false;
+	});
 	const [selectedSettingsOption, setSelectedSettingsOption] = useState(null);
 
 	const location = useLocation();
@@ -313,6 +315,10 @@ const OpenedSidebar = ({
 		window.addEventListener('resize', handleResize);
 		return () => window.removeEventListener('resize', handleResize);
 	}, []);
+
+	useEffect(() => {
+		localStorage.setItem('showSettingsSidebar', JSON.stringify(showSettingsSidebar));
+	}, [showSettingsSidebar]);
 
 	const handleLogout = useCallback(async () => {
 		logoutFunc();
@@ -470,6 +476,10 @@ const OpenedSidebar = ({
 			navigate(firstItem.route);
 		}
 	}, [showSettingsSidebar, settingsOptions]);
+
+	const toggleSidebar = () => {
+		setShowSettingsSidebar((prev) => !prev);
+	};
 	return (
 		<>
 			<div style={{ display: 'flex', position: 'relative' }}>
@@ -651,9 +661,7 @@ const OpenedSidebar = ({
 													<ChatHistory />
 													<div
 														className="settingsOptionsContainer"
-														onClick={() => {
-															setShowSettingsSidebar((prev) => !prev);
-														}}
+														onClick={toggleSidebar}
 													>
 														<div className="settingsHoverState">
 															<div className="settingsOptionsUserInfo">
