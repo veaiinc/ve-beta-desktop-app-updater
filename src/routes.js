@@ -575,7 +575,9 @@ const routes = [
 				title={'Notes'}
 				outerContainerStyle={{
 					backgroundColor: 'var(--background-color)',
+					padding: '0px',
 				}}
+				sidebarContainerStyles={{ paddingTop: '32px', paddingLeft: '32px' }}
 				maxWidth={'100%'}
 			>
 				<Notes />
