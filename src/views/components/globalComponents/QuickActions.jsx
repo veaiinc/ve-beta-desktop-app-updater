@@ -584,32 +584,32 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 	useEffect(() => {
 		if (taskPreference === null) {
 			getTaskPreferences({ preferences: 'taskPreference' });
-		} else if (taskPreference?.data === false) {
-			updateTaskPreferences({ preferenceType: 'taskPreference', data: defaultPreference });
-			setInfo((prevInfo) => ({
-				...prevInfo,
-				taskPreferences: {
-					preferenceType: 'taskPreference',
-					preferences: defaultPreference,
-				},
-			}));
-		} else if (taskPreference?.error) {
-			setInfo((prevInfo) => ({
-				...prevInfo,
-				taskPreferences: {
-					preferenceType: 'taskPreference',
-					preferences: defaultPreference,
-				},
-			}));
-		} else {
-			setInfo((prevInfo) => ({
-				...prevInfo,
-				taskPreferences: {
-					preferenceType: 'taskPreference',
-					preferences: taskPreference?.data,
-				},
-			}));
+			return;
 		}
+
+		if (taskPreference?.error || taskPreference?.data === false) {
+			updateTaskPreferences({
+				preferenceType: 'taskPreference',
+				data: defaultPreference,
+			});
+
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				taskPreferences: {
+					preferenceType: 'taskPreference',
+					preferences: defaultPreference,
+				},
+			}));
+			return;
+		}
+
+		setInfo((prevInfo) => ({
+			...prevInfo,
+			taskPreferences: {
+				preferenceType: 'taskPreference',
+				preferences: taskPreference?.data,
+			},
+		}));
 	}, [taskPreference]);
 
 	const addNewTask = useCallback(

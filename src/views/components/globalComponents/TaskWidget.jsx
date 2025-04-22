@@ -275,51 +275,49 @@ const TaskWidget = ({ width, height }) => {
 
 	const addNewTask = useCallback(
 		async (payload) => {
-			if (
-				validateExpiryData &&
-				validateExpiryData?.restrictTasks &&
-				validateExpiryData?.isExpired
-			) {
+			if (validateExpiryData?.restrictTasks && validateExpiryData?.isExpired) {
 				return updateSubscriptionState({ expiredSubscriptionModal: true });
+			}
+
+			const isSubtask = info?.isCreatingSubtask;
+			const selectedRow = info?.selectedRow;
+
+			if (isSubtask) {
+				payload.parentTaskId = selectedRow?._id;
+			}
+
+			const response = await addListItem({ input: payload });
+			if (!response?.createTask) {
+				throw new Error('Failed to add new task');
+			}
+
+			const task = response.createTask;
+			const token = localStorage.getItem('usertoken');
+			const { user_id, userName } = jwtDecode(token);
+			const newTask = {
+				...task,
+				createdBy: { _id: user_id, name: userName },
+			};
+
+			if (isSubtask) {
+				newTask.parentTask = {
+					title: selectedRow?.title,
+					_id: selectedRow?._id,
+				};
+				addSubTask(newTask);
 			} else {
-				if (info?.isCreatingSubtask) {
-					payload.parentTaskId = info?.selectedRow?._id;
-				}
-				const response = await addListItem({ input: payload });
-
-				if (response) {
-					const task = response?.createTask;
-
-					if (task) {
-						const token = localStorage.getItem('usertoken');
-						const { user_id, userName } = jwtDecode(token);
-
-						const newTask = { ...task };
-						newTask.createdBy = { _id: user_id, name: userName };
-						if (info?.isCreatingSubtask) {
-							newTask.parentTask = {
-								title: info?.selectedRow?.title,
-								_id: info?.selectedRow?._id,
-							};
-							addSubTask(newTask);
-						}
-						message.success('Task added successfully');
-						if (!info?.isCreatingSubtask) {
-							if (payload?.assignedTo || payload?.dueDate) {
-								updateTaskState({
-									refetchTasksForDue: true,
-									listTasksForToday: null,
-									listTasksForOverdue: null,
-									listTasksDueTillToday: null,
-								});
-							}
-						}
-						updateTaskState({ refetchTasks: true });
-					}
-				} else {
-					throw new Error('Failed to add new task');
+				if (payload?.assignedTo || payload?.dueDate) {
+					updateTaskState({
+						refetchTasksForDue: true,
+						listTasksForToday: null,
+						listTasksForOverdue: null,
+						listTasksDueTillToday: null,
+					});
 				}
 			}
+
+			message.success('Task added successfully');
+			updateTaskState({ refetchTasks: true });
 		},
 		[info?.isCreatingSubtask, info?.selectedRow?._id],
 	);
