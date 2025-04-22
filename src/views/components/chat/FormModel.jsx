@@ -252,6 +252,7 @@ const Section2 = ({ workflowTemplateId: workflowTemplateIdFromProps }) => {
 	const [showIframe, setShowIframe] = useState(false);
 	workflowTemplateIdFromProps = workflowTemplateId || workflowTemplateIdFromProps;
 	const origin = fetchOriginSelection();
+	console.log(origin, workflowTemplateIdFromProps, 'origin');
 	useEffect(() => {
 		// Delay iframe loading to wait for expansion animation
 		const timer = setTimeout(() => {
@@ -265,7 +266,7 @@ const Section2 = ({ workflowTemplateId: workflowTemplateIdFromProps }) => {
 		<div className="section-content">
 			{showIframe && (
 				<iframe
-					src={`${origin}/${workflowTemplateIdFromProps}`} //dont change to fixed url only use origin
+					src={`${origin}/${workflowTemplateIdFromProps}?isEmbed=true`} //dont change to fixed url only use origin
 					title="Builder Preview"
 					onClick={(e) => e.stopPropagation()}
 					onMouseDown={(e) => e.stopPropagation()}

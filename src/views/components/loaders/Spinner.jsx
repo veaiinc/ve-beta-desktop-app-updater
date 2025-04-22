@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 
 const Spinner = ({ width, height, color, cssstyle = {}, borderTopColor }) => {
 	const style = {
@@ -13,4 +13,4 @@ const Spinner = ({ width, height, color, cssstyle = {}, borderTopColor }) => {
 	return <div style={style}></div>;
 };
 
-export default Spinner;
+export default memo(Spinner);
