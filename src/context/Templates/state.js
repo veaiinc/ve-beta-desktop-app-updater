@@ -2359,7 +2359,6 @@ export const TemplatesState = (props) => {
 	};
 
 	const getAISuggestedPendingActions = async (payload) => {
-		// console;
 		try {
 			const params = ['priority', 'read', 'confidenceScore']
 				.map((key) =>
