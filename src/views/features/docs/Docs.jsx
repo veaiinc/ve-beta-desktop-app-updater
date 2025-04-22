@@ -1,9 +1,6 @@
 import React, { memo, useCallback, useContext, useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../../../assets/scss/docs/index.scss';
-import { ReactComponent as Search } from '../../../assets/svg/docs/search.svg';
-import { ReactComponent as Filter } from '../../../assets/svg/docs/filter.svg';
-import { ReactComponent as ThreeDots } from '../../../assets/svg/docs/three-dots.svg';
 import { ReactComponent as Cross } from '../../../assets/svg/docs/cross.svg';
 import { ReactComponent as UppercaseLowercaseA } from '../../../assets/svg/docs/uppercase-lowercase-a.svg';
 import { ReactComponent as MailLetter } from '../../../assets/svg/docs/mail-letter.svg';

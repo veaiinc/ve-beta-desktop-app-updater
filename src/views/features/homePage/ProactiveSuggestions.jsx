@@ -46,14 +46,14 @@ const filterGroups = [
 			{ id: 8, title: 'All' },
 		],
 	},
-	// {
-	// 	title: 'Confidence level',
-	// 	options: [
-	// 		{ id: 9, title: 'High 90-100%' },
-	// 		{ id: 10, title: 'Medium 70-89%' },
-	// 		{ id: 11, title: 'Below 70%' },
-	// 	],
-	// },
+	{
+		title: 'Confidence level',
+		options: [
+			{ id: 9, title: 'High 90-100%', value: '0.9 - 1.0' },
+			{ id: 10, title: 'Medium 70-89%', value: '0.7 - 0.89' },
+			{ id: 11, title: 'Below 70%', value: '< 0.7' },
+		],
+	},
 ];
 
 const PriorityLevel = {
@@ -114,15 +114,19 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 		const selectedPriority = info.selectedFilters
 			.filter((f) => f?.group === 'Priority Level')
 			.map((f) => f?.value);
-
 		const selectedReadStatus = info.selectedFilters
 			.filter((f) => f?.group === 'Read Status' && f?.title !== 'All') // exclude "All"
 			.map((f) => f?.value);
-
+		const selectedConfidenceScore = info.selectedFilters
+			.filter((f) => f?.group === 'Confidence level')
+			.map((f) => f?.value);
 		const newUpdatedPayload = {
 			...payload,
 			...(selectedPriority.length > 0 ? { priority: selectedPriority } : {}),
 			...(selectedReadStatus.length > 0 ? { read: selectedReadStatus } : {}),
+			...(selectedConfidenceScore.length > 0
+				? { confidenceScore: selectedConfidenceScore }
+				: {}),
 		};
 
 		getAISuggestedPendingActions(newUpdatedPayload);
@@ -265,8 +269,6 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 
 	const handleFilterClick = (item) => {
 		setInfo((prev) => {
-			const filtered = prev.selectedFilters.filter((option) => option.group !== item.group);
-
 			const isSelected = prev.selectedFilters.some(
 				(option) =>
 					option.id === item.id &&
@@ -274,16 +276,26 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 					option.group === item.group,
 			);
 
+			let updatedFilters;
+
 			if (isSelected) {
-				return {
-					...prev,
-					selectedFilters: filtered,
-				};
+				// Remove this item from selectedFilters
+				updatedFilters = prev.selectedFilters.filter(
+					(option) =>
+						!(
+							option.id === item.id &&
+							option.title === item.title &&
+							option.group === item.group
+						),
+				);
+			} else {
+				// Add this item to selectedFilters
+				updatedFilters = [...prev.selectedFilters, item];
 			}
 
 			return {
 				...prev,
-				selectedFilters: [...filtered, item],
+				selectedFilters: updatedFilters,
 			};
 		});
 	};
@@ -291,62 +303,63 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 	return (
 		<div className="proactive-suggestions-container">
 			<div className="cards-container">
-				{info?.loading
-					? [
-							{ position: 0 },
-							{ position: 1 },
-							{ position: 2 },
-							{ position: -1 },
-							{ position: -2 },
-					  ]?.map((item, index) => {
-							const classList = ['card', 'skeleton', positionClassMap[item.position]];
-							return (
-								<div key={index} className={classList.join(' ')}>
-									<div
-										className="skeleton-container"
-										style={{
-											width: '100%',
-											height: '100%',
-											borderRadius: '10px',
-										}}
-									>
-										<Skeleton height={'100%'} width={'100%'} />
-									</div>
-								</div>
-							);
-					  })
-					: info?.cards?.map((card, index) => {
-							if (card.position === null) return null;
-							const classList = ['card', positionClassMap[card.position]];
-							return (
+				{info?.loading ? (
+					[
+						{ position: 0 },
+						{ position: 1 },
+						{ position: 2 },
+						{ position: -1 },
+						{ position: -2 },
+					]?.map((item, index) => {
+						const classList = ['card', 'skeleton', positionClassMap[item.position]];
+						return (
+							<div key={index} className={classList.join(' ')}>
 								<div
-									key={card?._id}
-									className={classList.join(' ')}
-									onClick={() => handleCardClick(card, index)}
+									className="skeleton-container"
+									style={{
+										width: '100%',
+										height: '100%',
+										borderRadius: '10px',
+									}}
 								>
-									<div className="header">
-										<div className="card-title">{card?.description}</div>
-
-										<div className="card-description">{card?.title}</div>
-									</div>
-									<div className="footer">
-										<div className="module-type">{card?.moduleType}</div>
-										<div className="module-priority">
-											<span
-												style={{
-													backgroundColor: PriorityLevel[card?.priority],
-												}}
-											></span>
-											<div className="module-priority-text">
-												<div>{card?.priority} </div>
-												<div>|</div>
-												<div>{dayjs(card.updatedAt * 1000).fromNow()}</div>
-											</div>
+									<Skeleton height={'100%'} width={'100%'} />
+								</div>
+							</div>
+						);
+					})
+				) : info?.cards?.length === 0 ? (
+					<div className="no-data">No data available</div>
+				) : (
+					info.cards.map((card, index) => {
+						if (card.position === null) return null;
+						const classList = ['card', positionClassMap[card.position]];
+						return (
+							<div
+								key={card?._id}
+								className={classList.join(' ')}
+								onClick={() => handleCardClick(card, index)}
+							>
+								<div className="header">
+									<div className="card-title">{card?.description}</div>
+									<div className="card-description">{card?.title}</div>
+								</div>
+								<div className="footer">
+									<div className="module-type">{card?.moduleType}</div>
+									<div className="module-priority">
+										<span
+											style={{
+												backgroundColor: PriorityLevel[card?.priority],
+											}}
+										></span>
+										<div className="module-priority-text">
+											<div>{card?.priority}</div>
 										</div>
 									</div>
 								</div>
-							);
-					  })}
+							</div>
+						);
+					})
+				)}
 			</div>
 			<div className="action-container">
 				<div style={{ display: 'flex', flexDirection: 'row', gap: '10px' }}>

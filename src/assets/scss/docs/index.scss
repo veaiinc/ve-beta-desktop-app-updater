@@ -311,9 +311,12 @@
 						position: relative;
 						user-select: none;
 
-						svg {
-							path {
-								fill: var(--card-hover) !important;
+						.filter {
+							color: var(--primary-font);
+							svg {
+								path {
+									fill: var(--card-hover) !important;
+								}
 							}
 						}
 
@@ -328,14 +331,6 @@
 							justify-content: center;
 							align-items: center;
 							border-radius: 0 21px 21px 0;
-
-							&:hover {
-								svg {
-									path {
-										stroke: var(--card-hover) !important;
-									}
-								}
-							}
 						}
 
 						.templateName {

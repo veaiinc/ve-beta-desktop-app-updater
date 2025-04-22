@@ -435,10 +435,9 @@ const Contacts = () => {
 		async (row) => {
 			if (row) {
 				const clientDetails = await getClient({ getClientId: row._id });
-				console.log('Complete client details:', clientDetails);
 
 				updateListViewInfo({
-					selectedRow: clientDetails || row,
+					selectedRow: row || clientDetails,
 					sidebarIsOpen: true,
 				});
 			}

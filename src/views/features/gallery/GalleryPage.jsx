@@ -3146,14 +3146,17 @@ const GalleryPage = () => {
 			(img) => !info?.selectedImages?.includes(img?._id),
 		);
 
+		const lastImage = remainingImages[remainingImages.length - 1];
+
 		const beforeIndex =
-			info?.dropPlaceholder > 0
-				? getCustomSortIndex(remainingImages[info?.dropPlaceholder - 1])
+			info.dropPlaceholder > 0
+				? getCustomSortIndex(remainingImages[info.dropPlaceholder - 1])
 				: 0;
+
 		const afterIndex =
-			info?.dropPlaceholder < remainingImages?.length
-				? getCustomSortIndex(remainingImages[info?.dropPlaceholder])
-				: beforeIndex + (selectedImageObjects?.length + 1);
+			info.dropPlaceholder >= remainingImages.length
+				? getCustomSortIndex(lastImage) + 1000 // 🎯 only set a high index at the end
+				: getCustomSortIndex(remainingImages[info.dropPlaceholder]);
 
 		// Calculate step size for even distribution
 		const stepSize = (afterIndex - beforeIndex) / (selectedImageObjects?.length + 1);
