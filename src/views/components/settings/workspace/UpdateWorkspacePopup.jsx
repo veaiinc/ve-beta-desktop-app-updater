@@ -2,6 +2,7 @@ import React, { memo } from 'react';
 import ReactModal from '../../modalsV2';
 import { ReactComponent as FinalInfoSvg } from '../../../../assets/svg/Settings/exlametryCircle.svg';
 import { ReactComponent as CloseSvg } from '../../../../assets/svg/close.svg';
+import '../../../../assets/scss/settings/workspacesection.scss';
 
 const UpdateWorkspacePopup = ({
 	oldWorkspaceId,
@@ -16,7 +17,11 @@ const UpdateWorkspacePopup = ({
 	};
 	return (
 		<div>
-			<ReactModal isOpen={domainUpdate?.isPopupOpen} closeModal={closeModalFunc}>
+			<ReactModal
+				isOpen={domainUpdate?.isPopupOpen}
+				closeModal={closeModalFunc}
+				className="UpdateWorkspacePopup"
+			>
 				<div className="UpdateWorkspacePopup">
 					<div className="headerPopup">
 						<h1>Update Workspace Handle?</h1>
