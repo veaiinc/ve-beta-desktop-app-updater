@@ -279,8 +279,6 @@
 
 					&:hover {
 						background: var(--card-hover) !important;
-						// box-shadow: -4px -4px 6px 0px rgba(228, 229, 230, 0.07) inset,
-						// 	4px 4px 6px 0px rgba(13, 14, 16, 0.54) inset;
 						border: 1px solid var(--stroke);
 						z-index: 2;
 					}
@@ -346,6 +344,8 @@
 							position: relative;
 							z-index: 2;
 							pointer-events: auto;
+							height: auto;
+							min-height: 30px;
 
 							&.multi-day-event {
 								.monthEventWrapper {
@@ -436,6 +436,8 @@
 				padding: 2px;
 				min-width: 100%;
 				background: none;
+				height: auto;
+				min-height: 30px;
 			}
 		}
 	}
