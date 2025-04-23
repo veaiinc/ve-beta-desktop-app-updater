@@ -48,6 +48,10 @@ let userId = null;
 // }
 
 const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
+	const { noteId } = useParams();
+	const navigate = useNavigate();
+	const aiResponseRef = useRef('');
+
 	const {
 		notes: {
 			getNotesPageData,
@@ -88,11 +92,6 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 		aiResonse: '',
 		myAccess: 'view',
 	});
-
-	const { noteId } = useParams();
-	const navigate = useNavigate();
-
-	const aiResponseRef = useRef('');
 
 	useEffect(() => {
 		const token = localStorage.getItem('usertoken');
