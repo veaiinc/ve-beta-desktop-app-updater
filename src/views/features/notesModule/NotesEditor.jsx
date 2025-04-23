@@ -18,6 +18,7 @@ import { Helmet } from 'react-helmet';
 import Skeleton from 'react-loading-skeleton';
 import useChatStream from '../../hooks/useChatStream';
 import ObjectID from 'bson-objectid';
+import jwtDecode from 'jwt-decode';
 const preprocessMarkdown = (markdown) => {
 	return markdown?.replace(/\\n/g, '\n'); // Add a non-breaking space for empty lines
 };
@@ -32,6 +33,8 @@ const skeletonLines = [...Array(10)]?.map(() => ({
 	width: getRandomWidth(),
 	height: 14,
 }));
+
+let userId = null;
 
 // async function uploadFile(file) {
 // 	const body = new FormData();
@@ -49,6 +52,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 		notes: {
 			getNotesPageData,
 			notesPageData,
+			notesAccess,
 			saveNotesdata,
 			updatePage,
 			addToFavorite,
@@ -56,6 +60,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 			deletePage,
 			duplicatePage,
 			updateNotesState,
+			getNotesAccess,
 		},
 	} = useContext(Context);
 
@@ -81,12 +86,23 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 		isFavorite: false,
 		loading: true,
 		aiResonse: '',
+		myAccess: 'view',
 	});
 
 	const { noteId } = useParams();
 	const navigate = useNavigate();
 
 	const aiResponseRef = useRef('');
+
+	useEffect(() => {
+		const token = localStorage.getItem('usertoken');
+		const { user_id } = jwtDecode(token);
+		userId = user_id;
+	}, []);
+
+	useEffect(() => {
+		getNotesAccess({ pageId: noteId });
+	}, [noteId]);
 
 	useEffect(() => {
 		if (noteId) {
@@ -101,6 +117,20 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 			});
 		};
 	}, [noteId]);
+
+	useEffect(() => {
+		if (notesAccess && noteId && userId) {
+			const hasAccess = notesAccess?.find((access) => access?.userId === userId);
+			if (hasAccess) {
+				setInfo((prev) => ({
+					...prev,
+					myAccess: hasAccess?.access,
+				}));
+			}
+		} else {
+			getNotesAccess({ pageId: noteId });
+		}
+	}, [notesAccess, noteId, userId]);
 
 	useEffect(() => {
 		const handleKeyDown = (e) => {
@@ -337,7 +367,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 						/>
 					</button>
 
-					<ShareComponent pageId={noteId} />
+					{info?.myAccess === 'full' && <ShareComponent pageId={noteId} />}
 
 					<MoreOptions
 						notesConfigs={info?.notesConfigs}
@@ -393,12 +423,15 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 							onChange={onChange}
 							style={innerContainerStyle || {}}
 							theme={'dark'}
+							editable={info?.myAccess !== 'view'}
 						>
-							<NoteToolbar
-								sendMessage={customSendMessage}
-								aiResonse={info?.aiResonse}
-								resetAiResponse={resetAiResponse}
-							/>
+							{info?.myAccess !== 'view' && (
+								<NoteToolbar
+									sendMessage={customSendMessage}
+									aiResonse={info?.aiResonse}
+									resetAiResponse={resetAiResponse}
+								/>
+							)}
 						</BlockNoteView>
 					</div>
 				)}
