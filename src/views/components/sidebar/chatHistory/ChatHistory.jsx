@@ -8,6 +8,7 @@ import moment from 'moment';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ReactComponent as Search } from '../../../../assets/svg/sidebar/notifications/search.svg';
 import debounce from 'lodash/debounce';
+import ObjectID from 'bson-objectid';
 const infiniteScrollStyle = {
 	display: 'flex',
 	flexDirection: 'column',
@@ -82,6 +83,11 @@ const ChatHistory = () => {
 		[currentSessionId, chatInfo],
 	);
 
+	const handleCreateChat = useCallback(() => {
+		const sessionId = ObjectID()?.toString();
+		navigate(`/chat/${sessionId}`);
+	}, []);
+
 	const getChatDateGroup = useCallback((timestamp) => {
 		const chatDate = moment.unix(timestamp).startOf('day');
 		const today = moment().startOf('day');
@@ -125,7 +131,9 @@ const ChatHistory = () => {
 					</div>
 				) : emptyChatsState ? (
 					<div className="empty-state">
-						<p className="message">No AI chats yet!</p>
+						<button className="create-chat-btn" onClick={handleCreateChat}>
+							Create New Chat
+						</button>
 					</div>
 				) : (
 					<InfiniteScroll

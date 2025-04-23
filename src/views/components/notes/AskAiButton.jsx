@@ -80,15 +80,16 @@ const AskAiButton = memo(({ sendMessage, aiResonse, resetAiResponse }) => {
 
 	return (
 		<Components.FormattingToolbar.Button
-			mainTooltip={'Ask AI'}
+			mainTooltip={'Ask Ve'}
 			onClick={() => handleDropdown(!info?.isOpen)}
 		>
 			<Tooltip
 				open={info?.isOpen}
 				title={<AskAiDropdown handleAiQuery={handleAiQuery} isLoading={info?.isLoading} />}
-				placement="bottomLeft"
+				placement="bottomRight"
 				trigger="click"
 				color="transparent"
+				overlayStyle={{ minWidth: 'fit-content' }}
 			>
 				<span style={buttonStyle}>
 					Ask <VeSvg height={16} width={16} />
