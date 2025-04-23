@@ -142,14 +142,10 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 			const messageText =
 				notesPageData?.error?.message ||
 				'Something went wrong while fetching this note, please try again';
-
 			message.error(messageText);
-
-			if (window.history.length > 1) {
-				navigate(-1);
-			} else {
-				navigate('/');
-			}
+			setTimeout(() => {
+				window.history.length > 1 ? navigate(-1) : navigate('/');
+			}, 3100);
 		}
 	}, [notesPageData]);
 
