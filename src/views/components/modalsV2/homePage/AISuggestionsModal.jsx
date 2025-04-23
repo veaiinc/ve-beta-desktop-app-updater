@@ -195,7 +195,10 @@ const AISuggestionsModal = ({
 							</div>
 						</div>
 						{info?.isExpanded && (
-							<div className="chain-of-thought-content">
+							<div
+								className="chain-of-thought-content"
+								onClick={(e) => e?.stopPropagation()}
+							>
 								{Array?.isArray(chain_of_thought)
 									? chain_of_thought?.map((cot, index) => {
 											return (
