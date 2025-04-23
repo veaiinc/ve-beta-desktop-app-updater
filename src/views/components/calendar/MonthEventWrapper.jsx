@@ -1,7 +1,9 @@
 import React, { memo, useState, useEffect } from 'react';
+import moment from 'moment';
 
 const MonthEventWrapper = ({ event }) => {
 	const [truncateLength, setTruncateLength] = useState(25);
+	const isMultiDay = !moment(event.start).isSame(event.end, 'day');
 
 	useEffect(() => {
 		const handleResize = () => {
@@ -26,7 +28,6 @@ const MonthEventWrapper = ({ event }) => {
 				setTruncateLength(3);
 			} else if (width < 1400) {
 				// Laptop - Large
-				setTruncateLength(4);
 			} else if (width < 1500) {
 				// Tablet - Medium
 				setTruncateLength(6);
@@ -59,7 +60,10 @@ const MonthEventWrapper = ({ event }) => {
 			: event?.title;
 
 	return (
-		<div className="monthEventWrapper">
+		<div
+			className="monthEventWrapper"
+			style={{ background: isMultiDay ? 'var(--info)' : 'none' }}
+		>
 			<span
 				className="leftColorBar"
 				style={{

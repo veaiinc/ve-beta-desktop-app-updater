@@ -67,6 +67,7 @@
 					gap: 8px;
 					align-items: center;
 					text-transform: capitalize;
+					margin-top: 3px;
 
 					.toggleButton {
 						display: flex;
@@ -77,7 +78,6 @@
 						border-radius: 8px;
 						border: 1px solid var(--stroke);
 						cursor: pointer;
-
 						color: rgba(var(--primary-font), 0.48);
 						font-family: var(--primary-font-family);
 						font-size: 12px;
@@ -201,7 +201,7 @@
 
 			.dayHeader {
 				flex: 1 0 0;
-				color: var(--secondary-font);
+				color: var(--primary-font);
 				text-align: center;
 				font-family: var(--primary-font-family);
 				font-size: 12px;
@@ -221,10 +221,10 @@
 				flex: 1 0 0;
 				border: 1px solid var(--stroke);
 
-				&:hover {
-					border: 1px solid var(--primary-font);
-					border-radius: 8px;
-				}
+				// &:hover {
+				// 	border: 1px solid var(--primary-font);
+				// 	border-radius: 8px;
+				// }
 
 				span {
 					display: flex;

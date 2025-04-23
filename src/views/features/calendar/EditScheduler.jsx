@@ -8,7 +8,6 @@ import { ReactComponent as Down } from '../../../assets/svg/calendar/down.svg';
 import SessionInfoCard from '../../components/scheduler/SessionInfoCard';
 import { Tooltip, DatePicker } from 'antd';
 import dayjs from 'dayjs';
-import InputComponent from '../../components/ai_assistant/InputComponent';
 import { ReactComponent as Clock } from '../../../assets/svg/workflow/clock.svg';
 import { ReactComponent as Duplicate } from '../../../assets/svg/tasks/duplicate.svg';
 import Context from '../../../context/context';
@@ -640,12 +639,11 @@ const EditScheduler = ({ onBack, sessionId: propSessionId }) => {
 		}
 
 		return (
-			<InputComponent
+			<input
 				type={config?.type}
 				value={info[config?.value] || ''}
 				onChange={(e) => handleDebouncedSessionTypeInput(config?.value, e.target.value)}
 				placeholder={config?.placeholder}
-				backgroundColor={config?.backgroundColor}
 				className="inputHeight"
 			/>
 		);
@@ -1213,12 +1211,11 @@ const EditScheduler = ({ onBack, sessionId: propSessionId }) => {
 								info?.addDescription ? 'visible' : ''
 							}`}
 						>
-							<InputComponent
+							<input
 								className="inputHeight"
 								value={info?.sessionDescription}
 								onChange={(e) => handleSessionDescriptionChange(e.target.value)}
-								placeholder={'Session description'}
-								backgroundColor={'var(--background)'}
+								placeholder="Session description"
 							/>
 						</div>
 					</div>

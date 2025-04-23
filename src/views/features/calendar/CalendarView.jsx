@@ -200,7 +200,17 @@ const CalendarView = ({
 			},
 			month: {
 				header: () => null,
-				event: MonthEventWrapper,
+				event: (props) => {
+					const start = moment(props.event.start);
+					const end = moment(props.event.end);
+					const isMultiDay = !start.isSame(end, 'day');
+					return (
+						<MonthEventWrapper
+							{...props}
+							className={isMultiDay ? 'multi-day-event' : ''}
+						/>
+					);
+				},
 			},
 			eventWrapper: CustomEventWrapper,
 			// eventContainerWrapper: CustomEventContainer,
