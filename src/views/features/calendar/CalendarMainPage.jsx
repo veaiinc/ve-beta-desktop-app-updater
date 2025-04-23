@@ -2,10 +2,11 @@ import { memo, useState, useCallback, useEffect, useContext } from 'react';
 import '../../../assets/scss/calendar/calendar.scss';
 import CalendarSidebar from './CalendarSidebar';
 import CalendarView from './CalendarView';
+import EditScheduler from './EditScheduler';
 import Context from '../../../context/context';
 import ObjectId from 'bson-objectid';
 import moment from 'moment';
-
+import CreateSessionModal from '../../components/modalsV2/calendar/CreateSessionModal';
 const initialState = {
 	selectedWeek: [],
 	isCreateEventOpen: false,
@@ -20,6 +21,10 @@ const initialState = {
 	aiChatLoading: false,
 	workflowSlug: null,
 	chatQuery: '',
+	schedulerList: [],
+	selectedSession: null,
+	sessionFilter: [],
+	showEditScheduler: false,
 };
 
 const Calendar = () => {
@@ -32,6 +37,8 @@ const Calendar = () => {
 			getCalendarEventsList,
 			updateCalendarState,
 			refetchCalendarState,
+			getSchedulerList,
+			schedulerList,
 		},
 		companyInfo: { getTeamMembers },
 		templates: {
@@ -63,6 +70,7 @@ const Calendar = () => {
 		setInfo((prevInfo) => ({ ...prevInfo, chatSessionId: sessionId }));
 
 		getCalendarCategories();
+		getSchedulerList();
 
 		return () => {
 			setInfo((prevInfo) => ({
@@ -78,6 +86,15 @@ const Calendar = () => {
 			updateCategoryList();
 		}
 	}, [calendarCategoriesList]);
+
+	useEffect(() => {
+		if (schedulerList) {
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				schedulerList: [...schedulerList],
+			}));
+		}
+	}, [schedulerList]);
 
 	useEffect(() => {
 		if (info?.categoryList?.length > 0 && info?.selectedCategory === null) {
@@ -107,6 +124,16 @@ const Calendar = () => {
 
 	const updateCalendarInfo = useCallback((key, value) => {
 		setInfo((prevInfo) => ({ ...prevInfo, [key]: value }));
+	}, []);
+
+	const handleBackToCalendar = useCallback(() => {
+		setInfo((prevInfo) => ({
+			...prevInfo,
+			showEditScheduler: false,
+			selectedSession: null,
+			isEventSelected: false,
+			selectedSlot: null,
+		}));
 	}, []);
 
 	const updateCategoryList = useCallback(() => {
@@ -145,29 +172,37 @@ const Calendar = () => {
 					selectedMonth={info?.selectedMonth}
 					selectedYear={info?.selectedYear}
 					selectedDate={info?.selectedDate}
-					isCreateEventOpen={info?.isCreateEventOpen}
 					categoryList={info?.categoryList}
 					selectedCategory={info?.selectedCategory}
 					categoryFilter={info?.categoryFilter}
 					updateCalendarInfo={updateCalendarInfo}
 					selectedWorkflowId={info?.selectedWorkflowId}
-					selectedSlot={info?.selectedSlot}
+					schedulerList={info?.schedulerList}
+					selectedSession={info?.selectedSession}
+					sessionFilter={info?.sessionFilter}
 				/>
-				<CalendarView
-					currentCalendarDate={info?.currentCalendarDate}
-					selectedWeek={info?.selectedWeek}
-					selectedDate={info?.selectedDate}
-					selectedMonth={info?.selectedMonth}
-					selectedYear={info?.selectedYear}
-					isEventSelected={info?.isEventSelected}
-					categoryList={info?.categoryList}
-					selectedCategory={info?.selectedCategory}
-					categoryFilter={info?.categoryFilter}
-					getCurrentWeek={getCurrentWeek}
-					updateCalendarInfo={updateCalendarInfo}
-					selectedWorkflowId={info?.selectedWorkflowId}
-					selectedSlot={info?.selectedSlot}
-				/>
+				{info?.showEditScheduler ? (
+					<EditScheduler
+						onBack={handleBackToCalendar}
+						sessionId={info?.selectedSession?._id}
+					/>
+				) : (
+					<CalendarView
+						currentCalendarDate={info?.currentCalendarDate}
+						selectedWeek={info?.selectedWeek}
+						selectedDate={info?.selectedDate}
+						selectedMonth={info?.selectedMonth}
+						selectedYear={info?.selectedYear}
+						isEventSelected={info?.isEventSelected}
+						categoryList={info?.categoryList}
+						selectedCategory={info?.selectedCategory}
+						categoryFilter={info?.categoryFilter}
+						getCurrentWeek={getCurrentWeek}
+						updateCalendarInfo={updateCalendarInfo}
+						selectedWorkflowId={info?.selectedWorkflowId}
+						selectedSlot={info?.selectedSlot}
+					/>
+				)}
 			</div>
 		</>
 	);

@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import validator from 'validator';
 import '../../../assets/scss/login_page/index.scss';
 import { ReactComponent as GoogleLogo } from '../../../assets/svg/login_page/google.svg';
@@ -16,8 +16,8 @@ const Email = ({
 	setEmail,
 	setActiveStage,
 	setEmailVerified,
-	setLastOtpEmail,
 	lastOtpEmail,
+	setLastOtpEmail,
 }) => {
 	const navigate = useNavigate();
 	const arrowRef = useRef(null);
@@ -174,13 +174,21 @@ const Email = ({
 	};
 
 	const handleContinueWithEmail = async (e, type, invitedUserEmail = false) => {
-		if (
-			((e?.key === 'Enter' || type === 'click') && info?.isEmailValid && !info?.isLoading) ||
-			invitedUserEmail
-		) {
+		if (e?.key !== 'Enter' && type !== 'click') {
+			return;
+		}
+
+		const currentEmail = email || invitedUserEmail;
+
+		if (currentEmail === lastOtpEmail) {
+			setActiveStage('verificationCode');
+			return;
+		}
+
+		if ((info?.isEmailValid && !info?.isLoading) || invitedUserEmail) {
 			setInfo((prev) => ({ ...prev, isLoading: true }));
 			try {
-				const response = await checkAccountExistsUsingEmail(email || invitedUserEmail);
+				const response = await checkAccountExistsUsingEmail(currentEmail);
 				if (response[0] === true) {
 					if (response?.[1]?.accountExists) {
 						if (response?.[1]?.emailVerified) {
@@ -196,13 +204,14 @@ const Email = ({
 							setActiveStage('verificationCode');
 						}
 					} else {
-						referralCode
-							? await handleCreateAccountWithEmail(
-									email || invitedUserEmail,
-									referralCode,
-							  )
-							: await handleCreateAccountWithEmail(email || invitedUserEmail);
+						const createResponse = referralCode
+							? await handleCreateAccountWithEmail(currentEmail, referralCode)
+							: await handleCreateAccountWithEmail(currentEmail);
+						if (createResponse[0] === true) {
+							setLastOtpEmail(currentEmail);
+						}
 					}
+					setLastOtpEmail(currentEmail);
 				} else {
 					message?.error(response?.[1]?.message);
 				}
@@ -272,13 +281,7 @@ const Email = ({
 								? 'var(--card-hover)'
 								: 'var(--primary-button)',
 						}}
-						onClick={() => {
-							if (email !== lastOtpEmail) {
-								handleContinueWithEmail(null, 'click');
-							}
-							setActiveStage('verificationCode');
-							setLastOtpEmail(email);
-						}}
+						onClick={() => handleContinueWithEmail(null, 'click')}
 					>
 						{info.isLoading ? (
 							<Spinner
