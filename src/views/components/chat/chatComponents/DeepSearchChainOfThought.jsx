@@ -1,9 +1,9 @@
-import { memo, useCallback, useMemo } from 'react';
+import { memo } from 'react';
 import '../../../../assets/scss/chat/chatComponents/deepSearchChainOfThought.scss';
-import { ReactComponent as ArrowReply } from '../../../../assets/svg/arrow-reply.svg';
 import { ReactComponent as Search } from '../../../../assets/svg/workflow/search.svg';
 import WebSvg from '../../../../assets/svg/ai_agents/webSvg';
 import { getFaviconUrl, getWebsiteName } from '../../../../helpers';
+import BookSvg from '../../../../assets/svg/ai_agents/bookSvg';
 
 const DeepSearchChainOfThought = ({ data }) => {
 	return (
@@ -25,14 +25,12 @@ const DeepSearchChainOfThought = ({ data }) => {
 										const { tool, query, sources } = reading?.reading;
 										return (
 											<div className="sub-query-cot" key={index}>
-												<div className="number-logo-container">
-													<div className="indicator" />
-												</div>
+												{readings?.length !== 1 && (
+													<div className="number-logo-container">
+														<div className="indicator" />
+													</div>
+												)}
 												<div className="sub-query-content">
-													{/* <div className="query-header">
-														<ArrowReply />
-														Query
-													</div> */}
 													<div className="tool-container">
 														{tool === 'search_web' ? (
 															<div className="search">
@@ -40,19 +38,22 @@ const DeepSearchChainOfThought = ({ data }) => {
 																	<WebSvg />
 																</div>
 																<div className="search-text">
-																	Searching Web
+																	Searched Web For :
 																</div>
 															</div>
 														) : tool === 'search_knowledge_base' ? (
 															<div className="search">
+																<div className="svg">
+																	<BookSvg />
+																</div>
 																<div className="search-text">
-																	Searching Knowledge Base
+																	Searched Knowledge Base For :
 																</div>
 															</div>
 														) : (
 															<div className="search">
 																<div className="search-text">
-																	Searching
+																	Searched For :
 																</div>
 															</div>
 														)}
@@ -66,54 +67,56 @@ const DeepSearchChainOfThought = ({ data }) => {
 															);
 														})}
 													</div>
-
-													<div className="sources-container">
-														<div className="source-text">
-															<div className="search-svg">
-																<Search />
+													{sources?.length > 0 && (
+														<div className="sources-container">
+															<div className="source-text">
+																Sources
 															</div>
-															Sources
-														</div>
-														<div className="sources">
-															{sources?.map?.((source, index) => {
-																return (
-																	<div
-																		className="source"
-																		key={index}
-																		onClick={() => {
-																			window?.open(
-																				source,
-																				'_blank',
-																			);
-																		}}
-																	>
-																		<div className="icon">
-																			{getFaviconUrl(
-																				source,
-																			) ? (
-																				<img
-																					src={getFaviconUrl(
-																						source,
-																					)}
-																					alt="favicon"
-																					className="favicon-image"
-																				/>
-																			) : (
-																				<div className="company-icon">
-																					{getWebsiteName(
-																						source,
-																					)?.charAt(0)}
-																				</div>
-																			)}
+															<div className="sources">
+																{sources?.map?.((source, index) => {
+																	return (
+																		<div
+																			className="source"
+																			key={index}
+																			onClick={() => {
+																				window?.open(
+																					source,
+																					'_blank',
+																				);
+																			}}
+																		>
+																			<div className="icon">
+																				{getFaviconUrl(
+																					source,
+																				) ? (
+																					<img
+																						src={getFaviconUrl(
+																							source,
+																						)}
+																						alt="favicon"
+																						className="favicon-image"
+																					/>
+																				) : (
+																					<div className="company-icon">
+																						{getWebsiteName(
+																							source,
+																						)?.charAt(
+																							0,
+																						)}
+																					</div>
+																				)}
+																			</div>
+																			<div className="website-name">
+																				{getWebsiteName(
+																					source,
+																				)}
+																			</div>
 																		</div>
-																		<div className="website-name">
-																			{getWebsiteName(source)}
-																		</div>
-																	</div>
-																);
-															})}
+																	);
+																})}
+															</div>
 														</div>
-													</div>
+													)}
 												</div>
 											</div>
 										);
@@ -138,7 +141,7 @@ const DeepSearchChainOfThought = ({ data }) => {
 									</div>
 									<div className="content">
 										<div className="sub-query">
-											{readings[0]?.reading?.sub_query || ''}
+											{readings[0]?.reading?.refined_sub_query || ''}
 										</div>
 										<div className="sub-query-wrapper">
 											{readings?.map((reading, index) => {
@@ -149,10 +152,6 @@ const DeepSearchChainOfThought = ({ data }) => {
 															<div className="indicator" />
 														</div>
 														<div className="sub-query-content">
-															{/* <div className="query-header">
-											<ArrowReply />
-											Query
-										</div> */}
 															<div className="tool-container">
 																{tool === 'search_web' ? (
 																	<div className="search">
@@ -160,20 +159,24 @@ const DeepSearchChainOfThought = ({ data }) => {
 																			<WebSvg />
 																		</div>
 																		<div className="search-text">
-																			Searching Web
+																			Searched Web For :
 																		</div>
 																	</div>
 																) : tool ===
-																  'knowledge_base_search' ? (
+																  'search_knowledge_base' ? (
 																	<div className="search">
+																		<div className="svg">
+																			<BookSvg />
+																		</div>
 																		<div className="search-text">
-																			Searching Knowledge Base
+																			Searched Knowledge Base
+																			For :
 																		</div>
 																	</div>
 																) : (
 																	<div className="search">
 																		<div className="search-text">
-																			Searching
+																			Searched :
 																		</div>
 																	</div>
 																)}
