@@ -7,6 +7,7 @@
 	border-radius: 32px;
 	background: var(--card);
 	width: 790px;
+	z-index: 1003;
 	.proposal-popup-header {
 		display: flex;
 		justify-content: space-between;

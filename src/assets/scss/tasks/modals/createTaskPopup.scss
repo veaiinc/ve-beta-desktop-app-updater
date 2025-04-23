@@ -191,7 +191,7 @@
 				font-weight: 500;
 				line-height: 20px; /* 142.857% */
 				&::placeholder {
-					color: rgba(var(--primary-font), 0.38);
+					color: var(--secondary-font);
 				}
 			}
 
