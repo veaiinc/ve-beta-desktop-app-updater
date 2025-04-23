@@ -343,8 +343,10 @@
 							justify-content: center;
 							align-items: center;
 							gap: 10px;
-							color: var(--secondary-font);
+							color: var(--primary-button-font);
 							margin: 10px 5px 5px 8px;
+							background: var(--primary-button);
+							border: 1px solid var(--primary-button);
 						}
 					}
 				}

@@ -5,8 +5,9 @@ import { ReactComponent as Down } from '../../../assets/svg/calendar/down.svg';
 import ToggleSwitch from '../input/slider';
 import { Tooltip } from 'antd';
 import '../../../assets/scss/scheduler/editScheduler.scss';
+import Spinner from '../loaders/Spinner';
 
-const SessionInfoCard = ({ sessionData }) => {
+const SessionInfoCard = ({ sessionData, onUpdate, isUpdating }) => {
 	const [info, setInfo] = useState({
 		isDetailsOpen: false,
 		detailsOptions: ['Details', 'Conference', 'Shoot', 'Interview'],
@@ -41,7 +42,19 @@ const SessionInfoCard = ({ sessionData }) => {
 					<div className="sessionTitleRight">
 						{/* <span>{sessionData?.sessionName || 'session Name'}</span> */}
 						{/* <Dot /> */}
-						<div className="updateButton">Update and publish</div>
+						<div
+							className={`updateButton ${isUpdating ? 'updating' : ''}`}
+							onClick={onUpdate}
+						>
+							{isUpdating ? (
+								<>
+									<Spinner width="16px" height="16px" />
+									Updating...
+								</>
+							) : (
+								'Update and publish'
+							)}
+						</div>
 					</div>
 				</div>
 

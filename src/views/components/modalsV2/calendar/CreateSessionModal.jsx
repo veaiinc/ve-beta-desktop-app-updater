@@ -9,6 +9,7 @@ import { Tooltip, DatePicker } from 'antd';
 import dayjs from 'dayjs';
 import Context from '../../../../context/context';
 import Spinner from '../../loaders/Spinner';
+import PhoneInput from 'react-phone-number-input';
 
 const sessionTypeOptions = ['In Person', 'Phone Call', 'Video Call'];
 
@@ -145,13 +146,11 @@ const CreateSessionModal = ({ open, closeModal, onSessionCreated }) => {
 
 		const validateInput = (value) => {
 			if (config.value === 'phoneNumber') {
-				// Validate 10-digit phone number
-				const isValidPhone = /^\d{10}$/.test(value);
 				setInfo((prev) => ({
 					...prev,
-					errors: { ...prev.errors, phoneNumber: !isValidPhone },
+					errors: { ...prev.errors, phoneNumber: false },
 				}));
-				return isValidPhone;
+				return true;
 			} else if (config.value === 'meetingLink') {
 				// Validate URL format
 				try {
@@ -172,14 +171,11 @@ const CreateSessionModal = ({ open, closeModal, onSessionCreated }) => {
 			return true;
 		};
 
-		const handleChange = (e) => {
-			const value = e.target.value;
+		const handleChange = (value) => {
 			if (config.value === 'phoneNumber') {
-				// Only allow numbers and limit to 10 digits
-				const numericValue = value.replace(/\D/g, '').slice(0, 10);
 				setInfo((prev) => ({
 					...prev,
-					[config.value]: numericValue,
+					[config.value]: value,
 					errors: { ...prev.errors, sessionTypeInput: false },
 				}));
 			} else {
@@ -192,11 +188,25 @@ const CreateSessionModal = ({ open, closeModal, onSessionCreated }) => {
 			validateInput(value);
 		};
 
+		if (config.value === 'phoneNumber') {
+			return (
+				<PhoneInput
+					placeholder="Enter phone number"
+					value={info[config.value]}
+					onChange={handleChange}
+					defaultCountry="US"
+					className="phoneInputNumber"
+					countryCallingCodeEditable={true}
+					autoComplete="tel"
+				/>
+			);
+		}
+
 		return (
 			<InputComponent
 				type={config.type}
 				value={info[config.value]}
-				onChange={handleChange}
+				onChange={(e) => handleChange(e.target.value)}
 				placeholder={config.placeholder}
 				className={`inputHeight ${
 					info.errors.sessionTypeInput || info.errors[config.value] ? 'error' : ''
@@ -381,3 +391,51 @@ const CreateSessionModal = ({ open, closeModal, onSessionCreated }) => {
 };
 
 export default memo(CreateSessionModal);
+
+// Add styles for phone input
+const styles = `
+	.phoneInputNumber {
+		width: 100%;
+		height: 40px;
+		border: 1px solid var(--border);
+		border-radius: 8px;
+		padding: 0 12px;
+		font-size: 14px;
+		background: var(--card);
+		color: var(--primary-font);
+	}
+
+	.phoneInputNumber:focus {
+		outline: none;
+		border-color: var(--primary);
+	}
+
+	.phoneInputNumber.error {
+		border-color: red;
+	}
+
+	.phoneInputNumber input {
+		background: transparent;
+		border: none;
+		outline: none;
+		width: 100%;
+		height: 100%;
+		color: var(--primary-font);
+	}
+
+	.phoneInputNumber .PhoneInputCountry {
+		margin-right: 8px;
+	}
+
+	.phoneInputNumber .PhoneInputCountrySelect {
+		background: transparent;
+		border: none;
+		outline: none;
+		color: var(--primary-font);
+	}
+`;
+
+// Add styles to document
+const styleSheet = document.createElement('style');
+styleSheet.innerText = styles;
+document.head.appendChild(styleSheet);
