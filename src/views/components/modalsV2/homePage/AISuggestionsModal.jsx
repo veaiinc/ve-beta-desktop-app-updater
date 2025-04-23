@@ -1,4 +1,4 @@
-import { memo, useCallback, useState } from 'react';
+import { memo, useCallback, useState, useEffect } from 'react';
 import '../../../../assets/scss/home_page/modals/aiSuggestionsModal.scss';
 import { ReactComponent as ChevronRightThinSvg } from '../../../../assets/svg/tasks/chevronRightThin.svg';
 import { ReactComponent as ArrowRightSvg } from '../../../../assets/svg/home_page/arrow-right.svg';
@@ -38,7 +38,12 @@ const AISuggestionsModal = ({
 		isActionsExpanded: false,
 		isPromptsExpanded: false,
 		isReportExpanded: true,
+		selectedFeedback: data?.feedback,
 	});
+
+	useEffect(() => {
+		setInfo((prev) => ({ ...prev, selectedFeedback: data?.feedback }));
+	}, [data]);
 
 	const handleClickRun = useCallback((prompt) => {
 		if (typeof updateStateValues === 'function') {
@@ -101,14 +106,15 @@ const AISuggestionsModal = ({
 		}
 	};
 	const handleThumbClick = async (type) => {
-		if (data?.feedback === type) return;
+		if (info?.selectedFeedback === type) return;
 		const res = await pendingActionsUpdate(data?._id, { feedback: type });
-		if (res?.[0] === false) {
+		if (res?.[0] === true) {
+			setInfo((prev) => ({ ...prev, selectedFeedback: type }));
+		} else {
 			message.error('Failed to update feedback');
 		}
 	};
 
-	console.log(data, 'data');
 	return (
 		<Drawer
 			open={open}
@@ -234,7 +240,10 @@ const AISuggestionsModal = ({
 						</div>
 
 						{info?.isReportExpanded && (
-							<div className="report-description">
+							<div
+								className="report-description"
+								onClick={(e) => e?.stopPropagation()}
+							>
 								<Markdown>{research_report || ''}</Markdown>
 							</div>
 						)}
@@ -269,7 +278,7 @@ const AISuggestionsModal = ({
 						</div>
 
 						{info?.isSolutionsExpanded && (
-							<div className="solutions">
+							<div className="solutions" onClick={(e) => e?.stopPropagation()}>
 								{Array?.isArray(solutions)
 									? solutions?.map((item, index) => (
 											<div
@@ -316,7 +325,10 @@ const AISuggestionsModal = ({
 						</div>
 
 						{info?.isActionsExpanded && (
-							<div className="suggested-actions">
+							<div
+								className="suggested-actions"
+								onClick={(e) => e?.stopPropagation()}
+							>
 								{Array?.isArray(suggested_actions)
 									? suggested_actions.map((item, index) => (
 											<div
@@ -364,7 +376,10 @@ const AISuggestionsModal = ({
 							</div>
 
 							{info?.isPromptsExpanded && (
-								<div className="suggested-prompts">
+								<div
+									className="suggested-prompts"
+									onClick={(e) => e?.stopPropagation()}
+								>
 									{Array?.isArray(suggested_prompts)
 										? suggested_prompts.map((item, index) => (
 												<div
@@ -391,7 +406,7 @@ const AISuggestionsModal = ({
 						<div className="footer-left">
 							<div
 								className={`thumbs-up-container ${
-									data?.feedback === 'thumbsup' ? 'selected-thumb' : ''
+									info?.selectedFeedback === 'thumbsup' ? 'selected-thumb' : ''
 								}`}
 								onClick={() => handleThumbClick('thumbsup')}
 							>
@@ -399,7 +414,7 @@ const AISuggestionsModal = ({
 							</div>
 							<div
 								className={`thumbs-up-container ${
-									data?.feedback === 'thumbsdown' ? 'selected-thumb' : ''
+									info?.selectedFeedback === 'thumbsdown' ? 'selected-thumb' : ''
 								}`}
 								onClick={() => handleThumbClick('thumbsdown')}
 							>
