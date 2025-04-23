@@ -342,51 +342,80 @@
 		bottom: 0;
 		padding-bottom: 20px;
 		width: 100%;
-
+		display: flex;
+		flex-direction: column;
+		gap: 4px;
 		.horizontal-line {
 			width: 100%;
 			height: 1px;
 			background: var(--stroke, #333334);
 		}
-
-		.btns-container {
-			width: 100%;
+		.footer-content {
 			display: flex;
+			flex-direction: row;
 			justify-content: space-between;
-			align-items: flex-start;
-			align-self: stretch;
-			.ignore-btn {
+			align-items: center;
+			padding: 20px 24px;
+			.footer-left {
 				display: flex;
-				height: 40px;
-				padding: 6px 18px;
-				justify-content: center;
-				align-items: center;
-				gap: 4px;
-
-				border-radius: 100px;
-				border: 1px solid var(--stroke, #333334);
-				background-color: var(--card);
-
-				color: var(--primary-font, #f2f2f3);
-				font-family: var(--primary-font-family);
-				font-size: 14px;
-				font-style: normal;
-				font-weight: 500;
-				line-height: normal;
-				cursor: pointer;
+				flex-direction: row;
+				gap: 8px;
+				.thumbs-up-container {
+					display: flex;
+					width: 40px;
+					height: 40px;
+					padding: 12px;
+					justify-content: center;
+					align-items: center;
+					gap: 6px;
+					border-radius: 100px;
+					border: 1px solid var(--secondary-font);
+					cursor: pointer;
+					&.selected-thumb {
+						border: 1px solid var(--primary-font, #f2f2f3);
+					}
+				}
 			}
-			.report-btn {
+			.btns-container {
+				width: 100%;
 				display: flex;
-				height: 40px;
-				padding: 6px 18px;
-				justify-content: center;
-				align-items: center;
-				gap: 4px;
+				justify-content: flex-end;
+				align-items: flex-start;
+				align-self: stretch;
+				gap: 8px;
+				.ignore-btn {
+					display: flex;
+					height: 40px;
+					padding: 6px 18px;
+					justify-content: center;
+					align-items: center;
+					gap: 4px;
 
-				border-radius: 100px;
-				background: var(--primary-button);
-				cursor: pointer;
-				border: none;
+					border-radius: 100px;
+					border: 1px solid var(--stroke, #333334);
+					background-color: var(--card);
+
+					color: var(--primary-font, #f2f2f3);
+					font-family: var(--primary-font-family);
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+					cursor: pointer;
+				}
+				.report-btn {
+					display: flex;
+					height: 40px;
+					padding: 6px 18px;
+					justify-content: center;
+					align-items: center;
+					gap: 4px;
+
+					border-radius: 100px;
+					background: var(--primary-button);
+					cursor: pointer;
+					border: none;
+				}
 			}
 		}
 	}
@@ -415,12 +444,17 @@
 		font-weight: 600;
 		line-height: normal;
 	}
-	.cot-expand-btn {
-		width: 14px;
-		height: 14px;
-		svg {
+	.report-icon-container {
+		display: flex;
+		align-items: center;
+		gap: 16px;
+		.cot-expand-btn {
 			width: 14px;
 			height: 14px;
+			svg {
+				width: 14px;
+				height: 14px;
+			}
 		}
 	}
 }
