@@ -18,6 +18,7 @@ const LoginPage = () => {
 		accountExists: false,
 		cookiesAccepted: false,
 		isDarkMode: false,
+		lastOtpEmail: '',
 	});
 
 	useEffect(() => {
@@ -46,6 +47,10 @@ const LoginPage = () => {
 		setInfo((prev) => ({ ...prev, email }));
 	};
 
+	const setLastOtpEmail = (email) => {
+		setInfo((prev) => ({ ...prev, lastOtpEmail: email }));
+	};
+
 	const setActiveStage = (activeStage) => {
 		setInfo((prev) => ({ ...prev, activeStage }));
 	};
@@ -65,6 +70,8 @@ const LoginPage = () => {
 				setEmail={setEmail}
 				setActiveStage={setActiveStage}
 				setEmailVerified={setEmailVerified}
+				setLastOtpEmail={setLastOtpEmail}
+				lastOtpEmail={info?.lastOtpEmail}
 			/>
 		),
 		verificationCode: (

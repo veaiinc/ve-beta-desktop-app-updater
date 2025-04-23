@@ -11,7 +11,14 @@ import { message } from '../globalComponents/CustomToast';
 import gsap from 'gsap';
 import Spinner from '../loaders/Spinner';
 
-const Email = ({ email, setEmail, setActiveStage, setEmailVerified }) => {
+const Email = ({
+	email,
+	setEmail,
+	setActiveStage,
+	setEmailVerified,
+	setLastOtpEmail,
+	lastOtpEmail,
+}) => {
 	const navigate = useNavigate();
 	const arrowRef = useRef(null);
 
@@ -265,7 +272,13 @@ const Email = ({ email, setEmail, setActiveStage, setEmailVerified }) => {
 								? 'var(--card-hover)'
 								: 'var(--primary-button)',
 						}}
-						onClick={() => handleContinueWithEmail(null, 'click')}
+						onClick={() => {
+							if (email !== lastOtpEmail) {
+								handleContinueWithEmail(null, 'click');
+							}
+							setActiveStage('verificationCode');
+							setLastOtpEmail(email);
+						}}
 					>
 						{info.isLoading ? (
 							<Spinner
