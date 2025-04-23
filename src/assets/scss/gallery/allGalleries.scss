@@ -64,14 +64,19 @@
 		.filter-container {
 			display: flex;
 			align-items: center;
+
 			width: fit-content;
 			position: relative;
+			width: 40px;
+			height: 40px;
+			border-radius: 50%;
 			.filter-icon {
 				display: flex;
 				width: 40px;
 				height: 40px;
-				padding: 10px;
+				// padding: 10px;
 				align-items: center;
+				justify-content: center;
 				gap: 10px;
 				border-radius: 100px;
 				border: 1px solid var(--stroke);

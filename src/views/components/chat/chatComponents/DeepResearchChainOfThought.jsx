@@ -23,10 +23,10 @@ const DeepResearchChainOfThought = ({ data }) => {
 										<div className="tool-container">
 											<div className="tool-name">
 												{item?.tool === 'search_web'
-													? 'Searching web'
+													? 'Searched Web For :'
 													: item?.tool === 'search_knowledge_base'
-													? 'Searching Knowledge Base'
-													: ''}
+													? 'Searched Knowledge Base For :'
+													: 'Searched For :'}
 											</div>
 											{item?.queries?.length > 0 && (
 												<div className="queries-container">
@@ -42,9 +42,7 @@ const DeepResearchChainOfThought = ({ data }) => {
 
 									{item?.sources?.length > 0 && (
 										<div className="sources-container">
-											<div className="text-container">
-												Searching Sources :
-											</div>
+											<div className="text-container">Sources</div>
 											<div className="sources">
 												{item?.sources?.map?.((source, index) => {
 													return (

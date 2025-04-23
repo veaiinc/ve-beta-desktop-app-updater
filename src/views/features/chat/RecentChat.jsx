@@ -606,10 +606,10 @@ const RecentChat = ({
 				});
 				setInfo((prev) => ({ ...prev, latestStreamMesage: data }));
 			}
-			let { message_chunk_id, message_chunk_id_var } = data;
-			message_chunk_id = message_chunk_id || message_chunk_id_var;
+			const { message_chunk_id } = data;
+
 			if (message_chunk_id) {
-				handleStreamMessageChunk({ ...data, message_chunk_id }, message_chunk_id);
+				handleStreamMessageChunk(data, message_chunk_id);
 			}
 		},
 		[info],

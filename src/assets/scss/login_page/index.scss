@@ -279,19 +279,15 @@
 					display: flex;
 					align-items: center;
 					justify-content: flex-start;
-					gap: 12px;
+					gap: 6px;
 					transition: all 0.3s ease;
 					cursor: pointer;
-
-					span {
-						color: var(--secondary-font);
-						font-family: var(--secondary-font-family);
-						font-size: 15px;
-						font-style: normal;
-						font-weight: 500;
-						line-height: normal;
-						padding-top: 3px;
-					}
+					color: var(--secondary-font);
+					font-family: var(--secondary-font-family);
+					font-size: 15px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
 
 					svg {
 						cursor: pointer;
