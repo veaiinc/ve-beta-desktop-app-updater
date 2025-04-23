@@ -214,6 +214,7 @@
 									background: var(--card, #f1f1f3);
 									cursor: pointer;
 									transition: background-color 0.2s ease-in-out;
+									border: 1px solid var(--stroke, #2e3033);
 
 									&:hover {
 										background-color: var(--card-hover);

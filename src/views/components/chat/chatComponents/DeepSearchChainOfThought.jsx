@@ -63,7 +63,7 @@ const DeepSearchChainOfThought = ({ data }) => {
 																	Searching Web
 																</div>
 															</div>
-														) : tool === 'knowledge_base_search' ? (
+														) : tool === 'search_knowledge_base' ? (
 															<div className="search">
 																<div className="search-text">
 																	Searching Knowledge Base

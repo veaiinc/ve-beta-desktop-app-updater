@@ -37,7 +37,6 @@ const NoteComponentModal = ({
 		templates: { globalChatMessages },
 		documentPreview: { noteContent },
 		notes: { addToFavorite, removeFromFavorite, deletePage, duplicatePage },
-		companyInfo: { getTeamMembers, tenantsUserList },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		noteComponentFullScreen: false,
@@ -287,10 +286,19 @@ const NoteComponentModal = ({
 											: 'none',
 									}}
 								>
-									<BackSvg />
+									<Tooltip
+										title={`${
+											info?.noteComponentFullScreen ? 'Minimize' : 'Expand'
+										} Notes`}
+										placement="bottom"
+									>
+										<BackSvg />
+									</Tooltip>
 								</div>
 								<div className="close-icon" onClick={handleClose}>
-									<CloseSvg />
+									<Tooltip title="Close Notes" placement="bottom">
+										<CloseSvg />
+									</Tooltip>
 								</div>
 								<div className="title"></div>
 							</div>

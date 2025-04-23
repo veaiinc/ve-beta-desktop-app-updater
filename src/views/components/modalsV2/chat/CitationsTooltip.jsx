@@ -70,7 +70,7 @@ export const CitationsTooltip = memo(({ citationId, citations, placement = 'topL
 		if (!citationData) return '';
 		let updatedText = citationData?.replace(/\\n/g, '\n');
 		if (citationInfo?.snippet && citationInfo.snippet?.trim() !== '') {
-			updatedText = updatedText.replace(
+			updatedText = updatedText?.replace(
 				citationInfo?.snippet,
 				`<span id="citation-snippet" style={{ backgroundColor: 'rgb(178, 161, 232)', padding: '1px 3px', borderRadius: '4px', boxDecorationBreak: 'clone' }}>${citationInfo.snippet}</span>`,
 			);

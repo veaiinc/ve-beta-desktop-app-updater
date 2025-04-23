@@ -1,8 +1,28 @@
-import { memo } from 'react';
+import { memo, useCallback } from 'react';
 import '../../../../assets/scss/chat/chatComponents/deepResearchChainOfThought.scss';
 import { Markdown } from '../../../../helpers/markdownHelper';
 
 const DeepResearchChainOfThought = ({ data }) => {
+	const getFaviconUrl = useCallback((url) => {
+		try {
+			const domain = new URL(url)?.hostname;
+			return `https://www.google.com/s2/favicons?sz=64&domain=${domain}`;
+		} catch (error) {
+			return null;
+		}
+	}, []);
+
+	const getWebsiteName = useCallback((url) => {
+		try {
+			const domain = new URL(url)?.hostname;
+			// Remove common TLDs and www
+			let name = domain?.replace(/^www\./i, '')?.split('.')?.[0];
+			// Capitalize first letter
+			return name?.charAt(0)?.toUpperCase() + name?.slice(1);
+		} catch (error) {
+			return url;
+		}
+	}, []);
 	return (
 		<div className="deep-research-container">
 			<div className="chain-of-thought">
@@ -22,9 +42,9 @@ const DeepResearchChainOfThought = ({ data }) => {
 										<div className="tool-container">
 											<div className="tool-name">
 												{item?.tool === 'search_web'
-													? 'Searching web:'
+													? 'Searching web'
 													: item?.tool === 'search_knowledge_base'
-													? 'Searching Knowledge Base:'
+													? 'Searching Knowledge Base'
 													: ''}
 											</div>
 											{item?.queries?.length > 0 && (
@@ -44,17 +64,38 @@ const DeepResearchChainOfThought = ({ data }) => {
 											<div className="text-container">
 												Searching Sources :
 											</div>
-											{item?.sources?.map((url, idx) => (
-												<a
-													className="source"
-													href={url}
-													target="_blank"
-													rel="noreferrer"
-													key={idx}
-												>
-													{url}
-												</a>
-											))}
+											<div className="sources">
+												{item?.sources?.map?.((source, index) => {
+													return (
+														<div
+															className="source"
+															key={index}
+															onClick={() => {
+																window?.open(source, '_blank');
+															}}
+														>
+															<div className="icon">
+																{getFaviconUrl(source) ? (
+																	<img
+																		src={getFaviconUrl(source)}
+																		alt="favicon"
+																		className="favicon-image"
+																	/>
+																) : (
+																	<div className="company-icon">
+																		{getWebsiteName(
+																			source,
+																		)?.charAt(0)}
+																	</div>
+																)}
+															</div>
+															<div className="website-name">
+																{getWebsiteName(source)}
+															</div>
+														</div>
+													);
+												})}
+											</div>
 										</div>
 									)}
 								</div>
