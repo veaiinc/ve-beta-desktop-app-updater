@@ -224,7 +224,11 @@ const OptionsDropDown = ({
 										className="view-options-list-item"
 										onClick={() => handleOptionChange('properties')}
 									>
-										<ListSvg width={16} height={16} />
+										<ListSvg
+											width={16}
+											height={16}
+											style={{ stroke: 'var(--primary-font)' }}
+										/>
 										<span className="view-options-list-item-label">
 											Properties
 										</span>
@@ -241,7 +245,11 @@ const OptionsDropDown = ({
 										className="view-options-list-item"
 										onClick={() => handleOptionChange('group')}
 									>
-										<ListSvg width={16} height={16} />
+										<ListSvg
+											width={16}
+											height={16}
+											style={{ stroke: 'var(--primary-font)' }}
+										/>
 										<span className="view-options-list-item-label">Group</span>
 										<span className="view-options-list-item-value">
 											{properties?.find(
