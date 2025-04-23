@@ -310,6 +310,9 @@
 								height: fit-content;
 								justify-content: flex-start;
 								text-overflow: ellipsis;
+								width: 100%;
+								max-width: 100%;
+								overflow: hidden;
 
 								.leftColorBar {
 									display: inline-block;
@@ -320,9 +323,22 @@
 								}
 								.textContainer {
 									text-overflow: ellipsis;
+									white-space: nowrap;
+									overflow: hidden;
 									width: calc(100% - 5px);
 									flex-shrink: 0;
-									overflow: hidden;
+									font-size: 11px;
+									line-height: 1.2;
+
+									@media (max-width: 768px) {
+										font-size: 10px;
+									}
+									@media (min-width: 769px) and (max-width: 1024px) {
+										font-size: 11px;
+									}
+									@media (min-width: 1025px) {
+										font-size: 12px;
+									}
 								}
 							}
 						}

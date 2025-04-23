@@ -38,6 +38,15 @@
 				font-weight: 500;
 				line-height: normal;
 				user-select: none;
+
+				@media (max-width: 480px) {
+					font-size: 12px;
+					gap: 2px;
+				}
+				@media (min-width: 481px) and (max-width: 768px) {
+					font-size: 14px;
+					gap: 4px;
+				}
 			}
 
 			.viewToggleWrapper {
