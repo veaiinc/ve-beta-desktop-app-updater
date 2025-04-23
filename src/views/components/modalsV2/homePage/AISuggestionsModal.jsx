@@ -13,7 +13,7 @@ import { ReactComponent as ThumbsDownSvg } from '../../../../assets/svg/thumbsDo
 import { Markdown } from '../../../../helpers/markdownHelper';
 import { useNavigate } from 'react-router-dom';
 import ObjectID from 'bson-objectid';
-import { Drawer } from 'antd';
+import { Drawer, Tooltip } from 'antd';
 import Context from '../../../../context/context';
 import { useContext } from 'react';
 import { message } from '../../globalComponents/CustomToast';
@@ -156,9 +156,11 @@ const AISuggestionsModal = ({
 								<div className="priority-text">{`${priority} Priority`}</div>
 							</div>
 							{confidence_score && (
-								<div className="confidence">
-									<div className="value">{`${confidence_score * 100}%`}</div>
-								</div>
+								<Tooltip title={`Confidence Score: ${confidence_score * 100}%`}>
+									<div className="confidence">
+										<div className="value">{`${confidence_score * 100}%`}</div>
+									</div>
+								</Tooltip>
 							)}
 						</div>
 					</div>
@@ -228,7 +230,7 @@ const AISuggestionsModal = ({
 								Report
 							</div>
 							<div className="report-icon-container">
-								<ReportIcon2Svg />
+								{/* <ReportIcon2Svg /> */}
 								<div
 									className="cot-expand-btn"
 									style={{

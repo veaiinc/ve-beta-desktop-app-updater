@@ -380,7 +380,13 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 										<div className="module-priority-text">
 											<div>{card?.priority}</div>
 											<div style={{ color: 'var(--secondary-font)' }}>|</div>
-											<div>{dayjs(card?.updatedAt * 1000).fromNow()}</div>
+											<Tooltip
+												title={dayjs(card?.updatedAt * 1000).format(
+													'MMMM D, YYYY h:mm A',
+												)}
+											>
+												<div>{dayjs(card?.updatedAt * 1000).fromNow()}</div>
+											</Tooltip>
 										</div>
 									</div>
 								</div>
