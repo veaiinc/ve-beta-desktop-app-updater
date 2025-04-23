@@ -1,4 +1,4 @@
-import React, { memo, useState, useEffect } from 'react';
+import { memo, useState, useEffect } from 'react';
 import '../../../assets/scss/login_page/index.scss';
 import Email from '../../components/login_page/Email';
 import VerificationCode from '../../components/login_page/VerificationCode';
@@ -18,6 +18,7 @@ const LoginPage = () => {
 		accountExists: false,
 		cookiesAccepted: false,
 		isDarkMode: false,
+		lastOtpEmail: '',
 	});
 
 	useEffect(() => {
@@ -46,6 +47,10 @@ const LoginPage = () => {
 		setInfo((prev) => ({ ...prev, email }));
 	};
 
+	const setLastOtpEmail = (email) => {
+		setInfo((prev) => ({ ...prev, lastOtpEmail: email }));
+	};
+
 	const setActiveStage = (activeStage) => {
 		setInfo((prev) => ({ ...prev, activeStage }));
 	};
@@ -65,6 +70,8 @@ const LoginPage = () => {
 				setEmail={setEmail}
 				setActiveStage={setActiveStage}
 				setEmailVerified={setEmailVerified}
+				setLastOtpEmail={setLastOtpEmail}
+				lastOtpEmail={info?.lastOtpEmail}
 			/>
 		),
 		verificationCode: (

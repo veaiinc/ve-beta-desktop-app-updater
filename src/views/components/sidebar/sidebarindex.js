@@ -124,7 +124,6 @@ export const styles = {
 	},
 	close: {
 		width: '56px',
-		borderRadius: '100px',
 	},
 	workspace: {
 		width: '230px',

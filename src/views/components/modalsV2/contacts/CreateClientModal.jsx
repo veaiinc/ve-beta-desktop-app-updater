@@ -255,6 +255,9 @@ const CreateClientModal = ({ modalIsOpen, closeModal, source, leadOrClient = fal
 									handleInputChange({ target: { name: 'phoneNumber', value: e } })
 								}
 								disabled={false}
+								style={{
+									backgroundColor: 'var(--card)',
+								}}
 							/>
 							{errorState['isphoneNumberError'] && (
 								<span className="errorMessage">

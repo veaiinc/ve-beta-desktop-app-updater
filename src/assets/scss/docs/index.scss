@@ -362,7 +362,6 @@
 					// background-color: red;
 					min-width: 16px;
 					display: inline-block;
-					height: 16px;
 					transition: all 0.3s ease;
 
 					.searchBtn {
@@ -386,6 +385,8 @@
 							display: none;
 							transition: all 0.3s ease;
 							overflow: hidden;
+							position: relative;
+
 							.searchInputTag {
 								flex: 1;
 								background-color: transparent;
@@ -405,6 +406,15 @@
 									font-style: normal;
 									font-weight: 400;
 									line-height: normal;
+								}
+							}
+
+							span {
+								svg {
+									position: absolute;
+									top: 50%;
+									right: 5px;
+									transform: translateY(-50%);
 								}
 							}
 						}
