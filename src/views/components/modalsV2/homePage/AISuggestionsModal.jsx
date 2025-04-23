@@ -108,7 +108,6 @@ const AISuggestionsModal = ({
 		}
 	};
 
-	console.log(data, 'data');
 	return (
 		<Drawer
 			open={open}
