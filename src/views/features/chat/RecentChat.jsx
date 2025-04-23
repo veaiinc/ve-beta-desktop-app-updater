@@ -433,9 +433,9 @@ const RecentChat = ({
 					(item) => item?.need_refinement === true || item?.need_refinement === false,
 				);
 				let cot = [];
-				if (index !== -1) {
-					cot = chainOfThought?.slice(0, index - 1);
-				}
+				// if (index !== -1) {
+				// 	cot = chainOfThought?.slice(0, index - 1);
+				// }
 
 				messages = [
 					{
