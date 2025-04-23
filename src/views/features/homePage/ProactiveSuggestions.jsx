@@ -358,8 +358,8 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 										></span>
 										<div className="module-priority-text">
 											<div>{card?.priority}</div>
-											{/* <div>|</div>
-											<div>{dayjs(card?.updatedAt * 1000).fromNow()}</div> */}
+											<div style={{ color: 'var(--secondary-font)' }}>|</div>
+											<div>{dayjs(card?.updatedAt * 1000).fromNow()}</div>
 										</div>
 									</div>
 								</div>
@@ -484,6 +484,7 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 				data={info?.activeCardContent}
 				onNextCardClick={handleRight}
 				onPrevCardClick={handleLeft}
+				totalDocs={aiSuggestedPendingActions?.metaInfo?.totalDocs}
 			/>
 		</div>
 	);
