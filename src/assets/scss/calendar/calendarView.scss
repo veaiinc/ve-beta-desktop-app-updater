@@ -387,6 +387,26 @@
 		padding: 0;
 		margin: 0;
 
+		.rbc-current-time-indicator {
+			background-color: var(--primary-button);
+			height: 2px;
+			width: 100%;
+			position: absolute;
+			z-index: 3;
+			pointer-events: none;
+
+			&::before {
+				content: '';
+				position: absolute;
+				left: 0;
+				top: -4px;
+				width: 8px;
+				height: 8px;
+				background-color: var(--primary-button);
+				border-radius: 50%;
+			}
+		}
+
 		.rbc-time-content {
 			height: 100%;
 			overflow: visible;
@@ -402,7 +422,6 @@
 		}
 
 		.rbc-day-slot {
-			height: 100%;
 			overflow: visible;
 			padding: 0;
 			margin: 0;

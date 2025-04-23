@@ -4,8 +4,6 @@ import CalendarSelector from '../../components/calendar/CalendarSelector';
 import CalendarCategories from '../../components/calendar/CalendarCategories';
 import MeetingDetails from '../../components/calendar/MeetingDetails';
 import CalendarAiChat from '../../components/calendar/CalendarAiChat';
-import CreateEvent from '../../components/calendar/CreateEvent';
-// import AskAI from '../../components/calendar/AskAI';
 import GoogleCalendar from '../../components/calendar/GoogleCalendar';
 import CalendarChatBox from '../../components/calendar/CalendarChatBox';
 import moment from 'moment';
@@ -17,11 +15,9 @@ const CalendarSidebar = ({
 	selectedMonth,
 	selectedYear,
 	selectedDate,
-	isCreateEventOpen,
 	categoryList,
 	selectedCategory,
 	categoryFilter,
-	selectedSlot,
 	updateCalendarInfo,
 	schedulerList,
 	selectedSession,
@@ -45,13 +41,6 @@ const CalendarSidebar = ({
 		<>
 			{info?.askAi ? (
 				<CalendarAiChat toggleAskAi={toggleAskAi} selectedDate={selectedDate} />
-			) : isCreateEventOpen ? (
-				<CreateEvent
-					categoryList={categoryList}
-					selectedCategory={selectedCategory}
-					selectedSlot={selectedSlot}
-					updateCalendarInfo={updateCalendarInfo}
-				/>
 			) : (
 				<div className="calendarSidebarContainer">
 					<div className="dateDisplay">{formattedDate}</div>
@@ -62,7 +51,6 @@ const CalendarSidebar = ({
 						selectedDate={selectedDate}
 						updateCalendarInfo={updateCalendarInfo}
 					/>
-					{/* <AskAI toggleAskAi={toggleAskAi} /> */}
 					<CalendarCategories
 						categoryList={categoryList}
 						selectedCategory={selectedCategory}
@@ -76,8 +64,6 @@ const CalendarSidebar = ({
 						sessionFilter={sessionFilter}
 						updateCalendarInfo={updateCalendarInfo}
 					/>
-
-					{/* <MeetingDetails selectedDate={selectedDate} /> */}
 				</div>
 			)}
 		</>

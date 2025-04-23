@@ -349,8 +349,8 @@ const EditScheduler = ({ onBack, sessionId: propSessionId }) => {
 				const payload = {
 					sessionWindow: {
 						type: 'fixed_date_range',
-						startDate: value.toISOString(),
-						endDate: info.endTime?.toISOString(),
+						startDate: value ? value.toISOString() : null,
+						endDate: info.endTime ? info.endTime.toISOString() : null,
 					},
 				};
 				updateSchedulerSession(sessionId, payload);
@@ -382,8 +382,8 @@ const EditScheduler = ({ onBack, sessionId: propSessionId }) => {
 				const payload = {
 					sessionWindow: {
 						type: 'fixed_date_range',
-						startDate: info.startTime?.toISOString(),
-						endDate: value.toISOString(),
+						startDate: info.startTime ? info.startTime.toISOString() : null,
+						endDate: value ? value.toISOString() : null,
 					},
 				};
 				updateSchedulerSession(sessionId, payload);
@@ -1151,7 +1151,7 @@ const EditScheduler = ({ onBack, sessionId: propSessionId }) => {
 								}}
 							/>
 						</div>
-						{/* <div className="sessionInputWrapper">
+						<div className="sessionInputWrapper">
 							<span>Duration</span>
 							<Tooltip
 								placement="bottom"
@@ -1188,7 +1188,7 @@ const EditScheduler = ({ onBack, sessionId: propSessionId }) => {
 									<DownArrow className={info.isDurationOpen ? 'open' : ''} />
 								</div>
 							</Tooltip>
-						</div> */}
+						</div>
 					</div>
 
 					<div className="updateSessionDesc">
@@ -1196,7 +1196,7 @@ const EditScheduler = ({ onBack, sessionId: propSessionId }) => {
 							<Checkbox className="checkbox" />
 							<div className="alldaytext">All Day</div>
 						</div>
-						{/* <div
+						<div
 							className={`addSessionDesc ${info?.addDescription ? 'hidden' : ''}`}
 							onClick={() =>
 								setInfo((prev) => ({
@@ -1206,9 +1206,9 @@ const EditScheduler = ({ onBack, sessionId: propSessionId }) => {
 							}
 						>
 							Add Instruction
-						</div> */}
+						</div>
 
-						{/* <div
+						<div
 							className={`sessionDescriptionWrapper ${
 								info?.addDescription ? 'visible' : ''
 							}`}
@@ -1220,7 +1220,7 @@ const EditScheduler = ({ onBack, sessionId: propSessionId }) => {
 								placeholder={'Session description'}
 								backgroundColor={'var(--background)'}
 							/>
-						</div> */}
+						</div>
 					</div>
 
 					<div className="sessionOptionContainer">

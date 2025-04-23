@@ -10,6 +10,7 @@ import MonthEventWrapper from '../../components/calendar/MonthEventWrapper';
 import Context from '../../../context/context';
 import moment from 'moment';
 import EventDetailsModal from '../../components/modalsV2/calendar/EventDetailsModal';
+import EventsPopUp from '../../components/calendar/EventsPopUp';
 import { message } from '../../components/globalComponents/CustomToast';
 
 const initialState = {
@@ -51,6 +52,7 @@ const CalendarView = ({
 	const [info, setInfo] = useState({
 		...initialState,
 		googleEvents: [],
+		isCreateEventOpen: false,
 	});
 
 	useEffect(() => {
@@ -228,9 +230,19 @@ const CalendarView = ({
 	);
 
 	const onSelectSlot = useCallback((event) => {
-		updateCalendarInfo('isCreateEventOpen', true);
-		updateCalendarInfo('selectedDate', event?.start);
-		updateCalendarInfo('selectedSlot', event?.start);
+		setInfo((prev) => ({
+			...prev,
+			isCreateEventOpen: true,
+			selectedSlot: event?.start,
+		}));
+	}, []);
+
+	const handleCloseEventPopup = useCallback(() => {
+		setInfo((prev) => ({
+			...prev,
+			isCreateEventOpen: false,
+			selectedSlot: null,
+		}));
 	}, []);
 
 	const onClose = useCallback(() => {
@@ -266,6 +278,13 @@ const CalendarView = ({
 					updateCalenderEventsList={updateCalenderEventsList}
 					filterDeletedEvent={filterDeletedEvent}
 					onClose={onClose}
+				/>
+				<EventsPopUp
+					open={info?.isCreateEventOpen}
+					closeModal={handleCloseEventPopup}
+					categoryList={categoryList}
+					selectedCategory={selectedCategory}
+					selectedSlot={info?.selectedSlot}
 				/>
 			</div>
 		</>

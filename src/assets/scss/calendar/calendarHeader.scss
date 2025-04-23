@@ -55,6 +55,13 @@
 				align-items: flex-start;
 				gap: 10px;
 
+				.divider {
+					width: 1px;
+					height: 24px;
+					background-color: var(--stroke);
+					// opacity: 0.5;
+				}
+
 				.viewToggle {
 					display: flex;
 					gap: 8px;
@@ -278,14 +285,7 @@
 					}
 				}
 			}
-			.divider {
-				color: var(--stroke);
-				align-items: center;
-				justify-content: center;
-				align-self: stretch;
-				opacity: 0.5;
-				margin-top: 5px;
-			}
+
 			.dayName {
 				color: var(--primary-font);
 			}
