@@ -1,4 +1,4 @@
-import React, { memo, useState, useEffect } from 'react';
+import { memo, useState, useEffect } from 'react';
 import '../../../assets/scss/login_page/index.scss';
 import Email from '../../components/login_page/Email';
 import VerificationCode from '../../components/login_page/VerificationCode';
