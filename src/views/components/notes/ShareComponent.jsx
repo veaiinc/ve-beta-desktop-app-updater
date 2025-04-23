@@ -78,15 +78,21 @@ const ShareComponent = ({ pageId }) => {
 
 	useEffect(() => {
 		if (notesPageData && pageId) {
-			const { isPublished = false, slug = pageId, expiresAt = null } = notesPageData || {};
+			if (notesPageData?.data) {
+				const {
+					isPublished = false,
+					slug = pageId,
+					expiresAt = null,
+				} = notesPageData?.data || {};
 
-			setInfo((prev) => ({
-				...prev,
-				isPublished,
-				slug: slug || pageId,
-				expiresAt,
-				prevSlug: slug || pageId,
-			}));
+				setInfo((prev) => ({
+					...prev,
+					isPublished,
+					slug: slug || pageId,
+					expiresAt,
+					prevSlug: slug || pageId,
+				}));
+			}
 		}
 	}, [notesPageData, pageId]);
 

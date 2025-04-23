@@ -92,14 +92,24 @@ export const NotesState = (props) => {
 			);
 
 			if (response?.[0]) {
+				const data = response?.[1]?.data?.getPage;
 				dispatch({
 					type: Actions.GET_NOTES_PAGE_DATA_SUCCESS,
-					payload: response?.[1]?.data?.getPage,
+					payload: { data },
 				});
 			} else {
+				const error = response?.[1]?.[0];
+				dispatch({
+					type: Actions.GET_NOTES_PAGE_DATA_SUCCESS,
+					payload: { error },
+				});
 				console.log('Api failed ==>getNotesPageData', response);
 			}
 		} catch (error) {
+			dispatch({
+				type: Actions.GET_NOTES_PAGE_DATA_SUCCESS,
+				payload: { error },
+			});
 			console.log('error==>getNotesPageData', error);
 		}
 	};

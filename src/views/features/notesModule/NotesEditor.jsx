@@ -122,13 +122,13 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 	}, []);
 
 	useEffect(() => {
-		if (notesPageData) {
+		if (notesPageData?.data) {
 			const {
 				blocks = [],
 				title = '',
 				updatedAt = '',
 				isFavorite = false,
-			} = notesPageData || {};
+			} = notesPageData?.data || {};
 			if (blocks) {
 				loadNotesContent(blocks);
 			}
@@ -138,6 +138,18 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 				updatedAt,
 				isFavorite,
 			}));
+		} else if (notesPageData?.error) {
+			const messageText =
+				notesPageData?.error?.message ||
+				'Something went wrong while fetching this note, please try again';
+
+			message.error(messageText);
+
+			if (window.history.length > 1) {
+				navigate(-1);
+			} else {
+				navigate('/');
+			}
 		}
 	}, [notesPageData]);
 
