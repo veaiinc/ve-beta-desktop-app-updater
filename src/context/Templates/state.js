@@ -2413,7 +2413,6 @@ export const TemplatesState = (props) => {
 		}
 	};
 
-	// http://localhost:51237/{{workspace}}/knowledge-bases/pending-actions/:{{pendingActionId}}
 	const pendingActionsUpdate = async (pendingActionId, payload) => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
