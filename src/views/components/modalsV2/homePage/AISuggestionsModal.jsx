@@ -7,6 +7,9 @@ import { ReactComponent as ReportIconSvg } from '../../../../assets/svg/reportIc
 import { ReactComponent as RecommendedSvg } from '../../../../assets/svg/recommended.svg';
 import { ReactComponent as SuggestedActionsSvg } from '../../../../assets/svg/suggestedActions.svg';
 import { ReactComponent as SuggestedPromptsSvg } from '../../../../assets/svg/suggestedPrompts.svg';
+import { ReactComponent as ReportIcon2Svg } from '../../../../assets/svg/reportIcon2.svg';
+import { ReactComponent as ThumbsUpSvg } from '../../../../assets/svg/thumbsUp.svg';
+import { ReactComponent as ThumbsDownSvg } from '../../../../assets/svg/thumbsDown.svg';
 import { Markdown } from '../../../../helpers/markdownHelper';
 import { useNavigate } from 'react-router-dom';
 import ObjectID from 'bson-objectid';
@@ -21,10 +24,11 @@ const AISuggestionsModal = ({
 	onNextCardClick,
 	onPrevCardClick,
 	totalDocs,
+	selectedCardNumber,
 }) => {
 	const navigate = useNavigate();
 	const {
-		templates: { updateStateValues },
+		templates: { updateStateValues, pendingActionsUpdate },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -87,6 +91,15 @@ const AISuggestionsModal = ({
 		suggested_prompts,
 	} = data;
 
+	const handleIgnoreClick = async () => {
+		await pendingActionsUpdate(data?._id, { isIgnored: true });
+		onClose();
+	};
+	const handleThumbClick = async (type) => {
+		await pendingActionsUpdate(data?._id, { feedback: type });
+	};
+
+	console.log(data, 'data');
 	return (
 		<Drawer
 			open={open}
@@ -104,7 +117,9 @@ const AISuggestionsModal = ({
 							<div className="prev-btn" onClick={onPrevCardClick}>
 								<ChevronRightThinSvg />
 							</div>
-							<div className="total-docs">{totalDocs} </div>
+							<div className="total-docs">
+								{`${selectedCardNumber} / ${totalDocs}`}
+							</div>
 							<div className="next-btn" onClick={onNextCardClick}>
 								<ChevronRightThinSvg />
 							</div>
@@ -197,15 +212,18 @@ const AISuggestionsModal = ({
 								<ReportIconSvg />
 								Report
 							</div>
-							<div
-								className="cot-expand-btn"
-								style={{
-									transform: info?.isReportExpanded
-										? 'rotate(-90deg)'
-										: 'rotate(90deg)',
-								}}
-							>
-								<ChevronRightThinSvg />
+							<div className="report-icon-container">
+								<ReportIcon2Svg />
+								<div
+									className="cot-expand-btn"
+									style={{
+										transform: info?.isReportExpanded
+											? 'rotate(-90deg)'
+											: 'rotate(90deg)',
+									}}
+								>
+									<ChevronRightThinSvg />
+								</div>
 							</div>
 						</div>
 
@@ -369,13 +387,36 @@ const AISuggestionsModal = ({
 
 				<div className="footer">
 					<div className="horizontal-line"></div>
-					<div className="btns-container">
-						<button className="ignore-btn" onClick={onClose}>
-							Ignore
-						</button>
-						<button className="report-btn" onClick={() => handleViewReportClick(data)}>
-							View report
-						</button>
+					<div className="footer-content">
+						<div className="footer-left">
+							<div
+								className={`thumbs-up-container ${
+									data?.feedback === 'thumbsup' ? 'selected-thumb' : ''
+								}`}
+								onClick={() => handleThumbClick('thumbsup')}
+							>
+								<ThumbsUpSvg />
+							</div>
+							<div
+								className={`thumbs-up-container ${
+									data?.feedback === 'thumbsdown' ? 'selected-thumb' : ''
+								}`}
+								onClick={() => handleThumbClick('thumbsdown')}
+							>
+								<ThumbsDownSvg />
+							</div>
+						</div>
+						<div className="btns-container">
+							<button className="ignore-btn" onClick={handleIgnoreClick}>
+								Ignore
+							</button>
+							<button
+								className="report-btn"
+								onClick={() => handleViewReportClick(data)}
+							>
+								View report
+							</button>
+						</div>
 					</div>
 				</div>
 			</div>

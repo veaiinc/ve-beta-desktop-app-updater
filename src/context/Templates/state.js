@@ -2412,6 +2412,19 @@ export const TemplatesState = (props) => {
 			console.log('error==>updateWorkflowTemplate', error);
 		}
 	};
+
+	// http://localhost:51237/{{workspace}}/knowledge-bases/pending-actions/:{{pendingActionId}}
+	const pendingActionsUpdate = async (pendingActionId, payload) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const url = `/${workspaceId}/knowledge-bases/pending-actions/${pendingActionId}`;
+			const response = await Service.fetchPut(url, payload, usertoken, 'tenant');
+			return response;
+		} catch (error) {
+			console.log('error==>pendingActionsUpdate', error);
+		}
+	};
 	return {
 		...state,
 		getMyWorkflows,
@@ -2494,5 +2507,6 @@ export const TemplatesState = (props) => {
 		getAISuggestedPendingActions,
 		sendContactFormData,
 		updateWorkflowTemplate,
+		pendingActionsUpdate,
 	};
 };
