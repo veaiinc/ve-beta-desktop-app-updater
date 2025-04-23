@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useContext, useCallback, Children, memo } from 'react';
+import { useState, useEffect, useRef, useContext, useCallback, memo } from 'react';
 import { ReactComponent as ShareIcon } from '../../../assets/svg/gallery/share.svg';
 import sixDots from '../../../assets/svg/gallery/sixdots.svg';
 import { ReactComponent as ThreeDotsIcon } from '../../../assets/svg/gallery/threeDots.svg';
@@ -2269,9 +2269,9 @@ const GalleryPage = () => {
 			albumTags: items,
 		}));
 	};
-	const handleRearrange = async () => {
-		const togglingOn = !info.isRearranging;
 
+	const togglingOn = !info.isRearranging;
+	const handleRearrange = async () => {
 		if (togglingOn) {
 			// Backup the current image list
 			setInfo((prev) => ({
