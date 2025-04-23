@@ -194,7 +194,16 @@ const CreateSessionModal = ({ open, closeModal, onSessionCreated }) => {
 					placeholder="Enter phone number"
 					value={info[config.value]}
 					onChange={handleChange}
-					defaultCountry="US"
+					defaultCountry={(() => {
+						try {
+							const locationDetails = JSON.parse(
+								localStorage.getItem('locationDetails'),
+							);
+							return locationDetails?.countryCode || 'US';
+						} catch {
+							return 'US';
+						}
+					})()}
 					className="phoneInputNumber"
 					countryCallingCodeEditable={true}
 					autoComplete="tel"

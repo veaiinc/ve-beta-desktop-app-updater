@@ -44,6 +44,29 @@ const initialState = {
 	addCategory: false,
 };
 
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+const customStyles = {
+	overlay: {
+		zIndex: 9999,
+		background: 'rgba(0, 0, 0, 0.3)',
+		backdropFilter: 'blur(8px)',
+		WebkitBackdropFilter: 'blur(8px)',
+	},
+	content: {
+		overflow: 'unset',
+		background: 'transparent',
+		border: 'none',
+		padding: 0,
+		top: '50%',
+		left: '50%',
+		right: 'auto',
+		bottom: 'auto',
+		marginRight: '-50%',
+		transform: 'translate(-50%, -50%)',
+	},
+};
+
 const formatTimeAndDateForInput = (timeObj) => {
 	if (!timeObj) return { date: '', time: '' };
 	if (typeof timeObj === 'string') return { date: timeObj, time: '' };
@@ -74,6 +97,10 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 	});
 
 	useEffect(() => {
+		getCalendarCategories();
+	}, []);
+
+	useEffect(() => {
 		if (selectedSlot) {
 			const { date, time } = formatTimeAndDateForInput(selectedSlot);
 			setInfo((prev) => ({
@@ -94,10 +121,6 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 			}));
 		}
 	}, [calendarCategoriesList]);
-
-	useEffect(() => {
-		getCalendarCategories();
-	}, []);
 
 	useEffect(() => {
 		if (info?.categories?.length > 0 && !info?.selectedCategory) {
@@ -139,6 +162,10 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 			phone,
 		} = info;
 
+		const startDateTime = moment(convertToISOString(startDate, startTime));
+		const endDateTime = moment(convertToISOString(endDate, endTime || startTime));
+		const now = moment().startOf('day');
+
 		if (!title) {
 			setInfo((prev) => ({
 				...prev,
@@ -165,10 +192,6 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 			}));
 			return null;
 		}
-
-		const startDateTime = moment(convertToISOString(startDate, startTime));
-		const endDateTime = moment(convertToISOString(endDate, endTime || startTime));
-		const now = moment().startOf('day');
 
 		if (startDateTime.isBefore(now)) {
 			setInfo((prev) => ({
@@ -260,8 +283,6 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 		updateSubscriptionState,
 	]);
 
-	const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
 	const addAttendees = useCallback(
 		({
 			name = null,
@@ -330,30 +351,7 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 	if (!open) return null;
 
 	return (
-		<ReactModal
-			isOpen={open}
-			closeModal={handleClose}
-			customStyles={{
-				overlay: {
-					zIndex: 9999,
-					background: 'rgba(0, 0, 0, 0.3)',
-					backdropFilter: 'blur(8px)',
-					WebkitBackdropFilter: 'blur(8px)',
-				},
-				content: {
-					overflow: 'unset',
-					background: 'transparent',
-					border: 'none',
-					padding: 0,
-					top: '50%',
-					left: '50%',
-					right: 'auto',
-					bottom: 'auto',
-					marginRight: '-50%',
-					transform: 'translate(-50%, -50%)',
-				},
-			}}
-		>
+		<ReactModal isOpen={open} closeModal={handleClose} customStyles={customStyles}>
 			<div className="events-popup-container">
 				<div className="events-popup-header">
 					<div className="events-popup-header-text">Create Event</div>
