@@ -803,7 +803,7 @@ const Docs = () => {
 							>
 								<span
 									style={{
-										display: 'flex',
+										display: info?.searchExpand ? 'none' : 'flex',
 										justifyContent: 'center',
 										alignItems: 'center',
 										cursor: 'pointer',

@@ -157,7 +157,6 @@
 				// background-color: red;
 				min-width: 16px;
 				display: inline-block;
-				height: 16px;
 				transition: all 0.3s ease;
 				margin-right: 70px;
 
@@ -182,6 +181,7 @@
 						display: none;
 						transition: all 0.3s ease;
 						overflow: hidden;
+						position: relative;
 						.searchInputTag {
 							flex: 1;
 							background-color: transparent;
@@ -202,6 +202,13 @@
 								font-weight: 400;
 								line-height: normal;
 							}
+						}
+
+						span {
+							position: absolute;
+							top: 50%;
+							right: 10px;
+							transform: translateY(-50%);
 						}
 					}
 				}
