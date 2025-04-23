@@ -82,10 +82,10 @@
 						gap: 10px;
 						align-self: stretch;
 						border-radius: 32px;
-						border: 1px solid #86d65a;
-						background: rgba(134, 214, 90, 0.1);
+						border: 1px solid var(--primary-button);
+
 						.value {
-							color: var(--primary-button, #b2ff00);
+							color: var(--primary-font, #b2ff00);
 							font-family: var(--primary-font-family);
 							font-size: 14px;
 							font-style: normal;
@@ -245,32 +245,20 @@
 			flex-direction: column;
 			gap: 24px;
 			// border: 1px solid var(--stroke, #2e3033);
-			.report-header {
-				color: var(--primary-font, #f2f2f3);
+			.report-description {
+				color: var(--secondary-font, #93989f);
 				font-family: var(--primary-font-family);
-				font-size: 14px;
+				font-size: 12px;
 				font-style: normal;
-				font-weight: 600;
+				font-weight: 400;
 				line-height: normal;
+				border: 1px solid var(--stroke, #2e3033);
+				border-radius: 16px;
+				padding: 16px;
+				box-shadow: 0px 0px 10px 0px var(--stroke);
 
-				.report-title {
-					position: sticky;
-					top: 0px;
-					padding-top: 16px;
-					padding-bottom: 10px;
-					background: var(--navbar);
-				}
-				.report-description {
-					color: var(--secondary-font, #93989f);
-					font-family: var(--primary-font-family);
-					font-size: 12px;
-					font-style: normal;
-					font-weight: 400;
-					line-height: normal;
-
-					.markdown-custom-content {
-						--font-size: 15px;
-					}
+				.markdown-custom-content {
+					--font-size: 15px;
 				}
 			}
 		}

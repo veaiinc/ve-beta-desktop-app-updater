@@ -76,6 +76,9 @@ const AISuggestionsModal = ({
 				deepSearch: {
 					cot,
 				},
+				deepResearch: {
+					cot,
+				},
 				follow_up_query: data?.suggested_prompts,
 				stream_end: true,
 			},
