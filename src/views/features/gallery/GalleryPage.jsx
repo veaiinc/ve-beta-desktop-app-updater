@@ -97,7 +97,7 @@ const showMessage = (type, content, dismissFunction) => {
 				<span className="divider"></span>
 				<button
 					onClick={() => {
-						message.destroy(key);
+						// message.destroy(key);
 						if (type === 'error') dismissFunction?.();
 					}}
 					className="dismiss-button"
@@ -1293,7 +1293,7 @@ const GalleryPage = () => {
 		const newOnlineState = !info?.isOnline;
 
 		// Show loading message
-		const id = message.loading('Updating gallery status...');
+		// const id = message.loading('Updating gallery status...');
 
 		try {
 			const galleryPayload = {
@@ -1315,7 +1315,7 @@ const GalleryPage = () => {
 
 			const response = await postGallery(galleryPayload, galleryId);
 
-			message.destroy(id);
+			// message.destroy(id);
 
 			if (response?.[0]) {
 				await getAlbums(galleryId);
@@ -1736,7 +1736,7 @@ const GalleryPage = () => {
 			handleGalleryChange.isProcessing = true;
 
 			try {
-				const id = message.loading('Renaming gallery...');
+				// const id = message.loading('Renaming gallery...');
 
 				const payload = {
 					title: value,
@@ -1748,7 +1748,7 @@ const GalleryPage = () => {
 				if (response?.[0]) {
 					// Update UI state directly without additional API call
 					setInfo((prev) => {
-						message.destroy(id);
+						// message.destroy(id);
 
 						return {
 							...prev,
@@ -1884,7 +1884,7 @@ const GalleryPage = () => {
 			albumChanges.isProcessing = true;
 
 			try {
-				const id = message.loading('Renaming album...');
+				// const id = message.loading('Renaming album...');
 
 				const payload = {
 					title: value,
@@ -1899,7 +1899,7 @@ const GalleryPage = () => {
 				// Make the API call
 				const response = await editAlbumName(payload, galleryId, info.activeAlbumId);
 
-				message.destroy(id);
+				// message.destroy(id);
 
 				if (response?.[0]) {
 					// Update UI state
@@ -1988,7 +1988,7 @@ const GalleryPage = () => {
 			}));
 
 			showMessage('loading', 'Downloading album...');
-			const id = message.loading('Downloading album...');
+			// const id = message.loading('Downloading album...');
 
 			const payload = {
 				imageType: info?.originalDownload ? 'original' : 'optimized',
@@ -2001,7 +2001,7 @@ const GalleryPage = () => {
 				info?.activeTagId || info?.albumTagId,
 			);
 
-			message.destroy(id);
+			// message.destroy(id);
 
 			if (response?.[0] === true && response?.[1]?.downloadId) {
 				const region = localStorage.getItem('region');
@@ -2043,7 +2043,7 @@ const GalleryPage = () => {
 	const handleLightRoomCopy = async () => {
 		try {
 			// Show loading message
-			const id = message.loading('Fetching image list...');
+			// const id = message.loading('Fetching image list...');
 
 			let response;
 			if (info.activeTab === 'Client Selections' && info.clientSelectionID) {
@@ -2055,7 +2055,7 @@ const GalleryPage = () => {
 
 				const response = await getClientSelectionLightRoomCopy(info.clientSelectionID);
 
-				message.destroy(id);
+				// message.destroy(id);
 
 				if (!response?.[1]?.length) {
 					message.warning('No valid images found in this client selection');
@@ -2207,7 +2207,7 @@ const GalleryPage = () => {
 	//Delete Handler For Gallery
 
 	const handleDeleteGallery = async () => {
-		const id = message.loading('Your gallery is being removed. Please wait...');
+		// const id = message.loading('Your gallery is being removed. Please wait...');
 
 		const response = await deleteGallery(galleryId);
 		if (response[0] === true) {
@@ -2353,13 +2353,15 @@ const GalleryPage = () => {
 		getImageDetail(null, true, false);
 		setsearchkeys({ uploadImageId: 'image-uploading' });
 
+		/*
 		const id = message.loading(
 			`Uploading ${info.coverType === 'gallery' ? 'Gallery' : 'Album'} cover image..`,
 		);
+		*/
 
 		if (info?.imageURL) {
 			setInfo((prev) => {
-				message.destroy(id);
+				// message.destroy(id);
 				return {
 					...prev,
 					crop: {
@@ -2432,7 +2434,7 @@ const GalleryPage = () => {
 		try {
 			handleSetCoverPosition.isProcessing = true;
 
-			const id = message.loading('Updating cover position...');
+			// const id = message.loading('Updating cover position...');
 
 			// Determine the current image based on different scenarios
 			let currentImage;
@@ -2469,7 +2471,7 @@ const GalleryPage = () => {
 					? await updateGalleryCoverImage(payload, galleryId)
 					: await updateAlbumCoverImage(payload, galleryId, info.activeAlbumId);
 
-			message.destroy(id);
+			// message.destroy(id);
 
 			if (response?.[0]) {
 				// Create updated cover image object
@@ -3028,11 +3030,11 @@ const GalleryPage = () => {
 		// Set processing flag
 		handleDeleteAlbum.isProcessing = true;
 		try {
-			const id = message.loading('Your album is being removed. Please wait...');
+			// const id = message.loading('Your album is being removed. Please wait...');
 
 			const response = await deleteAlbum(galleryId, info?.activeAlbumId);
 
-			message.destroy(id);
+			// message.destroy(id);
 
 			if (response[0] === true) {
 				message.destroy('deleteAlbum');
@@ -3146,14 +3148,17 @@ const GalleryPage = () => {
 			(img) => !info?.selectedImages?.includes(img?._id),
 		);
 
+		const lastImage = remainingImages[remainingImages.length - 1];
+
 		const beforeIndex =
-			info?.dropPlaceholder > 0
-				? getCustomSortIndex(remainingImages[info?.dropPlaceholder - 1])
+			info.dropPlaceholder > 0
+				? getCustomSortIndex(remainingImages[info.dropPlaceholder - 1])
 				: 0;
+
 		const afterIndex =
-			info?.dropPlaceholder < remainingImages?.length
-				? getCustomSortIndex(remainingImages[info?.dropPlaceholder])
-				: beforeIndex + (selectedImageObjects?.length + 1);
+			info.dropPlaceholder >= remainingImages.length
+				? getCustomSortIndex(lastImage) + 1000 // 🎯 only set a high index at the end
+				: getCustomSortIndex(remainingImages[info.dropPlaceholder]);
 
 		// Calculate step size for even distribution
 		const stepSize = (afterIndex - beforeIndex) / (selectedImageObjects?.length + 1);
@@ -3206,7 +3211,7 @@ const GalleryPage = () => {
 		updateImageOrder(remainingImages);
 	};
 	const handleSaveImage = async () => {
-		const id = message.loading('Rearranging images...');
+		// const id = message.loading('Rearranging images...');
 		// Remove duplicates by keeping the last occurrence of each image ID
 		const seen = new Map();
 		for (let item of info.totalPayload) {
@@ -3224,9 +3229,9 @@ const GalleryPage = () => {
 				info.albumTagId,
 			);
 
-			message.destroy(id);
+			// message.destroy(id);
 			if (response?.[0] === true) {
-				message.loading('Rearranging images...');
+				// message.loading('Rearranging images...');
 				message.destroy();
 				showMessage('success', 'Images rearranged successfully');
 				setInfo((prev) => ({
@@ -3279,7 +3284,7 @@ const GalleryPage = () => {
 
 		try {
 			// Start with loading message
-			const id = message.loading('Preparing download...');
+			// const id = message.loading('Preparing download...');
 
 			// Single image download handling
 			if (info?.selectedImages?.length === 1) {
@@ -3289,7 +3294,7 @@ const GalleryPage = () => {
 				const isLightGallery = info?.isLightGallery;
 				const response = await getDownloadLinkForImage(selectedImageId, isLightGallery);
 
-				message.destroy(id);
+				// message.destroy(id);
 
 				if (response?.[0] === true) {
 					showMessage('success', 'Download completed');
@@ -3672,7 +3677,7 @@ const GalleryPage = () => {
 										</div>
 										<Switch
 											checked={info.isOnline}
-											onChange={handleOnlineToggle}
+											// onChange={handleOnlineToggle}
 											size="small"
 											style={{
 												backgroundColor: info.isOnline

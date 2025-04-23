@@ -78,10 +78,10 @@
 				transition: all 0.2s ease-in-out;
 				.prompt {
 					color: var(--primary-font, #f2f2f3);
-					font-family: var(--primary-font-family);
+					font-family: var(--chat-primary-font-family);
 					font-size: 14px;
 					font-style: normal;
-					font-weight: 400;
+					font-weight: 500;
 					line-height: 21px;
 				}
 			}

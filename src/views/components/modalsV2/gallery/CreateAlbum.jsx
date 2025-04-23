@@ -9,6 +9,12 @@ import slugify from 'slugify';
 import dayjs from 'dayjs';
 import { message } from '../../globalComponents/CustomToast';
 
+const customStyles = {
+	content: { position: 'absolute', overflow: 'hidden', zIndex: 99999 },
+	overlay: { zIndex: 99998 },
+	className: 'createAlbumModal',
+};
+
 const CreateAlbum = ({ open, closeModal, galleryId, handleNewAlbumCreated }) => {
 	const {
 		galleryInfo: { createNewAlbum, checkAlbumSlugIsAvalible },
@@ -130,14 +136,7 @@ const CreateAlbum = ({ open, closeModal, galleryId, handleNewAlbumCreated }) => 
 	};
 
 	return (
-		<ReactModal
-			isOpen={open}
-			closeModal={closeModelFunction}
-			customStyles={{
-				content: { position: 'absolute', overflow: 'hidden' },
-				className: 'createAlbumModal',
-			}}
-		>
+		<ReactModal isOpen={open} closeModal={closeModelFunction} customStyles={customStyles}>
 			<div className="createAlbumMainContainer">
 				<div className="createAlbumHeading">
 					<p className="heading">Create New Album</p>

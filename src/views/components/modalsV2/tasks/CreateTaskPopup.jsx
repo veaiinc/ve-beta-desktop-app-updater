@@ -192,10 +192,10 @@ const CreateTaskPopup = ({
 			modalType={'center'}
 			customStyles={{
 				content: {
-					zIndex: 30000,
+					zIndex: 50002,
 				},
 				overlay: {
-					zIndex: 2,
+					zIndex: 50000,
 				},
 			}}
 		>

@@ -28,6 +28,25 @@ const options = [
 	{ id: 2, title: 'Today', value: 'today' },
 	{ id: 3, title: 'Overdue', value: 'overdue' },
 ];
+
+const defaultPreference = {
+	taskSlNo: { show: false, order: 1 },
+	title: { show: true, order: 2 },
+	parentTask: { show: false, order: 3 },
+	childTasks: { show: false, order: 4 },
+	description: { show: false, order: 5 },
+	status: { show: true, order: 6 },
+	priority: { show: true, order: 7 },
+	clients: { show: true, order: 8 },
+	assignedTo: { show: true, order: 9 },
+	dueDate: { show: true, order: 10 },
+	assignedBy: { show: true, order: 11 },
+	assignedAt: { show: false, order: 12 },
+	completedAt: { show: false, order: 13 },
+	createdAt: { show: false, order: 14 },
+	updatedAt: { show: false, order: 15 },
+};
+
 const TaskWidget = ({ width, height }) => {
 	const navigate = useNavigate();
 	const {
@@ -66,6 +85,12 @@ const TaskWidget = ({ width, height }) => {
 		selectedSubTask: null,
 		updated: false,
 		listItems: [],
+		taskPreferences: {
+			preferenceType: 'taskPreference',
+			preferences: defaultPreference,
+		},
+		group: null,
+		page: 1,
 	});
 	useEffect(() => {
 		if (!listTasks) {
@@ -248,8 +273,57 @@ const TaskWidget = ({ width, height }) => {
 		}
 	}, [taskMetadata]);
 
+	const addNewTask = useCallback(
+		async (payload) => {
+			if (validateExpiryData?.restrictTasks && validateExpiryData?.isExpired) {
+				return updateSubscriptionState({ expiredSubscriptionModal: true });
+			}
+
+			const isSubtask = info?.isCreatingSubtask;
+			const selectedRow = info?.selectedRow;
+
+			if (isSubtask) {
+				payload.parentTaskId = selectedRow?._id;
+			}
+
+			const response = await addListItem({ input: payload });
+			if (!response?.createTask) {
+				throw new Error('Failed to add new task');
+			}
+
+			const task = response.createTask;
+			const token = localStorage.getItem('usertoken');
+			const { user_id, userName } = jwtDecode(token);
+			const newTask = {
+				...task,
+				createdBy: { _id: user_id, name: userName },
+			};
+
+			if (isSubtask) {
+				newTask.parentTask = {
+					title: selectedRow?.title,
+					_id: selectedRow?._id,
+				};
+				addSubTask(newTask);
+			} else {
+				if (payload?.assignedTo || payload?.dueDate) {
+					updateTaskState({
+						refetchTasksForDue: true,
+						listTasksForToday: null,
+						listTasksForOverdue: null,
+						listTasksDueTillToday: null,
+					});
+				}
+			}
+
+			message.success('Task added successfully');
+			updateTaskState({ refetchTasks: true });
+		},
+		[info?.isCreatingSubtask, info?.selectedRow?._id],
+	);
+
 	const mapFiltersPayload = useCallback((filters) => {
-		return filters.map((filter) => ({
+		return filters?.map((filter) => ({
 			key: filter.key,
 			value:
 				typeof filter.value === 'object'
@@ -331,7 +405,7 @@ const TaskWidget = ({ width, height }) => {
 						limit: 20,
 						page: page,
 						sort:
-							info?.sort.length > 0
+							info?.sort?.length > 0
 								? info?.sort?.map((item) => ({
 										sortBy: item?.sortBy,
 										sortType: item?.sortType,
@@ -348,7 +422,7 @@ const TaskWidget = ({ width, height }) => {
 						limit: 20,
 						page: page,
 						sort:
-							info?.sort.length > 0
+							info?.sort?.length > 0
 								? info?.sort?.map((item) => ({
 										sortBy: item?.sortBy,
 										sortType: item?.sortType,
@@ -408,8 +482,8 @@ const TaskWidget = ({ width, height }) => {
 							});
 						} else {
 							setInfo((prevInfo) => {
-								const newListItems = prevInfo.listItems.map((row) => {
-									if (row._id === rowId) {
+								const newListItems = prevInfo?.listItems?.map((row) => {
+									if (row?._id === rowId) {
 										return {
 											...row,
 											assignedBy: { _id: user_id, name: userName },
@@ -441,7 +515,7 @@ const TaskWidget = ({ width, height }) => {
 					const { user_id, userName } = jwtDecode(token);
 
 					setInfo((prevInfo) => {
-						const newListItems = prevInfo.listItems.map((row) => {
+						const newListItems = prevInfo?.listItems?.map((row) => {
 							if (row._id === rowId) {
 								return {
 									...row,
@@ -464,7 +538,7 @@ const TaskWidget = ({ width, height }) => {
 				message.error(error?.message || 'Something went wrong! Please try again.');
 
 				setInfo((prevInfo) => {
-					const rolledBackListItems = prevInfo.listItems.map((row) => {
+					const rolledBackListItems = prevInfo?.listItems?.map((row) => {
 						if (row._id === rowId) {
 							return { ...row, [propName]: originalValue };
 						}
@@ -524,8 +598,8 @@ const TaskWidget = ({ width, height }) => {
 				updateSubTask({ _id: rowId, [propName]: updatedValue });
 			} else {
 				setInfo((prevInfo) => {
-					const updatedListItems = prevInfo.listItems.map((row) => {
-						if (row._id === rowId) {
+					const updatedListItems = prevInfo?.listItems?.map((row) => {
+						if (row?._id === rowId) {
 							originalValue = row[propName];
 							return { ...row, [propName]: updatedValue };
 						}
@@ -555,58 +629,6 @@ const TaskWidget = ({ width, height }) => {
 			debouncedUpdateTask,
 			info?.selectedSubTask,
 		],
-	);
-
-	const addNewTask = useCallback(
-		async (payload) => {
-			if (
-				validateExpiryData &&
-				validateExpiryData?.restrictTasks &&
-				validateExpiryData?.isExpired
-			) {
-				return updateSubscriptionState({ expiredSubscriptionModal: true });
-			} else {
-				if (info?.isCreatingSubtask) {
-					payload.parentTaskId = info?.selectedRow?._id;
-				}
-				const response = await addListItem({ input: payload });
-
-				if (response) {
-					const task = response?.createTask;
-
-					if (task) {
-						const token = localStorage.getItem('usertoken');
-						const { user_id, userName } = jwtDecode(token);
-
-						const newTask = { ...task };
-						newTask.createdBy = { _id: user_id, name: userName };
-						newTask.updatedBy = { _id: user_id, name: userName };
-						if (info?.isCreatingSubtask) {
-							newTask.parentTask = {
-								title: info?.selectedRow?.title,
-								_id: info?.selectedRow?._id,
-							};
-							addSubTask(newTask);
-						}
-						message.success('Task added successfully');
-						if (!info?.isCreatingSubtask) {
-							if (payload?.assignedTo || payload?.dueDate) {
-								updateTaskState({
-									refetchTasksForDue: true,
-									listTasksForToday: null,
-									listTasksForOverdue: null,
-									listTasksDueTillToday: null,
-								});
-							}
-						}
-						fetchListItems();
-					}
-				} else {
-					throw new Error('Failed to add new task');
-				}
-			}
-		},
-		[info?.isCreatingSubtask, info?.selectedRow?._id],
 	);
 
 	const deleteTask = useCallback(
@@ -769,6 +791,9 @@ const TaskWidget = ({ width, height }) => {
 			<CreateTaskPopup
 				isOpen={info?.createTaskPopup}
 				closeModal={() => handleCloseTaskPopup()}
+				responseMetadata={responseMetadata}
+				colors={colors}
+				addNewTask={addNewTask}
 			/>
 		</div>
 	);

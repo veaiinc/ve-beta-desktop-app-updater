@@ -170,14 +170,12 @@ const CreateGallery = ({
 				message.success('Gallery created successfully');
 				const galleryId = response?.[1]?._id;
 				if (galleryId) {
-					const searchParams = isLightGallery ? '?light-gallery=true' : '';
+					const searchParams = isLightGallery ? '?lite-gallery=true' : '';
 					const state = {
 						galleryData: response?.[1],
-						isLightGallery: isLightGallery,
-						forceLight: isLightGallery,
 					};
 
-					navigate(`/galleries/${galleryId}?lite-gallery=true`, { state });
+					navigate(`/galleries/${galleryId}${searchParams}`, { state });
 				}
 			} else {
 				message.error(response?.[1]?.message || 'Failed to create gallery');

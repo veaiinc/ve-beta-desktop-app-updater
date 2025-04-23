@@ -253,15 +253,16 @@ const Integrations = () => {
 				'Effortlessly connect to Notion to manage tasks, organize projects, and centralize your work—all in one place.',
 			isConnected: false,
 		},
-		// {
-		// 	id: 3,
-		// 	icon: slack,
-		// 	title: 'Slack',
-		// 	connectType: 'slack',
-		// 	description:
-		// 		'Stay connected and streamline communication by integrating with Slack. Receive updates, share insights, and collaborate seamlessly.',
-		// 	isConnected: false,
-		// },
+		{
+			id: 3,
+			icon: slack,
+			title: 'Slack',
+			connectType: 'slack',
+			description:
+				'Stay connected and streamline communication by integrating with Slack. Receive updates, share insights, and collaborate seamlessly.',
+			isConnected: false,
+			onlyShowIn: 'shared',
+		},
 		{
 			id: 4,
 			icon: googleDrive,
@@ -566,6 +567,14 @@ const Integrations = () => {
 			accounts: accounts,
 		});
 	};
+	const filteredIntegrations = availableIntegrations.filter((integration) => {
+		// If `onlyShowIn` is defined, only show when it matches activeTab
+		if (integration.onlyShowIn) {
+			return integration.onlyShowIn === activeTab;
+		}
+		// Otherwise, show it in all tabs
+		return true;
+	});
 
 	return (
 		<>
@@ -618,7 +627,7 @@ const Integrations = () => {
 				<section className="available-integrations">
 					<h2>Available Integrations</h2>
 					<div className="integrations-grid">
-						{availableIntegrations?.map((integration) => (
+						{filteredIntegrations?.map((integration) => (
 							<AvailableIntegrationCard
 								key={integration?.id}
 								{...integration}
