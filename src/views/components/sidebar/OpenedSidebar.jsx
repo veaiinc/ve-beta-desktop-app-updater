@@ -207,7 +207,7 @@ const OpenedSidebarModules = ({
 										top: `${activeSubModule?.id * 40}px`, // 40px is the height of each subModule
 										height: '32px',
 										width: '3px',
-										backgroundColor: '#FFFFFF',
+										backgroundColor: 'var(--primary-font)',
 										borderRadius: '100px',
 									}}
 								/>
