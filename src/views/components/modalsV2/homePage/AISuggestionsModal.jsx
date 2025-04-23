@@ -16,6 +16,7 @@ import ObjectID from 'bson-objectid';
 import { Drawer } from 'antd';
 import Context from '../../../../context/context';
 import { useContext } from 'react';
+import { message } from '../../globalComponents/CustomToast';
 
 const AISuggestionsModal = ({
 	open,
@@ -92,12 +93,19 @@ const AISuggestionsModal = ({
 	} = data;
 
 	const handleIgnoreClick = async () => {
-		await pendingActionsUpdate(data?._id, { isIgnored: true });
-		onClose();
+		const res = await pendingActionsUpdate(data?._id, { isIgnored: true });
+		if (res?.[0] === true) {
+			onClose();
+		} else {
+			message.error('Failed to ignore pending action');
+		}
 	};
 	const handleThumbClick = async (type) => {
 		if (data?.feedback === type) return;
-		await pendingActionsUpdate(data?._id, { feedback: type });
+		const res = await pendingActionsUpdate(data?._id, { feedback: type });
+		if (res?.[0] === false) {
+			message.error('Failed to update feedback');
+		}
 	};
 
 	console.log(data, 'data');
@@ -181,10 +189,7 @@ const AISuggestionsModal = ({
 							</div>
 						</div>
 						{info?.isExpanded && (
-							<div
-								className="chain-of-thought-content"
-								onClick={(e) => e?.stopPropagation()}
-							>
+							<div className="chain-of-thought-content">
 								{Array?.isArray(chain_of_thought)
 									? chain_of_thought?.map((cot, index) => {
 											return (
@@ -229,10 +234,7 @@ const AISuggestionsModal = ({
 						</div>
 
 						{info?.isReportExpanded && (
-							<div
-								className="report-description"
-								onClick={(e) => e.stopPropagation()}
-							>
+							<div className="report-description">
 								<Markdown>{research_report || ''}</Markdown>
 							</div>
 						)}
@@ -267,7 +269,7 @@ const AISuggestionsModal = ({
 						</div>
 
 						{info?.isSolutionsExpanded && (
-							<div className="solutions" onClick={(e) => e.stopPropagation()}>
+							<div className="solutions">
 								{Array?.isArray(solutions)
 									? solutions?.map((item, index) => (
 											<div
@@ -314,7 +316,7 @@ const AISuggestionsModal = ({
 						</div>
 
 						{info?.isActionsExpanded && (
-							<div className="suggested-actions" onClick={(e) => e.stopPropagation()}>
+							<div className="suggested-actions">
 								{Array?.isArray(suggested_actions)
 									? suggested_actions.map((item, index) => (
 											<div
@@ -362,10 +364,7 @@ const AISuggestionsModal = ({
 							</div>
 
 							{info?.isPromptsExpanded && (
-								<div
-									className="suggested-prompts"
-									onClick={(e) => e.stopPropagation()}
-								>
+								<div className="suggested-prompts">
 									{Array?.isArray(suggested_prompts)
 										? suggested_prompts.map((item, index) => (
 												<div
