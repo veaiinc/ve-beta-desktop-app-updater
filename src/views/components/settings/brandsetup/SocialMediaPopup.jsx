@@ -196,7 +196,7 @@ const SocialMediaPopup = ({
 						>
 							<div>
 								<span>
-									{isActive ? 'Update' : 'Add'}
+									{isActive ? 'Update ' : 'Add '}
 									{logo.charAt(0).toUpperCase() + logo.slice(1)}
 								</span>
 							</div>

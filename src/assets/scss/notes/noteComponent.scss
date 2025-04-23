@@ -10,6 +10,7 @@
 	--bn-colors-selected-background: var(--card-over-card-hover);
 	--bn-colors-selected-text: var(--primary-font);
 	--bn-colors-disabled-background: var(--card);
+	--bn-border: var(--card, #171819);
 	// --bn-colors-disabled-text: var(--secondary-font);
 }
 
@@ -19,9 +20,10 @@
 	align-items: center;
 	justify-content: flex-start;
 	width: 100%;
-	// height: calc(100vh - 32px);
 	height: 100vh;
 	background-color: var(--background-color);
+	height: calc(100vh - 32px);
+
 	// padding-top: -32px !important;
 
 	.notes-nav-menu {
@@ -231,6 +233,9 @@
 				}
 				.bn-inline-content {
 					width: 100%;
+					a {
+						color: var(--secondary-font);
+					}
 				}
 				.bn-block-content[data-content-type='checkListItem'] > div {
 					width: 100%;
@@ -322,4 +327,85 @@
 	display: flex;
 	justify-content: center;
 	align-items: center;
+}
+
+.bn-toolbar {
+	border-radius: 10px !important;
+	border: 2px solid var(--card, #171819) !important;
+	background-color: var(--card, #171819);
+	display: inline-flex;
+	padding: 2px 4px;
+	align-items: center;
+	gap: 4px;
+
+	.mantine-Button-root {
+		border-radius: 8px;
+		background-color: var(--card-hover, #f2f2f3);
+		display: flex;
+		height: 28px;
+		padding: 0px 6px;
+		align-items: center;
+		gap: 6px;
+
+		&:hover {
+			color: var(--primary-font);
+			.mantine-ActionIcon-icon {
+				transform: scale(0.9);
+				color: var(--primary-font);
+			}
+		}
+	}
+
+	.mantine-ActionIcon-root {
+		display: flex;
+		width: 32px;
+		height: 32px;
+		justify-content: center;
+		align-items: center;
+		gap: 10px;
+		border-radius: 8px;
+
+		&:hover {
+			background-color: var(--card, #171819);
+			.mantine-ActionIcon-icon {
+				transform: scale(0.9);
+				color: var(--primary-font);
+			}
+		}
+	}
+
+	.mantine-ActionIcon-root[data-selected] {
+		&:hover {
+			background-color: var(--card-over-card-hover);
+			.mantine-ActionIcon-icon {
+				transform: scale(0.9);
+				color: var(--primary-font);
+			}
+		}
+	}
+
+	.mantine-ActionIcon-root[data-disabled] {
+		color: var(--secondary-font);
+		&:hover {
+			.mantine-ActionIcon-icon {
+				transform: scale(1);
+				color: var(--secondary-font);
+			}
+		}
+	}
+
+	.bn-divider {
+		display: flex;
+		width: 1px;
+		height: 18px;
+		background: var(--stroke, #cacbce);
+	}
+
+	.bn-color-icon {
+		border-radius: 50%;
+		width: 14px;
+		height: 14px;
+		border: 1px solid var(--stroke) !important;
+		font-size: 12px !important;
+	}
 }

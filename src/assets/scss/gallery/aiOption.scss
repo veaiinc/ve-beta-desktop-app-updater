@@ -769,3 +769,41 @@
 		line-height: 26px; /* 130% */
 	}
 }
+
+.aiProcessingButtonContainer {
+	display: flex;
+	gap: 24px;
+	justify-content: center;
+	.notify-immediately-button {
+		color: #939393;
+		font-size: 16px;
+		font-weight: 500;
+		line-height: 19px;
+		display: flex;
+		padding: 8px 16px;
+		align-items: center;
+		gap: 14px;
+		border-radius: 100px;
+		border: 1px solid #939393;
+		background: none;
+		cursor: pointer;
+		outline: none;
+	}
+	.notify-all-button {
+		color: #111;
+		font-family: Inter;
+		font-size: 16px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: 19px;
+		display: flex;
+		padding: 8px 16px;
+		align-items: center;
+		gap: 14px;
+		border-radius: 100px;
+		background: #fff;
+		cursor: pointer;
+		outline: none;
+		border: none;
+	}
+}

@@ -255,7 +255,7 @@
 			border-radius: 12px;
 			border: 1px solid var(--stroke);
 			.textInput {
-				color: var(--secondary-font);
+				color: var(--primary-font);
 				font-family: var(--primary-font-family);
 				font-size: 14px;
 				font-style: normal;
@@ -264,6 +264,9 @@
 				flex: 1 0 0;
 				background-color: transparent !important;
 				border: none;
+				&::placeholder {
+					color: var(--secondary-font);
+				}
 			}
 			.dropdownContainer {
 				// background-color: none;
@@ -271,6 +274,7 @@
 					background: none;
 					border: none;
 					color: var(--primary-font);
+					cursor: pointer;
 				}
 			}
 		}
@@ -299,9 +303,10 @@
 			overflow-y: auto;
 			.accessControlOption {
 				display: flex;
+				flex-direction: column;
 				padding: 12px 0px;
-				justify-content: center;
-				align-items: center;
+				justify-content: flex-start;
+				align-items: flex-start;
 				gap: 10px;
 				align-self: stretch;
 
@@ -313,6 +318,17 @@
 					font-style: normal;
 					font-weight: 400;
 					line-height: normal;
+				}
+				.accessLevelOptions {
+					display: flex;
+					flex-direction: row;
+					gap: 10px;
+					margin-left: 25px;
+					label {
+						display: flex;
+						gap: 10px;
+						align-items: center;
+					}
 				}
 			}
 		}

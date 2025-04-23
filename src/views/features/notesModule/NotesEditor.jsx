@@ -33,6 +33,17 @@ const skeletonLines = [...Array(10)]?.map(() => ({
 	height: 14,
 }));
 
+// async function uploadFile(file) {
+// 	const body = new FormData();
+// 	body.append('file', file);
+
+// 	const ret = await fetch('https://tmpfiles.org/api/v1/upload', {
+// 		method: 'POST',
+// 		body: body,
+// 	});
+// 	return (await ret.json()).data.url.replace('tmpfiles.org/', 'tmpfiles.org/dl/');
+// }
+
 const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 	const {
 		notes: {
@@ -57,6 +68,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 			cellTextColor: true,
 			headers: true,
 		},
+		// uploadFile,
 	});
 	const [info, setInfo] = useState({
 		timeouts: {}, // Single timeouts object to store all timeouts
@@ -239,7 +251,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 		const [success] = await deletePage({ pageId: noteId });
 		if (success) {
 			message.success('Page deleted successfully');
-			navigate('/');
+			navigate('/files');
 		} else {
 			message.error('Failed to delete page');
 		}
