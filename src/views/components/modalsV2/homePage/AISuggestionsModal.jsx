@@ -96,6 +96,7 @@ const AISuggestionsModal = ({
 		onClose();
 	};
 	const handleThumbClick = async (type) => {
+		if (data?.feedback === type) return;
 		await pendingActionsUpdate(data?._id, { feedback: type });
 	};
 

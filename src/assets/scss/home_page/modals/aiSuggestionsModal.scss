@@ -383,6 +383,7 @@
 				align-items: flex-start;
 				align-self: stretch;
 				gap: 8px;
+				user-select: none;
 				.ignore-btn {
 					display: flex;
 					height: 40px;
