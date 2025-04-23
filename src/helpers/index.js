@@ -243,3 +243,24 @@ export const checkDevices = async () => {
 		console.error('Error checking devices:', error);
 	}
 };
+
+export const getFaviconUrl = (url) => {
+	try {
+		const domain = new URL(url)?.hostname;
+		return `https://www.google.com/s2/favicons?sz=64&domain=${domain}`;
+	} catch (error) {
+		return null;
+	}
+};
+
+export const getWebsiteName = (url) => {
+	try {
+		const domain = new URL(url)?.hostname;
+		// Remove common TLDs and www
+		let name = domain?.replace(/^www\./i, '')?.split('.')?.[0];
+		// Capitalize first letter
+		return name?.charAt(0)?.toUpperCase() + name?.slice(1);
+	} catch (error) {
+		return url;
+	}
+};

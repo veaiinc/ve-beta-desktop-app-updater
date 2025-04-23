@@ -1,28 +1,9 @@
 import { memo, useCallback } from 'react';
 import '../../../../assets/scss/chat/chatComponents/deepResearchChainOfThought.scss';
 import { Markdown } from '../../../../helpers/markdownHelper';
+import { getFaviconUrl, getWebsiteName } from '../../../../helpers';
 
 const DeepResearchChainOfThought = ({ data }) => {
-	const getFaviconUrl = useCallback((url) => {
-		try {
-			const domain = new URL(url)?.hostname;
-			return `https://www.google.com/s2/favicons?sz=64&domain=${domain}`;
-		} catch (error) {
-			return null;
-		}
-	}, []);
-
-	const getWebsiteName = useCallback((url) => {
-		try {
-			const domain = new URL(url)?.hostname;
-			// Remove common TLDs and www
-			let name = domain?.replace(/^www\./i, '')?.split('.')?.[0];
-			// Capitalize first letter
-			return name?.charAt(0)?.toUpperCase() + name?.slice(1);
-		} catch (error) {
-			return url;
-		}
-	}, []);
 	return (
 		<div className="deep-research-container">
 			<div className="chain-of-thought">

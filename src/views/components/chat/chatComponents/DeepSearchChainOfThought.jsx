@@ -3,29 +3,9 @@ import '../../../../assets/scss/chat/chatComponents/deepSearchChainOfThought.scs
 import { ReactComponent as ArrowReply } from '../../../../assets/svg/arrow-reply.svg';
 import { ReactComponent as Search } from '../../../../assets/svg/workflow/search.svg';
 import WebSvg from '../../../../assets/svg/ai_agents/webSvg';
+import { getFaviconUrl, getWebsiteName } from '../../../../helpers';
 
 const DeepSearchChainOfThought = ({ data }) => {
-	const getFaviconUrl = useCallback((url) => {
-		try {
-			const domain = new URL(url)?.hostname;
-			return `https://www.google.com/s2/favicons?sz=64&domain=${domain}`;
-		} catch (error) {
-			return null;
-		}
-	}, []);
-
-	const getWebsiteName = useCallback((url) => {
-		try {
-			const domain = new URL(url)?.hostname;
-			// Remove common TLDs and www
-			let name = domain?.replace(/^www\./i, '')?.split('.')?.[0];
-			// Capitalize first letter
-			return name?.charAt(0)?.toUpperCase() + name?.slice(1);
-		} catch (error) {
-			return url;
-		}
-	}, []);
-
 	return (
 		<div className="cot-wrapper">
 			<div className="cot-container">

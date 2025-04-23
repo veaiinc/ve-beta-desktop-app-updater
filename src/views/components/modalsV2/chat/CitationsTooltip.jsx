@@ -1,8 +1,9 @@
 import { Tooltip } from 'antd';
-import React, { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import React, { memo, useContext, useEffect, useMemo, useState } from 'react';
 import Context from '../../../../context/context';
 import '../../../../assets/scss/chat/citationsTooltip.scss';
 import { Markdown } from '../../../../helpers/markdownHelper';
+import { getFaviconUrl } from '../../../../helpers';
 import { ReactComponent as TextSvg } from '../../../../assets/svg/ai_agents/text.svg';
 import { ReactComponent as DocxSvg } from '../../../../assets/svg/ai_agents/docx.svg';
 import { ReactComponent as JsonSvg } from '../../../../assets/svg/ai_agents/json.svg';
@@ -27,14 +28,6 @@ export const CitationsTooltip = memo(({ citationId, citations, placement = 'topL
 	const [citationInfo, setCitationInfo] = useState({});
 	const number = citationId?.slice(1);
 
-	const getFaviconUrl = useCallback((url) => {
-		try {
-			const domain = new URL(url).hostname;
-			return `https://www.google.com/s2/favicons?sz=64&domain=${domain}`;
-		} catch (error) {
-			return null;
-		}
-	}, []);
 	useEffect(() => {
 		if (citations?.length > 0) {
 			const citation = citations?.find((citation) => citation?.id === citationId);
