@@ -36,7 +36,7 @@ const dropdownStyles = {
 	alignSelf: 'stretch',
 	borderRadius: '14px',
 	border: '1px solid var(--stroke)',
-	background: 'var(--card)',
+	background: 'var(--card-over-card)',
 };
 
 const dropDownTextStyling = {

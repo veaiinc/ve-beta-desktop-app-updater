@@ -10,7 +10,6 @@
 		display: flex;
 		width: 500px;
 		height: 100%;
-		padding: 0 20px;
 		flex-direction: column;
 		align-items: center;
 		overflow-y: auto;
@@ -21,10 +20,13 @@
 			position: sticky;
 			top: 0;
 			z-index: 10;
-			padding-top: 24px;
+			padding: 20px 24px;
 			background: var(--navbar, #202123);
-
+			border-bottom: 1px solid var(--stroke, #333334);
 			.header-content {
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
 				.left-container {
 					display: flex;
 					align-items: center;
@@ -42,6 +44,14 @@
 							height: 20px;
 						}
 					}
+					.total-docs {
+						color: var(--primary-font, #f2f2f3);
+						font-family: var(--primary-font-family);
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+					}
 					.next-btn {
 						cursor: pointer;
 						height: 22px;
@@ -54,13 +64,67 @@
 						}
 					}
 				}
+				.info {
+					display: flex;
+					flex-direction: row;
+					align-items: flex-start;
+					gap: 12px;
+					span {
+						width: 1.5px;
+						height: 18px;
+						background: var(--stroke-hover, #404548);
+					}
+					.confidence {
+						display: flex;
+						padding: 8px 14px;
+						justify-content: center;
+						align-items: center;
+						gap: 10px;
+						align-self: stretch;
+						border-radius: 32px;
+						border: 1px solid #86d65a;
+						background: rgba(134, 214, 90, 0.1);
+						.value {
+							color: var(--primary-button, #b2ff00);
+							font-family: var(--primary-font-family);
+							font-size: 14px;
+							font-style: normal;
+							font-weight: 500;
+							line-height: normal;
+						}
+					}
+
+					.priority {
+						display: flex;
+						padding: 8px 14px;
+						justify-content: center;
+						align-items: center;
+						gap: 6px;
+						align-self: stretch;
+						border-radius: 32px;
+						border: 1px solid var(--stroke-hover, #424548);
+						background: var(--popup, #202123);
+						.priority-text {
+							color: var(--primary-font, #f2f2f3);
+							font-family: var(--primary-font-family);
+							font-size: 14px;
+							font-style: normal;
+							font-weight: 500;
+							line-height: normal;
+						}
+						.indicator {
+							width: 8px;
+							height: 8px;
+							border-radius: 50%;
+						}
+					}
+				}
 			}
 
 			.horizontal-line {
 				width: 100%;
 				height: 1px;
 				background: var(--stroke, #333334);
-				margin: 20px 0;
 			}
 		}
 	}
@@ -69,9 +133,10 @@
 		display: flex;
 		flex-direction: column;
 		align-items: flex-start;
-		gap: 16px;
+		gap: 24px;
 		flex: 1 0 0;
 		align-self: stretch;
+		padding: 20px 20px 30px;
 		.body-header {
 			display: flex;
 			flex-direction: column;
@@ -79,53 +144,6 @@
 			align-items: flex-start;
 			gap: 8px;
 			align-self: stretch;
-			.info {
-				display: flex;
-				flex-direction: row;
-				align-items: flex-start;
-				gap: 12px;
-				span {
-					width: 1.5px;
-					height: 18px;
-					background: var(--stroke-hover, #404548);
-				}
-				.confidence {
-					display: flex;
-					gap: 6px;
-					color: var(--primary-font, #f2f2f3);
-					font-family: var(--primary-font-family);
-					font-size: 14px;
-					font-style: normal;
-					font-weight: 500;
-					line-height: normal;
-					.value {
-						color: var(--primary-button, #b2ff00);
-						font-family: var(--primary-font-family);
-						font-size: 14px;
-						font-style: normal;
-						font-weight: 500;
-						line-height: normal;
-					}
-				}
-
-				.priority {
-					display: flex;
-					gap: 6px;
-					align-items: center;
-
-					color: var(--primary-font, #f2f2f3);
-					font-family: var(--primary-font-family);
-					font-size: 14px;
-					font-style: normal;
-					font-weight: 500;
-					line-height: normal;
-					.indicator {
-						width: 8px;
-						height: 8px;
-						border-radius: 50%;
-					}
-				}
-			}
 
 			.title-text {
 				color: var(--primary-font, #f2f2f3);
@@ -148,36 +166,9 @@
 		.chain-of-thought-container {
 			display: flex;
 			width: 100%;
-			padding: 16px;
 			flex-direction: column;
 			gap: 14px;
-
 			border-radius: 16px;
-			background: var(--card, #171819);
-
-			.cot-header {
-				display: flex;
-				justify-content: space-between;
-				align-items: center;
-				cursor: pointer;
-				.cot-text {
-					color: var(--primary-font, #f2f2f3);
-					font-family: var(--primary-font-family);
-					font-size: 14px;
-					font-style: normal;
-					font-weight: 600;
-					line-height: normal;
-				}
-				.cot-expand-btn {
-					width: 14px;
-					height: 14px;
-					svg {
-						width: 14px;
-						height: 14px;
-					}
-				}
-			}
-
 			.chain-of-thought-content {
 				display: flex;
 				flex-direction: column;
@@ -249,12 +240,9 @@
 		.report-container {
 			display: flex;
 			width: 100%;
-			padding: 16px;
 			padding-top: 0;
 			flex-direction: column;
 			gap: 14px;
-			border-radius: 16px;
-			background: var(--card, #171819);
 			max-height: 400px;
 			overflow-y: auto;
 
@@ -269,9 +257,9 @@
 				.report-title {
 					position: sticky;
 					top: 0px;
-					background: var(--card);
 					padding-top: 16px;
 					padding-bottom: 10px;
+					background: var(--navbar);
 				}
 				.report-description {
 					color: var(--secondary-font, #93989f);
@@ -329,7 +317,7 @@
 
 		.suggested-actions .action-item {
 			background-color: var(--card);
-			border: 1px solid var(--stroke, #333334);
+			// border: 1px solid var(--stroke, #333334);
 		}
 		.suggested-actions .action-item .item-text,
 		.suggested-prompts .prompt-item .item-text,
@@ -354,52 +342,119 @@
 		bottom: 0;
 		padding-bottom: 20px;
 		width: 100%;
-
+		display: flex;
+		flex-direction: column;
+		gap: 4px;
 		.horizontal-line {
 			width: 100%;
 			height: 1px;
 			background: var(--stroke, #333334);
-			margin: 20px 0;
 		}
-
-		.btns-container {
-			width: 100%;
+		.footer-content {
 			display: flex;
+			flex-direction: row;
 			justify-content: space-between;
-			align-items: flex-start;
-			align-self: stretch;
-			.ignore-btn {
+			align-items: center;
+			padding: 20px 24px;
+			.footer-left {
 				display: flex;
-				height: 40px;
-				padding: 6px 18px;
-				justify-content: center;
-				align-items: center;
-				gap: 4px;
-
-				border-radius: 100px;
-				border: 1px solid var(--stroke, #333334);
-				background-color: var(--card);
-
-				color: var(--primary-font, #f2f2f3);
-				font-family: var(--primary-font-family);
-				font-size: 14px;
-				font-style: normal;
-				font-weight: 500;
-				line-height: normal;
-				cursor: pointer;
+				flex-direction: row;
+				gap: 8px;
+				.thumbs-up-container {
+					display: flex;
+					width: 40px;
+					height: 40px;
+					padding: 12px;
+					justify-content: center;
+					align-items: center;
+					gap: 6px;
+					border-radius: 100px;
+					border: 1px solid var(--secondary-font);
+					cursor: pointer;
+					&.selected-thumb {
+						border: 1px solid var(--primary-font, #f2f2f3);
+					}
+				}
 			}
-			.report-btn {
+			.btns-container {
+				width: 100%;
 				display: flex;
-				height: 40px;
-				padding: 6px 18px;
-				justify-content: center;
-				align-items: center;
-				gap: 4px;
+				justify-content: flex-end;
+				align-items: flex-start;
+				align-self: stretch;
+				gap: 8px;
+				user-select: none;
+				.ignore-btn {
+					display: flex;
+					height: 40px;
+					padding: 6px 18px;
+					justify-content: center;
+					align-items: center;
+					gap: 4px;
 
-				border-radius: 100px;
-				background: var(--primary-button);
-				cursor: pointer;
-				border: none;
+					border-radius: 100px;
+					border: 1px solid var(--stroke, #333334);
+					background-color: var(--card);
+
+					color: var(--primary-font, #f2f2f3);
+					font-family: var(--primary-font-family);
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+					cursor: pointer;
+				}
+				.report-btn {
+					display: flex;
+					height: 40px;
+					padding: 6px 18px;
+					justify-content: center;
+					align-items: center;
+					gap: 4px;
+
+					border-radius: 100px;
+					background: var(--primary-button);
+					cursor: pointer;
+					border: none;
+				}
+			}
+		}
+	}
+}
+
+.horizontal-line {
+	width: 100%;
+	height: 1px;
+	background: var(--stroke, #333334);
+	border: none;
+}
+.cot-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	cursor: pointer;
+	width: 100%;
+	.cot-text {
+		display: flex;
+		align-items: center;
+		gap: 12px;
+		color: var(--primary-font, #f2f2f3);
+		font-family: var(--primary-font-family);
+		font-size: 14px;
+		font-style: normal;
+		font-weight: 600;
+		line-height: normal;
+	}
+	.report-icon-container {
+		display: flex;
+		align-items: center;
+		gap: 16px;
+		.cot-expand-btn {
+			width: 14px;
+			height: 14px;
+			svg {
+				width: 14px;
+				height: 14px;
 			}
 		}
 	}
