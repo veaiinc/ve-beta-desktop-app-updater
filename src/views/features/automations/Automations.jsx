@@ -1,4 +1,4 @@
-import React, { memo, useContext, useEffect, useState } from 'react';
+import { memo, useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/automations/index.scss';
 import Context from '../../../context/context';
 import AutomationCard from '../../components/automations/automationCard/AutomationCard';

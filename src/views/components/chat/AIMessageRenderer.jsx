@@ -6,8 +6,7 @@ import Context from '../../../context/context';
 import { ReactComponent as LinkIcon } from '../../../assets/svg/ai_agents/link.svg';
 import DeepSearchChainOfThought from './chatComponents/DeepSearchChainOfThought';
 import DeepResearchChainOfThought from './chatComponents/DeepResearchChainOfThought';
-import { Markdown } from '../../../helpers/markdownHelper';
-
+import { getFaviconUrl, getWebsiteName } from '../../../helpers';
 import { ReactComponent as ArrowRightIcon } from '../../../assets/svg/ai_agents/ArrowLineUpRight.svg';
 import AIMessage from './AIMessage';
 const AIMessageRenderer = ({
@@ -47,27 +46,6 @@ const AIMessageRenderer = ({
 			}
 		}
 	}, [globalChatMessages]);
-
-	const getFaviconUrl = useCallback((url) => {
-		try {
-			const domain = new URL(url)?.hostname;
-			return `https://www.google.com/s2/favicons?sz=64&domain=${domain}`;
-		} catch (error) {
-			return null;
-		}
-	}, []);
-
-	const getWebsiteName = useCallback((url) => {
-		try {
-			const domain = new URL(url)?.hostname;
-			// Remove common TLDs and www
-			let name = domain?.replace(/^www\./i, '')?.split('.')?.[0];
-			// Capitalize first letter
-			return name?.charAt(0)?.toUpperCase() + name?.slice(1);
-		} catch (error) {
-			return url;
-		}
-	}, []);
 
 	return (
 		<div className="ai-message-renderer">

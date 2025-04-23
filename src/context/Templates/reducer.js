@@ -197,13 +197,16 @@ const actionHandlers = {
 						(item) => item?.sub_query_id === payload?.sub_query_id,
 					);
 					if (index !== -1) {
+						let readings = cot[index]?.readings || [];
+						readings?.push({ reading: payload?.reading });
 						cot[index] = {
 							...cot[index],
-							...payload,
+							readings,
 						};
 					} else {
 						cot?.push({
-							...payload,
+							sub_query_id: payload?.sub_query_id,
+							readings: [{ reading: payload?.reading }],
 						});
 					}
 				}
@@ -213,13 +216,16 @@ const actionHandlers = {
 						(item) => item?.refined_sub_query_id === payload?.refined_sub_query_id,
 					);
 					if (index !== -1) {
+						let readings = cot_refined[index]?.readings || [];
+						readings?.push({ reading: payload?.reading });
 						cot_refined[index] = {
 							...cot_refined[index],
-							...payload,
+							readings,
 						};
 					} else {
 						cot_refined?.push({
-							...payload,
+							refined_sub_query_id: payload?.refined_sub_query_id,
+							readings: [{ reading: payload?.reading }],
 						});
 					}
 				}

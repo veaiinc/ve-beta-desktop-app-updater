@@ -1,14 +1,15 @@
 .createSessionModalParentContainer {
 	display: flex;
-	width: 411px;
+	width: 580px;
 	padding: 24px;
 	flex-direction: column;
 	justify-content: center;
-	gap: 12px;
-	transition: all 0.3s ease-in-out;
-
+	align-items: flex-start;
+	gap: 24px;
 	border-radius: 24px;
-	background: var(--card);
+	background: var(--popup);
+	transition: all 0.3s ease-in-out;
+	border: 1px solid var(--stroke);
 	box-shadow: 0px 2px 44px 0px var(--card);
 
 	.sessionHeader {
@@ -16,12 +17,14 @@
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
-
 		overflow: hidden;
 		color: var(--primary-font);
 		text-overflow: ellipsis;
 		font-family: var(--primary-font-family);
-		font-size: 16px;
+		-webkit-box-orient: vertical;
+		-webkit-line-clamp: 1;
+		overflow: hidden;
+		font-size: 18px;
 		font-style: normal;
 		font-weight: 500;
 		line-height: normal;
@@ -32,11 +35,26 @@
 			height: 16px;
 			opacity: 0.5;
 			transition: all 0.3s ease-in-out;
-
+			color: var(--primary-font);
 			&:hover {
 				opacity: 1;
 				transform: rotate(90deg);
 			}
+		}
+	}
+	.sessionNameContainer {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 8px;
+		align-self: stretch;
+		.sessionNameLabel {
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 400;
+			line-height: normal;
 		}
 	}
 
@@ -69,14 +87,14 @@
 	}
 
 	.sessionDescriptionWrapper {
-		height: 0;
-		opacity: 0;
+		display: none;
 		transition: all 0.3s ease-in-out;
-		overflow: hidden;
 
 		&.visible {
+			display: block;
 			height: 46px;
 			opacity: 1;
+			width: 100%;
 		}
 	}
 
@@ -93,16 +111,14 @@
 			align-items: flex-start;
 			gap: 8px;
 			flex: 1 0 0;
-			user-select: none;
 
 			span {
-				color: var(--secondary-font);
+				color: var(--primary-font);
 				font-family: var(--primary-font-family);
-				font-size: 12px;
+				font-size: 14px;
 				font-style: normal;
-				font-weight: 500;
+				font-weight: 400;
 				line-height: normal;
-				text-transform: capitalize;
 			}
 
 			.typeOfSession-lable {
@@ -135,6 +151,7 @@
 	}
 
 	.scheduleBtnContainer {
+		width: 100%;
 		display: flex;
 		justify-content: flex-end;
 		align-items: center;
@@ -148,18 +165,19 @@
 			justify-content: center;
 			align-items: center;
 			gap: 8px;
-			color: var(--primary-font);
+			color: var(--primary-button-color);
 			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 500;
 
-			background: var(--card);
+			background: var(--primary-button);
 			border-radius: 50px;
 			border: 1px solid rgba(124, 124, 132, 0.25);
 
 			&:hover {
 				background: var(--card-hover);
+				color: var(--primary-color);
 			}
 
 			.loading {

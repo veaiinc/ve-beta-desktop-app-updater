@@ -21,6 +21,9 @@ import { ReactComponent as CalendarSvg } from '../../../assets/svg/tasks/calenda
 import { ReactComponent as textSvg } from '../../../assets/svg/tasks/letterA.svg';
 import { colors } from '../../features/tasks/Tasks';
 import jwtDecode from 'jwt-decode';
+import EventsPopup from '../calendar/EventsPopUp';
+import CreateSessionModal from '../modalsV2/calendar/CreateSessionModal';
+
 const moduleOptions = [
 	{
 		id: 0,
@@ -43,19 +46,19 @@ const moduleOptions = [
 		id: 2,
 		title: 'Event',
 		value: 'event',
-		action: ({ navigate }) => {
-			navigate('/calendar');
+		action: ({ setInfo }) => {
+			setInfo((prev) => ({ ...prev, openEventsPopup: true }));
 		},
 	},
-	// {
-	// 	id: 3,
-	// 	title: 'Session',
-	// 	value: 'session',
-	// 	controlValue: 'calendar',
-	// 	action: ({ navigate }) => {
-	// 		navigate('/calendar');
-	// 	},
-	// },
+	{
+		id: 3,
+		title: 'Session',
+		value: 'session',
+		controlValue: 'calendar',
+		action: ({ setInfo }) => {
+			setInfo((prev) => ({ ...prev, openSessionPopup: true }));
+		},
+	},
 	{
 		id: 4,
 		title: 'Documents',
@@ -299,12 +302,16 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 	} = useContext(Context);
 
+	const navigate = useNavigate();
+
 	const [info, setInfo] = useState({
 		dropdown: false,
 		openProposalPopup: false,
 		openClientPopup: false,
 		openGalleryPopup: false,
 		openLiteGalleryPopup: false,
+		openEventsPopup: false,
+		openSessionPopup: false,
 		// openTaskPopup: false,
 		options: { suggestedOptions, moduleOptions },
 		filteredOptions: { suggestedOptions, moduleOptions },
@@ -519,8 +526,6 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 		},
 		[info?.options, tenantUserAccessControls],
 	);
-
-	const navigate = useNavigate();
 
 	useEffect(() => {
 		const options = filtereOptions();
@@ -792,6 +797,18 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 				colors={colors}
 				tenantUsers={info?.tenantUsers}
 				addNewTask={addNewTask}
+			/>
+			<EventsPopup
+				open={info?.openEventsPopup}
+				closeModal={() => setInfo({ ...info, openEventsPopup: false })}
+			/>
+			<CreateSessionModal
+				open={info?.openSessionPopup}
+				closeModal={() => setInfo({ ...info, openSessionPopup: false })}
+				onSessionCreated={() => {
+					setInfo({ ...info, openSessionPopup: false });
+					navigate('/calendar');
+				}}
 			/>
 			<LoaderModal loading={info?.showLoader} message={info?.loaderMessage} />
 		</div>

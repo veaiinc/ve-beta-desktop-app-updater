@@ -4,8 +4,10 @@ import { ReactComponent as QuestionMark } from '../../../assets/svg/ai_assistant
 import { ReactComponent as Down } from '../../../assets/svg/calendar/down.svg';
 import ToggleSwitch from '../input/slider';
 import { Tooltip } from 'antd';
+import '../../../assets/scss/scheduler/editScheduler.scss';
+import Spinner from '../loaders/Spinner';
 
-const SessionInfoCard = ({ sessionData }) => {
+const SessionInfoCard = ({ sessionData, onUpdate, isUpdating }) => {
 	const [info, setInfo] = useState({
 		isDetailsOpen: false,
 		detailsOptions: ['Details', 'Conference', 'Shoot', 'Interview'],
@@ -33,8 +35,27 @@ const SessionInfoCard = ({ sessionData }) => {
 			</div> */}
 			<div className="sessionInfoDetails">
 				<div className="sessionTitle">
-					<span>{sessionData?.sessionName || 'session Name'}</span>
-					{/* <Dot /> */}
+					<div className="sessionTitleLeft">
+						<span className="editSession">Edit Session</span>
+						<span className="scheduler">Scheduler</span>
+					</div>
+					<div className="sessionTitleRight">
+						{/* <span>{sessionData?.sessionName || 'session Name'}</span> */}
+						{/* <Dot /> */}
+						<div
+							className={`updateButton ${isUpdating ? 'updating' : ''}`}
+							onClick={onUpdate}
+						>
+							{isUpdating ? (
+								<>
+									<Spinner width="16px" height="16px" />
+									Updating...
+								</>
+							) : (
+								'Update and publish'
+							)}
+						</div>
+					</div>
 				</div>
 
 				<div className="sessionInfoSetting">
@@ -61,8 +82,10 @@ const SessionInfoCard = ({ sessionData }) => {
 						/>
 					</div> */}
 					<div className="settingRow">
-						<span className="label">Session Category</span>
-						<div className="detailsSection">
+						<span className="sessionTitleLabel">Session Title</span>
+						<span className="sessionTitle">{sessionData?.sessionName}</span>
+						<div className="divider-line"></div>
+						{/* <div className="detailsSection">
 							<Tooltip
 								open={info.isDetailsOpen}
 								onOpenChange={() =>
@@ -95,7 +118,7 @@ const SessionInfoCard = ({ sessionData }) => {
 									<Down className={`${info.isDetailsOpen ? 'open' : ''}`} />
 								</div>
 							</Tooltip>
-						</div>
+						</div> */}
 					</div>
 				</div>
 			</div>
