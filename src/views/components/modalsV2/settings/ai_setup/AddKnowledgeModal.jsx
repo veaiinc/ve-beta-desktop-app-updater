@@ -31,6 +31,8 @@ const knowledgeFileTypes = [
 	},
 ];
 
+const customStyles = { overlay: { zIndex: 1002 }, content: { zIndex: 1003 } };
+
 const initialState = {
 	activeFileType: knowledgeFileTypes?.[0]?.value,
 	inputURL: '',
@@ -270,11 +272,7 @@ const AddKnowledgeModal = ({ isOpen, toggleModal, assistantId }) => {
 	};
 
 	return (
-		<Modal
-			isOpen={isOpen}
-			closeModal={modifyClose}
-			customStyles={{ overlay: { zIndex: 1002 }, content: { zIndex: 1003 } }}
-		>
+		<Modal isOpen={isOpen} closeModal={modifyClose} customStyles={customStyles}>
 			<div className="addKnowledgeModalContainer">
 				<div className="titleAndDescriptionContainer">
 					<h1 className="title">
