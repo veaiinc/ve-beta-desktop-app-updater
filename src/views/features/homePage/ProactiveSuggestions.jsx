@@ -270,7 +270,9 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 	};
 
 	const handleCardClick = async (card, index) => {
-		await pendingActionsUpdate(card?._id, { read: true });
+		if (!card?.read) {
+			await pendingActionsUpdate(card?._id, { read: true });
+		}
 		setInfo((prev) => ({
 			...prev,
 			activeCardContent: card,
