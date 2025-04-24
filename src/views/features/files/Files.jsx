@@ -10,6 +10,8 @@ import { ReactComponent as Mp4 } from '../../../assets/svg/files/mp4Svg.svg';
 import { ReactComponent as Pdf } from '../../../assets/svg/files/pdfSvg.svg';
 import { ReactComponent as Psd } from '../../../assets/svg/files/psdSvg.svg';
 import { ReactComponent as Zip } from '../../../assets/svg/files/zipSvg.svg';
+import { ReactComponent as CrossSvg } from '../../../assets/svg/docs/cross.svg';
+import { ReactComponent as SearchSvg } from '../../../assets/svg/elastic_search/search-icon.svg';
 import Context from '../../../context/context';
 import { useNavigate } from 'react-router-dom';
 import CreateGallery from '../../components/modalsV2/gallery/CreateGallery';
@@ -28,6 +30,7 @@ import MostUsedEntries from '../../components/files/MostUsedEntries';
 import TemplatesGrid from '../../components/files/TemplatesGrid';
 import { useSearchParams } from 'react-router-dom';
 import useAccessControls from '../../hooks/useAcessControls';
+import ElasticSearchResults from './ElasticSearchResults';
 const initialState = {
 	workflowTemplates: [],
 };
@@ -155,7 +158,7 @@ const Files = () => {
 	const activeTab = searchParams.get('activeTab') || 'Notes';
 	const {
 		galleryInfo: { getGalleries, tenantGalleries, getMostUsedEntities },
-		elasticSearch: { elasticSearchResults },
+		elasticSearch: { elasticSearchResults, performElasticSearch },
 		templates: {
 			formsTemplatesList,
 			myWorkflows,
@@ -183,8 +186,11 @@ const Files = () => {
 		commonState: 'All',
 		options: [{ label: 'Notes', value: 'notes' }],
 		totalCount: null,
+		showElasticSearchResults: false,
 	});
 	const cardItems = useRef(null);
+
+	const noResults = elasticSearchResults?.length === 0 && info.showElasticSearchResults;
 
 	useEffect(() => {
 		if (activeTab) {
@@ -597,88 +603,158 @@ const Files = () => {
 			/>
 		),
 	};
-	return (
-		<>
-			<div className="storage-main-container">
-				<div className="storage-header-container">
-					<span className="beta-text">
-						{/* <div className="beta-text-bold">Search | Create | Share</div>
-						<div className="beta-text">File Flow Inspired by Your Mind</div> */}
-					</span>
-					<div className="storage-header-items">
-						<QuickActions />
-					</div>
-				</div>
-				<div className="card-container-wrapper">
-					<div className="card-sub-container">
-						<div className="card-sub-container-left">
-							<div className="left-sidebar-header"></div>
-						</div>
-						{info.search ? <SearchResults /> : tabsMapper[info.selectedView]}
-						<div className="card-sub-container-right">
-							<div className="right-sidebar-options">
-								{info?.options.map((option) => (
-									<div className="sidebar-option-wrapper" key={option?.value}>
-										<div
-											className={`sidebar-option ${
-												info.selectedView === option?.label ? 'active' : ''
-											}`}
-											onClick={() => handleDropdownOptionClick(option?.label)}
-										>
-											<div
-												style={{
-													display: 'flex',
-													alignItems: 'center',
-													justifyContent: 'space-between',
-												}}
-											>
-												{option?.label}
-											</div>
-											{info?.totalCount?.[option?.value] ? (
-												<div className="count-wrapper">
-													{info?.totalCount?.[option?.value]}
-												</div>
-											) : null}
-										</div>
 
-										{loadingView === option?.label && (
-											<div className="sidebar-option-spinner">
-												<Spinner
-													cssstyle={{
-														border: '1px solid #fff',
-													}}
-													width={'16px'}
-													height={'16px'}
-												/>
+	const handleSearch = async (e) => {
+		clearTimeout(elasticSearchTimeoutRef.current);
+		const searchInput = e.target.value;
+		const emptySearchInput = searchInput === '';
+
+		if (emptySearchInput) {
+			setInfo((prev) => ({
+				...prev,
+				elasticSearchLoading: false,
+				showElasticSearchResults: false,
+			}));
+			return;
+		}
+
+		setInfo((prev) => ({ ...prev, isLoading: true }));
+
+		elasticSearchTimeoutRef.current = setTimeout(async () => {
+			setInfo((prev) => ({
+				...prev,
+				elasticSearchLoading: true,
+				showElasticSearchResults: false,
+			}));
+
+			const response = await performElasticSearch(searchInput);
+			const apiSuccess = response[0];
+
+			if (!apiSuccess) {
+				const errMsg = response[1];
+				message.error(errMsg);
+			}
+
+			setInfo((prev) => ({
+				...prev,
+				elasticSearchLoading: false,
+				showElasticSearchResults: true,
+				isLoading: false,
+			}));
+		}, 500);
+	};
+
+	const elasticSearchInputRef = useRef(null);
+	const elasticSearchTimeoutRef = useRef(null);
+
+	return (
+		<div className="files-container">
+			{info?.showElasticSearchResults ? (
+				<div className="elastic-search-results-container">
+					<ElasticSearchResults />
+				</div>
+			) : (
+				<>
+					<div className="storage-main-container">
+						<div className="storage-header-container">
+							<span className="beta-text">
+								{/* <div className="beta-text-bold">Search | Create | Share</div>
+						<div className="beta-text">File Flow Inspired by Your Mind</div> */}
+							</span>
+							<div className="storage-header-items">
+								<QuickActions />
+							</div>
+						</div>
+						<div className="card-container-wrapper">
+							<div className="card-sub-container">
+								<div className="card-sub-container-left">
+									<div className="left-sidebar-header"></div>
+								</div>
+								{info.search ? <SearchResults /> : tabsMapper[info.selectedView]}
+								<div className="card-sub-container-right">
+									<div className="right-sidebar-options">
+										{info?.options.map((option) => (
+											<div
+												className="sidebar-option-wrapper"
+												key={option?.value}
+											>
+												<div
+													className={`sidebar-option ${
+														info.selectedView === option?.label
+															? 'active'
+															: ''
+													}`}
+													onClick={() =>
+														handleDropdownOptionClick(option?.label)
+													}
+												>
+													<div
+														style={{
+															display: 'flex',
+															alignItems: 'center',
+															justifyContent: 'space-between',
+														}}
+													>
+														{option?.label}
+													</div>
+													{info?.totalCount?.[option?.value] ? (
+														<div className="count-wrapper">
+															{info?.totalCount?.[option?.value]}
+														</div>
+													) : null}
+												</div>
+
+												{loadingView === option?.label && (
+													<div className="sidebar-option-spinner">
+														<Spinner
+															cssstyle={{
+																border: '1px solid #fff',
+															}}
+															width={'16px'}
+															height={'16px'}
+														/>
+													</div>
+												)}
 											</div>
-										)}
+										))}
 									</div>
-								))}
+								</div>
 							</div>
 						</div>
 					</div>
+
+					<CreateGallery
+						open={info.createNewGalleryModal}
+						closeModal={handleCloseModal}
+						message={message}
+						isLightGallery={info.selectedView === 'Lite Gallery'}
+					/>
+					<ProposalsPopup
+						open={info?.openProposalPopup}
+						closeModal={() =>
+							setInfo((prev) => ({
+								...prev,
+								openProposalPopup: false,
+								commonState:
+									info?.selectedView === 'Forms' ? 'form-submission' : 'All',
+							}))
+						}
+						clientDetails={formsTemplatesList}
+						commonState={info?.selectedView === 'Forms' ? 'form-submission' : 'All'}
+					/>
+				</>
+			)}
+			<div className="search-input-container" ref={elasticSearchInputRef}>
+				<div className="search-input">
+					<input type="text" placeholder="Search" onChange={handleSearch} />
+					{/* {info.isLoading && (
+						<div className="spinner-wrapper">
+							<Spinner width={'16px'} height={'16px'} color={'var(--primary-font)'} />
+						</div>
+					)} */}
 				</div>
 			</div>
-
-			<CreateGallery
-				open={info.createNewGalleryModal}
-				closeModal={handleCloseModal}
-				message={message}
-				isLightGallery={info.selectedView === 'Lite Gallery'}
-			/>
-			<ProposalsPopup
-				open={info?.openProposalPopup}
-				closeModal={() =>
-					setInfo((prev) => ({
-						...prev,
-						openProposalPopup: false,
-						commonState: info?.selectedView === 'Forms' ? 'form-submission' : 'All',
-					}))
-				}
-				clientDetails={formsTemplatesList}
-				commonState={info?.selectedView === 'Forms' ? 'form-submission' : 'All'}
-			/>
-		</>
+		</div>
 	);
 };
 

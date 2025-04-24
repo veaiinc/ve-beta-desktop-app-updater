@@ -1,5 +1,57 @@
 .childrenContainer {
 	height: 100%;
+	.files-container {
+		position: relative;
+		height: 100%;
+		.search-input-container {
+			position: absolute;
+			bottom: 66px;
+			left: 50%;
+			transform: translateX(-50%);
+			width: 100%;
+			z-index: 1005;
+			text-align: center;
+			display: flex;
+			justify-content: center;
+
+			.search-input {
+				display: flex;
+				width: 400px;
+				min-width: 200px;
+				max-width: 400px;
+				transform: rotate(-0.038deg);
+				padding: 8px 8px 8px 18px;
+				align-items: center;
+				gap: 12px;
+				justify-content: center;
+
+				input {
+					border-radius: 100px;
+					border: 1px solid var(--stroke, #333334);
+					background: var(--card-over-card, #202123);
+					padding: 8px 8px 8px 18px;
+					color: var(--primary-font);
+				}
+
+				.spinner-wrapper {
+					position: absolute;
+					right: 0;
+					svg {
+						stroke: var(--primary-font);
+					}
+				}
+			}
+		}
+
+		.elastic-search-results-container {
+			display: inline-flex;
+			height: 613px;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 12px;
+			flex-shrink: 0;
+		}
+	}
 }
 .storage-main-container {
 	display: flex;
