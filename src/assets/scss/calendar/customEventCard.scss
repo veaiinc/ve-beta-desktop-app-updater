@@ -3,6 +3,7 @@
 	height: 100%;
 	overflow-y: auto;
 	overflow-x: hidden;
+	z-index: 1;
 
 	color: var(--primary-font);
 	font-family: var(--primary-font-family);
@@ -24,13 +25,14 @@
 			width: 100%;
 			display: flex;
 			position: relative;
-			// align-items: center;
-			align-items: baseline;
+			align-items: flex-start;
 			gap: 2px;
 
 			.eventDetails {
 				width: calc(100% - 13px);
-				// padding-bottom: 25px;
+				display: flex;
+				flex-direction: column;
+				gap: 4px;
 
 				.title {
 					color: var(--primary-font);
@@ -41,9 +43,10 @@
 					line-height: normal;
 					letter-spacing: -0.24px;
 					text-overflow: ellipsis;
-					text-wrap: wrap;
-					hyphens: auto;
-					// max-height: ;
+					overflow: hidden;
+					white-space: nowrap;
+					max-width: 100%;
+					display: block;
 				}
 				.subText {
 					color: rgba(var(--primary-font), 0.5);
@@ -53,12 +56,11 @@
 					font-weight: 400;
 					line-height: normal;
 					letter-spacing: -0.22px;
-					position: absolute;
-					left: 0;
-					right: 0;
-					padding: 3px 0;
-					word-wrap: break-word; /* Allow breaking the word */
-					white-space: normal;
+					text-overflow: ellipsis;
+					overflow: hidden;
+					white-space: nowrap;
+					max-width: 100%;
+					display: block;
 				}
 			}
 			.eventStatusDiv {
@@ -66,33 +68,7 @@
 				width: 10px;
 				height: 10px;
 				flex-shrink: 0;
-
-				.statusIndicator {
-					width: 10px;
-					height: 10px;
-					display: flex;
-					justify-content: center;
-					align-items: center;
-					border-radius: 100px;
-
-					background-color: #6055ec;
-					cursor: pointer;
-
-					&:hover {
-						background: var(--primary-button);
-						background: var(--ai-color-code);
-						filter: blur(0.5px);
-						// border: 2px solid green
-					}
-
-					span {
-						// display: flex;
-						width: 11px;
-						height: 11px;
-						background-color: var(--card-over-card-hover);
-						border-radius: 100%;
-					}
-				}
+				margin-top: 4px;
 			}
 		}
 
@@ -119,15 +95,15 @@
 	color: var(--primary-font);
 }
 .customEventWrapper {
-	// border: 2px solid red;
-	height: fit-content;
+	height: auto;
+	z-index: 1;
 	color: var(--primary-font);
 	font-family: var(--primary-font-family);
 	font-size: 12px;
 	font-style: normal;
 	font-weight: 500;
 	line-height: normal;
-	// letter-spacing: -0.24px;
+
 	.allDay {
 		color: var(--primary-font);
 		font-family: var(--primary-font-family);
@@ -142,16 +118,17 @@
 		height: 100%;
 		padding-top: 8px;
 	}
-	// Target .rbc-event inside .customEventWrapper
+
 	.rbc-event {
 		border: none;
 		padding: 8px 10px;
 		border: 1px solid var(--stroke);
 		min-width: 100%;
 		background: none;
-		// border-radius: 8px;
+		height: auto;
+		min-height: 45px;
+		z-index: 1;
 
-		// Target .rbc-event-label inside .rbc-event
 		.rbc-event-label {
 			display: none;
 			margin-left: 5px;
@@ -163,7 +140,7 @@
 		}
 
 		&:hover {
-			z-index: 100;
+			z-index: 2;
 			width: 100% !important;
 			left: 0 !important;
 		}

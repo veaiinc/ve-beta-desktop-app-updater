@@ -8,11 +8,11 @@ import { ReactComponent as Down } from '../../../assets/svg/calendar/down.svg';
 import SessionInfoCard from '../../components/scheduler/SessionInfoCard';
 import { Tooltip, DatePicker } from 'antd';
 import dayjs from 'dayjs';
-import InputComponent from '../../components/ai_assistant/InputComponent';
 import { ReactComponent as Clock } from '../../../assets/svg/workflow/clock.svg';
 import { ReactComponent as Duplicate } from '../../../assets/svg/tasks/duplicate.svg';
 import Context from '../../../context/context';
 import Checkbox from 'antd/es/checkbox/Checkbox';
+import PhoneInput from 'react-phone-number-input';
 
 const durationOptions = ['30 Minutes', '45 Minutes', '60 Minutes', '90 Minutes', '120 Minutes'];
 const sessionTypeOptions = ['In Person', 'Phone Call', 'Video Call'];
@@ -48,6 +48,7 @@ const EditScheduler = ({ onBack, sessionId: propSessionId }) => {
 	const navigate = useNavigate();
 	const updateTimeoutRef = useRef(null);
 	const availabilityUpdateTimeoutRef = useRef(null);
+	const [isUpdating, setIsUpdating] = useState(false);
 
 	const [info, setInfo] = useState({
 		sessionDetail: null,
@@ -148,29 +149,40 @@ const EditScheduler = ({ onBack, sessionId: propSessionId }) => {
 				};
 			}
 
-			// Map session type
+			// Map session type and its related fields
 			let sessionType = 'In Person';
 			let location = '';
 			let phoneNumber = '';
 			let videoLink = '';
 
 			if (sessionDetail.sessionTypeInfo) {
-				switch (sessionDetail.sessionTypeInfo.sessionType.toLowerCase()) {
-					case 'virtual':
-						sessionType = 'Video Call';
-						videoLink = sessionDetail.sessionTypeInfo.meetingLink || '';
-						break;
-					case 'phone':
-						sessionType = 'Phone Call';
-						phoneNumber = sessionDetail.sessionTypeInfo.phone || '';
-						break;
-					case 'inperson':
-						sessionType = 'In Person';
-						location = sessionDetail.sessionTypeInfo.location || '';
-						break;
-					default:
-						sessionType = 'In Person';
-						location = sessionDetail.sessionTypeInfo.location || '';
+				// Set all fields from sessionTypeInfo
+				location = sessionDetail.sessionTypeInfo.location || '';
+				phoneNumber = sessionDetail.sessionTypeInfo.phone || '';
+				videoLink = sessionDetail.sessionTypeInfo.meetingLink || '';
+
+				// Determine session type based on available data
+				if (phoneNumber) {
+					sessionType = 'Phone Call';
+				} else if (videoLink) {
+					sessionType = 'Video Call';
+				} else if (location) {
+					sessionType = 'In Person';
+				} else {
+					// Fallback to API sessionType if no data is available
+					switch (sessionDetail.sessionTypeInfo.sessionType.toLowerCase()) {
+						case 'virtual':
+							sessionType = 'Video Call';
+							break;
+						case 'phone':
+							sessionType = 'Phone Call';
+							break;
+						case 'inperson':
+							sessionType = 'In Person';
+							break;
+						default:
+							sessionType = 'In Person';
+					}
 				}
 			}
 
@@ -336,8 +348,8 @@ const EditScheduler = ({ onBack, sessionId: propSessionId }) => {
 				const payload = {
 					sessionWindow: {
 						type: 'fixed_date_range',
-						startDate: value.toISOString(),
-						endDate: info.endTime?.toISOString(),
+						startDate: value ? value.toISOString() : null,
+						endDate: info.endTime ? info.endTime.toISOString() : null,
 					},
 				};
 				updateSchedulerSession(sessionId, payload);
@@ -369,8 +381,8 @@ const EditScheduler = ({ onBack, sessionId: propSessionId }) => {
 				const payload = {
 					sessionWindow: {
 						type: 'fixed_date_range',
-						startDate: info.startTime?.toISOString(),
-						endDate: value.toISOString(),
+						startDate: info.startTime ? info.startTime.toISOString() : null,
+						endDate: value ? value.toISOString() : null,
 					},
 				};
 				updateSchedulerSession(sessionId, payload);
@@ -381,15 +393,24 @@ const EditScheduler = ({ onBack, sessionId: propSessionId }) => {
 
 	// Function to handle session type change
 	const handleSessionTypeOption = useCallback((type) => {
-		setInfo((prev) => ({
-			...prev,
-			sessionType: type,
-			sessionTypeOpen: false,
-			// Reset related fields when changing session type
-			location: '',
-			phoneNumber: '',
-			videoLink: '',
-		}));
+		setInfo((prev) => {
+			// Store the current values before changing type
+			const currentValues = {
+				location: prev.location,
+				phoneNumber: prev.phoneNumber,
+				videoLink: prev.videoLink,
+			};
+
+			return {
+				...prev,
+				sessionType: type,
+				sessionTypeOpen: false,
+				// Preserve the value for the selected type
+				...(type === 'In Person' && { location: currentValues.location }),
+				...(type === 'Phone Call' && { phoneNumber: currentValues.phoneNumber }),
+				...(type === 'Video Call' && { videoLink: currentValues.videoLink }),
+			};
+		});
 	}, []);
 
 	// Function to handle session type specific info changes
@@ -599,16 +620,30 @@ const EditScheduler = ({ onBack, sessionId: propSessionId }) => {
 		[handleSessionTypeInput],
 	);
 
-	// Update the renderSessionTypeInput function to use the debounced handler
+	// Update the renderSessionTypeInput function
 	const renderSessionTypeInput = () => {
 		const config = sessionTypeInputConfig[info.sessionType];
+
+		if (config.value === 'phoneNumber') {
+			return (
+				<PhoneInput
+					placeholder="Enter phone number"
+					value={info.phoneNumber || ''}
+					onChange={(value) => handleDebouncedSessionTypeInput(config.value, value)}
+					defaultCountry="US"
+					className="phoneInputNumber"
+					countryCallingCodeEditable={true}
+					autoComplete="tel"
+				/>
+			);
+		}
+
 		return (
-			<InputComponent
+			<input
 				type={config?.type}
-				value={info[config?.value]}
+				value={info[config?.value] || ''}
 				onChange={(e) => handleDebouncedSessionTypeInput(config?.value, e.target.value)}
 				placeholder={config?.placeholder}
-				backgroundColor={config?.backgroundColor}
 				className="inputHeight"
 			/>
 		);
@@ -933,6 +968,126 @@ const EditScheduler = ({ onBack, sessionId: propSessionId }) => {
 		return payload;
 	};
 
+	// Add handleUpdate function
+	const handleUpdate = useCallback(async () => {
+		try {
+			setIsUpdating(true);
+
+			// Prepare the update payload
+			const payload = {
+				sessionName: info.sessionName,
+				sessionDescription: info.sessionDescription,
+				sessionTypeInfo: {
+					sessionType: info.sessionType.toLowerCase().replace(' ', '_'),
+					...(info.sessionType === 'In Person' && { location: info.location }),
+					...(info.sessionType === 'Phone Call' && { phone: info.phoneNumber }),
+					...(info.sessionType === 'Video Call' && { meetingLink: info.videoLink }),
+				},
+				sessionWindow: {
+					type: 'fixed_date_range',
+					startDate: info.startTime?.toISOString(),
+					endDate: info.endTime?.toISOString(),
+				},
+				sessionTimezone: info.timezone,
+				availabilitySlots: transformWeeklyAvailabilityToApi(info.weeklyAvailability),
+				availabilityRules: {
+					maxBookingsPerSession: info.maxBookingsPerSession,
+					minBookingNotice: {
+						unitCount: info.minBookingNotice,
+						unitType: 'minutes',
+					},
+					maxBookingAdvance: {
+						unitCount: info.maxBookingAdvance,
+						unitType: 'days',
+					},
+				},
+				bookingRules: {
+					allowRescheduling: info.allowRescheduling,
+					allowCanceling: info.allowCanceling,
+					...(info.allowCanceling && {
+						cancellationPolicy: {
+							minCancelNotice: {
+								unitCount: info.minCancelNotice,
+								unitType: 'minutes',
+							},
+						},
+					}),
+				},
+				sessionMetadata: {
+					maxParticipants: info.maxParticipants,
+					preparationInstructions: info.preparationInstructions,
+				},
+			};
+
+			// Call the update API
+			await updateSchedulerSession(sessionId, payload);
+
+			// Show success message or handle success
+			// You can add a toast notification here if you have one
+			console.log('Session updated successfully');
+
+			// Optionally navigate back or refresh the data
+			if (onBack) {
+				onBack();
+			} else {
+				navigate(-1);
+			}
+		} catch (error) {
+			console.error('Error updating session:', error);
+			// Handle error (show error message, etc.)
+		} finally {
+			setIsUpdating(false);
+		}
+	}, [info, sessionId, updateSchedulerSession, onBack, navigate]);
+
+	// Add styles for phone input
+	const styles = `
+		.phoneInputNumber {
+			width: 100%;
+			height: 40px;
+			border: 1px solid var(--border);
+			border-radius: 8px;
+			padding: 0 12px;
+			font-size: 14px;
+			background: var(--card);
+			color: var(--primary-font);
+		}
+
+		.phoneInputNumber:focus {
+			outline: none;
+			border-color: var(--primary);
+		}
+
+		.phoneInputNumber.error {
+			border-color: red;
+		}
+
+		.phoneInputNumber input {
+			background: transparent;
+			border: none;
+			outline: none;
+			width: 100%;
+			height: 100%;
+			color: var(--primary-font);
+		}
+
+		.phoneInputNumber .PhoneInputCountry {
+			margin-right: 8px;
+		}
+
+		.phoneInputNumber .PhoneInputCountrySelect {
+			background: transparent;
+			border: none;
+			outline: none;
+			color: var(--primary-font);
+		}
+	`;
+
+	// Add styles to document
+	const styleSheet = document.createElement('style');
+	styleSheet.innerText = styles;
+	document.head.appendChild(styleSheet);
+
 	return (
 		<div className="editSchedulerParentContainer">
 			<div className="editSchedulerHeader">
@@ -947,7 +1102,11 @@ const EditScheduler = ({ onBack, sessionId: propSessionId }) => {
 					className="backArrow"
 				/>
 
-				<SessionInfoCard sessionData={info?.sessionDetail} />
+				<SessionInfoCard
+					sessionData={info?.sessionDetail}
+					onUpdate={handleUpdate}
+					isUpdating={isUpdating}
+				/>
 			</div>
 
 			<div className="updateSessionDetails">
@@ -990,7 +1149,7 @@ const EditScheduler = ({ onBack, sessionId: propSessionId }) => {
 								}}
 							/>
 						</div>
-						{/* <div className="sessionInputWrapper">
+						<div className="sessionInputWrapper">
 							<span>Duration</span>
 							<Tooltip
 								placement="bottom"
@@ -1027,7 +1186,7 @@ const EditScheduler = ({ onBack, sessionId: propSessionId }) => {
 									<DownArrow className={info.isDurationOpen ? 'open' : ''} />
 								</div>
 							</Tooltip>
-						</div> */}
+						</div>
 					</div>
 
 					<div className="updateSessionDesc">
@@ -1035,7 +1194,7 @@ const EditScheduler = ({ onBack, sessionId: propSessionId }) => {
 							<Checkbox className="checkbox" />
 							<div className="alldaytext">All Day</div>
 						</div>
-						{/* <div
+						<div
 							className={`addSessionDesc ${info?.addDescription ? 'hidden' : ''}`}
 							onClick={() =>
 								setInfo((prev) => ({
@@ -1045,21 +1204,20 @@ const EditScheduler = ({ onBack, sessionId: propSessionId }) => {
 							}
 						>
 							Add Instruction
-						</div> */}
+						</div>
 
-						{/* <div
+						<div
 							className={`sessionDescriptionWrapper ${
 								info?.addDescription ? 'visible' : ''
 							}`}
 						>
-							<InputComponent
+							<input
 								className="inputHeight"
 								value={info?.sessionDescription}
 								onChange={(e) => handleSessionDescriptionChange(e.target.value)}
-								placeholder={'Session description'}
-								backgroundColor={'var(--background)'}
+								placeholder="Session description"
 							/>
-						</div> */}
+						</div>
 					</div>
 
 					<div className="sessionOptionContainer">

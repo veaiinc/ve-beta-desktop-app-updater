@@ -310,6 +310,10 @@ const ChatBox = ({
 					chatInfo: {
 						...chatInfo,
 						deepResearch: false,
+						reason: {
+							webSearch: false,
+							workspaceSearch: false,
+						},
 					},
 				});
 			}

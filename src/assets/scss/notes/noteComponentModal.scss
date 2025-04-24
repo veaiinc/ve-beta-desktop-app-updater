@@ -237,7 +237,6 @@
 			.note-component-container {
 				width: 775px;
 				margin: 0 auto;
-				padding-top: 92.32px;
 				animation: slideInFromTop 0.8s ease-in-out forwards;
 			}
 			.header {
@@ -256,15 +255,24 @@
 					gap: 10px;
 					height: 100%;
 
-					.back-icon {
+					.full-screen-icon {
 						cursor: pointer;
+						height: 18px;
 					}
 
-					.full-screen-icon {
+					.close-icon {
 						display: flex;
 						align-items: center;
 						justify-content: center;
 						cursor: pointer;
+
+						svg {
+							path {
+								stroke: var(--primary-font) !important;
+							}
+							height: 18px !important;
+							width: 18px !important;
+						}
 					}
 					.title {
 						color: var(--primary-font);
@@ -314,11 +322,10 @@
 					.icon-container {
 						cursor: pointer;
 					}
-				}
-
-				svg {
-					path {
-						stroke: var(--secondary-font) !important;
+					svg {
+						path {
+							stroke: var(--secondary-font) !important;
+						}
 					}
 				}
 			}

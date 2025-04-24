@@ -45,7 +45,7 @@ const DropDown = ({
 							className="dropdown-title"
 							style={titleStyles ? { ...titleStyles } : {}}
 						>
-							<span style={{ color: 'var(--primary-font)' }}>{title}</span>
+							<span style={{ color: 'var(--secondary-font)' }}>{title}</span>
 						</div>
 					) : (
 						''
@@ -101,7 +101,7 @@ const DropDown = ({
 			arrow={false}
 			trigger={'click'}
 			color={'transparent'}
-			overlayStyle={{ minWidth: 'fit-content', padding: '0' }}
+			overlayStyle={{ minWidth: 'fit-content', padding: '0', zIndex: 50003 }}
 		>
 			<div
 				className=""

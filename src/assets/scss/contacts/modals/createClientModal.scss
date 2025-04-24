@@ -67,6 +67,7 @@
 			width: 100%;
 			border-radius: 14px;
 			border: 1px solid var(--stroke);
+			background: var(--card-over-card);
 			height: 44px;
 		}
 
@@ -131,6 +132,15 @@
 			flex-direction: column;
 			gap: 16px;
 			align-self: stretch;
+			border: 1px solid var(--stroke);
+			border-radius: 100px;
+
+			.action-button:enabled {
+				background-color: var(--primary-button);
+				p {
+					color: var(--primary-button-font);
+				}
+			}
 		}
 	}
 }

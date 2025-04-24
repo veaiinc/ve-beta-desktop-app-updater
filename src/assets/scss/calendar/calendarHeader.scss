@@ -38,6 +38,15 @@
 				font-weight: 500;
 				line-height: normal;
 				user-select: none;
+
+				@media (max-width: 480px) {
+					font-size: 12px;
+					gap: 2px;
+				}
+				@media (min-width: 481px) and (max-width: 768px) {
+					font-size: 14px;
+					gap: 4px;
+				}
 			}
 
 			.viewToggleWrapper {
@@ -46,11 +55,19 @@
 				align-items: flex-start;
 				gap: 10px;
 
+				.divider {
+					width: 1px;
+					height: 24px;
+					background-color: var(--stroke);
+					// opacity: 0.5;
+				}
+
 				.viewToggle {
 					display: flex;
 					gap: 8px;
 					align-items: center;
 					text-transform: capitalize;
+					margin-top: 3px;
 
 					.toggleButton {
 						display: flex;
@@ -61,7 +78,6 @@
 						border-radius: 8px;
 						border: 1px solid var(--stroke);
 						cursor: pointer;
-
 						color: rgba(var(--primary-font), 0.48);
 						font-family: var(--primary-font-family);
 						font-size: 12px;
@@ -185,7 +201,7 @@
 
 			.dayHeader {
 				flex: 1 0 0;
-				color: var(--secondary-font);
+				color: var(--primary-font);
 				text-align: center;
 				font-family: var(--primary-font-family);
 				font-size: 12px;
@@ -205,10 +221,10 @@
 				flex: 1 0 0;
 				border: 1px solid var(--stroke);
 
-				&:hover {
-					border: 1px solid var(--primary-font);
-					border-radius: 8px;
-				}
+				// &:hover {
+				// 	border: 1px solid var(--primary-font);
+				// 	border-radius: 8px;
+				// }
 
 				span {
 					display: flex;
@@ -269,12 +285,7 @@
 					}
 				}
 			}
-			.divider {
-				color: var(--stroke);
-				align-items: center;
-				justify-content: center;
-				align-self: stretch;
-			}
+
 			.dayName {
 				color: var(--primary-font);
 			}

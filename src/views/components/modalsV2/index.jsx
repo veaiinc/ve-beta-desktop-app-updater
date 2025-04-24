@@ -16,10 +16,12 @@ const ReactModal = ({ isOpen, closeModal, modalType, children, customStyles = {}
 			// boxShadow: '0px 4px 8px var(--stroke)',
 			transition: 'transform 0.3s ease-in-out',
 			backgroundColor: 'transparent',
+			zIndex: 1003,
 		},
 		overlay: {
 			backgroundColor: 'transparent',
 			//transition: 'opacity 0.3s ease-in-out',
+			zIndex: 1002,
 		},
 	};
 

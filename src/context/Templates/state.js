@@ -2360,14 +2360,25 @@ export const TemplatesState = (props) => {
 
 	const getAISuggestedPendingActions = async (payload) => {
 		try {
+			const params = ['priority', 'read', 'confidenceScore']
+				.map((key) =>
+					payload?.[key]?.map((val) => `${key}=${encodeURIComponent(val)}`).join('&'),
+				)
+				.filter(Boolean)
+				.join('&');
+
 			const workspaceId = localStorage.getItem('workspaceId');
 			const usertoken = localStorage.getItem('usertoken');
-			const response = await Service.fetchGet(
-				`/${workspaceId}/knowledge-bases/pending-actions`,
-				usertoken,
-				'tenant',
-				payload,
-			);
+
+			const queryString = new URLSearchParams({
+				page: payload?.page || 1,
+				limit: payload?.limit || 10,
+			}).toString();
+
+			const url = `/${workspaceId}/knowledge-bases/pending-actions?${queryString}&${params}`;
+
+			const response = await Service.fetchGet(url, usertoken, 'tenant', {});
+
 			if (response?.[0]) {
 				dispatch({
 					type: Actions?.GET_AI_SUGGESTED_PENDING_ACTIONS_SUCCESS,
@@ -2399,6 +2410,18 @@ export const TemplatesState = (props) => {
 			}
 		} catch (error) {
 			console.log('error==>updateWorkflowTemplate', error);
+		}
+	};
+
+	const pendingActionsUpdate = async (pendingActionId, payload) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const url = `/${workspaceId}/knowledge-bases/pending-actions/${pendingActionId}`;
+			const response = await Service.fetchPut(url, payload, usertoken, 'tenant');
+			return response;
+		} catch (error) {
+			console.log('error==>pendingActionsUpdate', error);
 		}
 	};
 	return {
@@ -2483,5 +2506,6 @@ export const TemplatesState = (props) => {
 		getAISuggestedPendingActions,
 		sendContactFormData,
 		updateWorkflowTemplate,
+		pendingActionsUpdate,
 	};
 };

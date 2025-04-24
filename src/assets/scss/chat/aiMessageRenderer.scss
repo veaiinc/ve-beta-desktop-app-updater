@@ -33,6 +33,7 @@
 				color: var(--primary-font, #f2f2f3);
 				position: relative;
 				pointer-events: none;
+				font-family: var(--chat-primary-font-family);
 			}
 		}
 
@@ -146,6 +147,7 @@
 				display: flex;
 				gap: 12px;
 				align-items: flex-start;
+				width: calc(100% - 15px);
 
 				.citation-icon {
 					flex-shrink: 0;
@@ -175,23 +177,24 @@
 					min-width: 0;
 
 					.website-name {
-						color: #F2F2F3;
-						font-family: "Helvetica Neue";
+						color: var(--primary-font);
+						font-family: var(--chat-primary-font-family);
 						font-size: 15px;
 						font-style: normal;
 						font-weight: 500;
-						line-height: 24px; /* 160% */
+						line-height: 24px;
 						letter-spacing: 0.2px;
 					}
 
 					.citation-url {
-						color: var(--secondary-font, #95989D);
-						font-family: "Helvetica Neue";
+						color: var(--secondary-font, #95989d);
+						font-family: var(--chat-primary-font-family);
 						font-size: 12px;
 						font-style: normal;
 						font-weight: 400;
-						line-height: 16px; /* 133.333% */
+						line-height: 16px;
 						letter-spacing: 0.2px;
+						overflow-wrap: break-word;
 
 						.link-icon {
 							width: 12px;

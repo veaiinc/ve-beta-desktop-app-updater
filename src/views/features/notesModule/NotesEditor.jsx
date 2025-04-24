@@ -18,6 +18,7 @@ import { Helmet } from 'react-helmet';
 import Skeleton from 'react-loading-skeleton';
 import useChatStream from '../../hooks/useChatStream';
 import ObjectID from 'bson-objectid';
+import jwtDecode from 'jwt-decode';
 const preprocessMarkdown = (markdown) => {
 	return markdown?.replace(/\\n/g, '\n'); // Add a non-breaking space for empty lines
 };
@@ -33,11 +34,29 @@ const skeletonLines = [...Array(10)]?.map(() => ({
 	height: 14,
 }));
 
+let userId = null;
+
+// async function uploadFile(file) {
+// 	const body = new FormData();
+// 	body.append('file', file);
+
+// 	const ret = await fetch('https://tmpfiles.org/api/v1/upload', {
+// 		method: 'POST',
+// 		body: body,
+// 	});
+// 	return (await ret.json()).data.url.replace('tmpfiles.org/', 'tmpfiles.org/dl/');
+// }
+
 const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
+	const { noteId } = useParams();
+	const navigate = useNavigate();
+	const aiResponseRef = useRef('');
+
 	const {
 		notes: {
 			getNotesPageData,
 			notesPageData,
+			notesAccess,
 			saveNotesdata,
 			updatePage,
 			addToFavorite,
@@ -45,6 +64,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 			deletePage,
 			duplicatePage,
 			updateNotesState,
+			getNotesAccess,
 		},
 	} = useContext(Context);
 
@@ -57,6 +77,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 			cellTextColor: true,
 			headers: true,
 		},
+		// uploadFile,
 	});
 	const [info, setInfo] = useState({
 		timeouts: {}, // Single timeouts object to store all timeouts
@@ -69,12 +90,18 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 		isFavorite: false,
 		loading: true,
 		aiResonse: '',
+		myAccess: 'view',
 	});
 
-	const { noteId } = useParams();
-	const navigate = useNavigate();
+	useEffect(() => {
+		const token = localStorage.getItem('usertoken');
+		const { user_id } = jwtDecode(token);
+		userId = user_id;
+	}, []);
 
-	const aiResponseRef = useRef('');
+	useEffect(() => {
+		getNotesAccess({ pageId: noteId });
+	}, [noteId]);
 
 	useEffect(() => {
 		if (noteId) {
@@ -89,6 +116,20 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 			});
 		};
 	}, [noteId]);
+
+	useEffect(() => {
+		if (notesAccess && noteId && userId) {
+			const hasAccess = notesAccess?.find((access) => access?.userId === userId);
+			if (hasAccess) {
+				setInfo((prev) => ({
+					...prev,
+					myAccess: hasAccess?.access,
+				}));
+			}
+		} else {
+			getNotesAccess({ pageId: noteId });
+		}
+	}, [notesAccess, noteId, userId]);
 
 	useEffect(() => {
 		const handleKeyDown = (e) => {
@@ -110,13 +151,13 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 	}, []);
 
 	useEffect(() => {
-		if (notesPageData) {
+		if (notesPageData?.data) {
 			const {
 				blocks = [],
 				title = '',
 				updatedAt = '',
 				isFavorite = false,
-			} = notesPageData || {};
+			} = notesPageData?.data || {};
 			if (blocks) {
 				loadNotesContent(blocks);
 			}
@@ -126,6 +167,14 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 				updatedAt,
 				isFavorite,
 			}));
+		} else if (notesPageData?.error) {
+			const messageText =
+				notesPageData?.error?.message ||
+				'Something went wrong while fetching this note, please try again';
+			message.error(messageText);
+			setTimeout(() => {
+				window.history.length > 1 ? navigate(-1) : navigate('/');
+			}, 3100);
 		}
 	}, [notesPageData]);
 
@@ -239,7 +288,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 		const [success] = await deletePage({ pageId: noteId });
 		if (success) {
 			message.success('Page deleted successfully');
-			navigate('/');
+			navigate('/files');
 		} else {
 			message.error('Failed to delete page');
 		}
@@ -317,7 +366,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 						/>
 					</button>
 
-					<ShareComponent pageId={noteId} />
+					{info?.myAccess === 'full' && <ShareComponent pageId={noteId} />}
 
 					<MoreOptions
 						notesConfigs={info?.notesConfigs}
@@ -373,12 +422,15 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 							onChange={onChange}
 							style={innerContainerStyle || {}}
 							theme={'dark'}
+							editable={info?.myAccess !== 'view'}
 						>
-							<NoteToolbar
-								sendMessage={customSendMessage}
-								aiResonse={info?.aiResonse}
-								resetAiResponse={resetAiResponse}
-							/>
+							{info?.myAccess !== 'view' && (
+								<NoteToolbar
+									sendMessage={customSendMessage}
+									aiResonse={info?.aiResonse}
+									resetAiResponse={resetAiResponse}
+								/>
+							)}
 						</BlockNoteView>
 					</div>
 				)}

@@ -62,6 +62,7 @@ const DateView = ({
 					onOptionClick={updatedOnOptionClick}
 					selected={info?.dueDate}
 					valueSelector="value"
+					overlayStyle={{ zIndex: 50003 }}
 				>
 					<Tooltip
 						title={showTitle && <div className="tooltip-inner">{title}</div>}

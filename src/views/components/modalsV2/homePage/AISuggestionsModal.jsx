@@ -1,23 +1,49 @@
-import { memo, useCallback, useState } from 'react';
+import { memo, useCallback, useState, useEffect } from 'react';
 import '../../../../assets/scss/home_page/modals/aiSuggestionsModal.scss';
 import { ReactComponent as ChevronRightThinSvg } from '../../../../assets/svg/tasks/chevronRightThin.svg';
 import { ReactComponent as ArrowRightSvg } from '../../../../assets/svg/home_page/arrow-right.svg';
+import { ReactComponent as ChainOfThoughtSvg } from '../../../../assets/svg/chainOfThought.svg';
+import { ReactComponent as ReportIconSvg } from '../../../../assets/svg/reportIcon.svg';
+import { ReactComponent as RecommendedSvg } from '../../../../assets/svg/recommended.svg';
+import { ReactComponent as SuggestedActionsSvg } from '../../../../assets/svg/suggestedActions.svg';
+import { ReactComponent as SuggestedPromptsSvg } from '../../../../assets/svg/suggestedPrompts.svg';
+import { ReactComponent as ReportIcon2Svg } from '../../../../assets/svg/reportIcon2.svg';
+import { ReactComponent as ThumbsUpSvg } from '../../../../assets/svg/thumbsUp.svg';
+import { ReactComponent as ThumbsDownSvg } from '../../../../assets/svg/thumbsDown.svg';
 import { Markdown } from '../../../../helpers/markdownHelper';
 import { useNavigate } from 'react-router-dom';
 import ObjectID from 'bson-objectid';
-import { Drawer } from 'antd';
+import { Drawer, Tooltip } from 'antd';
 import Context from '../../../../context/context';
 import { useContext } from 'react';
+import { message } from '../../globalComponents/CustomToast';
 
-const AISuggestionsModal = ({ open, onClose, data, onNextCardClick, onPrevCardClick }) => {
+const AISuggestionsModal = ({
+	open,
+	onClose,
+	data,
+	onNextCardClick,
+	onPrevCardClick,
+	totalDocs,
+	selectedCardNumber,
+}) => {
 	const navigate = useNavigate();
 	const {
-		templates: { updateStateValues },
+		templates: { updateStateValues, pendingActionsUpdate },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
 		isExpanded: false,
+		isSolutionsExpanded: false,
+		isActionsExpanded: false,
+		isPromptsExpanded: false,
+		isReportExpanded: true,
+		selectedFeedback: data?.feedback,
 	});
+
+	useEffect(() => {
+		setInfo((prev) => ({ ...prev, selectedFeedback: data?.feedback }));
+	}, [data]);
 
 	const handleClickRun = useCallback((prompt) => {
 		if (typeof updateStateValues === 'function') {
@@ -50,6 +76,9 @@ const AISuggestionsModal = ({ open, onClose, data, onNextCardClick, onPrevCardCl
 				deepSearch: {
 					cot,
 				},
+				deepResearch: {
+					cot,
+				},
 				follow_up_query: data?.suggested_prompts,
 				stream_end: true,
 			},
@@ -71,6 +100,24 @@ const AISuggestionsModal = ({ open, onClose, data, onNextCardClick, onPrevCardCl
 		suggested_prompts,
 	} = data;
 
+	const handleIgnoreClick = async () => {
+		const res = await pendingActionsUpdate(data?._id, { isIgnored: true });
+		if (res?.[0] === true) {
+			onClose();
+		} else {
+			message.error('Failed to ignore pending action');
+		}
+	};
+	const handleThumbClick = async (type) => {
+		if (info?.selectedFeedback === type) return;
+		const res = await pendingActionsUpdate(data?._id, { feedback: type });
+		if (res?.[0] === true) {
+			setInfo((prev) => ({ ...prev, selectedFeedback: type }));
+		} else {
+			message.error('Failed to update feedback');
+		}
+	};
+
 	return (
 		<Drawer
 			open={open}
@@ -88,46 +135,48 @@ const AISuggestionsModal = ({ open, onClose, data, onNextCardClick, onPrevCardCl
 							<div className="prev-btn" onClick={onPrevCardClick}>
 								<ChevronRightThinSvg />
 							</div>
+							<div className="total-docs">
+								{`${selectedCardNumber} / ${totalDocs}`}
+							</div>
 							<div className="next-btn" onClick={onNextCardClick}>
 								<ChevronRightThinSvg />
 							</div>
 						</div>
+
+						<div className="info">
+							<div className="priority">
+								<div
+									className="indicator"
+									style={{
+										background:
+											priority === 'High'
+												? 'red'
+												: priority === 'Medium'
+												? 'orange'
+												: 'green',
+									}}
+								></div>
+								<div className="priority-text">{`${priority} Priority`}</div>
+							</div>
+							{confidence_score && (
+								<Tooltip title={`Confidence Score: ${confidence_score * 100}%`}>
+									<div className="confidence">
+										<div className="value">{`${confidence_score * 100}%`}</div>
+									</div>
+								</Tooltip>
+							)}
+						</div>
 					</div>
-					<div className="horizontal-line"></div>
 				</div>
 
 				<div className="body">
 					<div className="body-header">
 						<div className="body-header">
-							<div className="info">
-								{confidence_score && (
-									<div className="confidence">
-										<div className="value">{`${confidence_score * 100}%`}</div>
-										Confidence
-									</div>
-								)}
-								{confidence_score && <span>|</span>}
-
-								<div className="priority">
-									<div
-										className="indicator"
-										style={{
-											background:
-												priority === 'High'
-													? 'red'
-													: priority === 'Medium'
-													? 'orange'
-													: 'green',
-										}}
-									></div>
-									{`${priority} Priority`}
-								</div>
-							</div>
 							<div className="title-text">{title || ''}</div>
 							<div className="description">{description || ''}</div>
 						</div>
 					</div>
-
+					<hr className="horizontal-line" />
 					<div
 						className="chain-of-thought-container"
 						onClick={() =>
@@ -135,7 +184,10 @@ const AISuggestionsModal = ({ open, onClose, data, onNextCardClick, onPrevCardCl
 						}
 					>
 						<div className="cot-header">
-							<div className="cot-text">Chain of thought</div>
+							<div className="cot-text">
+								<ChainOfThoughtSvg />
+								Chain of thought
+							</div>
 							<div
 								className="cot-expand-btn"
 								style={{
@@ -165,82 +217,229 @@ const AISuggestionsModal = ({ open, onClose, data, onNextCardClick, onPrevCardCl
 							</div>
 						)}
 					</div>
-					<div className="report-container">
-						<div className="report-header">
-							<div className="report-title">Report</div>
-							<div className="report-description">
-								<Markdown>{research_report || ''}</Markdown>
+					<hr className="horizontal-line" />
+					<div
+						className="report-container"
+						onClick={() =>
+							setInfo((prev) => ({
+								...prev,
+								isReportExpanded: !prev?.isReportExpanded,
+							}))
+						}
+					>
+						<div className="cot-header">
+							<div className="cot-text">
+								<ReportIconSvg />
+								Report
+							</div>
+							<div className="report-icon-container">
+								{/* <ReportIcon2Svg /> */}
+								<div
+									className="cot-expand-btn"
+									style={{
+										transform: info?.isReportExpanded
+											? 'rotate(-90deg)'
+											: 'rotate(90deg)',
+									}}
+								>
+									<ChevronRightThinSvg />
+								</div>
 							</div>
 						</div>
+
+						{info?.isReportExpanded && (
+							<div
+								className="report-description"
+								onClick={(e) => e?.stopPropagation()}
+							>
+								<Markdown>{research_report || ''}</Markdown>
+							</div>
+						)}
 					</div>
-					<div className="solutions">
-						<div className="title-text">Suggested Solutions</div>
-						<div className="solutions">
-							{Array?.isArray(solutions)
-								? solutions?.map((item, index) => (
-										<div
-											className="solution-item"
-											key={index}
-											onClick={() => handleClickRun(item)}
-										>
-											<div className="logo">
-												<ArrowRightSvg />
-											</div>
-											<div className="item-text">{item}</div>
-										</div>
-								  ))
-								: solutions || ''}
+
+					<hr className="horizontal-line" />
+					<div
+						className="solutions-container"
+						onClick={() =>
+							setInfo((prev) => ({
+								...prev,
+								isSolutionsExpanded: !prev?.isSolutionsExpanded,
+							}))
+						}
+						style={{ width: '100%' }}
+					>
+						<div className="cot-header">
+							<div className="cot-text">
+								<RecommendedSvg />
+								Suggested Solutions
+							</div>
+							<div
+								className="cot-expand-btn"
+								style={{
+									transform: info?.isExpanded
+										? 'rotate(-90deg)'
+										: 'rotate(90deg)',
+								}}
+							>
+								<ChevronRightThinSvg />
+							</div>
 						</div>
-					</div>
-					<div className="suggested-actions">
-						<div className="title-text">Suggested Actions</div>
-						<div className="suggested-actions">
-							{Array?.isArray(suggested_actions)
-								? suggested_actions?.map((item, index) => (
-										<div
-											className="action-item"
-											key={index}
-											onClick={() => handleClickRun(item)}
-										>
-											<div className="logo">
-												<ArrowRightSvg />
+
+						{info?.isSolutionsExpanded && (
+							<div className="solutions" onClick={(e) => e?.stopPropagation()}>
+								{Array?.isArray(solutions)
+									? solutions?.map((item, index) => (
+											<div
+												className="solution-item"
+												key={index}
+												onClick={() => handleClickRun(item)}
+											>
+												<div className="logo">
+													<ArrowRightSvg />
+												</div>
+												<div className="item-text">{item}</div>
 											</div>
-											<div className="item-text">{item}</div>
-										</div>
-								  ))
-								: suggested_actions || ''}
-						</div>
+									  ))
+									: solutions || ''}
+							</div>
+						)}
 					</div>
+					<hr className="horizontal-line" />
+					<div
+						className="suggested-actions-container"
+						onClick={() =>
+							setInfo((prev) => ({
+								...prev,
+								isActionsExpanded: !prev?.isActionsExpanded,
+							}))
+						}
+						style={{ width: '100%' }}
+					>
+						<div className="cot-header">
+							<div className="cot-text">
+								<SuggestedActionsSvg />
+								Suggested Actions
+							</div>
+							<div
+								className="cot-expand-btn"
+								style={{
+									transform: info?.isActionsExpanded
+										? 'rotate(-90deg)'
+										: 'rotate(90deg)',
+								}}
+							>
+								<ChevronRightThinSvg />
+							</div>
+						</div>
+
+						{info?.isActionsExpanded && (
+							<div
+								className="suggested-actions"
+								onClick={(e) => e?.stopPropagation()}
+							>
+								{Array?.isArray(suggested_actions)
+									? suggested_actions.map((item, index) => (
+											<div
+												className="action-item"
+												key={index}
+												onClick={() => handleClickRun(item)}
+											>
+												<div className="logo">
+													<ArrowRightSvg />
+												</div>
+												<div className="item-text">{item}</div>
+											</div>
+									  ))
+									: suggested_actions || ''}
+							</div>
+						)}
+					</div>
+					<hr className="horizontal-line" />
 					<div className="suggested-prompts">
-						<div className="title-text">Suggested Prompts</div>
-						<div className="suggested-prompts">
-							{Array?.isArray(suggested_prompts)
-								? suggested_prompts?.map((item, index) => (
-										<div
-											className="prompt-item"
-											key={index}
-											onClick={() => handleClickRun(item)}
-										>
-											<div className="logo">
-												<ArrowRightSvg />
-											</div>
-											<div className="item-text">{item}</div>
-										</div>
-								  ))
-								: suggested_prompts || ''}
+						<div
+							className="suggested-prompts-container"
+							onClick={() =>
+								setInfo((prev) => ({
+									...prev,
+									isPromptsExpanded: !prev?.isPromptsExpanded,
+								}))
+							}
+							style={{ width: '100%' }}
+						>
+							<div className="cot-header">
+								<div className="cot-text">
+									<SuggestedPromptsSvg />
+									Suggested Prompts
+								</div>
+								<div
+									className="cot-expand-btn"
+									style={{
+										transform: info?.isPromptsExpanded
+											? 'rotate(-90deg)'
+											: 'rotate(90deg)',
+									}}
+								>
+									<ChevronRightThinSvg />
+								</div>
+							</div>
+
+							{info?.isPromptsExpanded && (
+								<div
+									className="suggested-prompts"
+									onClick={(e) => e?.stopPropagation()}
+								>
+									{Array?.isArray(suggested_prompts)
+										? suggested_prompts.map((item, index) => (
+												<div
+													className="prompt-item"
+													key={index}
+													onClick={() => handleClickRun(item)}
+												>
+													<div className="logo">
+														<ArrowRightSvg />
+													</div>
+													<div className="item-text">{item}</div>
+												</div>
+										  ))
+										: suggested_prompts || ''}
+								</div>
+							)}
 						</div>
 					</div>
 				</div>
 
 				<div className="footer">
 					<div className="horizontal-line"></div>
-					<div className="btns-container">
-						<button className="ignore-btn" onClick={onClose}>
-							Ignore
-						</button>
-						<button className="report-btn" onClick={() => handleViewReportClick(data)}>
-							View report
-						</button>
+					<div className="footer-content">
+						<div className="footer-left">
+							<div
+								className={`thumbs-up-container ${
+									info?.selectedFeedback === 'thumbsup' ? 'selected-thumb' : ''
+								}`}
+								onClick={() => handleThumbClick('thumbsup')}
+							>
+								<ThumbsUpSvg />
+							</div>
+							<div
+								className={`thumbs-up-container ${
+									info?.selectedFeedback === 'thumbsdown' ? 'selected-thumb' : ''
+								}`}
+								onClick={() => handleThumbClick('thumbsdown')}
+							>
+								<ThumbsDownSvg />
+							</div>
+						</div>
+						<div className="btns-container">
+							<button className="ignore-btn" onClick={handleIgnoreClick}>
+								Ignore
+							</button>
+							<button
+								className="report-btn"
+								onClick={() => handleViewReportClick(data)}
+							>
+								View report
+							</button>
+						</div>
 					</div>
 				</div>
 			</div>

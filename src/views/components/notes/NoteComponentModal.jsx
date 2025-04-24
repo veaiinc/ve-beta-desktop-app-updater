@@ -3,19 +3,17 @@ import React, { useEffect, useRef, useCallback, useState, useMemo } from 'react'
 import { useParams } from 'react-router-dom';
 import '../../../assets/scss/notes/noteComponentModal.scss';
 import NoteComponent from './NoteComponent';
-import { TypingEffect } from '../../../helpers/markdownHelper';
 import Markdown from 'react-markdown';
 import { ReactComponent as BackSvg } from '../../../assets/svg/sidebar/leftarrowwhite.svg';
 import { ReactComponent as PreviousSvg } from '../../../assets/svg/notes/previous.svg';
 import { ReactComponent as NextSvg } from '../../../assets/svg/notes/next.svg';
 import { ReactComponent as CopySvg } from '../../../assets/svg/notes/copy.svg';
 import { ReactComponent as ShareSvg } from '../../../assets/svg/notes/share.svg';
-import { ReactComponent as RightDoubleArrowSvg } from '../../../assets/svg/notes/right-double-arrow.svg';
+import { ReactComponent as CloseSvg } from '../../../assets/svg/close.svg';
 import { StarSvg } from '../../../assets/svg/notes/Star';
 import ChatBox from '../chat/ChatBox';
 import { useContext } from 'react';
 import Context from '../../../context/context';
-import { ReactComponent as FullScreenSvg } from '../../../assets/svg/notes/fullScreen.svg';
 import { ReactComponent as LinkLightSvg } from '../../../assets/svg/notes/loop-light.svg';
 import { ReactComponent as LinkDarkSvg } from '../../../assets/svg/notes/loop-dark.svg';
 import ReactModal from '../../components/modalsV2/index';
@@ -39,7 +37,6 @@ const NoteComponentModal = ({
 		templates: { globalChatMessages },
 		documentPreview: { noteContent },
 		notes: { addToFavorite, removeFromFavorite, deletePage, duplicatePage },
-		companyInfo: { getTeamMembers, tenantsUserList },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		noteComponentFullScreen: false,
@@ -167,18 +164,7 @@ const NoteComponentModal = ({
 	);
 
 	const handleClose = () => {
-		const modalContent = document.querySelector('.notes-modal-container .ReactModal__Content');
-		const modalOverlay = document.querySelector('.notes-modal-container .ReactModal__Overlay');
-
-		if (modalContent && modalOverlay) {
-			modalContent.style.clipPath = 'inset(50% 50% 50% 50%)';
-			modalContent.style.opacity = '0';
-			modalOverlay.style.opacity = '0';
-		}
-
-		setTimeout(() => {
-			closeModal();
-		}, 400);
+		closeModal();
 	};
 
 	const handleFavorite = useCallback(
@@ -292,7 +278,7 @@ const NoteComponentModal = ({
 						<div className="header">
 							<div className="left">
 								<div
-									className="back-icon"
+									className="full-screen-icon"
 									onClick={handleFullScreenClick}
 									style={{
 										transform: info?.noteComponentFullScreen
@@ -300,10 +286,19 @@ const NoteComponentModal = ({
 											: 'none',
 									}}
 								>
-									<BackSvg />
+									<Tooltip
+										title={`${
+											info?.noteComponentFullScreen ? 'Minimize' : 'Expand'
+										} Notes`}
+										placement="bottom"
+									>
+										<BackSvg />
+									</Tooltip>
 								</div>
-								<div className="full-screen-icon" onClick={handleClose}>
-									<RightDoubleArrowSvg />
+								<div className="close-icon" onClick={handleClose}>
+									<Tooltip title="Close Notes" placement="bottom">
+										<CloseSvg />
+									</Tooltip>
 								</div>
 								<div className="title"></div>
 							</div>

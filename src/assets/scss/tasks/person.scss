@@ -33,6 +33,10 @@
 			padding-bottom: 4px !important;
 			margin: 0;
 
+			&-empty {
+				color: var(--primary-font);
+			}
+
 			&:hover {
 				background-color: transparent !important	;
 			}
@@ -300,6 +304,7 @@
 
 .person-tooltip-wrapper {
 	width: fit-content;
+	z-index: 50003;
 	.person-tooltip-container {
 		border-radius: 10px;
 		display: inline-flex;

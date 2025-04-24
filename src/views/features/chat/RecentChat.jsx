@@ -435,9 +435,9 @@ const RecentChat = ({
 					(item) => item?.need_refinement === true || item?.need_refinement === false,
 				);
 				let cot = [];
-				if (index !== -1) {
-					cot = chainOfThought?.slice(0, index - 1);
-				}
+				// if (index !== -1) {
+				// 	cot = chainOfThought?.slice(0, index - 1);
+				// }
 
 				messages = [
 					{
@@ -609,6 +609,7 @@ const RecentChat = ({
 				setInfo((prev) => ({ ...prev, latestStreamMesage: data }));
 			}
 			const { message_chunk_id } = data;
+
 			if (message_chunk_id) {
 				handleStreamMessageChunk(data, message_chunk_id);
 			}

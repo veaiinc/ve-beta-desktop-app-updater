@@ -6,8 +6,7 @@ import Context from '../../../context/context';
 import { ReactComponent as LinkIcon } from '../../../assets/svg/ai_agents/link.svg';
 import DeepSearchChainOfThought from './chatComponents/DeepSearchChainOfThought';
 import DeepResearchChainOfThought from './chatComponents/DeepResearchChainOfThought';
-import { Markdown } from '../../../helpers/markdownHelper';
-
+import { getFaviconUrl, getWebsiteName } from '../../../helpers';
 import { ReactComponent as ArrowRightIcon } from '../../../assets/svg/ai_agents/ArrowLineUpRight.svg';
 import AIMessage from './AIMessage';
 const AIMessageRenderer = ({
@@ -48,27 +47,6 @@ const AIMessageRenderer = ({
 		}
 	}, [globalChatMessages]);
 
-	const getFaviconUrl = useCallback((url) => {
-		try {
-			const domain = new URL(url).hostname;
-			return `https://www.google.com/s2/favicons?sz=64&domain=${domain}`;
-		} catch (error) {
-			return null;
-		}
-	}, []);
-
-	const getWebsiteName = useCallback((url) => {
-		try {
-			const domain = new URL(url).hostname;
-			// Remove common TLDs and www
-			let name = domain.replace(/^www\./i, '').split('.')[0];
-			// Capitalize first letter
-			return name.charAt(0).toUpperCase() + name.slice(1);
-		} catch (error) {
-			return url;
-		}
-	}, []);
-
 	return (
 		<div className="ai-message-renderer">
 			<div
@@ -104,22 +82,8 @@ const AIMessageRenderer = ({
 						)}
 						{messageData?.processing || 'Answer'}
 					</div>
-					{messageData?.initial_answer?.length > 0 && (
-						<div
-							className={`tab-btn ${
-								info?.activeTab === 'initial_answer' ? 'active' : ''
-							}`}
-							onClick={() =>
-								setInfo((prev) => ({
-									...prev,
-									activeTab: 'initial_answer',
-								}))
-							}
-						>
-							Initial Answer
-						</div>
-					)}
-					{(messageData?.deepSearch?.cot?.length > 0 || messageData?.deepResearch) && (
+					{(messageData?.deepSearch?.cot?.length > 0 ||
+						messageData?.deepResearch?.cot?.length > 0) && (
 						<div
 							className={`tab-btn ${info?.activeTab === 'cot' ? 'active' : ''}`}
 							onClick={() =>
@@ -177,22 +141,18 @@ const AIMessageRenderer = ({
 					<DeepResearchChainOfThought data={messageData?.deepResearch} />
 				) : (
 					<DeepSearchChainOfThought
-						cot={messageData?.deepSearch?.cot}
+						data={messageData?.deepSearch}
 						stream_end={messageData?.stream_end}
 					/>
 				)
-			) : info?.activeTab === 'initial_answer' ? (
-				<div className="initial_answer">
-					<Markdown>{messageData?.initial_answer || ''}</Markdown>
-				</div>
 			) : (
 				<div className="source-content">
 					{messageData?.citations && messageData?.citations.length > 0
 						? messageData?.citations.map((citation, idx) => (
 								<div
-									key={citation.id || idx}
+									key={citation?.id || idx}
 									className="citation-item"
-									onClick={() => window.open(citation.name, '_blank')}
+									onClick={() => window?.open(citation?.name, '_blank')}
 								>
 									<div className="citation-header">
 										<div className="citation-icon">
@@ -204,19 +164,21 @@ const AIMessageRenderer = ({
 												/>
 											) : (
 												<div className="company-icon">
-													{getWebsiteName(citation.name).charAt(0)}
+													{getWebsiteName(citation?.name)?.charAt(0)}
 												</div>
 											)}
 										</div>
 										<div className="citation-details">
 											<div className="website-name">
-												{getWebsiteName(citation.name)}
+												{getWebsiteName(citation?.name)}
 											</div>
 											<div className="citation-url">
 												<LinkIcon className="link-icon" />
-												{citation.name}
+												{citation?.name}
 											</div>
-											<div className="citation-title">{citation.snippet}</div>
+											<div className="citation-title">
+												{citation?.snippet}
+											</div>
 										</div>
 									</div>
 									<ArrowRightIcon className="arrow-icon" />

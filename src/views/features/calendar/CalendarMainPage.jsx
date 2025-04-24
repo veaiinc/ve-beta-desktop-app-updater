@@ -174,13 +174,11 @@ const Calendar = () => {
 						selectedMonth={info?.selectedMonth}
 						selectedYear={info?.selectedYear}
 						selectedDate={info?.selectedDate}
-						isCreateEventOpen={info?.isCreateEventOpen}
 						categoryList={info?.categoryList}
 						selectedCategory={info?.selectedCategory}
 						categoryFilter={info?.categoryFilter}
 						updateCalendarInfo={updateCalendarInfo}
 						selectedWorkflowId={info?.selectedWorkflowId}
-						selectedSlot={info?.selectedSlot}
 						schedulerList={info?.schedulerList}
 						selectedSession={info?.selectedSession}
 						sessionFilter={info?.sessionFilter}

@@ -311,9 +311,12 @@
 						position: relative;
 						user-select: none;
 
-						svg {
-							path {
-								fill: var(--card-hover) !important;
+						.filter {
+							color: var(--primary-font);
+							svg {
+								path {
+									fill: var(--card-hover) !important;
+								}
 							}
 						}
 
@@ -328,14 +331,6 @@
 							justify-content: center;
 							align-items: center;
 							border-radius: 0 21px 21px 0;
-
-							&:hover {
-								svg {
-									path {
-										stroke: var(--card-hover) !important;
-									}
-								}
-							}
 						}
 
 						.templateName {
@@ -367,7 +362,6 @@
 					// background-color: red;
 					min-width: 16px;
 					display: inline-block;
-					height: 16px;
 					transition: all 0.3s ease;
 
 					.searchBtn {
@@ -391,6 +385,8 @@
 							display: none;
 							transition: all 0.3s ease;
 							overflow: hidden;
+							position: relative;
+
 							.searchInputTag {
 								flex: 1;
 								background-color: transparent;
@@ -410,6 +406,15 @@
 									font-style: normal;
 									font-weight: 400;
 									line-height: normal;
+								}
+							}
+
+							span {
+								svg {
+									position: absolute;
+									top: 50%;
+									right: 5px;
+									transform: translateY(-50%);
 								}
 							}
 						}

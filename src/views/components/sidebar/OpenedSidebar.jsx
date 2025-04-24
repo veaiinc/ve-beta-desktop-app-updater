@@ -207,7 +207,7 @@ const OpenedSidebarModules = ({
 										top: `${activeSubModule?.id * 40}px`, // 40px is the height of each subModule
 										height: '32px',
 										width: '3px',
-										backgroundColor: '#FFFFFF',
+										backgroundColor: 'var(--primary-font)',
 										borderRadius: '100px',
 									}}
 								/>
@@ -277,7 +277,9 @@ const OpenedSidebar = ({
 	const [isMobile, setIsMobile] = useState(window.innerWidth < 500);
 	const [activeDropdown, setActiveDropdown] = useState(null);
 	const [activeSubModule, setActiveSubModule] = useState(null);
-	const [showSettingsSidebar, setShowSettingsSidebar] = useState(false);
+	const [showSettingsSidebar, setShowSettingsSidebar] = useState(() => {
+		return JSON.parse(localStorage.getItem('showSettingsSidebar')) || false;
+	});
 	const [selectedSettingsOption, setSelectedSettingsOption] = useState(null);
 
 	const location = useLocation();
@@ -313,6 +315,10 @@ const OpenedSidebar = ({
 		window.addEventListener('resize', handleResize);
 		return () => window.removeEventListener('resize', handleResize);
 	}, []);
+
+	useEffect(() => {
+		localStorage.setItem('showSettingsSidebar', JSON.stringify(showSettingsSidebar));
+	}, [showSettingsSidebar]);
 
 	const handleLogout = useCallback(async () => {
 		logoutFunc();
@@ -470,6 +476,10 @@ const OpenedSidebar = ({
 			navigate(firstItem.route);
 		}
 	}, [showSettingsSidebar, settingsOptions]);
+
+	const toggleSidebar = () => {
+		setShowSettingsSidebar((prev) => !prev);
+	};
 	return (
 		<>
 			<div style={{ display: 'flex', position: 'relative' }}>
@@ -564,17 +574,8 @@ const OpenedSidebar = ({
 												userWorkSpaceList?.length > 1 && (
 													<div
 														style={{
-															position: 'absolute',
+															...workspaceStyles,
 															top: '20px',
-															left: '0',
-															width: '230px',
-															marginLeft: '10px',
-															border: 'none',
-															zIndex: '1000',
-															// background: 'var(--primary-font)',
-															borderRadius: '16px',
-															animation: 'slideDown 0.3s ease-out',
-															transformOrigin: 'top',
 														}}
 													>
 														<WorkspaceListComponent
@@ -660,9 +661,7 @@ const OpenedSidebar = ({
 													<ChatHistory />
 													<div
 														className="settingsOptionsContainer"
-														onClick={() => {
-															setShowSettingsSidebar((prev) => !prev);
-														}}
+														onClick={toggleSidebar}
 													>
 														<div className="settingsHoverState">
 															<div className="settingsOptionsUserInfo">
