@@ -28,6 +28,8 @@ const RecentChat = ({
 	isPreview = false,
 	sId = null,
 	showIconText = true,
+	autoFocus = true,
+	customChatBoxClick = null,
 }) => {
 	const {
 		templates: {
@@ -777,6 +779,8 @@ const RecentChat = ({
 								lastQuery={info?.lastQuery}
 								toggleLatestStreamMessage={toggleLatestStreamMessage}
 								hideDeepResearch={searchParams?.get('agentType') === 'search_agent'}
+								autoFocus={autoFocus}
+								customChatBoxClick={customChatBoxClick}
 							/>
 						</div>
 					</div>

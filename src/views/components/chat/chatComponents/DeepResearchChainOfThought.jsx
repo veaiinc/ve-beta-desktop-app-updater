@@ -1,4 +1,4 @@
-import { memo, useCallback } from 'react';
+import { memo } from 'react';
 import '../../../../assets/scss/chat/chatComponents/deepResearchChainOfThought.scss';
 import { Markdown } from '../../../../helpers/markdownHelper';
 import { getFaviconUrl, getWebsiteName } from '../../../../helpers';
