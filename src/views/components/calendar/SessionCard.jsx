@@ -27,6 +27,32 @@ const SessionCard = ({
 	});
 	const expandRef = useRef(null);
 
+	// Update session data when selectedSession changes
+	useEffect(() => {
+		if (selectedSession) {
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				selectedCalendarSession: selectedSession,
+			}));
+		}
+	}, [selectedSession]);
+
+	// Update session data when schedulerList changes
+	useEffect(() => {
+		if (schedulerList && schedulerList.length > 0) {
+			if (selectedSession) {
+				const session = schedulerList.find((s) => s._id === selectedSession._id);
+				if (session) {
+					setInfo((prevInfo) => ({
+						...prevInfo,
+						selectedCalendarSession: session,
+					}));
+				}
+			}
+		}
+	}, [schedulerList, selectedSession]);
+
+	// Handle session expansion
 	useEffect(() => {
 		const hasItems = Array.isArray(schedulerList) && schedulerList.length > 0;
 		if (hasItems && !info.expanded) {
@@ -34,27 +60,13 @@ const SessionCard = ({
 		}
 	}, [schedulerList]);
 
+	// Update height based on expansion state
 	useEffect(() => {
 		setInfo((prevInfo) => ({
 			...prevInfo,
 			height: info?.expanded ? expandedHeight : '62px',
 		}));
 	}, [info?.expanded]);
-
-	const handleSessionExpand = useCallback(() => {
-		setInfo((prevInfo) => ({
-			...prevInfo,
-			expanded: !prevInfo.expanded,
-		}));
-	}, []);
-
-	const handleAddSessionClick = useCallback(() => {
-		setInfo((prevInfo) => ({
-			...prevInfo,
-			isCreateModalOpen: true,
-			isSessionEditable: false,
-		}));
-	}, []);
 
 	const handleEditSession = useCallback(
 		(session) => {
@@ -70,6 +82,21 @@ const SessionCard = ({
 		},
 		[updateCalendarInfo],
 	);
+
+	const handleSessionExpand = useCallback(() => {
+		setInfo((prevInfo) => ({
+			...prevInfo,
+			expanded: !prevInfo.expanded,
+		}));
+	}, []);
+
+	const handleAddSessionClick = useCallback(() => {
+		setInfo((prevInfo) => ({
+			...prevInfo,
+			isCreateModalOpen: true,
+			isSessionEditable: false,
+		}));
+	}, []);
 
 	const handleCheckboxChange = (sessionId) => {
 		if (!sessionId) return;

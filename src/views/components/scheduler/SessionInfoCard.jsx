@@ -7,7 +7,7 @@ import { Tooltip } from 'antd';
 import '../../../assets/scss/scheduler/editScheduler.scss';
 import Spinner from '../loaders/Spinner';
 
-const SessionInfoCard = ({ sessionData, onUpdate, isUpdating }) => {
+const SessionInfoCard = ({ sessionData, onUpdate, isUpdating, onSessionNameChange }) => {
 	const [info, setInfo] = useState({
 		isDetailsOpen: false,
 		detailsOptions: ['Details', 'Conference', 'Shoot', 'Interview'],
@@ -83,7 +83,17 @@ const SessionInfoCard = ({ sessionData, onUpdate, isUpdating }) => {
 					</div> */}
 					<div className="settingRow">
 						<span className="sessionTitleLabel">Session Title</span>
-						<span className="sessionTitle">{sessionData?.sessionName}</span>
+						<input
+							type="text"
+							className="sessionTitle"
+							value={sessionData?.sessionName || ''}
+							onChange={(e) => {
+								if (sessionData) {
+									sessionData.sessionName = e.target.value;
+									onSessionNameChange?.(e.target.value);
+								}
+							}}
+						/>
 						<div className="divider-line"></div>
 						{/* <div className="detailsSection">
 							<Tooltip

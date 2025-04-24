@@ -44,26 +44,28 @@ const CalendarSidebar = ({
 			) : (
 				<div className="calendarSidebarContainer">
 					<div className="dateDisplay">{formattedDate}</div>
-					<CalendarSelector
-						currentCalendarDate={currentCalendarDate}
-						selectedMonth={selectedMonth}
-						selectedYear={selectedYear}
-						selectedDate={selectedDate}
-						updateCalendarInfo={updateCalendarInfo}
-					/>
-					<CalendarCategories
-						categoryList={categoryList}
-						selectedCategory={selectedCategory}
-						categoryFilter={categoryFilter}
-						updateCalendarInfo={updateCalendarInfo}
-					/>
-					<GoogleCalendar />
-					<SessionCard
-						schedulerList={schedulerList}
-						selectedSession={selectedSession}
-						sessionFilter={sessionFilter}
-						updateCalendarInfo={updateCalendarInfo}
-					/>
+					<div className="calendarSidebarContent">
+						<CalendarSelector
+							currentCalendarDate={currentCalendarDate}
+							selectedMonth={selectedMonth}
+							selectedYear={selectedYear}
+							selectedDate={selectedDate}
+							updateCalendarInfo={updateCalendarInfo}
+						/>
+						<CalendarCategories
+							categoryList={categoryList}
+							selectedCategory={selectedCategory}
+							categoryFilter={categoryFilter}
+							updateCalendarInfo={updateCalendarInfo}
+						/>
+						<GoogleCalendar />
+						<SessionCard
+							schedulerList={schedulerList}
+							selectedSession={selectedSession}
+							sessionFilter={sessionFilter}
+							updateCalendarInfo={updateCalendarInfo}
+						/>
+					</div>
 				</div>
 			)}
 		</>

@@ -148,6 +148,17 @@
 					font-weight: 500;
 					line-height: normal;
 					align-self: stretch;
+					background: transparent;
+					border: none;
+					outline: none;
+					padding: 4px 8px;
+					border-radius: 4px;
+					width: 100%;
+
+					&:focus {
+						background: var(--card);
+						border: 1px solid var(--primary);
+					}
 				}
 				.labelWithIcon {
 					display: flex;
@@ -299,7 +310,7 @@
 
 	.sessionDetailsRow {
 		display: flex;
-		gap: 50px;
+		gap: 16px;
 		align-items: flex-start;
 
 		.sessionInputWrapper {

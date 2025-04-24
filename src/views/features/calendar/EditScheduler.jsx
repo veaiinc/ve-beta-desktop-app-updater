@@ -63,6 +63,7 @@ const EditScheduler = ({ onBack, sessionId: propSessionId }) => {
 		location: '',
 		phoneNumber: '',
 		videoLink: '',
+		sessionName: '', // Add sessionName to state
 
 		timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
 		maxParticipants: 1,
@@ -217,6 +218,7 @@ const EditScheduler = ({ onBack, sessionId: propSessionId }) => {
 				weeklyAvailability,
 				bookingPeriod: 'Day',
 				sessionDetail,
+				sessionName: sessionDetail.sessionName || '', // Add sessionName from sessionDetail
 			}));
 		}
 	}, [sessionDetail]);
@@ -1020,15 +1022,14 @@ const EditScheduler = ({ onBack, sessionId: propSessionId }) => {
 			};
 
 			// Call the update API
-			await updateSchedulerSession(sessionId, payload);
+			const updatedSession = await updateSchedulerSession(sessionId, payload);
 
 			// Show success message or handle success
-			// You can add a toast notification here if you have one
 			console.log('Session updated successfully');
 
-			// Optionally navigate back or refresh the data
+			// Pass the updated session data back to the parent
 			if (onBack) {
-				onBack();
+				onBack(updatedSession);
 			} else {
 				navigate(-1);
 			}
@@ -1039,6 +1040,25 @@ const EditScheduler = ({ onBack, sessionId: propSessionId }) => {
 			setIsUpdating(false);
 		}
 	}, [info, sessionId, updateSchedulerSession, onBack, navigate]);
+
+	// Add handler for session name changes
+	const handleSessionNameChange = useCallback(
+		(name) => {
+			setInfo((prev) => ({
+				...prev,
+				sessionName: name,
+			}));
+
+			// Update session name in the API
+			if (sessionId && info.sessionDetail) {
+				const payload = {
+					sessionName: name,
+				};
+				updateSchedulerSession(sessionId, payload);
+			}
+		},
+		[sessionId, info.sessionDetail],
+	);
 
 	// Add styles for phone input
 	const styles = `
@@ -1106,6 +1126,7 @@ const EditScheduler = ({ onBack, sessionId: propSessionId }) => {
 					sessionData={info?.sessionDetail}
 					onUpdate={handleUpdate}
 					isUpdating={isUpdating}
+					onSessionNameChange={handleSessionNameChange}
 				/>
 			</div>
 
