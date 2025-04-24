@@ -164,6 +164,14 @@
 			}
 		}
 
+		&:hover {
+			.search-result-item-right {
+				.action-buttons {
+					opacity: 1;
+				}
+			}
+		}
+
 		.search-result-item-right {
 			.action-buttons {
 				display: flex;
