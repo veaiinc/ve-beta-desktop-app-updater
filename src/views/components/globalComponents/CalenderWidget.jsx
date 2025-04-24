@@ -112,7 +112,11 @@ const CalenderWidget = ({ width }) => {
 	const fetchMoreCalendarEvents = () => {
 		const nextPage = eventsCurrentPage + 1;
 		const payload = {
-			options: {},
+			options: {
+				startDate: info?.currentCalendarDate?.toISOString().split('T')[0],
+				sortType: 'startDateTime',
+				sortOrder: 'asc',
+			},
 		};
 		if (eventsCurrentPage !== undefined) {
 			getAllCalendarEvents(nextPage, 20, payload);
@@ -222,7 +226,7 @@ const CalenderWidget = ({ width }) => {
 																	meet?.date,
 																).toLocaleDateString(undefined, {
 																	day: '2-digit',
-																	// month: '2-digit',
+																	month: '2-digit',
 																})}
 															</div>
 														</div>

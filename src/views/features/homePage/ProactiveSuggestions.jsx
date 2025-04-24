@@ -10,8 +10,28 @@ import AISuggestionsModal from '../../components/modalsV2/homePage/AISuggestions
 import { Tooltip } from 'antd';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import updateLocale from 'dayjs/plugin/updateLocale';
 
 dayjs.extend(relativeTime);
+dayjs.extend(updateLocale);
+
+dayjs.updateLocale('en', {
+	relativeTime: {
+		future: 'in %s',
+		past: '%s ago',
+		s: '%d sec',
+		m: '1 min',
+		mm: '%d min',
+		h: '1 hr',
+		hh: '%d hr',
+		d: '1 day',
+		dd: '%d days',
+		M: '1 month',
+		MM: '%d months',
+		y: '1 year',
+		yy: '%d years',
+	},
+});
 
 const payload = {
 	page: 1,
@@ -53,6 +73,14 @@ const filterGroups = [
 			{ id: 11, title: 'Below 70%', value: '< 0.7' },
 		],
 	},
+	{
+		title: 'Date',
+		options: [
+			{ id: 12, title: 'Today', value: 'today' },
+			{ id: 13, title: 'Last 7 days', value: 'last7days' },
+			{ id: 14, title: 'Last 30 days', value: 'last30days' },
+		],
+	},
 ];
 
 const PriorityLevel = {
@@ -80,20 +108,6 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 		selectedFilters: [],
 		selectedCardNumber: null,
 	});
-
-	const selectedPriority =
-		info?.selectedFilters?.filter((f) => f?.group === 'Priority Level').map((f) => f?.value) ||
-		[];
-
-	const selectedReadStatus =
-		info?.selectedFilters
-			?.filter((f) => f?.group === 'Read Status' && f?.title !== 'All')
-			.map((f) => f?.value) || [];
-
-	const selectedConfidenceScore =
-		info?.selectedFilters
-			?.filter((f) => f?.group === 'Confidence level')
-			.map((f) => f?.value) || [];
 
 	const selectedOptionRef = useRef(selectedOption);
 	const currentIndexRef = useRef(0);
@@ -126,17 +140,59 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 		}
 	}, [info?.totalCardsData, info.currentIndex]);
 
+	const getDateRangeFromFilters = (filters) => {
+		const selectedDateFilter = filters?.find((f) => f?.group === 'Date');
+
+		if (!selectedDateFilter?.value) return {};
+
+		const SECONDS_IN_DAY = 86400; // 24 * 60 * 60 seconds
+		const todayStart = new Date();
+		todayStart.setHours(0, 0, 0, 0);
+		const startTime = Math.floor(todayStart.getTime() / 1000);
+		const endTime = startTime + SECONDS_IN_DAY;
+
+		let from;
+		let to = endTime;
+		switch (selectedDateFilter?.value) {
+			case 'today':
+				from = startTime;
+				break;
+			case 'last7days':
+				from = startTime - SECONDS_IN_DAY * 6;
+				break;
+			case 'last30days':
+				from = startTime - SECONDS_IN_DAY * 29;
+				break;
+			default:
+				return {};
+		}
+
+		return { from, to };
+	};
+
 	const newUpdatedPayload = useMemo(() => {
+		const getFilterValues = (group, excludeTitle = null) =>
+			info?.selectedFilters
+				?.filter((f) => f?.group === group && (!excludeTitle || f?.title !== excludeTitle))
+				.map((f) => f?.value) || [];
+
+		const selectedPriority = getFilterValues('Priority Level');
+		const selectedReadStatus = getFilterValues('Read Status', 'All');
+		const selectedConfidenceScore = getFilterValues('Confidence level');
+
+		const { from, to } = getDateRangeFromFilters(info?.selectedFilters);
+
 		return {
 			...payload,
 			...(selectedPriority.length && { priority: selectedPriority }),
 			...(selectedReadStatus.length && { read: selectedReadStatus }),
 			...(selectedConfidenceScore.length && { confidenceScore: selectedConfidenceScore }),
+			...(from !== undefined && to !== undefined && { from, to }),
 		};
-	}, [payload, selectedPriority, selectedReadStatus, selectedConfidenceScore]);
+	}, [payload, info?.selectedFilters]);
+
 	useEffect(() => {
 		if (!info?.selectedFilters) return;
-
 		getAISuggestedPendingActions(newUpdatedPayload);
 	}, [info?.selectedFilters]);
 
@@ -218,17 +274,22 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 			if (aiSuggestedPendingActions?.metaInfo?.hasNextPage) {
 				const nextPage = aiSuggestedPendingActions.metaInfo.currentPage + 1;
 
-				// Extract selected filters
-				const selectedPriority = info.selectedFilters
+				const filters = info.selectedFilters || [];
+
+				const selectedPriority = filters
 					?.filter((f) => f.group === 'Priority Level')
 					.map((f) => f.value || f.title);
 
-				const selectedReadStatus = info.selectedFilters
+				const selectedReadStatus = filters
 					?.filter((f) => f.group === 'Read Status')
 					.map((f) => f.value || f.title);
-				const selectedConfidenceScore = info.selectedFilters
+
+				const selectedConfidenceScore = filters
 					?.filter((f) => f.group === 'Confidence level')
 					.map((f) => f.value || f.title);
+
+				const { from, to } = getDateRangeFromFilters(filters);
+
 				const filterPayload = {
 					page: nextPage,
 					...(selectedPriority?.length > 0 && { priority: selectedPriority }),
@@ -236,9 +297,9 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 					...(selectedConfidenceScore?.length > 0 && {
 						confidenceScore: selectedConfidenceScore,
 					}),
+					...(from !== undefined && to !== undefined && { from, to }),
 				};
 
-				// Merge with base payload
 				const newPayload = {
 					...payload,
 					...filterPayload,
@@ -291,30 +352,36 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 			selectedCardNumber: null,
 		}));
 
-	const handleFilterClick = (item) => {
+	const handleFilterClick = (option, group) => {
 		setInfo((prev) => {
-			const isSelected = prev.selectedFilters.some(
-				(option) =>
-					option.id === item.id &&
-					option.title === item.title &&
-					option.group === item.group,
-			);
+			const isDateGroup = group === 'Date';
 
-			let updatedFilters;
+			let updatedFilters = [...prev.selectedFilters];
 
-			if (isSelected) {
-				// Remove this item from selectedFilters
-				updatedFilters = prev.selectedFilters.filter(
-					(option) =>
-						!(
-							option.id === item.id &&
-							option.title === item.title &&
-							option.group === item.group
-						),
+			if (isDateGroup) {
+				// Remove all date filters first
+				updatedFilters = updatedFilters.filter((f) => f.group !== 'Date');
+
+				// If already selected, don't re-add (toggle off)
+				const isAlreadySelected = prev.selectedFilters.some(
+					(f) => f.value === option.value && f.group === group,
 				);
+				if (!isAlreadySelected) {
+					updatedFilters.push({ ...option, group });
+				}
 			} else {
-				// Add this item to selectedFilters
-				updatedFilters = [...prev.selectedFilters, item];
+				// Toggle logic for other filters
+				const exists = updatedFilters.some(
+					(f) => f.value === option.value && f.group === group,
+				);
+
+				if (exists) {
+					updatedFilters = updatedFilters.filter(
+						(f) => !(f.value === option.value && f.group === group),
+					);
+				} else {
+					updatedFilters.push({ ...option, group });
+				}
 			}
 
 			return {
@@ -379,7 +446,11 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 										></span>
 										<div className="module-priority-text">
 											<div>{card?.priority}</div>
-											<div style={{ color: 'var(--secondary-font)' }}>|</div>
+											{card?.priority && card?.updatedAt && (
+												<div style={{ color: 'var(--secondary-font)' }}>
+													|
+												</div>
+											)}
 											<Tooltip
 												title={dayjs(card?.updatedAt * 1000).format(
 													'MMMM D, YYYY h:mm A',
@@ -430,7 +501,10 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 																key={item.id}
 																className="eachOption"
 																onClick={() =>
-																	handleFilterClick(itemWithGroup)
+																	handleFilterClick(
+																		itemWithGroup,
+																		group?.title,
+																	)
 																}
 																style={{
 																	display: 'flex',
@@ -486,7 +560,7 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 									<span>{item?.title}</span>
 									<CloseIcon
 										style={{ cursor: 'pointer' }}
-										onClick={() => handleFilterClick(item)}
+										onClick={() => handleFilterClick(item, item?.group)}
 									/>
 								</div>
 							))}
