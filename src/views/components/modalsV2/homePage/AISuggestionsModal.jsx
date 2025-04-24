@@ -7,7 +7,6 @@ import { ReactComponent as ReportIconSvg } from '../../../../assets/svg/reportIc
 import { ReactComponent as RecommendedSvg } from '../../../../assets/svg/recommended.svg';
 import { ReactComponent as SuggestedActionsSvg } from '../../../../assets/svg/suggestedActions.svg';
 import { ReactComponent as SuggestedPromptsSvg } from '../../../../assets/svg/suggestedPrompts.svg';
-import { ReactComponent as ReportIcon2Svg } from '../../../../assets/svg/reportIcon2.svg';
 import { ReactComponent as ThumbsUpSvg } from '../../../../assets/svg/thumbsUp.svg';
 import { ReactComponent as ThumbsDownSvg } from '../../../../assets/svg/thumbsDown.svg';
 import { Markdown } from '../../../../helpers/markdownHelper';
