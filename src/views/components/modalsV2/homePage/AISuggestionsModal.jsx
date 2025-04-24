@@ -55,7 +55,13 @@ const AISuggestionsModal = ({
 	const handleViewReportClick = useCallback((data) => {
 		const cot = (data?.chain_of_thought || [])?.map((item) => {
 			return {
-				sub_query: item,
+				readings: [
+					{
+						reading: {
+							sub_query: item,
+						},
+					},
+				],
 			};
 		});
 		const messages = [
