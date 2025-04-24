@@ -28,8 +28,8 @@ const initialState = {
 	filterOption: false,
 };
 const customStyles = {
-	content: { zIndex: 999 },
-	overlay: { zIndex: 998 },
+	content: { zIndex: 1003 },
+	overlay: { zIndex: 1002 },
 };
 
 const infiniteScrollStyles = {

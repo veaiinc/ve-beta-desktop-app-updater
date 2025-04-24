@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useContext, useCallback, Children, memo } from 'react';
+import { useState, useEffect, useRef, useContext, useCallback, memo } from 'react';
 import { ReactComponent as ShareIcon } from '../../../assets/svg/gallery/share.svg';
 import sixDots from '../../../assets/svg/gallery/sixdots.svg';
 import { ReactComponent as ThreeDotsIcon } from '../../../assets/svg/gallery/threeDots.svg';
@@ -2269,31 +2269,56 @@ const GalleryPage = () => {
 			albumTags: items,
 		}));
 	};
+
+	const togglingOn = !info.isRearranging;
 	const handleRearrange = async () => {
-		setInfo((prev) => ({
-			...prev,
-			isRearranging: !prev.isRearranging,
-			selectedImages: [],
-			rearrangingLoading: true,
-		}));
-		const response = await getRearrangeStatus(galleryId, info?.activeAlbumId, info?.albumTagId);
-		if (response?.[0] === true) {
+		if (togglingOn) {
+			// Backup the current image list
 			setInfo((prev) => ({
 				...prev,
-				rearrangingLoading: false,
-				page: 1,
+				isRearranging: true,
+				selectedImages: [],
+				rearrangingLoading: true,
+				originalImagesList: prev.imagesList,
 			}));
-			getGalleryImages(
+
+			const response = await getRearrangeStatus(
 				galleryId,
 				info?.activeAlbumId,
 				info?.albumTagId,
-				1,
-				info?.limit,
-				'',
-				true,
 			);
+
+			if (response?.[0] === true) {
+				setInfo((prev) => ({
+					...prev,
+					rearrangingLoading: false,
+					page: 1,
+				}));
+				getGalleryImages(
+					galleryId,
+					info?.activeAlbumId,
+					info?.albumTagId,
+					1,
+					info?.limit,
+					'',
+					true,
+				);
+			}
+		} else {
+			// If toggling OFF, treat as Cancel
+			setInfo((prev) => ({
+				...prev,
+				isRearranging: false,
+				selectedImages: [],
+				rearrangingLoading: false,
+				dropPlaceholder: null,
+				imagesList: prev.originalImagesList || prev.imagesList, // 🟢 Restore
+				originalImagesList: undefined,
+				totalPayload: [],
+			}));
 		}
 	};
+
 	const handleUnpublish = () => {
 		setInfo((prev) => ({
 			...prev,
@@ -2586,7 +2611,7 @@ const GalleryPage = () => {
 				galleryId,
 				info?.activeAlbumId,
 				info?.albumTagId,
-				info?.page,
+				1,
 				info?.limit,
 				'',
 				true,
@@ -3553,12 +3578,7 @@ const GalleryPage = () => {
 							</div>
 						</div>
 						<div className="rearrangeButtonsContainer">
-							<button
-								className="rearrangeCancelButton"
-								onClick={() =>
-									setInfo((prev) => ({ ...prev, isRearranging: false }))
-								}
-							>
+							<button className="rearrangeCancelButton" onClick={handleRearrange}>
 								Cancel
 							</button>
 							<button

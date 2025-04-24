@@ -295,7 +295,7 @@ const Forms = () => {
 									width: '100%',
 								}}
 								className="tetsing"
-								height="calc(100vh - 310px)"
+								height="calc(100vh - 370px)"
 							>
 								{info?.formsData?.map((ele, index) => (
 									<div
