@@ -9,7 +9,7 @@ import ListView from './views/ListView';
 import BoardView from './views/Board';
 import GalleryView from './views/GalleryView';
 import TableView from './views/TableView';
-
+import Taskwidget from './Taskwidget';
 const layouts = {
 	list: {
 		Icon: ListViewIcon,
@@ -369,6 +369,7 @@ const Task = ({
 				layoutOptions={layoutOptions}
 				handleLayoutOptionClick={handleAddTab}
 			/>
+
 			<div className="task-content-area">
 				{taskInfo?.tabs?.[taskInfo?.activeTab]?.viewType === 'board' ? (
 					<BoardView
