@@ -119,11 +119,11 @@ const DeepResearchChainOfThought = ({ data }) => {
 												</div>
 												<div className="sub-query-readings">
 													{readings?.map((reading, idx) => {
-														const { tool, query, sources } =
+														const { tool, queries, sources } =
 															reading?.reading || {};
 														return (
 															<div className="reading" key={idx}>
-																{query?.length > 0 && (
+																{queries?.length > 0 && (
 																	<div className="queries-wrapper">
 																		<div className="tool-container">
 																			{tool ===
@@ -141,7 +141,11 @@ const DeepResearchChainOfThought = ({ data }) => {
 																			  'search_knowledge_base' ? (
 																				<div className="search">
 																					<div className="svg">
-																						<BookSvg />
+																						<BookSvg
+																							selected={
+																								false
+																							}
+																						/>
 																					</div>
 																					<div className="search-text">
 																						Searched
@@ -155,16 +159,13 @@ const DeepResearchChainOfThought = ({ data }) => {
 																		</div>
 
 																		<div className="queries-container">
-																			{query?.map(
-																				(
-																					queryItem,
-																					idx,
-																				) => (
+																			{queries?.map(
+																				(query, idx) => (
 																					<div
 																						key={idx}
 																						className="query"
 																					>
-																						{queryItem ||
+																						{query ||
 																							''}
 																					</div>
 																				),
