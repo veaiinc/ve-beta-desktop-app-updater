@@ -121,7 +121,7 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 	}, [info?.totalCardsData, info.currentIndex]);
 
 	const getDateRangeFromFilters = (filters) => {
-		const selectedDateFilter = filters?.find((f) => f.group === 'Date');
+		const selectedDateFilter = filters?.find((f) => f?.group === 'Date');
 
 		if (!selectedDateFilter?.value) return {};
 
@@ -131,7 +131,7 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 		const to = todayStart.getTime();
 
 		let from;
-		switch (selectedDateFilter.value) {
+		switch (selectedDateFilter?.value) {
 			case 'today':
 				from = to;
 				break;
@@ -151,8 +151,8 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 	const newUpdatedPayload = useMemo(() => {
 		const getFilterValues = (group, excludeTitle = null) =>
 			info?.selectedFilters
-				?.filter((f) => f.group === group && (!excludeTitle || f.title !== excludeTitle))
-				.map((f) => f.value) || [];
+				?.filter((f) => f?.group === group && (!excludeTitle || f?.title !== excludeTitle))
+				.map((f) => f?.value) || [];
 
 		const selectedPriority = getFilterValues('Priority Level');
 		const selectedReadStatus = getFilterValues('Read Status', 'All');

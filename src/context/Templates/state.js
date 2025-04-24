@@ -2365,9 +2365,9 @@ export const TemplatesState = (props) => {
 			const usertoken = localStorage.getItem('usertoken');
 
 			// Build filter params (priority, read, confidenceScore)
-			const filterParams = ['priority', 'read', 'confidenceScore'].flatMap((key) =>
+			const filterParams = ['priority', 'read', 'confidenceScore']?.flatMap((key) =>
 				Array.isArray(payload?.[key])
-					? payload[key].map((val) => `${key}=${encodeURIComponent(val)}`)
+					? payload[key]?.map((val) => `${key}=${encodeURIComponent(val)}`)
 					: [],
 			);
 
