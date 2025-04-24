@@ -125,21 +125,23 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 
 		if (!selectedDateFilter?.value) return {};
 
-		const MS_IN_DAY = 86400000;
+		const SECONDS_IN_DAY = 86400; // 24 * 60 * 60 seconds
 		const todayStart = new Date();
 		todayStart.setHours(0, 0, 0, 0);
-		const to = todayStart.getTime();
+		const startTime = Math.floor(todayStart.getTime() / 1000);
+		const endTime = startTime + SECONDS_IN_DAY;
 
 		let from;
+		let to = endTime;
 		switch (selectedDateFilter?.value) {
 			case 'today':
-				from = to;
+				from = startTime;
 				break;
 			case 'last7days':
-				from = to - MS_IN_DAY * 6;
+				from = startTime - SECONDS_IN_DAY * 6;
 				break;
 			case 'last30days':
-				from = to - MS_IN_DAY * 29;
+				from = startTime - SECONDS_IN_DAY * 29;
 				break;
 			default:
 				return {};
