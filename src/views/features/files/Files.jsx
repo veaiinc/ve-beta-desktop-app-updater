@@ -650,9 +650,10 @@ const Files = () => {
 	return (
 		<div className="files-container">
 			{info?.showElasticSearchResults ? (
-				<div className="elastic-search-results-container">
+				<>
+					<h1 className="search-heading">All Files</h1>
 					<ElasticSearchResults />
-				</div>
+				</>
 			) : (
 				<>
 					<div className="storage-main-container">

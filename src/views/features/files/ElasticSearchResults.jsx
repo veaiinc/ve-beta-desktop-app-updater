@@ -229,52 +229,55 @@ const ElasticSearchResults = () => {
 
 	return (
 		<div className="elastic-search-results-container">
-			{elasticSearchResults?.length > 0 &&
+			{elasticSearchResults?.length > 0 ? (
 				elasticSearchResults?.map((searchItem, index) => (
 					<div
 						key={searchItem._id || index}
 						className="search-result-item"
 						style={{ width: '100%' }}
 					>
-						<div className="search-output">
-							<div className="search-result-item-left">
-								<div
-									style={{ color: getFileTypeInfo(searchItem).color }}
-									className="image"
-								>
-									{getFileTypeInfo(searchItem).icon}
-								</div>
+						<div className="search-result-item-left">
+							<div
+								style={{ color: getFileTypeInfo(searchItem).color }}
+								className="image"
+							>
+								{getFileTypeInfo(searchItem).icon}
 							</div>
 							<div className="content">
 								<h4 className="search-output-header">
 									{searchItem.title || 'Singularity'}
 								</h4>
-								<p className="description">{searchItem.text}</p>
+								{/* <p className="description">{searchItem.text}</p> */}
 							</div>
-							<div className="hover-card-wrapper">
-								<HoverCard searchItem={searchItem} />
-							</div>
-							<div className="search-result-item-right">
-								<div className="action-buttons">
+						</div>
+						<div className="hover-card-wrapper">
+							<HoverCard searchItem={searchItem} />
+						</div>
+						<div className="search-result-item-right">
+							<div className="action-buttons">
+								<button
+									className="action-btn ask-btn"
+									onClick={() => handleAskClick(searchItem)}
+								>
+									Ask
+								</button>
+								{shouldShowOpenButton(searchItem) && (
 									<button
-										className="action-btn ask-btn"
-										onClick={() => handleAskClick(searchItem)}
+										className="action-btn open-btn"
+										onClick={() => handleOpenClick(searchItem)}
 									>
-										Ask
+										Open
 									</button>
-									{shouldShowOpenButton(searchItem) && (
-										<button
-											className="action-btn open-btn"
-											onClick={() => handleOpenClick(searchItem)}
-										>
-											Open
-										</button>
-									)}
-								</div>
+								)}
 							</div>
 						</div>
 					</div>
-				))}
+				))
+			) : (
+				<div className="no-results-container">
+					<p className="no-results-text">No results found</p>
+				</div>
+			)}
 		</div>
 	);
 };

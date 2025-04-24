@@ -1,10 +1,22 @@
 .childrenContainer {
 	height: 100%;
+	overflow-y: hidden;
+	color: var(--primary-font);
+
 	.files-container {
 		position: relative;
 		height: 100%;
+
+		.search-heading {
+			display: flex;
+			height: 27px;
+			align-items: center;
+			flex-shrink: 0;
+			align-self: stretch;
+			margin: 20px 0px 0px 33px;
+		}
 		.search-input-container {
-			position: absolute;
+			position: fixed;
 			bottom: 66px;
 			left: 50%;
 			transform: translateX(-50%);
@@ -41,15 +53,6 @@
 					}
 				}
 			}
-		}
-
-		.elastic-search-results-container {
-			display: inline-flex;
-			height: 613px;
-			flex-direction: column;
-			align-items: flex-start;
-			gap: 12px;
-			flex-shrink: 0;
 		}
 	}
 }
