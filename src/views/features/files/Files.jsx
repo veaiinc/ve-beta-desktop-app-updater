@@ -1,16 +1,6 @@
 import { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import '../../../assets/scss/files/index.scss';
 import '../../../assets/scss/files/files.scss';
-import { ReactComponent as Plus } from '../../../assets/svg/files/Plus.svg';
-import { ReactComponent as Folder } from '../../../assets/svg/files/Folder.svg';
-import { ReactComponent as File } from '../../../assets/svg/files/file.svg';
-import { ReactComponent as Document } from '../../../assets/svg/files/docSvg.svg';
-import { ReactComponent as Mp3 } from '../../../assets/svg/files/mp3Svg.svg';
-import { ReactComponent as Mp4 } from '../../../assets/svg/files/mp4Svg.svg';
-import { ReactComponent as Pdf } from '../../../assets/svg/files/pdfSvg.svg';
-import { ReactComponent as Psd } from '../../../assets/svg/files/psdSvg.svg';
-import { ReactComponent as Zip } from '../../../assets/svg/files/zipSvg.svg';
-import { ReactComponent as CrossSvg } from '../../../assets/svg/docs/cross.svg';
 import { ReactComponent as SearchSvg } from '../../../assets/svg/elastic_search/search-icon.svg';
 import Context from '../../../context/context';
 import { useNavigate } from 'react-router-dom';
@@ -19,9 +9,7 @@ import { message } from '../../components/globalComponents/CustomToast';
 import Spinner from '../../components/loaders/Spinner';
 import ProposalsPopup from '../../components/docs/ProposalsPopup';
 import ObjectID from 'bson-objectid';
-import gsap from 'gsap';
 import QuickActions from '../../components/globalComponents/QuickActions';
-import moment from 'moment';
 import DocsGrid from '../../components/files/DocsGrid';
 import NotesGrid from '../../components/files/NotesGrid';
 import FormsGrid from '../../components/files/FormsGrid';
@@ -29,11 +17,8 @@ import GalleryGrid from '../../components/files/GalleryGrid';
 import MostUsedEntries from '../../components/files/MostUsedEntries';
 import TemplatesGrid from '../../components/files/TemplatesGrid';
 import { useSearchParams } from 'react-router-dom';
-import useAccessControls from '../../hooks/useAcessControls';
 import ElasticSearchResults from './ElasticSearchResults';
-const initialState = {
-	workflowTemplates: [],
-};
+import getFileTypeInfo from './getFiletypeInfo';
 
 const options = [
 	// 'All',
@@ -156,19 +141,17 @@ export const statusTextmapper = {
 const Files = () => {
 	const [searchParams, setSearchParams] = useSearchParams();
 	const activeTab = searchParams.get('activeTab') || 'Notes';
+
 	const {
-		galleryInfo: { getGalleries, tenantGalleries, getMostUsedEntities },
+		galleryInfo: { tenantGalleries },
 		elasticSearch: { elasticSearchResults, performElasticSearch },
-		templates: {
-			formsTemplatesList,
-			myWorkflows,
-			docsFilesList,
-			getMyWorkflows,
-			updateStateValues: updateTemplateStateValues,
-		},
-		notes: { getNotesList, notes, createNotesList },
+		templates: { formsTemplatesList, updateStateValues: updateTemplateStateValues },
+		notes: { createNotesList },
 		profileInfo: { tenantUserAccessControls },
 	} = useContext(Context);
+
+	const [mostUsedEntities, setMostUsedEntities] = useState(null);
+	const [loadingView, setLoadingView] = useState(null);
 
 	const [info, setInfo] = useState({
 		createNewGalleryModal: false,
@@ -188,9 +171,12 @@ const Files = () => {
 		totalCount: null,
 		showElasticSearchResults: false,
 	});
-	const cardItems = useRef(null);
 
-	const noResults = elasticSearchResults?.length === 0 && info.showElasticSearchResults;
+	const cardItems = useRef(null);
+	const elasticSearchInputRef = useRef(null);
+	const elasticSearchTimeoutRef = useRef(null);
+
+	const navigate = useNavigate();
 
 	useEffect(() => {
 		if (activeTab) {
@@ -203,15 +189,13 @@ const Files = () => {
 	}, [activeTab, info?.options]);
 
 	useEffect(() => {
-		if (cardItems.current || info.createNewGalleryModal) {
-			cardItems.current = document.getElementsByClassName('card-item-style');
-			Array.from(cardItems.current).forEach((item) => {
+		if (cardItems?.current || info?.createNewGalleryModal) {
+			cardItems.current = document?.getElementsByClassName('card-item-style');
+			Array.from(cardItems?.current)?.forEach((item) => {
 				item.style.zIndex = '0';
 			});
 		}
 	}, [info?.createNewGalleryModal]);
-
-	const navigate = useNavigate();
 
 	useEffect(() => {
 		if (tenantUserAccessControls) {
@@ -224,7 +208,7 @@ const Files = () => {
 						.filter((permission) => permission.isEnabled)
 						.map((permission) => permission.app),
 				);
-				filteredOptions = options.filter((option) => enabledApps.has(option.value));
+				filteredOptions = options?.filter((option) => enabledApps.has(option?.value));
 			}
 
 			setInfo((prevInfo) => ({
@@ -266,11 +250,8 @@ const Files = () => {
 		}
 	};
 
-	const [mostUsedEntities, setMostUsedEntities] = useState(null);
-	const [loadingView, setLoadingView] = useState(null);
-
 	const handleDropdownOptionClick = async (option) => {
-		if (option === info.selectedView) {
+		if (option === info?.selectedView) {
 			setInfo({
 				...info,
 				bottomNavigationDropdown: false,
@@ -299,145 +280,51 @@ const Files = () => {
 		setInfo((prevInfo) => ({ ...prevInfo, totalCount: data }));
 	};
 
-	const SearchResults = () => {
-		if (!info.search) {
-			return null;
+	const handleSearch = async (e) => {
+		clearTimeout(elasticSearchTimeoutRef?.current);
+		const searchInput = e?.target?.value;
+		const emptySearchInput = searchInput === '';
+
+		if (emptySearchInput) {
+			setInfo((prev) => ({
+				...prev,
+				isLoading: false, // Ensure isLoading is set to false
+				elasticSearchLoading: false,
+				showElasticSearchResults: false,
+			}));
+			return;
 		}
 
-		const getFileTypeInfo = (searchItem) => {
-			// First check explicit fileType if present
-			if (searchItem.fileType) {
-				const type = (searchItem.fileType?.toLowerCase() || '').replace(/^\./, '');
-				switch (type) {
-					case 'pdf':
-					case 'epub':
-					case 'mobi':
-					case 'azw':
-						return {
-							icon: <Pdf />,
-							color: '#FF4D4D',
-						};
-					case 'mp3':
-					case 'wav':
-					case 'aac':
-					case 'flac':
-					case 'ogg':
-						return {
-							icon: <Mp3 />,
-							color: '#9747FF',
-						};
-					case 'mp4':
-					case 'mkv':
-					case 'avi':
-					case 'mov':
-					case 'webm':
-						return {
-							icon: <Mp4 />,
-							color: '#9747FF',
-						};
-					case 'doc':
-					case 'docx':
-					case 'xls':
-					case 'xlsx':
-					case 'csv':
-					case 'ods':
-					case 'ppt':
-					case 'pptx':
-					case 'key':
-						return {
-							icon: <Document />,
-							color: '#2D7FF9',
-						};
-					case 'psd':
-					case 'ai':
-					case 'figma':
-					case 'xd':
-					case 'sketch':
-						return {
-							icon: <Psd />,
-							color: '#2D7FF9',
-						};
-					case 'zip':
-					case 'rar':
-					case '7z':
-					case 'tar.gz':
-						return {
-							icon: <Zip />,
-							color: '#71717A',
-						};
-					case 'json':
-					case 'xml':
-					case 'yaml':
-					case 'txt':
-					case 'md':
-					case 'log':
-					case 'ini':
-					case 'cfg':
-						return {
-							icon: <File />,
-							color: '#71717A',
-						};
-					default:
-						return {
-							icon: <File />,
-							color: '#71717A',
-						};
-				}
+		setInfo((prev) => ({ ...prev, isLoading: true }));
+
+		elasticSearchTimeoutRef.current = setTimeout(async () => {
+			setInfo((prev) => ({
+				...prev,
+				elasticSearchLoading: true,
+				showElasticSearchResults: false,
+			}));
+
+			const response = await performElasticSearch(searchInput);
+			const apiSuccess = response[0];
+
+			if (!apiSuccess) {
+				const errMsg = response[1];
+				message.error(errMsg);
 			}
 
-			// If no fileType, try to determine from other properties
-			if (searchItem.sourceType) {
-				switch (searchItem.sourceType.toLowerCase()) {
-					case 'pdf':
-						return {
-							icon: <Pdf />,
-							color: '#FF4D4D',
-						};
-					case 'png':
-					case 'jpg':
-					case 'jpeg':
-					case 'image':
-						return {
-							icon: <File />,
-							color: '#2D7FF9',
-						};
-					case 'workflow':
-						return {
-							icon: <Document />,
-							color: '#2D7FF9',
-						};
-					case 'url':
-						return {
-							icon: <File />,
-							color: '#71717A',
-						};
-				}
-			}
+			setInfo((prev) => ({
+				...prev,
+				elasticSearchLoading: false,
+				showElasticSearchResults: true,
+				isLoading: false,
+			}));
+		}, 500);
+	};
 
-			// Try to determine from URL or fileUrl if present
-			const url = searchItem.url || searchItem.fileUrl;
-			if (url) {
-				const extension = url.split('.').pop().toLowerCase();
-				switch (extension) {
-					case 'pdf':
-						return {
-							icon: <Pdf />,
-							color: '#FF4D4D',
-						};
-					case 'png':
-					case 'jpg':
-					case 'jpeg':
-						return {
-							icon: <File />,
-							color: '#2D7FF9',
-						};
-				}
-			}
-			return {
-				icon: <File />,
-				color: '#71717A',
-			};
-		};
+	const SearchResults = () => {
+		if (!info?.search) {
+			return null;
+		}
 
 		// Function to safely render HTML content
 		const renderHTMLContent = (content) => {
@@ -454,13 +341,13 @@ const Files = () => {
 						<div className="hover-card-icon" style={{ color }}>
 							{icon}
 						</div>
-						<div className="hover-card-title">{searchItem.title || 'Singularity'}</div>
+						<div className="hover-card-title">{searchItem?.title || 'Singularity'}</div>
 					</div>
 					<div className="hover-card-content">
 						<div
 							className="hover-card-description"
 							dangerouslySetInnerHTML={renderHTMLContent(
-								searchItem.text ||
+								searchItem?.text ||
 									'Connect to Notion to manage <mark>tasks</mark>, organize projects, and centralize your work.',
 							)}
 						/>
@@ -470,32 +357,32 @@ const Files = () => {
 		};
 
 		const handleOpenClick = (gallery) => {
-			if (gallery.sourceType === 'workflow') {
+			if (gallery?.sourceType === 'workflow') {
 				navigate(`/doc/${gallery?._id}`);
-			} else if (gallery.platform === 've.ai') {
-				if (gallery.fileUrl) {
-					window.open(gallery.fileUrl, '_blank');
+			} else if (gallery?.platform === 've.ai') {
+				if (gallery?.fileUrl) {
+					window.open(gallery?.fileUrl, '_blank');
 				}
-				if (gallery.url) {
-					window.open(gallery.url, '_blank');
+				if (gallery?.url) {
+					window.open(gallery?.url, '_blank');
 				}
 			} else {
-				if (gallery.url) {
-					window.open(gallery.url, '_blank');
+				if (gallery?.url) {
+					window.open(gallery?.url, '_blank');
 				}
 			}
 		};
 
 		const shouldShowOpenButton = (gallery) => {
-			if (gallery.sourceType === 'workflow') {
+			if (gallery?.sourceType === 'workflow') {
 				return true;
 			}
 
-			if (gallery.platform === 've.ai') {
-				return !!gallery.fileUrl || !!gallery.url;
+			if (gallery?.platform === 've.ai') {
+				return !!gallery?.fileUrl || !!gallery?.url;
 			}
 
-			return !!gallery.url;
+			return !!gallery?.url;
 		};
 
 		const handleAskClick = (searchItem) => {
@@ -514,14 +401,14 @@ const Files = () => {
 						<div className="no-results-text">No results found</div>
 					) : (
 						elasticSearchResults?.map((searchItem, index) => (
-							<div key={searchItem._id || index} className="search-result-item">
+							<div key={searchItem?._id || index} className="search-result-item">
 								<div className="search-result-item-content">
 									<div className="search-result-item-left">
 										<div style={{ color: getFileTypeInfo(searchItem).color }}>
 											{getFileTypeInfo(searchItem).icon}
 										</div>
 										<div className="search-result-item-info">
-											<h4>{searchItem.title || 'Singularity'}</h4>
+											<h4>{searchItem?.title || 'Singularity'}</h4>
 										</div>
 									</div>
 									<div className="hover-card-wrapper">
@@ -604,49 +491,6 @@ const Files = () => {
 		),
 	};
 
-	const handleSearch = async (e) => {
-		clearTimeout(elasticSearchTimeoutRef.current);
-		const searchInput = e.target.value;
-		const emptySearchInput = searchInput === '';
-
-		if (emptySearchInput) {
-			setInfo((prev) => ({
-				...prev,
-				elasticSearchLoading: false,
-				showElasticSearchResults: false,
-			}));
-			return;
-		}
-
-		setInfo((prev) => ({ ...prev, isLoading: true }));
-
-		elasticSearchTimeoutRef.current = setTimeout(async () => {
-			setInfo((prev) => ({
-				...prev,
-				elasticSearchLoading: true,
-				showElasticSearchResults: false,
-			}));
-
-			const response = await performElasticSearch(searchInput);
-			const apiSuccess = response[0];
-
-			if (!apiSuccess) {
-				const errMsg = response[1];
-				message.error(errMsg);
-			}
-
-			setInfo((prev) => ({
-				...prev,
-				elasticSearchLoading: false,
-				showElasticSearchResults: true,
-				isLoading: false,
-			}));
-		}, 500);
-	};
-
-	const elasticSearchInputRef = useRef(null);
-	const elasticSearchTimeoutRef = useRef(null);
-
 	return (
 		<div className="files-container">
 			{info?.showElasticSearchResults ? (
@@ -671,7 +515,11 @@ const Files = () => {
 								<div className="card-sub-container-left">
 									<div className="left-sidebar-header"></div>
 								</div>
-								{info.search ? <SearchResults /> : tabsMapper[info.selectedView]}
+								{info?.search ? (
+									<SearchResults />
+								) : (
+									tabsMapper?.[info?.selectedView]
+								)}
 								<div className="card-sub-container-right">
 									<div className="right-sidebar-options">
 										{info?.options.map((option) => (
@@ -681,7 +529,7 @@ const Files = () => {
 											>
 												<div
 													className={`sidebar-option ${
-														info.selectedView === option?.label
+														info?.selectedView === option?.label
 															? 'active'
 															: ''
 													}`}
@@ -725,10 +573,10 @@ const Files = () => {
 					</div>
 
 					<CreateGallery
-						open={info.createNewGalleryModal}
+						open={info?.createNewGalleryModal}
 						closeModal={handleCloseModal}
 						message={message}
-						isLightGallery={info.selectedView === 'Lite Gallery'}
+						isLightGallery={info?.selectedView === 'Lite Gallery'}
 					/>
 					<ProposalsPopup
 						open={info?.openProposalPopup}
@@ -749,7 +597,7 @@ const Files = () => {
 				<div className="search-input">
 					<input type="text" placeholder="Search" onChange={handleSearch} />
 					<div className="spinner-wrapper">
-						{info.isLoading ? (
+						{info?.isLoading ? (
 							<Spinner width={'16px'} height={'16px'} />
 						) : (
 							<SearchSvg />
