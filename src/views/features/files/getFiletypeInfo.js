@@ -70,28 +70,28 @@ const defaultType = { icon: <File />, color: '#71717A' };
 
 const getExtensionFromUrl = (url = '') => {
 	try {
-		const cleanUrl = url.split('?')[0].split('#')[0];
-		const parts = cleanUrl.toLowerCase().split('.');
-		return parts.length > 1 ? parts.pop() : null;
+		const cleanUrl = url?.split('?')[0]?.split('#')[0];
+		const parts = cleanUrl?.toLowerCase()?.split('.');
+		return parts?.length > 1 ? parts?.pop() : null;
 	} catch {
 		return null;
 	}
 };
 
 const getFileTypeInfo = (item) => {
-	const getInfo = (ext) => fileTypeMap[ext] || sourceTypeMap[ext] || defaultType;
+	const getInfo = (ext) => fileTypeMap?.[ext] || sourceTypeMap?.[ext] || defaultType;
 
-	if (item.fileType) {
-		const ext = item.fileType.toLowerCase().replace(/^\./, '');
+	if (item?.fileType) {
+		const ext = item?.fileType?.toLowerCase()?.replace(/^\./, '');
 		return getInfo(ext);
 	}
 
-	if (item.sourceType) {
-		const ext = item.sourceType.toLowerCase();
+	if (item?.sourceType) {
+		const ext = item?.sourceType?.toLowerCase();
 		return getInfo(ext);
 	}
 
-	const extFromUrl = getExtensionFromUrl(item.url || item.fileUrl);
+	const extFromUrl = getExtensionFromUrl(item?.url || item?.fileUrl);
 	if (extFromUrl) {
 		return getInfo(extFromUrl);
 	}
