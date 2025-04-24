@@ -4,24 +4,24 @@ import CalendarSelector from '../../components/calendar/CalendarSelector';
 import CalendarCategories from '../../components/calendar/CalendarCategories';
 import MeetingDetails from '../../components/calendar/MeetingDetails';
 import CalendarAiChat from '../../components/calendar/CalendarAiChat';
-import CreateEvent from '../../components/calendar/CreateEvent';
-// import AskAI from '../../components/calendar/AskAI';
 import GoogleCalendar from '../../components/calendar/GoogleCalendar';
 import CalendarChatBox from '../../components/calendar/CalendarChatBox';
 import moment from 'moment';
 import ConnectIntegrationWidget from '../../components/globalComponents/ConnectIntegrationWidget.jsx';
+import SessionCard from '../../components/calendar/SessionCard.jsx';
 
 const CalendarSidebar = ({
 	currentCalendarDate,
 	selectedMonth,
 	selectedYear,
 	selectedDate,
-	isCreateEventOpen,
 	categoryList,
 	selectedCategory,
 	categoryFilter,
-	selectedSlot,
 	updateCalendarInfo,
+	schedulerList,
+	selectedSession,
+	sessionFilter,
 }) => {
 	const [info, setInfo] = useState({
 		askAi: false,
@@ -41,13 +41,6 @@ const CalendarSidebar = ({
 		<>
 			{info?.askAi ? (
 				<CalendarAiChat toggleAskAi={toggleAskAi} selectedDate={selectedDate} />
-			) : isCreateEventOpen ? (
-				<CreateEvent
-					categoryList={categoryList}
-					selectedCategory={selectedCategory}
-					selectedSlot={selectedSlot}
-					updateCalendarInfo={updateCalendarInfo}
-				/>
 			) : (
 				<div className="calendarSidebarContainer">
 					<div className="dateDisplay">{formattedDate}</div>
@@ -58,7 +51,6 @@ const CalendarSidebar = ({
 						selectedDate={selectedDate}
 						updateCalendarInfo={updateCalendarInfo}
 					/>
-					{/* <AskAI toggleAskAi={toggleAskAi} /> */}
 					<CalendarCategories
 						categoryList={categoryList}
 						selectedCategory={selectedCategory}
@@ -66,7 +58,12 @@ const CalendarSidebar = ({
 						updateCalendarInfo={updateCalendarInfo}
 					/>
 					<GoogleCalendar />
-					{/* <MeetingDetails selectedDate={selectedDate} /> */}
+					<SessionCard
+						schedulerList={schedulerList}
+						selectedSession={selectedSession}
+						sessionFilter={sessionFilter}
+						updateCalendarInfo={updateCalendarInfo}
+					/>
 				</div>
 			)}
 		</>

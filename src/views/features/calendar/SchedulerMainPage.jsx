@@ -74,6 +74,17 @@ const SchedulerMainPage = () => {
 		}));
 	}, []);
 
+	const handleUpdateSession = useCallback((updatedSession) => {
+		setInfo((prev) => ({
+			...prev,
+			schedulerList: prev.schedulerList.map((session) =>
+				session._id === updatedSession._id ? updatedSession : session,
+			),
+			updateSlotModal: false,
+			selectedSlotData: null,
+		}));
+	}, []);
+
 	return (
 		<>
 			<div className="schedulerMainPageParentContainer">
@@ -99,7 +110,11 @@ const SchedulerMainPage = () => {
 						) : (
 							info?.schedulerList?.length > 0 &&
 							info?.schedulerList?.map((item) => (
-								<SessionCards key={item._id} item={item} />
+								<SessionCards
+									key={item._id}
+									item={item}
+									onEditClick={() => toggleUpdateSlotModal(item)}
+								/>
 							))
 						)}
 					</div>
@@ -120,6 +135,7 @@ const SchedulerMainPage = () => {
 				closeModal={toggleUpdateSlotModal}
 				schedulerList={info?.schedulerList}
 				selectedSlotData={info?.selectedSlotData}
+				updateCalendarInfo={handleUpdateSession}
 			/>
 		</>
 	);

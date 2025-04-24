@@ -137,7 +137,7 @@ const CalendarHeader = ({
 									  ))
 									: ''}
 							</div>
-							<div className="divider">|</div>
+							<div className="divider" />
 							<QuickActions />
 						</div>
 						{/* wrokflow and team dropdown */}

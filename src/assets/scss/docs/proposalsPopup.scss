@@ -7,6 +7,8 @@
 	border-radius: 32px;
 	background: var(--card);
 	width: 790px;
+	border: 1px solid var(--stroke);
+
 	.proposal-popup-header {
 		display: flex;
 		justify-content: space-between;

@@ -1,6 +1,7 @@
-import { memo } from 'react';
+import { memo, useCallback } from 'react';
 import '../../../../assets/scss/chat/chatComponents/deepResearchChainOfThought.scss';
 import { Markdown } from '../../../../helpers/markdownHelper';
+import { getFaviconUrl, getWebsiteName } from '../../../../helpers';
 
 const DeepResearchChainOfThought = ({ data }) => {
 	return (
@@ -22,10 +23,10 @@ const DeepResearchChainOfThought = ({ data }) => {
 										<div className="tool-container">
 											<div className="tool-name">
 												{item?.tool === 'search_web'
-													? 'Searching web:'
+													? 'Searched Web For :'
 													: item?.tool === 'search_knowledge_base'
-													? 'Searching Knowledge Base:'
-													: ''}
+													? 'Searched Knowledge Base For :'
+													: 'Searched For :'}
 											</div>
 											{item?.queries?.length > 0 && (
 												<div className="queries-container">
@@ -41,20 +42,39 @@ const DeepResearchChainOfThought = ({ data }) => {
 
 									{item?.sources?.length > 0 && (
 										<div className="sources-container">
-											<div className="text-container">
-												Searching Sources :
+											<div className="text-container">Sources</div>
+											<div className="sources">
+												{item?.sources?.map?.((source, index) => {
+													return (
+														<div
+															className="source"
+															key={index}
+															onClick={() => {
+																window?.open(source, '_blank');
+															}}
+														>
+															<div className="icon">
+																{getFaviconUrl(source) ? (
+																	<img
+																		src={getFaviconUrl(source)}
+																		alt="favicon"
+																		className="favicon-image"
+																	/>
+																) : (
+																	<div className="company-icon">
+																		{getWebsiteName(
+																			source,
+																		)?.charAt(0)}
+																	</div>
+																)}
+															</div>
+															<div className="website-name">
+																{getWebsiteName(source)}
+															</div>
+														</div>
+													);
+												})}
 											</div>
-											{item?.sources?.map((url, idx) => (
-												<a
-													className="source"
-													href={url}
-													target="_blank"
-													rel="noreferrer"
-													key={idx}
-												>
-													{url}
-												</a>
-											))}
 										</div>
 									)}
 								</div>

@@ -248,10 +248,11 @@ const AIMessage = memo(
 						<div className="suggested-prompts">
 							<div className="title-text">Suggested Prompts</div>
 							<div className="prompts-container">
-								{(messageData?.['follow_up_query'] || [])?.map((query) => {
+								{(messageData?.['follow_up_query'] || [])?.map((query, index) => {
 									return (
 										<div
 											className="prompt-container"
+											key={index}
 											onClick={() => handlePromptClick(query)}
 										>
 											<div className="logo-container">

@@ -62,7 +62,11 @@ const PriorityLevel = {
 };
 const ProactiveSuggestions = ({ selectedOption }) => {
 	const {
-		templates: { getAISuggestedPendingActions, aiSuggestedPendingActions },
+		templates: {
+			getAISuggestedPendingActions,
+			aiSuggestedPendingActions,
+			pendingActionsUpdate,
+		},
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -74,6 +78,7 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 		loading: true,
 		openFilter: false,
 		selectedFilters: [],
+		selectedCardNumber: null,
 	});
 
 	const selectedPriority =
@@ -201,6 +206,7 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 			...prev,
 			currentIndex: index,
 			activeCardContent: totalCardsDataRef.current[index],
+			selectedCardNumber: info?.currentIndex,
 		}));
 		currentIndexRef.current = index;
 	};
@@ -220,11 +226,16 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 				const selectedReadStatus = info.selectedFilters
 					?.filter((f) => f.group === 'Read Status')
 					.map((f) => f.value || f.title);
-
+				const selectedConfidenceScore = info.selectedFilters
+					?.filter((f) => f.group === 'Confidence level')
+					.map((f) => f.value || f.title);
 				const filterPayload = {
 					page: nextPage,
 					...(selectedPriority?.length > 0 && { priority: selectedPriority }),
 					...(selectedReadStatus?.length > 0 && { read: selectedReadStatus }),
+					...(selectedConfidenceScore?.length > 0 && {
+						confidenceScore: selectedConfidenceScore,
+					}),
 				};
 
 				// Merge with base payload
@@ -253,22 +264,32 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 			...prev,
 			currentIndex: index,
 			activeCardContent: totalCardsDataRef.current[index],
+			selectedCardNumber: info?.currentIndex,
 		}));
 		currentIndexRef.current = index;
 	};
 
-	const handleCardClick = (card, index) => {
+	const handleCardClick = async (card, index) => {
+		if (!card?.read) {
+			await pendingActionsUpdate(card?._id, { read: true });
+		}
 		setInfo((prev) => ({
 			...prev,
 			activeCardContent: card,
 			openModal: true,
 			currentIndex: index,
+			selectedCardNumber: index + 1,
 		}));
 		currentIndexRef.current = index;
 	};
 
 	const handleCloseModal = () =>
-		setInfo((prev) => ({ ...prev, openModal: false, activeCardContent: null }));
+		setInfo((prev) => ({
+			...prev,
+			openModal: false,
+			activeCardContent: null,
+			selectedCardNumber: null,
+		}));
 
 	const handleFilterClick = (item) => {
 		setInfo((prev) => {
@@ -358,8 +379,14 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 										></span>
 										<div className="module-priority-text">
 											<div>{card?.priority}</div>
-											{/* <div>|</div>
-											<div>{dayjs(card?.updatedAt * 1000).fromNow()}</div> */}
+											<div style={{ color: 'var(--secondary-font)' }}>|</div>
+											<Tooltip
+												title={dayjs(card?.updatedAt * 1000).format(
+													'MMMM D, YYYY h:mm A',
+												)}
+											>
+												<div>{dayjs(card?.updatedAt * 1000).fromNow()}</div>
+											</Tooltip>
 										</div>
 									</div>
 								</div>
@@ -484,6 +511,8 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 				data={info?.activeCardContent}
 				onNextCardClick={handleRight}
 				onPrevCardClick={handleLeft}
+				totalDocs={aiSuggestedPendingActions?.metaInfo?.totalDocs}
+				selectedCardNumber={info?.selectedCardNumber}
 			/>
 		</div>
 	);
