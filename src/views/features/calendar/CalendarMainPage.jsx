@@ -126,74 +126,15 @@ const Calendar = () => {
 		setInfo((prevInfo) => ({ ...prevInfo, [key]: value }));
 	}, []);
 
-	const handleBackToCalendar = useCallback(
-		(updatedSession) => {
-			if (updatedSession) {
-				// Update the scheduler list with the updated session
-				setInfo((prevInfo) => ({
-					...prevInfo,
-					schedulerList: prevInfo.schedulerList.map((session) =>
-						session._id === updatedSession._id ? updatedSession : session,
-					),
-					selectedSession: updatedSession,
-					showEditScheduler: false,
-					isEventSelected: false,
-					selectedSlot: null,
-				}));
-
-				// Force a re-render of the SessionCard by updating the sessionFilter
-				setInfo((prevInfo) => ({
-					...prevInfo,
-					sessionFilter: [...prevInfo.sessionFilter],
-				}));
-
-				// Update the calendar state to trigger a refresh
-				updateCalendarState({ refetchCalendarState: true });
-
-				// Fetch the latest scheduler list
-				getSchedulerList();
-
-				// Force a re-render of the calendar
-				setInfo((prevInfo) => ({
-					...prevInfo,
-					currentCalendarDate: new Date(),
-				}));
-			} else {
-				setInfo((prevInfo) => ({
-					...prevInfo,
-					showEditScheduler: false,
-					selectedSession: null,
-					isEventSelected: false,
-					selectedSlot: null,
-				}));
-			}
-		},
-		[updateCalendarState, getSchedulerList],
-	);
-
-	// Add effect to handle scheduler list updates
-	useEffect(() => {
-		if (schedulerList && schedulerList.length > 0) {
-			setInfo((prevInfo) => {
-				const updatedInfo = {
-					...prevInfo,
-					schedulerList: [...schedulerList],
-				};
-
-				// If there's a selected session, make sure it's in the updated list
-				if (prevInfo.selectedSession) {
-					const updatedSession = schedulerList.find(
-						(session) => session._id === prevInfo.selectedSession._id,
-					);
-					if (updatedSession) {
-						updatedInfo.selectedSession = updatedSession;
-					}
-				}
-
-				return updatedInfo;
-			});
-		}
-	}, [schedulerList]);
+	const handleBackToCalendar = useCallback(() => {
+		setInfo((prevInfo) => ({
+			...prevInfo,
+			showEditScheduler: false,
+			selectedSession: null,
+			isEventSelected: false,
+			selectedSlot: null,
+		}));
+	}, []);
 
 	const updateCategoryList = useCallback(() => {
 		if (calendarCategoriesList) {

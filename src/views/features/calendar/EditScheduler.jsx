@@ -12,7 +12,8 @@ import { ReactComponent as Clock } from '../../../assets/svg/workflow/clock.svg'
 import { ReactComponent as Duplicate } from '../../../assets/svg/tasks/duplicate.svg';
 import Context from '../../../context/context';
 import Checkbox from 'antd/es/checkbox/Checkbox';
-import PhoneInput from 'react-phone-number-input';
+import PhoneInput from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css';
 
 const durationOptions = ['30 Minutes', '45 Minutes', '60 Minutes', '90 Minutes', '120 Minutes'];
 const sessionTypeOptions = ['In Person', 'Phone Call', 'Video Call'];
@@ -646,6 +647,7 @@ const EditScheduler = ({ onBack, sessionId: propSessionId }) => {
 				value={info[config?.value] || ''}
 				onChange={(e) => handleDebouncedSessionTypeInput(config?.value, e.target.value)}
 				placeholder={config?.placeholder}
+				backgroundColor={config?.backgroundColor}
 				className="inputHeight"
 			/>
 		);
@@ -1122,12 +1124,7 @@ const EditScheduler = ({ onBack, sessionId: propSessionId }) => {
 					className="backArrow"
 				/>
 
-				<SessionInfoCard
-					sessionData={info?.sessionDetail}
-					onUpdate={handleUpdate}
-					isUpdating={isUpdating}
-					onSessionNameChange={handleSessionNameChange}
-				/>
+				<SessionInfoCard sessionData={info?.sessionDetail} />
 			</div>
 
 			<div className="updateSessionDetails">
@@ -1170,7 +1167,7 @@ const EditScheduler = ({ onBack, sessionId: propSessionId }) => {
 								}}
 							/>
 						</div>
-						<div className="sessionInputWrapper">
+						{/* <div className="sessionInputWrapper">
 							<span>Duration</span>
 							<Tooltip
 								placement="bottom"
@@ -1207,7 +1204,7 @@ const EditScheduler = ({ onBack, sessionId: propSessionId }) => {
 									<DownArrow className={info.isDurationOpen ? 'open' : ''} />
 								</div>
 							</Tooltip>
-						</div>
+						</div> */}
 					</div>
 
 					<div className="updateSessionDesc">
@@ -1215,7 +1212,7 @@ const EditScheduler = ({ onBack, sessionId: propSessionId }) => {
 							<Checkbox className="checkbox" />
 							<div className="alldaytext">All Day</div>
 						</div>
-						<div
+						{/* <div
 							className={`addSessionDesc ${info?.addDescription ? 'hidden' : ''}`}
 							onClick={() =>
 								setInfo((prev) => ({
@@ -1225,9 +1222,9 @@ const EditScheduler = ({ onBack, sessionId: propSessionId }) => {
 							}
 						>
 							Add Instruction
-						</div>
+						</div> */}
 
-						<div
+						{/* <div
 							className={`sessionDescriptionWrapper ${
 								info?.addDescription ? 'visible' : ''
 							}`}
@@ -1236,9 +1233,10 @@ const EditScheduler = ({ onBack, sessionId: propSessionId }) => {
 								className="inputHeight"
 								value={info?.sessionDescription}
 								onChange={(e) => handleSessionDescriptionChange(e.target.value)}
-								placeholder="Session description"
+								placeholder={'Session description'}
+								backgroundColor={'var(--background)'}
 							/>
-						</div>
+						</div> */}
 					</div>
 
 					<div className="sessionOptionContainer">

@@ -1,3 +1,6 @@
+* {
+	color: var(--primary-font);
+}
 .editSchedulerParentContainer {
 	display: flex;
 	width: 100%;
@@ -61,7 +64,6 @@
 		gap: 4px;
 		border-radius: 24px;
 		background: var(--primary-button);
-		cursor: pointer;
 		.updateButton {
 			display: flex;
 			padding: 12px 16px;
@@ -73,7 +75,6 @@
 		.updateButton:hover {
 			background: var(--primary-button-hover);
 			color: var(--primary-font);
-			border-radius: 24px;
 		}
 	}
 }
@@ -108,7 +109,7 @@
 	}
 
 	.sessionInfoDetails {
-		margin-left: 16px;
+		margin-right: 10px;
 		display: flex;
 		flex-direction: column;
 		align-items: flex-start;
@@ -148,17 +149,6 @@
 					font-weight: 500;
 					line-height: normal;
 					align-self: stretch;
-					background: transparent;
-					border: none;
-					outline: none;
-					padding: 4px 8px;
-					border-radius: 4px;
-					width: 100%;
-
-					&:focus {
-						background: var(--card);
-						border: 1px solid var(--primary);
-					}
 				}
 				.labelWithIcon {
 					display: flex;
@@ -285,12 +275,12 @@
 .updateSessionDetails {
 	display: flex;
 	width: 100%;
-	max-width: 800px;
+	max-width: 732px;
 	flex-direction: column;
 	justify-content: center;
 	align-items: flex-start;
 	gap: 35px;
-	margin-left: 48px;
+	margin-left: 26px;
 
 	.sessionDurationContainer {
 		display: flex;
@@ -310,7 +300,7 @@
 
 	.sessionDetailsRow {
 		display: flex;
-		gap: 16px;
+		gap: 50px;
 		align-items: flex-start;
 
 		.sessionInputWrapper {

@@ -229,6 +229,17 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 			responseStatus: 'confirmed',
 		}));
 
+		// Ensure we have a valid category
+		const selectedCategory = info?.selectedCategory || selectedCategory;
+		if (!selectedCategory) {
+			setInfo((prev) => ({
+				...prev,
+				submissionError: 'Please select a category',
+				isSubmitting: false,
+			}));
+			return null;
+		}
+
 		return {
 			title,
 			description: description || '',
@@ -238,11 +249,11 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 			timezone,
 			allDay,
 			attendees: processedAttendees,
-			calendarCategory: info?.selectedCategory,
+			calendarCategory: selectedCategory,
 			meeting,
 			phone,
 		};
-	}, [info, convertToISOString]);
+	}, [info, convertToISOString, selectedCategory]);
 
 	const handleEventSubmission = useCallback(async () => {
 		try {

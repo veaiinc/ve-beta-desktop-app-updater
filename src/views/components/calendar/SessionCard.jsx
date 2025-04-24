@@ -143,9 +143,6 @@ const SessionCard = ({
 		<>
 			<div
 				className={`sessionCardContainer ${info?.expanded ? 'expanded' : ''}`}
-				style={{
-					height: info?.height,
-				}}
 				ref={expandRef}
 			>
 				<div className="sessionHeader">

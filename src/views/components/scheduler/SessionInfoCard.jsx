@@ -5,7 +5,6 @@ import { ReactComponent as Down } from '../../../assets/svg/calendar/down.svg';
 import ToggleSwitch from '../input/slider';
 import { Tooltip } from 'antd';
 import '../../../assets/scss/scheduler/editScheduler.scss';
-import Spinner from '../loaders/Spinner';
 
 const SessionInfoCard = ({ sessionData, onUpdate, isUpdating, onSessionNameChange }) => {
 	const [info, setInfo] = useState({
@@ -42,19 +41,7 @@ const SessionInfoCard = ({ sessionData, onUpdate, isUpdating, onSessionNameChang
 					<div className="sessionTitleRight">
 						{/* <span>{sessionData?.sessionName || 'session Name'}</span> */}
 						{/* <Dot /> */}
-						<div
-							className={`updateButton ${isUpdating ? 'updating' : ''}`}
-							onClick={onUpdate}
-						>
-							{isUpdating ? (
-								<>
-									<Spinner width="16px" height="16px" />
-									Updating...
-								</>
-							) : (
-								'Update and publish'
-							)}
-						</div>
+						<div className="updateButton">Update and publish</div>
 					</div>
 				</div>
 
@@ -83,17 +70,7 @@ const SessionInfoCard = ({ sessionData, onUpdate, isUpdating, onSessionNameChang
 					</div> */}
 					<div className="settingRow">
 						<span className="sessionTitleLabel">Session Title</span>
-						<input
-							type="text"
-							className="sessionTitle"
-							value={sessionData?.sessionName || ''}
-							onChange={(e) => {
-								if (sessionData) {
-									sessionData.sessionName = e.target.value;
-									onSessionNameChange?.(e.target.value);
-								}
-							}}
-						/>
+						<span className="sessionTitle">{sessionData?.sessionName}</span>
 						<div className="divider-line"></div>
 						{/* <div className="detailsSection">
 							<Tooltip
