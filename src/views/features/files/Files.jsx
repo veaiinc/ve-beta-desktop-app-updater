@@ -748,11 +748,13 @@ const Files = () => {
 			<div className="search-input-container" ref={elasticSearchInputRef}>
 				<div className="search-input">
 					<input type="text" placeholder="Search" onChange={handleSearch} />
-					{/* {info.isLoading && (
-						<div className="spinner-wrapper">
-							<Spinner width={'16px'} height={'16px'} color={'var(--primary-font)'} />
-						</div>
-					)} */}
+					<div className="spinner-wrapper">
+						{info.isLoading ? (
+							<Spinner width={'16px'} height={'16px'} />
+						) : (
+							<SearchSvg />
+						)}
+					</div>
 				</div>
 			</div>
 		</div>

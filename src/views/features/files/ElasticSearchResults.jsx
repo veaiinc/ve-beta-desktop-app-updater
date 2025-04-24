@@ -12,6 +12,7 @@ import { ReactComponent as Zip } from '../../../assets/svg/files/zipSvg.svg';
 import { ReactComponent as File } from '../../../assets/svg/files/file.svg';
 import { useNavigate } from 'react-router-dom';
 import ObjectID from 'bson-objectid';
+import moment from 'moment';
 
 const ElasticSearchResults = () => {
 	const navigate = useNavigate();
@@ -247,7 +248,10 @@ const ElasticSearchResults = () => {
 								<h4 className="search-output-header">
 									{searchItem.title || 'Singularity'}
 								</h4>
-								{/* <p className="description">{searchItem.text}</p> */}
+								<p className="description">
+									Created on{' '}
+									{moment(searchItem?.createdAt).format('MMM DD, hh:mm A')}
+								</p>
 							</div>
 						</div>
 						<div className="hover-card-wrapper">

@@ -14,6 +14,7 @@
 			flex-shrink: 0;
 			align-self: stretch;
 			margin: 20px 0px 0px 33px;
+			font-size: 20px;
 		}
 		.search-input-container {
 			position: fixed;
@@ -28,9 +29,6 @@
 
 			.search-input {
 				display: flex;
-				width: 400px;
-				min-width: 200px;
-				max-width: 400px;
 				transform: rotate(-0.038deg);
 				padding: 8px 8px 8px 18px;
 				align-items: center;
@@ -43,13 +41,20 @@
 					background: var(--card-over-card, #202123);
 					padding: 8px 8px 8px 18px;
 					color: var(--primary-font);
+					width: 200px;
+					transition: width 0.3s ease;
+					&:focus {
+						width: 300px;
+					}
 				}
 
 				.spinner-wrapper {
 					position: absolute;
-					right: 0;
+					right: 20px;
 					svg {
 						stroke: var(--primary-font);
+						width: 16px;
+						height: 16px;
 					}
 				}
 			}
