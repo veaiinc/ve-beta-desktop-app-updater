@@ -69,6 +69,7 @@ const colors = {
 const availableViews = ['list', 'table', 'gallery'];
 const Contacts = () => {
 	const {
+		templates: { updateStateValues: updateContactState },
 		// templates: { getClientList, clientList },
 		contacts: {
 			clientList,
@@ -483,7 +484,12 @@ const Contacts = () => {
 		},
 		[deleteContactView, info?.clientMetadata?._id],
 	);
-
+	useEffect(() => {
+		updateContactState({ leftSidebarState: 'close' });
+		return () => {
+			updateContactState({ leftSidebarState: null });
+		};
+	}, []);
 	return (
 		<div>
 			<div className="contacts-header-container">

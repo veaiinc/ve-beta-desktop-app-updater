@@ -64,6 +64,7 @@ import Integrations from './views/features/integrationsList/Integrations';
 
 import SchedulerMainPage from './views/features/calendar/SchedulerMainPage';
 import EditScheduler from './views/features/calendar/EditScheduler';
+import NContacts from './views/features/contacts/NContacts';
 const routes = [
 	{
 		path: '/',
@@ -365,7 +366,7 @@ const routes = [
 		path: '/contacts',
 		component: (
 			<AuthWrapper title={'Contacts'}>
-				<Contacts />
+				<NContacts />
 			</AuthWrapper>
 		),
 		exact: true,
