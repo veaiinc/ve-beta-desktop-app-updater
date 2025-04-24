@@ -88,7 +88,23 @@ export const intialState = {
 	draftStateWorkflowtemplates: null,
 	moreDraftStateWorkflowtemplates: null,
 	createLeadModalContextState: false,
-	globalChatMessages: [], // { type: 'AI', message: 'Hello, how can I help you today?' }
+	globalChatMessages: [
+		{
+			type: 'user',
+			message: 'Hello, how can I help you today?',
+		},
+		{
+			type: 'AI',
+			message: 'Hello, how can I help you today?',
+			deepResearch: {
+				cot: [
+					{
+						step: 'Hello, how can I help you today?',
+					},
+				],
+			},
+		},
+	], // { type: 'AI', message: 'Hello, how can I help you today?' }
 	currentSessionId: null,
 	citations: null,
 	docsFilesList: null,

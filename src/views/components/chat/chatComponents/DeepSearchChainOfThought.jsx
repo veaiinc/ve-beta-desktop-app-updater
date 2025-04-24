@@ -51,11 +51,7 @@ const DeepSearchChainOfThought = ({ data }) => {
 																</div>
 															</div>
 														) : (
-															<div className="search">
-																<div className="search-text">
-																	Searched For :
-																</div>
-															</div>
+															''
 														)}
 													</div>
 													<div className="queries" key={index}>
