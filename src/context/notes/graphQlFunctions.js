@@ -13,7 +13,6 @@ export const getNotesListQuery = gql`
 			data {
 				_id
 				title
-				icon
 				coverImage
 				permissions {
 					private
@@ -44,7 +43,6 @@ export const getPageQuery = gql`
 		getPage(pageId: $pageId) {
 			_id
 			title
-			icon
 			coverImage
 			permissions {
 				private
@@ -110,7 +108,6 @@ export const updatePageMutation = gql`
 		updatePage(pageId: $pageId, input: $input) {
 			_id
 			title
-			icon
 			coverImage
 			permissions {
 				private
@@ -170,7 +167,6 @@ export const duplicatePageMutation = gql`
 		duplicatePage(pageId: $pageId) {
 			_id
 			title
-			icon
 			coverImage
 			permissions {
 				private
