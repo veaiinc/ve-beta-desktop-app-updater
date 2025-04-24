@@ -10,8 +10,28 @@ import AISuggestionsModal from '../../components/modalsV2/homePage/AISuggestions
 import { Tooltip } from 'antd';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import updateLocale from 'dayjs/plugin/updateLocale';
 
 dayjs.extend(relativeTime);
+dayjs.extend(updateLocale);
+
+dayjs.updateLocale('en', {
+	relativeTime: {
+		future: 'in %s',
+		past: '%s ago',
+		s: '%d sec',
+		m: '1 min',
+		mm: '%d min',
+		h: '1 hr',
+		hh: '%d hr',
+		d: '1 day',
+		dd: '%d days',
+		M: '1 month',
+		MM: '%d months',
+		y: '1 year',
+		yy: '%d years',
+	},
+});
 
 const payload = {
 	page: 1,
@@ -426,7 +446,11 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 										></span>
 										<div className="module-priority-text">
 											<div>{card?.priority}</div>
-											<div style={{ color: 'var(--secondary-font)' }}>|</div>
+											{card?.priority && card?.updatedAt && (
+												<div style={{ color: 'var(--secondary-font)' }}>
+													|
+												</div>
+											)}
 											<Tooltip
 												title={dayjs(card?.updatedAt * 1000).format(
 													'MMMM D, YYYY h:mm A',
