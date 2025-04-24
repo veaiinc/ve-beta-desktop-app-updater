@@ -10,7 +10,8 @@ import MonthEventWrapper from '../../components/calendar/MonthEventWrapper';
 import Context from '../../../context/context';
 import moment from 'moment';
 import EventDetailsModal from '../../components/modalsV2/calendar/EventDetailsModal';
-import { message } from 'antd';
+import EventsPopUp from '../../components/calendar/EventsPopUp';
+import { message } from '../../components/globalComponents/CustomToast';
 
 const initialState = {
 	eventsList: [],
@@ -51,6 +52,7 @@ const CalendarView = ({
 	const [info, setInfo] = useState({
 		...initialState,
 		googleEvents: [],
+		isCreateEventOpen: false,
 	});
 
 	useEffect(() => {
@@ -198,7 +200,17 @@ const CalendarView = ({
 			},
 			month: {
 				header: () => null,
-				event: MonthEventWrapper,
+				event: (props) => {
+					const start = moment(props.event.start);
+					const end = moment(props.event.end);
+					const isMultiDay = !start.isSame(end, 'day');
+					return (
+						<MonthEventWrapper
+							{...props}
+							className={isMultiDay ? 'multi-day-event' : ''}
+						/>
+					);
+				},
 			},
 			eventWrapper: CustomEventWrapper,
 			// eventContainerWrapper: CustomEventContainer,
@@ -228,9 +240,19 @@ const CalendarView = ({
 	);
 
 	const onSelectSlot = useCallback((event) => {
-		updateCalendarInfo('isCreateEventOpen', true);
-		updateCalendarInfo('selectedDate', event?.start);
-		updateCalendarInfo('selectedSlot', event?.start);
+		setInfo((prev) => ({
+			...prev,
+			isCreateEventOpen: true,
+			selectedSlot: event?.start,
+		}));
+	}, []);
+
+	const handleCloseEventPopup = useCallback(() => {
+		setInfo((prev) => ({
+			...prev,
+			isCreateEventOpen: false,
+			selectedSlot: null,
+		}));
 	}, []);
 
 	const onClose = useCallback(() => {
@@ -240,7 +262,6 @@ const CalendarView = ({
 
 	return (
 		<>
-			{/* UpdatedPageLoader has been removed to Eliminate the loader from the calendar view */}
 			<div className="calendarViewParentContainer">
 				<div className="scheduler">
 					<CalendarWrapper
@@ -256,7 +277,6 @@ const CalendarView = ({
 						popup
 						components={components}
 						allDayMaxRows={1}
-						// showAllEvents={true}
 					/>
 				</div>
 				<EventDetailsModal
@@ -268,6 +288,13 @@ const CalendarView = ({
 					updateCalenderEventsList={updateCalenderEventsList}
 					filterDeletedEvent={filterDeletedEvent}
 					onClose={onClose}
+				/>
+				<EventsPopUp
+					open={info?.isCreateEventOpen}
+					closeModal={handleCloseEventPopup}
+					categoryList={categoryList}
+					selectedCategory={selectedCategory}
+					selectedSlot={info?.selectedSlot}
 				/>
 			</div>
 		</>

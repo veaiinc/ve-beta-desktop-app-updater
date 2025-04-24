@@ -1,4 +1,4 @@
-import { memo, useState, useContext, useEffect, useCallback } from 'react';
+import { memo, useState, useContext, useCallback } from 'react';
 import '../../../../assets/scss/settings/aiSetup.scss';
 import { ReactComponent as CrossGrey } from '../../../../assets/svg/Settings/cross-grey.svg';
 import { ReactComponent as LinkGrey } from '../../../../assets/svg/Settings/link-grey-color.svg';
@@ -30,6 +30,8 @@ const knowledgeFileTypes = [
 		icon: <TIcon />,
 	},
 ];
+
+const customStyles = { overlay: { zIndex: 1 } };
 
 const initialState = {
 	activeFileType: knowledgeFileTypes?.[0]?.value,
@@ -259,7 +261,7 @@ const AddKnowledgeModal = ({ isOpen, toggleModal, assistantId }) => {
 	};
 
 	return (
-		<Modal isOpen={isOpen} closeModal={modifyClose} customStyles={{ overlay: { zIndex: 1 } }}>
+		<Modal isOpen={isOpen} closeModal={modifyClose} customStyles={customStyles}>
 			<div className="addKnowledgeModalContainer">
 				<div className="titleAndDescriptionContainer">
 					<h1 className="title">

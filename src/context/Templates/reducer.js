@@ -192,34 +192,44 @@ const actionHandlers = {
 				let initial_answer = deepSearch?.initial_answer || {};
 				let final_answer = deepSearch?.final_answer || {};
 
-				if (payload?.sub_query_id && payload?.reading) {
+				if (payload?.sub_query_id && payload?.reading && payload?.reading?.sub_query) {
 					let index = cot?.findIndex(
 						(item) => item?.sub_query_id === payload?.sub_query_id,
 					);
 					if (index !== -1) {
+						let readings = cot[index]?.readings || [];
+						readings?.push({ reading: payload?.reading });
 						cot[index] = {
 							...cot[index],
-							...payload,
+							readings,
 						};
 					} else {
 						cot?.push({
-							...payload,
+							sub_query_id: payload?.sub_query_id,
+							readings: [{ reading: payload?.reading }],
 						});
 					}
 				}
 
-				if (payload?.refined_sub_query_id && payload?.reading) {
+				if (
+					payload?.sub_query_id &&
+					payload?.reading &&
+					payload?.reading?.refined_sub_query
+				) {
 					let index = cot_refined?.findIndex(
-						(item) => item?.refined_sub_query_id === payload?.refined_sub_query_id,
+						(item) => item?.sub_query_id === payload?.sub_query_id,
 					);
 					if (index !== -1) {
+						let readings = cot_refined[index]?.readings || [];
+						readings?.push({ reading: payload?.reading });
 						cot_refined[index] = {
 							...cot_refined[index],
-							...payload,
+							readings,
 						};
 					} else {
 						cot_refined?.push({
-							...payload,
+							sub_query_id: payload?.sub_query_id,
+							readings: [{ reading: payload?.reading }],
 						});
 					}
 				}
