@@ -1,9 +1,11 @@
-import React, { memo, useCallback, useState, useRef, useEffect } from 'react';
+import { memo, useCallback, useState, useRef, useEffect } from 'react';
 import '../../../assets/scss/calendar/calendarCategories.scss';
 import { ReactComponent as PencilSvg } from '../../../assets/svg/calendar/pencil.svg';
 import UpdateCategoryModal from '../modalsV2/calendar/UpdateCategoryModal';
 import PlusSvg from '../../../assets/svg/my_templates/PlusSvg';
 import { ReactComponent as DownSvg } from '../../../assets/svg/calendar/down.svg';
+
+const expandedHeight = '192px'; // Pre-calculated: 40 + (2 * 40) + (3 * 12) + 32 + 4
 
 const CalendarCategories = ({
 	categoryList,
@@ -21,20 +23,10 @@ const CalendarCategories = ({
 	const expandRef = useRef(null);
 
 	useEffect(() => {
-		if (info?.expanded) {
-			// Calculate the height of the expanded content
-			const fullHeight = expandRef.current.scrollHeight;
-			setInfo((prevInfo) => ({
-				...prevInfo,
-				height: `${fullHeight + 16}px`,
-			}));
-		} else {
-			// Set height back to the collapsed size
-			setInfo((prevInfo) => ({
-				...prevInfo,
-				height: `62px`,
-			}));
-		}
+		setInfo((prevInfo) => ({
+			...prevInfo,
+			height: info?.expanded ? expandedHeight : '62px',
+		}));
 	}, [info?.expanded]);
 
 	// Auto expand when there are items to display

@@ -961,8 +961,8 @@ export const TemplatesState = (props) => {
 	// };
 	const getFormResponseAnalytics = async (formId) => {
 		try {
-			let workspaceId = localStorage.getItem('workspaceId');
-			let usertoken = localStorage.getItem('usertoken');
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
 			const response = await service.query(
 				getFormResponseAnalyticsQuery,
 				{ filter: { workflowTemplateId: formId } },
