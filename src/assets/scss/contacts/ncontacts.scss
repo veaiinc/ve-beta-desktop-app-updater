@@ -7,40 +7,56 @@
 		width: 437px;
 		padding: 32px 24px;
 		flex-direction: column;
-		align-items: center;
+		align-items: flex-start;
 		gap: 65px;
 		flex-shrink: 0;
 		background: var(--navbar-bg, #18191b);
 		color: var(--primary-font);
+
 		.contacts-header {
-			font-size: 1.2rem;
-			margin-bottom: 20px;
+			display: flex;
+			align-items: center;
+			gap: 12px;
+			h2 {
+				color: var(--primary-font);
+				font-size: 16px;
+				font-weight: 500;
+			}
 		}
 
 		.contacts-stats {
 			display: flex;
 			flex-wrap: wrap;
-			gap: 10px;
-			margin-bottom: 30px;
+			gap: 12px;
+			width: 100%;
 
 			.stat-item {
-				padding: 10px 20px;
-				background-color: #252525;
+				display: flex;
+				padding: 12px 16px;
+				flex-direction: column;
+				align-items: flex-start;
+				gap: 4px;
 				border-radius: 8px;
+				background: var(--card-bg, #1e1f21);
 				cursor: pointer;
 
 				&.active {
-					background-color: #333;
+					background: var(--active-card-bg, #252628);
 				}
 
 				.count {
-					font-size: 1.5rem;
-					font-weight: bold;
+					color: var(--primary-font);
+					font-size: 24px;
+					font-weight: 500;
 				}
 
 				.label {
-					font-size: 0.9rem;
-					color: #888;
+					color: var(--secondary-font);
+					font-size: 14px;
+				}
+
+				&.all .dot {
+					background-color: var(--secondary-font);
 				}
 
 				&.strong .dot {
@@ -58,41 +74,53 @@
 		}
 
 		.suggested-sections {
+			width: 100%;
+
 			.section-title {
-				font-size: 1rem;
-				margin-bottom: 15px;
-				color: #888;
+				color: var(--secondary-font);
+				font-size: 14px;
+				margin-bottom: 12px;
 			}
 
 			.action-buttons {
 				display: flex;
-				gap: 10px;
-				margin-bottom: 20px;
+				gap: 8px;
+				margin-bottom: 32px;
 
 				button {
 					padding: 8px 16px;
-					background-color: #252525;
-					border: none;
 					border-radius: 6px;
-					color: #fff;
+					background: var(--card-bg, #1e1f21);
+					border: none;
+					color: var(--primary-font);
+					font-size: 14px;
 					cursor: pointer;
 
 					&:hover {
-						background-color: #333;
+						background: var(--active-card-bg, #252628);
 					}
 				}
 			}
 
 			.prompts-list {
+				display: flex;
+				flex-direction: column;
+				gap: 8px;
+
 				.prompt-item {
-					padding: 12px;
-					background-color: #252525;
+					display: flex;
+					padding: 16px;
+					align-items: center;
+					gap: 12px;
+					align-self: stretch;
 					border-radius: 8px;
-					margin-bottom: 10px;
+					background: var(--card-bg, #1e1f21);
+					color: var(--primary-font);
+					font-size: 14px;
 					cursor: pointer;
 
 					&:hover {
-						background-color: #333;
+						background: var(--active-card-bg, #252628);
 					}
 				}
 			}
@@ -107,6 +135,7 @@
 		align-self: stretch;
 		background: var(--background-color, #0c0c0d);
 		color: var(--primary-font);
+		padding: 24px;
 
 		.header {
 			display: flex;
@@ -115,14 +144,12 @@
 			align-items: flex-start;
 			gap: 13px;
 			align-self: stretch;
+			margin-bottom: 24px;
 
 			.header-title {
-				color: var(--ve-ai-dark-theme-primary-font-color, #e8e8e8);
-				font-family: Inter;
+				color: var(--primary-font, #e8e8e8);
 				font-size: 24px;
-				font-style: normal;
 				font-weight: 500;
-				line-height: normal;
 			}
 
 			.search-bar-container {
@@ -133,6 +160,7 @@
 				border-bottom: 1px solid rgba(124, 124, 131, 0.1);
 				width: 300px;
 				height: 32px;
+
 				.search-icon {
 					color: var(--secondary-font, #7a7e85);
 					margin-right: 10px;
@@ -146,89 +174,102 @@
 					border: none;
 					outline: none;
 					color: var(--primary-font, #e8e8e8);
-					font-family: Inter;
 					font-size: 12px;
-					font-style: normal;
 					font-weight: 400;
-					line-height: normal;
 
 					&::placeholder {
 						color: var(--secondary-font, #7a7e85);
-						font-family: Inter;
 						font-size: 12px;
-						font-style: normal;
-						font-weight: 400;
-						line-height: normal;
 					}
 				}
 			}
 		}
 
-		.contacts-list {
-			display: flex;
-			padding: 0px 12px;
-			flex-direction: column;
-			gap: 12px;
-			flex: 1 0 0;
-			align-self: stretch;
-			.contact-item {
-				display: flex;
-				align-items: center;
-				padding: 15px;
-				border-radius: 8px;
-				margin-bottom: 10px;
-				cursor: pointer;
+		.contacts-table {
+			width: 100%;
 
-				&:hover {
-					background-color: #252525;
-				}
+			.table-header {
+				display: grid;
+				grid-template-columns: 2fr 1fr 1fr;
+				padding: 12px 16px;
+				border-bottom: 1px solid rgba(124, 124, 131, 0.1);
+				color: var(--secondary-font);
+				font-size: 14px;
+			}
 
-				.checkbox {
-					margin-right: 15px;
-				}
-
-				.avatar {
-					width: 40px;
-					height: 40px;
-					border-radius: 50%;
-					margin-right: 15px;
-					background-color: #333;
-				}
-
-				.contact-info {
-					flex-grow: 1;
-
-					.name {
-						font-weight: bold;
-						margin-bottom: 4px;
-					}
-
-					.email {
-						color: #888;
-						font-size: 0.9rem;
-					}
-				}
-
-				.connection-strength {
-					display: flex;
+			.table-body {
+				.table-row {
+					display: grid;
+					grid-template-columns: 2fr 1fr 1fr;
+					padding: 12px 16px;
 					align-items: center;
-					margin-right: 20px;
+					border-radius: 8px;
+					cursor: pointer;
 
-					.dot {
-						width: 8px;
-						height: 8px;
-						border-radius: 50%;
-						margin-right: 8px;
+					&:hover {
+						background: var(--card-bg, #1e1f21);
 					}
 
-					.text {
-						color: #888;
-					}
-				}
+					.column {
+						&.people {
+							display: flex;
+							align-items: center;
+							gap: 12px;
 
-				.last-interaction {
-					color: #888;
-					font-size: 0.9rem;
+							.checkbox {
+								width: 16px;
+								height: 16px;
+								border-radius: 4px;
+								border: 1px solid var(--secondary-font);
+								background: transparent;
+							}
+
+							.avatar {
+								width: 32px;
+								height: 32px;
+								border-radius: 50%;
+								background: var(--card-bg, #1e1f21);
+								display: flex;
+								align-items: center;
+								justify-content: center;
+							}
+
+							.contact-info {
+								.name {
+									color: var(--primary-font);
+									font-size: 14px;
+									font-weight: 500;
+								}
+
+								.email {
+									color: var(--secondary-font);
+									font-size: 12px;
+								}
+							}
+						}
+
+						&.strength {
+							display: flex;
+							align-items: center;
+							gap: 8px;
+
+							.dot {
+								width: 8px;
+								height: 8px;
+								border-radius: 50%;
+							}
+
+							.text {
+								color: var(--secondary-font);
+								font-size: 14px;
+							}
+						}
+
+						&.interaction {
+							color: var(--secondary-font);
+							font-size: 14px;
+						}
+					}
 				}
 			}
 		}

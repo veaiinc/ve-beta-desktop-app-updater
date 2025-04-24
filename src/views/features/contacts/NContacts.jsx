@@ -1,12 +1,14 @@
-import React from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/contacts/ncontacts.scss';
 import { ReactComponent as SearchIcon } from '../../../assets/svg/search.svg';
+import Context from '../../../context/context';
+
 const dummyContacts = [
 	{
 		id: 1,
 		name: 'Paul Kim',
 		email: 'kevinsmith@gmail.com',
-		strength: 'strong',
+		strength: 'Strong',
 		lastInteraction: '14 Days Ago',
 		avatar: '👤',
 	},
@@ -14,7 +16,7 @@ const dummyContacts = [
 		id: 2,
 		name: 'Frank Perez',
 		email: 'kevinsmith@gmail.com',
-		strength: 'strong',
+		strength: 'Strong',
 		lastInteraction: '14 Days Ago',
 		avatar: '👤',
 	},
@@ -22,7 +24,7 @@ const dummyContacts = [
 		id: 3,
 		name: 'John Kim',
 		email: 'kevinsmith@gmail.com',
-		strength: 'strong',
+		strength: 'Strong',
 		lastInteraction: '14 Days Ago',
 		avatar: '👤',
 	},
@@ -30,7 +32,7 @@ const dummyContacts = [
 		id: 4,
 		name: 'Edward Young',
 		email: 'kevinsmith@gmail.com',
-		strength: 'normal',
+		strength: 'Normal',
 		lastInteraction: '14 Days Ago',
 		avatar: '👤',
 	},
@@ -38,7 +40,47 @@ const dummyContacts = [
 		id: 5,
 		name: 'Patrick Simmons',
 		email: 'kevinsmith@gmail.com',
-		strength: 'normal',
+		strength: 'Normal',
+		lastInteraction: '14 Days Ago',
+		avatar: '👤',
+	},
+	{
+		id: 6,
+		name: 'Mark Martin',
+		email: 'kevinsmith@gmail.com',
+		strength: 'Normal',
+		lastInteraction: '14 Days Ago',
+		avatar: '👤',
+	},
+	{
+		id: 7,
+		name: 'Steven Diaz',
+		email: 'kevinsmith@gmail.com',
+		strength: 'Normal',
+		lastInteraction: '14 Days Ago',
+		avatar: '👤',
+	},
+	{
+		id: 8,
+		name: 'Thomas Kim',
+		email: 'kevinsmith@gmail.com',
+		strength: 'Weak',
+		lastInteraction: '14 Days Ago',
+		avatar: '👤',
+	},
+	{
+		id: 1,
+		name: 'Paul Kim',
+		email: 'kevinsmith@gmail.com',
+		strength: 'Strong',
+		lastInteraction: '14 Days Ago',
+		avatar: '👤',
+	},
+	{
+		id: 1,
+		name: 'Paul Kim',
+		email: 'kevinsmith@gmail.com',
+		strength: 'Strong',
 		lastInteraction: '14 Days Ago',
 		avatar: '👤',
 	},
@@ -58,6 +100,18 @@ const suggestedPrompts = [
 ];
 
 function NContacts() {
+	const {
+		templates: { updateStateValues: updateContactState },
+	} = useContext(Context);
+	const [info, setInfo] = useState({});
+
+	useEffect(() => {
+		updateContactState({ leftSidebarState: 'close' });
+		return () => {
+			updateContactState({ leftSidebarState: null });
+		};
+	}, []);
+
 	return (
 		<div className="contacts-container">
 			<div className="left-section">
@@ -66,7 +120,7 @@ function NContacts() {
 				</div>
 
 				<div className="contacts-stats">
-					<div className="stat-item active">
+					<div className="stat-item all active">
 						<div className="count">{stats.all}</div>
 						<div className="label">All</div>
 					</div>
@@ -112,22 +166,33 @@ function NContacts() {
 					</div>
 				</div>
 
-				<div className="contacts-list">
-					{dummyContacts.map((contact) => (
-						<div key={contact.id} className="contact-item">
-							<input type="checkbox" className="checkbox" />
-							<div className="avatar">{contact.avatar}</div>
-							<div className="contact-info">
-								<div className="name">{contact.name}</div>
-								<div className="email">{contact.email}</div>
+				<div className="contacts-table">
+					<div className="table-header">
+						<div className="column people">People</div>
+						<div className="column strength">Connection Strength</div>
+						<div className="column interaction">Last Interaction</div>
+					</div>
+					<div className="table-body">
+						{dummyContacts.map((contact) => (
+							<div key={contact.id} className="table-row">
+								<div className="column people">
+									<input type="checkbox" className="checkbox" />
+									<div className="avatar">{contact.avatar}</div>
+									<div className="contact-info">
+										<div className="name">{contact.name}</div>
+										<div className="email">{contact.email}</div>
+									</div>
+								</div>
+								<div className="column strength">
+									<span
+										className={`dot ${contact.strength.toLowerCase()}`}
+									></span>
+									<span className="text">{contact.strength}</span>
+								</div>
+								<div className="column interaction">{contact.lastInteraction}</div>
 							</div>
-							<div className="connection-strength">
-								<span className={`dot ${contact.strength}`}></span>
-								<span className="text">{contact.strength}</span>
-							</div>
-							<div className="last-interaction">{contact.lastInteraction}</div>
-						</div>
-					))}
+						))}
+					</div>
 				</div>
 			</div>
 		</div>
