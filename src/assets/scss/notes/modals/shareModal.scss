@@ -459,64 +459,80 @@
 
 		.link-container {
 			display: flex;
-			align-items: center;
-			justify-content: space-between;
+			flex-direction: column;
 			gap: 6px;
 			align-self: stretch;
 
-			.publish-link-input-container {
+			.link-container-wrapper {
 				display: flex;
-				padding: 12px 14px;
-				align-items: center;
-				border-radius: 24px;
-				border: 1px solid var(--stroke, #2c2d2e);
-				background: var(--card, #18191b);
-				flex-grow: 1;
+				width: 100%;
+				gap: 6px;
 
-				.domain-section {
-					overflow: hidden;
-					color: var(--primary-font, #f2f2f3);
-					text-overflow: ellipsis;
-					font-family: Inter;
-					font-size: 14px;
-					font-style: normal;
-					font-weight: 500;
-					line-height: normal;
-				}
-				.slug-input {
-					all: unset;
+				.publish-link-input-container {
+					display: flex;
+					padding: 12px 14px;
+					align-items: center;
+					border-radius: 24px;
+					border: 1px solid var(--stroke, #2c2d2e);
+					background: var(--card, #18191b);
 					flex-grow: 1;
-					overflow: hidden;
-					color: var(--primary-font, #f2f2f3);
-					text-overflow: ellipsis;
-					font-family: Inter;
-					font-size: 14px;
-					font-style: normal;
-					font-weight: 500;
-					line-height: normal;
+
+					.domain-section {
+						overflow: hidden;
+						color: var(--primary-font, #f2f2f3);
+						text-overflow: ellipsis;
+						font-family: Inter;
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+					}
+					.slug-input {
+						all: unset;
+						flex-grow: 1;
+						overflow: hidden;
+						color: var(--primary-font, #f2f2f3);
+						text-overflow: ellipsis;
+						font-family: Inter;
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+					}
+				}
+
+				.publish-copy-link-button {
+					display: flex;
+					flex-shrink: 0;
+					width: 41px;
+					height: 41px;
+					padding: 12px;
+					justify-content: center;
+					align-items: center;
+					gap: 8px;
+					border-radius: 24px;
+					background: var(--primary-button, #cfff48);
+					border: none;
+					cursor: pointer;
+
+					&:disabled {
+						cursor: not-allowed;
+						opacity: 0.8;
+					}
 				}
 			}
 
-			.publish-copy-link-button {
-				display: flex;
-				flex-shrink: 0;
-				width: 41px;
-				height: 41px;
-				padding: 12px;
-				justify-content: center;
-				align-items: center;
-				gap: 8px;
-				border-radius: 24px;
-				background: var(--primary-button, #cfff48);
-				border: none;
-				cursor: pointer;
+			.publish-screen-footer-error {
+				text-align: left;
+				color: var(--error);
+				font-size: 14px;
 			}
 		}
 
 		.publish-options-wrapper {
 			display: flex;
-			flex-direction: column;
 			align-items: flex-start;
+			justify-content: space-between;
 			gap: 12px;
 			align-self: stretch;
 			.publish-options-heading {
@@ -526,6 +542,49 @@
 				font-style: normal;
 				font-weight: 500;
 				line-height: normal;
+			}
+			.publish-screen-footer-item-input-wrapper {
+				display: flex;
+				align-items: center;
+
+				.publish-screen-footer-item-input {
+					background-color: transparent;
+					border: none;
+					color: var(--secondary-font);
+					font-family: var(--primary-font-family);
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 500;
+					-moz-appearance: textfield;
+					padding-right: 0;
+					width: 80px;
+					&::-webkit-calendar-picker-indicator {
+						display: none;
+						-webkit-appearance: none;
+					}
+
+					&.not-set {
+						visibility: hidden;
+					}
+				}
+
+				.publish-screen-footer-item-input-btn {
+					background-color: transparent;
+					border: none;
+					cursor: pointer;
+					display: flex;
+					align-items: center;
+					justify-content: center;
+				}
+
+				.publish-screen-footer-item-input-label {
+					color: var(--secondary-font);
+					font-family: var(--primary-font-family);
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 500;
+					padding-right: 4px;
+				}
 			}
 		}
 
@@ -611,5 +670,8 @@
 		&:hover {
 			background: var(--card-over-card-hover, #27282b);
 		}
+	}
+	.cursor-pointer {
+		cursor: pointer;
 	}
 }

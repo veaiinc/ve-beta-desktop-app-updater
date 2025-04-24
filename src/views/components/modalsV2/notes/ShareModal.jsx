@@ -1,4 +1,4 @@
-import { memo, useContext, useEffect, useState } from 'react';
+import { memo, useContext, useEffect, useRef, useState } from 'react';
 import ReactModal from '../index';
 import '../../../../assets/scss/notes/modals/shareModal.scss';
 import { ReactComponent as CrossWhite } from '../../../../assets/svg/Settings/CrossWhite.svg';
@@ -9,7 +9,10 @@ import { ReactComponent as ChevronRightThinSvg } from '../../../../assets/svg/ta
 import jwtDecode from 'jwt-decode';
 import { Tooltip } from 'antd';
 import Context from '../../../../context/context';
+import { message } from '../../../components/globalComponents/CustomToast';
 import { ReactComponent as LockIcon } from '../../../../assets/svg/workspaceSettings/lock-big.svg';
+import { ReactComponent as CalendarSvg } from '../../../../assets/svg/tasks/calendar.svg';
+import moment from 'moment';
 const tabs = [
 	{ value: 'share', label: 'Share' },
 	{ value: 'publish', label: 'Publish' },
@@ -17,6 +20,9 @@ const tabs = [
 
 let userId = null;
 let activeWorkspaceId = null;
+const today = new Date();
+today.setDate(today.getDate() + 1);
+const minDate = today.toISOString().split('T')[0];
 
 const ShareModal = ({
 	isOpen,
@@ -27,10 +33,19 @@ const ShareModal = ({
 	updateAccess,
 	globalAccess,
 	handleGlobalAccessUpdate,
+	isPublished,
+	slug,
+	slugError,
+	prevSlug,
+	handleSlugChange,
+	handlePublishPage,
+	expiresAt,
+	publishLoading,
 }) => {
 	const {
 		profileInfo: { userWorkSpaceList },
 	} = useContext(Context);
+	const dateInputRef = useRef(null);
 
 	const [info, setInfo] = useState({
 		activeTab: 'share',
@@ -122,10 +137,38 @@ const ShareModal = ({
 			user?.email?.toLowerCase()?.includes(info?.search?.toLowerCase()),
 	);
 
+	const handleCopyLink = () => {
+		if (!slug?.trim()) {
+			message.error('Please enter a slug');
+			return;
+		}
+		navigator.clipboard.writeText(`https://${activeWorkspaceId}.ve.ai/page/${prevSlug}`);
+		message.success('Link copied to clipboard');
+	};
+
+	const openDatePicker = () => {
+		if (document.activeElement === dateInputRef.current) {
+			dateInputRef.current.blur(); // Try to close it
+		} else {
+			if (dateInputRef.current?.showPicker) {
+				dateInputRef.current.showPicker();
+			} else {
+				dateInputRef.current.focus(); // fallback for unsupported browsers
+			}
+		}
+	};
+
+	const handleDateChange = (e) => {
+		const date = e?.target?.value;
+		const unixDate = date ? moment(date).unix() : null;
+		handleInfoChange({ expiresAt: unixDate });
+		handlePublishPage({ isPublished: true, expiresAt: unixDate });
+	};
+
 	return (
 		<ReactModal
 			isOpen={isOpen}
-			// closeModal={info?.isLoading ? null : closeModal}
+			closeModal={onClose}
 			modalType={'center'}
 			customStyles={{
 				content: {
@@ -168,7 +211,7 @@ const ShareModal = ({
 							))
 						)}
 					</div>
-					<CrossWhite />
+					<CrossWhite onClick={onClose} className="cursor-pointer" />
 				</div>
 				{info?.activeTab === 'share' ? (
 					<div className="notes-share-modal-body">
@@ -421,29 +464,112 @@ const ShareModal = ({
 					</div>
 				) : (
 					<div className="notes-share-modal-body">
-						<>
-							<div className="link-container">
-								<div className="publish-link-input-container">
-									<div className="domain-section">sabith.ve.ai/page/</div>
-									<input type="text" className="slug-input" />
+						{isPublished ? (
+							<>
+								<div className="link-container">
+									<div className="link-container-wrapper">
+										<div className="publish-link-input-container">
+											<div className="domain-section">
+												{activeWorkspaceId}.ve.ai/page/
+											</div>
+											<input
+												type="text"
+												className="slug-input"
+												value={slug}
+												onChange={handleSlugChange}
+											/>
+										</div>
+										<button
+											className="publish-copy-link-button"
+											onClick={handleCopyLink}
+											disabled={!slug || slugError || slug?.endsWith('-')}
+										>
+											<Copy className="notes-share-copy-svg" />
+										</button>
+									</div>
+									{slugError && (
+										<div className="publish-screen-footer-error">
+											{slugError}
+										</div>
+									)}
 								</div>
-								<button className="publish-copy-link-button">
-									<Copy className="notes-share-copy-svg" />
+
+								<div className="publish-options-wrapper">
+									<div className="publish-options-heading">Link expires</div>
+									<div className="publish-screen-footer-item-input-wrapper">
+										<input
+											type="date"
+											name=""
+											id=""
+											min={minDate}
+											className={
+												'publish-screen-footer-item-input' +
+												(!expiresAt ? ' not-set' : '')
+											}
+											ref={dateInputRef}
+											onChange={handleDateChange}
+											value={
+												expiresAt
+													? moment.unix(expiresAt).format('YYYY-MM-DD')
+													: ''
+											}
+										/>
+										{!expiresAt && (
+											<span className="publish-screen-footer-item-input-label">
+												Never
+											</span>
+										)}
+										<button
+											className="publish-screen-footer-item-input-btn"
+											onClick={openDatePicker}
+										>
+											<CalendarSvg />
+										</button>
+									</div>
+								</div>
+								<div className="publish-button-wrapper">
+									<button
+										className="unpublish-btn"
+										disabled={publishLoading}
+										onClick={() =>
+											handlePublishPage({
+												isPublished: false,
+											})
+										}
+									>
+										Unpublish
+									</button>
+									<button
+										className="view-site-btn"
+										disabled={!slug?.trim() || slug?.endsWith('-')}
+										onClick={() =>
+											window.open(
+												`https://${activeWorkspaceId}.ve.ai/page/${prevSlug}`,
+												'_blank',
+											)
+										}
+									>
+										View site
+									</button>
+								</div>
+							</>
+						) : (
+							<>
+								<div className="publish-to-web-wrapper">Publish to web</div>
+								<button
+									className="publish-to-web-btn"
+									onClick={() =>
+										handlePublishPage({
+											isPublished: true,
+											slug: slug,
+											expiresAt: expiresAt,
+										})
+									}
+								>
+									{publishLoading ? 'Publishing...' : 'Publish'}
 								</button>
-							</div>
-							<div className="publish-options-wrapper">
-								<div className="publish-options-heading">Link expires</div>
-								<div className="optionSelector"></div>
-							</div>
-							<div className="publish-button-wrapper">
-								<button className="unpublish-btn">Unpublish</button>
-								<button className="view-site-btn">View site</button>
-							</div>
-						</>
-						{/* <>
-							<div className="publish-to-web-wrapper">Publish to web</div>
-							<button className="publish-to-web-btn">Publish</button>
-						</> */}
+							</>
+						)}
 					</div>
 				)}
 			</div>
