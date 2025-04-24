@@ -100,6 +100,23 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 	}, []);
 
 	useEffect(() => {
+		const notesContainer = document.querySelector('.notes-container');
+		const handleKeyDown = (e) => {
+			e.preventDefault();
+			if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
+				const selected = editor?.getSelectedText()?.length > 0 || false;
+				if (selected) {
+					e.stopPropagation();
+					return;
+				}
+			}
+		};
+
+		notesContainer.addEventListener('keydown', handleKeyDown);
+		return () => notesContainer.removeEventListener('keydown', handleKeyDown);
+	}, []);
+
+	useEffect(() => {
 		getNotesAccess({ pageId: noteId });
 	}, [noteId]);
 
