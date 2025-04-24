@@ -120,6 +120,34 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 		}
 	}, [info?.totalCardsData, info.currentIndex]);
 
+	const getDateRangeFromFilters = (filters) => {
+		const selectedDateFilter = filters?.find((f) => f.group === 'Date');
+
+		if (!selectedDateFilter?.value) return {};
+
+		const MS_IN_DAY = 86400000;
+		const todayStart = new Date();
+		todayStart.setHours(0, 0, 0, 0);
+		const to = todayStart.getTime();
+
+		let from;
+		switch (selectedDateFilter.value) {
+			case 'today':
+				from = to;
+				break;
+			case 'last7days':
+				from = to - MS_IN_DAY * 6;
+				break;
+			case 'last30days':
+				from = to - MS_IN_DAY * 29;
+				break;
+			default:
+				return {};
+		}
+
+		return { from, to };
+	};
+
 	const newUpdatedPayload = useMemo(() => {
 		const getFilterValues = (group, excludeTitle = null) =>
 			info?.selectedFilters
@@ -130,27 +158,7 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 		const selectedReadStatus = getFilterValues('Read Status', 'All');
 		const selectedConfidenceScore = getFilterValues('Confidence level');
 
-		const selectedDateFilter = info?.selectedFilters?.find((f) => f.group === 'Date');
-
-		let from, to;
-		if (selectedDateFilter?.value) {
-			const MS_IN_DAY = 86400000;
-			const todayStart = new Date();
-			todayStart.setHours(0, 0, 0, 0); // Midnight today
-			to = todayStart.getTime();
-
-			switch (selectedDateFilter.value) {
-				case 'today':
-					from = to;
-					break;
-				case 'last7days':
-					from = to - MS_IN_DAY * 6;
-					break;
-				case 'last30days':
-					from = to - MS_IN_DAY * 29;
-					break;
-			}
-		}
+		const { from, to } = getDateRangeFromFilters(info?.selectedFilters);
 
 		return {
 			...payload,
@@ -244,17 +252,22 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 			if (aiSuggestedPendingActions?.metaInfo?.hasNextPage) {
 				const nextPage = aiSuggestedPendingActions.metaInfo.currentPage + 1;
 
-				// Extract selected filters
-				const selectedPriority = info.selectedFilters
+				const filters = info.selectedFilters || [];
+
+				const selectedPriority = filters
 					?.filter((f) => f.group === 'Priority Level')
 					.map((f) => f.value || f.title);
 
-				const selectedReadStatus = info.selectedFilters
+				const selectedReadStatus = filters
 					?.filter((f) => f.group === 'Read Status')
 					.map((f) => f.value || f.title);
-				const selectedConfidenceScore = info.selectedFilters
+
+				const selectedConfidenceScore = filters
 					?.filter((f) => f.group === 'Confidence level')
 					.map((f) => f.value || f.title);
+
+				const { from, to } = getDateRangeFromFilters(filters);
+
 				const filterPayload = {
 					page: nextPage,
 					...(selectedPriority?.length > 0 && { priority: selectedPriority }),
@@ -262,9 +275,9 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 					...(selectedConfidenceScore?.length > 0 && {
 						confidenceScore: selectedConfidenceScore,
 					}),
+					...(from !== undefined && to !== undefined && { from, to }),
 				};
 
-				// Merge with base payload
 				const newPayload = {
 					...payload,
 					...filterPayload,
