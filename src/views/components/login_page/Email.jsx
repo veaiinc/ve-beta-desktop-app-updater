@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import validator from 'validator';
 import '../../../assets/scss/login_page/index.scss';
 import { ReactComponent as GoogleLogo } from '../../../assets/svg/login_page/google.svg';
@@ -11,7 +11,14 @@ import { message } from '../globalComponents/CustomToast';
 import gsap from 'gsap';
 import Spinner from '../loaders/Spinner';
 
-const Email = ({ email, setEmail, setActiveStage, setEmailVerified }) => {
+const Email = ({
+	email,
+	setEmail,
+	setActiveStage,
+	setEmailVerified,
+	lastOtpEmail,
+	setLastOtpEmail,
+}) => {
 	const navigate = useNavigate();
 	const arrowRef = useRef(null);
 
@@ -167,13 +174,21 @@ const Email = ({ email, setEmail, setActiveStage, setEmailVerified }) => {
 	};
 
 	const handleContinueWithEmail = async (e, type, invitedUserEmail = false) => {
-		if (
-			((e?.key === 'Enter' || type === 'click') && info?.isEmailValid && !info?.isLoading) ||
-			invitedUserEmail
-		) {
+		if (e?.key !== 'Enter' && type !== 'click') {
+			return;
+		}
+
+		const currentEmail = email || invitedUserEmail;
+
+		if (currentEmail === lastOtpEmail) {
+			setActiveStage('verificationCode');
+			return;
+		}
+
+		if ((info?.isEmailValid && !info?.isLoading) || invitedUserEmail) {
 			setInfo((prev) => ({ ...prev, isLoading: true }));
 			try {
-				const response = await checkAccountExistsUsingEmail(email || invitedUserEmail);
+				const response = await checkAccountExistsUsingEmail(currentEmail);
 				if (response[0] === true) {
 					if (response?.[1]?.accountExists) {
 						if (response?.[1]?.emailVerified) {
@@ -189,13 +204,14 @@ const Email = ({ email, setEmail, setActiveStage, setEmailVerified }) => {
 							setActiveStage('verificationCode');
 						}
 					} else {
-						referralCode
-							? await handleCreateAccountWithEmail(
-									email || invitedUserEmail,
-									referralCode,
-							  )
-							: await handleCreateAccountWithEmail(email || invitedUserEmail);
+						const createResponse = referralCode
+							? await handleCreateAccountWithEmail(currentEmail, referralCode)
+							: await handleCreateAccountWithEmail(currentEmail);
+						if (createResponse[0] === true) {
+							setLastOtpEmail(currentEmail);
+						}
 					}
+					setLastOtpEmail(currentEmail);
 				} else {
 					message?.error(response?.[1]?.message);
 				}

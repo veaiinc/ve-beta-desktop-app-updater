@@ -32,7 +32,8 @@
 
 		.tooltip-content {
 			width: 280px;
-			height: 270px;
+			min-height: 140px;
+			max-height: 270px;
 			overflow-y: auto;
 			flex-shrink: 0;
 			color: var(--primary-font);

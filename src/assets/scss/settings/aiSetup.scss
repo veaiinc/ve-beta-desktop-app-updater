@@ -324,6 +324,7 @@
 	border-radius: 32px;
 	background: var(--popup);
 	gap: 16px;
+	border: 1px solid var(--stroke);
 
 	.titleAndDescriptionContainer {
 		display: flex;
@@ -1029,20 +1030,27 @@
 		width: calc(100% - 64px);
 		border-radius: 100px;
 		border: 1px solid var(--stroke);
-		background: var(--card-hover);
+		background: var(--primary-button);
 		display: flex;
 		padding: 16px 24px;
 		justify-content: center;
 		align-items: center;
 		gap: 16px;
 		align-self: stretch;
-		color: var(--primary-font);
+		color: var(--primary-button-font);
 		font-family: var(--primary-font-family);
 		font-size: 13px;
 		font-style: normal;
 		font-weight: 500;
 		line-height: 16px;
 		letter-spacing: 0.26px;
+		transition: all 0.3s ease-in-out;
+
+		&:disabled {
+			background: var(--card-hover);
+			color: var(--secondary-font);
+			cursor: not-allowed;
+		}
 
 		.loader {
 			display: flex;

@@ -27,7 +27,7 @@
 			cursor: pointer;
 
 			border-radius: 16px;
-			background: var(--card-hover, #202123);
+			background: var(--card, #202123);
 			box-shadow: 0px 4px 30px 0px rgba(0, 0, 0, 0.04);
 
 			.header {
@@ -112,6 +112,10 @@
 						}
 					}
 				}
+			}
+
+			&:hover {
+				background-color: var(--card-hover);
 			}
 		}
 
@@ -279,7 +283,8 @@
 	gap: 10px;
 	border-radius: 16px;
 	background: var(--popup, #202123);
-	box-shadow: 2px 2px 50px 0px rgba(0, 0, 0, 0.2);
+	border: 1px solid var(--stroke, #2e3033);
+	// box-shadow: 2px 2px 50px 0px rgba(0, 0, 0, 0.2);
 	.filter-items {
 		display: flex;
 		flex-direction: column;

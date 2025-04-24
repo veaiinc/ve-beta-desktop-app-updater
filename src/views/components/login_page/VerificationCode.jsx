@@ -152,9 +152,7 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 	return (
 		<div className="verification-code-container">
 			<div className="back-btn-container" onClick={() => setActiveStage('email')}>
-				<span>
-					<LeftArrowBackBtn />
-				</span>
+				<LeftArrowBackBtn />
 				<span>Back</span>
 			</div>
 			<h1 className="verification-code-title">We sent you a code</h1>

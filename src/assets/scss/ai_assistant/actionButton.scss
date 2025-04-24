@@ -18,14 +18,14 @@
 	transition: all 0.3s ease-in;
 	background-color: var(--card);
 
-	&:enabled:hover {
+	border: 1px solid var(--stroke);
+
+	&:enabled {
 		color: var(--primary-button-font);
 		background-color: var(--primary-button);
-		border: 1px solid var(--stroke);
 	}
 	&:disabled {
 		background-color: var(--card-over-card);
-		border: 1px solid var(--stroke);
 		color: var(--secondary-font);
 		cursor: not-allowed;
 		&:hover {
