@@ -34,6 +34,8 @@ const ShareComponent = ({ pageId }) => {
 			getNotesPageData,
 			notesPageData,
 			updatePage,
+			globalAccess,
+			updateGlobalAccess,
 		},
 	} = useContext(Context);
 	const [info, setInfo] = useState({
@@ -283,6 +285,19 @@ const ShareComponent = ({ pageId }) => {
 		const unixDate = date ? moment(date).unix() : null;
 		handleInfoChange({ expiresAt: unixDate });
 		handlePublishPage({ isPublished: true, expiresAt: unixDate });
+	};
+
+	const handleGlobalAccessUpdate = async (input) => {
+		const payload = {
+			pageId,
+			input,
+		};
+		const response = await updateGlobalAccess(payload);
+		if (response?.[0]) {
+			message?.success('Global access updated');
+		} else {
+			message?.error(`Couldn't update global access`);
+		}
 	};
 
 	return (
@@ -666,6 +681,8 @@ const ShareComponent = ({ pageId }) => {
 				allMembers={info?.tenantUsers}
 				onActionClick={handleAddMembers}
 				updateAccess={handleChangeAccess}
+				globalAccess={globalAccess}
+				handleGlobalAccessUpdate={handleGlobalAccessUpdate}
 			/>
 		</div>
 	);

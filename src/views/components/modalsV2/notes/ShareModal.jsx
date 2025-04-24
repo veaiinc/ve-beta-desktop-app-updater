@@ -1,4 +1,4 @@
-import { memo, useEffect, useState } from 'react';
+import { memo, useContext, useEffect, useState } from 'react';
 import ReactModal from '../index';
 import '../../../../assets/scss/notes/modals/shareModal.scss';
 import { ReactComponent as CrossWhite } from '../../../../assets/svg/Settings/CrossWhite.svg';
@@ -7,12 +7,16 @@ import { ReactComponent as Copy } from '../../../../assets/svg/ai_assistant/url.
 import { ReactComponent as Check } from '../../../../assets/svg/tasks/checkmark.svg';
 import { ReactComponent as ChevronRightThinSvg } from '../../../../assets/svg/tasks/chevronRightThin.svg';
 import jwtDecode from 'jwt-decode';
+import { Tooltip } from 'antd';
+import Context from '../../../../context/context';
+import { ReactComponent as LockIcon } from '../../../../assets/svg/workspaceSettings/lock-big.svg';
 const tabs = [
 	{ value: 'share', label: 'Share' },
 	{ value: 'publish', label: 'Publish' },
 ];
 
 let userId = null;
+let activeWorkspaceId = null;
 
 const ShareModal = ({
 	isOpen,
@@ -21,7 +25,13 @@ const ShareModal = ({
 	membersWithAccess,
 	onActionClick,
 	updateAccess,
+	globalAccess,
+	handleGlobalAccessUpdate,
 }) => {
+	const {
+		profileInfo: { userWorkSpaceList },
+	} = useContext(Context);
+
 	const [info, setInfo] = useState({
 		activeTab: 'share',
 		inputFocused: false,
@@ -29,13 +39,26 @@ const ShareModal = ({
 		accessType: 'full',
 		selectedMembers: [],
 		btnLoading: false,
+		globalAccessDropdown: false,
+		activeWorkSpace: null,
 	});
 
 	useEffect(() => {
 		const token = localStorage.getItem('usertoken');
+		activeWorkspaceId = localStorage.getItem('workspaceId');
 		const { user_id } = jwtDecode(token);
 		userId = user_id;
 	}, []);
+
+	useEffect(() => {
+		if (userWorkSpaceList) {
+			const activeWorkSpace = userWorkSpaceList?.find(
+				(item) => item.activeWorkspaceId === activeWorkspaceId,
+			);
+
+			setInfo((prev) => ({ ...prev, activeWorkSpace }));
+		}
+	}, [userWorkSpaceList, activeWorkspaceId]);
 
 	const handleInfoChange = (data) => {
 		setInfo((prevInfo) => ({ ...prevInfo, ...data }));
@@ -240,22 +263,112 @@ const ShareModal = ({
 									<div className="access-control-wrapper">
 										<div className="access-control-heading">General access</div>
 										<div className="access-control-list-item-wrapper">
-											<div className="access-control-list-item">
-												<div className="access-control-avatar"></div>
-												<div className="access-control-name-wrapper">
-													<div className="access-control-name">
-														Sabith
-														<span className="you-indicator">
-															{' '}
-															(You)
-														</span>
+											<Tooltip
+												arrow={false}
+												placement="bottomLeft"
+												color="transparent"
+												overlayStyle={{
+													minWidth: '256px',
+													zIndex: 50003,
+												}}
+												trigger="click"
+												open={info?.globalAccessDropdown}
+												onOpenChange={(open) => {
+													if (!open) {
+														handleInfoChange({
+															globalAccessDropdown: false,
+														});
+													}
+												}}
+												title={
+													<div className="general-access-drop-dropdown">
+														<div
+															className="general-access-item"
+															onClick={() => {
+																handleGlobalAccessUpdate({
+																	isEnabled: false,
+																	access: 'view',
+																});
+																handleInfoChange({
+																	globalAccessDropdown: false,
+																});
+															}}
+														>
+															Only people invited
+														</div>
+														<div
+															className="general-access-item"
+															onClick={() => {
+																handleGlobalAccessUpdate({
+																	isEnabled: true,
+																	access: 'view',
+																});
+																handleInfoChange({
+																	globalAccessDropdown: false,
+																});
+															}}
+														>
+															{`Everyone at ${info?.activeWorkSpace?.businessName}`}
+														</div>
 													</div>
-													<div className="access-control-email">
-														sabith@gmail.com
+												}
+											>
+												<div
+													className="access-control-list-item"
+													onClick={() =>
+														handleInfoChange({
+															globalAccessDropdown:
+																!info?.globalAccessDropdown,
+														})
+													}
+												>
+													<div className="access-control-avatar">
+														{globalAccess?.isEnabled ? (
+															<img
+																className="workspaceLogo"
+																src={
+																	info?.activeWorkSpace
+																		?.logo_s3_500w_key
+																}
+																alt={
+																	info?.activeWorkSpace
+																		?.activeWorkspaceId
+																}
+															/>
+														) : (
+															<LockIcon width={16} height={16} />
+														)}
 													</div>
+
+													<div className="general-access-selected">
+														{globalAccess?.isEnabled
+															? `Everyone at ${info?.activeWorkSpace?.businessName}`
+															: 'Only people invited'}
+														<ChevronRightThinSvg
+															className={`${
+																info?.globalAccessDropdown &&
+																`global-dropdown-open`
+															}`}
+														/>
+													</div>
+
+													{globalAccess?.isEnabled && (
+														<AccessDropdown
+															selectedAccess={globalAccess?.access}
+															showRemoveButton={false}
+															onChange={(value) => {
+																handleGlobalAccessUpdate({
+																	isEnabled: true,
+																	access: value,
+																});
+																handleInfoChange({
+																	globalAccessDropdown: false,
+																});
+															}}
+														/>
+													)}
 												</div>
-												<AccessDropdown selectedAccess={'view'} />
-											</div>
+											</Tooltip>
 										</div>
 									</div>
 									<button className="notes-access-copy-link-btn">
