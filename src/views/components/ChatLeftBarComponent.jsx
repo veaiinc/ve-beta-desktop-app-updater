@@ -1,6 +1,5 @@
 import { memo, useContext, useRef, useState } from 'react';
 import '../../assets/scss/chatLeftBarComponent.scss';
-import ChatBox from './chat/ChatBox';
 import Context from '../../context/context';
 import ObjectID from 'bson-objectid';
 import RecentChat from '../features/chat/RecentChat';
@@ -30,7 +29,7 @@ const ChatLeftBarComponent = ({ children }) => {
 				height: renewBanner ? 'calc(100dvh - 50px)' : '100dvh',
 			}}
 		>
-			<div className="chat-left-bar-component-overlay">{children}</div>
+			{!info?.chatActive && <div className="chat-left-bar-component-overlay">{children}</div>}
 			<RecentChat
 				sId={sessionIdRef?.current}
 				showIconText={false}

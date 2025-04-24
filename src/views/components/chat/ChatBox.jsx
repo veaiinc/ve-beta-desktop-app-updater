@@ -1080,7 +1080,10 @@ const ChatBox = ({
 	};
 
 	return (
-		<div className="chatParentWrapper" onClick={handleChatBoxClick}>
+		<div
+			className="chatParentWrapper"
+			{...(customChatBoxClick && { onClick: customChatBoxClick })}
+		>
 			<div className={`chatWrapper`}>
 				<div
 					className={`chat-box-container ${
