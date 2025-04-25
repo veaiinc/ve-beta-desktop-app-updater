@@ -5,14 +5,6 @@ import UpdateCategoryModal from '../modalsV2/calendar/UpdateCategoryModal';
 import PlusSvg from '../../../assets/svg/my_templates/PlusSvg';
 import { ReactComponent as DownSvg } from '../../../assets/svg/calendar/down.svg';
 
-const expandedHeight = '192px'; // Pre-calculated: 40 + (2 * 40) + (3 * 12) + 32 + 4
-const maxVisibleItems = 3;
-const itemHeight = 40;
-const spacing = 12;
-const headerHeight = 40;
-const padding = 32;
-const margin = 4;
-
 const CalendarCategories = ({
 	categoryList,
 	selectedCategory,
@@ -21,38 +13,16 @@ const CalendarCategories = ({
 }) => {
 	const [info, setInfo] = useState({
 		expanded: false,
-		height: '62px',
 		isCategoryModalOpen: false,
 		isCategoryEditable: false,
 		selectedCalendarCategory: [selectedCategory] || [],
 	});
 	const expandRef = useRef(null);
 
-	useEffect(() => {
-		const itemCount = categoryList?.length || 0;
-		const calculatedHeight =
-			itemCount === 0
-				? '62px' // Collapsed height when empty
-				: info?.expanded
-				? `${
-						headerHeight +
-						Math.min(itemCount, maxVisibleItems) * itemHeight +
-						(Math.min(itemCount, maxVisibleItems) - 1) * spacing +
-						padding +
-						margin
-				  }px`
-				: '62px';
-
-		setInfo((prevInfo) => ({
-			...prevInfo,
-			height: calculatedHeight,
-		}));
-	}, [info?.expanded, categoryList?.length]);
-
 	// Auto expand when there are items to display
 	useEffect(() => {
 		const hasItems = categoryList?.length > 0;
-		if (hasItems && !info.expanded) {
+		if (hasItems && !info?.expanded) {
 			setInfo((prev) => ({ ...prev, expanded: true }));
 		}
 	}, [categoryList]);
@@ -60,7 +30,7 @@ const CalendarCategories = ({
 	const handleCategoryExpand = useCallback(() => {
 		setInfo((prevInfo) => ({
 			...prevInfo,
-			expanded: !prevInfo.expanded,
+			expanded: !prevInfo?.expanded,
 		}));
 	}, []);
 
@@ -95,7 +65,7 @@ const CalendarCategories = ({
 			updateCalendarInfo('categoryFilter', updatedFilter);
 			updateCalendarInfo(
 				'selectedCategory',
-				categoryList?.find((cat) => cat._id === defaultCategory),
+				categoryList?.find((cat) => cat?._id === defaultCategory),
 			);
 			return;
 		}
@@ -110,7 +80,7 @@ const CalendarCategories = ({
 				updatedFilter = [defaultCategory];
 				updateCalendarInfo(
 					'selectedCategory',
-					categoryList?.find((cat) => cat._id === defaultCategory),
+					categoryList?.find((cat) => cat?._id === defaultCategory),
 				);
 			} else {
 				updateCalendarInfo('selectedCategory', null);
@@ -120,7 +90,7 @@ const CalendarCategories = ({
 			updatedFilter = [...categoryFilter?.filter((id) => id !== defaultCategory), categoryId];
 			updateCalendarInfo(
 				'selectedCategory',
-				categoryList?.find((cat) => cat._id === categoryId),
+				categoryList?.find((cat) => cat?._id === categoryId),
 			);
 		}
 
@@ -130,9 +100,6 @@ const CalendarCategories = ({
 	return (
 		<div
 			className={`categoriesParentContainer ${info?.expanded ? 'expanded' : ''}`}
-			style={{
-				height: info?.height,
-			}}
 			ref={expandRef}
 		>
 			<div className="categoriesHeadWrapper">
@@ -153,14 +120,8 @@ const CalendarCategories = ({
 				<div
 					className="categoriesContainer"
 					style={{
-						overflowY: categoryList?.length > maxVisibleItems ? 'auto' : 'visible',
-						maxHeight:
-							categoryList?.length > maxVisibleItems
-								? `${
-										maxVisibleItems * itemHeight +
-										(maxVisibleItems - 1) * spacing
-								  }px`
-								: 'auto',
+						overflowY: 'auto',
+						height: '192px',
 					}}
 				>
 					{categoryList?.map((category) => {

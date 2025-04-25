@@ -10,7 +10,7 @@ import MonthEventWrapper from '../../components/calendar/MonthEventWrapper';
 import Context from '../../../context/context';
 import moment from 'moment';
 import EventDetailsModal from '../../components/modalsV2/calendar/EventDetailsModal';
-import EventsPopUp from '../../components/calendar/EventsPopUp';
+// import EventsPopUp from '../../components/calendar/EventsPopUp';
 import { message } from '../../components/globalComponents/CustomToast';
 
 const initialState = {

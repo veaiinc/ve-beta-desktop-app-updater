@@ -7,14 +7,6 @@ import UpdateSessionSlot from '../../../views/components/modalsV2/calendar/Updat
 import CreateSessionModal from '../../../views/components/modalsV2/calendar/CreateSessionModal';
 import dayjs from 'dayjs';
 
-const expandedHeight = '192px'; // Pre-calculated: 40 + (2 * 40) + (3 * 12) + 32 + 4
-const maxVisibleItems = 3;
-const itemHeight = 40;
-const spacing = 12;
-const headerHeight = 40;
-const padding = 32;
-const margin = 4;
-
 const SessionCard = ({
 	schedulerList = [],
 	selectedSession,
@@ -23,7 +15,6 @@ const SessionCard = ({
 }) => {
 	const [info, setInfo] = useState({
 		expanded: false,
-		height: '62px',
 		isSessionModalOpen: false,
 		isCreateModalOpen: false,
 		isSessionEditable: false,
@@ -45,9 +36,9 @@ const SessionCard = ({
 
 	// Update session data when schedulerList changes
 	useEffect(() => {
-		if (schedulerList && schedulerList.length > 0) {
+		if (schedulerList) {
 			if (selectedSession) {
-				const session = schedulerList.find((s) => s._id === selectedSession._id);
+				const session = schedulerList.find((s) => s?._id === selectedSession?._id);
 				if (session) {
 					setInfo((prevInfo) => ({
 						...prevInfo,
@@ -61,32 +52,10 @@ const SessionCard = ({
 	// Handle session expansion
 	useEffect(() => {
 		const hasItems = Array.isArray(schedulerList) && schedulerList.length > 0;
-		if (hasItems && !info.expanded) {
+		if (hasItems && !info?.expanded) {
 			setInfo((prev) => ({ ...prev, expanded: true }));
 		}
 	}, [schedulerList]);
-
-	// Update height based on expansion state and item count
-	useEffect(() => {
-		const itemCount = schedulerList?.length || 0;
-		const calculatedHeight =
-			itemCount === 0
-				? '62px' // Collapsed height when empty
-				: info?.expanded
-				? `${
-						headerHeight +
-						Math.min(itemCount, maxVisibleItems) * itemHeight +
-						(Math.min(itemCount, maxVisibleItems) - 1) * spacing +
-						padding +
-						margin
-				  }px`
-				: '62px';
-
-		setInfo((prevInfo) => ({
-			...prevInfo,
-			height: calculatedHeight,
-		}));
-	}, [info?.expanded, schedulerList?.length]);
 
 	const handleEditSession = useCallback(
 		(session) => {
@@ -106,7 +75,7 @@ const SessionCard = ({
 	const handleSessionExpand = useCallback(() => {
 		setInfo((prevInfo) => ({
 			...prevInfo,
-			expanded: !prevInfo.expanded,
+			expanded: !prevInfo?.expanded,
 		}));
 	}, []);
 
@@ -164,9 +133,6 @@ const SessionCard = ({
 			<div
 				className={`sessionCardContainer ${info?.expanded ? 'expanded' : ''}`}
 				ref={expandRef}
-				style={{
-					height: info?.height,
-				}}
 			>
 				<div className="sessionHeader">
 					<div className="headerContainer">
@@ -186,14 +152,8 @@ const SessionCard = ({
 					<div
 						className="sessionsContainer"
 						style={{
-							overflowY: schedulerList.length > maxVisibleItems ? 'auto' : 'visible',
-							maxHeight:
-								schedulerList.length > maxVisibleItems
-									? `${
-											maxVisibleItems * itemHeight +
-											(maxVisibleItems - 1) * spacing
-									  }px`
-									: 'auto',
+							overflowY: 'auto',
+							height: '192px',
 						}}
 					>
 						{schedulerList.map((session) => {

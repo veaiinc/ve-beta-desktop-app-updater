@@ -751,16 +751,16 @@ const EditScheduler = ({ onBack, sessionId: propSessionId }) => {
 		}
 
 		const timeout = setTimeout(() => {
-			if (sessionId && info.sessionDetail) {
-				const availabilitySlots = transformWeeklyAvailabilityToApi(info.weeklyAvailability);
-				// Only call API if there are enabled slots
-				if (availabilitySlots.length > 0) {
-					const payload = {
-						availabilitySlots,
-					};
-					updateSchedulerSession(sessionId, payload);
-				}
-			}
+			// if (sessionId && info.sessionDetail) {
+			// 	const availabilitySlots = transformWeeklyAvailabilityToApi(info.weeklyAvailability);
+			// 	// Only call API if there are enabled slots
+			// 	if (availabilitySlots.length > 0) {
+			// 		const payload = {
+			// 			availabilitySlots,
+			// 		};
+			// 		updateSchedulerSession(sessionId, payload);
+			// 	}
+			// }
 		}, 800);
 
 		availabilityUpdateTimeoutRef.current = timeout;
@@ -975,11 +975,9 @@ const EditScheduler = ({ onBack, sessionId: propSessionId }) => {
 		async (updateData) => {
 			try {
 				setIsUpdating(true);
-				console.log('Update data received:', updateData);
 
 				// If only updating the session name, send just that
 				if (updateData && Object.keys(updateData).length === 1 && updateData.sessionName) {
-					console.log('Updating session name to:', updateData.sessionName);
 					await updateSchedulerSession(sessionId, {
 						sessionName: updateData.sessionName,
 					});
@@ -1046,7 +1044,6 @@ const EditScheduler = ({ onBack, sessionId: propSessionId }) => {
 					},
 				};
 
-				console.log('Sending update payload:', payload);
 				await updateSchedulerSession(sessionId, payload);
 
 				// Refresh session details after update
@@ -1150,6 +1147,14 @@ const EditScheduler = ({ onBack, sessionId: propSessionId }) => {
 			</div>
 
 			<div className="updateSessionDetails">
+				<div className="sessionDescriptionContainer">
+					<span>Description</span>
+					<textarea
+						className="sessionDescriptionInput"
+						value={info.sessionDescription}
+						onChange={(e) => handleSessionDescriptionChange(e.target.value)}
+					/>
+				</div>
 				<div className="sessionDurationContainer">
 					<div className="sessionDetailsRow">
 						<div className="sessionInputWrapper">

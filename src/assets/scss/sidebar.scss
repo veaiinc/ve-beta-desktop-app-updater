@@ -1160,8 +1160,9 @@
 	position: fixed;
 	bottom: 0;
 	// left: 3%;
+	left: 0;
 	z-index: 2;
-	width: 226px;
+	width: 250px;
 	cursor: pointer;
 	transition: background 0.2s ease;
 	.settingsHoverState {

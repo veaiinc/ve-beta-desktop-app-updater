@@ -327,7 +327,7 @@ const routes = [
 			<AuthWrapper
 				title={'Calendar'}
 				maxWidth={'100%'}
-				outerContainerStyle={{ overflow: 'hidden', padding: '11px 21px' }}
+				outerContainerStyle={{ overflow: 'hidden', padding: '12px 32px' }}
 			>
 				<CalendarModule />
 			</AuthWrapper>

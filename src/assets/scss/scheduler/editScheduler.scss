@@ -28,7 +28,26 @@
 		}
 	}
 }
-
+.sessionDescriptionContainer {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	align-items: flex-start;
+	width: 100%;
+	.sessionDescriptionInput {
+		width: 100%;
+		height: 100px;
+		border: 1px solid var(--stroke);
+		border-radius: 8px;
+		padding: 12px;
+		background-color: transparent;
+		color: var(--primary-font);
+		font-family: var(--primary-font-family);
+		font-size: 16px;
+		font-style: normal;
+		font-weight: 500;
+	}
+}
 .sessionTitle {
 	display: flex;
 	width: 100%;
@@ -1004,6 +1023,7 @@
 				font-family: var(--primary-font-family);
 				font-size: 14px;
 				cursor: pointer;
+				border: 1px solid var(--stroke);
 				// min-width: 80px;
 
 				&:hover {

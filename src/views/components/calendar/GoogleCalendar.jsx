@@ -35,11 +35,11 @@ const GoogleCalendar = () => {
 	// Auto expand when there are items to display
 	useEffect(() => {
 		const hasItems =
-			info.alreadyConnectedGoogleCalendars?.length > 0 || googleCalendarList?.length > 0;
-		if (hasItems && !info.expanded) {
+			info?.alreadyConnectedGoogleCalendars?.length > 0 || googleCalendarList?.length > 0;
+		if (hasItems && !info?.expanded) {
 			setInfo((prev) => ({ ...prev, expanded: true }));
 		}
-	}, [info.alreadyConnectedGoogleCalendars, googleCalendarList]);
+	}, [info?.alreadyConnectedGoogleCalendars, googleCalendarList]);
 
 	useEffect(() => {
 		const fetchCalendarList = async () => {
@@ -79,39 +79,49 @@ const GoogleCalendar = () => {
 	// New useEffect to handle watch response
 	useEffect(() => {
 		const handleWatchResponse = async () => {
-			// Only proceed if we've requested a watch and have a response
-			if (info.watchRequested && info.selectedCalendar) {
-				if (googleCalendarWatch?.id) {
-					// Watch was successful, proceed to fetch events only if we don't have them
-					setInfo((prev) => ({
-						...prev,
-						watchLoading: false,
-						eventsLoading: !googleCalendarEvents?.length,
-					}));
-
-					if (!googleCalendarEvents?.length) {
-						try {
-							await getGoogleCalendarEvents();
-						} catch (error) {
-							console.error('Error fetching calendar events:', error);
-							message.error('Failed to fetch calendar events. Please try again.');
-						} finally {
-							setInfo((prev) => ({
-								...prev,
-								eventsLoading: false,
-								watchRequested: false,
-							}));
-						}
-					} else {
+			if (info?.watchRequested && info?.selectedCalendar) {
+				try {
+					if (googleCalendarWatch?.id) {
 						setInfo((prev) => ({
 							...prev,
-							eventsLoading: false,
-							watchRequested: false,
+							watchLoading: false,
+							eventsLoading: !googleCalendarEvents?.length,
 						}));
+
+						if (!googleCalendarEvents?.length) {
+							try {
+								await getGoogleCalendarEvents();
+							} catch (error) {
+								message.error('Failed to fetch calendar events. Please try again.');
+								setTimeout(async () => {
+									try {
+										await getGoogleCalendarEvents();
+									} catch (retryError) {
+										message.error(
+											'Failed to fetch events after retry. Please refresh the page.',
+										);
+									}
+								}, 5000);
+							}
+						}
+					} else if (googleCalendarWatch === null && !info?.watchLoading) {
+						message.error('Failed to watch Google Calendar. Please try again.');
+
+						setTimeout(async () => {
+							try {
+								await watchGoogleCalendar(info?.selectedCalendar);
+							} catch (retryError) {
+								message.error(
+									'Failed to watch calendar after retry. Please refresh the page.',
+								);
+							}
+						}, 5000);
 					}
-				} else if (googleCalendarWatch === null && !info.watchLoading) {
-					console.error('Failed to watch Google Calendar');
-					message.error('Failed to watch Google Calendar. Please try again.');
+				} catch (error) {
+					message.error(
+						'An error occurred while processing the calendar watch. Please try again.',
+					);
+				} finally {
 					setInfo((prev) => ({
 						...prev,
 						watchLoading: false,
@@ -122,7 +132,7 @@ const GoogleCalendar = () => {
 		};
 
 		handleWatchResponse();
-	}, [googleCalendarWatch, info.watchRequested, info.selectedCalendar]);
+	}, [googleCalendarWatch, info?.watchRequested, info?.selectedCalendar]);
 
 	useEffect(() => {
 		if (!connectThirdParties) {
@@ -137,6 +147,11 @@ const GoogleCalendar = () => {
 	}, [connectThirdParties]);
 
 	const handleCalendarSelect = async (calendar) => {
+		if (!calendar?.id) {
+			message.error('Invalid calendar selection. Please try again.');
+			return;
+		}
+
 		setInfo((prev) => ({
 			...prev,
 			selectedCalendar: calendar.id,
@@ -145,17 +160,34 @@ const GoogleCalendar = () => {
 		}));
 
 		try {
-			// Call watchGoogleCalendar and let the useEffect handle the response
-			await watchGoogleCalendar(calendar.id);
+			const watchResponse = await watchGoogleCalendar(calendar.id);
+
+			if (!watchResponse) {
+				throw new Error('No response from watch request');
+			}
+
+			if (watchResponse[0] !== true) {
+				throw new Error(watchResponse[1]?.error || 'Failed to watch calendar');
+			}
 		} catch (error) {
-			// Handle API call errors
-			console.error('Error in calendar selection process:', error);
-			message.error('Failed to watch the selected Google Calendar. Please try again.');
+			message.error(
+				error.message || 'Failed to watch the selected Google Calendar. Please try again.',
+			);
+
 			setInfo((prev) => ({
 				...prev,
 				watchLoading: false,
 				watchRequested: false,
+				selectedCalendar: null,
 			}));
+
+			setTimeout(async () => {
+				try {
+					await watchGoogleCalendar(calendar.id);
+				} catch (retryError) {
+					message.error('Failed to watch calendar after retry. Please refresh the page.');
+				}
+			}, 5000);
 		}
 	};
 
@@ -179,29 +211,29 @@ const GoogleCalendar = () => {
 						</div>
 					</div>
 					<div className="content">
-						{info.loading ? (
+						{info?.loading ? (
 							<div className="loading-container">
 								<Spinner width="24px" height="24px" />
 								<span>Loading calendars...</span>
 							</div>
-						) : info.watchLoading ? (
+						) : info?.watchLoading ? (
 							<div className="loading-container">
 								<Spinner width="24px" height="24px" />
 								<span>Connecting Google Calendar...</span>
 							</div>
-						) : info.eventsLoading ? (
+						) : info?.eventsLoading ? (
 							<div className="loading-container">
 								<Spinner width="24px" height="24px" />
 								<span>Fetching calendar events...</span>
 							</div>
-						) : info.alreadyConnectedGoogleCalendars?.length > 0 ? (
-							info.alreadyConnectedGoogleCalendars?.map((calendarId) => (
+						) : info?.alreadyConnectedGoogleCalendars?.length > 0 ? (
+							info?.alreadyConnectedGoogleCalendars?.map((calendarId) => (
 								<div key={calendarId} className="connected-calendar">
 									<div className="green-dot"></div>
 									<span className="calendar-name">{calendarId}</span>
 								</div>
 							))
-						) : googleCalendarList && !info.selectedCalendar ? (
+						) : googleCalendarList && !info?.selectedCalendar ? (
 							<>
 								<div className="calendar-list-header">
 									Select Calendar to Connect
@@ -228,11 +260,11 @@ const GoogleCalendar = () => {
 								))}
 							</>
 						) : (
-							info.selectedCalendar && (
+							info?.selectedCalendar && (
 								<div className="selected-calendar">
 									{
 										googleCalendarList?.find(
-											(cal) => cal.id === info.selectedCalendar,
+											(cal) => cal?.id === info?.selectedCalendar,
 										)?.summary
 									}
 								</div>
