@@ -354,7 +354,7 @@ const ShareModal = ({
 														>
 															Only people invited
 														</div>
-														<div
+														{/* <div
 															className="general-access-item"
 															onClick={() =>
 																handleGlobalAccessChange(
@@ -364,7 +364,7 @@ const ShareModal = ({
 															}
 														>
 															{`Everyone at ${info?.activeWorkSpace?.businessName}`}
-														</div>
+														</div> */}
 													</div>
 												}
 											>
@@ -429,7 +429,8 @@ const ShareModal = ({
 									>
 										<Copy className="notes-share-copy-svg" />
 										Copy Link
-									</button>
+									</button>{' '}
+									*/}
 								</>
 							) : (
 								<div className="access-control-wrapper suggested-wrapper">
