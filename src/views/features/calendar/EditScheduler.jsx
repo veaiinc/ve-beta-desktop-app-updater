@@ -12,9 +12,7 @@ import { ReactComponent as Clock } from '../../../assets/svg/workflow/clock.svg'
 import { ReactComponent as Duplicate } from '../../../assets/svg/tasks/duplicate.svg';
 import Context from '../../../context/context';
 import Checkbox from 'antd/es/checkbox/Checkbox';
-import PhoneInput from 'react-phone-input-2';
-import 'react-phone-input-2/lib/style.css';
-
+import PhoneInput from 'react-phone-number-input';
 const durationOptions = ['30 Minutes', '45 Minutes', '60 Minutes', '90 Minutes', '120 Minutes'];
 const sessionTypeOptions = ['In Person', 'Phone Call', 'Video Call'];
 
@@ -973,75 +971,95 @@ const EditScheduler = ({ onBack, sessionId: propSessionId }) => {
 	};
 
 	// Add handleUpdate function
-	const handleUpdate = useCallback(async () => {
-		try {
-			setIsUpdating(true);
+	const handleUpdate = useCallback(
+		async (updateData) => {
+			try {
+				setIsUpdating(true);
+				console.log('Update data received:', updateData);
 
-			// Prepare the update payload
-			const payload = {
-				sessionName: info.sessionName,
-				sessionDescription: info.sessionDescription,
-				sessionTypeInfo: {
-					sessionType: info.sessionType.toLowerCase().replace(' ', '_'),
-					...(info.sessionType === 'In Person' && { location: info.location }),
-					...(info.sessionType === 'Phone Call' && { phone: info.phoneNumber }),
-					...(info.sessionType === 'Video Call' && { meetingLink: info.videoLink }),
-				},
-				sessionWindow: {
-					type: 'fixed_date_range',
-					startDate: info.startTime?.toISOString(),
-					endDate: info.endTime?.toISOString(),
-				},
-				sessionTimezone: info.timezone,
-				availabilitySlots: transformWeeklyAvailabilityToApi(info.weeklyAvailability),
-				availabilityRules: {
-					maxBookingsPerSession: info.maxBookingsPerSession,
-					minBookingNotice: {
-						unitCount: info.minBookingNotice,
-						unitType: 'minutes',
-					},
-					maxBookingAdvance: {
-						unitCount: info.maxBookingAdvance,
-						unitType: 'days',
-					},
-				},
-				bookingRules: {
-					allowRescheduling: info.allowRescheduling,
-					allowCanceling: info.allowCanceling,
-					...(info.allowCanceling && {
-						cancellationPolicy: {
-							minCancelNotice: {
-								unitCount: info.minCancelNotice,
-								unitType: 'minutes',
-							},
+				// If only updating the session name, send just that
+				if (updateData && Object.keys(updateData).length === 1 && updateData.sessionName) {
+					console.log('Updating session name to:', updateData.sessionName);
+					await updateSchedulerSession(sessionId, {
+						sessionName: updateData.sessionName,
+					});
+
+					// Update local state
+					setInfo((prev) => ({
+						...prev,
+						sessionDetail: {
+							...prev.sessionDetail,
+							sessionName: updateData.sessionName,
 						},
-					}),
-				},
-				sessionMetadata: {
-					maxParticipants: info.maxParticipants,
-					preparationInstructions: info.preparationInstructions,
-				},
-			};
+					}));
 
-			// Call the update API
-			const updatedSession = await updateSchedulerSession(sessionId, payload);
+					// Refresh session details to ensure everything is in sync
+					await getSchedulerSessionDetail(sessionId);
+					setIsUpdating(false);
+					navigate('/calendar'); // Navigate to calendar view
+					return;
+				}
 
-			// Show success message or handle success
-			console.log('Session updated successfully');
+				// For other updates, include all necessary fields
+				const payload = {
+					...info.sessionDetail,
+					...updateData,
+					sessionTypeInfo: {
+						sessionType: info.sessionType.toLowerCase().replace(' ', '_'),
+						...(info.sessionType === 'In Person' && { location: info.location }),
+						...(info.sessionType === 'Phone Call' && { phone: info.phoneNumber }),
+						...(info.sessionType === 'Video Call' && { meetingLink: info.videoLink }),
+					},
+					sessionWindow: {
+						type: 'fixed_date_range',
+						startDate: info.startTime?.toISOString(),
+						endDate: info.endTime?.toISOString(),
+					},
+					sessionTimezone: info.timezone,
+					availabilitySlots: transformWeeklyAvailabilityToApi(info.weeklyAvailability),
+					availabilityRules: {
+						maxBookingsPerSession: info.maxBookingsPerSession,
+						minBookingNotice: {
+							unitCount: info.minBookingNotice,
+							unitType: 'minutes',
+						},
+						maxBookingAdvance: {
+							unitCount: info.maxBookingAdvance,
+							unitType: 'days',
+						},
+					},
+					bookingRules: {
+						allowRescheduling: info.allowRescheduling,
+						allowCanceling: info.allowCanceling,
+						...(info.allowCanceling && {
+							cancellationPolicy: {
+								minCancelNotice: {
+									unitCount: info.minCancelNotice,
+									unitType: 'minutes',
+								},
+							},
+						}),
+					},
+					sessionMetadata: {
+						maxParticipants: info.maxParticipants,
+						preparationInstructions: info.preparationInstructions,
+					},
+				};
 
-			// Pass the updated session data back to the parent
-			if (onBack) {
-				onBack(updatedSession);
-			} else {
-				navigate(-1);
+				console.log('Sending update payload:', payload);
+				await updateSchedulerSession(sessionId, payload);
+
+				// Refresh session details after update
+				await getSchedulerSessionDetail(sessionId);
+				navigate('/calendar'); // Navigate to calendar view
+			} catch (error) {
+				console.error('Error updating session:', error);
+			} finally {
+				setIsUpdating(false);
 			}
-		} catch (error) {
-			console.error('Error updating session:', error);
-			// Handle error (show error message, etc.)
-		} finally {
-			setIsUpdating(false);
-		}
-	}, [info, sessionId, updateSchedulerSession, onBack, navigate]);
+		},
+		[info, sessionId, updateSchedulerSession, getSchedulerSessionDetail, navigate],
+	);
 
 	// Add handler for session name changes
 	const handleSessionNameChange = useCallback(
@@ -1124,7 +1142,11 @@ const EditScheduler = ({ onBack, sessionId: propSessionId }) => {
 					className="backArrow"
 				/>
 
-				<SessionInfoCard sessionData={info?.sessionDetail} />
+				<SessionInfoCard
+					sessionData={info?.sessionDetail}
+					onUpdate={handleUpdate}
+					isUpdating={isUpdating}
+				/>
 			</div>
 
 			<div className="updateSessionDetails">
@@ -1167,44 +1189,6 @@ const EditScheduler = ({ onBack, sessionId: propSessionId }) => {
 								}}
 							/>
 						</div>
-						{/* <div className="sessionInputWrapper">
-							<span>Duration</span>
-							<Tooltip
-								placement="bottom"
-								trigger="click"
-								open={info.isDurationOpen}
-								onOpenChange={(open) =>
-									setInfo((prev) => ({
-										...prev,
-										isDurationOpen: open,
-									}))
-								}
-								overlayClassName="duration-dropdown"
-								title={
-									<div className="duration-options">
-										{durationOptions?.map((duration) => (
-											<div
-												key={duration}
-												className="duration-item"
-												onClick={() => {
-													handleDurationSelect(duration);
-												}}
-											>
-												{duration}
-											</div>
-										))}
-									</div>
-								}
-								arrow={false}
-								color={'transparent'}
-								overlayStyle={{ minWidth: 'fit-content', padding: '0' }}
-							>
-								<div className="session-input duration-selector">
-									{info.duration}
-									<DownArrow className={info.isDurationOpen ? 'open' : ''} />
-								</div>
-							</Tooltip>
-						</div> */}
 					</div>
 
 					<div className="updateSessionDesc">
@@ -1212,31 +1196,6 @@ const EditScheduler = ({ onBack, sessionId: propSessionId }) => {
 							<Checkbox className="checkbox" />
 							<div className="alldaytext">All Day</div>
 						</div>
-						{/* <div
-							className={`addSessionDesc ${info?.addDescription ? 'hidden' : ''}`}
-							onClick={() =>
-								setInfo((prev) => ({
-									...prev,
-									addDescription: !prev.addDescription,
-								}))
-							}
-						>
-							Add Instruction
-						</div> */}
-
-						{/* <div
-							className={`sessionDescriptionWrapper ${
-								info?.addDescription ? 'visible' : ''
-							}`}
-						>
-							<input
-								className="inputHeight"
-								value={info?.sessionDescription}
-								onChange={(e) => handleSessionDescriptionChange(e.target.value)}
-								placeholder={'Session description'}
-								backgroundColor={'var(--background)'}
-							/>
-						</div> */}
 					</div>
 
 					<div className="sessionOptionContainer">
@@ -1438,7 +1397,6 @@ const EditScheduler = ({ onBack, sessionId: propSessionId }) => {
 															key={index}
 															className="time-slot-wrapper"
 														>
-															{/* {index > 0 && <span>and</span>} */}
 															<DatePicker
 																showTime
 																format="HH:mm"

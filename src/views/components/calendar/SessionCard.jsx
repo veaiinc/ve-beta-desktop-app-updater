@@ -8,6 +8,12 @@ import CreateSessionModal from '../../../views/components/modalsV2/calendar/Crea
 import dayjs from 'dayjs';
 
 const expandedHeight = '192px'; // Pre-calculated: 40 + (2 * 40) + (3 * 12) + 32 + 4
+const maxVisibleItems = 3;
+const itemHeight = 40;
+const spacing = 12;
+const headerHeight = 40;
+const padding = 32;
+const margin = 4;
 
 const SessionCard = ({
 	schedulerList = [],
@@ -60,13 +66,27 @@ const SessionCard = ({
 		}
 	}, [schedulerList]);
 
-	// Update height based on expansion state
+	// Update height based on expansion state and item count
 	useEffect(() => {
+		const itemCount = schedulerList?.length || 0;
+		const calculatedHeight =
+			itemCount === 0
+				? '62px' // Collapsed height when empty
+				: info?.expanded
+				? `${
+						headerHeight +
+						Math.min(itemCount, maxVisibleItems) * itemHeight +
+						(Math.min(itemCount, maxVisibleItems) - 1) * spacing +
+						padding +
+						margin
+				  }px`
+				: '62px';
+
 		setInfo((prevInfo) => ({
 			...prevInfo,
-			height: info?.expanded ? expandedHeight : '62px',
+			height: calculatedHeight,
 		}));
-	}, [info?.expanded]);
+	}, [info?.expanded, schedulerList?.length]);
 
 	const handleEditSession = useCallback(
 		(session) => {
@@ -144,6 +164,9 @@ const SessionCard = ({
 			<div
 				className={`sessionCardContainer ${info?.expanded ? 'expanded' : ''}`}
 				ref={expandRef}
+				style={{
+					height: info?.height,
+				}}
 			>
 				<div className="sessionHeader">
 					<div className="headerContainer">
@@ -160,7 +183,19 @@ const SessionCard = ({
 				</div>
 
 				{info?.expanded && Array.isArray(schedulerList) && (
-					<div className="sessionsContainer">
+					<div
+						className="sessionsContainer"
+						style={{
+							overflowY: schedulerList.length > maxVisibleItems ? 'auto' : 'visible',
+							maxHeight:
+								schedulerList.length > maxVisibleItems
+									? `${
+											maxVisibleItems * itemHeight +
+											(maxVisibleItems - 1) * spacing
+									  }px`
+									: 'auto',
+						}}
+					>
 						{schedulerList.map((session) => {
 							if (!session || typeof session !== 'object') return null;
 

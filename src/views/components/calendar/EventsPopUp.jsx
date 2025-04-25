@@ -97,8 +97,10 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 	});
 
 	useEffect(() => {
-		getCalendarCategories();
-	}, []);
+		if (!calendarCategoriesList || calendarCategoriesList.length === 0) {
+			getCalendarCategories();
+		}
+	}, [calendarCategoriesList]);
 
 	useEffect(() => {
 		if (selectedSlot) {

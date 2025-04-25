@@ -289,13 +289,13 @@ const CalendarView = ({
 					filterDeletedEvent={filterDeletedEvent}
 					onClose={onClose}
 				/>
-				<EventsPopUp
+				{/* <EventsPopUp
 					open={info?.isCreateEventOpen}
 					closeModal={handleCloseEventPopup}
 					categoryList={categoryList}
 					selectedCategory={selectedCategory}
 					selectedSlot={info?.selectedSlot}
-				/>
+				/> */}
 			</div>
 		</>
 	);

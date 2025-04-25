@@ -6,6 +6,12 @@ import PlusSvg from '../../../assets/svg/my_templates/PlusSvg';
 import { ReactComponent as DownSvg } from '../../../assets/svg/calendar/down.svg';
 
 const expandedHeight = '192px'; // Pre-calculated: 40 + (2 * 40) + (3 * 12) + 32 + 4
+const maxVisibleItems = 3;
+const itemHeight = 40;
+const spacing = 12;
+const headerHeight = 40;
+const padding = 32;
+const margin = 4;
 
 const CalendarCategories = ({
 	categoryList,
@@ -23,11 +29,25 @@ const CalendarCategories = ({
 	const expandRef = useRef(null);
 
 	useEffect(() => {
+		const itemCount = categoryList?.length || 0;
+		const calculatedHeight =
+			itemCount === 0
+				? '62px' // Collapsed height when empty
+				: info?.expanded
+				? `${
+						headerHeight +
+						Math.min(itemCount, maxVisibleItems) * itemHeight +
+						(Math.min(itemCount, maxVisibleItems) - 1) * spacing +
+						padding +
+						margin
+				  }px`
+				: '62px';
+
 		setInfo((prevInfo) => ({
 			...prevInfo,
-			height: info?.expanded ? expandedHeight : '62px',
+			height: calculatedHeight,
 		}));
-	}, [info?.expanded]);
+	}, [info?.expanded, categoryList?.length]);
 
 	// Auto expand when there are items to display
 	useEffect(() => {
@@ -73,6 +93,10 @@ const CalendarCategories = ({
 				? [defaultCategory]
 				: [defaultCategory];
 			updateCalendarInfo('categoryFilter', updatedFilter);
+			updateCalendarInfo(
+				'selectedCategory',
+				categoryList?.find((cat) => cat._id === defaultCategory),
+			);
 			return;
 		}
 
@@ -84,10 +108,20 @@ const CalendarCategories = ({
 			// If this would result in an empty filter, select the default category
 			if (updatedFilter.length === 0) {
 				updatedFilter = [defaultCategory];
+				updateCalendarInfo(
+					'selectedCategory',
+					categoryList?.find((cat) => cat._id === defaultCategory),
+				);
+			} else {
+				updateCalendarInfo('selectedCategory', null);
 			}
 		} else {
 			// Add the category and remove Default if it was selected
 			updatedFilter = [...categoryFilter?.filter((id) => id !== defaultCategory), categoryId];
+			updateCalendarInfo(
+				'selectedCategory',
+				categoryList?.find((cat) => cat._id === categoryId),
+			);
 		}
 
 		updateCalendarInfo('categoryFilter', updatedFilter);
@@ -116,7 +150,19 @@ const CalendarCategories = ({
 			</div>
 
 			{info?.expanded && (
-				<div className="categoriesContainer">
+				<div
+					className="categoriesContainer"
+					style={{
+						overflowY: categoryList?.length > maxVisibleItems ? 'auto' : 'visible',
+						maxHeight:
+							categoryList?.length > maxVisibleItems
+								? `${
+										maxVisibleItems * itemHeight +
+										(maxVisibleItems - 1) * spacing
+								  }px`
+								: 'auto',
+					}}
+				>
 					{categoryList?.map((category) => {
 						const isChecked = categoryFilter?.includes(category?._id);
 						return (

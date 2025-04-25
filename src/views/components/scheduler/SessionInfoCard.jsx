@@ -1,18 +1,29 @@
-import React, { memo, useState } from 'react';
+import React, { memo, useState, useEffect } from 'react';
 import { ReactComponent as Dot } from '../../../assets/svg/gallery/threeDots.svg';
 import { ReactComponent as QuestionMark } from '../../../assets/svg/ai_assistant/question.svg';
 import { ReactComponent as Down } from '../../../assets/svg/calendar/down.svg';
 import ToggleSwitch from '../input/slider';
 import { Tooltip } from 'antd';
 import '../../../assets/scss/scheduler/editScheduler.scss';
+import Spinner from '../loaders/Spinner';
 
-const SessionInfoCard = ({ sessionData, onUpdate, isUpdating, onSessionNameChange }) => {
+const SessionInfoCard = ({ sessionData, onUpdate, isUpdating }) => {
 	const [info, setInfo] = useState({
 		isDetailsOpen: false,
 		detailsOptions: ['Details', 'Conference', 'Shoot', 'Interview'],
 		isDataEnrichment: false,
 		sessionCategory: 'Details',
+		isEditingName: false,
+		editedName: sessionData?.sessionName || '',
 	});
+
+	// Update editedName when sessionData changes
+	useEffect(() => {
+		setInfo((prev) => ({
+			...prev,
+			editedName: sessionData?.sessionName || '',
+		}));
+	}, [sessionData?.sessionName]);
 
 	const handleDetailsChange = (option) => {
 		setInfo((prev) => ({
@@ -22,16 +33,58 @@ const SessionInfoCard = ({ sessionData, onUpdate, isUpdating, onSessionNameChang
 		}));
 	};
 
+	const handleNameEdit = () => {
+		if (isUpdating) return; // Don't allow editing while updating
+		setInfo((prev) => ({
+			...prev,
+			isEditingName: true,
+			editedName: sessionData?.sessionName || '',
+		}));
+	};
+
+	const handleNameChange = (e) => {
+		setInfo((prev) => ({
+			...prev,
+			editedName: e.target.value,
+		}));
+	};
+
+	const handleNameSave = () => {
+		const newName = info.editedName.trim();
+		if (newName && newName !== sessionData?.sessionName) {
+			console.log('Saving new session name:', newName);
+			if (typeof onUpdate === 'function') {
+				onUpdate({
+					sessionName: newName,
+				});
+			}
+		}
+		setInfo((prev) => ({
+			...prev,
+			isEditingName: false,
+		}));
+	};
+
+	const handleKeyPress = (e) => {
+		if (e.key === 'Enter') {
+			handleNameSave();
+		} else if (e.key === 'Escape') {
+			setInfo((prev) => ({
+				...prev,
+				isEditingName: false,
+				editedName: sessionData?.sessionName || '',
+			}));
+		}
+	};
+
+	const handleUpdateClick = () => {
+		if (typeof onUpdate === 'function' && !isUpdating) {
+			onUpdate({});
+		}
+	};
+
 	return (
 		<div className="sessionInfoContainer">
-			{/* <div className="SchedulerImgContainer">
-				<img
-					src={
-						'https://images.pexels.com/photos/8471810/pexels-photo-8471810.jpeg?auto=compress&cs=tinysrgb&w=1200'
-					}
-					alt="Scheduler"
-				/>
-			</div> */}
 			<div className="sessionInfoDetails">
 				<div className="sessionTitle">
 					<div className="sessionTitleLeft">
@@ -39,86 +92,48 @@ const SessionInfoCard = ({ sessionData, onUpdate, isUpdating, onSessionNameChang
 						<span className="scheduler">Scheduler</span>
 					</div>
 					<div className="sessionTitleRight">
-						{/* <span>{sessionData?.sessionName || 'session Name'}</span> */}
-						{/* <Dot /> */}
-						<div className="updateButton">Update and publish</div>
+						<div
+							className={`updateButton ${isUpdating ? 'updating' : ''}`}
+							onClick={handleUpdateClick}
+						>
+							{isUpdating ? (
+								<>
+									<Spinner width="16px" height="16px" />
+									Updating...
+								</>
+							) : (
+								'Update and publish'
+							)}
+						</div>
 					</div>
 				</div>
 
 				<div className="sessionInfoSetting">
-					{/* <div className="settingRow">
-						<div className="labelWithIcon">
-							<Tooltip
-								title="Ai-powered company insights from multiple sources"
-								placement="top"
-							>
-								<div className="question-icon">
-									<QuestionMark />
-								</div>
-							</Tooltip>
-							<span>Data Enrichment</span>
-						</div>
-						<ToggleSwitch
-							onChange={() =>
-								setInfo((prev) => ({
-									...prev,
-									isDataEnrichment: !prev.isDataEnrichment,
-								}))
-							}
-							checked={info?.isDataEnrichment}
-						/>
-					</div> */}
 					<div className="settingRow">
 						<span className="sessionTitleLabel">Session Title</span>
-						<span className="sessionTitle">{sessionData?.sessionName}</span>
-						<div className="divider-line"></div>
-						{/* <div className="detailsSection">
-							<Tooltip
-								open={info.isDetailsOpen}
-								onOpenChange={() =>
-									setInfo((prev) => ({
-										...prev,
-										isDetailsOpen: !prev.isDetailsOpen,
-									}))
-								}
-								placement="bottom"
-								title={
-									<div className="details-dropdown">
-										{info?.detailsOptions?.map((option) => (
-											<div
-												key={option}
-												className="details-dropdown-item"
-												onClick={() => handleDetailsChange(option)}
-											>
-												{option}
-											</div>
-										))}
-									</div>
-								}
-								arrow={false}
-								trigger={'click'}
-								color={'transparent'}
-								overlayStyle={{ minWidth: 'fit-content', padding: '0' }}
+						{info.isEditingName ? (
+							<input
+								type="text"
+								value={info.editedName}
+								onChange={handleNameChange}
+								onKeyDown={handleKeyPress}
+								onBlur={handleNameSave}
+								className="sessionTitleInput"
+								autoFocus
+								disabled={isUpdating}
+							/>
+						) : (
+							<span
+								className="sessionTitle"
+								onClick={handleNameEdit}
+								style={{ cursor: isUpdating ? 'not-allowed' : 'pointer' }}
 							>
-								<div className="details-label">
-									{info?.sessionCategory}
-									<Down className={`${info.isDetailsOpen ? 'open' : ''}`} />
-								</div>
-							</Tooltip>
-						</div> */}
+								{sessionData?.sessionName || 'Unnamed Session'}
+							</span>
+						)}
+						<div className="divider-line"></div>
 					</div>
 				</div>
-			</div>
-
-			<div className="shareBtnContainer">
-				{/* <button
-					className="shareBtn"
-					onClick={() => {
-						console.log('clicked share');
-					}}
-				>
-					Share
-				</button> */}
 			</div>
 		</div>
 	);
