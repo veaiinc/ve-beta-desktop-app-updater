@@ -386,7 +386,7 @@ const ShareModal = ({
 														})
 													}
 												>
-													<div className="access-control-avatar">
+													<div className="access-control-avatar no-border">
 														{globalAccess?.isEnabled ? (
 															<img
 																className="workspaceLogo"
