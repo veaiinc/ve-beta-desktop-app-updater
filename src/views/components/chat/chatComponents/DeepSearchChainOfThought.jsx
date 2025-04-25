@@ -4,6 +4,21 @@ import { ReactComponent as Search } from '../../../../assets/svg/workflow/search
 import WebSvg from '../../../../assets/svg/ai_agents/webSvg';
 import { getFaviconUrl, getWebsiteName } from '../../../../helpers';
 import BookSvg from '../../../../assets/svg/ai_agents/bookSvg';
+import { ReactComponent as TextSvg } from '../../../../assets/svg/ai_agents/text.svg';
+import { ReactComponent as DocxSvg } from '../../../../assets/svg/ai_agents/docx.svg';
+import { ReactComponent as JsonSvg } from '../../../../assets/svg/ai_agents/json.svg';
+import { ReactComponent as PdfSvg } from '../../../../assets/svg/ai_agents/pdf.svg';
+import { ReactComponent as JpgSvg } from '../../../../assets/svg/ai_agents/jpg.svg';
+import { ReactComponent as PngSvg } from '../../../../assets/svg/ai_agents/png.svg';
+
+const fileTypeIcons = {
+	txt: <TextSvg />,
+	docx: <DocxSvg />,
+	json: <JsonSvg />,
+	pdf: <PdfSvg />,
+	jpg: <JpgSvg />,
+	png: <PngSvg />,
+};
 
 const DeepSearchChainOfThought = ({ data }) => {
 	return (
@@ -22,7 +37,7 @@ const DeepSearchChainOfThought = ({ data }) => {
 								</div>
 								<div className="sub-query-wrapper">
 									{readings?.map((reading, index) => {
-										const { tool, query, sources } = reading?.reading;
+										const { tool, queries, sources } = reading?.reading;
 										return (
 											<div className="sub-query-cot" key={index}>
 												{readings?.length !== 1 && (
@@ -55,7 +70,7 @@ const DeepSearchChainOfThought = ({ data }) => {
 														)}
 													</div>
 													<div className="queries" key={index}>
-														{query?.map((query, index) => {
+														{queries?.map((query, index) => {
 															return (
 																<div className="query" key={index}>
 																	{query}
@@ -70,42 +85,57 @@ const DeepSearchChainOfThought = ({ data }) => {
 															</div>
 															<div className="sources">
 																{sources?.map?.((source, index) => {
+																	const { type, name } = source;
 																	return (
 																		<div
 																			className="source"
 																			key={index}
 																			onClick={() => {
 																				window?.open(
-																					source,
+																					source?.[type],
 																					'_blank',
 																				);
 																			}}
 																		>
 																			<div className="icon">
-																				{getFaviconUrl(
-																					source,
-																				) ? (
-																					<img
-																						src={getFaviconUrl(
-																							source,
-																						)}
-																						alt="favicon"
-																						className="favicon-image"
-																					/>
+																				{type === 'url' ? (
+																					getFaviconUrl(
+																						name,
+																					) ? (
+																						<img
+																							src={getFaviconUrl(
+																								name,
+																							)}
+																							alt="favicon"
+																							className="favicon-image"
+																						/>
+																					) : (
+																						<div className="company-icon">
+																							{getWebsiteName(
+																								name,
+																							)?.charAt(
+																								0,
+																							)}
+																						</div>
+																					)
 																				) : (
 																					<div className="company-icon">
-																						{getWebsiteName(
-																							source,
-																						)?.charAt(
-																							0,
-																						)}
+																						{
+																							fileTypeIcons[
+																								name?.match(
+																									/\.(\w+)$/,
+																								)?.[1]
+																							]
+																						}
 																					</div>
 																				)}
 																			</div>
 																			<div className="website-name">
-																				{getWebsiteName(
-																					source,
-																				)}
+																				{type === 'url'
+																					? getWebsiteName(
+																							name,
+																					  )
+																					: name}
 																			</div>
 																		</div>
 																	);
@@ -141,7 +171,7 @@ const DeepSearchChainOfThought = ({ data }) => {
 										</div>
 										<div className="sub-query-wrapper">
 											{readings?.map((reading, index) => {
-												const { tool, query, sources } = reading?.reading;
+												const { tool, queries, sources } = reading?.reading;
 												return (
 													<div className="sub-query-cot" key={index}>
 														<div className="number-logo-container">
@@ -178,7 +208,7 @@ const DeepSearchChainOfThought = ({ data }) => {
 																)}
 															</div>
 															<div className="queries" key={index}>
-																{query?.map((query, index) => {
+																{queries?.map((query, index) => {
 																	return (
 																		<div
 																			className="query"
@@ -190,59 +220,80 @@ const DeepSearchChainOfThought = ({ data }) => {
 																})}
 															</div>
 
-															<div className="sources-container">
-																<div className="source-text">
-																	<div className="search-svg">
-																		<Search />
+															{sources?.length > 0 && (
+																<div className="sources-container">
+																	<div className="source-text">
+																		Sources
 																	</div>
-																	Sources
-																</div>
-																<div className="sources">
-																	{sources?.map?.(
-																		(source, index) => {
-																			return (
-																				<div
-																					className="source"
-																					key={index}
-																					onClick={() => {
-																						window?.open(
-																							source,
-																							'_blank',
-																						);
-																					}}
-																				>
-																					<div className="icon">
-																						{getFaviconUrl(
-																							source,
-																						) ? (
-																							<img
-																								src={getFaviconUrl(
-																									source,
-																								)}
-																								alt="favicon"
-																								className="favicon-image"
-																							/>
-																						) : (
-																							<div className="company-icon">
-																								{getWebsiteName(
-																									source,
-																								)?.charAt(
-																									0,
-																								)}
-																							</div>
-																						)}
+																	<div className="sources">
+																		{sources?.map?.(
+																			(source, index) => {
+																				const {
+																					type,
+																					name,
+																				} = source;
+																				return (
+																					<div
+																						className="source"
+																						key={index}
+																						onClick={() => {
+																							window?.open(
+																								source?.[
+																									type
+																								],
+																								'_blank',
+																							);
+																						}}
+																					>
+																						<div className="icon">
+																							{type ===
+																							'url' ? (
+																								getFaviconUrl(
+																									name,
+																								) ? (
+																									<img
+																										src={getFaviconUrl(
+																											name,
+																										)}
+																										alt="favicon"
+																										className="favicon-image"
+																									/>
+																								) : (
+																									<div className="company-icon">
+																										{getWebsiteName(
+																											name,
+																										)?.charAt(
+																											0,
+																										)}
+																									</div>
+																								)
+																							) : (
+																								<div className="company-icon">
+																									{
+																										fileTypeIcons[
+																											name?.match(
+																												/\.(\w+)$/,
+																											)?.[1]
+																										]
+																									}
+																								</div>
+																							)}
+																						</div>
+																						<div className="website-name">
+																							{type ===
+																							'url'
+																								? getWebsiteName(
+																										name,
+																								  )
+																								: name}
+																						</div>
 																					</div>
-																					<div className="website-name">
-																						{getWebsiteName(
-																							source,
-																						)}
-																					</div>
-																				</div>
-																			);
-																		},
-																	)}
+																				);
+																			},
+																		)}
+																	</div>
 																</div>
-															</div>
+															)}
 														</div>
 													</div>
 												);
