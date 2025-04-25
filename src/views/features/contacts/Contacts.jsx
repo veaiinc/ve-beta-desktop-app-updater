@@ -6,6 +6,7 @@ import { ReactComponent as ArrowRightSvg } from '../../../assets/svg/home_page/a
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import SingleContact from '../../components/contacts/singleContact';
+import QuickActions from '../../components/globalComponents/QuickActions';
 
 dayjs.extend(relativeTime);
 
@@ -85,7 +86,7 @@ const Contacts = () => {
 	};
 	return (
 		<div className="contacts-container">
-			<div className="left-section">
+			{/* <div className="left-section">
 				<div className="contacts-header">
 					<h2>Contacts</h2>
 				</div>
@@ -126,7 +127,7 @@ const Contacts = () => {
 						</div>
 					</div>
 				</div>
-			</div>
+			</div> */}
 			{info?.selectedContact ? (
 				<SingleContact
 					selectedContact={info?.selectedContact}
@@ -136,6 +137,7 @@ const Contacts = () => {
 				<div className="right-section">
 					<div className="header">
 						<h1 className="header-title">Your Contacts</h1>
+						<QuickActions />
 						{/* <div className="search-bar-container">
 						<SearchIcon className="search-icon" />
 						<input type="text" className="search-bar" placeholder="Search" />

@@ -157,7 +157,7 @@
 	align-items: flex-start;
 	gap: 65px;
 	flex-shrink: 0;
-	background: var(--navbar-bg, #18191b);
+	background: var(--navbar, #18191b);
 	color: var(--primary-font);
 
 	.contacts-header {
@@ -188,11 +188,11 @@
 				align-items: flex-start;
 				gap: 4px;
 				border-radius: 8px;
-				background: var(--card-bg, #1e1f21);
+				background: var(--card, #1e1f21);
 				cursor: pointer;
 				min-width: 121px;
 				&.active {
-					background: var(--active-card-bg, #252628);
+					background: var(--card-hover, #252628);
 				}
 
 				.count {
@@ -211,15 +211,15 @@
 				}
 
 				&.strong .dot {
-					background-color: #4caf50;
+					background-color: var(--success);
 				}
 
 				&.normal .dot {
-					background-color: #2196f3;
+					background-color: var(--warning);
 				}
 
 				&.weak .dot {
-					background-color: #f44336;
+					background-color: var(--error);
 				}
 				.iconContainer {
 					display: flex;
@@ -241,7 +241,7 @@
 						background: var(--primary-font, #f2f2f3);
 						svg {
 							path {
-								stroke: var(--card-bg, #1e1f21);
+								stroke: var(--card, #1e1f21);
 							}
 						}
 					}
@@ -307,13 +307,13 @@
 				gap: 12px;
 				align-self: stretch;
 				border-radius: 8px;
-				background: var(--card-bg, #1e1f21);
+				background: var(--card, #1e1f21);
 				color: var(--primary-font);
 				font-size: 14px;
 				cursor: pointer;
 
 				&:hover {
-					background: var(--active-card-bg, #252628);
+					background: var(--card-hover, #252628);
 				}
 			}
 		}
