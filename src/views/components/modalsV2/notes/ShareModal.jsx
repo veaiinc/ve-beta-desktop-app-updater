@@ -18,11 +18,11 @@ const tabs = [
 	{ value: 'publish', label: 'Publish' },
 ];
 
-let userId = null;
+let userId,
+	activeWorkspaceId = null;
 const today = new Date();
 today.setDate(today.getDate() + 1);
 const minDate = today.toISOString().split('T')[0];
-
 const ShareModal = ({
 	isOpen,
 	onClose,
@@ -57,6 +57,7 @@ const ShareModal = ({
 	});
 
 	useEffect(() => {
+		activeWorkspaceId = localStorage.getItem('workspaceId');
 		const token = localStorage.getItem('usertoken');
 		const { user_id } = jwtDecode(token);
 		userId = user_id;
@@ -129,7 +130,13 @@ const ShareModal = ({
 			message.error('Please enter a slug');
 			return;
 		}
-		navigator.clipboard.writeText(`https://${businessName}.ve.ai/page/${prevSlug}`);
+		if (tennantSettingsData?.customDomain) {
+			navigator.clipboard.writeText(
+				`https://${tennantSettingsData?.customDomain}/page/${prevSlug}`,
+			);
+		} else {
+			navigator.clipboard.writeText(`https://${activeWorkspaceId}.ve.ai/page/${prevSlug}`);
+		}
 		message.success('Link copied to clipboard');
 	};
 
@@ -478,7 +485,9 @@ const ShareModal = ({
 									<div className="link-container-wrapper">
 										<div className="publish-link-input-container">
 											<div className="domain-section">
-												{businessName}.ve.ai/page/
+												{tennantSettingsData?.customDomain
+													? `${tennantSettingsData?.customDomain}/page/`
+													: `${activeWorkspaceId}.ve.ai/page/`}
 											</div>
 											<input
 												type="text"
@@ -552,7 +561,11 @@ const ShareModal = ({
 										disabled={!slug?.trim() || slug?.endsWith('-')}
 										onClick={() =>
 											window.open(
-												`https://${businessName}.ve.ai/page/${prevSlug}`,
+												`https://${
+													tennantSettingsData?.customDomain
+														? tennantSettingsData?.customDomain
+														: `${activeWorkspaceId}.ve.ai`
+												}/page/${prevSlug}`,
 												'_blank',
 											)
 										}
