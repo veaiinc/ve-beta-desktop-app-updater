@@ -3,7 +3,6 @@ import '@blocknote/mantine/style.css';
 import {
 	BasicTextStyleButton,
 	BlockTypeSelect,
-	ColorStyleButton,
 	CreateLinkButton,
 	FileCaptionButton,
 	FileReplaceButton,
@@ -15,6 +14,7 @@ import {
 } from '@blocknote/react';
 import AskAiButton from './AskAiButton';
 import { memo } from 'react';
+import TextColorPicker from './TextColorPicker';
 
 const NoteToolbar = memo(({ sendMessage, aiResonse, resetAiResponse }) => {
 	return (
@@ -23,7 +23,7 @@ const NoteToolbar = memo(({ sendMessage, aiResonse, resetAiResponse }) => {
 				<FormattingToolbar>
 					<BlockTypeSelect key={'blockTypeSelect'} />
 					<span className="bn-divider" />
-					<ColorStyleButton key={'colorStyleButton'} />
+					<TextColorPicker key={'colorStyleButton1'} />
 					<span className="bn-divider" />
 
 					<FileCaptionButton key={'fileCaptionButton'} />
