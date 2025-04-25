@@ -146,6 +146,11 @@ const ShareModal = ({
 		message.success('Link copied to clipboard');
 	};
 
+	const handleCopyCurrentPageLink = () => {
+		navigator.clipboard.writeText(window?.location?.href);
+		message.success('Link copied to clipboard');
+	};
+
 	const openDatePicker = () => {
 		if (document.activeElement === dateInputRef.current) {
 			dateInputRef.current.blur(); // Try to close it
@@ -163,6 +168,22 @@ const ShareModal = ({
 		const unixDate = date ? moment(date).unix() : null;
 		handleInfoChange({ expiresAt: unixDate });
 		handlePublishPage({ isPublished: true, expiresAt: unixDate });
+	};
+
+	const handleGlobalAccessChange = (isEnabled, access = 'view') => {
+		if (globalAccess?.isEnabled === isEnabled && globalAccess?.access === access) {
+			handleInfoChange({
+				globalAccessDropdown: false,
+			});
+			return;
+		}
+		handleGlobalAccessUpdate({
+			isEnabled,
+			access,
+		});
+		handleInfoChange({
+			globalAccessDropdown: false,
+		});
 	};
 
 	return (
@@ -327,29 +348,20 @@ const ShareModal = ({
 													<div className="general-access-drop-dropdown">
 														<div
 															className="general-access-item"
-															onClick={() => {
-																handleGlobalAccessUpdate({
-																	isEnabled: false,
-																	access: 'view',
-																});
-																handleInfoChange({
-																	globalAccessDropdown: false,
-																});
-															}}
+															onClick={() =>
+																handleGlobalAccessChange(false)
+															}
 														>
 															Only people invited
 														</div>
 														<div
 															className="general-access-item"
-															onClick={() => {
-																handleGlobalAccessUpdate({
-																	isEnabled: true,
-																	access: 'view',
-																});
-																handleInfoChange({
-																	globalAccessDropdown: false,
-																});
-															}}
+															onClick={() =>
+																handleGlobalAccessChange(
+																	true,
+																	globalAccess?.access,
+																)
+															}
 														>
 															{`Everyone at ${info?.activeWorkSpace?.businessName}`}
 														</div>
@@ -399,22 +411,22 @@ const ShareModal = ({
 														<AccessDropdown
 															selectedAccess={globalAccess?.access}
 															showRemoveButton={false}
-															onChange={(value) => {
-																handleGlobalAccessUpdate({
-																	isEnabled: true,
-																	access: value,
-																});
-																handleInfoChange({
-																	globalAccessDropdown: false,
-																});
-															}}
+															onChange={(value) =>
+																handleGlobalAccessChange(
+																	true,
+																	value,
+																)
+															}
 														/>
 													)}
 												</div>
 											</Tooltip>
 										</div>
 									</div>
-									<button className="notes-access-copy-link-btn">
+									<button
+										className="notes-access-copy-link-btn"
+										onClick={handleCopyCurrentPageLink}
+									>
 										<Copy className="notes-share-copy-svg" />
 										Copy Link
 									</button>
