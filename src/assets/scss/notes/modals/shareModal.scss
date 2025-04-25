@@ -666,6 +666,7 @@
 		align-self: stretch;
 		border-radius: 8px;
 		transition: background-color 0.2s ease-in-out;
+		color: var(--primary-font);
 		cursor: pointer;
 		&:hover {
 			background: var(--card-over-card-hover, #27282b);
