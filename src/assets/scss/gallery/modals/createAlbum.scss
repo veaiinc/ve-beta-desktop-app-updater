@@ -90,3 +90,6 @@
 .ReactModal__Overlay:has(> .createAlbumModal) {
 	z-index: 5;
 }
+.ant-picker-dropdown {
+	z-index: 100000 !important;
+}
