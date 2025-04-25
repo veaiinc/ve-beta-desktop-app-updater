@@ -33,7 +33,6 @@ const Sidebar = ({ activeWorkspaceId }) => {
 	const [isOpen, setIsOpen] = useState(() => {
 		return JSON.parse(localStorage.getItem('isOpen')) ?? true;
 	});
-
 	// const themePreference = userDetailsData?.theme || 'dark'; // TODO: change this to systemDefault after light theme is good
 	// if (themePreference) {
 	// 	localStorage.setItem('theme', themePreference);
@@ -57,13 +56,18 @@ const Sidebar = ({ activeWorkspaceId }) => {
 	});
 
 	useEffect(() => {
-		if (leftSidebarState && leftSidebarState === 'open') {
+		if (leftSidebarState === 'open') {
 			if (!isOpen) {
-				setIsOpen(true);
+				setIsOpen(true); // Open sidebar if it's not already open
 			}
-			updateStateValues({ leftSidebarState: null });
+			updateStateValues({ leftSidebarState: null }); // Reset leftSidebarState after it opens
+		} else if (leftSidebarState === 'close') {
+			if (isOpen) {
+				setIsOpen(false); // Close sidebar if it's currently open
+			}
+			updateStateValues({ leftSidebarState: null }); // Reset leftSidebarState after it closes
 		}
-	}, [leftSidebarState, isOpen, updateStateValues]);
+	}, [leftSidebarState]);
 
 	useEffect(() => {
 		if (!userWorkSpaceList) {
