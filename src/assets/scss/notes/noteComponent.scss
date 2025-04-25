@@ -47,6 +47,7 @@
 			overflow: hidden;
 			white-space: nowrap;
 			text-overflow: ellipsis;
+			max-width: 300px;
 		}
 
 		.notes-nav-right {
@@ -183,8 +184,8 @@
 					line-height: normal;
 					margin-right: 5px;
 					display: flex;
-					align-items: center;
 					justify-content: center;
+					padding-top: 2px;
 				}
 
 				input[type='checkbox'] {

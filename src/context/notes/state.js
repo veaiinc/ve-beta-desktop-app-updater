@@ -15,10 +15,12 @@ import {
 	deletePageMutation,
 	duplicatePageMutation,
 	globalNotesAccessMutation,
+	notesImageBlockUploadMutation,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
 import { Actions } from './action';
+import axios from 'axios';
 
 export const intialState = {
 	notes: null,
@@ -374,6 +376,37 @@ export const NotesState = (props) => {
 		});
 	};
 
+	const uploadNotesImageBlock = async (payload, data) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.mutation(
+				notesImageBlockUploadMutation,
+				payload,
+				workspaceId,
+				usertoken,
+				'page_notes_api',
+			);
+			if (response?.[0]) {
+				const signedUrl = response?.[1]?.signedUrl;
+				const uploadResponse = await axios.put(signedUrl, data, {
+					headers: {
+						'Content-Type': data?.type,
+					},
+				});
+				if (uploadResponse.status === 200) {
+					return {
+						ok: true,
+						message: 'File uploaded successfully',
+					};
+				}
+			}
+			return [false, response?.[1]?.[0]];
+		} catch (error) {
+			console.log('error==>updateGlobalAccess', error);
+		}
+	};
+
 	return {
 		...state,
 		getNotesList,
@@ -391,5 +424,6 @@ export const NotesState = (props) => {
 		deletePage,
 		duplicatePage,
 		updateGlobalAccess,
+		uploadNotesImageBlock,
 	};
 };
