@@ -144,7 +144,7 @@ const NotesGrid = ({ handleNewNotes, handleTotalChange }) => {
 		setInfo((prevInfo) => ({ ...prevInfo, ...data }));
 	};
 
-	const fetchNotes = async ({ page = 1, limit = 10 }) => {
+	const fetchNotes = async ({ page = 1, limit = 20 }) => {
 		try {
 			const { value: sortBy, sortType: sortOrder } = info?.selectedSort;
 			const payload = {

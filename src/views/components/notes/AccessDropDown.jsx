@@ -21,97 +21,107 @@ const accessOptions = [
 	},
 ];
 
-const AccessDropdown = memo(({ selectedAccess, showRemoveButton = true, onChange = () => {} }) => {
-	const [info, setInfo] = useState({
-		isOpen: false,
-		selectedAccess: null,
-	});
+const AccessDropdown = memo(
+	({ selectedAccess, showRemoveButton = true, onChange = () => {}, disabled = false }) => {
+		const [info, setInfo] = useState({
+			isOpen: false,
+			selectedAccess: null,
+		});
 
-	useEffect(() => {
-		if (selectedAccess) {
-			const selectedAccessOption = accessOptions.find(
-				(option) => option.value === selectedAccess,
-			);
-			handleInfoChange({ selectedAccess: selectedAccessOption });
-		}
-	}, [selectedAccess]);
+		useEffect(() => {
+			if (selectedAccess) {
+				const selectedAccessOption = accessOptions.find(
+					(option) => option.value === selectedAccess,
+				);
+				handleInfoChange({ selectedAccess: selectedAccessOption });
+			}
+		}, [selectedAccess]);
 
-	const handleInfoChange = (data) => {
-		setInfo((prev) => ({ ...prev, ...data }));
-	};
+		const handleInfoChange = (data) => {
+			setInfo((prev) => ({ ...prev, ...data }));
+		};
 
-	return (
-		<Tooltip
-			title={
-				<div className="notes-share-dropdown-access-tooltip">
-					<div className="notes-share-dropdown-access-tooltip-options">
-						{accessOptions?.map((option) => (
-							<div
-								key={option?.value}
-								className="notes-share-dropdown-access-tooltip-options-item"
-								onClick={() => {
-									onChange(option?.value);
-									handleInfoChange({ isOpen: false });
-								}}
-							>
-								<div className="notes-share-dropdown-access-tooltip-options-item-text">
-									<span className="notes-share-dropdown-access-tooltip-text-label">
-										{option?.label}
-									</span>
-									{option?.description && (
-										<span className="notes-share-dropdown-access-tooltip-text-description">
-											{option?.description}
+		const handleOptionClick = (e, option) => {
+			e.stopPropagation();
+			if (disabled) return;
+			onChange(option?.value);
+			handleInfoChange({ isOpen: false });
+		};
+
+		return (
+			<Tooltip
+				title={
+					<div className="notes-share-dropdown-access-tooltip">
+						<div className="notes-share-dropdown-access-tooltip-options">
+							{accessOptions?.map((option) => (
+								<div
+									key={option?.value}
+									className="notes-share-dropdown-access-tooltip-options-item"
+									onClick={(e) => handleOptionClick(e, option)}
+								>
+									<div className="notes-share-dropdown-access-tooltip-options-item-text">
+										<span className="notes-share-dropdown-access-tooltip-text-label">
+											{option?.label}
 										</span>
+										{option?.description && (
+											<span className="notes-share-dropdown-access-tooltip-text-description">
+												{option?.description}
+											</span>
+										)}
+									</div>
+									{info?.selectedAccess?.value === option?.value && (
+										<Check width={16} height={16} />
 									)}
 								</div>
-								{info?.selectedAccess?.value === option?.value && (
-									<Check width={16} height={16} />
-								)}
-							</div>
-						))}
-					</div>
-					{showRemoveButton && (
-						<div className="notes-share-dropdown-access-tooltip-footer">
-							<button
-								className="notes-share-dropdown-access-tooltip-footer-button"
-								onClick={() => {
-									onChange('remove');
-									handleInfoChange({ isOpen: false });
-								}}
-							>
-								Remove
-							</button>
+							))}
 						</div>
-					)}
-				</div>
-			}
-			arrow={false}
-			placement="bottomLeft"
-			color="transparent"
-			overlayStyle={{
-				minWidth: '256px',
-			}}
-			trigger="click"
-			open={info?.isOpen}
-			onOpenChange={(open) => {
-				if (!open) {
-					handleInfoChange({ isOpen: false });
+						{showRemoveButton && (
+							<div className="notes-share-dropdown-access-tooltip-footer">
+								<button
+									className="notes-share-dropdown-access-tooltip-footer-button"
+									onClick={() => {
+										onChange('remove');
+										handleInfoChange({ isOpen: false });
+									}}
+								>
+									Remove
+								</button>
+							</div>
+						)}
+					</div>
 				}
-			}}
-		>
-			<div
-				className="notes-share-dropdown-access"
-				onClick={() => handleInfoChange({ isOpen: !info.isOpen })}
+				arrow={false}
+				placement="bottomRight"
+				color="transparent"
+				overlayStyle={{
+					minWidth: '256px',
+					zIndex: 50003,
+				}}
+				trigger="click"
+				open={info?.isOpen}
+				onOpenChange={(open) => {
+					if (!open) {
+						handleInfoChange({ isOpen: false });
+					}
+				}}
 			>
-				<span className="notes-share-dropdown-access-text">
-					{info.selectedAccess?.label}{' '}
-				</span>
-				<ChevronRightThinSvg
-					style={{ transform: info?.isOpen ? 'rotate(-90deg)' : 'rotate(90deg)' }}
-				/>
-			</div>
-		</Tooltip>
-	);
-});
+				<div
+					className={`notes-share-dropdown-access ${disabled ? 'disabled' : ``}`}
+					onClick={(e) => {
+						e.stopPropagation();
+						if (!disabled) handleInfoChange({ isOpen: !info.isOpen });
+					}}
+				>
+					<span className="notes-share-dropdown-access-text">
+						{info.selectedAccess?.label}{' '}
+					</span>
+					<ChevronRightThinSvg
+						style={{ transform: info?.isOpen ? 'rotate(-90deg)' : 'rotate(90deg)' }}
+					/>
+				</div>
+			</Tooltip>
+		);
+	},
+);
 
 export default AccessDropdown;

@@ -44,18 +44,14 @@ const DeepSearchChainOfThought = ({ data }) => {
 														) : tool === 'search_knowledge_base' ? (
 															<div className="search">
 																<div className="svg">
-																	<BookSvg />
+																	<BookSvg selected={false} />
 																</div>
 																<div className="search-text">
 																	Searched Knowledge Base For :
 																</div>
 															</div>
 														) : (
-															<div className="search">
-																<div className="search-text">
-																	Searched For :
-																</div>
-															</div>
+															''
 														)}
 													</div>
 													<div className="queries" key={index}>

@@ -34,6 +34,12 @@ const skeletonLines = [...Array(10)]?.map(() => ({
 	height: 14,
 }));
 
+const accessLevels = {
+	full: 0,
+	edit: 1,
+	view: 2,
+};
+
 let userId = null;
 
 // async function uploadFile(file) {
@@ -65,6 +71,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 			duplicatePage,
 			updateNotesState,
 			getNotesAccess,
+			globalAccess,
 		},
 	} = useContext(Context);
 
@@ -99,6 +106,23 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 		userId = user_id;
 	}, []);
 
+	// useEffect(() => {
+	// 	const notesContainer = document.querySelector('.notes-container');
+	// 	const handleKeyDown = (e) => {
+	// 		e.preventDefault();
+	// 		if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
+	// 			const selected = editor?.getSelectedText()?.length > 0 || false;
+	// 			if (selected) {
+	// 				e.stopPropagation();
+	// 				return;
+	// 			}
+	// 		}
+	// 	};
+
+	// 	notesContainer.addEventListener('keydown', handleKeyDown);
+	// 	return () => notesContainer.removeEventListener('keydown', handleKeyDown);
+	// }, []);
+
 	useEffect(() => {
 		getNotesAccess({ pageId: noteId });
 	}, [noteId]);
@@ -121,15 +145,22 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 		if (notesAccess && noteId && userId) {
 			const hasAccess = notesAccess?.find((access) => access?.userId === userId);
 			if (hasAccess) {
+				let myAccess = hasAccess?.access;
+
+				if (globalAccess?.isEnabled) {
+					const myAccessLevel = accessLevels?.[myAccess];
+					const teamAccessLevel = accessLevels?.[globalAccess?.access];
+					myAccess = myAccessLevel > teamAccessLevel ? globalAccess?.access : myAccess;
+				}
 				setInfo((prev) => ({
 					...prev,
-					myAccess: hasAccess?.access,
+					myAccess,
 				}));
 			}
 		} else {
 			getNotesAccess({ pageId: noteId });
 		}
-	}, [notesAccess, noteId, userId]);
+	}, [notesAccess, noteId, userId, globalAccess]);
 
 	useEffect(() => {
 		const handleKeyDown = (e) => {

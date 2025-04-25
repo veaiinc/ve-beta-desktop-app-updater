@@ -7,7 +7,6 @@ import { ReactComponent as ReportIconSvg } from '../../../../assets/svg/reportIc
 import { ReactComponent as RecommendedSvg } from '../../../../assets/svg/recommended.svg';
 import { ReactComponent as SuggestedActionsSvg } from '../../../../assets/svg/suggestedActions.svg';
 import { ReactComponent as SuggestedPromptsSvg } from '../../../../assets/svg/suggestedPrompts.svg';
-import { ReactComponent as ReportIcon2Svg } from '../../../../assets/svg/reportIcon2.svg';
 import { ReactComponent as ThumbsUpSvg } from '../../../../assets/svg/thumbsUp.svg';
 import { ReactComponent as ThumbsDownSvg } from '../../../../assets/svg/thumbsDown.svg';
 import { Markdown } from '../../../../helpers/markdownHelper';
@@ -56,7 +55,13 @@ const AISuggestionsModal = ({
 	const handleViewReportClick = useCallback((data) => {
 		const cot = (data?.chain_of_thought || [])?.map((item) => {
 			return {
-				sub_query: item,
+				readings: [
+					{
+						reading: {
+							sub_query: item,
+						},
+					},
+				],
 			};
 		});
 		const messages = [
@@ -144,20 +149,22 @@ const AISuggestionsModal = ({
 						</div>
 
 						<div className="info">
-							<div className="priority">
-								<div
-									className="indicator"
-									style={{
-										background:
-											priority === 'High'
-												? 'red'
-												: priority === 'Medium'
-												? 'orange'
-												: 'green',
-									}}
-								></div>
-								<div className="priority-text">{`${priority} Priority`}</div>
-							</div>
+							{priority && (
+								<div className="priority">
+									<div
+										className="indicator"
+										style={{
+											background:
+												priority === 'High'
+													? 'red'
+													: priority === 'Medium'
+													? 'orange'
+													: 'green',
+										}}
+									></div>
+									<div className="priority-text">{`${priority} Priority`}</div>
+								</div>
+							)}
 							{confidence_score && (
 								<Tooltip title={`Confidence Score: ${confidence_score * 100}%`}>
 									<div className="confidence">
@@ -177,235 +184,262 @@ const AISuggestionsModal = ({
 						</div>
 					</div>
 					<hr className="horizontal-line" />
-					<div
-						className="chain-of-thought-container"
-						onClick={() =>
-							setInfo((prev) => ({ ...prev, isExpanded: !prev?.isExpanded }))
-						}
-					>
-						<div className="cot-header">
-							<div className="cot-text">
-								<ChainOfThoughtSvg />
-								Chain of thought
-							</div>
+					{chain_of_thought && (
+						<>
 							<div
-								className="cot-expand-btn"
-								style={{
-									transform: info?.isExpanded
-										? 'rotate(-90deg)'
-										: 'rotate(90deg)',
-								}}
+								className="chain-of-thought-container"
+								onClick={() =>
+									setInfo((prev) => ({ ...prev, isExpanded: !prev?.isExpanded }))
+								}
 							>
-								<ChevronRightThinSvg />
-							</div>
-						</div>
-						{info?.isExpanded && (
-							<div
-								className="chain-of-thought-content"
-								onClick={(e) => e?.stopPropagation()}
-							>
-								{Array?.isArray(chain_of_thought)
-									? chain_of_thought?.map((cot, index) => {
-											return (
-												<div className="content-container" key={index}>
-													<div className="logo-container"></div>
-													<div className="text-container">{cot}</div>
-												</div>
-											);
-									  })
-									: ''}
-							</div>
-						)}
-					</div>
-					<hr className="horizontal-line" />
-					<div
-						className="report-container"
-						onClick={() =>
-							setInfo((prev) => ({
-								...prev,
-								isReportExpanded: !prev?.isReportExpanded,
-							}))
-						}
-					>
-						<div className="cot-header">
-							<div className="cot-text">
-								<ReportIconSvg />
-								Report
-							</div>
-							<div className="report-icon-container">
-								{/* <ReportIcon2Svg /> */}
-								<div
-									className="cot-expand-btn"
-									style={{
-										transform: info?.isReportExpanded
-											? 'rotate(-90deg)'
-											: 'rotate(90deg)',
-									}}
-								>
-									<ChevronRightThinSvg />
+								<div className="cot-header">
+									<div className="cot-text">
+										<ChainOfThoughtSvg />
+										Chain of thought
+									</div>
+									<div
+										className="cot-expand-btn"
+										style={{
+											transform: info?.isExpanded
+												? 'rotate(-90deg)'
+												: 'rotate(90deg)',
+										}}
+									>
+										<ChevronRightThinSvg />
+									</div>
 								</div>
+								{info?.isExpanded && (
+									<div
+										className="chain-of-thought-content"
+										onClick={(e) => e?.stopPropagation()}
+									>
+										{Array?.isArray(chain_of_thought)
+											? chain_of_thought?.map((cot, index) => {
+													return (
+														<div
+															className="content-container"
+															key={index}
+														>
+															<div className="logo-container"></div>
+															<div className="text-container">
+																{cot}
+															</div>
+														</div>
+													);
+											  })
+											: ''}
+									</div>
+								)}
 							</div>
-						</div>
-
-						{info?.isReportExpanded && (
+							<hr className="horizontal-line" />
+						</>
+					)}
+					{research_report && (
+						<>
 							<div
-								className="report-description"
-								onClick={(e) => e?.stopPropagation()}
+								className="report-container"
+								onClick={() =>
+									setInfo((prev) => ({
+										...prev,
+										isReportExpanded: !prev?.isReportExpanded,
+									}))
+								}
 							>
-								<Markdown>{research_report || ''}</Markdown>
-							</div>
-						)}
-					</div>
-
-					<hr className="horizontal-line" />
-					<div
-						className="solutions-container"
-						onClick={() =>
-							setInfo((prev) => ({
-								...prev,
-								isSolutionsExpanded: !prev?.isSolutionsExpanded,
-							}))
-						}
-						style={{ width: '100%' }}
-					>
-						<div className="cot-header">
-							<div className="cot-text">
-								<RecommendedSvg />
-								Suggested Solutions
-							</div>
-							<div
-								className="cot-expand-btn"
-								style={{
-									transform: info?.isExpanded
-										? 'rotate(-90deg)'
-										: 'rotate(90deg)',
-								}}
-							>
-								<ChevronRightThinSvg />
-							</div>
-						</div>
-
-						{info?.isSolutionsExpanded && (
-							<div className="solutions" onClick={(e) => e?.stopPropagation()}>
-								{Array?.isArray(solutions)
-									? solutions?.map((item, index) => (
-											<div
-												className="solution-item"
-												key={index}
-												onClick={() => handleClickRun(item)}
-											>
-												<div className="logo">
-													<ArrowRightSvg />
-												</div>
-												<div className="item-text">{item}</div>
-											</div>
-									  ))
-									: solutions || ''}
-							</div>
-						)}
-					</div>
-					<hr className="horizontal-line" />
-					<div
-						className="suggested-actions-container"
-						onClick={() =>
-							setInfo((prev) => ({
-								...prev,
-								isActionsExpanded: !prev?.isActionsExpanded,
-							}))
-						}
-						style={{ width: '100%' }}
-					>
-						<div className="cot-header">
-							<div className="cot-text">
-								<SuggestedActionsSvg />
-								Suggested Actions
-							</div>
-							<div
-								className="cot-expand-btn"
-								style={{
-									transform: info?.isActionsExpanded
-										? 'rotate(-90deg)'
-										: 'rotate(90deg)',
-								}}
-							>
-								<ChevronRightThinSvg />
-							</div>
-						</div>
-
-						{info?.isActionsExpanded && (
-							<div
-								className="suggested-actions"
-								onClick={(e) => e?.stopPropagation()}
-							>
-								{Array?.isArray(suggested_actions)
-									? suggested_actions.map((item, index) => (
-											<div
-												className="action-item"
-												key={index}
-												onClick={() => handleClickRun(item)}
-											>
-												<div className="logo">
-													<ArrowRightSvg />
-												</div>
-												<div className="item-text">{item}</div>
-											</div>
-									  ))
-									: suggested_actions || ''}
-							</div>
-						)}
-					</div>
-					<hr className="horizontal-line" />
-					<div className="suggested-prompts">
-						<div
-							className="suggested-prompts-container"
-							onClick={() =>
-								setInfo((prev) => ({
-									...prev,
-									isPromptsExpanded: !prev?.isPromptsExpanded,
-								}))
-							}
-							style={{ width: '100%' }}
-						>
-							<div className="cot-header">
-								<div className="cot-text">
-									<SuggestedPromptsSvg />
-									Suggested Prompts
+								<div className="cot-header">
+									<div className="cot-text">
+										<ReportIconSvg />
+										Report
+									</div>
+									<div className="report-icon-container">
+										<div
+											className="cot-expand-btn"
+											style={{
+												transform: info?.isReportExpanded
+													? 'rotate(-90deg)'
+													: 'rotate(90deg)',
+											}}
+										>
+											<ChevronRightThinSvg />
+										</div>
+									</div>
 								</div>
-								<div
-									className="cot-expand-btn"
-									style={{
-										transform: info?.isPromptsExpanded
-											? 'rotate(-90deg)'
-											: 'rotate(90deg)',
-									}}
-								>
-									<ChevronRightThinSvg />
-								</div>
-							</div>
 
-							{info?.isPromptsExpanded && (
-								<div
-									className="suggested-prompts"
-									onClick={(e) => e?.stopPropagation()}
-								>
-									{Array?.isArray(suggested_prompts)
-										? suggested_prompts.map((item, index) => (
-												<div
-													className="prompt-item"
-													key={index}
-													onClick={() => handleClickRun(item)}
-												>
-													<div className="logo">
-														<ArrowRightSvg />
+								{info?.isReportExpanded && (
+									<div
+										className="report-description"
+										onClick={(e) => e?.stopPropagation()}
+									>
+										<Markdown>{research_report || ''}</Markdown>
+									</div>
+								)}
+							</div>
+							<hr className="horizontal-line" />
+						</>
+					)}
+					{solutions && (
+						<>
+							<div
+								className="solutions-container"
+								onClick={() =>
+									setInfo((prev) => ({
+										...prev,
+										isSolutionsExpanded: !prev?.isSolutionsExpanded,
+									}))
+								}
+								style={{ width: '100%' }}
+							>
+								<div className="cot-header">
+									<div className="cot-text">
+										<RecommendedSvg />
+										Suggested Solutions
+									</div>
+									<div
+										className="cot-expand-btn"
+										style={{
+											transform: info?.isExpanded
+												? 'rotate(-90deg)'
+												: 'rotate(90deg)',
+										}}
+									>
+										<ChevronRightThinSvg />
+									</div>
+								</div>
+
+								{info?.isSolutionsExpanded && (
+									<div
+										className="solutions"
+										onClick={(e) => e?.stopPropagation()}
+									>
+										{Array?.isArray(solutions)
+											? solutions?.map((item, index) => (
+													<div
+														className="solution-item"
+														key={index}
+														onClick={() => handleClickRun(item)}
+													>
+														<div className="logo">
+															<ArrowRightSvg />
+														</div>
+														<div className="item-text">{item}</div>
 													</div>
-													<div className="item-text">{item}</div>
-												</div>
-										  ))
-										: suggested_prompts || ''}
+											  ))
+											: solutions || ''}
+									</div>
+								)}
+							</div>
+							<hr className="horizontal-line" />
+						</>
+					)}
+					{suggested_actions && (
+						<>
+							<div
+								className="suggested-actions-container"
+								onClick={() =>
+									setInfo((prev) => ({
+										...prev,
+										isActionsExpanded: !prev?.isActionsExpanded,
+									}))
+								}
+								style={{ width: '100%' }}
+							>
+								<div className="cot-header">
+									<div className="cot-text">
+										<SuggestedActionsSvg />
+										Suggested Actions
+									</div>
+									<div
+										className="cot-expand-btn"
+										style={{
+											transform: info?.isActionsExpanded
+												? 'rotate(-90deg)'
+												: 'rotate(90deg)',
+										}}
+									>
+										<ChevronRightThinSvg />
+									</div>
 								</div>
-							)}
-						</div>
-					</div>
+
+								{info?.isActionsExpanded && (
+									<div
+										className="suggested-actions"
+										onClick={(e) => e?.stopPropagation()}
+									>
+										{Array?.isArray(suggested_actions)
+											? suggested_actions.map((item, index) => (
+													<div
+														className="action-item"
+														key={index}
+														onClick={() => handleClickRun(item)}
+													>
+														<div className="logo">
+															<ArrowRightSvg />
+														</div>
+														<div className="item-text">{item}</div>
+													</div>
+											  ))
+											: suggested_actions || ''}
+									</div>
+								)}
+							</div>
+							<hr className="horizontal-line" />
+						</>
+					)}
+					{suggested_prompts && (
+						<>
+							<div className="suggested-prompts">
+								<div
+									className="suggested-prompts-container"
+									onClick={() =>
+										setInfo((prev) => ({
+											...prev,
+											isPromptsExpanded: !prev?.isPromptsExpanded,
+										}))
+									}
+									style={{ width: '100%' }}
+								>
+									<div className="cot-header">
+										<div className="cot-text">
+											<SuggestedPromptsSvg />
+											Suggested Prompts
+										</div>
+										<div
+											className="cot-expand-btn"
+											style={{
+												transform: info?.isPromptsExpanded
+													? 'rotate(-90deg)'
+													: 'rotate(90deg)',
+											}}
+										>
+											<ChevronRightThinSvg />
+										</div>
+									</div>
+
+									{info?.isPromptsExpanded && (
+										<div
+											className="suggested-prompts"
+											onClick={(e) => e?.stopPropagation()}
+										>
+											{Array?.isArray(suggested_prompts)
+												? suggested_prompts.map((item, index) => (
+														<div
+															className="prompt-item"
+															key={index}
+															onClick={() => handleClickRun(item)}
+														>
+															<div className="logo">
+																<ArrowRightSvg />
+															</div>
+															<div className="item-text">{item}</div>
+														</div>
+												  ))
+												: suggested_prompts || ''}
+										</div>
+									)}
+								</div>
+							</div>
+							<hr className="horizontal-line" />
+						</>
+					)}
 				</div>
 
 				<div className="footer">
