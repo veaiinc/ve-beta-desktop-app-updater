@@ -156,7 +156,7 @@ const Contacts = () => {
 									onClick={() => navigate(`/contact/${contact?._id}`)}
 								>
 									<div className="column people">
-										<input type="checkbox" className="checkbox" />
+										{/* <input type="checkbox" className="checkbox" /> */}
 										{/* <div className="avatar">{contact.avatar}</div> */}
 										<div className="contact-info">
 											<div className="name">{contact.name}</div>

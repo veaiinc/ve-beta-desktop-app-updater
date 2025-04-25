@@ -34,12 +34,12 @@ const selectedContactOptions = [
 		value: 'overview',
 		icon: <OverviewSvg />,
 	},
-	{
-		id: 2,
-		label: 'Activity',
-		value: 'activity',
-		icon: <ActivitySvg />,
-	},
+	// {
+	// 	id: 2,
+	// 	label: 'Activity',
+	// 	value: 'activity',
+	// 	icon: <ActivitySvg />,
+	// },
 	{
 		id: 3,
 		label: 'Files',
