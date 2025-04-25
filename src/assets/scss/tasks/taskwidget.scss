@@ -1,0 +1,113 @@
+.taskWidgetContainer {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 8px;
+	align-self: stretch;
+	width: 389px;
+	height: auto;
+}
+.taskWidgetHeader {
+	display: flex;
+	flex-direction: column;
+	align-items: end;
+	gap: 2px;
+	color: var(--primary-font);
+	font-family: var(--primary-font-family);
+	font-size: 20px;
+	font-style: normal;
+	font-weight: 500;
+	line-height: normal;
+	text-align: right;
+	width: 100%;
+}
+
+.taskWidgetHeaderContainer {
+	display: flex;
+	width: 100%;
+	padding: 14px 16px;
+	justify-content: space-between;
+	align-items: center;
+	border-radius: 10px;
+	border: 1px solid var(--stroke);
+}
+
+.taskHeader {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 2px;
+}
+
+.widgets {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-start;
+	gap: 8px;
+	align-self: stretch;
+}
+
+.taskWidgetHeaderNumber {
+	color: var(--primary-font);
+	font-family: var(--primary-font-family);
+	font-size: 20px;
+	font-style: normal;
+	font-weight: 500;
+	line-height: normal;
+}
+
+.taskWidgetHeaderText {
+	color: var(--secondary-font);
+	font-family: var(--primary-font-family);
+	font-size: 14px;
+	font-style: normal;
+	font-weight: 500;
+	line-height: normal;
+}
+
+.taskWidgetcontent {
+	display: flex;
+	width: calc(50% - 4px);
+	padding: 14px 16px;
+	justify-content: space-between;
+	align-items: center;
+	border-radius: 10px;
+	border: 1px solid var(--stroke);
+	background: var(--popup);
+}
+
+.taskWidgetoption {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 2px;
+}
+
+.taskWidgetnumber {
+	color: var(--primary-font);
+	font-family: var(--primary-font-family);
+	font-size: 20px;
+	font-style: normal;
+	font-weight: 500;
+	line-height: normal;
+}
+
+.taskWidgettext {
+	color: var(--secondary-font);
+	font-family: var(--primary-font-family);
+	font-size: 14px;
+	font-style: normal;
+	font-weight: 500;
+	line-height: normal;
+}
+
+.taskWidgeticon {
+	width: 20px;
+	height: 20px;
+	flex-shrink: 0;
+	aspect-ratio: 1/1;
+}
+.taskWidgeticon svg {
+	width: 100%;
+	height: 100%;
+}

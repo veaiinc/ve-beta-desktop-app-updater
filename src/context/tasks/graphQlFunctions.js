@@ -441,3 +441,15 @@ export const listTaskWithGroupQuery = gql`
 		}
 	}
 `;
+
+export const taskAnalyticsQuery = gql`
+	query Query {
+		taskAnalytics {
+			allPending
+			allTasks
+			completed
+			overdue
+			today
+		}
+	}
+`;
