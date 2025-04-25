@@ -121,15 +121,6 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 	}, [selectedSlot]);
 
 	useEffect(() => {
-		if (calendarCategoriesList) {
-			setInfo((prev) => ({
-				...prev,
-				categories: [...calendarCategoriesList],
-			}));
-		}
-	}, [calendarCategoriesList]);
-
-	useEffect(() => {
 		if (info?.categories && !info?.selectedCategory) {
 			const defaultCategory = info?.categories?.find((category) => category?.name === 'all');
 			if (defaultCategory) {
