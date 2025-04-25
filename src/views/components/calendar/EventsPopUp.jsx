@@ -99,6 +99,11 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 	useEffect(() => {
 		if (!calendarCategoriesList) {
 			getCalendarCategories();
+		} else {
+			setInfo((prev) => ({
+				...prev,
+				categories: [...calendarCategoriesList],
+			}));
 		}
 	}, [calendarCategoriesList]);
 
