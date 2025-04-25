@@ -112,11 +112,9 @@ const CalenderWidget = ({ width }) => {
 	const fetchMoreCalendarEvents = () => {
 		const nextPage = eventsCurrentPage + 1;
 		const payload = {
-			options: {
-				startDate: info?.currentCalendarDate?.toISOString().split('T')[0],
-				sortType: 'startDateTime',
-				sortOrder: 'asc',
-			},
+			startDate: info?.currentCalendarDate?.toISOString(),
+			sortType: 'startDateTime',
+			sortOrder: 'dsc',
 		};
 		if (eventsCurrentPage !== undefined) {
 			getAllCalendarEvents(nextPage, 20, payload);
@@ -161,11 +159,9 @@ const CalenderWidget = ({ width }) => {
 	const fetchCalendarEvents = async () => {
 		setInfo((prev) => ({ ...prev, isLoading: true }));
 		const payload = {
-			options: {
-				startDate: info?.currentCalendarDate?.toISOString().split('T')[0],
-				sortType: 'startDateTime',
-				sortOrder: 'asc',
-			},
+			startDate: info?.currentCalendarDate?.toISOString(),
+			sortType: 'startDateTime',
+			sortOrder: 'asc',
 		};
 		await getAllCalendarEvents(info?.page, 20, payload);
 		setInfo((prev) => ({ ...prev, isLoading: false }));

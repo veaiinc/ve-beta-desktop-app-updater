@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect, useCallback, memo } from 'react';
+import React, { useState, useContext, useEffect, useCallback, memo, useRef } from 'react';
 import '../../../assets/scss/sidebar.scss';
 import { useLocation } from 'react-router-dom';
 import Intercom from '@intercom/messenger-js-sdk';
@@ -47,7 +47,6 @@ const Sidebar = ({ activeWorkspaceId }) => {
 	useEffect(() => {
 		localStorage.setItem('isOpen', JSON.stringify(isOpen));
 	}, [isOpen]);
-
 	const [info, setInfo] = useState({
 		switchWorkspaceModal: false,
 		activeBusniessName: '',
@@ -59,10 +58,12 @@ const Sidebar = ({ activeWorkspaceId }) => {
 
 	useEffect(() => {
 		if (leftSidebarState && leftSidebarState === 'open') {
-			setIsOpen(true);
+			if (!isOpen) {
+				setIsOpen(true);
+			}
 			updateStateValues({ leftSidebarState: null });
 		}
-	}, [leftSidebarState]);
+	}, [leftSidebarState, isOpen, updateStateValues]);
 
 	useEffect(() => {
 		if (!userWorkSpaceList) {
