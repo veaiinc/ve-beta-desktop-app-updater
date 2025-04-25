@@ -91,10 +91,6 @@ const CalenderWidget = ({ width }) => {
 		const sessionId = ObjectId().toString();
 		setInfo((prevInfo) => ({ ...prevInfo, chatSessionId: sessionId }));
 
-		if (!calendarCategoriesList) {
-			getCalendarCategories();
-		}
-
 		return () => {
 			setInfo((prevInfo) => ({
 				...prevInfo,
