@@ -10,7 +10,7 @@ import { FetchMoreLoaderComp } from '../../../helpers';
 import Skeleton from 'react-loading-skeleton';
 
 const skeletonLoaders = Array.from({ length: 6 }, (_, index) => index + 1);
-const CalenderWidget = ({ width }) => {
+const CalenderWidget = ({ width = '412px', height = '412px' }) => {
 	const {
 		calendarInfo: {
 			getCalendarEventsList,
@@ -171,7 +171,7 @@ const CalenderWidget = ({ width }) => {
 		setInfo((prev) => ({ ...prev, isLoading: false }));
 	};
 	return (
-		<div className="calender-main-container" style={{ width: width, height: '412px' }}>
+		<div className="calender-main-container" style={{ width: width, height: height }}>
 			<div className="calenderWidgetContainer">
 				<div className="calenderWidgetMain">
 					{/* <div className="calenderWidgetDateContainer">
