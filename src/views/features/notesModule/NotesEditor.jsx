@@ -145,7 +145,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 		if (notesAccess && noteId && userId) {
 			const hasAccess = notesAccess?.find((access) => access?.userId === userId);
 			if (hasAccess) {
-				const myAccess = hasAccess?.access;
+				let myAccess = hasAccess?.access;
 
 				if (globalAccess?.isEnabled) {
 					const myAccessLevel = accessLevels?.[myAccess];

@@ -146,6 +146,11 @@ const ShareModal = ({
 		message.success('Link copied to clipboard');
 	};
 
+	const handleCopyCurrentPageLink = () => {
+		navigator.clipboard.writeText(window?.location?.href);
+		message.success('Link copied to clipboard');
+	};
+
 	const openDatePicker = () => {
 		if (document.activeElement === dateInputRef.current) {
 			dateInputRef.current.blur(); // Try to close it
@@ -163,6 +168,22 @@ const ShareModal = ({
 		const unixDate = date ? moment(date).unix() : null;
 		handleInfoChange({ expiresAt: unixDate });
 		handlePublishPage({ isPublished: true, expiresAt: unixDate });
+	};
+
+	const handleGlobalAccessChange = (isEnabled, access = 'view') => {
+		if (globalAccess?.isEnabled === isEnabled && globalAccess?.access === access) {
+			handleInfoChange({
+				globalAccessDropdown: false,
+			});
+			return;
+		}
+		handleGlobalAccessUpdate({
+			isEnabled,
+			access,
+		});
+		handleInfoChange({
+			globalAccessDropdown: false,
+		});
 	};
 
 	return (
@@ -200,6 +221,7 @@ const ShareModal = ({
 								<div
 									className="notes-share-tab-wrapper"
 									onClick={() => handleInfoChange({ activeTab: tab?.value })}
+									key={tab?.value}
 								>
 									<div className="tab-label">{tab?.label}</div>
 									<div
@@ -221,7 +243,10 @@ const ShareModal = ({
 									<div className="selected-user-container">
 										<div className="selected-user-wrapper">
 											{info?.selectedMembers?.map((user) => (
-												<div className="selected-user-list-item">
+												<div
+													className="selected-user-list-item"
+													key={user?.userId}
+												>
 													<div className="selected-user-avatar">
 														{user?.fullName?.charAt(0)}
 													</div>
@@ -270,7 +295,10 @@ const ShareModal = ({
 										<div className="access-control-list-item-wrapper">
 											{membersWithAccess?.length > 0
 												? membersWithAccess?.map((member) => (
-														<div className="access-control-list-item">
+														<div
+															className="access-control-list-item"
+															key={member?.userId}
+														>
 															<div className="access-control-avatar">
 																{member?.fullName?.charAt(0)}
 															</div>
@@ -327,32 +355,25 @@ const ShareModal = ({
 													<div className="general-access-drop-dropdown">
 														<div
 															className="general-access-item"
-															onClick={() => {
-																handleGlobalAccessUpdate({
-																	isEnabled: false,
-																	access: 'view',
-																});
-																handleInfoChange({
-																	globalAccessDropdown: false,
-																});
-															}}
+															onClick={() =>
+																handleGlobalAccessChange(false)
+															}
 														>
 															Only people invited
 														</div>
-														{/* <div
+														<div
 															className="general-access-item"
-															onClick={() => {
-																handleGlobalAccessUpdate({
-																	isEnabled: true,
-																	access: 'view',
-																});
-																handleInfoChange({
-																	globalAccessDropdown: false,
-																});
-															}}
+															onClick={() =>
+																handleGlobalAccessChange(
+																	true,
+																	globalAccess?.access,
+																)
+															}
 														>
-															{`Everyone at ${info?.activeWorkSpace?.businessName}`}
-														</div> */}
+															{info?.activeWorkSpace
+																? `Everyone at ${info?.activeWorkSpace?.businessName}`
+																: `Everyone in this workspace`}
+														</div>
 													</div>
 												}
 											>
@@ -365,7 +386,7 @@ const ShareModal = ({
 														})
 													}
 												>
-													<div className="access-control-avatar">
+													<div className="access-control-avatar no-border">
 														{globalAccess?.isEnabled ? (
 															<img
 																className="workspaceLogo"
@@ -385,7 +406,9 @@ const ShareModal = ({
 
 													<div className="general-access-selected">
 														{globalAccess?.isEnabled
-															? `Everyone at ${info?.activeWorkSpace?.businessName}`
+															? info?.activeWorkSpace
+																? `Everyone at ${info?.activeWorkSpace?.businessName}`
+																: `Everyone in this workspace`
 															: 'Only people invited'}
 														<ChevronRightThinSvg
 															className={`${
@@ -399,25 +422,25 @@ const ShareModal = ({
 														<AccessDropdown
 															selectedAccess={globalAccess?.access}
 															showRemoveButton={false}
-															onChange={(value) => {
-																handleGlobalAccessUpdate({
-																	isEnabled: true,
-																	access: value,
-																});
-																handleInfoChange({
-																	globalAccessDropdown: false,
-																});
-															}}
+															onChange={(value) =>
+																handleGlobalAccessChange(
+																	true,
+																	value,
+																)
+															}
 														/>
 													)}
 												</div>
 											</Tooltip>
 										</div>
 									</div>
-									{/* <button className="notes-access-copy-link-btn">
+									<button
+										className="notes-access-copy-link-btn"
+										onClick={handleCopyCurrentPageLink}
+									>
 										<Copy className="notes-share-copy-svg" />
 										Copy Link
-									</button> */}
+									</button>
 								</>
 							) : (
 								<div className="access-control-wrapper suggested-wrapper">
@@ -428,6 +451,7 @@ const ShareModal = ({
 												<div
 													className="access-control-list-item"
 													onClick={() => handleUserSelection(user)}
+													key={user?.userId}
 												>
 													<div className="access-control-avatar">
 														{user?.fullName?.charAt(0)}

@@ -149,20 +149,22 @@ const AISuggestionsModal = ({
 						</div>
 
 						<div className="info">
-							<div className="priority">
-								<div
-									className="indicator"
-									style={{
-										background:
-											priority === 'High'
-												? 'red'
-												: priority === 'Medium'
-												? 'orange'
-												: 'green',
-									}}
-								></div>
-								<div className="priority-text">{`${priority} Priority`}</div>
-							</div>
+							{priority && (
+								<div className="priority">
+									<div
+										className="indicator"
+										style={{
+											background:
+												priority === 'High'
+													? 'red'
+													: priority === 'Medium'
+													? 'orange'
+													: 'green',
+										}}
+									></div>
+									<div className="priority-text">{`${priority} Priority`}</div>
+								</div>
+							)}
 							{confidence_score && (
 								<Tooltip title={`Confidence Score: ${confidence_score * 100}%`}>
 									<div className="confidence">
