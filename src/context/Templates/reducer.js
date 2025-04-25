@@ -301,6 +301,18 @@ const actionHandlers = {
 					});
 				}
 
+				if (payload?.compiling && payload?.section_id) {
+					sections = sections?.map((section) => {
+						if (section?.section_id === payload?.section_id) {
+							return {
+								...section,
+								compiling: payload?.compiling,
+							};
+						}
+						return section;
+					});
+				}
+
 				if (payload?.reading && payload?.reading?.sub_query && payload?.section_id) {
 					sections = sections?.map((section) => {
 						if (section?.section_id === payload?.section_id) {
