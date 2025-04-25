@@ -10,8 +10,28 @@ import AISuggestionsModal from '../../components/modalsV2/homePage/AISuggestions
 import { Tooltip } from 'antd';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import updateLocale from 'dayjs/plugin/updateLocale';
 
 dayjs.extend(relativeTime);
+dayjs.extend(updateLocale);
+
+dayjs.updateLocale('en', {
+	relativeTime: {
+		future: 'in %s',
+		past: '%s ago',
+		s: '%d sec',
+		m: '1 min',
+		mm: '%d min',
+		h: '1 hr',
+		hh: '%d hr',
+		d: '1 day',
+		dd: '%d days',
+		M: '1 month',
+		MM: '%d months',
+		y: '1 year',
+		yy: '%d years',
+	},
+});
 
 const payload = {
 	page: 1,
@@ -125,21 +145,23 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 
 		if (!selectedDateFilter?.value) return {};
 
-		const MS_IN_DAY = 86400000;
+		const SECONDS_IN_DAY = 86400; // 24 * 60 * 60 seconds
 		const todayStart = new Date();
 		todayStart.setHours(0, 0, 0, 0);
-		const to = todayStart.getTime();
+		const startTime = Math.floor(todayStart.getTime() / 1000);
+		const endTime = startTime + SECONDS_IN_DAY;
 
 		let from;
+		let to = endTime;
 		switch (selectedDateFilter?.value) {
 			case 'today':
-				from = to;
+				from = startTime;
 				break;
 			case 'last7days':
-				from = to - MS_IN_DAY * 6;
+				from = startTime - SECONDS_IN_DAY * 6;
 				break;
 			case 'last30days':
-				from = to - MS_IN_DAY * 29;
+				from = startTime - SECONDS_IN_DAY * 29;
 				break;
 			default:
 				return {};
@@ -424,7 +446,11 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 										></span>
 										<div className="module-priority-text">
 											<div>{card?.priority}</div>
-											<div style={{ color: 'var(--secondary-font)' }}>|</div>
+											{card?.priority && card?.updatedAt && (
+												<div style={{ color: 'var(--secondary-font)' }}>
+													|
+												</div>
+											)}
 											<Tooltip
 												title={dayjs(card?.updatedAt * 1000).format(
 													'MMMM D, YYYY h:mm A',

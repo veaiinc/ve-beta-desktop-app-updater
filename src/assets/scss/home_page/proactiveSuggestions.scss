@@ -132,7 +132,7 @@
 			left: 50%;
 			z-index: 3;
 			display: flex;
-			background-color: var(--card-hover);
+			background-color: var(--popup);
 			border: none;
 			&::before {
 				content: '';

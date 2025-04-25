@@ -10,8 +10,8 @@ import dayjs from 'dayjs';
 import { message } from '../../globalComponents/CustomToast';
 
 const customStyles = {
-	content: { position: 'absolute', overflow: 'hidden', zIndex: 99999 },
-	overlay: { zIndex: 99998 },
+	content: { position: 'absolute', overflow: 'hidden', zIndex: 998 },
+	overlay: { zIndex: 998 },
 	className: 'createAlbumModal',
 };
 
@@ -170,6 +170,7 @@ const CreateAlbum = ({ open, closeModal, galleryId, handleNewAlbumCreated }) => 
 							}
 							inputReadOnly
 							allowClear={false}
+							style={{ zIndex: 99999 }}
 						/>
 						{info?.eventDateError && <p className="error">Album Date is Required</p>}
 					</div>

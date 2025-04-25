@@ -14,6 +14,7 @@ import {
 	removeFromFavoriteMutation,
 	deletePageMutation,
 	duplicatePageMutation,
+	globalNotesAccessMutation,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -24,6 +25,7 @@ export const intialState = {
 	moreNotes: null,
 	notesPageData: null,
 	notesAccess: null,
+	globalAccess: null,
 };
 
 export const NotesState = (props) => {
@@ -96,6 +98,12 @@ export const NotesState = (props) => {
 				dispatch({
 					type: Actions.GET_NOTES_PAGE_DATA_SUCCESS,
 					payload: { data },
+				});
+				dispatch({
+					type: Actions.SET_GLOBAL_ACCESS,
+					payload: data?.globalNoteAccess
+						? { isEnabled: true, access: data?.globalNoteAccess }
+						: { isEnabled: false, access: 'view' },
 				});
 			} else {
 				const error = response?.[1]?.[0];
@@ -334,6 +342,31 @@ export const NotesState = (props) => {
 		}
 	};
 
+	const updateGlobalAccess = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.mutation(
+				globalNotesAccessMutation,
+				payload,
+				workspaceId,
+				usertoken,
+				'page_notes_api',
+			);
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.SET_GLOBAL_ACCESS,
+					payload: payload?.input,
+				});
+				return [true, response?.[1]?.data?.duplicatePage];
+			} else {
+				return [false, response?.[1]?.[0]];
+			}
+		} catch (error) {
+			console.log('error==>updateGlobalAccess', error);
+		}
+	};
+
 	const updateNotesState = (payload) => {
 		dispatch({
 			type: Actions.UPDATE_NOTES_STATE,
@@ -357,5 +390,6 @@ export const NotesState = (props) => {
 		removeFromFavorite,
 		deletePage,
 		duplicatePage,
+		updateGlobalAccess,
 	};
 };

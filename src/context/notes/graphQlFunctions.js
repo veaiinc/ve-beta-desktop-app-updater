@@ -61,6 +61,7 @@ export const getPageQuery = gql`
 			isPublished
 			slug
 			expiresAt
+			globalNoteAccess
 		}
 	}
 `;
@@ -188,6 +189,15 @@ export const duplicatePageMutation = gql`
 				fullName
 				email
 			}
+		}
+	}
+`;
+
+export const globalNotesAccessMutation = gql`
+	mutation GlobalNoteAccess($pageId: ID!, $input: GlobalNoteAccessInput!) {
+		globalNoteAccess(pageId: $pageId, input: $input) {
+			message
+			success
 		}
 	}
 `;
