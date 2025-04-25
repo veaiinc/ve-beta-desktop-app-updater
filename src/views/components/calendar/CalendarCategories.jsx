@@ -121,7 +121,7 @@ const CalendarCategories = ({
 					className="categoriesContainer"
 					style={{
 						overflowY: 'auto',
-						height: '192px',
+						maxHeight: '192px',
 					}}
 				>
 					{categoryList?.map((category) => {
