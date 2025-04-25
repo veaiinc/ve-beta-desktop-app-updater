@@ -27,7 +27,6 @@ import WorkflowBuilder from './views/features/workflowBuilder/WorkflowBuilder';
 import Tasks from './views/features/tasks/Tasks';
 import ShareAndEarn from './views/features/shareAndEarn/ShareAndEarn';
 import Notes from './views/features/notesModule/Notes';
-import Contacts from './views/features/contacts/Contacts';
 // import Ai_agent from './views/features/aiAgent/AiAgent';
 // import AgentsJobs from './views/features/aiAgent/AgentsJobs';
 // import AgentsSetup from './views/features/aiAgent/AgentsSetup';
@@ -64,7 +63,7 @@ import Integrations from './views/features/integrationsList/Integrations';
 
 import SchedulerMainPage from './views/features/calendar/SchedulerMainPage';
 import EditScheduler from './views/features/calendar/EditScheduler';
-import NContacts from './views/features/contacts/NContacts';
+import Contacts from './views/features/contacts/Contacts';
 const routes = [
 	{
 		path: '/',
@@ -370,7 +369,7 @@ const routes = [
 		path: '/contacts',
 		component: (
 			<AuthWrapper title={'Contacts'}>
-				<NContacts />
+				<Contacts />
 			</AuthWrapper>
 		),
 		exact: true,
