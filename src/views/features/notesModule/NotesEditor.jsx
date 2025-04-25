@@ -42,16 +42,16 @@ const accessLevels = {
 
 let userId = null;
 
-// async function uploadFile(file) {
-// 	const body = new FormData();
-// 	body.append('file', file);
+async function uploadFile(file) {
+	const body = new FormData();
+	body.append('file', file);
 
-// 	const ret = await fetch('https://tmpfiles.org/api/v1/upload', {
-// 		method: 'POST',
-// 		body: body,
-// 	});
-// 	return (await ret.json()).data.url.replace('tmpfiles.org/', 'tmpfiles.org/dl/');
-// }
+	const ret = await fetch('https://tmpfiles.org/api/v1/upload', {
+		method: 'POST',
+		body: body,
+	});
+	return (await ret.json()).data.url.replace('tmpfiles.org/', 'tmpfiles.org/dl/');
+}
 
 const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 	const { noteId } = useParams();
@@ -84,7 +84,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 			cellTextColor: true,
 			headers: true,
 		},
-		// uploadFile,
+		uploadFile,
 	});
 	const [info, setInfo] = useState({
 		timeouts: {}, // Single timeouts object to store all timeouts
