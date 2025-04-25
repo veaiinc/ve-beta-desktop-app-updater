@@ -9,7 +9,8 @@ import ListView from './views/ListView';
 import BoardView from './views/Board';
 import GalleryView from './views/GalleryView';
 import TableView from './views/TableView';
-import Taskwidget from './Taskwidget';
+import QuickActions from '../globalComponents/QuickActions';
+
 const layouts = {
 	list: {
 		Icon: ListViewIcon,
@@ -341,34 +342,37 @@ const Task = ({
 
 	return (
 		<div className="task-container">
-			<ListViewHeader
-				updateTaskInfo={updateTaskInfo}
-				properties={properties}
-				taskPreferences={taskPreferences}
-				prefix={prefix}
-				searchValue={searchValue}
-				responseMetadata={responseMetadata}
-				blockTitle={blockTitle}
-				createButtonText={createButtonText}
-				addButtonOnClick={handleAddButtonOnClick}
-				editingProperty={null}
-				handleEditPropertyChange={() => {}}
-				colors={colors}
-				// view={taskInfo?.tabs?.[taskInfo?.activeTab]?.view}
-				handleTabChange={handleTabChange}
-				tabs={taskInfo?.tabs}
-				handleAddTab={handleAddTab}
-				updateViewInfo={updateViewInfo}
-				viewData={taskInfo?.tabs?.[taskInfo?.activeTab]}
-				handleTabsReorder={handleTabsReorder}
-				showEditViewDropDown={showEditViewDropDown}
-				closeEditViewDropDown={closeEditViewDropDown}
-				handleDuplicateView={handleDuplicateTab}
-				handleDeleteView={handleDeleteTab}
-				handleTabDropdownClick={handleTabDropdownClick}
-				layoutOptions={layoutOptions}
-				handleLayoutOptionClick={handleAddTab}
-			/>
+			<div className="task-header-container">
+				<ListViewHeader
+					updateTaskInfo={updateTaskInfo}
+					properties={properties}
+					taskPreferences={taskPreferences}
+					prefix={prefix}
+					searchValue={searchValue}
+					responseMetadata={responseMetadata}
+					blockTitle={blockTitle}
+					createButtonText={createButtonText}
+					addButtonOnClick={handleAddButtonOnClick}
+					editingProperty={null}
+					handleEditPropertyChange={() => {}}
+					colors={colors}
+					// view={taskInfo?.tabs?.[taskInfo?.activeTab]?.view}
+					handleTabChange={handleTabChange}
+					tabs={taskInfo?.tabs}
+					handleAddTab={handleAddTab}
+					updateViewInfo={updateViewInfo}
+					viewData={taskInfo?.tabs?.[taskInfo?.activeTab]}
+					handleTabsReorder={handleTabsReorder}
+					showEditViewDropDown={showEditViewDropDown}
+					closeEditViewDropDown={closeEditViewDropDown}
+					handleDuplicateView={handleDuplicateTab}
+					handleDeleteView={handleDeleteTab}
+					handleTabDropdownClick={handleTabDropdownClick}
+					layoutOptions={layoutOptions}
+					handleLayoutOptionClick={handleAddTab}
+				/>
+				<QuickActions />
+			</div>
 
 			<div className="task-content-area">
 				{taskInfo?.tabs?.[taskInfo?.activeTab]?.viewType === 'board' ? (

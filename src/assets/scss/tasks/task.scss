@@ -1,6 +1,5 @@
 .task-container {
 	width: 100%;
-	height: calc(100vh - 180px);
 	display: flex;
 	flex-direction: column;
 
@@ -12,12 +11,17 @@
 	.ant-select-selector {
 		padding: 0px !important;
 	}
+
+	.task-header-container {
+		display: flex;
+		gap: 16px;
+	}
 }
 
 .task-delete-icon {
 	width: 16px;
 	height: 17px;
 	path {
-		stroke: #f2f2f3 !important;
+		stroke: var(--primary-font) !important;
 	}
 }

@@ -31,11 +31,9 @@ import ParentTaskComponent from '../../components/tasks/listView/ParentTaskCompo
 import ChildTaskProgress from '../../components/tasks/listView/ChildTaskProgress';
 import LinkText from '../../components/tasks/listView/LinkText';
 import ChildTaskComponent from '../../components/tasks/listView/ChildTaskComponent';
-import QuickActions from '../../components/globalComponents/QuickActions';
 import PersonMultiSelect from '../../components/tasks/listView/PersonMultiSelect';
 import { useSearchParams } from 'react-router-dom';
 import Taskwidget from '../../components/tasks/Taskwidget';
-import ListViewHeader from '../../components/tasks/listView/ListViewHeader';
 
 const defaultPreference = {
 	taskSlNo: { show: false, order: 1 },
@@ -947,12 +945,6 @@ const Tasks = () => {
 				<Taskwidget />
 			</div>
 			<div className="tasks-right-container">
-				{/* <div className="task-header-container">
-					<div className="quick-actions-btn">
-						<QuickActions suggestedOptions={suggestedOptions} />
-					</div>
-				</div> */}
-
 				<Task
 					responseMetadata={responseMetadata}
 					handleAddButtonOnClick={handleAddButtonOnClick}

@@ -13,7 +13,6 @@ import CrossSvg from '../../../../assets/svg/docs/CrossSvg';
 import FilterSvg from '../../../../assets/svg/my_templates/FilterSvg';
 import UpDownArrowSvg from '../../../../assets/svg/my_templates/UpDownArrowSvg';
 import { ReactComponent as PlusSvg } from '../../../../assets/svg/my_templates/plus.svg';
-import QuickActions from '../../globalComponents/QuickActions';
 
 const defaultFilterValue = {
 	text: '',
@@ -319,9 +318,6 @@ const ListViewHeader = ({
 							handleDeleteView={handleDeleteView}
 							layoutOptions={layoutOptions}
 						/>
-					</div>
-					<div className="quick-actions-btn">
-						<QuickActions suggestedOptions={suggestedOptions} />
 					</div>
 				</div>
 			</div>
