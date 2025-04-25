@@ -41,6 +41,13 @@ const AccessDropdown = memo(
 			setInfo((prev) => ({ ...prev, ...data }));
 		};
 
+		const handleOptionClick = (e, option) => {
+			e.stopPropagation();
+			if (disabled) return;
+			onChange(option?.value);
+			handleInfoChange({ isOpen: false });
+		};
+
 		return (
 			<Tooltip
 				title={
@@ -50,11 +57,7 @@ const AccessDropdown = memo(
 								<div
 									key={option?.value}
 									className="notes-share-dropdown-access-tooltip-options-item"
-									onClick={() => {
-										if (disabled) return;
-										onChange(option?.value);
-										handleInfoChange({ isOpen: false });
-									}}
+									onClick={(e) => handleOptionClick(e, option)}
 								>
 									<div className="notes-share-dropdown-access-tooltip-options-item-text">
 										<span className="notes-share-dropdown-access-tooltip-text-label">
@@ -104,7 +107,8 @@ const AccessDropdown = memo(
 			>
 				<div
 					className={`notes-share-dropdown-access ${disabled ? 'disabled' : ``}`}
-					onClick={() => {
+					onClick={(e) => {
+						e.stopPropagation();
 						if (!disabled) handleInfoChange({ isOpen: !info.isOpen });
 					}}
 				>

@@ -32,7 +32,7 @@
 					overflow: hidden;
 					color: var(--primary-font, #f2f2f3);
 					text-overflow: ellipsis;
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 16px;
 					font-style: normal;
 					font-weight: 500;
@@ -60,7 +60,7 @@
 				overflow: hidden;
 				color: var(--primary-font, #f2f2f3);
 				text-overflow: ellipsis;
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 16px;
 				font-style: normal;
 				font-weight: 500;
@@ -135,7 +135,7 @@
 								height: 16px;
 								aspect-ratio: 1/1;
 								border-radius: 50%;
-								border: 1px solid var(--secondary-font);
+								border: 1px solid var(--stroke);
 								display: flex;
 								justify-content: center;
 								align-items: center;
@@ -145,7 +145,7 @@
 							}
 							.selected-user-name {
 								color: var(--primary-font, #f2f2f3);
-								font-family: Inter;
+								font-family: var(--primary-font-family);
 								font-size: 12px;
 								font-style: normal;
 								font-weight: 500;
@@ -169,7 +169,7 @@
 
 						.notes-share-dropdown-access-text {
 							color: var(--primary-font, #f2f2f3);
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 12px;
 							font-style: normal;
 							font-weight: 500;
@@ -204,7 +204,7 @@
 				border-radius: 24px;
 				background: var(--primary-button, #cfff48);
 				color: var(--primary-button-font, #0f0f10);
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 500;
@@ -271,11 +271,16 @@
 							font-size: 14px;
 							font-family: var(--primary-font-family);
 							overflow: hidden;
+							border: 1px solid var(--stroke);
 
 							img {
 								width: 100%;
 								height: 100%;
 								object-fit: cover;
+							}
+
+							&.no-border {
+								border: none;
 							}
 						}
 
@@ -289,7 +294,7 @@
 
 							.access-control-name {
 								color: var(--primary-font, #f2f2f3);
-								font-family: Inter;
+								font-family: var(--primary-font-family);
 								font-size: 14px;
 								font-style: normal;
 								font-weight: 500;
@@ -301,7 +306,7 @@
 							}
 							.access-control-email {
 								color: var(--secondary-font, #7a7e85);
-								font-family: Inter;
+								font-family: var(--primary-font-family);
 								font-size: 12px;
 								font-style: normal;
 								font-weight: 500;
@@ -319,7 +324,7 @@
 
 							.notes-share-dropdown-access-text {
 								color: var(--primary-font, #f2f2f3);
-								font-family: Inter;
+								font-family: var(--primary-font-family);
 								font-size: 12px;
 								font-style: normal;
 								font-weight: 500;
@@ -330,7 +335,7 @@
 						.general-access-selected {
 							flex-grow: 1;
 							color: var(--primary-font, #f2f2f3);
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 14px;
 							font-style: normal;
 							font-weight: 500;
@@ -418,7 +423,7 @@
 				border: none;
 				align-self: flex-end;
 				color: var(--primary-button-font, #0f0f10);
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 500;
@@ -434,7 +439,7 @@
 			flex-direction: column;
 			justify-content: center;
 			color: var(--primary-font, #f2f2f3);
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 24px;
 			font-style: normal;
 			font-weight: 500;
@@ -481,7 +486,7 @@
 						overflow: hidden;
 						color: var(--primary-font, #f2f2f3);
 						text-overflow: ellipsis;
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 14px;
 						font-style: normal;
 						font-weight: 500;
@@ -493,7 +498,7 @@
 						overflow: hidden;
 						color: var(--primary-font, #f2f2f3);
 						text-overflow: ellipsis;
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 14px;
 						font-style: normal;
 						font-weight: 500;
@@ -537,7 +542,7 @@
 			align-self: stretch;
 			.publish-options-heading {
 				color: var(--primary-font, #f2f2f3);
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 500;
@@ -605,7 +610,7 @@
 				border-radius: 24px;
 				border: 1px solid var(--stroke, #2c2d2e);
 				color: var(--primary-font, #f2f2f3);
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 500;
@@ -624,7 +629,7 @@
 				border-radius: 24px;
 				background: var(--primary-button, #cfff48);
 				color: var(--primary-button-font, #0f0f10);
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 500;
@@ -666,6 +671,7 @@
 		align-self: stretch;
 		border-radius: 8px;
 		transition: background-color 0.2s ease-in-out;
+		color: var(--primary-font);
 		cursor: pointer;
 		&:hover {
 			background: var(--card-over-card-hover, #27282b);
