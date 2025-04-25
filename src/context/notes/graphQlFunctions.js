@@ -13,7 +13,6 @@ export const getNotesListQuery = gql`
 			data {
 				_id
 				title
-				icon
 				coverImage
 				permissions {
 					private
@@ -44,7 +43,6 @@ export const getPageQuery = gql`
 		getPage(pageId: $pageId) {
 			_id
 			title
-			icon
 			coverImage
 			permissions {
 				private
@@ -63,6 +61,7 @@ export const getPageQuery = gql`
 			isPublished
 			slug
 			expiresAt
+			globalNoteAccess
 		}
 	}
 `;
@@ -110,7 +109,6 @@ export const updatePageMutation = gql`
 		updatePage(pageId: $pageId, input: $input) {
 			_id
 			title
-			icon
 			coverImage
 			permissions {
 				private
@@ -170,7 +168,6 @@ export const duplicatePageMutation = gql`
 		duplicatePage(pageId: $pageId) {
 			_id
 			title
-			icon
 			coverImage
 			permissions {
 				private
@@ -192,6 +189,15 @@ export const duplicatePageMutation = gql`
 				fullName
 				email
 			}
+		}
+	}
+`;
+
+export const globalNotesAccessMutation = gql`
+	mutation GlobalNoteAccess($pageId: ID!, $input: GlobalNoteAccessInput!) {
+		globalNoteAccess(pageId: $pageId, input: $input) {
+			message
+			success
 		}
 	}
 `;

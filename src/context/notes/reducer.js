@@ -7,6 +7,7 @@ const actionHandlers = {
 	}),
 	GET_NOTES_PAGE_DATA_SUCCESS: (state, action) => ({ ...state, notesPageData: action?.payload }),
 	GET_NOTES_ACCESS_SUCCESS: (state, action) => ({ ...state, notesAccess: action?.payload }),
+	SET_GLOBAL_ACCESS: (state, action) => ({ ...state, globalAccess: action?.payload }),
 	UPDATE_NOTES_STATE: (state, action) => ({ ...state, ...action?.payload }),
 	RESET_STATE: () => intialState,
 };

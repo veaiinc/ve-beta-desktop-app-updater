@@ -250,12 +250,10 @@
 									}
 
 									.website-name {
-										display: -webkit-box;
-										-webkit-box-orient: vertical;
-										-webkit-line-clamp: 1;
-										line-clamp: 1;
 										flex: 1 0 0;
-
+										position: relative;
+										top: 1px;
+										white-space: nowrap;
 										overflow: hidden;
 										color: var(--chat-secondary-font, #4f6064);
 										text-overflow: ellipsis;
