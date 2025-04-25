@@ -221,6 +221,7 @@ const ShareModal = ({
 								<div
 									className="notes-share-tab-wrapper"
 									onClick={() => handleInfoChange({ activeTab: tab?.value })}
+									key={tab?.value}
 								>
 									<div className="tab-label">{tab?.label}</div>
 									<div
@@ -242,7 +243,10 @@ const ShareModal = ({
 									<div className="selected-user-container">
 										<div className="selected-user-wrapper">
 											{info?.selectedMembers?.map((user) => (
-												<div className="selected-user-list-item">
+												<div
+													className="selected-user-list-item"
+													key={user?.userId}
+												>
 													<div className="selected-user-avatar">
 														{user?.fullName?.charAt(0)}
 													</div>
@@ -291,7 +295,10 @@ const ShareModal = ({
 										<div className="access-control-list-item-wrapper">
 											{membersWithAccess?.length > 0
 												? membersWithAccess?.map((member) => (
-														<div className="access-control-list-item">
+														<div
+															className="access-control-list-item"
+															key={member?.userId}
+														>
 															<div className="access-control-avatar">
 																{member?.fullName?.charAt(0)}
 															</div>
@@ -354,7 +361,7 @@ const ShareModal = ({
 														>
 															Only people invited
 														</div>
-														{/* <div
+														<div
 															className="general-access-item"
 															onClick={() =>
 																handleGlobalAccessChange(
@@ -363,8 +370,10 @@ const ShareModal = ({
 																)
 															}
 														>
-															{`Everyone at ${info?.activeWorkSpace?.businessName}`}
-														</div> */}
+															{info?.activeWorkSpace
+																? `Everyone at ${info?.activeWorkSpace?.businessName}`
+																: `Everyone in this workspace`}
+														</div>
 													</div>
 												}
 											>
@@ -397,7 +406,9 @@ const ShareModal = ({
 
 													<div className="general-access-selected">
 														{globalAccess?.isEnabled
-															? `Everyone at ${info?.activeWorkSpace?.businessName}`
+															? info?.activeWorkSpace
+																? `Everyone at ${info?.activeWorkSpace?.businessName}`
+																: `Everyone in this workspace`
 															: 'Only people invited'}
 														<ChevronRightThinSvg
 															className={`${
@@ -429,8 +440,7 @@ const ShareModal = ({
 									>
 										<Copy className="notes-share-copy-svg" />
 										Copy Link
-									</button>{' '}
-									*/}
+									</button>
 								</>
 							) : (
 								<div className="access-control-wrapper suggested-wrapper">
@@ -441,6 +451,7 @@ const ShareModal = ({
 												<div
 													className="access-control-list-item"
 													onClick={() => handleUserSelection(user)}
+													key={user?.userId}
 												>
 													<div className="access-control-avatar">
 														{user?.fullName?.charAt(0)}
