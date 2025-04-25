@@ -91,7 +91,7 @@ const SessionInfoCard = ({ sessionData, onUpdate, isUpdating }) => {
 						<span className="editSession">Edit Session</span>
 						<span className="scheduler">Scheduler</span>
 					</div>
-					<div className="sessionTitleRight">
+					{/* <div className="sessionTitleRight">
 						<div
 							className={`updateButton ${isUpdating ? 'updating' : ''}`}
 							onClick={handleUpdateClick}
@@ -105,7 +105,7 @@ const SessionInfoCard = ({ sessionData, onUpdate, isUpdating }) => {
 								'Update and publish'
 							)}
 						</div>
-					</div>
+					</div> */}
 				</div>
 
 				<div className="sessionInfoSetting">

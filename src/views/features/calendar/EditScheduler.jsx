@@ -717,7 +717,7 @@ const EditScheduler = ({ onBack, sessionId: propSessionId }) => {
 		}, 800);
 
 		updateTimeoutRef.current = timeout;
-	}, [sessionId, info.sessionDetail]);
+	}, [sessionId, info?.sessionDetail]);
 
 	// Function to transform weekly availability to API format
 	const transformWeeklyAvailabilityToApi = (weeklyAvailability) => {
@@ -1145,14 +1145,14 @@ const EditScheduler = ({ onBack, sessionId: propSessionId }) => {
 			</div>
 
 			<div className="updateSessionDetails">
-				<div className="sessionDescriptionContainer">
+				{/* <div className="sessionDescriptionContainer">
 					<span>Description</span>
 					<textarea
 						className="sessionDescriptionInput"
 						value={info.sessionDescription}
 						onChange={(e) => handleSessionDescriptionChange(e.target.value)}
 					/>
-				</div>
+				</div> */}
 				<div className="sessionDurationContainer">
 					<div className="sessionDetailsRow">
 						<div className="sessionInputWrapper">
@@ -1161,7 +1161,7 @@ const EditScheduler = ({ onBack, sessionId: propSessionId }) => {
 								format="DD MMM YYYY"
 								allowClear
 								showTime={false}
-								value={info.startTime}
+								value={info?.startTime}
 								onChange={handleStartDateChange}
 								className="session-input"
 								suffixIcon={<DateSvg />}
