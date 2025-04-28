@@ -220,7 +220,7 @@ const Insights = () => {
 		}, 200),
 		[],
 	);
-
+	console.log('visitorData', visitorData);
 	return (
 		<div className="insightsContainer">
 			<div className="insightsData">
@@ -234,7 +234,7 @@ const Insights = () => {
 					</div>
 				))}
 			</div>
-			{visitorData?.docs?.length > 0 && (
+			{visitorData?.length > 0 && (
 				<>
 					<div className="insightsHeader">
 						<div className="heading">
