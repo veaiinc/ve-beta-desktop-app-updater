@@ -19,16 +19,6 @@ import { useBlockNoteEditor, useComponentsContext } from '@blocknote/react';
 import AlignButton from './AlignButton';
 
 const NoteToolbar = memo(({ sendMessage, aiResonse, resetAiResponse }) => {
-	const editor = useBlockNoteEditor();
-
-	useEffect(() => {
-		const selectedBlock = editor.getSelection();
-		console.log(selectedBlock);
-	}, [editor]);
-
-	const selectedBlock = editor.getSelection();
-	console.log(selectedBlock);
-
 	return (
 		<FormattingToolbarController
 			formattingToolbar={() => (

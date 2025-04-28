@@ -203,9 +203,10 @@ export const globalNotesAccessMutation = gql`
 `;
 
 export const notesImageBlockUploadMutation = gql`
-	mutation UploadPageBlockImage($pageId: ID!, $input: UploadPageBlockImageInput!) {
-		uploadPageBlockImage(pageId: $pageId, input: $input) {
+	mutation UploadPageBlockImage($pageId: ID!) {
+		uploadPageBlockImage(pageId: $pageId) {
 			signedUrl
+			imageUrl
 		}
 	}
 `;

@@ -46,17 +46,6 @@ const accessLevels = {
 
 let userId = null;
 
-// async function uploadFile(file) {
-// 	const body = new FormData();
-// 	body.append('file', file);
-
-// 	const ret = await fetch('https://tmpfiles.org/api/v1/upload', {
-// 		method: 'POST',
-// 		body: body,
-// 	});
-// 	return (await ret.json()).data.url.replace('tmpfiles.org/', 'tmpfiles.org/dl/');
-// }
-
 const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 	const { noteId } = useParams();
 	const navigate = useNavigate();
@@ -76,11 +65,23 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 			updateNotesState,
 			getNotesAccess,
 			globalAccess,
+			uploadNotesImageBlock,
 		},
 		companyInfo: { getTeamMembers, tenantsUserList },
 	} = useContext(Context);
 
 	const { createWebSocketConnection, sendMessage } = useChatStream();
+
+	async function uploadFile(file) {
+		const response = await uploadNotesImageBlock({ pageId: noteId }, file);
+
+		if (response?.[0]) {
+			await new Promise((resolve) => setTimeout(resolve, 3000)); // 500ms delay
+			return response?.[1];
+		}
+
+		return undefined;
+	}
 
 	const editor = useCreateBlockNote({
 		tables: {
@@ -89,7 +90,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 			cellTextColor: true,
 			headers: true,
 		},
-		// uploadFile,
+		uploadFile,
 	});
 	const [info, setInfo] = useState({
 		timeouts: {}, // Single timeouts object to store all timeouts

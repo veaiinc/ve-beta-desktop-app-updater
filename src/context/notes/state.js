@@ -387,18 +387,18 @@ export const NotesState = (props) => {
 				usertoken,
 				'page_notes_api',
 			);
+
 			if (response?.[0]) {
-				const signedUrl = response?.[1]?.signedUrl;
+				const { signedUrl, imageUrl } = response?.[1]?.data?.uploadPageBlockImage;
 				const uploadResponse = await axios.put(signedUrl, data, {
 					headers: {
 						'Content-Type': data?.type,
 					},
 				});
 				if (uploadResponse.status === 200) {
-					return {
-						ok: true,
-						message: 'File uploaded successfully',
-					};
+					return [true, imageUrl];
+				} else {
+					return [false, uploadResponse];
 				}
 			}
 			return [false, response?.[1]?.[0]];
