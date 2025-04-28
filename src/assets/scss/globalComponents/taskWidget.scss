@@ -80,7 +80,8 @@
 				align-self: stretch;
 				border-radius: 12px;
 				background: var(--card-over-card, #202123);
-				height: 300px;
+				height: 100%;
+				max-height: 300px;
 				overflow-y: auto;
 				.taskWidgetEmptyState {
 					display: flex;

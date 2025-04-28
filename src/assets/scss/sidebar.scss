@@ -5,7 +5,7 @@
 	position: absolute;
 	top: 106px;
 	left: 30px;
-	transition: height, width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+	// transition: height, width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 	&.opened {
 		height: 100dvh !important;
 		position: relative !important;
@@ -41,7 +41,7 @@
 		justify-content: center;
 		align-items: center;
 		overflow-y: auto;
-		transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+		// transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 		z-index: 15;
 		scrollbar-width: none; // Hide Firefox scrollbar
 		-ms-overflow-style: none; // Hide IE scrollbarf
@@ -58,7 +58,10 @@
 			transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 			position: relative;
 		}
-
+		&.closing {
+			width: 0px !important;
+			transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+		}
 		&.padding-48 {
 			padding: 0px;
 		}

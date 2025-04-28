@@ -33,6 +33,7 @@ const Sidebar = ({ activeWorkspaceId }) => {
 	const [isOpen, setIsOpen] = useState(() => {
 		return JSON.parse(localStorage.getItem('isOpen')) ?? true;
 	});
+	const [isClosing, setIsClosing] = useState(false);
 	// const themePreference = userDetailsData?.theme || 'dark'; // TODO: change this to systemDefault after light theme is good
 	// if (themePreference) {
 	// 	localStorage.setItem('theme', themePreference);
@@ -129,6 +130,14 @@ const Sidebar = ({ activeWorkspaceId }) => {
 		setInfo((prev) => ({ ...prev, createLeadModal: false }));
 	}, []);
 
+	const handleClose = () => {
+		setIsClosing(true);
+		const timeOut = setTimeout(() => {
+			setIsOpen(false);
+			setIsClosing(false);
+		}, 600);
+		return () => clearTimeout(timeOut);
+	};
 	return (
 		<>
 			<div
@@ -152,7 +161,7 @@ const Sidebar = ({ activeWorkspaceId }) => {
 				<nav
 					className={`sidebarComponent ${isOpen ? 'open' : ''} ${
 						!isOpen && isHome && 'padding-48'
-					}`}
+					} ${isClosing ? 'closing' : ''}`}
 					style={styles[sidebarStates?.navStyle]}
 				>
 					{isOpen ? (
@@ -163,7 +172,7 @@ const Sidebar = ({ activeWorkspaceId }) => {
 							setInfo={setInfo}
 							userWorkSpaceList={userWorkSpaceList}
 							isOpen={isOpen}
-							setIsOpen={setIsOpen}
+							setIsOpen={handleClose}
 							setShowChatsDrawer={setShowChatsDrawer}
 							setShowNotificationsDrawer={setShowNotificationsDrawer}
 							setShowNotesDrawer={setShowNotesDrawer}
