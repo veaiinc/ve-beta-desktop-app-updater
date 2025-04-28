@@ -25,6 +25,7 @@ import { fetchOriginSelection } from '../../../helpers/index.js';
 import { useNavigate } from 'react-router-dom';
 import DuplicateSvg from '../../../assets/svg/tasks/DuplicateSvg.jsx';
 import { message } from '../globalComponents/CustomToast.jsx';
+import Spinner from '../loaders/Spinner.jsx';
 
 const initialState = {
 	activeTab: 'preview',
@@ -503,6 +504,9 @@ const Sidebar = ({ open, onClose, activeFileData, refetchDocsFilesList, openDele
 											>
 												<DuplicateSvg />
 												<span>Duplicate</span>
+												{info?.duplicateLoading && (
+													<Spinner width={'16px'} height={'16px'} />
+												)}
 											</div>
 											<div className="items" onClick={openSendSmartFileModal}>
 												<ShareSvg />
