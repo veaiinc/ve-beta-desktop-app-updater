@@ -27,7 +27,6 @@ import WorkflowBuilder from './views/features/workflowBuilder/WorkflowBuilder';
 import Tasks from './views/features/tasks/Tasks';
 import ShareAndEarn from './views/features/shareAndEarn/ShareAndEarn';
 import Notes from './views/features/notesModule/Notes';
-import Contacts from './views/features/contacts/Contacts';
 // import Ai_agent from './views/features/aiAgent/AiAgent';
 // import AgentsJobs from './views/features/aiAgent/AgentsJobs';
 // import AgentsSetup from './views/features/aiAgent/AgentsSetup';
@@ -64,6 +63,7 @@ import Integrations from './views/features/integrationsList/Integrations';
 
 import SchedulerMainPage from './views/features/calendar/SchedulerMainPage';
 import EditScheduler from './views/features/calendar/EditScheduler';
+import Contacts from './views/features/contacts/Contacts';
 const routes = [
 	{
 		path: '/',
@@ -327,7 +327,7 @@ const routes = [
 			<AuthWrapper
 				title={'Calendar'}
 				maxWidth={'100%'}
-				outerContainerStyle={{ overflow: 'hidden', padding: '0px 32px' }}
+				outerContainerStyle={{ overflow: 'hidden', padding: '0 32px' }}
 			>
 				<CalendarModule />
 			</AuthWrapper>
@@ -368,7 +368,7 @@ const routes = [
 	{
 		path: '/contacts',
 		component: (
-			<AuthWrapper title={'Contacts'}>
+			<AuthWrapper title={'Contacts'} outerContainerStyle={{ padding: '0 32px 0 32px' }}>
 				<Contacts />
 			</AuthWrapper>
 		),

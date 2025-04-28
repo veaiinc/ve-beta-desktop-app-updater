@@ -101,7 +101,7 @@ const AutomationWidget = ({ width, height }) => {
 		}
 	};
 	return (
-		<div className="automation" style={{ width: width }}>
+		<div className="automation" style={{ width: width, height: height }}>
 			<div className="automationWidgetContainer">
 				<div className="automationWidgetBody">
 					<div className="automationWidgetBodyHeader" id="automationWidgetBodyHeader">
