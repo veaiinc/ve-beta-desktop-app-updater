@@ -2440,7 +2440,6 @@ export const TemplatesState = (props) => {
 				usertoken,
 				'workflows_Api',
 			);
-			console.log('response==>duplicateSmartFile', response);
 			if (response?.[0]) {
 				return response;
 			} else {
