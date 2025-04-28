@@ -3,12 +3,6 @@ import { useState, memo } from 'react';
 import '../../../../assets/scss/dropdown/file/filterDropdown.scss';
 import { ReactComponent as ChevronRightThinSvg } from '../../../../assets/svg/tasks/chevronRightThin.svg';
 import { ReactComponent as ArrowSvg } from '../../../../assets/svg/file/arrow.svg';
-// const options = [
-// 	{ label: 'All', value: 'all' },
-// 	{ label: 'Private', value: 'private' },
-// 	{ label: 'Shared', value: 'shared' },
-// 	{ label: 'Favorite', value: 'favorite' },
-// ];
 
 const FilterDropdown = ({
 	selected,
