@@ -1,0 +1,65 @@
+.bn-text-color-picker {
+	.bn-text-color-picker-popover {
+		position: absolute;
+		top: 100%;
+		left: 0;
+		margin-top: 5px;
+		z-index: 1000;
+		display: flex;
+		width: 233px;
+		flex-direction: column;
+		border-radius: 16px;
+		background-color: var(--card);
+		padding: 12px;
+		gap: 12px;
+
+		.color-round {
+			width: 14px !important;
+			height: 14px !important;
+			flex-shrink: 0;
+			border-radius: 50%;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+		}
+
+		.title-wrapper {
+			color: var(--primary-font, #171819);
+			font-family: var(--primary-font-family);
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+		}
+
+		.colors-wrapper {
+			display: flex;
+			align-items: center;
+			align-content: center;
+			gap: 12px;
+			align-self: stretch;
+			flex-wrap: wrap;
+
+			.color-item {
+				display: flex;
+				width: 32px;
+				height: 32px;
+				justify-content: center;
+				align-items: center;
+				border-radius: 8px;
+				border: 1px solid var(--stroke);
+				overflow: hidden;
+				cursor: pointer;
+				.inner-item {
+					width: 100%;
+					height: 100%;
+					border-radius: 7px;
+					opacity: 0.5;
+				}
+				&.active {
+					border-color: var(--primary-font) !important;
+				}
+			}
+		}
+	}
+}

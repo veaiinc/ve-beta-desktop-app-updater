@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect, useCallback, memo } from 'react';
+import React, { useState, useContext, useEffect, useCallback, memo, useRef } from 'react';
 import '../../../assets/scss/sidebar.scss';
 import { useLocation } from 'react-router-dom';
 import Intercom from '@intercom/messenger-js-sdk';
@@ -33,7 +33,6 @@ const Sidebar = ({ activeWorkspaceId }) => {
 	const [isOpen, setIsOpen] = useState(() => {
 		return JSON.parse(localStorage.getItem('isOpen')) ?? true;
 	});
-
 	// const themePreference = userDetailsData?.theme || 'dark'; // TODO: change this to systemDefault after light theme is good
 	// if (themePreference) {
 	// 	localStorage.setItem('theme', themePreference);
@@ -47,7 +46,6 @@ const Sidebar = ({ activeWorkspaceId }) => {
 	useEffect(() => {
 		localStorage.setItem('isOpen', JSON.stringify(isOpen));
 	}, [isOpen]);
-
 	const [info, setInfo] = useState({
 		switchWorkspaceModal: false,
 		activeBusniessName: '',
@@ -58,9 +56,16 @@ const Sidebar = ({ activeWorkspaceId }) => {
 	});
 
 	useEffect(() => {
-		if (leftSidebarState && leftSidebarState === 'open') {
-			setIsOpen(true);
-			updateStateValues({ leftSidebarState: null });
+		if (leftSidebarState === 'open') {
+			if (!isOpen) {
+				setIsOpen(true); // Open sidebar if it's not already open
+			}
+			updateStateValues({ leftSidebarState: null }); // Reset leftSidebarState after it opens
+		} else if (leftSidebarState === 'close') {
+			if (isOpen) {
+				setIsOpen(false); // Close sidebar if it's currently open
+			}
+			updateStateValues({ leftSidebarState: null }); // Reset leftSidebarState after it closes
 		}
 	}, [leftSidebarState]);
 

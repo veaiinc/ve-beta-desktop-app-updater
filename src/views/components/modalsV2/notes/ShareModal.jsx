@@ -18,12 +18,11 @@ const tabs = [
 	{ value: 'publish', label: 'Publish' },
 ];
 
-let userId = null;
-let activeWorkspaceId = null;
+let userId,
+	activeWorkspaceId = null;
 const today = new Date();
 today.setDate(today.getDate() + 1);
 const minDate = today.toISOString().split('T')[0];
-
 const ShareModal = ({
 	isOpen,
 	onClose,
@@ -43,7 +42,7 @@ const ShareModal = ({
 	publishLoading,
 }) => {
 	const {
-		profileInfo: { userWorkSpaceList },
+		profileInfo: { tennantSettingsData },
 	} = useContext(Context);
 	const dateInputRef = useRef(null);
 
@@ -55,25 +54,14 @@ const ShareModal = ({
 		selectedMembers: [],
 		btnLoading: false,
 		globalAccessDropdown: false,
-		activeWorkSpace: null,
 	});
 
 	useEffect(() => {
-		const token = localStorage.getItem('usertoken');
 		activeWorkspaceId = localStorage.getItem('workspaceId');
+		const token = localStorage.getItem('usertoken');
 		const { user_id } = jwtDecode(token);
 		userId = user_id;
 	}, []);
-
-	useEffect(() => {
-		if (userWorkSpaceList) {
-			const activeWorkSpace = userWorkSpaceList?.find(
-				(item) => item.activeWorkspaceId === activeWorkspaceId,
-			);
-
-			setInfo((prev) => ({ ...prev, activeWorkSpace }));
-		}
-	}, [userWorkSpaceList, activeWorkspaceId]);
 
 	const handleInfoChange = (data) => {
 		setInfo((prevInfo) => ({ ...prevInfo, ...data }));
@@ -142,7 +130,13 @@ const ShareModal = ({
 			message.error('Please enter a slug');
 			return;
 		}
-		navigator.clipboard.writeText(`https://${activeWorkspaceId}.ve.ai/page/${prevSlug}`);
+		if (tennantSettingsData?.customDomain) {
+			navigator.clipboard.writeText(
+				`https://${tennantSettingsData?.customDomain}/page/${prevSlug}`,
+			);
+		} else {
+			navigator.clipboard.writeText(`https://${activeWorkspaceId}.ve.ai/page/${prevSlug}`);
+		}
 		message.success('Link copied to clipboard');
 	};
 
@@ -185,6 +179,8 @@ const ShareModal = ({
 			globalAccessDropdown: false,
 		});
 	};
+
+	const { businessName, logo_s3_500w_key: workspaceImage } = tennantSettingsData || {};
 
 	return (
 		<ReactModal
@@ -255,6 +251,7 @@ const ShareModal = ({
 													</div>
 													<CrossWhite
 														onClick={() => handleUserSelection(user)}
+														className="cursor-pointer"
 													/>
 												</div>
 											))}
@@ -370,8 +367,8 @@ const ShareModal = ({
 																)
 															}
 														>
-															{info?.activeWorkSpace
-																? `Everyone at ${info?.activeWorkSpace?.businessName}`
+															{businessName
+																? `Everyone at ${businessName}`
 																: `Everyone in this workspace`}
 														</div>
 													</div>
@@ -390,14 +387,8 @@ const ShareModal = ({
 														{globalAccess?.isEnabled ? (
 															<img
 																className="workspaceLogo"
-																src={
-																	info?.activeWorkSpace
-																		?.logo_s3_500w_key
-																}
-																alt={
-																	info?.activeWorkSpace
-																		?.activeWorkspaceId
-																}
+																src={workspaceImage}
+																alt={businessName}
 															/>
 														) : (
 															<LockIcon width={16} height={16} />
@@ -406,8 +397,8 @@ const ShareModal = ({
 
 													<div className="general-access-selected">
 														{globalAccess?.isEnabled
-															? info?.activeWorkSpace
-																? `Everyone at ${info?.activeWorkSpace?.businessName}`
+															? businessName
+																? `Everyone at ${businessName}`
 																: `Everyone in this workspace`
 															: 'Only people invited'}
 														<ChevronRightThinSvg
@@ -494,7 +485,9 @@ const ShareModal = ({
 									<div className="link-container-wrapper">
 										<div className="publish-link-input-container">
 											<div className="domain-section">
-												{activeWorkspaceId}.ve.ai/page/
+												{tennantSettingsData?.customDomain
+													? `${tennantSettingsData?.customDomain}/page/`
+													: `${activeWorkspaceId}.ve.ai/page/`}
 											</div>
 											<input
 												type="text"
@@ -568,7 +561,11 @@ const ShareModal = ({
 										disabled={!slug?.trim() || slug?.endsWith('-')}
 										onClick={() =>
 											window.open(
-												`https://${activeWorkspaceId}.ve.ai/page/${prevSlug}`,
+												`https://${
+													tennantSettingsData?.customDomain
+														? tennantSettingsData?.customDomain
+														: `${activeWorkspaceId}.ve.ai`
+												}/page/${prevSlug}`,
 												'_blank',
 											)
 										}

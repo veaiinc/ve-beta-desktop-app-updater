@@ -213,25 +213,52 @@ export const Calendar = () => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
-			const url = `/${workspaceId}${API.CALENDAR.getGoogleCalendarEventsList}`;
 
-			const response = await service.fetchGet(url, usertoken, 'calendar_api');
-
-			if (response?.[0] === true) {
+			if (!workspaceId || !usertoken) {
 				dispatch({
 					type: Actions.GET_GOOGLE_CALENDAR_EVENTS_LIST,
-					payload: response?.[1]?.data,
+					payload: {
+						error: 'Authentication error. Please try logging in again.',
+					},
+				});
+				return;
+			}
+
+			const url = `/${workspaceId}${API.CALENDAR.getGoogleCalendarEventsList}`;
+			const response = await service.fetchGet(url, usertoken, 'calendar_api');
+
+			if (!response) {
+				dispatch({
+					type: Actions.GET_GOOGLE_CALENDAR_EVENTS_LIST,
+					payload: {
+						error: 'No response from server. Please try again.',
+					},
+				});
+				return;
+			}
+
+			if (response[0] === true && response[1]?.data) {
+				dispatch({
+					type: Actions.GET_GOOGLE_CALENDAR_EVENTS_LIST,
+					payload: response[1].data,
 				});
 			} else {
 				dispatch({
 					type: Actions.GET_GOOGLE_CALENDAR_EVENTS_LIST,
 					payload: {
-						error: 'Something went wrong while fetching google calendar events. Please try again.',
+						error:
+							response[1]?.error ||
+							'Failed to fetch Google Calendar events. Please try again.',
 					},
 				});
 			}
 		} catch (error) {
-			console.log('error==>getCalendarEventsList', error);
+			dispatch({
+				type: Actions.GET_GOOGLE_CALENDAR_EVENTS_LIST,
+				payload: {
+					error: error.message || 'An unexpected error occurred while fetching events.',
+				},
+			});
 		}
 	};
 

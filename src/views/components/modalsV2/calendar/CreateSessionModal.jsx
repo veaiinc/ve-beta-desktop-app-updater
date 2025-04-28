@@ -66,7 +66,6 @@ const CreateSessionModal = ({ open, closeModal, onSessionCreated }) => {
 
 	useEffect(() => {
 		if (createdSession) {
-			console.log('createdSession==>', createdSession);
 			ModifyCloseModal();
 			onSessionCreated?.(createdSession);
 		}
@@ -74,7 +73,7 @@ const CreateSessionModal = ({ open, closeModal, onSessionCreated }) => {
 
 	const handleCreateSession = useCallback(() => {
 		// Validate date range
-		if (info.scheduleFrom && info.scheduleTo && info.scheduleTo <= info.scheduleFrom) {
+		if (info?.scheduleFrom && info?.scheduleTo && info?.scheduleTo <= info?.scheduleFrom) {
 			setInfo((prev) => ({
 				...prev,
 				errors: { ...prev.errors, dateRange: true },
