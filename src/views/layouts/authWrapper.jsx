@@ -15,6 +15,7 @@ import Context from '../../context/context';
 import DynamicWidget from '../features/DynamicWidget/dynamicWidget';
 import { useLocation } from 'react-router-dom';
 import CommandKSearch from '../components/commandKSearch/CommandKSearch';
+const renewBanner = true;
 
 const AuthWrapper = ({
 	title,
@@ -25,9 +26,10 @@ const AuthWrapper = ({
 	authParentContainerStyle = {},
 	sidebarContainerStyles = {},
 	showDynamicWidget = true,
+	sidebarContainerClassName = '',
 }) => {
 	const {
-		subscriptionInfo: { renewBanner },
+		// subscriptionInfo: { renewBanner },
 	} = useContext(Context);
 	const [workspaceId, setActiveWorkspaceId] = useActiveWorkspace();
 	const location = useLocation();
@@ -53,13 +55,16 @@ const AuthWrapper = ({
 			<div
 				style={{
 					display: 'flex',
-					height: renewBanner ? 'calc(100dvh - 41px)' : '100dvh',
+					height: renewBanner ? 'calc(100dvh - 57px)' : '100dvh',
 					padding: '32px 32px 0',
 					...outerContainerStyle,
 				}}
 			>
 				<SkeletonTheme baseColor={'var(--card)'} highlightColor={'var(--card-hover)'}>
-					<div style={{ ...sidebarContainerStyles }}>
+					<div
+						style={{ ...sidebarContainerStyles }}
+						className={sidebarContainerClassName}
+					>
 						<Sidebar
 							setActiveWorkspaceId={setActiveWorkspaceId}
 							activeWorkspaceId={workspaceId}

@@ -13,12 +13,16 @@ import moment from 'moment';
 import CustomTextArea from '../../components/globalComponents/CustomTextArea';
 import MoreOptions from '../../components/notes/MoreOptions';
 import { StarSvg } from '../../../assets/svg/notes/Star';
+import { ReactComponent as DangerSvg } from '../../../assets/svg/notes/danger.svg';
 import { message } from '../../components/globalComponents/CustomToast';
 import { Helmet } from 'react-helmet';
 import Skeleton from 'react-loading-skeleton';
 import useChatStream from '../../hooks/useChatStream';
 import ObjectID from 'bson-objectid';
 import jwtDecode from 'jwt-decode';
+import { ReactComponent as DustBinIcon } from '../../../assets/svg/tasks/dustBin.svg';
+import { ReactComponent as RestoreIcon } from '../../../assets/svg/notes/restore.svg';
+
 const preprocessMarkdown = (markdown) => {
 	return markdown?.replace(/\\n/g, '\n'); // Add a non-breaking space for empty lines
 };
@@ -98,6 +102,8 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 		loading: true,
 		aiResonse: '',
 		myAccess: 'view',
+		isDeleted: false,
+		updatedBy: null,
 	});
 
 	useEffect(() => {
@@ -371,6 +377,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 			web_search: true,
 		});
 	}, []);
+	const { isDeleted = false, updatedAt = null, updatedBy } = notesPageData?.data || {};
 
 	return (
 		<div className="notes-container" style={outerContainerStyle || {}}>
@@ -381,32 +388,54 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 				</Helmet>
 			)}
 
-			<div className="notes-nav-menu">
-				<div className="notes-nav-title">{info?.title}</div>
+			{!isDeleted ? (
+				<div className="notes-nav-menu">
+					<div className="notes-nav-title">{info?.title}</div>
 
-				<div className="notes-nav-right">
-					<button
-						className="notes-nav-button"
-						onClick={() => handleFavorite(!info?.isFavorite)}
-					>
-						<StarSvg
-							fill={info?.isFavorite}
-							width={18}
-							height={18}
-							className="cursor-pointer"
+					<div className="notes-nav-right">
+						<button
+							className="notes-nav-button"
+							onClick={() => handleFavorite(!info?.isFavorite)}
+						>
+							<StarSvg
+								fill={info?.isFavorite}
+								width={18}
+								height={18}
+								className="cursor-pointer"
+							/>
+						</button>
+
+						{info?.myAccess === 'full' && <ShareComponent pageId={noteId} />}
+
+						<MoreOptions
+							notesConfigs={info?.notesConfigs}
+							onChange={handleMoreOptionsChange}
+							onDelete={handleDeletePage}
+							onDuplicate={handleDuplicatePage}
 						/>
-					</button>
-
-					{info?.myAccess === 'full' && <ShareComponent pageId={noteId} />}
-
-					<MoreOptions
-						notesConfigs={info?.notesConfigs}
-						onChange={handleMoreOptionsChange}
-						onDelete={handleDeletePage}
-						onDuplicate={handleDuplicatePage}
-					/>
+					</div>
 				</div>
-			</div>
+			) : (
+				<div className="deleted-badge">
+					<div className="badge-text-wrapper">
+						<DangerSvg />
+						<p className="delete-badge-message">
+							Gowtham moved VE.AI into trash 2 weeks ago. After 10 days automatically
+							permanently delete from Trash.
+						</p>
+					</div>
+
+					<div className="badge-button-wrapper">
+						<button className="delete-badge-restore-btn">
+							<RestoreIcon />
+							Restore
+						</button>
+						<button className="delete-badge-permanent-delete-btn">
+							<DustBinIcon /> Delete From Trash
+						</button>
+					</div>
+				</div>
+			)}
 
 			<div className="notes-editor-container">
 				{info?.loading ? (
@@ -453,9 +482,9 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 							onChange={onChange}
 							style={innerContainerStyle || {}}
 							theme={'dark'}
-							editable={info?.myAccess !== 'view'}
+							editable={info?.myAccess !== 'view' || !isDeleted}
 						>
-							{info?.myAccess !== 'view' && (
+							{(info?.myAccess !== 'view' || !isDeleted) && (
 								<NoteToolbar
 									sendMessage={customSendMessage}
 									aiResonse={info?.aiResonse}
