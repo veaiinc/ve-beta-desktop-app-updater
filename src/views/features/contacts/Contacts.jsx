@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState, useCallback, memo } from 'react';
-import '../../../assets/scss/contacts/ncontacts.scss';
+import '../../../assets/scss/contacts/contacts.scss';
 import { useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
 import { ReactComponent as ArrowRightSvg } from '../../../assets/svg/home_page/arrow-right.svg';

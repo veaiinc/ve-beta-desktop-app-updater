@@ -2,23 +2,22 @@
 	// padding: 20px;
 	// display: flex;
 	// height: 93vh;
-	position: absolute;
-	top: 106px;
-	left: 30px;
-	// transition: height, width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+	transition: height, width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 	&.opened {
-		height: 100dvh !important;
-		position: relative !important;
+		height: 100dvh;
+		position: relative;
 		margin-left: -32px !important;
 		margin-top: -32px !important;
 		padding: 0 !important;
 		margin-right: 10px !important;
 		transition: height, width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 		z-index: 1001;
-		top: 0;
-		left: 0;
 	}
-
+	&.contacts-sidebar:not(.opened) {
+		position: absolute;
+		top: 105px;
+		left: 25px;
+	}
 	overflow: hidden;
 	scrollbar-width: none; // For Firefox
 	-ms-overflow-style: none; // For Internet Explorer and Edge
@@ -41,16 +40,14 @@
 		justify-content: center;
 		align-items: center;
 		overflow-y: auto;
-		// transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+		// transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 		z-index: 15;
 		scrollbar-width: none; // Hide Firefox scrollbar
 		-ms-overflow-style: none; // Hide IE scrollbarf
 		position: relative;
-		width: 40px;
 		&::-webkit-scrollbar {
 			display: none; // Hide Chrome/Safari/Opera scrollbar
 		}
-		width: 100%;
 		&.open {
 			border-radius: 0px !important;
 			// height: 100dvh !important;
@@ -60,8 +57,9 @@
 		}
 		&.closing {
 			width: 0px !important;
-			transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+			transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 		}
+
 		&.padding-48 {
 			padding: 0px;
 		}
@@ -890,34 +888,6 @@
 		}
 		.settingsOptionsContainer {
 			width: 90% !important;
-		}
-	}
-}
-@media screen and (min-width: 500px) and (max-width: 1920px) {
-	.FullScreenSidebar {
-		&.no-submodules:not(.opened) {
-			position: absolute !important;
-			top: 65px;
-			left: 25px;
-		}
-		&.renew-banner:not(.opened) {
-			top: 106px;
-			left: 25px;
-			width: 40px;
-		}
-	}
-}
-@media screen and (min-width: 1920px) {
-	.FullScreenSidebar {
-		&.no-submodules:not(.opened) {
-			position: absolute !important;
-			top: 65px;
-			left: 60px;
-		}
-		&.renew-banner:not(.opened) {
-			top: 106px;
-			left: 60px;
-			width: 40px;
 		}
 	}
 }

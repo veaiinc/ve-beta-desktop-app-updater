@@ -35,6 +35,7 @@ const Sidebar = ({ activeWorkspaceId }) => {
 	// conditional margin top for home page
 	const isHome = location?.pathname?.includes('home') || location?.pathname?.includes('notes');
 
+	const isContacts = location?.pathname?.includes('contacts');
 	useEffect(() => {
 		localStorage.setItem('isOpen', JSON.stringify(isOpen));
 	}, [isOpen]);
@@ -135,7 +136,7 @@ const Sidebar = ({ activeWorkspaceId }) => {
 					)?.subModules?.length > 0
 						? 'has-submodules'
 						: 'no-submodules'
-				} ${renewBanner ? 'renew-banner' : ''}`}
+				} ${renewBanner ? 'renew-banner' : ''} ${isContacts ? 'contacts-sidebar' : ''}`}
 				style={{
 					height: isOpen ? (renewBanner ? 'calc(100dvh - 41px)' : '100dvh') : '',
 					alignItems: sidebarStates?.workSpaceOpen ? 'flex-start' : ' ',
