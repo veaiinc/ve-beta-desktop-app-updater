@@ -77,6 +77,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 			getNotesAccess,
 			globalAccess,
 		},
+		companyInfo: { getTeamMembers, tenantsUserList },
 	} = useContext(Context);
 
 	const { createWebSocketConnection, sendMessage } = useChatStream();
@@ -103,6 +104,8 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 		aiResonse: '',
 		myAccess: 'view',
 		isDeleted: false,
+		lastUpdated: null,
+		deleteLoading: false,
 		updatedBy: null,
 	});
 
@@ -146,6 +149,15 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 			});
 		};
 	}, [noteId]);
+
+	useEffect(() => {
+		if (!tenantsUserList) {
+			getTeamMembers();
+		} else if (info?.updatedBy) {
+			const lastUpdated = tenantsUserList?.find((item) => item._id === info?.updatedBy);
+			setInfo((prevInfo) => ({ ...prevInfo, lastUpdated }));
+		}
+	}, [tenantsUserList, info?.updatedBy]);
 
 	useEffect(() => {
 		if (notesAccess && noteId && userId) {
@@ -194,6 +206,8 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 				title = '',
 				updatedAt = '',
 				isFavorite = false,
+				isDeleted = false,
+				updatedBy = null,
 			} = notesPageData?.data || {};
 			if (blocks) {
 				loadNotesContent(blocks);
@@ -203,6 +217,8 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 				title,
 				updatedAt,
 				isFavorite,
+				isDeleted,
+				updatedBy,
 			}));
 		} else if (notesPageData?.error) {
 			const messageText =
@@ -319,18 +335,22 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 		[setInfo],
 	);
 
-	const handleDeletePage = useCallback(async () => {
-		if (info?.loading) return;
-		setInfo((prev) => ({ ...prev, loading: true }));
-		const [success] = await deletePage({ pageId: noteId });
-		if (success) {
-			message.success('Page deleted successfully');
-			navigate('/files');
-		} else {
-			message.error('Failed to delete page');
-		}
-		setInfo((prev) => ({ ...prev, loading: false }));
-	}, [info?.loading, info?.notesConfigs, navigate, noteId, setInfo]);
+	const handleDeletePage = useCallback(
+		async (permanent = false) => {
+			if (info?.deleteLoading) return;
+			setInfo((prev) => ({ ...prev, deleteLoading: true }));
+
+			const [success] = await deletePage({ pageId: noteId, isPermanent: permanent });
+			if (success) {
+				message.success(`Page ${permanent ? 'permanently ' : ''}deleted successfully`);
+				navigate('/files');
+			} else {
+				message.error('Failed to delete page');
+			}
+			setInfo((prev) => ({ ...prev, deleteLoading: false }));
+		},
+		[info?.deleteLoading, info?.notesConfigs, navigate, noteId, setInfo],
+	);
 
 	const handleDuplicatePage = useCallback(async () => {
 		if (info?.loading) return;
@@ -377,7 +397,27 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 			web_search: true,
 		});
 	}, []);
-	const { isDeleted = false, updatedAt = null, updatedBy } = notesPageData?.data || {};
+
+	const restorePage = async () => {
+		if (info?.deleteLoading) return;
+		setInfo((prev) => ({ ...prev, deleteLoading: true }));
+		const response = await updatePage({
+			pageId: noteId,
+			input: { isDeleted: false },
+		});
+		if (response?.[0]) {
+			setInfo((prev) => ({
+				...prev,
+				updatedAt: moment().unix(),
+				isDeleted: false,
+				deleteLoading: false,
+			}));
+			message?.success('Page restored!');
+		} else {
+			setInfo((prev) => ({ ...prev, deleteLoading: false }));
+			message?.error(`Couldn't restore page`);
+		}
+	};
 
 	return (
 		<div className="notes-container" style={outerContainerStyle || {}}>
@@ -388,7 +428,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 				</Helmet>
 			)}
 
-			{!isDeleted ? (
+			{!info?.isDeleted ? (
 				<div className="notes-nav-menu">
 					<div className="notes-nav-title">{info?.title}</div>
 
@@ -420,18 +460,28 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 					<div className="badge-text-wrapper">
 						<DangerSvg />
 						<p className="delete-badge-message">
-							Gowtham moved VE.AI into trash 2 weeks ago. After 10 days automatically
-							permanently delete from Trash.
+							{info?.lastUpdated
+								? `${info?.lastUpdated?.firstName} ${
+										info?.lastUpdated?.lastName
+											? info?.lastUpdated?.lastName
+											: ''
+								  } `
+								: 'Someone '}
+							moved this page to trash{' '}
+							{info?.updatedAt ? moment?.unix(info?.updatedAt).fromNow() : ''}.
 						</p>
 					</div>
 
 					<div className="badge-button-wrapper">
-						<button className="delete-badge-restore-btn">
+						<button className="delete-badge-restore-btn" onClick={restorePage}>
 							<RestoreIcon />
 							Restore
 						</button>
-						<button className="delete-badge-permanent-delete-btn">
-							<DustBinIcon /> Delete From Trash
+						<button
+							className="delete-badge-permanent-delete-btn"
+							onClick={() => handleDeletePage(true)}
+						>
+							<DustBinIcon /> Permanently delete
 						</button>
 					</div>
 				</div>
@@ -482,9 +532,9 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 							onChange={onChange}
 							style={innerContainerStyle || {}}
 							theme={'dark'}
-							editable={info?.myAccess !== 'view' || !isDeleted}
+							editable={info?.myAccess !== 'view' || !info?.isDeleted}
 						>
-							{(info?.myAccess !== 'view' || !isDeleted) && (
+							{(info?.myAccess !== 'view' || !info?.isDeleted) && (
 								<NoteToolbar
 									sendMessage={customSendMessage}
 									aiResonse={info?.aiResonse}
