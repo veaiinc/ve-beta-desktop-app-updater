@@ -35,7 +35,7 @@ const Sidebar = ({ activeWorkspaceId }) => {
 	// conditional margin top for home page
 	const isHome = location?.pathname?.includes('home') || location?.pathname?.includes('notes');
 
-	const isContacts = location?.pathname?.includes('contacts');
+	const isContacts = location?.pathname?.includes('contact');
 	useEffect(() => {
 		localStorage.setItem('isOpen', JSON.stringify(isOpen));
 	}, [isOpen]);
@@ -144,6 +144,14 @@ const Sidebar = ({ activeWorkspaceId }) => {
 					minHeight: info?.activeRoute === '/home' ? (isOpen ? '' : '250px') : '',
 					marginTop: isHome && '0',
 					display: hideClosedSidebarIcon ? 'none' : '',
+
+					top: isOpen
+						? ''
+						: renewBanner && isContacts
+						? '105px'
+						: isContacts
+						? '65px'
+						: undefined,
 				}}
 			>
 				<nav
