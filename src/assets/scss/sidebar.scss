@@ -2,16 +2,25 @@
 	// padding: 20px;
 	// display: flex;
 	// height: 93vh;
+	position: absolute;
+	top: 6%;
+	left: 3%;
 	transition: height, width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 	&.opened {
-		height: 100dvh;
-		position: relative;
+		height: 100dvh !important;
+		position: relative !important;
 		margin-left: -32px !important;
 		margin-top: -32px !important;
 		padding: 0 !important;
 		margin-right: 10px !important;
 		transition: height, width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 		z-index: 1001;
+		top: 0;
+		left: 0;
+	}
+	&.renew-banner:not(.opened) {
+		top: 6% !important;
+		left: 3% !important;
 	}
 	overflow: hidden;
 	scrollbar-width: none; // For Firefox
@@ -43,6 +52,7 @@
 		&::-webkit-scrollbar {
 			display: none; // Hide Chrome/Safari/Opera scrollbar
 		}
+		width: 100%;
 		&.open {
 			border-radius: 0px !important;
 			// height: 100dvh !important;
@@ -882,18 +892,32 @@
 		}
 	}
 }
+@media screen and (min-width: 500px) and (max-width: 1023px) {
+	.FullScreenSidebar {
+		&.no-submodules:not(.opened) {
+			position: absolute !important;
+			top: 8.6% !important;
+			left: 3% !important;
+		}
+	}
+}
 @media screen and (min-width: 1024px) and (max-width: 1599px) {
 	.FullScreenSidebar {
 		&.no-submodules:not(.opened) {
-			height: 93dvh !important;
+			position: absolute !important;
+			top: 14% !important;
+			left: 3% !important;
 		}
 	}
 }
 
-@media screen and (min-width: 1600px) and (max-width: 2280px) {
+@media screen and (min-width: 1600px) {
 	.FullScreenSidebar {
 		&.no-submodules:not(.opened) {
-			height: 93dvh !important;
+			// height: 93dvh !important;
+			position: absolute !important;
+			top: 10%;
+			left: 3%;
 		}
 	}
 }

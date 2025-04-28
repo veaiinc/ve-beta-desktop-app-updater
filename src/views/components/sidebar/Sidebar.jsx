@@ -139,9 +139,9 @@ const Sidebar = ({ activeWorkspaceId }) => {
 					)?.subModules?.length > 0
 						? 'has-submodules'
 						: 'no-submodules'
-				}`}
+				} ${!renewBanner ? 'renew-banner' : ''}`}
 				style={{
-					height: renewBanner ? 'calc(100dvh - 41px)' : '100dvh',
+					height: isOpen ? (renewBanner ? 'calc(100dvh - 41px)' : '100dvh') : '',
 					alignItems: sidebarStates?.workSpaceOpen ? 'flex-start' : ' ',
 					maxHeight: info?.activeRoute === '/home' ? (isOpen ? '' : '') : '',
 					minHeight: info?.activeRoute === '/home' ? (isOpen ? '' : '250px') : '',

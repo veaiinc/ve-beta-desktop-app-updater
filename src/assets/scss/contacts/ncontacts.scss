@@ -2,6 +2,7 @@
 	display: flex;
 	height: 100%;
 	gap: 1rem;
+	overflow: auto;
 	.left-section {
 		display: flex;
 		width: 437px;
@@ -12,11 +13,12 @@
 		flex-shrink: 0;
 		background: var(--navbar-bg, #18191b);
 		color: var(--primary-font);
-
+		height: 93vh;
 		.contacts-header {
 			display: flex;
 			align-items: center;
 			gap: 12px;
+			margin-left: 20px;
 			h2 {
 				color: var(--primary-font);
 				font-size: 16px;
@@ -467,5 +469,11 @@
 				}
 			}
 		}
+	}
+}
+
+@media screen and (max-width: 1300px) {
+	.left-section {
+		height: 96vh !important;
 	}
 }
