@@ -13,6 +13,7 @@ import { debounce } from 'lodash';
 import useChatStream from '../../hooks/useChatStream';
 import ObjectID from 'bson-objectid';
 import { ReactComponent as ArrowUpRightSvg } from '../../../assets/svg/sidebar/arrowupright.svg';
+import { ReactComponent as PlusCircleSvg } from '../../../assets/svg/ai_agents/plus-cricle.svg';
 import AIMessageRenderer from '../../components/chat/AIMessageRenderer';
 
 let throttleTimer = null;
@@ -649,26 +650,26 @@ const RecentChat = ({
 
 	return (
 		<>
-			<div className="chat-container">
+			<div
+				className="chat-container"
+				style={{
+					height: isPublicChat ? 'calc(100% - 32px)' : '',
+				}}
+			>
 				<div className="chatBarContainer" style={{ width: '100%' }}>
 					{/* header */}
-					{/* {!isPublicChat && !isPreview && (
-						<div className="containerHeader">
-							<h1 className="containerHeaderTitle"></h1>
-							<div className="iconContainer">
-								{!info?.citationsModalIsOpen && (
-									<ExpandChatIcon
-										onClick={() => {
-											setInfo((prev) => ({
-												...prev,
-												citationsModalIsOpen: true,
-											}));
-										}}
-									/>
-								)}
+					{!isPublicChat && (
+						<div className="chat-header">
+							<div className="left-container">
+								<div className="chat-title">New Chat</div>
+							</div>
+							<div className="right-container">
+								<button className="new-chat-btn">
+									<PlusCircleSvg />
+								</button>
 							</div>
 						</div>
-					)} */}
+					)}
 
 					{/* chat body */}
 					<div

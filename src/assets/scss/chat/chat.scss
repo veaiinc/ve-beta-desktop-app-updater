@@ -1,5 +1,5 @@
 .chat-container {
-	height: calc(100% - 32px);
+	height: calc(100% - 62px);
 	padding: 0 16px;
 	width: 100%;
 	box-sizing: border-box;
@@ -9,37 +9,45 @@
 		height: 100%;
 		display: flex;
 		flex-direction: column;
-		.containerHeader {
-			height: 68px;
+		position: relative;
+		.chat-header {
 			display: flex;
-			justify-content: space-between;
 			align-items: center;
-			padding: 24px;
-			position: absolute;
-			top: 0;
-			right: 0;
-			z-index: 1;
+			align-self: stretch;
+			justify-content: space-between;
+			padding-bottom: 5px;
+			// position: absolute;
+			width: 100%;
+			.left-container {
+				display: flex;
+				align-items: center;
+				gap: 12px;
 
-			.containerHeaderTitle {
-				color: var(--primary-font);
-				font-family: var(--primary-font-family);
-				font-size: 14px;
-				font-style: normal;
-				font-weight: 600;
-				line-height: normal;
+				.chat-title {
+					color: var(--primary-font, #f2f2f3);
+					font-family: var(--chat-primary-font-family);
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+				}
 			}
 
-			.iconContainer {
+			.right-container {
 				display: flex;
-				gap: 10px;
 				align-items: center;
-				cursor: pointer;
+				gap: 12px;
+				.new-chat-btn {
+					border: none;
+					background-color: transparent;
+					cursor: pointer;
+				}
 			}
 		}
 
 		.chatBodyContainer {
 			width: 100%;
-			height: 100%;
+			height: calc(100% - 30px);
 			display: flex;
 			flex-direction: column;
 			align-items: center;
@@ -266,7 +274,17 @@
 
 @media screen and (max-width: 500px) {
 	.chat-container {
-		height: calc(100vh - 40px);
+		height: calc(100% - 70px);
 		padding-left: 0;
 	}
 }
+
+// @media screen and (max-width: 1200px) {
+// 	.chat-container {
+// 		height: calc(100% - 62px);
+
+// 		.chat-header {
+// 			position: relative !important;
+// 		}
+// 	}
+// }
