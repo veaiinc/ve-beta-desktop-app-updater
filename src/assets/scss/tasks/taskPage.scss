@@ -25,3 +25,36 @@
 		}
 	}
 }
+
+.tasks-page-container {
+	display: flex;
+	gap: 24px;
+	padding: 24px;
+	height: 100%;
+	width: 100%;
+}
+
+.tasks-left-container {
+	width: 389px;
+	flex-shrink: 0;
+}
+
+.tasks-right-container {
+	flex: 1;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
+}
+
+.task-header-container {
+	display: flex;
+	justify-content: flex-end;
+	align-items: center;
+	padding: 0 16px;
+}
+
+.quick-actions-btn {
+	display: flex;
+	align-items: center;
+}

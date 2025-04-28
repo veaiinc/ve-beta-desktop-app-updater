@@ -103,7 +103,7 @@ const PersonMultiSelect = ({
 					trigger="click"
 					arrow={false}
 					color="transparent"
-					overlayStyle={{ minWidth: 'fit-content', zIndex: 50003 }}
+					overlayStyle={{ minWidth: 'fit-content' }}
 				>
 					<div
 						className="person-multi-select-selected"

@@ -29,7 +29,15 @@
 			line-height: normal;
 		}
 	}
+/* Style for the date input icon */
+.events-popup-date-input::-webkit-calendar-picker-indicator {
+  filter: invert(48%) sepia(13%) saturate(3207%) hue-rotate(130deg) brightness(95%) contrast(80%); /* Example: Green tint */
+}
 
+/* Style for the time input icon */
+.events-popup-time-input::-webkit-calendar-picker-indicator {
+  filter: invert(75%) sepia(85%) saturate(3500%) hue-rotate(340deg) brightness(100%) contrast(100%); /* Example: Red tint */
+}
 	.events-popup-body {
 		flex-grow: 1;
 		overflow: auto;

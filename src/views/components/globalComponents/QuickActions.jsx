@@ -56,7 +56,7 @@ const moduleOptions = [
 		value: 'session',
 		controlValue: 'calendar',
 		action: ({ setInfo }) => {
-			setInfo((prev) => ({ ...prev, openSessionPopup: true }));
+			setInfo((prev) => ({ ...prev, openSessionPopup: true, dropdown: false }));
 		},
 	},
 	{

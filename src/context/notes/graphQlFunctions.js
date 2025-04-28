@@ -201,3 +201,11 @@ export const globalNotesAccessMutation = gql`
 		}
 	}
 `;
+
+export const notesImageBlockUploadMutation = gql`
+	mutation UploadPageBlockImage($pageId: ID!, $input: UploadPageBlockImageInput!) {
+		uploadPageBlockImage(pageId: $pageId, input: $input) {
+			signedUrl
+		}
+	}
+`;

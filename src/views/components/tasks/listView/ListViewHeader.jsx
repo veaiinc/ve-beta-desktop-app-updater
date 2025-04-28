@@ -13,10 +13,23 @@ import CrossSvg from '../../../../assets/svg/docs/CrossSvg';
 import FilterSvg from '../../../../assets/svg/my_templates/FilterSvg';
 import UpDownArrowSvg from '../../../../assets/svg/my_templates/UpDownArrowSvg';
 import { ReactComponent as PlusSvg } from '../../../../assets/svg/my_templates/plus.svg';
+
 const defaultFilterValue = {
 	text: '',
 	linkText: '',
 };
+
+const suggestedOptions = [
+	{
+		id: 0,
+		title: 'Create new Task',
+		value: 'task',
+		controlValue: 'task',
+		action: () => {
+			// This will be handled by the parent component
+		},
+	},
+];
 
 const ListViewHeader = ({
 	properties,
