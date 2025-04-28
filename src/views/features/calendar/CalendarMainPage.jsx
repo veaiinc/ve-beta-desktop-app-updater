@@ -28,6 +28,21 @@ const initialState = {
 	showEditScheduler: false,
 };
 
+const aiSuggestions = [
+	{
+		id: 1,
+		name: 'Schedule a meeting',
+	},
+	{
+		id: 2,
+		name: 'Quick reminder',
+	},
+	{
+		id: 3,
+		name: 'Make a weekly plans',
+	},
+];
+
 const Calendar = () => {
 	const {
 		calendarInfo: {
@@ -170,7 +185,7 @@ const Calendar = () => {
 	return (
 		<>
 			<div className="calendarParentContainer">
-				<ChatLeftBarComponent>
+				<ChatLeftBarComponent suggestions={aiSuggestions}>
 					<CalendarSidebar
 						currentCalendarDate={info?.currentCalendarDate}
 						selectedMonth={info?.selectedMonth}

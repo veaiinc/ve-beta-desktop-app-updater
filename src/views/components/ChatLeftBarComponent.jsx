@@ -3,8 +3,9 @@ import '../../assets/scss/chatLeftBarComponent.scss';
 import Context from '../../context/context';
 import ObjectID from 'bson-objectid';
 import RecentChat from '../features/chat/RecentChat';
+import { ReactComponent as SparkleSvg } from '../../assets/svg/ai_agents/sparkle.svg';
 
-const ChatLeftBarComponent = ({ children }) => {
+const ChatLeftBarComponent = ({ children, suggestions = [] }) => {
 	const {
 		subscriptionInfo: { renewBanner },
 		templates: { globalChatMessages, updateStateValues },
@@ -30,11 +31,15 @@ const ChatLeftBarComponent = ({ children }) => {
 		}));
 	};
 
+	const handleSuggestionClick = (suggestion) => {
+		updateStateValues({ activePromptForChat: suggestion });
+	};
+
 	return (
 		<div
 			className="chat-left-bar-component"
 			style={{
-				height: renewBanner ? 'calc(100dvh - 50px)' : '100dvh',
+				height: renewBanner ? 'calc(100dvh - 43px)' : '100dvh',
 			}}
 		>
 			<div
@@ -45,7 +50,25 @@ const ChatLeftBarComponent = ({ children }) => {
 
 			{globalChatMessages?.length === 0 && info?.chatActive && (
 				<div className="chat-left-bar-suggestions-overlay">
-					<div className="suggestions">suggestions</div>
+					<div className="suggestions-container">
+						<div className="suggestions-header">
+							<div className="icon">
+								<SparkleSvg />
+							</div>
+							<div className="text-container">AI Suggestions</div>
+						</div>
+						<div className="suggestions-content">
+							{suggestions?.map((suggestion) => (
+								<div
+									className="suggestion"
+									key={suggestion?.id}
+									onClick={() => handleSuggestionClick(suggestion?.name)}
+								>
+									{suggestion?.name}
+								</div>
+							))}
+						</div>
+					</div>
 				</div>
 			)}
 			<RecentChat
