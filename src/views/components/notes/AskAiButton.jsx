@@ -55,6 +55,7 @@ const AskAiButton = memo(({ sendMessage, aiResonse, resetAiResponse }) => {
 	const saveSelection = () => {
 		selectionRef.current = editor.getSelection();
 		selectedTextRef.current = editor.getSelectedText();
+		console.log(editor.getTextCursorPosition().block, 'abb');
 	};
 
 	const handleDropdown = (value) => {

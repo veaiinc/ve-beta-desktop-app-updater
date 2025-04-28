@@ -13,18 +13,29 @@ import {
 	UnnestBlockButton,
 } from '@blocknote/react';
 import AskAiButton from './AskAiButton';
-import { memo } from 'react';
+import { memo, useEffect } from 'react';
 import TextColorPicker from './TextColorPicker';
+import { useBlockNoteEditor, useComponentsContext } from '@blocknote/react';
+import AlignButton from './AlignButton';
 
 const NoteToolbar = memo(({ sendMessage, aiResonse, resetAiResponse }) => {
+	const editor = useBlockNoteEditor();
+
+	useEffect(() => {
+		const selectedBlock = editor.getSelection();
+		console.log(selectedBlock);
+	}, [editor]);
+
+	const selectedBlock = editor.getSelection();
+	console.log(selectedBlock);
+
 	return (
 		<FormattingToolbarController
 			formattingToolbar={() => (
 				<FormattingToolbar>
 					<BlockTypeSelect key={'blockTypeSelect'} />
-					<span className="bn-divider" />
+
 					<TextColorPicker key={'colorStyleButton1'} />
-					<span className="bn-divider" />
 
 					<FileCaptionButton key={'fileCaptionButton'} />
 					<FileReplaceButton key={'replaceFileButton'} />
@@ -39,12 +50,12 @@ const NoteToolbar = memo(({ sendMessage, aiResonse, resetAiResponse }) => {
 					<span className="bn-divider" />
 					{/* Extra button to toggle code styles */}
 					<BasicTextStyleButton key={'codeStyleButton'} basicTextStyle={'code'} />
-					<span className="bn-divider" />
 
-					<TextAlignButton textAlignment={'left'} key={'textAlignLeftButton'} />
+					<AlignButton />
+
+					{/* <TextAlignButton textAlignment={'left'} key={'textAlignLeftButton'} />
 					<TextAlignButton textAlignment={'center'} key={'textAlignCenterButton'} />
-					<TextAlignButton textAlignment={'right'} key={'textAlignRightButton'} />
-					<span className="bn-divider" />
+					<TextAlignButton textAlignment={'right'} key={'textAlignRightButton'} /> */}
 					<NestBlockButton key={'nestBlockButton'} />
 					<UnnestBlockButton key={'unnestBlockButton'} />
 
