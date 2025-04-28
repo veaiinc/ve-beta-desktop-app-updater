@@ -10,15 +10,18 @@
 	position: relative;
 
 	.loader-tabs-wrapper {
-		background-color: var(--navbar);
+		background-color: var(--right-bar);
 	}
 
 	.chat-container {
 		padding: 0;
 		height: 100%;
+		position: relative;
+		z-index: 10;
+		background-color: var(--right-bar);
 
 		.tabs-wrapper {
-			background-color: var(--navbar);
+			background-color: var(--right-bar);
 		}
 
 		.chatContent {
@@ -26,13 +29,19 @@
 		}
 	}
 
-	.chat-left-bar-component-overlay {
+	.chat-left-bar-component-overlay,
+	.chat-left-bar-suggestions-overlay {
 		height: calc(100% - 187px);
 		width: calc(100% - 48px);
 		position: absolute;
 		top: 32px;
 		left: 24px;
-		z-index: 1000;
+		z-index: 11;
 		overflow-y: scroll;
+		background-color: var(--right-bar);
+	}
+
+	.chat-left-bar-component-overlay.inactive {
+		z-index: 0;
 	}
 }

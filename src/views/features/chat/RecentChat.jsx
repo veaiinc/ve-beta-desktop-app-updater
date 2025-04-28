@@ -26,6 +26,7 @@ const RecentChat = ({
 	customChatActions = false,
 	isPublicChat = false,
 	isPreview = false,
+	customSocketConnection = false,
 	sId = null,
 	showIconText = true,
 	autoFocus = true,
@@ -74,6 +75,7 @@ const RecentChat = ({
 		previousAgentType: null,
 		showScrollButton: false,
 		showViewDocument: false,
+		customSocketConnection: false,
 	});
 
 	const { createWebSocketConnection, sendMessage } = useChatStream();
@@ -92,7 +94,16 @@ const RecentChat = ({
 	sessionId = isPreview ? sId : sessionId;
 
 	useEffect(() => {
-		window.addEventListener('resize', handleResize);
+		if (customSocketConnection && !info?.customSocketConnection) {
+			setInfo((prev) => ({
+				...prev,
+				customSocketConnection: true,
+			}));
+		}
+	}, [customSocketConnection]);
+
+	useEffect(() => {
+		window?.addEventListener('resize', handleResize);
 
 		handleResize(0);
 
@@ -104,9 +115,10 @@ const RecentChat = ({
 		} else if (agentType) {
 			updateStateValues({ chatInfo: { ...chatInfo, agentType } });
 		}
+		updateStateValues({ globalChatMessages: [] });
 
 		return () => {
-			window.removeEventListener('resize', handleResize);
+			window?.removeEventListener('resize', handleResize);
 			clearTimeout(throttleTimer);
 
 			updateStateValues({
@@ -157,7 +169,6 @@ const RecentChat = ({
 			updateStateValues({ currentSessionId: sessionId });
 		}
 	}, [sessionId]);
-	console.log(chatInfo?.agentType, 'chatInfo?.agentType');
 
 	useEffect(() => {
 		if (!chatInfo?.agentType) return;
@@ -201,7 +212,6 @@ const RecentChat = ({
 
 	useEffect(() => {
 		const agentType = searchParams?.get('agentType');
-		console.log(sessionId, agentType, 'sessionId, agentType');
 		if (sessionId && agentType && !isPublicChat) {
 			createWebSocketConnection(sessionId, onMessageFunc, agentType, isPublicChat);
 		}
@@ -210,7 +220,7 @@ const RecentChat = ({
 			createWebSocketConnection(sessionId, onMessageFunc, agentType, isPublicChat);
 			isFirstTimeConnectingToPublicChatRef.current = false;
 		}
-	}, [searchParams]);
+	}, [searchParams, info?.customSocketConnection]);
 
 	useEffect(() => {
 		if (globalChatMessages?.length > 4 && !info?.scrollExecuted) {
@@ -339,7 +349,7 @@ const RecentChat = ({
 		// 	previousAiMessagesRef.current.forEach((msg) => observer.unobserve(msg));
 		// 	visibleMessagesSet.clear();
 		// };
-	}, [globalChatMessages, chatContentRef]);
+	}, [globalChatMessages]);
 
 	// useEffect(() => {
 	// 	if (info?.activeAIMessageId) {
@@ -352,14 +362,14 @@ const RecentChat = ({
 	useEffect(() => {
 		if (recentChatStorage) {
 			const firstTimeApiCall = true;
-			recentChatHandler(recentChatStorage, true, firstTimeApiCall);
+			recentChatHandler(recentChatStorage, false, firstTimeApiCall);
 		}
 	}, [recentChatStorage]);
 
 	useEffect(() => {
 		if (moreRecentChatStorage) {
 			const firstTimeApiCall = false;
-			recentChatHandler(moreRecentChatStorage, firstTimeApiCall);
+			recentChatHandler(moreRecentChatStorage, true, firstTimeApiCall);
 		}
 	}, [moreRecentChatStorage]);
 
@@ -468,7 +478,7 @@ const RecentChat = ({
 
 			if (fetcMore) {
 				updateStateValues({
-					globalChatMessages: messages?.concat(globalChatMessages),
+					globalChatMessages: messages?.concat(chatMessagesRef?.current),
 					...(chatPayload?.moduleTemplateId &&
 						chatPayload?.workflowTemplateId && { chatPayload }),
 				});
@@ -491,7 +501,7 @@ const RecentChat = ({
 
 			setInfo((prev) => ({ ...prev, chatLoading: false, hasNextPage, currentPage }));
 		},
-		[info, chatContentRef],
+		[],
 	);
 
 	const handleRatingClick = useCallback(async (type, messageId) => {
@@ -572,52 +582,49 @@ const RecentChat = ({
 	);
 
 	// stream chat
-	const onMessageFunc = useCallback(
-		(event) => {
-			let { data = '' } = event || {};
-			data = JSON.parse(data);
+	const onMessageFunc = useCallback((event) => {
+		let { data = '' } = event || {};
+		data = JSON.parse(data);
 
-			if (data?.hasOwnProperty('intermediate_response')) {
-				if (data?.intermediate_response_done === true) {
-					loadingMessageRef.current = null;
-					return;
-				}
-
-				loadingMessageRef.current = loadingMessageRef?.current || '';
-				loadingMessageRef.current += data?.intermediate_response || '';
-				updateStateValues({ globalLoadingMesssage: loadingMessageRef.current });
+		if (data?.hasOwnProperty('intermediate_response')) {
+			if (data?.intermediate_response_done === true) {
+				loadingMessageRef.current = null;
 				return;
 			}
-			if (data?.type === 'variableRequirement') {
-				loadingMessageRef.current = null;
-			}
-			if (data?.user_id) {
-				localStorage?.setItem('user_id', data?.user_id);
-			}
-			let chatPayload = null;
-			if (data?.stream_end) {
-				const { workflow_template_id, module_template_id } = data;
-				if (workflow_template_id || module_template_id) {
-					chatPayload = {
-						workflowTemplateId: workflow_template_id,
-						moduleTemplateId: module_template_id,
-					};
-				}
-				handleStreamIncomingMessage(data);
-				updateStateValues({
-					globalLoadingMesssage: null,
-					...(chatPayload && { chatPayload }),
-				});
-				setInfo((prev) => ({ ...prev, latestStreamMesage: data }));
-			}
-			const { message_chunk_id } = data;
 
-			if (message_chunk_id) {
-				handleStreamMessageChunk(data, message_chunk_id);
+			loadingMessageRef.current = loadingMessageRef?.current || '';
+			loadingMessageRef.current += data?.intermediate_response || '';
+			updateStateValues({ globalLoadingMesssage: loadingMessageRef.current });
+			return;
+		}
+		if (data?.type === 'variableRequirement') {
+			loadingMessageRef.current = null;
+		}
+		if (data?.user_id) {
+			localStorage?.setItem('user_id', data?.user_id);
+		}
+		let chatPayload = null;
+		if (data?.stream_end) {
+			const { workflow_template_id, module_template_id } = data;
+			if (workflow_template_id || module_template_id) {
+				chatPayload = {
+					workflowTemplateId: workflow_template_id,
+					moduleTemplateId: module_template_id,
+				};
 			}
-		},
-		[info],
-	);
+			handleStreamIncomingMessage(data);
+			updateStateValues({
+				globalLoadingMesssage: null,
+				...(chatPayload && { chatPayload }),
+			});
+			setInfo((prev) => ({ ...prev, latestStreamMesage: data }));
+		}
+		const { message_chunk_id } = data;
+
+		if (message_chunk_id) {
+			handleStreamMessageChunk(data, message_chunk_id);
+		}
+	}, []);
 
 	const handleSendWebsocketMessage = useCallback(
 		async (data, lastQuery) => {
