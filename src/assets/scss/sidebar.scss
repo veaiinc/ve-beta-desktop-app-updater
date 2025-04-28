@@ -18,11 +18,7 @@
 		top: 0;
 		left: 0;
 	}
-	&.renew-banner:not(.opened) {
-		top: 6% !important;
-		left: 3% !important;
-		width: 40px;
-	}
+
 	overflow: hidden;
 	scrollbar-width: none; // For Firefox
 	-ms-overflow-style: none; // For Internet Explorer and Edge
@@ -898,8 +894,13 @@
 	.FullScreenSidebar {
 		&.no-submodules:not(.opened) {
 			position: absolute !important;
+			top: 65px;
+			left: 25px;
+		}
+		&.renew-banner:not(.opened) {
 			top: 106px;
 			left: 25px;
+			width: 40px;
 		}
 	}
 }
@@ -907,8 +908,13 @@
 	.FullScreenSidebar {
 		&.no-submodules:not(.opened) {
 			position: absolute !important;
+			top: 65px;
+			left: 60px;
+		}
+		&.renew-banner:not(.opened) {
 			top: 106px;
 			left: 60px;
+			width: 40px;
 		}
 	}
 }

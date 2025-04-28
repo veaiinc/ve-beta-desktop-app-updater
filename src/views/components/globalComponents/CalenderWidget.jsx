@@ -10,7 +10,7 @@ import { FetchMoreLoaderComp } from '../../../helpers';
 import Skeleton from 'react-loading-skeleton';
 
 const skeletonLoaders = Array.from({ length: 6 }, (_, index) => index + 1);
-const CalenderWidget = ({ width = '412px', height = '412px' }) => {
+const CalenderWidget = ({ width = '100%', height = '412px' }) => {
 	const {
 		calendarInfo: {
 			getCalendarEventsList,

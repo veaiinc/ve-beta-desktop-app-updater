@@ -253,3 +253,8 @@
 	left: 0;
 	z-index: 100;
 }
+@media screen and (max-width: 1440px) {
+	.calender-main-container {
+		height: 400px !important;
+	}
+}

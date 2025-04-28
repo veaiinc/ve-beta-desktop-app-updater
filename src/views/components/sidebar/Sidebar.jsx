@@ -139,7 +139,7 @@ const Sidebar = ({ activeWorkspaceId }) => {
 					)?.subModules?.length > 0
 						? 'has-submodules'
 						: 'no-submodules'
-				} ${!renewBanner ? 'renew-banner' : ''}`}
+				} ${renewBanner ? 'renew-banner' : ''}`}
 				style={{
 					height: isOpen ? (renewBanner ? 'calc(100dvh - 41px)' : '100dvh') : '',
 					alignItems: sidebarStates?.workSpaceOpen ? 'flex-start' : ' ',

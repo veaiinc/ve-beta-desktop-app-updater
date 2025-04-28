@@ -43,7 +43,7 @@ const SingleContact = ({ selectedContact, selectedOptions }) => {
 						<AutomationWidget height={'520px'} />
 					</div>
 					<div>
-						<CalenderWidget width={'340px'} height={'520px'} />
+						<CalenderWidget height={'520px'} />
 					</div>
 				</div>
 			)}
