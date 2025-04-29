@@ -15,6 +15,7 @@ const infiniteScrollStyle = {
 	alignItems: 'flex-start',
 	alignSelf: 'stretch',
 	gap: '4px',
+	paddingBottom: '100px',
 	// height: '38vh',
 };
 const skeletonLoaders = Array.from({ length: 30 }, (_, index) => index + 1);
@@ -57,7 +58,7 @@ const ChatHistory = () => {
 	useEffect(() => {
 		if (currentSessionId && currentChatData?._id !== currentSessionId) {
 			const index = aiChatSessions?.data?.findIndex((chat) => chat?._id === currentSessionId);
-			if (index && index !== -1) {
+			if (typeof index === 'number' && index !== -1) {
 				updateStateValues({ currentChatData: aiChatSessions?.data[index] });
 			}
 		}

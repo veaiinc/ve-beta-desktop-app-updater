@@ -153,7 +153,7 @@ const SessionCard = ({
 						className="sessionsContainer"
 						style={{
 							overflowY: 'auto',
-							maxHeight: '150px',
+							maxHeight: '105px',
 						}}
 					>
 						{schedulerList.map((session) => {

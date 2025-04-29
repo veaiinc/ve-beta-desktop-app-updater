@@ -59,7 +59,7 @@ const AuthWrapper = ({
 				}}
 			>
 				<SkeletonTheme baseColor={'var(--card)'} highlightColor={'var(--card-hover)'}>
-					<div style={{ ...sidebarContainerStyles }}>
+					<div style={{ ...sidebarContainerStyles, height: 'fit-content' }}>
 						<Sidebar
 							setActiveWorkspaceId={setActiveWorkspaceId}
 							activeWorkspaceId={workspaceId}

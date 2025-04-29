@@ -57,7 +57,7 @@ import KnowledgeAgents from './views/features/knowledgeAgent/KnowledgeAgents';
 import KnowledgeAgentDetails from './views/features/knowledgeAgent/AgentDetails';
 import EditKnowledgeAgent from './views/features/knowledgeAgent/EditAgent';
 import FormResCard from './views/components/forms/FormResCard';
-import FormAnalytics from './views/components/forms/FormAnalytics';
+// import FormAnalytics from './views/components/forms/FormAnalytics';
 import FormSummary from './views/components/forms/FormSummary';
 import Integrations from './views/features/integrationsList/Integrations';
 
@@ -522,15 +522,15 @@ const routes = [
 		),
 		exact: true,
 	},
-	{
-		path: '/forms/:id/analytics',
-		component: (
-			<AuthWrapper title={'Form Analytics'}>
-				<FormAnalytics view="analytics" />
-			</AuthWrapper>
-		),
-		exact: true,
-	},
+	// {
+	// 	path: '/forms/:id/analytics',
+	// 	component: (
+	// 		<AuthWrapper title={'Form Analytics'}>
+	// 			<FormAnalytics view="analytics" />
+	// 		</AuthWrapper>
+	// 	),
+	// 	exact: true,
+	// },
 	{
 		path: '/forms/:id/responses',
 		component: (
