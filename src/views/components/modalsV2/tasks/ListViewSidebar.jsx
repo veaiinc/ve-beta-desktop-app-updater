@@ -22,7 +22,7 @@ const optionsForQuickActions = [
 
 const getFormattedDate = (date) => {
 	if (!date) return '';
-	return moment(date).format('DD/MM/YYYY - hh:mm A');
+	return moment(date * 1000)?.format('DD/MM/YYYY - hh:mm A');
 };
 
 const ListViewSidebar = ({
