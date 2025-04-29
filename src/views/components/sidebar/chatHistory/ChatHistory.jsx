@@ -24,7 +24,6 @@ const append = true;
 
 const ChatHistory = () => {
 	const navigate = useNavigate();
-	const { sessionId } = useParams();
 	const {
 		aiSetup: { getAiChatSessions, aiChatSessions },
 		templates: { chatInfo, updateStateValues, currentSessionId },
@@ -77,6 +76,7 @@ const ChatHistory = () => {
 					agentType: chat?.agentType,
 					assistantId: chat?.assistantId,
 				},
+				chatTitle: chat?.title,
 			});
 			navigate(`/chat/${chat?._id}`);
 		},
@@ -158,7 +158,7 @@ const ChatHistory = () => {
 									)}
 									<div
 										className={`chat-containers ${
-											sessionId === chat?._id ? 'active-chat' : ''
+											currentSessionId === chat?._id ? 'active-chat' : ''
 										}`}
 										onClick={() => handleChatNavigation(chat)}
 									>

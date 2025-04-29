@@ -1,6 +1,7 @@
 import React, { memo, useCallback, useState, useRef, useEffect, useContext } from 'react';
 import '../../../assets/scss/chat/chat.scss';
 import { ReactComponent as ExpandChatIcon } from '../../../assets/svg/ai_agents/expand-chat-icon.svg';
+import { ReactComponent as LeftSvg } from '../../../assets/svg/activity/left.svg';
 import Context from '../../../context/context';
 import { UserMessageRenderer } from '../../../helpers/markdownHelper';
 import CitationsModal from '../../components/modalsV2/chat/CitationsModal';
@@ -36,6 +37,7 @@ const RecentChat = ({
 	onChangeSessionId = null,
 	chatActive = false,
 	onNewChatBtnClick = null,
+	onNavigateBack = null,
 }) => {
 	const {
 		templates: {
@@ -49,6 +51,7 @@ const RecentChat = ({
 			handleStreamMessageChunk,
 			globalLoadingMesssage,
 			chatInfo,
+			chatTitle,
 			chatHistoryDrawerIsOpen,
 			currentSessionId,
 		},
@@ -214,7 +217,7 @@ const RecentChat = ({
 		}
 
 		// Update the URL search params
-		setSearchParams(desiredParams);
+		setSearchParams(desiredParams, { replace: true });
 	}, [chatInfo?.agentType, chatInfo?.assistantId, sessionId]);
 
 	useEffect(() => {
@@ -660,8 +663,19 @@ const RecentChat = ({
 
 		if (pathname === 'chat') {
 			navigate(`/chat/${sessionId}`);
+		} else if (pathname === 'c') {
+			navigate(`/c/${sessionId}`);
 		} else if (pathname === 'calendar' || pathname === 'contacts' || pathname === 'tasks') {
 			onNewChatBtnClick?.();
+		}
+	}, [location?.pathname]);
+
+	const handleNavigateBack = useCallback(() => {
+		const pathname = location?.pathname?.split('/')?.[1];
+		if (pathname === 'chat' || pathname === 'c') {
+			navigate(-1);
+		} else if (pathname === 'calendar' || pathname === 'contacts' || pathname === 'tasks') {
+			onNavigateBack?.();
 		}
 	}, [location?.pathname]);
 
@@ -678,7 +692,10 @@ const RecentChat = ({
 					{!isPublicChat && (
 						<div className="chat-header">
 							<div className="left-container">
-								<div className="chat-title">Chat Title</div>
+								<div className="icon-container" onClick={handleNavigateBack}>
+									<LeftSvg />
+								</div>
+								<div className="chat-title">{chatTitle || 'Chat Title'}</div>
 							</div>
 							<div className="right-container">
 								<Tooltip title="New Chat" placement="bottom">

@@ -132,6 +132,7 @@ const ChatLeftBarComponent = ({ children, suggestions = [] }) => {
 				{...(!isFirstTimeChatActiveRef?.current && {
 					sId: info?.sessionId,
 				})}
+				onNavigateBack={handleGoBackClick}
 			/>
 		</div>
 	);

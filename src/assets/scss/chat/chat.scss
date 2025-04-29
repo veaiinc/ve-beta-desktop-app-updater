@@ -1,5 +1,5 @@
 .chat-container {
-	height: calc(100% - 62px);
+	height: calc(100% - 32px);
 	padding: 0 16px;
 	width: 100%;
 	box-sizing: border-box;
@@ -22,6 +22,10 @@
 				display: flex;
 				align-items: center;
 				gap: 12px;
+
+				.icon-container {
+					cursor: pointer;
+				}
 
 				.chat-title {
 					color: var(--primary-font, #f2f2f3);
