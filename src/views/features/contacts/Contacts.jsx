@@ -491,9 +491,9 @@ const Contacts = () => {
 					<span className="lineOne">Contacts</span>
 					<span className="lineTwo">You Have</span>
 				</div>
-				<div className="quick-actions-btn">
+				{/* <div className="quick-actions-btn">
 					<QuickActions />
-				</div>
+				</div> */}
 			</div>
 			<Task
 				responseMetadata={responseMetadata}

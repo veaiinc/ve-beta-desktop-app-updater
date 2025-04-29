@@ -212,12 +212,12 @@ const actionHandlers = {
 				}
 
 				if (
-					payload?.sub_query_id &&
+					payload?.refined_sub_query_id &&
 					payload?.reading &&
 					payload?.reading?.refined_sub_query
 				) {
 					let index = cot_refined?.findIndex(
-						(item) => item?.sub_query_id === payload?.sub_query_id,
+						(item) => item?.refined_sub_query_id === payload?.refined_sub_query_id,
 					);
 					if (index !== -1) {
 						let readings = cot_refined[index]?.readings || [];
@@ -228,7 +228,7 @@ const actionHandlers = {
 						};
 					} else {
 						cot_refined?.push({
-							sub_query_id: payload?.sub_query_id,
+							refined_sub_query_id: payload?.refined_sub_query_id,
 							readings: [{ reading: payload?.reading }],
 						});
 					}
@@ -298,6 +298,18 @@ const actionHandlers = {
 						section: payload?.section,
 						sub_queries,
 						section_id: payload?.section_id,
+					});
+				}
+
+				if (payload?.compiling && payload?.section_id) {
+					sections = sections?.map((section) => {
+						if (section?.section_id === payload?.section_id) {
+							return {
+								...section,
+								compiling: payload?.compiling,
+							};
+						}
+						return section;
 					});
 				}
 

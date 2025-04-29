@@ -190,14 +190,6 @@ const CreateTaskPopup = ({
 			isOpen={isOpen}
 			closeModal={info?.isLoading ? null : closeModal}
 			modalType={'center'}
-			customStyles={{
-				content: {
-					zIndex: 50002,
-				},
-				overlay: {
-					zIndex: 50000,
-				},
-			}}
 		>
 			<div className="createTask-container">
 				<div className="header-wrapper">

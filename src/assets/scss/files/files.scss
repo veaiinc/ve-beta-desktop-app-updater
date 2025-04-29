@@ -1,5 +1,67 @@
 .childrenContainer {
 	height: 100%;
+	overflow-y: hidden;
+	color: var(--primary-font);
+
+	.files-container {
+		position: relative;
+		height: 100%;
+
+		.search-heading {
+			display: flex;
+			height: 27px;
+			align-items: center;
+			flex-shrink: 0;
+			align-self: stretch;
+			margin: 20px 0px 0px 33px;
+			font-size: 20px;
+		}
+		.search-input-container {
+			position: fixed;
+			bottom: 66px;
+			left: 50%;
+			transform: translateX(-50%);
+			width: 100%;
+			z-index: 1005;
+			text-align: center;
+			display: flex;
+			justify-content: center;
+
+			.search-input {
+				display: flex;
+				transform: rotate(-0.038deg);
+				padding: 8px 8px 8px 18px;
+				align-items: center;
+				gap: 12px;
+				justify-content: center;
+
+				input {
+					border-radius: 100px;
+					border: 1px solid var(--stroke, #333334);
+					background: var(--card-over-card, #202123);
+					padding: 13px 20px;
+					color: var(--primary-font);
+					width: 200px;
+					transition: width 0.3s ease;
+					box-shadow: rgba(255, 255, 255, 0.16) 0px 3px 6px,
+						rgba(0, 0, 0, 0.23) 0px 3px 6px;
+					&:focus {
+						width: 300px;
+					}
+				}
+
+				.spinner-wrapper {
+					position: absolute;
+					right: 20px;
+					svg {
+						stroke: var(--primary-font);
+						width: 16px;
+						height: 16px;
+					}
+				}
+			}
+		}
+	}
 }
 .storage-main-container {
 	display: flex;
@@ -305,14 +367,6 @@
 
 					&:hover {
 						background: var(--card);
-					}
-				}
-			}
-
-			&:hover {
-				.search-result-item-right {
-					.action-buttons {
-						opacity: 1;
 					}
 				}
 			}

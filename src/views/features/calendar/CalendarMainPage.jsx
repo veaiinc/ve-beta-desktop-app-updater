@@ -68,8 +68,10 @@ const Calendar = () => {
 	useEffect(() => {
 		const sessionId = ObjectId().toString();
 		setInfo((prevInfo) => ({ ...prevInfo, chatSessionId: sessionId }));
+		if (!calendarCategoriesList) {
+			getCalendarCategories();
+		}
 
-		getCalendarCategories();
 		getSchedulerList();
 
 		return () => {

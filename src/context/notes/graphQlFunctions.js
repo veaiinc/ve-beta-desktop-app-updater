@@ -13,7 +13,6 @@ export const getNotesListQuery = gql`
 			data {
 				_id
 				title
-				icon
 				coverImage
 				permissions {
 					private
@@ -44,7 +43,6 @@ export const getPageQuery = gql`
 		getPage(pageId: $pageId) {
 			_id
 			title
-			icon
 			coverImage
 			permissions {
 				private
@@ -63,6 +61,7 @@ export const getPageQuery = gql`
 			isPublished
 			slug
 			expiresAt
+			globalNoteAccess
 		}
 	}
 `;
@@ -110,7 +109,6 @@ export const updatePageMutation = gql`
 		updatePage(pageId: $pageId, input: $input) {
 			_id
 			title
-			icon
 			coverImage
 			permissions {
 				private
@@ -157,10 +155,10 @@ export const removeFromFavoriteMutation = gql`
 `;
 
 export const deletePageMutation = gql`
-	mutation DeletePage($pageId: ID!) {
-		deletePage(pageId: $pageId) {
-			message
+	mutation DeletePage($pageId: ID!, $isPermanent: Boolean) {
+		deletePage(pageId: $pageId, isPermanent: $isPermanent) {
 			success
+			message
 		}
 	}
 `;
@@ -170,7 +168,6 @@ export const duplicatePageMutation = gql`
 		duplicatePage(pageId: $pageId) {
 			_id
 			title
-			icon
 			coverImage
 			permissions {
 				private
@@ -192,6 +189,33 @@ export const duplicatePageMutation = gql`
 				fullName
 				email
 			}
+		}
+	}
+`;
+
+export const globalNotesAccessMutation = gql`
+	mutation GlobalNoteAccess($pageId: ID!, $input: GlobalNoteAccessInput!) {
+		globalNoteAccess(pageId: $pageId, input: $input) {
+			message
+			success
+		}
+	}
+`;
+
+export const notesImageBlockUploadMutation = gql`
+	mutation UploadPageBlockImage($pageId: ID!) {
+		uploadPageBlockImage(pageId: $pageId) {
+			signedUrl
+			imageUrl
+		}
+	}
+`;
+
+export const notesImageBlockDeleteMutation = gql`
+	mutation Mutation($pageId: ID!, $imageInput: ImageInput!) {
+		deletePageImage(pageId: $pageId, imageInput: $imageInput) {
+			success
+			message
 		}
 	}
 `;

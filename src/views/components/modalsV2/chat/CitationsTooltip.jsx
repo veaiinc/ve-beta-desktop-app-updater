@@ -3,7 +3,7 @@ import React, { memo, useContext, useEffect, useMemo, useState } from 'react';
 import Context from '../../../../context/context';
 import '../../../../assets/scss/chat/citationsTooltip.scss';
 import { Markdown } from '../../../../helpers/markdownHelper';
-import { getFaviconUrl } from '../../../../helpers';
+import { getFaviconUrl, getWebsiteName } from '../../../../helpers';
 import { ReactComponent as TextSvg } from '../../../../assets/svg/ai_agents/text.svg';
 import { ReactComponent as DocxSvg } from '../../../../assets/svg/ai_agents/docx.svg';
 import { ReactComponent as JsonSvg } from '../../../../assets/svg/ai_agents/json.svg';
@@ -12,7 +12,7 @@ import { ReactComponent as JpgSvg } from '../../../../assets/svg/ai_agents/jpg.s
 import { ReactComponent as PngSvg } from '../../../../assets/svg/ai_agents/png.svg';
 
 const fileTypeIcons = {
-	text: <TextSvg />,
+	txt: <TextSvg />,
 	docx: <DocxSvg />,
 	json: <JsonSvg />,
 	pdf: <PdfSvg />,
@@ -65,7 +65,7 @@ export const CitationsTooltip = memo(({ citationId, citations, placement = 'topL
 		if (citationInfo?.snippet && citationInfo.snippet?.trim() !== '') {
 			updatedText = updatedText?.replace(
 				citationInfo?.snippet,
-				`<span id="citation-snippet" style={{ backgroundColor: 'rgb(178, 161, 232)', padding: '1px 3px', borderRadius: '4px', boxDecorationBreak: 'clone' }}>${citationInfo.snippet}</span>`,
+				`<span id="citation-snippet" style="background-color: rgb(178, 161, 232); color : black; padding: 1px 3px; box-decoration-break: clone;">${citationInfo.snippet}</span>`,
 			);
 		}
 		return updatedText;
@@ -85,26 +85,33 @@ export const CitationsTooltip = memo(({ citationId, citations, placement = 'topL
 					rel="noreferrer"
 					className="citation-tooltip-container"
 				>
-					<div className="tooltip-content">
-						{citationInfo?.source ? (
-							<Markdown>{processedCitationData}</Markdown>
-						) : (
-							citationInfo?.snippet
-						)}
-					</div>
+					{(processedCitationData?.length > 0 || citationInfo?.snippet?.length > 0) && (
+						<div className="tooltip-content">
+							{citationInfo?.source ? (
+								<Markdown>{processedCitationData}</Markdown>
+							) : (
+								citationInfo?.snippet
+							)}
+						</div>
+					)}
 
 					<div className="info">
-						{citationInfo?.type === 's3_key' ? (
-							<div className="image">{fileTypeIcons[citationInfo?.fileType]}</div>
-						) : null}
 						<div className="citation-link-container">
-							<img
-								className="citation-link-favicon"
-								src={getFaviconUrl(citationInfo?.link)}
-							/>
+							{citationInfo?.type === 's3_key' ? (
+								<div className="image">{fileTypeIcons[citationInfo?.fileType]}</div>
+							) : getFaviconUrl(citationInfo?.link) ? (
+								<img
+									src={getFaviconUrl(citationInfo?.link)}
+									alt="favicon"
+									className="citation-link-favicon"
+								/>
+							) : (
+								<div className="citation-link-favicon">
+									{getWebsiteName(citationInfo?.link)?.charAt(0)}
+								</div>
+							)}
 							<div className="citation-link-text">
 								<div className="citation-link">{citationInfo?.link}</div>
-								{/* <span>Page</span> */}
 							</div>
 						</div>
 					</div>

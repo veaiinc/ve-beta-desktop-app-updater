@@ -14,16 +14,21 @@ import {
 	removeFromFavoriteMutation,
 	deletePageMutation,
 	duplicatePageMutation,
+	globalNotesAccessMutation,
+	notesImageBlockUploadMutation,
+	notesImageBlockDeleteMutation,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
 import { Actions } from './action';
+import axios from 'axios';
 
 export const intialState = {
 	notes: null,
 	moreNotes: null,
 	notesPageData: null,
 	notesAccess: null,
+	globalAccess: null,
 };
 
 export const NotesState = (props) => {
@@ -96,6 +101,12 @@ export const NotesState = (props) => {
 				dispatch({
 					type: Actions.GET_NOTES_PAGE_DATA_SUCCESS,
 					payload: { data },
+				});
+				dispatch({
+					type: Actions.SET_GLOBAL_ACCESS,
+					payload: data?.globalNoteAccess
+						? { isEnabled: true, access: data?.globalNoteAccess }
+						: { isEnabled: false, access: 'view' },
 				});
 			} else {
 				const error = response?.[1]?.[0];
@@ -334,11 +345,88 @@ export const NotesState = (props) => {
 		}
 	};
 
+	const updateGlobalAccess = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.mutation(
+				globalNotesAccessMutation,
+				payload,
+				workspaceId,
+				usertoken,
+				'page_notes_api',
+			);
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.SET_GLOBAL_ACCESS,
+					payload: payload?.input,
+				});
+				return [true, response?.[1]?.data?.duplicatePage];
+			} else {
+				return [false, response?.[1]?.[0]];
+			}
+		} catch (error) {
+			console.log('error==>updateGlobalAccess', error);
+		}
+	};
+
 	const updateNotesState = (payload) => {
 		dispatch({
 			type: Actions.UPDATE_NOTES_STATE,
 			payload,
 		});
+	};
+
+	const uploadNotesImageBlock = async (payload, data) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.mutation(
+				notesImageBlockUploadMutation,
+				payload,
+				workspaceId,
+				usertoken,
+				'page_notes_api',
+			);
+
+			if (response?.[0]) {
+				const { signedUrl, imageUrl } = response?.[1]?.data?.uploadPageBlockImage;
+				const uploadResponse = await axios.put(signedUrl, data, {
+					headers: {
+						'Content-Type': data?.type,
+					},
+				});
+				if (uploadResponse.status === 200) {
+					return [true, imageUrl];
+				} else {
+					return [false, uploadResponse];
+				}
+			}
+			return [false, response?.[1]?.[0]];
+		} catch (error) {
+			console.log('error==>uploadNotesImageBlock', error);
+		}
+	};
+
+	const deleteNotesImageBlock = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.mutation(
+				notesImageBlockDeleteMutation,
+				payload,
+				workspaceId,
+				usertoken,
+				'page_notes_api',
+			);
+			if (response?.[0]) {
+				return [true, response?.[1]]?.data?.deletePageImage;
+			} else {
+				return [false, response?.[1]?.data];
+			}
+		} catch (error) {
+			console.log('error==>deleteNotesImageBlock', error);
+		}
 	};
 
 	return {
@@ -357,5 +445,8 @@ export const NotesState = (props) => {
 		removeFromFavorite,
 		deletePage,
 		duplicatePage,
+		updateGlobalAccess,
+		uploadNotesImageBlock,
+		deleteNotesImageBlock,
 	};
 };

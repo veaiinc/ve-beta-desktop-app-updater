@@ -350,7 +350,7 @@ const UploadPhotos = () => {
 			} else {
 				processed25Percent = processedCount > 0 ? (processedCount / totalImages) * 25 : 0;
 				uploaded75Percent = uploadedCount > 0 ? (uploadedCount / totalImages) * 75 : 0;
-				result = uploaded75Percent + processed25Percent;
+				result = Math.min(uploaded75Percent + processed25Percent, 100);
 			}
 
 			if (result === 100) {

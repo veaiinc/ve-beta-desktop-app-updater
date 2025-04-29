@@ -46,7 +46,7 @@ const RenewBanner = () => {
 			<div className="renew-banner-container">
 				<div className="renew-banner">
 					<div className="renew-banner-title">
-						Upgrade to unlock {currentRoute} full potential.
+						Subscribe now to access the full features of your {currentRoute}.
 					</div>
 					<button
 						className="renew-banner-button"

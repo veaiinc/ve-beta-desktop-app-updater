@@ -43,6 +43,7 @@ import {
 	getFormResponseSummaryQuery,
 	getFormResponseAnalyticsQuery,
 	updateWorkflowTemplateQuery,
+	duplicateSmartFileQuery,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -2360,32 +2361,35 @@ export const TemplatesState = (props) => {
 
 	const getAISuggestedPendingActions = async (payload) => {
 		try {
-			const params = ['priority', 'read', 'confidenceScore']
-				.map((key) =>
-					payload?.[key]?.map((val) => `${key}=${encodeURIComponent(val)}`).join('&'),
-				)
-				.filter(Boolean)
-				.join('&');
-
+			const { page = 1, limit = 10, from, to } = payload || {};
 			const workspaceId = localStorage.getItem('workspaceId');
 			const usertoken = localStorage.getItem('usertoken');
 
-			const queryString = new URLSearchParams({
-				page: payload?.page || 1,
-				limit: payload?.limit || 10,
-			}).toString();
+			// Build filter params (priority, read, confidenceScore)
+			const filterParams = ['priority', 'read', 'confidenceScore']?.flatMap((key) =>
+				Array.isArray(payload?.[key])
+					? payload[key]?.map((val) => `${key}=${encodeURIComponent(val)}`)
+					: [],
+			);
 
-			const url = `/${workspaceId}/knowledge-bases/pending-actions?${queryString}&${params}`;
+			// Add date filters if present
+			if (from) filterParams.push(`from=${from}`);
+			if (to) filterParams.push(`to=${to}`);
+
+			const queryString = new URLSearchParams({ page, limit }).toString();
+			const fullQuery = `${queryString}&${filterParams.join('&')}`;
+
+			const url = `/${workspaceId}/knowledge-bases/pending-actions?${fullQuery}`;
 
 			const response = await Service.fetchGet(url, usertoken, 'tenant', {});
 
 			if (response?.[0]) {
 				dispatch({
-					type: Actions?.GET_AI_SUGGESTED_PENDING_ACTIONS_SUCCESS,
-					payload: response?.[1],
+					type: Actions.GET_AI_SUGGESTED_PENDING_ACTIONS_SUCCESS,
+					payload: response[1],
 				});
 			} else {
-				console.log('response==>getAISuggestedPendingActions', response);
+				console.log('response==>getAISuggestedPendingActions');
 			}
 		} catch (error) {
 			console.log('error==>getAISuggestedPendingActions', error);
@@ -2422,6 +2426,27 @@ export const TemplatesState = (props) => {
 			return response;
 		} catch (error) {
 			console.log('error==>pendingActionsUpdate', error);
+		}
+	};
+
+	const duplicateSmartFile = async (payload) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				duplicateSmartFileQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+			if (response?.[0]) {
+				return response;
+			} else {
+				return response;
+			}
+		} catch (error) {
+			console.log('error==>duplicateSmartFile', error);
 		}
 	};
 	return {
@@ -2507,5 +2532,6 @@ export const TemplatesState = (props) => {
 		sendContactFormData,
 		updateWorkflowTemplate,
 		pendingActionsUpdate,
+		duplicateSmartFile,
 	};
 };

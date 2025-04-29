@@ -56,7 +56,7 @@ const moduleOptions = [
 		value: 'session',
 		controlValue: 'calendar',
 		action: ({ setInfo }) => {
-			setInfo((prev) => ({ ...prev, openSessionPopup: true }));
+			setInfo((prev) => ({ ...prev, openSessionPopup: true, dropdown: false }));
 		},
 	},
 	{
@@ -784,11 +784,13 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 			<CreateGallery
 				open={info?.openGalleryPopup}
 				closeModal={() => setInfo({ ...info, openGalleryPopup: false })}
+				message={message}
 			/>
 			<CreateGallery
 				open={info?.openLiteGalleryPopup}
 				closeModal={() => setInfo({ ...info, openLiteGalleryPopup: false })}
 				isLightGallery={true}
+				message={message}
 			/>
 			<CreateTaskPopup
 				isOpen={info?.createTaskPopup}

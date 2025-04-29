@@ -91,10 +91,6 @@ const CalenderWidget = ({ width }) => {
 		const sessionId = ObjectId().toString();
 		setInfo((prevInfo) => ({ ...prevInfo, chatSessionId: sessionId }));
 
-		if (!calendarCategoriesList) {
-			getCalendarCategories();
-		}
-
 		return () => {
 			setInfo((prevInfo) => ({
 				...prevInfo,
@@ -112,7 +108,9 @@ const CalenderWidget = ({ width }) => {
 	const fetchMoreCalendarEvents = () => {
 		const nextPage = eventsCurrentPage + 1;
 		const payload = {
-			options: {},
+			startDate: info?.currentCalendarDate?.toISOString(),
+			sortType: 'startDateTime',
+			sortOrder: 'dsc',
 		};
 		if (eventsCurrentPage !== undefined) {
 			getAllCalendarEvents(nextPage, 20, payload);
@@ -157,11 +155,9 @@ const CalenderWidget = ({ width }) => {
 	const fetchCalendarEvents = async () => {
 		setInfo((prev) => ({ ...prev, isLoading: true }));
 		const payload = {
-			options: {
-				startDate: info?.currentCalendarDate?.toISOString().split('T')[0],
-				sortType: 'startDateTime',
-				sortOrder: 'asc',
-			},
+			startDate: info?.currentCalendarDate?.toISOString(),
+			sortType: 'startDateTime',
+			sortOrder: 'asc',
 		};
 		await getAllCalendarEvents(info?.page, 20, payload);
 		setInfo((prev) => ({ ...prev, isLoading: false }));
@@ -222,7 +218,7 @@ const CalenderWidget = ({ width }) => {
 																	meet?.date,
 																).toLocaleDateString(undefined, {
 																	day: '2-digit',
-																	// month: '2-digit',
+																	month: '2-digit',
 																})}
 															</div>
 														</div>
