@@ -56,6 +56,7 @@ export const getPageQuery = gql`
 			tenantId
 			createdAt
 			updatedAt
+			updatedBy
 			createdBy
 			isFavorite
 			isPublished

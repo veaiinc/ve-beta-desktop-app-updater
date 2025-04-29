@@ -80,7 +80,6 @@ const AuthWrapper = ({
 							overflowY: 'auto',
 							maxHeight: '100%',
 							height: '100%',
-							...(renewBanner && { paddingTop: '10px' }),
 						}}
 						id="scrollableTarget"
 					>
