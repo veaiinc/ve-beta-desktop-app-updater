@@ -33,12 +33,10 @@ const Sidebar = ({ activeWorkspaceId }) => {
 	const [isClosing, setIsClosing] = useState(false);
 
 	// conditional margin top for home page
-	const isHome =
-		location?.pathname?.includes('notes') ||
-		location?.pathname?.includes('calendar') ||
-		location?.pathname?.includes('contacts');
+	const isHome = location?.pathname?.includes('notes');
 
-	// const isContacts = location?.pathname?.includes('contact');
+	const isChatSidebarRoute =
+		location?.pathname?.includes('contact') || location?.pathname?.includes('calendar');
 	useEffect(() => {
 		localStorage.setItem('isOpen', JSON.stringify(isOpen));
 	}, [isOpen]);
@@ -139,13 +137,16 @@ const Sidebar = ({ activeWorkspaceId }) => {
 					)?.subModules?.length > 0
 						? 'has-submodules'
 						: 'no-submodules'
-				} ${renewBanner ? 'renew-banner' : ''}`}
+				} ${renewBanner ? 'renew-banner' : ''} ${
+					isChatSidebarRoute ? 'contacts-sidebar' : ''
+				}`}
 				style={{
 					height: isOpen ? (renewBanner ? 'calc(100dvh - 41px)' : '100dvh') : '',
 					alignItems: sidebarStates?.workSpaceOpen ? 'flex-start' : ' ',
 					maxHeight: info?.activeRoute === '/home' ? (isOpen ? '' : '') : '',
 					minHeight: info?.activeRoute === '/home' ? (isOpen ? '' : '250px') : '',
-					marginTop: isHome && '0',
+					marginTop: isHome ? '0' : isChatSidebarRoute ? '0' : '',
+					marginLeft: isChatSidebarRoute ? '0' : '',
 					display: hideClosedSidebarIcon ? 'none' : '',
 
 					// top: isOpen ? '' : renewBanner ? '105px' : '',

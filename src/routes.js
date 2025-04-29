@@ -327,7 +327,7 @@ const routes = [
 			<AuthWrapper
 				title={'Calendar'}
 				maxWidth={'100%'}
-				outerContainerStyle={{ overflow: 'hidden', padding: '0 32px' }}
+				outerContainerStyle={{ overflow: 'hidden', padding: '0 32px 0 0 ' }}
 			>
 				<CalendarModule />
 			</AuthWrapper>
@@ -368,7 +368,7 @@ const routes = [
 	{
 		path: '/contacts',
 		component: (
-			<AuthWrapper title={'Contacts'} outerContainerStyle={{ padding: '0 32px 0 32px' }}>
+			<AuthWrapper title={'Contacts'} outerContainerStyle={{ padding: '0 32px 0 0' }}>
 				<Contacts />
 			</AuthWrapper>
 		),

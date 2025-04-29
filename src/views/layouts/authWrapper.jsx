@@ -61,7 +61,11 @@ const AuthWrapper = ({
 			>
 				<SkeletonTheme baseColor={'var(--card)'} highlightColor={'var(--card-hover)'}>
 					<div
-						style={{ ...sidebarContainerStyles, height: 'fit-content' }}
+						style={{
+							...sidebarContainerStyles,
+							height: 'fit-content',
+							position: 'relative',
+						}}
 						className={sidebarContainerClassName}
 					>
 						<Sidebar

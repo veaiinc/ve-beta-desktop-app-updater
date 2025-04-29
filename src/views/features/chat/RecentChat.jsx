@@ -124,11 +124,11 @@ const RecentChat = ({
 			clearTimeout(throttleTimer);
 
 			setTimeout(() => {
+				tabsRefs.current = {};
 				updateStateValues({
 					moreRecentChatStorage: null,
 					recentChatStorage: null,
 					globalChatMessages: [],
-					currentSessionId: ObjectID()?.toString(),
 					citations: null,
 					citationChunks: {},
 					chatPayload: {
@@ -137,6 +137,7 @@ const RecentChat = ({
 					},
 				});
 			}, 0);
+			updateStateValues({ currentSessionId: ObjectID()?.toString() });
 		};
 	}, []);
 

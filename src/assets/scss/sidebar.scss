@@ -6,7 +6,7 @@
 	&.opened {
 		height: 100dvh;
 		position: relative;
-		margin-left: -32px !important;
+		margin-left: -32px;
 		margin-top: -32px;
 		padding: 0 !important;
 		margin-right: 10px !important;
@@ -16,8 +16,8 @@
 
 	&.contacts-sidebar:not(.opened) {
 		position: absolute;
-		top: 105px;
-		left: 25px;
+		top: 40px;
+		left: 0px;
 	}
 	overflow: hidden;
 	scrollbar-width: none; // For Firefox
@@ -893,13 +893,6 @@
 	}
 }
 
-@media screen and (min-width: 1700px) {
-	.FullScreenSidebar {
-		&.contacts-sidebar:not(.opened) {
-			left: 63px;
-		}
-	}
-}
 @keyframes slideDown {
 	from {
 		opacity: 0;

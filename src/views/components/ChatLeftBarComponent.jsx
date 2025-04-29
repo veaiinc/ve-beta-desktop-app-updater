@@ -79,7 +79,7 @@ const ChatLeftBarComponent = ({ children, suggestions = [] }) => {
 			<div
 				className={`chat-left-bar-component-overlay ${info?.chatActive ? 'inactive' : ''}`}
 			>
-				{children}
+				<div className="wrapper">{children}</div>
 			</div>
 
 			{globalChatMessages?.length === 0 &&
