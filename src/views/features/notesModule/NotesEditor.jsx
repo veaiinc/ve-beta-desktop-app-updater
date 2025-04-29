@@ -22,9 +22,37 @@ import ObjectID from 'bson-objectid';
 import jwtDecode from 'jwt-decode';
 import { ReactComponent as DustBinIcon } from '../../../assets/svg/tasks/dustBin.svg';
 import { ReactComponent as RestoreIcon } from '../../../assets/svg/notes/restore.svg';
+import { createHighlighter } from './shiki.bundle.ts';
 
-const preprocessMarkdown = (markdown) => {
-	return markdown?.replace(/\\n/g, '\n'); // Add a non-breaking space for empty lines
+const codeBlockSupportedLanguages = {
+	typescript: { name: 'TypeScript', aliases: ['ts'] },
+	javascript: { name: 'JavaScript', aliases: ['js'] },
+	python: { name: 'Python', aliases: ['py'] },
+	java: { name: 'Java' },
+	c: { name: 'C' },
+	cpp: { name: 'C++', aliases: ['c++'] },
+	csharp: { name: 'C#', aliases: ['cs'] },
+	ruby: { name: 'Ruby', aliases: ['rb'] },
+	php: { name: 'PHP' },
+	go: { name: 'Go' },
+	rust: { name: 'Rust' },
+	kotlin: { name: 'Kotlin' },
+	dart: { name: 'Dart' },
+	html: { name: 'HTML' },
+	css: { name: 'CSS' },
+	scss: { name: 'SCSS' },
+	json: { name: 'JSON' },
+	yaml: { name: 'YAML', aliases: ['yml'] },
+	markdown: { name: 'Markdown', aliases: ['md'] },
+	bash: { name: 'Bash', aliases: ['sh', 'shell'] },
+	powershell: { name: 'PowerShell', aliases: ['ps1'] },
+	sql: { name: 'SQL' },
+	lua: { name: 'Lua' },
+	perl: { name: 'Perl' },
+	xml: { name: 'XML' },
+	ini: { name: 'INI' },
+	toml: { name: 'TOML' },
+	vue: { name: 'Vue' },
 };
 
 const getRandomWidth = () => {
@@ -75,7 +103,16 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 	const { createWebSocketConnection, sendMessage } = useChatStream();
 
 	async function uploadFile(file) {
-		const response = await uploadNotesImageBlock({ pageId: noteId }, file);
+		const response = await uploadNotesImageBlock(
+			{
+				pageId: noteId,
+				uploadPageBlockImageInput: {
+					imageName: file?.name,
+					imageSize: file?.size,
+				},
+			},
+			file,
+		);
 
 		if (response?.[0]) {
 			await new Promise((resolve) => setTimeout(resolve, 3000));
@@ -86,6 +123,16 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 	}
 
 	const editor = useCreateBlockNote({
+		codeBlock: {
+			indentLineWithTab: true,
+			defaultLanguage: 'javascript',
+			supportedLanguages: codeBlockSupportedLanguages,
+			createHighlighter: () =>
+				createHighlighter({
+					themes: ['dark-plus'],
+					langs: [],
+				}),
+		},
 		tables: {
 			splitCells: true,
 			cellBackgroundColor: true,
@@ -118,22 +165,21 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 		userId = user_id;
 	}, []);
 
-	// useEffect(() => {
-	// 	const notesContainer = document.querySelector('.notes-container');
-	// 	const handleKeyDown = (e) => {
-	// 		e.preventDefault();
-	// 		if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
-	// 			const selected = editor?.getSelectedText()?.length > 0 || false;
-	// 			if (selected) {
-	// 				e.stopPropagation();
-	// 				return;
-	// 			}
-	// 		}
-	// 	};
+	useEffect(() => {
+		const notesContainer = document.querySelector('.notes-container');
+		const handleKeyDown = (e) => {
+			if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
+				const selected = editor?.getSelectedText()?.length > 0 || false;
+				if (selected) {
+					e.stopPropagation();
+					return;
+				}
+			}
+		};
 
-	// 	notesContainer.addEventListener('keydown', handleKeyDown);
-	// 	return () => notesContainer.removeEventListener('keydown', handleKeyDown);
-	// }, []);
+		notesContainer.addEventListener('keydown', handleKeyDown);
+		return () => notesContainer.removeEventListener('keydown', handleKeyDown);
+	}, []);
 
 	useEffect(() => {
 		getNotesAccess({ pageId: noteId });

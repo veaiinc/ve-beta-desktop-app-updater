@@ -203,8 +203,14 @@ export const globalNotesAccessMutation = gql`
 `;
 
 export const notesImageBlockUploadMutation = gql`
-	mutation UploadPageBlockImage($pageId: ID!) {
-		uploadPageBlockImage(pageId: $pageId) {
+	mutation UploadPageBlockImage(
+		$pageId: ID!
+		$uploadPageBlockImageInput: UploadPageBlockImageInput!
+	) {
+		uploadPageBlockImage(
+			pageId: $pageId
+			uploadPageBlockImageInput: $uploadPageBlockImageInput
+		) {
 			signedUrl
 			imageUrl
 		}
