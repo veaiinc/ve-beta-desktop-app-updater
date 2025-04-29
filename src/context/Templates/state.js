@@ -43,6 +43,7 @@ import {
 	getFormResponseSummaryQuery,
 	getFormResponseAnalyticsQuery,
 	updateWorkflowTemplateQuery,
+	duplicateSmartFileQuery,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -2428,6 +2429,27 @@ export const TemplatesState = (props) => {
 			console.log('error==>pendingActionsUpdate', error);
 		}
 	};
+
+	const duplicateSmartFile = async (payload) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				duplicateSmartFileQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+			if (response?.[0]) {
+				return response;
+			} else {
+				return response;
+			}
+		} catch (error) {
+			console.log('error==>duplicateSmartFile', error);
+		}
+	};
 	return {
 		...state,
 		getMyWorkflows,
@@ -2511,5 +2533,6 @@ export const TemplatesState = (props) => {
 		sendContactFormData,
 		updateWorkflowTemplate,
 		pendingActionsUpdate,
+		duplicateSmartFile,
 	};
 };

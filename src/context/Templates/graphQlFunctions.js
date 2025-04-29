@@ -538,3 +538,11 @@ export const updateWorkflowTemplateQuery = gql`
 		}
 	}
 `;
+
+export const duplicateSmartFileQuery = gql`
+	mutation DuplicateSmartFile($duplicateSmartFile: DuplicateSmartFileInput) {
+		duplicateSmartFile(duplicateSmartFile: $duplicateSmartFile) {
+			_id
+		}
+	}
+`;
