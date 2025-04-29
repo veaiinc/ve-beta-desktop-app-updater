@@ -94,6 +94,19 @@
 								}
 							}
 							.rightPart {
+								justify-content: flex-start;
+
+								.person-select {
+									margin-left: auto;
+								}
+
+								.select-options-wrapper {
+									.select-selected-wrapper {
+										.select-option-item {
+											color: var(--secondary-button-active);
+										}
+									}
+								}
 							}
 						}
 					}

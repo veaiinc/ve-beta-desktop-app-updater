@@ -1,3 +1,15 @@
+.listview-sidebar-drawer {
+	background-color: red;
+	height: 95%;
+	margin-top: 58px;
+	.ant-drawer-body {
+		.listView-sidebar-container {
+			.listView-sidebar-innerContainer {
+			}
+		}
+	}
+}
+
 .listView-sidebar-container {
 	height: 100%;
 	width: 450px;
@@ -65,7 +77,7 @@
 			align-items: flex-start;
 			gap: 24px;
 			// background-color: var(--navbar, #18191b);
-			background-color: var(--background-color);
+			background-color: var(--right-bar);
 			overflow-x: auto;
 
 			.sidebar-timestamp-container {
@@ -322,6 +334,14 @@
 						align-items: center;
 						gap: 10px;
 						flex-wrap: wrap;
+
+						.select-options-wrapper {
+							.select-selected-wrapper {
+								.select-option-item {
+									color: var(--secondary-button-active);
+								}
+							}
+						}
 					}
 					.property-value {
 						width: fit-content;

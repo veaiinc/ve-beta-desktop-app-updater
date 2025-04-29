@@ -199,7 +199,7 @@ const ListViewSidebar = ({
 				}
 
 				const RowComponent = rowTypes?.[type] || null;
-				console.log(row);
+
 				listItems.push(
 					<div className="property-list" key={key}>
 						<span className="property-title">
@@ -288,6 +288,7 @@ const ListViewSidebar = ({
 			style={{ padding: '0px', backgroundColor: 'transparent' }}
 			headerStyle={{ display: 'none' }}
 			bodyStyle={{ padding: '0px', overflow: 'hidden' }}
+			className="listview-sidebar-drawer"
 		>
 			<div
 				className={`listView-sidebar-container ${
