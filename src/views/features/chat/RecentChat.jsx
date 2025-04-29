@@ -1,19 +1,22 @@
 import React, { memo, useCallback, useState, useRef, useEffect, useContext } from 'react';
 import '../../../assets/scss/chat/chat.scss';
 import { ReactComponent as ExpandChatIcon } from '../../../assets/svg/ai_agents/expand-chat-icon.svg';
+import { ReactComponent as LeftSvg } from '../../../assets/svg/activity/left.svg';
 import Context from '../../../context/context';
 import { UserMessageRenderer } from '../../../helpers/markdownHelper';
 import CitationsModal from '../../components/modalsV2/chat/CitationsModal';
 import NoteComponentModal from '../../components/notes/NoteComponentModal';
 import ChatBox from '../../components/chat/ChatBox';
-import { useParams, useSearchParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { FetchMoreLoaderComp } from '../../../helpers';
 import { debounce } from 'lodash';
 import useChatStream from '../../hooks/useChatStream';
 import ObjectID from 'bson-objectid';
 import { ReactComponent as ArrowUpRightSvg } from '../../../assets/svg/sidebar/arrowupright.svg';
+import { ReactComponent as PlusCircleSvg } from '../../../assets/svg/ai_agents/plus-cricle.svg';
 import AIMessageRenderer from '../../components/chat/AIMessageRenderer';
+import { Tooltip } from 'antd';
 
 let throttleTimer = null;
 
@@ -27,6 +30,14 @@ const RecentChat = ({
 	isPublicChat = false,
 	isPreview = false,
 	sId = null,
+	showIconText = true,
+	autoFocus = true,
+	customChatBoxClick = null,
+	sessionIdChanged = false,
+	onChangeSessionId = null,
+	chatActive = false,
+	onNewChatBtnClick = null,
+	onNavigateBack = null,
 }) => {
 	const {
 		templates: {
@@ -40,22 +51,17 @@ const RecentChat = ({
 			handleStreamMessageChunk,
 			globalLoadingMesssage,
 			chatInfo,
+			currentChatData,
 			chatHistoryDrawerIsOpen,
-			leftSidebarState,
+			currentSessionId,
 		},
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
-		expanded: false,
-		inputExpanded: false,
-		bigToolbarIsOpen: false,
-		chatQuery: '',
 		position: { x: window?.innerWidth / 2 - 900, y: 0 },
-		addQuickAction: false,
 		chatSessionId: null,
 		uploadedImages: [],
 		chatLoading: false,
-		showFullPage: true,
 		voiceIntegration: false,
 		noteModalIsOpen: false,
 		citationsModalIsOpen: false,
@@ -86,11 +92,21 @@ const RecentChat = ({
 	const tabsRefs = useRef({});
 	const previousTabsRefs = useRef({});
 	const isFirstTimeConnectingToPublicChatRef = useRef(true);
+	const navigate = useNavigate();
+	const location = useLocation();
 
 	sessionId = isPreview ? sId : sessionId;
 
 	useEffect(() => {
-		window.addEventListener('resize', handleResize);
+		if (sessionIdChanged && chatActive) {
+			const agentType = searchParams?.get('agentType');
+			createWebSocketConnection(sessionId, onMessageFunc, agentType, isPublicChat);
+			onChangeSessionId?.();
+		}
+	}, [sessionIdChanged, chatActive]);
+
+	useEffect(() => {
+		window?.addEventListener('resize', handleResize);
 
 		handleResize(0);
 
@@ -104,21 +120,24 @@ const RecentChat = ({
 		}
 
 		return () => {
-			window.removeEventListener('resize', handleResize);
+			window?.removeEventListener('resize', handleResize);
 			clearTimeout(throttleTimer);
 
-			updateStateValues({
-				moreRecentChatStorage: null,
-				recentChatStorage: null,
-				globalChatMessages: [],
-				currentSessionId: ObjectID()?.toString(),
-				citations: null,
-				citationChunks: {},
-				chatPayload: {
-					workflowTemplateId: null,
-					moduleTemplateId: null,
-				},
-			});
+			setTimeout(() => {
+				tabsRefs.current = {};
+				updateStateValues({
+					moreRecentChatStorage: null,
+					recentChatStorage: null,
+					globalChatMessages: [],
+					citations: null,
+					citationChunks: {},
+					chatPayload: {
+						workflowTemplateId: null,
+						moduleTemplateId: null,
+					},
+				});
+			}, 0);
+			updateStateValues({ currentSessionId: ObjectID()?.toString() });
 		};
 	}, []);
 
@@ -152,7 +171,9 @@ const RecentChat = ({
 				chatSessionId: sessionId,
 				renderingTwice: true,
 			}));
-			updateStateValues({ currentSessionId: sessionId });
+			if (currentSessionId !== sessionId) {
+				updateStateValues({ currentSessionId: sessionId });
+			}
 		}
 	}, [sessionId]);
 
@@ -193,7 +214,7 @@ const RecentChat = ({
 		}
 
 		// Update the URL search params
-		setSearchParams(desiredParams);
+		setSearchParams(desiredParams, { replace: true });
 	}, [chatInfo?.agentType, chatInfo?.assistantId, sessionId]);
 
 	useEffect(() => {
@@ -335,7 +356,7 @@ const RecentChat = ({
 		// 	previousAiMessagesRef.current.forEach((msg) => observer.unobserve(msg));
 		// 	visibleMessagesSet.clear();
 		// };
-	}, [globalChatMessages, chatContentRef]);
+	}, [globalChatMessages]);
 
 	// useEffect(() => {
 	// 	if (info?.activeAIMessageId) {
@@ -355,7 +376,7 @@ const RecentChat = ({
 	useEffect(() => {
 		if (moreRecentChatStorage) {
 			const firstTimeApiCall = false;
-			recentChatHandler(moreRecentChatStorage, firstTimeApiCall);
+			recentChatHandler(moreRecentChatStorage, true, firstTimeApiCall);
 		}
 	}, [moreRecentChatStorage]);
 
@@ -464,7 +485,7 @@ const RecentChat = ({
 
 			if (fetcMore) {
 				updateStateValues({
-					globalChatMessages: messages?.concat(globalChatMessages),
+					globalChatMessages: messages?.concat(chatMessagesRef?.current),
 					...(chatPayload?.moduleTemplateId &&
 						chatPayload?.workflowTemplateId && { chatPayload }),
 				});
@@ -487,7 +508,7 @@ const RecentChat = ({
 
 			setInfo((prev) => ({ ...prev, chatLoading: false, hasNextPage, currentPage }));
 		},
-		[info, chatContentRef],
+		[],
 	);
 
 	const handleRatingClick = useCallback(async (type, messageId) => {
@@ -568,52 +589,49 @@ const RecentChat = ({
 	);
 
 	// stream chat
-	const onMessageFunc = useCallback(
-		(event) => {
-			let { data = '' } = event || {};
-			data = JSON.parse(data);
+	const onMessageFunc = useCallback((event) => {
+		let { data = '' } = event || {};
+		data = JSON.parse(data);
 
-			if (data?.hasOwnProperty('intermediate_response')) {
-				if (data?.intermediate_response_done === true) {
-					loadingMessageRef.current = null;
-					return;
-				}
-
-				loadingMessageRef.current = loadingMessageRef?.current || '';
-				loadingMessageRef.current += data?.intermediate_response || '';
-				updateStateValues({ globalLoadingMesssage: loadingMessageRef.current });
+		if (data?.hasOwnProperty('intermediate_response')) {
+			if (data?.intermediate_response_done === true) {
+				loadingMessageRef.current = null;
 				return;
 			}
-			if (data?.type === 'variableRequirement') {
-				loadingMessageRef.current = null;
-			}
-			if (data?.user_id) {
-				localStorage?.setItem('user_id', data?.user_id);
-			}
-			let chatPayload = null;
-			if (data?.stream_end) {
-				const { workflow_template_id, module_template_id } = data;
-				if (workflow_template_id || module_template_id) {
-					chatPayload = {
-						workflowTemplateId: workflow_template_id,
-						moduleTemplateId: module_template_id,
-					};
-				}
-				handleStreamIncomingMessage(data);
-				updateStateValues({
-					globalLoadingMesssage: null,
-					...(chatPayload && { chatPayload }),
-				});
-				setInfo((prev) => ({ ...prev, latestStreamMesage: data }));
-			}
-			const { message_chunk_id } = data;
 
-			if (message_chunk_id) {
-				handleStreamMessageChunk(data, message_chunk_id);
+			loadingMessageRef.current = loadingMessageRef?.current || '';
+			loadingMessageRef.current += data?.intermediate_response || '';
+			updateStateValues({ globalLoadingMesssage: loadingMessageRef.current });
+			return;
+		}
+		if (data?.type === 'variableRequirement') {
+			loadingMessageRef.current = null;
+		}
+		if (data?.user_id) {
+			localStorage?.setItem('user_id', data?.user_id);
+		}
+		let chatPayload = null;
+		if (data?.stream_end) {
+			const { workflow_template_id, module_template_id } = data;
+			if (workflow_template_id || module_template_id) {
+				chatPayload = {
+					workflowTemplateId: workflow_template_id,
+					moduleTemplateId: module_template_id,
+				};
 			}
-		},
-		[info],
-	);
+			handleStreamIncomingMessage(data);
+			updateStateValues({
+				globalLoadingMesssage: null,
+				...(chatPayload && { chatPayload }),
+			});
+			setInfo((prev) => ({ ...prev, latestStreamMesage: data }));
+		}
+		const { message_chunk_id } = data;
+
+		if (message_chunk_id) {
+			handleStreamMessageChunk(data, message_chunk_id);
+		}
+	}, []);
 
 	const handleSendWebsocketMessage = useCallback(
 		async (data, lastQuery) => {
@@ -636,28 +654,57 @@ const RecentChat = ({
 		setInfo((prev) => ({ ...prev, showViewDocument: value }));
 	}, []);
 
+	const handleNewChatClick = useCallback(() => {
+		const pathname = location?.pathname?.split('/')?.[1];
+		const sessionId = ObjectID()?.toString();
+
+		if (pathname === 'chat') {
+			navigate(`/chat/${sessionId}`);
+		} else if (pathname === 'c') {
+			navigate(`/c/${sessionId}`);
+		} else if (pathname === 'calendar' || pathname === 'contacts' || pathname === 'tasks') {
+			onNewChatBtnClick?.();
+		}
+	}, [location?.pathname]);
+
+	const handleNavigateBack = useCallback(() => {
+		const pathname = location?.pathname?.split('/')?.[1];
+		if (pathname === 'chat' || pathname === 'c') {
+			navigate(-1);
+		} else if (pathname === 'calendar' || pathname === 'contacts' || pathname === 'tasks') {
+			onNavigateBack?.();
+		}
+	}, [location?.pathname]);
+
 	return (
 		<>
-			<div className="chat-container">
+			<div
+				className="chat-container"
+				style={{
+					height: isPublicChat ? 'calc(100% - 32px)' : '',
+				}}
+			>
 				<div className="chatBarContainer" style={{ width: '100%' }}>
 					{/* header */}
-					{/* {!isPublicChat && !isPreview && (
-						<div className="containerHeader">
-							<h1 className="containerHeaderTitle"></h1>
-							<div className="iconContainer">
-								{!info?.citationsModalIsOpen && (
-									<ExpandChatIcon
-										onClick={() => {
-											setInfo((prev) => ({
-												...prev,
-												citationsModalIsOpen: true,
-											}));
-										}}
-									/>
-								)}
+					{!isPublicChat && (
+						<div className="chat-header">
+							<div className="left-container">
+								<div className="icon-container" onClick={handleNavigateBack}>
+									<LeftSvg />
+								</div>
+								<div className="chat-title">
+									{currentChatData?.title || 'Chat Title'}
+								</div>
+							</div>
+							<div className="right-container">
+								<Tooltip title="New Chat" placement="bottom">
+									<button className="new-chat-btn" onClick={handleNewChatClick}>
+										<PlusCircleSvg />
+									</button>
+								</Tooltip>
 							</div>
 						</div>
-					)} */}
+					)}
 
 					{/* chat body */}
 					<div
@@ -768,12 +815,15 @@ const RecentChat = ({
 						)}
 						<div className="chatBoxWrapper">
 							<ChatBox
+								showIconText={showIconText}
 								isPublicChat={isPublicChat}
 								handleSendWebsocketMessage={handleSendWebsocketMessage}
 								latestStreamMesage={info?.latestStreamMesage}
 								lastQuery={info?.lastQuery}
 								toggleLatestStreamMessage={toggleLatestStreamMessage}
 								hideDeepResearch={searchParams?.get('agentType') === 'search_agent'}
+								autoFocus={autoFocus}
+								customChatBoxClick={customChatBoxClick}
 							/>
 						</div>
 					</div>

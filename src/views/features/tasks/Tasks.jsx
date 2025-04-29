@@ -34,6 +34,7 @@ import ChildTaskComponent from '../../components/tasks/listView/ChildTaskCompone
 import PersonMultiSelect from '../../components/tasks/listView/PersonMultiSelect';
 import { useSearchParams } from 'react-router-dom';
 import Taskwidget from '../../components/tasks/Taskwidget';
+import ChatLeftBarComponent from '../../components/ChatLeftBarComponent';
 
 const defaultPreference = {
 	taskSlNo: { show: false, order: 1 },
@@ -940,9 +941,11 @@ const Tasks = () => {
 
 	return (
 		<div className="tasks-page-container">
-			<div className="tasks-left-container">
-				<Taskwidget />
-			</div>
+			<ChatLeftBarComponent>
+				<div className="tasks-left-container">
+					<Taskwidget />
+				</div>
+			</ChatLeftBarComponent>
 			<div className="tasks-right-container">
 				<Task
 					responseMetadata={responseMetadata}
