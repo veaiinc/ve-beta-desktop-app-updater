@@ -138,6 +138,115 @@ export const statusTextmapper = {
 	},
 };
 
+const suggestedOptions = [
+	{
+		id: 1,
+		title: 'Documents',
+		value: '',
+		controlValue: 'All',
+		action: ({ setInfo }) => {
+			setInfo((prev) => ({ ...prev, openProposalPopup: true, commonState: '' }));
+		},
+	},
+	{
+		id: 2,
+		title: 'Notes',
+		value: 'note',
+		action: async ({ setInfo, navigate, createNotesList }) => {
+			try {
+				setInfo((prev) => ({
+					...prev,
+					showLoader: true,
+					loaderMessage: 'Creating note...',
+				}));
+				const payload = {
+					input: {
+						title: 'New Note',
+					},
+				};
+				const response = await createNotesList(payload);
+				if (response?.[1]?._id) {
+					navigate(`/note/${response[1]._id}`);
+				}
+			} catch (error) {
+				message.error('Failed to create note');
+			} finally {
+				setInfo((prev) => ({
+					...prev,
+					showLoader: false,
+					loaderMessage: '',
+				}));
+			}
+		},
+	},
+	{
+		id: 3,
+		title: 'Form',
+		value: 'form-submission',
+		controlValue: 'form',
+		action: ({ setInfo }) => {
+			setInfo((prev) => ({
+				...prev,
+				openProposalPopup: true,
+				commonState: 'form-submission',
+			}));
+		},
+	},
+	{
+		id: 4,
+		title: 'Proposal',
+		value: 'proposal',
+		controlValue: 'workflow',
+		action: ({ setInfo }) => {
+			setInfo((prev) => ({ ...prev, openProposalPopup: true, commonState: 'proposal' }));
+		},
+	},
+	{
+		id: 5,
+		title: 'Invoice',
+		value: 'invoice',
+		controlValue: 'workflow',
+		action: ({ setInfo }) => {
+			setInfo((prev) => ({ ...prev, openProposalPopup: true, commonState: 'invoice' }));
+		},
+	},
+	{
+		id: 6,
+		title: 'Contracts',
+		value: 'contract',
+		controlValue: 'workflow',
+		action: ({ setInfo }) => {
+			setInfo((prev) => ({ ...prev, openProposalPopup: true, commonState: 'contract' }));
+		},
+	},
+	{
+		id: 7,
+		title: 'Presentation',
+		value: 'presentation',
+		controlValue: 'workflow',
+		action: ({ setInfo }) => {
+			setInfo((prev) => ({ ...prev, openProposalPopup: true, commonState: 'presentation' }));
+		},
+	},
+	{
+		id: 8,
+		title: 'Classic Gallery',
+		value: 'galleries',
+		controlValue: 'classicGallery',
+		action: ({ setInfo }) => {
+			setInfo((prev) => ({ ...prev, openGalleryPopup: true }));
+		},
+	},
+	{
+		id: 9,
+		title: 'Lite Gallery',
+		value: 'lite-gallery',
+		controlValue: 'liteGallery',
+		action: ({ setInfo }) => {
+			setInfo((prev) => ({ ...prev, openLiteGalleryPopup: true }));
+		},
+	},
+];
 const Files = () => {
 	const [searchParams, setSearchParams] = useSearchParams();
 	const activeTab = searchParams.get('activeTab') || 'Notes';
@@ -507,7 +616,7 @@ const Files = () => {
 						<div className="beta-text">File Flow Inspired by Your Mind</div> */}
 							</span>
 							<div className="storage-header-items">
-								<QuickActions />
+								<QuickActions suggestedOptions={suggestedOptions} />
 							</div>
 						</div>
 						<div className="card-container-wrapper">
