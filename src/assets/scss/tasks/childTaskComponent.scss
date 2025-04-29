@@ -1,6 +1,7 @@
 .sidebar-subtask-container {
 	width: 100%;
 	display: flex;
+	padding: 0 20px;
 	padding-bottom: 24px;
 	border-left: none;
 	border-right: none;
@@ -15,6 +16,7 @@
 		align-self: stretch;
 		gap: 16px;
 		padding-bottom: 12px;
+
 		.sidebar-subtask-header-title {
 			color: var(--primary-font);
 			font-family: var(--primary-font-family);
@@ -61,6 +63,43 @@
 		flex-direction: column;
 		max-height: 200px;
 		overflow-x: auto;
+
+		.listViewContainer {
+			gap: 15px;
+
+			.infinite-scroll-component__outerdiv {
+				.infinite-scroll-component {
+					gap: 15px;
+
+					.listItemRowContainer {
+						display: flex;
+						padding: 14px 12px;
+						flex-direction: column;
+						align-items: flex-start;
+						gap: 14px;
+						align-self: stretch;
+						background-color: var(--card);
+						border-radius: 8px;
+
+						.listItemRow {
+							display: flex;
+							align-items: center;
+							gap: 10px;
+							align-self: stretch;
+							flex-direction: column;
+
+							.leftPart {
+								.tooltip-text {
+									font-size: 14px;
+								}
+							}
+							.rightPart {
+							}
+						}
+					}
+				}
+			}
+		}
 
 		.no-subtasks {
 			color: var(--secondary-font);

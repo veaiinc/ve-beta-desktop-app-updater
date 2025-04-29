@@ -15,6 +15,8 @@ const ListViewRow = ({
 			const rightPart = [];
 			let split = false;
 
+			console.log(row);
+
 			// Sort properties by order
 			const sortedProperties = [...(properties || [])]
 				?.sort((a, b) => (a?.order || 0) - (b?.order || 0))
@@ -51,7 +53,9 @@ const ListViewRow = ({
 					key === '_id' ||
 					key === 'parentTaskId' ||
 					key === 'workflowTemplateId' ||
-					key === 'completedAt'
+					key === 'completedAt' ||
+					key === 'assignedTo' ||
+					key === 'assignedBy'
 				) {
 					return;
 				}
