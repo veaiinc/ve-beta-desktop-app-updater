@@ -298,7 +298,6 @@ const ListViewSidebar = ({
 				<div className="listView-sidebar-innerContainer">
 					<div className="sidebar-header">
 						<div className="sidebar-header-left-container">
-							<div className="sidebar-header-id">{headerText}</div>
 							<div className="sidebar-header-expand-button">
 								{!isSidebarExpanded ? (
 									<CloseArrow
@@ -311,9 +310,6 @@ const ListViewSidebar = ({
 									''
 								)}
 							</div>
-						</div>
-
-						<div className="sidebar-header-right-container">
 							<div
 								className="sidebar-header-expand-button"
 								onClick={handleExpandClick}
@@ -332,6 +328,10 @@ const ListViewSidebar = ({
 									/>
 								)}
 							</div>
+							<div className="sidebar-header-id">{headerText}</div>
+						</div>
+
+						<div className="sidebar-header-right-container">
 							{showQuickActions && isSidebarExpanded && (
 								<QuickActions
 									suggestedOptions={suggestedOptions}
