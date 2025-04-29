@@ -58,16 +58,10 @@ const RecentChat = ({
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
-		expanded: false,
-		inputExpanded: false,
-		bigToolbarIsOpen: false,
-		chatQuery: '',
 		position: { x: window?.innerWidth / 2 - 900, y: 0 },
-		addQuickAction: false,
 		chatSessionId: null,
 		uploadedImages: [],
 		chatLoading: false,
-		showFullPage: true,
 		voiceIntegration: false,
 		noteModalIsOpen: false,
 		citationsModalIsOpen: false,
@@ -129,18 +123,20 @@ const RecentChat = ({
 			window?.removeEventListener('resize', handleResize);
 			clearTimeout(throttleTimer);
 
-			updateStateValues({
-				moreRecentChatStorage: null,
-				recentChatStorage: null,
-				globalChatMessages: [],
-				currentSessionId: ObjectID()?.toString(),
-				citations: null,
-				citationChunks: {},
-				chatPayload: {
-					workflowTemplateId: null,
-					moduleTemplateId: null,
-				},
-			});
+			setTimeout(() => {
+				updateStateValues({
+					moreRecentChatStorage: null,
+					recentChatStorage: null,
+					globalChatMessages: [],
+					currentSessionId: ObjectID()?.toString(),
+					citations: null,
+					citationChunks: {},
+					chatPayload: {
+						workflowTemplateId: null,
+						moduleTemplateId: null,
+					},
+				});
+			}, 0);
 		};
 	}, []);
 
