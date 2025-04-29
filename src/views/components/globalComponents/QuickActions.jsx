@@ -734,10 +734,8 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 						{info?.filteredOptions?.suggestedOptions?.length > 0 && (
 							<div className="suggested-modules-container">
 								<div className="suggested-modules-container-header">
-									Suggested{' '}
-									{info?.locationNeeded
-										? `actions for ${info?.currentLocation}`
-										: 'Actions'}
+									Suggested Actions{' '}
+									{info?.locationNeeded ? ` for ${info?.currentLocation}` : ''}
 								</div>
 								<div className="suggested-modules-container-options">
 									{info?.filteredOptions?.suggestedOptions?.map((option) => (
