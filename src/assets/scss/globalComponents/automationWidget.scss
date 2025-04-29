@@ -16,7 +16,7 @@
 		align-self: stretch;
 		border-radius: 24px;
 		background: var(--card, #171819);
-		width: 344px;
+		width: 100%;
 		.automationWidgetBody {
 			display: flex;
 			flex-direction: column;
@@ -135,5 +135,10 @@
 				line-height: 20px; /* 125% */
 			}
 		}
+	}
+}
+@media screen and (max-width: 1440px) {
+	.automation {
+		height: 400px !important;
 	}
 }

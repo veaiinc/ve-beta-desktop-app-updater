@@ -27,7 +27,7 @@ const sortOptions = [
 	{ label: 'A-Z', value: 'title', sortType: 1 },
 ];
 
-const DocsGrid = ({ statusTextmapper, handleCreateDoc, handleTotalChange }) => {
+const DocsGrid = ({ statusTextmapper, handleCreateDoc, handleTotalChange, clientId = null }) => {
 	const navigate = useNavigate();
 
 	const {
@@ -164,6 +164,9 @@ const DocsGrid = ({ statusTextmapper, handleCreateDoc, handleTotalChange }) => {
 					// action: info?.selectedFilter?.value,
 				},
 			};
+			if (clientId) {
+				payload.filters.clientId = clientId;
+			}
 			await getDocsFilesList(payload, false);
 		} catch (error) {
 			console.error('Error fetching docs:', error);

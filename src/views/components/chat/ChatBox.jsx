@@ -131,6 +131,7 @@ const ChatBox = ({
 	autoFocus = true,
 	isParentHeaderMinimized = false,
 	animatePlaceholder = false,
+	customChatBoxClick = null,
 }) => {
 	const textAreaRef = useRef(null);
 	const location = useLocation();
@@ -1072,8 +1073,17 @@ const ChatBox = ({
 		});
 	};
 
+	const handleChatBoxClick = () => {
+		if (customChatBoxClick) {
+			customChatBoxClick();
+		}
+	};
+
 	return (
-		<div className="chatParentWrapper">
+		<div
+			className="chatParentWrapper"
+			{...(customChatBoxClick && { onClick: customChatBoxClick })}
+		>
 			<div className={`chatWrapper`}>
 				<div
 					className={`chat-box-container ${

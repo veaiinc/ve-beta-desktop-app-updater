@@ -11,7 +11,6 @@ import { Calendar } from './Calendar/state';
 import { ThemeState } from './Theme/state';
 import { TasksState } from './tasks/state';
 import { useMemo } from 'react';
-import { theme } from 'antd';
 import { ContactsState } from './contacts/state';
 import { DocumentPreviewState } from './DocumentPreview/state';
 import { AutomationBuilderState } from './automationBuilder/state';
@@ -44,7 +43,6 @@ const useCombineState = () => {
 		() => ({
 			chatInfo,
 			templates,
-			themeInfo,
 			profileInfo,
 			companyInfo,
 			galleryInfo,
@@ -65,7 +63,6 @@ const useCombineState = () => {
 		[
 			chatInfo,
 			templates,
-			themeInfo,
 			profileInfo,
 			companyInfo,
 			galleryInfo,

@@ -15,6 +15,7 @@ const infiniteScrollStyle = {
 	alignItems: 'flex-start',
 	alignSelf: 'stretch',
 	gap: '4px',
+	paddingBottom: '100px',
 	// height: '38vh',
 };
 const skeletonLoaders = Array.from({ length: 30 }, (_, index) => index + 1);
@@ -24,10 +25,9 @@ const append = true;
 
 const ChatHistory = () => {
 	const navigate = useNavigate();
-	const { sessionId } = useParams();
 	const {
 		aiSetup: { getAiChatSessions, aiChatSessions },
-		templates: { chatInfo, updateStateValues, currentSessionId },
+		templates: { chatInfo, updateStateValues, currentSessionId, currentChatData },
 	} = useContext(Context);
 	const previousSearchQuery = useRef('');
 	const [searchQuery, setSearchQuery] = useState('');
@@ -54,6 +54,15 @@ const ChatHistory = () => {
 			debouncedSearch.cancel();
 		};
 	}, [searchQuery, debouncedSearch]);
+
+	useEffect(() => {
+		if (currentSessionId && currentChatData?._id !== currentSessionId) {
+			const index = aiChatSessions?.data?.findIndex((chat) => chat?._id === currentSessionId);
+			if (typeof index === 'number' && index !== -1) {
+				updateStateValues({ currentChatData: aiChatSessions?.data[index] });
+			}
+		}
+	}, [currentSessionId, aiChatSessions]);
 
 	const chats = aiChatSessions?.data;
 	const emptyChatsState = aiChatSessions?.data?.length === 0;
@@ -158,7 +167,7 @@ const ChatHistory = () => {
 									)}
 									<div
 										className={`chat-containers ${
-											sessionId === chat?._id ? 'active-chat' : ''
+											currentSessionId === chat?._id ? 'active-chat' : ''
 										}`}
 										onClick={() => handleChatNavigation(chat)}
 									>

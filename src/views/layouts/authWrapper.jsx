@@ -61,7 +61,11 @@ const AuthWrapper = ({
 			>
 				<SkeletonTheme baseColor={'var(--card)'} highlightColor={'var(--card-hover)'}>
 					<div
-						style={{ ...sidebarContainerStyles }}
+						style={{
+							...sidebarContainerStyles,
+							height: 'fit-content',
+							position: 'relative',
+						}}
 						className={sidebarContainerClassName}
 					>
 						<Sidebar
@@ -71,7 +75,13 @@ const AuthWrapper = ({
 					</div>
 
 					<div
-						style={{ flex: 1, overflowY: 'auto', maxHeight: '100%', height: '100%' }}
+						style={{
+							flex: 1,
+							overflowY: 'auto',
+							maxHeight: '100%',
+							height: '100%',
+							...(renewBanner && { paddingTop: '10px' }),
+						}}
 						id="scrollableTarget"
 					>
 						<div className="childrenContainer" style={{ maxWidth: maxWidth || '' }}>
