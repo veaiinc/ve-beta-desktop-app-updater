@@ -115,7 +115,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 		);
 
 		if (response?.[0]) {
-			await new Promise((resolve) => setTimeout(resolve, 3000));
+			await new Promise((resolve) => setTimeout(resolve, 5000));
 			return response?.[1];
 		}
 
