@@ -1,12 +1,5 @@
-import React, { useState, useEffect, memo, useRef } from 'react';
-import {
-	TextAlignButton,
-	useBlockNoteEditor,
-	useComponentsContext,
-	useEditorContentOrSelectionChange,
-} from '@blocknote/react';
-import { Menu } from '@mantine/core';
-import { MdFormatAlignLeft, MdFormatAlignCenter, MdFormatAlignRight } from 'react-icons/md';
+import { useState, useEffect, memo } from 'react';
+import { useBlockNoteEditor, useComponentsContext } from '@blocknote/react';
 import '../../../assets/scss/notes/alignButton.scss';
 import { ReactComponent as LeftAlignIcon } from '../../../assets/svg/notes/leftAlign.svg';
 import { ReactComponent as RightAlignIcon } from '../../../assets/svg/notes/rightAlign.svg';
@@ -82,10 +75,11 @@ const AlignButton = () => {
 					open={info?.isOpen}
 					title={
 						<div className="alignment-tooltip">
-							{alignmentOptions.map((option) => (
+							{alignmentOptions.map((option, index) => (
 								<button
 									className="alignment-item"
 									onClick={() => applyAlignment(option?.value)}
+									key={index}
 								>
 									{option?.icon}
 								</button>

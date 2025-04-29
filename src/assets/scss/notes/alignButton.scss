@@ -34,5 +34,10 @@
 		border: none;
 		background-color: transparent;
 		cursor: pointer;
+		background: var(--card, #f2f2f3);
+
+		&:hover {
+			background-color: var(--card-hover);
+		}
 	}
 }

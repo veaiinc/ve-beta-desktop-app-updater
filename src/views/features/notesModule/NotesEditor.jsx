@@ -50,6 +50,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 	const { noteId } = useParams();
 	const navigate = useNavigate();
 	const aiResponseRef = useRef('');
+	const prevDocRef = useRef([]);
 
 	const {
 		notes: {
@@ -66,6 +67,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 			getNotesAccess,
 			globalAccess,
 			uploadNotesImageBlock,
+			deleteNotesImageBlock,
 		},
 		companyInfo: { getTeamMembers, tenantsUserList },
 	} = useContext(Context);
@@ -76,7 +78,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 		const response = await uploadNotesImageBlock({ pageId: noteId }, file);
 
 		if (response?.[0]) {
-			await new Promise((resolve) => setTimeout(resolve, 3000)); // 500ms delay
+			await new Promise((resolve) => setTimeout(resolve, 3000));
 			return response?.[1];
 		}
 
@@ -320,9 +322,35 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 		[noteId, handleDebounce],
 	);
 
-	const onChange = async () => {
+	const extractImageUrls = (doc) => {
+		const urls = [];
+		for (const block of doc) {
+			if (block.type === 'image' && block.props?.url) {
+				urls.push(block.props.url);
+			}
+		}
+		return urls;
+	};
+
+	const onChange = () => {
 		if (editor?.document?.length) {
-			handleContentChange(editor.document);
+			const newDoc = editor.document;
+			const prevImages = extractImageUrls(prevDocRef.current);
+			const newImages = extractImageUrls(newDoc);
+			const removedImages = prevImages.filter((url) => !newImages.includes(url));
+			for (const url of removedImages) {
+				const payload = {
+					pageId: noteId,
+					imageInput: {
+						imageUrl: url,
+						type: 'block',
+					},
+				};
+				deleteNotesImageBlock(payload);
+			}
+
+			handleContentChange(newDoc);
+			prevDocRef.current = newDoc;
 		}
 	};
 
@@ -340,7 +368,6 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 		async (permanent = false) => {
 			if (info?.deleteLoading) return;
 			setInfo((prev) => ({ ...prev, deleteLoading: true }));
-
 			const [success] = await deletePage({ pageId: noteId, isPermanent: permanent });
 			if (success) {
 				message.success(`Page ${permanent ? 'permanently ' : ''}deleted successfully`);

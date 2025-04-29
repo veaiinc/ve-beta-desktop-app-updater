@@ -155,10 +155,10 @@ export const removeFromFavoriteMutation = gql`
 `;
 
 export const deletePageMutation = gql`
-	mutation DeletePage($pageId: ID!) {
-		deletePage(pageId: $pageId) {
-			message
+	mutation DeletePage($pageId: ID!, $isPermanent: Boolean) {
+		deletePage(pageId: $pageId, isPermanent: $isPermanent) {
 			success
+			message
 		}
 	}
 `;
@@ -207,6 +207,15 @@ export const notesImageBlockUploadMutation = gql`
 		uploadPageBlockImage(pageId: $pageId) {
 			signedUrl
 			imageUrl
+		}
+	}
+`;
+
+export const notesImageBlockDeleteMutation = gql`
+	mutation Mutation($pageId: ID!, $imageInput: ImageInput!) {
+		deletePageImage(pageId: $pageId, imageInput: $imageInput) {
+			success
+			message
 		}
 	}
 `;
