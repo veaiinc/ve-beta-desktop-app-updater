@@ -579,6 +579,7 @@ const routes = [
 				}}
 				sidebarContainerStyles={{ paddingTop: '32px', paddingLeft: '32px' }}
 				maxWidth={'100%'}
+				sidebarContainerClassName={'auth-sidebar-container'}
 			>
 				<Notes />
 			</AuthWrapper>
