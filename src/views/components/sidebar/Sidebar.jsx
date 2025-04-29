@@ -141,7 +141,7 @@ const Sidebar = ({ activeWorkspaceId }) => {
 						: 'no-submodules'
 				}`}
 				style={{
-					height: renewBanner ? 'calc(100dvh - 41px)' : '100dvh',
+					height: renewBanner ? 'calc(100dvh - 58px)' : '100dvh',
 					alignItems: sidebarStates?.workSpaceOpen ? 'flex-start' : ' ',
 					maxHeight: info?.activeRoute === '/home' ? (isOpen ? '' : '') : '',
 					minHeight: info?.activeRoute === '/home' ? (isOpen ? '' : '250px') : '',
