@@ -6,7 +6,7 @@ import { UserMessageRenderer } from '../../../helpers/markdownHelper';
 import CitationsModal from '../../components/modalsV2/chat/CitationsModal';
 import NoteComponentModal from '../../components/notes/NoteComponentModal';
 import ChatBox from '../../components/chat/ChatBox';
-import { useParams, useSearchParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { FetchMoreLoaderComp } from '../../../helpers';
 import { debounce } from 'lodash';
@@ -15,6 +15,7 @@ import ObjectID from 'bson-objectid';
 import { ReactComponent as ArrowUpRightSvg } from '../../../assets/svg/sidebar/arrowupright.svg';
 import { ReactComponent as PlusCircleSvg } from '../../../assets/svg/ai_agents/plus-cricle.svg';
 import AIMessageRenderer from '../../components/chat/AIMessageRenderer';
+import { Tooltip } from 'antd';
 
 let throttleTimer = null;
 
@@ -27,11 +28,14 @@ const RecentChat = ({
 	customChatActions = false,
 	isPublicChat = false,
 	isPreview = false,
-	customSocketConnection = false,
 	sId = null,
 	showIconText = true,
 	autoFocus = true,
 	customChatBoxClick = null,
+	sessionIdChanged = false,
+	onChangeSessionId = null,
+	chatActive = false,
+	onNewChatBtnClick = null,
 }) => {
 	const {
 		templates: {
@@ -46,6 +50,7 @@ const RecentChat = ({
 			globalLoadingMesssage,
 			chatInfo,
 			chatHistoryDrawerIsOpen,
+			currentSessionId,
 		},
 	} = useContext(Context);
 
@@ -76,7 +81,6 @@ const RecentChat = ({
 		previousAgentType: null,
 		showScrollButton: false,
 		showViewDocument: false,
-		customSocketConnection: false,
 	});
 
 	const { createWebSocketConnection, sendMessage } = useChatStream();
@@ -91,17 +95,18 @@ const RecentChat = ({
 	const tabsRefs = useRef({});
 	const previousTabsRefs = useRef({});
 	const isFirstTimeConnectingToPublicChatRef = useRef(true);
+	const navigate = useNavigate();
+	const location = useLocation();
 
 	sessionId = isPreview ? sId : sessionId;
 
 	useEffect(() => {
-		if (customSocketConnection && !info?.customSocketConnection) {
-			setInfo((prev) => ({
-				...prev,
-				customSocketConnection: true,
-			}));
+		if (sessionIdChanged && chatActive) {
+			const agentType = searchParams?.get('agentType');
+			createWebSocketConnection(sessionId, onMessageFunc, agentType, isPublicChat);
+			onChangeSessionId?.();
 		}
-	}, [customSocketConnection]);
+	}, [sessionIdChanged, chatActive]);
 
 	useEffect(() => {
 		window?.addEventListener('resize', handleResize);
@@ -116,7 +121,6 @@ const RecentChat = ({
 		} else if (agentType) {
 			updateStateValues({ chatInfo: { ...chatInfo, agentType } });
 		}
-		updateStateValues({ globalChatMessages: [] });
 
 		return () => {
 			window?.removeEventListener('resize', handleResize);
@@ -167,7 +171,9 @@ const RecentChat = ({
 				chatSessionId: sessionId,
 				renderingTwice: true,
 			}));
-			updateStateValues({ currentSessionId: sessionId });
+			if (currentSessionId !== sessionId) {
+				updateStateValues({ currentSessionId: sessionId });
+			}
 		}
 	}, [sessionId]);
 
@@ -221,7 +227,7 @@ const RecentChat = ({
 			createWebSocketConnection(sessionId, onMessageFunc, agentType, isPublicChat);
 			isFirstTimeConnectingToPublicChatRef.current = false;
 		}
-	}, [searchParams, info?.customSocketConnection]);
+	}, [searchParams]);
 
 	useEffect(() => {
 		if (globalChatMessages?.length > 4 && !info?.scrollExecuted) {
@@ -363,7 +369,7 @@ const RecentChat = ({
 	useEffect(() => {
 		if (recentChatStorage) {
 			const firstTimeApiCall = true;
-			recentChatHandler(recentChatStorage, false, firstTimeApiCall);
+			recentChatHandler(recentChatStorage, true, firstTimeApiCall);
 		}
 	}, [recentChatStorage]);
 
@@ -648,6 +654,17 @@ const RecentChat = ({
 		setInfo((prev) => ({ ...prev, showViewDocument: value }));
 	}, []);
 
+	const handleNewChatClick = useCallback(() => {
+		const pathname = location?.pathname?.split('/')?.[1];
+		const sessionId = ObjectID()?.toString();
+
+		if (pathname === 'chat') {
+			navigate(`/chat/${sessionId}`);
+		} else if (pathname === 'calendar' || pathname === 'contacts' || pathname === 'tasks') {
+			onNewChatBtnClick?.();
+		}
+	}, [location?.pathname]);
+
 	return (
 		<>
 			<div
@@ -661,12 +678,14 @@ const RecentChat = ({
 					{!isPublicChat && (
 						<div className="chat-header">
 							<div className="left-container">
-								<div className="chat-title">New Chat</div>
+								<div className="chat-title">Chat Title</div>
 							</div>
 							<div className="right-container">
-								<button className="new-chat-btn">
-									<PlusCircleSvg />
-								</button>
+								<Tooltip title="New Chat" placement="bottom">
+									<button className="new-chat-btn" onClick={handleNewChatClick}>
+										<PlusCircleSvg />
+									</button>
+								</Tooltip>
 							</div>
 						</div>
 					)}
