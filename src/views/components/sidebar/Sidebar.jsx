@@ -36,7 +36,10 @@ const Sidebar = ({ activeWorkspaceId }) => {
 	const isHome = location?.pathname?.includes('notes');
 
 	const isChatSidebarRoute =
-		location?.pathname?.includes('contact') || location?.pathname?.includes('calendar');
+		location?.pathname?.includes('contact') ||
+		location?.pathname?.includes('calendar') ||
+		location?.pathname?.includes('tasks');
+
 	useEffect(() => {
 		localStorage.setItem('isOpen', JSON.stringify(isOpen));
 	}, [isOpen]);
@@ -146,9 +149,8 @@ const Sidebar = ({ activeWorkspaceId }) => {
 					maxHeight: info?.activeRoute === '/home' ? (isOpen ? '' : '') : '',
 					minHeight: info?.activeRoute === '/home' ? (isOpen ? '' : '250px') : '',
 					marginTop: isHome ? '0' : isChatSidebarRoute ? '0' : '',
-					marginLeft: isChatSidebarRoute ? '0' : '',
 					display: hideClosedSidebarIcon ? 'none' : '',
-
+					marginLeft: isChatSidebarRoute ? '0' : '',
 					// top: isOpen ? '' : renewBanner ? '105px' : '',
 				}}
 			>

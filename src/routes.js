@@ -293,7 +293,7 @@ const routes = [
 	{
 		path: '/tasks',
 		component: (
-			<AuthWrapper title={'Tasks'}>
+			<AuthWrapper title={'Tasks'} outerContainerStyle={{ padding: '0 32px 0 0' }}>
 				<Tasks />
 			</AuthWrapper>
 		),
