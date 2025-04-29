@@ -119,7 +119,7 @@ export const intialState = {
 			webSearch: false,
 		},
 	},
-	chatTitle: null,
+	currentChatData: null,
 	chatPayload: {
 		workflowTemplateId: null,
 		moduleTemplateId: null,

@@ -26,7 +26,7 @@ const ChatHistory = () => {
 	const navigate = useNavigate();
 	const {
 		aiSetup: { getAiChatSessions, aiChatSessions },
-		templates: { chatInfo, updateStateValues, currentSessionId },
+		templates: { chatInfo, updateStateValues, currentSessionId, currentChatData },
 	} = useContext(Context);
 	const previousSearchQuery = useRef('');
 	const [searchQuery, setSearchQuery] = useState('');
@@ -54,6 +54,15 @@ const ChatHistory = () => {
 		};
 	}, [searchQuery, debouncedSearch]);
 
+	useEffect(() => {
+		if (currentSessionId && currentChatData?._id !== currentSessionId) {
+			const index = aiChatSessions?.data?.findIndex((chat) => chat?._id === currentSessionId);
+			if (index && index !== -1) {
+				updateStateValues({ currentChatData: aiChatSessions?.data[index] });
+			}
+		}
+	}, [currentSessionId, aiChatSessions]);
+
 	const chats = aiChatSessions?.data;
 	const emptyChatsState = aiChatSessions?.data?.length === 0;
 	const loadingState = aiChatSessions?.data === undefined;
@@ -76,7 +85,6 @@ const ChatHistory = () => {
 					agentType: chat?.agentType,
 					assistantId: chat?.assistantId,
 				},
-				chatTitle: chat?.title,
 			});
 			navigate(`/chat/${chat?._id}`);
 		},

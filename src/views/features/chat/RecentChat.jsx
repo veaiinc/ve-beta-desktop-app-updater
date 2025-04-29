@@ -51,7 +51,7 @@ const RecentChat = ({
 			handleStreamMessageChunk,
 			globalLoadingMesssage,
 			chatInfo,
-			chatTitle,
+			currentChatData,
 			chatHistoryDrawerIsOpen,
 			currentSessionId,
 		},
@@ -695,7 +695,9 @@ const RecentChat = ({
 								<div className="icon-container" onClick={handleNavigateBack}>
 									<LeftSvg />
 								</div>
-								<div className="chat-title">{chatTitle || 'Chat Title'}</div>
+								<div className="chat-title">
+									{currentChatData?.title || 'Chat Title'}
+								</div>
 							</div>
 							<div className="right-container">
 								<Tooltip title="New Chat" placement="bottom">
