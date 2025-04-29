@@ -34,7 +34,6 @@ const Sidebar = ({ activeWorkspaceId }) => {
 
 	// conditional margin top for home page
 	const isHome =
-		location?.pathname?.includes('home') ||
 		location?.pathname?.includes('notes') ||
 		location?.pathname?.includes('calendar') ||
 		location?.pathname?.includes('contacts');
