@@ -16,6 +16,7 @@ import {
 	duplicatePageMutation,
 	globalNotesAccessMutation,
 	notesImageBlockUploadMutation,
+	notesImageBlockDeleteMutation,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -387,23 +388,44 @@ export const NotesState = (props) => {
 				usertoken,
 				'page_notes_api',
 			);
+
 			if (response?.[0]) {
-				const signedUrl = response?.[1]?.signedUrl;
+				const { signedUrl, imageUrl } = response?.[1]?.data?.uploadPageBlockImage;
 				const uploadResponse = await axios.put(signedUrl, data, {
 					headers: {
 						'Content-Type': data?.type,
 					},
 				});
 				if (uploadResponse.status === 200) {
-					return {
-						ok: true,
-						message: 'File uploaded successfully',
-					};
+					return [true, imageUrl];
+				} else {
+					return [false, uploadResponse];
 				}
 			}
 			return [false, response?.[1]?.[0]];
 		} catch (error) {
-			console.log('error==>updateGlobalAccess', error);
+			console.log('error==>uploadNotesImageBlock', error);
+		}
+	};
+
+	const deleteNotesImageBlock = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.mutation(
+				notesImageBlockDeleteMutation,
+				payload,
+				workspaceId,
+				usertoken,
+				'page_notes_api',
+			);
+			if (response?.[0]) {
+				return [true, response?.[1]]?.data?.deletePageImage;
+			} else {
+				return [false, response?.[1]?.data];
+			}
+		} catch (error) {
+			console.log('error==>deleteNotesImageBlock', error);
 		}
 	};
 
@@ -425,5 +447,6 @@ export const NotesState = (props) => {
 		duplicatePage,
 		updateGlobalAccess,
 		uploadNotesImageBlock,
+		deleteNotesImageBlock,
 	};
 };

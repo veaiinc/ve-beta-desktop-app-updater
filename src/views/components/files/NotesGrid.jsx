@@ -16,6 +16,8 @@ const filterOptions = [
 	{ label: 'Private', value: 'private' },
 	{ label: 'Shared', value: 'shared' },
 	{ label: 'Favorite', value: 'favorite' },
+	{ label: 'Published', value: 'published' },
+	{ label: 'Trashed', value: 'trashed' },
 ];
 
 const sortOptions = [
