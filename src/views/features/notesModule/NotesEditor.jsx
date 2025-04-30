@@ -22,38 +22,6 @@ import ObjectID from 'bson-objectid';
 import jwtDecode from 'jwt-decode';
 import { ReactComponent as DustBinIcon } from '../../../assets/svg/tasks/dustBin.svg';
 import { ReactComponent as RestoreIcon } from '../../../assets/svg/notes/restore.svg';
-import { createHighlighter } from './shiki.bundle.ts';
-
-const codeBlockSupportedLanguages = {
-	typescript: { name: 'TypeScript', aliases: ['ts'] },
-	javascript: { name: 'JavaScript', aliases: ['js'] },
-	python: { name: 'Python', aliases: ['py'] },
-	java: { name: 'Java' },
-	c: { name: 'C' },
-	cpp: { name: 'C++', aliases: ['c++'] },
-	csharp: { name: 'C#', aliases: ['cs'] },
-	ruby: { name: 'Ruby', aliases: ['rb'] },
-	php: { name: 'PHP' },
-	go: { name: 'Go' },
-	rust: { name: 'Rust' },
-	kotlin: { name: 'Kotlin' },
-	dart: { name: 'Dart' },
-	html: { name: 'HTML' },
-	css: { name: 'CSS' },
-	scss: { name: 'SCSS' },
-	json: { name: 'JSON' },
-	yaml: { name: 'YAML', aliases: ['yml'] },
-	markdown: { name: 'Markdown', aliases: ['md'] },
-	bash: { name: 'Bash', aliases: ['sh', 'shell'] },
-	powershell: { name: 'PowerShell', aliases: ['ps1'] },
-	sql: { name: 'SQL' },
-	lua: { name: 'Lua' },
-	perl: { name: 'Perl' },
-	xml: { name: 'XML' },
-	ini: { name: 'INI' },
-	toml: { name: 'TOML' },
-	vue: { name: 'Vue' },
-};
 
 const getRandomWidth = () => {
 	const min = 70;
@@ -123,16 +91,6 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 	}
 
 	const editor = useCreateBlockNote({
-		codeBlock: {
-			indentLineWithTab: true,
-			defaultLanguage: 'javascript',
-			supportedLanguages: codeBlockSupportedLanguages,
-			createHighlighter: () =>
-				createHighlighter({
-					themes: ['dark-plus'],
-					langs: [],
-				}),
-		},
 		tables: {
 			splitCells: true,
 			cellBackgroundColor: true,
