@@ -39,8 +39,6 @@ const PersonMultiSelect = ({
 					};
 				});
 			}
-		} else {
-			getClientsForTask({ clientFilterInput: { page: 1, limit: 20 } });
 		}
 	}, [clientListForTask]);
 

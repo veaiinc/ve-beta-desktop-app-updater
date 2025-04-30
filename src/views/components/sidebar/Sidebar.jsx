@@ -144,7 +144,11 @@ const Sidebar = ({ activeWorkspaceId }) => {
 					isChatSidebarRoute ? 'contacts-sidebar' : ''
 				}`}
 				style={{
-					height: renewBanner ? 'calc(100dvh - 58px)' : '100dvh',
+					height: isOpen
+						? renewBanner
+							? 'calc(100dvh - 58px)'
+							: '100dvh'
+						: 'fit-content',
 					alignItems: sidebarStates?.workSpaceOpen ? 'flex-start' : ' ',
 					maxHeight: info?.activeRoute === '/home' ? (isOpen ? '' : '') : '',
 					minHeight: info?.activeRoute === '/home' ? (isOpen ? '' : '250px') : '',

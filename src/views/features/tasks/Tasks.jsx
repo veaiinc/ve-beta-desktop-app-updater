@@ -110,6 +110,7 @@ const Tasks = () => {
 		},
 		companyInfo: { getTeamMembers, tenantsUserList },
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
+		contacts: { getClientsForTask, clientListForTask },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -402,6 +403,13 @@ const Tasks = () => {
 			}
 		}
 	}, [query, info?.listItems]);
+
+	useEffect(() => {
+		if (!clientListForTask) {
+			getClientsForTask({ clientFilterInput: { page: 1, limit: 20 } });
+		}
+	}, [clientListForTask]);
+
 	const fetchListItems = useCallback(
 		(page = 1) => {
 			if (info?.group) {

@@ -25,12 +25,17 @@ const DateView = ({
 			{ label: 'End of the week', value: moment().endOf('week').unix() },
 			{ label: 'In one week', value: moment().add(1, 'weeks').endOf('day').unix() },
 		],
+		daterPickerOpen: false,
 	});
 
 	const updatedOnOptionClick = useCallback(
 		(value) => {
 			if (value === 'custom') {
-				setInfo((prevInfo) => ({ ...prevInfo, showDatePicker: true }));
+				setInfo((prevInfo) => ({
+					...prevInfo,
+					showDatePicker: true,
+					daterPickerOpen: true,
+				}));
 			} else {
 				onOptionClick(value);
 			}
@@ -48,6 +53,16 @@ const DateView = ({
 						format={format}
 						allowClear
 						showTime={showTime}
+						open={info?.daterPickerOpen}
+						onOpenChange={(open) => {
+							if (!open) {
+								setInfo((prevInfo) => ({
+									...prevInfo,
+									showDatePicker: false,
+									daterPickerOpen: false,
+								}));
+							}
+						}}
 						onChange={({ $d }) => {
 							setInfo((prevInfo) => ({ ...prevInfo, showDatePicker: false }));
 							onOptionClick($d ? moment($d).unix() : null);
@@ -58,7 +73,7 @@ const DateView = ({
 			) : (
 				<DropDown
 					title={`Change ${title ? title : 'date'}`}
-					options={info?.dateOptions}
+					options={info?.dateOptions?.filter((item) => !(!value && item?.value === null))}
 					onOptionClick={updatedOnOptionClick}
 					selected={info?.dueDate}
 					valueSelector="value"
