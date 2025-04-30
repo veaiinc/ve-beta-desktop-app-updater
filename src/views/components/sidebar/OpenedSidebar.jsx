@@ -552,7 +552,7 @@ const OpenedSidebar = ({
 											>
 												<SidebarClosingSvg
 													className="collapseArrow"
-													onClick={handleSidebarCollapse}
+													onClick={setIsOpen}
 													style={{ cursor: 'pointer' }}
 												/>
 											</Tooltip>

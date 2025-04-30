@@ -49,7 +49,6 @@ const useSubscription = () => {
 			updateStateValues,
 			reFetchSubscription,
 			updateRenewBanner,
-			renewBanner,
 		},
 	} = useContext(Context);
 	const [info, setInfo] = useState({});

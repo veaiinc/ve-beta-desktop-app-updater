@@ -14,6 +14,7 @@ export const getClientsQuery = gql`
 			}
 			hasNextPage
 			currentPage
+			totalDocs
 		}
 	}
 `;
