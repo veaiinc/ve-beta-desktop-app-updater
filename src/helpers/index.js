@@ -1,4 +1,12 @@
 import Spinner from '../views/components/loaders/Spinner';
+import { ReactComponent as TextSvg } from '../assets/svg/ai_agents/text.svg';
+import { ReactComponent as DocxSvg } from '../assets/svg/files/docSvg.svg';
+import { ReactComponent as JsonSvg } from '../assets/svg/ai_agents/json.svg';
+import { ReactComponent as PdfSvg } from '../assets/svg/ai_agents/pdf.svg';
+import { ReactComponent as JpgSvg } from '../assets/svg/ai_agents/jpg.svg';
+import { ReactComponent as PngSvg } from '../assets/svg/ai_agents/png.svg';
+import { ReactComponent as MdSvg } from '../assets/svg/ai_agents/md.svg';
+import { ReactComponent as ExcelSvg } from '../assets/svg/ai_agents/excel.svg';
 import axios from 'axios';
 
 export const nameShortner = (name) => {
@@ -244,10 +252,19 @@ export const checkDevices = async () => {
 	}
 };
 
+const faviconCache = new Map();
+
 export const getFaviconUrl = (url) => {
 	try {
+		if (faviconCache?.has(url)) {
+			return faviconCache?.get(url);
+		}
+
 		const domain = new URL(url)?.hostname;
-		return `https://www.google.com/s2/favicons?sz=64&domain=${domain}`;
+		const faviconUrl = `https://www.google.com/s2/favicons?sz=64&domain=${domain}`;
+
+		faviconCache?.set(url, faviconUrl);
+		return faviconUrl;
 	} catch (error) {
 		return null;
 	}
@@ -263,4 +280,27 @@ export const getWebsiteName = (url) => {
 	} catch (error) {
 		return url;
 	}
+};
+
+export const fileTypeIcons = {
+	docx: <DocxSvg />,
+	txt: <TextSvg />,
+	png: <PngSvg />,
+	pdf: <PdfSvg />,
+	jpg: <JpgSvg />,
+	json: <JsonSvg />,
+	md: <MdSvg />,
+	jpeg: <JpgSvg />,
+	xlsx: <ExcelSvg />,
+	xls: <ExcelSvg />,
+	'image/png': <PngSvg />,
+	'image/jpeg': <JpgSvg />,
+	'image/jpg': <JpgSvg />,
+	'application/pdf': <PdfSvg />,
+	'application/docx': <DocxSvg />,
+	'application/txt': <TextSvg />,
+	'application/json': <JsonSvg />,
+	'application/md': <MdSvg />,
+	'application/jpeg': <JpgSvg />,
+	'text/plain': <TextSvg />,
 };
