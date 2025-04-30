@@ -396,7 +396,7 @@ const Sidebar = ({ open, onClose, activeFileData, refetchDocsFilesList, openDele
 				? navigate(
 						`/smart-file/${info?.activeFileData?.templateId}/${info?.activeFileData?._id}`,
 				  )
-				: (window.location.href = `${origin}/document/edit/${info?.activeFileData?._id}?workflow=true`);
+				: (window.location.href = `${origin}/workflow/${info?.activeFileData?._id}?workflow=true&templateId=${info?.activeFileData?.templateId}`);
 		}
 	}, [info?.activeFileData]);
 
