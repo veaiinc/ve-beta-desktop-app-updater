@@ -6,6 +6,7 @@
 	align-self: stretch;
 	border-radius: 24px;
 	// margin: 0 auto;
+	max-width: 350px;
 	.calenderWidgetContainer {
 		display: flex;
 		padding: 16px;
@@ -15,13 +16,14 @@
 		align-self: stretch;
 		border-radius: 24px;
 		background: var(--card, #171819);
+		width: 100%;
 		.calenderWidgetMain {
 			display: flex;
 			align-items: center;
 			gap: 14px;
 			flex: 1 0 0;
 			align-self: stretch;
-			width: 312px;
+			width: 100%;
 			height: 310px;
 			.calenderWidgetDateContainer {
 				display: flex;
@@ -251,4 +253,9 @@
 	top: 10px;
 	left: 0;
 	z-index: 100;
+}
+@media screen and (max-width: 1440px) {
+	.calender-main-container {
+		height: 400px !important;
+	}
 }

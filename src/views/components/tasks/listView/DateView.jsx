@@ -44,7 +44,7 @@ const DateView = ({
 				<div className="listItem-datePicker-wrapper">
 					<DatePicker
 						className="dateView-datePicker"
-						ghost
+						// ghost
 						format={format}
 						allowClear
 						showTime={showTime}

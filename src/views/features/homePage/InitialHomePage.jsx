@@ -1,12 +1,10 @@
 import React, { memo, useContext, useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import '../../../assets/scss/home_page/initialHomepage.scss';
-import jwtDecode from 'jwt-decode';
 import Context from '../../../context/context';
 import { useNavigate } from 'react-router-dom';
 import ProactiveSuggestions from './ProactiveSuggestions';
 import ChatPrompts from './ChatPrompts';
 import QuickActions from '../../components/globalComponents/QuickActions';
-import { first, set } from 'lodash';
 import GlobalWidget from '../../components/globalComponents/GlobalWidget';
 import ChatBox from '../../components/chat/ChatBox';
 

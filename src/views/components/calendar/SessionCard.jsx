@@ -148,12 +148,12 @@ const SessionCard = ({
 					</div>
 				</div>
 
-				{info?.expanded && Array.isArray(schedulerList) && (
+				{info?.expanded && Array?.isArray(schedulerList) && (
 					<div
 						className="sessionsContainer"
 						style={{
 							overflowY: 'auto',
-							maxHeight: '192px',
+							maxHeight: '105px',
 						}}
 					>
 						{schedulerList.map((session) => {
