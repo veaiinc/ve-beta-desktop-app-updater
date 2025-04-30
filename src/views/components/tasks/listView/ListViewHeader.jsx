@@ -10,8 +10,8 @@ import FilterComponent from './FilterComponent';
 import TabHeader from './TabHeader';
 import SearchSvg from '../../../../assets/svg/activity/SearchSvg';
 import CrossSvg from '../../../../assets/svg/docs/CrossSvg';
-import FilterSvg from '../../../../assets/svg/my_templates/FilterSvg';
-import UpDownArrowSvg from '../../../../assets/svg/my_templates/UpDownArrowSvg';
+import filterIcon from '../../../../assets/svg/tasks/newFilter.svg';
+import { ReactComponent as SortIcon } from '../../../../assets/svg/tasks/newSort.svg';
 import { ReactComponent as PlusSvg } from '../../../../assets/svg/my_templates/plus.svg';
 
 const defaultFilterValue = {
@@ -189,99 +189,29 @@ const ListViewHeader = ({
 						{/* <button className="listViewHeaderAddTaskButton" onClick={addButtonOnClick}>
 							{createButtonText || 'Add'}
 						</button> */}
-						<PlusSvg onClick={addButtonOnClick} />
-						<div
-							className="searchContainer"
-							style={{
-								width: info?.searchExpand ? '140px' : '16px',
-							}}
-						>
-							<div
-								className={`searchBtn ${info?.searchExpand ? 'searchExpand' : ''}`}
-							>
-								<span
-									style={{
-										display: 'flex',
-										justifyContent: 'center',
-										alignItems: 'center',
-										cursor: 'pointer',
-									}}
-									onClick={() => {
-										setInfo((prev) => ({
-											...prev,
-											searchExpand: true,
-										}));
-									}}
-								>
-									<SearchSvg />
-								</span>
-
-								<div className="inputAndCloseContainer">
-									<input
-										ref={searchInputRef}
-										className="searchInputTag"
-										placeholder="Search"
-										value={searchValue}
-										onChange={(e) =>
-											updateTaskInfo({ searchValue: e.target?.value })
-										}
-									/>
-									<span
-										style={{
-											display: 'flex',
-											justifyContent: 'center',
-											alignItems: 'center',
-											cursor: 'pointer',
-										}}
-										onClick={() => {
-											setInfo((prev) => ({
-												...prev,
-												searchExpand: false,
-											}));
-											updateTaskInfo({ searchValue: '' });
-										}}
-									>
-										<CrossSvg />
-									</span>
-								</div>
-							</div>
-							{
-								// <button className="listViewHeaderActionButton">
-								// 	<ThunderSvg />
-								// </button>
-							}
+						{/* <PlusSvg onClick={addButtonOnClick} /> */}
+						<div className="inputAndCloseContainer">
+							<SearchSvg />
+							<input
+								ref={searchInputRef}
+								className="searchInputTag"
+								placeholder="Search"
+								value={searchValue}
+								onChange={(e) => updateTaskInfo({ searchValue: e.target?.value })}
+							/>
 						</div>
-						{hasSort ? (
-							<div
-								className="listViewHeaderActionButton"
-								onClick={() => handelSortClick()}
-							>
-								<UpDownArrowSvg />
-							</div>
-						) : (
-							<DropDown
-								title="Sort"
-								options={properties?.filter(
-									(item) => !['childTasks', 'parentTask']?.includes(item.value),
-								)}
-								onOptionClick={handelSortClick}
-								valueSelector="value"
-							>
-								<div
-									className="listViewHeaderActionButton"
-									onClick={() => handelSortClick()}
-								>
-									<UpDownArrowSvg />
-								</div>
-							</DropDown>
-						)}
+						{
+							// <button className="listViewHeaderActionButton">
+							// 	<ThunderSvg />
+							// </button>
+						}
 
 						{hasFilters ? (
 							<div
 								className="listViewHeaderActionButton"
 								onClick={() => handelFilterClick()}
 							>
-								<FilterSvg />
+								<img src={filterIcon} alt="Filter icon" />
 							</div>
 						) : (
 							<DropDown
@@ -297,10 +227,35 @@ const ListViewHeader = ({
 									onClick={() => handelFilterClick()}
 									style={{ color: 'var(--primary-color)' }}
 								>
-									<FilterSvg />
+									<img src={filterIcon} alt="Filter icon" />
 								</div>
 							</DropDown>
 						)}
+						{hasSort ? (
+							<div
+								className="listViewHeaderActionButton"
+								onClick={() => handelSortClick()}
+							>
+								<SortIcon />
+							</div>
+						) : (
+							<DropDown
+								title="Sort"
+								options={properties?.filter(
+									(item) => !['childTasks', 'parentTask']?.includes(item.value),
+								)}
+								onOptionClick={handelSortClick}
+								valueSelector="value"
+							>
+								<div
+									className="listViewHeaderActionButton"
+									onClick={() => handelSortClick()}
+								>
+									<SortIcon />
+								</div>
+							</DropDown>
+						)}
+
 						<OptionsDropDown
 							properties={properties}
 							prefix={prefix}
@@ -317,7 +272,9 @@ const ListViewHeader = ({
 							handleDuplicateView={handleDuplicateView}
 							handleDeleteView={handleDeleteView}
 							layoutOptions={layoutOptions}
+							tabLength={Object.values(tabs || {}).length}
 						/>
+						<span className="list-separator"></span>
 					</div>
 				</div>
 			</div>

@@ -235,7 +235,13 @@ const TabHeader = ({
 												activeTab === tab._id &&
 												index < visibility.visibleCount ? (
 													<TabDropDown
-														options={tabDropdownOptions}
+														options={tabDropdownOptions?.filter(
+															(item) =>
+																!(
+																	tabList?.length == 1 &&
+																	item.value === 'deleteView'
+																),
+														)}
 														onOptionClick={(option) => {
 															handleDropDown(false);
 															handleTabDropdownClick(option);
@@ -265,11 +271,7 @@ const TabHeader = ({
 															: undefined,
 												}}
 											>
-												{tab?.Icon && (
-													<tab.Icon
-														style={{ color: 'var(--primary-font)' }}
-													/>
-												)}
+												{tab?.Icon && <tab.Icon className="tab-icon" />}
 												<span className="tab-label">{tab?.label}</span>
 												<span className="tab-underline" />
 											</div>

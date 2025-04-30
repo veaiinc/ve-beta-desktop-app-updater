@@ -1,11 +1,11 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { ReactComponent as ClockSvg } from '../../../assets/svg/activity/clock.svg';
-import { ReactComponent as PieSvg } from '../../../assets/svg/tasks/pieHollow.svg';
-import { ReactComponent as PrioritySvg } from '../../../assets/svg/tasks/roundChevronRight.svg';
+import { ReactComponent as PieSvg } from '../../../assets/svg/tasks/ChartDonut.svg';
+import { ReactComponent as PrioritySvg } from '../../../assets/svg/tasks/ChartBar.svg';
 import { ReactComponent as WorkflowSvg } from '../../../assets/svg/tasks/workflow.svg';
 import { ReactComponent as PersonSvg } from '../../../assets/svg/tasks/person.svg';
-import { ReactComponent as CalendarSvg } from '../../../assets/svg/tasks/calendar.svg';
+import { ReactComponent as CalendarSvg } from '../../../assets/svg/tasks/CalendarBlank.svg';
 import { ReactComponent as textSvg } from '../../../assets/svg/tasks/letterA.svg';
 import Context from '../../../context/context';
 import { message } from '../../components/globalComponents/CustomToast';
@@ -110,6 +110,7 @@ const Tasks = () => {
 		},
 		companyInfo: { getTeamMembers, tenantsUserList },
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
+		contacts: { getClientsForTask, clientListForTask },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -197,14 +198,13 @@ const Tasks = () => {
 			assignedTo: {
 				type: 'person',
 				name: 'Assigned To',
-				Icon: PersonSvg,
 				props: {
 					options: info?.tenantUsers || [],
 					multiSelect: true,
 					parseValue: true,
 				},
 			},
-			dueDate: { type: 'date', name: 'Due Date', Icon: ClockSvg, props: {} },
+			dueDate: { type: 'date', name: 'Due Date', Icon: CalendarSvg, props: {} },
 			assignedBy: {
 				type: 'person',
 				name: 'Assigned By',
@@ -403,6 +403,13 @@ const Tasks = () => {
 			}
 		}
 	}, [query, info?.listItems]);
+
+	useEffect(() => {
+		if (!clientListForTask) {
+			getClientsForTask({ clientFilterInput: { page: 1, limit: 20 } });
+		}
+	}, [clientListForTask]);
+
 	const fetchListItems = useCallback(
 		(page = 1) => {
 			if (info?.group) {
