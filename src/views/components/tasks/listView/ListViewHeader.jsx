@@ -272,6 +272,7 @@ const ListViewHeader = ({
 							handleDuplicateView={handleDuplicateView}
 							handleDeleteView={handleDeleteView}
 							layoutOptions={layoutOptions}
+							tabLength={Object.values(tabs || {}).length}
 						/>
 						<span className="list-separator"></span>
 					</div>

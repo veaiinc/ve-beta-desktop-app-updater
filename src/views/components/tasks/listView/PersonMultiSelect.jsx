@@ -44,7 +44,7 @@ const PersonMultiSelect = ({
 
 	useEffect(() => {
 		setInfo((prev) => ({ ...prev, selected: value }));
-	}, []);
+	}, [value]);
 
 	const fetchMoreClients = () => {
 		if (info?.hasMore) {

@@ -187,7 +187,7 @@ const ListViewSidebar = ({
 						'createdBy',
 						'updatedAt',
 						'updatedBy',
-						'clients',
+						// 'clients',
 					].includes(key) ||
 					isTitle
 				) {

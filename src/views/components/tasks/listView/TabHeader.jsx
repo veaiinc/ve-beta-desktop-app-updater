@@ -235,7 +235,13 @@ const TabHeader = ({
 												activeTab === tab._id &&
 												index < visibility.visibleCount ? (
 													<TabDropDown
-														options={tabDropdownOptions}
+														options={tabDropdownOptions?.filter(
+															(item) =>
+																!(
+																	tabList?.length == 1 &&
+																	item.value === 'deleteView'
+																),
+														)}
 														onOptionClick={(option) => {
 															handleDropDown(false);
 															handleTabDropdownClick(option);
