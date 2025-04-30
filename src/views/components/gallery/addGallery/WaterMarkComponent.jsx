@@ -1,5 +1,5 @@
 import React, { useState, useRef, useContext, memo } from 'react';
-import { Switch } from 'antd';
+import { Switch, Tooltip } from 'antd';
 import { ReactComponent as DownArrowSvg } from '../../../../assets/svg/sidebar/downarrowsmall.svg';
 import Context from '../../../../context/context';
 import { ReactComponent as DeleteIcon } from '../../../../assets/svg/gallery/delete-red.svg';
@@ -154,70 +154,101 @@ const WaterMarkComponent = ({ info, setinfo, waterMarks }) => {
 							marginTop: '12px',
 						}}
 					>
-						{waterMarks && waterMarks.length > 0 && (
-							<div className="dropdown_div_container">
-								<a
-									className="select-logo"
-									onClick={() => setshowMoreOptions(!showMoreOptions)}
-								>
-									<img
-										src={
-											waterMarks?.find(
-												(wm) => wm?.profileId === info?.watermarkProfileId,
-											)?.resizedWatermakrUrl || ''
-										}
-									/>
-									<span>
+						{waterMarks?.length > 0 ? (
+							<Tooltip
+								open={showMoreOptions}
+								placement="bottom"
+								onOpenChange={setshowMoreOptions}
+								color="transparent"
+								arrow={false}
+								trigger={'click'}
+								title={
+									<>
 										{showMoreOptions ? (
-											<DownArrowSvg />
-										) : (
-											<DownArrowSvg style={{ transform: 'rotate(180deg)' }} />
-										)}
-									</span>
-									{showMoreOptions ? (
-										<div className="logos-dropdown">
-											{waterMarks?.map((watermark, key) => (
-												<a
-													onClick={() =>
-														changeWaterMarkFunction(
-															watermark?.profileId,
-														)
-													}
-													key={key}
-												>
-													<img src={watermark.resizedWatermakrUrl} />
-
-													<div
-														className="delete-icon-div"
-														onClick={(e) =>
-															deleteWaterMarkFunction(
-																e,
+											<div className="logos-dropdown">
+												{waterMarks?.map((watermark, key) => (
+													<a
+														onClick={() =>
+															changeWaterMarkFunction(
 																watermark?.profileId,
 															)
 														}
+														key={key}
 													>
-														<DeleteIcon />
-													</div>
-												</a>
-											))}
-											<button
-												className="upload-watermark-button"
-												onClick={() => fileInputRef.current.click()}
-											>
-												Upload Watermark
-											</button>
-											<input
-												ref={fileInputRef}
-												type="file"
-												hidden
-												onChange={uploadWaterMarkChangeHandler}
-											/>
-										</div>
-									) : (
-										''
-									)}
-								</a>
-							</div>
+														<img src={watermark.resizedWatermakrUrl} />
+
+														<div
+															className="delete-icon-div"
+															onClick={(e) =>
+																deleteWaterMarkFunction(
+																	e,
+																	watermark?.profileId,
+																)
+															}
+														>
+															<DeleteIcon />
+														</div>
+													</a>
+												))}
+												<button
+													className="upload-watermark-button"
+													onClick={() => fileInputRef.current.click()}
+												>
+													Upload Watermark
+												</button>
+												<input
+													ref={fileInputRef}
+													type="file"
+													hidden
+													onChange={uploadWaterMarkChangeHandler}
+												/>
+											</div>
+										) : (
+											''
+										)}
+									</>
+								}
+							>
+								<div className="dropdown_div_container">
+									<a
+										className="select-logo"
+										onClick={() => setshowMoreOptions(!showMoreOptions)}
+									>
+										<img
+											src={
+												waterMarks?.find(
+													(wm) =>
+														wm?.profileId === info?.watermarkProfileId,
+												)?.resizedWatermakrUrl || ''
+											}
+										/>
+										<span>
+											{showMoreOptions ? (
+												<DownArrowSvg />
+											) : (
+												<DownArrowSvg
+													style={{ transform: 'rotate(180deg)' }}
+												/>
+											)}
+										</span>
+									</a>
+								</div>
+							</Tooltip>
+						) : (
+							<>
+								<button
+									className="upload-watermark-button"
+									onClick={() => fileInputRef.current.click()}
+								>
+									Upload Watermark
+								</button>
+								<input
+									ref={fileInputRef}
+									type="file"
+									hidden
+									onChange={uploadWaterMarkChangeHandler}
+								/>
+							</>
 						)}
 					</div>
 				</>
