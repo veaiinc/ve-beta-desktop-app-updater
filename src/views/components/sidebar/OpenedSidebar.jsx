@@ -688,13 +688,7 @@ const OpenedSidebar = ({
 														</div>
 													))}
 
-													<div
-														style={{
-															position: 'relative',
-															height: '30px',
-															marginBottom: '20px',
-														}}
-													>
+													<div>
 														<hr
 															className={`${
 																isOpen
