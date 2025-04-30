@@ -34,7 +34,7 @@ const PublicChat = () => {
 						className="theme-btn"
 						onClick={() => updateTheme(newThemeValue, routeType)}
 					>
-						{theme === 'dark' ? <MoonSvg /> : <SunSvg />}
+						{theme === 'dark' ? <SunSvg /> : <MoonSvg />}
 					</button>
 					<button className="login-btn" onClick={handleLoginBtnClick}>
 						Login

@@ -115,7 +115,7 @@ const ChatHistory = () => {
 	return (
 		<div className="chats-drawer-container">
 			<div className="chats-container">
-				{(chats?.length > 10 || previousSearchQuery.current) && (
+				{/* {(chats?.length > 10 || previousSearchQuery.current) && (
 					<div className="searchContainer">
 						<Search />
 						<input
@@ -126,7 +126,7 @@ const ChatHistory = () => {
 							onChange={(e) => setSearchQuery(e.target.value)}
 						/>
 					</div>
-				)}
+				)} */}
 				{loadingState ? (
 					<div className="skeleton-loader-container">
 						{skeletonLoaders?.map((skeletonId) => (
