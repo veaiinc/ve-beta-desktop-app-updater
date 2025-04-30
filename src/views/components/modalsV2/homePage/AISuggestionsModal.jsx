@@ -16,6 +16,7 @@ import { Drawer, Tooltip } from 'antd';
 import Context from '../../../../context/context';
 import { useContext } from 'react';
 import { message } from '../../globalComponents/CustomToast';
+import { redirectTo } from '../../../../helpers/redirectToFunction';
 
 const AISuggestionsModal = ({
 	open,
@@ -182,6 +183,20 @@ const AISuggestionsModal = ({
 							<div className="title-text">{title || ''}</div>
 							<div className="description">{description || ''}</div>
 						</div>
+					</div>
+					<div className="triggered-source-container">
+						<span className="triggered-source-text">Triggered Source</span>
+						<span
+							className="triggered-source-value"
+							onClick={() =>
+								redirectTo(
+									data?.moduleType,
+									data?.knowledgeBase?.[0]?.metadata?.identifier,
+								)
+							}
+						>
+							{data?.moduleType}
+						</span>
 					</div>
 					<hr className="horizontal-line" />
 					{chain_of_thought && (
@@ -363,6 +378,7 @@ const AISuggestionsModal = ({
 									<div
 										className="suggested-actions"
 										onClick={(e) => e?.stopPropagation()}
+										style={{ marginBottom: '12px' }}
 									>
 										{Array?.isArray(suggested_actions)
 											? suggested_actions.map((item, index) => (
@@ -395,7 +411,7 @@ const AISuggestionsModal = ({
 											isPromptsExpanded: !prev?.isPromptsExpanded,
 										}))
 									}
-									style={{ width: '100%' }}
+									style={{ width: '100%', marginBottom: '12px' }}
 								>
 									<div className="cot-header">
 										<div className="cot-text">

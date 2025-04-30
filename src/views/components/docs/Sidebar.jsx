@@ -412,7 +412,7 @@ const Sidebar = ({ open, onClose, activeFileData, refetchDocsFilesList, openDele
 		const payload = {
 			duplicateSmartFile: {
 				workflowId: info?.activeFileData?._id,
-				title: info?.activeFileData?.title,
+				title: `Copy of ${info?.activeFileData?.title}`,
 			},
 		};
 
