@@ -1,6 +1,6 @@
-@import './variables.scss';
-@import './mixins.scss';
-@import './globalColorsAndTheme.scss';
+@use './variables.scss' as *;
+@use './mixins.scss' as *;
+@use './globalColorsAndTheme.scss' as *;
 
 // @import '../../../node_modules/bootstrap/scss/bootstrap';
 * {
@@ -3680,6 +3680,9 @@ input[type='number'] {
 	align-items: center;
 	justify-content: center;
 	height: 20px;
+	font-size: 13px;
+	font-family: var(--primary-font-family);
+	color: #707070;
 	.loader {
 		border: 2px solid #ccc;
 		border-radius: 50%;
@@ -3708,9 +3711,7 @@ input[type='number'] {
 			transform: rotate(360deg);
 		}
 	}
-	font-size: 13px;
-	font-family: var(--primary-font-family);
-	color: #707070;
+	
 }
 
 .jodit-react-container {

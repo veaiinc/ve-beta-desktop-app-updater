@@ -133,6 +133,9 @@
 	flex-grow: 1;
 	overflow: hidden;
 
+	-ms-overflow-style: none;
+	scrollbar-width: none;
+
 	@media (max-width: 768px) {
 		border-radius: 0;
 		height: calc(100vh - 64px);
@@ -141,9 +144,6 @@
 	&::-webkit-scrollbar {
 		display: none;
 	}
-
-	-ms-overflow-style: none;
-	scrollbar-width: none;
 }
 .meetingCardParentContainer {
 	display: flex;

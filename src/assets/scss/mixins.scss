@@ -1,6 +1,7 @@
 @use 'sass:string';
-@import './variables.scss';
-@import './color.palette.scss';
+@use 'sass:map';
+@use './variables.scss' as *;
+@use './color.palette.scss' as *;
 
 @mixin font-16p-sb {
 	font-size: 16px;
@@ -62,29 +63,29 @@
 		.theme-#{$theme-name} & {
 			@if $key == 'box-shadow' {
 				#{$key}: $extraArg
-					map-get(map-get($themes, $theme-name), $color)
+					map.get(map.get($themes, $theme-name), $color)
 					return-immediate($important);
-			} @else if str-index($key, 'border') {
+			} @else if string.index($key, 'border') {
 				#{$key}: $extraArg
-					map-get(map-get($themes, $theme-name), $color)
+					map.get(map.get($themes, $theme-name), $color)
 					return-immediate($important);
-			} @else if str-index($key, 'border-left') {
-				#{$key}: map-get(map-get($themes, $theme-name), $color)
+			} @else if string.index($key, 'border-left') {
+				#{$key}: map.get(map.get($themes, $theme-name), $color)
 					return-immediate($important);
-			} @else if str-index($key, 'outline') {
+			} @else if string.index($key, 'outline') {
 				#{$key}: $extraArg
-					map-get(map-get($themes, $theme-name), $color)
+					map.get(map.get($themes, $theme-name), $color)
 					return-immediate($important);
-			} @else if str-index($key, '-webkit-box-shadow') {
+			} @else if string.index($key, '-webkit-box-shadow') {
 				#{$key}: $extraArg
-					map-get(map-get($themes, $theme-name), $color)
+					map.get(map.get($themes, $theme-name), $color)
 					return-immediate($important);
-			} @else if str-index($removequote, 'remove-quote') {
+			} @else if string.index($removequote, 'remove-quote') {
 				#{$key}: $extraArg
-					unquote(map-get(map-get($themes, $theme-name), $color))
+					unquote(map.get(map.get($themes, $theme-name), $color))
 					return-immediate($important);
 			} @else {
-				#{$key}: map-get(map-get($themes, $theme-name), $color)
+				#{$key}: map.get(map.get($themes, $theme-name), $color)
 					return-immediate($important);
 			}
 		}
