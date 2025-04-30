@@ -13,6 +13,7 @@ import ContactUs from '../../components/landing_screen/ContactUs';
 import SidebarIcon from '../../../assets/svg/SidebarIcon';
 import TabNavigation from '../../components/landing_screen/TabNavigation';
 import ChatBox from '../../components/chat/ChatBox';
+import OurMission from './OurMission';
 const routeType = 'public';
 
 const LandingPage = () => {
@@ -128,7 +129,8 @@ const LandingPage = () => {
 		),
 
 		// 1: <ContactUs type="Investor" />,
-		1: <ContactUs type="Enterprise" />,
+		1: <OurMission />,
+		2: <ContactUs type="Enterprise" />,
 	};
 
 	return (

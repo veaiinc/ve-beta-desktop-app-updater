@@ -1,7 +1,7 @@
 import { memo } from 'react';
 
 const TabNavigation = ({ tab, setTab, isVisible }) => {
-	const tabs = ['Home', 'For Enterprise'];
+	const tabs = ['Home', 'Mission', 'For Enterprise'];
 
 	return (
 		<ul className={`tabNavigation ${isVisible ? 'slide-in' : 'slide-out'}`}>
