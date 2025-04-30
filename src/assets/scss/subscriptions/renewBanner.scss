@@ -1,14 +1,17 @@
 .renew-banner-container {
 	width: 100vw;
-	height: 41px;
+	height: 57px;
 	z-index: 1000;
 	.renew-banner {
 		display: flex;
 		width: 100vw;
-		padding: 0px 24px;
+		padding: 10px 24px;
 		justify-content: center;
 		align-items: center;
 		background: var(--card, #e6ff4d);
+		border-bottom: 1px solid var(--primary-button, #cfff48);
+		gap: 14px;
+
 		.renew-banner-title {
 			color: var(--primary-font);
 			font-family: var(--primary-font-family);
@@ -16,24 +19,24 @@
 			font-style: normal;
 			font-weight: 600;
 			line-height: normal;
+			flex-grow: 1;
+			text-align: center;
 		}
 		.renew-banner-button {
 			display: flex;
-			padding: 12px 16px;
+			padding: 10px 16px;
 			justify-content: center;
 			align-items: center;
-			gap: 12px;
-			border-radius: 100px;
-			// background: var(--primary-font, #f2f2f3);
-			background: transparent;
-			color: var(--primary-button);
-			font-family: var(--primary-font-family);
+			gap: 6px;
+			border-radius: 24px;
+			background: var(--primary-button, #cfff48);
+			color: var(--primary-button-font, #0f0f10);
+			font-family: Inter;
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 500;
 			line-height: normal;
 			border: none;
-			cursor: pointer;
 		}
 	}
 }

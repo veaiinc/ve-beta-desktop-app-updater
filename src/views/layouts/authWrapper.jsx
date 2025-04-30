@@ -25,6 +25,7 @@ const AuthWrapper = ({
 	authParentContainerStyle = {},
 	sidebarContainerStyles = {},
 	showDynamicWidget = true,
+	sidebarContainerClassName = '',
 }) => {
 	const {
 		subscriptionInfo: { renewBanner },
@@ -53,13 +54,20 @@ const AuthWrapper = ({
 			<div
 				style={{
 					display: 'flex',
-					height: renewBanner ? 'calc(100dvh - 41px)' : '100dvh',
+					height: renewBanner ? 'calc(100dvh - 57px)' : '100dvh',
 					padding: '32px 32px 0',
 					...outerContainerStyle,
 				}}
 			>
 				<SkeletonTheme baseColor={'var(--card)'} highlightColor={'var(--card-hover)'}>
-					<div style={{ ...sidebarContainerStyles }}>
+					<div
+						style={{
+							...sidebarContainerStyles,
+							height: 'fit-content',
+							position: 'relative',
+						}}
+						className={sidebarContainerClassName}
+					>
 						<Sidebar
 							setActiveWorkspaceId={setActiveWorkspaceId}
 							activeWorkspaceId={workspaceId}
@@ -67,7 +75,12 @@ const AuthWrapper = ({
 					</div>
 
 					<div
-						style={{ flex: 1, overflowY: 'auto', maxHeight: '100%', height: '100%' }}
+						style={{
+							flex: 1,
+							overflowY: 'auto',
+							maxHeight: '100%',
+							height: '100%',
+						}}
 						id="scrollableTarget"
 					>
 						<div className="childrenContainer" style={{ maxWidth: maxWidth || '' }}>

@@ -668,7 +668,7 @@ const TaskWidget = ({ width, height }) => {
 	);
 
 	return (
-		<div className="task-main-container" style={{ width: width }}>
+		<div className="task-main-container" style={{ width: width, height: height }}>
 			<div className="taskWidgetContainer">
 				<div className="taskWidgetBody">
 					<div className="taskWidgetBodyHeader">
@@ -696,6 +696,13 @@ const TaskWidget = ({ width, height }) => {
 									}}
 								/>
 							))
+						) : info?.listItems?.length === 0 ? (
+							<div
+								className="taskWidgetEmptyState"
+								style={{ fontSize: '12px', alignSelf: 'center' }}
+							>
+								No tasks found. Create a new one!
+							</div>
 						) : (
 							<InfiniteScroll
 								dataLength={info?.listItems?.length || 0}

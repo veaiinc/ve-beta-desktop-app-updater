@@ -111,7 +111,7 @@ export const CitationsTooltip = memo(({ citationId, citations, placement = 'topL
 								</div>
 							)}
 							<div className="citation-link-text">
-								<div className="citation-link">{citationInfo?.link}</div>
+								<div className="citation-link">{citationInfo?.name || ''}</div>
 							</div>
 						</div>
 					</div>
