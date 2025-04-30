@@ -99,7 +99,7 @@ const RecentChat = ({
 
 	useEffect(() => {
 		if (sessionIdChanged && chatActive) {
-			const agentType = searchParams?.get('agentType');
+			const agentType = 'mulit_agent';
 			createWebSocketConnection(sessionId, onMessageFunc, agentType, isPublicChat);
 			onChangeSessionId?.();
 		}
@@ -109,15 +109,6 @@ const RecentChat = ({
 		window?.addEventListener('resize', handleResize);
 
 		handleResize(0);
-
-		const agentType = searchParams?.get('agentType');
-		const assistantId = searchParams?.get('assistantId');
-
-		if (agentType && assistantId) {
-			updateStateValues({ chatInfo: { ...chatInfo, agentType, assistantId } });
-		} else if (agentType) {
-			updateStateValues({ chatInfo: { ...chatInfo, agentType } });
-		}
 
 		return () => {
 			window?.removeEventListener('resize', handleResize);
@@ -178,48 +169,17 @@ const RecentChat = ({
 	}, [sessionId]);
 
 	useEffect(() => {
-		if (!chatInfo?.agentType) return;
-		if (isPublicChat) {
+		const agentType = searchParams?.get('agentType');
+		const assistantId = searchParams?.get('assistantId') || null;
+		if ((!agentType && location?.pathname?.includes('knowledge-agent')) || chatActive) {
 			return;
 		}
 
-		const agentType = searchParams?.get('agentType');
-		const assistantId = searchParams?.get('assistantId');
-
-		// Prepare desired search params based on chatInfo
-		let desiredParams = {};
-
-		if (chatInfo?.agentType === 'knowledge_agent') {
-			desiredParams = {
-				agentType: 'knowledge_agent',
-				assistantId: chatInfo?.assistantId,
-			};
-
-			// If both params are already correct, no update needed
-			if (
-				agentType === desiredParams?.agentType &&
-				assistantId === desiredParams?.assistantId
-			) {
-				return;
-			}
-		} else {
-			desiredParams = {
-				agentType: chatInfo?.agentType,
-			};
-
-			// If agentType matches and is not 'knowledge_agent', no update needed
-			if (agentType === desiredParams?.agentType) {
-				return;
-			}
+		if (agentType) {
+			updateStateValues({ chatInfo: { ...chatInfo, agentType, assistantId } });
 		}
 
-		// Update the URL search params
-		setSearchParams(desiredParams, { replace: true });
-	}, [chatInfo?.agentType, chatInfo?.assistantId, sessionId]);
-
-	useEffect(() => {
-		const agentType = searchParams?.get('agentType');
-		if (sessionId && agentType && !isPublicChat) {
+		if (sessionId && !isPublicChat) {
 			createWebSocketConnection(sessionId, onMessageFunc, agentType, isPublicChat);
 		}
 
@@ -227,7 +187,7 @@ const RecentChat = ({
 			createWebSocketConnection(sessionId, onMessageFunc, agentType, isPublicChat);
 			isFirstTimeConnectingToPublicChatRef.current = false;
 		}
-	}, [searchParams]);
+	}, [sessionId, searchParams]);
 
 	useEffect(() => {
 		if (globalChatMessages?.length > 4 && !info?.scrollExecuted) {
@@ -669,10 +629,10 @@ const RecentChat = ({
 
 	const handleNavigateBack = useCallback(() => {
 		const pathname = location?.pathname?.split('/')?.[1];
-		if (pathname === 'chat' || pathname === 'c') {
-			navigate(-1);
-		} else if (pathname === 'calendar' || pathname === 'contacts' || pathname === 'tasks') {
+		if (pathname === 'calendar' || pathname === 'contacts' || pathname === 'tasks') {
 			onNavigateBack?.();
+		} else {
+			navigate(-1);
 		}
 	}, [location?.pathname]);
 
