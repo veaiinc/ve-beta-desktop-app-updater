@@ -839,7 +839,12 @@ const OpenedSidebar = ({
 															)}
 														</div>
 														<div className="settingsOptionsUserName">
-															{userDetailsData?.firstName}
+															<span className="workspaceId">
+																{tennantSettingsData?.businessName}
+															</span>
+															<span>
+																{userDetailsData?.firstName}
+															</span>
 														</div>
 													</div>
 													<div className="logoutIcon">
@@ -1057,7 +1062,10 @@ const OpenedSidebar = ({
 									)}
 								</div>
 								<div className="settingsOptionsUserName">
-									{userDetailsData?.firstName}
+									<span className="workspaceId">
+										{tennantSettingsData?.businessName}
+									</span>
+									<span>{userDetailsData?.firstName}</span>
 								</div>
 							</div>
 							<div className="logoutIcon">
