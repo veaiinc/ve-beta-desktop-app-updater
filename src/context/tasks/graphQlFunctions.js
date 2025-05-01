@@ -317,6 +317,7 @@ export const taskMetadataQuery = gql`
 				icon
 				group
 			}
+			selectedTaskView
 			createdAt
 			updatedAt
 		}
@@ -496,6 +497,7 @@ export const updateTaskMetadataMutation = gql`
 				icon
 				group
 			}
+			selectedTaskView
 			createdAt
 			updatedAt
 		}

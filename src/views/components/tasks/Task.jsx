@@ -49,6 +49,8 @@ const Task = ({
 	hasMore,
 	error,
 	views,
+	activeTab,
+	updateActiveTab,
 	updateView = () => {},
 	deleteView = () => {},
 	prefix = null,
@@ -106,6 +108,12 @@ const Task = ({
 		}
 	}, [views]);
 
+	useEffect(() => {
+		if (activeTab) {
+			setTaskInfo((prevInfo) => ({ ...prevInfo, activeTab: activeTab }));
+		}
+	}, [activeTab]);
+
 	const layoutOptions = useMemo(() => {
 		return [
 			{
@@ -153,8 +161,13 @@ const Task = ({
 						? taskInfo?.tabs?.[tabData?._id]?.group || 'status'
 						: null,
 			});
+			updateActiveTab({
+				input: {
+					selectedTaskView: tabData?._id,
+				},
+			});
 		},
-		[taskInfo.tabs, updateTaskInfo, taskInfo?.activeTab],
+		[taskInfo.tabs, updateTaskInfo],
 	);
 
 	const handleTabsReorder = useCallback(

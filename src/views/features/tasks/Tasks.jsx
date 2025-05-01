@@ -107,6 +107,7 @@ const Tasks = () => {
 			updateTaskPreferences,
 			taskPreference,
 			getListTaskWithGroup,
+			updateSelectedView,
 		},
 		companyInfo: { getTeamMembers, tenantsUserList },
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
@@ -906,6 +907,10 @@ const Tasks = () => {
 		[deleteTaskView, info?.taskMetadata?._id],
 	);
 
+	const handleActiveTabChange = useCallback((payload) => {
+		updateSelectedView(payload);
+	}, []);
+
 	return (
 		<div className="tasks-page-container">
 			<ChatLeftBarComponent>
@@ -935,8 +940,10 @@ const Tasks = () => {
 					createButtonText={'Create Task'}
 					prefix={info?.taskMetadata?.prefix}
 					views={info?.taskMetadata?.views}
+					activeTab={info?.taskMetadata?.selectedTaskView}
 					updateView={updateView}
 					deleteView={deleteView}
+					updateActiveTab={handleActiveTabChange}
 				/>
 				<CreateTaskPopup
 					isOpen={info?.isCreateModalOpen}
