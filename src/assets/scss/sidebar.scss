@@ -1228,12 +1228,27 @@
 			background: var(--card-over-card-hover);
 		}
 		.settingsOptionsUserName {
-			color: var(--primary-font, #f2f2f3);
-			font-family: var(--primary-font-family);
-			font-size: 14px;
-			font-style: normal;
-			font-weight: 500;
-			line-height: normal;
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 4px;
+			width: 100%;
+			.workspaceId {
+				color: var(--secondary-font, #7a7e85);
+				font-family: Inter;
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 400;
+				line-height: normal;
+			}
+			span {
+				color: var(--primary-font, #f2f2f3);
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
 		}
 		.noImageText {
 			width: 24px;
