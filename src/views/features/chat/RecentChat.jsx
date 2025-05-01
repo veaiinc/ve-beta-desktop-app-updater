@@ -814,7 +814,7 @@ const RecentChat = ({
 									<LeftSvg />
 								</div>
 								<div className="chat-title">
-									{currentChatData?.title || 'Chat Title'}
+									{currentChatData?.title || 'New Chat'}
 								</div>
 							</div>
 							<div className="right-container">
