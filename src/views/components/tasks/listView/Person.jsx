@@ -17,6 +17,7 @@ const Person = ({
 }) => {
 	const [info, setInfo] = useState({
 		value: null,
+		search: '',
 	});
 
 	useEffect(() => {
@@ -113,6 +114,14 @@ const Person = ({
 		[info?.value, multiSelect],
 	);
 
+	const handleSearchChange = (e) => {
+		setInfo((prevInfo) => ({ ...prevInfo, search: e?.target?.value }));
+	};
+
+	const filteredOptions = options?.filter((item) =>
+		item?.label?.toLowerCase()?.includes(info?.search?.toLowerCase() || ''),
+	);
+
 	return (
 		<Tooltip
 			title={
@@ -142,7 +151,7 @@ const Person = ({
 							: `${title || 'person'}`
 						: undefined
 				}
-				options={options}
+				options={filteredOptions}
 				variant="borderless"
 				labelInValue
 				showSearch={false}
@@ -175,6 +184,14 @@ const Person = ({
 						<div className="person-dropdown-menu">
 							<div className="person-dropdown-menu-header">
 								<div className="person-dropdown-menu-header-title">{title}</div>
+								<div className="person-dropdown-menu-header-search">
+									<input
+										type="text"
+										placeholder="Search..."
+										value={info?.search}
+										onChange={handleSearchChange}
+									/>
+								</div>
 							</div>
 							<div className="person-dropdown-menu-body">{menu}</div>
 						</div>

@@ -19,6 +19,7 @@ import {
 	deleteTaskViewMutation,
 	taskMetadataQuery,
 	listTaskWithGroupQuery,
+	updateTaskMetadataMutation,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -655,6 +656,50 @@ export const TasksState = () => {
 		}
 	};
 
+	const updateTaskPrefix = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.mutation(
+				updateTaskMetadataMutation,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.UPDATE_TASK_PREFIX,
+					payload: response?.[1]?.data?.updateTaskView?.prefix,
+				});
+			}
+		} catch (error) {
+			console.log('API failed ==> updateTaskViews', error);
+		}
+	};
+
+	const updateSelectedView = async (payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const response = await service.mutation(
+				updateTaskMetadataMutation,
+				payload,
+				workspaceId,
+				usertoken,
+				'workflows_Api',
+			);
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.UPDATE_SELECTED_VIEW,
+					payload: response?.[1]?.data?.updateTaskView?.selectedTaskView,
+				});
+			}
+		} catch (error) {
+			console.log('API failed ==> updateTaskViews', error);
+		}
+	};
+
 	const deleteTaskView = async (payload) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
@@ -835,5 +880,7 @@ export const TasksState = () => {
 		getListTaskWithGroup,
 		fetchGroupData,
 		handleGroupChange,
+		updateTaskPrefix,
+		updateSelectedView,
 	};
 };

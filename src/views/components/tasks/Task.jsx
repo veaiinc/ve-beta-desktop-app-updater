@@ -49,6 +49,8 @@ const Task = ({
 	hasMore,
 	error,
 	views,
+	activeTab,
+	updateActiveTab,
 	updateView = () => {},
 	deleteView = () => {},
 	prefix = null,
@@ -69,38 +71,50 @@ const Task = ({
 	useEffect(() => {
 		if (views) {
 			setTaskInfo((prevInfo) => {
-				// Only update sort and filters if there was no previous activeTab
+				const prevTabs = Object.keys(prevInfo?.tabs || {});
 				const isInitialLoad = !prevInfo?.activeTab;
+				const newTabs = Object.fromEntries(
+					views?.map((view, index) => [
+						view?._id,
+						{
+							...view,
+							order: index,
+							Icon: layouts?.[view?.viewType]?.Icon || ListViewIcon,
+						},
+					]),
+				);
 
-				if (isInitialLoad) {
+				const resolvedActiveTab =
+					prevTabs.length !== 0 && views.length !== prevTabs.length
+						? views[views.length - 1]?._id
+						: views.some((view) => view?._id === prevInfo?.activeTab)
+						? prevInfo?.activeTab
+						: activeTab
+						? activeTab
+						: views?.[0]?._id;
+
+				// if (isInitialLoad) {
+				const activeView = views.find((v) => v._id === resolvedActiveTab);
+				if (activeView) {
 					updateTaskInfo({
-						sort: [...views[0]?.sort].map((item) => ({
+						sort: (activeView?.sort || []).map((item) => ({
 							sortBy: item?.sortBy,
 							sortType: item?.sortType,
 						})),
-						filters: [...views[0]?.filters].map((item) => ({
+						filters: (activeView?.filters || []).map((item) => ({
 							key: item?.key,
 							value: item?.value,
 						})),
-						group: views[0]?.viewType === 'board' ? views[0]?.group || 'status' : null,
+						group:
+							activeView?.viewType === 'board' ? activeView?.group || 'status' : null,
 					});
 				}
+				// }
 
 				return {
 					...prevInfo,
-					tabs: Object.fromEntries(
-						views?.map((view, index) => [
-							view?._id,
-							{
-								...view,
-								order: index,
-								Icon: layouts?.[view?.viewType]?.Icon || ListViewIcon,
-							},
-						]),
-					),
-					activeTab: views?.some((view) => view?._id === prevInfo?.activeTab)
-						? prevInfo?.activeTab
-						: views?.[0]?._id,
+					tabs: newTabs,
+					activeTab: resolvedActiveTab,
 				};
 			});
 		}
@@ -153,8 +167,13 @@ const Task = ({
 						? taskInfo?.tabs?.[tabData?._id]?.group || 'status'
 						: null,
 			});
+			updateActiveTab({
+				input: {
+					selectedTaskView: tabData?._id,
+				},
+			});
 		},
-		[taskInfo.tabs, updateTaskInfo, taskInfo?.activeTab],
+		[taskInfo.tabs, updateTaskInfo],
 	);
 
 	const handleTabsReorder = useCallback(
