@@ -107,8 +107,6 @@ const Tasks = () => {
 			updateTaskPreferences,
 			taskPreference,
 			getListTaskWithGroup,
-			updateTaskPrefix,
-			updateSelectedView,
 		},
 		companyInfo: { getTeamMembers, tenantsUserList },
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
@@ -408,7 +406,7 @@ const Tasks = () => {
 
 	useEffect(() => {
 		if (!clientListForTask) {
-			getClientsForTask({ clientFilterInput: { page: 1, limit: 20 } });
+			getClientsForTask({ filters: { page: 1, limit: 20 } });
 		}
 	}, [clientListForTask]);
 
