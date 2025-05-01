@@ -108,6 +108,8 @@ const Tasks = () => {
 			taskPreference,
 			getListTaskWithGroup,
 			updateSelectedView,
+			updateSideBarData,
+			sideBarData,
 		},
 		companyInfo: { getTeamMembers, tenantsUserList },
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
@@ -266,6 +268,12 @@ const Tasks = () => {
 	useEffect(() => {
 		handleDebounceFetch();
 	}, [info?.filters, info?.searchValue, info?.sort, info?.group]);
+
+	useEffect(() => {
+		if (sideBarData) {
+			handleRowClick(sideBarData, false);
+		}
+	}, [sideBarData]);
 
 	useEffect(() => {
 		if (!tenantsUserList) {
@@ -959,7 +967,7 @@ const Tasks = () => {
 					error={info?.error}
 				/>
 				<ListViewSidebar
-					selectedRow={info?.selectedRow}
+					selectedRow={info?.selectedRow || sideBarData}
 					sidebarIsOpen={info?.sidebarIsOpen}
 					closeSidebar={handleCloseSidebar}
 					handleUpdate={updatePropertyValue}
