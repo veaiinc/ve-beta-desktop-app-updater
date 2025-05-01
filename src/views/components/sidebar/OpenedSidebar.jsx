@@ -57,6 +57,8 @@ const MODULE_NAME_MAP = {
 };
 
 const routeType = 'public';
+
+const workspaceId = localStorage.getItem('workspaceId');
 const OpenedSidebarModules = ({
 	name,
 	Icon,
@@ -183,7 +185,7 @@ const OpenedSidebarModules = ({
 						<Icon
 							fill={
 								isExactPathMatch()
-									? 'var(--primary-button)'
+									? 'var(--primary-font)'
 									: isHover
 									? 'var(--primary-font)'
 									: 'var(--primary-font)'
@@ -481,7 +483,7 @@ const OpenedSidebar = ({
 		if (showSettingsSidebar && settingsOptions?.length > 0) {
 			const firstItem = settingsOptions[0];
 			setSelectedSettingsOption(firstItem.name);
-			navigate(firstItem.route);
+			// navigate(firstItem.route);
 		}
 	}, [showSettingsSidebar, settingsOptions]);
 
@@ -528,35 +530,40 @@ const OpenedSidebar = ({
 												zIndex: '1000',
 											}}
 										>
-											{/* <div
-												className="workspaceDetailsDiv"
-												onClick={openWorkspacesFunction}
-												style={{ cursor: 'pointer' }}
-											>
-												{info?.activeBusniessName?.logo_s3_500w_key && (
-													<div className="workspaceLogoContainer">
-														<img
-															className="workspaceLogo"
-															src={
-																info?.activeBusniessName
-																	?.logo_s3_500w_key
-															}
-															alt={
-																info?.activeBusniessName
-																	?.activeWorkspaceId
-															}
+											{isThisEarlyAccessPage && (
+												<div
+													className="workspaceDetailsDiv"
+													onClick={openWorkspacesFunction}
+													style={{ cursor: 'pointer' }}
+												>
+													{info?.activeBusniessName?.logo_s3_500w_key && (
+														<div className="workspaceLogoContainer">
+															<img
+																className="workspaceLogo"
+																src={
+																	info?.activeBusniessName
+																		?.logo_s3_500w_key
+																}
+																alt={
+																	info?.activeBusniessName
+																		?.activeWorkspaceId
+																}
+															/>
+														</div>
+													)}
+													<h6 className="workspaceName">
+														{info?.activeBusniessName?.businessName}
+													</h6>
+													{userWorkSpaceList?.length > 1 && (
+														<DownArrowSmallSvg
+															style={{
+																height: '16px',
+																width: '16px',
+															}}
 														/>
-													</div>
-												)}
-												<h6 className="workspaceName">
-													{info?.activeBusniessName?.businessName}
-												</h6>
-												{userWorkSpaceList?.length > 1 && (
-													<DownArrowSmallSvg
-														style={{ height: '16px', width: '16px' }}
-													/>
-												)}
-											</div> */}
+													)}
+												</div>
+											)}
 											<Tooltip
 												title="Close Sidebar"
 												placement="right"
@@ -577,28 +584,40 @@ const OpenedSidebar = ({
 													style={{ cursor: 'pointer' }}
 												/>
 											</Tooltip>
-											<div className="sideBarOptions">
-												<div
-													className="eachOption"
-													onClick={() =>
-														updateTheme(newThemeValue, routeType)
-													}
-												>
-													{theme === 'dark' ? <SunIcon /> : <MoonIcon />}
+											{!isThisEarlyAccessPage && (
+												<div className="sideBarOptions">
+													<div
+														className="eachOption"
+														onClick={() =>
+															updateTheme(newThemeValue, routeType)
+														}
+													>
+														{theme === 'dark' ? (
+															<SunIcon />
+														) : (
+															<MoonIcon />
+														)}
+													</div>
+													<div
+														className="eachOption"
+														onClick={triggerCmdK}
+													>
+														<SearchSvg />
+													</div>
+													<div
+														className="eachOption"
+														onClick={handleNewChat}
+													>
+														<NewEditSvg />
+													</div>
 												</div>
-												<div className="eachOption" onClick={triggerCmdK}>
-													<SearchSvg />
-												</div>
-												<div className="eachOption" onClick={handleNewChat}>
-													<NewEditSvg />
-												</div>
-											</div>
+											)}
 										</div>
 
 										<div
 											className="allmodulesList"
 											style={{
-												height: '100%',
+												height: 'calc(100% - 50px)',
 												gap: '4px',
 												display: 'flex',
 												flexDirection: 'column',
@@ -759,13 +778,78 @@ const OpenedSidebar = ({
 																	)}
 																</div>
 																<div className="settingsOptionsUserName">
-																	{userDetailsData?.firstName}
+																	<span className="workspaceId">
+																		{workspaceId}
+																	</span>
+																	<span>
+																		{userDetailsData?.firstName}
+																	</span>
 																</div>
 															</div>
 															<SingleRightArrowSvg fill="var(--primary-font)" />
 														</div>
 													</div>
 												</>
+											)}
+											{isThisEarlyAccessPage && (
+												<div className="settingsOptionsContainer">
+													<div
+														className="settingsOptionsUserInfo"
+														onClick={() => {
+															setShowSettingsSidebar(false);
+														}}
+													>
+														<div>
+															{userDetailsData?.logoURL ? (
+																<div className="crop-container">
+																	<Cropper
+																		image={
+																			userDetailsData?.logoURL
+																		} // Image URL to crop
+																		crop={
+																			userDetailsData
+																				?.cropSettings?.crop
+																		}
+																		zoom={
+																			userDetailsData
+																				?.cropSettings?.zoom
+																		}
+																		showGrid={false}
+																		onCropChange={(e) => ''}
+																		onCropComplete={(e) => ''}
+																		onZoomChange={(e) => ''}
+																	/>
+																</div>
+															) : (
+																<div
+																	className="noImageText"
+																	style={{
+																		background:
+																			userDetailsData
+																				?.cropSettings
+																				?.profileDpColor ||
+																			'',
+																		fontSize: '12px',
+																	}}
+																>
+																	{getInitials(
+																		userDetailsData?.firstName,
+																		userDetailsData?.lastName,
+																	)}
+																</div>
+															)}
+														</div>
+														<div className="settingsOptionsUserName">
+															{userDetailsData?.firstName}
+														</div>
+													</div>
+													<div className="logoutIcon">
+														<LogoutRedSvg
+															onClick={handleLogout}
+															style={{ cursor: 'pointer' }}
+														/>
+													</div>
+												</div>
 											)}
 										</div>
 									</div>
@@ -890,7 +974,7 @@ const OpenedSidebar = ({
 									<option.icon
 										fill={
 											isExactPathMatch(option.route)
-												? 'var(--primary-button)'
+												? 'var(--primary-font)'
 												: 'var(--primary-font)'
 										}
 									/>

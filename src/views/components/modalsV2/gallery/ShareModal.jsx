@@ -421,7 +421,7 @@ const ShareModal = ({
 					<div className="galleryLinkInputContainer">
 						<div className="galleryLinkInput">
 							<input
-								placeholder="businessname.ve.ai/gallery/galleryname"
+								placeholder="Loading..."
 								disabled
 								value={info?.galleryLink}
 								// value={`https://${workspaceId}.ve.ai/gallery/${activeGallery?.slug}`}

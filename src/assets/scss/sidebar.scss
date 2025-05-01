@@ -159,7 +159,7 @@
 							display: flex;
 							justify-content: space-between;
 							gap: 10px;
-							width: 194px;
+							width: 225px;
 							font-size: 14px;
 							margin-top: 2px;
 							color: var(--primary-font);
@@ -219,7 +219,7 @@
 				// }
 				.settingsOptionsContainer {
 					display: flex;
-					padding: 12px 8px;
+					padding: 6px 8px;
 					justify-content: space-between;
 					align-items: center;
 					align-self: stretch;
@@ -235,12 +235,27 @@
 						cursor: pointer;
 
 						.settingsOptionsUserName {
-							color: var(--primary-font, #f2f2f3);
-							font-family: var(--primary-font-family);
-							font-size: 14px;
-							font-style: normal;
-							font-weight: 500;
-							line-height: normal;
+							display: flex;
+							flex-direction: column;
+							align-items: flex-start;
+							gap: 4px;
+							width: 100%;
+							.workspaceId {
+								color: var(--secondary-font, #7a7e85);
+								font-family: Inter;
+								font-size: 14px;
+								font-style: normal;
+								font-weight: 400;
+								line-height: normal;
+							}
+							span {
+								color: var(--primary-font, #f2f2f3);
+								font-family: var(--primary-font-family);
+								font-size: 14px;
+								font-style: normal;
+								font-weight: 500;
+								line-height: normal;
+							}
 						}
 						.noImageText {
 							width: 24px;
@@ -562,7 +577,7 @@
 			max-height: 95vh;
 			overflow-x: hidden;
 			margin-right: 10px;
-			width: 228px;
+			width: 260px;
 			background: var(--card-over-card);
 			border: none;
 			position: relative;
@@ -643,7 +658,7 @@
 					flex-direction: row;
 					justify-content: space-between;
 					align-items: center;
-					width: 212px;
+					width: 100%;
 					padding: 8px 12px;
 					align-items: center;
 					.workspaceName {
@@ -1033,11 +1048,12 @@
 		display: flex;
 		flex-direction: column;
 		align-content: center;
-		justify-content: center;
+		justify-content: flex-start;
 		align-items: flex-start;
 		padding: 0px 20px;
 		gap: 10px;
 		margin-bottom: 5rem;
+		flex-grow: 1;
 		.settings-options-title {
 			color: var(--primary-font, #f2f2f3);
 			font-family: Inter;
@@ -1047,7 +1063,7 @@
 			line-height: normal;
 		}
 		.singleModuleItem {
-			width: 210px;
+			width: 100%;
 			display: flex;
 			justify-content: space-between;
 			gap: 14px;
@@ -1178,12 +1194,12 @@
 	align-self: stretch;
 	border-top: 1px solid var(--stroke, #333334);
 	background: var(--navbar, #202123);
-	position: fixed;
+	// position: fixed;
 	bottom: 0;
 	// left: 3%;
 	left: 0;
 	z-index: 2;
-	width: 280px;
+	width: 100%;
 	cursor: pointer;
 	transition: background 0.2s ease;
 	.settingsHoverState {

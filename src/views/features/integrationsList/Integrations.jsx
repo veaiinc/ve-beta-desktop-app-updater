@@ -195,7 +195,13 @@ const IntegrationRequestCard = ({ iconSlug, title, tenantId }) => {
 				)}
 				<h3>{title}</h3>
 			</div>
-			<span onClick={() => handleRequestThisIntegration(title)} className="request-button">
+			<span
+				onClick={(e) => {
+					e.preventDefault();
+					handleRequestThisIntegration(title);
+				}}
+				className="request-button"
+			>
 				Request
 			</span>
 		</div>
