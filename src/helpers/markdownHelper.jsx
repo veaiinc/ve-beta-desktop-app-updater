@@ -74,84 +74,84 @@ const baseComponents = {
 	),
 	li: ({ children, ...props }) => {
 		return (
-			<li className="li" {...props}>
+			<li {...props} className="li">
 				{children}
 			</li>
 		);
 	},
 	ul: ({ children, ...props }) => {
 		return (
-			<ul className="ul" {...props}>
+			<ul {...props} className="ul">
 				{children}
 			</ul>
 		);
 	},
 	span: ({ children, ...props }) => {
 		return (
-			<span className="span" {...props}>
+			<span {...props} className="span">
 				{children}
 			</span>
 		);
 	},
 	strong: ({ children, ...props }) => {
 		return (
-			<strong className="strong" {...props}>
+			<strong {...props} className="strong">
 				{children}
 			</strong>
 		);
 	},
 	a: ({ children, ...props }) => {
 		return (
-			<a className="a" target="_blank" rel="noreferrer" {...props}>
+			<a target="_blank" rel="noreferrer" {...props} className="a">
 				{children}
 			</a>
 		);
 	},
 	h1: ({ children, ...props }) => {
 		return (
-			<h1 className="h1" {...props}>
+			<h1 {...props} className="h1">
 				{children}
 			</h1>
 		);
 	},
 	h2: ({ children, ...props }) => {
 		return (
-			<h2 className="h2" {...props}>
+			<h2 {...props} className="h2">
 				{children}
 			</h2>
 		);
 	},
 	h3: ({ children, ...props }) => {
 		return (
-			<h3 className="h3" {...props}>
+			<h3 {...props} className="h3">
 				{children}
 			</h3>
 		);
 	},
 	h4: ({ children, ...props }) => {
 		return (
-			<h4 className="h4" {...props}>
+			<h4 {...props} className="h4">
 				{children}
 			</h4>
 		);
 	},
 	h5: ({ children, ...props }) => {
 		return (
-			<h5 className="h5" {...props}>
+			<h5 {...props} className="h5">
 				{children}
 			</h5>
 		);
 	},
 	h6: ({ children, ...props }) => {
 		return (
-			<h6 className="h6" {...props}>
+			<h6 {...props} className="h6">
 				{children}
 			</h6>
 		);
 	},
 	p: ({ children, ...props }) => {
 		return (
-			<p className="p" {...props}>
+			<p {...props} className="p">
 				{children}
 			</p>
 		);
@@ -160,8 +160,8 @@ const baseComponents = {
 		return (
 			<div className="markdown-image-wrapper ">
 				<img
-					className="img"
 					{...props}
+					className="img"
 					src={props?.src}
 					alt="img"
 					style={{ maxWidth: '50%', maxHeight: '50%', borderRadius: '4px' }}
@@ -171,7 +171,7 @@ const baseComponents = {
 	},
 	table: ({ children, ...props }) => (
 		<div className="table-container">
-			<table className="table" {...props}>
+			<table {...props} className="table">
 				{children}
 			</table>
 		</div>

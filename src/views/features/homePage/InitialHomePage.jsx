@@ -207,7 +207,11 @@ const InitialHomePage = () => {
 				}));
 			}
 		} else {
-			getAISuggestedPendingActions();
+			getAISuggestedPendingActions({
+				page: 1,
+				limit: 20,
+				sortBy: 'createdAt',
+			});
 		}
 	}, [aiSuggestedPendingActions]);
 
