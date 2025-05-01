@@ -121,12 +121,6 @@
 					}
 				}
 			}
-
-			.horizontal-line {
-				width: 100%;
-				height: 1px;
-				background: var(--stroke, #333334);
-			}
 		}
 	}
 
@@ -364,11 +358,6 @@
 		display: flex;
 		flex-direction: column;
 		gap: 4px;
-		.horizontal-line {
-			width: 100%;
-			height: 1px;
-			background: var(--stroke, #333334);
-		}
 		.footer-content {
 			display: flex;
 			flex-direction: row;
@@ -442,7 +431,7 @@
 }
 
 .horizontal-line {
-	width: 500px;
+	width: 100%;
 	height: 1px;
 	background: var(--stroke, #333334);
 	border: none;
