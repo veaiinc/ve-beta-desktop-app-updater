@@ -151,8 +151,10 @@
 
 .left-section {
 	display: flex;
-	width: 437px;
-	padding: 32px 24px;
+	// width: 437px;
+	// padding: 32px 24px;
+	width: 100%;
+	padding: 0;
 	flex-direction: column;
 	align-items: flex-start;
 	gap: 65px;

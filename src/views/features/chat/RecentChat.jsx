@@ -13,7 +13,6 @@ import { FetchMoreLoaderComp } from '../../../helpers';
 import { debounce } from 'lodash';
 import useChatStream from '../../hooks/useChatStream';
 import ObjectID from 'bson-objectid';
-import { ReactComponent as ArrowUpRightSvg } from '../../../assets/svg/sidebar/arrowupright.svg';
 import { ReactComponent as PlusCircleSvg } from '../../../assets/svg/ai_agents/plus-cricle.svg';
 import AIMessageRenderer from '../../components/chat/AIMessageRenderer';
 import { Tooltip } from 'antd';
@@ -779,7 +778,12 @@ const RecentChat = ({
 			navigate(`/chat/${sessionId}`);
 		} else if (pathname === 'c') {
 			navigate(`/c/${sessionId}`);
-		} else if (pathname === 'calendar' || pathname === 'contacts' || pathname === 'tasks') {
+		} else if (
+			pathname === 'calendar' ||
+			pathname === 'contacts' ||
+			pathname === 'tasks' ||
+			pathname === 'contact'
+		) {
 			onNewChatBtnClick?.();
 		}
 	}, [location?.pathname]);
@@ -810,7 +814,7 @@ const RecentChat = ({
 									<LeftSvg />
 								</div>
 								<div className="chat-title">
-									{currentChatData?.title || 'Chat Title'}
+									{currentChatData?.title || 'New Chat'}
 								</div>
 							</div>
 							<div className="right-container">
@@ -925,11 +929,6 @@ const RecentChat = ({
 								</div>
 							</InfiniteScroll>
 						</div>
-						{info?.showScrollButton && (
-							<button className="scroll-button" onClick={smoothScrollToBottom}>
-								<ArrowUpRightSvg className="arrow-up" />
-							</button>
-						)}
 						<div className="chatBoxWrapper">
 							<ChatBox
 								showIconText={showIconText}
@@ -941,6 +940,7 @@ const RecentChat = ({
 								hideDeepResearch={searchParams?.get('agentType') === 'search_agent'}
 								autoFocus={autoFocus}
 								customChatBoxClick={customChatBoxClick}
+								showScrollButton={info?.showScrollButton}
 							/>
 						</div>
 					</div>

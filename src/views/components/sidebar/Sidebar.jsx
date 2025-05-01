@@ -36,9 +36,9 @@ const Sidebar = ({ activeWorkspaceId }) => {
 	const isHome = location?.pathname?.includes('notes');
 
 	const isChatSidebarRoute =
-		location?.pathname?.includes('contact') ||
 		location?.pathname?.includes('calendar') ||
-		location?.pathname?.includes('tasks');
+		location?.pathname?.includes('tasks') ||
+		location?.pathname?.includes('contact');
 
 	useEffect(() => {
 		localStorage.setItem('isOpen', JSON.stringify(isOpen));
