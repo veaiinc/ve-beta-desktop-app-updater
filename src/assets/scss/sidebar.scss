@@ -614,6 +614,9 @@
 				gap: 10px;
 				cursor: pointer;
 				padding: 12px;
+				.backArrow {
+					transform: rotate(180deg);
+				}
 				h6 {
 					color: var(--primary-font);
 					text-align: right;

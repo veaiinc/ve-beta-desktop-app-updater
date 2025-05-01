@@ -207,7 +207,11 @@ const InitialHomePage = () => {
 				}));
 			}
 		} else {
-			getAISuggestedPendingActions();
+			getAISuggestedPendingActions({
+				page: 1,
+				limit: 20,
+				sortBy: 'createdAt',
+			});
 		}
 	}, [aiSuggestedPendingActions]);
 
@@ -226,13 +230,14 @@ const InitialHomePage = () => {
 		}
 	}, [options, info?.selectedOption]);
 
+	console.log(tenantUserAccessControls?.accessControls, 'tenantUserAccessControls');
 	const renderOptions = () => {
 		if (!tenantUserAccessControls) return null;
 
 		const isAdmin = tenantUserAccessControls?.role === 'admin';
 		// Create a lookup object for access controls
 		const accessControlMap = Object?.fromEntries(
-			tenantUserAccessControls?.accessControls?.map((item) => [item?.app, item]),
+			tenantUserAccessControls?.accessControls?.map((item) => [item?.app, item]) || [],
 		);
 
 		return info?.options?.map((option) => {

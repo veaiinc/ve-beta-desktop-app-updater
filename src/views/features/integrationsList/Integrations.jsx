@@ -617,13 +617,16 @@ const Integrations = () => {
 						<h2>Connected Integrations</h2>
 
 						<div className="connected-integrations-list">
-							{connectedPlatforms.map((integration) => (
-								<ConnectedIntegrationCard
-									key={integration?.id}
-									{...integration}
-									onViewAccounts={handleSelectedCardModel}
-								/>
-							))}
+							{connectedPlatforms.map(
+								(integration) =>
+									integration?.isActive && (
+										<ConnectedIntegrationCard
+											key={integration?.id}
+											{...integration}
+											onViewAccounts={handleSelectedCardModel}
+										/>
+									),
+							)}
 						</div>
 					</section>
 				) : (

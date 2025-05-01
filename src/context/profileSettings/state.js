@@ -471,6 +471,22 @@ export const ProfileState = () => {
 			console.log('error==>getTenantUserAccessControls', error);
 		}
 	};
+	// {{ _.googleBaseUrl }}/gmail/{{ _.workspaceId }}/disconnect/{{ _.uid }}
+	const updatedGmailAccount = async (type, uid) => {
+		try {
+			const token = localStorage.getItem('usertoken');
+			const workspaceId = localStorage.getItem('workspaceId');
+			const path = `/${type}/${workspaceId}/disconnect/${uid}`;
+			const response = await service.fetchPost(path, null, token, 'calendar_api');
+			if (response?.[0]) {
+				return response;
+			} else {
+				return response;
+			}
+		} catch (error) {
+			console.log('error==>updatedGmailAccount', error);
+		}
+	};
 	return {
 		...state,
 		getTenantSettings,
@@ -498,5 +514,6 @@ export const ProfileState = () => {
 		getTenantUserAccessControls,
 		updateAccessControlOpenModal,
 		updateModuleAppTypeSelectAll,
+		updatedGmailAccount,
 	};
 };

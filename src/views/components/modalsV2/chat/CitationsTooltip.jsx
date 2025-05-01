@@ -65,11 +65,11 @@ export const CitationsTooltip = memo(({ citationId, citations, placement = 'topL
 			placement={placement}
 			rootClassName="citation-tooltip-wrapper"
 			title={
-				<a
-					href={citationInfo?.link}
-					target="_blank"
-					rel="noreferrer"
+				<div
 					className="citation-tooltip-container"
+					onClick={() => {
+						window.open(citationInfo?.link, '_blank');
+					}}
 				>
 					{(processedCitationData?.length > 0 || citationInfo?.snippet?.length > 0) && (
 						<div className="tooltip-content">
@@ -101,7 +101,7 @@ export const CitationsTooltip = memo(({ citationId, citations, placement = 'topL
 							</div>
 						</div>
 					</div>
-				</a>
+				</div>
 			}
 		>
 			<span className="citation-tooltip-header">{number}</span>

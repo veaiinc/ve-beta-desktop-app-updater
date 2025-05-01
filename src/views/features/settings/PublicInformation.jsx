@@ -265,7 +265,7 @@ const PublicInformation = () => {
 	return (
 		<div className="settingsBoxContainer publicInformationComponent">
 			<h1>Public Information</h1>
-			<div className="header">
+			<div className="header" style={{ alignItems: 'flex-start' }}>
 				{/* <span className="svgHolder">
 					<Tooltip
 						placement="bottomRight"
