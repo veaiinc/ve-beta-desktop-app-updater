@@ -107,6 +107,8 @@ const Tasks = () => {
 			updateTaskPreferences,
 			taskPreference,
 			getListTaskWithGroup,
+			updateTaskPrefix,
+			updateSelectedView,
 		},
 		companyInfo: { getTeamMembers, tenantsUserList },
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
@@ -904,47 +906,6 @@ const Tasks = () => {
 			deleteTaskView({ taskMetadataId: info?.taskMetadata?._id, viewId });
 		},
 		[deleteTaskView, info?.taskMetadata?._id],
-	);
-
-	const [editingProperty, setEditingProperty] = useState(null);
-	const [showEditViewDropDown, setShowEditViewDropDown] = useState(false);
-	const [layoutOptions, setLayoutOptions] = useState(['table', 'board', 'list', 'gallery']);
-
-	const handleEditPropertyChange = useCallback((property) => {
-		setEditingProperty(property);
-	}, []);
-
-	const handleTabChange = useCallback(
-		(tab) => {
-			updateTaskInfo({ view: tab.viewType });
-		},
-		[updateTaskInfo],
-	);
-
-	const handleTabsReorder = useCallback((tabs) => {
-		// Implement tabs reordering logic here
-	}, []);
-
-	const handleTabDropdownClick = useCallback((tab) => {
-		setShowEditViewDropDown(true);
-	}, []);
-
-	const handleLayoutOptionClick = useCallback(
-		(option) => {
-			updateTaskInfo({ view: option });
-		},
-		[updateTaskInfo],
-	);
-
-	const handleDuplicateView = useCallback((view) => {
-		// Implement view duplication logic here
-	}, []);
-
-	const handleDeleteView = useCallback(
-		(viewId) => {
-			deleteView(viewId);
-		},
-		[deleteView],
 	);
 
 	return (

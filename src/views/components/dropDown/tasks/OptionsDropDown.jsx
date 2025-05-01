@@ -1,5 +1,5 @@
 import { Tooltip } from 'antd';
-import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import '../../../../assets/scss/dropdown/tasks/optionsDropDown.scss';
 import { ReactComponent as HorizontalMoreIcon } from '../../../../assets/svg/tasks/horizontalDotsThin.svg';
 import { ReactComponent as CrossSvg } from '../../../../assets/svg/gallery/cross.svg';
@@ -13,6 +13,7 @@ import PropertiesDropDown from './PropertiesDropDown';
 import GroupDropDown from './GroupDropDown';
 import LayoutDropDown from './LayoutDropDown';
 import ThreeDotsSvg from '../../../../assets/svg/my_templates/ThreeDotsSvg';
+import Context from '../../../../context/context';
 // import CrossSvg from '../../../../assets/svg/docs/CrossSvg';
 
 const OptionsDropDown = ({
@@ -30,16 +31,22 @@ const OptionsDropDown = ({
 	layoutOptions,
 	tabLength,
 }) => {
+	const {
+		tasks: { updateTaskPrefix, updateSelectedView },
+	} = useContext(Context);
+
 	const [info, setInfo] = useState({
 		selected: null,
 		isOpen: false,
 		pendingLabel: viewData?.label,
+		pendingPrefix: prefix,
 	});
 
 	useEffect(() => {
 		setInfo((prev) => ({
 			...prev,
 			pendingLabel: viewData?.label,
+			pendingPrefix: prefix,
 		}));
 	}, [viewData?.label]);
 
@@ -96,6 +103,30 @@ const OptionsDropDown = ({
 			updateViewInfo({ label: info.pendingLabel });
 		}
 	}, [info.pendingLabel, updateViewInfo, viewData?.label]);
+
+	const handlePrefixChange = useCallback((e) => {
+		if (e.target?.value?.trim?.length <= 4) {
+			setInfo((prev) => ({
+				...prev,
+				pendingPrefix: e.target.value?.trim(),
+			}));
+		}
+	}, []);
+
+	const handlePrefixKeyDown = useCallback(
+		(e) => {
+			if (e.key === 'Enter') {
+				e.target.blur();
+			}
+		},
+		[info.pendingPrefix, updateTaskPrefix],
+	);
+
+	const handlePrefixBlur = useCallback(() => {
+		if (info.pendingPrefix !== prefix) {
+			updateTaskPrefix({ input: { prefix: info?.pendingPrefix } });
+		}
+	}, [info.pendingPrefix, updateTaskPrefix, prefix]);
 
 	const handlePropertyToggle = useCallback(
 		(property) => {
@@ -265,8 +296,10 @@ const OptionsDropDown = ({
 										</span>
 										<input
 											className="id-prefix-input"
-											readOnly
-											defaultValue={prefix || 'NONE'}
+											value={info.pendingPrefix}
+											onChange={handlePrefixChange}
+											onKeyDown={handlePrefixKeyDown}
+											onBlur={handlePrefixBlur}
 										/>
 									</div>
 								</div>

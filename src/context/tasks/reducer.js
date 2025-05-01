@@ -147,6 +147,23 @@ const actionHandlers = {
 			views: action?.payload,
 		},
 	}),
+
+	UPDATE_TASK_PREFIX: (state, action) => ({
+		...state,
+		taskMetadata: {
+			...state.taskMetadata,
+			prefix: action?.payload,
+		},
+	}),
+
+	UPDATE_SELECTED_VIEW: (state, action) => ({
+		...state,
+		taskMetadata: {
+			...state.taskMetadata,
+			selectedTaskView: action?.payload,
+		},
+	}),
+
 	SET_TASK_PREFERENCES: (state, action) => ({
 		...state,
 		taskPreference: action?.payload,
