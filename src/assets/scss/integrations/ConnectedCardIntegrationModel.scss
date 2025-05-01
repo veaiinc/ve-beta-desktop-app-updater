@@ -105,14 +105,28 @@
 						font-size: 14px;
 						color: var(--primary-font);
 					}
+					.account-status {
+						display: flex;
+						align-items: center;
+						gap: 8px;
 
-					.status {
-						font-size: 14px;
-						&.connected {
-							color: var(--success);
+						.status {
+							font-size: 14px;
+							&.connected {
+								color: var(--success);
+							}
+							&.error {
+								color: var(--error);
+							}
 						}
-						&.error {
-							color: var(--error);
+						.disconnect-btn {
+							font-size: 14px;
+							color: var(--primary-button-font);
+							background: var(--primary-button);
+							border-radius: 20px;
+							padding: 8px 12px;
+							cursor: pointer;
+							border: none;
 						}
 					}
 				}

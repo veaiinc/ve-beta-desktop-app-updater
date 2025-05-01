@@ -1,5 +1,5 @@
 import React, { memo, useCallback, useContext, useState, useEffect } from 'react';
-import { ReactComponent as ArrowLeftSvg } from '../../../assets/svg/sidebar/leftarrowwhite.svg';
+import { ReactComponent as ArrowLeftSvg } from '../../../assets/svg/sidebar/singleRightArrow.svg';
 import SearchSvg from '../../../assets/svg/sidebar/SearchSvg';
 import { ReactComponent as LogoutRedSvg } from '../../../assets/svg/sidebar/logout_red.svg';
 import PlusSvg from '../../../assets/svg/sidebar/PlusSvg';
@@ -129,12 +129,12 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 				/>
 			)}
 			<div
-				style={{ maxHeight: renewBanner ? '93dvh' : '95dvh' }}
+				style={{ maxHeight: renewBanner ? '91dvh' : '93dvh' }}
 				className="workspaceListComponent"
 			>
 				<div className="workspaceListHeader">
 					<div className="backContinaer" onClick={closeWorkspaceList}>
-						<ArrowLeftSvg />
+						<ArrowLeftSvg fill="var(--primary-font)" className="backArrow" />
 						<h6>Switch Workspace</h6>
 					</div>
 					{userWorkSpaceList?.length > 10 && (
