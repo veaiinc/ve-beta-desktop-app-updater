@@ -66,7 +66,7 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 			}
 			localStorage.setItem('workspaceId', activeWorkspaceId);
 			localStorage.setItem('isOnboard', isOnboard);
-
+			localStorage.setItem('showSettingsSidebar', 'false');
 			const host = fetchDomainName();
 
 			Cookies.set('workspaceID', activeWorkspaceId, {
