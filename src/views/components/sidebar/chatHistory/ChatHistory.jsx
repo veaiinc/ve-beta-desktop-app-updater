@@ -80,16 +80,16 @@ const ChatHistory = () => {
 	const handleChatNavigation = useCallback(
 		(chat) => {
 			if (currentSessionId === chat?._id) return;
-			updateStateValues({
-				chatInfo: {
-					...chatInfo,
-					agentType: chat?.agentType,
-					assistantId: chat?.assistantId,
-				},
-			});
-			navigate(`/chat/${chat?._id}`);
+
+			if (chat?.agentType === 'knowledge_agent') {
+				navigate(
+					`/chat/${chat?._id}?agentType=knowledge_agent&assistantId=${chat?.assistantId}`,
+				);
+			} else {
+				navigate(`/chat/${chat?._id}`);
+			}
 		},
-		[currentSessionId, chatInfo],
+		[currentSessionId],
 	);
 
 	const handleCreateChat = useCallback(() => {

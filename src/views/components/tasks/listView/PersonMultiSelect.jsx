@@ -39,14 +39,12 @@ const PersonMultiSelect = ({
 					};
 				});
 			}
-		} else {
-			getClientsForTask({ clientFilterInput: { page: 1, limit: 20 } });
 		}
 	}, [clientListForTask]);
 
 	useEffect(() => {
 		setInfo((prev) => ({ ...prev, selected: value }));
-	}, []);
+	}, [value]);
 
 	const fetchMoreClients = () => {
 		if (info?.hasMore) {

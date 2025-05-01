@@ -6,21 +6,7 @@ import { ReactComponent as HashTagSvg } from '../../../../assets/svg/ai_agents/h
 import { ReactComponent as CurveSvg } from '../../../../assets/svg/ai_agents/curve.svg';
 import WebSvg from '../../../../assets/svg/ai_agents/webSvg';
 import BookSvg from '../../../../assets/svg/ai_agents/bookSvg';
-import { ReactComponent as TextSvg } from '../../../../assets/svg/ai_agents/text.svg';
-import { ReactComponent as DocxSvg } from '../../../../assets/svg/ai_agents/docx.svg';
-import { ReactComponent as JsonSvg } from '../../../../assets/svg/ai_agents/json.svg';
-import { ReactComponent as PdfSvg } from '../../../../assets/svg/ai_agents/pdf.svg';
-import { ReactComponent as JpgSvg } from '../../../../assets/svg/ai_agents/jpg.svg';
-import { ReactComponent as PngSvg } from '../../../../assets/svg/ai_agents/png.svg';
-
-const fileTypeIcons = {
-	txt: <TextSvg />,
-	docx: <DocxSvg />,
-	json: <JsonSvg />,
-	pdf: <PdfSvg />,
-	jpg: <JpgSvg />,
-	png: <PngSvg />,
-};
+import { fileTypeIcons } from '../../../../helpers';
 
 const DeepResearchChainOfThought = ({ data }) => {
 	return (
@@ -203,7 +189,10 @@ const DeepResearchChainOfThought = ({ data }) => {
 																		<div className="queries-container">
 																			{queries?.map(
 																				(query, idx) => (
-																					<div className="query-container">
+																					<div
+																						className="query-container"
+																						key={idx}
+																					>
 																						<div className="query-link">
 																							<CurveSvg />
 																						</div>

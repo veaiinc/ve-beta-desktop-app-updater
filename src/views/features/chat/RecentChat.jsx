@@ -99,7 +99,7 @@ const RecentChat = ({
 
 	useEffect(() => {
 		if (sessionIdChanged && chatActive) {
-			const agentType = searchParams?.get('agentType');
+			const agentType = 'mulit_agent';
 			createWebSocketConnection(sessionId, onMessageFunc, agentType, isPublicChat);
 			onChangeSessionId?.();
 		}
@@ -109,15 +109,6 @@ const RecentChat = ({
 		window?.addEventListener('resize', handleResize);
 
 		handleResize(0);
-
-		const agentType = searchParams?.get('agentType');
-		const assistantId = searchParams?.get('assistantId');
-
-		if (agentType && assistantId) {
-			updateStateValues({ chatInfo: { ...chatInfo, agentType, assistantId } });
-		} else if (agentType) {
-			updateStateValues({ chatInfo: { ...chatInfo, agentType } });
-		}
 
 		return () => {
 			window?.removeEventListener('resize', handleResize);
@@ -178,48 +169,17 @@ const RecentChat = ({
 	}, [sessionId]);
 
 	useEffect(() => {
-		if (!chatInfo?.agentType) return;
-		if (isPublicChat) {
+		const agentType = searchParams?.get('agentType');
+		const assistantId = searchParams?.get('assistantId') || null;
+		if ((!agentType && location?.pathname?.includes('knowledge-agent')) || chatActive) {
 			return;
 		}
 
-		const agentType = searchParams?.get('agentType');
-		const assistantId = searchParams?.get('assistantId');
-
-		// Prepare desired search params based on chatInfo
-		let desiredParams = {};
-
-		if (chatInfo?.agentType === 'knowledge_agent') {
-			desiredParams = {
-				agentType: 'knowledge_agent',
-				assistantId: chatInfo?.assistantId,
-			};
-
-			// If both params are already correct, no update needed
-			if (
-				agentType === desiredParams?.agentType &&
-				assistantId === desiredParams?.assistantId
-			) {
-				return;
-			}
-		} else {
-			desiredParams = {
-				agentType: chatInfo?.agentType,
-			};
-
-			// If agentType matches and is not 'knowledge_agent', no update needed
-			if (agentType === desiredParams?.agentType) {
-				return;
-			}
+		if (agentType) {
+			updateStateValues({ chatInfo: { ...chatInfo, agentType, assistantId } });
 		}
 
-		// Update the URL search params
-		setSearchParams(desiredParams, { replace: true });
-	}, [chatInfo?.agentType, chatInfo?.assistantId, sessionId]);
-
-	useEffect(() => {
-		const agentType = searchParams?.get('agentType');
-		if (sessionId && agentType && !isPublicChat) {
+		if (sessionId && !isPublicChat) {
 			createWebSocketConnection(sessionId, onMessageFunc, agentType, isPublicChat);
 		}
 
@@ -227,7 +187,7 @@ const RecentChat = ({
 			createWebSocketConnection(sessionId, onMessageFunc, agentType, isPublicChat);
 			isFirstTimeConnectingToPublicChatRef.current = false;
 		}
-	}, [searchParams]);
+	}, [sessionId, searchParams]);
 
 	useEffect(() => {
 		if (globalChatMessages?.length > 4 && !info?.scrollExecuted) {
@@ -423,6 +383,156 @@ const RecentChat = ({
 		}, time);
 	};
 
+	const handleDeepSearchChainOfThought = useCallback((chainOfThought) => {
+		const cot = [],
+			cot_refined = [];
+		let initial_answer = {};
+
+		for (let i = 0; i < chainOfThought?.length; i++) {
+			const data = chainOfThought?.[i] || {};
+
+			if (data?.sub_query) {
+				cot.push({
+					sub_query: data?.sub_query,
+					searching: data?.searching,
+					readings: data?.reading,
+				});
+			}
+
+			if (data?.initial_answer) {
+				initial_answer = data;
+			}
+
+			if (data?.refined_sub_query) {
+				cot_refined.push({
+					sub_query: data?.refined_sub_query,
+					searching: data?.searching,
+					readings: data?.reading,
+				});
+			}
+		}
+
+		return { cot, cot_refined, initial_answer };
+	}, []);
+
+	const handleDeepResearchChainOfThought = useCallback((chainOfThought) => {
+		let cot = [],
+			sections = [],
+			sections_refined = [];
+
+		for (let i = 0; i < chainOfThought?.length; i++) {
+			const data = chainOfThought?.[i] || {};
+
+			if (data?.responded) {
+				cot?.push({ step: data?.responded });
+			}
+
+			if (data?.intermediate_step) {
+				let last_step = { ...(cot?.[cot?.length - 1] || {}) };
+				last_step = {
+					...(last_step || {}),
+					...(data?.intermediate_step || {}),
+				};
+				cot[cot?.length - 1] = last_step;
+			}
+
+			if (data?.step) {
+				cot?.push({ step: data?.step, citations: data?.citations || [] });
+			}
+
+			if (data?.sub_queries) {
+				const sub_queries = (data?.sub_queries || [])?.map((subQuery) => ({
+					sub_query: subQuery,
+				}));
+				sections?.push({
+					section: data?.section,
+					sub_queries,
+					section_id: data?.section_id,
+				});
+			}
+
+			if (data?.reading && data?.reading?.sub_query && data?.section_id) {
+				sections = sections?.map((section) => {
+					if (section?.section_id === data?.section_id) {
+						let sub_queries = section?.sub_queries?.map((subQuery) => {
+							if (subQuery?.sub_query === data?.reading?.sub_query) {
+								const readings = [...(subQuery?.readings || [])];
+								readings?.push({ reading: data?.reading });
+								return {
+									...subQuery,
+									readings,
+								};
+							}
+							return subQuery;
+						});
+						return {
+							...section,
+							sub_queries,
+						};
+					}
+					return section;
+				});
+			}
+
+			if (data?.refined_sub_queries) {
+				const refined_sub_queries = (data?.refined_sub_queries || [])?.map((subQuery) => ({
+					refined_sub_query: subQuery,
+				}));
+				sections_refined?.push({
+					section: data?.section,
+					refined_sub_queries,
+					section_id: data?.section_id,
+				});
+			}
+
+			if (data?.reading && data?.reading?.refined_sub_query && data?.section_id) {
+				sections_refined = sections_refined?.map((section) => {
+					if (section?.section_id === data?.section_id) {
+						let refined_sub_queries = section?.refined_sub_queries?.map((subQuery) => {
+							if (subQuery?.refined_sub_query === data?.reading?.refined_sub_query) {
+								const readings = [...(subQuery?.readings || [])];
+								readings?.push({ reading: data?.reading });
+								return {
+									...subQuery,
+									readings,
+								};
+							}
+							return subQuery;
+						});
+						return {
+							...section,
+							refined_sub_queries,
+						};
+					}
+					return section;
+				});
+			}
+
+			if (data?.compiling && data?.section_id) {
+				sections = sections?.map((section) => {
+					if (section?.section_id === data?.section_id) {
+						return {
+							...section,
+							compiling: data?.compiling,
+						};
+					}
+					return section;
+				});
+				sections_refined = sections_refined?.map((section) => {
+					if (section?.section_id === data?.section_id) {
+						return {
+							...section,
+							compiling: data?.compiling,
+						};
+					}
+					return section;
+				});
+			}
+		}
+
+		return { cot, sections, sections_refined };
+	}, []);
+
 	const recentChatHandler = useCallback(
 		(inComingData, fetcMore = false, firstTimeApiCall = false) => {
 			const { data, hasNextPage, currentPage } = inComingData;
@@ -449,14 +559,23 @@ const RecentChat = ({
 						moduleTemplateId: moduleTemplateId || null,
 					};
 				}
+				let processing = null;
+				let deepSearch = {},
+					deepResearch = {};
 
-				const index = chainOfThought?.findIndex(
-					(item) => item?.need_refinement === true || item?.need_refinement === false,
-				);
-				let cot = [];
-				// if (index !== -1) {
-				// 	cot = chainOfThought?.slice(0, index - 1);
-				// }
+				if (chainOfThought?.length > 0) {
+					processing = chainOfThought?.[0]?.deep_search
+						? 'Deep Search'
+						: chainOfThought?.[0]?.deep_research
+						? 'Deep Research'
+						: null;
+
+					if (processing === 'Deep Search') {
+						deepSearch = handleDeepSearchChainOfThought(chainOfThought);
+					} else if (processing === 'Deep Research') {
+						deepResearch = handleDeepResearchChainOfThought(chainOfThought);
+					}
+				}
 
 				messages = [
 					{
@@ -474,11 +593,9 @@ const RecentChat = ({
 						module_template_id: moduleTemplateId || null,
 						isOldMessage: true,
 						stream_end: true,
-						...(cot?.length > 0 && {
-							deepSearch: {
-								cot,
-							},
-						}),
+						processing,
+						...(processing === 'Deep Search' && { deepSearch }),
+						...(processing === 'Deep Research' && { deepResearch }),
 					},
 				]?.concat(messages);
 			}
@@ -669,10 +786,10 @@ const RecentChat = ({
 
 	const handleNavigateBack = useCallback(() => {
 		const pathname = location?.pathname?.split('/')?.[1];
-		if (pathname === 'chat' || pathname === 'c') {
-			navigate(-1);
-		} else if (pathname === 'calendar' || pathname === 'contacts' || pathname === 'tasks') {
+		if (pathname === 'calendar' || pathname === 'contacts' || pathname === 'tasks') {
 			onNavigateBack?.();
+		} else {
+			navigate(-1);
 		}
 	}, [location?.pathname]);
 

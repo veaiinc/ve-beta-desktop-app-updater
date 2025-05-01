@@ -86,22 +86,32 @@ const Person = ({
 	};
 
 	// Add debug logging for option rendering
-	const optionRender = useCallback((option) => {
-		return (
-			<div className="person-dropdown-menu-option">
-				<div className="person-dropdown-menu-option-avatar">
-					{option?.image ? (
-						<img src={option?.image} alt="" />
-					) : (
-						<div className="person-dropdown-menu-option-avatar-icon">
-							{option?.label?.[0]?.toUpperCase()}
-						</div>
-					)}
+	const optionRender = useCallback(
+		(option) => {
+			const isSelected = multiSelect
+				? Array.isArray(info?.value) && info.value.some((v) => v?.value === option.value)
+				: info?.value?.value === option.value;
+
+			return (
+				<div
+					className="person-dropdown-menu-option"
+					style={{ backgroundColor: isSelected ? 'var(--card-hover)' : `` }}
+				>
+					<div className="person-dropdown-menu-option-avatar">
+						{option?.image ? (
+							<img src={option?.image} alt="" />
+						) : (
+							<div className="person-dropdown-menu-option-avatar-icon">
+								{option?.label?.[0]?.toUpperCase()}
+							</div>
+						)}
+					</div>
+					<div className="person-dropdown-menu-option-label">{option?.label}</div>
 				</div>
-				<div className="person-dropdown-menu-option-label">{option?.label}</div>
-			</div>
-		);
-	}, []);
+			);
+		},
+		[info?.value, multiSelect],
+	);
 
 	return (
 		<Tooltip

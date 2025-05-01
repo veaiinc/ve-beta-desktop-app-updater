@@ -311,6 +311,15 @@ const actionHandlers = {
 						}
 						return section;
 					});
+					sections_refined = sections_refined?.map((section) => {
+						if (section?.section_id === payload?.section_id) {
+							return {
+								...section,
+								compiling: payload?.compiling,
+							};
+						}
+						return section;
+					});
 				}
 
 				if (payload?.reading && payload?.reading?.sub_query && payload?.section_id) {
