@@ -13,6 +13,7 @@ import ContactUs from '../../components/landing_screen/ContactUs';
 import SidebarIcon from '../../../assets/svg/SidebarIcon';
 import TabNavigation from '../../components/landing_screen/TabNavigation';
 import ChatBox from '../../components/chat/ChatBox';
+import OurMission from './OurMission';
 const routeType = 'public';
 
 const LandingPage = () => {
@@ -55,6 +56,14 @@ const LandingPage = () => {
 	// Add this function to handle clicking outside the sidebar to close it
 	const handleOutsideClick = (e) => {
 		if (isSidebarOpen && e.target.classList.contains('mobile-tabs-wrapper')) {
+			handleCloseSidebar();
+		}
+	};
+
+	const handleSetTab = (tabVal) => {
+		setTab(tabVal);
+
+		if (window.innerWidth < 768) {
 			handleCloseSidebar();
 		}
 	};
@@ -128,7 +137,8 @@ const LandingPage = () => {
 		),
 
 		// 1: <ContactUs type="Investor" />,
-		1: <ContactUs type="Enterprise" />,
+		1: <OurMission />,
+		2: <ContactUs type="Enterprise" />,
 	};
 
 	return (
@@ -147,7 +157,7 @@ const LandingPage = () => {
 						className="sidebar-button"
 					>
 						{/* Use the original isActive prop approach */}
-						<SidebarIcon isActive={isSidebarOpen} />
+						<SidebarIcon isActive={isSidebarOpen} setIsActive={setIsSidebarOpen} />
 					</button>
 				</div>
 				<div className="right-container">
@@ -163,9 +173,10 @@ const LandingPage = () => {
 				</div>
 				<TabNavigation
 					tab={tab}
-					setTab={setTab}
+					handleSetTab={handleSetTab}
 					isVisible={isSidebarOpen}
 					handleCloseSidebar={handleCloseSidebar}
+					setIsSidebarOpen={setIsSidebarOpen}
 				/>
 			</div>
 
