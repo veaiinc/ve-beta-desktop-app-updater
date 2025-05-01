@@ -123,7 +123,7 @@ const HeadersDropDownComp = ({
 					value={searchValue}
 					onChange={handleInputChange}
 					className="selectedPage"
-					placeholder="Type here to search"
+					placeholder="Source"
 				/>
 
 				{showArrow ? <DownArrow /> : ''}
