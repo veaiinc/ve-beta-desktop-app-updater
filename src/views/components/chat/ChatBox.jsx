@@ -8,6 +8,7 @@ import { ReactComponent as PlusSvg } from '../../../assets/svg/ai_assistant/plus
 import { ReactComponent as AudioSvg } from '../../../assets/svg/ai_agents/audio.svg';
 import { ReactComponent as AtomSvg } from '../../../assets/svg/ai_agents/atom.svg';
 import { ReactComponent as ArrowDownSvg } from '../../../assets/svg/ai_agents/arrow-down.svg';
+import { ReactComponent as ArrowUpRightSvg } from '../../../assets/svg/sidebar/arrowupright.svg';
 import Context from '../../../context/context';
 import ObjectID from 'bson-objectid';
 import { useLocation } from 'react-router-dom';
@@ -103,6 +104,8 @@ const ChatBox = ({
 	isParentHeaderMinimized = false,
 	animatePlaceholder = false,
 	customChatBoxClick = null,
+	showScrollButton = false,
+	smoothScrollToBottom = null,
 }) => {
 	const textAreaRef = useRef(null);
 	const location = useLocation();
@@ -1625,6 +1628,13 @@ const ChatBox = ({
 				{/* )} */}
 			</div>
 			<div className="chatbarContainer" style={{ width: '100%' }}>
+				{showScrollButton && (
+					<div className="scroll-btn-wrapper">
+						<button className="scroll-button" onClick={smoothScrollToBottom}>
+							<ArrowUpRightSvg className="arrow-up" />
+						</button>
+					</div>
+				)}
 				{uploadedImagesRef?.current?.length > 0 ? (
 					<div className="imagePreviewBar">
 						{uploadedImagesRef?.current?.map((ele, index) => (

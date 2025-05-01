@@ -47,12 +47,25 @@ const SettingsWrapper = (props) => {
 			className={`${
 				type === 'integrations' || type === 'ai-setup' ? '' : 'accountSettingsMainWrapper'
 			}`}
+			style={{
+				height: '100%',
+			}}
 		>
 			{type === 'ai-setup' ? (
 				mapper?.[type]
 			) : (
-				<div className={`${type !== 'integrations' ? 'accountSettingsWrapper' : ''}`}>
-					<div className={`${type !== 'integrations' ? 'accountSettingsMapper' : ''}`}>
+				<div
+					className={`${type !== 'integrations' ? 'accountSettingsWrapper' : ''}`}
+					style={{
+						height: '100%',
+					}}
+				>
+					<div
+						className={`${type !== 'integrations' ? 'accountSettingsMapper' : ''}`}
+						style={{
+							height: '100%',
+						}}
+					>
 						{mapper?.[type]}
 					</div>
 					{/* <div className="accountSettingsSidebar">

@@ -601,7 +601,7 @@ const routes = [
 	{
 		path: '/contact/:contactId',
 		component: (
-			<AuthWrapper title="Contact Details">
+			<AuthWrapper title="Contact Details" outerContainerStyle={{ padding: '0 32px 0 0' }}>
 				<ExpandedClientView />
 			</AuthWrapper>
 		),
