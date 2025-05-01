@@ -488,6 +488,7 @@ const OpenedSidebar = ({
 	}, [showSettingsSidebar, settingsOptions]);
 
 	const toggleSidebar = () => {
+		navigate('/settings/my-profile');
 		setShowSettingsSidebar((prev) => !prev);
 	};
 
