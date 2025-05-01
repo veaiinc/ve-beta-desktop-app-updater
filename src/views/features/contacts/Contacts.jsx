@@ -109,7 +109,7 @@ const Contacts = () => {
 							))}
 						</div>
 
-						<div className="suggested-sections">
+						{/* <div className="suggested-sections">
 							<div className="section-title">Suggested Actions</div>
 							<div className="action-buttons">
 								<button>Hand off to Priya</button>
@@ -126,7 +126,7 @@ const Contacts = () => {
 									</div>
 								))}
 							</div>
-						</div>
+						</div> */}
 					</div>
 				</div>
 			</ChatLeftBarComponent>
