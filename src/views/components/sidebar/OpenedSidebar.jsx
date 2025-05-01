@@ -58,7 +58,6 @@ const MODULE_NAME_MAP = {
 
 const routeType = 'public';
 
-const workspaceId = localStorage.getItem('workspaceId');
 const OpenedSidebarModules = ({
 	name,
 	Icon,
@@ -623,6 +622,9 @@ const OpenedSidebar = ({
 												display: 'flex',
 												flexDirection: 'column',
 												width: '100%',
+												justifyContent: `${
+													isThisEarlyAccessPage ? 'flex-end' : ''
+												}`,
 												// overflowY: 'auto',
 											}}
 											id="chatsScroll"
@@ -774,7 +776,9 @@ const OpenedSidebar = ({
 																</div>
 																<div className="settingsOptionsUserName">
 																	<span className="workspaceId">
-																		{workspaceId}
+																		{
+																			tennantSettingsData?.businessName
+																		}
 																	</span>
 																	<span>
 																		{userDetailsData?.firstName}
@@ -885,7 +889,7 @@ const OpenedSidebar = ({
 					</div>
 				)}
 				{/* Settings Sidebar Overlay */}
-				{showSettingsSidebar && (
+				{showSettingsSidebar && !isThisEarlyAccessPage && (
 					<div
 						className="settings-sidebar"
 						style={{ height: renewBanner ? 'calc(100dvh - 41px)' : '100dvh' }}
