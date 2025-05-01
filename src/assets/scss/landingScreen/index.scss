@@ -5,7 +5,7 @@
 		display: block;
 		position: fixed;
 		inset: 0;
-		z-index: 998; // just below the tabNavigation z-index
+		z-index: 988; // just below the tabNavigation z-index
 		backdrop-filter: blur(6px);
 		background-color: var(--background-color);
 		transition: opacity 0.3s ease;
@@ -29,24 +29,23 @@
 
 	.tabNavigation {
 		display: flex;
-		width: 250px; // Increased width for better appearance
+		width: 250px;
 		flex-direction: column;
-		align-items: flex-start; // Changed from center to flex-start
+		align-items: flex-start;
 		gap: 4px;
-		position: fixed; // Changed from absolute to fixed
-		top: 0; // Start from the top of the viewport
+		position: absolute;
 		left: 0;
-		height: 100vh; // Take full viewport height
+		top: 0;
+		height: 100vh;
 		background-color: var(--background-color);
-		box-shadow: 0 4px 10px var(--stroke);
 		transition: transform 0.4s ease, opacity 0.4s ease, visibility 0s ease 0.4s;
 		opacity: 0;
 		transform: translateX(-100%);
 		pointer-events: none;
 		visibility: hidden;
-		padding-top: 104px; // Add padding at the top to position options at the same place
-		padding-left: 27px; // Keep the horizontal position the same
-		z-index: 999; // Ensure it's above other content
+		padding-top: 104px;
+		padding-left: 27px;
+		z-index: 988;
 
 		&.slide-in {
 			opacity: 1;
@@ -177,7 +176,7 @@
 		}
 
 		.tabNavigation {
-			width: 80%;
+			width: 100%;
 			padding-top: 80px; // Adjust top padding for mobile screens
 		}
 
