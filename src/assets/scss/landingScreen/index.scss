@@ -5,7 +5,7 @@
 		display: block;
 		position: fixed;
 		inset: 0;
-		z-index: 998; // just below the tabNavigation z-index
+		z-index: 988; // just below the tabNavigation z-index
 		backdrop-filter: blur(6px);
 		background-color: var(--background-color);
 		transition: opacity 0.3s ease;
@@ -35,7 +35,8 @@
 		gap: 4px;
 		position: absolute;
 		left: 0;
-		height: 100%;
+		top: 0;
+		height: 100vh;
 		background-color: var(--background-color);
 		transition: transform 0.4s ease, opacity 0.4s ease, visibility 0s ease 0.4s;
 		opacity: 0;
@@ -175,7 +176,7 @@
 		}
 
 		.tabNavigation {
-			width: 80%;
+			width: 100%;
 			padding-top: 80px; // Adjust top padding for mobile screens
 		}
 

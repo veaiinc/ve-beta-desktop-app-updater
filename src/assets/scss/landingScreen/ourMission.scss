@@ -6,6 +6,7 @@
 	font-weight: 700;
 	font-family: var(--secondary-font-family);
 	padding-left: 100px;
+	overflow-y: scroll;
 
 	.mission-block {
 		margin-bottom: 50px;
@@ -77,5 +78,11 @@
 				line-height: 30px;
 			}
 		}
+	}
+}
+
+@media (max-width: 900px) {
+	.our-mission-container {
+		padding: 0 20px;
 	}
 }

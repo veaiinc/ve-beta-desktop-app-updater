@@ -1,17 +1,16 @@
-import { memo, useState } from 'react';
+// SidebarIcon.jsx
+import { memo } from 'react';
 import '../scss/sidebarIcon.scss';
-const SidebarIcon = () => {
-	const [active, setActive] = useState(false);
+
+const SidebarIcon = ({ isActive }) => {
 	return (
 		<svg
-			className={`sidebar-icon ${!active ? 'active' : ''}`}
+			className={`sidebar-icon ${!isActive ? 'active' : ''}`}
 			xmlns="http://www.w3.org/2000/svg"
 			width="20"
 			height="20"
 			viewBox="0 0 20 20"
 			fill="none"
-			onClick={() => setActive(!active)}
-			style={{ cursor: 'pointer' }}
 		>
 			<g clipPath="url(#clip0_17288_15123)">
 				<path

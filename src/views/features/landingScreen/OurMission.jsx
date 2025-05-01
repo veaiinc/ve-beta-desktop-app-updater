@@ -38,7 +38,7 @@ const OurMission = () => {
 					moves things forward.
 					<strong> Our goal is simple: Make the business think for itself. </strong>
 					Like a car that drives itself,
-					<a href="http://ve.ai/" target="_blank" rel="noreferrer">
+					<a href="http://ve.ai/" rel="noreferrer">
 						{' '}
 						Ve.ai{' '}
 					</a>
@@ -67,7 +67,7 @@ const OurMission = () => {
 					We're not chasing hype. We're building deliberately, layer by layer — starting
 					with one thing every company needs: clarity in the middle of chaos. We start by
 					making work find you — not the other way around. Over time,
-					<a href="http://ve.ai/" target="_blank" rel="noreferrer">
+					<a href="http://ve.ai/" rel="noreferrer">
 						{' '}
 						Ve.ai{' '}
 					</a>
@@ -100,7 +100,7 @@ const OurMission = () => {
 					The future we see is not filled with more apps. It's filled with intelligent
 					companies — businesses that know what's happening, what needs to happen, and act
 					without waiting to be told.
-					<a href="http://ve.ai/" target="_blank" rel="noreferrer">
+					<a href="http://ve.ai/" rel="noreferrer">
 						{' '}
 						Ve.ai{' '}
 					</a>

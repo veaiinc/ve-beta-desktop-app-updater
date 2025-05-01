@@ -1,6 +1,6 @@
 import { memo } from 'react';
 
-const TabNavigation = ({ tab, setTab, isVisible }) => {
+const TabNavigation = ({ tab, handleSetTab, isVisible }) => {
 	const tabs = ['Home', 'Mission', 'For Enterprise'];
 
 	return (
@@ -9,7 +9,7 @@ const TabNavigation = ({ tab, setTab, isVisible }) => {
 				<li
 					className={index === tab ? 'active' : ''}
 					onClick={() => {
-						setTab(index);
+						handleSetTab(index);
 					}}
 					key={index}
 				>

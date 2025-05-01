@@ -60,6 +60,14 @@ const LandingPage = () => {
 		}
 	};
 
+	const handleSetTab = (tabVal) => {
+		setTab(tabVal);
+
+		if (window.innerWidth < 768) {
+			handleCloseSidebar();
+		}
+	};
+
 	const newThemeValue = theme === 'dark' ? 'light' : 'dark';
 
 	// Simple tab-to-component mapping
@@ -149,7 +157,7 @@ const LandingPage = () => {
 						className="sidebar-button"
 					>
 						{/* Use the original isActive prop approach */}
-						<SidebarIcon isActive={isSidebarOpen} />
+						<SidebarIcon isActive={isSidebarOpen} setIsActive={setIsSidebarOpen} />
 					</button>
 				</div>
 				<div className="right-container">
@@ -165,9 +173,10 @@ const LandingPage = () => {
 				</div>
 				<TabNavigation
 					tab={tab}
-					setTab={setTab}
+					handleSetTab={handleSetTab}
 					isVisible={isSidebarOpen}
 					handleCloseSidebar={handleCloseSidebar}
+					setIsSidebarOpen={setIsSidebarOpen}
 				/>
 			</div>
 
