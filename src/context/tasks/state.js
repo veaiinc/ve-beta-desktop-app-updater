@@ -40,6 +40,7 @@ export const intialState = {
 	refetchTasks: false,
 	refetchTasksForDue: false,
 	listTaskWithGroup: null,
+	sideBarData: null,
 };
 
 export const TasksState = () => {
@@ -848,6 +849,13 @@ export const TasksState = () => {
 		}
 	};
 
+	const updateSideBarData = (data) => {
+		dispatch({
+			type: Actions.UPDATE_SIDEBAR_DATA,
+			payload: data,
+		});
+	};
+
 	return {
 		...state,
 		getListItems,
@@ -882,5 +890,6 @@ export const TasksState = () => {
 		handleGroupChange,
 		updateTaskPrefix,
 		updateSelectedView,
+		updateSideBarData,
 	};
 };

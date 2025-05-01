@@ -296,6 +296,11 @@ const actionHandlers = {
 			},
 		};
 	},
+	UPDATE_SIDEBAR_DATA: (state, action) => ({
+		...state,
+		sideBarData: action?.payload,
+	}),
+
 	RESET_STATE: () => intialState,
 };
 
