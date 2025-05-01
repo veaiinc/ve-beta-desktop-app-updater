@@ -105,12 +105,14 @@ const OptionsDropDown = ({
 	}, [info.pendingLabel, updateViewInfo, viewData?.label]);
 
 	const handlePrefixChange = useCallback((e) => {
-		if (e.target?.value?.trim?.length <= 4) {
-			setInfo((prev) => ({
-				...prev,
-				pendingPrefix: e.target.value?.trim(),
-			}));
+		if (e.target?.value?.trim()?.length > 4) {
+			return;
 		}
+
+		setInfo((prev) => ({
+			...prev,
+			pendingPrefix: e.target.value?.trim()?.toUpperCase(),
+		}));
 	}, []);
 
 	const handlePrefixKeyDown = useCallback(
@@ -123,6 +125,10 @@ const OptionsDropDown = ({
 	);
 
 	const handlePrefixBlur = useCallback(() => {
+		if (!info?.pendingPrefix?.trim()) {
+			setInfo((prevInfo) => ({ ...prevInfo, pendingPrefix: prefix }));
+			return;
+		}
 		if (info.pendingPrefix !== prefix) {
 			updateTaskPrefix({ input: { prefix: info?.pendingPrefix } });
 		}
