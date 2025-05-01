@@ -1,6 +1,6 @@
 import React, { memo, useCallback, useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/knowledgeAgent/agentDetails.scss';
-import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import CreateAgentHeader from '../../components/ai_assistant/CreateAgentHeader';
 import { ReactComponent as AgentIcon } from '../../../assets/svg/ai_assistant/agent.svg';
 import { ReactComponent as EditIcon } from '../../../assets/svg/ai_assistant/edit.svg';
@@ -16,7 +16,7 @@ import ChatBox from '../../components/chat/ChatBox';
 const KnowledgeAgentDetails = () => {
 	const {
 		knowledgeAgent: { activeKnowledgeAssistant, getActiveKnowledgeAgentDetails },
-		templates: { updateStateValues, currentSessionId, chatInfo },
+		templates: { updateStateValues, currentSessionId },
 	} = useContext(Context);
 
 	const { agentId } = useParams();
@@ -49,22 +49,13 @@ const KnowledgeAgentDetails = () => {
 	}, [agentId, activeKnowledgeAssistant]);
 
 	useEffect(() => {
-		if (agentId) {
-			updateStateValues({
-				chatInfo: { ...chatInfo, agentType: 'knowledge_agent', assistantId: agentId },
-			});
-		}
-	}, [agentId]);
-
-	useEffect(() => {
 		checkAccess();
 	}, [info?.activeAiAssistant]);
 
 	const handleCustomOnSendFunction = useCallback(
 		(data) => {
 			updateStateValues({ activePayloadForChat: data });
-
-			navigate(`/chat/${currentSessionId}`);
+			navigate(`/chat/${currentSessionId}?agentType=knowledge_agent&assistantId=${agentId}`);
 		},
 		[currentSessionId],
 	);

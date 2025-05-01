@@ -344,27 +344,26 @@ const CreateTaskPopup = ({
 							/>
 						</div>
 						<div className="footer-wrapper">
-							{info?.isSubTaskEditing && (
-								<button
-									className="btn-cancel"
-									onClick={() => {
-										setInfo((prev) => ({
-											...prev,
-											showSubTaskCreate: false,
-											isSubTaskEditing: false,
-											editingSubTaskIndex: null,
-											subTaskTitle: '',
-											subTaskDescription: '',
-											subTaskAssignedTo: [],
-											subTaskDueDate: null,
-											subTaskPriority: 'low',
-											subTaskStatus: 'todo',
-										}));
-									}}
-								>
-									Cancel
-								</button>
-							)}
+							<button
+								className="btn-cancel"
+								onClick={() => {
+									setInfo((prev) => ({
+										...prev,
+										showSubTaskCreate: false,
+										isSubTaskEditing: false,
+										editingSubTaskIndex: null,
+										subTaskTitle: '',
+										subTaskDescription: '',
+										subTaskAssignedTo: [],
+										subTaskDueDate: null,
+										subTaskPriority: 'low',
+										subTaskStatus: 'todo',
+									}));
+								}}
+							>
+								Cancel
+							</button>
+
 							<button
 								className="btn-createSubTask"
 								onClick={handleAddSubTask}

@@ -20,7 +20,7 @@
 			position: sticky;
 			top: 0;
 			z-index: 10;
-			padding: 20px 24px;
+			padding: 16px 20px;
 			background: var(--navbar, #202123);
 			border-bottom: 1px solid var(--stroke, #333334);
 			.header-content {
@@ -137,7 +137,7 @@
 		flex: 1 0 0;
 		align-self: stretch;
 		padding: 20px 20px 30px;
-		border-left: 1px solid var(--stroke, #333334);
+		background: var(--right-bar);
 		.body-header {
 			display: flex;
 			flex-direction: column;
@@ -155,12 +155,42 @@
 				line-height: normal;
 			}
 			.description {
-				color: var(--primary-font, #f2f2f3);
+				color: var(--secondary-font, #93989f);
 				font-family: var(--primary-font-family);
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 400;
 				line-height: 22px;
+			}
+		}
+		.triggered-source-container {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			align-self: stretch;
+			.triggered-source-text {
+				color: var(--primary-font, #f2f2f3);
+				font-family: Inter;
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+			.triggered-source-value {
+				display: flex;
+				padding: 4px 6px;
+				align-items: center;
+				gap: 4px;
+				border-radius: 100px;
+				border: 1px solid var(--stroke, #2c2d2e);
+				background: var(--popup, #202123);
+				color: var(--primary-font, #f2f2f3);
+				font-family: Inter;
+				font-size: 11px;
+				font-style: normal;
+				font-weight: 400;
+				line-height: normal;
+				cursor: pointer;
 			}
 		}
 
@@ -176,6 +206,7 @@
 				align-items: flex-start;
 				gap: 16px;
 				flex: 1 0 0;
+				margin-bottom: 22px;
 				.content-container {
 					display: flex;
 					align-items: flex-start;
@@ -256,7 +287,7 @@
 				border-radius: 16px;
 				padding: 16px;
 				box-shadow: 0px 0px 10px 0px var(--stroke);
-
+				margin-bottom: 22px;
 				.markdown-custom-content {
 					--font-size: 15px;
 				}
@@ -342,7 +373,7 @@
 			flex-direction: row;
 			justify-content: space-between;
 			align-items: center;
-			padding: 20px 24px;
+			padding: 16px 20px 0px;
 			.footer-left {
 				display: flex;
 				flex-direction: row;
@@ -356,7 +387,7 @@
 					align-items: center;
 					gap: 6px;
 					border-radius: 100px;
-					border: 1px solid var(--secondary-font);
+					border: 1px solid var(--stroke);
 					cursor: pointer;
 					&.selected-thumb {
 						border: 1px solid var(--primary-font, #f2f2f3);
@@ -381,7 +412,7 @@
 
 					border-radius: 100px;
 					border: 1px solid var(--stroke, #333334);
-					background-color: var(--card);
+					background-color: transparent;
 
 					color: var(--primary-font, #f2f2f3);
 					font-family: var(--primary-font-family);
@@ -410,7 +441,7 @@
 }
 
 .horizontal-line {
-	width: 100%;
+	width: 500px;
 	height: 1px;
 	background: var(--stroke, #333334);
 	border: none;
@@ -421,7 +452,7 @@
 	align-items: center;
 	cursor: pointer;
 	width: 100%;
-	margin-top: 10px;
+	padding: 10px 0px;
 	.cot-text {
 		display: flex;
 		align-items: center;

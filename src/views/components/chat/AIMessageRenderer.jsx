@@ -52,7 +52,7 @@ const AIMessageRenderer = ({
 			<div
 				className={`tabs-wrapper`}
 				ref={(el) => {
-					if (el && messageData?.messageId) {
+					if (el) {
 						tabsRefs.current[messageData?.messageId] = el;
 					}
 				}}

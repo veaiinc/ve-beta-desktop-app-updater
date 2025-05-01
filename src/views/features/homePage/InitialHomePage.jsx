@@ -7,6 +7,7 @@ import ChatPrompts from './ChatPrompts';
 import QuickActions from '../../components/globalComponents/QuickActions';
 import GlobalWidget from '../../components/globalComponents/GlobalWidget';
 import ChatBox from '../../components/chat/ChatBox';
+import { message } from '../../components/globalComponents/CustomToast';
 
 const optionsList = [
 	{
@@ -49,6 +50,74 @@ const optionsList = [
 	},
 ];
 
+const SuggestedOptions = [
+	{
+		id: 1,
+		title: 'Event',
+		value: 'event',
+		action: ({ setInfo }) => {
+			setInfo((prev) => ({ ...prev, openEventsPopup: true }));
+		},
+	},
+	{
+		id: 2,
+		title: 'Session',
+		value: 'session',
+		action: ({ setInfo }) => {
+			setInfo((prev) => ({ ...prev, openSessionPopup: true, dropdown: false }));
+		},
+	},
+	{
+		id: 3,
+		title: 'Task',
+		value: 'task',
+		action: ({ setInfo }) => {
+			setInfo((prev) => ({ ...prev, createTaskPopup: true }));
+		},
+	},
+	{
+		id: 4,
+		title: 'Contact',
+		value: 'contacts',
+		action: ({ setInfo }) => {
+			setInfo((prev) => ({ ...prev, openClientPopup: true }));
+		},
+	},
+	{
+		id: 5,
+		title: 'Automation',
+		value: 'automation',
+		action: async ({ setInfo, navigate, createAutomation, info }) => {
+			if (info?.isAutomationLoading) return;
+			try {
+				setInfo((prev) => ({
+					...prev,
+					showLoader: true,
+					loaderMessage: 'Creating automation...',
+				}));
+				const response = await createAutomation({
+					name: 'Untitled Automation',
+					version: 1,
+					steps: [],
+					status: 'draft',
+				});
+				if (response?.[0]) {
+					navigate(`/automation-builder/${response?.[1]?._id}`);
+				} else {
+					message.error('Failed to create automation');
+				}
+			} catch (error) {
+				message.error('Failed to create automation');
+			} finally {
+				setInfo((prev) => ({
+					...prev,
+					showLoader: false,
+					loaderMessage: '',
+				}));
+			}
+		},
+	},
+];
 const InitialHomePage = () => {
 	const {
 		templates: { updateStateValues, currentSessionId },
@@ -278,7 +347,7 @@ const InitialHomePage = () => {
 			}}
 		>
 			<div className="quick-actions-container">
-				<QuickActions />
+				<QuickActions suggestedOptions={SuggestedOptions} />
 			</div>
 			<div
 				className={`home-page-container-header `}

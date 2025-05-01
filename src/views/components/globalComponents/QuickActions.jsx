@@ -5,7 +5,7 @@ import { useContext, useState, useCallback, useEffect, memo, useMemo } from 'rea
 import '../../../assets/scss/globalComponents/quickActions.scss';
 import Search from '../../../assets/svg/seach-magnifier.svg';
 import LoaderModal from '../modalsV2/automationBuilder/AutomationLoaderModal';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import Context from '../../../context/context';
 import ProposalsPopup from '../../../views/components/docs/ProposalsPopup';
 import CreateClientModal from '../../../views/components/modalsV2/contacts/CreateClientModal';
@@ -262,6 +262,10 @@ const moduleOptions = [
 	},
 ];
 
+const locationOptions = {
+	files: 'Files',
+	'knowledge-agent': 'Knowledge Agents',
+};
 const defaultPreference = {
 	taskSlNo: { show: false, order: 1 },
 	title: { show: true, order: 2 },
@@ -303,6 +307,7 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 	} = useContext(Context);
 
 	const navigate = useNavigate();
+	const location = useLocation();
 
 	const [info, setInfo] = useState({
 		dropdown: false,
@@ -333,6 +338,8 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 		},
 		group: null,
 		page: 1,
+		currentLocation: '',
+		locationNeeded: false,
 	});
 
 	const responseMetadata = useMemo(
@@ -507,20 +514,27 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 			if (!info?.options) return { suggestedOptions: [], moduleOptions: [] };
 
 			const searchTerm = searchKey.toLowerCase();
+
 			let suggestedOptions = searchKey
 				? info?.options?.suggestedOptions?.filter((option) =>
-						option?.title?.toLowerCase().includes(searchTerm),
+						option?.title.includes(searchTerm),
 				  )
 				: info?.options?.suggestedOptions;
 
 			let moduleOptions = searchKey
 				? info?.options?.moduleOptions?.filter((option) =>
-						option?.title?.toLowerCase().includes(searchTerm),
+						option?.title.includes(searchTerm),
 				  )
 				: info?.options?.moduleOptions;
 
+			// Filter by access control
 			moduleOptions = accessibleOptions(moduleOptions);
 			suggestedOptions = accessibleOptions(suggestedOptions);
+
+			// 🔥 New Step: Remove moduleOptions which have value same as suggestedOptions
+			const suggestedValuesSet = new Set(suggestedOptions.map((option) => option.value));
+
+			moduleOptions = moduleOptions.filter((option) => !suggestedValuesSet.has(option.value));
 
 			return { suggestedOptions, moduleOptions };
 		},
@@ -530,7 +544,7 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 	useEffect(() => {
 		const options = filtereOptions();
 		setInfo((prev) => ({ ...prev, filteredOptions: options }));
-	}, [filtereOptions]);
+	}, [tenantUserAccessControls]);
 
 	useEffect(() => {
 		const fetchTaskMetadata = async () => {
@@ -575,16 +589,15 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 	useEffect(() => {
 		if (!info.dropdown) {
 			// Reset search and filtered options when dropdown closes
+			// Apply filtereOptions and accessibleOptions again while resetting
+			const options = filtereOptions();
 			setInfo((prev) => ({
 				...prev,
 				search: '',
-				filteredOptions: {
-					suggestedOptions: accessibleOptions(suggestedOptions),
-					moduleOptions: accessibleOptions(moduleOptions),
-				},
+				filteredOptions: options,
 			}));
 		}
-	}, [info.dropdown, accessibleOptions]);
+	}, [info.dropdown, filtereOptions]); // Make sure to track filtereOptions changes
 
 	useEffect(() => {
 		if (taskPreference === null) {
@@ -616,6 +629,16 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 			},
 		}));
 	}, [taskPreference]);
+
+	useEffect(() => {
+		if (location.pathname.includes('knowledge-agent') || location.pathname.includes('files')) {
+			setInfo((prev) => ({
+				...prev,
+				locationNeeded: true,
+				currentLocation: locationOptions[location.pathname.split('/')[1]],
+			}));
+		}
+	}, [location.pathname]);
 
 	const addNewTask = useCallback(
 		async (payload) => {
@@ -710,7 +733,10 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 						</div>
 						{info?.filteredOptions?.suggestedOptions?.length > 0 && (
 							<div className="suggested-modules-container">
-								<div className="suggested-modules-container-header">Suggested</div>
+								<div className="suggested-modules-container-header">
+									Suggested Actions{' '}
+									{info?.locationNeeded ? ` for ${info?.currentLocation}` : ''}
+								</div>
 								<div className="suggested-modules-container-options">
 									{info?.filteredOptions?.suggestedOptions?.map((option) => (
 										<div

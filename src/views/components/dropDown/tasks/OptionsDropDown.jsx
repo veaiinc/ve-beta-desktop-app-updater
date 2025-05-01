@@ -28,6 +28,7 @@ const OptionsDropDown = ({
 	handleDuplicateView,
 	prefix,
 	layoutOptions,
+	tabLength,
 }) => {
 	const [info, setInfo] = useState({
 		selected: null,
@@ -279,15 +280,17 @@ const OptionsDropDown = ({
 											Duplicate View
 										</span>
 									</div>
-									<div
-										className="view-options-list-item"
-										onClick={() => handleDeleteView(viewData?._id)}
-									>
-										<DeleteIcon className="task-delete-icon" />
-										<span className="view-options-list-item-label">
-											Delete View
-										</span>
-									</div>
+									{tabLength > 1 && (
+										<div
+											className="view-options-list-item"
+											onClick={() => handleDeleteView(viewData?._id)}
+										>
+											<DeleteIcon className="task-delete-icon" />
+											<span className="view-options-list-item-label">
+												Delete View
+											</span>
+										</div>
+									)}
 								</div>
 							</div>
 						</div>

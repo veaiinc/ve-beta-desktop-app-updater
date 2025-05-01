@@ -41,7 +41,7 @@ export const ProfileState = () => {
 			const userDetails = await service.fetchGet(
 				'/tenant-user/my-profile',
 				usertoken,
-				'auth',
+				'tenant',
 			);
 
 			if (userDetails?.[0]) {
@@ -457,9 +457,9 @@ export const ProfileState = () => {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let decoded = jwt_decode(usertoken);
 			const response = await service.fetchGet(
-				`/tenant/${workspaceId}/tenant-user-access-control/${decoded.user_id}`,
+				`/tenant-user/${workspaceId}/tenant-user-access-control/${decoded.user_id}`,
 				usertoken,
-				'auth',
+				'tenant',
 			);
 			if (response?.[0]) {
 				dispatch({

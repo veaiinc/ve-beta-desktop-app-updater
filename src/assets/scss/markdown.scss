@@ -33,7 +33,7 @@
 		letter-spacing: calc(var(--font-size) * 0.0125);
 		font-weight: 700;
 		font-family: var(--chat-primary-font-family);
-		margin-top: calc(var(--font-size) * 1.5); /* 24px */
+		margin-top: calc(var(--font-size) * 0.75); /* 24px */
 		margin-bottom: calc(var(--font-size) * 0.5); /* 8px */
 		line-height: calc(var(--font-size) * 2.25);
 	}
@@ -162,8 +162,7 @@
 		max-width: 100%;
 		overflow-x: auto;
 		border-radius: calc(var(--font-size) * 1);
-		background-color: var(--card);
-		border: 1px solid transparent;
+		border: 1px solid var(--stroke);
 		margin: calc(var(--font-size) * 0.625) 0;
 
 		&::-webkit-scrollbar {
@@ -188,37 +187,34 @@
 			border-collapse: separate;
 			border-spacing: 0;
 			width: 100%;
-			padding: calc(var(--font-size) * 1);
 
 			th {
-				color: var(--primary-font);
-				text-align: left;
 				border-bottom: 1px solid var(--stroke);
-				font-weight: 700;
-				font-family: var(--chat-primary-font-family);
 			}
 
-			tr {
-				&:hover {
-					background-color: var(--card-hover);
+			tr:first-child {
+				td {
+					padding-top: calc(var(--font-size) * 1); /* 16px */
 				}
 			}
 
 			th,
 			td {
-				padding: calc(var(--font-size) * 0.3125) calc(var(--font-size) * 0.625); /* 5px 10px */
 				border: none;
-				border-top: 1px solid var(--stroke);
 				color: var(--primary-font);
-				font-size: calc(var(--font-size) * 0.875);
-				line-height: calc(var(--font-size) * 1.25);
-				letter-spacing: calc(var(--font-size) * 0.0125);
+				font-size: calc(var(--font-size) * 0.875); /* 14px */
+				line-height: calc(var(--font-size) * 1.25); /* 20px */
+				letter-spacing: calc(var(--font-size) * 0.0125); /* 0.2px */
 				font-weight: 500;
 				font-family: var(--chat-primary-font-family);
+				padding: calc(var(--font-size) * 0.5) calc(var(--font-size) * 1.25); /* 8px 20px */
 			}
 
 			th {
-				border: none;
+				text-align: left;
+				background-color: var(--right-bar);
+				font-size: calc(var(--font-size) * 0.9375); /* 15px */
+				padding: calc(var(--font-size) * 0.875) calc(var(--font-size) * 1.25); /* 14px 20px */
 			}
 		}
 	}

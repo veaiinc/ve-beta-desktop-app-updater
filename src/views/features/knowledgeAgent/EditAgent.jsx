@@ -2,7 +2,7 @@ import React, { memo, useCallback, useContext, useEffect, useState } from 'react
 import '../../../assets/scss/knowledgeAgent/editAgent.scss';
 import '../../../assets/scss/ai_assistant/createAgentHeader.scss';
 import TabHeader from '../../components/ai_assistant/TabHeader';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { ReactComponent as BackSvg } from '../../../assets/svg/sidebar/leftarrowwhite.svg';
 import { ReactComponent as PromptsSvg } from '../../../assets/svg/ai_agents/prompts.svg';
 import { ReactComponent as Delete } from '../../../assets/svg/ai_assistant/delete.svg';
@@ -29,7 +29,7 @@ const EditKnowledgeAgent = () => {
 
 	const navigate = useNavigate();
 	const { agentId } = useParams();
-
+	const [, setSearchParams] = useSearchParams();
 	const [info, setInfo] = useState({
 		activeTab: 'personality', // personality, instructions, actions, knowledgeBase, prompt, share, linkeafile
 		selectedAgent: null,
@@ -43,9 +43,10 @@ const EditKnowledgeAgent = () => {
 	useEffect(() => {
 		if (agentId) {
 			getActiveKnowledgeAgentDetails(agentId);
-			updateStateValues({
-				chatInfo: { ...chatInfo, agentType: 'knowledge_agent', assistantId: agentId },
-			});
+			setSearchParams(
+				{ agentType: 'knowledge_agent', assistantId: agentId },
+				{ replace: true },
+			);
 		}
 	}, [agentId]);
 

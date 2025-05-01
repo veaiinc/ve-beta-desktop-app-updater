@@ -12,6 +12,9 @@ import { ReactComponent as SidebarClosingSvg } from '../../../assets/svg/sidebar
 import { ReactComponent as CrossSvg } from '../../../assets/svg/sidebar/CrossSvg.svg';
 import { ReactComponent as SingleRightArrowSvg } from '../../../assets/svg/sidebar/singleRightArrow.svg';
 import { ReactComponent as SwitchWorkspaceSvg } from '../../../assets/svg/sidebar/switchWorkspace.svg';
+import { ReactComponent as SunIcon } from '../../../assets/svg/sun.svg';
+import { ReactComponent as MoonIcon } from '../../../assets/svg/moon.svg';
+import { ReactComponent as NewEditSvg } from '../../../assets/svg/sidebar/newEdit.svg';
 import WorkspaceListComponent from './Workspace';
 import useLogout from '../../hooks/useLogout';
 import { Tooltip } from 'antd';
@@ -22,6 +25,8 @@ import Cropper from 'react-easy-crop';
 import Context from '../../../context/context';
 import { getInitials } from '../../../helpers/index';
 import { message } from '../globalComponents/CustomToast';
+import SearchSvg from '../../../assets/svg/sidebar/SearchSvg';
+import ObjectID from 'bson-objectid';
 
 const workspaceStyles = {
 	position: 'absolute',
@@ -51,6 +56,7 @@ const MODULE_NAME_MAP = {
 	agents: 'knowledgeAgent',
 };
 
+const routeType = 'public';
 const OpenedSidebarModules = ({
 	name,
 	Icon,
@@ -268,6 +274,7 @@ const OpenedSidebar = ({
 			tennantSettingsData,
 			getTenantSettings,
 		},
+		themeInfo: { theme, updateTheme },
 	} = useContext(Context);
 	const navigate = useNavigate();
 	const logoutFunc = useLogout();
@@ -290,6 +297,7 @@ const OpenedSidebar = ({
 	// Add this constant for Settings options
 	const settingsOptions = isAdmin ? SETTINGS_OPTIONS.admin : SETTINGS_OPTIONS.user;
 
+	const newThemeValue = theme === 'dark' ? 'light' : 'dark';
 	useEffect(() => {
 		if (!tennantSettingsData) {
 			getTenantSettings();
@@ -480,6 +488,19 @@ const OpenedSidebar = ({
 	const toggleSidebar = () => {
 		setShowSettingsSidebar((prev) => !prev);
 	};
+
+	const triggerCmdK = () => {
+		const event = new KeyboardEvent('keydown', {
+			key: 'k',
+			metaKey: true, // For macOS; use ctrlKey for Windows
+			bubbles: true,
+		});
+		document.dispatchEvent(event);
+	};
+	const handleNewChat = () => {
+		const sessionId = ObjectID().toString();
+		navigate(`/chat/${sessionId}`);
+	};
 	return (
 		<>
 			<div style={{ display: 'flex', position: 'relative' }}>
@@ -507,7 +528,7 @@ const OpenedSidebar = ({
 												zIndex: '1000',
 											}}
 										>
-											<div
+											{/* <div
 												className="workspaceDetailsDiv"
 												onClick={openWorkspacesFunction}
 												style={{ cursor: 'pointer' }}
@@ -535,7 +556,7 @@ const OpenedSidebar = ({
 														style={{ height: '16px', width: '16px' }}
 													/>
 												)}
-											</div>
+											</div> */}
 											<Tooltip
 												title="Close Sidebar"
 												placement="right"
@@ -556,6 +577,22 @@ const OpenedSidebar = ({
 													style={{ cursor: 'pointer' }}
 												/>
 											</Tooltip>
+											<div className="sideBarOptions">
+												<div
+													className="eachOption"
+													onClick={() =>
+														updateTheme(newThemeValue, routeType)
+													}
+												>
+													{theme === 'dark' ? <SunIcon /> : <MoonIcon />}
+												</div>
+												<div className="eachOption" onClick={triggerCmdK}>
+													<SearchSvg />
+												</div>
+												<div className="eachOption" onClick={handleNewChat}>
+													<NewEditSvg />
+												</div>
+											</div>
 										</div>
 
 										<div
@@ -565,7 +602,7 @@ const OpenedSidebar = ({
 												gap: '4px',
 												display: 'flex',
 												flexDirection: 'column',
-												width: '211px',
+												width: '100%',
 												// overflowY: 'auto',
 											}}
 											id="chatsScroll"
@@ -651,13 +688,15 @@ const OpenedSidebar = ({
 														</div>
 													))}
 
-													<hr
-														style={{
-															border: '0.7px solid var(--stroke)',
-															margin: '16px 0px',
-														}}
-													/>
-
+													<div>
+														<hr
+															className={`${
+																isOpen
+																	? 'horizontal-line-sidebar'
+																	: ''
+															}`}
+														/>
+													</div>
 													<ChatHistory />
 													<div
 														className="settingsOptionsContainer"

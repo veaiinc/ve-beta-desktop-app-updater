@@ -80,16 +80,16 @@ const ChatHistory = () => {
 	const handleChatNavigation = useCallback(
 		(chat) => {
 			if (currentSessionId === chat?._id) return;
-			updateStateValues({
-				chatInfo: {
-					...chatInfo,
-					agentType: chat?.agentType,
-					assistantId: chat?.assistantId,
-				},
-			});
-			navigate(`/chat/${chat?._id}`);
+
+			if (chat?.agentType === 'knowledge_agent') {
+				navigate(
+					`/chat/${chat?._id}?agentType=knowledge_agent&assistantId=${chat?.assistantId}`,
+				);
+			} else {
+				navigate(`/chat/${chat?._id}`);
+			}
 		},
-		[currentSessionId, chatInfo],
+		[currentSessionId],
 	);
 
 	const handleCreateChat = useCallback(() => {
@@ -115,7 +115,7 @@ const ChatHistory = () => {
 	return (
 		<div className="chats-drawer-container">
 			<div className="chats-container">
-				{(chats?.length > 10 || previousSearchQuery.current) && (
+				{/* {(chats?.length > 10 || previousSearchQuery.current) && (
 					<div className="searchContainer">
 						<Search />
 						<input
@@ -126,7 +126,7 @@ const ChatHistory = () => {
 							onChange={(e) => setSearchQuery(e.target.value)}
 						/>
 					</div>
-				)}
+				)} */}
 				{loadingState ? (
 					<div className="skeleton-loader-container">
 						{skeletonLoaders?.map((skeletonId) => (

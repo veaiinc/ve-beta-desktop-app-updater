@@ -47,6 +47,7 @@ const initialState = {
 	fileViewerList: null,
 	activityDataLoading: true,
 	duplicateLoading: false,
+	renewBanner: false,
 };
 let origin = fetchOriginSelection();
 
@@ -72,6 +73,7 @@ const Sidebar = ({ open, onClose, activeFileData, refetchDocsFilesList, openDele
 			duplicateSmartFile,
 		},
 		profileInfo: { tennantSettingsData },
+		subscriptionInfo: { renewBanner },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -412,7 +414,7 @@ const Sidebar = ({ open, onClose, activeFileData, refetchDocsFilesList, openDele
 		const payload = {
 			duplicateSmartFile: {
 				workflowId: info?.activeFileData?._id,
-				title: info?.activeFileData?.title,
+				title: `Copy of ${info?.activeFileData?.title}`,
 			},
 		};
 
@@ -457,7 +459,13 @@ const Sidebar = ({ open, onClose, activeFileData, refetchDocsFilesList, openDele
 					}`}
 					// style={{ width: info?.sideBarExpanded ? '100vw' : width }}
 				>
-					<div className="fileListViewDrawer">
+					<div
+						className="fileListViewDrawer"
+						style={{
+							height: renewBanner ? 'calc(100dvh - 41px)' : '100dvh',
+							marginTop: renewBanner ? '41px' : '0px',
+						}}
+					>
 						<div className="headerContainer">
 							<div className="headerLeftLabel">
 								<CloseSvg onClick={modifyClose} />

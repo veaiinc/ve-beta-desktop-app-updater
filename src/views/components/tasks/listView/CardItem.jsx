@@ -67,6 +67,9 @@ const CardItem = ({
 
 	return (
 		<div className="task-card-item" onClick={onClick ? onClick : null}>
+			{/* <div className="card-header"></div>
+			<div className="card-body"></div>
+			<div className="card-footer"></div> */}
 			{generateRows(task)}
 		</div>
 	);
