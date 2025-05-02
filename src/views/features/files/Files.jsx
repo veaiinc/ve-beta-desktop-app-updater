@@ -314,10 +314,16 @@ const Files = () => {
 			if (!isAdmin && tenantUserAccessControls?.accessControls) {
 				const enabledApps = new Set(
 					tenantUserAccessControls?.accessControls
-						.filter((permission) => permission.isEnabled)
-						.map((permission) => permission.app),
+						?.filter((permission) => {
+							if (permission?.app === 'liteGallery') {
+								return permission?.isEnabled && permission?.hasFullAccess;
+							}
+							return permission?.isEnabled;
+						})
+						?.map((permission) => permission?.app),
 				);
-				filteredOptions = options?.filter((option) => enabledApps.has(option?.value));
+
+				filteredOptions = options?.filter((option) => enabledApps?.has(option?.value));
 			}
 
 			setInfo((prevInfo) => ({
