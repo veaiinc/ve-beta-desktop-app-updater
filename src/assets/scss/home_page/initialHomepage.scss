@@ -95,7 +95,6 @@
 				border-radius: 100px;
 				background: var(--card, #202123);
 				border: 1px solid var(--stroke, #202123);
-
 				cursor: pointer;
 				box-sizing: border-box;
 				.option-label {
@@ -107,6 +106,10 @@
 					line-height: 21px; /* 150% */
 				}
 				&.active {
+					border: 1px solid var(--primary-button, #f2f2f3);
+				}
+				&:hover {
+					background: var(--card, #202123);
 					border: 1px solid var(--primary-button, #f2f2f3);
 				}
 			}

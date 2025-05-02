@@ -108,6 +108,7 @@ const AISuggestionsModal = ({
 		solutions,
 		suggested_prompts,
 		usages,
+		informationRequests,
 	} = data;
 
 	const handleIgnoreClick = async () => {
@@ -449,7 +450,7 @@ const AISuggestionsModal = ({
 											isPromptsExpanded: !prev?.isPromptsExpanded,
 										}))
 									}
-									style={{ width: '100%', marginBottom: '12px' }}
+									style={{ width: '100%' }}
 								>
 									<div className="cot-header">
 										<div className="cot-text">
@@ -528,7 +529,7 @@ const AISuggestionsModal = ({
 										className="chain-of-thought-content"
 										onClick={(e) => e.stopPropagation()}
 									>
-										{data?.informationRequests?.map((questionData, index) => (
+										{informationRequests?.map((questionData, index) => (
 											<div className="question-container" key={index}>
 												<div className="question">
 													{questionData?.question || ''}
