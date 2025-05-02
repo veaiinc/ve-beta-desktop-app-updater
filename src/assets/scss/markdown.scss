@@ -201,16 +201,6 @@
 				border-spacing: 0;
 				width: 100%;
 
-				th {
-					border-bottom: 1px solid var(--stroke);
-				}
-
-				tr:first-child {
-					td {
-						padding-top: calc(var(--font-size) * 1); /* 16px */
-					}
-				}
-
 				th,
 				td {
 					border: none;
@@ -228,6 +218,13 @@
 					background-color: var(--right-bar);
 					font-size: calc(var(--font-size) * 0.9375); /* 15px */
 					padding: calc(var(--font-size) * 0.875) calc(var(--font-size) * 1.25); /* 14px 20px */
+					border-bottom: 1px solid var(--stroke);
+				}
+
+				tr:first-child {
+					td {
+						padding-top: calc(var(--font-size) * 1); /* 16px */
+					}
 				}
 			}
 		}
