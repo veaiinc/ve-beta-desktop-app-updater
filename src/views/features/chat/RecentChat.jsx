@@ -56,6 +56,7 @@ const RecentChat = ({
 			currentChatData,
 			chatHistoryDrawerIsOpen,
 			currentSessionId,
+			citationChunks,
 		},
 	} = useContext(Context);
 
@@ -123,7 +124,6 @@ const RecentChat = ({
 					recentChatStorage: null,
 					globalChatMessages: [],
 					citations: null,
-					citationChunks: {},
 					chatPayload: {
 						workflowTemplateId: null,
 						moduleTemplateId: null,
@@ -143,7 +143,6 @@ const RecentChat = ({
 					recentChatStorage: null,
 					globalChatMessages: [],
 					citations: null,
-					citationChunks: {},
 					chatPayload: {
 						workflowTemplateId: null,
 						moduleTemplateId: null,

@@ -440,6 +440,16 @@ const actionHandlers = {
 		...state,
 		connectThirdParties: action?.payload,
 	}),
+	UPDATE_CITATION_CHUNKS: (state, action) => {
+		const sourceId = Object?.keys(action?.payload)?.[0];
+		if (state?.citationChunks?.[sourceId]) {
+			return state;
+		}
+		return {
+			...state,
+			citationChunks: { ...state?.citationChunks, [sourceId]: action?.payload?.[sourceId] },
+		};
+	},
 	RESET_STATE: () => intialState,
 };
 
