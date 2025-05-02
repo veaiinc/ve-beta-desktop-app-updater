@@ -774,40 +774,40 @@ const FormLeads = () => {
 	);
 };
 
-FormLeads.propTypes = {
-	location: PropTypes.shape({
-		state: PropTypes.shape({
-			formData: PropTypes.shape({
-				_id: PropTypes.string,
-				title: PropTypes.string,
-				slug: PropTypes.string,
-				status: PropTypes.string,
-			}),
-		}),
-	}),
-	templates: PropTypes.shape({
-		getFormResponse: PropTypes.func.isRequired,
-		deleteWorkflowTemplates: PropTypes.func.isRequired,
-		duplicateGlobalWorkflowTemplate: PropTypes.func.isRequired,
-		updateWorkflowTemplate: PropTypes.func.isRequired,
-	}).isRequired,
-	profileInfo: PropTypes.shape({
-		tennantSettingsData: PropTypes.object,
-	}).isRequired,
-};
+// FormLeads.propTypes = {
+// 	location: PropTypes.shape({
+// 		state: PropTypes.shape({
+// 			formData: PropTypes.shape({
+// 				_id: PropTypes.string,
+// 				title: PropTypes.string,
+// 				slug: PropTypes.string,
+// 				status: PropTypes.string,
+// 			}),
+// 		}),
+// 	}),
+// 	templates: PropTypes.shape({
+// 		getFormResponse: PropTypes.func.isRequired,
+// 		deleteWorkflowTemplates: PropTypes.func.isRequired,
+// 		duplicateGlobalWorkflowTemplate: PropTypes.func.isRequired,
+// 		updateWorkflowTemplate: PropTypes.func.isRequired,
+// 	}).isRequired,
+// 	profileInfo: PropTypes.shape({
+// 		tennantSettingsData: PropTypes.object,
+// 	}).isRequired,
+// };
 
-// Add type definitions for the context
-const FormContext = PropTypes.shape({
-	templates: PropTypes.shape({
-		getFormResponse: PropTypes.func.isRequired,
-		deleteWorkflowTemplates: PropTypes.func.isRequired,
-		duplicateGlobalWorkflowTemplate: PropTypes.func.isRequired,
-		updateWorkflowTemplate: PropTypes.func.isRequired,
-	}).isRequired,
-});
+// // Add type definitions for the context
+// const FormContext = PropTypes.shape({
+// 	templates: PropTypes.shape({
+// 		getFormResponse: PropTypes.func.isRequired,
+// 		deleteWorkflowTemplates: PropTypes.func.isRequired,
+// 		duplicateGlobalWorkflowTemplate: PropTypes.func.isRequired,
+// 		updateWorkflowTemplate: PropTypes.func.isRequired,
+// 	}).isRequired,
+// });
 
-FormLeads.contextTypes = {
-	templates: FormContext,
-};
+// FormLeads.contextTypes = {
+// 	templates: FormContext,
+// };
 
 export default memo(FormLeads);

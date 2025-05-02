@@ -41,6 +41,7 @@ const AISuggestionsModal = ({
 		isReportExpanded: true,
 		selectedFeedback: data?.feedback,
 		isQuestionsExpanded: false,
+		questionsAnswers: {},
 	});
 
 	useEffect(() => {
@@ -126,7 +127,37 @@ const AISuggestionsModal = ({
 		}
 	};
 
-	console.log(data, 'data');
+	// const handleRunBtnClick = () => {
+	// 	let prompt = info?.dynamicPrompt;
+	// 	let questions = data?.informationRequests;
+	// 	let hasAnswer = false; // Track if there's at least one valid answer
+
+	// 	if (questions?.length > 0) {
+	// 		Object?.keys(info?.questionsAnswers)?.forEach((key) => {
+	// 			if (info?.questionsAnswers?.[key]?.trim()?.length > 0) {
+	// 				hasAnswer = true; // Set to true if any answer is valid
+	// 			}
+	// 		});
+
+	// 		if (!hasAnswer) {
+	// 			updateStateValues({ activePromptForChat: prompt });
+	// 			navigate(`/chat/${currentSessionId}`);
+	// 			return;
+	// 		}
+
+	// 		prompt += '\n\n';
+	// 		prompt += 'These are answers of your questions : \n';
+	// 		questions?.forEach((questionData, index) => {
+	// 			if (info?.questionsAnswers?.[index]?.trim()?.length > 0) {
+	// 				prompt += `Q${index + 1} : ${questionData?.question}\n`;
+	// 				prompt += `A${index + 1} : ${info?.questionsAnswers?.[index]}\n\n`;
+	// 			}
+	// 		});
+	// 	}
+	// 	updateStateValues({ activePromptForChat: prompt });
+	// 	navigate(`/chat/${currentSessionId}`);
+	// };
+
 	return (
 		<Drawer
 			open={open}
@@ -420,7 +451,7 @@ const AISuggestionsModal = ({
 									<div className="cot-header">
 										<div className="cot-text">
 											<SuggestedPromptsSvg />
-											Suggested Prompts
+											Ask Me
 										</div>
 										<div
 											className="cot-expand-btn"
@@ -499,7 +530,7 @@ const AISuggestionsModal = ({
 												<div className="question">
 													{questionData?.question || ''}
 												</div>
-												<input
+												{/* <input
 													type="text"
 													className="answers-input"
 													placeholder="Enter your answer..."
@@ -513,7 +544,7 @@ const AISuggestionsModal = ({
 															},
 														});
 													}}
-												/>
+												/> */}
 											</div>
 										))}
 									</div>
