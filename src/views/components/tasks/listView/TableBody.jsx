@@ -48,7 +48,7 @@ const TableBody = ({
 	);
 
 	return (
-		<tbody className="table-body">
+		<div className="table-body">
 			{data.map((row, rowIndex) => (
 				<tr key={rowIndex} className="table-row">
 					{columns.map((column, colIndex) => (
@@ -69,7 +69,7 @@ const TableBody = ({
 					))}
 				</tr>
 			))}
-		</tbody>
+		</div>
 	);
 };
 
