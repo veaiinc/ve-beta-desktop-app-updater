@@ -25,25 +25,31 @@ import jwtDecode from 'jwt-decode';
 
 const ConnectedIntegrationCard = ({ icon, title, description, accounts, onViewAccounts }) => {
 	return (
-		<div
-			className="connected-integration-card"
-			onClick={() => onViewAccounts(accounts, { icon, title, description })}
-		>
-			<div className="card-left">
-				<div className="integration-icon">
-					<img src={icon} alt={title} className="integraton-image" />
+		<>
+			{accounts?.some((account) => account?.isActive) && (
+				<div
+					className="connected-integration-card"
+					onClick={() => onViewAccounts(accounts, { icon, title, description })}
+				>
+					<div className="card-left">
+						<div className="integration-icon">
+							<img src={icon} alt={title} className="integraton-image" />
+						</div>
+						<div className="integration-content">
+							<h3 className="integration-content-title">{title}</h3>
+							<p className="integration-content-description">{description}</p>
+							<p className="connected-accounts">
+								{accounts.length} account(s) connected
+							</p>
+						</div>
+					</div>
+					<div className="card-right">
+						<span className="connected-dot"></span>
+						<span className="connected-badge">Connected</span>
+					</div>
 				</div>
-				<div className="integration-content">
-					<h3 className="integration-content-title">{title}</h3>
-					<p className="integration-content-description">{description}</p>
-					<p className="connected-accounts">{accounts.length} account(s) connected</p>
-				</div>
-			</div>
-			<div className="card-right">
-				<span className="connected-dot"></span>
-				<span className="connected-badge">Connected</span>
-			</div>
-		</div>
+			)}
+		</>
 	);
 };
 
@@ -617,16 +623,13 @@ const Integrations = () => {
 						<h2>Connected Integrations</h2>
 
 						<div className="connected-integrations-list">
-							{connectedPlatforms.map(
-								(integration) =>
-									integration?.isActive && (
-										<ConnectedIntegrationCard
-											key={integration?.id}
-											{...integration}
-											onViewAccounts={handleSelectedCardModel}
-										/>
-									),
-							)}
+							{connectedPlatforms.map((integration) => (
+								<ConnectedIntegrationCard
+									key={integration?.id}
+									{...integration}
+									onViewAccounts={handleSelectedCardModel}
+								/>
+							))}
 						</div>
 					</section>
 				) : (
