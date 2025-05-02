@@ -147,3 +147,66 @@ export const handleDeepResearchChainOfThought = (chainOfThought) => {
 
 	return { cot, sections, sections_refined };
 };
+
+export const handleCombinedChainOfThought = (chainOfThought) => {
+	const thoughts = [],
+		deepSearches = {},
+		deepResearches = {},
+		searchIdMapper = {};
+
+	for (let i = 0; i < chainOfThought?.length; i++) {
+		const data = chainOfThought?.[i] || {};
+		const { search_id, processing, thought } = data || {};
+
+		if (thought) {
+			thoughts?.push(data);
+		}
+
+		if (processing === 'Deep Search') {
+			searchIdMapper[search_id] = 'deepSearch';
+		}
+
+		if (processing === 'Deep Research') {
+			searchIdMapper[search_id] = 'deepResearch';
+		}
+
+		if (search_id) {
+			if (searchIdMapper[search_id] === 'deepSearch') {
+				if (deepSearches[search_id]) {
+					deepSearches[search_id]?.chainOfThought?.push(data);
+				} else {
+					deepSearches[search_id] = {
+						order: i,
+						chainOfThought: [data],
+					};
+				}
+			}
+
+			if (searchIdMapper[search_id] === 'deepResearch') {
+				if (deepResearches[search_id]) {
+					deepResearches[search_id]?.chainOfThought?.push(data);
+				} else {
+					deepResearches[search_id] = {
+						order: i,
+						chainOfThought: [data],
+					};
+				}
+			}
+		}
+	}
+
+	let deepSearchesArray = Object?.values(deepSearches);
+	let deepResearchesArray = Object?.values(deepResearches);
+
+	deepSearchesArray = deepSearchesArray?.map((deepSearch) => {
+		const { chainOfThought } = deepSearch?.chainOfThought || [];
+		return handleDeepSearchChainOfThought(chainOfThought);
+	});
+
+	deepResearchesArray = deepResearchesArray?.map((deepResearch) => {
+		const { chainOfThought } = deepResearch?.chainOfThought || [];
+		return handleDeepResearchChainOfThought(chainOfThought);
+	});
+
+	return { thoughts, deepSearches: deepSearchesArray, deepResearches: deepResearchesArray };
+};
