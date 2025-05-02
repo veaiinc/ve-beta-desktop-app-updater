@@ -229,7 +229,8 @@ const AISuggestionsModal = ({
 								)
 							}
 						>
-							{data?.moduleType}
+							{data?.moduleType} -{' '}
+							{data?.knowledgeBase?.[0]?.metadata?.connectedEmail}
 						</span>
 					</div>
 					<hr className="horizontal-line" />

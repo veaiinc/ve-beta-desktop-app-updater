@@ -41,13 +41,13 @@ const optionsList = [
 		controlValue: 'contact',
 		showOption: true,
 	},
-	// {
-	// 	id: 6,
-	// 	label: 'Automation',
-	// 	value: 'automation',
-	// 	controlValue: 'automation',
-	// 	showOption: true,
-	// },
+	{
+		id: 6,
+		label: 'Automation',
+		value: 'automation',
+		controlValue: 'automation',
+		showOption: true,
+	},
 ];
 
 const SuggestedOptions = [
