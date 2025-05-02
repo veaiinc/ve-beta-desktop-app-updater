@@ -187,8 +187,8 @@ const actionHandlers = {
 			const { processing } = message;
 			if (processing === 'Deep Search') {
 				let deepSearch = message?.deepSearch || {};
-				let cot = [...(deepSearch?.cot || [])];
-				let cot_refined = [...(deepSearch?.cot_refined || [])];
+				let cot = deepSearch?.cot || [];
+				let cot_refined = deepSearch?.cot_refined || [];
 				let initial_answer = deepSearch?.initial_answer || {};
 				let final_answer = deepSearch?.final_answer || {};
 
@@ -264,10 +264,10 @@ const actionHandlers = {
 					deepSearch,
 				};
 			} else if (processing === 'Deep Research') {
-				let deepResearch = { ...(message?.deepResearch || {}) };
-				let cot = [...(deepResearch?.cot || [])];
-				let sections = [...(deepResearch?.sections || [])];
-				let sections_refined = [...(deepResearch?.sections_refined || [])];
+				let deepResearch = message?.deepResearch || {};
+				let cot = deepResearch?.cot || [];
+				let sections = deepResearch?.sections || [];
+				let sections_refined = deepResearch?.sections_refined || [];
 
 				if (payload?.responded) {
 					cot?.push({
