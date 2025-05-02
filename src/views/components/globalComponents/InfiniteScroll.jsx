@@ -106,6 +106,7 @@ const InfiniteScroll = ({
 					style={{
 						minWidth: horizontal ? '1px' : '100%',
 						minHeight: horizontal ? '100%' : '1px',
+						marginBottom: '2px',
 					}}
 				/>
 			)}
