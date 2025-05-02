@@ -47,6 +47,13 @@ export const getListItemsQuery = gql`
 					email
 				}
 			}
+			analytics {
+				allTasks
+				completed
+				overdue
+				today
+				allPending
+			}
 		}
 	}
 `;
@@ -439,18 +446,6 @@ export const listTaskWithGroupQuery = gql`
 				groupName
 			}
 			groupBy
-		}
-	}
-`;
-
-export const taskAnalyticsQuery = gql`
-	query Query {
-		taskAnalytics {
-			allPending
-			allTasks
-			completed
-			overdue
-			today
 		}
 	}
 `;
