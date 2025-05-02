@@ -230,7 +230,6 @@ const InitialHomePage = () => {
 		}
 	}, [options, info?.selectedOption]);
 
-	console.log(tenantUserAccessControls?.accessControls, 'tenantUserAccessControls');
 	const renderOptions = () => {
 		if (!tenantUserAccessControls) return null;
 

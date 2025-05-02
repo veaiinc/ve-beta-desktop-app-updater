@@ -9,6 +9,7 @@ import { ReactComponent as SuggestedActionsSvg } from '../../../../assets/svg/su
 import { ReactComponent as SuggestedPromptsSvg } from '../../../../assets/svg/suggestedPrompts.svg';
 import { ReactComponent as ThumbsUpSvg } from '../../../../assets/svg/thumbsUp.svg';
 import { ReactComponent as ThumbsDownSvg } from '../../../../assets/svg/thumbsDown.svg';
+import { ReactComponent as QuestionMarkSvg } from '../../../../assets/svg/home_page/questionMark.svg';
 import { Markdown } from '../../../../helpers/markdownHelper';
 import { useNavigate } from 'react-router-dom';
 import ObjectID from 'bson-objectid';
@@ -39,6 +40,8 @@ const AISuggestionsModal = ({
 		isPromptsExpanded: false,
 		isReportExpanded: true,
 		selectedFeedback: data?.feedback,
+		isQuestionsExpanded: false,
+		questionsAnswers: {},
 	});
 
 	useEffect(() => {
@@ -123,6 +126,37 @@ const AISuggestionsModal = ({
 			message.error('Failed to update feedback');
 		}
 	};
+
+	// const handleRunBtnClick = () => {
+	// 	let prompt = info?.dynamicPrompt;
+	// 	let questions = data?.informationRequests;
+	// 	let hasAnswer = false; // Track if there's at least one valid answer
+
+	// 	if (questions?.length > 0) {
+	// 		Object?.keys(info?.questionsAnswers)?.forEach((key) => {
+	// 			if (info?.questionsAnswers?.[key]?.trim()?.length > 0) {
+	// 				hasAnswer = true; // Set to true if any answer is valid
+	// 			}
+	// 		});
+
+	// 		if (!hasAnswer) {
+	// 			updateStateValues({ activePromptForChat: prompt });
+	// 			navigate(`/chat/${currentSessionId}`);
+	// 			return;
+	// 		}
+
+	// 		prompt += '\n\n';
+	// 		prompt += 'These are answers of your questions : \n';
+	// 		questions?.forEach((questionData, index) => {
+	// 			if (info?.questionsAnswers?.[index]?.trim()?.length > 0) {
+	// 				prompt += `Q${index + 1} : ${questionData?.question}\n`;
+	// 				prompt += `A${index + 1} : ${info?.questionsAnswers?.[index]}\n\n`;
+	// 			}
+	// 		});
+	// 	}
+	// 	updateStateValues({ activePromptForChat: prompt });
+	// 	navigate(`/chat/${currentSessionId}`);
+	// };
 
 	return (
 		<Drawer
@@ -249,6 +283,7 @@ const AISuggestionsModal = ({
 							<hr className="horizontal-line" />
 						</>
 					)}
+
 					{research_report && (
 						<>
 							<div
@@ -416,7 +451,7 @@ const AISuggestionsModal = ({
 									<div className="cot-header">
 										<div className="cot-text">
 											<SuggestedPromptsSvg />
-											Suggested Prompts
+											Ask Me
 										</div>
 										<div
 											className="cot-expand-btn"
@@ -452,6 +487,68 @@ const AISuggestionsModal = ({
 										</div>
 									)}
 								</div>
+							</div>
+							<hr className="horizontal-line" />
+						</>
+					)}
+					{data?.informationRequests?.length > 0 && (
+						<>
+							<div
+								className="chain-of-thought-container"
+								onClick={() =>
+									setInfo((prev) => ({
+										...prev,
+										isQuestionsExpanded: !prev?.isQuestionsExpanded,
+									}))
+								}
+								style={{ gap: '6px' }}
+							>
+								<div className="cot-header">
+									<div className="cot-text">
+										<QuestionMarkSvg />
+										Questions I have
+									</div>
+									<div
+										className="cot-expand-btn"
+										style={{
+											transform: info?.isQuestionsExpanded
+												? 'rotate(-90deg)'
+												: 'rotate(90deg)',
+										}}
+									>
+										<ChevronRightThinSvg />
+									</div>
+								</div>
+
+								{info?.isQuestionsExpanded && (
+									<div
+										className="chain-of-thought-content"
+										onClick={(e) => e.stopPropagation()}
+									>
+										{data?.informationRequests?.map((questionData, index) => (
+											<div className="question-container" key={index}>
+												<div className="question">
+													{questionData?.question || ''}
+												</div>
+												{/* <input
+													type="text"
+													className="answers-input"
+													placeholder="Enter your answer..."
+													value={info?.questionsAnswers?.[index] || ''}
+													onChange={(e) => {
+														setInfo({
+															...info,
+															questionsAnswers: {
+																...info?.questionsAnswers,
+																[index]: e?.target?.value,
+															},
+														});
+													}}
+												/> */}
+											</div>
+										))}
+									</div>
+								)}
 							</div>
 							<hr className="horizontal-line" />
 						</>
