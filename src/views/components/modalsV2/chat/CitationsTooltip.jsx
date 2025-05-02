@@ -8,7 +8,13 @@ import { fileTypeIcons } from '../../../../helpers';
 
 export const CitationsTooltip = memo(({ citationId, citations, placement = 'topLeft' }) => {
 	const {
-		templates: { getCitationData, currentSessionId },
+		templates: {
+			getCitationData,
+			currentSessionId,
+			updateCitationChunks,
+			citationChunks,
+			updateStateValues,
+		},
 	} = useContext(Context);
 	const [citationData, setCitationData] = useState(null);
 	const [citationInfo, setCitationInfo] = useState({});
@@ -22,7 +28,7 @@ export const CitationsTooltip = memo(({ citationId, citations, placement = 'topL
 			setCitationInfo({ name, type, link: citation?.[type], snippet, source, fileType });
 			fetchCitationData(citation);
 		}
-	}, [citations, citationId]);
+	}, [citationId]);
 
 	useEffect(() => {
 		if (citationData) {
@@ -40,8 +46,18 @@ export const CitationsTooltip = memo(({ citationId, citations, placement = 'topL
 
 	const fetchCitationData = async (citation) => {
 		if (citation?.source) {
-			const response = await getCitationData(currentSessionId, citation?.source);
-			setCitationData(response);
+			if (citationChunks?.[citation?.source]) {
+				setCitationData(citationChunks?.[citation?.source]);
+			} else {
+				const response = await getCitationData(currentSessionId, citation?.source);
+				const payload = { [citation?.source]: response };
+				setCitationData(response);
+				updateCitationChunks(payload);
+
+				if (Object?.keys(citationChunks)?.length >= 150) {
+					updateStateValues({ citationChunks: {} });
+				}
+			}
 		}
 	};
 
