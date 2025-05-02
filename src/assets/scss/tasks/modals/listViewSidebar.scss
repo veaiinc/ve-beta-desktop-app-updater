@@ -335,7 +335,10 @@
 						display: flex;
 						align-items: center;
 						gap: 10px;
-						flex-wrap: wrap;
+
+						.property-icon {
+							flex-shrink: 0;
+						}
 
 						.select-options-wrapper {
 							.select-selected-wrapper {

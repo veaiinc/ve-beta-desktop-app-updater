@@ -317,6 +317,7 @@ export const taskMetadataQuery = gql`
 				icon
 				group
 			}
+			selectedTaskView
 			createdAt
 			updatedAt
 		}
@@ -450,6 +451,55 @@ export const taskAnalyticsQuery = gql`
 			completed
 			overdue
 			today
+		}
+	}
+`;
+
+export const updateTaskMetadataMutation = gql`
+	mutation UpdateTaskMetadata($input: TaskMetadataInput!) {
+		updateTaskMetadata(input: $input) {
+			_id
+			tenantId
+			createdBy
+			updatedBy
+			prefix
+			lastTaskSlNo
+			todoGroupLabels {
+				_id
+				label
+				group
+				color
+				isDefault
+			}
+			inProgressGroupLabels {
+				_id
+				label
+				group
+				color
+				isDefault
+			}
+			completedGroupLabels {
+				_id
+				label
+				group
+				color
+				isDefault
+			}
+			views {
+				_id
+				label
+				filters
+				sort {
+					sortBy
+					sortType
+				}
+				viewType
+				icon
+				group
+			}
+			selectedTaskView
+			createdAt
+			updatedAt
 		}
 	}
 `;

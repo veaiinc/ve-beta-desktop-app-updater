@@ -107,6 +107,9 @@ const Tasks = () => {
 			updateTaskPreferences,
 			taskPreference,
 			getListTaskWithGroup,
+			updateSelectedView,
+			updateSideBarData,
+			sideBarData,
 		},
 		companyInfo: { getTeamMembers, tenantsUserList },
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
@@ -267,6 +270,12 @@ const Tasks = () => {
 	}, [info?.filters, info?.searchValue, info?.sort, info?.group]);
 
 	useEffect(() => {
+		if (sideBarData) {
+			handleRowClick(sideBarData, false);
+		}
+	}, [sideBarData]);
+
+	useEffect(() => {
 		if (!tenantsUserList) {
 			getTeamMembers();
 		} else {
@@ -406,7 +415,7 @@ const Tasks = () => {
 
 	useEffect(() => {
 		if (!clientListForTask) {
-			getClientsForTask({ clientFilterInput: { page: 1, limit: 20 } });
+			getClientsForTask({ filters: { page: 1, limit: 20 } });
 		}
 	}, [clientListForTask]);
 
@@ -906,46 +915,9 @@ const Tasks = () => {
 		[deleteTaskView, info?.taskMetadata?._id],
 	);
 
-	const [editingProperty, setEditingProperty] = useState(null);
-	const [showEditViewDropDown, setShowEditViewDropDown] = useState(false);
-	const [layoutOptions, setLayoutOptions] = useState(['table', 'board', 'list', 'gallery']);
-
-	const handleEditPropertyChange = useCallback((property) => {
-		setEditingProperty(property);
+	const handleActiveTabChange = useCallback((payload) => {
+		updateSelectedView(payload);
 	}, []);
-
-	const handleTabChange = useCallback(
-		(tab) => {
-			updateTaskInfo({ view: tab.viewType });
-		},
-		[updateTaskInfo],
-	);
-
-	const handleTabsReorder = useCallback((tabs) => {
-		// Implement tabs reordering logic here
-	}, []);
-
-	const handleTabDropdownClick = useCallback((tab) => {
-		setShowEditViewDropDown(true);
-	}, []);
-
-	const handleLayoutOptionClick = useCallback(
-		(option) => {
-			updateTaskInfo({ view: option });
-		},
-		[updateTaskInfo],
-	);
-
-	const handleDuplicateView = useCallback((view) => {
-		// Implement view duplication logic here
-	}, []);
-
-	const handleDeleteView = useCallback(
-		(viewId) => {
-			deleteView(viewId);
-		},
-		[deleteView],
-	);
 
 	return (
 		<div className="tasks-page-container">
@@ -976,8 +948,10 @@ const Tasks = () => {
 					createButtonText={'Create Task'}
 					prefix={info?.taskMetadata?.prefix}
 					views={info?.taskMetadata?.views}
+					activeTab={info?.taskMetadata?.selectedTaskView}
 					updateView={updateView}
 					deleteView={deleteView}
+					updateActiveTab={handleActiveTabChange}
 				/>
 				<CreateTaskPopup
 					isOpen={info?.isCreateModalOpen}
@@ -993,7 +967,7 @@ const Tasks = () => {
 					error={info?.error}
 				/>
 				<ListViewSidebar
-					selectedRow={info?.selectedRow}
+					selectedRow={info?.selectedRow || sideBarData}
 					sidebarIsOpen={info?.sidebarIsOpen}
 					closeSidebar={handleCloseSidebar}
 					handleUpdate={updatePropertyValue}

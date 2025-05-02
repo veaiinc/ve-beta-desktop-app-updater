@@ -203,7 +203,7 @@ const ListViewSidebar = ({
 				listItems.push(
 					<div className="property-list" key={key}>
 						<span className="property-title">
-							{Icon && <Icon width={16} height={16} />}
+							{Icon && <Icon width={16} height={16} className="property-icon" />}
 
 							{RowComponent ? (
 								<RowComponent

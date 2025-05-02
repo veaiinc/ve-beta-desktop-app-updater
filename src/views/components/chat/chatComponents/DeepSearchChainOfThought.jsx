@@ -72,6 +72,8 @@ const DeepSearchChainOfThought = ({ data }) => {
 															<div className="sources">
 																{sources?.map?.((source, index) => {
 																	const { type, name } = source;
+																	if (name?.length === 0)
+																		return null;
 																	return (
 																		<div
 																			className="source"
@@ -218,6 +220,11 @@ const DeepSearchChainOfThought = ({ data }) => {
 																					type,
 																					name,
 																				} = source;
+																				if (
+																					name?.length ===
+																					0
+																				)
+																					return null;
 																				return (
 																					<div
 																						className="source"

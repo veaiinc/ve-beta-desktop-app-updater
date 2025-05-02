@@ -116,3 +116,31 @@ export const deleteContactViewMutation = gql`
 		}
 	}
 `;
+
+export const getClientsListQuery = gql`
+	query ClientsList($filters: ClientListFiltersInput!) {
+		clientsList(filters: $filters) {
+			data {
+				_id
+				name
+				email
+				phoneNumber
+				tenantId
+				workflows
+				templateDetails
+				createdBy
+				updatedBy
+				createdAt
+				updatedAt
+			}
+			totalPages
+			totalDocs
+			limit
+			currentPage
+			hasNextPage
+			hasPrevPage
+			prevPage
+			nextPage
+		}
+	}
+`;
