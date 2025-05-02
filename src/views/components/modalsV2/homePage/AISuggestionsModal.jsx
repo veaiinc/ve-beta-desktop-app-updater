@@ -107,6 +107,7 @@ const AISuggestionsModal = ({
 		suggested_actions,
 		solutions,
 		suggested_prompts,
+		usages,
 	} = data;
 
 	const handleIgnoreClick = async () => {
@@ -147,6 +148,7 @@ const AISuggestionsModal = ({
 		document?.removeEventListener('mousemove', handleMouseMove);
 		document?.removeEventListener('mouseup', handleMouseUp);
 	};
+	const creditUsed = usages?.[0]?.credit?.toFixed(2);
 
 	return (
 		<Drawer
@@ -176,20 +178,29 @@ const AISuggestionsModal = ({
 
 						<div className="info">
 							{priority && (
-								<div className="priority">
-									<div
-										className="indicator"
-										style={{
-											background:
-												priority === 'High'
-													? 'red'
-													: priority === 'Medium'
-													? 'orange'
-													: 'green',
-										}}
-									></div>
-									<div className="priority-text">{`${priority} Priority`}</div>
-								</div>
+								<Tooltip title={`Priority: ${priority}`}>
+									<div className="priority">
+										<div
+											className="indicator"
+											style={{
+												background:
+													priority === 'High'
+														? 'red'
+														: priority === 'Medium'
+														? 'orange'
+														: 'green',
+											}}
+										></div>
+										<div className="priority-text">{`${priority}`}</div>
+									</div>
+								</Tooltip>
+							)}
+							{creditUsed && (
+								<Tooltip title={`Credit Used: ${creditUsed}`}>
+									<div className="confidence">
+										<div className="value">{`${creditUsed} `}</div>
+									</div>
+								</Tooltip>
 							)}
 							{confidence_score && (
 								<Tooltip title={`Confidence Score: ${confidence_score * 100}%`}>
