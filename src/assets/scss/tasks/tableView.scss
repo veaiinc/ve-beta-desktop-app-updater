@@ -16,7 +16,7 @@
 			min-width: 100%;
 			border-collapse: separate;
 			border-spacing: 0;
-			table-layout: fixed;
+			// table-layout: fixed;
 			width: auto;
 
 			.noDataMessage {
@@ -34,16 +34,16 @@
 	}
 
 	.table-header {
-		width: auto;
+		width: fit-content;
 		min-width: 100%;
 		position: sticky;
 		top: 0;
 		z-index: 1;
 		background-color: var(--card, rgb(17, 17, 17));
 
-		tr {
+		.table-header-row {
 			display: flex;
-			width: auto;
+			width: fit-content;
 			min-width: 100%;
 
 			.table-header-cell {

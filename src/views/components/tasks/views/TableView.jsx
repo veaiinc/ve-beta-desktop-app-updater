@@ -187,7 +187,7 @@ const TableView = ({
 	return (
 		<div className={`table-view ${resizing.isResizing ? 'resizing' : ''}`} ref={tableRef}>
 			<div className="table-scroll-container">
-				<table className="table-content">
+				<div className="table-content">
 					<DragDropContext onDragEnd={handleDragEnd}>
 						<TableHeader
 							columns={loading ? loadingColumns : columns}
@@ -208,8 +208,9 @@ const TableView = ({
 							hasMore={hasMore}
 							loader={<FetchMoreLoaderComp />}
 							style={{
-								overflow: 'auto',
-								width: '100%',
+								overflowY: 'auto',
+								minWidth: '100%',
+								width: 'fit-content',
 							}}
 							height="calc(100vh - 160px)"
 							scrollThreshold="90%"
@@ -230,7 +231,7 @@ const TableView = ({
 							<span className="noDataMessage">No tasks found</span>
 						</div>
 					)}
-				</table>
+				</div>
 			</div>
 		</div>
 	);
