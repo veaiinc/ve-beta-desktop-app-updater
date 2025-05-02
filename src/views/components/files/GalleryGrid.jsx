@@ -51,7 +51,7 @@ const GalleryGrid = ({
 
 		const options = {
 			page: 1,
-			limit: 20,
+			limit: 11,
 			storeOriginals: selectedOption === 'Classic Gallery',
 		};
 		fetchGalleries(options);
