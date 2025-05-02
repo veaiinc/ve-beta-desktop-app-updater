@@ -196,13 +196,19 @@ const createCitationComponents = (citations, markdown) => ({
 const remarkPlugins = [remarkGfm, remarkMath];
 const rehypePlugins = [rehypeKatex, rehypeCITPlugin, rehypeRaw];
 const NonMemoizedMarkdown = ({ children, citations }) => {
+	const markdown = children
+		?.replace(/(?<!\\)\$/g, '\\$')
+		?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')
+		?.replace(/\\\((.*?)\\\)/g, '$$$1$$')
+		?.replace(/\\n/g, '\n');
+
 	// Memoize the combined components object
 	const components = useMemo(
 		() => ({
 			...baseComponents,
-			...createCitationComponents(citations, children),
+			...createCitationComponents(citations, markdown),
 		}),
-		[citations, children],
+		[citations, markdown],
 	);
 
 	return (
@@ -212,11 +218,7 @@ const NonMemoizedMarkdown = ({ children, citations }) => {
 			components={components}
 			className="markdown-custom-content"
 		>
-			{children
-				?.replace(/(?<!\\)\$/g, '\\$')
-				?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')
-				?.replace(/\\\((.*?)\\\)/g, '$$$1$$')
-				?.replace(/\\n/g, '\n')}
+			{markdown}
 		</ReactMarkdown>
 	);
 };
@@ -233,9 +235,11 @@ export const Markdown = memo(NonMemoizedMarkdown, (prevProps, nextProps) => {
 
 const MarkdownTable = memo(({ children, node, markdown }) => {
 	const [isCopied, setIsCopied] = useState(false);
+
 	const end = node?.position?.end?.offset;
 	const start = node?.position?.start?.offset;
 	const table = markdown?.slice(start, end);
+
 	const handleCopyTable = useCallback((table) => {
 		navigator?.clipboard?.writeText(table);
 		setIsCopied(true);
