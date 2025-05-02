@@ -3,15 +3,10 @@ import { default as ReactMarkdown } from 'react-markdown';
 import '../assets/scss/markdown.scss';
 import '../assets/scss/markdownHelper.scss';
 import { ReactComponent as PencilSparkleIcon } from '../assets/svg/notes/pencilSparkle.svg';
-import { ReactComponent as ThumpsUpSvg } from '../assets/svg/ai_agents/thumps-up.svg';
-import { ReactComponent as ThumpsDownSvg } from '../assets/svg/ai_agents/thumps-down.svg';
-import { ReactComponent as HeadPhoneSvg } from '../assets/svg/ai_agents/head-phone.svg';
 import { ReactComponent as TickSvg } from '../assets/svg/tick.svg';
 import { ReactComponent as CopyIcon } from '../assets/svg/ai_agents/copy.svg';
-import { ReactComponent as ViewDocumentIcon } from '../assets/svg/chat/viewDocument.svg';
 import Context from '../context/context';
 import { Tooltip } from 'antd';
-import { ReactComponent as ArrowRightSvg } from '../assets/svg/home_page/arrow-right.svg';
 import { CitationsTooltip } from '../views/components/modalsV2/chat/CitationsTooltip';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
@@ -20,9 +15,8 @@ import rehypeRaw from 'rehype-raw';
 import 'katex/dist/katex.min.css';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { dracula } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import FormModel from '../views/components/chat/FormModel';
 import AISuggestionsReportUserComponent from '../views/components/chat/chatComponents/AISuggestionsReportUserComponent';
-import AISuggestionsReportAiComponent from '../views/components/chat/chatComponents/AiSuggestionsReportAiComponent';
+
 const rehypeCITPlugin = () => {
 	return (tree) => {
 		const visit = (node) => {
@@ -169,13 +163,6 @@ const baseComponents = {
 			</div>
 		);
 	},
-	table: ({ children, ...props }) => (
-		<div className="table-container">
-			<table {...props} className="table">
-				{children}
-			</table>
-		</div>
-	),
 	thead: ({ children, ...props }) => <thead {...props}>{children}</thead>,
 	th: ({ children, ...props }) => <th {...props}>{children}</th>,
 	td: ({ children, ...props }) => <td {...props}>{children}</td>,
@@ -193,10 +180,17 @@ const baseComponents = {
 };
 
 // Memoize citation-specific components
-const createCitationComponents = (citations) => ({
+const createCitationComponents = (citations, markdown) => ({
 	span: ({ children, citationId, ...props }) => {
 		if (citationId) return <CitationsTooltip citationId={citationId} citations={citations} />;
 		return <span {...props}>{children}</span>;
+	},
+	table: ({ node, children }) => {
+		return (
+			<MarkdownTable node={node} markdown={markdown}>
+				{children}
+			</MarkdownTable>
+		);
 	},
 });
 const remarkPlugins = [remarkGfm, remarkMath];
@@ -206,9 +200,9 @@ const NonMemoizedMarkdown = ({ children, citations }) => {
 	const components = useMemo(
 		() => ({
 			...baseComponents,
-			...createCitationComponents(citations),
+			...createCitationComponents(citations, children),
 		}),
-		[citations],
+		[citations, children],
 	);
 
 	return (
@@ -235,6 +229,32 @@ export const Markdown = memo(NonMemoizedMarkdown, (prevProps, nextProps) => {
 			JSON.stringify(prevProps.citations) === JSON.stringify(nextProps.citations));
 
 	return prevProps.children === nextProps.children && citationsEqual;
+});
+
+const MarkdownTable = memo(({ children, node, markdown }) => {
+	const [isCopied, setIsCopied] = useState(false);
+	const end = node?.position?.end?.offset;
+	const start = node?.position?.start?.offset;
+	const table = markdown?.slice(start, end);
+	const handleCopyTable = useCallback((table) => {
+		navigator?.clipboard?.writeText(table);
+		setIsCopied(true);
+		setTimeout(() => {
+			setIsCopied(false);
+		}, 1000);
+	}, []);
+	return (
+		<div className="table-wrapper">
+			<button className="copy-table-btn" onClick={() => handleCopyTable(table || '')}>
+				<Tooltip title={isCopied ? 'Copied Table' : 'Copy Table'} placement="bottom">
+					{isCopied ? <TickSvg /> : <CopyIcon />}
+				</Tooltip>
+			</button>
+			<div className="table-container">
+				<table className="table">{children}</table>
+			</div>
+		</div>
+	);
 });
 
 export const UserMessageRenderer = memo(({ messageData, activeUserMessageIndex }) => {
