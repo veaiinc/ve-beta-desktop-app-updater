@@ -1,4 +1,4 @@
-import { memo, useCallback, useState, useEffect } from 'react';
+import { memo, useCallback, useState, useEffect, useRef } from 'react';
 import '../../../../assets/scss/home_page/modals/aiSuggestionsModal.scss';
 import { ReactComponent as ChevronRightThinSvg } from '../../../../assets/svg/tasks/chevronRightThin.svg';
 import { ReactComponent as ArrowRightSvg } from '../../../../assets/svg/home_page/arrow-right.svg';
@@ -27,7 +27,6 @@ const AISuggestionsModal = ({
 	totalDocs,
 	selectedCardNumber,
 }) => {
-	const navigate = useNavigate();
 	const {
 		templates: { updateStateValues, pendingActionsUpdate },
 	} = useContext(Context);
@@ -40,6 +39,10 @@ const AISuggestionsModal = ({
 		isReportExpanded: true,
 		selectedFeedback: data?.feedback,
 	});
+
+	const resizableContainerRef = useRef(null);
+	const mouseXPosition = useRef(null);
+	const navigate = useNavigate();
 
 	useEffect(() => {
 		setInfo((prev) => ({ ...prev, selectedFeedback: data?.feedback }));
@@ -124,6 +127,27 @@ const AISuggestionsModal = ({
 		}
 	};
 
+	const handleMouseDown = (e) => {
+		mouseXPosition.current = e.clientX;
+		document?.addEventListener('mousemove', handleMouseMove);
+		document?.addEventListener('mouseup', handleMouseUp);
+	};
+
+	const handleMouseMove = (e) => {
+		if (!resizableContainerRef.current) return;
+		const deltaX = mouseXPosition.current - e.clientX;
+
+		resizableContainerRef.current.style.width = `${
+			resizableContainerRef.current.offsetWidth + deltaX
+		}px`;
+		mouseXPosition.current = e.clientX;
+	};
+
+	const handleMouseUp = () => {
+		document?.removeEventListener('mousemove', handleMouseMove);
+		document?.removeEventListener('mouseup', handleMouseUp);
+	};
+
 	return (
 		<Drawer
 			open={open}
@@ -134,7 +158,8 @@ const AISuggestionsModal = ({
 			style={{ padding: '0px' }}
 			rootClassName="ai-suggestions-drawer"
 		>
-			<div className="ai-suggestions-container">
+			<div className="ai-suggestions-container" ref={resizableContainerRef}>
+				<div className="drag-handler" onMouseDown={handleMouseDown} />
 				<div className="drawer-header">
 					<div className="header-content">
 						<div className="left-container">
