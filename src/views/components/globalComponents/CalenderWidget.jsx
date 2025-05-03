@@ -181,8 +181,9 @@ const CalenderWidget = ({ width = '100%', height = '412px' }) => {
 						}}
 					>
 						{info?.isLoading ? (
-							skeletonLoaders?.map((item) => (
+							skeletonLoaders?.map((item, index) => (
 								<Skeleton
+									key={index}
 									width="300px"
 									height="36px"
 									style={{
