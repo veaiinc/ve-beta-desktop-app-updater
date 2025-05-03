@@ -678,11 +678,6 @@
 					h6 {
 						color: var(--primary-font);
 					}
-
-					.activeWorkspaceCheck {
-						position: absolute;
-						right: 0;
-					}
 				}
 				.focused {
 					background-color: var(--card-over-card-hover);
@@ -901,6 +896,13 @@
 	border-right: 1px solid var(--stroke);
 	&::-webkit-scrollbar {
 		display: none; // For Chrome, Safari, and newer versions of Edge
+	}
+	.settingBackdrop {
+		position: absolute;
+		height: 100vh;
+		width: 280px;
+		background-color: var(--card);
+		opacity: 0.7;
 	}
 	.settings-header {
 		display: flex;
@@ -1136,6 +1138,7 @@
 	width: 100%;
 	cursor: pointer;
 	transition: background 0.2s ease;
+	margin-top: 10px;
 	.settingsHoverState {
 		display: flex;
 		justify-content: space-between;
@@ -1219,7 +1222,7 @@
 	border: 0.7px solid var(--stroke);
 	margin: 16px 0px 16px -10px;
 	width: 100% !important;
-	// position: fixed;
+	position: fixed;
 	z-index: 100;
 }
 .settings-footer-container {
@@ -1232,6 +1235,7 @@
 }
 .settingsAnimationContainer {
 	padding: 10px;
+	animation: slideIn 0.3s ease-out;
 }
 
 .sideBarOptions {

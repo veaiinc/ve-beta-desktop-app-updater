@@ -510,7 +510,7 @@ const OpenedSidebar = ({
 								<div
 									className="openSideBarComponent"
 									style={{
-										height: renewBanner ? 'calc(100dvh - 41px)' : '100dvh',
+										height: renewBanner ? 'calc(100dvh - 58px)' : '100dvh',
 										display: 'flex',
 										flexDirection: 'column',
 										justifyContent: 'space-between',
@@ -700,12 +700,18 @@ const OpenedSidebar = ({
 														/>
 													</div>
 													<ChatHistory />
+													<div>
+														<hr
+															className={`${
+																isOpen
+																	? 'horizontal-line-sidebar'
+																	: ''
+															}`}
+														/>
+													</div>
 													<div
 														className="settingsOptionsContainer"
 														onClick={toggleSidebar}
-														style={{
-															borderTop: '1px solid var(--stroke)',
-														}}
 													>
 														<div className="settingsHoverState">
 															<div className="settingsOptionsUserInfo">
@@ -987,6 +993,7 @@ const OpenedSidebar = ({
 								</div>
 							))}
 						</div>
+						{sidebarStates?.workSpaceOpen && <div className="settingBackdrop"></div>}
 						<div
 							className="settingsOptionsContainer"
 							style={{
