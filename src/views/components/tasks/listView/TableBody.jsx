@@ -48,11 +48,11 @@ const TableBody = ({
 	);
 
 	return (
-		<tbody className="table-body">
+		<div className="table-body">
 			{data.map((row, rowIndex) => (
-				<tr key={rowIndex} className="table-row">
+				<div key={rowIndex} className="table-row">
 					{columns.map((column, colIndex) => (
-						<td
+						<div
 							key={`${rowIndex}-${column.id}`}
 							className={`table-cell table-cell-${colIndex} ${
 								column.userResized ? 'user-resized' : ''
@@ -65,11 +65,11 @@ const TableBody = ({
 							onClick={() => handleRowClick(row)}
 						>
 							{generateCell(row, column)}
-						</td>
+						</div>
 					))}
-				</tr>
+				</div>
 			))}
-		</tbody>
+		</div>
 	);
 };
 

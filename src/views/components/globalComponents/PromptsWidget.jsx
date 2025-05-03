@@ -33,14 +33,15 @@ const PromptsWidget = ({ option = '' }) => {
 						key={index}
 						className="calenderWidgetSection2Item"
 						onClick={() => handlePromptPopup(item)}
+						key={index}
 					>
 						<div className="calenderWidgetSection2ItemContainer">
-							{iconMap[item.type]}
+							{iconMap[item?.type]}
 							<div className="calenderWidgetSection2ItemTitle">
-								{item.type.charAt(0).toUpperCase() + item.type.slice(1)}
+								{item?.type?.charAt(0)?.toUpperCase() + item?.type?.slice(1)}
 							</div>
 						</div>
-						<div className="calenderWidgetSection2ItemSubtitle">{item.title}</div>
+						<div className="calenderWidgetSection2ItemSubtitle">{item?.title}</div>
 					</div>
 				))}
 			</div>

@@ -34,7 +34,7 @@ const options = [
 		value: 'form',
 	},
 	{
-		label: 'Templates',
+		label: 'Designs',
 		value: 'template',
 	},
 	{
@@ -614,7 +614,7 @@ const Files = () => {
 			/>
 		),
 		MostUsedEntries: <MostUsedEntries mostUsedEntities={mostUsedEntities} />,
-		Templates: (
+		Designs: (
 			<TemplatesGrid
 				handleCreateTemplate={() =>
 					setInfo((prev) => ({ ...prev, openProposalPopup: true }))
