@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
 import useLogout from '../../hooks/useLogout';
 import { fetchDomainName } from '../../../helpers';
+import { ReactComponent as TickSvg } from '../../../assets/svg/tick.svg';
 
 const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpaceList, info }) => {
 	const {
@@ -132,7 +133,7 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 				/>
 			)}
 			<div
-				style={{ maxHeight: renewBanner ? '91dvh' : '93dvh' }}
+				style={{ maxHeight: renewBanner ? '78dvh' : '81dvh' }}
 				className="workspaceListComponent"
 			>
 				<div className="workspaceListHeader">
@@ -168,27 +169,28 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 									handleSwitchWorkSpaceLogic(singleWorkspace);
 								}}
 							>
-								<h6>{singleWorkspace?.businessName}</h6>
-								<div className="workSpaceCircle">
-									{singleWorkspace?.logo_s3_500w_key ? (
-										<img
-											src={singleWorkspace?.logo_s3_500w_key}
-											alt={singleWorkspace?.businessName}
-										/>
-									) : (
-										''
-										// <div className="no-logo">
-										// 	{/* {singleWorkspace?.businessName?.slice(0, 2)} */}
-										// </div>
-									)}
+								<div style={{ display: 'flex', gap: '4px' }}>
+									<div className="workSpaceCircle">
+										{singleWorkspace?.logo_s3_500w_key ? (
+											<img
+												src={singleWorkspace?.logo_s3_500w_key}
+												alt={singleWorkspace?.businessName}
+											/>
+										) : (
+											<div className="no-logo">
+												{singleWorkspace?.businessName?.slice(0, 2)}
+											</div>
+										)}
+									</div>
+									<h6>{singleWorkspace?.businessName}</h6>
 								</div>
 
-								{/* {singleWorkspace?.activeWorkspaceId ===
-								info?.activeBusniessName?.activeWorkspaceId && (
-								<div className="activeWorkspaceCheck">
-									<CircletickwhiteSvg />
-								</div>
-							)} */}
+								{singleWorkspace?.activeWorkspaceId ===
+									info?.activeBusniessName?.activeWorkspaceId && (
+									<div className="activeWorkspaceCheck">
+										<TickSvg />
+									</div>
+								)}
 							</div>
 						))}
 

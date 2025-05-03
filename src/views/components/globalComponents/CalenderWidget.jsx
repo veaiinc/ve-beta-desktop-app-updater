@@ -181,15 +181,15 @@ const CalenderWidget = ({ width = '100%', height = '412px' }) => {
 						}}
 					>
 						{info?.isLoading ? (
-							skeletonLoaders?.map((_, index) => (
+							skeletonLoaders?.map((item, index) => (
 								<Skeleton
+									key={index}
 									width="300px"
 									height="36px"
 									style={{
 										'--highlight-color': 'gray',
 										'--base-color': 'transparent',
 									}}
-									key={index}
 								/>
 							))
 						) : allCalendarEvents?.data?.length > 0 ? (
