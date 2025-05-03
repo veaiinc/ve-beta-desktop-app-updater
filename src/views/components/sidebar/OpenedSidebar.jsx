@@ -700,15 +700,6 @@ const OpenedSidebar = ({
 														/>
 													</div>
 													<ChatHistory />
-													<div>
-														<hr
-															className={`${
-																isOpen
-																	? 'horizontal-line-sidebar'
-																	: ''
-															}`}
-														/>
-													</div>
 													<div
 														className="settingsOptionsContainer"
 														onClick={toggleSidebar}

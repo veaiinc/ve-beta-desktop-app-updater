@@ -1138,7 +1138,7 @@
 	width: 100%;
 	cursor: pointer;
 	transition: background 0.2s ease;
-	margin-top: 10px;
+	border-top: 1px solid var(--stroke);
 	.settingsHoverState {
 		display: flex;
 		justify-content: space-between;
@@ -1222,7 +1222,7 @@
 	border: 0.7px solid var(--stroke);
 	margin: 16px 0px 16px -10px;
 	width: 100% !important;
-	position: fixed;
+	// position: fixed;
 	z-index: 100;
 }
 .settings-footer-container {
