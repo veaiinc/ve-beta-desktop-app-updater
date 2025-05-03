@@ -31,7 +31,6 @@ const Sidebar = ({ activeWorkspaceId }) => {
 		return JSON.parse(localStorage.getItem('isOpen')) ?? true;
 	});
 	const [isClosing, setIsClosing] = useState(false);
-
 	// conditional margin top for home page
 	const isHome = location?.pathname?.includes('notes');
 
@@ -122,13 +121,15 @@ const Sidebar = ({ activeWorkspaceId }) => {
 		}
 	}, [location?.pathname]);
 
+	const handleOpen = () => {
+		setIsOpen(true); // Sidebar comes into view
+	};
 	const handleClose = () => {
 		setIsClosing(true);
-		const timeOut = setTimeout(() => {
-			setIsOpen(false);
+		setTimeout(() => {
+			setIsOpen(false); // Sidebar disappears
 			setIsClosing(false);
-		}, 600);
-		return () => clearTimeout(timeOut);
+		}, 400); // Match this with the SCSS transition duration
 	};
 	return (
 		<>
@@ -159,9 +160,9 @@ const Sidebar = ({ activeWorkspaceId }) => {
 				}}
 			>
 				<nav
-					className={`sidebarComponent ${isOpen ? 'open' : ''} ${
-						!isOpen && isHome && 'padding-48'
-					} ${isClosing ? 'closing' : ''}`}
+					className={`sidebarComponent ${isOpen && !isClosing ? 'open' : ''} ${
+						isClosing ? 'closing' : ''
+					} ${!isOpen && isHome && 'padding-48'}`}
 					style={styles[sidebarStates?.navStyle]}
 				>
 					{isOpen ? (
@@ -194,10 +195,7 @@ const Sidebar = ({ activeWorkspaceId }) => {
 								marginLeft: '12px',
 							}}
 						>
-							<SidebarClosingSvg
-								onClick={() => setIsOpen(true)}
-								style={{ cursor: 'pointer' }}
-							/>
+							<SidebarClosingSvg onClick={handleOpen} style={{ cursor: 'pointer' }} />
 						</Tooltip>
 					)}
 				</nav>

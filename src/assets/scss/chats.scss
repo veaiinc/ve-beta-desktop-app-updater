@@ -116,7 +116,7 @@
 		.chat-container-wrapper {
 			display: flex;
 			flex-direction: column;
-			gap: 4px;
+			gap: 8px;
 			width: 100%;
 			.chat-group-header {
 				color: var(--secondary-font, #93989f);
@@ -125,6 +125,7 @@
 				font-style: normal;
 				font-weight: 600;
 				line-height: normal;
+				padding-left: 10px;
 			}
 			.chat-containers {
 				display: flex;

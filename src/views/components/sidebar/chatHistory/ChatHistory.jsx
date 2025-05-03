@@ -139,11 +139,12 @@ const ChatHistory = () => {
 						))}
 					</div>
 				) : emptyChatsState ? (
-					<div className="empty-state">
-						<button className="create-chat-btn" onClick={handleCreateChat}>
-							Create New Chat
-						</button>
-					</div>
+					// <div className="empty-state">
+					// 	<button className="create-chat-btn" onClick={handleCreateChat}>
+					// 		Create New Chat
+					// 	</button>
+					// </div>
+					''
 				) : (
 					<InfiniteScroll
 						dataLength={chats?.length || 0}

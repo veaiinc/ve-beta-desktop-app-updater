@@ -129,7 +129,7 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 				/>
 			)}
 			<div
-				style={{ maxHeight: renewBanner ? '91dvh' : '93dvh' }}
+				style={{ maxHeight: renewBanner ? '82dvh' : '85dvh' }}
 				className="workspaceListComponent"
 			>
 				<div className="workspaceListHeader">
