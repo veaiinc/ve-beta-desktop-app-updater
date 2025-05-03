@@ -10,6 +10,7 @@ import gsap from 'gsap';
 import Spinner from '../loaders/Spinner';
 import FilterDropdown from '../dropDown/file/FilterDropdown';
 import EmptyState from './EmptyState';
+import { Tooltip } from 'antd';
 
 const sortOptions = [
 	{ label: 'Recently Added', value: 'createdAt', sortType: -1 },
@@ -214,9 +215,11 @@ const FormsGrid = ({
 										/>
 										<div className="docs-title-wrapper docs-title-wrapper-form">
 											<div className=""></div>
-											<span className="docs-item-title">
-												{form?.title.slice(0, 20)}
-											</span>
+											<Tooltip title={form?.title || ''} placement="bottom">
+												<span className="docs-item-title">
+													{form?.title.slice(0, 20)}
+												</span>
+											</Tooltip>
 											<span className="docs-item-sub-title">
 												{moment.unix(form?.createdAt).fromNow()}
 											</span>
