@@ -769,7 +769,7 @@ const OpenedSidebar = ({
 																	</span>
 																	<span>
 																		{userDetailsData?.firstName}{' '}
-																		<span>
+																		<span className="workspaceId">
 																			(
 																			{`${
 																				isAdmin
@@ -1087,7 +1087,9 @@ const OpenedSidebar = ({
 										<div className="settingsOptionsUserName">
 											<span>
 												{userDetailsData?.firstName}{' '}
-												<span>({`${isAdmin ? 'Admin' : 'Member'}`})</span>
+												<span className="workspaceId">
+													({`${isAdmin ? 'Admin' : 'Member'}`})
+												</span>
 											</span>
 											<span className="workspaceId">
 												{tennantSettingsData?.businessName.toUpperCase()}
