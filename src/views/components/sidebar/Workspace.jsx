@@ -35,30 +35,33 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 	};
 
 	const filteredWorkspaces = userWorkSpaceList?.filter((workspace) =>
-		workspace?.businessName?.toLowerCase().includes(searchWorkspace.toLowerCase()),
+		workspace?.businessName?.toLowerCase()?.includes(searchWorkspace?.toLowerCase()),
 	);
 
 	useEffect(() => {
 		const handleKeyDown = (e) => {
-			if (!filteredWorkspaces || filteredWorkspaces.length === 0) return;
+			if (!filteredWorkspaces || filteredWorkspaces?.length === 0) return;
 
-			if (e.key === 'ArrowDown') {
-				e.preventDefault();
-				setFocusedIndex((prev) => (prev < filteredWorkspaces.length - 1 ? prev + 1 : 0));
-			} else if (e.key === 'ArrowUp') {
-				e.preventDefault();
-				setFocusedIndex((prev) => (prev > 0 ? prev - 1 : filteredWorkspaces.length - 1));
-			} else if (e.key === 'Enter') {
+			if (e?.key === 'ArrowDown') {
+				e?.preventDefault();
+				setFocusedIndex((prev) =>
+					prev < filteredWorkspaces?.length - 1 ? prev + 1 : prev,
+				);
+			} else if (e?.key === 'ArrowUp') {
+				e?.preventDefault();
+				setFocusedIndex((prev) => (prev > 0 ? prev - 1 : prev));
+			} else if (e?.key === 'Enter') {
 				handleSwitchWorkSpaceLogic(filteredWorkspaces[focusedIndex]);
 			}
 		};
 
-		window.addEventListener('keydown', handleKeyDown);
-		return () => window.removeEventListener('keydown', handleKeyDown);
+		window?.addEventListener('keydown', handleKeyDown);
+		return () => window?.removeEventListener('keydown', handleKeyDown);
 	}, [filteredWorkspaces, focusedIndex]);
 
 	const handleSwitchWorkSpaceLogic = useCallback(
 		(data) => {
+			if (!data) return;
 			const { activeWorkspaceId, isOnboard } = data;
 			const workspaceId = localStorage.getItem('workspaceId');
 			if (workspaceId === activeWorkspaceId) {
@@ -69,14 +72,14 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 			localStorage.setItem('showSettingsSidebar', 'false');
 			const host = fetchDomainName();
 
-			Cookies.set('workspaceID', activeWorkspaceId, {
+			Cookies?.set('workspaceID', activeWorkspaceId, {
 				sameSite: 'lax',
 				domain: host,
 			});
 
 			// case : if there is no usertoken in cookies so everytime make sure usertoken and cookies should be set,
 			let accessToken = localStorage.getItem('usertoken');
-			Cookies.set('usertoken', accessToken, {
+			Cookies?.set('usertoken', accessToken, {
 				sameSite: 'lax',
 				domain: host,
 			});
@@ -91,7 +94,7 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 			}
 			if (newWorkspaceRegion !== currentRegion) {
 				localStorage.setItem('region', newWorkspaceRegion);
-				Cookies.set('region', newWorkspaceRegion, {
+				Cookies?.set('region', newWorkspaceRegion, {
 					sameSite: 'lax',
 					domain: host,
 				});
