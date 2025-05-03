@@ -174,9 +174,9 @@ const Person = ({
 					color: 'var(--primary-font)',
 				}}
 				notFoundContent="No options available"
-				notFoundContentStyle={{
-					color: 'var(--primary-font)',
-				}}
+				// notFoundContentStyle={{
+				// 	color: 'var(--primary-font)',
+				// }}
 				onDropdownVisibleChange={(open) => {}}
 				{...(multiSelect ? { tagRender: renderPerson } : { labelRender: renderPerson })}
 				dropdownRender={(menu) => {

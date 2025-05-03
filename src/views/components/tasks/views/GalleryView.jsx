@@ -5,6 +5,7 @@ import CardItem from '../listView/CardItem';
 import Skeleton from 'react-loading-skeleton';
 import InfiniteScroll from '../../../components/globalComponents/InfiniteScroll';
 import { FetchMoreLoaderComp } from '../../../../helpers';
+import GalleryCard from '../listView/GalleryCard';
 
 const GalleryView = ({
 	responseMetadata,
@@ -53,16 +54,22 @@ const GalleryView = ({
 			>
 				<div className="gallery-view-wrapper">
 					{data?.map((task) => (
-						<CardItem
+						// <CardItem
+						// 	key={task._id}
+						// 	task={task}
+						// 	responseMetadata={responseMetadata}
+						// 	colors={colors}
+						// 	rowTypes={rowTypes}
+						// 	properties={properties}
+						// 	handleUpdate={handleUpdate}
+						// 	onClick={() => handleRowClick(task)}
+						// 	className="card-item"
+						// />
+						<GalleryCard
 							key={task._id}
 							task={task}
 							responseMetadata={responseMetadata}
-							colors={colors}
-							rowTypes={rowTypes}
-							properties={properties}
 							handleUpdate={handleUpdate}
-							onClick={() => handleRowClick(task)}
-							className="card-item"
 						/>
 					))}
 					<div className="gallery-view-add-card" onClick={handleAddButtonOnClick}>

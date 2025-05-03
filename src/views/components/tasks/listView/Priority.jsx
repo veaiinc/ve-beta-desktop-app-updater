@@ -58,12 +58,15 @@ const Priority = ({
 				>
 					<div
 						className={`currentItem`}
-						style={{ ...customListItemStyle, backgroundColor: info?.selected?.color }}
+						// style={{
+						// 	...customListItemStyle,
+						// 	backgroundColor: 'red',
+						// }}
 					>
 						{value ? (
-							<p className="listItem-label">{info?.selected?.label}</p>
+							<div className="listItem-label">{info?.selected?.label}</div>
 						) : (
-							<p className="listItem-label">Select priority</p>
+							<div className="listItem-label">Select priority</div>
 						)}
 					</div>
 				</Tooltip>
