@@ -86,7 +86,6 @@ const Person = ({
 		onOptionClick(value);
 	};
 
-	// Add debug logging for option rendering
 	const optionRender = useCallback(
 		(option) => {
 			const isSelected = multiSelect
@@ -115,7 +114,17 @@ const Person = ({
 	);
 
 	const handleSearchChange = (e) => {
+		e?.stopPropagation();
+		e?.preventDefault();
 		setInfo((prevInfo) => ({ ...prevInfo, search: e?.target?.value }));
+	};
+
+	// Handle keydown in search input to prevent backspace from removing tags
+	const handleSearchKeyDown = (e) => {
+		// If backspace is pressed in search input, don't let it bubble up to Select
+		if (e.key === 'Backspace') {
+			e.stopPropagation();
+		}
 	};
 
 	const filteredOptions = options?.filter((item) =>
@@ -187,6 +196,7 @@ const Person = ({
 										placeholder="Search..."
 										value={info?.search}
 										onChange={handleSearchChange}
+										onKeyDown={handleSearchKeyDown}
 									/>
 								</div>
 							</div>
