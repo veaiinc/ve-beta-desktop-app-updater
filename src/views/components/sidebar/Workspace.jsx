@@ -10,6 +10,9 @@ import useLogout from '../../hooks/useLogout';
 import { fetchDomainName } from '../../../helpers';
 
 const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpaceList, info }) => {
+	const {
+		subscriptionInfo: { renewBanner },
+	} = useContext(Context);
 	const navigate = useNavigate();
 	const logoutFunc = useLogout();
 	const [searchWorkspace, setSearchWorkspace] = useState('');
@@ -21,14 +24,11 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 				(workspace) =>
 					workspace.activeWorkspaceId === info.activeBusniessName.activeWorkspaceId,
 			);
-			if (activeIndex !== -1) {
-				setFocusedIndex(activeIndex);
-			}
+			// if (activeIndex !== -1) {
+			// 	setFocusedIndex(activeIndex);
+			// }
 		}
 	}, [userWorkSpaceList, info?.activeBusniessName?.activeWorkspaceId]);
-	const {
-		subscriptionInfo: { renewBanner },
-	} = useContext(Context);
 
 	const closeWorkspaceList = () => {
 		setsidebarStates({ ...sidebarStates, workSpaceOpen: false, navStyle: 'open' });
@@ -147,7 +147,8 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 								type="text"
 								placeholder="Search"
 								className="searchWorkspace"
-								onChange={(e) => setSearchWorkspace(e.target.value)}
+								onChange={(e) => setSearchWorkspace(e?.target?.value)}
+								autoFocus={true}
 							/>
 						</div>
 					)}

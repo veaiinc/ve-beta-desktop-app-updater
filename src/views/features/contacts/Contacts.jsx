@@ -94,7 +94,7 @@ const Contacts = () => {
 					</div>
 					<div className="contacts-stats-container">
 						<div className="contacts-stats">
-							{statItems.map(({ key, label, className }) => (
+							{statItems?.map(({ key, label, className }) => (
 								<div
 									className={`stat-item ${
 										info?.selectedContactOption === key ? 'active' : ''

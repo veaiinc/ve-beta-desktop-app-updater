@@ -273,13 +273,13 @@
 					align-items: center;
 					align-self: stretch;
 					cursor: pointer;
+					transition: background 0.2s ease-in-out;
 
 					&:hover {
 						background: var(--card, #1e1f21);
 					}
-
-					.column {
-						&.people {
+					.row-left {
+						.people {
 							display: flex;
 							align-items: center;
 							gap: 12px;
@@ -304,19 +304,27 @@
 
 							.contact-info {
 								.name {
-									color: var(--primary-font);
-									font-size: 14px;
+									color: var(--primary-font, #f2f2f3);
+									font-family: var(--primary-font-family);
+									font-size: 16px;
+									font-style: normal;
 									font-weight: 500;
+									line-height: normal;
 								}
 
 								.email {
-									color: var(--secondary-font);
-									font-size: 12px;
+									color: var(--secondary-font, #7a7e85);
+									font-family: var(--primary-font-family);
+									font-size: 14px;
+									font-style: normal;
+									font-weight: 400;
+									line-height: normal;
 								}
 							}
 						}
-
-						&.strength {
+					}
+					.row-right {
+						.strength {
 							display: flex;
 							align-items: center;
 							gap: 8px;
@@ -333,9 +341,14 @@
 							}
 						}
 
-						&.interaction {
-							color: var(--secondary-font);
+						.interaction {
+							color: var(--secondary-font, #7a7e85);
+							font-family: var(--primary-font-family);
 							font-size: 14px;
+							font-style: normal;
+							font-weight: 500;
+							line-height: normal;
+							text-transform: capitalize;
 						}
 					}
 				}
