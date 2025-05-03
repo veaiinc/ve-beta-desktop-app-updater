@@ -95,6 +95,12 @@ module.exports = {
 		hot: true, // Enables Hot Module Replacement
 		static: path.resolve(__dirname, 'public'), // Serves static files from the public folder
 		historyApiFallback: true, // Enables SPA routing
+		client: {
+			overlay: {
+				warnings: false,
+				errors: false,
+			},
+		},
 	},
 	ignoreWarnings: [
 		{
