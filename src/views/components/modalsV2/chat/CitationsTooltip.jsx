@@ -67,7 +67,9 @@ export const CitationsTooltip = memo(({ citationId, citations, placement = 'topL
 		if (citationInfo?.snippet && citationInfo.snippet?.trim() !== '') {
 			updatedText = updatedText?.replace(
 				citationInfo?.snippet,
-				`<span id="citation-snippet" style="background-color: rgb(178, 161, 232); color : black; padding: 1px 3px; box-decoration-break: clone;">${citationInfo.snippet}</span>`,
+				`<span id="citation-snippet" style="background-color: var(--primary-font); color : var(--background-color); padding: 1px 3px; box-decoration-break: clone;">${
+					citationInfo?.snippet || ''
+				}</span>`,
 			);
 		}
 		return updatedText;
@@ -76,7 +78,7 @@ export const CitationsTooltip = memo(({ citationId, citations, placement = 'topL
 	return (
 		<Tooltip
 			arrow={false}
-			trigger={'hover'}
+			trigger={'click'}
 			color="transparent"
 			placement={placement}
 			rootClassName="citation-tooltip-wrapper"
@@ -87,7 +89,9 @@ export const CitationsTooltip = memo(({ citationId, citations, placement = 'topL
 						window.open(citationInfo?.link, '_blank');
 					}}
 				>
-					{(processedCitationData?.length > 0 || citationInfo?.snippet?.length > 0) && (
+					{/* {(processedCitationData?.length > 0 || citationInfo?.snippet?.length > 0) && ( */}
+					<div className="content-container">
+						<div className="vertical-line" />
 						<div className="tooltip-content">
 							{citationInfo?.source ? (
 								<Markdown>{processedCitationData}</Markdown>
@@ -95,7 +99,8 @@ export const CitationsTooltip = memo(({ citationId, citations, placement = 'topL
 								citationInfo?.snippet
 							)}
 						</div>
-					)}
+					</div>
+					{/* )} */}
 
 					<div className="info">
 						<div className="citation-link-container">

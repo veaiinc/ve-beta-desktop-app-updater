@@ -30,19 +30,33 @@
 		border-radius: 16px;
 		background: var(--popup);
 		cursor: pointer;
+		.content-container {
+			display: flex;
+			height: 100%;
+			padding: 8px 4px;
+			justify-content: center;
+			align-items: flex-start;
+			gap: 10px;
+			align-self: stretch;
 
-		.tooltip-content {
-			width: 280px;
-			min-height: 0px;
-			max-height: 270px;
-			overflow-y: auto;
-			flex-shrink: 0;
-			color: var(--primary-font);
-			font-family: var(--primary-font-family);
-			font-size: 12px;
-			font-style: normal;
-			font-weight: 500;
-			line-height: 18px; /* 150% */
+			.vertical-line {
+				width: 1px;
+				height: 100%;
+				background: var(--stroke-hover);
+			}
+			.tooltip-content {
+				width: 280px;
+				// min-height: 0px;
+				height: 270px;
+				overflow-y: auto;
+				flex-shrink: 0;
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: 18px; /* 150% */
+			}
 		}
 
 		.info {

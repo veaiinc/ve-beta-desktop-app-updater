@@ -2,11 +2,12 @@ import { useContext, useEffect, useState, useCallback, memo } from 'react';
 import '../../../assets/scss/contacts/contacts.scss';
 import { useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
-import { ReactComponent as ArrowRightSvg } from '../../../assets/svg/home_page/arrow-right.svg';
+import { ReactComponent as ClockSvg } from '../../../assets/svg/contacts/clock.svg';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import SingleContact from '../../components/contacts/singleContact';
 import ChatLeftBarComponent from '../../components/ChatLeftBarComponent';
+import QuickActions from '../../components/globalComponents/QuickActions';
 
 dayjs.extend(relativeTime);
 
@@ -139,44 +140,51 @@ const Contacts = () => {
 			) : (
 				<div className="right-section">
 					<div className="header">
-						<h1 className="header-title">Your Contacts</h1>
+						<h1 className="header-title">Contacts</h1>
 						{/* <div className="search-bar-container">
 						<SearchIcon className="search-icon" />
 						<input type="text" className="search-bar" placeholder="Search" />
 					</div> */}
+						<QuickActions />
 					</div>
 
 					<div className="contacts-table">
 						<div className="table-header">
-							<div className="column people">People</div>
+							<div className="column people">Name/Email</div>
 							<div className="column strength"></div>
-							<div className="column interaction">Last Interaction</div>
+							<div className="column interaction">
+								Last Interaction <ClockSvg />
+							</div>
 						</div>
 						<div className="table-body">
 							{clientList?.data?.data?.map((contact) => (
 								<div
-									key={contact.id}
+									key={contact?._id}
 									className="table-row"
 									onClick={() => navigate(`/contact/${contact?._id}`)}
 								>
-									<div className="column people">
-										{/* <input type="checkbox" className="checkbox" /> */}
-										{/* <div className="avatar">{contact.avatar}</div> */}
-										<div className="contact-info">
-											<div className="name">{contact.name}</div>
-											<div className="email">{contact.email}</div>
+									<div className="row-left">
+										<div className="people">
+											{/* <input type="checkbox" className="checkbox" /> */}
+											{/* <div className="avatar">{contact.avatar}</div> */}
+											<div className="contact-info">
+												<div className="name">{contact.name}</div>
+												<div className="email">{contact.email}</div>
+											</div>
 										</div>
 									</div>
-									<div className="column strength">
-										{/* <span
+									<div className="row-right">
+										<div className="strength">
+											{/* <span
 											className={`dot ${contact.strength.toLowerCase()}`}
 										></span>
 										<span className="text">{contact.strength}</span> */}
-									</div>
-									<div className="column interaction">
-										{contact?.updatedAt
-											? dayjs.unix(contact.updatedAt).fromNow() // Converts Unix seconds -> "14 days ago"
-											: 'N/A'}
+										</div>
+										<div className="interaction">
+											{contact?.updatedAt
+												? dayjs.unix(contact.updatedAt).fromNow() // Converts Unix seconds -> "14 days ago"
+												: 'N/A'}
+										</div>
 									</div>
 								</div>
 							))}
