@@ -78,7 +78,6 @@
 							gap: 12px;
 							align-self: stretch;
 							border-radius: 12px;
-							background: var(--card-over-card, #202123);
 							.calenderWidgetMain {
 								display: flex;
 								padding: 6px;
@@ -108,20 +107,23 @@
 				}
 				.calenderWidgetMainContentDate {
 					display: flex;
-					padding: 10px 12px;
 					flex-direction: column;
 					align-items: flex-start;
-					gap: 12px;
+					gap: 4px;
 					flex: 1 0 0;
 					align-self: stretch;
 					border-radius: 12px;
-					background: var(--card-over-card, #202123);
 					.calenderWidgetMainContentDateMeet {
 						display: flex;
 						flex-direction: column;
 						align-items: flex-start;
 						gap: 4px;
 						align-self: stretch;
+						border-radius: 12px;
+						padding: 6px;
+						&:hover {
+							background: var(--card-over-card, #202123);
+						}
 						.calenderWidgetMainContentDateMeetTime {
 							display: flex;
 							align-items: center;
@@ -255,7 +257,4 @@
 	z-index: 100;
 }
 @media screen and (max-width: 1440px) {
-	.calender-main-container {
-		height: 400px !important;
-	}
 }

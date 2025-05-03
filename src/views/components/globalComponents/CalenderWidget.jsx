@@ -231,7 +231,7 @@ const CalenderWidget = ({ width = '100%', height = '412px' }) => {
 														display: 'flex',
 														flexDirection: 'column',
 														width: '100%',
-														gap: '12px',
+														gap: '4px',
 													}}
 												>
 													{meet?.data?.map((eachMeet) => (

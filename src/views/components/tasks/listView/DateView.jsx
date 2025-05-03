@@ -65,7 +65,7 @@ const DateView = ({
 						}}
 						onChange={({ $d }) => {
 							setInfo((prevInfo) => ({ ...prevInfo, showDatePicker: false }));
-							onOptionClick($d ? moment($d).unix() : null);
+							onOptionClick($d ? moment($d).endOf('day').unix() : null);
 						}}
 						placeholder={title ? `Select ${title}` : 'Select date'}
 					/>

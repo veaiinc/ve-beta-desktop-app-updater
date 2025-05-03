@@ -6,12 +6,8 @@ const TableHeader = ({ columns, handleResizeStart, loading }) => {
 	return (
 		<Droppable droppableId="table-header" direction="horizontal">
 			{(provided) => (
-				<thead
-					className="table-header"
-					ref={provided.innerRef}
-					{...provided.droppableProps}
-				>
-					<tr>
+				<div className="table-header" ref={provided.innerRef} {...provided.droppableProps}>
+					<div className="table-header-row">
 						{columns?.map((column, index) => (
 							<Draggable
 								key={column.id}
@@ -20,7 +16,7 @@ const TableHeader = ({ columns, handleResizeStart, loading }) => {
 								isDragDisabled={loading}
 							>
 								{(provided, snapshot) => (
-									<th
+									<div
 										ref={provided.innerRef}
 										{...provided.draggableProps}
 										className={`table-header-cell ${
@@ -59,13 +55,13 @@ const TableHeader = ({ columns, handleResizeStart, loading }) => {
 												onMouseDown={(e) => handleResizeStart(e, index)}
 											/>
 										)}
-									</th>
+									</div>
 								)}
 							</Draggable>
 						))}
 						{provided.placeholder}
-					</tr>
-				</thead>
+					</div>
+				</div>
 			)}
 		</Droppable>
 	);
