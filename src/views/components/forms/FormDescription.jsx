@@ -27,6 +27,7 @@ import {
 } from '@ant-design/icons';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
+import QuickActions from '../globalComponents/QuickActions';
 
 const iconsForQuestions = {
 	shortText: <BiDash />,
@@ -45,6 +46,18 @@ const iconsForQuestions = {
 	link: <Link />,
 	number: <Hash />,
 };
+
+const suggestedOptions = [
+	{
+		id: 1,
+		title: 'Document',
+		value: 'all',
+		controlValue: 'all',
+		action: ({ setInfo }) => {
+			setInfo((prev) => ({ ...prev, openProposalPopup: true, commonState: '' }));
+		},
+	},
+];
 
 const eventsTableHeaderData = [
 	{
@@ -105,24 +118,24 @@ const DropdownAnswer = ({ answer }) => {
 	);
 };
 
-const EventsAnswer = ({ answer }) => {
+export const EventsAnswer = ({ answer }) => {
 	if (!answer) {
 		return '';
 	}
 
-	let events;
-	try {
-		// If answer is already an object, use it directly
-		if (typeof answer === 'object') {
-			events = answer;
-		} else {
-			// If it's a string, try to parse it as JSON
-			events = JSON.parse(answer);
-		}
-	} catch (e) {
-		console.error('Error parsing events:', e);
-		return '';
-	}
+	let events = answer;
+	// try {
+	// 	// If answer is already an object, use it directly
+	// 	if (typeof answer === 'object') {
+	// 		events = answer;
+	// 	} else {
+	// 		// If it's a string, try to parse it as JSON
+	// 		events = JSON.parse(answer);
+	// 	}
+	// } catch (e) {
+	// 	console.error('Error parsing events:', e);
+	// 	return '';
+	// }
 
 	// Ensure we have an array of events
 	const eventsArray = Array.isArray(events) ? events : [events];
@@ -400,7 +413,7 @@ const FormDescription = ({ response, onClose, formId, activeTab, loading }) => {
 
 	const getName = (response) => {
 		if (!response?.response) return 'No Name';
-		const nameField = response.response.find((item) =>
+		const nameField = response?.response.find((item) =>
 			item?.question?.toLowerCase().includes('name'),
 		);
 		return nameField?.answer || 'No Name';
@@ -408,7 +421,7 @@ const FormDescription = ({ response, onClose, formId, activeTab, loading }) => {
 
 	const getEmail = (response) => {
 		if (!response?.response) return '';
-		const emailField = response.response.find((item) =>
+		const emailField = response?.response.find((item) =>
 			item?.question?.toLowerCase().includes('email'),
 		);
 		return emailField?.answer || '';
@@ -454,27 +467,27 @@ const FormDescription = ({ response, onClose, formId, activeTab, loading }) => {
 	};
 
 	const formatLabel = (question) => {
-		const lowerQuestion = question.toLowerCase();
-		if (lowerQuestion.includes('first name')) return 'First Name';
-		if (lowerQuestion.includes('last name')) return 'Last Name';
+		const lowerQuestion = question?.toLowerCase();
+		if (lowerQuestion?.includes('first name')) return 'First Name';
+		if (lowerQuestion?.includes('last name')) return 'Last Name';
 		if (
-			lowerQuestion.includes('name') &&
-			!lowerQuestion.includes('first') &&
-			!lowerQuestion.includes('last')
+			lowerQuestion?.includes('name') &&
+			!lowerQuestion?.includes('first') &&
+			!lowerQuestion?.includes('last')
 		)
 			return 'Name';
-		if (lowerQuestion.includes('email')) return 'Email';
+		if (lowerQuestion?.includes('email')) return 'Email';
 		if (
-			lowerQuestion.includes('phone') ||
-			lowerQuestion.includes('mobile') ||
-			lowerQuestion.includes('contact')
+			lowerQuestion?.includes('phone') ||
+			lowerQuestion?.includes('mobile') ||
+			lowerQuestion?.includes('contact')
 		)
 			return 'Phone';
-		if (lowerQuestion.includes('address')) return 'Address';
-		if (lowerQuestion.includes('location')) return 'Location';
-		if (lowerQuestion.includes('company') || lowerQuestion.includes('organization'))
+		if (lowerQuestion?.includes('address')) return 'Address';
+		if (lowerQuestion?.includes('location')) return 'Location';
+		if (lowerQuestion?.includes('company') || lowerQuestion?.includes('organization'))
 			return 'Company';
-		if (lowerQuestion.includes('position') || lowerQuestion.includes('title'))
+		if (lowerQuestion?.includes('position') || lowerQuestion?.includes('title'))
 			return 'Position';
 		return question;
 	};
@@ -531,15 +544,18 @@ const FormDescription = ({ response, onClose, formId, activeTab, loading }) => {
 			<div className="descriptionContent">
 				{response ? (
 					<>
+						<div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+							<QuickActions suggestedOptions={suggestedOptions} isFromForms={true} />
+						</div>
 						<div className="descriptionSection">
 							<h3 className="sectionTitle">Basic Information</h3>
 							{getBasicInfo(response).map((field, index) => (
 								<div key={index} className="infoRow">
 									<span className="infoLabel">
-										{formatLabel(field.question)}:
+										{formatLabel(field?.question)}:
 									</span>
 									<span className="infoValue">
-										{field.answer || 'Not provided'}
+										{field?.answer || 'Not provided'}
 									</span>
 								</div>
 							))}
@@ -555,7 +571,7 @@ const FormDescription = ({ response, onClose, formId, activeTab, loading }) => {
 									(formData) =>
 										formData?.type !== 'signature' &&
 										!getBasicInfo(response).some(
-											(field) => field.question === formData.question,
+											(field) => field?.question === formData?.question,
 										) && (
 											<div
 												className="formResponseContainer"

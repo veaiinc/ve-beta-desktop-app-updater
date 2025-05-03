@@ -90,6 +90,7 @@ const CreateFileLead = ({ open, onClose, workflow }) => {
 		documentTitle: workflow?.title || '',
 		searchValue: '',
 		isSearching: false,
+		formError: null,
 	});
 
 	useEffect(() => {
@@ -369,6 +370,13 @@ const CreateFileLead = ({ open, onClose, workflow }) => {
 	const createDocumentFunc = async () => {
 		if (info?.isLoading) return;
 		setInfo((prev) => ({ ...prev, isLoading: true }));
+		if (!info?.selectedLead?._id) {
+			setInfo((prev) => ({
+				...prev,
+				formError: 'Please select a contact',
+			}));
+			return;
+		}
 		const payload = {
 			smartFileInput: {
 				title: info?.documentTitle,
@@ -534,6 +542,7 @@ const CreateFileLead = ({ open, onClose, workflow }) => {
 								fetchMoreData={getMoreClientData}
 								hasNextPage={info?.hasNextPage}
 							/>
+							<p className="errorMessage">{info?.formError}</p>
 						</div>
 
 						<div className="leadSourceContainer">

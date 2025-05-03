@@ -284,7 +284,13 @@ const defaultPreference = {
 	updatedAt: { show: false, order: 15 },
 };
 
-const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDetails = null }) => {
+const QuickActions = ({
+	styles,
+	suggestedOptions = [],
+	timeout = null,
+	clientDetails = null,
+	isFromForms = false,
+}) => {
 	const {
 		templates: { toggleCreateLeadModal },
 		profileInfo: { tenantUserAccessControls },
@@ -536,7 +542,7 @@ const QuickActions = ({ styles, suggestedOptions = [], timeout = null, clientDet
 
 			moduleOptions = moduleOptions.filter((option) => !suggestedValuesSet.has(option.value));
 
-			return { suggestedOptions, moduleOptions };
+			return isFromForms ? { suggestedOptions } : { suggestedOptions, moduleOptions };
 		},
 		[info?.options, tenantUserAccessControls],
 	);

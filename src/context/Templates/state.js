@@ -119,6 +119,7 @@ export const intialState = {
 			webSearch: false,
 		},
 	},
+	citationChunks: {},
 	currentChatData: null,
 	chatPayload: {
 		workflowTemplateId: null,
@@ -2450,6 +2451,13 @@ export const TemplatesState = (props) => {
 			console.log('error==>duplicateSmartFile', error);
 		}
 	};
+	const updateCitationChunks = async (payload) => {
+		try {
+			dispatch({ type: Actions?.UPDATE_CITATION_CHUNKS, payload });
+		} catch (error) {
+			console.log('error==>updateCitationChunks', error);
+		}
+	};
 	return {
 		...state,
 		getMyWorkflows,
@@ -2534,5 +2542,6 @@ export const TemplatesState = (props) => {
 		updateWorkflowTemplate,
 		pendingActionsUpdate,
 		duplicateSmartFile,
+		updateCitationChunks,
 	};
 };
