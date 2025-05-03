@@ -48,7 +48,7 @@ const AuthWrapper = ({
 				<title>{title}</title>
 			</Helmet>
 			{renewBanner && <RenewBanner />}
-			{worspaceId.includes(workspaceId) && !location.pathname.includes('/chat') && (
+			{worspaceId?.includes(workspaceId) && !location?.pathname?.includes('/chat') && (
 				<DynamicWidget />
 			)}
 			<div

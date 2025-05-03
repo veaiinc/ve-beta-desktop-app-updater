@@ -60,17 +60,19 @@ const AISuggestionsModal = ({
 	}, []);
 
 	const handleViewReportClick = useCallback((data) => {
-		const cot = (data?.chain_of_thought || [])?.map((item) => {
-			return {
-				readings: [
-					{
-						reading: {
-							sub_query: item,
+		const cot = (data?.chain_of_thought || [])
+			?.filter((item) => typeof item === 'string')
+			?.map((item) => {
+				return {
+					readings: [
+						{
+							reading: {
+								sub_query: item,
+							},
 						},
-					},
-				],
-			};
-		});
+					],
+				};
+			});
 		const messages = [
 			{
 				type: 'user',
@@ -267,19 +269,21 @@ const AISuggestionsModal = ({
 										onClick={(e) => e?.stopPropagation()}
 									>
 										{Array?.isArray(chain_of_thought)
-											? chain_of_thought?.map((cot, index) => {
-													return (
-														<div
-															className="content-container"
-															key={index}
-														>
-															<div className="logo-container"></div>
-															<div className="text-container">
-																{cot}
+											? chain_of_thought
+													?.filter((item) => typeof item === 'string')
+													?.map((cot, index) => {
+														return (
+															<div
+																className="content-container"
+																key={index}
+															>
+																<div className="logo-container"></div>
+																<div className="text-container">
+																	{cot}
+																</div>
 															</div>
-														</div>
-													);
-											  })
+														);
+													})
 											: ''}
 									</div>
 								)}

@@ -1,4 +1,4 @@
-import { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useContext } from 'react';
 import '../../../assets/scss/tasks/taskwidget.scss';
 import { ReactComponent as Warn } from '../../../assets/svg/tasks/warn.svg';
 import { ReactComponent as Check } from '../../../assets/svg/tasks/check.svg';

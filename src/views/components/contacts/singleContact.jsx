@@ -1,5 +1,5 @@
 import { memo, useState } from 'react';
-import '../../../assets/scss/contacts/contacts.scss';
+import '../../../assets/scss/contacts/singleContact.scss';
 import TaskWidget from '../globalComponents/TaskWidget';
 import AutomationWidget from '../globalComponents/AutomationWidget';
 import CalenderWidget from '../globalComponents/CalenderWidget';
