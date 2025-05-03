@@ -25,38 +25,25 @@
 		width: 312px;
 		padding: 16px;
 		flex-direction: column;
-		align-items: center;
 		gap: 10px;
 		border-radius: 16px;
 		background: var(--popup);
 		cursor: pointer;
-		.content-container {
-			display: flex;
-			height: 100%;
-			padding: 8px 4px;
-			justify-content: center;
-			align-items: flex-start;
-			gap: 10px;
-			align-self: stretch;
 
-			.vertical-line {
-				width: 1px;
-				height: 100%;
-				background: var(--stroke-hover);
-			}
-			.tooltip-content {
-				width: 280px;
-				// min-height: 0px;
-				height: 270px;
-				overflow-y: auto;
-				flex-shrink: 0;
-				color: var(--primary-font);
-				font-family: var(--primary-font-family);
-				font-size: 12px;
-				font-style: normal;
-				font-weight: 500;
-				line-height: 18px; /* 150% */
-			}
+		.tooltip-content {
+			flex-grow: 1;
+			min-height: 0px;
+			max-height: 270px;
+			overflow-y: auto;
+			flex-shrink: 0;
+			color: var(--primary-font);
+			font-family: var(--primary-font-family);
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 18px; /* 150% */
+			padding-left: 10px;
+			border-left: 1px solid var(--stroke-hover);
 		}
 
 		.info {

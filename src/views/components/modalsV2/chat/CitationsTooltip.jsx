@@ -89,9 +89,7 @@ export const CitationsTooltip = memo(({ citationId, citations, placement = 'topL
 						window.open(citationInfo?.link, '_blank');
 					}}
 				>
-					{/* {(processedCitationData?.length > 0 || citationInfo?.snippet?.length > 0) && ( */}
-					<div className="content-container">
-						<div className="vertical-line" />
+					{(processedCitationData?.length > 0 || citationInfo?.snippet?.length > 0) && (
 						<div className="tooltip-content">
 							{citationInfo?.source ? (
 								<Markdown>{processedCitationData}</Markdown>
@@ -99,8 +97,7 @@ export const CitationsTooltip = memo(({ citationId, citations, placement = 'topL
 								citationInfo?.snippet
 							)}
 						</div>
-					</div>
-					{/* )} */}
+					)}
 
 					<div className="info">
 						<div className="citation-link-container">
