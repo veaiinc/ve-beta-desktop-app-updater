@@ -11,7 +11,7 @@ const DeepSearchChainOfThought = ({ data }) => {
 		<div className="cot-wrapper">
 			<div className="cot-container">
 				{data?.cot?.map((item, index) => {
-					const { readings } = item;
+					const { readings, sub_query } = item;
 					return (
 						<div className="cot" key={index}>
 							<div className="logo-container">
@@ -19,7 +19,7 @@ const DeepSearchChainOfThought = ({ data }) => {
 							</div>
 							<div className="content">
 								<div className="sub-query">
-									{readings[0]?.reading?.sub_query || ''}
+									{readings[0]?.reading?.sub_query || sub_query || ''}
 								</div>
 								<div className="sub-query-wrapper">
 									{readings?.map((reading, index) => {
@@ -31,39 +31,56 @@ const DeepSearchChainOfThought = ({ data }) => {
 														<div className="indicator" />
 													</div>
 												)}
+
 												<div className="sub-query-content">
-													<div className="tool-container">
-														{tool === 'search_web' ? (
-															<div className="search">
-																<div className="svg">
-																	<WebSvg />
-																</div>
-																<div className="search-text">
-																	Searched Web For :
-																</div>
+													{queries?.length > 0 && (
+														<>
+															<div className="tool-container">
+																{tool === 'search_web' ? (
+																	<div className="search">
+																		<div className="svg">
+																			<WebSvg />
+																		</div>
+																		<div className="search-text">
+																			Searched Web For :
+																		</div>
+																	</div>
+																) : tool ===
+																  'search_knowledge_base' ? (
+																	<div className="search">
+																		<div className="svg">
+																			<BookSvg
+																				selected={false}
+																			/>
+																		</div>
+																		<div className="search-text">
+																			Searched Knowledge Base
+																			For :
+																		</div>
+																	</div>
+																) : (
+																	<div className="search">
+																		<div className="search-text">
+																			Searched :
+																		</div>
+																	</div>
+																)}
 															</div>
-														) : tool === 'search_knowledge_base' ? (
-															<div className="search">
-																<div className="svg">
-																	<BookSvg selected={false} />
-																</div>
-																<div className="search-text">
-																	Searched Knowledge Base For :
-																</div>
-															</div>
-														) : (
-															''
-														)}
-													</div>
-													<div className="queries" key={index}>
-														{queries?.map((query, index) => {
-															return (
-																<div className="query" key={index}>
-																	{query}
-																</div>
-															);
-														})}
-													</div>
+															<div className="queries" key={index}>
+																{queries?.map((query, index) => {
+																	return (
+																		<div
+																			className="query"
+																			key={index}
+																		>
+																			{query}
+																		</div>
+																	);
+																})}
+															</div>{' '}
+														</>
+													)}
+
 													{sources?.length > 0 && (
 														<div className="sources-container">
 															<div className="source-text">
@@ -147,7 +164,7 @@ const DeepSearchChainOfThought = ({ data }) => {
 					<div className="refined-cot-text">Refined Chain of Thought</div>
 					<div className="refined-cot-container">
 						{data?.cot_refined?.map((item, index) => {
-							const { readings } = item;
+							const { readings, sub_query } = item;
 							return (
 								<div className="cot" key={index}>
 									<div className="logo-container">
@@ -155,58 +172,73 @@ const DeepSearchChainOfThought = ({ data }) => {
 									</div>
 									<div className="content">
 										<div className="sub-query">
-											{readings[0]?.reading?.refined_sub_query || ''}
+											{readings[0]?.reading?.refined_sub_query ||
+												sub_query ||
+												''}
 										</div>
 										<div className="sub-query-wrapper">
 											{readings?.map((reading, index) => {
 												const { tool, queries, sources } = reading?.reading;
 												return (
 													<div className="sub-query-cot" key={index}>
-														<div className="number-logo-container">
-															<div className="indicator" />
-														</div>
+														{readings?.length !== 1 && (
+															<div className="number-logo-container">
+																<div className="indicator" />
+															</div>
+														)}
 														<div className="sub-query-content">
-															<div className="tool-container">
-																{tool === 'search_web' ? (
-																	<div className="search">
-																		<div className="svg">
-																			<WebSvg />
-																		</div>
-																		<div className="search-text">
-																			Searched Web For :
-																		</div>
+															{queries?.length > 0 && (
+																<>
+																	<div className="tool-container">
+																		{tool === 'search_web' ? (
+																			<div className="search">
+																				<div className="svg">
+																					<WebSvg />
+																				</div>
+																				<div className="search-text">
+																					Searched Web For
+																					:
+																				</div>
+																			</div>
+																		) : tool ===
+																		  'search_knowledge_base' ? (
+																			<div className="search">
+																				<div className="svg">
+																					<BookSvg />
+																				</div>
+																				<div className="search-text">
+																					Searched
+																					Knowledge Base
+																					For :
+																				</div>
+																			</div>
+																		) : (
+																			<div className="search">
+																				<div className="search-text">
+																					Searched :
+																				</div>
+																			</div>
+																		)}
 																	</div>
-																) : tool ===
-																  'search_knowledge_base' ? (
-																	<div className="search">
-																		<div className="svg">
-																			<BookSvg />
-																		</div>
-																		<div className="search-text">
-																			Searched Knowledge Base
-																			For :
-																		</div>
+																	<div
+																		className="queries"
+																		key={index}
+																	>
+																		{queries?.map(
+																			(query, index) => {
+																				return (
+																					<div
+																						className="query"
+																						key={index}
+																					>
+																						{query}
+																					</div>
+																				);
+																			},
+																		)}
 																	</div>
-																) : (
-																	<div className="search">
-																		<div className="search-text">
-																			Searched :
-																		</div>
-																	</div>
-																)}
-															</div>
-															<div className="queries" key={index}>
-																{queries?.map((query, index) => {
-																	return (
-																		<div
-																			className="query"
-																			key={index}
-																		>
-																			{query}
-																		</div>
-																	);
-																})}
-															</div>
+																</>
+															)}
 
 															{sources?.length > 0 && (
 																<div className="sources-container">
