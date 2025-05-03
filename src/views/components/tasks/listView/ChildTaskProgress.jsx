@@ -23,17 +23,17 @@ const ChildTaskProgress = ({ value, showTitle = false }) => {
 			color="transparent"
 		>
 			<span className="child-task-progress">
+				<span className="child-task-progress-count">
+					{info?.completedCount || 0}/{info?.totalCount || 0}
+				</span>
 				<Progress
 					type="circle"
 					percent={info?.totalCount ? (info?.completedCount / info?.totalCount) * 100 : 0}
 					size={16}
-					strokeColor={'#6055EC'}
-					trailColor={'#2F2F2F'}
+					strokeColor={'var(--primary-button)'}
+					trailColor={'var(--stroke)'}
 					strokeWidth={14}
 				/>
-				<span className="child-task-progress-count">
-					{info?.completedCount || 0}/{info?.totalCount || 0}
-				</span>
 			</span>
 		</Tooltip>
 	);
