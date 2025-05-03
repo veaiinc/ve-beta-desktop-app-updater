@@ -33,7 +33,6 @@ const PromptsWidget = ({ option = '' }) => {
 						key={index}
 						className="calenderWidgetSection2Item"
 						onClick={() => handlePromptPopup(item)}
-						key={index}
 					>
 						<div className="calenderWidgetSection2ItemContainer">
 							{iconMap[item?.type]}

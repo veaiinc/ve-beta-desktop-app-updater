@@ -190,7 +190,6 @@ const CalenderWidget = ({ width = '100%', height = '412px' }) => {
 										'--highlight-color': 'gray',
 										'--base-color': 'transparent',
 									}}
-									key={index}
 								/>
 							))
 						) : allCalendarEvents?.data?.length > 0 ? (
