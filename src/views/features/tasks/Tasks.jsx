@@ -280,7 +280,7 @@ const Tasks = () => {
 			getTeamMembers();
 		} else {
 			const formattedUsers = tenantsUserList?.map(({ firstName, lastName, _id }) => ({
-				label: `${firstName} ${lastName}`,
+				label: `${firstName} ${lastName ? lastName : ''}`,
 				value: _id,
 			}));
 
