@@ -1,14 +1,12 @@
 import { useContext, useEffect, useState, useCallback, memo } from 'react';
 import '../../../assets/scss/contacts/contacts.scss';
-import { useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
-import { ReactComponent as ArrowRightSvg } from '../../../assets/svg/home_page/arrow-right.svg';
-import dayjs from 'dayjs';
-import relativeTime from 'dayjs/plugin/relativeTime';
 import SingleContact from '../../components/contacts/singleContact';
 import ChatLeftBarComponent from '../../components/ChatLeftBarComponent';
-
-dayjs.extend(relativeTime);
+import QuickActions from '../../components/globalComponents/QuickActions';
+import ContactsListView from '../../components/contacts/ContactsListView';
+import ContactsWidgetView from '../../components/contacts/ContactsWidgetView';
+import { ReactComponent as SearchIcon } from '../../../assets/svg/chat/search.svg';
 
 const suggestedPrompts = [
 	'Start a Deep Research on revamping the current Dashboard Layout',
@@ -23,10 +21,9 @@ const statItems = [
 	{ key: 'weak', label: 'Weak', className: 'weak' },
 ];
 const Contacts = () => {
-	const navigate = useNavigate();
 	const {
 		templates: { updateStateValues: updateContactState },
-		contacts: { clientList, getClients, getClient, refetchClientList },
+		contacts: { clientList, getClients },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		page: 1,
@@ -39,6 +36,8 @@ const Contacts = () => {
 		updated: false,
 		selectedContact: null,
 		selectedContactOption: null,
+		activeView: 'widgetView',
+		searchQuery: '',
 	});
 
 	useEffect(() => {
@@ -49,7 +48,9 @@ const Contacts = () => {
 	}, []);
 
 	useEffect(() => {
-		fetchClientList(info?.page);
+		if (!clientList) {
+			fetchClientList(info?.page);
+		}
 	}, []);
 
 	const fetchClientList = useCallback(
@@ -66,7 +67,7 @@ const Contacts = () => {
 						search: info?.searchValue,
 					}),
 					...(info?.filters?.length > 0 && {
-						filters: info?.filters.map((filter) => ({
+						filters: info?.filters?.map((filter) => ({
 							key: filter.key,
 							value: filter.value?._id || filter.value,
 						})),
@@ -75,8 +76,16 @@ const Contacts = () => {
 			};
 			getClients(payload);
 		},
-		[getClients, info?.searchValue, info?.filters, info?.sort],
+		[info?.searchValue, info?.filters, info?.sort],
 	);
+
+	const handleViewChange = (view) => {
+		setInfo({ ...info, activeView: view });
+	};
+
+	const handleSearchQueryChange = (e) => {
+		setInfo({ ...info, searchQuery: e?.target?.value });
+	};
 
 	const stats = {
 		all: clientList?.data?.data?.length,
@@ -84,31 +93,53 @@ const Contacts = () => {
 		normal: 3,
 		weak: 3,
 	};
+
 	return (
 		<div className="contacts-container">
 			<ChatLeftBarComponent>
 				<div className="left-section">
-					<div className="contacts-header">
-						<h2>Contacts</h2>
-					</div>
-					<div className="contacts-stats-container">
-						<div className="contacts-stats">
-							{statItems.map(({ key, label, className }) => (
-								<div
-									className={`stat-item ${
-										info?.selectedContactOption === key ? 'active' : ''
-									}`}
-									key={key}
-								>
-									<div className="count">
-										{key !== 'all' && <span></span>}
-										{stats[key]}
-									</div>
-									<div className="label">{label}</div>
-								</div>
-							))}
+					<div className="contacts-Header">
+						<div className="contacts-search-container">
+							<div className="search-icon">
+								<SearchIcon />
+							</div>
+							<input
+								type="text"
+								className="search-input"
+								placeholder="Search Contacts"
+								onChange={handleSearchQueryChange}
+								autoFocus
+							/>
 						</div>
-
+					</div>
+					<div className="contacts-body">
+						<div className="view-type-container">
+							<div
+								className="view-container"
+								onClick={() => handleViewChange('widgetView')}
+							>
+								<div
+									className={`view ${
+										info?.activeView === 'widgetView' ? 'active' : ''
+									}`}
+								>
+									Widget View
+								</div>
+							</div>
+							<div className="vertical-line" />
+							<div
+								className="view-container"
+								onClick={() => handleViewChange('listView')}
+							>
+								<div
+									className={`view ${
+										info?.activeView === 'listView' ? 'active' : ''
+									}`}
+								>
+									List View
+								</div>
+							</div>
+						</div>
 						{/* <div className="suggested-sections">
 							<div className="section-title">Suggested Actions</div>
 							<div className="action-buttons">
@@ -137,51 +168,23 @@ const Contacts = () => {
 					selectedOptions={info?.selectedContactOption}
 				/>
 			) : (
-				<div className="right-section">
+				<div className="contacts-right-section">
 					<div className="header">
-						<h1 className="header-title">Your Contacts</h1>
-						{/* <div className="search-bar-container">
-						<SearchIcon className="search-icon" />
-						<input type="text" className="search-bar" placeholder="Search" />
-					</div> */}
+						<h1 className="header-title">Contacts</h1>
+						<QuickActions />
 					</div>
-
-					<div className="contacts-table">
-						<div className="table-header">
-							<div className="column people">People</div>
-							<div className="column strength"></div>
-							<div className="column interaction">Last Interaction</div>
-						</div>
-						<div className="table-body">
-							{clientList?.data?.data?.map((contact) => (
-								<div
-									key={contact.id}
-									className="table-row"
-									onClick={() => navigate(`/contact/${contact?._id}`)}
-								>
-									<div className="column people">
-										{/* <input type="checkbox" className="checkbox" /> */}
-										{/* <div className="avatar">{contact.avatar}</div> */}
-										<div className="contact-info">
-											<div className="name">{contact.name}</div>
-											<div className="email">{contact.email}</div>
-										</div>
-									</div>
-									<div className="column strength">
-										{/* <span
-											className={`dot ${contact.strength.toLowerCase()}`}
-										></span>
-										<span className="text">{contact.strength}</span> */}
-									</div>
-									<div className="column interaction">
-										{contact?.updatedAt
-											? dayjs.unix(contact.updatedAt).fromNow() // Converts Unix seconds -> "14 days ago"
-											: 'N/A'}
-									</div>
-								</div>
-							))}
-						</div>
-					</div>
+					{info?.activeView === 'listView' && (
+						<ContactsListView
+							data={clientList?.data?.data}
+							searchQuery={info?.searchQuery}
+						/>
+					)}
+					{info?.activeView === 'widgetView' && (
+						<ContactsWidgetView
+							data={clientList?.data?.data}
+							searchQuery={info?.searchQuery}
+						/>
+					)}
 				</div>
 			)}
 		</div>

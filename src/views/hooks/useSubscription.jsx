@@ -82,7 +82,10 @@ const useSubscription = () => {
 		const currentPath = location?.pathname?.split('/')[1];
 
 		if (currentPlan?.apps?.length) {
-			const shouldShowRenewBanner = currentPlan?.apps?.some((eachApp) => {
+			let shouldShowRenewBanner = currentPlan?.apps?.some((eachApp) => {
+				if (currentPath === 'contact' && eachApp?.app === 'contact') {
+					return eachApp?.isPaidPlan === false;
+				}
 				return MappedApps?.[eachApp?.app] === currentPath && eachApp?.isPaidPlan === false;
 			});
 

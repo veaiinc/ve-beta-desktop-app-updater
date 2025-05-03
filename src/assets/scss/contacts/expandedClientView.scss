@@ -159,7 +159,8 @@
 	align-items: flex-start;
 	gap: 65px;
 	flex-shrink: 0;
-	background: var(--navbar, #18191b);
+	// background: var(--navbar-bg, #18191b);
+	background: transparent;
 	color: var(--primary-font);
 
 	.contacts-header {
