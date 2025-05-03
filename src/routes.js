@@ -70,6 +70,14 @@ const routes = [
 		component: <Landing_screen />,
 	},
 	{
+		path: '/mission',
+		component: <Landing_screen />
+	},
+	{
+		path: '/contact-us',
+		component: <Landing_screen />
+	},
+	{
 		path: '/onboarding',
 		component: <Onboarding />,
 	},

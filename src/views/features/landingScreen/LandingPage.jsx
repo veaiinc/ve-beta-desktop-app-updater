@@ -15,16 +15,33 @@ import TabNavigation from '../../components/landing_screen/TabNavigation';
 import ChatBox from '../../components/chat/ChatBox';
 import OurMission from './OurMission';
 const routeType = 'public';
+import { useLocation } from 'react-router-dom';
+
 
 const LandingPage = () => {
-	const navigate = useNavigate();
-	const [tab, setTab] = useState(0);
-	const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
 	const {
 		themeInfo: { theme, updateTheme },
 		templates: { updateStateValues, currentSessionId },
 	} = useContext(Context);
+
+	const navigate = useNavigate();
+	const location = useLocation();
+
+	const [tab, setTab] = useState(0);
+	const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+	useEffect(() => {
+		const path = location.pathname;
+		if (path === '/mission') {
+			setTab(1);
+		} else if (path === '/contact-us') {
+			setTab(2);
+		} else {
+			setTab(0);
+		}
+	}, [location.pathname]);
+
 
 	useEffect(() => {
 		const usertoken = localStorage.getItem('usertoken');
@@ -66,7 +83,11 @@ const LandingPage = () => {
 		if (window.innerWidth < 768) {
 			handleCloseSidebar();
 		}
+
+		const tabRoutes = ['/', '/mission', '/contact-us'];
+		navigate(tabRoutes[tabVal]);
 	};
+
 
 	const newThemeValue = theme === 'dark' ? 'light' : 'dark';
 
