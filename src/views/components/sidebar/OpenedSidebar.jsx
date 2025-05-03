@@ -995,7 +995,7 @@ const OpenedSidebar = ({
 						<div className="settings-options-container">
 							<div className="settings-options-title">Essentials</div>
 							{filterModules2?.map((singleItem, index) => (
-								<div key={index}>
+								<div key={index} className='settings-option'>
 									<OpenedSidebarModules
 										name={singleItem.name}
 										Icon={singleItem.icon}
