@@ -12,7 +12,7 @@
 		align-items: flex-start;
 		gap: 65px;
 		flex-shrink: 0;
-		background: var(--navbar, #18191b);
+		background: transparent;
 		color: var(--primary-font);
 		height: 100%;
 		.contacts-header {
@@ -474,7 +474,7 @@
 
 @media screen and (min-width: 1000px) and (max-width: 1440px) {
 	.left-section {
-		height: 96vh !important;
+		height: 100% !important;
 	}
 	.widget-container {
 		grid-template-columns: repeat(2, 1fr) !important;
