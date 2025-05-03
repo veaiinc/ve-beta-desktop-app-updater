@@ -894,6 +894,7 @@ const Tasks = () => {
 			updateTaskInfo({ updated: false });
 		}
 		updateTaskInfo({ sidebarIsOpen: false, selectedSubTask: null });
+		updateSideBarData(null);
 	}, [info?.updated]);
 
 	const updateView = useCallback(

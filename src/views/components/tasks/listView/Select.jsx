@@ -64,15 +64,19 @@ const Select = ({
 					<div className="select-options-dropdown" onClick={(e) => e.stopPropagation()}>
 						<div className="select-options-dropdown-header">
 							{info?.selectedOption ? (
-								<div
-									className="select-list-item-tag"
-									style={{
-										backgroundColor: getBackgroundColor(
-											info.selectedOption.color,
-										),
-									}}
-								>
-									{info.selectedOption.label}
+								<div className="select-option-item">
+									<div
+										className="select-option-dot"
+										style={{
+											backgroundColor: getBackgroundColor(
+												info?.selectedOption?.color,
+											),
+										}}
+									/>
+
+									<div className="select-option-label">
+										{info?.selectedOption?.label}
+									</div>
 								</div>
 							) : (
 								<input type="text" placeholder="Search for an option..." />
@@ -90,27 +94,22 @@ const Select = ({
 											key={option?._id}
 											onClick={() => handleOptionClick(option?._id)}
 										>
-											<SixDotsIcon />
 											<div className="select-list-item-tag-wrapper">
-												<div
-													className="select-list-item-tag"
-													style={{
-														backgroundColor: getBackgroundColor(
-															option?.color,
-														),
-													}}
-												>
-													{option?.label}
+												<div className="select-option-item">
+													<div
+														className="select-option-dot"
+														style={{
+															backgroundColor: getBackgroundColor(
+																option?.color,
+															),
+														}}
+													/>
+
+													<div className="select-option-label">
+														{option?.label}
+													</div>
 												</div>
 											</div>
-											<HorizontalMoreIcon
-												style={{
-													width: '20px',
-													height: '20px',
-													stroke: '#E8E8E8',
-													opacity: 0.5,
-												}}
-											/>
 										</div>
 									))}
 								</div>

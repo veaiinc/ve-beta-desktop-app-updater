@@ -3,15 +3,6 @@ import '../../../../assets/scss/tasks/galleryCard.scss';
 import Context from '../../../../context/context';
 import { rowTypes } from '../../../features/tasks/Tasks';
 
-// key={task._id}
-// 	task={task}
-// 	responseMetadata={responseMetadata}
-// 	colors={colors}
-// 	rowTypes={rowTypes}
-// 	properties={properties}
-// 	handleUpdate={handleUpdate}
-// 	onClick={() => handleRowClick(task)}
-// 	className="card-item"
 const GalleryCard = ({ task, responseMetadata, handleUpdate }) => {
 	const {
 		tasks: { updateSideBarData },
