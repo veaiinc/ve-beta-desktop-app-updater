@@ -48,7 +48,7 @@
 	--primary-button: rgb(207, 255, 72); /* #cfff48 */
 	--primary-button-hover: rgb(38, 40, 41); /* #262829 */
 	--primary-button-active: rgb(38, 40, 41); /* #262829 */
-	--primary-button-font: rgb(12, 12, 13); /* #0c0c0d */
+	--primary-button-font: var(--background-color); /* #0c0c0d */
 
 	--secondary-button: rgb(122, 126, 133); /* #7a7e85 */
 	--secondary-button-hover: rgb(255, 255, 231); /* #ffffe7 */
@@ -106,7 +106,7 @@
 	--primary-button: rgb(49, 144, 130); /* #319082 */
 	--primary-button-hover: rgb(242, 242, 243); /* #f2f2f3 */
 	--primary-button-active: rgb(242, 242, 243); /* #f2f2f3 */
-	--primary-button-font: rgb(12, 12, 13); /* #0c0c0d */
+	--primary-button-font: var(--background-color); /* #0c0c0d */
 
 	--secondary-button: rgb(242, 242, 243); /* #f2f2f3 */
 	--secondary-button-hover: rgb(228, 228, 231); /* #e4e4e7 */
@@ -119,5 +119,5 @@
 	--default-state-buttons: rgb(223, 223, 223); /* #dfdfdf */
 	--chat-secondary-font: #4f6064; /* rgb(79, 96, 100) */
 
-	--backdrop: rgb(176, 178, 181, .5); /* #B0B2B5 */
+	--backdrop: rgb(176, 178, 181, 0.5); /* #B0B2B5 */
 }
