@@ -70,6 +70,14 @@ const routes = [
 		component: <Landing_screen />,
 	},
 	{
+		path: '/mission',
+		component: <Landing_screen />,
+	},
+	{
+		path: '/contact-us',
+		component: <Landing_screen />,
+	},
+	{
 		path: '/onboarding',
 		component: <Onboarding />,
 	},
@@ -296,7 +304,7 @@ const routes = [
 			<AuthWrapper
 				title={'Tasks'}
 				outerContainerStyle={{ padding: '0 32px 0 0' }}
-				maxWidth={'100%'}
+				childrenContainerStyles={{ maxWidth: '100%' }}
 			>
 				<Tasks />
 			</AuthWrapper>
@@ -330,8 +338,8 @@ const routes = [
 		component: (
 			<AuthWrapper
 				title={'Calendar'}
-				maxWidth={'100%'}
 				outerContainerStyle={{ overflow: 'hidden', padding: '0 32px 0 0 ' }}
+				childrenContainerStyles={{ maxWidth: '100%' }}
 			>
 				<CalendarModule />
 			</AuthWrapper>
@@ -372,7 +380,11 @@ const routes = [
 	{
 		path: '/contacts',
 		component: (
-			<AuthWrapper title={'Contacts'} outerContainerStyle={{ padding: '0 32px 0 0' }}>
+			<AuthWrapper
+				title={'Contacts'}
+				outerContainerStyle={{ padding: '0 32px 0 0' }}
+				childrenContainerStyles={{ maxWidth: '100%' }}
+			>
 				<Contacts />
 			</AuthWrapper>
 		),
@@ -601,7 +613,11 @@ const routes = [
 	{
 		path: '/contact/:contactId',
 		component: (
-			<AuthWrapper title="Contact Details" outerContainerStyle={{ padding: '0 32px 0 0' }}>
+			<AuthWrapper
+				title="Contact Details"
+				outerContainerStyle={{ padding: '0 32px 0 0' }}
+				childrenContainerStyles={{ maxWidth: '100%' }}
+			>
 				<ExpandedClientView />
 			</AuthWrapper>
 		),

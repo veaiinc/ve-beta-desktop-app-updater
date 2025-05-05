@@ -34,7 +34,7 @@ const options = [
 		value: 'form',
 	},
 	{
-		label: 'Templates',
+		label: 'Designs',
 		value: 'template',
 	},
 	{
@@ -257,6 +257,7 @@ const Files = () => {
 		templates: { formsTemplatesList, updateStateValues: updateTemplateStateValues },
 		notes: { createNotesList },
 		profileInfo: { tenantUserAccessControls },
+		subscriptionInfo: { currentPlan },
 	} = useContext(Context);
 
 	const [mostUsedEntities, setMostUsedEntities] = useState(null);
@@ -306,18 +307,41 @@ const Files = () => {
 		}
 	}, [info?.createNewGalleryModal]);
 
+	const liteGalleryPaidPlan = currentPlan?.apps?.find(
+		(app) => (app.app = 'liteGallery'),
+	)?.isPaidPlan;
+
 	useEffect(() => {
 		if (tenantUserAccessControls) {
 			const isAdmin = tenantUserAccessControls?.role === 'admin';
 			let filteredOptions = options;
 
-			if (!isAdmin && tenantUserAccessControls?.accessControls) {
+			if (isAdmin) {
+				// Admins can see all, except liteGallery if it's not in the paid plan
+				filteredOptions = options?.filter((option) => {
+					if (option?.value === 'liteGallery') {
+						return liteGalleryPaidPlan; // Include only if paid
+					}
+					return true; // Include everything else
+				});
+			} else if (tenantUserAccessControls?.accessControls) {
+				// Non-admins: filter based on accessControls
 				const enabledApps = new Set(
 					tenantUserAccessControls?.accessControls
-						.filter((permission) => permission.isEnabled)
-						.map((permission) => permission.app),
+						?.filter((permission) => {
+							if (permission?.app === 'liteGallery') {
+								return (
+									permission?.isEnabled &&
+									permission?.hasFullAccess &&
+									liteGalleryPaidPlan
+								);
+							}
+							return permission?.isEnabled;
+						})
+						?.map((permission) => permission?.app),
 				);
-				filteredOptions = options?.filter((option) => enabledApps.has(option?.value));
+
+				filteredOptions = options?.filter((option) => enabledApps?.has(option?.value));
 			}
 
 			setInfo((prevInfo) => ({
@@ -590,7 +614,7 @@ const Files = () => {
 			/>
 		),
 		MostUsedEntries: <MostUsedEntries mostUsedEntities={mostUsedEntities} />,
-		Templates: (
+		Designs: (
 			<TemplatesGrid
 				handleCreateTemplate={() =>
 					setInfo((prev) => ({ ...prev, openProposalPopup: true }))

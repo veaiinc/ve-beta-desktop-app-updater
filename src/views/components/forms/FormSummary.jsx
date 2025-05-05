@@ -13,6 +13,7 @@ import {
 	FilePptOutlined,
 	FileOutlined,
 } from '@ant-design/icons';
+import { EventsAnswer } from './FormDescription';
 
 const FileUploadAnswer = ({ answer }) => {
 	const files = answer;
@@ -102,10 +103,9 @@ const FormResponseList = ({
 		if (!timestamp) return '';
 		return moment.unix(timestamp).format('MMMM D, YYYY [at] h:mm:ss A');
 	};
-
 	const getName = (response) => {
 		if (!response?.response) return 'No Name';
-		const nameField = response.response.find((item) => {
+		const nameField = response?.response.find((item) => {
 			return item?.question?.toLowerCase()?.includes('name');
 		});
 		return nameField?.answer || 'No Name';
@@ -121,8 +121,8 @@ const FormResponseList = ({
 			if (!field?.answer) return false;
 
 			// For file uploads, check if there are actual files
-			if (field.type === 'fileupload') {
-				return field.answer && field.answer.length > 0;
+			if (field?.type === 'fileupload') {
+				return field?.answer && field?.answer?.length > 0;
 			}
 
 			return true;
@@ -130,7 +130,7 @@ const FormResponseList = ({
 
 	const actualResponsesCount = responsesWithAnswers.length;
 	const visibleResponses = expanded ? responsesWithAnswers : responsesWithAnswers.slice(0, 5);
-
+	console.log(visibleResponses, expanded, 'visibleResponses');
 	return (
 		<div className="collapsible-list">
 			<div
@@ -148,13 +148,14 @@ const FormResponseList = ({
 								?.includes(question?.toLowerCase() || '');
 						});
 
-						let answer = field.answer;
-						if (field.type === 'fileupload') {
-							answer = <FileUploadAnswer answer={field.answer} />;
-						} else if (field.type === 'link' && field.answer) {
+						let answer = field?.answer;
+
+						if (field?.type === 'fileupload') {
+							answer = <FileUploadAnswer answer={field?.answer} />;
+						} else if (field?.type === 'link' && field?.answer) {
 							answer = (
 								<a
-									href={field.answer}
+									href={field?.answer}
 									target="_blank"
 									rel="noopener noreferrer"
 									className="linkedin-link"
@@ -164,11 +165,13 @@ const FormResponseList = ({
 										fontWeight: 500,
 									}}
 								>
-									{field.answer}
+									{field?.answer}
 								</a>
 							);
-						} else if (field.type === 'rating') {
-							answer = <RatingAnswer answer={field.answer} />;
+						} else if (field?.type === 'rating') {
+							answer = <RatingAnswer answer={field?.answer} />;
+						} else if (field?.type === 'events') {
+							answer = <EventsAnswer answer={field?.answer} />;
 						}
 
 						return (
@@ -278,16 +281,18 @@ const FormSummary = ({ formId: inputFormId, onDataUpdate, onUserClick }) => {
 						)
 						.sort((a, b) => {
 							// Prioritize name and email questions
-							const aLower = a.question.toLowerCase();
-							const bLower = b.question.toLowerCase();
+							const aLower = a?.question?.toLowerCase();
+							const bLower = b?.question?.toLowerCase();
 
 							// Check for name-related questions
-							const aIsName = aLower.includes('name') || aLower.includes('full name');
-							const bIsName = bLower.includes('name') || bLower.includes('full name');
+							const aIsName =
+								aLower?.includes('name') || aLower?.includes('full name');
+							const bIsName =
+								bLower?.includes('name') || bLower?.includes('full name');
 
 							// Check for email-related questions
-							const aIsEmail = aLower.includes('email');
-							const bIsEmail = bLower.includes('email');
+							const aIsEmail = aLower?.includes('email');
+							const bIsEmail = bLower?.includes('email');
 
 							// Sort order: name first, then email, then everything else
 							if (aIsName && !bIsName) return -1;
@@ -387,14 +392,14 @@ const FormSummary = ({ formId: inputFormId, onDataUpdate, onUserClick }) => {
 		<div className="formSummaryWrapper">
 			<div className="formSummaryParentContainer">
 				<div className="formSummaryContainer">
-					{questions.map((item, index) => {
+					{questions?.map((item, index) => {
 						return (
 							<div key={index} className="section">
 								<div className="header">
 									<div className="header-top">
 										<span className="title">
 											<span className="question-number">Q{index + 1}:</span>{' '}
-											{item.question}
+											{item?.question}
 										</span>
 										<div
 											className="copy-button"

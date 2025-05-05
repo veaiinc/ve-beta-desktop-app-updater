@@ -11,6 +11,7 @@ import { fetchOriginSelection } from '../../../helpers';
 import { message } from '../globalComponents/CustomToast';
 import moment from 'moment';
 import EmptyState from './EmptyState';
+import { Tooltip } from 'antd';
 
 const filterOptions = [
 	{ label: 'All', value: '' },
@@ -294,7 +295,11 @@ const TemplatesGrid = ({ handleTotalChange }) => {
 										>
 											{getStatusBadge(template)}
 										</span> */}
-										<span className="item-title">{template?.title || ''}</span>
+										<Tooltip title={template?.title || ''} placement="bottom">
+											<span className="item-title">
+												{template?.title || ''}
+											</span>
+										</Tooltip>
 										<span className="notes-sub-heading">
 											{moment.unix(template?.createdAt).fromNow()}
 										</span>

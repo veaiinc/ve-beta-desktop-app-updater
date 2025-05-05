@@ -137,14 +137,17 @@ const AIMessageRenderer = ({
 					isPublicChat={isPublicChat}
 				/>
 			) : info?.activeTab === 'cot' ? (
-				messageData?.deepResearch ? (
-					<DeepResearchChainOfThought data={messageData?.deepResearch} />
-				) : (
-					<DeepSearchChainOfThought
-						data={messageData?.deepSearch}
-						stream_end={messageData?.stream_end}
-					/>
-				)
+				<div className="div">
+					{messageData?.deepResearch && (
+						<DeepResearchChainOfThought data={messageData?.deepResearch} />
+					)}
+					{messageData?.deepSearch && (
+						<DeepSearchChainOfThought
+							data={messageData?.deepSearch}
+							stream_end={messageData?.stream_end}
+						/>
+					)}
+				</div>
 			) : (
 				<div className="source-content">
 					{messageData?.citations && messageData?.citations.length > 0
