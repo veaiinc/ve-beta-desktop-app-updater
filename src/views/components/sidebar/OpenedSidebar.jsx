@@ -327,7 +327,7 @@ const OpenedSidebar = ({
 	}, [showSettingsSidebar]);
 
 	const handleLogout = useCallback(async () => {
-		logoutFunc();
+		await logoutFunc();
 	}, [logoutFunc]);
 
 	const openWorkspacesFunction = () => {

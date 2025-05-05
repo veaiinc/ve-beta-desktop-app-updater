@@ -52,9 +52,12 @@ const useTokenExpiry = () => {
 		cleanupTimers();
 
 		if (validateExpiryData.isExpired) {
+			const handleLogout = async () => {
+				await logout();
+			}
 			updateTokenExpiryState({ expiredTokenModal: true });
 			setTimeout(() => {
-				logout();
+				handleLogout()
 				updateTokenExpiryState({ expiredTokenModal: false });
 			}, 5000);
 			return;

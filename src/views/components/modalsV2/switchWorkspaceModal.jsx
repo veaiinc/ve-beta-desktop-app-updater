@@ -44,7 +44,7 @@ const SwitchWorkspaceModal = ({ open, closeModal, accessibleWorkspaces, activeWo
 	const { salesId } = useParams();
 
 	const handleLogout = useCallback(async () => {
-		logoutFunc();
+		await logoutFunc();
 	}, [logoutFunc]);
 
 	const handleSwitchWorkSpaceLogic = useCallback((data) => {
