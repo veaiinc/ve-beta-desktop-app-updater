@@ -10,12 +10,15 @@ import FilterDropdown from '../dropDown/file/FilterDropdown';
 import Spinner from '../loaders/Spinner';
 import moment from 'moment';
 import EmptyState from './EmptyState';
+import { Tooltip } from 'antd';
 
 const filterOptions = [
 	{ label: 'All', value: 'all' },
 	{ label: 'Private', value: 'private' },
 	{ label: 'Shared', value: 'shared' },
 	{ label: 'Favorite', value: 'favorite' },
+	{ label: 'Published', value: 'published' },
+	{ label: 'Trashed', value: 'trashed' },
 ];
 
 const sortOptions = [
@@ -221,9 +224,11 @@ const NotesGrid = ({ handleNewNotes, handleTotalChange }) => {
 									onClick={() => navigate(`/note/${note?._id}`)}
 								>
 									<div className="card-item-style content-wrapper note-card-content">
-										<span className="item-title">
-											{note?.title || 'Untitled Note'}
-										</span>
+										<Tooltip title={note?.title || ''} placement="bottom">
+											<span className="item-title">
+												{note?.title || 'Untitled Note'}
+											</span>
+										</Tooltip>
 										<span className="notes-sub-heading">
 											{moment.unix(note?.createdAt).fromNow()}
 										</span>

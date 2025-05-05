@@ -1,5 +1,4 @@
 import React, { useState, memo } from 'react';
-import 'react-phone-input-2/lib/style.css';
 import { ReactComponent as CrossIcon } from '../../../../assets/svg/workspaceSettings/cross.svg';
 import ReactModal from '../../modalsV2';
 import Dropzone from 'react-dropzone';

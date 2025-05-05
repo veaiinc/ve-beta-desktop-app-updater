@@ -5,8 +5,6 @@ import UpdateCategoryModal from '../modalsV2/calendar/UpdateCategoryModal';
 import PlusSvg from '../../../assets/svg/my_templates/PlusSvg';
 import { ReactComponent as DownSvg } from '../../../assets/svg/calendar/down.svg';
 
-const expandedHeight = '192px'; // Pre-calculated: 40 + (2 * 40) + (3 * 12) + 32 + 4
-
 const CalendarCategories = ({
 	categoryList,
 	selectedCategory,
@@ -15,24 +13,16 @@ const CalendarCategories = ({
 }) => {
 	const [info, setInfo] = useState({
 		expanded: false,
-		height: '62px',
 		isCategoryModalOpen: false,
 		isCategoryEditable: false,
 		selectedCalendarCategory: [selectedCategory] || [],
 	});
 	const expandRef = useRef(null);
 
-	useEffect(() => {
-		setInfo((prevInfo) => ({
-			...prevInfo,
-			height: info?.expanded ? expandedHeight : '62px',
-		}));
-	}, [info?.expanded]);
-
 	// Auto expand when there are items to display
 	useEffect(() => {
 		const hasItems = categoryList?.length > 0;
-		if (hasItems && !info.expanded) {
+		if (hasItems && !info?.expanded) {
 			setInfo((prev) => ({ ...prev, expanded: true }));
 		}
 	}, [categoryList]);
@@ -40,7 +30,7 @@ const CalendarCategories = ({
 	const handleCategoryExpand = useCallback(() => {
 		setInfo((prevInfo) => ({
 			...prevInfo,
-			expanded: !prevInfo.expanded,
+			expanded: !prevInfo?.expanded,
 		}));
 	}, []);
 
@@ -73,6 +63,10 @@ const CalendarCategories = ({
 				? [defaultCategory]
 				: [defaultCategory];
 			updateCalendarInfo('categoryFilter', updatedFilter);
+			updateCalendarInfo(
+				'selectedCategory',
+				categoryList?.find((cat) => cat?._id === defaultCategory),
+			);
 			return;
 		}
 
@@ -84,10 +78,20 @@ const CalendarCategories = ({
 			// If this would result in an empty filter, select the default category
 			if (updatedFilter.length === 0) {
 				updatedFilter = [defaultCategory];
+				updateCalendarInfo(
+					'selectedCategory',
+					categoryList?.find((cat) => cat?._id === defaultCategory),
+				);
+			} else {
+				updateCalendarInfo('selectedCategory', null);
 			}
 		} else {
 			// Add the category and remove Default if it was selected
 			updatedFilter = [...categoryFilter?.filter((id) => id !== defaultCategory), categoryId];
+			updateCalendarInfo(
+				'selectedCategory',
+				categoryList?.find((cat) => cat?._id === categoryId),
+			);
 		}
 
 		updateCalendarInfo('categoryFilter', updatedFilter);
@@ -96,9 +100,6 @@ const CalendarCategories = ({
 	return (
 		<div
 			className={`categoriesParentContainer ${info?.expanded ? 'expanded' : ''}`}
-			style={{
-				height: info?.height,
-			}}
 			ref={expandRef}
 		>
 			<div className="categoriesHeadWrapper">
@@ -116,7 +117,13 @@ const CalendarCategories = ({
 			</div>
 
 			{info?.expanded && (
-				<div className="categoriesContainer">
+				<div
+					className="categoriesContainer"
+					style={{
+						overflowY: 'auto',
+						maxHeight: '192px',
+					}}
+				>
 					{categoryList?.map((category) => {
 						const isChecked = categoryFilter?.includes(category?._id);
 						return (

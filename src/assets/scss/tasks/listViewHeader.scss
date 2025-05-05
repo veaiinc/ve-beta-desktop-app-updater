@@ -1,6 +1,7 @@
 .listViewHeaderContainer {
 	display: flex;
 	flex-direction: column;
+	width: 100%;
 
 	.listViewHeaderTitleWrapper {
 		display: flex;
@@ -101,72 +102,42 @@
 					}
 				}
 
-				.searchContainer {
-					position: relative;
-					min-width: 16px;
-					display: inline-block;
-					height: 16px;
-					transition: all 0.3s ease;
-					.searchBtn {
-						display: flex;
-						width: 16px;
-						transform: rotate(-0.037deg);
-						padding: 0px;
-						align-items: center;
-						gap: 10px;
-						flex-shrink: 0;
-						border-radius: 100px;
-						background: transparent;
-						cursor: pointer;
+				.inputAndCloseContainer {
+					display: flex;
+					width: 215px;
+					height: 40px;
+					padding: 12px 10px;
+					align-items: center;
+					gap: 10px;
+					border-radius: 8px;
+					border: 1px solid var(--stroke);
+					.searchInputTag {
+						flex: 1;
+						background-color: transparent;
+						color: var(--primary-font);
 						transition: all 0.3s ease;
-						position: absolute;
-						right: 0;
-						top: 50%;
-						transform: translateY(-50%);
+						border: none;
+						font-family: var(--primary-font-family);
+						font-size: 13px;
+						font-style: normal;
+						font-weight: 400;
+						line-height: normal;
 
-						.inputAndCloseContainer {
-							display: none;
-							transition: all 0.3s ease;
-							overflow: hidden;
-							.searchInputTag {
-								flex: 1;
-								background-color: transparent;
-								color: var(--primary-font);
-								transition: all 0.3s ease;
-								border: none;
-								font-family: var(--primary-font-family);
-								font-size: 13px;
-								font-style: normal;
-								font-weight: 400;
-								line-height: normal;
-
-								&::placeholder {
-									color: var(--secondary-font);
-									font-family: var(--primary-font-family);
-									font-size: 13px;
-									font-style: normal;
-									font-weight: 400;
-									line-height: normal;
-								}
-							}
+						&::placeholder {
+							color: var(--secondary-font);
+							font-family: var(--primary-font-family);
+							font-size: 13px;
+							font-style: normal;
+							font-weight: 400;
+							line-height: normal;
 						}
 					}
 
-					.searchExpand {
-						display: flex;
-						width: 140px;
-						opacity: 1;
-						z-index: 99;
-
-						.inputAndCloseContainer {
-							width: 120px;
-							display: flex;
-							align-items: center;
-							input {
-								width: 100px;
-							}
-						}
-					}
+				}
+				.list-separator {
+					width: 1px;
+					height: 28px;
+					background: var(--stroke, #2C2D2E);
 				}
 			}
 		}
@@ -224,6 +195,7 @@
 				font-style: normal;
 				font-weight: 500;
 				line-height: 20px; /* 142.857% */
+				cursor: pointer;
 
 				.listView-sortField {
 					font-family: var(--primary-font-family);
@@ -292,8 +264,10 @@
 			align-items: center;
 			flex-direction: row;
 			gap: 8px;
+			
 			select {
 				width: 120px;
+				cursor: pointer;
 				height: 32px;
 				border-radius: 4px;
 				border: 1px solid var(--stroke);

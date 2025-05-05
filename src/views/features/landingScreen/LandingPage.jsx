@@ -13,17 +13,32 @@ import ContactUs from '../../components/landing_screen/ContactUs';
 import SidebarIcon from '../../../assets/svg/SidebarIcon';
 import TabNavigation from '../../components/landing_screen/TabNavigation';
 import ChatBox from '../../components/chat/ChatBox';
+import OurMission from './OurMission';
+import { useLocation } from 'react-router-dom';
 const routeType = 'public';
 
 const LandingPage = () => {
-	const navigate = useNavigate();
-	const [tab, setTab] = useState(0);
-	const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
 	const {
 		themeInfo: { theme, updateTheme },
 		templates: { updateStateValues, currentSessionId },
 	} = useContext(Context);
+
+	const navigate = useNavigate();
+	const location = useLocation();
+
+	const [tab, setTab] = useState(0);
+	const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+	useEffect(() => {
+		const path = location.pathname;
+		if (path === '/mission') {
+			setTab(1);
+		} else if (path === '/contact-us') {
+			setTab(2);
+		} else {
+			setTab(0);
+		}
+	}, [location.pathname]);
 
 	useEffect(() => {
 		const usertoken = localStorage.getItem('usertoken');
@@ -57,6 +72,17 @@ const LandingPage = () => {
 		if (isSidebarOpen && e.target.classList.contains('mobile-tabs-wrapper')) {
 			handleCloseSidebar();
 		}
+	};
+
+	const handleSetTab = (tabVal) => {
+		setTab(tabVal);
+
+		if (window.innerWidth < 768) {
+			handleCloseSidebar();
+		}
+
+		const tabRoutes = ['/', '/mission', '/contact-us'];
+		navigate(tabRoutes[tabVal]);
 	};
 
 	const newThemeValue = theme === 'dark' ? 'light' : 'dark';
@@ -128,7 +154,8 @@ const LandingPage = () => {
 		),
 
 		// 1: <ContactUs type="Investor" />,
-		1: <ContactUs type="Enterprise" />,
+		1: <OurMission />,
+		2: <ContactUs type="Enterprise" />,
 	};
 
 	return (
@@ -147,7 +174,7 @@ const LandingPage = () => {
 						className="sidebar-button"
 					>
 						{/* Use the original isActive prop approach */}
-						<SidebarIcon isActive={isSidebarOpen} />
+						<SidebarIcon isActive={isSidebarOpen} setIsActive={setIsSidebarOpen} />
 					</button>
 				</div>
 				<div className="right-container">
@@ -163,9 +190,10 @@ const LandingPage = () => {
 				</div>
 				<TabNavigation
 					tab={tab}
-					setTab={setTab}
+					handleSetTab={handleSetTab}
 					isVisible={isSidebarOpen}
 					handleCloseSidebar={handleCloseSidebar}
+					setIsSidebarOpen={setIsSidebarOpen}
 				/>
 			</div>
 

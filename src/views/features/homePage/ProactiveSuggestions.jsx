@@ -112,6 +112,7 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 	const selectedOptionRef = useRef(selectedOption);
 	const currentIndexRef = useRef(0);
 	const totalCardsDataRef = useRef([]);
+	const isMountedRef = useRef(true);
 
 	useEffect(() => {
 		selectedOptionRef.current = selectedOption;
@@ -120,8 +121,6 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 	useEffect(() => {
 		if (aiSuggestedPendingActions) {
 			updateCardsData();
-		} else {
-			getAISuggestedPendingActions(payload);
 		}
 	}, [aiSuggestedPendingActions]);
 
@@ -193,6 +192,14 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 
 	useEffect(() => {
 		if (!info?.selectedFilters) return;
+		if (
+			aiSuggestedPendingActions?.metaInfo?.currentPage === 1 &&
+			info?.selectedFilters?.length === 0 &&
+			isMountedRef.current
+		) {
+			isMountedRef.current = false;
+			return;
+		}
 		getAISuggestedPendingActions(newUpdatedPayload);
 	}, [info?.selectedFilters]);
 
@@ -262,7 +269,7 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 			...prev,
 			currentIndex: index,
 			activeCardContent: totalCardsDataRef.current[index],
-			selectedCardNumber: info?.currentIndex,
+			selectedCardNumber: index,
 		}));
 		currentIndexRef.current = index;
 	};
@@ -325,7 +332,7 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 			...prev,
 			currentIndex: index,
 			activeCardContent: totalCardsDataRef.current[index],
-			selectedCardNumber: info?.currentIndex,
+			selectedCardNumber: index + 1,
 		}));
 		currentIndexRef.current = index;
 	};

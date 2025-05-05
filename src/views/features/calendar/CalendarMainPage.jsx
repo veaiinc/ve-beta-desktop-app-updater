@@ -7,6 +7,7 @@ import Context from '../../../context/context';
 import ObjectId from 'bson-objectid';
 import moment from 'moment';
 import CreateSessionModal from '../../components/modalsV2/calendar/CreateSessionModal';
+import ChatLeftBarComponent from '../../components/ChatLeftBarComponent';
 const initialState = {
 	selectedWeek: [],
 	isCreateEventOpen: false,
@@ -26,6 +27,21 @@ const initialState = {
 	sessionFilter: [],
 	showEditScheduler: false,
 };
+
+const aiSuggestions = [
+	{
+		id: 1,
+		name: 'Schedule a meeting',
+	},
+	{
+		id: 2,
+		name: 'Quick reminder',
+	},
+	{
+		id: 3,
+		name: 'Make a weekly plans',
+	},
+];
 
 const Calendar = () => {
 	const {
@@ -68,8 +84,10 @@ const Calendar = () => {
 	useEffect(() => {
 		const sessionId = ObjectId().toString();
 		setInfo((prevInfo) => ({ ...prevInfo, chatSessionId: sessionId }));
+		if (!calendarCategoriesList) {
+			getCalendarCategories();
+		}
 
-		getCalendarCategories();
 		getSchedulerList();
 
 		return () => {
@@ -167,20 +185,23 @@ const Calendar = () => {
 	return (
 		<>
 			<div className="calendarParentContainer">
-				<CalendarSidebar
-					currentCalendarDate={info?.currentCalendarDate}
-					selectedMonth={info?.selectedMonth}
-					selectedYear={info?.selectedYear}
-					selectedDate={info?.selectedDate}
-					categoryList={info?.categoryList}
-					selectedCategory={info?.selectedCategory}
-					categoryFilter={info?.categoryFilter}
-					updateCalendarInfo={updateCalendarInfo}
-					selectedWorkflowId={info?.selectedWorkflowId}
-					schedulerList={info?.schedulerList}
-					selectedSession={info?.selectedSession}
-					sessionFilter={info?.sessionFilter}
-				/>
+				<ChatLeftBarComponent suggestions={aiSuggestions}>
+					<CalendarSidebar
+						currentCalendarDate={info?.currentCalendarDate}
+						selectedMonth={info?.selectedMonth}
+						selectedYear={info?.selectedYear}
+						selectedDate={info?.selectedDate}
+						categoryList={info?.categoryList}
+						selectedCategory={info?.selectedCategory}
+						categoryFilter={info?.categoryFilter}
+						updateCalendarInfo={updateCalendarInfo}
+						selectedWorkflowId={info?.selectedWorkflowId}
+						schedulerList={info?.schedulerList}
+						selectedSession={info?.selectedSession}
+						sessionFilter={info?.sessionFilter}
+					/>
+				</ChatLeftBarComponent>
+
 				{info?.showEditScheduler ? (
 					<EditScheduler
 						onBack={handleBackToCalendar}

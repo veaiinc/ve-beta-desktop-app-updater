@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { memo, useState } from 'react';
 import { Tooltip, Switch } from 'antd';
 import { ReactComponent as DotsSvg } from '../../../assets/svg/docs/vertidot.svg';
 import { ReactComponent as ExpandSvg } from '../../../assets/svg/docs/expand.svg';
@@ -90,7 +90,7 @@ const MoreOptions = ({ notesConfigs, onChange, onDelete, onDuplicate }) => {
 							</div>
 						))}
 						<hr style={{ width: '100%', opacity: 0.1 }} />
-						<div className="deleteItem cursor-pointer" onClick={onDelete}>
+						<div className="deleteItem cursor-pointer" onClick={() => onDelete()}>
 							<DeleteSvg />
 							<span>Move to trash</span>
 						</div>
@@ -108,4 +108,4 @@ const MoreOptions = ({ notesConfigs, onChange, onDelete, onDuplicate }) => {
 	);
 };
 
-export default MoreOptions;
+export default memo(MoreOptions);

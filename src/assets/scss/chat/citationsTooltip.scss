@@ -25,13 +25,13 @@
 		width: 312px;
 		padding: 16px;
 		flex-direction: column;
-		align-items: center;
 		gap: 10px;
 		border-radius: 16px;
 		background: var(--popup);
+		cursor: pointer;
 
 		.tooltip-content {
-			width: 280px;
+			flex-grow: 1;
 			min-height: 0px;
 			max-height: 270px;
 			overflow-y: auto;
@@ -42,6 +42,8 @@
 			font-style: normal;
 			font-weight: 500;
 			line-height: 18px; /* 150% */
+			padding-left: 10px;
+			border-left: 1px solid var(--stroke-hover);
 		}
 
 		.info {
@@ -69,7 +71,7 @@
 					align-items: center;
 					color: var(--primary-font);
 					border-radius: 4px;
-					background: var(--card);
+					background: var(--stroke-hover);
 				}
 
 				.citation-link-favicon {

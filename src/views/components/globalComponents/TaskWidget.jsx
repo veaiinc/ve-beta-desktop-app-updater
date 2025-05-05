@@ -1,4 +1,12 @@
-import React, { memo, useContext, useEffect, useState, useMemo, useCallback } from 'react';
+import React, {
+	memo,
+	useContext,
+	useEffect,
+	useState,
+	useMemo,
+	useCallback,
+	Fragment,
+} from 'react';
 import '../../../assets/scss/globalComponents/taskWidget.scss';
 import { ReactComponent as DownArrowIcon } from '../../../assets/svg/chat/downArrow.svg';
 import { ReactComponent as FiltersIcon } from '../../../assets/svg/tasks/filterLines.svg';
@@ -668,7 +676,7 @@ const TaskWidget = ({ width, height }) => {
 	);
 
 	return (
-		<div className="task-main-container" style={{ width: width }}>
+		<div className="task-main-container" style={{ width: width, height: height }}>
 			<div className="taskWidgetContainer">
 				<div className="taskWidgetBody">
 					<div className="taskWidgetBodyHeader">
@@ -686,7 +694,7 @@ const TaskWidget = ({ width, height }) => {
 					</div>
 					<div className="taskWidgetBodyContainer" id="taskWidgetBodyContainer">
 						{info?.loading ? (
-							skeletonLoaders?.map((item) => (
+							skeletonLoaders?.map((_, index) => (
 								<Skeleton
 									width="300px"
 									height="36px"
@@ -694,8 +702,16 @@ const TaskWidget = ({ width, height }) => {
 										'--highlight-color': 'gray',
 										'--base-color': 'transparent',
 									}}
+									key={index}
 								/>
 							))
+						) : info?.listItems?.length === 0 ? (
+							<div
+								className="taskWidgetEmptyState"
+								style={{ fontSize: '12px', alignSelf: 'center' }}
+							>
+								No tasks found. Create a new one!
+							</div>
 						) : (
 							<InfiniteScroll
 								dataLength={info?.listItems?.length || 0}
@@ -705,8 +721,8 @@ const TaskWidget = ({ width, height }) => {
 								scrollableTarget="taskWidgetBodyContainer"
 								scrollThreshold="90%"
 							>
-								{info?.listItems?.map((eachOption) => (
-									<>
+								{info?.listItems?.map((eachOption, index) => (
+									<Fragment key={index}>
 										{eachOption?.status === 'Overdue' && (
 											<div className="taskWidgetStatusContainer">
 												<div className="taskWidgetStatusTitle">
@@ -729,7 +745,7 @@ const TaskWidget = ({ width, height }) => {
 												</div>
 											</div>
 										</div>
-									</>
+									</Fragment>
 								))}
 							</InfiniteScroll>
 						)}
@@ -742,7 +758,7 @@ const TaskWidget = ({ width, height }) => {
 					}}
 					style={{ cursor: 'pointer' }}
 				>
-					<div className="taskWidgetFooterTitle">View Tasks</div>
+					<div className="taskWidgetFooterTitle">View All Tasks</div>
 					<PlusIcon
 						onClick={(e) => {
 							e.stopPropagation();

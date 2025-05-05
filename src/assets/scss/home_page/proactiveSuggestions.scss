@@ -77,6 +77,7 @@
 				display: flex;
 				flex-direction: row;
 				justify-content: space-between;
+				gap: 16px;
 				.module-type {
 					color: var(--secondary-font, #93989f);
 					font-family: var(--primary-font-family);
@@ -91,6 +92,7 @@
 					display: flex;
 					justify-content: center;
 					align-items: center;
+					flex-shrink: 0;
 					gap: 6px;
 					span {
 						height: 6px;
@@ -193,6 +195,10 @@
 			display: flex;
 			bottom: -2px;
 			transform: translateX(-50%) rotate(2deg);
+
+			.footer {
+				justify-content: flex-end;
+			}
 		}
 
 		.right-2 {
@@ -204,6 +210,10 @@
 			display: flex;
 			transform: translateX(-50%) rotate(4deg);
 			opacity: 0.5;
+
+			.footer {
+				justify-content: flex-end;
+			}
 		}
 	}
 

@@ -19,6 +19,7 @@ import SendProposalModal from '../modalsV2/proposalModals/SendProposalModal.jsx'
 import CopiedModal from '../modalsV2/workflowsModals/CopiedModal.jsx';
 import { Spin } from 'antd';
 import DeleteLeadModal from '../../components/modalsV2/workflowsModals/DeleteLeadModal.jsx';
+import { message } from '../globalComponents/CustomToast.jsx';
 
 // Import the status mapper directly
 export const statusTextmapper = {
@@ -119,6 +120,7 @@ const initialState = {
 	businessName: '',
 	isAlChatEnabled: false,
 	deleteLeadModal: false,
+	duplicateLoading: false,
 };
 
 const origin = fetchOriginSelection();
@@ -141,6 +143,7 @@ const DocsFullView = () => {
 			updateThankyou,
 			sendSmartFileSettings,
 			deleteLead,
+			duplicateSmartFile,
 		},
 		activityInfo: {
 			resetActivityState,
@@ -279,9 +282,10 @@ const DocsFullView = () => {
 	const workflowRedirectionsToBuilder = () => {
 		if (fileData) {
 			const version = fileData?.version;
+			const templateId = fileData?.modules?.[0]?.templateId;
 			version === 0 || version === null
 				? navigate(`/smart-file/${fileData?.templateId}/${fileData?._id}`)
-				: (window.location.href = `${origin}/workflow/${fileData?._id}?workflow=true&templateId=${fileData?.templateId}`);
+				: (window.location.href = `${origin}/workflow/${fileData?._id}?workflow=true&templateId=${templateId}`);
 		}
 	};
 
@@ -433,6 +437,28 @@ const DocsFullView = () => {
 		}
 	};
 
+	const handleDuplicateSmartFile = async () => {
+		if (info?.duplicateLoading) {
+			return;
+		}
+		setInfo((prev) => ({ ...prev, duplicateLoading: true }));
+		const payload = {
+			duplicateSmartFile: {
+				workflowId: fileData?._id,
+				title: `Copy of ${fileData?.title}`,
+			},
+		};
+
+		const response = await duplicateSmartFile(payload);
+		const workflowId = response?.[1]?.data?.duplicateSmartFile?._id;
+		if (workflowId) {
+			setInfo((prev) => ({ ...prev, duplicateLoading: false }));
+			window.location.href = `${origin}/workflow/${info?.activeFileData?._id}?workflow=true&templateId=${workflowId}`;
+		} else {
+			message.error(response?.[1]?.message);
+			setInfo((prev) => ({ ...prev, duplicateLoading: false }));
+		}
+	};
 	return (
 		<div className="docsFullView">
 			<div className="docsFullViewContent">
@@ -466,7 +492,7 @@ const DocsFullView = () => {
 							overlayClassName="dot-svg-tooltip"
 							title={
 								<div className="dot-svg-tooltip-content">
-									<div className="items">
+									<div className="items" onClick={handleDuplicateSmartFile}>
 										<DuplicateSvg />
 										<span>Duplicate</span>
 									</div>

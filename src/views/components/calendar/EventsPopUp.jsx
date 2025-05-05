@@ -97,8 +97,15 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 	});
 
 	useEffect(() => {
-		getCalendarCategories();
-	}, []);
+		if (!calendarCategoriesList) {
+			getCalendarCategories();
+		} else {
+			setInfo((prev) => ({
+				...prev,
+				categories: [...calendarCategoriesList],
+			}));
+		}
+	}, [calendarCategoriesList]);
 
 	useEffect(() => {
 		if (selectedSlot) {
@@ -114,16 +121,7 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 	}, [selectedSlot]);
 
 	useEffect(() => {
-		if (calendarCategoriesList && calendarCategoriesList.length > 0) {
-			setInfo((prev) => ({
-				...prev,
-				categories: [...calendarCategoriesList],
-			}));
-		}
-	}, [calendarCategoriesList]);
-
-	useEffect(() => {
-		if (info?.categories?.length > 0 && !info?.selectedCategory) {
+		if (info?.categories && !info?.selectedCategory) {
 			const defaultCategory = info?.categories?.find((category) => category?.name === 'all');
 			if (defaultCategory) {
 				setInfo((prev) => ({
@@ -149,7 +147,7 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 	const prepareEventPayload = useCallback(() => {
 		const {
 			title,
-			description,
+			description = '',
 			startDate,
 			startTime,
 			endDate,
@@ -158,91 +156,76 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 			timezone,
 			location,
 			meeting,
-			attendees,
+			attendees = [],
 			phone,
+			selectedCategory,
 		} = info;
-
 		const startDateTime = moment(convertToISOString(startDate, startTime));
-		const endDateTime = moment(convertToISOString(endDate, endTime || startTime));
+		const endDateTime = moment(convertToISOString(endDate || startDate, endTime || startTime));
 		const now = moment().startOf('day');
-
-		if (!title) {
+		const setErrorAndReturn = (msg) => {
 			setInfo((prev) => ({
 				...prev,
-				submissionError: 'Agenda is required',
+				submissionError: msg,
 				isSubmitting: false,
 			}));
 			return null;
+		};
+		const validations = [
+			{
+				condition: !title,
+				message: 'Agenda is required',
+			},
+			{
+				condition: !startDate,
+				message: 'Start date is required',
+			},
+			{
+				condition: !endDate,
+				message: 'End date is required',
+			},
+			{
+				condition: startDateTime.isBefore(now),
+				message: 'Start date/time cannot be in the past',
+			},
+			{
+				condition: endDateTime.isBefore(startDateTime),
+				message: 'End date/time cannot be before start date/time',
+			},
+			{
+				condition: attendees.length === 0,
+				message: 'At least one attendee is required',
+			},
+			{
+				condition: !selectedCategory,
+				message: 'Please select a category',
+			},
+		];
+		for (const { condition, message } of validations) {
+			if (condition) return setErrorAndReturn(message);
 		}
-
-		if (!startDate) {
-			setInfo((prev) => ({
-				...prev,
-				submissionError: 'Start date is required',
-				isSubmitting: false,
-			}));
-			return null;
-		}
-
-		if (!endDate) {
-			setInfo((prev) => ({
-				...prev,
-				submissionError: 'End date is required',
-				isSubmitting: false,
-			}));
-			return null;
-		}
-
-		if (startDateTime.isBefore(now)) {
-			setInfo((prev) => ({
-				...prev,
-				submissionError: 'Start date/time cannot be in the past',
-				isSubmitting: false,
-			}));
-			return null;
-		}
-
-		if (endDateTime.isBefore(startDateTime)) {
-			setInfo((prev) => ({
-				...prev,
-				submissionError: 'End date/time cannot be before start date/time',
-				isSubmitting: false,
-			}));
-			return null;
-		}
-
-		if (!attendees || attendees?.length === 0) {
-			setInfo((prev) => ({
-				...prev,
-				submissionError: 'At least one attendee is required',
-				isSubmitting: false,
-			}));
-			return null;
-		}
-
-		const processedAttendees = attendees?.map((attendee) => ({
-			isWorkspaceUser: attendee?.tenantUserId ? true : false,
-			tenantUserId: attendee?.tenantUserId || null,
-			name: attendee?.name || null,
-			email: attendee?.email,
-			role: attendee?.role,
+		const processedAttendees = attendees.map(({ tenantUserId, name = null, email, role }) => ({
+			isWorkspaceUser: !!tenantUserId,
+			tenantUserId: tenantUserId || null,
+			name,
+			email,
+			role,
 			responseStatus: 'confirmed',
 		}));
-
 		return {
 			title,
-			description: description || '',
+			description,
 			location,
 			startDateTime: convertToISOString(startDate, startTime),
 			endDateTime: convertToISOString(endDate || startDate, endTime || startTime),
 			timezone,
 			allDay,
 			attendees: processedAttendees,
-			calendarCategory: info?.selectedCategory,
+			calendarCategory: selectedCategory,
 			meeting,
 			phone,
 		};
-	}, [info, convertToISOString]);
+	}, [info, selectedCategory]);
 
 	const handleEventSubmission = useCallback(async () => {
 		try {
@@ -312,7 +295,7 @@ const EventsPopUp = ({ open, closeModal, categoryList, selectedCategory, selecte
 				}
 
 				const updatedAttendees = [
-					...prevInfo.attendees,
+					...prevInfo?.attendees,
 					{ name, email, isWorkspaceUser, tenantUserId, role },
 				];
 

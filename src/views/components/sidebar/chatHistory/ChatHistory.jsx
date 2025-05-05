@@ -15,6 +15,7 @@ const infiniteScrollStyle = {
 	alignItems: 'flex-start',
 	alignSelf: 'stretch',
 	gap: '4px',
+	paddingBottom: '100px',
 	// height: '38vh',
 };
 const skeletonLoaders = Array.from({ length: 30 }, (_, index) => index + 1);
@@ -24,10 +25,9 @@ const append = true;
 
 const ChatHistory = () => {
 	const navigate = useNavigate();
-	const { sessionId } = useParams();
 	const {
 		aiSetup: { getAiChatSessions, aiChatSessions },
-		templates: { chatInfo, updateStateValues, currentSessionId },
+		templates: { chatInfo, updateStateValues, currentSessionId, currentChatData },
 	} = useContext(Context);
 	const previousSearchQuery = useRef('');
 	const [searchQuery, setSearchQuery] = useState('');
@@ -55,6 +55,15 @@ const ChatHistory = () => {
 		};
 	}, [searchQuery, debouncedSearch]);
 
+	useEffect(() => {
+		if (currentSessionId && currentChatData?._id !== currentSessionId) {
+			const index = aiChatSessions?.data?.findIndex((chat) => chat?._id === currentSessionId);
+			if (typeof index === 'number' && index !== -1) {
+				updateStateValues({ currentChatData: aiChatSessions?.data[index] });
+			}
+		}
+	}, [currentSessionId, aiChatSessions]);
+
 	const chats = aiChatSessions?.data;
 	const emptyChatsState = aiChatSessions?.data?.length === 0;
 	const loadingState = aiChatSessions?.data === undefined;
@@ -71,16 +80,16 @@ const ChatHistory = () => {
 	const handleChatNavigation = useCallback(
 		(chat) => {
 			if (currentSessionId === chat?._id) return;
-			updateStateValues({
-				chatInfo: {
-					...chatInfo,
-					agentType: chat?.agentType,
-					assistantId: chat?.assistantId,
-				},
-			});
-			navigate(`/chat/${chat?._id}`);
+
+			if (chat?.agentType === 'knowledge_agent') {
+				navigate(
+					`/chat/${chat?._id}?agentType=knowledge_agent&assistantId=${chat?.assistantId}`,
+				);
+			} else {
+				navigate(`/chat/${chat?._id}`);
+			}
 		},
-		[currentSessionId, chatInfo],
+		[currentSessionId],
 	);
 
 	const handleCreateChat = useCallback(() => {
@@ -106,7 +115,7 @@ const ChatHistory = () => {
 	return (
 		<div className="chats-drawer-container">
 			<div className="chats-container">
-				{(chats?.length > 10 || previousSearchQuery.current) && (
+				{/* {(chats?.length > 10 || previousSearchQuery.current) && (
 					<div className="searchContainer">
 						<Search />
 						<input
@@ -117,7 +126,7 @@ const ChatHistory = () => {
 							onChange={(e) => setSearchQuery(e.target.value)}
 						/>
 					</div>
-				)}
+				)} */}
 				{loadingState ? (
 					<div className="skeleton-loader-container">
 						{skeletonLoaders?.map((skeletonId) => (
@@ -130,11 +139,12 @@ const ChatHistory = () => {
 						))}
 					</div>
 				) : emptyChatsState ? (
-					<div className="empty-state">
-						<button className="create-chat-btn" onClick={handleCreateChat}>
-							Create New Chat
-						</button>
-					</div>
+					// <div className="empty-state">
+					// 	<button className="create-chat-btn" onClick={handleCreateChat}>
+					// 		Create New Chat
+					// 	</button>
+					// </div>
+					''
 				) : (
 					<InfiniteScroll
 						dataLength={chats?.length || 0}
@@ -158,7 +168,7 @@ const ChatHistory = () => {
 									)}
 									<div
 										className={`chat-containers ${
-											sessionId === chat?._id ? 'active-chat' : ''
+											currentSessionId === chat?._id ? 'active-chat' : ''
 										}`}
 										onClick={() => handleChatNavigation(chat)}
 									>

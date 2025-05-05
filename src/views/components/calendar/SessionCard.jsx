@@ -7,8 +7,6 @@ import UpdateSessionSlot from '../../../views/components/modalsV2/calendar/Updat
 import CreateSessionModal from '../../../views/components/modalsV2/calendar/CreateSessionModal';
 import dayjs from 'dayjs';
 
-const expandedHeight = '192px'; // Pre-calculated: 40 + (2 * 40) + (3 * 12) + 32 + 4
-
 const SessionCard = ({
 	schedulerList = [],
 	selectedSession,
@@ -17,7 +15,6 @@ const SessionCard = ({
 }) => {
 	const [info, setInfo] = useState({
 		expanded: false,
-		height: '62px',
 		isSessionModalOpen: false,
 		isCreateModalOpen: false,
 		isSessionEditable: false,
@@ -27,34 +24,38 @@ const SessionCard = ({
 	});
 	const expandRef = useRef(null);
 
+	// Update session data when selectedSession changes
+	useEffect(() => {
+		if (selectedSession) {
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				selectedCalendarSession: selectedSession,
+			}));
+		}
+	}, [selectedSession]);
+
+	// Update session data when schedulerList changes
+	useEffect(() => {
+		if (schedulerList) {
+			if (selectedSession) {
+				const session = schedulerList.find((s) => s?._id === selectedSession?._id);
+				if (session) {
+					setInfo((prevInfo) => ({
+						...prevInfo,
+						selectedCalendarSession: session,
+					}));
+				}
+			}
+		}
+	}, [schedulerList, selectedSession]);
+
+	// Handle session expansion
 	useEffect(() => {
 		const hasItems = Array.isArray(schedulerList) && schedulerList.length > 0;
-		if (hasItems && !info.expanded) {
+		if (hasItems && !info?.expanded) {
 			setInfo((prev) => ({ ...prev, expanded: true }));
 		}
 	}, [schedulerList]);
-
-	useEffect(() => {
-		setInfo((prevInfo) => ({
-			...prevInfo,
-			height: info?.expanded ? expandedHeight : '62px',
-		}));
-	}, [info?.expanded]);
-
-	const handleSessionExpand = useCallback(() => {
-		setInfo((prevInfo) => ({
-			...prevInfo,
-			expanded: !prevInfo.expanded,
-		}));
-	}, []);
-
-	const handleAddSessionClick = useCallback(() => {
-		setInfo((prevInfo) => ({
-			...prevInfo,
-			isCreateModalOpen: true,
-			isSessionEditable: false,
-		}));
-	}, []);
 
 	const handleEditSession = useCallback(
 		(session) => {
@@ -70,6 +71,21 @@ const SessionCard = ({
 		},
 		[updateCalendarInfo],
 	);
+
+	const handleSessionExpand = useCallback(() => {
+		setInfo((prevInfo) => ({
+			...prevInfo,
+			expanded: !prevInfo?.expanded,
+		}));
+	}, []);
+
+	const handleAddSessionClick = useCallback(() => {
+		setInfo((prevInfo) => ({
+			...prevInfo,
+			isCreateModalOpen: true,
+			isSessionEditable: false,
+		}));
+	}, []);
 
 	const handleCheckboxChange = (sessionId) => {
 		if (!sessionId) return;
@@ -116,9 +132,6 @@ const SessionCard = ({
 		<>
 			<div
 				className={`sessionCardContainer ${info?.expanded ? 'expanded' : ''}`}
-				style={{
-					height: info?.height,
-				}}
 				ref={expandRef}
 			>
 				<div className="sessionHeader">
@@ -135,8 +148,14 @@ const SessionCard = ({
 					</div>
 				</div>
 
-				{info?.expanded && Array.isArray(schedulerList) && (
-					<div className="sessionsContainer">
+				{info?.expanded && Array?.isArray(schedulerList) && (
+					<div
+						className="sessionsContainer"
+						style={{
+							overflowY: 'auto',
+							maxHeight: '115px',
+						}}
+					>
 						{schedulerList.map((session) => {
 							if (!session || typeof session !== 'object') return null;
 

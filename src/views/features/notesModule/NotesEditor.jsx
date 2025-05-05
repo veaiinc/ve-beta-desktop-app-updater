@@ -13,15 +13,15 @@ import moment from 'moment';
 import CustomTextArea from '../../components/globalComponents/CustomTextArea';
 import MoreOptions from '../../components/notes/MoreOptions';
 import { StarSvg } from '../../../assets/svg/notes/Star';
+import { ReactComponent as DangerSvg } from '../../../assets/svg/notes/danger.svg';
 import { message } from '../../components/globalComponents/CustomToast';
 import { Helmet } from 'react-helmet';
 import Skeleton from 'react-loading-skeleton';
 import useChatStream from '../../hooks/useChatStream';
 import ObjectID from 'bson-objectid';
 import jwtDecode from 'jwt-decode';
-const preprocessMarkdown = (markdown) => {
-	return markdown?.replace(/\\n/g, '\n'); // Add a non-breaking space for empty lines
-};
+import { ReactComponent as DustBinIcon } from '../../../assets/svg/tasks/dustBin.svg';
+import { ReactComponent as RestoreIcon } from '../../../assets/svg/notes/restore.svg';
 
 const getRandomWidth = () => {
 	const min = 70;
@@ -42,21 +42,11 @@ const accessLevels = {
 
 let userId = null;
 
-// async function uploadFile(file) {
-// 	const body = new FormData();
-// 	body.append('file', file);
-
-// 	const ret = await fetch('https://tmpfiles.org/api/v1/upload', {
-// 		method: 'POST',
-// 		body: body,
-// 	});
-// 	return (await ret.json()).data.url.replace('tmpfiles.org/', 'tmpfiles.org/dl/');
-// }
-
 const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 	const { noteId } = useParams();
 	const navigate = useNavigate();
 	const aiResponseRef = useRef('');
+	const prevDocRef = useRef([]);
 
 	const {
 		notes: {
@@ -72,10 +62,33 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 			updateNotesState,
 			getNotesAccess,
 			globalAccess,
+			uploadNotesImageBlock,
+			deleteNotesImageBlock,
 		},
+		companyInfo: { getTeamMembers, tenantsUserList },
 	} = useContext(Context);
 
 	const { createWebSocketConnection, sendMessage } = useChatStream();
+
+	async function uploadFile(file) {
+		const response = await uploadNotesImageBlock(
+			{
+				pageId: noteId,
+				uploadPageBlockImageInput: {
+					imageName: file?.name,
+					imageSize: file?.size,
+				},
+			},
+			file,
+		);
+
+		if (response?.[0]) {
+			await new Promise((resolve) => setTimeout(resolve, 5000));
+			return response?.[1];
+		}
+
+		return undefined;
+	}
 
 	const editor = useCreateBlockNote({
 		tables: {
@@ -84,7 +97,7 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 			cellTextColor: true,
 			headers: true,
 		},
-		// uploadFile,
+		uploadFile,
 	});
 	const [info, setInfo] = useState({
 		timeouts: {}, // Single timeouts object to store all timeouts
@@ -98,6 +111,10 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 		loading: true,
 		aiResonse: '',
 		myAccess: 'view',
+		isDeleted: false,
+		lastUpdated: null,
+		deleteLoading: false,
+		updatedBy: null,
 	});
 
 	useEffect(() => {
@@ -106,22 +123,21 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 		userId = user_id;
 	}, []);
 
-	// useEffect(() => {
-	// 	const notesContainer = document.querySelector('.notes-container');
-	// 	const handleKeyDown = (e) => {
-	// 		e.preventDefault();
-	// 		if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
-	// 			const selected = editor?.getSelectedText()?.length > 0 || false;
-	// 			if (selected) {
-	// 				e.stopPropagation();
-	// 				return;
-	// 			}
-	// 		}
-	// 	};
+	useEffect(() => {
+		const notesContainer = document.querySelector('.notes-container');
+		const handleKeyDown = (e) => {
+			if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
+				const selected = editor?.getSelectedText()?.length > 0 || false;
+				if (selected) {
+					e.stopPropagation();
+					return;
+				}
+			}
+		};
 
-	// 	notesContainer.addEventListener('keydown', handleKeyDown);
-	// 	return () => notesContainer.removeEventListener('keydown', handleKeyDown);
-	// }, []);
+		notesContainer.addEventListener('keydown', handleKeyDown);
+		return () => notesContainer.removeEventListener('keydown', handleKeyDown);
+	}, []);
 
 	useEffect(() => {
 		getNotesAccess({ pageId: noteId });
@@ -142,10 +158,19 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 	}, [noteId]);
 
 	useEffect(() => {
+		if (!tenantsUserList) {
+			getTeamMembers();
+		} else if (info?.updatedBy) {
+			const lastUpdated = tenantsUserList?.find((item) => item._id === info?.updatedBy);
+			setInfo((prevInfo) => ({ ...prevInfo, lastUpdated }));
+		}
+	}, [tenantsUserList, info?.updatedBy]);
+
+	useEffect(() => {
 		if (notesAccess && noteId && userId) {
 			const hasAccess = notesAccess?.find((access) => access?.userId === userId);
 			if (hasAccess) {
-				const myAccess = hasAccess?.access;
+				let myAccess = hasAccess?.access;
 
 				if (globalAccess?.isEnabled) {
 					const myAccessLevel = accessLevels?.[myAccess];
@@ -188,6 +213,8 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 				title = '',
 				updatedAt = '',
 				isFavorite = false,
+				isDeleted = false,
+				updatedBy = null,
 			} = notesPageData?.data || {};
 			if (blocks) {
 				loadNotesContent(blocks);
@@ -197,6 +224,8 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 				title,
 				updatedAt,
 				isFavorite,
+				isDeleted,
+				updatedBy,
 			}));
 		} else if (notesPageData?.error) {
 			const messageText =
@@ -297,9 +326,35 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 		[noteId, handleDebounce],
 	);
 
-	const onChange = async () => {
+	const extractImageUrls = (doc) => {
+		const urls = [];
+		for (const block of doc) {
+			if (block.type === 'image' && block.props?.url) {
+				urls.push(block.props.url);
+			}
+		}
+		return urls;
+	};
+
+	const onChange = () => {
 		if (editor?.document?.length) {
-			handleContentChange(editor.document);
+			const newDoc = editor.document;
+			const prevImages = extractImageUrls(prevDocRef.current);
+			const newImages = extractImageUrls(newDoc);
+			const removedImages = prevImages.filter((url) => !newImages.includes(url));
+			for (const url of removedImages) {
+				const payload = {
+					pageId: noteId,
+					imageInput: {
+						imageUrl: url,
+						type: 'block',
+					},
+				};
+				deleteNotesImageBlock(payload);
+			}
+
+			handleContentChange(newDoc);
+			prevDocRef.current = newDoc;
 		}
 	};
 
@@ -313,18 +368,21 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 		[setInfo],
 	);
 
-	const handleDeletePage = useCallback(async () => {
-		if (info?.loading) return;
-		setInfo((prev) => ({ ...prev, loading: true }));
-		const [success] = await deletePage({ pageId: noteId });
-		if (success) {
-			message.success('Page deleted successfully');
-			navigate('/files');
-		} else {
-			message.error('Failed to delete page');
-		}
-		setInfo((prev) => ({ ...prev, loading: false }));
-	}, [info?.loading, info?.notesConfigs, navigate, noteId, setInfo]);
+	const handleDeletePage = useCallback(
+		async (permanent = false) => {
+			if (info?.deleteLoading) return;
+			setInfo((prev) => ({ ...prev, deleteLoading: true }));
+			const [success] = await deletePage({ pageId: noteId, isPermanent: permanent });
+			if (success) {
+				message.success(`Page ${permanent ? 'permanently ' : ''}deleted successfully`);
+				navigate('/files');
+			} else {
+				message.error('Failed to delete page');
+			}
+			setInfo((prev) => ({ ...prev, deleteLoading: false }));
+		},
+		[info?.deleteLoading, info?.notesConfigs, navigate, noteId, setInfo],
+	);
 
 	const handleDuplicatePage = useCallback(async () => {
 		if (info?.loading) return;
@@ -372,6 +430,27 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 		});
 	}, []);
 
+	const restorePage = async () => {
+		if (info?.deleteLoading) return;
+		setInfo((prev) => ({ ...prev, deleteLoading: true }));
+		const response = await updatePage({
+			pageId: noteId,
+			input: { isDeleted: false },
+		});
+		if (response?.[0]) {
+			setInfo((prev) => ({
+				...prev,
+				updatedAt: moment().unix(),
+				isDeleted: false,
+				deleteLoading: false,
+			}));
+			message?.success('Page restored!');
+		} else {
+			setInfo((prev) => ({ ...prev, deleteLoading: false }));
+			message?.error(`Couldn't restore page`);
+		}
+	};
+
 	return (
 		<div className="notes-container" style={outerContainerStyle || {}}>
 			{info?.title && (
@@ -381,32 +460,64 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 				</Helmet>
 			)}
 
-			<div className="notes-nav-menu">
-				<div className="notes-nav-title">{info?.title}</div>
+			{!info?.isDeleted ? (
+				<div className="notes-nav-menu">
+					<div className="notes-nav-title">{info?.title}</div>
 
-				<div className="notes-nav-right">
-					<button
-						className="notes-nav-button"
-						onClick={() => handleFavorite(!info?.isFavorite)}
-					>
-						<StarSvg
-							fill={info?.isFavorite}
-							width={18}
-							height={18}
-							className="cursor-pointer"
+					<div className="notes-nav-right">
+						<button
+							className="notes-nav-button"
+							onClick={() => handleFavorite(!info?.isFavorite)}
+						>
+							<StarSvg
+								fill={info?.isFavorite}
+								width={18}
+								height={18}
+								className="cursor-pointer"
+							/>
+						</button>
+
+						{info?.myAccess === 'full' && <ShareComponent pageId={noteId} />}
+
+						<MoreOptions
+							notesConfigs={info?.notesConfigs}
+							onChange={handleMoreOptionsChange}
+							onDelete={handleDeletePage}
+							onDuplicate={handleDuplicatePage}
 						/>
-					</button>
-
-					{info?.myAccess === 'full' && <ShareComponent pageId={noteId} />}
-
-					<MoreOptions
-						notesConfigs={info?.notesConfigs}
-						onChange={handleMoreOptionsChange}
-						onDelete={handleDeletePage}
-						onDuplicate={handleDuplicatePage}
-					/>
+					</div>
 				</div>
-			</div>
+			) : (
+				<div className="deleted-badge">
+					<div className="badge-text-wrapper">
+						<DangerSvg />
+						<p className="delete-badge-message">
+							{info?.lastUpdated
+								? `${info?.lastUpdated?.firstName} ${
+										info?.lastUpdated?.lastName
+											? info?.lastUpdated?.lastName
+											: ''
+								  } `
+								: 'Someone '}
+							moved this page to trash{' '}
+							{info?.updatedAt ? moment?.unix(info?.updatedAt).fromNow() : ''}.
+						</p>
+					</div>
+
+					<div className="badge-button-wrapper">
+						<button className="delete-badge-restore-btn" onClick={restorePage}>
+							<RestoreIcon />
+							Restore
+						</button>
+						<button
+							className="delete-badge-permanent-delete-btn"
+							onClick={() => handleDeletePage(true)}
+						>
+							<DustBinIcon /> Permanently delete
+						</button>
+					</div>
+				</div>
+			)}
 
 			<div className="notes-editor-container">
 				{info?.loading ? (
@@ -453,9 +564,9 @@ const NotesEditor = ({ outerContainerStyle, innerContainerStyle }) => {
 							onChange={onChange}
 							style={innerContainerStyle || {}}
 							theme={'dark'}
-							editable={info?.myAccess !== 'view'}
+							editable={info?.myAccess !== 'view' || !info?.isDeleted}
 						>
-							{info?.myAccess !== 'view' && (
+							{(info?.myAccess !== 'view' || !info?.isDeleted) && (
 								<NoteToolbar
 									sendMessage={customSendMessage}
 									aiResonse={info?.aiResonse}

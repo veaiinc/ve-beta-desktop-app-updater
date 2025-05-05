@@ -4,8 +4,7 @@ import { ReactComponent as DownloadIcon } from '../../../../assets/svg/gallery/d
 import { ReactComponent as CloseIcon } from '../../../../assets/svg/close.svg';
 import Context from '../../../../context/context';
 import Table from './RegisteredUsersTable';
-// import QRCode from 'react-qr-code';
-import { QRCodeCanvas } from 'qrcode.react';
+import QRCode from 'react-qr-code';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { Progress, Switch, Tooltip } from 'antd';
 import NotifyPopup from './NotifyPopup';
@@ -87,31 +86,47 @@ const AiFaceRegistration = ({ link, handlePreRegistration, preRegistration }) =>
 	};
 
 	const downloadQR = () => {
-		const originalCanvas = qrRef.current?.querySelector('canvas');
+		const qrElement = qrRef.current?.querySelector('svg');
 
-		if (!originalCanvas) {
+		if (!qrElement) {
 			message.error('QR code not found.');
 			return;
 		}
 
-		// Create a new canvas with desired dimensions
-		const newCanvas = document.createElement('canvas');
-		const size = 1000;
-		newCanvas.width = size;
-		newCanvas.height = size;
+		const canvas = document.createElement('canvas');
+		const ctx = canvas.getContext('2d');
 
-		const ctx = newCanvas.getContext('2d');
+		const desiredSize = 1000;
+		const padding = 20; // Padding reduced to 20px
+		const qrSize = desiredSize - padding * 2;
 
-		// Draw original canvas scaled into new canvas
-		ctx.drawImage(originalCanvas, 0, 0, size, size);
+		canvas.width = desiredSize;
+		canvas.height = desiredSize;
 
-		// Export the scaled canvas
-		const pngFile = newCanvas.toDataURL('image/png');
-		const downloadLink = document.createElement('a');
-		downloadLink.download = 'qr-code.png';
-		downloadLink.href = pngFile;
-		downloadLink.click();
+		const svgData = new XMLSerializer().serializeToString(qrElement);
+		const svgBlob = new Blob([svgData], { type: 'image/svg+xml' });
+		const svgUrl = URL.createObjectURL(svgBlob);
+
+		const img = new Image();
+		img.onload = () => {
+			// Add a white background
+			ctx.fillStyle = '#FFFFFF'; // White background
+			ctx.fillRect(0, 0, desiredSize, desiredSize); // Fill the entire canvas with white
+
+			// Draw the QR code with reduced padding
+			ctx.drawImage(img, padding, padding, qrSize, qrSize);
+
+			// Generate PNG download
+			const pngData = canvas.toDataURL('image/png');
+			const link = document.createElement('a');
+			link.download = 'qr-code.png';
+			link.href = pngData;
+			link.click();
+			URL.revokeObjectURL(svgUrl); // Clean up
+		};
+		img.src = svgUrl;
 	};
+
 	const copyLink = async () => {
 		try {
 			await navigator.clipboard.writeText(link);
@@ -188,11 +203,12 @@ const AiFaceRegistration = ({ link, handlePreRegistration, preRegistration }) =>
 				<div className="aiScannerContainer-inner">
 					<div className="aiScannerContainer-inner-left">
 						<div className="scanner" ref={qrRef}>
-							<QRCodeCanvas
+							<QRCode
 								value={link}
 								fgColor="#000000"
 								bgColor="#FFFFFF"
-								size={120}
+								size={130}
+								level="H"
 							/>
 						</div>
 						<div

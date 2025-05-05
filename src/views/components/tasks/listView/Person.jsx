@@ -17,6 +17,7 @@ const Person = ({
 }) => {
 	const [info, setInfo] = useState({
 		value: null,
+		search: '',
 	});
 
 	useEffect(() => {
@@ -85,23 +86,50 @@ const Person = ({
 		onOptionClick(value);
 	};
 
-	// Add debug logging for option rendering
-	const optionRender = useCallback((option) => {
-		return (
-			<div className="person-dropdown-menu-option">
-				<div className="person-dropdown-menu-option-avatar">
-					{option?.image ? (
-						<img src={option?.image} alt="" />
-					) : (
-						<div className="person-dropdown-menu-option-avatar-icon">
-							{option?.label?.[0]?.toUpperCase()}
-						</div>
-					)}
+	const optionRender = useCallback(
+		(option) => {
+			const isSelected = multiSelect
+				? Array.isArray(info?.value) && info.value.some((v) => v?.value === option.value)
+				: info?.value?.value === option.value;
+
+			return (
+				<div
+					className="person-dropdown-menu-option"
+					style={{ backgroundColor: isSelected ? 'var(--card-hover)' : `` }}
+				>
+					<div className="person-dropdown-menu-option-avatar">
+						{option?.image ? (
+							<img src={option?.image} alt="" />
+						) : (
+							<div className="person-dropdown-menu-option-avatar-icon">
+								{option?.label?.[0]?.toUpperCase()}
+							</div>
+						)}
+					</div>
+					<div className="person-dropdown-menu-option-label">{option?.label}</div>
 				</div>
-				<div className="person-dropdown-menu-option-label">{option?.label}</div>
-			</div>
-		);
-	}, []);
+			);
+		},
+		[info?.value, multiSelect],
+	);
+
+	const handleSearchChange = (e) => {
+		e?.stopPropagation();
+		e?.preventDefault();
+		setInfo((prevInfo) => ({ ...prevInfo, search: e?.target?.value }));
+	};
+
+	// Handle keydown in search input to prevent backspace from removing tags
+	const handleSearchKeyDown = (e) => {
+		// If backspace is pressed in search input, don't let it bubble up to Select
+		if (e.key === 'Backspace') {
+			e.stopPropagation();
+		}
+	};
+
+	const filteredOptions = options?.filter((item) =>
+		item?.label?.toLowerCase()?.includes(info?.search?.toLowerCase() || ''),
+	);
 
 	return (
 		<Tooltip
@@ -132,7 +160,7 @@ const Person = ({
 							: `${title || 'person'}`
 						: undefined
 				}
-				options={options}
+				options={filteredOptions}
 				variant="borderless"
 				labelInValue
 				showSearch={false}
@@ -146,7 +174,6 @@ const Person = ({
 							? '100px'
 							: 'fit-content',
 					color: disabled ? 'var(--secondary-font)' : 'var(--primary-font)',
-					zIndex: 50003,
 				}}
 				className={`person-select ${disabled ? 'disabled' : ''}`}
 				popupClassName="person-select-dropdown"
@@ -154,12 +181,8 @@ const Person = ({
 					backgroundColor: 'var(--card-over-card)',
 					width: '220px',
 					color: 'var(--primary-font)',
-					zIndex: 50003,
 				}}
 				notFoundContent="No options available"
-				notFoundContentStyle={{
-					color: 'var(--primary-font)',
-				}}
 				onDropdownVisibleChange={(open) => {}}
 				{...(multiSelect ? { tagRender: renderPerson } : { labelRender: renderPerson })}
 				dropdownRender={(menu) => {
@@ -167,6 +190,15 @@ const Person = ({
 						<div className="person-dropdown-menu">
 							<div className="person-dropdown-menu-header">
 								<div className="person-dropdown-menu-header-title">{title}</div>
+								<div className="person-dropdown-menu-header-search">
+									<input
+										type="text"
+										placeholder="Search..."
+										value={info?.search}
+										onChange={handleSearchChange}
+										onKeyDown={handleSearchKeyDown}
+									/>
+								</div>
 							</div>
 							<div className="person-dropdown-menu-body">{menu}</div>
 						</div>

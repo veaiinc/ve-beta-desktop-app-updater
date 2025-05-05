@@ -3,15 +3,10 @@ import { default as ReactMarkdown } from 'react-markdown';
 import '../assets/scss/markdown.scss';
 import '../assets/scss/markdownHelper.scss';
 import { ReactComponent as PencilSparkleIcon } from '../assets/svg/notes/pencilSparkle.svg';
-import { ReactComponent as ThumpsUpSvg } from '../assets/svg/ai_agents/thumps-up.svg';
-import { ReactComponent as ThumpsDownSvg } from '../assets/svg/ai_agents/thumps-down.svg';
-import { ReactComponent as HeadPhoneSvg } from '../assets/svg/ai_agents/head-phone.svg';
 import { ReactComponent as TickSvg } from '../assets/svg/tick.svg';
 import { ReactComponent as CopyIcon } from '../assets/svg/ai_agents/copy.svg';
-import { ReactComponent as ViewDocumentIcon } from '../assets/svg/chat/viewDocument.svg';
 import Context from '../context/context';
 import { Tooltip } from 'antd';
-import { ReactComponent as ArrowRightSvg } from '../assets/svg/home_page/arrow-right.svg';
 import { CitationsTooltip } from '../views/components/modalsV2/chat/CitationsTooltip';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
@@ -20,9 +15,8 @@ import rehypeRaw from 'rehype-raw';
 import 'katex/dist/katex.min.css';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { dracula } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import FormModel from '../views/components/chat/FormModel';
 import AISuggestionsReportUserComponent from '../views/components/chat/chatComponents/AISuggestionsReportUserComponent';
-import AISuggestionsReportAiComponent from '../views/components/chat/chatComponents/AiSuggestionsReportAiComponent';
+
 const rehypeCITPlugin = () => {
 	return (tree) => {
 		const visit = (node) => {
@@ -74,84 +68,84 @@ const baseComponents = {
 	),
 	li: ({ children, ...props }) => {
 		return (
-			<li className="li" {...props}>
+			<li {...props} className="li">
 				{children}
 			</li>
 		);
 	},
 	ul: ({ children, ...props }) => {
 		return (
-			<ul className="ul" {...props}>
+			<ul {...props} className="ul">
 				{children}
 			</ul>
 		);
 	},
 	span: ({ children, ...props }) => {
 		return (
-			<span className="span" {...props}>
+			<span {...props} className="span">
 				{children}
 			</span>
 		);
 	},
 	strong: ({ children, ...props }) => {
 		return (
-			<strong className="strong" {...props}>
+			<strong {...props} className="strong">
 				{children}
 			</strong>
 		);
 	},
 	a: ({ children, ...props }) => {
 		return (
-			<a className="a" target="_blank" rel="noreferrer" {...props}>
+			<a target="_blank" rel="noreferrer" {...props} className="a">
 				{children}
 			</a>
 		);
 	},
 	h1: ({ children, ...props }) => {
 		return (
-			<h1 className="h1" {...props}>
+			<h1 {...props} className="h1">
 				{children}
 			</h1>
 		);
 	},
 	h2: ({ children, ...props }) => {
 		return (
-			<h2 className="h2" {...props}>
+			<h2 {...props} className="h2">
 				{children}
 			</h2>
 		);
 	},
 	h3: ({ children, ...props }) => {
 		return (
-			<h3 className="h3" {...props}>
+			<h3 {...props} className="h3">
 				{children}
 			</h3>
 		);
 	},
 	h4: ({ children, ...props }) => {
 		return (
-			<h4 className="h4" {...props}>
+			<h4 {...props} className="h4">
 				{children}
 			</h4>
 		);
 	},
 	h5: ({ children, ...props }) => {
 		return (
-			<h5 className="h5" {...props}>
+			<h5 {...props} className="h5">
 				{children}
 			</h5>
 		);
 	},
 	h6: ({ children, ...props }) => {
 		return (
-			<h6 className="h6" {...props}>
+			<h6 {...props} className="h6">
 				{children}
 			</h6>
 		);
 	},
 	p: ({ children, ...props }) => {
 		return (
-			<p className="p" {...props}>
+			<p {...props} className="p">
 				{children}
 			</p>
 		);
@@ -160,8 +154,8 @@ const baseComponents = {
 		return (
 			<div className="markdown-image-wrapper ">
 				<img
-					className="img"
 					{...props}
+					className="img"
 					src={props?.src}
 					alt="img"
 					style={{ maxWidth: '50%', maxHeight: '50%', borderRadius: '4px' }}
@@ -169,13 +163,6 @@ const baseComponents = {
 			</div>
 		);
 	},
-	table: ({ children, ...props }) => (
-		<div className="table-container">
-			<table className="table" {...props}>
-				{children}
-			</table>
-		</div>
-	),
 	thead: ({ children, ...props }) => <thead {...props}>{children}</thead>,
 	th: ({ children, ...props }) => <th {...props}>{children}</th>,
 	td: ({ children, ...props }) => <td {...props}>{children}</td>,
@@ -193,22 +180,35 @@ const baseComponents = {
 };
 
 // Memoize citation-specific components
-const createCitationComponents = (citations) => ({
+const createCitationComponents = (citations, markdown) => ({
 	span: ({ children, citationId, ...props }) => {
 		if (citationId) return <CitationsTooltip citationId={citationId} citations={citations} />;
 		return <span {...props}>{children}</span>;
+	},
+	table: ({ node, children }) => {
+		return (
+			<MarkdownTable node={node} markdown={markdown}>
+				{children}
+			</MarkdownTable>
+		);
 	},
 });
 const remarkPlugins = [remarkGfm, remarkMath];
 const rehypePlugins = [rehypeKatex, rehypeCITPlugin, rehypeRaw];
 const NonMemoizedMarkdown = ({ children, citations }) => {
+	const markdown = children
+		?.replace(/(?<!\\)\$/g, '\\$')
+		?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')
+		?.replace(/\\\((.*?)\\\)/g, '$$$1$$')
+		?.replace(/\\n/g, '\n');
+
 	// Memoize the combined components object
 	const components = useMemo(
 		() => ({
 			...baseComponents,
-			...createCitationComponents(citations),
+			...createCitationComponents(citations, markdown),
 		}),
-		[citations],
+		[citations, markdown],
 	);
 
 	return (
@@ -218,11 +218,7 @@ const NonMemoizedMarkdown = ({ children, citations }) => {
 			components={components}
 			className="markdown-custom-content"
 		>
-			{children
-				?.replace(/(?<!\\)\$/g, '\\$')
-				?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')
-				?.replace(/\\\((.*?)\\\)/g, '$$$1$$')
-				?.replace(/\\n/g, '\n')}
+			{markdown}
 		</ReactMarkdown>
 	);
 };
@@ -237,275 +233,33 @@ export const Markdown = memo(NonMemoizedMarkdown, (prevProps, nextProps) => {
 	return prevProps.children === nextProps.children && citationsEqual;
 });
 
-// export const TypingEffect = memo(
-// 	({
-// 		text,
-// 		customePencilClickFunc = null,
-// 		messageId = null,
-// 		handleRatingClick = null,
-// 		rating = null,
-// 		citations = [],
-// 		messageData,
-// 		isLastMessage = false,
-// 		isNewMessage = false,
-// 		showCanvas = true,
-// 		handleSendWebsocketMessage = null,
-// 		latestStreamMesage = null,
-// 		lastQuery = null,
-// 		toggleLatestStreamMessage = null,
-// 		handleViewDocument = null,
-// 		showViewDocument = false,
-// 		isNoteCanvas = false,
-// 	}) => {
-// 		const {
-// 			documentPreview: { setNoteContent },
-// 			templates: { updateStateValues },
-// 		} = useContext(Context);
-// 		const [isCopiedToClipboard, setIsCopiedToClipboard] = useState(false);
-// 		const [renderTrigger, setRenderTrigger] = useState(0);
+const MarkdownTable = memo(({ children, node, markdown }) => {
+	const [isCopied, setIsCopied] = useState(false);
 
-// 		const chunkSize = 200; // Size of each chunk (200 characters)\
-// 		const textRef = useRef(text); // Store the latest text in a ref
+	const end = node?.position?.end?.offset;
+	const start = node?.position?.start?.offset;
+	const table = markdown?.slice(start, end);
 
-// 		const chunkRef = useRef(''); // Ref for storing chunk
-// 		const currentIndexRef = useRef(0); // Ref for storing currentIndex
-// 		const timeIntervalRef = useRef(null);
-// 		// useEffect(() => {
-// 		// 	textRef.current = messageData;
-// 		// }, [messageData]);
-
-// 		// useEffect(() => {
-// 		// 	if (messageData?.messageId) {
-// 		// 		// setChunk(text);
-// 		// 		chunkRef.current = text;
-// 		// 		return;
-// 		// 	}
-// 		// 	setTimeout(() => {
-// 		// 		const interval = setInterval(() => {
-// 		// 			handleChunkRendering();
-// 		// 		}, 500);
-// 		// 		timeIntervalRef.current = interval;
-// 		// 	}, 50);
-// 		// }, []);
-
-// 		// const handleChunkRendering = () => {
-// 		// 	const currentText = textRef.current?.message;
-
-// 		// 	if (currentIndexRef.current >= currentText?.length && textRef.current?.messageId) {
-// 		// 		clearInterval(timeIntervalRef.current);
-// 		// 		return (timeIntervalRef.current = null);
-// 		// 	}
-
-// 		// 	// Slice the current chunk from the text
-// 		// 	let startIndex = currentIndexRef.current;
-// 		// 	let endIndex =
-// 		// 		currentIndexRef.current + chunkSize < currentText?.length
-// 		// 			? currentIndexRef.current + chunkSize
-// 		// 			: currentText?.length;
-// 		// 	let subChunk = currentText?.slice(startIndex, endIndex);
-
-// 		// 	chunkRef.current += subChunk;
-// 		// 	currentIndexRef.current = endIndex;
-// 		// 	setRenderTrigger((prev) => prev + 1);
-// 		// };
-
-// 		const handleUpdateId = (workflowTemplateId, moduleTemplateId) => {
-// 			updateStateValues({
-// 				documentPreviewIds: {
-// 					workflowTemplateId,
-// 					moduleTemplateId,
-// 				},
-// 			});
-// 		};
-
-// 		const handleCopyTextClick = useCallback((text) => {
-// 			const textToBeCopied = text?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')?.replace(/\\n/g, '\n');
-// 			navigator?.clipboard?.writeText(textToBeCopied).then(() => {
-// 				setIsCopiedToClipboard(true);
-// 				setTimeout(() => {
-// 					setIsCopiedToClipboard(false);
-// 				}, 1000);
-// 			});
-// 		}, []);
-
-// 		const handlePencilClick = useCallback(() => {
-// 			if (customePencilClickFunc) {
-// 				customePencilClickFunc();
-// 			}
-// 			setNoteContent(messageData);
-// 		}, [customePencilClickFunc, text, setNoteContent]);
-
-// 		const handleThumbsUp = useCallback(() => {
-// 			handleRatingClick && handleRatingClick('thumbsUp', messageId);
-// 		}, [handleRatingClick, messageId]);
-
-// 		const handleThumbsDown = useCallback(() => {
-// 			handleRatingClick && handleRatingClick('thumbsDown', messageId);
-// 		}, [handleRatingClick, messageId]);
-
-// 		const handlePromptClick = (prompt) => {
-// 			updateStateValues({ activePromptForChat: prompt });
-// 		};
-
-// 		return (
-// 			<div className="typing-effect-container">
-// 				{messageData?.workflow_template_id &&
-// 					(showCanvas && !isNoteCanvas ? (
-// 						<FormModel
-// 							workflowTemplateId={messageData?.workflow_template_id}
-// 							moduleTemplateId={messageData?.module_template_id}
-// 							ByDefaultExpanded={true}
-// 							handleSendWebsocketMessage={handleSendWebsocketMessage}
-// 							latestStreamMesage={latestStreamMesage}
-// 							lastQuery={lastQuery}
-// 							toggleLatestStreamMessage={toggleLatestStreamMessage}
-// 							messageId={messageData?.messageId}
-// 							handleViewDocument={handleViewDocument}
-// 							showViewDocument={showViewDocument}
-// 							isLastMessage={isLastMessage}
-// 							messageData={messageData}
-// 						/>
-// 					) : (
-// 						<div
-// 							className="view-document-container"
-// 							onClick={() =>
-// 								handleUpdateId(
-// 									messageData?.workflow_template_id,
-// 									messageData?.module_template_id,
-// 								)
-// 							}
-// 						>
-// 							<ViewDocumentIcon />
-// 							<p>View Document</p>
-// 						</div>
-// 					))}
-// 				{messageData?.moduleType === 'ai_suggestion_report' ? (
-// 					<AISuggestionsReportAiComponent data={messageData?.data} />
-// 				) : (
-// 					<Markdown citations={citations}>
-// 						{text}
-// 						{/* {newText?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')?.replace(/\\n/g, '\n')} */}
-// 						{/* {chunkRef?.current?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')?.replace(/\\n/g, '\n')} */}
-// 					</Markdown>
-// 				)}
-
-// 				{messageData?.messageId && (
-// 					<div
-// 						className={`hover-actions-container`}
-// 						style={{
-// 							visibility: isNewMessage ? 'visible' : '',
-// 						}}
-// 					>
-// 						<div className="left-container">
-// 							<div className="icon-container">
-// 								<Tooltip
-// 									placement="bottom"
-// 									arrow={false}
-// 									trigger={'hover'}
-// 									title={'Like'}
-// 								>
-// 									<ThumpsUpSvg
-// 										fill={rating === 'thumbsUp' ? '#f2f2f3' : 'none'}
-// 										onClick={handleThumbsUp}
-// 									/>
-// 								</Tooltip>
-// 							</div>
-
-// 							<div className="icon-container">
-// 								<Tooltip
-// 									placement="bottom"
-// 									arrow={false}
-// 									trigger={'hover'}
-// 									title={'Dislike'}
-// 								>
-// 									<ThumpsDownSvg
-// 										fill={rating === 'thumbsDown' ? '#f2f2f3' : 'none'}
-// 										onClick={handleThumbsDown}
-// 									/>
-// 								</Tooltip>
-// 							</div>
-// 						</div>
-
-// 						{/* <div className="icon-container">
-// 							<Tooltip
-// 								placement="bottom"
-// 								arrow={false}
-// 								trigger={'hover'}
-// 								title={'Audio'}
-// 							>
-// 								<HeadPhoneSvg />
-// 							</Tooltip>
-// 						</div> */}
-
-// 						<div className="right-container">
-// 							<div className="icon-container">
-// 								<Tooltip
-// 									placement="bottom"
-// 									arrow={false}
-// 									trigger={'hover'}
-// 									title={'Edit'}
-// 								>
-// 									<PencilSparkleIcon onClick={handlePencilClick} />
-// 								</Tooltip>
-// 							</div>
-
-// 							<div className="icon-container">
-// 								<Tooltip
-// 									placement="bottom"
-// 									arrow={false}
-// 									trigger={'hover'}
-// 									title={isCopiedToClipboard ? 'Copied' : 'Copy'}
-// 								>
-// 									{isCopiedToClipboard ? (
-// 										<TickSvg />
-// 									) : (
-// 										<CopyIcon onClick={() => handleCopyTextClick(text)} />
-// 									)}
-// 								</Tooltip>
-// 							</div>
-// 						</div>
-// 					</div>
-// 				)}
-
-// 				{typeof messageData?.['follow_up_query'] !== 'string' &&
-// 					messageData?.stream_end &&
-// 					(messageData?.['follow_up_query'] || [])?.length > 0 && (
-// 						<div className="suggested-prompts">
-// 							<div className="title-text">Suggested Prompts</div>
-// 							<div className="prompts-container">
-// 								{(messageData?.['follow_up_query'] || [])?.map((query) => {
-// 									return (
-// 										<div
-// 											className="prompt-container"
-// 											onClick={() => handlePromptClick(query)}
-// 										>
-// 											<div className="logo-container">
-// 												<ArrowRightSvg />
-// 											</div>
-// 											<div className="prompt">{query}</div>
-// 										</div>
-// 									);
-// 								})}
-// 							</div>
-// 						</div>
-// 					)}
-// 			</div>
-// 		);
-// 	},
-// 	(prevProps, nextProps) => {
-// 		// Custom comparison function for TypingEffect
-// 		return (
-// 			prevProps.text === nextProps.text &&
-// 			prevProps.messageId === nextProps.messageId &&
-// 			prevProps.rating === nextProps.rating &&
-// 			JSON.stringify(prevProps.citations) === JSON.stringify(nextProps.citations) &&
-// 			prevProps.messageData?.messageId === nextProps.messageData?.messageId &&
-// 			prevProps.isNewMessage === nextProps.isNewMessage &&
-// 			prevProps.lastQuery === nextProps.lastQuery &&
-// 			prevProps.latestStreamMesage === nextProps.latestStreamMesage
-// 		);
-// 	},
-// );
+	const handleCopyTable = useCallback((table) => {
+		navigator?.clipboard?.writeText(table);
+		setIsCopied(true);
+		setTimeout(() => {
+			setIsCopied(false);
+		}, 1000);
+	}, []);
+	return (
+		<div className="table-wrapper">
+			<button className="copy-table-btn" onClick={() => handleCopyTable(table || '')}>
+				<Tooltip title={isCopied ? 'Copied Table' : 'Copy Table'} placement="bottom">
+					{isCopied ? <TickSvg /> : <CopyIcon />}
+				</Tooltip>
+			</button>
+			<div className="table-container">
+				<table className="table">{children}</table>
+			</div>
+		</div>
+	);
+});
 
 export const UserMessageRenderer = memo(({ messageData, activeUserMessageIndex }) => {
 	const {

@@ -4,25 +4,17 @@ import Context from '../../../../context/context';
 import '../../../../assets/scss/chat/citationsTooltip.scss';
 import { Markdown } from '../../../../helpers/markdownHelper';
 import { getFaviconUrl, getWebsiteName } from '../../../../helpers';
-import { ReactComponent as TextSvg } from '../../../../assets/svg/ai_agents/text.svg';
-import { ReactComponent as DocxSvg } from '../../../../assets/svg/ai_agents/docx.svg';
-import { ReactComponent as JsonSvg } from '../../../../assets/svg/ai_agents/json.svg';
-import { ReactComponent as PdfSvg } from '../../../../assets/svg/ai_agents/pdf.svg';
-import { ReactComponent as JpgSvg } from '../../../../assets/svg/ai_agents/jpg.svg';
-import { ReactComponent as PngSvg } from '../../../../assets/svg/ai_agents/png.svg';
-
-const fileTypeIcons = {
-	txt: <TextSvg />,
-	docx: <DocxSvg />,
-	json: <JsonSvg />,
-	pdf: <PdfSvg />,
-	jpg: <JpgSvg />,
-	png: <PngSvg />,
-};
+import { fileTypeIcons } from '../../../../helpers';
 
 export const CitationsTooltip = memo(({ citationId, citations, placement = 'topLeft' }) => {
 	const {
-		templates: { getCitationData, currentSessionId },
+		templates: {
+			getCitationData,
+			currentSessionId,
+			updateCitationChunks,
+			citationChunks,
+			updateStateValues,
+		},
 	} = useContext(Context);
 	const [citationData, setCitationData] = useState(null);
 	const [citationInfo, setCitationInfo] = useState({});
@@ -36,7 +28,7 @@ export const CitationsTooltip = memo(({ citationId, citations, placement = 'topL
 			setCitationInfo({ name, type, link: citation?.[type], snippet, source, fileType });
 			fetchCitationData(citation);
 		}
-	}, [citations, citationId]);
+	}, [citationId]);
 
 	useEffect(() => {
 		if (citationData) {
@@ -54,8 +46,18 @@ export const CitationsTooltip = memo(({ citationId, citations, placement = 'topL
 
 	const fetchCitationData = async (citation) => {
 		if (citation?.source) {
-			const response = await getCitationData(currentSessionId, citation?.source);
-			setCitationData(response);
+			if (citationChunks?.[citation?.source]) {
+				setCitationData(citationChunks?.[citation?.source]);
+			} else {
+				const response = await getCitationData(currentSessionId, citation?.source);
+				const payload = { [citation?.source]: response };
+				setCitationData(response);
+				updateCitationChunks(payload);
+
+				if (Object?.keys(citationChunks)?.length >= 150) {
+					updateStateValues({ citationChunks: {} });
+				}
+			}
 		}
 	};
 
@@ -65,7 +67,9 @@ export const CitationsTooltip = memo(({ citationId, citations, placement = 'topL
 		if (citationInfo?.snippet && citationInfo.snippet?.trim() !== '') {
 			updatedText = updatedText?.replace(
 				citationInfo?.snippet,
-				`<span id="citation-snippet" style="background-color: rgb(178, 161, 232); color : black; padding: 1px 3px; box-decoration-break: clone;">${citationInfo.snippet}</span>`,
+				`<span id="citation-snippet" style="background-color: var(--primary-font); color : var(--background-color); padding: 1px 3px; box-decoration-break: clone;">${
+					citationInfo?.snippet || ''
+				}</span>`,
 			);
 		}
 		return updatedText;
@@ -79,11 +83,11 @@ export const CitationsTooltip = memo(({ citationId, citations, placement = 'topL
 			placement={placement}
 			rootClassName="citation-tooltip-wrapper"
 			title={
-				<a
-					href={citationInfo?.link}
-					target="_blank"
-					rel="noreferrer"
+				<div
 					className="citation-tooltip-container"
+					onClick={() => {
+						window.open(citationInfo?.link, '_blank');
+					}}
 				>
 					{(processedCitationData?.length > 0 || citationInfo?.snippet?.length > 0) && (
 						<div className="tooltip-content">
@@ -111,11 +115,11 @@ export const CitationsTooltip = memo(({ citationId, citations, placement = 'topL
 								</div>
 							)}
 							<div className="citation-link-text">
-								<div className="citation-link">{citationInfo?.link}</div>
+								<div className="citation-link">{citationInfo?.name || ''}</div>
 							</div>
 						</div>
 					</div>
-				</a>
+				</div>
 			}
 		>
 			<span className="citation-tooltip-header">{number}</span>

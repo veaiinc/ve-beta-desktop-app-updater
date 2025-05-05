@@ -1,14 +1,30 @@
 .renew-banner-container {
 	width: 100vw;
-	height: 41px;
-	z-index: 1000;
+	z-index: 9999;
+
 	.renew-banner {
 		display: flex;
 		width: 100vw;
-		padding: 0px 24px;
+		padding: 10px 24px;
 		justify-content: center;
 		align-items: center;
 		background: var(--card, #e6ff4d);
+		border-bottom: 3px solid transparent;
+		border-image: linear-gradient(
+			to right,
+			var(--primary-button, #cfff48),
+			var(--info, #5089f9)
+		);
+		border-image-slice: 1;
+		border-width: 0 0 3px 0;
+		border-style: solid;
+
+		gap: 16px;
+
+		.renew-banner-icon {
+			stroke: var(--primary-button);
+		}
+
 		.renew-banner-title {
 			color: var(--primary-font);
 			font-family: var(--primary-font-family);
@@ -16,23 +32,26 @@
 			font-style: normal;
 			font-weight: 600;
 			line-height: normal;
+			text-align: center;
 		}
 		.renew-banner-button {
-			display: flex;
-			padding: 12px 16px;
-			justify-content: center;
-			align-items: center;
-			gap: 12px;
 			border-radius: 100px;
-			// background: var(--primary-font, #f2f2f3);
-			background: transparent;
-			color: var(--primary-button);
-			font-family: var(--primary-font-family);
+			border: 1px solid var(--stroke, #2c2d2e);
+			background: var(--popup, #202123);
+			font-family: Inter;
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 500;
 			line-height: normal;
 			border: none;
+
+			display: flex;
+			height: 28px;
+			padding: 6px 18px;
+			justify-content: center;
+			align-items: center;
+			gap: 6px;
+			color: var(--primary-button);
 			cursor: pointer;
 		}
 	}

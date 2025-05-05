@@ -11,6 +11,7 @@ import {
 	contactMetadataQuery,
 	updateContactViewMutation,
 	deleteContactViewMutation,
+	getClientsListQuery,
 } from './graphQlFunctions';
 import { Actions } from './actions';
 import { Reducer } from './reducer';
@@ -262,7 +263,7 @@ export const ContactsState = () => {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
 			const response = await service.query(
-				getClientsQuery,
+				getClientsListQuery,
 				payload,
 				workspaceId,
 				usertoken,
@@ -270,10 +271,9 @@ export const ContactsState = () => {
 			);
 
 			if (response?.[0]) {
-				const responseData = response?.[1]?.data?.clients;
-
+				const responseData = response?.[1]?.data?.clientsList;
 				const newClients =
-					payload?.page === 1
+					payload?.filters?.page === 1
 						? responseData
 						: {
 								...responseData,

@@ -4,26 +4,44 @@
 	padding-bottom: 12px;
 	flex-direction: column;
 	align-items: flex-start;
-	gap: 12px;
+	gap: 5px;
+	border: 1px solid var(--stroke);
 
 	.person-dropdown-menu-header {
 		display: flex;
 		padding: 12px;
-		align-items: center;
-		align-content: center;
-		gap: 4px;
+		flex-direction: column;
+		gap: 6px;
 		align-self: stretch;
 		flex-wrap: wrap;
 		border-radius: 8px 8px 0px 0px;
 		background: var(--card);
+		border-bottom: 1px solid var(--stroke);
 		&-title {
 			color: var(--primary-font);
-			text-align: center;
 			font-family: var(--primary-font-family);
 			font-size: 12px;
 			font-style: normal;
 			font-weight: 500;
 			line-height: normal;
+		}
+
+		&-search {
+			input {
+				width: 100%;
+				height: 24px;
+				border-radius: 8px;
+				border: 1px solid var(--stroke);
+				background-color: transparent;
+				text-indent: 5px;
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
+				font-size: 12px;
+
+				&::placeholder {
+					color: var(--secondary-font);
+				}
+			}
 		}
 	}
 
@@ -184,6 +202,7 @@
 		font-style: normal;
 		font-weight: 500;
 		line-height: normal;
+		margin-left: auto;
 	}
 
 	&.disabled {
@@ -304,7 +323,7 @@
 
 .person-tooltip-wrapper {
 	width: fit-content;
-	z-index: 50003;
+	z-index: 50;
 	.person-tooltip-container {
 		border-radius: 10px;
 		display: inline-flex;

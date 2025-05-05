@@ -3,8 +3,10 @@ import '../../../../assets/scss/chat/chatComponents/deepResearchChainOfThought.s
 import { Markdown } from '../../../../helpers/markdownHelper';
 import { getFaviconUrl, getWebsiteName } from '../../../../helpers';
 import { ReactComponent as HashTagSvg } from '../../../../assets/svg/ai_agents/hash-tag.svg';
+import { ReactComponent as CurveSvg } from '../../../../assets/svg/ai_agents/curve.svg';
 import WebSvg from '../../../../assets/svg/ai_agents/webSvg';
 import BookSvg from '../../../../assets/svg/ai_agents/bookSvg';
+import { fileTypeIcons } from '../../../../helpers';
 
 const DeepResearchChainOfThought = ({ data }) => {
 	return (
@@ -56,31 +58,53 @@ const DeepResearchChainOfThought = ({ data }) => {
 											<div className="text-container">Sources</div>
 											<div className="sources">
 												{item?.sources?.map?.((source, index) => {
+													const { type, name } = source;
+													if (name?.length === 0) return null;
+
 													return (
 														<div
 															className="source"
 															key={index}
 															onClick={() => {
-																window?.open(source, '_blank');
+																window?.open(
+																	source?.[type],
+																	'_blank',
+																);
 															}}
 														>
 															<div className="icon">
-																{getFaviconUrl(source) ? (
-																	<img
-																		src={getFaviconUrl(source)}
-																		alt="favicon"
-																		className="favicon-image"
-																	/>
+																{type === 'url' ? (
+																	getFaviconUrl(name) ? (
+																		<img
+																			src={getFaviconUrl(
+																				name,
+																			)}
+																			alt="favicon"
+																			className="favicon-image"
+																		/>
+																	) : (
+																		<div className="company-icon">
+																			{getWebsiteName(
+																				name,
+																			)?.charAt(0)}
+																		</div>
+																	)
 																) : (
 																	<div className="company-icon">
-																		{getWebsiteName(
-																			source,
-																		)?.charAt(0)}
+																		{
+																			fileTypeIcons[
+																				name?.match(
+																					/\.(\w+)$/,
+																				)?.[1]
+																			]
+																		}
 																	</div>
 																)}
 															</div>
 															<div className="website-name">
-																{getWebsiteName(source)}
+																{type === 'url'
+																	? getWebsiteName(name)
+																	: name}
 															</div>
 														</div>
 													);
@@ -96,14 +120,14 @@ const DeepResearchChainOfThought = ({ data }) => {
 			</div>
 			<div className="sections">
 				{data?.sections?.map((sec, index) => {
-					const { sub_queries, section } = sec;
+					const { sub_queries, section, compiling } = sec;
 					return (
 						<div className="section" key={index}>
 							<div className="logo-container">
 								<div className="indicator" />
 							</div>
 							<div className="section-content">
-								<div className="section-title">{section || ''}</div>
+								<div className={`section-title`}>{section || ''}</div>
 								<div className="sub-queries">
 									{sub_queries?.map((subQuery, idx) => {
 										const { sub_query, readings } = subQuery || {};
@@ -154,7 +178,12 @@ const DeepResearchChainOfThought = ({ data }) => {
 																					</div>
 																				</div>
 																			) : (
-																				''
+																				<div className="search">
+																					<div className="search-text">
+																						Searched For
+																						:
+																					</div>
+																				</div>
 																			)}
 																		</div>
 
@@ -162,11 +191,21 @@ const DeepResearchChainOfThought = ({ data }) => {
 																			{queries?.map(
 																				(query, idx) => (
 																					<div
+																						className="query-container"
 																						key={idx}
-																						className="query"
 																					>
-																						{query ||
-																							''}
+																						<div className="query-link">
+																							<CurveSvg />
+																						</div>
+																						<div
+																							key={
+																								idx
+																							}
+																							className="query"
+																						>
+																							{query ||
+																								''}
+																						</div>
 																					</div>
 																				),
 																			)}
@@ -182,6 +221,15 @@ const DeepResearchChainOfThought = ({ data }) => {
 																		<div className="sources">
 																			{sources?.map?.(
 																				(source, index) => {
+																					const {
+																						type,
+																						name,
+																					} = source;
+																					if (
+																						name?.length ===
+																						0
+																					)
+																						return null;
 																					return (
 																						<div
 																							className="source"
@@ -190,36 +238,54 @@ const DeepResearchChainOfThought = ({ data }) => {
 																							}
 																							onClick={() => {
 																								window?.open(
-																									source,
+																									source?.[
+																										type
+																									],
 																									'_blank',
 																								);
 																							}}
 																						>
 																							<div className="icon">
-																								{getFaviconUrl(
-																									source,
-																								) ? (
-																									<img
-																										src={getFaviconUrl(
-																											source,
-																										)}
-																										alt="favicon"
-																										className="favicon-image"
-																									/>
+																								{type ===
+																								'url' ? (
+																									getFaviconUrl(
+																										name,
+																									) ? (
+																										<img
+																											src={getFaviconUrl(
+																												name,
+																											)}
+																											alt="favicon"
+																											className="favicon-image"
+																										/>
+																									) : (
+																										<div className="company-icon">
+																											{getWebsiteName(
+																												name,
+																											)?.charAt(
+																												0,
+																											)}
+																										</div>
+																									)
 																								) : (
 																									<div className="company-icon">
-																										{getWebsiteName(
-																											source,
-																										)?.charAt(
-																											0,
-																										)}
+																										{
+																											fileTypeIcons[
+																												name?.match(
+																													/\.(\w+)$/,
+																												)?.[1]
+																											]
+																										}
 																									</div>
 																								)}
 																							</div>
 																							<div className="website-name">
-																								{getWebsiteName(
-																									source,
-																								)}
+																								{type ===
+																								'url'
+																									? getWebsiteName(
+																											name,
+																									  )
+																									: name}
 																							</div>
 																						</div>
 																					);

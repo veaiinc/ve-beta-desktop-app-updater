@@ -178,7 +178,6 @@ const BoardItem = ({
 													rowTypes={rowTypes}
 													properties={properties}
 													handleUpdate={handleUpdate}
-													// onClick={() => handleRowClick({ ...item })}
 												/>
 											</div>
 										)}

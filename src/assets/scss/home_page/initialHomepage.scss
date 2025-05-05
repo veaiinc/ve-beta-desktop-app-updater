@@ -95,7 +95,6 @@
 				border-radius: 100px;
 				background: var(--card, #202123);
 				border: 1px solid var(--stroke, #202123);
-
 				cursor: pointer;
 				box-sizing: border-box;
 				.option-label {
@@ -109,6 +108,10 @@
 				&.active {
 					border: 1px solid var(--primary-button, #f2f2f3);
 				}
+				&:hover {
+					background: var(--card, #202123);
+					border: 1px solid var(--primary-button, #f2f2f3);
+				}
 			}
 		}
 	}
@@ -116,7 +119,7 @@
 	.home-page-container-content {
 		width: 100%;
 		padding-top: 30px;
-		overflow: hidden;
+		overflow: auto;
 	}
 }
 

@@ -1,11 +1,11 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { ReactComponent as ClockSvg } from '../../../assets/svg/activity/clock.svg';
-import { ReactComponent as PieSvg } from '../../../assets/svg/tasks/pieHollow.svg';
-import { ReactComponent as PrioritySvg } from '../../../assets/svg/tasks/roundChevronRight.svg';
+import { ReactComponent as PieSvg } from '../../../assets/svg/tasks/ChartDonut.svg';
+import { ReactComponent as PrioritySvg } from '../../../assets/svg/tasks/ChartBar.svg';
 import { ReactComponent as WorkflowSvg } from '../../../assets/svg/tasks/workflow.svg';
 import { ReactComponent as PersonSvg } from '../../../assets/svg/tasks/person.svg';
-import { ReactComponent as CalendarSvg } from '../../../assets/svg/tasks/calendar.svg';
+import { ReactComponent as CalendarSvg } from '../../../assets/svg/tasks/CalendarBlank.svg';
 import { ReactComponent as textSvg } from '../../../assets/svg/tasks/letterA.svg';
 import Context from '../../../context/context';
 import { message } from '../../components/globalComponents/CustomToast';
@@ -31,9 +31,10 @@ import ParentTaskComponent from '../../components/tasks/listView/ParentTaskCompo
 import ChildTaskProgress from '../../components/tasks/listView/ChildTaskProgress';
 import LinkText from '../../components/tasks/listView/LinkText';
 import ChildTaskComponent from '../../components/tasks/listView/ChildTaskComponent';
-import QuickActions from '../../components/globalComponents/QuickActions';
 import PersonMultiSelect from '../../components/tasks/listView/PersonMultiSelect';
 import { useSearchParams } from 'react-router-dom';
+import Taskwidget from '../../components/tasks/Taskwidget';
+import ChatLeftBarComponent from '../../components/ChatLeftBarComponent';
 
 const defaultPreference = {
 	taskSlNo: { show: false, order: 1 },
@@ -106,9 +107,13 @@ const Tasks = () => {
 			updateTaskPreferences,
 			taskPreference,
 			getListTaskWithGroup,
+			updateSelectedView,
+			updateSideBarData,
+			sideBarData,
 		},
 		companyInfo: { getTeamMembers, tenantsUserList },
-		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
+		subscriptionInfo: { validateExpiryData, updateSubscriptionState, renewBanner },
+		contacts: { getClientsForTask, clientListForTask },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -196,14 +201,13 @@ const Tasks = () => {
 			assignedTo: {
 				type: 'person',
 				name: 'Assigned To',
-				Icon: PersonSvg,
 				props: {
 					options: info?.tenantUsers || [],
 					multiSelect: true,
 					parseValue: true,
 				},
 			},
-			dueDate: { type: 'date', name: 'Due Date', Icon: ClockSvg, props: {} },
+			dueDate: { type: 'date', name: 'Due Date', Icon: CalendarSvg, props: {} },
 			assignedBy: {
 				type: 'person',
 				name: 'Assigned By',
@@ -266,11 +270,17 @@ const Tasks = () => {
 	}, [info?.filters, info?.searchValue, info?.sort, info?.group]);
 
 	useEffect(() => {
+		if (sideBarData) {
+			handleRowClick(sideBarData, false);
+		}
+	}, [sideBarData]);
+
+	useEffect(() => {
 		if (!tenantsUserList) {
 			getTeamMembers();
 		} else {
 			const formattedUsers = tenantsUserList?.map(({ firstName, lastName, _id }) => ({
-				label: `${firstName} ${lastName}`,
+				label: `${firstName} ${lastName ? lastName : ''}`,
 				value: _id,
 			}));
 
@@ -402,6 +412,13 @@ const Tasks = () => {
 			}
 		}
 	}, [query, info?.listItems]);
+
+	useEffect(() => {
+		if (!clientListForTask) {
+			getClientsForTask({ filters: { page: 1, limit: 20 } });
+		}
+	}, [clientListForTask]);
+
 	const fetchListItems = useCallback(
 		(page = 1) => {
 			if (info?.group) {
@@ -877,6 +894,7 @@ const Tasks = () => {
 			updateTaskInfo({ updated: false });
 		}
 		updateTaskInfo({ sidebarIsOpen: false, selectedSubTask: null });
+		updateSideBarData(null);
 	}, [info?.updated]);
 
 	const updateView = useCallback(
@@ -898,92 +916,97 @@ const Tasks = () => {
 		[deleteTaskView, info?.taskMetadata?._id],
 	);
 
+	const handleActiveTabChange = useCallback((payload) => {
+		updateSelectedView(payload);
+	}, []);
+
 	return (
-		<>
-			<div className="task-header-container">
-				<div className="header-text">
-					<span className="lineOne">Tasks</span>
-					<span className="lineTwo">You Created</span>
+		<div className="tasks-page-container">
+			<ChatLeftBarComponent>
+				<div className="tasks-left-container">
+					<Taskwidget />
 				</div>
-				<div className="quick-actions-btn">
-					<QuickActions suggestedOptions={suggestedOptions} />
-				</div>
+			</ChatLeftBarComponent>
+			<div className="tasks-right-container">
+				<Task
+					responseMetadata={responseMetadata}
+					handleAddButtonOnClick={handleAddButtonOnClick}
+					handleRowClick={handleRowClick}
+					colors={colors}
+					updateTaskInfo={updateTaskInfo}
+					rowTypes={rowTypes}
+					data={info?.listItems}
+					loading={info?.loadingSkeleton}
+					handleUpdate={updatePropertyValue}
+					properties={info?.properties}
+					taskPreferences={info?.taskPreferences}
+					searchValue={info?.searchValue}
+					infinityLoading={info?.infinityLoading}
+					hasMore={info?.hasMore}
+					error={info?.error}
+					fetchMoreData={fetchMoreData}
+					blockTitle={'Tasks'}
+					createButtonText={'Create Task'}
+					prefix={info?.taskMetadata?.prefix}
+					views={info?.taskMetadata?.views}
+					activeTab={info?.taskMetadata?.selectedTaskView}
+					updateView={updateView}
+					deleteView={deleteView}
+					updateActiveTab={handleActiveTabChange}
+				/>
+				<CreateTaskPopup
+					isOpen={info?.isCreateModalOpen}
+					closeModal={handleCloseCreateModal}
+					addNewTask={addNewTask}
+					tenantUsers={info?.tenantUsers}
+					clients={info?.clients}
+					isSubTask={info?.isCreatingSubtask}
+					responseMetadata={responseMetadata}
+					colors={colors}
+					fetchMoreData={fetchMoreData}
+					hasMore={info?.hasMore}
+					error={info?.error}
+				/>
+				<ListViewSidebar
+					selectedRow={info?.selectedRow || sideBarData}
+					sidebarIsOpen={info?.sidebarIsOpen}
+					closeSidebar={handleCloseSidebar}
+					handleUpdate={updatePropertyValue}
+					deleteTask={deleteTask}
+					rowTypes={rowTypes}
+					responseMetadata={responseMetadata}
+					properties={info?.properties}
+					colors={colors}
+					toggleSidebarExpand={() =>
+						updateTaskInfo({ isSidebarExpanded: !info?.isSidebarExpanded })
+					}
+					isSidebarExpanded={info?.isSidebarExpanded}
+					headerText={
+						`${info?.taskMetadata?.prefix ? info?.taskMetadata?.prefix + '-' : ''}` +
+						(info?.selectedRow?.taskSlNo || '')
+					}
+					breadCrumbs={info?.breadCrumbs}
+					handleBreadCrumbsClick={handleBreadCrumbsClick}
+					sidebarChildren={
+						info?.selectedRow ? (
+							<ChildTaskComponent
+								parentTaskId={info?.selectedRow?._id}
+								childTasks={info?.selectedRow?.childTasks}
+								completedStatus={info?.taskMetadata?.completedGroupLabels}
+								rowTypes={rowTypes}
+								responseMetadata={responseMetadata}
+								colors={colors}
+								properties={info?.properties}
+								onAddButtonClick={handleCreateSubTaskClick}
+								handleUpdate={(...args) => updatePropertyValue(...args, true)}
+								handleRowClick={handleSubTaskClick}
+							/>
+						) : null
+					}
+					renewBanner={renewBanner}
+				/>
 			</div>
-			<Task
-				responseMetadata={responseMetadata}
-				handleAddButtonOnClick={handleAddButtonOnClick}
-				handleRowClick={handleRowClick}
-				colors={colors}
-				updateTaskInfo={updateTaskInfo}
-				rowTypes={rowTypes}
-				data={info?.listItems}
-				loading={info?.loadingSkeleton}
-				handleUpdate={updatePropertyValue}
-				properties={info?.properties}
-				taskPreferences={info?.taskPreferences}
-				searchValue={info?.searchValue}
-				infinityLoading={info?.infinityLoading}
-				hasMore={info?.hasMore}
-				error={info?.error}
-				fetchMoreData={fetchMoreData}
-				blockTitle={'Tasks'}
-				createButtonText={'Create Task'}
-				prefix={info?.taskMetadata?.prefix}
-				views={info?.taskMetadata?.views}
-				updateView={updateView}
-				deleteView={deleteView}
-			/>
-			<CreateTaskPopup
-				isOpen={info?.isCreateModalOpen}
-				closeModal={handleCloseCreateModal}
-				addNewTask={addNewTask}
-				tenantUsers={info?.tenantUsers}
-				clients={info?.clients}
-				isSubTask={info?.isCreatingSubtask}
-				responseMetadata={responseMetadata}
-				colors={colors}
-				fetchMoreData={fetchMoreData}
-				hasMore={info?.hasMore}
-				error={info?.error}
-			/>
-			<ListViewSidebar
-				selectedRow={info?.selectedRow}
-				sidebarIsOpen={info?.sidebarIsOpen}
-				closeSidebar={handleCloseSidebar}
-				handleUpdate={updatePropertyValue}
-				deleteTask={deleteTask}
-				rowTypes={rowTypes}
-				responseMetadata={responseMetadata}
-				properties={info?.properties}
-				colors={colors}
-				toggleSidebarExpand={() =>
-					updateTaskInfo({ isSidebarExpanded: !info?.isSidebarExpanded })
-				}
-				isSidebarExpanded={info?.isSidebarExpanded}
-				headerText={
-					`${info?.taskMetadata?.prefix ? info?.taskMetadata?.prefix + '-' : ''}` +
-					(info?.selectedRow?.taskSlNo || '')
-				}
-				breadCrumbs={info?.breadCrumbs}
-				handleBreadCrumbsClick={handleBreadCrumbsClick}
-				sidebarChildren={
-					info?.selectedRow ? (
-						<ChildTaskComponent
-							parentTaskId={info?.selectedRow?._id}
-							childTasks={info?.selectedRow?.childTasks}
-							completedStatus={info?.taskMetadata?.completedGroupLabels}
-							rowTypes={rowTypes}
-							responseMetadata={responseMetadata}
-							colors={colors}
-							properties={info?.properties}
-							onAddButtonClick={handleCreateSubTaskClick}
-							handleUpdate={(...args) => updatePropertyValue(...args, true)}
-							handleRowClick={handleSubTaskClick}
-						/>
-					) : null
-				}
-			/>
-		</>
+		</div>
 	);
 };
 

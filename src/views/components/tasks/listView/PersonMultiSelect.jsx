@@ -1,8 +1,8 @@
-import React, { memo, useState, useEffect, useContext } from 'react';
-import InfiniteScroll from 'react-infinite-scroll-component';
+import React, { memo, useState, useEffect, useContext, useRef } from 'react';
 import '../../../../assets/scss/tasks/personMultiSelect.scss';
 import { Tooltip } from 'antd';
 import Context from '../../../../context/context';
+import InfiniteScroll from '../../globalComponents/InfiniteScroll';
 
 const PersonMultiSelect = ({
 	value = [],
@@ -12,6 +12,8 @@ const PersonMultiSelect = ({
 	disabled = false,
 	showLabel = false,
 }) => {
+	const searchDebounceRef = useRef(null);
+
 	const {
 		contacts: { getClientsForTask, clientListForTask },
 	} = useContext(Context);
@@ -22,6 +24,7 @@ const PersonMultiSelect = ({
 		hasMore: true,
 		currentPage: 1,
 		selected: [],
+		search: '',
 	});
 
 	useEffect(() => {
@@ -39,24 +42,34 @@ const PersonMultiSelect = ({
 					};
 				});
 			}
-		} else {
-			getClientsForTask({ clientFilterInput: { page: 1, limit: 20 } });
 		}
 	}, [clientListForTask]);
 
 	useEffect(() => {
 		setInfo((prev) => ({ ...prev, selected: value }));
-	}, []);
+	}, [value]);
+
+	useEffect(() => {
+		if (!info?.open && info?.search?.trim()) {
+			setInfo((prevInfo) => ({ ...prevInfo, search: '' }));
+			handleFetchData(1, '');
+		}
+	}, [info?.open]);
+
+	const handleFetchData = (page = 1, search = info?.search) => {
+		getClientsForTask({
+			filters: {
+				page,
+				limit: 20,
+				name: search,
+			},
+		});
+	};
 
 	const fetchMoreClients = () => {
 		if (info?.hasMore) {
 			const nextPage = info.currentPage + 1;
-			getClientsForTask({
-				clientFilterInput: {
-					page: nextPage,
-					limit: 20,
-				},
-			});
+			handleFetchData(nextPage, info?.search);
 		}
 	};
 
@@ -72,6 +85,21 @@ const PersonMultiSelect = ({
 
 		onOptionClick?.(newSelected);
 		setInfo((prev) => ({ ...prev, selected: newSelected }));
+	};
+
+	const debounceFetchData = (search, delay = 500) => {
+		if (searchDebounceRef.current) {
+			clearTimeout(searchDebounceRef.current);
+		}
+
+		searchDebounceRef.current = setTimeout(() => {
+			handleFetchData(1, search);
+		}, delay);
+	};
+
+	const handleSearchChange = (search) => {
+		setInfo((prevInfo) => ({ ...prevInfo, search }));
+		debounceFetchData(search);
 	};
 
 	return (
@@ -92,24 +120,28 @@ const PersonMultiSelect = ({
 								fetchMoreData={fetchMoreClients}
 								selectedOptions={info?.selected}
 								onOptionClick={handleOptionClick}
+								handleSearchChange={handleSearchChange}
+								search={info?.search}
 							/>
 						) : null
 					}
 					open={info.open}
 					onOpenChange={(open) => {
-						setInfo((prev) => ({ ...prev, open: !prev.open }));
+						if (!open) {
+							setInfo((prev) => ({ ...prev, open: false }));
+						}
 					}}
 					placement="bottom"
 					trigger="click"
 					arrow={false}
 					color="transparent"
-					overlayStyle={{ minWidth: 'fit-content', zIndex: 50003 }}
+					overlayStyle={{ minWidth: 'fit-content' }}
 				>
 					<div
 						className="person-multi-select-selected"
 						onClick={(e) => {
 							e?.stopPropagation();
-							setInfo((prev) => ({ ...prev, open: true }));
+							setInfo((prev) => ({ ...prev, open: !info?.open }));
 						}}
 					>
 						{info?.selected?.length > 0 ? (
@@ -167,53 +199,74 @@ const PersonMultiSelect = ({
 export default memo(PersonMultiSelect);
 
 const PersonDropDown = memo(
-	({ options = [], selectedOptions = [], onOptionClick, title, hasMore, fetchMoreData }) => {
+	({
+		options = [],
+		selectedOptions = [],
+		onOptionClick,
+		title,
+		hasMore,
+		fetchMoreData,
+		handleSearchChange,
+		search,
+	}) => {
 		return (
-			<div className="person-drop-down-container">
+			<div className="person-drop-down-container" onClick={(e) => e?.stopPropagation()}>
 				<div className="person-drop-down-header">
 					<div className="person-drop-down-title">{title}</div>
+					<div className="person-dropdown-menu-header-search">
+						<input
+							type="text"
+							placeholder="Search..."
+							value={search}
+							onChange={(e) => handleSearchChange(e?.target?.value)}
+						/>
+					</div>
 				</div>
 				<InfiniteScroll
 					dataLength={options?.length || 0}
 					next={fetchMoreData}
 					hasMore={hasMore}
 					loader={<div className="loading">Loading...</div>}
-					height={300}
+					maxHeight={300}
 					scrollThreshold={0.8}
 					className="person-drop-down-body"
 				>
 					<div className="person-drop-down-body-list">
-						{options?.map((option) => {
-							const isSelected = selectedOptions.some(
-								(item) => item._id === option._id,
-							);
-							return (
-								<div
-									className={`person-multi-select-selected-item ${
-										isSelected ? 'selected' : ''
-									}`}
-									key={option?._id}
-									onClick={(e) => {
-										e?.stopPropagation();
-										onOptionClick?.(option);
-									}}
-								>
-									<div className="person-multi-select-selected-item-avatar">
-										{option?.name?.charAt(0)}
-									</div>
-									<div className="person-multi-select-selected-item-name">
-										<span className="person-multi-select-selected-item-name-text">
-											{option?.name}
-										</span>
-										{option?.email && (
-											<span className="person-multi-select-selected-item-email">
-												{option?.email}
+						{options?.length > 0 ? (
+							options?.map((option) => {
+								const isSelected = selectedOptions.some(
+									(item) => item._id === option._id,
+								);
+								return (
+									<div
+										className={`person-multi-select-selected-item ${
+											isSelected ? 'selected' : ''
+										}`}
+										key={option?._id}
+										onClick={(e) => {
+											e?.stopPropagation();
+											onOptionClick?.(option);
+										}}
+									>
+										<div className="person-multi-select-selected-item-avatar">
+											{option?.name?.charAt(0)}
+										</div>
+										<div className="person-multi-select-selected-item-name">
+											<span className="person-multi-select-selected-item-name-text">
+												{option?.name}
 											</span>
-										)}
+											{option?.email && (
+												<span className="person-multi-select-selected-item-email">
+													{option?.email}
+												</span>
+											)}
+										</div>
 									</div>
-								</div>
-							);
-						})}
+								);
+							})
+						) : (
+							<span className="no-data-error-text">No clients</span>
+						)}
 					</div>
 				</InfiniteScroll>
 			</div>

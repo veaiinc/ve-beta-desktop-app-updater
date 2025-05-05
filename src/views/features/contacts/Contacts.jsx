@@ -1,101 +1,31 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { ReactComponent as CalendarSvg } from '../../../assets/svg/tasks/calendar.svg';
-import { ReactComponent as textSvg } from '../../../assets/svg/tasks/letterA.svg';
-import Context from '../../../context/context';
+import { useContext, useEffect, useState, useCallback, memo } from 'react';
 import '../../../assets/scss/contacts/contacts.scss';
-import CreateClientModal from '../../components/modalsV2/contacts/CreateClientModal';
-import { message } from '../../components/globalComponents/CustomToast';
-import Sidebar from '../../components/docs/Sidebar';
-import ListTabs from '../../components/tasks/listView/ListTabs';
-import TabListFile from '../../components/tasks/listView/TabListFile';
-import Select from '../../components/tasks/listView/Select';
-import Person from '../../components/tasks/listView/Person';
-import MultiSelect from '../../components/tasks/listView/MultiSelect';
-import DateView from '../../components/tasks/listView/DateView';
-import TaskId from '../../components/tasks/listView/TaskId';
-import Status from '../../components/tasks/listView/Status';
-import Priority from '../../components/tasks/listView/Priority';
-import Email from '../../components/tasks/listView/Email';
-import Phone from '../../components/tasks/listView/Phone';
-import Url from '../../components/tasks/listView/Url';
-import CheckBox from '../../components/tasks/listView/CheckBox';
-import WorkFlow from '../../components/tasks/listView/WorkFlow';
-import ParentTaskComponent from '../../components/tasks/listView/ParentTaskComponent';
-import ChildTaskProgress from '../../components/tasks/listView/ChildTaskProgress';
-import LinkText from '../../components/tasks/listView/LinkText';
-import Text from '../../components/tasks/listView/Text';
-import Task from '../../components/tasks/Task';
-import ListViewSidebar from '../../components/modalsV2/tasks/ListViewSidebar';
+import Context from '../../../context/context';
+import SingleContact from '../../components/contacts/singleContact';
+import ChatLeftBarComponent from '../../components/ChatLeftBarComponent';
 import QuickActions from '../../components/globalComponents/QuickActions';
+import ContactsListView from '../../components/contacts/ContactsListView';
+import ContactsWidgetView from '../../components/contacts/ContactsWidgetView';
+import { ReactComponent as SearchIcon } from '../../../assets/svg/chat/search.svg';
 
-const rowTypes = {
-	text: Text,
-	select: Select,
-	person: Person,
-	'multi-select': MultiSelect,
-	date: DateView,
-	id: TaskId,
-	status: Status,
-	priority: Priority,
-	email: Email,
-	phone: Phone,
-	url: Url,
-	checkbox: CheckBox,
-	workflow: WorkFlow,
-	parentTask: ParentTaskComponent,
-	childTasks: ChildTaskProgress,
-	linkText: LinkText,
-};
+const suggestedPrompts = [
+	'Start a Deep Research on revamping the current Dashboard Layout',
+	'Create a form for A/B Testing of current Dashboard',
+	'Analyze which widgets are most and least used on the Dashboard',
+];
 
-const defaultPreference = {
-	name: { show: true, order: 1 },
-	email: { show: true, order: 2 },
-	phoneNumber: { show: false, order: 3 },
-	createdAt: { show: false, order: 4 },
-	updatedAt: { show: false, order: 5 },
-};
-
-const colors = {
-	1: { backgroundColor: '#62344B', color: '#A35A7E' },
-	2: { backgroundColor: '#373737', color: '#707070' },
-	3: { backgroundColor: '#5B3D2F', color: '#8F614B' },
-	4: { backgroundColor: '#7D4F27', color: '#B37339' },
-	5: { backgroundColor: '#375841', color: '#588F69' },
-	6: { backgroundColor: '#2F4469', color: '#4F71B3' },
-	7: { backgroundColor: '#453061', color: '#6F4C99' },
-};
-
-const availableViews = ['list', 'table', 'gallery'];
+const statItems = [
+	{ key: 'all', label: 'All', className: 'all active' },
+	{ key: 'strong', label: 'Strong', className: 'strong' },
+	{ key: 'normal', label: 'Normal', className: 'normal' },
+	{ key: 'weak', label: 'Weak', className: 'weak' },
+];
 const Contacts = () => {
 	const {
-		// templates: { getClientList, clientList },
-		contacts: {
-			clientList,
-			getClients,
-			getClient,
-			refetchClientList,
-			updateStateValues,
-			deleteClient,
-			updateClient,
-			clientMetadata,
-			getContactMetadata,
-			updateContactViews,
-			deleteContactView,
-			getContactPreferences,
-			updateContactPreferences,
-			contactPreference,
-		},
-		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
+		templates: { updateStateValues: updateContactState },
+		contacts: { clientList, getClients },
 	} = useContext(Context);
-
 	const [info, setInfo] = useState({
-		listItems: [],
-		isOptionsDropDownOpen: false,
-		isCreateModalOpen: false,
-		properties: [],
-		sidebarIsOpen: false,
-		selectedRow: null,
 		page: 1,
 		hasMore: false,
 		loadingSkeleton: true,
@@ -104,179 +34,23 @@ const Contacts = () => {
 		filters: [],
 		searchValue: '',
 		updated: false,
-		showRightDrawer: false,
-		activeFileData: null,
-		refetchDocsFilesList: false,
-		clientMetadata: null,
-		taskPreferences: {
-			preferenceType: 'contactPreference',
-			preferences: defaultPreference,
-		},
+		selectedContact: null,
+		selectedContactOption: null,
+		activeView: 'widgetView',
+		searchQuery: '',
 	});
 
-	const timeoutRef = useRef(null);
-
-	const responseMetadata = useMemo(
-		() => ({
-			name: {
-				type: 'text',
-				name: 'Name',
-				Icon: textSvg,
-				doSplit: true,
-				isTitle: true,
-				props: {},
-			},
-			email: {
-				type: 'linkText',
-				name: 'Email',
-				Icon: textSvg,
-				doSplit: false,
-				props: { linkType: 'email' },
-			},
-			phoneNumber: {
-				type: 'linkText',
-				name: 'Phone Number',
-				Icon: textSvg,
-				doSplit: false,
-				props: { linkType: 'phone' },
-			},
-			createdAt: {
-				type: 'date',
-				name: 'Created At',
-				Icon: CalendarSvg,
-				props: { timestamp: true },
-			},
-			updatedAt: {
-				type: 'date',
-				name: 'Updated At',
-				Icon: CalendarSvg,
-				props: { timestamp: true },
-			},
-		}),
-		[],
-	);
-
 	useEffect(() => {
-		if (contactPreference === null) {
-			getContactPreferences({ preferences: 'contactPreference' });
-		} else if (contactPreference?.data === false) {
-			updateContactPreferences({
-				preferenceType: 'contactPreference',
-				data: defaultPreference,
-			});
-			setInfo((prevInfo) => ({
-				...prevInfo,
-				taskPreferences: {
-					preferenceType: 'contactPreference',
-					preferences: defaultPreference,
-				},
-			}));
-		} else if (contactPreference?.error) {
-			setInfo((prevInfo) => ({
-				...prevInfo,
-				taskPreferences: {
-					preferenceType: 'contactPreference',
-					preferences: defaultPreference,
-				},
-			}));
-		} else {
-			setInfo((prevInfo) => ({
-				...prevInfo,
-				taskPreferences: {
-					preferenceType: 'contactPreference',
-					preferences: contactPreference?.data,
-				},
-			}));
-		}
-	}, [contactPreference]);
+		updateContactState({ leftSidebarState: 'close' });
+		return () => {
+			updateContactState({ leftSidebarState: null });
+		};
+	}, []);
 
 	useEffect(() => {
 		if (!clientList) {
-			updateListViewInfo({ loadingSkeleton: true });
-			handleDebounceFetch();
-		} else {
-			if (clientList?.data) {
-				setInfo((prevInfo) => ({
-					...prevInfo,
-					listItems:
-						clientList?.data?.currentPage === 1
-							? clientList?.data?.data || []
-							: [...(prevInfo?.listItems || []), ...(clientList?.data?.data || [])],
-					hasMore: clientList?.data?.hasNextPage,
-					loadingSkeleton: false,
-				}));
-			} else {
-				setInfo((prevInfo) => ({
-					...prevInfo,
-					listItems: [],
-					hasMore: false,
-					loadingSkeleton: false,
-					error: clientList?.error || 'Failed to get clients, try again',
-				}));
-			}
+			fetchClientList(info?.page);
 		}
-	}, [clientList]);
-
-	useEffect(() => {
-		if (info?.taskPreferences?.preferences) {
-			setInfo((prevInfo) => ({
-				...prevInfo,
-				properties: mapPropertyType(),
-			}));
-		}
-	}, [info?.taskPreferences?.preferences]);
-
-	useEffect(() => {
-		if (!clientMetadata) {
-			getContactMetadata();
-		} else {
-			if (!clientMetadata?.views) {
-				updateView(
-					null,
-					{
-						label: 'List view',
-						filters: [],
-						icon: null,
-						order: null,
-						sort: [],
-						viewType: 'list',
-					},
-					clientMetadata?._id,
-				);
-			}
-			setInfo((prevInfo) => ({
-				...prevInfo,
-				clientMetadata: clientMetadata,
-			}));
-		}
-	}, [clientMetadata]);
-
-	useEffect(() => {
-		if (refetchClientList && !info?.sidebarIsOpen) {
-			setInfo((prev) => ({ ...prev, page: 1 }));
-			fetchClientList(1);
-			updateStateValues({ refetchClientList: false });
-		}
-	}, [refetchClientList]);
-
-	const handleDebounceFetch = () => {
-		if (timeoutRef.current) {
-			clearTimeout(timeoutRef.current);
-		}
-		timeoutRef.current = setTimeout(() => {
-			fetchClientList(1);
-		}, 800);
-	};
-
-	useEffect(() => {
-		handleDebounceFetch();
-	}, [info?.searchValue, info?.filters, info?.sort]);
-
-	useEffect(() => {
-		setInfo((prevInfo) => ({
-			...prevInfo,
-			properties: mapPropertyType(),
-		}));
 	}, []);
 
 	const fetchClientList = useCallback(
@@ -293,7 +67,7 @@ const Contacts = () => {
 						search: info?.searchValue,
 					}),
 					...(info?.filters?.length > 0 && {
-						filters: info?.filters.map((filter) => ({
+						filters: info?.filters?.map((filter) => ({
 							key: filter.key,
 							value: filter.value?._id || filter.value,
 						})),
@@ -302,266 +76,117 @@ const Contacts = () => {
 			};
 			getClients(payload);
 		},
-		[getClients, info?.searchValue, info?.filters, info?.sort],
+		[info?.searchValue, info?.filters, info?.sort],
 	);
 
-	const updateListViewInfo = useCallback((updateInfo) => {
-		if (updateInfo?.taskPreferences) {
-			updateContactPreferences({
-				preferenceType: updateInfo?.taskPreferences?.preferenceType,
-				data: updateInfo?.taskPreferences?.preferences,
-			});
-		}
-		setInfo((prevInfo) => ({ ...prevInfo, ...updateInfo }));
-	}, []);
+	const handleViewChange = (view) => {
+		setInfo({ ...info, activeView: view });
+	};
 
-	const tabs = useMemo(() => {
-		return {
-			// reqActions: { label: 'Req Actions', Component: <div>Required Actions</div> },
-			// workflows: { label: 'Workflows', Component: <div>Workflows</div> },
-			files: {
-				label: 'Files',
-				Component: (
-					<TabListFile
-						rowTypes={rowTypes}
-						colors={colors}
-						handleRowClick={(data) => {
-							setInfo((prevInfo) => ({
-								...prevInfo,
-								activeFileData: data,
-								showRightDrawer: true,
-								sidebarIsOpen: false,
-							}));
-						}}
-						refetchDocsFilesList={info?.refetchDocsFilesList}
-						onUpdate={updateListViewInfo}
-						selectedId={info?.selectedRow?._id}
-					/>
-				),
-			},
-			// payments: { label: 'Payments', Component: <div>Payments</div> },
-			// activity: { label: 'Activity', Component: <div>Activity</div> },
-		};
-	}, [rowTypes, colors, info?.refetchDocsFilesList, info?.selectedRow?._id]);
+	const handleSearchQueryChange = (e) => {
+		setInfo({ ...info, searchQuery: e?.target?.value });
+	};
 
-	const mapPropertyType = useCallback(() => {
-		let properties = [];
-		for (let key in responseMetadata) {
-			if (key === '__typename' || key === '_id') {
-				continue;
-			}
-
-			const {
-				type = null,
-				name = null,
-				Icon = null,
-				isTitle = false,
-			} = responseMetadata[key] || {};
-			const { show, order } = info?.taskPreferences?.preferences?.[key] || {
-				show: false,
-				order: 0,
-			};
-
-			properties.push({
-				value: key,
-				type,
-				label: name,
-				Icon,
-				show,
-				order,
-				isTitle,
-			});
-		}
-		return properties;
-	}, [info?.taskPreferences?.preferences]);
-
-	const updatePropertyValue = useCallback(
-		async (rowId, propName, value, _, onSuccess) => {
-			if (
-				validateExpiryData &&
-				validateExpiryData?.restrictContacts &&
-				validateExpiryData?.isExpired
-			) {
-				return updateSubscriptionState({ expiredSubscriptionModal: true });
-			}
-
-			const response = await updateClient({
-				updateClientId: rowId,
-				updateClientInput: {
-					[propName]: value,
-				},
-			});
-
-			if (response?.[0]) {
-				updateStateValues({ refetchClientList: true });
-			} else {
-				message?.error(response?.[1]);
-			}
-
-			if (onSuccess) {
-				onSuccess(response?.[0]);
-			}
-		},
-		[validateExpiryData?.isExpired, updateClient, updateStateValues],
-	);
-
-	const handleDeleteClient = useCallback(
-		async (payload) => {
-			if (
-				validateExpiryData &&
-				validateExpiryData?.restrictContacts &&
-				validateExpiryData?.isExpired
-			) {
-				return updateSubscriptionState({ expiredSubscriptionModal: true });
-			}
-
-			const response = await deleteClient({ deleteClientId: payload?.taskId });
-			if (response?.[0]) {
-				setInfo((prevInfo) => ({
-					...prevInfo,
-					selectedRow: null,
-					sidebarIsOpen: false,
-				}));
-				message?.success('Client deleted successfully');
-				updateStateValues({ refetchClientList: true });
-			} else {
-				message?.error(response?.[1]);
-			}
-		},
-		[validateExpiryData, deleteClient, updateStateValues],
-	);
-
-	const handleRowClick = useCallback(
-		async (row) => {
-			if (row) {
-				const clientDetails = await getClient({ getClientId: row._id });
-
-				updateListViewInfo({
-					selectedRow: row || clientDetails,
-					sidebarIsOpen: true,
-				});
-			}
-		},
-		[getClient],
-	);
-
-	const handleCloseSidebar = useCallback(() => {
-		if (refetchClientList) {
-			updateListViewInfo({ loadingSkeleton: true });
-			fetchClientList(1);
-			updateStateValues({ refetchClientList: false });
-		}
-		updateListViewInfo({ sidebarIsOpen: false });
-	}, [refetchClientList]);
-
-	const fetchMoreData = useCallback(() => {
-		if (info.hasMore) {
-			const nextPage = info.page + 1;
-			fetchClientList(nextPage);
-			setInfo((prevInfo) => ({
-				...prevInfo,
-				page: nextPage,
-			}));
-		}
-	}, [info.hasMore, info.page, fetchClientList]);
-
-	const updateView = useCallback(
-		(viewId, updateData, clientMetadataId) => {
-			const data = {
-				clientMetadataId: clientMetadataId || info?.clientMetadata?._id,
-				viewId,
-				input: updateData,
-			};
-			updateContactViews(data);
-		},
-		[updateContactViews, info?.clientMetadata?._id],
-	);
-
-	const deleteView = useCallback(
-		(viewId) => {
-			deleteContactView({ clientMetadataId: info?.clientMetadata?._id, viewId });
-		},
-		[deleteContactView, info?.clientMetadata?._id],
-	);
+	const stats = {
+		all: clientList?.data?.data?.length,
+		strong: 3,
+		normal: 3,
+		weak: 3,
+	};
 
 	return (
-		<div>
-			<div className="contacts-header-container">
-				<div className="header-text">
-					<span className="lineOne">Contacts</span>
-					<span className="lineTwo">You Have</span>
+		<div className="contacts-container">
+			<ChatLeftBarComponent>
+				<div className="left-section">
+					<div className="contacts-Header">
+						<div className="contacts-search-container">
+							<div className="search-icon">
+								<SearchIcon />
+							</div>
+							<input
+								type="text"
+								className="search-input"
+								placeholder="Search Contacts"
+								onChange={handleSearchQueryChange}
+								autoFocus
+							/>
+						</div>
+					</div>
+					<div className="contacts-body">
+						<div className="view-type-container">
+							<div
+								className="view-container"
+								onClick={() => handleViewChange('widgetView')}
+							>
+								<div
+									className={`view ${
+										info?.activeView === 'widgetView' ? 'active' : ''
+									}`}
+								>
+									Widget View
+								</div>
+							</div>
+							<div className="vertical-line" />
+							<div
+								className="view-container"
+								onClick={() => handleViewChange('listView')}
+							>
+								<div
+									className={`view ${
+										info?.activeView === 'listView' ? 'active' : ''
+									}`}
+								>
+									List View
+								</div>
+							</div>
+						</div>
+						{/* <div className="suggested-sections">
+							<div className="section-title">Suggested Actions</div>
+							<div className="action-buttons">
+								<button>Hand off to Priya</button>
+								<button>Add Collaborator</button>
+								<button>Snooze</button>
+							</div>
+
+							<div className="section-title">Suggested Prompts</div>
+							<div className="prompts-list">
+								{suggestedPrompts.map((prompt, index) => (
+									<div key={index} className="prompt-item">
+										<ArrowRightSvg style={{ flexShrink: '0' }} />
+										{prompt}
+									</div>
+								))}
+							</div>
+						</div> */}
+					</div>
 				</div>
-				<div className="quick-actions-btn">
-					<QuickActions />
+			</ChatLeftBarComponent>
+
+			{info?.selectedContact ? (
+				<SingleContact
+					selectedContact={info?.selectedContact}
+					selectedOptions={info?.selectedContactOption}
+				/>
+			) : (
+				<div className="contacts-right-section">
+					<div className="header">
+						<h1 className="header-title">Contacts</h1>
+						<QuickActions />
+					</div>
+					{info?.activeView === 'listView' && (
+						<ContactsListView
+							data={clientList?.data?.data}
+							searchQuery={info?.searchQuery}
+						/>
+					)}
+					{info?.activeView === 'widgetView' && (
+						<ContactsWidgetView
+							data={clientList?.data?.data}
+							searchQuery={info?.searchQuery}
+						/>
+					)}
 				</div>
-			</div>
-			<Task
-				responseMetadata={responseMetadata}
-				handleAddButtonOnClick={() => {
-					updateListViewInfo({ isCreateModalOpen: true });
-				}}
-				handleRowClick={handleRowClick}
-				colors={colors}
-				updateTaskInfo={updateListViewInfo}
-				rowTypes={rowTypes}
-				data={info?.listItems}
-				loading={info?.loadingSkeleton}
-				handleUpdate={updatePropertyValue}
-				properties={info?.properties}
-				taskPreferences={info?.taskPreferences}
-				searchValue={info?.searchValue}
-				hasMore={info?.hasMore}
-				error={info?.error}
-				fetchMoreData={fetchMoreData}
-				blockTitle={'Contacts'}
-				createButtonText={'Create Client'}
-				views={info?.clientMetadata?.views}
-				updateView={updateView}
-				deleteView={deleteView}
-				availableViews={availableViews}
-			/>
-
-			<CreateClientModal
-				modalIsOpen={info?.isCreateModalOpen}
-				closeModal={() => {
-					updateListViewInfo({ isCreateModalOpen: false });
-				}}
-			/>
-
-			<ListViewSidebar
-				selectedRow={info?.selectedRow}
-				sidebarIsOpen={info?.sidebarIsOpen}
-				closeSidebar={handleCloseSidebar}
-				handleUpdate={updatePropertyValue}
-				deleteTask={handleDeleteClient}
-				rowTypes={rowTypes}
-				responseMetadata={responseMetadata}
-				properties={info?.properties}
-				colors={colors}
-				sidebarChildren={<ListTabs tabs={tabs} defaultActiveTab={'files'} />}
-				toggleSidebarExpand={() => {}}
-				isSidebarExpanded={false}
-				showQuickActions={true}
-			/>
-
-			<Sidebar
-				open={info?.showRightDrawer}
-				onClose={() => {
-					setInfo((prev) => ({
-						...prev,
-						showRightDrawer: false,
-						sidebarIsOpen: true,
-						activeFileData: null,
-					}));
-				}}
-				activeFileData={info?.activeFileData}
-				refetchDocsFilesList={() => {
-					setInfo((prev) => ({
-						...prev,
-						refetchDocsFilesList: true,
-					}));
-				}}
-			/>
+			)}
 		</div>
 	);
 };

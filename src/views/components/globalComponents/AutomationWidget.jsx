@@ -101,12 +101,12 @@ const AutomationWidget = ({ width, height }) => {
 		}
 	};
 	return (
-		<div className="automation" style={{ width: width }}>
+		<div className="automation" style={{ width: width, height: height }}>
 			<div className="automationWidgetContainer">
 				<div className="automationWidgetBody">
 					<div className="automationWidgetBodyHeader" id="automationWidgetBodyHeader">
 						{info?.isLoading ? (
-							skeletonLoaders?.map((item) => (
+							skeletonLoaders?.map((_, index) => (
 								<Skeleton
 									width="280px"
 									height="36px"
@@ -114,6 +114,7 @@ const AutomationWidget = ({ width, height }) => {
 										'--highlight-color': 'gray',
 										'--base-color': 'transparent',
 									}}
+									key={index}
 								/>
 							))
 						) : automationsLength > 0 ? (

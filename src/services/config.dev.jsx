@@ -9,7 +9,7 @@ module.exports = {
 	workflows_Api: 'https://ap.api.ve.ai/workflows/1.0',
 	auth_Api: 'https://auth.ve.ai',
 	activity_api: 'https://ap.api.ve.ai/workflow-user-analytics/1.0',
-	galleries: 'https://ap.api.ve.ai/galleries/dev',
+	galleries: 'https://ap.api.ve.ai/galleries/1.0',
 	ai_assistant_api: 'https://api.ap-south-1.ve.ai',
 	ai_predictions: 'https://ai.ap-south-1.ve.ai',
 	calendar_api: 'https://ap.api.ve.ai/google/1.0',
@@ -17,7 +17,7 @@ module.exports = {
 	slack_api: 'https://slack.com/api',
 	// multi_agent_chat: 'ws://ai.ap-south-1.ve.ai',
 	automation_builder_api: 'https://ap.api.ve.ai/automations/1.0/automation',
-	page_notes_api: 'https://ap.api.ve.ai/page-notes/1.0',
+	page_notes_api: 'https://ap.api.ve.ai/block-notes/1.0',
 	elastic_search_api: 'https://ap.api.ve.ai/elastic-search/1.0',
 
 	//outside India

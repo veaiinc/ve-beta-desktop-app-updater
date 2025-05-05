@@ -4,18 +4,11 @@ import { ReactComponent as Close } from '../../../assets/svg/close.svg';
 import { ReactComponent as ArrowUp } from '../../../assets/svg/ai_agents/arrow-up-dark.svg';
 import { ReactComponent as ChevronSvg } from '../../../assets/svg/tasks/chevronRightThin.svg';
 import { ReactComponent as CloseSvg } from '../../../assets/svg/calendar/close.svg';
-import { ReactComponent as TextSvg } from '../../../assets/svg/ai_agents/text.svg';
-import { ReactComponent as DocxSvg } from '../../../assets/svg/ai_agents/docx.svg';
-import { ReactComponent as JsonSvg } from '../../../assets/svg/ai_agents/json.svg';
-import { ReactComponent as PdfSvg } from '../../../assets/svg/ai_agents/pdf.svg';
-import { ReactComponent as JpgSvg } from '../../../assets/svg/ai_agents/jpg.svg';
-import { ReactComponent as PngSvg } from '../../../assets/svg/ai_agents/png.svg';
-import { ReactComponent as MdSvg } from '../../../assets/svg/ai_agents/md.svg';
 import { ReactComponent as PlusSvg } from '../../../assets/svg/ai_assistant/plus.svg';
-import { ReactComponent as ExcelSvg } from '../../../assets/svg/ai_agents/excel.svg';
 import { ReactComponent as AudioSvg } from '../../../assets/svg/ai_agents/audio.svg';
 import { ReactComponent as AtomSvg } from '../../../assets/svg/ai_agents/atom.svg';
 import { ReactComponent as ArrowDownSvg } from '../../../assets/svg/ai_agents/arrow-down.svg';
+import { ReactComponent as ArrowUpRightSvg } from '../../../assets/svg/sidebar/arrowupright.svg';
 import Context from '../../../context/context';
 import ObjectID from 'bson-objectid';
 import { useLocation } from 'react-router-dom';
@@ -33,6 +26,7 @@ import useUpdatedVoiceIntegration from '../../hooks/useUpdatedVoiceIntegration';
 import { message } from '../globalComponents/CustomToast';
 import SearchTypeTooltip from './SearchTypeTooltip';
 import ChatBoxPlaceholder from './ChatBoxPlaceholder';
+import { fileTypeIcons } from '../../../helpers';
 
 const moduleHelper = {
 	tasks: 'tasks',
@@ -73,28 +67,6 @@ const searchTypeOptions = {
 		subTitle: 'Effortless access to insights',
 	},
 };
-const fileTypeIcons = {
-	docx: <DocxSvg />,
-	txt: <TextSvg />,
-	png: <PngSvg />,
-	pdf: <PdfSvg />,
-	jpg: <JpgSvg />,
-	json: <JsonSvg />,
-	md: <MdSvg />,
-	jpeg: <JpgSvg />,
-	xlsx: <ExcelSvg />,
-	xls: <ExcelSvg />,
-	'image/png': <PngSvg />,
-	'image/jpeg': <JpgSvg />,
-	'image/jpg': <JpgSvg />,
-	'application/pdf': <PdfSvg />,
-	'application/docx': <DocxSvg />,
-	'application/txt': <TextSvg />,
-	'application/json': <JsonSvg />,
-	'application/md': <MdSvg />,
-	'application/jpeg': <JpgSvg />,
-	'text/plain': <TextSvg />,
-};
 
 const chatboxPlaceholders = [
 	'Start typing or use @ to mention a source.',
@@ -131,6 +103,9 @@ const ChatBox = ({
 	autoFocus = true,
 	isParentHeaderMinimized = false,
 	animatePlaceholder = false,
+	customChatBoxClick = null,
+	showScrollButton = false,
+	smoothScrollToBottom = null,
 }) => {
 	const textAreaRef = useRef(null);
 	const location = useLocation();
@@ -311,7 +286,7 @@ const ChatBox = ({
 						deepResearch: false,
 						reason: {
 							webSearch: false,
-							workspaceSearch: false,
+							workspaceSearch: true,
 						},
 					},
 				});
@@ -354,12 +329,22 @@ const ChatBox = ({
 				return;
 			}
 		}
-		updateStateValues({
-			chatInfo: {
-				...chatInfo,
-				webSearch: !chatInfo?.webSearch,
-			},
-		});
+		if (chatInfo?.webSearch) {
+			updateStateValues({
+				chatInfo: {
+					...chatInfo,
+					webSearch: false,
+					workspaceSearch: true,
+				},
+			});
+		} else {
+			updateStateValues({
+				chatInfo: {
+					...chatInfo,
+					webSearch: true,
+				},
+			});
+		}
 	};
 
 	const handleDeepResearchClick = () => {
@@ -1030,12 +1015,22 @@ const ChatBox = ({
 		) {
 			return;
 		}
-		updateStateValues({
-			chatInfo: {
-				...chatInfo,
-				workspaceSearch: !chatInfo?.workspaceSearch,
-			},
-		});
+		if (chatInfo?.workspaceSearch) {
+			updateStateValues({
+				chatInfo: {
+					...chatInfo,
+					workspaceSearch: false,
+					webSearch: true,
+				},
+			});
+		} else {
+			updateStateValues({
+				chatInfo: {
+					...chatInfo,
+					workspaceSearch: true,
+				},
+			});
+		}
 	};
 
 	const handleAgentClick = (agentType) => {
@@ -1060,6 +1055,7 @@ const ChatBox = ({
 		} else {
 			deepResearch = true;
 		}
+		workspaceSearch = !deepResearch ? true : workspaceSearch;
 
 		updateStateValues({
 			chatInfo: {
@@ -1072,8 +1068,17 @@ const ChatBox = ({
 		});
 	};
 
+	const handleChatBoxClick = () => {
+		if (customChatBoxClick) {
+			customChatBoxClick();
+		}
+	};
+
 	return (
-		<div className="chatParentWrapper">
+		<div
+			className="chatParentWrapper"
+			{...(customChatBoxClick && { onClick: customChatBoxClick })}
+		>
 			<div className={`chatWrapper`}>
 				<div
 					className={`chat-box-container ${
@@ -1644,6 +1649,13 @@ const ChatBox = ({
 				{/* )} */}
 			</div>
 			<div className="chatbarContainer" style={{ width: '100%' }}>
+				{showScrollButton && (
+					<div className="scroll-btn-wrapper">
+						<button className="scroll-button" onClick={() => smoothScrollToBottom?.()}>
+							<ArrowUpRightSvg className="arrow-up" />
+						</button>
+					</div>
+				)}
 				{uploadedImagesRef?.current?.length > 0 ? (
 					<div className="imagePreviewBar">
 						{uploadedImagesRef?.current?.map((ele, index) => (

@@ -187,8 +187,8 @@ const actionHandlers = {
 			const { processing } = message;
 			if (processing === 'Deep Search') {
 				let deepSearch = message?.deepSearch || {};
-				let cot = [...(deepSearch?.cot || [])];
-				let cot_refined = [...(deepSearch?.cot_refined || [])];
+				let cot = deepSearch?.cot || [];
+				let cot_refined = deepSearch?.cot_refined || [];
 				let initial_answer = deepSearch?.initial_answer || {};
 				let final_answer = deepSearch?.final_answer || {};
 
@@ -212,12 +212,12 @@ const actionHandlers = {
 				}
 
 				if (
-					payload?.sub_query_id &&
+					payload?.refined_sub_query_id &&
 					payload?.reading &&
 					payload?.reading?.refined_sub_query
 				) {
 					let index = cot_refined?.findIndex(
-						(item) => item?.sub_query_id === payload?.sub_query_id,
+						(item) => item?.refined_sub_query_id === payload?.refined_sub_query_id,
 					);
 					if (index !== -1) {
 						let readings = cot_refined[index]?.readings || [];
@@ -228,7 +228,7 @@ const actionHandlers = {
 						};
 					} else {
 						cot_refined?.push({
-							sub_query_id: payload?.sub_query_id,
+							refined_sub_query_id: payload?.refined_sub_query_id,
 							readings: [{ reading: payload?.reading }],
 						});
 					}
@@ -264,10 +264,10 @@ const actionHandlers = {
 					deepSearch,
 				};
 			} else if (processing === 'Deep Research') {
-				let deepResearch = { ...(message?.deepResearch || {}) };
-				let cot = [...(deepResearch?.cot || [])];
-				let sections = [...(deepResearch?.sections || [])];
-				let sections_refined = [...(deepResearch?.sections_refined || [])];
+				let deepResearch = message?.deepResearch || {};
+				let cot = deepResearch?.cot || [];
+				let sections = deepResearch?.sections || [];
+				let sections_refined = deepResearch?.sections_refined || [];
 
 				if (payload?.responded) {
 					cot?.push({
@@ -298,6 +298,27 @@ const actionHandlers = {
 						section: payload?.section,
 						sub_queries,
 						section_id: payload?.section_id,
+					});
+				}
+
+				if (payload?.compiling && payload?.section_id) {
+					sections = sections?.map((section) => {
+						if (section?.section_id === payload?.section_id) {
+							return {
+								...section,
+								compiling: payload?.compiling,
+							};
+						}
+						return section;
+					});
+					sections_refined = sections_refined?.map((section) => {
+						if (section?.section_id === payload?.section_id) {
+							return {
+								...section,
+								compiling: payload?.compiling,
+							};
+						}
+						return section;
 					});
 				}
 
@@ -419,6 +440,16 @@ const actionHandlers = {
 		...state,
 		connectThirdParties: action?.payload,
 	}),
+	UPDATE_CITATION_CHUNKS: (state, action) => {
+		const sourceId = Object?.keys(action?.payload)?.[0];
+		if (state?.citationChunks?.[sourceId]) {
+			return state;
+		}
+		return {
+			...state,
+			citationChunks: { ...state?.citationChunks, [sourceId]: action?.payload?.[sourceId] },
+		};
+	},
 	RESET_STATE: () => intialState,
 };
 

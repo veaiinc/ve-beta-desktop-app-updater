@@ -9,8 +9,8 @@ import ObjectId from 'bson-objectid';
 import { FetchMoreLoaderComp } from '../../../helpers';
 import Skeleton from 'react-loading-skeleton';
 
-const skeletonLoaders = Array.from({ length: 6 }, (_, index) => index + 1);
-const CalenderWidget = ({ width }) => {
+const skeletonLoaders = Array?.from({ length: 6 }, (_, index) => index + 1);
+const CalenderWidget = ({ width = '100%', height = '412px' }) => {
 	const {
 		calendarInfo: {
 			getCalendarEventsList,
@@ -45,44 +45,44 @@ const CalenderWidget = ({ width }) => {
 	useEffect(() => {
 		const observer = new IntersectionObserver(
 			(entries) => {
-				const visibleEntry = entries.find((entry) => entry.isIntersecting);
+				const visibleEntry = entries?.find((entry) => entry?.isIntersecting);
 				if (visibleEntry) {
-					const dateStr = visibleEntry.target.getAttribute('data-date');
+					const dateStr = visibleEntry?.target?.getAttribute('data-date');
 					const date = new Date(dateStr);
 					setInfo((prev) => ({
 						...prev,
-						currentDate: date.getDate(),
-						currentDay: date.toLocaleDateString('en-US', { weekday: 'long' }),
+						currentDate: date?.getDate(),
+						currentDay: date?.toLocaleDateString('en-US', { weekday: 'long' }),
 					}));
 				}
 			},
 			{
-				root: document.querySelector('.calenderWidgetMainContent'),
+				root: document?.querySelector('.calenderWidgetMainContent'),
 				rootMargin: '0px 0px -80% 0px', // Trigger early
 				threshold: 0.1,
 			},
 		);
 
-		eventRefs.current.forEach((ref) => {
-			if (ref) observer.observe(ref);
+		eventRefs?.current?.forEach((ref) => {
+			if (ref) observer?.observe(ref);
 		});
 
 		return () => {
-			eventRefs.current.forEach((ref) => {
-				if (ref) observer.unobserve(ref);
+			eventRefs?.current?.forEach((ref) => {
+				if (ref) observer?.unobserve(ref);
 			});
 		};
 	}, [allCalendarEvents?.data]);
 
 	const groupEventsByDateArray = (events = []) => {
-		const grouped = events.reduce((acc, event) => {
-			const date = new Date(event.startDateTime).toISOString().split('T')[0];
+		const grouped = events?.reduce((acc, event) => {
+			const date = new Date(event?.startDateTime)?.toISOString()?.split('T')?.[0];
 			acc[date] = acc[date] || [];
-			acc[date].push(event);
+			acc[date]?.push(event);
 			return acc;
 		}, {});
 
-		return Object.entries(grouped).map(([date, data]) => ({ date, data }));
+		return Object?.entries(grouped)?.map(([date, data]) => ({ date, data }));
 	};
 
 	const groupedEventsArray = groupEventsByDateArray(allCalendarEvents?.data);
@@ -90,10 +90,6 @@ const CalenderWidget = ({ width }) => {
 	useEffect(() => {
 		const sessionId = ObjectId().toString();
 		setInfo((prevInfo) => ({ ...prevInfo, chatSessionId: sessionId }));
-
-		if (!calendarCategoriesList) {
-			getCalendarCategories();
-		}
 
 		return () => {
 			setInfo((prevInfo) => ({
@@ -112,11 +108,9 @@ const CalenderWidget = ({ width }) => {
 	const fetchMoreCalendarEvents = () => {
 		const nextPage = eventsCurrentPage + 1;
 		const payload = {
-			options: {
-				startDate: info?.currentCalendarDate?.toISOString().split('T')[0],
-				sortType: 'startDateTime',
-				sortOrder: 'asc',
-			},
+			startDate: info?.currentCalendarDate?.toISOString(),
+			sortType: 'startDateTime',
+			sortOrder: 'dsc',
 		};
 		if (eventsCurrentPage !== undefined) {
 			getAllCalendarEvents(nextPage, 20, payload);
@@ -161,17 +155,15 @@ const CalenderWidget = ({ width }) => {
 	const fetchCalendarEvents = async () => {
 		setInfo((prev) => ({ ...prev, isLoading: true }));
 		const payload = {
-			options: {
-				startDate: info?.currentCalendarDate?.toISOString().split('T')[0],
-				sortType: 'startDateTime',
-				sortOrder: 'asc',
-			},
+			startDate: info?.currentCalendarDate?.toISOString(),
+			sortType: 'startDateTime',
+			sortOrder: 'asc',
 		};
 		await getAllCalendarEvents(info?.page, 20, payload);
 		setInfo((prev) => ({ ...prev, isLoading: false }));
 	};
 	return (
-		<div className="calender-main-container" style={{ width: width, height: '412px' }}>
+		<div className="calender-main-container" style={{ width: width, height: height }}>
 			<div className="calenderWidgetContainer">
 				<div className="calenderWidgetMain">
 					{/* <div className="calenderWidgetDateContainer">
@@ -189,8 +181,9 @@ const CalenderWidget = ({ width }) => {
 						}}
 					>
 						{info?.isLoading ? (
-							skeletonLoaders?.map((item) => (
+							skeletonLoaders?.map((item, index) => (
 								<Skeleton
+									key={index}
 									width="300px"
 									height="36px"
 									style={{
@@ -217,14 +210,14 @@ const CalenderWidget = ({ width }) => {
 															<div className="calenderWidgetDateContainerDay">
 																{new Date(
 																	meet?.date,
-																).toLocaleDateString(undefined, {
+																)?.toLocaleDateString(undefined, {
 																	weekday: 'long',
 																})}
 															</div>
 															<div className="calenderWidgetDateContainerDate">
 																{new Date(
 																	meet?.date,
-																).toLocaleDateString(undefined, {
+																)?.toLocaleDateString(undefined, {
 																	day: '2-digit',
 																	month: '2-digit',
 																})}
@@ -238,12 +231,12 @@ const CalenderWidget = ({ width }) => {
 														display: 'flex',
 														flexDirection: 'column',
 														width: '100%',
-														gap: '12px',
+														gap: '4px',
 													}}
 												>
-													{meet?.data.map((eachMeet) => (
+													{meet?.data?.map((eachMeet) => (
 														<div
-															key={eachMeet.id}
+															key={eachMeet?.id}
 															ref={(el) =>
 																(eventRefs.current[index] = el)
 															}
@@ -258,7 +251,7 @@ const CalenderWidget = ({ width }) => {
 																<span className="calenderWidgetMainContentTime">
 																	{new Date(
 																		eachMeet?.startDateTime,
-																	).toLocaleTimeString([], {
+																	)?.toLocaleTimeString([], {
 																		hour: '2-digit',
 																		minute: '2-digit',
 																		hour12: true,
@@ -281,7 +274,7 @@ const CalenderWidget = ({ width }) => {
 																	-
 																	{new Date(
 																		eachMeet?.endDateTime,
-																	).toLocaleTimeString([], {
+																	)?.toLocaleTimeString([], {
 																		hour: '2-digit',
 																		minute: '2-digit',
 																		hour12: true,

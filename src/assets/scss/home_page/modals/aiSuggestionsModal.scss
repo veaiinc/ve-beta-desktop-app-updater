@@ -14,13 +14,23 @@
 		align-items: center;
 		overflow-y: auto;
 		background: var(--navbar, #202123);
+		position: relative;
+		.drag-handler {
+			position: absolute;
+			height: 100%;
+			width: 2px;
+			top: 0;
+			left: 0;
+			background-color: transparent;
+			cursor: ew-resize;
+		}
 
 		.drawer-header {
 			width: 100%;
 			position: sticky;
 			top: 0;
 			z-index: 10;
-			padding: 20px 24px;
+			padding: 16px 20px;
 			background: var(--navbar, #202123);
 			border-bottom: 1px solid var(--stroke, #333334);
 			.header-content {
@@ -51,6 +61,7 @@
 						font-style: normal;
 						font-weight: 500;
 						line-height: normal;
+						user-select: none;
 					}
 					.next-btn {
 						cursor: pointer;
@@ -120,12 +131,6 @@
 					}
 				}
 			}
-
-			.horizontal-line {
-				width: 100%;
-				height: 1px;
-				background: var(--stroke, #333334);
-			}
 		}
 	}
 
@@ -137,7 +142,7 @@
 		flex: 1 0 0;
 		align-self: stretch;
 		padding: 20px 20px 30px;
-		border-left: 1px solid var(--stroke, #333334);
+		background: var(--right-bar);
 		.body-header {
 			display: flex;
 			flex-direction: column;
@@ -155,12 +160,42 @@
 				line-height: normal;
 			}
 			.description {
-				color: var(--primary-font, #f2f2f3);
+				color: var(--secondary-font, #93989f);
 				font-family: var(--primary-font-family);
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 400;
 				line-height: 22px;
+			}
+		}
+		.triggered-source-container {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			align-self: stretch;
+			.triggered-source-text {
+				color: var(--primary-font, #f2f2f3);
+				font-family: Inter;
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+			.triggered-source-value {
+				display: flex;
+				padding: 4px 6px;
+				align-items: center;
+				gap: 4px;
+				border-radius: 100px;
+				border: 1px solid var(--stroke, #2c2d2e);
+				background: var(--popup, #202123);
+				color: var(--primary-font, #f2f2f3);
+				font-family: Inter;
+				font-size: 11px;
+				font-style: normal;
+				font-weight: 400;
+				line-height: normal;
+				cursor: pointer;
 			}
 		}
 
@@ -176,6 +211,7 @@
 				align-items: flex-start;
 				gap: 16px;
 				flex: 1 0 0;
+				margin-bottom: 22px;
 				.content-container {
 					display: flex;
 					align-items: flex-start;
@@ -255,8 +291,8 @@
 				border: 1px solid var(--stroke, #2e3033);
 				border-radius: 16px;
 				padding: 16px;
-				box-shadow: 0px 0px 10px 0px var(--stroke);
-
+				box-shadow: 0px 0px 10px 0px var(--card);
+				margin-bottom: 22px;
 				.markdown-custom-content {
 					--font-size: 15px;
 				}
@@ -332,17 +368,12 @@
 		display: flex;
 		flex-direction: column;
 		gap: 4px;
-		.horizontal-line {
-			width: 100%;
-			height: 1px;
-			background: var(--stroke, #333334);
-		}
 		.footer-content {
 			display: flex;
 			flex-direction: row;
 			justify-content: space-between;
 			align-items: center;
-			padding: 20px 24px;
+			padding: 16px 20px 0px;
 			.footer-left {
 				display: flex;
 				flex-direction: row;
@@ -356,7 +387,7 @@
 					align-items: center;
 					gap: 6px;
 					border-radius: 100px;
-					border: 1px solid var(--secondary-font);
+					border: 1px solid var(--stroke);
 					cursor: pointer;
 					&.selected-thumb {
 						border: 1px solid var(--primary-font, #f2f2f3);
@@ -381,7 +412,7 @@
 
 					border-radius: 100px;
 					border: 1px solid var(--stroke, #333334);
-					background-color: var(--card);
+					background-color: transparent;
 
 					color: var(--primary-font, #f2f2f3);
 					font-family: var(--primary-font-family);
@@ -421,7 +452,7 @@
 	align-items: center;
 	cursor: pointer;
 	width: 100%;
-	margin-top: 10px;
+	padding: 10px 0px;
 	.cot-text {
 		display: flex;
 		align-items: center;
@@ -445,5 +476,39 @@
 				height: 14px;
 			}
 		}
+	}
+}
+.question-container {
+	width: 100%;
+	.question {
+		color: var(--primary-font, #f2f2f3);
+		font-family: var(--primary-font-family);
+		font-size: 13px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
+		padding: 6px;
+		border-radius: 8px;
+	}
+	.answers-input {
+		display: flex;
+		padding: 12px 8px;
+		align-items: center;
+		gap: 8px;
+		align-self: stretch;
+		border: none;
+		background: var(--card-over-card, #202123);
+		border-radius: 8px;
+		color: var(--primary-font, #f2f2f3);
+		font-family: var(--primary-font-family);
+		font-size: 13px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
+		width: 100%;
+		margin-top: 8px;
+	}
+	.answer-input::placeholder {
+		color: var(--secondary-font, #93989f);
 	}
 }

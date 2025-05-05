@@ -6,7 +6,7 @@ import { Helmet } from 'react-helmet';
 import useAuth from '../hooks/useAuth';
 import useSubscription from '../hooks/useSubscription';
 import useTokenExpiry from '../hooks/useTokenExpiry';
-import useAccessControls from '../hooks/useAcessControls';
+import useAccessControls from '../hooks/useAccessControls';
 import Context from '../../context/context';
 import RenewBanner from '../components/globalComponents/RenewBanner';
 const WorkflowBuilderLayout = ({ title, children, hideQuickNav = false }) => {

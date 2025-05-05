@@ -11,6 +11,7 @@ import gsap from 'gsap';
 import Spinner from '../loaders/Spinner';
 import FilterDropdown from '../dropDown/file/FilterDropdown';
 import EmptyState from './EmptyState';
+import { Tooltip } from 'antd';
 
 const filterOptions = [
 	{ label: 'All', value: '' },
@@ -27,7 +28,7 @@ const sortOptions = [
 	{ label: 'A-Z', value: 'title', sortType: 1 },
 ];
 
-const DocsGrid = ({ statusTextmapper, handleCreateDoc, handleTotalChange }) => {
+const DocsGrid = ({ statusTextmapper, handleCreateDoc, handleTotalChange, clientId = null }) => {
 	const navigate = useNavigate();
 
 	const {
@@ -164,6 +165,9 @@ const DocsGrid = ({ statusTextmapper, handleCreateDoc, handleTotalChange }) => {
 					// action: info?.selectedFilter?.value,
 				},
 			};
+			if (clientId) {
+				payload.filters.clientId = clientId;
+			}
 			await getDocsFilesList(payload, false);
 		} catch (error) {
 			console.error('Error fetching docs:', error);
@@ -236,7 +240,11 @@ const DocsGrid = ({ statusTextmapper, handleCreateDoc, handleTotalChange }) => {
 											dotStyle={statusTextmapper?.[doc?.status]?.dotStyle}
 										/>
 										<div className="docs-title-wrapper">
-											<span className="docs-item-title">{doc?.title}</span>
+											<Tooltip title={doc?.title || ''} placement="bottom">
+												<span className="docs-item-title">
+													{doc?.title}
+												</span>
+											</Tooltip>
 											<span className="docs-item-sub-title">
 												{moment.unix(doc?.createdAt).fromNow()}
 											</span>

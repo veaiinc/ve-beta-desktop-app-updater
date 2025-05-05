@@ -1,14 +1,16 @@
-import React, { memo } from 'react';
+import React, { memo, useContext } from 'react';
 import ReactModal from '../../modalsV2/index';
 import { ReactComponent as BackIcon } from '../../../../assets/svg/left-arrow.svg';
 import { useNavigate } from 'react-router-dom';
 import '../../../../assets/scss/integrations/ConnectedCardIntegrationModel.scss';
+import Context from '../../../../context/context';
+import { message } from '../../globalComponents/CustomToast';
 
 const customStyles = {
 	content: {
 		width: '100%',
-		height: '80vh',
-		maxWidth: '1440px',
+		height: '60vh',
+		maxWidth: '800px',
 		background: 'var(--background-color, #0C0C0D)',
 		borderRadius: '12px',
 		padding: '0',
@@ -16,7 +18,7 @@ const customStyles = {
 		border: 'none',
 	},
 	overlay: {
-		backgroundColor: 'var(--card)',
+		// backgroundColor: 'var(--card)',
 		backdropFilter: 'blur(5px)',
 		display: 'flex',
 		justifyContent: 'center',
@@ -26,8 +28,19 @@ const customStyles = {
 };
 
 const ConnectedIntegrationModel = ({ isOpen, closeModal, connectedIntegration }) => {
-	const navigate = useNavigate();
+	const {
+		profileInfo: { updatedGmailAccount },
+	} = useContext(Context);
 
+	const handleDisconnect = async (account) => {
+		const response = await updatedGmailAccount('gmail', account?.uid);
+		if (response?.[0]) {
+			message.success('Gmail account disconnected successfully');
+			closeModal();
+		} else {
+			message.error('Failed to disconnect Gmail account');
+		}
+	};
 	return (
 		<ReactModal
 			isOpen={isOpen}
@@ -70,11 +83,19 @@ const ConnectedIntegrationModel = ({ isOpen, closeModal, connectedIntegration })
 										<span className="account-name">
 											{account?.email || account?.workspace_name}
 										</span>
-										<span className={`status ${account?.isActive}`}>
-											{account?.isActive === true || account.workspace_id
-												? 'connected'
-												: 'Authentication error'}
-										</span>
+										<div className="account-status">
+											<span className={`status ${account?.isActive}`}>
+												{account?.isActive === true || account.workspace_id
+													? 'connected'
+													: 'Not connected'}
+											</span>
+											<button
+												className="disconnect-btn"
+												onClick={() => handleDisconnect(account)}
+											>
+												Disconnect
+											</button>
+										</div>
 									</div>
 								</div>
 							))}
