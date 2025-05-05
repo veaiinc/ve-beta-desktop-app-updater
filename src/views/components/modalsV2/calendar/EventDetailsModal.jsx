@@ -299,7 +299,7 @@ const EventDetailsModal = ({
 					</div>
 				</div>
 			) : (
-				<div className="eventDetailsDrawerParentCOntainer" style={renewBanner ? customStyles : ''}>
+				<div className="eventDetailsDrawerParentCOntainer" style={renewBanner ? customStyles : {}}>
 					<div className="innerContainer">
 						{/* Event Header */}
 						<div className="eventHeader">
