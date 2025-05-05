@@ -136,8 +136,6 @@ const AISuggestionsModal = ({
 		document?.removeEventListener('mouseup', handleMouseUp);
 	};
 
-	if (!data) return null;
-
 	const {
 		title,
 		description,
@@ -149,9 +147,16 @@ const AISuggestionsModal = ({
 		suggested_prompts,
 		usages,
 		informationRequests,
+		web_sources,
+		knowledge_base_sources,
 	} = data || {};
 
 	const creditUsed = usages?.[0]?.credit?.toFixed(2);
+	const reportCitations = useMemo(() => {
+		return [...(web_sources || []), ...(knowledge_base_sources || [])];
+	}, [web_sources, knowledge_base_sources, research_report]);
+
+	if (!data) return null;
 
 	return (
 		<Drawer
@@ -320,7 +325,9 @@ const AISuggestionsModal = ({
 											className="report-description"
 											onClick={(e) => e?.stopPropagation()}
 										>
-											<Markdown>{research_report || ''}</Markdown>
+											<Markdown citations={reportCitations}>
+												{research_report || ''}
+											</Markdown>
 										</div>
 									)}
 								</div>
