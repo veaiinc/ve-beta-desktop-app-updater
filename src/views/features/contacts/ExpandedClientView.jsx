@@ -314,12 +314,12 @@ const ExpandedClientView = () => {
 					</div>
 					<div className="contacts-stats-container">
 						<div className="contacts-stats">
-							{selectedContactOptions.map(({ key, label, icon, className }) => (
+							{selectedContactOptions?.map(({ label, icon, className }, index) => (
 								<div
 									className={`stat-item ${className} ${
 										info?.selectedContactOption === label ? 'active' : ''
 									}`}
-									key={key}
+									key={index}
 									onClick={() =>
 										setInfo((prev) => ({
 											...prev,

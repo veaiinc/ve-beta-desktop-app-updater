@@ -193,8 +193,9 @@ const ChatPrompts = ({
 							className="infinite-scroll-container"
 						>
 							<div className="suggested-prompts-container">
-								{info?.promptsData?.map((card) => (
+								{info?.promptsData?.map((card, index) => (
 									<div
+										key={index}
 										className="suggested-prompt-card"
 										onClick={() => handlePromptCardClick(card)}
 									>
