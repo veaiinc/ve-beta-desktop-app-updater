@@ -583,17 +583,18 @@ const ChatBox = ({
 					// 	payload.selected_model = chatInfo?.selectedLLMModel;
 					// }
 
+					let location_details = JSON?.parse(localStorage?.getItem('locationDetails'));
+
+					if (!location_details) {
+						location_details = await getLocationsDetails();
+					}
+
+					payload.location = location_details || {};
+
 					//this payload props are for public chat
 					if (isPublicChat) {
 						const user_id = localStorage?.getItem('user_id');
-						let location_details = JSON?.parse(
-							localStorage?.getItem('locationDetails'),
-						);
 						const ip_address = localStorage?.getItem('ipAddress');
-
-						if (!location_details) {
-							location_details = await getLocationsDetails();
-						}
 
 						payload.user_id = user_id ?? null;
 						payload.location_details = location_details || {};
