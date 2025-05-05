@@ -1,4 +1,4 @@
-import { memo, useContext, useRef, useState, useCallback } from 'react';
+import { memo, useContext, useState, useCallback } from 'react';
 import Context from '../../../context/context';
 import FormModel from './FormModel';
 import { Markdown } from '../../../helpers/markdownHelper';
@@ -12,6 +12,7 @@ import { ReactComponent as ViewDocumentIcon } from '../../../assets/svg/chat/vie
 import { ReactComponent as ArrowRightSvg } from '../../../assets/svg/home_page/arrow-right.svg';
 import AISuggestionsReportAiComponent from './chatComponents/AiSuggestionsReportAiComponent';
 import '../../../assets/scss/chat/aiMessage.scss';
+
 const AIMessage = memo(
 	({
 		text,
@@ -36,53 +37,11 @@ const AIMessage = memo(
 			documentPreview: { setNoteContent },
 			templates: { updateStateValues },
 		} = useContext(Context);
-		const [isCopiedToClipboard, setIsCopiedToClipboard] = useState(false);
-		const [renderTrigger, setRenderTrigger] = useState(0);
 
-		const chunkSize = 200; // Size of each chunk (200 characters)\
-		const textRef = useRef(text); // Store the latest text in a ref
-
-		const chunkRef = useRef(''); // Ref for storing chunk
-		const currentIndexRef = useRef(0); // Ref for storing currentIndex
-		const timeIntervalRef = useRef(null);
-		// useEffect(() => {
-		// 	textRef.current = messageData;
-		// }, [messageData]);
-
-		// useEffect(() => {
-		// 	if (messageData?.messageId) {
-		// 		// setChunk(text);
-		// 		chunkRef.current = text;
-		// 		return;
-		// 	}
-		// 	setTimeout(() => {
-		// 		const interval = setInterval(() => {
-		// 			handleChunkRendering();
-		// 		}, 500);
-		// 		timeIntervalRef.current = interval;
-		// 	}, 50);
-		// }, []);
-
-		// const handleChunkRendering = () => {
-		// 	const currentText = textRef.current?.message;
-
-		// 	if (currentIndexRef.current >= currentText?.length && textRef.current?.messageId) {
-		// 		clearInterval(timeIntervalRef.current);
-		// 		return (timeIntervalRef.current = null);
-		// 	}
-
-		// 	// Slice the current chunk from the text
-		// 	let startIndex = currentIndexRef.current;
-		// 	let endIndex =
-		// 		currentIndexRef.current + chunkSize < currentText?.length
-		// 			? currentIndexRef.current + chunkSize
-		// 			: currentText?.length;
-		// 	let subChunk = currentText?.slice(startIndex, endIndex);
-
-		// 	chunkRef.current += subChunk;
-		// 	currentIndexRef.current = endIndex;
-		// 	setRenderTrigger((prev) => prev + 1);
-		// };
+		const [info, setInfo] = useState({
+			isCopiedToClipboard: false,
+			feedbackPopupOpen: false,
+		});
 
 		const handleUpdateId = (workflowTemplateId, moduleTemplateId) => {
 			updateStateValues({
@@ -96,9 +55,9 @@ const AIMessage = memo(
 		const handleCopyTextClick = useCallback((text) => {
 			const textToBeCopied = text?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')?.replace(/\\n/g, '\n');
 			navigator?.clipboard?.writeText(textToBeCopied).then(() => {
-				setIsCopiedToClipboard(true);
+				setInfo((prev) => ({ ...prev, isCopiedToClipboard: true }));
 				setTimeout(() => {
-					setIsCopiedToClipboard(false);
+					setInfo((prev) => ({ ...prev, isCopiedToClipboard: false }));
 				}, 1000);
 			});
 		}, []);
@@ -108,15 +67,12 @@ const AIMessage = memo(
 				customePencilClickFunc();
 			}
 			setNoteContent(messageData);
-		}, [customePencilClickFunc, text, setNoteContent]);
+		}, [customePencilClickFunc, setNoteContent, messageData]);
 
-		const handleThumbsUp = useCallback(() => {
-			handleRatingClick && handleRatingClick('thumbsUp', messageId);
-		}, [handleRatingClick, messageId]);
-
-		const handleThumbsDown = useCallback(() => {
-			handleRatingClick && handleRatingClick('thumbsDown', messageId);
-		}, [handleRatingClick, messageId]);
+		const handleThumbsClick = useCallback(() => {
+			const newRating = rating === 'thumbsUp' ? 'thumbsDown' : 'thumbsUp';
+			handleRatingClick && handleRatingClick(newRating, messageId);
+		}, [handleRatingClick, messageId, rating]);
 
 		const handlePromptClick = (prompt) => {
 			updateStateValues({ activePromptForChat: prompt });
@@ -154,19 +110,16 @@ const AIMessage = memo(
 							<p>View Document</p>
 						</div>
 					))}
+
 				{messageData?.moduleType === 'ai_suggestion_report' ? (
 					<AISuggestionsReportAiComponent data={messageData?.data} />
 				) : (
-					<Markdown citations={citations}>
-						{text}
-						{/* {newText?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')?.replace(/\\n/g, '\n')} */}
-						{/* {chunkRef?.current?.replace(/\\\[(.*?)\\\]/g, '$$$1$$')?.replace(/\\n/g, '\n')} */}
-					</Markdown>
+					<Markdown citations={citations}>{text}</Markdown>
 				)}
 
 				{messageData?.messageId && (
 					<div
-						className={`hover-actions-container`}
+						className="hover-actions-container"
 						style={{
 							visibility: isNewMessage ? 'visible' : '',
 						}}
@@ -176,49 +129,28 @@ const AIMessage = memo(
 								<Tooltip
 									placement="bottom"
 									arrow={false}
-									trigger={'hover'}
-									title={'Like'}
+									trigger="hover"
+									title="Like / Dislike"
 								>
-									<ThumpsUpSvg
-										fill={rating === 'thumbsUp' ? '#f2f2f3' : 'none'}
-										onClick={handleThumbsUp}
-									/>
-								</Tooltip>
-							</div>
-
-							<div className="icon-container">
-								<Tooltip
-									placement="bottom"
-									arrow={false}
-									trigger={'hover'}
-									title={'Dislike'}
-								>
-									<ThumpsDownSvg
-										fill={rating === 'thumbsDown' ? '#f2f2f3' : 'none'}
-										onClick={handleThumbsDown}
-									/>
+									{rating === 'thumbsUp' ? (
+										<ThumpsUpSvg fill="#f2f2f3" onClick={handleThumbsClick} />
+									) : (
+										<ThumpsDownSvg
+											fill={rating === 'thumbsDown' ? '#f2f2f3' : 'none'}
+											onClick={handleThumbsClick}
+										/>
+									)}
 								</Tooltip>
 							</div>
 						</div>
-
-						{/* <div className="icon-container">
-							<Tooltip
-								placement="bottom"
-								arrow={false}
-								trigger={'hover'}
-								title={'Audio'}
-							>
-								<HeadPhoneSvg />
-							</Tooltip>
-						</div> */}
 
 						<div className="right-container">
 							<div className="icon-container">
 								<Tooltip
 									placement="bottom"
 									arrow={false}
-									trigger={'hover'}
-									title={'Edit'}
+									trigger="hover"
+									title="Edit"
 								>
 									<PencilSparkleIcon onClick={handlePencilClick} />
 								</Tooltip>
@@ -228,10 +160,10 @@ const AIMessage = memo(
 								<Tooltip
 									placement="bottom"
 									arrow={false}
-									trigger={'hover'}
-									title={isCopiedToClipboard ? 'Copied' : 'Copy'}
+									trigger="hover"
+									title={info.isCopiedToClipboard ? 'Copied' : 'Copy'}
 								>
-									{isCopiedToClipboard ? (
+									{info.isCopiedToClipboard ? (
 										<TickSvg />
 									) : (
 										<CopyIcon onClick={() => handleCopyTextClick(text)} />
@@ -248,20 +180,18 @@ const AIMessage = memo(
 						<div className="suggested-prompts">
 							<div className="title-text">Suggested Prompts</div>
 							<div className="prompts-container">
-								{(messageData?.['follow_up_query'] || [])?.map((query, index) => {
-									return (
-										<div
-											className="prompt-container"
-											key={index}
-											onClick={() => handlePromptClick(query)}
-										>
-											<div className="logo-container">
-												<ArrowRightSvg />
-											</div>
-											<div className="prompt">{query}</div>
+								{(messageData?.['follow_up_query'] || []).map((query, index) => (
+									<div
+										className="prompt-container"
+										key={index}
+										onClick={() => handlePromptClick(query)}
+									>
+										<div className="logo-container">
+											<ArrowRightSvg />
 										</div>
-									);
-								})}
+										<div className="prompt">{query}</div>
+									</div>
+								))}
 							</div>
 						</div>
 					)}
@@ -269,7 +199,6 @@ const AIMessage = memo(
 		);
 	},
 	(prevProps, nextProps) => {
-		// Custom comparison function for TypingEffect
 		return (
 			prevProps.text === nextProps.text &&
 			prevProps.messageId === nextProps.messageId &&

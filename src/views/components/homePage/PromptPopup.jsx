@@ -1,10 +1,13 @@
-import React, { useState, memo, useEffect, useCallback, useContext, useRef } from 'react';
+import React, { useState, memo, useEffect, useCallback, useContext } from 'react';
 import ReactModal from '../modalsV2';
 import { ReactComponent as CrossSvg } from '../../../assets/svg/gallery/cross.svg';
 import '../../../assets/scss/home_page/promptPopup.scss';
 import Context from '../../../context/context';
 import { useNavigate } from 'react-router-dom';
 import ObjectID from 'bson-objectid';
+import { ReactComponent as ThumbsUp } from '../../../assets/svg/thumbsUp.svg';
+import { ReactComponent as ThumbsDown } from '../../../assets/svg/thumbsDown.svg';
+import { ReactComponent as ArrowUpRight } from '../../../assets/svg/sidebar/arrowupright.svg';
 
 const customStyles = {
 	content: { zIndex: 99999 },
@@ -21,18 +24,43 @@ const spanStyles = {
 	lineHeight: '1.4',
 };
 
-const PromptPopup = ({ open, closeModal, selectedCard }) => {
+const dummyFeedbacks = [{
+	id : '3421',
+	label: 'Not Relevant'
+}, {
+	id : '3422',
+    label: 'Too generic'
+}, 
+{
+	id: '3433',
+	label: 'Incorrect Info'
+}, {
+	id: '3434',
+	label: 'Hard to understand'
+}, {
+	id : '3435', label: "Missing details"
+}, {
+	id: '3436',
+    label: 'Essential information is absent.'
+}, {
+	id : '3437',
+	label: 'Crucial details are lacking.'
+}
+];
+
+const PromptPopup = ({ open, closeModal, selectedCard, isFeedbackPopupOpen = false, liked = null }) => {
 	const {
 		templates: { updateStateValues },
 	} = useContext(Context);
 
-	// const [searchText, setSearchText] = useState('');
-	const [selectedOptions, setSelectedOptions] = useState({});
-	const [isOpen, setIsOpen] = useState(false);
-	const [clientSearch, setClientSearch] = useState('');
-	const [dynamicValues, setDynamicValues] = useState({});
-	const editableRef = useRef(null);
-	const [parsedPrompt, setParsedPrompt] = useState([]);
+	const [info, setInfo] = useState({
+		selectedOptions: {},
+		dynamicValues: {},
+		parsedPrompt: [],
+		feedbackPopupOpen: isFeedbackPopupOpen,
+		feedback: liked,
+		selectedFeedback: null,
+	});
 
 	const navigate = useNavigate();
 
@@ -57,93 +85,68 @@ const PromptPopup = ({ open, closeModal, selectedCard }) => {
 			parts.push({ type: 'text', value: selectedCard.prompt.slice(lastIndex) });
 		}
 
-		setParsedPrompt(parts);
-
-		// Initialize variable values
 		const initialValues = {};
 		matches.forEach((m) => (initialValues[m[1]] = ''));
-		setDynamicValues(initialValues);
+
+		setInfo((prev) => ({
+			...prev,
+			dynamicValues: initialValues,
+			parsedPrompt: parts,
+		}));
 	}, [selectedCard]);
 
 	const handleVariableChange = (key, value) => {
-		setDynamicValues((prev) => ({
+		setInfo((prev) => ({
 			...prev,
-			[key]: value,
+			dynamicValues: {
+				...prev.dynamicValues,
+				[key]: value,
+			},
 		}));
 	};
 
-	const handlePromptInput = () => {
-		if (!editableRef.current) return;
-
-		const children = editableRef.current.querySelectorAll('[data-key]');
-		const updatedValues = {};
-		children.forEach((el) => {
-			const key = el.getAttribute('data-key');
-			updatedValues[key] = el.textContent;
-		});
-		setDynamicValues(updatedValues);
-	};
-
-	const handleSelectedFile = (file) => {
-		setSelectedOptions((prev) => {
+	const handleRemoveSelectedFile = (file) => {
+		setInfo((prev) => {
 			const cardId = selectedCard?.id;
 			if (!cardId) return prev;
 
-			const isSelected = prev?.[cardId]?.includes(file);
-			const updatedFiles = isSelected
-				? prev[cardId]?.filter((f) => f !== file)
-				: [...(prev[cardId] || []), file];
+			const updated = { ...prev.selectedOptions };
+			updated[cardId] = (updated[cardId] || []).filter((f) => f !== file);
+			if (updated[cardId]?.length === 0) delete updated[cardId];
 
 			return {
 				...prev,
-				[cardId]: updatedFiles.length > 0 ? updatedFiles : undefined,
+				selectedOptions: updated,
 			};
-		});
-	};
-
-	const handleClientSearch = (value) => {
-		setClientSearch(value?.title);
-	};
-
-	const handleRemoveSelectedFile = (file) => {
-		setSelectedOptions((prev) => {
-			const cardId = selectedCard?.id;
-
-			if (!cardId) return prev;
-			const updatedOptions = {
-				...prev,
-				[cardId]: (prev[cardId] || [])?.filter((f) => f !== file),
-			};
-
-			if (updatedOptions?.[cardId]?.length === 0) {
-				delete updatedOptions?.[cardId];
-			}
-
-			return updatedOptions;
 		});
 	};
 
 	const handleClickRun = useCallback(() => {
-		// Create the final dynamic prompt by joining the text and replacing variables
-		let finalPrompt = parsedPrompt
-			.map((part) => {
-				if (part.type === 'text') {
-					return part.value; // If it's regular text, keep it as it is
-				} else if (part.type === 'variable') {
-					// Replace the variable with its value from dynamicValues
-					return dynamicValues[part.value] || `[${part.value}]`; // Use the value if available, otherwise keep the placeholder
-				}
-				return '';
-			})
-			.join(''); // Join all parts into a single string
+		const finalPrompt = info.parsedPrompt
+			.map((part) =>
+				part.type === 'text'
+					? part.value
+					: info.dynamicValues[part.value] || `[${part.value}]`,
+			)
+			.join('');
 
-		// Update activePromptForChat with the final string
 		updateStateValues({ activePromptForChat: finalPrompt });
-
-		// Close the modal and navigate to the chat page
 		closeModal();
 		navigate(`/chat/${ObjectID().toString()}`);
-	}, [parsedPrompt, dynamicValues, updateStateValues, closeModal, navigate]);
+	}, [info, updateStateValues, closeModal, navigate]);
+
+	const handleFeedbackClick = (feedback) => {
+		setInfo((prev) => ({ ...prev, feedbackPopupOpen: true, feedback }));
+	};
+
+	const handleFeedbackSubmit = () => {
+		setInfo((prev) => ({...prev, feedbackPopupOpen: false }));
+	}
+
+	const handleFeedbackSelect = (feedback) => {
+		console.log(feedback)
+			setInfo((prev) => ({...prev, selectedFeedback : feedback.id}))
+	}
 
 	return (
 		<ReactModal
@@ -156,26 +159,38 @@ const PromptPopup = ({ open, closeModal, selectedCard }) => {
 				<div className="promptPopupContainerHeader">
 					<div className="promptPopupContainerHeaderLeft">
 						<div className="promptPopupContainerHeaderLeftTitle">
-							{selectedCard?.title}
+							{!info?.feedbackPopupOpen
+								? selectedCard?.title
+								: `Hey, I'm learning from you!`}
 						</div>
-						{/* <div className="promptPopupContainerHeaderLeftSubtitle">20 Credits</div> */}
 					</div>
-					<div className="promptPopupContainerHeaderRight" onClick={closeModal}>
-						<CrossSvg />
+					<div className="promptPopupContainerHeaderRight">
+						<button
+							className={`${info?.feedback === 'like' ? 'active' : ''}`}
+							onClick={() => handleFeedbackClick('like')}
+						>
+							<ThumbsUp />
+						</button>
+						<button
+							className={`${info?.feedback === 'dislike' ? 'active' : ''}`}
+							onClick={() => handleFeedbackClick('dislike')}
+						>
+							<ThumbsDown />
+						</button>
 					</div>
 				</div>
+
 				<div className="promptPopupContainerEditableFields">Editable Fields</div>
+
 				<div className="promptPopupContainerBody">
 					<div
 						className="promptPopupContainerBodyText"
 						style={{ whiteSpace: 'pre-wrap' }}
 					>
-						{parsedPrompt.map((part, index) => {
+						{info.parsedPrompt.map((part, index) => {
 							if (part.type === 'text') {
-								// If it's regular text (including brackets), show it as static
 								return <span key={index}>{part.value}</span>;
 							} else if (part.type === 'variable') {
-								// If it's a variable, show the brackets but make the inner content editable
 								return (
 									<span key={index} style={spanStyles}>
 										<span
@@ -187,12 +202,12 @@ const PromptPopup = ({ open, closeModal, selectedCard }) => {
 												color: 'var(--primary-font)',
 												outline: 'none',
 											}}
-											onBlur={(e) => {
-												const newValue = e.target.innerText;
-												handleVariableChange(part.value, newValue); // Ensure this updates the dynamicValues
-											}}
+											onBlur={(e) =>
+												handleVariableChange(part.value, e.target.innerText)
+											}
 											dangerouslySetInnerHTML={{
-												__html: dynamicValues[part.value] || part.value, // Ensure it uses the dynamic state
+												__html:
+													info.dynamicValues[part.value] || part.value,
 											}}
 										/>
 									</span>
@@ -203,70 +218,60 @@ const PromptPopup = ({ open, closeModal, selectedCard }) => {
 					</div>
 				</div>
 
-				{selectedOptions?.[selectedCard?.id]?.length && (
+				{info.selectedOptions?.[selectedCard?.id]?.length > 0 && (
 					<div className="promptPopupContainerSelectedFilesDiv">
-						{selectedOptions?.[selectedCard?.id]?.map((file, index) => {
-							return (
-								<div className="promptPopupContainerEachSelectedFile">
-									<div className="promptPopupContainerEachSelectedFileText">
-										{file}
-									</div>
-									<CrossSvg
-										onClick={() => handleRemoveSelectedFile(file)}
-										style={{ cursor: 'pointer' }}
-									/>
+						{info.selectedOptions[selectedCard.id].map((file, index) => (
+							<div className="promptPopupContainerEachSelectedFile" key={index}>
+								<div className="promptPopupContainerEachSelectedFileText">
+									{file}
 								</div>
-							);
-						})}
+								<CrossSvg
+									onClick={() => handleRemoveSelectedFile(file)}
+									style={{ cursor: 'pointer' }}
+								/>
+							</div>
+						))}
 					</div>
 				)}
 
-				{/* <div className="promptPopupContainerFilesDiv">
-					<div className="promptPopupContainerSelectionFiles">
-						<div className="promptPopupContainerSelectionFilesTitle">Select file</div>
-						<div className="promptPopupContainerSelectionFilesSearch">
-							<SearchIcon />
-							<input
-								type="text"
-								placeholder="Search Files"
-								className="inputSearchText"
-								value={searchText}
-								onChange={(e) => setSearchText(e?.target?.value)}
-							/>
-						</div>
+				{info?.feedbackPopupOpen && (
+					<div className="feedbacks-container" style={{ color: 'white' }}>
+						{dummyFeedbacks.map((feedback) => (
+							<span
+								className={`feedback-label ${
+									info?.selectedFeedback === feedback?.id ? 'selected-feedback' : ''
+								}`}
+								onClick={() => handleFeedbackSelect(feedback)}
+								key={feedback.id}
+							>
+								{feedback.label}
+							</span>
+						))}
 					</div>
-					<div className="promptPopupOptionsContainer">
-						{files?.map((file, index) => {
-							return (
-								<div
-									key={index}
-									className={`promptPopupOptionsContainerFiles ${
-										selectedOptions?.[selectedCard?.id]?.includes(file)
-											? 'selected'
-											: ''
-									}`}
-									onClick={() => handleSelectedFile(file)}
-									style={{ cursor: 'pointer' }}
-								>
-									<div className="promptPopupContainerFilesList">
-										<div className="promptPopupContainerFilesListFileIcon"></div>
-										<div className="promptPopupContainerFilesListFile">
-											{file}
-										</div>
-									</div>
-									{selectedOptions?.[selectedCard?.id]?.includes(file) && (
-										<div className="promptPopupContainerFilesListSelected">
-											<TickSvg />
-										</div>
-									)}
-								</div>
-							);
-						})}
+				)}
+
+				<div className="promptPopupFooter">
+					<div className="leftPart">
+						<span>70%</span>
 					</div>
-				</div> */}
-				<button className="promptPopupContainerRunButton" onClick={handleClickRun}>
-					Run
-				</button>
+					<div className="rightPart">
+						<button className="cancel" onClick={() => {
+							setInfo((prev) => ({...prev, feedbackPopupOpen: false }));
+							closeModal();
+						}}>
+							Cancel
+						</button>
+						<button className="runPrompt" onClick={info?.feedbackPopupOpen ? handleFeedbackSubmit : handleClickRun}>
+							{info?.feedbackPopupOpen ? (
+								'Submit'
+							) : (
+								<>
+									Run this prompt <ArrowUpRight />
+								</>
+							)}
+						</button>
+					</div>
+				</div>
 			</div>
 		</ReactModal>
 	);
