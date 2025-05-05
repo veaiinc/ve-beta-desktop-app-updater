@@ -756,9 +756,6 @@ const OpenedSidebar = ({
 																	)}
 																</div>
 																<div className="settingsOptionsUserName">
-																	<span className="workspaceId">
-																		{tennantSettingsData?.businessName.toUpperCase()}
-																	</span>
 																	<span>
 																		{userDetailsData?.firstName}{' '}
 																		<span className="workspaceId">
@@ -770,6 +767,9 @@ const OpenedSidebar = ({
 																			}`}
 																			)
 																		</span>
+																	</span>
+																	<span className="workspaceId">
+																		{tennantSettingsData?.businessName.toUpperCase()}
 																	</span>
 																</div>
 															</div>
@@ -958,7 +958,11 @@ const OpenedSidebar = ({
 						<div className="settings-options-container">
 							<div className="settings-options-title">Essentials</div>
 							{filterModules2?.map((singleItem, index) => (
-								<div key={index} style={{ width: '100%' }} className='settings-option'>
+								<div
+									key={index}
+									style={{ width: '100%' }}
+									className="settings-option"
+								>
 									<OpenedSidebarModules
 										name={singleItem.name}
 										Icon={singleItem.icon}
@@ -1077,14 +1081,14 @@ const OpenedSidebar = ({
 											)}
 										</div>
 										<div className="settingsOptionsUserName">
-											<span className="workspaceId">
-												{tennantSettingsData?.businessName.toUpperCase()}
-											</span>
 											<span>
 												{userDetailsData?.firstName}{' '}
 												<span className="workspaceId">
 													({`${isAdmin ? 'Admin' : 'Member'}`})
 												</span>
+											</span>
+											<span className="workspaceId">
+												{tennantSettingsData?.businessName.toUpperCase()}
 											</span>
 										</div>
 									</div>
