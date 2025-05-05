@@ -23,8 +23,8 @@ const initialState = {
 
 const customStyles = {
 	height: 'calc(100dvh - 41px)',
-	marginTop: '41px'
-}
+	marginTop: '41px',
+};
 
 const EventDetailsModal = ({
 	selectedEvent,
@@ -299,7 +299,10 @@ const EventDetailsModal = ({
 					</div>
 				</div>
 			) : (
-				<div className="eventDetailsDrawerParentCOntainer" style={renewBanner ? customStyles : {}}>
+				<div
+					className="eventDetailsDrawerParentCOntainer"
+					style={renewBanner ? customStyles : {}}
+				>
 					<div className="innerContainer">
 						{/* Event Header */}
 						<div className="eventHeader">

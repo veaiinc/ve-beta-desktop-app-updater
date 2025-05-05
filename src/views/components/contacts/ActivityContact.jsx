@@ -1,7 +1,5 @@
 import '../../../assets/scss/contacts/activityContact.scss';
 
-import React from 'react';
-
 const ActivityContact = () => {
 	return (
 		<div className="activity-contact">

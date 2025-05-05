@@ -47,10 +47,8 @@ const ListViewSidebar = ({
 	breadCrumbs,
 	handleBreadCrumbsClick,
 	showQuickActions = true,
-	renewBanner
+	renewBanner,
 }) => {
-
-
 	const [info, setInfo] = useState({
 		subTasks: [],
 		subTaskLoading: true,
@@ -303,7 +301,10 @@ const ListViewSidebar = ({
 					isSidebarExpanded ? 'listView-sidebar-container-expanded' : ''
 				}`}
 			>
-				<div className="listView-sidebar-innerContainer" style={renewBanner ? customStyles : ''}>
+				<div
+					className="listView-sidebar-innerContainer"
+					style={renewBanner ? customStyles : ''}
+				>
 					<div className="sidebar-header">
 						<div className="sidebar-header-left-container">
 							<div className="sidebar-header-expand-button">

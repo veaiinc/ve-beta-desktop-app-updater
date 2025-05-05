@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import { useContext } from 'react';
 import TaskWidget from '../globalComponents/TaskWidget';
 import AutomationWidget from '../globalComponents/AutomationWidget';
 import CalenderWidget from '../globalComponents/CalenderWidget';
@@ -23,6 +23,13 @@ const OverviewContact = () => {
 	const [editField, setEditField] = useState(null);
 	const [editValue, setEditValue] = useState('');
 	const navigate = useNavigate();
+
+	const handleEmailClick = () => {
+		window.location.href = `mailto:${info?.contact?.email}`;
+	};
+	const handlePhoneClick = () => {
+		window?.open(`tel:${info?.contact?.phone}`, '_blank');
+	};
 
 	useEffect(() => {
 		getClient({ getClientId: contactId }).then((res) => {
@@ -150,11 +157,11 @@ const OverviewContact = () => {
 						</div>
 
 						<div className="profile-actions">
-							<div className="profile-action-btn">
+							<div onClick={handleEmailClick} className="profile-action-btn">
 								<EmailIcon />
 								<span>Email</span>
 							</div>
-							<div className="profile-action-btn">
+							<div onClick={handlePhoneClick} className="profile-action-btn">
 								<PhoneIcon />
 								<span>Call</span>
 							</div>
