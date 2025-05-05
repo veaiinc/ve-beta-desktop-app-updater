@@ -46,6 +46,7 @@ const GalleryCard = ({ task, responseMetadata, handleUpdate }) => {
 			</div>
 			<div className="gallery-card-footer">
 				{task.childTasks && renderComponent('childTasks', task.childTasks)}
+				{true && renderComponent('subTasks', task.subTasks)}
 			</div>
 		</div>
 	);

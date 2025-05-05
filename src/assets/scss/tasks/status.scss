@@ -86,7 +86,7 @@
 }
 
 .border-bottom {
-	border-bottom: 1px solid #2b2b2c;
+	border-bottom: 1px solid var(--stroke);
 }
 
 .select-listItem {
@@ -115,7 +115,7 @@
 	}
 
 	.select-listItem-label {
-		color: white;
+		color: var(--primary-font);
 		text-align: center;
 		font-family: var(--primary-font-family);
 		font-size: 12px;

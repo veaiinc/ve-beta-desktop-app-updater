@@ -16,7 +16,7 @@ const Taskwidget = () => {
 
 	return (
 		<div className="taskWidgetContainer">
-			<div className="taskWidgetHeader">Tasks</div>
+			<div className="taskWidgetHeader"></div>
 			<div className="taskWidgetHeaderContainer">
 				<div className="taskHeader">
 					<div className="taskWidgetHeaderNumber">{allTasks || 0}</div>
