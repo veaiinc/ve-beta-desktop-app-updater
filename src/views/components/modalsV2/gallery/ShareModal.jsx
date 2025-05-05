@@ -678,7 +678,7 @@ const ShareModal = ({
 								<div key={item.label} className="visitorFormAccessItem">
 									<input
 										type="checkbox"
-										checked={data?.visitorFormAccess?.accessibleTo?.includes(
+										checked={visitorFormAccess?.accessibleTo?.includes(
 											item.apiKey,
 										)}
 										onChange={() => handleVisitorForm(item.apiKey)}
