@@ -25,6 +25,11 @@ const getFormattedDate = (date) => {
 	return moment(date * 1000)?.format('DD/MM/YYYY - hh:mm A');
 };
 
+const customStyles = {
+	height: 'calc(100dvh - 41px)',
+	marginTop: '53px',
+};
+
 const ListViewSidebar = ({
 	selectedRow,
 	sidebarIsOpen,
@@ -42,7 +47,10 @@ const ListViewSidebar = ({
 	breadCrumbs,
 	handleBreadCrumbsClick,
 	showQuickActions = true,
+	renewBanner
 }) => {
+
+
 	const [info, setInfo] = useState({
 		subTasks: [],
 		subTaskLoading: true,
@@ -295,7 +303,7 @@ const ListViewSidebar = ({
 					isSidebarExpanded ? 'listView-sidebar-container-expanded' : ''
 				}`}
 			>
-				<div className="listView-sidebar-innerContainer">
+				<div className="listView-sidebar-innerContainer" style={renewBanner ? customStyles : ''}>
 					<div className="sidebar-header">
 						<div className="sidebar-header-left-container">
 							<div className="sidebar-header-expand-button">
