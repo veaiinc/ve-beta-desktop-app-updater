@@ -106,6 +106,7 @@ const ChatBox = ({
 	customChatBoxClick = null,
 	showScrollButton = false,
 	smoothScrollToBottom = null,
+	startPage = false,
 }) => {
 	const textAreaRef = useRef(null);
 	const location = useLocation();
@@ -1089,7 +1090,11 @@ const ChatBox = ({
 					<div className="chatcontainer">
 						<div className="chatBodyContainer">
 							<div className="chatInputContainer">
-								<div className={`chatInputParentContainer`}>
+								<div
+									className={`chatInputParentContainer ${
+										startPage ? ' startPageContainer' : ''
+									}`}
+								>
 									<div className="chat-input-container">
 										{(chatInfo?.reason?.webSearch ||
 											chatInfo?.reason?.workspaceSearch) && (
@@ -1108,6 +1113,48 @@ const ChatBox = ({
 												)}
 											</div>
 										)}
+										{startPage && !isPublicChat && (
+											<UploadFileTooltip
+												fileTypeIcons={fileTypeIcons}
+												handleChange={handleFileAttachmentChange}
+												isUploadFileOpen={info?.isUploadFileOpen}
+												setIsUploadFileOpen={(value) => {
+													if (chatInfo?.deepResearch) return;
+													setInfo((prev) => ({
+														...prev,
+														isUploadFileOpen: value,
+													}));
+												}}
+												handleRecentFileClick={handleRecentFileClick}
+												recentFiles={recentFilesRef.current || []}
+											>
+												<Tooltip
+													title={
+														<div className="chatbox-icon-tooltip-container">
+															Upload File
+														</div>
+													}
+													color="transparent"
+													arrow={false}
+													rootClassName="chatbox-tooltip"
+												>
+													<div
+														className="chat-box-icon-container"
+														style={{
+															opacity: `${
+																chatInfo?.deepResearch ? '0.5' : '1'
+															}`,
+															background: 'var(--card)',
+															padding: '6px 8px',
+														}}
+													>
+														<div className="icon">
+															<PlusSvg width={17} height={17} />
+														</div>
+													</div>
+												</Tooltip>
+											</UploadFileTooltip>
+										)}
 										<div className="placeholderContainer">
 											<textarea
 												type="text"
@@ -1115,7 +1162,9 @@ const ChatBox = ({
 												onChange={handleTextAreaChange}
 												autoFocus={autoFocus}
 												onKeyDown={handleSendMessageFunc}
-												className="textArea"
+												className={`textArea ${
+													startPage ? 'startTextPage' : ''
+												}`}
 												ref={textAreaRef}
 												placeholder={
 													!animatePlaceholder
@@ -1132,19 +1181,42 @@ const ChatBox = ({
 												/>
 											)}
 										</div>
-									</div>
-									<div className="options-container">
-										{info?.showFilters ? (
-											<div className="filters-parent-container">
+										{startPage &&
+											(info?.chatQuery?.trim()?.length > 0 || isPublicChat ? (
 												<div
-													className="close-filters"
-													onClick={handleHideFiltersClick}
+													className="click-btn"
+													onClick={(e) => handleSendBtnClick(e)}
+													style={{
+														backgroundColor: 'var(--primary-button)',
+													}}
 												>
-													<ChevronSvg />
+													<ArrowUp />
 												</div>
-												<div className="filters-wrapper">
-													<div className="filters-container">
-														{/* <SearchDropdown
+											) : (
+												<div
+													className="click-btn"
+													onClick={(e) => handleMicIconClick(e)}
+													style={{
+														backgroundColor: 'var(--primary-button)',
+													}}
+												>
+													<AudioSvg />
+												</div>
+											))}
+									</div>
+									{!startPage && (
+										<div className="options-container">
+											{info?.showFilters ? (
+												<div className="filters-parent-container">
+													<div
+														className="close-filters"
+														onClick={handleHideFiltersClick}
+													>
+														<ChevronSvg />
+													</div>
+													<div className="filters-wrapper">
+														<div className="filters-container">
+															{/* <SearchDropdown
 															headerTitle="Integrations"
 															selectedOptions={
 																info?.chatFilters?.integrations
@@ -1164,161 +1236,121 @@ const ChatBox = ({
 																handleIntegrationsOptionClick
 															}
 														/> */}
-														<SearchDropdown
-															headerTitle="Modules"
-															selectedOptions={
-																info?.chatFilters?.modules
-															}
-															isDropdownOpen={
-																info?.isModulesDropdownOpen
-															}
-															setIsDropdownOpen={(value) =>
-																setInfo((prev) => ({
-																	...prev,
-																	isModulesDropdownOpen: value,
-																}))
-															}
-															options={modulesOptions}
-															handleOptionClick={
-																handleModulesOptionClick
-															}
-														/>
-														<DateRangeDropdown
-															onOptionClick={(value) => {
-																setInfo((prev) => ({
-																	...prev,
-																	chatFilters: {
-																		...prev?.chatFilters,
-																		dateRange: value,
-																	},
-																}));
-															}}
-															startDate={
-																info?.chatFilters?.dateRange?.[0]
-															}
-															endDate={
-																info?.chatFilters?.dateRange?.[1]
-															}
-														/>
-													</div>
-													<div
-														className="reset-filters"
-														onClick={handleResetFiltersClick}
-													>
-														<CloseSvg />
+															<SearchDropdown
+																headerTitle="Modules"
+																selectedOptions={
+																	info?.chatFilters?.modules
+																}
+																isDropdownOpen={
+																	info?.isModulesDropdownOpen
+																}
+																setIsDropdownOpen={(value) =>
+																	setInfo((prev) => ({
+																		...prev,
+																		isModulesDropdownOpen:
+																			value,
+																	}))
+																}
+																options={modulesOptions}
+																handleOptionClick={
+																	handleModulesOptionClick
+																}
+															/>
+															<DateRangeDropdown
+																onOptionClick={(value) => {
+																	setInfo((prev) => ({
+																		...prev,
+																		chatFilters: {
+																			...prev?.chatFilters,
+																			dateRange: value,
+																		},
+																	}));
+																}}
+																startDate={
+																	info?.chatFilters
+																		?.dateRange?.[0]
+																}
+																endDate={
+																	info?.chatFilters
+																		?.dateRange?.[1]
+																}
+															/>
+														</div>
+														<div
+															className="reset-filters"
+															onClick={handleResetFiltersClick}
+														>
+															<CloseSvg />
+														</div>
 													</div>
 												</div>
-											</div>
-										) : (
-											<div className="buttons-container">
-												<div className="chat-icons-container">
-													{!isPublicChat && (
-														<UploadFileTooltip
-															fileTypeIcons={fileTypeIcons}
-															handleChange={
-																handleFileAttachmentChange
-															}
-															isUploadFileOpen={
-																info?.isUploadFileOpen
-															}
-															setIsUploadFileOpen={(value) => {
-																if (chatInfo?.deepResearch) return;
-																setInfo((prev) => ({
-																	...prev,
-																	isUploadFileOpen: value,
-																}));
-															}}
-															handleRecentFileClick={
-																handleRecentFileClick
-															}
-															recentFiles={
-																recentFilesRef.current || []
-															}
-														>
-															<Tooltip
-																title={
-																	<div className="chatbox-icon-tooltip-container">
-																		Upload File
-																	</div>
+											) : (
+												<div className="buttons-container">
+													<div className="chat-icons-container">
+														{!isPublicChat && (
+															<UploadFileTooltip
+																fileTypeIcons={fileTypeIcons}
+																handleChange={
+																	handleFileAttachmentChange
 																}
-																color="transparent"
-																arrow={false}
-																rootClassName="chatbox-tooltip"
+																isUploadFileOpen={
+																	info?.isUploadFileOpen
+																}
+																setIsUploadFileOpen={(value) => {
+																	if (chatInfo?.deepResearch)
+																		return;
+																	setInfo((prev) => ({
+																		...prev,
+																		isUploadFileOpen: value,
+																	}));
+																}}
+																handleRecentFileClick={
+																	handleRecentFileClick
+																}
+																recentFiles={
+																	recentFilesRef.current || []
+																}
 															>
-																<div
-																	className="chat-box-icon-container"
-																	style={{
-																		opacity: `${
-																			chatInfo?.deepResearch
-																				? '0.5'
-																				: '1'
-																		}`,
-																		background: 'var(--card)',
-																		padding: '6px 8px',
-																	}}
+																<Tooltip
+																	title={
+																		<div className="chatbox-icon-tooltip-container">
+																			Upload File
+																		</div>
+																	}
+																	color="transparent"
+																	arrow={false}
+																	rootClassName="chatbox-tooltip"
 																>
-																	<div className="icon">
-																		<PlusSvg
-																			width={17}
-																			height={17}
-																		/>
-																	</div>
-																</div>
-															</Tooltip>
-														</UploadFileTooltip>
-													)}
-
-													<Tooltip
-														title={
-															<div className="chatbox-icon-tooltip-container">
-																{chatInfo?.webSearch
-																	? 'Disable web search'
-																	: 'Search on web'}
-															</div>
-														}
-														color="transparent"
-														arrow={false}
-														rootClassName="chatbox-tooltip"
-													>
-														<div
-															className={`chat-box-icon-container ${
-																chatInfo?.webSearch ? 'active' : ''
-															}`}
-															style={{
-																opacity: `${
-																	chatInfo?.deepResearch
-																		? '0.5'
-																		: '1'
-																}`,
-															}}
-															onClick={handleWebSearchClick}
-														>
-															<div className="icon">
-																<WebSvg
-																	selected={chatInfo?.webSearch}
-																/>
-																{showIconText && (
 																	<div
-																		className="icon-text"
+																		className="chat-box-icon-container"
 																		style={{
-																			color: chatInfo?.webSearch
-																				? 'var(--primary-button-font)'
-																				: 'var(--primary-font)',
+																			opacity: `${
+																				chatInfo?.deepResearch
+																					? '0.5'
+																					: '1'
+																			}`,
+																			background:
+																				'var(--card)',
+																			padding: '6px 8px',
 																		}}
 																	>
-																		Web Search
+																		<div className="icon">
+																			<PlusSvg
+																				width={17}
+																				height={17}
+																			/>
+																		</div>
 																	</div>
-																)}
-															</div>
-														</div>
-													</Tooltip>
-													{!isPublicChat && (
+																</Tooltip>
+															</UploadFileTooltip>
+														)}
+
 														<Tooltip
 															title={
 																<div className="chatbox-icon-tooltip-container">
-																	{chatInfo?.workspaceSearch
-																		? 'Explore internal data'
-																		: 'Explore internal data'}
+																	{chatInfo?.webSearch
+																		? 'Disable web search'
+																		: 'Search on web'}
 																</div>
 															}
 															color="transparent"
@@ -1327,11 +1359,10 @@ const ChatBox = ({
 														>
 															<div
 																className={`chat-box-icon-container ${
-																	chatInfo?.workspaceSearch
+																	chatInfo?.webSearch
 																		? 'active'
 																		: ''
 																}`}
-																onClick={handleWorkspaceSearchClick}
 																style={{
 																	opacity: `${
 																		chatInfo?.deepResearch
@@ -1339,50 +1370,36 @@ const ChatBox = ({
 																			: '1'
 																	}`,
 																}}
+																onClick={handleWebSearchClick}
 															>
 																<div className="icon">
-																	<BookSvg
+																	<WebSvg
 																		selected={
-																			chatInfo?.workspaceSearch
+																			chatInfo?.webSearch
 																		}
 																	/>
 																	{showIconText && (
 																		<div
 																			className="icon-text"
 																			style={{
-																				color: chatInfo?.workspaceSearch
+																				color: chatInfo?.webSearch
 																					? 'var(--primary-button-font)'
 																					: 'var(--primary-font)',
 																			}}
 																		>
-																			Internal Search
+																			Web Search
 																		</div>
 																	)}
 																</div>
 															</div>
 														</Tooltip>
-													)}
-
-													{!isPublicChat && (
-														<SearchTypeTooltip
-															isOpen={info?.searchTypeOpen}
-															searchType={chatInfo?.reason}
-															onSearchTypeChange={
-																handleUpdateSearchTypeChange
-															}
-															onOpenChange={(value) => {
-																setInfo((prev) => ({
-																	...prev,
-																	searchTypeOpen: value,
-																}));
-															}}
-															searchTypeOptions={searchTypeOptions}
-														>
+														{!isPublicChat && (
 															<Tooltip
 																title={
 																	<div className="chatbox-icon-tooltip-container">
-																		Unlock in-depth reasoning on
-																		any subject
+																		{chatInfo?.workspaceSearch
+																			? 'Explore internal data'
+																			: 'Explore internal data'}
 																	</div>
 																}
 																color="transparent"
@@ -1390,70 +1407,138 @@ const ChatBox = ({
 																rootClassName="chatbox-tooltip"
 															>
 																<div
-																	className={`chat-box-icon-container`}
+																	className={`chat-box-icon-container ${
+																		chatInfo?.workspaceSearch
+																			? 'active'
+																			: ''
+																	}`}
+																	onClick={
+																		handleWorkspaceSearchClick
+																	}
 																	style={{
-																		border: `1px solid ${
-																			chatInfo?.reason
-																				?.webSearch ||
-																			chatInfo?.reason
-																				?.workspaceSearch
-																				? 'var(--primary-button)'
-																				: 'var(--stroke)'
-																		} `,
+																		opacity: `${
+																			chatInfo?.deepResearch
+																				? '0.5'
+																				: '1'
+																		}`,
 																	}}
 																>
 																	<div className="icon">
-																		<AtomSvg
-																			fill={
+																		<BookSvg
+																			selected={
+																				chatInfo?.workspaceSearch
+																			}
+																		/>
+																		{showIconText && (
+																			<div
+																				className="icon-text"
+																				style={{
+																					color: chatInfo?.workspaceSearch
+																						? 'var(--primary-button-font)'
+																						: 'var(--primary-font)',
+																				}}
+																			>
+																				Internal Search
+																			</div>
+																		)}
+																	</div>
+																</div>
+															</Tooltip>
+														)}
+
+														{!isPublicChat && (
+															<SearchTypeTooltip
+																isOpen={info?.searchTypeOpen}
+																searchType={chatInfo?.reason}
+																onSearchTypeChange={
+																	handleUpdateSearchTypeChange
+																}
+																onOpenChange={(value) => {
+																	setInfo((prev) => ({
+																		...prev,
+																		searchTypeOpen: value,
+																	}));
+																}}
+																searchTypeOptions={
+																	searchTypeOptions
+																}
+															>
+																<Tooltip
+																	title={
+																		<div className="chatbox-icon-tooltip-container">
+																			Unlock in-depth
+																			reasoning on any subject
+																		</div>
+																	}
+																	color="transparent"
+																	arrow={false}
+																	rootClassName="chatbox-tooltip"
+																>
+																	<div
+																		className={`chat-box-icon-container`}
+																		style={{
+																			border: `1px solid ${
 																				chatInfo?.reason
 																					?.webSearch ||
 																				chatInfo?.reason
 																					?.workspaceSearch
 																					? 'var(--primary-button)'
-																					: 'var(--secondary-font)'
-																			}
-																		/>
-																		{showIconText && (
-																			<>
-																				<div
-																					className="icon-text"
-																					style={{
-																						color:
-																							chatInfo
-																								?.reason
-																								?.webSearch ||
-																							chatInfo
-																								?.reason
-																								?.workspaceSearch
-																								? 'var(--primary-button)'
-																								: 'var(--primary-font)',
-																					}}
-																				>
-																					Reason
-																				</div>
-																				<div className="icon-arrow">
-																					<ArrowDownSvg
-																						fill={
-																							chatInfo
-																								?.reason
-																								?.webSearch ||
-																							chatInfo
-																								?.reason
-																								?.workspaceSearch
-																								? 'var(--primary-button)'
-																								: 'var(--secondary-font)'
-																						}
-																					/>
-																				</div>
-																			</>
-																		)}
+																					: 'var(--stroke)'
+																			} `,
+																		}}
+																	>
+																		<div className="icon">
+																			<AtomSvg
+																				fill={
+																					chatInfo?.reason
+																						?.webSearch ||
+																					chatInfo?.reason
+																						?.workspaceSearch
+																						? 'var(--primary-button)'
+																						: 'var(--secondary-font)'
+																				}
+																			/>
+																			{showIconText && (
+																				<>
+																					<div
+																						className="icon-text"
+																						style={{
+																							color:
+																								chatInfo
+																									?.reason
+																									?.webSearch ||
+																								chatInfo
+																									?.reason
+																									?.workspaceSearch
+																									? 'var(--primary-button)'
+																									: 'var(--primary-font)',
+																						}}
+																					>
+																						Reason
+																					</div>
+																					<div className="icon-arrow">
+																						<ArrowDownSvg
+																							fill={
+																								chatInfo
+																									?.reason
+																									?.webSearch ||
+																								chatInfo
+																									?.reason
+																									?.workspaceSearch
+																									? 'var(--primary-button)'
+																									: 'var(--secondary-font)'
+																							}
+																						/>
+																					</div>
+																				</>
+																			)}
+																		</div>
 																	</div>
-																</div>
-															</Tooltip>
-														</SearchTypeTooltip>
-													)}
+																</Tooltip>
+															</SearchTypeTooltip>
+														)}
 
-													{/* {chatInfo?.agentType !== 'search_agent' && (
+														{/* {chatInfo?.agentType !== 'search_agent' && (
 														<Tooltip
 															title={`${
 																chatInfo?.deepResearch
@@ -1490,7 +1575,7 @@ const ChatBox = ({
 														</Tooltip>
 													)} */}
 
-													{/* <Tooltip title={'Add Filters'}>
+														{/* <Tooltip title={'Add Filters'}>
 														<div
 															className="icon-container"
 															onClick={handleShowFiltersClick}
@@ -1508,7 +1593,7 @@ const ChatBox = ({
 														</div>
 													</Tooltip> */}
 
-													{/* {!(
+														{/* {!(
 														chatInfo?.deepResearch ||
 														chatInfo?.webSearch ||
 														chatInfo?.workspaceSearch
@@ -1561,10 +1646,10 @@ const ChatBox = ({
 															</Tooltip>
 														</LLMTooltip>
 													)} */}
-												</div>
+													</div>
 
-												<div className="right-container">
-													{/* {chatInfo?.agentType !== 'knowledge_agent' &&
+													<div className="right-container">
+														{/* {chatInfo?.agentType !== 'knowledge_agent' &&
 														!isPublicChat && (
 															<div className="agent-container">
 																<div
@@ -1600,34 +1685,41 @@ const ChatBox = ({
 															</div>
 														)} */}
 
-													{info?.chatQuery?.trim()?.length > 0 ||
-													isPublicChat ? (
-														<div
-															className="click-btn"
-															onClick={(e) => handleSendBtnClick(e)}
-															style={{
-																backgroundColor:
-																	'var(--primary-button)',
-															}}
-														>
-															<ArrowUp />
-														</div>
-													) : (
-														<div
-															className="click-btn"
-															onClick={(e) => handleMicIconClick(e)}
-															style={{
-																backgroundColor:
-																	'var(--primary-button)',
-															}}
-														>
-															<AudioSvg />
-														</div>
-													)}
+														{info?.chatQuery?.trim()?.length > 0 ||
+														isPublicChat ? (
+															<div
+																className="click-btn"
+																onClick={(e) => {
+																	e.stopPropagation();
+																	handleSendBtnClick(e);
+																}}
+																style={{
+																	backgroundColor:
+																		'var(--primary-button)',
+																}}
+															>
+																<ArrowUp />
+															</div>
+														) : (
+															<div
+																className="click-btn"
+																onClick={(e) => {
+																	e.stopPropagation();
+																	handleMicIconClick(e);
+																}}
+																style={{
+																	backgroundColor:
+																		'var(--primary-button)',
+																}}
+															>
+																<AudioSvg />
+															</div>
+														)}
+													</div>
 												</div>
-											</div>
-										)}
-									</div>
+											)}
+										</div>
+									)}
 								</div>
 							</div>
 						</div>

@@ -1,16 +1,23 @@
-import { memo, useContext, useEffect, useRef, useState, useMemo } from 'react';
+import { memo, useContext, useEffect, useRef, useState, useMemo, useCallback } from 'react';
 import '../../../assets/scss/home_page/proactiveSuggestions.scss';
 import Context from '../../../context/context';
 import { ReactComponent as ChevronRightThinSvg } from '../../../assets/svg/tasks/chevronRightThin.svg';
 import { ReactComponent as FilterIcon } from '../../../assets/svg/tasks/newFiltersIcon.svg';
 import { ReactComponent as TickIcon } from '../../../assets/svg/tick.svg';
 import { ReactComponent as CloseIcon } from '../../../assets/svg/close.svg';
+import { ReactComponent as ThumbsUpSvg } from '../../../assets/svg/thumbsUp.svg';
+import { ReactComponent as EmailIcon } from '../../../assets/svg/login_page/gmail.svg';
 import Skeleton from 'react-loading-skeleton';
 import AISuggestionsModal from '../../components/modalsV2/homePage/AISuggestionsModal';
 import { Tooltip } from 'antd';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import updateLocale from 'dayjs/plugin/updateLocale';
+import InfiniteScroll from '../../components/globalComponents/InfiniteScroll';
+import { ReactComponent as AiSuggestionIcon } from '../../../assets/svg/home_page/aiSuggestion.svg';
+import { message } from '../../components/globalComponents/CustomToast';
+import ObjectID from 'bson-objectid';
+import { useNavigate } from 'react-router-dom';
 
 dayjs.extend(relativeTime);
 dayjs.extend(updateLocale);
@@ -83,17 +90,23 @@ const filterGroups = [
 	},
 ];
 
-const PriorityLevel = {
-	High: 'red',
-	Medium: 'yellow',
-	Low: 'green',
+const infiniteScrollStyle = {
+	display: 'flex',
+	flexDirection: 'column',
+	alignItems: 'flex-start',
+	alignSelf: 'stretch',
+	gap: '8px',
+	paddingBottom: '40px',
 };
+
+const skeletonLoaders = Array.from({ length: 7 }, (_, index) => index + 1);
 const ProactiveSuggestions = ({ selectedOption }) => {
 	const {
 		templates: {
 			getAISuggestedPendingActions,
 			aiSuggestedPendingActions,
 			pendingActionsUpdate,
+			updateStateValues,
 		},
 	} = useContext(Context);
 
@@ -107,8 +120,9 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 		openFilter: false,
 		selectedFilters: [],
 		selectedCardNumber: null,
+		hoveredCard: null,
 	});
-
+	const navigate = useNavigate();
 	const selectedOptionRef = useRef(selectedOption);
 	const currentIndexRef = useRef(0);
 	const totalCardsDataRef = useRef([]);
@@ -397,84 +411,138 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 			};
 		});
 	};
+	const fetchMorePendingActions = async () => {
+		const nextPage = aiSuggestedPendingActions.metaInfo.currentPage + 1;
 
+		const filters = info.selectedFilters || [];
+
+		const selectedPriority = filters
+			?.filter((f) => f.group === 'Priority Level')
+			.map((f) => f.value || f.title);
+
+		const selectedReadStatus = filters
+			?.filter((f) => f.group === 'Read Status')
+			.map((f) => f.value || f.title);
+
+		const selectedConfidenceScore = filters
+			?.filter((f) => f.group === 'Confidence level')
+			.map((f) => f.value || f.title);
+
+		const { from, to } = getDateRangeFromFilters(filters);
+
+		const filterPayload = {
+			page: nextPage,
+			...(selectedPriority?.length > 0 && { priority: selectedPriority }),
+			...(selectedReadStatus?.length > 0 && { read: selectedReadStatus }),
+			...(selectedConfidenceScore?.length > 0 && {
+				confidenceScore: selectedConfidenceScore,
+			}),
+			...(from !== undefined && to !== undefined && { from, to }),
+		};
+
+		const newPayload = {
+			...payload,
+			...filterPayload,
+		};
+
+		await getAISuggestedPendingActions(newPayload);
+	};
+
+	const handleThumbClick = async (id, type) => {
+		const card = info?.cards?.find((c) => c._id === id);
+		if (card?.feedback === type) return;
+		const res = await pendingActionsUpdate(id, { feedback: type });
+		if (res?.[0] === true) {
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				cards: prevInfo?.cards?.map((card) =>
+					card._id === id ? { ...card, feedback: type } : card,
+				),
+			}));
+			message.success('Updated the feedback');
+		} else {
+			message.error('Failed to update feedback');
+		}
+	};
+
+	const handleIgnoreClick = async (id) => {
+		const card = info?.cards?.find((c) => c?._id === id);
+		if (card?.isIgnored === true) return;
+		const res = await pendingActionsUpdate(id, { isIgnored: true });
+		if (res?.[0] === true) {
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				cards: prevInfo?.cards?.map((card) =>
+					card?._id === id ? { ...card, isIgnored: true } : card,
+				),
+			}));
+			message?.success('Card IgnoredSuccessfully');
+		} else {
+			message?.success('Failed to updated he card status');
+		}
+	};
+
+	const handleViewReportClick = useCallback((card) => {
+		const cot = (card?.chain_of_thought || [])
+			?.filter((item) => typeof item === 'string')
+			?.map((item) => {
+				return {
+					readings: [
+						{
+							reading: {
+								sub_query: item,
+							},
+						},
+					],
+				};
+			});
+		const messages = [
+			{
+				type: 'user',
+				moduleType: 'ai_suggestion_report',
+				card,
+				message: card?.title,
+			},
+			{
+				type: 'AI',
+				moduleType: 'ai_suggestion_report',
+				card: {
+					research_report: card?.research_report,
+				},
+				processing: 'Report',
+				deepSearch: {
+					cot,
+				},
+				follow_up_query: card?.suggested_prompts,
+				stream_end: true,
+			},
+		];
+		updateStateValues({ globalChatMessages: messages });
+		navigate(`/chat/${ObjectID()?.toString()}`);
+	}, []);
 	return (
 		<div className="proactive-suggestions-container">
-			<div className="cards-container">
-				{info?.loading ? (
-					[
-						{ position: 0 },
-						{ position: 1 },
-						{ position: 2 },
-						{ position: -1 },
-						{ position: -2 },
-					]?.map((item, index) => {
-						const classList = ['card', 'skeleton', positionClassMap[item.position]];
-						return (
-							<div key={index} className={classList.join(' ')}>
-								<div
-									className="skeleton-container"
-									style={{
-										width: '100%',
-										height: '100%',
-										borderRadius: '10px',
-									}}
-								>
-									<Skeleton height={'100%'} width={'100%'} />
-								</div>
-							</div>
-						);
-					})
-				) : info?.cards?.length === 0 ? (
-					<div className="no-data" style={{ color: 'var(--primary-font)' }}>
-						No data available
-					</div>
-				) : (
-					info.cards.map((card, index) => {
-						if (card.position === null) return null;
-						const classList = ['card', positionClassMap[card.position]];
-						return (
-							<div
-								key={card?._id}
-								className={classList.join(' ')}
-								onClick={() => handleCardClick(card, index)}
-							>
-								<div className="header">
-									<div className="card-title">{card?.description}</div>
-									<div className="card-description">{card?.title}</div>
-								</div>
-								<div className="footer">
-									<div className="module-type">{card?.moduleType}</div>
-									<div className="module-priority">
-										<span
-											style={{
-												backgroundColor: PriorityLevel[card?.priority],
-											}}
-										></span>
-										<div className="module-priority-text">
-											<div>{card?.priority}</div>
-											{card?.priority && card?.updatedAt && (
-												<div style={{ color: 'var(--secondary-font)' }}>
-													|
-												</div>
-											)}
-											<Tooltip
-												title={dayjs(card?.updatedAt * 1000).format(
-													'MMMM D, YYYY h:mm A',
-												)}
-											>
-												<div>{dayjs(card?.updatedAt * 1000).fromNow()}</div>
-											</Tooltip>
-										</div>
-									</div>
-								</div>
-							</div>
-						);
-					})
-				)}
-			</div>
 			<div className="action-container">
+				<div className="suggestionPromptContainer">
+					<AiSuggestionIcon />
+					<div className="suggestionPrompt">
+						timely suggestions—helping you act smartly before issues arise.
+					</div>
+				</div>
 				<div style={{ display: 'flex', flexDirection: 'row', gap: '10px' }}>
+					{info?.selectedFilters?.length > 0 && (
+						<div className="selected-filter">
+							{info?.selectedFilters?.map((item) => (
+								<div key={item?.id} className="selected-filter-item">
+									<span>{item?.title}</span>
+									<CloseIcon
+										style={{ cursor: 'pointer' }}
+										onClick={() => handleFilterClick(item, item?.group)}
+									/>
+								</div>
+							))}
+						</div>
+					)}
 					<Tooltip
 						open={info?.openFilter}
 						onOpenChange={() => setInfo((prev) => ({ ...prev, openFilter: false }))}
@@ -560,21 +628,8 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 							</button>
 						</div>
 					</Tooltip>
-					{info?.selectedFilters?.length > 0 && (
-						<div className="selected-filter">
-							{info?.selectedFilters?.map((item) => (
-								<div key={item?.id} className="selected-filter-item">
-									<span>{item?.title}</span>
-									<CloseIcon
-										style={{ cursor: 'pointer' }}
-										onClick={() => handleFilterClick(item, item?.group)}
-									/>
-								</div>
-							))}
-						</div>
-					)}
 				</div>
-				{info?.cards?.length > 5 && (
+				{/* {info?.cards?.length > 5 && (
 					<div className="action-right">
 						<button className="card-change-btn" onClick={handleLeft}>
 							<ChevronRightThinSvg className="left-chevron" />
@@ -583,9 +638,149 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 							<ChevronRightThinSvg />
 						</button>
 					</div>
+				)} */}
+			</div>
+			<div className="proactiveSuggestionsContainer">
+				{info?.loading ? (
+					skeletonLoaders?.map((_, index) => (
+						<Skeleton
+							width="908px"
+							height="120px"
+							style={{
+								'--highlight-color': 'gray',
+								'--base-color': 'transparent',
+							}}
+							key={index}
+						/>
+					))
+				) : info?.cards?.length === 0 ? (
+					<div className="no-data" style={{ color: 'var(--primary-font)' }}>
+						No data available
+					</div>
+				) : (
+					<InfiniteScroll
+						dataLength={info?.cards?.length}
+						hasMore={aiSuggestedPendingActions?.metaInfo?.hasNextPage}
+						next={fetchMorePendingActions}
+						style={infiniteScrollStyle}
+						height={'100%'}
+					>
+						{info?.cards?.map((card, index) => {
+							const priority = card?.priority;
+							return (
+								<div
+									className="eachCardContainer"
+									key={card?._id}
+									onMouseEnter={() =>
+										setInfo((prev) => ({
+											...prev,
+											hoveredCard: card,
+										}))
+									}
+									onMouseLeave={() =>
+										setInfo((prev) => ({
+											...prev,
+											hoveredCard: null,
+										}))
+									}
+									onClick={() => handleCardClick(card, index)}
+								>
+									<Tooltip
+										title={
+											<div className="tooltipContainer">
+												<span>{card?.title}</span> {card?.description}
+											</div>
+										}
+										placement="bottomLeft"
+										arrow={false}
+									>
+										<div className="cardContianerTitle">
+											<span>{card?.title} - </span>
+											{card?.description}
+										</div>
+									</Tooltip>
+									<div
+										className={`cardOptionsMainContainer ${
+											info?.hoveredCard?._id === card?._id
+												? 'linearBorder'
+												: ''
+										}`}
+									>
+										<div className="cardOptionsContainer ">
+											{priority && (
+												<>
+													<div className="priorityOption">
+														<Tooltip title={`Priority: ${priority}`}>
+															<div className="priority">
+																<div
+																	className="indicator"
+																	style={{
+																		background:
+																			priority === 'High'
+																				? 'red'
+																				: priority ===
+																				  'Medium'
+																				? 'orange'
+																				: 'green',
+																	}}
+																></div>
+																<div className="priority-text">{`${priority}`}</div>
+															</div>
+														</Tooltip>
+													</div>
+													<div className="verticalLine"></div>
+												</>
+											)}
+											<div
+												className={`${
+													card?.feedback === 'thumbsup'
+														? 'thumbsUpContainer'
+														: ''
+												}`}
+												onClick={(e) => {
+													e.stopPropagation();
+													handleThumbClick(card?._id, 'thumbsup');
+												}}
+												style={{ cursor: 'pointer' }}
+											>
+												<ThumbsUpSvg />
+											</div>
+											<div className="verticalLine"></div>
+											<div>{card?.confidence_score * 100} %</div>
+											<div className="verticalLine"></div>
+											<div>
+												<EmailIcon width={16} height={12} />
+											</div>
+										</div>
+										{info?.hoveredCard?._id === card?._id && (
+											<div className="cardButtonsContainer">
+												<button
+													className="skipButton"
+													onClick={(e) => {
+														e.stopPropagation();
+														handleIgnoreClick(card?._id);
+													}}
+												>
+													Skip
+												</button>
+												<button
+													className="checkButton"
+													onClick={(e) => {
+														e.stopPropagation();
+														handleViewReportClick(card);
+													}}
+												>
+													Check
+												</button>
+											</div>
+										)}
+									</div>
+								</div>
+							);
+						})}
+					</InfiniteScroll>
 				)}
 			</div>
-
 			<AISuggestionsModal
 				open={info?.openModal}
 				onClose={handleCloseModal}

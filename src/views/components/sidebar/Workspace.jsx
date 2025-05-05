@@ -133,7 +133,7 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 				/>
 			)}
 			<div
-				style={{ maxHeight: renewBanner ? '78dvh' : '81dvh' }}
+				style={{ maxHeight: renewBanner ? '80dvh' : '83dvh' }}
 				className="workspaceListComponent"
 			>
 				<div className="workspaceListHeader">
@@ -169,7 +169,7 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 									handleSwitchWorkSpaceLogic(singleWorkspace);
 								}}
 							>
-								<div style={{ display: 'flex', gap: '4px' }}>
+								<div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
 									<div className="workSpaceCircle">
 										{singleWorkspace?.logo_s3_500w_key ? (
 											<img
