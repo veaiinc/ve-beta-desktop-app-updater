@@ -26,30 +26,35 @@ const CombinedChainOfThought = ({ data }) => {
 					);
 				})}
 			</div>
-			<div className="deep-searches-container">
-				{(deepSearches || [])?.map((deepSearch, index) => {
-					return (
-						<DeepSearchChainOfThought
-							data={deepSearch}
-							key={index}
-							showLastIndicatorLine={
-								index !== deepSearches?.length - 1 || deepResearches?.length > 0
-							}
-						/>
-					);
-				})}
-			</div>
-			<div className="deep-researches-container">
-				{(deepResearches || [])?.map((deepResearch, index) => {
-					return (
-						<DeepResearchChainOfThought
-							data={deepResearch}
-							key={index}
-							showLastIndicatorLIne={index !== deepResearches?.length - 1}
-						/>
-					);
-				})}
-			</div>
+			{deepResearches?.length > 0 && (
+				<div className="deep-searches-container">
+					{(deepSearches || [])?.map((deepSearch, index) => {
+						return (
+							<DeepSearchChainOfThought
+								data={deepSearch}
+								key={index}
+								showLastIndicatorLine={
+									index !== deepSearches?.length - 1 || deepResearches?.length > 0
+								}
+							/>
+						);
+					})}
+				</div>
+			)}
+
+			{deepResearches?.length > 0 && (
+				<div className="deep-researches-container">
+					{(deepResearches || [])?.map((deepResearch, index) => {
+						return (
+							<DeepResearchChainOfThought
+								data={deepResearch}
+								key={index}
+								showLastIndicatorLIne={index !== deepResearches?.length - 1}
+							/>
+						);
+					})}
+				</div>
+			)}
 		</div>
 	);
 };
