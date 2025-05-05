@@ -1,7 +1,14 @@
-import React from 'react';
+import { memo } from 'react';
+import { ReactComponent as AiStars } from '../../../../assets/svg/tasks/AiStars.svg';
+import '../../../../assets/scss/tasks/listItems.scss';
 
 const CreatedWithAi = () => {
-	return <div>CreatedWithAi</div>;
+	return (
+		<div className="created-with-ai">
+			<AiStars />
+			AI
+		</div>
+	);
 };
 
-export default CreatedWithAi;
+export default memo(CreatedWithAi);

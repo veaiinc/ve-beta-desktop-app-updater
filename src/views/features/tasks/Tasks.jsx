@@ -35,6 +35,7 @@ import PersonMultiSelect from '../../components/tasks/listView/PersonMultiSelect
 import { useSearchParams } from 'react-router-dom';
 import Taskwidget from '../../components/tasks/Taskwidget';
 import ChatLeftBarComponent from '../../components/ChatLeftBarComponent';
+import CreatedWithAi from '../../components/tasks/listView/CreatedWithAi';
 
 const defaultPreference = {
 	taskSlNo: { show: false, order: 1 },
@@ -52,6 +53,7 @@ const defaultPreference = {
 	completedAt: { show: false, order: 13 },
 	createdAt: { show: false, order: 14 },
 	updatedAt: { show: false, order: 15 },
+	createdWithAi: { show: false, order: 16 },
 };
 
 export const colors = {
@@ -81,6 +83,7 @@ export const rowTypes = {
 	childTasks: ChildTaskProgress,
 	linkText: LinkText,
 	personMultiSelect: PersonMultiSelect,
+	createdWithAi: CreatedWithAi,
 };
 
 const availableViews = ['table', 'board', 'list', 'gallery'];
@@ -924,7 +927,7 @@ const Tasks = () => {
 		<div className="tasks-page-container">
 			<ChatLeftBarComponent>
 				<div className="tasks-left-container">
-					<Taskwidget />
+					<Taskwidget properties={info?.properties} />
 				</div>
 			</ChatLeftBarComponent>
 			<div className="tasks-right-container">
