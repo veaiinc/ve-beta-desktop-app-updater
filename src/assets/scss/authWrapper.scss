@@ -1,17 +1,24 @@
-.authParentContainer {
-	width: 100vw;
-	height: 100vh;
-	background: var(--background-color, #0c0c0d);
+.main-container {
 	display: flex;
 	flex-direction: column;
+	overflow: hidden;
 
-	.childrenContainer {
-		flex: 1;
-		// padding: 1.5rem 6rem 3rem 6rem;
-		background: inherit;
-		margin-top: 5rem;
-		width: 100%;
-		max-width: 1920px;
-		margin: auto;
+	.authParentContainer {
+		width: 100vw;
+		height: 100vh;
+		background: var(--background-color, #0c0c0d);
+		display: flex;
+		flex-direction: column;
+		position: relative;
+
+		.childrenContainer {
+			flex: 1;
+			// padding: 1.5rem 6rem 3rem 6rem;
+			background: inherit;
+			margin-top: 5rem;
+			width: 100%;
+			max-width: 1920px;
+			margin: auto;
+		}
 	}
 }
