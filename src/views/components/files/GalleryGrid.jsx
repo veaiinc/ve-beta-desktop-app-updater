@@ -10,6 +10,7 @@ import InfiniteScroll from '../globalComponents/InfiniteScroll';
 import FilterDropdown from '../dropDown/file/FilterDropdown';
 import gsap from 'gsap';
 import EmptyState from './EmptyState';
+import { Tooltip } from 'antd';
 
 const filterOptions = [
 	{ label: 'All', value: 'all' },
@@ -281,7 +282,9 @@ const GalleryGrid = ({
 								</span>
 							</span> */}
 									</div>
-									<span className="gallery-item-title">{item?.title}</span>
+									<Tooltip title={item?.title || ''} placement="bottom">
+										<span className="gallery-item-title">{item?.title}</span>
+									</Tooltip>
 								</div>
 							))}
 						</div>

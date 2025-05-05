@@ -280,7 +280,7 @@ const Tasks = () => {
 			getTeamMembers();
 		} else {
 			const formattedUsers = tenantsUserList?.map(({ firstName, lastName, _id }) => ({
-				label: `${firstName} ${lastName}`,
+				label: `${firstName} ${lastName ? lastName : ''}`,
 				value: _id,
 			}));
 
@@ -894,6 +894,7 @@ const Tasks = () => {
 			updateTaskInfo({ updated: false });
 		}
 		updateTaskInfo({ sidebarIsOpen: false, selectedSubTask: null });
+		updateSideBarData(null);
 	}, [info?.updated]);
 
 	const updateView = useCallback(

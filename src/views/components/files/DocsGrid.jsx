@@ -11,6 +11,7 @@ import gsap from 'gsap';
 import Spinner from '../loaders/Spinner';
 import FilterDropdown from '../dropDown/file/FilterDropdown';
 import EmptyState from './EmptyState';
+import { Tooltip } from 'antd';
 
 const filterOptions = [
 	{ label: 'All', value: '' },
@@ -239,7 +240,11 @@ const DocsGrid = ({ statusTextmapper, handleCreateDoc, handleTotalChange, client
 											dotStyle={statusTextmapper?.[doc?.status]?.dotStyle}
 										/>
 										<div className="docs-title-wrapper">
-											<span className="docs-item-title">{doc?.title}</span>
+											<Tooltip title={doc?.title || ''} placement="bottom">
+												<span className="docs-item-title">
+													{doc?.title}
+												</span>
+											</Tooltip>
 											<span className="docs-item-sub-title">
 												{moment.unix(doc?.createdAt).fromNow()}
 											</span>

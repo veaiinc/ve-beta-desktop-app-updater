@@ -515,6 +515,7 @@ const OpenedSidebar = ({
 										flexDirection: 'column',
 										justifyContent: 'space-between',
 										overflowY: 'auto',
+										borderRight: '1px solid var(--stroke)',
 									}}
 								>
 									<div className="topOptionsList">
@@ -1076,14 +1077,14 @@ const OpenedSidebar = ({
 											)}
 										</div>
 										<div className="settingsOptionsUserName">
+											<span className="workspaceId">
+												{tennantSettingsData?.businessName.toUpperCase()}
+											</span>
 											<span>
 												{userDetailsData?.firstName}{' '}
 												<span className="workspaceId">
 													({`${isAdmin ? 'Admin' : 'Member'}`})
 												</span>
-											</span>
-											<span className="workspaceId">
-												{tennantSettingsData?.businessName.toUpperCase()}
 											</span>
 										</div>
 									</div>
