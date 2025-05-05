@@ -1,15 +1,7 @@
 import React, { useCallback, useContext } from 'react';
 import '../../../../assets/scss/tasks/cardItem.scss';
 import Context from '../../../../context/context';
-const CardItem = ({
-	task,
-	responseMetadata,
-	colors,
-	rowTypes,
-	properties,
-	handleUpdate,
-	onClick,
-}) => {
+const CardItem = ({ task, responseMetadata, colors, rowTypes, properties, handleUpdate }) => {
 	const {
 		tasks: { updateSideBarData },
 	} = useContext(Context);

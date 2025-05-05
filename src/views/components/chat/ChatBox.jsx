@@ -286,7 +286,7 @@ const ChatBox = ({
 						deepResearch: false,
 						reason: {
 							webSearch: false,
-							workspaceSearch: false,
+							workspaceSearch: true,
 						},
 					},
 				});
@@ -329,12 +329,22 @@ const ChatBox = ({
 				return;
 			}
 		}
-		updateStateValues({
-			chatInfo: {
-				...chatInfo,
-				webSearch: !chatInfo?.webSearch,
-			},
-		});
+		if (chatInfo?.webSearch) {
+			updateStateValues({
+				chatInfo: {
+					...chatInfo,
+					webSearch: false,
+					workspaceSearch: true,
+				},
+			});
+		} else {
+			updateStateValues({
+				chatInfo: {
+					...chatInfo,
+					webSearch: true,
+				},
+			});
+		}
 	};
 
 	const handleDeepResearchClick = () => {
@@ -1005,12 +1015,22 @@ const ChatBox = ({
 		) {
 			return;
 		}
-		updateStateValues({
-			chatInfo: {
-				...chatInfo,
-				workspaceSearch: !chatInfo?.workspaceSearch,
-			},
-		});
+		if (chatInfo?.workspaceSearch) {
+			updateStateValues({
+				chatInfo: {
+					...chatInfo,
+					workspaceSearch: false,
+					webSearch: true,
+				},
+			});
+		} else {
+			updateStateValues({
+				chatInfo: {
+					...chatInfo,
+					workspaceSearch: true,
+				},
+			});
+		}
 	};
 
 	const handleAgentClick = (agentType) => {
@@ -1035,6 +1055,7 @@ const ChatBox = ({
 		} else {
 			deepResearch = true;
 		}
+		workspaceSearch = !deepResearch ? true : workspaceSearch;
 
 		updateStateValues({
 			chatInfo: {

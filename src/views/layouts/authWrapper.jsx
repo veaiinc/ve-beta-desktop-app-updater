@@ -26,6 +26,7 @@ const AuthWrapper = ({
 	sidebarContainerStyles = {},
 	showDynamicWidget = true,
 	sidebarContainerClassName = '',
+	childrenContainerStyles = {},
 }) => {
 	const {
 		subscriptionInfo: { renewBanner },
@@ -53,7 +54,7 @@ const AuthWrapper = ({
 					<title>{title}</title>
 				</Helmet>
 
-				{worspaceId.includes(workspaceId) && !location.pathname.includes('/chat') && (
+				{worspaceId?.includes(workspaceId) && !location?.pathname?.includes('/chat') && (
 					<DynamicWidget />
 				)}
 				<div
@@ -88,7 +89,10 @@ const AuthWrapper = ({
 							}}
 							id="scrollableTarget"
 						>
-							<div className="childrenContainer" style={{ maxWidth: maxWidth || '' }}>
+							<div
+							className="childrenContainer"
+							style={{ maxWidth: maxWidth || '', ...childrenContainerStyles }}
+						>
 								{children}
 							</div>
 						</div>
