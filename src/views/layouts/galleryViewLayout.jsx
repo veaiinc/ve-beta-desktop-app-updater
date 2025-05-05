@@ -7,7 +7,7 @@ import { ReactComponent as VE } from '../../assets/svg/smallVe.svg';
 import useAuth from '../hooks/useAuth';
 import useTokenExpiry from '../hooks/useTokenExpiry';
 import useSubscription from '../hooks/useSubscription';
-import useAccessControls from '../hooks/useAcessControls';
+import useAccessControls from '../hooks/useAccessControls';
 import Context from '../../context/context';
 import RenewBanner from '../components/globalComponents/RenewBanner';
 const GalleryViewLayout = ({ title, children }) => {

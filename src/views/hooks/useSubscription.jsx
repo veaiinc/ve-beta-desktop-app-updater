@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import Context from '../../context/context';
 const calculateTimeLeft = (expiryTimestamp) => {
@@ -41,7 +41,7 @@ const MappedApps = {
 };
 
 const useSubscription = () => {
-	let {
+	const {
 		subscriptionInfo: {
 			currentPlan,
 			getCurrentSubscriptionPlan,
