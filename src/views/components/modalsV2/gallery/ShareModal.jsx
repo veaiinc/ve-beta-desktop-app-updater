@@ -75,10 +75,16 @@ const ShareModal = ({
 		ctaLink: tenantPreferences?.ctaPreferences?.ctaLink,
 		clientSubscription: tenantPreferences?.allowClientsToSubscribe || false,
 	});
+
 	useEffect(() => {
-		if (!galleryShareDetails) {
-			getGalleryShareDetails(galleryId);
-		}
+		if (!galleryId) return;
+
+		getGalleryShareDetails(galleryId);
+		getVisitorFormAccess(galleryId);
+		getGuestAccessDetails(galleryId);
+		getEditPreferences(galleryId);
+	}, [galleryId]);
+	useEffect(() => {
 		if (galleryShareDetails) {
 			setInfo((prevInfo) => ({
 				...prevInfo,
@@ -87,9 +93,6 @@ const ShareModal = ({
 		}
 	}, [galleryShareDetails]);
 	useEffect(() => {
-		if (!visitorFormAccess) {
-			getVisitorFormAccess(galleryId);
-		}
 		if (visitorFormAccess) {
 			setInfo((prevInfo) => ({
 				...prevInfo,
@@ -97,31 +100,17 @@ const ShareModal = ({
 			}));
 		}
 	}, [visitorFormAccess]);
-	useEffect(() => {
-		if (!galleryGuestAccess) {
-			getGalleryGuestAccess(galleryId);
-		}
-		if (galleryGuestAccess) {
-			setInfo((prevInfo) => ({
-				...prevInfo,
-				galleryGuestAccess: galleryGuestAccess,
-			}));
-		}
-	}, [galleryGuestAccess]);
 
 	useEffect(() => {
-		if (!galleryGuestAccessDetails) {
-			getGuestAccessDetails(galleryId);
+		if (galleryGuestAccessDetails) {
 			setInfo((prevInfo) => ({
 				...prevInfo,
 				galleryGuestAccessDetails: galleryGuestAccessDetails,
+				galleryGuestAccess: galleryGuestAccessDetails,
 			}));
 		}
 	}, [galleryGuestAccessDetails]);
 	useEffect(() => {
-		if (!tenantPreferences) {
-			getEditPreferences(galleryId);
-		}
 		if (tenantPreferences) {
 			setInfo((prevInfo) => ({
 				...prevInfo,
