@@ -157,6 +157,9 @@
 		letter-spacing: calc(var(--font-size) * 0.0125);
 		font-weight: 500;
 		font-family: var(--chat-primary-font-family);
+		text-decoration: underline;
+		text-decoration-thickness: 0.5px;
+		text-underline-offset: 5px;
 	}
 	.table-wrapper {
 		display: flex;
