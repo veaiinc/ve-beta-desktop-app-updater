@@ -12,6 +12,7 @@ import { ReactComponent as ViewDocumentIcon } from '../../../assets/svg/chat/vie
 import { ReactComponent as ArrowRightSvg } from '../../../assets/svg/home_page/arrow-right.svg';
 import AISuggestionsReportAiComponent from './chatComponents/AiSuggestionsReportAiComponent';
 import '../../../assets/scss/chat/aiMessage.scss';
+import PromptPopup from '../homePage/PromptPopup';
 
 const AIMessage = memo(
 	({
@@ -72,6 +73,7 @@ const AIMessage = memo(
 		const handleThumbsClick = useCallback(() => {
 			const newRating = rating === 'thumbsUp' ? 'thumbsDown' : 'thumbsUp';
 			handleRatingClick && handleRatingClick(newRating, messageId);
+			setInfo((prev) => ({ ...prev, feedbackPopupOpen: true }));
 		}, [handleRatingClick, messageId, rating]);
 
 		const handlePromptClick = (prompt) => {
@@ -80,6 +82,7 @@ const AIMessage = memo(
 
 		return (
 			<div className="ai-message-container">
+				{info?.feedbackPopupOpen && <PromptPopup open={info?.feedbackPopupOpen}  closeModal={() => setInfo(prev => ({...prev, feedbackPopupOpen : false}))} />}
 				{messageData?.workflow_template_id &&
 					(showCanvas && !isNoteCanvas ? (
 						<FormModel

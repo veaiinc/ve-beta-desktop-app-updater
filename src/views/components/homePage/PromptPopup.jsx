@@ -24,31 +24,44 @@ const spanStyles = {
 	lineHeight: '1.4',
 };
 
-const dummyFeedbacks = [{
-	id : '3421',
-	label: 'Not Relevant'
-}, {
-	id : '3422',
-    label: 'Too generic'
-}, 
-{
-	id: '3433',
-	label: 'Incorrect Info'
-}, {
-	id: '3434',
-	label: 'Hard to understand'
-}, {
-	id : '3435', label: "Missing details"
-}, {
-	id: '3436',
-    label: 'Essential information is absent.'
-}, {
-	id : '3437',
-	label: 'Crucial details are lacking.'
-}
+const dummyFeedbacks = [
+	{
+		id: '3421',
+		label: 'Not Relevant',
+	},
+	{
+		id: '3422',
+		label: 'Too generic',
+	},
+	{
+		id: '3433',
+		label: 'Incorrect Info',
+	},
+	{
+		id: '3434',
+		label: 'Hard to understand',
+	},
+	{
+		id: '3435',
+		label: 'Missing details',
+	},
+	{
+		id: '3436',
+		label: 'Essential information is absent.',
+	},
+	{
+		id: '3437',
+		label: 'Crucial details are lacking.',
+	},
 ];
 
-const PromptPopup = ({ open, closeModal, selectedCard, isFeedbackPopupOpen = false, liked = null }) => {
+const PromptPopup = ({
+	open,
+	closeModal,
+	selectedCard,
+	isFeedbackPopupOpen = false,
+	liked = null,
+}) => {
 	const {
 		templates: { updateStateValues },
 	} = useContext(Context);
@@ -61,6 +74,10 @@ const PromptPopup = ({ open, closeModal, selectedCard, isFeedbackPopupOpen = fal
 		feedback: liked,
 		selectedFeedback: null,
 	});
+
+	useEffect(() => {
+		setInfo(prev => ({...prev, feedbackPopupOpen: isFeedbackPopupOpen}))
+	}, [isFeedbackPopupOpen])
 
 	const navigate = useNavigate();
 
@@ -140,13 +157,13 @@ const PromptPopup = ({ open, closeModal, selectedCard, isFeedbackPopupOpen = fal
 	};
 
 	const handleFeedbackSubmit = () => {
-		setInfo((prev) => ({...prev, feedbackPopupOpen: false }));
-	}
+		setInfo((prev) => ({ ...prev, feedbackPopupOpen: false }));
+	};
 
 	const handleFeedbackSelect = (feedback) => {
-		console.log(feedback)
-			setInfo((prev) => ({...prev, selectedFeedback : feedback.id}))
-	}
+		console.log(feedback);
+		setInfo((prev) => ({ ...prev, selectedFeedback: feedback.id }));
+	};
 
 	return (
 		<ReactModal
@@ -180,42 +197,58 @@ const PromptPopup = ({ open, closeModal, selectedCard, isFeedbackPopupOpen = fal
 					</div>
 				</div>
 
-				<div className="promptPopupContainerEditableFields">Editable Fields</div>
+				{!info.feedbackPopupOpen && (
+					<div className="promptPopupContainerEditableFields">Editable Fields</div>
+				)}
 
 				<div className="promptPopupContainerBody">
-					<div
-						className="promptPopupContainerBodyText"
-						style={{ whiteSpace: 'pre-wrap' }}
-					>
-						{info.parsedPrompt.map((part, index) => {
-							if (part.type === 'text') {
-								return <span key={index}>{part.value}</span>;
-							} else if (part.type === 'variable') {
-								return (
-									<span key={index} style={spanStyles}>
-										<span
-											contentEditable
-											suppressContentEditableWarning
-											style={{
-												borderBottom: '1px dashed var(--stroke)',
-												padding: '0 4px',
-												color: 'var(--primary-font)',
-												outline: 'none',
-											}}
-											onBlur={(e) =>
-												handleVariableChange(part.value, e.target.innerText)
-											}
-											dangerouslySetInnerHTML={{
-												__html:
-													info.dynamicValues[part.value] || part.value,
-											}}
-										/>
-									</span>
-								);
-							}
-							return null;
-						})}
-					</div>
+					{info?.feedbackPopupOpen ? (
+						<div className="feedbackInputContainer">
+							<h4>Your thoughts help me improve how I respond next time.</h4>
+							<textarea
+								placeholder="Want to share what didn’t quite hit the mark? I’m all ears."
+								className="feedbackInput"
+							></textarea>
+						</div>
+					) : (
+						<div
+							className="promptPopupContainerBodyText"
+							style={{ whiteSpace: 'pre-wrap' }}
+						>
+							{info.parsedPrompt.map((part, index) => {
+								if (part.type === 'text') {
+									return <span key={index}>{part.value}</span>;
+								} else if (part.type === 'variable') {
+									return (
+										<span key={index} style={spanStyles}>
+											<span
+												contentEditable
+												suppressContentEditableWarning
+												style={{
+													borderBottom: '1px dashed var(--stroke)',
+													padding: '0 4px',
+													color: 'var(--primary-font)',
+													outline: 'none',
+												}}
+												onBlur={(e) =>
+													handleVariableChange(
+														part.value,
+														e.target.innerText,
+													)
+												}
+												dangerouslySetInnerHTML={{
+													__html:
+														info.dynamicValues[part.value] ||
+														part.value,
+												}}
+											/>
+										</span>
+									);
+								}
+								return null;
+							})}
+						</div>
+					)}
 				</div>
 
 				{info.selectedOptions?.[selectedCard?.id]?.length > 0 && (
@@ -239,7 +272,9 @@ const PromptPopup = ({ open, closeModal, selectedCard, isFeedbackPopupOpen = fal
 						{dummyFeedbacks.map((feedback) => (
 							<span
 								className={`feedback-label ${
-									info?.selectedFeedback === feedback?.id ? 'selected-feedback' : ''
+									info?.selectedFeedback === feedback?.id
+										? 'selected-feedback'
+										: ''
 								}`}
 								onClick={() => handleFeedbackSelect(feedback)}
 								key={feedback.id}
@@ -255,13 +290,21 @@ const PromptPopup = ({ open, closeModal, selectedCard, isFeedbackPopupOpen = fal
 						<span>70%</span>
 					</div>
 					<div className="rightPart">
-						<button className="cancel" onClick={() => {
-							setInfo((prev) => ({...prev, feedbackPopupOpen: false }));
-							closeModal();
-						}}>
+						<button
+							className="cancel"
+							onClick={() => {
+								setInfo((prev) => ({ ...prev, feedbackPopupOpen: false }));
+								closeModal();
+							}}
+						>
 							Cancel
 						</button>
-						<button className="runPrompt" onClick={info?.feedbackPopupOpen ? handleFeedbackSubmit : handleClickRun}>
+						<button
+							className="runPrompt"
+							onClick={
+								info?.feedbackPopupOpen ? handleFeedbackSubmit : handleClickRun
+							}
+						>
 							{info?.feedbackPopupOpen ? (
 								'Submit'
 							) : (

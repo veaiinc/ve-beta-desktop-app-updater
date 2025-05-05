@@ -84,6 +84,40 @@
 		align-items: flex-end;
 		gap: 12px;
 		align-self: stretch;
+
+		.feedbackInputContainer {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 12px;
+			align-self: stretch;
+
+			h4 {
+				color: var(--primary-font, #f2f2f3);
+				font-family: Inter;
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+
+			.feedbackInput {
+				display: flex;
+				height: 150px;
+				padding: 14px;
+
+				align-items: flex-start;
+				gap: 8px;
+				align-self: stretch;
+				border-radius: 10px;
+				border: 1px solid var(--stroke, #2c2d2e);
+				background: var(--popup, #202123);
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
+				resize: none;
+			}
+		}
+
 		.promptPopupContainerBodyText {
 			align-self: stretch;
 			padding: 18px;
