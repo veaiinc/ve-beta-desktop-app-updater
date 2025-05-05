@@ -158,6 +158,12 @@ export const handleCombinedChainOfThought = (chainOfThought) => {
 		const data = chainOfThought?.[i] || {};
 		const { search_id, processing, thought } = data || {};
 
+		if (typeof data === 'string') {
+			thoughts?.push({
+				thought: data,
+			});
+		}
+
 		if (thought) {
 			thoughts?.push(data);
 		}
@@ -199,14 +205,19 @@ export const handleCombinedChainOfThought = (chainOfThought) => {
 	let deepResearchesArray = Object?.values(deepResearches);
 
 	deepSearchesArray = deepSearchesArray?.map((deepSearch) => {
-		const { chainOfThought } = deepSearch?.chainOfThought || [];
+		const chainOfThought = deepSearch?.chainOfThought || [];
 		return handleDeepSearchChainOfThought(chainOfThought);
 	});
 
 	deepResearchesArray = deepResearchesArray?.map((deepResearch) => {
-		const { chainOfThought } = deepResearch?.chainOfThought || [];
+		const chainOfThought = deepResearch?.chainOfThought || [];
 		return handleDeepResearchChainOfThought(chainOfThought);
 	});
 
-	return { thoughts, deepSearches: deepSearchesArray, deepResearches: deepResearchesArray };
+	return {
+		thoughts,
+		deepSearches: deepSearchesArray,
+		deepResearches: deepResearchesArray,
+		hasChainOfThought: chainOfThought?.length > 0,
+	};
 };

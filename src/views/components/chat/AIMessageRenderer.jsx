@@ -9,6 +9,7 @@ import DeepResearchChainOfThought from './chatComponents/DeepResearchChainOfThou
 import { getFaviconUrl, getWebsiteName } from '../../../helpers';
 import { ReactComponent as ArrowRightIcon } from '../../../assets/svg/ai_agents/ArrowLineUpRight.svg';
 import AIMessage from './AIMessage';
+import CombinedChainOfThought from './chatComponents/CombinedChainOfThought';
 const AIMessageRenderer = ({
 	messageData,
 	handleNoteComponentModalOpen,
@@ -83,7 +84,8 @@ const AIMessageRenderer = ({
 						{messageData?.processing || 'Answer'}
 					</div>
 					{(messageData?.deepSearch?.cot?.length > 0 ||
-						messageData?.deepResearch?.cot?.length > 0) && (
+						messageData?.deepResearch?.cot?.length > 0 ||
+						messageData?.report?.hasChainOfThought) && (
 						<div
 							className={`tab-btn ${info?.activeTab === 'cot' ? 'active' : ''}`}
 							onClick={() =>
@@ -94,11 +96,15 @@ const AIMessageRenderer = ({
 							}
 						>
 							Chain of Thought
-							<span className="citation-badge">
-								{messageData?.deepSearch?.cot?.length ||
-									messageData?.deepResearch?.cot?.length ||
-									0}
-							</span>
+							{!messageData?.report && (
+								<span className="citation-badge">
+									{messageData?.deepSearch?.cot?.length +
+										messageData?.deepSearch?.cot_refined?.length ||
+										messageData?.deepResearch?.cot?.length +
+											messageData?.deepResearch?.sections?.length ||
+										0}
+								</span>
+							)}
 						</div>
 					)}
 					{messageData?.citations && messageData?.citations?.length > 0 && (
@@ -147,6 +153,7 @@ const AIMessageRenderer = ({
 							stream_end={messageData?.stream_end}
 						/>
 					)}
+					{messageData?.report && <CombinedChainOfThought data={messageData?.report} />}
 				</div>
 			) : (
 				<div className="source-content">
