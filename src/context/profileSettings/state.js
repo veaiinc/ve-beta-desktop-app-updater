@@ -456,7 +456,6 @@ export const ProfileState = () => {
 			let usertoken = localStorage.getItem('usertoken');
 			let workspaceId = localStorage.getItem('workspaceId');
 
-
 			if (!usertoken) return;
 
 			let decoded = jwt_decode(usertoken);
