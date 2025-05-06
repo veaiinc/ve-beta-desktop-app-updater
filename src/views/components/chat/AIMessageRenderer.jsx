@@ -20,6 +20,8 @@ const AIMessageRenderer = ({
 	toggleLatestStreamMessage,
 	handleViewDocument,
 	isPublicChat = false,
+	userMessageElement = null,
+	chatContentElement = null,
 }) => {
 	const {
 		templates: { globalChatMessages },
@@ -48,6 +50,27 @@ const AIMessageRenderer = ({
 		}
 	}, [globalChatMessages]);
 
+	const handleTabClick = (tab) => {
+		if (info?.activeTab === tab) return;
+
+		setInfo((prev) => ({
+			...prev,
+			activeTab: tab,
+		}));
+
+		if (chatContentElement && userMessageElement) {
+			const chatTop = chatContentElement?.getBoundingClientRect()?.top;
+			const containerTop = userMessageElement?.getBoundingClientRect()?.top;
+
+			const scrollOffset = containerTop - chatTop;
+
+			chatContentElement?.scrollBy({
+				top: scrollOffset,
+				behavior: 'smooth',
+			});
+		}
+	};
+
 	return (
 		<div className="ai-message-renderer">
 			<div
@@ -69,12 +92,7 @@ const AIMessageRenderer = ({
 				<div className="tab-buttons">
 					<div
 						className={`tab-btn ${info?.activeTab === 'response' ? 'active' : ''}`}
-						onClick={() =>
-							setInfo((prev) => ({
-								...prev,
-								activeTab: 'response',
-							}))
-						}
+						onClick={() => handleTabClick('response')}
 					>
 						{messageData?.stream_end ? (
 							<Logo2 className="" width={'24px'} height={'24px'} />
@@ -88,12 +106,7 @@ const AIMessageRenderer = ({
 						messageData?.report?.hasChainOfThought) && (
 						<div
 							className={`tab-btn ${info?.activeTab === 'cot' ? 'active' : ''}`}
-							onClick={() =>
-								setInfo((prev) => ({
-									...prev,
-									activeTab: 'cot',
-								}))
-							}
+							onClick={() => handleTabClick('cot')}
 						>
 							Chain of Thought
 							{!messageData?.report && (
@@ -110,12 +123,7 @@ const AIMessageRenderer = ({
 					{messageData?.citations && messageData?.citations?.length > 0 && (
 						<div
 							className={`tab-btn ${info?.activeTab === 'source' ? 'active' : ''}`}
-							onClick={() =>
-								setInfo((prev) => ({
-									...prev,
-									activeTab: 'source',
-								}))
-							}
+							onClick={() => handleTabClick('source')}
 						>
 							Sources
 							<span className="citation-badge">{messageData?.citations?.length}</span>

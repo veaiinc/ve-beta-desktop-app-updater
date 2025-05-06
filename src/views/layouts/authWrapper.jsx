@@ -40,7 +40,7 @@ const AuthWrapper = ({
 	useEffect(() => {
 		checkAuth();
 	}, []);
-	const workspaceIds = ['swaroop', 'veai', 'bhee'];
+	// const workspaceIds = ['swaroop', 'veai', 'bhee'];
 
 	return (
 		<main className="main-container">
@@ -51,9 +51,9 @@ const AuthWrapper = ({
 					<title>{title}</title>
 				</Helmet>
 
-				{workspaceIds?.includes(workspaceId) && !location?.pathname?.includes('/chat') && (
+				{/* {workspaceIds?.includes(workspaceId) && !location?.pathname?.includes('/chat') && (
 					<DynamicWidget />
-				)}
+				)} */}
 				<div
 					style={{
 						display: 'flex',

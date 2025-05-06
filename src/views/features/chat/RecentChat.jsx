@@ -89,6 +89,7 @@ const RecentChat = ({
 	const chatMessagesRef = useRef(globalChatMessages || []);
 	let { sessionId } = useParams();
 	const [searchParams, setSearchParams] = useSearchParams();
+	const userMessagesRefs = useRef({});
 	// const aiMessagesRef = useRef([]);
 	// const previousAiMessagesRef = useRef([]);
 	// const aiCitationsByIdRef = useRef({});
@@ -119,6 +120,7 @@ const RecentChat = ({
 
 			setTimeout(() => {
 				tabsRefs.current = {};
+				userMessagesRefs.current = {};
 				updateStateValues({
 					moreRecentChatStorage: null,
 					recentChatStorage: null,
@@ -149,6 +151,7 @@ const RecentChat = ({
 					},
 				});
 				tabsRefs.current = {};
+				userMessagesRefs.current = {};
 				setInfo((prev) => ({
 					...prev,
 					scrollExecuted: false,
@@ -745,6 +748,14 @@ const RecentChat = ({
 														>
 															<AIMessageRenderer
 																messageData={chat}
+																userMessageElement={
+																	userMessagesRefs.current?.[
+																		index - 1
+																	]
+																}
+																chatContentElement={
+																	chatContentRef?.current
+																}
 																handleNoteComponentModalOpen={
 																	handleNoteComponentModalOpen
 																}
@@ -766,13 +777,28 @@ const RecentChat = ({
 															/>
 														</div>
 													) : (
-														<UserMessageRenderer
-															messageData={chat}
-															// activeUserMessageIndex={
-															// 	index ===
-															// 	info?.activeUserMessageIndex
-															// }
-														/>
+														<div
+															ref={(el) => {
+																if (
+																	el &&
+																	!userMessagesRefs.current?.[
+																		index
+																	]
+																) {
+																	userMessagesRefs.current[
+																		index
+																	] = el;
+																}
+															}}
+														>
+															<UserMessageRenderer
+																messageData={chat}
+																// activeUserMessageIndex={
+																// 	index ===
+																// 	info?.activeUserMessageIndex
+																// }
+															/>
+														</div>
 													)}
 												</div>
 											</div>
