@@ -282,6 +282,8 @@ const Files = () => {
 		showElasticSearchResults: false,
 	});
 
+	const isAdmin = tenantUserAccessControls?.role === 'admin';
+
 	const cardItems = useRef(null);
 	const elasticSearchInputRef = useRef(null);
 	const elasticSearchTimeoutRef = useRef(null);
@@ -313,7 +315,6 @@ const Files = () => {
 
 	useEffect(() => {
 		if (tenantUserAccessControls) {
-			const isAdmin = tenantUserAccessControls?.role === 'admin';
 			let filteredOptions = options;
 
 			if (isAdmin) {
