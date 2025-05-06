@@ -209,7 +209,19 @@ const FormsGrid = ({
 								>
 									<div className="card-item-style content-wrapper docs">
 										<div className="docs-title-wrapper docs-title-wrapper-form">
-											<span className="docs-item-title">
+											<div className="card-header">
+												<h1 className="form-title">
+													{form?.title.length > 24
+														? form.title.slice(0, 24) + '...'
+														: form?.title}
+												</h1>
+												<p className="createdAt">
+													{moment.unix(form?.createdAt).fromNow()}
+												</p>
+											</div>
+											<div className="divider"></div>
+											<div className="card-footer"></div>
+											{/* <span className="docs-item-title">
 												{statusTextmapper?.[form?.status]?.text}
 											</span>
 											<span className="docs-item-title">
@@ -217,7 +229,7 @@ const FormsGrid = ({
 											</span>
 											<span className="docs-item-sub-title">
 												{moment.unix(form?.createdAt).fromNow()}
-											</span>
+											</span> */}
 										</div>
 									</div>
 								</div>
