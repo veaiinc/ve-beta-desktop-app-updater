@@ -291,6 +291,9 @@ const QuickActions = ({
 	clientDetails = null,
 	isFromForms = false,
 }) => {
+	const navigate = useNavigate();
+	const location = useLocation();
+
 	const {
 		templates: { toggleCreateLeadModal },
 		profileInfo: { tenantUserAccessControls },
@@ -309,11 +312,8 @@ const QuickActions = ({
 			updateTaskState,
 		},
 		companyInfo: { getTeamMembers, tenantsUserList },
-		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
+		subscriptionInfo: { validateExpiryData, updateSubscriptionState, currentPlan },
 	} = useContext(Context);
-
-	const navigate = useNavigate();
-	const location = useLocation();
 
 	const [info, setInfo] = useState({
 		dropdown: false,
@@ -347,6 +347,50 @@ const QuickActions = ({
 		currentLocation: '',
 		locationNeeded: false,
 	});
+
+	const isAdmin = tenantUserAccessControls?.role === 'admin';
+	const liteGalleryPaidPlan = currentPlan?.apps?.find(
+		(app) => app.app === 'liteGallery',
+	)?.isPaidPlan;
+
+	useEffect(() => {
+		if (!tenantUserAccessControls) return;
+
+		let filteredOptions = [];
+
+		if (isAdmin) {
+			filteredOptions = moduleOptions?.filter((option) =>
+				option?.value === 'lite-gallery' ? liteGalleryPaidPlan : true,
+			);
+		} else if (tenantUserAccessControls?.accessControls) {
+			const enabledApps = new Set(
+				tenantUserAccessControls.accessControls
+					.filter((permission) => {
+						const isLiteGallery = permission?.app === 'liteGallery';
+						return isLiteGallery
+							? permission?.isEnabled &&
+									permission?.hasFullAccess &&
+									liteGalleryPaidPlan
+							: permission?.isEnabled;
+					})
+					.map((permission) => permission?.app),
+			);
+
+			filteredOptions = moduleOptions?.filter((option) => enabledApps.has(option?.value));
+		}
+
+		setInfo((prevInfo) => ({
+			...prevInfo,
+			options: {
+				...prevInfo.options,
+				moduleOptions: filteredOptions,
+			},
+			filteredOptions: {
+				...prevInfo.filteredOptions,
+				moduleOptions: filteredOptions,
+			},
+		}));
+	}, [tenantUserAccessControls, isAdmin, liteGalleryPaidPlan]);
 
 	const responseMetadata = useMemo(
 		() => ({
