@@ -279,7 +279,11 @@ const AISuggestionsModal = ({
 								{fileTypeIcons[data?.moduleType]} -{' '}
 								{data?.knowledgeBase?.[0]?.metadata?.connectedEmail}
 							</span>
-							<div></div>
+							<div className="categories">
+								{data?.categories?.map((category) => (
+									<div className="category">{category}</div>
+								))}
+							</div>
 						</div>
 						<hr className="horizontal-line" />
 						{info?.chainOfThoughtData?.hasChainOfThought && (

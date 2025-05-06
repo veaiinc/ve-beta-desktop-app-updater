@@ -203,6 +203,29 @@
 						line-height: normal;
 						cursor: pointer;
 					}
+					.categories {
+						display: flex;
+						flex-direction: row;
+						gap: 8px;
+						align-items: center;
+						flex-grow: 1;
+						overflow: auto;
+						.category {
+							display: flex;
+							padding: 6px 10px;
+							align-items: center;
+							gap: 8px;
+							border-radius: 8px;
+							background: rgba(80, 137, 249, 0.2);
+							color: var(--primary-font, #f2f2f3);
+							font-family: Inter;
+							font-size: 12px;
+							font-style: normal;
+							font-weight: 500;
+							line-height: normal;
+							// cursor: pointer;
+						}
+					}
 				}
 
 				.cot {
