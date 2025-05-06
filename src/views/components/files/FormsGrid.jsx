@@ -197,7 +197,7 @@ const FormsGrid = ({
 								<div className="card-item-style card-item-style-btn">
 									<button className="card-btn">
 										<Plus />
-										Create Form
+										New Form
 									</button>
 								</div>
 							</div>
@@ -208,18 +208,13 @@ const FormsGrid = ({
 									onClick={() => handleNavigateForm(form)}
 								>
 									<div className="card-item-style content-wrapper docs">
-										<DocsStatusButton
-											content={statusTextmapper?.[form?.status]?.text}
-											style={statusTextmapper?.[form?.status]?.style}
-											dotStyle={statusTextmapper?.[form?.status]?.dotStyle}
-										/>
 										<div className="docs-title-wrapper docs-title-wrapper-form">
-											<div className=""></div>
-											<Tooltip title={form?.title || ''} placement="bottom">
-												<span className="docs-item-title">
-													{form?.title.slice(0, 20)}
-												</span>
-											</Tooltip>
+											<span className="docs-item-title">
+												{statusTextmapper?.[form?.status]?.text}
+											</span>
+											<span className="docs-item-title">
+												{form?.title.slice(0, 20)}
+											</span>
 											<span className="docs-item-sub-title">
 												{moment.unix(form?.createdAt).fromNow()}
 											</span>
