@@ -5,6 +5,7 @@
 	display: flex;
 	flex-direction: column;
 	gap: 18px;
+	align-items: center;
 	.cards-container {
 		display: flex;
 		gap: 20px;
@@ -14,6 +15,7 @@
 		width: 903px;
 		position: relative;
 		transition: all 0.3s ease;
+		margin-top: 50px;
 
 		.card {
 			display: flex;
@@ -216,7 +218,25 @@
 			}
 		}
 	}
+	.action-right {
+		display: inline-flex;
+		align-items: center;
+		gap: 12px;
 
+		.card-change-btn {
+			display: flex;
+			padding: 10px;
+			justify-content: center;
+			align-items: center;
+			gap: 6px;
+			border-radius: 8px;
+			border: 1px solid var(--stroke, #2c2d2e);
+			background: var(--card, #18191b);
+			.left-chevron {
+				transform: rotate(180deg);
+			}
+		}
+	}
 	.card.skeleton {
 		overflow: hidden;
 		padding: 0;
@@ -254,18 +274,29 @@
 				line-height: normal;
 			}
 		}
+		.viewSelection {
+			display: flex;
+			align-items: center;
+			gap: 6px;
+			align-self: stretch;
+			user-select: none;
+			cursor: pointer;
+		}
+		.verticalLine {
+			width: 1px;
+			height: 18px;
+			background: var(--stroke, #2c2d2e);
+		}
 		.action-left {
 			color: var(--secondary-font, #93989f);
 			font-family: var(--primary-font-family);
 			font-size: 12px;
 			.filter-btn {
 				display: flex;
-				padding: 6px 10px;
 				justify-content: center;
 				align-items: center;
 				gap: 6px;
-				border-radius: 20px;
-				border: 1px solid var(--stroke, #2e3033);
+				border: none;
 				background-color: transparent;
 				color: var(--primary-font, #f2f2f3);
 				font-family: Inter;
@@ -302,7 +333,7 @@
 		align-items: flex-start;
 		gap: 8px;
 		margin: 0px auto;
-		flex-grow: 1;
+		// flex-grow: 1;
 		max-height: 100%;
 		.eachCardContainer {
 			display: flex;

@@ -1,11 +1,10 @@
 import { memo, useContext, useEffect, useRef, useState, useMemo, useCallback } from 'react';
 import '../../../assets/scss/home_page/proactiveSuggestions.scss';
 import Context from '../../../context/context';
-// import { ReactComponent as ChevronRightThinSvg } from '../../../assets/svg/tasks/chevronRightThin.svg';
+import { ReactComponent as ChevronRightThinSvg } from '../../../assets/svg/tasks/chevronRightThin.svg';
 import { ReactComponent as FilterIcon } from '../../../assets/svg/tasks/newFiltersIcon.svg';
 import { ReactComponent as TickIcon } from '../../../assets/svg/tick.svg';
 import { ReactComponent as CloseIcon } from '../../../assets/svg/close.svg';
-import { ReactComponent as ThumbsUpSvg } from '../../../assets/svg/thumbsUp.svg';
 import { ReactComponent as EmailIcon } from '../../../assets/svg/login_page/gmail.svg';
 import Skeleton from 'react-loading-skeleton';
 import AISuggestionsModal from '../../components/modalsV2/homePage/AISuggestionsModal';
@@ -21,6 +20,8 @@ import { useNavigate } from 'react-router-dom';
 import { handleCombinedChainOfThought } from '../../../helpers/chatHelpers';
 import { ReactComponent as RelativeTimeSvg } from '../../../assets/svg/home_page/relativeTime.svg';
 import { ReactComponent as BookIcon } from '../../../assets/svg/home_page/bookIcon.svg';
+import { ReactComponent as ListViewSvg } from '../../../assets/svg/home_page/listView.svg';
+import { ReactComponent as FocusViewSvg } from '../../../assets/svg/home_page/focusView.svg';
 
 dayjs.extend(relativeTime);
 dayjs.extend(updateLocale);
@@ -61,9 +62,9 @@ const filterGroups = [
 		title: 'Priority Level',
 		options: [
 			// { id: 1, title: 'Urgent Priority', value: 'High' },
-			{ id: 2, title: 'High Priority', value: 'High' },
-			{ id: 3, title: 'Medium Priority', value: 'Medium' },
-			{ id: 4, title: 'Low Priority', value: 'Low' },
+			{ id: 2, title: 'High', value: 'High' },
+			{ id: 3, title: 'Medium ', value: 'Medium' },
+			{ id: 4, title: 'Low ', value: 'Low' },
 		],
 	},
 	{
@@ -101,7 +102,11 @@ const infiniteScrollStyle = {
 	gap: '8px',
 	paddingBottom: '40px',
 };
-
+const PriorityLevel = {
+	High: 'red',
+	Medium: 'yellow',
+	Low: 'green',
+};
 const skeletonLoaders = Array.from({ length: 7 }, (_, index) => index + 1);
 const ProactiveSuggestions = ({ selectedOption }) => {
 	const {
@@ -124,6 +129,7 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 		selectedFilters: [],
 		selectedCardNumber: null,
 		hoveredCard: null,
+		isListView: true,
 	});
 	const navigate = useNavigate();
 	const selectedOptionRef = useRef(selectedOption);
@@ -511,6 +517,12 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 		updateStateValues({ globalChatMessages: messages });
 		navigate(`/chat/${ObjectID()?.toString()}`);
 	}, []);
+	const handleViewChange = (view) => {
+		setInfo((prev) => ({
+			...prev,
+			isListView: view,
+		}));
+	};
 	return (
 		<div className="proactive-suggestions-container">
 			<div className="action-container">
@@ -521,6 +533,18 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 					</div>
 				</div>
 				<div style={{ display: 'flex', flexDirection: 'row', gap: '10px' }}>
+					{!info?.isListView ? (
+						<div className="viewSelection" onClick={() => handleViewChange(true)}>
+							<ListViewSvg />
+							List View
+						</div>
+					) : (
+						<div className="viewSelection" onClick={() => handleViewChange(false)}>
+							<FocusViewSvg />
+							Focus View
+						</div>
+					)}
+					<div className="verticalLine"></div>
 					<Tooltip
 						open={info?.openFilter}
 						onOpenChange={() => setInfo((prev) => ({ ...prev, openFilter: false }))}
@@ -596,6 +620,7 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 						}
 						color={'transparent'}
 						style={{ cursor: 'pointer', userSelect: 'none' }}
+						trigger={'click'}
 					>
 						<div
 							className="action-left"
@@ -633,164 +658,270 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 					</div>
 				)}
 			</>
-			<div className="proactiveSuggestionsContainer">
-				{info?.loading ? (
-					skeletonLoaders?.map((_, index) => (
-						<Skeleton
-							width="908px"
-							height="120px"
-							style={{
-								'--highlight-color': 'gray',
-								'--base-color': 'transparent',
-							}}
-							key={index}
-						/>
-					))
-				) : info?.cards?.length === 0 ? (
-					<div className="no-data" style={{ color: 'var(--primary-font)' }}>
-						No data available
-					</div>
-				) : (
-					<InfiniteScroll
-						dataLength={info?.cards?.length}
-						hasMore={aiSuggestedPendingActions?.metaInfo?.hasNextPage}
-						next={fetchMorePendingActions}
-						style={infiniteScrollStyle}
-						height={'100%'}
-					>
-						{info?.cards?.map((card, index) => {
-							const priority = card?.priority;
-							const isRead = card?.read;
-							return (
-								<div
-									className="eachCardContainer"
-									key={card?._id}
-									onMouseEnter={() =>
-										setInfo((prev) => ({
-											...prev,
-											hoveredCard: card,
-										}))
-									}
-									onMouseLeave={() =>
-										setInfo((prev) => ({
-											...prev,
-											hoveredCard: null,
-										}))
-									}
-									onClick={() => handleCardClick(card, index)}
-								>
-									<Tooltip
-										title={
-											<div className="tooltipContainer">
-												<span>{card?.title}</span> {card?.description}
-											</div>
-										}
-										placement="bottomLeft"
-										arrow={false}
-									>
-										<div className="cardContianerTitle">
-											{!isRead && <span className="unread"></span>}
-											<span>{card?.title} - </span>
-											{card?.description}
-										</div>
-									</Tooltip>
+			{info?.isListView ? (
+				<div className="proactiveSuggestionsContainer">
+					{info?.loading ? (
+						skeletonLoaders?.map((_, index) => (
+							<Skeleton
+								width="908px"
+								height="120px"
+								style={{
+									'--highlight-color': 'gray',
+									'--base-color': 'transparent',
+								}}
+								key={index}
+							/>
+						))
+					) : info?.cards?.length === 0 ? (
+						<div className="no-data" style={{ color: 'var(--primary-font)' }}>
+							No data available
+						</div>
+					) : (
+						<InfiniteScroll
+							dataLength={info?.cards?.length}
+							hasMore={aiSuggestedPendingActions?.metaInfo?.hasNextPage}
+							next={fetchMorePendingActions}
+							style={infiniteScrollStyle}
+							height={'100%'}
+						>
+							{info?.cards?.map((card, index) => {
+								const priority = card?.priority;
+								const isRead = card?.read;
+								return (
 									<div
-										className={`cardOptionsMainContainer ${
-											info?.hoveredCard?._id === card?._id
-												? 'linearBorder'
-												: ''
-										}`}
+										className="eachCardContainer"
+										key={card?._id}
+										onMouseEnter={() =>
+											setInfo((prev) => ({
+												...prev,
+												hoveredCard: card,
+											}))
+										}
+										onMouseLeave={() =>
+											setInfo((prev) => ({
+												...prev,
+												hoveredCard: null,
+											}))
+										}
+										onClick={() => handleCardClick(card, index)}
 									>
-										<div className="cardOptionsContainer ">
-											{priority && (
-												<>
-													<div className="priorityOption">
-														<Tooltip title={`Priority: ${priority}`}>
-															<div className="priority">
-																<div
-																	className="indicator"
-																	style={{
-																		background:
-																			priority === 'High'
-																				? 'red'
-																				: priority ===
-																				  'Medium'
-																				? 'orange'
-																				: 'green',
-																	}}
-																></div>
-																<div className="priority-text">{`${priority}`}</div>
-															</div>
-														</Tooltip>
-													</div>
-													<div className="verticalLine"></div>
-												</>
-											)}
-											<div
-												className={`${
-													card?.feedback === 'thumbsup'
-														? 'thumbsUpContainer'
-														: ''
-												}`}
-												onClick={(e) => {
-													e.stopPropagation();
-													handleThumbClick(card?._id, 'thumbsup');
-												}}
-												style={{ cursor: 'pointer' }}
-											>
-												<BookIcon
-													style={{
-														color: `${
-															card?.feedback === 'thumbsup'
-																? 'var(--primary-font)'
-																: 'var(--secondary-font)'
-														}`,
+										<Tooltip
+											title={
+												<div className="tooltipContainer">
+													<span>{card?.title}</span> {card?.description}
+												</div>
+											}
+											placement="bottomLeft"
+											arrow={false}
+										>
+											<div className="cardContianerTitle">
+												{!isRead && <span className="unread"></span>}
+												<span>{card?.title} - </span>
+												{card?.description}
+											</div>
+										</Tooltip>
+										<div
+											className={`cardOptionsMainContainer ${
+												info?.hoveredCard?._id === card?._id
+													? 'linearBorder'
+													: ''
+											}`}
+										>
+											<div className="cardOptionsContainer ">
+												{priority && (
+													<>
+														<div className="priorityOption">
+															<Tooltip
+																title={`Priority: ${priority}`}
+															>
+																<div className="priority">
+																	<div
+																		className="indicator"
+																		style={{
+																			background:
+																				priority === 'High'
+																					? 'red'
+																					: priority ===
+																					  'Medium'
+																					? 'orange'
+																					: 'green',
+																		}}
+																	></div>
+																	<div className="priority-text">{`${priority}`}</div>
+																</div>
+															</Tooltip>
+														</div>
+														<div className="verticalLine"></div>
+													</>
+												)}
+												<div
+													className={`${
+														card?.feedback === 'thumbsup'
+															? 'thumbsUpContainer'
+															: ''
+													}`}
+													onClick={(e) => {
+														e.stopPropagation();
+														handleThumbClick(card?._id, 'thumbsup');
 													}}
-												/>
+													style={{ cursor: 'pointer' }}
+												>
+													<BookIcon
+														style={{
+															color: `${
+																card?.feedback === 'thumbsup'
+																	? 'var(--primary-font)'
+																	: 'var(--secondary-font)'
+															}`,
+														}}
+													/>
+												</div>
+												<div className="verticalLine"></div>
+												<div style={{ fontSize: '12px' }}>
+													{card?.confidence_score * 100} %
+												</div>
+												<div className="verticalLine"></div>
+												<div>
+													<EmailIcon width={16} height={12} />
+												</div>
+												<div className="verticalLine"></div>
+												<div className="relativeTime">
+													<RelativeTimeSvg />
+													{dayjs(card?.updatedAt * 1000).fromNow()}
+												</div>
 											</div>
-											<div className="verticalLine"></div>
-											<div style={{ fontSize: '12px' }}>
-												{card?.confidence_score * 100} %
-											</div>
-											<div className="verticalLine"></div>
-											<div>
-												<EmailIcon width={16} height={12} />
-											</div>
-											<div className="verticalLine"></div>
-											<div className="relativeTime">
-												<RelativeTimeSvg />
-												{dayjs(card?.updatedAt * 1000).fromNow()}
+											{info?.hoveredCard?._id === card?._id && (
+												<div className="cardButtonsContainer">
+													<button
+														className="skipButton"
+														onClick={(e) => {
+															e.stopPropagation();
+															handleIgnoreClick(card?._id);
+														}}
+													>
+														Ignore
+													</button>
+													<button
+														className="checkButton"
+														onClick={(e) => {
+															e.stopPropagation();
+															handleViewReportClick(card);
+														}}
+													>
+														View Report
+													</button>
+												</div>
+											)}
+										</div>
+									</div>
+								);
+							})}
+						</InfiniteScroll>
+					)}
+				</div>
+			) : (
+				<>
+					<div className="cards-container">
+						{info?.loading ? (
+							[
+								{ position: 0 },
+								{ position: 1 },
+								{ position: 2 },
+								{ position: -1 },
+								{ position: -2 },
+							]?.map((item, index) => {
+								const classList = [
+									'card',
+									'skeleton',
+									positionClassMap[item.position],
+								];
+								return (
+									<div key={index} className={classList.join(' ')}>
+										<div
+											className="skeleton-container"
+											style={{
+												width: '100%',
+												height: '100%',
+												borderRadius: '10px',
+											}}
+										>
+											<Skeleton height={'100%'} width={'100%'} />
+										</div>
+									</div>
+								);
+							})
+						) : info?.cards?.length === 0 ? (
+							<div className="no-data" style={{ color: 'var(--primary-font)' }}>
+								No data available
+							</div>
+						) : (
+							info.cards.map((card, index) => {
+								if (card.position === null) return null;
+								const classList = ['card', positionClassMap[card.position]];
+								return (
+									<div
+										key={card?._id}
+										className={classList.join(' ')}
+										onClick={() => handleCardClick(card, index)}
+									>
+										<div className="header">
+											<div className="card-title">{card?.description}</div>
+											<div className="card-description">{card?.title}</div>
+										</div>
+										<div className="footer">
+											<div className="module-type">{card?.moduleType}</div>
+											<div className="module-priority">
+												<span
+													style={{
+														backgroundColor:
+															PriorityLevel[card?.priority],
+													}}
+												></span>
+												<div className="module-priority-text">
+													<div>{card?.priority}</div>
+													{card?.priority && card?.updatedAt && (
+														<div
+															style={{
+																color: 'var(--secondary-font)',
+															}}
+														>
+															|
+														</div>
+													)}
+													<Tooltip
+														title={dayjs(card?.updatedAt * 1000).format(
+															'MMMM D, YYYY h:mm A',
+														)}
+													>
+														<div>
+															{dayjs(
+																card?.updatedAt * 1000,
+															).fromNow()}
+														</div>
+													</Tooltip>
+												</div>
 											</div>
 										</div>
-										{info?.hoveredCard?._id === card?._id && (
-											<div className="cardButtonsContainer">
-												<button
-													className="skipButton"
-													onClick={(e) => {
-														e.stopPropagation();
-														handleIgnoreClick(card?._id);
-													}}
-												>
-													Ignore
-												</button>
-												<button
-													className="checkButton"
-													onClick={(e) => {
-														e.stopPropagation();
-														handleViewReportClick(card);
-													}}
-												>
-													View Report
-												</button>
-											</div>
-										)}
 									</div>
-								</div>
-							);
-						})}
-					</InfiniteScroll>
-				)}
-			</div>
+								);
+							})
+						)}
+					</div>
+
+					<div className="action-right">
+						<button className="card-change-btn" onClick={handleLeft}>
+							<ChevronRightThinSvg className="left-chevron" />
+						</button>
+						<div>
+							{currentIndexRef?.current + 1}/
+							{aiSuggestedPendingActions?.metaInfo?.totalDocs}
+						</div>
+						<button className="card-change-btn" onClick={handleRight}>
+							<ChevronRightThinSvg />
+						</button>
+					</div>
+				</>
+			)}
 			<AISuggestionsModal
 				open={info?.openModal}
 				onClose={handleCloseModal}
@@ -798,7 +929,7 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 				onNextCardClick={handleRight}
 				onPrevCardClick={handleLeft}
 				totalDocs={aiSuggestedPendingActions?.metaInfo?.totalDocs}
-				selectedCardNumber={info?.selectedCardNumber}
+				selectedCardNumber={currentIndexRef?.current + 1}
 			/>
 		</div>
 	);
