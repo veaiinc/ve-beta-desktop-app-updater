@@ -130,7 +130,7 @@ const FormResponseList = ({
 
 	const actualResponsesCount = responsesWithAnswers.length;
 	const visibleResponses = expanded ? responsesWithAnswers : responsesWithAnswers.slice(0, 5);
-	console.log(visibleResponses, expanded, 'visibleResponses');
+	
 	return (
 		<div className="collapsible-list">
 			<div

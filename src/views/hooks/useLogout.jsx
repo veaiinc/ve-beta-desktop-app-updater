@@ -1,10 +1,9 @@
 import { useContext, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
-import Cookies from 'js-cookie';
 import Context from '../../context/context';
+import Cookies from 'js-cookie';
+import { useNavigate } from 'react-router-dom';
 
 const useLogout = () => {
-	const navigate = useNavigate();
 	const {
 		chatInfo: { resetChatState },
 		companyInfo: { resetCompanySettings },
@@ -23,53 +22,56 @@ const useLogout = () => {
 		elasticSearch: { resetElasticSearchState },
 	} = useContext(Context);
 
-	const resetApplications = useCallback(async () => {
-		try {
-			const theme = localStorage.getItem('theme');
-			const cookieTheme = Cookies.get('theme');
+	const navigate = useNavigate();
 
-			localStorage.clear();
-			Object.keys(Cookies.get()).forEach((cookieName) => {
-				Cookies.remove(cookieName);
-			});
+	const resetApplications = useCallback(() => {
+		// First reset all application state
+		resetChatState();
+		resetCompanySettings();
+		resetProfileSettingsState();
+		resetTemplateState();
+		resetGallleryState();
+		resetSubscriptionState();
+		resetCalendarState();
+		resetActivityState();
+		resetAiSetupState();
+		resetTasksState();
+		resetContactsState();
+		resetDocumentPreviewState();
+		resetAutomationBuilderState();
+		resetElasticSearchState();
+		resetKnowledgeAgentState();
 
-			if (theme) localStorage.setItem('theme', theme);
-			if (cookieTheme) Cookies.set('theme', cookieTheme, { expires: 365 });
+		// Preserve theme settings
+		const theme = localStorage.getItem('theme');
+		const cookieTheme = Cookies.get('theme');
 
-			const resetFunctions = [
-				resetChatState,
-				resetCompanySettings,
-				resetProfileSettingsState,
-				resetTemplateState,
-				resetGallleryState,
-				resetSubscriptionState,
-				resetCalendarState,
-				resetActivityState,
-				resetAiSetupState,
-				resetTasksState,
-				resetContactsState,
-				resetDocumentPreviewState,
-				resetAutomationBuilderState,
-				resetElasticSearchState,
-				resetKnowledgeAgentState,
-			];
+		// Clear storage
+		localStorage.clear();
 
-			const results = await Promise.allSettled(resetFunctions.map((fn) => fn()));
-
-			results.forEach((result, index) => {
-				if (result.status === 'rejected') {
-					console.error(
-						`Reset function ${resetFunctions[index].name} failed:`,
-						result.reason,
-					);
-				}
-			});
-
-			navigate('/');
-		} catch (error) {
-			console.error('Unexpected error during logout:', error);
+		// Re-apply theme if it existed before
+		if (theme) {
+			localStorage.setItem('theme', theme);
 		}
-	}, [navigate]);
+
+		// Clear cookies (except theme)
+		Object.keys(Cookies.get()).forEach((cookieName) => {
+			if (cookieName !== 'theme') {
+				Cookies.remove(cookieName);
+			}
+		});
+
+		// Reapply theme cookie if it existed
+		if (cookieTheme) {
+			Cookies.set('theme', cookieTheme, { expires: 365 });
+		}
+
+		// Important: Use navigate with a timeout to ensure state changes have completed
+		// This helps avoid navigation issues when clearing state
+		setTimeout(() => {
+			navigate('/', { replace: true });
+		}, 0);
+	}, []);
 
 	return resetApplications;
 };

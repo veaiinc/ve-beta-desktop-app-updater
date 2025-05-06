@@ -72,8 +72,8 @@ const HeadersDropDownComp = ({
 		setIsOpen(false);
 		setSearchValue('');
 	};
-	const handleLogout = useCallback(async () => {
-		await logoutFunc();
+	const handleLogout = useCallback(() => {
+		logoutFunc();
 	}, [logoutFunc]);
 
 	const handleOpen = useCallback(async () => {

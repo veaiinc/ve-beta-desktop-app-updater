@@ -442,7 +442,7 @@ export const ProfileState = () => {
 			console.log('error==>updateAccessControlOpenModal', error);
 		}
 	};
-	const resetProfileSettingsState = async () => {
+	const resetProfileSettingsState = () => {
 		dispatch({ type: Actions.RESET_STATE });
 	};
 
@@ -455,6 +455,10 @@ export const ProfileState = () => {
 		try {
 			let usertoken = localStorage.getItem('usertoken');
 			let workspaceId = localStorage.getItem('workspaceId');
+
+
+			if (!usertoken) return;
+
 			let decoded = jwt_decode(usertoken);
 			const response = await service.fetchGet(
 				`/tenant-user/${workspaceId}/tenant-user-access-control/${decoded.user_id}`,

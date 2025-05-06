@@ -297,7 +297,8 @@ const OpenedSidebar = ({
 
 	const newThemeValue = theme === 'dark' ? 'light' : 'dark';
 	useEffect(() => {
-		if (!tennantSettingsData) {
+		const token = localStorage.getItem('usertoken');
+		if (token && !tennantSettingsData) {
 			getTenantSettings();
 		}
 	}, [tennantSettingsData]);
@@ -326,8 +327,8 @@ const OpenedSidebar = ({
 		localStorage.setItem('showSettingsSidebar', JSON.stringify(showSettingsSidebar));
 	}, [showSettingsSidebar]);
 
-	const handleLogout = useCallback(async () => {
-		await logoutFunc();
+	const handleLogout = useCallback(() => {
+		logoutFunc();
 	}, [logoutFunc]);
 
 	const openWorkspacesFunction = () => {
@@ -345,6 +346,7 @@ const OpenedSidebar = ({
 		(route, singleItems) => {
 			if (singleItems?.name === 'Settings') {
 				setShowSettingsSidebar(true);
+				console.log('reached here')
 				navigate('/settings/my-profile');
 				return;
 			}

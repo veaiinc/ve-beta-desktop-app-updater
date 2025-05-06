@@ -40,8 +40,8 @@ const ExpiredTokenModal = () => {
 					</div>
 					<div
 						className="contactSupportButton"
-						onClick={async () => {
-							await logout();
+						onClick={() => {
+							logout();
 							closeModal();
 						}}
 					>
