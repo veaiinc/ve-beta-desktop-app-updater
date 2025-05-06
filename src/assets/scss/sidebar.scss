@@ -506,7 +506,7 @@
 			position: relative;
 			z-index: 999;
 			border-top: 1px solid var(--stroke);
-
+			height: 83dvh;
 			-ms-overflow-style: none; // Hide scrollbar IE
 			scrollbar-width: none; // Hide scrollbar Firefox
 			&::-webkit-scrollbar {

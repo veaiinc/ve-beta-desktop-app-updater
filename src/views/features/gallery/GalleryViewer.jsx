@@ -111,7 +111,7 @@ const GalleryViewer = ({
 	});
 
 	useEffect(() => {
-		if (!aiface && !imagesList) {
+		if (!aiface && !imagesList && tagId) {
 			getGalleryImages(
 				activeGalleryId,
 				activeAlbumId,

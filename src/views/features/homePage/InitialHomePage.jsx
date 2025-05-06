@@ -236,50 +236,6 @@ const InitialHomePage = () => {
 		}
 	}, [options, info?.selectedOption]);
 
-	const renderOptions = () => {
-		if (!tenantUserAccessControls) return null;
-
-		const isAdmin = tenantUserAccessControls?.role === 'admin';
-		// Create a lookup object for access controls
-		const accessControlMap = Object?.fromEntries(
-			tenantUserAccessControls?.accessControls?.map((item) => [item?.app, item]) || [],
-		);
-
-		return info?.options?.map((option) => {
-			// For options without a control key (proactive and prompts), only render if showOption is true
-			if (!option?.showOption && !option?.controlValue) return null;
-
-			// For options with a control key (Contacts and Automations), show for admin or if access is enabled
-			if (option?.controlValue) {
-				const accessControl = accessControlMap[option?.controlValue];
-				const isEnabled = accessControl?.isEnabled;
-				if (!isAdmin && !isEnabled) return null;
-			}
-
-			return (
-				<Tooltip title={option?.tooltip}>
-					<div
-						key={option?.id}
-						className={`option ${
-							info?.selectedOption === option?.value ? 'active' : ''
-						}`}
-						onClick={() => handleOptionSelection(option)}
-					>
-						<div className="option-label">{option?.label}</div>
-					</div>
-				</Tooltip>
-			);
-		});
-	};
-
-	const handleCustomOnSendFunction = useCallback(
-		(data) => {
-			updateStateValues({ activePayloadForChat: data });
-			navigate(`/chat/${currentSessionId}`);
-		},
-		[currentSessionId],
-	);
-
 	const handleOptionSelection = (option) => {
 		if (info?.selectedOption === option?.value) {
 			return;
@@ -290,6 +246,58 @@ const InitialHomePage = () => {
 			selectedOption: option?.value,
 		}));
 	};
+
+	const renderedOptions = useMemo(() => {
+		if (!tenantUserAccessControls || !info?.options) return null;
+
+		const isAdmin = tenantUserAccessControls?.role === 'admin';
+
+		const accessControlMap = Object.fromEntries(
+			tenantUserAccessControls?.accessControls?.map((item) => [item?.app, item]) || [],
+		);
+
+		return info?.options?.map((option) => {
+			if (!option?.showOption && !option?.controlValue) return null;
+
+			if (option?.controlValue) {
+				const accessControl = accessControlMap[option?.controlValue];
+				const isEnabled = accessControl?.isEnabled;
+				if (!isAdmin && !isEnabled) return null;
+			}
+
+			return (
+				<Tooltip
+					key={option?.id}
+					title={<div className="tooltipOption">{option?.tooltip}</div>}
+					placement="bottom"
+					arrow={false}
+				>
+					<div
+						className={`option ${
+							info?.selectedOption === option?.value ? 'active' : ''
+						}`}
+						onClick={() => handleOptionSelection(option)}
+					>
+						<div className="option-label">{option?.label}</div>
+					</div>
+				</Tooltip>
+			);
+		});
+	}, [
+		tenantUserAccessControls?.role,
+		tenantUserAccessControls?.accessControls,
+		info?.options,
+		info?.selectedOption,
+		handleOptionSelection, // make sure this is stable (e.g., memoized if needed)
+	]);
+
+	const handleCustomOnSendFunction = useCallback(
+		(data) => {
+			updateStateValues({ activePayloadForChat: data });
+			navigate(`/chat/${currentSessionId}`);
+		},
+		[currentSessionId],
+	);
 
 	const updatePromptsCategory = (value) => {
 		setInfo((prev) => ({
@@ -391,11 +399,12 @@ const InitialHomePage = () => {
 							autoFocus={false}
 							isParentHeaderMinimized={info?.minimized}
 							animatePlaceholder={true}
+							startPage={true}
 						/>
 					</div>
 				</div>
 
-				<div className="options-container">{renderOptions()}</div>
+				<div className="options-container">{renderedOptions}</div>
 			</div>
 			{options?.length > 0 && (
 				<div

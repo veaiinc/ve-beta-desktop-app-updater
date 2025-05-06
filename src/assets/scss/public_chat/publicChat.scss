@@ -43,7 +43,10 @@
 	}
 	.chat-body {
 		.chat-container {
-			height: calc(100vh - 114px);
+			height: calc(100vh - 85px) !important;
+			.chatContent {
+				padding-bottom: calc(100vh - 370px) !important;
+			}
 		}
 	}
 }

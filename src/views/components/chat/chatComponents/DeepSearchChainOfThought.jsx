@@ -1,12 +1,12 @@
 import { memo } from 'react';
 import '../../../../assets/scss/chat/chatComponents/deepSearchChainOfThought.scss';
-import { ReactComponent as Search } from '../../../../assets/svg/workflow/search.svg';
 import WebSvg from '../../../../assets/svg/ai_agents/webSvg';
 import { getFaviconUrl, getWebsiteName } from '../../../../helpers';
+import { ReactComponent as CurveSvg } from '../../../../assets/svg/ai_agents/curve.svg';
 import BookSvg from '../../../../assets/svg/ai_agents/bookSvg';
 import { fileTypeIcons } from '../../../../helpers';
 
-const DeepSearchChainOfThought = ({ data }) => {
+const DeepSearchChainOfThought = ({ data, showLastIndicatorLine = false }) => {
 	return (
 		<div className="cot-wrapper">
 			<div className="cot-container">
@@ -18,6 +18,9 @@ const DeepSearchChainOfThought = ({ data }) => {
 								<div className="indicator" />
 							</div>
 							<div className="content">
+								{(data?.cot_refined?.length > 0 ||
+									index !== data?.cot?.length - 1 ||
+									showLastIndicatorLine) && <div className="line" />}
 								<div className="sub-query">
 									{readings[0]?.reading?.sub_query || sub_query || ''}
 								</div>
@@ -26,15 +29,9 @@ const DeepSearchChainOfThought = ({ data }) => {
 										const { tool, queries, sources } = reading?.reading;
 										return (
 											<div className="sub-query-cot" key={index}>
-												{readings?.length !== 1 && (
-													<div className="number-logo-container">
-														<div className="indicator" />
-													</div>
-												)}
-
 												<div className="sub-query-content">
 													{queries?.length > 0 && (
-														<>
+														<div className="queries-wrapper">
 															<div className="tool-container">
 																{tool === 'search_web' ? (
 																	<div className="search">
@@ -61,24 +58,31 @@ const DeepSearchChainOfThought = ({ data }) => {
 																) : (
 																	<div className="search">
 																		<div className="search-text">
-																			Searched :
+																			Searched For :
 																		</div>
 																	</div>
 																)}
 															</div>
-															<div className="queries" key={index}>
-																{queries?.map((query, index) => {
-																	return (
-																		<div
-																			className="query"
-																			key={index}
-																		>
-																			{query}
+
+															<div className="queries-container">
+																{queries?.map((query, idx) => (
+																	<div
+																		className="query-container"
+																		key={idx}
+																	>
+																		<div className="query-link">
+																			<CurveSvg />
 																		</div>
-																	);
-																})}
-															</div>{' '}
-														</>
+																		<div
+																			key={idx}
+																			className="query"
+																		>
+																			{query || ''}
+																		</div>
+																	</div>
+																))}
+															</div>
+														</div>
 													)}
 
 													{sources?.length > 0 && (
@@ -161,7 +165,7 @@ const DeepSearchChainOfThought = ({ data }) => {
 
 			{data?.cot_refined?.length > 0 && (
 				<div className="refined-cot-wrapper">
-					<div className="refined-cot-text">Refined Chain of Thought</div>
+					{/* <div className="refined-cot-text">Refined Chain of Thought</div> */}
 					<div className="refined-cot-container">
 						{data?.cot_refined?.map((item, index) => {
 							const { readings, sub_query } = item;
@@ -171,6 +175,8 @@ const DeepSearchChainOfThought = ({ data }) => {
 										<div className="indicator" />
 									</div>
 									<div className="content">
+										{(index !== data?.cot_refined?.length - 1 ||
+											showLastIndicatorLine) && <div className="line" />}
 										<div className="sub-query">
 											{readings[0]?.reading?.refined_sub_query ||
 												sub_query ||
@@ -181,14 +187,9 @@ const DeepSearchChainOfThought = ({ data }) => {
 												const { tool, queries, sources } = reading?.reading;
 												return (
 													<div className="sub-query-cot" key={index}>
-														{readings?.length !== 1 && (
-															<div className="number-logo-container">
-																<div className="indicator" />
-															</div>
-														)}
 														<div className="sub-query-content">
 															{queries?.length > 0 && (
-																<>
+																<div className="queries-wrapper">
 																	<div className="tool-container">
 																		{tool === 'search_web' ? (
 																			<div className="search">
@@ -204,7 +205,11 @@ const DeepSearchChainOfThought = ({ data }) => {
 																		  'search_knowledge_base' ? (
 																			<div className="search">
 																				<div className="svg">
-																					<BookSvg />
+																					<BookSvg
+																						selected={
+																							false
+																						}
+																					/>
 																				</div>
 																				<div className="search-text">
 																					Searched
@@ -215,29 +220,34 @@ const DeepSearchChainOfThought = ({ data }) => {
 																		) : (
 																			<div className="search">
 																				<div className="search-text">
-																					Searched :
+																					Searched For :
 																				</div>
 																			</div>
 																		)}
 																	</div>
-																	<div
-																		className="queries"
-																		key={index}
-																	>
+
+																	<div className="queries-container">
 																		{queries?.map(
-																			(query, index) => {
-																				return (
-																					<div
-																						className="query"
-																						key={index}
-																					>
-																						{query}
+																			(query, idx) => (
+																				<div
+																					className="query-container"
+																					key={idx}
+																				>
+																					<div className="query-link">
+																						<CurveSvg />
 																					</div>
-																				);
-																			},
+																					<div
+																						key={idx}
+																						className="query"
+																					>
+																						{query ||
+																							''}
+																					</div>
+																				</div>
+																			),
 																		)}
 																	</div>
-																</>
+																</div>
 															)}
 
 															{sources?.length > 0 && (
