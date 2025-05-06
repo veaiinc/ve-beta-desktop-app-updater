@@ -183,9 +183,9 @@ const Tasks = () => {
 				Icon: PrioritySvg,
 				props: {
 					options: [
-						{ label: 'Low', _id: 'low', color: '1' },
-						{ label: 'Medium', _id: 'medium', color: '2' },
-						{ label: 'High', _id: 'high', color: '3' },
+						{ label: 'Low', _id: 'low', color: '6' },
+						{ label: 'Medium', _id: 'medium', color: '4' },
+						{ label: 'High', _id: 'high', color: '1' },
 					],
 				},
 			},
