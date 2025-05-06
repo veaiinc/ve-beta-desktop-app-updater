@@ -182,8 +182,14 @@ const InitialHomePage = () => {
 	};
 
 	useEffect(() => {
-		if (promptsData) {
-			if (promptsData?.data?.length > 0 && !info?.optionsHandledOnce?.prompts) {
+		if (!promptsData) {
+			// Always fetch if no data yet
+			getPromptsData({ category: 'all', limit: 30 });
+			return;
+		}
+
+		if (promptsData?.data?.length > 0) {
+			if (!info?.optionsHandledOnce?.prompts) {
 				handleUpdateOptions('prompts');
 				setInfo((prev) => ({
 					...prev,
@@ -194,7 +200,13 @@ const InitialHomePage = () => {
 				}));
 			}
 		} else {
-			getPromptsData({ category: 'all', limit: 30 });
+			// Hide the option if no data
+			setInfo((prev) => ({
+				...prev,
+				options: prev.options.map((o) =>
+					o.value === 'prompts' ? { ...o, showOption: false } : o,
+				),
+			}));
 		}
 	}, [promptsData]);
 
@@ -211,11 +223,21 @@ const InitialHomePage = () => {
 	}, [info?.selectedOption]);
 
 	useEffect(() => {
-		if (aiSuggestedPendingActions) {
-			const cards = aiSuggestedPendingActions?.pendingActions?.filter(
-				(card) => card?.title?.length > 0,
-			);
-			if (cards?.length > 0 && !info?.optionsHandledOnce?.proactiveSuggestions) {
+		if (!aiSuggestedPendingActions) {
+			getAISuggestedPendingActions({
+				page: 1,
+				limit: 20,
+				sortBy: 'createdAt',
+			});
+			return;
+		}
+
+		const cards = aiSuggestedPendingActions?.pendingActions?.filter(
+			(card) => card?.title?.length > 0,
+		);
+
+		if (cards?.length > 0) {
+			if (!info?.optionsHandledOnce?.proactiveSuggestions) {
 				handleUpdateOptions('proactiveSuggestions');
 				setInfo((prev) => ({
 					...prev,
@@ -226,11 +248,12 @@ const InitialHomePage = () => {
 				}));
 			}
 		} else {
-			getAISuggestedPendingActions({
-				page: 1,
-				limit: 20,
-				sortBy: 'createdAt',
-			});
+			setInfo((prev) => ({
+				...prev,
+				options: prev.options.map((o) =>
+					o.value === 'proactiveSuggestions' ? { ...o, showOption: false } : o,
+				),
+			}));
 		}
 	}, [aiSuggestedPendingActions]);
 

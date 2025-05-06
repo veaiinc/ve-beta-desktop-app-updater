@@ -260,11 +260,17 @@
 		justify-content: space-between;
 		align-items: center;
 		margin: 0 auto;
+		gap: 10px;
+		flex-wrap: wrap;
+		@media screen and (max-width: 425px) {
+			width: 350px;
+		}
 		.suggestionPromptContainer {
 			display: flex;
 			align-items: center;
 			gap: 6px;
 			border-radius: 8px;
+			flex-shrink: 0;
 			.suggestionPrompt {
 				color: var(--secondary-font, #7a7e85);
 				font-family: Inter;
@@ -287,10 +293,39 @@
 			height: 18px;
 			background: var(--stroke, #2c2d2e);
 		}
+		.selected-filter {
+			display: flex;
+			flex-direction: row;
+			gap: 8px;
+			max-width: 500px;
+			overflow-x: auto;
+			scrollbar-width: none !important;
+			flex-wrap: wrap;
+			flex-grow: 1;
+			.selected-filter-item {
+				display: flex;
+				padding: 6px 10px;
+				justify-content: space-between;
+				align-items: center;
+				gap: 6px;
+				border-radius: 20px;
+				border: 1px solid var(--stroke, #2e3033);
+				flex-shrink: 0;
+				span {
+					color: var(--primary-font, #f2f2f3);
+					font-family: Inter;
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: 18px;
+				}
+			}
+		}
 		.action-left {
 			color: var(--secondary-font, #93989f);
 			font-family: var(--primary-font-family);
 			font-size: 12px;
+			margin-left: auto;
 			.filter-btn {
 				display: flex;
 				justify-content: center;
@@ -303,7 +338,9 @@
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 500;
-				line-height: 18px; /* 128.571% */
+				line-height: 18px;
+				position: relative;
+				z-index: 1;
 			}
 		}
 
@@ -346,7 +383,10 @@
 			position: relative;
 			z-index: 10;
 			border: 1px solid var(--stroke);
-			background: transparent;
+			background: transparent;			@media screen and (max-width: 425px) {
+				width: 350px;
+			}
+
 			/* Initially hide the gradient and background color */
 			&:hover {
 				background: linear-gradient(var(--card), var(--card)) padding-box,
@@ -494,7 +534,8 @@
 	border-radius: 16px;
 	background: var(--popup, #202123);
 	border: 1px solid var(--stroke, #2e3033);
-	// box-shadow: 2px 2px 50px 0px rgba(0, 0, 0, 0.2);
+	position: relative;
+	z-index: 2;
 	.filter-items {
 		display: flex;
 		flex-direction: column;

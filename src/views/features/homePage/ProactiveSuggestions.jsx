@@ -492,30 +492,34 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 	};
 
 	const handleViewReportClick = useCallback((card) => {
-		const { chain_of_thought } = card;
-		const report = handleCombinedChainOfThought(chain_of_thought || []);
+		if (card?.sessionId) {
+			navigate(`/chat/${card?.sessionId}`);
+		} else {
+			const { chain_of_thought } = card;
+			const report = handleCombinedChainOfThought(chain_of_thought || []);
 
-		const messages = [
-			{
-				type: 'user',
-				moduleType: 'ai_suggestion_report',
-				data: card,
-				message: card?.title,
-			},
-			{
-				type: 'AI',
-				moduleType: 'ai_suggestion_report',
-				data: {
-					research_report: card?.research_report,
+			const messages = [
+				{
+					type: 'user',
+					moduleType: 'ai_suggestion_report',
+					data: card,
+					message: card?.title,
 				},
-				processing: 'Report',
-				report,
-				follow_up_query: card?.suggested_prompts,
-				stream_end: true,
-			},
-		];
-		updateStateValues({ globalChatMessages: messages });
-		navigate(`/chat/${ObjectID()?.toString()}`);
+				{
+					type: 'AI',
+					moduleType: 'ai_suggestion_report',
+					data: {
+						research_report: card?.research_report,
+					},
+					processing: 'Report',
+					report,
+					follow_up_query: card?.suggested_prompts,
+					stream_end: true,
+				},
+			];
+			updateStateValues({ globalChatMessages: messages });
+			navigate(`/chat/${ObjectID()?.toString()}`);
+		}
 	}, []);
 	const handleViewChange = (view) => {
 		setInfo((prev) => ({
