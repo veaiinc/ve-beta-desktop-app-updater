@@ -70,7 +70,6 @@ const AISuggestionsModal = ({
 		navigate(`/chat/${ObjectID()?.toString()}`);
 	}, []);
 
-	console.log(data, 'testing');
 	const handleViewReportClick = useCallback(
 		(data) => {
 			const report = info?.chainOfThoughtData;
@@ -109,41 +108,35 @@ const AISuggestionsModal = ({
 	};
 	const handleThumbClick = async (type) => {
 		if (info?.selectedFeedback === type) return;
+		setInfo((prev) => ({ ...prev, selectedFeedback: type }));
 		const res = await pendingActionsUpdate(data?._id, { feedback: type });
-		if (res?.[0] === true) {
-			setInfo((prev) => ({ ...prev, selectedFeedback: type }));
-		} else {
+		if (res?.[0] === false) {
 			message.error('Failed to update feedback');
 		}
 	};
 
 	const handleRunBtnClick = () => {
+		const questions = data?.informationRequests;
+		const answers = info?.questionsAnswers || {};
+
+		// Check if there's at least one non-empty answer
+		const hasAnswer = Object.values(answers).some((a) => a?.trim().length > 0);
+		if (!hasAnswer) return;
+
 		let prompt = '';
-		let questions = data?.informationRequests;
-		let hasAnswer = false; // Track if there's at least one valid answer
-
 		if (questions?.length > 0) {
-			Object?.keys(info?.questionsAnswers)?.forEach((key) => {
-				if (info?.questionsAnswers?.[key]?.trim()?.length > 0) {
-					hasAnswer = true; // Set to true if any answer is valid
-				}
-			});
+			const answersText = questions
+				.map((q, idx) => {
+					const answer = answers[idx]?.trim();
+					if (!answer) return null;
+					return `Q${idx + 1}: ${q.question}\nA${idx + 1}: ${answer}`;
+				})
+				.filter(Boolean)
+				.join('\n\n');
 
-			if (!hasAnswer) {
-				// updateStateValues({ activePromptForChat: prompt });
-				// navigate(`/chat/${ObjectID()?.toString()}`);
-				return;
-			}
-
-			prompt += '\n\n';
-			prompt += 'These are answers of your questions : \n';
-			questions?.forEach((questionData, index) => {
-				if (info?.questionsAnswers?.[index]?.trim()?.length > 0) {
-					prompt += `Q${index + 1} : ${questionData?.question}\n`;
-					prompt += `A${index + 1} : ${info?.questionsAnswers?.[index]}\n\n`;
-				}
-			});
+			prompt = `\n\nThese are answers of your questions:\n${answersText}\n`;
 		}
+
 		updateStateValues({ activePromptForChat: prompt });
 		navigate(`/chat/${ObjectID()?.toString()}`);
 	};
