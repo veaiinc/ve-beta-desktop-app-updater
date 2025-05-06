@@ -20,6 +20,7 @@ import { useContext } from 'react';
 import { message } from '../../globalComponents/CustomToast';
 import { redirectTo } from '../../../../helpers';
 import CombinedChainOfThought from '../../chat/chatComponents/CombinedChainOfThought';
+import { fileTypeIcons } from '../../../../helpers';
 
 const AISuggestionsModal = ({
 	open,
@@ -107,12 +108,37 @@ const AISuggestionsModal = ({
 	};
 	const handleThumbClick = async (type) => {
 		if (info?.selectedFeedback === type) return;
+		setInfo((prev) => ({ ...prev, selectedFeedback: type }));
 		const res = await pendingActionsUpdate(data?._id, { feedback: type });
-		if (res?.[0] === true) {
-			setInfo((prev) => ({ ...prev, selectedFeedback: type }));
-		} else {
+		if (res?.[0] === false) {
 			message.error('Failed to update feedback');
 		}
+	};
+
+	const handleRunBtnClick = () => {
+		const questions = data?.informationRequests;
+		const answers = info?.questionsAnswers || {};
+
+		// Check if there's at least one non-empty answer
+		const hasAnswer = Object.values(answers).some((a) => a?.trim().length > 0);
+		if (!hasAnswer) return;
+
+		let prompt = '';
+		if (questions?.length > 0) {
+			const answersText = questions
+				.map((q, idx) => {
+					const answer = answers[idx]?.trim();
+					if (!answer) return null;
+					return `Q${idx + 1}: ${q.question}\nA${idx + 1}: ${answer}`;
+				})
+				.filter(Boolean)
+				.join('\n\n');
+
+			prompt = `\n\nThese are answers of your questions:\n${answersText}\n`;
+		}
+
+		updateStateValues({ activePromptForChat: prompt });
+		navigate(`/chat/${ObjectID()?.toString()}`);
 	};
 
 	const handleMouseDown = (e) => {
@@ -243,9 +269,14 @@ const AISuggestionsModal = ({
 									)
 								}
 							>
-								{data?.moduleType} -{' '}
+								{fileTypeIcons[data?.moduleType]} -{' '}
 								{data?.knowledgeBase?.[0]?.metadata?.connectedEmail}
 							</span>
+							<div className="categories">
+								{data?.categories?.map((category) => (
+									<div className="category">{category}</div>
+								))}
+							</div>
 						</div>
 						<hr className="horizontal-line" />
 						{info?.chainOfThoughtData?.hasChainOfThought && (
@@ -502,67 +533,76 @@ const AISuggestionsModal = ({
 							</>
 						)}
 						{data?.informationRequests?.length > 0 && (
-							<>
-								<div
-									className="chain-of-thought-container"
-									onClick={() =>
-										setInfo((prev) => ({
-											...prev,
-											isQuestionsExpanded: !prev?.isQuestionsExpanded,
-										}))
-									}
-									style={{ gap: '6px' }}
-								>
-									<div className="cot-header">
-										<div className="cot-text">
-											<QuestionMarkSvg />
-											Questions I have
-										</div>
-										<div
-											className="cot-expand-btn"
-											style={{
-												transform: info?.isQuestionsExpanded
-													? 'rotate(-90deg)'
-													: 'rotate(90deg)',
-											}}
-										>
-											<ChevronRightThinSvg />
-										</div>
+							<div
+								className="solutions-container"
+								onClick={() =>
+									setInfo((prev) => ({
+										...prev,
+										isQuestionsExpanded: !prev?.isQuestionsExpanded,
+									}))
+								}
+								style={{ gap: '6px', width: '100%' }}
+							>
+								<div className="cot-header">
+									<div className="cot-text">
+										<QuestionMarkSvg />
+										Questions I have
 									</div>
+									<div
+										className="cot-expand-btn"
+										style={{
+											transform: info?.isQuestionsExpanded
+												? 'rotate(-90deg)'
+												: 'rotate(90deg)',
+										}}
+									>
+										<ChevronRightThinSvg />
+									</div>
+								</div>
 
-									{info?.isQuestionsExpanded && (
+								{info?.isQuestionsExpanded && (
+									<div className="cot">
 										<div
-											className="chain-of-thought-content"
+											className="chain-of-thought-container"
 											onClick={(e) => e.stopPropagation()}
+											style={{ width: '100%' }}
 										>
 											{informationRequests?.map((questionData, index) => (
 												<div className="question-container" key={index}>
 													<div className="question">
 														{questionData?.question || ''}
 													</div>
-													{/* <input
-													type="text"
-													className="answers-input"
-													placeholder="Enter your answer..."
-													value={info?.questionsAnswers?.[index] || ''}
-													onChange={(e) => {
-														setInfo({
-															...info,
-															questionsAnswers: {
-																...info?.questionsAnswers,
-																[index]: e?.target?.value,
-															},
-														});
-													}}
-												/> */}
+													<input
+														type="text"
+														className="answers-input"
+														placeholder="Enter your answer..."
+														value={
+															info?.questionsAnswers?.[index] || ''
+														}
+														onChange={(e) => {
+															setInfo({
+																...info,
+																questionsAnswers: {
+																	...info?.questionsAnswers,
+																	[index]: e?.target?.value,
+																},
+															});
+														}}
+													/>
+													<button
+														onClick={handleRunBtnClick}
+														className="submit-btn"
+													>
+														Submit
+													</button>
 												</div>
 											))}
 										</div>
-									)}
-								</div>
-								<hr className="horizontal-line" />
-							</>
+									</div>
+								)}
+							</div>
 						)}
+						<hr className="horizontal-line" />
 					</div>
 
 					<div className="footer">
