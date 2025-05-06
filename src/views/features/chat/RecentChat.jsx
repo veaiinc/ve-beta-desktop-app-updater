@@ -672,13 +672,13 @@ const RecentChat = ({
 									{currentChatData?.title || 'New Chat'}
 								</div>
 							</div>
-							<div className="right-container">
+							{/* <div className="right-container">
 								<Tooltip title="New Chat" placement="bottom">
 									<button className="new-chat-btn" onClick={handleNewChatClick}>
 										<PlusCircleSvg />
 									</button>
 								</Tooltip>
-							</div>
+							</div> */}
 						</div>
 					)}
 
