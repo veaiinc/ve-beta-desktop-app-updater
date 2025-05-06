@@ -18,7 +18,7 @@ import { Drawer, Tooltip } from 'antd';
 import Context from '../../../../context/context';
 import { useContext } from 'react';
 import { message } from '../../globalComponents/CustomToast';
-import { redirectTo } from '../../../../helpers/redirectToFunction';
+import { redirectTo } from '../../../../helpers';
 import CombinedChainOfThought from '../../chat/chatComponents/CombinedChainOfThought';
 
 const AISuggestionsModal = ({

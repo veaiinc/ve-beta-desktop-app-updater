@@ -250,6 +250,10 @@ const suggestedOptions = [
 const Files = () => {
 	const [searchParams, setSearchParams] = useSearchParams();
 	const activeTab = searchParams.get('activeTab') || 'Notes';
+	const cardItems = useRef(null);
+	const elasticSearchInputRef = useRef(null);
+	const elasticSearchTimeoutRef = useRef(null);
+	const navigate = useNavigate();
 
 	const {
 		galleryInfo: { tenantGalleries },
@@ -283,12 +287,9 @@ const Files = () => {
 	});
 
 	const isAdmin = tenantUserAccessControls?.role === 'admin';
-
-	const cardItems = useRef(null);
-	const elasticSearchInputRef = useRef(null);
-	const elasticSearchTimeoutRef = useRef(null);
-
-	const navigate = useNavigate();
+	const liteGalleryPaidPlan = currentPlan?.apps?.find(
+		(app) => (app.app = 'liteGallery'),
+	)?.isPaidPlan;
 
 	useEffect(() => {
 		if (activeTab) {
@@ -308,10 +309,6 @@ const Files = () => {
 			});
 		}
 	}, [info?.createNewGalleryModal]);
-
-	const liteGalleryPaidPlan = currentPlan?.apps?.find(
-		(app) => (app.app = 'liteGallery'),
-	)?.isPaidPlan;
 
 	useEffect(() => {
 		if (tenantUserAccessControls) {

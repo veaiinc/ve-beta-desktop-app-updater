@@ -30,11 +30,11 @@ import ObjectID from 'bson-objectid';
 
 const workspaceStyles = {
 	position: 'absolute',
-	bottom: '40px',
+	bottom: '106px',
 	left: '0px',
 	width: '280px',
 	border: 'none',
-	zIndex: '100',
+	zIndex: '10000',
 	borderRadius: '16px',
 	transformOrigin: 'bottom',
 };
@@ -297,8 +297,7 @@ const OpenedSidebar = ({
 
 	const newThemeValue = theme === 'dark' ? 'light' : 'dark';
 	useEffect(() => {
-		const token = localStorage.getItem('usertoken');
-		if (token && !tennantSettingsData) {
+		if (!tennantSettingsData) {
 			getTenantSettings();
 		}
 	}, [tennantSettingsData]);
@@ -327,7 +326,7 @@ const OpenedSidebar = ({
 		localStorage.setItem('showSettingsSidebar', JSON.stringify(showSettingsSidebar));
 	}, [showSettingsSidebar]);
 
-	const handleLogout = useCallback(() => {
+	const handleLogout = useCallback(async () => {
 		logoutFunc();
 	}, [logoutFunc]);
 
@@ -346,7 +345,6 @@ const OpenedSidebar = ({
 		(route, singleItems) => {
 			if (singleItems?.name === 'Settings') {
 				setShowSettingsSidebar(true);
-				console.log('reached here');
 				navigate('/settings/my-profile');
 				return;
 			}
@@ -587,9 +585,7 @@ const OpenedSidebar = ({
 												<div className="sideBarOptions">
 													<div
 														className="eachOption"
-														onClick={() =>
-															updateTheme(newThemeValue, routeType)
-														}
+														onClick={() => updateTheme(newThemeValue)}
 													>
 														{theme === 'dark' ? (
 															<SunIcon />
@@ -781,7 +777,11 @@ const OpenedSidebar = ({
 											)}
 											{isThisEarlyAccessPage && (
 												<div
-													className="settingsOptionsContainer"
+													className={`settingsOptionsContainer ${
+														isThisEarlyAccessPage
+															? 'settingsOptionsContainerEarlyAccess'
+															: ''
+													}`}
 													style={{ borderTop: '1px solid var(--stroke)' }}
 												>
 													<div
@@ -1007,24 +1007,6 @@ const OpenedSidebar = ({
 									showSettingsSidebar ? 'settingsAnimationContainer' : ''
 								}`}
 							>
-								{sidebarStates?.workSpaceOpen && userWorkSpaceList?.length > 1 && (
-									<div
-										style={{
-											...workspaceStyles,
-											animation: `${
-												showSettingsSidebar ? 'slideUp' : 'slideDown'
-											} 0.3s ease-out`,
-										}}
-									>
-										<WorkspaceListComponent
-											setsidebarStates={setsidebarStates}
-											sidebarStates={sidebarStates}
-											info={info}
-											userWorkSpaceList={userWorkSpaceList}
-											sidebarSettings="close"
-										/>
-									</div>
-								)}
 								{!sidebarStates?.workSpaceOpen && (
 									<div
 										className="settings-footer"
@@ -1103,6 +1085,26 @@ const OpenedSidebar = ({
 					</div>
 				)}
 			</div>
+			{sidebarStates?.workSpaceOpen && (
+				<div
+					style={{
+						...workspaceStyles,
+						animation: `${
+							sidebarStates?.workSpaceOpen ? 'slideUp' : 'slideDown'
+						} 0.3s ease-out`,
+						top: `${isThisEarlyAccessPage ? '40px' : ''}`,
+						transformOrigin: `${isThisEarlyAccessPage ? 'top' : 'bottom'}`,
+					}}
+				>
+					<WorkspaceListComponent
+						setsidebarStates={setsidebarStates}
+						sidebarStates={sidebarStates}
+						info={info}
+						userWorkSpaceList={userWorkSpaceList}
+						sidebarSettings="close"
+					/>
+				</div>
+			)}
 		</>
 	);
 };

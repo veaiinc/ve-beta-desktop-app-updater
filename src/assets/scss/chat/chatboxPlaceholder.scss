@@ -9,6 +9,10 @@
 	transition: opacity 0.3s ease-in-out;
 	user-select: none;
 	overflow-y: hidden;
+	@media screen and (max-width: 425px) {
+		width: 179px;
+		height: 32px;
+	}
 
 	&::after {
 		content: '';
@@ -31,6 +35,9 @@
 		gap: 4px;
 		user-select: none;
 		pointer-events: none;
+		@media screen and (max-width: 425px) {
+			background: none;
+		}
 
 		.placeholder {
 			color: var(--secondary-font);
