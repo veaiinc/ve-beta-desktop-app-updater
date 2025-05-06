@@ -589,14 +589,14 @@ const AISuggestionsModal = ({
 															});
 														}}
 													/>
-													<button
-														onClick={handleRunBtnClick}
-														className="submit-btn"
-													>
-														Submit
-													</button>
 												</div>
 											))}
+											<button
+												onClick={handleRunBtnClick}
+												className="submit-btn"
+											>
+												Submit
+											</button>
 										</div>
 									</div>
 								)}
