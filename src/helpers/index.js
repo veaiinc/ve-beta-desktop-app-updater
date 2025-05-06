@@ -314,7 +314,8 @@ export const fileTypeIcons = {
 };
 
 export const redirectTo = (type, id = null) => {
-	console.log('type', type, id);
+	if (!id) return;
+
 	if (type === 'gmail') {
 		window?.open(`https://mail.google.com/mail/u/0/#inbox/${id}`, '_blank');
 	} else if (type === 'notion') {
