@@ -55,10 +55,6 @@ const PersonDropdown = memo(
 			};
 		}, []);
 
-		useEffect(() => {
-			console.log('hehe', info?.search);
-		}, [info?.search]);
-
 		const handleFetchData = (page = 1, search = info?.search) => {
 			getClientsForTask({
 				filters: {
