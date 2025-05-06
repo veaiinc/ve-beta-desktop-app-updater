@@ -70,6 +70,7 @@ const AISuggestionsModal = ({
 		navigate(`/chat/${ObjectID()?.toString()}`);
 	}, []);
 
+	console.log(data, 'testing');
 	const handleViewReportClick = useCallback(
 		(data) => {
 			const report = info?.chainOfThoughtData;
@@ -278,6 +279,7 @@ const AISuggestionsModal = ({
 								{fileTypeIcons[data?.moduleType]} -{' '}
 								{data?.knowledgeBase?.[0]?.metadata?.connectedEmail}
 							</span>
+							<div></div>
 						</div>
 						<hr className="horizontal-line" />
 						{info?.chainOfThoughtData?.hasChainOfThought && (
@@ -535,14 +537,14 @@ const AISuggestionsModal = ({
 						)}
 						{data?.informationRequests?.length > 0 && (
 							<div
-								className="chain-of-thought-container"
+								className="solutions-container"
 								onClick={() =>
 									setInfo((prev) => ({
 										...prev,
 										isQuestionsExpanded: !prev?.isQuestionsExpanded,
 									}))
 								}
-								style={{ gap: '6px' }}
+								style={{ gap: '6px', width: '100%' }}
 							>
 								<div className="cot-header">
 									<div className="cot-text">
