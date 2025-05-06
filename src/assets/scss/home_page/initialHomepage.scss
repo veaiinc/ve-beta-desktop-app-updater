@@ -31,17 +31,21 @@
 
 			.title-text {
 				.title-one {
-					color: var(--primary-font, #f2f2f3);
+					color: var(--primary-font);
 					text-align: center;
-					font-family: var(--primary-font-family);
+					font-family: var(--secondary-font-family);
 					font-size: 35px;
 					font-style: normal;
 					font-weight: 600;
 					line-height: 60px;
 					letter-spacing: -1.59px;
+					@media screen and (max-width: 425px) {
+						font-size: 24px;
+						letter-spacing: -0.72px;
+					}
 				}
 				.title-two {
-					color: var(--primary-font, #f2f2f3);
+					color: var(--primary-font);
 					font-family: var(--primary-font-family);
 					font-size: 53px;
 					font-style: italic;
@@ -68,6 +72,9 @@
 			width: 700px;
 			margin-top: -20px;
 			border-radius: 16px;
+			@media screen and (max-width: 425px) {
+				width: 350px;
+			}
 			.chatbox-container {
 				height: 100%;
 				position: relative;
@@ -86,6 +93,9 @@
 		.options-container {
 			display: flex;
 			gap: 6px;
+			@media screen and (max-width: 425px) {
+				flex-wrap: wrap;
+			}
 			.option {
 				display: flex;
 				height: 37px;
@@ -119,7 +129,7 @@
 	.home-page-container-content {
 		width: 100%;
 		padding-top: 30px;
-		overflow: auto;
+		overflow: hidden;
 	}
 }
 
@@ -236,6 +246,13 @@
 	.initial-home-page-container {
 		.home-page-container-header {
 			margin-top: 0;
+		}
+	}
+}
+@media screen and (max-width: 425px) {
+	.initial-home-page-container {
+		.home-page-container-header {
+			margin-top: 45px;
 		}
 	}
 }

@@ -529,7 +529,7 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 						timely suggestions—helping you act smartly before issues arise.
 					</div>
 				</div>
-				<div style={{ display: 'flex', flexDirection: 'row', gap: '10px' }}>
+				<div style={{ display: 'flex', flexDirection: 'row', gap: '10px', width: '100%' }}>
 					{info?.selectedFilters?.length > 0 && (
 						<div className="selected-filter">
 							{info?.selectedFilters?.map((item) => (
