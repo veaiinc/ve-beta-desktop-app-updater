@@ -71,10 +71,13 @@ const AIMessage = memo(
 			setNoteContent(messageData);
 		}, [customePencilClickFunc, setNoteContent, messageData]);
 
-		const handleThumbsClick = useCallback((thumbs) => {
-			// handleRatingClick && handleRatingClick(newRating, messageId);
-			setInfo((prev) => ({ ...prev, feedbackPopupOpen: true, liked: thumbs }));
-		}, [handleRatingClick, messageId, rating]);
+		const handleThumbsClick = useCallback(
+			(thumbs) => {
+				// handleRatingClick && handleRatingClick(newRating, messageId);
+				setInfo((prev) => ({ ...prev, liked: thumbs, feedbackPopupOpen: true }));
+			},
+			[handleRatingClick, messageId, rating],
+		);
 
 		const handlePromptClick = (prompt) => {
 			updateStateValues({ activePromptForChat: prompt });
@@ -82,7 +85,17 @@ const AIMessage = memo(
 
 		return (
 			<div className="ai-message-container">
-				{info?.feedbackPopupOpen && <PromptPopup messageId={messageData?.messageId} liked={info?.liked} open={info?.feedbackPopupOpen} feedbackPopupOpen={info?.feedbackPopupOpen}  closeModal={() => setInfo(prev => ({...prev, feedbackPopupOpen : false}))} />}
+				{info?.feedbackPopupOpen && (
+					<PromptPopup
+						messageId={messageData?.messageId}
+						liked={info?.liked}
+						open={info?.feedbackPopupOpen}
+						feedbackPopupOpen={info?.feedbackPopupOpen}
+						closeModal={() =>
+							setInfo((prev) => ({ ...prev, feedbackPopupOpen: false }))
+						}
+					/>
+				)}
 				{messageData?.workflow_template_id &&
 					(showCanvas && !isNoteCanvas ? (
 						<FormModel
@@ -135,38 +148,48 @@ const AIMessage = memo(
 									trigger={'hover'}
 									title={'Edit'}
 								>
-									<ThumpsUpSvg
-										fill={rating === 'thumbsUp' ? '#f2f2f3' : 'none'}
-										onClick={() => handleThumbsClick('thumbsUp')}
-									/>
+									<PencilSparkleIcon onClick={handlePencilClick} />
 								</Tooltip>
 							</div>
+
 							<div className="icon-container">
 								<Tooltip
 									placement="bottom"
 									arrow={false}
 									trigger={'hover'}
-									title={isCopiedToClipboard ? 'Copied' : 'Copy'}
+									title={info?.isCopiedToClipboard ? 'Copied' : 'Copy'}
 								>
-									<ThumpsDownSvg
-										fill={rating === 'thumbsDown' ? '#f2f2f3' : 'none'}
-										onClick={() => handleThumbsClick('thumbsDown')}
-									/>
+									{info?.isCopiedToClipboard ? (
+										<TickSvg />
+									) : (
+										<CopyIcon onClick={() => handleCopyTextClick(text)} />
+									)}
 								</Tooltip>
 							</div>
 						</div>
+
+						{/* <div className="icon-container">
+							<Tooltip
+								placement="bottom"
+								arrow={false}
+								trigger={'hover'}
+								title={'Audio'}
+							>
+								<HeadPhoneSvg />
+							</Tooltip>
+						</div> */}
 
 						<div className="right-container">
 							<div className="icon-container">
 								<Tooltip
 									placement="bottom"
 									arrow={false}
-									trigger="hover"
-									title="Edit"
+									trigger={'hover'}
+									title={'Like'}
 								>
 									<ThumpsUpSvg
 										fill={rating === 'thumbsUp' ? '#f2f2f3' : 'none'}
-										onClick={handleThumbsUp}
+										onClick={() => handleThumbsClick('thumbsUp')}
 									/>
 								</Tooltip>
 							</div>
@@ -175,14 +198,13 @@ const AIMessage = memo(
 								<Tooltip
 									placement="bottom"
 									arrow={false}
-									trigger="hover"
-									title={info.isCopiedToClipboard ? 'Copied' : 'Copy'}
+									trigger={'hover'}
+									title={'Dislike'}
 								>
-									{info.isCopiedToClipboard ? (
-										<TickSvg />
-									) : (
-										<CopyIcon onClick={() => handleCopyTextClick(text)} />
-									)}
+									<ThumpsDownSvg
+										fill={rating === 'thumbsDown' ? '#f2f2f3' : 'none'}
+										onClick={() => handleThumbsClick('thumbsDown')}
+									/>
 								</Tooltip>
 							</div>
 						</div>
