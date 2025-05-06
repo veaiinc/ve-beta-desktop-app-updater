@@ -5,9 +5,10 @@ import '../../../assets/scss/home_page/promptPopup.scss';
 import Context from '../../../context/context';
 import { useNavigate } from 'react-router-dom';
 import ObjectID from 'bson-objectid';
-import { ReactComponent as ThumbsUp } from '../../../assets/svg/thumbsUp.svg';
+import { ReactComponent as ThumbsUp } from '../../../assets/svg/thumbsUpPrimaryFont.svg';
 import { ReactComponent as ThumbsDown } from '../../../assets/svg/thumbsDown.svg';
 import { ReactComponent as ArrowUpRight } from '../../../assets/svg/sidebar/arrowupright.svg';
+import { message } from '../globalComponents/CustomToast';
 
 const customStyles = {
 	content: { zIndex: 99999 },
@@ -59,25 +60,30 @@ const PromptPopup = ({
 	open,
 	closeModal,
 	selectedCard,
-	isFeedbackPopupOpen = false,
+	feedbackPopupOpen = false,
 	liked = null,
+	confidenceScore = null,
+	messageId = null,
 }) => {
 	const {
-		templates: { updateStateValues },
+		templates: { updateStateValues, updateAiChatMessageRating },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
 		selectedOptions: {},
 		dynamicValues: {},
 		parsedPrompt: [],
-		feedbackPopupOpen: isFeedbackPopupOpen,
+		feedbackPopupOpen,
 		feedback: liked,
-		selectedFeedback: null,
+		selectedFeedback: new Set(),
+		messageId,
+		confidenceScore,
+		feedbackMessage: '',
 	});
 
 	useEffect(() => {
-		setInfo(prev => ({...prev, feedbackPopupOpen: isFeedbackPopupOpen}))
-	}, [isFeedbackPopupOpen])
+		setInfo((prev) => ({ ...prev, feedbackPopupOpen, messageId }));
+	}, [feedbackPopupOpen]);
 
 	const navigate = useNavigate();
 
@@ -153,16 +159,63 @@ const PromptPopup = ({
 	}, [info, updateStateValues, closeModal, navigate]);
 
 	const handleFeedbackClick = (feedback) => {
-		setInfo((prev) => ({ ...prev, feedbackPopupOpen: true, feedback }));
+		setInfo((prev) => ({ ...prev, feedback }));
 	};
 
-	const handleFeedbackSubmit = () => {
-		setInfo((prev) => ({ ...prev, feedbackPopupOpen: false }));
-	};
+	const handleFeedbackSubmit = useCallback(async () => {
+		const { messageId, selectedFeedback, feedbackMessage, feedback } = info;
+
+		if (!messageId || !feedback) {
+			console.warn('Cannot submit: Missing messageId or feedback type');
+			return;
+		}
+
+		const userFeedbackReasons =
+			selectedFeedback instanceof Set ? Array.from(selectedFeedback) : [];
+
+		if (userFeedbackReasons.length === 0 && !feedbackMessage) {
+			message.warning('Either select a feedback type or provide a message');
+			return;
+		}
+
+		try {
+			await updateAiChatMessageRating(
+				{
+					rating: feedback,
+					userFeedbackReasons,
+					userRemarks: feedbackMessage,
+				},
+				messageId,
+			);
+
+			setInfo((prev) => ({
+				...prev,
+				feedbackPopupOpen: false,
+				selectedFeedback: new Set(),
+				feedbackMessage: '',
+				feedback: null,
+			}));
+
+			closeModal();
+		} catch (error) {
+			console.error('Feedback submit error:', error);
+		}
+	}, [info, updateAiChatMessageRating, closeModal]);
+
 
 	const handleFeedbackSelect = (feedback) => {
-		console.log(feedback);
-		setInfo((prev) => ({ ...prev, selectedFeedback: feedback.id }));
+		setInfo((prev) => {
+			const selected = new Set(prev.selectedFeedback || new Set());
+			if (selected.has(feedback.label)) {
+				selected.delete(feedback.label);
+			} else {
+				selected.add(feedback.label);
+			}
+			return {
+				...prev,
+				selectedFeedback: selected,
+			};
+		});
 	};
 
 	return (
@@ -181,20 +234,22 @@ const PromptPopup = ({
 								: `Hey, I'm learning from you!`}
 						</div>
 					</div>
-					<div className="promptPopupContainerHeaderRight">
-						<button
-							className={`${info?.feedback === 'like' ? 'active' : ''}`}
-							onClick={() => handleFeedbackClick('like')}
-						>
-							<ThumbsUp />
-						</button>
-						<button
-							className={`${info?.feedback === 'dislike' ? 'active' : ''}`}
-							onClick={() => handleFeedbackClick('dislike')}
-						>
-							<ThumbsDown />
-						</button>
-					</div>
+					{info?.feedbackPopupOpen && (
+						<div className="promptPopupContainerHeaderRight">
+							<button
+								className={`${info?.feedback === 'thumbsUp' ? 'active' : ''}`}
+								onClick={() => handleFeedbackClick('thumbsUp')}
+							>
+								<ThumbsUp />
+							</button>
+							<button
+								className={`${info?.feedback === 'thumbsDown' ? 'active' : ''}`}
+								onClick={() => handleFeedbackClick('thumbsDown')}
+							>
+								<ThumbsDown />
+							</button>
+						</div>
+					)}
 				</div>
 
 				{!info.feedbackPopupOpen && (
@@ -208,6 +263,13 @@ const PromptPopup = ({
 							<textarea
 								placeholder="Want to share what didn’t quite hit the mark? I’m all ears."
 								className="feedbackInput"
+								value={info?.feedbackMessage}
+								onChange={(e) =>
+									setInfo((prev) => ({
+										...prev,
+										feedbackMessage: e.target.value,
+									}))
+								}
 							></textarea>
 						</div>
 					) : (
@@ -272,7 +334,7 @@ const PromptPopup = ({
 						{dummyFeedbacks.map((feedback) => (
 							<span
 								className={`feedback-label ${
-									info?.selectedFeedback === feedback?.id
+									info?.selectedFeedback.has(feedback?.label)
 										? 'selected-feedback'
 										: ''
 								}`}
@@ -287,7 +349,7 @@ const PromptPopup = ({
 
 				<div className="promptPopupFooter">
 					<div className="leftPart">
-						<span>70%</span>
+						{confidenceScore && <span>{confidenceScore}</span>}
 					</div>
 					<div className="rightPart">
 						<button

@@ -42,6 +42,7 @@ const AIMessage = memo(
 		const [info, setInfo] = useState({
 			isCopiedToClipboard: false,
 			feedbackPopupOpen: false,
+			liked: null,
 		});
 
 		const handleUpdateId = (workflowTemplateId, moduleTemplateId) => {
@@ -72,8 +73,8 @@ const AIMessage = memo(
 
 		const handleThumbsClick = useCallback(() => {
 			const newRating = rating === 'thumbsUp' ? 'thumbsDown' : 'thumbsUp';
-			handleRatingClick && handleRatingClick(newRating, messageId);
-			setInfo((prev) => ({ ...prev, feedbackPopupOpen: true }));
+			// handleRatingClick && handleRatingClick(newRating, messageId);
+			setInfo((prev) => ({ ...prev, feedbackPopupOpen: true, liked: newRating }));
 		}, [handleRatingClick, messageId, rating]);
 
 		const handlePromptClick = (prompt) => {
@@ -82,7 +83,7 @@ const AIMessage = memo(
 
 		return (
 			<div className="ai-message-container">
-				{info?.feedbackPopupOpen && <PromptPopup open={info?.feedbackPopupOpen}  closeModal={() => setInfo(prev => ({...prev, feedbackPopupOpen : false}))} />}
+				{info?.feedbackPopupOpen && <PromptPopup messageId={messageData?.messageId} liked={info?.liked} open={info?.feedbackPopupOpen} feedbackPopupOpen={info?.feedbackPopupOpen}  closeModal={() => setInfo(prev => ({...prev, feedbackPopupOpen : false}))} />}
 				{messageData?.workflow_template_id &&
 					(showCanvas && !isNoteCanvas ? (
 						<FormModel

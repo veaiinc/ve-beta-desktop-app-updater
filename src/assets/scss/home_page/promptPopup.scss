@@ -42,6 +42,7 @@
 		.promptPopupContainerHeaderRight {
 			display: flex;
 			gap: 6px;
+
 			button {
 				display: flex;
 				width: 40px;
@@ -55,15 +56,14 @@
 				border: none;
 				background-color: transparent;
 				cursor: pointer;
+				transition: background-color 0.3s ease;
 
 				&.active {
-					background: var(--chat-button, #2e2f33);
-					transition: background 0.3s ease;
+					background-color: var(--chat-button, #2e2f33);
 				}
 
 				&:hover {
-					background: var(--chat-button, #2e2f33);
-					transition: background 0.3s ease;
+					background-color: var(--chat-button, #2e2f33);
 				}
 			}
 		}
