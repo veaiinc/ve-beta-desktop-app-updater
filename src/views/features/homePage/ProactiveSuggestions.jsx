@@ -12,6 +12,8 @@ import { Tooltip } from 'antd';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import updateLocale from 'dayjs/plugin/updateLocale';
+import isToday from 'dayjs/plugin/isToday';
+import isYesterday from 'dayjs/plugin/isYesterday';
 import InfiniteScroll from '../../components/globalComponents/InfiniteScroll';
 import { ReactComponent as AiSuggestionIcon } from '../../../assets/svg/home_page/aiSuggestion.svg';
 import { message } from '../../components/globalComponents/CustomToast';
@@ -22,10 +24,12 @@ import { ReactComponent as RelativeTimeSvg } from '../../../assets/svg/home_page
 import { ReactComponent as BookIcon } from '../../../assets/svg/home_page/bookIcon.svg';
 import { ReactComponent as ListViewSvg } from '../../../assets/svg/home_page/listView.svg';
 import { ReactComponent as FocusViewSvg } from '../../../assets/svg/home_page/focusView.svg';
+import { ReactComponent as AgentIcon } from '../../../assets/svg/sidebar/agentsIcon.svg';
 
 dayjs.extend(relativeTime);
 dayjs.extend(updateLocale);
-
+dayjs.extend(isToday);
+dayjs.extend(isYesterday);
 dayjs.updateLocale('en', {
 	relativeTime: {
 		future: 'in %s',
@@ -108,6 +112,15 @@ const PriorityLevel = {
 	Low: 'green',
 };
 const skeletonLoaders = Array.from({ length: 7 }, (_, index) => index + 1);
+
+const getRelativeDayLabel = (timestamp) => {
+	const date = dayjs(timestamp * 1000);
+	if (date.isToday()) return 'Today';
+	if (date.isYesterday()) return 'Yesterday';
+
+	const daysAgo = dayjs().startOf('day').diff(date.startOf('day'), 'day');
+	return `${daysAgo} Days Ago`;
+};
 const ProactiveSuggestions = ({ selectedOption }) => {
 	const {
 		templates: {
@@ -527,6 +540,18 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 			isListView: view,
 		}));
 	};
+
+	const groupedCards = useMemo(() => {
+		const groups = {};
+
+		info?.cards?.forEach((card) => {
+			const label = getRelativeDayLabel(card?.createdAt);
+			if (!groups[label]) groups[label] = [];
+			groups[label].push(card);
+		});
+
+		return groups;
+	}, [info?.cards]);
 	return (
 		<div className="proactive-suggestions-container">
 			<div className="action-container">
@@ -631,7 +656,8 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 							onClick={() => setInfo((prev) => ({ ...prev, openFilter: true }))}
 						>
 							<button className="filter-btn" style={{ cursor: 'pointer' }}>
-								Filters <FilterIcon />
+								<FilterIcon />
+								Filters
 							</button>
 						</div>
 					</Tooltip>
@@ -688,143 +714,229 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 							style={infiniteScrollStyle}
 							height={'100%'}
 						>
-							{info?.cards?.map((card, index) => {
-								const priority = card?.priority;
-								const isRead = card?.read;
-								return (
+							{Object.entries(groupedCards).map(([label, cards], index) => (
+								<div key={index} className="groupedCardsContainer">
 									<div
-										className="eachCardContainer"
-										key={card?._id}
-										onMouseEnter={() =>
-											setInfo((prev) => ({
-												...prev,
-												hoveredCard: card,
-											}))
-										}
-										onMouseLeave={() =>
-											setInfo((prev) => ({
-												...prev,
-												hoveredCard: null,
-											}))
-										}
-										onClick={() => handleCardClick(card, index)}
+										className="dateLabel"
+										style={{ marginTop: `${index !== 0 ? '50px' : '0px'}` }}
 									>
-										<Tooltip
-											title={
-												<div className="tooltipContainer">
-													<span>{card?.title}</span> {card?.description}
-												</div>
-											}
-											placement="bottomLeft"
-											arrow={false}
-										>
-											<div className="cardContianerTitle">
-												{!isRead && <span className="unread"></span>}
-												<span>{card?.title} - </span>
-												{card?.description}
-											</div>
-										</Tooltip>
-										<div
-											className={`cardOptionsMainContainer ${
-												info?.hoveredCard?._id === card?._id
-													? 'linearBorder'
-													: ''
-											}`}
-										>
-											<div className="cardOptionsContainer ">
+										{label}
+									</div>
+									{cards?.map((card, index) => {
+										const priority = card?.priority;
+										const isRead = card?.read;
+										const messageAt = dayjs(
+											card?.knowledgeBase?.[0]?.metadata?.messages?.[0]
+												?.messagedAt * 1000,
+										).format('MMMM D, YYYY  h:mm A');
+										return (
+											<div
+												className="eachCardContainer"
+												key={card?._id}
+												onMouseEnter={() =>
+													setInfo((prev) => ({
+														...prev,
+														hoveredCard: card,
+													}))
+												}
+												onMouseLeave={() =>
+													setInfo((prev) => ({
+														...prev,
+														hoveredCard: null,
+													}))
+												}
+												onClick={() => handleCardClick(card, index)}
+											>
+												<Tooltip
+													title={
+														<div className="tooltipContainer">
+															<span>{card?.title}</span>{' '}
+															{card?.description}
+														</div>
+													}
+													placement="bottomLeft"
+													arrow={false}
+												>
+													<div className="cardContianerTitle">
+														{!isRead && (
+															<span className="unread"></span>
+														)}
+														<span>{card?.title} - </span>
+														{card?.description}
+													</div>
+												</Tooltip>
 												<div
-													className={`${
-														card?.feedback === 'thumbsup'
-															? 'thumbsUpContainer'
+													className={`cardOptionsMainContainer ${
+														info?.hoveredCard?._id === card?._id
+															? 'linearBorder'
 															: ''
 													}`}
-													onClick={(e) => {
-														e.stopPropagation();
-														handleThumbClick(card?._id, 'thumbsup');
-													}}
-													style={{
-														cursor: 'pointer',
-														marginBottom: '-6px',
-													}}
 												>
-													<BookIcon
-														style={{
-															color: `${
+													<div className="cardOptionsContainer">
+														<div
+															className={`${
 																card?.feedback === 'thumbsup'
-																	? 'var(--primary-font)'
-																	: 'var(--secondary-font)'
-															}`,
-														}}
-													/>
-												</div>
-												<div className="verticalLine"></div>
-
-												{priority && (
-													<>
-														<div className="priorityOption">
-															<Tooltip
-																title={`Priority: ${priority}`}
-															>
-																<div className="priority">
-																	<div
-																		className="indicator"
-																		style={{
-																			background:
-																				priority === 'High'
-																					? 'red'
-																					: priority ===
-																					  'Medium'
-																					? 'orange'
-																					: 'green',
-																		}}
-																	></div>
-																	<div className="priority-text">{`${priority}`}</div>
-																</div>
-															</Tooltip>
+																	? 'thumbsUpContainer'
+																	: ''
+															}`}
+															onClick={(e) => {
+																e.stopPropagation();
+																handleThumbClick(
+																	card?._id,
+																	'thumbsup',
+																);
+															}}
+															style={{
+																cursor: 'pointer',
+																marginBottom: '-6px',
+															}}
+														>
+															<BookIcon
+																style={{
+																	color: `${
+																		card?.feedback ===
+																		'thumbsup'
+																			? 'var(--primary-font)'
+																			: 'var(--secondary-font)'
+																	}`,
+																}}
+															/>
 														</div>
 														<div className="verticalLine"></div>
-													</>
-												)}
 
-												<div style={{ fontSize: '12px' }}>
-													{card?.confidence_score * 100} %
-												</div>
-												<div className="verticalLine"></div>
-												<div>
-													<EmailIcon width={16} height={12} />
-												</div>
-												<div className="verticalLine"></div>
-												<div className="relativeTime">
-													<RelativeTimeSvg />
-													{dayjs(card?.updatedAt * 1000).fromNow()}
+														{priority && (
+															<>
+																<div className="priorityOption">
+																	<Tooltip
+																		title={`Priority: ${priority}`}
+																	>
+																		<div className="priority">
+																			<div
+																				className="indicator"
+																				style={{
+																					background:
+																						priority ===
+																						'High'
+																							? 'red'
+																							: priority ===
+																							  'Medium'
+																							? 'orange'
+																							: 'green',
+																				}}
+																			></div>
+																			<div className="priority-text">
+																				{priority}
+																			</div>
+																		</div>
+																	</Tooltip>
+																</div>
+																<div className="verticalLine"></div>
+															</>
+														)}
+
+														<Tooltip
+															title={
+																<div className="confidenceScoreContainer">
+																	<AgentIcon />
+																	<div className="confidenceScoreDescription">
+																		<span>
+																			{card?.confidence_score *
+																				100}
+																			{'  '}%
+																		</span>{' '}
+																		Confidence that this
+																		task/message is aligned with
+																		the user's intent or ready
+																		for action.
+																	</div>
+																</div>
+															}
+															placement="bottom"
+															trigger={'hover'}
+															arrow={false}
+														>
+															<div style={{ fontSize: '12px' }}>
+																{card?.confidence_score * 100} %
+															</div>
+														</Tooltip>
+														<div className="verticalLine"></div>
+														<Tooltip
+															title={
+																<div className="emailContainer">
+																	<div className="emailHeader">
+																		<div className="emailTitle">
+																			Summary of the mail
+																		</div>
+																		<div className="emailDescription">
+																			Establish ongoing
+																			check-ins and feedback
+																			sessions to identify
+																			customer requirements
+																			and modify our products
+																			as needed.Establish
+																			ongoing check-ins and
+																			feedback sessions to
+																			identify customer
+																			requirements and
+																			modifyEstablish ongoing
+																			check-ins and feedback
+																			sessions to identify
+																			customer requirements
+																			and modify our products
+																			as needed.Establish
+																			ongoing check-ins and
+																			feedback sessions to
+																			identify customer
+																			requirements and modify.
+																		</div>
+																	</div>
+																	<div className="relativeTime">
+																		<EmailIcon
+																			width={16}
+																			height={12}
+																		/>
+																		<div className="relativeTimeText">
+																			{messageAt}
+																		</div>
+																	</div>
+																</div>
+															}
+															placement="bottomLeft"
+															trigger={'hover'}
+														>
+															<div>
+																<EmailIcon width={16} height={12} />
+																<span></span>
+																<span></span>
+															</div>
+														</Tooltip>
+														<div className="verticalLine"></div>
+														<div className="relativeTime">
+															<RelativeTimeSvg />
+															{dayjs(
+																card?.updatedAt * 1000,
+															).fromNow()}
+														</div>
+													</div>
+													{info?.hoveredCard?._id === card?._id && (
+														<div className="cardButtonsContainer">
+															<button
+																className="checkButton"
+																onClick={(e) => {
+																	e.stopPropagation();
+																	handleViewReportClick(card);
+																}}
+															>
+																View Report
+															</button>
+														</div>
+													)}
 												</div>
 											</div>
-											{info?.hoveredCard?._id === card?._id && (
-												<div className="cardButtonsContainer">
-													<button
-														className="skipButton"
-														onClick={(e) => {
-															e.stopPropagation();
-															handleIgnoreClick(card?._id);
-														}}
-													>
-														Ignore
-													</button>
-													<button
-														className="checkButton"
-														onClick={(e) => {
-															e.stopPropagation();
-															handleViewReportClick(card);
-														}}
-													>
-														View Report
-													</button>
-												</div>
-											)}
-										</div>
-									</div>
-								);
-							})}
+										);
+									})}
+								</div>
+							))}
 						</InfiniteScroll>
 					)}
 				</div>

@@ -395,152 +395,167 @@
 		margin: 0px auto;
 		// flex-grow: 1;
 		max-height: 100%;
-		.eachCardContainer {
+		.groupedCardsContainer {
 			display: flex;
-			width: 750px;
-			padding: 14px 16px;
 			flex-direction: column;
-			align-items: flex-start;
 			gap: 8px;
-			border-radius: 8px;
-			position: relative;
-			z-index: 10;
-			border: 1px solid var(--stroke);
-			background: transparent;
-			@media screen and (max-width: 425px) {
-				width: 350px;
-			}
-
-			/* Initially hide the gradient and background color */
-			&:hover {
-				background: linear-gradient(var(--card), var(--card)) padding-box,
-					linear-gradient(135deg, #cfff48, #8fd0ff) border-box;
-				border: 1px solid transparent; /* needed for border-box to work */
-				border-radius: 8px;
-			}
-
-			.cardContianerTitle {
-				color: var(--primary-font, #f2f2f3);
+			.dateLabel {
+				color: var(--secondary-font, #7a7e85);
 				font-family: Inter;
 				font-size: 13px;
 				font-style: normal;
-				font-weight: 400;
-				line-height: 19px;
-				align-self: stretch;
-				height: 42px;
-				overflow: hidden;
-				display: -webkit-box;
-				-webkit-box-orient: vertical;
-				-webkit-line-clamp: 2;
-				line-clamp: 2;
-				text-overflow: ellipsis;
-				cursor: pointer;
-				span {
+				font-weight: 600;
+				line-height: normal;
+				margin-bottom: 4px;
+			}
+			.eachCardContainer {
+				display: flex;
+				width: 100%;
+				max-width: 750px;
+				padding: 14px 16px;
+				flex-direction: column;
+				align-items: flex-start;
+				gap: 12px;
+				border-radius: 8px;
+				position: relative;
+				z-index: 10;
+				border: 1px solid var(--stroke);
+				background: transparent;
+				@media screen and (max-width: 425px) {
+					width: 350px;
+				}
+
+				/* Initially hide the gradient and background color */
+				&:hover {
+					background: linear-gradient(var(--card), var(--card)) padding-box,
+						linear-gradient(135deg, #cfff48, #8fd0ff) border-box;
+					border: 1px solid transparent; /* needed for border-box to work */
+					border-radius: 8px;
+				}
+
+				.cardContianerTitle {
 					color: var(--primary-font, #f2f2f3);
 					font-family: Inter;
 					font-size: 13px;
 					font-style: normal;
-					font-weight: 700;
-					line-height: 19px; /* 146.154% */
-				}
-				.unread {
-					display: inline-flex;
-					width: 6px;
-					height: 6px;
-					background: var(--primary-button, #cfff48);
-					border-radius: 50%;
-					margin-right: 4px;
-					margin-bottom: 1px;
-				}
-			}
-			.cardOptionsMainContainer {
-				display: flex;
-				justify-content: space-between;
-				width: 100%;
-				align-items: center;
-				height: 15px;
-				.cardOptionsContainer {
-					display: flex;
-					align-items: center;
-					gap: 12px;
-					.priorityOption {
-						display: flex;
-						justify-content: center;
-						align-items: center;
-						gap: 6px;
+					font-weight: 400;
+					line-height: 19px;
+					align-self: stretch;
+					height: 42px;
+					overflow: hidden;
+					display: -webkit-box;
+					-webkit-box-orient: vertical;
+					-webkit-line-clamp: 2;
+					line-clamp: 2;
+					text-overflow: ellipsis;
+					cursor: pointer;
+					span {
 						color: var(--primary-font, #f2f2f3);
-						font-family: Inter;
-						font-size: 12px;
-						font-style: normal;
-						font-weight: 500;
-						line-height: normal;
-					}
-					.verticalLine {
-						width: 1px;
-						height: 14px;
-						background: var(--stroke, #2c2d2e);
-					}
-					.relativeTime {
-						display: flex;
-						justify-content: center;
-						align-items: center;
-						gap: 4px;
-						color: var(--secondary-font, #7a7e85);
-						font-family: Inter;
-						font-size: 12px;
-						font-style: normal;
-						font-weight: 500;
-						line-height: normal;
-					}
-				}
-				.cardButtonsContainer {
-					display: flex;
-					align-items: flex-start;
-					gap: 6px;
-					.skipButton {
-						display: flex;
-						padding: 6px 18px;
-						justify-content: center;
-						align-items: center;
-						gap: 2px;
-						border-radius: 24px;
-						border: 1px solid var(--stroke, #2c2d2e);
-						background: var(--popup, #202123);
-						overflow: hidden;
-						color: var(--primary-font, #f2f2f3);
-						text-overflow: ellipsis;
 						font-family: Inter;
 						font-size: 13px;
 						font-style: normal;
-						font-weight: 500;
-						line-height: normal;
-						display: -webkit-box;
-						-webkit-box-orient: vertical;
-						-webkit-line-clamp: 1;
-						border: none;
-						cursor: pointer;
+						font-weight: 700;
+						line-height: 19px; /* 146.154% */
 					}
-					.checkButton {
-						display: flex;
-						padding: 6px 18px;
-						justify-content: center;
-						align-items: center;
-						gap: 2px;
-						border-radius: 24px;
+					.unread {
+						display: inline-flex;
+						width: 6px;
+						height: 6px;
 						background: var(--primary-button, #cfff48);
-						overflow: hidden;
-						color: var(--background-color, #0f0f10);
-						text-overflow: ellipsis;
-						font-family: Inter;
-						font-size: 13px;
-						font-style: normal;
-						font-weight: 500;
-						line-height: normal;
-						display: -webkit-box;
-						-webkit-box-orient: vertical;
-						-webkit-line-clamp: 1;
-						border: none;
-						cursor: pointer;
+						border-radius: 50%;
+						margin-right: 4px;
+						margin-bottom: 1px;
+					}
+				}
+				.cardOptionsMainContainer {
+					display: flex;
+					justify-content: space-between;
+					width: 100%;
+					align-items: center;
+					height: 15px;
+					.cardOptionsContainer {
+						display: flex;
+						align-items: center;
+						gap: 12px;
+						.priorityOption {
+							display: flex;
+							justify-content: center;
+							align-items: center;
+							gap: 6px;
+							color: var(--primary-font, #f2f2f3);
+							font-family: Inter;
+							font-size: 12px;
+							font-style: normal;
+							font-weight: 500;
+							line-height: normal;
+						}
+						.verticalLine {
+							width: 1px;
+							height: 14px;
+							background: var(--stroke, #2c2d2e);
+						}
+						.relativeTime {
+							display: flex;
+							justify-content: center;
+							align-items: center;
+							gap: 4px;
+							color: var(--secondary-font, #7a7e85);
+							font-family: Inter;
+							font-size: 12px;
+							font-style: normal;
+							font-weight: 500;
+							line-height: normal;
+						}
+					}
+					.cardButtonsContainer {
+						display: flex;
+						align-items: flex-start;
+						gap: 6px;
+						.skipButton {
+							display: flex;
+							padding: 6px 18px;
+							justify-content: center;
+							align-items: center;
+							gap: 2px;
+							border-radius: 24px;
+							border: 1px solid var(--stroke, #2c2d2e);
+							background: var(--popup, #202123);
+							overflow: hidden;
+							color: var(--primary-font, #f2f2f3);
+							text-overflow: ellipsis;
+							font-family: Inter;
+							font-size: 13px;
+							font-style: normal;
+							font-weight: 500;
+							line-height: normal;
+							display: -webkit-box;
+							-webkit-box-orient: vertical;
+							-webkit-line-clamp: 1;
+							border: none;
+							cursor: pointer;
+						}
+						.checkButton {
+							display: flex;
+							padding: 6px 18px;
+							justify-content: center;
+							align-items: center;
+							gap: 2px;
+							border-radius: 24px;
+							background: var(--primary-button, #cfff48);
+							overflow: hidden;
+							color: var(--background-color, #0f0f10);
+							text-overflow: ellipsis;
+							font-family: Inter;
+							font-size: 13px;
+							font-style: normal;
+							font-weight: 500;
+							line-height: normal;
+							display: -webkit-box;
+							-webkit-box-orient: vertical;
+							-webkit-line-clamp: 1;
+							border: none;
+							cursor: pointer;
+						}
 					}
 				}
 			}
@@ -684,6 +699,89 @@
 			font-style: normal;
 			font-weight: 500;
 			line-height: 18px; /* 128.571% */
+		}
+	}
+}
+
+.emailContainer {
+	display: flex;
+	width: 350px;
+	padding: 8px 14px;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	gap: 8px;
+	border-radius: 12px;
+	border: 1px solid var(--stroke, #2c2d2e);
+	background: var(--popup, #202123);
+	box-shadow: 0px 0px 30px 0px rgba(0, 0, 0, 0.12);
+	.emailHeader {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: flex-start;
+		gap: 6px;
+		align-self: stretch;
+		.emailTitle {
+			color: var(--secondary-font, #7a7e85);
+			font-family: Inter;
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+		}
+		.emailDescription {
+			color: var(--primary-font, #f2f2f3);
+			font-family: Inter;
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 400;
+			line-height: 19px; /* 158.333% */
+			align-self: stretch;
+		}
+	}
+	.relativeTime {
+		display: flex;
+		justify-content: space-between;
+		width: 100%;
+		.relativeTimeText {
+			width: 80px;
+			color: var(--primary-font, #f2f2f3);
+			text-align: right;
+			font-family: Inter;
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 400;
+			line-height: normal;
+		}
+	}
+}
+.confidenceScoreContainer {
+	display: flex;
+	width: 350px;
+	padding: 8px 14px;
+	justify-content: center;
+	align-items: center;
+	gap: 6px;
+	border-radius: 12px;
+	border: 1px solid var(--stroke, #2c2d2e);
+	background: var(--popup, #202123);
+	box-shadow: 0px 0px 30px 0px rgba(0, 0, 0, 0.12);
+	.confidenceScoreDescription {
+		color: var(--primary-font, #f2f2f3);
+		font-family: Inter;
+		font-size: 12px;
+		font-style: normal;
+		font-weight: 400;
+		line-height: normal;
+		flex: 1 0 0;
+		span {
+			color: var(--primary-button, #cfff48);
+			font-family: Inter;
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 700;
+			line-height: normal;
 		}
 	}
 }
