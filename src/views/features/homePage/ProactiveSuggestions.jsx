@@ -760,27 +760,32 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 												<div className="verticalLine"></div>
 
 												{priority && (
-													<div className="priorityOption">
-														<Tooltip title={`Priority: ${priority}`}>
-															<div className="priority">
-																<div
-																	className="indicator"
-																	style={{
-																		background:
-																			priority === 'High'
-																				? 'red'
-																				: priority ===
-																				  'Medium'
-																				? 'orange'
-																				: 'green',
-																	}}
-																></div>
-																<div className="priority-text">{`${priority}`}</div>
-															</div>
-														</Tooltip>
-													</div>
+													<>
+														<div className="priorityOption">
+															<Tooltip
+																title={`Priority: ${priority}`}
+															>
+																<div className="priority">
+																	<div
+																		className="indicator"
+																		style={{
+																			background:
+																				priority === 'High'
+																					? 'red'
+																					: priority ===
+																					  'Medium'
+																					? 'orange'
+																					: 'green',
+																		}}
+																	></div>
+																	<div className="priority-text">{`${priority}`}</div>
+																</div>
+															</Tooltip>
+														</div>
+														<div className="verticalLine"></div>
+													</>
 												)}
-												<div className="verticalLine"></div>
+
 												<div style={{ fontSize: '12px' }}>
 													{card?.confidence_score * 100} %
 												</div>
@@ -916,9 +921,9 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 						<button className="card-change-btn" onClick={handleLeft}>
 							<ChevronRightThinSvg className="left-chevron" />
 						</button>
-						<div>
-							{currentIndexRef?.current + 1}/
-							{aiSuggestedPendingActions?.metaInfo?.totalDocs}
+						<div className="card-number">
+							<span>{currentIndexRef?.current + 1}</span>/
+							<span>{aiSuggestedPendingActions?.metaInfo?.totalDocs}</span>
 						</div>
 						<button className="card-change-btn" onClick={handleRight}>
 							<ChevronRightThinSvg />
