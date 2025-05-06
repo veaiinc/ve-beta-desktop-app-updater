@@ -297,8 +297,7 @@ const OpenedSidebar = ({
 
 	const newThemeValue = theme === 'dark' ? 'light' : 'dark';
 	useEffect(() => {
-		const token = localStorage.getItem('usertoken');
-		if (token && !tennantSettingsData) {
+		if (!tennantSettingsData) {
 			getTenantSettings();
 		}
 	}, [tennantSettingsData]);
@@ -327,7 +326,7 @@ const OpenedSidebar = ({
 		localStorage.setItem('showSettingsSidebar', JSON.stringify(showSettingsSidebar));
 	}, [showSettingsSidebar]);
 
-	const handleLogout = useCallback(() => {
+	const handleLogout = useCallback(async () => {
 		logoutFunc();
 	}, [logoutFunc]);
 
@@ -346,7 +345,6 @@ const OpenedSidebar = ({
 		(route, singleItems) => {
 			if (singleItems?.name === 'Settings') {
 				setShowSettingsSidebar(true);
-				console.log('reached here');
 				navigate('/settings/my-profile');
 				return;
 			}
@@ -782,7 +780,11 @@ const OpenedSidebar = ({
 											)}
 											{isThisEarlyAccessPage && (
 												<div
-													className="settingsOptionsContainer"
+													className={`settingsOptionsContainer ${
+														isThisEarlyAccessPage
+															? 'settingsOptionsContainerEarlyAccess'
+															: ''
+													}`}
 													style={{ borderTop: '1px solid var(--stroke)' }}
 												>
 													<div

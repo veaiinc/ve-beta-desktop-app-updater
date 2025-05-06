@@ -1145,6 +1145,10 @@
 	cursor: pointer;
 	transition: background 0.2s ease;
 	border-top: 1px solid var(--stroke);
+	&.settingsOptionsContainerEarlyAccess {
+		flex-direction: row;
+		padding-top: 15px;
+	}
 	.settingsHoverState {
 		display: flex;
 		justify-content: space-between;
