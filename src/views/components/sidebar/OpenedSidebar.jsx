@@ -30,11 +30,11 @@ import ObjectID from 'bson-objectid';
 
 const workspaceStyles = {
 	position: 'absolute',
-	bottom: '40px',
+	bottom: '106px',
 	left: '0px',
 	width: '280px',
 	border: 'none',
-	zIndex: '100',
+	zIndex: '10000',
 	borderRadius: '16px',
 	transformOrigin: 'bottom',
 };
@@ -1006,24 +1006,6 @@ const OpenedSidebar = ({
 									showSettingsSidebar ? 'settingsAnimationContainer' : ''
 								}`}
 							>
-								{sidebarStates?.workSpaceOpen && userWorkSpaceList?.length > 1 && (
-									<div
-										style={{
-											...workspaceStyles,
-											animation: `${
-												showSettingsSidebar ? 'slideUp' : 'slideDown'
-											} 0.3s ease-out`,
-										}}
-									>
-										<WorkspaceListComponent
-											setsidebarStates={setsidebarStates}
-											sidebarStates={sidebarStates}
-											info={info}
-											userWorkSpaceList={userWorkSpaceList}
-											sidebarSettings="close"
-										/>
-									</div>
-								)}
 								{!sidebarStates?.workSpaceOpen && (
 									<div
 										className="settings-footer"
@@ -1102,6 +1084,26 @@ const OpenedSidebar = ({
 					</div>
 				)}
 			</div>
+			{sidebarStates?.workSpaceOpen && (
+				<div
+					style={{
+						...workspaceStyles,
+						animation: `${
+							sidebarStates?.workSpaceOpen ? 'slideUp' : 'slideDown'
+						} 0.3s ease-out`,
+						top: `${isThisEarlyAccessPage ? '40px' : ''}`,
+						transformOrigin: `${isThisEarlyAccessPage ? 'top' : 'bottom'}`,
+					}}
+				>
+					<WorkspaceListComponent
+						setsidebarStates={setsidebarStates}
+						sidebarStates={sidebarStates}
+						info={info}
+						userWorkSpaceList={userWorkSpaceList}
+						sidebarSettings="close"
+					/>
+				</div>
+			)}
 		</>
 	);
 };

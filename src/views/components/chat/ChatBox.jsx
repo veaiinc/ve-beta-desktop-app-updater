@@ -1149,12 +1149,13 @@ const ChatBox = ({
 														}}
 													>
 														<div className="icon">
-															<PlusSvg width={17} height={17} />
+															<PlusSvg width={24} height={24} />
 														</div>
 													</div>
 												</Tooltip>
 											</UploadFileTooltip>
 										)}
+										<div className="vertical-line"></div>
 										<div className="placeholderContainer">
 											<textarea
 												type="text"
@@ -1184,7 +1185,9 @@ const ChatBox = ({
 										{startPage &&
 											(info?.chatQuery?.trim()?.length > 0 || isPublicChat ? (
 												<div
-													className="click-btn"
+													className={`click-btn ${
+														startPage ? 'startPage' : ''
+													}`}
 													onClick={(e) => handleSendBtnClick(e)}
 													style={{
 														backgroundColor: 'var(--primary-button)',
@@ -1194,7 +1197,9 @@ const ChatBox = ({
 												</div>
 											) : (
 												<div
-													className="click-btn"
+													className={`click-btn ${
+														startPage ? 'startPage' : ''
+													}`}
 													onClick={(e) => handleMicIconClick(e)}
 													style={{
 														backgroundColor: 'var(--primary-button)',

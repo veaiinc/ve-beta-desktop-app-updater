@@ -140,9 +140,14 @@
 										z-index: 0;
 										&.startTextPage {
 											margin-top: 0px;
-											top: 8px;
+											top: 5px;
 										}
 									}
+								}
+								.vertical-line {
+									height: 20px;
+									width: 1px;
+									background: var(--stroke);
 								}
 							}
 
@@ -868,11 +873,23 @@
 
 	border-radius: 24px;
 	background-color: var(--primary-button);
+
 	svg {
 		path {
 			stroke: var(--primary-button-font) !important;
 		}
 	}
+}
+.startPage {
+	display: flex;
+	padding: 10px !important;
+	justify-content: center;
+	align-items: center;
+	gap: 6px;
+	border-radius: 8px;
+	background: var(--primary-button, #cfff48);
+	height: auto !important;
+	width: fit-content !important;
 }
 @media screen and (max-width: 700px) {
 	.icon {

@@ -138,7 +138,6 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 			>
 				<div className="workspaceListHeader">
 					<div className="backContinaer" onClick={closeWorkspaceList}>
-						<ArrowLeftSvg fill="var(--primary-font)" className="backArrow" />
 						<h6>Switch Workspace</h6>
 					</div>
 					{userWorkSpaceList?.length > 10 && (

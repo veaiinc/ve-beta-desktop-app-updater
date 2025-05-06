@@ -235,7 +235,8 @@
 	}
 	.action-container {
 		display: flex;
-		width: 739px;
+		width: 100%;
+		max-width: 739px;
 		justify-content: space-between;
 		align-items: center;
 		margin: 0 auto;
@@ -311,47 +312,18 @@
 			align-items: flex-start;
 			gap: 8px;
 			border-radius: 8px;
-			border: none;
 			position: relative;
-
+			z-index: 10;
+			border: 1px solid var(--stroke);
+			background: transparent;
 			/* Initially hide the gradient and background color */
-			&::before {
-				content: '';
-				position: absolute;
-				top: 0;
-				left: 0;
-				right: 0;
-				bottom: 0;
-				background: linear-gradient(135deg, #8fd0ff, #cfff48);
-				z-index: 0;
-				border-radius: 16px;
-				opacity: 0; /* Initially hidden */
-				transition: opacity 0.3s ease;
-			}
-
-			&::after {
-				content: '';
-				position: absolute;
-				top: 2px;
-				left: 2px;
-				right: 2px;
-				bottom: 2px;
-				background-color: var(--card-hover, #202123);
-				border-radius: 14px;
-				z-index: 1;
-			}
-
-			> * {
-				position: relative;
-				z-index: 2;
-			}
-
-			/* Apply gradient and show background color on hover */
 			&:hover {
-				&::before {
-					opacity: 1; /* Show gradient on hover */
-				}
+				background: linear-gradient(var(--card), var(--card)) padding-box,
+					linear-gradient(135deg, #cfff48, #8fd0ff) border-box;
+				border: 1px solid transparent; /* needed for border-box to work */
+				border-radius: 8px;
 			}
+
 			.cardContianerTitle {
 				color: var(--primary-font, #f2f2f3);
 				font-family: Inter;
@@ -375,6 +347,15 @@
 					font-style: normal;
 					font-weight: 700;
 					line-height: 19px; /* 146.154% */
+				}
+				.unread {
+					display: inline-flex;
+					width: 6px;
+					height: 6px;
+					background: var(--primary-button, #cfff48);
+					border-radius: 50%;
+					margin-right: 4px;
+					margin-bottom: 1px;
 				}
 			}
 			.cardOptionsMainContainer {
@@ -404,11 +385,17 @@
 						height: 14px;
 						background: var(--stroke, #2c2d2e);
 					}
-					.thumbsUpContainer {
-						svg {
-							fill: var(--primary-font);
-							color: var(--secondary-font);
-						}
+					.relativeTime {
+						display: flex;
+						justify-content: center;
+						align-items: center;
+						gap: 4px;
+						color: var(--secondary-font, #7a7e85);
+						font-family: Inter;
+						font-size: 12px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
 					}
 				}
 				.cardButtonsContainer {
@@ -581,9 +568,10 @@
 	display: flex;
 	flex-direction: row;
 	gap: 4px;
-	max-width: 250px;
-	overflow-x: auto;
 	scrollbar-width: none !important;
+	max-width: 739px;
+	width: 100%;
+	margin: 0 auto;
 	.selected-filter-item {
 		display: flex;
 		padding: 6px 10px;

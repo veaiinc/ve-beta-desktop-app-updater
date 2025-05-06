@@ -18,6 +18,9 @@ import { ReactComponent as AiSuggestionIcon } from '../../../assets/svg/home_pag
 import { message } from '../../components/globalComponents/CustomToast';
 import ObjectID from 'bson-objectid';
 import { useNavigate } from 'react-router-dom';
+import { handleCombinedChainOfThought } from '../../../helpers/chatHelpers';
+import { ReactComponent as RelativeTimeSvg } from '../../../assets/svg/home_page/relativeTime.svg';
+import { ReactComponent as BookIcon } from '../../../assets/svg/home_page/bookIcon.svg';
 
 dayjs.extend(relativeTime);
 dayjs.extend(updateLocale);
@@ -483,36 +486,24 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 	};
 
 	const handleViewReportClick = useCallback((card) => {
-		const cot = (card?.chain_of_thought || [])
-			?.filter((item) => typeof item === 'string')
-			?.map((item) => {
-				return {
-					readings: [
-						{
-							reading: {
-								sub_query: item,
-							},
-						},
-					],
-				};
-			});
+		const { chain_of_thought } = card;
+		const report = handleCombinedChainOfThought(chain_of_thought || []);
+
 		const messages = [
 			{
 				type: 'user',
 				moduleType: 'ai_suggestion_report',
-				card,
+				data: card,
 				message: card?.title,
 			},
 			{
 				type: 'AI',
 				moduleType: 'ai_suggestion_report',
-				card: {
+				data: {
 					research_report: card?.research_report,
 				},
 				processing: 'Report',
-				deepSearch: {
-					cot,
-				},
+				report,
 				follow_up_query: card?.suggested_prompts,
 				stream_end: true,
 			},
@@ -530,19 +521,6 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 					</div>
 				</div>
 				<div style={{ display: 'flex', flexDirection: 'row', gap: '10px' }}>
-					{info?.selectedFilters?.length > 0 && (
-						<div className="selected-filter">
-							{info?.selectedFilters?.map((item) => (
-								<div key={item?.id} className="selected-filter-item">
-									<span>{item?.title}</span>
-									<CloseIcon
-										style={{ cursor: 'pointer' }}
-										onClick={() => handleFilterClick(item, item?.group)}
-									/>
-								</div>
-							))}
-						</div>
-					)}
 					<Tooltip
 						open={info?.openFilter}
 						onOpenChange={() => setInfo((prev) => ({ ...prev, openFilter: false }))}
@@ -640,6 +618,21 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 					</div>
 				)} */}
 			</div>
+			<>
+				{info?.selectedFilters?.length > 0 && (
+					<div className="selected-filter">
+						{info?.selectedFilters?.map((item) => (
+							<div key={item?.id} className="selected-filter-item">
+								<span>{item?.title}</span>
+								<CloseIcon
+									style={{ cursor: 'pointer' }}
+									onClick={() => handleFilterClick(item, item?.group)}
+								/>
+							</div>
+						))}
+					</div>
+				)}
+			</>
 			<div className="proactiveSuggestionsContainer">
 				{info?.loading ? (
 					skeletonLoaders?.map((_, index) => (
@@ -667,6 +660,7 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 					>
 						{info?.cards?.map((card, index) => {
 							const priority = card?.priority;
+							const isRead = card?.read;
 							return (
 								<div
 									className="eachCardContainer"
@@ -695,6 +689,7 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 										arrow={false}
 									>
 										<div className="cardContianerTitle">
+											{!isRead && <span className="unread"></span>}
 											<span>{card?.title} - </span>
 											{card?.description}
 										</div>
@@ -743,13 +738,28 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 												}}
 												style={{ cursor: 'pointer' }}
 											>
-												<ThumbsUpSvg />
+												<BookIcon
+													style={{
+														color: `${
+															card?.feedback === 'thumbsup'
+																? 'var(--primary-font)'
+																: 'var(--secondary-font)'
+														}`,
+													}}
+												/>
 											</div>
 											<div className="verticalLine"></div>
-											<div>{card?.confidence_score * 100} %</div>
+											<div style={{ fontSize: '12px' }}>
+												{card?.confidence_score * 100} %
+											</div>
 											<div className="verticalLine"></div>
 											<div>
 												<EmailIcon width={16} height={12} />
+											</div>
+											<div className="verticalLine"></div>
+											<div className="relativeTime">
+												<RelativeTimeSvg />
+												{dayjs(card?.updatedAt * 1000).fromNow()}
 											</div>
 										</div>
 										{info?.hoveredCard?._id === card?._id && (
@@ -761,7 +771,7 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 														handleIgnoreClick(card?._id);
 													}}
 												>
-													Skip
+													Ignore
 												</button>
 												<button
 													className="checkButton"
@@ -770,7 +780,7 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 														handleViewReportClick(card);
 													}}
 												>
-													Check
+													View Report
 												</button>
 											</div>
 										)}
