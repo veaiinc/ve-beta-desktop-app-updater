@@ -927,7 +927,11 @@ const Tasks = () => {
 		<div className="tasks-page-container">
 			<ChatLeftBarComponent>
 				<div className="tasks-left-container">
-					<Taskwidget properties={info?.properties} />
+					<Taskwidget
+						properties={info?.properties}
+						responseMetadata={responseMetadata}
+						colors={colors}
+					/>
 				</div>
 			</ChatLeftBarComponent>
 			<div className="tasks-right-container">

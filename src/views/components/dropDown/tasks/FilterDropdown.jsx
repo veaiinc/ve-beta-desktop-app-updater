@@ -4,8 +4,12 @@ import { ReactComponent as FilterIcon } from '../../../../assets/svg/tasks/newFi
 import { ReactComponent as SearchSvg } from '../../../../assets/svg/workflow/search.svg';
 
 import { Tooltip } from 'antd';
+import TextFilter from './TextFilter';
+import StatusDropdown from './StatusDropdown';
 
-const FilterDropdown = ({ properties }) => {
+const FilterDropdown = ({ properties, colors, selected, responseMetadata }) => {
+	const options = responseMetadata?.status?.props?.options;
+	console.log(options);
 	return (
 		<Tooltip
 			title={
@@ -19,11 +23,22 @@ const FilterDropdown = ({ properties }) => {
 					<div className="filter-dropdown-tooltip-body">
 						{properties?.map((property) => (
 							<Tooltip
-								title={property?.label}
+								title={
+									<div className="filter-dropdown-tooltip-body-item-dropdown">
+										{/* <TextFilter /> */}
+										<StatusDropdown
+											colors={colors}
+											options={options}
+											selected={null}
+											onOptionClick={() => {}}
+											labelField={'label'}
+										/>
+									</div>
+								}
 								arrow={false}
-								trigger={'click'}
+								trigger={['click', 'hover']}
 								color={'red'}
-								placement={'bottomRight'}
+								placement={'right'}
 								overlayStyle={{ minWidth: 'fit-content' }}
 							>
 								<div className="filter-dropdown-tooltip-body-item">

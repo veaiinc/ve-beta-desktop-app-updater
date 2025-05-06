@@ -14,11 +14,10 @@ import { Tooltip } from 'antd';
 import FilterDropdown from '../dropDown/tasks/FilterDropdown';
 import CurrentViewOptions from '../dropDown/tasks/CurrentViewOptions';
 
-const Taskwidget = ({ properties }) => {
+const Taskwidget = ({ properties, responseMetadata, colors }) => {
 	const {
 		tasks: { listTasks },
 	} = useContext(Context);
-	console.log(properties);
 
 	const { allTasks, today, completed, overdue, allPending } = listTasks?.analytics || {};
 
@@ -30,7 +29,11 @@ const Taskwidget = ({ properties }) => {
 					<SearchSvg />
 					<input type="text" placeholder="Search" className="task-widget-search-input" />
 				</div>
-				<FilterDropdown properties={properties} />
+				<FilterDropdown
+					properties={properties}
+					colors={colors}
+					responseMetadata={responseMetadata}
+				/>
 				<CurrentViewOptions />
 			</div>
 			<div className="taskWidgetHeaderContainer">
