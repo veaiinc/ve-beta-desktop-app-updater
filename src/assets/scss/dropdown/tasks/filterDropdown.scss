@@ -18,7 +18,9 @@
 	align-items: flex-start;
 	gap: 6px;
 	border-radius: 12px;
-	background: var(--card-over-card, #202123);
+	background: var(--card, #202123);
+	border: 1px solid var(--stroke, #2c2d2e);
+	overflow: hidden;
 
 	.filter-dropdown-tooltip-header {
 		display: flex;
@@ -103,7 +105,7 @@
 			}
 
 			&:hover {
-				background-color: var(--card-over-card-hover, #2c2d2e);
+				background-color: var(--card-hover, #2c2d2e);
 			}
 		}
 	}

@@ -6,10 +6,19 @@ import { ReactComponent as SearchSvg } from '../../../../assets/svg/workflow/sea
 import { Tooltip } from 'antd';
 import TextFilter from './TextFilter';
 import StatusDropdown from './StatusDropdown';
+import SelectDropdown from './SelectDropdown';
+import PersonDropdown from './PersonDropdown';
+
+const filterMapper = {
+	status: StatusDropdown,
+	priority: SelectDropdown,
+	clients: PersonDropdown,
+	title: TextFilter,
+	description: TextFilter,
+	taskSlNo: TextFilter,
+};
 
 const FilterDropdown = ({ properties, colors, selected, responseMetadata }) => {
-	const options = responseMetadata?.status?.props?.options;
-	console.log(options);
 	return (
 		<Tooltip
 			title={
@@ -21,36 +30,45 @@ const FilterDropdown = ({ properties, colors, selected, responseMetadata }) => {
 						</div>
 					</div>
 					<div className="filter-dropdown-tooltip-body">
-						{properties?.map((property) => (
-							<Tooltip
-								title={
-									<div className="filter-dropdown-tooltip-body-item-dropdown">
-										{/* <TextFilter /> */}
-										<StatusDropdown
-											colors={colors}
-											options={options}
-											selected={null}
-											onOptionClick={() => {}}
-											labelField={'label'}
-										/>
+						{properties?.map((property) => {
+							const FilterComponent = filterMapper[property?.value] || TextFilter;
+
+							return (
+								<Tooltip
+									destroyTooltipOnHide
+									key={property?.value}
+									title={
+										<div className="filter-dropdown-tooltip-body-item-dropdown">
+											<FilterComponent
+												colors={colors}
+												options={
+													responseMetadata?.[property?.value]?.props
+														?.options
+												}
+												selected={null}
+												onOptionClick={() => {}}
+												labelField="label"
+												title={property?.label}
+											/>
+										</div>
+									}
+									arrow={false}
+									trigger={['click', 'hover']}
+									color="red"
+									placement="right"
+									overlayStyle={{ minWidth: 'fit-content' }}
+								>
+									<div className="filter-dropdown-tooltip-body-item">
+										<div className="filter-dropdown-tooltip-body-item-icon">
+											{property?.Icon && <property.Icon />}
+										</div>
+										<span className="filter-dropdown-tooltip-body-item-label">
+											{property?.label}
+										</span>
 									</div>
-								}
-								arrow={false}
-								trigger={['click', 'hover']}
-								color={'red'}
-								placement={'right'}
-								overlayStyle={{ minWidth: 'fit-content' }}
-							>
-								<div className="filter-dropdown-tooltip-body-item">
-									<div className="filter-dropdown-tooltip-body-item-icon">
-										{property?.Icon && <property.Icon />}
-									</div>
-									<span className="filter-dropdown-tooltip-body-item-label">
-										{property?.label}
-									</span>
-								</div>
-							</Tooltip>
-						))}
+								</Tooltip>
+							);
+						})}
 					</div>
 				</div>
 			}
