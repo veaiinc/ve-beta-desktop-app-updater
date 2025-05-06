@@ -37,7 +37,8 @@ const SettingsWrapper = (props) => {
 	} = useContext(Context);
 
 	useEffect(() => {
-		if (!tennantSettingsData) {
+		const token = localStorage.getItem('usertoken');
+		if (token && !tennantSettingsData) {
 			getTenantSettings();
 		}
 	}, [tennantSettingsData]);

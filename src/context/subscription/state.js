@@ -89,7 +89,7 @@ export const SubscriptionState = (props) => {
 			console.log('errror ==>createStripeCheckoutSession', error);
 		}
 	};
-	const resetSubscriptionState = async () => {
+	const resetSubscriptionState = () => {
 		try {
 			dispatch({ type: Actions.RESET_STATE });
 		} catch (error) {

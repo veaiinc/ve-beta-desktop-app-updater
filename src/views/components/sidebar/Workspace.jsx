@@ -1,12 +1,12 @@
 import React, { memo, useCallback, useContext, useState, useEffect } from 'react';
 import { ReactComponent as ArrowLeftSvg } from '../../../assets/svg/sidebar/singleRightArrow.svg';
 import SearchSvg from '../../../assets/svg/sidebar/SearchSvg';
-import { ReactComponent as LogoutRedSvg } from '../../../assets/svg/sidebar/logout_red.svg';
-import PlusSvg from '../../../assets/svg/sidebar/PlusSvg';
+// import { ReactComponent as LogoutRedSvg } from '../../../assets/svg/sidebar/logout_red.svg';
+// import PlusSvg from '../../../assets/svg/sidebar/PlusSvg';
 import Cookies from 'js-cookie';
 import { useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
-import useLogout from '../../hooks/useLogout';
+// import useLogout from '../../hooks/useLogout';
 import { fetchDomainName } from '../../../helpers';
 import { ReactComponent as TickSvg } from '../../../assets/svg/tick.svg';
 
@@ -14,8 +14,8 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 	const {
 		subscriptionInfo: { renewBanner },
 	} = useContext(Context);
-	const navigate = useNavigate();
-	const logoutFunc = useLogout();
+	// const navigate = useNavigate();
+	// const logoutFunc = useLogout();
 	const [searchWorkspace, setSearchWorkspace] = useState('');
 	const [focusedIndex, setFocusedIndex] = useState(0);
 
@@ -105,13 +105,13 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 		[userWorkSpaceList],
 	);
 
-	const handleCreateWorkspace = () => {
-		navigate(`/create-workspace`);
-	};
+	// const handleCreateWorkspace = () => {
+	// 	navigate(`/create-workspace`);
+	// };
 
-	const handleLogout = useCallback(() => {
-		logoutFunc();
-	}, [logoutFunc]);
+	// const handleLogout = useCallback(() => {
+	// 	logoutFunc();
+	// }, [logoutFunc]);
 
 	return (
 		<>

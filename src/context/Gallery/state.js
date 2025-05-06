@@ -544,7 +544,7 @@ export const Galleries = () => {
 		}
 	};
 
-	const resetGallleryState = async () => {
+	const resetGallleryState = () => {
 		dispatch({ type: Actions.RESET_STATE });
 	};
 	// {{ _.gallerybaseUrl }}/{{ _.workspaceId }}/galleries/{{ _.gallery_id }}/set-up-image-upload
