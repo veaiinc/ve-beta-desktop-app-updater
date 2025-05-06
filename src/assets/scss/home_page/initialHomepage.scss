@@ -45,14 +45,13 @@
 					}
 				}
 				.title-two {
-					color: var(--primary-font);
+					color: var(--secondary-font, #7a7e85);
 					font-family: var(--primary-font-family);
-					font-size: 53px;
-					font-style: italic;
+					font-size: 13px;
+					font-style: normal;
 					font-weight: 400;
-					line-height: 60px;
-					letter-spacing: -1.59px;
-					text-transform: lowercase;
+					line-height: normal;
+					text-align: center;
 				}
 			}
 
