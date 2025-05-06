@@ -391,7 +391,7 @@ export const CompanySettingsState = () => {
 		}
 	};
 
-	const resetCompanySettings = async () => {
+	const resetCompanySettings = () => {
 		try {
 			dispatch({ type: Actions.RESET_STATE });
 		} catch (error) {
