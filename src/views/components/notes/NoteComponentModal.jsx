@@ -1,6 +1,5 @@
 import { Tooltip } from 'antd';
 import React, { useEffect, useRef, useCallback, useState, useMemo } from 'react';
-import { useParams } from 'react-router-dom';
 import '../../../assets/scss/notes/noteComponentModal.scss';
 import NoteComponent from './NoteComponent';
 import Markdown from 'react-markdown';
@@ -91,26 +90,23 @@ const NoteComponentModal = ({
 		}
 	}, [chatList, modalIsOpen]); // Scroll when chat updates
 
-	const smoothScrollToBottom = useCallback(
-		(type) => {
-			const scrollElement = chatContentRef?.current;
-			if (!scrollElement) return;
-			const scrollToPosition = (position) => {
-				scrollElement.scrollTo({
-					top: position,
-					behavior: type === 'instant' ? 'auto' : 'smooth',
-				});
-			};
-			if (type === 'custom') {
-				const scrollHeight = scrollElement.scrollHeight;
-				const scrollOffset = 100;
-				scrollToPosition(scrollHeight - scrollOffset);
-			} else {
-				scrollToPosition(scrollElement.scrollHeight);
-			}
-		},
-		[chatContentRef],
-	);
+	const smoothScrollToBottom = useCallback((type) => {
+		const scrollElement = chatContentRef?.current;
+		if (!scrollElement) return;
+		const scrollToPosition = (position) => {
+			scrollElement.scrollTo({
+				top: position,
+				behavior: type === 'instant' ? 'auto' : 'smooth',
+			});
+		};
+		if (type === 'custom') {
+			const scrollHeight = scrollElement.scrollHeight;
+			const scrollOffset = 100;
+			scrollToPosition(scrollHeight - scrollOffset);
+		} else {
+			scrollToPosition(scrollElement.scrollHeight);
+		}
+	}, []);
 
 	const handleFullScreenClick = () => {
 		setInfo({
@@ -177,7 +173,7 @@ const NoteComponentModal = ({
 				removeFromFavorite(payload);
 			}
 		},
-		[info?.noteId, addToFavorite, removeFromFavorite],
+		[info?.noteId],
 	);
 
 	const handleMoreOptionsChange = useCallback((key, value) => {
@@ -192,14 +188,14 @@ const NoteComponentModal = ({
 		if (success) {
 			handleClose();
 		}
-	}, [info?.noteId, deletePage]);
+	}, [info?.noteId]);
 
 	const handleDuplicatePage = useCallback(async () => {
 		const [success] = await duplicatePage({ pageId: info?.noteId });
 		if (success) {
 			// Handle success case if needed
 		}
-	}, [info?.noteId, duplicatePage]);
+	}, [info?.noteId]);
 
 	return (
 		<ReactModal

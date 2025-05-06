@@ -3,8 +3,13 @@ import React, { memo, useContext, useEffect, useMemo, useState } from 'react';
 import Context from '../../../../context/context';
 import '../../../../assets/scss/chat/citationsTooltip.scss';
 import { Markdown } from '../../../../helpers/markdownHelper';
-import { getFaviconUrl, getWebsiteName } from '../../../../helpers';
-import { fileTypeIcons } from '../../../../helpers';
+import {
+	getFaviconUrl,
+	getWebsiteName,
+	fileTypeIcons,
+	redirectTo,
+	redirectTypeMapper,
+} from '../../../../helpers';
 
 export const CitationsTooltip = memo(({ citationId, citations, placement = 'topLeft' }) => {
 	const {
@@ -23,9 +28,7 @@ export const CitationsTooltip = memo(({ citationId, citations, placement = 'topL
 	useEffect(() => {
 		if (citations?.length > 0) {
 			const citation = citations?.find((citation) => citation?.id === citationId);
-			const { name, type, snippet, source } = citation || {};
-			const fileType = name?.match(/\.(\w+)$/)?.[1];
-			setCitationInfo({ name, type, link: citation?.[type], snippet, source, fileType });
+			setCitationInfo(citation);
 			fetchCitationData(citation);
 		}
 	}, [citationId]);
@@ -86,7 +89,10 @@ export const CitationsTooltip = memo(({ citationId, citations, placement = 'topL
 				<div
 					className="citation-tooltip-container"
 					onClick={() => {
-						window.open(citationInfo?.link, '_blank');
+						redirectTo?.(
+							citationInfo?.type,
+							citationInfo?.[redirectTypeMapper?.[citationInfo?.type]],
+						);
 					}}
 				>
 					{(processedCitationData?.length > 0 || citationInfo?.snippet?.length > 0) && (
@@ -101,21 +107,34 @@ export const CitationsTooltip = memo(({ citationId, citations, placement = 'topL
 
 					<div className="info">
 						<div className="citation-link-container">
-							{citationInfo?.type === 's3_key' ? (
-								<div className="image">{fileTypeIcons[citationInfo?.fileType]}</div>
-							) : getFaviconUrl(citationInfo?.link) ? (
-								<img
-									src={getFaviconUrl(citationInfo?.link)}
-									alt="favicon"
-									className="citation-link-favicon"
-								/>
-							) : (
-								<div className="citation-link-favicon">
-									{getWebsiteName(citationInfo?.link)?.charAt(0)}
-								</div>
-							)}
-							<div className="citation-link-text">
-								<div className="citation-link">{citationInfo?.name || ''}</div>
+							<div className="icon">
+								{citationInfo?.type === 'url' ? (
+									getFaviconUrl(citationInfo?.name) ? (
+										<img
+											src={getFaviconUrl(citationInfo?.name)}
+											alt="favicon"
+											className="favicon-image"
+										/>
+									) : (
+										<div className="company-icon">
+											{getWebsiteName(citationInfo?.name)?.charAt(0)}
+										</div>
+									)
+								) : (
+									<div className="company-icon">
+										{citationInfo?.type === 's3_key'
+											? fileTypeIcons[
+													citationInfo?.name?.match(/\.(\w+)$/)?.[1]
+											  ]
+											: fileTypeIcons[citationInfo?.type]}
+									</div>
+								)}
+							</div>
+
+							<div className="citation-link">
+								{citationInfo?.type === 'url'
+									? getWebsiteName(citationInfo?.name || '')
+									: citationInfo?.name || ''}
 							</div>
 						</div>
 					</div>
