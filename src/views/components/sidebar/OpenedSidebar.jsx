@@ -587,9 +587,7 @@ const OpenedSidebar = ({
 												<div className="sideBarOptions">
 													<div
 														className="eachOption"
-														onClick={() =>
-															updateTheme(newThemeValue, routeType)
-														}
+														onClick={() => updateTheme(newThemeValue)}
 													>
 														{theme === 'dark' ? (
 															<SunIcon />
