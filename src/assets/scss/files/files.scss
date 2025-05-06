@@ -36,12 +36,12 @@
 
 				input {
 					border-radius: 100px;
-					border: 1px solid var(--stroke, #2c2d2e);
-					background: var(--card, #202123);
+					border: 1px solid var(--stroke, #333334);
+					background: var(--card, #18191b);
 					padding: 13px 20px;
 					color: var(--primary-font);
 					width: 200px;
-					transition: width 0.3s ease, background 0.3s ease;
+					transition: width 0.3s ease;
 					&:hover {
 						border-color: var(--stroke-hover);
 					}
