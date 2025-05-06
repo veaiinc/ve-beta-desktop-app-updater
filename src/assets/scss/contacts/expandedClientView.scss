@@ -159,7 +159,8 @@
 	align-items: flex-start;
 	gap: 65px;
 	flex-shrink: 0;
-	background: var(--navbar, #18191b);
+	// background: var(--navbar-bg, #18191b);
+	background: transparent;
 	color: var(--primary-font);
 
 	.contacts-header {
@@ -171,6 +172,17 @@
 			color: var(--primary-font);
 			font-size: 16px;
 			font-weight: 500;
+
+			span {
+				overflow: hidden;
+				color: var(--primary-button, #CFFF48);
+				text-overflow: ellipsis;
+				font-family: Inter;
+				font-size: 18px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
 		}
 	}
 	.contacts-stats-container {

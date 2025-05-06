@@ -329,7 +329,9 @@ const Notifications = () => {
 											</div>
 										))}
 									</div>
-									<div className="divider"></div>
+									{idx !== notificationPreferences?.length - 1 && (
+										<div className="divider"></div>
+									)}
 								</React.Fragment>
 							))}
 						</div>

@@ -1,8 +1,10 @@
+require('dotenv').config();
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const webpack = require('webpack');
 
 module.exports = {
+	mode: process.env.REACT_APP_DEV_ENVIRONMENT || 'development',
 	entry: path.join(__dirname, 'src', 'index.js'),
 	output: {
 		path: path.resolve(__dirname, 'build'),
@@ -93,6 +95,11 @@ module.exports = {
 		hot: true, // Enables Hot Module Replacement
 		static: path.resolve(__dirname, 'public'), // Serves static files from the public folder
 		historyApiFallback: true, // Enables SPA routing
+		client: {
+			overlay: {
+				warnings: false,
+			},
+		},
 	},
 	ignoreWarnings: [
 		{

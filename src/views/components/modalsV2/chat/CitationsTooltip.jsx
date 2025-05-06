@@ -67,7 +67,9 @@ export const CitationsTooltip = memo(({ citationId, citations, placement = 'topL
 		if (citationInfo?.snippet && citationInfo.snippet?.trim() !== '') {
 			updatedText = updatedText?.replace(
 				citationInfo?.snippet,
-				`<span id="citation-snippet" style="background-color: rgb(178, 161, 232); color : black; padding: 1px 3px; box-decoration-break: clone;">${citationInfo.snippet}</span>`,
+				`<span id="citation-snippet" style="background-color: var(--primary-font); color : var(--background-color); padding: 1px 3px; box-decoration-break: clone;">${
+					citationInfo?.snippet || ''
+				}</span>`,
 			);
 		}
 		return updatedText;

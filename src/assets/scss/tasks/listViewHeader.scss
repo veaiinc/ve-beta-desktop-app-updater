@@ -195,6 +195,7 @@
 				font-style: normal;
 				font-weight: 500;
 				line-height: 20px; /* 142.857% */
+				cursor: pointer;
 
 				.listView-sortField {
 					font-family: var(--primary-font-family);
@@ -263,8 +264,10 @@
 			align-items: center;
 			flex-direction: row;
 			gap: 8px;
+			
 			select {
 				width: 120px;
+				cursor: pointer;
 				height: 32px;
 				border-radius: 4px;
 				border: 1px solid var(--stroke);

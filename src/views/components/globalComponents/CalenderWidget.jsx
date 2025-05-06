@@ -181,15 +181,15 @@ const CalenderWidget = ({ width = '100%', height = '412px' }) => {
 						}}
 					>
 						{info?.isLoading ? (
-							skeletonLoaders?.map((_, index) => (
+							skeletonLoaders?.map((item, index) => (
 								<Skeleton
+									key={index}
 									width="300px"
 									height="36px"
 									style={{
 										'--highlight-color': 'gray',
 										'--base-color': 'transparent',
 									}}
-									key={index}
 								/>
 							))
 						) : allCalendarEvents?.data?.length > 0 ? (
@@ -202,90 +202,88 @@ const CalenderWidget = ({ width = '100%', height = '412px' }) => {
 							>
 								<div className="calenderWidgetMainContentDate">
 									{groupedEventsArray?.map((meet, index) => (
-										<>
-											<div key={index} className="calendarWidgetDayGroup">
-												<div className="calendarWidgetStickyDate">
-													<div className="calenderWidgetDateContainer">
-														<div className="calenderWidgetDateContainerDayContainer">
-															<div className="calenderWidgetDateContainerDay">
+										<div key={index} className="calendarWidgetDayGroup">
+											<div className="calendarWidgetStickyDate">
+												<div className="calenderWidgetDateContainer">
+													<div className="calenderWidgetDateContainerDayContainer">
+														<div className="calenderWidgetDateContainerDay">
+															{new Date(
+																meet?.date,
+															)?.toLocaleDateString(undefined, {
+																weekday: 'long',
+															})}
+														</div>
+														<div className="calenderWidgetDateContainerDate">
+															{new Date(
+																meet?.date,
+															)?.toLocaleDateString(undefined, {
+																day: '2-digit',
+																month: '2-digit',
+															})}
+														</div>
+													</div>
+												</div>
+											</div>
+											<div
+												className="calendarWidgetDayGroupContent"
+												style={{
+													display: 'flex',
+													flexDirection: 'column',
+													width: '100%',
+													gap: '4px',
+												}}
+											>
+												{meet?.data?.map((eachMeet) => (
+													<div
+														key={eachMeet?.id}
+														ref={(el) =>
+															(eventRefs.current[index] = el)
+														}
+														data-date={eachMeet?.startDateTime}
+														className="calenderWidgetMainContentDateMeet"
+														onClick={() =>
+															handleCalendarClick(eachMeet)
+														}
+														style={{ cursor: 'pointer' }}
+													>
+														<div className="calenderWidgetMainContentDateMeetTime">
+															<span className="calenderWidgetMainContentTime">
 																{new Date(
-																	meet?.date,
-																)?.toLocaleDateString(undefined, {
-																	weekday: 'long',
+																	eachMeet?.startDateTime,
+																)?.toLocaleTimeString([], {
+																	hour: '2-digit',
+																	minute: '2-digit',
+																	hour12: true,
 																})}
+															</span>
+															<span className="calenderWidgetMainLine"></span>
+														</div>
+														<div className="meetingDetails">
+															<div className="meetingDetailsTitle">
+																{eachMeet?.title}
 															</div>
-															<div className="calenderWidgetDateContainerDate">
+															<div className="meetingDetailsTime">
 																{new Date(
-																	meet?.date,
-																)?.toLocaleDateString(undefined, {
-																	day: '2-digit',
-																	month: '2-digit',
+																	eachMeet?.startDateTime,
+																).toLocaleTimeString([], {
+																	hour: '2-digit',
+																	minute: '2-digit',
+																	hour12: true,
+																})}{' '}
+																-
+																{new Date(
+																	eachMeet?.endDateTime,
+																)?.toLocaleTimeString([], {
+																	hour: '2-digit',
+																	minute: '2-digit',
+																	hour12: true,
 																})}
 															</div>
 														</div>
 													</div>
-												</div>
-												<div
-													className="calendarWidgetDayGroupContent"
-													style={{
-														display: 'flex',
-														flexDirection: 'column',
-														width: '100%',
-														gap: '4px',
-													}}
-												>
-													{meet?.data?.map((eachMeet) => (
-														<div
-															key={eachMeet?.id}
-															ref={(el) =>
-																(eventRefs.current[index] = el)
-															}
-															data-date={eachMeet?.startDateTime}
-															className="calenderWidgetMainContentDateMeet"
-															onClick={() =>
-																handleCalendarClick(eachMeet)
-															}
-															style={{ cursor: 'pointer' }}
-														>
-															<div className="calenderWidgetMainContentDateMeetTime">
-																<span className="calenderWidgetMainContentTime">
-																	{new Date(
-																		eachMeet?.startDateTime,
-																	)?.toLocaleTimeString([], {
-																		hour: '2-digit',
-																		minute: '2-digit',
-																		hour12: true,
-																	})}
-																</span>
-																<span className="calenderWidgetMainLine"></span>
-															</div>
-															<div className="meetingDetails">
-																<div className="meetingDetailsTitle">
-																	{eachMeet?.title}
-																</div>
-																<div className="meetingDetailsTime">
-																	{new Date(
-																		eachMeet?.startDateTime,
-																	).toLocaleTimeString([], {
-																		hour: '2-digit',
-																		minute: '2-digit',
-																		hour12: true,
-																	})}{' '}
-																	-
-																	{new Date(
-																		eachMeet?.endDateTime,
-																	)?.toLocaleTimeString([], {
-																		hour: '2-digit',
-																		minute: '2-digit',
-																		hour12: true,
-																	})}
-																</div>
-															</div>
-														</div>
-													))}
-												</div>
+												))}
 											</div>
-										</>
+										</div>
 									))}
 								</div>
 							</InfiniteScroll>

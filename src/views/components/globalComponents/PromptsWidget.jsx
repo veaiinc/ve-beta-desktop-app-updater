@@ -28,11 +28,11 @@ const PromptsWidget = ({ option = '' }) => {
 	return (
 		<>
 			<div className="calenderWidgetSection2">
-				{PromptData?.filter((item) => item?.type === option)?.map((item, index) => (
+				{PromptData.filter((item) => item.type === option).map((item, index) => (
 					<div
+						key={index}
 						className="calenderWidgetSection2Item"
 						onClick={() => handlePromptPopup(item)}
-						key={index}
 					>
 						<div className="calenderWidgetSection2ItemContainer">
 							{iconMap[item?.type]}

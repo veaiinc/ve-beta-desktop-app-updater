@@ -10,7 +10,6 @@
 .taskWidgetHeader {
 	display: flex;
 	flex-direction: column;
-	align-items: end;
 	gap: 2px;
 	color: var(--primary-font);
 	font-family: var(--primary-font-family);
@@ -18,7 +17,6 @@
 	font-style: normal;
 	font-weight: 500;
 	line-height: normal;
-	text-align: right;
 	width: 100%;
 }
 

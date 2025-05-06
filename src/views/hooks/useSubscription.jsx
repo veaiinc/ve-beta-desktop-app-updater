@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import Context from '../../context/context';
 const calculateTimeLeft = (expiryTimestamp) => {
@@ -41,7 +41,7 @@ const MappedApps = {
 };
 
 const useSubscription = () => {
-	let {
+	const {
 		subscriptionInfo: {
 			currentPlan,
 			getCurrentSubscriptionPlan,
@@ -82,7 +82,10 @@ const useSubscription = () => {
 		const currentPath = location?.pathname?.split('/')[1];
 
 		if (currentPlan?.apps?.length) {
-			const shouldShowRenewBanner = currentPlan?.apps?.some((eachApp) => {
+			let shouldShowRenewBanner = currentPlan?.apps?.some((eachApp) => {
+				if (currentPath === 'contact' && eachApp?.app === 'contact') {
+					return eachApp?.isPaidPlan === false;
+				}
 				return MappedApps?.[eachApp?.app] === currentPath && eachApp?.isPaidPlan === false;
 			});
 

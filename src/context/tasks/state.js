@@ -671,7 +671,7 @@ export const TasksState = () => {
 			if (response?.[0]) {
 				dispatch({
 					type: Actions.UPDATE_TASK_PREFIX,
-					payload: response?.[1]?.data?.updateTaskView?.prefix,
+					payload: response?.[1]?.data?.updateTaskMetadata?.prefix,
 				});
 			}
 		} catch (error) {
@@ -693,7 +693,7 @@ export const TasksState = () => {
 			if (response?.[0]) {
 				dispatch({
 					type: Actions.UPDATE_SELECTED_VIEW,
-					payload: response?.[1]?.data?.updateTaskView?.selectedTaskView,
+					payload: response?.[1]?.data?.updateTaskMetadata?.selectedTaskView,
 				});
 			}
 		} catch (error) {

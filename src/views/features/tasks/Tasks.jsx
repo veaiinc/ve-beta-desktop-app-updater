@@ -112,7 +112,7 @@ const Tasks = () => {
 			sideBarData,
 		},
 		companyInfo: { getTeamMembers, tenantsUserList },
-		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
+		subscriptionInfo: { validateExpiryData, updateSubscriptionState, renewBanner },
 		contacts: { getClientsForTask, clientListForTask },
 	} = useContext(Context);
 
@@ -280,7 +280,7 @@ const Tasks = () => {
 			getTeamMembers();
 		} else {
 			const formattedUsers = tenantsUserList?.map(({ firstName, lastName, _id }) => ({
-				label: `${firstName} ${lastName}`,
+				label: `${firstName} ${lastName ? lastName : ''}`,
 				value: _id,
 			}));
 
@@ -894,6 +894,7 @@ const Tasks = () => {
 			updateTaskInfo({ updated: false });
 		}
 		updateTaskInfo({ sidebarIsOpen: false, selectedSubTask: null });
+		updateSideBarData(null);
 	}, [info?.updated]);
 
 	const updateView = useCallback(
@@ -1002,6 +1003,7 @@ const Tasks = () => {
 							/>
 						) : null
 					}
+					renewBanner={renewBanner}
 				/>
 			</div>
 		</div>

@@ -4,7 +4,7 @@
 	height: 100%;
 	display: flex;
 	flex-direction: column;
-	gap: 100px;
+	gap: 18px;
 	.cards-container {
 		display: flex;
 		gap: 20px;
@@ -239,7 +239,20 @@
 		justify-content: space-between;
 		align-items: center;
 		margin: 0 auto;
-
+		.suggestionPromptContainer {
+			display: flex;
+			align-items: center;
+			gap: 6px;
+			border-radius: 8px;
+			.suggestionPrompt {
+				color: var(--secondary-font, #7a7e85);
+				font-family: Inter;
+				font-size: 12px;
+				font-style: italic;
+				font-weight: 400;
+				line-height: normal;
+			}
+		}
 		.action-left {
 			color: var(--secondary-font, #93989f);
 			font-family: var(--primary-font-family);
@@ -278,6 +291,175 @@
 
 				.left-chevron {
 					transform: rotate(180deg);
+				}
+			}
+		}
+	}
+	.proactiveSuggestionsContainer {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 8px;
+		margin: 0px auto;
+		flex-grow: 1;
+		max-height: 100%;
+		.eachCardContainer {
+			display: flex;
+			width: 750px;
+			padding: 14px 16px;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 8px;
+			border-radius: 8px;
+			border: none;
+			position: relative;
+
+			/* Initially hide the gradient and background color */
+			&::before {
+				content: '';
+				position: absolute;
+				top: 0;
+				left: 0;
+				right: 0;
+				bottom: 0;
+				background: linear-gradient(135deg, #8fd0ff, #cfff48);
+				z-index: 0;
+				border-radius: 16px;
+				opacity: 0; /* Initially hidden */
+				transition: opacity 0.3s ease;
+			}
+
+			&::after {
+				content: '';
+				position: absolute;
+				top: 2px;
+				left: 2px;
+				right: 2px;
+				bottom: 2px;
+				background-color: var(--card-hover, #202123);
+				border-radius: 14px;
+				z-index: 1;
+			}
+
+			> * {
+				position: relative;
+				z-index: 2;
+			}
+
+			/* Apply gradient and show background color on hover */
+			&:hover {
+				&::before {
+					opacity: 1; /* Show gradient on hover */
+				}
+			}
+			.cardContianerTitle {
+				color: var(--primary-font, #f2f2f3);
+				font-family: Inter;
+				font-size: 13px;
+				font-style: normal;
+				font-weight: 400;
+				line-height: 19px;
+				align-self: stretch;
+				height: 42px;
+				overflow: hidden;
+				display: -webkit-box;
+				-webkit-box-orient: vertical;
+				-webkit-line-clamp: 2;
+				line-clamp: 2;
+				text-overflow: ellipsis;
+				cursor: pointer;
+				span {
+					color: var(--primary-font, #f2f2f3);
+					font-family: Inter;
+					font-size: 13px;
+					font-style: normal;
+					font-weight: 700;
+					line-height: 19px; /* 146.154% */
+				}
+			}
+			.cardOptionsMainContainer {
+				display: flex;
+				justify-content: space-between;
+				width: 100%;
+				align-items: center;
+				height: 15px;
+				.cardOptionsContainer {
+					display: flex;
+					align-items: center;
+					gap: 12px;
+					.priorityOption {
+						display: flex;
+						justify-content: center;
+						align-items: center;
+						gap: 6px;
+						color: var(--primary-font, #f2f2f3);
+						font-family: Inter;
+						font-size: 12px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+					}
+					.verticalLine {
+						width: 1px;
+						height: 14px;
+						background: var(--stroke, #2c2d2e);
+					}
+					.thumbsUpContainer {
+						svg {
+							fill: var(--primary-font);
+							color: var(--secondary-font);
+						}
+					}
+				}
+				.cardButtonsContainer {
+					display: flex;
+					align-items: flex-start;
+					gap: 6px;
+					.skipButton {
+						display: flex;
+						padding: 6px 18px;
+						justify-content: center;
+						align-items: center;
+						gap: 2px;
+						border-radius: 24px;
+						border: 1px solid var(--stroke, #2c2d2e);
+						background: var(--popup, #202123);
+						overflow: hidden;
+						color: var(--primary-font, #f2f2f3);
+						text-overflow: ellipsis;
+						font-family: Inter;
+						font-size: 13px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+						display: -webkit-box;
+						-webkit-box-orient: vertical;
+						-webkit-line-clamp: 1;
+						border: none;
+						cursor: pointer;
+					}
+					.checkButton {
+						display: flex;
+						padding: 6px 18px;
+						justify-content: center;
+						align-items: center;
+						gap: 2px;
+						border-radius: 24px;
+						background: var(--primary-button, #cfff48);
+						overflow: hidden;
+						color: var(--background-color, #0f0f10);
+						text-overflow: ellipsis;
+						font-family: Inter;
+						font-size: 13px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+						display: -webkit-box;
+						-webkit-box-orient: vertical;
+						-webkit-line-clamp: 1;
+						border: none;
+						cursor: pointer;
+					}
 				}
 			}
 		}
@@ -347,11 +529,59 @@
 		}
 	}
 }
+.priority {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: 6px;
+	color: var(--primary-font, #f2f2f3);
+	font-family: Inter;
+	font-size: 12px;
+	font-style: normal;
+	font-weight: 500;
+	line-height: normal;
+	.indicator {
+		width: 6px;
+		height: 6px;
+		border-radius: 50%;
+	}
+}
+.ant-tooltip-inner {
+	background: transparent !important;
+	.tooltipContainer {
+		display: flex;
+		width: 350px;
+		padding: 12px 14px;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 8px;
+		border-radius: 12px;
+		border: 1px solid var(--stroke, #2c2d2e);
+		background: var(--popup, #202123);
+		box-shadow: 0px 0px 30px 0px rgba(0, 0, 0, 0.12);
+		span {
+			color: var(--primary-font, #f2f2f3);
+			font-family: Inter;
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 600;
+			line-height: normal;
+			align-self: stretch;
+		}
+		color: var(--secondary-font, #7a7e85);
+		font-family: Inter;
+		font-size: 12px;
+		font-style: normal;
+		font-weight: 400;
+		line-height: 19px; /* 158.333% */
+		align-self: stretch;
+	}
+}
 .selected-filter {
 	display: flex;
 	flex-direction: row;
 	gap: 4px;
-	max-width: 500px;
+	max-width: 250px;
 	overflow-x: auto;
 	scrollbar-width: none !important;
 	.selected-filter-item {
@@ -375,6 +605,6 @@
 }
 @media screen and (max-width: 1500px) {
 	.proactive-suggestions-container {
-		gap: 40px;
+		gap: 18px;
 	}
 }

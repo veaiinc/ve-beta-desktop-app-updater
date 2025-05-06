@@ -1,4 +1,4 @@
-import React, { memo, useCallback } from 'react';
+import { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const useAuth = () => {
