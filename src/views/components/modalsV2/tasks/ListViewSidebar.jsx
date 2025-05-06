@@ -303,7 +303,7 @@ const ListViewSidebar = ({
 			>
 				<div
 					className="listView-sidebar-innerContainer"
-					style={renewBanner ? customStyles : ''}
+					style={renewBanner ? customStyles : {}}
 				>
 					<div className="sidebar-header">
 						<div className="sidebar-header-left-container">
