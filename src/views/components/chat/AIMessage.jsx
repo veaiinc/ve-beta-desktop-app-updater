@@ -177,12 +177,9 @@ const AIMessage = memo(
 									placement="bottom"
 									arrow={false}
 									trigger={'hover'}
-									title={'Like'}
+									title={'Edit'}
 								>
-									<ThumpsUpSvg
-										fill={rating === 'thumbsUp' ? '#f2f2f3' : 'none'}
-										onClick={handleThumbsUp}
-									/>
+									<PencilSparkleIcon onClick={handlePencilClick} />
 								</Tooltip>
 							</div>
 
@@ -191,12 +188,13 @@ const AIMessage = memo(
 									placement="bottom"
 									arrow={false}
 									trigger={'hover'}
-									title={'Dislike'}
+									title={isCopiedToClipboard ? 'Copied' : 'Copy'}
 								>
-									<ThumpsDownSvg
-										fill={rating === 'thumbsDown' ? '#f2f2f3' : 'none'}
-										onClick={handleThumbsDown}
-									/>
+									{isCopiedToClipboard ? (
+										<TickSvg />
+									) : (
+										<CopyIcon onClick={() => handleCopyTextClick(text)} />
+									)}
 								</Tooltip>
 							</div>
 						</div>
@@ -218,9 +216,12 @@ const AIMessage = memo(
 									placement="bottom"
 									arrow={false}
 									trigger={'hover'}
-									title={'Edit'}
+									title={'Like'}
 								>
-									<PencilSparkleIcon onClick={handlePencilClick} />
+									<ThumpsUpSvg
+										fill={rating === 'thumbsUp' ? '#f2f2f3' : 'none'}
+										onClick={handleThumbsUp}
+									/>
 								</Tooltip>
 							</div>
 
@@ -229,13 +230,12 @@ const AIMessage = memo(
 									placement="bottom"
 									arrow={false}
 									trigger={'hover'}
-									title={isCopiedToClipboard ? 'Copied' : 'Copy'}
+									title={'Dislike'}
 								>
-									{isCopiedToClipboard ? (
-										<TickSvg />
-									) : (
-										<CopyIcon onClick={() => handleCopyTextClick(text)} />
-									)}
+									<ThumpsDownSvg
+										fill={rating === 'thumbsDown' ? '#f2f2f3' : 'none'}
+										onClick={handleThumbsDown}
+									/>
 								</Tooltip>
 							</div>
 						</div>

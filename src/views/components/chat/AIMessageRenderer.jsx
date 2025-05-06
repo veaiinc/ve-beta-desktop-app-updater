@@ -6,7 +6,13 @@ import Context from '../../../context/context';
 import { ReactComponent as LinkIcon } from '../../../assets/svg/ai_agents/link.svg';
 import DeepSearchChainOfThought from './chatComponents/DeepSearchChainOfThought';
 import DeepResearchChainOfThought from './chatComponents/DeepResearchChainOfThought';
-import { getFaviconUrl, getWebsiteName } from '../../../helpers';
+import {
+	getFaviconUrl,
+	getWebsiteName,
+	fileTypeIcons,
+	redirectTo,
+	redirectTypeMapper,
+} from '../../../helpers';
 import { ReactComponent as ArrowRightIcon } from '../../../assets/svg/ai_agents/ArrowLineUpRight.svg';
 import AIMessage from './AIMessage';
 import CombinedChainOfThought from './chatComponents/CombinedChainOfThought';
@@ -173,19 +179,36 @@ const AIMessageRenderer = ({
 								<div
 									key={citation?.id || idx}
 									className="citation-item"
-									onClick={() => window?.open(citation?.name, '_blank')}
+									onClick={() =>
+										redirectTo?.(
+											citation?.type,
+											citation?.[redirectTypeMapper?.[citation?.type]],
+										)
+									}
 								>
 									<div className="citation-header">
 										<div className="citation-icon">
-											{getFaviconUrl(citation.name) ? (
-												<img
-													src={getFaviconUrl(citation.name)}
-													alt="favicon"
-													className="favicon-image"
-												/>
+											{citation?.type === 'url' ? (
+												getFaviconUrl(citation?.name) ? (
+													<img
+														src={getFaviconUrl(citation?.name)}
+														alt="favicon"
+														className="favicon-image"
+													/>
+												) : (
+													<div className="company-icon">
+														{getWebsiteName(citation?.name)?.charAt(0)}
+													</div>
+												)
 											) : (
 												<div className="company-icon">
-													{getWebsiteName(citation?.name)?.charAt(0)}
+													{citation?.type === 's3_key'
+														? fileTypeIcons[
+																citation?.name?.match(
+																	/\.(\w+)$/,
+																)?.[1]
+														  ]
+														: fileTypeIcons[citation?.type]}
 												</div>
 											)}
 										</div>

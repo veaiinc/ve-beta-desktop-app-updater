@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useState, useRef, useEffect, useContext } from 'react';
+import React, { memo, useCallback, useState, useRef, useEffect, useContext, Fragment } from 'react';
 import '../../../assets/scss/chat/chat.scss';
 import { ReactComponent as ExpandChatIcon } from '../../../assets/svg/ai_agents/expand-chat-icon.svg';
 import {
@@ -714,7 +714,7 @@ const RecentChat = ({
 								<div className="chatContent" style={{ flex: 1 }}>
 									{(globalChatMessages || [])?.map((chat, index) =>
 										chat?.content ? (
-											chat?.content
+											<Fragment key={index}>{chat?.content}</Fragment>
 										) : (
 											<div
 												key={index}

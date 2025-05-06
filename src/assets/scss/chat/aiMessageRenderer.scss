@@ -40,6 +40,7 @@
 		.tab-buttons {
 			display: flex;
 			gap: 12px;
+			width: 100%;
 		}
 
 		.tab-btn {
@@ -56,6 +57,7 @@
 			display: flex;
 			align-items: center;
 			gap: 8px;
+			flex-shrink: 0;
 
 			.loader-wrapper {
 				display: flex;
