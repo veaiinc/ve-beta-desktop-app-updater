@@ -1,4 +1,4 @@
-import React, { useState, memo, useEffect, useCallback, useContext } from 'react';
+import { useState, memo, useEffect, useCallback, useContext } from 'react';
 import ReactModal from '../modalsV2';
 import { ReactComponent as CrossSvg } from '../../../assets/svg/gallery/cross.svg';
 import '../../../assets/scss/home_page/promptPopup.scss';
@@ -65,6 +65,8 @@ const PromptPopup = ({
 	confidenceScore = null,
 	messageId = null,
 }) => {
+	const navigate = useNavigate();
+
 	const {
 		templates: { updateStateValues, updateAiChatMessageRating },
 	} = useContext(Context);
@@ -76,20 +78,18 @@ const PromptPopup = ({
 		feedbackPopupOpen,
 		feedback: liked,
 		selectedFeedback: new Set(),
-		messageId,
 		confidenceScore,
 		feedbackMessage: '',
 	});
 
 	useEffect(() => {
-		setInfo((prev) => ({ ...prev, feedbackPopupOpen, messageId }));
+		setInfo((prev) => ({ ...prev, feedbackPopupOpen }));
 	}, [feedbackPopupOpen]);
-
-	const navigate = useNavigate();
 
 	useEffect(() => {
 		if (!selectedCard?.prompt) return;
 
+		// Extract all placeholders enclosed in square brackets (e.g., [name]) from the prompt
 		const matches = [...selectedCard.prompt.matchAll(/\[([^\]]+)\]/g)];
 
 		let lastIndex = 0;
@@ -163,7 +163,7 @@ const PromptPopup = ({
 	};
 
 	const handleFeedbackSubmit = useCallback(async () => {
-		const { messageId, selectedFeedback, feedbackMessage, feedback } = info;
+		const { selectedFeedback, feedbackMessage, feedback } = info;
 
 		if (!messageId || !feedback) {
 			console.warn('Cannot submit: Missing messageId or feedback type');
@@ -189,7 +189,7 @@ const PromptPopup = ({
 			);
 
 			if (res) {
-				message.success(res?.[1]?.message)
+				message.success(res?.[1]?.message);
 			}
 
 			setInfo((prev) => ({
