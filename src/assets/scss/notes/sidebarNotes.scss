@@ -12,6 +12,7 @@
 			background-color: var(--navbar);
 			border-right: 1px solid var(--stroke);
 			padding: 0px;
+			overflow-y: hidden;
 
 			.notifications-drawer-container {
 				// border: 1px solid rgb(51, 51, 52);

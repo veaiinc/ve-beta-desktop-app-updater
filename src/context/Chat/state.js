@@ -159,7 +159,7 @@ export const ChatState = (props) => {
 		}
 	};
 
-	const resetChatState = async () => {
+	const resetChatState = () => {
 		try {
 			dispatch({ type: Actions.RESET_STATE });
 		} catch (error) {
