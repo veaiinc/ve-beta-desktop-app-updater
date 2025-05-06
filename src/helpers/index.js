@@ -313,21 +313,21 @@ export const fileTypeIcons = {
 	'text/plain': <TextSvg />,
 };
 
-export const redirectTo = (type, id = null) => {
+export const redirectTo = (type, id) => {
 	if (!id) return;
 
-	if (type === 'gmail') {
-		window?.open(`https://mail.google.com/mail/u/0/#inbox/${id}`, '_blank');
-	} else if (type === 'notion') {
-		window?.open(id, '_blank');
-	} else if (type === 'url') {
-		window?.open(id, '_blank');
-	} else if (type === 'workflowId') {
-		window?.open(`https://builder.ve.ai/workflow/${id}`, '_blank');
-	} else if (type === 'slack') {
-		window?.open(`https://app.slack.com/client/${id}`, '_blank');
-	} else if (type === 's3_key') {
-		window?.open(id, '_blank');
+	const urls = {
+		gmail: `https://mail.google.com/mail/u/0/#inbox/${id}`,
+		notion: id,
+		url: id,
+		workflowId: `https://builder.ve.ai/workflow/${id}`,
+		slack: `https://app.slack.com/client/${id}`,
+		s3_key: id,
+	};
+
+	const url = urls?.[type];
+	if (url) {
+		window.open(url, '_blank');
 	}
 };
 
