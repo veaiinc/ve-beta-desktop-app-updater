@@ -64,7 +64,7 @@
 			}
 		}
 		.chatbox-wrapper {
-			height: 122px;
+			height: 60px;
 			width: 700px;
 			margin-top: -20px;
 			border-radius: 16px;
@@ -156,6 +156,13 @@
 	.chatbox-container {
 		animation: add-overflow 1s linear forwards;
 	}
+}
+.tooltipOption {
+	display: flex;
+	justify-content: center;
+	background-color: var(--card);
+	padding: 4px 8px;
+	border-radius: 8px;
 }
 
 @keyframes height-minimize {

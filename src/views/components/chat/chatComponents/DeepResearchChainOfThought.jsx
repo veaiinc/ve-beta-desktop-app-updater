@@ -8,7 +8,7 @@ import WebSvg from '../../../../assets/svg/ai_agents/webSvg';
 import BookSvg from '../../../../assets/svg/ai_agents/bookSvg';
 import { fileTypeIcons } from '../../../../helpers';
 
-const DeepResearchChainOfThought = ({ data }) => {
+const DeepResearchChainOfThought = ({ data, showLastIndicatorLine = false }) => {
 	return (
 		<div className="deep-research-container">
 			<div className="chain-of-thought">
@@ -19,14 +19,9 @@ const DeepResearchChainOfThought = ({ data }) => {
 								<div className="indicator" />
 							</div>
 							<div className="content">
-								<div
-									className="line"
-									style={{
-										...(index === data?.cot?.length - 1 && {
-											display: data?.sections?.length > 0 ? 'block' : 'none',
-										}),
-									}}
-								/>
+								{(index !== data?.cot?.length - 1 ||
+									data?.sections?.length > 0 ||
+									showLastIndicatorLine) && <div className="line" />}
 								<div className="step">
 									<Markdown citations={item?.citations || []}>
 										{item?.step || ''}
@@ -127,6 +122,8 @@ const DeepResearchChainOfThought = ({ data }) => {
 								<div className="indicator" />
 							</div>
 							<div className="section-content">
+								{(index !== data?.sections?.length - 1 ||
+									showLastIndicatorLine) && <div className="line" />}
 								<div className={`section-title`}>{section || ''}</div>
 								<div className="sub-queries">
 									{sub_queries?.map((subQuery, idx) => {
