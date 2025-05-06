@@ -71,10 +71,9 @@ const AIMessage = memo(
 			setNoteContent(messageData);
 		}, [customePencilClickFunc, setNoteContent, messageData]);
 
-		const handleThumbsClick = useCallback(() => {
-			const newRating = rating === 'thumbsUp' ? 'thumbsDown' : 'thumbsUp';
+		const handleThumbsClick = useCallback((thumbs) => {
 			// handleRatingClick && handleRatingClick(newRating, messageId);
-			setInfo((prev) => ({ ...prev, feedbackPopupOpen: true, liked: newRating }));
+			setInfo((prev) => ({ ...prev, feedbackPopupOpen: true, liked: thumbs }));
 		}, [handleRatingClick, messageId, rating]);
 
 		const handlePromptClick = (prompt) => {
@@ -133,17 +132,26 @@ const AIMessage = memo(
 								<Tooltip
 									placement="bottom"
 									arrow={false}
-									trigger="hover"
-									title="Like / Dislike"
+									trigger={'hover'}
+									title={'Like'}
 								>
-									{rating === 'thumbsUp' ? (
-										<ThumpsUpSvg fill="#f2f2f3" onClick={handleThumbsClick} />
-									) : (
-										<ThumpsDownSvg
-											fill={rating === 'thumbsDown' ? '#f2f2f3' : 'none'}
-											onClick={handleThumbsClick}
-										/>
-									)}
+									<ThumpsUpSvg
+										fill={rating === 'thumbsUp' ? '#f2f2f3' : 'none'}
+										onClick={() => handleThumbsClick('thumbsUp')}
+									/>
+								</Tooltip>
+							</div>
+							<div className="icon-container">
+								<Tooltip
+									placement="bottom"
+									arrow={false}
+									trigger={'hover'}
+									title={'Dislike'}
+								>
+									<ThumpsDownSvg
+										fill={rating === 'thumbsDown' ? '#f2f2f3' : 'none'}
+										onClick={() => handleThumbsClick('thumbsDown')}
+									/>
 								</Tooltip>
 							</div>
 						</div>

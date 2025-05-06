@@ -179,7 +179,7 @@ const PromptPopup = ({
 		}
 
 		try {
-			await updateAiChatMessageRating(
+			const res = await updateAiChatMessageRating(
 				{
 					rating: feedback,
 					userFeedbackReasons,
@@ -187,6 +187,10 @@ const PromptPopup = ({
 				},
 				messageId,
 			);
+
+			if (res) {
+				message.success(res?.[1]?.message)
+			}
 
 			setInfo((prev) => ({
 				...prev,
@@ -201,7 +205,6 @@ const PromptPopup = ({
 			console.error('Feedback submit error:', error);
 		}
 	}, [info, updateAiChatMessageRating, closeModal]);
-
 
 	const handleFeedbackSelect = (feedback) => {
 		setInfo((prev) => {
