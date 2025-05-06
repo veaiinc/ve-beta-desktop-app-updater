@@ -8,11 +8,11 @@ import Sidebar from '../components/sidebar/Sidebar';
 import useAuth from '../hooks/useAuth';
 import useSubscription from '../hooks/useSubscription';
 import useTokenExpiry from '../hooks/useTokenExpiry';
-import BottomToolbar from '../components/ai_agents/BottomToolbar';
+// import BottomToolbar from '../components/ai_agents/BottomToolbar';
 import useAccessControls from '../hooks/useAccessControls';
 import RenewBanner from '../components/globalComponents/RenewBanner';
 import Context from '../../context/context';
-import DynamicWidget from '../features/DynamicWidget/dynamicWidget';
+// import DynamicWidget from '../features/DynamicWidget/dynamicWidget';
 import { useLocation } from 'react-router-dom';
 import CommandKSearch from '../components/commandKSearch/CommandKSearch';
 
