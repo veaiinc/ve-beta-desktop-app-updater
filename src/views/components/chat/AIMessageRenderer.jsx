@@ -216,10 +216,7 @@ const AIMessageRenderer = ({
 											<div className="website-name">
 												{getWebsiteName(citation?.name)}
 											</div>
-											<div className="citation-url">
-												<LinkIcon className="link-icon" />
-												{citation?.name}
-											</div>
+											<div className="citation-url">{citation?.name}</div>
 											<div className="citation-title">
 												{citation?.snippet}
 											</div>
