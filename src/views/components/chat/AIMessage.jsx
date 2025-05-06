@@ -133,7 +133,7 @@ const AIMessage = memo(
 									placement="bottom"
 									arrow={false}
 									trigger={'hover'}
-									title={'Like'}
+									title={'Edit'}
 								>
 									<ThumpsUpSvg
 										fill={rating === 'thumbsUp' ? '#f2f2f3' : 'none'}
@@ -146,7 +146,7 @@ const AIMessage = memo(
 									placement="bottom"
 									arrow={false}
 									trigger={'hover'}
-									title={'Dislike'}
+									title={isCopiedToClipboard ? 'Copied' : 'Copy'}
 								>
 									<ThumpsDownSvg
 										fill={rating === 'thumbsDown' ? '#f2f2f3' : 'none'}
@@ -164,7 +164,10 @@ const AIMessage = memo(
 									trigger="hover"
 									title="Edit"
 								>
-									<PencilSparkleIcon onClick={handlePencilClick} />
+									<ThumpsUpSvg
+										fill={rating === 'thumbsUp' ? '#f2f2f3' : 'none'}
+										onClick={handleThumbsUp}
+									/>
 								</Tooltip>
 							</div>
 
