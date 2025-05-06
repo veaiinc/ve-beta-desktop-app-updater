@@ -351,6 +351,9 @@
 							cursor: pointer;
 							&.selected-thumb {
 								border: 1px solid var(--primary-font, #f2f2f3);
+								svg {
+									stroke: var(--primary-font, #f2f2f3);
+								}
 							}
 						}
 					}
@@ -473,5 +476,9 @@
 	}
 	.answer-input::placeholder {
 		color: var(--secondary-font, #93989f);
+	}
+	.submit-btn {
+		background: var(--primary-button);
+		color: var(--primary-button-font);
 	}
 }

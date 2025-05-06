@@ -20,6 +20,7 @@ import { useContext } from 'react';
 import { message } from '../../globalComponents/CustomToast';
 import { redirectTo } from '../../../../helpers';
 import CombinedChainOfThought from '../../chat/chatComponents/CombinedChainOfThought';
+import { fileTypeIcons } from '../../../../helpers';
 
 const AISuggestionsModal = ({
 	open,
@@ -113,6 +114,37 @@ const AISuggestionsModal = ({
 		} else {
 			message.error('Failed to update feedback');
 		}
+	};
+
+	const handleRunBtnClick = () => {
+		let prompt = '';
+		let questions = data?.informationRequests;
+		let hasAnswer = false; // Track if there's at least one valid answer
+
+		if (questions?.length > 0) {
+			Object?.keys(info?.questionsAnswers)?.forEach((key) => {
+				if (info?.questionsAnswers?.[key]?.trim()?.length > 0) {
+					hasAnswer = true; // Set to true if any answer is valid
+				}
+			});
+
+			if (!hasAnswer) {
+				// updateStateValues({ activePromptForChat: prompt });
+				// navigate(`/chat/${ObjectID()?.toString()}`);
+				return;
+			}
+
+			prompt += '\n\n';
+			prompt += 'These are answers of your questions : \n';
+			questions?.forEach((questionData, index) => {
+				if (info?.questionsAnswers?.[index]?.trim()?.length > 0) {
+					prompt += `Q${index + 1} : ${questionData?.question}\n`;
+					prompt += `A${index + 1} : ${info?.questionsAnswers?.[index]}\n\n`;
+				}
+			});
+		}
+		updateStateValues({ activePromptForChat: prompt });
+		navigate(`/chat/${ObjectID()?.toString()}`);
 	};
 
 	const handleMouseDown = (e) => {
@@ -243,7 +275,7 @@ const AISuggestionsModal = ({
 									)
 								}
 							>
-								{data?.moduleType} -{' '}
+								{fileTypeIcons[data?.moduleType]} -{' '}
 								{data?.knowledgeBase?.[0]?.metadata?.connectedEmail}
 							</span>
 						</div>
@@ -502,67 +534,76 @@ const AISuggestionsModal = ({
 							</>
 						)}
 						{data?.informationRequests?.length > 0 && (
-							<>
-								<div
-									className="chain-of-thought-container"
-									onClick={() =>
-										setInfo((prev) => ({
-											...prev,
-											isQuestionsExpanded: !prev?.isQuestionsExpanded,
-										}))
-									}
-									style={{ gap: '6px' }}
-								>
-									<div className="cot-header">
-										<div className="cot-text">
-											<QuestionMarkSvg />
-											Questions I have
-										</div>
-										<div
-											className="cot-expand-btn"
-											style={{
-												transform: info?.isQuestionsExpanded
-													? 'rotate(-90deg)'
-													: 'rotate(90deg)',
-											}}
-										>
-											<ChevronRightThinSvg />
-										</div>
+							<div
+								className="chain-of-thought-container"
+								onClick={() =>
+									setInfo((prev) => ({
+										...prev,
+										isQuestionsExpanded: !prev?.isQuestionsExpanded,
+									}))
+								}
+								style={{ gap: '6px' }}
+							>
+								<div className="cot-header">
+									<div className="cot-text">
+										<QuestionMarkSvg />
+										Questions I have
 									</div>
+									<div
+										className="cot-expand-btn"
+										style={{
+											transform: info?.isQuestionsExpanded
+												? 'rotate(-90deg)'
+												: 'rotate(90deg)',
+										}}
+									>
+										<ChevronRightThinSvg />
+									</div>
+								</div>
 
-									{info?.isQuestionsExpanded && (
+								{info?.isQuestionsExpanded && (
+									<div className="cot">
 										<div
-											className="chain-of-thought-content"
+											className="chain-of-thought-container"
 											onClick={(e) => e.stopPropagation()}
+											style={{ width: '100%' }}
 										>
 											{informationRequests?.map((questionData, index) => (
 												<div className="question-container" key={index}>
 													<div className="question">
 														{questionData?.question || ''}
 													</div>
-													{/* <input
-													type="text"
-													className="answers-input"
-													placeholder="Enter your answer..."
-													value={info?.questionsAnswers?.[index] || ''}
-													onChange={(e) => {
-														setInfo({
-															...info,
-															questionsAnswers: {
-																...info?.questionsAnswers,
-																[index]: e?.target?.value,
-															},
-														});
-													}}
-												/> */}
+													<input
+														type="text"
+														className="answers-input"
+														placeholder="Enter your answer..."
+														value={
+															info?.questionsAnswers?.[index] || ''
+														}
+														onChange={(e) => {
+															setInfo({
+																...info,
+																questionsAnswers: {
+																	...info?.questionsAnswers,
+																	[index]: e?.target?.value,
+																},
+															});
+														}}
+													/>
+													<button
+														onClick={handleRunBtnClick}
+														className="submit-btn"
+													>
+														Submit
+													</button>
 												</div>
 											))}
 										</div>
-									)}
-								</div>
-								<hr className="horizontal-line" />
-							</>
+									</div>
+								)}
+							</div>
 						)}
+						<hr className="horizontal-line" />
 					</div>
 
 					<div className="footer">
