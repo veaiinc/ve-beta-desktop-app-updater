@@ -38,7 +38,7 @@ const options = [
 		value: 'template',
 	},
 	{
-		label: 'Classic Gallery',
+		label: 'Gallery',
 		value: 'classicGallery',
 	},
 	{
@@ -230,7 +230,7 @@ const suggestedOptions = [
 	},
 	{
 		id: 8,
-		title: 'Classic Gallery',
+		title: 'Gallery',
 		value: 'galleries',
 		controlValue: 'classicGallery',
 		action: ({ setInfo }) => {
@@ -596,7 +596,7 @@ const Files = () => {
 				handleTotalChange={(value) => handleTotalChange({ form: value })}
 			/>
 		),
-		'Classic Gallery': (
+		Gallery: (
 			<GalleryGrid
 				handleCreateNewGallery={handleCreateNewGallery}
 				handleNavigateGallery={handleNavigateGallery}
