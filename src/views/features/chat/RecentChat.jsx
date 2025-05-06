@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useState, useRef, useEffect, useContext } from 'react';
+import React, { memo, useCallback, useState, useRef, useEffect, useContext, Fragment } from 'react';
 import '../../../assets/scss/chat/chat.scss';
 import { ReactComponent as ExpandChatIcon } from '../../../assets/svg/ai_agents/expand-chat-icon.svg';
 import {
@@ -89,6 +89,7 @@ const RecentChat = ({
 	const chatMessagesRef = useRef(globalChatMessages || []);
 	let { sessionId } = useParams();
 	const [searchParams, setSearchParams] = useSearchParams();
+	const userMessagesRefs = useRef({});
 	// const aiMessagesRef = useRef([]);
 	// const previousAiMessagesRef = useRef([]);
 	// const aiCitationsByIdRef = useRef({});
@@ -119,6 +120,7 @@ const RecentChat = ({
 
 			setTimeout(() => {
 				tabsRefs.current = {};
+				userMessagesRefs.current = {};
 				updateStateValues({
 					moreRecentChatStorage: null,
 					recentChatStorage: null,
@@ -149,6 +151,7 @@ const RecentChat = ({
 					},
 				});
 				tabsRefs.current = {};
+				userMessagesRefs.current = {};
 				setInfo((prev) => ({
 					...prev,
 					scrollExecuted: false,
@@ -711,7 +714,7 @@ const RecentChat = ({
 								<div className="chatContent" style={{ flex: 1 }}>
 									{(globalChatMessages || [])?.map((chat, index) =>
 										chat?.content ? (
-											chat?.content
+											<Fragment key={index}>{chat?.content}</Fragment>
 										) : (
 											<div
 												key={index}
@@ -745,6 +748,14 @@ const RecentChat = ({
 														>
 															<AIMessageRenderer
 																messageData={chat}
+																userMessageElement={
+																	userMessagesRefs.current?.[
+																		index - 1
+																	]
+																}
+																chatContentElement={
+																	chatContentRef?.current
+																}
 																handleNoteComponentModalOpen={
 																	handleNoteComponentModalOpen
 																}
@@ -766,13 +777,29 @@ const RecentChat = ({
 															/>
 														</div>
 													) : (
-														<UserMessageRenderer
-															messageData={chat}
-															// activeUserMessageIndex={
-															// 	index ===
-															// 	info?.activeUserMessageIndex
-															// }
-														/>
+														<div
+															ref={(el) => {
+																if (
+																	el &&
+																	!userMessagesRefs.current?.[
+																		index
+																	]
+																) {
+																	userMessagesRefs.current[
+																		index
+																	] = el;
+																}
+															}}
+															key={index}
+														>
+															<UserMessageRenderer
+																messageData={chat}
+																// activeUserMessageIndex={
+																// 	index ===
+																// 	info?.activeUserMessageIndex
+																// }
+															/>
+														</div>
 													)}
 												</div>
 											</div>

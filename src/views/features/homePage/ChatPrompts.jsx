@@ -53,13 +53,13 @@ const ChatPrompts = ({
 		return () => clearTimeout(timeoutId);
 	}, []);
 
-	useEffect(() => {
-		const element = document?.querySelector('.infinite-scroll-container');
-		if (element) {
-			infiniteScrollRef.current = element;
-			element?.addEventListener('scroll', handleScroll);
-		}
-	}, []);
+	// useEffect(() => {
+	// 	const element = document?.querySelector('.infinite-scroll-container');
+	// 	if (element) {
+	// 		infiniteScrollRef.current = element;
+	// 		element?.addEventListener('scroll', handleScroll);
+	// 	}
+	// }, []);
 
 	useEffect(() => {
 		if (promptsData) {

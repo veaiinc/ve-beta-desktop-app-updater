@@ -7,6 +7,10 @@ import { ReactComponent as JpgSvg } from '../assets/svg/ai_agents/jpg.svg';
 import { ReactComponent as PngSvg } from '../assets/svg/ai_agents/png.svg';
 import { ReactComponent as MdSvg } from '../assets/svg/ai_agents/md.svg';
 import { ReactComponent as ExcelSvg } from '../assets/svg/ai_agents/excel.svg';
+import { ReactComponent as GmailSvg } from '../assets/svg/login_page/gmail.svg';
+import { ReactComponent as SlackSvg } from '../assets/svg/slack.svg';
+import { ReactComponent as NotionSvg } from '../assets/svg/notion.svg';
+import { ReactComponent as VeLogoSvg } from '../assets/svg/veLogo.svg';
 import axios from 'axios';
 
 export const nameShortner = (name) => {
@@ -293,6 +297,10 @@ export const fileTypeIcons = {
 	jpeg: <JpgSvg />,
 	xlsx: <ExcelSvg />,
 	xls: <ExcelSvg />,
+	gmail: <GmailSvg />,
+	slack: <SlackSvg />,
+	notion: <NotionSvg />,
+	workflowId: <VeLogoSvg />,
 	'image/png': <PngSvg />,
 	'image/jpeg': <JpgSvg />,
 	'image/jpg': <JpgSvg />,
@@ -303,4 +311,31 @@ export const fileTypeIcons = {
 	'application/md': <MdSvg />,
 	'application/jpeg': <JpgSvg />,
 	'text/plain': <TextSvg />,
+};
+
+export const redirectTo = (type, id) => {
+	if (!id) return;
+
+	const urls = {
+		gmail: `https://mail.google.com/mail/u/0/#inbox/${id}`,
+		notion: id,
+		url: id,
+		workflowId: `https://builder.ve.ai/workflow/${id}`,
+		slack: `https://app.slack.com/client/${id}`,
+		s3_key: id,
+	};
+
+	const url = urls?.[type];
+	if (url) {
+		window.open(url, '_blank');
+	}
+};
+
+export const redirectTypeMapper = {
+	url: 'url',
+	notion: 'notion',
+	workflowId: 'workflow_id',
+	gmail: 'thread_id',
+	slack: 'channel_id',
+	s3_key: 's3_key',
 };

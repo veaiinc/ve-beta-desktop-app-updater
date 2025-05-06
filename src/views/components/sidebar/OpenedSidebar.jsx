@@ -447,8 +447,7 @@ const OpenedSidebar = ({
 
 	const tenantModules =
 		tennantSettingsData?.businessType === 'photography' ||
-		tennantSettingsData?.businessType === 'photographer' ||
-		tennantSettingsData?.businessType === 'agency'
+		tennantSettingsData?.businessType === 'photographer'
 			? photographerModules
 			: veAiModulesItemsList;
 
@@ -586,9 +585,7 @@ const OpenedSidebar = ({
 												<div className="sideBarOptions">
 													<div
 														className="eachOption"
-														onClick={() =>
-															updateTheme(newThemeValue, routeType)
-														}
+														onClick={() => updateTheme(newThemeValue)}
 													>
 														{theme === 'dark' ? (
 															<SunIcon />
