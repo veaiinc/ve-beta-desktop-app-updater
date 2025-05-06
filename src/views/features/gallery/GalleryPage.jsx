@@ -618,7 +618,18 @@ const GalleryPage = () => {
 			}));
 		}
 	}, [albumImagesCount]);
-
+	useEffect(() => {
+		setInfo((prev) => ({
+			...prev,
+			activeGallery: location?.state?.galleryData,
+		}));
+		return () => {
+			setInfo((prev) => ({
+				...prev,
+				activeGallery: null,
+			}));
+		};
+	}, [galleryId]);
 	useEffect(() => {
 		if (!tenantAlbums || tenantAlbums?._id !== galleryId) {
 			getAlbums(galleryId).then((response) => {

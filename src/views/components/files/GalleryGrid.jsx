@@ -247,7 +247,7 @@ const GalleryGrid = ({
 									</button>
 								</div>
 							</div>
-							{info?.galleries.map((item, index) => (
+							{info?.galleries?.map((item, index) => (
 								<div
 									className="card-item"
 									key={index}
