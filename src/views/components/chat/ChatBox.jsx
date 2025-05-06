@@ -1148,7 +1148,10 @@ const ChatBox = ({
 															padding: '6px 8px',
 														}}
 													>
-														<div className="icon">
+														<div
+															className="icon"
+															style={{ cursor: 'pointer' }}
+														>
 															<PlusSvg width={24} height={24} />
 														</div>
 													</div>
