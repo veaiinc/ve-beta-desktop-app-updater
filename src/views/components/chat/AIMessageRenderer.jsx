@@ -50,26 +50,29 @@ const AIMessageRenderer = ({
 		}
 	}, [globalChatMessages]);
 
-	const handleTabClick = (tab) => {
-		if (info?.activeTab === tab) return;
+	const handleTabClick = useCallback(
+		(tab) => {
+			if (info?.activeTab === tab) return;
 
-		setInfo((prev) => ({
-			...prev,
-			activeTab: tab,
-		}));
+			setInfo((prev) => ({
+				...prev,
+				activeTab: tab,
+			}));
 
-		if (chatContentElement && userMessageElement) {
-			const chatTop = chatContentElement?.getBoundingClientRect()?.top;
-			const containerTop = userMessageElement?.getBoundingClientRect()?.top;
+			if (chatContentElement && userMessageElement) {
+				const chatTop = chatContentElement?.getBoundingClientRect()?.top;
+				const containerTop = userMessageElement?.getBoundingClientRect()?.top;
 
-			const scrollOffset = containerTop - chatTop;
+				const scrollOffset = containerTop - chatTop;
 
-			chatContentElement?.scrollBy({
-				top: scrollOffset,
-				behavior: 'smooth',
-			});
-		}
-	};
+				chatContentElement?.scrollBy({
+					top: scrollOffset,
+					behavior: 'smooth',
+				});
+			}
+		},
+		[chatContentElement, userMessageElement, info?.activeTab],
+	);
 
 	return (
 		<div className="ai-message-renderer">

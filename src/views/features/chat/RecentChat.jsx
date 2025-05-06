@@ -790,6 +790,7 @@ const RecentChat = ({
 																	] = el;
 																}
 															}}
+															key={index}
 														>
 															<UserMessageRenderer
 																messageData={chat}
