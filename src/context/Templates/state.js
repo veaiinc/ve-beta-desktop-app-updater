@@ -277,7 +277,7 @@ export const TemplatesState = (props) => {
 		}
 	};
 
-	const resetTemplateState = async () => {
+	const resetTemplateState = () => {
 		try {
 			dispatch({ type: Actions.RESET_STATE });
 		} catch (error) {
