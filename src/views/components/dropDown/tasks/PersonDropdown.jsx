@@ -2,6 +2,7 @@ import { memo, useContext, useEffect, useRef, useState } from 'react';
 import '../../../../assets/scss/tasks/personMultiSelect.scss';
 import InfiniteScroll from '../../globalComponents/InfiniteScroll';
 import Context from '../../../../context/context';
+import { ReactComponent as Tick } from '../../../../assets/svg/tasks/tick.svg';
 
 const PersonDropdown = memo(
 	({ selectedOptions = [], onOptionClick, title, value, open = false }) => {
@@ -138,6 +139,9 @@ const PersonDropdown = memo(
 													{option?.email}
 												</span>
 											)}
+										</div>
+										<div className="select-option-item-tick-wrapper">
+											{isSelected && <Tick />}
 										</div>
 									</div>
 								);
