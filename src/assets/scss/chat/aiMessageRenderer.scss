@@ -10,7 +10,6 @@
 		flex-direction: column;
 		gap: 2px;
 		border-bottom: 1px solid var(--stroke);
-		padding-bottom: 8px;
 		position: sticky;
 		top: -2px;
 		// transition: all 0.3s ease;
@@ -42,6 +41,7 @@
 			gap: 12px;
 			width: 100%;
 			overflow-x: auto;
+			padding-bottom: 8px;
 		}
 
 		.tab-btn {
@@ -59,6 +59,20 @@
 			align-items: center;
 			gap: 8px;
 			flex-shrink: 0;
+			z-index: 1;
+
+			&::after {
+				content: '';
+				position: absolute;
+				bottom: -8px;
+				width: 100%;
+				left: 0;
+				height: 2px;
+				background-color: var(--primary-font, #f2f2f3);
+				border-radius: 2px;
+				z-index: 2;
+				display: none;
+			}
 
 			.loader-wrapper {
 				display: flex;
@@ -86,16 +100,8 @@
 
 			&.active {
 				color: var(--primary-font, #f2f2f3);
-
 				&::after {
-					content: '';
-					position: absolute;
-					bottom: -9px;
-					width: 100%;
-					left: 0;
-					height: 2px;
-					background-color: var(--primary-font, #f2f2f3);
-					border-radius: 2px;
+					display: block;
 				}
 			}
 

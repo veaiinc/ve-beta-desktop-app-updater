@@ -625,23 +625,23 @@ const RecentChat = ({
 		setInfo((prev) => ({ ...prev, showViewDocument: value }));
 	}, []);
 
-	const handleNewChatClick = useCallback(() => {
-		const pathname = location?.pathname?.split('/')?.[1];
-		const sessionId = ObjectID()?.toString();
+	// const handleNewChatClick = useCallback(() => {
+	// 	const pathname = location?.pathname?.split('/')?.[1];
+	// 	const sessionId = ObjectID()?.toString();
 
-		if (pathname === 'chat') {
-			navigate(`/chat/${sessionId}`);
-		} else if (pathname === 'c') {
-			navigate(`/c/${sessionId}`);
-		} else if (
-			pathname === 'calendar' ||
-			pathname === 'contacts' ||
-			pathname === 'tasks' ||
-			pathname === 'contact'
-		) {
-			onNewChatBtnClick?.();
-		}
-	}, [location?.pathname]);
+	// 	if (pathname === 'chat') {
+	// 		navigate(`/chat/${sessionId}`);
+	// 	} else if (pathname === 'c') {
+	// 		navigate(`/c/${sessionId}`);
+	// 	} else if (
+	// 		pathname === 'calendar' ||
+	// 		pathname === 'contacts' ||
+	// 		pathname === 'tasks' ||
+	// 		pathname === 'contact'
+	// 	) {
+	// 		onNewChatBtnClick?.();
+	// 	}
+	// }, [location?.pathname]);
 
 	const handleNavigateBack = useCallback(() => {
 		const pathname = location?.pathname?.split('/')?.[1];
@@ -672,13 +672,13 @@ const RecentChat = ({
 									{currentChatData?.title || 'New Chat'}
 								</div>
 							</div>
-							<div className="right-container">
+							{/* <div className="right-container">
 								<Tooltip title="New Chat" placement="bottom">
 									<button className="new-chat-btn" onClick={handleNewChatClick}>
 										<PlusCircleSvg />
 									</button>
 								</Tooltip>
-							</div>
+							</div> */}
 						</div>
 					)}
 
