@@ -17,6 +17,23 @@
 		grid-template-columns: minmax(200px, 0.3fr) minmax(500px, 1fr) minmax(200px, 0.3fr);
 		width: 100%;
 		height: 100%;
+		position: relative;
+
+		.elastic-search-main-container {
+			display: flex;
+			flex-direction: column;
+			grid-column: span 3;
+			.search-heading {
+				display: flex;
+				height: 27px;
+				align-items: center;
+				flex-shrink: 0;
+				align-self: stretch;
+				margin: 20px 0px 0px 33px;
+				font-size: 20px;
+			}
+		}
+
 		.card-sub-container-center {
 			display: flex;
 			gap: 18px;

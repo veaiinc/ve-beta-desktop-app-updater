@@ -624,25 +624,25 @@ const Files = () => {
 
 	return (
 		<div className="files-container">
-			{info?.showElasticSearchResults ? (
-				<>
-					<h1 className="search-heading">All Files</h1>
-					<ElasticSearchResults />
-				</>
-			) : (
-				<>
-					<div className="storage-main-container">
-						<div className="storage-header-container">
-							<span className="beta-text">
-								{/* <div className="beta-text-bold">Search | Create | Share</div>
+			<div className="storage-main-container">
+				<div className="storage-header-container">
+					<span className="beta-text">
+						{/* <div className="beta-text-bold">Search | Create | Share</div>
 						<div className="beta-text">File Flow Inspired by Your Mind</div> */}
-							</span>
-							<div className="storage-header-items">
-								<QuickActions suggestedOptions={suggestedOptions} />
+					</span>
+					<div className="storage-header-items">
+						<QuickActions suggestedOptions={suggestedOptions} />
+					</div>
+				</div>
+				<div className="card-container-wrapper">
+					<div className="card-sub-container">
+						{info?.showElasticSearchResults ? (
+							<div className="elastic-search-main-container">
+								<h1 className="search-heading">All Files</h1>
+								<ElasticSearchResults />
 							</div>
-						</div>
-						<div className="card-container-wrapper">
-							<div className="card-sub-container">
+						) : (
+							<>
 								<div className="card-sub-container-left">
 									<div className="left-sidebar-header"></div>
 								</div>
@@ -699,43 +699,43 @@ const Files = () => {
 										))}
 									</div>
 								</div>
+							</>
+						)}
+
+						<div className="search-input-container" ref={elasticSearchInputRef}>
+							<div className="search-input">
+								<input type="text" placeholder="Search" onChange={handleSearch} />
+								<div className="spinner-wrapper">
+									{info?.isLoading ? (
+										<Spinner width={'16px'} height={'16px'} />
+									) : (
+										<SearchSvg />
+									)}
+								</div>
 							</div>
 						</div>
 					</div>
-
-					<CreateGallery
-						open={info?.createNewGalleryModal}
-						closeModal={handleCloseModal}
-						message={message}
-						isLightGallery={info?.selectedView === 'Lite Gallery'}
-					/>
-					<ProposalsPopup
-						open={info?.openProposalPopup}
-						closeModal={() =>
-							setInfo((prev) => ({
-								...prev,
-								openProposalPopup: false,
-								commonState:
-									info?.selectedView === 'Forms' ? 'form-submission' : 'All',
-							}))
-						}
-						clientDetails={formsTemplatesList}
-						commonState={info?.selectedView === 'Forms' ? 'form-submission' : 'All'}
-					/>
-				</>
-			)}
-			<div className="search-input-container" ref={elasticSearchInputRef}>
-				<div className="search-input">
-					<input type="text" placeholder="Search" onChange={handleSearch} />
-					<div className="spinner-wrapper">
-						{info?.isLoading ? (
-							<Spinner width={'16px'} height={'16px'} />
-						) : (
-							<SearchSvg />
-						)}
-					</div>
 				</div>
 			</div>
+
+			<CreateGallery
+				open={info?.createNewGalleryModal}
+				closeModal={handleCloseModal}
+				message={message}
+				isLightGallery={info?.selectedView === 'Lite Gallery'}
+			/>
+			<ProposalsPopup
+				open={info?.openProposalPopup}
+				closeModal={() =>
+					setInfo((prev) => ({
+						...prev,
+						openProposalPopup: false,
+						commonState: info?.selectedView === 'Forms' ? 'form-submission' : 'All',
+					}))
+				}
+				clientDetails={formsTemplatesList}
+				commonState={info?.selectedView === 'Forms' ? 'form-submission' : 'All'}
+			/>
 		</div>
 	);
 };
