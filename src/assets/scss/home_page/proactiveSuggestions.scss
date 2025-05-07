@@ -707,6 +707,8 @@
 	max-width: 739px;
 	width: 100%;
 	margin: 0 auto;
+	min-height: 37px;
+	overflow-x: auto;
 	.selected-filter-item {
 		display: flex;
 		padding: 6px 10px;
