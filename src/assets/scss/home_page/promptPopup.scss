@@ -1,16 +1,18 @@
 .promptPopupContainer {
 	display: flex;
-	width: 600px;
-	padding: 36px;
+	width: 550px;
+	padding: 24px;
 	flex-direction: column;
 	align-items: flex-start;
 	gap: 24px;
-	border-radius: 32px;
-	background: var(--popup);
+	border-radius: 24px;
+	background: var(--card, #18191b);
+	box-shadow: 0px 4px 30px 0px rgba(0, 0, 0, 0.04);
+
 	.promptPopupContainerHeader {
 		display: flex;
+		align-items: center;
 		justify-content: space-between;
-		align-items: flex-start;
 		align-self: stretch;
 		.promptPopupContainerHeaderLeft {
 			display: flex;
@@ -20,7 +22,7 @@
 			.promptPopupContainerHeaderLeftTitle {
 				color: var(--primary-font, #f2f2f3);
 				font-family: var(--primary-font-family, 'Inter');
-				font-size: 20px;
+				font-size: 16px;
 				font-style: normal;
 				font-weight: 500;
 				line-height: normal;
@@ -38,7 +40,32 @@
 		}
 
 		.promptPopupContainerHeaderRight {
-			cursor: pointer;
+			display: flex;
+			gap: 6px;
+
+			button {
+				display: flex;
+				width: 40px;
+				height: 40px;
+				padding: 6px 10px;
+				justify-content: center;
+				align-items: center;
+				gap: 6px;
+				border-radius: 8px;
+				outline: none;
+				border: none;
+				background-color: transparent;
+				cursor: pointer;
+				transition: background-color 0.3s ease;
+
+				&.active {
+					background-color: var(--chat-button, #2e2f33);
+				}
+
+				&:hover {
+					background-color: var(--chat-button, #2e2f33);
+				}
+			}
 		}
 	}
 	.promptPopupContainerEditableFields {
@@ -57,11 +84,42 @@
 		align-items: flex-end;
 		gap: 12px;
 		align-self: stretch;
+
+		.feedbackInputContainer {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 12px;
+			align-self: stretch;
+
+			h4 {
+				color: var(--primary-font, #f2f2f3);
+				font-family: Inter;
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+
+			.feedbackInput {
+				display: flex;
+				height: 150px;
+				padding: 14px;
+
+				align-items: flex-start;
+				gap: 8px;
+				align-self: stretch;
+				border-radius: 10px;
+				border: 1px solid var(--stroke, #2c2d2e);
+				background: var(--popup, #202123);
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
+				resize: none;
+			}
+		}
+
 		.promptPopupContainerBodyText {
 			align-self: stretch;
-			border-radius: 12px;
-			border: 1px solid var(--stroke);
-			background: var(--card);
 			padding: 18px;
 			color: var(--primary-font, #f2f2f3);
 			font-family: var(--primary-font-family);
@@ -69,6 +127,9 @@
 			font-style: normal;
 			font-weight: 500;
 			line-height: 24px;
+			border-radius: 10px;
+			border: 1px solid var(--stroke, #2c2d2e);
+			background: var(--popup, #202123);
 			.promptPopupContainerBodyTextTooltip {
 				display: inline-flex;
 				flex-direction: row;
@@ -117,6 +178,39 @@
 				font-style: normal;
 				font-weight: 500;
 				line-height: 22px;
+			}
+		}
+	}
+	.feedbacks-container {
+		display: flex;
+		align-items: flex-start;
+		align-content: flex-start;
+		gap: 8px;
+		align-self: stretch;
+		flex-wrap: wrap;
+		.feedback-label {
+			display: flex;
+			padding: 6px 12px;
+			justify-content: center;
+			align-items: center;
+			gap: 6px;
+			border-radius: 20px;
+			border: 1px solid var(--stroke, #2c2d2e);
+			background: var(--card-over-card, #202123);
+			cursor: pointer;
+			font-size: 14px;
+			font-weight: 500;
+
+			&.selected-feedback {
+				border-radius: 20px;
+				border: 1px solid var(--primary-button, #cfff48);
+				box-shadow: 0px 4px 30px 0px rgba(0, 0, 0, 0.04);
+				color: var(--primary-button, #cfff48);
+				transition: all 0.3s ease;
+			}
+
+			&:hover {
+				background: var(--card-over-card-hover, #2e2f32);
 			}
 		}
 	}
@@ -206,23 +300,73 @@
 			}
 		}
 	}
-	.promptPopupContainerRunButton {
+	.promptPopupFooter {
 		display: flex;
-		padding: 16px 24px;
-		justify-content: center;
-		align-items: center;
+		justify-content: space-between;
 		width: 100%;
-		gap: 16px;
-		flex: 1 0 0;
-		border-radius: 50px;
-		background: var(--primary-button);
-		border: none;
-		cursor: pointer;
-		color: var(--primary-button-font);
-		font-family: var(--primary-font-family);
-		font-size: 14px;
-		font-style: normal;
-		font-weight: 500;
-		line-height: normal;
+
+		.leftPart {
+			span {
+				color: var(--primary-button, #cfff48);
+				font-size: 14px;
+				font-weight: 500;
+				display: flex;
+				padding: 6px 12px;
+				justify-content: center;
+				align-items: center;
+				gap: 10px;
+				border-radius: 32px;
+				border: 1px solid var(--primary-button, #cfff48);
+			}
+		}
+
+		.rightPart {
+			display: flex;
+			gap: 6px;
+			button {
+				display: flex;
+				padding: 6px 18px;
+				justify-content: center;
+				align-items: center;
+				gap: 6px;
+				align-self: stretch;
+				outline: none;
+				border: none;
+				color: var(--primary-font);
+				font-size: 14px;
+				cursor: pointer;
+				border-radius: 100px;
+			}
+
+			.runPrompt {
+				background: var(--chat-button, #2e2f33);
+				text-wrap: nowrap;
+				svg {
+					width: 16px;
+					height: 16px;
+					aspect-ratio: 1/1;
+				}
+
+				& {
+					&:hover {
+						opacity: 0.7;
+						transition: opacity 0.3s ease;
+					}
+				}
+			}
+
+			.cancel {
+				border: 1px solid var(--stroke, #2c2d2e);
+
+				background: transparent;
+
+				& {
+					&:hover {
+						background: var(--card-hover);
+						transition: background 0.3s ease;
+					}
+				}
+			}
+		}
 	}
 }

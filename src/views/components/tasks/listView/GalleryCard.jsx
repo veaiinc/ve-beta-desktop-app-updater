@@ -10,7 +10,7 @@ const GalleryCard = ({ task, responseMetadata, handleUpdate }) => {
 
 	const renderComponent = (key, value) => {
 		if (key === 'createdWithAi') {
-			const Component = rowTypes['createdWithAi'];
+			const Component = rowTypes?.['createdWithAi'];
 			return <Component />;
 		}
 		const { type, name, Icon, props } = responseMetadata?.[key] || {};

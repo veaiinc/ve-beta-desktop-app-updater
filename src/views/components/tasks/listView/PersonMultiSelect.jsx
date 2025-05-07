@@ -1,8 +1,6 @@
-import React, { memo, useState, useEffect, useContext, useRef } from 'react';
+import { memo, useState, useEffect } from 'react';
 import '../../../../assets/scss/tasks/personMultiSelect.scss';
 import { Tooltip } from 'antd';
-import Context from '../../../../context/context';
-import InfiniteScroll from '../../globalComponents/InfiniteScroll';
 import PersonDropdown from '../../dropDown/tasks/PersonDropdown';
 
 const PersonMultiSelect = ({

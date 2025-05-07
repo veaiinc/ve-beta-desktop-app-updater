@@ -1,4 +1,4 @@
-import React from 'react';
+import { memo } from 'react';
 import '../../../../assets/scss/tasks/status.scss';
 import { ReactComponent as Tick } from '../../../../assets/svg/tasks/tick.svg';
 
@@ -10,8 +10,6 @@ const StatusDropdown = ({
 	labelField = 'label',
 	valueField = 'value',
 }) => {
-	console.log(selected, options);
-
 	return (
 		<div className="status-dropdown-container" onClick={(e) => e?.stopPropagation()}>
 			{/* <div className="status-dropdown-header-wrapper">
@@ -94,4 +92,4 @@ const StatusDropdown = ({
 	);
 };
 
-export default StatusDropdown;
+export default memo(StatusDropdown);
