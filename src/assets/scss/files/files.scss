@@ -29,24 +29,25 @@
 
 			.search-input {
 				display: flex;
-				transform: rotate(-0.038deg);
-				padding: 8px 8px 8px 18px;
 				align-items: center;
 				gap: 12px;
 				justify-content: center;
+				position: relative;
 
 				input {
 					border-radius: 100px;
 					border: 1px solid var(--stroke, #333334);
-					background: var(--card-over-card, #202123);
+					background: var(--card, #18191b);
 					padding: 13px 20px;
 					color: var(--primary-font);
 					width: 200px;
 					transition: width 0.3s ease;
-					box-shadow: rgba(255, 255, 255, 0.16) 0px 3px 6px,
-						rgba(0, 0, 0, 0.23) 0px 3px 6px;
+					&:hover {
+						border-color: var(--stroke-hover);
+					}
 					&:focus {
 						width: 300px;
+						border-color: var(--stroke-hover);
 					}
 				}
 

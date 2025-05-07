@@ -38,7 +38,7 @@ const options = [
 		value: 'template',
 	},
 	{
-		label: 'Classic Gallery',
+		label: 'Gallery',
 		value: 'classicGallery',
 	},
 	{
@@ -230,7 +230,7 @@ const suggestedOptions = [
 	},
 	{
 		id: 8,
-		title: 'Classic Gallery',
+		title: 'Gallery',
 		value: 'galleries',
 		controlValue: 'classicGallery',
 		action: ({ setInfo }) => {
@@ -250,6 +250,10 @@ const suggestedOptions = [
 const Files = () => {
 	const [searchParams, setSearchParams] = useSearchParams();
 	const activeTab = searchParams.get('activeTab') || 'Notes';
+	const cardItems = useRef(null);
+	const elasticSearchInputRef = useRef(null);
+	const elasticSearchTimeoutRef = useRef(null);
+	const navigate = useNavigate();
 
 	const {
 		galleryInfo: { tenantGalleries },
@@ -282,11 +286,10 @@ const Files = () => {
 		showElasticSearchResults: false,
 	});
 
-	const cardItems = useRef(null);
-	const elasticSearchInputRef = useRef(null);
-	const elasticSearchTimeoutRef = useRef(null);
-
-	const navigate = useNavigate();
+	const isAdmin = tenantUserAccessControls?.role === 'admin';
+	const liteGalleryPaidPlan = currentPlan?.apps?.find(
+		(app) => (app.app = 'liteGallery'),
+	)?.isPaidPlan;
 
 	useEffect(() => {
 		if (activeTab) {
@@ -307,13 +310,8 @@ const Files = () => {
 		}
 	}, [info?.createNewGalleryModal]);
 
-	const liteGalleryPaidPlan = currentPlan?.apps?.find(
-		(app) => (app.app = 'liteGallery'),
-	)?.isPaidPlan;
-
 	useEffect(() => {
 		if (tenantUserAccessControls) {
-			const isAdmin = tenantUserAccessControls?.role === 'admin';
 			let filteredOptions = options;
 
 			if (isAdmin) {
@@ -596,7 +594,7 @@ const Files = () => {
 				handleTotalChange={(value) => handleTotalChange({ form: value })}
 			/>
 		),
-		'Classic Gallery': (
+		Gallery: (
 			<GalleryGrid
 				handleCreateNewGallery={handleCreateNewGallery}
 				handleNavigateGallery={handleNavigateGallery}

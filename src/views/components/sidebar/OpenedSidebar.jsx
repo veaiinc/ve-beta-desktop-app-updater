@@ -30,11 +30,11 @@ import ObjectID from 'bson-objectid';
 
 const workspaceStyles = {
 	position: 'absolute',
-	bottom: '40px',
+	bottom: '106px',
 	left: '0px',
 	width: '280px',
 	border: 'none',
-	zIndex: '100',
+	zIndex: '10000',
 	borderRadius: '16px',
 	transformOrigin: 'bottom',
 };
@@ -447,8 +447,7 @@ const OpenedSidebar = ({
 
 	const tenantModules =
 		tennantSettingsData?.businessType === 'photography' ||
-		tennantSettingsData?.businessType === 'photographer' ||
-		tennantSettingsData?.businessType === 'agency'
+		tennantSettingsData?.businessType === 'photographer'
 			? photographerModules
 			: veAiModulesItemsList;
 
@@ -586,9 +585,7 @@ const OpenedSidebar = ({
 												<div className="sideBarOptions">
 													<div
 														className="eachOption"
-														onClick={() =>
-															updateTheme(newThemeValue, routeType)
-														}
+														onClick={() => updateTheme(newThemeValue)}
 													>
 														{theme === 'dark' ? (
 															<SunIcon />
@@ -756,9 +753,6 @@ const OpenedSidebar = ({
 																	)}
 																</div>
 																<div className="settingsOptionsUserName">
-																	<span className="workspaceId">
-																		{tennantSettingsData?.businessName.toUpperCase()}
-																	</span>
 																	<span>
 																		{userDetailsData?.firstName}{' '}
 																		<span className="workspaceId">
@@ -771,6 +765,9 @@ const OpenedSidebar = ({
 																			)
 																		</span>
 																	</span>
+																	<span className="workspaceId">
+																		{tennantSettingsData?.businessName.toUpperCase()}
+																	</span>
 																</div>
 															</div>
 															<SingleRightArrowSvg fill="var(--primary-font)" />
@@ -780,7 +777,11 @@ const OpenedSidebar = ({
 											)}
 											{isThisEarlyAccessPage && (
 												<div
-													className="settingsOptionsContainer"
+													className={`settingsOptionsContainer ${
+														isThisEarlyAccessPage
+															? 'settingsOptionsContainerEarlyAccess'
+															: ''
+													}`}
 													style={{ borderTop: '1px solid var(--stroke)' }}
 												>
 													<div
@@ -958,7 +959,11 @@ const OpenedSidebar = ({
 						<div className="settings-options-container">
 							<div className="settings-options-title">Essentials</div>
 							{filterModules2?.map((singleItem, index) => (
-								<div key={index} style={{ width: '100%' }}>
+								<div
+									key={index}
+									style={{ width: '100%' }}
+									className="settings-option"
+								>
 									<OpenedSidebarModules
 										name={singleItem.name}
 										Icon={singleItem.icon}
@@ -1002,24 +1007,6 @@ const OpenedSidebar = ({
 									showSettingsSidebar ? 'settingsAnimationContainer' : ''
 								}`}
 							>
-								{sidebarStates?.workSpaceOpen && userWorkSpaceList?.length > 1 && (
-									<div
-										style={{
-											...workspaceStyles,
-											animation: `${
-												showSettingsSidebar ? 'slideUp' : 'slideDown'
-											} 0.3s ease-out`,
-										}}
-									>
-										<WorkspaceListComponent
-											setsidebarStates={setsidebarStates}
-											sidebarStates={sidebarStates}
-											info={info}
-											userWorkSpaceList={userWorkSpaceList}
-											sidebarSettings="close"
-										/>
-									</div>
-								)}
 								{!sidebarStates?.workSpaceOpen && (
 									<div
 										className="settings-footer"
@@ -1077,14 +1064,14 @@ const OpenedSidebar = ({
 											)}
 										</div>
 										<div className="settingsOptionsUserName">
-											<span className="workspaceId">
-												{tennantSettingsData?.businessName.toUpperCase()}
-											</span>
 											<span>
 												{userDetailsData?.firstName}{' '}
 												<span className="workspaceId">
 													({`${isAdmin ? 'Admin' : 'Member'}`})
 												</span>
+											</span>
+											<span className="workspaceId">
+												{tennantSettingsData?.businessName.toUpperCase()}
 											</span>
 										</div>
 									</div>
@@ -1098,6 +1085,26 @@ const OpenedSidebar = ({
 					</div>
 				)}
 			</div>
+			{sidebarStates?.workSpaceOpen && (
+				<div
+					style={{
+						...workspaceStyles,
+						animation: `${
+							sidebarStates?.workSpaceOpen ? 'slideUp' : 'slideDown'
+						} 0.3s ease-out`,
+						top: `${isThisEarlyAccessPage ? '40px' : ''}`,
+						transformOrigin: `${isThisEarlyAccessPage ? 'top' : 'bottom'}`,
+					}}
+				>
+					<WorkspaceListComponent
+						setsidebarStates={setsidebarStates}
+						sidebarStates={sidebarStates}
+						info={info}
+						userWorkSpaceList={userWorkSpaceList}
+						sidebarSettings="close"
+					/>
+				</div>
+			)}
 		</>
 	);
 };

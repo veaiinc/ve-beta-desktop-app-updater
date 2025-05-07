@@ -47,12 +47,12 @@ const selectedContactOptions = [
 		value: 'files',
 		icon: <FilesSvg fill="var(--primary-font)" />,
 	},
-	{
-		id: 4,
-		label: 'About',
-		value: 'about',
-		icon: <ProfileIcon fill="var(--primary-font)" />,
-	},
+	// {
+	// 	id: 4,
+	// 	label: 'About',
+	// 	value: 'about',
+	// 	icon: <ProfileIcon fill="var(--primary-font)" />,
+	// },
 ];
 
 const suggestedPrompts = [
@@ -310,7 +310,9 @@ const ExpandedClientView = () => {
 			<ChatLeftBarComponent>
 				<div className="left-section">
 					<div className="contacts-header">
-						<h2>Contacts</h2>
+						<h2>
+							Grace Taylors’s <span>suggestions</span>
+						</h2>
 					</div>
 					<div className="contacts-stats-container">
 						<div className="contacts-stats">

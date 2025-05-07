@@ -277,7 +277,7 @@ export const TemplatesState = (props) => {
 		}
 	};
 
-	const resetTemplateState = async () => {
+	const resetTemplateState = () => {
 		try {
 			dispatch({ type: Actions.RESET_STATE });
 		} catch (error) {
@@ -2021,7 +2021,7 @@ export const TemplatesState = (props) => {
 				isPublicChat,
 			);
 			if (response?.[0]) {
-				return [true];
+				return [true, response?.[1]];
 			}
 		} catch (error) {
 			console.log('error==>updatedAiChatMessageRating', error);

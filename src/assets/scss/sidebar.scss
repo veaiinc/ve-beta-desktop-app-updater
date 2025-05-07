@@ -81,7 +81,7 @@
 			overflow-x: hidden !important;
 			// border-right: 1px solid var(--stroke);
 			user-select: none;
-			z-index: 999;
+			z-index: 9;
 			margin-top: 1px;
 			.allmodulesList,
 			.bottomOptionsList {
@@ -506,7 +506,7 @@
 			position: relative;
 			z-index: 999;
 			border-top: 1px solid var(--stroke);
-
+			height: 83dvh;
 			-ms-overflow-style: none; // Hide scrollbar IE
 			scrollbar-width: none; // Hide scrollbar Firefox
 			&::-webkit-scrollbar {
@@ -527,6 +527,7 @@
 					border-radius: 12px;
 					background: var(--card-over-card-hover);
 					border: none;
+					height: 40px;
 				}
 			}
 			.backContinaer {
@@ -545,6 +546,7 @@
 					font-style: normal;
 					font-weight: 500;
 					line-height: normal;
+					align-self: stretch;
 				}
 			}
 			.searchWorkspace {
@@ -945,13 +947,13 @@
 		flex-direction: column;
 		gap: 4px;
 		margin-top: 0;
-		padding: 0px 20px;
+		padding: 0px 10px;
 		.settings-options-title {
-			color: var(--primary-font, #f2f2f3);
+			color: var(--secondary-font, #7a7e85);
 			font-family: Inter;
 			font-size: 12px;
 			font-style: normal;
-			font-weight: 600;
+			font-weight: 500;
 			line-height: normal;
 			padding-bottom: 10px;
 		}
@@ -988,17 +990,20 @@
 		align-content: center;
 		justify-content: flex-start;
 		align-items: flex-start;
-		padding: 0px 20px;
+		padding: 0px 10px;
 		gap: 10px;
 		margin-bottom: 5rem;
 		flex-grow: 1;
 		.settings-options-title {
-			color: var(--primary-font, #f2f2f3);
+			color: var(--secondary-font, #7a7e85);
 			font-family: Inter;
 			font-size: 12px;
 			font-style: normal;
-			font-weight: 600;
+			font-weight: 500;
 			line-height: normal;
+		}
+		.settings-option {
+			width: 100%;
 		}
 		.singleModuleItem {
 			width: 100%;
@@ -1140,6 +1145,10 @@
 	cursor: pointer;
 	transition: background 0.2s ease;
 	border-top: 1px solid var(--stroke);
+	&.settingsOptionsContainerEarlyAccess {
+		flex-direction: row;
+		padding-top: 15px;
+	}
 	.settingsHoverState {
 		display: flex;
 		justify-content: space-between;

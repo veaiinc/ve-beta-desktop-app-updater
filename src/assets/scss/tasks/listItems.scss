@@ -143,7 +143,7 @@
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	gap: 3px;
+	gap: 8px;
 	color: var(--primary-font);
 	width: fit-content;
 	height: fit-content;
@@ -346,4 +346,20 @@
 		font-weight: 500;
 		line-height: normal;
 	}
+}
+
+.created-with-ai {
+	display: flex;
+	height: 23px;
+	padding: 4px 6px;
+	align-items: center;
+	gap: 6px;
+	border-radius: 6px;
+	border: 1px solid var(--primary-button);
+	color: var(--primary-button);
+	font-family: var(--primary-font-family);
+	font-size: 12px;
+	font-style: normal;
+	font-weight: 500;
+	line-height: normal;
 }

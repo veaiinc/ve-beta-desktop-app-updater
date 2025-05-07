@@ -1,21 +1,37 @@
 import React, { memo, useCallback, useContext, useState, useEffect } from 'react';
 import { ReactComponent as ArrowLeftSvg } from '../../../assets/svg/sidebar/singleRightArrow.svg';
 import SearchSvg from '../../../assets/svg/sidebar/SearchSvg';
-import { ReactComponent as LogoutRedSvg } from '../../../assets/svg/sidebar/logout_red.svg';
-import PlusSvg from '../../../assets/svg/sidebar/PlusSvg';
+// import { ReactComponent as LogoutRedSvg } from '../../../assets/svg/sidebar/logout_red.svg';
+// import PlusSvg from '../../../assets/svg/sidebar/PlusSvg';
 import Cookies from 'js-cookie';
 import { useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
-import useLogout from '../../hooks/useLogout';
+// import useLogout from '../../hooks/useLogout';
 import { fetchDomainName } from '../../../helpers';
 import { ReactComponent as TickSvg } from '../../../assets/svg/tick.svg';
+// import { ReactComponent as LogoutRedSvg } from '../../../assets/svg/sidebar/logout_red.svg';
+// import PlusSvg from '../../../assets/svg/sidebar/PlusSvg';
 
+const workspaceOpenStyle = {
+	position: 'fixed',
+	top: 0,
+	left: 0,
+	right: 0,
+	bottom: 0,
+	// background: 'var(--background-color)',
+	opacity: 0.5,
+	height: '100vh',
+	zIndex: 997,
+	cursor: 'pointer',
+};
+
+const workspaceStyle = { display: 'flex', gap: '4px', alignItems: 'center' };
 const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpaceList, info }) => {
 	const {
 		subscriptionInfo: { renewBanner },
 	} = useContext(Context);
-	const navigate = useNavigate();
-	const logoutFunc = useLogout();
+	// const navigate = useNavigate();
+	// const logoutFunc = useLogout();
 	const [searchWorkspace, setSearchWorkspace] = useState('');
 	const [focusedIndex, setFocusedIndex] = useState(0);
 
@@ -105,40 +121,25 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 		[userWorkSpaceList],
 	);
 
-	const handleCreateWorkspace = () => {
-		navigate(`/create-workspace`);
-	};
+	// const handleCreateWorkspace = () => {
+	// 	navigate(`/create-workspace`);
+	// };
 
-	const handleLogout = useCallback(() => {
-		logoutFunc();
-	}, [logoutFunc]);
+	// const handleLogout = useCallback(() => {
+	// 	logoutFunc();
+	// }, [logoutFunc]);
 
 	return (
 		<>
 			{sidebarStates?.workSpaceOpen && (
-				<div
-					style={{
-						position: 'fixed',
-						top: 0,
-						left: 0,
-						right: 0,
-						bottom: 0,
-						// background: 'var(--background-color)',
-						opacity: 0.5,
-						height: '100vh',
-						zIndex: 997,
-						cursor: 'pointer',
-					}}
-					onClick={closeWorkspaceList}
-				/>
+				<div style={workspaceOpenStyle} onClick={closeWorkspaceList} />
 			)}
 			<div
-				style={{ maxHeight: renewBanner ? '78dvh' : '81dvh' }}
+				style={{ maxHeight: renewBanner ? '80dvh' : '83dvh' }}
 				className="workspaceListComponent"
 			>
 				<div className="workspaceListHeader">
 					<div className="backContinaer" onClick={closeWorkspaceList}>
-						<ArrowLeftSvg fill="var(--primary-font)" className="backArrow" />
 						<h6>Switch Workspace</h6>
 					</div>
 					{userWorkSpaceList?.length > 10 && (
@@ -169,7 +170,7 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 									handleSwitchWorkSpaceLogic(singleWorkspace);
 								}}
 							>
-								<div style={{ display: 'flex', gap: '4px' }}>
+								<div style={workspaceStyle}>
 									<div className="workSpaceCircle">
 										{singleWorkspace?.logo_s3_500w_key ? (
 											<img

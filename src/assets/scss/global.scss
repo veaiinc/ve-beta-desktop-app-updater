@@ -136,6 +136,10 @@ html {
 // 	}
 // }
 
+#root {
+	overflow: hidden;
+}
+
 .pb-60 {
 	margin-bottom: 60px;
 	min-height: 250px;
@@ -3711,7 +3715,6 @@ input[type='number'] {
 			transform: rotate(360deg);
 		}
 	}
-	
 }
 
 .jodit-react-container {

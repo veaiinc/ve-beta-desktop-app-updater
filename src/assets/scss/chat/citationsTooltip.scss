@@ -62,56 +62,49 @@
 				gap: 12px;
 				align-self: stretch;
 
-				.image {
-					display: flex;
-					width: 24px;
-					height: 24px;
-					padding: 4px;
-					justify-content: center;
-					align-items: center;
-					color: var(--primary-font);
-					border-radius: 4px;
-					background: var(--stroke-hover);
+				.icon {
+					width: 16px;
+					height: 16px;
+					flex-shrink: 0;
+					aspect-ratio: 1/1;
+
+					.favicon-image {
+						width: 100%;
+						height: 100%;
+						object-fit: cover;
+						border-radius: 100px;
+					}
+
+					.company-icon {
+						width: 100%;
+						height: 100%;
+						display: flex;
+						align-items: center;
+						justify-content: center;
+						color: var(--primary-font);
+						font-weight: 500;
+						font-size: 14px;
+						border-radius: 100px;
+
+						svg {
+							width: 15px;
+							height: 15px;
+						}
+					}
 				}
 
-				.citation-link-favicon {
-					display: flex;
-					width: 24px;
-					height: 24px;
-					padding: 4px;
-					justify-content: center;
-					align-items: center;
-					border-radius: 4px;
-					background: var(--stroke-hover, #404548);
-				}
-				.citation-link-text {
-					color: var(--primary-font, #f2f2f3);
+				.citation-link {
+					color: var(--primary-font);
 					font-family: var(--primary-font-family);
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 500;
 					line-height: normal;
-					.citation-link {
-						color: var(--primary-font);
-						font-family: var(--primary-font-family);
-						font-size: 14px;
-						font-style: normal;
-						font-weight: 500;
-						line-height: normal;
-						text-overflow: ellipsis;
-						width: 200px;
-						text-overflow: ellipsis;
-						overflow: hidden;
-						white-space: nowrap;
-					}
-					span {
-						color: var(--secondary-font, #93989f);
-						font-family: var(--primary-font-family);
-						font-size: 12px;
-						font-style: normal;
-						font-weight: 500;
-						line-height: normal;
-					}
+					text-overflow: ellipsis;
+					width: 200px;
+					text-overflow: ellipsis;
+					overflow: hidden;
+					white-space: nowrap;
 				}
 			}
 		}
