@@ -224,15 +224,17 @@ const NotesGrid = ({ handleNewNotes, handleTotalChange }) => {
 									onClick={() => navigate(`/note/${note?._id}`)}
 								>
 									<div className="card-item-style content-wrapper note-card-content">
-										<div>
+										<div className="title-container">
 											<NotesIcon />
 											<span className="item-title">
 												{note?.title || 'Untitled Note'}
 											</span>
 										</div>
-										<span className="notes-sub-heading">
-											{moment.unix(note?.createdAt).fromNow()}
-										</span>
+										<div>
+											<span className="notes-sub-heading">
+												{moment.unix(note?.createdAt).fromNow()}
+											</span>
+										</div>
 									</div>
 								</div>
 							))}

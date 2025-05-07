@@ -1,19 +1,20 @@
+import { memo, useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/files/index.scss';
 import '../../../assets/scss/files/files.scss';
-import { ReactComponent as Plus } from '../../../assets/svg/files/Plus.svg';
 import moment from 'moment';
-import { memo, useContext, useEffect, useState } from 'react';
 import InfiniteScroll from '../globalComponents/InfiniteScroll';
 import Context from '../../../context/context';
 import gsap from 'gsap';
 import Spinner from '../loaders/Spinner';
 import FilterDropdown from '../dropDown/file/FilterDropdown';
 import EmptyState from './EmptyState';
+import { ReactComponent as Plus } from '../../../assets/svg/files/Plus.svg';
 import { ReactComponent as Link } from '../../../assets/svg/files/link.svg';
 import { ReactComponent as Copy } from '../../../assets/svg/files/copy.svg';
 import { ReactComponent as Share } from '../../../assets/svg/files/share.svg';
 import { ReactComponent as GreenDot } from '../../../assets/svg/files/green-dot.svg';
 import { ReactComponent as GreyDot } from '../../../assets/svg/files/grey-dot.svg';
+import { ReactComponent as TrendUp } from '../../../assets/svg/files/trend-up.svg';
 
 const sortOptions = [
 	{ label: 'Recently Added', value: 'createdAt', sortType: -1 },
@@ -229,6 +230,9 @@ const FormsGrid = ({
 										<div className="docs-title-wrapper docs-title-wrapper-form">
 											<div className="card-header">
 												<h1 className="form-title">{form?.title}</h1>
+												<p className="responses-count">
+													{form?.formResponsesCount} Responses <TrendUp />
+												</p>
 												<p className="createdAt">
 													{moment.unix(form?.createdAt).fromNow()}
 												</p>

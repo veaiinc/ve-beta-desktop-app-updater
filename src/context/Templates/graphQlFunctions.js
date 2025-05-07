@@ -269,6 +269,7 @@ export const getTemplatesListForCreateLeadQuery = gql`
 				status
 				slug
 				createdAt
+				formResponsesCount
 			}
 		}
 	}
