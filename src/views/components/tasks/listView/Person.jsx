@@ -2,6 +2,7 @@
 import React, { useCallback, memo, useState, useEffect } from 'react';
 import '../../../../assets/scss/tasks/person.scss';
 import { Select, Tooltip } from 'antd';
+import TeamMembersDropdown from '../../dropDown/tasks/TeamMembersDropdown';
 
 const Person = ({
 	value,
@@ -113,24 +114,6 @@ const Person = ({
 		[info?.value, multiSelect],
 	);
 
-	const handleSearchChange = (e) => {
-		e?.stopPropagation();
-		e?.preventDefault();
-		setInfo((prevInfo) => ({ ...prevInfo, search: e?.target?.value }));
-	};
-
-	// Handle keydown in search input to prevent backspace from removing tags
-	const handleSearchKeyDown = (e) => {
-		// If backspace is pressed in search input, don't let it bubble up to Select
-		if (e.key === 'Backspace') {
-			e.stopPropagation();
-		}
-	};
-
-	const filteredOptions = options?.filter((item) =>
-		item?.label?.toLowerCase()?.includes(info?.search?.toLowerCase() || ''),
-	);
-
 	return (
 		<Tooltip
 			title={
@@ -152,7 +135,7 @@ const Person = ({
 			overlayClassName="person-tooltip-wrapper"
 			color="transparent"
 		>
-			<Select
+			{/* <Select
 				placeholder={
 					!value || (Array.isArray(value) && value.length === 0)
 						? disabled
@@ -212,7 +195,25 @@ const Person = ({
 				virtual={false}
 				onChange={customOnOptionClick}
 				value={info?.value}
-			/>
+			/> */}
+
+			<Tooltip
+				title={<TeamMembersDropdown />}
+				placement="bottom"
+				trigger="click"
+				arrow={false}
+				color="transparent"
+				overlayStyle={{ minWidth: 'fit-content' }}
+				destroyTooltipOnHide
+			>
+				<div className="person-tag">
+					<div className="person-tag-avatar">
+						<div className="person-tag-avatar-icon">
+							{info?.value?.label?.[0]?.toUpperCase()}
+						</div>
+					</div>
+				</div>
+			</Tooltip>
 		</Tooltip>
 	);
 };

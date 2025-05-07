@@ -117,6 +117,7 @@ const Tasks = () => {
 		companyInfo: { getTeamMembers, tenantsUserList },
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState, renewBanner },
 		contacts: { getClientsForTask, clientListForTask },
+		templates: { updateStateValues: updateSidebarState },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -268,6 +269,12 @@ const Tasks = () => {
 		}),
 		[info?.tenantUsers, info?.taskMetadata],
 	);
+	useEffect(() => {
+		updateSidebarState({ leftSidebarState: 'close' });
+		return () => {
+			updateSidebarState({ leftSidebarState: null });
+		};
+	}, []);
 
 	useEffect(() => {
 		handleDebounceFetch();
