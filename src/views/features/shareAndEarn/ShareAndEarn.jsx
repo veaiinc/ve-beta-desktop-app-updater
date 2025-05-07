@@ -2,7 +2,6 @@ import React, { memo, useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/shareAndEarn/shareAndEarn.scss';
 import { ReactComponent as Copy } from '../../../assets/svg/shareAndEarn/copy.svg';
 import UpdatedPageLoader from '../../components/loaders/UpdatedPageLoader';
-import devices from '../../../assets/images/shareAndEarn/devices.png';
 import { message } from '../../components/globalComponents/CustomToast';
 import { useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
@@ -73,7 +72,10 @@ const ShareAndEarn = () => {
 					</div>
 					<div className="imageContainer">
 						<div className="image">
-							<img src={devices} alt="" />
+							<img
+								src={'https://ap.images.ve.ai/public/dashboard/devices.png'}
+								alt="share and earn"
+							/>
 						</div>
 						<h2 className="imageTitle">Your Success Blueprint</h2>
 						<h3 className="imageSubText">
