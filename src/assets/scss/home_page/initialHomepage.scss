@@ -144,7 +144,8 @@
 	.home-page-container-content {
 		width: 100%;
 		padding-top: 30px;
-		overflow: hidden;
+		overflow-y: auto;
+		overflow-x: hidden;
 	}
 }
 
