@@ -18,7 +18,7 @@ const PersonMultiSelect = ({
 
 	useEffect(() => {
 		setInfo((prev) => ({ ...prev, selected: value }));
-	}, []);
+	}, [JSON.stringify(value)]);
 
 	const handleOptionClick = (option) => {
 		const isSelected = info?.selected?.some((item) => item._id === option._id);
