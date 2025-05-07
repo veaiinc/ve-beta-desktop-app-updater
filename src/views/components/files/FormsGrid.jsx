@@ -210,7 +210,7 @@ const FormsGrid = ({
 						hasMore={info?.hasNextPage}
 						height={'100%'}
 					>
-						<div className={`card-container`}>
+						<div className="card-container">
 							<div className="card-item" onClick={handleCreateForm}>
 								<div className="card-item-style card-item-style-btn">
 									<button className="card-btn">

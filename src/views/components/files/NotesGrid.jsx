@@ -1,6 +1,7 @@
 import '../../../assets/scss/files/index.scss';
 import '../../../assets/scss/files/files.scss';
 import { ReactComponent as Plus } from '../../../assets/svg/files/Plus.svg';
+import { ReactComponent as NotesIcon } from '../../../assets/svg/files/notes-icon.svg';
 import { useNavigate } from 'react-router-dom';
 import { memo, useContext, useEffect, useState } from 'react';
 import Context from '../../../context/context';
@@ -10,7 +11,6 @@ import FilterDropdown from '../dropDown/file/FilterDropdown';
 import Spinner from '../loaders/Spinner';
 import moment from 'moment';
 import EmptyState from './EmptyState';
-import { Tooltip } from 'antd';
 
 const filterOptions = [
 	{ label: 'All', value: 'all' },
@@ -224,11 +224,12 @@ const NotesGrid = ({ handleNewNotes, handleTotalChange }) => {
 									onClick={() => navigate(`/note/${note?._id}`)}
 								>
 									<div className="card-item-style content-wrapper note-card-content">
-										<Tooltip title={note?.title || ''} placement="bottom">
+										<div>
+											<NotesIcon />
 											<span className="item-title">
 												{note?.title || 'Untitled Note'}
 											</span>
-										</Tooltip>
+										</div>
 										<span className="notes-sub-heading">
 											{moment.unix(note?.createdAt).fromNow()}
 										</span>

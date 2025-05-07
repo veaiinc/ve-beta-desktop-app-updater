@@ -701,6 +701,7 @@ const Files = () => {
 								</div>
 							</div>
 						</div>
+						<div className="black-gradient-btm"></div>
 					</div>
 
 					<CreateGallery

@@ -42,9 +42,10 @@
 	}
 }
 .card-container {
+	width: 100%;
 	display: flex;
 	flex-wrap: wrap;
-	gap: 26px;
+	gap: 16px;
 	width: 100%;
 	justify-items: center;
 	position: relative;
