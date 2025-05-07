@@ -6,43 +6,151 @@
 	align-self: stretch;
 	width: 100%;
 	height: auto;
-}
-.taskWidgetHeader {
-	display: flex;
-	flex-direction: column;
-	gap: 2px;
-	color: var(--primary-font);
-	font-family: var(--primary-font-family);
-	font-size: 20px;
-	font-style: normal;
-	font-weight: 500;
-	line-height: normal;
-	width: 100%;
-}
 
-.taskWidgetHeaderContainer {
-	display: flex;
-	width: 100%;
-	padding: 14px 16px;
-	justify-content: space-between;
-	align-items: center;
-	border-radius: 10px;
-	border: 1px solid var(--stroke);
-}
+	.taskWidgetHeader {
+		display: flex;
+		flex-direction: column;
+		gap: 2px;
+		color: var(--primary-font);
+		font-family: var(--primary-font-family);
+		font-size: 20px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
+		width: 100%;
 
-.taskHeader {
-	display: flex;
-	flex-direction: column;
-	align-items: flex-start;
-	gap: 2px;
-}
+		&.taskWidgetHeaderTitle {
+			color: var(--primary-font, #f2f2f3);
+			font-family: var(--primary-font-family);
+			font-size: 18px;
+			font-style: normal;
+			font-weight: 600;
+			line-height: normal;
+			padding: 0;
+			padding-left: 40px;
+			margin-bottom: 16px;
+			border: none;
+			border-radius: 0;
+		}
 
-.widgets {
-	display: flex;
-	flex-wrap: wrap;
-	align-items: flex-start;
-	gap: 8px;
-	align-self: stretch;
+		&.filter-container {
+			margin-bottom: 16px;
+			border: none;
+			padding: 0;
+			border-radius: 0;
+			display: flex;
+			height: 40px;
+			align-items: center;
+			gap: 6px;
+			display: flex;
+			align-self: stretch;
+			justify-content: space-between;
+			flex-direction: row;
+			background-color: transparent;
+
+			.task-widget-search-container {
+				display: flex;
+				height: 40px;
+				padding: 12px 10px;
+				align-items: center;
+				gap: 10px;
+				flex: 1 0 0;
+				border-radius: 8px;
+				border: 1px solid var(--stroke);
+
+				.task-widget-search-input {
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+					border: none;
+					outline: none;
+					background-color: transparent;
+					flex-grow: 1;
+
+					&::placeholder {
+						color: var(--secondary-font, #7a7e85);
+					}
+				}
+			}
+
+			.filter-icon-btn {
+				display: flex;
+				width: 40px;
+				height: 40px;
+				padding: 12px 10px;
+				justify-content: space-between;
+				align-items: center;
+				border-radius: 8px;
+				border: 1px solid var(--stroke, #2c2d2e);
+				cursor: pointer;
+			}
+		}
+	}
+
+	.taskWidgetHeaderContainer {
+		display: flex;
+		width: 100%;
+		padding: 14px 16px;
+		justify-content: space-between;
+		align-items: center;
+		border-radius: 10px;
+		border: 1px solid var(--stroke);
+
+		.taskHeader {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 2px;
+		}
+	}
+
+	.widgets {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: flex-start;
+		gap: 8px;
+		align-self: stretch;
+
+		.taskWidgetcontent {
+			display: flex;
+			width: calc(50% - 4px);
+			padding: 14px 16px;
+			justify-content: space-between;
+			align-items: center;
+			border-radius: 10px;
+			border: 1px solid var(--stroke);
+			cursor: pointer;
+			&:hover {
+				background: var(--popup);
+			}
+
+			&.active {
+				background: var(--popup);
+			}
+
+			.taskWidgetoption {
+				display: flex;
+				flex-direction: column;
+				align-items: flex-start;
+				gap: 2px;
+			}
+
+			.taskWidgeticon {
+				width: 20px;
+				height: 20px;
+				flex-shrink: 0;
+				aspect-ratio: 1/1;
+
+				svg {
+					width: 100%;
+					height: 100%;
+				}
+			}
+		}
+	}
 }
 
 .taskWidgetHeaderNumber {
@@ -63,24 +171,6 @@
 	line-height: normal;
 }
 
-.taskWidgetcontent {
-	display: flex;
-	width: calc(50% - 4px);
-	padding: 14px 16px;
-	justify-content: space-between;
-	align-items: center;
-	border-radius: 10px;
-	border: 1px solid var(--stroke);
-	background: var(--popup);
-}
-
-.taskWidgetoption {
-	display: flex;
-	flex-direction: column;
-	align-items: flex-start;
-	gap: 2px;
-}
-
 .taskWidgetnumber {
 	color: var(--primary-font);
 	font-family: var(--primary-font-family);
@@ -97,15 +187,4 @@
 	font-style: normal;
 	font-weight: 500;
 	line-height: normal;
-}
-
-.taskWidgeticon {
-	width: 20px;
-	height: 20px;
-	flex-shrink: 0;
-	aspect-ratio: 1/1;
-}
-.taskWidgeticon svg {
-	width: 100%;
-	height: 100%;
 }

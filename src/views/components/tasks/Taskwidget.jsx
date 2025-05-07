@@ -5,9 +5,16 @@ import { ReactComponent as Check } from '../../../assets/svg/tasks/check.svg';
 import { ReactComponent as Pending } from '../../../assets/svg/tasks/time.svg';
 import { ReactComponent as Calendar } from '../../../assets/svg/tasks/calender.svg';
 import { ReactComponent as Calendar1 } from '../../../assets/svg/tasks/Calender1.svg';
-import Context from '../../../context/context';
+import { ReactComponent as SearchSvg } from '../../../assets/svg/workflow/search.svg';
+import { ReactComponent as FilterIcon } from '../../../assets/svg/tasks/newFilter.svg';
+import { ReactComponent as SortIcon } from '../../../assets/svg/tasks/newSort.svg';
 
-const Taskwidget = () => {
+import Context from '../../../context/context';
+import { Tooltip } from 'antd';
+import FilterDropdown from '../dropDown/tasks/FilterDropdown';
+import CurrentViewOptions from '../dropDown/tasks/CurrentViewOptions';
+
+const Taskwidget = ({ properties, responseMetadata, colors }) => {
 	const {
 		tasks: { listTasks },
 	} = useContext(Context);
@@ -16,7 +23,19 @@ const Taskwidget = () => {
 
 	return (
 		<div className="taskWidgetContainer">
-			<div className="taskWidgetHeader">Tasks</div>
+			<div className="taskWidgetHeader taskWidgetHeaderTitle">Tasks</div>
+			<div className="taskWidgetHeader filter-container">
+				<div className="task-widget-search-container">
+					<SearchSvg />
+					<input type="text" placeholder="Search" className="task-widget-search-input" />
+				</div>
+				<FilterDropdown
+					properties={properties}
+					colors={colors}
+					responseMetadata={responseMetadata}
+				/>
+				<CurrentViewOptions />
+			</div>
 			<div className="taskWidgetHeaderContainer">
 				<div className="taskHeader">
 					<div className="taskWidgetHeaderNumber">{allTasks || 0}</div>

@@ -9,7 +9,23 @@ import Context from '../../../context/context';
 // import useLogout from '../../hooks/useLogout';
 import { fetchDomainName } from '../../../helpers';
 import { ReactComponent as TickSvg } from '../../../assets/svg/tick.svg';
+// import { ReactComponent as LogoutRedSvg } from '../../../assets/svg/sidebar/logout_red.svg';
+// import PlusSvg from '../../../assets/svg/sidebar/PlusSvg';
 
+const workspaceOpenStyle = {
+	position: 'fixed',
+	top: 0,
+	left: 0,
+	right: 0,
+	bottom: 0,
+	// background: 'var(--background-color)',
+	opacity: 0.5,
+	height: '100vh',
+	zIndex: 997,
+	cursor: 'pointer',
+};
+
+const workspaceStyle = { display: 'flex', gap: '4px', alignItems: 'center' };
 const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpaceList, info }) => {
 	const {
 		subscriptionInfo: { renewBanner },
@@ -116,21 +132,7 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 	return (
 		<>
 			{sidebarStates?.workSpaceOpen && (
-				<div
-					style={{
-						position: 'fixed',
-						top: 0,
-						left: 0,
-						right: 0,
-						bottom: 0,
-						// background: 'var(--background-color)',
-						opacity: 0.5,
-						height: '100vh',
-						zIndex: 997,
-						cursor: 'pointer',
-					}}
-					onClick={closeWorkspaceList}
-				/>
+				<div style={workspaceOpenStyle} onClick={closeWorkspaceList} />
 			)}
 			<div
 				style={{ maxHeight: renewBanner ? '80dvh' : '83dvh' }}
@@ -168,7 +170,7 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 									handleSwitchWorkSpaceLogic(singleWorkspace);
 								}}
 							>
-								<div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+								<div style={workspaceStyle}>
 									<div className="workSpaceCircle">
 										{singleWorkspace?.logo_s3_500w_key ? (
 											<img

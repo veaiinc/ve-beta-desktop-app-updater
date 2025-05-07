@@ -2,8 +2,7 @@
 import React, { memo, useEffect, useState } from 'react';
 import '../../../../assets/scss/tasks/select.scss';
 import { Tooltip } from 'antd';
-import { ReactComponent as SixDotsIcon } from '../../../../assets/svg/tasks/sixDots.svg';
-import { ReactComponent as HorizontalMoreIcon } from '../../../../assets/svg/tasks/horizontalDotsThin.svg';
+import SelectDropdown from '../../dropDown/tasks/SelectDropdown';
 
 const colors = {
 	1: { backgroundColor: '#62344B', color: '#A35A7E' },
@@ -61,61 +60,13 @@ const Select = ({
 		<div className="select-options-wrapper">
 			<Tooltip
 				title={
-					<div className="select-options-dropdown" onClick={(e) => e.stopPropagation()}>
-						<div className="select-options-dropdown-header">
-							{info?.selectedOption ? (
-								<div className="select-option-item">
-									<div
-										className="select-option-dot"
-										style={{
-											backgroundColor: getBackgroundColor(
-												info?.selectedOption?.color,
-											),
-										}}
-									/>
-
-									<div className="select-option-label">
-										{info?.selectedOption?.label}
-									</div>
-								</div>
-							) : (
-								<input type="text" placeholder="Search for an option..." />
-							)}
-						</div>
-						{!disabled && (
-							<div className="select-options-dropdown-body">
-								<div className="select-options-dropdown-body-title">
-									Select an option
-								</div>
-								<div className="select-options-dropdown-body-options">
-									{options?.map((option) => (
-										<div
-											className="select-list-item"
-											key={option?._id}
-											onClick={() => handleOptionClick(option?._id)}
-										>
-											<div className="select-list-item-tag-wrapper">
-												<div className="select-option-item">
-													<div
-														className="select-option-dot"
-														style={{
-															backgroundColor: getBackgroundColor(
-																option?.color,
-															),
-														}}
-													/>
-
-													<div className="select-option-label">
-														{option?.label}
-													</div>
-												</div>
-											</div>
-										</div>
-									))}
-								</div>
-							</div>
-						)}
-					</div>
+					<SelectDropdown
+						options={options}
+						value={value}
+						onOptionClick={handleOptionClick}
+						disabled={disabled}
+						title={title}
+					/>
 				}
 				placement="bottom"
 				arrow={false}
@@ -146,14 +97,7 @@ const Select = ({
 						}}
 					>
 						{value ? (
-							<div
-								className="select-option-item"
-								// style={{
-								// 	backgroundColor: getBackgroundColor(
-								// 		info?.selectedOption?.color,
-								// 	),
-								// }}
-							>
+							<div className="select-option-item">
 								<div
 									className="select-option-dot"
 									style={{
@@ -162,7 +106,6 @@ const Select = ({
 										),
 									}}
 								/>
-
 								<div className="select-option-label">
 									{info?.selectedOption?.label}
 								</div>

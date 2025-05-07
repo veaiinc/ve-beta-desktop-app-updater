@@ -86,7 +86,7 @@ const DateView = ({
 						color="transparent"
 					>
 						<div className={`listItem-date ${className}`} style={customListItemStyle}>
-							{showIcon && <CalendarIcon />}
+							{showIcon && <CalendarIcon width={16} height={16} />}
 							{value
 								? moment.unix(value).format(format)
 								: showIcon
