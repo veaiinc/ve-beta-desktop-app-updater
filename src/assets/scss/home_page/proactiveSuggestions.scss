@@ -598,6 +598,7 @@
 	border: 1px solid var(--stroke, #2e3033);
 	position: relative;
 	z-index: 2;
+	margin-top: -8px;
 	.filter-items {
 		display: flex;
 		flex-direction: column;
