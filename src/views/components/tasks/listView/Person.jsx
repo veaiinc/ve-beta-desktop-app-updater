@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useCallback, memo, useState, useEffect } from 'react';
+import { useCallback, memo, useState, useEffect } from 'react';
 import '../../../../assets/scss/tasks/person.scss';
 import { Tooltip } from 'antd';
 import TeamMembersDropdown from '../../dropDown/tasks/TeamMembersDropdown';
@@ -57,15 +57,17 @@ const Person = ({
 			title={
 				showTitle
 					? info?.selected?.length > 0 && (
-							<div className="person-tooltip-container">{`${title} ${
-								Array.isArray(info?.selected)
-									? `${info?.selected?.[0]?.name} ${
-											info?.selected?.length > 1
-												? `+${info?.selected?.length - 1} more`
-												: ''
-									  }`
-									: info?.selected?.[0]?.name
-							}`}</div>
+							<div className="person-tooltip-container">
+								{`${title} ${
+									info?.selected?.length
+										? `${info.selected[0]?.name}${
+												info.selected.length > 1
+													? ` +${info.selected.length - 1} more`
+													: ''
+										  }`
+										: ''
+								}`}
+							</div>
 					  )
 					: ''
 			}
