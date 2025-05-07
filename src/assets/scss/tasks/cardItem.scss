@@ -1,6 +1,6 @@
 .task-card-item {
 	display: flex;
-	width: 230px;
+	width: 287px;
 	padding: 16px;
 	flex-direction: column;
 	align-items: flex-start;
@@ -9,4 +9,7 @@
 	border-radius: 12px;
 	background: var(--card, #171819);
 	cursor: pointer;
+
+	border-radius: 8px;
+	background-color: var(--popup, #202123);
 }

@@ -8,6 +8,7 @@ import TextFilter from './TextFilter';
 import StatusDropdown from './StatusDropdown';
 import SelectDropdown from './SelectDropdown';
 import PersonDropdown from './PersonDropdown';
+import TeamMembersDropdown from './TeamMembersDropdown';
 
 const filterMapper = {
 	status: StatusDropdown,
@@ -16,6 +17,10 @@ const filterMapper = {
 	title: TextFilter,
 	description: TextFilter,
 	taskSlNo: TextFilter,
+	assignedTo: TeamMembersDropdown,
+	assignedBy: TeamMembersDropdown,
+	createdBy: TeamMembersDropdown,
+	updatedBy: TeamMembersDropdown,
 };
 
 const FilterDropdown = ({ properties, colors, selected, responseMetadata }) => {
@@ -55,7 +60,7 @@ const FilterDropdown = ({ properties, colors, selected, responseMetadata }) => {
 									arrow={false}
 									trigger={['click', 'hover']}
 									color="red"
-									placement="right"
+									placement="rightTop"
 									overlayStyle={{ minWidth: 'fit-content' }}
 								>
 									<div className="filter-dropdown-tooltip-body-item">
