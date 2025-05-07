@@ -204,6 +204,7 @@ const Tasks = () => {
 			assignedTo: {
 				type: 'person',
 				name: 'Assigned To',
+				Icon: PersonSvg,
 				props: {
 					options: info?.tenantUsers || [],
 					multiSelect: true,
