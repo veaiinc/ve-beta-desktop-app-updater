@@ -594,6 +594,7 @@ const RecentChat = ({
 			updateStateValues({
 				globalLoadingMesssage: null,
 				...(chatPayload && { chatPayload }),
+				...(chatMessagesRef?.current?.length === 2 && { refetchChatHistoryList: true }),
 			});
 			setInfo((prev) => ({ ...prev, latestStreamMesage: data }));
 		}

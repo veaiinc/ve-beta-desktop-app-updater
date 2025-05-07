@@ -189,8 +189,6 @@ const NoteComponentModal = ({
 		}));
 	}, []);
 
-	console.log(info?.notesConfigs);
-
 	const handleDeletePage = useCallback(async () => {
 		const [success] = await deletePage({ pageId: info?.noteId });
 		if (success) {

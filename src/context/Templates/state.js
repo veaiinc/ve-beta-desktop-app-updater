@@ -133,6 +133,7 @@ export const intialState = {
 		workflowTemplateId: null,
 		moduleTemplateId: null,
 	},
+	refetchChatHistoryList: false,
 };
 
 export const TemplatesState = (props) => {

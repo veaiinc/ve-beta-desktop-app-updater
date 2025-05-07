@@ -27,7 +27,7 @@ const ChatHistory = () => {
 	const navigate = useNavigate();
 	const {
 		aiSetup: { getAiChatSessions, aiChatSessions },
-		templates: { chatInfo, updateStateValues, currentSessionId, currentChatData },
+		templates: { refetchChatHistoryList, updateStateValues, currentSessionId, currentChatData },
 	} = useContext(Context);
 	// const previousSearchQuery = useRef('');
 	// const [searchQuery, setSearchQuery] = useState('');
@@ -64,6 +64,13 @@ const ChatHistory = () => {
 			}
 		}
 	}, [currentSessionId, aiChatSessions]);
+
+	useEffect(() => {
+		if (refetchChatHistoryList) {
+			fetchChats();
+			updateStateValues({ refetchChatHistoryList: false });
+		}
+	}, [refetchChatHistoryList]);
 
 	const fetchChats = useCallback(() => {
 		getAiChatSessions(page, limit, append);
