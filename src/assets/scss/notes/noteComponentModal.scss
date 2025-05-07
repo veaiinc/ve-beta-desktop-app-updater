@@ -243,6 +243,7 @@
 				align-items: center;
 				background-color: var(--background-color);
 				flex-shrink: 0;
+				margin-bottom: 0;
 
 				.left {
 					display: flex;
@@ -332,7 +333,6 @@
 				animation: slideInFromTop 0.8s ease-in-out forwards;
 
 				.notes-container {
-					max-width: 775px;
 					margin: auto;
 					overflow: unset !important;
 					.notes-editor-container {
