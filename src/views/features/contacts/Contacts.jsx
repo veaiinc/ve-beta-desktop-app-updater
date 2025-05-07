@@ -20,6 +20,8 @@ const statItems = [
 	{ key: 'normal', label: 'Normal', className: 'normal' },
 	{ key: 'weak', label: 'Weak', className: 'weak' },
 ];
+
+let timeoutId = null;
 const Contacts = () => {
 	const {
 		templates: { updateStateValues: updateContactState },
@@ -37,7 +39,6 @@ const Contacts = () => {
 		selectedContact: null,
 		selectedContactOption: null,
 		activeView: 'widgetView',
-		searchQuery: '',
 	});
 
 	useEffect(() => {
@@ -48,10 +49,52 @@ const Contacts = () => {
 	}, []);
 
 	useEffect(() => {
-		if (!clientList) {
-			fetchClientList(info?.page);
+		timeoutId = setTimeout(() => {
+			fetchClientList(1);
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				page: 1,
+			}));
+		}, 500);
+		return () => {
+			clearTimeout(timeoutId);
+		};
+	}, [info?.searchValue]);
+
+	useEffect(() => {
+		if (clientList) {
+			if (clientList?.data) {
+				setInfo((prevInfo) => ({
+					...prevInfo,
+					listItems:
+						clientList?.data?.currentPage === 1
+							? clientList?.data?.data || []
+							: [...(prevInfo?.listItems || []), ...(clientList?.data?.data || [])],
+					hasMore: clientList?.data?.hasNextPage,
+					loadingSkeleton: false,
+				}));
+			} else {
+				setInfo((prevInfo) => ({
+					...prevInfo,
+					listItems: [],
+					hasMore: false,
+					loadingSkeleton: false,
+					error: clientList?.error || 'Failed to get clients, try again',
+				}));
+			}
 		}
-	}, []);
+	}, [clientList]);
+
+	const fetchMoreClientsList = useCallback(() => {
+		if (info?.hasMore) {
+			const nextPage = info?.page + 1;
+			fetchClientList(nextPage);
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				page: nextPage,
+			}));
+		}
+	}, [info?.hasMore, info?.page]);
 
 	const fetchClientList = useCallback(
 		(page = 1) => {
@@ -84,14 +127,7 @@ const Contacts = () => {
 	};
 
 	const handleSearchQueryChange = (e) => {
-		setInfo({ ...info, searchQuery: e?.target?.value });
-	};
-
-	const stats = {
-		all: clientList?.data?.data?.length,
-		strong: 3,
-		normal: 3,
-		weak: 3,
+		setInfo({ ...info, searchValue: e?.target?.value });
 	};
 
 	return (
@@ -175,14 +211,16 @@ const Contacts = () => {
 					</div>
 					{info?.activeView === 'listView' && (
 						<ContactsListView
-							data={clientList?.data?.data}
-							searchQuery={info?.searchQuery}
+							data={info?.listItems}
+							hasMore={info?.hasMore}
+							fetchMore={fetchMoreClientsList}
 						/>
 					)}
 					{info?.activeView === 'widgetView' && (
 						<ContactsWidgetView
-							data={clientList?.data?.data}
-							searchQuery={info?.searchQuery}
+							data={info?.listItems}
+							hasMore={info?.hasMore}
+							fetchMore={fetchMoreClientsList}
 						/>
 					)}
 				</div>

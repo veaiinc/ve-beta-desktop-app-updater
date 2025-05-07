@@ -18,7 +18,7 @@ const infiniteScrollStyle = {
 	paddingBottom: '100px',
 	// height: '38vh',
 };
-const skeletonLoaders = Array.from({ length: 30 }, (_, index) => index + 1);
+const skeletonLoaders = Array?.from({ length: 30 }, (_, index) => index + 1);
 const page = 1;
 const limit = 30;
 const append = true;
@@ -29,31 +29,32 @@ const ChatHistory = () => {
 		aiSetup: { getAiChatSessions, aiChatSessions },
 		templates: { chatInfo, updateStateValues, currentSessionId, currentChatData },
 	} = useContext(Context);
-	const previousSearchQuery = useRef('');
-	const [searchQuery, setSearchQuery] = useState('');
+	// const previousSearchQuery = useRef('');
+	// const [searchQuery, setSearchQuery] = useState('');
 
-	const debouncedSearch = useCallback(
-		debounce((query) => {
-			previousSearchQuery.current = query;
-			getAiChatSessions(page, limit, append, query);
-		}, 500),
-		[],
-	);
+	// const debouncedSearch = useCallback(
+	// 	debounce((query) => {
+	// 		previousSearchQuery.current = query;
+	// 		getAiChatSessions(page, limit, append, query);
+	// 	}, 500),
+	// 	[],
+	// );
 
 	useEffect(() => {
-		const timeoutId = setTimeout(() => {
-			if (!searchQuery) {
-				getAiChatSessions(page, limit, append);
-			} else {
-				debouncedSearch(searchQuery);
-			}
-		}, 0);
+		// const timeoutId = setTimeout(() => {
+		// 	if (!searchQuery) {
+		// 		getAiChatSessions(page, limit, append);
+		// 	} else {
+		// 		debouncedSearch(searchQuery);
+		// 	}
+		// }, 0);
+		fetchChats();
 
-		return () => {
-			clearTimeout(timeoutId);
-			debouncedSearch.cancel();
-		};
-	}, [searchQuery, debouncedSearch]);
+		// return () => {
+		// 	clearTimeout(timeoutId);
+		// 	debouncedSearch.cancel();
+		// };
+	}, []);
 
 	useEffect(() => {
 		if (currentSessionId && currentChatData?._id !== currentSessionId) {
@@ -64,11 +65,9 @@ const ChatHistory = () => {
 		}
 	}, [currentSessionId, aiChatSessions]);
 
-	const chats = aiChatSessions?.data;
-	const emptyChatsState = aiChatSessions?.data?.length === 0;
-	const loadingState = aiChatSessions?.data === undefined;
-	const hasNextPage = aiChatSessions?.hasMore || false;
-	const currentPage = aiChatSessions?.currentPage || 1;
+	const fetchChats = useCallback(() => {
+		getAiChatSessions(page, limit, append);
+	}, []);
 
 	const fetchMoreChats = () => {
 		if (hasNextPage) {
@@ -111,6 +110,12 @@ const ChatHistory = () => {
 
 		return 'Older';
 	}, []);
+
+	const chats = aiChatSessions?.data;
+	const emptyChatsState = aiChatSessions?.data?.length === 0;
+	const loadingState = aiChatSessions?.data === undefined;
+	const hasNextPage = aiChatSessions?.hasMore || false;
+	const currentPage = aiChatSessions?.currentPage || 1;
 
 	return (
 		<div className="chats-drawer-container">

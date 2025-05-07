@@ -1,95 +1,100 @@
 .contacts-widget-view {
 	width: 100%;
-	display: flex;
-	align-items: flex-start;
-	align-content: flex-start;
-	gap: 12px;
-	flex-wrap: wrap;
 	overflow: auto;
-	.contact-widget {
-		border-radius: 12px;
-		align-self: stretch;
+	padding-bottom: 20px;
+	.widgets {
+		width: 100%;
+		display: flex;
+		align-items: flex-start;
+		align-content: flex-start;
+		gap: 12px;
 		flex-wrap: wrap;
-		width: 310px;
-		overflow: hidden;
-		cursor: pointer;
 
-		.person-image {
-			display: flex;
-			height: 135px;
-			width: 100%;
-			flex-direction: column;
-			justify-content: center;
-			align-items: center;
-			gap: 14px;
-			background: var(--card-over-card, #202123);
-		}
-		.person-info {
-			display: flex;
-			width: 100%;
-			padding: 12px;
-			gap: 12px;
-			flex-direction: column;
-			justify-content: center;
-			align-items: center;
-			background: var(--card, #18191b);
-			.info-container {
+		.contact-widget {
+			border-radius: 12px;
+			align-self: stretch;
+			flex-wrap: wrap;
+			width: 310px;
+			overflow: hidden;
+			cursor: pointer;
+
+			.person-image {
 				display: flex;
+				height: 135px;
+				width: 100%;
 				flex-direction: column;
+				justify-content: center;
 				align-items: center;
-				gap: 2px;
-
-				.person-name {
-					display: -webkit-box;
-					-webkit-box-orient: vertical;
-					-webkit-line-clamp: 1;
-					line-clamp: 1;
-					overflow: hidden;
-					color: var(--primary-font, #f2f2f3);
-					text-overflow: ellipsis;
-					font-family: var(--primary-font-family);
-					font-size: 16px;
-					font-style: normal;
-					font-weight: 500;
-					line-height: normal;
-				}
-
-				.person-email {
-					display: -webkit-box;
-					-webkit-box-orient: vertical;
-					-webkit-line-clamp: 1;
-					line-clamp: 1;
-					overflow: hidden;
-					color: var(--secondary-font, #7a7e85);
-					text-overflow: ellipsis;
-					font-family: var(--primary-font-family);
-					font-size: 14px;
-					font-style: normal;
-					font-weight: 400;
-					line-height: normal;
-				}
+				gap: 14px;
+				background: var(--card-over-card, #202123);
 			}
-
-			.icons-container {
+			.person-info {
 				display: flex;
-				gap: 5px;
-				.icon-container {
+				width: 100%;
+				padding: 12px;
+				gap: 12px;
+				flex-direction: column;
+				justify-content: center;
+				align-items: center;
+				background: var(--card, #18191b);
+				.info-container {
 					display: flex;
-					width: 40px;
-					height: 40px;
-					padding: 8px;
-					justify-content: center;
+					flex-direction: column;
 					align-items: center;
-					gap: 8px;
-					border-radius: 24px;
-					border: 1px solid var(--stroke, #2c2d2e);
-					background: var(--card, #18191b);
+					gap: 2px;
 
-					&:hover {
-						background: var(--card-over-card, #202123);
+					.person-name {
+						display: -webkit-box;
+						-webkit-box-orient: vertical;
+						-webkit-line-clamp: 1;
+						line-clamp: 1;
+						overflow: hidden;
+						color: var(--primary-font, #f2f2f3);
+						text-overflow: ellipsis;
+						font-family: var(--primary-font-family);
+						font-size: 16px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
 					}
-					svg {
-						fill: var(--primary-font, #f2f2f3);
+
+					.person-email {
+						display: -webkit-box;
+						-webkit-box-orient: vertical;
+						-webkit-line-clamp: 1;
+						line-clamp: 1;
+						overflow: hidden;
+						color: var(--secondary-font, #7a7e85);
+						text-overflow: ellipsis;
+						font-family: var(--primary-font-family);
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 400;
+						line-height: normal;
+					}
+				}
+
+				.icons-container {
+					display: flex;
+					gap: 5px;
+					.icon-container {
+						display: flex;
+						width: 40px;
+						height: 40px;
+						padding: 8px;
+						justify-content: center;
+						align-items: center;
+						gap: 8px;
+						border-radius: 24px;
+						border: 1px solid var(--stroke, #2c2d2e);
+						background: var(--card, #18191b);
+
+						&:hover {
+							background: var(--card-over-card, #202123);
+						}
+						svg {
+							fill: var(--primary-font, #f2f2f3);
+						}
 					}
 				}
 			}
