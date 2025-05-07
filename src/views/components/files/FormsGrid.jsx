@@ -2,7 +2,6 @@ import '../../../assets/scss/files/index.scss';
 import '../../../assets/scss/files/files.scss';
 import { ReactComponent as Plus } from '../../../assets/svg/files/Plus.svg';
 import moment from 'moment';
-import { DocsStatusButton } from '../../features/docs/Docs';
 import { memo, useContext, useEffect, useState } from 'react';
 import InfiniteScroll from '../globalComponents/InfiniteScroll';
 import Context from '../../../context/context';
@@ -10,12 +9,31 @@ import gsap from 'gsap';
 import Spinner from '../loaders/Spinner';
 import FilterDropdown from '../dropDown/file/FilterDropdown';
 import EmptyState from './EmptyState';
-import { Tooltip } from 'antd';
+import { ReactComponent as Link } from '../../../assets/svg/files/link.svg';
+import { ReactComponent as Copy } from '../../../assets/svg/files/copy.svg';
+import { ReactComponent as Share } from '../../../assets/svg/files/share.svg';
+import { ReactComponent as GreenDot } from '../../../assets/svg/files/green-dot.svg';
+import { ReactComponent as GreyDot } from '../../../assets/svg/files/grey-dot.svg';
 
 const sortOptions = [
 	{ label: 'Recently Added', value: 'createdAt', sortType: -1 },
 	{ label: 'Recently Updated', value: 'updatedAt', sortType: -1 },
 	{ label: 'A-Z', value: 'title', sortType: 1 },
+];
+
+const fileCtaMapper = [
+	{
+		id: 0,
+		icon: <Link />,
+	},
+	{
+		id: 1,
+		icon: <Copy />,
+	},
+	{
+		id: 2,
+		icon: <Share />,
+	},
 ];
 
 const FormsGrid = ({
@@ -210,26 +228,34 @@ const FormsGrid = ({
 									<div className="card-item-style content-wrapper docs">
 										<div className="docs-title-wrapper docs-title-wrapper-form">
 											<div className="card-header">
-												<h1 className="form-title">
-													{form?.title.length > 24
-														? form.title.slice(0, 24) + '...'
-														: form?.title}
-												</h1>
+												<h1 className="form-title">{form?.title}</h1>
 												<p className="createdAt">
 													{moment.unix(form?.createdAt).fromNow()}
 												</p>
 											</div>
-											<div className="divider"></div>
-											<div className="card-footer"></div>
-											{/* <span className="docs-item-title">
-												{statusTextmapper?.[form?.status]?.text}
-											</span>
-											<span className="docs-item-title">
-												{form?.title.slice(0, 20)}
-											</span>
-											<span className="docs-item-sub-title">
-												{moment.unix(form?.createdAt).fromNow()}
-											</span> */}
+											<div className="card-footer">
+												<div className="cta-container">
+													{fileCtaMapper?.map((cta) => (
+														<div className="cta" key={cta?.id}>
+															{cta?.icon}
+														</div>
+													))}
+												</div>
+												<div className="file-status">
+													{statusTextmapper?.[form?.status]?.text ===
+													'Published' ? (
+														<>
+															<GreenDot />
+															<span>Live</span>
+														</>
+													) : (
+														<>
+															<GreyDot />
+															<span>Draft</span>
+														</>
+													)}
+												</div>
+											</div>
 										</div>
 									</div>
 								</div>

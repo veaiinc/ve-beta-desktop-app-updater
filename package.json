@@ -71,7 +71,7 @@
 		"web-vitals": "^2.1.4"
 	},
 	"scripts": {
-		"start": "set \"PORT=8000\" && react-scripts start",
+		"start": "webpack serve --open",
 		"win-start": "set \"PORT=8000\" && react-scripts start",
 		"build": "webpack --mode production",
 		"delete-maps": "rm ./build/static/js/*.map && rm ./build/static/css/*.map",
