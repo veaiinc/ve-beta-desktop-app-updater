@@ -13,7 +13,7 @@ import Notes from './notes/Notes';
 
 const Sidebar = ({ activeWorkspaceId }) => {
 	const {
-		subscriptionInfo: { renewBanner },
+		// subscriptionInfo: { renewBanner },
 		profileInfo: { userWorkSpaceList, getUserWorkSpaceList, userDetailsData, getUserDetails },
 		templates: { leftSidebarState, updateStateValues },
 	} = useContext(Context);
@@ -141,15 +141,14 @@ const Sidebar = ({ activeWorkspaceId }) => {
 					)?.subModules?.length > 0
 						? 'has-submodules'
 						: 'no-submodules'
-				} ${renewBanner ? 'renew-banner' : ''} ${
-					isChatSidebarRoute ? 'contacts-sidebar' : ''
-				}`}
+				} ${isChatSidebarRoute ? 'contacts-sidebar' : ''}`}
 				style={{
-					height: isOpen
-						? renewBanner
-							? 'calc(100dvh - 58px)'
-							: '100dvh'
-						: 'fit-content',
+					// height: isOpen
+					// 	? renewBanner
+					// 		? 'calc(100dvh - 58px)'
+					// 		: '100dvh'
+					// 	: 'fit-content',
+					height: isOpen ? '100dvh' : 'fit-content',
 					alignItems: sidebarStates?.workSpaceOpen ? 'flex-start' : ' ',
 					maxHeight: info?.activeRoute === '/home' ? (isOpen ? '' : '') : '',
 					minHeight: info?.activeRoute === '/home' ? (isOpen ? '' : '250px') : '',
@@ -178,7 +177,7 @@ const Sidebar = ({ activeWorkspaceId }) => {
 							setShowNotificationsDrawer={setShowNotificationsDrawer}
 							setShowNotesDrawer={setShowNotesDrawer}
 							setHideClosedSidebarIcon={setHideClosedSidebarIcon}
-							renewBanner={renewBanner}
+							// renewBanner={renewBanner}
 						/>
 					) : (
 						<Tooltip

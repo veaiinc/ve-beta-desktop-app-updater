@@ -73,7 +73,8 @@ const ChatLeftBarComponent = ({ children, suggestions = [] }) => {
 		<div
 			className="chat-left-bar-component"
 			style={{
-				height: renewBanner ? 'calc(100dvh - 58px)' : '100dvh',
+				// height: renewBanner ? 'calc(100dvh - 58px)' : '100dvh',
+				height: '100dvh'
 			}}
 		>
 			<div

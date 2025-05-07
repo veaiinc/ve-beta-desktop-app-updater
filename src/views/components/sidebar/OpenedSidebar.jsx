@@ -262,7 +262,7 @@ const OpenedSidebar = ({
 	setShowChatsDrawer,
 	setShowNotesDrawer,
 	setHideClosedSidebarIcon,
-	renewBanner,
+	// renewBanner,
 }) => {
 	const {
 		templates: { leftSidebarState, updateStateValues },
@@ -509,7 +509,8 @@ const OpenedSidebar = ({
 								<div
 									className="openSideBarComponent"
 									style={{
-										height: renewBanner ? 'calc(100dvh - 58px)' : '100dvh',
+										// height: renewBanner ? 'calc(100dvh - 58px)' : '100dvh',
+										height: '100dvh',
 										display: 'flex',
 										flexDirection: 'column',
 										justifyContent: 'space-between',
@@ -889,7 +890,8 @@ const OpenedSidebar = ({
 				{showSettingsSidebar && !isThisEarlyAccessPage && (
 					<div
 						className="settings-sidebar"
-						style={{ height: renewBanner ? 'calc(100dvh - 41px)' : '100dvh' }}
+						// style={{ height: renewBanner ? 'calc(100dvh - 41px)' : '100dvh' }}
+						style={{ height: '100dvh' }}
 					>
 						{/* Settings Header */}
 						<div className="settings-header">

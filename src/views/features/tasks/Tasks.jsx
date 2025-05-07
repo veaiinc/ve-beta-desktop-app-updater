@@ -115,7 +115,7 @@ const Tasks = () => {
 			sideBarData,
 		},
 		companyInfo: { getTeamMembers, tenantsUserList },
-		subscriptionInfo: { validateExpiryData, updateSubscriptionState, renewBanner },
+		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 		contacts: { getClientsForTask, clientListForTask },
 	} = useContext(Context);
 
@@ -1010,7 +1010,7 @@ const Tasks = () => {
 							/>
 						) : null
 					}
-					renewBanner={renewBanner}
+					// renewBanner={renewBanner}
 				/>
 			</div>
 		</div>
