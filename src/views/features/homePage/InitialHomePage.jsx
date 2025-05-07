@@ -27,7 +27,7 @@ const optionsList = [
 	},
 	{
 		id: 2,
-		label: 'Prompts library',
+		label: 'Ask Me',
 		value: 'prompts',
 		tooltip: 'Ask anything from the prompts library',
 		showOption: false,
@@ -420,6 +420,7 @@ const InitialHomePage = () => {
 				<div className={`title-container `}>
 					<div className="title-text">
 						<span className="title-one">Answers before you Ask!</span>
+						<h2 className="title-two">PROACTIVE</h2>
 						{/* <span className="title-two">truly yours</span> */}
 					</div>
 					{/* <div className="sub-text">Answers before you Ask!</div> */}
