@@ -53,7 +53,7 @@ const GalleryGrid = ({
 		const options = {
 			page: 1,
 			limit: 20,
-			storeOriginals: selectedOption === 'Classic Gallery',
+			storeOriginals: selectedOption === 'Gallery',
 		};
 		fetchGalleries(options);
 	}, [selectedOption, info?.selectedSort]);
@@ -80,9 +80,7 @@ const GalleryGrid = ({
 	}, [tenantGalleries]);
 	useEffect(() => {
 		const delay =
-			info.selectedView === 'Classic Gallery' || info.selectedView === 'Lite Gallery'
-				? 100
-				: 0;
+			info.selectedView === 'Gallery' || info.selectedView === 'Lite Gallery' ? 100 : 0;
 
 		const timeout = setTimeout(() => {
 			const cards = document.querySelectorAll(
@@ -173,7 +171,7 @@ const GalleryGrid = ({
 				{
 					page,
 					limit,
-					storeOriginals: storeOriginals || selectedOption === 'Classic Gallery',
+					storeOriginals: storeOriginals || selectedOption === 'Gallery',
 					sort: `${sortType === -1 ? `-` : ''}${value}`,
 				},
 				true,
@@ -191,7 +189,7 @@ const GalleryGrid = ({
 		const options = {
 			page: info?.currentPage + 1,
 			limit: info.limit,
-			storeOriginals: selectedOption === 'Classic Gallery',
+			storeOriginals: selectedOption === 'Gallery',
 		};
 		fetchGalleries(options);
 	};
