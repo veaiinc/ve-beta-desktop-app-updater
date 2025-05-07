@@ -68,12 +68,9 @@
 		display: flex;
 		flex-direction: column;
 		.suggestions-header {
-			.horizontal-divider {
-				width: 100%;
-				height: 1px;
-				background-color: var(--stroke, #2c2d2e);
-				margin-top: 16px;
-			}
+			padding-left: 25px;
+			padding-bottom: 16px;
+			border-bottom: 1px solid var(--stroke);
 			.header-container {
 				display: flex;
 				justify-content: space-between;
