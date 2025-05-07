@@ -53,7 +53,7 @@ const GalleryGrid = ({
 		const options = {
 			page: 1,
 			limit: 20,
-			storeOriginals: selectedOption === 'Classic Gallery',
+			storeOriginals: selectedOption === 'Gallery',
 		};
 		fetchGalleries(options);
 	}, [selectedOption, info?.selectedSort]);
