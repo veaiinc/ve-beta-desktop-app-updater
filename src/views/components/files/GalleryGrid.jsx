@@ -20,9 +20,9 @@ const filterOptions = [
 ];
 
 const sortOptions = [
-	{ label: 'Recently Created', value: 'createdAt', sortType: -1 },
+	{ label: 'Recently Created', value: 'createdAt', sortType: -1 }, // descending
 	{ label: 'Recently Updated', value: 'updatedAt', sortType: -1 },
-	{ label: 'A-Z', value: 'title', sortType: 1 },
+	{ label: 'A-Z', value: 'title', sortType: 1 }, // ascending
 	{ label: 'Albums Count', value: 'albumsCount', sortType: -1 },
 	{ label: 'Images Count', value: 'imagesCount', sortType: -1 },
 ];
@@ -36,7 +36,7 @@ const GalleryGrid = ({
 	const navigate = useNavigate();
 
 	const {
-		galleryInfo: { getGalleries, tenantGalleries },
+		galleryInfo: { getGalleries, tenantGalleries, setDefaultSort },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -56,7 +56,7 @@ const GalleryGrid = ({
 			storeOriginals: selectedOption === 'Gallery',
 		};
 		fetchGalleries(options);
-	}, [selectedOption, info?.selectedSort]);
+	}, [selectedOption]);
 
 	useEffect(() => {
 		if (tenantGalleries) {
@@ -165,14 +165,11 @@ const GalleryGrid = ({
 
 	const fetchGalleries = async ({ page = 1, limit = 20, storeOriginals }) => {
 		try {
-			const { value, sortType } = info?.selectedSort;
-
 			getGalleries(
 				{
 					page,
 					limit,
 					storeOriginals: storeOriginals || selectedOption === 'Gallery',
-					sort: `${sortType === -1 ? `-` : ''}${value}`,
 				},
 				true,
 			);
@@ -200,10 +197,17 @@ const GalleryGrid = ({
 
 	const handleSortClick = (value) => {
 		let sortType = value?.sortType;
+
 		if (value?.value === info?.selectedSort?.value) {
 			sortType = info?.selectedSort?.sortType * -1;
 		}
-		handleStateUpdate({ selectedSort: { ...value, sortType } });
+
+		setInfo((prev) => ({
+			...prev,
+			selectedSort: { ...value, sortType },
+		}));
+
+		setDefaultSort({ sort: `${sortType === -1 ? `-` : ''}${value?.value}` });
 	};
 
 	return (

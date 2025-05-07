@@ -584,7 +584,6 @@ const GalleryPage = () => {
 		}
 	}, [clientSelectionsData]);
 
-	console.log(info?.activeAlbumId, tenantAlbums, 'testing');
 	useEffect(() => {
 		if (!galleryCredentials) {
 			getGalleryCredentials(galleryId);
