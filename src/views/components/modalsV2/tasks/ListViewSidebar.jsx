@@ -47,7 +47,7 @@ const ListViewSidebar = ({
 	breadCrumbs,
 	handleBreadCrumbsClick,
 	showQuickActions = true,
-	renewBanner,
+	// renewBanner,
 }) => {
 	const [info, setInfo] = useState({
 		subTasks: [],

@@ -43,7 +43,7 @@ const RenewBanner = () => {
 
 	return (
 		<>
-			{/* <div className="renew-banner-container">
+			<div className="renew-banner-container">
 				<div className="renew-banner">
 					<div className="renew-banner-title">
 						Subscribe now to access the full features of your {currentRoute}.
@@ -55,7 +55,7 @@ const RenewBanner = () => {
 						Subscribe
 					</button>
 				</div>
-			</div> */}
+			</div>
 			<AddOnPlans
 				isOpen={info?.isOpen}
 				closeModal={() =>
