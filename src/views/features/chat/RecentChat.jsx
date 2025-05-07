@@ -694,6 +694,9 @@ const RecentChat = ({
 							className={`chatBodyParentContainer`}
 							ref={chatContentRef}
 							id="scrollableDiv"
+							style={{
+								'--chat-content-height': `${chatContentRef?.current?.clientHeight}px`,
+							}}
 						>
 							<InfiniteScroll
 								dataLength={globalChatMessages?.length || 0}
