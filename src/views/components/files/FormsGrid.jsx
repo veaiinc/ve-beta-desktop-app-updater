@@ -231,7 +231,16 @@ const FormsGrid = ({
 											<div className="card-header">
 												<h1 className="form-title">{form?.title}</h1>
 												<p className="responses-count">
-													{form?.formResponsesCount} Responses <TrendUp />
+													<span>
+														{form?.formResponsesCount === 0
+															? 'No'
+															: form?.formResponsesCount}
+													</span>{' '}
+													<span>
+														Response
+														{form?.formResponsesCount > 1 && 's'}
+													</span>{' '}
+													<TrendUp />
 												</p>
 												<p className="createdAt">
 													{moment.unix(form?.createdAt).fromNow()}
