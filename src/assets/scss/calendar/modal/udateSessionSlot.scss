@@ -18,7 +18,7 @@
 		color: #e4e5e6;
 		color: color(display-p3 0.8941 0.898 0.902);
 		text-overflow: ellipsis;
-		font-family: Inter;
+		font-family: var(--primary-font-family);
 		font-size: 16px;
 		font-style: normal;
 		font-weight: 500;
@@ -29,7 +29,7 @@
 			color: #7c7c84;
 			color: color(display-p3 0.4863 0.4863 0.5137);
 			text-overflow: ellipsis;
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 12px;
 			font-style: normal;
 			font-weight: 500;
@@ -45,7 +45,7 @@
 		span {
 			color: #7c7c84;
 			color: color(display-p3 0.4863 0.4863 0.5137);
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 12px;
 			font-style: normal;
 			font-weight: 400;
@@ -62,7 +62,7 @@
 	.disableAvailability {
 		color: #979797;
 		color: color(display-p3 0.5922 0.5922 0.5922);
-		font-family: Inter;
+		font-family: var(--primary-font-family);
 		font-size: 12px;
 		font-style: normal;
 		font-weight: 400;
@@ -88,7 +88,7 @@
 		color: #7c7c84;
 		color: color(display-p3 0.4863 0.4863 0.5137);
 		text-overflow: ellipsis;
-		font-family: Inter;
+		font-family: var(--primary-font-family);
 		font-size: 11px;
 		font-style: normal;
 		font-weight: 500;
@@ -139,7 +139,7 @@
 		border-radius: 4px;
 		background: #292b2e;
 		color: #f2f2f3;
-		font-family: Inter;
+		font-family: var(--primary-font-family);
 		font-size: 12px;
 		font-style: normal;
 		font-weight: 400;
@@ -164,7 +164,7 @@
 	border: 1px solid #333334;
 	background: #202123;
 	color: #797e86;
-	font-family: Inter;
+	font-family: var(--primary-font-family);
 	font-size: 12px;
 	font-style: normal;
 	font-weight: 500;
@@ -181,7 +181,7 @@
 	.ant-picker-input > input {
 		cursor: pointer;
 		color: #797e86;
-		font-family: Inter;
+		font-family: var(--primary-font-family);
 		font-size: 12px;
 		font-style: normal;
 		font-weight: 500;
@@ -204,7 +204,7 @@
 	border: 1px solid #333334;
 	background: #202123;
 	color: #797e86;
-	font-family: Inter;
+	font-family: var(--primary-font-family);
 	font-size: 12px;
 	font-style: normal;
 	font-weight: 500;
@@ -213,7 +213,7 @@
 	.ant-picker-input > input {
 		cursor: pointer;
 		color: #797e86;
-		font-family: Inter;
+		font-family: var(--primary-font-family);
 		font-size: 12px;
 		font-style: normal;
 		font-weight: 500;

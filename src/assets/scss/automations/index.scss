@@ -44,7 +44,7 @@
 
 		.emptyAutomations {
 			color: var(--primary-font, #f2f2f3);
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 20px;
 			font-style: normal;
 			font-weight: 500;
@@ -63,7 +63,7 @@
 			background: var(--primary-button);
 			border: 1px solid transparent;
 			color: var(--primary-button-font);
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 500;

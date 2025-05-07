@@ -61,7 +61,7 @@
 
 .name {
 	color: var(--primary-font);
-	font-family: Inter;
+	font-family: var(--primary-font-family);
 	font-size: 16px;
 	font-style: normal;
 	font-weight: 500;
@@ -70,7 +70,7 @@
 
 .time {
 	color: var(--secondary-font);
-	font-family: Inter;
+	font-family: var(--primary-font-family);
 	font-size: 12px;
 	font-style: normal;
 	font-weight: 400;
@@ -106,7 +106,7 @@
 
 .resumey {
 	color: var(--primary-font);
-	font-family: Inter;
+	font-family: var(--primary-font-family);
 	font-size: 12px;
 	font-style: normal;
 	font-weight: 500;
@@ -125,7 +125,7 @@
 
 .options {
 	color: var(--primary-font);
-	font-family: Inter;
+	font-family: var(--primary-font-family);
 	font-size: 12px;
 	font-style: normal;
 	font-weight: 500;
@@ -162,7 +162,7 @@
 
 .option {
 	color: var(--secondary-font);
-	font-family: Inter;
+	font-family: var(--primary-font-family);
 	font-size: 12px;
 	font-style: normal;
 	font-weight: 500;

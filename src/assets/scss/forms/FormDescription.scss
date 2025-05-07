@@ -86,7 +86,7 @@
 
 .descriptionTitle {
 	color: var(--primary-font);
-	font-family: Inter;
+	font-family: var(--primary-font-family);
 	font-size: 20px;
 	font-weight: 600;
 	margin: 0;
@@ -117,7 +117,7 @@
 
 .sectionTitle {
 	color: var(--primary-font);
-	font-family: Inter;
+	font-family: var(--primary-font-family);
 	font-size: 16px;
 	font-weight: 600;
 	margin-bottom: 16px;
@@ -132,7 +132,7 @@
 
 .infoLabel {
 	color: var(--secondary-font);
-	font-family: Inter;
+	font-family: var(--primary-font-family);
 	font-size: 14px;
 	width: 100px;
 	flex-shrink: 0;
@@ -140,7 +140,7 @@
 
 .infoValue {
 	color: var(--primary-font);
-	font-family: Inter;
+	font-family: var(--primary-font-family);
 	font-size: 14px;
 	word-break: break-word;
 	flex: 1;
@@ -174,7 +174,7 @@
 
 .question {
 	color: var(--primary-font);
-	font-family: Inter;
+	font-family: var(--primary-font-family);
 	font-size: 14px;
 	font-weight: 500;
 	margin: 0;
@@ -182,7 +182,7 @@
 
 .answer {
 	color: var(--secondary-font);
-	font-family: Inter;
+	font-family: var(--primary-font-family);
 	font-size: 14px;
 	line-height: 1.5;
 	margin: 0;
@@ -268,7 +268,7 @@
 
 	p {
 		color: var(--secondary-font);
-		font-family: Inter;
+		font-family: var(--primary-font-family);
 		font-size: 14px;
 		text-align: center;
 	}

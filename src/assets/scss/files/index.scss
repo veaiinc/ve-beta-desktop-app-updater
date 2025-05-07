@@ -214,7 +214,7 @@
 					color: var(--primary-font, #f2f2f3);
 					color: var(--primary-font, color(display-p3 0.949 0.949 0.9529));
 					text-overflow: ellipsis;
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 500;
@@ -229,7 +229,7 @@
 					align-self: stretch;
 					color: var(--secondary-font, #787e87);
 					color: var(--secondary-font, color(display-p3 0.4784 0.4941 0.5216));
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 10px;
 					font-style: normal;
 					font-weight: 500;
@@ -262,7 +262,7 @@
 				color: var(--primary-font, #f2f2f3);
 				color: var(--primary-font, color(display-p3 0.949 0.949 0.9529));
 				text-align: center;
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 10px;
 				font-style: normal;
 				font-weight: 500;
@@ -326,7 +326,7 @@
 		width: 100%;
 		color: var(--primary-font, #f2f2f3);
 		color: var(--primary-font, color(display-p3 0.949 0.949 0.9529));
-		font-family: Inter;
+		font-family: var(--primary-font-family);
 		font-size: 12px;
 		font-style: normal;
 		font-weight: 400;

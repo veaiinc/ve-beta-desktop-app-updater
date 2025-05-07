@@ -46,7 +46,7 @@
 						.titleContianerTitleText {
 							color: var(--primary-font, #f2f2f3);
 							text-align: center;
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 14px;
 							font-style: normal;
 							font-weight: 500;
@@ -57,7 +57,7 @@
 							overflow: hidden;
 							color: var(--secondary-font, #7a7e85);
 							text-overflow: ellipsis;
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 12px;
 							font-style: normal;
 							font-weight: 500;
@@ -75,7 +75,7 @@
 					background: var(--primary-font, #f2f2f3);
 					span {
 						color: var(--background-color, #0c0c0d);
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 14px;
 						font-style: normal;
 						font-weight: 500;
@@ -110,7 +110,7 @@
 			align-self: stretch;
 			.detailsTitle {
 				color: var(--primary-font, #f2f2f3);
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 500;
@@ -128,7 +128,7 @@
 					overflow: hidden;
 					color: var(--secondary-font, #7a7e85);
 					text-overflow: ellipsis;
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 500;
@@ -143,7 +143,7 @@
 					flex: 1 0 0;
 					border-radius: 8px;
 					color: var(--primary-font, #f2f2f3);
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 500;
