@@ -472,18 +472,18 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 
 	const handleThumbClick = async (id, type) => {
 		const card = info?.cards?.find((c) => c._id === id);
-		if (card?.feedback === type) return;
-		const res = await pendingActionsUpdate(id, { feedback: type });
+		if (card?.isFavourite === type) return;
+		const res = await pendingActionsUpdate(id, { isFavourite: true });
 		if (res?.[0] === true) {
 			setInfo((prevInfo) => ({
 				...prevInfo,
 				cards: prevInfo?.cards?.map((card) =>
-					card._id === id ? { ...card, feedback: type } : card,
+					card._id === id ? { ...card, isFavourite: true } : card,
 				),
 			}));
-			message.success('Updated the feedback');
+			message.success('Added to favourites ');
 		} else {
-			message.error('Failed to update feedback');
+			message.error('Failed to update');
 		}
 	};
 
@@ -773,42 +773,62 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 													}`}
 												>
 													<div className="cardOptionsContainer">
-														<div
-															className={`${
-																card?.feedback === 'thumbsup'
-																	? 'thumbsUpContainer'
-																	: ''
-															}`}
-															onClick={(e) => {
-																e.stopPropagation();
-																handleThumbClick(
-																	card?._id,
-																	'thumbsup',
-																);
-															}}
-															style={{
-																cursor: 'pointer',
-																marginBottom: '-6px',
-															}}
+														<Tooltip
+															title={
+																<div className="priorityTooltip">{`${
+																	card?.isFavourite === true
+																		? 'Fourites'
+																		: 'Not Favourited'
+																}`}</div>
+															}
+															placement="bottom"
+															trigger={'hover'}
+															arrow={false}
 														>
-															<BookIcon
-																style={{
-																	color: `${
-																		card?.feedback ===
-																		'thumbsup'
-																			? 'var(--primary-font)'
-																			: 'var(--secondary-font)'
-																	}`,
+															<div
+																className={`${
+																	card?.isFavourite === true
+																		? 'thumbsUpContainer'
+																		: ''
+																}`}
+																onClick={(e) => {
+																	e.stopPropagation();
+																	handleThumbClick(
+																		card?._id,
+																		'true',
+																	);
 																}}
-															/>
-														</div>
+																style={{
+																	cursor: 'pointer',
+																	marginBottom: '-6px',
+																}}
+															>
+																<BookIcon
+																	style={{
+																		color: `${
+																			card?.isFavourite ===
+																			true
+																				? 'var(--primary-font)'
+																				: 'var(--secondary-font)'
+																		}`,
+																	}}
+																/>
+															</div>
+														</Tooltip>
 														<div className="verticalLine"></div>
 
 														{priority && (
 															<>
 																<div className="priorityOption">
 																	<Tooltip
-																		title={`Priority: ${priority}`}
+																		title={
+																			<div className="priorityTooltip">
+																				{`Priority: ${priority}`}
+																			</div>
+																		}
+																		placement="bottom"
+																		trigger={'hover'}
+																		arrow={false}
 																	>
 																		<div className="priority">
 																			<div
@@ -837,7 +857,7 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 														<Tooltip
 															title={
 																<div className="confidenceScoreContainer">
-																	<AgentIcon />
+																	<AgentIcon fill="var(--primary-button)" />
 																	<div className="confidenceScoreDescription">
 																		<span>
 																			{card?.confidence_score *
@@ -901,8 +921,9 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 																	</div>
 																</div>
 															}
-															placement="bottomLeft"
+															placement="bottom"
 															trigger={'hover'}
+															arrow={false}
 														>
 															<div>
 																<EmailIcon width={16} height={12} />
@@ -911,12 +932,23 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 															</div>
 														</Tooltip>
 														<div className="verticalLine"></div>
-														<div className="relativeTime">
-															<RelativeTimeSvg />
-															{dayjs(
-																card?.updatedAt * 1000,
-															).fromNow()}
-														</div>
+														<Tooltip
+															title={
+																<div className="priorityTooltip">
+																	Last Updated At
+																</div>
+															}
+															placement="bottom"
+															trigger={'hover'}
+															arrow={false}
+														>
+															<div className="relativeTime">
+																<RelativeTimeSvg />
+																{dayjs(
+																	card?.updatedAt * 1000,
+																).fromNow()}
+															</div>
+														</Tooltip>
 													</div>
 													{info?.hoveredCard?._id === card?._id && (
 														<div className="cardButtonsContainer">

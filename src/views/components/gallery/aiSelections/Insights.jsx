@@ -220,7 +220,7 @@ const Insights = () => {
 		}, 200),
 		[],
 	);
-	console.log('visitorData', visitorData);
+
 	return (
 		<div className="insightsContainer">
 			<div className="insightsData">
@@ -338,7 +338,7 @@ const Insights = () => {
 						}}
 					>
 						<div className="insightsDetails">
-							{details.map((ele, index) => (
+							{details?.map((ele, index) => (
 								<div key={index} className="insightsDetails-item">
 									<p className="itemName">{ele.name}</p>
 									<p className="count">{ele.number}</p>

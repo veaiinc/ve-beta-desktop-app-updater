@@ -3532,6 +3532,7 @@ const GalleryPage = () => {
 			isGalleryViewer: false,
 		}));
 	};
+
 	return (
 		<>
 			<div className="galleryContainer">
@@ -3545,11 +3546,7 @@ const GalleryPage = () => {
 						</span>
 						<span
 							className="galleryTitle"
-							onClick={() =>
-								info?.isLightGallery
-									? navigate(`/lite-gallery`)
-									: navigate(`/galleries`)
-							}
+							onClick={() => navigate(-1)}
 							style={{ cursor: 'pointer' }}
 						>
 							Files
