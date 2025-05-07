@@ -43,9 +43,6 @@ const Contacts = () => {
 
 	useEffect(() => {
 		updateContactState({ leftSidebarState: 'close' });
-		return () => {
-			updateContactState({ leftSidebarState: null });
-		};
 	}, []);
 
 	useEffect(() => {

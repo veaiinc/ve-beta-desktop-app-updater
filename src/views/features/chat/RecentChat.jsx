@@ -531,7 +531,7 @@ const RecentChat = ({
 			if (!scrollElement) return;
 
 			const scrollToPosition = (position) => {
-				scrollElement.scrollTo({
+				scrollElement?.scrollTo({
 					top: position,
 					behavior: type === 'instant' ? 'auto' : 'smooth',
 				});
@@ -542,7 +542,7 @@ const RecentChat = ({
 				const scrollOffset = 100;
 				scrollToPosition(scrollHeight - scrollOffset);
 			} else {
-				scrollToPosition(scrollElement.scrollHeight);
+				scrollToPosition(scrollElement?.scrollHeight);
 			}
 		},
 		[chatContentRef?.current, info?.initialRendering],
@@ -550,7 +550,7 @@ const RecentChat = ({
 
 	const fetchMoreData = useCallback(
 		debounce(async () => {
-			if (!info?.hasNextPage || info.chatLoading) {
+			if (!info?.hasNextPage || info?.chatLoading) {
 				return;
 			}
 			getRecentChatMessages(sessionId, info?.currentPage + 1, true, isPublicChat);
@@ -562,7 +562,7 @@ const RecentChat = ({
 	// stream chat
 	const onMessageFunc = useCallback((event) => {
 		let { data = '' } = event || {};
-		data = JSON.parse(data);
+		data = JSON?.parse(data);
 
 		if (data?.hasOwnProperty('intermediate_response')) {
 			if (data?.intermediate_response_done === true) {

@@ -496,8 +496,11 @@ const OpenedSidebar = ({
 		document.dispatchEvent(event);
 	};
 	const handleNewChat = () => {
-		const sessionId = ObjectID().toString();
+		const sessionId = ObjectID()?.toString();
 		navigate(`/chat/${sessionId}`);
+		updateStateValues({
+			currentChatData: null,
+		});
 	};
 	return (
 		<>
