@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState, useCallback, memo } from 'react';
+import { useContext, useEffect, useState, useCallback, memo, useRef } from 'react';
 import '../../../assets/scss/contacts/contacts.scss';
 import Context from '../../../context/context';
 import SingleContact from '../../components/contacts/singleContact';
@@ -21,7 +21,6 @@ const statItems = [
 	{ key: 'weak', label: 'Weak', className: 'weak' },
 ];
 
-let timeoutId = null;
 const Contacts = () => {
 	const {
 		templates: { updateStateValues: updateContactState },
@@ -29,7 +28,6 @@ const Contacts = () => {
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		page: 1,
-		hasMore: false,
 		loadingSkeleton: true,
 		error: null,
 		sort: [],
@@ -40,21 +38,23 @@ const Contacts = () => {
 		selectedContactOption: null,
 		activeView: 'listView',
 	});
+	const timeoutIdRef = useRef(null);
 
 	useEffect(() => {
 		updateContactState({ leftSidebarState: 'close' });
 	}, []);
 
 	useEffect(() => {
-		timeoutId = setTimeout(() => {
-			fetchClientList(1);
+		timeoutIdRef.current = setTimeout(() => {
+			const reset = true;
+			fetchClientList(1, reset);
 			setInfo((prevInfo) => ({
 				...prevInfo,
 				page: 1,
 			}));
 		}, 500);
 		return () => {
-			clearTimeout(timeoutId);
+			clearTimeout(timeoutIdRef.current);
 		};
 	}, [info?.searchValue]);
 
@@ -63,41 +63,18 @@ const Contacts = () => {
 			if (clientList?.data) {
 				setInfo((prevInfo) => ({
 					...prevInfo,
-					listItems:
-						clientList?.data?.currentPage === 1
-							? clientList?.data?.data || []
-							: [...(prevInfo?.listItems || []), ...(clientList?.data?.data || [])],
-					hasMore: clientList?.data?.hasNextPage,
 					loadingSkeleton: false,
-				}));
-			} else {
-				setInfo((prevInfo) => ({
-					...prevInfo,
-					listItems: [],
-					hasMore: false,
-					loadingSkeleton: false,
-					error: clientList?.error || 'Failed to get clients, try again',
+					hasMore: clientList?.hasNextPage,
 				}));
 			}
 		}
 	}, [clientList]);
 
-	const fetchMoreClientsList = useCallback(() => {
-		if (info?.hasMore) {
-			const nextPage = info?.page + 1;
-			fetchClientList(nextPage);
-			setInfo((prevInfo) => ({
-				...prevInfo,
-				page: nextPage,
-			}));
-		}
-	}, [info?.hasMore, info?.page]);
-
 	const fetchClientList = useCallback(
-		(page = 1) => {
+		(page = 1, reset = false) => {
 			const payload = {
 				clientFilterInput: {
-					limit: 20,
+					limit: 2,
 					page: page,
 					sort:
 						info?.sort?.length > 0
@@ -114,10 +91,22 @@ const Contacts = () => {
 					}),
 				},
 			};
-			getClients(payload);
+			getClients(payload, reset);
 		},
-		[info?.searchValue, info?.filters, info?.sort],
+		[info?.searchValue, info?.filters, info?.sort, getClients],
 	);
+
+	const fetchMoreClientsList = useCallback(() => {
+		if (info?.hasMore) {
+			const nextPage = info?.page + 1;
+			const reset = false;
+			fetchClientList(nextPage, reset);
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				page: nextPage,
+			}));
+		}
+	}, [info?.hasMore, info?.page, fetchClientList]);
 
 	const handleViewChange = (view) => {
 		setInfo({ ...info, activeView: view });
@@ -126,6 +115,8 @@ const Contacts = () => {
 	const handleSearchQueryChange = (e) => {
 		setInfo({ ...info, searchValue: e?.target?.value });
 	};
+
+	const listItems = clientList?.data || [];
 
 	return (
 		<div className="contacts-container">
@@ -208,14 +199,14 @@ const Contacts = () => {
 					</div>
 					{info?.activeView === 'listView' && (
 						<ContactsListView
-							data={info?.listItems}
+							data={listItems}
 							hasMore={info?.hasMore}
 							fetchMore={fetchMoreClientsList}
 						/>
 					)}
 					{info?.activeView === 'widgetView' && (
 						<ContactsWidgetView
-							data={info?.listItems}
+							data={listItems}
 							hasMore={info?.hasMore}
 							fetchMore={fetchMoreClientsList}
 						/>

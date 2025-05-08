@@ -22,7 +22,7 @@ const ContactsWidgetView = ({ data, hasMore = false, fetchMore }) => {
 		<div className="contacts-widget-view">
 			<InfiniteScroll
 				dataLength={data?.length || 0}
-				next={() => fetchMore()}
+				next={fetchMore}
 				hasMore={hasMore}
 				scrollThreshold={1}
 				loader={<FetchMoreLoaderComp />}

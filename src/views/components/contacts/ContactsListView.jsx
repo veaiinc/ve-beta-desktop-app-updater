@@ -24,7 +24,7 @@ const ContactsListView = ({ data, hasMore, fetchMore }) => {
 			<div className="table-body-container">
 				<InfiniteScroll
 					dataLength={data?.length || 0}
-					next={() => fetchMore()}
+					next={fetchMore}
 					hasMore={hasMore}
 					loader={<FetchMoreLoaderComp />}
 					style={{
