@@ -1,7 +1,6 @@
-import { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { memo, useContext, useEffect, useRef, useState } from 'react';
 import '../../../assets/scss/files/index.scss';
 import '../../../assets/scss/files/files.scss';
-import { ReactComponent as SearchSvg } from '../../../assets/svg/elastic_search/search-icon.svg';
 import Context from '../../../context/context';
 import { useNavigate } from 'react-router-dom';
 import CreateGallery from '../../components/modalsV2/gallery/CreateGallery';
@@ -19,6 +18,26 @@ import TemplatesGrid from '../../components/files/TemplatesGrid';
 import { useSearchParams } from 'react-router-dom';
 import ElasticSearchResults from './ElasticSearchResults';
 import getFileTypeInfo from './getFiletypeInfo';
+import { ReactComponent as SearchSvg } from '../../../assets/svg/elastic_search/search-icon.svg';
+import { ReactComponent as CommandIcon } from '../../../assets/svg/files/command.svg';
+import { ReactComponent as Folder } from '../../../assets/svg/files/FolderSearch.svg';
+import { Dropdown } from 'antd';
+import CustomDropdown from './CustomDropdown';
+
+const items = [
+	{
+		id: 1,
+		label: 'Files',
+	},
+	{
+		id: 2,
+		label: 'Meetings',
+	},
+	{
+		id: 3,
+		label: 'Webpages',
+	},
+];
 
 const options = [
 	// 'All',
@@ -251,7 +270,6 @@ const Files = () => {
 	const [searchParams, setSearchParams] = useSearchParams();
 	const activeTab = searchParams.get('activeTab') || 'Notes';
 	const cardItems = useRef(null);
-	const elasticSearchInputRef = useRef(null);
 	const elasticSearchTimeoutRef = useRef(null);
 	const navigate = useNavigate();
 
@@ -284,6 +302,7 @@ const Files = () => {
 		options: [{ label: 'Notes', value: 'notes' }],
 		totalCount: null,
 		showElasticSearchResults: false,
+		isFocused: false,
 	});
 
 	const isAdmin = tenantUserAccessControls?.role === 'admin';
@@ -416,10 +435,16 @@ const Files = () => {
 		const searchInput = e?.target?.value;
 		const emptySearchInput = searchInput === '';
 
+		// Update searchQuery state first
+		setInfo((prev) => ({
+			...prev,
+			searchQuery: searchInput,
+		}));
+
 		if (emptySearchInput) {
 			setInfo((prev) => ({
 				...prev,
-				isLoading: false, // Ensure isLoading is set to false
+				isLoading: false,
 				elasticSearchLoading: false,
 				showElasticSearchResults: false,
 			}));
@@ -636,81 +661,117 @@ const Files = () => {
 				</div>
 				<div className="card-container-wrapper">
 					<div className="card-sub-container">
-						{info?.showElasticSearchResults ? (
-							<div className="elastic-search-main-container">
-								<h1 className="search-heading">All Files</h1>
-								<ElasticSearchResults />
-							</div>
-						) : (
-							<>
-								<div className="card-sub-container-left">
-									<div className="left-sidebar-header"></div>
-								</div>
-								{info?.search ? (
-									<SearchResults />
-								) : (
-									tabsMapper?.[info?.selectedView]
-								)}
-								<div className="card-sub-container-right">
-									<div className="right-sidebar-options">
-										{info?.options.map((option) => (
+						<div className="card-sub-container-left">
+							<div className="left-sidebar-header"></div>
+						</div>
+						{info?.search ? <SearchResults /> : tabsMapper?.[info?.selectedView]}
+						<div className="card-sub-container-right">
+							<div className="right-sidebar-options">
+								{info?.options.map((option) => (
+									<div className="sidebar-option-wrapper" key={option?.value}>
+										<div
+											className={`sidebar-option ${
+												info?.selectedView === option?.label ? 'active' : ''
+											}`}
+											onClick={() => handleDropdownOptionClick(option?.label)}
+										>
 											<div
-												className="sidebar-option-wrapper"
-												key={option?.value}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													justifyContent: 'space-between',
+												}}
 											>
-												<div
-													className={`sidebar-option ${
-														info?.selectedView === option?.label
-															? 'active'
-															: ''
-													}`}
-													onClick={() =>
-														handleDropdownOptionClick(option?.label)
-													}
-												>
-													<div
-														style={{
-															display: 'flex',
-															alignItems: 'center',
-															justifyContent: 'space-between',
-														}}
-													>
-														{option?.label}
-													</div>
-													{info?.totalCount?.[option?.value] ? (
-														<div className="count-wrapper">
-															{info?.totalCount?.[option?.value]}
-														</div>
-													) : null}
-												</div>
-
-												{loadingView === option?.label && (
-													<div className="sidebar-option-spinner">
-														<Spinner
-															cssstyle={{
-																border: '1px solid #fff',
-															}}
-															width={'16px'}
-															height={'16px'}
-														/>
-													</div>
-												)}
+												{option?.label}
 											</div>
-										))}
+											{info?.totalCount?.[option?.value] ? (
+												<div className="count-wrapper">
+													{info?.totalCount?.[option?.value]}
+												</div>
+											) : null}
+										</div>
+
+										{loadingView === option?.label && (
+											<div className="sidebar-option-spinner">
+												<Spinner
+													cssstyle={{
+														border: '1px solid #fff',
+													}}
+													width={'16px'}
+													height={'16px'}
+												/>
+											</div>
+										)}
 									</div>
-								</div>
-							</>
+								))}
+							</div>
+						</div>
+
+						{info.showElasticSearchResults && info.isFocused && (
+							<ElasticSearchResults />
 						)}
 
-						<div className="search-input-container" ref={elasticSearchInputRef}>
+						<div
+							className={`search-input-container ${info.isFocused ? 'focused' : ''}`}
+						>
 							<div className="search-input">
-								<input type="text" placeholder="Search" onChange={handleSearch} />
+								<input
+									type="text"
+									placeholder="Search"
+									value={info.searchQuery || ''}
+									onChange={handleSearch}
+									onFocus={() =>
+										setInfo((prev) => ({ ...prev, isFocused: true }))
+									}
+									onKeyDown={(e) => {
+										if (e.key === 'Escape') {
+											// Complete reset when Escape is pressed
+											setInfo((prev) => ({
+												...prev,
+												isFocused: false,
+												showElasticSearchResults: false,
+												searchQuery: '', // Clear the search input
+												isLoading: false, // Stop any loading state
+												searchResults: [], // Clear any search results
+											}));
+
+											// Blur the input to take away focus
+											e.currentTarget.blur();
+										}
+									}}
+									className={info.showElasticSearchResults ? 'input-focus' : ''}
+									ref={elasticSearchTimeoutRef} // Add a ref to access the input element
+								/>
 								<div className="spinner-wrapper">
 									{info?.isLoading ? (
-										<Spinner width={'16px'} height={'16px'} />
+										<Spinner width="16px" height="16px" />
 									) : (
 										<SearchSvg />
 									)}
+								</div>
+								{info.showElasticSearchResults && info.isFocused && (
+									<div style={{ position: 'absolute', right: '20px' }}>
+										{/* <Dropdown
+											menu={{ items }}
+											trigger={['click']}
+											style={{
+												cursor: 'pointer',
+												backgroundColor: 'var(--card-over-card)',
+											}}
+											className="sources-ant-dropdown"
+											overlayStyle={{
+												backgroundColor: 'var(--card-over-card)',
+											}}
+										>
+											<div className="sources-dropdown">
+												<Folder /> Sources
+											</div>
+										</Dropdown> */}
+										<CustomDropdown options={items} />
+									</div>
+								)}
+								<div className="command-text">
+									<CommandIcon /> <span>+ K</span>
 								</div>
 							</div>
 						</div>

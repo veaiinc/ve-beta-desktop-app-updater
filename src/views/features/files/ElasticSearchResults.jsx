@@ -1,9 +1,8 @@
-import { memo, useContext } from 'react';
-import Context from '../../../context/context';
-import '../../../assets/scss/files/search/elasticSearchResults.scss';
-import { useNavigate } from 'react-router-dom';
 import ObjectID from 'bson-objectid';
-import moment from 'moment';
+import { memo, useContext, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import '../../../assets/scss/files/search/elasticSearchResults.scss';
+import Context from '../../../context/context';
 import getFileTypeInfo from './getFiletypeInfo';
 
 const ElasticSearchResults = () => {
@@ -18,6 +17,12 @@ const ElasticSearchResults = () => {
 	const renderHTMLContent = (content) => {
 		return { __html: content || '' };
 	};
+
+	const [animate, setAnimate] = useState(false);
+
+	useEffect(() => {
+		setAnimate(true);
+	}, []);
 
 	// Hover card component
 	const HoverCard = ({ searchItem }) => {
@@ -87,7 +92,7 @@ const ElasticSearchResults = () => {
 	};
 
 	return (
-		<div className="elastic-search-results-container">
+		<div className={`elastic-search-results-container ${animate ? 'animate' : ''}`}>
 			{elasticSearchResults?.length > 0 ? (
 				elasticSearchResults?.map((searchItem, index) => (
 					<div
@@ -106,10 +111,6 @@ const ElasticSearchResults = () => {
 								<h4 className="search-output-header">
 									{searchItem?.title || 'Singularity'}
 								</h4>
-								<p className="description">
-									Created on{' '}
-									{moment(searchItem?.createdAt).format('MMM DD, hh:mm A')}
-								</p>
 							</div>
 						</div>
 						<div className="hover-card-wrapper">
