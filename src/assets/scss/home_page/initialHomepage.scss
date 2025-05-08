@@ -92,6 +92,7 @@
 		.options-container {
 			display: flex;
 			gap: 6px;
+			margin-top: 10px;
 			@media screen and (max-width: 425px) {
 				flex-wrap: wrap;
 			}
@@ -143,7 +144,8 @@
 	.home-page-container-content {
 		width: 100%;
 		padding-top: 30px;
-		overflow: hidden;
+		overflow-y: auto;
+		overflow-x: hidden;
 	}
 }
 

@@ -1,28 +1,24 @@
 .listView-dropdown-container {
 	display: flex;
+	width: 250px;
+	padding: 8px 0px;
 	flex-direction: column;
 	align-items: flex-start;
-	justify-content: flex-start;
-	border-radius: 14px;
-	width: 220px;
-	padding: 12px 6px;
-	gap: 4px;
-	border-radius: 14px;
-	background-color: var(--background-color);
-	box-shadow: 0px 2px 44px 0px var(--card);
+	gap: 6px;
+	background-color: var(--card);
+	border-radius: 12px;
 
 	.dropdown-title {
 		display: flex;
-		padding: 12px 12px;
-		padding-top: 8px;
+		padding: 8px 16px;
 		align-items: center;
-		gap: 12px;
+		gap: 10px;
 		align-self: stretch;
-		text-align: center;
+		color: var(--secondary-font);
 		font-family: var(--primary-font-family);
-		font-size: 12px;
+		font-size: 14px;
 		font-style: normal;
-		font-weight: 600;
+		font-weight: 500;
 		line-height: normal;
 		border-bottom: 1px solid var(--stroke);
 	}
@@ -37,11 +33,9 @@
 		max-height: 267px;
 		overflow-y: auto;
 		padding: 4px;
-		background-color: var(--card-hover);
 
 		.listItem {
 			display: flex;
-			padding: 8px 12px;
 			justify-content: space-between;
 			align-items: center;
 			align-self: stretch;
@@ -49,6 +43,11 @@
 			border-radius: 8px;
 			transition: all 0.3s ease;
 			width: 100%;
+
+			display: flex;
+			padding: 10px 16px;
+			align-items: flex-start;
+			gap: 10px;
 			.list-details {
 				display: flex;
 				align-items: center;
@@ -60,10 +59,10 @@
 					text-align: left;
 					font-family: var(--primary-font-family);
 					font-size: 12px;
-					font-style: normal;
-					font-weight: 400;
-					line-height: normal;
 					text-transform: capitalize;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
 
 					.filterContainer {
 						display: flex;
