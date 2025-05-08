@@ -952,15 +952,16 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 													</div>
 													{info?.hoveredCard?._id === card?._id && (
 														<div className="cardButtonsContainer">
-															<button
+															<div
 																className="checkButton"
 																onClick={(e) => {
 																	e.stopPropagation();
 																	handleViewReportClick(card);
 																}}
 															>
-																View Report
-															</button>
+																Check
+																<ChevronRightThinSvg />
+															</div>
 														</div>
 													)}
 												</div>
@@ -1018,43 +1019,46 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 										onClick={() => handleCardClick(card, index)}
 									>
 										<div className="header">
-											<div className="card-title">{card?.description}</div>
 											<div className="card-description">{card?.title}</div>
 										</div>
-										<div className="footer">
-											<div className="module-type">{card?.moduleType}</div>
-											<div className="module-priority">
-												<span
-													style={{
-														backgroundColor:
-															PriorityLevel[card?.priority],
-													}}
-												></span>
-												<div className="module-priority-text">
-													<div>{card?.priority}</div>
-													{card?.priority && card?.updatedAt && (
-														<div
-															style={{
-																color: 'var(--secondary-font)',
-															}}
-														>
-															|
-														</div>
-													)}
-													<Tooltip
-														title={dayjs(card?.updatedAt * 1000).format(
-															'MMMM D, YYYY h:mm A',
+										{classList?.[1] === 'selected' && (
+											<div className="footer">
+												<div className="module-type">
+													{card?.moduleType}
+												</div>
+												<div className="module-priority">
+													<span
+														style={{
+															backgroundColor:
+																PriorityLevel[card?.priority],
+														}}
+													></span>
+													<div className="module-priority-text">
+														<div>{card?.priority}</div>
+														{card?.priority && card?.updatedAt && (
+															<div
+																style={{
+																	color: 'var(--secondary-font)',
+																}}
+															>
+																|
+															</div>
 														)}
-													>
-														<div>
-															{dayjs(
+														<Tooltip
+															title={dayjs(
 																card?.updatedAt * 1000,
-															).fromNow()}
-														</div>
-													</Tooltip>
+															).format('MMMM D, YYYY h:mm A')}
+														>
+															<div>
+																{dayjs(
+																	card?.updatedAt * 1000,
+																).fromNow()}
+															</div>
+														</Tooltip>
+													</div>
 												</div>
 											</div>
-										</div>
+										)}
 									</div>
 								);
 							})

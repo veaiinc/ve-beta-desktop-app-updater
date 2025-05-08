@@ -6,6 +6,7 @@ import React, {
 	useMemo,
 	useCallback,
 	Fragment,
+	useRef,
 } from 'react';
 import '../../../assets/scss/globalComponents/taskWidget.scss';
 import { ReactComponent as DownArrowIcon } from '../../../assets/svg/chat/downArrow.svg';
@@ -28,6 +29,7 @@ import CreateTaskPopup from '../modalsV2/tasks/CreateTaskPopup';
 import { message } from '../../components/globalComponents/CustomToast';
 import jwtDecode from 'jwt-decode';
 import moment from 'moment';
+import { FetchMoreLoaderComp } from '../../../helpers';
 
 const skeletonLoaders = Array.from({ length: 6 }, (_, index) => index + 1);
 
@@ -79,6 +81,7 @@ const TaskWidget = ({ width, height }) => {
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 	} = useContext(Context);
 
+	const isLoading = useRef(true);
 	const [info, setInfo] = useState({
 		limit: 20,
 		page: 1,
@@ -351,7 +354,6 @@ const TaskWidget = ({ width, height }) => {
 	}, []);
 
 	const getTasksList = async (page) => {
-		setInfo((prev) => ({ ...prev, loading: true }));
 		const response = await getListItems({
 			taskFilterInput: {
 				limit: 20,
@@ -362,14 +364,14 @@ const TaskWidget = ({ width, height }) => {
 		const hasNextPage = response?.[1]?.data?.listTasks?.hasNextPage;
 		setInfo((prev) => ({
 			...prev,
-			loading: false,
 			page: nextPage,
 			hasNextPage,
 		}));
+		isLoading.current = false;
 	};
 
 	const fetchMoreData = () => {
-		if (hasNextPage) {
+		if (info?.hasNextPage) {
 			getTasksList(info?.page);
 		}
 	};
@@ -681,7 +683,7 @@ const TaskWidget = ({ width, height }) => {
 				<div className="taskWidgetBody">
 					<div className="taskWidgetBodyHeader">
 						<div className="taskWidgetBodyHeaderLeft">
-							<span className="taskWidgetDay">{info?.listItems?.length}</span>
+							<span className="taskWidgetDay">{listTasks?.analytics?.allTasks}</span>
 							<span className="taskWidgetRemainder">Reminder</span>
 						</div>
 						{/* <div className="taskWidgetBodyHeaderRight">
@@ -693,7 +695,7 @@ const TaskWidget = ({ width, height }) => {
 						</div> */}
 					</div>
 					<div className="taskWidgetBodyContainer" id="taskWidgetBodyContainer">
-						{info?.loading ? (
+						{isLoading.current ? (
 							skeletonLoaders?.map((_, index) => (
 								<Skeleton
 									width="300px"
@@ -717,7 +719,7 @@ const TaskWidget = ({ width, height }) => {
 								dataLength={info?.listItems?.length || 0}
 								hasMore={info?.hasNextPage}
 								next={fetchMoreData}
-								loader={<div>Loading...</div>}
+								loader={<FetchMoreLoaderComp />}
 								scrollableTarget="taskWidgetBodyContainer"
 								scrollThreshold="90%"
 							>
