@@ -531,7 +531,7 @@ const RecentChat = ({
 			if (!scrollElement) return;
 
 			const scrollToPosition = (position) => {
-				scrollElement.scrollTo({
+				scrollElement?.scrollTo({
 					top: position,
 					behavior: type === 'instant' ? 'auto' : 'smooth',
 				});
@@ -542,7 +542,7 @@ const RecentChat = ({
 				const scrollOffset = 100;
 				scrollToPosition(scrollHeight - scrollOffset);
 			} else {
-				scrollToPosition(scrollElement.scrollHeight);
+				scrollToPosition(scrollElement?.scrollHeight);
 			}
 		},
 		[chatContentRef?.current, info?.initialRendering],
@@ -550,7 +550,7 @@ const RecentChat = ({
 
 	const fetchMoreData = useCallback(
 		debounce(async () => {
-			if (!info?.hasNextPage || info.chatLoading) {
+			if (!info?.hasNextPage || info?.chatLoading) {
 				return;
 			}
 			getRecentChatMessages(sessionId, info?.currentPage + 1, true, isPublicChat);
@@ -562,7 +562,7 @@ const RecentChat = ({
 	// stream chat
 	const onMessageFunc = useCallback((event) => {
 		let { data = '' } = event || {};
-		data = JSON.parse(data);
+		data = JSON?.parse(data);
 
 		if (data?.hasOwnProperty('intermediate_response')) {
 			if (data?.intermediate_response_done === true) {
@@ -594,6 +594,7 @@ const RecentChat = ({
 			updateStateValues({
 				globalLoadingMesssage: null,
 				...(chatPayload && { chatPayload }),
+				...(chatMessagesRef?.current?.length === 2 && { refetchChatHistoryList: true }),
 			});
 			setInfo((prev) => ({ ...prev, latestStreamMesage: data }));
 		}
@@ -625,23 +626,23 @@ const RecentChat = ({
 		setInfo((prev) => ({ ...prev, showViewDocument: value }));
 	}, []);
 
-	const handleNewChatClick = useCallback(() => {
-		const pathname = location?.pathname?.split('/')?.[1];
-		const sessionId = ObjectID()?.toString();
+	// const handleNewChatClick = useCallback(() => {
+	// 	const pathname = location?.pathname?.split('/')?.[1];
+	// 	const sessionId = ObjectID()?.toString();
 
-		if (pathname === 'chat') {
-			navigate(`/chat/${sessionId}`);
-		} else if (pathname === 'c') {
-			navigate(`/c/${sessionId}`);
-		} else if (
-			pathname === 'calendar' ||
-			pathname === 'contacts' ||
-			pathname === 'tasks' ||
-			pathname === 'contact'
-		) {
-			onNewChatBtnClick?.();
-		}
-	}, [location?.pathname]);
+	// 	if (pathname === 'chat') {
+	// 		navigate(`/chat/${sessionId}`);
+	// 	} else if (pathname === 'c') {
+	// 		navigate(`/c/${sessionId}`);
+	// 	} else if (
+	// 		pathname === 'calendar' ||
+	// 		pathname === 'contacts' ||
+	// 		pathname === 'tasks' ||
+	// 		pathname === 'contact'
+	// 	) {
+	// 		onNewChatBtnClick?.();
+	// 	}
+	// }, [location?.pathname]);
 
 	const handleNavigateBack = useCallback(() => {
 		const pathname = location?.pathname?.split('/')?.[1];
@@ -672,13 +673,13 @@ const RecentChat = ({
 									{currentChatData?.title || 'New Chat'}
 								</div>
 							</div>
-							<div className="right-container">
+							{/* <div className="right-container">
 								<Tooltip title="New Chat" placement="bottom">
 									<button className="new-chat-btn" onClick={handleNewChatClick}>
 										<PlusCircleSvg />
 									</button>
 								</Tooltip>
-							</div>
+							</div> */}
 						</div>
 					)}
 
@@ -694,6 +695,9 @@ const RecentChat = ({
 							className={`chatBodyParentContainer`}
 							ref={chatContentRef}
 							id="scrollableDiv"
+							style={{
+								'--chat-content-height': `${chatContentRef?.current?.clientHeight}px`,
+							}}
 						>
 							<InfiniteScroll
 								dataLength={globalChatMessages?.length || 0}

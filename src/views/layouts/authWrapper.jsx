@@ -61,6 +61,7 @@ const AuthWrapper = ({
 						padding: '32px 32px 0',
 						...outerContainerStyle,
 					}}
+					className="auth-wrapper-container"
 				>
 					<SkeletonTheme baseColor={'var(--card)'} highlightColor={'var(--card-hover)'}>
 						<div
