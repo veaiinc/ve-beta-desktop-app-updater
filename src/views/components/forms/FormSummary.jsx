@@ -1,11 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
-import '../../../assets/scss/forms/formSummary.scss';
-import { ReactComponent as Copy } from '../../../assets/svg/copy.svg';
-import service from '../../../services/graphQlServices';
-import { getFormResponseAnalyticsQuery } from '../../../context/Templates/graphQlFunctions';
-import moment from 'moment';
-import { Tooltip, Rate, Flex } from 'antd';
+import { Tooltip, Flex } from 'antd';
 import {
 	FilePdfOutlined,
 	FileTextOutlined,
@@ -13,123 +8,141 @@ import {
 	FilePptOutlined,
 	FileOutlined,
 } from '@ant-design/icons';
+import moment from 'moment';
+import { TemplatesState } from '../../../context/Templates/state';
+import { ReactComponent as CopyIcon } from '../../../assets/svg/copy.svg';
+import '../../../assets/scss/forms/formSummary.scss';
+import FormPreview from './FormPreview';
 import { EventsAnswer } from './FormDescription';
 
-const FileUploadAnswer = ({ answer }) => {
-	const files = answer;
-	return (
-		<>
-			{files?.length > 0 && (
-				<div className="form-summary-fileUploadContainer">
-					{files?.map((file) => {
-						const { name, previewUrl, lastModified, type } = file;
-						const fileExtension = name?.split('.')?.pop()?.toLowerCase() || '';
-						const isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(
-							fileExtension,
-						);
-						const isPDF = fileExtension === 'pdf';
-						const isDocument = ['doc', 'docx', 'txt', 'rtf'].includes(fileExtension);
-						const isSpreadsheet = ['xls', 'xlsx', 'csv'].includes(fileExtension);
-						const isPresentation = ['ppt', 'pptx'].includes(fileExtension);
+const removeHTMLTags = (text) =>
+	text
+		?.replace(/<\/?[^>]+(>|$)/g, '')
+		.replace(/ /g, ' ')
+		.trim() || '';
 
-						return (
-							<div key={lastModified} className="form-summary-fileItem">
-								{isImage ? (
-									<div className="form-summary-imagePreview">
-										<img src={previewUrl} alt={name} />
-										<span className="form-summary-fileName">{name}</span>
-									</div>
-								) : (
-									<div className="form-summary-filePreview">
-										<div className="form-summary-fileIcon">
-											{isPDF && <FilePdfOutlined />}
-											{isDocument && <FileTextOutlined />}
-											{isSpreadsheet && <FileExcelOutlined />}
-											{isPresentation && <FilePptOutlined />}
-											{!isPDF &&
-												!isDocument &&
-												!isSpreadsheet &&
-												!isPresentation && <FileOutlined />}
-										</div>
-										<a
-											href={previewUrl}
-											target="_blank"
-											rel="noopener noreferrer"
-											className="form-summary-fileName linkedin-link"
-											aria-label={`Open ${name} in new tab`}
-											tabIndex="0"
-											role="link"
-											onKeyPress={(e) => {
-												if (e.key === 'Enter') {
-													window.open(previewUrl, '_blank');
-												}
-											}}
-										>
-											{name}
-										</a>
-									</div>
-								)}
-							</div>
-						);
-					})}
-				</div>
+const FileUploadAnswer = ({ answer }) => {
+	const [selectedFile, setSelectedFile] = useState(null);
+
+	if (!answer?.length) return null;
+
+	const renderFileIcon = (fileExtension) => {
+		const extension = fileExtension?.toLowerCase();
+		if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(extension)) return null; // No icon for images
+		if (extension === 'pdf') return <FilePdfOutlined />;
+		if (['doc', 'docx', 'txt', 'rtf'].includes(extension)) return <FileTextOutlined />;
+		if (['xls', 'xlsx', 'csv'].includes(extension)) return <FileExcelOutlined />;
+		if (['ppt', 'pptx'].includes(extension)) return <FilePptOutlined />;
+		return <FileOutlined />;
+	};
+
+	return (
+		<div className="form-summary-fileUploadContainer">
+			{answer.map(({ name, fileURL, lastModified, type }) => {
+				if (!name || !fileURL) return null;
+				const fileExtension = name?.split('.').pop()?.toLowerCase() || '';
+				const isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(fileExtension);
+
+				return (
+					<div key={lastModified} className="form-summary-fileItem">
+						<div
+							className="form-summary-filePreview"
+							onClick={() => setSelectedFile({ name, fileURL, type })}
+							style={{
+								cursor: 'pointer',
+								display: 'flex',
+								alignItems: 'center',
+								gap: '8px',
+							}}
+						>
+							{renderFileIcon(fileExtension) && (
+								<div className="form-summary-fileIcon">
+									{renderFileIcon(fileExtension)}
+								</div>
+							)}
+							{isImage ? (
+								<img
+									src={fileURL}
+									alt={name}
+									style={{
+										maxWidth: '50px',
+										maxHeight: '50px',
+										objectFit: 'cover',
+									}}
+								/>
+							) : null}
+							<span className="form-summary-fileName">{name}</span>
+						</div>
+					</div>
+				);
+			})}
+			{selectedFile && (
+				<FormPreview file={selectedFile} onClose={() => setSelectedFile(null)} />
 			)}
-			{/* <div className="form-summary-divider"></div> */}
-		</>
+		</div>
 	);
 };
 
-const RatingAnswer = ({ answer }) => {
-	if (!answer) return null;
-	return (
+const RatingAnswer = ({ answer }) =>
+	answer ? (
 		<Flex gap="middle" vertical>
 			<span className="rating-text">{answer}/5</span>
 		</Flex>
-	);
-};
+	) : null;
 
 const FormResponseList = ({
 	expanded,
 	handleExpand,
 	items,
-	visibleItems,
 	question,
 	handleCopy,
 	copyStatus,
 	type,
 	onUserClick,
 }) => {
-	const formatDate = (timestamp) => {
-		if (!timestamp) return '';
-		return moment.unix(timestamp).format('MMMM D, YYYY [at] h:mm:ss A');
-	};
+	const formatDate = (timestamp) =>
+		timestamp ? moment.unix(timestamp).format('MMMM D, YYYY [at] h:mm:ss A') : '';
+
 	const getName = (response) => {
-		if (!response?.response) return 'No Name';
-		const nameField = response?.response.find((item) => {
-			return item?.question?.toLowerCase()?.includes('name');
-		});
+		const nameField = response?.response?.find((item) =>
+			item?.question?.toLowerCase()?.includes('name'),
+		);
 		return nameField?.answer || 'No Name';
 	};
 
-	// Filter responses that have answers for this question
 	const responsesWithAnswers =
 		items?.filter((item) => {
-			const field = item?.response?.find((r) => {
-				return r?.question?.toLowerCase()?.includes(question?.toLowerCase() || '');
-			});
-
-			if (!field?.answer) return false;
-
-			// For file uploads, check if there are actual files
-			if (field?.type === 'fileupload') {
-				return field?.answer && field?.answer?.length > 0;
-			}
-
-			return true;
+			const field = item?.response?.find((r) =>
+				r?.question?.toLowerCase()?.includes(removeHTMLTags(question)?.toLowerCase()),
+			);
+			if (!field) return false;
+			if (field.type === 'fileupload') return field?.answer?.length > 0;
+			if (field.type === 'rating') return field?.answer && field.answer !== '0';
+			if (field.type === 'events') return field?.answer && field.answer.length > 0;
+			return field?.answer && field.answer !== '0' && field.answer !== '';
 		}) || [];
 
-	const actualResponsesCount = responsesWithAnswers.length;
 	const visibleResponses = expanded ? responsesWithAnswers : responsesWithAnswers.slice(0, 5);
+
+	const renderAnswer = (field) => {
+		if (!field) return null; // Skip rendering if no field
+		if (field?.type === 'fileupload') return <FileUploadAnswer answer={field?.answer} />;
+		if (field?.type === 'link' && field?.answer)
+			return (
+				<a
+					href={field?.answer}
+					target="_blank"
+					rel="noopener noreferrer"
+					className="linkedin-link"
+					style={{ color: '#0A66C2', textDecoration: 'none', fontWeight: 500 }}
+				>
+					{field?.answer}
+				</a>
+			);
+		if (field?.type === 'rating') return <RatingAnswer answer={field?.answer} />;
+		if (field?.type === 'events') return <EventsAnswer answer={field?.answer} />;
+		return field?.answer || null;
+	};
 
 	return (
 		<div className="collapsible-list">
@@ -142,38 +155,14 @@ const FormResponseList = ({
 			>
 				<div className="collapsible-list__items">
 					{visibleResponses?.map((item, index) => {
-						const field = item?.response?.find((r) => {
-							return r?.question
+						const field = item?.response?.find((r) =>
+							r?.question
 								?.toLowerCase()
-								?.includes(question?.toLowerCase() || '');
-						});
-
-						let answer = field?.answer;
-
-						if (field?.type === 'fileupload') {
-							answer = <FileUploadAnswer answer={field?.answer} />;
-						} else if (field?.type === 'link' && field?.answer) {
-							answer = (
-								<a
-									href={field?.answer}
-									target="_blank"
-									rel="noopener noreferrer"
-									className="linkedin-link"
-									style={{
-										color: '#0A66C2',
-										textDecoration: 'none',
-										fontWeight: 500,
-									}}
-								>
-									{field?.answer}
-								</a>
-							);
-						} else if (field?.type === 'rating') {
-							answer = <RatingAnswer answer={field?.answer} />;
-						} else if (field?.type === 'events') {
-							answer = <EventsAnswer answer={field?.answer} />;
-						}
-
+								?.includes(removeHTMLTags(question)?.toLowerCase()),
+						);
+						if (!field) return null; // Skip if no valid field
+						const answerContent = renderAnswer(field);
+						if (!answerContent) return null; // Skip if answer is null (e.g., empty or 0)
 						return (
 							<Tooltip key={index} title={getName(item)} placement="top">
 								<div className="collapsible-list__item">
@@ -186,7 +175,7 @@ const FormResponseList = ({
 											}}
 											style={{ cursor: 'pointer' }}
 										>
-											{answer}
+											{answerContent}
 										</div>
 									</div>
 									<div className="candidate-timestamp">
@@ -198,11 +187,10 @@ const FormResponseList = ({
 					})}
 				</div>
 			</div>
-
-			{actualResponsesCount > 5 && (
+			{responsesWithAnswers.length > 5 && (
 				<div className="collapsible-list__footer">
 					<span onClick={handleExpand}>
-						{expanded ? 'See less' : `See all (${actualResponsesCount})`}
+						{expanded ? 'See less' : `See all (${responsesWithAnswers.length})`}
 					</span>
 				</div>
 			)}
@@ -211,100 +199,71 @@ const FormResponseList = ({
 };
 
 const FormSummary = ({ formId: inputFormId, onDataUpdate, onUserClick }) => {
-	const x = useParams();
-	const location = useLocation();
-	const formId = inputFormId || x.id;
+	const { id } = useParams();
+	const {
+		state: { formData: locationFormData },
+	} = useLocation();
+	const navigate = useNavigate();
+	const formId = inputFormId || id;
 	const [expanded, setExpanded] = useState(false);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState(null);
 	const [copyStatus, setCopyStatus] = useState({});
-	const [selectedResponse, setSelectedResponse] = useState(null);
-	const [expandedCard, setExpandedCard] = useState(null);
 	const [formData, setFormData] = useState({
 		responses: [],
 		total: 0,
 		submitted: 0,
-		title: location.state?.formData?.title || '',
+		title: locationFormData?.title || '',
 	});
 	const [questions, setQuestions] = useState([]);
-	const navigate = useNavigate();
+	const { getFormResponseAnalytics } = TemplatesState();
 
 	useEffect(() => {
-		if (formId) {
-			fetchFormAnalytics();
-		}
+		if (formId) fetchFormAnalytics();
 	}, [formId]);
 
 	useEffect(() => {
-		if (onDataUpdate) {
-			onDataUpdate({ formData, questions });
-		}
+		onDataUpdate?.({ formData, questions });
 	}, [formData, questions, onDataUpdate]);
 
 	const fetchFormAnalytics = async () => {
 		try {
 			setLoading(true);
-			const workspaceId = localStorage.getItem('workspaceId');
-			const usertoken = localStorage.getItem('usertoken');
+			const [success, response] = await getFormResponseAnalytics(formId);
 
-			const response = await service.query(
-				getFormResponseAnalyticsQuery,
-				{
-					filter: {
-						workflowTemplateId: formId,
-					},
-				},
-				workspaceId,
-				usertoken,
-				'workflows_Api',
-			);
+			if (success && response) {
+				const { data, totalDocs } = response;
 
-			if (response?.[1]?.data?.formResponseAnalytics) {
-				const { data, totalDocs } = response[1].data.formResponseAnalytics;
-
-				// Extract unique questions from the first response
-				if (data?.length > 0 && data[0]?.response) {
-					const uniqueQuestions = data[0].response
-						.filter((item) => item?.question) // Filter out any items without questions
-						.map((item) => ({
-							question: item.question,
-							type: item.type,
-						}))
+				const allQuestions =
+					data
+						?.flatMap((item) => item?.response?.filter((r) => r?.question) || [])
+						.map(({ question, type }) => ({ question, type }))
 						.filter(
 							(item, index, self) =>
 								index ===
 								self.findIndex(
 									(q) =>
-										q?.question?.toLowerCase() ===
-										item?.question?.toLowerCase(),
+										removeHTMLTags(q?.question)?.toLowerCase() ===
+										removeHTMLTags(item?.question)?.toLowerCase(),
 								),
 						)
 						.sort((a, b) => {
-							// Prioritize name and email questions
-							const aLower = a?.question?.toLowerCase();
-							const bLower = b?.question?.toLowerCase();
-
-							// Check for name-related questions
+							const aLower = removeHTMLTags(a?.question)?.toLowerCase();
+							const bLower = removeHTMLTags(b?.question)?.toLowerCase();
 							const aIsName =
 								aLower?.includes('name') || aLower?.includes('full name');
 							const bIsName =
 								bLower?.includes('name') || bLower?.includes('full name');
-
-							// Check for email-related questions
 							const aIsEmail = aLower?.includes('email');
 							const bIsEmail = bLower?.includes('email');
-
-							// Sort order: name first, then email, then everything else
 							if (aIsName && !bIsName) return -1;
 							if (!aIsName && bIsName) return 1;
 							if (aIsEmail && !bIsEmail) return -1;
 							if (!aIsEmail && bIsEmail) return 1;
 							return 0;
-						});
+						}) || [];
 
-					setQuestions(uniqueQuestions);
-				}
-
+				setQuestions(allQuestions);
 				setFormData((prev) => ({
 					...prev,
 					responses: data || [],
@@ -322,118 +281,109 @@ const FormSummary = ({ formId: inputFormId, onDataUpdate, onUserClick }) => {
 		}
 	};
 
-	const handleExpand = () => {
-		setExpanded(!expanded);
-	};
+	const handleExpand = () => setExpanded((prev) => !prev);
 
-	const handleCopy = (question) => {
-		const content = formData.responses
-			.map((response) => {
-				const field = response?.response?.find((r) =>
-					r?.question?.toLowerCase().includes(question.toLowerCase()),
-				);
+	const handleCopy = useCallback(
+		(question) => {
+			const content = formData.responses
+				.map((response) => {
+					const field = response?.response?.find((r) =>
+						removeHTMLTags(r?.question)
+							?.toLowerCase()
+							?.includes(removeHTMLTags(question)?.toLowerCase()),
+					);
+					if (!field) return '';
+					if (field.type === 'fileupload') {
+						return field?.answer?.length ? 'File Uploaded' : '';
+					}
+					if (field.type === 'events') {
+						if (!field?.answer || field.answer.length === 0) return '';
+						// Format events as a readable string (assuming answer is an array of objects)
+						return field.answer
+							.map((event) => {
+								const title = event.title || 'Unnamed Event';
+								const date = event.date
+									? moment(event.date).format('MMMM D, YYYY')
+									: 'No Date';
+								return `Event: ${title} (${date})`;
+							})
+							.join('\n');
+					}
+					return field?.answer || '';
+				})
+				.filter(Boolean)
+				.join('\n');
 
-				if (!field) return '';
-
-				// Handle file upload responses
-				if (field.type === 'fileupload') {
-					if (!field.answer || field.answer.length === 0) return 'No File Uploaded';
-					return 'File Uploaded';
-				}
-
-				return field.answer || '';
-			})
-			.filter(Boolean)
-			.join('\n');
-
-		navigator.clipboard.writeText(content).then(() => {
-			setCopyStatus((prev) => ({ ...prev, [question]: true }));
-			setTimeout(() => {
-				setCopyStatus((prev) => ({ ...prev, [question]: false }));
-			}, 2000);
-		});
-	};
-
-	const visibleItems = expanded ? formData.responses : formData.responses.slice(0, 5);
-
-	const getQuestionResponseCount = (questionText) => {
-		return formData.responses.filter((response) => {
-			const field = response?.response?.find((r) => {
-				return r?.question?.toLowerCase()?.includes(questionText?.toLowerCase() || '');
-			});
-
-			if (!field) return false;
-
-			if (field.type === 'fileupload') {
-				return field.answer && field.answer.length > 0;
+			if (content) {
+				navigator.clipboard.writeText(content).then(() => {
+					setCopyStatus((prev) => ({ ...prev, [question]: true }));
+					setTimeout(
+						() => setCopyStatus((prev) => ({ ...prev, [question]: false })),
+						2000,
+					);
+				});
 			}
+		},
+		[formData.responses],
+	);
 
-			return field.answer;
+	const getQuestionResponseCount = (questionText) =>
+		formData.responses.filter((response) => {
+			const field = response?.response?.find((r) =>
+				removeHTMLTags(r?.question)
+					?.toLowerCase()
+					?.includes(removeHTMLTags(questionText)?.toLowerCase()),
+			);
+			if (!field) return false;
+			if (field.type === 'fileupload') return field?.answer?.length > 0;
+			if (field.type === 'rating') return field?.answer && field.answer !== '0';
+			if (field.type === 'events') return field?.answer && field.answer.length > 0;
+			return field?.answer && field.answer !== '0' && field.answer !== '';
 		}).length;
-	};
-
-	const handleUserClick = (response) => {
-		if (onUserClick) {
-			onUserClick(response);
-		}
-	};
-
-	const handleCardClick = useCallback((response, index) => {
-		setSelectedResponse(response);
-		setExpandedCard(index);
-	}, []);
 
 	if (!formId) return <div>No form ID provided</div>;
 	if (error) return <div>Error: {error}</div>;
-	if (loading) return <div className="loading-state">Loading...</div>;
-	if (!formData.responses.length) return <div className="loading-state">Loading...</div>;
+	if (loading || !formData.responses.length)
+		return <div className="loading-state">Loading...</div>;
 
 	return (
 		<div className="formSummaryWrapper">
 			<div className="formSummaryParentContainer">
 				<div className="formSummaryContainer">
-					{questions?.map((item, index) => {
-						return (
-							<div key={index} className="section">
-								<div className="header">
-									<div className="header-top">
-										<span className="title">
-											<span className="question-number">Q{index + 1}:</span>{' '}
-											{item?.question}
+					{questions?.map((item, index) => (
+						<div key={index} className="section">
+							<div className="header">
+								<div className="header-top">
+									<span className="title">
+										<span className="question-number">Q{index + 1}:</span>{' '}
+										{removeHTMLTags(item?.question)}
+									</span>
+									<div
+										className="copy-button"
+										onClick={() => handleCopy(item?.question)}
+									>
+										<CopyIcon className="copy-icon" />
+										<span className="copy-text">
+											{copyStatus[item?.question] ? 'Copied!' : 'Copy'}
 										</span>
-										<div
-											className="copy-button"
-											onClick={() =>
-												handleCopy(item?.question?.toLowerCase() || '')
-											}
-										>
-											<Copy className="copy-icon" />
-											<span className="copy-text">
-												{copyStatus[item?.question?.toLowerCase() || '']
-													? 'Copied!'
-													: 'Copy'}
-											</span>
-										</div>
-									</div>
-									<div className="total-responses">
-										Total Responses: {getQuestionResponseCount(item.question)}
 									</div>
 								</div>
-
-								<FormResponseList
-									expanded={expanded}
-									handleExpand={handleExpand}
-									items={formData.responses}
-									visibleItems={visibleItems}
-									question={item.question}
-									handleCopy={handleCopy}
-									copyStatus={copyStatus}
-									type={item.type}
-									onUserClick={handleUserClick}
-								/>
+								<div className="total-responses">
+									Total Responses: {getQuestionResponseCount(item.question)}
+								</div>
 							</div>
-						);
-					})}
+							<FormResponseList
+								expanded={expanded}
+								handleExpand={handleExpand}
+								items={formData.responses}
+								question={item.question}
+								handleCopy={handleCopy}
+								copyStatus={copyStatus}
+								type={item.type}
+								onUserClick={onUserClick}
+							/>
+						</div>
+					))}
 				</div>
 			</div>
 		</div>

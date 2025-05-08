@@ -2543,5 +2543,6 @@ export const TemplatesState = (props) => {
 		pendingActionsUpdate,
 		duplicateSmartFile,
 		updateCitationChunks,
+		getFormResponseAnalytics,
 	};
 };

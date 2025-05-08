@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, useState } from 'react';
 import { Flex, Rate } from 'antd';
 import '../../../assets/scss/forms/FormDescription.scss';
 import { ReactComponent as CrossSvg } from '../../../assets/svg/doubleBack.svg';
@@ -28,6 +28,8 @@ import {
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import QuickActions from '../globalComponents/QuickActions';
+import FormPreview from './FormPreview';
+import moment from 'moment';
 
 const iconsForQuestions = {
 	shortText: <BiDash />,
@@ -60,22 +62,10 @@ const suggestedOptions = [
 ];
 
 const eventsTableHeaderData = [
-	{
-		id: 1,
-		label: 'Event Name',
-	},
-	{
-		id: 2,
-		label: 'Date',
-	},
-	{
-		id: 3,
-		label: 'Location',
-	},
-	{
-		id: 4,
-		label: 'Guests',
-	},
+	{ id: 1, label: 'Event Name' },
+	{ id: 2, label: 'Date' },
+	{ id: 3, label: 'Location' },
+	{ id: 4, label: 'Guests' },
 ];
 
 const removeHTMLTagsAndnbsp = (text) => text?.replace(/<\/?[^>]+(>|$)/g, '')?.replace(/ /g, ' ');
@@ -109,7 +99,7 @@ const DropdownAnswer = ({ answer }) => {
 	}
 	return (
 		<>
-			<p className={`answer`}>
+			<p className="answer">
 				<span className="selectedOption">{text || ''}</span>
 			</p>
 			<div className="divider"></div>
@@ -118,49 +108,60 @@ const DropdownAnswer = ({ answer }) => {
 };
 
 export const EventsAnswer = ({ answer }) => {
-	if (!answer) {
+	if (!answer) return '';
+
+	// Ensure answer is an array, parse if it's a string
+	let events;
+	try {
+		events = typeof answer === 'string' ? JSON.parse(answer) : answer;
+		events = Array.isArray(events) ? events : [events];
+	} catch (e) {
+		console.error('Error parsing events:', e);
 		return '';
 	}
 
-	let events = answer;
-
-	// Ensure we have an array of events
-	const eventsArray = Array.isArray(events) ? events : [events];
-
-	return eventsArray.length > 0 ? (
+	return events.length > 0 ? (
 		<>
 			<table className="eventsContainer">
 				<thead className="eventsTableHeader">
 					<tr className="eventsTableHeaderRow">
-						{eventsTableHeaderData?.map((headerData) => (
-							<th key={headerData?.id} className="eventsTableHeaderLabel">
-								{headerData?.label}
+						{eventsTableHeaderData.map((headerData) => (
+							<th key={headerData.id} className="eventsTableHeaderLabel">
+								{headerData.label}
 							</th>
 						))}
 					</tr>
 				</thead>
 				<tbody>
-					{eventsArray.map((event, index) => {
-						// Handle both string and object event formats
+					{events.map((event, index) => {
 						const eventName =
 							typeof event === 'string'
-								? event
-								: event?.name || event?.eventName || '';
+								? event.trim()
+								: (
+										event?.nameReactSelect?.label ||
+										event?.name ||
+										event?.eventName ||
+										''
+								  ).trim();
 						const eventDate =
-							typeof event === 'string' ? '' : event?.date || event?.eventDate || '';
+							typeof event === 'string'
+								? ''
+								: (event?.date || event?.eventDate || '').trim();
 						const eventLocation =
 							typeof event === 'string'
 								? ''
-								: event?.location || event?.eventLocation || '';
+								: (event?.location || event?.eventLocation || '').trim();
 						const eventGuests =
 							typeof event === 'string'
 								? ''
-								: event?.noOfGuests || event?.guests || '';
+								: (event?.noOfGuests || event?.guests || '').trim();
 
 						return (
 							<tr key={index} className="eventCard">
 								<td className="eventName">{eventName}</td>
-								<td className="eventDate">{eventDate}</td>
+								<td className="eventDate">
+									{moment(eventDate).format('DD MMM YYYY')}
+								</td>
 								<td className="eventLocation">{eventLocation}</td>
 								<td className="eventGuests">{eventGuests}</td>
 							</tr>
@@ -198,7 +199,7 @@ const TimeAnswer = ({ answer }) => {
 	const minutes = answer?.split(':')[1];
 	return (
 		<>
-			<p className={`answer timeContainer`}>
+			<p className="answer timeContainer">
 				<span className="time">{hours}</span>
 				<TimeDivider />
 				<span className="time">{minutes}</span>
@@ -240,6 +241,7 @@ const LinkAnswer = ({ answer }) => {
 };
 
 const FileUploadAnswer = ({ answer }) => {
+	const [selectedFile, setSelectedFile] = useState(null);
 	// Ensure answer is an array and parse if it's a string
 	let files;
 	try {
@@ -257,8 +259,7 @@ const FileUploadAnswer = ({ answer }) => {
 		<>
 			{files?.length > 0 && (
 				<div className="fileUploadContainer">
-					{files?.map((file, index) => {
-						// Handle both string and object file formats
+					{files.map((file, index) => {
 						const fileName =
 							typeof file === 'string' ? file : file?.name || file?.fileName || '';
 						const fileUrl =
@@ -281,12 +282,32 @@ const FileUploadAnswer = ({ answer }) => {
 						return (
 							<div key={index} className="fileItem">
 								{isImage ? (
-									<div className="imagePreview">
+									<div
+										className="imagePreview"
+										onClick={() =>
+											setSelectedFile({
+												name: fileName,
+												fileURL: fileUrl,
+												type: 'image',
+											})
+										}
+										style={{ cursor: 'pointer' }}
+									>
 										<img src={fileUrl} alt={fileName} />
 										<span className="fileName">{fileName}</span>
 									</div>
 								) : (
-									<div className="filePreview">
+									<div
+										className="filePreview"
+										onClick={() =>
+											setSelectedFile({
+												name: fileName,
+												fileURL: fileUrl,
+												type: 'document',
+											})
+										}
+										style={{ cursor: 'pointer' }}
+									>
 										<div className="fileIcon">
 											{isPDF && <FilePdfOutlined />}
 											{isDocument && <FileTextOutlined />}
@@ -297,20 +318,16 @@ const FileUploadAnswer = ({ answer }) => {
 												!isSpreadsheet &&
 												!isPresentation && <FileOutlined />}
 										</div>
-										<a
-											href={fileUrl}
-											target="_blank"
-											rel="noopener noreferrer"
-											className="fileName"
-										>
-											{fileName}
-										</a>
+										<span className="fileName">{fileName}</span>
 									</div>
 								)}
 							</div>
 						);
 					})}
 				</div>
+			)}
+			{selectedFile && (
+				<FormPreview file={selectedFile} onClose={() => setSelectedFile(null)} />
 			)}
 			<div className="divider"></div>
 		</>

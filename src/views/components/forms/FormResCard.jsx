@@ -325,7 +325,6 @@ const FormResCard = ({
 					style={{
 						display: 'flex',
 						flexDirection: 'column',
-						gap: '16px',
 						width: '100%',
 					}}
 					height="calc(100vh - 100px)"

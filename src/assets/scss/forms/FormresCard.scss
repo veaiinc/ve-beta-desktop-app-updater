@@ -19,11 +19,11 @@
 	background: var(--card);
 	color: var(--color);
 	display: flex;
-	padding: 14px;
+
 	flex-direction: column;
 	justify-content: center;
 	align-items: flex-start;
-	gap: 12px;
+
 	align-self: stretch;
 	width: 100%;
 	border-radius: 14px;
@@ -31,6 +31,10 @@
 	cursor: pointer;
 	transition: all 0.3s ease;
 	margin-bottom: 16px;
+
+	padding: 12px 16px;
+
+	gap: 8px;
 }
 
 .resWrapper:hover {
