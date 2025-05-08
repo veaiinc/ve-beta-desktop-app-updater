@@ -22,52 +22,56 @@ const ContactsListView = ({ data, hasMore, fetchMore }) => {
 				</div>
 			</div>
 			<div className="table-body-container">
-				<InfiniteScroll
-					dataLength={data?.length || 0}
-					next={fetchMore}
-					hasMore={hasMore}
-					loader={<FetchMoreLoaderComp />}
-					style={{
-						height: '100%',
-						overflow: 'auto',
-					}}
-				>
-					<div className="table-body">
-						{data?.map((contact) => (
-							<div
-								key={contact?._id}
-								className="table-row"
-								onClick={() => navigate(`/contact/${contact?._id}`)}
-							>
-								<div className="row-left">
-									<div className="people">
-										{/* <input type="checkbox" className="checkbox" /> */}
-										{/* <div className="avatar">{contact.avatar}</div> */}
-										<div className="contact-info">
-											<div className="name">{contact?.name || ''}</div>
-											<div className="email">
-												{contact?.email || contact?.phoneNumber || ''}
+				{data?.length === 0 ? (
+					<div className="no-contacts-found">No contacts found</div>
+				) : (
+					<InfiniteScroll
+						dataLength={data?.length || 0}
+						next={fetchMore}
+						hasMore={hasMore}
+						loader={<FetchMoreLoaderComp />}
+						style={{
+							height: '100%',
+							overflow: 'auto',
+						}}
+					>
+						<div className="table-body">
+							{data?.map((contact) => (
+								<div
+									key={contact?._id}
+									className="table-row"
+									onClick={() => navigate(`/contact/${contact?._id}`)}
+								>
+									<div className="row-left">
+										<div className="people">
+											{/* <input type="checkbox" className="checkbox" /> */}
+											{/* <div className="avatar">{contact.avatar}</div> */}
+											<div className="contact-info">
+												<div className="name">{contact?.name || ''}</div>
+												<div className="email">
+													{contact?.email || contact?.phoneNumber || ''}
+												</div>
 											</div>
 										</div>
 									</div>
-								</div>
-								<div className="row-right">
-									<div className="strength">
-										{/* <span
+									<div className="row-right">
+										<div className="strength">
+											{/* <span
                         className={`dot ${contact.strength.toLowerCase()}`}
                     ></span>
                     <span className="text">{contact.strength}</span> */}
-									</div>
-									<div className="interaction">
-										{contact?.updatedAt
-											? dayjs?.unix(contact?.updatedAt)?.fromNow() // Converts Unix seconds -> "14 days ago"
-											: 'N/A'}
+										</div>
+										<div className="interaction">
+											{contact?.updatedAt
+												? dayjs?.unix(contact?.updatedAt)?.fromNow() // Converts Unix seconds -> "14 days ago"
+												: 'N/A'}
+										</div>
 									</div>
 								</div>
-							</div>
-						))}
-					</div>
-				</InfiniteScroll>
+							))}
+						</div>
+					</InfiniteScroll>
+				)}
 			</div>
 		</div>
 	);

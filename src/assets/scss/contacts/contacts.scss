@@ -178,6 +178,14 @@
 		padding: 32px 0 0 0;
 		height: 100%;
 
+		.skeleton {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			width: 100%;
+			color: var(--primary-font, #f2f2f3);
+		}
+
 		.header {
 			display: flex;
 			justify-content: space-between;
@@ -226,6 +234,12 @@
 					}
 				}
 			}
+		}
+
+		.contacts-body {
+			width: 100%;
+			flex-grow: 1;
+			overflow: auto;
 		}
 	}
 }
