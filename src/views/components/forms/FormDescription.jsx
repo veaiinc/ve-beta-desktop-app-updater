@@ -1,4 +1,4 @@
-import React from 'react';
+import { memo } from 'react';
 import { Flex, Rate } from 'antd';
 import '../../../assets/scss/forms/FormDescription.scss';
 import { ReactComponent as CrossSvg } from '../../../assets/svg/doubleBack.svg';
@@ -588,4 +588,4 @@ const FormDescription = ({ response, onClose, formId, activeTab, loading }) => {
 	);
 };
 
-export default FormDescription;
+export default memo(FormDescription);
