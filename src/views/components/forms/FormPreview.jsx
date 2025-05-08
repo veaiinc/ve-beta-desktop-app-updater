@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Modal } from 'antd';
 import { ReactComponent as DownloadIcon } from '../../../assets/svg/download.svg';
 import { ReactComponent as CloseIcon } from '../../../assets/svg/close.svg';
@@ -19,33 +19,33 @@ const FormPreview = ({ file, onClose }) => {
 		try {
 			// Fetch the file
 			const response = await fetch(fileURL);
-			const blob = await response.blob();
+			const blob = await response?.blob();
 
 			// Create a blob URL
-			const blobUrl = window.URL.createObjectURL(blob);
+			const blobUrl = window?.URL?.createObjectURL(blob);
 
 			// Create a temporary link element
-			const link = document.createElement('a');
+			const link = document?.createElement('a');
 			link.href = blobUrl;
 			link.download = name || 'download';
 
 			// Append to body, click, and remove
-			document.body.appendChild(link);
+			document?.body?.appendChild(link);
 			link.click();
 
 			// Clean up
-			document.body.removeChild(link);
-			window.URL.revokeObjectURL(blobUrl);
+			document?.body?.removeChild(link);
+			window?.URL?.revokeObjectURL(blobUrl);
 		} catch (error) {
 			console.error('Error downloading file:', error);
 			// Fallback to direct download if fetch fails
-			const link = document.createElement('a');
+			const link = document?.createElement('a');
 			link.href = fileURL;
 			link.download = name || 'download';
 			link.target = '_blank';
-			document.body.appendChild(link);
+			document?.body?.appendChild(link);
 			link.click();
-			document.body.removeChild(link);
+			document?.body?.removeChild(link);
 		}
 	};
 

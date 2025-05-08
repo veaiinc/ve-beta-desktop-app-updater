@@ -549,9 +549,9 @@ const FormDescription = ({ response, onClose, formId, activeTab, loading }) => {
 			<div className="descriptionContent">
 				{response ? (
 					<>
-						<div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+						{/* <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
 							<QuickActions suggestedOptions={suggestedOptions} isFromForms={true} />
-						</div>
+						</div> */}
 						<div className="descriptionSection">
 							<h3 className="sectionTitle">Basic Information</h3>
 							{getBasicInfo(response).map((field, index) => (

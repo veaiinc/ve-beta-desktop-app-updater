@@ -272,7 +272,7 @@ const FormSummary = ({ formId: inputFormId, onDataUpdate, onUserClick }) => {
 					title: prev.title || data?.[0]?.title || '',
 				}));
 			} else {
-				setError('Failed to fetch form responses');
+				setError('No Responses Found');
 			}
 		} catch (err) {
 			setError(err.message || 'An error occurred');
@@ -342,14 +342,17 @@ const FormSummary = ({ formId: inputFormId, onDataUpdate, onUserClick }) => {
 		}).length;
 
 	if (!formId) return <div>No form ID provided</div>;
-	if (error) return <div>Error: {error}</div>;
+	if (!formData.responses.length) return <div className="no-responses">No summary found</div>;
 	if (loading || !formData.responses.length)
 		return <div className="loading-state">Loading...</div>;
 
 	return (
 		<div className="formSummaryWrapper">
 			<div className="formSummaryParentContainer">
-				<div className="formSummaryContainer">
+				<div
+					className="formSummaryContainer"
+					style={{ height: '100%', overflow: 'auto', marginBottom: '100px' }}
+				>
 					{questions?.map((item, index) => (
 						<div key={index} className="section">
 							<div className="header">
