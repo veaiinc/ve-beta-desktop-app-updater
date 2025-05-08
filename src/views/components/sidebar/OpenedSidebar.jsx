@@ -321,15 +321,12 @@ const OpenedSidebar = ({
 		logoutFunc();
 	}, [logoutFunc]);
 
-	const openWorkspacesFunction = () => {
-		setsidebarStates((prevState) => {
-			const newState = {
-				...prevState,
-				workSpaceOpen: !prevState?.workSpaceOpen,
-				navStyle: prevState?.workSpaceOpen ? 'close' : 'workspace',
-			};
-			return newState;
-		});
+	const openWorkspacesFunction = (isOpen) => {
+		setsidebarStates((prevState) => ({
+			...prevState,
+			workSpaceOpen: isOpen,
+			navStyle: isOpen ? 'workspace' : 'close',
+		}));
 	};
 
 	const handleNavigateFunction = useCallback(
@@ -1006,7 +1003,8 @@ const OpenedSidebar = ({
 								{!sidebarStates?.workSpaceOpen && (
 									<div
 										className="settings-footer"
-										onClick={openWorkspacesFunction}
+										onMouseEnter={() => openWorkspacesFunction(true)}
+										onMouseLeave={() => openWorkspacesFunction(false)}
 									>
 										<SwitchWorkspaceSvg fill="var(--primary-font)" />
 										<p>Switch workspace</p>
@@ -1098,6 +1096,7 @@ const OpenedSidebar = ({
 						info={info}
 						userWorkSpaceList={userWorkSpaceList}
 						sidebarSettings="close"
+						openWorkspacesFunction={openWorkspacesFunction}
 					/>
 				</div>
 			)}
