@@ -1114,51 +1114,56 @@ const ChatBox = ({
 											</div>
 										)}
 										{startPage && !isPublicChat && (
-											<UploadFileTooltip
-												fileTypeIcons={fileTypeIcons}
-												handleChange={handleFileAttachmentChange}
-												isUploadFileOpen={info?.isUploadFileOpen}
-												setIsUploadFileOpen={(value) => {
-													if (chatInfo?.deepResearch) return;
-													setInfo((prev) => ({
-														...prev,
-														isUploadFileOpen: value,
-													}));
-												}}
-												handleRecentFileClick={handleRecentFileClick}
-												recentFiles={recentFilesRef.current || []}
-											>
-												<Tooltip
-													title={
-														<div className="chatbox-icon-tooltip-container">
-															Upload File
-														</div>
-													}
-													color="transparent"
-													arrow={false}
-													rootClassName="chatbox-tooltip"
+											<>
+												<UploadFileTooltip
+													fileTypeIcons={fileTypeIcons}
+													handleChange={handleFileAttachmentChange}
+													isUploadFileOpen={info?.isUploadFileOpen}
+													setIsUploadFileOpen={(value) => {
+														if (chatInfo?.deepResearch) return;
+														setInfo((prev) => ({
+															...prev,
+															isUploadFileOpen: value,
+														}));
+													}}
+													handleRecentFileClick={handleRecentFileClick}
+													recentFiles={recentFilesRef.current || []}
 												>
-													<div
-														className="chat-box-icon-container"
-														style={{
-															opacity: `${
-																chatInfo?.deepResearch ? '0.5' : '1'
-															}`,
-															background: 'var(--card)',
-															padding: '6px 8px',
-														}}
+													<Tooltip
+														title={
+															<div className="chatbox-icon-tooltip-container">
+																Upload File
+															</div>
+														}
+														color="transparent"
+														arrow={false}
+														rootClassName="chatbox-tooltip"
 													>
 														<div
-															className="icon"
-															style={{ cursor: 'pointer' }}
+															className="chat-box-icon-container"
+															style={{
+																opacity: `${
+																	chatInfo?.deepResearch
+																		? '0.5'
+																		: '1'
+																}`,
+																background: 'var(--card)',
+																padding: '6px 8px',
+															}}
 														>
-															<PlusSvg width={24} height={24} />
+															<div
+																className="icon"
+																style={{ cursor: 'pointer' }}
+															>
+																<PlusSvg width={24} height={24} />
+															</div>
 														</div>
-													</div>
-												</Tooltip>
-											</UploadFileTooltip>
+													</Tooltip>
+												</UploadFileTooltip>
+												<div className="vertical-line"></div>
+											</>
 										)}
-										<div className="vertical-line"></div>
+
 										<div className="placeholderContainer">
 											<textarea
 												type="text"
@@ -1406,8 +1411,8 @@ const ChatBox = ({
 																title={
 																	<div className="chatbox-icon-tooltip-container">
 																		{chatInfo?.workspaceSearch
-																			? 'Explore internal data'
-																			: 'Explore internal data'}
+																			? 'Explore workspace data'
+																			: 'Explore workspace data'}
 																	</div>
 																}
 																color="transparent"
@@ -1446,7 +1451,7 @@ const ChatBox = ({
 																						: 'var(--primary-font)',
 																				}}
 																			>
-																				Internal Search
+																				Workspace Search
 																			</div>
 																		)}
 																	</div>

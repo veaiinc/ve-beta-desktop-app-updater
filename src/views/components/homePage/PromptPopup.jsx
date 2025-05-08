@@ -287,14 +287,9 @@ const PromptPopup = ({
 									return (
 										<span key={index} style={spanStyles}>
 											<span
+												className="editableContentStyles"
 												contentEditable
 												suppressContentEditableWarning
-												style={{
-													borderBottom: '1px dashed var(--stroke)',
-													padding: '0 4px',
-													color: 'var(--primary-font)',
-													outline: 'none',
-												}}
 												onBlur={(e) =>
 													handleVariableChange(
 														part.value,

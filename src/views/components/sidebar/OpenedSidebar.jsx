@@ -496,8 +496,11 @@ const OpenedSidebar = ({
 		document.dispatchEvent(event);
 	};
 	const handleNewChat = () => {
-		const sessionId = ObjectID().toString();
+		const sessionId = ObjectID()?.toString();
 		navigate(`/chat/${sessionId}`);
+		updateStateValues({
+			currentChatData: null,
+		});
 	};
 	return (
 		<>
@@ -570,10 +573,11 @@ const OpenedSidebar = ({
 													padding: '6px 10px',
 													borderRadius: '10px',
 													fontSize: '14px',
-													background: '#E8E8E8',
-													color: '#202123',
+													backgroundColor: 'var(--card)',
+													color: 'var(--primary-font)',
 													textAlign: 'center',
 													marginLeft: '12px',
+													border: '1px solid var(--stroke)',
 												}}
 											>
 												<SidebarClosingSvg

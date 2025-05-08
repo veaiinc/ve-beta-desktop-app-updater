@@ -84,6 +84,9 @@ const AIMessageRenderer = ({
 		<div className="ai-message-renderer">
 			<div
 				className={`tabs-wrapper`}
+				style={{
+					marginBottom: messageData?.message?.length > 0 ? '16px' : '32px',
+				}}
 				ref={(el) => {
 					if (el) {
 						tabsRefs.current[messageData?.messageId] = el;

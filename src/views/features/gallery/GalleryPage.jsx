@@ -218,7 +218,7 @@ const GalleryPage = () => {
 		showCollaborators: false,
 		activeGallery: location?.state?.galleryData,
 		isLightGallery: searchkeys.get('lite-gallery') || false,
-		activeAlbumId: tenantAlbums?.albums?.[0]?._id,
+		activeAlbumId: null,
 		callToAction: tenantPreferences?.ctaPreferences?.isEnabled,
 		timeout: null,
 		galleryDueDate: location?.state?.galleryData?.dueDateEpoch,
@@ -286,7 +286,7 @@ const GalleryPage = () => {
 		expiryDate: '',
 		showDeletePopup: false,
 		showUploadCover: false,
-		activeAlbumId: null,
+		// activeAlbumId: null,
 		albumName: '',
 		showShareAlbum: false,
 		showDownloadAlbum: false,
@@ -604,10 +604,13 @@ const GalleryPage = () => {
 			}));
 		}
 	}, [clientSelectionImages]);
+
 	useEffect(() => {
-		if (!albumImagesCount) {
+		if (galleryId) {
 			getAlbumImagesCount(galleryId);
 		}
+	}, [galleryId]);
+	useEffect(() => {
 		if (albumImagesCount) {
 			setInfo((prev) => ({
 				...prev,
@@ -637,9 +640,6 @@ const GalleryPage = () => {
 					navigate('/galleries');
 				}
 			});
-			if (!albumImagesCount) {
-				getAlbumImagesCount(galleryId);
-			}
 		}
 		if (!tenantPreferences || tenantPreferences?._id !== galleryId) {
 			getEditPreferences(galleryId);
@@ -658,7 +658,7 @@ const GalleryPage = () => {
 		}
 
 		// Only set the active album if it's not already set
-		if (tenantAlbums && !info?.activeAlbumId) {
+		if (tenantAlbums && galleryId) {
 			setInfo((prev) => ({
 				...prev,
 				albumName: tenantAlbums?.albums?.[0]?.title,
@@ -671,7 +671,7 @@ const GalleryPage = () => {
 			}));
 		}
 		// ... rest of the effect
-	}, [tenantPreferences]);
+	}, [tenantPreferences, galleryId]);
 
 	useEffect(() => {
 		if (updateActiveAlbum !== null && updateActiveAlbum !== info?.activeAlbum) {
@@ -739,13 +739,13 @@ const GalleryPage = () => {
 	}, [info?.activeAlbumId]);
 
 	useEffect(() => {
-		if (info?.albumTagId && info?.activeAlbumId && info?.activeTab === 'Albums') {
+		if (info?.albumTagId && info?.activeAlbumId && info?.activeTab === 'Albums' && galleryId) {
 			handleGetGalleryImages();
 		}
-	}, [info?.albumTagId, info?.activeAlbumId, info?.activeTab]);
+	}, [info?.albumTagId, info?.activeAlbumId, info?.activeTab, galleryId]);
 
 	const handleGetGalleryImages = async () => {
-		if (info?.albumTagId && info?.activeAlbumId && info?.activeTab === 'Albums') {
+		if (info?.albumTagId && info?.activeAlbumId && info?.activeTab === 'Albums' && galleryId) {
 			setInfo((prev) => ({
 				...prev,
 				loadingImagesList: true,
@@ -1051,7 +1051,7 @@ const GalleryPage = () => {
 			const searchParams = new URLSearchParams(location.search);
 
 			if (info.activeAlbumId) {
-				searchParams.set('albumId', info.activeAlbumId);
+				searchParams.set('albumId', info?.activeAlbumId);
 			}
 
 			if (info.activeTab) {
@@ -3532,6 +3532,14 @@ const GalleryPage = () => {
 			isGalleryViewer: false,
 		}));
 	};
+	const handleBackNavigation = () => {
+		navigate(location.pathname, { replace: true, state: {} });
+		setInfo((prev) => ({
+			...prev,
+			activeAlbumId: null,
+		}));
+		navigate(-1);
+	};
 	return (
 		<>
 			<div className="galleryContainer">
@@ -3545,11 +3553,7 @@ const GalleryPage = () => {
 						</span>
 						<span
 							className="galleryTitle"
-							onClick={() =>
-								info?.isLightGallery
-									? navigate(`/lite-gallery`)
-									: navigate(`/galleries`)
-							}
+							onClick={handleBackNavigation}
 							style={{ cursor: 'pointer' }}
 						>
 							Files

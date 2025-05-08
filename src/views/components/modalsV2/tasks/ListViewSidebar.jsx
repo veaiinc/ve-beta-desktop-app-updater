@@ -295,6 +295,7 @@ const ListViewSidebar = ({
 			headerStyle={{ display: 'none' }}
 			bodyStyle={{ padding: '0px', overflow: 'hidden' }}
 			className="listview-sidebar-drawer"
+			destroyOnClose={true}
 		>
 			<div
 				className={`listView-sidebar-container ${

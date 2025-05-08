@@ -547,6 +547,7 @@
 					font-weight: 500;
 					line-height: normal;
 					align-self: stretch;
+					margin: 0;
 				}
 			}
 			.searchWorkspace {
@@ -645,6 +646,7 @@
 						font-style: normal;
 						font-weight: 500;
 						line-height: normal;
+						margin: 0;
 					}
 					&:hover {
 						border-radius: 12px;
@@ -955,7 +957,8 @@
 			font-style: normal;
 			font-weight: 500;
 			line-height: normal;
-			padding-bottom: 10px;
+			padding: 0px 10px;
+			margin-bottom: 10px;
 		}
 		.settings-option-item {
 			display: flex;
@@ -991,7 +994,7 @@
 		justify-content: flex-start;
 		align-items: flex-start;
 		padding: 0px 10px;
-		gap: 10px;
+		gap: 4px;
 		margin-bottom: 5rem;
 		flex-grow: 1;
 		.settings-options-title {
@@ -1001,6 +1004,8 @@
 			font-style: normal;
 			font-weight: 500;
 			line-height: normal;
+			padding: 0px 10px;
+			margin-bottom: 10px;
 		}
 		.settings-option {
 			width: 100%;
@@ -1009,7 +1014,7 @@
 			width: 100%;
 			display: flex;
 			justify-content: space-between;
-			gap: 14px;
+			gap: 12px;
 			align-items: center;
 			padding: 10px;
 			position: relative;
@@ -1330,7 +1335,9 @@
 		}
 	}
 }
-
+.ant-tooltip-inner {
+	background: var(--card) !important;
+}
 @keyframes slideInAnimation {
 	0% {
 		transform: translateX(-100%);

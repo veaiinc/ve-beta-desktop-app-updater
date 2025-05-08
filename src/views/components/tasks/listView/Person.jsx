@@ -1,150 +1,73 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useCallback, memo, useState, useEffect } from 'react';
+import { useCallback, memo, useState, useEffect } from 'react';
 import '../../../../assets/scss/tasks/person.scss';
-import { Select, Tooltip } from 'antd';
+import { Tooltip } from 'antd';
+import TeamMembersDropdown from '../../dropDown/tasks/TeamMembersDropdown';
 
 const Person = ({
 	value,
-	parseValue = false,
 	showLabel = false,
 	title,
-	customListItemStyle = {},
 	onOptionClick,
-	options = [],
 	multiSelect = false,
 	disabled = false,
 	showTitle = false,
 }) => {
 	const [info, setInfo] = useState({
-		value: null,
-		search: '',
+		open: false,
+		selected: [],
 	});
 
 	useEffect(() => {
-		if (!value || (Array.isArray(value) && value.length === 0)) {
-			setInfo({ value: null });
-			return;
-		}
-
-		let newVal = value;
-		if (parseValue) {
-			newVal = Array.isArray(value)
-				? value.map((v) => ({ value: v?._id, label: v?.name }))
-				: { value: value?._id, label: value?.name };
-		}
-		setInfo({
-			value: newVal,
-		});
-	}, [parseValue, value]);
-
-	const parsedValueAndLabel = useCallback(
-		(value, type) => {
-			if (type === 'reverse') {
-				let parsed = null;
-				if (multiSelect) {
-					parsed = value?.map((item) => ({ _id: item?.value, name: item?.label }));
-				} else {
-					parsed = value ? { _id: value?.value, name: value?.label } : null;
-				}
-				return parsed;
-			} else {
-				let parsed = null;
-				if (multiSelect) {
-					parsed = value?.map((item) => ({ value: item?._id, label: item?.name }));
-				} else {
-					parsed = value ? { value: value?._id, label: value?.name } : null;
-				}
-				return parsed;
-			}
-		},
-		[multiSelect],
-	);
-
-	const renderPerson = (option) => {
-		return (
-			<div className="person-tag" style={customListItemStyle}>
-				<div className="person-tag-avatar" style={{ display: 'flex', flexShrink: 0 }}>
-					{/* <img src={profile || ''} alt="" /> */}
-					<div
-						className="person-tag-avatar-icon"
-						style={{ flexShrink: 0, width: '20px', height: '20px' }}
-					>
-						{option?.label?.[0]?.toUpperCase()}
-					</div>
-				</div>
-				{showLabel ? <div className="person-tag-label">{option?.label}</div> : ''}
-			</div>
-		);
-	};
-
-	const customOnOptionClick = (value) => {
-		if (parseValue) {
-			const parsed = parsedValueAndLabel(value, 'reverse');
-			onOptionClick(parsed);
-			return;
-		}
-		onOptionClick(value);
-	};
-
-	const optionRender = useCallback(
+		if (!value || value?.length === 0) return;
+		setInfo((prev) => ({
+			...prev,
+			selected: multiSelect
+				? value?.map((item) => ({ _id: item?._id, name: item?.name }))
+				: [{ _id: value?._id, name: value?.name }],
+		}));
+	}, [value]);
+	const handleOptionClick = useCallback(
 		(option) => {
-			const isSelected = multiSelect
-				? Array.isArray(info?.value) && info.value.some((v) => v?.value === option.value)
-				: info?.value?.value === option.value;
+			const isSelected = info?.selected?.some((item) => item._id === option._id);
+			let newSelected;
 
-			return (
-				<div
-					className="person-dropdown-menu-option"
-					style={{ backgroundColor: isSelected ? 'var(--card-hover)' : `` }}
-				>
-					<div className="person-dropdown-menu-option-avatar">
-						{option?.image ? (
-							<img src={option?.image} alt="" />
-						) : (
-							<div className="person-dropdown-menu-option-avatar-icon">
-								{option?.label?.[0]?.toUpperCase()}
-							</div>
-						)}
-					</div>
-					<div className="person-dropdown-menu-option-label">{option?.label}</div>
-				</div>
-			);
+			if (multiSelect) {
+				if (isSelected) {
+					newSelected = info?.selected?.filter((item) => item._id !== option._id);
+				} else {
+					newSelected = [
+						...(info?.selected || []),
+						{ name: option?.name, _id: option?._id },
+					];
+				}
+				onOptionClick?.(newSelected);
+			} else {
+				newSelected = isSelected ? [] : [{ name: option?.name, _id: option?._id }];
+				onOptionClick?.(newSelected[0] || null);
+			}
+
+			setInfo((prev) => ({ ...prev, selected: newSelected }));
 		},
-		[info?.value, multiSelect],
-	);
-
-	const handleSearchChange = (e) => {
-		e?.stopPropagation();
-		e?.preventDefault();
-		setInfo((prevInfo) => ({ ...prevInfo, search: e?.target?.value }));
-	};
-
-	// Handle keydown in search input to prevent backspace from removing tags
-	const handleSearchKeyDown = (e) => {
-		// If backspace is pressed in search input, don't let it bubble up to Select
-		if (e.key === 'Backspace') {
-			e.stopPropagation();
-		}
-	};
-
-	const filteredOptions = options?.filter((item) =>
-		item?.label?.toLowerCase()?.includes(info?.search?.toLowerCase() || ''),
+		[info?.selected],
 	);
 
 	return (
 		<Tooltip
 			title={
 				showTitle
-					? info?.value && (
-							<div className="person-tooltip-container">{`${title} ${
-								Array.isArray(info?.value)
-									? `${info?.value?.[0]?.label} ${
-											info?.value?.length > 1
-												? `+${info?.value?.length - 1} more`
-												: ''
-									  }`
-									: info?.value?.label
-							}`}</div>
+					? info?.selected?.length > 0 && (
+							<div className="person-tooltip-container">
+								{`${title} ${
+									info?.selected?.length
+										? `${info.selected[0]?.name}${
+												info.selected.length > 1
+													? ` +${info.selected.length - 1} more`
+													: ''
+										  }`
+										: ''
+								}`}
+							</div>
 					  )
 					: ''
 			}
@@ -152,67 +75,72 @@ const Person = ({
 			overlayClassName="person-tooltip-wrapper"
 			color="transparent"
 		>
-			<Select
-				placeholder={
-					!value || (Array.isArray(value) && value.length === 0)
-						? disabled
-							? 'No data'
-							: `${title || 'person'}`
-						: undefined
+			<Tooltip
+				title={
+					!disabled && (
+						<TeamMembersDropdown
+							onOptionClick={handleOptionClick}
+							selectedOptions={info?.selected}
+							title={title}
+						/>
+					)
 				}
-				options={filteredOptions}
-				variant="borderless"
-				labelInValue
-				showSearch={false}
-				disabled={disabled}
-				onClick={(e) => {
-					e.stopPropagation();
-				}}
-				style={{
-					width:
-						(!info?.value && !value) || (Array.isArray(value) && value.length === 0)
-							? '100px'
-							: 'fit-content',
-					color: disabled ? 'var(--secondary-font)' : 'var(--primary-font)',
-				}}
-				className={`person-select ${disabled ? 'disabled' : ''}`}
-				popupClassName="person-select-dropdown"
-				dropdownStyle={{
-					backgroundColor: 'var(--card-over-card)',
-					width: '220px',
-					color: 'var(--primary-font)',
-				}}
-				notFoundContent="No options available"
-				onDropdownVisibleChange={(open) => {}}
-				{...(multiSelect ? { tagRender: renderPerson } : { labelRender: renderPerson })}
-				dropdownRender={(menu) => {
-					return (
-						<div className="person-dropdown-menu">
-							<div className="person-dropdown-menu-header">
-								<div className="person-dropdown-menu-header-title">{title}</div>
-								<div className="person-dropdown-menu-header-search">
-									<input
-										type="text"
-										placeholder="Search..."
-										value={info?.search}
-										onChange={handleSearchChange}
-										onKeyDown={handleSearchKeyDown}
-									/>
+				placement="bottom"
+				trigger="click"
+				arrow={false}
+				color="transparent"
+				overlayStyle={{ minWidth: 'fit-content' }}
+				destroyTooltipOnHide
+			>
+				<div
+					className="person-multi-select-selected"
+					onClick={(e) => {
+						e?.stopPropagation();
+						setInfo((prev) => ({ ...prev, open: !info?.open }));
+					}}
+				>
+					{info?.selected?.length > 0 ? (
+						<div className="person-multi-select-selected-list">
+							{(showLabel ? info?.selected : info?.selected?.slice(0, 3)).map(
+								(item) => (
+									<div
+										className={
+											'person-multi-select-selected-item ' +
+											(!showLabel
+												? 'person-multi-select-selected-item-stacked'
+												: '')
+										}
+										key={item?._id}
+									>
+										<div className="person-multi-select-selected-item-avatar">
+											{item?.name?.charAt(0)}
+										</div>
+										{showLabel && (
+											<div className="person-multi-select-selected-item-name">
+												<span className="person-multi-select-selected-item-name-text">
+													{item?.name}
+												</span>
+											</div>
+										)}
+									</div>
+								),
+							)}
+							{!showLabel && info?.selected?.length > 3 && (
+								<div
+									className="person-multi-select-selected-item person-multi-select-selected-item-stacked"
+									onClick={() => setInfo((prev) => ({ ...prev, open: true }))}
+								>
+									<div className="person-multi-select-selected-item-avatar">
+										+{info?.selected?.length - 3}
+									</div>
 								</div>
-							</div>
-							<div className="person-dropdown-menu-body">{menu}</div>
+							)}
 						</div>
-					);
-				}}
-				optionRender={optionRender}
-				suffixIcon={<></>}
-				mode={multiSelect ? 'multiple' : undefined}
-				listHeight={256}
-				menuItemSelectedIcon={null}
-				virtual={false}
-				onChange={customOnOptionClick}
-				value={info?.value}
-			/>
+					) : (
+						`Select ${title}`
+					)}
+				</div>
+			</Tooltip>
 		</Tooltip>
 	);
 };
