@@ -1,4 +1,4 @@
-import React, { useEffect, useState, memo, useRef } from 'react';
+import { useEffect, useState, memo, useRef } from 'react';
 import { Drawer, Flex, Rate } from 'antd';
 import '../../../assets/scss/forms/formModal.scss';
 import { ReactComponent as CrossSvg } from '../../../assets/svg/doubleBack.svg';
