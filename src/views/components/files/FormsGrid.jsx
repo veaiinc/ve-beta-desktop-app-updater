@@ -1,21 +1,45 @@
+import { memo, useCallback, useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/files/index.scss';
 import '../../../assets/scss/files/files.scss';
-import { ReactComponent as Plus } from '../../../assets/svg/files/Plus.svg';
 import moment from 'moment';
-import { DocsStatusButton } from '../../features/docs/Docs';
-import { memo, useContext, useEffect, useState } from 'react';
 import InfiniteScroll from '../globalComponents/InfiniteScroll';
 import Context from '../../../context/context';
 import gsap from 'gsap';
 import Spinner from '../loaders/Spinner';
 import FilterDropdown from '../dropDown/file/FilterDropdown';
 import EmptyState from './EmptyState';
-import { Tooltip } from 'antd';
+import { ReactComponent as Plus } from '../../../assets/svg/files/Plus.svg';
+import { ReactComponent as Link } from '../../../assets/svg/files/link.svg';
+import { ReactComponent as Copy } from '../../../assets/svg/files/copy.svg';
+import { ReactComponent as Share } from '../../../assets/svg/files/share.svg';
+import { ReactComponent as GreenDot } from '../../../assets/svg/files/green-dot.svg';
+import { ReactComponent as GreyDot } from '../../../assets/svg/files/grey-dot.svg';
+import { ReactComponent as TrendUp } from '../../../assets/svg/files/trend-up.svg';
+import { message } from '../globalComponents/CustomToast';
+import { fetchOriginSelection } from '../../../helpers';
 
 const sortOptions = [
 	{ label: 'Recently Added', value: 'createdAt', sortType: -1 },
 	{ label: 'Recently Updated', value: 'updatedAt', sortType: -1 },
 	{ label: 'A-Z', value: 'title', sortType: 1 },
+];
+
+const fileCtaMapper = [
+	{
+		id: 0,
+		icon: <Link />,
+		action: 'copyFormLink',
+	},
+	{
+		id: 1,
+		icon: <Copy />,
+		action: 'duplicate',
+	},
+	// {
+	// 	id: 2,
+	// 	icon: <Share />,
+	// action: 'share',
+	// },
 ];
 
 const FormsGrid = ({
@@ -24,8 +48,16 @@ const FormsGrid = ({
 	handleNavigateForm,
 	handleTotalChange,
 }) => {
+	const activeWorkspaceId = localStorage.getItem('workspaceId');
+	const origin = fetchOriginSelection();
+
 	const {
-		templates: { getTemplatesListForForms, formsTemplatesList },
+		templates: {
+			getTemplatesListForForms,
+			formsTemplatesList,
+			duplicateGlobalWorkflowTemplate,
+		},
+		profileInfo: { tennantSettingsData },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -168,6 +200,66 @@ const FormsGrid = ({
 		handleStateUpdate({ selectedSort: { ...value, sortType } });
 	};
 
+	const handleFileCta = ({ e, action, slug, formId, formTitle }) => {
+		e?.stopPropagation();
+		if (action === 'copyFormLink') {
+			const link = getFormLinkUrl(slug);
+
+			if (!link) {
+				message.error('Unable to copy form link!');
+				return;
+			}
+
+			if (!navigator?.clipboard) {
+				message.error('Clipboard access not supported!');
+				return;
+			}
+
+			navigator.clipboard
+				.writeText(link)
+				.then(() => message.success('Form link copied successfully!'))
+				.catch(() => message.error('Failed to copy form link!'));
+		} else if (action === 'duplicate') {
+			handleDuplicateForm({ formId, formTitle });
+		}
+	};
+
+	const getFormLinkUrl = useCallback(
+		(slug) => {
+			if (!activeWorkspaceId || !slug) return null;
+
+			return tennantSettingsData?.customDomain?.length
+				? `https://${tennantSettingsData.customDomain}/${slug}`
+				: `https://${activeWorkspaceId}.ve.ai/${slug}`;
+		},
+		[activeWorkspaceId, tennantSettingsData?.customDomain],
+	);
+
+	const handleDuplicateForm = useCallback(
+		async ({ formId, formTitle }) => {
+			try {
+				if (!formId) {
+					throw new Error('Form ID is missing');
+				}
+				const payload = {
+					templateId: formId,
+					title: `Copy of ${formTitle}`,
+				};
+				const response = await duplicateGlobalWorkflowTemplate(payload);
+				if (response?.[0]) {
+					message?.success('Form duplicated successfully');
+					window.open(`${origin}/${response?.[1]?._id}`, '_blank', 'noopener,noreferrer');
+				} else {
+					message?.error('Failed to duplicate form. Please try again.');
+				}
+			} catch (error) {
+				console.error('Error duplicating form:', error);
+				message?.error('Failed to duplicate form. Please try again.');
+			}
+		},
+		[duplicateGlobalWorkflowTemplate],
+	);
+
 	return (
 		<div className="card-sub-container-center">
 			<div className="center-container-header">
@@ -192,12 +284,12 @@ const FormsGrid = ({
 						hasMore={info?.hasNextPage}
 						height={'100%'}
 					>
-						<div className={`card-container`}>
+						<div className="card-container">
 							<div className="card-item" onClick={handleCreateForm}>
 								<div className="card-item-style card-item-style-btn">
 									<button className="card-btn">
 										<Plus />
-										Create Form
+										New Form
 									</button>
 								</div>
 							</div>
@@ -208,21 +300,60 @@ const FormsGrid = ({
 									onClick={() => handleNavigateForm(form)}
 								>
 									<div className="card-item-style content-wrapper docs">
-										<DocsStatusButton
-											content={statusTextmapper?.[form?.status]?.text}
-											style={statusTextmapper?.[form?.status]?.style}
-											dotStyle={statusTextmapper?.[form?.status]?.dotStyle}
-										/>
-										<div className="docs-title-wrapper docs-title-wrapper-form">
-											<div className=""></div>
-											<Tooltip title={form?.title || ''} placement="bottom">
-												<span className="docs-item-title">
-													{form?.title.slice(0, 20)}
-												</span>
-											</Tooltip>
-											<span className="docs-item-sub-title">
-												{moment.unix(form?.createdAt).fromNow()}
-											</span>
+										<div
+											className="docs-title-wrapper docs-title-wrapper-form"
+											data-tooltip={form?.title}
+										>
+											<div className="card-header">
+												<h1 className="form-title">{form?.title}</h1>
+												{form?.formResponsesCount > 0 && (
+													<p className="responses-count">
+														<span>{form?.formResponsesCount}</span>{' '}
+														<span>
+															Response
+															{form?.formResponsesCount > 1 && 's'}
+														</span>{' '}
+														<TrendUp />
+													</p>
+												)}
+												<p className="createdAt">
+													{moment.unix(form?.createdAt).fromNow()}
+												</p>
+											</div>
+											<div className="card-footer">
+												<div className="cta-container">
+													{fileCtaMapper?.map((cta) => (
+														<div
+															className="cta"
+															key={cta?.id}
+															onClick={(e) =>
+																handleFileCta({
+																	e,
+																	action: cta?.action,
+																	slug: form?.slug,
+																	formId: form?._id,
+																	formTitle: form?.title,
+																})
+															}
+														>
+															{cta?.icon}
+														</div>
+													))}
+												</div>
+												<div className="file-status">
+													{form?.status === 'published' ? (
+														<>
+															<GreenDot />
+															<span>Live</span>
+														</>
+													) : (
+														<>
+															<GreyDot />
+															<span>Draft</span>
+														</>
+													)}
+												</div>
+											</div>
 										</div>
 									</div>
 								</div>

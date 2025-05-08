@@ -27,7 +27,7 @@
 }
 .connectIntegrationTitle {
 	color: var(--primary-font);
-	font-family: Inter;
+	font-family: var(--primary-font-family);
 	font-size: 18px;
 	font-style: normal;
 	font-weight: 600;
@@ -35,7 +35,7 @@
 }
 .connectIntegrationDescription {
 	color: var(--secondary-font, #7a7e85);
-	font-family: Inter;
+	font-family: var(--primary-font-family);
 	font-size: 14px;
 	font-style: normal;
 	font-weight: 500;
@@ -52,7 +52,7 @@
 	background: var(--primary-button);
 	cursor: pointer;
 	color: black;
-	font-family: Inter;
+	font-family: var(--primary-font-family);
 	font-size: 14px;
 	font-weight: 500;
 	transition: background-color 0.2s ease;

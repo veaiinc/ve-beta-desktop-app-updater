@@ -175,9 +175,9 @@
 
 			span {
 				overflow: hidden;
-				color: var(--primary-button, #CFFF48);
+				color: var(--primary-button, #cfff48);
 				text-overflow: ellipsis;
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 18px;
 				font-style: normal;
 				font-weight: 500;
@@ -277,7 +277,7 @@
 
 		.section-title {
 			color: var(--primary-font, #f2f2f3);
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 500;
@@ -299,7 +299,7 @@
 				border: 1px solid var(--stroke, #333334);
 				background: transparent;
 				color: var(--primary-font, #f2f2f3);
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 500;
