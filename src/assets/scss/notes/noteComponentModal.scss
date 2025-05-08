@@ -234,11 +234,6 @@
 			position: relative;
 			background-color: var(--background-color);
 			will-change: transform;
-			.note-component-container {
-				width: 775px;
-				margin: 0 auto;
-				animation: slideInFromTop 0.8s ease-in-out forwards;
-			}
 			.header {
 				display: flex;
 				width: 100%;
@@ -248,6 +243,7 @@
 				align-items: center;
 				background-color: var(--background-color);
 				flex-shrink: 0;
+				margin-bottom: 0;
 
 				.left {
 					display: flex;
@@ -326,6 +322,21 @@
 						path {
 							stroke: var(--secondary-font) !important;
 						}
+					}
+				}
+			}
+			.note-component-container {
+				width: 100%;
+				flex-grow: 1;
+				margin: 0 auto;
+				overflow-y: scroll;
+				animation: slideInFromTop 0.8s ease-in-out forwards;
+
+				.notes-container {
+					margin: auto;
+					overflow: unset !important;
+					.notes-editor-container {
+						overflow: unset !important;
 					}
 				}
 			}

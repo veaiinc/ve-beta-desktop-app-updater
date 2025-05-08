@@ -78,10 +78,16 @@ const NoteComponentModal = ({
 		},
 	};
 
+	const outerContainerStyleFullWidth = {
+		width: '100%',
+		height: '100%',
+		maxWidth: '100%',
+	};
+
 	const outerContainerStyle = {
 		width: '100%',
 		height: '100%',
-		overflow: 'scroll',
+		maxWidth: '775px',
 	};
 
 	useEffect(() => {
@@ -319,7 +325,11 @@ const NoteComponentModal = ({
 						</div>
 						<div className="note-component-container">
 							<NoteComponent
-								outerContainerStyle={outerContainerStyle}
+								outerContainerStyle={
+									info?.notesConfigs?.fullWidth
+										? outerContainerStyleFullWidth
+										: outerContainerStyle
+								}
 								initialContent={
 									info?.chatToNoteLoopOn ? globalChatMessages : noteContent
 								}

@@ -104,7 +104,7 @@ const infiniteScrollStyle = {
 	alignItems: 'flex-start',
 	alignSelf: 'stretch',
 	gap: '8px',
-	paddingBottom: '40px',
+	paddingBottom: '70px',
 };
 const PriorityLevel = {
 	High: 'red',
@@ -714,7 +714,7 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 							style={infiniteScrollStyle}
 							height={'100%'}
 						>
-							{Object.entries(groupedCards).map(([label, cards], index) => (
+							{Object?.entries(groupedCards)?.map(([label, cards], index) => (
 								<div key={index} className="groupedCardsContainer">
 									<div
 										className="dateLabel"
