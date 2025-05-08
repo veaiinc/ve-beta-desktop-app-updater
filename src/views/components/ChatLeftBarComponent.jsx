@@ -96,7 +96,6 @@ const ChatLeftBarComponent = ({ children, suggestions = [] }) => {
 										<div className="text-container">New Chat</div>
 									</div>
 								</div>
-								<div className="horizontal-divider" />
 							</div>
 							<div className="content">
 								<div className="suggestion-header">

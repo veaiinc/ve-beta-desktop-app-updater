@@ -307,7 +307,7 @@ const InitialHomePage = () => {
 					title={<div className="tooltipOption">{option?.tooltip}</div>}
 					placement="bottom"
 					arrow={false}
-					trigger="click"
+					trigger="hover"
 				>
 					<div
 						className={`option ${
