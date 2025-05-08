@@ -6,6 +6,7 @@
 	flex-direction: column;
 	gap: 18px;
 	align-items: center;
+	overflow-y: hidden;
 	.cards-container {
 		display: flex;
 		gap: 20px;
@@ -599,6 +600,9 @@
 	position: relative;
 	z-index: 2;
 	margin-top: -8px;
+	height: 100%;
+	max-height: 50vh;
+	overflow-y: auto;
 	.filter-items {
 		display: flex;
 		flex-direction: column;
