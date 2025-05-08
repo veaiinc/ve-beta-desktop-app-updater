@@ -143,6 +143,7 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 		selectedCardNumber: null,
 		hoveredCard: null,
 		isListView: true,
+		isApiLoading: false,
 	});
 	const navigate = useNavigate();
 	const selectedOptionRef = useRef(selectedOption);
@@ -310,9 +311,14 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 	};
 
 	const handleRight = async () => {
+		if (info?.isApiLoading) return;
 		const isLastCard = currentIndexRef.current === totalCardsDataRef.current.length - 2;
 
 		if (isLastCard) {
+			setInfo((prev) => ({
+				...prev,
+				isApiLoading: true,
+			}));
 			if (aiSuggestedPendingActions?.metaInfo?.hasNextPage) {
 				const nextPage = aiSuggestedPendingActions.metaInfo.currentPage + 1;
 
@@ -348,6 +354,10 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 				};
 
 				await getAISuggestedPendingActions(newPayload);
+				setInfo((prev) => ({
+					...prev,
+					isApiLoading: false,
+				}));
 				return;
 			} else {
 				const index = 0;
@@ -355,6 +365,7 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 					...prev,
 					currentIndex: index,
 					activeCardContent: totalCardsDataRef.current[index],
+					isApiLoading: false,
 				}));
 				currentIndexRef.current = index;
 				return;
