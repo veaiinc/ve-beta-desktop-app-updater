@@ -22,6 +22,8 @@ const statItems = [
 ];
 
 const Contacts = () => {
+	const timeoutIdRef = useRef(null);
+
 	const {
 		templates: { updateStateValues: updateContactState },
 		contacts: { clientList, getClients },
@@ -38,7 +40,7 @@ const Contacts = () => {
 		selectedContactOption: null,
 		activeView: 'listView',
 	});
-	const timeoutIdRef = useRef(null);
+	const listItems = clientList?.data || [];
 
 	useEffect(() => {
 		updateContactState({ leftSidebarState: 'close' });
@@ -74,7 +76,7 @@ const Contacts = () => {
 		(page = 1, reset = false) => {
 			const payload = {
 				clientFilterInput: {
-					limit: 2,
+					limit: 15,
 					page: page,
 					sort:
 						info?.sort?.length > 0
@@ -115,8 +117,6 @@ const Contacts = () => {
 	const handleSearchQueryChange = (e) => {
 		setInfo({ ...info, searchValue: e?.target?.value });
 	};
-
-	const listItems = clientList?.data || [];
 
 	return (
 		<div className="contacts-container">
