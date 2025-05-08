@@ -42,10 +42,8 @@
 	.table-body-container {
 		flex-grow: 1;
 		overflow-y: auto;
-		padding-bottom: 20px;
 		.table-body {
-			padding-bottom: 10px;
-			height: 100%;
+			padding-bottom: 20px;
 			.table-row {
 				display: flex;
 				padding: 10px 16px;

@@ -38,7 +38,7 @@ const Contacts = () => {
 		updated: false,
 		selectedContact: null,
 		selectedContactOption: null,
-		activeView: 'widgetView',
+		activeView: 'listView',
 	});
 
 	useEffect(() => {
