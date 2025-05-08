@@ -22,6 +22,8 @@ const statItems = [
 ];
 
 const Contacts = () => {
+	const timeoutIdRef = useRef(null);
+
 	const {
 		templates: { updateStateValues },
 		contacts: { clientList, getClients, updateStateValues: updateContactState },
@@ -35,9 +37,9 @@ const Contacts = () => {
 		updated: false,
 		selectedContact: null,
 		selectedContactOption: null,
-		activeView: 'widgetView',
+		activeView: 'listView',
 	});
-	const timeoutIdRef = useRef(null);
+	const listItems = clientList?.data || [];
 	const isMountedRef = useRef(true);
 	const pageRef = useRef(1);
 	const searchValueRef = useRef('');
@@ -120,8 +122,6 @@ const Contacts = () => {
 		setInfo({ ...info, searchValue: e?.target?.value });
 		searchValueRef.current = e?.target?.value;
 	};
-
-	const listItems = clientList?.data || [];
 
 	return (
 		<div className="contacts-container">
