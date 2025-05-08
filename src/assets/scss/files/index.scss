@@ -61,24 +61,39 @@
 	row-gap: 35px;
 }
 
+.notes-grid-container {
+	position: relative;
+
+	&::after {
+		content: attr(data-tooltip);
+		position: absolute;
+		left: 3px;
+		top: 34px;
+		width: 172px;
+		height: fit-content;
+		background: var(--background-color);
+		color: var(--primary-font);
+		padding: 6px 10px;
+		border-radius: 4px;
+		font-size: 12px;
+		opacity: 0;
+		border: 1px solid var(--stroke);
+		pointer-events: none;
+		transition: opacity 0.2s ease;
+	}
+
+	&:hover::after {
+		opacity: 1;
+	}
+}
+
 .card-item {
 	position: relative;
-	// width: 136px;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
 	gap: 6px;
 	cursor: pointer;
-
-	// transition: transform 0.3s ease, z-index 0.3s ease;
-	// z-index: 1;
-	// transform-origin: center center;
-
-	// &:hover {
-	// 	transform: scale(1.05);
-	// 	z-index: 2;
-	// 	background-color: red;
-	// }
 
 	.card-item-style {
 		position: relative;
@@ -87,14 +102,17 @@
 		background-position: center;
 		background-repeat: no-repeat;
 		border-radius: 20px !important;
-		padding: 16px;
-		// height: 136px;
-		// width: 136px;
-		z-index: 1;
 		margin-bottom: 0px !important;
 
 		&.docs {
 			padding: 0px;
+			position: relative;
+
+			.docs-card-bg {
+				position: absolute;
+				left: 0;
+				top: 0;
+			}
 
 			.docs-preview {
 				width: 100%;
@@ -111,6 +129,29 @@
 				justify-content: space-between;
 				align-items: center;
 				flex-shrink: 0;
+				position: relative;
+
+				&::after {
+					content: attr(data-tooltip);
+					position: absolute;
+					left: 3px;
+					top: 34px;
+					width: 172px;
+					height: fit-content;
+					background: var(--background-color);
+					color: var(--primary-font);
+					padding: 6px 10px;
+					border-radius: 4px;
+					font-size: 12px;
+					opacity: 0;
+					border: 1px solid var(--stroke);
+					pointer-events: none;
+					transition: opacity 0.2s ease;
+				}
+
+				&:hover::after {
+					opacity: 1;
+				}
 
 				.card-header {
 					width: 100%;
@@ -237,6 +278,10 @@
 					text-transform: capitalize;
 				}
 			}
+
+			.docs-card-container {
+				padding: 12px;
+			}
 		}
 
 		.live-badge {
@@ -286,8 +331,8 @@
 			gap: 4px;
 			border-radius: 35px;
 			position: absolute;
-			top: 10px;
-			left: 10px;
+			bottom: 10px;
+			right: 10px;
 
 			.DocsStatusCircle {
 				width: 6px;

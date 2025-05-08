@@ -3,6 +3,7 @@ import '../../../assets/scss/files/files.scss';
 import moment from 'moment';
 import { DocsStatusButton } from '../../features/docs/Docs';
 import { ReactComponent as Plus } from '../../../assets/svg/files/Plus.svg';
+import DocsCardBg from '../../../assets/images/files/docs-card-bg.png';
 import { useNavigate } from 'react-router-dom';
 import { memo, useContext, useEffect, useState } from 'react';
 import InfiniteScroll from '../globalComponents/InfiniteScroll';
@@ -233,18 +234,19 @@ const DocsGrid = ({ statusTextmapper, handleCreateDoc, handleTotalChange, client
 									onClick={() => navigate(`/doc/${doc?._id}`)}
 								>
 									<div className="card-item-style content-wrapper docs">
+										<img
+											className="docs-card-bg"
+											src={DocsCardBg}
+											alt="Docs Card Background"
+										/>
 										<div className="docs-preview"></div>
 										<DocsStatusButton
 											content={statusTextmapper?.[doc?.status]?.text}
 											style={statusTextmapper?.[doc?.status]?.style}
 											dotStyle={statusTextmapper?.[doc?.status]?.dotStyle}
 										/>
-										<div className="docs-title-wrapper">
-											<Tooltip title={doc?.title || ''} placement="bottom">
-												<span className="docs-item-title">
-													{doc?.title}
-												</span>
-											</Tooltip>
+										<div className="docs-title-wrapper docs-card-container">
+											<span className="docs-item-title">{doc?.title}</span>
 											<span className="docs-item-sub-title">
 												{moment.unix(doc?.createdAt).fromNow()}
 											</span>

@@ -227,7 +227,10 @@ const FormsGrid = ({
 									onClick={() => handleNavigateForm(form)}
 								>
 									<div className="card-item-style content-wrapper docs">
-										<div className="docs-title-wrapper docs-title-wrapper-form">
+										<div
+											className="docs-title-wrapper docs-title-wrapper-form"
+											data-tooltip={form?.title}
+										>
 											<div className="card-header">
 												<h1 className="form-title">{form?.title}</h1>
 												<p className="responses-count">
@@ -255,8 +258,7 @@ const FormsGrid = ({
 													))}
 												</div>
 												<div className="file-status">
-													{statusTextmapper?.[form?.status]?.text ===
-													'Published' ? (
+													{form?.status === 'published' ? (
 														<>
 															<GreenDot />
 															<span>Live</span>

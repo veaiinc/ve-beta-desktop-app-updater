@@ -219,9 +219,10 @@ const NotesGrid = ({ handleNewNotes, handleTotalChange }) => {
 							</div>
 							{info?.notes?.map((note, index) => (
 								<div
-									className="card-item"
+									className="card-item notes-grid-container"
 									key={index}
 									onClick={() => navigate(`/note/${note?._id}`)}
+									data-tooltip={note?.title}
 								>
 									<div className="card-item-style content-wrapper note-card-content">
 										<div className="title-container">
@@ -230,8 +231,8 @@ const NotesGrid = ({ handleNewNotes, handleTotalChange }) => {
 												{note?.title || 'Untitled Note'}
 											</span>
 										</div>
-										<div>
-											<span className="notes-sub-heading">
+										<div className="note-footer-container">
+											<span className="note-sub-heading">
 												{moment.unix(note?.createdAt).fromNow()}
 											</span>
 										</div>
