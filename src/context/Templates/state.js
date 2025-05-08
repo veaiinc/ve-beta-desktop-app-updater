@@ -2255,11 +2255,11 @@ export const TemplatesState = (props) => {
 				);
 			} else {
 				response = await Service.fetchGet(
-					`/${workspaceId}/list-multiagent-conversations/${encodeURIComponent(
+					`/${workspaceId}/ai-chat/list-multiagent-conversations/${encodeURIComponent(
 						sessionId,
 					)}?page=${page}&limit=${limit}&sortBy=createdAt&sortType=-1`,
 					usertoken,
-					'tenant',
+					'ai_assistant_api',
 				);
 			}
 
