@@ -777,7 +777,7 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 															title={
 																<div className="priorityTooltip">{`${
 																	card?.isFavourite === true
-																		? 'Fourites'
+																		? 'Favorite'
 																		: 'Not Favourited'
 																}`}</div>
 															}
