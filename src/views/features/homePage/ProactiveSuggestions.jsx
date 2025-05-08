@@ -160,6 +160,13 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 		}
 	}, [aiSuggestedPendingActions]);
 
+	const handleKeyDown = (e) => {
+		if (e?.key === 'ArrowLeft') {
+			handleLeft();
+		} else if (e?.key === 'ArrowRight') {
+			handleRight();
+		}
+	};
 	useEffect(() => {
 		window?.addEventListener('keydown', handleKeyDown);
 
@@ -167,7 +174,7 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 		return () => {
 			window?.removeEventListener('keydown', handleKeyDown);
 		};
-	}, []);
+	}, [handleKeyDown]);
 
 	useEffect(() => {
 		if (info?.totalCardsData?.length > 0) {
@@ -265,14 +272,6 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 				totalCardsData: [],
 				cards: [],
 			}));
-		}
-	};
-
-	const handleKeyDown = (e) => {
-		if (e?.key === 'ArrowLeft') {
-			handleLeft();
-		} else if (e?.key === 'ArrowRight') {
-			handleRight();
 		}
 	};
 
