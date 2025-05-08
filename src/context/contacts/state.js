@@ -27,7 +27,7 @@ export const intialState = {
 export const ContactsState = () => {
 	const [state, dispatch] = useReducer(Reducer, intialState);
 
-	const getClients = async (payload) => {
+	const getClients = async (payload, reset = false) => {
 		try {
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
@@ -40,9 +40,19 @@ export const ContactsState = () => {
 			);
 
 			if (response?.[0]) {
+				const data = reset
+					? response?.[1]?.data?.clients?.data
+					: [
+							...(state?.clientList?.data || []),
+							...(response?.[1]?.data?.clients?.data || []),
+					  ];
+				const payload = {
+					...response?.[1]?.data?.clients, // includes hasNextPage, currentPage, totalPages, totalItems
+					data,
+				};
 				dispatch({
 					type: Actions.SET_CLIENT_LIST,
-					payload: { data: response?.[1]?.data?.clients },
+					payload,
 				});
 			} else {
 				dispatch({

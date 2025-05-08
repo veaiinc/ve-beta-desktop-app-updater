@@ -57,12 +57,7 @@ const Calendar = () => {
 			schedulerList,
 		},
 		companyInfo: { getTeamMembers },
-		templates: {
-			leftSidebarState,
-			updateStateValues,
-			getConnectedThirdParties,
-			googleCalendarWatch,
-		},
+		templates: { updateStateValues, getConnectedThirdParties, googleCalendarWatch },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({

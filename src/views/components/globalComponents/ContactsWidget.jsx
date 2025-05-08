@@ -108,8 +108,9 @@ const ContactsWidget = ({ width, height }) => {
 					</div>
 				</div> */}
 					{info?.loadingSkeleton
-						? skeletonLoaders?.map((item) => (
+						? skeletonLoaders?.map((_, index) => (
 								<Skeleton
+									key={index}
 									width="300px"
 									height="36px"
 									style={{
@@ -118,7 +119,7 @@ const ContactsWidget = ({ width, height }) => {
 									}}
 								/>
 						  ))
-						: info.listItems.map((item, index) => (
+						: info?.listItems?.map((item, index) => (
 								<div key={index} className="contactsEachOptions">
 									<div className="contactDetails">
 										<div className="contactDetailsTitle">{item?.name}</div>

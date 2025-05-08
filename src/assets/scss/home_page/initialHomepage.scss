@@ -120,20 +120,20 @@
 						color: var(--secondary-font);
 					}
 				}
+				&:hover {
+					.option-label {
+						color: var(--primary-font);
+						svg {
+							color: var(--primary-font);
+						}
+					}
+				}
 				&.active {
 					border: 1px solid var(--primary-button, #f2f2f3);
 					.option-label {
 						color: var(--primary-button);
 						svg {
 							color: var(--primary-button);
-						}
-					}
-				}
-				&:hover {
-					.option-label {
-						color: var(--primary-font);
-						svg {
-							color: var(--primary-font);
 						}
 					}
 				}

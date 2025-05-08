@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState, useCallback, memo } from 'react';
+import { useContext, useEffect, useState, useCallback, memo, useRef } from 'react';
 import '../../../assets/scss/contacts/contacts.scss';
 import Context from '../../../context/context';
 import SingleContact from '../../components/contacts/singleContact';
@@ -20,14 +20,16 @@ const statItems = [
 	{ key: 'normal', label: 'Normal', className: 'normal' },
 	{ key: 'weak', label: 'Weak', className: 'weak' },
 ];
+
 const Contacts = () => {
+	const timeoutIdRef = useRef(null);
+
 	const {
 		templates: { updateStateValues: updateContactState },
 		contacts: { clientList, getClients },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		page: 1,
-		hasMore: false,
 		loadingSkeleton: true,
 		error: null,
 		sort: [],
@@ -36,28 +38,45 @@ const Contacts = () => {
 		updated: false,
 		selectedContact: null,
 		selectedContactOption: null,
-		activeView: 'widgetView',
-		searchQuery: '',
+		activeView: 'listView',
 	});
+	const listItems = clientList?.data || [];
 
 	useEffect(() => {
 		updateContactState({ leftSidebarState: 'close' });
-		return () => {
-			updateContactState({ leftSidebarState: null });
-		};
 	}, []);
 
 	useEffect(() => {
-		if (!clientList) {
-			fetchClientList(info?.page);
+		timeoutIdRef.current = setTimeout(() => {
+			const reset = true;
+			fetchClientList(1, reset);
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				page: 1,
+			}));
+		}, 500);
+		return () => {
+			clearTimeout(timeoutIdRef.current);
+		};
+	}, [info?.searchValue]);
+
+	useEffect(() => {
+		if (clientList) {
+			if (clientList?.data) {
+				setInfo((prevInfo) => ({
+					...prevInfo,
+					loadingSkeleton: false,
+					hasMore: clientList?.hasNextPage,
+				}));
+			}
 		}
-	}, []);
+	}, [clientList]);
 
 	const fetchClientList = useCallback(
-		(page = 1) => {
+		(page = 1, reset = false) => {
 			const payload = {
 				clientFilterInput: {
-					limit: 20,
+					limit: 15,
 					page: page,
 					sort:
 						info?.sort?.length > 0
@@ -74,24 +93,29 @@ const Contacts = () => {
 					}),
 				},
 			};
-			getClients(payload);
+			getClients(payload, reset);
 		},
-		[info?.searchValue, info?.filters, info?.sort],
+		[info?.searchValue, info?.filters, info?.sort, getClients],
 	);
+
+	const fetchMoreClientsList = useCallback(() => {
+		if (info?.hasMore) {
+			const nextPage = info?.page + 1;
+			const reset = false;
+			fetchClientList(nextPage, reset);
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				page: nextPage,
+			}));
+		}
+	}, [info?.hasMore, info?.page, fetchClientList]);
 
 	const handleViewChange = (view) => {
 		setInfo({ ...info, activeView: view });
 	};
 
 	const handleSearchQueryChange = (e) => {
-		setInfo({ ...info, searchQuery: e?.target?.value });
-	};
-
-	const stats = {
-		all: clientList?.data?.data?.length,
-		strong: 3,
-		normal: 3,
-		weak: 3,
+		setInfo({ ...info, searchValue: e?.target?.value });
 	};
 
 	return (
@@ -175,14 +199,16 @@ const Contacts = () => {
 					</div>
 					{info?.activeView === 'listView' && (
 						<ContactsListView
-							data={clientList?.data?.data}
-							searchQuery={info?.searchQuery}
+							data={listItems}
+							hasMore={info?.hasMore}
+							fetchMore={fetchMoreClientsList}
 						/>
 					)}
 					{info?.activeView === 'widgetView' && (
 						<ContactsWidgetView
-							data={clientList?.data?.data}
-							searchQuery={info?.searchQuery}
+							data={listItems}
+							hasMore={info?.hasMore}
+							fetchMore={fetchMoreClientsList}
 						/>
 					)}
 				</div>
