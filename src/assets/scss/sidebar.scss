@@ -124,8 +124,11 @@
 					transition: background 0.2s ease;
 					border-radius: 8px;
 					p {
-						color: var(--primary-font);
-						text-align: right;
+						display: flex;
+						flex-grow: 1;
+						overflow: hidden;
+						color: var(--primary-font, #f2f2f3);
+						text-overflow: ellipsis;
 						font-family: var(--primary-font-family);
 						font-size: 14px;
 						font-style: normal;
@@ -506,7 +509,9 @@
 			position: relative;
 			z-index: 999;
 			border-top: 1px solid var(--stroke);
-			height: 83dvh;
+			border-right: 1px solid var(--stroke);
+			height: 100%;
+			max-height: 405px;
 			-ms-overflow-style: none; // Hide scrollbar IE
 			scrollbar-width: none; // Hide scrollbar Firefox
 			&::-webkit-scrollbar {
@@ -912,13 +917,13 @@
 	.settings-header {
 		display: flex;
 		width: 280px;
-		padding: 24px 16px 23px 16px;
+		padding: 22px 20px 20px 15px;
 		justify-content: space-between;
 		align-items: center;
-
 		background: var(--navbar);
 		position: sticky;
-		top: 0;
+		top: -1px;
+		left: 1px;
 		z-index: 20;
 
 		.settings-header-left {
@@ -958,7 +963,7 @@
 			font-weight: 500;
 			line-height: normal;
 			padding: 0px 10px;
-			margin-bottom: 10px;
+			margin-bottom: 4px;
 		}
 		.settings-option-item {
 			display: flex;
@@ -1005,7 +1010,7 @@
 			font-weight: 500;
 			line-height: normal;
 			padding: 0px 10px;
-			margin-bottom: 10px;
+			margin: 4px 0px;
 		}
 		.settings-option {
 			width: 100%;
@@ -1150,6 +1155,17 @@
 	cursor: pointer;
 	transition: background 0.2s ease;
 	border-top: 1px solid var(--stroke);
+	&.settingsOptionsContainerOpen {
+		position: fixed;
+		left: 0;
+		z-index: 2;
+		width: 100%;
+		padding: 4px;
+		border-right: 1px solid var(--stroke);
+		&:hover {
+			background: var(--card-over-card-hover);
+		}
+	}
 	&.settingsOptionsContainerEarlyAccess {
 		flex-direction: row;
 		padding-top: 15px;
@@ -1166,12 +1182,15 @@
 		&:hover {
 			background: var(--card-over-card-hover);
 		}
+		&.settingsHoverStateOpen {
+			border-radius: 0px;
+		}
 	}
 	.settingsOptionsUserInfo {
 		display: flex;
 		justify-content: flex-start;
 		align-items: center;
-		gap: 8px;
+		gap: 12px;
 		width: 70%;
 		transition: background 0.2s ease;
 		.settingsOptionsUserName {
@@ -1185,7 +1204,7 @@
 				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
-				font-weight: 400;
+				font-weight: 600;
 				line-height: normal;
 			}
 			span {
@@ -1201,7 +1220,7 @@
 			width: 24px;
 			height: 24px;
 			border-radius: 100px;
-			background: #6055ec;
+			background: var(--secondary-font);
 			display: flex;
 			align-items: center;
 			justify-content: center;
@@ -1307,7 +1326,7 @@
 				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
-				font-weight: 400;
+				font-weight: 600;
 				line-height: normal;
 			}
 			span {
@@ -1323,7 +1342,7 @@
 			width: 24px;
 			height: 24px;
 			border-radius: 100px;
-			background: #6055ec;
+			background: var(--secondary-font);
 			display: flex;
 			align-items: center;
 			justify-content: center;

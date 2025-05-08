@@ -2239,3 +2239,41 @@
 		}
 	}
 }
+.filterContainer {
+	display: flex;
+	min-width: 120px;
+	padding: 12px;
+	flex-direction: column;
+	align-items: center;
+	gap: 8px;
+	border-radius: 12px;
+	background: var(--popup, #202123);
+	.file-filter-option-items {
+		display: flex;
+		padding: 6px;
+		align-items: center;
+		gap: 8px;
+		align-self: stretch;
+		border-radius: 6px;
+		justify-content: flex-start;
+		user-select: none;
+		.sortTypeIndicator {
+			width: 5px;
+			height: 5px;
+			flex-shrink: 0;
+			background-color: var(--primary-button);
+			border-radius: 10px;
+		}
+		&.active {
+			background: var(--card-hover);
+			color: var(--primary-font);
+		}
+		.sortType {
+			cursor: pointer;
+			transition: transform 0.2s ease;
+		}
+		.sortType-up {
+			transform: rotate(180deg);
+		}
+	}
+}

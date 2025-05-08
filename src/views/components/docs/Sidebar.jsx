@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useMemo, useState, useContext, useEffect, useRef } from 'react';
+import { memo, useCallback, useMemo, useState, useContext, useEffect, useRef } from 'react';
 import '../../../assets/scss/docs/fileListView.scss';
 import { ReactComponent as CloseSvg } from '../../../assets/svg/tasks/doubleRightArrow.svg';
 import { ReactComponent as ExpandSvg } from '../../../assets/svg/docs/expand.svg';

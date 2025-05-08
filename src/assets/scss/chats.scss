@@ -116,7 +116,7 @@
 		.chat-container-wrapper {
 			display: flex;
 			flex-direction: column;
-			gap: 8px;
+			gap: 6px;
 			width: 100%;
 			.chat-group-header {
 				color: var(--secondary-font, #93989f);
@@ -159,14 +159,12 @@
 						white-space: nowrap;
 						overflow: hidden;
 						color: var(--primary-font, #f2f2f3);
+						text-overflow: ellipsis;
 						font-family: var(--primary-font-family);
-						font-size: 14px;
+						font-size: 12px;
 						font-style: normal;
 						font-weight: 500;
 						line-height: normal;
-						overflow: hidden;
-						text-overflow: ellipsis;
-						white-space: nowrap;
 					}
 				}
 			}
