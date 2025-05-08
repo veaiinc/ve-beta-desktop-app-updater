@@ -287,7 +287,10 @@ const TemplatesGrid = ({ handleTotalChange }) => {
 									key={index}
 									onClick={() => handleCardClick(template?._id)}
 								>
-									<div className="card-item-style content-wrapper note-card-content templates-grid-container">
+									<div
+										className="card-item-style content-wrapper note-card-content templates-grid-container tooltip"
+										data-tooltip={template?.title || ''}
+									>
 										{/* <span
 											className={`status-badge ${
 												template?.status === 'published' ? 'live' : 'draft'

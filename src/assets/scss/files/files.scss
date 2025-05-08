@@ -486,6 +486,32 @@
 	}
 }
 
+.tooltip {
+	position: relative;
+
+	&::after {
+		content: attr(data-tooltip);
+		position: absolute;
+		left: 3px;
+		top: 34px;
+		width: 172px;
+		height: fit-content;
+		background: var(--background-color);
+		color: var(--primary-font);
+		padding: 6px 10px;
+		border-radius: 4px;
+		font-size: 12px;
+		opacity: 0;
+		border: 1px solid var(--stroke);
+		pointer-events: none;
+		transition: opacity 0.2s ease;
+	}
+
+	&:hover::after {
+		opacity: 1;
+	}
+}
+
 .card-item-style {
 	.card-title {
 		color: var(--primary-font);

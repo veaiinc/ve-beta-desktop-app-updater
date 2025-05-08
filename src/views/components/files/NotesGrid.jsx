@@ -219,7 +219,7 @@ const NotesGrid = ({ handleNewNotes, handleTotalChange }) => {
 							</div>
 							{info?.notes?.map((note, index) => (
 								<div
-									className="card-item notes-grid-container"
+									className="card-item notes-grid-container tooltip"
 									key={index}
 									onClick={() => navigate(`/note/${note?._id}`)}
 									data-tooltip={note?.title}

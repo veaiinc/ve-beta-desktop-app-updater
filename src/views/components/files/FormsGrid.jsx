@@ -235,9 +235,8 @@ const FormsGrid = ({
 												<h1 className="form-title">{form?.title}</h1>
 												<p className="responses-count">
 													<span>
-														{form?.formResponsesCount === 0
-															? 'No'
-															: form?.formResponsesCount}
+														{form?.formResponsesCount > 0 &&
+															form?.formResponsesCount}
 													</span>{' '}
 													<span>
 														Response
