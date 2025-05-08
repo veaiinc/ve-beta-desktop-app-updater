@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import { Modal } from 'antd';
 import { ReactComponent as DownloadIcon } from '../../../assets/svg/download.svg';
 import { ReactComponent as CloseIcon } from '../../../assets/svg/close.svg';
@@ -51,16 +51,6 @@ const FormPreview = ({ file, onClose }) => {
 
 	const isImage = type?.startsWith('image/') || type === 'image';
 
-	const customHeader = (
-		<div className="modal-actions">
-			<h3 className="file-name">{name}</h3>
-			<div className="download-button" onClick={handleDownload}>
-				<DownloadIcon />
-				<span>Download</span>
-			</div>
-		</div>
-	);
-
 	return (
 		<Modal
 			open={isModalVisible}
@@ -70,7 +60,7 @@ const FormPreview = ({ file, onClose }) => {
 			className="form-preview-modal"
 			closeIcon={<CloseIcon />}
 			centered
-			title={customHeader}
+			title={<CustomHeader name={name} handleDownload={handleDownload} />}
 		>
 			<div className="preview-container">
 				{isImage ? (
@@ -85,4 +75,14 @@ const FormPreview = ({ file, onClose }) => {
 	);
 };
 
-export default FormPreview;
+const CustomHeader = ({ name, handleDownload }) => (
+	<div className="modal-actions">
+		<h3 className="file-name">{name}</h3>
+		<div className="download-button" onClick={handleDownload}>
+			<DownloadIcon />
+			<span>Download</span>
+		</div>
+	</div>
+);
+
+export default memo(FormPreview);
