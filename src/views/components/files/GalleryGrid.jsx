@@ -266,6 +266,8 @@ const GalleryGrid = ({
 											alignItems: 'center',
 											minHeight: '120px',
 											marginBottom: '8px',
+											backgroundSize: 'cover',
+											backgroundPosition: 'center',
 										}}
 									>
 										{!item?.coverImage?.thumbnailUrl && (
