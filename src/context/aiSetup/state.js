@@ -188,13 +188,13 @@ export const AiSetupState = () => {
 		try {
 			const token = localStorage.getItem('usertoken');
 			const workspaceId = localStorage.getItem('workspaceId');
-			const type = 'tenant';
+			const type = 'ai_assistant_api';
 			const params = {
 				page,
 				limit,
 				title,
 			};
-			const url = '/' + workspaceId + '/list-multiagent-sessions';
+			const url = '/' + workspaceId + '/ai-chat/list-multiagent-sessions';
 			const response = await service?.fetchGet(url, token, type, params);
 			if (response?.[0]) {
 				const aiChatSessions = {

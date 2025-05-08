@@ -1411,8 +1411,8 @@ const ChatBox = ({
 																title={
 																	<div className="chatbox-icon-tooltip-container">
 																		{chatInfo?.workspaceSearch
-																			? 'Explore internal data'
-																			: 'Explore internal data'}
+																			? 'Explore workspace data'
+																			: 'Explore workspace data'}
 																	</div>
 																}
 																color="transparent"
@@ -1451,7 +1451,7 @@ const ChatBox = ({
 																						: 'var(--primary-font)',
 																				}}
 																			>
-																				Internal Search
+																				Workspace Search
 																			</div>
 																		)}
 																	</div>
