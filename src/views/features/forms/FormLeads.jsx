@@ -542,6 +542,15 @@ const FormLeads = () => {
 
 	return (
 		<div className="formLeadsParentContainer" role="main">
+			<div
+				style={{
+					display: 'flex',
+					justifyContent: 'flex-end',
+					zIndex: 1000,
+				}}
+			>
+				<QuickActions />
+			</div>
 			<div className="formWrapper">
 				<div className="formEnquiryContainer">
 					<div className="formContainer">
