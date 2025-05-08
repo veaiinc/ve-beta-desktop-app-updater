@@ -9,12 +9,12 @@ import useSubscription from '../hooks/useSubscription';
 import useTokenExpiry from '../hooks/useTokenExpiry';
 import BottomToolbar from '../components/ai_agents/BottomToolbar';
 import useAccessControls from '../hooks/useAccessControls';
-import Context from '../../context/context';
-import RenewBanner from '../components/globalComponents/RenewBanner';
+// import Context from '../../context/context';
+// import RenewBanner from '../components/globalComponents/RenewBanner';
 const SmartFileLayout = ({ title, children, hideQuickNav = false, showBottomToolbar = true }) => {
-	const {
-		subscriptionInfo: { renewBanner },
-	} = useContext(Context);
+	// const {
+	// 	subscriptionInfo: { renewBanner },
+	// } = useContext(Context);
 	const checkAuth = useAuth();
 	const data = useSubscription();
 	const tokenData = useTokenExpiry();
@@ -31,7 +31,7 @@ const SmartFileLayout = ({ title, children, hideQuickNav = false, showBottomTool
 			<div className="smartFileHeader">
 				<VE />
 			</div>
-			{renewBanner && <RenewBanner />}
+			{/* {renewBanner && <RenewBanner />} */}
 			<SkeletonTheme baseColor={'var(--card)'} highlightColor={'var(--card-hover)'}>
 				<div className="childrenContainer">{children}</div>
 			</SkeletonTheme>

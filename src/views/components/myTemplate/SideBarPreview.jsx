@@ -25,7 +25,7 @@ const SideBarPreview = ({ open, onClose, activeTemplate, openFileLeadModal }) =>
 		templates: { getSpecificTemplatesInfo, specificTemplatesInfo },
 		profileInfo: { userWorkSpaceList, getTenantSettings, tennantSettingsData },
 		activityInfo: { createSmartfile, smartfile },
-		subscriptionInfo: { renewBanner },
+		// subscriptionInfo: { renewBanner },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -136,7 +136,10 @@ const SideBarPreview = ({ open, onClose, activeTemplate, openFileLeadModal }) =>
 			bodyStyle={{ padding: '0px' }}
 			width={480}
 		>
-			<div className="previewDrawer" style={renewBanner ? customStyles : {}}>
+			<div
+				className="previewDrawer"
+				// style={renewBanner ? customStyles : {}}
+			>
 				<div className="headerContainer">
 					<div className="headerLeftLabel">
 						<CloseSvg onClick={onClose} />
