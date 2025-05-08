@@ -1,4 +1,4 @@
-import { memo, useContext, useEffect, useState } from 'react';
+import { memo, useCallback, useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/files/index.scss';
 import '../../../assets/scss/files/files.scss';
 import moment from 'moment';
@@ -15,6 +15,8 @@ import { ReactComponent as Share } from '../../../assets/svg/files/share.svg';
 import { ReactComponent as GreenDot } from '../../../assets/svg/files/green-dot.svg';
 import { ReactComponent as GreyDot } from '../../../assets/svg/files/grey-dot.svg';
 import { ReactComponent as TrendUp } from '../../../assets/svg/files/trend-up.svg';
+import { message } from '../globalComponents/CustomToast';
+import { fetchOriginSelection } from '../../../helpers';
 
 const sortOptions = [
 	{ label: 'Recently Added', value: 'createdAt', sortType: -1 },
@@ -26,15 +28,18 @@ const fileCtaMapper = [
 	{
 		id: 0,
 		icon: <Link />,
+		action: 'copyFormLink',
 	},
 	{
 		id: 1,
 		icon: <Copy />,
+		action: 'duplicate',
 	},
-	{
-		id: 2,
-		icon: <Share />,
-	},
+	// {
+	// 	id: 2,
+	// 	icon: <Share />,
+	// action: 'share',
+	// },
 ];
 
 const FormsGrid = ({
@@ -43,8 +48,16 @@ const FormsGrid = ({
 	handleNavigateForm,
 	handleTotalChange,
 }) => {
+	const activeWorkspaceId = localStorage.getItem('workspaceId');
+	const origin = fetchOriginSelection();
+
 	const {
-		templates: { getTemplatesListForForms, formsTemplatesList },
+		templates: {
+			getTemplatesListForForms,
+			formsTemplatesList,
+			duplicateGlobalWorkflowTemplate,
+		},
+		profileInfo: { tennantSettingsData },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -187,6 +200,66 @@ const FormsGrid = ({
 		handleStateUpdate({ selectedSort: { ...value, sortType } });
 	};
 
+	const handleFileCta = ({ e, action, slug, formId, formTitle }) => {
+		e?.stopPropagation();
+		if (action === 'copyFormLink') {
+			const link = getFormLinkUrl(slug);
+
+			if (!link) {
+				message.error('Unable to copy form link!');
+				return;
+			}
+
+			if (!navigator?.clipboard) {
+				message.error('Clipboard access not supported!');
+				return;
+			}
+
+			navigator.clipboard
+				.writeText(link)
+				.then(() => message.success('Form link copied successfully!'))
+				.catch(() => message.error('Failed to copy form link!'));
+		} else if (action === 'duplicate') {
+			handleDuplicateForm({ formId, formTitle });
+		}
+	};
+
+	const getFormLinkUrl = useCallback(
+		(slug) => {
+			if (!activeWorkspaceId || !slug) return null;
+
+			return tennantSettingsData?.customDomain?.length
+				? `https://${tennantSettingsData.customDomain}/${slug}`
+				: `https://${activeWorkspaceId}.ve.ai/${slug}`;
+		},
+		[activeWorkspaceId, tennantSettingsData?.customDomain],
+	);
+
+	const handleDuplicateForm = useCallback(
+		async ({ formId, formTitle }) => {
+			try {
+				if (!formId) {
+					throw new Error('Form ID is missing');
+				}
+				const payload = {
+					templateId: formId,
+					title: `Copy of ${formTitle}`,
+				};
+				const response = await duplicateGlobalWorkflowTemplate(payload);
+				if (response?.[0]) {
+					message?.success('Form duplicated successfully');
+					window.open(`${origin}/${response?.[1]?._id}`, '_blank', 'noopener,noreferrer');
+				} else {
+					message?.error('Failed to duplicate form. Please try again.');
+				}
+			} catch (error) {
+				console.error('Error duplicating form:', error);
+				message?.error('Failed to duplicate form. Please try again.');
+			}
+		},
+		[duplicateGlobalWorkflowTemplate],
+	);
+
 	return (
 		<div className="card-sub-container-center">
 			<div className="center-container-header">
@@ -233,17 +306,16 @@ const FormsGrid = ({
 										>
 											<div className="card-header">
 												<h1 className="form-title">{form?.title}</h1>
-												<p className="responses-count">
-													<span>
-														{form?.formResponsesCount > 0 &&
-															form?.formResponsesCount}
-													</span>{' '}
-													<span>
-														Response
-														{form?.formResponsesCount > 1 && 's'}
-													</span>{' '}
-													<TrendUp />
-												</p>
+												{form?.formResponsesCount > 0 && (
+													<p className="responses-count">
+														<span>{form?.formResponsesCount}</span>{' '}
+														<span>
+															Response
+															{form?.formResponsesCount > 1 && 's'}
+														</span>{' '}
+														<TrendUp />
+													</p>
+												)}
 												<p className="createdAt">
 													{moment.unix(form?.createdAt).fromNow()}
 												</p>
@@ -251,7 +323,19 @@ const FormsGrid = ({
 											<div className="card-footer">
 												<div className="cta-container">
 													{fileCtaMapper?.map((cta) => (
-														<div className="cta" key={cta?.id}>
+														<div
+															className="cta"
+															key={cta?.id}
+															onClick={(e) =>
+																handleFileCta({
+																	e,
+																	action: cta?.action,
+																	slug: form?.slug,
+																	formId: form?._id,
+																	formTitle: form?.title,
+																})
+															}
+														>
 															{cta?.icon}
 														</div>
 													))}
