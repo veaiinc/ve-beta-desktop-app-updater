@@ -569,10 +569,11 @@ const OpenedSidebar = ({
 													padding: '6px 10px',
 													borderRadius: '10px',
 													fontSize: '14px',
-													background: '#E8E8E8',
-													color: '#202123',
+													backgroundColor: 'var(--card)',
+													color: 'var(--primary-font)',
 													textAlign: 'center',
 													marginLeft: '12px',
+													border: '1px solid var(--stroke)',
 												}}
 											>
 												<SidebarClosingSvg

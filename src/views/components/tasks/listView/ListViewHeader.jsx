@@ -10,7 +10,7 @@ import FilterComponent from './FilterComponent';
 import TabHeader from './TabHeader';
 import SearchSvg from '../../../../assets/svg/activity/SearchSvg';
 import CrossSvg from '../../../../assets/svg/docs/CrossSvg';
-import filterIcon from '../../../../assets/svg/tasks/newFilter.svg';
+import { ReactComponent as FilterIcon } from '../../../../assets/svg/tasks/newFilter.svg';
 import { ReactComponent as SortIcon } from '../../../../assets/svg/tasks/newSort.svg';
 import { ReactComponent as PlusSvg } from '../../../../assets/svg/my_templates/plus.svg';
 
@@ -211,7 +211,7 @@ const ListViewHeader = ({
 								className="listViewHeaderActionButton"
 								onClick={() => handelFilterClick()}
 							>
-								<img src={filterIcon} alt="Filter icon" />
+								<FilterIcon />
 							</div>
 						) : (
 							<DropDown
@@ -227,7 +227,7 @@ const ListViewHeader = ({
 									onClick={() => handelFilterClick()}
 									style={{ color: 'var(--primary-color)' }}
 								>
-									<img src={filterIcon} alt="Filter icon" />
+									<FilterIcon />
 								</div>
 							</DropDown>
 						)}

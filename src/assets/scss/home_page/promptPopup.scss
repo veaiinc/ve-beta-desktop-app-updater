@@ -370,3 +370,11 @@
 		}
 	}
 }
+.editableContentStyles {
+	border-bottom: 1px dashed var(--stroke);
+	padding: 4px;
+	color: var(--primary-font);
+	outline: none;
+	min-height: 30px;
+	overflow-y: auto;
+}
