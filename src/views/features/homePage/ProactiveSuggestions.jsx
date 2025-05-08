@@ -227,7 +227,7 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 	}, [payload, info?.selectedFilters]);
 
 	useEffect(() => {
-		if (!info?.selectedFilters) return;
+		if (!info?.selectedFilters || !aiSuggestedPendingActions) return;
 		if (
 			aiSuggestedPendingActions?.metaInfo?.currentPage === 1 &&
 			info?.selectedFilters?.length === 0 &&
@@ -693,8 +693,8 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 					{info?.loading ? (
 						skeletonLoaders?.map((_, index) => (
 							<Skeleton
-								width="908px"
-								height="120px"
+								width="739px"
+								height="100px"
 								style={{
 									'--highlight-color': 'gray',
 									'--base-color': 'transparent',
