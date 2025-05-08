@@ -5,7 +5,7 @@ import { ReactComponent as CrossSvg } from '../../../assets/svg/doubleBack.svg';
 import { ReactComponent as BiDash } from '../../../assets/svg/smartFiles/formResponse/bi-dash.svg';
 import { ReactComponent as Email } from '../../../assets/svg/smartFiles/formResponse/email.svg';
 import { ReactComponent as Phone } from '../../../assets/svg/smartFiles/formResponse/phone.svg';
-import { Formatter as DownnArrow } from '../../../assets/svg/smartFiles/formResponse/down-arrow.svg';
+import { ReactComponent as DownnArrow } from '../../../assets/svg/smartFiles/formResponse/down-arrow.svg';
 import { ReactComponent as Tick } from '../../../assets/svg/smartFiles/formResponse/tick.svg';
 import { ReactComponent as Hamburger } from '../../../assets/svg/smartFiles/formResponse/hamburger.svg';
 import { ReactComponent as Hash } from '../../../assets/svg/smartFiles/formResponse/hash.svg';
