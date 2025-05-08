@@ -18,8 +18,8 @@ const workspaceOpenStyle = {
 	left: 0,
 	right: 0,
 	bottom: 0,
-	// background: 'var(--background-color)',
-	opacity: 0.5,
+	background: 'var(--card)',
+	opacity: 0.4,
 	height: '100vh',
 	zIndex: 997,
 	cursor: 'pointer',
@@ -134,10 +134,7 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 			{sidebarStates?.workSpaceOpen && (
 				<div style={workspaceOpenStyle} onClick={closeWorkspaceList} />
 			)}
-			<div
-				style={{ maxHeight: renewBanner ? '80dvh' : '83dvh' }}
-				className="workspaceListComponent"
-			>
+			<div className="workspaceListComponent">
 				<div className="workspaceListHeader">
 					<div className="backContinaer" onClick={closeWorkspaceList}>
 						<h6>Switch Workspace</h6>

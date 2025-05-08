@@ -6,7 +6,6 @@ import {
 	photographerModules,
 	SETTINGS_OPTIONS,
 } from './sidebarindex';
-import { ReactComponent as ArrowUpRightSvg } from '../../../assets/svg/sidebar/arrowupright.svg';
 import { ReactComponent as DownArrowSmallSvg } from '../../../assets/svg/sidebar/downarrowsmall.svg';
 import { ReactComponent as SidebarClosingSvg } from '../../../assets/svg/sidebar/SidebarClosing.svg';
 import { ReactComponent as CrossSvg } from '../../../assets/svg/sidebar/CrossSvg.svg';
@@ -19,7 +18,7 @@ import WorkspaceListComponent from './Workspace';
 import useLogout from '../../hooks/useLogout';
 import { Tooltip } from 'antd';
 import ChatHistory from './chatHistory/ChatHistory';
-
+import { ReactComponent as TickSvg } from '../../../assets/svg/tick.svg';
 import { ReactComponent as LogoutRedSvg } from '../../../assets/svg/sidebar/logout_red.svg';
 import Cropper from 'react-easy-crop';
 import Context from '../../../context/context';
@@ -27,6 +26,7 @@ import { getInitials } from '../../../helpers/index';
 import { message } from '../globalComponents/CustomToast';
 import SearchSvg from '../../../assets/svg/sidebar/SearchSvg';
 import ObjectID from 'bson-objectid';
+import { ReactComponent as CreateWorkspaceSvg } from '../../../assets/svg/sidebar/createWorkspace.svg';
 
 const workspaceStyles = {
 	position: 'absolute',
@@ -178,18 +178,9 @@ const OpenedSidebarModules = ({
 						width: '100%',
 					}}
 				>
-					{Icon && (
-						<Icon
-							fill={
-								isExactPathMatch()
-									? 'var(--primary-font)'
-									: isHover
-									? 'var(--primary-font)'
-									: 'var(--primary-font)'
-							}
-						/>
-					)}
+					{Icon && <Icon fill={'var(--secondary-font)'} />}
 					<p>{name}</p>
+					{isExactPathMatch() && <TickSvg />}
 				</div>
 				{isDropdownVisible && subModules?.length > 0 && (
 					<div>
@@ -700,10 +691,20 @@ const OpenedSidebar = ({
 													</div>
 													<ChatHistory />
 													<div
-														className="settingsOptionsContainer"
+														className={`settingsOptionsContainer  ${
+															!showSettingsSidebar
+																? 'settingsOptionsContainerOpen'
+																: ''
+														}`}
 														onClick={toggleSidebar}
 													>
-														<div className="settingsHoverState">
+														<div
+															className={`settingsHoverState ${
+																!showSettingsSidebar
+																	? 'settingsHoverStateOpen'
+																	: ''
+															}`}
+														>
 															<div className="settingsOptionsUserInfo">
 																<div>
 																	{userDetailsData?.logoURL ? (
@@ -940,13 +941,7 @@ const OpenedSidebar = ({
 										setSelectedSettingsOption(option.name);
 									}}
 								>
-									<option.icon
-										fill={
-											isExactPathMatch(option.route)
-												? 'var(--primary-font)'
-												: 'var(--primary-font)'
-										}
-									/>
+									<option.icon fill={'var(--secondary-font)'} />
 									<p>{option.name}</p>
 								</div>
 							))}
@@ -1024,7 +1019,7 @@ const OpenedSidebar = ({
 									}}
 								>
 									{' '}
-									<ArrowUpRightSvg />
+									<CreateWorkspaceSvg />
 									<p>Create workspace</p>
 								</div>
 							</div>

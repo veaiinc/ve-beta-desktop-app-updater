@@ -124,9 +124,12 @@
 					transition: background 0.2s ease;
 					border-radius: 8px;
 					p {
-						color: var(--primary-font);
-						text-align: right;
-						font-family: var(--primary-font-family);
+						display: flex;
+						flex-grow: 1;
+						overflow: hidden;
+						color: var(--primary-font, #f2f2f3);
+						text-overflow: ellipsis;
+						font-family: Inter;
 						font-size: 14px;
 						font-style: normal;
 						font-weight: 500;
@@ -506,7 +509,8 @@
 			position: relative;
 			z-index: 999;
 			border-top: 1px solid var(--stroke);
-			height: 83dvh;
+			height: 100%;
+			max-height: 405px;
 			-ms-overflow-style: none; // Hide scrollbar IE
 			scrollbar-width: none; // Hide scrollbar Firefox
 			&::-webkit-scrollbar {
@@ -1150,6 +1154,15 @@
 	cursor: pointer;
 	transition: background 0.2s ease;
 	border-top: 1px solid var(--stroke);
+	&.settingsOptionsContainerOpen {
+		position: fixed;
+		left: 0;
+		z-index: 2;
+		width: 100%;
+		&:hover {
+			background: var(--card-over-card-hover);
+		}
+	}
 	&.settingsOptionsContainerEarlyAccess {
 		flex-direction: row;
 		padding-top: 15px;
@@ -1165,6 +1178,10 @@
 		border-radius: 8px;
 		&:hover {
 			background: var(--card-over-card-hover);
+		}
+		&.settingsHoverStateOpen {
+			border-radius: 0px;
+			border-right: 1px solid var(--stroke);
 		}
 	}
 	.settingsOptionsUserInfo {
