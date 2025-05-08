@@ -666,6 +666,7 @@ const ShareModal = ({
 							mobile number after entering a Pin or completing a face scan.
 						</p>
 					</div>
+
 					{info?.visitorFormAccess?.isEnabled && (
 						<div className="visitorFormAccessContainer visitorAnimation">
 							{[
@@ -678,7 +679,7 @@ const ShareModal = ({
 								<div key={item.label} className="visitorFormAccessItem">
 									<input
 										type="checkbox"
-										checked={visitorFormAccess?.accessibleTo?.includes(
+										checked={info?.visitorFormAccess?.accessibleTo?.includes(
 											item.apiKey,
 										)}
 										onChange={() => handleVisitorForm(item.apiKey)}

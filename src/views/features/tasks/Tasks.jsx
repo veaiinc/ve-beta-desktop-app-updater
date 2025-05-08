@@ -118,6 +118,7 @@ const Tasks = () => {
 		companyInfo: { getTeamMembers, tenantsUserList },
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState, renewBanner },
 		contacts: { getClientsForTask, clientListForTask },
+		templates: { updateStateValues: updateSidebarState },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -205,8 +206,8 @@ const Tasks = () => {
 			assignedTo: {
 				type: 'person',
 				name: 'Assigned To',
+				Icon: PersonSvg,
 				props: {
-					options: info?.tenantUsers || [],
 					multiSelect: true,
 					parseValue: true,
 				},
@@ -217,7 +218,6 @@ const Tasks = () => {
 				name: 'Assigned By',
 				Icon: PersonSvg,
 				props: {
-					options: info?.tenantUsers || [],
 					disabled: true,
 					parseValue: true,
 				},
@@ -245,13 +245,13 @@ const Tasks = () => {
 				type: 'person',
 				name: 'Created By',
 				Icon: PersonSvg,
-				props: { options: info?.tenantUsers, disabled: true, parseValue: true },
+				props: { disabled: true, parseValue: true },
 			},
 			updatedBy: {
 				type: 'person',
 				name: 'Updated By',
 				Icon: PersonSvg,
-				props: { options: info?.tenantUsers, disabled: true, parseValue: true },
+				props: { disabled: true, parseValue: true },
 			},
 			taskSlNo: {
 				type: 'id',
@@ -266,8 +266,14 @@ const Tasks = () => {
 				props: {},
 			},
 		}),
-		[info?.tenantUsers, info?.taskMetadata],
+		[, info?.taskMetadata],
 	);
+	useEffect(() => {
+		updateSidebarState({ leftSidebarState: 'close' });
+		return () => {
+			updateSidebarState({ leftSidebarState: null });
+		};
+	}, []);
 
 	useEffect(() => {
 		handleDebounceFetch();

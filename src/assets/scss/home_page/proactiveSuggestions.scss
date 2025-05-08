@@ -279,7 +279,7 @@
 	.action-container {
 		display: flex;
 		width: 100%;
-		max-width: 739px;
+		max-width: 750px;
 		justify-content: space-between;
 		align-items: center;
 		margin: 0 auto;
@@ -310,6 +310,13 @@
 			align-self: stretch;
 			user-select: none;
 			cursor: pointer;
+			font-family: var(--primary-font-family);
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 18px;
+			position: relative;
+			z-index: 1;
 		}
 		.verticalLine {
 			width: 1px;
@@ -422,16 +429,24 @@
 				border: 1px solid var(--stroke);
 				background: transparent;
 				cursor: pointer;
+				margin: 1px;
 				@media screen and (max-width: 425px) {
-					width: 350px;
+					width: 345px;
 				}
 
 				/* Initially hide the gradient and background color */
 				&:hover {
+					margin: 0;
 					background: linear-gradient(var(--card), var(--card)) padding-box,
 						linear-gradient(135deg, #cfff48, #8fd0ff) border-box;
-					border: 1px solid transparent; /* needed for border-box to work */
+					border: 2px solid transparent; /* needed for border-box to work */
 					border-radius: 8px;
+					.relativeTime {
+						color: var(--primary-font) !important;
+						svg {
+							color: var(--primary-font) !important;
+						}
+					}
 				}
 
 				.cardContianerTitle {
@@ -505,6 +520,14 @@
 							font-style: normal;
 							font-weight: 500;
 							line-height: normal;
+							svg {
+								color: var(--secondary-font);
+							}
+						}
+						.thumbsUpContainer {
+							svg {
+								color: var(--primary-font) !important;
+							}
 						}
 					}
 					.cardButtonsContainer {
@@ -575,6 +598,7 @@
 	border: 1px solid var(--stroke, #2e3033);
 	position: relative;
 	z-index: 2;
+	margin-top: -8px;
 	.filter-items {
 		display: flex;
 		flex-direction: column;
@@ -683,6 +707,8 @@
 	max-width: 739px;
 	width: 100%;
 	margin: 0 auto;
+	min-height: 37px;
+	overflow-x: auto;
 	.selected-filter-item {
 		display: flex;
 		padding: 6px 10px;
@@ -756,13 +782,30 @@
 		}
 	}
 }
+.priorityTooltip {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: 12px;
+	color: var(--primary-font, #f2f2f3);
+	font-family: var(--primary-font-family);
+	font-size: 12px;
+	font-style: normal;
+	font-weight: 600;
+	line-height: normal;
+	border-radius: 12px;
+	border: 1px solid var(--stroke, #2c2d2e);
+	background: var(--popup, #202123);
+	box-shadow: 0px 0px 30px 0px rgba(0, 0, 0, 0.12);
+	padding: 8px 14px;
+}
 .confidenceScoreContainer {
 	display: flex;
 	width: 350px;
 	padding: 8px 14px;
 	justify-content: center;
 	align-items: center;
-	gap: 6px;
+	gap: 12px;
 	border-radius: 12px;
 	border: 1px solid var(--stroke, #2c2d2e);
 	background: var(--popup, #202123);
@@ -785,6 +828,7 @@
 		}
 	}
 }
+
 @media screen and (max-width: 1500px) {
 	.proactive-suggestions-container {
 		gap: 18px;
