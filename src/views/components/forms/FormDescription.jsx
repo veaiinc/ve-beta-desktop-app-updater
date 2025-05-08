@@ -5,7 +5,7 @@ import { ReactComponent as CrossSvg } from '../../../assets/svg/doubleBack.svg';
 import { ReactComponent as BiDash } from '../../../assets/svg/smartFiles/formResponse/bi-dash.svg';
 import { ReactComponent as Email } from '../../../assets/svg/smartFiles/formResponse/email.svg';
 import { ReactComponent as Phone } from '../../../assets/svg/smartFiles/formResponse/phone.svg';
-import { ReactComponent as DownnArrow } from '../../../assets/svg/smartFiles/formResponse/down-arrow.svg';
+import { Formatter as DownnArrow } from '../../../assets/svg/smartFiles/formResponse/down-arrow.svg';
 import { ReactComponent as Tick } from '../../../assets/svg/smartFiles/formResponse/tick.svg';
 import { ReactComponent as Hamburger } from '../../../assets/svg/smartFiles/formResponse/hamburger.svg';
 import { ReactComponent as Hash } from '../../../assets/svg/smartFiles/formResponse/hash.svg';
@@ -78,8 +78,7 @@ const eventsTableHeaderData = [
 	},
 ];
 
-const removeHTMLTagsAndnbsp = (text) =>
-	text?.replace(/<\/?[^>]+(>|$)/g, '')?.replace(/&nbsp;/g, ' ');
+const removeHTMLTagsAndnbsp = (text) => text?.replace(/<\/?[^>]+(>|$)/g, '')?.replace(/ /g, ' ');
 
 const removeQuotes = (text) => {
 	if (!text) {
@@ -124,18 +123,6 @@ export const EventsAnswer = ({ answer }) => {
 	}
 
 	let events = answer;
-	// try {
-	// 	// If answer is already an object, use it directly
-	// 	if (typeof answer === 'object') {
-	// 		events = answer;
-	// 	} else {
-	// 		// If it's a string, try to parse it as JSON
-	// 		events = JSON.parse(answer);
-	// 	}
-	// } catch (e) {
-	// 	console.error('Error parsing events:', e);
-	// 	return '';
-	// }
 
 	// Ensure we have an array of events
 	const eventsArray = Array.isArray(events) ? events : [events];
@@ -277,7 +264,11 @@ const FileUploadAnswer = ({ answer }) => {
 						const fileUrl =
 							typeof file === 'string'
 								? file
-								: file?.url || file?.previewUrl || file?.fileUrl || '';
+								: file?.fileURL ||
+								  file?.url ||
+								  file?.previewUrl ||
+								  file?.fileUrl ||
+								  '';
 						const fileExtension = fileName?.split('.').pop()?.toLowerCase();
 						const isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(
 							fileExtension,
@@ -390,9 +381,6 @@ const FormDescription = ({ response, onClose, formId, activeTab, loading }) => {
 
 	if (activeTab === 'analytics') {
 		return (
-			// <div className="formDescription">
-			// 	<FormAnalytics formId={formId} />
-			// </div>
 			<div className="formDescription">
 				<div className="emptyState">
 					<p>Form Analytics Updating Soon</p>
