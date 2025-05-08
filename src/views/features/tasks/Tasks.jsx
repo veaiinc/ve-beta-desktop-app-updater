@@ -114,6 +114,7 @@ const Tasks = () => {
 			updateSideBarData,
 			sideBarData,
 		},
+		templates: { updateStateValues },
 		companyInfo: { getTeamMembers, tenantsUserList },
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState, renewBanner },
 		contacts: { getClientsForTask, clientListForTask },
@@ -283,6 +284,10 @@ const Tasks = () => {
 			handleRowClick(sideBarData, false);
 		}
 	}, [sideBarData]);
+
+	useEffect(() => {
+		updateStateValues({ leftSidebarState: 'close' });
+	}, []);
 
 	useEffect(() => {
 		if (!tenantsUserList) {

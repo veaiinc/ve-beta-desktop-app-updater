@@ -227,16 +227,5 @@
 				}
 			}
 		}
-
-		.contacts-table {
-			flex: 1 0 0;
-			overflow: auto;
-			display: flex;
-			flex-direction: column;
-
-			.table-body {
-				overflow: auto;
-			}
-		}
 	}
 }
