@@ -60,7 +60,6 @@ const ListViewHeader = ({
 	const [info, setInfo] = useState({
 		searchExpand: false,
 		showFilters: true,
-		showSort: true,
 	});
 	const [pendingFilters, setPendingFilters] = useState([]);
 	const searchInputRef = useRef(null);
@@ -71,30 +70,6 @@ const ListViewHeader = ({
 			searchInputRef.current?.focus();
 		}
 	}, [info.searchExpand]);
-
-	const handelSortClick = useCallback(
-		(value) => {
-			if (!value) {
-				setInfo((prev) => ({
-					...prev,
-					showSort: !prev.showSort,
-				}));
-				return;
-			}
-
-			setInfo((prev) => ({
-				...prev,
-				showSort: true,
-			}));
-
-			const newSort = viewData?.sort?.some((item) => item?.sortBy === value)
-				? viewData?.sort
-				: [...viewData?.sort, { sortBy: value, sortType: 1 }];
-
-			updateViewInfo(viewData?._id, { sort: newSort, page: 1 });
-		},
-		[viewData, updateViewInfo],
-	);
 
 	const handelFilterClick = useCallback(
 		(value) => {
@@ -231,31 +206,6 @@ const ListViewHeader = ({
 								</div>
 							</DropDown>
 						)}
-						{hasSort ? (
-							<div
-								className="listViewHeaderActionButton"
-								onClick={() => handelSortClick()}
-							>
-								<SortIcon />
-							</div>
-						) : (
-							<DropDown
-								title="Sort"
-								options={properties?.filter(
-									(item) => !['childTasks', 'parentTask']?.includes(item.value),
-								)}
-								onOptionClick={handelSortClick}
-								valueSelector="value"
-							>
-								<div
-									className="listViewHeaderActionButton"
-									onClick={() => handelSortClick()}
-								>
-									<SortIcon />
-								</div>
-							</DropDown>
-						)}
-
 						<OptionsDropDown
 							properties={properties}
 							prefix={prefix}
@@ -279,23 +229,8 @@ const ListViewHeader = ({
 				</div>
 			</div>
 
-			{(viewData?.sort?.length > 0 && info?.showSort) ||
-			((viewData?.filters?.length > 0 || pendingFilters.length > 0) && info.showFilters) ? (
+			{(viewData?.filters?.length > 0 || pendingFilters.length > 0) && info.showFilters ? (
 				<div className="listViewOptionsContainer">
-					{viewData?.sort?.length > 0 && info?.showSort ? (
-						<SortComponent
-							sort={viewData?.sort}
-							options={properties?.filter(
-								(item) => !['childTasks', 'parentTask']?.includes(item.value),
-							)}
-							responseMetadata={responseMetadata}
-							updateViewInfo={(viewInfo) => updateViewInfo(viewData?._id, viewInfo)}
-							handelSortClick={handelSortClick}
-							properties={properties.filter(
-								(item) => !['childTasks', 'parentTask']?.includes(item.value),
-							)}
-						/>
-					) : null}
 					{(viewData?.filters?.length > 0 || pendingFilters.length > 0) &&
 					info.showFilters ? (
 						<div className="listView-filterContainer">

@@ -10,6 +10,8 @@ import BoardView from './views/Board';
 import GalleryView from './views/GalleryView';
 import TableView from './views/TableView';
 import QuickActions from '../globalComponents/QuickActions';
+import ChatLeftBarComponent from '../ChatLeftBarComponent';
+import Taskwidget from './Taskwidget';
 
 const layouts = {
 	list: {
@@ -360,59 +362,74 @@ const Task = ({
 	);
 
 	return (
-		<div className="task-container">
-			<div className="task-header-container">
-				<ListViewHeader
-					updateTaskInfo={updateTaskInfo}
-					properties={properties}
-					taskPreferences={taskPreferences}
-					prefix={prefix}
-					searchValue={searchValue}
-					responseMetadata={responseMetadata}
-					blockTitle={blockTitle}
-					createButtonText={createButtonText}
-					addButtonOnClick={handleAddButtonOnClick}
-					editingProperty={null}
-					handleEditPropertyChange={() => {}}
-					colors={colors}
-					// view={taskInfo?.tabs?.[taskInfo?.activeTab]?.view}
-					handleTabChange={handleTabChange}
-					tabs={taskInfo?.tabs}
-					handleAddTab={handleAddTab}
-					updateViewInfo={updateViewInfo}
-					viewData={taskInfo?.tabs?.[taskInfo?.activeTab]}
-					handleTabsReorder={handleTabsReorder}
-					showEditViewDropDown={showEditViewDropDown}
-					closeEditViewDropDown={closeEditViewDropDown}
-					handleDuplicateView={handleDuplicateTab}
-					handleDeleteView={handleDeleteTab}
-					handleTabDropdownClick={handleTabDropdownClick}
-					layoutOptions={layoutOptions}
-					handleLayoutOptionClick={handleAddTab}
-				/>
-				<QuickActions />
-			</div>
-
-			<div className="task-content-area">
-				{taskInfo?.tabs?.[taskInfo?.activeTab]?.viewType === 'board' ? (
-					<BoardView
-						handleUpdate={handleUpdate}
-						responseMetadata={responseMetadata}
-						handleAddButtonOnClick={handleAddButtonOnClick}
-						colors={colors}
-						fetchMoreData={fetchMoreData}
+		<>
+			<ChatLeftBarComponent>
+				<div className="tasks-left-container">
+					<Taskwidget
 						properties={properties}
-						rowTypes={rowTypes}
-						groupBy={taskInfo?.tabs?.[taskInfo?.activeTab]?.group}
-						sort={taskInfo?.tabs?.[taskInfo?.activeTab]?.sort}
-						filters={taskInfo?.tabs?.[taskInfo?.activeTab]?.filters}
-						handleRowClick={handleRowClick}
+						responseMetadata={responseMetadata}
+						colors={colors}
+						viewData={taskInfo?.tabs?.[taskInfo?.activeTab]}
+						updateViewInfo={updateViewInfo}
 					/>
-				) : (
-					viewMapper(taskInfo?.tabs?.[taskInfo?.activeTab]?.viewType)
-				)}
+				</div>
+			</ChatLeftBarComponent>
+			<div className="tasks-right-container">
+				<div className="task-container">
+					<div className="task-header-container">
+						<ListViewHeader
+							updateTaskInfo={updateTaskInfo}
+							properties={properties}
+							taskPreferences={taskPreferences}
+							prefix={prefix}
+							searchValue={searchValue}
+							responseMetadata={responseMetadata}
+							blockTitle={blockTitle}
+							createButtonText={createButtonText}
+							addButtonOnClick={handleAddButtonOnClick}
+							editingProperty={null}
+							handleEditPropertyChange={() => {}}
+							colors={colors}
+							// view={taskInfo?.tabs?.[taskInfo?.activeTab]?.view}
+							handleTabChange={handleTabChange}
+							tabs={taskInfo?.tabs}
+							handleAddTab={handleAddTab}
+							updateViewInfo={updateViewInfo}
+							viewData={taskInfo?.tabs?.[taskInfo?.activeTab]}
+							handleTabsReorder={handleTabsReorder}
+							showEditViewDropDown={showEditViewDropDown}
+							closeEditViewDropDown={closeEditViewDropDown}
+							handleDuplicateView={handleDuplicateTab}
+							handleDeleteView={handleDeleteTab}
+							handleTabDropdownClick={handleTabDropdownClick}
+							layoutOptions={layoutOptions}
+							handleLayoutOptionClick={handleAddTab}
+						/>
+						<QuickActions />
+					</div>
+
+					<div className="task-content-area">
+						{taskInfo?.tabs?.[taskInfo?.activeTab]?.viewType === 'board' ? (
+							<BoardView
+								handleUpdate={handleUpdate}
+								responseMetadata={responseMetadata}
+								handleAddButtonOnClick={handleAddButtonOnClick}
+								colors={colors}
+								fetchMoreData={fetchMoreData}
+								properties={properties}
+								rowTypes={rowTypes}
+								groupBy={taskInfo?.tabs?.[taskInfo?.activeTab]?.group}
+								sort={taskInfo?.tabs?.[taskInfo?.activeTab]?.sort}
+								filters={taskInfo?.tabs?.[taskInfo?.activeTab]?.filters}
+								handleRowClick={handleRowClick}
+							/>
+						) : (
+							viewMapper(taskInfo?.tabs?.[taskInfo?.activeTab]?.viewType)
+						)}
+					</div>
+				</div>
 			</div>
-		</div>
+		</>
 	);
 };
 
