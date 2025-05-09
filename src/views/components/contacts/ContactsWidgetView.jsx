@@ -20,65 +20,68 @@ const ContactsWidgetView = ({ data, hasMore = false, fetchMore }) => {
 	};
 	return (
 		<div className="contacts-widget-view">
-			<InfiniteScroll
-				dataLength={data?.length || 0}
-				next={fetchMore}
-				hasMore={hasMore}
-				scrollThreshold={1}
-				loader={<FetchMoreLoaderComp />}
-				height={'100%'}
-				style={{
-					overflow: 'auto',
-				}}
-			>
-				<div className="widgets">
-					{data?.map((contact) => (
-						<div
-							className="contact-widget"
-							key={contact?._id}
-							onClick={() => {
-								navigate(`/contact/${contact?._id}`);
-							}}
-						>
-							<div className="person-image">
-								<PersonSvg width={32} height={32} />
-							</div>
-							<div className="person-info">
-								<div className="info-container">
-									<div className="person-name">{contact?.name || ''}</div>
-									<div className="person-email">
-										{contact?.email || contact?.phoneNumber || ''}
+			{data?.length === 0 ? (
+				<div className="no-contacts-found">No contacts found</div>
+			) : (
+				<InfiniteScroll
+					dataLength={data?.length || 0}
+					next={fetchMore}
+					hasMore={hasMore}
+					loader={<FetchMoreLoaderComp />}
+					style={{
+						height: '100%',
+						overflow: 'auto',
+					}}
+				>
+					<div className="widgets">
+						{data?.map((contact) => (
+							<div
+								className="contact-widget"
+								key={contact?._id}
+								onClick={() => {
+									navigate(`/contact/${contact?._id}`);
+								}}
+							>
+								<div className="person-image">
+									<PersonSvg width={32} height={32} />
+								</div>
+								<div className="person-info">
+									<div className="info-container">
+										<div className="person-name">{contact?.name || ''}</div>
+										<div className="person-email">
+											{contact?.email || contact?.phoneNumber || ''}
+										</div>
+									</div>
+									<div className="icons-container">
+										{contact?.email && (
+											<div
+												className="icon-container"
+												onClick={(e) => handleEmailClick(e, contact?.email)}
+											>
+												<EmailSvg width={20} height={20} />
+											</div>
+										)}
+										{contact?.phoneNumber && (
+											<div
+												className="icon-container"
+												onClick={(e) =>
+													handlePhoneClick(e, contact?.phoneNumber)
+												}
+											>
+												<PhoneSvg
+													width={20}
+													height={20}
+													fill="var(--primary-font)"
+												/>
+											</div>
+										)}
 									</div>
 								</div>
-								<div className="icons-container">
-									{contact?.email && (
-										<div
-											className="icon-container"
-											onClick={(e) => handleEmailClick(e, contact?.email)}
-										>
-											<EmailSvg width={20} height={20} />
-										</div>
-									)}
-									{contact?.phoneNumber && (
-										<div
-											className="icon-container"
-											onClick={(e) =>
-												handlePhoneClick(e, contact?.phoneNumber)
-											}
-										>
-											<PhoneSvg
-												width={20}
-												height={20}
-												fill="var(--primary-font)"
-											/>
-										</div>
-									)}
-								</div>
 							</div>
-						</div>
-					))}
-				</div>
-			</InfiniteScroll>
+						))}
+					</div>
+				</InfiniteScroll>
+			)}
 		</div>
 	);
 };

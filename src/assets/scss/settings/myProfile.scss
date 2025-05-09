@@ -14,7 +14,7 @@
 		.ProfileDetailsComponent {
 			.profile-title {
 				color: var(--primary-font, #f2f2f3);
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 32px;
 				font-style: normal;
 				font-weight: 300;
@@ -58,7 +58,7 @@
 						font-size: 24px;
 						color: #e4e5e6;
 						font-weight: bold;
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						padding: 0px;
 					}
 
@@ -90,7 +90,7 @@
 
 				.details {
 					color: rgba(228, 229, 230, 0.48);
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 16px;
 					font-style: normal;
 					font-weight: 400;
@@ -98,7 +98,7 @@
 
 					.full_name_div {
 						color: #e4e5e6;
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 20px;
 						font-style: normal;
 						font-weight: 500;
@@ -117,7 +117,7 @@
 
 						.role {
 							color: #6055ec;
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 12px;
 							font-style: normal;
 							font-weight: 400;
@@ -128,7 +128,7 @@
 
 				.errorMessage {
 					color: #cc5756;
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 0.6875rem;
 					font-style: normal;
 					font-weight: 400;
@@ -160,7 +160,7 @@
 							width: 100%;
 							.role-input {
 								color: var(--primary-font);
-								font-family: Inter;
+								font-family: var(--primary-font-family);
 								font-size: 16px;
 								font-style: normal;
 								font-weight: 400;
@@ -169,7 +169,7 @@
 							.role {
 								color: var(--secondary-font, #787e87);
 								text-align: right;
-								font-family: Inter;
+								font-family: var(--primary-font-family);
 								font-size: 12px;
 								font-style: normal;
 								font-weight: 500;
@@ -178,7 +178,7 @@
 						}
 						input {
 							color: var(--primary-font);
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 16px;
 							font-style: normal;
 							font-weight: 400;
@@ -227,14 +227,14 @@
 					gap: 10px;
 					align-items: baseline;
 					color: var(--secondary-font, #787e87);
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 500;
 					line-height: normal;
 					.theme-container-item-content-separator {
 						color: #787e87;
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 12px;
 						font-style: normal;
 						width: 12px;
@@ -243,7 +243,7 @@
 					p {
 						&.active {
 							color: var(--primary-font, #f2f2f3);
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 14px;
 							font-style: normal;
 							font-weight: 500;
@@ -361,7 +361,7 @@
 
 						p {
 							color: rgba(228, 229, 230, 0.48);
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 13px;
 							font-style: normal;
 							font-weight: 400;
@@ -512,7 +512,7 @@
 		align-items: center;
 		h1 {
 			color: var(--primary-font);
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 18px;
 			font-style: normal;
 			font-weight: 500;
@@ -558,7 +558,7 @@
 			font-size: 24px;
 			color: #e4e5e6;
 			font-weight: bold;
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			padding: 0px;
 		}
 
@@ -602,7 +602,7 @@
 
 		h4 {
 			color: #666;
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 400;
@@ -633,7 +633,7 @@
 		align-items: center;
 		gap: 4px;
 		color: #e4e5e6;
-		font-family: Inter;
+		font-family: var(--primary-font-family);
 		font-size: 14px;
 		font-style: normal;
 		font-weight: 400;
@@ -687,7 +687,7 @@
 		border: 1px solid rgba(36, 36, 36, 0.64);
 		background: #1e1e1f;
 		color: #e4e5e6;
-		font-family: Inter;
+		font-family: var(--primary-font-family);
 		font-size: 13px;
 		font-style: normal;
 		font-weight: 500;
@@ -770,7 +770,7 @@
 			gap: 8px;
 			.notificationTitle {
 				color: var(--primary-font, #f2f2f3);
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 20px;
 				font-style: normal;
 				font-weight: 500;
@@ -779,7 +779,7 @@
 			}
 			.notificationTitleDescription {
 				color: #7c7c83;
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 13px;
 				font-style: normal;
 				font-weight: 400;
@@ -812,7 +812,7 @@
 						gap: 8px;
 						.notifiactionSwitchesContainerContent-title {
 							color: var(--primary-font, #f2f2f3);
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 16px;
 							font-style: normal;
 							font-weight: 500;
@@ -821,7 +821,7 @@
 						}
 						.notifiactionSwitchesContainerContent-description {
 							color: #7c7c83;
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 13px;
 							font-style: normal;
 							font-weight: 400;
@@ -839,7 +839,7 @@
 		gap: 20px;
 		.notificationContainerContentTitle {
 			color: var(--primary-font, #f2f2f3);
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 20px;
 			font-style: normal;
 			font-weight: 500;
@@ -864,7 +864,7 @@
 				align-self: stretch;
 				.notificationContainerContent-items-item {
 					color: #7c7c83;
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 500;
@@ -886,7 +886,7 @@
 					align-self: stretch;
 					.notificationContainerOptions-item {
 						color: var(--primary-font, #f2f2f3);
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 16px;
 						font-style: normal;
 						font-weight: 500;
@@ -909,7 +909,7 @@
 					align-self: stretch;
 					.notificationContainerOptionsTitle {
 						color: #7c7c83;
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 14px;
 						font-style: normal;
 						font-weight: 500;

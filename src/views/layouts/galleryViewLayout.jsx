@@ -8,12 +8,12 @@ import useAuth from '../hooks/useAuth';
 import useTokenExpiry from '../hooks/useTokenExpiry';
 import useSubscription from '../hooks/useSubscription';
 import useAccessControls from '../hooks/useAccessControls';
-import Context from '../../context/context';
-import RenewBanner from '../components/globalComponents/RenewBanner';
+// import Context from '../../context/context';
+// import RenewBanner from '../components/globalComponents/RenewBanner';
 const GalleryViewLayout = ({ title, children }) => {
-	const {
-		subscriptionInfo: { renewBanner },
-	} = useContext(Context);
+	// const {
+	// 	subscriptionInfo: { renewBanner },
+	// } = useContext(Context);
 	const checkAuth = useAuth();
 	const data = useSubscription();
 	const tokenData = useTokenExpiry();
@@ -30,7 +30,7 @@ const GalleryViewLayout = ({ title, children }) => {
 			<div className="galleryViewHeader">
 				<VE />
 			</div>
-			{renewBanner && <RenewBanner />}
+			{/* {renewBanner && <RenewBanner />} */}
 			<SkeletonTheme baseColor={'var(--card)'} highlightColor={'var(--card-hover)'}>
 				<div className="childrenContainer">{children}</div>
 			</SkeletonTheme>

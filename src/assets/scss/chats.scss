@@ -64,7 +64,7 @@
 				overflow: hidden;
 				color: var(--primary-font);
 				text-overflow: ellipsis;
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 500;
@@ -120,7 +120,7 @@
 			width: 100%;
 			.chat-group-header {
 				color: var(--secondary-font, #93989f);
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 600;

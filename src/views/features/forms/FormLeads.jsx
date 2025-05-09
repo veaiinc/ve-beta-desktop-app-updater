@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useMemo, useState, useContext, useRef } from 'react';
+import { memo, useCallback, useEffect, useMemo, useState, useContext, useRef } from 'react';
 import '../../../assets/scss/forms/formLeads.scss';
 import { ReactComponent as BackArrowSvg } from '../../../assets/svg/workflow/backarrow.svg';
 import { ReactComponent as CurlyBracesSvg } from '../../../assets/svg/docs/curly-bracess.svg';
@@ -542,6 +542,15 @@ const FormLeads = () => {
 
 	return (
 		<div className="formLeadsParentContainer" role="main">
+			<div
+				style={{
+					display: 'flex',
+					justifyContent: 'flex-end',
+					zIndex: 1000,
+				}}
+			>
+				<QuickActions />
+			</div>
 			<div className="formWrapper">
 				<div className="formEnquiryContainer">
 					<div className="formContainer">

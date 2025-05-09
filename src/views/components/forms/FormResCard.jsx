@@ -1,4 +1,4 @@
-import React, { useState, useEffect, memo } from 'react';
+import { useState, useEffect, memo } from 'react';
 import { ReactComponent as Call } from '../../../assets/svg/smartFiles/formResponse/call.svg';
 import { ReactComponent as Message } from '../../../assets/svg/smartFiles/formResponse/message.svg';
 import { ReactComponent as Calender } from '../../../assets/svg/smartFiles/formResponse/calendar.svg';
@@ -325,7 +325,6 @@ const FormResCard = ({
 					style={{
 						display: 'flex',
 						flexDirection: 'column',
-						gap: '16px',
 						width: '100%',
 					}}
 					height="calc(100vh - 100px)"

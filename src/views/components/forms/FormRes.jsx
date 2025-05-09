@@ -1,4 +1,4 @@
-import React, { useState, useEffect, memo, useCallback, useContext } from 'react';
+import { useState, useEffect, memo, useCallback, useContext } from 'react';
 import '../../../assets/scss/forms/formRes.scss';
 import Context from '../../../context/context';
 import { FetchMoreLoaderComp, isURL } from '../../../helpers';
