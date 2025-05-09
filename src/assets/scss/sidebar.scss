@@ -42,7 +42,7 @@
 		align-items: center;
 		overflow-y: auto;
 		z-index: 15;
-		scrollbar-width: none;
+		scrollbar-width: none !important;
 		-ms-overflow-style: none;
 		position: relative;
 		&::-webkit-scrollbar {
