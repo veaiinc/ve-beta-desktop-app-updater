@@ -19,6 +19,7 @@ const AiSelection = ({
 	selectedFace,
 	selectedFaceId,
 	selectedImage,
+	selectedFaceChange,
 }) => {
 	const location = useLocation();
 	const [info, setInfo] = useState({
@@ -107,6 +108,7 @@ const AiSelection = ({
 					activeAlbumId={activeAlbumId}
 					activeTagId={activeTagId}
 					selectedImage={info?.selectedImage}
+					selectedFaceChange={selectedFaceChange}
 				/>
 			)}
 			{!info?.selectedFace && !info?.selectedFaceId && (
