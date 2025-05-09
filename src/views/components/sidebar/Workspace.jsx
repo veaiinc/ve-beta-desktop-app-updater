@@ -26,13 +26,7 @@ const workspaceOpenStyle = {
 };
 
 const workspaceStyle = { display: 'flex', gap: '4px', alignItems: 'center' };
-const WorkspaceListComponent = ({
-	sidebarStates,
-	setsidebarStates,
-	userWorkSpaceList,
-	info,
-	openWorkspacesFunction,
-}) => {
+const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpaceList, info }) => {
 	const {
 		subscriptionInfo: { renewBanner },
 	} = useContext(Context);
@@ -138,15 +132,9 @@ const WorkspaceListComponent = ({
 	return (
 		<>
 			{sidebarStates?.workSpaceOpen && (
-				<div
-					style={workspaceOpenStyle}
-					onMouseLeave={() => openWorkspacesFunction(false)}
-				/>
+				<div style={workspaceOpenStyle} onClick={closeWorkspaceList} />
 			)}
-			<div
-				className="workspaceListComponent"
-				onMouseLeave={() => openWorkspacesFunction(false)}
-			>
+			<div className="workspaceListComponent">
 				<div className="workspaceListHeader">
 					<div className="backContinaer" onClick={closeWorkspaceList}>
 						<h6>Switch Workspace</h6>

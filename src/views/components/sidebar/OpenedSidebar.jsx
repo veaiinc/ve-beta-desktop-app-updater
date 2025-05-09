@@ -30,7 +30,7 @@ import { ReactComponent as CreateWorkspaceSvg } from '../../../assets/svg/sideba
 
 const workspaceStyles = {
 	position: 'absolute',
-	bottom: '106px',
+	bottom: '122px',
 	left: '0px',
 	width: '280px',
 	border: 'none',
@@ -1008,8 +1008,7 @@ const OpenedSidebar = ({
 								{!sidebarStates?.workSpaceOpen && (
 									<div
 										className="settings-footer"
-										onMouseEnter={() => openWorkspacesFunction(true)}
-										onMouseLeave={() => openWorkspacesFunction(false)}
+										onClick={() => openWorkspacesFunction(true)}
 									>
 										<SwitchWorkspaceSvg fill="var(--primary-font)" />
 										<p>Switch workspace</p>
@@ -1101,7 +1100,7 @@ const OpenedSidebar = ({
 						info={info}
 						userWorkSpaceList={userWorkSpaceList}
 						sidebarSettings="close"
-						openWorkspacesFunction={openWorkspacesFunction}
+						// openWorkspacesFunction={openWorkspacesFunction}
 					/>
 				</div>
 			)}

@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { Tooltip } from 'antd';
-import { useContext, useState, useCallback, useEffect, memo, useMemo } from 'react';
+import { useContext, useState, useCallback, useEffect, memo, useMemo, useRef } from 'react';
 // import '../../../assets/scss/home_page/homepage.scss';
 import '../../../assets/scss/globalComponents/quickActions.scss';
 import Search from '../../../assets/svg/seach-magnifier.svg';
@@ -314,7 +314,7 @@ const QuickActions = ({
 		companyInfo: { getTeamMembers, tenantsUserList },
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState, currentPlan },
 	} = useContext(Context);
-
+	const timeoutRef = useRef(null);
 	const [info, setInfo] = useState({
 		dropdown: false,
 		openProposalPopup: false,
@@ -567,13 +567,13 @@ const QuickActions = ({
 
 			let suggestedOptions = searchKey
 				? info?.options?.suggestedOptions?.filter((option) =>
-						option?.title.includes(searchTerm),
+						option?.title?.toLowerCase().includes(searchTerm),
 				  )
 				: info?.options?.suggestedOptions;
 
 			let moduleOptions = searchKey
 				? info?.options?.moduleOptions?.filter((option) =>
-						option?.title.includes(searchTerm),
+						option?.title?.toLowerCase().includes(searchTerm),
 				  )
 				: info?.options?.moduleOptions;
 
@@ -583,7 +583,6 @@ const QuickActions = ({
 
 			// 🔥 New Step: Remove moduleOptions which have value same as suggestedOptions
 			const suggestedValuesSet = new Set(suggestedOptions.map((option) => option.value));
-
 			moduleOptions = moduleOptions.filter((option) => !suggestedValuesSet.has(option.value));
 
 			return isFromForms ? { suggestedOptions } : { suggestedOptions, moduleOptions };
@@ -741,25 +740,18 @@ const QuickActions = ({
 		[info?.isCreatingSubtask, info?.selectedRow?._id],
 	);
 
-	const handleDebounceSearch = useCallback(
-		(search = null) => {
-			if (timeout) {
-				clearTimeout(timeout);
-			}
-			const options = filtereOptions(search);
-			setInfo((prev) => ({ ...prev, filteredOptions: options }));
-		},
-		[filtereOptions],
-	);
-
 	const handleSearch = (e) => {
-		setInfo((prev) => ({ ...prev, search: e?.target?.value }));
-		if (e?.target?.value === '' || e?.target?.value === null) {
-			handleDebounceSearch('');
-		} else {
-			handleDebounceSearch(e.target.value);
-		}
+		const value = e.target.value;
+
+		const options = filtereOptions(value);
+
+		setInfo((prev) => ({
+			...prev,
+			search: value,
+			filteredOptions: options,
+		}));
 	};
+
 	return (
 		<div className="quick-actions-dropdown-container" style={{ ...styles }}>
 			<Tooltip
