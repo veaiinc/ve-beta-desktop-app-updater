@@ -257,7 +257,7 @@ const ShareModal = ({
 		if (payloadKeyMap[name]) {
 			const payload = {
 				[payloadKeyMap[name]]: !galleryGuestAccessDetails?.[payloadKeyMap[name]],
-				accessPin: galleryGuestAccessDetails?.pin,
+				accessPin: info?.galleryGuestAccessDetails?.pin,
 			};
 			await updateGuestAccess(payload, galleryId);
 		}
