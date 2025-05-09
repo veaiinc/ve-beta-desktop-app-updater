@@ -21,6 +21,7 @@ import { message } from '../../globalComponents/CustomToast';
 import { redirectTo } from '../../../../helpers';
 import CombinedChainOfThought from '../../chat/chatComponents/CombinedChainOfThought';
 import { fileTypeIcons } from '../../../../helpers';
+import PromptPopup from '../../homePage/PromptPopup';
 
 const AISuggestionsModal = ({
 	open,
@@ -44,6 +45,8 @@ const AISuggestionsModal = ({
 		selectedFeedback: data?.feedback,
 		isQuestionsExpanded: false,
 		questionsAnswers: {},
+		feedbackPopupOpen: false,
+		liked: null,
 	});
 
 	const resizableContainerRef = useRef(null);
@@ -162,6 +165,10 @@ const AISuggestionsModal = ({
 		document?.removeEventListener('mouseup', handleMouseUp);
 	};
 
+	const handleThumbsClick = (thumbs) => {
+		setInfo((prev) => ({ ...prev, liked: thumbs, feedbackPopupOpen: true }));
+	};
+
 	const {
 		title,
 		description,
@@ -194,6 +201,15 @@ const AISuggestionsModal = ({
 			style={{ padding: '0px' }}
 			rootClassName="ai-suggestions-drawer"
 		>
+			{/* {info?.feedbackPopupOpen && (
+				<PromptPopup
+					messageId={messageData?.messageId}
+					liked={info?.liked}
+					open={info?.feedbackPopupOpen}
+					feedbackPopupOpen={info?.feedbackPopupOpen}
+					closeModal={() => setInfo((prev) => ({ ...prev, feedbackPopupOpen: false }))}
+				/>
+			)} */}
 			<div className="ai-suggestions-wrapper" ref={resizableContainerRef}>
 				<div className="drag-handler" onMouseDown={handleMouseDown} />
 
@@ -615,7 +631,7 @@ const AISuggestionsModal = ({
 											? 'selected-thumb'
 											: ''
 									}`}
-									onClick={() => handleThumbClick('thumbsup')}
+									onClick={() => handleThumbsClick('thumbsUp')}
 								>
 									<ThumbsUpSvg />
 								</div>
