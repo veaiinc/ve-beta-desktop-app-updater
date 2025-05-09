@@ -1,43 +1,48 @@
-import { memo, useContext, useEffect, useRef, useState } from 'react';
-import '../../../assets/scss/files/index.scss';
-import '../../../assets/scss/files/files.scss';
-import Context from '../../../context/context';
-import { useNavigate } from 'react-router-dom';
-import CreateGallery from '../../components/modalsV2/gallery/CreateGallery';
-import { message } from '../../components/globalComponents/CustomToast';
-import Spinner from '../../components/loaders/Spinner';
-import ProposalsPopup from '../../components/docs/ProposalsPopup';
 import ObjectID from 'bson-objectid';
-import QuickActions from '../../components/globalComponents/QuickActions';
-import DocsGrid from '../../components/files/DocsGrid';
-import NotesGrid from '../../components/files/NotesGrid';
-import FormsGrid from '../../components/files/FormsGrid';
-import GalleryGrid from '../../components/files/GalleryGrid';
-import MostUsedEntries from '../../components/files/MostUsedEntries';
-import TemplatesGrid from '../../components/files/TemplatesGrid';
-import { useSearchParams } from 'react-router-dom';
-import ElasticSearchResults from './ElasticSearchResults';
-import getFileTypeInfo from './getFiletypeInfo';
+import { memo, useContext, useEffect, useRef, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import '../../../assets/scss/files/files.scss';
+import '../../../assets/scss/files/index.scss';
 import { ReactComponent as SearchSvg } from '../../../assets/svg/elastic_search/search-icon.svg';
 import { ReactComponent as CommandIcon } from '../../../assets/svg/files/command.svg';
 import { ReactComponent as Folder } from '../../../assets/svg/files/FolderSearch.svg';
-import { Dropdown } from 'antd';
+import { ReactComponent as Plug } from '../../../assets/svg/files/plug.svg';
+import Context from '../../../context/context';
+import ProposalsPopup from '../../components/docs/ProposalsPopup';
+import DocsGrid from '../../components/files/DocsGrid';
+import FormsGrid from '../../components/files/FormsGrid';
+import GalleryGrid from '../../components/files/GalleryGrid';
+import MostUsedEntries from '../../components/files/MostUsedEntries';
+import NotesGrid from '../../components/files/NotesGrid';
+import TemplatesGrid from '../../components/files/TemplatesGrid';
+import { message } from '../../components/globalComponents/CustomToast';
+import QuickActions from '../../components/globalComponents/QuickActions';
+import Spinner from '../../components/loaders/Spinner';
+import CreateGallery from '../../components/modalsV2/gallery/CreateGallery';
 import CustomDropdown from './CustomDropdown';
+import ElasticSearchResults from './ElasticSearchResults';
+import getFileTypeInfo from './getFiletypeInfo';
 
 const items = [
 	{
-		id: 1,
+		value: 1,
 		label: 'Files',
 	},
 	{
-		id: 2,
+		value: 2,
 		label: 'Meetings',
 	},
 	{
-		id: 3,
+		value: 3,
 		label: 'Webpages',
 	},
 ];
+
+const customDropdownStyle = {
+	display: 'flex',
+	alignItems: 'center',
+	gap: '5px',
+};
 
 const options = [
 	// 'All',
@@ -303,6 +308,8 @@ const Files = () => {
 		totalCount: null,
 		showElasticSearchResults: false,
 		isFocused: false,
+		selectedSource: null,
+		selectedIntegration: null,
 	});
 
 	const isAdmin = tenantUserAccessControls?.role === 'admin';
@@ -750,24 +757,39 @@ const Files = () => {
 									)}
 								</div>
 								{info.showElasticSearchResults && info.isFocused && (
-									<div style={{ position: 'absolute', right: '20px' }}>
-										{/* <Dropdown
-											menu={{ items }}
-											trigger={['click']}
-											style={{
-												cursor: 'pointer',
-												backgroundColor: 'var(--card-over-card)',
-											}}
-											className="sources-ant-dropdown"
-											overlayStyle={{
-												backgroundColor: 'var(--card-over-card)',
-											}}
-										>
-											<div className="sources-dropdown">
-												<Folder /> Sources
-											</div>
-										</Dropdown> */}
-										<CustomDropdown options={items} />
+									<div className="dropdown-container">
+										<div>
+											<CustomDropdown
+												options={items}
+												value={info.selectedSource}
+												onChange={(val) =>
+													setInfo((prev) => ({
+														...prev,
+														selectedSource: val,
+													}))
+												}
+											>
+												<div style={customDropdownStyle}>
+													<Folder /> Sources
+												</div>
+											</CustomDropdown>
+										</div>
+										<div>
+											<CustomDropdown
+												options={items}
+												value={info.selectedIntegration}
+												onChange={(val) =>
+													setInfo((prev) => ({
+														...prev,
+														selectedIntegration: val,
+													}))
+												}
+											>
+												<div style={customDropdownStyle}>
+													<Plug /> Integrations
+												</div>
+											</CustomDropdown>
+										</div>
 									</div>
 								)}
 								<div className="command-text">

@@ -21,7 +21,7 @@
 			bottom: 66px;
 			position: absolute;
 			right: 68px;
-			transition: all 0.5s ease-in-out;
+			transition: all 0.6s ease;
 
 			&.focused {
 				left: 50%;
@@ -81,6 +81,16 @@
 						width: 16px;
 						height: 16px;
 					}
+				}
+
+				.dropdown-container {
+					display: flex;
+					align-items: center;
+					position: absolute;
+					gap: 4px;
+					width: 100%;
+					right: 23px;
+					justify-content: flex-end;
 				}
 
 				.command-text {
@@ -859,4 +869,10 @@
 .card-container,
 .card-container-hover {
 	padding-bottom: 25px;
+}
+
+.dropdown-placeholder {
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }

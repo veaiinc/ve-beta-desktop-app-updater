@@ -2,7 +2,7 @@
 	display: flex;
 	width: 690px;
 	height: 340px;
-	padding: 0px 20px 0px 20px;
+	padding: 60px 20px 0px 20px;
 	flex-direction: column;
 	align-items: center;
 	flex-shrink: 0;
@@ -32,7 +32,6 @@
 		position: relative;
 		width: 100%;
 		cursor: pointer;
-		padding-top: 6px;
 
 		.search-result-item-left {
 			display: flex;
@@ -80,7 +79,7 @@
 
 		.hover-card-wrapper {
 			position: absolute;
-			top: 25%;
+			top: 100%;
 			left: 50%;
 			opacity: 0;
 			visibility: hidden;
@@ -100,13 +99,16 @@
 		.hover-card {
 			position: relative;
 			width: 180px;
-			height: 220px;
-			padding: 16px;
+			height: 170px;
+			padding: 10px;
 			background: var(--background-color);
 			border: 1px solid rgba(255, 255, 255, 0.1);
 			border-radius: 8px;
 			box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 			overflow: auto;
+			display: flex;
+			flex-direction: column;
+			gap: 5px;
 
 			.hover-card-header {
 				padding: 5px;

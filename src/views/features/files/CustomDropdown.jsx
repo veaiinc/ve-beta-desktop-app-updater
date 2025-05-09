@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import '../../../assets/scss/landingScreen/contactus/customDropdown.scss';
 import { ReactComponent as ArrowDown } from '../../../assets/svg/CaretDown.svg';
 
-const CustomDropdown = ({ options, value, onChange, placeholder = 'Please select' }) => {
+const CustomDropdown = ({ options, value, onChange, children }) => {
 	const [isOpen, setIsOpen] = useState(false);
 	const dropdownRef = useRef(null);
 
@@ -37,7 +37,7 @@ const CustomDropdown = ({ options, value, onChange, placeholder = 'Please select
 				onClick={toggleDropdown}
 			>
 				<span className={`custom-dropdown__toggle-value ${!value ? 'placeholder' : ''}`}>
-					{options.find((opt) => opt.value === value)?.label || placeholder}
+					{options.find((opt) => opt.value === value)?.label || children}
 				</span>
 				<span className="custom-dropdown__toggle-arrow">
 					<ArrowDown />
