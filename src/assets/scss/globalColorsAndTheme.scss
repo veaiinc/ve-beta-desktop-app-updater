@@ -68,6 +68,13 @@
 	--chat-secondary-font: #c1c1c9; /* rgb(193, 193, 201) */
 
 	--backdrop: rgba(15, 15, 16, 0.5); /* #0f0f10 */
+
+	// gradients
+	--linear-gradient: linear-gradient(
+		0deg,
+		rgba(12, 12, 13, 0.9) 19.76%,
+		rgba(12, 12, 13, 0) 100%
+	); // Used in /files route
 }
 
 /* light theme global css variables */
@@ -120,4 +127,11 @@
 	--chat-secondary-font: #4f6064; /* rgb(79, 96, 100) */
 
 	--backdrop: rgb(176, 178, 181, 0.5); /* #B0B2B5 */
+
+	// gradients
+	--linear-gradient: linear-gradient(
+		180deg,
+		rgba(255, 255, 255, 0) 0%,
+		#fff 100%
+	); // Used in /files route
 }
