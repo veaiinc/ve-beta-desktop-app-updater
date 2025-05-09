@@ -30,7 +30,7 @@ import { ReactComponent as CreateWorkspaceSvg } from '../../../assets/svg/sideba
 
 const workspaceStyles = {
 	position: 'absolute',
-	bottom: '106px',
+	bottom: '122px',
 	left: '0px',
 	width: '280px',
 	border: 'none',

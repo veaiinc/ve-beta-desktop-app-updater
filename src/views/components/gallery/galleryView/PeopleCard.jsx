@@ -76,13 +76,6 @@ function Peopleitem(props) {
 		squareWidth <= 0 ||
 		squareHeight <= 0
 	) {
-		console.warn('Skipping render due to invalid face layout', {
-			squareTop,
-			squareLeft,
-			squareWidth,
-			squareHeight,
-			scaleRatio,
-		});
 		return null;
 	}
 	return (
