@@ -140,6 +140,8 @@
 				position: absolute;
 				left: 0;
 				top: 0;
+				border-top-left-radius: 12px;
+				border-top-right-radius: 12px;
 			}
 
 			.docs-preview {
@@ -282,7 +284,8 @@
 					-webkit-line-clamp: 1;
 					align-self: stretch;
 					overflow: hidden;
-					color: var(--primary-font, #f2f2f3);
+					// color: var(--primary-font, #f2f2f3);
+					color: #0c0c0d;
 					text-overflow: ellipsis;
 					font-family: var(--primary-font-family);
 					font-size: 12px;
@@ -298,7 +301,6 @@
 					justify-content: center;
 					align-self: stretch;
 					color: var(--secondary-font, #787e87);
-					color: var(--secondary-font, color(display-p3 0.4784 0.4941 0.5216));
 					font-family: var(--primary-font-family);
 					font-size: 10px;
 					font-style: normal;
