@@ -107,12 +107,10 @@ const AiFacesContainer = ({
 						loadingMore: true,
 					}));
 					await getAiFace(galleryId, aiFace?.currentPage + 1, 40, false);
-					setTimeout(() => {
-						setInfo((prev) => ({
-							...prev,
-							loadingMore: false,
-						}));
-					}, 1000);
+					setInfo((prev) => ({
+						...prev,
+						loadingMore: false,
+					}));
 				}
 			}
 		}
