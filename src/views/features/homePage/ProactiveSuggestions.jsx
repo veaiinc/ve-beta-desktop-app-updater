@@ -761,19 +761,20 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 												<Tooltip
 													title={
 														<div className="tooltipContainer">
-															<span>{card?.title}</span>{' '}
 															{card?.description}
 														</div>
 													}
 													placement="bottomLeft"
 													arrow={false}
 												>
-													<div className="cardContianerTitle">
+													<div className="cardContainerUnreadIndicator">
 														{!isRead && (
 															<span className="unread"></span>
 														)}
-														<span>{card?.title} - </span>
-														{card?.description}
+														<div className="cardContianerTitle">
+															<span>{card?.title} - </span>
+															{card?.description}
+														</div>
 													</div>
 												</Tooltip>
 												<div

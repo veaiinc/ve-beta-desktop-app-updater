@@ -3585,6 +3585,12 @@ const GalleryPage = () => {
 		}));
 		navigate(-1);
 	};
+	const selectedFaceChange = (face) => {
+		setInfo((prev) => ({
+			...prev,
+			selectedFace: face,
+		}));
+	};
 	return (
 		<>
 			<div className="galleryContainer">
@@ -4770,7 +4776,7 @@ const GalleryPage = () => {
 											: info?.scrolledTillEnd
 											? 'auto'
 											: 'hidden',
-										height: info?.isRearranging ? '79vh' : 'fit-content',
+										height: info?.isRearranging ? '79vh' : '83vh',
 									}}
 									className="galleryImagesContainer"
 									id="galleryScrollTarget"
@@ -5751,6 +5757,7 @@ const GalleryPage = () => {
 						selectedFace={info?.selectedFace}
 						selectedFaceId={info?.selectedFaceId}
 						selectedImage={info?.selectedImage}
+						selectedFaceChange={selectedFaceChange}
 					/>
 				)}
 				{info.activeTab === 'Insights' && <Insights galleryId={galleryId} />}
