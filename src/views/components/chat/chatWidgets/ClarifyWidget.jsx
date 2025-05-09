@@ -13,8 +13,9 @@ const ClarifyWidget = ({ data }) => {
 	};
 	const handleAllOptionClick = () => {
 		let prompt = 'All - ';
-		(data?.options || []).forEach((option, index) => {
-			prompt += option + (index !== data?.options?.length - 1 ? ', ' : '');
+		const options = data?.options || [];
+		options?.forEach((option, index) => {
+			prompt += option + (index !== options?.length - 1 ? ', ' : '');
 		});
 		updateStateValues({
 			activePromptForChat: prompt,
