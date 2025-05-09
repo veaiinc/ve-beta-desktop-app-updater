@@ -4,6 +4,16 @@ import _ from 'lodash';
 function Peopleitem(props) {
 	const peopleCardOuterContainer = useRef();
 
+	if (
+		!props.url ||
+		!props.people?.boundingBox ||
+		typeof props.originalWidth !== 'number' ||
+		typeof props.originalHeight !== 'number' ||
+		props.originalWidth === 0 ||
+		props.originalHeight === 0
+	) {
+		return null;
+	}
 	let url;
 	let maxWidth = 1920;
 	let maxHeight = 1080;
@@ -59,14 +69,30 @@ function Peopleitem(props) {
 		scaleRatio = parseFloat(props.thumbwidth / squareWidth);
 	}
 
+	if (
+		isNaN(squareTop) ||
+		isNaN(squareLeft) ||
+		isNaN(scaleRatio) ||
+		squareWidth <= 0 ||
+		squareHeight <= 0
+	) {
+		console.warn('Skipping render due to invalid face layout', {
+			squareTop,
+			squareLeft,
+			squareWidth,
+			squareHeight,
+			scaleRatio,
+		});
+		return null;
+	}
 	return (
 		<div
 			ref={peopleCardOuterContainer}
-			className={`people-card f-left`}
+			className="people-card f-left"
 			style={{
 				width: props.thumbwidth,
-				height: _.has(props, 'url') ? props.thumbwidth : props.thumbwidth,
-				display: _.has(props, 'navBarIcon') && props.dontShowPhotosCount ? '' : 'flex',
+				height: props.thumbwidth,
+				display: props.navBarIcon && props.dontShowPhotosCount ? '' : 'flex',
 				alignItems: 'center',
 				flexDirection: 'column',
 				justifyContent: 'center',
@@ -77,7 +103,7 @@ function Peopleitem(props) {
 			id={props.people._id}
 		>
 			<div
-				className="img  f-left"
+				className="img f-left"
 				style={{
 					width: props.thumbwidth,
 					height: props.thumbwidth,
@@ -86,14 +112,16 @@ function Peopleitem(props) {
 					maxWidth: props.thumbwidth,
 				}}
 			>
+				{/* Scaled background image */}
 				<div
 					style={{
 						width: squareWidth,
 						height: squareHeight,
-						background: `  url(${url})`,
-						backgroundRepeat: 'no-repeat',
-						backgroundPositionX: -squareLeft,
-						backgroundPositionY: -squareTop,
+						backgroundImage: `url(${url})`, // no shorthand for background
+						backgroundRepeat: 'no-repeat', // separate properties
+						backgroundPositionX: `${-squareLeft}px`, // individual position properties
+						backgroundPositionY: `${-squareTop}px`,
+						backgroundSize: 'auto', // individual size property
 						transform: `scale(${scaleRatio})`,
 						position: 'absolute',
 						top: `${(props.thumbwidth - squareHeight) / 2}px`,
@@ -103,15 +131,16 @@ function Peopleitem(props) {
 						zIndex: 2,
 					}}
 				></div>
+
+				{/* White circular mask/background */}
 				<div
 					style={{
 						width: props.thumbwidth,
 						height: props.thumbwidth,
 						zIndex: 1,
 						position: 'absolute',
-
 						borderRadius: '50%',
-						backgroundColor: `${'#fff'}`,
+						backgroundColor: '#fff',
 					}}
 				></div>
 			</div>

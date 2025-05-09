@@ -94,11 +94,29 @@ const AiPeopleContainer = ({
 								className={`aiPeople ${info?.showMore ? 'aiPeople-showMore' : ''}`}
 								id="galleryScrollTarget_aiPeople"
 							>
-								{aiFace?.faces?.map((face) => {
+								{aiFace?.faces?.map((face, index) => {
+									const originalWidth =
+										face?.imageDetails?.activeVersion?.originalWidth;
+									const originalHeight =
+										face?.imageDetails?.activeVersion?.originalHeight;
+									const boundingBox = face?.displayImage?.boundingBox;
+
+									if (
+										!originalWidth ||
+										!originalHeight ||
+										!boundingBox ||
+										typeof originalWidth !== 'number' ||
+										typeof originalHeight !== 'number'
+									) {
+										return null; // Skip rendering until data is ready
+									}
+
 									const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
 									const src = `${galleryCredentials?.baseURL}/${face?.displayImage?.optimizedImageS3Key}?${params}`;
+
 									return (
 										<div
+											key={index}
 											className="aiPeople-person"
 											onClick={() => handleFaceClick(face)}
 										>
@@ -112,14 +130,8 @@ const AiPeopleContainer = ({
 													match={{
 														params: { tenantID: face?.tenant_id },
 													}}
-													originalWidth={
-														face?.imageDetails?.activeVersion
-															?.originalWidth
-													}
-													originalHeight={
-														face?.imageDetails?.activeVersion
-															?.originalHeight
-													}
+													originalWidth={originalWidth}
+													originalHeight={originalHeight}
 												/>
 											</div>
 											<p>{face?.name}</p>
