@@ -294,24 +294,6 @@ const createOptions = [
 			}
 		},
 	},
-	{
-		id: 12,
-		title: 'Classic Gallery',
-		value: 'galleries',
-		controlValue: 'classicGallery',
-		action: ({ setInfo }) => {
-			setInfo((prev) => ({ ...prev, openGalleryPopup: true }));
-		},
-	},
-	{
-		id: 13,
-		title: 'Lite Gallery',
-		value: 'lite-gallery',
-		controlValue: 'liteGallery',
-		action: ({ setInfo }) => {
-			setInfo((prev) => ({ ...prev, openLiteGalleryPopup: true }));
-		},
-	},
 ];
 
 const uploadOptions = [
@@ -1392,26 +1374,32 @@ const QuickActions = ({
 								<div className="suggested-modules-container">
 									<div className="suggested-modules-container-header">Upload</div>
 									<div className="suggested-modules-container-options">
-										{info?.filteredOptions?.upload?.map((option) => (
-											<div
-												key={option?.id}
-												className="dropdown-option"
-												onClick={() =>
-													option?.action({
-														setInfo,
-														navigate,
-														createNewAiAssistant,
-														createAutomation,
-														createNewKnowledgeAgent,
-													})
-												}
-											>
-												{option?.icon && (
-													<img src={option?.icon} alt="icon" />
-												)}
-												{option?.title}
-											</div>
-										))}
+										{info?.filteredOptions?.upload
+											?.filter(
+												(option) =>
+													liteGalleryPaidPlan ||
+													option.controlValue !== 'liteGallery',
+											)
+											?.map((option) => (
+												<div
+													key={option?.id}
+													className="dropdown-option"
+													onClick={() =>
+														option?.action({
+															setInfo,
+															navigate,
+															createNewAiAssistant,
+															createAutomation,
+															createNewKnowledgeAgent,
+														})
+													}
+												>
+													{option?.icon && (
+														<img src={option?.icon} alt="icon" />
+													)}
+													{option?.title}
+												</div>
+											))}
 									</div>
 								</div>
 							)}
