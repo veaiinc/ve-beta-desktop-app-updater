@@ -40,7 +40,7 @@ const TeamMembersDropdown = memo(({ selected = [], onOptionClick, title }) => {
 				<div className="person-drop-down-body-list">
 					{filteredTenantsUserList?.length > 0 ? (
 						filteredTenantsUserList?.map((option) => {
-							const isSelected = selected.some((item) => item._id === option._id);
+							const isSelected = selected.some((item) => item?._id === option?._id);
 							return (
 								<div
 									className={`person-multi-select-selected-item ${

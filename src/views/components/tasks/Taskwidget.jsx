@@ -19,6 +19,7 @@ import FilterDropdown from '../dropDown/tasks/FilterDropdown';
 import CurrentViewOptions from '../dropDown/tasks/CurrentViewOptions';
 import SortDropdown from '../dropDown/tasks/SortDropdown';
 import { rowTypes } from '../../features/tasks/Tasks';
+import TextField from './listView/TextField';
 
 const Taskwidget = ({
 	properties,
@@ -38,6 +39,7 @@ const Taskwidget = ({
 		sort: null,
 		filters: null,
 	});
+	console.log(viewData?.filters, 'info');
 
 	useEffect(() => {
 		setInfo((prevInfo) => ({
@@ -84,6 +86,26 @@ const Taskwidget = ({
 		}));
 
 		updateViewInfo(viewData?._id, { sort: [] });
+	};
+
+	const handleFilterChange = (key, value) => {
+		const existing = info?.filters?.find((filter) => filter.key === key);
+		let newFilters;
+
+		if (existing) {
+			newFilters = info?.filters?.map((filter) =>
+				filter.key === key ? { ...filter, value } : filter,
+			);
+		} else {
+			newFilters = [...(info?.filters || []), { key, value }];
+		}
+
+		setInfo((prevInfo) => ({
+			...prevInfo,
+			filters: newFilters,
+		}));
+
+		updateViewInfo(viewData?._id, { filters: newFilters });
 	};
 
 	const handleClearAllFilters = () => {
@@ -201,6 +223,7 @@ const Taskwidget = ({
 								responseMetadata={responseMetadata}
 								colors={colors}
 								filters={info?.filters}
+								handleFilterChange={handleFilterChange}
 							/>
 							{info?.filters?.length > 0 && (
 								<button
@@ -215,19 +238,19 @@ const Taskwidget = ({
 							{info?.filters?.length > 0 ? (
 								info?.filters?.map((filter, index) => {
 									const { type, props, name } = responseMetadata?.[filter?.key];
-									const Component = rowTypes?.[type];
+									let Component = null;
+									if (type === 'text') {
+										Component = TextField;
+									} else {
+										Component = rowTypes?.[type];
+									}
 									return (
 										<div className="sort-filter-value-item" key={filter?.key}>
 											<div className="filter-title">{name}</div>
 											<div className="filter-type">is</div>
 											<Component
 												value={
-													[
-														'assignedTo',
-														'assignedBy',
-														'createdBy',
-														'updatedBy',
-													].includes(filter?.key)
+													filter?.key === 'clients'
 														? [filter?.value]
 														: filter?.value
 												}
@@ -235,9 +258,14 @@ const Taskwidget = ({
 												labelField={props?.labelField}
 												title={name}
 												showLabel={true}
-												showTitle={true}
-												multiSelect={true}
-												onOptionClick={() => {}}
+												multiSelect={false}
+												showEmail={false}
+												onOptionClick={(value) => {
+													handleFilterChange(filter?.key, value);
+												}}
+												onChange={(value) => {
+													handleFilterChange(filter?.key, value);
+												}}
 											/>
 											<button
 												className="filter-remove-btn"

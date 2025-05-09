@@ -2,6 +2,7 @@ import { memo, useMemo, useState } from 'react';
 import '../../../../assets/scss/dropdown/tasks/filterDropdown.scss';
 import { ReactComponent as PlusIcon } from '../../../../assets/svg/tasks/plus.svg';
 import { ReactComponent as SearchSvg } from '../../../../assets/svg/workflow/search.svg';
+import { ReactComponent as Tick } from '../../../../assets/svg/tasks/tick.svg';
 
 import { Tooltip } from 'antd';
 import TextFilter from './TextFilter';
@@ -23,7 +24,7 @@ const filterMapper = {
 	updatedBy: TeamMembersDropdown,
 };
 
-const FilterDropdown = ({ properties, colors, filters, responseMetadata }) => {
+const FilterDropdown = ({ properties, colors, filters, responseMetadata, handleFilterChange }) => {
 	const [info, setInfo] = useState({
 		searchValue: '',
 	});
@@ -79,7 +80,10 @@ const FilterDropdown = ({ properties, colors, filters, responseMetadata }) => {
 															?.options
 													}
 													onOptionClick={(option) => {
-														console.log(option);
+														handleFilterChange(property?.value, option);
+													}}
+													onChange={(option) => {
+														handleFilterChange(property?.value, option);
 													}}
 													labelField="label"
 													title={property?.label}
@@ -89,6 +93,7 @@ const FilterDropdown = ({ properties, colors, filters, responseMetadata }) => {
 															'assignedBy',
 															'createdBy',
 															'updatedBy',
+															'clients',
 														].includes(property?.value)
 															? [
 																	selectedFilters?.get(
@@ -97,6 +102,9 @@ const FilterDropdown = ({ properties, colors, filters, responseMetadata }) => {
 															  ]
 															: selectedFilters?.get(property?.value)
 																	?.value
+													}
+													value={
+														selectedFilters?.get(property?.value)?.value
 													}
 												/>
 											</div>
@@ -114,6 +122,7 @@ const FilterDropdown = ({ properties, colors, filters, responseMetadata }) => {
 											<span className="filter-dropdown-tooltip-body-item-label">
 												{property?.label}
 											</span>
+											{selectedFilters?.has(property?.value) && <Tick />}
 										</div>
 									</Tooltip>
 								);
