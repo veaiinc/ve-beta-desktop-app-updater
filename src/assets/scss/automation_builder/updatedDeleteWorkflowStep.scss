@@ -49,7 +49,7 @@
 				background: #2c2e30;
 				color: #e8e8e8;
 				padding: 16px 24px;
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 500;
@@ -172,7 +172,7 @@
 	.deleteHeaderSubtitleTooltipTitle {
 		border-bottom: 1px solid rgba(50, 52, 54, 0.5);
 		padding-bottom: 8px;
-		font-family: Inter;
+		font-family: var(--primary-font-family);
 		font-size: 12px;
 		font-style: normal;
 		font-weight: 500;
@@ -197,7 +197,7 @@
 			border-radius: 14px;
 			background: #2c2e30;
 			color: #e8e8e8;
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 12px;
 			font-style: normal;
 			font-weight: 500;

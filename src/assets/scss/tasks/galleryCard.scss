@@ -29,7 +29,7 @@
 
 		.gallery-card-body-title {
 			color: var(--primary-font, #f2f2f3);
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 600;
@@ -39,7 +39,7 @@
 		.gallery-card-body-description {
 			color: var(--text-secondary, #b3b3b3);
 			text-align: left;
-			font-family: Inter;
+			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
 		}

@@ -66,8 +66,7 @@ import { getCurrentWorkspaceId } from '../../../helpers';
 import GridImage from '../../../assets/images/workflow_builder/dotgrid.png';
 import SharePopup from '../../components/modalsV2/gallery/SharePopup';
 import GalleryViewer from './GalleryViewer';
-// import { message } from '../../components/globalComponents/CustomToast';
-// import EarnAndShareOverlay from './galleryPage/EditAndShareOverlay';
+import { ReactComponent as ArrowSvg } from '../../../assets/svg/file/arrow.svg';
 
 // const workspaceId = localStorage.getItem('workspaceId');
 
@@ -114,6 +113,13 @@ const showMessage = (type, content, dismissFunction) => {
 
 let startTime;
 let animationFrame;
+
+const filterOptions = [
+	{ label: 'File name', value: 'displayName', sortType: 1 },
+	{ label: 'Date Captured', value: 'originalDateTime', sortType: 1 },
+	{ label: 'Upload time', value: '_id', sortType: 1 },
+	{ label: 'Random', value: 'custom', sortType: 1, noArrow: true },
+];
 
 const GalleryPage = () => {
 	const { galleryId } = useParams();
@@ -2600,23 +2606,39 @@ const GalleryPage = () => {
 		showMessage('success', 'Images deleted successfully');
 	};
 
-	const handleFilter = async (filter) => {
-		// albumTagId
+	const handleFilter = async (value) => {
+		const current = info?.sortType || '';
+		const baseValue = current.replace('-', '');
+		const isSame = baseValue === value;
+		const isCurrentlyDesc = current.startsWith('-');
+
+		let newSortType;
+
+		if (isSame) {
+			// Toggle sort direction
+			newSortType = isCurrentlyDesc ? value : `-${value}`;
+		} else {
+			// New selection → start with default (descending)
+			const defaultItem = filterOptions.find((item) => item.value === value);
+			newSortType = defaultItem?.sortType === 1 ? value : `-${value}`; // fallback to descending
+		}
+
 		setInfo((prev) => ({
 			...prev,
-			sortType: filter,
+			sortType: newSortType,
 			imagesList: [],
 			page: 1,
 		}));
-		const payload = {
-			sortType: filter,
-		};
+
+		const payload = { sortType: newSortType };
+
 		const response = await updateTagSortType(
 			payload,
 			galleryId,
 			info?.activeAlbumId,
 			info?.albumTagId,
 		);
+
 		if (response?.[0] === true) {
 			getGalleryImages(
 				galleryId,
@@ -4392,114 +4414,79 @@ const GalleryPage = () => {
 												</div>
 
 												<div style={{ position: 'relative' }}>
-													<div
-														onClick={() =>
-															setInfo((prevInfo) => ({
-																...prevInfo,
-																showFilter: !prevInfo.showFilter,
-															}))
+													<Tooltip
+														title={
+															<div
+																ref={filtersOptionsRef}
+																className="filterContainer"
+															>
+																{filterOptions.map((item) => {
+																	const currentSortType =
+																		info?.sortType || '';
+																	const isSelected =
+																		currentSortType.replace(
+																			'-',
+																			'',
+																		) === item.value;
+																	const isDescending =
+																		currentSortType ===
+																		`-${item.value}`;
+
+																	return (
+																		<div
+																			key={item.value}
+																			className={`file-filter-option-items ${
+																				isSelected
+																					? 'active'
+																					: ''
+																			}`}
+																			onClick={(e) => {
+																				e.stopPropagation();
+																				handleFilter(
+																					item.value,
+																				);
+																			}}
+																		>
+																			{isSelected && (
+																				<div className="sortTypeIndicator"></div>
+																			)}
+																			<div className="option-value-wrapper">
+																				{item.label}
+																			</div>
+																			{!item.noArrow &&
+																				isSelected && (
+																					<ArrowSvg
+																						className={`sortType ${
+																							isDescending
+																								? 'sortType-up'
+																								: ''
+																						}`}
+																					/>
+																				)}
+																		</div>
+																	);
+																})}
+															</div>
 														}
-														ref={filtersRef}
-														className="iconsContainer"
+														placement="bottom"
+														arrow={false}
+														color="transparent"
+														trigger="click"
 													>
-														<FilterIcon fill="var(--primary-font)" />
-													</div>
-													{info.showFilter && (
 														<div
-															ref={filtersOptionsRef}
-															className="filterContianer"
+															onClick={() =>
+																setInfo((prevInfo) => ({
+																	...prevInfo,
+																	showFilter:
+																		!prevInfo.showFilter,
+																}))
+															}
+															ref={filtersRef}
+															className="iconsContainer"
 														>
-															<li
-																onClick={() =>
-																	handleFilter('displayName')
-																}
-																className={
-																	info?.sortType === 'displayName'
-																		? 'active'
-																		: ''
-																}
-															>
-																File name
-															</li>
-															<li
-																onClick={() =>
-																	handleFilter('-displayName')
-																}
-																className={
-																	info?.sortType ===
-																	'-displayName'
-																		? 'active'
-																		: ''
-																}
-															>
-																File name (reverse)
-															</li>
-															<li
-																onClick={() =>
-																	handleFilter('originalDateTime')
-																}
-																className={
-																	info?.sortType ===
-																	'originalDateTime'
-																		? 'active'
-																		: ''
-																}
-															>
-																Date Captured
-															</li>
-															<li
-																onClick={() =>
-																	handleFilter(
-																		'-originalDateTime',
-																	)
-																}
-																className={
-																	info?.sortType ===
-																	'-originalDateTime'
-																		? 'active'
-																		: ''
-																}
-															>
-																Date captured (reverse)
-															</li>
-															<li
-																onClick={() =>
-																	handleFilter('createdAt')
-																}
-																className={
-																	info?.sortType === 'createdAt'
-																		? 'active'
-																		: ''
-																}
-															>
-																upload time
-															</li>
-															<li
-																onClick={() =>
-																	handleFilter('-createdAt')
-																}
-																className={
-																	info?.sortType === '-createdAt'
-																		? 'active'
-																		: ''
-																}
-															>
-																upload time (reverse)
-															</li>
-															<li
-																onClick={() =>
-																	handleFilter('custom')
-																}
-																className={
-																	info?.sortType === 'custom'
-																		? 'active'
-																		: ''
-																}
-															>
-																Random
-															</li>
+															<FilterIcon fill="var(--primary-font)" />
 														</div>
-													)}
+													</Tooltip>
 												</div>
 												<div
 													onClick={handleRearrange}

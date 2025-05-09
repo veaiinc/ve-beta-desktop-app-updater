@@ -25,11 +25,10 @@ const Contacts = () => {
 	const timeoutIdRef = useRef(null);
 
 	const {
-		templates: { updateStateValues: updateContactState },
-		contacts: { clientList, getClients },
+		templates: { updateStateValues },
+		contacts: { clientList, getClients, updateStateValues: updateContactState },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
-		page: 1,
 		loadingSkeleton: true,
 		error: null,
 		sort: [],
@@ -41,19 +40,29 @@ const Contacts = () => {
 		activeView: 'listView',
 	});
 	const listItems = clientList?.data || [];
+	const isMountedRef = useRef(true);
+	const pageRef = useRef(1);
+	const searchValueRef = useRef('');
 
 	useEffect(() => {
-		updateContactState({ leftSidebarState: 'close' });
+		updateStateValues({ leftSidebarState: 'close' });
+
+		return () => {
+			if (searchValueRef.current !== '') {
+				updateContactState({ clientList: null });
+			}
+		};
 	}, []);
 
 	useEffect(() => {
+		if (isMountedRef.current && clientList?.data) {
+			isMountedRef.current = false;
+			return;
+		}
 		timeoutIdRef.current = setTimeout(() => {
 			const reset = true;
 			fetchClientList(1, reset);
-			setInfo((prevInfo) => ({
-				...prevInfo,
-				page: 1,
-			}));
+			pageRef.current = 1;
 		}, 500);
 		return () => {
 			clearTimeout(timeoutIdRef.current);
@@ -61,14 +70,13 @@ const Contacts = () => {
 	}, [info?.searchValue]);
 
 	useEffect(() => {
-		if (clientList) {
-			if (clientList?.data) {
-				setInfo((prevInfo) => ({
-					...prevInfo,
-					loadingSkeleton: false,
-					hasMore: clientList?.hasNextPage,
-				}));
-			}
+		if (clientList?.data) {
+			setInfo((prevInfo) => ({
+				...prevInfo,
+				loadingSkeleton: false,
+				hasMore: clientList?.hasNextPage,
+			}));
+			pageRef.current = clientList?.currentPage;
 		}
 	}, [clientList]);
 
@@ -100,15 +108,11 @@ const Contacts = () => {
 
 	const fetchMoreClientsList = useCallback(() => {
 		if (info?.hasMore) {
-			const nextPage = info?.page + 1;
+			const nextPage = pageRef.current + 1;
 			const reset = false;
 			fetchClientList(nextPage, reset);
-			setInfo((prevInfo) => ({
-				...prevInfo,
-				page: nextPage,
-			}));
 		}
-	}, [info?.hasMore, info?.page, fetchClientList]);
+	}, [info?.hasMore, fetchClientList]);
 
 	const handleViewChange = (view) => {
 		setInfo({ ...info, activeView: view });
@@ -116,6 +120,7 @@ const Contacts = () => {
 
 	const handleSearchQueryChange = (e) => {
 		setInfo({ ...info, searchValue: e?.target?.value });
+		searchValueRef.current = e?.target?.value;
 	};
 
 	return (
@@ -197,19 +202,24 @@ const Contacts = () => {
 						<h1 className="header-title">Contacts</h1>
 						<QuickActions />
 					</div>
-					{info?.activeView === 'listView' && (
-						<ContactsListView
-							data={listItems}
-							hasMore={info?.hasMore}
-							fetchMore={fetchMoreClientsList}
-						/>
-					)}
-					{info?.activeView === 'widgetView' && (
-						<ContactsWidgetView
-							data={listItems}
-							hasMore={info?.hasMore}
-							fetchMore={fetchMoreClientsList}
-						/>
+					{info?.loadingSkeleton ? (
+						<div className="skeleton">Loading...</div>
+					) : (
+						<div className="contacts-body">
+							{info?.activeView === 'listView' ? (
+								<ContactsListView
+									data={listItems}
+									hasMore={info?.hasMore}
+									fetchMore={fetchMoreClientsList}
+								/>
+							) : (
+								<ContactsWidgetView
+									data={listItems}
+									hasMore={info?.hasMore}
+									fetchMore={fetchMoreClientsList}
+								/>
+							)}
+						</div>
 					)}
 				</div>
 			)}

@@ -287,7 +287,10 @@ const TemplatesGrid = ({ handleTotalChange }) => {
 									key={index}
 									onClick={() => handleCardClick(template?._id)}
 								>
-									<div className="card-item-style content-wrapper note-card-content">
+									<div
+										className="card-item-style content-wrapper note-card-content templates-grid-container tooltip"
+										data-tooltip={template?.title || ''}
+									>
 										{/* <span
 											className={`status-badge ${
 												template?.status === 'published' ? 'live' : 'draft'
@@ -295,11 +298,7 @@ const TemplatesGrid = ({ handleTotalChange }) => {
 										>
 											{getStatusBadge(template)}
 										</span> */}
-										<Tooltip title={template?.title || ''} placement="bottom">
-											<span className="item-title">
-												{template?.title || ''}
-											</span>
-										</Tooltip>
+										<span className="item-title">{template?.title || ''}</span>
 										<span className="notes-sub-heading">
 											{moment.unix(template?.createdAt).fromNow()}
 										</span>

@@ -10,8 +10,8 @@ import useSubscription from '../hooks/useSubscription';
 import useTokenExpiry from '../hooks/useTokenExpiry';
 // import BottomToolbar from '../components/ai_agents/BottomToolbar';
 import useAccessControls from '../hooks/useAccessControls';
-import RenewBanner from '../components/globalComponents/RenewBanner';
-import Context from '../../context/context';
+// import RenewBanner from '../components/globalComponents/RenewBanner';
+// import Context from '../../context/context';
 // import DynamicWidget from '../features/DynamicWidget/dynamicWidget';
 import { useLocation } from 'react-router-dom';
 import CommandKSearch from '../components/commandKSearch/CommandKSearch';
@@ -28,9 +28,9 @@ const AuthWrapper = ({
 	sidebarContainerClassName = '',
 	childrenContainerStyles = {},
 }) => {
-	const {
-		subscriptionInfo: { renewBanner },
-	} = useContext(Context);
+	// const {
+	// 	subscriptionInfo: { renewBanner },
+	// } = useContext(Context);
 	const [workspaceId, setActiveWorkspaceId] = useActiveWorkspace();
 	const location = useLocation();
 	const checkAuth = useAuth();
@@ -44,7 +44,7 @@ const AuthWrapper = ({
 
 	return (
 		<main className="main-container">
-			{renewBanner && <RenewBanner />}
+			{/* {renewBanner && <RenewBanner />} */}
 			<div className="authParentContainer" style={{ ...(authParentContainerStyle || {}) }}>
 				<Helmet>
 					<meta charSet="utf-8" />
@@ -57,7 +57,8 @@ const AuthWrapper = ({
 				<div
 					style={{
 						display: 'flex',
-						height: renewBanner ? 'calc(100dvh - 57px)' : '100dvh',
+						// height: renewBanner ? 'calc(100dvh - 57px)' : '100dvh',
+						height: '100dvh',
 						padding: '32px 32px 0',
 						...outerContainerStyle,
 					}}

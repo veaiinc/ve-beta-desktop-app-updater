@@ -6,7 +6,6 @@ import {
 	photographerModules,
 	SETTINGS_OPTIONS,
 } from './sidebarindex';
-import { ReactComponent as ArrowUpRightSvg } from '../../../assets/svg/sidebar/arrowupright.svg';
 import { ReactComponent as DownArrowSmallSvg } from '../../../assets/svg/sidebar/downarrowsmall.svg';
 import { ReactComponent as SidebarClosingSvg } from '../../../assets/svg/sidebar/SidebarClosing.svg';
 import { ReactComponent as CrossSvg } from '../../../assets/svg/sidebar/CrossSvg.svg';
@@ -19,7 +18,7 @@ import WorkspaceListComponent from './Workspace';
 import useLogout from '../../hooks/useLogout';
 import { Tooltip } from 'antd';
 import ChatHistory from './chatHistory/ChatHistory';
-
+import { ReactComponent as TickSvg } from '../../../assets/svg/tick.svg';
 import { ReactComponent as LogoutRedSvg } from '../../../assets/svg/sidebar/logout_red.svg';
 import Cropper from 'react-easy-crop';
 import Context from '../../../context/context';
@@ -27,6 +26,7 @@ import { getInitials } from '../../../helpers/index';
 import { message } from '../globalComponents/CustomToast';
 import SearchSvg from '../../../assets/svg/sidebar/SearchSvg';
 import ObjectID from 'bson-objectid';
+import { ReactComponent as CreateWorkspaceSvg } from '../../../assets/svg/sidebar/createWorkspace.svg';
 
 const workspaceStyles = {
 	position: 'absolute',
@@ -178,18 +178,9 @@ const OpenedSidebarModules = ({
 						width: '100%',
 					}}
 				>
-					{Icon && (
-						<Icon
-							fill={
-								isExactPathMatch()
-									? 'var(--primary-font)'
-									: isHover
-									? 'var(--primary-font)'
-									: 'var(--primary-font)'
-							}
-						/>
-					)}
+					{Icon && <Icon fill={'var(--secondary-font)'} />}
 					<p>{name}</p>
+					{isExactPathMatch() && <TickSvg />}
 				</div>
 				{isDropdownVisible && subModules?.length > 0 && (
 					<div>
@@ -262,7 +253,7 @@ const OpenedSidebar = ({
 	setShowChatsDrawer,
 	setShowNotesDrawer,
 	setHideClosedSidebarIcon,
-	renewBanner,
+	// renewBanner,
 }) => {
 	const {
 		templates: { leftSidebarState, updateStateValues },
@@ -330,15 +321,12 @@ const OpenedSidebar = ({
 		logoutFunc();
 	}, [logoutFunc]);
 
-	const openWorkspacesFunction = () => {
-		setsidebarStates((prevState) => {
-			const newState = {
-				...prevState,
-				workSpaceOpen: !prevState?.workSpaceOpen,
-				navStyle: prevState?.workSpaceOpen ? 'close' : 'workspace',
-			};
-			return newState;
-		});
+	const openWorkspacesFunction = (isOpen) => {
+		setsidebarStates((prevState) => ({
+			...prevState,
+			workSpaceOpen: isOpen,
+			navStyle: isOpen ? 'workspace' : 'close',
+		}));
 	};
 
 	const handleNavigateFunction = useCallback(
@@ -512,7 +500,8 @@ const OpenedSidebar = ({
 								<div
 									className="openSideBarComponent"
 									style={{
-										height: renewBanner ? 'calc(100dvh - 58px)' : '100dvh',
+										// height: renewBanner ? 'calc(100dvh - 58px)' : '100dvh',
+										height: '100dvh',
 										display: 'flex',
 										flexDirection: 'column',
 										justifyContent: 'space-between',
@@ -703,10 +692,20 @@ const OpenedSidebar = ({
 													</div>
 													<ChatHistory />
 													<div
-														className="settingsOptionsContainer"
+														className={`settingsOptionsContainer  ${
+															!showSettingsSidebar
+																? 'settingsOptionsContainerOpen'
+																: ''
+														}`}
 														onClick={toggleSidebar}
 													>
-														<div className="settingsHoverState">
+														<div
+															className={`settingsHoverState ${
+																!showSettingsSidebar
+																	? 'settingsHoverStateOpen'
+																	: ''
+															}`}
+														>
 															<div className="settingsOptionsUserInfo">
 																<div>
 																	{userDetailsData?.logoURL ? (
@@ -893,7 +892,8 @@ const OpenedSidebar = ({
 				{showSettingsSidebar && !isThisEarlyAccessPage && (
 					<div
 						className="settings-sidebar"
-						style={{ height: renewBanner ? 'calc(100dvh - 41px)' : '100dvh' }}
+						// style={{ height: renewBanner ? 'calc(100dvh - 41px)' : '100dvh' }}
+						style={{ height: '100dvh' }}
 					>
 						{/* Settings Header */}
 						<div className="settings-header">
@@ -943,13 +943,7 @@ const OpenedSidebar = ({
 										setSelectedSettingsOption(option.name);
 									}}
 								>
-									<option.icon
-										fill={
-											isExactPathMatch(option.route)
-												? 'var(--primary-font)'
-												: 'var(--primary-font)'
-										}
-									/>
+									<option.icon fill={'var(--secondary-font)'} />
 									<p>{option.name}</p>
 								</div>
 							))}
@@ -1014,7 +1008,8 @@ const OpenedSidebar = ({
 								{!sidebarStates?.workSpaceOpen && (
 									<div
 										className="settings-footer"
-										onClick={openWorkspacesFunction}
+										onMouseEnter={() => openWorkspacesFunction(true)}
+										onMouseLeave={() => openWorkspacesFunction(false)}
 									>
 										<SwitchWorkspaceSvg fill="var(--primary-font)" />
 										<p>Switch workspace</p>
@@ -1027,7 +1022,7 @@ const OpenedSidebar = ({
 									}}
 								>
 									{' '}
-									<ArrowUpRightSvg />
+									<CreateWorkspaceSvg />
 									<p>Create workspace</p>
 								</div>
 							</div>
@@ -1106,6 +1101,7 @@ const OpenedSidebar = ({
 						info={info}
 						userWorkSpaceList={userWorkSpaceList}
 						sidebarSettings="close"
+						openWorkspacesFunction={openWorkspacesFunction}
 					/>
 				</div>
 			)}

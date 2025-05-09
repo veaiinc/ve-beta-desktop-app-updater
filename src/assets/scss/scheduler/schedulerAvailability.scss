@@ -20,7 +20,7 @@
 
 			.dayName {
 				color: var(--primary-font);
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 400;
@@ -64,7 +64,7 @@
 					align-items: center;
 					justify-content: center;
 					color: var(--primary-font);
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-weight: 500;
 					opacity: 0;
@@ -100,7 +100,7 @@
 					.slotName {
 						color: var(--primary-font, #f2f2f3);
 						color: var(--primary-font, color(display-p3 0.949 0.949 0.9529));
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 12px;
 						font-style: normal;
 						font-weight: 500;
@@ -114,7 +114,7 @@
 					.slotTime {
 						color: var(--secondary-font, #787e87);
 						color: var(--secondary-font, color(display-p3 0.4784 0.4941 0.5216));
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 11px;
 						font-style: normal;
 						font-weight: 400;
@@ -142,7 +142,7 @@
 					align-items: center;
 					gap: 8px;
 					color: var(--secondary-font, #bbbec1);
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					opacity: 0;
 					transition: opacity 0.1s ease-in-out;
