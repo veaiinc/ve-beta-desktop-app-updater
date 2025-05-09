@@ -30,7 +30,7 @@ const AiPeopleContainer = ({
 			...prev,
 			hasNextPage: aiFace?.hasNextPage,
 		}));
-	}, [aiFace]);
+	}, [aiFace, galleryId]);
 
 	return (
 		<>
