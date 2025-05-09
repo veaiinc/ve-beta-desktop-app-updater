@@ -936,16 +936,6 @@ const Tasks = () => {
 
 	return (
 		<div className="tasks-page-container">
-			{/* <ChatLeftBarComponent>
-				<div className="tasks-left-container">
-					<Taskwidget
-						properties={info?.properties}
-						responseMetadata={responseMetadata}
-						colors={colors}
-					/>
-				</div>
-			</ChatLeftBarComponent> */}
-			{/* <div className="tasks-right-container"> */}
 			<Task
 				responseMetadata={responseMetadata}
 				handleAddButtonOnClick={handleAddButtonOnClick}
@@ -1023,7 +1013,6 @@ const Tasks = () => {
 				}
 				// renewBanner={renewBanner}
 			/>
-			{/* </div> */}
 		</div>
 	);
 };

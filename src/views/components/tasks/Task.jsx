@@ -12,6 +12,7 @@ import TableView from './views/TableView';
 import QuickActions from '../globalComponents/QuickActions';
 import ChatLeftBarComponent from '../ChatLeftBarComponent';
 import Taskwidget from './Taskwidget';
+import TaskHeader from './listView/TaskHeader';
 
 const layouts = {
 	list: {
@@ -379,7 +380,8 @@ const Task = ({
 			<div className="tasks-right-container">
 				<div className="task-container">
 					<div className="task-header-container">
-						<ListViewHeader
+						<TaskHeader tabs={taskInfo?.tabs} />
+						{/* <ListViewHeader
 							updateTaskInfo={updateTaskInfo}
 							properties={properties}
 							taskPreferences={taskPreferences}
@@ -406,8 +408,10 @@ const Task = ({
 							handleTabDropdownClick={handleTabDropdownClick}
 							layoutOptions={layoutOptions}
 							handleLayoutOptionClick={handleAddTab}
-						/>
-						<QuickActions />
+						/> */}
+						<div className="quick-actions-btn">
+							<QuickActions />
+						</div>
 					</div>
 
 					<div className="task-content-area">

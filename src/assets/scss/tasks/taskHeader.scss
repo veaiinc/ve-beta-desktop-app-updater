@@ -1,0 +1,206 @@
+.task-tabs-header-container {
+	display: flex;
+	padding: 4px;
+	align-items: center;
+	gap: 8px;
+	border-radius: 8px;
+	border: 1px solid var(--stroke, #2c2d2e);
+	background: var(--card, #18191b);
+	max-width: 100%;
+	overflow: hidden;
+
+	.tab-wrapper {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		max-width: 100%;
+		flex: 1;
+		min-width: 0;
+		.tab-item {
+			display: flex;
+			height: 33px;
+			padding: 8px 12px;
+			justify-content: center;
+			align-items: center;
+			gap: 6px;
+			border-radius: 8px;
+			cursor: pointer;
+			flex-shrink: 1;
+			min-width: 0;
+
+			.tab-icon {
+				width: 16px;
+				height: 16px;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				flex-shrink: 0;
+
+				svg {
+					path {
+						stroke: var(--secondary-font, #808080) !important;
+					}
+				}
+			}
+
+			.tab-title {
+				color: var(--secondary-font, #808080);
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+				flex-grow: 1;
+				max-width: 70px;
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				min-width: 0;
+			}
+
+			&.tab-active {
+				.tab-icon {
+					svg {
+						path {
+							stroke: var(--primary-font, #f2f2f3) !important;
+						}
+					}
+				}
+
+				.tab-title {
+					color: var(--primary-font, #f2f2f3);
+				}
+			}
+		}
+	}
+	.tab-divider {
+		width: 1.5px;
+		border-radius: 2px;
+		height: 32px;
+		background-color: var(--stroke, #2c2d2e);
+	}
+
+	.add-new-tab-button {
+		display: flex;
+		padding: 4px;
+		align-items: center;
+		background-color: transparent;
+		cursor: pointer;
+		border: none;
+	}
+}
+
+.add-new-tab-tooltip-content {
+	display: inline-flex;
+	padding: 16px;
+	flex-direction: column;
+	gap: 16px;
+	border-radius: 12px;
+	background: var(--popup, #202123);
+
+	.add-new-tab-tooltip-header {
+		overflow: hidden;
+		color: var(--primary-font, #f2f2f3);
+		text-overflow: ellipsis;
+		font-family: Inter;
+		font-size: 14px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
+	}
+
+	.add-new-tab-tooltip-body {
+		display: flex;
+		align-items: flex-start;
+		gap: 8px;
+
+		.add-new-tab-tooltip-body-item {
+			display: flex;
+			height: 33px;
+			padding: 8px 12px;
+			justify-content: center;
+			align-items: center;
+			gap: 6px;
+			border-radius: 8px;
+			border: 1px solid var(--stroke, #2c2d2e);
+
+			.add-new-tab-tooltip-body-item-icon {
+				width: 16px;
+				height: 16px;
+
+				svg {
+					path {
+						stroke: var(--secondary-font, #7a7e85) !important;
+					}
+				}
+			}
+
+			.add-new-tab-tooltip-body-item-label {
+				color: var(--secondary-font, #7a7e85);
+				font-family: var(--secondary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+		}
+	}
+}
+
+.tab-tooltip-content {
+	display: flex;
+	width: 221px;
+	padding: 8px 0px;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 6px;
+	border-radius: 12px;
+	background: var(--popup, #202123);
+
+	.tab-tooltip-content-item {
+		display: flex;
+		padding: 10px 16px;
+		align-items: flex-start;
+		gap: 10px;
+		align-self: stretch;
+		cursor: pointer;
+
+		.tab-tooltip-content-item-icon {
+			width: 16px;
+			height: 16px;
+		}
+
+		.tab-tooltip-content-item-label {
+			color: var(--primary-font, #f2f2f3);
+			font-family: var(--primary-font-family);
+			font-size: 13px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+		}
+	}
+
+	.delete-view-container {
+		display: flex;
+		padding: 10px 16px;
+		align-items: flex-start;
+		gap: 10px;
+		align-self: stretch;
+		cursor: pointer;
+		border-top: 1px solid var(--stroke, #2c2d2e);
+
+		.delete-view-icon {
+			width: 16px;
+			height: 16px;
+		}
+
+		.delete-view-label {
+			color: var(--error, #c03744);
+			font-family: var(--primary-font-family);
+			font-size: 13px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+		}
+	}
+}

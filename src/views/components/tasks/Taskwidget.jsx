@@ -39,7 +39,6 @@ const Taskwidget = ({
 		sort: null,
 		filters: null,
 	});
-	console.log(viewData?.filters, 'info');
 
 	useEffect(() => {
 		setInfo((prevInfo) => ({

@@ -1,35 +1,7 @@
 import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import '../../../../assets/scss/tasks/listViewHeader.scss';
-import { ReactComponent as FilterLinesSvg } from '../../../../assets/svg/tasks/filterLines.svg';
-import { ReactComponent as ArrowUpAndDown } from '../../../../assets/svg/tasks/arrowUpAndDown.svg';
-import { ReactComponent as CrossIcon } from '../../../../assets/svg/workspaceSettings/cross.svg';
 import OptionsDropDown from '../../dropDown/tasks/OptionsDropDown';
-import DropDown from '../../dropDown/tasks/DropDown';
-import SortComponent from './SortComponent';
-import FilterComponent from './FilterComponent';
 import TabHeader from './TabHeader';
-import SearchSvg from '../../../../assets/svg/activity/SearchSvg';
-import CrossSvg from '../../../../assets/svg/docs/CrossSvg';
-import { ReactComponent as FilterIcon } from '../../../../assets/svg/tasks/newFilter.svg';
-import { ReactComponent as SortIcon } from '../../../../assets/svg/tasks/newSort.svg';
-import { ReactComponent as PlusSvg } from '../../../../assets/svg/my_templates/plus.svg';
-
-const defaultFilterValue = {
-	text: '',
-	linkText: '',
-};
-
-const suggestedOptions = [
-	{
-		id: 0,
-		title: 'Create new Task',
-		value: 'task',
-		controlValue: 'task',
-		action: () => {
-			// This will be handled by the parent component
-		},
-	},
-];
 
 const ListViewHeader = ({
 	properties,
@@ -53,43 +25,7 @@ const ListViewHeader = ({
 	layoutOptions,
 	handleLayoutOptionClick,
 }) => {
-	const [info, setInfo] = useState({
-		searchExpand: false,
-		showFilters: true,
-	});
-	const [pendingFilters, setPendingFilters] = useState([]);
 	const [showDropdown, setShowDropdown] = useState(false);
-
-	const handelFilterClick = useCallback(
-		(value) => {
-			if (!value) {
-				setInfo((prev) => ({
-					...prev,
-					showFilters: !prev.showFilters,
-				}));
-				return;
-			}
-
-			setInfo((prev) => ({
-				...prev,
-				showFilters: true,
-			}));
-
-			if (
-				!viewData?.filters?.some((item) => item.key === value) &&
-				!pendingFilters.some((item) => item.key === value)
-			) {
-				setPendingFilters((prev) => [
-					...prev,
-					{
-						key: value,
-						value: null,
-					},
-				]);
-			}
-		},
-		[viewData, pendingFilters],
-	);
 
 	const handleTabClick = useCallback(
 		(tab) => {
@@ -125,9 +61,6 @@ const ListViewHeader = ({
 		return () => document.removeEventListener('mousedown', handleClickOutside);
 	}, []);
 
-	const hasFilters = viewData?.filters?.length > 0 || pendingFilters?.length > 0;
-	const hasSort = viewData?.sort?.length > 0;
-
 	return (
 		<div className="listViewHeaderContainer">
 			<div className="listViewHeaderTitleWrapper">
@@ -147,31 +80,6 @@ const ListViewHeader = ({
 					</div>
 
 					<div className="listViewHeaderActions">
-						{hasFilters ? (
-							<div
-								className="listViewHeaderActionButton"
-								onClick={() => handelFilterClick()}
-							>
-								<FilterIcon />
-							</div>
-						) : (
-							<DropDown
-								title="Filter"
-								options={properties.filter(
-									(item) => !['childTasks', 'parentTask']?.includes(item.value),
-								)}
-								onOptionClick={handelFilterClick}
-								valueSelector="value"
-							>
-								<div
-									className="listViewHeaderActionButton"
-									onClick={() => handelFilterClick()}
-									style={{ color: 'var(--primary-color)' }}
-								>
-									<FilterIcon />
-								</div>
-							</DropDown>
-						)}
 						<OptionsDropDown
 							properties={properties}
 							prefix={prefix}
