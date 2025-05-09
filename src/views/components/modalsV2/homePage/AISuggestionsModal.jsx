@@ -453,7 +453,9 @@ const AISuggestionsModal = ({
 
 								{suggested_actions?.length > 0 && (
 									<div
-										className="suggested-actions-container"
+										className={`suggested-actions-container ${
+											info?.isActionsExpanded ? 'active' : ''
+										}`}
 										onClick={() =>
 											setInfo((prev) => ({
 												...prev,
@@ -510,7 +512,9 @@ const AISuggestionsModal = ({
 
 								{suggested_prompts?.length > 0 && (
 									<div
-										className="suggested-prompts-container"
+										className={`suggested-prompts-container ${
+											info?.isPromptsExpanded ? 'active' : ''
+										}`}
 										onClick={() =>
 											setInfo((prev) => ({
 												...prev,
