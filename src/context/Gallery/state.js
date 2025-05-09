@@ -1920,6 +1920,16 @@ export const Galleries = () => {
 		}
 	};
 
+	const updateStateValues = async (updatedVariableValuesObj) => {
+		try {
+			dispatch({
+				type: Actions.UPDATE_STATE_VALUES_SUCCESS,
+				payload: updatedVariableValuesObj,
+			});
+		} catch (error) {
+			console.log('error==>updateStateValues', error);
+		}
+	};
 	return {
 		...state,
 		getGalleries,
@@ -2012,5 +2022,6 @@ export const Galleries = () => {
 		updateGuestAccess,
 		getGuestAccessDetails,
 		getMostUsedEntities,
+		updateStateValues,
 	};
 };

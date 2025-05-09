@@ -200,6 +200,8 @@ const GalleryPage = () => {
 			editTag,
 			deleteTag,
 			lightroomCopyList,
+			aiFace,
+			updateStateValues: updateGalleryStateValues,
 		},
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 		profileInfo: { userWorkSpaceList, getTenantSettings, tennantSettingsData },
@@ -616,6 +618,27 @@ const GalleryPage = () => {
 			getAlbumImagesCount(galleryId);
 		}
 	}, [galleryId]);
+	useEffect(() => {
+		return () => {
+			updateGalleryStateValues({
+				tenantAlbums: null,
+				albumImagesCount: null,
+				galleryCredentials: null,
+				albumDetails: null,
+				imagesList: null,
+				albumImagesCount: null,
+				albumDetails: null,
+				imagesList: null,
+				imageDetail: null,
+				galleryGuestAccess: null,
+				albumImagesCount: null,
+				clientSelectionsData: null,
+				clientSelectionImages: null,
+				aiFace: null,
+				aiFaceImages: null,
+			});
+		};
+	}, []);
 	useEffect(() => {
 		if (albumImagesCount) {
 			setInfo((prev) => ({
