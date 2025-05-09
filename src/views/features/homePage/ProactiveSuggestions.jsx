@@ -143,6 +143,7 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 		selectedCardNumber: null,
 		hoveredCard: null,
 		isListView: true,
+		isApiLoading: false,
 	});
 	const navigate = useNavigate();
 	const selectedOptionRef = useRef(selectedOption);
@@ -160,6 +161,13 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 		}
 	}, [aiSuggestedPendingActions]);
 
+	const handleKeyDown = (e) => {
+		if (e?.key === 'ArrowLeft') {
+			handleLeft();
+		} else if (e?.key === 'ArrowRight') {
+			handleRight();
+		}
+	};
 	useEffect(() => {
 		window?.addEventListener('keydown', handleKeyDown);
 
@@ -167,7 +175,7 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 		return () => {
 			window?.removeEventListener('keydown', handleKeyDown);
 		};
-	}, []);
+	}, [handleKeyDown]);
 
 	useEffect(() => {
 		if (info?.totalCardsData?.length > 0) {
@@ -227,7 +235,7 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 	}, [payload, info?.selectedFilters]);
 
 	useEffect(() => {
-		if (!info?.selectedFilters) return;
+		if (!info?.selectedFilters || !aiSuggestedPendingActions) return;
 		if (
 			aiSuggestedPendingActions?.metaInfo?.currentPage === 1 &&
 			info?.selectedFilters?.length === 0 &&
@@ -268,14 +276,6 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 		}
 	};
 
-	const handleKeyDown = (e) => {
-		if (e?.key === 'ArrowLeft') {
-			handleLeft();
-		} else if (e?.key === 'ArrowRight') {
-			handleRight();
-		}
-	};
-
 	const updateWindow = (index) => {
 		const length = info?.totalCardsData?.length;
 
@@ -311,9 +311,14 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 	};
 
 	const handleRight = async () => {
+		if (info?.isApiLoading) return;
 		const isLastCard = currentIndexRef.current === totalCardsDataRef.current.length - 2;
 
 		if (isLastCard) {
+			setInfo((prev) => ({
+				...prev,
+				isApiLoading: true,
+			}));
 			if (aiSuggestedPendingActions?.metaInfo?.hasNextPage) {
 				const nextPage = aiSuggestedPendingActions.metaInfo.currentPage + 1;
 
@@ -349,6 +354,10 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 				};
 
 				await getAISuggestedPendingActions(newPayload);
+				setInfo((prev) => ({
+					...prev,
+					isApiLoading: false,
+				}));
 				return;
 			} else {
 				const index = 0;
@@ -356,6 +365,7 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 					...prev,
 					currentIndex: index,
 					activeCardContent: totalCardsDataRef.current[index],
+					isApiLoading: false,
 				}));
 				currentIndexRef.current = index;
 				return;
@@ -383,6 +393,7 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 			openModal: true,
 			currentIndex: index,
 			selectedCardNumber: index + 1,
+			cards: prev.cards.map((c) => (c._id === card._id ? { ...c, read: true } : c)),
 		}));
 		currentIndexRef.current = index;
 	};
@@ -693,8 +704,8 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 					{info?.loading ? (
 						skeletonLoaders?.map((_, index) => (
 							<Skeleton
-								width="908px"
-								height="120px"
+								width="739px"
+								height="100px"
 								style={{
 									'--highlight-color': 'gray',
 									'--base-color': 'transparent',
@@ -952,15 +963,16 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 													</div>
 													{info?.hoveredCard?._id === card?._id && (
 														<div className="cardButtonsContainer">
-															<button
+															<div
 																className="checkButton"
 																onClick={(e) => {
 																	e.stopPropagation();
 																	handleViewReportClick(card);
 																}}
 															>
-																View Report
-															</button>
+																Check
+																<ChevronRightThinSvg />
+															</div>
 														</div>
 													)}
 												</div>
@@ -1018,43 +1030,46 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 										onClick={() => handleCardClick(card, index)}
 									>
 										<div className="header">
-											<div className="card-title">{card?.description}</div>
 											<div className="card-description">{card?.title}</div>
 										</div>
-										<div className="footer">
-											<div className="module-type">{card?.moduleType}</div>
-											<div className="module-priority">
-												<span
-													style={{
-														backgroundColor:
-															PriorityLevel[card?.priority],
-													}}
-												></span>
-												<div className="module-priority-text">
-													<div>{card?.priority}</div>
-													{card?.priority && card?.updatedAt && (
-														<div
-															style={{
-																color: 'var(--secondary-font)',
-															}}
-														>
-															|
-														</div>
-													)}
-													<Tooltip
-														title={dayjs(card?.updatedAt * 1000).format(
-															'MMMM D, YYYY h:mm A',
+										{classList?.[1] === 'selected' && (
+											<div className="footer">
+												<div className="module-type">
+													{card?.moduleType}
+												</div>
+												<div className="module-priority">
+													<span
+														style={{
+															backgroundColor:
+																PriorityLevel[card?.priority],
+														}}
+													></span>
+													<div className="module-priority-text">
+														<div>{card?.priority}</div>
+														{card?.priority && card?.updatedAt && (
+															<div
+																style={{
+																	color: 'var(--secondary-font)',
+																}}
+															>
+																|
+															</div>
 														)}
-													>
-														<div>
-															{dayjs(
+														<Tooltip
+															title={dayjs(
 																card?.updatedAt * 1000,
-															).fromNow()}
-														</div>
-													</Tooltip>
+															).format('MMMM D, YYYY h:mm A')}
+														>
+															<div>
+																{dayjs(
+																	card?.updatedAt * 1000,
+																).fromNow()}
+															</div>
+														</Tooltip>
+													</div>
 												</div>
 											</div>
-										</div>
+										)}
 									</div>
 								);
 							})

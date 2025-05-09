@@ -14,7 +14,7 @@ const infiniteScrollStyle = {
 	flexDirection: 'column',
 	alignItems: 'flex-start',
 	alignSelf: 'stretch',
-	gap: '4px',
+	gap: '2px',
 	// height: '38vh',
 };
 const skeletonLoaders = Array?.from({ length: 30 }, (_, index) => index + 1);
@@ -175,7 +175,12 @@ const ChatHistory = () => {
 							return (
 								<div key={chat?._id} className="chat-container-wrapper ">
 									{showGroupHeader && (
-										<div className="chat-group-header">{dateGroup}</div>
+										<div
+											className="chat-group-header"
+											style={{ marginTop: `${index !== 0 ? '20px' : '0'}` }}
+										>
+											{dateGroup}
+										</div>
 									)}
 									<div
 										className={`chat-containers ${

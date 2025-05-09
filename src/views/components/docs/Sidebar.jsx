@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useMemo, useState, useContext, useEffect, useRef } from 'react';
+import { memo, useCallback, useMemo, useState, useContext, useEffect, useRef } from 'react';
 import '../../../assets/scss/docs/fileListView.scss';
 import { ReactComponent as CloseSvg } from '../../../assets/svg/tasks/doubleRightArrow.svg';
 import { ReactComponent as ExpandSvg } from '../../../assets/svg/docs/expand.svg';
@@ -47,7 +47,7 @@ const initialState = {
 	fileViewerList: null,
 	activityDataLoading: true,
 	duplicateLoading: false,
-	renewBanner: false,
+	// renewBanner: false,
 };
 let origin = fetchOriginSelection();
 
@@ -73,7 +73,7 @@ const Sidebar = ({ open, onClose, activeFileData, refetchDocsFilesList, openDele
 			duplicateSmartFile,
 		},
 		profileInfo: { tennantSettingsData },
-		subscriptionInfo: { renewBanner },
+		// subscriptionInfo: { renewBanner },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -461,9 +461,13 @@ const Sidebar = ({ open, onClose, activeFileData, refetchDocsFilesList, openDele
 				>
 					<div
 						className="fileListViewDrawer"
+						// style={{
+						// 	height: renewBanner ? 'calc(100dvh - 41px)' : '100dvh',
+						// 	marginTop: renewBanner ? '41px' : '0px',
+						// }}
 						style={{
-							height: renewBanner ? 'calc(100dvh - 41px)' : '100dvh',
-							marginTop: renewBanner ? '41px' : '0px',
+							height: '100dvh',
+							marginTop: '0px',
 						}}
 					>
 						<div className="headerContainer">

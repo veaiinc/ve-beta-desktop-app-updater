@@ -23,7 +23,7 @@
 			align-self: stretch;
 			.inviteCollabTitle {
 				color: #e0e0e0;
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 500;
@@ -32,7 +32,7 @@
 			}
 			.inviteCollabSubtitle {
 				color: var(--secondary-font, #787e87);
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 500;
@@ -68,7 +68,7 @@
 				.inviteCollabOptionTitle {
 					color: var(--secondary-font, #787e87);
 					color: var(--secondary-font, color(display-p3 0.4784 0.4941 0.5216));
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 500;
@@ -107,7 +107,7 @@
 				flex: 1 0 0;
 				border-radius: 16px;
 				color: var(--secondary-font, #787e87);
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 500;
@@ -154,7 +154,7 @@
 						align-self: stretch;
 						.sharePopupPeopleTitle {
 							color: var(--primary-font, #f2f2f3);
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 12px;
 							font-style: normal;
 							font-weight: 500;
@@ -162,7 +162,7 @@
 						}
 						.sharePopupPeopleEmail {
 							color: var(--secondary-font, #787e87);
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 12px;
 							font-style: normal;
 							font-weight: 400;
@@ -174,7 +174,7 @@
 					background: transparent;
 					border: none;
 					color: var(--secondary-font, #787e87);
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 500;
@@ -190,7 +190,7 @@
 			align-self: stretch;
 			.sharePopupGeneralContainerTitle {
 				color: var(--secondary-font, #787e87);
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 600;
@@ -225,7 +225,7 @@
 						flex-direction: column;
 						.sharePopupGeneralTitle {
 							color: var(--primary-font, #f2f2f3);
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 12px;
 							font-style: normal;
 							font-weight: 500;
@@ -235,7 +235,7 @@
 							overflow: hidden;
 							color: var(--secondary-font, #787e87);
 							text-overflow: ellipsis;
-							font-family: Inter;
+							font-family: var(--primary-font-family);
 							font-size: 12px;
 							font-style: normal;
 							font-weight: 400;
@@ -260,7 +260,7 @@
 						border: none;
 						width: 100%;
 						color: var(--secondary-font, #787e87);
-						font-family: Inter;
+						font-family: var(--primary-font-family);
 						font-size: 12px;
 						font-style: normal;
 						font-weight: 500;
@@ -289,7 +289,7 @@
 				align-self: stretch;
 				.sharePopupTeamMembersContainerMainTitle {
 					color: var(--primary-font, #f2f2f3);
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 500;
@@ -297,7 +297,7 @@
 				}
 				.sharePopupTeamMembersContainerMainDesc {
 					color: var(--secondary-font, #787e87);
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 400;

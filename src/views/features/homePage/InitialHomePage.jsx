@@ -163,23 +163,11 @@ const InitialHomePage = () => {
 		templates: { aiSuggestedPendingActions, getAISuggestedPendingActions },
 	} = useContext(Context);
 
-	const handleUpdateOptions = (value) => {
-		let updatedOptions = info?.options;
-		updatedOptions = updatedOptions?.map((option) => {
-			if (option?.value === value) {
-				option.showOption = true;
-			}
-			return option;
-		});
-
-		const selectedOption = updatedOptions?.find((option) => option?.showOption)?.value ?? '';
-
-		setInfo((prev) => ({
-			...prev,
-			options: updatedOptions,
-			selectedOption,
-		}));
-	};
+	useEffect(() => {
+		return () => {
+			updateStateValues({ aiSuggestedPendingActions: null });
+		};
+	}, []);
 
 	useEffect(() => {
 		if (!promptsData) {
@@ -271,6 +259,24 @@ const InitialHomePage = () => {
 			}));
 		}
 	}, [options, info?.selectedOption]);
+
+	const handleUpdateOptions = (value) => {
+		let updatedOptions = info?.options;
+		updatedOptions = updatedOptions?.map((option) => {
+			if (option?.value === value) {
+				option.showOption = true;
+			}
+			return option;
+		});
+
+		const selectedOption = updatedOptions?.find((option) => option?.showOption)?.value ?? '';
+
+		setInfo((prev) => ({
+			...prev,
+			options: updatedOptions,
+			selectedOption,
+		}));
+	};
 
 	const handleOptionSelection = (option) => {
 		if (info?.selectedOption === option?.value) {

@@ -109,7 +109,7 @@
 
 			.section-title {
 				color: var(--primary-font, #f2f2f3);
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 500;
@@ -131,7 +131,7 @@
 					border: 1px solid var(--stroke, #333334);
 					background: transparent;
 					color: var(--primary-font, #f2f2f3);
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 500;
@@ -177,6 +177,14 @@
 		color: var(--primary-font);
 		padding: 32px 0 0 0;
 		height: 100%;
+
+		.skeleton {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			width: 100%;
+			color: var(--primary-font, #f2f2f3);
+		}
 
 		.header {
 			display: flex;
@@ -226,6 +234,12 @@
 					}
 				}
 			}
+		}
+
+		.contacts-body {
+			width: 100%;
+			flex-grow: 1;
+			overflow: auto;
 		}
 	}
 }

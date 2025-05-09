@@ -36,7 +36,7 @@ const EventDetailsModal = ({
 }) => {
 	const {
 		calendarInfo: { updateCalendarEvent, deleteCalendarEvent },
-		subscriptionInfo: { validateExpiryData, updateSubscriptionState, renewBanner },
+		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 		companyInfo: { tenantsUserList },
 	} = useContext(Context);
 
@@ -301,7 +301,7 @@ const EventDetailsModal = ({
 			) : (
 				<div
 					className="eventDetailsDrawerParentCOntainer"
-					style={renewBanner ? customStyles : {}}
+					// style={renewBanner ? customStyles : {}}
 				>
 					<div className="innerContainer">
 						{/* Event Header */}

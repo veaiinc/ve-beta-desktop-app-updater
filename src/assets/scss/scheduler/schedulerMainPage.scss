@@ -136,7 +136,7 @@
 					overflow: hidden;
 					color: var(--primary-font);
 					text-overflow: ellipsis;
-					font-family: Inter;
+					font-family: var(--primary-font-family);
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 500;
@@ -202,7 +202,7 @@
 
 			.headerTitle {
 				color: var(--primary-font);
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 16px;
 				font-style: normal;
 				font-weight: 500;
@@ -210,7 +210,7 @@
 			}
 			.headerSubTitle {
 				color: var(--secondary-font);
-				font-family: Inter;
+				font-family: var(--primary-font-family);
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 400;

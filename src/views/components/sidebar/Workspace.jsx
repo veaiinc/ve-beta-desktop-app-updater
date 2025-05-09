@@ -18,15 +18,21 @@ const workspaceOpenStyle = {
 	left: 0,
 	right: 0,
 	bottom: 0,
-	// background: 'var(--background-color)',
-	opacity: 0.5,
-	height: '100vh',
+	background: 'var(--card)',
+	opacity: 0.4,
+	height: '80vh',
 	zIndex: 997,
 	cursor: 'pointer',
 };
 
 const workspaceStyle = { display: 'flex', gap: '4px', alignItems: 'center' };
-const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpaceList, info }) => {
+const WorkspaceListComponent = ({
+	sidebarStates,
+	setsidebarStates,
+	userWorkSpaceList,
+	info,
+	openWorkspacesFunction,
+}) => {
 	const {
 		subscriptionInfo: { renewBanner },
 	} = useContext(Context);
@@ -132,11 +138,14 @@ const WorkspaceListComponent = ({ sidebarStates, setsidebarStates, userWorkSpace
 	return (
 		<>
 			{sidebarStates?.workSpaceOpen && (
-				<div style={workspaceOpenStyle} onClick={closeWorkspaceList} />
+				<div
+					style={workspaceOpenStyle}
+					onMouseLeave={() => openWorkspacesFunction(false)}
+				/>
 			)}
 			<div
-				style={{ maxHeight: renewBanner ? '80dvh' : '83dvh' }}
 				className="workspaceListComponent"
+				onMouseLeave={() => openWorkspacesFunction(false)}
 			>
 				<div className="workspaceListHeader">
 					<div className="backContinaer" onClick={closeWorkspaceList}>
