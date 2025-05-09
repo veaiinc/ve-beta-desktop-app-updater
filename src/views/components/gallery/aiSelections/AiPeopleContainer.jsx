@@ -84,7 +84,7 @@ const AiPeopleContainer = ({
 					<div className="aiPeople-container-scroll">
 						<InfiniteScroll
 							dataLength={aiFace?.faces?.length || 0}
-							next={() => getAiFace(galleryId, aiFace?.currentPage + 1, 35)}
+							next={() => getAiFace(galleryId, aiFace?.currentPage + 1, 65)}
 							hasMore={info?.hasNextPage || false}
 							// loader={<h4 style={{ textAlign: 'center', color: '#fff' }}>Loading...</h4>}
 							scrollableTarget="galleryScrollTarget_aiPeople"
