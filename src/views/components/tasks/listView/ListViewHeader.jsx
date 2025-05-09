@@ -33,21 +33,17 @@ const suggestedOptions = [
 
 const ListViewHeader = ({
 	properties,
-	searchValue,
 	responseMetadata,
-	addButtonOnClick,
 	taskPreferences,
 	editingProperty,
 	handleEditPropertyChange,
 	colors,
-	createButtonText,
 	handleTabChange,
 	tabs,
 	prefix,
 	updateViewInfo,
 	updateTaskInfo,
 	viewData,
-	blockTitle,
 	handleTabsReorder,
 	showEditViewDropDown,
 	closeEditViewDropDown,
@@ -62,14 +58,7 @@ const ListViewHeader = ({
 		showFilters: true,
 	});
 	const [pendingFilters, setPendingFilters] = useState([]);
-	const searchInputRef = useRef(null);
 	const [showDropdown, setShowDropdown] = useState(false);
-
-	useEffect(() => {
-		if (info.searchExpand && searchInputRef.current) {
-			searchInputRef.current?.focus();
-		}
-	}, [info.searchExpand]);
 
 	const handelFilterClick = useCallback(
 		(value) => {
@@ -155,32 +144,9 @@ const ListViewHeader = ({
 							layoutOptions={layoutOptions}
 							handleLayoutOptionClick={handleLayoutOptionClick}
 						/>
-						{/* <button className="listViewHeaderTabsAddButton" onClick={handleAddTab}>
-						<PlusSvg />
-					</button> */}
 					</div>
 
 					<div className="listViewHeaderActions">
-						{/* <button className="listViewHeaderAddTaskButton" onClick={addButtonOnClick}>
-							{createButtonText || 'Add'}
-						</button> */}
-						{/* <PlusSvg onClick={addButtonOnClick} /> */}
-						<div className="inputAndCloseContainer">
-							<SearchSvg />
-							<input
-								ref={searchInputRef}
-								className="searchInputTag"
-								placeholder="Search"
-								value={searchValue}
-								onChange={(e) => updateTaskInfo({ searchValue: e.target?.value })}
-							/>
-						</div>
-						{
-							// <button className="listViewHeaderActionButton">
-							// 	<ThunderSvg />
-							// </button>
-						}
-
 						{hasFilters ? (
 							<div
 								className="listViewHeaderActionButton"

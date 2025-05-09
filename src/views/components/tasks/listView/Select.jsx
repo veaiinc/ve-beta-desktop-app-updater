@@ -57,12 +57,12 @@ const Select = ({
 	};
 
 	return (
-		<div className="select-options-wrapper">
+		<div className="select-options-wrapper filter-wrapper">
 			<Tooltip
 				title={
 					<SelectDropdown
 						options={options}
-						value={value}
+						selected={value}
 						onOptionClick={handleOptionClick}
 						disabled={disabled}
 						title={title}

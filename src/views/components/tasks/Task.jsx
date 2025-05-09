@@ -371,6 +371,8 @@ const Task = ({
 						colors={colors}
 						viewData={taskInfo?.tabs?.[taskInfo?.activeTab]}
 						updateViewInfo={updateViewInfo}
+						updateTaskInfo={updateTaskInfo}
+						searchValue={searchValue}
 					/>
 				</div>
 			</ChatLeftBarComponent>

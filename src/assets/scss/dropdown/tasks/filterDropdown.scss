@@ -109,6 +109,16 @@
 				background-color: var(--card-hover, #2c2d2e);
 			}
 		}
+		.no-options-text {
+			color: var(--secondary-font, #7a7e85);
+			font-family: var(--primary-font-family);
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 500;
+			width: 100%;
+			text-align: center;
+			padding: 10px 0px;
+		}
 	}
 }
 

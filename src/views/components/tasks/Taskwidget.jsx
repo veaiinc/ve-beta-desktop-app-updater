@@ -12,15 +12,23 @@ import { ReactComponent as SortDownIcon } from '../../../assets/svg/tasks/sortDo
 import { ReactComponent as SortUpIcon } from '../../../assets/svg/tasks/sortUp.svg';
 import { ReactComponent as ChevronRightThinSvg } from '../../../assets/svg/tasks/chevronRightThin.svg';
 import { ReactComponent as PlusIcon } from '../../../assets/svg/tasks/plus.svg';
+import { ReactComponent as CrossIcon } from '../../../assets/svg/tasks/cross.svg';
 
 import Context from '../../../context/context';
-import { Tooltip } from 'antd';
 import FilterDropdown from '../dropDown/tasks/FilterDropdown';
 import CurrentViewOptions from '../dropDown/tasks/CurrentViewOptions';
 import SortDropdown from '../dropDown/tasks/SortDropdown';
-import { sortBy } from 'lodash';
+import { rowTypes } from '../../features/tasks/Tasks';
 
-const Taskwidget = ({ properties, responseMetadata, viewData, updateViewInfo }) => {
+const Taskwidget = ({
+	properties,
+	responseMetadata,
+	viewData,
+	updateViewInfo,
+	updateTaskInfo,
+	searchValue,
+	colors,
+}) => {
 	const {
 		tasks: { listTasks },
 	} = useContext(Context);
@@ -28,17 +36,22 @@ const Taskwidget = ({ properties, responseMetadata, viewData, updateViewInfo }) 
 		widgetShown: false,
 		filterShown: false,
 		sort: null,
+		filters: null,
 	});
 
 	useEffect(() => {
-		if (info?.sort?.length) {
-			return;
-		}
 		setInfo((prevInfo) => ({
 			...prevInfo,
 			sort: viewData?.sort,
 		}));
-	}, [JSON.stringify(viewData?.sort)]);
+	}, [viewData?._id]);
+
+	useEffect(() => {
+		setInfo((prevInfo) => ({
+			...prevInfo,
+			filters: viewData?.filters,
+		}));
+	}, [viewData?._id]);
 
 	const handleStateChange = (data) => {
 		setInfo((prevInfo) => ({
@@ -73,8 +86,27 @@ const Taskwidget = ({ properties, responseMetadata, viewData, updateViewInfo }) 
 		updateViewInfo(viewData?._id, { sort: [] });
 	};
 
+	const handleClearAllFilters = () => {
+		setInfo((prevInfo) => ({
+			...prevInfo,
+			filters: [],
+		}));
+
+		updateViewInfo(viewData?._id, { filters: [] });
+	};
+
+	const handleRemoveFilter = (index) => {
+		const newFilters = info?.filters?.filter((_, i) => i !== index);
+
+		setInfo((prevInfo) => ({
+			...prevInfo,
+			filters: newFilters,
+		}));
+
+		updateViewInfo(viewData?._id, { filters: newFilters });
+	};
+
 	const { allTasks, today, completed, overdue, allPending } = listTasks?.analytics || {};
-	console.log(viewData);
 
 	return (
 		<div className="taskWidgetContainer">
@@ -82,7 +114,13 @@ const Taskwidget = ({ properties, responseMetadata, viewData, updateViewInfo }) 
 			<div className="taskWidgetHeader filter-container">
 				<div className="task-widget-search-container">
 					<SearchSvg />
-					<input type="text" placeholder="Search" className="task-widget-search-input" />
+					<input
+						type="text"
+						placeholder="Search"
+						className="task-widget-search-input"
+						value={searchValue}
+						onChange={(e) => updateTaskInfo({ searchValue: e.target?.value })}
+					/>
 				</div>
 				{/* <FilterDropdown
 					properties={properties}
@@ -97,12 +135,12 @@ const Taskwidget = ({ properties, responseMetadata, viewData, updateViewInfo }) 
 				>
 					<FilterIcon />
 				</button>
-				<button
+				{/* <button
 					className="filter-icon-btn"
 					onClick={() => handleStateChange({ filterShown: !info?.filterShown })}
 				>
 					<SortIcon />
-				</button>
+				</button> */}
 				<CurrentViewOptions />
 			</div>
 			{info?.filterShown && (
@@ -116,15 +154,18 @@ const Taskwidget = ({ properties, responseMetadata, viewData, updateViewInfo }) 
 								sort={info?.sort}
 								handleSortChange={handleSortChange}
 							/>
-							<button className="filter-clear-btn" onClick={handleClearAllSort}>
-								Clear All
-							</button>
+							{info?.sort?.length > 0 && (
+								<button className="filter-clear-btn" onClick={handleClearAllSort}>
+									Clear All
+								</button>
+							)}
 						</div>
 						<div className="sort-filter-values-container">
 							{info?.sort?.length > 0 ? (
 								info?.sort?.map((sort) => (
 									<button
 										className="sort-btn"
+										key={sort?.sortBy}
 										onClick={() =>
 											handleSortChange(
 												{
@@ -155,11 +196,62 @@ const Taskwidget = ({ properties, responseMetadata, viewData, updateViewInfo }) 
 					<div className="sort-filter-container">
 						<div className="sort-filter-header">
 							<div className="sort-filter-title">Filter</div>
-							<button className="sort-filter-button">
-								<PlusIcon />
-							</button>
+							<FilterDropdown
+								properties={properties}
+								responseMetadata={responseMetadata}
+								colors={colors}
+								filters={info?.filters}
+							/>
+							{info?.filters?.length > 0 && (
+								<button
+									className="filter-clear-btn"
+									onClick={handleClearAllFilters}
+								>
+									Clear All
+								</button>
+							)}
 						</div>
-						<div className="sort-filter-values-container"></div>
+						<div className="sort-filter-values-container">
+							{info?.filters?.length > 0 ? (
+								info?.filters?.map((filter, index) => {
+									const { type, props, name } = responseMetadata?.[filter?.key];
+									const Component = rowTypes?.[type];
+									return (
+										<div className="sort-filter-value-item" key={filter?.key}>
+											<div className="filter-title">{name}</div>
+											<div className="filter-type">is</div>
+											<Component
+												value={
+													[
+														'assignedTo',
+														'assignedBy',
+														'createdBy',
+														'updatedBy',
+													].includes(filter?.key)
+														? [filter?.value]
+														: filter?.value
+												}
+												options={props?.options}
+												labelField={props?.labelField}
+												title={name}
+												showLabel={true}
+												showTitle={true}
+												multiSelect={true}
+												onOptionClick={() => {}}
+											/>
+											<button
+												className="filter-remove-btn"
+												onClick={() => handleRemoveFilter(index)}
+											>
+												<CrossIcon />
+											</button>
+										</div>
+									);
+								})
+							) : (
+								<div className="no-sort-text">No filters applied</div>
+							)}
+						</div>
 					</div>
 				</div>
 			)}
@@ -172,9 +264,6 @@ const Taskwidget = ({ properties, responseMetadata, viewData, updateViewInfo }) 
 				<div className="taskWidgeticon">
 					<ChevronRightThinSvg
 						className={`chevron-icon ${info?.widgetShown && 'chevron-icon-rotate'}`}
-						// style={{
-						// 	transform: info?.widgetShown ? 'rotate(-90deg)' : 'rotate(90deg)',
-						// }}
 						onClick={() =>
 							setInfo((prevInfo) => ({
 								...prevInfo,

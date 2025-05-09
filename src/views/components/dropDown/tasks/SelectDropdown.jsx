@@ -16,7 +16,7 @@ const colors = {
 const getBackgroundColor = (colorKey) => {
 	return colors?.[colorKey]?.color || 'transparent';
 };
-const SelectDropdown = ({ options = [], value, onOptionClick, disabled = false, title }) => {
+const SelectDropdown = ({ options = [], selected, onOptionClick, disabled = false, title }) => {
 	return (
 		<div className="select-options-dropdown" onClick={(e) => e.stopPropagation()}>
 			<div className="select-options-dropdown-header">
@@ -28,7 +28,7 @@ const SelectDropdown = ({ options = [], value, onOptionClick, disabled = false, 
 						{options?.map((option) => (
 							<div
 								className={`select-list-item ${
-									option?._id === value ? 'selected' : ''
+									option?._id === selected ? 'selected' : ''
 								}`}
 								key={option?._id}
 								onClick={() => onOptionClick?.(option?._id)}
@@ -45,7 +45,7 @@ const SelectDropdown = ({ options = [], value, onOptionClick, disabled = false, 
 											<div className="select-option-label">
 												{option?.label}
 											</div>
-											{option?._id === value && <TickIcon />}
+											{option?._id === selected && <TickIcon />}
 										</div>
 									</div>
 								</div>
