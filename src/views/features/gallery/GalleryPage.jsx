@@ -4770,7 +4770,7 @@ const GalleryPage = () => {
 											: info?.scrolledTillEnd
 											? 'auto'
 											: 'hidden',
-										height: info?.isRearranging ? '79vh' : '83vh',
+										height: info?.isRearranging ? '79vh' : 'fit-content',
 									}}
 									className="galleryImagesContainer"
 									id="galleryScrollTarget"

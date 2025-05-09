@@ -1920,11 +1920,11 @@ export const Galleries = () => {
 		}
 	};
 
-	const updateStateValues = async (updatedVaribaleValuesObj) => {
+	const updateStateValues = async (updatedVariableValuesObj) => {
 		try {
 			dispatch({
 				type: Actions.UPDATE_STATE_VALUES_SUCCESS,
-				payload: updatedVaribaleValuesObj,
+				payload: updatedVariableValuesObj,
 			});
 		} catch (error) {
 			console.log('error==>updateStateValues', error);
