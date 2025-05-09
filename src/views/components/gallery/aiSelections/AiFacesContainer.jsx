@@ -163,7 +163,7 @@ const AiFacesContainer = ({
 			isGalleryViewer: false,
 		}));
 	};
-	console.log(info?.loadingMore, 'testing');
+
 	const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
 	const src = `${galleryCredentials?.baseURL}/${info?.selectedFace?.displayImage?.optimizedImageS3Key}?${params}`;
 	return (
