@@ -27,6 +27,7 @@ import { message } from '../globalComponents/CustomToast';
 import SearchSvg from '../../../assets/svg/sidebar/SearchSvg';
 import ObjectID from 'bson-objectid';
 import { ReactComponent as CreateWorkspaceSvg } from '../../../assets/svg/sidebar/createWorkspace.svg';
+import SidebarTooltip from './SidebarTooltip';
 
 const workspaceStyles = {
 	position: 'absolute',
@@ -55,6 +56,8 @@ const MODULE_NAME_MAP = {
 };
 
 const routeType = 'public';
+
+const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
 
 const OpenedSidebarModules = ({
 	name,
@@ -490,6 +493,28 @@ const OpenedSidebar = ({
 			currentChatData: null,
 		});
 	};
+
+	const tooltipItems = [
+		{
+			key: 'theme',
+			label: (theme) => `Switch to ${theme === 'dark' ? 'white' : 'dark'} mode`,
+			icon: (theme) => (theme === 'dark' ? <SunIcon /> : <MoonIcon />),
+			onClick: (updateTheme, newThemeValue) => () => updateTheme(newThemeValue),
+		},
+		{
+			key: 'search',
+			label: (_, isMac) => (isMac ? 'Search ⌘ + k' : 'Search Ctrl + k'),
+			icon: () => <SearchSvg />,
+			onClick: (_, __, triggerCmdK) => () => triggerCmdK(),
+		},
+		{
+			key: 'newChat',
+			label: () => 'New Chat',
+			icon: () => <NewEditSvg />,
+			onClick: (_, __, ___, handleNewChat) => () => handleNewChat(),
+		},
+	];
+
 	return (
 		<>
 			<div style={{ display: 'flex', position: 'relative' }}>
@@ -553,51 +578,34 @@ const OpenedSidebar = ({
 													)}
 												</div>
 											)}
-											<Tooltip
-												title="Close Sidebar"
-												placement="right"
-												arrow={false}
-												overlayInnerStyle={{
-													padding: '6px 10px',
-													borderRadius: '10px',
-													fontSize: '14px',
-													backgroundColor: 'var(--card)',
-													color: 'var(--primary-font)',
-													textAlign: 'center',
-													marginLeft: '12px',
-													border: '1px solid var(--stroke)',
-												}}
-											>
-												<SidebarClosingSvg
-													className="collapseArrow"
-													onClick={setIsOpen}
-													style={{ cursor: 'pointer' }}
-												/>
-											</Tooltip>
+											<SidebarTooltip
+												label="Close Sidebar"
+												icon={
+													<SidebarClosingSvg
+														className="collapseArrow"
+														style={{ cursor: 'pointer' }}
+													/>
+												}
+												onClick={setIsOpen}
+											/>
+
 											{!isThisEarlyAccessPage && (
 												<div className="sideBarOptions">
-													<div
-														className="eachOption"
-														onClick={() => updateTheme(newThemeValue)}
-													>
-														{theme === 'dark' ? (
-															<SunIcon />
-														) : (
-															<MoonIcon />
-														)}
-													</div>
-													<div
-														className="eachOption"
-														onClick={triggerCmdK}
-													>
-														<SearchSvg />
-													</div>
-													<div
-														className="eachOption"
-														onClick={handleNewChat}
-													>
-														<NewEditSvg />
-													</div>
+													{tooltipItems?.map(
+														({ key, label, icon, onClick }) => (
+															<SidebarTooltip
+																key={key}
+																label={label(theme, isMac)}
+																icon={icon(theme)}
+																onClick={onClick(
+																	updateTheme,
+																	newThemeValue,
+																	triggerCmdK,
+																	handleNewChat,
+																)}
+															/>
+														),
+													)}
 												</div>
 											)}
 										</div>
