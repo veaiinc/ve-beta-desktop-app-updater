@@ -8,6 +8,7 @@ import { ReactComponent as DeleteSvg } from '../../../../assets/svg/delete.svg';
 import { ReactComponent as ThumbsUpSvg } from '../../../../assets/svg/thumbsUp.svg';
 import { ReactComponent as ThumbsDownSvg } from '../../../../assets/svg/thumbsDown.svg';
 import { ReactComponent as CoinSvg } from '../../../../assets/svg/ai_agents/coin.svg';
+import { ReactComponent as ArrowUpRightSvg } from '../../../../assets/svg/sidebar/arrowupright.svg';
 import { handleCombinedChainOfThought } from '../../../../helpers/chatHelpers';
 import { Markdown } from '../../../../helpers/markdownHelper';
 import { useNavigate } from 'react-router-dom';
@@ -44,11 +45,14 @@ const AISuggestionsModal = ({
 		isSolutionsExpanded: false,
 		isActionsExpanded: false,
 		isPromptsExpanded: false,
-		isReportExpanded: false,
+		isReportExpanded: true,
 		selectedFeedback: data?.feedback,
 		isQuestionsExpanded: false,
 		questionsAnswers: {},
 		activeTab: 'situation',
+		chainOfThoughtData: {
+			hasChainOfThought: false,
+		},
 	});
 
 	const resizableContainerRef = useRef(null);
@@ -189,6 +193,7 @@ const AISuggestionsModal = ({
 		informationRequests,
 		web_sources,
 		knowledge_base_sources,
+		category,
 	} = data || {};
 
 	const creditUsed = usages?.[0]?.credit?.toFixed(2);
@@ -329,6 +334,12 @@ const AISuggestionsModal = ({
 											</div>
 										</Tooltip>
 									)}
+									{category?.length > 0 &&
+										category?.map((category, idx) => (
+											<div key={idx} className="category">
+												{category}
+											</div>
+										))}
 								</div>
 							</div>
 						</div>
@@ -412,7 +423,6 @@ const AISuggestionsModal = ({
 										)}
 									</div>
 								)}
-
 								{solutions?.length > 0 && (
 									<div
 										className={`solutions-container ${
@@ -471,7 +481,6 @@ const AISuggestionsModal = ({
 										)}
 									</div>
 								)}
-
 								{suggested_actions?.length > 0 && (
 									<div
 										className={`suggested-actions-container ${
@@ -530,7 +539,6 @@ const AISuggestionsModal = ({
 										)}
 									</div>
 								)}
-
 								{suggested_prompts?.length > 0 && (
 									<div
 										className={`suggested-prompts-container ${
@@ -583,6 +591,80 @@ const AISuggestionsModal = ({
 															</div>
 													  ))
 													: suggested_prompts}
+											</div>
+										)}
+									</div>
+								)}
+								{informationRequests?.length > 0 && (
+									<div
+										className={`questions-wrapper ${
+											info?.isQuestionsExpanded ? 'active' : ''
+										}`}
+										onClick={() =>
+											setInfo((prev) => ({
+												...prev,
+												isQuestionsExpanded: !prev?.isQuestionsExpanded,
+											}))
+										}
+									>
+										<div className="cot-header">
+											<div className="cot-text">
+												<div className="title-text">Questions AI have</div>
+												<div className="description-text">
+													Unanswered queries needing follow-up or clarity.
+												</div>
+											</div>
+											<div
+												className="cot-expand-btn"
+												style={{
+													transform: info?.isQuestionsExpanded
+														? 'rotate(-90deg)'
+														: 'rotate(90deg)',
+												}}
+											>
+												<ChevronRightThinSvg />
+											</div>
+										</div>
+
+										{info?.isQuestionsExpanded && (
+											<div
+												className="questions-container"
+												onClick={(e) => e.stopPropagation()}
+											>
+												{informationRequests?.map((questionData, index) => (
+													<div className="question-container" key={index}>
+														<div className="question">
+															{questionData?.question || ''}
+														</div>
+														<input
+															type="text"
+															className="answers-input"
+															placeholder="Enter your answer..."
+															value={
+																info?.questionsAnswers?.[index] ||
+																''
+															}
+															onChange={(e) => {
+																setInfo({
+																	...info,
+																	questionsAnswers: {
+																		...info.questionsAnswers,
+																		[index]: e?.target?.value,
+																	},
+																});
+															}}
+														/>
+													</div>
+												))}
+												<button
+													onClick={handleRunBtnClick}
+													className="submit-btn"
+												>
+													Submit
+													<div className="icon-container">
+														<ArrowUpRightSvg />
+													</div>
+												</button>
 											</div>
 										)}
 									</div>
@@ -683,74 +765,6 @@ const AISuggestionsModal = ({
 								))}
 							</div>
 						)}
-
-						{/* {data?.informationRequests?.length > 0 && (
-							<div
-								className="solutions-container"
-								onClick={() =>
-									setInfo((prev) => ({
-										...prev,
-										isQuestionsExpanded: !prev?.isQuestionsExpanded,
-									}))
-								}
-							>
-								<div className="cot-header">
-									<div className="cot-text">
-										Questions I have
-									</div>
-									<div
-										className="cot-expand-btn"
-										style={{
-											transform: info?.isQuestionsExpanded
-												? 'rotate(-90deg)'
-												: 'rotate(90deg)',
-										}}
-									>
-										<ChevronRightThinSvg />
-									</div>
-								</div>
-
-								{info?.isQuestionsExpanded && (
-									<div className="cot">
-										<div
-											className="chain-of-thought-container"
-											onClick={(e) => e.stopPropagation()}
-										>
-											{data.informationRequests.map((questionData, index) => (
-												<div className="question-container" key={index}>
-													<div className="question">
-														{questionData?.question || ''}
-													</div>
-													<input
-														type="text"
-														className="answers-input"
-														placeholder="Enter your answer..."
-														value={
-															info?.questionsAnswers?.[index] || ''
-														}
-														onChange={(e) => {
-															setInfo({
-																...info,
-																questionsAnswers: {
-																	...info.questionsAnswers,
-																	[index]: e.target.value,
-																},
-															});
-														}}
-													/>
-												</div>
-											))}
-											<button
-												onClick={handleRunBtnClick}
-												className="submit-btn"
-											>
-												Submit
-											</button>
-										</div>
-									</div>
-								)}
-							</div>
-						)}{' '} */}
 					</div>
 
 					<div className="footer">
