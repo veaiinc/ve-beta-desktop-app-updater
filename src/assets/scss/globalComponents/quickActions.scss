@@ -1,11 +1,14 @@
 .quick-actions-container {
-	position: relative;
+	position: fixed;
 	display: inline-block;
-	right: 0;
-	top: 0;
+	right: 32px;
+	top: 32px;
 	z-index: 1000;
+	pointer-events: none;
+	overflow: visible;
 
 	.dropdown-header {
+		pointer-events: auto;
 		transition: 300ms;
 		display: inline-flex;
 		height: 41px;
@@ -45,6 +48,7 @@
 		visibility: hidden;
 		transition: transform 0.3s cubic-bezier(0.65, 0.05, 0.36, 1), opacity 0.3s, visibility 0.3s;
 		box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+		pointer-events: auto;
 
 		&.slide-in {
 			transform: translateX(0);
