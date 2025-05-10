@@ -283,7 +283,7 @@ const Files = () => {
 
 	const {
 		galleryInfo: { tenantGalleries },
-		elasticSearch: { elasticSearchResults, performElasticSearch },
+		elasticSearch: { elasticSearchResults, performElasticSearch, resetElasticSearchState },
 		templates: { formsTemplatesList, updateStateValues: updateTemplateStateValues },
 		notes: { createNotesList },
 		profileInfo: { tenantUserAccessControls },
@@ -302,7 +302,7 @@ const Files = () => {
 		limit: 15,
 		timeout: null,
 		cardHover: false,
-		isElasticSearchLoading: false,
+		isLoading: false,
 		selectedView: 'Documents',
 		openProposalPopup: false,
 		initialDataFetched: false,
@@ -389,13 +389,6 @@ const Files = () => {
 		document.addEventListener('keydown', handleKeyDown);
 
 		if (info.isFocused) {
-			// Clear local search info
-			setInfo((prev) => ({
-				...prev,
-				elasticSearchLoading: false,
-				showElasticSearchResults: false,
-			}));
-
 			// Clear input and focus after modal mounts
 			const timer = setTimeout(() => {
 				if (inputRef.current) {
@@ -484,31 +477,28 @@ const Files = () => {
 	const handleSearch = async (e) => {
 		clearTimeout(elasticSearchTimeoutRef?.current);
 		const searchInput = e?.target?.value;
-		const emptySearchInput = searchInput === '';
 
 		// Update searchQuery state first
 		setInfo((prev) => ({
 			...prev,
 			searchQuery: searchInput,
+			// Always show elastic search results container
+			showElasticSearchResults: true,
+			// Only set loading if there's text to search
+			isLoading: searchInput.trim() !== '',
 		}));
 
-		if (emptySearchInput) {
-			setInfo((prev) => ({
-				...prev,
-				isLoading: false,
-				elasticSearchLoading: false,
-				showElasticSearchResults: false,
-			}));
+		// Skip searching if input is empty - just show "No results found"
+		if (!searchInput.trim()) {
 			return;
 		}
 
-		setInfo((prev) => ({ ...prev, isLoading: true }));
-
+		// Only perform search if we have actual text
 		elasticSearchTimeoutRef.current = setTimeout(async () => {
+			// Start the search
 			setInfo((prev) => ({
 				...prev,
-				elasticSearchLoading: true,
-				showElasticSearchResults: false,
+				isLoading: true,
 			}));
 
 			const response = await performElasticSearch(searchInput);
@@ -519,10 +509,9 @@ const Files = () => {
 				message.error(errMsg);
 			}
 
+			// Update loading state
 			setInfo((prev) => ({
 				...prev,
-				elasticSearchLoading: false,
-				showElasticSearchResults: true,
 				isLoading: false,
 			}));
 		}, 500);
@@ -541,23 +530,43 @@ const Files = () => {
 		// Blur the input to take away focus
 		if (inputRef.current) {
 			inputRef.current.blur();
+			// Remove the input-focus class explicitly
+			inputRef.current.classList.remove('input-focus');
+			inputRef.current.classList.remove('search-input-focused');
+		}
+
+		// Clear any pending searches
+		if (elasticSearchTimeoutRef.current) {
+			clearTimeout(elasticSearchTimeoutRef.current);
 		}
 	};
 
 	const handleKeyDown = (e) => {
 		if ((e.key === 'k' || e.key === 'K') && (e.metaKey || e.ctrlKey)) {
 			e.preventDefault();
+
+			resetElasticSearchState();
+
 			if (info.isFocused) {
 				handleCloseSearch(e);
 			} else {
+				// Open search with empty query and show "No results found"
 				setInfo((prev) => ({
 					...prev,
 					isFocused: true,
 					showElasticSearchResults: true,
+					isLoading: false,
+					searchQuery: '',
 				}));
+
 				setTimeout(() => {
-					if (inputRef.current) inputRef.current.focus();
-				}, 0);
+					if (inputRef.current) {
+						inputRef.current.focus();
+						// Add "input-focus" class to ensure full-width style
+						inputRef.current.classList.add('input-focus');
+						inputRef.current.classList.add('search-input-focused');
+					}
+				}, 10);
 			}
 		}
 		if (e.key === 'Escape') {
@@ -796,7 +805,7 @@ const Files = () => {
 						</div>
 
 						<div className="elastic-search-main-container" ref={searchContainerRef}>
-							{info.showElasticSearchResults && info.isFocused && (
+							{info.isFocused && info.showElasticSearchResults && (
 								<ElasticSearchResults />
 							)}
 							<div
@@ -814,9 +823,12 @@ const Files = () => {
 										placeholder="Search"
 										value={info.searchQuery || ''}
 										onChange={handleSearch}
-										onFocus={() =>
-											setInfo((prev) => ({ ...prev, isFocused: true }))
-										}
+										onFocus={() => {
+											setInfo((prev) => ({
+												...prev,
+												isFocused: true,
+											}));
+										}}
 										onBlur={(e) => {
 											// If the blur is caused by clicking inside the dropdown, don't close
 											if (
