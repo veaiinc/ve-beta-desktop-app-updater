@@ -3,6 +3,7 @@ import '../../../assets/scss/home_page/proactiveSuggestions.scss';
 import Context from '../../../context/context';
 import { ReactComponent as ChevronRightThinSvg } from '../../../assets/svg/tasks/chevronRightThin.svg';
 import { ReactComponent as FilterIcon } from '../../../assets/svg/tasks/newFiltersIcon.svg';
+import { ReactComponent as SortIcon } from '../../../assets/svg/tasks/sort.svg';
 import { ReactComponent as TickIcon } from '../../../assets/svg/tick.svg';
 import { ReactComponent as CloseIcon } from '../../../assets/svg/close.svg';
 import { ReactComponent as EmailIcon } from '../../../assets/svg/login_page/gmail.svg';
@@ -566,25 +567,32 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 	return (
 		<div className="proactive-suggestions-container">
 			<div className="action-container">
-				<div className="suggestionPromptContainer">
+				{/* <div className="suggestionPromptContainer">
 					<AiSuggestionIcon />
 					<div className="suggestionPrompt">
 						timely suggestions—helping you act smartly before issues arise.
 					</div>
+				</div> */}
+				<div className="viewSelectionContainer">
+					<div
+						className={`viewSelection ${info?.isListView ? 'active' : ''}`}
+						onClick={() => handleViewChange(true)}
+					>
+						<ListViewSvg className={info?.isListView ? 'active-icon' : ''} />
+						List View
+					</div>
+					<div
+						className={`viewSelection ${!info?.isListView ? 'active' : ''}`}
+						onClick={() => handleViewChange(false)}
+					>
+						<FocusViewSvg className={!info?.isListView ? 'active-icon' : ''} />
+						Focus View
+					</div>
 				</div>
 				<div style={{ display: 'flex', flexDirection: 'row', gap: '10px' }}>
-					{!info?.isListView ? (
-						<div className="viewSelection" onClick={() => handleViewChange(true)}>
-							<ListViewSvg />
-							List View
-						</div>
-					) : (
-						<div className="viewSelection" onClick={() => handleViewChange(false)}>
-							<FocusViewSvg />
-							Focus View
-						</div>
-					)}
-					<div className="verticalLine"></div>
+					<button className="sort-btn" data-tooltip="Sort">
+						<SortIcon />
+					</button>
 					<Tooltip
 						open={info?.openFilter}
 						onOpenChange={() => setInfo((prev) => ({ ...prev, openFilter: false }))}
@@ -666,9 +674,11 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 							className="action-left"
 							onClick={() => setInfo((prev) => ({ ...prev, openFilter: true }))}
 						>
-							<button className="filter-btn" style={{ cursor: 'pointer' }}>
+							<button
+								className={`filter-btn ${info?.openFilter ? 'active' : ''}`}
+								data-tooltip="Filter"
+							>
 								<FilterIcon />
-								Filters
 							</button>
 						</div>
 					</Tooltip>
@@ -766,8 +776,31 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 													}
 													placement="bottomLeft"
 													arrow={false}
+													mouseEnterDelay={0}
+													mouseLeaveDelay={0}
+													overlayStyle={{
+														position: 'fixed',
+														pointerEvents: 'none',
+													}}
+													overlayClassName={`tooltip-${card?._id}`}
 												>
-													<div className="cardContainerUnreadIndicator">
+													<div
+														className="cardContainerUnreadIndicator"
+														style={{ cursor: 'pointer' }}
+														onMouseMove={(e) => {
+															const tooltip = document.querySelector(
+																`.tooltip-${card?._id}`,
+															);
+															if (tooltip) {
+																tooltip.style.left = `${
+																	e.clientX + 10
+																}px`;
+																tooltip.style.top = `${
+																	e.clientY + 10
+																}px`;
+															}
+														}}
+													>
 														{!isRead && (
 															<span className="unread"></span>
 														)}
@@ -825,6 +858,58 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 																		}`,
 																	}}
 																/>
+															</div>
+														</Tooltip>
+														<div className="verticalLine"></div>
+														<Tooltip
+															title={
+																<div className="emailContainer">
+																	<div className="emailHeader">
+																		<div className="emailTitle">
+																			Summary of the mail
+																		</div>
+																		<div className="emailDescription">
+																			Establish ongoing
+																			check-ins and feedback
+																			sessions to identify
+																			customer requirements
+																			and modify our products
+																			as needed.Establish
+																			ongoing check-ins and
+																			feedback sessions to
+																			identify customer
+																			requirements and
+																			modifyEstablish ongoing
+																			check-ins and feedback
+																			sessions to identify
+																			customer requirements
+																			and modify our products
+																			as needed.Establish
+																			ongoing check-ins and
+																			feedback sessions to
+																			identify customer
+																			requirements and modify.
+																		</div>
+																	</div>
+																	<div className="relativeTime">
+																		<EmailIcon
+																			width={16}
+																			height={12}
+																		/>
+																		<div className="relativeTimeText">
+																			{messageAt}
+																		</div>
+																	</div>
+																</div>
+															}
+															placement="bottom"
+															trigger={'hover'}
+															arrow={false}
+														>
+															<div>
+																<EmailIcon width={16} height={12} />
+																<span></span>
+																<span></span>
 															</div>
 														</Tooltip>
 														<div className="verticalLine"></div>
@@ -889,58 +974,6 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 														>
 															<div style={{ fontSize: '12px' }}>
 																{card?.confidence_score * 100} %
-															</div>
-														</Tooltip>
-														<div className="verticalLine"></div>
-														<Tooltip
-															title={
-																<div className="emailContainer">
-																	<div className="emailHeader">
-																		<div className="emailTitle">
-																			Summary of the mail
-																		</div>
-																		<div className="emailDescription">
-																			Establish ongoing
-																			check-ins and feedback
-																			sessions to identify
-																			customer requirements
-																			and modify our products
-																			as needed.Establish
-																			ongoing check-ins and
-																			feedback sessions to
-																			identify customer
-																			requirements and
-																			modifyEstablish ongoing
-																			check-ins and feedback
-																			sessions to identify
-																			customer requirements
-																			and modify our products
-																			as needed.Establish
-																			ongoing check-ins and
-																			feedback sessions to
-																			identify customer
-																			requirements and modify.
-																		</div>
-																	</div>
-																	<div className="relativeTime">
-																		<EmailIcon
-																			width={16}
-																			height={12}
-																		/>
-																		<div className="relativeTimeText">
-																			{messageAt}
-																		</div>
-																	</div>
-																</div>
-															}
-															placement="bottom"
-															trigger={'hover'}
-															arrow={false}
-														>
-															<div>
-																<EmailIcon width={16} height={12} />
-																<span></span>
-																<span></span>
 															</div>
 														</Tooltip>
 														<div className="verticalLine"></div>
