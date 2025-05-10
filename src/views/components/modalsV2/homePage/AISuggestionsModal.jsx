@@ -233,7 +233,7 @@ const AISuggestionsModal = ({
 								</div>
 							</div>
 
-							<div className="right-container">
+							{/* <div className="right-container">
 								<div className="btn share-btn">
 									<ShareSvg />
 								</div>
@@ -243,7 +243,7 @@ const AISuggestionsModal = ({
 								<div className="btn delete-btn">
 									<DeleteSvg />
 								</div>
-							</div>
+							</div> */}
 						</div>
 					</div>
 
