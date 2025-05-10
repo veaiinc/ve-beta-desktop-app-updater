@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import '../../../assets/scss/tasks/task.scss';
 import ListViewHeader from './listView/ListViewHeader';
 import { ReactComponent as ListViewIcon } from '../../../assets/svg/tasks/list.svg';
@@ -59,6 +59,8 @@ const Task = ({
 	prefix = null,
 	availableViews = ['list', 'board', 'table', 'gallery'],
 }) => {
+	const timeoutRef = useRef(null);
+
 	const [taskInfo, setTaskInfo] = useState({
 		tabs: null,
 		activeTab: null,
@@ -66,7 +68,6 @@ const Task = ({
 		showEditViewDropDown: false,
 	});
 	const [showEditViewDropDown, setShowEditViewDropDown] = useState(false);
-	const timeoutRef = useRef(null);
 
 	const handleEditViewDropDown = useCallback((value) => {
 		setShowEditViewDropDown(value);

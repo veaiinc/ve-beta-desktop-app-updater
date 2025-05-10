@@ -1,7 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { memo } from 'react';
 import '../../../../assets/scss/tasks/select.scss';
-import { Tooltip } from 'antd';
 import { ReactComponent as TickIcon } from '../../../../assets/svg/tasks/tick.svg';
 const colors = {
 	1: { backgroundColor: '#62344B', color: '#A35A7E' },

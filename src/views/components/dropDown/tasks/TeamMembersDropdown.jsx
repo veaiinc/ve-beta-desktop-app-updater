@@ -6,7 +6,7 @@ import { ReactComponent as Tick } from '../../../../assets/svg/tasks/tick.svg';
 
 const TeamMembersDropdown = memo(({ selected = [], onOptionClick, title }) => {
 	const {
-		companyInfo: { getTeamMembers, tenantsUserList },
+		companyInfo: { tenantsUserList },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({

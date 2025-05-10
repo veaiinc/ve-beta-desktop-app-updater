@@ -1,4 +1,4 @@
-import React, { memo, useState } from 'react';
+import { memo, useState } from 'react';
 import { Tooltip } from 'antd';
 import { layouts } from '../../tasks/listView/TaskHeader';
 import { ReactComponent as Dustbin } from '../../../../assets/svg/tasks/dustBin.svg';

@@ -1,4 +1,4 @@
-import React, { memo, useMemo, useState } from 'react';
+import { memo, useMemo, useState } from 'react';
 import '../../../../assets/scss/tasks/taskHeader.scss';
 import { ReactComponent as PlusIcon } from '../../../../assets/svg/tasks/plus.svg';
 import { ReactComponent as ListViewIcon } from '../../../../assets/svg/tasks/list.svg';
