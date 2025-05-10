@@ -64,7 +64,7 @@ const createOptions = [
 		value: 'contacts',
 		controlValue: 'contact',
 		action: ({ setInfo }) => {
-			setInfo((prev) => ({ ...prev, openClientPopup: true }));
+			setInfo((prev) => ({ ...prev, openClientPopup: true, dropdown: false }));
 		},
 	},
 	{
@@ -72,7 +72,7 @@ const createOptions = [
 		title: 'Task',
 		value: 'task',
 		action: ({ setInfo }) => {
-			setInfo((prev) => ({ ...prev, createTaskPopup: true }));
+			setInfo((prev) => ({ ...prev, createTaskPopup: true, dropdown: false }));
 		},
 	},
 	{
@@ -103,6 +103,7 @@ const createOptions = [
 				...prev,
 				openProposalPopup: true,
 				commonState: 'form-submission',
+				dropdown: false,
 			}));
 		},
 	},
@@ -116,6 +117,7 @@ const createOptions = [
 				...prev,
 				openProposalPopup: true,
 				commonState: 'proposal',
+				dropdown: false,
 			}));
 		},
 	},
@@ -129,6 +131,7 @@ const createOptions = [
 				...prev,
 				openProposalPopup: true,
 				commonState: 'invoice',
+				dropdown: false,
 			}));
 		},
 	},
@@ -142,6 +145,7 @@ const createOptions = [
 				...prev,
 				openProposalPopup: true,
 				commonState: 'contract',
+				dropdown: false,
 			}));
 		},
 	},
@@ -155,6 +159,7 @@ const createOptions = [
 				...prev,
 				openProposalPopup: true,
 				commonState: 'presentation',
+				dropdown: false,
 			}));
 		},
 	},
@@ -170,6 +175,7 @@ const createOptions = [
 					...prev,
 					showLoader: true,
 					loaderMessage: 'Creating automation...',
+					dropdown: false,
 				}));
 				const response = await createAutomation({
 					name: 'Untitled Automation',
@@ -204,6 +210,7 @@ const createOptions = [
 					...prev,
 					showLoader: true,
 					loaderMessage: 'Creating AI Assistant...',
+					dropdown: false,
 				}));
 				const aiAssistantId = await createNewAiAssistant({
 					name: 'Untitled Assistant',
@@ -231,7 +238,7 @@ const uploadOptions = [
 		value: 'galleries',
 		controlValue: 'classicGallery',
 		action: ({ setInfo }) => {
-			setInfo((prev) => ({ ...prev, openGalleryPopup: true }));
+			setInfo((prev) => ({ ...prev, openGalleryPopup: true, dropdown: false }));
 		},
 	},
 	{
@@ -240,7 +247,7 @@ const uploadOptions = [
 		value: 'lite-gallery',
 		controlValue: 'liteGallery',
 		action: ({ setInfo }) => {
-			setInfo((prev) => ({ ...prev, openLiteGalleryPopup: true }));
+			setInfo((prev) => ({ ...prev, openLiteGalleryPopup: true, dropdown: false }));
 		},
 	},
 ];
@@ -300,7 +307,7 @@ const QuickActions = ({
 	} = useContext(Context);
 	// const timeoutRef = useRef(null);
 	const [info, setInfo] = useState({
-		dropdown: true,
+		dropdown: false,
 		openProposalPopup: false,
 		openClientPopup: false,
 		openGalleryPopup: false,
@@ -372,7 +379,7 @@ const QuickActions = ({
 					title: 'Task',
 					value: 'task',
 					action: ({ setInfo }) => {
-						setInfo((prev) => ({ ...prev, createTaskPopup: true }));
+						setInfo((prev) => ({ ...prev, createTaskPopup: true, dropdown: false }));
 					},
 				},
 				{
@@ -381,7 +388,7 @@ const QuickActions = ({
 					value: 'contacts',
 					controlValue: 'contact',
 					action: ({ setInfo }) => {
-						setInfo((prev) => ({ ...prev, openClientPopup: true }));
+						setInfo((prev) => ({ ...prev, openClientPopup: true, dropdown: false }));
 					},
 				},
 				{
@@ -396,6 +403,7 @@ const QuickActions = ({
 								...prev,
 								showLoader: true,
 								loaderMessage: 'Creating automation...',
+								dropdown: false,
 							}));
 							const response = await createAutomation({
 								name: 'Untitled Automation',
@@ -433,6 +441,7 @@ const QuickActions = ({
 								...prev,
 								showLoader: true,
 								loaderMessage: 'Creating AI Assistant...',
+								dropdown: false,
 							}));
 							const aiAssistantId = await createNewAiAssistant({
 								name: 'Untitled Assistant',
@@ -462,6 +471,7 @@ const QuickActions = ({
 								...prev,
 								showLoader: true,
 								loaderMessage: 'Creating Knowledge Agent...',
+								dropdown: false,
 							}));
 							const knowledgeAgentId = await createNewKnowledgeAgent({
 								name: 'Untitled Knowledge Agent',
@@ -489,7 +499,12 @@ const QuickActions = ({
 					value: '',
 					controlValue: 'all',
 					action: ({ setInfo }) => {
-						setInfo((prev) => ({ ...prev, openProposalPopup: true, commonState: '' }));
+						setInfo((prev) => ({
+							...prev,
+							openProposalPopup: true,
+							commonState: '',
+							dropdown: false,
+						}));
 					},
 				},
 				{
@@ -502,6 +517,7 @@ const QuickActions = ({
 								...prev,
 								showLoader: true,
 								loaderMessage: 'Creating note...',
+								dropdown: false,
 							}));
 							const payload = {
 								input: {
@@ -536,6 +552,7 @@ const QuickActions = ({
 							...prev,
 							openProposalPopup: true,
 							commonState: 'form-submission',
+							dropdown: false,
 						}));
 					},
 				},
@@ -549,6 +566,7 @@ const QuickActions = ({
 							...prev,
 							openProposalPopup: true,
 							commonState: 'proposal',
+							dropdown: false,
 						}));
 					},
 				},
@@ -562,6 +580,7 @@ const QuickActions = ({
 							...prev,
 							openProposalPopup: true,
 							commonState: 'invoice',
+							dropdown: false,
 						}));
 					},
 				},
@@ -575,6 +594,7 @@ const QuickActions = ({
 							...prev,
 							openProposalPopup: true,
 							commonState: 'contract',
+							dropdown: false,
 						}));
 					},
 				},
@@ -588,6 +608,7 @@ const QuickActions = ({
 							...prev,
 							openProposalPopup: true,
 							commonState: 'presentation',
+							dropdown: false,
 						}));
 					},
 				},
@@ -597,7 +618,7 @@ const QuickActions = ({
 					value: 'galleries',
 					controlValue: 'classicGallery',
 					action: ({ setInfo }) => {
-						setInfo((prev) => ({ ...prev, openGalleryPopup: true }));
+						setInfo((prev) => ({ ...prev, openGalleryPopup: true, dropdown: false }));
 					},
 				},
 				{
@@ -606,7 +627,11 @@ const QuickActions = ({
 					value: 'lite-gallery',
 					controlValue: 'liteGallery',
 					action: ({ setInfo }) => {
-						setInfo((prev) => ({ ...prev, openLiteGalleryPopup: true }));
+						setInfo((prev) => ({
+							...prev,
+							openLiteGalleryPopup: true,
+							dropdown: false,
+						}));
 					},
 				},
 			];
@@ -622,6 +647,7 @@ const QuickActions = ({
 							...prev,
 							openProposalPopup: true,
 							commonState: 'form-submission',
+							dropdown: false,
 						}));
 					},
 				},
@@ -633,7 +659,7 @@ const QuickActions = ({
 					title: 'Task',
 					value: 'task',
 					action: ({ setInfo }) => {
-						setInfo((prev) => ({ ...prev, createTaskPopup: true }));
+						setInfo((prev) => ({ ...prev, createTaskPopup: true, dropdown: false }));
 					},
 				},
 			];
@@ -660,6 +686,7 @@ const QuickActions = ({
 								...prev,
 								showLoader: true,
 								loaderMessage: 'Creating automation...',
+								dropdown: false,
 							}));
 							const response = await createAutomation({
 								name: 'Untitled Automation',
@@ -692,7 +719,7 @@ const QuickActions = ({
 					value: 'contacts',
 					controlValue: 'contact',
 					action: ({ setInfo }) => {
-						setInfo((prev) => ({ ...prev, openClientPopup: true }));
+						setInfo((prev) => ({ ...prev, openClientPopup: true, dropdown: false }));
 					},
 				},
 			];
@@ -704,7 +731,12 @@ const QuickActions = ({
 					value: '',
 					controlValue: 'all',
 					action: ({ setInfo }) => {
-						setInfo((prev) => ({ ...prev, openProposalPopup: true, commonState: '' }));
+						setInfo((prev) => ({
+							...prev,
+							openProposalPopup: true,
+							commonState: '',
+							dropdown: false,
+						}));
 					},
 				},
 				{
@@ -717,6 +749,7 @@ const QuickActions = ({
 							...prev,
 							openProposalPopup: true,
 							commonState: 'proposal',
+							dropdown: false,
 						}));
 					},
 				},
@@ -730,6 +763,7 @@ const QuickActions = ({
 							...prev,
 							openProposalPopup: true,
 							commonState: 'invoice',
+							dropdown: false,
 						}));
 					},
 				},
@@ -743,6 +777,7 @@ const QuickActions = ({
 							...prev,
 							openProposalPopup: true,
 							commonState: 'contract',
+							dropdown: false,
 						}));
 					},
 				},
@@ -756,6 +791,7 @@ const QuickActions = ({
 							...prev,
 							openProposalPopup: true,
 							commonState: 'presentation',
+							dropdown: false,
 						}));
 					},
 				},
@@ -788,7 +824,7 @@ const QuickActions = ({
 					title: 'Task',
 					value: 'task',
 					action: ({ setInfo }) => {
-						setInfo((prev) => ({ ...prev, createTaskPopup: true }));
+						setInfo((prev) => ({ ...prev, createTaskPopup: true, dropdown: false }));
 					},
 				},
 			];
