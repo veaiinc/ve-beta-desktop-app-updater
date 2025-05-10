@@ -135,11 +135,10 @@
 		padding: 12px;
 		border-radius: 12px;
 		margin-top: 8px;
+		width: 100%;
 
 		.citation-item {
 			padding: 12px;
-			// background: var(--card);
-			// border-radius: 8px;
 			margin-bottom: 8px;
 			border-bottom: 1px solid var(--stroke);
 			transition: all 0.2s ease;
@@ -174,15 +173,17 @@
 					}
 
 					.favicon-image {
-						width: 36px;
-						height: 36px;
-						border-radius: 8px;
+						width: 32px;
+						height: 32px;
+						border-radius: 6px;
 					}
 				}
 
 				.citation-details {
-					flex: 1;
-					min-width: 0;
+					height: 100%;
+					display: flex;
+					flex-direction: column;
+					justify-content: center;
 
 					.website-name {
 						color: var(--primary-font);
