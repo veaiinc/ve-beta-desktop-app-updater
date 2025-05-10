@@ -200,6 +200,8 @@ const GalleryPage = () => {
 			editTag,
 			deleteTag,
 			lightroomCopyList,
+			aiFace,
+			updateStateValues: updateGalleryStateValues,
 		},
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 		profileInfo: { userWorkSpaceList, getTenantSettings, tennantSettingsData },
@@ -616,6 +618,27 @@ const GalleryPage = () => {
 			getAlbumImagesCount(galleryId);
 		}
 	}, [galleryId]);
+	useEffect(() => {
+		return () => {
+			updateGalleryStateValues({
+				tenantAlbums: null,
+				albumImagesCount: null,
+				galleryCredentials: null,
+				albumDetails: null,
+				imagesList: null,
+				albumImagesCount: null,
+				albumDetails: null,
+				imagesList: null,
+				imageDetail: null,
+				galleryGuestAccess: null,
+				albumImagesCount: null,
+				clientSelectionsData: null,
+				clientSelectionImages: null,
+				aiFace: null,
+				aiFaceImages: null,
+			});
+		};
+	}, []);
 	useEffect(() => {
 		if (albumImagesCount) {
 			setInfo((prev) => ({
@@ -3562,6 +3585,12 @@ const GalleryPage = () => {
 		}));
 		navigate(-1);
 	};
+	const selectedFaceChange = (face) => {
+		setInfo((prev) => ({
+			...prev,
+			selectedFace: face,
+		}));
+	};
 	return (
 		<>
 			<div className="galleryContainer">
@@ -5728,6 +5757,7 @@ const GalleryPage = () => {
 						selectedFace={info?.selectedFace}
 						selectedFaceId={info?.selectedFaceId}
 						selectedImage={info?.selectedImage}
+						selectedFaceChange={selectedFaceChange}
 					/>
 				)}
 				{info.activeTab === 'Insights' && <Insights galleryId={galleryId} />}

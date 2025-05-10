@@ -10,6 +10,7 @@ import { veAiModulesItemsList } from './sidebarindex';
 import { Tooltip } from 'antd';
 import Notifications from './notifications/Notifications';
 import Notes from './notes/Notes';
+import SidebarTooltip from './SidebarTooltip';
 
 const Sidebar = ({ activeWorkspaceId }) => {
 	const {
@@ -180,23 +181,15 @@ const Sidebar = ({ activeWorkspaceId }) => {
 							// renewBanner={renewBanner}
 						/>
 					) : (
-						<Tooltip
-							title="Open Sidebar"
-							placement="right"
-							arrow={false}
-							overlayInnerStyle={{
-								padding: '6px 10px',
-								borderRadius: '10px',
-								fontSize: '14px',
-								background: 'var(--card)',
-								color: 'var(--primary-font)',
-								textAlign: 'center',
-								marginLeft: '12px',
-								border: '1px solid var(--stroke)',
-							}}
-						>
-							<SidebarClosingSvg onClick={handleOpen} style={{ cursor: 'pointer' }} />
-						</Tooltip>
+						<SidebarTooltip
+							label="Open Sidebar"
+							icon={
+								<SidebarClosingSvg
+									onClick={handleOpen}
+									style={{ cursor: 'pointer' }}
+								/>
+							}
+						/>
 					)}
 				</nav>
 				<Notifications

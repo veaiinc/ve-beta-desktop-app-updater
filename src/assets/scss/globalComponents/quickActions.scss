@@ -1,23 +1,17 @@
 .quick-actions-dropdown-container {
 	.dropdown-header {
+		transition: 300ms;
 		display: inline-flex;
-		flex-direction: row;
-		width: 85px;
-		padding: 12px 16px;
+		height: 41px;
+		padding: 12px 0px 12px 16px;
 		justify-content: center;
 		align-items: center;
-		gap: 6px;
-		border-radius: 59px;
-		background: var(--primary-button);
-		border: 1px solid transparent;
-		color: var(--primary-button-font);
-		font-family: var(--primary-font-family);
-		font-size: 14px;
-		font-style: normal;
-		font-weight: 500;
-		line-height: normal;
-		transition: 300ms;
+		gap: 8px;
+		border-radius: 24px;
+		border: 1px solid var(--stroke);
 		cursor: pointer;
+		background-color: transparent;
+		color: var(--primary-font);
 		&:hover {
 			background: transparent;
 			color: var(--primary-font);
@@ -26,111 +20,240 @@
 	}
 }
 
-.quick-actions-dropdown-options-container {
-	display: flex;
-	// width: 300px;
-	max-height: 520px;
-	padding: 12px;
-	flex-direction: column;
-	align-items: flex-start;
-	gap: 12px;
-	border-radius: 24px;
-	background: var(--card);
-	.dropdown-option {
-		display: flex;
-		column-gap: 10px;
-		padding: 6px 8px;
-		justify-content: flex-start;
-		align-items: center;
-		align-self: stretch;
-		border-radius: 8px;
-		color: var(--primary-font);
-		font-family: var(--primary-font-family);
-		font-size: 14px;
-		font-style: normal;
-		font-weight: 500;
-		line-height: 22px;
-		flex: 1 0 0;
-		cursor: pointer;
-		&:hover {
-			background: var(--card-over-card-hover);
+// Custom tooltip styles for animation
+.customQuickActionsToolTip {
+	.ant-tooltip-content {
+		animation: tooltipSlide 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+		right: 0 !important;
+		position: fixed;
+		z-index: 1000;
+		transform-origin: right center;
+		will-change: transform;
+	}
+
+	.ant-tooltip-inner {
+		padding: 0;
+		border-radius: 12px;
+	}
+
+	.ant-tooltip-arrow {
+		display: none;
+	}
+
+	&.ant-tooltip-open {
+		body {
+			overflow: hidden;
 		}
 	}
 }
 
-.top-search-container {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	padding: 10px 24px;
-	gap: 10px;
-	border-radius: 50px;
-	border: 0.5px solid var(--stroke);
-	background-color: var(--card);
-	width: 100%;
+@keyframes tooltipSlide {
+	from {
+		transform: translateX(100%);
+		opacity: 0;
+	}
+	to {
+		transform: translateX(0);
+		opacity: 1;
+	}
+}
 
-	input {
-		&::placeholder {
-			color: var(--secondary-font);
-		}
-		color: var(--primary-font);
-		background: none;
-		border: none;
-		font-size: 14px;
-		font-weight: 400;
-		line-height: 16px;
+.newMenuText {
+	color: var(--primary-font);
+	font-family: Inter;
+	font-size: 14px;
+	font-style: normal;
+	font-weight: 500;
+	line-height: normal;
+}
+.flashmage {
+	display: flex;
+	height: 40px;
+	padding: 12px 16px;
+	justify-content: center;
+	align-items: center;
+	gap: 6px;
+	border-radius: 24px;
+	background: var(--primary-button);
+	color: var(--primary-button-font);
+}
+
+.quick-actions-dropdown-options-container {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	background: var(--navbar);
+	border-radius: 12px;
+	border: 1px solid var(--stroke);
+	width: 250px;
+	max-height: 746px;
+	padding: 0;
+	transform-origin: right center;
+	overflow: hidden;
+	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+
+	.top-search-container {
+		display: flex;
+		padding: 16px;
+		align-items: center;
+		gap: 8px;
 		width: 100%;
+		background: var(--navbar);
+		border: 1px solid var(--stroke);
+		border-top-left-radius: 12px;
+		border-top-right-radius: 12px;
+		position: sticky;
+		top: 0;
+		z-index: 2;
+
+		input {
+			&::placeholder {
+				color: var(--secondary-font);
+			}
+			color: var(--primary-font);
+			background: none;
+			border: none;
+			font-size: 14px;
+			font-weight: 400;
+			line-height: 16px;
+			width: 100%;
+			transition: all 0.3s ease;
+
+			&:focus {
+				outline: none;
+			}
+		}
+	}
+
+	.search-divider {
+		width: 100%;
+		background: var(--stroke);
+		height: 1px;
+		opacity: 1;
+		margin: 0;
+	}
+
+	.content-container {
+		display: flex;
+		padding: 6px 12px;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 12px;
+		width: 100%;
+		height: calc(100% - 57px);
+		overflow-y: auto;
+		scrollbar-width: thin;
+		scrollbar-color: var(--stroke) transparent;
+		background: transparent;
+
+		&::-webkit-scrollbar {
+			width: 4px;
+		}
+
+		&::-webkit-scrollbar-track {
+			background: transparent;
+			margin: 4px 0;
+		}
+
+		&::-webkit-scrollbar-thumb {
+			background-color: var(--stroke);
+			border-radius: 4px;
+			opacity: 0.6;
+			transition: opacity 0.8s ease-in-out;
+
+			&:hover {
+				opacity: 0.8;
+			}
+		}
+	}
+
+	.dropdown-option {
+		column-gap: 10px;
+		justify-content: flex-start;
+		display: flex;
+		padding: 10px;
+		align-items: center;
+		gap: 10px;
+		align-self: stretch;
+		cursor: pointer;
+		display: -webkit-box;
+		-webkit-box-orient: vertical;
+		-webkit-line-clamp: 1;
+		flex: 1 0 0;
+		overflow: hidden;
+		color: var(--primary-font);
+		text-overflow: ellipsis;
+		font-family: Inter;
+		font-size: 14px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
+		transition: all 0.8s ease-in-out;
+		border-radius: 8px;
+
+		&:hover {
+			background: var(--card-hover);
+		}
+
+		&:active {
+			transform: translateX(0);
+		}
 	}
 }
 
 .suggested-modules-container {
+	background: var(--navbar);
 	display: flex;
-	background-color: var(--card-over-card);
 	flex-direction: column;
-	width: 100%;
-	border-radius: 16px;
-	padding: 14px;
-	// min-height: 94px;
+	align-items: flex-start;
+	gap: 6px;
+	align-self: stretch;
+
 	.suggested-modules-container-header {
+		background: var(--navbar);
 		color: var(--secondary-font);
 		font-size: 13px;
 		position: sticky;
-		top: 0;
+		top: -15px;
+		z-index: 1;
+		padding: 6px 0;
+		font-weight: 500;
 	}
 	.suggested-modules-container-options {
 		display: flex;
 		flex-direction: column;
 		align-items: flex-start;
-		overflow: scroll;
-		height: fit-content;
-		overflow: auto;
-		.dropdown-option {
-			width: 100%;
-		}
+		width: 100%;
+		overflow: visible;
 	}
 }
 
 .modules-container {
 	display: flex;
-	background-color: var(--card-over-card);
 	flex-direction: column;
-	width: 100%;
-	border-radius: 16px;
-	padding: 14px;
-	overflow: scroll;
-	// min-height: 94px;
+	align-items: flex-start;
+	gap: 8px;
+	align-self: stretch;
+
 	.modules-container-header {
 		color: var(--secondary-font);
-		font-size: 13px;
+		font-family: Inter;
+		font-size: 12px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
 		position: sticky;
 		top: 0;
-		background-color: var(--card-over-card);
+		background: transparent;
+		z-index: 1;
+		padding: 4px 0;
+		letter-spacing: 0.3px;
 	}
 	.modules-container-options {
 		display: flex;
 		flex-direction: column;
 		align-items: flex-start;
-		overflow: scroll;
-		height: fit-content;
+		width: 100%;
+		overflow: visible;
 	}
 }
