@@ -31,7 +31,7 @@ const knowledgeFileTypes = [
 	},
 ];
 
-const customStyles = { overlay: { zIndex: 1 } };
+const customStyles = { overlay: { zIndex: 1000 } };
 
 const initialState = {
 	activeFileType: knowledgeFileTypes?.[0]?.value,
