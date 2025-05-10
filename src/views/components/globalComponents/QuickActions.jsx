@@ -21,40 +21,43 @@ import EventsPopup from '../calendar/EventsPopUp';
 import CreateSessionModal from '../modalsV2/calendar/CreateSessionModal';
 import { ReactComponent as Flash } from '../../../assets/svg/flash.svg';
 import Search from '../../../assets/svg/searc.svg';
+import ObjectID from 'bson-objectid';
 
 const suggestedOptions = [];
 
 const buildAiOptions = [
-	// {
-	// 	id: 1,
-	// 	title: 'Form',
-	// 	value: 'form-submission',
-	// 	controlValue: 'form',
-	// 	action: ({ setInfo }) => {
-	// 		setInfo((prev) => ({
-	// 			...prev,
-	// 			openProposalPopup: true,
-	// 			commonState: 'form-submission',
-	// 		}));
-	// 	},
-	// },
-	// {
-	// 	id: 2,
-	// 	title: 'Task',
-	// 	value: 'task',
-	// 	action: ({ setInfo }) => {
-	// 		setInfo((prev) => ({ ...prev, createTaskPopup: true }));
-	// 	},
-	// },
-	// {
-	// 	id: 3,
-	// 	title: 'Event',
-	// 	value: 'event',
-	// 	controlValue: 'event',
-	// 	action: ({ setInfo }) => {
-	// 		setInfo((prev) => ({ ...prev, openEventsPopup: true, dropdown: false }));
-	// 	},
-	// },
+	{
+		id: 1,
+		title: 'Form',
+		value: 'form-submission',
+		controlValue: 'form',
+		action: ({ updateStateValues, navigate }) => {
+			const sessionId = ObjectID()?.toString();
+			updateStateValues({ activeInputForChat: 'Create a form for' });
+			navigate(`/chat/${sessionId}`);
+		},
+	},
+	{
+		id: 2,
+		title: 'Task',
+		value: 'task',
+		action: ({ updateStateValues, navigate }) => {
+			const sessionId = ObjectID()?.toString();
+			updateStateValues({ activeInputForChat: 'Create a task for' });
+			navigate(`/chat/${sessionId}`);
+		},
+	},
+	{
+		id: 3,
+		title: 'Event',
+		value: 'event',
+		controlValue: 'event',
+		action: ({ updateStateValues, navigate }) => {
+			const sessionId = ObjectID()?.toString();
+			updateStateValues({ activeInputForChat: 'Create a meeting for' });
+			navigate(`/chat/${sessionId}`);
+		},
+	},
 ];
 
 const createOptions = [
@@ -286,7 +289,7 @@ const QuickActions = ({
 	const location = useLocation();
 
 	const {
-		templates: { toggleCreateLeadModal },
+		templates: { toggleCreateLeadModal, updateStateValues },
 		profileInfo: { tenantUserAccessControls },
 		automationBuilder: { createAutomation },
 		aiSetup: { createNewAiAssistant },
@@ -1159,10 +1162,10 @@ const QuickActions = ({
 				tenantUsers: formattedUsers,
 			}));
 		}
-	}, [tenantsUserList, getTeamMembers]);
+	}, [tenantsUserList]);
 
 	useEffect(() => {
-		if (!info.dropdown) {
+		if (!info?.dropdown) {
 			const options = filtereOptions();
 			setInfo((prev) => ({
 				...prev,

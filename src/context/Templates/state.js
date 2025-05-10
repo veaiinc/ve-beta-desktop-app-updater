@@ -102,10 +102,11 @@ export const intialState = {
 	formResponsesList: null,
 	moreFormResponsesList: null,
 	activePromptForChat: null,
+	activePayloadForChat: null,
+	activeInputForChat: null,
 	leftSidebarState: null,
 	recentChatStorage: null,
 	moreRecentChatStorage: null,
-	activePayloadForChat: null,
 	llmModels: null,
 	chatInfo: {
 		deepResearch: false,
@@ -1829,7 +1830,7 @@ export const TemplatesState = (props) => {
 				payload.query += str;
 			} else {
 				updatedGlobalChatMessages = [
-					{ type: 'user', message: payload?.query || '', typingEffect: false },
+					{ type: 'user', message: payload?.query || '' },
 					{
 						type: 'AI',
 						message: 'loading....',
@@ -1889,7 +1890,6 @@ export const TemplatesState = (props) => {
 					type: 'AI',
 					message: response?.[1]?.answer,
 					messageId: response?.[1]?.['message_id'],
-					typingEffect: true,
 					rating: null,
 					deepResearch: response?.[1]?.['deep_research'],
 				};
@@ -1961,7 +1961,7 @@ export const TemplatesState = (props) => {
 		// }
 		else {
 			updatedGlobalChatMessages = [
-				{ type: 'user', message: queryMessage || '', typingEffect: false },
+				{ type: 'user', message: queryMessage || '' },
 				{
 					type: 'AI',
 					message: 'loading....',
