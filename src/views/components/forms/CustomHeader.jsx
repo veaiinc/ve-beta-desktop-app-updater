@@ -2,7 +2,7 @@ import { memo } from 'react';
 import { ReactComponent as DownloadIcon } from '../../../assets/svg/download.svg';
 const CustomHeader = ({ name, handleDownload }) => {
 	const handleDownloadClick = () => {
-		handleDownload?.();
+		handleDownload();
 	};
 	return (
 		<div className="modal-actions">
