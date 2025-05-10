@@ -1127,10 +1127,10 @@ const QuickActions = ({
 				tenantUsers: formattedUsers,
 			}));
 		}
-	}, [tenantsUserList, getTeamMembers]);
+	}, [tenantsUserList]);
 
 	useEffect(() => {
-		if (!info.dropdown) {
+		if (!info?.dropdown) {
 			const options = filtereOptions();
 			setInfo((prev) => ({
 				...prev,
