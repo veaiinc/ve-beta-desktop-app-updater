@@ -145,7 +145,7 @@
 
 .newMenuText {
 	color: var(--primary-font);
-	font-family: Inter;
+	font-family: var(--font-family);
 	font-size: 14px;
 	font-style: normal;
 	font-weight: 500;
@@ -206,7 +206,7 @@
 				overflow: hidden;
 				color: var(--primary-font);
 				text-overflow: ellipsis;
-				font-family: Inter;
+				font-family: var(--font-family);
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 500;
@@ -238,7 +238,7 @@
 
 	.modules-container-header {
 		color: var(--secondary-font);
-		font-family: Inter;
+		font-family: var(--font-family);
 		font-size: 12px;
 		font-style: normal;
 		font-weight: 500;
@@ -273,7 +273,7 @@
 				overflow: hidden;
 				color: var(--primary-font);
 				text-overflow: ellipsis;
-				font-family: Inter;
+				font-family: var(--font-family);
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 500;
