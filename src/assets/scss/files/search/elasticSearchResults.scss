@@ -6,8 +6,8 @@
 	flex-shrink: 0;
 	width: 100%;
 
-	padding-top: 20px;
-	padding-inline: 10px;
+	padding-top: 25px;
+	padding-inline: 16px;
 
 	max-width: 690px;
 	height: 340px;
@@ -23,8 +23,8 @@
 	border-bottom-left-radius: 0px;
 	border: 1px solid var(--stroke);
 
-	transition: transform 0.3s ease-in;
-	transform: translateX(-50%) scale(0.6);
+	transition: transform 0.24s ease-in;
+	transform: translateX(-50%) scale(0.45);
 	transform-origin: center bottom;
 
 	.source-type-group {
@@ -232,7 +232,7 @@
 			}
 
 			.action-btn {
-				padding: 4px 12px;
+				padding: 6px 12px;
 				border-radius: 100px;
 				font-size: 12px;
 				font-weight: 500;

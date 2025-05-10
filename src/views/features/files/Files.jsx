@@ -1,4 +1,3 @@
-import ObjectID from 'bson-objectid';
 import { memo, useContext, useEffect, useRef, useState, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import '../../../assets/scss/files/files.scss';
@@ -271,6 +270,7 @@ const suggestedOptions = [
 		},
 	},
 ];
+
 const Files = () => {
 	const [searchParams, setSearchParams] = useSearchParams();
 	const activeTab = searchParams.get('activeTab') || 'Notes';
@@ -278,6 +278,8 @@ const Files = () => {
 	const elasticSearchTimeoutRef = useRef(null);
 	const navigate = useNavigate();
 	const inputRef = useRef(null);
+	// Add a ref for the search container
+	const searchContainerRef = useRef(null);
 
 	const {
 		galleryInfo: { tenantGalleries },
@@ -376,10 +378,6 @@ const Files = () => {
 		}
 	}, [tenantUserAccessControls]);
 
-	// Add a ref for the search container
-	const searchContainerRef = useRef(null);
-
-	// Update the handleOutsideClick function
 	const handleOutsideClick = useCallback((e) => {
 		if (searchContainerRef.current && !searchContainerRef.current.contains(e.target)) {
 			handleCloseSearch(e);
@@ -419,7 +417,7 @@ const Files = () => {
 		return () => {
 			document.removeEventListener('keydown', handleKeyDown);
 		};
-	}, [info.isFocused, handleOutsideClick]);
+	}, [info.isFocused]);
 
 	const handleNavigateGallery = (gallery) => {
 		navigate(`/galleries/${gallery?._id}`, { state: { galleryData: gallery } });
@@ -547,8 +545,22 @@ const Files = () => {
 	};
 
 	const handleKeyDown = (e) => {
-		if ((e.key === 'k' && (e.metaKey || e.ctrlKey)) || e.key === 'Escape') {
+		if ((e.key === 'k' || e.key === 'K') && (e.metaKey || e.ctrlKey)) {
 			e.preventDefault();
+			if (info.isFocused) {
+				handleCloseSearch(e);
+			} else {
+				setInfo((prev) => ({
+					...prev,
+					isFocused: true,
+					showElasticSearchResults: true,
+				}));
+				setTimeout(() => {
+					if (inputRef.current) inputRef.current.focus();
+				}, 0);
+			}
+		}
+		if (e.key === 'Escape') {
 			handleCloseSearch(e);
 		}
 	};
@@ -794,7 +806,7 @@ const Files = () => {
 							>
 								<div
 									className={`search-input ${
-										info.isFocused ? 'focused-search-input' : ''
+										info.showElasticSearchResults ? 'focused-search-input' : ''
 									}`}
 								>
 									<input
@@ -817,8 +829,8 @@ const Files = () => {
 											handleCloseSearch(e);
 										}}
 										className={`${
-											info.showElasticSearchResults ? 'input-focus' : ''
-										} ${info.isFocused ? 'search-input-focused' : ''}`}
+											info.isFocused ? 'search-input-focused' : ''
+										} ${info.showElasticSearchResults ? 'input-focus' : ''}`}
 										ref={inputRef}
 									/>
 									<div className="spinner-wrapper">
