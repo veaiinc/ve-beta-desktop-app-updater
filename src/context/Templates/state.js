@@ -102,10 +102,11 @@ export const intialState = {
 	formResponsesList: null,
 	moreFormResponsesList: null,
 	activePromptForChat: null,
+	activePayloadForChat: null,
+	activeInputForChat: null,
 	leftSidebarState: null,
 	recentChatStorage: null,
 	moreRecentChatStorage: null,
-	activePayloadForChat: null,
 	llmModels: null,
 	chatInfo: {
 		deepResearch: false,
