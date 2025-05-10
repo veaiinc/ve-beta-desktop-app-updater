@@ -211,7 +211,7 @@ const AISuggestionsModal = ({
 			placement="right"
 			headerStyle={{ display: 'none' }}
 			bodyStyle={{ padding: '0px' }}
-			style={{ padding: '0px' }}
+			style={{ padding: '0px', maxWidth: '70vw', minWidth: '20vw' }}
 			rootClassName="ai-suggestions-drawer"
 		>
 			<div className="ai-suggestions-wrapper" ref={resizableContainerRef}>
@@ -276,7 +276,7 @@ const AISuggestionsModal = ({
 										</Tooltip>
 									)}
 									{creditUsed && (
-										<Tooltip title={`Credit Used: ${creditUsed}`}>
+										<Tooltip title={`Credits Used: ${creditUsed}`}>
 											<div className="priority">
 												<div className="icon">
 													<CoinSvg />

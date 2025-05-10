@@ -233,9 +233,7 @@ const DocsGrid = ({ statusTextmapper, handleCreateDoc, handleTotalChange, client
 								<div
 									className="card-item"
 									key={index}
-									onClick={() =>
-										(window.location.href = `${origin}/document/view/${doc?._id}`)
-									}
+									onClick={() => navigate(`/doc/${doc?._id}`)}
 								>
 									<div className="card-item-style content-wrapper docs">
 										<img
