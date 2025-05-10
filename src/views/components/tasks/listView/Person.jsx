@@ -29,12 +29,12 @@ const Person = ({
 	}, [value]);
 	const handleOptionClick = useCallback(
 		(option) => {
-			const isSelected = info?.selected?.some((item) => item._id === option._id);
+			const isSelected = info?.selected?.some((item) => item?._id === option?._id);
 			let newSelected;
 
 			if (multiSelect) {
 				if (isSelected) {
-					newSelected = info?.selected?.filter((item) => item._id !== option._id);
+					newSelected = info?.selected?.filter((item) => item?._id !== option?._id);
 				} else {
 					newSelected = [
 						...(info?.selected || []),
