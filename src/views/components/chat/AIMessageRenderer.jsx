@@ -217,12 +217,19 @@ const AIMessageRenderer = ({
 										</div>
 										<div className="citation-details">
 											<div className="website-name">
-												{getWebsiteName(citation?.name)}
+												{citation?.type === 'url'
+													? getWebsiteName(citation?.name)
+													: citation?.name}
 											</div>
-											<div className="citation-url">{citation?.name}</div>
-											<div className="citation-title">
-												{citation?.snippet}
-											</div>
+											{citation?.type === 'url' && (
+												<div className="citation-url">{citation?.name}</div>
+											)}
+
+											{citation?.snippet && (
+												<div className="citation-title">
+													{citation?.snippet}
+												</div>
+											)}
 										</div>
 									</div>
 									<ArrowRightIcon className="arrow-icon" />

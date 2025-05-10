@@ -19,9 +19,15 @@ import { Drawer, Tooltip } from 'antd';
 import Context from '../../../../context/context';
 import { useContext } from 'react';
 import { message } from '../../globalComponents/CustomToast';
-import { redirectTo } from '../../../../helpers';
 import CombinedChainOfThought from '../../chat/chatComponents/CombinedChainOfThought';
-import { fileTypeIcons } from '../../../../helpers';
+import {
+	getFaviconUrl,
+	getWebsiteName,
+	fileTypeIcons,
+	redirectTo,
+	redirectTypeMapper,
+} from '../../../../helpers';
+import { ReactComponent as ArrowRightIcon } from '../../../../assets/svg/ai_agents/ArrowLineUpRight.svg';
 
 const AISuggestionsModal = ({
 	open,
@@ -41,7 +47,7 @@ const AISuggestionsModal = ({
 		isSolutionsExpanded: false,
 		isActionsExpanded: false,
 		isPromptsExpanded: false,
-		isReportExpanded: true,
+		isReportExpanded: false,
 		selectedFeedback: data?.feedback,
 		isQuestionsExpanded: false,
 		questionsAnswers: {},
@@ -189,9 +195,27 @@ const AISuggestionsModal = ({
 	} = data || {};
 
 	const creditUsed = usages?.[0]?.credit?.toFixed(2);
-	const reportCitations = useMemo(() => {
+	let reportCitations = useMemo(() => {
 		return [...(web_sources || []), ...(knowledge_base_sources || [])];
-	}, [web_sources, knowledge_base_sources, research_report]);
+	}, [web_sources, knowledge_base_sources]);
+
+	// reportCitations = [
+	// 	{
+	// 		id: 'C5',
+	// 		source: '68076014f73d34a7e8d5f5ce::6',
+	// 		snippet: '',
+	// 		name: 'Meeting Summary for AI Team Meeting',
+	// 		type: 'gmail',
+	// 		thread_id: '1965cc6fff5308ad',
+	// 	},
+	// 	{
+	// 		id: 'C6',
+	// 		source: '68076014f73d34a7e8d5f5ce::6',
+	// 		snippet: 'lorem ipsum dolor sit amet',
+	// 		name: 'https://www.google.com',
+	// 		type: 'url',
+	// 	},
+	// ];
 
 	if (!data) return null;
 
@@ -215,7 +239,11 @@ const AISuggestionsModal = ({
 								<div className="prev-btn" onClick={onPrevCardClick}>
 									<ChevronRightThinSvg />
 								</div>
-								<div className="total-docs">{`${selectedCardNumber} / ${totalDocs}`}</div>
+								<div className="total-docs">
+									<div className="current-doc">{selectedCardNumber}</div>
+									<div className="doc-divider">/</div>
+									<div className="total">{totalDocs}</div>
+								</div>
 								<div className="next-btn" onClick={onNextCardClick}>
 									<ChevronRightThinSvg />
 								</div>
@@ -256,7 +284,7 @@ const AISuggestionsModal = ({
 												<div className="icon">
 													<CoinSvg />
 												</div>
-												<div className="priority-text">{`${creditUsed}`}</div>
+												<div className="priority-text">{`${creditUsed} C`}</div>
 											</div>
 										</Tooltip>
 									)}
@@ -334,14 +362,16 @@ const AISuggestionsModal = ({
 									</div>
 								)}
 
-								<div
-									className={`tab-btn ${
-										info?.activeTab === 'sources' ? 'active' : ''
-									}`}
-									onClick={() => handleTabClick('sources')}
-								>
-									Sources
-								</div>
+								{reportCitations?.length > 0 && (
+									<div
+										className={`tab-btn ${
+											info?.activeTab === 'sources' ? 'active' : ''
+										}`}
+										onClick={() => handleTabClick('sources')}
+									>
+										Sources
+									</div>
+								)}
 							</div>
 						</div>
 						{info?.activeTab === 'situation' && (
@@ -590,6 +620,79 @@ const AISuggestionsModal = ({
 							</div>
 						)}
 
+						{info?.activeTab === 'sources' && (
+							<div className="source-content">
+								{(reportCitations || [])?.map((citation, idx) => (
+									<>
+										<div
+											key={citation?.id || idx}
+											className="citation-item"
+											onClick={() =>
+												redirectTo?.(
+													citation?.type,
+													citation?.[
+														redirectTypeMapper?.[citation?.type]
+													],
+												)
+											}
+										>
+											<div className="citation-header">
+												<div className="citation-icon">
+													{citation?.type === 'url' ? (
+														getFaviconUrl(citation?.name) ? (
+															<img
+																src={getFaviconUrl(citation?.name)}
+																alt="favicon"
+																className="favicon-image"
+															/>
+														) : (
+															<div className="company-icon">
+																{getWebsiteName(
+																	citation?.name,
+																)?.charAt(0)}
+															</div>
+														)
+													) : (
+														<div className="company-icon">
+															{citation?.type === 's3_key'
+																? fileTypeIcons[
+																		citation?.name?.match(
+																			/\.(\w+)$/,
+																		)?.[1]
+																  ]
+																: fileTypeIcons[citation?.type]}
+														</div>
+													)}
+												</div>
+												<div className="citation-details">
+													<div className="website-name">
+														{citation?.type === 'url'
+															? getWebsiteName(citation?.name)
+															: citation?.name}
+													</div>
+													{citation?.type === 'url' && (
+														<div className="citation-url">
+															{citation?.name}
+														</div>
+													)}
+
+													{citation?.snippet && (
+														<div className="citation-title">
+															{citation?.snippet}
+														</div>
+													)}
+												</div>
+											</div>
+											<div className="arrow-icon">
+												<ArrowRightIcon />
+											</div>
+										</div>
+										<div className="citation-divider" />
+									</>
+								))}
+							</div>
+						)}
+
 						{/* {data?.informationRequests?.length > 0 && (
 							<div
 								className="solutions-container"
@@ -661,7 +764,6 @@ const AISuggestionsModal = ({
 					</div>
 
 					<div className="footer">
-						<div className="horizontal-line"></div>
 						<div className="footer-content">
 							<div className="footer-left">
 								<div
