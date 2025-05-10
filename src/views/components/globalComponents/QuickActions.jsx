@@ -23,110 +23,39 @@ import CreateSessionModal from '../modalsV2/calendar/CreateSessionModal';
 import { ReactComponent as Flash } from '../../../assets/svg/flash.svg';
 import Search from '../../../assets/svg/searc.svg';
 
-const suggestedOptions = [
-	{
-		id: 1,
-		title: 'Event',
-		value: 'event',
-		controlValue: 'event',
-		action: ({ setInfo }) => {
-			setInfo((prev) => ({ ...prev, openEventsPopup: true, dropdown: false }));
-		},
-	},
-	{
-		id: 2,
-		title: 'Session',
-		value: 'session',
-		controlValue: 'calendar',
-		action: ({ setInfo }) => {
-			setInfo((prev) => ({ ...prev, openSessionPopup: true, dropdown: false }));
-		},
-	},
-	{
-		id: 3,
-		title: 'Task',
-		value: 'task',
-		action: ({ setInfo }) => {
-			setInfo((prev) => ({ ...prev, createTaskPopup: true }));
-		},
-	},
-	{
-		id: 4,
-		title: 'Contact',
-		value: 'contacts',
-		controlValue: 'contact',
-		action: ({ setInfo }) => {
-			setInfo((prev) => ({ ...prev, openClientPopup: true }));
-		},
-	},
-	{
-		id: 5,
-		title: 'Automation',
-		value: 'automation',
-		controlValue: 'automation',
-		action: async ({ setInfo, navigate, createAutomation, info }) => {
-			if (info?.isAutomationLoading) return;
-			try {
-				setInfo((prev) => ({
-					...prev,
-					showLoader: true,
-					loaderMessage: 'Creating automation...',
-				}));
-				const response = await createAutomation({
-					name: 'Untitled Automation',
-					version: 1,
-					steps: [],
-					status: 'draft',
-				});
-				if (response?.[0]) {
-					navigate(`/automation-builder/${response?.[1]?._id}`);
-				} else {
-					message.error('Failed to create automation');
-				}
-			} catch (error) {
-				message.error('Failed to create automation');
-			} finally {
-				setInfo((prev) => ({
-					...prev,
-					showLoader: false,
-					loaderMessage: '',
-				}));
-			}
-		},
-	},
-];
+const suggestedOptions = [];
 
 const buildAiOptions = [
-	{
-		id: 1,
-		title: 'Form',
-		value: 'form-submission',
-		controlValue: 'form',
-		action: ({ setInfo }) => {
-			setInfo((prev) => ({
-				...prev,
-				openProposalPopup: true,
-				commonState: 'form-submission',
-			}));
-		},
-	},
-	{
-		id: 2,
-		title: 'Task',
-		value: 'task',
-		action: ({ setInfo }) => {
-			setInfo((prev) => ({ ...prev, createTaskPopup: true }));
-		},
-	},
-	{
-		id: 3,
-		title: 'Event',
-		value: 'event',
-		controlValue: 'event',
-		action: ({ setInfo }) => {
-			setInfo((prev) => ({ ...prev, openEventsPopup: true, dropdown: false }));
-		},
-	},
+	// {
+	// 	id: 1,
+	// 	title: 'Form',
+	// 	value: 'form-submission',
+	// 	controlValue: 'form',
+	// 	action: ({ setInfo }) => {
+	// 		setInfo((prev) => ({
+	// 			...prev,
+	// 			openProposalPopup: true,
+	// 			commonState: 'form-submission',
+	// 		}));
+	// 	},
+	// },
+	// {
+	// 	id: 2,
+	// 	title: 'Task',
+	// 	value: 'task',
+	// 	action: ({ setInfo }) => {
+	// 		setInfo((prev) => ({ ...prev, createTaskPopup: true }));
+	// 	},
+	// },
+	// {
+	// 	id: 3,
+	// 	title: 'Event',
+	// 	value: 'event',
+	// 	controlValue: 'event',
+	// 	action: ({ setInfo }) => {
+	// 		setInfo((prev) => ({ ...prev, openEventsPopup: true, dropdown: false }));
+	// 	},
+	// },
 ];
 
 const createOptions = [
@@ -370,7 +299,7 @@ const QuickActions = ({
 		companyInfo: { getTeamMembers, tenantsUserList },
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState, currentPlan },
 	} = useContext(Context);
-	const timeoutRef = useRef(null);
+	// const timeoutRef = useRef(null);
 	const [info, setInfo] = useState({
 		dropdown: false,
 		openProposalPopup: false,
@@ -419,7 +348,80 @@ const QuickActions = ({
 	)?.isPaidPlan;
 
 	const getSuggestedOptionsByPath = (pathname) => {
-		if (pathname.includes('/knowledge-agent')) {
+		if (pathname.includes('/home')) {
+			return [
+				{
+					id: 1,
+					title: 'Event',
+					value: 'event',
+					controlValue: 'event',
+					action: ({ setInfo }) => {
+						setInfo((prev) => ({ ...prev, openEventsPopup: true, dropdown: false }));
+					},
+				},
+				{
+					id: 2,
+					title: 'Session',
+					value: 'session',
+					controlValue: 'calendar',
+					action: ({ setInfo }) => {
+						setInfo((prev) => ({ ...prev, openSessionPopup: true, dropdown: false }));
+					},
+				},
+				{
+					id: 3,
+					title: 'Task',
+					value: 'task',
+					action: ({ setInfo }) => {
+						setInfo((prev) => ({ ...prev, createTaskPopup: true }));
+					},
+				},
+				{
+					id: 4,
+					title: 'Contact',
+					value: 'contacts',
+					controlValue: 'contact',
+					action: ({ setInfo }) => {
+						setInfo((prev) => ({ ...prev, openClientPopup: true }));
+					},
+				},
+				{
+					id: 5,
+					title: 'Automation',
+					value: 'automation',
+					controlValue: 'automation',
+					action: async ({ setInfo, navigate, createAutomation, info }) => {
+						if (info?.isAutomationLoading) return;
+						try {
+							setInfo((prev) => ({
+								...prev,
+								showLoader: true,
+								loaderMessage: 'Creating automation...',
+							}));
+							const response = await createAutomation({
+								name: 'Untitled Automation',
+								version: 1,
+								steps: [],
+								status: 'draft',
+							});
+							if (response?.[0]) {
+								navigate(`/automation-builder/${response?.[1]?._id}`);
+							} else {
+								message.error('Failed to create automation');
+							}
+						} catch (error) {
+							message.error('Failed to create automation');
+						} finally {
+							setInfo((prev) => ({
+								...prev,
+								showLoader: false,
+								loaderMessage: '',
+							}));
+						}
+					},
+				},
+			];
+		} else if (pathname.includes('/knowledge-agent')) {
 			return [
 				{
 					id: 1,
@@ -613,7 +615,7 @@ const QuickActions = ({
 			return [
 				{
 					id: 1,
-					title: 'Create a New Form',
+					title: 'Form',
 					value: 'form-submission',
 					controlValue: 'form',
 					action: ({ setInfo }) => {
@@ -629,7 +631,7 @@ const QuickActions = ({
 			return [
 				{
 					id: 1,
-					title: 'Create a New Task',
+					title: 'Task',
 					value: 'task',
 					action: ({ setInfo }) => {
 						setInfo((prev) => ({ ...prev, createTaskPopup: true }));
@@ -699,7 +701,7 @@ const QuickActions = ({
 			return [
 				{
 					id: 1,
-					title: 'Create a New Document',
+					title: 'Document',
 					value: '',
 					controlValue: 'all',
 					action: ({ setInfo }) => {
@@ -708,7 +710,7 @@ const QuickActions = ({
 				},
 				{
 					id: 2,
-					title: 'Create a New Proposal',
+					title: 'Proposal',
 					value: 'proposal',
 					controlValue: 'workflow',
 					action: ({ setInfo }) => {
@@ -721,7 +723,7 @@ const QuickActions = ({
 				},
 				{
 					id: 3,
-					title: 'Create a New Invoice',
+					title: 'Invoice',
 					value: 'invoice',
 					controlValue: 'workflow',
 					action: ({ setInfo }) => {
@@ -734,7 +736,7 @@ const QuickActions = ({
 				},
 				{
 					id: 4,
-					title: 'Create a New Contract',
+					title: 'Contract',
 					value: 'contract',
 					controlValue: 'workflow',
 					action: ({ setInfo }) => {
@@ -747,7 +749,7 @@ const QuickActions = ({
 				},
 				{
 					id: 5,
-					title: 'Create A New Presentation',
+					title: 'Presentation',
 					value: 'presentation',
 					controlValue: 'workflow',
 					action: ({ setInfo }) => {
@@ -763,7 +765,7 @@ const QuickActions = ({
 			return [
 				{
 					id: 1,
-					title: 'Create a New Event',
+					title: 'Event',
 					value: 'event',
 					controlValue: 'event',
 					action: ({ setInfo }) => {
@@ -772,7 +774,7 @@ const QuickActions = ({
 				},
 				{
 					id: 2,
-					title: 'Create a New Session',
+					title: 'Session',
 					value: 'session',
 					controlValue: 'calendar',
 					action: ({ setInfo }) => {
@@ -784,7 +786,7 @@ const QuickActions = ({
 			return [
 				{
 					id: 1,
-					title: 'Create A New Task',
+					title: 'Task',
 					value: 'task',
 					action: ({ setInfo }) => {
 						setInfo((prev) => ({ ...prev, createTaskPopup: true }));
@@ -795,7 +797,7 @@ const QuickActions = ({
 			return [
 				{
 					id: 1,
-					title: 'Create a New Session',
+					title: 'Session',
 					value: 'session',
 					controlValue: 'calendar',
 					action: ({ setInfo }) => {
@@ -804,7 +806,7 @@ const QuickActions = ({
 				},
 				{
 					id: 2,
-					title: 'Create a New Event',
+					title: 'Event',
 					value: 'event',
 					controlValue: 'event',
 					action: ({ setInfo }) => {
@@ -1308,7 +1310,9 @@ const QuickActions = ({
 												{option?.icon && (
 													<img src={option?.icon} alt="icon" />
 												)}
-												{option?.title}
+												<div className="dropdown-option-title">
+													{option?.title}
+												</div>
 											</div>
 										))}
 									</div>
@@ -1337,7 +1341,9 @@ const QuickActions = ({
 												{option?.icon && (
 													<img src={option?.icon} alt="icon" />
 												)}
-												{option?.title}
+												<div className="dropdown-option-title">
+													{option?.title}
+												</div>
 											</div>
 										))}
 									</div>
@@ -1364,7 +1370,9 @@ const QuickActions = ({
 												{option?.icon && (
 													<img src={option?.icon} alt="icon" />
 												)}
-												{option?.title}
+												<div className="dropdown-option-title">
+													{option?.title}
+												</div>
 											</div>
 										))}
 									</div>
@@ -1397,7 +1405,9 @@ const QuickActions = ({
 													{option?.icon && (
 														<img src={option?.icon} alt="icon" />
 													)}
-													{option?.title}
+													<div className="dropdown-option-title">
+														{option?.title}
+													</div>
 												</div>
 											))}
 									</div>

@@ -22,8 +22,8 @@ const filterOptions = [
 ];
 
 const sortOptions = [
-	{ label: 'Recently Created', value: 'createdAt', sortType: -1 },
 	{ label: 'Recently Updated', value: 'updatedAt', sortType: -1 },
+	{ label: 'Recently Created', value: 'createdAt', sortType: -1 },
 	{ label: 'A-Z', value: 'title', sortType: 1 },
 ];
 
@@ -40,7 +40,7 @@ const NotesGrid = ({ handleNewNotes, handleTotalChange }) => {
 		currentPage: 1,
 		hasNextPage: false,
 		selectedFilter: { label: 'All', value: 'all' },
-		selectedSort: { label: 'Recently Created', value: 'createdAt', sortType: -1 },
+		selectedSort: { label: 'Recently Updated', value: 'updatedAt', sortType: -1 },
 	});
 
 	useEffect(() => {
