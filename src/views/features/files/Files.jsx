@@ -1,5 +1,5 @@
 import ObjectID from 'bson-objectid';
-import { memo, useContext, useEffect, useRef, useState } from 'react';
+import { memo, useContext, useEffect, useRef, useState, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import '../../../assets/scss/files/files.scss';
 import '../../../assets/scss/files/index.scss';
@@ -277,6 +277,7 @@ const Files = () => {
 	const cardItems = useRef(null);
 	const elasticSearchTimeoutRef = useRef(null);
 	const navigate = useNavigate();
+	const inputRef = useRef(null);
 
 	const {
 		galleryInfo: { tenantGalleries },
@@ -374,6 +375,51 @@ const Files = () => {
 			}));
 		}
 	}, [tenantUserAccessControls]);
+
+	// Add a ref for the search container
+	const searchContainerRef = useRef(null);
+
+	// Update the handleOutsideClick function
+	const handleOutsideClick = useCallback((e) => {
+		if (searchContainerRef.current && !searchContainerRef.current.contains(e.target)) {
+			handleCloseSearch(e);
+		}
+	}, []);
+
+	// Update the useEffect for focus handling
+	useEffect(() => {
+		document.addEventListener('keydown', handleKeyDown);
+
+		if (info.isFocused) {
+			// Clear local search info
+			setInfo((prev) => ({
+				...prev,
+				elasticSearchLoading: false,
+				showElasticSearchResults: false,
+			}));
+
+			// Clear input and focus after modal mounts
+			const timer = setTimeout(() => {
+				if (inputRef.current) {
+					inputRef.current.value = '';
+					inputRef.current.focus();
+				}
+			}, 50);
+
+			// Add click listener
+			document.addEventListener('mousedown', handleOutsideClick);
+
+			return () => {
+				clearTimeout(timer);
+				document.removeEventListener('mousedown', handleOutsideClick);
+				document.removeEventListener('keydown', handleKeyDown);
+			};
+		}
+
+		return () => {
+			document.removeEventListener('keydown', handleKeyDown);
+		};
+	}, [info.isFocused, handleOutsideClick]);
 
 	const handleNavigateGallery = (gallery) => {
 		navigate(`/galleries/${gallery?._id}`, { state: { galleryData: gallery } });
@@ -482,6 +528,29 @@ const Files = () => {
 				isLoading: false,
 			}));
 		}, 500);
+	};
+
+	const handleCloseSearch = (e) => {
+		setInfo((prev) => ({
+			...prev,
+			isFocused: false,
+			showElasticSearchResults: false,
+			searchQuery: '', // Clear the search input
+			isLoading: false, // Stop any loading state
+			searchResults: [], // Clear any search results
+		}));
+
+		// Blur the input to take away focus
+		if (inputRef.current) {
+			inputRef.current.blur();
+		}
+	};
+
+	const handleKeyDown = (e) => {
+		if ((e.key === 'k' && (e.metaKey || e.ctrlKey)) || e.key === 'Escape') {
+			e.preventDefault();
+			handleCloseSearch(e);
+		}
 	};
 
 	const SearchResults = () => {
@@ -714,86 +783,93 @@ const Files = () => {
 							</div>
 						</div>
 
-						{info.showElasticSearchResults && info.isFocused && (
-							<ElasticSearchResults />
-						)}
-
-						<div
-							className={`search-input-container ${info.isFocused ? 'focused' : ''}`}
-						>
-							<div className="search-input">
-								<input
-									type="text"
-									placeholder="Search"
-									value={info.searchQuery || ''}
-									onChange={handleSearch}
-									onFocus={() =>
-										setInfo((prev) => ({ ...prev, isFocused: true }))
-									}
-									onKeyDown={(e) => {
-										if (e.key === 'Escape') {
-											// Complete reset when Escape is pressed
-											setInfo((prev) => ({
-												...prev,
-												isFocused: false,
-												showElasticSearchResults: false,
-												searchQuery: '', // Clear the search input
-												isLoading: false, // Stop any loading state
-												searchResults: [], // Clear any search results
-											}));
-
-											// Blur the input to take away focus
-											e.currentTarget.blur();
+						<div className="elastic-search-main-container" ref={searchContainerRef}>
+							{info.showElasticSearchResults && info.isFocused && (
+								<ElasticSearchResults />
+							)}
+							<div
+								className={`search-input-container ${
+									info.isFocused ? 'focused' : ''
+								}`}
+							>
+								<div
+									className={`search-input ${
+										info.isFocused ? 'focused-search-input' : ''
+									}`}
+								>
+									<input
+										type="text"
+										placeholder="Search"
+										value={info.searchQuery || ''}
+										onChange={handleSearch}
+										onFocus={() =>
+											setInfo((prev) => ({ ...prev, isFocused: true }))
 										}
-									}}
-									className={info.showElasticSearchResults ? 'input-focus' : ''}
-									ref={elasticSearchTimeoutRef} // Add a ref to access the input element
-								/>
-								<div className="spinner-wrapper">
-									{info?.isLoading ? (
-										<Spinner width="16px" height="16px" />
-									) : (
-										<SearchSvg />
-									)}
-								</div>
-								{info.showElasticSearchResults && info.isFocused && (
-									<div className="dropdown-container">
-										<div>
-											<CustomDropdown
-												options={items}
-												value={info.selectedSource}
-												onChange={(val) =>
-													setInfo((prev) => ({
-														...prev,
-														selectedSource: val,
-													}))
-												}
-											>
-												<div style={customDropdownStyle}>
-													<Folder /> Sources
-												</div>
-											</CustomDropdown>
-										</div>
-										<div>
-											<CustomDropdown
-												options={items}
-												value={info.selectedIntegration}
-												onChange={(val) =>
-													setInfo((prev) => ({
-														...prev,
-														selectedIntegration: val,
-													}))
-												}
-											>
-												<div style={customDropdownStyle}>
-													<Plug /> Integrations
-												</div>
-											</CustomDropdown>
-										</div>
+										onBlur={(e) => {
+											// If the blur is caused by clicking inside the dropdown, don't close
+											if (
+												document.activeElement &&
+												e.relatedTarget &&
+												e.relatedTarget.closest('.dropdown-container')
+											) {
+												return;
+											}
+											handleCloseSearch(e);
+										}}
+										className={`${
+											info.showElasticSearchResults ? 'input-focus' : ''
+										} ${info.isFocused ? 'search-input-focused' : ''}`}
+										ref={inputRef}
+									/>
+									<div className="spinner-wrapper">
+										{info?.isLoading ? (
+											<Spinner width="16px" height="16px" />
+										) : (
+											<SearchSvg />
+										)}
 									</div>
-								)}
-								<div className="command-text">
-									<CommandIcon /> <span>+ K</span>
+									{info.showElasticSearchResults && (
+										<div
+											className="dropdown-container"
+											onMouseDown={(e) => e.preventDefault()}
+										>
+											<div>
+												<CustomDropdown
+													options={items}
+													value={info.selectedSource}
+													onChange={(val) =>
+														setInfo((prev) => ({
+															...prev,
+															selectedSource: val,
+														}))
+													}
+												>
+													<div style={customDropdownStyle}>
+														<Folder /> Sources
+													</div>
+												</CustomDropdown>
+											</div>
+											<div>
+												<CustomDropdown
+													options={items}
+													value={info.selectedIntegration}
+													onChange={(val) =>
+														setInfo((prev) => ({
+															...prev,
+															selectedIntegration: val,
+														}))
+													}
+												>
+													<div style={customDropdownStyle}>
+														<Plug /> Integrations
+													</div>
+												</CustomDropdown>
+											</div>
+										</div>
+									)}
+									<div className="command-text">
+										<CommandIcon /> <span>+ K</span>
+									</div>
 								</div>
 							</div>
 						</div>

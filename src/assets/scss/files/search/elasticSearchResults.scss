@@ -1,22 +1,47 @@
 .elastic-search-results-container {
 	display: flex;
-	width: 690px;
-	height: 340px;
-	padding: 60px 20px 0px 20px;
 	flex-direction: column;
 	align-items: center;
+	gap: 8px;
 	flex-shrink: 0;
-	position: absolute;
+	width: 100%;
+
+	padding-top: 20px;
+	padding-inline: 10px;
+
+	max-width: 690px;
+	height: 340px;
 	bottom: 117px;
 	background: var(--popup, #18191b);
 	overflow-y: auto;
-	left: 50%;
+
+	position: absolute;
+	left: 50.1%;
+
 	border-radius: 16px;
 	border-bottom-right-radius: 0px;
 	border-bottom-left-radius: 0px;
+	border: 1px solid var(--stroke);
+
 	transition: transform 0.3s ease-in;
 	transform: translateX(-50%) scale(0.6);
 	transform-origin: center bottom;
+
+	.source-type-group {
+		display: flex;
+		width: 100%;
+
+		flex-direction: column;
+		.source-type-heading {
+			color: var(--secondary-font, #7a7e85);
+			font-size: 12px;
+			font-weight: 500;
+			line-height: 18px; /* 150% */
+			margin: 0;
+			margin-top: 5px;
+			margin-bottom: 3px;
+		}
+	}
 
 	&.animate {
 		transform: translateX(-50%) scale(1);
@@ -28,10 +53,10 @@
 		align-self: stretch;
 		display: flex;
 		align-self: stretch;
-		border-bottom: 1px solid var(--stroke);
 		position: relative;
 		width: 100%;
 		cursor: pointer;
+		height: 38px;
 
 		.search-result-item-left {
 			display: flex;
@@ -47,8 +72,8 @@
 				align-items: center;
 				flex-shrink: 0;
 				svg {
-					width: 11px;
-					height: 13px;
+					width: 19px;
+					height: 22px;
 				}
 			}
 
@@ -60,11 +85,14 @@
 				flex: 1 0 0;
 
 				.search-output-header {
-					font-size: 13px;
+					font-size: 14px;
 					font-style: normal;
 					font-weight: 500;
 					line-height: normal;
 					text-wrap: nowrap;
+					width: 440px;
+					overflow: hidden;
+					text-overflow: ellipsis;
 				}
 
 				.description {
@@ -123,8 +151,8 @@
 					justify-content: center;
 
 					svg {
-						width: 36px;
-						height: 33px;
+						width: 20px;
+						height: 30px;
 					}
 				}
 
@@ -245,24 +273,9 @@
 	}
 }
 
-.sources-ant-dropdown {
-	background-color: var(--card-over-card);
-	height: 100%;
-	width: 100%;
-}
-
-.sources-dropdown {
-	cursor: pointer;
-	font-size: 14px;
-	padding: 6px 10px;
-	align-items: center;
-	gap: 4px;
-	display: flex;
-	border-radius: 100px;
-	background: var(--card-over-card, #27282b);
-
-	svg {
-		width: 14px;
-		height: 14px;
+@media screen and (max-width: 790px) {
+	.elastic-search-results-container {
+		width: 100%;
+		max-width: 100%;
 	}
 }

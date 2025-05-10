@@ -29,6 +29,13 @@
 
 		&-arrow {
 			transition: transform 0.2s ease;
+			margin-top: 2px;
+			margin-left: 3px;
+			svg {
+				width: 14px;
+				height: 14px;
+				color: var(--secondary-font);
+			}
 		}
 
 		&.open &-arrow {

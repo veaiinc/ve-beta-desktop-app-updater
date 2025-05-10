@@ -34,48 +34,48 @@ const CommandKSearch = () => {
 
 	const noResults = elasticSearchResults?.length === 0 && info.showElasticSearchResults;
 
-	useEffect(() => {
-		const handleKeyDown = (e) => {
-			if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
-				e.preventDefault();
-				setInfo((prev) => ({ ...prev, isOpen: !prev.isOpen }));
-			}
-			if (e.key === 'Escape') {
-				setInfo((prev) => ({ ...prev, isOpen: false }));
-			}
-		};
+	// useEffect(() => {
+	// 	const handleKeyDown = (e) => {
+	// 		if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
+	// 			e.preventDefault();
+	// 			setInfo((prev) => ({ ...prev, isOpen: !prev.isOpen }));
+	// 		}
+	// 		if (e.key === 'Escape') {
+	// 			setInfo((prev) => ({ ...prev, isOpen: false }));
+	// 		}
+	// 	};
 
-		document.addEventListener('keydown', handleKeyDown);
+	// 	document.addEventListener('keydown', handleKeyDown);
 
-		if (info.isOpen) {
-			// ✅ Clear local search info
-			setInfo((prev) => ({
-				...prev,
-				elasticSearchLoading: false,
-				showElasticSearchResults: false,
-			}));
+	// 	if (info.isOpen) {
+	// 		// ✅ Clear local search info
+	// 		setInfo((prev) => ({
+	// 			...prev,
+	// 			elasticSearchLoading: false,
+	// 			showElasticSearchResults: false,
+	// 		}));
 
-			// ✅ Clear input and focus after modal mounts
-			const timer = setTimeout(() => {
-				if (inputRef.current) {
-					inputRef.current.value = ''; // if uncontrolled
-					inputRef.current.focus();
-				}
-			}, 50);
+	// 		// ✅ Clear input and focus after modal mounts
+	// 		const timer = setTimeout(() => {
+	// 			if (inputRef.current) {
+	// 				inputRef.current.value = ''; // if uncontrolled
+	// 				inputRef.current.focus();
+	// 			}
+	// 		}, 50);
 
-			document.addEventListener('mousedown', handleOutsideClick);
+	// 		document.addEventListener('mousedown', handleOutsideClick);
 
-			return () => {
-				clearTimeout(timer);
-				document.removeEventListener('mousedown', handleOutsideClick);
-				document.removeEventListener('keydown', handleKeyDown);
-			};
-		}
+	// 		return () => {
+	// 			clearTimeout(timer);
+	// 			document.removeEventListener('mousedown', handleOutsideClick);
+	// 			document.removeEventListener('keydown', handleKeyDown);
+	// 		};
+	// 	}
 
-		return () => {
-			document.removeEventListener('keydown', handleKeyDown);
-		};
-	}, [info.isOpen]);
+	// 	return () => {
+	// 		document.removeEventListener('keydown', handleKeyDown);
+	// 	};
+	// }, [info.isOpen]);
 
 	const handleCloseModal = () => {
 		setInfo((prev) => ({ ...prev, isOpen: false }));

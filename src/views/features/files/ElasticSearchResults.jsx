@@ -1,9 +1,9 @@
 import ObjectID from 'bson-objectid';
-import { memo, useContext, useEffect, useState } from 'react';
+import { memo, useContext, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../../../assets/scss/files/search/elasticSearchResults.scss';
 import Context from '../../../context/context';
-import getFileTypeInfo from './getFiletypeInfo';
+import getFileTypeInfo, { categoryMap } from './getFiletypeInfo';
 
 const ElasticSearchResults = () => {
 	const navigate = useNavigate();
@@ -13,18 +13,16 @@ const ElasticSearchResults = () => {
 		elasticSearch: { elasticSearchResults },
 	} = useContext(Context);
 
-	// Function to safely render HTML content
-	const renderHTMLContent = (content) => {
-		return { __html: content || '' };
-	};
-
 	const [animate, setAnimate] = useState(false);
 
 	useEffect(() => {
 		setAnimate(true);
 	}, []);
 
-	// Hover card component
+	const renderHTMLContent = (content) => {
+		return { __html: content || '' };
+	};
+
 	const HoverCard = ({ searchItem }) => {
 		const { icon, color } = getFileTypeInfo(searchItem);
 
@@ -66,22 +64,14 @@ const ElasticSearchResults = () => {
 					window.open(gallery?.title, '_blank');
 				}
 			}
-		} else {
-			if (gallery?.url) {
-				window.open(gallery?.url, '_blank');
-			}
+		} else if (gallery?.url) {
+			window.open(gallery?.url, '_blank');
 		}
 	};
 
 	const shouldShowOpenButton = (gallery) => {
-		if (gallery?.sourceType === 'workflow') {
-			return true;
-		}
-
-		if (gallery?.platform === 've.ai') {
-			return !!gallery?.fileUrl || !!gallery?.url;
-		}
-
+		if (gallery?.sourceType === 'workflow') return true;
+		if (gallery?.platform === 've.ai') return !!gallery?.fileUrl || !!gallery?.url;
 		return !!gallery?.url;
 	};
 
@@ -91,49 +81,65 @@ const ElasticSearchResults = () => {
 		navigate(`/chat/${chatId}`);
 	};
 
+	const groupedResults = useMemo(() => {
+		const groups = {};
+		(elasticSearchResults || []).forEach((item) => {
+			const type = item?.sourceType?.toLowerCase() || 'others';
+			const categoryType = categoryMap[type];
+			if (!groups[categoryType]) groups[categoryType] = [];
+			groups[categoryType].push(item);
+		});
+		return groups;
+	}, [elasticSearchResults]);
+
 	return (
 		<div className={`elastic-search-results-container ${animate ? 'animate' : ''}`}>
 			{elasticSearchResults?.length > 0 ? (
-				elasticSearchResults?.map((searchItem, index) => (
-					<div
-						key={searchItem?._id || index}
-						className="search-result-item"
-						style={{ width: '100%' }}
-					>
-						<div className="search-result-item-left">
+				Object.entries(groupedResults).map(([sourceType, items]) => (
+					<div key={sourceType} className="source-type-group">
+						<h3 className="source-type-heading">{sourceType}</h3>
+						{items.map((searchItem, index) => (
 							<div
-								style={{ color: getFileTypeInfo(searchItem)?.color }}
-								className="image"
+								key={searchItem?._id || index}
+								className="search-result-item"
+								style={{ width: '100%' }}
 							>
-								{getFileTypeInfo(searchItem)?.icon}
-							</div>
-							<div className="content">
-								<h4 className="search-output-header">
-									{searchItem?.title || 'Singularity'}
-								</h4>
-							</div>
-						</div>
-						<div className="hover-card-wrapper">
-							<HoverCard searchItem={searchItem} />
-						</div>
-						<div className="search-result-item-right">
-							<div className="action-buttons">
-								<button
-									className="action-btn ask-btn"
-									onClick={() => handleAskClick(searchItem)}
-								>
-									Ask
-								</button>
-								{shouldShowOpenButton(searchItem) && (
-									<button
-										className="action-btn open-btn"
-										onClick={() => handleOpenClick(searchItem)}
+								<div className="search-result-item-left">
+									<div
+										style={{ color: getFileTypeInfo(searchItem)?.color }}
+										className="image"
 									>
-										Open
-									</button>
-								)}
+										{getFileTypeInfo(searchItem)?.icon}
+									</div>
+									<div className="content">
+										<h4 className="search-output-header">
+											{searchItem?.title || 'Singularity'}
+										</h4>
+									</div>
+								</div>
+								<div className="hover-card-wrapper">
+									<HoverCard searchItem={searchItem} />
+								</div>
+								<div className="search-result-item-right">
+									<div className="action-buttons">
+										<button
+											className="action-btn ask-btn"
+											onClick={() => handleAskClick(searchItem)}
+										>
+											Ask
+										</button>
+										{shouldShowOpenButton(searchItem) && (
+											<button
+												className="action-btn open-btn"
+												onClick={() => handleOpenClick(searchItem)}
+											>
+												Open
+											</button>
+										)}
+									</div>
+								</div>
 							</div>
-						</div>
+						))}
 					</div>
 				))
 			) : (
