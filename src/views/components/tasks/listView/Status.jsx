@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useState } from 'react';
+import { memo, useEffect, useState } from 'react';
 import '../../../../assets/scss/tasks/status.scss';
 import { ReactComponent as PencilWithLine } from '../../../../assets/svg/tasks/pencilWithLine.svg';
 import { Tooltip } from 'antd';
@@ -98,7 +98,7 @@ const Status = ({
 				<StatusDropdown
 					colors={colors}
 					options={options}
-					selected={info?.selected}
+					selected={info?.selected?._id}
 					onOptionClick={customOnOptionClick}
 					labelField={labelField}
 					valueField={valueField}
@@ -118,7 +118,7 @@ const Status = ({
 				overlayClassName="tooltip-overlay-container"
 				color="transparent"
 			>
-				<div className="listItem-status">
+				<div className="listItem-status filter-wrapper">
 					<div
 						className={`select-listItem`}
 						style={{

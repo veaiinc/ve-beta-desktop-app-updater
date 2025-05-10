@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { memo, useEffect, useState } from 'react';
+import { memo, useEffect, useState } from 'react';
 import '../../../../assets/scss/tasks/select.scss';
 import { Tooltip } from 'antd';
 import SelectDropdown from '../../dropDown/tasks/SelectDropdown';
@@ -57,12 +57,12 @@ const Select = ({
 	};
 
 	return (
-		<div className="select-options-wrapper">
+		<div className="select-options-wrapper filter-wrapper">
 			<Tooltip
 				title={
 					<SelectDropdown
 						options={options}
-						value={value}
+						selected={value}
 						onOptionClick={handleOptionClick}
 						disabled={disabled}
 						title={title}

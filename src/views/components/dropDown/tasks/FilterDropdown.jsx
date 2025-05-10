@@ -1,7 +1,8 @@
-import { memo } from 'react';
+import { memo, useMemo, useState } from 'react';
 import '../../../../assets/scss/dropdown/tasks/filterDropdown.scss';
-import { ReactComponent as FilterIcon } from '../../../../assets/svg/tasks/newFilter.svg';
+import { ReactComponent as PlusIcon } from '../../../../assets/svg/tasks/plus.svg';
 import { ReactComponent as SearchSvg } from '../../../../assets/svg/workflow/search.svg';
+import { ReactComponent as Tick } from '../../../../assets/svg/tasks/tick.svg';
 
 import { Tooltip } from 'antd';
 import TextFilter from './TextFilter';
@@ -23,7 +24,28 @@ const filterMapper = {
 	updatedBy: TeamMembersDropdown,
 };
 
-const FilterDropdown = ({ properties, colors, selected, responseMetadata }) => {
+const FilterDropdown = ({ properties, colors, filters, responseMetadata, handleFilterChange }) => {
+	const [info, setInfo] = useState({
+		searchValue: '',
+	});
+
+	const selectedFilters = useMemo(() => {
+		return new Map(filters?.map((f) => [f.key, f]));
+	}, [filters]);
+
+	const handleSearch = (e) => {
+		setInfo((prevInfo) => ({
+			...prevInfo,
+			searchValue: e.target?.value,
+		}));
+	};
+
+	const filteredProperties = useMemo(() => {
+		return properties?.filter((property) => {
+			return property?.label?.toLowerCase()?.includes(info?.searchValue?.toLowerCase());
+		});
+	}, [properties, info?.searchValue]);
+
 	return (
 		<Tooltip
 			title={
@@ -31,49 +53,83 @@ const FilterDropdown = ({ properties, colors, selected, responseMetadata }) => {
 					<div className="filter-dropdown-tooltip-header">
 						<div className="filter-search-input">
 							<SearchSvg className="filter-search-input-icon" />
-							<input type="text" className="filter-input" placeholder="Search..." />
+							<input
+								type="text"
+								className="filter-input"
+								placeholder="Search..."
+								value={info?.searchValue}
+								onChange={handleSearch}
+							/>
 						</div>
 					</div>
 					<div className="filter-dropdown-tooltip-body">
-						{properties?.map((property) => {
-							const FilterComponent = filterMapper[property?.value] || TextFilter;
+						{filteredProperties?.length > 0 ? (
+							filteredProperties?.map((property) => {
+								const FilterComponent = filterMapper[property?.value] || TextFilter;
 
-							return (
-								<Tooltip
-									destroyTooltipOnHide
-									key={property?.value}
-									title={
-										<div className="filter-dropdown-tooltip-body-item-dropdown">
-											<FilterComponent
-												colors={colors}
-												options={
-													responseMetadata?.[property?.value]?.props
-														?.options
-												}
-												selected={null}
-												onOptionClick={() => {}}
-												labelField="label"
-												title={property?.label}
-											/>
+								return (
+									<Tooltip
+										destroyTooltipOnHide
+										key={property?.value}
+										title={
+											<div className="filter-dropdown-tooltip-body-item-dropdown">
+												<FilterComponent
+													colors={colors}
+													options={
+														responseMetadata?.[property?.value]?.props
+															?.options
+													}
+													onOptionClick={(option) => {
+														handleFilterChange(property?.value, option);
+													}}
+													onChange={(option) => {
+														handleFilterChange(property?.value, option);
+													}}
+													labelField="label"
+													title={property?.label}
+													selected={
+														[
+															'assignedTo',
+															'assignedBy',
+															'createdBy',
+															'updatedBy',
+															'clients',
+														].includes(property?.value)
+															? [
+																	selectedFilters?.get(
+																		property?.value,
+																	)?.value,
+															  ]
+															: selectedFilters?.get(property?.value)
+																	?.value
+													}
+													value={
+														selectedFilters?.get(property?.value)?.value
+													}
+												/>
+											</div>
+										}
+										arrow={false}
+										trigger={['click', 'hover']}
+										color="red"
+										placement="rightTop"
+										overlayStyle={{ minWidth: 'fit-content' }}
+									>
+										<div className="filter-dropdown-tooltip-body-item">
+											<div className="filter-dropdown-tooltip-body-item-icon">
+												{property?.Icon && <property.Icon />}
+											</div>
+											<span className="filter-dropdown-tooltip-body-item-label">
+												{property?.label}
+											</span>
+											{selectedFilters?.has(property?.value) && <Tick />}
 										</div>
-									}
-									arrow={false}
-									trigger={['click', 'hover']}
-									color="red"
-									placement="rightTop"
-									overlayStyle={{ minWidth: 'fit-content' }}
-								>
-									<div className="filter-dropdown-tooltip-body-item">
-										<div className="filter-dropdown-tooltip-body-item-icon">
-											{property?.Icon && <property.Icon />}
-										</div>
-										<span className="filter-dropdown-tooltip-body-item-label">
-											{property?.label}
-										</span>
-									</div>
-								</Tooltip>
-							);
-						})}
+									</Tooltip>
+								);
+							})
+						) : (
+							<div className="no-options-text">No options found</div>
+						)}
 					</div>
 				</div>
 			}
@@ -83,9 +139,9 @@ const FilterDropdown = ({ properties, colors, selected, responseMetadata }) => {
 			placement={'bottomRight'}
 			overlayStyle={{ minWidth: 'fit-content' }}
 		>
-			<div className="filter-dropdown-btn">
-				<FilterIcon />
-			</div>
+			<button className="sort-filter-button">
+				<PlusIcon />
+			</button>
 		</Tooltip>
 	);
 };
