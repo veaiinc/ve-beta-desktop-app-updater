@@ -273,7 +273,7 @@ const Docs = () => {
 	const suggestedOptions = [
 		{
 			id: 0,
-			title: 'Create new Document',
+			title: 'Document',
 			value: '',
 			controlValue: 'workflow',
 			action: ({ setInfo, info }) => {
@@ -282,7 +282,7 @@ const Docs = () => {
 		},
 		{
 			id: 1,
-			title: 'Create new Form',
+			title: 'Form',
 			value: 'form-submission',
 			controlValue: 'form',
 			action: ({ setInfo, info }) => {
@@ -291,7 +291,7 @@ const Docs = () => {
 		},
 		{
 			id: 2,
-			title: 'Create new Proposal',
+			title: 'Proposal',
 			value: 'proposal',
 			controlValue: 'workflow',
 			action: ({ setInfo, info }) => {
@@ -300,7 +300,7 @@ const Docs = () => {
 		},
 		{
 			id: 3,
-			title: 'Create new Invoice',
+			title: 'Invoice',
 			value: 'invoice',
 			controlValue: 'workflow',
 			action: ({ setInfo, info }) => {
@@ -309,7 +309,7 @@ const Docs = () => {
 		},
 		{
 			id: 4,
-			title: 'Create new Contact',
+			title: 'Contact',
 			value: 'contract',
 			controlValue: 'workflow',
 			action: ({ setInfo, info }) => {
@@ -318,7 +318,7 @@ const Docs = () => {
 		},
 		{
 			id: 5,
-			title: 'Create new Presentation',
+			title: 'Presentation',
 			value: 'presentation',
 			controlValue: 'workflow',
 			action: ({ setInfo, info }) => {

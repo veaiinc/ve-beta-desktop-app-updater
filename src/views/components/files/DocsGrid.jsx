@@ -42,7 +42,7 @@ const DocsGrid = ({ statusTextmapper, handleCreateDoc, handleTotalChange, client
 		currentPage: 1,
 		loading: true,
 		selectedFilter: { label: 'All', value: '' },
-		selectedSort: { label: 'Recently Created', value: 'createdAt', sortType: -1 },
+		selectedSort: { label: 'Recently Updated', value: 'updatedAt', sortType: -1 },
 	});
 
 	useEffect(() => {

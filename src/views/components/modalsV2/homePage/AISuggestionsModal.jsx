@@ -2,15 +2,13 @@ import { memo, useCallback, useState, useEffect, useRef, useMemo } from 'react';
 import '../../../../assets/scss/home_page/modals/aiSuggestionsModal.scss';
 import { ReactComponent as ChevronRightThinSvg } from '../../../../assets/svg/tasks/chevronRightThin.svg';
 import { ReactComponent as ArrowRightSvg } from '../../../../assets/svg/home_page/arrow-right.svg';
-import { ReactComponent as ChainOfThoughtSvg } from '../../../../assets/svg/chainOfThought.svg';
-import { ReactComponent as ReportIconSvg } from '../../../../assets/svg/reportIcon.svg';
-import { ReactComponent as RecommendedSvg } from '../../../../assets/svg/recommended.svg';
-import { ReactComponent as SuggestedActionsSvg } from '../../../../assets/svg/suggestedActions.svg';
-import { ReactComponent as SuggestedPromptsSvg } from '../../../../assets/svg/suggestedPrompts.svg';
+import { ReactComponent as ShareSvg } from '../../../../assets/svg/files/share.svg';
+import { ReactComponent as DownloadSvg } from '../../../../assets/svg/download.svg';
+import { ReactComponent as DeleteSvg } from '../../../../assets/svg/delete.svg';
 import { ReactComponent as ThumbsUpSvg } from '../../../../assets/svg/thumbsUp.svg';
 import { ReactComponent as ThumbsDownSvg } from '../../../../assets/svg/thumbsDown.svg';
-import { ReactComponent as QuestionMarkSvg } from '../../../../assets/svg/home_page/questionMark.svg';
 import { ReactComponent as CoinSvg } from '../../../../assets/svg/ai_agents/coin.svg';
+import { ReactComponent as ArrowUpRightSvg } from '../../../../assets/svg/sidebar/arrowupright.svg';
 import { handleCombinedChainOfThought } from '../../../../helpers/chatHelpers';
 import { Markdown } from '../../../../helpers/markdownHelper';
 import { useNavigate } from 'react-router-dom';
@@ -19,9 +17,15 @@ import { Collapse, Drawer, Tooltip } from 'antd';
 import Context from '../../../../context/context';
 import { useContext } from 'react';
 import { message } from '../../globalComponents/CustomToast';
-import { redirectTo } from '../../../../helpers';
 import CombinedChainOfThought from '../../chat/chatComponents/CombinedChainOfThought';
-import { fileTypeIcons } from '../../../../helpers';
+import {
+	getFaviconUrl,
+	getWebsiteName,
+	fileTypeIcons,
+	redirectTo,
+	redirectTypeMapper,
+} from '../../../../helpers';
+import { ReactComponent as ArrowRightIcon } from '../../../../assets/svg/ai_agents/ArrowLineUpRight.svg';
 const { Panel } = Collapse;
 
 const AISuggestionsModal = ({
@@ -47,6 +51,9 @@ const AISuggestionsModal = ({
 		isQuestionsExpanded: false,
 		questionsAnswers: {},
 		activeTab: 'situation',
+		chainOfThoughtData: {
+			hasChainOfThought: false,
+		},
 	});
 
 	const resizableContainerRef = useRef(null);
@@ -187,12 +194,13 @@ const AISuggestionsModal = ({
 		informationRequests,
 		web_sources,
 		knowledge_base_sources,
+		category,
 	} = data || {};
 
 	const creditUsed = usages?.[0]?.credit?.toFixed(2);
 	const reportCitations = useMemo(() => {
 		return [...(web_sources || []), ...(knowledge_base_sources || [])];
-	}, [web_sources, knowledge_base_sources, research_report]);
+	}, [web_sources, knowledge_base_sources]);
 
 	if (!data) return null;
 
@@ -216,11 +224,27 @@ const AISuggestionsModal = ({
 								<div className="prev-btn" onClick={onPrevCardClick}>
 									<ChevronRightThinSvg />
 								</div>
-								<div className="total-docs">{`${selectedCardNumber} / ${totalDocs}`}</div>
+								<div className="total-docs">
+									<div className="current-doc">{selectedCardNumber}</div>
+									<div className="doc-divider">/</div>
+									<div className="total">{totalDocs}</div>
+								</div>
 								<div className="next-btn" onClick={onNextCardClick}>
 									<ChevronRightThinSvg />
 								</div>
 							</div>
+
+							{/* <div className="right-container">
+								<div className="btn share-btn">
+									<ShareSvg />
+								</div>
+								<div className="btn download-btn">
+									<DownloadSvg />
+								</div>
+								<div className="btn delete-btn">
+									<DeleteSvg />
+								</div>
+							</div> */}
 						</div>
 					</div>
 
@@ -257,7 +281,7 @@ const AISuggestionsModal = ({
 												<div className="icon">
 													<CoinSvg />
 												</div>
-												<div className="priority-text">{`${creditUsed}`}</div>
+												<div className="priority-text">{`${creditUsed} C`}</div>
 											</div>
 										</Tooltip>
 									)}
@@ -311,6 +335,12 @@ const AISuggestionsModal = ({
 											</div>
 										</Tooltip>
 									)}
+									{category?.length > 0 &&
+										category?.map((category, idx) => (
+											<div key={idx} className="category">
+												{category}
+											</div>
+										))}
 								</div>
 							</div>
 						</div>
@@ -335,14 +365,16 @@ const AISuggestionsModal = ({
 									</div>
 								)}
 
-								<div
-									className={`tab-btn ${
-										info?.activeTab === 'sources' ? 'active' : ''
-									}`}
-									onClick={() => handleTabClick('sources')}
-								>
-									Sources
-								</div>
+								{reportCitations?.length > 0 && (
+									<div
+										className={`tab-btn ${
+											info?.activeTab === 'sources' ? 'active' : ''
+										}`}
+										onClick={() => handleTabClick('sources')}
+									>
+										Sources
+									</div>
+								)}
 							</div>
 						</div>
 						{info?.activeTab === 'situation' && (
@@ -619,7 +651,6 @@ const AISuggestionsModal = ({
 										</Collapse>
 									</div>
 								)}
-
 								{suggested_prompts?.length > 0 && (
 									<div
 										className={`suggested-prompts-container ${
@@ -681,6 +712,80 @@ const AISuggestionsModal = ({
 										</Collapse>
 									</div>
 								)}
+								{informationRequests?.length > 0 && (
+									<div
+										className={`questions-wrapper ${
+											info?.isQuestionsExpanded ? 'active' : ''
+										}`}
+										onClick={() =>
+											setInfo((prev) => ({
+												...prev,
+												isQuestionsExpanded: !prev?.isQuestionsExpanded,
+											}))
+										}
+									>
+										<div className="cot-header">
+											<div className="cot-text">
+												<div className="title-text">Questions AI have</div>
+												<div className="description-text">
+													Unanswered queries needing follow-up or clarity.
+												</div>
+											</div>
+											<div
+												className="cot-expand-btn"
+												style={{
+													transform: info?.isQuestionsExpanded
+														? 'rotate(-90deg)'
+														: 'rotate(90deg)',
+												}}
+											>
+												<ChevronRightThinSvg />
+											</div>
+										</div>
+
+										{info?.isQuestionsExpanded && (
+											<div
+												className="questions-container"
+												onClick={(e) => e.stopPropagation()}
+											>
+												{informationRequests?.map((questionData, index) => (
+													<div className="question-container" key={index}>
+														<div className="question">
+															{questionData?.question || ''}
+														</div>
+														<input
+															type="text"
+															className="answers-input"
+															placeholder="Enter your answer..."
+															value={
+																info?.questionsAnswers?.[index] ||
+																''
+															}
+															onChange={(e) => {
+																setInfo({
+																	...info,
+																	questionsAnswers: {
+																		...info.questionsAnswers,
+																		[index]: e?.target?.value,
+																	},
+																});
+															}}
+														/>
+													</div>
+												))}
+												<button
+													onClick={handleRunBtnClick}
+													className="submit-btn"
+												>
+													Submit
+													<div className="icon-container">
+														<ArrowUpRightSvg />
+													</div>
+												</button>
+											</div>
+										)}
+									</div>
+								)}
 							</div>
 						)}
 
@@ -705,78 +810,81 @@ const AISuggestionsModal = ({
 							</div>
 						)}
 
-						{/* {data?.informationRequests?.length > 0 && (
-							<div
-								className="solutions-container"
-								onClick={() =>
-									setInfo((prev) => ({
-										...prev,
-										isQuestionsExpanded: !prev?.isQuestionsExpanded,
-									}))
-								}
-							>
-								<div className="cot-header">
-									<div className="cot-text">
-										<QuestionMarkSvg />
-										Questions I have
-									</div>
-									<div
-										className="cot-expand-btn"
-										style={{
-											transform: info?.isQuestionsExpanded
-												? 'rotate(-90deg)'
-												: 'rotate(90deg)',
-										}}
-									>
-										<ChevronRightThinSvg />
-									</div>
-								</div>
-
-								{info?.isQuestionsExpanded && (
-									<div className="cot">
+						{info?.activeTab === 'sources' && (
+							<div className="source-content">
+								{(reportCitations || [])?.map((citation, idx) => (
+									<>
 										<div
-											className="chain-of-thought-container"
-											onClick={(e) => e.stopPropagation()}
+											key={citation?.id || idx}
+											className="citation-item"
+											onClick={() =>
+												redirectTo?.(
+													citation?.type,
+													citation?.[
+														redirectTypeMapper?.[citation?.type]
+													],
+												)
+											}
 										>
-											{data.informationRequests.map((questionData, index) => (
-												<div className="question-container" key={index}>
-													<div className="question">
-														{questionData?.question || ''}
-													</div>
-													<input
-														type="text"
-														className="answers-input"
-														placeholder="Enter your answer..."
-														value={
-															info?.questionsAnswers?.[index] || ''
-														}
-														onChange={(e) => {
-															setInfo({
-																...info,
-																questionsAnswers: {
-																	...info.questionsAnswers,
-																	[index]: e.target.value,
-																},
-															});
-														}}
-													/>
+											<div className="citation-header">
+												<div className="citation-icon">
+													{citation?.type === 'url' ? (
+														getFaviconUrl(citation?.name) ? (
+															<img
+																src={getFaviconUrl(citation?.name)}
+																alt="favicon"
+																className="favicon-image"
+															/>
+														) : (
+															<div className="company-icon">
+																{getWebsiteName(
+																	citation?.name,
+																)?.charAt(0)}
+															</div>
+														)
+													) : (
+														<div className="company-icon">
+															{citation?.type === 's3_key'
+																? fileTypeIcons[
+																		citation?.name?.match(
+																			/\.(\w+)$/,
+																		)?.[1]
+																  ]
+																: fileTypeIcons[citation?.type]}
+														</div>
+													)}
 												</div>
-											))}
-											<button
-												onClick={handleRunBtnClick}
-												className="submit-btn"
-											>
-												Submit
-											</button>
+												<div className="citation-details">
+													<div className="website-name">
+														{citation?.type === 'url'
+															? getWebsiteName(citation?.name)
+															: citation?.name}
+													</div>
+													{citation?.type === 'url' && (
+														<div className="citation-url">
+															{citation?.name}
+														</div>
+													)}
+
+													{citation?.snippet && (
+														<div className="citation-title">
+															{citation?.snippet}
+														</div>
+													)}
+												</div>
+											</div>
+											<div className="arrow-icon">
+												<ArrowRightIcon />
+											</div>
 										</div>
-									</div>
-								)}
+										<div className="citation-divider" />
+									</>
+								))}
 							</div>
-						)}{' '} */}
+						)}
 					</div>
 
 					<div className="footer">
-						<div className="horizontal-line"></div>
 						<div className="footer-content">
 							<div className="footer-left">
 								<div
