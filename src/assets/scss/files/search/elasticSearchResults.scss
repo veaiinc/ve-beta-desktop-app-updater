@@ -59,6 +59,8 @@
 		width: 100%;
 		cursor: pointer;
 		height: 38px;
+		padding-inline: 10px;
+		border-radius: 10px;
 
 		.search-result-item-left {
 			display: flex;
@@ -231,35 +233,35 @@
 				gap: 6px;
 				opacity: 0;
 				transition: opacity 0.2s ease;
-			}
 
-			.action-btn {
-				padding: 6px 12px;
-				border-radius: 100px;
-				font-size: 12px;
-				font-weight: 500;
-				cursor: pointer;
-				transition: all 0.2s ease;
-				border: none;
-				outline: none;
-			}
+				.action-btn {
+					padding: 6px 12px;
+					border-radius: 100px;
+					font-size: 12px;
+					font-weight: 500;
+					cursor: pointer;
+					transition: all 0.2s ease;
+					border: none;
+					outline: none;
 
-			.ask-btn {
-				background: var(--primary-button);
-				color: var(--primary-button-font);
+					&.ask-btn {
+						background: var(--primary-button);
+						color: var(--primary-button-font);
 
-				&:hover {
-					background: var(--primary-button);
-				}
-			}
+						&:hover {
+							background: var(--primary-button);
+						}
+					}
 
-			.open-btn {
-				background: transparent;
-				color: var(--primary-font);
-				border: 1px solid var(--stroke);
+					&.open-btn {
+						background: transparent;
+						color: var(--primary-font);
+						border: 1px solid var(--stroke);
 
-				&:hover {
-					background: var(--card);
+						&:hover {
+							background: var(--card);
+						}
+					}
 				}
 			}
 		}
