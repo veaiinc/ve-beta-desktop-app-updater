@@ -46,6 +46,7 @@
 					display: flex;
 					justify-content: space-between;
 					align-items: center;
+					width: 100%;
 					.left-container {
 						display: flex;
 						align-items: center;
@@ -97,6 +98,46 @@
 							svg {
 								width: 20px;
 								height: 20px;
+							}
+						}
+					}
+
+					.right-container {
+						display: flex;
+						justify-content: center;
+						align-items: center;
+						gap: 6px;
+
+						.btn {
+							display: flex;
+							padding: 6px;
+							justify-content: center;
+							align-items: center;
+							gap: 6px;
+							border-radius: 6px;
+							border: 1px solid var(--stroke, #2c2d2e);
+							cursor: pointer;
+							svg {
+								width: 18px;
+								height: 18px;
+							}
+						}
+
+						.share-btn {
+							svg {
+								width: 15px;
+								height: 15px;
+								path {
+									fill: var(--primary-font, #f2f2f3);
+								}
+							}
+						}
+
+						.download-btn {
+							svg {
+								path {
+									stroke: var(--primary-font, #f2f2f3);
+								}
 							}
 						}
 					}
@@ -348,7 +389,7 @@
 							align-self: stretch;
 							border-radius: 6px;
 							border: 1px solid var(--stroke, #2c2d2e);
-							transition: height 0.2s ease-in-out;
+							transition: background 0.2s ease-in-out;
 							overflow: hidden;
 
 							&:hover {

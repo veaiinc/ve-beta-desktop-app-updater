@@ -2,14 +2,11 @@ import { memo, useCallback, useState, useEffect, useRef, useMemo } from 'react';
 import '../../../../assets/scss/home_page/modals/aiSuggestionsModal.scss';
 import { ReactComponent as ChevronRightThinSvg } from '../../../../assets/svg/tasks/chevronRightThin.svg';
 import { ReactComponent as ArrowRightSvg } from '../../../../assets/svg/home_page/arrow-right.svg';
-import { ReactComponent as ChainOfThoughtSvg } from '../../../../assets/svg/chainOfThought.svg';
-import { ReactComponent as ReportIconSvg } from '../../../../assets/svg/reportIcon.svg';
-import { ReactComponent as RecommendedSvg } from '../../../../assets/svg/recommended.svg';
-import { ReactComponent as SuggestedActionsSvg } from '../../../../assets/svg/suggestedActions.svg';
-import { ReactComponent as SuggestedPromptsSvg } from '../../../../assets/svg/suggestedPrompts.svg';
+import { ReactComponent as ShareSvg } from '../../../../assets/svg/files/share.svg';
+import { ReactComponent as DownloadSvg } from '../../../../assets/svg/download.svg';
+import { ReactComponent as DeleteSvg } from '../../../../assets/svg/delete.svg';
 import { ReactComponent as ThumbsUpSvg } from '../../../../assets/svg/thumbsUp.svg';
 import { ReactComponent as ThumbsDownSvg } from '../../../../assets/svg/thumbsDown.svg';
-import { ReactComponent as QuestionMarkSvg } from '../../../../assets/svg/home_page/questionMark.svg';
 import { ReactComponent as CoinSvg } from '../../../../assets/svg/ai_agents/coin.svg';
 import { handleCombinedChainOfThought } from '../../../../helpers/chatHelpers';
 import { Markdown } from '../../../../helpers/markdownHelper';
@@ -195,27 +192,9 @@ const AISuggestionsModal = ({
 	} = data || {};
 
 	const creditUsed = usages?.[0]?.credit?.toFixed(2);
-	let reportCitations = useMemo(() => {
+	const reportCitations = useMemo(() => {
 		return [...(web_sources || []), ...(knowledge_base_sources || [])];
 	}, [web_sources, knowledge_base_sources]);
-
-	// reportCitations = [
-	// 	{
-	// 		id: 'C5',
-	// 		source: '68076014f73d34a7e8d5f5ce::6',
-	// 		snippet: '',
-	// 		name: 'Meeting Summary for AI Team Meeting',
-	// 		type: 'gmail',
-	// 		thread_id: '1965cc6fff5308ad',
-	// 	},
-	// 	{
-	// 		id: 'C6',
-	// 		source: '68076014f73d34a7e8d5f5ce::6',
-	// 		snippet: 'lorem ipsum dolor sit amet',
-	// 		name: 'https://www.google.com',
-	// 		type: 'url',
-	// 	},
-	// ];
 
 	if (!data) return null;
 
@@ -246,6 +225,18 @@ const AISuggestionsModal = ({
 								</div>
 								<div className="next-btn" onClick={onNextCardClick}>
 									<ChevronRightThinSvg />
+								</div>
+							</div>
+
+							<div className="right-container">
+								<div className="btn share-btn">
+									<ShareSvg />
+								</div>
+								<div className="btn download-btn">
+									<DownloadSvg />
+								</div>
+								<div className="btn delete-btn">
+									<DeleteSvg />
 								</div>
 							</div>
 						</div>
@@ -705,7 +696,6 @@ const AISuggestionsModal = ({
 							>
 								<div className="cot-header">
 									<div className="cot-text">
-										<QuestionMarkSvg />
 										Questions I have
 									</div>
 									<div
