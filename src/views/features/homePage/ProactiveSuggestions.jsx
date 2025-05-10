@@ -766,6 +766,7 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 													}
 													placement="bottomLeft"
 													arrow={false}
+													color={'transparent'}
 												>
 													<div className="cardContainerUnreadIndicator">
 														{!isRead && (
@@ -796,6 +797,7 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 															placement="bottom"
 															trigger={'hover'}
 															arrow={false}
+															color={'transparent'}
 														>
 															<div
 																className={`${
@@ -841,6 +843,7 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 																		placement="bottom"
 																		trigger={'hover'}
 																		arrow={false}
+																		color={'transparent'}
 																	>
 																		<div className="priority">
 																			<div
@@ -886,6 +889,7 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 															placement="bottom"
 															trigger={'hover'}
 															arrow={false}
+															color={'transparent'}
 														>
 															<div style={{ fontSize: '12px' }}>
 																{card?.confidence_score * 100} %
@@ -936,6 +940,7 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 															placement="bottom"
 															trigger={'hover'}
 															arrow={false}
+															color={'transparent'}
 														>
 															<div>
 																<EmailIcon width={16} height={12} />
@@ -953,6 +958,7 @@ const ProactiveSuggestions = ({ selectedOption }) => {
 															placement="bottom"
 															trigger={'hover'}
 															arrow={false}
+															color={'transparent'}
 														>
 															<div className="relativeTime">
 																<RelativeTimeSvg />

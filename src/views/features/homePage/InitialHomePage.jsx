@@ -314,6 +314,7 @@ const InitialHomePage = () => {
 					placement="bottom"
 					arrow={false}
 					trigger="hover"
+					color={'transparent'}
 				>
 					<div
 						className={`option ${

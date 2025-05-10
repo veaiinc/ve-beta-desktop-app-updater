@@ -4,9 +4,9 @@ import InfiniteScroll from '../../globalComponents/InfiniteScroll';
 import Context from '../../../../context/context';
 import { ReactComponent as Tick } from '../../../../assets/svg/tasks/tick.svg';
 
-const TeamMembersDropdown = memo(({ selectedOptions = [], onOptionClick, title }) => {
+const TeamMembersDropdown = memo(({ selected = [], onOptionClick, title }) => {
 	const {
-		companyInfo: { getTeamMembers, tenantsUserList },
+		companyInfo: { tenantsUserList },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -40,9 +40,7 @@ const TeamMembersDropdown = memo(({ selectedOptions = [], onOptionClick, title }
 				<div className="person-drop-down-body-list">
 					{filteredTenantsUserList?.length > 0 ? (
 						filteredTenantsUserList?.map((option) => {
-							const isSelected = selectedOptions.some(
-								(item) => item._id === option._id,
-							);
+							const isSelected = selected.some((item) => item?._id === option?._id);
 							return (
 								<div
 									className={`person-multi-select-selected-item ${

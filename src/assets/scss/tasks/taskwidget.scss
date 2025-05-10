@@ -2,7 +2,7 @@
 	display: flex;
 	flex-direction: column;
 	align-items: flex-start;
-	gap: 8px;
+	gap: 24px;
 	align-self: stretch;
 	width: 100%;
 	height: auto;
@@ -28,13 +28,11 @@
 			line-height: normal;
 			padding: 0;
 			padding-left: 40px;
-			margin-bottom: 16px;
 			border: none;
 			border-radius: 0;
 		}
 
 		&.filter-container {
-			margin-bottom: 16px;
 			border: none;
 			padding: 0;
 			border-radius: 0;
@@ -86,6 +84,7 @@
 				border-radius: 8px;
 				border: 1px solid var(--stroke, #2c2d2e);
 				cursor: pointer;
+				background-color: transparent;
 			}
 		}
 	}
@@ -113,6 +112,9 @@
 		align-items: flex-start;
 		gap: 8px;
 		align-self: stretch;
+		height: 0px;
+		overflow: hidden;
+		transition: height 0.5s ease-in-out;
 
 		.taskWidgetcontent {
 			display: flex;
@@ -143,10 +145,170 @@
 				height: 20px;
 				flex-shrink: 0;
 				aspect-ratio: 1/1;
+			}
+		}
 
-				svg {
+		&.widget-show {
+			height: fit-content;
+		}
+	}
+
+	.filter-sort-wrapper {
+		display: flex;
+		width: 100%;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 16px;
+		.sort-filter-container {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 12px;
+			align-self: stretch;
+			width: 100%;
+
+			.sort-filter-header {
+				display: flex;
+				align-items: center;
+				gap: 4px;
+				width: 100%;
+
+				.sort-filter-title {
+					color: var(--primary-font, #f2f2f3);
+					font-family: var(--primary-font-family);
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+				}
+				.sort-filter-button {
+					display: flex;
+					padding: 4px;
+					align-items: center;
+					gap: 10px;
+					background-color: transparent;
+					border: none;
+					cursor: pointer;
+				}
+
+				.filter-clear-btn {
+					display: flex;
+					padding: 6px 10px;
+					justify-content: center;
+					align-items: center;
+					border-radius: 6px;
+					border: 1px solid rgba(192, 55, 68, 0.5);
+					overflow: hidden;
+					color: var(--error, #c03744);
+					text-overflow: ellipsis;
+					font-family: Inter;
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+					background-color: transparent;
+					margin-left: auto;
+					cursor: pointer;
+				}
+			}
+
+			.sort-filter-values-container {
+				display: flex;
+				align-items: flex-start;
+				align-content: flex-start;
+				gap: 10px;
+				align-self: stretch;
+				flex-wrap: wrap;
+				align-items: center;
+				.sort-btn {
+					display: flex;
+					height: 32px;
+					padding: 4px 8px;
+					justify-content: center;
+					align-items: center;
+					gap: 6px;
+					border-radius: 8px;
+					border: 1px solid var(--stroke-hover, #424548);
+					background-color: transparent;
+					cursor: pointer;
+
+					.sort-btn-text {
+						color: var(--primary-font, #7a7e85);
+						font-family: var(--primary-font-family);
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+					}
+					.sort-btn-icon {
+						display: flex;
+						justify-content: center;
+						align-items: center;
+					}
+				}
+
+				.no-sort-text {
+					color: var(--secondary-font, #7a7e85);
+					font-family: var(--primary-font-family);
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
 					width: 100%;
+					text-align: center;
+				}
+
+				.sort-filter-value-item {
+					display: flex;
+					align-items: center;
 					height: 100%;
+					display: flex;
+					height: 32px;
+					justify-content: center;
+					align-items: center;
+					gap: 6px;
+					border-radius: 8px;
+					border: 1px solid var(--stroke-hover, #424548);
+					background-color: transparent;
+					cursor: pointer;
+					padding: 0 8px;
+
+					.filter-title {
+						color: var(--secondary-font, #7a7e85);
+						font-family: var(--primary-font-family);
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+					}
+					.filter-type {
+						color: var(--secondary-font, #7a7e85);
+						font-family: var(--primary-font-family);
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+						height: 100%;
+						display: flex;
+						align-items: center;
+					}
+					.filter-wrapper {
+						padding: 4px 8px !important;
+						height: 100%;
+						border: none;
+						display: flex;
+						align-items: center;
+					}
+
+					.filter-remove-btn {
+						background-color: transparent;
+						border: none;
+						cursor: pointer;
+						padding: 0;
+						display: flex;
+						justify-content: center;
+						align-items: center;
+					}
 				}
 			}
 		}
@@ -187,4 +349,16 @@
 	font-style: normal;
 	font-weight: 500;
 	line-height: normal;
+}
+
+.chevron-icon {
+	width: 100%;
+	height: 100%;
+	transform: rotate(90deg);
+	transition: transform 0.3s ease-in-out;
+	cursor: pointer;
+}
+
+.chevron-icon-rotate {
+	transform: rotate(-90deg);
 }

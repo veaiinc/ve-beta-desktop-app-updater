@@ -144,7 +144,7 @@ const routes = [
 		component: (
 			<AuthWrapper
 				title={'Home'}
-				// outerContainerStyle={{ padding: '0 32px' }}
+				outerContainerStyle={{ overflow: 'hidden' }}
 				showBottomToolbar={false}
 			>
 				<InitialHomePage />
