@@ -15,13 +15,14 @@ import { handleCombinedChainOfThought } from '../../../../helpers/chatHelpers';
 import { Markdown } from '../../../../helpers/markdownHelper';
 import { useNavigate } from 'react-router-dom';
 import ObjectID from 'bson-objectid';
-import { Drawer, Tooltip } from 'antd';
+import { Collapse, Drawer, Tooltip } from 'antd';
 import Context from '../../../../context/context';
 import { useContext } from 'react';
 import { message } from '../../globalComponents/CustomToast';
 import { redirectTo } from '../../../../helpers';
 import CombinedChainOfThought from '../../chat/chatComponents/CombinedChainOfThought';
 import { fileTypeIcons } from '../../../../helpers';
+const { Panel } = Collapse;
 
 const AISuggestionsModal = ({
 	open,
@@ -358,41 +359,43 @@ const AISuggestionsModal = ({
 											}))
 										}
 									>
-										<div className="cot-header">
-											<div className="cot-text">
-												<div className="title-text">Report</div>
-												<div className="description-text">
-													Summary of key insights and outcomes.
-												</div>
-											</div>
-											<div className="report-icon-container">
-												<div
-													className="cot-expand-btn"
-													style={{
-														transform: info?.isReportExpanded
-															? 'rotate(-90deg)'
-															: 'rotate(90deg)',
-													}}
-												>
-													<ChevronRightThinSvg />
-												</div>
-											</div>
-										</div>
-
-										{info?.isReportExpanded && (
-											<div
-												className="report-description"
-												onClick={(e) => e.stopPropagation()}
+										<Collapse
+											activeKey={info?.isReportExpanded ? ['1'] : []}
+											onChange={(key) =>
+												setInfo((prev) => ({
+													...prev,
+													isReportExpanded: key.length > 0,
+												}))
+											}
+										>
+											<Panel
+												header={
+													<div className="cot-header">
+														<div className="cot-text">
+															<div className="title-text">Report</div>
+															<div className="description-text">
+																Summary of key insights and
+																outcomes.
+															</div>
+														</div>
+													</div>
+												}
+												key="1"
 											>
-												<Markdown citations={reportCitations}>
-													{research_report || ''}
-												</Markdown>
-											</div>
-										)}
+												<div
+													className="report-description"
+													onClick={(e) => e.stopPropagation()}
+												>
+													<Markdown citations={reportCitations}>
+														{research_report || ''}
+													</Markdown>
+												</div>
+											</Panel>
+										</Collapse>
 									</div>
 								)}
 
-								{solutions?.length > 0 && (
+								{/* {solutions?.length > 0 && (
 									<div
 										className={`solutions-container ${
 											info?.isSolutionsExpanded ? 'active' : ''
@@ -413,16 +416,6 @@ const AISuggestionsModal = ({
 													Quick questions to dig deeper or explore.
 												</div>
 											</div>
-											<div
-												className="cot-expand-btn"
-												style={{
-													transform: info?.isSolutionsExpanded
-														? 'rotate(-90deg)'
-														: 'rotate(90deg)',
-												}}
-											>
-												<ChevronRightThinSvg />
-											</div>
 										</div>
 
 										{info?.isSolutionsExpanded && (
@@ -437,9 +430,9 @@ const AISuggestionsModal = ({
 																key={index}
 																onClick={() => handleClickRun(item)}
 															>
-																{/* <div className="logo">
+																 <div className="logo">
 																	<ArrowRightSvg />
-																</div> */}
+																</div> 
 																<div className="item-text">
 																	{item}
 																</div>
@@ -449,9 +442,71 @@ const AISuggestionsModal = ({
 											</div>
 										)}
 									</div>
+								)} */}
+
+								{solutions?.length > 0 && (
+									<div
+										className={`solutions-container ${
+											info?.isSolutionsExpanded ? 'active' : ''
+										}`}
+										onClick={() =>
+											setInfo((prev) => ({
+												...prev,
+												isSolutionsExpanded: !prev?.isSolutionsExpanded,
+											}))
+										}
+									>
+										<Collapse
+											activeKey={info?.isSolutionsExpanded ? ['1'] : []}
+											onChange={(key) =>
+												setInfo((prev) => ({
+													...prev,
+													isSolutionsExpanded: key.length > 0,
+												}))
+											}
+										>
+											<Panel
+												header={
+													<div className="cot-header">
+														<div className="cot-text">
+															<div className="title-text">
+																Suggested Solutions
+															</div>
+															<div className="description-text">
+																Quick questions to dig deeper or
+																explore.
+															</div>
+														</div>
+													</div>
+												}
+												key="1"
+											>
+												<div
+													className="solutions"
+													onClick={(e) => e.stopPropagation()}
+												>
+													{Array.isArray(solutions)
+														? solutions.map((item, index) => (
+																<div
+																	className="solution-item"
+																	key={index}
+																	onClick={() =>
+																		handleClickRun(item)
+																	}
+																>
+																	<div className="item-text">
+																		{item}
+																	</div>
+																</div>
+														  ))
+														: solutions}
+												</div>
+											</Panel>
+										</Collapse>
+									</div>
 								)}
 
-								{suggested_actions?.length > 0 && (
+								{/* {suggested_actions?.length > 0 && (
 									<div
 										className={`suggested-actions-container ${
 											info?.isActionsExpanded ? 'active' : ''
@@ -471,16 +526,6 @@ const AISuggestionsModal = ({
 												<div className="description-text">
 													AI-curated next steps to resolve issues.
 												</div>
-											</div>
-											<div
-												className="cot-expand-btn"
-												style={{
-													transform: info?.isActionsExpanded
-														? 'rotate(-90deg)'
-														: 'rotate(90deg)',
-												}}
-											>
-												<ChevronRightThinSvg />
 											</div>
 										</div>
 
@@ -508,6 +553,71 @@ const AISuggestionsModal = ({
 											</div>
 										)}
 									</div>
+								)} */}
+
+								{suggested_actions?.length > 0 && (
+									<div
+										className={`suggested-actions-container ${
+											info?.isActionsExpanded ? 'active' : ''
+										}`}
+										onClick={() =>
+											setInfo((prev) => ({
+												...prev,
+												isActionsExpanded: !prev?.isActionsExpanded,
+											}))
+										}
+									>
+										<Collapse
+											activeKey={info?.isActionsExpanded ? ['1'] : []}
+											onChange={(key) =>
+												setInfo((prev) => ({
+													...prev,
+													isActionsExpanded: key.length > 0,
+												}))
+											}
+										>
+											<Panel
+												header={
+													<div className="cot-header">
+														<div className="cot-text">
+															<div className="title-text">
+																Recommended Actions
+															</div>
+															<div className="description-text">
+																AI-curated next steps to resolve
+																issues.
+															</div>
+														</div>
+													</div>
+												}
+												key="1"
+											>
+												<div
+													className="suggested-actions"
+													onClick={(e) => e.stopPropagation()}
+												>
+													{Array.isArray(suggested_actions)
+														? suggested_actions.map((item, index) => (
+																<div
+																	className="action-item"
+																	key={index}
+																	onClick={() =>
+																		handleClickRun(item)
+																	}
+																>
+																	<div className="logo">
+																		<ArrowRightSvg />
+																	</div>
+																	<div className="item-text">
+																		{item}
+																	</div>
+																</div>
+														  ))
+														: suggested_actions}
+												</div>
+											</Panel>
+										</Collapse>
+									</div>
 								)}
 
 								{suggested_prompts?.length > 0 && (
@@ -522,48 +632,53 @@ const AISuggestionsModal = ({
 											}))
 										}
 									>
-										<div className="cot-header">
-											<div className="cot-text">
-												<div className="title-text">Ask Me</div>
-												<div className="description-text">
-													Explore more with these prompts.
-												</div>
-											</div>
-											<div
-												className="cot-expand-btn"
-												style={{
-													transform: info?.isPromptsExpanded
-														? 'rotate(-90deg)'
-														: 'rotate(90deg)',
-												}}
-											>
-												<ChevronRightThinSvg />
-											</div>
-										</div>
-
-										{info?.isPromptsExpanded && (
-											<div
-												className="suggested-prompts"
-												onClick={(e) => e.stopPropagation()}
-											>
-												{Array?.isArray(suggested_prompts)
-													? suggested_prompts?.map((item, index) => (
-															<div
-																className="prompt-item"
-																key={index}
-																onClick={() => handleClickRun(item)}
-															>
-																<div className="logo">
-																	<ArrowRightSvg />
-																</div>
-																<div className="item-text">
-																	{item}
-																</div>
+										<Collapse
+											activeKey={info?.isPromptsExpanded ? ['1'] : []}
+											onChange={(key) =>
+												setInfo((prev) => ({
+													...prev,
+													isPromptsExpanded: key.length > 0,
+												}))
+											}
+										>
+											<Panel
+												header={
+													<div className="cot-header">
+														<div className="cot-text">
+															<div className="title-text">Ask Me</div>
+															<div className="description-text">
+																Explore more with these prompts.
 															</div>
-													  ))
-													: suggested_prompts}
-											</div>
-										)}
+														</div>
+													</div>
+												}
+												key="1"
+											>
+												<div
+													className="suggested-prompts"
+													onClick={(e) => e.stopPropagation()}
+												>
+													{Array.isArray(suggested_prompts)
+														? suggested_prompts.map((item, index) => (
+																<div
+																	className="prompt-item"
+																	key={index}
+																	onClick={() =>
+																		handleClickRun(item)
+																	}
+																>
+																	<div className="logo">
+																		<ArrowRightSvg />
+																	</div>
+																	<div className="item-text">
+																		{item}
+																	</div>
+																</div>
+														  ))
+														: suggested_prompts}
+												</div>
+											</Panel>
+										</Collapse>
 									</div>
 								)}
 							</div>

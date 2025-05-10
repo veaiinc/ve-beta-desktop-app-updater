@@ -1,4 +1,64 @@
 .ai-suggestions-drawer {
+	.ant-collapse {
+		width: 100%;
+		border: none;
+		.ant-collapse-item-active {
+			.ant-collapse-header {
+				.ant-collapse-expand-icon {
+					transform: rotate(180deg) !important;
+				}
+			}
+		}
+		.ant-collapse-item {
+			width: 100%;
+			.ant-collapse-header {
+				padding: 0px;
+				.ant-collapse-expand-icon {
+					padding-right: 0px;
+					transform: rotate(90deg);
+				}
+				width: 100%;
+				display: flex;
+				flex-direction: row-reverse;
+				justify-content: space-between;
+				align-items: center;
+				color: var(--primary-font, #f2f2f3);
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+			.ant-collapse-content {
+				background-color: inherit;
+				border: none;
+				.ant-collapse-content-box {
+					padding: 0px;
+					.report-description {
+						margin-top: 24px;
+						display: flex;
+						padding: 20px;
+						flex-direction: column;
+						justify-content: center;
+						align-items: center;
+						gap: 10px;
+						align-self: stretch;
+						border-radius: 6px;
+						border: 1px solid var(--stroke, #2c2d2e);
+						transition: all 0.2s ease-in-out;
+
+						&:hover {
+							border: 1px solid #3091e8;
+							background: rgba(48, 145, 232, 0.05);
+						}
+						.markdown-custom-content {
+							--font-size: 15px;
+						}
+					}
+				}
+			}
+		}
+	}
 	.ant-drawer-content-wrapper {
 		width: fit-content !important;
 	}
@@ -351,6 +411,7 @@
 							background: var(--popup, #202123);
 						}
 						.solutions {
+							margin-top: 24px;
 							display: grid;
 							grid-template-columns: 1fr 1fr;
 							gap: 8px;
@@ -399,6 +460,7 @@
 						}
 
 						.suggested-actions {
+							margin-top: 24px;
 							display: flex;
 							flex-direction: column;
 							align-items: flex-start;
@@ -452,6 +514,7 @@
 							background: var(--popup, #202123);
 						}
 						.suggested-prompts {
+							margin-top: 24px;
 							display: flex;
 							flex-direction: column;
 							align-items: flex-start;
@@ -703,19 +766,6 @@
 			font-style: normal;
 			font-weight: 400;
 			line-height: normal;
-		}
-	}
-	.report-icon-container {
-		display: flex;
-		align-items: center;
-		gap: 16px;
-		.cot-expand-btn {
-			width: 14px;
-			height: 14px;
-			svg {
-				width: 14px;
-				height: 14px;
-			}
 		}
 	}
 }
