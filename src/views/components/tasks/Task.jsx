@@ -375,6 +375,7 @@ const Task = ({
 						searchValue={searchValue}
 						showEditViewDropDown={showEditViewDropDown}
 						handleEditViewDropDown={handleEditViewDropDown}
+						taskPreferences={taskPreferences}
 					/>
 				</div>
 			</ChatLeftBarComponent>

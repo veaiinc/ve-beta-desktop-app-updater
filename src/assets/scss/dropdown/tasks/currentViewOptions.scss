@@ -48,16 +48,65 @@
 			border-radius: 8px;
 			border: 1px solid var(--stroke, #2c2d2e);
 			cursor: pointer;
+			transition: all 0.2s ease-in-out;
+			svg {
+				path {
+					stroke: var(--secondary-font, #7a7e85) !important;
+				}
+			}
+
+			.view-option-item-label {
+				color: var(--secondary-font, #7a7e85);
+			}
 
 			&:hover {
 				border: 1px solid var(--stroke, #2c2d2e);
 				background: var(--card-over-card-hover, #27282b);
+
+				svg {
+					path {
+						stroke: var(--primary-font, #f2f2f3) !important;
+					}
+				}
+
+				.view-option-item-label {
+					color: var(--primary-font, #f2f2f3);
+				}
 			}
+
 			&.active {
 				border: 1px solid var(--stroke, #2c2d2e);
 				background: var(--card-over-card-hover, #27282b);
+
+				svg {
+					path {
+						stroke: var(--primary-font, #f2f2f3) !important;
+					}
+				}
+
+				.view-option-item-label {
+					color: var(--primary-font, #f2f2f3);
+				}
 			}
 		}
+	}
+
+	.view-name-input {
+		display: flex;
+		height: 39px;
+		padding: 12px;
+		align-items: center;
+		gap: 12px;
+		align-self: stretch;
+		border-radius: 10px;
+		border: 1px solid var(--stroke, #2c2d2e);
+		background-color: transparent;
+		color: var(--primary-font, #f2f2f3);
+		font-family: var(--primary-font-family);
+		font-size: 12px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
 	}
 
 	.id-prefix-wrapper {
@@ -111,12 +160,19 @@
 				font-weight: 500;
 				line-height: normal;
 				cursor: pointer;
+				user-select: none;
 
 				&.show {
 					border-radius: 8px;
-					border: 1.5px solid var(--primary-font, #f2f2f3);
+					border: 1px solid var(--primary-font, #f2f2f3);
 					background: var(--stroke, #2c2d2e);
 					color: var(--primary-font, #f2f2f3);
+				}
+
+				&.disabled {
+					opacity: 0.5;
+					cursor: not-allowed;
+					pointer-events: none;
 				}
 			}
 		}

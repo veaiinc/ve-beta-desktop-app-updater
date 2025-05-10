@@ -31,6 +31,7 @@ const Taskwidget = ({
 	colors,
 	showEditViewDropDown,
 	handleEditViewDropDown,
+	taskPreferences,
 }) => {
 	const {
 		tasks: { listTasks },
@@ -162,6 +163,11 @@ const Taskwidget = ({
 				<CurrentViewOptions
 					showEditViewDropDown={showEditViewDropDown}
 					handleEditViewDropDown={handleEditViewDropDown}
+					viewData={viewData}
+					updateViewInfo={updateViewInfo}
+					properties={properties}
+					updateTaskInfo={updateTaskInfo}
+					taskPreferences={taskPreferences}
 				/>
 			</div>
 			{info?.filterShown && (

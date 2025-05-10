@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, useEffect, useState, useRef, useContext, useMemo, useCallback } from 'react';
 import { Tooltip } from 'antd';
 import { ReactComponent as SortIcon } from '../../../../assets/svg/tasks/newSort.svg';
 import '../../../../assets/scss/dropdown/tasks/currentViewOptions.scss';
@@ -6,6 +6,7 @@ import { ReactComponent as ListViewIcon } from '../../../../assets/svg/tasks/lis
 import { ReactComponent as BoardViewIcon } from '../../../../assets/svg/tasks/board.svg';
 import { ReactComponent as TableViewIcon } from '../../../../assets/svg/tasks/grid.svg';
 import { ReactComponent as GalleryViewIcon } from '../../../../assets/svg/tasks/blocks.svg';
+import Context from '../../../../context/context';
 
 const viewOptions = [
 	{
@@ -30,7 +31,132 @@ const viewOptions = [
 	},
 ];
 
-const CurrentViewOptions = ({ showEditViewDropDown, handleEditViewDropDown }) => {
+const CurrentViewOptions = ({
+	showEditViewDropDown,
+	taskPreferences,
+	handleEditViewDropDown,
+	viewData,
+	updateViewInfo,
+	properties,
+	updateTaskInfo,
+}) => {
+	const debounceRef = useRef(null);
+
+	const {
+		tasks: { updateTaskPrefix, taskMetadata },
+	} = useContext(Context);
+
+	const [info, setInfo] = useState({
+		label: viewData?.label,
+		groupBy: viewData?.groupBy,
+		viewType: viewData?.viewType,
+		prefix: taskMetadata?.prefix,
+	});
+
+	useEffect(() => {
+		setInfo((prev) => ({
+			...prev,
+			label: viewData?.label,
+			groupBy: viewData?.groupBy,
+			idPrefix: viewData?.idPrefix,
+			viewType: viewData?.viewType,
+		}));
+	}, [viewData]);
+
+	useEffect(() => {
+		if (taskMetadata) {
+			setInfo((prev) => ({
+				...prev,
+				prefix: taskMetadata?.prefix,
+			}));
+		}
+	}, [taskMetadata]);
+
+	const handleStateChange = (data) => {
+		setInfo({ ...info, ...data });
+
+		if (debounceRef.current) {
+			clearTimeout(debounceRef.current);
+		}
+
+		if (data?.label !== undefined && !data?.label) {
+			return;
+		}
+
+		if (data?.prefix !== undefined) {
+			// Convert to uppercase and remove any non-alphanumeric characters
+			const sanitizedPrefix = data.prefix.toUpperCase().replace(/[^A-Z0-9]/g, '');
+			// Limit to 4 characters
+			const truncatedPrefix = sanitizedPrefix.slice(0, 4);
+
+			// Only update if the sanitized value is different
+			if (sanitizedPrefix !== data.prefix) {
+				setInfo((prev) => ({ ...prev, prefix: truncatedPrefix }));
+				data.prefix = truncatedPrefix;
+			}
+
+			if (!data?.prefix) {
+				return;
+			}
+		}
+
+		debounceRef.current = setTimeout(() => {
+			if (data?.prefix !== undefined) {
+				updateTaskPrefix({ input: { prefix: data.prefix } });
+			} else {
+				updateViewInfo(viewData?._id, { ...info, ...data });
+			}
+		}, 500);
+	};
+
+	const handleViewTypeChange = (viewType) => {
+		handleStateChange({ viewType });
+	};
+
+	const updatePropertyPreference = useCallback(
+		(propName, value) => {
+			// Update the properties array
+			const newProperties = properties.map((property) =>
+				property.value === propName ? { ...property, ...value } : property,
+			);
+
+			// Update task preferences
+			const newTaskPreferences = {
+				...taskPreferences,
+				preferences: {
+					...taskPreferences?.preferences,
+					[propName]: {
+						...taskPreferences?.preferences?.[propName],
+						...value,
+					},
+				},
+			};
+
+			// Apply the updates
+			updateTaskInfo({
+				properties: newProperties,
+				taskPreferences: newTaskPreferences,
+			});
+		},
+		[properties, updateTaskInfo, taskPreferences],
+	);
+
+	const filteredProperties = useMemo(
+		() =>
+			properties?.filter((property) =>
+				[
+					'title',
+					'status',
+					'childTasks',
+					'priority',
+					'dueDate',
+					'assignedTo',
+					'taskSlNo',
+				].includes(property?.value),
+			),
+		[properties],
+	);
+
 	return (
 		<Tooltip
 			title={
@@ -38,18 +164,35 @@ const CurrentViewOptions = ({ showEditViewDropDown, handleEditViewDropDown }) =>
 					<div className="current-view-options-tooltip-header">Current View</div>
 					<div className="view-options-container">
 						{viewOptions.map((option) => (
-							<div className="view-option-item" key={option.value}>
+							<div
+								className={`view-option-item ${
+									info?.viewType === option?.value ? 'active' : ''
+								}`}
+								key={option.value}
+								onClick={() => handleViewTypeChange(option.value)}
+							>
 								<option.Icon />
-								<span>{option.label}</span>
+								<span className="view-option-item-label">{option.label}</span>
 							</div>
 						))}
 					</div>
+					<input
+						type="text"
+						className="view-name-input"
+						placeholder="View Name"
+						value={info.label}
+						onChange={(e) => handleStateChange({ label: e.target.value })}
+					/>
 					<div className="groupby-wrapper">
 						<div className="current-view-option-title">Group By</div>
 					</div>
 					<div className="id-prefix-wrapper">
 						<div className="current-view-option-title">ID Prefix</div>
-						<input className="current-view-id-prefix-input" />
+						<input
+							className="current-view-id-prefix-input"
+							value={info.prefix}
+							onChange={(e) => handleStateChange({ prefix: e.target.value })}
+						/>
 					</div>
 					<div className="status-edit-wrapper">
 						<div className="current-view-option-title">Status</div>
@@ -57,13 +200,21 @@ const CurrentViewOptions = ({ showEditViewDropDown, handleEditViewDropDown }) =>
 					<div className="properties-wrapper">
 						<div className="current-view-option-title">Task Properties</div>
 						<div className="property-items-wrapper">
-							<div className="property-item show">Status</div>
-							<div className="property-item show">Priority</div>
-							<div className="property-item">Due Date</div>
-							<div className="property-item">Assignee</div>
-							<div className="property-item">Created By</div>
-							<div className="property-item">Created At</div>
-							<div className="property-item">Updated At</div>
+							{filteredProperties?.map((property) => (
+								<div
+									className={`property-item ${property?.show ? 'show' : ''} ${
+										property.value === 'title' ? 'disabled' : ''
+									}`}
+									key={property?.value}
+									onClick={() =>
+										updatePropertyPreference(property?.value, {
+											show: !property?.show,
+										})
+									}
+								>
+									{property?.label}
+								</div>
+							))}
 						</div>
 					</div>
 				</div>
