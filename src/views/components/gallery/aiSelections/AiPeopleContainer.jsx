@@ -1,10 +1,12 @@
-import React, { useContext, useEffect, useState, memo } from 'react';
+import { useContext, useEffect, useState, memo } from 'react';
 import Context from '../../../../context/context';
-import InfiniteScroll from 'react-infinite-scroll-component';
+
 import PeopleCard from '../galleryView/PeopleCard';
 import { ReactComponent as DownArrow } from '../../../../assets/svg/gallery/arrow-down.svg';
 import { ReactComponent as SearchIcon } from '../../../../assets/svg/workflow/search.svg';
 import { useLocation } from 'react-router-dom';
+import InfiniteScroll from '../../globalComponents/InfiniteScroll';
+import { FetchMoreLoaderComp } from '../../../../helpers';
 
 const AiPeopleContainer = ({
 	galleryId,
@@ -86,9 +88,12 @@ const AiPeopleContainer = ({
 							dataLength={aiFace?.faces?.length || 0}
 							next={() => getAiFace(galleryId, aiFace?.currentPage + 1, 65)}
 							hasMore={info?.hasNextPage || false}
-							// loader={<h4 style={{ textAlign: 'center', color: '#fff' }}>Loading...</h4>}
-							scrollableTarget="galleryScrollTarget_aiPeople"
-							scrollThreshold={0.5}
+							loader={<FetchMoreLoaderComp />}
+							height={'100%'}
+							style={{
+								maxHeight: info?.showMore ? '390px' : '195px',
+								overflowY: info?.showMore ? 'scroll' : 'hidden',
+							}}
 						>
 							<div
 								className={`aiPeople ${info?.showMore ? 'aiPeople-showMore' : ''}`}

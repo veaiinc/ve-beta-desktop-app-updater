@@ -20,7 +20,7 @@ const workspaceOpenStyle = {
 	bottom: 0,
 	background: 'var(--card)',
 	opacity: 0.4,
-	height: '80vh',
+	height: '100vh',
 	zIndex: 997,
 	cursor: 'pointer',
 };
