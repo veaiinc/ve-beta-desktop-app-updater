@@ -3,49 +3,17 @@ import React from 'react';
 const DuplicateSvg = ({ className, style }) => {
 	return (
 		<svg
-			className={className}
-			style={{ stroke: 'var(--primary-font)', ...style }}
-			width="16"
-			height="17"
-			viewBox="0 0 16 17"
 			xmlns="http://www.w3.org/2000/svg"
+			width="16"
+			height="16"
+			viewBox="0 0 16 16"
 			fill="none"
+			style={style}
+			className={className}
 		>
 			<path
-				d="M11.334 9.43329V11.4333C11.334 14.1 10.2673 15.1666 7.60065 15.1666H5.06732C2.40065 15.1666 1.33398 14.1 1.33398 11.4333V8.89996C1.33398 6.23329 2.40065 5.16663 5.06732 5.16663H7.06732"
-				stroke="var(--primary-font)"
-				strokeLinecap="round"
-				strokeLinejoin="round"
-			/>
-			<path
-				d="M11.3331 9.43329H9.19974C7.59974 9.43329 7.06641 8.89996 7.06641 7.29996V5.16663L11.3331 9.43329Z"
-				stroke="var(--primary-font)"
-				strokeLinecap="round"
-				strokeLinejoin="round"
-			/>
-			<path
-				d="M7.73242 1.83337H10.3991"
-				stroke="var(--primary-font)"
-				strokeLinecap="round"
-				strokeLinejoin="round"
-			/>
-			<path
-				d="M4.66602 3.83337C4.66602 2.72671 5.55935 1.83337 6.66602 1.83337H8.41268"
-				stroke="var(--primary-font)"
-				strokeLinecap="round"
-				strokeLinejoin="round"
-			/>
-			<path
-				d="M14.6663 5.83337V9.96004C14.6663 10.9934 13.8263 11.8334 12.793 11.8334"
-				stroke="var(--primary-font)"
-				strokeLinecap="round"
-				strokeLinejoin="round"
-			/>
-			<path
-				d="M14.666 5.83337H12.666C11.166 5.83337 10.666 5.33337 10.666 3.83337V1.83337L14.666 5.83337Z"
-				stroke="var(--primary-font)"
-				strokeLinecap="round"
-				strokeLinejoin="round"
+				d="M13.5 2H5.5C5.36739 2 5.24021 2.05268 5.14645 2.14645C5.05268 2.24021 5 2.36739 5 2.5V5H2.5C2.36739 5 2.24021 5.05268 2.14645 5.14645C2.05268 5.24021 2 5.36739 2 5.5V13.5C2 13.6326 2.05268 13.7598 2.14645 13.8536C2.24021 13.9473 2.36739 14 2.5 14H10.5C10.6326 14 10.7598 13.9473 10.8536 13.8536C10.9473 13.7598 11 13.6326 11 13.5V11H13.5C13.6326 11 13.7598 10.9473 13.8536 10.8536C13.9473 10.7598 14 10.6326 14 10.5V2.5C14 2.36739 13.9473 2.24021 13.8536 2.14645C13.7598 2.05268 13.6326 2 13.5 2ZM10 13H3V6H10V13ZM13 10H11V5.5C11 5.36739 10.9473 5.24021 10.8536 5.14645C10.7598 5.05268 10.6326 5 10.5 5H6V3H13V10Z"
+				fill="var(--primary-font, #F2F2F3)"
 			/>
 		</svg>
 	);

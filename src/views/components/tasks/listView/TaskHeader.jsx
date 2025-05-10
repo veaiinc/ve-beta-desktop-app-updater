@@ -1,4 +1,4 @@
-import React, { memo, useMemo } from 'react';
+import React, { memo, useMemo, useState } from 'react';
 import '../../../../assets/scss/tasks/taskHeader.scss';
 import { ReactComponent as PlusIcon } from '../../../../assets/svg/tasks/plus.svg';
 import { ReactComponent as ListViewIcon } from '../../../../assets/svg/tasks/list.svg';
@@ -6,70 +6,96 @@ import { ReactComponent as BoardViewIcon } from '../../../../assets/svg/tasks/bo
 import { ReactComponent as TableViewIcon } from '../../../../assets/svg/tasks/grid.svg';
 import { ReactComponent as GalleryViewIcon } from '../../../../assets/svg/tasks/blocks.svg';
 import { Tooltip } from 'antd';
+import TabEditDropdown from '../../dropDown/tasks/TabEditDropdown';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
-const layouts = {
+export const layouts = {
 	list: {
 		Icon: <ListViewIcon />,
-		label: 'List view',
+		label: 'List',
+		viewType: 'list',
 	},
 	board: {
 		Icon: <BoardViewIcon />,
-		label: 'Board view',
+		label: 'Board',
+		viewType: 'board',
 	},
 	table: {
 		Icon: <TableViewIcon />,
-		label: 'Table view',
+		label: 'Table',
+		viewType: 'table',
 	},
 	gallery: {
 		Icon: <GalleryViewIcon />,
-		label: 'Gallery view',
+		label: 'Widget',
+		viewType: 'gallery',
 	},
 };
 
-const tabTooltipContent = [{ label: 'Edit' }, { label: 'Rename' }, { label: 'Duplicate' }];
+const TaskHeader = ({
+	tabs,
+	activeTab,
+	handleTabChange,
+	handleAddTab,
+	handleTabDropdownClick,
+	handleTabsReorder,
+}) => {
+	const [info, setInfo] = useState({
+		showAddNewTabDropDown: false,
+	});
 
-const TaskHeader = ({ tabs }) => {
+	const handleStateChange = (data) => {
+		setInfo((prevInfo) => ({
+			...prevInfo,
+			...data,
+		}));
+	};
+
 	const tabArray = useMemo(() => Object?.values(tabs || {}), [tabs]);
-	console.log('tabs', tabArray);
+
+	const onDragEnd = (result) => {
+		if (!result.destination) return;
+
+		const items = Array.from(tabArray);
+		const [reorderedItem] = items.splice(result.source.index, 1);
+		items.splice(result.destination.index, 0, reorderedItem);
+
+		handleTabsReorder(items, reorderedItem, result.destination.index);
+	};
 
 	return (
 		<div className="task-tabs-header-container">
-			<div className="tab-wrapper">
-				{tabArray?.map((tab, index) => (
-					<Tooltip
-						title={
-							<div className="tab-tooltip-content">
-								{tabTooltipContent?.map((item, index) => (
-									<div className="tab-tooltip-content-item" key={index}>
-										<div className="tab-tooltip-content-item-icon">
-											{item?.icon}
+			<DragDropContext onDragEnd={onDragEnd}>
+				<Droppable droppableId="tabs" direction="horizontal">
+					{(provided) => (
+						<div
+							className="tab-wrapper"
+							ref={provided.innerRef}
+							{...provided.droppableProps}
+						>
+							{tabArray?.map((tab, index) => (
+								<Draggable key={tab?._id} draggableId={tab?._id} index={index}>
+									{(provided) => (
+										<div
+											ref={provided.innerRef}
+											{...provided.draggableProps}
+											{...provided.dragHandleProps}
+										>
+											<TabEditDropdown
+												tab={tab}
+												activeTab={activeTab}
+												handleTabChange={handleTabChange}
+												handleTabDropdownClick={handleTabDropdownClick}
+											/>
 										</div>
-										<div className="tab-tooltip-content-item-label">
-											{item?.label}
-										</div>
-									</div>
-								))}
-								<div className="delete-view-container">
-									<div className="delete-view-icon">{/* <DeleteIcon /> */}</div>
-									<div className="delete-view-label">Delete</div>
-								</div>
-							</div>
-						}
-						key={tab?._id}
-						arrow={false}
-						trigger={'click'}
-						color={'transparent'}
-						overlayStyle={{ minWidth: 'fit-content', padding: '0' }}
-						style={{ padding: 0 }}
-						placement="bottomLeft"
-					>
-						<div className={`tab-item ${index === 0 && 'tab-active'}`}>
-							<div className="tab-icon">{layouts[tab?.viewType]?.Icon}</div>
-							<div className="tab-title">{tab?.label}</div>
+									)}
+								</Draggable>
+							))}
+							{provided.placeholder}
 						</div>
-					</Tooltip>
-				))}
-			</div>
+					)}
+				</Droppable>
+			</DragDropContext>
 			<div className="tab-divider" />
 			<Tooltip
 				title={
@@ -79,7 +105,10 @@ const TaskHeader = ({ tabs }) => {
 							{Object.values(layouts)
 								?.filter((layout) => layout?.label !== 'Table view')
 								?.map((layout) => (
-									<div className="add-new-tab-tooltip-body-item">
+									<div
+										className="add-new-tab-tooltip-body-item"
+										onClick={() => handleAddTab(layout?.viewType)}
+									>
 										<div className="add-new-tab-tooltip-body-item-icon">
 											{layout?.Icon}
 										</div>
@@ -91,14 +120,21 @@ const TaskHeader = ({ tabs }) => {
 						</div>
 					</div>
 				}
+				open={info?.showAddNewTabDropDown}
+				onOpenChange={(open) => handleStateChange({ showAddNewTabDropDown: open })}
 				arrow={false}
 				trigger={'click'}
 				color={'transparent'}
 				overlayStyle={{ minWidth: 'fit-content', padding: '0' }}
 				style={{ padding: 0 }}
-				placement="bottom"
+				placement="bottomLeft"
 			>
-				<button className="add-new-tab-button">
+				<button
+					className="add-new-tab-button"
+					onClick={() =>
+						handleStateChange({ showAddNewTabDropDown: !info?.showAddNewTabDropDown })
+					}
+				>
 					<PlusIcon />
 				</button>
 			</Tooltip>

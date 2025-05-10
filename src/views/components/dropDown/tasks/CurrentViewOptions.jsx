@@ -25,12 +25,12 @@ const viewOptions = [
 	},
 	{
 		value: 'gallery',
-		label: 'Gallery',
+		label: 'Widget',
 		Icon: GalleryViewIcon,
 	},
 ];
 
-const CurrentViewOptions = () => {
+const CurrentViewOptions = ({ showEditViewDropDown, handleEditViewDropDown }) => {
 	return (
 		<Tooltip
 			title={
@@ -68,13 +68,22 @@ const CurrentViewOptions = () => {
 					</div>
 				</div>
 			}
+			open={showEditViewDropDown}
+			onOpenChange={(value) => {
+				if (!value) {
+					handleEditViewDropDown(false);
+				}
+			}}
 			arrow={false}
 			trigger={'click'}
 			color={'transparent'}
 			placement={'bottomRight'}
 			overlayStyle={{ minWidth: 'fit-content' }}
 		>
-			<div className="current-view-options-icon">
+			<div
+				className="current-view-options-icon"
+				onClick={() => handleEditViewDropDown(!showEditViewDropDown)}
+			>
 				<SortIcon />
 			</div>
 		</Tooltip>

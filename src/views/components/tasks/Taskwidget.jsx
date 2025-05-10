@@ -29,6 +29,8 @@ const Taskwidget = ({
 	updateTaskInfo,
 	searchValue,
 	colors,
+	showEditViewDropDown,
+	handleEditViewDropDown,
 }) => {
 	const {
 		tasks: { listTasks },
@@ -156,13 +158,11 @@ const Taskwidget = ({
 				>
 					<FilterIcon />
 				</button>
-				{/* <button
-					className="filter-icon-btn"
-					onClick={() => handleStateChange({ filterShown: !info?.filterShown })}
-				>
-					<SortIcon />
-				</button> */}
-				<CurrentViewOptions />
+
+				<CurrentViewOptions
+					showEditViewDropDown={showEditViewDropDown}
+					handleEditViewDropDown={handleEditViewDropDown}
+				/>
 			</div>
 			{info?.filterShown && (
 				<div className="filter-sort-wrapper">

@@ -13,9 +13,23 @@
 		display: flex;
 		align-items: center;
 		gap: 8px;
+		overflow-x: auto;
+		scrollbar-width: none;
+		-ms-overflow-style: none;
 		max-width: 100%;
 		flex: 1;
 		min-width: 0;
+		&::-webkit-scrollbar {
+			display: none;
+		}
+
+		> div {
+			display: flex;
+			align-items: center;
+			flex-shrink: 1;
+			min-width: 0;
+		}
+
 		.tab-item {
 			display: flex;
 			height: 33px;
@@ -88,14 +102,34 @@
 		cursor: pointer;
 		border: none;
 	}
+
+	[data-rbd-draggable-id] {
+		&:hover {
+			cursor: grab;
+		}
+		&:active {
+			cursor: grabbing;
+		}
+	}
+
+	[data-rbd-draggable-context-id] {
+		&:hover {
+			cursor: grab;
+		}
+		&:active {
+			cursor: grabbing;
+		}
+	}
 }
 
 .add-new-tab-tooltip-content {
-	display: inline-flex;
+	display: flex;
+	width: 228px;
 	padding: 16px;
 	flex-direction: column;
 	gap: 16px;
 	border-radius: 12px;
+	border: 1px solid var(--stroke, #2c2d2e);
 	background: var(--popup, #202123);
 
 	.add-new-tab-tooltip-header {
@@ -103,16 +137,20 @@
 		color: var(--primary-font, #f2f2f3);
 		text-overflow: ellipsis;
 		font-family: Inter;
-		font-size: 14px;
+		font-size: 12px;
 		font-style: normal;
 		font-weight: 500;
 		line-height: normal;
+		width: 100%;
 	}
 
 	.add-new-tab-tooltip-body {
-		display: flex;
+		display: grid;
+		grid-template-columns: repeat(2, 1fr);
+		flex-direction: column;
 		align-items: flex-start;
 		gap: 8px;
+		align-self: stretch;
 
 		.add-new-tab-tooltip-body-item {
 			display: flex;
@@ -120,9 +158,11 @@
 			padding: 8px 12px;
 			justify-content: center;
 			align-items: center;
-			gap: 6px;
+			gap: 4px;
 			border-radius: 8px;
 			border: 1px solid var(--stroke, #2c2d2e);
+			cursor: pointer;
+			transition: all 0.2s ease-in-out;
 
 			.add-new-tab-tooltip-body-item-icon {
 				width: 16px;
@@ -143,6 +183,20 @@
 				font-weight: 500;
 				line-height: normal;
 			}
+
+			&:hover {
+				.add-new-tab-tooltip-body-item-icon {
+					svg {
+						path {
+							stroke: var(--primary-font, #f2f2f3) !important;
+						}
+					}
+				}
+
+				.add-new-tab-tooltip-body-item-label {
+					color: var(--primary-font, #f2f2f3);
+				}
+			}
 		}
 	}
 }
@@ -156,6 +210,8 @@
 	gap: 6px;
 	border-radius: 12px;
 	background: var(--popup, #202123);
+	border: 1px solid var(--stroke, #2c2d2e);
+	flex-wrap: wrap;
 
 	.tab-tooltip-content-item {
 		display: flex;

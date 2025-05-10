@@ -163,7 +163,7 @@
 			display: flex;
 			flex-direction: column;
 			align-items: flex-start;
-			gap: 6px;
+			gap: 12px;
 			align-self: stretch;
 			width: 100%;
 
@@ -192,15 +192,21 @@
 				}
 
 				.filter-clear-btn {
-					border: none;
-					background-color: transparent;
+					display: flex;
+					padding: 6px 10px;
+					justify-content: center;
+					align-items: center;
+					border-radius: 6px;
+					border: 1px solid rgba(192, 55, 68, 0.5);
+					overflow: hidden;
 					color: var(--error, #c03744);
 					text-overflow: ellipsis;
-					font-family: var(--primary-font-family);
+					font-family: Inter;
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 500;
 					line-height: normal;
+					background-color: transparent;
 					margin-left: auto;
 					cursor: pointer;
 				}

@@ -17,19 +17,19 @@ import TaskHeader from './listView/TaskHeader';
 const layouts = {
 	list: {
 		Icon: ListViewIcon,
-		label: 'List view',
+		label: 'List',
 	},
 	board: {
 		Icon: BoardViewIcon,
-		label: 'Board view',
+		label: 'Board',
 	},
 	table: {
 		Icon: TableViewIcon,
-		label: 'Table view',
+		label: 'Table',
 	},
 	gallery: {
 		Icon: GalleryViewIcon,
-		label: 'Gallery view',
+		label: 'Widget',
 	},
 };
 
@@ -63,12 +63,13 @@ const Task = ({
 		tabs: null,
 		activeTab: null,
 		timeout: null,
+		showEditViewDropDown: false,
 	});
 	const [showEditViewDropDown, setShowEditViewDropDown] = useState(false);
 	const timeoutRef = useRef(null);
 
-	const handleEditViewDropDown = useCallback(() => {
-		setShowEditViewDropDown(true);
+	const handleEditViewDropDown = useCallback((value) => {
+		setShowEditViewDropDown(value);
 	}, []);
 
 	useEffect(() => {
@@ -148,10 +149,6 @@ const Task = ({
 		].filter((item) => availableViews.includes(item?.value));
 	}, []);
 
-	const closeEditViewDropDown = useCallback(() => {
-		setShowEditViewDropDown(false);
-	}, []);
-
 	const handleTabChange = useCallback(
 		(tabData) => {
 			if (taskInfo?.activeTab === tabData?._id) {
@@ -176,7 +173,7 @@ const Task = ({
 				},
 			});
 		},
-		[taskInfo.tabs, updateTaskInfo],
+		[taskInfo.tabs, updateTaskInfo, taskInfo?.activeTab],
 	);
 
 	const handleTabsReorder = useCallback(
@@ -329,9 +326,11 @@ const Task = ({
 				return;
 			}
 			deleteView(tabId);
-			updateTaskInfo({ activeTab: null });
+			updateTaskInfo({
+				activeTab: taskInfo?.activeTab === tabId ? null : taskInfo?.activeTab,
+			});
 		},
-		[taskInfo?.tabs, deleteView, updateTaskInfo],
+		[taskInfo?.tabs, deleteView, updateTaskInfo, taskInfo?.activeTab],
 	);
 
 	const handleDuplicateTab = useCallback(
@@ -349,14 +348,14 @@ const Task = ({
 
 	const handleTabDropdownClick = useCallback(
 		(option) => {
-			if (option?.value === 'deleteView') {
-				handleDeleteTab(taskInfo?.activeTab);
+			if (option?.value === 'delete') {
+				handleDeleteTab(option?.tabId);
 			}
-			if (option?.value === 'duplicateView') {
-				handleDuplicateTab(taskInfo?.activeTab);
+			if (option?.value === 'duplicate') {
+				handleDuplicateTab(option?.tabId);
 			}
-			if (option?.value === 'editView' || option?.value === 'renameView') {
-				handleEditViewDropDown();
+			if (option?.value === 'edit' || option?.value === 'rename') {
+				handleEditViewDropDown(true);
 			}
 		},
 		[handleDeleteTab, handleDuplicateTab, handleEditViewDropDown, taskInfo?.activeTab],
@@ -374,13 +373,22 @@ const Task = ({
 						updateViewInfo={updateViewInfo}
 						updateTaskInfo={updateTaskInfo}
 						searchValue={searchValue}
+						showEditViewDropDown={showEditViewDropDown}
+						handleEditViewDropDown={handleEditViewDropDown}
 					/>
 				</div>
 			</ChatLeftBarComponent>
 			<div className="tasks-right-container">
 				<div className="task-container">
 					<div className="task-header-container">
-						<TaskHeader tabs={taskInfo?.tabs} />
+						<TaskHeader
+							tabs={taskInfo?.tabs}
+							activeTab={taskInfo?.activeTab}
+							handleTabChange={handleTabChange}
+							handleAddTab={handleAddTab}
+							handleTabDropdownClick={handleTabDropdownClick}
+							handleTabsReorder={handleTabsReorder}
+						/>
 						{/* <ListViewHeader
 							updateTaskInfo={updateTaskInfo}
 							properties={properties}
