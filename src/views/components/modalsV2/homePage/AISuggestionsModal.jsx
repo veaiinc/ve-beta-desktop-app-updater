@@ -712,7 +712,7 @@ const AISuggestionsModal = ({
 										</Collapse>
 									</div>
 								)}
-								{informationRequests?.length > 0 && (
+								{/* {informationRequests?.length > 0 && (
 									<div
 										className={`questions-wrapper ${
 											info?.isQuestionsExpanded ? 'active' : ''
@@ -784,6 +784,93 @@ const AISuggestionsModal = ({
 												</button>
 											</div>
 										)}
+									</div>
+								)} */}
+								{informationRequests?.length > 0 && (
+									<div
+										className={`questions-wrapper ${
+											info?.isQuestionsExpanded ? 'active' : ''
+										}`}
+										onClick={() =>
+											setInfo((prev) => ({
+												...prev,
+												isQuestionsExpanded: !prev?.isQuestionsExpanded,
+											}))
+										}
+									>
+										<Collapse
+											activeKey={info?.isQuestionsExpanded ? ['1'] : []}
+											onChange={(key) =>
+												setInfo((prev) => ({
+													...prev,
+													isQuestionsExpanded: key.length > 0,
+												}))
+											}
+										>
+											<Panel
+												header={
+													<div className="cot-header">
+														<div className="cot-text">
+															<div className="title-text">
+																Questions AI have
+															</div>
+															<div className="description-text">
+																Unanswered queries needing follow-up
+																or clarity.
+															</div>
+														</div>
+													</div>
+												}
+												key="1"
+											>
+												<div
+													className="questions-container"
+													onClick={(e) => e.stopPropagation()}
+												>
+													{informationRequests.map(
+														(questionData, index) => (
+															<div
+																className="question-container"
+																key={index}
+															>
+																<div className="question">
+																	{questionData?.question || ''}
+																</div>
+																<input
+																	type="text"
+																	className="answers-input"
+																	placeholder="Enter your answer..."
+																	value={
+																		info?.questionsAnswers?.[
+																			index
+																		] || ''
+																	}
+																	onChange={(e) => {
+																		setInfo({
+																			...info,
+																			questionsAnswers: {
+																				...info.questionsAnswers,
+																				[index]:
+																					e.target.value,
+																			},
+																		});
+																	}}
+																/>
+															</div>
+														),
+													)}
+													<button
+														onClick={handleRunBtnClick}
+														className="submit-btn"
+													>
+														Submit
+														<div className="icon-container">
+															<ArrowUpRightSvg />
+														</div>
+													</button>
+												</div>
+											</Panel>
+										</Collapse>
 									</div>
 								)}
 							</div>
