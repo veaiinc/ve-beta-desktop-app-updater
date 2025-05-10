@@ -69,6 +69,7 @@ const CurrentViewOptions = ({
 		group: viewData?.group,
 		viewType: viewData?.viewType,
 		prefix: taskMetadata?.prefix,
+		groupDropDownOpen: false,
 	});
 
 	useEffect(() => {
@@ -163,6 +164,7 @@ const CurrentViewOptions = ({
 		setInfo((prev) => ({
 			...prev,
 			group: value?.value || null,
+			groupDropDownOpen: false,
 		}));
 		updateViewInfo(viewData?._id, {
 			group: value?.value || null,
@@ -244,8 +246,23 @@ const CurrentViewOptions = ({
 								color={'transparent'}
 								placement={'bottomRight'}
 								overlayStyle={{ minWidth: 'fit-content' }}
+								open={info?.groupDropDownOpen}
+								onOpenChange={(value) => {
+									setInfo((prev) => ({
+										...prev,
+										groupDropDownOpen: value,
+									}));
+								}}
 							>
-								<div className="selected-group-wrapper">
+								<div
+									className="selected-group-wrapper"
+									onClick={() =>
+										setInfo((prev) => ({
+											...prev,
+											groupDropDownOpen: !info?.groupDropDownOpen,
+										}))
+									}
+								>
 									<div className="selected-group-label">
 										{info?.group === 'status'
 											? 'Status'
@@ -253,7 +270,11 @@ const CurrentViewOptions = ({
 											? 'Priority'
 											: ''}
 									</div>
-									<ChevronSvg className={`groupby-chevron-icon open`} />
+									<ChevronSvg
+										className={`groupby-chevron-icon ${
+											info?.groupDropDownOpen ? 'active' : ''
+										}`}
+									/>
 								</div>
 							</Tooltip>
 						</div>
@@ -266,9 +287,9 @@ const CurrentViewOptions = ({
 							onChange={(e) => handleStateChange({ prefix: e.target.value })}
 						/>
 					</div>
-					<div className="status-edit-wrapper">
+					{/* <div className="status-edit-wrapper">
 						<div className="current-view-option-title">Status</div>
-					</div>
+					</div> */}
 					<div className="properties-wrapper">
 						<div className="current-view-option-title">Task Properties</div>
 						<div className="property-items-wrapper">
