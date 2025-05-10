@@ -24,7 +24,8 @@
 .customQuickActionsToolTip {
 	.ant-tooltip-content {
 		animation: tooltipSlide 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-		right: 0 !important;
+		right: 32px !important;
+		top: 32px !important;
 		position: fixed;
 		z-index: 1000;
 		transform-origin: right center;
@@ -86,7 +87,7 @@
 	border-radius: 12px;
 	border: 1px solid var(--stroke);
 	width: 250px;
-	max-height: 746px;
+	max-height: 80vh;
 	padding: 0;
 	transform-origin: right center;
 	overflow: hidden;
@@ -168,28 +169,32 @@
 	}
 
 	.dropdown-option {
-		column-gap: 10px;
-		justify-content: flex-start;
 		display: flex;
 		padding: 10px;
 		align-items: center;
 		gap: 10px;
 		align-self: stretch;
 		cursor: pointer;
-		display: -webkit-box;
-		-webkit-box-orient: vertical;
-		-webkit-line-clamp: 1;
-		flex: 1 0 0;
-		overflow: hidden;
-		color: var(--primary-font);
-		text-overflow: ellipsis;
-		font-family: Inter;
-		font-size: 14px;
-		font-style: normal;
-		font-weight: 500;
-		line-height: normal;
-		transition: all 0.8s ease-in-out;
-		border-radius: 8px;
+		display: flex;
+		padding: 10px;
+		align-items: center;
+		gap: 10px;
+		align-self: stretch;
+
+		.dropdown-option-title {
+			overflow: hidden;
+			color: var(--primary-font, #f2f2f3);
+			text-overflow: ellipsis;
+			font-family: Inter;
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+			display: -webkit-box;
+			-webkit-box-orient: vertical;
+			-webkit-line-clamp: 1;
+			flex: 1 0 0;
+		}
 
 		&:hover {
 			background: var(--card-hover);
