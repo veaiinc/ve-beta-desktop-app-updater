@@ -300,7 +300,7 @@ const QuickActions = ({
 	} = useContext(Context);
 	// const timeoutRef = useRef(null);
 	const [info, setInfo] = useState({
-		dropdown: false,
+		dropdown: true,
 		openProposalPopup: false,
 		openClientPopup: false,
 		openGalleryPopup: false,
