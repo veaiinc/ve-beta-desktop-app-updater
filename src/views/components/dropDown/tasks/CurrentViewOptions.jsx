@@ -6,6 +6,11 @@ import { ReactComponent as ListViewIcon } from '../../../../assets/svg/tasks/lis
 import { ReactComponent as BoardViewIcon } from '../../../../assets/svg/tasks/board.svg';
 import { ReactComponent as TableViewIcon } from '../../../../assets/svg/tasks/grid.svg';
 import { ReactComponent as GalleryViewIcon } from '../../../../assets/svg/tasks/blocks.svg';
+import { ReactComponent as ChevronSvg } from '../../../../assets/svg/tasks/chevronRightThin.svg';
+import { ReactComponent as PieSvg } from '../../../../assets/svg/tasks/ChartDonut.svg';
+import { ReactComponent as PrioritySvg } from '../../../../assets/svg/tasks/ChartBar.svg';
+import { ReactComponent as Tick } from '../../../../assets/svg/tasks/tick.svg';
+
 import Context from '../../../../context/context';
 
 const viewOptions = [
@@ -31,6 +36,19 @@ const viewOptions = [
 	},
 ];
 
+const groupByOptions = [
+	{
+		value: 'status',
+		label: 'Status',
+		Icon: PieSvg,
+	},
+	{
+		value: 'priority',
+		label: 'Priority',
+		Icon: PrioritySvg,
+	},
+];
+
 const CurrentViewOptions = ({
 	showEditViewDropDown,
 	taskPreferences,
@@ -48,7 +66,7 @@ const CurrentViewOptions = ({
 
 	const [info, setInfo] = useState({
 		label: viewData?.label,
-		groupBy: viewData?.groupBy,
+		group: viewData?.group,
 		viewType: viewData?.viewType,
 		prefix: taskMetadata?.prefix,
 	});
@@ -57,7 +75,7 @@ const CurrentViewOptions = ({
 		setInfo((prev) => ({
 			...prev,
 			label: viewData?.label,
-			groupBy: viewData?.groupBy,
+			group: viewData?.group,
 			idPrefix: viewData?.idPrefix,
 			viewType: viewData?.viewType,
 		}));
@@ -141,6 +159,16 @@ const CurrentViewOptions = ({
 		[properties, updateTaskInfo, taskPreferences],
 	);
 
+	const handleGroupByChange = (value) => {
+		setInfo((prev) => ({
+			...prev,
+			group: value?.value || null,
+		}));
+		updateViewInfo(viewData?._id, {
+			group: value?.value || null,
+		});
+	};
+
 	const filteredProperties = useMemo(
 		() =>
 			properties?.filter((property) =>
@@ -183,9 +211,53 @@ const CurrentViewOptions = ({
 						value={info.label}
 						onChange={(e) => handleStateChange({ label: e.target.value })}
 					/>
-					<div className="groupby-wrapper">
-						<div className="current-view-option-title">Group By</div>
-					</div>
+					{info?.viewType === 'board' && (
+						<div className="groupby-wrapper">
+							<div className="current-view-option-title">Group By</div>
+							<Tooltip
+								title={
+									<div className="groupby-tooltip-content">
+										<div className="groupby-tooltip-content-title">
+											Group By
+										</div>
+										<div className="groupby-tooltip-content-body">
+											{groupByOptions.map((option) => (
+												<div
+													className="groupby-item"
+													key={option.value}
+													onClick={() => handleGroupByChange(option)}
+												>
+													<option.Icon />
+													<div className="groupby-item-label">
+														{option.label}
+													</div>
+													{info?.group === option?.value && (
+														<Tick className="groupby-item-tick" />
+													)}
+												</div>
+											))}
+										</div>
+									</div>
+								}
+								arrow={false}
+								trigger={'click'}
+								color={'transparent'}
+								placement={'bottomRight'}
+								overlayStyle={{ minWidth: 'fit-content' }}
+							>
+								<div className="selected-group-wrapper">
+									<div className="selected-group-label">
+										{info?.group === 'status'
+											? 'Status'
+											: info?.group === 'priority'
+											? 'Priority'
+											: ''}
+									</div>
+									<ChevronSvg className={`groupby-chevron-icon open`} />
+								</div>
+							</Tooltip>
+						</div>
+					)}
 					<div className="id-prefix-wrapper">
 						<div className="current-view-option-title">ID Prefix</div>
 						<input

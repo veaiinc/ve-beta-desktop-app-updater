@@ -80,10 +80,10 @@ const TabEditDropdown = ({ tab, activeTab, handleTabChange, handleTabDropdownCli
 			<div
 				className={`tab-item ${activeTab === tab?._id && 'tab-active'}`}
 				onClick={() => handleTabClick(tab)}
-				onContextMenu={(e) => {
-					e.preventDefault();
-					handleStateChange({ showEditViewDropDown: !info?.showEditViewDropDown });
-				}}
+				// onContextMenu={(e) => {
+				// 	e.preventDefault();
+				// 	handleStateChange({ showEditViewDropDown: !info?.showEditViewDropDown });
+				// }}
 			>
 				<div className="tab-icon">{layouts[tab?.viewType]?.Icon}</div>
 				<div className="tab-title">{tab?.label}</div>
