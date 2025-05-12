@@ -126,6 +126,7 @@ const ChatBox = ({
 			currentSessionId,
 			handleStreamSendMessage,
 			activePayloadForChat,
+			activeInputForChat,
 			chatInfo,
 			userEditedQuery,
 			galleryFile,
@@ -187,6 +188,16 @@ const ChatBox = ({
 			updateStateValues({ activePromptForChat: null });
 		}
 	}, [activePromptForChat]);
+
+	useEffect(() => {
+		if (activeInputForChat) {
+			setInfo((prev) => ({
+				...prev,
+				chatQuery: activeInputForChat,
+			}));
+			updateStateValues({ activeInputForChat: null });
+		}
+	}, [activeInputForChat]);
 
 	useEffect(() => {
 		if (showPlaceholder && animatePlaceholder) {

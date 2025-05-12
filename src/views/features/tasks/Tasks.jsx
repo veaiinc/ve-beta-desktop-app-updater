@@ -77,9 +77,11 @@ export const rowTypes = {
 	createdWithAi: CreatedWithAi,
 };
 
-const availableViews = ['table', 'board', 'list', 'gallery'];
-
 const Tasks = () => {
+	const timeoutRef = useRef(null);
+	const [searchParams, setSearchParams] = useSearchParams();
+	const query = searchParams.get('itemId');
+
 	const {
 		tasks: {
 			listTasks,
@@ -142,10 +144,6 @@ const Tasks = () => {
 		timeout: null,
 		group: null,
 	});
-
-	const timeoutRef = useRef(null);
-	const [searchParams, setSearchParams] = useSearchParams();
-	const query = searchParams.get('itemId');
 
 	const responseMetadata = useMemo(
 		() => ({

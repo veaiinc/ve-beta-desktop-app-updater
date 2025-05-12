@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import '../../../../assets/scss/tasks/listViewHeader.scss';
 import OptionsDropDown from '../../dropDown/tasks/OptionsDropDown';
 import TabHeader from './TabHeader';

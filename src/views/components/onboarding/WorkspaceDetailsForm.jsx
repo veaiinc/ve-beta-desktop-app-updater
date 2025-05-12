@@ -18,6 +18,7 @@ const WorkspaceDetailsForm = ({
 	isWorkspaceHandleAvailable,
 	workspaceType,
 	handleSetWorkspaceType,
+	isWorkspaceHandleLengthInvalid,
 }) => {
 	const [workspaceTypeContainerWidth, setWorkspaceTypeContainerWidth] = useState(0);
 	const [workspaceTypeContainerOpen, setWorkspaceTypeContainerOpen] = useState(false);
@@ -85,7 +86,7 @@ const WorkspaceDetailsForm = ({
 					</div>
 
 					<div className="domainInfoContainer">
-						{workspaceHandle?.length > 1 && (
+						{workspaceHandle?.length > 1 ? (
 							<>
 								<span className="domainName">{workspaceHandle}.ve.ai</span>
 								{checkingWorkspaceHandle ? (
@@ -96,6 +97,10 @@ const WorkspaceDetailsForm = ({
 									<span className="unavailable"> is already taken</span>
 								) : null}
 							</>
+						) : (
+							<span className="unavailable">
+								Workspace handle must be at least 4 characters
+							</span>
 						)}
 					</div>
 				</div>

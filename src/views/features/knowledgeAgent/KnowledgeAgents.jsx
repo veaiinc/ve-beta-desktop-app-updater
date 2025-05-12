@@ -68,15 +68,13 @@ const SuggestedOptions = [
 const KnowledgeAgents = () => {
 	return (
 		<div className="knowledge-assistants-container">
-			<div className="quick-actions-container">
-				<header className="page-header">
-					<h1>
-						<span className="header-subtitle">Browse your Knowledge Agents</span>
-						<span className="header-title">Curiosity is Superpower.</span>
-					</h1>
-				</header>
+			<header className="page-header">
+				<h1>
+					<span className="header-subtitle">Browse your Knowledge Agents</span>
+					<span className="header-title">Curiosity is Superpower.</span>
+				</h1>
 				<QuickActions suggestedOptions={SuggestedOptions} />
-			</div>
+			</header>
 			<CardsContainer />
 		</div>
 	);

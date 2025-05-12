@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { memo, useEffect, useState } from 'react';
+import { memo, useEffect, useState } from 'react';
 import '../../../../assets/scss/tasks/select.scss';
 import { Tooltip } from 'antd';
 import SelectDropdown from '../../dropDown/tasks/SelectDropdown';

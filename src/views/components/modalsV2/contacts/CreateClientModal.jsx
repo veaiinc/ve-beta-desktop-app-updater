@@ -66,12 +66,13 @@ const CreateClientModal = ({ modalIsOpen, closeModal, source, leadOrClient = fal
 
 	useEffect(() => {
 		const isValidEmail = leadDetails['emailId'] && validator?.isEmail(leadDetails['emailId']);
-		const isValidName = leadDetails['name'].trim()?.length > 0;
-		const isValidSource = leadDetails['source'].trim()?.length > 0;
-		const isValidPhoneNumber = leadDetails['phoneNumber']?.trim()?.length > 0;
-
+		const isValidName = leadDetails['name']?.trim()?.length > 0;
+		const isValidSource = leadDetails['source']?.trim()?.length > 0;
+		const isValidPhoneNumber =
+			leadDetails['phoneNumber']?.trim()?.length > 0 &&
+			validator?.isMobilePhone(leadDetails['phoneNumber']);
 		setCreateButtonActiveState(
-			(isValidEmail || isValidPhoneNumber) && isValidName && isValidSource,
+			(isValidEmail || isValidPhoneNumber) && isValidName && isValidSource ? true : false,
 		);
 	}, [leadDetails]);
 
@@ -105,7 +106,7 @@ const CreateClientModal = ({ modalIsOpen, closeModal, source, leadOrClient = fal
 	const onChangeSelectedSource = useCallback(async (data) => {
 		setLeadDetails((prevState) => ({
 			...prevState,
-			source: data?.value,
+			source: data?.searchValue,
 		}));
 	}, []);
 

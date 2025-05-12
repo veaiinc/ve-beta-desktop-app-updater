@@ -38,7 +38,11 @@ const AIMessageRenderer = ({
 
 	useEffect(() => {
 		if (index === globalChatMessages?.length - 1) {
-			if (messageData?.message?.length > 0 || messageData?.deepSearch?.cot?.length === 0) {
+			if (
+				messageData?.message?.length > 0 ||
+				messageData?.widget_type === 'clarifyWidget' ||
+				messageData?.deepSearch?.cot?.length === 0
+			) {
 				if (info?.activeTab !== 'response') {
 					setInfo((prev) => ({
 						...prev,
@@ -217,12 +221,19 @@ const AIMessageRenderer = ({
 										</div>
 										<div className="citation-details">
 											<div className="website-name">
-												{getWebsiteName(citation?.name)}
+												{citation?.type === 'url'
+													? getWebsiteName(citation?.name)
+													: citation?.name}
 											</div>
-											<div className="citation-url">{citation?.name}</div>
-											<div className="citation-title">
-												{citation?.snippet}
-											</div>
+											{citation?.type === 'url' && (
+												<div className="citation-url">{citation?.name}</div>
+											)}
+
+											{citation?.snippet && (
+												<div className="citation-title">
+													{citation?.snippet}
+												</div>
+											)}
 										</div>
 									</div>
 									<ArrowRightIcon className="arrow-icon" />
