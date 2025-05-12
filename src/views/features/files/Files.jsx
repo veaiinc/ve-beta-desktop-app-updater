@@ -21,6 +21,7 @@ import CreateGallery from '../../components/modalsV2/gallery/CreateGallery';
 import CustomDropdown from './CustomDropdown';
 import ElasticSearchResults from './ElasticSearchResults';
 import getFileTypeInfo from './getFiletypeInfo';
+import ObjectID from 'bson-objectid';
 
 const items = [
 	{
@@ -574,6 +575,15 @@ const Files = () => {
 		}
 	};
 
+	const triggerCmdK = () => {
+		const event = new KeyboardEvent('keydown', {
+			key: 'k',
+			metaKey: true, // For macOS; use ctrlKey for Windows
+			bubbles: true,
+		});
+		document.dispatchEvent(event);
+	};
+
 	const SearchResults = () => {
 		if (!info?.search) {
 			return null;
@@ -804,97 +814,12 @@ const Files = () => {
 							</div>
 						</div>
 
-						<div className="elastic-search-main-container" ref={searchContainerRef}>
-							{info.isFocused && info.showElasticSearchResults && (
-								<ElasticSearchResults />
-							)}
-							<div
-								className={`search-input-container ${
-									info.isFocused ? 'focused' : ''
-								}`}
-							>
-								<div
-									className={`search-input ${
-										info.showElasticSearchResults ? 'focused-search-input' : ''
-									}`}
-								>
-									<input
-										type="text"
-										placeholder="Search"
-										value={info.searchQuery || ''}
-										onChange={handleSearch}
-										onFocus={() => {
-											setInfo((prev) => ({
-												...prev,
-												isFocused: true,
-											}));
-										}}
-										onBlur={(e) => {
-											// If the blur is caused by clicking inside the dropdown, don't close
-											if (
-												document.activeElement &&
-												e.relatedTarget &&
-												e.relatedTarget.closest('.dropdown-container')
-											) {
-												return;
-											}
-											handleCloseSearch(e);
-										}}
-										className={`${
-											info.isFocused ? 'search-input-focused' : ''
-										} ${info.showElasticSearchResults ? 'input-focus' : ''}`}
-										ref={inputRef}
-									/>
-									<div className="spinner-wrapper">
-										{info?.isLoading ? (
-											<Spinner width="16px" height="16px" />
-										) : (
-											<SearchSvg />
-										)}
-									</div>
-									{info.showElasticSearchResults && (
-										<div
-											className="dropdown-container"
-											onMouseDown={(e) => e.preventDefault()}
-										>
-											<div>
-												<CustomDropdown
-													options={items}
-													value={info.selectedSource}
-													onChange={(val) =>
-														setInfo((prev) => ({
-															...prev,
-															selectedSource: val,
-														}))
-													}
-												>
-													<div style={customDropdownStyle}>
-														<Folder /> Sources
-													</div>
-												</CustomDropdown>
-											</div>
-											<div>
-												<CustomDropdown
-													options={items}
-													value={info.selectedIntegration}
-													onChange={(val) =>
-														setInfo((prev) => ({
-															...prev,
-															selectedIntegration: val,
-														}))
-													}
-												>
-													<div style={customDropdownStyle}>
-														<Plug /> Integrations
-													</div>
-												</CustomDropdown>
-											</div>
-										</div>
-									)}
-									<div className="command-text">
-										<CommandIcon /> <span>+ K</span>
-									</div>
-								</div>
+						<div className={`search-input-container`} onClick={triggerCmdK}>
+							<div className="search-input-wrapper">
+								<SearchSvg /> Search
+							</div>
+							<div className="command-text">
+								<CommandIcon /> <span>+ K</span>
 							</div>
 						</div>
 					</div>

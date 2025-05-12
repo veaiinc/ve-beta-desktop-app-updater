@@ -1,5 +1,5 @@
 import ObjectID from 'bson-objectid';
-import { memo, useContext, useEffect, useMemo, useState } from 'react';
+import { memo, useContext, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../../../assets/scss/files/search/elasticSearchResults.scss';
 import Context from '../../../context/context';
@@ -12,12 +12,6 @@ const ElasticSearchResults = () => {
 		templates: { updateStateValues: updateTemplateStateValues },
 		elasticSearch: { elasticSearchResults },
 	} = useContext(Context);
-
-	const [animate, setAnimate] = useState(false);
-
-	useEffect(() => {
-		setAnimate(true);
-	}, []);
 
 	const renderHTMLContent = (content) => {
 		return { __html: content || '' };
@@ -93,7 +87,7 @@ const ElasticSearchResults = () => {
 	}, [elasticSearchResults]);
 
 	return (
-		<div className={`elastic-search-results-container ${animate ? 'animate' : ''}`}>
+		<div className={`elastic-search-results-container`}>
 			{elasticSearchResults?.length > 0 ? (
 				Object.entries(groupedResults).map(([sourceType, items]) => (
 					<div key={sourceType} className="source-type-group">
