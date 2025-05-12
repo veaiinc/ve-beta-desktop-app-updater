@@ -12,12 +12,15 @@
 
 .current-view-options-tooltip {
 	display: flex;
-	width: 238px;
-	padding: 16px 16px;
+	width: 250px;
+	max-height: 472px;
+	padding: 0 16px 16px;
 	flex-direction: column;
 	gap: 12px;
 	border-radius: 12px;
-	background: var(--card-over-card, #202123);
+	background-color: var(--popup, #202123);
+	position: relative;
+	overflow-y: auto;
 
 	.current-view-options-tooltip-header {
 		overflow: hidden;
@@ -28,6 +31,16 @@
 		font-style: normal;
 		font-weight: 500;
 		line-height: normal;
+		padding: 16px 0 12px;
+		height: fit-content;
+		display: flex;
+		justify-content: flex-start;
+		align-items: center;
+		position: sticky;
+		top: 0;
+		background-color: var(--popup, #202123);
+		width: 100%;
+		z-index: 1;
 	}
 	.view-options-container {
 		display: flex;
@@ -176,6 +189,24 @@
 			font-style: normal;
 			font-weight: 500;
 			line-height: 16px; /* 133.333% */
+		}
+	}
+
+	.status-edit-wrapper {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		gap: 8px;
+		align-self: stretch;
+		cursor: pointer;
+		height: 32px;
+
+		svg {
+			width: 12px;
+			height: 12px;
+			path {
+				stroke: var(--secondary-font, #7a7e85);
+			}
 		}
 	}
 
