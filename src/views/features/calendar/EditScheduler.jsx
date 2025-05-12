@@ -1457,7 +1457,8 @@ const EditScheduler = ({ onBack, sessionId: propSessionId }) => {
 																	overlayInnerStyle={{
 																		padding: '6px 12px',
 																		fontSize: '12px',
-																		fontFamily: 'Inter',
+																		fontFamily:
+																			'var(--primary-font-family)',
 																	}}
 																>
 																	<div
@@ -1478,7 +1479,8 @@ const EditScheduler = ({ onBack, sessionId: propSessionId }) => {
 																		overlayInnerStyle={{
 																			padding: '6px 12px',
 																			fontSize: '12px',
-																			fontFamily: 'Inter',
+																			fontFamily:
+																				'var(--primary-font-family)',
 																		}}
 																	>
 																		<div
@@ -1501,7 +1503,8 @@ const EditScheduler = ({ onBack, sessionId: propSessionId }) => {
 																	overlayInnerStyle={{
 																		padding: '6px 12px',
 																		fontSize: '12px',
-																		fontFamily: 'Inter',
+																		fontFamily:
+																			'var(--primary-font-family)',
 																	}}
 																>
 																	<div
