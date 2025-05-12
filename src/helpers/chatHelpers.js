@@ -165,7 +165,7 @@ export const handleCombinedChainOfThought = (chainOfThought) => {
 		}
 
 		if (thought) {
-			thoughts?.push(data);
+			thoughts?.push({ thought: thought?.step || thought });
 		}
 
 		if (processing === 'Deep Search') {

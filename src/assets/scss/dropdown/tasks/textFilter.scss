@@ -30,12 +30,16 @@
 		border-radius: 10px;
 		border: 1px solid var(--stroke, #2c2d2e);
 		overflow: hidden;
-		color: var(--secondary-font, #7a7e85);
+		color: var(--primary-font);
 		font-family: var(--primary-font-family);
 		font-size: 12px;
 		font-style: normal;
 		font-weight: 500;
 		line-height: normal;
 		background-color: transparent;
+
+		&::placeholder {
+			color: var(--secondary-font);
+		}
 	}
 }

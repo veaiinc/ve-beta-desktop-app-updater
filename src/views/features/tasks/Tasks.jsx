@@ -86,9 +86,11 @@ export const rowTypes = {
 	createdWithAi: CreatedWithAi,
 };
 
-const availableViews = ['table', 'board', 'list', 'gallery'];
-
 const Tasks = () => {
+	const timeoutRef = useRef(null);
+	const [searchParams, setSearchParams] = useSearchParams();
+	const query = searchParams.get('itemId');
+
 	const {
 		tasks: {
 			listTasks,
@@ -151,10 +153,6 @@ const Tasks = () => {
 		timeout: null,
 		group: null,
 	});
-
-	const timeoutRef = useRef(null);
-	const [searchParams, setSearchParams] = useSearchParams();
-	const query = searchParams.get('itemId');
 
 	const responseMetadata = useMemo(
 		() => ({
@@ -936,94 +934,83 @@ const Tasks = () => {
 
 	return (
 		<div className="tasks-page-container">
-			<ChatLeftBarComponent>
-				<div className="tasks-left-container">
-					<Taskwidget
-						properties={info?.properties}
-						responseMetadata={responseMetadata}
-						colors={colors}
-					/>
-				</div>
-			</ChatLeftBarComponent>
-			<div className="tasks-right-container">
-				<Task
-					responseMetadata={responseMetadata}
-					handleAddButtonOnClick={handleAddButtonOnClick}
-					handleRowClick={handleRowClick}
-					colors={colors}
-					updateTaskInfo={updateTaskInfo}
-					rowTypes={rowTypes}
-					data={info?.listItems}
-					loading={info?.loadingSkeleton}
-					handleUpdate={updatePropertyValue}
-					properties={info?.properties}
-					taskPreferences={info?.taskPreferences}
-					searchValue={info?.searchValue}
-					infinityLoading={info?.infinityLoading}
-					hasMore={info?.hasMore}
-					error={info?.error}
-					fetchMoreData={fetchMoreData}
-					blockTitle={'Tasks'}
-					createButtonText={'Create Task'}
-					prefix={info?.taskMetadata?.prefix}
-					views={info?.taskMetadata?.views}
-					activeTab={info?.taskMetadata?.selectedTaskView}
-					updateView={updateView}
-					deleteView={deleteView}
-					updateActiveTab={handleActiveTabChange}
-				/>
-				<CreateTaskPopup
-					isOpen={info?.isCreateModalOpen}
-					closeModal={handleCloseCreateModal}
-					addNewTask={addNewTask}
-					tenantUsers={info?.tenantUsers}
-					clients={info?.clients}
-					isSubTask={info?.isCreatingSubtask}
-					responseMetadata={responseMetadata}
-					colors={colors}
-					fetchMoreData={fetchMoreData}
-					hasMore={info?.hasMore}
-					error={info?.error}
-				/>
-				<ListViewSidebar
-					selectedRow={info?.selectedRow || sideBarData}
-					sidebarIsOpen={info?.sidebarIsOpen}
-					closeSidebar={handleCloseSidebar}
-					handleUpdate={updatePropertyValue}
-					deleteTask={deleteTask}
-					rowTypes={rowTypes}
-					responseMetadata={responseMetadata}
-					properties={info?.properties}
-					colors={colors}
-					toggleSidebarExpand={() =>
-						updateTaskInfo({ isSidebarExpanded: !info?.isSidebarExpanded })
-					}
-					isSidebarExpanded={info?.isSidebarExpanded}
-					headerText={
-						`${info?.taskMetadata?.prefix ? info?.taskMetadata?.prefix + '-' : ''}` +
-						(info?.selectedRow?.taskSlNo || '')
-					}
-					breadCrumbs={info?.breadCrumbs}
-					handleBreadCrumbsClick={handleBreadCrumbsClick}
-					sidebarChildren={
-						info?.selectedRow ? (
-							<ChildTaskComponent
-								parentTaskId={info?.selectedRow?._id}
-								childTasks={info?.selectedRow?.childTasks}
-								completedStatus={info?.taskMetadata?.completedGroupLabels}
-								rowTypes={rowTypes}
-								responseMetadata={responseMetadata}
-								colors={colors}
-								properties={info?.properties}
-								onAddButtonClick={handleCreateSubTaskClick}
-								handleUpdate={(...args) => updatePropertyValue(...args, true)}
-								handleRowClick={handleSubTaskClick}
-							/>
-						) : null
-					}
-					// renewBanner={renewBanner}
-				/>
-			</div>
+			<Task
+				responseMetadata={responseMetadata}
+				handleAddButtonOnClick={handleAddButtonOnClick}
+				handleRowClick={handleRowClick}
+				colors={colors}
+				updateTaskInfo={updateTaskInfo}
+				rowTypes={rowTypes}
+				data={info?.listItems}
+				loading={info?.loadingSkeleton}
+				handleUpdate={updatePropertyValue}
+				properties={info?.properties}
+				taskPreferences={info?.taskPreferences}
+				searchValue={info?.searchValue}
+				infinityLoading={info?.infinityLoading}
+				hasMore={info?.hasMore}
+				error={info?.error}
+				fetchMoreData={fetchMoreData}
+				blockTitle={'Tasks'}
+				createButtonText={'Create Task'}
+				prefix={info?.taskMetadata?.prefix}
+				views={info?.taskMetadata?.views}
+				activeTab={info?.taskMetadata?.selectedTaskView}
+				updateView={updateView}
+				deleteView={deleteView}
+				updateActiveTab={handleActiveTabChange}
+			/>
+			<CreateTaskPopup
+				isOpen={info?.isCreateModalOpen}
+				closeModal={handleCloseCreateModal}
+				addNewTask={addNewTask}
+				tenantUsers={info?.tenantUsers}
+				clients={info?.clients}
+				isSubTask={info?.isCreatingSubtask}
+				responseMetadata={responseMetadata}
+				colors={colors}
+				fetchMoreData={fetchMoreData}
+				hasMore={info?.hasMore}
+				error={info?.error}
+			/>
+			<ListViewSidebar
+				selectedRow={info?.selectedRow || sideBarData}
+				sidebarIsOpen={info?.sidebarIsOpen}
+				closeSidebar={handleCloseSidebar}
+				handleUpdate={updatePropertyValue}
+				deleteTask={deleteTask}
+				rowTypes={rowTypes}
+				responseMetadata={responseMetadata}
+				properties={info?.properties}
+				colors={colors}
+				toggleSidebarExpand={() =>
+					updateTaskInfo({ isSidebarExpanded: !info?.isSidebarExpanded })
+				}
+				isSidebarExpanded={info?.isSidebarExpanded}
+				headerText={
+					`${info?.taskMetadata?.prefix ? info?.taskMetadata?.prefix + '-' : ''}` +
+					(info?.selectedRow?.taskSlNo || '')
+				}
+				breadCrumbs={info?.breadCrumbs}
+				handleBreadCrumbsClick={handleBreadCrumbsClick}
+				sidebarChildren={
+					info?.selectedRow ? (
+						<ChildTaskComponent
+							parentTaskId={info?.selectedRow?._id}
+							childTasks={info?.selectedRow?.childTasks}
+							completedStatus={info?.taskMetadata?.completedGroupLabels}
+							rowTypes={rowTypes}
+							responseMetadata={responseMetadata}
+							colors={colors}
+							properties={info?.properties}
+							onAddButtonClick={handleCreateSubTaskClick}
+							handleUpdate={(...args) => updatePropertyValue(...args, true)}
+							handleRowClick={handleSubTaskClick}
+						/>
+					) : null
+				}
+				// renewBanner={renewBanner}
+			/>
 		</div>
 	);
 };

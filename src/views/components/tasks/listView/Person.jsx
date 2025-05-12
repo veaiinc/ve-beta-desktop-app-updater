@@ -80,7 +80,7 @@ const Person = ({
 					!disabled && (
 						<TeamMembersDropdown
 							onOptionClick={handleOptionClick}
-							selectedOptions={info?.selected}
+							selected={info?.selected}
 							title={title}
 						/>
 					)
@@ -93,7 +93,7 @@ const Person = ({
 				destroyTooltipOnHide
 			>
 				<div
-					className="person-multi-select-selected"
+					className="person-multi-select-selected filter-wrapper"
 					onClick={(e) => {
 						e?.stopPropagation();
 						setInfo((prev) => ({ ...prev, open: !info?.open }));

@@ -12,7 +12,9 @@ import gsap from 'gsap';
 import Spinner from '../loaders/Spinner';
 import FilterDropdown from '../dropDown/file/FilterDropdown';
 import EmptyState from './EmptyState';
-import { Tooltip } from 'antd';
+import { fetchOriginSelection } from '../../../helpers';
+
+const origin = fetchOriginSelection();
 
 const filterOptions = [
 	{ label: 'All', value: '' },

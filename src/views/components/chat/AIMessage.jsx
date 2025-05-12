@@ -13,6 +13,7 @@ import { ReactComponent as ArrowRightSvg } from '../../../assets/svg/home_page/a
 import AISuggestionsReportAiComponent from './chatComponents/AiSuggestionsReportAiComponent';
 import '../../../assets/scss/chat/aiMessage.scss';
 import PromptPopup from '../homePage/PromptPopup';
+import ClarifyWidget from './chatWidgets/ClarifyWidget';
 
 const AIMessage = memo(
 	({
@@ -129,6 +130,8 @@ const AIMessage = memo(
 
 				{messageData?.moduleType === 'ai_suggestion_report' ? (
 					<AISuggestionsReportAiComponent data={messageData?.data} />
+				) : messageData?.widget_type === 'clarifyWidget' ? (
+					<ClarifyWidget data={messageData?.data} />
 				) : (
 					<Markdown citations={citations}>{text}</Markdown>
 				)}

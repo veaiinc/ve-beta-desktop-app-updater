@@ -1,9 +1,8 @@
-import { useState, memo } from 'react';
+import { useState, memo, useCallback } from 'react';
 import { Modal } from 'antd';
-import { ReactComponent as DownloadIcon } from '../../../assets/svg/download.svg';
 import { ReactComponent as CloseIcon } from '../../../assets/svg/close.svg';
 import '../../../assets/scss/forms/formPreview.scss';
-
+import CustomHeader from './CustomHeader';
 const FormPreview = ({ file, onClose }) => {
 	const [isModalVisible, setIsModalVisible] = useState(true);
 	const { name, fileURL, type } = file || {};
@@ -13,32 +12,26 @@ const FormPreview = ({ file, onClose }) => {
 		onClose?.();
 	};
 
-	const handleDownload = async () => {
+	const handleDownload = useCallback(async () => {
 		if (!fileURL) return;
 
 		try {
-			// Fetch the file
 			const response = await fetch(fileURL);
 			const blob = await response?.blob();
-
-			// Create a blob URL
 			const blobUrl = window?.URL?.createObjectURL(blob);
 
-			// Create a temporary link element
 			const link = document?.createElement('a');
 			link.href = blobUrl;
 			link.download = name || 'download';
 
-			// Append to body, click, and remove
 			document?.body?.appendChild(link);
 			link.click();
 
-			// Clean up
 			document?.body?.removeChild(link);
 			window?.URL?.revokeObjectURL(blobUrl);
 		} catch (error) {
 			console.error('Error downloading file:', error);
-			// Fallback to direct download if fetch fails
+
 			const link = document?.createElement('a');
 			link.href = fileURL;
 			link.download = name || 'download';
@@ -47,7 +40,7 @@ const FormPreview = ({ file, onClose }) => {
 			link.click();
 			document?.body?.removeChild(link);
 		}
-	};
+	}, [fileURL, name]);
 
 	const isImage = type?.startsWith('image/') || type === 'image';
 
@@ -74,15 +67,4 @@ const FormPreview = ({ file, onClose }) => {
 		</Modal>
 	);
 };
-
-const CustomHeader = ({ name, handleDownload }) => (
-	<div className="modal-actions">
-		<h3 className="file-name">{name}</h3>
-		<div className="download-button" onClick={handleDownload}>
-			<DownloadIcon />
-			<span>Download</span>
-		</div>
-	</div>
-);
-
 export default memo(FormPreview);
