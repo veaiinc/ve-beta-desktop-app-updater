@@ -311,7 +311,7 @@ const ExpandedClientView = () => {
 				<div className="left-section">
 					<div className="contacts-header">
 						<h2>
-							Grace Taylors’s <span>suggestions</span>
+							{clientData?.name} <span>suggestions</span>
 						</h2>
 					</div>
 					<div className="contacts-stats-container">
