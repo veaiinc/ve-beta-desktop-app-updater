@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+  <g clip-path="url(#clip0_1020_3488)">
+    <path d="M8 10C9.38071 10 10.5 8.88071 10.5 7.5C10.5 6.11929 9.38071 5 8 5C6.61929 5 5.5 6.11929 5.5 7.5C5.5 8.88071 6.61929 10 8 10Z" stroke="var(--primary-button)" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M3.98779 12.4609C4.36399 11.7199 4.93802 11.0976 5.64626 10.6629C6.3545 10.2282 7.16928 9.99805 8.00029 9.99805C8.83131 9.99805 9.64609 10.2282 10.3543 10.6629C11.0626 11.0976 11.6366 11.7199 12.0128 12.4609" stroke="var(--primary-button)" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M13.9171 7.00003C14.1281 8.25337 13.9352 9.54132 13.3664 10.6779C12.7976 11.8145 11.8823 12.7409 10.7527 13.3234C9.62306 13.9059 8.33754 14.1142 7.08174 13.9184C5.82594 13.7227 4.66487 13.1328 3.76616 12.2341C2.86745 11.3354 2.27761 10.1743 2.08182 8.91853C1.88603 7.66273 2.09441 6.3772 2.67688 5.24756C3.25936 4.11792 4.18577 3.20263 5.32236 2.63384C6.45895 2.06506 7.7469 1.87221 9.00024 2.08315" stroke="var(--primary-button)" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M11.5 3.5L12.5 4.5L14.5 2.5" stroke="var(--primary-button)" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <defs>
+    <clipPath id="clip0_1020_3488">
+      <rect width="16" height="16" fill="white"/>
+    </clipPath>
+  </defs>
+</svg>

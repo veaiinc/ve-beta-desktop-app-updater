@@ -17,7 +17,7 @@
 		border: none;
 		&:hover {
 			cursor: pointer;
-			background: var(--card);
+			background: var(--card-over-card-hover);
 		}
 		.ant-select-selector {
 			padding: 2px;

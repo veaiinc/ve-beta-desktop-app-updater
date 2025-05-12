@@ -1,185 +1,361 @@
+.event-details-drawer {
+	.ant-drawer-content-wrapper {
+		width: auto !important;
+		transition: none !important;
+	}
+}
+
 .eventDetailsDrawerParentCOntainer {
 	height: 100%;
 	display: flex;
-	// padding: 10px;
-	justify-content: center;
-	align-items: center;
+	flex-direction: column;
+	background: var(--card);
+	overflow: hidden;
+	position: relative;
+	width: 450px;
+	will-change: width;
+	transition: none;
+
+	.drag-handler {
+		position: absolute;
+		left: 0;
+		top: 0;
+		width: 4px;
+		height: 100%;
+		cursor: ew-resize;
+		background: transparent;
+		z-index: 1000;
+
+		&:hover {
+			background: var(--primary);
+		}
+	}
 
 	.innerContainer {
 		display: flex;
-		width: 100%;
-		padding: 24px 32px;
 		flex-direction: column;
-		align-items: flex-start;
-		gap: 20px;
-		align-self: stretch;
-		// border-radius: 16px;
-		border: 1px solid var(--stroke);
-		background: var(--navbar);
-		overflow-y: auto;
-		overflow-x: hidden;
-		cursor: default;
+		height: 100%;
+		overflow: hidden;
 
-		// for spinner
-		.loadingContainer {
+		.drawer-header {
 			display: flex;
-			flex-direction: column;
-			gap: 10px;
-			justify-content: center;
-			align-items: center;
-			height: 100%;
-			align-self: stretch;
-			color: var(--primary-font);
-			font-family: var(--primary-font-family);
-			font-size: 12px;
-			font-style: normal;
-			font-weight: 600;
-		}
-
-		.eventHeader {
-			display: flex;
-			// justify-content: space-between;
-			align-items: center;
-			align-self: stretch;
-			gap: 10px;
-
-			> svg {
-				opacity: 0.7;
-				transition: opacity 0.3s ease;
-				&:hover {
-					opacity: 1;
-					filter: drop-shadow(0 0 8px #c8c4c4);
-				}
-			}
-
-			.eventTitle {
-				color: var(--primary-font);
-				font-family: var(--primary-font-family);
-				font-size: 14px;
-				font-style: normal;
-				font-weight: 400;
-				flex: 1;
-			}
-
-			.deleteIcon {
-				background: transparent;
-				border: none;
-				cursor: pointer;
-				transition: color 0.3s ease, box-shadow 0.3s ease;
-
-				&:hover path {
-					stroke: var(--error) !important;
-				}
-
-				&:hover {
-					filter: drop-shadow(0 0 8px var(--error));
-				}
-			}
-		}
-
-		.eventDetailsWrapper {
-			display: flex;
+			padding: 12px 24px;
 			flex-direction: column;
 			align-items: flex-start;
-			gap: 12px;
 			align-self: stretch;
-			padding: 20px 0px;
-			border-top: 1px solid var(--stroke);
-			border-bottom: 1px solid var(--stroke);
+			border-bottom: 1px solid var(--stroke, #2c2d2e);
+			background: var(--popup, #202123);
+			position: sticky;
+			top: 0;
+			width: 100%;
+			z-index: 1;
+			box-sizing: border-box;
 
-			.eventDetailsRow {
-				min-height: 31px;
-				width: 100%;
-				display: grid;
-				grid-template-columns: 1fr 2fr;
-				gap: 15px;
+			.header-content {
+				display: flex;
+				justify-content: space-between;
 				align-items: center;
-				&.hidden {
-					display: none;
-				}
+				width: 100%;
 
-				.eventKey {
-					color: var(--primary-font);
-					font-family: var(--primary-font-family);
-					font-size: 12px;
-					font-style: normal;
-					font-weight: 500;
-					text-overflow: ellipsis;
-					text-transform: capitalize;
-				}
+				.headerActions {
+					display: flex;
+					gap: 6px;
 
-				.eventValue {
-					color: var(--primary-font);
-					text-overflow: ellipsis;
-					font-family: var(--primary-font-family);
-					font-size: 14px;
-					font-style: normal;
-					font-weight: 500;
-					line-height: normal;
-					text-align: start;
-					text-transform: capitalize;
+					.action-btn {
+						display: flex;
+						width: 40px;
+						height: 40px;
+						padding: 12px;
+						justify-content: center;
+						align-items: center;
+						border-radius: 8px;
+						border: 1px solid var(--stroke, #2c2d2e);
+						cursor: pointer;
+						transition: all 0.3s ease;
 
-					.attendeeSelector {
-						//custom tag for selected attendees
-						.custom-tag {
-							display: flex;
-							align-items: center;
-							justify-content: space-between;
-							width: fit-content;
-							gap: 4px;
-							padding: 4px 6px;
-							margin: 2px;
-							border-radius: 8px;
-							font-size: 12px;
-							font-weight: 500;
-							color: var(--primary-font);
-							background-color: var(--card-over-card-hover);
-
-							.profile-icon {
-								display: flex;
-								width: 16px;
-								height: 16px;
-								justify-content: center;
-								align-items: center;
-								font-size: 10px;
-								background-color: var(--card-over-card-hover);
-								border-radius: 50%;
-							}
-
-							.tag-name {
-								font-weight: 500;
-								line-height: 16px;
-								color: var(--primary-font);
-								width: 120px;
-								white-space: nowrap;
-								overflow: hidden;
-								text-overflow: ellipsis;
+						&:hover {
+							background: var(--card-over-card-hover);
+							svg {
+								opacity: 1;
 							}
 						}
 
-						//overflow the attendees list
-						.ant-select-selection-overflow {
-							overflow-y: scroll;
-							max-height: 100px;
+						svg {
+							width: 20px;
+							height: 20px;
+							opacity: 0.7;
+							transition: opacity 0.3s ease;
+						}
+					}
+
+					.deleteIcon {
+						display: flex;
+						width: 40px;
+						height: 40px;
+						padding: 12px;
+						justify-content: center;
+						align-items: center;
+						gap: 6px;
+						border-radius: 8px;
+						border: 1px solid var(--error);
+						cursor: pointer;
+						transition: all 0.3s ease;
+
+						&:hover {
+							background: var(--card-over-card-hover);
+							svg {
+								opacity: 1;
+							}
+						}
+
+						svg {
+							width: 20px;
+							height: 20px;
+							opacity: 0.7;
+							transition: opacity 0.3s ease;
 						}
 					}
 				}
 			}
 		}
 
-		.expandBtn {
-			display: flex;
-			align-items: center;
-			gap: 5px;
-			cursor: pointer;
-			color: var(--primary-font);
-			font-family: var(--primary-font-family);
-			font-size: 10px;
-			font-weight: 500;
-			opacity: 0.7;
-			transition: opacity 0.3s ease;
-			&:hover {
-				opacity: 1;
+		.content-container {
+			flex: 1;
+			overflow-y: auto;
+			padding: 20px;
+			height: calc(100% - 64px);
+			box-sizing: border-box;
+			width: 100%;
+
+			// for spinner
+			.loadingContainer {
+				display: flex;
+				flex-direction: column;
+				gap: 10px;
+				justify-content: center;
+				align-items: center;
+				height: 100%;
+				align-self: stretch;
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 600;
+			}
+
+			.headerWrapper {
+				display: flex;
+				flex-direction: column;
+				gap: 12px;
+				align-self: stretch;
+				padding-bottom: 16px;
+				border-bottom: 1px solid var(--stroke);
+				margin-bottom: 8px;
+				width: 100%;
+			}
+
+			.attendeesSection,
+			.eventDetailsWrapper,
+			.eventInfoWrapper {
+				width: 100%;
+			}
+
+			.eventDetailsTitle {
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 600;
+				line-height: normal;
+			}
+
+			.attendeesSection {
+				display: flex;
+				flex-direction: column;
+				align-items: flex-start;
+				gap: 8px;
+				align-self: stretch;
+				padding: 10px;
+				border-radius: 8px;
+
+				.attendeesTitle {
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 600;
+				}
+
+				.attendeesValue {
+					width: 100%;
+
+					.ant-select {
+						width: 100%;
+
+						.ant-select-selector {
+							background: var(--popup);
+							border: none;
+							padding: 4px 8px;
+						}
+
+						.ant-select-selection-item {
+							background: var(--card-over-card-hover);
+							border: none;
+						}
+					}
+
+					.custom-tag {
+						display: flex;
+						align-items: center;
+						justify-content: space-between;
+						width: fit-content;
+						gap: 4px;
+						padding: 4px 6px;
+						margin: 2px;
+						border-radius: 8px;
+						font-size: 12px;
+						font-weight: 500;
+						color: var(--primary-font);
+						border-radius: 100px;
+						border: 1px solid var(--stroke);
+						overflow-x: hidden;
+
+						.profile-icon {
+							display: flex;
+							width: 16px;
+							height: 16px;
+							justify-content: center;
+							align-items: center;
+							font-size: 10px;
+							background-color: var(--card-over-card-hover);
+							border-radius: 50%;
+						}
+
+						.tag-name {
+							font-weight: 500;
+							line-height: 16px;
+							color: var(--primary-font);
+							width: 120px;
+							white-space: nowrap;
+							overflow: hidden;
+							text-overflow: ellipsis;
+						}
+					}
+
+					.ant-select-selection-overflow {
+						overflow-y: scroll;
+						max-height: 100px;
+					}
+				}
+			}
+
+			.eventDetailsWrapper {
+				display: flex;
+				flex-direction: column;
+				align-items: flex-start;
+				gap: 8px;
+				align-self: stretch;
+				padding: 10px 0px;
+
+				.eventDetailsRow {
+					display: flex;
+					padding: 8px 12px;
+					justify-content: space-between;
+					align-items: center;
+					align-self: stretch;
+					min-height: 51px;
+					width: 100%;
+					border-radius: 8px;
+					border: 1px solid var(--stroke);
+					background: var(--popup);
+					gap: 15px;
+					align-items: center;
+
+					.eventKey {
+						color: var(--secondary-font, #7a7e85);
+						font-family: Inter;
+						font-size: 11px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+						text-overflow: ellipsis;
+						text-transform: capitalize;
+						display: flex;
+						align-items: center;
+						gap: 10px;
+						cursor: text !important;
+
+						svg {
+							flex-shrink: 0;
+							opacity: 0.7;
+						}
+					}
+
+					.eventValue {
+						color: var(--primary-font, #f2f2f3);
+						font-family: Inter;
+						font-size: 12px;
+						font-style: normal;
+						font-weight: 600;
+						line-height: normal;
+						text-overflow: ellipsis;
+						text-align: start;
+						text-transform: capitalize;
+					}
+				}
+			}
+
+			.eventInfoWrapper {
+				display: flex;
+				flex-direction: column;
+				align-items: flex-start;
+				gap: 12px;
+				align-self: stretch;
+				padding: 20px 0px;
+				border-top: 1px solid var(--stroke);
+				margin-top: 16px;
+
+				.eventInfoTitle {
+					color: var(--primary-font);
+					font-family: var(--primary-font-family);
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 600;
+					margin-bottom: 8px;
+				}
+
+				.eventInfoRow {
+					min-height: 31px;
+					width: 100%;
+					gap: 15px;
+					align-items: center;
+
+					.eventKey {
+						color: var(--secondary-font, #7a7e85);
+						font-family: Inter;
+						font-size: 12px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+						cursor: text !important;
+						svg {
+							flex-shrink: 0;
+							opacity: 0.7;
+						}
+					}
+
+					.eventValue {
+						color: var(--primary-font);
+						text-overflow: ellipsis;
+						font-family: var(--primary-font-family);
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+						text-align: start;
+						text-transform: capitalize;
+					}
+				}
 			}
 		}
 	}
@@ -194,7 +370,6 @@
 	height: 31px;
 	&:hover {
 		cursor: pointer;
-		// background: #1e1e1e;
 		background: var(--card-over-card-hover);
 	}
 }
@@ -209,4 +384,54 @@
 	align-items: center;
 	justify-content: space-between;
 	gap: 5px;
+}
+
+.attendees-container {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+
+	.add-more-button {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		padding: 8px;
+		cursor: pointer;
+		color: var(--primary-font);
+		font-weight: 500;
+		border-radius: 4px;
+		transition: background-color 0.2s;
+		.add-more-text {
+			font-size: 12px;
+			font-weight: 500;
+			color: var(--primary-font);
+		}
+
+		&:hover {
+			background-color: var(--hover);
+		}
+
+		.add-icon {
+			font-size: 16px;
+		}
+	}
+
+	.new-attendee-input {
+		margin-top: 8px;
+
+		.ant-input {
+			background-color: var(--card);
+			border-color: var(--border);
+			color: var(--primary-font);
+
+			&:focus {
+				border-color: var(--primary);
+				box-shadow: none;
+			}
+
+			&::placeholder {
+				color: var(--secondary-font);
+			}
+		}
+	}
 }
