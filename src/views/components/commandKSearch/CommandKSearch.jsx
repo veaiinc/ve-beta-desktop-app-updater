@@ -54,22 +54,12 @@ const CommandKSearch = () => {
 			e.preventDefault();
 			setInfo((prev) => ({ ...prev, isOpen: !prev.isOpen }));
 		}
-		if (e.key === 'Escape' && info.isOpen) {
+		if (e.key === 'Escape') {
 			setInfo((prev) => ({ ...prev, isOpen: false }));
 		}
 	};
 
 	useEffect(() => {
-		const handleKeyDown = (e) => {
-			if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
-				e.preventDefault();
-				setInfo((prev) => ({ ...prev, isOpen: !prev.isOpen }));
-			}
-			if (e.key === 'Escape') {
-				setInfo((prev) => ({ ...prev, isOpen: false }));
-			}
-		};
-
 		document.addEventListener('keydown', handleKeyDown);
 		return () => {
 			document.removeEventListener('keydown', handleKeyDown);
@@ -179,7 +169,7 @@ const CommandKSearch = () => {
 								<SearchSvg />
 							)}
 						</div>
-						<div className="dropdown-container" onMouseDown={(e) => e.preventDefault()}>
+						{/* <div className="dropdown-container" onMouseDown={(e) => e.preventDefault()}>
 							<div>
 								<CustomDropdown
 									options={items}
@@ -212,7 +202,7 @@ const CommandKSearch = () => {
 									</div>
 								</CustomDropdown>
 							</div>
-						</div>
+						</div> */}
 					</div>
 				</div>
 			</div>
