@@ -61,10 +61,34 @@
 				}
 			}
 
+			.calendarControlsRight {
+				display: flex;
+				align-items: center;
+				gap: 100px;
+				justify-content: flex-end;
+				position: relative;
+			}
+
+			.quickActionsWrapper {
+				position: relative;
+				height: 41px;
+				display: flex;
+				align-items: center;
+
+				.quick-actions-container {
+					position: absolute;
+					right: 0;
+					top: 0;
+				}
+			}
+			.quick-actions-dropdown-options-container {
+				top: 22px;
+			}
+
 			.viewToggleWrapper {
 				display: flex;
-				padding: 5px;
-				align-items: flex-start;
+				padding: 16px;
+				align-items: center;
 				gap: 10px;
 
 				.divider {
