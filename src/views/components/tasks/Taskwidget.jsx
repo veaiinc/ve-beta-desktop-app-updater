@@ -289,7 +289,15 @@ const Taskwidget = ({
 				</div>
 			)}
 
-			<div className="taskWidgetHeaderContainer">
+			<div
+				className="taskWidgetHeaderContainer"
+				onClick={() =>
+					setInfo((prevInfo) => ({
+						...prevInfo,
+						widgetShown: !prevInfo?.widgetShown,
+					}))
+				}
+			>
 				<div className="taskHeader">
 					<div className="taskWidgetHeaderNumber">{allTasks || 0}</div>
 					<div className="taskWidgetHeaderText">All tasks</div>
@@ -297,12 +305,6 @@ const Taskwidget = ({
 				<div className="taskWidgeticon">
 					<ChevronRightThinSvg
 						className={`chevron-icon ${info?.widgetShown && 'chevron-icon-rotate'}`}
-						onClick={() =>
-							setInfo((prevInfo) => ({
-								...prevInfo,
-								widgetShown: !prevInfo?.widgetShown,
-							}))
-						}
 					/>
 				</div>
 			</div>

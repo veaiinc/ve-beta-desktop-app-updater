@@ -171,22 +171,6 @@ const CurrentViewOptions = ({
 		});
 	};
 
-	const filteredProperties = useMemo(
-		() =>
-			properties?.filter((property) =>
-				[
-					'title',
-					'status',
-					'childTasks',
-					'priority',
-					'dueDate',
-					'assignedTo',
-					'taskSlNo',
-				].includes(property?.value),
-			),
-		[properties],
-	);
-
 	return (
 		<Tooltip
 			title={
@@ -293,7 +277,7 @@ const CurrentViewOptions = ({
 					<div className="properties-wrapper">
 						<div className="current-view-option-title">Task Properties</div>
 						<div className="property-items-wrapper">
-							{filteredProperties?.map((property) => (
+							{properties?.map((property) => (
 								<div
 									className={`property-item ${property?.show ? 'show' : ''} ${
 										property.value === 'title' ? 'disabled' : ''
