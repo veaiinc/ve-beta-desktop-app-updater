@@ -64,6 +64,8 @@ const Taskwidget = ({
 		}));
 	};
 
+	const statusOptions = responseMetadata?.status?.props?.options;
+
 	const handleSortChange = (sort, update = false) => {
 		const currentSort = info?.sort || [];
 
@@ -102,12 +104,21 @@ const Taskwidget = ({
 			newFilters = [...(info?.filters || []), { key, value }];
 		}
 
+		const filteredWidgets = newFilters?.filter((filter) => {
+			if (key === 'overDue' && filter?.key === 'dueToday') {
+				return false;
+			} else if (key === 'dueToday' && filter?.key === 'overDue') {
+				return false;
+			}
+			return true;
+		});
+
 		setInfo((prevInfo) => ({
 			...prevInfo,
-			filters: newFilters,
+			filters: filteredWidgets,
 		}));
 
-		updateViewInfo(viewData?._id, { filters: newFilters });
+		updateViewInfo(viewData?._id, { filters: filteredWidgets });
 	};
 
 	const handleClearAllFilters = () => {
@@ -130,7 +141,62 @@ const Taskwidget = ({
 		updateViewInfo(viewData?._id, { filters: newFilters });
 	};
 
+	const handleWidgetStatusFilter = (key) => {
+		if (key === 'pending') {
+			const todo = statusOptions?.todo;
+			const inProgress = statusOptions?.inProgress;
+			handleFilterChange(
+				'status',
+				[...todo, ...inProgress]?.map((item) => item?._id),
+			);
+		}
+		if (key === 'completed') {
+			const completed = statusOptions?.completed;
+			handleFilterChange(
+				'status',
+				completed?.map((item) => item?._id),
+			);
+		}
+	};
+
+	const handleRemoveWidgetFilter = (key) => {
+		const newFilters = info?.filters?.filter((filter) => filter?.key !== key);
+
+		setInfo((prevInfo) => ({
+			...prevInfo,
+			filters: newFilters,
+		}));
+
+		updateViewInfo(viewData?._id, { filters: newFilters });
+	};
+
 	const { allTasks, today, completed, overdue, allPending } = listTasks?.analytics || {};
+	let dueTodayWidget = false;
+	let overDueWidget = false;
+	let pendingWidget = false;
+	let completedWidget = false;
+	const cleanedFilters = info?.filters?.filter((filter) => {
+		if (filter?.key === 'dueToday') {
+			dueTodayWidget = true;
+			return false;
+		}
+		if (filter?.key === 'overDue') {
+			overDueWidget = true;
+			return false;
+		}
+		if (filter?.key === 'status' && Array.isArray(filter?.value)) {
+			const { todo, inProgress, completed } = statusOptions;
+			if (filter?.value?.length === [...todo, ...inProgress]?.length) {
+				pendingWidget = true;
+			}
+			if (filter?.value?.length === completed?.length) {
+				completedWidget = true;
+			}
+
+			return false;
+		}
+		return true;
+	});
 
 	return (
 		<div className="taskWidgetContainer">
@@ -240,8 +306,8 @@ const Taskwidget = ({
 							)}
 						</div>
 						<div className="sort-filter-values-container">
-							{info?.filters?.length > 0 ? (
-								info?.filters?.map((filter, index) => {
+							{cleanedFilters?.length > 0 ? (
+								cleanedFilters?.map((filter, index) => {
 									const { type, props, name } = responseMetadata?.[filter?.key];
 									let Component = null;
 									if (type === 'text') {
@@ -309,7 +375,16 @@ const Taskwidget = ({
 				</div>
 			</div>
 			<div className={`widgets ${info?.widgetShown && 'widget-show'}`}>
-				<div className="taskWidgetcontent">
+				<div
+					className={`taskWidgetcontent ${dueTodayWidget && 'active'}`}
+					onClick={() => {
+						if (dueTodayWidget) {
+							handleRemoveWidgetFilter('dueToday', '');
+						} else {
+							handleFilterChange('dueToday', '');
+						}
+					}}
+				>
 					<div className="taskWidgetoption">
 						<div className="taskWidgetnumber">{today || 0}</div>
 						<div className="taskWidgettext">Due today</div>
@@ -318,7 +393,16 @@ const Taskwidget = ({
 						<Calendar />
 					</div>
 				</div>
-				<div className="taskWidgetcontent">
+				<div
+					className={`taskWidgetcontent ${pendingWidget && 'active'}`}
+					onClick={() => {
+						if (pendingWidget) {
+							handleRemoveWidgetFilter('status', '');
+						} else {
+							handleWidgetStatusFilter('pending');
+						}
+					}}
+				>
 					<div className="taskWidgetoption">
 						<div className="taskWidgetnumber">{allPending || 0}</div>
 						<div className="taskWidgettext">Pending</div>
@@ -327,7 +411,16 @@ const Taskwidget = ({
 						<Pending />
 					</div>
 				</div>
-				<div className="taskWidgetcontent">
+				<div
+					className={`taskWidgetcontent ${overDueWidget && 'active'}`}
+					onClick={() => {
+						if (overDueWidget) {
+							handleRemoveWidgetFilter('overDue', '');
+						} else {
+							handleFilterChange('overDue', '');
+						}
+					}}
+				>
 					<div className="taskWidgetoption">
 						<div className="taskWidgetnumber">{overdue || 0}</div>
 						<div className="taskWidgettext">Overdue</div>
@@ -336,7 +429,16 @@ const Taskwidget = ({
 						<Warn />
 					</div>
 				</div>
-				<div className="taskWidgetcontent">
+				<div
+					className={`taskWidgetcontent ${completedWidget && 'active'}`}
+					onClick={() => {
+						if (completedWidget) {
+							handleRemoveWidgetFilter('status', '');
+						} else {
+							handleWidgetStatusFilter('completed');
+						}
+					}}
+				>
 					<div className="taskWidgetoption">
 						<div className="taskWidgetnumber">{completed || 0}</div>
 						<div className="taskWidgettext">Completed</div>
