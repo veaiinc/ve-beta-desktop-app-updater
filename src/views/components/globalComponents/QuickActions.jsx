@@ -21,43 +21,42 @@ import EventsPopup from '../calendar/EventsPopUp';
 import CreateSessionModal from '../modalsV2/calendar/CreateSessionModal';
 import { ReactComponent as Flash } from '../../../assets/svg/flash.svg';
 import Search from '../../../assets/svg/searc.svg';
-import ObjectID from 'bson-objectid';
 
 const suggestedOptions = [];
 
 const buildAiOptions = [
-	{
-		id: 1,
-		title: 'Form',
-		value: 'form-submission',
-		controlValue: 'form',
-		action: ({ updateStateValues, navigate }) => {
-			const sessionId = ObjectID()?.toString();
-			updateStateValues({ activeInputForChat: 'Create a form for' });
-			navigate(`/chat/${sessionId}`);
-		},
-	},
-	{
-		id: 2,
-		title: 'Task',
-		value: 'task',
-		action: ({ updateStateValues, navigate }) => {
-			const sessionId = ObjectID()?.toString();
-			updateStateValues({ activeInputForChat: 'Create a task for' });
-			navigate(`/chat/${sessionId}`);
-		},
-	},
-	{
-		id: 3,
-		title: 'Event',
-		value: 'event',
-		controlValue: 'event',
-		action: ({ updateStateValues, navigate }) => {
-			const sessionId = ObjectID()?.toString();
-			updateStateValues({ activeInputForChat: 'Create a meeting for' });
-			navigate(`/chat/${sessionId}`);
-		},
-	},
+	// {
+	// 	id: 1,
+	// 	title: 'Form',
+	// 	value: 'form-submission',
+	// 	controlValue: 'form',
+	// 	action: ({ updateStateValues, navigate }) => {
+	// 		const sessionId = ObjectID()?.toString();
+	// 		updateStateValues({ activeInputForChat: 'Create a form for' });
+	// 		navigate(`/chat/${sessionId}`);
+	// 	},
+	// },
+	// {
+	// 	id: 2,
+	// 	title: 'Task',
+	// 	value: 'task',
+	// 	action: ({ updateStateValues, navigate }) => {
+	// 		const sessionId = ObjectID()?.toString();
+	// 		updateStateValues({ activeInputForChat: 'Create a task for' });
+	// 		navigate(`/chat/${sessionId}`);
+	// 	},
+	// },
+	// {
+	// 	id: 3,
+	// 	title: 'Event',
+	// 	value: 'event',
+	// 	controlValue: 'event',
+	// 	action: ({ updateStateValues, navigate }) => {
+	// 		const sessionId = ObjectID()?.toString();
+	// 		updateStateValues({ activeInputForChat: 'Create a meeting for' });
+	// 		navigate(`/chat/${sessionId}`);
+	// 	},
+	// },
 ];
 
 const createOptions = [
@@ -670,7 +669,7 @@ const QuickActions = ({
 			return [
 				{
 					id: 1,
-					title: 'Create a meeting',
+					title: 'meeting',
 					value: 'event',
 					controlValue: 'event',
 					action: ({ setInfo }) => {
@@ -679,7 +678,7 @@ const QuickActions = ({
 				},
 				{
 					id: 2,
-					title: 'Create a automation',
+					title: 'automation',
 					value: 'automation',
 					controlValue: 'automation',
 					action: async ({ setInfo, navigate, createAutomation, info }) => {

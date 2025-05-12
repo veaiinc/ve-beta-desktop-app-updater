@@ -30,11 +30,11 @@ const fileCtaMapper = [
 		icon: <Link />,
 		action: 'copyFormLink',
 	},
-	{
-		id: 1,
-		icon: <Copy />,
-		action: 'duplicate',
-	},
+	// {
+	// 	id: 1,
+	// 	icon: <Copy />,
+	// 	action: 'duplicate',
+	// },
 	// {
 	// 	id: 2,
 	// 	icon: <Share />,
@@ -300,10 +300,7 @@ const FormsGrid = ({
 									onClick={() => handleNavigateForm(form)}
 								>
 									<div className="card-item-style content-wrapper docs">
-										<div
-											className="docs-title-wrapper docs-title-wrapper-form"
-											data-tooltip={form?.title}
-										>
+										<div className="docs-title-wrapper docs-title-wrapper-form">
 											<div className="card-header">
 												<h1 className="form-title">{form?.title}</h1>
 												{form?.formResponsesCount > 0 && (
@@ -316,7 +313,12 @@ const FormsGrid = ({
 														<TrendUp />
 													</p>
 												)}
-												<p className="createdAt">
+												<p
+													className="createdAt"
+													data-tooltip={`Created on ${moment
+														.unix(form?.createdAt)
+														.format('DD MMM YYYY')}`}
+												>
 													{moment.unix(form?.createdAt).fromNow()}
 												</p>
 											</div>
