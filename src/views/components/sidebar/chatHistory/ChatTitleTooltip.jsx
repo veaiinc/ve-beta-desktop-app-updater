@@ -14,7 +14,7 @@ const customContainerStyle = {
 
 const contentStyling = {
 	color: 'var(--primary-font, #f2f2f3)',
-	fontFamily: 'Inter',
+	fontFamily: 'var(--primary-font-family)',
 	fontSize: '13px',
 	fontStyle: 'normal',
 	fontWeight: '400',

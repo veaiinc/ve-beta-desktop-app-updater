@@ -167,6 +167,13 @@ const baseComponents = {
 	th: ({ children, ...props }) => <th {...props}>{children}</th>,
 	td: ({ children, ...props }) => <td {...props}>{children}</td>,
 	tr: ({ children, ...props }) => <tr {...props}>{children}</tr>,
+	iframe: ({ children, ...props }) => {
+		return (
+			<div className="iframe-wrapper">
+				<iframe {...props} className="iframe" />
+			</div>
+		);
+	},
 	code({ node, inline, className, children, ...props }) {
 		const match = /language-(\w+)/?.exec(className || '');
 		return !inline && match ? (

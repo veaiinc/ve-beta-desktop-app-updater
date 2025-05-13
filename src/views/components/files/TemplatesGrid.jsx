@@ -39,7 +39,7 @@ const TemplatesGrid = ({ handleTotalChange }) => {
 		hasNextPage: false,
 		loading: true,
 		selectedFilter: { label: 'All', value: '' },
-		selectedSort: { label: 'Recently Created', value: 'createdAt', sortType: -1 },
+		selectedSort: { label: 'Recently Updated', value: 'updatedAt', sortType: -1 },
 		blankTemplateLoading: false,
 	});
 
