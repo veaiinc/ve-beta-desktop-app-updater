@@ -676,7 +676,9 @@ const AISuggestionsModal = ({
 												header={
 													<div className="cot-header">
 														<div className="cot-text">
-															<div className="title-text">Ask Me</div>
+															<div className="title-text">
+																Suggested Prompts
+															</div>
 															<div className="description-text">
 																Explore more with these prompts.
 															</div>

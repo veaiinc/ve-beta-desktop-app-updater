@@ -1127,7 +1127,7 @@ const QuickActions = ({
 		if (!taskMetadata) {
 			fetchTaskMetadata();
 		}
-	}, [getTaskMetadata]);
+	}, []);
 
 	useEffect(() => {
 		if (taskMetadata) {
@@ -1172,7 +1172,7 @@ const QuickActions = ({
 	}, [info.dropdown, filtereOptions]);
 
 	useEffect(() => {
-		if (taskPreference === null) {
+		if (!taskPreference) {
 			getTaskPreferences({ preferences: 'taskPreference' });
 			return;
 		}
@@ -1200,7 +1200,7 @@ const QuickActions = ({
 				preferences: taskPreference?.data,
 			},
 		}));
-	}, [taskPreference, getTaskPreferences, updateTaskPreferences]);
+	}, []);
 
 	useEffect(() => {
 		if (location.pathname.includes('knowledge-agent') || location.pathname.includes('files')) {
