@@ -131,30 +131,30 @@ const UploadGalleryImageCover = ({
 							style={{ display: 'flex', alignItems: 'center' }}
 						>
 							{/* <Cropper
-							image={info?.imageURL}
-							crop={info?.crop}
-							zoom={info?.zoom}
-							aspect={228 / 370}
-							onCropChange={(cropValue) =>
-								setInfo((prev) => ({
-									...prev,
-									crop: cropValue,
-								}))
-							}
-							onCropComplete={(croppedArea, croppedAreaPixels) => {
-								// You can store croppedAreaPixels if you need the final crop dimensions
-							}}
-							onZoomChange={(zoomValue) =>
-								setInfo((prev) => ({
-									...prev,
-									zoom: zoomValue,
-								}))
-							}
-							showGrid={false}
-							cropSize={{ width: 233.8432, height: 402.667 }}
-						/> */}
+								image={info?.imageURL}
+								crop={info?.crop}
+								zoom={info?.zoom}
+								aspect={228 / 370}
+								onCropChange={(cropValue) =>
+									setInfo((prev) => ({
+										...prev,
+										crop: cropValue,
+									}))
+								}
+								onCropComplete={(croppedArea, croppedAreaPixels) => {
+									// You can store croppedAreaPixels if you need the final crop dimensions
+								}}
+								onZoomChange={(zoomValue) =>
+									setInfo((prev) => ({
+										...prev,
+										zoom: zoomValue,
+									}))
+								}
+								showGrid={false}
+								cropSize={{ width: 233.8432, height: 402.667 }}
+							/> */}
 							{isImageThere ? (
-								<div className="focused-image">
+								<div className="focused-image" style={{ overflow: 'hidden' }}>
 									<img
 										className="focus-picker-img"
 										src={info?.imageURL}
