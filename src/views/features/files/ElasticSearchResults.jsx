@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import '../../../assets/scss/files/search/elasticSearchResults.scss';
 import Context from '../../../context/context';
 import getFileTypeInfo, { categoryMap } from './getFiletypeInfo';
+import { triggerCmdK } from '../../components/commandKSearch/CommandKSearch';
 
 const ElasticSearchResults = () => {
 	const navigate = useNavigate();
@@ -72,6 +73,7 @@ const ElasticSearchResults = () => {
 	const handleAskClick = (searchItem) => {
 		updateTemplateStateValues({ galleryFile: searchItem });
 		const chatId = ObjectID()?.toString();
+		triggerCmdK();
 		navigate(`/chat/${chatId}`);
 	};
 

@@ -27,6 +27,7 @@
 			border-radius: 100px;
 			width: 120px; /* Initial width */
 			transform-origin: left; /* Expand from the left side */
+			background-color: var(--popup);
 
 			&.focused {
 				left: 50%;
@@ -427,7 +428,7 @@
 
 			.hover-card-wrapper {
 				position: absolute;
-				top: 0px;
+				top: -40px;
 				left: 50%;
 				opacity: 0;
 				visibility: hidden;
@@ -468,7 +469,7 @@
 						color: var(--primary-font, #f2f2f3);
 						text-overflow: ellipsis;
 						font-family: var(--primary-font-family);
-						overflow: auto;
+						overflow: hidden;
 						font-size: 12px;
 						font-style: normal;
 						font-weight: 500;

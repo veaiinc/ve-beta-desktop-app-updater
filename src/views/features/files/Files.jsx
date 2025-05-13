@@ -1,11 +1,10 @@
-import { memo, useContext, useEffect, useRef, useState, useCallback } from 'react';
+import ObjectID from 'bson-objectid';
+import { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import '../../../assets/scss/files/files.scss';
 import '../../../assets/scss/files/index.scss';
 import { ReactComponent as SearchSvg } from '../../../assets/svg/elastic_search/search-icon.svg';
 import { ReactComponent as CommandIcon } from '../../../assets/svg/files/command.svg';
-import { ReactComponent as Folder } from '../../../assets/svg/files/FolderSearch.svg';
-import { ReactComponent as Plug } from '../../../assets/svg/files/plug.svg';
 import Context from '../../../context/context';
 import ProposalsPopup from '../../components/docs/ProposalsPopup';
 import DocsGrid from '../../components/files/DocsGrid';
@@ -18,10 +17,8 @@ import { message } from '../../components/globalComponents/CustomToast';
 import QuickActions from '../../components/globalComponents/QuickActions';
 import Spinner from '../../components/loaders/Spinner';
 import CreateGallery from '../../components/modalsV2/gallery/CreateGallery';
-import CustomDropdown from './CustomDropdown';
-import ElasticSearchResults from './ElasticSearchResults';
 import getFileTypeInfo from './getFiletypeInfo';
-import ObjectID from 'bson-objectid';
+import { triggerCmdK } from '../../components/commandKSearch/CommandKSearch';
 
 const items = [
 	{
@@ -573,15 +570,6 @@ const Files = () => {
 		if (e.key === 'Escape') {
 			handleCloseSearch(e);
 		}
-	};
-
-	const triggerCmdK = () => {
-		const event = new KeyboardEvent('keydown', {
-			key: 'k',
-			metaKey: true, // For macOS; use ctrlKey for Windows
-			bubbles: true,
-		});
-		document.dispatchEvent(event);
 	};
 
 	const SearchResults = () => {

@@ -1,34 +1,43 @@
 import '../../../assets/scss/commandKSearch/commandKSearch.scss';
-import { ReactComponent as CrossSvg } from '../../../assets/svg/docs/cross.svg';
+// import { ReactComponent as CrossSvg } from '../../../assets/svg/docs/cross.svg';
 import { ReactComponent as SearchSvg } from '../../../assets/svg/elastic_search/search-icon.svg';
 import { memo, useContext, useEffect, useRef, useState } from 'react';
 import Context from '../../../context/context';
 import { message } from '../globalComponents/CustomToast';
 import Spinner from '../loaders/Spinner';
 import ElasticSearchResults from '../../features/files/ElasticSearchResults';
-import CustomDropdown from '../../features/files/CustomDropdown';
-import { ReactComponent as Folder } from '../../../assets/svg/files/FolderSearch.svg';
-import { ReactComponent as Plug } from '../../../assets/svg/files/plug.svg';
+// import CustomDropdown from '../../features/files/CustomDropdown';
+// import { ReactComponent as Folder } from '../../../assets/svg/files/FolderSearch.svg';
+// import { ReactComponent as Plug } from '../../../assets/svg/files/plug.svg';
 
-const items = [
-	{
-		value: 1,
-		label: 'Files',
-	},
-	{
-		value: 2,
-		label: 'Meetings',
-	},
-	{
-		value: 3,
-		label: 'Webpages',
-	},
-];
+// const items = [
+// 	{
+// 		value: 1,
+// 		label: 'Files',
+// 	},
+// 	{
+// 		value: 2,
+// 		label: 'Meetings',
+// 	},
+// 	{
+// 		value: 3,
+// 		label: 'Webpages',
+// 	},
+// ];
 
-const customDropdownStyle = {
-	display: 'flex',
-	alignItems: 'center',
-	gap: '5px',
+// const customDropdownStyle = {
+// 	display: 'flex',
+// 	alignItems: 'center',
+// 	gap: '5px',
+// };
+
+export const triggerCmdK = () => {
+	const event = new KeyboardEvent('keydown', {
+		key: 'k',
+		metaKey: true, // For macOS; use ctrlKey for Windows
+		bubbles: true,
+	});
+	document.dispatchEvent(event);
 };
 
 const CommandKSearch = () => {
