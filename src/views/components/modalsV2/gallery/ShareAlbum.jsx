@@ -9,7 +9,7 @@ const ShareAlbum = (props) => {
 		content: { zIndex: 999 },
 		overlay: { zIndex: 998 },
 	};
-	const { open, onClose, onCopyLink, link } = props;
+	const { open, onClose, onCopyLink, link, shouldShowPin } = props;
 
 	const inputRef = useRef(null);
 
@@ -37,23 +37,25 @@ const ShareAlbum = (props) => {
 						<p className="shareAlbumPopupInputText">{link?.url}</p>
 					</div>
 				</div>
-				<div className="shareAlbumPopupFooter">
-					<div className="shareAlbumPopupFooterPin">Pin</div>
-					<div className="shareAlbumPopupPinInputContainer">
-						<input
-							ref={inputRef}
-							type="text"
-							value={link?.pin}
-							placeholder={link?.pin}
-							className="shareAlbumPopupPinInput"
-							style={{ color: '#939393' }}
-						/>
-						<Copy
-							style={{ cursor: 'pointer', alignSelf: 'center' }}
-							onClick={handleCopy}
-						/>
+				{shouldShowPin && (
+					<div className="shareAlbumPopupFooter">
+						<div className="shareAlbumPopupFooterPin">Pin</div>
+						<div className="shareAlbumPopupPinInputContainer">
+							<input
+								ref={inputRef}
+								type="text"
+								value={link?.pin}
+								placeholder={link?.pin}
+								className="shareAlbumPopupPinInput"
+								style={{ color: '#939393' }}
+							/>
+							<Copy
+								style={{ cursor: 'pointer', alignSelf: 'center' }}
+								onClick={handleCopy}
+							/>
+						</div>
 					</div>
-				</div>
+				)}
 				<div style={{ alignSelf: 'flex-end' }}>
 					<button
 						style={{ cursor: 'pointer' }}

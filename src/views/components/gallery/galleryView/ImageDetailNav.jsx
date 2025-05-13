@@ -28,6 +28,7 @@ const ImageDetailNav = ({
 	removeTagFromImage,
 	getDownloadLinkForImage,
 	closeModal,
+	handleOpenUploadCover,
 }) => {
 	const navigate = useNavigate();
 	const [navInfo, setnavInfo] = useState({
@@ -71,12 +72,7 @@ const ImageDetailNav = ({
 			}));
 		},
 		Image: () => {
-			navigate(
-				`/galleries/${galleryId}/${albumId}/album-settings?uploadImageId=${info?.imageDetailId}`,
-				{
-					state: { activeAlbumId: albumId },
-				},
-			);
+			handleOpenUploadCover(imageDetail);
 		},
 		Rotate: () => {
 			let currentRotation = imageDetail?.rotation || 0;
